@@ -1,0 +1,114 @@
+#name Статистическая карта выбывшего из стационара 066/у-02 (ПП)
+#width  86
+#height 60
+#regim  2
+//
+#var $1  center(alltrim(arr_org[1]),30)
+#var $2  center(alltrim(arr_org[i]),30)
+#var $3  center(sreg_lech,width)
+#var $4  alltrim(frd->UCH_DOC)
+#var $5  flstr(frd->kod_k)
+#var $6  upper(alltrim(frd->fio))
+#var $61 alltrim(frd->novor)
+#var $7  frd->pol
+#var $8  full_date(frd->date_r)
+#var $9  alltrim(frd->vid_ud)+" "+alltrim(frd->ser)+" "+alltrim(frd->nom)
+#var $10 alltrim(frd->adres)
+#var $11 alltrim(frd->gorod_selo)
+#var $12 alltrim(frd->polis)
+#var $13 alltrim(frd->komu)
+#var $131 alltrim(frd->mest_inog)
+#var $14 alltrim(frd->vid_opl)
+#var $15 alltrim(frd->pp_status)
+#var $16 alltrim(frd->pp_kategor)
+#var $17 alltrim(frd->kem_napr)
+#var $18 alltrim(frd->kem_dost)
+#i_var $19 alltrim(frd->DIAG_NAPR)
+#i_var $20 alltrim(frd->DIAG_PR_P)
+#var $21 alltrim(frd->sost_op)
+#var $22 sgospit
+#i_var $23 alltrim(frd->gospit2)
+#var $24 alltrim(frd->travma)
+#var $25 full_date(frd->N_DATA)
+#var $26 frd->N_TIME
+#var $125 full_date(frd->G_DATA)
+#var $126 frd->G_TIME
+#var $27 alltrim(frd->name_otd)
+#var $28 alltrim(frd->vrach)
+//
+#private sreg_lech, i, k, arr_org, sgospit
+#proc sreg_lech := alltrim(frd->regim_66)
+#proc sgospit := alltrim(frd->gospit0)+", "+alltrim(frd->gospit1)
+#proc arr_org := array(2), i := 2, k := perenos(arr_org,frd->org_name,30)
+//
+ Министерство здравоохранения                                         Форма N 066/у-02
+     Российской Федерации                                          Утверждена приказом
+$1                                                                    Минздрава России
+$2                                                               от 30.12.2002г. N 413
+#do while i < k
+  #proc i := i + 1
+$2
+#enddo
+
+                                 СТАТИСТИЧЕСКАЯ КАРТА
+$3
+
+                               № медицинской карты $4
+
+
+1. Код пациента: $5      2. Ф.И.О.: $6
+#if !empty(frd->novor)
+   $61
+#endif
+
+3. Пол: $7                                                 4. Дата рождения $8
+
+5. Документ, удостов. личность: $9
+
+#para_begin
+6. Адрес: регистрация по месту жительства: $10
+#para_end
+7. Код территории проживания: ____ Житель: $11
+
+8. Страховой полис (серия, номер): $12
+   Выдан: кем $13                                                     Код терр.: _____
+#if !empty(frd->mest_inog)
+   $131
+#endif
+9. Вид оплаты: $14
+10. Социальный статус: $15
+11. Категория льготности: $16
+
+12. Кем направлен: $17
+                                            N напр. _________________ Дата: __.__.____
+13. Кем доставлен: $18                           Код __ Номер наряда _________________
+
+#para_begin
+14. Диагноз направившего учреждения: $19
+#para_end
+
+#para_begin
+15. Диагноз приемного отделения: $20
+#para_end
+16. Доставлен в состоянии опьянения: $21
+
+17. Госпитализирован по поводу данного заболевания в текущем году:
+    $22
+18. Доставлен "$23" после начала заболевания (получения травмы)
+
+19. Травма: $24
+
+20. Дата поступления в приемное отделение: $25         Время: $26
+
+21. Отделение: $27                             Дата поступления $125       Время $126
+
+    Подпись врача приемного отделения _______________ Код $28
+──────────────────────────────────────────────────────────────────────────────────────
+22. Дата выписки (смерти): ___.___._______       Время ___.___
+23. Продолжительность госпитализации (койко - дней): _____
+24. Исход госпитализации: выписан - 1; в т.ч. в дневной стационар - 2;
+    в круглосуточный стационар - 3; переведен в другой стационар - 4;
+24.1. Результат госпитализации: выздоровление - 1; улучшение - 2; без перемен - 3;
+    ухудшение - 4; здоров - 5; умер - 6.
+25. Листок нетрудоспособности: открыт ___.___._______  закрыт: ___.___._______
+25.1. По уходу за больным __  Полных лет: ___    Пол: муж.-1     жен.-2

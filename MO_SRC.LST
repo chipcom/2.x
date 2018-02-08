@@ -1,0 +1,14 @@
+*.bat
+*.c
+*.ch
+chip_mo.chm
+*.frm
+*.hbp
+*.ico
+*.lst
+_spr2prg.prg
+_cre_pas.prg
+mo_*.prg
+hxmldoc.prg
+*.rc
+*.shb

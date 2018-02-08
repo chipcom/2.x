@@ -1,0 +1,13 @@
+-L..\_mylib_hbt
+-lMyLib_HBT
+-lhbct
+-lhbmzip
+-lminizip
+-lhbzlib
+-gtwvt
+-gui
+-mt
+-o_Spr2prg
+_Spr2prg.prg
+xmlparse.c
+hxmldoc.prg
