@@ -1649,7 +1649,7 @@ if human_->USL_OK == 1  // стационар
                  human_->RSLT_NEW  == a_period_stac[i,7] .and.; 
                  human_->ISHOD_NEW == a_period_stac[i,8])
               aadd(ta,'в стационарном случае основного лечения (с КСГ) '+;
-                   date_8(a_period_stac[k,1])+"-"+date_8(a_period_stac[k,2])+;
+                   date_8(a_period_stac[i,1])+"-"+date_8(a_period_stac[i,2])+;
                    iif(empty(otd->short_name), "", " ["+alltrim(otd->short_name)+"]")+;
                    ' должны повторяться основной диагноз, профиль, результат и исход лечения из данного случая')
             endif
@@ -1664,7 +1664,7 @@ if human_->USL_OK == 1  // стационар
                  human_->RSLT_NEW  == a_period_stac[i,7] .and.; 
                  human_->ISHOD_NEW == a_period_stac[i,8])
               aadd(ta,'в стационарном случае диализа '+;
-                   date_8(a_period_stac[k,1])+"-"+date_8(a_period_stac[k,2])+;
+                   date_8(a_period_stac[i,1])+"-"+date_8(a_period_stac[i,2])+;
                    iif(empty(otd->short_name), "", " ["+alltrim(otd->short_name)+"]")+;
                    ' должны повторяться основной диагноз, профиль, результат и исход лечения из данного случая')
             endif
@@ -3300,7 +3300,9 @@ do while !eof()
             tmpb->kod_tmp := 1
             tmpb->plus := .t.
             if arr_m[1] > 2016
-              if between(human->ishod,201,203) .or. between(human->ishod,301,305) .or. between(human->ishod,101,102)  
+              if between(human->ishod,301,305)
+                //  
+              elseif between(human->ishod,201,203) .or. between(human->ishod,101,102)  
                 tmpb->tip := 2
                 kol_2r++
               else
@@ -3610,11 +3612,7 @@ else
           if tmp->nyear < 2017
             create1reestr(tmp->(recno()),tmp->nyear,tmp->nmonth)
           else
-            if p_tip_reestr == 2 .and. tmp->nyear > 2017
-              func_error(10,"Пока не разрешается создавать реестры по диспансеризации за 2018 год")
-            else
-              create1reestr17(tmp->(recno()),tmp->nyear,tmp->nmonth)
-            endif
+            create1reestr17(tmp->(recno()),tmp->nyear,tmp->nmonth)
           endif
         endif
       endif
