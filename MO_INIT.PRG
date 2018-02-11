@@ -280,9 +280,9 @@ endif
 Public glob_MU_dializ := {"A18.05.002.001","A18.05.002.002","A18.05.002.003",;
                           "A18.05.003","A18.05.003.001","A18.05.011","A18.30.001","A18.30.001.001"}
 Public glob_KSG_dializ := {"10000901","10000902","10000903","10000905","10000906","10000907","10000913",;
-                           "20000912","20000916","20000917","20000918","20000919","20000920",;
-                           "1000901","1000902","1000903","1000905","1000906","1000907","1000913",;
-                           "2000912","2000916","2000917","2000918","2000919","2000920"}
+                           "20000912","20000916","20000917","20000918","20000919","20000920"}
+                           //"1000901","1000902","1000903","1000905","1000906","1000907","1000913",;
+                           //"2000912","2000916","2000917","2000918","2000919","2000920"}
 sbase := "_mo5uslc"
 Public is_vr_pr_pp := .f., is_hemodializ := .f., is_per_dializ := .f., is_reabil_slux := .f.,;
        is_ksg_1300098 := .f., is_dop_ob_em := .f., glob_yes_kdp2[10], glob_menu_mz_rf := {.f.,.f.,.f.}
@@ -407,6 +407,7 @@ else
   fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
 endif
 // цены на услуги на 2018 год
+Public is_alldializ := .f.
 sbase := "_mo8uslc" 
 if hb_FileExists(exe_dir+sbase+sdbf) .and. valtype(glob_mo) == "A"
   R_Use(exe_dir+sbase,,"LUSLC")
@@ -436,6 +437,10 @@ if hb_FileExists(exe_dir+sbase+sdbf) .and. valtype(glob_mo) == "A"
     endif
     skip
   enddo
+  find (glob_mo[_MO_KOD_TFOMS]+"60.3.")
+  if found()
+    is_alldializ := .t.
+  endif
   find (glob_mo[_MO_KOD_TFOMS]+"60.3.1 ")
   if found()
     is_per_dializ := .t.

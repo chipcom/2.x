@@ -384,7 +384,7 @@ if human_->NOVOR > 0
              date_8(human_->DATE_R2)+", пол "+human_->POL2)
   add_string("")
 endif
-if !empty(human_->NPR_MO)
+if !empty(human_->NPR_MO) .and. !(human_->NPR_MO == glob_mo[_MO_KOD_TFOMS])
   k := perenos(tmp,"Направившая МО: "+ret_mo(human_->NPR_MO)[_MO_FULL_NAME],sh-2)
   add_string("  "+tmp[1])
   for i := 2 to k

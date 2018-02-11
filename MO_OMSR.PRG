@@ -451,10 +451,10 @@ do while human->kod_k == glob_kartotek .and. !eof()
   // если диапазон лечения перекрывается в стационаре и дневном стационаре
   if fl .and. eq_any(human_->USL_OK,1,2)
     fl1 := (left(dtos(human->k_data),6) == ym2)   // один и тот же месяц окончания лечения
-    fl2 := overlap_diapazon(human->n_data,human->k_data,d1,d2) // перекрвается диапазон лечения
+    fl2 := overlap_diapazon(human->n_data,human->k_data,d1,d2) // перекрывается диапазон лечения
     fl3 := .t. 
     k := 0
-    if is_hemodializ .and. (fl1 .or. fl2) .and. year(human->k_data) > 2017 // прошлый год не смотрим вообще
+    if is_alldializ .and. (fl1 .or. fl2) .and. year(human->k_data) > 2017 // прошлый год не смотрим вообще
       select HU
       find (str(human->kod,7))
       do while hu->kod == human->kod .and. !eof()
@@ -480,7 +480,7 @@ do while human->kod_k == glob_kartotek .and. !eof()
         aadd(a_dializ,{human->n_data,human->k_data,human_->USL_OK,human->OTD,k}) // диализы не в кругл.стационаре
       endif
     endif
-    if k < 2 .and. fl2 .and. fl3
+    if k < 2 .and. fl2 .and. fl3 .and. iif(is_alldializ, year(human->k_data) > 2017, .t.)
       aadd(a_srok_lech,{human->n_data,human->k_data,human_->USL_OK,human->OTD,k})
     endif
   endif
@@ -1636,7 +1636,7 @@ if human_->USL_OK == 1  // стационар
       human_2->TAL_P  := ctod("")
     endif
   endif
-  if is_hemodializ .and. len(a_period_stac) > 0
+  if is_alldializ .and. len(a_period_stac) > 0
     fl := .f.
     for i := 1 to len(a_period_stac)
       otd->(dbGoto(a_period_stac[i,4]))

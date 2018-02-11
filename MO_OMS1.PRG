@@ -474,7 +474,13 @@ if Loc_kod > 0
   endif
   if len(larr_p) > 1 // если осмотр педиатра I этапа позднее педиатра II этапа
     asort(larr_p,,,{|x,y| x[2] < y[2] } )
-    asize(larr_p,2) // отрезать лишние приёмы
+    if metap == 1
+      asize(larr_p,1) // отрезать лишние приёмы
+    else
+      do while len(larr_p) > 2 // когда педиатр I этапа введён как две услуги (2.3.* и 2.91.*)
+        hb_ADel(larr_p, 2, .t.) // т.е. оставляем первый м последний приём
+      enddo
+    endif
   endif
   R_Use(dir_server+"mo_pers",,"P2")
   for j := 1 to 3
@@ -1670,12 +1676,14 @@ do while .t.
             arr_iss[i,10] := "i"
             aadd(arr_usl_otkaz,arr_iss[i])
           else
+            aadd(arr_usl_dop,arr_iss[i])
             if arr_iss[i,10] == 0 ; // кровь проверяют у нас в МО
                         .and. between(arr_iss[i,9],mn_data,mk_data) .and. ; // и в сроки профосмотра
                                      (j := ascan(np_arr_not_zs, {|x| x[1] == arr_iss[i,5]})) > 0
-              arr_iss[i,5] := np_arr_not_zs[j,2] // заменяем на услугу с ценой
+              arr := aclone(arr_iss[i])  // добавим                       
+              arr[5] := np_arr_not_zs[j,2] // шифр исследования
+              aadd(arr_usl_dop,arr)          // с ценой
             endif                          
-            aadd(arr_usl_dop,arr_iss[i])
           endif
         endif
       next
@@ -1686,14 +1694,17 @@ do while .t.
             arr_osm1[i,10] := "o"
             aadd(arr_usl_otkaz,arr_osm1[i])
           else
+            lshifr := alltrim(arr_osm1[i,5])
             if (j := ascan(np_arr_osmotr_KDP2,{|x| x[1] == lshifr})) > 0
-              if between(arr_osm1[i,9],mn_data,mk_data)  // в сроки профосмотра
-                arr_osm1[i,5] := np_arr_osmotr_KDP2[j,4]  // замена на 2.91.*
-              else
-                arr_osm1[i,5] := np_arr_osmotr_KDP2[j,3]  // замена на 2.3.*
-              endif  
+              arr_osm1[i,5] := np_arr_osmotr_KDP2[j,3]  // замена на 2.3.*
             endif
             aadd(arr_usl_dop,arr_osm1[i])
+            if between(arr_osm1[i,9],mn_data,mk_data) ; // и умещается в период
+                                                    .and. j > 0  // и найдено соответствие
+              arr := aclone(arr_osm1[i])       // добавим                       
+              arr[5] := np_arr_osmotr_KDP2[j,4]  // замена на 2.91.*
+              aadd(arr_usl_dop,arr)             // с ценой
+            endif
           endif
         endif
       next
