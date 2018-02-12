@@ -4903,14 +4903,14 @@ return NIL
 
 *
 
-***** 25.01.18 распечатка формы №1 из приказа ФОМС №146
+***** 12.02.18 распечатка формы №1 из приказа ФОМС №146
 Function forma1_ffoms()
 Local arr_m, mdate, i, j, k, d1, d2, arr_smo := {}, at1, at2, ta, fl_month, tmp, b1_1, a1_1,;
       _bd, fl, b1, b2, a1, a2, lsmo, name_file := "forma1", HH := 80, sh := 84
 if (arr_m := year_month(,,,3)) == NIL
   return NIL
-elseif arr_m[1] < 2017
-  return func_error(4,"Новый алгоритм создания данной формы введен с 2017 года!")
+elseif arr_m[1] < 2018
+  return func_error(4,"Новый алгоритм создания данной формы введен с 2018 года!")
 endif
 WaitStatus("Сбор информации")
 adbf := {{"smo","N",5,0},;
@@ -5557,10 +5557,10 @@ return NIL
 
 *
 
-***** 21.02.17
+***** 12.02.18
 Function f2forma1_ffoms(msmo,fl_month)
 Local tfoms_pz[6,3], mkol, ta, i, ii, j, k, lshifr, lvidpom := 1, lshifr1, j1, fl,;
-      arr := {}, mkol_2 := 0, mkol_k := 0, mkol_1 := 0, mkol_55 := 0, lenp,;
+      arr := {}, mkol_k := 0, mkol_1 := 0, mkol_2 := 0, mkol_55 := 0, lenp,;
       fl_T := (schet_->bukva == "T"), fl_K := (schet_->bukva == "K")
 select HU
 find (str(human->kod,7))
@@ -5577,7 +5577,7 @@ do while hu->kod == human->kod .and. !eof()
       mkol_1 += hu->kol_1
       fl := .t.
     elseif left(lshifr,2) == "2."
-      if eq_any(left(lshifr,4),"2.4.","2.78","2.89","2.90") .or. fl_T 
+      if eq_any(left(lshifr,4),"2.4.","2.78","2.89","2.90","2.91") .or. fl_T 
         //
       else 
         fl := .t.

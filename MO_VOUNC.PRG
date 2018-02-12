@@ -2025,12 +2025,48 @@ do while !eof()
   arr_nazn := {}
   if eq_any(human->ishod,101,102) // дисп-ия детей-сирот
     read_arr_DDS(human->kod)
-  elseif eq_any(human->ishod,301,302) // профосмотры детей
+  elseif eq_any(human->ishod,301,302) // профосмотры несовершеннолетних
+    arr_usl_otkaz := {}
     read_arr_PN(human->kod)
+    if valtype(arr_usl_otkaz) == "A"
+      for j := 1 to len(arr_usl_otkaz)
+        ar := arr_usl_otkaz[j]
+        if valtype(ar) == "A" .and. len(ar) > 9 .and. valtype(ar[5]) == "C" .and. ;
+                                                      valtype(ar[10]) == "C" .and. ar[10] $ "io"
+          lshifr := alltrim(ar[5])
+          ldate := human->N_DATA // дата
+          if valtype(ar[9]) == "D"
+            ldate := ar[9]
+          endif
+          if ar[10] == "i" // исследования
+            if (i := ascan(np_arr_issled, {|x| valtype(x[1]) == "C" .and. x[1] == lshifr})) > 0
+              aadd(a_otkaz,{lshifr,;
+                            ar[6],; // диагноз
+                            ldate,; // дата
+                            correct_profil(ar[4]),; // профиль
+                            ar[2],; // специальность
+                            0,;     // цена
+                            1})     // 1-отказ,2-невозможность
+            endif                
+          elseif (i := ascan(np_arr_osmotr, {|x| valtype(x[1]) == "C" .and. x[1] == lshifr})) > 0 // осмотры
+            if (i := ascan(np_arr_osmotr_KDP2, {|x| x[1] == lshifr })) > 0
+              lshifr := np_arr_osmotr_KDP2[i,3]  // замена врачебного приёма на 2.3.*
+            endif
+            aadd(a_otkaz,{lshifr,;
+                          ar[6],; // диагноз
+                          ldate,; // дата
+                          correct_profil(ar[4]),; // профиль
+                          ar[2],; // специальность
+                          0,;     // цена
+                          1})     // 1-отказ,2-невозможность
+          endif
+        endif
+      next j
+    endif
   elseif eq_any(human->ishod,201,202,203) // дисп-ия I этап или профилактика
     arr_usl_otkaz := {}
     read_arr_DVN(human->kod)
-    if valtype(arr_usl_otkaz) == "A" .and. human->ishod != 202
+    if valtype(arr_usl_otkaz) == "A" .and. human->ishod != 202 // не II этап
       for j := 1 to len(arr_usl_otkaz)
         ar := arr_usl_otkaz[j]
         if valtype(ar) == "A" .and. len(ar) >= 10 .and. valtype(ar[5]) == "C"
@@ -2047,7 +2083,7 @@ do while !eof()
             endif
           endif
         endif
-      next
+      next j
     endif
   endif
   if m1dopo_na > 0
@@ -2389,7 +2425,7 @@ do while !eof()
         endif
       next
     endif
-    if p_tip_reestr == 2 .and. len(a_otkaz) > 0 // добавляем отказы (диспансеризация)
+    if p_tip_reestr == 2 .and. len(a_otkaz) > 0 // отказы (диспансеризация или профосмоты несовешеннолетних)
       for j := 1 to len(a_otkaz)
         oUSL := oSLUCH:Add( HXMLNode():New( "USL" ) )
         mo_add_xml_stroke(oUSL,"IDSERV"  ,lstr(++iusl))

@@ -387,7 +387,7 @@ return lp
 
 *
 
-***** 06.02.18
+***** 12.02.18
 Function verify_1_sluch(fl_view)
 Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
       i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -1862,7 +1862,7 @@ elseif human_->USL_OK == 2 .and. !is_dializ // дневной стационар
     endif
   endif
 endif
-if len(a_period_stac) > 0
+if len(a_period_stac) > 0 .and. !is_s_dializ .and. !is_dializ .and. !is_perito
   select HU
   find (str(human->kod,7))
   do while hu->kod == human->kod .and. !eof()
@@ -1881,7 +1881,7 @@ if len(a_period_stac) > 0
         if (k := ascan(a_period_stac, {|x| x[1] < mdate .and. mdate < x[2]})) > 0
           lshifr := alltrim(iif(empty(lshifr1), usl->shifr, lshifr1))
           if (left(lshifr,2)=="2." .or. eq_any(left(lshifr,3),"60.","70.","71.","72.")) ;
-                         .and. is_2_stomat(lshifr) == 0 .and. is_2_stomat(lshifr,,.t.) == 0 // не стоматология
+                          .and. !(left(lshifr,5)=="60.3.") .and. is_2_stomat(lshifr,,.t.) == 0 // не стоматология
             otd->(dbGoto(u_other[i,8]))
             aadd(ta,'услуга '+alltrim(usl->shifr)+' от '+date_8(mdate)+' в случае '+;
                  date_8(u_other[i,6])+"-"+date_8(u_other[i,7])+;
@@ -1898,7 +1898,7 @@ if len(a_period_stac) > 0
   select HU
   set relation to recno() into HU_, to u_kod into USL
 endif
-if eq_any(human_->USL_OK,1,2) .and. !is_s_dializ  .and. !is_dializ .and. human_2->VMP == 0 // не ВМП
+if eq_any(human_->USL_OK,1,2) .and. !is_s_dializ .and. !is_dializ .and. human_2->VMP == 0 // не ВМП
   arr_ksg := definition_KSG()
   if empty(arr_ksg[2]) // нет ошибок
     if shifr_ksg == arr_ksg[3] // КСГ определена правильно
@@ -2608,6 +2608,28 @@ if is_prof_PN //
   endif
   mperiod := ret_period_PN(mdate_r,d1,d2)
   if between(mperiod,1,31)
+    read_arr_PN(human->kod)
+    kol_d_otkaz := 0
+    if valtype(arr_usl_otkaz) == "A"
+      for j := 1 to len(arr_usl_otkaz)
+        ar := arr_usl_otkaz[j]
+        if valtype(ar) == "A" .and. len(ar) > 9 .and. valtype(ar[5]) == "C" .and. ;
+                                                     valtype(ar[10]) == "C" .and. ar[10] $ "io"
+          lshifr := alltrim(ar[5])
+          if ar[10] == "i" // исследования
+            if (i := ascan(np_arr_issled, {|x| valtype(x[1]) == "C" .and. x[1] == lshifr})) > 0
+              if is_issled_PN({lshifr,ar[6],ar[4],ar[2]},mperiod,ta,human->pol)
+                ++kol_d_otkaz
+              endif
+            endif                
+          elseif (i := ascan(np_arr_osmotr, {|x| valtype(x[1]) == "C" .and. x[1] == lshifr})) > 0 // осмотры
+            if is_osmotr_PN({lshifr,ar[6],ar[4],ar[2]},mperiod,ta,metap,human->pol)
+              ++kol_d_otkaz
+            endif
+          endif
+        endif
+      next j
+    endif
     is_1_den := is_last_den := .f. ; zs := kvp := 0 ; oth_usl := "" ; is_neonat := .f.
     for i := 1 to len(au_lu)
       if au_lu[i,3] == 0
@@ -2685,7 +2707,7 @@ if is_prof_PN //
     if metap == 1 .and. zs > 1
       aadd(ta,'в листе учета более одной услуги "законченный случай"')
     elseif metap == 2 .and. zs > 0
-      aadd(ta,'для I и II этапов ПН не должно быть услуг "законченный случай"')
+      aadd(ta,'для двухэтапной профилактики несовершеннолетних не должно быть услуг "законченный случай"')
     endif
     if !empty(oth_usl)
       aadd(ta,'в листе учета ПН лишние услуги: '+oth_usl)
@@ -2706,6 +2728,59 @@ if is_prof_PN //
       aadd(ta,'Срок ПН I этапа должен составлять 20 рабочих дней (у Вас '+lstr(k)+')')
     elseif metap == 2 .and. k > 45
       aadd(ta,'Срок ПН I и II этапа должен составлять 45 рабочих дней (у Вас '+lstr(k)+')')
+    endif
+    // проверим, выполнены обязательные услуги (и наоборот)
+    ar := aclone(np_arr_1_etap[mperiod,5])
+    for i := 1 to len(ar) // исследования
+      lshifr := alltrim(ar[i])
+      if ascan(au_lu, {|x| alltrim(x[1]) == lshifr}) > 0
+        // услуга оказана
+      elseif ascan(arr_usl_otkaz, {|x| valtype(x)=="A" .and. valtype(x[5])=="C" .and. alltrim(x[5])==lshifr}) > 0
+        // услуга в отказах
+      else
+        s := ""
+        if (j := ascan(np_arr_issled, {|x| x[1] == lshifr})) > 0
+          s := np_arr_issled[j,3]
+        endif
+        aadd(ta,'некорректно записано исследование '+lshifr+' '+s+' (отредактируйте)')
+      endif
+    next
+    ar := aclone(np_arr_1_etap[mperiod,4])
+    for i := 1 to len(ar) // осмотры 1 -го этапа
+      lshifr := alltrim(ar[i])
+      if (j := ascan(np_arr_osmotr, {|x| x[1] == lshifr})) > 0
+        fl := .f.
+        if ascan(au_lu, {|x| alltrim(x[1]) == lshifr}) > 0
+          fl := .t. // услуга оказана
+        elseif ascan(arr_usl_otkaz, {|x| valtype(x)=="A" .and. valtype(x[5])=="C" .and. alltrim(x[5])==lshifr}) > 0
+          fl := .t. // услуга в отказах
+        elseif !empty(np_arr_osmotr[j,2]) .and. !(np_arr_osmotr[j,2] == human->pol)
+          loop
+        else
+          for k := 1 to len(au_lu)
+            // проверяем только нулевые услуги
+            if eq_any(left(au_lu[k,1],4),"2.3.","2.4.") .and. au_lu[k,3] == np_arr_osmotr[j,4]
+              fl := .t. // услуга оказана (нашли по профилю)
+              exit
+            endif
+          next k
+        endif
+        if !fl
+          aadd(ta,'некорректно записан врачебный осмотр 1-го этапа "'+np_arr_osmotr[j,3]+'" (отредактируйте)')
+        endif
+      endif
+    next i
+    if empty(ta) // если пока нет ошибок
+      fl := .f.
+      for i := 1 to len(au_lu)
+        if eq_any(au_lu[i,3],68,57) ; // педиатр (врач общей практики)
+                  .and. left(au_lu[i,1],4) == "2.3." // на 1-ом этапе
+          fl := .t. ; exit
+        endif
+      next i
+      if !fl
+        aadd(ta,'некорректно записан врачебный осмотр педиатра на 1-ом этапе (отредактируйте)')
+      endif
     endif
   else
     aadd(ta,"Не удалось определить возрастной период для профилактики несовершеннолетнего")
