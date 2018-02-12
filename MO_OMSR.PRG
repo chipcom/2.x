@@ -1832,7 +1832,12 @@ elseif human_->USL_OK == 2 .and. !is_dializ // дневной стационар
     endif
   endif
   if !empty(lvidpoms)
-    lvidpoms := ret_vidpom_licensia(human_->USL_OK,lvidpoms)
+    if ascan(au_lu,{|x| alltrim(x[1]) == "55.1.2"}) > 0 .or. ;
+       ascan(au_lu,{|x| alltrim(x[1]) == "55.1.3"}) > 0
+       //
+    else // только для дн.стационара при стационаре смотрим лицензию
+      lvidpoms := ret_vidpom_licensia(human_->USL_OK,lvidpoms)
+    endif
     if "," $ lvidpoms
       if ascan(au_lu,{|x| alltrim(x[1]) == "55.1.1"}) > 0 .or. ;
          ascan(au_lu,{|x| alltrim(x[1]) == "55.1.4"}) > 0 .or. ;
@@ -4233,7 +4238,9 @@ do while !eof()
     skip
   enddo
   if !empty(lvidpoms)
-    lvidpoms := ret_vidpom_licensia(human_->USL_OK,lvidpoms)
+    if !eq_ascan(atmpusl,"55.1.2","55.1.3")
+      lvidpoms := ret_vidpom_licensia(human_->USL_OK,lvidpoms)
+    endif
     if !empty(lvidpoms) .and. !("," $ lvidpoms)
       lvidpom := int(val(lvidpoms))
       lvidpoms := ""

@@ -1935,7 +1935,7 @@ do while !eof()
       if f_is_neotl_pom(lshifr)
         lfor_pom := 2 // неотложная
       endif
-      if ascan(glob_KSG_dializ,lshifr) > 0 // диализ в 2016-17 году
+      if ascan(glob_KSG_dializ,lshifr) > 0 // диализ в 2017 году
         lvidpoms := ""
         lvidpom := 31
       endif
@@ -1989,8 +1989,10 @@ do while !eof()
     select HU
     skip
   enddo
-  if !empty(lvidpoms)
-    lvidpoms := ret_vidpom_licensia(human_->USL_OK,lvidpoms)
+  if !empty(lvidpoms) 
+    if !eq_ascan(atmpusl,"55.1.2","55.1.3")
+      lvidpoms := ret_vidpom_licensia(human_->USL_OK,lvidpoms) // только для дн.стационара при стационаре
+    endif
     if !empty(lvidpoms) .and. !("," $ lvidpoms)
       lvidpom := int(val(lvidpoms))
       lvidpoms := ""

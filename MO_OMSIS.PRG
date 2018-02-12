@@ -4341,7 +4341,9 @@ do while !eof()
           // дневной стационар
           case tfoms_pz[4,1] > 0
             if !empty(lvidpoms)
-              lvidpoms := ret_vidpom_licensia(human_->USL_OK,lvidpoms)
+              if !eq_ascan(arr_usl,"55.1.2","55.1.3")
+                lvidpoms := ret_vidpom_licensia(human_->USL_OK,lvidpoms) // только для дн.стационара при стационаре
+              endif
               if !empty(lvidpoms) .and. !("," $ lvidpoms)
                 lvidpom := int(val(lvidpoms))
                 lvidpoms := ""
