@@ -3380,9 +3380,7 @@ do while !eof()
             tmpb->kod_tmp := 1
             tmpb->plus := .t.
             if arr_m[1] > 2016
-              if between(human->ishod,301,305)
-                //  
-              elseif between(human->ishod,201,203) .or. between(human->ishod,101,102)  
+              if between(human->ishod,301,305) .or. between(human->ishod,201,203) .or. between(human->ishod,101,102)  
                 tmpb->tip := 2
                 kol_2r++
               else
