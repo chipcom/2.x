@@ -2434,7 +2434,7 @@ return fl
 
 *
 
-***** 26.01.18 определение КСГ по остальным введённым полям ввода - 2018 год
+***** 13.02.18 определение КСГ по остальным введённым полям ввода - 2018 год
 Function definition_KSG(par)
 // файлы "human", "human_" и "human_2" открыты и стоят на нужной записи
 //       "human" открыт для записи суммы случая
@@ -2991,6 +2991,9 @@ if !empty(lksg)
     s += ", цена "+lstr(lcena,11,2)+"р. "
     aadd(ars,s)
     s := ""
+    if left(lksg,4) == '1343' .and. lad_cr == '61' // старость 
+      lkslp := ""
+    endif
     akslp := f_cena_kslp(@lcena,lksg,ldate_r,ln_data,lk_data,lkslp,amohu)
     if !empty(akslp)
       s += "  (КСЛП = "+str(akslp[2],4,2)+", цена "+lstr(lcena,11,2)+"р.)" 

@@ -57,7 +57,7 @@ else
 endif  
 return update_get("mstentvmp")*/ 
 
-***** 23.01.18 
+***** 13.02.18 
 Function f_oms_beremenn(sdiag)
 Static arr := {"O10","O11","O12","O13","O14","O15","O16",;
                "O20","O21","O22","O23","O24","O25","O26","O28",;
@@ -75,6 +75,9 @@ elseif c == "O" .or. c == "Z"
     k := 2 // беременность
   endif
 endif
+if pr_ds_it == 0 .and. alltrim(sdiag) == "R54"
+  pr_ds_it := 4
+endif 
 if pr_ds_it == 0 .and. (j := ascan(arr_ad_cr_it,{|x| x[1] == padr(sdiag,5) })) > 0
   pr_ds_it := arr_ad_cr_it[j,2]
 endif 
@@ -115,12 +118,15 @@ else
 endif  
 return update_get("mprer_b") 
 
-***** 30.01.18
+***** 13.02.18
 Function f_valid2ad_cr()
 Static mm_st := {}, mm_dn := {}
+Static mm_bartel := {;
+  {"индекс Бартела 60 баллов и менее","60"},;
+  {"индекс Бартела более 60 баллов",  "61"}}
 Static mm_it := {;
   {"не проводилась непрерывная искусственная вентиляция легких","   "},;
-  {"it1-непрерывное проведение ИВЛ в течение 72 часов и более","it1"},;
+  {"it1-непрерывное проведение ИВЛ в течение 72 часов и более", "it1"},;
   {"it2-непрерывное проведение ИВЛ в течение 480 часов и более","it2"}}
 Static mm_rb := {;
   {"не оценивалось состояние по Шкале Реабилитационной Маршрутизации","   "},;
@@ -170,6 +176,9 @@ if m1usl_ok < 3 .and. m1vmp == 0
       endif
       mm_ad_cr := mm_dn
     endif
+  elseif pr_ds_it == 4
+    input_ad_cr := .t.
+    mm_ad_cr := mm_bartel
   endif
   if input_ad_cr
     if (i := ascan(mm_ad_cr,{|x| padr(x[2],10) == padr(m1ad_cr,10) })) > 0

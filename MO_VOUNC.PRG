@@ -2357,7 +2357,7 @@ do while !eof()
     endif
     mo_add_xml_stroke(oSLUCH,"SUMV"    ,lstr(human->cena_1,10,2))
     if p_tip_reestr == 1
-      if _nyear > 2017 .and. !empty(human_2->pc3)
+      if _nyear > 2017 .and. !empty(human_2->pc3) .and. !left(human_2->pc3,1) == '6' // кроме "старости"
         mo_add_xml_stroke(oSLUCH,"AD_CRITERION",human_2->pc3)
       endif 
       if !empty(akslp)
