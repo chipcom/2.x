@@ -6063,22 +6063,22 @@ if (arr_m := input_year()) != NIL .and. ;
   if yes_h_otd == 1
     if dostup == B_STANDART
       index on upper(fio) to (cur_dir+"tmp_hum") ;
-            while tip_h==dostup .and. otd==glob_otd[1] ;
-            for between(k_data,arr_m[5],arr_m[6]) .and. human_->reestr==0
+            while tip_h == dostup .and. otd == glob_otd[1] ;
+            for between(k_data,arr_m[5],arr_m[6]) .and. human_->reestr == 0
     else
       index on upper(fio) to (cur_dir+"tmp_hum") ;
-            while tip_h==dostup .and. otd==glob_otd[1] ;
+            while tip_h == dostup .and. otd == glob_otd[1] ;
             for between(k_data,arr_m[5],arr_m[6])
     endif
   else
     if dostup == B_STANDART
       index on upper(fio) to (cur_dir+"tmp_hum") ;
-            while tip_h==dostup ;
-            for lpu==glob_uch[1] .and. between(k_data,arr_m[5],arr_m[6]) .and. human_->reestr==0
+            while tip_h == dostup ;
+            for lpu == glob_uch[1] .and. between(k_data,arr_m[5],arr_m[6]) .and. human_->reestr == 0
     else
       index on upper(fio) to (cur_dir+"tmp_hum") ;
-            while tip_h==dostup ;
-            for lpu==glob_uch[1] .and. between(k_data,arr_m[5],arr_m[6])
+            while tip_h == dostup ;
+            for lpu == glob_uch[1] .and. between(k_data,arr_m[5],arr_m[6])
     endif
   endif
   srec := 1
@@ -6112,8 +6112,7 @@ if (arr_m := input_year()) != NIL .and. ;
       mkod := 0
       buf_scr := savescreen()
       if Alpha_Browse(T_ROW,2,maxrow()-2,77,"f1ret_oms_human",color0,mtitul,'B/BG',,;
-                                     .t.,,,"f2ret_oms_human",,;
-                                     {'═','░','═',"N/BG,W+/N,B/BG,BG+/B,R/BG,W+/R"} )
+                      .t.,,,"f2ret_oms_human",,{'═','░','═',"N/BG,W+/N,B/BG,BG+/B,R/BG,W+/R"} )
         if (glob_perso := tmp_h->kod) == 0
           func_error(4,"Не найдено нужных записей!")
         else

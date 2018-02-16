@@ -538,7 +538,7 @@ do while human->kod_k == glob_kartotek .and. !eof()
     enddo
   endif
   // диспансеризация/профилактика взрослого населения
-  if fl .and. between(human->ishod,201,203)
+  if fl .and. between(human->ishod,201,205)
     // если год начала текущего лечения = году начала прошлого лечения
     if year(human->n_data) == year(d1) // для диспансеризации
       aadd(a_disp, {human->ishod-200,human->n_data,human->k_data,human_->RSLT_NEW})
@@ -2802,7 +2802,7 @@ if is_disp_DVN //
     aadd(ta,'неверная услуга "'+s+'" от '+date_8(au_lu_ne[i,4])+'г.')
   next
   metap := 3
-  if between(human->ishod,201,203)
+  if between(human->ishod,201,205)
     metap := human->ishod-200
     license_for_dispans(1,d1,ta)
   else
@@ -2824,6 +2824,8 @@ if is_disp_DVN //
   next
   if metap == 2 .and. ascan(a_disp, {|x| x[1] == 1 }) == 0
     aadd(ta,'это II этап диспансеризации, но отсутствует случай I этапа диспансеризации')
+  elseif metap == 5 .and. ascan(a_disp, {|x| x[1] == 4 }) == 0
+    aadd(ta,'это II этап диспансеризации, но отсутствует случай I этапа диспансеризации раз в 2 года')
   endif
   // отметим обязательные услуги
   arr1 := array(count_dvn_arr_usl,5)    ; afillall(arr1,0)
@@ -2861,7 +2863,7 @@ if is_disp_DVN //
     if fl
       for i := 1 to count_dvn_arr_usl
         if arr1[i,1] == 0
-          if len(dvn_arr_usl[i]) < 12 .and. valtype(dvn_arr_usl[i,2]) == "C"
+          if valtype(dvn_arr_usl[i,2]) == "C"
             if dvn_arr_usl[i,2] == "4.20.1"
               if lshifr == "4.20.1"
                 m1g_cit := 1
@@ -2872,7 +2874,7 @@ if is_disp_DVN //
             if dvn_arr_usl[i,2] == lshifr
               fl := .f.
             endif
-          elseif len(dvn_arr_usl[i]) > 11
+          elseif len(dvn_arr_usl[i]) > 11 .and. valtype(dvn_arr_usl[i,12]) == "A"
             if ascan(dvn_arr_usl[i,12],{|x| x[1] == lshifr .and. x[2] == au_lu[j,3]}) > 0
               fl := .f.
             endif
@@ -2889,18 +2891,18 @@ if is_disp_DVN //
     if fl .and. !eq_any(left(lshifr,5),"70.3.","72.1.")
       aadd(ta,lshifr+' - некорректная настройка в справочнике услуг шифра ТФОМС')
     endif
-  next
+  next j
   is_1_den := is_last_den := .f. ; zs := kvp := 0 ; oth_usl := ""
   mv := iif(metap == 3, mvozrast, mdvozrast)
   kod_spec_ter := 0
-  if metap == 1
+  if eq_any(metap,1,4)
     for i := 1 to len(au_lu)
       if eq_any(au_lu[i,3],97,57,42) // профиль терапевт (врач общей практики)
         kod_spec_ter := au_lu[i,4]  // специальность терапевта (врача общей практики)
         exit
       endif
     next
-  elseif metap == 2 // поверка на обязательное сочетание услуг второго этапа
+  elseif eq_any(metap,2,5) // поверка на обязательное сочетание услуг второго этапа
     ar := array(len(dvn_2_etap),2) ; afillall(ar,0)
     for i := 1 to len(au_lu)
       lshifr := alltrim(au_lu[i,1])
@@ -2915,8 +2917,8 @@ if is_disp_DVN //
     for j := 1 to len(dvn_2_etap)
       if empty(ar[j,1]) .and. !empty(ar[j,2])
         aadd(ta,'для услуг '+print_array(dvn_2_etap[j,2])+' обязательно наличие услуги '+print_array(dvn_2_etap[j,1]))
-      elseif !empty(ar[j,1]) .and. empty(ar[j,2])
-        aadd(ta,'для услуги '+print_array(dvn_2_etap[j,1])+' обязательно наличие  услуг '+print_array(dvn_2_etap[j,2]))
+      //elseif !empty(ar[j,1]) .and. empty(ar[j,2])
+        //aadd(ta,'для услуги '+print_array(dvn_2_etap[j,1])+' обязательно наличие  услуг '+print_array(dvn_2_etap[j,2]))
       endif
     next
   endif
@@ -2957,7 +2959,7 @@ if is_disp_DVN //
       endif
     next
   endif
-  if metap != 2 // проверим, выполнены обязательные услуги (и наоборот)
+  if !eq_any(metap,2,5) // проверим, выполнены обязательные услуги (и наоборот)
     for i := 1 to count_dvn_arr_usl
       s := '"'+iif(valtype(dvn_arr_usl[i,2]) == "C", dvn_arr_usl[i,2]+' ', '')
       s += dvn_arr_usl[i,1]+'"'
@@ -3003,7 +3005,7 @@ if is_disp_DVN //
   k700 := 0
   for i := 1 to len(au_lu)
     lshifr := alltrim(au_lu[i,1])
-    if eq_any(lshifr,'2.3.1','2.3.2','2.3.3','2.3.5') .and. !empty(au_lu[i,3])
+    if left(lshifr,4) == '2.3.' .and. !empty(au_lu[i,3])
       s := 'услуга '+au_lu[i,5]+'-'+inieditspr(A__MENUVERT,glob_V002,au_lu[i,3])+'('+date_8(au_lu[i,2])+')'
     else
       s := 'услуга '+au_lu[i,5]+'('+date_8(au_lu[i,2])+')'
@@ -3026,10 +3028,10 @@ if is_disp_DVN //
       if d1 == au_lu[i,2]
         is_1_den := .t.
       endif
-      if metap != 2 .and. au_lu[i,2] < d1 .and. !eq_any(lshifr,"4.20.1","4.20.2")
+      if !eq_any(metap,2,5) .and. au_lu[i,2] < d1 .and. !eq_any(lshifr,"4.20.1","4.20.2")
         ++kol_n_date // учтена ранее оказанная услуга
       endif
-      if metap == 2 .and. au_lu[i,2] < d1
+      if eq_any(metap,2,5) .and. au_lu[i,2] < d1
         aadd(ta,s+' не попадает в диапазон лечения')
       elseif left(lshifr,2) == "2." .and. eq_any(au_lu[i,3],97,57,42)
         if au_lu[i,2] != d2
@@ -3048,7 +3050,7 @@ if is_disp_DVN //
       endif
       if left(lshifr,5) == "2.84."
         ++kvp
-      elseif eq_any(left(lshifr,4),"2.3.","2.91")
+      elseif eq_any(left(lshifr,4),"2.3.","2.90")
         ++kvp
       endif
       if d1 == au_lu[i,2]
@@ -3070,7 +3072,7 @@ if is_disp_DVN //
     endif
   next
   if ascan(arr_vozrast_DVN,mdvozrast) > 0
-    if metap == 3
+    if metap > 2
       aadd(ta,'в '+lstr(mdvozrast)+s_let(mdvozrast)+' проводится диспансеризация, а проведена профилактика')
     endif
   else
@@ -3101,7 +3103,13 @@ if is_disp_DVN //
       else
         aadd(ta,'слишком много отказов-'+lstr(kol_d_otkaz))
       endif
-    case metap == 2
+    case metap == 4
+      if zs > 1
+        aadd(ta,'в листе учета более одной услуги "законченный случай"')
+      elseif emptyall(zs,k700)
+        aadd(ta,'в листе учета нет услуг с ценой')
+      endif
+    case eq_any(metap,2,5)
       if zs > 0
         aadd(ta,'для II этапа ДВН не должно быть услуг "законченный случай"')
       endif
@@ -3380,7 +3388,7 @@ do while !eof()
             tmpb->kod_tmp := 1
             tmpb->plus := .t.
             if arr_m[1] > 2016
-              if between(human->ishod,301,305) .or. between(human->ishod,201,203) .or. between(human->ishod,101,102)  
+              if between(human->ishod,301,305) .or. between(human->ishod,201,205) .or. between(human->ishod,101,102)  
                 tmpb->tip := 2
                 kol_2r++
               else
@@ -3566,8 +3574,6 @@ else
     rest_box(buf)
     if sys_date < stod(strzero(tmp->nyear,4)+strzero(tmp->nmonth,2)+"11")
       func_error(10,"Сегодня "+date_8(sys_date)+", а реестры разрешается отсылать с 11 числа")
-    //elseif tmp->nyear > 2017
-      //func_error(10,"Пока не разрешается создавать реестры за 2018 год")
     elseif mo_Lock_Task(X_OMS)
       close databases
       fl := .t.

@@ -1111,18 +1111,18 @@ elseif mvozrast < 10
   spec_vozrast := 3
 endif
 v := ret_v_f12(mpol,mvozrast,@v4)
-if eq_any(human->ishod,101,102,201,202,203,301,302)
+if eq_any(human->ishod,101,102,201,202,203,204,205,301,302)
   if eq_any(human->ishod,101,102)
     arr := ret_f12_PN(human->kod,1)
     lnum_kol := 9 // профосмотр
-  elseif eq_any(human->ishod,201,203)
+  elseif eq_any(human->ishod,201,203,204)
     arr := ret_f12_DVN(human->kod,1)
     lnum_kol := iif(human->ishod == 203, 9, 10) // профосмотр или диспансеризация
   elseif eq_any(human->ishod,301,302)
     arr := ret_f12_PN(human->kod,2)
     lnum_kol := 9 // профосмотр
   endif
-  if empty(arr) .and. human->ishod != 202 
+  if empty(arr) .and. eq_any(human->ishod,202,205) 
     aadd(arr, {human->KOD_DIAG,0,0})
   endif
   for i := 1 to len(arr)
@@ -1705,10 +1705,10 @@ return NIL
 ***** 05.01.16
 Function f1_f12_o(jh)
 Local arr_d := {}, arr := {}, i, j, k, s, fl, fl_plus, arv, pole, is_talon := .t.
-if eq_any(human->ishod,101,102,201,202,203,301,302)
+if eq_any(human->ishod,101,102,201,202,203,204,205,301,302)
   if eq_any(human->ishod,101,102)
     arr := ret_f12_PN(human->kod,1)
-  elseif eq_any(human->ishod,201,203)
+  elseif eq_any(human->ishod,201,203,204)
     arr := ret_f12_DVN(human->kod,1)
   elseif eq_any(human->ishod,301,302)
     arr := ret_f12_PN(human->kod,2)

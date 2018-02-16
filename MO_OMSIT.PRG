@@ -133,11 +133,11 @@ do while kart->kod == human->kod_k .and. !eof()
   if eval(blk_usl)
     rec := human->(recno())
     lta := {} ; lbukva := alltrim(human_->STATUS_ST)
-    if eq_any(human->ishod,101,102,201,202,203,301,302)
+    if eq_any(human->ishod,101,102,201,202,203,204,205,301,302)
       if eq_any(human->ishod,101,102)
         arr := ret_f12_PN(human->kod,1)
         lnum_kol := 9 // профосмотр
-      elseif eq_any(human->ishod,201,202,203)
+      elseif eq_any(human->ishod,201,202,203,204,205)
         arr := ret_f12_DVN(human->kod,2)
         lnum_kol := iif(human->ishod == 203, 9, 10) // профосмотр или диспансеризация
       elseif eq_any(human->ishod,301,302)

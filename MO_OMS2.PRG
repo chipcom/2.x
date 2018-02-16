@@ -4,7 +4,7 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 01.02.18 ДВН - добавление или редактирование случая (листа учета)
+***** 15.02.18 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_DVN(Loc_kod,kod_kartotek,f_print)
 // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
 // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -78,7 +78,7 @@ Private mkod := Loc_kod, mtip_h, is_talon := .f., mshifr_zs := "",;
 //
 Private arr_usl_dop := {}, arr_usl_otkaz := {}, arr_otklon := {}, m1p_otk := 0
 Private metap := 0,;  // 1-первый этап, 2-второй этап, 3-профилактика
-        mndisp,;
+        m1ndisp := 3, mndisp, is_dostup_2_year := .f.,;
         mWEIGHT := 0,;   // вес в кг
         mHEIGHT := 0,;   // рост в см
         mOKR_TALII := 0,; // окружность талии в см
@@ -102,8 +102,13 @@ Private mdispans, m1dispans := 0, mnazn_l , m1nazn_l  := 0,;
 Private mvar, m1var
 Private mm_ndisp := {{"Диспансеризация I  этап",1},;
                      {"Диспансеризация II этап",2},;
-                     {"Профилактический осмотр",3}}
-Private mm_gruppa
+                     {"Профилактический осмотр",3},;
+                     {"Дисп.1этап(раз в 2года)",4},;
+                     {"Дисп.2этап(раз в 2года)",5}}
+Private mm_gruppa, mm_ndisp1
+mm_ndisp1 := aclone(mm_ndisp)
+// оставляем 3-ий и 4-ый этапы
+asize(mm_ndisp1,4) ; hb_ADel(mm_ndisp1, 1, .t.) ; hb_ADel(mm_ndisp1, 1, .t.) 
 Private mm_gruppaP := {{"Присвоена I группа здоровья"  ,1,343},;
                        {"Присвоена II группа здоровья" ,2,344},;
                        {"Присвоена III группа здоровья",3,345}}
@@ -122,6 +127,8 @@ Private mm_gruppaD1 := {;
   {"Направлен на 2 этап и ОТКАЗАЛСЯ, присвоена IIIб группа здоровья",24,358}}
 Private mm_gruppaD2 := aclone(mm_gruppaD1)
 asize(mm_gruppaD2,4)
+Private mm_gruppaD4 := aclone(mm_gruppaD1)
+asize(mm_gruppaD4,8)
 Private mm_otkaz := {{"_выполнено",0},;
                      {"отклонение",3},;
                      {"ОТКАЗ пац.",1},;
@@ -242,7 +249,7 @@ if mkod_k > 0
         a_smert := {"Данный больной умер!",;
                     "Лечение с "+full_date(human->N_DATA)+" по "+full_date(human->K_DATA)}
       endif
-      if Loc_kod == 0 .and. between(human->ishod,201,203)
+      if Loc_kod == 0 .and. between(human->ishod,201,205)
         aadd(ah,{human->(recno()),human->K_DATA})
       endif
     endif
@@ -255,20 +262,21 @@ if mkod_k > 0
     select HUMAN
     goto (atail(ah)[1])    
     M1RAB_NERAB := human->RAB_NERAB // 0-работающий, 1-неработающий, 2-обучающ.ОЧНО
-    if (letap := human->ishod-200) == 1
+    letap := human->ishod - 200
+    if eq_any(letap,1,4) 
       lrslt_1_etap := human_->RSLT_NEW 
     endif
     read_arr_DVN(human->kod,.f.)
   endif
 endif
 if empty(mWEIGHT)
-  mWEIGHT := iif(mpol=="М", 70, 55)   // вес в кг
+  mWEIGHT := iif(mpol == "М", 70, 55)   // вес в кг
 endif
 if empty(mHEIGHT)
-  mHEIGHT := iif(mpol=="М", 170, 160)  // рост в см
+  mHEIGHT := iif(mpol == "М", 170, 160)  // рост в см
 endif
 if empty(mOKR_TALII)
-  mOKR_TALII := iif(mpol=="М", 94, 80) // окружность талии в см
+  mOKR_TALII := iif(mpol == "М", 94, 80) // окружность талии в см
 endif
 if Loc_kod > 0
   select HUMAN
@@ -314,8 +322,8 @@ if Loc_kod > 0
   mk_data    := human->K_DATA
   mcena_1    := human->CENA_1
   metap := human->ishod-200
-  if between(metap,1,3)
-    mm_gruppa := {mm_gruppaD1,mm_gruppaD2,mm_gruppaP}[metap]
+  if between(metap,1,5)
+    mm_gruppa := {mm_gruppaD1,mm_gruppaD2,mm_gruppaP,mm_gruppaD4,mm_gruppaD2}[metap]
     if (i := ascan(mm_gruppa, {|x| x[3] == human_->RSLT_NEW })) > 0
       m1GRUPPA := mm_gruppa[i,2]
     endif
@@ -352,7 +360,7 @@ if Loc_kod > 0
       if fl
         for i := 1 to count_dvn_arr_usl
           if empty(larr[1,i])
-            if len(dvn_arr_usl[i]) < 12 .and. valtype(dvn_arr_usl[i,2]) == "C"
+            if valtype(dvn_arr_usl[i,2]) == "C"
               if dvn_arr_usl[i,2] == "4.20.1"
                 if lshifr == "4.20.1"
                   m1g_cit := 1
@@ -370,8 +378,8 @@ if Loc_kod > 0
                 mvar := "mlis"+lstr(i)
                 &mvar := inieditspr(A__MENUVERT, mm_kdp2, &m1var)
               endif
-            elseif len(dvn_arr_usl[i]) > 11
-              if ascan(dvn_arr_usl[i,12],{|x| x[1]==lshifr .and. x[2]==hu_->PROFIL}) > 0
+            elseif len(dvn_arr_usl[i]) > 11 .and. valtype(dvn_arr_usl[i,12]) == "A"
+              if ascan(dvn_arr_usl[i,12],{|x| x[1] == lshifr .and. x[2] == hu_->PROFIL}) > 0
                 fl := .f.
               endif
             endif
@@ -443,7 +451,7 @@ if Loc_kod > 0
       ar := arr_usl_otkaz[j]
       if valtype(ar) == "A" .and. len(ar) >= 5 .and. valtype(ar[5]) == "C"
         lshifr := alltrim(ar[5])
-        if (i := ascan(dvn_arr_usl, {|x| valtype(x[2])=="C" .and. x[2]==lshifr})) > 0
+        if (i := ascan(dvn_arr_usl, {|x| valtype(x[2]) == "C" .and. x[2] == lshifr})) > 0
           if valtype(ar[1]) == "N" .and. ar[1] > 0
             p2->(dbGoto(ar[1]))
             mvar := "MTAB_NOMv"+lstr(i)
@@ -573,9 +581,6 @@ do while .t.
     @ j,80-len(s) say s color color14
   endif
   if num_screen == 1 //
-    //++j; @ j,1 say "Учреждение" get mlpu when .f. color cDataCSay
-    //     @ row(),col()+2 say "Отделение" get motd when .f. color cDataCSay
-    //
     ++j; @ j,1 say "ФИО" get mfio_kart ;
          reader {|x| menu_reader(x,{{|k,r,c| get_fio_kart(k,r,c)}},A__FUNCTION,,,.f.)} ;
          valid {|g,o| update_get("mdate_r"),;
@@ -606,10 +611,14 @@ do while .t.
                           ret_ndisp(Loc_kod,kod_kartotek) ;
                      }
          @ row(),col()+1 say "-"   get mk_data valid {|g|f_k_data(g,2)}
+    if eq_any(metap,3,4) .and. is_dostup_2_year
+         @ row(),col()+7 get mndisp color color14 reader {|x|menu_reader(x,mm_ndisp1,A__MENUVERT,,,.f.)} ;
+                         valid {|| metap := m1ndisp, .t. }
+    else     
          @ row(),col()+7 get mndisp when .f. color color14
+    endif     
     ++j; @ j,1 say "№ амбулаторной карты" get much_doc picture "@!" ;
-               when !(is_uchastok == 1 .and. is_task(X_REGIST)) ;
-                     .or. mem_edit_ist==2
+               when !(is_uchastok == 1 .and. is_task(X_REGIST)) .or. mem_edit_ist==2
          @ j,col()+5 say "Мобильная бригада?" get mmobilbr ;
                reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
     ++j
@@ -747,7 +756,7 @@ do while .t.
     ++j; @ j,1 say replicate("─",68) color color8
     status_key("^<Esc>^ выход без записи ^<PgUp>^ на 1-ю страницу ^<PgDn>^ на 3-ю страницу")
   elseif num_screen == 3 //
-    mm_gruppa := {mm_gruppaD1,mm_gruppaD2,mm_gruppaP}[metap]
+    mm_gruppa := {mm_gruppaD1,mm_gruppaD2,mm_gruppaP,mm_gruppaD4,mm_gruppaD2}[metap]
     mgruppa  := inieditspr(A__MENUVERT, mm_gruppa, m1gruppa)
     ret_ndisp(Loc_kod,kod_kartotek)
     ++j; @ j,8 get mndisp when .f. color color14
@@ -985,8 +994,8 @@ do while .t.
       i_otkaz := 0
       if f_is_usl_oms_sluch_DVN(i,metap,iif(metap==3,mvozrast,mdvozrast),mpol,@fl_diag,@i_otkaz,@fl_ekg)
         mvart := "MTAB_NOMv"+lstr(i)
-        if empty(&mvart) .and. (metap == 2 .or. fl_ekg) // ЭКГ, не введён врач
-          loop                                        // и необязательный возраст
+        if empty(&mvart) .and. (eq_any(metap,2,5) .or. fl_ekg) // ЭКГ, не введён врач
+          loop                                                 // и необязательный возраст
         endif
         ar := dvn_arr_usl[i]
         mvara := "MTAB_NOMa"+lstr(i)
@@ -1085,7 +1094,7 @@ do while .t.
             endif
             arr_osm1[i,5] := ar[2,j] // шифр услуги
             if i == count_dvn_arr_usl // последняя услуга из массива - терапевт
-              if metap == 2
+              if eq_any(metap,2,5)
                 if eq_any(arr_osm1[i,2],2002,-206) // специальность-фельдшер
                   fl := func_error(4,"Фельдшер не может заменить терапевта на II этапе диспансеризации")
                 endif
@@ -1143,7 +1152,7 @@ do while .t.
       loop
     endif
     i_56_1_723 := 0
-    if metap == 2
+    if eq_any(metap,2,5)
       if ku < 2
         if (i_56_1_723 := ascan(arr_osm1,{|x| valtype(x[5]) == "C" .and. x[5] == "56.1.723"})) > 0
           // одно индивидуальное или групповое углубленное профилактическое консультирование - "56.1.723"
@@ -1252,7 +1261,7 @@ do while .t.
         loop
       endif
     endif
-    mm_gruppa := {mm_gruppaD1,mm_gruppaD2,mm_gruppaP}[metap]
+    mm_gruppa := {mm_gruppaD1,mm_gruppaD2,mm_gruppaP,mm_gruppaD4,mm_gruppaD2}[metap]
     m1p_otk := 0
     if (i := ascan(mm_gruppa,{|x| x[2] == m1GRUPPA })) > 0
       m1rslt := mm_gruppa[i,3]
@@ -1297,14 +1306,14 @@ do while .t.
         endif
       endif
     next
-    if metap == 2
+    if eq_any(metap,2,5)
       i := count_dvn_arr_usl
       m1vrach  := arr_osm1[i,1]
       m1prvs   := arr_osm1[i,2]
       m1assis  := arr_osm1[i,3]
       m1PROFIL := arr_osm1[i,4]
       //MKOD_DIAG := padr(arr_osm1[i,6],6)
-    else  // metap := 1,3
+    else  // metap := 1,3,4
       i := len(arr_osm1)
       m1vrach  := arr_osm1[i,1]
       m1prvs   := arr_osm1[i,2]
@@ -1335,8 +1344,8 @@ do while .t.
         arr_osm1[j,9] := iif(dvn_arr_umolch[i,8]==0, mn_data, mk_data)
         arr_osm1[j,10] := 0
       endif
-    next
-    if metap == 1 // если первый этап, проверим на 85%
+    next                        
+    if eq_any(metap,1,4) // если первый этап, проверим на 85%
       not_zs := .f.
       kol := kol_otkaz := kol_n_date := 0
       for i := 1 to len(arr_osm1)
@@ -1366,8 +1375,11 @@ do while .t.
       if kol_d_usl != kol
         //func_error(4,"kol_d_usl ("+lstr(kol_d_usl)+") != kol "+lstr(kol))
       endif
-      // определить 85%
-      if (i := ascan(dvn_85, {|x| x[1] == kol })) > 0
+      if metap == 4
+        if kol_n_date == 1
+          not_zs := .t. // выставляем по отдельным тарифам
+        endif
+      elseif (i := ascan(dvn_85, {|x| x[1] == kol })) > 0 // определить 85%
         k := dvn_85[i,1] - dvn_85[i,2] // 15%
         if kol_otkaz <= k // оказано 85% и более
           if kol_n_date+kol_otkaz <= k // отказы + ранее оказано менее 15%
@@ -1680,7 +1692,7 @@ update_get(pole_d_dispans)
 update_get("mdispans")
 return .t.
 
-***** 06.02.18 рабочая ли услуга ДВН в зависимости от этапа, возраста и пола
+***** 14.02.18 рабочая ли услуга ДВН в зависимости от этапа, возраста и пола
 Function f_is_usl_oms_sluch_DVN(i,_etap,_vozrast,_pol,/*@*/_diag,/*@*/_otkaz,/*@*/_ekg)
 Local fl := .f., ar := dvn_arr_usl[i]
 if valtype(ar[3]) == "N"
@@ -1691,7 +1703,7 @@ endif
 _diag := (ar[4] == 1)
 _otkaz := 0
 _ekg := .f.
-if _etap != 2 .and. ar[5] == 1 .and. !(ar[2] == "4.20.1")
+if eq_any(_etap,1,3) .and. ar[5] == 1 .and. !(ar[2] == "4.20.1")
   _otkaz := 1 // можно ввести отказ
   if valtype(ar[2]) == "C" .and. eq_any(ar[2],"7.57.3","7.61.3","4.1.12")
     _otkaz := 2 // можно ввести невозможность
@@ -1700,14 +1712,20 @@ if _etap != 2 .and. ar[5] == 1 .and. !(ar[2] == "4.20.1")
     endif
   endif
 endif
-if fl .and. _etap == 1
-  i := iif(_pol=="М", 6, 7)
+if fl .and. eq_any(_etap,1,4,5)
+  if _etap == 1
+    i := iif(_pol == "М", 6, 7)
+  elseif len(ar) < 14
+    return .f.
+  else    
+    i := iif(_pol == "М", 13, 14)
+  endif
   if valtype(ar[i]) == "N" // специально для услуги "Электрокардиография","13.1.1" ранее 2018 года
     fl := (ar[i] != 0)
     if ar[i] < 0  // ЭКГ
       _ekg := (_vozrast < abs(ar[i])) // необязательный возраст
     endif
-  else // для 1 этапа возраст указан массивом
+  else // для 1,4,5 этапа возраст указан массивом
     fl := ascan(ar[i],_vozrast) > 0
   endif
 endif
@@ -1721,9 +1739,12 @@ if fl .and. eq_any(_etap,2,3)
 endif
 return fl
 
-***** 09.05.15 рабочая ли услуга (умолчание) ДВН в зависимости от этапа, возраста и пола
+***** 14.02.18 рабочая ли услуга (умолчание) ДВН в зависимости от этапа, возраста и пола
 Function f_is_umolch_sluch_DVN(i,_etap,_vozrast,_pol)
 Local fl := .f., ar := dvn_arr_umolch[i]
+if _etap < 4
+  return fl
+endif  
 if valtype(ar[3]) == "N"
   fl := (ar[3] == _etap)
 else
@@ -1742,6 +1763,208 @@ if fl
   endif
 endif
 return fl
+
+*
+
+***** 06.08.13 скорректировать возраст диспансеризации для ветеранов
+Function ret_vozr_DVN_veteran(_dvozrast)
+Local i
+if ascan(arr_vozrast_DVN,_dvozrast) == 0
+  if _dvozrast < arr_vozrast_DVN[1]
+    _dvozrast := arr_vozrast_DVN[1]
+  elseif _dvozrast > atail(arr_vozrast_DVN)
+    _dvozrast := atail(arr_vozrast_DVN)
+  else
+    for i := 2 to len(arr_vozrast_DVN)
+      if between(_dvozrast,arr_vozrast_DVN[i-1],arr_vozrast_DVN[i])
+        if _dvozrast == arr_vozrast_DVN[i-1] + 1
+          _dvozrast := arr_vozrast_DVN[i-1]
+        else
+          _dvozrast := arr_vozrast_DVN[i]
+        endif
+        exit
+      endif
+    next
+  endif
+endif
+return _dvozrast
+
+***** 16.02.18
+Function ret_ndisp(lkod_h,lkod_k,/*@*/new_etap,/*@*/msg)
+Local i, i1, i2, i3, i4, i5, s, s1, is_disp, ar, fl := .t.
+msg := " "
+new_etap := metap
+is_dostup_2_year := .f.
+if m1veteran == 1
+  mdvozrast := ret_vozr_DVN_veteran(mdvozrast)
+endif
+if !(is_disp := ascan(arr_vozrast_DVN,mdvozrast) > 0)
+  is_dostup_2_year := ascan(arr2m_vozrast_DVN,mdvozrast) > 0
+  if !is_dostup_2_year .and. mpol == "Ж"
+    is_dostup_2_year := ascan(arr2g_vozrast_DVN,mdvozrast) > 0
+  endif
+endif  
+if metap == 0
+  if is_disp
+    new_etap := 1
+  else
+    new_etap := 3
+  endif
+elseif metap == 3
+  if is_disp
+    new_etap := 1
+  else
+    // остаётся = 3
+  endif
+else
+  if is_disp
+    // остаётся = 1 или 2
+  elseif new_etap < 4
+    new_etap := 3
+  endif
+endif
+ar := ret_etap_DVN(lkod_h,lkod_k)
+if new_etap != 3
+  if empty(ar[1]) // в этом году ещё ничего не делали
+    // оставляем 1
+  else
+    i1 := i2 := i3 := i4 := i5 := 0
+    for i := 1 to len(ar[1])
+      do case
+        case ar[1,i,1] == 1 // дисп-ия 1 этап
+          i1 := i
+        case ar[1,i,1] == 2 // дисп-ия 2 этап
+          i2 := i
+        case ar[1,i,1] == 3 // профилактика
+          i3 := i
+          msg := date_8(ar[1,i,2])+"г. уже проведён профилактический медосмотр!"
+        case ar[1,i,1] == 4 // дисп-ия 1 этап 1 раз в 2 года
+          i4 := i
+        case ar[1,i,1] == 5 // дисп-ия 2 этап 1 раз в 2 года
+          i5 := i
+      endcase
+    next
+    if eq_any(new_etap,1,2) .and. new_etap != metap
+      if i1 == 0
+        new_etap := 1 // делаем 1 этап
+      elseif i2 == 0
+        new_etap := 2 // делаем 2 этап
+      endif
+    endif
+    if i1 > 0 .and. i2 > 0
+      msg := "В "+lstr(year(mn_data))+" году уже проведены оба этапа диспансеризации!"
+    elseif i1 > 0 .and. !empty(ar[1,i1,2]) .and. ar[1,i1,2] > mn_data
+      msg := "Диспансеризация I этапа закончилась "+date_8(ar[1,i1,2])+"г.!"
+    endif
+    if eq_any(new_etap,4,5) .and. new_etap != metap
+      if i4 == 0
+        new_etap := 4 // делаем 1 этап
+      elseif i5 == 0
+        new_etap := 5 // делаем 2 этап
+      endif
+    endif
+    if i4 > 0 .and. i5 > 0
+      msg := "В "+lstr(year(mn_data))+" году уже проведены оба этапа диспансеризации (раз в 2 года)!"
+    elseif i4 > 0 .and. !empty(ar[1,i4,2]) .and. ar[1,i4,2] > mn_data
+      msg := "Диспансеризация I этапа (раз в 2 года) закончилась "+date_8(ar[1,i4,2])+"г.!"
+    endif
+  endif
+else //if new_etap == 3
+  if empty(ar[1]) // в этом году ещё ничего не делали
+    if empty(ar[2]) // посмотрим прошлый год
+      // оставляем 3
+    elseif ascan(ar[2],{|x| x[1] == 3 }) > 0 // профилактика была в прошлом году
+      if is_dostup_2_year
+        new_etap := 4 // сразу разрешаем дисп-ию 1 раз в 2 года, т.к. в прошлом
+      else
+        msg := "Профилактика проводится 1 раз в 2 года ("+date_8(ar[2,1,2])+"г. уже проведена)"
+      endif 
+    endif
+  else
+    i1 := i2 := i3 := i4 := i5 := 0
+    for i := 1 to len(ar[1])
+      do case
+        case ar[1,i,1] == 1 // дисп-ия 1 этап
+          i1 := i
+          msg := date_8(ar[1,i,2])+"г. уже проведена диспансеризация I этапа!"
+        case ar[1,i,1] == 2 // дисп-ия 2 этап
+          i2 := i
+          msg := date_8(ar[1,i,2])+"г. уже проведена диспансеризация II этапа!"
+        case ar[1,i,1] == 3 // профилактика
+          i3 := i
+          msg := date_8(ar[1,i,2])+"г. уже проведён профилактический медосмотр!"
+        case ar[1,i,1] == 4 // дисп-ия 1 этап раз в 2 года
+          i4 := i
+        case ar[1,i,1] == 5 // дисп-ия 2 этап раз в 2 года
+          i5 := i
+      endcase
+    next
+    if i4 > 0 
+      if i5 > 0
+        msg := "В "+lstr(year(mn_data))+" году уже проведены оба этапа диспансеризации (раз в 2 года)!"
+      elseif !empty(ar[1,i4,2]) .and. ar[1,i4,2] > mn_data
+        msg := "Диспансеризация I этапа (раз в 2 года) закончилась "+date_8(ar[1,i4,2])+"г.!"
+      else
+        new_etap := 5 // делаем 2 этап
+      endif
+    endif
+  endif
+endif
+if empty(msg)
+  metap := new_etap
+  mndisp := inieditspr(A__MENUVERT, mm_ndisp, metap)
+else
+  metap := 0
+  mndisp := space(23)
+  func_error(4,fam_i_o(mfio)+" "+msg)
+endif
+return fl
+
+***** 14.02.18
+Function ret_etap_DVN(lkod_h,lkod_k)
+Local ae := {{},{}}, fl, i, k, d1 := year(mn_data)
+R_Use(dir_server+"human_",,"HUMAN_")
+R_Use(dir_server+"human",dir_server+"humankk","HUMAN")
+set relation to recno() into HUMAN_
+find (str(lkod_k,7))
+do while human->kod_k == lkod_k .and. !eof()
+  fl := (lkod_h != human->(recno()))
+  if fl .and. human->schet > 0 .and. human_->oplata == 9
+    fl := .f. // лист учёта снят по акту и выставлен повторно
+  endif
+  if fl .and. between(human->ishod,201,205) // ???
+    i := human->ishod-200
+    if year(human->n_data) == d1 // текущий год
+      aadd(ae[1],{i,human->k_data,human_->RSLT_NEW})
+    elseif i >= 3 .and. year(human->n_data) == d1-1 // профилактика прошлый год ???
+      aadd(ae[2],{i,human->k_data,human_->RSLT_NEW})
+    endif
+  endif
+  skip
+enddo
+close databases
+return ae
+
+***** 08.08.13 вернуть тип массы в строке
+Function ret_tip_mas(_WEIGHT,_HEIGHT,/*@*/ret)
+Static mm_tip_mas := {{"Дефицит массы тела",0,18.4},;
+                      {"Нормальная масса тела",18.5,24.9},;
+                      {"Избыточная масса тела",25.0,29.9},;
+                      {"Ожирение I степени",30.0,34.9},;
+                      {"Ожирение II степени",35.0,39.9},;
+                      {"Ожирение III степени",40.0,9999}}
+Local i, k, s := ""
+ret := 2
+if !emptyany(_WEIGHT,_HEIGHT)
+  _HEIGHT /= 100  // рост из сантиметров в метры
+  k := round(_WEIGHT/_HEIGHT/_HEIGHT,1) // индекс Кетле
+  if (i := ascan(mm_tip_mas,{|x| between(k,x[2],x[3]) })) > 0
+    ret := i
+    s := mm_tip_mas[i,1]
+  endif
+endif
+return padr(s,21)
+
 /*
 70.3.97 ЗС дисп-ии мужчин (21,24,27,30,33 лет), 1 этап
 70.3.98 ЗС дисп-ии мужчин (21,24,27,30,33 лет) без гематологических исследований, 1 этап
@@ -1808,7 +2031,7 @@ return fl
 70.3.170 ЗС дисп-ии женщин (87,90,93,96,99 лет), 1 этап
 70.3.171 ЗС дисп-ии женщин (87,90,93,96,99 лет) без гематологических исследований, 1 этап
 */
-***** 01.02.18 вернуть шифр услуги законченного случая для ДВН
+***** 14.02.18 вернуть шифр услуги законченного случая для ДВН
 Function ret_shifr_zs_DVN(_etap,_vozrast,_pol)
 Local lshifr := ""
 if _etap == 1
@@ -1963,7 +2186,7 @@ if _etap == 1
       endif
     endif
   endif
-else // _etap == 3
+elseif _etap == 3
   if _pol == "М"
     if _vozrast < 45
       lshifr := iif(m1lis == 1, "72.1.14", "72.1.4")
@@ -1979,13 +2202,22 @@ else // _etap == 3
       lshifr := iif(m1lis == 1, "72.1.13", "72.1.3")
     endif
   endif
+elseif _etap == 4
+  if _pol == "М"
+    lshifr := "70.3.101"
+//70.3.101 ЗС дисп-ии мужчин (49,53,55,59,61,65,67,71,73), 1 этап (иссл.1 раз в 2 года)
+  else
+    if eq_any(_vozrast,49,53,55,59,61,65,67,71,73)
+      lshifr := "70.3.138"
+//70.3.138 ЗС дисп-ии женщин (49,53,55,59,61,65,67,71,73), 1 этап (иссл.1 раз в 2 года)
+    else
+      lshifr := "70.3.139"
+//70.3.139 ЗС дисп-ии женщин (50,52,56,58,62,64,68,70), 1 этап (иссл.1 раз в 2 года)
+    endif
+  endif
 endif
 return lshifr
 /*
-70.3.101 ЗС дисп-ии мужчин (49,53,55,59,61,65,67,71,73), 1 этап (иссл.1 раз в 2 года)
-70.3.138 ЗС дисп-ии женщин (49,53,55,59,61,65,67,71,73), 1 этап (иссл.1 раз в 2 года)
-70.3.139 ЗС дисп-ии женщин (50,52,56,58,62,64,68,70), 1 этап (иссл.1 раз в 2 года)
-
 70.3.200 ЗС дисп-ии мужчин (45 лет) без исследования кала, 1 этап
 70.3.201 ЗС дисп-ии мужчин (45 лет) без гематологических исследований, без исследования кала, 1 этап
 70.3.106 ЗС дисп-ии мужчин (51 года) без исследования кала, 1 этап

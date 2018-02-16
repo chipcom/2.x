@@ -348,7 +348,7 @@ return s
 
 *
 
-***** 13.01.18
+***** 16.02.18
 Static Function v_1usluga()
 Local arr_usl, atf := {0,"",""}, i := 1, k, mas[2], sh := 80, j := 0, j1, ;
       sb, fl, lshifr, s, n_file := "usluga_1"+stxt
@@ -394,16 +394,25 @@ if (arr_usl := input_usluga(atf)) != NIL
       select UU
       find (str(arr_usl[1],4))
       add_string("")
-      s := "  УЕТ для взрослых "+str_0(uu->koef_v,7,4)
       if is_oplata == 7
-        s += "[врач "+alltrim(str_0(uu->vkoef_v,7,4))+", асс. "+alltrim(str_0(uu->akoef_v,7,4))+"]"
+        if !emptyall(uu->koef_v,uu->vkoef_v,uu->akoef_v)
+          s := "  УЕТ для взрослых "+str_0(uu->koef_v,7,4)+;
+               " [врач "+alltrim(str_0(uu->vkoef_v,7,4))+", асс. "+alltrim(str_0(uu->akoef_v,7,4))+"]"
+          add_string(s)
+        endif
+        if !emptyall(uu->koef_r,uu->vkoef_r,uu->akoef_r)
+          s := "  УЕТ для детей    "+str_0(uu->koef_r,7,4)+;
+               " [врач "+alltrim(str_0(uu->vkoef_r,7,4))+", асс. "+alltrim(str_0(uu->akoef_r,7,4))+"]"
+          add_string(s)
+        endif
+      else
+        if !empty(uu->koef_v)
+          add_string("  УЕТ для взрослых "+str_0(uu->koef_v,7,4))
+        endif
+        if !empty(uu->koef_r)
+          add_string("  УЕТ для детей    "+str_0(uu->koef_r,7,4))
+        endif
       endif
-      add_string(s)
-      s := "  УЕТ для детей    "+str_0(uu->koef_r,7,4)
-      if is_oplata == 7
-        s += "[врач "+alltrim(str_0(uu->vkoef_r,7,4))+", асс. "+alltrim(str_0(uu->akoef_r,7,4))+"]"
-      endif
-      add_string(s)
     endif
   endif
   add_string("")

@@ -1407,7 +1407,7 @@ if mn->vid_obsl == 0      // „ˆ‘€‘…ˆ‡€–ˆŸ ¯à®¢¥¤¥­ 
     endif
   endif
 elseif mn->vid_obsl == 1  // „ˆ‘€‘…ˆ‡€–ˆŸ … ¯à®¢¥¤¥­ 
-  fl := !eq_any(human->ishod,201,202,203)
+  fl := !eq_any(human->ishod,201,202,203,204,205)
 elseif mn->vid_obsl == 2  // Ž”ˆ‹€Š’ˆŠ€ ¯à®¢¥¤¥­ 
   if (fl := (human->ishod == 203))
     m1GRUPPA := human_->RSLT_NEW-P_BEGIN_RSLT

@@ -2063,10 +2063,10 @@ do while !eof()
         endif
       next j
     endif
-  elseif eq_any(human->ishod,201,202,203) // дисп-ия I этап или профилактика
+  elseif between(human->ishod,201,205) // дисп-ия I этап или профилактика
     arr_usl_otkaz := {}
     read_arr_DVN(human->kod)
-    if valtype(arr_usl_otkaz) == "A" .and. human->ishod != 202 // не II этап
+    if valtype(arr_usl_otkaz) == "A" .and. eq_any(human->ishod,201,203) // не II этап
       for j := 1 to len(arr_usl_otkaz)
         ar := arr_usl_otkaz[j]
         if valtype(ar) == "A" .and. len(ar) >= 10 .and. valtype(ar[5]) == "C"
@@ -2496,9 +2496,9 @@ do while !eof()
       elseif ibrm == 3 .and. human->K_DATA > stod("20170619") // основной диагноз - онкология с 20 июня
         j := iif(human_2->pn2 == 1, 8, 7)
       endif
-    elseif p_tip_reestr == 2 .and. eq_any(human->ishod,201,202,203) // ДВН
+    elseif p_tip_reestr == 2 .and. between(human->ishod,201,205) // ДВН
       j := iif(human->RAB_NERAB==0,20,iif(human->RAB_NERAB==1,10,14))
-      if eq_any(human->ishod,201,202) .and. m1veteran == 1
+      if human->ishod != 203 .and. m1veteran == 1
         j := iif(human->RAB_NERAB==0, 21, 11)
       endif
     elseif v_reabil_slux > 0

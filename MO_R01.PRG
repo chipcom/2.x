@@ -1191,7 +1191,7 @@ if (fl := (kart2->MO_PR == CODE_LPU)) // прикреплён к нашей МО
     select HUMAN
     find (str(kart->kod,7))
     do while human->kod_k == kart->kod .and. !eof()
-      if year(human->k_data) == sgod .and. between(human->ishod,201,203)
+      if year(human->k_data) == sgod .and. between(human->ishod,201,205)
         fl := .f. ; exit // в этом году была диспансеризация
       endif
       skip
@@ -1203,7 +1203,7 @@ if (fl := (kart2->MO_PR == CODE_LPU)) // прикреплён к нашей МО
     select HUMAN
     find (str(kart->kod,7))
     do while human->kod_k == kart->kod .and. !eof()
-      if ascan(ag,year(human->k_data)) > 0 .and. between(human->ishod,201,203)
+      if ascan(ag,year(human->k_data)) > 0 .and. between(human->ishod,201,205)
         fl := .f. ; exit // в этом (или прошлом) году была диспансеризация или профилактика
       endif
       skip
