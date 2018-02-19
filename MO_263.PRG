@@ -288,7 +288,7 @@ return ret
 
 *
 
-***** 17.09.17 Проверка информации перед отправкой в ТФОМС
+***** 18.02.18 Проверка информации перед отправкой в ТФОМС
 Function _263_to_proverka(yes_msg,/*@*/yes_I07)
 Local i, j, s, ikol := 0, lkod_k, ldate, buf := save_maxrow(), k1, k2,;
       arr_i01 := {}, arr_i03 := {}, arr_i04 := {}, arr_i05 := {}, arr_i06 := {}, ;
@@ -440,22 +440,29 @@ for i := 1 to len(arr_i01)
       if napr->kod == arr_i01[i,2,j] .or. napr->KOD_F_3in > 0 .or. napr->KOD_F_3out > 0
         // текущую запись или аннулирования пропустим
       elseif !empty(napr->date_h_4)
+        fl := .f.
         if empty(napr->CODEM_FROM)
           if napr->TYPE_H_4 == 4 .and. napr->KOD_F_4out == -99 // не наша госпитализация
             s := ret_mo(napr->S_CODEM)[_MO_SHORT_NAME]
           else
             s := "нашем стационаре"
+            fl := .t.
           endif
         else
           s := ret_mo(napr->CODEM_FROM)[_MO_SHORT_NAME]
+          fl := (napr->CODEM_FROM == glob_mo[_MO_KOD_TFOMS])
         endif
         if empty(napr->date_6)
-          aadd(ta,"у пациента выписано направление №"+lstr(lnomer)+" от "+full_date(ldate)+",")
-          aadd(ta," но он уже госпитализирован в "+s+" "+full_date(napr->date_h_4)+" и ещё не выписан")
+          if fl
+            aadd(ta,"у пациента выписано направление №"+lstr(lnomer)+" от "+full_date(ldate)+",")
+            aadd(ta," но он уже госпитализирован в "+s+" "+full_date(napr->date_h_4)+" и ещё не выписан")
+          endif
         elseif ldate_h_1 > napr->DATE_H_4 .and. ldate < napr->DATE_6
-          aadd(ta,"у пациента выписано направление №"+lstr(lnomer)+" от "+full_date(ldate)+",")
-          aadd(ta," по текущему направлению планируемая дата госпитализации "+full_date(ldate_h_1))
-          aadd(ta," пересекается с госпитализацией в "+s+" "+full_date(napr->date_h_4)+"-"+full_date(napr->date_6))
+          if fl
+            aadd(ta,"у пациента выписано направление №"+lstr(lnomer)+" от "+full_date(ldate)+",")
+            aadd(ta," по текущему направлению планируемая дата госпитализации "+full_date(ldate_h_1))
+            aadd(ta," пересекается с госпитализацией в "+s+" "+full_date(napr->date_h_4)+"-"+full_date(napr->date_6))
+          endif
         endif
       else
         if abs(ldate - napr->date_d) < 20 .or. abs(ldate_h_1 - napr->date_h_1) < 20 //;
@@ -610,8 +617,7 @@ for i := 1 to len(arr_i04)
       aadd(ta, "дата рождения: "+full_date(kart->date_r)+" ( < 1900г.)")
     endif
     if kart->date_r > napr->DATE_H_4
-      aadd(ta, "дата рождения: "+full_date(kart->date_r)+;
-                " > даты госпитализации: "+full_date(napr->DATE_H_4))
+      aadd(ta, "дата рождения: "+full_date(kart->date_r)+" > даты госпитализации: "+full_date(napr->DATE_H_4))
     endif
     if !empty(kart->snils)
       s := space(80)
@@ -641,12 +647,26 @@ for i := 1 to len(arr_i04)
       if napr->kod == arr_i04[i,2,j]
         // текущую запись пропустим
       elseif !empty(napr->DATE_H_4)
-        if !empty(napr->DATE_6) // если уже выписан
-          if ldate > napr->DATE_H_4 .and. ldate < napr->DATE_6
-            aadd(ta,"у данного пациента обнаружена госпитализация с "+full_date(napr->DATE_H_4)+" по "+full_date(napr->DATE_6))
+        fl := .f.
+        if empty(napr->CODEM_FROM)
+          if napr->TYPE_H_4 == 4 .and. napr->KOD_F_4out == -99 // не наша госпитализация
+            fl := (napr->S_CODEM == glob_mo[_MO_KOD_TFOMS])
+          else
+            fl := .t. // наша госпитализация
           endif
         else
-          aadd(ta,"у данного пациента обнаружена незавершённая госпитализация от "+full_date(napr->DATE_H_4))
+          fl := (napr->CODEM_FROM == glob_mo[_MO_KOD_TFOMS])
+        endif
+        if !empty(napr->DATE_6) // если уже выписан
+          if ldate > napr->DATE_H_4 .and. ldate < napr->DATE_6
+            if fl
+              aadd(ta,"у данного пациента обнаружена госпитализация с "+full_date(napr->DATE_H_4)+" по "+full_date(napr->DATE_6))
+            endif
+          endif
+        else
+          if fl
+            aadd(ta,"у данного пациента обнаружена незавершённая госпитализация от "+full_date(napr->DATE_H_4))
+          endif
         endif
       endif
       skip
@@ -760,12 +780,26 @@ for i := 1 to len(arr_i05)
       if napr->kod == arr_i05[i,2,j]
         // текущую запись пропустим
       elseif !empty(napr->DATE_H_4)
-        if !empty(napr->DATE_6) // если уже выписан
-          if ldate > napr->DATE_H_4 .and. ldate < napr->DATE_6
-            aadd(ta,"у данного пациента обнаружена госпитализация с "+full_date(napr->DATE_H_4)+" по "+full_date(napr->DATE_6))
+        fl := .f.
+        if empty(napr->CODEM_FROM)
+          if napr->TYPE_H_4 == 4 .and. napr->KOD_F_4out == -99 // не наша госпитализация
+            fl := (napr->S_CODEM == glob_mo[_MO_KOD_TFOMS])
+          else
+            fl := .t. // наша госпитализация
           endif
         else
-          aadd(ta,"у данного пациента обнаружена незавершённая госпитализация от "+full_date(napr->DATE_H_4))
+          fl := (napr->CODEM_FROM == glob_mo[_MO_KOD_TFOMS])
+        endif
+        if !empty(napr->DATE_6) // если уже выписан
+          if ldate > napr->DATE_H_4 .and. ldate < napr->DATE_6
+            if fl
+              aadd(ta,"у данного пациента обнаружена госпитализация с "+full_date(napr->DATE_H_4)+" по "+full_date(napr->DATE_6))
+            endif
+          endif
+        else
+          if fl
+            aadd(ta,"у данного пациента обнаружена незавершённая госпитализация от "+full_date(napr->DATE_H_4))
+          endif
         endif
       endif
       skip
@@ -837,8 +871,7 @@ for i := 1 to len(arr_i06)
       aadd(ta, "дата рождения: "+full_date(kart->date_r)+" ( < 1900г.)")
     endif
     if kart->date_r > napr->date_6
-      aadd(ta, "дата рождения: "+full_date(kart->date_r)+;
-                " > даты выбытия: "+full_date(napr->DATE_6))
+      aadd(ta, "дата рождения: "+full_date(kart->date_r)+" > даты выбытия: "+full_date(napr->DATE_6))
     endif
     if !empty(ta)
       aadd(arr_error, {6,arr_i06[i,2,j],aclone(ta)} )
