@@ -3004,6 +3004,7 @@ if is_disp_DVN //
   endif
   k700 := 0
   for i := 1 to len(au_lu)
+    hu->(dbGoto(au_lu[i,9]))       // 9 - номер записи
     lshifr := alltrim(au_lu[i,1])
     if left(lshifr,4) == '2.3.' .and. !empty(au_lu[i,3])
       s := 'услуга '+au_lu[i,5]+'-'+inieditspr(A__MENUVERT,glob_V002,au_lu[i,3])+'('+date_8(au_lu[i,2])+')'
@@ -3020,7 +3021,7 @@ if is_disp_DVN //
       aadd(ta,s+' не попадает в диапазон лечения')
     endif
     if is_usluga_dvn(au_lu[i],mv,ta,metap,mpol,kod_spec_ter)
-      if metap == 1 .and. !eq_any(lshifr,"4.20.1","4.20.2")
+      if metap == 1 .and. empty(hu->u_cena) .and. !eq_any(left(lshifr,5),"4.20.","2.90.")
         ++kol_d_usl
       elseif metap == 3 .and. !(lshifr == "56.1.14")
         ++kol_d_usl
@@ -3101,7 +3102,7 @@ if is_disp_DVN //
           endif
         endif
       else
-        aadd(ta,'слишком много отказов-'+lstr(kol_d_otkaz))
+        aadd(ta,'слишком много отказов-'+lstr(kol_d_otkaz))//+' услуг-'+lstr(kol_d_usl))
       endif
     case metap == 4
       if zs > 1
@@ -3354,7 +3355,7 @@ do while !eof()
     if (fl := (human->cena_1 == 0)) // если цена нулевая
       if is_smp(human_->USL_OK,human_->PROFIL)  // скорая помощь
         fl = .f.
-      elseif eq_any(human->ishod,201,202) // диспансеризация взрослого населения
+      elseif eq_any(human->ishod,201,202,204) // диспансеризация взрослого населения
         fl = .f.
       endif
     endif

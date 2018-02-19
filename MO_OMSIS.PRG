@@ -4911,7 +4911,7 @@ return NIL
 
 *
 
-***** 12.02.18 распечатка формы №1 из приказа ФОМС №146
+***** 18.02.18 распечатка формы №1 из приказа ФОМС №146
 Function forma1_ffoms()
 Local arr_m, mdate, i, j, k, d1, d2, arr_smo := {}, at1, at2, ta, fl_month, tmp, b1_1, a1_1,;
       _bd, fl, b1, b2, a1, a2, lsmo, name_file := "forma1", HH := 80, sh := 84
@@ -4970,6 +4970,7 @@ index on str(smo,5)+str(vid,1)+str(pz,1)+enp to (cur_dir+"tmp3")
 tmp := aclone(arr_m)
 tmp[5] := 1 // январь
 ret_days_for_akt_sverki(tmp,@b1_1,,@a1_1,)
+//my_debug(,print_array({tmp,b1_1,a1_1}))
 //
 d1 := d2 := 10
 ret_days_for_akt_sverki(arr_m,@b1,@b2,@a1,@a2)
@@ -4995,7 +4996,7 @@ do while !eof()
   if !empty(lsmo) .and. schet_->NREGISTR == 0 // только зарегистрированные
     @ maxrow(),0 say padr("№ "+alltrim(schet_->NSCHET)+" от "+date_8(schet_->DSCHET),28) color "W/R"
     mdate := date_reg_schet() // дата регистрации
-    if between(mdate,boy(arr_m[5])+b1_1,arr_m[6]+iif(lsmo==34,0,b2))
+    if between(mdate,boy(arr_m[5])+iif(lsmo==34,0,b1_1),arr_m[6]+iif(lsmo==34,0,b2))
       fl_month := between(mdate,arr_m[5]+iif(lsmo==34,0,b1),arr_m[6]+iif(lsmo==34,0,b2))
       f1forma1_ffoms(0,arr_m,arr_smo,fl_month,schet->summa,iif(lsmo==34,0,b1),iif(lsmo==34,0,b2))
     endif
@@ -5037,7 +5038,7 @@ R_Use(dir_server+"mo_raks",,"RAKS")
 set relation to akt into RAK
 R_Use(dir_server+"mo_raksh",,"RAKSH")
 set relation to kod_raks into RAKS
-index on str(kod_h,7) to (cur_dir+"tmp_raksh") for between(mo_xml->dfile,boy(arr_m[5])+a1_1,arr_m[6]+a2) 
+index on str(kod_h,7) to (cur_dir+"tmp_raksh") for between(mo_xml->dfile,boy(arr_m[5]),arr_m[6]+a2) 
                                              //for between(rak->DAKT,boy(arr_m[5]),arr_m[6])
 go top
 do while !eof()
@@ -5049,10 +5050,10 @@ do while !eof()
       if schet_->NREGISTR == 0 // только зарегистрированные
         if int(val(schet_->smo)) == 34
           fl_month := between(mo_xml->dfile,arr_m[5],arr_m[6])
-          fl := (mo_xml->dfile <= arr_m[6]) // т.к. индекс для СМО, а не для иногородних
+          fl := (mo_xml->dfile <= arr_m[6])
         else
           fl_month := between(mo_xml->dfile,arr_m[5]+a1,arr_m[6]+a2)
-          fl := .t.
+          fl := (mo_xml->dfile >= boy(arr_m[5])+a1_1)
         endif
         if fl
           f1forma1_ffoms(1,arr_m,arr_smo,fl_month,raksh->SANK_MEK+raksh->SANK_MEE+raksh->SANK_EKMP)

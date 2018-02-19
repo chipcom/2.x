@@ -2594,62 +2594,62 @@ if ((lshifr == "2.3.3" .and. ausl[3] == 3) .or. ; // акушерскому делу
   fl := .t.
 endif
 if !fl
-  for i := 1 to count_dvn_arr_umolch
-    if dvn_arr_umolch[i,2] == lshifr
+  for i := 1 to count_dvn_arr_umolch13
+    if dvn_arr_umolch13[i,2] == lshifr
       fl := .t. ; exit
     endif
   next
 endif
 if !fl
   DEFAULT _spec_ter to 0
-  for i := 1 to count_dvn_arr_usl
-    if len(dvn_arr_usl[i]) < 12 .and. valtype(dvn_arr_usl[i,2]) == "C"
-      if dvn_arr_usl[i,2] == "4.20.1" .and. lshifr == "4.20.2"
+  for i := 1 to count_dvn_arr_usl13
+    if len(dvn_arr_usl13[i]) < 12 .and. valtype(dvn_arr_usl13[i,2]) == "C"
+      if dvn_arr_usl13[i,2] == "4.20.1" .and. lshifr == "4.20.2"
         fl := .t.
-      elseif dvn_arr_usl[i,2] == lshifr
+      elseif dvn_arr_usl13[i,2] == lshifr
         fl := .t.
       endif
-    elseif len(dvn_arr_usl[i]) > 11
-      if ascan(dvn_arr_usl[i,12],{|x| x[1]==lshifr .and. x[2]==ausl[3]}) > 0
+    elseif len(dvn_arr_usl13[i]) > 11
+      if ascan(dvn_arr_usl13[i,12],{|x| x[1]==lshifr .and. x[2]==ausl[3]}) > 0
         fl := .t.
       endif
     endif
     if fl
-      s := '"'+lshifr+'.'+dvn_arr_usl[i,1]+'"'
+      s := '"'+lshifr+'.'+dvn_arr_usl13[i,1]+'"'
       if _etap == 1
         j := iif(_pol == "М", 6, 7)
-        if valtype(dvn_arr_usl[i,j]) == "N"
-          if dvn_arr_usl[i,j] == 0
+        if valtype(dvn_arr_usl13[i,j]) == "N"
+          if dvn_arr_usl13[i,j] == 0
             aadd(arr,'Несовместимость по полу в услуге '+s)
           endif
         else
-          if ascan(dvn_arr_usl[i,j],_vozrast) == 0
+          if ascan(dvn_arr_usl13[i,j],_vozrast) == 0
             aadd(arr,'Некорректный возраст пациента для услуги '+s)
           endif
         endif
       else
         j := iif(_pol == "М", 8, 9)
-        if valtype(dvn_arr_usl[i,j]) == "N"
-          if dvn_arr_usl[i,j] == 0
+        if valtype(dvn_arr_usl13[i,j]) == "N"
+          if dvn_arr_usl13[i,j] == 0
             aadd(arr,'Несовместимость по полу в услуге '+s)
           endif
         else
-          if !between(_vozrast,dvn_arr_usl[i,j,1],dvn_arr_usl[i,j,2])
+          if !between(_vozrast,dvn_arr_usl13[i,j,1],dvn_arr_usl13[i,j,2])
             aadd(arr,'Некорректный возраст пациента для услуги '+s)
           endif
         endif
       endif
-      if valtype(dvn_arr_usl[i,10]) == "N"
-        if ret_profil_dispans(dvn_arr_usl[i,10],ausl[4]) != ausl[3]
-        //if dvn_arr_usl[i,10] != ausl[3]
+      if valtype(dvn_arr_usl13[i,10]) == "N"
+        if ret_profil_dispans(dvn_arr_usl13[i,10],ausl[4]) != ausl[3]
+        //if dvn_arr_usl13[i,10] != ausl[3]
           aadd(arr,'Не тот профиль в услуге '+s)
         endif
       else
-        if ascan(dvn_arr_usl[i,10],ausl[3]) == 0
+        if ascan(dvn_arr_usl13[i,10],ausl[3]) == 0
           aadd(arr,'Не тот профиль в услуге '+s)
         endif
       endif
-      as := aclone(dvn_arr_usl[i,11])
+      as := aclone(dvn_arr_usl13[i,11])
       // "Измерение внутриглазного давления","3.4.9"
       if _etap == 1 .and. as[1] == 1112 .and. _spec_ter > 0
         aadd(as,_spec_ter) // добавить спец-ть терапевта

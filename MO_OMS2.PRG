@@ -1739,10 +1739,10 @@ if fl .and. eq_any(_etap,2,3)
 endif
 return fl
 
-***** 14.02.18 рабочая ли услуга (умолчание) ДВН в зависимости от этапа, возраста и пола
+***** 17.02.18 рабочая ли услуга (умолчание) ДВН в зависимости от этапа, возраста и пола
 Function f_is_umolch_sluch_DVN(i,_etap,_vozrast,_pol)
 Local fl := .f., ar := dvn_arr_umolch[i]
-if _etap < 4
+if _etap > 3
   return fl
 endif  
 if valtype(ar[3]) == "N"

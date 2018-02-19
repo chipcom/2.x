@@ -7162,7 +7162,7 @@ if _4
 endif
 return NIL
 
-***** 23.12.16 начиная с 2016 года
+***** 18.02.18 начиная с 2016 года
 Function ___f_39_2016(par1,jcol,mvozrast,is_selo)
 Local _1, _2, _3, _4, lshifr, lshifr1 := "", ldiag, ta, i, j, is_dom := .f., arr := {},;
       is_zabol, fl_stom_new := .f., au_lu := {}, au_flu := {}, vid_vp := 0,; // по умолчанию профилактика
@@ -7273,86 +7273,88 @@ else
     lshifr1 := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data)
     if f_paraklinika(usl->shifr,lshifr1,human->k_data)
       lshifr := iif(empty(lshifr1), usl->shifr, lshifr1)
-      ta := f14tf_nastr(@lshifr,,d2_year)
-      lshifr := alltrim(lshifr)
-      for j := 1 to len(ta)
-        if eq_any(ta[j,1],1,6).and. ta[j,2] == 0
-          k := hu->kol_1
-          otd->(dbGoto(hu->otd))
-          if iif(par1 == -1, .t., f_is_uch(st_a_uch,otd->kod_lpu)) .and. hu->kod_vr > 0  // если проставлен код врача
-            is_dom := (hu->kol_rcp < 0 .and. DomUslugaTFOMS(lshifr)) // на дому - по новому
-            _1 := _2 := _3 := _4 := .f.
-            afill(lp,0)
-            lp[1]  := hu->date_u
-            lp[21] := hu->kod_vr
-            lp[22] := hu->otd
-            lp[23] := otd->kod_lpu
-            // 1 врачебный приём
-            // 2 профилактический приём
-            // 3 посещений на дому
-            // 4 профилактический прием на дому
-            if is_zabol
-              if is_dom
-                _3 := .t.  // посещений на дому
-              else
-                _1 := .t.  // врачебный приём
-              endif
-            else
-              if is_dom
-                _4 := .t.  // профилактический прием на дому
-              else
-               _2 := .t.  // профилактический приём
-              endif
-            endif
-            if _1 .or. _2
-              lp[2] := k
-              if is_selo
-                lp[3] := k
-              endif
-              if mvozrast < 18
-                lp[4] := k
-              elseif mvozrast >= 60
-                lp[5] := k
-              endif
-            endif
-            if _1
-              lp[6] := k
-              if mvozrast < 18
-                lp[7] := k
-              elseif mvozrast >= 60
-                lp[8] := k
-              endif
-            endif
-            if _2
-              lp[9] := k
-            endif
-            if _3 .or. _4
-              lp[10] := k
-            endif
-            if _3
-              lp[11] := k
-              if mvozrast < 18
-                lp[12] := k
-                if mvozrast < 1
-                  lp[13] := k
+      if !eq_any(left(lshifr,5),"2.90.","2.91.")
+        ta := f14tf_nastr(@lshifr,,d2_year)
+        lshifr := alltrim(lshifr)
+        for j := 1 to len(ta)
+          if eq_any(ta[j,1],1,6).and. ta[j,2] == 0
+            k := hu->kol_1
+            otd->(dbGoto(hu->otd))
+            if iif(par1 == -1, .t., f_is_uch(st_a_uch,otd->kod_lpu)) .and. hu->kod_vr > 0  // если проставлен код врача
+              is_dom := (hu->kol_rcp < 0 .and. DomUslugaTFOMS(lshifr)) // на дому - по новому
+              _1 := _2 := _3 := _4 := .f.
+              afill(lp,0)
+              lp[1]  := hu->date_u
+              lp[21] := hu->kod_vr
+              lp[22] := hu->otd
+              lp[23] := otd->kod_lpu
+              // 1 врачебный приём
+              // 2 профилактический приём
+              // 3 посещений на дому
+              // 4 профилактический прием на дому
+              if is_zabol
+                if is_dom
+                  _3 := .t.  // посещений на дому
+                else
+                  _1 := .t.  // врачебный приём
                 endif
-              elseif mvozrast >= 60
-                lp[14] := k
-              endif
-            endif
-            if _4
-              if mvozrast < 18
-                lp[15] := k
-                if mvozrast < 1
-                  lp[16] := k
+              else
+                if is_dom
+                  _4 := .t.  // профилактический прием на дому
+                else
+                 _2 := .t.  // профилактический приём
                 endif
               endif
+              if _1 .or. _2
+                lp[2] := k
+                if is_selo
+                  lp[3] := k
+                endif
+                if mvozrast < 18
+                  lp[4] := k
+                elseif mvozrast >= 60
+                  lp[5] := k
+                endif
+              endif
+              if _1
+                lp[6] := k
+                if mvozrast < 18
+                  lp[7] := k
+                elseif mvozrast >= 60
+                  lp[8] := k
+                endif
+              endif
+              if _2
+                lp[9] := k
+              endif
+              if _3 .or. _4
+                lp[10] := k
+              endif
+              if _3
+                lp[11] := k
+                if mvozrast < 18
+                  lp[12] := k
+                  if mvozrast < 1
+                    lp[13] := k
+                  endif
+                elseif mvozrast >= 60
+                  lp[14] := k
+                endif
+              endif
+              if _4
+                if mvozrast < 18
+                  lp[15] := k
+                  if mvozrast < 1
+                    lp[16] := k
+                  endif
+                endif
+              endif
+              lp[jcol] := k
+              aadd(arr,aclone(lp))
             endif
-            lp[jcol] := k
-            aadd(arr,aclone(lp))
           endif
-        endif
-      next
+        next j
+      endif
     endif
     select HU
     skip
