@@ -5761,7 +5761,7 @@ return _gruppa
 
 *
 
-***** 25.11.13 Информация по профилактике и медосмотрам несовершеннолетних
+***** 19.02.18 Информация по профилактике и медосмотрам несовершеннолетних
 Function inf_DNL(k)
 Static si1 := 1, si2 := 1, sj1 := 1, sj2 := 1
 Local mas_pmt, mas_msg, mas_fun, j, j1, j2
@@ -5807,13 +5807,15 @@ do case
       inf_DNL_030poo(j1)
     endif
   case k == 16
-    if (j2 := popup_prompt(T_ROW,T_COL-5,sj2,mas2pmt,,,"N/W,GR+/R,B/W,W+/R")) > 0
-      sj2 := j2
-      p_tip_lu := {TIP_LU_PN,TIP_LU_PREDN,TIP_LU_PERN}[j2]
+    //if (j2 := popup_prompt(T_ROW,T_COL-5,sj2,mas2pmt,,,"N/W,GR+/R,B/W,W+/R")) > 0
+      //sj2 := j2
+      //p_tip_lu := {TIP_LU_PN,TIP_LU_PREDN,TIP_LU_PERN}[j2]
+      p_tip_lu := TIP_LU_PN
       if (j1 := popup_prompt(T_ROW,T_COL-5,1,mas1pmt)) > 0
-        inf_DNL_XMLfile(j1,charrem("~",mas2pmt[j2]))
+        //inf_DNL_XMLfile(j1,charrem("~",mas2pmt[j2]))
+        inf_DNL_XMLfile(j1,"Профилактические осмотры")
       endif
-    endif
+    //endif
   case k == 21
     if (j1 := popup_prompt(T_ROW,T_COL-5,1,mas1pmt)) > 0
       f21_inf_DNL(j1)
@@ -5831,21 +5833,22 @@ return NIL
 
 *
 
-***** 07.08.13 Распечатка карты проф.мед.осмотра (учётная форма № 030-ПО/у-12)
+***** 19.02.18 Распечатка карты проф.мед.осмотра (учётная форма № 030-ПО/у-12)
 Function inf_DNL_karta()
 Local arr_m, buf := save_maxrow(), blk, t_arr[BR_LEN]
 if (arr_m := year_month(T_ROW,T_COL-5)) != NIL
   mywait()
   if f0_inf_DNL(arr_m,.f.)
+    copy file (cur_dir+"tmp"+sdbf) to (cur_dir+"tmpDNL"+sdbf) // т.к. внутри тоже есть TMP-файл
     R_Use(dir_server+"human",,"HUMAN")
-    use (cur_dir+"tmp") new
+    use (cur_dir+"tmpDNL") new 
     set relation to kod into HUMAN
-    index on upper(human->fio) to (cur_dir+"tmp")
+    index on upper(human->fio) to (cur_dir+"tmpDNL")
     Private blk_open := {|| dbCloseAll(),;
                             R_Use(dir_server+"human_",,"HUMAN_"),;
                             R_Use(dir_server+"human",,"HUMAN"),;
                             dbSetRelation( "HUMAN_", {|| recno() }, "recno()" ),;
-                            R_Use(cur_dir+"tmp",cur_dir+"tmp"),;
+                            R_Use(cur_dir+"tmpDNL",cur_dir+"tmpDNL","TMP"),;
                             dbSetRelation( "HUMAN", {|| kod }, "kod" );
                         }
     eval(blk_open)
@@ -5944,19 +5947,19 @@ return ret
 
 *
 
-***** 01.11.15
+***** 19.02.18
 Function f4_inf_DNL_karta(par,_etap)
 Local i, k := 0, fl, arr := {}, ar
-if type("mperiod") == "N" .and. between(mperiod,1,33)
+if type("mperiod") == "N" .and. between(mperiod,1,31)
   //
 else
   mperiod := ret_period_PN(mdate_r,mn_data,mk_data,,@k)
 endif
-if !between(mperiod,1,33)
+if !between(mperiod,1,31)
   mperiod := k
 endif
-if !between(mperiod,1,33)
-  mperiod := 33
+if !between(mperiod,1,31)
+  mperiod := 31
 endif
 ar := np_arr_1_etap[mperiod]
 if par == 1
@@ -6009,35 +6012,44 @@ else
     if fl .and. !emptyany(&mvard,&mvart)
       k := 0
       do case
-        case i ==  1 // {"3.5.4"   ,   , "Аудиологический скрининг",0,64,{1111,111101} },;
+        case i == 1 // {"3.5.4"   ,   , "Аудиологический скрининг",0,64,{1111,111101} },;
           k := 15
-        case i ==  2 // {"4.2.153" ,   , "Общий анализ мочи",0,34,{1107,1301,1402,1702} },;
+        case i == 2 // {"4.2.153" ,   , "Общий анализ мочи",0,34,{1107,1301,1402,1702} },;
           k := 2
-        case i ==  3 // {"4.8.1"   ,   , "Общий анализ кала",0,34,{1107,1301,1402,1702} },;
-          k := 3
-        case i ==  4 // {"4.11.136",   , "Клинический анализ крови",0,34,{1107,1301,1402,1702} },;
+        //case i == 3 // {"4.8.1"   ,   , "Общий анализ кала",0,34,{1107,1301,1402,1702} },;
+          //k := 3
+        //case i == 4 // {"4.11.136",   , "Клинический анализ крови",0,34,{1107,1301,1402,1702} },;
+        case i == 3 // {"4.11.136",   , "Клинический анализ крови",0,34,{1107,1301,1402,1702} },;
           k := 1
-        case i ==  5 // {"4.12.169",   , "Исследование уровня глюкозы в крови",0,34,{1107,1301,1402,1702} },;
-          k := 4
-        case between(i,6,16) // {"4.14.67" ,   , "пролактин (гормон)",1,34,{1107,1301,1402,1702} },;
-          k := 5
-        case between(i,17,21) // {"4.26.1"  ,   , "Неонатальный скрининг на гипотиреоз",0,34,{1107,1301,1402,1702} },;
+        //case i == 5 // {"4.12.169",   , "Исследование уровня глюкозы в крови",0,34,{1107,1301,1402,1702} },;
+          //k := 4
+        //case between(i,6,16) // {"4.14.67" ,   , "пролактин (гормон)",1,34,{1107,1301,1402,1702} },;
+          //k := 5
+        //case between(i,17,21) // {"4.26.1"  ,   , "Неонатальный скрининг на гипотиреоз",0,34,{1107,1301,1402,1702} },;
+        case between(i,4,8) // {"4.26.1"  ,   , "Неонатальный скрининг на гипотиреоз",0,34,{1107,1301,1402,1702} },;
           k := 14
-        case i == 22 // {"7.61.3"  ,   , "Флюорография легких в 1-й проекции",0,78,{1118,1802} },;
-          k := 12
-        case i == 23 // {"8.1.1"   ,   , "УЗИ головного мозга (нейросонография)",0,106,{110101,111004,111802,111903,112211,112610,113416,113508,180203} },;
+        //case i == 22 // {"7.61.3"  ,   , "Флюорография легких в 1-й проекции",0,78,{1118,1802} },;
+          //k := 12
+        //case i == 23 // {"8.1.1"   ,   , "УЗИ головного мозга (нейросонография)",0,106,{110101,111004,111802,111903,112211,112610,113416,113508,180203} },;
+        case i == 9 // {"8.1.1"   ,   , "УЗИ головного мозга (нейросонография)",0,106,{110101,111004,111802,111903,112211,112610,113416,113508,180203} },;
           k := 11
-        case i == 24 // {"8.1.2"   ,   , "УЗИ щитовидной железы",0,106,{110101,111004,111802,111903,112211,112610,113416,113508,180203} },;
+        //case i == 24 // {"8.1.2"   ,   , "УЗИ щитовидной железы",0,106,{110101,111004,111802,111903,112211,112610,113416,113508,180203} },;
+          //k := 8
+        case i == 12 // {"8.1.6"   , 12, "УЗИ почек",0,106,{110101,111004,111802,111903,112211,112610,113416,113508,180203} },;
           k := 8
-        case i == 25 // {"8.1.3"   ,   , "УЗИ сердца",0,106,{110101,111004,111802,111903,112211,112610,113416,113508,180203} },;
+        //case i == 25 // {"8.1.3"   ,   , "УЗИ сердца",0,106,{110101,111004,111802,111903,112211,112610,113416,113508,180203} },;
+        case i == 10 // {"8.1.3"   ,   , "УЗИ сердца",0,106,{110101,111004,111802,111903,112211,112610,113416,113508,180203} },;
           k := 7
-        case i == 26 // {"8.1.4"   ,   , "УЗИ тазобедренных суставов",0,106,{110101,111004,111802,111903,112211,112610,113416,113508,180203} },;
+        //case i == 26 // {"8.1.4"   ,   , "УЗИ тазобедренных суставов",0,106,{110101,111004,111802,111903,112211,112610,113416,113508,180203} },;
+        case i == 11 // {"8.1.4"   ,   , "УЗИ тазобедренных суставов",0,106,{110101,111004,111802,111903,112211,112610,113416,113508,180203} },;
           k := 10
-        case i == 27 // {"8.2.1"   ,   , "УЗИ органов брюшной полости",0,106,{110101,111004,111802,111903,112211,112610,113416,113508,180203} },;
+        //case i == 27 // {"8.2.1"   ,   , "УЗИ органов брюшной полости",0,106,{110101,111004,111802,111903,112211,112610,113416,113508,180203} },;
+        case i == 13 // {"8.2.1"   ,   , "УЗИ органов брюшной полости",0,106,{110101,111004,111802,111903,112211,112610,113416,113508,180203} },;
           k := 6
-        case between(i,28,29) // {"8.2.2"   ,"М", "УЗИ органов репродуктивной системы",0,106,{110101,111004,111802,111903,112211,112610,113416,113508,180203} },;
-          k := 9
-        case i == 30 // {"13.1.1"  ,   , "Электрокардиография",0,111,{110103,110303,110906,111006,111905,112212,112611,113418,113509,180202} },;
+        //case between(i,28,29) // {"8.2.2"   ,"М", "УЗИ органов репродуктивной системы",0,106,{110101,111004,111802,111903,112211,112610,113416,113508,180203} },;
+          //k := 9
+        //case i == 30 // {"13.1.1"  ,   , "Электрокардиография",0,111,{110103,110303,110906,111006,111905,112212,112611,113418,113509,180202} },;
+        case i == 14 // {"13.1.1"  ,   , "Электрокардиография",0,111,{110103,110303,110906,111006,111905,112212,112611,113418,113509,180202} },;
           k := 13
       endcase
       aadd(arr, {np_arr_issled[i,3], &mvard, &mvarr, i, k})
@@ -6073,7 +6085,7 @@ do case
 endcase
 return k
 
-***** 07.03.16 Приложение к Приказу МЗВО №14-08-6059 от 07.10.2014г.
+***** 18.02.18 Приложение к Приказу МЗВО №14-08-6059 от 07.10.2014г.
 Function f21_inf_DNL(par)
 Local arr_m, buf := save_maxrow(), lkod_h, lkod_k, rec, s, adbf, as, i, j, k, ;
       sh, HH := 60, n, n_file := "svod_dnl"+stxt
@@ -6136,7 +6148,7 @@ if (arr_m := year_month(,,,5)) != NIL
     add_string(center("("+arr_m[4]+")",sh))
     use (cur_dir+"tmp1") index (cur_dir+"tmp1") new
     as := array(16,2)
-    for i := 1 to 3
+    for i := 1 to iif(arr_m[1] < 18, 3, 1)
       afillall(as,0)
       if i == 3
         arr_title := {;
@@ -7397,7 +7409,7 @@ return NIL
 
 *
 
-***** 25.11.13
+***** 19.02.18
 Function inf_DNL_XMLfile(is_schet,stitle)
 Local arr_m, n, buf := save_maxrow(), lkod_h, lkod_k, rec, blk, t_arr[BR_LEN],;
       arr, n_func
@@ -7412,15 +7424,16 @@ if (arr_m := year_month(T_ROW,T_COL-5)) != NIL
       arr := {305} // период.осмотры
   endcase
   if f0_inf_DNL(arr_m,is_schet > 1,is_schet == 3,arr)
+    copy file (cur_dir+"tmp"+sdbf) to (cur_dir+"tmpDNL"+sdbf) // т.к. внутри тоже есть TMP-файл
     R_Use(dir_server+"human",,"HUMAN")
-    use (cur_dir+"tmp") new
+    use (cur_dir+"tmpDNL") new
     set relation to kod into HUMAN
-    index on upper(human->fio) to (cur_dir+"tmp")
+    index on upper(human->fio) to (cur_dir+"tmpDNL")
     Private blk_open := {|| dbCloseAll(),;
                             R_Use(dir_server+"human_",,"HUMAN_"),;
                             R_Use(dir_server+"human",,"HUMAN"),;
                             dbSetRelation( "HUMAN_", {|| recno() }, "recno()" ),;
-                            E_Use(cur_dir+"tmp",cur_dir+"tmp"),;
+                            E_Use(cur_dir+"tmpDNL",cur_dir+"tmpDNL","TMP"),;
                             dbSetRelation( "HUMAN", {|| kod }, "kod" );
                         }
     eval(blk_open)
@@ -7464,7 +7477,7 @@ if (arr_m := year_month(T_ROW,T_COL-5)) != NIL
                             R_Use(dir_server+"human_",,"HUMAN_"),;
                             R_Use(dir_server+"human",,"HUMAN"),;
                             dbSetRelation( "HUMAN_", {|| recno() }, "recno()" ),;
-                            R_Use(cur_dir+"tmp",cur_dir+"tmp"),;
+                            E_Use(cur_dir+"tmpDNL",cur_dir+"tmpDNL","TMP"),;
                             dbSetRelation( "HUMAN", {|| kod }, "kod" );
                         }
     mo_mzxml_N(1)

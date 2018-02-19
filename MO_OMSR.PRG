@@ -2018,7 +2018,7 @@ if is_2_82
   endif
 endif
 if is_disp_DDS .or. is_disp_DVN .or. is_prof_PN .or. is_pren_diagn .or. kol_ksg > 0 ;
-                                                .or. is_2_89 .or. is_reabil .or. is_s_dializ
+                                                .or. is_2_89 .or. is_reabil //.or. is_s_dializ
   if is_reabil  // проводим проверку на профиль при реабилитации
     if human_->profil != 158
       aadd(ta,'в случае надо использовать профиль по: '+inieditspr(A__MENUVERT, glob_V002, 158))

@@ -3730,10 +3730,8 @@ ob_kol := 0
 go top
 do while !eof()
   fl := .f.
-  if schet_->IS_DOPLATA==0 .and. !empty(val(schet_->smo)) ;
-                           .and. schet_->NREGISTR == 0 // только зарегистрированные
-    @ maxrow(),0 say padr(alltrim(schet_->NSCHET)+" от "+;
-                          date_8(schet_->DSCHET),27) color "W/R"
+  if schet_->IS_DOPLATA == 0 .and. !empty(val(schet_->smo)) .and. schet_->NREGISTR == 0 // только зарегистрированные
+    @ maxrow(),0 say padr(alltrim(schet_->NSCHET)+" от "+date_8(schet_->DSCHET),27) color "W/R"
     // дата регистрации
     mdate := date_reg_schet()
     // дата отчетного периода
