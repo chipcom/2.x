@@ -1575,7 +1575,100 @@ else
 endif
 return NIL
 
-*
+***** 20.02.18 ‘¯¨á®ª €Š
+Function pr_list_RAK()
+Static arr_smo
+Local buf := save_maxrow(), arr_m, n_file := "list_RAK"+stxt, ta[2], i, s, asmo,;
+      krak := 0, kakt, ksch, kpac, kerr, sh, HH := 60
+if arr_smo == NIL
+  arr_smo := mo_cut_menu(glob_arr_smo)
+endif
+if (arr_m := year_month(T_ROW,T_COL-5)) == NIL
+  return NIL
+endif
+if (asmo := bit_popup(T_ROW,T_COL-5,arr_smo,,color0)) == NIL
+  return NIL
+endif
+s := ""
+for i := 1 to len(asmo)
+  s += asmo[i,1]+", "
+next
+arr_title := {;
+  "ÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄ",;
+  "   „ â    ³Žâçñâ³                         ³     ³ª®«-¢®³ª®«-¢®³ª®«-¢®³ª®«-¢®",;
+  "   €Š    ³¯¥à¨®³      €ªâ ª®­âà®«ï       ³ ‘ŒŽ ³ ªâ®¢ ³áç¥â®¢³¯ æ¨¥­³á­ïâ¨©",;
+  "ÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄ"}
+sh := len(arr_title[1])
+k := perenos(ta,left(s,len(s)-2),sh)   
+//
+fp := fcreate(n_file) ; n_list := 1 ; tek_stroke := 0
+add_string(glob_mo[_MO_SHORT_NAME])
+add_string("")
+add_string(center("‘¯¨á®ª à¥¥áâà®¢  ªâ®¢ ª®­âà®«ï",sh))
+add_string(center(arr_m[4],sh))
+for i := 1 to k
+  add_string(center(alltrim(ta[i]),sh))
+next  
+add_string("")
+aeval(arr_title, {|x| add_string(x) } )
+//
+R_Use(dir_server+"schet_",,"SCHET_")
+R_Use(dir_server+"mo_raks",,"RAKS")
+index on str(akt,6) to tmpraks memory 
+R_Use(dir_server+"mo_rak",,"RAK")
+index on str(kod_xml,6) to tmprak memory
+R_Use(dir_server+"mo_xml",,"MO_XML")
+index on dfile to tmp_xml for TIP_IN == _XML_FILE_RAK memory
+go top
+do while !eof()
+  if between(mo_xml->DFILE,arr_m[5],arr_m[6])
+    otch_period := space(6) ; lsmo := space(5)
+    kakt := ksch := kpac := kerr := 0
+    select RAK
+    find (str(mo_xml->kod,6))
+    do while mo_xml->kod == rak->kod_xml .and. !eof()
+      select RAKS
+      find (str(rak->akt,6))
+      do while rak->akt == raks->akt .and. !eof()
+        if ascan(asmo,{|x| x[2] == int(val(raks->plat)) }) > 0
+          lsmo := raks->plat
+          schet_->(dbGoto(raks->schet))
+          s := right(str(schet_->NYEAR,4),2)+"/"+strzero(schet_->NMONTH,2)+" "
+          if empty(otch_period)
+            otch_period := s
+          elseif !(otch_period == s) .and. !(right(otch_period,1) == "+") 
+            otch_period := left(otch_period,5)+"+"
+          endif
+        endif
+        select RAKS
+        skip
+      enddo
+      kakt++ 
+      ksch += rak->KOL_SCH 
+      kpac += rak->KOL_PAC
+      kerr += rak->KOL_ERR
+      select RAK
+      skip
+    enddo
+    if !empty(otch_period)
+      if verify_FF(HH,.t.,sh)
+        aeval(arr_title, {|x| add_string(x) } )
+      endif
+      krak++
+      add_string(full_date(mo_xml->DFILE)+" "+otch_period+padr(mo_xml->FNAME,26)+lsmo+;
+                 put_val(kakt,7)+put_val(ksch,7)+put_val(kpac,7)+put_val(kerr,7))
+    endif
+  endif
+  select MO_XML
+  skip
+enddo
+add_string(replicate("Ä",sh))
+add_string("  ˆâ®£® ª®«¨ç¥áâ¢® €Š (à¥¥áâà®¢  ªâ®¢ ª®­âà®«ï) - "+lstr(krak))
+fclose(fp)
+close databases
+rest_box(buf)
+viewtext(n_file,,,,.f.,,,2)
+return NIL
 
 ***** 29.11.15 ‘¯¨á®ª áç¥â®¢ ¡¥§ €Š
 Function pr_schet_bez_RAK()
@@ -1601,7 +1694,6 @@ R_Use(dir_server+"mo_raks",,"RAKS")
 index on str(schet,6) to (cur_dir+"tmpraks")
 R_Use(dir_server+"schet_",,"SCHET_")
 R_Use(dir_server+"schet",,"SCHET")
-set relation to recno() into SCHET_
 set relation to recno() into SCHET_
 index on str(schet_->nyear,4)+str(schet_->nmonth,2) to (cur_dir+"tmp_schet") ;
       for empty(schet_->IS_DOPLATA)

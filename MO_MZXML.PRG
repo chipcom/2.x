@@ -684,9 +684,11 @@ else
   oXmlDoc:Save(n_file+sxml)
   rest_box(buf)
   n_message({stitle+"- "+lstr(_kol)+" чел.;",;
-             "в каталоге "+upper(cur_dir),;
-             "создан файл "+upper(n_file+sxml),;
-             "для загрузки на портал Минздрава РФ."},,;
+             "в каталоге "+upper(cur_dir)+" создан файл "+upper(n_file+sxml),;
+             "для загрузки на портал Минздрава РФ.",;
+             "",;
+             "Обращаем Ваше внимание, что импорт карт профосмотра по новому Приказу МЗРФ",;
+             "пока не поддерживается на портале МЗРФ"},,;
              cColorStMsg,cColorStMsg,,,cColorSt2Msg)
 endif
 return NIL

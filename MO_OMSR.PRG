@@ -9,14 +9,14 @@
 Static Sreestr_sem := "Работа с реестрами"
 Static Sreestr_err := "В данный момент с реестрами работает другой пользователь."
 
-***** 23.02.15 скорректировать вид помощи для дневного стационара по лицензии
+***** 23.02.15 скорректировать вид помощи для дневного стационара (в стационаре) по лицензии
 Function ret_vidpom_licensia(lusl_ok,lvidpoms)
 Static mo_licensia := {;
   {'101004',2,'31'},;  // ВОУНЦ
   {'141023',2,'31'},;  // б-ца 15
   {'391001',2,'31'};   // Камышинская гор.б-ца 1
  }
-Local i := ascan(mo_licensia, {|x| x[1]==glob_mo[_MO_KOD_TFOMS] .and. x[2]==lusl_ok })
+Local i := ascan(mo_licensia, {|x| x[1] == glob_mo[_MO_KOD_TFOMS] .and. x[2] == lusl_ok })
 if i > 0
   lvidpoms := mo_licensia[i,3]
 endif
@@ -387,13 +387,13 @@ return lp
 
 *
 
-***** 12.02.18
+***** 28.02.18
 Function verify_1_sluch(fl_view)
 Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
       i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
       d1, d2, cd1, cd2, ym2, a_period_amb := {}, a_1_11, u_1_stom := "", lprofil, ;
       lbukva, lst, lidsp, a_idsp := {}, a_bukva := {}, t_arr[2], ltip, lkol, ;
-      a_dializ := {}, is_2_88 := .f.
+      a_dializ := {}, is_2_88 := .f., a_rec_ffoms := {}
 if empty(human->k_data)
   return .t.  // не проверять
 endif
@@ -419,8 +419,11 @@ d1 := human->n_data ; d2 := human->k_data ; cuch_doc := human->uch_doc
 ym2 := left(dtos(d2),6)
 d1_year := year(d1) ; d2_year := year(d2)
 cd1 := dtoc4(d1) ; cd2 := dtoc4(d2)
+gnot_disp := (human->ishod < 100)
+gkod_diag := human->kod_diag
+gusl_ok := human_->usl_ok
 //
-if human_->usl_ok == 4 // если "скорая помощь"
+if gusl_ok == 4 // если "скорая помощь"
   select HUMAN
   set order to 3
   find (dtos(d2)+cuch_doc)
@@ -447,6 +450,24 @@ do while human->kod_k == glob_kartotek .and. !eof()
   endif
   if fl .and. m1novor != human_->NOVOR
     fl := .f. // лист учёта на новорожденного (или наоборот)
+  endif
+  if fl .and. gnot_disp .and. human->ishod < 100 ; // если не диспансеризация
+        .and. gusl_ok == human_->usl_ok ; // если те же условия оказания помощи
+        .and. !empty(gkod_diag) .and. left(gkod_diag,3) == left(human->kod_diag,3) ; // тот же основной диагноз
+        .and. (k := d1 - human->k_data) >= 0  // и случай оказан раньше проверяемого
+    if gusl_ok == 3     // поликлиника
+      if k < 16
+        aadd(a_rec_ffoms,{human->(recno()),0,k})
+      endif 
+    elseif gusl_ok == 4 // скорая помощь
+      if k < 2
+        aadd(a_rec_ffoms,{human->(recno()),0,k})
+      endif 
+    else                // круглосуточный и дневной стационар
+      if k < 31
+        aadd(a_rec_ffoms,{human->(recno()),0,k})
+      endif 
+    endif 
   endif
   // если диапазон лечения перекрывается в стационаре и дневном стационаре
   if fl .and. eq_any(human_->USL_OK,1,2)
@@ -3228,13 +3249,84 @@ if len(arr_unit) > 1
   next
   aadd(ta,left(s,len(s)-2))
 endif
+if fl_view .and. !is_s_dializ .and. !is_dializ .and. !is_perito .and. len(a_rec_ffoms) > 0 // повтор диагноза
+  ltip := 0
+  i := 1
+  asort(a_rec_ffoms,,,{|x,y| x[3] < y[3] })
+  if gusl_ok == 3     // поликлиника
+    if is_2_78
+      ltip := 1
+    elseif is_2_80 
+      ltip := 2
+    elseif is_2_88 
+      ltip := 3
+    elseif is_2_89 
+      ltip := 4
+    endif
+    if ltip == 0
+      i := 0
+    else
+      fl := .f.
+      for i := 1 to len(a_rec_ffoms)
+        select HU
+        find (str(a_rec_ffoms[i,1],7))
+        do while hu->kod == a_rec_ffoms[i,1] .and. !eof()
+          lshifr1 := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data)
+          if is_usluga_TFOMS(usl->shifr,lshifr1,human->k_data)
+            lshifr := alltrim(iif(empty(lshifr1), usl->shifr, lshifr1))
+            left_lshifr_5 := left(lshifr,5)
+            if left_lshifr_5 == "2.78."
+              if !between_shifr(lshifr,"2.78.54","2.78.60")
+                a_rec_ffoms[i,2] := 1
+                fl := .t.
+              endif
+            elseif left_lshifr_5 == "2.80."
+              if !between_shifr(lshifr,"2.80.34","2.80.38")
+                if ltip == 2 // если прошлое и новое лечение "2.80."
+                  a_rec_ffoms[i,2] := 2
+                  fl := .t.
+                endif
+              endif
+            elseif left_lshifr_5 == "2.88."
+              if !between_shifr(lshifr,"2.88.46","2.88.51")
+                a_rec_ffoms[i,2] := 3
+                fl := .t.
+              endif
+            elseif left_lshifr_5 == "2.89."
+              a_rec_ffoms[i,2] := 4
+              fl := .t.
+            endif
+          endif
+          if fl ; exit ; endif
+          select HU
+          skip
+        enddo
+        if fl ; exit ; endif
+      next
+      if !fl
+        i := 0
+      endif
+    endif
+  endif
+  if i > 0
+    select D_SROK
+    append blank
+    d_srok->kod  := human->kod
+    d_srok->tip  := ltip
+    d_srok->otd  := human->otd
+    d_srok->kod1 := a_rec_ffoms[i,1]
+    d_srok->tip1 := a_rec_ffoms[i,2]
+    d_srok->dni  := a_rec_ffoms[i,3]
+  endif
+endif
 if len(ta) > 0
   _ocenka := 0
   verify_FF(80-len(ta)-3,.t.,80)
   add_string("")
   uch->(dbGoto(human->LPU))
   otd->(dbGoto(human->OTD))
-  add_string(alltrim(human->fio)+" "+date_8(human->n_data)+"-"+date_8(human->k_data)+;
+  add_string(alltrim(human->fio)+" "+alltrim(human->kod_diag)+" "+;
+             date_8(human->n_data)+"-"+date_8(human->k_data)+;
              " ("+count_ymd(human->date_r,human->n_data)+")")
   Ins_Array(ta,1,alltrim(uch->name)+'/'+alltrim(otd->name)+'/профиль по "'+;
                  inieditspr(A__MENUVERT, glob_V002, human_->profil)+'"')
@@ -3285,11 +3377,23 @@ if fl_view
 endif  
 return (_ocenka >= 5)
 
-*
+***** 28.02.18
+Function f_create_diag_srok()
+dbcreate(cur_dir+"tmp_d_srok",{{"kod","N",7,0},;
+                               {"tip","N",1,0},;
+                               {"otd","N",3,0},;
+                               {"kod1","N",7,0},;
+                               {"tip1","N",1,0},;
+                               {"dni","N",2,0}})
+use (cur_dir+"tmp_d_srok") new alias D_SROK
+return NIL
 
-***** 28.01.17
+***** 28.02.18
 Function verify_OMS(arr_m,fl_view)
-Local ii := 0, iprov := 0, inprov := 0, ko := 2, fl, name_file := "err_sl"+stxt, kr_unlock
+Local ii := 0, iprov := 0, inprov := 0, ko := 2, fl, name_file := "err_sl"+stxt,;
+      name_file2, name_file3, kr_unlock, i,;
+      mas_pmt := {"Список обнаруженных ошибок в результате проверки"}, mas_file := {}
+aadd(mas_file,name_file)       
 DEFAULT arr_m TO year_month(T_ROW,T_COL+5,,3), fl_view TO .t.
 if arr_m == NIL
   return NIL
@@ -3315,6 +3419,7 @@ dbcreate(cur_dir+"tmp_no",{{"kod","N",7,0},;
                            {"komu","N",1,0},;
                            {"str_crb","N",2,0}})
 use (cur_dir+"tmp_no") new
+f_create_diag_srok()
 R_Use(dir_server+"mo_pers",,"PERS")
 R_Use(dir_server+"mo_uch",,"UCH")
 R_Use(dir_server+"mo_otd",,"OTD")
@@ -3425,11 +3530,96 @@ if inprov == 0
     add_string("Нечего проверять!")
   endif
 endif
-if tmp_no->(lastrec()) > 0
+fclose(fp)
+if fl_view .and. d_srok->(lastrec()) > 0
+  name_file2 := "err_sl2"+stxt
+  delete file (name_file2)
+  aadd(mas_pmt,"Случаи повторных обращений по поводу одного заболевания")
+  aadd(mas_file,name_file2)
+  mywait()
+  delFRfiles()
+  adbf := {{"name","C",130,0},;
+           {"name1","C",150,0},;
+           {"period","C",150,0}}
+  dbcreate(fr_titl, adbf)
+  use (fr_titl) new alias FRT
+  append blank
+  frt->name := glob_mo[_MO_SHORT_NAME]
+  frt->name1 := "Список случаев повторных обращений по поводу одного и того же заболевания"
+  frt->period := arr_m[4]
+  adbf := {{"fio","C",100,0},;
+           {"diag","C",5,0},;
+           {"diag1","C",5,0},;
+           {"srok","C",30,0},;
+           {"srok1","C",30,0},;
+           {"tip","C",10,0},;
+           {"tip1","C",10,0},;
+           {"otd","C",200,0},;
+           {"otd1","C",200,0},;
+           {"vrach","C",100,0},;
+           {"vrach1","C",100,0}}
+  dbcreate(fr_data,adbf)
+  use (fr_data) new alias FRD
+  am := {"78","80","88","89"}
   select HUMAN
   set index to
-  verify_FF(74,.t.,80)
-  add_string(replicate("=",80))
+  select D_SROK
+  go top
+  do while !eof()
+    select HUMAN
+    goto (d_srok->kod)
+    select FRD
+    append blank
+    frd->fio := alltrim(human->fio)+" д.р."+full_date(human->date_r)+" (повтор через "+lstr(d_srok->dni)+" дн.)"
+    frd->diag := human->kod_diag
+    frd->srok := full_date(human->n_data)+" - "+full_date(human->k_data)
+    if d_srok->tip > 0
+      frd->tip := "( 2."+am[d_srok->tip]+".* )"
+    elseif human_->usl_ok == 1
+      frd->tip := "( стац. )"
+    elseif human_->usl_ok == 2
+      frd->tip := "( дн.ст. )"
+    elseif human_->usl_ok == 4
+      frd->tip := "( скорая )"
+    endif
+    uch->(dbGoto(human->LPU))
+    otd->(dbGoto(human->OTD))
+    frd->otd := alltrim(uch->name)+'/ '+alltrim(otd->name)+'/ профиль по "'+;
+                inieditspr(A__MENUVERT, glob_V002, human_->profil)+'"'
+    pers->(dbGoto(human_->VRACH))           
+    frd->vrach := "[ "+lstr(pers->tab_nom)+" ] "+pers->fio
+    //
+    select HUMAN
+    goto (d_srok->kod1)
+    frd->diag1 := human->kod_diag
+    frd->srok1 := full_date(human->n_data)+" - "+full_date(human->k_data)
+    if d_srok->tip1 > 0
+      frd->tip1 := "( 2."+am[d_srok->tip1]+".* )"
+    elseif human_->usl_ok == 1
+      frd->tip1 := "( стац. )"
+    elseif human_->usl_ok == 2
+      frd->tip1 := "( дн.ст. )"
+    elseif human_->usl_ok == 4
+      frd->tip1 := "( скорая )"
+    endif
+    uch->(dbGoto(human->LPU))
+    otd->(dbGoto(human->OTD))
+    frd->otd1 := alltrim(uch->name)+'/ '+alltrim(otd->name)+'/ профиль по "'+;
+                 inieditspr(A__MENUVERT, glob_V002, human_->profil)+'"'
+    pers->(dbGoto(human_->VRACH))           
+    frd->vrach1 := "[ "+lstr(pers->tab_nom)+" ] "+pers->fio
+    select D_SROK
+    skip
+  enddo
+endif
+if fl_view .and. tmp_no->(lastrec()) > 0
+  name_file3 := "err_sl3"+stxt
+  aadd(mas_pmt,"Список листов учёта, которые не проверялись")
+  aadd(mas_file,name_file3)
+  fp := fcreate(name_file3) ; n_list := 1 ; tek_stroke := 0
+  select HUMAN
+  set index to
+  add_string("")
   add_string(center("Список листов учёта, которые не проверялись",80))
   R_Use(dir_server+"str_komp",,"STR")
   R_Use(dir_server+"komitet",,"KOM")
@@ -3473,11 +3663,28 @@ if tmp_no->(lastrec()) > 0
     select TMP_NO
     skip
   enddo
+  fclose(fp)
 endif
 close databases
-fclose(fp)
 if fl_view
-  viewtext(name_file,,,,.t.,,,5)
+  ClrLine(maxrow(),color0)
+  if len(mas_pmt) == 1
+    viewtext(name_file,,,,.t.,,,5)
+  else
+    i := 1
+    keyboard chr(K_ENTER)
+    do while i > 0
+      if (i := popup_prompt(T_ROW,T_COL+5,i,mas_pmt,mas_pmt)) == 0
+        if !f_Esc_Enter("выхода из просмотра")
+          i := 1
+        endif
+      elseif hb_fileExists(mas_file[i]) 
+        viewtext(mas_file[i],,,,.t.,,,5)
+      else
+        call_fr("mo_d_srok")
+      endif
+    enddo
+  endif
 endif
 return NIL
 

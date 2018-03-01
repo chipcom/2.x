@@ -5888,10 +5888,11 @@ return flag
 
 *
 
-***** 02.05.13
+***** 28.02.18
 Function verify_OMS_sluch(mkod)
 Local buf := save_maxrow(), fl := .t., name_file := "err_sl"+stxt
 mywait()
+f_create_diag_srok()
 fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
 add_string("")
 add_string(center("Список обнаруженных ошибок",80))
@@ -5925,10 +5926,40 @@ G_Use(dir_server+"human",{dir_server+"humans",;
                           dir_server+"humand"},"HUMAN")
 set relation to recno() into HUMAN_, to recno() into HUMAN_2, to kod_k into KART
 goto (mkod)
-if !empty(human->k_data) .and. year(human->k_data) > 2017
+if empty(human->k_data)
+  //
+elseif year(human->k_data) > 2017
   fl := verify_1_sluch()
 else
   fl := verify_1_sluch_17()
+endif
+if d_srok->(lastrec()) > 0
+  am := {"78","80","88","89"} 
+  if fl
+    uch->(dbGoto(human->LPU))
+    otd->(dbGoto(human->OTD))
+    add_string(alltrim(human->fio)+" "+alltrim(human->kod_diag)+" "+;
+               date_8(human->n_data)+"-"+date_8(human->k_data)+;
+               iif(d_srok->tip==0, "", " (2."+am[d_srok->tip]+".*)"))
+    add_string(alltrim(uch->name)+'/'+alltrim(otd->name)+'/профиль по "'+;
+               inieditspr(A__MENUVERT, glob_V002, human_->profil)+'"')
+    pers->(dbGoto(human_->VRACH))           
+    add_string("лечащий врач ["+lstr(pers->tab_nom)+"] "+pers->fio)
+  endif
+  select HUMAN
+  goto (d_srok->kod1)
+  uch->(dbGoto(human->LPU))
+  otd->(dbGoto(human->OTD))
+  add_string("")
+  add_string("Обратите внимание, что "+lstr(d_srok->dni)+" дней назад обнаружен случай")
+  add_string("с основным диагнозом "+alltrim(human->kod_diag)+" "+;
+             date_8(human->n_data)+"-"+date_8(human->k_data)+;
+             iif(d_srok->tip1==0, "", " (2."+am[d_srok->tip1]+".*)"))
+  add_string(alltrim(uch->name)+'/'+alltrim(otd->name)+'/профиль по "'+;
+             inieditspr(A__MENUVERT, glob_V002, human_->profil)+'"')
+  pers->(dbGoto(human_->VRACH))           
+  add_string("лечащий врач ["+lstr(pers->tab_nom)+"] "+pers->fio)
+  fl := .f.
 endif
 close databases
 fclose(fp)
