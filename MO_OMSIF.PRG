@@ -4723,7 +4723,7 @@ R_Use(dir_server+"organiz",,"ORG")
 add_string(padr(org->name,60)+padl("Форма № 30",sh-60))
 add_string(padl("Утверждена Приказом",sh))
 add_string(padl("Росстата России",sh))
-add_string(padl("от 29.12.2011г. № 520",sh))
+add_string(padl("от 27.12.2016г. № 866",sh))
 add_string(center("СВЕДЕНИЯ ОБ УЧРЕЖДЕНИИ ЗДРАВООХРАНЕНИЯ",sh))
 add_string(center(arr_m[4],sh))
 if pi1 == 1

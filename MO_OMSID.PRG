@@ -2717,12 +2717,12 @@ return s
 
 *
 
-***** 24.02.16
+***** 12.03.18
 Function f1_131_u(nKey,oBrow,regim)
 Static lV := "V", sb1 := "<b><u>", sb2 := "</u></b>"
 Static s_smg := "Не удалось определить группу здоровья"
 Local ret := -1, rec := tmp->(recno()), buf := save_maxrow(),;
-      i, j, k, fl, lshifr, au := {}, ar, metap, m1gruppa,;
+      i, j, k, fl, lshifr, au := {}, ar, metap, m1gruppa, is_disp := .t.,;
       mpol := kart->pol, fl_dispans := .f., adbf, s, y, m, d, arr,;
       blk := {|s| __dbAppend(), field->stroke := s }
 if regim == "edit" .and. nKey == K_ENTER
@@ -2755,6 +2755,7 @@ if regim == "edit" .and. nKey == K_ENTER
     Private &pole_d_dispans := ctod("")
   next
   if emptyall(tmp->kod1h,tmp->kod2h) // значит профилактика
+    is_disp := .f.
     human->(dbGoto(tmp->kod3h))
     m1GRUPPA := human_->RSLT_NEW - 342
     if !between(m1gruppa,1,3)
@@ -2836,8 +2837,15 @@ if regim == "edit" .and. nKey == K_ENTER
     {17,{"8.2.1","8.2.4","8.2.5"},"Ультразвуковое исследование (УЗИ) на предмет исключения новообразований органов брюшной полости, малого таза"},;
     {18,"8.1.5","Ультразвуковое исследование (УЗИ) в целях исключения аневризмы брюшной аорты"},;
     {19,"3.4.9","Измерение внутриглазного давления"},;
-    {20,{{"2.3.1",97},{"2.3.1",57},{"2.3.2",97},{"2.3.2",57},{"2.3.3",42}},"Прием (осмотр) врача-терапевта"};
+    {20,{{"2.3.1",97},{"2.3.1",57},{"2.3.2",97},{"2.3.2",57},{"2.3.3",42},{"2.3.5",57},{"2.3.5",97},{"2.3.6",57},{"2.3.6",97}},"Прием (осмотр) врача-терапевта"};
    }
+  if is_disp .and. year(mk_data) > 2017 // с 2018 года
+    arr_10[13] := {13,"4.14.66","Исследование крови на простат-специфический антиген"}
+    Del_Array(arr_10,18)
+    Del_Array(arr_10,17)
+    Del_Array(arr_10,15)
+    Del_Array(arr_10,14)
+  endif 
   dbcreate(fr_data,{{"name","C",200,0},;
                     {"ns","N",2,0},;
                     {"vv","C",10,0},;
@@ -2849,13 +2857,14 @@ if regim == "edit" .and. nKey == K_ENTER
     frd->name := arr_10[n,3]
     frd->ns := arr_10[n,1]
   next
+  index on str(ns,2) to tmp_frd
   for i := 1 to len(arr_10)
     fl := fl_nev := .f. ;  date_o := ctod("")
     if valtype(arr_usl_otkaz) == "A"
       for k1 := 1 to len(arr_usl_otkaz)
         ar := arr_usl_otkaz[k1]
         if valtype(ar) == "A" .and. len(ar) >= 10 .and. valtype(ar[5]) == "C" ;
-                         .and. valtype(ar[10]) == "N" .and. between(ar[10],1,2)
+                              .and. valtype(ar[10]) == "N" .and. between(ar[10],1,2)
           lshifr := alltrim(ar[5])
           if valtype(arr_10[i,2]) == "C"
             if lshifr == arr_10[i,2]
@@ -2892,7 +2901,7 @@ if regim == "edit" .and. nKey == K_ENTER
             next
           endif
         endif
-        if fl ; exit ;endif
+        if fl ; exit ; endif
       next
     endif
     if !fl
@@ -2918,7 +2927,7 @@ if regim == "edit" .and. nKey == K_ENTER
       fl := &(arr_10[i,4])
     endif
     if fl
-      goto (arr_10[i,1])
+      find (str(arr_10[i,1],2))
       if i == 9 .and. k_nev_4_1_12 > 0
         frd->vv := full_date(au[k_nev_4_1_12,4])
         frd->vd := "невозможно"
@@ -3014,8 +3023,7 @@ if regim == "edit" .and. nKey == K_ENTER
   else
     frt->adres := sb1+padr(kart->adres,60)+sb2
   endif
-  if (i := ascan(stm_kategor, {|x| x[2] == kart_->kategor })) > 0 ;
-                                         .and. between(stm_kategor[i,3],1,8)
+  if (i := ascan(stm_kategor, {|x| x[2] == kart_->kategor })) > 0 .and. between(stm_kategor[i,3],1,8)
     frt->kod_lgot := lstr(stm_kategor[i,3])
   endif
   frt->mobil := f_131_u_da_net(m1mobilbr,sb1,sb2)
@@ -3082,14 +3090,14 @@ if regim == "edit" .and. nKey == K_ENTER
       endif
     next
     arr_11 := {;
-      { 1,"Дуплексное сканирование брахицефальных артерий","8.23.6"},;
+      { 1,"Дуплексное сканирование брахиоцефальных артерий",{"8.23.6","8.23.706"}},;
       { 2,"Осмотр (консультация) врачом-неврологом","2.84.1"},;
       { 3,"Эзофагогастродуоденоскопия","10.3.13"},;
       { 4,"Осмотр (консультация) врачом-хирургом или врачом-урологом","2.84.10"},;
       { 5,"Осмотр (консультация) врачом-хирургом или врачом-колопроктологом","2.84.6"},;
       { 6,"Колоноскопия или ректороманоскопия",{"10.4.1","10.6.10"}},;
       { 7,"Определение липидного спектра крови","4.12.173"},;
-      { 8,"Спирометрия","16.1.17"},;
+      { 8,"Спирометрия",{"16.1.17","16.1.717"}},;
       { 9,"Осмотр (консультация) врачом-акушером-гинекологом","2.84.5"},;
       {10,"Определение концентрации гликированного гемоглобина в крови или тест на толерантность к глюкозе",{"4.12.170","4.12.171"}},;
       {11,"Осмотр (консультация) врачом-оториноларингологом","2.84.8"},;
@@ -3099,12 +3107,22 @@ if regim == "edit" .and. nKey == K_ENTER
       {15,"Групповое профилактическое консультирование (школа пациента)","0"},;
       {16,"Прием (осмотр) врача-терапевта",{"2.84.2","2.84.7","2.84.9","2.84.11"}};
      }
+    if is_disp .and. year(mk_data) > 2017 // с 2018 года
+      arr_11[ 6] := { 6,"Ректосигмоколоноскопия диагностическая","10.6.710"}
+      arr_11[14] := {14,"Индивидуальное или групповое (школа для пациента) углубленное профилактическое консультирование","56.1.723"}
+      Del_Array(arr_11,15)
+      Del_Array(arr_11,12)
+      Del_Array(arr_11,10)
+      Del_Array(arr_11, 7)
+      Del_Array(arr_11, 3)
+    endif 
     use (fr_data+"1") new alias FRD1
     for n := 1 to len(arr_11)
       append blank
       frd1->name := arr_11[n,2]
       frd1->ns := arr_11[n,1]
     next
+    index on str(ns,2) to tmp_frd1
     for k := 1 to len(au)
       fl := .f.
       for i := 1 to len(arr_11)
@@ -3116,7 +3134,7 @@ if regim == "edit" .and. nKey == K_ENTER
         if fl ; exit ; endif
       next
       if fl
-        goto (arr_11[i,1])
+        find (str(arr_11[i,1],2))
         frd1->vn := full_date(mk_data1)
         frd1->vv := full_date(au[k,4])
         frd1->vd := iif(empty(au[k,3]), "-", "<b>"+au[k,3]+"</b>")
@@ -3845,7 +3863,7 @@ return NIL
 
 *
 
-***** 20.10.16 список пациентов
+***** 12.03.18 список пациентов
 Function f2_inf_DVN(is_schet,par)
 Local arr_m, buf := save_maxrow(), lkod_h, lkod_k, rec, s, as := {},;
       a, sh, HH := 53, n, n_file := "spis_dvn"+stxt, reg_print
@@ -3853,8 +3871,7 @@ Private ppar := par, p_is_schet := is_schet
 if par > 1
   ppar--
 endif
-if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
-                                       .and. (arr_m := year_month(,,,5)) != NIL
+if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := year_month(,,,5)) != NIL
   mywait()
   if f0_inf_DVN(arr_m,eq_any(is_schet,2,3),is_schet==3)
     adbf := {;
@@ -3990,11 +4007,11 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
       endif
     next
     if is_zs > 0
-      arr_title[1] += "┬───────"
-      arr_title[2] += "│ шифр  "
-      arr_title[3] += "│законч."
-      arr_title[4] += "│случая "
-      arr_title[5] += "┴───────"
+      arr_title[1] += "┬────────"
+      arr_title[2] += "│  шифр  "
+      arr_title[3] += "│закончен"
+      arr_title[4] += "│ случая "
+      arr_title[5] += "┴────────"
     endif
     if ppar == 1
       arr_title[1] += "┬──────────"
@@ -4079,9 +4096,9 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
         endif
       next
       if is_zs > 0
-        s1 += padr(tf->d_zs,8)
-        s2 += space(8)
-        s3 += space(8)
+        s1 += padr(tf->d_zs,9)
+        s2 += space(9)
+        s3 += space(9)
       endif
       if ppar == 1
         s1 += padr(substr(tf->data_o, 1,9),11)
@@ -4117,7 +4134,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
     next
     i := 0
     if is_zs > 0
-      i += 8
+      i += 9
     endif
     if ppar == 1
       i += 11
@@ -4137,7 +4154,7 @@ return NIL
 
 *
 
-***** 26.09.16
+***** 12.03.18
 Function f2_inf_DVN_svod(par,kod_h) // сводная информация
 Static P_BEGIN_RSLT := 342
 Local i, j, c, s, pole, ar, arr := {}, fl, lshifr, arr_usl := {}
@@ -4149,7 +4166,7 @@ goto (kod_h)
 mpol    := human->pol
 mn_data := human->n_data
 mk_data := human->k_data
-is_2013 := (mk_data < stod("20150401")) 
+is_2013 := year(mk_data) < 2018 
 if ppar == 1 // диспансеризация 1 этап
   m1GRUPPA := ret_gruppa_DVN(human_->RSLT_NEW,@fl2)
   if between(m1gruppa,0,4)
@@ -4436,7 +4453,7 @@ return arr
 
 *
 
-***** 15.03.16 форма 131
+***** 12.03.18 форма 131
 Function f4_inf_DVN(par)
 Static arr_v := {"21-36 лет","39-60 лет","старше 60 лет"}
 Local arr_m, buf := save_maxrow(), s, as := {}, ar, sh := 80, HH := 80, n, ;
@@ -4479,7 +4496,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
       {17,"УЗИ органов брюшной полости",{"8.2.1","8.2.4","8.2.5"}},;
       {18,"УЗИ в целях исключения аневризмы брюшной аорты","8.1.5"},;
       {19,"Измерение внутриглазного давления","3.4.9"},;
-      {20,"Прием (осмотр) врача-терапевта",{{"2.3.1",97},{"2.3.1",57},{"2.3.2",97},{"2.3.2",57},{"2.3.3",42}}};
+      {20,"Прием (осмотр) врача-терапевта",{{"2.3.1",97},{"2.3.1",57},{"2.3.2",97},{"2.3.2",57},{"2.3.3",42},{"2.3.5",57},{"2.3.5",97},{"2.3.6",57},{"2.3.6",97}}};
      }
     dbcreate(cur_dir+"tmp2000",{{"name","C",100,0},;
                                 {"ns","N",2,0},;
@@ -4497,20 +4514,20 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
     use
     //
     Private v3001 := 0, arr_3000 := {;
-      { 1,"Дуплексное сканирование брахицефальных артерий","8.23.6"},;
+      { 1,"Дуплексное сканирование брахицефальных артерий",{"8.23.6","8.23.706"}},;
       { 2,"Осмотр врача-невролога","2.84.1"},;
       { 3,"Эзофагогастродуоденоскопия","10.3.13"},;
       { 4,"Осмотр врача-уролога","2.84.10"},;
       { 5,"Осмотр врача-колопроктолога","2.84.6"},;
-      { 6,"Колоноскопия (ректороманоскопия)",{"10.4.1","10.6.10"}},;
+      { 6,"Колоноскопия (ректороманоскопия)",{"10.4.1","10.6.10","10.6.710"}},;
       { 7,"Определение липидного спектра крови","4.12.173"},;
-      { 8,"Спирометрия","16.1.17"},;
+      { 8,"Спирометрия",{"16.1.17","16.1.717"}},;
       { 9,"Осмотр врача-акушера-гинеколога","2.84.5"},;
       {10,"Глик.гемоглобин/тест на толерантность к глюкозе",{"4.12.170","4.12.171"}},;
       {11,"Осмотр врача-оториноларинголога","2.84.8"},;
       {12,"Анализ крови на ПСА","4.14.66"},;
       {13,"Осмотр врача-офтальмолога","2.84.3"},;
-      {14,"Индивидуальное профилактическое консультирование",{"56.1.15","56.1.20"}},;
+      {14,"Индивидуальное профилактическое консультирование",{"56.1.15","56.1.20","56.1.723"}},;
       {15,"Групповое профилактическое консультирование","0"},;
       {16,"Прием (осмотр) врача-терапевта",{"2.84.2","2.84.7","2.84.9","2.84.11"}};
      }

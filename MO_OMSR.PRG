@@ -107,7 +107,7 @@ for j := 1 to len(a_stom16_2)
 next
 return ret 
 
-***** 01.03.18 пересечение в стоматологическом случае разных видов посещений
+***** 12.03.18 пересечение в стоматологическом случае разных видов посещений
 Function f_vid_p_stom(arr_usl,ta,ret_arr,ret_tip_a,lk_data,/*@*/ret_tip,/*@*/ret_kol,/*@*/is_2_88,arrFusl)
 /*
  arr_usl   - двумерный массив, шифр услуги в первом элементе
@@ -186,8 +186,8 @@ Static a_coord_stom18 := {;
 // первичные приёмы
 Static a_new_1st_stom16 := {"B01.063.001","B01.064.003","B01.065.001","B01.065.003","B01.065.005","B01.065.007","B01.067.001"} 
 //
-Local a_stom, a_stom16_2, i, j, jm, k := 0, n := 0, lshifr, s := "", is_new
-if valtype(lk_data) == "D" .and. year(lk_data) > 2015 // 2016 год
+Local a_stom, a_stom16_2, i, j, jm, k := 0, n := 0, lshifr, s := "", y, is_new, lshifr2 := ""
+if valtype(lk_data) == "D" .and. (y := year(lk_data)) > 2015 // 2016 год
   jm := 0 ; ret_tip := 0 ; ret_kol := 0 ; is_2_88 := .f.
   is_new := (lk_data >= d_01_08_2016)
   if is_new // с 1 августа 2016 года
@@ -199,6 +199,7 @@ if valtype(lk_data) == "D" .and. year(lk_data) > 2015 // 2016 год
     lshifr := alltrim(arr_usl[i,1])
     for j := 1 to len(a_stom16_2)
       if between_shifr(lshifr,a_stom16_2[j,2],a_stom16_2[j,3])
+        lshifr2 := lshifr
         k += arr_usl[i,6] // складываем количество услуг 2.*
         jm := j
         ret_tip := a_stom16_2[j,1]
@@ -230,6 +231,13 @@ if valtype(lk_data) == "D" .and. year(lk_data) > 2015 // 2016 год
             endif
             if arrFusl[i,6] > 1
               aadd(ta,'в услуге '+s+' количество больше 1')
+            endif
+            if y > 2017 .and. !empty(lshifr2)
+              for j := 1 to len(a_coord_stom18)
+                if ascan(a_coord_stom18[j,2],lshifr) > 0 .and. ascan(a_coord_stom18[j,1],lshifr2) == 0
+                  aadd(ta,'врачебный приём '+s+' не соответствует услуге '+lshifr2)
+                endif
+              next j
             endif
           else
             for j := 1 to len(a_new_stom16)

@@ -5180,10 +5180,10 @@ return fl_et
 
 *
 
-***** 15.10.17
+***** 10.03.18
 Function f_put_date_prik(lkod_k,lpid,lenp,ltip_pr,ldeath,_n_del,lprik_mo,ldate_prik_mo)
 Static j := 0
-Local arr := {}
+Local old_pr, arr := {}
 DEFAULT _n_del TO 0, lprik_mo TO "", ldate_prik_mo TO ctod("")
 select KARTP
 find (str(lkod_k,7))
@@ -5221,12 +5221,20 @@ if empty(arr)
     kart2->MO_PR := ""
   endif
 else
+  old_pr := kart2->MO_PR // то, что было записано
+  if len(arr) > 1 .and. !empty(arr[2,1])
+    old_pr := arr[2,1] // предыдущее прикрепление
+  endif
   asort(arr,,,{|x,y| x[4] > y[4]}) // в порядке убывания даты файла
   kart2->TIP_PR   := ltip_pr
   kart2->MO_PR    := iif(_n_del == 1, "", arr[1,1])
   kart2->DATE_PR  := arr[1,2]
   kart2->SNILS_VR := arr[1,3]
-  if !emptyany(lprik_mo,ldate_prik_mo) .and. lprik_mo == kart2->MO_PR
+  if ltip_pr == 3
+    if !empty(kart2->MO_PR) .and. (!(old_pr == kart2->MO_PR) .or. empty(kart2->pc4))
+      kart2->pc4 := date_8(kart2->DATE_PR)
+    endif
+  elseif !emptyany(lprik_mo,ldate_prik_mo) .and. lprik_mo == kart2->MO_PR
     kart2->pc4 := date_8(ldate_prik_mo) 
   endif
 endif

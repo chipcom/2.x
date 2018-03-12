@@ -63,10 +63,9 @@ if !empty(full_o79) .and. hb_FileExists(full_o79)
 endif  
 return NIL
 
-***** 02.01.18
+***** 02.03.18
 Function f1_impXML_from_LIS(name_file)
-Local buf := save_maxrow(), aerr := {}, arr, fl_exit := .f., fl := .f., i, j, ;
-      t1, t2, s, s1, oXmlDoc, xmlErr, currNode, oNodePAT
+Local buf := save_maxrow(), aerr := {}, arr, fl_exit := .f., fl := .f., i, j, t1, t2, s, s1
 if !hb_FileExists(dir_server+"mo_flis"+sdbf)
   dbcreate(dir_server+"mo_flis", {; // Список принятых файлов из ЛИС
     {"KOD",         "N", 6,0},; // код;номер записи
@@ -171,31 +170,27 @@ if fl .and. f_Esc_Enter("чтения файла из ЛИС")
   // читаем XML-файл
   lfp := fopen(name_file)
   do while !feof(lfp)
-    s := fReadLn(lfp)
+    s := Utf82Oem(fReadLn(lfp))
     if "<PAT " $ s
-      buffer := s
+      arr := {s} 
       do while !feof(lfp)
         s := fReadLn(lfp)
-        buffer += s
+        aadd(arr,s)
         if "</PAT>" $ s
           exit
         endif
       enddo
-      xmlDoc := HXMLDoc():Read(,buffer)
-      if empty( xmlDoc:aItems )
-        aadd(aerr,"Ошибка в чтении файла "+name_file)
-      elseif !empty(aerr := f2_impXML_from_LIS(xmlDoc))
+      if !empty(aerr := f2_impXML_from_LIS(arr))
         fl_exit := .t.
         exit
       endif
     endif
-    if ip % 10 == 0 .and. inkey(0.2) == K_ESC
+    if inkey() == K_ESC 
       fl_exit := .t.
       exit
     endif
   enddo
   fclose(lfp)
-  keyboard ""
   if !fl_exit
     select FL
     G_RLock(forever) // заблокировать запись 
@@ -207,6 +202,7 @@ if fl .and. f_Esc_Enter("чтения файла из ЛИС")
   dbUnlockAll()
   dbCommitAll()
   close databases
+  keyboard ""
   t2 := seconds() - t1
   rest_box(buf)
   if fl_exit
@@ -437,47 +433,49 @@ return hb_Utf8ToStr(s,"RU866")
 #define LISU_UNIT      7
 #define LISU_ID        8
 
-***** 02.01.18
-Function f2_impXML_from_LIS(oXmlDoc)
+***** 02.03.18
+Function f2_impXML_from_LIS(ta)
 Static arr[LISU_ID]
-Local i, j, k, oNodePAT, oNodeORDER, oNodeEXAM
-oNodePAT := oXmlDoc:aItems[1]
-arr_pac[LIS_KOD_AK ] := Utf82Oem(ltrim(oNodePAT:getAttribute("Pat_code")))
-arr_pac[LIS_FAM    ] := Utf82Oem(ltrim(oNodePAT:getAttribute("Last_name")))   
-arr_pac[LIS_IMA    ] := Utf82Oem(ltrim(oNodePAT:getAttribute("First_name")))  
-arr_pac[LIS_OTS    ] := Utf82Oem(ltrim(oNodePAT:getAttribute("Father_name"))) 
-arr_pac[LIS_DATE_R ] := Utf82Oem(ltrim(oNodePAT:getAttribute("Birth_date")))  
-arr_pac[LIS_POL    ] := Utf82Oem(ltrim(oNodePAT:getAttribute("Sex")))         
-arr_pac[LIS_VPOLIS ] := Utf82Oem(ltrim(oNodePAT:getAttribute("OMS_type")))    
-arr_pac[LIS_SPOLIS ] := Utf82Oem(ltrim(oNodePAT:getAttribute("OMS_series")))  
-arr_pac[LIS_NPOLIS ] := Utf82Oem(ltrim(oNodePAT:getAttribute("OMS_number")))  
-arr_pac[LIS_OKATO  ] := Utf82Oem(ltrim(oNodePAT:getAttribute("Ins_OKATO")))
-arr_pac[LIS_VID_UD ] := Utf82Oem(ltrim(oNodePAT:getAttribute("UDL_type")))    
-arr_pac[LIS_SER_UD ] := Utf82Oem(ltrim(oNodePAT:getAttribute("UDL_series")))  
-arr_pac[LIS_NOM_UD ] := Utf82Oem(ltrim(oNodePAT:getAttribute("UDL_number")))  
-arr_pac[LIS_MESTO_R] := Utf82Oem(ltrim(oNodePAT:getAttribute("Birth_place"))) 
-arr_pac[LIS_SNILS  ] := Utf82Oem(ltrim(oNodePAT:getAttribute("SNILS")))
+Local i, j := 1, s
+s := afteratnum('Pat_code="',ta[1]) ; arr_pac[LIS_KOD_AK ] := beforatnum('"',s,1)
+s := afteratnum('Last_name="',s)    ; arr_pac[LIS_FAM    ] := beforatnum('"',s,1)   
+s := afteratnum('First_name="',s)   ; arr_pac[LIS_IMA    ] := beforatnum('"',s,1)  
+s := afteratnum('Father_name="',s)  ; arr_pac[LIS_OTS    ] := beforatnum('"',s,1) 
+s := afteratnum('Birth_date="',s)   ; arr_pac[LIS_DATE_R ] := beforatnum('"',s,1)  
+s := afteratnum('Sex="',s)          ; arr_pac[LIS_POL    ] := beforatnum('"',s,1)         
+s := afteratnum('OMS_type="',s)     ; arr_pac[LIS_VPOLIS ] := beforatnum('"',s,1)    
+s := afteratnum('OMS_series="',s)   ; arr_pac[LIS_SPOLIS ] := beforatnum('"',s,1)  
+s := afteratnum('OMS_number="',s)   ; arr_pac[LIS_NPOLIS ] := beforatnum('"',s,1)  
+s := afteratnum('Ins_OKATO="',s)    ; arr_pac[LIS_OKATO  ] := beforatnum('"',s,1)
+s := afteratnum('UDL_type="',s)     ; arr_pac[LIS_VID_UD ] := beforatnum('"',s,1)    
+s := afteratnum('UDL_series="',s)   ; arr_pac[LIS_SER_UD ] := beforatnum('"',s,1)  
+s := afteratnum('UDL_number="',s)   ; arr_pac[LIS_NOM_UD ] := beforatnum('"',s,1)  
+s := afteratnum('Birth_place="',s)  ; arr_pac[LIS_MESTO_R] := beforatnum('"',s,1) 
+s := afteratnum('SNILS="',s)        ; arr_pac[LIS_SNILS  ] := beforatnum('"',s,1)
 arr_order := {}
-FOR j := 1 TO Len( oNodePAT:aItems )
-  aadd(arr_order, {})
-  oNodeORDER := oNodePAT:aItems[j]
-  aadd(arr_order[j],Utf82Oem(ltrim(oNodeORDER:getAttribute("Number"))))
-  aadd(arr_order[j],Utf82Oem(ltrim(oNodeORDER:getAttribute("DS"))))
-  aadd(arr_order[j],Utf82Oem(ltrim(oNodeORDER:getAttribute("Sender_code"))))
-  aadd(arr_order[j],{}) // для занесения услуг
-  aadd(arr_order[j]," ") // 5 И 6 ЭЛЕМЕНТЫ ДЛЯ СРОКОВ ЛЕЧЕНИЯ
-  aadd(arr_order[j]," ")
-  aadd(arr_order[j],sotd)
-  for k := 1 to len(oNodeORDER:aItems)
-    oNodeEXAM := oNodeORDER:aItems[k]
+for i := 2 to len(ta)
+  ta[i] := ltrim(ta[i])
+  if left(ta[i],7) == "<ORDER "
+    aadd(arr_order, {}) ; j := len(arr_order)
+    s := afteratnum('Number="',ta[i])  ; aadd(arr_order[j],beforatnum('"',s,1))
+    s := afteratnum('DS="',s)          ; aadd(arr_order[j],beforatnum('"',s,1))
+    s := afteratnum('Sender_code="',s) ; aadd(arr_order[j],beforatnum('"',s,1))
+    aadd(arr_order[j],{}) // для занесения услуг
+    aadd(arr_order[j]," ") // 5 И 6 ЭЛЕМЕНТЫ ДЛЯ СРОКОВ ЛЕЧЕНИЯ
+    aadd(arr_order[j]," ")
+    aadd(arr_order[j],sotd)
+  endif
+  if left(ta[i],6) == "<EXAM "
     afill(arr,"")
-    arr[LISU_SHIFR] := Utf82Oem(ltrim(oNodeEXAM:getAttribute("Exam_code")))
-    arr[LISU_DATE ] := Utf82Oem(ltrim(oNodeEXAM:getAttribute("Exec_date")))
-    arr[LISU_SPEC ] := Utf82Oem(ltrim(oNodeEXAM:getAttribute("Doc_spec")))
-    arr[LISU_SNILS] := Utf82Oem(ltrim(oNodeEXAM:getAttribute("Doc_SNILS")))
-    arr[LISU_ID   ] := Utf82Oem(ltrim(oNodeEXAM:getAttribute("ExamID")))
-    aadd(arr_order[j,4],aclone(arr))
-  next k
+    s := afteratnum('ExamID="',ta[i]) ; arr[LISU_ID   ] := beforatnum('"',s,1)
+    s := afteratnum('Exam_code="',s)  ; arr[LISU_SHIFR] := beforatnum('"',s,1)
+    s := afteratnum('Exec_date="',s)  ; arr[LISU_DATE ] := beforatnum('"',s,1)
+    s := afteratnum('Doc_spec="',s)   ; arr[LISU_SPEC ] := beforatnum('"',s,1)
+    s := afteratnum('Doc_SNILS="',s)  ; arr[LISU_SNILS] := beforatnum('"',s,1)
+    if j <= len(arr_order)
+      aadd(arr_order[j,4],aclone(arr))
+    endif
+  endif
 next j
 return f2_import_from_LIS(2)
 
@@ -938,7 +936,7 @@ endif*/
 @ row(),col() say "случаев "+lstr(is)+iif(isp==0,""," (повтор "+lstr(isp)+")") color cColorSt2Msg
 @ row(),col() say "/" color "W/R"
 @ row(),col() say "услуг "+lstr(iu) color cColorStMsg
-if siu > 2000
+if siu > 500
   //tmp->fc := "t"
   @ maxrow(),0 say "запись... " color "W/R"
   dbUnlockAll()
