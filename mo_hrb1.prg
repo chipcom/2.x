@@ -475,6 +475,147 @@ if (arr_m := year_month()) != NIL
 endif
 return NIL
 
+***** 13.03.18 ˆ­ä®à¬ æ¨ï ® ª®«¨ç¥áâ¢¥ ã¤ «ñ­­ëå ¯®áâ®ï­­ëå §ã¡®¢ á 2005 ¯® 2015 £®¤ë
+Function i_kol_del_zub()
+Local fl_exit := .f., hGauge
+hGauge := GaugeNew(,,,"ˆ­ä®à¬ æ¨ï ® ª®«¨ç¥áâ¢¥ ã¤ «ñ­­ëå §ã¡®¢",.t.)
+GaugeDisplay( hGauge )
+dbcreate(cur_dir+"tmp",{;
+  {"god","N",4,0},;
+  {"kod_k","N",7,0},;
+  {"pol","C",1,0},;
+  {"vozr","N",2,0},;
+  {"kol","N",6,0}})
+use (cur_dir+"tmp") new
+index on str(god,4)+str(kod_k,7) to tmp memory   
+use_base("lusl")
+R_Use(dir_server+"uslugi",,"USL")
+R_Use(dir_server+"human_u_",,"HU_")
+R_Use(dir_server+"human_u",dir_server+"human_u","HU")
+set relation to recno() into HU_, to u_kod into USL
+R_Use(dir_server+"human_2",,"HUMAN_2")
+R_Use(dir_server+"human_",,"HUMAN_")
+R_Use(dir_server+"human",,"HUMAN")
+set relation to kod into HUMAN_, to kod into HUMAN_2
+go top
+do while !eof()
+  GaugeUpdate( hGauge, recno()/lastrec() )
+  if inkey() == K_ESC
+    fl_exit := .t. ; exit
+  endif
+  if human->kod > 0 .and. human_->oplata != 9
+    lgod := year(human->k_data)
+    if between(lgod,2005,2015)
+      lkol := 0
+      select HU
+      find (str(human->kod,7))
+      do while hu->kod == human->kod .and. !eof()
+        lshifr1 := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data)
+        if is_usluga_TFOMS(usl->shifr,lshifr1,human->k_data)
+          lshifr := alltrim(iif(empty(lshifr1), usl->shifr, lshifr1))
+          if between_shifr(lshifr,"57.3.2","57.3.8") .or. between_shifr(lshifr,"57.8.72","57.8.78")
+            lkol += hu->kol_1
+          endif
+        endif
+        select HU
+        skip
+      enddo
+      if lkol > 0
+        select TMP
+        find (str(lgod,4)+str(human->kod_k,7))
+        if !found()
+          append blank
+          tmp->god := lgod
+          tmp->kod_k := human->kod_k
+          tmp->pol := human->pol
+          k := lgod - year(human->date_r)
+          tmp->vozr := iif(k < 100, k, 99) 
+        endif
+        tmp->kol += lkol
+      endif
+    endif  
+  endif
+  select HUMAN
+  if recno() % 5000 == 0
+    Commit
+  endif
+  skip
+enddo
+CloseGauge(hGauge)
+k := tmp->(lastrec())
+close databases
+if !fl_exit .and. k > 0
+  agod := {}
+  use (cur_dir+"tmp") new
+  index on god to tmp unique memory
+  dbeval({|| aadd(agod,tmp->god) }) 
+  name_file := "del_zub"+stxt
+  HH := 60
+  arr_title := {;
+    "ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ",;
+    "                 ³   ¬ã¦ç¨­ë     ³    ¦¥­é¨­ë    ³    ¢á¥£®      ",;
+    "‚®§à áâ­®© ¯¥à¨®¤ÃÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄ",;
+    "                 ³ §ã¡®¢ ³ç¥«®¢¥ª³ §ã¡®¢ ³ç¥«®¢¥ª³ §ã¡®¢ ³ç¥«®¢¥ª",;
+    "ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄ";
+  }
+  sh := len(arr_title[1])
+  fp := fcreate(name_file) ; tek_stroke := 0 ; n_list := 1
+  add_string(glob_mo[_MO_SHORT_NAME])
+  add_string("")
+  add_string(center("ˆ­ä®à¬ æ¨ï ® ª®«¨ç¥áâ¢¥ ã¤ «ñ­­ëå ¯®áâ®ï­­ëå §ã¡®¢",sh))
+  aeval(arr_title, {|x| add_string(x) } )
+  arr := array(6,6)
+  select TMP
+  for ig := 1 to len(agod)
+    index on str(kod_k,7) to tmp for god == agod[ig] memory   
+    afillall(arr,0)
+    go top
+    do while !eof()
+      if tmp->vozr < 21
+        j := 1
+      elseif tmp->vozr < 36
+        j := 2
+      elseif tmp->vozr < 61
+        j := 3
+      elseif tmp->vozr < 76
+        j := 4
+      else
+        j := 5
+      endif
+      k := iif(tmp->pol == "Œ", 1, 3)
+      ax := {j,6} ; ay1 := {k,5} ; ay2 := {k+1,6}
+      for ix := 1 to 2
+        x := ax[ix]
+        for iy := 1 to 2
+          y := ay1[iy]
+          arr[x,y] += tmp->kol
+          y := ay2[iy]
+          arr[x,y] ++
+        next iy
+      next ix
+      select TMP
+      skip
+    enddo 
+    if verify_FF(HH-8,.t.,sh)
+      aeval(arr_title, {|x| add_string(x) } )
+    endif
+    add_string("")
+    add_string(padc("¢ "+lstr(agod[ig])+" £®¤ã",sh,"_"))
+    for i := 1 to 6
+      s := {"¤® 20 «¥â","21-35 «¥â","36-60 «¥â","61-75 «¥â","áâ àè¥ 75 «¥â","ˆâ®£®"}[i]
+      s := padc(s,17)
+      for j := 1 to 6
+        s += put_val(arr[i,j],8)
+      next
+      add_string(s)
+    next
+  next
+  close databases
+  fclose(fp)
+  viewtext(name_file,,,,.t.,,,1)
+endif
+return NIL
+
 ***** 09.07.17 ’¥«¥ä®­®£à ¬¬  ü15 ‚Ž Š‡
 Function phonegram_15_kz()
 Local fl_exit := .f., i, j, k, v, koef, msum, ifin, ldate_r, y, m, buf := save_maxrow(),;

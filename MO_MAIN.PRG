@@ -14,9 +14,9 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-Static _version := {2,6,6}
-Static char_version := "c"
-Static _date_version := "13.03.18г."
+Static _version := {2,6,7}
+Static char_version := ""
+Static _date_version := "19.03.18г."
 Static __s_full_name := "ЧИП + Учёт работы Медицинской Организации"
 Static __s_version
 
@@ -1221,7 +1221,7 @@ do case
                 "Информация по стационарному лечению лиц пожилого возраста за 2017 год",;
                 "Сведения о фактических затратах на оказание медицинской помощи"})
     aadd(func_menu, {'run_my_hrb("mo_hrb1","i_new_boln()")',;
-                     'i_kol_del_zub()',;
+                     'run_my_hrb("mo_hrb1","i_kol_del_zub()")',;
                      'run_my_hrb("mo_hrb1","forma_792_MIAC()")',;    
                      'run_my_hrb("mo_hrb1","monitoring_vid_pom()")',;    
                      'run_my_hrb("mo_hrb1","phonegram_15_kz()")',;

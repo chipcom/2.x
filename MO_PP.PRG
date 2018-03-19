@@ -406,7 +406,7 @@ close databases
 restscreen(buf)
 return NIL
 
-*****
+***** 14.03.18
 Function f2pp_perevod(nKey,oBrow,regim)
 Local ret := -1
 Local buf, fl := .f., rec, rec1, k := maxrow()-10, tmp_color, ;
@@ -441,7 +441,7 @@ do case
         mstol := inieditspr(A__POPUPMENU, dir_server+"mo_ppst", m1stol)
         tmp_color := setcolor(cDataCScr)
         box_shadow(k,pc1+1,maxrow()-3,pc2-1,,;
-                       if(nKey == K_INS,"Добавление","Редактирование"),;
+                       iif(nKey == K_INS,"Добавление","Редактирование"),;
                        cDataPgDn)
         do while .t.
           setcolor(cDataCGet)
@@ -451,7 +451,7 @@ do case
              reader {|x|menu_reader(x,{{|k,r,c| ret_uch_otd(k,r,c)}},A__FUNCTION,,,.f.)}
           @ k+3,pc1+4 say " в отделение" get motd when .f.
           @ k+4,pc1+4 say "Стол" get mstol ;
-             reader {|x|menu_reader(x,{dir_server+"mo_pp"},A__POPUPEDIT,,,.f.)}
+             reader {|x|menu_reader(x,{dir_server+"mo_ppst"},A__POPUPEDIT,,,.f.)}
           status_key("^<Esc>^ - выход без записи;  ^<Enter>^ - подтверждение ввода")
           myread()
           if lastkey() != K_ESC
@@ -459,7 +459,7 @@ do case
               if !v_date_time(old_n_data,old_n_time,mn_data,mn_time)
                 loop
               endif
-              if old_n_data==mn_data .and. old_n_time==mn_time
+              if old_n_data == mn_data .and. old_n_time == mn_time
                 func_error(4,"Вы не сменили дату и время!")
                 loop
               endif
@@ -471,7 +471,7 @@ do case
               if !v_date_time(last_n_data,last_n_time,mn_data,mn_time)
                 loop
               endif
-              if last_n_data==mn_data .and. last_n_time==mn_time
+              if last_n_data == mn_data .and. last_n_time == mn_time
                 func_error(4,"Вы не сменили дату и время!")
                 loop
               endif
@@ -520,7 +520,7 @@ do case
         setcolor(tmp_color)
         restore screen from buf
       case nKey == K_DEL .and. tmp->rec_per > 0 .and. ;
-                   tmp->(recno())==last_rec .and. f_Esc_Enter(2)
+                   tmp->(recno()) == last_rec .and. f_Esc_Enter(2)
         select PER
         goto (tmp->rec_per)
         DeleteRec()
@@ -544,8 +544,8 @@ endif
 if !empty(tmp->DATE_VVOD)
   s2 := "Дата ввода: "+full_date(tmp->DATE_VVOD)
 endif
-@ 21, 4 say padr(s1,30) color color1
-@ 21,41 say padl(s2,35) color color8
+@ maxrow()-3, 4 say padr(s1,30) color color1
+@ maxrow()-3,41 say padl(s2,35) color color8
 select (tmp_select)
 return NIL
 

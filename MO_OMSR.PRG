@@ -2140,18 +2140,34 @@ if lstkol > 0
 endif
 s := "2.60.*"
 if is_2_78
-  is_1_den := .f. ; zs := oth_usl := 0
+  is_1_den := is_last_den := .f. ; zs := oth_usl := 0 ; am := {}
   for i := 1 to len(au_lu)
     if left(au_lu[i,1],5) == "2.78."
       ++zs
     elseif left(au_lu[i,1],4) == "2.60"
       if d1 == au_lu[i,2]
         is_1_den := .t.
+      elseif d2 == au_lu[i,2]
+        is_last_den := .t.
       endif
+      if (j := ascan(am,{|x| x[1] == month(au_lu[i,2])} )) == 0
+        aadd(am,{month(au_lu[i,2]),0}) ; j := len(am)
+      endif
+      am[j,2] ++
     elseif au_lu[i,10] >= 0
       ++oth_usl
     endif
   next
+  if !is_last_den
+    asort(am,,,{|x,y| x[1] < y[1]})
+    j := len(am) 
+    if kol_2_60 > 1 .and. month(d2) == am[j,1]
+      aadd(ta,'последняя услуга '+s+' должна быть оказана в последний день лечения')
+    endif
+    if month(d2) - am[j,1] > 1 .and. year(d1) == year(d2)
+      aadd(ta,'в предыдущем месяце не оказано врачебных приёмов')
+    endif
+  endif
   if zs > 1
     aadd(ta,'в листе учета более одной услуги "законченный случай"')
   endif
@@ -2332,6 +2348,49 @@ elseif kds > 0
     if human_->PROFIL != 137
       aadd(ta,'для КСГ='+shifr_ksg+' профиль должен быть по "акушерству и гинекологии (использованию вспомогательных репродуктивных технологий)"')
     endif
+    a_1_11 := {}
+    for i := 1 to len(au_flu)
+      aadd(a_1_11,alltrim(au_flu[i,1]))
+    next
+    j := 1 // КСЛП - 1 схема
+    if ascan(a_1_11,"A11.20.031") > 0  // крио
+      j := 6  // 6 схема
+      if ascan(a_1_11,"A11.20.028") > 0 // третий этап
+        j := 2   // 2 схема
+      endif
+    elseif ascan(a_1_11,"A11.20.025.001") > 0  // первый этап
+      j := 3  // 3 схема
+      if ascan(a_1_11,"A11.20.036") > 0  // завершающий второй этап
+        j := 4  // 4 схема
+      elseif ascan(a_1_11,"A11.20.028") > 0  // завершающий третий этап
+        j := 5  // 5 схема
+      endif
+    elseif ascan(a_1_11,"A11.20.030.001") > 0  // только четвертый этап
+      j := 7  // 7 схема
+    endif 
+    ashema := {;
+      {"A11.20.017"},;
+      {"A11.20.017","A11.20.028","A11.20.031"},;
+      {"A11.20.017","A11.20.025.001"},;
+      {"A11.20.017","A11.20.025.001","A11.20.036"},;
+      {"A11.20.017","A11.20.025.001","A11.20.028"},;
+      {"A11.20.017","A11.20.031"},;
+      {"A11.20.017","A11.20.030.001"};
+    }
+    if (k := len(ashema[j])) == (n := len(a_1_11))
+      //
+    elseif k > n
+      aadd(ta,'в листе учёта по ЭКО не хватает услуг '+print_array(a_1_11))
+    elseif k < n
+      for i := 1 to k
+        if (n := ascan(a_1_11,ashema[j,i])) > 0
+          Del_Array(a_1_11,n)
+        endif
+      next
+      if len(a_1_11) > 0
+        aadd(ta,'в листе учёта по ЭКО лишние услуги '+print_array(a_1_11))
+      endif
+    endif 
   endif
 elseif kkt > 0 .and. !is_s_dializ .and. !is_dializ .and. !is_perito
   mPZTIP := 66 // 66,"Р-исследование","Р-исслед."},;
@@ -2392,8 +2451,16 @@ elseif kvp > 0
       aadd(ta,'в центре здоровья введено '+lstr(kvp)+' услуги (должна быть одна)')
     endif
   endif
-  if d2 > d1 .and. (is_2_80 .or. is_2_81 .or. is_2_82 .or. is_2_88 .or. is_pren_diagn)
-    aadd(ta,'для данной услуги срок лечения - один день')
+  if d2 > d1
+    if is_2_88
+      if month(d1) == month(d2)
+        aadd(ta,'для данной услуги срок лечения - один день')
+      elseif month(d2) - month(d1) > 1 .and. year(d1) == year(d2)
+        aadd(ta,'для данной услуги срок лечения не может быть более месяца')
+      endif  
+    elseif is_2_80 .or. is_2_81 .or. is_2_82 .or. is_pren_diagn
+      aadd(ta,'для данной услуги срок лечения - один день')
+    endif
   endif
   if kvp > 1 .and. (is_2_80 .or. is_2_81 .or. is_2_82 .or. is_2_88)
     aadd(ta,'количество услуг должно быть равно 1')
@@ -2826,7 +2893,7 @@ if is_prof_PN //
 endif
 if is_disp_DVN //
   human_->profil := 151  // медицинским осмотрам профилактическим
-  m1g_cit := m1veteran := 0
+  m1g_cit := m1veteran := m1dispans := 0
   read_arr_DVN(human->kod)
   if d1_year != d2_year
     aadd(ta,'Дата начала и окончания случая должны быть в одном году')
@@ -3173,6 +3240,44 @@ if is_disp_DVN //
   endif
   if !is_last_den
     aadd(ta,'последний врачебный осмотр должен быть оказан в последний день лечения')
+  endif
+  if metap != 3 .and. eq_any(human_->RSLT_NEW,317,318,355,356)
+    adiag_talon := array(16)
+    for i := 1 to 16
+      adiag_talon[i] := int(val(substr(human_->DISPANS,i,1)))
+    next
+    am := {}
+    for i := 1 to len(mdiagnoz)
+      if !empty(mdiagnoz[i]) .and. eq_any(adiag_talon[i*2],1,2)
+        aadd(am,mdiagnoz[i]) // массив диагнозов с диспансеризацией
+      endif
+    next
+    do case
+      case human_->RSLT_NEW == 317 // {"Проведена диспансеризация - присвоена I группа здоровья"   ,1,317}
+        if !empty(am)
+          aadd(ta,'для I группы здоровья не должно быть установления диспансерного учёта '+print_array(am))
+        endif
+      case human_->RSLT_NEW == 318 // {"Проведена диспансеризация - присвоена II группа здоровья"  ,2,318}
+        fl := .f.
+        for i := 1 to len(am)
+          if left(am[i],3) == "E78"
+            fl := .t.
+          else
+            aadd(ta,'для II группы здоровья диспансерный учёт может быть установлен только для гиперхолестеринемии, а не для '+am[i])
+          endif
+        next
+        if fl .and. m1dispans != 3 // {"участковым терапевтом",3}
+          aadd(ta,'для II группы здоровья "Диспансерное наблюдение установлено" может быть только "участковым терапевтом"')
+        endif
+      case human_->RSLT_NEW == 355 // {"Проведена диспансеризация - присвоена IIIа группа здоровья",3,355}
+        if empty(am)
+          aadd(ta,'для IIIа группы здоровья обязательно должен быть установлен диспансерный учёт')
+        endif
+      case human_->RSLT_NEW == 356 // {"Проведена диспансеризация - присвоена IIIб группа здоровья",4,356}
+        if empty(am)
+          aadd(ta,'для IIIб группы здоровья обязательно должен быть установлен диспансерный учёт')
+        endif
+    endcase
   endif
 endif
 if is_pren_diagn //

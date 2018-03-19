@@ -1472,7 +1472,7 @@ return NIL
 
 *
 
-***** 01.10.17 многовариантный поиск
+***** 17.03.18 многовариантный поиск
 Function s_mnog_poisk()
 Static mm_rak := {;
   {"все случаи",0},;
@@ -2744,7 +2744,7 @@ if k > 0
           next
         endif
         for i := 1 to len(aup)
-          tmp1 += alltrim(aup[i,1])+"("+lstr(aup[i,2])+")"+aup[i,3]+","
+          tmp1 += alltrim(aup[i,1])+iif(aup[i,2] > 1, "("+lstr(aup[i,2])+")", "")+aup[i,3]+","
         next
         tmp1 := left(tmp1,len(tmp1)-1)
         k_usl := perenos(a_diagnoz,tmp1,23,",")
