@@ -15,14 +15,15 @@
 #include "chip_mo.ch"
 
 Static _version := {2,6,7}
-Static char_version := ""
-Static _date_version := "19.03.18г."
+Static char_version := "a"
+Static _date_version := "20.03.18г."
 Static __s_full_name := "ЧИП + Учёт работы Медицинской Организации"
 Static __s_version
 
 external ust_printer, ErrorSys, ReadModal, like, flstr, prover_dbf, net_monitor, pr_view, ne_real
 // старые отчёты запускаем из hrb-файлов (для уменьшения задачи)
 DYNAMIC i_new_boln
+DYNAMIC i_kol_del_zub
 DYNAMIC phonegram_15_kz
 DYNAMIC forma_792_MIAC
 DYNAMIC f1forma_792_MIAC

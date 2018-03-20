@@ -2158,9 +2158,9 @@ if is_2_78
       ++oth_usl
     endif
   next
-  if !is_last_den
+  j := len(am) 
+  if !is_last_den .and. j > 0
     asort(am,,,{|x,y| x[1] < y[1]})
-    j := len(am) 
     if kol_2_60 > 1 .and. month(d2) == am[j,1]
       aadd(ta,'последняя услуга '+s+' должна быть оказана в последний день лечения')
     endif
@@ -3012,16 +3012,28 @@ if is_disp_DVN //
     for i := 1 to len(au_lu)
       lshifr := alltrim(au_lu[i,1])
       for j := 1 to len(dvn_2_etap)
-        if ascan(dvn_2_etap[j,1],lshifr) > 0 // lshifr == dvn_2_etap[j,1]
+        if ascan(dvn_2_etap[j,1],lshifr) > 0 .and. between(mdvozrast,dvn_2_etap[j,3],dvn_2_etap[j,4])
           ar[j,1] := 1
-        elseif ascan(dvn_2_etap[j,2],lshifr) > 0
+        elseif ascan(dvn_2_etap[j,2],lshifr) > 0 .and. between(mdvozrast,dvn_2_etap[j,3],dvn_2_etap[j,4])
           ar[j,2] := 1
         endif
       next
     next
     for j := 1 to len(dvn_2_etap)
       if empty(ar[j,1]) .and. !empty(ar[j,2])
-        aadd(ta,'для услуг '+print_array(dvn_2_etap[j,2])+' обязательно наличие услуги '+print_array(dvn_2_etap[j,1]))
+        if len(dvn_2_etap[j,2]) == 1
+          s := 'для услуги '+dvn_2_etap[j,2,1]
+        else
+          s := 'для услуг '+print_array(dvn_2_etap[j,2])
+        endif
+        s += ' обязательно наличие услуги '
+        if len(dvn_2_etap[j,1]) == 1
+          s += dvn_2_etap[j,1,1]
+        else
+          s += print_array(dvn_2_etap[j,1])
+        endif
+        s += " (в возрасте от "+lstr(dvn_2_etap[j,3])+" до "+lstr(dvn_2_etap[j,4])+" лет)"
+        aadd(ta,s)
       //elseif !empty(ar[j,1]) .and. empty(ar[j,2])
         //aadd(ta,'для услуги '+print_array(dvn_2_etap[j,1])+' обязательно наличие  услуг '+print_array(dvn_2_etap[j,2]))
       endif
