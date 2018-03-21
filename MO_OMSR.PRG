@@ -3479,9 +3479,15 @@ if len(ta) > 0
     next
   next
 else
-  if is_disp_DDS .or. is_disp_DVN .or. is_prof_PN
-    mpztip := 72 // 72,"комплексное посещение при диспансеризации","ПосДиспанс"},; 
-    mpzkol := 1 
+  if is_disp_DDS .or. is_disp_DVN3 .or. is_prof_PN
+    mpztip := 72 // {72,260,"комплексное посещение при диспансеризации","ПосДиспанс.","",""},; // 
+    mpzkol := 1
+  elseif is_disp_DVN .and. eq_any(metap,1,4)
+    mpztip := 73 // {73,261,"комплексное посещение при ДВН 1 этап","ДВН 1","",""},; // 
+    mpzkol := 1
+  elseif is_disp_DVN .and. eq_any(metap,2,5)
+    mpztip := 74 // {74,262,"комплексное посещение при ДВН 2 этап","ДВН 2","",""},; // 
+    mpzkol := 1
   endif
   if glob_mo[_MO_KOD_TFOMS] == kod_LIS .and. eq_any(human_->profil,6,34)
     mpzkol := len(au_lu) // кол-во анализов

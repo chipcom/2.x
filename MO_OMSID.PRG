@@ -6856,7 +6856,7 @@ close databases
 rest_box(buf)
 return NIL
 
-***** 14.03.18
+***** 21.03.18
 Function f2_inf_DNL_030poo(Loc_kod,kod_kartotek) // сводная информация
 Local i, j, k, av := {}, av1 := {}, ad := {}, arr, s, fl, ;
       is_man := (human->pol == "М"), blk_tbl, blk_tip, blk_put_tip, a10[9], a11[13]
@@ -6945,10 +6945,12 @@ for i := 1 to 5
     endif
   next
 next
-if (mvozrast := count_years(human->date_r,human->n_data)) > 17
+mvozrast := count_years(human->date_r,human->n_data)
+if !between(mvozrast,0,17)
   mvozrast := 17
 endif
-if (mdvozrast := year(human->n_data) - year(human->date_r)) > 17
+mdvozrast := year(human->n_data) - year(human->date_r)
+if !between(mdvozrast,0,17)
   mdvozrast := 17
 endif
 read_arr_PN(Loc_kod)
@@ -7320,8 +7322,7 @@ return NIL
 
 ***** 19.02.18
 Function inf_DNL_XMLfile(is_schet,stitle)
-Local arr_m, n, buf := save_maxrow(), lkod_h, lkod_k, rec, blk, t_arr[BR_LEN],;
-      arr, n_func
+Local arr_m, n, buf := save_maxrow(), lkod_h, lkod_k, rec, blk, t_arr[BR_LEN], arr, n_func
 if (arr_m := year_month(T_ROW,T_COL-5)) != NIL
   mywait()
   do case

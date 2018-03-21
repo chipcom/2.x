@@ -1974,6 +1974,9 @@ endif
 _su := su
 if par == 2 .and. eq_any(su,1,2,5) 
   if arr_m[1] >= 2018
+    R_Use(dir_exe+"_mo8unit",,"MOUNIT")
+    index on str(ii,3) to (cur_dir+"tmp_unitii")
+    set index to (cur_dir+"_mo8unit"),(cur_dir+"tmp_unitii") 
     is_2018 := .t.
     apz2016 := arr_plan_zakaz_16(.t.)
     luapz2016 := arr_plan_zakaz_16(.t.)
@@ -2266,7 +2269,7 @@ if eq_any(su,1,2,5)
     for i := 1 to len(luapz2016)
       if luapz2016[i,3] > 0 .or. apz2016[i,3] > 0
         s := padl(luapz2016[i,1],42)
-        if apz2016[i,2] == 62 // УЕТ стоматологии
+        if is_2016 .and. apz2016[i,2] == 62 // УЕТ стоматологии
           s += str(apz2016[i,3],10,2)
         elseif empty(apz2016[i,3]) .and. !empty(luapz2016[i,3])
           s += str(luapz2016[i,3],10,0)
@@ -2672,7 +2675,7 @@ restscreen(buf)
 viewtext(name_file,,,,(sh>80),,,reg_print)
 return NIL
 
-***** 29.09.16
+***** 21.03.18
 Function f1pz1statist(arr_otd,par)
 Local lreg_lech := {0,0,0,0,0}, s, lkod, lshifr, ta, i, j, k, mkol1,;
       mkol, muet, msum, koef := 1, lshifr1, fl := .t., arr_dn_st := {"","",0},;
@@ -2864,7 +2867,7 @@ do while hu->kod == human->kod .and. !eof()
             arr_lp[i,2,i1,3] ++
           elseif ta[j,2] == 0
             mkol := hu->kol_1
-            if between(ta[j,1],3,5) .or. (ta[j,1]==2 .and. d2_year>2013)
+            if between(ta[j,1],3,5) .or. (ta[j,1] == 2 .and. d2_year > 2013)
               arr_dn_st[2] := lshifr
               arr_dn_st[3] += mkol
             endif
@@ -2880,7 +2883,7 @@ do while hu->kod == human->kod .and. !eof()
           endif
           if d2_year > 2012 .and. mkol > 0
             if hu->kol_rcp < 0 .and. DomUslugaTFOMS(lshifr)
-              s := iif(hu->kol_rcp==-1,"на дому","на дому(АКТИВ)")
+              s := iif(hu->kol_rcp == -1, "на дому", "на дому(АКТИВ)")
               if (i := ascan(arr_lp, {|x| x[1] == lshifr })) == 0
                 aadd(arr_lp, {lshifr,{}}) ; i := len(arr_lp)
               endif
@@ -2890,9 +2893,7 @@ do while hu->kod == human->kod .and. !eof()
               arr_lp[i,2,i1,2] += mkol
               //arr_lp[i,2,i1,3] ++
             endif
-            if eq_any(alltrim(lshifr),"2.3.1","2.3.3","2.6.1","2.60.1",;
-                                      "1.11.1","1.11.2","55.1.1","55.1.2",;
-                                      "55.1.3","55.1.4")
+            if eq_any(left(lshifr,4),"2.3.","2.6.","2.60","1.11","55.1")
               s := inieditspr(A__MENUVERT, glob_V002, hu_->PROFIL)
               if (i := ascan(arr_lp, {|x| x[1] == lshifr })) == 0
                 aadd(arr_lp, {lshifr,{}}) ; i := len(arr_lp)
@@ -2924,16 +2925,35 @@ do while hu->kod == human->kod .and. !eof()
               apz2014[i14,3] += muet
             endif
           elseif i16 > 0
-            if between(apz2016[i16,2],1,56) .or. eq_any(apz2016[i16,2],59,61,65) // стационар, дн.стационар, обращение
-              apz2016[i16,3] ++
-            elseif apz2016[i16,2] != 62 // не стоматология
-              apz2016[i16,3] += mkol
-            endif
-            if eq_any(apz2016[i16,2],57,60,61)
-              if (i := ascan(apf, {|x| x[1]==lshifr })) == 0
-                aadd(apf, {lshifr,0}) ; i := len(apf)
+            if is_2018
+              select MOUNIT
+              set order to 2
+              find (str(i16,3))
+              if mounit->c_t == 2 // план-заказ подсчитывается по случаю
+                //apz2016[i16,3] ++
+                apz2016[i16,3] := 0
+              else
+                apz2016[i16,3] += mkol
               endif
-              apf[i,2] += iif(empty(mkol), mkol1, mkol)
+              set order to 1
+              /*if eq_any(apz2016[i16,2],57,60,61)
+                if (i := ascan(apf, {|x| x[1]==lshifr })) == 0
+                  aadd(apf, {lshifr,0}) ; i := len(apf)
+                endif
+                apf[i,2] += iif(empty(mkol), mkol1, mkol)
+              endif*/
+            else
+              if between(apz2016[i16,2],1,56) .or. eq_any(apz2016[i16,2],59,61,65) // стационар, дн.стационар, обращение
+                apz2016[i16,3] ++
+              elseif apz2016[i16,2] != 62 // не стоматология
+                apz2016[i16,3] += mkol
+              endif
+              if eq_any(apz2016[i16,2],57,60,61)
+                if (i := ascan(apf, {|x| x[1]==lshifr })) == 0
+                  aadd(apf, {lshifr,0}) ; i := len(apf)
+                endif
+                apf[i,2] += iif(empty(mkol), mkol1, mkol)
+              endif
             endif
           elseif i14 > 0
             if eq_any(i14,1,2,11) // Случай госпитализации или Обращение
