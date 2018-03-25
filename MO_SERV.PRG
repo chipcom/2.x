@@ -2896,7 +2896,7 @@ return NIL
 
 *
 
-***** 03.03.13 Общие настройки каждой задачи
+***** 25.03.18 Общие настройки каждой задачи
 Function f1nastr_all(nameTask,nTask)
 Local mm_tmp := {}, ctitle
 Local str_sem := "Редактирование общих настроек задачи "+lstr(nTask)
@@ -3231,18 +3231,22 @@ if G_SLock(str_sem)
                     NIL,;
                     "",NIL,;
                     "Имя файла шаблона согласия на обр-ку перс.данных (по <F6>)"})
-      aadd(mm_tmp, {"file_7","C",8,0,"@!",;
+      aadd(mm_tmp, {"file_7","C",12,0,"@!",;
                     NIL,;
                     "",NIL,;
                     "Имя файла шаблона листа учета................... (по <F7>)"})
-      aadd(mm_tmp, {"file_8","C",8,0,"@!",;
+      aadd(mm_tmp, {"file_8","C",12,0,"@!",;
                     NIL,;
                     "",NIL,;
                     "Имя файла шаблона истории болезни............... (по <F8>)"})
-      aadd(mm_tmp, {"file_9","C",8,0,"@!",;
+      aadd(mm_tmp, {"file_9","C",12,0,"@!",;
                     NIL,;
                     "",NIL,;
                     "Имя файла шаблона стат.карты (форма 066)........ (по <F9>)"})
+      aadd(mm_tmp, {"file_12","C",12,0,"@!",;
+                    NIL,;
+                    "",NIL,;
+                    "Наименование файла шаблона индивидуальной карты (по <F12>)"})
       aadd(mm_tmp, {"file_xx","C",3,0,"@!",;
                     NIL,;
                     "",NIL,;
@@ -3257,6 +3261,7 @@ if G_SLock(str_sem)
       tmp->FILE_7    := mv->FILE_7
       tmp->FILE_8    := mv->FILE_8
       tmp->FILE_9    := mv->FILE_9
+      tmp->FILE_12   := mv->FILE_12
       tmp->FILE_XX   := mv->FILE_XX
       close databases
     case nTask == X_PLATN .and. Tools_Ini_Platn(1,0,0,.t.) //  Платные услуги
@@ -3463,6 +3468,7 @@ if G_SLock(str_sem)
         mv->FILE_7    := tmp->FILE_7
         mv->FILE_8    := tmp->FILE_8
         mv->FILE_9    := tmp->FILE_9
+        mv->FILE_12   := tmp->FILE_12
         mv->FILE_XX   := tmp->FILE_XX
       case nTask == X_PLATN
         mem_anonim  := tmp->anonim

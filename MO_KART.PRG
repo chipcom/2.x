@@ -4096,8 +4096,6 @@ if c $ s
 endif
 return s
 
-*
-
 ***** 20.11.15 Подсчёт количества пациентов, прикреплённых ко всем участковым врачам
 Function prn_itogo_uch_vrach()
 Local sh, HH := 60, name_file := "uchvrach"+stxt, arr_title
@@ -4236,15 +4234,6 @@ next
 fclose(fp)
 viewtext(name_file,,,,.t.,,,2)
 return NIL
-
-*
-
-***** 29.09.15 Просмотр/печать населения, прикреплённого к конкретному участковому врачу
-Function spisok_uch_vrach()
-ne_real()
-return NIL
-
-*
 
 ***** 28.09.15 вернуть массив участковых врачей
 Function ret_arr_uch_vrach()

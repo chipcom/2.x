@@ -5951,6 +5951,8 @@ if d_srok->(lastrec()) > 0
   uch->(dbGoto(human->LPU))
   otd->(dbGoto(human->OTD))
   add_string("")
+  add_string(center("Предупреждение!",80))
+  add_string("")
   add_string("Обратите внимание, что "+lstr(d_srok->dni)+" дней назад обнаружен случай")
   add_string("с основным диагнозом "+alltrim(human->kod_diag)+" "+;
              date_8(human->n_data)+"-"+date_8(human->k_data)+;

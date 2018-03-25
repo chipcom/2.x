@@ -75,7 +75,7 @@ if k > 0
 endif
 return NIL
 
-*****
+***** 25.03.18
 Function _pp_nastr(k)
 Static file_mem := "pp_nastr"
 Local mm_tmp, smsg
@@ -83,10 +83,11 @@ if k == 0 // инициализация файла и переменных
   mm_tmp := {;  // справочник настроек приемного покоя
    {"IST_BOL",     "N",     1,     0},; // нумерация истории болезни
    {"N_IST_BOL",   "N",     6,     0},; // последний номер истории болезни
-   {"FILE_6"   ,   "C",     8,     0},; // шаблон согласия на обработку перс.данных
-   {"FILE_7"   ,   "C",     8,     0},; // шаблон листа учета
-   {"FILE_8"   ,   "C",     8,     0},; // шаблон истории болезни
-   {"FILE_9"   ,   "C",     8,     0},; // шаблон стат.карты
+   {"FILE_6"   ,   "C",    12,     0},; // шаблон согласия на обработку перс.данных
+   {"FILE_7"   ,   "C",    12,     0},; // шаблон листа учета
+   {"FILE_8"   ,   "C",    12,     0},; // шаблон истории болезни
+   {"FILE_9"   ,   "C",    12,     0},; // шаблон стат.карты
+   {"FILE_12"  ,   "C",    12,     0},; // шаблон титул истоии болезни
    {"FILE_XX"  ,   "C",     3,     0};  // маска личных шаблонов приёмного покоя
   }
   reconstruct(dir_server+file_mem,mm_tmp,,,.t.)
@@ -99,6 +100,7 @@ if k == 0 // инициализация файла и переменных
            pp_FILE_7     := "LU_STAC",;
            pp_FILE_8     := "IST_BOL",;
            pp_FILE_9     := "F066",;
+           pp_FILE_12    := "MO_025uA5_2",;
            pp_FILE_XX    := "SMO"
   endif
   G_Use(dir_server+file_mem,,"MV")
@@ -120,6 +122,9 @@ if k == 0 // инициализация файла и переменных
   if empty(mv->file_XX)
     mv->file_XX := pp_FILE_XX
   endif
+  if empty(mv->file_12)
+    mv->file_12 := pp_FILE_12
+  endif
   Use
 elseif k == 1
   R_Use(dir_server+file_mem,,"MV")
@@ -129,6 +134,7 @@ elseif k == 1
   pp_FILE_7     := alltrim(mv->FILE_7)
   pp_FILE_8     := alltrim(mv->FILE_8)
   pp_FILE_9     := alltrim(mv->FILE_9)
+  pp_FILE_12    := alltrim(mv->FILE_12)
   pp_FILE_XX    := alltrim(mv->FILE_XX)
   Use
 endif
@@ -1452,8 +1458,6 @@ close databases
 rest_box(buf)
 return NIL
 
-*
-
 *****
 Function pp_getmsg()
 Local s_msg := ""
@@ -1591,8 +1595,6 @@ if m1is_gospit != old .and. old != NIL
   endif
 endif
 return .t.
-
-*
 
 ***** 14.03.16 выбрать карточку пациента из картотеки
 Function ppokoj_kart(k)
@@ -1804,9 +1806,7 @@ SetIniSect(tmp_ini,"polikl1",{{"s_regim"  ,lstr(s_regim)},;
                               {"s_snils"  ,s_snils      }})
 return mkod
 
-*
-
-***** 30.10.17
+***** 19.03.18
 Function view_human_pp(regim,lkod)
 // regim = 1 - редактирование
 // regim = 2 - удаление
@@ -1820,6 +1820,7 @@ pr_kod_pp := NIL
 blk_open := {|| dbCloseAll(),;
                 iif(yes_parol, R_Use(dir_server+"base1",,"BASE1"), nil),;
                 R_Use(dir_server+"mo_otd",,"OTD"),;
+                R_Use(dir_server+"kartote2",,"KART2"),;
                 R_Use(dir_server+"kartote_",,"KART_"),;
                 R_Use(dir_server+"kartotek",,"KART"),;
                 dbSetRelation( "KART_", {|| recno()}, "recno()" ),;
@@ -1967,8 +1968,6 @@ if mkod > 0 .and. regim == 1
 endif
 return (mkod > 0)
 
-*
-
 *****
 Function f1_v_human_pp()
 Local ret := {5,6}
@@ -1986,8 +1985,6 @@ if nAddrLine == 1
   endif
 endif
 return ret
-
-*
 
 *****
 Function f3_v_human_pp(k,line)
@@ -2049,94 +2046,315 @@ endif
 select (tmp_select)
 return NIL
 
-*
-
-***** 28.01.18
+***** 19.03.18
 Function f2_v_human_pp(nkey,oBrow)
 // наименования файлов шаблонов
+Static sb1 := "<b><u>", sb2 := "</u></b>"
 Static stmp2 := "", stmp3 := ""
 Local buf := savescreen(), buf1, rec1 := recno(), ret := -1, fl, ch, ;
-      arr, ap, i, j, k, s, lfio, sExt
-if pp_regim == 1 .and. eq_any(nkey,K_F5,K_F6,K_F7,K_F8,K_F9,K_F10)
+      arr, ap, i, j, k, s, lfio, sExt, mmo_pr, s1
+Local lnomer , l1nomer, muchastok, mdate_r, luchast
+if pp_regim == 1 .and. eq_any(nkey,K_F5,K_F6,K_F7,K_F8,K_F9,K_F10,K_F12)
   _pp_nastr(1) // перечитать имена шаблонов
   delFRfiles()
   dbcreate(fr_data,{;
-    {"n_data","D",8,0},;
-    {"n_time","C",5,0},;
-    {"g_data","D",8,0},;
-    {"g_time","C",5,0},;
-    {"kod_k","N",7,0},;
-    {"uch_doc","C",10,0},;
-    {"org_name","C",130,0},;
-    {"name_uch","C",30,0},;
-    {"name_otd","C",30,0},;
-    {"reg_lech","N",1,0},;
-    {"regim_lu","C",80,0},;
-    {"regim_66","C",80,0},;
-    {"regim_ib","C",80,0},;
-    {"vidpolis","C",12,0},;
-    {"mesto_rog","C",100,0},;
-    {"gorod_selo","C",20,0},;
-    {"fio","C",50,0},;
-    {"fio1","C",50,0},;
-    {"polis","C",25,0},;
-    {"beg_polis","C",10,0},;
-    {"srok_polis","C",10,0},;
-    {"snils","C",14,0},;
-    {"pol","C",1,0},;
-    {"date_r","D",8,0},;
-    {"count_ymd","C",90,0},;
-    {"kategor","C",40,0},;
-    {"vid_ud","C",30,0},;
-    {"ser","C",10,0},;
-    {"nom","C",10,0},;
-    {"kogdavyd","D",8,0},;
-    {"kemvyd","C",150,0},;
-    {"adres","C",120,0},;
-    {"adresp","C",120,0},;
-    {"mr_dol","C",50,0},;
-    {"phone","C",90,0},;
-    {"rab_nerab","C",20,0},;
-    {"vzros_reb","C",20,0},;
-    {"mi_git","C",90,0},;
-    {"rajon_git","C",90,0},;
-    {"mest_inog","C",90,0},;
-    {"rajon_fin","C",90,0},;
-    {"novor","C",90,0},;
-    {"gospit0","C",30,0},;
-    {"gospit1","C",30,0},;
-    {"gospit2","C",30,0},;
-    {"dost_skor","C", 3,0},;
-    {"sost_op","C",40,0},;
-    {"kem_dost","C",100,0},;
-    {"kem_napr","C",150,0},;
-    {"DIAG_NAPR","C",100,0},;
-    {"DIAG_PR_P","C",100,0},;
-    {"POB_D_LEK","C",100,0},;
-    {"HEIGHT","C",7,0},;
-    {"WEIGHT","C",7,0},;
-    {"kol_pred","N",1,0},;
-    {"DATE_ROD","D",8,0},;
-    {"DATE_ROD2","D",8,0},;
-    {"FIO_ROD","C",65,0},;
-    {"FIO_ROD2","C",65,0},;
-    {"uhod_rod","C",50,0},;
-    {"ADRES_ROD","C",50,0},;
-    {"ADRES_ROD2","C",50,0},;
-    {"MR_ROD","C",50,0},;
-    {"MR_ROD2","C",50,0},;
-    {"phone_rod","C",90,0},;
-    {"phone_rod2","C",90,0},;
-    {"travma","C",90,0},;
-    {"vid_opl","C",60,0},;
-    {"pp_status","C",60,0},;
-    {"pp_kategor","C",60,0},;
-    {"vrach","C",60,0},;
-    {"komu1","N",1,0},;
-    {"komu","C",90,0};
-   })
+    {"n_data",     "D",  8, 0},;
+    {"n_time",     "C",  5, 0},;
+    {"g_data",     "D",  8, 0},;
+    {"g_time",     "C",  5, 0},;
+    {"kod_k",      "N",  7, 0},;
+    {"uch_doc",    "C", 10, 0},;
+    {"org_name",   "C",255, 0},;
+    {"name_uch",   "C", 30, 0},;
+    {"name_otd",   "C", 30, 0},;
+    {"reg_lech",   "N",  1, 0},;
+    {"regim_lu",   "C", 80, 0},;
+    {"regim_66",   "C", 80, 0},;
+    {"regim_ib",   "C", 80, 0},;
+    {"vidpolis",   "C", 12, 0},;
+    {"mesto_rog",  "C",100, 0},;
+    {"gorod_selo", "C", 20, 0},;
+    {"fio",        "C",130, 0},;
+    {"fio1",       "C",130, 0},;
+    {"polis",      "C", 25, 0},;
+    {"beg_polis",  "C", 10, 0},;
+    {"srok_polis", "C", 10, 0},;
+    {"snils",      "C", 14, 0},;
+    {"pol",        "C",  1, 0},;     //ВНИМАНИЕ 50
+    {"date_r",     "D",  8, 0},;     //c10
+    {"count_ymd",  "C", 90, 0},;
+    {"kategor",    "C", 40, 0},;
+    {"vid_ud",     "C", 30, 0},;
+    {"ser",        "C", 10, 0},;
+    {"nom",        "C", 10, 0},;
+    {"kogdavyd",   "D",  8, 0},;     //c10
+    {"kemvyd",     "C",150, 0},;
+    {"adres",      "C",200, 0},;     //120
+    {"adresp",     "C",200, 0},;     //120
+    {"mr_dol",     "C", 50, 0},;
+    {"phone",      "C", 90, 0},;
+    {"rab_nerab",  "C", 20, 0},;
+    {"vzros_reb",  "C", 20, 0},;
+    {"mi_git",     "C", 90, 0},;
+    {"rajon_git",  "C", 90, 0},;
+    {"mest_inog",  "C", 90, 0},;
+    {"rajon_fin",  "C", 90, 0},;
+    {"novor",      "C", 90, 0},;
+    {"gospit0",    "C", 30, 0},;
+    {"gospit1",    "C", 30, 0},;
+    {"gospit2",    "C", 30, 0},;
+    {"dost_skor",  "C",  3, 0},;
+    {"sost_op",    "C", 40, 0},;
+    {"kem_dost",   "C",100, 0},;
+    {"kem_napr",   "C",150, 0},;
+    {"DIAG_NAPR",  "C",100, 0},;
+    {"DIAG_PR_P",  "C",100, 0},;
+    {"POB_D_LEK",  "C",100, 0},;
+    {"HEIGHT",     "C",  7, 0},;
+    {"WEIGHT",     "C",  7, 0},;
+    {"kol_pred",   "N",  1, 0},;
+    {"DATE_ROD",   "D",  8, 0},;
+    {"DATE_ROD2",  "D",  8, 0},;
+    {"FIO_ROD",    "C", 65, 0},;
+    {"FIO_ROD2",   "C", 65, 0},;
+    {"uhod_rod",   "C", 50, 0},;
+    {"ADRES_ROD",  "C", 50, 0},;
+    {"ADRES_ROD2", "C", 50, 0},;
+    {"MR_ROD",     "C", 50, 0},;
+    {"MR_ROD2",    "C", 50, 0},;
+    {"phone_rod",  "C", 90, 0},;
+    {"phone_rod2", "C", 90, 0},;
+    {"travma",     "C", 90, 0},;
+    {"vid_opl",    "C", 60, 0},;
+    {"pp_status",  "C", 60, 0},;
+    {"pp_kategor", "C", 60, 0},;
+    {"vrach",      "C", 60, 0},;
+    {"komu1",      "N",  1, 0},;
+    {"komu",       "C", 90, 0},;
+    {"pr_date",    "D",  8, 0},;
+    {"pr_mo",      "C",  6, 0},;
+    {"pr_nam_mo",  "C",150, 0},;
+    {"pr_kod_tf",  "C", 10, 0},;  // заплатка для шаблона карты
+    {"name_org",   "C",255, 0},;
+    {"adres_org",  "C",255, 0},;
+    {"ogrn",       "C", 15, 0},;
+    {"okpo",       "C", 12, 0},;
+    {"date_sys",   "C", 10, 0},;
+    {"d_sys",      "C",  2, 0},;
+    {"m_sys",      "C",  2, 0},;
+    {"y_sys",      "C",  4, 0},;
+    {"nomer_kart", "C", 25, 0},;
+    {"fam",        "C", 50, 0},;
+    {"ima",        "C", 50, 0},;
+    {"ots",        "C", 50, 0},;
+    {"d_dr",       "C",  2, 0},;
+    {"m_dr",       "C",  2, 0},;
+    {"y_dr",       "C",  4, 0},;
+    {"subekt",     "C", 50, 0},;
+    {"rajon",      "C", 50, 0},;
+    {"gorod",      "C", 50, 0},;
+    {"nas_p",      "C", 50, 0},;
+    {"subektp",    "C", 50, 0},;
+    {"rajonp",     "C", 50, 0},;
+    {"gorodp",     "C", 50, 0},;
+    {"nas_pp",     "C", 50, 0},;
+    {"adresL",     "C",200, 0},; //{"phone",      "C", 15, 0},;
+    {"phones",     "C", 50, 0},; //{"gorod_selo", "C", 50, 0},;
+    {"ser_polis",  "C", 10, 0},;
+    {"nom_polis",  "C", 20, 0},;
+    {"smo",        "C",100, 0},;
+    {"kod_lgot",   "C",  2, 0},;
+    {"name_doc",   "C", 20, 0},;
+    {"ser_doc",    "C", 20, 0},;
+    {"nom_doc",    "C", 20, 0},;
+    {"zanyat",     "C",255, 0},;
+    {"invalid",    "C",100, 0},; // пусто  {"mr_dol",     "C", 50, 0},;
+    {"perv_priem", "C", 50, 0},; // пусто
+    {"registrato", "C", 50, 0},;
+    {"time_regi",  "C", 50, 0},; // пусто
+    {"adrespL",    "C",200, 0},;
+    {"platel",     "C",100, 0},;
+    {"platel1",    "C",100, 0},;
+    {"bukva",      "C",  1, 0},;
+    {"uchast",     "C",  2, 0},;
+    {"kod_vu",     "C",  5, 0},;
+    {"kod_kart",   "C",  7, 0};
+    })
+
+  //
+  select KART2
+  goto (kart->(recno()))
+  //
   use (fr_data) new alias FRD
   append blank
+  //
+  frd->name_org := frd->org_name
+  s1 := full_date(sys_date)
+  frd->date_sys := s1
+  frd->d_sys := substr(s1,1,2)
+  frd->m_sys := substr(s1,4,2)
+  frd->y_sys := substr(s1,7,4)
+  mdate_r := full_date(kart->date_r)
+  frd->d_dr := substr(mdate_r,1,2)
+  frd->m_dr := substr(mdate_r,4,2)
+  frd->y_dr := substr(mdate_r,7,4)
+
+  //
+  lnomer := l1nomer := lstr(kart->kod)
+  muchastok := put_val(kart->uchast,2)
+  luchast := ""
+  if is_uchastok == 1
+    if !emptyall(kart->bukva,kart->uchast,kart->kod_vu)
+      lnomer := ""
+      if !empty(kart->bukva)
+        lnomer += kart->bukva
+      endif
+      lnomer += lstr(kart->uchast,2)
+      if kart->kod_vu > 0
+        lnomer += "/"+lstr(kart->kod_vu)
+      endif
+      l1nomer := lnomer
+    endif
+  elseif eq_any(is_uchastok,2,3)
+    if !emptyall(kart->bukva,kart->uchast)
+      luchast := " [уч-к "
+      if !empty(kart->bukva)
+        luchast += kart->bukva
+      endif
+      luchast += lstr(kart->uchast,2)
+      luchast += "] "
+    endif
+    if is_uchastok == 3
+      luchast += alltrim(kart2->kod_AK)
+    endif
+  endif
+  lnomer := expand(lnomer)+luchast
+  frd->nomer_kart := lnomer
+  arr := retFamImOt(1,.f.)
+  frd->fam := arr[1]
+  frd->ima := arr[2]
+  frd->ots := arr[3]
+  arr := ret_okato_Array(kart_->okatop)
+  frd->subektp := arr[1]
+  frd->rajonp  := arr[2]
+  frd->gorodp  := arr[3]
+  frd->nas_pp  := arr[4]
+  arr := ret_okato_Array(kart_->okatog)
+  frd->subekt := arr[1]
+  frd->rajon  := arr[2]
+  frd->gorod  := arr[3]
+  frd->nas_p  := arr[4]
+  if f_is_selo()
+    frd->gorod_selo := "городская - 1, "+sb1+"сельская - 2"+sb2
+  else
+    frd->gorod_selo := sb1+"городская - 1"+sb2+", сельская - 2"
+  endif
+  if empty(kart->adres)
+    s := "улица"+space(30)+" дом"+space(5)+" квартира"+space(5)
+  else
+    s := padr(kart->adres,60)
+  endif
+  frd->adresL := s //+"   тел. "+frt->phones
+  if !emptyall(kart_->PHONE_H,kart_->PHONE_M,kart_->PHONE_W)
+    s := ""
+    if !empty(kart_->PHONE_M)
+      s += "моб."+kart_->PHONE_M+" "
+    endif
+    if !empty(kart_->PHONE_H)
+      s += "дом."+kart_->PHONE_H+" "
+    endif
+    if !empty(kart_->PHONE_W)
+      s += "раб."+kart_->PHONE_W
+    endif
+//    frd->phone := s
+    frd->phones := s
+  endif
+  if f_is_selo()
+    frd->gorod_selo := "городская - 1, "+sb1+"сельская - 2"+sb2
+  else
+    frd->gorod_selo := sb1+"городская - 1"+sb2+", сельская - 2"
+  endif
+  frd->ser_polis := kart_->SPOLIS
+  frd->nom_polis := kart_->NPOLIS
+  frd->polis := ltrim(alltrim(kart_->SPOLIS)+" "+kart_->NPOLIS)
+  if alltrim(kart_->SMO) == '34'
+    if empty(s := ret_inogSMO_name(1))
+      s := "иногородние"
+    endif
+    frd->smo := "("+alltrim(kart_->KVARTAL_D)+") "+s
+  elseif left(kart_->SMO,2) == '34'
+    frd->smo := alltrim(inieditspr(A__MENUVERT, glob_arr_smo, int(val(kart_->smo))))
+  elseif !empty(kart_->SMO)
+    frd->smo := "("+alltrim(kart_->KVARTAL_D)+") "+init_ismo(kart_->SMO)
+  endif
+  if (i := ascan(stm_kategor, {|x| x[2] == kart_->kategor })) > 0 ;
+                                         .and. between(stm_kategor[i,3],1,9)
+    frd->kod_lgot := lstr(stm_kategor[i,3])
+  endif
+  if (j := ascan(menu_vidud, {|x| x[2] == kart_->vid_ud})) > 0
+    frd->name_doc := menu_vidud[j,4]
+  endif
+  frd->ser_doc := kart_->ser_ud
+  frd->nom_doc := kart_->nom_ud
+  s := iif(kart->rab_nerab==0,sb1,"")+"работает - 1"+iif(kart->rab_nerab==0,sb2,"")+",    "+;
+       "проходит военную службу и приравненную к ней службу - 2;    "+;
+       iif(kart_->PENSIONER==1,sb1,"")+"пенсионер(ка) - 3"+iif(kart_->PENSIONER==1,sb2,"")+",    "+;
+       iif(kart->rab_nerab==2,sb1,"")+"студент(ка) - 4"+iif(kart->rab_nerab==2,sb2,"")+",    "+;
+       iif(kart->rab_nerab==1,sb1,"")+"не работает - 5"+iif(kart->rab_nerab==1,sb2,"")+",    "+;
+       "прочие - 6"
+  frd->zanyat := s
+  if emptyall(kart_->okatop,kart_->adresp)
+    if empty(kart->adres)
+      s := "улица"+space(30)+" дом"+space(5)+" квартира"+space(5)
+    else
+      s := padr(kart->adres,60)
+    endif
+  else
+    s := padr(kart_->adresp,60)
+  endif
+  frd->adrespL := s //+"   тел. "+frd->phones
+  Private m1company := 0, mcompany := " ", mm_company := {}
+  Private m1KOMU := 0, MKOMU, M1STR_CRB := 0
+  if kart->MI_GIT == 9
+    m1KOMU    := kart->KOMU
+    M1STR_CRB := kart->STR_CRB
+  endif
+  mkomu := inieditspr(A__MENUVERT, mm_komu, m1komu)
+  if m1komu == 0
+    m1company := int(val(kart_->SMO))
+  elseif eq_any(m1komu,1,3)
+    m1company := m1str_crb
+  endif
+  if m1komu == 0 // ОМС
+    mm_company := aclone(glob_arr_smo)
+  elseif m1komu == 1 // Прочие компании
+    R_Use(dir_server+"str_komp")
+    index on upper(name) to tmp_comp for !between(tfoms,44,47)
+    dbeval({|| aadd(mm_company,{alltrim(name),kod}) } )
+    str_komp->(dbCloseArea())
+  elseif m1komu == 3 // Комитеты/МО
+    R_Use(dir_server+"komitet")
+    index on upper(name) to tmp_comp
+    dbeval({|| aadd(mm_company,{alltrim(name),kod}) } )
+    komitet->(dbCloseArea())
+  endif
+  mcompany := inieditspr(A__MENUVERT, mm_company, m1company)
+  frd->platel  := mkomu
+  if m1komu == 0  // ОМС
+    frd->platel1 := frd->smo
+  else
+    frd->platel1 := mcompany
+  endif
+  frd->bukva    := kart->bukva
+  frd->kod_kart := lstr(kart->kod)
+  if kart->uchast > 0
+    frd->uchast := lstr(kart->uchast)
+  endif
+  if kart->kod_vu > 0
+    frd->kod_vu := lstr(kart->kod_vu)
+  endif
+  // конец ДОБАВКИ
+  //
   frd->UCH_DOC := hu->UCH_DOC
   frd->kod_k := hu->kod_k
   frd->n_data := hu->n_data
@@ -2228,6 +2446,36 @@ if pp_regim == 1 .and. eq_any(nkey,K_F5,K_F6,K_F7,K_F8,K_F9,K_F10)
   frd->vzros_reb := upper(inieditspr(A__MENUVERT, menu_vzros, kart->vzros_reb))
   frd->mi_git    := okato_mi_git(kart_->okatog)
   frd->rajon_git := okato_rajon(kart_->okatog)
+  frd->pr_date   := kart2->date_pr
+  frd->pr_mo     := kart2->mo_pr
+  frd->pr_kod_tf := lstr(kart2->kod_tf)
+ // if glob_mo[_MO_IS_UCH]
+  mmo_pr := ""
+  if left(kart2->PC2,1) == "1"
+    mmo_pr := "По информации из ТФОМС пациент У_М_Е_Р"
+  elseif kart2->MO_PR == glob_mo[_MO_KOD_TFOMS]
+    mmo_pr := "Прикреплён "
+    if !empty(kart2->pc4)
+      mmo_pr += "с "+alltrim(kart2->pc4)+" "
+    elseif !empty(kart2->DATE_PR)
+      mmo_pr += "с "+date_8(kart2->DATE_PR)+" "
+    endif
+    mmo_pr += "к нашей МО"
+  else
+    s := alltrim(inieditspr(A__MENUVERT,glob_arr_mo,kart2->mo_pr))
+    if empty(s)
+      mmo_pr := "Прикрепление --- неизвестно ---"
+    else
+      if !empty(kart2->pc4)
+        mmo_pr += "с "+alltrim(kart2->pc4)+" "
+      elseif !empty(kart2->DATE_PR)
+        mmo_pr += "с "+date_8(kart2->DATE_PR)+" "
+      endif
+      mmo_pr += "прикреплён к " + s
+    endif
+  endif
+  //endif
+  frd->pr_nam_mo := mmo_pr
   if hu->NOVOR > 0
     frd->novor := "(Новорожденный: "+lstr(hu->NOVOR)+"-й ребёнок, д.р. "+;
                   date_8(hu->DATE_R2)+", пол "+hu->POL2+")"
@@ -2248,7 +2496,10 @@ if pp_regim == 1 .and. eq_any(nkey,K_F5,K_F6,K_F7,K_F8,K_F9,K_F10)
     frd->vrach := flstr(perso->tab_nom)+" ("+fam_i_o(perso->fio)+")"
   endif
   R_Use(dir_server+"organiz",,"ORG")
-  frd->org_name := org->name
+  frd->org_name  := org->name
+  frd->adres_org := org->adres
+  frd->ogrn      := org->ogrn
+  frd->okpo      := org->okpo
   R_Use(dir_server+"mo_ppdia",dir_server+"mo_ppdia","HUS")
   find (str(hu->kod,7))
   do while hus->kod == hu->kod .and. !eof()
@@ -2369,7 +2620,14 @@ if pp_regim == 1 .and. eq_any(nkey,K_F5,K_F6,K_F7,K_F8,K_F9,K_F10)
       if !empty(pp_FILE_6)
         Ins_Array(arr,1,pp_FILE_6)
       endif
+    case nKey == K_F12
+      //frd->pol := iif(kart->pol=="М",sb1+"муж. - 1"+sb2+", жен. - 2","муж. - 1, "+sb1+"жен. - 2"+sb2)
+      if !empty(pp_FILE_12)
+        Ins_Array(arr,1,pp_FILE_12)
+      endif
+      // теперь меняем файл данных для сохранения шаблона.
   endcase
+  //
   if (k := len(arr)) == 0
     //
   elseif k == 1
@@ -2384,6 +2642,7 @@ if pp_regim == 1 .and. eq_any(nkey,K_F5,K_F6,K_F7,K_F8,K_F9,K_F10)
           print_shablon(arr[1]+sExt)
         else
           close databases
+          copy file (cur_dir+fr_data+".dbf") to (cur_dir+fr_titl+".dbf")
           call_fr(arr[1])
         endif
       else
@@ -2545,8 +2804,6 @@ if fl .and. ++i < 4000
 endif
 return NIL
 
-*
-
 *****
 Static Function fill_FR_ist_bol()
 Local sh := 83, i, k, arr[2]
@@ -2619,8 +2876,6 @@ if k > 1
   next
 endif
 return NIL
-
-*
 
 ***** количество лет, месяцев и дней в строке
 Function count_ymd(_mdate, _sys_date, /*@*/y, /*@*/m, /*@*/d)

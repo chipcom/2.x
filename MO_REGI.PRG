@@ -1953,10 +1953,10 @@ do case
   case k == 22
     mas_pmt := {"Весь список прикреплённых к ~МО",;
                 "~Итого по участковым врачам",;
-                "Список по ~участковому врачу"}
+                "Количество по ~участкам"}
     mas_msg := {"Просмотр/печать населения, прикреплённого к нашей МО",;
-                "Подсчёт количества пациентов, прикреплённых ко всем участковым врачам",;
-                "Просмотр/печать населения, прикреплённого к конкретному участковому врачу"}
+                "Подсчёт количества пациентов, прикреплённых к участковым врачам",;
+                "Подсчёт количества прикреплённого населения по участкам"}
     mas_fun := {"prn_kartoteka(31)",;
                 "prn_kartoteka(32)",;
                 "prn_kartoteka(33)"}
@@ -1970,7 +1970,7 @@ do case
   case k == 32
     prn_itogo_uch_vrach()
   case k == 33
-    spisok_uch_vrach()
+    kol_uch_pripisnoe_naselenie()
 endcase
 if k > 10
   j := int(val(right(lstr(k),1)))
@@ -1984,7 +1984,131 @@ if k > 10
 endif
 return NIL
 
-*
+***** 25.03.18 Подсчёт количества прикреплённого населения по участкам
+Function kol_uch_pripisnoe_naselenie()
+Local sh, HH := 60, name_file := "uch_prik"+stxt, arr_title, i, j, k, arr1 := {}, arr2 := {},;
+      fl, arr, buf := save_maxrow()
+mywait()
+R_Use(dir_exe+"_okatos",cur_dir+"_okats","SELO")
+R_Use(dir_exe+"_okatoo",cur_dir+"_okato","OBLAST")
+R_Use_base("kartotek")
+set order to
+go top
+do while !eof()
+  @ maxrow(),0 say str(recno()/lastrec()*100,6,2)+"%" color cColorWait
+  if kart->kod > 0 .and. !(left(kart2->PC2,1)=='1') .and. kart2->mo_pr == glob_MO[_MO_KOD_TFOMS] // прикреплён к НАМ
+    v := iif(count_years(kart->date_r,sys_date) < 18, 2, 1)
+    j := iif(kart->pol == "М", 2, 3)
+    k := 4 // город
+    fl := .f.
+    if kart_->gorod_selo == 2 
+      fl := .t.  // нашли
+      k := 5   // село
+    endif
+    if !fl .and. !empty(okato_rajon(kart_->okatog,@arr))
+      if arr[5] == 1 // город
+        fl := .t.  // нашли
+        k := 4   // город
+      endif
+    endif
+    if !fl
+      select SELO
+      find (padr(kart_->okatog,11,'0'))
+      if found()
+        fl := .t.  // нашли
+        k := iif(selo->selo == 0, 5, 4)
+      endif
+      if !fl
+        select OBLAST
+        find (padr(kart_->okatog,5,'0'))
+        if found()
+          fl := .t.  // нашли
+          k := iif(oblast->selo == 0, 5, 4)
+        endif
+      endif
+    endif
+    if v == 1
+      if (i := ascan(arr1, {|x| x[1] == kart->uchast })) == 0
+        aadd(arr1, {kart->uchast,0,0,0,0}) ; i := len(arr1)
+      endif
+      arr1[i,j] ++
+      arr1[i,k] ++
+    else
+      if (i := ascan(arr2, {|x| x[1] == kart->uchast })) == 0
+        aadd(arr2, {kart->uchast,0,0,0,0}) ; i := len(arr2)
+      endif
+      arr2[i,j] ++
+      arr2[i,k] ++
+    endif
+  endif
+  select KART
+  skip
+enddo
+close databases
+rest_box(buf)
+if len(arr1) == 0 .and. len(arr2) == 0
+  func_error(4,"Не обнаружено пациентов, прикреплённых к нашей МО")
+else
+  arr := array(5)
+  asort(arr1,,,{|x,y| x[1] < y[1] })
+  asort(arr2,,,{|x,y| x[1] < y[1] })
+  arr_title := {;
+    "─────────┬───────────┬───────────┬───────────┬───────────┬───────────",;
+    "№ участка│  мужчины  │  женщины  │   город   │   село    │   Всего",;
+    "─────────┴───────────┴───────────┴───────────┴───────────┴───────────"}
+  fp := fcreate(name_file) ; tek_stroke := 0 ; n_list := 1
+  sh := len(arr_title[1])
+  add_string(glob_mo[_MO_SHORT_NAME])
+  add_string("")
+  add_string(center("Количество прикреплённых пациентов",sh))
+  add_string(center("[ по состоянию на "+date_8(sys_date)+"г. ]",sh))
+  aeval(arr_title, {|x| add_string(x) } )
+  if len(arr1) > 0
+    if verify_FF(HH-2,.t.,sh)
+      aeval(arr_title, {|x| add_string(x) } )
+    endif
+    afill(arr,0)
+    add_string("")
+    add_string(padc("взрослые",sh,"_"))
+    for i := 1 to len(arr1)
+      if verify_FF(HH,.t.,sh)
+        aeval(arr_title, {|x| add_string(x) } )
+      endif
+      add_string(str(arr1[i,1],7)+put_val(arr1[i,2],12)+put_val(arr1[i,3],12)+;
+                                  put_val(arr1[i,4],12)+put_val(arr1[i,5],12)+put_val(arr1[i,2]+arr1[i,3],12))
+      for j := 2 to 5
+        arr[j] += arr1[i,j]
+      next
+    next                            
+    add_string(replicate("─",sh))
+    add_string(" Итого:"+put_val(arr[2],12)+put_val(arr[3],12)+;
+                         put_val(arr[4],12)+put_val(arr[5],12)+put_val(arr[2]+arr[3],12))
+  endif
+  if len(arr2) > 0
+    if verify_FF(HH-2,.t.,sh)
+      aeval(arr_title, {|x| add_string(x) } )
+    endif
+    afill(arr,0)
+    add_string("")
+    add_string(padc("дети",sh,"_"))
+    for i := 1 to len(arr2)
+      if verify_FF(HH,.t.,sh)
+        aeval(arr_title, {|x| add_string(x) } )
+      endif
+      add_string(str(arr2[i,1],7)+put_val(arr2[i,2],12)+put_val(arr2[i,3],12)+;
+                                  put_val(arr2[i,4],12)+put_val(arr2[i,5],12)+put_val(arr2[i,2]+arr2[i,3],12))
+      for j := 2 to 5
+        arr[j] += arr2[i,j]
+      next
+    next                            
+    add_string(replicate("─",sh))
+    add_string(" Итого:"+put_val(arr[2],12)+put_val(arr[3],12)+;
+                         put_val(arr[4],12)+put_val(arr[5],12)+put_val(arr[2]+arr[3],12))
+  endif
+  fclose(fp)
+  viewtext(name_file,,,,.t.,,,1)
+endif
+return NIL
 
 ***** 08.05.17 Создание файла для ЛИС в ГБУЗ "ВОМИАЦ" (письмо №1337 от 30.11.15г.)
 Function create_DBF_for_LIS(par)
