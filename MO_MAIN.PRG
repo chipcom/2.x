@@ -15,13 +15,13 @@
 #include "chip_mo.ch"
 
 Static _version := {2,6,7}
-Static char_version := "c"
-Static _date_version := "25.03.18г."
+Static char_version := "d"
+Static _date_version := "30.03.18г."
 Static __s_full_name := "ЧИП + Учёт работы Медицинской Организации"
 Static __s_version
 
 external ust_printer, ErrorSys, ReadModal, like, flstr, prover_dbf, net_monitor, pr_view, ne_real
-// старые отчёты запускаем из hrb-файлов (для уменьшения задачи)
+// старые(редко используемые) отчёты запускаем из hrb-файлов (для уменьшения задачи)
 DYNAMIC i_new_boln
 DYNAMIC i_kol_del_zub
 DYNAMIC phonegram_15_kz
@@ -195,7 +195,6 @@ if ControlBases(1,_version) // если необходимо
     buf := savescreen()
     f_message({"Переход на новую версию программы "+fs_version(_version)+' от '+_date_version},,,,8)
     // провести реконструкцию БД
-f_create_copy_R0()    
     Reconstruct_BD(is_cur_dir,is_create)
     // провести реконструкцию БД учёта направлений на госпитализацию
     _263_init()

@@ -1317,16 +1317,14 @@ DEFAULT mkol TO &pole_kol
 tmp->kol += mkol
 return NIL
 
-*
-
-***** 12.03.14
-Function obF2_v_usl(is_get,r1,mtitul)
+***** 27.03.18
+Function obF2_v_usl(is_get,r1,mtitul,name_tmp)
 Local t_arr[BR_LEN], buf := savescreen(), k, ret
-DEFAULT is_get TO .f., r1 TO T_ROW
+DEFAULT is_get TO .f., r1 TO T_ROW, name_tmp TO "tmp"
 if r1 > 14 ; r1 := 14 ; endif
 R_Use(dir_server+"mo_su",{dir_server+"mo_sush",;
                           dir_server+"mo_sush1"},"USL")
-use (cur_dir+"tmp") index (cur_dir+"tmpk"),(cur_dir+"tmpn") new alias TMP
+use (cur_dir+name_tmp) index (cur_dir+name_tmp+"k"),(cur_dir+name_tmp+"n") new alias TMP
 set order to 2
 t_arr[BR_TOP] := r1
 t_arr[BR_BOTTOM] := maxrow()-2
@@ -1391,8 +1389,7 @@ do case
         tmp_color := setcolor(cDataCScr)
         box_shadow(k,pc1+1,21,pc2-1,,"Добавление услуги",cDataPgDn)
         setcolor(cDataCGet)
-        @ k+1,pc1+25 say "Шифр услуги" get mshifr picture "@!" ;
-                     valid valid_shifr()
+        @ k+1,pc1+25 say "Шифр услуги" get mshifr picture "@!" valid valid_shifr()
         status_key("^<Esc>^ - выход без записи;  ^<Enter>^ - подтверждение ввода")
         myread()
         if lastkey() != K_ESC .and. !empty(mshifr)
@@ -1484,8 +1481,6 @@ do case
     endcase
 endcase
 return ret
-
-*
 
 ***** 12.03.14
 Function input_Fusluga()

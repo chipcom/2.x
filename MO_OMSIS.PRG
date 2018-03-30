@@ -1472,7 +1472,7 @@ return NIL
 
 *
 
-***** 17.03.18 многовариантный поиск
+***** 27.03.18 многовариантный поиск
 Function s_mnog_poisk()
 Static mm_rak := {;
   {"все случаи",0},;
@@ -1578,14 +1578,25 @@ lvid_doc := setbit(lvid_doc,5)
 Private pdate_lech, pdate_schet, pdate_usl, pdate_vvod, mstr_crb := 0, mstr_crbM := {}, mslugba
 //
 dbcreate(cur_dir+"tmp", {;
-   {"U_KOD"  ,    "N",      4,      0},;  // код услуги
-   {"U_SHIFR",    "C",     10,      0},;  // шифр услуги
-   {"U_NAME",     "C",     65,      0} ;  // наименование услуги
+     {"U_KOD"  ,    "N",      4,      0},;  // код услуги
+     {"U_SHIFR",    "C",     10,      0},;  // шифр услуги
+     {"U_NAME",     "C",     65,      0};   // наименование услуги
   })
 use (cur_dir+"tmp")
 index on str(u_kod,4) to (cur_dir+"tmpk")
 index on fsort_usl(u_shifr) to (cur_dir+"tmpn")
 tmp->(dbCloseArea())
+//
+dbcreate(cur_dir+"tmpF", {;
+     {"U_KOD"  ,    "N",      6,      0},;  // код услуги
+     {"U_SHIFR",    "C",     20,      0},;  // шифр услуги
+     {"U_NAME",     "C",    255,      0};   // наименование услуги
+  })
+use (cur_dir+"tmpF")
+index on str(u_kod,6) to (cur_dir+"tmpFk")
+index on fsort_usl(u_shifr) to (cur_dir+"tmpFn")
+tmpF->(dbCloseArea())
+//
 aadd(mm_tmp, {"date_lech","N",4,0,NIL,;
               {|x|menu_reader(x,;
                  {{|k,r,c| k:=year_month(r+1,c),;
@@ -1854,9 +1865,13 @@ aadd(mm_tmp, {"company","N",5,0,NIL,;
               0,{|| space(10) },;
               "  ==>",,{||eq_any(m1komu,0,1,3)}})
 aadd(mm_tmp, {"uslugi","N",4,0,NIL,;
-              {|x|menu_reader(x,{ { |k,r,c| ob2_v_usl(.t.,r+1) }},A__FUNCTION)},;
+              {|x|menu_reader(x,{ { |k,r,c| ob2_v_usl(.t.,r+1,"Услуги (ТФОМС)") }},A__FUNCTION)},;
               0,{|| space(10) },;
-              "Оказанные услуги" })
+              "Оказанные услуги (ТФОМС)" })
+aadd(mm_tmp, {"uslugiF","N",4,0,NIL,;
+              {|x|menu_reader(x,{ { |k,r,c| obF2_v_usl(.t.,r+1,"Услуги (ФФОМС)","tmpF") }},A__FUNCTION)},;
+              0,{|| space(10) },;
+              "Оказанные услуги (ФФОМС)" })
 aadd(mm_tmp, {"dom","N",1,0,NIL,;
               {|x|menu_reader(x,mm_dom,A__MENUVERT)},;
               0,{|x|inieditspr(A__MENUVERT,mm_dom,x)},;
@@ -2007,7 +2022,7 @@ if k > 0
       mmr_dol += "*"
     endif
   endif
-  Private arr_usl := {}, fl_summa := .t., NUMdiag, NUMdiag1, NUMsoput_d, NUMsoput_d1
+  Private arr_usl := {}, arr_uslF := {}, fl_summa := .t., NUMdiag, NUMdiag1, NUMsoput_d, NUMsoput_d1
   // заранее диапазоны диагнозов переведём в числовые значения
   if !emptyall(mn->diag,mn->diag1)
     NUMdiag := diag2num(mn->diag)
@@ -2023,7 +2038,7 @@ if k > 0
     NUMsoput_d1 := diag2num(mn->soput_d1)
   endif
   if mn->otd_usl > 0 .or. mn->vr1 > 0 .or. mn->as1 > 0 .or. ;
-       mn->vras1 > 0 .or. mn->slug_usl > 0 .or. mn->uslugi > 0 .or. mn->dom > 0
+       mn->vras1 > 0 .or. mn->slug_usl > 0 .or. mn->uslugi > 0 .or. mn->uslugiF > 0 .or. mn->dom > 0
     fl_summa := .f.
   endif
   if mn->uslugi > 0
@@ -2038,8 +2053,15 @@ if k > 0
       fl_rak_usl := .f.
     endif
   endif
+  if mn->uslugiF > 0
+    use (cur_dir+"tmpF") index (cur_dir+"tmpFn") new
+    go top
+    dbeval({|| aadd(arr_uslF, {tmpf->u_kod,tmpf->u_shifr,tmpf->u_name,0,0,0});
+           })
+    tmpf->(dbCloseArea())
+  endif
   flag_hu := (mn->otd_usl > 0 .or. mn->vr1 > 0 .or. mn->as1 > 0 .or. mn->vras1 > 0 .or. ;
-              mn->slug_usl > 0 .or. mn->uslugi > 0 .or. mn->dom > 0 .or. ;
+              mn->slug_usl > 0 .or. mn->uslugi > 0 .or. mn->uslugiF > 0 .or. mn->dom > 0 .or. ;
               mn->kol_pos == 2 .or. mn->date_usl > 0 .or. mn->profil_u > 0)
   dbcreate(cur_dir+"tmp",{{"kod",      "N", 7,0},;
                           {"kod_k",    "N", 7,0},;
@@ -2087,6 +2109,9 @@ if k > 0
   endif
   use_base("lusl")
   use_base("luslc")
+  use_base("luslf")
+  R_Use(dir_server+"mo_su",,"MOSU")
+  R_Use(dir_server+"mo_hu",dir_server+"mo_hu","MOHU")
   R_Use(dir_server+"uslugi",,"USL")
   R_Use(dir_server+"human_u_",,"HU_")
   R_Use(dir_server+"human_u",dir_server+"human_u","HU")
@@ -2491,7 +2516,7 @@ if k > 0
         l -= 11
       endif
       verify_FF(HH-1,.t.,sh)
-      add_string(padr("Оказанные услуги:",l+13)+"|Кол-во|  Ст-ть   "+iif(fl_rak_usl,"| Снято РАК",""))
+      add_string(padr("Оказанные услуги (ТФОМС):",l+13)+"|Кол-во|  Ст-ть   "+iif(fl_rak_usl,"| Снято РАК",""))
       for i := 1 to len(arr_usl)
         verify_FF(HH,.t.,sh)
         add_string("  "+arr_usl[i,2]+" "+;
@@ -2501,6 +2526,19 @@ if k > 0
         s += arr_usl[i,5]
       next
       add_string("  ИТОГО:     Оказано услуг "+lstr(k)+" на сумму "+lstr(s,12,2)+"р.")
+    endif
+    if mn->uslugiF > 0
+      l := s := k := 0
+      aeval(arr_uslF, {|x| l := max(l,len(rtrim(x[3]))) } )
+      verify_FF(HH-1,.t.,sh)
+      add_string(padr("Оказанные услуги (ФФОМС):",l+23)+"|Кол-во")
+      for i := 1 to len(arr_uslF)
+        verify_FF(HH,.t.,sh)
+        add_string("  "+arr_uslF[i,2]+" "+;
+                   padr(arr_uslF[i,3],l)+"|"+put_val(arr_uslF[i,4],5))
+        k += arr_uslF[i,4]
+      next
+      add_string("  ИТОГО:     Оказано услуг "+lstr(k))
     endif
     use (cur_dir+"tmp_bbuk") index (cur_dir+"tmp_bbuk") new
     use (cur_dir+"tmp_buk") index (cur_dir+"tmp_buk") new
@@ -2535,13 +2573,13 @@ if k > 0
       add_string("Сумма, снятая актами контроля "+lput_kop(srak_s,.t.)+" руб.")
     endif
     if mn->kol_pos == 2
-      verify_FF(HH-6,.t.,sh)
-      use (cur_dir+"tmp_kp") new
+      verify_FF(HH-5,.t.,sh)
       add_string("Количество амбулаторных посещений: "+lstr(kol_pos_amb))
       add_string("Количество стоматологических посещений всего: "+lstr(pol_pos_stom1+pol_pos_stom2+pol_pos_stom3))
       add_string(padl(  "в том числе с лечебной целью: ",47)+lstr(pol_pos_stom1))
       add_string(padl(      "с профилактической целью: ",47)+lstr(pol_pos_stom2))
       add_string(padl("при оказании неотложной помощи: ",47)+lstr(pol_pos_stom3))
+      //use (cur_dir+"tmp_kp") new
       //add_string("Количество посещений (сколько дней пациенты заходили в МО): "+lstr(tmp_kp->(lastrec())))
     endif
     add_string("")
@@ -2743,6 +2781,18 @@ if k > 0
             aadd(aup, nil) ; ains(aup,1) ; aup[1] := bup[i]
           next
         endif
+        if mn->uslugiF > 0
+          bup := {}
+          for i := 1 to len(arr_uslF)
+            if (l := ascan(aup,{|x| x[1] == arr_uslF[i,2]})) > 0
+              aadd(bup, aclone(aup[l]) )
+              adel(aup,l) ; asize(aup,len(aup)-1)
+            endif
+          next
+          for i := len(bup) to 1 step -1
+            aadd(aup, nil) ; ains(aup,1) ; aup[1] := bup[i]
+          next
+        endif
         for i := 1 to len(aup)
           tmp1 += alltrim(aup[i,1])+iif(aup[i,2] > 1, "("+lstr(aup[i,2])+")", "")+aup[i,3]+","
         next
@@ -2847,12 +2897,11 @@ if k == 1
 endif
 return fl
 
-*
-
-***** 27.09.17
+***** 27.03.18
 Static Function s1_mnog_poisk(cv,cf)
 Static a_stom_vp := {{},{},{}}
-Local i, j, k, n, s, arr, fl := .t., flu := .f., mkol, mstoim := 0, fl1, fl2,;
+Local i, j, k, n, s, arr, fl := .t., flu := .f., mkol, mstoim := 0, fl1, fl2, vid_vp := 1,;
+      au_lu := {}, au_flu := {},;
       mrak_p := 0, mrak_s := 0, d, lshifr, muet := 0, god_r, arr1, adiag_talon[16]  // из статталона к диагнозам
 if empty(a_stom_vp[1])
   f_vid_p_stom({},{},a_stom_vp[1],{1})
@@ -2891,7 +2940,9 @@ if fl .and. mn->rak > 0
   if !empty(round(k,2))
     mrak_s := k
     if empty(human->cena_1) // скорая помощь с нулевой ценой
-      if year(human->k_data) == 2017
+      if (y := year(human->k_data)) == 2018
+        n := 2224.60
+      elseif y == 2017
         n := 1819.50
       else  // 2016 год
         n := 1747.70
@@ -3115,8 +3166,7 @@ if fl .and. mn->bolnich1 > 0
 endif
 if fl .and. mn->bolnich > 0 .and. mn->bolnich1 != 1  // не "нет"
   fl := .f.
-  if human->bolnich > 0 .and. ;
-     (c4tod(human->date_b_2) - c4tod(human->date_b_1) + 1) >= mn->bolnich
+  if human->bolnich > 0 .and. (c4tod(human->date_b_2) - c4tod(human->date_b_1) + 1) >= mn->bolnich
     fl := .t.
   endif
 endif
@@ -3166,8 +3216,7 @@ if fl .and. !emptyall(mn->diag,mn->kod_diag,mn->soput_d)
       if fl
         if is_talon .and. mn->talon_diag > 0
           fl := .f.
-          if arr[j,3] > 0 .or. arr[j,4] > 0 .or. arr_tal_diag[1,3] == 2 ;
-                                            .or. arr_tal_diag[2,3] == 2
+          if arr[j,3] > 0 .or. arr[j,4] > 0 .or. arr_tal_diag[1,3] == 2 .or. arr_tal_diag[2,3] == 2
             for i := 1 to 2
               if arr[j,2+i] > 0 .or. arr_tal_diag[i,3] == 2
                 k := adiag_talon[j*2-(2-i)]
@@ -3175,8 +3224,7 @@ if fl .and. !emptyall(mn->diag,mn->kod_diag,mn->soput_d)
                   if empty(k)
                     fl := .t.
                   endif
-                elseif arr_tal_diag[i,1] > 0 .and. ;
-                       between(k,arr_tal_diag[i,1],arr_tal_diag[i,2])
+                elseif arr_tal_diag[i,1] > 0 .and. between(k,arr_tal_diag[i,1],arr_tal_diag[i,2])
                   fl := .t.
                 endif
                 if fl ; exit ; endif
@@ -3199,8 +3247,7 @@ if fl .and. !emptyall(mn->diag,mn->kod_diag,mn->soput_d)
     if fl
       if is_talon .and. mn->talon_diag > 0
         fl := .f.
-        if arr[j,3] > 0 .or. arr[j,4] > 0 .or. arr_tal_diag[1,3] == 2 ;
-                                          .or. arr_tal_diag[2,3] == 2
+        if arr[j,3] > 0 .or. arr[j,4] > 0 .or. arr_tal_diag[1,3] == 2 .or. arr_tal_diag[2,3] == 2
           for i := 1 to 2
             if arr[j,2+i] > 0 .or. arr_tal_diag[i,3] == 2
               k := adiag_talon[j*2-(2-i)]
@@ -3208,8 +3255,7 @@ if fl .and. !emptyall(mn->diag,mn->kod_diag,mn->soput_d)
                 if empty(k)
                   fl := .t.
                 endif
-              elseif arr_tal_diag[i,1] > 0 .and. ;
-                     between(k,arr_tal_diag[i,1],arr_tal_diag[i,2])
+              elseif arr_tal_diag[i,1] > 0 .and. between(k,arr_tal_diag[i,1],arr_tal_diag[i,2])
                 fl := .t.
               endif
               if fl ; exit ; endif
@@ -3230,8 +3276,7 @@ if fl .and. !emptyall(mn->diag,mn->kod_diag,mn->soput_d)
       if fl
         if is_talon .and. mn->talon_diag > 0
           fl := .f.
-          if arr[j,3] > 0 .or. arr[j,4] > 0 .or. arr_tal_diag[1,3] == 2 ;
-                                            .or. arr_tal_diag[2,3] == 2
+          if arr[j,3] > 0 .or. arr[j,4] > 0 .or. arr_tal_diag[1,3] == 2 .or. arr_tal_diag[2,3] == 2
             for i := 1 to 2
               if arr[j,2+i] > 0 .or. arr_tal_diag[i,3] == 2
                 k := adiag_talon[j*2-(2-i)]
@@ -3239,8 +3284,7 @@ if fl .and. !emptyall(mn->diag,mn->kod_diag,mn->soput_d)
                   if empty(k)
                     fl := .t.
                   endif
-                elseif arr_tal_diag[i,1] > 0 .and. ;
-                       between(k,arr_tal_diag[i,1],arr_tal_diag[i,2])
+                elseif arr_tal_diag[i,1] > 0 .and. between(k,arr_tal_diag[i,1],arr_tal_diag[i,2])
                   fl := .t.
                 endif
                 if fl ; exit ; endif
@@ -3369,6 +3413,16 @@ if fl
           lshifr1 := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data)
           if f_paraklinika(usl->shifr,lshifr1,human->k_data)
             lshifr := alltrim(iif(empty(lshifr1), usl->shifr, lshifr1))
+            aadd(au_lu,{lshifr,;              // 1
+                        c4tod(hu->date_u),;               // 2
+                        hu_->profil,;         // 3
+                        hu_->PRVS,;           // 4
+                        alltrim(usl->shifr),; // 5
+                        hu->kol_1,;           // 6
+                        c4tod(hu_->date_u2),;     // 7
+                        hu_->kod_diag,;       // 8
+                        hu->(recno()),;       // 9 - номер записи
+                        hu->is_edit})         // 10
             if human_->USL_OK == 2 // дневной стационар
               if left(lshifr,5) == "55.1." // кол-во пациенто-дней
                 for i := 1 to hu->kol_1
@@ -3388,8 +3442,16 @@ if fl
               endif
             elseif !f_is_zak_sl_vr(lshifr)  // поликлиника
               if left(lshifr,2) == "2." // врачебные приёмы амбулаторные
-                kol_pos_amb += hu->kol_1
-              else // проверяем стоматологию
+                if between_shifr(lshifr,"2.79.52","2.79.64")
+                  vid_vp := 2 // с профилактической целью 
+                elseif between_shifr(lshifr,"2.88.40","2.88.51") 
+                  vid_vp := 2 // с профилактической целью
+                elseif between_shifr(lshifr,"2.80.29","2.80.38")
+                  vid_vp := 3 // при оказании неотложной помощи  
+                else
+                  kol_pos_amb += hu->kol_1
+                endif
+              else // проверяем старую стоматологию
                 for i := 1 to 3
                   if ascan(a_stom_vp[i],lshifr) > 0
                     do case
@@ -3418,6 +3480,99 @@ if fl
       select HU
       skip
     enddo
+    select MOHU
+    find (str(human->kod,7))
+    do while mohu->kod == human->kod .and. !eof()
+      flu := !empty(mohu->kol_1)
+      if flu .and. mn->date_usl > 0
+        flu := between(mohu->date_u,pdate_usl[7],pdate_usl[8])
+      endif
+      if flu .and. mn->otd_usl > 0
+        flu := (mohu->otd == mn->otd_usl)
+      endif
+      if flu .and. mn->PROFIL_U > 0
+        flu := (mohu->PROFIL == mn->PROFIL_U)
+      endif
+      if flu .and. mn->vras1 > 0
+        flu := (mohu->kod_vr == mn->vras1 .or. mohu->kod_as == mn->vras1)
+      endif
+      if flu .and. mn->vr1 > 0
+        flu := (mohu->kod_vr == mn->vr1)
+      endif
+      if flu .and. mn->isvr > 0
+        if mn->isvr == 1  // нет
+          flu := (mohu->kod_vr == 0)
+        else
+          flu := (mohu->kod_vr > 0)
+        endif
+      endif
+      if flu .and. mn->as1 > 0
+        flu := (mohu->kod_as == mn->as1)
+      endif
+      if flu .and. mn->isas > 0
+        if mn->isas == 1  // нет
+          flu := (mohu->kod_as == 0)
+        else
+          flu := (mohu->kod_as > 0)
+        endif
+      endif
+      if flu .and. mn->uslugiF > 0
+        i := ascan(arr_uslF,{|x| x[1] == mohu->u_kod})
+        if (flu := (i > 0))
+          arr_uslF[i,4] += mohu->kol_1
+        endif
+      endif
+      if flu
+        mkol += mohu->kol_1
+        Select MOSU
+        goto (mohu->u_kod)
+        aadd(au_flu,{mosu->shifr1,;         // 1
+                     c4tod(mohu->date_u),;  // 2
+                     mohu->profil,;         // 3
+                     mohu->PRVS,;           // 4
+                     mosu->shifr,;          // 5
+                     mohu->kol_1,;          // 6
+                     c4tod(mohu->date_u2),; // 7
+                     mohu->kod_diag})       // 8
+        if mem_trudoem == 2
+          if year(human->k_data) > 2017
+            select LUSLF
+            find (mosu->shifr1)
+            muet += round_5(mohu->kol_1 * iif(human->vzros_reb==0, luslf->uetv, luslf->uetd), 4)
+          elseif year(human->k_data) > 2016
+            select LUSLF17
+            find (mosu->shifr1)
+            muet += round_5(mohu->kol_1 * iif(human->vzros_reb==0, luslf17->uetv, luslf17->uetd), 4)
+          else
+            select LUSLF15
+            find (mosu->shifr1)
+            muet += round_5(mohu->kol_1 * iif(human->vzros_reb==0, luslf15->uetv, luslf15->uetd), 4)
+          endif
+        endif
+        if mn->kol_pos == 2 .and. human_->USL_OK == 3 // стоматология
+          select TMP_KP
+          find (str(human->kod_k,7)+mohu->date_u)
+          if !found()
+            append blank
+            tmp_kp->kod_k := human->kod_k
+            tmp_kp->data  := hu->date_u
+          endif
+        endif
+      endif
+      select MOHU
+      skip
+    enddo
+    if mn->kol_pos == 2 .and. human_->USL_OK == 3 .and. !empty(au_flu) // стоматология
+      k := 0
+      f_vid_p_stom(au_lu,{},,,human->k_data,,@k,,au_flu)
+      if vid_vp == 1 // с лечебной целью
+        pol_pos_stom1 += k  // по поводу заболевания
+      elseif vid_vp == 2 // // с профилактической целью
+        pol_pos_stom2 += k  // профилактика
+      elseif vid_vp == 3 // // при оказании неотложной помощи
+        pol_pos_stom3 += k  // в неотложной форме
+      endif
+    endif
     if emptyall(mkol,mstoim)
       fl := .f.
     endif

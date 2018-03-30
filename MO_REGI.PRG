@@ -4614,10 +4614,9 @@ return NIL
 #define CSV_A_STATUS 7
 #define CSV_A_CERR   8
 
-***** 13.03.16 чтение в память и анализ CSV-файла ответа на файл прикрепления
+***** 28.03.18 чтение в память и анализ CSV-файла ответа на файл прикрепления
 Function read_CSV_FILE_ANSWER(cFile,aerr,nkod_reestr)
-Local i, j, s, arr_csv, kol1 := 0, mmo_pr, md_prik, ar[2], ;
-      fl_et, buf := save_maxrow()
+Local i, j, s, arr_csv, kol1 := 0, mmo_pr, md_prik, ar[2], fl_et, buf := save_maxrow()
 stat_msg("Чтение файла "+upper(StripPath(cFile)))
 fp := fcreate(cFileProtokol) ; tek_stroke := 0 ; n_list := 1
 add_string(space(10)+"Протокол обработки файла "+upper(StripPath(cFile)))
@@ -4705,8 +4704,7 @@ if empty(aerr)
     dbUnLock()
     select KART
     goto (krtp->KOD_K)
-    s := lstr(arr_csv[i,CSV_A_NREC])+". "+alltrim(kart->fio)+;
-         " (д.р."+full_date(kart->date_r)+") "
+    s := lstr(arr_csv[i,CSV_A_NREC])+". "+alltrim(kart->fio)+" (д.р."+full_date(kart->date_r)+") "
     s_death := '0' ; n_del := 0 ; fl_et := .f.
     if krtp->OPLATA == 1
       if empty(arr_csv[i,CSV_A_PID])
@@ -4781,7 +4779,7 @@ if empty(aerr)
           s += " ("+alltrim(arr_csv[i,CSV_A_ENP])+")"
         elseif krte->REFREASON == 704 // Дата прикрепления больше даты смерти
           s_death := '1' // Застрахованный умер до отправки файла MO2...
-        elseif krte->REFREASON == 709
+        elseif eq_any(krte->REFREASON,404,709)
           n_del := 1
         endif
         n := len(lstr(i))+2
