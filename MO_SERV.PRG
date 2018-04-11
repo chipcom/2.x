@@ -806,6 +806,9 @@ for j := 1 to len(arr_order)
     human->KOD_DIAG   := arr_order[j,LISS_DIAG]
     human->KOD_DIAG2  := human->KOD_DIAG3 := human->KOD_DIAG4 := ""
     human->SOPUT_B1   := human->SOPUT_B2 := human->SOPUT_B3 := human->SOPUT_B4 := ""
+    if len(arr_order[j,LISS_DIAG]) == 6
+      human->diag_plus := padr(right(arr_order[j,LISS_DIAG],1),8)
+    endif
     human->KOMU       := 0
     human->POLIS      := kart->polis
     human->LPU        := such
@@ -4384,7 +4387,7 @@ return fl
 
 *==============================================================================
 
-***** 21.05.17 создание первичной БД из реестров
+***** 01.04.18 создание первичной БД из реестров
 Function create_main_base_from_reestrs()
 Local full_zip, name_zip, i, k, n, fl := .t., buf := save_maxrow(),;
       arr_r := {}, arr_rsptk := {}, arr_s := {}, a_reestr := {},;
@@ -4575,15 +4578,14 @@ if !empty(full_zip)
 endif
 return NIL
 
-***** 21.05.17
+***** 04.04.18
 Function f1_create_main_base_from_reestrs(a_reestr)
 Local aerr, oXmlDoc, oXmlNode, oNode1, oNode2, cFile, old_sys_date,;
       i, j, n, s, arr_XML_info[7], fl := .t., arr_f, nCountWithErr
 arr_XML_info[1] := _XML_FILE_SP
 arr_XML_info[2] := '34'
 arr_XML_info[3] := glob_MO[_MO_KOD_TFOMS]
-Private cReadFile, cTimeBegin, mkod_reestr, mdate_schet, is_err_FLK,;
-        cFileProtokol, full_zip, mXML_REESTR
+Private cReadFile, cTimeBegin, mkod_reestr, mdate_schet, is_err_FLK, cFileProtokol, full_zip, mXML_REESTR
 glob_podr := "" ; glob_otd_dep := 0 // пока без кода подразделения
 for i := 1 to len(a_reestr)
   if chip_copy_zipXML(a_reestr[i,1],dir_server+dir_XML_MO)
@@ -4800,7 +4802,9 @@ use_base("luslc")
 use_base("luslf")
 G_Use(dir_server+"mo_rhum",,"RHUM")
 G_Use(dir_server+"mo_pers",,"PERSO")
-index on snils to (cur_dir+"tmppsnils")
+index on snils+str(prvs_new,4) to (cur_dir+"tmppsnils")
+index on snils+str(prvs,9) to (cur_dir+"tmppsnils1")
+set index to (cur_dir+"tmppsnils"),(cur_dir+"tmppsnils1")
 Use_base("mo_su")
 Use_base("uslugi")
 R_Use(dir_server+"uslugi1",{dir_server+"uslugi1",;
@@ -4973,7 +4977,7 @@ my_debug(,"|полис|"+rtrim(mpolis))
       //
       lvrach := 0 ; n := int(val(t1->PRVS))
       if len(alltrim(t1->IDDOKT)) == 11
-        lvrach := ret_perso_with_tab_nom(t1->IDDOKT)
+        lvrach := ret_perso_with_tab_nom(t1->IDDOKT,n)
         if empty(lvrach) .and. !flag_is_lu
           select PERSO
           AddRecN()
@@ -4982,7 +4986,7 @@ my_debug(,"|полис|"+rtrim(mpolis))
           perso->fio  := "Сотрудник с кодом "+lstr(lvrach)
           perso->uch  := p_lpu
           perso->otd  := p_otd
-          perso->prvs := n
+          perso->prvs_new := n
           perso->snils := t1->IDDOKT
           UnLock
         endif
@@ -5081,7 +5085,7 @@ my_debug(,"  "+rtrim(human->fio)+"=второй раз в реестре="+lstr(mkod_reestr))
       human_->RSLT_NEW  := val(t1->rslt)
       human_->ISHOD_NEW := val(t1->ishod)
       human_->VRACH     := lvrach
-      human_->PRVS      := val(t1->prvs)
+      human_->PRVS      := -val(t1->prvs)
       human_->OPLATA    := 0
       human_->ST_VERIFY := 0
       human_->ID_PAC    := t1->ID_PAC
@@ -5110,54 +5114,77 @@ my_debug(,"  "+rtrim(human->fio)+"=второй раз в реестре="+lstr(mkod_reestr))
       elseif k == 11
         human->RAB_NERAB := 1 ; m1veteran := 1
       endif
-      if "3" $ t1->OS_SLUCH
-        m1etap := 1
-      elseif "4" $ t1->OS_SLUCH
-        m1etap := 2
-      endif
-      if between(human_->RSLT_NEW,316,319) // ДВН - TIP_LU_DVN
-        _tip_lu := TIP_LU_DVN
-        m1gruppa := human_->RSLT_NEW - 316
-        if human_->RSLT_NEW == 316 .or. empty(m1etap)
-          m1etap := 1
-        endif
-        human->ishod := 200+m1etap
-      elseif between(human_->RSLT_NEW,332,336) // ПН - TIP_LU_PN
-        _tip_lu := TIP_LU_PN
-        m1gruppa := human_->RSLT_NEW - 332 + 1
-        if empty(m1etap)
-          m1etap := 1
-        endif
-        human->ishod := 300+m1etap
-      elseif between(human_->RSLT_NEW,337,341) // ПредН - TIP_LU_PREDN
-        _tip_lu := TIP_LU_PREDN
-        m1gruppa := human_->RSLT_NEW - 337 + 1
-        if empty(m1etap)
-          m1etap := 1
-        endif
-        human->ishod := 302+m1etap
-      elseif human_->RSLT_NEW == 342 // ПерН - TIP_LU_PERN
-        _tip_lu := TIP_LU_PERN
-        human->ishod := 305
-      elseif between(human_->RSLT_NEW,343,345) // ДВН(проф.) - TIP_LU_DVN
-        _tip_lu := TIP_LU_DVN
-        m1gruppa := human_->RSLT_NEW - 343 + 1
-        human->ishod := 203
-      elseif between(human_->RSLT_NEW,347,351) // TIP_LU_DDSOP
-        _tip_lu := TIP_LU_DDSOP
-        m1gruppa := human_->RSLT_NEW - 347 + 1
-        if empty(m1etap)
-          m1etap := 1
-        endif
-        human->ishod := 100+m1etap
-      elseif between(human_->RSLT_NEW,321,325) // TIP_LU_DDS
-        _tip_lu := TIP_LU_DDS
-        m1gruppa := human_->RSLT_NEW - 321 + 1
-        if empty(m1etap)
-          m1etap := 1
-        endif
-        human->ishod := 100+m1etap
-        human->ZA_SMO := 1
+      if !empty(t1->DISP)
+        do case
+          case t1->DISP == "ДВ1" //"Первый этап диспансеризации определенных групп взрослого населения",stod("2016-01-01")})
+            m1etap := 1
+            human->ishod := 201
+            _tip_lu := TIP_LU_DVN
+          case t1->DISP == "ДВ2" //"Второй этап диспансеризации определенных групп взрослого населения",stod("2016-01-01")})
+            m1etap := 2 // или 5
+            human->ishod := 202 // или 205
+            _tip_lu := TIP_LU_DVN
+            mdvozrast := year(human->K_DATA) - year(human->date_r)
+            if ascan(arr2m_vozrast_DVN,mdvozrast) > 0
+              m1etap := 5 
+              human->ishod := 205 
+            elseif human->POL == "Ж" .and. ascan(arr2g_vozrast_DVN,mdvozrast) > 0
+              m1etap := 5 
+              human->ishod := 205 
+            endif
+          case t1->DISP == "ОПВ" //"Профилактические медицинские осмотры взрослого населения",stod("2013-12-26")})
+            m1etap := 3
+            human->ishod := 203
+            _tip_lu := TIP_LU_DVN
+          case t1->DISP == "ДВ3" //"Первый этап диспансеризации определенных групп взрослого населения (1 раз в 2 года)",stod("2018-01-01")})
+            m1etap := 4
+            human->ishod := 204
+            _tip_lu := TIP_LU_DVN
+          case t1->DISP == "ДС1" //"Диспансеризация пребывающих в стационарных учреждениях детей-сирот и детей, находящихся в трудной жизненной ситуации (состоящая из 1 этапа)",stod("2017-01-01")})
+            m1etap := 1
+            human->ishod := 101
+            human->ZA_SMO := 1
+            if between(human_->RSLT_NEW,321,325) // TIP_LU_DDS
+              _tip_lu := TIP_LU_DDS
+              m1gruppa := human_->RSLT_NEW - 321 + 1
+            endif
+          case t1->DISP == "ДС2" //"Диспансеризация пребывающих в стационарных учреждениях детей-сирот и детей, находящихся в трудной жизненной ситуации  (состоящая из 2-х этапов)",stod("2017-01-01")})
+            m1etap := 2
+            human->ishod := 102
+            human->ZA_SMO := 1
+            if between(human_->RSLT_NEW,321,325) // TIP_LU_DDS
+              _tip_lu := TIP_LU_DDS
+              m1gruppa := human_->RSLT_NEW - 321 + 1
+            endif
+          case t1->DISP == "ДУ1" //"Диспансеризация детей-сирот и детей, оставшихся без попечения родителей, в том числе усыновленных (удочеренных), принятых под опеку (попечительство) в приемную или патронатную семью  (состоящая из 1 этапа)",stod("2017-01-01")})
+            m1etap := 1
+            human->ishod := 101
+            if between(human_->RSLT_NEW,347,351) // TIP_LU_DDSOP
+              _tip_lu := TIP_LU_DDSOP
+              m1gruppa := human_->RSLT_NEW - 347 + 1
+            endif
+          case t1->DISP == "ДУ2" //"Диспансеризация детей-сирот и детей, оставшихся без попечения родителей, в том числе усыновленных (удочеренных), принятых под опеку (попечительство) в приемную или патронатную семью  (состоящая из 2-х этапов)",stod("2017-01-01")})
+            m1etap := 2
+            human->ishod := 102
+            if between(human_->RSLT_NEW,347,351) // TIP_LU_DDSOP
+              _tip_lu := TIP_LU_DDSOP
+              m1gruppa := human_->RSLT_NEW - 347 + 1
+            endif
+          case t1->DISP == "ОН1" //"Медицинские осмотры несовершеннолетних, в том числе при поступлении в образовательные учреждения и в период обучения в них (профилактические) (состоящие из 1 этапа)",stod("2017-01-01")})
+            m1etap := 1
+            human->ishod := 301
+            if between(human_->RSLT_NEW,332,336) // ПН - TIP_LU_PN
+              _tip_lu := TIP_LU_PN
+              m1gruppa := human_->RSLT_NEW - 332 + 1
+            endif
+          case t1->DISP == "ОН2" //"Медицинские осмотры несовершеннолетних, в том числе при поступлении в образовательные учреждения и в период обучения в них (профилактические) (состоящие из 2-х этапов)",stod("2017-01-01")})
+            m1etap := 2
+            human->ishod := 302
+            if between(human_->RSLT_NEW,332,336) // ПН - TIP_LU_PN
+              _tip_lu := TIP_LU_PN
+              m1gruppa := human_->RSLT_NEW - 332 + 1
+            endif
+        endcase
       endif
       if human_->USL_OK == 4 // скорая помощь
         _tip_lu := TIP_LU_SMP
@@ -5233,7 +5260,7 @@ my_debug(,"  "+rtrim(human->fio)+"=второй раз в реестре="+lstr(mkod_reestr))
         hu_->ID_U := mo_guid(3,hu_->(recno()))
         hu_->date_u2 := dtoc4(human->K_DATA)
         hu_->PROFIL := val(t1->PROFIL)
-        hu_->PRVS   := val(t1->PRVS)
+        hu_->PRVS   := -val(t1->PRVS)
         hu_->kod_diag := t1->ds1
         UNLOCK
       endif
@@ -5243,7 +5270,7 @@ my_debug(,"  "+rtrim(human->fio)+"=второй раз в реестре="+lstr(mkod_reestr))
       do while t1->IDCASE == t2->IDCASE .and. !eof()
         lvrach := 0 ; n := int(val(t2->PRVS))
         if len(alltrim(t2->CODE_MD)) == 11
-          lvrach := ret_perso_with_tab_nom(t2->CODE_MD)
+          lvrach := ret_perso_with_tab_nom(t2->CODE_MD,n)
           if empty(lvrach) .and. !flag_is_lu
             select PERSO
             AddRecN()
@@ -5252,7 +5279,7 @@ my_debug(,"  "+rtrim(human->fio)+"=второй раз в реестре="+lstr(mkod_reestr))
             perso->fio  := "Сотрудник с кодом "+lstr(lvrach)
             perso->uch  := p_lpu
             perso->otd  := p_otd
-            perso->prvs := n
+            perso->prvs_new := n
             perso->snils := t2->CODE_MD
             UnLock
           endif
@@ -5301,12 +5328,12 @@ my_debug(,"  "+rtrim(human->fio)+"=второй раз в реестре="+lstr(mkod_reestr))
             mohu->stoim_1 := 0
             mohu->ID_U    := t2->ID_U
             mohu->PROFIL  := val(t2->PROFIL)
-            mohu->PRVS    := val(t2->PRVS)
+            mohu->PRVS    := -val(t2->PRVS)
             mohu->kod_diag := t2->ds
             UNLOCK
           endif
         endif
-        if empty(kod_uslf)
+        if empty(kod_uslf) .and. !eq_any(t2->p_otk,'1','2')
           kod_usl := foundOurUsluga(t2->CODE_USL,human->k_data,val(t2->PROFIL),human->VZROS_REB)
           select HU
           Add1Rec(7)
@@ -5330,7 +5357,7 @@ my_debug(,"  "+rtrim(human->fio)+"=второй раз в реестре="+lstr(mkod_reestr))
           hu_->ID_U := t2->ID_U
           hu_->date_u2 := dtoc4(xml2date(t2->DATE_OUT))
           hu_->PROFIL := val(t2->PROFIL)
-          hu_->PRVS   := val(t2->PRVS)
+          hu_->PRVS   := -val(t2->PRVS)
           hu_->kod_diag := t2->ds
           UNLOCK
         endif
@@ -5361,7 +5388,7 @@ rees->KOL := pkol
 close databases
 return fl
 
-***** 21.05.17 перезаписать лист учёта, если таковой уже есть в БД
+***** 01.04.18 перезаписать лист учёта, если таковой уже есть в БД
 Function f3_create_main_base_from_reestrs()
 Local i, j, k, arr_hu, ta, arr_ne, fl
 select KART
@@ -5446,7 +5473,7 @@ UnLock
 //
 lvrach := human_->VRACH ; n := int(val(t1->PRVS))
 if empty(lvrach) .and. len(alltrim(t1->IDDOKT)) == 11
-  lvrach := ret_perso_with_tab_nom(t1->IDDOKT)
+  lvrach := ret_perso_with_tab_nom(t1->IDDOKT,n)
   if empty(lvrach) .and. !flag_is_lu
     select PERSO
     AddRecN()
@@ -5455,7 +5482,7 @@ if empty(lvrach) .and. len(alltrim(t1->IDDOKT)) == 11
     perso->fio  := "Сотрудник с кодом "+lstr(lvrach)
     perso->uch  := human->LPU
     perso->otd  := human->OTD
-    perso->prvs := n
+    perso->prvs_new := n
     perso->snils := t1->IDDOKT
     UnLock
   endif
@@ -5546,7 +5573,7 @@ human_->KOD_DIAG0 := t1->ds0
 human_->RSLT_NEW  := val(t1->rslt)
 human_->ISHOD_NEW := val(t1->ishod)
 human_->VRACH     := lvrach
-human_->PRVS      := val(t1->prvs)
+human_->PRVS      := -val(t1->prvs)
 human_->OPLATA    := 0
 human_->ST_VERIFY := 0
 human_->ID_PAC    := t1->ID_PAC
@@ -5574,47 +5601,80 @@ elseif k == 21
 elseif k == 11
   human->RAB_NERAB := 1 ; m1veteran := 1
 endif
-if "3" $ t1->OS_SLUCH
-  m1etap := 1
-elseif "4" $ t1->OS_SLUCH
-  m1etap := 2
-endif
-if between(human_->RSLT_NEW,316,319) // ДВН - TIP_LU_DVN
-  m1gruppa := human_->RSLT_NEW - 316
-  if human_->RSLT_NEW == 316 .or. empty(m1etap)
-    m1etap := 1
-  endif
-  human->ishod := 200+m1etap
-elseif between(human_->RSLT_NEW,332,336) // ПН - TIP_LU_PN
-  m1gruppa := human_->RSLT_NEW - 332 + 1
-  if empty(m1etap)
-    m1etap := 1
-  endif
-  human->ishod := 300+m1etap
-elseif between(human_->RSLT_NEW,337,341) // ПредН - TIP_LU_PREDN
-  m1gruppa := human_->RSLT_NEW - 337 + 1
-  if empty(m1etap)
-    m1etap := 1
-  endif
-  human->ishod := 302+m1etap
-elseif human_->RSLT_NEW == 342 // ПерН - TIP_LU_PERN
-  human->ishod := 305
-elseif between(human_->RSLT_NEW,343,345) // ДВН(проф.) - TIP_LU_DVN
-  m1gruppa := human_->RSLT_NEW - 343 + 1
-  human->ishod := 203
-elseif between(human_->RSLT_NEW,347,351) // TIP_LU_DDSOP
-  m1gruppa := human_->RSLT_NEW - 347 + 1
-  if empty(m1etap)
-    m1etap := 1
-  endif
-  human->ishod := 100+m1etap
-elseif between(human_->RSLT_NEW,321,325) // TIP_LU_DDS
-  m1gruppa := human_->RSLT_NEW - 321 + 1
-  if empty(m1etap)
-    m1etap := 1
-  endif
-  human->ishod := 100+m1etap
-  human->ZA_SMO := 1
+if !empty(t1->DISP)
+  do case
+    case t1->DISP == "ДВ1" //"Первый этап диспансеризации определенных групп взрослого населения",stod("2016-01-01")})
+      m1etap := 1
+      human->ishod := 201
+      _tip_lu := TIP_LU_DVN
+    case t1->DISP == "ДВ2" //"Второй этап диспансеризации определенных групп взрослого населения",stod("2016-01-01")})
+      m1etap := 2 // или 5
+      human->ishod := 202 // или 205
+      _tip_lu := TIP_LU_DVN
+      mdvozrast := year(human->K_DATA) - year(human->date_r)
+      if ascan(arr2m_vozrast_DVN,mdvozrast) > 0
+        m1etap := 5 
+        human->ishod := 205 
+      elseif human->POL == "Ж" .and. ascan(arr2g_vozrast_DVN,mdvozrast) > 0
+        m1etap := 5 
+        human->ishod := 205 
+      endif
+    case t1->DISP == "ОПВ" //"Профилактические медицинские осмотры взрослого населения",stod("2013-12-26")})
+      m1etap := 3
+      human->ishod := 203
+      if between(human_->RSLT_NEW,343,345) // ДВН(проф.) - TIP_LU_DVN
+        _tip_lu := TIP_LU_DVN
+        m1gruppa := human_->RSLT_NEW - 343 + 1
+      endif
+    case t1->DISP == "ДВ3" //"Первый этап диспансеризации определенных групп взрослого населения (1 раз в 2 года)",stod("2018-01-01")})
+      m1etap := 4
+      human->ishod := 204
+      _tip_lu := TIP_LU_DVN
+    case t1->DISP == "ДС1" //"Диспансеризация пребывающих в стационарных учреждениях детей-сирот и детей, находящихся в трудной жизненной ситуации (состоящая из 1 этапа)",stod("2017-01-01")})
+      m1etap := 1
+      human->ishod := 101
+      human->ZA_SMO := 1
+      if between(human_->RSLT_NEW,321,325) // TIP_LU_DDS
+        _tip_lu := TIP_LU_DDS
+        m1gruppa := human_->RSLT_NEW - 321 + 1
+      endif
+    case t1->DISP == "ДС2" //"Диспансеризация пребывающих в стационарных учреждениях детей-сирот и детей, находящихся в трудной жизненной ситуации  (состоящая из 2-х этапов)",stod("2017-01-01")})
+      m1etap := 2
+      human->ishod := 102
+      human->ZA_SMO := 1
+      if between(human_->RSLT_NEW,321,325) // TIP_LU_DDS
+        _tip_lu := TIP_LU_DDS
+        m1gruppa := human_->RSLT_NEW - 321 + 1
+      endif
+    case t1->DISP == "ДУ1" //"Диспансеризация детей-сирот и детей, оставшихся без попечения родителей, в том числе усыновленных (удочеренных), принятых под опеку (попечительство) в приемную или патронатную семью  (состоящая из 1 этапа)",stod("2017-01-01")})
+      m1etap := 1
+      human->ishod := 101
+      if between(human_->RSLT_NEW,347,351) // TIP_LU_DDSOP
+        _tip_lu := TIP_LU_DDSOP
+        m1gruppa := human_->RSLT_NEW - 347 + 1
+      endif
+    case t1->DISP == "ДУ2" //"Диспансеризация детей-сирот и детей, оставшихся без попечения родителей, в том числе усыновленных (удочеренных), принятых под опеку (попечительство) в приемную или патронатную семью  (состоящая из 2-х этапов)",stod("2017-01-01")})
+      m1etap := 2
+      human->ishod := 102
+      if between(human_->RSLT_NEW,347,351) // TIP_LU_DDSOP
+        _tip_lu := TIP_LU_DDSOP
+        m1gruppa := human_->RSLT_NEW - 347 + 1
+      endif
+    case t1->DISP == "ОН1" //"Медицинские осмотры несовершеннолетних, в том числе при поступлении в образовательные учреждения и в период обучения в них (профилактические) (состоящие из 1 этапа)",stod("2017-01-01")})
+      m1etap := 1
+      human->ishod := 301
+      if between(human_->RSLT_NEW,332,336) // ПН - TIP_LU_PN
+        _tip_lu := TIP_LU_PN
+        m1gruppa := human_->RSLT_NEW - 332 + 1
+      endif
+    case t1->DISP == "ОН2" //"Медицинские осмотры несовершеннолетних, в том числе при поступлении в образовательные учреждения и в период обучения в них (профилактические) (состоящие из 2-х этапов)",stod("2017-01-01")})
+      m1etap := 2
+      human->ishod := 302
+      if between(human_->RSLT_NEW,332,336) // ПН - TIP_LU_PN
+        _tip_lu := TIP_LU_PN
+        m1gruppa := human_->RSLT_NEW - 332 + 1
+      endif
+  endcase
 endif
 //
 for i := 1 to 3
@@ -5687,31 +5747,33 @@ arr_ne := {}
 select T2
 find (t1->IDCASE)
 do while t1->IDCASE == t2->IDCASE .and. !eof()
-  fl := .t.
-  for i := 1 to len(arr_hu)
-    select HU
-    goto (arr_hu[i,1])
-    if upper(t2->ID_U) == upper(hu_->ID_U)
-      arr_hu[i,2] := alltrim(t2->CODE_USL)
-      arr_hu[i,3] := t2->(recno())
-      fl := .f.
-      exit
-    endif
-  next
-  if fl
-    for i := 1 to len(arr_mohu)
-      select MOHU
-      goto (arr_mohu[i,1])
-      if upper(t2->ID_U) == upper(mohu->ID_U)
-        arr_mohu[i,2] := alltrim(t2->CODE_USL)
-        arr_mohu[i,3] := t2->(recno())
+  if !eq_any(t2->p_otk,'1','2')
+    fl := .t.
+    for i := 1 to len(arr_hu)
+      select HU
+      goto (arr_hu[i,1])
+      if upper(t2->ID_U) == upper(hu_->ID_U)
+        arr_hu[i,2] := alltrim(t2->CODE_USL)
+        arr_hu[i,3] := t2->(recno())
         fl := .f.
         exit
       endif
     next
-  endif
-  if fl
-    aadd(arr_ne,t2->(recno()) ) // не найденные записи
+    if fl
+      for i := 1 to len(arr_mohu)
+        select MOHU
+        goto (arr_mohu[i,1])
+        if upper(t2->ID_U) == upper(mohu->ID_U)
+          arr_mohu[i,2] := alltrim(t2->CODE_USL)
+          arr_mohu[i,3] := t2->(recno())
+          fl := .f.
+          exit
+        endif
+      next
+    endif
+    if fl
+      aadd(arr_ne,t2->(recno()) ) // не найденные записи
+    endif
   endif
   select T2
   skip
@@ -5754,7 +5816,7 @@ if t1->ED_COL == '1' .and. !empty(t1->CODE_MES1)
     hu_->ID_U := mo_guid(3,hu_->(recno()))
     hu_->date_u2 := dtoc4(human->K_DATA)
     hu_->PROFIL := val(t1->PROFIL)
-    hu_->PRVS   := val(t1->PRVS)
+    hu_->PRVS   := -val(t1->PRVS)
     hu_->kod_diag := t1->ds1
     UNLOCK
   endif
@@ -5784,7 +5846,7 @@ for i := 1 to len(arr_hu)
       endif
       hu_->date_u2 := dtoc4(human->K_DATA)
       hu_->PROFIL := val(t1->PROFIL)
-      hu_->PRVS   := val(t1->PRVS)
+      hu_->PRVS   := -val(t1->PRVS)
       hu_->kod_diag := t1->ds1
     else
       select T2
@@ -5796,7 +5858,7 @@ for i := 1 to len(arr_hu)
       hu_->ID_U := t2->ID_U
       hu_->date_u2 := dtoc4(xml2date(t2->DATE_OUT))
       hu_->PROFIL := val(t2->PROFIL)
-      hu_->PRVS   := val(t2->PRVS)
+      hu_->PRVS   := -val(t2->PRVS)
       hu_->kod_diag := t2->ds
     endif
     if empty(hu->kod_vr)
@@ -5828,7 +5890,7 @@ for i := 1 to len(arr_mohu)
     mohu->ID_U := t2->ID_U
     mohu->date_u2 := dtoc4(xml2date(t2->DATE_OUT))
     mohu->PROFIL := val(t2->PROFIL)
-    mohu->PRVS   := val(t2->PRVS)
+    mohu->PRVS   := -val(t2->PRVS)
     mohu->kod_diag := t2->ds
     if empty(mohu->kod_vr)
       mohu->kod_vr := human_->vrach 
@@ -5844,12 +5906,12 @@ for i := 1 to len(arr_ne)
   select T2
   goto (arr_ne[i])
   lvrach := 0 ; n := int(val(t2->PRVS))
-  if human_->PRVS == n // если спец-ть как в случае
+  if abs(human_->PRVS) == n // если спец-ть как в случае
     lvrach := human_->VRACH  // берём код врача из случая
     n := 0 // обнуляем, чтобы больше не искать врача
   endif
   if n > 0 .and. len(alltrim(t2->CODE_MD)) == 11
-    lvrach := ret_perso_with_tab_nom(t2->CODE_MD)
+    lvrach := ret_perso_with_tab_nom(t2->CODE_MD,int(val(t2->PRVS)))
     if empty(lvrach) .and. !flag_is_lu
       select PERSO
       AddRecN()
@@ -5858,7 +5920,7 @@ for i := 1 to len(arr_ne)
       perso->fio  := "Сотрудник с кодом "+lstr(lvrach)
       perso->uch  := human->uch
       perso->otd  := human->otd
-      perso->prvs := int(val(t2->PRVS))
+      perso->prvs_new := int(val(t2->PRVS))
       perso->snils := t2->CODE_MD
       UnLock
     endif
@@ -5904,7 +5966,7 @@ for i := 1 to len(arr_ne)
       mohu->stoim_1 := 0
       mohu->ID_U    := t2->ID_U
       mohu->PROFIL  := val(t2->PROFIL)
-      mohu->PRVS    := val(t2->PRVS)
+      mohu->PRVS    := -val(t2->PRVS)
       mohu->kod_diag := t2->ds
       UNLOCK
     endif
@@ -5933,30 +5995,48 @@ for i := 1 to len(arr_ne)
     hu_->ID_U := t2->ID_U
     hu_->date_u2 := dtoc4(xml2date(t2->DATE_OUT))
     hu_->PROFIL := val(t2->PROFIL)
-    hu_->PRVS   := val(t2->PRVS)
+    hu_->PRVS   := -val(t2->PRVS)
     hu_->kod_diag := t2->ds
     UNLOCK
   endif
 next
 return NIL
 
-***** 21.05.17 поискать врача по СНИЛС
-Static Function ret_perso_with_tab_nom(lsnils)
-Local lvrach := 0
+***** 01.04.18 поискать врача по СНИЛС и, м.б., по специальности
+Function ret_perso_with_tab_nom(lsnils,lprvs)
+Static aprvs
+Local i, j, lvrach := 0
+DEFAULT aprvs TO ret_arr_new_olds_prvs() // массив соответствий специальности V015 специальностям V0004
 select PERSO
-find (padr(lsnils,11))
+set order to 1
+find (padr(lsnils,11)+str(lprvs,4)) // ищем по коду новой специальности
 if found()
   lvrach := perso->kod
+elseif (j := ascan(aprvs,{|x| x[1] == lprvs })) > 0
+  set order to 2
+  for i := 1 to len(aprvs[j,2])
+    find (padr(lsnils,11)+str(aprvs[j,2,i],9))  // ищем по коду старой специальности
+    if found()
+      lvrach := perso->kod
+      exit
+    endif
+  next
+endif  
+if empty(lvrach)   
+  find (padr(lsnils,11))  // ищем просто по СНИЛС
+  if found()
+    lvrach := perso->kod
+  endif
 endif
 return lvrach
 
-***** 21.05.17 поискать отделение по типу л/у (и м.б.по профилю) (и м.б. по врачу)
+***** 01.04.18 поискать отделение по типу л/у (и м.б.по профилю) (и м.б. по врачу)
 Static Function ret_otd_with_lu_prof(lu,lprof,lvrach)
 Local uch_otd := {1,1}
 select OTD
 if lu > 0
   set order to 1
-  find (str(lu,3))
+  find (str(lu,2))
   if found()
     uch_otd := {otd->kod_lpu,otd->kod}
   endif

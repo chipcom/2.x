@@ -2061,8 +2061,11 @@ if k > 0
     tmpf->(dbCloseArea())
   endif
   flag_hu := (mn->otd_usl > 0 .or. mn->vr1 > 0 .or. mn->as1 > 0 .or. mn->vras1 > 0 .or. ;
-              mn->slug_usl > 0 .or. mn->uslugi > 0 .or. mn->uslugiF > 0 .or. mn->dom > 0 .or. ;
+              mn->slug_usl > 0 .or. mn->uslugi > 0 .or. mn->dom > 0 .or. ;
               mn->kol_pos == 2 .or. mn->date_usl > 0 .or. mn->profil_u > 0)
+  flag_huF := (mn->otd_usl > 0 .or. mn->vr1 > 0 .or. mn->as1 > 0 .or. mn->vras1 > 0 .or. ;
+               mn->slug_usl > 0 .or. mn->uslugiF > 0 .or. mn->dom > 0 .or. ;
+               mn->kol_pos == 2 .or. mn->date_usl > 0 .or. mn->profil_u > 0)
   dbcreate(cur_dir+"tmp",{{"kod",      "N", 7,0},;
                           {"kod_k",    "N", 7,0},;
                           {"stoim",    "N",10,2},;
@@ -2897,7 +2900,7 @@ if k == 1
 endif
 return fl
 
-***** 27.03.18
+***** 03.04.18
 Static Function s1_mnog_poisk(cv,cf)
 Static a_stom_vp := {{},{},{}}
 Local i, j, k, n, s, arr, fl := .t., flu := .f., mkol, mstoim := 0, fl1, fl2, vid_vp := 1,;
@@ -3413,16 +3416,6 @@ if fl
           lshifr1 := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data)
           if f_paraklinika(usl->shifr,lshifr1,human->k_data)
             lshifr := alltrim(iif(empty(lshifr1), usl->shifr, lshifr1))
-            aadd(au_lu,{lshifr,;              // 1
-                        c4tod(hu->date_u),;               // 2
-                        hu_->profil,;         // 3
-                        hu_->PRVS,;           // 4
-                        alltrim(usl->shifr),; // 5
-                        hu->kol_1,;           // 6
-                        c4tod(hu_->date_u2),;     // 7
-                        hu_->kod_diag,;       // 8
-                        hu->(recno()),;       // 9 - номер записи
-                        hu->is_edit})         // 10
             if human_->USL_OK == 2 // дневной стационар
               if left(lshifr,5) == "55.1." // кол-во пациенто-дней
                 for i := 1 to hu->kol_1
@@ -3480,6 +3473,28 @@ if fl
       select HU
       skip
     enddo
+    if emptyall(mkol,mstoim)
+      fl := .f.
+    endif
+  elseif !flag_huF
+    mstoim := human->cena_1
+  endif
+endif
+if fl
+  if flag_huF
+    if mn->kol_pos == 2 .and. human_->USL_OK == 1 // стационар
+      select TMP_KP
+      for d := human->n_data to human->k_data
+        s := dtoc4(d)
+        find (str(human->kod_k,7)+s)
+        if !found()
+          append blank
+          tmp_kp->kod_k := human->kod_k
+          tmp_kp->data  := s
+        endif
+      next
+    endif
+    mkol := 0
     select MOHU
     find (str(human->kod,7))
     do while mohu->kod == human->kod .and. !eof()
@@ -3563,8 +3578,30 @@ if fl
       skip
     enddo
     if mn->kol_pos == 2 .and. human_->USL_OK == 3 .and. !empty(au_flu) // стоматология
+      if empty(au_lu) // т.е. не стоял флаг flag_hu
+        select HU
+        find (str(human->kod,7))
+        do while hu->kod == human->kod .and. !eof()
+          lshifr1 := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data)
+          if f_paraklinika(usl->shifr,lshifr1,human->k_data)
+            lshifr := alltrim(iif(empty(lshifr1), usl->shifr, lshifr1))
+            aadd(au_lu,{lshifr,;              // 1
+                        c4tod(hu->date_u),;               // 2
+                        hu_->profil,;         // 3
+                        hu_->PRVS,;           // 4
+                        alltrim(usl->shifr),; // 5
+                        hu->kol_1,;           // 6
+                        c4tod(hu_->date_u2),;     // 7
+                        hu_->kod_diag,;       // 8
+                        hu->(recno()),;       // 9 - номер записи
+                        hu->is_edit})         // 10
+          endif  
+          select HU
+          skip
+        enddo
+      endif
       k := 0
-      f_vid_p_stom(au_lu,{},,,human->k_data,,@k,,au_flu)
+      f_vid_p_stom(au_lu,{},,,human->k_data,@vid_vp,@k,,au_flu)
       if vid_vp == 1 // с лечебной целью
         pol_pos_stom1 += k  // по поводу заболевания
       elseif vid_vp == 2 // // с профилактической целью
@@ -3573,11 +3610,9 @@ if fl
         pol_pos_stom3 += k  // в неотложной форме
       endif
     endif
-    if emptyall(mkol,mstoim)
+    if empty(mkol)
       fl := .f.
     endif
-  else
-    mstoim := human->cena_1
   endif
 endif
 if fl

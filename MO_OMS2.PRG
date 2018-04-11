@@ -4,7 +4,7 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 15.02.18 ДВН - добавление или редактирование случая (листа учета)
+***** 02.04.18 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_DVN(Loc_kod,kod_kartotek,f_print)
 // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
 // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -329,7 +329,7 @@ if Loc_kod > 0
     endif
   endif
   //
-  //fl_4_1_12 := .f.
+  fl_4_1_12 := .f.
   larr := array(2,count_dvn_arr_usl) ; afillall(larr,0)
   R_Use(dir_server+"uslugi",,"USL")
   use_base("human_u")
@@ -344,12 +344,11 @@ if Loc_kod > 0
       mshifr_zs := lshifr
     else
       fl := .t.
-      /*if ((lshifr == "2.3.3" .and. hu_->PROFIL == 3) .or.  ; // акушерскому делу
-            (lshifr == "2.3.1" .and. hu_->PROFIL == 136))  ; // акушерству и гинекологии
+      if lshifr == "2.3.3" .and. hu_->PROFIL == 3  ; // акушерскому делу
           .and. (i := ascan(dvn_arr_usl, {|x| valtype(x[2])=="C" .and. x[2]=="4.1.12"})) > 0
         fl_4_1_12 := .t.
         fl := .f. ; larr[1,i] := hu->(recno())
-      endif*/
+      endif
       if fl
         for i := 1 to count_dvn_arr_umolch
           if empty(larr[2,i]) .and. dvn_arr_umolch[i,2] == lshifr
@@ -435,8 +434,8 @@ if Loc_kod > 0
           &m1var := 3 // выполнено, обнаружены отклонения
         elseif dvn_arr_usl[i,2] == "4.20.1" .and. m1g_cit == 2 .and. ascan(arr_otklon,"4.20.2") > 0
           &m1var := 3 // выполнено, обнаружены отклонения
-        //elseif fl_4_1_12 .and. dvn_arr_usl[i,2] == "4.1.12"
-          //&m1var := 2 // НЕВОЗМОЖНОсть
+        elseif fl_4_1_12 .and. dvn_arr_usl[i,2] == "4.1.12"
+          &m1var := 2 // НЕВОЗМОЖНОсть
         endif
       endif
       mvar := "MOTKAZ"+lstr(i)

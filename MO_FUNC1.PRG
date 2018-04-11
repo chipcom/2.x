@@ -1196,13 +1196,14 @@ restscreen(buf)
 setcolor(tmp_color)
 return iif(ret==0, NIL, {m1var,s})
 
-***** блокировать запись, где поле KOD == 0 (иначе добавить запись)
-Function Add1Rec(n)
+***** 04.04.18 блокировать запись, где поле KOD == 0 (иначе добавить запись)
+Function Add1Rec(n,lExcluUse)
 Local fl := .t., lOldDeleted := SET(_SET_DELETED, .F.)
+DEFAULT lExcluUse TO .f.
 find (str(0,n))
 if found()
   do while kod == 0 .and. !eof()
-    if RLock()
+    if iif(lExcluUse, .t., RLock())
       IF DELETED()
         RECALL
       ENDIF
@@ -1212,10 +1213,14 @@ if found()
   enddo
 endif
 if fl  // добавление записи
-  DO WHILE .t.
+  if lExcluUse
     APPEND BLANK
-    IF !NETERR() ; exit ; ENDIF
-  ENDDO
+  else
+    DO WHILE .t.
+      APPEND BLANK
+      IF !NETERR() ; exit ; ENDIF
+    ENDDO
+  endif
 endif
 SET(_SET_DELETED, lOldDeleted)  // Восстановление среды
 return NIL

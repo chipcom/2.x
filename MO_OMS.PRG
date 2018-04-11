@@ -4777,6 +4777,7 @@ adbf := {;
   {"DATE_U"   ,   "C",     4,     0},; // дата оказания услуги
   {"date_u2"  ,   "C",     4,     0},; // дата окончания оказания услуги
   {"date_u1"  ,   "D",     8,     0},;
+  {"date_next",   "D",     8,     0},; // дата след.визита для дисп.наблюдения
   {"shifr_u"  ,   "C",    20,     0},;
   {"shifr1"   ,   "C",    20,     0},;
   {"name_u"   ,   "C",    65,     0},;
@@ -4820,6 +4821,9 @@ if found()
     if empty(lshifr := tmp->shifr1)
       lshifr := tmp->shifr_u
     endif
+    if human_->usl_ok == 3 .and. is_usluga_disp_nabl(lshifr)
+      tmp->DATE_NEXT := c4tod(human->DATE_OPL)
+    endif                              
     tmp->name_u  := usl->name
     tmp->U_KOD   := hu->u_kod
     tmp->U_CENA  := hu->u_cena
@@ -4990,8 +4994,6 @@ if (mcena_1 > 0 .or. is_smp(m1USL_OK,m1PROFIL)) .and. !empty(val(msmo))
 endif
 return NIL
 
-*
-
 *****
 Function f_oms_usl_sluch(oBrow)
 Local oColumn, blk_color
@@ -5065,7 +5067,7 @@ Function f3oms_usl_sluch()
 @ maxrow()-4,59 say padl("Итого: "+lstr(human->cena_1,11,2),20) color "W+/N"
 return NIL
 
-***** 21.01.18 ввод услуг в лист учёта
+***** 10.04.18 ввод услуг в лист учёта
 Function f2oms_usl_sluch(nKey,oBrow)
 Static skod_k := 0, skod_human := 0, SKOD_DIAG, SZF,;
        st_vzrosl, st_arr_dbf, skod_vr, skod_as, aksg := {}
@@ -5447,11 +5449,12 @@ do case
             mstoim_1 := if(nKey == K_INS, 0, tmp->stoim_1),;
             mn_base := if(nKey == K_INS, 0, tmp->n_base),;
             mdom, m1dom := if(nKey == K_INS, 0, tmp->dom),;
-            mvrach := massist := space(35),;
-            vr_uva := as_uva := .t., ;
+            mdate_next := if(nKey == K_INS, ctod(""), tmp->DATE_NEXT), fl_date_next := .f.,;  
+            mvrach := massist := space(35), vr_uva := as_uva := .t., ;
             pr_k_usl := {},;  // массив комплексных услуг
             row_dom, gl_area := {1,0,maxrow()-1,79,0}
     if nKey == K_ENTER
+      fl_date_next := is_usluga_disp_nabl(mshifr,mshifr1)
       select TMP
       in_array := get_field()
     endif
@@ -5524,12 +5527,14 @@ do case
                  when .f. color color14
       ++ix
       @ r1+ix,2 say "Услуга" get mname_u when .f. color color14
-      ++ix
+      ++ix ; row_dom := r1+ix
       if iif(empty(mshifr), .t., DomUslugaTFOMS(iif(empty(mshifr1), mshifr, mshifr1)))
-        @ r1+ix,2 say "Где оказана услуга" get mdom ;
-                  reader {|x|menu_reader(x,mm_dom,A__MENUVERT,,,.f.)} ;
-                  when iif(empty(mshifr), .t., DomUslugaTFOMS(iif(empty(mshifr1), mshifr, mshifr1)))
-        row_dom := r1+ix
+        @ row_dom,2 say "Где оказана услуга" get mdom ;
+                    reader {|x|menu_reader(x,mm_dom,A__MENUVERT,,,.f.)} ;
+                    when iif(empty(mshifr), .t., DomUslugaTFOMS(iif(empty(mshifr1), mshifr, mshifr1)))
+      endif
+      if human_->usl_ok == 3
+        @ row_dom,35 say "Дата след.явки для дисп.набл-ия" get mdate_next when fl_date_next
       endif
       ++ix
       @ r1+ix,2 say "Профиль" get MPROFIL ;
@@ -5804,6 +5809,7 @@ do case
             select TMP
             tmp->KOD     := human->kod
             tmp->DATE_U  := dtoc4(mdate_u1)
+            tmp->DATE_NEXT := mdate_next
             tmp->U_KOD   := mu_kod
             tmp->U_CENA  := mu_cena
             tmp->KOD_VR  := mkod_vr

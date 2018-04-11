@@ -4,9 +4,10 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 06.04.15 создать XML-файл по несовершеннолетним
+***** 10.04.18 создать XML-файл по несовершеннолетним
 Function mo_mzxml_N(_regim,n_file,stitle,lvozrast)
-Static oXmlDoc, _kol
+Static oXmlDoc, _kol, ;
+       arr_np := {0,1,2,3,4,5,6,7,8,9,10,11,12,15,18,24,36,48,60,72,84,96,108,120,132,144,156,168,180,192,204}
 Local i, k, s, fl, arr, arr1, buf, blk_sex
 Private p_xml_code_page := "UTF-8"
 if _regim == 1
@@ -101,6 +102,11 @@ elseif _regim == 2
      mo_add_xml_stroke(oCard,"idInternal",human_->ID_C)
      mo_add_xml_stroke(oCard,"dateOfObsled",date2xml(MN_DATA))
      if p_tip_lu == TIP_LU_PN
+       mperiod := ret_period_PN(mdate_r,mn_data,mk_data)
+       if !between(mperiod,1,31)
+         mperiod := 31
+       endif
+       mo_add_xml_stroke(oCard,"ageObsled",lstr(arr_np[mperiod]))
        i := 2 // профилактика 1 и 2 этап
      elseif p_tip_lu == TIP_LU_PREDN
        i := 3 // пред.осмотры 1 и 2 этап
@@ -685,10 +691,7 @@ else
   rest_box(buf)
   n_message({stitle+"- "+lstr(_kol)+" чел.;",;
              "в каталоге "+upper(cur_dir)+" создан файл "+upper(n_file+sxml),;
-             "для загрузки на портал Минздрава РФ.",;
-             "",;
-             "Обращаем Ваше внимание, что импорт карт профосмотра по новому Приказу МЗРФ",;
-             "пока не поддерживается на портале МЗРФ"},,;
+             "для загрузки на портал Минздрава РФ."},,;
              cColorStMsg,cColorStMsg,,,cColorSt2Msg)
 endif
 return NIL

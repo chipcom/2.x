@@ -1103,7 +1103,7 @@ if f_alert(arr1,arr2,1,"N+/G*","N/G*",13,,"N/G*") == 2
     aeval(ahuman, {|x,i| fieldput(i,x) } )
     human->kod      := mkod
     human->TIP_H    := B_STANDART // лечение завершено
-    human->DATE_OPL := ""
+    //human->DATE_OPL := ""
     human->schet    := 0
     //
     select HUMAN_
@@ -1163,7 +1163,7 @@ if f_alert(arr1,arr2,1,"N+/G*","N/G*",13,,"N/G*") == 2
       aeval(arr_hu[i,2], {|x,i| fieldput(i,x) } )
       hu_->OPLATA    := 0
       hu_->REES_ZAP  := 0
-      hu_->SCHET_ZAP := 0
+      //hu_->SCHET_ZAP := 0
     next
     //
     for i := 1 to len(arr_mohu)

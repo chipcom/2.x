@@ -118,9 +118,9 @@ else
 endif  
 return update_get("mprer_b") 
 
-***** 13.02.18
+***** 10.04.18
 Function f_valid2ad_cr()
-Static mm_st := {}, mm_dn := {}
+Static mm_st1 := {}, mm_dn1 := {}, mm_st2 := {}, mm_dn2 := {}
 Static mm_bartel := {;
   {"индекс Бартела 60 баллов и менее","60"},;
   {"индекс Бартела более 60 баллов",  "61"}}
@@ -137,6 +137,7 @@ Static mm_rb := {;
   {"rb6 - оценка состояния пациента 6 баллов по ШРМ","rb6"},;
   {"rbs - медицинская реабилитация детей с нарушениями слуха","rbs"}}
 Local i
+Static sd1kv
 input_ad_cr := .f. ; mm_ad_cr := {}
 if m1usl_ok < 3 .and. m1vmp == 0
   if m1profil == 158
@@ -159,22 +160,41 @@ if m1usl_ok < 3 .and. m1vmp == 0
     aadd(mm_ad_cr,mm_it[pr_ds_it+1])
   elseif pr_ds_it == 3
     input_ad_cr := .t.
+    DEFAULT sd1kv TO stod("20180331")
     if m1usl_ok == 1
-      if empty(mm_st)
-        for i := 1 to len(arr_ad_cr_onko)
-          if arr_ad_cr_onko[i,3] > 0
-            aadd(mm_st,{padr(arr_ad_cr_onko[i,1],8)+arr_ad_cr_onko[i,2],arr_ad_cr_onko[i,1]})
-          endif
-        next
+      if mk_data > sd1kv
+        if empty(mm_st2)
+          R_Use(exe_dir+"_mo8shema",,"IT")
+          dbeval({|| aadd(mm_st2,{it->kod+it->name,it->kod}) },;
+                 {|| it->ksg > 0 .and. between(mk_data,it->datebeg,it->dateend) })
+          it->(dbCloseArea())
+        endif
+        mm_ad_cr := mm_st2
+      else
+        if empty(mm_st1)
+          R_Use(exe_dir+"_mo8shema",,"IT")
+          dbeval({|| aadd(mm_st1,{it->kod+it->name,it->kod}) },;
+                 {|| it->ksg > 0 .and. between(mk_data,it->datebeg,it->dateend) })
+          it->(dbCloseArea())
+        endif
+        mm_ad_cr := mm_st1
       endif
-      mm_ad_cr := mm_st
     else
-      if empty(mm_dn)
-        for i := 1 to len(arr_ad_cr_onko)
-          aadd(mm_dn,{padr(arr_ad_cr_onko[i,1],8)+arr_ad_cr_onko[i,2],arr_ad_cr_onko[i,1]})
-        next
+      if mk_data > sd1kv
+        if empty(mm_dn2)
+          R_Use(exe_dir+"_mo8shema",,"IT")
+          dbeval({|| aadd(mm_dn2,{it->kod+it->name,it->kod}) },{|| between(mk_data,it->datebeg,it->dateend) })
+          it->(dbCloseArea())
+        endif
+        mm_ad_cr := mm_dn2
+      else
+        if empty(mm_dn1)
+          R_Use(exe_dir+"_mo8shema",,"IT")
+          dbeval({|| aadd(mm_dn1,{it->kod+it->name,it->kod}) },{|| between(mk_data,it->datebeg,it->dateend) })
+          it->(dbCloseArea())
+        endif
+        mm_ad_cr := mm_dn1
       endif
-      mm_ad_cr := mm_dn
     endif
   elseif pr_ds_it == 4
     input_ad_cr := .t.
@@ -242,8 +262,6 @@ if not_lpu
 endif
 return NIL
 
-*
-
 ***** 25.01.16 вернуть код специальности из справочника V015 по коду из справочника V004 
 Function ret_V004_V015(_PRVS)
 Local i, ret := 0
@@ -251,8 +269,6 @@ if (i := ascan(glob_arr_V004_V015, {|x| x[1] == _PRVS })) > 0
   ret := glob_arr_V004_V015[i,2] 
 endif
 return ret 
-
-*
 
 ***** 23.12.12 является ли услуга приёмом на дому
 Function priem_na_domu(lshifr)
@@ -294,8 +310,6 @@ if !fl .and. lprofil == 57
 endif
 return fl
 
-*
-
 ***** 30.01.16 проверить, нулевая ли цена услуги в ТФОМС
 Function NulUslugaTFOMS(lshifr1)
 lshifr1 := alltrim(lshifr1)
@@ -309,8 +323,6 @@ return eq_any(left(lshifr1,2),"3.","4.","7.") .or. ;
 ***** 27.01.14 проверить, возможен ли ввод признака "на дому" для услуги ТФОМС
 Function DomUslugaTFOMS(lshifr1)
 return eq_any(left(lshifr1,5),"2.60.","2.79.","2.80.","2.88.") .or. left(lshifr1,4) == "2.3."
-
-*
 
 ***** 30.07.15 является услуга для среднего медперсонала?
 Function UslugaFeldsher(lshifr)
@@ -329,8 +341,6 @@ return ascan(arr,alltrim(lshifr)) > 0 .or. ;
 Function is_smp(_USL_OK,_PROFIL)
 return _USL_OK == 4 .or. _PROFIL == 84
 
-*
-
 ***** вернуть наименование иногородней СМО
 Function init_ismo(lsmo)
 Local s := space(10), tmp_select
@@ -345,8 +355,6 @@ if !empty(lsmo)
   select (tmp_select)
 endif
 return s
-
-*
 
 ***** по дате окончания лечения вернуть массив групп нозологий по модернизации
 Function ret_arr_stand(mdate)
@@ -417,8 +425,6 @@ enddo
 select (tmp_select)
 return ret
 
-*
-
 ***** сформировать справочник по настройке организации/учреждения/отделения
 Function create_classif_FFOMS(reg,_name)
 // reg - возврат кслассификатора для 0-организации/1-учреждения/2-отделения
@@ -468,8 +474,6 @@ else
 endif
 asort(ret1,,,{|x,y| upper(x[1]) < upper(y[1]) })
 return ret1
-
-*
 
 ***** вернуть первые два диагоноза для записи в XML-файл
 Function diag_for_xml(al,fl_trim,fl_dop,fl_del,fl_6,adiag_talon)
@@ -557,8 +561,6 @@ if tmp_select > 0
   select (tmp_select)
 endif
 return _ta
-
-*
 
 ***** 08.08.16 проверка на соответствие услуги профилю
 Function UslugaAccordanceProfil(lshifr,lvzros_reb,lprofil,ta,short_shifr)
@@ -657,6 +659,27 @@ else
 endif
 return new_kod
 
+***** 01.04.18 вернуть массив соответствий специальности V015 специальностям V0004
+Function ret_arr_new_olds_prvs()
+Local i, j, np, op, arr := {}
+for i := 1 to len(glob_arr_V004_V015)
+  op := glob_arr_V004_V015[i,1]
+  np := glob_arr_V004_V015[i,2]
+  if (j := ascan(arr, {|x| x[1] == np })) == 0
+    aadd(arr, {np,{}}) ;  j := len(arr)
+  endif
+  aadd(arr[j,2], op)
+next  
+for i := 1 to len(glob_arr_V015_V004)
+  op := glob_arr_V015_V004[i,1]
+  np := glob_arr_V015_V004[i,3]
+  if (j := ascan(arr, {|x| x[1] == np })) == 0
+    aadd(arr, {np,{}}) ;  j := len(arr)
+  endif
+  aadd(arr[j,2], op)
+next
+return asort(arr,,,{|x,y| x[1] < y[1] })  
+
 ***** 08.02.17 вернуть значение специальности для XML-файла реестра
 Function put_prvs_to_reestr(_PRVS,_YEAR)
 Local k := _PRVS
@@ -683,8 +706,6 @@ for k := k1 to k2
   arr[i,k] += arr[j,k]
 next
 return NIL
-
-*
 
 ***** проверка на соответствие законченного случая диагнозу
 Function ZakSluchAccordanceDiagnoz(lshifr,mdiagnoz,ta)
@@ -717,13 +738,9 @@ if found()
 endif
 return NIL
 
-*
-
 ***** проверка, умер ли пациент
 Function is_death(_rslt)
 return eq_any(_rslt,105,106,205,206,313,405,406,411) // по результату лечения
-
-*
 
 ***** врачебных приемов не должно быть более одного в один день
 Function vr_pr_1_den(par,/*@*/msg,in_arr)
@@ -843,8 +860,6 @@ for j := 1 to len(a_usl)
 next
 return iif(fl, lshifr, "")
 
-*
-
 ***** определить сроки лечения
 Function f_srok_lech(beg_data,end_data,_usl_ok)
 Local s, k
@@ -859,8 +874,6 @@ if !emptyany(beg_data,end_data)
   s += " ["+lstr(k)+"дн.]"
 endif
 return s
-
-*
 
 *****
 Function f_arr_usl1()
@@ -881,14 +894,11 @@ if hb_fileExists(dir_server+"usl1year"+smem)
 endif
 return arr1
 
-*
-
 *****
 Function verify_uva(reg)
 Local i
 DEFAULT reg TO 1
-if len(arr_uva) > 0 .and. ;
-            (i := ascan(arr_uva, {|x| like(x[1],alltrim(mshifr)) } )) > 0
+if len(arr_uva) > 0 .and. (i := ascan(arr_uva, {|x| like(x[1],alltrim(mshifr)) } )) > 0
   if arr_uva[i,2] == 1
     vr_uva := .f.
     mkod_vr := 0 ; mvrach := space(35)
@@ -902,8 +912,6 @@ if len(arr_uva) > 0 .and. ;
 endif
 return NIL
 
-*
-
 ***** вернуть табельный номер по коду врача
 Function ret_tabn(lkod_vr)
 Local ltab_nom := 0
@@ -915,11 +923,9 @@ if lkod_vr > 0 .and. select("PERSO") > 0
 endif
 return ltab_nom
 
-*
-
-***** 06.02.13 подсчитать и записать сумму случая в режиме ввода услуг в случай ОМС
+***** 10.04.18 подсчитать и записать сумму случая в режиме ввода услуг в случай ОМС
 Function summa_usl(fl_edit)
-Local j := 0, s := 0
+Local j := 0, s := 0, ldate_next := ctod("")
 DEFAULT fl_edit TO .t.
 if tmp->(lastrec()) > 0
   select TMP
@@ -927,6 +933,10 @@ if tmp->(lastrec()) > 0
   do while !eof()
     if f_paraklinika(tmp->shifr_u,tmp->shifr1,human->k_data)
       s += tmp->stoim_1
+    endif
+    if !empty(tmp->DATE_NEXT)
+      ldate_next := tmp->DATE_NEXT
+      fl_edit := .t.
     endif
     tmp->number := ++j
     skip
@@ -937,6 +947,7 @@ if !(round(human->cena,2) == s .and. round(human->cena_1,2) == s) .or. fl_edit
   select HUMAN
   G_RLock(forever)
   human->cena := human->cena_1 := s
+  human->DATE_OPL := dtoc4(ldate_next)
   //
   human_->(G_RLock(forever))
   human_->OPLATA    := 0 // уберём "2", если отредактировали запись из реестра СП и ТК
@@ -949,8 +960,6 @@ if !(round(human->cena,2) == s .and. round(human->cena_1,2) == s) .or. fl_edit
   COMMIT
 endif
 return NIL
-
-*
 
 ***** надо ли учитывать сумму данной услуги в сумме случая
 Function f_paraklinika(lshifr,lshifr1,ldate_usl)
@@ -1044,6 +1053,15 @@ if left(lshifr,2) == sl
   next
 endif
 return fl
+
+***** 10.04.18
+Function is_usluga_disp_nabl(_shifr,_shifr1)
+if empty(_shifr1)
+  _shifr := alltrim(_shifr)
+else
+  _shifr := alltrim(_shifr1)
+endif  
+return between_shifr(_shifr,"2.78.61","2.78.74") .or. between_shifr(_shifr,"2.88.52","2.88.65")
 
 ***** 04.09.17 функция для when и valid при вводе услуг в лист учёта
 Function f5editkusl(get,when_valid,k)
@@ -1246,6 +1264,7 @@ else  // valid
                 mu_cena := 0
               endif
               mkol := mkol_1 := 1
+              fl_date_next := is_usluga_disp_nabl(mshifr,mshifr1)
               if !empty(usl->profil)
                 m1PROFIL := usl->profil
                 mPROFIL := padr(inieditspr(A__MENUVERT, glob_V002, m1PROFIL),69)
@@ -1255,7 +1274,11 @@ else  // valid
               update_gets()
               if type("row_dom") == "N" .and. !DomUslugaTFOMS(iif(empty(lshifr1), usl->shifr, lshifr1))
                 m1dom := 0 ; mdom := space(20)
-                @ row_dom,1 say space(78) color color1
+                @ row_dom,1 say space(34) color color1
+              endif
+              if type("row_dom") == "N" .and. !fl_date_next
+                mdate_next := ctod("")
+                @ row_dom,35 say space(42) color color1
               endif
               if is_zf_stomat == 1 .and. !empty(mzf)
                 usl->(dbGoto(mu_kod)) // на всякий случай

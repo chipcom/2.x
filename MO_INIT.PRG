@@ -652,12 +652,7 @@ if hb_FileExists(exe_dir+sbase+sdbf)
 else
   fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
 endif
-sbase := "_mo8shema"
-if hb_FileExists(exe_dir+sbase+sdbf)
-  R_Use(exe_dir+sbase,,"IT")
-  dbeval({|| aadd(arr_ad_cr_onko,{it->kod,it->name,it->ksg}) })
-  use
-else
+if !hb_FileExists(exe_dir+"_mo8shema"+sdbf)
   fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
 endif
 sbase := "_mo8k006"
@@ -3068,7 +3063,7 @@ Local human := {;
    {"DATE_B_2" ,   "C",     4,     0},; // дата окончания больничного
    {"DATE_E"   ,   "C",     4,     0},; // дата добавления листа учета
    {"KOD_P"    ,   "C",     1,     0},; // код пользователя, добавившего л/у
-   {"DATE_OPL" ,   "C",     4,     0},; // дата оплаты больного
+   {"DATE_OPL" ,   "C",     4,     0},; // дата след.визита для дисп.наблюдения 
    {"SCHET"    ,   "N",     6,     0},; // код счета
    {"ISHOD"    ,   "N",     3,     0};
   }
@@ -8711,81 +8706,4 @@ find (str(lunit,3))
 if found() .and. mounit->pz > 0
   mpztip := mounit->pz
 endif
-/*if between(j,1,13) .or. between(j,458,476)
-  mpztip := 1
-elseif between(j,477,485)
-  mpztip := 2
-elseif between(j,24,36)
-  mpztip := 3
-elseif between(j,38,39)
-  mpztip := 4
-elseif between(j,40,48)
-  mpztip := 5
-elseif j == 49
-  mpztip := 6
-elseif between(j,516,518)
-  mpztip := 7
-elseif between(j,50,57)
-  mpztip := 8
-elseif between(j,58,86) .or. between(j,88,89)
-  mpztip := 9
-elseif j == 87
-  mpztip := 10
-elseif j == 486
-  mpztip := 11
-elseif j == 487
-  mpztip := 12
-elseif between(j,91,96)
-  mpztip := 13
-elseif between(j,97,104)
-  mpztip := 14
-elseif between(j,105,180) .or. between(j,182,312) .or. between(j,314,349) .or. j == 454 
-  mpztip := 15
-elseif between(j,350,355) .or. j == 455 
-  mpztip := 16
-elseif j == 356 
-  mpztip := 17
-elseif between(j,357,363)
-  mpztip := 18
-elseif between(j,364,372)
-  mpztip := 19
-elseif j == 373 .or. between(j,375,382) .or. between(j,385,397) .or. between(j,456,457) .or. between(j,488,497) 
-  mpztip := 20
-elseif between(j,398,399)
-  mpztip := 21
-elseif between(j,400,403)
-  mpztip := 22
-elseif between(j,404,405)
-  mpztip := 23
-elseif between(j,406,407)
-  mpztip := 24
-elseif j == 498 
-  mpztip := 25
-elseif j == 499 
-  mpztip := 26
-elseif j == 500 
-  mpztip := 27
-elseif j == 501 
-  mpztip := 28
-elseif between(j,411,413)
-  mpztip := 29
-elseif j == 414 
-  mpztip := 30
-elseif between(j,415,416) .or. between(j,418,427) 
-  mpztip := 31
-elseif j == 417
-  mpztip := 32
-elseif j == 428 .or. j == 521
-  mpztip := 33
-elseif j == 429 
-  mpztip := 34
-elseif between(j,430,433) .or. between(j,435,439) .or. between(j,502,515) 
-  mpztip := 35
-elseif between(j,440,450)
-  mpztip := 36
-elseif between(j,451,453)
-  mpztip := 37
-elseif between(j,519,520)
-  mpztip := 38
-endif*/
 return mpztip 

@@ -2722,9 +2722,7 @@ if !empty(full_zip)
 endif
 return NIL
 
-*
-
-***** 25.01.18 вынуть реестр из XML-файлов и записать во временные DBF-файлы
+***** 10.04.18 вынуть реестр из XML-файлов и записать во временные DBF-файлы
 Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
 Local _table1 := {;
    {"KOD",      "N", 6,0},; // код
@@ -2812,6 +2810,7 @@ Local _table1 := {;
    {"AD_CR"   , "C",10,0},; //
    {"CODE_KIRO","C", 1,0},; //
    {"VAL_K"   , "C", 5,0},; //
+   {"NEXT_VISIT","C",10,0},; //
    {"TARIF" ,   "C",10,0},; //
    {"SUMV"    , "C",10,0}; //
   }
@@ -3065,6 +3064,7 @@ if (arr_f := Extract_Zip_XML(goal_dir,name_zip)) != NIL
               t1->TARIF    := mo_read_xml_stroke(oNode1,"TARIF",,.f.)
               t1->SUMV     := mo_read_xml_stroke(oNode1,"SUMV")
               t1->AD_CR    := mo_read_xml_stroke(oNode1,"AD_CRITERION",,.f.)
+              t1->NEXT_VISIT := mo_read_xml_stroke(oNode1,"NEXT_VISIT",,.f.)
               t1->IT_SL    := mo_read_xml_stroke(oNode1,"IT_SL",,.f.)
               t1->COMENTSL := mo_read_xml_stroke(oNode1,"COMENTSL",,.f.)
               if (oNode3 := oNode1:Find("S_KIRO")) != NIL

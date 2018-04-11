@@ -53,7 +53,7 @@ if k > 0
 endif
 return NIL
 
-***** 10.03.18
+***** 04.04.18
 Function read_file_XML_SDS(n_file)
 Static cDelimiter := " ,"
 Local _sluch := {;
@@ -114,6 +114,7 @@ Local _sluch := {;
    {"VRACH",       "N",     5,     0},;
    {"VRACH_SDS",   "N",     5,     0},;
    {"VR_SNILS",    "C",    11,     0},;
+   {"PRVS",        "N",     4,     0},;
    {"VID_HMP",     "C",    12,     0},; // вид ВМП по справочнику V018
    {"METOD_HMP",   "N",     4,     0},; // метод ВМП по справочнику V019
    {"AD_CR",       "C",    10,     0},;
@@ -134,7 +135,8 @@ Local _sluch_p := {; // подразделения (отделения)
    {"KOL_PD",      "N",     5,     0},; // кол-во пациенто-дней для дневного стационара
    {"VRACH",       "N",     5,     0},;
    {"VRACH_SDS",   "N",     5,     0},;
-   {"VR_SNILS",    "C",    11,     0};
+   {"VR_SNILS",    "C",    11,     0},;
+   {"PRVS",        "N",     4,     0};
   }
 Local _sluch_u := {; // услуги (в отделении)
    {"KOD"      ,   "N",     7,     0},; // код по файлу _sluch
@@ -151,7 +153,8 @@ Local _sluch_u := {; // услуги (в отделении)
    {"SUMV_USL" ,   "N",    10,     2},;
    {"VRACH",       "N",     5,     0},;
    {"VRACH_SDS",   "N",     5,     0},;
-   {"VR_SNILS",    "C",    11,     0};
+   {"VR_SNILS",    "C",    11,     0},;
+   {"PRVS",        "N",     4,     0};
   }
 Local fl := .t., buf := save_maxrow()
 //
@@ -268,6 +271,7 @@ FOR j := 1 TO Len( oXmlDoc:aItems[1]:aItems )
       next
       ihuman->RSLT  := val(mo_read_xml_stroke(oXmlNode,"RSLT"))
       ihuman->ISHOD := val(mo_read_xml_stroke(oXmlNode,"ISHOD"))
+      ihuman->PRVS  := val(mo_read_xml_stroke(oXmlNode,"PRVS",,.f.))
       if empty(ihuman->VRACH_SDS := val(mo_read_xml_stroke(oXmlNode,"VRACH",,.f.)))
         ihuman->VR_SNILS := charrem(" -",mo_read_xml_stroke(oXmlNode,"VRACH_SNILS",,.f.))
       endif
@@ -283,6 +287,7 @@ FOR j := 1 TO Len( oXmlDoc:aItems[1]:aItems )
           ipodr->PROFIL    :=      val(mo_read_xml_stroke(oNode2,"PROFIL",,.f.))
           ipodr->DS        :=          mo_read_xml_stroke(oNode2,"DS",,.f.)
           ipodr->KOL_PD    :=      val(mo_read_xml_stroke(oNode2,"PATIENT_DAYS",,.f.))
+          ipodr->PRVS      :=      val(mo_read_xml_stroke(oNode2,"PRVS",,.f.))
           if empty(ipodr->VRACH_SDS := val(mo_read_xml_stroke(oNode2,"VRACH",,.f.)))
             ipodr->VR_SNILS := charrem(" -",mo_read_xml_stroke(oNode2,"VRACH_SNILS",,.f.))
           endif
@@ -302,6 +307,7 @@ FOR j := 1 TO Len( oXmlDoc:aItems[1]:aItems )
               ihu->DATE_IN   := xml2date(mo_read_xml_stroke(oNode3,"DATE"))
               ihu->CODE_USL  :=          mo_read_xml_stroke(oNode3,"CODE_USL")
               ihu->KOL_USL   :=      val(mo_read_xml_stroke(oNode3,"KOL_USL",,.f.))
+              ihu->PRVS      :=      val(mo_read_xml_stroke(oNode3,"PRVS",,.f.))
               if empty(ihu->VRACH_SDS := val(mo_read_xml_stroke(oNode3,"VRACH",,.f.)))
                 ihu->VR_SNILS := charrem(" -",mo_read_xml_stroke(oNode3,"VRACH_SNILS",,.f.))
               endif
@@ -314,6 +320,11 @@ FOR j := 1 TO Len( oXmlDoc:aItems[1]:aItems )
                 ihu->VR_SNILS := ipodr->VR_SNILS
               elseif empty(ipodr->VR_SNILS)
                 ipodr->VR_SNILS := ihu->VR_SNILS  
+              endif
+              if empty(ihu->PRVS)
+                ihu->PRVS := ipodr->PRVS
+              elseif empty(ipodr->PRVS)
+                ipodr->PRVS := ihu->PRVS  
               endif
               if empty(ihu->PROFIL)
                 ihu->PROFIL := ipodr->PROFIL
@@ -330,6 +341,9 @@ FOR j := 1 TO Len( oXmlDoc:aItems[1]:aItems )
           endif
           if !empty(ipodr->VR_SNILS)
             ihuman->VR_SNILS := ipodr->VR_SNILS
+          endif
+          if !empty(ipodr->PRVS)
+            ihuman->PRVS := ipodr->PRVS
           endif
           if !empty(ipodr->OTD_SDS)
             ihuman->OTD_SDS := ipodr->OTD_SDS
@@ -380,8 +394,9 @@ use_base("luslf")
 R_Use(dir_exe+"_mo_prof",,"MOPROF")
 index on str(vzros_reb,1)+str(profil,3)+shifr to (cur_dir+"tmp_prof")
 R_Use(dir_server+"mo_pers",dir_server+"mo_pers","PERS")
-index on snils to (cur_dir+"tmp_pers")
-set index to (dir_server+"mo_pers"),(cur_dir+"tmp_pers")
+index on snils+str(prvs_new,4) to (cur_dir+"tmppsnils")
+index on snils+str(prvs,9) to (cur_dir+"tmppsnils1")
+set index to (dir_server+"mo_pers"),(cur_dir+"tmppsnils"),(cur_dir+"tmppsnils1")
 Use_base("mo_su")
 Use_base("uslugi")
 R_Use(dir_server+"uslugi1",{dir_server+"uslugi1",;
@@ -547,7 +562,7 @@ do while !eof()
   else
     aadd(ae,"неверное значение поля USL_OK = "+lstr(ihuman->USL_OK))
   endif
-  if !empty(ihuman->USL_OK) .and. ascan(glob_V006,{|x| x[2]==ihuman->USL_OK}) == 0
+  if !empty(ihuman->USL_OK) .and. ascan(glob_V006,{|x| x[2] == ihuman->USL_OK}) == 0
     aadd(ae,"неверное значение поля USL_OK = "+lstr(ihuman->USL_OK))
   endif
   if empty(ihuman->RSLT)
@@ -555,7 +570,7 @@ do while !eof()
   else
     if int(val(left(lstr(ihuman->RSLT),1))) != ihuman->USL_OK 
       aadd(ae,"поле USL_OK = "+lstr(ihuman->USL_OK)+" не соответствует значению поля RSLT = "+lstr(ihuman->RSLT))
-    elseif ascan(glob_V009,{|x| x[2]==ihuman->RSLT}) == 0
+    elseif ascan(glob_V009,{|x| x[2] == ihuman->RSLT}) == 0
       aadd(ae,"неверное значение поля RSLT = "+lstr(ihuman->RSLT))
     endif
   endif
@@ -564,7 +579,7 @@ do while !eof()
   else
     if int(val(left(lstr(ihuman->ISHOD),1))) != ihuman->USL_OK 
       aadd(ae,"поле USL_OK = "+lstr(ihuman->USL_OK)+" не соответствует значению поля ISHOD = "+lstr(ihuman->ISHOD))
-    elseif ascan(glob_V012,{|x| x[2]==ihuman->ISHOD}) == 0
+    elseif ascan(glob_V012,{|x| x[2] == ihuman->ISHOD}) == 0
       aadd(ae,"неверное значение поля ISHOD = "+lstr(ihuman->ISHOD))
     endif
   endif
@@ -872,9 +887,10 @@ else
 endif
 return lshifr
 
-***** 15.08.17
+***** 04.04.18
 Function f1_read_file_XML_SDS(k,lal,aerr,ainf,lprofil)
-Local i, s, lk, ret := 0
+Static aprvs
+Local i, s, lk, lprvs, ret := 0
 if k == 0
   paso := {} ; pasv := {} ; pasp := {} ; pass := {}
   return ret
@@ -914,7 +930,7 @@ if !empty(k := &lal.->vrach_sds)
       ret := 3
     endif
   endif
-elseif !empty(k := &lal.->vr_snils)
+elseif !empty(k := &lal.->vr_snils) .and. empty(&lal.->prvs)
   DEFAULT lprofil TO 0
   lk := 0
   select PERS
@@ -933,13 +949,48 @@ elseif !empty(k := &lal.->vr_snils)
   if lk > 0
     &lal.->vrach := lk 
   else
-    if ascan(pass,k) == 0
-      aadd(pass,k)
+    if ascan(pass,{|x| x[1] == k .and. x[2] == 0 }) == 0
+      aadd(pass,{k,0})
       s := space(80)
       if !val_snils(k,2,@s)
         aadd(aerr,'VRACH_SNILS="'+transform(k,picture_pf)+'"-'+s)
       endif
       aadd(aerr,"В справочнике персонала не обнаружен сотрудник со СНИЛС "+transform(k,picture_pf))
+    endif
+    if empty(ret)
+      ret := 3
+    endif
+  endif
+elseif !empty(k := &lal.->vr_snils) .and. !empty(&lal.->prvs)
+  DEFAULT aprvs TO ret_arr_new_olds_prvs() // массив соответствий специальности V015 специальностям V0004
+  lprvs := &lal.->prvs
+  lk := 0
+  select PERS
+  set order to 2
+  find (padr(k,11)+str(lprvs,4)) // ищем по коду новой специальности
+  if found()
+    lk := pers->kod
+  elseif (j := ascan(aprvs,{|x| x[1] == lprvs })) > 0
+    set order to 3
+    for i := 1 to len(aprvs[j,2])
+      find (padr(k,11)+str(aprvs[j,2,i],9))  // ищем по коду старой специальности
+      if found()
+        lk := pers->kod
+        exit
+      endif
+    next
+  endif
+  if lk > 0
+    &lal.->vrach := lk 
+  else
+    if ascan(pass,{|x| x[1] == k .and. x[2] == lprvs }) == 0
+      aadd(pass,{k,lprvs})
+      s := space(80)
+      if !val_snils(k,2,@s)
+        aadd(aerr,'VRACH_SNILS="'+transform(k,picture_pf)+'"-'+s)
+      endif
+      aadd(aerr,'В справочнике персонала не обнаружен сотрудник со СНИЛС '+transform(k,picture_pf)+;
+                ' и специальностью "'+inieditspr(A__MENUVERT,glob_V015,lprvs)+'"')
     endif
     if empty(ret)
       ret := 3
@@ -954,13 +1005,10 @@ Local i, fl := .f.
 Local name_file := StripPath(n_file)  // имя файла без пути
 Private cFileProtokol := "protokol"+stxt
 delete file (cur_dir+cFileProtokol)
-G_SPlus(f_name_task(X_OMS)) // плюс 1 пользователь зашёл в задачу ОМС
-if G_SIsLock(sem_vagno_task[X_OMS])
-  f_err_sem_vagno_task(X_OMS)
-else
+if mo_Lock_Task(X_OMS)
   fl := f1_write_file_XML_SDS(n_file)
+  mo_UnLock_Task(X_OMS)
 endif
-G_SMinus(f_name_task(X_OMS))  // минус 1 пользователь (вышел из задачи ОМС)
 if hb_FileExists(cur_dir+cFileProtokol)
   viewtext(Devide_Into_Pages(cur_dir+cFileProtokol,60,80),,,,.t.,,,2)
 endif
@@ -975,7 +1023,7 @@ if fl
 endif    
 return NIL
 
-***** 10.03.18
+***** 04.04.18
 Function f1_write_file_XML_SDS(n_file)
 Local buf := save_maxrow(), aerr := {}, arr, fl, i, j, t2, s, s1, afio[3]
 mywait("Импорт XML-файла ...")
@@ -990,10 +1038,10 @@ Use_base("mo_su")
 Use_base("uslugi")
 R_Use(dir_server+"uslugi1",{dir_server+"uslugi1",;
                             dir_server+"uslugi1s"},"USL1")
-Use_base("mo_hu")
+Use_base("mo_hu",,.t.)
 R_Use(dir_server+"mo_otd",,"OTD")
-Use_base("human_u")
-Use_base("human")
+Use_base("human_u",,.t.)
+Use_base("human",,.t.)
 set relation to
 select HUMAN_2
 index on str(pn3,10) to (cur_dir+"tmp_human2")
@@ -1153,21 +1201,19 @@ do while !eof()
       fv_date_r(ihuman->DATE_1)
       select HUMAN
       set order to 1
-      Add1Rec(7)
+      Add1Rec(7,.t.)
       mkod := human->kod := recno()
       select HUMAN_
       do while human_->(lastrec()) < mkod
         APPEND BLANK
       enddo
       goto (mkod)
-      G_RLock(forever)
       //
       select HUMAN_2
       do while human_2->(lastrec()) < mkod
         APPEND BLANK
       enddo
       goto (mkod)
-      G_RLock(forever)
       //
       human->kod_k      := lkod_k
       human->TIP_H      := B_STANDART
@@ -1176,14 +1222,17 @@ do while !eof()
       human->DATE_R     := kart->DATE_R       // дата рождения больного
       human->VZROS_REB  := M1VZROS_REB   // 0-взрослый, 1-ребенок, 2-подросток
       human->KOD_DIAG   := ihuman->ds1
+      s := right(ihuman->ds1,1)
       for i := 1 to 7
         pole := "ihuman->ds2"+iif(i==1,"","_"+lstr(i))
+        s += right(&pole,1)
         if !empty(&pole)
           poleh := {"KOD_DIAG2","KOD_DIAG3","KOD_DIAG4","SOPUT_B1","SOPUT_B2","SOPUT_B3","SOPUT_B4"}[i]
           poleh := "human->"+poleh
           &poleh := &pole
         endif
       next
+      human->diag_plus  := s
       human->KOMU       := 0
       human_->SMO       := ihuman->smo
       human->POLIS      := make_polis(ihuman->spolis,ihuman->npolis)
@@ -1264,7 +1313,6 @@ do while !eof()
       find (str(mkod,7))
       if found()
         if fl_nameismo
-          G_RLock(forever)
           hsn->smo_name := ihuman->SMO_NAM
         else
           DeleteRec(.t.)
@@ -1309,7 +1357,7 @@ do while !eof()
           endif
           if !empty(kod_uslf)
             select MOHU
-            Add1Rec(7)
+            Add1Rec(7,.t.)
             mohu->kod     := human->kod
             mohu->kod_vr  := ihu->vrach
             //mohu->kod_as  := lassis
@@ -1324,7 +1372,6 @@ do while !eof()
             mohu->PROFIL  := ihu->PROFIL
             //mohu->PRVS    := ihu->PRVS
             mohu->kod_diag := ihu->ds
-            //UNLOCK
           endif
         endif
         if empty(kod_uslf)
@@ -1360,7 +1407,7 @@ do while !eof()
           endif
           //
           select HU
-          Add1Rec(7)
+          Add1Rec(7,.t.)
           hu->kod     := human->kod
           hu->kod_vr  := ihu->vrach
           //hu->kod_as  := lassis
@@ -1382,13 +1429,11 @@ do while !eof()
             APPEND BLANK
           enddo
           goto (hu->(recno()))
-          G_RLock(forever)
           hu_->date_u2 := dtoc4(ihu->DATE_OUT)
           hu_->ID_U := mo_guid(3,hu_->(recno()))
           hu_->PROFIL := ihu->PROFIL
           //hu_->PRVS   := ihu->PRVS
           hu_->kod_diag := ihu->ds
-          //UNLOCK
         endif
         select IHU
         skip

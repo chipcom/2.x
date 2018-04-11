@@ -192,8 +192,8 @@ do while !eof()
         find (str(tmp3->kod_pd,10)+str(tmp3->kod_s,10))
         do while tmp3->kod_pd == tmp4->kod_pd .and. tmp3->kod_s == tmp4->kod_s .and. !eof()
           human->(dbGoto(tmp4->KOD_H))
-          human->(G_RLock(forever))
-          human->DATE_OPL := dtoc4(rpd->D_PD)
+          //human->(G_RLock(forever))
+          //human->DATE_OPL := dtoc4(rpd->D_PD) т.к. будем заносить next_vizit
           if round(human->cena_1,2) == round(tmp4->_S_SL,2)
             ++k
           else

@@ -404,7 +404,7 @@ return lp
 
 *
 
-***** 28.02.18
+***** 10.04.18
 Function verify_1_sluch(fl_view)
 Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
       i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -1069,6 +1069,14 @@ do while hu->kod == human->kod .and. !eof()
       musl_ok := 3  // п-ка
       mIDSP := 1 // Посещение в поликлинике
       mpztip := 3 ; mpzkol := hu->kol_1
+      if is_usluga_disp_nabl(alltrim_lshifr)
+        ldate_next := c4tod(human->DATE_OPL)
+        if empty(ldate_next)
+          aadd(ta,'для услуги '+alltrim_lshifr+' не заполнена "Дата следующей явки пациента для диспансерного наблюдения"')
+        elseif ldate_next < d2
+          aadd(ta,'для услуги '+alltrim_lshifr+' "дата следующей явки пациента для диспансерного наблюдения" меньше даты окончания лечения')
+        endif
+      endif
       if left_lshifr_4 == "2.3."
         kol_2_3++
       elseif left_lshifr_4 == "2.6."
@@ -1087,6 +1095,13 @@ do while hu->kod == human->kod .and. !eof()
           ++kvp_2_78
           is_2_78 := .t.
           mIDSP := 17 // Законченный случай в поликлинике
+          if between_shifr(alltrim_lshifr,"2.78.61","2.78.74")
+            ldate_next := c4tod(human->DATE_OPL)
+            if empty(ldate_next)
+              
+            elseif ldate_next < d2
+            endif
+          endif
         endif
         mdate_u2 := dtoc4(human->k_data)
       elseif left_lshifr_5 == "2.79."

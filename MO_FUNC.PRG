@@ -2432,9 +2432,7 @@ if fl
 endif
 return fl
 
-*
-
-***** 13.02.18 определение КСГ по остальным введённым полям ввода - 2018 год
+***** 10.04.18 определение КСГ по остальным введённым полям ввода - 2018 год
 Function definition_KSG(par)
 // файлы "human", "human_" и "human_2" открыты и стоят на нужной записи
 //       "human" открыт для записи суммы случая
@@ -2731,9 +2729,14 @@ do while left(k006->shifr,1)==lusl .and. k006->ds==padr(osn_diag,6) .and. !eof()
   lkoef := k006->kz
   select LUSL
   find (padr(k006->shifr,10))
-  fl := lkoef > 0 .and. between_date(lusl->DATEBEG,lusl->DATEEND,date_usl) 
-  sds1 := iif(empty(k006->ds1), sp0, alltrim(k006->ds1)+sp6) // соп.диагноз
-  sds2 := iif(empty(k006->ds2), sp0, alltrim(k006->ds2)+sp6) // диагн.осложнения
+  fl := lkoef > 0 .and. between_date(lusl->DATEBEG,lusl->DATEEND,date_usl)
+  if fl
+    fl := between_date(k006->DATEBEG,k006->DATEEND,date_usl)
+  endif
+  if fl 
+    sds1 := iif(empty(k006->ds1), sp0, alltrim(k006->ds1)+sp6) // соп.диагноз
+    sds2 := iif(empty(k006->ds2), sp0, alltrim(k006->ds2)+sp6) // диагн.осложнения
+  endif
   j := 0
   if fl .and. !empty(k006->sy)
     if (i := ascan(amohu,k006->sy)) > 0
@@ -2846,8 +2849,13 @@ for im := 1 to len(amohu)
       select LUSL
       find (padr(k006->shifr,10))
       fl := lkoef > 0 .and. between_date(lusl->DATEBEG,lusl->DATEEND,date_usl) 
-      sds1 := iif(empty(k006->ds1), sp0, alltrim(k006->ds1)+sp6) // соп.диагноз
-      sds2 := iif(empty(k006->ds2), sp0, alltrim(k006->ds2)+sp6) // диагн.осложнения
+      if fl
+        fl := between_date(k006->DATEBEG,k006->DATEEND,date_usl)
+      endif
+      if fl
+        sds1 := iif(empty(k006->ds1), sp0, alltrim(k006->ds1)+sp6) // соп.диагноз
+        sds2 := iif(empty(k006->ds2), sp0, alltrim(k006->ds2)+sp6) // диагн.осложнения
+      endif  
       j := 0
       if fl .and. !empty(k006->ds)
         fl := (k006->ds == osn_diag)

@@ -4113,15 +4113,14 @@ n_message({"Приносим извинения.",;
            "В данный момент функция не реализована."},,c,c,,,c1 )
 return NIL
 
-***** 26.01.18 отчёт Ф-МПП
+***** 10.04.18 отчёт Ф-МПП
 Function report_f_mpp()
-Local begin_date, end_date, buf := savescreen(), arr_m, i, j, k, k1, k2,;
-      is_rebenok, is_inogoro, lshifr1, koef, mvid, mour, fl_exit := .f.,;
-      mkol, musl, d2_year, ar, arr_profil, ii, fl_K
+Local begin_date, end_date, buf := savescreen(), arr_m, i, j, k, k1, k2, is_rebenok, is_inogoro,;
+      lshifr1, koef, mvid, mour, fl_exit := .f., mkol, musl, d2_year, ar, arr_profil, ii, fl_K
 if (arr_m := year_month(,,,4)) == NIL
   return NIL
-elseif arr_m[1] < 2017
-  return func_error(4,"Данная форма введена с 2017 года!")
+elseif arr_m[1] < 2018
+  return func_error(4,"Алгоритм введен с 2018 года!")
 elseif !eq_any(arr_m[3],3,6,9,12)
   return func_error(4,"Последний месяц должен быть окончанием квартала.")
 elseif arr_m[2] != 1  
@@ -4140,7 +4139,7 @@ dbcreate(cur_dir+"tmp1",{;
 use (cur_dir+"tmp1") new
 index on str(usl_ok,1)+str(profil,3)+str(is_our,1)+str(vid,1)+str(vz_reb,1) to (cur_dir+"tmp1")
 Use_base("lusl")
-R_Use(dir_exe+"_mo_unit",cur_dir+"_mo_unit","MOUNIT")
+R_Use(dir_exe+"_mo8unit",cur_dir+"_mo8unit","MOUNIT")
 R_Use(dir_server+"uslugi",,"USL")
 R_Use(dir_server+"human_u_",,"HU_")
 R_Use(dir_server+"human_u",dir_server+"human_u","HU")
@@ -4154,7 +4153,7 @@ R_Use(dir_server+"human",dir_server+"humans","HUMAN")
 set relation to recno() into HUMAN_, to recno() into HUMAN_2, to kod_k into KART
 //
 *********************************************************************
-mdate_rak := arr_m[6]+iif(arr_m[3]==12,19,10) // по какую дату РАК сумма к оплате 10.07.17
+mdate_rak := arr_m[6]+iif(arr_m[3]==12,19,10) // по какую дату РАК сумма к оплате 10.04.18
 *********************************************************************
 R_Use(dir_server+"mo_xml",,"MO_XML")
 R_Use(dir_server+"mo_rak",,"RAK")
@@ -4172,20 +4171,18 @@ ob_kol := 0
 go top
 do while !eof()
   fl := .f.
-  if schet_->IS_DOPLATA==0 .and. !empty(val(schet_->smo)) ;
-                           .and. schet_->NREGISTR == 0 // только зарегистрированные
-    @ maxrow(),0 say padr(alltrim(schet_->NSCHET)+" от "+;
-                          date_8(schet_->DSCHET),27) color "W/R"
+  if schet_->IS_DOPLATA==0 .and. !empty(val(schet_->smo)) .and. schet_->NREGISTR == 0 // только зарегистрированные
+    @ maxrow(),0 say padr(alltrim(schet_->NSCHET)+" от "+date_8(schet_->DSCHET),27) color "W/R"
     // дата регистрации
     mdate := date_reg_schet()
     // дата отчетного периода
     mdate1 := stod(strzero(schet_->nyear,4)+strzero(schet_->nmonth,2)+"15")
     //
-    *** 2017 год
-    k := iif(arr_m[3]==12,18,10) // дата регистрации по 10.07.17
+    *** 2018 год
+    k := iif(arr_m[3]==12,18,10) // дата регистрации по 10.04.18
     ***
     fl := between(mdate,arr_m[5],arr_m[6]+k) ;
-            .and. between(mdate1,arr_m[5],arr_m[6]) // !!отч.период 2017 год
+            .and. between(mdate1,arr_m[5],arr_m[6]) // !!отч.период 2018 год
   endif
   if fl
     select HUMAN
@@ -4195,7 +4192,7 @@ do while !eof()
       if inkey() == K_ESC
         fl_exit := .t. ; exit
       endif
-      if human_->USL_OK < 4 // кроме скорой помощи
+      if .t. // human_->USL_OK < 4 // кроме скорой помощи
         // по умолчанию оплачен, если даже нет РАКа
         koef := 1 ; k := 0
         select RAKSH
@@ -4205,7 +4202,9 @@ do while !eof()
           skip
         enddo
         if !empty(round(k,2))
-          if round_5(human->cena_1,2) <= round_5(k,2) // полное снятие
+          if empty(human->cena_1) // скорая помощь
+            koef := 0
+          elseif round_5(human->cena_1,2) <= round_5(k,2) // полное снятие
             koef := 0
           else // частичное снятие
             koef := (human->cena_1-k)/human->cena_1
@@ -4217,7 +4216,6 @@ do while !eof()
           fl_K := (schet_->BUKVA == "K") // отдельные медицинские услуги учитываем только суммой
           is_dializ := .f.
           is_z_sl := .f.
-          vid_vp := 0 // по умолчанию профилактика
           d2_year := year(human->k_data)
           munit := musl := 0
           select HU
@@ -4229,11 +4227,24 @@ do while !eof()
               if human_->USL_OK == 1 // стационар
                 if left(lshifr,5) == "1.11."
                   musl += hu->kol_1
-                elseif !is_dializ
-                  is_dializ := (ascan(glob_KSG_dializ,lshifr) > 0) // КСГ с диализом
+                endif
+                select LUSL
+                find (padr(lshifr,10))
+                if found() .and. !empty(lusl->unit_code)
+                  munit := lusl->unit_code
+                  if !(eq_any(munit,29,141,142) .or. between(munit,207,258))
+                    munit := 0
+                  endif
                 endif
               elseif human_->USL_OK == 2 // дневной стационар
-                //
+                select LUSL
+                find (padr(lshifr,10))
+                if found() .and. !empty(lusl->unit_code)
+                  munit := lusl->unit_code
+                  if !eq_any(munit,143,259)
+                    munit := 0
+                  endif
+                endif
               elseif human_->USL_OK == 3 // поликлиника
                 select LUSL
                 find (padr(lshifr,10))
@@ -4248,21 +4259,30 @@ do while !eof()
           enddo
           mvid := mkol := 1
           if human_->USL_OK == 1 // стационар
-            if is_dializ 
+            if munit == 141 // диализ
               mkol := musl := 0
-            endif 
+            endif
           elseif human_->USL_OK == 2 // дневной стационар
             //
           elseif human_->USL_OK == 3 // поликлиника
-            if fl_K
-              mkol := musl := 0
-            else
-              if eq_any(munit,31,146)
-                mvid := 2
-              elseif eq_any(munit,32,147)
-                mvid := 3
+            if eq_any(munit,31,146)
+              mvid := 2
+            elseif eq_any(munit,32,147,205)
+              mvid := 3
+              if munit == 205 // перит.диализ
+                mkol := musl := 1
               endif
-            endif 
+            else
+              if between(munit,260,262) // диспансеризация
+                musl := 1 // вместо количества услуг учитываем одну услугу
+              elseif eq_any(munit,30,38,145)
+                // профилактика - учитываем услуги
+              else
+                mkol := musl := 0 // все остальные - учитываем только стоимость
+              endif
+            endif
+          elseif human_->USL_OK == 4 // скорая помощь
+            mkol := musl := 1
           endif
           mour := iif(is_inogoro, 1, 0)
           if is_rebenok
@@ -4483,6 +4503,27 @@ else
         next i
       endif
     next
+  endif
+  ii := 4
+  select TMP1
+  find (str(ii,1))
+  if found()
+    verify_FF(HH,.t.,sh)
+    ss := array(2,2)
+    afillall(ss,0)
+    for mour := 0 to 1
+      arr_profil := {}
+      find (str(ii,1))
+      do while tmp1->usl_ok == ii .and. !eof()
+        if tmp1->is_our == mour
+          ss[mour+1,1] += tmp1->kol 
+          ss[mour+1,2] += tmp1->summa 
+        endif
+        skip
+      enddo
+    next
+    add_string("скорая помощь (наши)       "+put_val(ss[1,1],6)+" чел."+put_kopE(ss[1,2],12)+" руб.")
+    add_string("скорая помощь (иногородние)"+put_val(ss[2,1],6)+" чел."+put_kopE(ss[2,2],12)+" руб.")
   endif
   fclose(fp)
   close databases

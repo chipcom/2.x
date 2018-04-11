@@ -897,7 +897,7 @@ if empty(ret_arr)
 endif
 return ret_arr    
 
-***** 31.01.18
+***** 10.04.18
 Function usl2TFOMS()
 Static sdate
 Local k, buf := save_maxrow(), name_file := "uslugi"+stxt, nu, ret_arr,;
@@ -1034,56 +1034,64 @@ if (k := popup_2array(usl9TFOMS(mdate),T_ROW,T_COL-5,su,1,@t_arr,;
         endif
         add_string(space(10)+s1)
         do while padr(&lal.->shifr,len_ksg) == k006->shifr .and. !eof()
-          lrec := k006->(recno())
-          lns := k006->ns
-          i := 0
-          s := s1 := ""
-          set order to 2
-          find (padr(&lal.->shifr,len_ksg)+str(lns,6))
-          do while padr(&lal.->shifr,len_ksg) == k006->shifr .and. lns == k006->ns .and. !eof()
-            if !empty(k006->DS)
-              s1 += alltrim(k006->DS)+" "
-            endif
-            if ++i == 1
-              if !empty(k006->DS1)
-                s += "‘Ž“’.„¨ £­®§ "+alltrim(k006->DS1)+"; "
-              endif
-              if !empty(k006->DS2)
-                s += "„¨ £­®§ Ž‘‹Ž†…ˆŸ "+alltrim(k006->DS2)+"; "
-              endif
-              if !empty(k006->SY)
-                s += "“‘‹“ƒ€ "+alltrim(k006->sy)+"; "
-              endif
-              if !empty(k006->AGE)
-                s += "‚Ž‡€‘’ "+ret_vozrast_t006(k006->AGE)+"; "
-              endif
-              if !empty(k006->SEX)
-                s += "Ž‹ "+iif(k006->SEX=='1',"¬ã¦áª®©","¦¥­áª¨©")+"; "
-              endif
-              if !empty(k006->LOS)
-                s += ret_duration_t006(k006->LOS,iif(left(&lal.->shifr,1)=='1',"ª®©ª®","¯ æ¨¥­â®")+"-")+"; "
-              endif
-              if k006->(fieldpos("RSLT")) > 0 .and. !empty(k006->RSLT)
-                s += "…‡“‹œ’€’ "+alltrim(k006->RSLT)+"; "
-              endif
-              if k006->(fieldpos("AD_CR")) > 0 .and. !empty(k006->AD_CR)
-                s += "„Ž.Šˆ’…ˆ‰ "+alltrim(k006->AD_CR)+"; "
-              endif
-            endif
-            skip
-          enddo
-          if !empty(s1)
-            s1 := "Ž‘.„¨ £­®§ "+left(s1,len(s1)-1)+"; "
+          if t_arr[2] > 500 
+            fl := between_date(k006->DATEBEG,k006->DATEEND,mdate)
+          else
+           fl := .t.
           endif
-          s := s1+s
-          s := left(s,len(s)-2)
-          k := perenos(ta,s,70)
-          for i := 1 to k
-            verify_FF(HH,.t.,sh)
-            add_string(iif(i==1,space(8)+"- ",space(10))+ta[i])
-          next
-          goto (lrec)
-          set order to 1
+          if fl        
+            lrec := k006->(recno())
+            lns := k006->ns
+            i := 0
+            s := s1 := ""
+            set order to 2
+            find (padr(&lal.->shifr,len_ksg)+str(lns,6))
+            do while padr(&lal.->shifr,len_ksg) == k006->shifr .and. lns == k006->ns .and. !eof()
+              if !empty(k006->DS)
+                s1 += alltrim(k006->DS)+" "
+              endif
+              if ++i == 1
+                if !empty(k006->DS1)
+                  s += "‘Ž“’.„¨ £­®§ "+alltrim(k006->DS1)+"; "
+                endif
+                if !empty(k006->DS2)
+                  s += "„¨ £­®§ Ž‘‹Ž†…ˆŸ "+alltrim(k006->DS2)+"; "
+                endif
+                if !empty(k006->SY)
+                  s += "“‘‹“ƒ€ "+alltrim(k006->sy)+"; "
+                endif
+                if !empty(k006->AGE)
+                  s += "‚Ž‡€‘’ "+ret_vozrast_t006(k006->AGE)+"; "
+                endif
+                if !empty(k006->SEX)
+                  s += "Ž‹ "+iif(k006->SEX=='1',"¬ã¦áª®©","¦¥­áª¨©")+"; "
+                endif
+                if !empty(k006->LOS)
+                  s += ret_duration_t006(k006->LOS,iif(left(&lal.->shifr,1)=='1',"ª®©ª®","¯ æ¨¥­â®")+"-")+"; "
+                endif
+                if k006->(fieldpos("RSLT")) > 0 .and. !empty(k006->RSLT)
+                  s += "…‡“‹œ’€’ "+alltrim(k006->RSLT)+"; "
+                endif
+                if k006->(fieldpos("AD_CR")) > 0 .and. !empty(k006->AD_CR)
+                  s += "„Ž.Šˆ’…ˆ‰ "+alltrim(k006->AD_CR)+"; "
+                endif
+              endif
+              skip
+            enddo
+            if !empty(s1)
+              s1 := "Ž‘.„¨ £­®§ "+left(s1,len(s1)-1)+"; "
+            endif
+            s := s1+s
+            s := left(s,len(s)-2)
+            k := perenos(ta,s,70)
+            for i := 1 to k
+              verify_FF(HH,.t.,sh)
+              add_string(iif(i==1,space(8)+"- ",space(10))+ta[i])
+            next
+            select K006
+            goto (lrec)
+            set order to 1
+          endif
           skip
         enddo
       elseif t_arr[2] >= 130

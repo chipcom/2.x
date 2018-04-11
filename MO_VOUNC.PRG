@@ -1747,7 +1747,7 @@ do case
 endcase
 return k
 
-***** 25.01.18 создание XML-файлов реестра
+***** 10.04.18 создание XML-файлов реестра
 Function create2reestr17(_recno,_nyear,_nmonth,reg_sort)
 Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, ;
       lst, lshifr1, code_reestr, mb, me, nsh, adiag_talon[16]
@@ -1918,13 +1918,17 @@ do while !eof()
   m1napr_stac := 0 // {{"--- нет ---",0},{"в стационар",1},{"в дн. стац.",2}}, ;
   m1profil_stac := 0
   m1napr_reab := 0
-  m1profil_kojki := 0   
+  m1profil_kojki := 0
+  ldate_next := ctod("")   
   select HU
   find (str(human->kod,7))
   do while hu->kod == human->kod .and. !eof()
     lshifr1 := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data)
     if is_usluga_TFOMS(usl->shifr,lshifr1,human->k_data,,,@lst,,@s)
       lshifr := alltrim(iif(empty(lshifr1), usl->shifr, lshifr1))
+      if human_->USL_OK == 3 .and. is_usluga_disp_nabl(lshifr)
+        ldate_next := c4tod(human->DATE_OPL)
+      endif
       aadd(atmpusl,lshifr)
       if !empty(s) .and. "," $ s
         lvidpoms := s
@@ -2367,6 +2371,9 @@ do while !eof()
         oSL := oSLUCH:Add( HXMLNode():New( "S_KIRO" ) )
          mo_add_xml_stroke(oSL,"CODE_KIRO",lstr(akiro[1]))
          mo_add_xml_stroke(oSL,"VAL_K",lstr(akiro[2],4,2))
+      endif
+      if !empty(ldate_next)
+        mo_add_xml_stroke(oSLUCH,"NEXT_VISIT",date2xml(bom(ldate_next)))
       endif 
     endif
     if !is_zak_sl
@@ -2608,7 +2615,7 @@ return NIL
 
 *
 
-***** 05.02.18 создать счета по результатам прочитанного реестра СП
+***** 10.04.18 создать счета по результатам прочитанного реестра СП
 Function create_schet17_from_XML(arr_XML_info,aerr,fl_msg,arr_s,name_sp_tk)
 Local arr_schet := {}, c, len_stand, _arr_stand, lshifr, i, j, k, lbukva,;
       doplataF, doplataR, mnn, fl, name_zip, arr_zip := {}, lshifr1,;
@@ -3136,6 +3143,9 @@ for ii := 1 to len(arr_schet)
            mo_add_xml_stroke(oSL,"CODE_KIRO",t1->CODE_KIRO)
            mo_add_xml_stroke(oSL,"VAL_K",t1->VAL_K)
         endif
+        if !empty(t1->NEXT_VISIT)
+          mo_add_xml_stroke(oSLUCH,"NEXT_VISIT",t1->NEXT_VISIT)
+        endif 
         select T2
         find (t1->IDCASE)
         do while t1->IDCASE == t2->IDCASE .and. !eof()

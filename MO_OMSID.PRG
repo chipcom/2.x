@@ -4447,9 +4447,7 @@ else
 endif
 return arr
 
-*
-
-***** 12.03.18 форма 131
+***** 03.04.18 форма 131
 Function f4_inf_DVN(par)
 Static arr_v := {"21-36 лет","39-60 лет","старше 60 лет"}
 Local arr_m, buf := save_maxrow(), s, as := {}, ar, sh := 80, HH := 80, n, ;
@@ -4540,8 +4538,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
     index on str(ns,2) to (cur_dir+"tmp3000")
     use
     //
-    Private v4001_1 := 0, v4001_2 := 0, v4002_1 := 0, v4002_2 := 0, ;
-            arr_4000 := {;
+    Private v4001_1 := 0, v4001_2 := 0, v4002_1 := 0, v4002_2 := 0, arr_4000 := {;
       { 1,"Повышенный уровень артериального давления","mad1>140.and.mad2>90"},;
       { 2,"Гипергликемия неуточненная","m1glukozadn==1.or.mglukoza>6.1"},;
       { 3,"Избыточная масса тела","m1tip_mas>=3"},;
@@ -4922,13 +4919,18 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
         aadd(ar, {5+i,3,tmp->vv})
         aadd(ar, {5+i,4,tmp->vv})
       endif
-      if !empty(tmp->vd)
-        aadd(ar, {5+i,7,tmp->vd})
+      if (5+i) != 19 .and. (5+i) != 20
+        if !empty(tmp->vd)
+          aadd(ar, {5+i,7,tmp->vd})
+        endif
+        add_string(padr(tmp->name,46)+str(tmp->ns,3)+put_val(tmp->vv,7)+;
+                   put_val(tmp->vv,7)+put_val(tmp->vd,21))
+        sd += tmp->vd
+      else
+        add_string(padr(tmp->name,46)+str(tmp->ns,3)+put_val(tmp->vv,7)+;
+                   put_val(tmp->vv,7))
       endif
-      add_string(padr(tmp->name,46)+str(tmp->ns,3)+put_val(tmp->vv,7)+;
-                 put_val(tmp->vv,7)+put_val(tmp->vd,21))
       sv += tmp->vv
-      sd += tmp->vd
       skip
     enddo
     use
@@ -5208,7 +5210,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
       add_string(padr(arr_7001[n,1],sh-6)+put_val(arr_7001[n,2],6))
     next
     aadd(arr_excel, {"7000",aclone(ar)})
-    //    
+    //
     verify_FF(HH-8-len(arr_vrach), .t., sh)
     add_string("")
     add_string(center("Отчёт о работе врачей-терапевтов по диспансеризации",sh))
@@ -5242,8 +5244,6 @@ endif
 close databases
 rest_box(buf)
 return NIL
-
-*
 
 ***** 15.03.16
 Function f1_f4_inf_DVN(Loc_kod,kod_kartotek) // 131
