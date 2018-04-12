@@ -3994,7 +3994,10 @@ else
         go top
         if tmp->nyear > 2016 // 2017 год
           do while !eof()
-            if human_->ST_VERIFY >= 5 .and. tmpb->tip == p_tip_reestr 
+            if tmp->nyear == 2018 .and. tmp->nmonth == 4 .and.; 
+                                (human_->usl_ok == 1 .or. eq_any(human_->PZTIP,63,65,67)) // стационар или диализ
+              tmpb->yes_del := .t.                                                        // пока не выставляем
+            elseif human_->ST_VERIFY >= 5 .and. tmpb->tip == p_tip_reestr 
               tmp->kol++
               tmp->summa += human->cena_1
               tmp->min_date := min(tmp->min_date,human->k_data)

@@ -4687,7 +4687,7 @@ return len(mm_ismo) > 0
 
 *
 
-***** 22.01.18 ввод услуг в случай (лист учёта)
+***** 11.04.18 ввод услуг в случай (лист учёта)
 Function oms_usl_sluch(mkod_human,mkod_kartotek,fl_edit)
 // mkod_human - код по БД human
 // mkod_kartotek - код по БД kartotek
@@ -4720,7 +4720,8 @@ Use_base("human_u")
 G_Use(dir_server+"human_2",,"HUMAN_2")
 G_Use(dir_server+"human_",,"HUMAN_")
 G_Use(dir_server+"human",{dir_server+"humank",;
-                          dir_server+"humankk"},"HUMAN")
+                          dir_server+"humankk",;
+                          dir_server+"humano"},"HUMAN")
 set relation to recno() into HUMAN_, to recno() into HUMAN_2
 find (str(mkod_human,7))
 arr_usl1year := f_arr_usl1()

@@ -11,13 +11,14 @@ Function dbf_equalization(lalias,lkod)
 Local fl := .t.
 dbSelectArea(lalias)
 do while lastrec() < lkod
-  G_RLock(.t.,forever)
-  if recno() == lkod
+  DO WHILE .t.
+    APPEND BLANK
     fl := .f.
-  endif
+    IF !NETERR() ; exit ; ENDIF
+  ENDDO
 enddo
-goto (lkod)
 if fl  // т.е. нужная запись не заблокирована при добавлении
+  goto (lkod)
   G_RLock(forever)
 endif
 return NIL

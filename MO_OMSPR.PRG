@@ -2366,7 +2366,7 @@ if regim == "edit"
             aeval(arr_hu[i,2], {|x,i| fieldput(i,x) } )
             hu_->OPLATA    := 0
             hu_->REES_ZAP  := 0
-            //hu_->SCHET_ZAP := 0
+            hu_->SCHET_ZAP := 0
           next
         endif
       endif
@@ -2795,7 +2795,7 @@ do case
             aeval(arr_hu[i,2], {|x,i| fieldput(i,x) } )
             hu_->OPLATA    := 0
             hu_->REES_ZAP  := 0
-            //hu_->SCHET_ZAP := 0
+            hu_->SCHET_ZAP := 0
           next
           //
           for i := 1 to len(arr_mohu)
