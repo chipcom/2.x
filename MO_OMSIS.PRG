@@ -3332,8 +3332,10 @@ endif
 if fl .and. mn->summa_max > 0
   fl := (human->cena_1 <= mn->summa_max)
 endif
+fl1 := fl2 := .t.
 if fl
   if flag_hu
+    fl1 := .f.
     if mn->kol_pos == 2 .and. eq_any(human_->USL_OK,1,4) // стационар и СМП
       select TMP_KP
       for d := human->n_data to human->k_data
@@ -3473,8 +3475,8 @@ if fl
       select HU
       skip
     enddo
-    if emptyall(mkol,mstoim)
-      fl := .f.
+    if !emptyall(mkol,mstoim)
+      fl1 := .t.
     endif
   elseif !flag_huF
     mstoim := human->cena_1
@@ -3482,6 +3484,7 @@ if fl
 endif
 if fl
   if flag_huF
+    fl2 := .f.
     if mn->kol_pos == 2 .and. human_->USL_OK == 1 // стационар
       select TMP_KP
       for d := human->n_data to human->k_data
@@ -3549,7 +3552,7 @@ if fl
                      mohu->kol_1,;          // 6
                      c4tod(mohu->date_u2),; // 7
                      mohu->kod_diag})       // 8
-        if mem_trudoem == 2
+        if mem_trudoem == 2 .and. human_->usl_ok == 3 // только для стоматологии
           if year(human->k_data) > 2017
             select LUSLF
             find (mosu->shifr1)
@@ -3610,10 +3613,13 @@ if fl
         pol_pos_stom3 += k  // в неотложной форме
       endif
     endif
-    if empty(mkol)
-      fl := .f.
+    if !empty(mkol)
+      fl2 := .t.
     endif
   endif
+endif
+if fl .and. !fl1 .and. !fl2
+  fl := .f.
 endif
 if fl
   select TMP_K

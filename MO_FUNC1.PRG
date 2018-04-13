@@ -6,7 +6,7 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 02.01.18 выравнивание вторичного файла базы данных до первичного
+***** 11.04.18 выравнивание вторичного файла базы данных до первичного
 Function dbf_equalization(lalias,lkod)
 Local fl := .t.
 dbSelectArea(lalias)

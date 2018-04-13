@@ -575,9 +575,10 @@ elseif _regim == 2
      endif
      arr := make_unique_arr5(arr)
      arr1 := make_unique_arr5(arr1)
-     if len(arr1) == 0 // искусственно добавим одно исследование
-       aadd(arr1, {"общий анализ мочи", mn_data, "", 1, 2})
-     endif
+     //if len(arr1) == 0 // искусственно добавим одно исследование до 2018 года
+       //aadd(arr1, {"общий анализ мочи", mn_data, "", 1, 2})
+     //endif
+    if len(arr1) > 0
      oIssled := oCard:Add( HXMLNode():New( "issled" ) )
       oBasic := oIssled:Add( HXMLNode():New( "basic" ) )
       for i := 1 to len(arr1) // исследования
@@ -589,6 +590,7 @@ elseif _regim == 2
          endif
          mo_add_xml_stroke(oRecord,"result",arr1[i,3])
       next
+    endif 
       //oOther := oIssled:Add( HXMLNode():New( "other" ) )
       //цикл oOther // дополнительные исследования
       //  oRecord := oOther:Add( HXMLNode():New( "record" ) )
