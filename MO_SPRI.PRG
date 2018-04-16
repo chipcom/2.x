@@ -348,9 +348,9 @@ return s
 
 *
 
-***** 16.02.18
+***** 16.04.18
 Static Function v_1usluga()
-Local arr_usl, atf := {0,"",""}, i := 1, k, mas[2], sh := 80, j := 0, j1, ;
+Local arr_usl, atf := {0,"",""}, i := 1, k, mas[2], sh := 80, HH := 60, j := 0, j1, ;
       sb, fl, lshifr, s, n_file := "usluga_1"+stxt
 if (arr_usl := input_usluga(atf)) != NIL
   mywait()
@@ -428,7 +428,7 @@ if (arr_usl := input_usluga(atf)) != NIL
     for i := 2 to k
       add_string(padl(alltrim(mas[i]),sh))
     next
-    select LUSLC15
+    /*select LUSLC15
     set order to 2
     find (glob_mo[_MO_KOD_TFOMS]+atf[3])
     do while luslc15->shifr == atf[3] .and. luslc15->CODEMO == glob_mo[_MO_KOD_TFOMS] .and. !eof()
@@ -436,7 +436,7 @@ if (arr_usl := input_usluga(atf)) != NIL
            iif(luslc15->VZROS_REB==0,'взрослая=','детская =')+dellastnul(luslc15->cena)
       add_string(s)
       skip
-    enddo
+    enddo*/
     select LUSLC
     set order to 1
     find (atf[3])
@@ -449,7 +449,8 @@ if (arr_usl := input_usluga(atf)) != NIL
         if found()
           s += "  ("+alltrim(dep->name_short)+")" 
         endif
-      endif       
+      endif
+      verify_FF(HH)       
       add_string(s)
       select LUSLC
       skip

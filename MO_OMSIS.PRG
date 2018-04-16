@@ -1472,7 +1472,7 @@ return NIL
 
 *
 
-***** 27.03.18 многовариантный поиск
+***** 15.04.18 многовариантный поиск
 Function s_mnog_poisk()
 Static mm_rak := {;
   {"все случаи",0},;
@@ -1875,7 +1875,8 @@ aadd(mm_tmp, {"uslugiF","N",4,0,NIL,;
 aadd(mm_tmp, {"dom","N",1,0,NIL,;
               {|x|menu_reader(x,mm_dom,A__MENUVERT)},;
               0,{|x|inieditspr(A__MENUVERT,mm_dom,x)},;
-              "Где оказана услуга" })
+              "Где оказана услуга",,;
+              {|| m1usl_ok == 3 }})
 aadd(mm_tmp, {"otd_usl","N",3,0,NIL,;
               {|x|menu_reader(x,{ { |k,r,c| get_otd(k,r+1,c) }},A__FUNCTION)},;
               0,{|| space(10) },;
