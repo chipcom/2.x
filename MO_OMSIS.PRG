@@ -2901,11 +2901,11 @@ if k == 1
 endif
 return fl
 
-***** 03.04.18
+***** 16.04.18
 Static Function s1_mnog_poisk(cv,cf)
 Static a_stom_vp := {{},{},{}}
 Local i, j, k, n, s, arr, fl := .t., flu := .f., mkol, mstoim := 0, fl1, fl2, vid_vp := 1,;
-      au_lu := {}, au_flu := {},;
+      au := {}, au_lu := {}, au_flu := {},;
       mrak_p := 0, mrak_s := 0, d, lshifr, muet := 0, god_r, arr1, adiag_talon[16]  // из статталона к диагнозам
 if empty(a_stom_vp[1])
   f_vid_p_stom({},{},a_stom_vp[1],{1})
@@ -3335,8 +3335,63 @@ if fl .and. mn->summa_max > 0
 endif
 fl1 := fl2 := .t.
 if fl
-  if flag_hu
-    fl1 := .f.
+  if flag_hu .or. flag_huF
+    select HU
+    find (str(human->kod,7))
+    do while hu->kod == human->kod .and. !eof()
+      lshifr1 := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data)
+      if f_paraklinika(usl->shifr,lshifr1,human->k_data)
+        lshifr := alltrim(iif(empty(lshifr1), usl->shifr, lshifr1))
+        aadd(au_lu,{lshifr,;              // 1
+                    c4tod(hu->date_u),;               // 2
+                    hu_->profil,;         // 3
+                    hu_->PRVS,;           // 4
+                    alltrim(usl->shifr),; // 5
+                    hu->kol_1,;           // 6
+                    c4tod(hu_->date_u2),;     // 7
+                    hu_->kod_diag,;       // 8
+                    hu->(recno()),;       // 9 - номер записи
+                    hu->is_edit})         // 10
+        if flag_hu
+          aadd(au,{1,hu->(recno()),len(au_lu)})
+        endif            
+      endif  
+      select HU
+      skip
+    enddo
+  endif
+  if flag_huF
+    select MOHU
+    find (str(human->kod,7))
+    do while mohu->kod == human->kod .and. !eof()
+      Select MOSU
+      goto (mohu->u_kod)
+      aadd(au_flu,{mosu->shifr1,;         // 1
+                   c4tod(mohu->date_u),;  // 2
+                   mohu->profil,;         // 3
+                   mohu->PRVS,;           // 4
+                   mosu->shifr,;          // 5
+                   mohu->kol_1,;          // 6
+                   c4tod(mohu->date_u2),; // 7
+                   mohu->kod_diag,;       // 8
+                   mohu->(recno())})      // 9 - номер записи
+      aadd(au,{2,mohu->(recno()),len(au_flu)})            
+      select MOHU
+      skip
+    enddo
+    if mn->kol_pos == 2 
+      k := 0
+      f_vid_p_stom(au_lu,{},,,human->k_data,@vid_vp,@k,,au_flu)
+      if vid_vp == 1 // с лечебной целью
+        pol_pos_stom1 += k  // по поводу заболевания
+      elseif vid_vp == 2 // // с профилактической целью
+        pol_pos_stom2 += k  // профилактика
+      elseif vid_vp == 3 // // при оказании неотложной помощи
+        pol_pos_stom3 += k  // в неотложной форме
+      endif
+    endif
+  endif
+  if flag_hu .or. flag_huF
     if mn->kol_pos == 2 .and. eq_any(human_->USL_OK,1,4) // стационар и СМП
       select TMP_KP
       for d := human->n_data to human->k_data
@@ -3350,277 +3405,172 @@ if fl
       next
     endif
     mkol := 0
-    select HU
-    find (str(human->kod,7))
-    do while hu->kod == human->kod .and. !eof()
+    for iau := 1 to len(au)
+      lal := {"hu","mohu"}[au[iau,1]]
+      lal_ := {"hu_","mohu"}[au[iau,1]]
+      dbSelectArea(lal)
+      dbGoto(au[iau,2])
       flu := .t.
       if flu .and. mn->date_usl > 0
-        flu := between(hu->date_u,pdate_usl[7],pdate_usl[8])
+        flu := between(&lal.->date_u,pdate_usl[7],pdate_usl[8])
       endif
       if flu .and. mn->dom > 0
-        do case
-          case mn->dom == 1 // в поликлинике
-            flu := (hu->KOL_RCP >= 0)
-          case mn->dom == 2 // на дому
-            flu := (hu->KOL_RCP == -1)
-          case mn->dom == 3 // на дому-АКТИВ
-            flu := (hu->KOL_RCP == -2)
-          case mn->dom == 4 // на дому + на дому-АКТИВ
-            flu := (hu->KOL_RCP < 0)
-        endcase
+        if au[iau,1] == 1 // только для HU
+          do case
+            case mn->dom == 1 // в поликлинике
+              flu := (hu->KOL_RCP >= 0)
+            case mn->dom == 2 // на дому
+              flu := (hu->KOL_RCP == -1)
+            case mn->dom == 3 // на дому-АКТИВ
+              flu := (hu->KOL_RCP == -2)
+            case mn->dom == 4 // на дому + на дому-АКТИВ
+              flu := (hu->KOL_RCP < 0)
+          endcase
+        elseif mn->dom > 1 // фед.услуги только в поликлинике
+          flu := .f. 
+        endif
       endif
       if flu .and. mn->otd_usl > 0
-        flu := (hu->otd == mn->otd_usl)
+        flu := (&lal.->otd == mn->otd_usl)
       endif
       if flu .and. mn->PROFIL_U > 0
-        flu := (hu_->PROFIL == mn->PROFIL_U)
+        flu := (&lal_.->PROFIL == mn->PROFIL_U)
       endif
       if flu .and. mn->vras1 > 0
-        flu := (hu->kod_vr == mn->vras1 .or. hu->kod_as == mn->vras1)
+        flu := (&lal.->kod_vr == mn->vras1 .or. &lal.->kod_as == mn->vras1)
       endif
       if flu .and. mn->vr1 > 0
-        flu := (hu->kod_vr == mn->vr1)
+        flu := (&lal.->kod_vr == mn->vr1)
       endif
       if flu .and. mn->isvr > 0
         if mn->isvr == 1  // нет
-          flu := (hu->kod_vr == 0)
+          flu := (&lal.->kod_vr == 0)
         else
-          flu := (hu->kod_vr > 0)
+          flu := (&lal.->kod_vr > 0)
         endif
       endif
       if flu .and. mn->as1 > 0
-        flu := (hu->kod_as == mn->as1)
+        flu := (&lal.->kod_as == mn->as1)
       endif
       if flu .and. mn->isas > 0
         if mn->isas == 1  // нет
-          flu := (hu->kod_as == 0)
+          flu := (&lal.->kod_as == 0)
         else
-          flu := (hu->kod_as > 0)
+          flu := (&lal.->kod_as > 0)
         endif
       endif
-      if flu .and. mn->slug_usl > 0
+      if flu .and. mn->slug_usl > 0 .and. au[iau,1] == 1 // только для HU
         flu := (usl->slugba == mn->slug_usl)
       endif
-      if flu .and. mn->uslugi > 0
-        i := ascan(arr_usl,{|x| x[1] == hu->u_kod})
-        if (flu := (i > 0))
-          arr_usl[i,4] += hu->kol_1
-          arr_usl[i,5] += hu->stoim_1
-          arr_usl[i,6] += mrak_s
+      if flu 
+        if au[iau,1] == 1 .and. mn->uslugi > 0
+          i := ascan(arr_usl,{|x| x[1] == hu->u_kod})
+          if (flu := (i > 0))
+            fl1 := .f.
+            arr_usl[i,4] += hu->kol_1
+            arr_usl[i,5] += hu->stoim_1
+            arr_usl[i,6] += mrak_s
+          endif
+        elseif au[iau,1] == 2 .and. mn->uslugiF > 0
+          i := ascan(arr_uslF,{|x| x[1] == mohu->u_kod})
+          if (flu := (i > 0))
+            fl2 := .f.
+            arr_uslF[i,4] += mohu->kol_1
+          endif
         endif
       endif
       if flu
-        mkol += hu->kol_1
-        mstoim += hu->stoim_1
-        if mem_trudoem == 2
-          muet += round_5(hu->kol_1 * opr_uet(human->vzros_reb), 4)
+my_debug(ascan(au_lu,{|x| left(x[1],5)=="2.78."})==0,lstr(au[iau,1]))   
+        mkol += &lal.->kol_1
+        mstoim += &lal.->stoim_1
+        if mem_trudoem == 2 // подсчитывать трудоёмкость
+          if au[iau,1] == 1
+            muet += round_5(hu->kol_1 * opr_uet(human->vzros_reb), 4)
+          elseif human_->usl_ok == 3 // только для стоматологии
+            if year(human->k_data) > 2017
+              select LUSLF
+              find (mosu->shifr1)
+              muet += round_5(mohu->kol_1 * iif(human->vzros_reb==0, luslf->uetv, luslf->uetd), 4)
+            elseif year(human->k_data) > 2016
+              select LUSLF17
+              find (mosu->shifr1)
+              muet += round_5(mohu->kol_1 * iif(human->vzros_reb==0, luslf17->uetv, luslf17->uetd), 4)
+            else
+              select LUSLF15
+              find (mosu->shifr1)
+              muet += round_5(mohu->kol_1 * iif(human->vzros_reb==0, luslf15->uetv, luslf15->uetd), 4)
+            endif        
+          endif
         endif
-        if mn->kol_pos == 2 .and. eq_any(human_->USL_OK,2,3)
-          lshifr1 := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data)
-          if f_paraklinika(usl->shifr,lshifr1,human->k_data)
-            lshifr := alltrim(iif(empty(lshifr1), usl->shifr, lshifr1))
-            if human_->USL_OK == 2 // дневной стационар
-              if left(lshifr,5) == "55.1." // кол-во пациенто-дней
-                for i := 1 to hu->kol_1
-                  if i == 1
-                    s := hu->date_u
-                  else
-                    s := dtoc4(c4tod(hu->date_u)+i-1)
-                  endif
-                  select TMP_KP
-                  find (str(human->kod_k,7)+s)
-                  if !found()
-                    append blank
-                    tmp_kp->kod_k := human->kod_k
-                    tmp_kp->data  := s
-                  endif
-                next
-              endif
-            elseif !f_is_zak_sl_vr(lshifr)  // поликлиника
-              if left(lshifr,2) == "2." // врачебные приёмы амбулаторные
-                if between_shifr(lshifr,"2.79.52","2.79.64")
-                  vid_vp := 2 // с профилактической целью 
-                elseif between_shifr(lshifr,"2.88.40","2.88.51") 
-                  vid_vp := 2 // с профилактической целью
-                elseif between_shifr(lshifr,"2.80.29","2.80.38")
-                  vid_vp := 3 // при оказании неотложной помощи  
+        if mn->kol_pos == 2 .and. eq_any(human_->USL_OK,2,3) .and. au[iau,1] == 1
+          i := au[iau,3]
+          lshifr := au_lu[i,1]
+          if human_->USL_OK == 2 // дневной стационар
+            if left(lshifr,5) == "55.1." // кол-во пациенто-дней
+              for i := 1 to hu->kol_1
+                if i == 1
+                  s := hu->date_u
                 else
-                  kol_pos_amb += hu->kol_1
+                  s := dtoc4(c4tod(hu->date_u)+i-1)
                 endif
-              else // проверяем старую стоматологию
-                for i := 1 to 3
-                  if ascan(a_stom_vp[i],lshifr) > 0
-                    do case
-                      case i == 1 // с лечебной целью
-                        pol_pos_stom1 += hu->kol_1  // по поводу заболевания
-                      case i == 2 // // с профилактической целью
-                        pol_pos_stom2 += hu->kol_1  // профилактика
-                      case i == 3 // // при оказании неотложной помощи
-                        pol_pos_stom3 += hu->kol_1  // в неотложной форме
-                    endcase
-                    exit
-                  endif
-                next
+                select TMP_KP
+                find (str(human->kod_k,7)+s)
+                if !found()
+                  append blank
+                  tmp_kp->kod_k := human->kod_k
+                  tmp_kp->data  := s
+                endif
+              next
+            endif
+          elseif !f_is_zak_sl_vr(lshifr)  // поликлиника
+            if left(lshifr,2) == "2." // врачебные приёмы амбулаторные
+              if between_shifr(lshifr,"2.79.52","2.79.64")
+                vid_vp := 2 // с профилактической целью 
+              elseif between_shifr(lshifr,"2.88.40","2.88.51") 
+                vid_vp := 2 // с профилактической целью
+              elseif between_shifr(lshifr,"2.80.29","2.80.38")
+                vid_vp := 3 // при оказании неотложной помощи  
+              else
+                kol_pos_amb += hu->kol_1
               endif
-              select TMP_KP
-              find (str(human->kod_k,7)+hu->date_u)
-              if !found()
-                append blank
-                tmp_kp->kod_k := human->kod_k
-                tmp_kp->data  := hu->date_u
-              endif
+            else // проверяем старую стоматологию
+              for i := 1 to 3
+                if ascan(a_stom_vp[i],lshifr) > 0
+                  do case
+                    case i == 1 // с лечебной целью
+                      pol_pos_stom1 += hu->kol_1  // по поводу заболевания
+                    case i == 2 // // с профилактической целью
+                      pol_pos_stom2 += hu->kol_1  // профилактика
+                    case i == 3 // // при оказании неотложной помощи
+                      pol_pos_stom3 += hu->kol_1  // в неотложной форме
+                  endcase
+                  exit
+                endif
+              next
             endif
           endif
         endif
-      endif
-      select HU
-      skip
-    enddo
-    if !emptyall(mkol,mstoim)
-      fl1 := .t.
-    endif
-  elseif !flag_huF
-    mstoim := human->cena_1
-  endif
-endif
-if fl
-  if flag_huF
-    fl2 := .f.
-    if mn->kol_pos == 2 .and. human_->USL_OK == 1 // стационар
-      select TMP_KP
-      for d := human->n_data to human->k_data
-        s := dtoc4(d)
-        find (str(human->kod_k,7)+s)
-        if !found()
-          append blank
-          tmp_kp->kod_k := human->kod_k
-          tmp_kp->data  := s
-        endif
-      next
-    endif
-    mkol := 0
-    select MOHU
-    find (str(human->kod,7))
-    do while mohu->kod == human->kod .and. !eof()
-      flu := !empty(mohu->kol_1)
-      if flu .and. mn->date_usl > 0
-        flu := between(mohu->date_u,pdate_usl[7],pdate_usl[8])
-      endif
-      if flu .and. mn->otd_usl > 0
-        flu := (mohu->otd == mn->otd_usl)
-      endif
-      if flu .and. mn->PROFIL_U > 0
-        flu := (mohu->PROFIL == mn->PROFIL_U)
-      endif
-      if flu .and. mn->vras1 > 0
-        flu := (mohu->kod_vr == mn->vras1 .or. mohu->kod_as == mn->vras1)
-      endif
-      if flu .and. mn->vr1 > 0
-        flu := (mohu->kod_vr == mn->vr1)
-      endif
-      if flu .and. mn->isvr > 0
-        if mn->isvr == 1  // нет
-          flu := (mohu->kod_vr == 0)
-        else
-          flu := (mohu->kod_vr > 0)
-        endif
-      endif
-      if flu .and. mn->as1 > 0
-        flu := (mohu->kod_as == mn->as1)
-      endif
-      if flu .and. mn->isas > 0
-        if mn->isas == 1  // нет
-          flu := (mohu->kod_as == 0)
-        else
-          flu := (mohu->kod_as > 0)
-        endif
-      endif
-      if flu .and. mn->uslugiF > 0
-        i := ascan(arr_uslF,{|x| x[1] == mohu->u_kod})
-        if (flu := (i > 0))
-          arr_uslF[i,4] += mohu->kol_1
-        endif
-      endif
-      if flu
-        mkol += mohu->kol_1
-        Select MOSU
-        goto (mohu->u_kod)
-        aadd(au_flu,{mosu->shifr1,;         // 1
-                     c4tod(mohu->date_u),;  // 2
-                     mohu->profil,;         // 3
-                     mohu->PRVS,;           // 4
-                     mosu->shifr,;          // 5
-                     mohu->kol_1,;          // 6
-                     c4tod(mohu->date_u2),; // 7
-                     mohu->kod_diag})       // 8
-        if mem_trudoem == 2 .and. human_->usl_ok == 3 // только для стоматологии
-          if year(human->k_data) > 2017
-            select LUSLF
-            find (mosu->shifr1)
-            muet += round_5(mohu->kol_1 * iif(human->vzros_reb==0, luslf->uetv, luslf->uetd), 4)
-          elseif year(human->k_data) > 2016
-            select LUSLF17
-            find (mosu->shifr1)
-            muet += round_5(mohu->kol_1 * iif(human->vzros_reb==0, luslf17->uetv, luslf17->uetd), 4)
-          else
-            select LUSLF15
-            find (mosu->shifr1)
-            muet += round_5(mohu->kol_1 * iif(human->vzros_reb==0, luslf15->uetv, luslf15->uetd), 4)
-          endif
-        endif
-        if mn->kol_pos == 2 .and. human_->USL_OK == 3 // стоматология
+        if flu .and. mn->kol_pos == 2
           select TMP_KP
-          find (str(human->kod_k,7)+mohu->date_u)
+          find (str(human->kod_k,7)+&lal.->date_u)
           if !found()
             append blank
             tmp_kp->kod_k := human->kod_k
-            tmp_kp->data  := hu->date_u
+            tmp_kp->data  := &lal.->date_u
           endif
         endif
       endif
-      select MOHU
-      skip
-    enddo
-    if mn->kol_pos == 2 .and. human_->USL_OK == 3 .and. !empty(au_flu) // стоматология
-      if empty(au_lu) // т.е. не стоял флаг flag_hu
-        select HU
-        find (str(human->kod,7))
-        do while hu->kod == human->kod .and. !eof()
-          lshifr1 := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data)
-          if f_paraklinika(usl->shifr,lshifr1,human->k_data)
-            lshifr := alltrim(iif(empty(lshifr1), usl->shifr, lshifr1))
-            aadd(au_lu,{lshifr,;              // 1
-                        c4tod(hu->date_u),;               // 2
-                        hu_->profil,;         // 3
-                        hu_->PRVS,;           // 4
-                        alltrim(usl->shifr),; // 5
-                        hu->kol_1,;           // 6
-                        c4tod(hu_->date_u2),;     // 7
-                        hu_->kod_diag,;       // 8
-                        hu->(recno()),;       // 9 - номер записи
-                        hu->is_edit})         // 10
-          endif  
-          select HU
-          skip
-        enddo
-      endif
-      k := 0
-      f_vid_p_stom(au_lu,{},,,human->k_data,@vid_vp,@k,,au_flu)
-      if vid_vp == 1 // с лечебной целью
-        pol_pos_stom1 += k  // по поводу заболевания
-      elseif vid_vp == 2 // // с профилактической целью
-        pol_pos_stom2 += k  // профилактика
-      elseif vid_vp == 3 // // при оказании неотложной помощи
-        pol_pos_stom3 += k  // в неотложной форме
-      endif
+    next
+    if emptyall(mkol,mstoim)
+      fl := .f.
+    elseif mn->uslugi > 0 .and. fl1 // не попало ни одной услуги из списка отбора
+      fl := .f.
+    elseif mn->uslugiF > 0 .and. fl2 // не попало ни одной услуги из списка отбора
+      fl := .f.
     endif
-    if !empty(mkol)
-      fl2 := .t.
-    endif
+  else
+    mstoim := human->cena_1
   endif
-endif
-if fl .and. !fl1 .and. !fl2
-  fl := .f.
 endif
 if fl
   select TMP_K

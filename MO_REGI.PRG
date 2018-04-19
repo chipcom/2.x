@@ -5344,9 +5344,9 @@ if empty(arr)
   endif
 else
   old_pr := kart2->MO_PR // то, что было записано
-  if len(arr) > 1 .and. !empty(arr[2,1])
-    old_pr := arr[2,1] // предыдущее прикрепление
-  endif
+  //if len(arr) > 1 .and. !empty(arr[2,1])
+    //old_pr := arr[2,1] // предыдущее прикрепление
+  //endif
   asort(arr,,,{|x,y| x[4] > y[4]}) // в порядке убывания даты файла
   kart2->TIP_PR   := ltip_pr
   kart2->MO_PR    := iif(_n_del == 1, "", arr[1,1])
