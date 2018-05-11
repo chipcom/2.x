@@ -9,11 +9,12 @@
 Static Sreestr_sem := "Работа с реестрами"
 Static Sreestr_err := "В данный момент с реестрами работает другой пользователь."
 
-***** 23.02.15 скорректировать вид помощи для дневного стационара (в стационаре) по лицензии
+***** 10.05.19 скорректировать вид помощи для дневного стационара (в стационаре) по лицензии
 Function ret_vidpom_licensia(lusl_ok,lvidpoms)
 Static mo_licensia := {;
   {'101004',2,'31'},;  // ВОУНЦ
   {'141023',2,'31'},;  // б-ца 15
+  {'801935',2,'31'},;  // ЭКО-Москва
   {'391001',2,'31'};   // Камышинская гор.б-ца 1
  }
 Local i := ascan(mo_licensia, {|x| x[1] == glob_mo[_MO_KOD_TFOMS] .and. x[2] == lusl_ok })
@@ -21,8 +22,6 @@ if i > 0
   lvidpoms := mo_licensia[i,3]
 endif
 return lvidpoms
-
-*
 
 ***** 20.09.15 если это коммерческая скорая
 Function is_komm_SMP()
@@ -34,8 +33,6 @@ if _is == NIL // т.е. определяется один раз за сеанс работы задачи
   _is := (ascan(a_komm_SMP,glob_mo[_MO_KOD_TFOMS]) > 0)
 endif
 return _is
-
-*
 
 ***** 14.02.14 является ли услуга "с неотложной целью"
 Function f_is_neotl_pom(lshifr)
@@ -75,8 +72,6 @@ if valtype(ret_arr) == "A"
   next
 endif
 return ascan(a_1_stom,lshifr) > 0
-
-*
 
 ***** 16.10.16 является ли услуга стоматологической с нулевой ценой 
 Function is_2_stomat(lshifr,/*@*/is_2_88,is_new)
@@ -404,13 +399,13 @@ return lp
 
 *
 
-***** 10.04.18
+***** 10.05.18
 Function verify_1_sluch(fl_view)
 Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
       i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
       d1, d2, cd1, cd2, ym2, a_period_amb := {}, a_1_11, u_1_stom := "", lprofil, ;
       lbukva, lst, lidsp, a_idsp := {}, a_bukva := {}, t_arr[2], ltip, lkol, ;
-      a_dializ := {}, is_2_88 := .f., a_rec_ffoms := {}
+      a_dializ := {}, is_2_88 := .f., a_rec_ffoms := {}, mpovod := 1 // 1.0
 if empty(human->k_data)
   return .t.  // не проверять
 endif
@@ -750,6 +745,7 @@ human_->(G_RLock(forever))
 human_->SPOLIS := val_polis(human_->SPOLIS)
 human_->NPOLIS := val_polis(human_->NPOLIS)
 Valid_SN_Polis(human_->vpolis,human_->SPOLIS,human_->NPOLIS,ta,between(human_->smo,'34001','34007'))
+human_2->(G_RLock(forever))
 //
 if select("SMO") == 0
   R_Use(dir_exe+"_mo_smo",cur_dir+"_mo_smo2","SMO")
@@ -783,7 +779,7 @@ if is_dop_ob_em
 endif
 au_lu := {} ; au_flu := {} ; au_lu_ne := {} ; arr_perso := {} ; arr_unit := {}
 is_kt := is_mrt := is_angio := is_koronaro := is_g_cit := is_pr_skr := .f.
-is_71_1 := is_71_2 := is_71_3 := .f.
+is_71_1 := is_71_2 := is_71_3 := is_dom := .f.
 kvp_2_78 := kvp_2_89 := kol_2_3 := kol_2_60 := kol_2_4 := kol_2_6 := kol_55_1 := 0
 kvp_70_5 := kvp_70_6 := kvp_70_3 := kvp_72_2 := kvp_72_3 := kvp_72_4 := 0
 is_2_78 := is_2_79 := is_2_80 := is_2_81 := is_2_82 := .f.
@@ -1011,6 +1007,7 @@ do while hu->kod == human->kod .and. !eof()
       endif
       hu_->PZTIP := 2
     elseif left_lshifr_5 == "60.2." .or. eq_any(alltrim_lshifr,"4.20.702","4.15.746") // ЛДП
+      mpovod := 1 // 1.0
       mIDSP := 4 // лечебно-диагностическая процедура
       kkt += hu->kol_1
       hu_->PZTIP := 5
@@ -1036,6 +1033,7 @@ do while hu->kod == human->kod .and. !eof()
       hu_->PZKOL := hu->kol_1
       mdate_u2 := dtoc4(human->k_data)
       if alltrim_lshifr == "60.3.1"
+        mpovod := 10 // 3.0
         musl_ok := 3  // п-ка
         is_perito := .t.
       elseif eq_any(alltrim_lshifr,"60.3.9","60.3.10")
@@ -1069,13 +1067,8 @@ do while hu->kod == human->kod .and. !eof()
       musl_ok := 3  // п-ка
       mIDSP := 1 // Посещение в поликлинике
       mpztip := 3 ; mpzkol := hu->kol_1
-      if is_usluga_disp_nabl(alltrim_lshifr)
-        ldate_next := c4tod(human->DATE_OPL)
-        if empty(ldate_next)
-          aadd(ta,'для услуги '+alltrim_lshifr+' не заполнена "Дата следующей явки пациента для диспансерного наблюдения"')
-        elseif ldate_next < d2
-          aadd(ta,'для услуги '+alltrim_lshifr+' "дата следующей явки пациента для диспансерного наблюдения" меньше даты окончания лечения')
-        endif
+      if hu->KOL_RCP < 0
+        is_dom := .t.
       endif
       if left_lshifr_4 == "2.3."
         kol_2_3++
@@ -1086,8 +1079,10 @@ do while hu->kod == human->kod .and. !eof()
       elseif alltrim_lshifr == "2.4.1"
         kol_2_4++
       elseif left_lshifr_5 == "2.76."
+        mpovod := 7 // 2.3
         mIDSP := 12 // Комплексная услуга центра здоровья
       elseif left_lshifr_5 == "2.78."
+        mpovod := 10 // 3.0
         if between_shifr(alltrim_lshifr,"2.78.54","2.78.60")
           fl_stom := .t.
           mpztip := 4
@@ -1095,16 +1090,14 @@ do while hu->kod == human->kod .and. !eof()
           ++kvp_2_78
           is_2_78 := .t.
           mIDSP := 17 // Законченный случай в поликлинике
-          if between_shifr(alltrim_lshifr,"2.78.61","2.78.74")
-            ldate_next := c4tod(human->DATE_OPL)
-            if empty(ldate_next)
-              
-            elseif ldate_next < d2
-            endif
-          endif
         endif
         mdate_u2 := dtoc4(human->k_data)
       elseif left_lshifr_5 == "2.79."
+        if between_shifr(alltrim_lshifr,"2.79.44","2.79.50") 
+          mpovod := 8 // 2.5 - патронаж
+        else
+          mpovod := 9 // 2.6
+        endif
         if between_shifr(alltrim_lshifr,"2.79.59","2.79.64") 
           fl_stom := .t.
           mpztip := 4
@@ -1115,6 +1108,7 @@ do while hu->kod == human->kod .and. !eof()
           endif
         endif
       elseif left_lshifr_5 == "2.80."
+        mpovod := 2 // 1.1
         if between_shifr(alltrim_lshifr,"2.80.34","2.80.38")
           fl_stom := .t.
           mpztip := 4
@@ -1122,8 +1116,10 @@ do while hu->kod == human->kod .and. !eof()
           is_2_80 := .t.
         endif
       elseif left_lshifr_5 == "2.81."
+        mpovod := 1 // 1.0
         is_2_81 := .t.
       elseif left_lshifr_5 == "2.82."
+        mpovod := 2 // 1.1
         is_2_82 := .t.
         mIDSP := 22 // Посещение в приёмном покое
       elseif left_lshifr_5 == "2.83."
@@ -1140,6 +1136,7 @@ do while hu->kod == human->kod .and. !eof()
         is_disp_DDS := .t.
         is_2_87 := .t.
       elseif left_lshifr_5 == "2.88."
+        mpovod := 1 // 1.0
         if between_shifr(alltrim_lshifr,"2.88.46","2.88.51")
           fl_stom := .t.
           mpztip := 4
@@ -1147,6 +1144,7 @@ do while hu->kod == human->kod .and. !eof()
           is_2_88 := .t.
         endif
       elseif left_lshifr_5 == "2.89."
+        mpovod := 10 // 3.0
         ++kvp_2_89
         is_2_89 := .t.
         i := int(val(right(alltrim_lshifr,1)))  
@@ -1189,6 +1187,15 @@ do while hu->kod == human->kod .and. !eof()
         ++kvp_70_6
         is_70_6 := .t.
         mdate_u2 := dtoc4(human->k_data)
+      endif
+      if is_usluga_disp_nabl(alltrim_lshifr)
+        ldate_next := c4tod(human->DATE_OPL)
+        if empty(ldate_next)
+          aadd(ta,'для услуги '+alltrim_lshifr+' не заполнена "Дата следующей явки пациента для диспансерного наблюдения"')
+        elseif ldate_next < d2
+          aadd(ta,'для услуги '+alltrim_lshifr+' "дата следующей явки пациента для диспансерного наблюдения" меньше даты окончания лечения')
+        endif
+        mpovod := 4 // 1.3
       endif
       kvp += hu->kol_1
       hu_->PZTIP := mPZTIP
@@ -1245,6 +1252,9 @@ do while hu->kod == human->kod .and. !eof()
   select HU
   skip
 enddo
+if is_dom .and. eq_any(mpovod,1,2)
+  mpovod := 3 // 1.2 - активное посещение, т.е. на дому
+endif
 //
 if !(is_disp_DDS .or. is_disp_DVN .or. is_prof_PN)
   for i := 1 to len(au_lu)
@@ -1444,8 +1454,20 @@ if human_->USL_OK == 3 // для поликлиники
     aadd(ta,s)
   endif
 endif
-if human_->USL_OK == 1 .and. substr(human_->FORMA14,1,1)=='0' .and. empty(human_->NPR_MO) .and. !is_s_dializ
-  aadd(ta,'при ПЛАНОВОЙ госпитализации должно быть заполнено поле "Направившая МО"')
+if human_->USL_OK == 1 .and. substr(human_->FORMA14,1,1)=='0' .and. !is_s_dializ
+  if empty(human_->NPR_MO)
+    aadd(ta,'при ПЛАНОВОЙ госпитализации должно быть заполнено поле "Направившая МО"')
+  elseif empty(human_2->NPR_DATE)
+    if glob_mo[_MO_KOD_TFOMS] == ret_mo(human_->NPR_MO)[_MO_KOD_TFOMS]
+      human_2->NPR_DATE := d1
+    else
+      aadd(ta,'должно быть заполнено поле "Дата направления на госпитализацию"')
+    endif
+  elseif human_2->NPR_DATE > d1
+    aadd(ta,'"Дата направления на госпитализацию" больше "Даты начала лечения"')
+  elseif human_2->NPR_DATE+60 < d1
+    aadd(ta,'Направлению на госпитализацию больше двух месяцев')
+  endif
 endif
 if eq_any(human_->USL_OK,1,2)
   i := human_2->p_per
@@ -1459,9 +1481,7 @@ if eq_any(human_->USL_OK,1,2)
     endif
   endif
   if i != human_2->p_per
-    human_2->(G_RLock(forever))
     human_2->p_per := i
-    UnLock
   endif
 endif
 if kkt == 0 .and. eq_any(human_->USL_OK,1,2) .and. len(a_srok_lech) > 0 
@@ -1514,6 +1534,9 @@ if fl_stom
     endif
   endif 
 endif
+if eq_any(human_->USL_OK,1,2) .and. empty(human_2->profil_k)
+  aadd(ta,'в случае не проставлен профиль койки')
+endif  
 if human_->USL_OK == 1  // стационар
   if kol_ksg > 1
     aadd(ta,'введено более одной КСГ')
@@ -1638,9 +1661,11 @@ if human_->USL_OK == 1  // стационар
     endif
   endif
   if human_2->VMP == 1 // проверим ВМП
-    human_2->(G_RLock(forever))
     if is_12_VMP  // ВМП по-новому
       make_V018_V019(d2)
+      if empty(human_2->TAL_NUM)
+        aadd(ta,'ВМП оказана, но не введен номер талона на ВМП')
+      endif
       if empty(human_2->TAL_D)
         aadd(ta,'ВМП оказана, но не введена дата выдачи талона на ВМП')
       elseif !eq_any(year(human_2->TAL_D),d2_year-1,d2_year,d2_year+1)
@@ -1682,11 +1707,12 @@ if human_->USL_OK == 1  // стационар
         aadd(ta,'Не найден метод ВМП '+lstr(human_2->METVMP)+' в справочнике V019')
       endif
     else
-      human_2->VMP    := 0
-      human_2->VIDVMP := ""
-      human_2->METVMP := 0
-      human_2->TAL_D  := ctod("")
-      human_2->TAL_P  := ctod("")
+      human_2->VMP     := 0
+      human_2->VIDVMP  := ""
+      human_2->METVMP  := 0
+      human_2->TAL_NUM := ""
+      human_2->TAL_D   := ctod("")
+      human_2->TAL_P   := ctod("")
     endif
   endif
   if is_alldializ .and. len(a_period_stac) > 0
@@ -2085,9 +2111,7 @@ if is_disp_DDS .or. is_disp_DVN .or. is_prof_PN .or. is_pren_diagn .or. kol_ksg 
       t_arr := {"1331.0","1332.0","1333.0","1335.0","2127.0","2128.0","2130.0"}
       for i := 1 to len(t_arr)
         if t_arr[i] == shifr_ksg .and. !between(human_2->PN1,1,3)
-          human_2->(G_RLock(forever))
           human_2->PN1 := 1
-          UnLock
           //aadd(ta,'в случае реабилитации для КСГ='+shifr_ksg+' необходимо заполнить поле "вид мед.реабилитации"')
         endif
       next
@@ -2201,8 +2225,17 @@ elseif is_2_89 // медицинская реабилитация (физкультурный диспансер)
   endif
   if empty(human_->NPR_MO)
     aadd(ta,'не заполнено "Направившая МО", в которой пациент имел прикрепление')
-  elseif !ret_mo(human_->NPR_MO)[_MO_IS_UCH]
-    aadd(ta,'введена "Направившая МО", которая не имеет право прикреплять пациентов')
+  else
+    if empty(human_2->NPR_DATE)
+      aadd(ta,'должно быть заполнено поле "Дата направления на лечение"')
+    elseif human_2->NPR_DATE > d1
+      aadd(ta,'"Дата направления на лечение" больше "Даты начала лечения"')
+    elseif human_2->NPR_DATE+60 < d1
+      aadd(ta,'Направлению на лечение больше двух месяцев')
+    endif
+    if !ret_mo(human_->NPR_MO)[_MO_IS_UCH]
+      aadd(ta,'введена "Направившая МО", которая не имеет право прикреплять пациентов')
+    endif
   endif
   aps := {} // сочетание профиля и специальности
   aadd(aps, {17, {113403}})  // детская кардиология
@@ -2433,6 +2466,16 @@ elseif kkt > 0 .and. !is_s_dializ .and. !is_dializ .and. !is_perito
   endif
   if empty(human_->NPR_MO)
     aadd(ta,'для '+s+' должно быть заполнено "Направившая МО"')
+  elseif empty(human_2->NPR_DATE)
+    if glob_mo[_MO_KOD_TFOMS] == ret_mo(human_->NPR_MO)[_MO_KOD_TFOMS]
+      human_2->NPR_DATE := d1
+    else
+      aadd(ta,'должно быть заполнено поле "Дата направления"')
+    endif
+  elseif human_2->NPR_DATE > d1
+    aadd(ta,'"Дата направления" больше "Даты начала лечения"')
+  elseif human_2->NPR_DATE+60 < d1
+    aadd(ta,'Направлению больше двух месяцев')
   endif
   if !eq_any(human_->ISHOD_NEW,304)
     aadd(ta,'в поле "Исход заболевания" должно быть "Без перемен"')
@@ -2584,6 +2627,7 @@ if is_s_dializ
     aadd(ta,'для '+s+' не вводится койко-день')
   endif
   human_->NPR_MO := glob_mo[_MO_KOD_TFOMS] // безусловно проставляем направившую МО
+  human_2->NPR_DATE := d1
   mpztip := 54 // 54,"случай ЗПТ","случай ЗПТ"},; 
   mpzkol := kkt
   for i := 1 to len(a_dializ)
@@ -3517,6 +3561,7 @@ else
       mpztip := mounit->pz
     endif
   endif
+  human_->POVOD := mpovod
   human_->PZTIP := mpztip
   human_->PZKOL := mpzkol
 endif

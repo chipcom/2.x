@@ -390,6 +390,9 @@ if !empty(human_->NPR_MO) .and. !(human_->NPR_MO == glob_mo[_MO_KOD_TFOMS])
   for i := 2 to k
     add_string(padl(alltrim(tmp[i]),sh))
   next
+  if !empty(human_2->NPR_DATE)
+    add_string("  Дата направления: "+full_date(human_2->NPR_DATE))
+  endif
 endif
 add_string("  Принадлежность счета: "+mkomu)
 add_string("                     Серия и номер страхового полиса: "+mpolis)
@@ -457,6 +460,9 @@ if is_death(human_->RSLT_NEW) .and. M1F14_VSKR == 1 // смерть
   add_string(s)
 endif
 if human_2->VMP == 1 .and. !empty(human_2->VIDVMP)
+  if !empty(human_2->TAL_NUM)
+    add_string("  Номер талона на ВМП: "+human_2->TAL_NUM)
+  endif
   k := perenos(tmp,ret_V018(human_2->VIDVMP,human->k_data),sh-11)
   add_string("  Вид ВМП: "+tmp[1])
   for i := 2 to k

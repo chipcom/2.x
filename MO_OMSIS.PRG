@@ -1776,7 +1776,7 @@ aadd(mm_tmp, {"ishod","N",3,0,NIL,;
               -1,{|| space(10) },;
               "Исход заболевания",,;
               {|| m1usl_ok > 0 }})
-if is_talon
+/*if is_talon
   aadd(mm_tmp, {"povod","N",2,0,NIL,;
                 {|x|menu_reader(x,stm_povod,A__MENUVERT)},;
                 0,{|| space(10) },;
@@ -1785,7 +1785,7 @@ if is_talon
                 {|x|menu_reader(x,stm_travma,A__MENUVERT)},;
                 -1,{|| space(10) },;
                 "Вид травмы"})
-endif
+endif*/
 aadd(mm_tmp, {"bolnich1","N",1,0,NIL,;
               {|x|menu_reader(x,menu_bolnich,A__MENUVERT)},;
               0,{|| space(10) },;
@@ -1950,8 +1950,8 @@ if k > 0
   if mn->ist_fin >= 0
     Private _arr_if := {mn->ist_fin}, _what_if := _init_if(), _arr_komit := {}
   endif
-  if is_talon .and. mn->kategor == 0 .and. mn->povod == 0 .and. ;
-                     mn->travma <= 0 .and. mn->talon_diag == 0
+  //if is_talon .and. mn->kategor == 0 .and. mn->povod == 0 .and. mn->travma <= 0 .and. mn->talon_diag == 0
+  if is_talon .and. mn->kategor == 0 .and. mn->talon_diag == 0
     is_talon := (is_kategor2 .and. mn->kategor2 > 0)
   endif
   if yes_vypisan == B_END .and. mn->zav_lech > 0
@@ -2065,7 +2065,7 @@ if k > 0
               mn->slug_usl > 0 .or. mn->uslugi > 0 .or. mn->dom > 0 .or. ;
               mn->kol_pos == 2 .or. mn->date_usl > 0 .or. mn->profil_u > 0)
   flag_huF := (mn->otd_usl > 0 .or. mn->vr1 > 0 .or. mn->as1 > 0 .or. mn->vras1 > 0 .or. ;
-               mn->slug_usl > 0 .or. mn->uslugiF > 0 .or. mn->dom > 0 .or. ;
+               mn->uslugiF > 0 .or. mn->dom > 0 .or. ;
                mn->kol_pos == 2 .or. mn->date_usl > 0 .or. mn->profil_u > 0)
   dbcreate(cur_dir+"tmp",{{"kod",      "N", 7,0},;
                           {"kod_k",    "N", 7,0},;
@@ -2420,14 +2420,14 @@ if k > 0
     if mn->ishod > 0
       add_string("Исход заболевания: "+inieditspr(A__MENUVERT, mm_ishod, mn->ishod))
     endif
-    if is_talon .and. mn->povod > 0
+    /*if is_talon .and. mn->povod > 0
       add_string("Повод обращения: "+;
                  inieditspr(A__MENUVERT, stm_povod, mn->povod))
     endif
     if is_talon .and. mn->travma > 0
       add_string("Вид травмы: "+;
                  inieditspr(A__MENUVERT, stm_travma, mn->travma))
-    endif
+    endif*/
     if mn->bolnich1 > 0
       add_string("Больничный: "+;
                  inieditspr(A__MENUVERT, menu_bolnich, mn->bolnich1))
@@ -3098,7 +3098,7 @@ endif
 if fl .and. is_kategor2 .and. mn->kategor2 > 0
   fl := (mn->kategor2 == kart_->kategor2)
 endif
-if fl .and. is_talon .and. (mn->povod > 0 .or. mn->travma > 0)
+/*if fl .and. is_talon .and. (mn->povod > 0 .or. mn->travma > 0)
   fl1 := fl2 := .t.
   if mn->povod > 0
     fl1 := .f.
@@ -3113,7 +3113,7 @@ if fl .and. is_talon .and. (mn->povod > 0 .or. mn->travma > 0)
     fl2 := .t.
   endif
   fl := (fl1 .and. fl2)
-endif
+endif*/
 if fl .and. !empty(mn->pol)
   fl := (human->pol == mn->pol)
 endif
@@ -3480,7 +3480,6 @@ if fl
         endif
       endif
       if flu
-my_debug(ascan(au_lu,{|x| left(x[1],5)=="2.78."})==0,lstr(au[iau,1]))   
         mkol += &lal.->kol_1
         mstoim += &lal.->stoim_1
         if mem_trudoem == 2 // подсчитывать трудоёмкость

@@ -183,11 +183,10 @@ if regim == "edit" .and. nKey == K_ENTER
 endif
 return ret
 
-***** 20.08.13
+***** 22.04.18
 Function f2_inf_DDS_karta(Loc_kod,kod_kartotek,lvozrast)
 Static st := "     ", ub := "<u><b>", ue := "</b></u>", sh := 88
-Local adbf, s, i, j, k, y, m, d, fl, mm_danet,;
-      blk := {|s| __dbAppend(), field->stroke := s }
+Local adbf, s, i, j, k, y, m, d, fl, mm_danet, blk := {|s| __dbAppend(), field->stroke := s }
 delFRfiles()
 R_Use(dir_server+"mo_stdds")
 if type("m1stacionar") == "N" .and. m1stacionar > 0
@@ -429,14 +428,14 @@ s := st+"13.2.2. Интеллект: "+f3_inf_DDS_karta(mm_psih2,iif(fl,m1psih22,-1),,ub,
 frd->(eval(blk,s))
 s := st+"13.2.3. Эмоционально-вегетативная сфера: "+f3_inf_DDS_karta(mm_psih2,iif(fl,m1psih23,-1),,ub,ue)
 frd->(eval(blk,s))
-fl := (mpol == "M")
+fl := (mpol == "М" .and. lvozrast > 9)
 s := st+"14. Оценка полового развития (с 10 лет):"
 frd->(eval(blk,s))
 s := st+"14.1. Половая формула мальчика: Р "+iif(!fl.or.m141p==0,"________",ub+st+lstr(m141p)+st+ue)
 s += " Ах "+iif(!fl.or.m141ax==0,"________",ub+st+lstr(m141ax)+st+ue)
 s += " Fa "+iif(!fl.or.m141fa==0,"________",ub+st+lstr(m141fa)+st+ue)+"."
 frd->(eval(blk,s))
-fl := (mpol == "Ж")
+fl := (mpol == "Ж" .and. lvozrast > 9)
 s := st+"14.2. Половая формула девочки: Р "+iif(!fl.or.m142p==0,"________",ub+st+lstr(m142p)+st+ue)
 s += " Ах "+iif(!fl.or.m142ax==0,"________",ub+st+lstr(m142ax)+st+ue)
 s += " Ma "+iif(!fl.or.m142ma==0,"________",ub+st+lstr(m142ma)+st+ue)
@@ -5958,11 +5957,10 @@ if regim == "edit" .and. nKey == K_ENTER
 endif
 return ret
 
-***** 23.03.18
+***** 22.04.18
 Function f2_inf_DNL_karta(Loc_kod,kod_kartotek,lvozrast)
 Static st := "     ", ub := "<u><b>", ue := "</b></u>", sh := 88
-Local adbf, s, i, j, k, y, m, d, fl, mm_danet,;
-      blk := {|s| __dbAppend(), field->stroke := s }
+Local adbf, s, i, j, k, y, m, d, fl, mm_danet, blk := {|s| __dbAppend(), field->stroke := s }
 delFRfiles()
 R_Use(dir_server+"mo_stdds")
 if type("m1stacionar") == "N" .and. m1stacionar > 0
@@ -6106,14 +6104,14 @@ s := st+"13.2.2. Интеллект: "+f3_inf_DDS_karta(mm_psih2,iif(fl,m1psih22,-1),,ub,
 frd->(eval(blk,s))
 s := st+"13.2.3. Эмоционально-вегетативная сфера: "+f3_inf_DDS_karta(mm_psih2,iif(fl,m1psih23,-1),,ub,ue)
 frd->(eval(blk,s))
-fl := (mpol == "M")
+fl := (mpol == "М" .and. lvozrast > 9)
 s := st+"14. Оценка полового развития (с 10 лет):"
 frd->(eval(blk,s))
 s := st+"14.1. Половая формула мальчика: Р "+iif(!fl.or.m141p==0,"________",ub+st+lstr(m141p)+st+ue)
 s += " Ах "+iif(!fl.or.m141ax==0,"________",ub+st+lstr(m141ax)+st+ue)
 s += " Fa "+iif(!fl.or.m141fa==0,"________",ub+st+lstr(m141fa)+st+ue)+"."
 frd->(eval(blk,s))
-fl := (mpol == "Ж")
+fl := (mpol == "Ж" .and. lvozrast > 9)
 s := st+"14.2. Половая формула девочки: Р "+iif(!fl.or.m142p==0,"________",ub+st+lstr(m142p)+st+ue)
 s += " Ах "+iif(!fl.or.m142ax==0,"________",ub+st+lstr(m142ax)+st+ue)
 s += " Ma "+iif(!fl.or.m142ma==0,"________",ub+st+lstr(m142ma)+st+ue)

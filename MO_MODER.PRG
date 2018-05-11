@@ -1924,8 +1924,8 @@ do while .t.
     s := "" ; aeval(adiag_talon, {|x| s += str(x,1) })
     human_->DISPANS   := s
     human_->STATUS_ST := ""
-    human_->POVOD     := m1povod
-    human_->TRAVMA    := m1travma
+    //human_->POVOD     := m1povod
+    //human_->TRAVMA    := m1travma
     human_->VPOLIS    := m1vidpolis
     human_->SPOLIS    := ltrim(mspolis)
     human_->NPOLIS    := ltrim(mnpolis)

@@ -3808,9 +3808,7 @@ return fl
 Function nastr_input(k,nTask)
 return NIL
 
-*
-
-***** Настройка справочников ФФОМС
+***** 09.05.18 Настройка справочников ФФОМС
 Function nastr_sprav_FFOMS(k)
 Static arr_spr, arr_spr_name, sk := 1
 Local str_sem, mas_pmt := {}, mas_msg := {}, mas_fun := {}, j
@@ -3820,15 +3818,10 @@ do case
     if tip_polzovat != 0
       return func_error(4,err_admin)
     endif
-    /*DEFAULT arr_spr TO {"V002","V006","V008","V010"}
-    DEFAULT arr_spr_name TO {;
-      "Классификатор профилей оказанной медицинской помощи",;
-      "Классификатор условий оказания медицинской помощи",;
-      "Классификатор видов медицинской помощи",;
-      "Классификатор способов оплаты медицинской помощи"}*/
-    DEFAULT arr_spr TO {"V002","V006"}
+    DEFAULT arr_spr TO {"V002","V020","V006"}
     DEFAULT arr_spr_name TO {;
       "Классификатор ПРОФИЛЕЙ оказанной медицинской помощи",;
+      "Классификатор ПРОФИЛЕЙ КОЙКИ",;
       "Классификатор УСЛОВИЙ оказания медицинской помощи"}
     for j := 1 to len(arr_spr)
       aadd(mas_pmt, "Настройка "+arr_spr[j])

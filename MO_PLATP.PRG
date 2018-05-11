@@ -5,7 +5,7 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-*****
+***** 02.05.18
 Function Po_statist(k)
 Static si1 := 1, si2 := 1, si3 := 1, si4
 Local uch_otd, mas_pmt, mas_msg, mas_fun, j
@@ -19,8 +19,7 @@ do case
                 "По № ~квитанционной книжки",;
                 "По ~направившему врачу",;
                 "ДМС и ~взаимозачет",;
-                "~Множественный запрос",;
-                "~Сводная ведомость",;
+                "~Множественный запрос",;   //             "~Сводная ведомость",;
                 "~Журнал Регистрации",;
                 "Настраиваемый журнал ~Регистрации",; //21.05.08
                 "По дате приема ~денег";
@@ -29,8 +28,7 @@ do case
                 "Статистика по объему работ (по номеру квитанционной книжки)",;
                 "Статистика по направившим врачам",;
                 "Инф-ия о больных (о персонале), которые лечились (работали) по ДМС и взаимозач.",;
-                "Множественный запрос",;
-                "Сводная ведомость по объему работ персонала [по всем задачам]",;
+                "Множественный запрос",;   //              "Сводная ведомость по объему работ персонала [по всем задачам]",;
                 "Журнал регистрации договоров",;
                 "Настраиваемый журнал Регистрации",; //21.05.08
                 "По дате приема денег";
@@ -39,8 +37,7 @@ do case
                 "Po_statist(12)",;
                 "Po_statist(13)",;
                 "Po_statist(14)",;
-                "Po_statist(15)",;
-                "Po_statist(16)",;
+                "Po_statist(15)",;    //             "Po_statist(16)",;
                 "Po_statist(18)",;
                 "Po_statist(19)",;
                 "Po_statist(17)";
@@ -88,7 +85,17 @@ do case
    // sv_ved_plat()
    ne_real()
   case k == 17
-    pl1_priemden()
+    mas_pmt := {"~Сводная по организации",;
+                "~По кассовым аппаратам",;
+                "По ~кассирам"}
+    mas_msg := {"Статистика по услугам по дате приема денег",;
+                "Статистика по дате приема денег с группировкой по кассовым аппаратам",;
+                "Статистика по дате приема денег с группировкой по кассирам"}
+    mas_fun := {"Po_statist(71)",;
+                "Po_statist(72)",;
+                "Po_statist(73)";
+                }
+    popup_prompt(T_ROW,T_COL-5,si3,mas_pmt,mas_msg,mas_fun)
   case k == 18
     pl_pl_dogovor()
   case k == 19
@@ -116,6 +123,12 @@ do case
     pl_napr_vrach()
   case k == 32
     pl_napr2vrach()
+  case k == 71
+    pl1_priemden(1)
+  case k == 72
+    pl1_priemden(2)
+  case k == 73
+    pl1_priemden(3)
 endcase
 if k > 10
   j := int(val(right(lstr(k),1)))
@@ -5021,16 +5034,18 @@ next
 asort(arr)
 return arr
 
-*
-
-*****
-Function pl1_priemden()
+***** 02.05.18
+Function pl1_priemden(tip)
+//  1 - сводный
+//  2 - по кассовым аппаратам
+//  3 - по кассирам
 Local fl := .t., buf := save_row(maxrow()), sm := 0, HH := 52,;
-      n_file := "platn.txt", arr_m, sum3 := 0, sh, sm_sn := 0, arr_dms
+      n_file := "platn.txt", arr_m, sum3 := 0, sh, sm_sn := 0, arr_dms,;
+      sm_1 := 0, sm_2 := 0, vrem_kas, sm1, sm2, t_name_ysl, mas_name := {}
 Local arr_title := {;
-  "───────────────────────────────────────────────────┬────────┬───────────",;
-  "                  Услуги                           │ Кол-во │   Сумма   ",;
-  "───────────────────────────────────────────────────┴────────┴───────────";
+  "──────────────────────────────────────────────────────────┬────────┬───────────",;
+  "                          Услуги                          │ Кол-во │   Сумма   ",;
+  "──────────────────────────────────────────────────────────┴────────┴───────────";
   }
 sh := len(arr_title[1])
 Private krvz
@@ -5042,13 +5057,27 @@ if (arr_m := year_month()) == NIL
 endif
 //
 mywait()
-dbcreate(cur_dir+"tmp", {{"kod",     "N", 4,   0},;
-                         {"name",    "C", 60,  0},;
-                         {"kod_1",   "C", 10,  0},;
-                         {"kol_vo",  "N", 10,  0},;
-                         {"summa",   "N", 12,  2}})
+dbcreate(cur_dir+"tmp", {{"kod",        "N",  4,  0},;
+                         {"name",       "C", 65,  0},;
+                         {"full_name",  "C",120,  0},;
+                         {"kod_1",      "C", 10,  0},;
+                         {"kol_vo",     "N", 10,  0},;
+                         {"summa",      "N", 12,  2},;
+                         {"operat",     "N",  3,  0},;
+                         {"operatf",    "C", 40,  0},;
+                         {"FR_zavod",   "C", 16,  0};
+                         })
 use (cur_dir+"tmp") new
-index on kod to (cur_dir+"tmp_u")
+if tip == 1
+  index on str(kod,4) to (cur_dir+"tmp_u")
+elseif tip == 2
+  index on str(kod,4)+fr_zavod to (cur_dir+"tmp_u")
+else
+  index on str(kod,4)+str(operat,3) to (cur_dir+"tmp_u")
+endif
+if yes_parol
+  R_Use(dir_server+"base1",,"BASE1")
+endif
 R_Use(dir_server+"hum_p",,"HUM")
 R_Use(dir_server+"hum_p_U",dir_server+"hum_p_U","HUM_U")
 select HUM
@@ -5064,10 +5093,25 @@ do while !eof()
     find (str(t,7))
     do while t == hum_u->kod .and. !eof()
       select TMP
-      find (hum_u->u_kod)
+      if tip == 1
+        find (str(hum_u->u_kod,4))
+      elseif tip == 2
+        find (str(hum_u->u_kod,4)+hum->FR_zavod)
+      else
+        find (str(hum_u->u_kod,4)+str(hum->KOD_OPER,3))
+      endif
       if !found()
         append blank
-        tmp->kod := hum_u->u_kod
+        tmp->kod      := hum_u->u_kod
+        tmp->operat   := hum->KOD_OPER
+        tmp->FR_zavod := hum->FR_zavod
+      endif
+      if yes_parol .and. hum->KOD_OPER > 0
+        select BASE1
+        goto (hum->KOD_OPER)
+        if !eof() .and. !empty(base1->p1)
+          tmp->operatf := alltrim(crypt(base1->p1,gpasskod))
+        endif
       endif
       tmp->kol_vo := tmp->kol_vo + hum_u->kol
       tmp->summa  := tmp->summa  + hum_u->stoim
@@ -5078,6 +5122,7 @@ do while !eof()
   select HUM
   skip
 enddo
+//
 R_Use(dir_server+"uslugi",,"USL")
 select TMP
 go top
@@ -5086,8 +5131,9 @@ do while !eof()
   select usl
   goto t
   select tmp
-  tmp->name  := usl->name
-  tmp->kod_1 := usl->shifr
+  tmp->name       := usl->name
+  tmp->full_name  := usl->full_name
+  tmp->kod_1      := usl->shifr
   skip
 enddo
 select TMP
@@ -5095,41 +5141,106 @@ index on kod_1 to (cur_dir+"tmp_u")
 fp := fcreate(n_file) ; n_list := 1 ; tek_stroke := 0
 add_string(center("Оплата услуг",sh))
 add_string(center("по дате начала лечения",sh))
+if tip == 3
+  add_string(center("с группировкой по кассирам",sh))
+elseif tip == 2
+  add_string(center("с группировкой по кассовым аппаратам",sh))
+endif
 add_string(center(arr_m[4],sh))
 tit_tip_usl(krvz,arr_dms,sh) //16.04.08
 add_string("")
 aeval(arr_title, {|x| add_string(x) })
+if tip == 1
+  index on kod_1 to (cur_dir+"tmp_u")
+elseif tip == 2
+  index on fr_zavod+kod_1 to (cur_dir+"tmp_u")
+else
+  index on operatf+kod_1 to (cur_dir+"tmp_u")
+endif
 go top
 sm1 := 0
 sm2 := 0
+if tip == 3
+  vrem_kas := tmp->operatf
+elseif tip == 2
+  vrem_kas := tmp->FR_zavod
+endif
 do while !eof()
   if verify_FF(HH,.t.,sh)
     aeval(arr_title, {|x| add_string(x) } )
   endif
-  add_string(tmp->kod_1+padr(tmp->name,40)+;
-             STR(tmp->kol_vo,9)+;
-             put_kope(tmp->summa,12))
+  if tip == 3
+    if vrem_kas != tmp->operatf
+      add_string(replicate("─",sh))
+      add_string(padR("Итого кассир: "+vrem_kas,58)+;
+                   STR(SM_1,9)+;
+                   put_kope(SM_2,12))
+      add_string("")
+      //add_string(replicate("─",sh))                 // 16.06.08
+      //add_string(padR("из них возврат: ",59)+;
+      //             put_kope(sm_sn,12))
+      vrem_kas := tmp->operatf
+      sm_1 := 0
+      sm_2 := 0
+    endif
+  elseif tip == 2
+    if vrem_kas != tmp->FR_zavod
+      add_string(replicate("─",sh))
+      add_string(padR("Итого касса №: "+vrem_kas,58)+;
+                   STR(SM_1,9)+;
+                   put_kope(SM_2,12))
+      add_string("")
+      //add_string(replicate("─",sh))                 // 16.06.08
+      //add_string(padR("из них возврат: ",59)+;
+      //             put_kope(sm_sn,12))
+      vrem_kas := tmp->FR_zavod
+      sm_1 := 0
+      sm_2 := 0
+    endif
+  endif
+  if !empty(tmp->full_name)
+    t_name_ysl := tmp->full_name
+  else
+    t_name_ysl := tmp->name
+  endif
+  for i := 1 to perenos(mas_name,t_name_ysl,48)
+    if i == 1
+      add_string(tmp->kod_1+padr(mas_name[i],48)+;
+                 STR(tmp->kol_vo,9)+;
+                 put_kope(tmp->summa,12))
+    else
+      add_string(space(10)+mas_name[i])
+    endif
+  next
   sm1 += tmp->kol_vo
   SM2 += tmp->summa
+  sm_1 += tmp->kol_vo
+  SM_2 += tmp->summa
   skip
 enddo
+if tip == 3
+  add_string(replicate("─",sh))
+  add_string(padR("Итого кассир: "+vrem_kas,58)+;
+               STR(SM_1,9)+;
+               put_kope(SM_2,12))
+elseif tip == 2
+  add_string(replicate("─",sh))
+  add_string(padR("Итого касса №: "+vrem_kas,58)+;
+               STR(SM_1,9)+;
+               put_kope(SM_2,12))
+endif
 add_string(replicate("─",sh))
-add_string(padR("Итого: ",50)+;
+add_string(padR("Итого: ",58)+;
              STR(SM1,9)+;
              put_kope(SM2,12))
 add_string(replicate("─",sh))                 // 16.06.08
-add_string(padR("из них возврат: ",59)+;
+add_string(padR("из них возврат: ",67)+;
              put_kope(sm_sn,12))
-//add_string(replicate("─",sh))                 // 16.06.08
-//add_string(padR("Итого получено: ",59)+;
-//             put_kope(SuM3,12))
 close databases
 fclose(fp)
 viewtext(n_file,,,,(sh>80),,,1)
 rest_box(buf)
 return NIL
-
-*
 
 ***** 02.12.12
 Function inputNplpozic(r,c,fl_max)

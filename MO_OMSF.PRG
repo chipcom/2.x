@@ -7,14 +7,14 @@
 Static Shodata_sem := "Работа с ходатайствами"
 Static Shodata_err := "В данный момент с ходатайствами работает другой пользователь."
 
-***** 02.02.17 очистить запись в строке файла "human_2"
+***** 08.09.18 очистить запись в строке файла "human_2"
 Function put_0_human_2()
-human_2->OSL1 := human_2->OSL2 := human_2->OSL3 := human_2->VIDVMP := ""
-human_2->VMP := human_2->METVMP := 0
-human_2->TAL_D := human_2->TAL_P := ctod("")
+human_2->OSL1 := human_2->OSL2 := human_2->OSL3 := human_2->TAL_NUM := human_2->VIDVMP := ""
+human_2->P_PER := human_2->PROFIL_K := human_2->VMP := human_2->METVMP := 0
+human_2->NPR_DATE := human_2->TAL_D := human_2->TAL_P := ctod("")
 human_2->VNR := human_2->VNR1 := human_2->VNR2 := human_2->VNR3 := 0
-human_2->PC1 := human_2->PC2 := human_2->PC3 := ""
-human_2->P_PER := human_2->PN1 := human_2->PN2 := human_2->PN3 := 0
+human_2->PC1 := human_2->PC2 := human_2->PC3 := human_2->PC4 := human_2->PC5 := human_2->PC6 := ""
+human_2->PN1 := human_2->PN2 := human_2->PN3 := human_2->PN4 := human_2->PN5 := human_2->PN6 := 0
 return NIL
 
 ***** 15.01.18 заполнить код подразделения/отделения
@@ -140,7 +140,7 @@ Local i
 Static sd1kv
 input_ad_cr := .f. ; mm_ad_cr := {}
 if m1usl_ok < 3 .and. m1vmp == 0
-  if m1profil == 158
+  if m1profil == 158 // реабилитация
     input_ad_cr := .t.
     aadd(mm_ad_cr,mm_rb[1])
     if m1usl_ok == 1
@@ -4140,7 +4140,7 @@ return NIL
 
 *
 
-***** 07.02.18
+***** 07.05.18
 Function save_arr_PN(lkod)
 Local arr := {}, k, ta
 Private mvar
@@ -4152,6 +4152,7 @@ if type("mdate_r") == "D"
 endif
 aadd(arr,{"0",m1mobilbr})   // "N",мобильная бригада
 aadd(arr,{"1",mperiod}) // "N",номер диапазона (от 1 до 33)
+aadd(arr,{"2",m1mesto_prov})   // "N",место проведения
 aadd(arr,{"5",m1kateg_uch}) // "N",Категория учета ребенка: 0-ребенок-сирота; 1-ребенок, оставшийся без попечения родителей; 2-ребенок, находящийся в трудной жизненной ситуации, 3-нет категории
 aadd(arr,{"6",m1MO_PR}) // "C6",код МО прикрепления
 aadd(arr,{"8",m1school}) // "N6",код образовательного учреждения
@@ -4314,9 +4315,7 @@ endif
 save_arr_DISPANS(lkod,arr)
 return NIL
 
-*
-
-***** 07.02.18
+***** 07.05.18
 Function read_arr_PN(lkod,is_all)
 Local arr, i, k
 DEFAULT is_all TO .t.
@@ -4330,6 +4329,8 @@ for i := 1 to len(arr)
       do case
         case arr[i,1] == "0" .and. valtype(arr[i,2]) == "N"
           m1mobilbr := arr[i,2]
+        case arr[i,1] == "2" .and. valtype(arr[i,2]) == "N"
+          m1mesto_prov := arr[i,2]
         case arr[i,1] == "5" .and. valtype(arr[i,2]) == "N"
           m1kateg_uch := arr[i,2]
         case arr[i,1] == "6" .and. valtype(arr[i,2]) == "C"

@@ -287,9 +287,7 @@ endif
 mark_keys({"<Esc>","<Enter>","<Ins>","<Del>","<Ctrl+Enter>","<F3>","<F4>","<F8>","<F9>","<F10>"},"R/W")
 return NIL
 
-*
-
-***** 16.11.17
+***** 02.05.18
 Function f3_k_plat(nKey,oBrow)
 LOCAL j := 0, flag := -1, buf := save_row(maxrow()), buf1, fl := .f., rec, mkod,;
       tmp_color := setcolor(), r1 := 15, c1 := 2, v_summa, v_sdacha, adbf, s,;
@@ -528,7 +526,11 @@ do case
              {"cena",      "N", 10, 2},;
              {"kol",       "N",  4, 0},;
              {"kod_vr",    "N",  4, 0},;
-             {"full_name", "C",255, 0}}
+             {"full_name", "C",255, 0},;
+             {"vrach",     "C", 50, 0},;
+             {"nds18",     "N",  1, 0},;
+             {"nds10",     "N",  1, 0};
+             }
     dbcreate(cur_dir+"tmp",adbf)
     use (cur_dir+"tmp") new
     select HU
@@ -543,6 +545,21 @@ do case
       tmp->cena      := round_5(hu->stoim / hu->kol, 2)
       tmp->kol       := hu->kol
       tmp->kod_vr    := hu->kod_vr
+      if hu->kod_vr > 0
+        perso->(dbGoto(hu->kod_vr))
+        tmp->vrach := fam_i_o(perso->fio)+" <"+lstr(perso->tab_nom)+">"
+      endif
+      // НДС
+      if round(tmp->cena,2) == round(usl->pcena_d,2) // дети
+        lnds := round_5(usl->pnds_d,0)
+      else // взрослые
+        lnds := round_5(usl->pnds,0)
+      endif
+      if lnds == 18
+        tmp->nds18 := 1
+      elseif lnds == 10
+        tmp->nds10 := 1
+      endif
       select HU
       skip
     enddo
@@ -564,6 +581,7 @@ do case
       endif
     endif
     close databases
+    //quit
     //
     R_Use(dir_server+"mo_pers",dir_server+"mo_pers","PERSO")
     use_base("hum_p","HUMAN")
@@ -684,10 +702,6 @@ do case
     keyboard ""
 endcase
 return flag
-
-
-
-*
 
 *****
 Function view_p_kvit(nkey)

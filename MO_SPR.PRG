@@ -4657,15 +4657,14 @@ endif
 select (tmp_select)
 return ret
 
-*
-
-***** 13.01.18 редактирование справочника отделений
+***** 10.05.18 редактирование справочника отделений
 Function edit_otd()
 Local i, j, blk, arr[US_LEN]
 if input_uch(T_ROW-1,T_COL+5) == NIL
   return NIL
 endif
 Private tmp_V002 := create_classif_FFOMS(1,"V002") // PROFIL
+Private tmp_V020 := create_classif_FFOMS(1,"V020") // PROFIL_K
 Private tmp_V006 := create_classif_FFOMS(1,"V006") // USL_OK
 //Private tmp_V008 := create_classif_FFOMS(1,"V008") // VIDPOM
 //Private tmp_V010 := create_classif_FFOMS(1,"V010") // IDSP
@@ -4716,9 +4715,13 @@ arr[US_EDIT_SPR ] := {{"name","C",30,0,,,space(30),,"Наименование отделения"},;
                        0,{|x|inieditspr(A__MENUVERT,mm_tiplu,x)},;
                        "Вид листа учёта при вводе данных"},;
                       {"PROFIL","N",3,0,,;
-                       {|x|menu_reader(x,tmp_V002,A__MENUVERT,,,.f.)},;
+                       {|x|menu_reader(x,tmp_V002,A__MENUVERT_SPACE,,,.f.)},;
                        0,{|x|inieditspr(A__MENUVERT,glob_V002,x)},;
-                       "Профиль"},;
+                       "Профиль мед.помощи"},;
+                      {"PROFIL_K","N",3,0,,;
+                       {|x|menu_reader(x,tmp_V020,A__MENUVERT_SPACE,,,.f.)},;
+                       0,{|x|inieditspr(A__MENUVERT,glob_V020,x)},;
+                       "Профиль койки"},;
                       {"IDUMP","N",2,0,,;
                        {|x|menu_reader(x,tmp_V006,A__MENUVERT,,,.f.)},;
                        0,{|x|inieditspr(A__MENUVERT,glob_V006,x)},;

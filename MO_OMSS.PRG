@@ -2722,7 +2722,7 @@ if !empty(full_zip)
 endif
 return NIL
 
-***** 10.04.18 вынуть реестр из XML-файлов и записать во временные DBF-файлы
+***** 10.05.18 вынуть реестр из XML-файлов и записать во временные DBF-файлы
 Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
 Local _table1 := {;
    {"KOD",      "N", 6,0},; // код
@@ -2754,14 +2754,18 @@ Local _table1 := {;
    {"VID_HMP",  "C",12,0},; // C9
    {"METOD_HMP","C", 3,0},; // N3
    {"NPR_MO",   "C", 6,0},; //
+   {"NPR_DATE", "C",10,0},; //
    {"EXTR",     "C", 1,0},; //
    {"LPU"     , "C", 6,0},; //
    {"LPU_1"   , "C", 8,0},; //
    {"PODR"    , "C", 8,0},; //
    {"PROFIL"  , "C", 3,0},; //
+   {"PROFIL_K", "C", 3,0},; //
    {"DET"     , "C", 1,0},; //
+   {"P_CEL",    "C", 3,0},; //
    {"TAL_D",    "C",10,0},; //
    {"TAL_P",    "C",10,0},; //
+   {"TAL_NUM",  "C",20,0},; //
    {"VBR",      "C", 1,0},; //
    {"NHISTORY", "C",10,0},; //
    {"P_OTK",    "C", 1,0},; //
@@ -2794,6 +2798,7 @@ Local _table1 := {;
    {"DS3"   ,   "C", 6,0},; //
    {"DS3_2" ,   "C", 6,0},; //
    {"DS3_3" ,   "C", 6,0},; //
+   {"DN"    ,   "C", 1,0},; //
    {"VNOV_M",   "C", 4,0},; // вес новорожденного в граммах
    {"VNOV_M_2", "C", 4,0},; // вес новорожденного в граммах
    {"VNOV_M_3", "C", 4,0},; // вес новорожденного в граммах
@@ -2808,6 +2813,7 @@ Local _table1 := {;
    {"ED_COL",   "C", 1,0},; //
    {"IT_SL"   , "C", 9,0},; //
    {"AD_CR"   , "C",10,0},; //
+   {"DKK2"    , "C",10,0},; //
    {"CODE_KIRO","C", 1,0},; //
    {"VAL_K"   , "C", 5,0},; //
    {"NEXT_VISIT","C",10,0},; //
@@ -2981,14 +2987,18 @@ if (arr_f := Extract_Zip_XML(goal_dir,name_zip)) != NIL
               t1->METOD_HMP:= mo_read_xml_stroke(oNode1,"METOD_HMP",,.f.)
               t1->F_SP     := mo_read_xml_stroke(oNode1,"F_SP",,.f.)
               t1->NPR_MO   := mo_read_xml_stroke(oNode1,"NPR_MO",,.f.)
+              t1->NPR_DATE := mo_read_xml_stroke(oNode1,"NPR_DATE",,.f.)
               t1->EXTR     := mo_read_xml_stroke(oNode1,"EXTR",,.f.)
               t1->LPU      := mo_read_xml_stroke(oNode1,"LPU")
               t1->LPU_1    := mo_read_xml_stroke(oNode1,"LPU_1",,.f.)
               t1->PODR     := mo_read_xml_stroke(oNode1,"PODR",,.f.)
               t1->PROFIL   := mo_read_xml_stroke(oNode1,"PROFIL")
+              t1->PROFIL_K := mo_read_xml_stroke(oNode1,"PROFIL_K",,.f.)
               t1->DET      := mo_read_xml_stroke(oNode1,"DET",,.f.)
+              t1->P_CEL    := mo_read_xml_stroke(oNode1,"P_CEL",,.f.)
               t1->TAL_D    := mo_read_xml_stroke(oNode1,"TAL_D",,.f.)
               t1->TAL_P    := mo_read_xml_stroke(oNode1,"TAL_P",,.f.)
+              t1->TAL_NUM  := mo_read_xml_stroke(oNode1,"TAL_NUM",,.f.)
               t1->VBR      := mo_read_xml_stroke(oNode1,"VBR",,.f.)
               t1->NHISTORY := mo_read_xml_stroke(oNode1,"NHISTORY")
               t1->P_OTK    := mo_read_xml_stroke(oNode1,"P_OTK",,.f.)
@@ -3024,6 +3034,7 @@ if (arr_f := Extract_Zip_XML(goal_dir,name_zip)) != NIL
                 pole := "t1->DS3"+iif(j1==1, "", "_"+lstr(j1))
                 &pole := _ar[j1]
               next
+              t1->DN := mo_read_xml_stroke(oNode1,"DN",,.f.)
               _ar := mo_read_xml_array(oNode1,"VNOV_M") // М.Б.НЕСКОЛЬКО VNOV_M
               for j1 := 1 to min(3,len(_ar))
                 pole := "t1->VNOV_M"+iif(j1==1, "", "_"+lstr(j1))
@@ -3064,6 +3075,7 @@ if (arr_f := Extract_Zip_XML(goal_dir,name_zip)) != NIL
               t1->TARIF    := mo_read_xml_stroke(oNode1,"TARIF",,.f.)
               t1->SUMV     := mo_read_xml_stroke(oNode1,"SUMV")
               t1->AD_CR    := mo_read_xml_stroke(oNode1,"AD_CRITERION",,.f.)
+              t1->DKK2     := mo_read_xml_stroke(oNode1,"DKK2",,.f.)
               t1->NEXT_VISIT := mo_read_xml_stroke(oNode1,"NEXT_VISIT",,.f.)
               t1->IT_SL    := mo_read_xml_stroke(oNode1,"IT_SL",,.f.)
               t1->COMENTSL := mo_read_xml_stroke(oNode1,"COMENTSL",,.f.)

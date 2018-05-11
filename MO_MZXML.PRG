@@ -4,11 +4,11 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 10.04.18 создать XML-файл по несовершеннолетним
+***** 26.04.18 создать XML-файл по несовершеннолетним
 Function mo_mzxml_N(_regim,n_file,stitle,lvozrast)
 Static oXmlDoc, _kol, ;
        arr_np := {0,1,2,3,4,5,6,7,8,9,10,11,12,15,18,24,36,48,60,72,84,96,108,120,132,144,156,168,180,192,204}
-Local i, k, s, fl, arr, arr1, buf, blk_sex
+Local i, k, s, y, m, fl, arr, arr1, buf, blk_sex
 Private p_xml_code_page := "UTF-8"
 if _regim == 1
   oXmlDoc := HXMLDoc():New(p_xml_code_page)
@@ -76,24 +76,27 @@ elseif _regim == 2
    if eq_any(p_tip_lu,TIP_LU_PREDN,TIP_LU_PERN)  //if type("m1school") == "N" .and. m1school > 0
      mo_add_xml_stroke(oChild,"idEducationOrg",'90713')  // лицей 5
    endif
-   /*if eq_any(p_tip_lu,TIP_LU_DDS,TIP_LU_DDSOP)
-   if type("m1gde_nahod") == "N" .and. between(m1gde_nahod,0,5)
-     do case
-       case m1gde_nahod == 3 // передан в приемную семью
-         s := "4"
-       case m1gde_nahod == 4 // передан в патронатную семью
-         s := "8"
-       case m1gde_nahod == 5 // усыновлен (удочерена)
-         s := "3"
-       otherwise
-         s := lstr(m1gde_nahod)
-     endcase
-     mo_add_xml_stroke(oChild,"idOrphHabitation",s)
-     if !empty(mdate_post)
-       mo_add_xml_stroke(oChild,"dateOrphHabitation",date2xml(mdate_post))
+   if eq_any(p_tip_lu,TIP_LU_DDS,TIP_LU_DDSOP)
+     s := '0'
+     if type("m1gde_nahod") == "N" .and. between(m1gde_nahod,0,5)
+       do case
+         case m1gde_nahod == 3 // передан в приемную семью
+           s := "4"
+         case m1gde_nahod == 4 // передан в патронатную семью
+           s := "8"
+         case m1gde_nahod == 5 // усыновлен (удочерена)
+           s := "3"
+         otherwise
+           s := lstr(m1gde_nahod)
+       endcase
      endif
+     mo_add_xml_stroke(oChild,"idOrphHabitation",s)
+     if empty(mdate_post)
+       mdate_post := mn_data - 1
+     endif
+     mo_add_xml_stroke(oChild,"dateOrphHabitation",date2xml(mdate_post))
    endif
-   if type("m1stacionar") == "N" .and. m1stacionar > 0
+   /*if type("m1stacionar") == "N" .and. m1stacionar > 0
      mo_add_xml_stroke(oChild,"idStacOrg",'0')
    endif*/
    oCards := oChild:Add( HXMLNode():New( "cards" ) )
@@ -113,6 +116,9 @@ elseif _regim == 2
      elseif p_tip_lu == TIP_LU_PERN
        i := 4 // период.осмотры
      else
+       y := m := 0
+       count_ymd(mdate_r,mn_data,@y,@m,)
+       mo_add_xml_stroke(oCard,"ageObsled",lstr(int(y*12)+m))
        i := 1 // дети-сироты
      endif
      mo_add_xml_stroke(oCard,"idType",lstr(i))

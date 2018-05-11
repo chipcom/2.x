@@ -4,7 +4,7 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 07.02.18 ПН - добавление или редактирование случая (листа учета)
+***** 07.05.18 ПН - добавление или редактирование случая (листа учета)
 Function oms_sluch_PN(Loc_kod,kod_kartotek,f_print)
 // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
 // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -69,6 +69,8 @@ Private mm_kateg_uch := {{"ребенок-сирота",0},;
                          {"ребенок, оставшийся без попечения родителей",1},;
                          {"ребенок, находящийся в трудной жизненной ситуации",2},;
                          {"нет категории",3}}
+Private mm_mesto_prov := {{"медицинская организация",0},;
+                          {"общеобразовательное учреждение",1}}
 Private mm_fiz_razv := {{"нормальное",0},;
                         {"с отклонениями",1}}
 Private mm_fiz_razv1 := {{"нет    ",0},;
@@ -145,6 +147,7 @@ Private mm_privivki2 := {{"полностью",1},;
 //
 Private metap := 1, mperiod := 0, mshifr_zs := "",;
         mkateg_uch, m1kateg_uch := 3,; // Категория учета ребенка:
+        mmesto_prov := space(10), m1mesto_prov := 0,; // место проведения
         mMO_PR := space(10), m1MO_PR := st_mo_pr,; // код МО прикрепления
         mschool := space(10), m1school := 0,; // код обр.учреждения
         mWEIGHT := 0,;   // вес в кг
@@ -594,6 +597,7 @@ if m1company == 34
   endif
 endif
 //
+mmesto_prov := inieditspr(A__MENUVERT, mm_mesto_prov, m1mesto_prov) // место проведения
 mmobilbr := inieditspr(A__MENUVERT, mm_danet, m1mobilbr)
 mschool := inieditspr(A__POPUPMENU, dir_server+"mo_schoo", m1school)
 mkateg_uch := inieditspr(A__MENUVERT, mm_kateg_uch, m1kateg_uch)
@@ -721,7 +725,9 @@ do while .t.
     ++j; @ j,1 say "№ амбулаторной карты" get much_doc picture "@!" ;
                when !(is_uchastok == 1 .and. is_task(X_REGIST)) ;
                      .or. mem_edit_ist==2
-         @ j,col()+5 say "Мобильная бригада?" get mmobilbr ;
+    ++j; @ j,1 say "Место проведения медосмотра" get mmesto_prov ;
+               reader {|x|menu_reader(x,mm_mesto_prov,A__MENUVERT,,,.f.)}
+    ++j; @ j,1 say "Медосмотр проведён мобильной бригадой?" get mmobilbr ;
                reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
     ++j
     ++j; @ j,1 say "МО прикрепления" get mMO_PR ;
@@ -1840,7 +1846,8 @@ do while .t.
     human_->DISPANS   := s
     human_->STATUS_ST := ""
     human_->POVOD     := m1povod
-    human_->TRAVMA    := m1travma
+    human_->POVOD     := 5 // {"2.1-Медицинский осмотр",5,"2.1"},;
+    //human_->TRAVMA    := m1travma
     human_->VPOLIS    := m1vidpolis
     human_->SPOLIS    := ltrim(mspolis)
     human_->NPOLIS    := ltrim(mnpolis)
@@ -3171,8 +3178,8 @@ do while .t.
     s := "" ; aeval(adiag_talon, {|x| s += str(x,1) })
     human_->DISPANS   := s
     human_->STATUS_ST := ""
-    human_->POVOD     := m1povod
-    human_->TRAVMA    := m1travma
+    //human_->POVOD     := m1povod
+    //human_->TRAVMA    := m1travma
     human_->VPOLIS    := m1vidpolis
     human_->SPOLIS    := ltrim(mspolis)
     human_->NPOLIS    := ltrim(mnpolis)
@@ -4043,8 +4050,8 @@ do while .t.
     s := "" ; aeval(adiag_talon, {|x| s += str(x,1) })
     human_->DISPANS   := s
     human_->STATUS_ST := ""
-    human_->POVOD     := m1povod
-    human_->TRAVMA    := m1travma
+    //human_->POVOD     := m1povod
+    //human_->TRAVMA    := m1travma
     human_->VPOLIS    := m1vidpolis
     human_->SPOLIS    := ltrim(mspolis)
     human_->NPOLIS    := ltrim(mnpolis)
@@ -4661,8 +4668,8 @@ do while .t.
     s := "" ; aeval(adiag_talon, {|x| s += str(x,1) })
     human_->DISPANS   := s
     human_->STATUS_ST := ""
-    human_->POVOD     := m1povod
-    human_->TRAVMA    := m1travma
+    human_->POVOD     := 9 // {"2.6-Посещение по другим обстоятельствам", 9,"2.6"},;
+    //human_->TRAVMA    := m1travma
     human_->VPOLIS    := m1vidpolis
     human_->SPOLIS    := ltrim(mspolis)
     human_->NPOLIS    := ltrim(mnpolis)
@@ -5202,8 +5209,8 @@ do while .t.
     human_->RODIT_POL := ""
     human_->DISPANS   := replicate("0",16)
     human_->STATUS_ST := ""
-    human_->POVOD     := m1povod
-    human_->TRAVMA    := m1travma
+    human_->POVOD     := 9 // {"2.6-Посещение по другим обстоятельствам", 9,"2.6"},;
+    //human_->TRAVMA    := m1travma
     human_->VPOLIS    := m1vidpolis
     human_->SPOLIS    := ltrim(mspolis)
     human_->NPOLIS    := ltrim(mnpolis)

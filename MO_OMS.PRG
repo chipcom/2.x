@@ -1967,8 +1967,8 @@ do while .t.
     s := "" ; aeval(adiag_talon, {|x| s += str(x,1) })
     human_->DISPANS   := s
     human_->STATUS_ST := ""
-    human_->POVOD     := m1povod
-    human_->TRAVMA    := m1travma
+    human_->POVOD     := 6 // {"2.2-Диспансеризация",6,"2.2"},;
+    //human_->TRAVMA    := m1travma
     human_->VPOLIS    := m1vidpolis
     human_->SPOLIS    := ltrim(mspolis)
     human_->NPOLIS    := ltrim(mnpolis)
@@ -3118,14 +3118,12 @@ if m1tip != old .and. old != NIL
 endif
 return .t.
 
-*
-
-***** 22.01.18 добавление или редактирование случая (листа учета)
+***** 09.05.18 добавление или редактирование случая (листа учета)
 Function oms_sluch(Loc_kod,kod_kartotek)
 // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
 // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
 Static SKOD_DIAG := '     ', st_l_z := 1, st_N_DATA, st_K_DATA, ;
-       st_vrach := 0, st_profil := 0, st_rslt := 0, st_ishod := 0, st_povod := 9
+       st_vrach := 0, st_profil := 0, st_profil_k := 0, st_rslt := 0, st_ishod := 0, st_povod := 9
 Static menu_bolnich := {{"нет",0},{"да ",1},{"РОД",2}}
 Local bg := {|o,k| get_MKB10(o,k,.t.) },;
       buf, tmp_color := setcolor(), a_smert := {},;
@@ -3187,6 +3185,7 @@ chm_help_code := 3002
 //
 Private tmp_V006 := create_classif_FFOMS(2,"V006") // USL_OK
 Private tmp_V002 := create_classif_FFOMS(2,"V002") // PROFIL
+Private tmp_V020 := create_classif_FFOMS(2,"V020") // PROFIL_K
 Private tmp_V009 := cut_glob_array(glob_V009,sys_date) // rslt
 Private tmp_V012 := cut_glob_array(glob_V012,sys_date) // ishod
 Private mm_rslt, mm_ishod, rslt_umolch := 0, ishod_umolch := 0
@@ -3215,7 +3214,7 @@ Private mkod := Loc_kod, mtip_h, is_talon := .f., ibrm := 0,;
   mishod, m1ishod := st_ishod      ,; // исход
   m1company := 0, mcompany, mm_company,;
   mkomu, M1KOMU := 0, M1STR_CRB := 0,; // 0-ОМС,1-компании,3-комитеты/ЛПУ,5-личный счет
-  m1NPR_MO := "", mNPR_MO := space(10),;
+  m1NPR_MO := "", mNPR_MO := space(10), mNPR_DATE := ctod(""),;
   m1reg_lech := 0, mreg_lech,;
   MN_DATA     := st_N_DATA         ,; // дата начала лечения
   MK_DATA     := st_K_DATA         ,; // дата окончания лечения
@@ -3236,6 +3235,7 @@ Private mkod := Loc_kod, mtip_h, is_talon := .f., ibrm := 0,;
   m1USL_OK := 0, mUSL_OK,;
   m1P_PER := 0, mP_PER := space(35),; // Признак поступления/перевода 1-4
   m1PROFIL := st_profil, mPROFIL,;
+  m1PROFIL_K := st_profil_k, mPROFIL_K,;
   m1vid_reab := 0, mvid_reab,;
   mstatus_st := space(10),;
   mpovod, m1povod := st_povod,;
@@ -3244,6 +3244,7 @@ Private mkod := Loc_kod, mtip_h, is_talon := .f., ibrm := 0,;
   MOSL2 := SPACE(6)     ,; // шифр 2-ого диагноза осложнения заболевания
   MOSL3 := SPACE(6)     ,; // шифр 3-ого диагноза осложнения заболевания
   MVMP, M1VMP := 0      ,; // 0-нет,1-да ВМП
+  mtal_num := space(20),; // номер талона на ВМП
   MVIDVMP, M1VIDVMP := SPACE(12),; // вид ВМП по справочнику V018
   MMETVMP, M1METVMP := 0,; // метод ВМП по справочнику V019 //  mstentvmp := " ",; // кол-во стентов для методов ВМП 498,499
   mTAL_D := ctod(""),; // Дата выдачи талона на ВМП
@@ -3320,8 +3321,7 @@ if mkod_k > 0
     if recno() != Loc_kod .and. is_death(human_->RSLT_NEW) .and. ;
                                  human_->oplata != 9 .and. human_->NOVOR == 0
       a_smert := {"Данный больной умер!",;
-                  "Лечение с "+full_date(human->N_DATA)+;
-                        " по "+full_date(human->K_DATA)}
+                  "Лечение с "+full_date(human->N_DATA)+" по "+full_date(human->K_DATA)}
       exit
     endif
     skip
@@ -3378,7 +3378,9 @@ if Loc_kod > 0
   m1okato    := human_->OKATO  // ОКАТО субъекта РФ территории страхования
   m1USL_OK   := human_->USL_OK
   m1PROFIL   := human_->PROFIL
+  m1PROFIL_K := human_2->PROFIL_K
   m1NPR_MO   := human_->NPR_MO
+  mNPR_DATE  := human_2->NPR_DATE
   M1F14_EKST := int(val(substr(human_->FORMA14,1,1)))
   M1F14_SKOR := int(val(substr(human_->FORMA14,2,1)))
   M1F14_VSKR := int(val(substr(human_->FORMA14,3,1)))
@@ -3411,6 +3413,7 @@ if Loc_kod > 0
   /*if between(M1METVMP,498,499) .and. year(mk_data)  == 2017
     mstentvmp := left(human_2->PC1,1) // кол-во стентов для методов ВМП 498,499
   endif*/
+  mTAL_NUM := human_2->TAL_NUM
   mTAL_D := human_2->TAL_D
   mTAL_P := human_2->TAL_P
   MVNR  := iif(human_2->VNR  > 0, padr(lstr(human_2->VNR ),4), space(4))
@@ -3443,6 +3446,9 @@ if Loc_kod == 0
   if empty(m1PROFIL)
     m1PROFIL := otd->PROFIL
   endif
+  if empty(m1PROFIL_K)
+    m1PROFIL_K := otd->PROFIL_K
+  endif
 endif
 R_Use(dir_server+"mo_uch",,"UCH")
 goto (m1lpu)
@@ -3467,6 +3473,7 @@ if eq_any(m1usl_ok,1,2)
   mp_per := inieditspr(A__MENUVERT, mm_p_per, m1p_per)
 endif
 mPROFIL   := inieditspr(A__MENUVERT, glob_V002, m1PROFIL)
+mPROFIL_K := inieditspr(A__MENUVERT, glob_V020, m1PROFIL_K)
 mvid_reab := inieditspr(A__MENUVERT, mm_vid_reab, m1vid_reab)
 if !empty(m1NPR_MO)
   mNPR_MO := ret_mo(m1NPR_MO)[_MO_SHORT_NAME]
@@ -3484,8 +3491,8 @@ mrslt     := inieditspr(A__MENUVERT, glob_V009, m1rslt)
 mishod    := inieditspr(A__MENUVERT, glob_V012, m1ishod)
 mvidpolis := inieditspr(A__MENUVERT, mm_vid_polis, m1vidpolis)
 mbolnich  := inieditspr(A__MENUVERT, menu_bolnich, m1bolnich)
-mpovod    := inieditspr(A__MENUVERT, stm_povod, m1povod)
-mtravma   := inieditspr(A__MENUVERT, stm_travma, m1travma)
+//mpovod    := inieditspr(A__MENUVERT, stm_povod, m1povod)
+//mtravma   := inieditspr(A__MENUVERT, stm_travma, m1travma)
 motd      := inieditspr(A__POPUPMENU, dir_server+"mo_otd", m1otd)
 mokato    := inieditspr(A__MENUVERT, glob_array_srf, m1okato)
 mkomu     := inieditspr(A__MENUVERT, mm_komu, m1komu)
@@ -3556,7 +3563,8 @@ do while .t.
                     update_get("mspolis"),update_get("mnpolis"),;
                     update_get("mvidpolis") }
   //
-  ++j; @ j,1 say "Направившая МО" get mNPR_MO ;
+  ++j; @ j,1 say "Направление: дата" get mNPR_DATE
+       @ j,col()+1 say "из МО" get mNPR_MO ;
             reader {|x|menu_reader(x,{{|k,r,c|f_get_mo(k,r,c)}},A__FUNCTION,,,.f.)} ;
             color colget_menu
   //
@@ -3667,9 +3675,12 @@ do while .t.
                reader {|x|menu_reader(x,mm_reg_lech,A__MENUVERT,,,.f.)} ;
                when eq_any(m1usl_ok,1,2)
   endif
-  ++j; @ j,3 say "профиль" get MPROFIL ;
+  ++j; @ j,3 say "профиль мед.помощи" get MPROFIL ;
              reader {|x|menu_reader(x,tmp_V002,A__MENUVERT,,,.f.)} ;
              valid f_valid2ad_cr()
+  ++j; @ j,3 say "профиль койки" get MPROFIL_K ;
+             reader {|x|menu_reader(x,tmp_V020,A__MENUVERT,,,.f.)} ; 
+             when eq_any(m1usl_ok,1,2)
   if is_reabil_slux
     ++j; @ j,3 say "вид мед.реабилитации" get mvid_reab ;
              reader {|x|menu_reader(x,mm_vid_reab,A__MENUVERT,,,.f.)} ;
@@ -3700,7 +3711,7 @@ do while .t.
           reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
           when M1F14_VSKR > 0
   endif
-  ++j
+  /*++j
   if is_talon
     if mem_st_pov == 1
       @ j,1 say "Повод обращения" get mpovod ;
@@ -3722,7 +3733,7 @@ do while .t.
         @ row(),col()+1 get mtravma color color14 when .f.
       endif
     endif
-  endif
+  endif*/
   ++j ; p_nstr_vnr := j
   p_str_vnr := "Вес ребёнка в граммах (малая масса тела/недоношенный)   "
   @ j,1 say p_str_vnr get MVNR pict "9999" when input_vnr
@@ -3753,7 +3764,8 @@ do while .t.
            when m1usl_ok==1 .or. (m1usl_ok==2 .and. is_ds_VMP) ;
            valid {|g,o| f_valid_vmp(g,o) } ;
            color colget_menu
-    ++j; @ j,1 say "Талон на ВМП: дата выдачи" get mTAL_D when m1vmp == 1
+         @ j,col()+5 say "номер талона на ВМП" get mTAL_NUM when m1vmp == 1
+    ++j; @ j,1 say "дата выдачи талона на ВМП" get mTAL_D when m1vmp == 1
          @ j,col()+1 say "дата планируемой госпитализации" get mTAL_P when m1vmp == 1
     ++j; @ j,1 say " вид ВМП" get mvidvmp ;
            reader {|x|menu_reader(x,{{|k,r,c|f_get_vidvmp(k,r,c)}},A__FUNCTION,,,.f.)} ;
@@ -3939,9 +3951,9 @@ do while .t.
     if isbit(mem_oms_pole,6)  //  "исход",;          6
       st_ISHOD := m1ishod
     endif
-    if isbit(mem_oms_pole,7)  //  "повод обращения"  7
+    /*if isbit(mem_oms_pole,7)  //  "повод обращения"  7
       st_povod := m1povod
-    endif
+    endif*/
     glob_perso := mkod
     if m1komu == 0
       msmo := lstr(m1company)
@@ -3984,15 +3996,15 @@ do while .t.
     human->CENA       := MCENA_1       // стоимость лечения
     human->CENA_1     := MCENA_1       // стоимость лечения
     human->bolnich    := m1bolnich
-    human->date_b_1   := iif(m1bolnich==0,"",dtoc4(mdate_b_1))
-    human->date_b_2   := iif(m1bolnich==0,"",dtoc4(mdate_b_2))
-    human_->RODIT_DR  := iif(m1bolnich<2,ctod(""),mrodit_dr)
-    human_->RODIT_POL := iif(m1bolnich<2,"",mrodit_pol)
+    human->date_b_1   := iif(m1bolnich == 0, "", dtoc4(mdate_b_1))
+    human->date_b_2   := iif(m1bolnich == 0, "", dtoc4(mdate_b_2))
+    human_->RODIT_DR  := iif(m1bolnich < 2, ctod(""), mrodit_dr)
+    human_->RODIT_POL := iif(m1bolnich < 2, "", mrodit_pol)
     s := "" ; aeval(adiag_talon, {|x| s += str(x,1) })
     human_->DISPANS   := s
     human_->STATUS_ST := ltrim(MSTATUS_ST)
-    human_->POVOD     := m1povod
-    human_->TRAVMA    := m1travma
+    //human_->POVOD     := m1povod
+    //human_->TRAVMA    := m1travma
     human_->VPOLIS    := m1vidpolis
     human_->SPOLIS    := ltrim(mspolis)
     human_->NPOLIS    := ltrim(mnpolis)
@@ -4031,8 +4043,11 @@ do while .t.
     human_2->OSL1   := MOSL1
     human_2->OSL2   := MOSL2
     human_2->OSL3   := MOSL3
+    human_2->NPR_DATE := mNPR_DATE
+    human_2->PROFIL_K := m1PROFIL_K
     human_2->p_per  := iif(eq_any(m1USL_OK,1,2), m1p_per, 0)
     human_2->VMP    := M1VMP
+    human_2->TAL_NUM  := mTAL_NUM
     human_2->TAL_D  := mTAL_D
     human_2->TAL_P  := mTAL_P
     human_2->VIDVMP := M1VIDVMP

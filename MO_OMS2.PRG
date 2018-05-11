@@ -1512,8 +1512,8 @@ do while .t.
     s := "" ; aeval(adiag_talon, {|x| s += str(x,1) })
     human_->DISPANS   := s
     human_->STATUS_ST := ""
-    human_->POVOD     := m1povod
-    human_->TRAVMA    := m1travma
+    human_->POVOD     := iif(metap == 3, 5, 6)
+    //human_->TRAVMA    := m1travma
     human_->VPOLIS    := m1vidpolis
     human_->SPOLIS    := ltrim(mspolis)
     human_->NPOLIS    := ltrim(mnpolis)
@@ -2412,9 +2412,7 @@ if regim == "edit" .and. nkey == K_INS
 endif
 return 0
 
-*
-
-***** 25.01.18 гемодиализ (1) и перитонеальный диализ (2)
+***** 10.05.18 гемодиализ (1) и перитонеальный диализ (2)
 Function oms_sluch_dializ(par,Loc_kod,kod_kartotek)
 // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
 // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -2473,15 +2471,15 @@ Private mkod := Loc_kod, mtip_h, is_talon := .f.,;
   M1VRACH := st_vrach, MTAB_NOM := 0, m1prvs := 0,; // код, таб.№ и спец-ть лечащего врача
   m1novor := 0, mnovor, mcount_reb := 0, ldnej := 0,;
   mDATE_R2 := ctod(""), mpol2 := " ",;
-  m1USL_OK, m1PROFIL := 56 // НЕФРОЛОГИЯ
+  m1USL_OK, m1PROFIL := 56, m1PROFIL_K := 41 // НЕФРОЛОГИЯ
 //
 Private mm_rslt := {}, mm_ishod := {}
 if par == 1 // гемодиализ (1)
-  m1USL_OK :=  2
+  m1USL_OK := 2
   aeval(glob_V009,{|x| iif(x[5]==m1usl_ok, aadd(mm_rslt,x), nil) })
   m1rslt := 201 ; m1ishod := 203
 else // перитонеальный диализ (2)
-  m1USL_OK :=  3
+  m1USL_OK := 3
   aeval(glob_V009,{|x| iif(x[5]==m1usl_ok.and.x[2]<316, aadd(mm_rslt,x), nil) })
   m1rslt := 314 ; m1ishod := 304
 endif  
@@ -2832,6 +2830,8 @@ do while .t.
     human->K_DATA     := MK_DATA // дата окончания лечения
     human->CENA := human->CENA_1 := 0 // стоимость лечения
     human_->DISPANS   := replicate("0",16)
+    human_->POVOD     := 1
+    //human_->TRAVMA    := m1travma
     human_->VPOLIS    := m1vidpolis
     human_->SPOLIS    := ltrim(mspolis)
     human_->NPOLIS    := ltrim(mnpolis)
@@ -2861,6 +2861,7 @@ do while .t.
     human->kod_p   := kod_polzovat    // код оператора
     human->date_e  := c4sys_date
     put_0_human_2()
+    human_2->PROFIL_K := m1PROFIL_K // 41
     fl_nameismo := .f.
     if m1komu == 0 .and. m1company == 34
       human_->OKATO := m1okato // ОКАТО субъекта РФ территории страхования

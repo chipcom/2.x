@@ -7,7 +7,7 @@
 Static lcount_uch := 1
 Static lcount_otd := 1
 
-***** 14.02.17 прочитать и "разнести" по базам данных РАК
+***** 08.05.18 прочитать и "разнести" по базам данных РАК
 Function read_XML_FILE_RAK(arr_XML_info,aerr)
 Local fl_akt, fl_schet, blk_akt, blk_schet, i, k, s, s1, arr_s := {}, t_arr[2],;
       ia, is, ih, arr, aakt := {}, no_write := .t.
@@ -181,11 +181,11 @@ do while !eof()
       s += ", в т.ч. снятий - "+lstr(tmp2->KOL_ERR)
     endif
     strfile(s+hb_eol(),cFileProtokol,.t.)
-    s := ""
-    if between(tmp2->_KONT,1,3)
-      s += "вид контроля: "+inieditspr(A__MENUVERT,mm_vid_kont,tmp2->_KONT)+", "
+    if ascan(glob_F006,{|x| x[2] == tmp2->_KONT }) > 0
+      s := "Вид контроля: "+inieditspr(A__MENUVERT,glob_F006,tmp2->_KONT)
+      strfile(s+hb_eol(),cFileProtokol,.t.)
     endif
-    s += iif(tmp2->_TYPEK==1, "первичный", "повторный")+" контроль"
+    s := "Проведенный Контроль: "+iif(tmp2->_TYPEK==1, "первичный", "повторный")
     if between(tmp2->_SKONT,1,2)
       s += ", вид экспертизы: "+iif(tmp2->_skont==1,"плановая","целевая")
     endif
@@ -304,14 +304,15 @@ do while !eof()
                     space(5)+s+hb_eol()+;
                     space(5)+"OPLATA = "+lstr(tmp4->_OPLATA)+s1+hb_eol(),cFileProtokol,.t.)
             if emptyall(tmp4->_SANK_MEK,tmp4->_SANK_MEE,tmp4->_SANK_EKMP)
-              s := iif(tmp2->_TYPEK==1, "первичный", "повторный")+" контроль "
-              if between(tmp2->_KONT,1,3)
-                s += inieditspr(A__MENUVERT,mm_vid_kont,tmp2->_KONT)+" "
+              if ascan(glob_F006,{|x| x[2] == tmp2->_KONT }) > 0
+                s := "Вид контроля: "+inieditspr(A__MENUVERT,glob_F006,tmp2->_KONT)
+                strfile(space(5)+s+hb_eol(),cFileProtokol,.t.)
               endif
+              s := "Проведенный Контроль: "+iif(tmp2->_TYPEK==1, "первичный", "повторный")
               if between(tmp2->_SKONT,1,2)
-                s += "("+iif(tmp2->_skont==1,"плановая","целевая")+" экспертиза)"
+                s += ", вид экспертизы: "+iif(tmp2->_skont==1,"плановая","целевая")
               endif
-              s += "подтвердил предыдущее снятие"
+              s += " (подтвердил предыдущее снятие)"
               strfile(space(5)+s+hb_eol(),cFileProtokol,.t.)
             elseif empty(s := ret_t005(tmp4->_REFREASON))
               strfile(space(5)+lstr(tmp4->_REFREASON)+" неизвестная причина отказа"+;
@@ -371,9 +372,7 @@ mo_xml->TWORK2 := hour_min(seconds())
 close databases
 return NIL
 
-*
-
-***** 10.02.17 зачитать Реестр Актов Контроля во временные файлы
+***** 08.05.18 зачитать Реестр Актов Контроля во временные файлы
 Function reestr_rak_tmpfile(oXmlDoc,aerr,mname_xml)
 Static s_big := 10000000000
 Local j, j1, oXmlNode, oNode1, oNode2, buf := save_maxrow()
@@ -400,7 +399,7 @@ dbcreate(cur_dir+"tmp2file", {;  // много актов
  {"KOL_SCH",    "N",  6,0},; // кол-во счетов в акте
  {"KOL_PAC",    "N",  6,0},; // кол-во пациентов в акте
  {"KOL_ERR",    "N",  6,0},; // кол-во пациентов с ошибкой
- {"_KONT",      "N",  1,0},; // 1-МЭК, 2-МЭЭ, 3-ЭКМП
+ {"_KONT",      "N",  2,0},; // 1-МЭК, 2-МЭЭ, 3-ЭКМП и т.д.
  {"_TYPEK",     "N",  1,0},; // 1-первичный контроль, 2-повторный
  {"_SKONT",     "N",  1,0};  // вид экспертизы: 0-МЭК, 1-плановая, 2-целевая
 })
@@ -519,8 +518,6 @@ commit
 rest_box(buf)
 return NIL
 
-*
-
 ***** 16.01.16
 Function akt_kontrol(k)
 Static si1 := 1
@@ -548,8 +545,6 @@ if k > 10
   endif
 endif
 return NIL
-
-*
 
 ***** 11.02.13
 Function view_rak()
@@ -619,8 +614,6 @@ do case
 endcase
 restscreen(buf)
 return ret
-
-*
 
 ***** 24.04.13
 Function delete_rak(lrec,lname,not_end)
@@ -752,8 +745,6 @@ if fl .and. f_Esc_Enter("удаления РАК",.t.)
 endif
 return ret
 
-*
-
 ***** 14.02.17
 Function view_rak_akt(lrec)
 Local blk, blk_akt, blk_typek, blk_skont, t_arr[BR_LEN]
@@ -801,8 +792,6 @@ if regim == "edit" .and. nk == K_ENTER
 endif
 return ret
 
-*
-
 ***** 14.02.17
 Function view_rak_akt_schet(lakt)
 Local blk, blk_eks, t_arr[BR_LEN]
@@ -818,8 +807,8 @@ t_arr[BR_TOP] := T_ROW
 t_arr[BR_BOTTOM] := maxrow()-2
 t_arr[BR_LEFT] := 2
 t_arr[BR_RIGHT] := maxcol()-2
-t_arr[BR_TITUL] := "Акт контроля "+alltrim(rak->nakt)+" от "+date_8(rak->dakt)+;
-                   iif(between(rak->kont,1,3)," ["+inieditspr(A__MENUVERT,mm_vid_kont,rak->KONT)+"]","")
+t_arr[BR_TITUL] := "Акт № "+alltrim(rak->nakt)+" от "+date_8(rak->dakt)+;
+                   iif(ascan(glob_F006,{|x| x[2] == rak->kont }) > 0," ["+inieditspr(A__MENUVERT,glob_F006,rak->KONT)+"]","")
 t_arr[BR_TITUL_COLOR] := "B/GR*"
 t_arr[BR_COLOR] := color0
 t_arr[BR_ARR_BROWSE] := {'═','░','═',"N/BG,W+/N,B/BG,W+/B",.t.}
@@ -855,8 +844,6 @@ if regim == "edit" .and. nk == K_ENTER
   ret := 0
 endif
 return ret
-
-*
 
 ***** 14.02.17
 Function view_rak_akt_schet_human(lkod_raks)
@@ -944,7 +931,7 @@ elseif nk == K_ENTER .and. year(human->k_data) > 2012
        " ("+lstr(human->cena_1)+"р.)"
   s1 := "код дефекта: "+lstr(raksh->REFREASON)
   if emptyall(human->cena_1,raksh->SANK_MEK,raksh->SANK_MEE,raksh->SANK_EKMP) // скорая помощь
-    s1 += ", санкции "+inieditspr(A__MENUVERT,mm_vid_kont,rak->KONT)+": 0р. (СМП)"
+    s1 += ", санкции "+inieditspr(A__MENUVERT,glob_F006,rak->KONT)+": 0р. (СМП)"
   elseif !empty(raksh->SANK_MEK)
     s1 += ", санкции МЭК: "+lstr(raksh->SANK_MEK,15,2)+"р."
   elseif !empty(raksh->SANK_MEE)
@@ -973,10 +960,9 @@ elseif nk == K_ENTER .and. year(human->k_data) > 2012
 endif
 return ret
 
-***** 16.01.16
+***** 08.05.18
 Function f2_view_rak_akt_schet_human()
-Local arr[4], i, n, s, lcolor := "N", tmp_select := select()
-afill(arr,"")
+Local arr := {}, i, n, s, lcolor := "N", tmp_select := select()
 n := 76-chuman
 if select("RAKS") == 0
   R_Use(dir_server+"mo_raks",,"RAKS")
@@ -987,17 +973,12 @@ endif
 raks->(dbGoto(raksh->kod_raks))
 rak->(dbGoto(raks->akt))
 i := 0
-if between(rak->kont,1,3)
-  arr[++i] := "вид контроля: "+inieditspr(A__MENUVERT,mm_vid_kont,rak->KONT)
-  if between(rak->SKONT,1,2)
-    arr[i] += "["+{"плановая","целевая"}[rak->SKONT]+"]"
-  endif
+if ascan(glob_F006,{|x| x[2] == rak->kont }) > 0
+  aadd(arr,"Вид контроля: "+inieditspr(A__MENUVERT,glob_F006,rak->KONT))
 endif
-arr[++i] := iif(rak->TYPEK==1, "первичный", "повторный")+" контроль"
-if !between(rak->kont,1,3)
-  arr[++i] := "вид экспертизы: "+iif(rak->skont==1,"плановая",iif(rak->skont==2,"целевая","МЭК"))
-endif
-++i
+aadd(arr, "Контроль: "+iif(rak->TYPEK==1, "первичный", "повторный")+;
+          ", вид: "+iif(rak->skont==1,"плановая",iif(rak->skont==2,"целевая","МЭК")))
+aadd(arr,"") ; i := len(arr)
 if raksh->OPLATA == 1
   arr[i] := "полностью оплачен"
 elseif raksh->OPLATA == 2
@@ -1019,24 +1000,30 @@ if raksh->OPLATA == 2
   if empty(s) .and. human->cena_1 > 0
     if rak->kont == 1 .or. rak->skont == 0 
       lcolor := "R"
-      arr[++i] := "ошибка СМО - нет суммы санкций!"
+      aadd(arr,"ошибка СМО - нет суммы санкций!")
     endif
     if rak->kont > 1 .or. rak->skont > 0
       lcolor := "RB"
-      arr[++i] := "снято предыдущей санкцией"
+      aadd(arr,"снято предыдущей санкцией")
     endif
-  elseif round(human->cena_1,2)==round(s+raksh->sump,2)
-    arr[++i] := "снято "+lstr(s,11,2)+"р."
+  elseif round(human->cena_1,2) == round(s+raksh->sump,2)
+    aadd(arr,"снято "+lstr(s,11,2)+"р.")
+    lcolor := "B"
+  endif
+elseif raksh->OPLATA == 3
+  if round(human->cena_1,2) == round(s+raksh->sump,2)
+    aadd(arr,"снято "+lstr(s,11,2)+"р.")
     lcolor := "B"
   endif
 endif
+do while len(arr) < 4
+  aadd(arr,"")
+enddo
 for i := 1 to 4
   @ rhuman-1+i,chuman+1 say padc(arr[i],n) color lcolor+"/GR*"
 next
 select (tmp_select)
 return NIL
-
-*
 
 ***** 12.02.13
 Function rak_akt_schet_human_add_next(s,s1,lrec)
@@ -1190,8 +1177,6 @@ endif
 rest_box(buf)
 return NIL
 
-*
-
 ***** 12.02.13
 Function rak_akt_schet_human_del_next(s,s1,lrec)
 Local i, arr1, arr2, mkod, buf := save_maxrow()
@@ -1277,8 +1262,6 @@ if f_alert(arr1,arr2,1,"N+/GR*","N/GR*",15,,"N/GR*") == 2
 endif
 rest_box(buf)
 return NIL
-
-*
 
 ***** 10.12.13
 Function ret_menu_rak_schet(r,c)
@@ -1729,8 +1712,6 @@ rest_box(buf)
 viewtext(n_file,,,,.f.,,,2)
 return NIL
 
-*
-
 ***** 29.11.15 суммы снятий по актам
 Function akt_summa_of_refusal()
 Local buf := save_maxrow(), arr_m, n_file := "sum_RAK"+stxt, sh, HH := 40,;
@@ -1883,8 +1864,6 @@ Private yes_albom := .t.
 viewtext(n_file,,,,.t.,,,1)
 return NIL
 
-*
-
 ***** 14.12.15 список снятий по актам (дефекты)
 Function akt_list_of_refusal_defect()
 Static arr_smo
@@ -1974,8 +1953,6 @@ do while .t.
 enddo
 restscreen(buf)
 return NIL
-
-*
 
 ***** 17.12.15 функция для списка снятий по актам (дефекты)
 Function f1akt_list_of_refusal_defect(asmo,ssmo)

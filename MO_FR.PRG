@@ -1064,16 +1064,7 @@ endif
 if meK_otrez == 1
   if cs > 0
     if mek_nkassa == 2
-      if cs > 50
-        timeout := 205
-      elseif cs > 30
-        timeout := 105
-      elseif cs > 10
-        timeout := 80
-      elseif cs > 2
         timeout := 55
-      endif
-      timeout += 105
     endif
     waitperiod(timeout)
     do while waitperiod()
@@ -2274,8 +2265,10 @@ local t, t1 := space(3), t2, t3 := 0
 DEFAULT tip_tovar to 4, tip_rachet to 4
 
 
-
-name := alltrim(padr(name,128)) //48
+if len(name) > 127
+  name := substr(name,1,128)
+endif
+//name := alltrim(padr(name,128)) //48
 drvFR:Password := oper_parol
 drvFR:CheckType := Tip_operation // 1 - продажа
 drvFR:Quantity := kol_vo
