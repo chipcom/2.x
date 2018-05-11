@@ -1195,7 +1195,9 @@ do while hu->kod == human->kod .and. !eof()
         elseif ldate_next < d2
           aadd(ta,'для услуги '+alltrim_lshifr+' "дата следующей явки пациента для диспансерного наблюдения" меньше даты окончания лечения')
         endif
-        mpovod := 4 // 1.3
+        if left_lshifr_5 == "2.88." 
+          mpovod := 4 // 1.3
+        endif
       endif
       kvp += hu->kol_1
       hu_->PZTIP := mPZTIP
@@ -1252,7 +1254,7 @@ do while hu->kod == human->kod .and. !eof()
   select HU
   skip
 enddo
-if is_dom .and. eq_any(mpovod,1,2)
+if is_dom .and. mpovod == 1
   mpovod := 3 // 1.2 - активное посещение, т.е. на дому
 endif
 //

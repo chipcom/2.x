@@ -2669,7 +2669,7 @@ if chip_create_zipXML(name_zip,arr_zip,.t.)
 endif
 return NIL
 
-***** 10.05.18 создать счета по результатам прочитанного реестра СП
+***** 11.05.18 создать счета по результатам прочитанного реестра СП
 Function create_schet17_from_XML(arr_XML_info,aerr,fl_msg,arr_s,name_sp_tk)
 Local arr_schet := {}, c, len_stand, _arr_stand, lshifr, i, j, k, lbukva,;
       doplataF, doplataR, mnn, fl, name_zip, arr_zip := {}, lshifr1,;
@@ -3076,7 +3076,7 @@ for ii := 1 to len(arr_schet)
           mo_add_xml_stroke(oSLUCH,"NPR_MO",t1->NPR_MO)
         endif
         if !empty(t1->NPR_DATE)
-          mo_add_xml_stroke(oPAC,"NPR_DATE",t1->NPR_DATE)
+          mo_add_xml_stroke(oSLUCH,"NPR_DATE",t1->NPR_DATE)
         endif
         if !empty(t1->EXTR)
           mo_add_xml_stroke(oSLUCH,"EXTR",t1->EXTR)
