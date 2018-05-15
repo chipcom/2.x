@@ -4847,7 +4847,7 @@ Private mkod := Loc_kod, mtip_h, is_talon := .f.,;
   MKOD_DIAG   := "Z01.7"           ,; // шифр 1-ой осн.болезни
   m1rslt  := 314                   ,; // результат лечения
   m1ishod := 304                   ,; // исход = без перемен
-  m1NPR_MO := "", mNPR_MO := space(10),;
+  m1NPR_MO := "", mNPR_MO := space(10), mNPR_DATE := ctod(""),;
   MN_DATA := st_N_DATA         ,; // дата начала лечения
   MK_DATA,;
   MVRACH := space(10)         ,; // фамилия и инициалы лечащего врача
@@ -4855,9 +4855,10 @@ Private mkod := Loc_kod, mtip_h, is_talon := .f.,;
   m1povod  := 1,;   // Лечебно-диагностический
   m1travma := 0
 //
+R_Use(dir_server+"human_2",,"HUMAN_2")
 R_Use(dir_server+"human_",,"HUMAN_")
 R_Use(dir_server+"human",,"HUMAN")
-set relation to recno() into HUMAN_
+set relation to recno() into HUMAN_, to recno() into HUMAN_2
 if mkod_k > 0
   R_Use(dir_server+"kartote2",,"KART2")
   goto (mkod_k)
@@ -4924,6 +4925,7 @@ if Loc_kod > 0
   M1RAB_NERAB := human->RAB_NERAB     // 0-работающий, 1-неработающий
   mUCH_DOC    := human->uch_doc
   m1NPR_MO    := human_->NPR_MO
+  mNPR_DATE   := human_2->NPR_DATE
   m1VRACH     := human_->vrach
   MKOD_DIAG   := human->KOD_DIAG
   MPOLIS      := human->POLIS         // серия и номер страхового полиса
@@ -5026,7 +5028,8 @@ do while .t.
                     update_get("mvidpolis") }
        @ row(),col()+5 say "Д.р." get mdate_r when .f. color color14
   //
-  ++j; @ j,1 say "Направившая МО" get mNPR_MO ;
+  ++j; @ j,1 say "Направление: дата" get mNPR_DATE
+       @ j,col()+1 say "из МО" get mNPR_MO ;
             reader {|x|menu_reader(x,{{|k,r,c|f_get_mo(k,r,c)}},A__FUNCTION,,,.f.)} ;
             color colget_menu
   ++j; @ j,1 say "Принадлежность счёта" get mkomu ;
@@ -5249,6 +5252,7 @@ do while .t.
       human_->date_e2 := c4sys_date
     endif
     put_0_human_2()
+    human_2->NPR_DATE := mNPR_DATE
     Private fl_nameismo := .f.
     if m1komu == 0 .and. m1company == 34
       human_->OKATO := m1okato // ОКАТО субъекта РФ территории страхования
