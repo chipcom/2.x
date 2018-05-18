@@ -1482,7 +1482,7 @@ do case
 endcase
 return ret
 
-***** 12.03.14
+***** 16.05.18
 Function input_Fusluga()
 Local ar, musl, arr_usl, buf, fl, s
 ar := GetIniSect(tmp_ini,"Fuslugi")
@@ -1509,7 +1509,7 @@ if (musl := input_value(18,6,20,73,color1,;
   endif
   if fl
     s := iif(empty(usl->shifr), "", "("+alltrim(usl->shifr)+") ")
-    use_base("luslf")
+    R_Use(exe_dir+"_mo8uslf",cur_dir+"_mo8uslf","luslf")
     find (usl->shifr1)
     arr_usl := {usl->kod,alltrim(usl->shifr1)+". "+s+alltrim(luslf->name),usl->shifr1}
     luslf->(dbCloseArea())

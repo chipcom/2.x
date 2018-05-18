@@ -1006,6 +1006,8 @@ do while hu->kod == human->kod .and. !eof()
         // ошибка
       endif
       hu_->PZTIP := 2
+    elseif alltrim_lshifr == "56.1.723" .and. human->ishod == 202 // второй этап ДВН - одна услуга
+      is_disp_DVN := .t.
     elseif left_lshifr_5 == "60.2." .or. eq_any(alltrim_lshifr,"4.20.702","4.15.746") // ЛДП
       mpovod := 1 // 1.0
       mIDSP := 4 // лечебно-диагностическая процедура

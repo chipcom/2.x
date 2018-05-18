@@ -244,12 +244,12 @@ if mkod_k > 0
   set index to (dir_server+"humankk")
   find (str(mkod_k,7))
   do while human->kod_k == mkod_k .and. !eof()
-    if human_->oplata != 9 .and. human_->NOVOR == 0
-      if recno() != Loc_kod .and. is_death(human_->RSLT_NEW) .and. empty(a_smert)
+    if human_->oplata != 9 .and. human_->NOVOR == 0 .and. recno() != Loc_kod
+      if is_death(human_->RSLT_NEW) .and. empty(a_smert)
         a_smert := {"Данный больной умер!",;
                     "Лечение с "+full_date(human->N_DATA)+" по "+full_date(human->K_DATA)}
       endif
-      if Loc_kod == 0 .and. between(human->ishod,201,205)
+      if between(human->ishod,201,205)
         aadd(ah,{human->(recno()),human->K_DATA})
       endif
     endif
@@ -1173,9 +1173,11 @@ do while .t.
         elseif lrslt_1_etap == 353 // Направлен на 2 этап, предварительно присвоена II группа здоровья
           if m1gruppa != 2
             fl := func_error(4,'Результатом 2-го этапа должна быть II группа здоровья (как и на 1-ом этапе)')
+            num_screen := 3
           endif
         else // другой результат
           fl := func_error(4,'Результатом 1-го этапа должна быть II группа (и направлен на 2-ой этап)')
+          num_screen := 3
         endif
       else
         fl := func_error(4,'Не введён приём терапевта (врача общей практики)')
