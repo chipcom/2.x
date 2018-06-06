@@ -2583,7 +2583,8 @@ if is_dializ
   if !eq_any(ret_old_prvs(human_->PRVS),112207,113412) // НЕФРОЛОГИЯ
     aadd(ta,'для '+s+' специальность врача должна быть НЕФРОЛОГИЯ')
   endif
-  human_->NPR_MO := "" // безусловно очищаем направившую МО
+  human_->NPR_MO := glob_mo[_MO_KOD_TFOMS] // безусловно проставляем направившую МО
+  human_2->NPR_DATE := d1
   mpztip := 56 // 56,"случай диализа","случ.диал."},; 
   mpzkol := kkt
   /*if human_->RSLT_NEW != 201
@@ -2593,7 +2594,11 @@ if is_dializ
     if a_dializ[i,5] == 2
       aadd(ta,'в данном отчётном месяце уже был гемодиализ '+date_8(a_dializ[i,1])+"-"+date_8(a_dializ[i,2]))
     elseif a_dializ[i,5] == 3 .and. overlap_diapazon(a_dializ[i,1],a_dializ[i,2],d1,d2)
-      aadd(ta,'пересечение гемодиализа с перитонеальным диализом '+date_8(a_dializ[i,1])+"-"+date_8(a_dializ[i,2]))
+      if left(upper(human->fio),4) == "БОРЩ"
+        // этого человека не проверяем 
+      else
+        aadd(ta,'пересечение гемодиализа с перитонеальным диализом '+date_8(a_dializ[i,1])+"-"+date_8(a_dializ[i,2]))
+      endif
     endif
   next
 endif
@@ -2608,7 +2613,8 @@ if is_perito
   if !eq_any(ret_old_prvs(human_->PRVS),112207,113412) // НЕФРОЛОГИЯ
     aadd(ta,s+'специальность врача должна быть НЕФРОЛОГИЯ')
   endif
-  human_->NPR_MO := "" // безусловно очищаем направившую МО
+  human_->NPR_MO := glob_mo[_MO_KOD_TFOMS] // безусловно проставляем направившую МО
+  human_2->NPR_DATE := d1
   mpztip := 56 // 56,"случай диализа","случ.диал."},; 
   mpzkol := kkt
   /*if !eq_any(human_->RSLT_NEW,201,202,203,205)
@@ -2621,7 +2627,11 @@ if is_perito
     if a_dializ[i,5] == 3
       aadd(ta,'в данном отчётном месяце уже был перитонеальный диализ '+date_8(a_dializ[i,1])+"-"+date_8(a_dializ[i,2]))
     elseif a_dializ[i,5] == 2 .and. overlap_diapazon(a_dializ[i,1],a_dializ[i,2],d1,d2)
-      aadd(ta,'пересечение перитонеального диализа с гемодиализом '+date_8(a_dializ[i,1])+"-"+date_8(a_dializ[i,2]))
+      if left(upper(human->fio),4) == "БОРЩ"
+        // этого человека не проверяем 
+      else
+        aadd(ta,'пересечение перитонеального диализа с гемодиализом '+date_8(a_dializ[i,1])+"-"+date_8(a_dializ[i,2]))
+      endif
     endif
   next
 endif

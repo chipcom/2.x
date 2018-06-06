@@ -948,7 +948,7 @@ elseif eq_any(left(s,3),"R02","R06") // ответный файл на отосланный файл R01 (R0
       R_Use(dir_server+"mo_dr05",,"REES")
       R_Use(dir_server+"mo_xml",,"MO_XML")
       index on upper(fname) to (cur_dir+"tmpmoxml")
-      find (padr("R05T34M"+glob_MO[_MO_KOD_TFOMS]+"_"+s,26)) // сконструировали имя файла R01
+      find (padr("R05T34M"+glob_MO[_MO_KOD_TFOMS]+"_"+s,26)) // сконструировали имя файла R05
       if found() .and. (nReestr := mo_xml->REESTR) > 0
         select REES
         goto (nReestr)

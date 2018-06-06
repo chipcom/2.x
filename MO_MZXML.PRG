@@ -4,11 +4,11 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 26.04.18 создать XML-файл по несовершеннолетним
+***** 06.06.18 создать XML-файл по несовершеннолетним
 Function mo_mzxml_N(_regim,n_file,stitle,lvozrast)
 Static oXmlDoc, _kol, ;
        arr_np := {0,1,2,3,4,5,6,7,8,9,10,11,12,15,18,24,36,48,60,72,84,96,108,120,132,144,156,168,180,192,204}
-Local i, k, s, y, m, fl, arr, arr1, buf, blk_sex
+Local i, k, s, y, m, fl, arr, arr1, buf, blk_sex, arr_before
 Private p_xml_code_page := "UTF-8"
 if _regim == 1
   oXmlDoc := HXMLDoc():New(p_xml_code_page)
@@ -214,7 +214,7 @@ elseif _regim == 2
        endif
        mo_add_xml_stroke(oCard,"fizkultGroupBefore",lstr(m1GR_FIZ_DO))
      endif
-     kol_DiagnosisBefore := 0
+     kol_DiagnosisBefore := 0 ; arr_before := {}
      if type("m1diag_15_1") == "N" .and. m1diag_15_1 == 0
        for i := 1 to 5
          fl := .f.
@@ -311,6 +311,7 @@ elseif _regim == 2
              oDiagnosisBefore := oCard:Add( HXMLNode():New( "diagnosisBefore" ) )
            endif
            ++kol_DiagnosisBefore
+           aadd(arr_before, {alltrim(arr[1]),arr[2]})
            oDiagnosis := oDiagnosisBefore:Add( HXMLNode():New( "diagnosis" ) )
             mo_add_xml_stroke(oDiagnosis,"mkb",arr[1])
             mo_add_xml_stroke(oDiagnosis,"dispNablud",lstr(arr[2]))
@@ -449,12 +450,27 @@ elseif _regim == 2
                  arr[11] := iif(&m1var==1,1,0)
              endcase
            endif
-         next
+         next k
          if len(arr) > 0
            if kol_DiagnosisAfter == 0
              oDiagnosisAfter := oCard:Add( HXMLNode():New( "diagnosisAfter" ) )
            endif
            ++kol_DiagnosisAfter
+           if (k := ascan(arr_before, {|x| x[1] == alltrim(arr[1]) })) > 0 // был такой диагноз до осмотра
+//my_debug(,print_array(arr_before[k]))           
+//my_debug(,print_array(arr))           
+             arr[2] := 0 // выявлен впервые - безусловно поставить "нет"
+             if arr_before[k,2] == 1 // Диспансерное наблюдение 1 - было установлено ранее
+               arr[3] := 1 // сейчас безусловно установлено ранее
+             elseif arr_before[k,2] == 2 // 2 - было установлено впервые
+               arr[3] := 1 // сейчас безусловно установлено ранее
+             else // 0 - не было установлено
+               if arr[3] == 1 // сейчас стоит установлено ранее
+                 arr[3] := 2 // меняем на установлено впервые
+               endif
+             endif
+//my_debug(,print_array(arr))           
+           endif
            oDiagnosis := oDiagnosisAfter:Add( HXMLNode():New( "diagnosis" ) )
             mo_add_xml_stroke(oDiagnosis,"mkb",arr[1])
             mo_add_xml_stroke(oDiagnosis,"firstTime",lstr(arr[2]))
