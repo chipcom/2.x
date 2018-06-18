@@ -1279,7 +1279,7 @@ if popup_2array(arr,r,c,si,1,@ret_arr) > 0 .and. valtype(ret_arr) == "A"
 endif
 return ret
 
-***** 22.11.15 список снятий по актам
+***** 18.06.18 список снятий по актам
 Function akt_list_of_refusal_pacient()
 Static si := 3
 Static mas_pmt := {"случаи полного снятия",;
@@ -1354,7 +1354,7 @@ adbf := {{"nrak","C",50,0},;
          {"dregschet","C",10,0},;
          {"fio","C",60,0},;
          {"date_r","C",10,0},;
-         {"otd","C",5,0},;
+         {"otd","C",42,0},;
          {"n_data","C",10,0},;
          {"k_data","C",10,0},;
          {"cena_1","N",11,2},;
@@ -1386,6 +1386,7 @@ add_string(center("[ "+lmenu[2]+" ]",sh))
 add_string(center(lsmo[2],sh))
 add_string("")
 R_Use(dir_server+"schet_",,"SCHET_")
+R_Use(dir_server+"mo_pers",,"PERS")
 R_Use(dir_server+"mo_otd",,"OTD")
 R_Use(dir_server+"human_",,"HUMAN_")
 R_Use(dir_server+"human",,"HUMAN")
@@ -1496,7 +1497,8 @@ do while !eof()
                 endif
                 frd->fio    := human->fio
                 frd->date_r := full_date(human->date_r)
-                frd->otd    := otd->SHORT_NAME
+                pers->(dbGoto(human_->vrach))
+                frd->otd    := alltrim(otd->SHORT_NAME)+" / "+fam_i_o(pers->fio)
                 frd->n_data := left(date_8(human->n_data),5)
                 frd->k_data := date_8(human->k_data)
                 frd->cena_1 := human->cena_1

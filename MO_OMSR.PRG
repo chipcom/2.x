@@ -3692,11 +3692,7 @@ do while !eof()
       // не проверять вернувшихся из ТФОМС с ошибкой
     else
       if arr_m[1] > 2017
-        if arr_m[1] == 2018 .and. arr_m[2] == 6 .and. human_->USL_OK == 3
-          fl := .f.
-        else 
-          fl := verify_1_sluch(fl_view)
-        endif
+        fl := verify_1_sluch(fl_view)
       else
         fl := verify_1_sluch_17(fl_view)
       endif

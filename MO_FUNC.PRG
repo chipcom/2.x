@@ -2432,7 +2432,7 @@ if fl
 endif
 return fl
 
-***** 10.04.18 определение КСГ по остальным введённым полям ввода - 2018 год
+***** 13.06.18 определение КСГ по остальным введённым полям ввода - 2018 год
 Function definition_KSG(par)
 // файлы "human", "human_" и "human_2" открыты и стоят на нужной записи
 //       "human" открыт для записи суммы случая
@@ -2714,7 +2714,8 @@ if select("K006") == 0
     {"SY",         "C",     20,      0},;
     {"AGE",        "C",      1,      0},;
     {"SEX",        "C",      1,      0},;
-    {"LOS",        "C",      1,      0},;*/
+    {"LOS",        "C",      1,      0},;
+    {"AD_CR",      "C",     10,      0},;*/
   //index on substr(shifr,1,1)+ds+sy to (sbase)      // по диагнозу/операции
   //index on substr(shifr,1,1)+sy+ds to (sbase+"_")  // по операции/диагнозу
 endif
@@ -2766,12 +2767,18 @@ do while left(k006->shifr,1)==lusl .and. k006->ds==padr(osn_diag,6) .and. !eof()
     fl := (k006->los $ llos)
     if fl ; j ++ ; endif
   endif
-  if fl .and. !empty(k006->ad_cr)
-    if empty(lad_cr)
-      fl := .f.
-    else
-      fl := (lad_cr $ k006->ad_cr)
-      if fl ; j ++ ; endif
+  if fl 
+    if empty(lad_cr) // в случае нет доп.критерия
+      if !empty(k006->ad_cr) // а в справочнике есть доп.критерий
+        fl := .f.
+      endif
+    else // в случае есть доп.критерий
+      if empty(k006->ad_cr) // а в справочнике нет доп.критерия
+        fl := .f.
+      else                  // а в справочнике есть доп.критерий
+        fl := (lad_cr == alltrim(k006->ad_cr))
+        if fl ; j ++ ; endif
+      endif
     endif
   endif
   if fl .and. !empty(sds1)
@@ -2882,12 +2889,18 @@ for im := 1 to len(amohu)
         fl := (k006->los $ llos)
         if fl ; j ++ ; endif
       endif
-      if fl .and. !empty(k006->ad_cr)
-        if empty(lad_cr)
-          fl := .f.
-        else
-          fl := (lad_cr $ k006->ad_cr)
-          if fl ; j ++ ; endif
+      if fl 
+        if empty(lad_cr) // в случае нет доп.критерия
+          if !empty(k006->ad_cr) // в справочнике есть доп.критерий
+            fl := .f.
+          endif
+        else // в случае есть доп.критерий
+          if empty(k006->ad_cr) // в справочнике нет доп.критерия
+            fl := .f.
+          else                  // в справочнике есть доп.критерий
+            fl := (lad_cr == alltrim(k006->ad_cr))
+            if fl ; j ++ ; endif
+          endif
         endif
       endif
       if fl .and. !empty(sds1)

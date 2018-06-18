@@ -2216,9 +2216,7 @@ if k > 10
 endif
 return NIL
 
-*
-
-***** 05.12.13
+***** 15.06.18
 Function proch_proverka()
 Static sd, sl := 2
 Static mm_schet := {{"по счетам         ",1},;
@@ -2262,7 +2260,7 @@ do while .t.
                  {{|k,r,c| k:=year_month(r+1,c),;
                     if(k==nil,nil,(pdate_schet:=aclone(k),k:={k[1],k[4]})),;
                       k }},A__FUNCTION,,,.f.)} ;
-  when m1schet==1
+        when m1schet == 1
   ++j
   @ j,4 say "Метод поиска" get mlogic ;
         reader {|x|menu_reader(x,mm_logical,A__MENUVERT,,,.f.)}
@@ -2297,8 +2295,9 @@ do while .t.
     elseif pdate_schet[1] < 2016
       func_error(4,"Проверяется только после 2016 года!")
       loop
-    endif 
-  elseif f_Esc_Enter("начала проверки")
+    endif
+  endif 
+  if f_Esc_Enter("начала проверки")
     sd := mdate_schet ; sl := m1logic
     mywait()
     dbcreate(cur_dir+"tmp",{{"schet","N",6,0},;
@@ -2478,9 +2477,7 @@ close databases
 restscreen(buf) ; setcolor(tmp_color)
 return NIL
 
-*
-
-***** 26.01.18
+***** 15.06.18
 Function f1proch_proverka(jt)
 Local i, j, k, k1, ju, fl_tmp, fl_next, arr_usl := {}, srok_l, mvid_ud, ;
       arr, s, arr_date, bd1, bd2, y, lshifr, u_1_stom := "", not_ksg := .t.
@@ -2549,7 +2546,7 @@ if human_->oplata < 9 .and. f_is_uch(st_a_uch,human->lpu)
         select LUSL
         find (lshifr) // длина lshifr 10 знаков
         if found() .and. (eq_any(left(lshifr,5),"1.12.","1.14.","1.15.","1.16.*","1.17.*","1.18.*") ;
-                          .or. lusl->type_ksg > 0) // стоит другой КСГ
+                          .or. is_ksg(lusl->shifr)) // стоит другой КСГ
           if !fl_tmp
             select TMP
             AddRec(6)
@@ -2880,8 +2877,6 @@ if human_->oplata < 9 .and. f_is_uch(st_a_uch,human->lpu)
 endif
 return jt
 
-*
-
 *****
 Function o_pr_vr_as(reg)
 Static sj := 1
@@ -3076,8 +3071,6 @@ close databases
 rest_box(buf)
 return NIL
 
-*
-
 ***** Вывод списка принятых больных конкретным врачом за день
 Function i_vr_boln()
 Local sh := 80, HH := 60, old_d := "", begin_date, end_date, arr_m,;
@@ -3156,8 +3149,6 @@ close databases
 viewtext(name_file,,,,.t.,,,2)
 return NIL
 
-*
-
 ***** 14.05.13 Поиск одинаковых сочетаний номера карты вызова + даты вызова
 Function posik_smp_n_d()
 ne_real()
@@ -3224,8 +3215,6 @@ else
   n_message({"","Повторов не обнаружено!"})
 endif*/
 return NIL
-
-*
 
 ***** 27.10.13
 Function poisk_rassogl()
