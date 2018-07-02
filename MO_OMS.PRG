@@ -5083,7 +5083,7 @@ Function f3oms_usl_sluch()
 @ maxrow()-4,59 say padl("Итого: "+lstr(human->cena_1,11,2),20) color "W+/N"
 return NIL
 
-***** 10.04.18 ввод услуг в лист учёта
+***** 26.06.18 ввод услуг в лист учёта
 Function f2oms_usl_sluch(nKey,oBrow)
 Static skod_k := 0, skod_human := 0, SKOD_DIAG, SZF,;
        st_vzrosl, st_arr_dbf, skod_vr, skod_as, aksg := {}
@@ -5119,6 +5119,7 @@ do case
       adbf1[_HU_IS_NUL  ] := tmp->is_nul
       adbf1[_HU_IS_EDIT ] := tmp->is_edit
       adbf1[_HU_IS_OMS  ] := tmp->is_oms
+      adbf1[_HU_KOL_RCP ] := tmp->dom
       adbf1[_HU_KOD_VR  ] := tmp->KOD_VR
       adbf1[_HU_KOD_AS  ] := tmp->KOD_AS
       adbf1[_HU_OTD     ] := tmp->OTD
@@ -5169,6 +5170,7 @@ do case
           hu->u_koef  := 1
           hu->u_kod   := st_arr_dbf[k,_HU_U_KOD ]
           hu->u_cena  := st_arr_dbf[k,_HU_U_CENA]
+          hu->kol_rcp := st_arr_dbf[k,_HU_KOL_RCP]
           hu->is_edit := st_arr_dbf[k,_HU_IS_EDIT]
           hu->date_u  := dtoc4(new_date)
           hu->otd     := st_arr_dbf[k,_HU_OTD    ]
@@ -5220,6 +5222,7 @@ do case
         tmp->is_nul   := st_arr_dbf[k,_HU_IS_NUL ]
         tmp->is_oms   := st_arr_dbf[k,_HU_IS_OMS ]
         tmp->is_edit  := st_arr_dbf[k,_HU_IS_EDIT]
+        tmp->dom      := st_arr_dbf[k,_HU_KOL_RCP]
         tmp->KOD_VR   := st_arr_dbf[k,_HU_KOD_VR ]
         tmp->KOD_AS   := st_arr_dbf[k,_HU_KOD_AS ]
         tmp->OTD      := st_arr_dbf[k,_HU_OTD    ]
@@ -5280,6 +5283,7 @@ do case
         adbf1[_HU_IS_NUL  ] := tmp->is_nul
         adbf1[_HU_IS_OMS  ] := tmp->is_oms
         adbf1[_HU_IS_EDIT ] := tmp->is_edit
+        adbf1[_HU_KOL_RCP ] := tmp->dom
         adbf1[_HU_KOD_VR  ] := tmp->KOD_VR
         adbf1[_HU_KOD_AS  ] := tmp->KOD_AS
         adbf1[_HU_OTD     ] := tmp->OTD
@@ -5304,6 +5308,7 @@ do case
             adbf1[_HU_IS_NUL  ] := tmp->is_nul
             adbf1[_HU_IS_OMS  ] := tmp->is_oms
             adbf1[_HU_IS_EDIT ] := tmp->is_edit
+            adbf1[_HU_KOL_RCP ] := tmp->dom
             adbf1[_HU_KOD_VR  ] := tmp->KOD_VR
             adbf1[_HU_KOD_AS  ] := tmp->KOD_AS
             adbf1[_HU_OTD     ] := tmp->OTD
@@ -5332,6 +5337,7 @@ do case
             hu->u_kod   := st_arr_dbf_s[k,_HU_U_KOD ]
             hu->u_cena  := st_arr_dbf_s[k,_HU_U_CENA]
             hu->is_edit := st_arr_dbf_s[k,_HU_IS_EDIT]
+            hu->kol_rcp := st_arr_dbf_s[k,_HU_KOL_RCP]
             hu->date_u  := dtoc4(arr_dni[j,2])
             hu->otd     := st_arr_dbf_s[k,_HU_OTD    ]
             hu->kol     := st_arr_dbf_s[k,_HU_KOL_1  ]
@@ -5384,6 +5390,7 @@ do case
           tmp->is_nul   := st_arr_dbf_s[k,_HU_IS_NUL  ]
           tmp->is_oms   := st_arr_dbf_s[k,_HU_IS_OMS  ]
           tmp->is_edit  := st_arr_dbf_s[k,_HU_IS_EDIT ]
+          tmp->dom      := st_arr_dbf_s[k,_HU_KOL_RCP ]
           tmp->KOD_VR   := st_arr_dbf_s[k,_HU_KOD_VR  ]
           tmp->KOD_AS   := st_arr_dbf_s[k,_HU_KOD_AS  ]
           tmp->OTD      := st_arr_dbf_s[k,_HU_OTD     ]

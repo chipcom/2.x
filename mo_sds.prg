@@ -53,7 +53,7 @@ if k > 0
 endif
 return NIL
 
-***** 04.04.18
+***** 21.06.18
 Function read_file_XML_SDS(n_file)
 Static cDelimiter := " ,"
 Local _sluch := {;
@@ -84,6 +84,7 @@ Local _sluch := {;
    {"OTD_SDS"  ,   "N",    10,     0},;
    {"REABIL",      "N",     3,     0},;
    {"PROFIL",      "N",     3,     0},;
+   {"PROFIL_K",    "N",     3,     0},;
    {"NHISTORY"  ,  "C",    10,     0},;
    {"DATE_1"   ,   "D",     8,     0},;
    {"DATE_2"   ,   "D",     8,     0},;
@@ -107,8 +108,9 @@ Local _sluch := {;
    {"DN_STAC",     "N",     2,     0},;
    {"VID_AMB",     "N",     1,     0},;
    {"NPR_MO",      "C",     6,     0},;
-   {"EXTR",        "N",     1,     0},;
-   {"F_SP",        "N",     1,     0},;
+   {"NPR_DATE",    "D",     8,     0},;
+   {"EXTR",        "N",     1,     0},;  // удалить потом
+   {"FOR_POM",     "N",     1,     0},;
    {"RSLT",        "N",     3,     0},;
    {"ISHOD",       "N",     3,     0},;
    {"VRACH",       "N",     5,     0},;
@@ -235,10 +237,13 @@ FOR j := 1 TO Len( oXmlDoc:aItems[1]:aItems )
       ihuman->VID_HMP  :=          mo_read_xml_stroke(oXmlNode,"VID_HMP",,.f.)
       ihuman->METOD_HMP:=      val(mo_read_xml_stroke(oXmlNode,"METOD_HMP",,.f.))
       ihuman->NPR_MO   :=          mo_read_xml_stroke(oXmlNode,"NPR_MO",,.f.)
+      ihuman->NPR_DATE := xml2date(mo_read_xml_stroke(oXmlNode,"NPR_DATE",,.f.))
       ihuman->REABIL   :=      val(mo_read_xml_stroke(oXmlNode,"REHABILITATION",,.f.))
       ihuman->AD_CR    :=          mo_read_xml_stroke(oXmlNode,"AD_CR",,.f.) 
       ihuman->EXTR     :=      val(mo_read_xml_stroke(oXmlNode,"EXTR",,.f.))
+      ihuman->FOR_POM  :=      val(mo_read_xml_stroke(oXmlNode,"FOR_POM",,.f.))
       ihuman->PROFIL   :=      val(mo_read_xml_stroke(oXmlNode,"PROFIL",,.f.))
+      ihuman->PROFIL_K :=      val(mo_read_xml_stroke(oXmlNode,"PROFIL_K",,.f.))
       ihuman->NHISTORY :=          mo_read_xml_stroke(oXmlNode,"NHISTORY")
       ihuman->DATE_1   := xml2date(mo_read_xml_stroke(oXmlNode,"DATE_1"))
       ihuman->DATE_2   := xml2date(mo_read_xml_stroke(oXmlNode,"DATE_2"))
@@ -1260,11 +1265,19 @@ do while !eof()
       human_->VIDPOM    := 1//ihuman->VIDPOM
       human_->PROFIL    := ihuman->PROFIL
       human_->NPR_MO    := ihuman->NPR_MO
+      v := 1
       if ihuman->USL_OK == 1
-        v := iif(between(ihuman->EXTR,1,2), ihuman->EXTR, 1)
+        v := 1
+        if eq_any(ihuman->for_pom,1,3)
+          v := iif(ihuman->for_pom == 1, 2, 1)
+        elseif ihuman->(fieldpos("extr")) > 0
+          v := iif(between(ihuman->EXTR,1,2), ihuman->EXTR, 1)
+        endif
         human_->FORMA14 := str(v-1,1)+"000"
       elseif ihuman->USL_OK == 4
-        v := iif(between(ihuman->F_SP,1,2), ihuman->F_SP, 1)
+        if eq_any(ihuman->for_pom,1,2)
+          v := iif(ihuman->for_pom == 1, 2, 1)
+        endif
         human_->FORMA14 := str(v-1,1)+"000"
       endif
       human_->KOD_DIAG0 := ihuman->ds0
@@ -1302,6 +1315,8 @@ do while !eof()
         human_2->VIDVMP := ihuman->VID_HMP
         human_2->METVMP := ihuman->METOD_HMP
       endif
+      human_2->NPR_DATE := ihuman->NPR_DATE
+      human_2->PROFIL_K := ihuman->PROFIL_K
       if eq_any(human_->usl_ok,1,2) .and. human_->profil == 158 // реабилитация в стационаре и дневном стационаре
         human_2->PN1 := 1 // без наличия системы кохлеарной имплантации у пациента
       endif 

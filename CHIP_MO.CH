@@ -93,7 +93,8 @@
 #define _HU_PRVS     16
 #define _HU_N_BASE   17
 #define _HU_IS_EDIT  18
-#define _HU_LEN      18
+#define _HU_KOL_RCP  19
+#define _HU_LEN      19
 *******************************************************************************
 // переменная PZTIP - тип план-заказа
 #define _PZ_POL 1 // план-заказ амбулаторно-поликлинических посещений

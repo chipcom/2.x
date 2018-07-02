@@ -23,8 +23,6 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-*
-
 *****
 Function pr_gurnal_pp()
 Static spar := 1, spar2 := 1
@@ -307,8 +305,6 @@ rest_box(buf)
 viewtext(name_file,,,,(sh>80),,,reg_print)
 return NIL
 
-*
-
 *****
 Function pr_svod_pp(k)
 Static si1 := 1, si2 := 1
@@ -362,8 +358,6 @@ if k > 10
   endif
 endif
 return NIL
-
-*
 
 ***** 26.12.12
 Function pr_ob_svod_pp()
@@ -661,8 +655,6 @@ rest_box(buf)
 viewtext(name_file,,,,.t.,,,reg_print)
 return NIL
 
-*
-
 *****
 Function pr_otd_lpu_pp()
 Local arr_m, i, j, l, k, k1, arr, begin_date, end_date, s, buf := save_maxrow(),;
@@ -838,8 +830,6 @@ fclose(fp)
 rest_box(buf)
 viewtext(name_file,,,,(sh>80),,,memPPsvod)
 return NIL
-
-*
 
 ***** 24.01.17
 Function pr_otd_stol_pp()
@@ -1223,8 +1213,6 @@ endif
 viewtext(name_file,,,,(sh>80),,,memPPsvod)
 return NIL
 
-*
-
 *****
 Function pr_otd_gosp_pp()
 Local arr_m, i, j, l, k, k1, arr, begin_date, end_date, s, buf := save_maxrow(),;
@@ -1352,8 +1340,6 @@ fclose(fp)
 rest_box(buf)
 viewtext(name_file,,,,(sh>80),,,reg_print)
 return NIL
-
-*
 
 *****
 Function pr_otd_vozr_pp()
@@ -1532,8 +1518,6 @@ rest_box(buf)
 viewtext(name_file,,,,(sh>80),,,reg_print)
 return NIL
 
-*
-
 *****
 Function pr_otd_vozr_deti_pp()
 Static spar := 1
@@ -1693,8 +1677,6 @@ fclose(fp)
 rest_box(buf)
 viewtext(name_file,,,,(sh>80),,,reg_print)
 return NIL
-
-*
 
 ***** 10.09.17
 Function pr_otd_tek_pp()
@@ -1900,9 +1882,7 @@ enddo
 restscreen(buf)
 return NIL
 
-*
-
-***** 31.08.14 Просмотр/печать журнала регистрации стационарных больных по запросу
+***** 01.07.18 Просмотр/печать журнала регистрации стационарных больных по запросу
 Function z_gurnal_pp()
 Static mm_forma := {{"Полная форма",1},;
                     {"Сокращенная форма",2}}
@@ -1971,6 +1951,10 @@ aadd(mm_tmp, {"company","N",5,0,NIL,;
               {|x|menu_reader(x,mm_company,A__MENUVERT)},;
               0,{|| space(10) },;
               "  ==>",,{||eq_any(m1komu,0,1,3)}})
+aadd(mm_tmp, {"kem_dost","N",2,0,NIL,;
+              {|x|menu_reader(x,mmpp_kem_dost,A__MENUVERT)},;
+              -1,{|| space(10) },;
+              "Кем доставлен?"})
 aadd(mm_tmp, {"polis","N",2,0,NIL,;
               {|x|menu_reader(x,mm_danet,A__MENUVERT)},;
               -1,{|| space(3) },;
@@ -2110,6 +2094,9 @@ if k > 0
       add_string("  ==> "+;
                  inieditspr(A__MENUVERT, mm_company, mn->company))
     endif
+  endif
+  if mn->kem_dost >= 0
+    add_string("- кем доставлен: "+inieditspr(A__MENUVERT, mmpp_kem_dost, mn->kem_dost))
   endif
   if mn->polis >= 0
     add_string("- полис "+iif(mn->polis==1,"ВВЕДЕН","НЕ ВВЕДЕН"))
@@ -2396,9 +2383,7 @@ if k == 1
 endif
 return fl
 
-*
-
-*****
+***** 01.07.18
 Static Function pp_mnog_poisk()
 Local i, j, fl := .t.
 if fl .and. mn->rab_nerab > 0
@@ -2446,6 +2431,9 @@ if fl .and. mn->komu >= 0
     fl := (mn->komu==hu->komu .and. mn->company==hu->str_crb)
   endif
 endif
+if fl .and. mn->kem_dost >= 0
+  fl := (hu->KEM_DOST == mn->kem_dost)   // кем доставлен
+endif
 if fl .and. mn->polis >= 0
   if mn->polis == 1
     fl := !empty(kart->polis)
@@ -2479,8 +2467,6 @@ if fl .and. !empty(mn->god_r_max)
 endif
 return fl
 
-*
-
 *****
 Function f_gur_inostr_pp(sh)
 Local i, s, arr[2], mSTRANA := ini_strana(kart_->strana)
@@ -2503,8 +2489,6 @@ if !empty(mSTRANA)
   next
 endif
 return NIL
-
-*
 
 *****
 Function pr_perevod_pp()
@@ -2619,8 +2603,6 @@ close databases
 rest_box(buf)
 viewtext(name_file,,,,(sh>80),,,reg_print)
 return NIL
-
-*
 
 *****
 Function pr_error_pp(k)

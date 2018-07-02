@@ -2432,7 +2432,7 @@ if fl
 endif
 return fl
 
-***** 13.06.18 определение КСГ по остальным введённым полям ввода - 2018 год
+***** 20.06.18 определение КСГ по остальным введённым полям ввода - 2018 год
 Function definition_KSG(par)
 // файлы "human", "human_" и "human_2" открыты и стоят на нужной записи
 //       "human" открыт для записи суммы случая
@@ -2483,7 +2483,7 @@ Local mdiagnoz, aHirKSG := {}, aTerKSG := {}, fl_cena := .f., lvmp, lvidvmp := 0
       lad_cr := "", lfio, cenaTer := 0, cenaHir := 0, ksgHir, ars := {}, arerr := {}, ;
       lksg := "", lcena := 0, osn_diag3, lprofil, ldnej := 0, y := 0, m := 0, d := 0,;
       osn_diag := space(6), sop_diag := {}, osl_diag := {}, tmp, akslp, akiro,;
-      kol_ter := 0, kol_hir := 0, lkoef, fl_reabil, lkiro := 0, lkslp := "",;
+      kol_ter := 0, kol_hir := 0, lkoef, fl_reabil, lkiro := 0, lkslp := "", lbartell := "",;
       is_dializ := .f., ahu := {}, amohu := {}, date_usl := stod("20180101")
 DEFAULT par TO 1, sp0 TO "", sp1 TO space(1), sp6 TO space(6), sp15 TO space(20)
 Private pole
@@ -2566,6 +2566,10 @@ else // из режима импорта случаев
     aadd(osl_diag, padr(ihuman->DS3_3,6))
   endif
 endif
+if eq_any(lad_cr,'60','61')
+  lbartell := lad_cr
+  lad_cr := ""
+endif  
 ldni := ln_data - ldate_r // для ребёнка возраст в днях
 count_ymd(ldate_r,ln_data,@y,@m,@d)
 date_usl := lk_data //!!!!!!!!!!!!раскомментировать после теста!!!!!!!!!!!!!!!
@@ -3012,7 +3016,7 @@ if !empty(lksg)
     s += ", цена "+lstr(lcena,11,2)+"р. "
     aadd(ars,s)
     s := ""
-    if left(lksg,4) == '1343' .and. lad_cr == '61' // старость 
+    if left(lksg,4) == '1343' .and. lbartell == '61' // старость 
       lkslp := ""
     endif
     akslp := f_cena_kslp(@lcena,lksg,ldate_r,ln_data,lk_data,lkslp,amohu)

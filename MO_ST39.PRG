@@ -24,13 +24,14 @@ Function f_stom_39_terap()
 f39_ter()
 return NIL
 
-***** 21.09.17 Запрос лиц, подлежащих диспасеризации, методом многовариантного поиска
+***** 01.07.18 Запрос лиц, подлежащих диспасеризации, методом многовариантного поиска
 Function mnog_poisk_DVN1()
 Local mm_tmp := {}, mm_sort
 Local buf := savescreen(), tmp_color := setcolor(cDataCGet),;
       tmp_help := help_code, hGauge, name_file := "_kartDVN"+stxt,;
       sh := 80, HH := 77, i, a_diagnoz[10], ta, name_dbf := cur_dir+"_kartDVN"+sdbf,;
       mm_da_net := {{"нет",1},{"да ",2}}, ;
+      mm_tip := {{"диспансеризация 1 раз в 3 года",1},{"диспансеризация 1 раз в 2 года",2}}, ;
       mm_mest := {{"Волгоград или область",1},{"иногородние",2}},;
       mm_disp := {{"неважно",0},{"не проходили",1},{"прошли",2}},;
       mm_death := {{"выводить всех",0},{"не выводить умерших",1},{"выводить только умерших",2}},;
@@ -83,6 +84,10 @@ aadd(mm_tmp, {"god","N",4,0,"9999",;
               nil,;
               0,nil,;
               "Год проведения диспансеризации"})
+aadd(mm_tmp, {"tip_disp","N",1,0,NIL,;
+              {|x|menu_reader(x,mm_tip,A__MENUVERT)},;
+              1,{|x|inieditspr(A__MENUVERT,mm_tip,x)},;
+              "Тип диспансеризации"})
 aadd(mm_tmp, {"v_period","C",100,0,NIL,;
               {|x|menu_reader(x,{{ |k,r,c| f2_mnog_poisk_DVN2(k,r,c) }},A__FUNCTION)},;
               ta[1],{|x| ta[2] },;
@@ -195,7 +200,7 @@ if k > 0
   if is_talon .and. mn->kategor == 0
     is_talon := (is_kategor2 .and. mn->kategor2 > 0)
   endif
-  Private mfio := "", madres := "", arr_vozr := List2Arr(mn->v_period)
+  Private mfio := "", madres := "", arr_vozr := List2Arr(mn->v_period), arrSvozr := SList2Arr(mn->v_period)
   if !empty(mn->fio)
     mfio := alltrim(mn->fio)
     if !(right(mfio,1) == "*")
@@ -313,6 +318,7 @@ if k > 0
     endif
     if !empty(mn->god)
       add_string("Год проведения диспансеризации: "+lstr(mn->god))
+      add_string("Тип: "+inieditspr(A__MENUVERT, mm_tip, mn->tip_disp))
       if !empty(mn->v_period)
         add_string("Возрастные периоды диспансеризации: "+alltrim(mn->v_period))
       endif
@@ -519,7 +525,7 @@ if k == 1
 endif
 return fl
 
-***** 21.09.17
+***** 01.07.18
 Static Function f1_mnog_poisk_DVN1(cv,cf)
 Local i, j, k, n, s, arr, fl := .t., fl_disp := .f., god_r, arr1
 ++cv
@@ -527,13 +533,20 @@ if !empty(mn->net_dann)
   fl := f11_mnog_poisk_DVN1(mn->net_dann)
 endif
 if fl .and. mn->god > 0
-  fl := (ascan(arr_vozr,mn->god-year(kart->date_r)) > 0)
+  n := mn->god-year(kart->date_r)
+  k := ascan(arr_vozr,n)
+  fl := (k  > 0)
+  if fl .and. mn->tip_disp == 2
+    if "Ж" $ arrSvozr[k]
+      fl := (kart->pol == "Ж")
+    endif
+  endif
 endif
 if fl .and. mn->o_disp > 0 .and. mn->god > 0
   select HUMAN
   find (str(kart->kod,7))
   do while human->kod_k == kart->kod .and. !eof()
-    if year(human->k_data) == mn->god .and. eq_any(human->ishod,201,202)
+    if year(human->k_data) == mn->god .and. eq_any(human->ishod,201,202,204,205)
       fl_disp := .t. ; exit
     endif
     skip
@@ -1315,9 +1328,9 @@ if m1vid_obsl != old .and. old != NIL // при смене значения
 endif
 return .t.
 
-***** 21.09.17 запрос в GET-е возрастных периодов диспансеризации
+***** 01.07.18 запрос в GET-е возрастных периодов диспансеризации
 Function f2_mnog_poisk_DVN2(k,r,c,par)
-Static sast, sarr
+Static sast, sarr, sast2, sarr2
 Local buf := save_maxrow(), a, i, j, s, s1
 DEFAULT par TO 2
 if sast == NIL
@@ -1333,8 +1346,36 @@ if sast == NIL
     else
       s += " лет"
     endif
-    aadd(sarr,{s,arr_vozrast_DVN[j]})
+    aadd(sarr,{s,arr_vozrast_DVN[j],"МЖ"})
   next
+  sast2 := {} ; sarr2 := {}
+  for j := 1 to len(arr2m_vozrast_DVN)
+    aadd(sast2,.t.)
+    s := lstr(arr2m_vozrast_DVN[j])
+    i := int(val(right(s,1)))
+    if i == 1
+      s += " год"
+    elseif between(i,2,4)
+      s += " года"
+    else
+      s += " лет"
+    endif
+    aadd(sarr2,{s,arr2m_vozrast_DVN[j],"МЖ"})
+  next
+  for j := 1 to len(arr2g_vozrast_DVN)
+    aadd(sast2,.t.)
+    s := lstr(arr2g_vozrast_DVN[j])
+    i := int(val(right(s,1)))
+    if i == 1
+      s += " год"
+    elseif between(i,2,4)
+      s += " года"
+    else
+      s += " лет"
+    endif
+    aadd(sarr2,{s+"/Ж",arr2g_vozrast_DVN[j],"Ж"})
+  next
+  asort(sarr2,,,{|x,y| x[2] < y[2] })
 endif
 s := s1 := ""
 if par == 1
@@ -1343,17 +1384,35 @@ if par == 1
     aadd(sast,.t.)
     s += lstr(sarr[i,2])+iif(i < len(sarr),",","")
   next
-  s1 := "все"
-elseif (a := bit_popup(r,c,sarr,sast)) != NIL
-  afill(sast,.f.)
-  for i := 1 to len(a)
-    if (j := ascan(sarr,{|x| x[2]==a[i,2] })) > 0
-      sast[j] := .t.
-      s += lstr(a[i,2])+iif(i<len(a),",","")
-    endif
+  sast2 := {}
+  for i := 1 to len(sarr2)
+    aadd(sast2,.t.)
+    //s += lstr(sarr[i,2])+iif(i < len(sarr),",","")
   next
-  if len(a) == len(sast)
-    s1 := "все"
+  s1 := "все"
+else
+  if m1tip_disp == 1 .and. (a := bit_popup(r,c,sarr,sast)) != NIL // 1 раз в 3 года
+    afill(sast,.f.)
+    for i := 1 to len(a)
+      if (j := ascan(sarr,{|x| x[2]==a[i,2] })) > 0
+        sast[j] := .t.
+        s += lstr(a[i,2])+iif(i<len(a),",","")
+      endif
+    next
+    if len(a) == len(sast)
+      s1 := "все"
+    endif
+  elseif m1tip_disp == 2 .and. (a := bit_popup(r,c,sarr2,sast2)) != NIL // 1 раз в 2 года
+    afill(sast2,.f.)
+    for i := 1 to len(a)
+      if (j := ascan(sarr2,{|x| x[2]==a[i,2] })) > 0
+        sast2[j] := .t.
+        s += lstr(a[i,2])+iif("Ж" $ a[i,1], "Ж", "")+iif(i<len(a),",","")
+      endif
+    next
+    if len(a) == len(sast2)
+      s1 := "все"
+    endif
   endif
 endif
 if empty(s)

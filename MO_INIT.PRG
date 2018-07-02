@@ -536,26 +536,28 @@ if hb_FileExists(exe_dir+sbase+sdbf)
   index on shifr to (cur_dir+sbase)
   if hb_FileExists(dir_server+"mo_su"+sdbf)
     G_Use(dir_server+"mo_su",,"MOSU")
-    index on kod to tmpmosu for tip == 5 memory  // остались ли старые строки
-    go top
-    if !eof()
-      set index to
+    if fieldpos("tip") > 0 
+      index on kod to tmpmosu for tip == 5 memory  // остались ли старые строки
       go top
-      do while !eof()
-        if mosu->tip == 5 .and. !empty(mosu->shifr1)
-          select LUSLF
-          find (mosu->shifr1)
-          if found()
-            select MOSU
-            G_RLock(forever)
-            mosu->name := luslf->name
-            mosu->tip := 0
-            UnLock
-          endif 
-        endif
-        select MOSU
-        skip
-      enddo
+      if !eof()
+        set index to
+        go top
+        do while !eof()
+          if mosu->tip == 5 .and. !empty(mosu->shifr1)
+            select LUSLF
+            find (mosu->shifr1)
+            if found()
+              select MOSU
+              G_RLock(forever)
+              mosu->name := luslf->name
+              mosu->tip := 0
+              UnLock
+            endif 
+          endif
+          select MOSU
+          skip
+        enddo
+      endif
     endif
   endif
   close databases

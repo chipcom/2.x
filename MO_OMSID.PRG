@@ -2543,12 +2543,10 @@ next it
 close databases
 return NIL     
 
-*
-
-***** 20.10.16
-Function f0_inf_DVN(arr_m,is_schet,is_reg)
-Local fl := .t., j := 0, buf := save_maxrow()
-DEFAULT is_schet TO .t., is_reg TO .f.
+***** 01.07.18
+Function f0_inf_DVN(arr_m,is_schet,is_reg,is_1_2)
+Local fl := .t., j := 0, n, buf := save_maxrow()
+DEFAULT is_schet TO .t., is_reg TO .f., is_1_2 TO .f.
 if !del_dbf_file("tmp"+sdbf)
   return .f.
 endif
@@ -2559,6 +2557,7 @@ dbcreate(cur_dir+"tmp",{{"kod_k","N",7,0},;
                         {"kod2h","N",7,0},;
                         {"date2","D",8,0},;
                         {"kod3h","N",7,0},;
+                        {"kod4h","N",7,0},;
                         {"date3","D",8,0}})
 use (cur_dir+"tmp") new
 index on str(kod_k,7) to (cur_dir+"tmp")
@@ -2566,9 +2565,10 @@ R_Use(dir_server+"schet_",,"SCHET_")
 R_Use(dir_server+"human_",,"HUMAN_")
 R_Use(dir_server+"human",dir_server+"humand","HUMAN")
 set relation to recno() into HUMAN_
+n := iif(is_1_2, 204, 203)
 dbseek(dtos(arr_m[5]),.t.)
 index on kod to (cur_dir+"tmp_h") ;
-      for eq_any(ishod,201,202,203) .and. human->cena_1 > 0 .and. iif(is_schet, schet > 0, .t.) ;
+      for between(ishod,201,n) .and. human->cena_1 > 0 .and. iif(is_schet, schet > 0, .t.) ;
       while human->k_data <= arr_m[6] ;
       PROGRESS
 go top
@@ -2605,6 +2605,8 @@ do while !eof()
           tmp->kod3h := human->kod
           tmp->date3 := human->k_data
         endif
+      case human->ishod == 204
+        tmp->kod4h := human->kod
     endcase
     if ++j % 1000 == 0
       commit
@@ -3323,20 +3325,18 @@ if regim == "edit" .and. nKey == K_ENTER
 endif
 return ret
 
-***** 23.01.17
+***** 01.07.17
 Static Function f_131_u_da_net(k,sb1,sb2)
 if k > 1 ; k := 1 ; endif // если вместо "да" битовый ответ
 return f3_inf_DDS_karta({{"да - 1",1},{"нет - 2",0}},k,";  ",sb1,sb2,.f.)
 
-*
-
-***** 18.08.17 Приложение к Приказу ГБУЗ "ВОМИАЦ" от 12.05.2017г. №1615
+***** 26.06.18 Приложение к Приказу ГБУЗ "ВОМИАЦ" от 12.05.2017г. №1615
 Function f21_inf_DVN(par)
 Local arr_m, buf := save_maxrow(), s, as := {}, as1[14],;
-      i, j, k, n, ar, at, ii, sh := 65, fl
+      i, j, k, n, ar, at, ii, g1, sh := 65, fl
 if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
-              .and. (arr_m := year_month(,,,5)) != NIL .and. f0_inf_DVN(arr_m,par > 1,par == 3)
-  Private arr_21[20], arr_316 := {}, arr_ne := {}
+              .and. (arr_m := year_month(,,,5)) != NIL .and. f0_inf_DVN(arr_m,par > 1,par == 3,.t.)
+  Private arr_21[40], arr_316 := {}, arr_ne := {}
   afill(arr_21,0)
   mywait("Сбор статистики")
   dbcreate(cur_dir+"tmp2",{{"kod_k","N",7,0},;
@@ -3356,7 +3356,18 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
   go top
   do while !eof()
     @ maxrow(),0 say str(++ii/tmp->(lastrec())*100,6,2)+"%" color cColorWait
-    if emptyall(tmp->kod1h,tmp->kod2h) // профилактика
+    if !empty(tmp->kod4h) // Диспансеризация 1 раз в 2 года
+      human->(dbGoto(tmp->kod4h))
+      g1 := ret_gruppa_DVN(human_->RSLT_NEW)
+      if between(g1,1,4)
+        if human->pol == "М"
+          arr_21[31] ++
+        else
+          arr_21[32] ++
+        endif
+        arr_21[32+g1] ++ // по группам здоровья
+      endif
+    elseif emptyall(tmp->kod1h,tmp->kod2h) // профилактика
       human->(dbGoto(tmp->kod3h))
       g1 := human_->RSLT_NEW - 342
       if between(g1,1,3)
@@ -3426,7 +3437,7 @@ close databases
 rest_box(buf)
 return NIL
 
-***** 18.08.17
+***** 26.06.18
 Function f1_f21_inf_DVN()
 Local sumr := 0, m1GRUPPA, fl2 := .f.
 select TMP2
@@ -3502,8 +3513,6 @@ if !empty(tmp->kod2h) // диспансеризация II этап
   endif
 endif
 return NIL
-
-*
 
 ***** 20.10.16 Индикаторы мониторинга диспансеризации взрослых
 Function f22_inf_DVN()
@@ -3856,9 +3865,7 @@ if !empty(ar)
 endif
 return NIL
 
-*
-
-***** 12.03.18 список пациентов
+***** 01.07.18 список пациентов
 Function f2_inf_DVN(is_schet,par)
 Local arr_m, buf := save_maxrow(), lkod_h, lkod_k, rec, s, as := {},;
       a, sh, HH := 53, n, n_file := "spis_dvn"+stxt, reg_print
@@ -3882,6 +3889,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
      {"KOD_DIAG" ,   "C",     5,     0},; // шифр 1-ой осн.болезни
      {"etap"     ,   "N",     1,     0},; //
      {"gruppa"   ,   "N",     1,     0},; //
+     {"vrach"    ,   "C",    15,     0},; // врач
      {"DATA_O"   ,   "C",    35,     0} ; // сроки другого этапа
     }
     for i := 1 to max(count_dvn_arr_usl13,count_dvn_arr_usl)
@@ -3899,6 +3907,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
     R_Use(dir_server+"human_",,"HUMAN_")
     R_Use(dir_server+"human",,"HUMAN")
     set relation to recno() into HUMAN_
+    R_Use(dir_server+"mo_pers",,"PERS")
     R_Use(dir_server+"schet_",,"SCHET_")
     use (cur_dir+"tmp") new
     go top
@@ -4018,7 +4027,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
     arr_title[1] += "┬─┬───────"
     arr_title[2] += "│Г│ Сумма "
     arr_title[3] += "│р│ случая"
-    arr_title[4] += "│у│       "
+    arr_title[4] += "│у│ Врач"
     arr_title[5] += "┴─┴───────"
     reg_print := f_reg_print(arr_title,@sh,2)
     fp := fcreate(n_file) ; tek_stroke := 0 ; n_list := 1
@@ -4103,7 +4112,8 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
       s1 += iif(tf->gruppa == 4, "3", put_val(tf->gruppa,1))+str(tf->CENA_1,8,2)
       if ppar < 3 .and. tf->gruppa > 2
         s2 += iif(tf->gruppa == 3, "а", "б")
-      endif  
+      endif
+      s3 += alltrim(tf->vrach)  
       ss += tf->CENA_1
       if verify_FF(HH-3,.t.,sh)
         aeval(arr_title, {|x| add_string(x) } )
@@ -4147,9 +4157,7 @@ close databases
 rest_box(buf)
 return NIL
 
-*
-
-***** 12.03.18
+***** 01.07.18
 Function f2_inf_DVN_svod(par,kod_h) // сводная информация
 Static P_BEGIN_RSLT := 342
 Local i, j, c, s, pole, ar, arr := {}, fl, lshifr, arr_usl := {}
@@ -4255,6 +4263,8 @@ tf->KOD_DIAG := human->kod_diag
 if len(arr) > 0
   tf->data_o := date_8(arr[1,1])+"-"+date_8(arr[1,2])+" "+arr[1,3]
 endif
+pers->(dbGoto(human_->vrach))
+tf->vrach := fam_i_o(pers->fio)
 lcount := iif(is_2013,count_dvn_arr_usl13,count_dvn_arr_usl)
 larr_dvn := iif(is_2013,dvn_arr_usl13,dvn_arr_usl) 
 lcount_u := iif(is_2013,count_dvn_arr_umolch13,count_dvn_arr_umolch) 
@@ -4396,8 +4406,6 @@ for i := 1 to len(arr)
 next
 return NIL
 
-*
-
 ***** 08.11.13
 Function f21_inf_DVN_svod13(par)
 Local i, arr := {}
@@ -4420,8 +4428,6 @@ else
   next
 endif
 return arr
-
-*
 
 ***** 08.12.15
 Function f21_inf_DVN_svod(par)
