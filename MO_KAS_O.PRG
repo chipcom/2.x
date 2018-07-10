@@ -34,13 +34,13 @@
 
 Static enter_1 := 0
 
-*****
+***** 03.07.18
 Function f_ort_nar()
 Local buf, str_sem, fl
 Parameters par
 // par = 1 - открытие наряда
 // par = 2 - редактирование наряда
-if  mek_kassa == 1 .and. mek_nkassa == 1
+if  mek_kassa == 1 //.and. mek_nkassa == 1
   Private drvFR
   IF ( drvFR := win_oleCreateObject( "AddIn.DrvFr" ) ) != NIL
     //
@@ -541,12 +541,8 @@ do while .t.
       human->o_summa := mcena[_KO_O_SUMMA]
       human->sbank := v_bank
       human->FR_zavod := fr_zavodnomer
-      if mek_tkassa == 2
-        human->FR_tipkart := tip_kart
-        human->fr_tip     := 2
-      else
-        human->fr_tip     := 1 //касса до 52-ФЗ
-      endif
+      human->FR_tipkart := tip_kart
+      human->fr_tip     := 2
       UnLock
       select TMPHUM
       goto (tmprec)
@@ -555,12 +551,8 @@ do while .t.
       tmphum->summa := mcena[_KO_SUMMA]
       tmphum->o_summa := mcena[_KO_O_SUMMA]
       tmphum->sbank := v_bank
-      if mek_tkassa == 2
-        tmphum->FR_tipkart := tip_kart
-        tmphum->fr_tip     := 2
-      else
-        tmphum->fr_tip     := 1 //касса до 52-ФЗ
-      endif
+      tmphum->FR_tipkart := tip_kart
+      tmphum->fr_tip     := 2
       Commit
     endif
     use (cur_dir+"tmp_usl") new alias tmp

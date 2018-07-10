@@ -552,11 +552,11 @@ return NIL
 
 *
 
-*****
+***** 02.07.18
 Function kas_plat()
 Local buf, str_sem
 //
-if  mek_kassa == 1 .and. mek_nkassa == 1
+if  mek_kassa == 1 //.and. mek_nkassa == 1
   Private drvFR
   IF ( drvFR := win_oleCreateObject( "AddIn.DrvFr" ) ) != NIL
     //
@@ -802,8 +802,9 @@ return flag
 Function f4_kas_plat(fl_edit)
 Local fl := .f., adbf, buf := savescreen(), tmp_color := setcolor(color1), ;
       j, l_color, mtitle, ln_chek := 0, fl_opl_vozvr := 0, rec, t_date,;
-      fr_zavodnomer := "",;
-      mi_post, mphone_m, maddress, tip_kart := 2
+      fr_zavodnomer := "", mi_post, mphone_m, maddress, tip_kart := 2,;
+      summa_oplat := 0, summa_oplat_bn := 0, tip_banka := 1,;
+      v_sdacha := 0
 Private fl_found := .f., mcena := 0, pr_kod_vr := 0, flg_edit := fl_edit,;
         is_open_u1 := .f., lfr_data, lfr_time
 //
@@ -942,8 +943,10 @@ do while .t.
       goto (tmp_usl->U_KOD)
       //tmp->name := alltrim(tmp_usl->shifr_u)+" "+alltrim(tmp_usl->name_u)
       if len(alltrim(usl->full_name)) > 3
+        tmp->name_u := alltrim(usl->shifr)+" "+alltrim(usl->full_name)
         tmp->name := alltrim(usl->shifr)+" "+alltrim(usl->full_name)
       else
+        tmp->name_u := alltrim(usl->shifr)+" "+alltrim(usl->name)
         tmp->name := alltrim(usl->shifr)+" "+alltrim(usl->name)
       endif
       select TMP
@@ -955,6 +958,7 @@ do while .t.
         endif
       endif
       tmp->cena := tmp_usl->U_CENA
+      tmp->u_cena := tmp_usl->U_CENA
       select USL
       goto (tmp_usl->U_KOD)
       if round(tmp->cena,2) == round(usl->pcena_d,2) // дети-взрослые
@@ -977,7 +981,8 @@ do while .t.
       endif
       if tmp_usl->kol < 0 //призн. возврата
         fl_opl_vozvr := 1
-        tmp->kol := tmp_usl->kol*(-1)
+        tmp->kol  := tmp_usl->kol*(-1)
+        tmp->kol1 := tmp_usl->kol*(-1)
       else
         tmp->kol := tmp_usl->kol
       endif
@@ -1001,13 +1006,9 @@ do while .t.
         human->fr_data := lfr_data
         human->fr_time := lfr_time
         human->FR_zavod := fr_zavodnomer
-        if mek_tkassa == 2
-          human->FR_tipkart := tip_kart
-          human->fr_tip     := 2
-          human->i_post     :=  maddress //00.02.17
-        else
-          human->fr_tip     := 1 //касса до 52-ФЗ
-        endif
+        human->FR_tipkart := tip_kart
+        human->fr_tip     := 2
+        human->i_post     :=  maddress //00.02.17
         UnLock
         human->(DBCommit())
         if t_date != human->k_data
@@ -1025,25 +1026,56 @@ do while .t.
         human->sbank := mcena //18.11.14
         UnLock
         human->(DBCommit()) //16.06.08
-      else                                        //конец вставки
-        if yes_chek(@v_summa,@v_sdacha) .and. vozv_fr(v_summa,@ln_chek)
-          fl := .t.
-          select HUMAN
-          G_RLock(forever)
-          human->N_CHEK := ln_chek
-          human->cena := mcena
-          human->sbank := 0
-          t_date := human->k_data            //25.06.08 Н
-          human->k_data := c4tod(lfr_data)
-          human->fr_data := lfr_data
-          human->fr_time := lfr_time
-          UnLock
-          human->(DBCommit()) //16.06.08
-          if t_date != human->k_data
-            fl := func_error(4,"ВНИМАНИЕ! Дата в чеке "+full_date(human->k_data)+"  Дата в компьютере"+full_date(t_date) )
-          endif                               //25.06.08 К
-          //mywait("Печатается чек...")
+      else
+        summa_oplat    := 0
+        summa_oplat_bn := 0
+        tip_banka      := 1
+        maddress       := ""
+        v_sdacha       := 0
+        //
+        p_summa := round_5(mcena,2)
+
+        if yes_chek(@summa_oplat,@v_sdacha,@summa_oplat_bn,,@maddress,@tip_banka)
+          p_summa := p_summa*(-1)
+          // вначале возвращаем чистый безнал
+          if round(p_summa,2) ==  round(summa_oplat_bn,2)
+            sum_nal   := 0
+            sum_bank  := p_summa
+          elseif p_summa <= (summa_oplat - summa_oplat_bn)
+             // чистый нал
+            sum_bank  := 0
+            tip_banka := 0
+            sum_nal   := p_summa
+          else
+            sum_nal   := p_summa - summa_oplat_bn
+            sum_bank  := summa_oplat_bn
+          endif
+          fl := vozvrat_fr(sum_nal,sum_bank,@ln_chek,1,tip_banka)
+          // сам чек
+          if fl
+            // заносим возврат
+            select HUMAN
+            G_RLock(forever)
+            human->N_CHEK := ln_chek
+            human->cena := mcena
+            human->sbank := 0
+            t_date := human->k_data            //25.06.08 Н
+            human->k_data := c4tod(lfr_data)
+            human->fr_data := lfr_data
+            human->fr_time := lfr_time
+            //replace ho->date_voz    with dtoc4(ldate_voz), ;
+            //        ho->sum_voz     with summa_oplat
+                   /* ,;
+                    ho->vzfr_data   with ,;
+                    ho->vzfr_time   with ,;
+                    ho->vzkod_oper  with ,;
+                    ho->vzfr_zavod   with
+                  */
+            UnLock
+            stat_msg("Сумма возврата записана!") ; mybell(1,OK)
+          endif
         endif
+        human->(dbCommit())
       endif
     endif
     tmp_usl->(dbCloseArea())

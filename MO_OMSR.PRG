@@ -3911,7 +3911,7 @@ if tip_polzovat != 0
   return func_error(4,err_admin)
 endif
 if find_unfinished_reestr_sp_tk()
-  return NIL
+  return func_error(4,"Попытайтесь снова")
 endif
 if (arr_m := year_month(T_ROW,T_COL+5,,3)) == NIL
   return NIL

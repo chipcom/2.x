@@ -4,7 +4,7 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 02.04.18 ДВН - добавление или редактирование случая (листа учета)
+***** 07.07.18 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_DVN(Loc_kod,kod_kartotek,f_print)
 // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
 // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -611,7 +611,7 @@ do while .t.
                      }
          @ row(),col()+1 say "-"   get mk_data valid {|g|f_k_data(g,2)}
     if eq_any(metap,3,4) .and. is_dostup_2_year
-         @ row(),col()+7 get mndisp color color14 reader {|x|menu_reader(x,mm_ndisp1,A__MENUVERT,,,.f.)} ;
+         @ row(),col()+7 get mndisp /*color color14*/ reader {|x|menu_reader(x,mm_ndisp1,A__MENUVERT,,,.f.)} ;
                          valid {|| metap := m1ndisp, .t. }
     else     
          @ row(),col()+7 get mndisp when .f. color color14
@@ -1265,7 +1265,12 @@ do while .t.
     mm_gruppa := {mm_gruppaD1,mm_gruppaD2,mm_gruppaP,mm_gruppaD4,mm_gruppaD2}[metap]
     m1p_otk := 0
     if (i := ascan(mm_gruppa,{|x| x[2] == m1GRUPPA })) > 0
-      m1rslt := mm_gruppa[i,3]
+      if (m1rslt := mm_gruppa[i,3]) == 352
+        m1rslt := 353 // по письму ТФОМС от 06.07.2018 №09-30-96
+      endif
+      if eq_any(m1GRUPPA,11,21)
+        m1GRUPPA++  // по письму ТФОМС от 06.07.2018 №09-30-96
+      endif
       if m1GRUPPA > 20
         m1p_otk := 1 // отказ от прихода на 2-й этап
       endif

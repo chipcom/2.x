@@ -1123,7 +1123,7 @@ if fl
 endif
 return fl
 
-***** 18.07.17
+***** 02.07.18
 Function f_aadd_copy_DB(arr_f,x)
 Local fl := .t., s, y
 x := upper(x)
@@ -1133,10 +1133,10 @@ if eq_any(right(x,4),szip,stxt)
   if eq_any(left(s,3),"FRM","HRM") .or. eq_any(left(s,4),"PFRM","PHRM") ;
                                    .or. eq_any(left(s,2),"FM","HM","AT","AS","DT","DS")
     y := int(val(left(afteratnum("_",s),2)))
-    fl := (y > 16)  // с 2017 года
+    fl := (y > 17)  // с 2018 года
   elseif eq_any(left(s,3),"FRT","HRT")
     y := int(val(substr(s,14,2)))
-    fl := (y > 16)  // с 2017 года
+    fl := (y > 17)  // с 2018 года
   endif
 endif
 if fl

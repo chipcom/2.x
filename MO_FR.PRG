@@ -85,50 +85,29 @@ return NIL
 
 *
 
-***** 28.09.17
+***** 02.07.18
 Function f5_sist_fr(k)
 Static mm_da_net := {{"да ",1},{"нет",2}}
 Static mm_chek := {{"Сквозной номер документа ККМ",1},{"Номер чека продажи ККМ",2}}
-Static mm_tkassa := {{"ККМ c ФР",1},{"ККМ по 54-ФЗ",2}}
 Static n_zapusk := 0
 Local mm_tmp := {}, buf, fl := .f., s
-Local COM_speed := {{"  2400",  2400},;  // 0
-                    {"  4800",  4800},;  // 1
-                    {"  9600",  9600},;  // 2
-                    {" 19200", 19200},;  // 3
-                    {" 38400", 38400},;  // 4
-                    {" 57600", 57600},;  // 5
-                    {"115200",115200}}   // 6
+
 if k == 1
-  Public FR_LOG_FLAG
-  Public meS_speed := 115200
-  Public meK_port   := 1,;      // номер порта для подключения кассового аппарата,;
-         meK_ostato := 0,;
+  Public meK_ostato := 0,;
          meK_sdacha := 1,;
          meK_w_sdac := 1,;
          meK_bank   := 2,;
          meK_lof_fi := 2,;
-         meK_open_p := 2,;
          meK_otrez  := 1,;
-         meK_progon := 2,;
-         mek_TIME_1 := 50,;
-         PFR_TIME_1 := 500,;
-         mek_N_chek := 1,;  // контроль номеров - убрал
          meK_kassa  := 1,;  // рабочее место кассира
          meK_pr_FIO := 1,;
-         mek_nkassa := 2,;
          MEK_KASSIR := space(20),;
-         mek_chek   := 1,;
-         mek_tkassa := 2  // новые кассы - только новые
-         //mek_lenstr := 40    //не редактируется
+         mek_chek   := 1
   if file("_kassa_.mem")
     restore from _kassa_ additive
   else
     save all like meK_* to _kassa_
   endif
-  meK_open_p := 2
-  mek_tkassa := 2 // ККМ по 54-ФЗ
-  mek_N_chek := 1
   ***************
 // контроль
   if n_zapusk == 0
@@ -146,62 +125,38 @@ elseif k == 2
   buf := box_shadow(1,0,22,78,"B+/B")
 
   // Настройки убраны
-  meK_open_p := 2
-  mek_nkassa := 1 //Работаем ТОЛЬКО через драйвер
+  //mek_nkassa := 1 //Работаем ТОЛЬКО через драйвер
   meK_lof_fi := 2 // для СОМ
-  meK_port   := 1 // для СОМ
-  PFR_TIME_1 := 500  // для СОМ
-  meK_progon := 1
-  mek_tkassa := 2 // ККМ по 54-ФЗ
-  mek_N_chek := 1
+  //mek_tkassa := 2 // ККМ по 54-ФЗ
 
-  Private mnewkassa, m1newkassa := mek_nkassa,;
-          mostatok := meK_ostato,;
+  Private mostatok := meK_ostato,;
           msdacha, m1sdacha := meK_sdacha,;
           mw_sdacha, m1w_sdacha := meK_w_sdac,;
           mmeK_bank, m1meK_bank := meK_bank,;
           mmeK_kassa, m1meK_kassa := meK_kassa,;
           mmeK_lof_fi, m1meK_lof_fi := meK_lof_fi,;
-          mmeK_port := meK_port,;
           mmeK_otrez, m1meK_otrez := meK_otrez,;
-          mmeK_progon, m1meK_progon := meK_progon,;
-          mPFR_TIME_1 := PFR_TIME_1,;
-          mmeS_speed := meS_speed,;
           mmek_pr_fio, m1mek_pr_fio := mek_pr_fio,;
           mnkassa := space(10), m1nkassa := 0,;
           mkassir := mek_kassir,;
           mmek_chek := m1mek_chek := mek_chek
 
-//        mmek_N_chek, m1mek_N_chek := mek_N_chek,;
-
-
-//  mmek_tkassa := inieditspr(A__MENUVERT,mm_tkassa,m1mek_tkassa)
-//  mnewkassa   := inieditspr(A__MENUVERT,mm_da_net,m1newkassa)
   msdacha     := inieditspr(A__MENUVERT,mm_da_net,m1sdacha)
   mw_sdacha   := inieditspr(A__MENUVERT,mm_da_net,m1w_sdacha)
   mmeK_bank   := inieditspr(A__MENUVERT,mm_da_net,m1meK_bank)
   mmeK_kassa  := inieditspr(A__MENUVERT,mm_da_net,m1meK_kassa)
-//  mmeK_lof_fi := inieditspr(A__MENUVERT,mm_da_net,m1meK_lof_fi)
-//  mmek_N_chek := inieditspr(A__MENUVERT,mm_da_net,m1mek_N_chek)
   mmeK_otrez  := inieditspr(A__MENUVERT,mm_da_net,m1meK_otrez)
-//  mmeK_progon := inieditspr(A__MENUVERT,mm_da_net,m1meK_progon)
   mmek_pr_fio := inieditspr(A__MENUVERT,mm_da_net,m1mek_pr_fio)
   mmek_chek   := inieditspr(A__MENUVERT,mm_chek,m1mek_chek)
 
-  //do while .t.
     setcolor(cDataCGet)
     ix := 3
     ClrLines(1,maxrow()-1)
     if tip_polzovat == 0
-//    @ ix,3 say "Работать с кассой через ДРАЙВЕР?" get mnewkassa ;
-//              reader {|x|menu_reader(x,mm_da_net,A__MENUVERT,,,.f.)}
       @ ++ix,3 say "Номером документа считать " get mmek_chek ;
                 reader {|x|menu_reader(x,mm_chek,A__MENUVERT,,,.f.)}
       @ ++ix,3 say "Вызов драйвера ..." get mnkassa ;
-                reader {|x|menu_reader(x,{{||FR_draiver()}},A__FUNCTION,,,.f.)};
-                  when m1newkassa==1
-//      @ ++ix,3 say "Тип кассы " get mmek_tkassa ;
-//                reader {|x|menu_reader(x,mm_tkassa,A__MENUVERT,,,.f.)}
+                reader {|x|menu_reader(x,{{||FR_draiver()}},A__FUNCTION,,,.f.)}
     endif
 
     @ ++ix,3 say "Сумма денег, внесенная в кассу УТРОМ" get mostatok  pict "999999.99"
@@ -217,21 +172,8 @@ elseif k == 2
       ++ix
       @ ++ix,3 say "Это рабочее место кассира ?" get mmeK_kassa ;
                   reader {|x|menu_reader(x,mm_da_net,A__MENUVERT,,,.f.)}
-//      @ ++ix,3 say "Вести протокол обмена с фискальным регистратором ШТРИХ-ФР?" get mmeK_lof_fi ;
-//                   reader {|x|menu_reader(x,mm_da_net,A__MENUVERT,,,.f.)};
-//                  when m1newkassa== 2
-//      @ ++ix,3 say "Номер порта для подключения кассового аппарата:" get mmeK_port  pict "9" ;
-//                  when m1newkassa==2 valid eq_any(mmeK_port,1,2)
-//      @ ++ix,3 say "Проводить контроль номеров чека?" get mmek_N_chek ;
-//                  reader {|x|menu_reader(x,mm_da_net,A__MENUVERT,,,.f.)}
       @ ++ix,3 say "Проводить программную отрезку чека?" get mmeK_otrez ;
                   reader {|x|menu_reader(x,mm_da_net,A__MENUVERT,,,.f.)}
-//      @ ++ix,3 say "Использовать в чеке прогон вместо пустой строки?" get mmeK_progon ;
-//                  reader {|x|menu_reader(x,mm_da_net,A__MENUVERT,,,.f.)}
-//      @ ++ix,3 say "Таймаут для фискального регистратора (50...9999) ?" get mPFR_TIME_1;
-//                  pict "9999"  when m1newkassa== 2
-//      @ ++ix,3 say "Cкорость обмена с фискальным регистратором ШТРИХ-ФР ?" get mmeS_speed;
-//                  pict "999999"  when m1newkassa== 2
       @ ++ix,3 say "Печатать ФИО пациента/плательщика в чеке?" get mmek_pr_fio ;
                   reader {|x|menu_reader(x,mm_da_net,A__MENUVERT,,,.f.)}
       @ ++ix,3 say "ФИО кассира" get mkassir
@@ -253,36 +195,21 @@ elseif k == 2
       meK_otrez  := m1meK_otrez
       mek_pr_fio := m1mek_pr_fio
       mek_chek   := m1mek_chek
-      //mek_tkassa := m1mek_tkassa
-      //mek_n_chek := m1mek_n_chek
-      //meK_progon := m1meK_progon
-      //meK_lof_fi := m1meK_lof_fi
-      //meK_port   := mmeK_port
-      //mek_TIME_1 := mPFR_TIME_1
-      //meS_speed  := mmeS_speed
-      //mek_nkassa := m1newkassa
-      /*if m1newkassa == 1
-        mek_lenstr := FR_lenstring()
-      else
-        mek_lenstr := 40
-      endif*/
     endif
     save all like meK_* to _kassa_
- //   save all like meS_* to _speed_
   endif
   rest_box(buf)
 endif
-FR_LOG_FLAG := (meK_lof_fi == 1)   // !!!!!!!!!!!!
-PFR_TIME_1  := mek_TIME_1
+//FR_LOG_FLAG := (meK_lof_fi == 1)   // !!!!!!!!!!!!
 return NIL
 
 
 *
 
-***** 17.06.15
+***** 02.07.18
 function f1_sist_fr()
 // Изменение даты в ККМ
-Local fl := .t., lport := meK_port, parol := 0, t, tt, tt1, s_err
+Local fl := .t.,  parol := 0, t, tt, tt1, s_err
 
 Private drvFR
 IF ( drvFR := win_oleCreateObject( "AddIn.DrvFr" ) ) != NIL
@@ -294,7 +221,7 @@ endif
 if !ret_dataedit()
   return NIL
 endif
-tt := FR_ret_dan(lport)
+tt := FR_ret_dan()
 if empty(tt)
   return func_error(4,'НЕ СЧИТАНА ДАТА ИЗ КАССЫ')
 endif
@@ -310,11 +237,11 @@ rest_box(buf)
 if lastkey() == K_ESC .or. mdate == tt1
   return NIL
 endif
-if (fl := empty(s_err := FR_set_date(lport,mdate)))
+if (fl := empty(s_err := FR_set_date(mdate)))
   stat_msg("Команда Выполнена!")
   n_message({"","Дата в ФР изменена !"},,;
             color1,cDataCSay,,,color8)
-  FR_gudok(lport)
+  FR_gudok()
 else
   write_err_kassa(s_err,'НЕ ПРОИЗОШЛО ИЗМЕНЕНИЯ ДАТЫ')
 endif
@@ -340,9 +267,9 @@ return (i == 2)
 
 *
 
-***** 17.06.15 Синхронизация времени
+*****  Синхронизация времени
 function f2_sist_fr()
-Local fl := .t., lport := meK_port, t, tt, tt1, x, cur_time,;
+Local fl := .t., t, tt, tt1, x, cur_time,;
       r1 := 11, r2 := 20, i, tmp_color := setcolor(color1), buf
 
 Private drvFR
@@ -352,7 +279,7 @@ else
   return func_error(4,"Ошибка запуска драйвера КАССЫ")
 endif
 //
-tt := FR_ret_dan(lport)
+tt := FR_ret_dan()
 if empty(tt)
   return func_error(4,'НЕ СЧИТАНО ВРЕМЯ ИЗ ФР')
 endif
@@ -382,8 +309,8 @@ if i == 2
     t := substr(t,1,6)+strzero(x,2)
   endif
   mywait()
-  if empty(FR_set_time(lport,t))
-    FR_gudok(lport)
+  if empty(FR_set_time(t))
+    FR_gudok()
     stat_msg("Команда Выполнена!")
     n_message({"","Установка Времени в ФР произведена"},,;
               color1,cDataCSay,,,color8)
@@ -391,7 +318,7 @@ if i == 2
     func_error(4,'НЕ ПРОИЗОШЛО УСТАНОВКИ ВРЕМЕНИ')
   endif
 elseif i == 3
-  tt := FR_ret_dan(lport)
+  tt := FR_ret_dan()
   if empty(tt)
     func_error(4,'НЕ СЧИТАНО ВРЕМЯ ИЗ ФР')
   else
@@ -406,11 +333,11 @@ return NIL
 
 *
 
-***** 17.06.15
+*****
 function f3_sist_fr(tip)
 // 0 - Снятие суточного отчета без гашения
 // 1 - с гашением
-Local fl := .t., lport := meK_port, s_err, parol, t, tt, tt1, buf
+Local fl := .t., s_err, parol, t, tt, tt1, buf
 
 buf := save_row(maxrow())
 
@@ -425,7 +352,7 @@ endif
 if !ret_fsytotch(tip)
   return NIL
 endif
-if (fl := empty(s_err := FR_normgach(lport,tip)))
+if (fl := empty(s_err := FR_normgach(tip)))
   rest_box(buf)
   mywait()
   stat_msg("Команда выполнена!")
@@ -436,7 +363,7 @@ if (fl := empty(s_err := FR_normgach(lport,tip)))
   if meK_otrez == 1
     mywait()
     inkey(3)
-    FR_otrezka(lport,1,0)
+    FR_otrezka(1)
   endif
   rest_box(buf)
 else
@@ -474,27 +401,25 @@ return (i == 2)
 
 *
 
-***** 17.06.15
+*****
 function f6_sist_fr()
 //  продолжение печати
-Local fl := .t., lport := meK_port, s_err, parol, t, tt, tt1, buf
+Local fl := .t., s_err, parol, t, tt, tt1, buf
 buf := save_row(maxrow())
 
-if glob_kassa == 1 .and. mek_kassa == 1
-  Private drvFR
-  IF ( drvFR := win_oleCreateObject( "AddIn.DrvFr" ) ) != NIL
-    //
-  else
-    return func_error(4,"Ошибка запуска драйвера КАССЫ")
-  endif
+Private drvFR
+IF ( drvFR := win_oleCreateObject( "AddIn.DrvFr" ) ) != NIL
+  //
+else
+  return func_error(4,"Ошибка запуска драйвера КАССЫ")
 endif
 //
-if (fl := empty(s_err := FR_prodol(lport)))
+if (fl := empty(s_err := FR_prodol()))
   rest_box(buf)
   mywait()
   stat_msg("Команда выполнена!")
   mywait()
-  FR_otrezka(lport,1,300)
+  FR_otrezka(1)
   rest_box(buf)
 else
   rest_box(buf)
@@ -505,10 +430,10 @@ return NIL
 
 *
 
-***** 17.06.15
+*****
 function f7_sist_fr()
 //  аннулирование чека
-Local fl := .t., lport := meK_port, s_err, parol, t, tt, tt1, buf
+Local fl := .t., s_err, parol, t, tt, tt1, buf
 buf := save_row(maxrow())
 
 Private drvFR
@@ -518,12 +443,12 @@ else
   return func_error(4,"Ошибка запуска драйвера КАССЫ")
 endif
 //
-if (fl := empty(s_err := FRCH_annul(lport)))
+if (fl := empty(s_err := FRCH_annul()))
   rest_box(buf)
   mywait()
   stat_msg("Команда выполнена!")
   mywait()
-  FR_otrezka(lport,1,300)
+  FR_otrezka(1)
   rest_box(buf)
 else
   rest_box(buf)
@@ -538,7 +463,7 @@ return NIL
 ***** 03.09.17
 function f8_sist_fr()
 //  Снятие суточного отчета по СЕКЦИЯМ
-Local fl := .t., lport := meK_port, s_err, parol, t, tt, tt1, buf
+Local fl := .t.,  s_err, parol, t, tt, tt1, buf
 
 buf := save_row(maxrow())
 
@@ -563,7 +488,7 @@ if (fl := empty(s_err := FRN_PrintDepartmentReport()))
   if meK_otrez == 1
     mywait()
     inkey(3)
-    FR_otrezka(lport,1,0)
+    FR_otrezka(1)
   endif
   rest_box(buf)
 else
@@ -579,7 +504,7 @@ return NIL
 ***** 03.09.17
 function f9_sist_fr()
 //  Снятие суточного отчета по НАЛОГАМ
-Local fl := .t., lport := meK_port, s_err, parol, t, tt, tt1, buf
+Local fl := .t., s_err, parol, t, tt, tt1, buf
 
 buf := save_row(maxrow())
 
@@ -604,7 +529,7 @@ if (fl := empty(s_err := FRN_PrintTaxReport()))
   if meK_otrez == 1
     mywait()
     inkey(3)
-    FR_otrezka(lport,1,0)
+    FR_otrezka(1)
   endif
   rest_box(buf)
 else
@@ -645,7 +570,7 @@ return (i == 2)
 ***** 03.09.17
 function f10_sist_fr()
 //  Кассиры в ФР
-Local fl := .t., lport := meK_port, s_err, parol, t, tt, tt1, buf
+Local fl := .t.,  s_err, parol, t, tt, tt1, buf
 
 buf := save_row(maxrow())
 
@@ -747,7 +672,7 @@ Local tip_bank_kart := {{"МИР",1},;
                         {"MasterCard",3}}
 Local j, fl := .f., tmp_color, buf, buf24, a[3], r := 16
 //
-if mek_tkassa == 2  .and. p_summa >= 0 //касса по 54-ФЗ
+if p_summa >= 0 //касса по 54-ФЗ
   tmp_color := setcolor(cDataCGet)
   Private vnos_summa := 0, bank_summa := 0,;
           mbank_kart, m1bank_kart := tip_kart,;
@@ -810,116 +735,45 @@ if mek_tkassa == 2  .and. p_summa >= 0 //касса по 54-ФЗ
     exit
   enddo
   setcolor(tmp_color)
-elseif mek_tkassa == 2  .and. p_summa < 0 //касса по 54-ФЗ
+elseif p_summa < 0 //касса по 54-ФЗ
   Private vnos_summa := 0, bank_summa := 0,;
-          maddress := padr(address,30)
+          maddress := padr(address,30),;
+          mbank_kart, m1bank_kart := tip_kart
+  mbank_kart := inieditspr(A__MENUVERT,tip_bank_kart,m1bank_kart)
   tmp_color := setcolor(cHelpCMain)
-  buf := box_shadow(r,5,r+3,74)
+  buf := box_shadow(r,5,r+5,74)
   buf24 := save_row(maxrow())
   @ r+1,7 say "Телефон или Электронная почта      " get maddress pict "@S30" ;
           valid { | g | ControlAddress( g, maddress ) }
-  @ r+2,7 say "Введите сумму возврата             " ;
-          get vnos_summa picture spict //;
-          //valid iif(empty(vnos_summa), .t., p_summa <= vnos_summa)
+  @ r+2,7 say "Введите сумму возврата                                 " ;
+               get vnos_summa picture spict valid {|g| val_u_chek(g,1) }
+  @ r+3,7 say "Сумма, возврата безналичными (по банковской карте)     " ;
+               get bank_summa picture spict valid {|g| val_u_chek(g,2) } ;
+               when round_5(vnos_summa,2) < (p_summa*(-1))
+  @ r+4,7 say "Тип банковской карты" get mbank_kart ;
+               reader {|x|menu_reader(x,tip_bank_kart,A__MENUVERT,,,.f.)};
+               when bank_summa > 0
   status_key("^<Esc>^ - выход без записи чека;  ^<Enter>^ - запись чека")
   myread()
   rest_box(buf)
   rest_box(buf24)
   setcolor(tmp_color)
   if lastkey() != K_ESC
-    if vnos_summa > 0
-      a[1] := vnos_summa
-      a[2] := p_summa
-      a[3] := round_5(vnos_summa - p_summa, 2)
-      f_message({"Вносимая сумма: "+str(a[1],10,2),;
-                 "Сумма чека    : "+str(a[2],10,2),;
-                 "──────────────────────────",;
-                 "Сумма сдачи   : "+str(a[3],10,2)},,;
+    if vnos_summa > 0 .or. bank_summa > 0
+      a[1] := p_summa *(-1)
+      a[2] := vnos_summa
+      a[3] := bank_summa
+      f_message({"Cумма ВОЗВРАТА  : "+str(a[1],10,2),;
+                 "Сумма наличными : "+str(a[2],10,2),;
+                 "Сумма по банку  : "+str(a[3],10,2)},,;
                 cHelpCMain,cHelpCMain,rm)
       fl_sdacha := .t.
-      vsum := a[1] ; vsd := a[3] ; vbank := 0
+      vsum := vnos_summa ; vbank := bank_summa ; vsd := 0
     endif
+    // /*@*/vsum,/*@*/vsd,/*@*/vbank,rm,/*@*/address,/*@*/tip_kart
+    // vsum := vnos_summa ; vsd := 0 ; vbank := bank_summa
     address  := maddress
-    fl := .t.
-  endif
-elseif meK_bank == 1 .and. valtype(vbank) == "N"
-  tmp_color := setcolor(cDataCGet)
-  Private vnos_summa := 0, bank_summa := 0
-  do while .t.
-    buf := box_shadow(r,5,r+3,74)
-    buf24 := save_maxrow()
-    @ r+1,7 say "Введите вносимую покупателем сумму (для подсчета сдачи)" ;
-            get vnos_summa picture spict valid {|g| val_y_chek(g,1) }
-    @ r+2,7 say "Сумма, вносимая безналичными (по банковской карте)     " ;
-            get bank_summa picture spict valid {|g| val_y_chek(g,2) } ;
-            when round_5(vnos_summa,2) < p_summa
-    status_key("^<Esc>^ - выход без записи чека;  ^<PgDn>^ - запись чека")
-    myread()
-    j := f_alert({padc("Выберите действие",60,".")},;
-                 {" Выход без записи "," Печать чека "," Возврат в редактирование "},;
-                 iif(lastkey()==K_ESC,1,2),"W+/N","N+/N",maxrow()-2,,"W+/N,N/BG" )
-    if j < 2
-      exit
-    elseif j == 3
-      loop
-    endif
-    if round_5(bank_summa,2) > 0 .and. lastkey() != K_ESC ;
-                                 .and. !f_Esc_Enter("оплаты по карте")
-      rest_box(buf)
-      rest_box(buf24)
-      loop
-    endif
-    rest_box(buf)
-    rest_box(buf24)
-    if vnos_summa >= p_summa
-      a[1] := vnos_summa
-      a[2] := p_summa
-      a[3] := round_5(vnos_summa - p_summa, 2)
-      f_message({"Вносимая сумма: "+str(a[1],10,2),;
-                 "Сумма чека    : "+str(a[2],10,2),;
-                 "──────────────────────────",;
-                 "Сумма сдачи   : "+str(a[3],10,2)},,;
-                cHelpCMain,cHelpCMain,rm)
-      fl_sdacha := .t.
-      vsum := a[1] ; vsd := a[3] ; vbank := 0
-    else
-      f_message({"Сумма наличными: "+str(vnos_summa,10,2),;
-                 "Сумма по карте : "+str(bank_summa,10,2),;
-                 "Сумма чека     : "+str(p_summa,   10,2)},,;
-                cHelpCMain,cHelpCMain,rm)
-      fl_sdacha := .f.
-      vsum := vnos_summa ; vsd := 0 ; vbank := bank_summa
-    endif
-    fl := .t.
-    exit
-  enddo
-  setcolor(tmp_color)
-elseif meK_sdacha == 1
-  tmp_color := setcolor(cHelpCMain)
-  buf := box_shadow(r,5,r+2,74)
-  buf24 := save_row(maxrow())
-  Private vnos_summa := 0
-  @ r+1,7 say "Введите вносимую человеком сумму (для подсчета сдачи)" ;
-          get vnos_summa picture spict ;
-          valid iif(empty(vnos_summa), .t., p_summa <= vnos_summa)
-  status_key("^<Esc>^ - выход без записи чека;  ^<Enter>^ - запись чека")
-  myread()
-  rest_box(buf)
-  rest_box(buf24)
-  setcolor(tmp_color)
-  if lastkey() != K_ESC
-    if vnos_summa > 0
-      a[1] := vnos_summa
-      a[2] := p_summa
-      a[3] := round_5(vnos_summa - p_summa, 2)
-      f_message({"Вносимая сумма: "+str(a[1],10,2),;
-                 "Сумма чека    : "+str(a[2],10,2),;
-                 "──────────────────────────",;
-                 "Сумма сдачи   : "+str(a[3],10,2)},,;
-                cHelpCMain,cHelpCMain,rm)
-      fl_sdacha := .t.
-      vsum := a[1] ; vsd := a[3] ; vbank := 0
-    endif
+    tip_kart := m1bank_kart
     fl := .t.
   endif
 else
@@ -956,9 +810,37 @@ return update_gets()
 
 *
 
-***** 17.06.15
+***** 02.05.18
+Function val_u_chek(get,n)
+if n == 1  // сумма наличными
+  vnos_summa := round_5(vnos_summa,2)
+  if vnos_summa < (p_summa*(-1))
+    bank_summa := round_5((p_summa*(-1)) - vnos_summa, 2)
+  else
+    bank_summa := 0
+  endif
+else       // сумма безналичными
+  bank_summa := round_5(bank_summa,2)
+  if bank_summa > (p_summa*(-1))
+    func_error(4,"Сумма, возврата безналичными, не может быть больше суммы чека!")
+    bank_summa := (p_summa*(-1))
+  elseif bank_summa > 0
+    vnos_summa := round_5((p_summa*(-1)) - bank_summa, 2)
+  else
+    bank_summa := 0
+    if round_5(vnos_summa,2) < (p_summa*(-1))
+      vnos_summa := (p_summa*(-1))
+    endif
+  endif
+endif
+return update_gets()
+
+*
+
+
+*****
 Function chek_fr(vsum,vsd,/*@*/cur_chek,vbank,sekcia,/*@*/fr_serial_number,address,tip_kart,tip_oplat)
-Local fl := .t., name_tov, lport := meK_port, buf := save_maxrow(), ;
+Local fl := .t., name_tov, buf := save_maxrow(), ;
       s_err := "", s, last_chek := 0, fl_str := 0, fl_err_annul := .f., ;
       cs := 0, timeout := 5, tt1 := {}, sost, t_nds := 0, t_nds18 :=0,;
       t_nds10 := 0
@@ -971,25 +853,27 @@ lfr_time := 0
 fr_serial_number := ""
 mywait()
 //
-tt1 := FR_ret_dan(lport)
-last_chek := tt1[FR_R_NOMER]
+tt1 := FR_ret_dan()
+last_chek        := tt1[FR_R_NOMER]
+cur_chek         := tt1[FR_R_NOMER]
+lfr_data         := dtoc4(tt1[FR_R_DATE])
+fr_serial_number := tt1[FR_R_ZAVNOMER]
+lfr_time         := round_5(timetosec(tt1[FR_R_TIME]),0)
+sost             := tt1[FR_R_FLAG]
 if tt1[FR_R_REGIM] == 4  // смена не открыта
   // открыть смену.
   FRCHN_OpenSession()
 endif
-//if mek_N_chek == 1 .and. mek_nkassa != 1
-  //контроль чека и касса через СОМ
-//  last_chek := FR_ret_chek(lport)
-//endif
+//
 s := ""
 if mek_pr_fio == 1
   if type("mplat_fio") == "C" .and. !empty(mplat_fio)
     s := "Больной: "
-    if empty(FR_stroka(lport,"Плательщик: "+fam_i_o(mplat_fio)))
+    if empty(FR_stroka("Плательщик: "+fam_i_o(mplat_fio)))
       ++cs
     endif
     if type("mplat_inn") == "C" .and. !empty(mplat_inn)
-      if empty(FR_stroka(lport,"ИНН плательщика: "+mplat_inn))
+      if empty(FR_stroka("ИНН плательщика: "+mplat_inn))
         ++cs
       endif
     endif
@@ -1000,15 +884,15 @@ else
 endif
 //
 if len(name_tov)>20
-  FR_progon(lport,1,1)
+  FR_progon(1,1)
 endif
 //
-if iif(len(name_tov) > 20, empty(FR_stroka(lport,name_tov)),;
-                           empty(FR_b_stroka(lport,,name_tov)))
+if iif(len(name_tov) > 20, empty(FR_stroka(name_tov)),;
+                           empty(FR_b_stroka(name_tov)))
   ++cs
 endif
 //
-FR_progon(lport,1,1)
+FR_progon(1,1)
 //  НАЧАЛО печати услуг
 select TMP
 go top
@@ -1021,14 +905,14 @@ do while !eof()
     elseif tmp->nds10 > 0
       t_nds := 2
     endif
-    s_err := FRCH_registr(lport,tmp->cena,tmp->kol,sekcia,name_tov,t_nds,4,tip_oplat)
+    s_err := FRCHF_registr(tmp->cena,tmp->kol,sekcia,name_tov,t_nds,1,4,tip_oplat)
     if (fl := empty(s_err))
       ++cs //количество продаж
     else
       func_error(4,s_err)
     endif
     if !empty(tmp->vrach)
-      FR_stroka(lport,tmp->vrach)   // печать врача
+      FR_stroka(alltrim(tmp->vrach))   // печать врача
     endif
   endif
   skip
@@ -1048,11 +932,7 @@ if fl
   else
     s := vsum
   endif
-  //if mek_tkassa == 2  //касса по 54-ФЗ
-    s_err := FRCH_close(lport,s,vbank,,t_nds,tip_kart)
-  //else
-  //  s_err := FRCH_close(lport,s,vbank,,t_nds,0)
-  //endif
+  s_err := FRCH_close(s,vbank,,t_nds,tip_kart)
   if (fl := empty(s_err))
     ++cs //количество продаж
   else
@@ -1061,42 +941,24 @@ if fl
   endif
 endif
 //
-if meK_otrez == 1
-  if cs > 0
-    if mek_nkassa == 2
-        timeout := 55
-    endif
-    waitperiod(timeout)
-    do while waitperiod()
-      //
-    enddo
-  endif
-endif
-//
 if fl
-  tt1 := FR_ret_dan(lport)
+  //tt1 := FR_ret_dan()
   if mek_chek == 1
-    cur_chek := tt1[FR_R_NOMER]-1 //
+    //cur_chek := tt1[FR_R_NOMER]-1 //
+    cur_chek := FR_ret_dok()-1
   else
-    cur_chek := FR_ret_chek(lport)-1
+    cur_chek := FR_ret_chek()-1
   endif
-  lfr_data := dtoc4(tt1[FR_R_DATE])
-  fr_serial_number := tt1[FR_R_ZAVNOMER]
-  lfr_time := round_5(timetosec(tt1[FR_R_TIME]),0)
-  sost := tt1[FR_R_FLAG]
   if !isbit(sost,10)
     func_error(4,"Заканчивается ЧЕКОВАЯ лента.")
   endif
-  if !fl .and. last_chek > 0
-    // и для СОМ
-    if cur_chek > 0 .and. cur_chek != last_chek
-      fl := .t. ; s_err := ""
-    endif
+  if cur_chek > 0 .and. cur_chek != last_chek
+    fl := .t. ; s_err := ""
   endif
 endif
 // ПРОБЛЕММЫ по печати ЧЕКА
 if !fl
-  if FRCH_annul(lport) == 1
+  if FRCH_annul() == 1
     fl_err_annul := .t.
   endif
 endif
@@ -1107,51 +969,75 @@ elseif !fl
   write_err_kassa(s_err,"ЧЕК АННУЛИРОВАН")
 endif
 //
-FR_otrezka(lport,1,timeout)
+FR_otrezka(1)
 //
 if type("delta_chek") == "N"
   cur_chek += delta_chek
 endif
 return fl
 
+
 *
 
-***** 17.06.15
-Function vozv_fr(value,/*@*/cur_chek)
-Local fl := .t., lport := meK_port, buf := save_maxrow(), name_tov, ;
+***** 02.05.18
+Function vozv_fr(value,/*@*/cur_chek,v_bank,tip_kart)
+Local fl := .t., buf := save_maxrow(), name_tov, ;
       s_err := "", s, last_chek, fl_err_annul := .f., summa_kassa := 0
-
+//
+DEFAULT v_bank TO 0, tip_kart to 2
+//
 cur_chek := 0
 // запрашиваем наличие наличности в кассе
-if valtype(summa_kassa := (FRCH_d_registr(lport,193))) != "N"
-  return func_error(4,summa_kassa)
+if (value - v_bank) > 0
+  if valtype(summa_kassa := (FRCH_d_registr(193))) != "N"
+    return func_error(4,summa_kassa)
+  endif
+  if (value - v_bank) > summa_kassa
+    return func_error(4,"Недостаточная сумма в кассе")
+  endif
 endif
-if value > summa_kassa
-  return func_error(4,"Недостаточная сумма в кассе")
+// запрашиваем наличие БЕЗНАЛА в кассе
+if v_bank > 0
+  if tip_kart == 1
+    if valtype(summa_kassa := (FRCH_d_registr(197))) != "N"
+      return func_error(4,summa_kassa)
+    endif
+  elseif tip_kart == 2
+    if valtype(summa_kassa := (FRCH_d_registr(201))) != "N"
+      return func_error(4,summa_kassa)
+    endif
+  else
+    if valtype(summa_kassa := (FRCH_d_registr(205))) != "N"
+      return func_error(4,summa_kassa)
+    endif
+  endif
+  if v_bank > summa_kassa
+    return func_error(4,"Недостаточная сумма БЕЗНАЛА в кассе")
+  endif
 endif
 mywait()
-last_chek := FR_ret_chek(lport)
-if !empty(s_err := FRCH_vozvrat(lport,value))
+last_chek := FR_ret_chek()
+if !empty(s_err := FRCH_vozvrat(value+v_bank))
   fl := .f.
   func_error(4,s_err)
 else
-  FR_stroka(lport," ") // печать в чеке пустой строки перед ФИО больного
+  FR_stroka(" ") // печать в чеке пустой строки перед ФИО больного
   name_tov := lstr(glob_kartotek)+"  "+fam_i_o(glob_k_fio)
-  FR_stroka(lport,name_tov)
-  if !empty(s_err := FRCH_close(lport,value,0,,0))
+  FR_stroka(name_tov)
+  if !empty(s_err := FRCH_close(value,v_bank,,0,tip_kart))
     fl := .f.
     func_error(4,s_err)
   endif
-  cur_chek := FR_ret_chek(lport)
+  cur_chek := FR_ret_chek()
   if !fl .and. last_chek > 0
     if cur_chek > 0 .and. cur_chek != last_chek
       fl := .t. ; s_err := ""
     endif
   endif
 endif
-FR_gudok(lport)
+FR_gudok()
 if !fl
-  if FRCH_annul(lport) == 1
+  if FRCH_annul() == 1
     fl_err_annul := .t.
   endif
 endif
@@ -1161,12 +1047,11 @@ if fl_err_annul
 elseif !fl
   write_err_kassa(s_err,"ЧЕК АННУЛИРОВАН")
 endif
-FR_otrezka(lport,1,150)
+FR_otrezka(1)
 if type("delta_chek") == "N"
   cur_chek += delta_chek
 endif
 return fl
-
 
 
 *
@@ -1176,9 +1061,8 @@ Function vozvrat_fr(value,bn_value,/*@*/cur_chek,sekcia,tip_banka)
 Local fl := .t.,  buf := save_maxrow(), name_tov, ;
       s_err := "", s, last_chek, fl_err_annul := .f., summa_kassa := 0
 
-
 // запрашиваем наличие наличности в кассе
-if valtype(summa_kassa := (FRCH_d_registr(1,193))) != "N"
+if valtype(summa_kassa := (FRCH_d_registr(193))) != "N"
   return func_error(4,summa_kassa)
 endif
 if value > summa_kassa
@@ -1196,14 +1080,14 @@ mywait()
 //
 s := ""
 //
-FR_progon(1,1,1)
+FR_progon(1,1)
 //  НАЧАЛО печати услуг
 select TMP
 go top
 do while !eof()
   if fl .and. tmp->kol1 > 0
     name_tov := alltrim(tmp->name_u)
-    s_err := FRCHN_vozvrat(tmp->u_cena,tmp->kol1,sekcia,name_tov)
+    s_err := FRCH_vozvrat(tmp->u_cena,tmp->kol1,sekcia,name_tov)
        //cena   - цена товара в рублях
        //kol_vo - количество товара
        //sekcia - номер секции
@@ -1216,10 +1100,11 @@ do while !eof()
   endif
   skip
 enddo
+//quit
 //  КОНЕЦ печати услуг
 //
 if fl
-  s_err := FRCH_close(1,value,bn_value,,0,tip_banka)
+  s_err := FRCH_close(value,bn_value,,0,tip_banka)
 //  s_err := FRCH_close(lport,s,vbank,,t_nds,tip_kart)
   if (fl := empty(s_err))
     //количество продаж
@@ -1228,14 +1113,14 @@ if fl
     inkey(0)
   endif
 endif
-FR_gudok(1)
+FR_gudok()
 //
 if fl
-  tt1 := FR_ret_dan(1)
+  tt1 := FR_ret_dan()
   if mek_chek == 1
     cur_chek := tt1[FR_R_NOMER]-1 //
   else
-    cur_chek := FR_ret_chek(lport)-1
+    cur_chek := FR_ret_chek()-1
   endif
   lfr_data := dtoc4(tt1[FR_R_DATE])
   fr_serial_number := tt1[FR_R_ZAVNOMER]
@@ -1253,7 +1138,7 @@ if fl
 endif
 // ПРОБЛЕММЫ по печати ЧЕКА
 if !fl
-  if FRCH_annul(1) == 1
+  if FRCH_annul() == 1
     fl_err_annul := .t.
   endif
 endif
@@ -1264,61 +1149,23 @@ elseif !fl
   write_err_kassa(s_err,"ЧЕК АННУЛИРОВАН")
 endif
 //
-FR_otrezka(1,1,10)
+FR_otrezka(1)
 if type("delta_chek") == "N"
   cur_chek += delta_chek
 endif
 //
 return fl
 
-*
-
-***** вызывается в "Платные услуги/Информация/Работа с кассой"
-Function inf_fr(k)
-Static si1 := 1, si2 := 1
-Local mas_pmt, mas_msg, mas_fun, j
-DEFAULT k TO 1
-do case
-  case k == 1
-    mas_pmt := {"Информация по ~кассе",;
-                "Больные без ~ЧЕКОВ",;
-                "Реестр",;
-                "Возвраты"}
-    mas_msg := {"Получение информации по состоянию кассового аппарата",;
-                "Поиск больных, у которых введены услуги, но не пробит ЧЕК",;
-                "Реестр кассира",;
-                "Информация по возвратам"}
-    mas_fun := {"inf_fr(11)",;
-                "inf_fr(12)",;
-                "inf_fr(13)",;
-                "inf_fr(14)"}
-    popup_prompt(T_ROW,T_COL-5,si1,mas_pmt,mas_msg,mas_fun)
-  case k == 11
-    f1_inf_fr(1)
-  case k == 12
-    f2_inf_fr()
-  case k == 13
-    pl_priemshk()
-  case k == 14
-    pl_vozvrat()
-endcase
-if k > 10
-  j := int(val(right(lstr(k),1)))
-  if between(k,11,19)
-    si1 := j
-  endif
-endif
-return NIL
 
 *
 
-***** 20.07.17 запрос к кассовому аппарату
+***** 5.07.18 запрос к кассовому аппарату
 Function f1_inf_fr(tip)
-Local arr := {}, s, lport := meK_port, sd, buf := save_row(maxrow()),;
+Local arr := {}, s,  sd, buf := save_row(maxrow()),;
       c4date := dtoc4(sys_date), n_file := "_kassa.txt",;
       fr_serial_number := "", kol := 0, sum := 0,;
       lkexchangeStatus, lkmessageStatus := 0, lkmessageCount := 0,;
-      lkdocumentNumber := 0, lkdateDoc, lktimeDoc
+      lkdocumentNumber := 0, lkdateDoc, lktimeDoc, mas_sost := {}
 
 DEFAULT tip TO 1
 
@@ -1333,16 +1180,19 @@ mywait()
 
 aadd(arr, center(date_month(sys_date,.t.),60))
 if glob_kassa == 1 .and. mek_kassa == 1
- //tt1 := FR_ret_dan(lport)
+ mas_sost := FR_ret_dan()
+ aadd(arr, "Дата в ФР  "+full_date(mas_sost[FR_R_DATE]))
+ aadd(arr, "Состояние ФР " )
+ aadd(arr, mas_sost[FR_R_PODREGIM]  )
  //fr_serial_number := tt1[FR_R_ZAVNOMER]
  aadd(arr, " ")
  aadd(arr,"ПО СВЕДЕНИЮ ФИСКАЛЬНОГО РЕГИСТРАТОРА:")
- aadd(arr," -Накопление наличности в кассе          "+str(FRCH_d_registr(lport,241),15,2)) //наличность за смену
- aadd(arr," -Продажа наличными за смену             "+str(FRCH_d_registr(lport,193),15,2)) //наличность за смену
- aadd(arr," -Возврат продаж наличными за смену      "+str(FRCH_d_registr(lport,195),15,2)) //наличность за смену
- aadd(arr," -Продажа карта МИР  за смену            "+str(FRCH_d_registr(lport,197),15,2)) //безнал за смену
- aadd(arr," -Продажа карта VISA за смену            "+str(FRCH_d_registr(lport,201),15,2)) //безнал за смену
- aadd(arr," -Продажа карта MasterCard за смену      "+str(FRCH_d_registr(lport,205),15,2)) //безнал за смену
+ aadd(arr," -Накопление наличности в кассе          "+str(FRCH_d_registr(241),15,2)) //наличность за смену
+ aadd(arr," -Продажа наличными за смену             "+str(FRCH_d_registr(193),15,2)) //наличность за смену
+ aadd(arr," -Возврат продаж наличными за смену      "+str(FRCH_d_registr(195),15,2)) //наличность за смену
+ aadd(arr," -Продажа карта МИР  за смену            "+str(FRCH_d_registr(197),15,2)) //безнал за смену
+ aadd(arr," -Продажа карта VISA за смену            "+str(FRCH_d_registr(201),15,2)) //безнал за смену
+ aadd(arr," -Продажа карта MasterCard за смену      "+str(FRCH_d_registr(205),15,2)) //безнал за смену
  aadd(arr, " ")
  aadd(arr,"СТАТУС ИНФОРМАЦИОННОГО ОБМЕНА")
  if empty(FRN_GetInfoExchangeStatusShtih( @lkexchangeStatus ,;
@@ -1358,80 +1208,83 @@ if glob_kassa == 1 .and. mek_kassa == 1
    aadd(arr," -ДАННЫЕ НЕ СЧИТАНЫ")
  endif
 endif
-aadd(arr, " ")
-aadd(arr, "ПО СВЕДЕНИЮ ПРОГРАММЫ:")
-s := sv := sd := 0
-if tip == 1
-  R_Use(dir_server+"hum_p",,"HUMAN")
-  index on str(kod_k,7) to (cur_dir+"tmp") ;
-        for is_kas==1 .and. equalany(c4date,pdate,date_voz) ;
-        progress
-  go top
-  do while !eof()
-    if padr(human->fr_zavod,8) == padr(fr_serial_number,8)
-      if c4date == human->pdate
-        sd += human->cena
-        s += human->cena
+if tip < 5
+// для chip_mo
+  aadd(arr, " ")
+  aadd(arr, "ПО СВЕДЕНИЮ ПРОГРАММЫ:")
+  s := sv := sd := 0
+  if tip == 1
+    R_Use(dir_server+"hum_p",,"HUMAN")
+    index on str(kod_k,7) to (cur_dir+"tmp") ;
+          for is_kas==1 .and. equalany(c4date,pdate,date_voz) ;
+          progress
+    go top
+    do while !eof()
+      if padr(human->fr_zavod,8) == padr(fr_serial_number,8)
+        if c4date == human->pdate
+          sd += human->cena
+          s += human->cena
+        endif
+        if c4date == human->date_voz
+          sd -= human->sum_voz
+          sv += human->sum_voz
+        endif
       endif
-      if c4date == human->date_voz
-        sd -= human->sum_voz
-        sv += human->sum_voz
+      skip
+    enddo
+  elseif tip == 2
+    R_Use(dir_server+"hum_oro",,"HUMAN")
+    index on str(kod,7) to (cur_dir+"tmp") ;
+          for equalany(c4date,pdate,date_voz) ;
+          progress
+    go top
+    do while !eof()
+      if padr(human->fr_zavod,8) == padr(fr_serial_number,8)
+        if c4date == human->pdate
+          sd += human->cena_opl
+          s += human->cena_opl
+        endif
+        if c4date == human->date_voz
+          sd -= human->sum_voz
+          sv += human->sum_voz
+        endif
       endif
-    endif
-    skip
-  enddo
-elseif tip == 2
-  R_Use(dir_server+"hum_oro",,"HUMAN")
-  index on str(kod,7) to (cur_dir+"tmp") ;
-        for equalany(c4date,pdate,date_voz) ;
-        progress
-  go top
-  do while !eof()
-    if padr(human->fr_zavod,8) == padr(fr_serial_number,8)
-      if c4date == human->pdate
-        sd += human->cena_opl
-        s += human->cena_opl
+      skip
+    enddo
+  else
+    R_Use(dir_server+"kas_pl",dir_server+"kas_pl2","KPL")
+    find (dtos(sys_date))
+    do while kpl->k_data == sys_date .and. !eof()
+      if kpl->smena == glob_smena
+        kol ++
+        sum += kpl->cena
       endif
-      if c4date == human->date_voz
-        sd -= human->sum_voz
-        sv += human->sum_voz
+      skip
+    enddo
+    R_Use(dir_server+"kas_ort",dir_server+"kas_ort2","KOR")
+    find (dtos(sys_date))
+    do while kor->k_data == sys_date .and. !eof()
+      if kor->smena == glob_smena .and. kor->n_chek > 0
+        kol ++
+        sum += kor->cena
       endif
-    endif
-    skip
-  enddo
-else
-  R_Use(dir_server+"kas_pl",dir_server+"kas_pl2","KPL")
-  find (dtos(sys_date))
-  do while kpl->k_data == sys_date .and. !eof()
-    if kpl->smena == glob_smena
-      kol ++
-      sum += kpl->cena
-    endif
-    skip
-  enddo
-  R_Use(dir_server+"kas_ort",dir_server+"kas_ort2","KOR")
-  find (dtos(sys_date))
-  do while kor->k_data == sys_date .and. !eof()
-    if kor->smena == glob_smena .and. kor->n_chek > 0
-      kol ++
-      sum += kor->cena
-    endif
-    skip
-  enddo
-endif
-close databases
-if tip < 3
-  aadd(arr, " -Сумма возвратов:                       "+str(abs(sv),15,2))
-  aadd(arr, " -Сумма общего итога оплат за смену:     "+str(s,15,2))
-else
-  aadd(arr, " -Количество чеков за смену:             "+str(kol,15))
-  aadd(arr, " -Сумма общего итога оплат за смену:     "+str(sum,15,2))
-endif
-aadd(arr,   " -Сумма наличных денег в ящике ККМ:      "+str(sd,15,2))
-if meK_ostato > 0
-  aadd(arr, "")
-  aadd(arr, " -Сумма денег, внесенная в кассу УТРОМ:    "+str(meK_ostato,15,2))
-  aadd(arr, " -Итого сумма наличных денег в ящике ККМ:   "+str(sd+meK_ostato,15,2))
+      skip
+    enddo
+  endif
+  close databases
+  if tip < 3
+    aadd(arr, " -Сумма возвратов:                       "+str(abs(sv),15,2))
+    aadd(arr, " -Сумма общего итога оплат за смену:     "+str(s,15,2))
+  else
+    aadd(arr, " -Количество чеков за смену:             "+str(kol,15))
+    aadd(arr, " -Сумма общего итога оплат за смену:     "+str(sum,15,2))
+  endif
+  aadd(arr,   " -Сумма наличных денег в ящике ККМ:      "+str(sd,15,2))
+  if meK_ostato > 0
+    aadd(arr, "")
+    aadd(arr, " -Сумма денег, внесенная в кассу УТРОМ:    "+str(meK_ostato,15,2))
+    aadd(arr, " -Итого сумма наличных денег в ящике ККМ:   "+str(sd+meK_ostato,15,2))
+  endif
 endif
 s := eos
 aeval(arr, {|x| s += space(10)+x+eos } )
@@ -1462,629 +1315,35 @@ if empty(FRN_GetInfoExchangeStatusShtih( @lkexchangeStatus ,;
 endif
 return NIL
 
-*
 
-*****
-Function f2_inf_fr()
-Local j := 0, s, buf := save_row(maxrow()), n_file := "_kassa1.txt", sh := 65,;
-      HH := 60
-Local arr_title := {;
-  "─"}
-
-mywait()
-fp := fcreate(n_file) ; n_list := 1 ; tek_stroke := 0
-
-add_string(padc("Список больных без чеков",sh))
-add_string(padc("по состоянию на "+date_month(sys_date,.t.),sh))
-add_string("")
-R_Use(dir_server+"kartotek",,"KART")
-R_Use(dir_server+"hum_p",,"HUMAN")
-index on dtos(k_data) to (cur_dir+"tmp") for is_kas == 2 progress
-go top
-do while !eof()
-  if verify_FF(HH,.t.,sh)
-    aeval(arr_title, {|x| add_string(x) } )
-  endif
-  kart->(dbGoto(human->kod_k))
-  add_string(str(++j,4)+". "+kart->fio+" "+dtoc(human->k_data))
-  select HUMAN
-  skip
-enddo
-  fclose(fp)
-close databases
-rest_box(buf)
-if j == 0
-  func_error(4,"Не обнаружено больных без чеков")
-else
-  viewtext(n_file,,,,(sh>80),,,2)
-endif
-return NIL
-
-*
-
-***** 15.12.14
-Function pl_priemshk()
-Local fl := .t., buf := save_row(maxrow()), sm2 := 0, HH := 52,;
-      n_file := "platn.txt", arr_m, sh, krvz, arr_dms,;
-      mas_op1 := {}, mas_op2 := {}, mas_op3 := {}, i, arr[2], sm_bn := 0
-
-Local arr_title := {;
-  "───┬──────────────────────────────────────┬──────┬─────┬──────┬──────────┬────────────────────",;
-  " N │           Ф.И.О. пациента            │Время │ Чек │Код П │  Сумма   │        Врач        ",;
-  "───┴──────────────────────────────────────┴──────┴─────┴──────┴──────────┴────────────────────"}
-
-sh := len(arr_title[1])
-if (krvz := fbp_tip_usl(T_ROW,T_COL-5,@arr_dms)) == NIL
-  return NIL
-endif
-if (arr_m := year_month()) == NIL
-  return NIL
-endif
-if !myFileDeleted(cur_dir+"tmp"+sdbf)
-  return NIL
-endif
-//
-mywait()
-dbcreate(cur_dir+"tmp", {{"kod",     "N",  4,  0},;
-                 {"fio",     "C", 60,  0},;
-                 {"chek",    "N", 10,  0},;
-                 {"kod_hum", "N", 10,  0},;
-                 {"operat",  "N", 10,  0},;
-                 {"operatf", "C", 40,  0},;
-                 {"operatd", "C", 40,  0},;
-                 {"FR_DATA", "D",  8,  0},;
-                 {"fr_time", "N",  5,  0},;
-                 {"t_flag",  "N",  1,  0},;
-                 {"summa",   "N", 12,  2},;
-                 {"kod_vr",  "N",  4,  0},;
-                 {"fio_vr",  "C", 60,  0},;
-                 {"summa_bn","N", 12,  2}})
-use (cur_dir+"tmp") new
-if yes_parol
-  R_Use(dir_server+"base1",,"BASE1")
-endif
-R_Use(dir_server+"kartotek",,"KART")
-R_Use(dir_server+"mo_pers",,"PERS")
-R_Use(dir_server+"hum_p_u",dir_server+"hum_p_u","HUM_U")
-R_Use(dir_server+"hum_p",,"HUM")
-go top
-do while !eof()
-  if !empty(hum->fr_data) .and. between(hum->fr_data,arr_m[7],arr_m[8]) ;
-                          .and. ascan(krvz,hum->tip_usl) > 0
-    if hum->kod_oper == asc(kod_polzovat) .or. tip_polzovat == 0
-      select KART
-      goto (hum->kod_k)
-      select TMP
-      append blank
-      tmp->fio      := kart->fio
-      tmp->chek     := hum->kv_cia
-      tmp->kod_hum  := hum->kod_k
-      tmp->fr_data  := c4tod(hum->fr_data)
-      tmp->fr_time  := hum->fr_time
-      tmp->summa    := hum->cena
-      tmp->summa_bn := hum->sbank
-      tmp->operat   := hum->kod_oper
-      if c4tod(hum->fr_data) != hum->n_data .or.;
-         c4tod(hum->fr_data) != hum->k_data
-        tmp->t_flag := 1
-      else
-        tmp->t_flag := 0
-      endif
-      if yes_parol .and. hum->KOD_OPER > 0
-        select BASE1
-        goto (hum->KOD_OPER)
-        if !eof() .and. !empty(base1->p1)
-          tmp->operatf := alltrim(crypt(base1->p1,gpasskod))
-          tmp->operatd := alltrim(crypt(base1->p5,gpasskod))
-        endif
-      endif
-      select HUM_U
-      find (str(hum->(recno()),7))
-      if found()
-        select PERS
-        goto (hum_u->kod_vr)
-        tmp->fio_vr  := pers->fio
-      endif
-    endif
-  endif
-  select HUM
-  skip
-enddo
-close databases
-use (cur_dir+"tmp") new
-index on operat to (cur_dir+"tmp_u") unique
-go top
-do while !eof()
-  aadd(mas_op1,tmp->operat)
-  aadd(mas_op2,tmp->operatf)
-  aadd(mas_op3,tmp->operatd)
-  skip
-enddo
-close databases
-rest_box(buf)
-// запрос по операторам
-if len(mas_op1) == 0
-  bkol_oper := 0
-  func_error(4,"Нет информации "+arr_m[4])
-elseif len(mas_op1) == 1
-  bkol_oper := 1
-else
-  bkol_oper := popup_prompt(T_ROW,T_COL+5,1,mas_op2)
-endif
-if bkol_oper > 0
-  fp := fcreate(n_file) ; n_list := 1 ; tek_stroke := 0
-  add_string(center("Р Е Е С Т Р",sh))
-  add_string(center("регистрации чеков на оплату оказанных медицинских платных услуг населению",sh))
-  R_Use(dir_server+"organiz",,"ORG")
-  for i := 1 to perenos(arr,alltrim(org->name),sh)
-    add_string(center(alltrim(arr[i]),sh))
-  next
-  add_string(center(arr_m[4],sh))
-  tit_tip_usl(krvz,arr_dms,sh)
-  add_string("")
-  aeval(arr_title, {|x| add_string(x) })
-  sm2 := ii := 0
-  use (cur_dir+"tmp") new
-  index on fr_time to (cur_dir+"tmp_u") for operat == mas_op1[bkol_oper]
-  go top
-  do while !eof()
-    if verify_FF(HH,.t.,sh)
-      aeval(arr_title, {|x| add_string(x) } )
-    endif
-    add_string(str(++ii,3)+" "+;
-               padr(tmp->fio,38)+;
-               iif(tmp->summa_bn > 1,"БН","  ")+;
-               padr(sectotime(tmp->fr_time),5)+" "+;
-               padl(lstr(tmp->chek),5)+" "+;
-               padl(lstr(tmp->kod_hum),6)+" "+;
-               iif(tmp->summa_bn > 1,put_kope(tmp->summa_bn,10),put_kope(tmp->summa,10))+" "+;
-               padr(fam_i_o(tmp->fio_vr),20)+;
-               iif(tmp->t_flag==1,"*"," "))
-    if tmp->summa > tmp->summa_bn .and. tmp->summa_bn > 0
-      add_string(str(++ii,3)+" "+;
-                 padr(tmp->fio,38)+"  "+;
-                 padr(sectotime(tmp->fr_time),5)+" "+;
-                 padl(lstr(tmp->chek),5)+" "+;
-                 padl(lstr(tmp->kod_hum),6)+" "+;
-                 put_kope(tmp->summa-tmp->summa_bn,10)+" "+;
-                 padr(fam_i_o(tmp->fio_vr),20)+;
-                 iif(tmp->t_flag==1,"*"," "))
-    endif
-    sm2 += tmp->summa
-    sm_bn += tmp->summa_bn
-    skip
-  enddo
-  add_string(replicate("─",sh))
-  add_string(padR("Итого: ",61)+put_kope(sm2,12))
-  add_string(replicate("─",sh))
-  for i := 1 to perenos(arr,"Всего на сумму: "+srub_kop(sm2,.t.),sh)
-    add_string(arr[i])
-  next
-  if meK_bank == 1
-    for i := 1 to perenos(arr,"из них в кассу: "+srub_kop(sm2-sm_bn,.t.),sh)
-      add_string(arr[i])
-    next
-  endif
-  add_string("")
-  add_string("            Сдал "+padr(alltrim(mas_op3[bkol_oper])+":",21)+"                    /"+alltrim(mas_op2[bkol_oper])+"/")
-  add_string("")
-  add_string("            Принял кассир:                                /"+alltrim(mek_kassir)+"/")
-  fclose(fp)
-  close databases
-  viewtext(n_file,,,,(sh>80),,,3)
-endif
-return NIL
-
-*
-
-*****
-Function pl_vozvrat()
-Local fl := .t., buf := save_row(maxrow()), sm := 0, HH := 52,;
-      n_file := "platn.txt", arr_m, sh, sm_sn := 0, krvz, arr_dms,;
-      sm_usl := 0
-Local arr_title := {;
-  "───────────────────────────────────────────────────┬────────┬───────────",;
-  "                  Услуги                           │ Кол-во │   Сумма   ",;
-  "───────────────────────────────────────────────────┴────────┴───────────";
-  }
-sh := len(arr_title[1])
-if (krvz := fbp_tip_usl(T_ROW,T_COL-5,@arr_dms)) == NIL
-  return NIL
-endif
-if (arr_m := year_month()) == NIL
-  return NIL
-endif
-//
-mywait()
-fp := fcreate(n_file) ; n_list := 1 ; tek_stroke := 0
-add_string(center("ВОЗВРАТ оплаты услуг",sh))
-add_string(center("(по дате начала лечения)",sh))
-add_string(center(arr_m[4],sh))
-tit_tip_usl(krvz,arr_dms,sh)
-add_string("")
-aeval(arr_title, {|x| add_string(x) })
-//
-R_Use(dir_server+"mo_pers",,"P2")
-R_Use(dir_server+"uslugi",,"USL")
-R_Use(dir_server+"kartotek",,"KART")
-R_Use(dir_server+"hum_p_U",dir_server+"hum_p_U","HUM_U")
-R_Use(dir_server+"hum_p",,"HUM")
-go top
-do while !eof()
-  if between(hum->n_data,arr_m[5],arr_m[6]) .and.;
-                     ascan(krvz,hum->tip_usl) > 0 .and. hum->SUM_VOZ > 0
-    if verify_FF(HH,.t.,sh)
-      aeval(arr_title, {|x| add_string(x) } )
-    endif
-    select KART
-    goto (hum->kod_k)
-    add_string(padr("--"+alltrim(kart->fio)+"  ВОЗВРАТ",59)+put_kope(hum->SUM_VOZ,12))
-    sm_sn += hum->SUM_VOZ
-    t := hum->(RECNO())
-    select HUM_U
-    find (str(t,7))
-    sum_sl := 0
-    do while t == hum_u->kod .and. !eof()
-      if verify_FF(HH,.t.,sh)
-        aeval(arr_title, {|x| add_string(x) } )
-      endif
-      select USL
-      goto (hum_u->u_kod )
-      add_string(usl->shifr+padr(usl->name,40)+;
-                 str(hum_u->kol,9)+;
-                 put_kope(hum_u->stoim,12))
-      select P2
-      goto (hum_u->kod_vr)
-      add_string(padr(p2->fio,50))
-      sum_sl += hum_u->stoim
-      sm_usl += hum_u->stoim
-      select HUM_U
-      skip
-    enddo
-    add_string(padr("     Итого оплата",59)+put_kope(sum_sl,12))
-    add_string("")
-  endif
-  select HUM
-  skip
-enddo
-add_string(replicate("─",sh))
-add_string(padR("ИТОГО возврат: "    ,59)+put_kope(sm_sn ,12))
-add_string(padR("ИТОГО сумма услуг: ",59)+put_kope(sm_usl,12))
-close databases
-fclose(fp)
-viewtext(n_file,,,,(sh>80),,,1)
-rest_box(buf)
-return NIL
-
-*
-
-***** 18.11.14 вызывается в "Ортопедия/Информация/Работа с кассой"
-Function inf_fr_orto(k)
-Static si1 := 1, si2 := 1
-Local mas_pmt, mas_msg, mas_fun, j
-DEFAULT k TO 1
-do case
-  case k == 1
-    mas_pmt := {"Информация по ~кассе",;
-                "Реестр",;
-                "Возвраты"}
-    mas_msg := {"Получение информации по состоянию кассового аппарата",;
-                "Реестр регистрации чеков на оплату",;
-                "Информация по возвратам"}
-    mas_fun := {"inf_fr_orto(11)",;
-                "inf_fr_orto(12)",;
-                "inf_fr_orto(13)"}
-    popup_prompt(T_ROW,T_COL-5,si1,mas_pmt,mas_msg,mas_fun)
-  case k == 11
-    f1_inf_fr(2)
-  case k == 12
-    ort_priemshk()
-  case k == 13
-    or_vozvrat()
-endcase
-if k > 10
-  j := int(val(right(lstr(k),1)))
-  if between(k,11,19)
-    si1 := j
-  endif
-endif
-return NIL
-
-
-*
-
-***** 15.12.14
-Function ort_priemshk()
-Local fl := .t., buf := save_row(maxrow()), sm2 := 0, HH := 52,;
-      n_file := "platn.txt", arr_m, sh, krvz, arr_dms,;
-      sm_1 := 0, sm_2 := 0, sm_3 := 0, sm_bn := 0,;
-      mas_op1 := {}, mas_op2 := {}, i, arr[2]
-Local  arr_title := {;
-  "───┬──────────────────────────────────────┬──────┬─────┬──────┬──────────┬───┬─────┬──────────────",;
-  " N │           Ф.И.О. пациента            │Время │ Чек │Код П │  Сумма   │Тип│Наряд│      Врач    ",;
-  "───┴──────────────────────────────────────┴──────┴─────┴──────┴──────────┴───┴─────┴──────────────"}
-Local menu_opl := {{"ава",0},;
-                   {"опл",1},;
-                   {"нап",2}}
-sh := len(arr_title[1])
-//if (krvz := fbp_tip_usl(T_ROW,T_COL-5,@arr_dms)) == NIL
-//  return NIL
-//endif
-if (arr_m := year_month()) == NIL
-  return NIL
-endif
-if !myFileDeleted(cur_dir+"tmp"+sdbf)
-  return NIL
-endif
-//
-mywait()
-dbcreate(cur_dir+"tmp", {{"kod",     "N",  4,  0},;
-                 {"fio",     "C", 60,  0},;
-                 {"chek",    "N", 10,  0},;
-                 {"kod_hum", "N", 10,  0},;
-                 {"operat",  "N", 10,  0},;
-                 {"operatf", "C", 40,  0},;
-                 {"FR_DATA", "D",  8,  0},;
-                 {"fr_time", "N",  5,  0},;
-                 {"t_flag",  "N",  1,  0},;
-                 {"kod_vr",  "N",  4,  0},;
-                 {"fio_vr",  "C", 60,  0},;
-                 {"tip_op",  "N",  1,  0},;
-                 {"nar_z",   "N",  5,  0},;
-                 {"summa_bn","N", 12,  2},;
-                 {"summaN",  "N", 12,  2},;
-                 {"summa",   "N", 12,  2}})
-use (cur_dir+"tmp") new
-if yes_parol
-  R_Use(dir_server+"base1",,"BASE1")
-endif
-R_Use(dir_server+"kartotek",,"KART")
-R_Use(dir_server+"hum_ort",,"HUMAN")
-R_Use(dir_server+"mo_pers",,"PERS")
-use_base("hum_oro")
-go top
-do while !eof()
-  if !empty(ho->fr_data) .and. between(ho->fr_data,arr_m[7],arr_m[8])
-    select HUMAN
-    goto (ho->kod)
-    select KART
-    goto (human->kod_k)
-    select TMP
-    if ho->kod_reg == asc(kod_polzovat) .or. tip_polzovat == 0
-      append blank
-      tmp->fio      := kart->fio
-      tmp->chek     := ho->kv_cia
-      tmp->kod_hum  := human->kod_k
-      tmp->fr_data  := c4tod(ho->fr_data)
-      tmp->fr_time  := ho->fr_time
-      tmp->summa    := ho->cena_opl
-      tmp->kod_vr   := human->kod_vr
-      tmp->tip_op   := ho->tip_opl
-      tmp->nar_z    := human->nar_z
-      tmp->summa_bn := ho->sbank
-      select PERS
-      goto (human->kod_vr)
-      tmp->fio_vr  := pers->fio
-      tmp->operat  := ho->kod_reg
-      tmp->t_flag := 0
-      if yes_parol .and. ho->kod_reg > 0
-        select BASE1
-        goto (ho->kod_reg)
-        if !eof() .and. !empty(base1->p1)
-          tmp->operatf := alltrim(crypt(base1->p1,gpasskod))
-        endif
-      endif
-    endif
-  endif
-  select HO
-  skip
-enddo
-close databases
-use (cur_dir+"tmp") new
-index on operat to (cur_dir+"tmp_u") unique
-go top
-do while !eof()
-  aadd(mas_op1,tmp->operat)
-  aadd(mas_op2,tmp->operatf)
-  skip
-enddo
-close databases
-rest_box(buf)
-// запрос по операторам
-if len(mas_op1) == 0
-  bkol_oper := 0
-  func_error(4,"Нет информации "+arr_m[4])
-elseif len(mas_op1) == 1
-  bkol_oper := 1
-else
-  bkol_oper := popup_prompt(T_ROW,T_COL+5,1,mas_op2)
-endif
-if bkol_oper > 0
-  fp := fcreate(n_file) ; n_list := 1 ; tek_stroke := 0
-  add_string(center("Р Е Е С Т Р",sh))
-  add_string(center("регистрации чеков на оплату оказанных медицинских платных услуг населению",sh))
-  R_Use(dir_server+"organiz",,"ORG")
-  for i := 1 to perenos(arr,alltrim(org->name),sh)
-    add_string(center(alltrim(arr[i]),sh))
-  next
-  add_string(center(arr_m[4],sh))
-//  tit_tip_usl(krvz,arr_dms,sh)
-  add_string("")
-  aeval(arr_title, {|x| add_string(x) })
-  sm2 := ii := 0
-  use (cur_dir+"tmp") new
-  index on fr_time to (cur_dir+"tmp_u") for operat == mas_op1[bkol_oper]
-  go top
-  do while !eof()
-    if verify_FF(HH,.t.,sh)
-      aeval(arr_title, {|x| add_string(x) } )
-    endif
-    tt1 := inieditspr(A__MENUVERT, menu_opl, tmp->tip_op)
-    add_string(str(++ii,3)+" "+;
-               padr(tmp->fio,38)+;
-               iif(tmp->summa_bn > 1,"БН","  ")+;
-               padr(sectotime(tmp->fr_time),5)+" "+;
-               padl(lstr(tmp->chek),5)+" "+;
-               padl(lstr(tmp->kod_hum),6)+" "+;
-               iif(tmp->summa_bn > 1,put_kope(tmp->summa_bn,10),put_kope(tmp->summa,10))+" "+;
-               padr(alltrim(tt1),3)+" "+;
-               padl(lstr(tmp->nar_z),5)+" "+;
-               fam_i_o(tmp->fio_vr)+;
-               iif(tmp->t_flag==1,"*"," "))
-    if tmp->summa > tmp->summa_bn .and. tmp->summa_bn > 0
-      add_string(str(++ii,3)+" "+;
-                 padr(tmp->fio,38)+"  "+;
-                 padr(sectotime(tmp->fr_time),5)+" "+;
-                 padl(lstr(tmp->chek),5)+" "+;
-                 padl(lstr(tmp->kod_hum),6)+" "+;
-                 put_kope(tmp->summa-tmp->summa_bn,10)+" "+;
-                 padr(alltrim(tt1),3)+" "+;
-                 padl(lstr(tmp->nar_z),5)+" "+;
-                 fam_i_o(tmp->fio_vr)+;
-                 iif(tmp->t_flag==1,"*"," "))
-    endif
-    if tmp->tip_op == 0
-      sm_1 += tmp->summa
-    elseif tmp->tip_op == 1
-      sm_2 += tmp->summa
-    else
-      sm_3 += tmp->summa
-    endif
-    sm2 += tmp->summa
-    sm_bn += tmp->summa_bn
-    select TMP
-    skip
-  enddo
-  add_string(replicate("─",sh))
-  add_string(padR("Итого: ",61)+put_kope(sm2,12))
-  add_string(replicate("─",sh))
-  for i := 1 to perenos(arr,"Всего на сумму: "+srub_kop(sm2,.t.),sh)
-    add_string(arr[i])
-  next
-  if meK_bank == 1
-    for i := 1 to perenos(arr,"из них в кассу: "+srub_kop(sm2-sm_bn,.t.),sh)
-      add_string(arr[i])
-    next
-  endif
-  //add_string(padR("Аванс:    ",61)+put_kope(sm_1,12))
-  //add_string(padR("Оплата:   ",61)+put_kope(sm_2,12))
-  //add_string(padR("Напылене: ",61)+put_kope(sm_3,12))
-  add_string("")
-  add_string("            Сдал мед.регистратор:              /"+alltrim(mas_op2[bkol_oper])+"/")
-  add_string("")
-  add_string("            Принял кассир:                                /"+alltrim(mek_kassir)+"/")
-  fclose(fp)
-  close databases
-  viewtext(n_file,,,,(sh>80),,,3)
-endif
-return NIL
-
-*
-
-***** 18.11.14
-Function or_vozvrat()
-Local fl := .t., buf := save_row(maxrow()), sm := 0, HH := 52,;
-      n_file := "platn.txt", arr_m, sh, sm_sn := 0, krvz, arr_dms,;
-      sm_usl := 0
-Local arr_title := {;
-  "────────────────────────────────────────────────────────────┬───────────",;
-  "                           Пациент                          │   Сумма   ",;
-  "────────────────────────────────────────────────────────────┴───────────";
-  }
-sh := len(arr_title[1])
-//if (krvz := fbp_tip_usl(T_ROW,T_COL-5,@arr_dms)) == NIL
-//  return NIL
-//endif
-if (arr_m := year_month()) == NIL
-  return NIL
-endif
-//
-mywait()
-fp := fcreate(n_file) ; n_list := 1 ; tek_stroke := 0
-add_string(center("ВОЗВРАТ оплаты нарядов",sh))
-add_string(center("(по дате возврата)",sh))
-add_string(center(arr_m[4],sh))
-//tit_tip_usl(krvz,arr_dms,sh)
-add_string("")
-aeval(arr_title, {|x| add_string(x) })
-//
-R_Use(dir_server+"mo_pers",,"P2")
-R_Use(dir_server+"kartotek",,"KART")
-R_Use(dir_server+"hum_ort",,"HUM_T")
-R_Use(dir_server+"hum_oro",,"HUM_O")
-go top
-do while !eof()
-  if between(hum_o->date_voz,arr_m[7],arr_m[8]) .and.;
-                                 hum_o->SUM_VOZ > 0
-                    // ascan(krvz,hum_o->tip_usl) > 0 .and.
-    if verify_FF(HH,.t.,sh)
-      aeval(arr_title, {|x| add_string(x) } )
-    endif
-    select HUM_T
-    goto (hum_o->kod)
-    select KART
-    goto (hum_t->kod_k)
-    add_string(padr("--"+alltrim(kart->fio)+"  ВОЗВРАТ",59)+put_kope(hum_o->SUM_VOZ,12))
-    sm_sn += hum_o->SUM_VOZ
-    select P2
-    goto (hum_t->kod_vr)
-    add_string(padr("Врач "+p2->fio,50))
-    add_string("")
-  endif
-  select HUM_O
-  skip
-enddo
-add_string(replicate("─",sh))
-add_string(padr("ИТОГО возврат: "    ,59)+put_kope(sm_sn ,12))
-close databases
-fclose(fp)
-viewtext(n_file,,,,(sh>80),,,1)
-rest_box(buf)
-return NIL
 
 *
 
 ***** гудок на кассовом аппарате
-function FR_gudok(n_port)
-return FRN_gudok()
+function FR_gudok()
+//local drvFR
 
-*
-
-***** ДРАЙВЕР гудок на кассовом аппарате
-function FRN_gudok()
-
-local drvFR
 IF ( drvFR := win_oleCreateObject( "AddIn.DrvFr" ) ) != NIL
   drvFR:Password := oper_parol
   drvFR:Beep()
 endif
-return NIL
+return
 
-*
-
-***** вывод строки на чековую ленту
-function FR_stroka(n_port,stroka,flag)
-/* 17H - 23
-   n_port - номер порта
-   flag - 1 печать на контрольной ленте
-          2 печать на чековой ленте
-   stroka - строка выводимая на чековую ленту
-*/
-local s, t1 := space(40), t2
-DEFAULT flag to 2
-s := atrepl(",",alltrim(stroka),";")   // заменить ";" на "," строки
-s := charone(" ",s)                    // удалить совмещенные пробелы
-return FRN_stroka(s,flag)
 
 *
 
 ***** ДРАЙВЕР вывод строки на чековую ленту
-function FRN_stroka(stroka,flag)
+function FR_stroka(stroka,flag)
 /* flag - 1 печать на контрольной ленте
           2 печать на чековой ленте
    stroka - строка выводимая на чековую ленту
 */
-local t
+local t, s
+DEFAULT flag to 2
+
+s := atrepl(",",alltrim(stroka),";")   // заменить ";" на "," строки
+stroka := charone(" ",s)                    // удалить совмещенные пробелы
+
 
 drvFR:Password := oper_parol
 drvFR:StringForPrinting := stroka
@@ -2102,32 +1361,20 @@ endif
 HB_CDPSELECT("RU866")
 return NIL
 
-*
-
-
-***** вывод строки на чековую ленту
-function FR_b_stroka(n_port,flag,stroka)
-/* n_port - номер порта
-   flag - 1 печать на контрольной ленте
-          2 печать на чековой ленте
-   stroka - строка выводимая на чековую ленту реально 18 по инстр 20
-*/
-local s, t1 := space(20), t2
-DEFAULT flag to 2
-s := atrepl(",",alltrim(stroka),";")   // заменить ";" на "," строки
-s := charone(" ",s)                    // удалить совмещенные пробелы
-return FRN_b_stroka(s,flag)
-
 
 *
 
 ***** ДРАЙВЕР вывод строки на чековую ленту
-function FRN_b_stroka(stroka,flag)
+function FR_b_stroka(stroka,flag)
 /* flag - 1 печать на контрольной ленте
           2 печать на чековой ленте
    stroka - строка выводимая на чековую ленту
 */
 local t
+DEFAULT flag to 2
+
+s := atrepl(",",alltrim(stroka),";")   // заменить ";" на "," строки
+stroka := charone(" ",s)                    // удалить совмещенные пробелы
 
 drvFR:Password := oper_parol
 drvFR:StringForPrinting := stroka
@@ -2148,20 +1395,8 @@ return NIL
 
 *
 
-***** отрезка чековой ленты
-function FR_otrezka(n_port,flag,timeout)
-/* n_port - номер порта
-   flag - 0 полная отрезка
-          1 частичный отрез
-*/
-
-return FRN_otrezka(flag)
-
-
-*
-
 ***** ДРАЙВЕР отрезка чековой ленты
-function FRN_otrezka(flag)
+function FR_otrezka(flag)
 /* flag - 0 полная отрезка
           1 частичный отрез
 */
@@ -2175,23 +1410,11 @@ drvFR:CutCheck()
 return NIL
 
 
-*
-
-***** Протяжка
-function FR_progon(n_port,flag,kol_str)
-/*  n_prot - номер порта
-    flag - 0 контрольная лента
-           1 чековая лента
-           2 обе ленты
-    kol_str количество прогоняемых строк
-*/
-return FRN_progon(flag,kol_str)
-
 
 *
 
-***** ДРАЙВЕР отрезка чековой ленты
-function FRN_progon(flag,kol_str)
+***** ДРАЙВЕР прогон чековой ленты
+function FR_progon(flag,kol_str)
 /*  flag - 0 контрольная лента
            1 чековая лента
            2 обе ленты
@@ -2224,19 +1447,19 @@ return FRCHF_registr(cena,kol_vo,sekcia,name,t_nds,1,tip_tovar,tip_rachet)
 *
 
 ***** 03.09.17 Продажа товара
-function FRCHN_registr(cena,kol_vo,sekcia,name,t_nds)
-/*  cena   - цена товара в рублях
-    kol_vo - количество товара
-    sekcia - номер секции
-    name   - наименование товара
-*/
-local t, t1 := space(3), t2, t3 := 0
-name := alltrim(name) //48
+/*function FRCHN_registr(cena,kol_vo,sekcia,name,t_nds)
+//  cena   - цена товара в рублях
+//    kol_vo - количество товара
+//    sekcia - номер секции
+//    name   - наименование товара
+
+local t := ""
+
 drvFR:Password := oper_parol
 drvFR:Quantity := kol_vo
 drvFR:Price    := cena
 drvFR:Department := sekcia
-drvFR:StringForPrinting := upper(name)
+drvFR:StringForPrinting := upper(alltrim(name))
 drvFR:Tax1 := t_nds
 // HB_CDPSELECT("RU1251")
 IF drvFR:Sale() < 0
@@ -2250,7 +1473,7 @@ else
   return alltrim(t)
 endif
 return NIL
-
+*/
 *
 
 ***** 20.09.17 Продажа товара
@@ -2260,7 +1483,7 @@ function FRCHF_registr(cena,kol_vo,sekcia,name,t_nds,Tip_operation,tip_tovar,tip
     sekcia - номер секции
     name   - наименование товара
 */
-local t, t1 := space(3), t2, t3 := 0
+local t := ""
 
 DEFAULT tip_tovar to 4, tip_rachet to 4
 
@@ -2268,7 +1491,7 @@ DEFAULT tip_tovar to 4, tip_rachet to 4
 if len(name) > 127
   name := substr(name,1,128)
 endif
-//name := alltrim(padr(name,128)) //48
+name := alltrim(name)
 drvFR:Password := oper_parol
 drvFR:CheckType := Tip_operation // 1 - продажа
 drvFR:Quantity := kol_vo
@@ -2293,28 +1516,18 @@ else
 endif
 return NIL
 
-*
-
-***** Закрытие чека
-function FRCH_close(n_port,summa,summa1,name,t_nds,tip_kart)
-/*  n_port - номер порта
-    summa  - сумма наличных
-    summa1 - по кредитной карте
-    name   - текст
-*/
-DEFAULT name TO " "
-return FRCHN_close(summa,summa1,name,t_nds,tip_kart)
 
 *
 
 ***** Закрытие чека
-function FRCHN_close(summa,summa1,name,t_nds,tip_kart)
+function FRCH_close(summa,summa1,name,t_nds,tip_kart)
 /*  summa  - сумма наличных
     summa1 - по кредитной карте
     name   - текст
     t_nds
 */
-local  t, t1 := space(3), t2, t3 := 0
+local  t := ""
+DEFAULT name TO " "
 
 drvFR:Password := oper_parol
 //
@@ -2333,8 +1546,6 @@ elseif tip_kart == 2 //VISA
 elseif tip_kart == 3 //Masterkard
   drvFR:Summ4 := summa1
 endif
-//@ 0,10 say summa1
-//@ 1,10 say summa
 drvFR:StringForPrinting := upper(name)
 drvFR:Tax1 := t_nds
 IF drvFR:CloseCheck() < 0
@@ -2352,19 +1563,9 @@ return NIL
 *
 
 ***** Установка времени
-function FR_set_time(n_port,time)
-/*  n_prot - номер порта
-    time   - время в формате ЧЧ:ММ:СС
-*/
-return FRN_set_time(time)
-
-
-*
-
-***** Установка времени
-function FRN_set_time(time)
+function FR_set_time(time)
 //  time   - время в формате ЧЧ:ММ:СС
-local t
+local t := ""
 
 drvFR:Password := oper_frparol
 drvFR:Time := time
@@ -2374,21 +1575,15 @@ IF drvFR:SetTime() < 0
 endif
 return NIL
 
+
 *
 
 ***** Программирование даты (подтверждение программирования даты)
-Function FR_set_date(n_port,ldate)
+Function FR_set_date(ldate)
 /*  n_prot - номер порта
     ldate  - дата в формате даты
 */
-return FRN_set_date(ldate)
-
-*
-
-***** Программирование даты (подтверждение программирования даты)
-Function FRN_set_date(ldate)
-//  ldate  - дата в формате даты
-local  t
+local  t := ""
 
 drvFR:Password := oper_frparol
 drvFR:Date := ldate
@@ -2403,24 +1598,11 @@ IF drvFR:ConfirmDate() < 0
 endif
 return NIL
 
-
 *
 
 ***** Снятие суточного отчета
-Function FR_normgach(n_port,flag)
-/*
-    n_prot - номер порта
-    flag == 0 - без гашения 40H - 64
-            1   c гашением   41H - 65
-*/
-return FRN_normgach(flag)
-
-
-*
-
-***** Снятие суточного отчета
-Function FRN_normgach(flag)
-Local t
+Function FR_normgach(flag)
+Local t := ""
 
 drvFR:Password := oper_frparol
 if flag == 0 //без гашения
@@ -2455,7 +1637,7 @@ return NIL
 ***** Снятие суточного отчета по НАЛОГАМ
 Function FRN_PrintTaxReport()
 
-local t := space(3)
+local t := ""
 
 IF drvFR:PrintTaxReport() < 0
    t := drvFR:ResultCodeDescription
@@ -2468,7 +1650,7 @@ return NIL
 ***** Снятие суточного отчета по СЕКЦИЯМ
 Function FRN_PrintDepartmentReport()
 
-local t := space(3)
+local t := ""
 
 IF drvFR:PrintDepartmentReport() < 0
    t := drvFR:ResultCodeDescription
@@ -2476,31 +1658,18 @@ IF drvFR:PrintDepartmentReport() < 0
 endif
 return NIL
 
-*
-
-***** Возврат продажи (для аннулирования чека)
-function FRCH_vozvrat(n_port,cena,kol_vo,sekcia,name)
-/*  n_prot - номер порта
-    cena   - цена товара в рублях
-    kol_vo - количество товара
-    sekcia - номер секции
-    name   - наименование товара
-*/
-DEFAULT kol_vo TO 1, sekcia TO 1, name TO ""
-name := padr(name,1,90)
-return FRCHN_vozvrat(cena,kol_vo,sekcia,name)
-
 
 *
 
 ***** Возврат продажи (для аннулирования чека)
-function FRCHN_vozvrat(cena,kol_vo,sekcia,name)
+function FRCH_vozvrat(cena,kol_vo,sekcia,name)
 /*  cena   - цена товара в рублях
     kol_vo - количество товара
     sekcia - номер секции
     name   - наименование товара
 */
-local t, t1 := space(3), t2, t3 := 0
+local t
+DEFAULT kol_vo TO 1, sekcia TO 1, name TO ""
 
 drvFR:Password := oper_parol
 drvFR:Quantity := kol_vo
@@ -2521,45 +1690,29 @@ else
 endif
 return NIL
 
-*
-
-***** Аннулирование всего чека до его закрытия
-function FRCH_annul(n_port)
-/*  88H - 136
-    n_prot - номер порта
-    1 - аннулирование неудачно
-    0 - аннулирование удачно завершено
-*/
-return iif(empty(FRCHN_annul()),0,1)
 
 *
 
 ***** Аннулирование всего чека до его закрытия
-function FRCHN_annul()
+function FRCH_annul()
 /*  1 - аннулирование неудачно
     0 - аннулирование удачно завершено
 */
-local t1 := space(32), t2, i, t, ret := 1
+local t
 
 drvFR:Password := oper_parol
 IF drvFR:CancelCheck() < 0
    t := drvFR:ResultCodeDescription
-   return alltrim(t)
+   return iif(empty(alltrim(t)),0,1)
 endif
-return NIL
+return 0
+
 
 *
 
 ***** продолжение печати
-function FR_prodol(n_port)
-// n_port - номер порта
-return FRN_prodol()
-
-*
-
-***** продолжение печати
-function FRN_prodol()
-local  t, t2 := space(4)
+function FR_prodol()
+local t
 
 drvFR:Password := oper_parol
 IF drvFR:ContinuePrint() < 0
@@ -2568,17 +1721,11 @@ IF drvFR:ContinuePrint() < 0
 endif
 return NIL
 
-*
-
-***** Возвращает текущий номер чека
-Function FR_ret_chek(n_port)
-return FRN_ret_chek()
-
 
 *
 
-***** Возвращает текущий номер чека
-Function FRN_ret_chek()
+***** Возвращает текущий номер чека покупки
+Function FR_ret_chek()
 local num_chek := 0
 
 drvFR:Password := oper_parol
@@ -2591,21 +1738,26 @@ else
 endif
 return num_chek
 
+*
+
+***** Возвращает текущий номер документа
+Function FR_ret_dok()
+local num_chek := 0
+
+drvFR:Password := oper_parol
+drvFR:RegisterNumber :=152
+IF drvFR:GetOperationReg() < 0
+   num_chek := drvFR:ResultCodeDescription
+   return 0 //пока так
+else
+   num_chek := drvFR:ContentsOfOperationRegister
+endif
+return num_chek
 
 *
 
 ***** Запрос денежного регистра
-function FRCH_d_registr(n_port,registr)
-/*  1AH - 26
-    n_prot  - номер порта
-    registr - номер регистра
-*/
-return FRCHN_d_registr(registr)
-
-*
-
-***** Запрос денежного регистра
-function FRCHN_d_registr(registr)
+function FRCH_d_registr(registr)
 //     registr - номер регистра
 Local t
 
@@ -2619,22 +1771,11 @@ else
 endif
 return t
 
-
 *
 
 ***** Возвращает в виде массива состояние ФР
-Function FR_ret_dan(n_port)
-// 11H - 17
-Local t, t2, vozvrat := space(60), mas_vozvr := {}, i, vr1, vr2, vr3,;
-      buf := save_maxrow()
-mywait()
-return FRN_ret_dan()
-
-*
-
-***** Возвращает в виде массива состояние ФР
-Function FRN_ret_dan()
-Local mas_vozvr := {}, t, t1, t2, i, lport := meK_port
+Function FR_ret_dan()
+Local mas_vozvr := {}, t, t1, t2, i, t4
 drvFR:Password := oper_parol
 for i := 1 to FR_R_LEN
   t := ""
@@ -2664,6 +1805,20 @@ else
      mas_vozvr[FR_R_FLAG] := setbit(mas_vozvr[FR_R_FLAG],9)
    endif
    //задействуем поле заводской номер
+   mas_vozvr[FR_R_PODREGIM] := alltrim(drvFR:ECRModeDescription)
+   if mas_vozvr[FR_R_REGIM] == 8
+     t4 := drvFR:ECRMode8Status
+     if t4 == 0
+       t4 := t4 +" Открыт чек продажи"
+     elseif  t4 == 1
+       t4 := t4 +" Открыт чек покупки"
+     elseif  t4 == 2
+       t4 := t4 +" Открыт чек возврата продажи"
+     else
+       t4 := t4 +" Открыт чек возврата покупки"
+     endif
+     mas_vozvr[FR_R_PODREGIM] := t4
+   endif
 endif
 return mas_vozvr
 
@@ -2726,50 +1881,6 @@ do while waitperiod() // в цикле пробуем открыть с нужными параметрами
   endif
 enddo
 return t
-
-*
-
-***** Контроль адреса электронной gjxns или телефона
-
-function ControlAddress( get, address )
-	local ret := .f.
-
-	address := alltrim( address )
-
-	ret := hb_RegexLike( emailTemplate, address ) .or. hb_RegexLike( phoneTemplate, address ) .or. empty( address )
-
-	if !ret
-		ALERT( "Не верный формат телефона или E-mail адреса!" )
-	endif
-	return ret
-
-*******************************************
-
-* преобразование номера сотового
-function TransformPhone( address )
-
-	address := AllTrim( address )
-	address := AtRepl( '-', address, '' )
-	address := AtRepl( ' ', address, '' )
-	address := AtRepl( '_', address, '' )
-	address := AtRepl( '(', address, '' )
-	address := AtRepl( ')', address, '' )
-	address := AtRepl( ':', address, '' )
-	address := AtRepl( '=', address, '' )
-	address := AtRepl( '+', address, '' )
-	if len( address ) == 10
-		address := '+7' + address
-	elseif len( address ) == 11
-		if substr( address, 1, 1 ) != '7'
-			address := '+7' + substr( address, 2 )
-		else
-			address := '+' + address
-		endif
-	else
-		address := ''
-	endif
-	return address
-
 
 
 *
@@ -2949,9 +2060,49 @@ if glob_kassa == 1 .and. mek_kassa == 1
     vozvrat := .T.
   endif
 endif
-if meK_open_p == 1
-  return func_error(4,"Ошибка включения порта COM"+lstr(lport))
-endif
-
 return vozvrat
+
+*
+
+***** Контроль адреса электронной gjxns или телефона
+
+function ControlAddress( get, address )
+	local ret := .f.
+
+	address := alltrim( address )
+
+	ret := hb_RegexLike( emailTemplate, address ) .or. hb_RegexLike( phoneTemplate, address ) .or. empty( address )
+
+	if !ret
+		ALERT( "Не верный формат телефона или E-mail адреса!" )
+	endif
+	return ret
+
+*******************************************
+
+* преобразование номера сотового
+function TransformPhone( address )
+
+	address := AllTrim( address )
+	address := AtRepl( '-', address, '' )
+	address := AtRepl( ' ', address, '' )
+	address := AtRepl( '_', address, '' )
+	address := AtRepl( '(', address, '' )
+	address := AtRepl( ')', address, '' )
+	address := AtRepl( ':', address, '' )
+	address := AtRepl( '=', address, '' )
+	address := AtRepl( '+', address, '' )
+	if len( address ) == 10
+		address := '+7' + address
+	elseif len( address ) == 11
+		if substr( address, 1, 1 ) != '7'
+			address := '+7' + substr( address, 2 )
+		else
+			address := '+' + address
+		endif
+	else
+		address := ''
+	endif
+	return address
+
 

@@ -12,7 +12,7 @@ if tip_polzovat != 0
   return func_error(4,err_admin)
 endif
 if find_unfinished_reestr_sp_tk()
-  return NIL
+  return func_error(4,"Попытайтесь снова")
 endif
 Private p_var_manager := "Read_From_TFOMS", p_ctrl_enter_sp_tk := .f.
 blk_sp_tk := {|| p_ctrl_enter_sp_tk := .t., __keyboard(CHR(K_ENTER)) }

@@ -870,7 +870,7 @@ Function f3e_o_kopl()
 @ 23,2 say padl("Итого: "+lstr(mcena_opl,11,2),20) color "W+/N"
 return NIL
 
-***** 22.09.17
+***** 05.07.18
 Function f2e_o_kopl(nKey,oBrow)
 Static skod_vr := 0, sn_kvit := 0
 LOCAL flag := -1, buf := savescreen(), fl := .f., rec, ;
@@ -1073,42 +1073,24 @@ do case
   case nKey == K_DEL .and. ho->kod > 0
     if glob_kassa == 1
       if ho->is_kas == 1 .and. ho->cena_opl > 0 // чек был пробит
-        if !empty(human->k_data) .and. tip_polzovat != 0
-          func_error(4,err_close)
-        elseif ho->sum_voz > 0
-          func_error(4,"По данному листу учета уже производился возврат денег!")
-        else
-          ldate_voz := sys_date
-          lsum_voz := ho->cena_opl - ho->sbank
-          s := " \"+;
-            "      Общая стоимость оплаты = "+lput_kop(ho->cena_opl,.t.)+" руб.\"+;
-            "      Введите дату  возврата  @           \"+;
-            "      Введите сумму возврата  @           \"+;
-            " \"
-          DisplBox(s,;
-            , ;                   // цвет окна (умолч. - cDataCGet)
-            {"ldate_voz","lsum_voz"},; // массив Private-переменных для редактирования
-            {,pict_cena},; // массив Picture для редактирования
-            17)
-          if lastkey() == K_ESC
-            //
-          elseif round(lsum_voz,2) <= 0
-            mybell()
-          elseif lsum_voz > ho->cena_opl - ho->sbank
-            func_error(4,"Сумма возврата больше суммы оплаты!")
-          elseif f_Esc_Enter("возврата "+lput_kop(lsum_voz,.t.)+" руб.") .and. ;
-                                                             vozv_fr(lsum_voz)
-            select HO
-            G_RLock(forever)
-            replace ho->date_voz with dtoc4(ldate_voz), ;
-                    ho->sum_voz with lsum_voz
-            UnLock
-            ho->(dbCommit())
-            stat_msg("Сумма возврата записана!") ; mybell(1,OK)
-            flag := 0
-            rest_box(buf)
-          endif
+        vozvrat_orto()
+        mcena_opl := 0
+        find (str_find)
+        dbeval({|| mcena_opl += ho->cena_opl-ho->sum_voz },,{|| ho->kod==human->(recno())})
+        select HUMAN
+        G_RLock(forever)
+        replace human->cena_opl with mcena_opl
+        UNLOCK
+        COMMIT
+        flag := 0
+        select HO
+        oBrow:goTop()
+        find (str_find)
+        if !found()
+          fl_found := .f.
+          flag := 1
         endif
+        restscreen(buf)
       else // чек не пробит - повторяю обычный кусок
         if f_Esc_Enter(2)
           mywait()
@@ -1117,7 +1099,7 @@ do case
           DeleteRec(.t.,.f.)  // очистка записи без пометки на удаление
           mcena_opl := 0
           find (str_find)
-          dbeval({|| mcena_opl += ho->cena_opl },,{|| ho->kod==human->(recno())})
+          dbeval({|| mcena_opl += ho->cena_opl-ho->sum_voz },,{|| ho->kod==human->(recno())})
           select HUMAN
           G_RLock(forever)
           replace human->cena_opl with mcena_opl
@@ -1143,7 +1125,7 @@ do case
         DeleteRec(.t.,.f.)  // очистка записи без пометки на удаление
         mcena_opl := 0
         find (str_find)
-        dbeval({|| mcena_opl += ho->cena_opl },,{|| ho->kod==human->(recno())})
+        dbeval({|| mcena_opl += ho->cena_opl-ho->sum_voz },,{|| ho->kod==human->(recno())})
         select HUMAN
         G_RLock(forever)
         replace human->cena_opl with mcena_opl
@@ -1208,19 +1190,15 @@ do case
       select HO
       G_RLock(forever)
       ho->is_kas  := 1
-      ho->kv_cia  := ln_chek+1
+      ho->kv_cia  := ln_chek
       ho->sbank   := v_bank
       ho->fr_data := lfr_data
       ho->fr_time := lfr_time
       ho->KOD_REG := asc(kod_polzovat)
       ho->FR_zavod := fr_zavodnomer
-      if mek_tkassa == 2
-        ho->FR_tipkart := tip_kart
-        ho->fr_tip     := 2
-        ho->i_post     :=  maddress //00.02.17
-      else
-        ho->fr_tip     := 1 //касса до 52-ФЗ
-      endif
+      ho->FR_tipkart := tip_kart
+      ho->fr_tip     := 2
+      ho->i_post     :=  maddress //00.02.17
       UnLock
       ho->(dbCommit()) //16.04.08
       flag := 0
@@ -1236,12 +1214,88 @@ return flag
 
 *
 
-***** 29.06.15
+*****
+Function vozvrat_orto()
+Local buf := savescreen(), sotgr, str_sem, s, ln_chek,;
+      sum_bank, sum_nal, sum_itog, tip_banka,;
+      menu_opl := {{"аванс               ",0},;
+                   {"окончательная оплата",1},;
+                   {"напыление           ",2}}
+
+Private  summa_oplat := 0, summa_oplat_bn := 0, p_summa := 0
+
+
+if !empty(human->k_data) .and. tip_polzovat != 0
+  func_error(4,err_close)
+elseif ho->sum_voz > 0
+  func_error(4,"По даной оплате уже производился возврат денег!")
+else
+  //
+  summa_oplat := ho->cena_opl
+  summa_oplat_bn := ho->sbank
+  tip_banka := ho->fr_tipkart
+  //
+  adbf := {{"name_u","C",128,0},;
+           {"vrach", "C", 40,0},;
+           {"u_cena","N", 10,2},;
+           {"kol1",  "N",  5,1},;
+           {"nds18", "N",  1,0},; //10.08.08
+           {"nds10", "N",  1,0}}
+  dbcreate(cur_dir+"tmp",adbf)
+  use (cur_dir+"tmp") new
+  adbf := {}
+  select TMP
+  append blank
+  tmp->name_u := inieditspr(A__MENUVERT, menu_opl, ho->tip_opl)+" наряд N "+lstr(human->nar_z)
+  tmp->u_cena := round_5(ho->cena_opl, 2)
+  tmp->kol1   := round_5(1,0)
+  //
+  p_summa := summa_oplat
+
+  if f_Esc_Enter("возврата",.t.)
+    // вначале возвращаем наличку
+    if p_summa <= (summa_oplat - summa_oplat_bn)
+      sum_bank  := 0
+      tip_banka := 0
+      sum_nal   := p_summa
+    else
+      sum_nal   := summa_oplat - summa_oplat_bn
+      sum_bank  := p_summa - sum_nal
+    endif
+    fl := vozvrat_fr(sum_nal,sum_bank,@ln_chek,2,tip_banka)
+    // сам чек
+    if fl
+      // заносим возврат
+      select HO
+      G_RLock(forever)
+      replace ho->date_voz    with dtoc4(ldate_voz), ;
+              ho->sum_voz     with summa_oplat
+             /* ,;
+              ho->vzfr_data   with ,;
+              ho->vzfr_time   with ,;
+              ho->vzkod_oper  with ,;
+              ho->vzfr_zavod   with
+            */
+      UnLock
+      ho->(dbCommit())
+      stat_msg("Сумма возврата записана!") ; mybell(1,OK)
+    endif
+  endif
+  tmp->(dbCloseArea())
+  ho->(dbCommit())
+  restscreen(buf)
+endif
+return NIL
+
+
+*
+
+***** 02.07.18
 Function kart_orto(r)
 Static snar_z := 0
 Local i, j, r2, ln, buf, str_sem, arr_n := {}
 //
-if glob_kassa == 1 .and. mek_kassa == 1 .and. mek_nkassa == 1
+if glob_kassa == 1 .and. mek_kassa == 1  //.and. mek_nkassa == 1
   Private drvFR
   IF ( drvFR := win_oleCreateObject( "AddIn.DrvFr" ) ) != NIL
     //

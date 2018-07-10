@@ -2286,8 +2286,6 @@ else
 endif
 return fl
 
-*
-
 *****
 Function dubl_zap(r,c)
 Local mas_pmt := {"~®¨áª ¤ã¡«¨àãîé¨åáï § ¯¨á¥©",;
@@ -2300,16 +2298,13 @@ DEFAULT r TO T_ROW,c TO T_COL+5
 popup_prompt(r,c,1,mas_pmt,mas_msg,mas_fun)
 return NIL
 
-***** 01.09.16
+***** 09.07.18
 Function f1dubl_zap()
 Static si := 1
 Local hGauge, sh, HH := 77, name_file := "dubl_zap"+stxt, j1, ;
       fl := .t., sfio, old_fio, k := 0, rec1, curr := 0, buf,;
       mfio, mdate_r, mpolis, arr_title, reg_print := 4, ;
-      arr := {" ® ~”ˆ+¤ â  à®¦¤. "," ® ~¯®«¨áã "," ® ~‘ˆ‹‘ "}
-if glob_mo[_MO_IS_UCH]
-  aadd(arr," ® ª®¤ã ~’”Œ‘ ")
-endif      
+      arr := {" ® ~”ˆ+¤ â  à®¦¤. "," ® ~¯®«¨áã "," ® ~‘ˆ‹‘ "," ® ~… "}
 if (i := f_alert({'‚ë¡¥à¨â¥, ª ª¨¬ ®¡à §®¬ ¡ã¤¥â ®áãé¥áâ¢«ïâìáï ¯®¨áª ¤ã¡«¨ª â®¢ § ¯¨á¥©:',;
                   ""},;
                   arr,;
@@ -2329,6 +2324,7 @@ dbcreate(cur_dir+"tmpitg",{;
   {"DATE_R","D",8,0},;
   {"kod_kart","N",8,0},;
   {"kod_tf","N",10,0},;
+  {"kod_mis","C",20,0},;
   {"adres","C",50,0},;
   {"fio","C",50,0},;
   {"pol","C",1,0},;
@@ -2408,6 +2404,7 @@ if i == 1
         TMPITG->DATE_PR  := kart2->date_pr
         TMPITG->MO_PR    := kart2->mo_pr
         TMPITG->kod_tf   := kart2->kod_tf
+        TMPITG->kod_mis  := kart2->kod_mis
         if lastrec() % 1000 == 0
           commit
         endif
@@ -2489,6 +2486,7 @@ elseif i == 2
             TMPITG->DATE_PR  := kart2->date_pr
             TMPITG->MO_PR    := kart2->mo_pr
             TMPITG->kod_tf   := kart2->kod_tf
+            TMPITG->kod_mis  := kart2->kod_mis
             if lastrec() % 1000 == 0
               commit
             endif
@@ -2574,6 +2572,7 @@ elseif i == 3
             TMPITG->DATE_PR  := kart2->date_pr
             TMPITG->MO_PR    := kart2->mo_pr
             TMPITG->kod_tf   := kart2->kod_tf
+            TMPITG->kod_mis  := kart2->kod_mis
             if lastrec() % 1000 == 0
               commit
             endif
@@ -2592,23 +2591,24 @@ elseif i == 3
   enddo
 elseif i == 4
   arr_title := {;
-      "ÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄ",;
-      " NN ³ Š®¤ ’”Œ‘³ ü  ¬¡.ª.³                     ”.ˆ..                       ³ „ â  à.",;
-      "ÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄ"}
+      "ÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄ",;
+      " NN ³       …      ³ ü  ¬¡.ª.³                     ”.ˆ..                       ³ „ â  à.",;
+      "ÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄ"}
   sh := len(arr_title[1]) ; reg_print := 5
   fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
   add_string("")
   add_string(center("‘¯¨á®ª ¤ã¡«¨àãîé¨åáï § ¯¨á¥© ¢ ª àâ®â¥ª¥",sh))
-  add_string(center('(áà ¢­¥­¨¥ ¯® ¯®«î "Š®¤ ¢ ¡ §¥ ’”Œ‘")',sh))
+  add_string(center('(áà ¢­¥­¨¥ ¯® ¯®«î … "…¤¨­ë© ®¬¥à ®«¨á ")',sh))
   add_string("")
   aeval(arr_title, {|x| add_string(x) } )
-  dbcreate(cur_dir+"tmp",{{"kod_tf","N",10,0}})
+  dbcreate(cur_dir+"tmp",{{"kod_mis","C",20,0}})
   use (cur_dir+"tmp") new
-  index on str(kod_tf,10) to (cur_dir+"tmp")
+  index on kod_mis to (cur_dir+"tmp")
+  R_Use(dir_server+"kartote_",,"KART_")
   R_Use(dir_server+"kartotek",,"KART")
   select KART2
-  set relation to recno() into KART
-  index on str(kod_tf,10) to (cur_dir+"tmp_kodtf") for !empty(kod_tf) .and. !empty(kart->kod) 
+  set relation to recno() into KART, to recno() into KART_
+  index on kod_mis to (cur_dir+"tmp_kodmis") for !empty(kod_mis) .and. !empty(kart->kod) 
   go top
   do while !eof()
     GaugeUpdate( hGauge, ++curr/lastrec() )
@@ -2618,10 +2618,10 @@ elseif i == 4
       stat_msg("®¨áª ¯à¥à¢ ­!") ; mybell(1,OK)
       exit
     endif
-    mkod_tf := kart2->kod_tf ; mfio := kart->fio
+    mkod_mis := kart2->kod_mis ; mfio := kart->fio
     rec1 := recno() ; j1 := 0
-    find (str(mkod_tf,10))
-    do while kart2->kod_tf == mkod_tf .and. !eof()
+    find (mkod_mis)
+    do while kart2->kod_mis == mkod_mis .and. !eof()
       if recno() != rec1
         j1++
       endif
@@ -2630,21 +2630,22 @@ elseif i == 4
     goto (rec1)
     if j1 > 0
       select TMP
-      find (str(mkod_tf,10))
+      find (mkod_mis)
       if !found()
         append blank
-        tmp->kod_tf := mkod_tf
+        tmp->kod_mis := mkod_mis
         ++k ; j1 := 0
         select KART2
-        find (str(mkod_tf,10))
-        do while kart2->kod_tf == mkod_tf .and. !eof()
+        find (mkod_mis)
+        do while kart2->kod_mis == mkod_mis .and. !eof()
           if verify_FF(HH,.t.,sh)
             aeval(arr_title, {|x| add_string(x) } )
           endif
           ++j1
           s := iif(j1==1, padr(lstr(k)+".",5), space(5))
-          add_string(s+str(mkod_tf,10)+" "+padr(amb_kartaN(.t.),10)+;
-                     padr(kart->fio,50)+" "+date_8(kart->date_r))
+          add_string(s+left(mkod_mis,16)+" "+padr(amb_kartaN(.t.),10)+;
+                     padr(alltrim(kart->fio)+" ("+alltrim(inieditspr(A__MENUVERT,mm_vid_polis,kart_->VPOLIS))+;
+                          " ¯®«¨á)",50)+" "+date_8(kart->date_r))
           select TMPITG
           append blank
           TMPITG->id       := k
@@ -2660,6 +2661,7 @@ elseif i == 4
           TMPITG->DATE_PR  := kart2->date_pr
           TMPITG->MO_PR    := kart2->mo_pr
           TMPITG->kod_tf   := kart2->kod_tf
+          TMPITG->kod_mis  := kart2->kod_mis
           if lastrec() % 1000 == 0
             commit
           endif
@@ -2686,9 +2688,7 @@ else
 endif
 return NIL
 
-*
-
-***** 08.02.17
+***** 09.07.18
 Function f2dubl_zap()
 Local buf := savescreen()
 Private dubl1_kart := 0, dubl2_kart := 0, top_frm
@@ -3016,6 +3016,9 @@ if !emptyall(kart_->okatop,kart_->adresp)
   aadd(arr,s)
 endif
 s := "®«¨á Œ‘: "
+if !empty(kart2->kod_mis)
+  s += "(… "+alltrim(kart2->kod_mis)+") "
+endif
 if !emptyall(kart_->beg_polis,kart->srok_polis)
   s += "("
   if !empty(kart_->beg_polis)

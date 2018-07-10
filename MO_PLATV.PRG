@@ -159,11 +159,11 @@ return ret
 
 *
 
-*****
+***** 02.07.18
 Function kart_plat()
 Local buf, str_sem
 if polikl1_kart() > 0
-  if glob_kassa == 1 .and. mek_kassa == 1 .and. mek_nkassa == 1
+  if glob_kassa == 1 .and. mek_kassa == 1 //.and. mek_nkassa == 1
     Private drvFR
     IF ( drvFR := win_oleCreateObject( "AddIn.DrvFr" ) ) != NIL
       //
@@ -273,21 +273,18 @@ endif
 oColumn := TBColumnNew("  Дата;закрытия", {|| date_8(human->date_close) })
 oColumn:colorBlock := blk
 oBrow:addColumn(oColumn)
-@ maxrow()-1,0 say padc("<Esc> выход <Enter> редактирование <Ins> добавление <Del> удаление",80) color "N/W"
-s := "<Ctrl+Enter> ввод услуг"
 if is_task(X_KASSA)
-  s += " <F9> договор <F3> квитанции <F4> просмотр чеков"
+  @ maxrow()-1,0 say padc("<Esc>выход <Enter>редактирование <Ins>добавление <Del>удаление <F8>возврат",80) color "N/W"
+  s := "<Ctrl+Enter>ввод услуг <F9>договор <F3>квитанции <F4>просмотр чеков <F10>печать чека"
 else
-  s += " <F8> возврат <F9> договор"
-endif
-if glob_kassa == 1
-  s += " <F10> печать чека"
+  @ maxrow()-1,0 say padc("<Esc> выход <Enter> редактирование <Ins> добавление <Del> удаление",80) color "N/W"
+  s := "<Ctrl+Enter> ввод услуг <F8> возврат <F9> договор <F10> печать чека"
 endif
 @ maxrow(),0 say padc(s,80) color "N/W"
 mark_keys({"<Esc>","<Enter>","<Ins>","<Del>","<Ctrl+Enter>","<F3>","<F4>","<F8>","<F9>","<F10>"},"R/W")
 return NIL
 
-***** 02.05.18
+***** 02.07.18
 Function f3_k_plat(nKey,oBrow)
 LOCAL j := 0, flag := -1, buf := save_row(maxrow()), buf1, fl := .f., rec, mkod,;
       tmp_color := setcolor(), r1 := 15, c1 := 2, v_summa, v_sdacha, adbf, s,;
@@ -419,13 +416,9 @@ do case
       human->pdate   := lfr_data
       human->KOD_OPER:= asc(kod_polzovat)
       human->FR_zavod:= fr_zavodnomer
-      if mek_tkassa == 2
-        human->FR_tipkart := tip_kart
-        human->fr_tip     := 2
-        human->i_post     :=  maddress
-      else
-        human->fr_tip     := 1 //касса до 52-ФЗ
-      endif
+      human->FR_tipkart := tip_kart
+      human->fr_tip     := 2
+      human->i_post     :=  maddress
       UnLock
       human->(dbCommit())
       flag := 0
@@ -661,17 +654,19 @@ do case
       elseif round(lsum_voz,2) <= 0
         mybell()
       elseif lsum_voz > human->CENA - human->sbank
-        func_error(4,"Сумма возврата больше стоимости услуг!")
-      elseif mek_kassa == 1 .and. ;
-             f_Esc_Enter("возврата "+lput_kop(lsum_voz,.t.)+" руб.") .and. vozv_fr(lsum_voz)
-        select HUMAN
-        G_RLock(forever)
-        replace human->date_voz with dtoc4(ldate_voz), human->sum_voz with lsum_voz
-        UnLock
-        human->(dbCommit())
-        stat_msg("Сумма возврата записана!") ; mybell(1,OK)
-        flag := 0
-        rest_box(buf)
+        //func_error(4,"Сумма возврата больше стоимости услуг!")
+        func_error(4,"Возврат чека проводите по клавише <F8> !")
+      elseif mek_kassa == 1
+        //.and. f_Esc_Enter("возврата "+lput_kop(lsum_voz,.t.)+" руб.") .and. vozv_fr(lsum_voz)
+        //select HUMAN
+        //G_RLock(forever)
+        //replace human->date_voz with dtoc4(ldate_voz), human->sum_voz with lsum_voz
+        //UnLock
+        //human->(dbCommit())
+        //stat_msg("Сумма возврата записана!") ; mybell(1,OK)
+        //flag := 0
+        //rest_box(buf)
+        func_error(4,"Возврат чека проводите по клавише <F8> !")
       elseif tip_polzovat == 0 .and. mek_kassa == 2 .and. ;
              involved_password(1,1,"возврата "+lput_kop(lsum_voz,.t.)+" руб.") .and. ;
              f_Esc_Enter("возврата "+lput_kop(lsum_voz,.t.)+" руб.")
@@ -2876,6 +2871,7 @@ if f_Esc_Enter("возврата",.t.)
     sum_nal   := summa_oplat - summa_oplat_bn
     sum_bank  := p_summa - sum_nal
   endif
+
   fl := vozvrat_fr(sum_nal,sum_bank,@ln_chek,1,tip_banka)
   // сам чек
   if fl

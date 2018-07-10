@@ -14,14 +14,14 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-Static _version := {2,6,11}
-Static char_version := "a"
-Static _date_version := "02.07.18г."
+Static _version := {2,6,12}
+Static char_version := ""
+Static _date_version := "10.07.18г."
 Static __s_full_name := "ЧИП + Учёт работы Медицинской Организации"
 Static __s_version
 
 external ust_printer, ErrorSys, ReadModal, like, flstr, prover_dbf, net_monitor, pr_view, ne_real
-// старые(редко используемые) отчёты запускаем из hrb-файлов (для уменьшения задачи)
+// старые (редко используемые) отчёты запускаем из hrb-файлов (для уменьшения задачи)
 DYNAMIC i_new_boln
 DYNAMIC i_kol_del_zub
 DYNAMIC phonegram_15_kz
@@ -196,6 +196,7 @@ if ControlBases(1,_version) // если необходимо
     buf := savescreen()
     f_message({"Переход на новую версию программы "+fs_version(_version)+' от '+_date_version},,,,8)
     // провести реконструкцию БД
+f_create_copy_R0()    
     Reconstruct_BD(is_cur_dir,is_create)
     // провести реконструкцию БД учёта направлений на госпитализацию
     _263_init()
@@ -1633,50 +1634,55 @@ do while i_p < 3  // до 3х попыток
 enddo
 return fl
 
-*
-
-***** 05.04.16
+***** 04.07.18
 Function find_unfinished_reestr_sp_tk(is_oper,is_count)
 Static max_rec := 9900000 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-Local fl, s, buf := save_maxrow(), arr, rech := 0, af := {}
+Local fl := .t., s, buf := save_maxrow(), arr, rech := 0, af := {}, bSaveHandler
 DEFAULT is_oper TO .t., is_count TO .t.
 mywait()
-if is_count
-  R_Use(dir_server+"human",,"HUMAN")
-  rech := lastrec()
-  Use
-endif
-R_Use(dir_server+"mo_rees",,"REES")
-R_Use(dir_server+"mo_xml",,"MO_XML")
-set relation to REESTR into REES
-index on FNAME to (cur_dir+"tmp_xml") for TIP_IN == _XML_FILE_SP .and. empty(TWORK2)
-go top
-do while !eof()
-  aadd(af, {rtrim(mo_xml->FNAME),lstr(rees->NSCHET)})
-  skip
-enddo
-close databases
-rest_box(buf)
-if (fl := (len(af) > 0 .or. rech > max_rec))
-  if rech > max_rec
-    arr := {"До исчерпания лимита базы данных у Вас",;
-            "осталась возможность добавить "+lstr(10000000 - rech)+" листов учёта."}
+bSaveHandler := ERRORBLOCK( {|x| BREAK(x)} )
+BEGIN SEQUENCE
+  if is_count
+    R_Use(dir_server+"human",,"HUMAN")
+    rech := lastrec()
+    Use
   endif
-  if len(af) > 0
-    s := "Не завершено чтение "
-    if len(af) == 1
-      s += "реестра СП и ТК "+af[1,1]+" (реестр "+af[1,2]+")"
-    else
-      s += lstr(len(af))+" реестров СП и ТК"
+  R_Use(dir_server+"mo_rees",,"REES")
+  R_Use(dir_server+"mo_xml",,"MO_XML")
+  set relation to REESTR into REES
+  index on FNAME to (cur_dir+"tmp_xml") for TIP_IN == _XML_FILE_SP .and. empty(TWORK2)
+  go top
+  do while !eof()
+    aadd(af, {rtrim(mo_xml->FNAME),lstr(rees->NSCHET)})
+    skip
+  enddo
+  close databases
+  rest_box(buf)
+  if (fl := (len(af) > 0 .or. rech > max_rec))
+    if rech > max_rec
+      arr := {"До исчерпания лимита базы данных у Вас",;
+              "осталась возможность добавить "+lstr(10000000 - rech)+" листов учёта."}
     endif
-    arr := {"",s}
+    if len(af) > 0
+      s := "Не завершено чтение "
+      if len(af) == 1
+        s += "реестра СП и ТК "+af[1,1]+" (реестр "+af[1,2]+")"
+      else
+        s += lstr(len(af))+" реестров СП и ТК"
+      endif
+      arr := {"",s}
+    endif
+    if is_oper
+      aadd(arr,"")
+      aadd(arr,"Операция запрещена!")
+    endif
+    n_message(arr,{"","Обратитесь к разработчикам"},"GR+/R","W+/R",,,"G+/R")
   endif
-  if is_oper
-    aadd(arr,"")
-    aadd(arr,"Операция запрещена!")
-  endif
-  n_message(arr,{"","Обратитесь к разработчикам"},"GR+/R","W+/R",,,"G+/R")
-endif
+RECOVER USING error
+  close databases
+  rest_box(buf)
+END
+ERRORBLOCK(bSaveHandler)
 return fl
 
 ***** 08.04.17 проверить, есть ли неотосланные просроченные листы учёта

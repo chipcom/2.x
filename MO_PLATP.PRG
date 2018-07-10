@@ -10957,3 +10957,337 @@ n_message(arr,;
           ,;  // «¥¢ ï ª®«®­ª  à ¬ª¨ (99 - æ¥­âà¨à®¢ âì)
           color8)   // áâà®ª  æ¢¥â  ¤«ï ¡¥£ãé¥© áâà®ª¨
 return NIL
+
+
+*
+
+*****
+Function pl_vozvrat()
+Local fl := .t., buf := save_row(maxrow()), sm := 0, HH := 52,;
+      n_file := "platn.txt", arr_m, sh, sm_sn := 0, krvz, arr_dms,;
+      sm_usl := 0
+Local arr_title := {;
+  "ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄ",;
+  "                  “á«ã£¨                           ³ Š®«-¢® ³   ‘ã¬¬    ",;
+  "ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄ";
+  }
+sh := len(arr_title[1])
+if (krvz := fbp_tip_usl(T_ROW,T_COL-5,@arr_dms)) == NIL
+  return NIL
+endif
+if (arr_m := year_month()) == NIL
+  return NIL
+endif
+//
+mywait()
+fp := fcreate(n_file) ; n_list := 1 ; tek_stroke := 0
+add_string(center("‚Ž‡‚€’ ®¯« âë ãá«ã£",sh))
+add_string(center("(¯® ¤ â¥ ­ ç «  «¥ç¥­¨ï)",sh))
+add_string(center(arr_m[4],sh))
+tit_tip_usl(krvz,arr_dms,sh)
+add_string("")
+aeval(arr_title, {|x| add_string(x) })
+//
+R_Use(dir_server+"mo_pers",,"P2")
+R_Use(dir_server+"uslugi",,"USL")
+R_Use(dir_server+"kartotek",,"KART")
+R_Use(dir_server+"hum_p_U",dir_server+"hum_p_U","HUM_U")
+R_Use(dir_server+"hum_p",,"HUM")
+go top
+do while !eof()
+  if between(hum->n_data,arr_m[5],arr_m[6]) .and.;
+                     ascan(krvz,hum->tip_usl) > 0 .and. hum->SUM_VOZ > 0
+    if verify_FF(HH,.t.,sh)
+      aeval(arr_title, {|x| add_string(x) } )
+    endif
+    select KART
+    goto (hum->kod_k)
+    add_string(padr("--"+alltrim(kart->fio)+"  ‚Ž‡‚€’",59)+put_kope(hum->SUM_VOZ,12))
+    sm_sn += hum->SUM_VOZ
+    t := hum->(RECNO())
+    select HUM_U
+    find (str(t,7))
+    sum_sl := 0
+    do while t == hum_u->kod .and. !eof()
+      if verify_FF(HH,.t.,sh)
+        aeval(arr_title, {|x| add_string(x) } )
+      endif
+      select USL
+      goto (hum_u->u_kod )
+      add_string(usl->shifr+padr(usl->name,40)+;
+                 str(hum_u->kol,9)+;
+                 put_kope(hum_u->stoim,12))
+      select P2
+      goto (hum_u->kod_vr)
+      add_string(padr(p2->fio,50))
+      sum_sl += hum_u->stoim
+      sm_usl += hum_u->stoim
+      select HUM_U
+      skip
+    enddo
+    add_string(padr("     ˆâ®£® ®¯« â ",59)+put_kope(sum_sl,12))
+    add_string("")
+  endif
+  select HUM
+  skip
+enddo
+add_string(replicate("Ä",sh))
+add_string(padR("ˆ’ŽƒŽ ¢®§¢à â: "    ,59)+put_kope(sm_sn ,12))
+add_string(padR("ˆ’ŽƒŽ áã¬¬  ãá«ã£: ",59)+put_kope(sm_usl,12))
+close databases
+fclose(fp)
+viewtext(n_file,,,,(sh>80),,,1)
+rest_box(buf)
+return NIL
+
+*
+
+***** 15.12.14
+Function pl_priemshk()
+Local fl := .t., buf := save_row(maxrow()), sm2 := 0, HH := 52,;
+      n_file := "platn.txt", arr_m, sh, krvz, arr_dms,;
+      mas_op1 := {}, mas_op2 := {}, mas_op3 := {}, i, arr[2], sm_bn := 0
+
+Local arr_title := {;
+  "ÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ",;
+  " N ³           ”.ˆ.Ž. ¯ æ¨¥­â             ³‚à¥¬ï ³ —¥ª ³Š®¤  ³  ‘ã¬¬    ³        ‚à ç        ",;
+  "ÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ"}
+
+sh := len(arr_title[1])
+if (krvz := fbp_tip_usl(T_ROW,T_COL-5,@arr_dms)) == NIL
+  return NIL
+endif
+if (arr_m := year_month()) == NIL
+  return NIL
+endif
+if !myFileDeleted(cur_dir+"tmp"+sdbf)
+  return NIL
+endif
+//
+mywait()
+dbcreate(cur_dir+"tmp", {{"kod",     "N",  4,  0},;
+                 {"fio",     "C", 60,  0},;
+                 {"chek",    "N", 10,  0},;
+                 {"kod_hum", "N", 10,  0},;
+                 {"operat",  "N", 10,  0},;
+                 {"operatf", "C", 40,  0},;
+                 {"operatd", "C", 40,  0},;
+                 {"FR_DATA", "D",  8,  0},;
+                 {"fr_time", "N",  5,  0},;
+                 {"t_flag",  "N",  1,  0},;
+                 {"summa",   "N", 12,  2},;
+                 {"kod_vr",  "N",  4,  0},;
+                 {"fio_vr",  "C", 60,  0},;
+                 {"summa_bn","N", 12,  2}})
+use (cur_dir+"tmp") new
+if yes_parol
+  R_Use(dir_server+"base1",,"BASE1")
+endif
+R_Use(dir_server+"kartotek",,"KART")
+R_Use(dir_server+"mo_pers",,"PERS")
+R_Use(dir_server+"hum_p_u",dir_server+"hum_p_u","HUM_U")
+R_Use(dir_server+"hum_p",,"HUM")
+go top
+do while !eof()
+  if !empty(hum->fr_data) .and. between(hum->fr_data,arr_m[7],arr_m[8]) ;
+                          .and. ascan(krvz,hum->tip_usl) > 0
+    if hum->kod_oper == asc(kod_polzovat) .or. tip_polzovat == 0
+      select KART
+      goto (hum->kod_k)
+      select TMP
+      append blank
+      tmp->fio      := kart->fio
+      tmp->chek     := hum->kv_cia
+      tmp->kod_hum  := hum->kod_k
+      tmp->fr_data  := c4tod(hum->fr_data)
+      tmp->fr_time  := hum->fr_time
+      tmp->summa    := hum->cena
+      tmp->summa_bn := hum->sbank
+      tmp->operat   := hum->kod_oper
+      if c4tod(hum->fr_data) != hum->n_data .or.;
+         c4tod(hum->fr_data) != hum->k_data
+        tmp->t_flag := 1
+      else
+        tmp->t_flag := 0
+      endif
+      if yes_parol .and. hum->KOD_OPER > 0
+        select BASE1
+        goto (hum->KOD_OPER)
+        if !eof() .and. !empty(base1->p1)
+          tmp->operatf := alltrim(crypt(base1->p1,gpasskod))
+          tmp->operatd := alltrim(crypt(base1->p5,gpasskod))
+        endif
+      endif
+      select HUM_U
+      find (str(hum->(recno()),7))
+      if found()
+        select PERS
+        goto (hum_u->kod_vr)
+        tmp->fio_vr  := pers->fio
+      endif
+    endif
+  endif
+  select HUM
+  skip
+enddo
+close databases
+use (cur_dir+"tmp") new
+index on operat to (cur_dir+"tmp_u") unique
+go top
+do while !eof()
+  aadd(mas_op1,tmp->operat)
+  aadd(mas_op2,tmp->operatf)
+  aadd(mas_op3,tmp->operatd)
+  skip
+enddo
+close databases
+rest_box(buf)
+// § ¯à®á ¯® ®¯¥à â®à ¬
+if len(mas_op1) == 0
+  bkol_oper := 0
+  func_error(4,"¥â ¨­ä®à¬ æ¨¨ "+arr_m[4])
+elseif len(mas_op1) == 1
+  bkol_oper := 1
+else
+  bkol_oper := popup_prompt(T_ROW,T_COL+5,1,mas_op2)
+endif
+if bkol_oper > 0
+  fp := fcreate(n_file) ; n_list := 1 ; tek_stroke := 0
+  add_string(center(" … … ‘ ’ ",sh))
+  add_string(center("à¥£¨áâà æ¨¨ ç¥ª®¢ ­  ®¯« âã ®ª § ­­ëå ¬¥¤¨æ¨­áª¨å ¯« â­ëå ãá«ã£ ­ á¥«¥­¨î",sh))
+  R_Use(dir_server+"organiz",,"ORG")
+  for i := 1 to perenos(arr,alltrim(org->name),sh)
+    add_string(center(alltrim(arr[i]),sh))
+  next
+  add_string(center(arr_m[4],sh))
+  tit_tip_usl(krvz,arr_dms,sh)
+  add_string("")
+  aeval(arr_title, {|x| add_string(x) })
+  sm2 := ii := 0
+  use (cur_dir+"tmp") new
+  index on fr_time to (cur_dir+"tmp_u") for operat == mas_op1[bkol_oper]
+  go top
+  do while !eof()
+    if verify_FF(HH,.t.,sh)
+      aeval(arr_title, {|x| add_string(x) } )
+    endif
+    add_string(str(++ii,3)+" "+;
+               padr(tmp->fio,38)+;
+               iif(tmp->summa_bn > 1,"","  ")+;
+               padr(sectotime(tmp->fr_time),5)+" "+;
+               padl(lstr(tmp->chek),5)+" "+;
+               padl(lstr(tmp->kod_hum),6)+" "+;
+               iif(tmp->summa_bn > 1,put_kope(tmp->summa_bn,10),put_kope(tmp->summa,10))+" "+;
+               padr(fam_i_o(tmp->fio_vr),20)+;
+               iif(tmp->t_flag==1,"*"," "))
+    if tmp->summa > tmp->summa_bn .and. tmp->summa_bn > 0
+      add_string(str(++ii,3)+" "+;
+                 padr(tmp->fio,38)+"  "+;
+                 padr(sectotime(tmp->fr_time),5)+" "+;
+                 padl(lstr(tmp->chek),5)+" "+;
+                 padl(lstr(tmp->kod_hum),6)+" "+;
+                 put_kope(tmp->summa-tmp->summa_bn,10)+" "+;
+                 padr(fam_i_o(tmp->fio_vr),20)+;
+                 iif(tmp->t_flag==1,"*"," "))
+    endif
+    sm2 += tmp->summa
+    sm_bn += tmp->summa_bn
+    skip
+  enddo
+  add_string(replicate("Ä",sh))
+  add_string(padR("ˆâ®£®: ",61)+put_kope(sm2,12))
+  add_string(replicate("Ä",sh))
+  for i := 1 to perenos(arr,"‚á¥£® ­  áã¬¬ã: "+srub_kop(sm2,.t.),sh)
+    add_string(arr[i])
+  next
+  if meK_bank == 1
+    for i := 1 to perenos(arr,"¨§ ­¨å ¢ ª ááã: "+srub_kop(sm2-sm_bn,.t.),sh)
+      add_string(arr[i])
+    next
+  endif
+  add_string("")
+  add_string("            ‘¤ « "+padr(alltrim(mas_op3[bkol_oper])+":",21)+"                    /"+alltrim(mas_op2[bkol_oper])+"/")
+  add_string("")
+  add_string("            à¨­ï« ª áá¨à:                                /"+alltrim(mek_kassir)+"/")
+  fclose(fp)
+  close databases
+  viewtext(n_file,,,,(sh>80),,,3)
+endif
+return NIL
+
+*
+
+*****
+Function f2_inf_fr()
+Local j := 0, s, buf := save_row(maxrow()), n_file := "_kassa1.txt", sh := 65,;
+      HH := 60
+Local arr_title := {;
+  "Ä"}
+
+mywait()
+fp := fcreate(n_file) ; n_list := 1 ; tek_stroke := 0
+
+add_string(padc("‘¯¨á®ª ¡®«ì­ëå ¡¥§ ç¥ª®¢",sh))
+add_string(padc("¯® á®áâ®ï­¨î ­  "+date_month(sys_date,.t.),sh))
+add_string("")
+R_Use(dir_server+"kartotek",,"KART")
+R_Use(dir_server+"hum_p",,"HUMAN")
+index on dtos(k_data) to (cur_dir+"tmp") for is_kas == 2 progress
+go top
+do while !eof()
+  if verify_FF(HH,.t.,sh)
+    aeval(arr_title, {|x| add_string(x) } )
+  endif
+  kart->(dbGoto(human->kod_k))
+  add_string(str(++j,4)+". "+kart->fio+" "+dtoc(human->k_data))
+  select HUMAN
+  skip
+enddo
+  fclose(fp)
+close databases
+rest_box(buf)
+if j == 0
+  func_error(4,"¥ ®¡­ àã¦¥­® ¡®«ì­ëå ¡¥§ ç¥ª®¢")
+else
+  viewtext(n_file,,,,(sh>80),,,2)
+endif
+return NIL
+
+*
+
+***** ¢ë§ë¢ ¥âáï ¢ "« â­ë¥ ãá«ã£¨/ˆ­ä®à¬ æ¨ï/ ¡®â  á ª áá®©"
+Function inf_fr(k)
+Static si1 := 1, si2 := 1
+Local mas_pmt, mas_msg, mas_fun, j
+DEFAULT k TO 1
+do case
+  case k == 1
+    mas_pmt := {"ˆ­ä®à¬ æ¨ï ¯® ~ª áá¥",;
+                "®«ì­ë¥ ¡¥§ ~—…ŠŽ‚",;
+                "¥¥áâà",;
+                "‚®§¢à âë"}
+    mas_msg := {"®«ãç¥­¨¥ ¨­ä®à¬ æ¨¨ ¯® á®áâ®ï­¨î ª áá®¢®£®  ¯¯ à â ",;
+                "®¨áª ¡®«ì­ëå, ã ª®â®àëå ¢¢¥¤¥­ë ãá«ã£¨, ­® ­¥ ¯à®¡¨â —…Š",;
+                "¥¥áâà ª áá¨à ",;
+                "ˆ­ä®à¬ æ¨ï ¯® ¢®§¢à â ¬"}
+    mas_fun := {"inf_fr(11)",;
+                "inf_fr(12)",;
+                "inf_fr(13)",;
+                "inf_fr(14)"}
+    popup_prompt(T_ROW,T_COL-5,si1,mas_pmt,mas_msg,mas_fun)
+  case k == 11
+    f1_inf_fr(1)
+  case k == 12
+    f2_inf_fr()
+  case k == 13
+    pl_priemshk()
+  case k == 14
+    pl_vozvrat()
+endcase
+if k > 10
+  j := int(val(right(lstr(k),1)))
+  if between(k,11,19)
+    si1 := j
+  endif
+endif
+return NIL

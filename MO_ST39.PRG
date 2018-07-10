@@ -257,7 +257,6 @@ if k > 0
       func_error(4,"Нет сведений!")
     endif
   else
-    stat_msg("Составление текстового и DBF-файлов")
     use (tmp_file) new alias MN
     arr_title := {;
      "─────┬",;
@@ -283,6 +282,7 @@ if k > 0
     set relation to recno() into KART_, to recno() into KART2
     use (cur_dir+"tmp") new
     set relation to kod into KART
+    stat_msg("Составление текстового и DBF-файлов ("+lstr(tmp->(lastrec()))+" чел.)")
     if is_uchastok > 0
       if mn->i_sort == 1 // № участка + Год рождения + ФИО
         index on str(kart->uchast,2)+str(abs(mn->god-year(kart->date_r)),4)+upper(kart->fio) to (cur_dir+"tmp")
