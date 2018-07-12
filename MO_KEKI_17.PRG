@@ -4,7 +4,7 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 18.12.17
+***** 11.07.18 ‘¢®¤­ë¥ à¥§ã«ìâ âë íªá¯¥àâ­®© ®æ¥­ª¨ ª ç¥áâ¢  ¯® ãçà¥¦¤¥­¨î
 Function kek_svod_rez_17()
 Local i, iu, su, ab, ar, adbf, sh, HH := 42, reg_print, n_file := "svod_rez_17"+stxt
 if (arr_m := year_month(T_ROW,T_COL-5)) != NIL
@@ -24,6 +24,39 @@ if (arr_m := year_month(T_ROW,T_COL-5)) != NIL
   use (cur_dir+"tmp") new
   index on str(otd,3) to (cur_dir+"tmp")
   R_Use(dir_server+"base1",,"B1")
+  R_Use(dir_server+"human",,"HUMAN")
+  R_Use(dir_server+"mo_kekh",,"HU")
+  set relation to kod_lu into HUMAN
+  R_Use(dir_server+"mo_keke",dir_server+"mo_keked","EKS")
+  // index on dtos(date_eks) to (dir_server+"mo_keked") 
+  set relation to kod into HU
+  dbseek(dtos(arr_m[5]),.t.)
+  do while eks->date_eks <= arr_m[6] .and. !eof()
+    ar := {0,hu->otd}
+    ab := f_ball_kek(hu->ishod)
+    b1->(dbGoto(eks->kod_eks))
+    iu := b1->p6
+    if !between(iu,1,3)
+      iu := 1
+    endif
+    su := lstr(iu)
+    for i := 1 to len(ar)
+      select TMP
+      find (str(ar[i],3))
+      if !found()
+        append blank
+        tmp->otd := ar[i]
+      endif
+      &("tmp->kol"+su) := &("tmp->kol"+su) + 1
+      if ab[3] > 0
+        &("tmp->kold"+su) := &("tmp->kold"+su) + 1
+        &("tmp->koldef"+su) := &("tmp->koldef"+su) + ab[3]
+      endif
+    next
+    select EKS
+    skip
+  enddo
+  /*
   R_Use(dir_server+"mo_keke",dir_server+"mo_keket","EKS")
   R_Use(dir_server+"human",,"HUMAN")
   R_Use(dir_server+"mo_kekh",,"HU")
@@ -61,7 +94,7 @@ if (arr_m := year_month(T_ROW,T_COL-5)) != NIL
     endif
     select HU
     skip
-  enddo
+  enddo*/
   arr_title := {;
 "ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ",;
 "                              ³    Š®«-¢® íªá¯¥àâ¨§,      ³  % á«ãç ¥¢  á  ¤¥ä¥ªâ ¬¨, ³ ‘à¥¤­¥¥ ª®«-¢® ¤¥ä¥ªâ®¢ ­  ",;                        
@@ -137,64 +170,56 @@ adbf := {;
 dbcreate(cur_dir+"tmp",adbf)
 use (cur_dir+"tmp") new
 index on str(kod,7) to (cur_dir+"tmp")
-R_Use(dir_server+"mo_keke",dir_server+"mo_keket","EKS")
 R_Use(dir_server+"human",,"HUMAN")
 R_Use(dir_server+"mo_kekh",,"HU")
 set relation to kod_lu into HUMAN
-go top
-do while !eof()
-  if (fl := between(human->k_data,arr_m[5],arr_m[6]))
-    if par2 == 1
-      fl := hu->otd==kek_otd[1]
-    elseif par2 == 3
-      fl := hu->POVOD_EKS==ke[2]
-    elseif par2 == 4
-      fl := hu->vrach==kek_vrach[1]
-    elseif par2 == 5
-      fl := left(hu->kod_diag,3)==ke[2]
-    endif
+R_Use(dir_server+"mo_keke",dir_server+"mo_keked","EKS")
+// index on dtos(date_eks) to (dir_server+"mo_keked") 
+set relation to kod into HU
+dbseek(dtos(arr_m[5]),.t.)
+do while eks->date_eks <= arr_m[6] .and. !eof()
+  fl := .t.
+  if par2 == 1
+    fl := hu->otd==kek_otd[1]
+  elseif par2 == 2
+    fl := eks->kod_eks==ke[2]
+  elseif par2 == 3
+    fl := hu->POVOD_EKS==ke[2]
+  elseif par2 == 4
+    fl := hu->vrach==kek_vrach[1]
+  elseif par2 == 5
+    fl := left(hu->kod_diag,3)==ke[2]
   endif
   if fl
-    select EKS
-    find (str(hu->(recno()),7))
-    do while eks->kod == hu->(recno()) .and. !eof()
-      if par2 == 2
-        fl := eks->kod_eks==ke[2]
+    ab := f_ball_kek(hu->ishod)
+    do case
+      case par == 1
+        ar[2] := hu->otd
+      case par == 2
+        ar[2] := eks->kod_eks
+      case par == 3
+        ar[2] := hu->POVOD_EKS
+      case par == 4
+        ar[2] := hu->vrach
+      case par == 5
+        ar[2] := hu->(recno())
+    endcase
+    for j := 1 to 2
+      select TMP
+      find (str(ar[j],7))
+      if !found()
+        append blank
+        tmp->kod := ar[j]
       endif
-      if fl
-        ab := f_ball_kek(hu->ishod)
-        do case
-          case par == 1
-            ar[2] := hu->otd
-          case par == 2
-            ar[2] := eks->kod_eks
-          case par == 3
-            ar[2] := hu->POVOD_EKS
-          case par == 4
-            ar[2] := hu->vrach
-          case par == 5
-            ar[2] := hu->(recno())
-        endcase
-        for j := 1 to 2
-          select TMP
-          find (str(ar[j],7))
-          if !found()
-            append blank
-            tmp->kod := ar[j]
-          endif
-          tmp->kol ++
-          for i := 1 to 6
-            pole := "tmp->k_"+lstr(i)
-            &pole := &pole + ab[2,i]
-          next i
-          tmp->k_d += ab[3]
-        next j
-      endif
-      select EKS
-      skip
-    enddo
+      tmp->kol ++
+      for i := 1 to 6
+        pole := "tmp->k_"+lstr(i)
+        &pole := &pole + ab[2,i]
+      next i
+      tmp->k_d += ab[3]
+    next j
   endif
-  select HU
+  select EKS
   skip
 enddo
 close databases

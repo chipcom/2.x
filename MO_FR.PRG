@@ -1809,15 +1809,14 @@ else
    if mas_vozvr[FR_R_REGIM] == 8
      t4 := drvFR:ECRMode8Status
      if t4 == 0
-       t4 := t4 +" Открыт чек продажи"
+       mas_vozvr[FR_R_PODREGIM] := mas_vozvr[FR_R_PODREGIM] +" Открыт чек продажи"
      elseif  t4 == 1
-       t4 := t4 +" Открыт чек покупки"
+       mas_vozvr[FR_R_PODREGIM] := mas_vozvr[FR_R_PODREGIM] +" Открыт чек покупки"
      elseif  t4 == 2
-       t4 := t4 +" Открыт чек возврата продажи"
+       mas_vozvr[FR_R_PODREGIM] := mas_vozvr[FR_R_PODREGIM] +" Открыт чек возврата продажи"
      else
-       t4 := t4 +" Открыт чек возврата покупки"
+       mas_vozvr[FR_R_PODREGIM] := mas_vozvr[FR_R_PODREGIM] +" Открыт чек возврата покупки"
      endif
-     mas_vozvr[FR_R_PODREGIM] := t4
    endif
 endif
 return mas_vozvr

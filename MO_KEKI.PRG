@@ -376,8 +376,6 @@ else
 endif
 return '"'+s+'"'
 
-*
-
 ***** 19.12.17
 Function kek_info2017(k)
 Static sk := 1, si1 := 1, si2 := 1, si3 := 1, si4 := 1, si5 := 1
@@ -729,9 +727,7 @@ if k > 10
 endif
 return NIL
 
-*
-
-***** 29.06.13
+***** 11.07.18
 Function kek_p7_t3(par)
 Local sb := {"a","b","c","d","k","p","r","e"}
 Local adbf, ab, i, poleK, poleO, aitog[8], kitog[8],;
@@ -760,56 +756,51 @@ adbf := {;
 dbcreate(cur_dir+"tmp",adbf)
 use (cur_dir+"tmp") new
 R_Use(dir_server+"base1",,"B1")
-R_Use(dir_server+"mo_keke",dir_server+"mo_keket","EKS")
 R_Use(dir_server+"human",,"HUMAN")
 R_Use(dir_server+"mo_kekh",,"HU")
 set relation to kod_lu into HUMAN
-go top
-do while !eof()
-  if (fl := between(human->k_data,arr_m[5],arr_m[6]))
-    if par == 2
-      fl := hu->otd==kek_otd[1]
-    elseif par == 3
-      fl := hu->vrach==kek_vrach[1]
-    endif
+R_Use(dir_server+"mo_keke",dir_server+"mo_keked","EKS")
+// index on dtos(date_eks) to (dir_server+"mo_keked") 
+set relation to kod into HU
+dbseek(dtos(arr_m[5]),.t.)
+do while eks->date_eks <= arr_m[6] .and. !eof()
+  fl := .t.
+  if par == 2
+    fl := hu->otd==kek_otd[1]
+  elseif par == 3
+    fl := hu->vrach==kek_vrach[1]
   endif
   if fl
-    select EKS
-    find (str(hu->(recno()),7))
-    do while eks->kod == hu->(recno())
-      ab := f_ball_kek(hu->ishod)
-      select TMP
-      append blank
-      do case
-        case par == 1
-          tmp->kod := hu->otd
-        case par == 2
-          tmp->kod := hu->vrach
-        case par == 3
-          tmp->kod := hu->(recno())
-        case par == 4
-          tmp->kod := eks->kod_eks
-        case par == 5
-          tmp->kod := hu->POVOD_EKS
-        case par == 6
-          b1->(dbGoto(eks->kod_eks))
-          tmp->kod := b1->p6
-      endcase
-      for i := 1 to 8
-        poleK := "tmp->k_"+sb[i]
-        poleO := "tmp->o_"+sb[i]
-        &poleK := ab[2,i]
-        &poleO := ab[1,i]
-        if &poleK > 0
-          aitog[i] += &poleO
-          kitog[i] ++
-        endif
-      next
-      select EKS
-      skip
-    enddo
+    ab := f_ball_kek(hu->ishod)
+    select TMP
+    append blank
+    do case
+      case par == 1
+        tmp->kod := hu->otd
+      case par == 2
+        tmp->kod := hu->vrach
+      case par == 3
+        tmp->kod := hu->(recno())
+      case par == 4
+        tmp->kod := eks->kod_eks
+      case par == 5
+        tmp->kod := hu->POVOD_EKS
+      case par == 6
+        b1->(dbGoto(eks->kod_eks))
+        tmp->kod := b1->p6
+    endcase
+    for i := 1 to 8
+      poleK := "tmp->k_"+sb[i]
+      poleO := "tmp->o_"+sb[i]
+      &poleK := ab[2,i]
+      &poleO := ab[1,i]
+      if &poleK > 0
+        aitog[i] += &poleO
+        kitog[i] ++
+      endif
+    next
   endif
-  select HU
+  select EKS
   skip
 enddo
 //
@@ -1006,9 +997,7 @@ else
 endif
 return s
 
-*
-
-***** 26.06.13
+***** 11.07.18
 Function kek_p7_t5(par1,par2,par3)
 // par1: 1-ãçà¥¦¤¥­¨¥, 2-®â¤¥«¥­¨¥, 3-¢à ç
 // par2: 1-¢à ç¨, 2-¡®«ì­ë¥, 3-íªá¯¥àâë
@@ -1039,50 +1028,45 @@ adbf := {;
   {"O_7",  "N", 5, 3}}
 dbcreate(cur_dir+"tmp",adbf)
 use (cur_dir+"tmp") new
-R_Use(dir_server+"mo_keke",dir_server+"mo_keket","EKS")
 R_Use(dir_server+"human",,"HUMAN")
 R_Use(dir_server+"mo_kekh",,"HU")
 set relation to kod_lu into HUMAN
-go top
-do while !eof()
-  if (fl := between(human->k_data,arr_m[5],arr_m[6]))
-    if par1 == 2
-      fl := hu->otd==kek_otd[1]
-    elseif par1 == 3
-      fl := hu->vrach==kek_vrach[1]
-    endif
+R_Use(dir_server+"mo_keke",dir_server+"mo_keked","EKS")
+// index on dtos(date_eks) to (dir_server+"mo_keked") 
+set relation to kod into HU
+dbseek(dtos(arr_m[5]),.t.)
+do while eks->date_eks <= arr_m[6] .and. !eof()
+  fl := .t.
+  if par1 == 2
+    fl := hu->otd==kek_otd[1]
+  elseif par1 == 3
+    fl := hu->vrach==kek_vrach[1]
   endif
   if fl
-    select EKS
-    find (str(hu->(recno()),7))
-    do while eks->kod == hu->(recno())
-      f_ball_kek(hu->ishod,par3,@ar1,@ar2)
-      select TMP
-      append blank
-      if par2 == 1
-        tmp->kod := hu->vrach
-      elseif par2 == 2
-        tmp->kod := hu->(recno())
-      else
-        tmp->kod := eks->kod_eks
+    f_ball_kek(hu->ishod,par3,@ar1,@ar2)
+    select TMP
+    append blank
+    if par2 == 1
+      tmp->kod := hu->vrach
+    elseif par2 == 2
+      tmp->kod := hu->(recno())
+    else
+      tmp->kod := eks->kod_eks
+    endif
+    tmp->o_k := ar2[1]
+    tmp->k_k := ar2[2]
+    for i := 1 to 7
+      poleK := "tmp->k_"+lstr(i)
+      poleO := "tmp->o_"+lstr(i)
+      &poleO := ar1[i,1]
+      &poleK := ar1[i,2]
+      if &poleK > 0
+        aitog[i] += &poleO
+        kitog[i] ++
       endif
-      tmp->o_k := ar2[1]
-      tmp->k_k := ar2[2]
-      for i := 1 to 7
-        poleK := "tmp->k_"+lstr(i)
-        poleO := "tmp->o_"+lstr(i)
-        &poleO := ar1[i,1]
-        &poleK := ar1[i,2]
-        if &poleK > 0
-          aitog[i] += &poleO
-          kitog[i] ++
-        endif
-      next
-      select EKS
-      skip
-    enddo
+    next
   endif
-  select HU
+  select EKS
   skip
 enddo
 //
@@ -1336,12 +1320,9 @@ endif
 viewtext(n_file,,,,(sh>80),,,reg_print)
 return NIL
 
-*
-
-***** 02.07.17
+***** 11.07.18
 Function kek_p7_t12(par,inp_arr)
-Local ar1[3], ar2[3],;
-      sh := 64, HH := 60, reg_print := 1, n_file := "pr7_t12"+stxt
+Local ar1[3], ar2[3], sh := 64, HH := 60, reg_print := 1, n_file := "pr7_t12"+stxt
 Local sb := {"a","b","c","d","k","p","r","e"}
 Local adbf, ab, i, poleK, poleO, aitog[2,8], kitog[2,8]
 afillall(aitog,0) ; afillall(kitog,0) ; skol := 0
@@ -1367,51 +1348,43 @@ adbf := {;
   {"O_E",        "N",      5,      3}}    // ®æ¥­ª  E
 dbcreate(cur_dir+"tmp",adbf)
 use (cur_dir+"tmp") new
-R_Use(dir_server+"mo_keke",dir_server+"mo_keket","EKS")
 R_Use(dir_server+"human",,"HUMAN")
 R_Use(dir_server+"mo_kekh",,"HU")
 set relation to kod_lu into HUMAN
+R_Use(dir_server+"mo_keke",,"EKS")
+set relation to kod into HU
 go top
 do while !eof()
-  fl1 := between(human->k_data,arr_m[1,1],arr_m[1,2])
-  fl2 := between(human->k_data,arr_m[2,1],arr_m[2,2])
+  fl1 := between(eks->date_eks,arr_m[1,1],arr_m[1,2])
+  fl2 := between(eks->date_eks,arr_m[2,1],arr_m[2,2])
   if (fl := (fl1 .or. fl2))
     if par == 2
       fl := hu->otd==kek_otd[1]
     elseif par == 3
       fl := hu->vrach==kek_vrach[1]
+    elseif par == 4
+      fl := eks->kod_eks==inp_arr[2]
     elseif par == 5
       fl := left(hu->kod_diag,3)==inp_arr[2]
     endif
   endif
   if fl
-    select EKS
-    find (str(hu->(recno()),7))
-    do while eks->kod == hu->(recno())
-      if par == 4
-        fl := eks->kod_eks==inp_arr[2]
+    ab := f_ball_kek(hu->ishod)
+    select TMP
+    append blank
+    tmp->kod := iif(fl1, 1, 2)
+    for i := 1 to 8
+      poleK := "tmp->k_"+sb[i]
+      poleO := "tmp->o_"+sb[i]
+      &poleK := ab[2,i]
+      &poleO := ab[1,i]
+      if &poleK > 0
+        aitog[tmp->kod,i] += &poleO
+        kitog[tmp->kod,i] ++
       endif
-      if fl
-        ab := f_ball_kek(hu->ishod)
-        select TMP
-        append blank
-        tmp->kod := iif(fl1, 1, 2)
-        for i := 1 to 8
-          poleK := "tmp->k_"+sb[i]
-          poleO := "tmp->o_"+sb[i]
-          &poleK := ab[2,i]
-          &poleO := ab[1,i]
-          if &poleK > 0
-            aitog[tmp->kod,i] += &poleO
-            kitog[tmp->kod,i] ++
-          endif
-        next
-      endif
-      select EKS
-      skip
-    enddo
+    next
   endif
-  select HU
+  select EKS
   skip
 enddo
 //
@@ -1566,9 +1539,7 @@ if fl1 .and. fl2
 endif
 return s
 
-*
-
-***** 
+***** 11.07.18 
 Function kek_p7_t12_mkb(r)
 Local ar1[3], ar2[3],;
       buf := save_maxrow(), i, ret, skod, _sname, t_arr[BR_LEN], blk
@@ -1584,10 +1555,12 @@ R_Use(dir_exe+"_mo_mkb",cur_dir+"_mo_mkb","MKB")
 R_Use(dir_server+"human",,"HUMAN")
 R_Use(dir_server+"mo_kekh",,"HU")
 set relation to kod_lu into HUMAN
+R_Use(dir_server+"mo_keke",,"EKS")
+set relation to kod into HU
 go top
 do while !eof()
-  fl1 := between(human->k_data,arr_m[1,1],arr_m[1,2])
-  fl2 := between(human->k_data,arr_m[2,1],arr_m[2,2])
+  fl1 := between(eks->date_eks,arr_m[1,1],arr_m[1,2])
+  fl2 := between(eks->date_eks,arr_m[2,1],arr_m[2,2])
   if fl1 .or. fl2
     skod := left(hu->kod_diag,3)
     select TMPD
@@ -1614,7 +1587,7 @@ do while !eof()
       tmpd->kol2 ++
     endif
   endif
-  select HU
+  select EKS
   skip
 enddo
 i := tmpd->(lastrec())
@@ -1817,8 +1790,6 @@ for i := len(arr) to 1 step -1
 next
 return k
 
-*
-
 *****
 Function kek_inf_eks(k)
 Static si1 := 1, si2 := 1, si3 := 1
@@ -1848,9 +1819,7 @@ if k > 10
 endif
 return NIL
 
-*
-
-***** 26.06.13
+***** 11.07.18
 Function f1inf_kek_eks()
 Local arr_m, adbf, ab, skol := 0,;
       sh, HH := 80, reg_print, n_file := "inf1_eks"+stxt
@@ -1863,30 +1832,24 @@ if (arr_m := year_month(T_ROW,T_COL-5)) != NIL
   dbcreate(cur_dir+"tmp",adbf)
   use (cur_dir+"tmp") new
   index on str(kod,3) to (cur_dir+"tmp")
-  R_Use(dir_server+"mo_keke",dir_server+"mo_keket","EKS")
   R_Use(dir_server+"human",,"HUMAN")
   R_Use(dir_server+"mo_kekh",,"HU")
   set relation to kod_lu into HUMAN
-  go top
-  do while !eof()
-    if (fl := between(human->k_data,arr_m[5],arr_m[6]))
-      select EKS
-      find (str(hu->(recno()),7))
-      do while eks->kod == hu->(recno())
-        ab := f_ball_kek(hu->ishod)
-        select TMP
-        find (str(eks->kod_eks,3))
-        if !found()
-          append blank
-          tmp->kod := eks->kod_eks
-        endif
-        tmp->kol ++
-        tmp->o_e += ab[1,8]
-        select EKS
-        skip
-      enddo
+  R_Use(dir_server+"mo_keke",dir_server+"mo_keked","EKS")
+  // index on dtos(date_eks) to (dir_server+"mo_keked") 
+  set relation to kod into HU
+  dbseek(dtos(arr_m[5]),.t.)
+  do while eks->date_eks <= arr_m[6] .and. !eof()
+    ab := f_ball_kek(hu->ishod)
+    select TMP
+    find (str(eks->kod_eks,3))
+    if !found()
+      append blank
+      tmp->kod := eks->kod_eks
     endif
-    select HU
+    tmp->kol ++
+    tmp->o_e += ab[1,8]
+    select EKS
     skip
   enddo
   //
@@ -1928,9 +1891,7 @@ if (arr_m := year_month(T_ROW,T_COL-5)) != NIL
 endif
 return NIL
 
-*
-
-***** 26.06.13
+***** 11.07.18
 Function f2inf_kek_eks()
 Local arr_m, adbf, ab, skol := 0, old_d := ctod(""),;
       sh, HH := 60, reg_print, n_file := "inf2_eks"+stxt
@@ -1942,38 +1903,32 @@ if (arr_m := year_month(T_ROW,T_COL-5)) != NIL .and. (ke := _work_eks(T_ROW,T_CO
     {"O_E",      "N", 5, 3}}    // áã¬¬ à­ ï ®æ¥­ª  E
   dbcreate(cur_dir+"tmp",adbf)
   use (cur_dir+"tmp") new
-  R_Use(dir_server+"mo_keke",dir_server+"mo_keket","EKS")
   R_Use(dir_server+"human",,"HUMAN")
   R_Use(dir_server+"mo_kekh",,"HU")
   set relation to kod_lu into HUMAN
-  go top
-  do while !eof()
-    if between(human->k_data,arr_m[5],arr_m[6])
-      select EKS
-      find (str(hu->(recno()),7))
-      do while eks->kod == hu->(recno())
-        if eks->kod_eks == ke[2]
-          ab := f_ball_kek(hu->ishod)
-          select TMP
-          append blank
-          tmp->kod := hu->(recno())
-          tmp->date_eks := eks->date_eks
-          tmp->o_e := ab[1,8]
-        endif
-        select EKS
-        skip
-      enddo
+  R_Use(dir_server+"mo_keke",dir_server+"mo_keked","EKS")
+  // index on dtos(date_eks) to (dir_server+"mo_keked") 
+  set relation to kod into HU
+  dbseek(dtos(arr_m[5]),.t.)
+  do while eks->date_eks <= arr_m[6] .and. !eof()
+    if eks->kod_eks == ke[2]
+      ab := f_ball_kek(hu->ishod)
+      select TMP
+      append blank
+      tmp->kod := hu->(recno())
+      tmp->date_eks := eks->date_eks
+      tmp->o_e := ab[1,8]
     endif
-    select HU
+    select EKS
     skip
   enddo
   close databases
   //
   arr_title := {;
-  "ÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄ",;
-  " „ â  íªá-³     ”.ˆ.. ¡®«ì­®£®       ³  ¥à¨®¤   ³      â¤¥«¥­¨¥      ³æ¥­ª ",;
-  " ¯¥àâ¨§ë  ³                           ³  «¥ç¥­¨ï  ³                     ³  …   ",;
-  "ÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄ"}
+  "ÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄ",;
+  " „ â  íªá-³     ”.ˆ.. ¡®«ì­®£®    ³   ¥à¨®¤     ³      â¤¥«¥­¨¥      ³æ¥­ª ",;
+  " ¯¥àâ¨§ë  ³                        ³   «¥ç¥­¨ï    ³                     ³  …   ",;
+  "ÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄ"}
   reg_print := 2
   f_reg_print(arr_title,@sh)
   fp := fcreate(n_file) ; tek_stroke := 0 ; n_list := 1
@@ -1998,8 +1953,8 @@ if (arr_m := year_month(T_ROW,T_COL-5)) != NIL .and. (ke := _work_eks(T_ROW,T_CO
     if !(old_d == tmp->date_eks)
       add_string(full_date(tmp->date_eks))
     endif
-    s := " "+padr(kart->fio,37)+" "+;
-         left(dtoc(human->n_data),5)+"-"+left(dtoc(human->k_data),5)+" "+;
+    s := " "+padr(kart->fio,34)+" "+;
+         left(dtoc(human->n_data),5)+"-"+date_8(human->k_data)+" "+;
          padr(ltrim(otd->name),21)+_put_ocen(tmp->o_e,,7)
     skol ++
     add_string(s)
@@ -2013,8 +1968,6 @@ if (arr_m := year_month(T_ROW,T_COL-5)) != NIL .and. (ke := _work_eks(T_ROW,T_CO
   viewtext(n_file,,,,(sh>80),,,reg_print)
 endif
 return NIL
-
-*
 
 *****
 Function kek_inf_povod(k)
@@ -2045,9 +1998,7 @@ if k > 10
 endif
 return NIL
 
-*
-
-*****
+***** 11.07.18
 Function f1inf_kek_povod()
 Local i, ap, arr_m, adbf, ab, skol := 0,;
       sh, HH := 80, reg_print, n_file := "inf1_pov"+stxt
@@ -2064,31 +2015,26 @@ if (arr_m := year_month(T_ROW,T_COL-5)) != NIL
   dbcreate(cur_dir+"tmp",adbf)
   use (cur_dir+"tmp") new
   index on str(povod_eks,1)+str(kod,3) to (cur_dir+"tmp")
-  R_Use(dir_server+"mo_keke",dir_server+"mo_keket","EKS")
   R_Use(dir_server+"human",,"HUMAN")
   R_Use(dir_server+"mo_kekh",,"HU")
   set relation to kod_lu into HUMAN
-  go top
-  do while !eof()
-    if (fl := between(human->k_data,arr_m[5],arr_m[6])) .and. ;
-                   (i := ascan(ap, {|x| x[2]==hu->POVOD_EKS})) > 0
+  R_Use(dir_server+"mo_keke",dir_server+"mo_keked","EKS")
+  // index on dtos(date_eks) to (dir_server+"mo_keked") 
+  set relation to kod into HU
+  dbseek(dtos(arr_m[5]),.t.)
+  do while eks->date_eks <= arr_m[6] .and. !eof()
+    if (i := ascan(ap, {|x| x[2]==hu->POVOD_EKS})) > 0
       ap[i,3] ++
-      select EKS
-      find (str(hu->(recno()),7))
-      do while eks->kod == hu->(recno())
-        select TMP
-        find (str(hu->POVOD_EKS,1)+str(eks->kod_eks,3))
-        if !found()
-          append blank
-          tmp->povod_eks := hu->POVOD_EKS
-          tmp->kod := eks->kod_eks
-        endif
-        tmp->kol ++
-        select EKS
-        skip
-      enddo
+      select TMP
+      find (str(hu->POVOD_EKS,1)+str(eks->kod_eks,3))
+      if !found()
+        append blank
+        tmp->povod_eks := hu->POVOD_EKS
+        tmp->kod := eks->kod_eks
+      endif
+      tmp->kol ++
     endif
-    select HU
+    select EKS
     skip
   enddo
   //
@@ -2136,9 +2082,7 @@ if (arr_m := year_month(T_ROW,T_COL-5)) != NIL
 endif
 return NIL
 
-*
-
-*****
+***** 11.07.18
 Function f2inf_kek_povod()
 Static sk := 0
 Local arr_m, adbf, ab, skol := 0, old_d := ctod(""), i, ke, ;
@@ -2154,25 +2098,23 @@ if (arr_m := year_month(T_ROW,T_COL-5)) != NIL
       {"O_E",      "N", 5, 3}}    // áã¬¬ à­ ï ®æ¥­ª  E
     dbcreate(cur_dir+"tmp",adbf)
     use (cur_dir+"tmp") new
-    R_Use(dir_server+"mo_keke",dir_server+"mo_keket","EKS")
     R_Use(dir_server+"human",,"HUMAN")
     R_Use(dir_server+"mo_kekh",,"HU")
     set relation to kod_lu into HUMAN
-    go top
-    do while !eof()
-      if between(human->k_data,arr_m[5],arr_m[6]) .and. ke[2] == hu->povod_eks
-        select EKS
-        find (str(hu->(recno()),7))
-        if found()
-          ab := f_ball_kek(hu->ishod)
-          select TMP
-          append blank
-          tmp->kod := hu->(recno())
-          tmp->date_eks := eks->date_eks
-          tmp->o_e := ab[1,8]
-        endif
+    R_Use(dir_server+"mo_keke",dir_server+"mo_keked","EKS")
+    // index on dtos(date_eks) to (dir_server+"mo_keked") 
+    set relation to kod into HU
+    dbseek(dtos(arr_m[5]),.t.)
+    do while eks->date_eks <= arr_m[6] .and. !eof()
+      if ke[2] == hu->povod_eks
+        ab := f_ball_kek(hu->ishod)
+        select TMP
+        append blank
+        tmp->kod := hu->(recno())
+        tmp->date_eks := eks->date_eks
+        tmp->o_e := ab[1,8]
       endif
-      select HU
+      select EKS
       skip
     enddo
     close databases
@@ -2222,8 +2164,6 @@ if (arr_m := year_month(T_ROW,T_COL-5)) != NIL
   endif
 endif
 return NIL
-
-*
 
 *****
 Function ret_2_diap()  
@@ -2346,7 +2286,7 @@ if k > 10
 endif
 return NIL
 
-***** 21.12.17
+***** 11.07.18
 Function f1inf_kek_otd()
 Local arr_m, adbf, ab, skol := 0,;
       sh, HH := 60, reg_print, n_file := "inf1_otd"+stxt
@@ -2359,30 +2299,24 @@ if (arr_m := year_month(T_ROW,T_COL-5)) != NIL
   dbcreate(cur_dir+"tmp",adbf)
   use (cur_dir+"tmp") new
   index on str(kod,3) to (cur_dir+"tmp")
-  R_Use(dir_server+"mo_keke",dir_server+"mo_keket","EKS")
   R_Use(dir_server+"human",,"HUMAN")
   R_Use(dir_server+"mo_kekh",,"HU")
   set relation to kod_lu into HUMAN
-  go top
-  do while !eof()
-    if (fl := between(human->k_data,arr_m[5],arr_m[6]))
-      select EKS
-      find (str(hu->(recno()),7))
-      do while eks->kod == hu->(recno())
-        ab := f_ball_kek(hu->ishod)
-        select TMP
-        find (str(hu->otd,3))
-        if !found()
-          append blank
-          tmp->kod := hu->otd
-        endif
-        tmp->kol ++
-        tmp->o_e += ab[1,8]
-        select EKS
-        skip
-      enddo
+  R_Use(dir_server+"mo_keke",dir_server+"mo_keked","EKS")
+  // index on dtos(date_eks) to (dir_server+"mo_keked") 
+  set relation to kod into HU
+  dbseek(dtos(arr_m[5]),.t.)
+  do while eks->date_eks <= arr_m[6] .and. !eof()
+    ab := f_ball_kek(hu->ishod)
+    select TMP
+    find (str(hu->otd,3))
+    if !found()
+      append blank
+      tmp->kod := hu->otd
     endif
-    select HU
+    tmp->kol ++
+    tmp->o_e += ab[1,8]
+    select EKS
     skip
   enddo
   //
@@ -2423,7 +2357,7 @@ if (arr_m := year_month(T_ROW,T_COL-5)) != NIL
 endif
 return NIL
 
-***** 21.12.17
+***** 11.07.18
 Function f2inf_kek_otd()
 Local arr_m, adbf, ab, skol := 0, old_d := ctod(""),;
       sh, HH := 60, reg_print, n_file := "inf2_otd"+stxt
@@ -2436,28 +2370,24 @@ if (arr_m := year_month(T_ROW,T_COL-5)) != NIL .and. ret_kek_otd(,T_ROW,T_COL-5,
     {"O_E",      "N", 5, 3}}    // áã¬¬ à­ ï ®æ¥­ª  E
   dbcreate(cur_dir+"tmp",adbf)
   use (cur_dir+"tmp") new
-  R_Use(dir_server+"mo_keke",dir_server+"mo_keket","EKS")
   R_Use(dir_server+"human",,"HUMAN")
   R_Use(dir_server+"mo_kekh",,"HU")
   set relation to kod_lu into HUMAN
-  go top
-  do while !eof()
-    if between(human->k_data,arr_m[5],arr_m[6]) .and. hu->otd == kek_otd[1]
-      select EKS
-      find (str(hu->(recno()),7))
-      do while eks->kod == hu->(recno())
-        ab := f_ball_kek(hu->ishod)
-        select TMP
-        append blank
-        tmp->kod := hu->(recno())
-        tmp->kod_eks := eks->kod_eks
-        tmp->date_eks := eks->date_eks
-        tmp->o_e := ab[1,8]
-        select EKS
-        skip
-      enddo
+  R_Use(dir_server+"mo_keke",dir_server+"mo_keked","EKS")
+  // index on dtos(date_eks) to (dir_server+"mo_keked") 
+  set relation to kod into HU
+  dbseek(dtos(arr_m[5]),.t.)
+  do while eks->date_eks <= arr_m[6] .and. !eof()
+    if hu->otd == kek_otd[1]
+      ab := f_ball_kek(hu->ishod)
+      select TMP
+      append blank
+      tmp->kod := hu->(recno())
+      tmp->kod_eks := eks->kod_eks
+      tmp->date_eks := eks->date_eks
+      tmp->o_e := ab[1,8]
     endif
-    select HU
+    select EKS
     skip
   enddo
   close databases
@@ -2507,7 +2437,7 @@ if (arr_m := year_month(T_ROW,T_COL-5)) != NIL .and. ret_kek_otd(,T_ROW,T_COL-5,
 endif
 return NIL
 
-***** 21.12.17
+***** 11.07.18
 Function kek_inf_vrach()
 Local arr_m, adbf, ab, skol := 0,;
       sh, HH := 60, reg_print, n_file := "inf1_vrach"+stxt
@@ -2520,30 +2450,24 @@ if (arr_m := year_month(T_ROW,T_COL-5)) != NIL
   dbcreate(cur_dir+"tmp",adbf)
   use (cur_dir+"tmp") new
   index on str(kod,7) to (cur_dir+"tmp")
-  R_Use(dir_server+"mo_keke",dir_server+"mo_keket","EKS")
   R_Use(dir_server+"human",,"HUMAN")
   R_Use(dir_server+"mo_kekh",,"HU")
   set relation to kod_lu into HUMAN
-  go top
-  do while !eof()
-    if (fl := between(human->k_data,arr_m[5],arr_m[6]))
-      select EKS
-      find (str(hu->(recno()),7))
-      do while eks->kod == hu->(recno())
-        ab := f_ball_kek(hu->ishod)
-        select TMP
-        find (str(hu->vrach,7))
-        if !found()
-          append blank
-          tmp->kod := hu->vrach
-        endif
-        tmp->kol ++
-        tmp->o_e += ab[1,8]
-        select EKS
-        skip
-      enddo
+  R_Use(dir_server+"mo_keke",dir_server+"mo_keked","EKS")
+  // index on dtos(date_eks) to (dir_server+"mo_keked") 
+  set relation to kod into HU
+  dbseek(dtos(arr_m[5]),.t.)
+  do while eks->date_eks <= arr_m[6] .and. !eof()
+    ab := f_ball_kek(hu->ishod)
+    select TMP
+    find (str(hu->vrach,7))
+    if !found()
+      append blank
+      tmp->kod := hu->vrach
     endif
-    select HU
+    tmp->kol ++
+    tmp->o_e += ab[1,8]
+    select EKS
     skip
   enddo
   //

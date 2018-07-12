@@ -622,7 +622,7 @@ if fl
       k := rees->NN
       skip
     enddo 
-    AddRec(4)
+    AddRec(6)
     rees->KOD    := recno()
     rees->REC_5P := mrec // номер записи в файле mo_dr05p
     rees->DSCHET := sys_date
@@ -716,7 +716,7 @@ endif
 rest_box(buf)     
 return NIL
 
-***** 21.12.17 разбиение графика за месяц по участкам
+***** 11.07.18 разбиение графика за месяц по участкам
 Function f1_f3_create_R05(v,su)
 Local i, d, k := 0, l := len(auch)
 Local arr := array(l,2)
@@ -725,6 +725,9 @@ Local arr := array(l,2)
 for i := 1 to l
   arr[i,1] := auch[i,1]
   arr[i,2] := int(v*auch[i,2]/su)
+  if arr[i,2] < 0  // не должно быть меньше нуля
+    arr[i,2] := 0
+  endif
   k += arr[i,2]
   //my_debug(,print_array(arr[i])) 
 next

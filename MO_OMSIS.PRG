@@ -3696,9 +3696,7 @@ for i := 1 to 2
 next
 return NIL
 
-*
-
-***** 11.04.18 форма 14-МЕД (ОМС)
+***** 11.07.18 форма 14-МЕД (ОМС)
 Function forma14_med_oms()
 Static group_ini := "f14_med_oms"
 Local begin_date, end_date, buf := savescreen(), arr_m, i, j, k, k1, k2,;
@@ -3759,7 +3757,7 @@ arr_pril5[26,1] := "Дн.стац. - руб."
 arr_pril5[27,1] := "Дн.стац.ЭКО - пациенто-дней"
 arr_pril5[28,1] := "Дн.стац.ЭКО - пациентов, чел."
 arr_pril5[29,1] := "Дн.стац.ЭКО - руб."
-arr_m := {2018,1,3,"за январь - март 2018 года",stod("20180101"),stod("20180331")}
+arr_m := {2018,1,6,"за январь - июнь 2018 года",0d20180101,0d20180630}
 Private mk1, mk2, mk3, mk4, md1, md11, md12, md2, md21, md22, md3, md4
 ar := GetIniSect(tmp_ini,group_ini)
 mk1 := int(val(a2default(ar,"mk1","0")))
