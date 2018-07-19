@@ -1290,7 +1290,7 @@ return NIL
 
 *
 
-***** 02.07.18
+***** 12.07.18
 Function kart_orto(r)
 Static snar_z := 0
 Local i, j, r2, ln, buf, str_sem, arr_n := {}
@@ -1346,10 +1346,11 @@ elseif i == 2
       func_error(4,"Наряд N "+lstr(ln)+" не найден!")
     else
       buf := savescreen()
+      R_Use(dir_server+"kartote2",,"KART2")
       R_Use(dir_server+"kartote_",,"KART_")
       R_Use(dir_server+"kartotek",,"KART")
       use (cur_dir+"tmp_kart") index (cur_dir+"tmp_kart") new alias TMP
-      set relation to kod into KART, to kod into KART_
+      set relation to kod into KART, to kod into KART_, to kod into KART2
       change_attr()
       top_frm := 14
       @ 13,0 say padc("_Просмотр картотеки_",80,"░") color "R/BG"

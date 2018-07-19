@@ -2006,9 +2006,9 @@ do while !eof()
     skip
   enddo
   if !empty(lvidpoms) 
-    if !eq_ascan(atmpusl,"55.1.2","55.1.3")
+    //if !eq_ascan(atmpusl,"55.1.2","55.1.3")
       lvidpoms := ret_vidpom_licensia(human_->USL_OK,lvidpoms) // только для дн.стационара при стационаре
-    endif
+    //endif
     if !empty(lvidpoms) .and. !("," $ lvidpoms)
       lvidpom := int(val(lvidpoms))
       lvidpoms := ""

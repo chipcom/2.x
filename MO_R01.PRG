@@ -138,7 +138,7 @@ reconstruct(dir_server+"mo_dr05e",mo_dr05e,,,.t.)
 reconstruct(dir_server+"mo_dr00", mo_dr00 ,,,.t.)
 return NIL
 
-***** 09.07.18 Создание файла обмена R05...
+***** 12.07.18 Создание файла обмена R05...
 Function f_create_R05()
 Static arr_plan := {;
   {8771,"114504 - ГУЗ Поликлиника № 4"},;
@@ -238,6 +238,13 @@ if !verify_packet_R05(1,{})
   fl := (tmp->(lastrec()) == 0)
   close databases
   if fl
+    G_Use(dir_server+"mo_dr05p",,"R05p")
+    goto (mrec)  
+    G_RLock(forever)
+    for i := 1 to 12
+      &("r05p->kol3_"+strzero(i,2)) := 0
+    next
+    r05p->(dbCloseArea())
     fill_dr00()
   endif
 endif
@@ -467,7 +474,40 @@ next
 SetPos(rr,cc)
 return NIL
 
-***** 09.07.18 Создание файла обмена R05
+***** 12.07.18
+Function read_R05(full_zip)
+Local arr_f, aerr := {}, name_zip := StripPath(full_zip)
+Local fl := .f., n, cName := Name_Without_Ext(name_zip)
+if (arr_f := Extract_Zip_XML(KeepPath(full_zip),name_zip)) != NIL
+  if (n := ascan(arr_f,{|x| upper(Name_Without_Ext(x)) == upper(cName)})) > 0
+    cFile := arr_f[n]
+    mywait("Производится анализ файла "+cFile)
+    cReadFile := Name_Without_Ext(cFile)
+    cFileProtokol := cReadFile+stxt
+    strfile(space(10)+"Протокол обработки файла: "+cFile+hb_eol(),cFileProtokol)
+    // читаем файл в память
+    oXmlDoc := HXMLDoc():Read(_tmp_dir1+cFile)
+    if empty( oXmlDoc:aItems )
+      aadd(aerr,"Ошибка в чтении файла "+cFile)
+    else
+      reestr_R05_tmpfile(oXmlDoc,aerr,cReadFile)
+    endif
+    if empty(aerr)
+      fl := .t.
+    else
+      aeval(aerr,{|x| strfile(x+hb_eol(),cFileProtokol,.t.) })
+      viewtext(Devide_Into_Pages(cFileProtokol,60,80),,,,.t.,,,2)
+      delete file (cFileProtokol)
+      fl := .f.
+    endif
+    close databases
+  else
+    fl := func_error(4,"В архиве "+name_zip+" нет файла "+cName+sxml)
+  endif
+endif  
+return fl
+
+***** 12.07.18 Создание файла обмена R05
 Function f3_create_R05()
 Local buf := save_maxrow(), i, j, skol[3], ekol := {0,0,0}, k, fl := .t.
 if !write_reestr 
@@ -560,7 +600,11 @@ if fl
       next
     next
     for j1 := 1 to 2
-      //my_debug(,print_array({i,j1,aumes[i,j1]}))
+      v := 0
+      for k := 1 to len(aumes[i,j1])
+        v += aumes[i,j1,k,2]
+      next
+      //my_debug(,print_array({i,j1,v,aumes[i,j1]}))
     next
   next
   R_Use(dir_server+"mo_dr05p",,"R05p")
@@ -570,27 +614,48 @@ if fl
     ikol1 += r05p->kol1 + r05p->kol3
     ikol2 += r05p->kol2
   next
-  if mrec > 1 // пока так - только для одного доп.приказа КЗ
+  if mrec > 1 // пока так - только для одного дополнительного приказа КЗ
     R_Use(dir_server+"mo_dr05",,"R05")
     index on str(1000-nn,4) to (cur_dir+"tmp_r05") for REC_5P == 1
     go top // встать на последний пакет для приказа №1
-    R_Use(dir_server+"mo_dr05k",,"RHUM")
-    index on str(n_m,2)+str(tip,1)+str(uch,2) to (cur_dir+"tmp_rhum") for rhum->reestr == r05->kod
-    go top
-    do while !eof()
-      i := rhum->n_m
-      j1 := rhum->tip
-      luch := rhum->uch
-      lkol := rhum->kol
-      if (k1 := ascan(aumes[i,j1], {|x| x[1] == luch })) == 0
-        aadd(aumes[i,j1], {luch,0}) ; k1 := len(aumes[i,j1])
-      endif
-      aumes[i,j1,k1,2] += lkol
-      skip
-    enddo
+    nfile := dir_server+dir_XML_MO+cslash+alltrim(r05->name_xml)+szip
+    if hb_fileExists(nfile) .and. read_R05(nfile) // берём предыдущий план из оригинального файла R05
+      use (cur_dir+"tmp2file") new alias TMP2
+      go top
+      do while !eof()
+        i := tmp2->n_m
+        j1 := tmp2->tip
+        luch := tmp2->uch
+        lkol := tmp2->kol
+        if (k1 := ascan(aumes[i,j1], {|x| x[1] == luch })) == 0
+          aadd(aumes[i,j1], {luch,0}) ; k1 := len(aumes[i,j1])
+        endif
+        aumes[i,j1,k1,2] += lkol
+        skip
+      enddo
+    else // берём предыдущий план из внутренней БД
+      R_Use(dir_server+"mo_dr05k",,"RHUM")
+      index on str(n_m,2)+str(tip,1)+str(uch,2) to (cur_dir+"tmp_rhum") for rhum->reestr == r05->kod
+      go top
+      do while !eof()
+        i := rhum->n_m
+        j1 := rhum->tip
+        luch := rhum->uch
+        lkol := rhum->kol
+        if (k1 := ascan(aumes[i,j1], {|x| x[1] == luch })) == 0
+          aadd(aumes[i,j1], {luch,0}) ; k1 := len(aumes[i,j1])
+        endif
+        aumes[i,j1,k1,2] += lkol
+        skip
+      enddo
+    endif
     for i := 1 to 12
       for j1 := 1 to 2
-        //my_debug(,print_array({i,j1,aumes[i,j1]}))
+        v := 0
+        for k := 1 to len(aumes[i,j1])
+          v += aumes[i,j1,k,2]
+        next
+        //my_debug(,print_array({i,j1,v,aumes[i,j1]}))
       next
     next
   endif 
@@ -1402,6 +1467,7 @@ if (fl := verify_packet_R05(1,arr))
       enddo
       index on str(reestr,6) to (cur_dir+"tmp_dr00")
       for ir := 1 to len(arr_rees)
+        //my_debug(,"ir: "+lstr(arr_rees[ir]))
         select TMP
         find (str(arr_rees[ir],6))
         do while tmp->reestr == arr_rees[ir] .and. !eof()
@@ -1428,6 +1494,9 @@ if (fl := verify_packet_R05(1,arr))
         enddo
         if !fl ; exit ; endif
       next ir
+      //my_debug(,"skol"+print_array(skol))
+      //my_debug(,"mkol"+print_array(mkol))
+      //my_debug(,"ames"+print_array(ames))
     else // первый раз составляется реестр в отчётном году
       if (fl1 := hb_FileExists(exe_dir+"ListInform"+sdbf))
         R_Use(exe_dir+"ListInform",,"LI")
@@ -1444,6 +1513,8 @@ if (fl := verify_packet_R05(1,arr))
           skol[j] --
           tmp->n_q := int((tmp->n_m+2)/3) // определяем номер квартала по месяцу
           akv[tmp->n_q,j] ++
+        else
+          tmp->n_q := tmp->n_m := 0 // обнулить, если уже запускали, но не создали R01
         endif
         if !empty(tmp->enp) .and. fl1
           select LI
@@ -1651,6 +1722,7 @@ for SQUARTER := 1 to 4
     skip
   enddo
 next
+set index to
 G_Use(dir_server+"mo_xml",,"MO_XML")
 R_Use(dir_server+"kartote2",,"KART2")
 R_Use(dir_server+"kartote_",,"KART_")
