@@ -2883,33 +2883,3 @@ if k > 1
   next
 endif
 return NIL
-
-***** количество лет, месяцев и дней в строке
-Function count_ymd(_mdate, _sys_date, /*@*/y, /*@*/m, /*@*/d)
-// _mdate    - дата для определения количества лет, месяцев и дней
-// _sys_date - "системная" дата
-Local ret_s := "", md := _mdate
-y := m := d := 0
-if !empty(_sys_date) .and. !empty(_mdate) .and. _sys_date > _mdate
-  do while (md := addmonth(md,12)) <= _sys_date
-    ++y
-  enddo
-  md := addmonth(_mdate,12*y)
-  do while (md := addmonth(md,1)) <= _sys_date
-    ++m
-  enddo
-  md := addmonth(_mdate,12*y+m)
-  do while (md := md+1) <= _sys_date
-    ++d
-  enddo
-endif
-if y > 0
-  ret_s := lstr(y)+" "+s_let(y)+" "
-endif
-if m > 0
-  ret_s += lstr(m)+" "+mes_cev(m)+" "
-endif
-if d > 0
-  ret_s += lstr(d)+" "+dnej(d)
-endif
-return rtrim(ret_s)

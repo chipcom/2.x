@@ -14,9 +14,9 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-Static _version := {2,6,12}
-Static char_version := "c"
-Static _date_version := "19.07.18г."
+Static _version := {2,6,13}
+Static char_version := ""
+Static _date_version := "23.07.18г."
 Static __s_full_name := "ЧИП + Учёт работы Медицинской Организации"
 Static __s_version
 
@@ -71,12 +71,12 @@ Public _tmp_dir  := "TMP___"
 Public _tmp_dir1 := _tmp_dir+cslash
 Public _tmp2dir  := "TMP2___"
 Public _tmp2dir1 := _tmp2dir+cslash
-Public d_01_04_2013 := stod("20130401")
-Public d_01_04_2015 := stod("20150401")
-Public d_01_08_2016 := stod("20160801")
-Public d_01_08_2017 := stod("20170801")
-Public d_01_09_2017 := stod("20170901")
-Public d_01_05_2018 := stod("20180501")
+Public d_01_04_2013 := 0d20130401
+Public d_01_04_2015 := 0d20150401
+Public d_01_08_2016 := 0d20160801
+Public d_01_08_2017 := 0d20170801
+Public d_01_09_2017 := 0d20170901
+Public d_01_05_2018 := 0d20180501
 //
 Public p_arr_prazdnik := {{2013,{;
                                  { 1,{1,2,3,4,5,6,7,8,12,13,19,20,26,27}},;
@@ -222,6 +222,17 @@ f_create_copy_R0()
   endif
 endif
 Init_Program() // инициализация программы (переменных, массивов,...)
+/*
+my_debug(,lstr(count_months(0d20170720,0d20180719)))
+my_debug(,lstr(count_months(0d20170720,0d20180720)))
+my_debug(,lstr(count_months(0d20170720,0d20180721)))
+my_debug(,lstr(count_months(0d20160229,0d20180227)))
+my_debug(,lstr(count_months(0d20160229,0d20180228)))
+my_debug(,lstr(count_months(0d20160229,0d20180301)))
+my_debug(,lstr(count_months(0d20150228,0d20160228)))
+my_debug(,lstr(count_months(0d20150228,0d20160229)))
+my_debug(,lstr(count_months(0d20150228,0d20160301)))
+*/
 f_main(r,a_parol)
 f_end()
 return

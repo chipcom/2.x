@@ -193,8 +193,6 @@ for i := 1 to len(s)
 next
 return s1
 
-*
-
 ***** подставить впереди строки какое-то кол-во пробелов
 Function st_nom_stroke(lstroke)
 Local i, r := 0
@@ -209,8 +207,6 @@ if r == 1 .and. right(lstroke,2) == ".0"
 endif
 return space(r*2)
 
-*
-
 *****
 Function a2default(arr,name,sDefault)
 // arr - двумерный массив
@@ -224,8 +220,6 @@ if (i := ascan(arr, {|x| upper(x[1]) == upper(name)})) > 0
   s := arr[i,2]
 endif
 return s
-
-*
 
 *****
 Function uk_arr_dni(nKey)
@@ -283,8 +277,6 @@ restscreen(buf)
 setcolor(tmp_color)
 return arr
 
-*
-
 *****
 Function put_otch_period(full_year)
 Local n := 5, s := strzero(schet_->nyear,4)
@@ -300,14 +292,10 @@ if emptyany(schet_->nyear,schet_->nmonth)
 endif
 return s
 
-*
-
 ***** возврат даты регистрации счёта
 Function date_reg_schet()
 // если нет даты регистрации, берём дату счёта
 return iif(empty(schet_->dregistr), schet_->dschet, schet_->dregistr)
-
-*
 
 ***** 25.01.2018
 Function ret_vid_pom(k,mshifr,lk_data)
@@ -338,15 +326,11 @@ if found()
 endif
 return vp
 
-*
-
 ***** вернуть в массиве запись базы данных
 Function get_field()
 Local arr := array(fcount())
 aeval(arr, {|x,i| arr[i] := fieldget(i) }  )
 return arr
-
-*
 
 *****
 Function get_k_usluga(lshifr,lvzros_reb,lvr_as)
@@ -445,8 +429,6 @@ endif
 rest_box(buf)
 return ( len(pr_k_usl) > 0 )
 
-*
-
 *****
 Function CenaUslDate(ldate,lkod)
 Local tmp_select := select(), rec_pud, rec_puc, arr := {0,0,0}
@@ -472,8 +454,6 @@ pud->(dbGoto(rec_pud))
 puc->(dbGoto(rec_puc))
 select (tmp_select)
 return arr
-
-*
 
 *****
 Function get_otd(mkod,r,c,fl_usl)
@@ -552,8 +532,6 @@ endif
 setcursor()
 return NIL
 
-*
-
 ***** сохранить учреждение и отделение
 Function saveuchotd()
 Local arr[2]
@@ -566,8 +544,6 @@ Function restuchotd(arr)
 glob_uch := aclone(arr[1])
 glob_otd := aclone(arr[2])
 return NIL
-
-*
 
 ***** 09.08.16 определить врача по табельному номеру при вводе листа учета, услуги,...
 Function v_kart_vrach(get,is_prvs)
@@ -605,8 +581,6 @@ if &tmp != get:original
 endif
 return .t.
 
-*
-
 ***** перечитать код МО по ТФОМС и сохранить в glob_MO
 Function reRead_glob_MO()
 Local i, cCode, tmp_select := select()
@@ -618,8 +592,6 @@ if (i := ascan(glob_arr_mo, {|x| x[_MO_KOD_TFOMS] == cCode})) > 0
 endif
 select (tmp_select)
 return NIL
-
-*
 
 ***** проверка правильности ввода сроков лечения
 Function f_k_data(get,k)
@@ -646,8 +618,6 @@ if k == 1 .and. type("mdate_r") == "D"
   fv_date_r(mn_data)
 endif
 return .t.
-
-*
 
 ***** 17.01.14 переопределение критерия "взрослый/ребёнок" по дате рождения и "_date"
 Function fv_date_r(_data,fl_end)
@@ -677,28 +647,86 @@ if fl_end
     update_get("mrab_nerab")
   endif
   if type("m1vid_ud") == "N" .and. empty(m1vid_ud)
-    m1vid_ud := iif(k==1, 3, 14)
+    m1vid_ud := iif(k == 1, 3, 14)
   endif
-  /*if type("m1kategor") == "N" в новом меню нет этих строк
-    fl := .f.
-    if cy < 1  // ребенок до года
-      if m1kategor != 7
-        m1kategor := 12 ; fl := .t.
-      endif
-    elseif cy >= 14 .and. cy < 18  // подросток (по статталону)
-      m1kategor := 11 ; fl := .t.
-    endif
-    if fl .and. (k := ascan(stm_kategor, {|x| x[2] == m1kategor } )) > 0
-      mkategor := padr(stm_kategor[k,1],38) ; update_get("mkategor")
-      if mem_st_kat == 2
-        update_get("m1kategor")
-      endif
-    endif
-  endif*/
 endif
 return .t.
 
-*
+***** 22.07.18 количество лет, месяцев и дней в строке
+Function count_ymd(_mdate, _sys_date, /*@*/y, /*@*/m, /*@*/d)
+// _mdate    - дата для определения количества лет, месяцев и дней
+// _sys_date - "системная" дата
+Local ret_s := "", md := _mdate
+y := m := d := 0
+if !empty(_sys_date) .and. !empty(_mdate) .and. _sys_date > _mdate
+  do while (md := addmonth(md,12)) <= _sys_date
+    ++y
+  enddo
+  if y > 0 .and. correct_count_ym(_mdate,_sys_date)
+    --y  
+  endif
+  md := addmonth(_mdate,12*y)
+  do while (md := addmonth(md,1)) <= _sys_date
+    ++m
+  enddo
+  if m > 0 .and. correct_count_ym(_mdate,_sys_date)
+    --m  
+  endif
+  md := addmonth(_mdate,12*y+m)
+  do while (md := md+1) <= _sys_date
+    ++d
+  enddo
+endif
+if y > 0
+  ret_s := lstr(y)+" "+s_let(y)+" "
+endif
+if m > 0
+  ret_s += lstr(m)+" "+mes_cev(m)+" "
+endif
+if d > 0
+  ret_s += lstr(d)+" "+dnej(d)
+endif
+return rtrim(ret_s)
+
+***** 22.07.18 определение количества месяцев по дате (возврат числа)
+Function count_months(_mdate,_sys_date)
+// _mdate    - дата для определения количества лет
+// _sys_date - "системная" дата
+Local k := 0, s1, s2, md := _mdate
+if !empty(_sys_date) .and. !empty(_mdate) .and. _sys_date > _mdate
+  do while (md := addmonth(md,1)) <= _sys_date
+    k++
+  enddo
+  if k > 0 .and. correct_count_ym(_mdate,_sys_date)
+    --k  
+  endif
+endif
+return k
+
+***** 22.07.18 определение количества лет по дате (возврат числа)
+Function count_years(_mdate,_sys_date)
+// _mdate    - дата для определения количества лет
+// _sys_date - "системная" дата
+Local k := 0, s1, s2, md := _mdate
+if !empty(_sys_date) .and. !empty(_mdate) .and. _sys_date > _mdate
+  do while (md := addmonth(md,12)) <= _sys_date
+    k++
+  enddo
+  if k > 0 .and. correct_count_ym(_mdate,_sys_date)
+    --k  
+  endif
+endif
+return k
+
+***** 22.07.18 лицо считается достигшим определённого возраста не в день рождения, а начиная со следующих суток
+Function correct_count_ym(_mdate,_sys_date) 
+Local s1 := right(dtos(_mdate),4), s2 := right(dtos(_sys_date),4), fl := .f. 
+if s1 == s2 // проверяем равенство дня и месяца
+  fl := .t.
+elseif s1 == "0229" .and. s2 == "0228" .and. !IsLeap(_sys_date) //_mdate - високосный год, а _sys_date - нет
+  fl := .t.
+endif
+return fl
 
 ***** проверка ввода диагноза в случае ОМС
 Function val1_10diag(fl_search,fl_plus,fl_screen,ldate,lpol)
@@ -845,8 +873,6 @@ if lis_talon .and. type("adiag_talon")=="A"
 endif
 return fl
 
-*
-
 ***** упрощённая проверка ввода диагноза
 Function val2_10diag()
 Local fl := .t., mshifr, tmp_select := select()
@@ -866,8 +892,6 @@ if !empty(mshifr)
   endif
 endif
 return fl
-
-*
 
 ***** запрос на ввод диагноза
 Function input_10diag()
@@ -897,8 +921,6 @@ elseif lastkey() != K_ESC .and. !empty(mshifr)
 endif
 rest_box(buf)
 return {mshifr,ashifr}
-
-*
 
 *****
 Function f1input_10diag()
@@ -937,8 +959,6 @@ do while FIELD->ks > 0
   skip
 enddo
 return arr_t
-
-*
 
 ***** меняет русские буквы на латинские при вводе диагноза
 Function get_mkb10(oGet,nKey,fl_F7)
@@ -1000,8 +1020,6 @@ if between(nKey, 32, 255) .or. nKey == K_DEL
   ENDIF
 ENDIF
 return NIL
-
-*
 
 ***** вернуть массив по МО с кодом ТФОМС cCode
 Function ret_mo(cCode)
@@ -1143,8 +1161,6 @@ elseif nKey == K_SPACE
 endif
 return ret
 
-*
-
 ***** инициализация выборки нескольких МО
 Function ini_ed_mo(lval)
 Local s := ""
@@ -1226,8 +1242,6 @@ endif
 SET(_SET_DELETED, lOldDeleted)  // Восстановление среды
 return NIL
 
-*
-
 ***** 09.02.14 функция сортировки номера счёта (для команды INDEX)
 Function fsort_schet(s1,s2)
 Static cDelimiter := "-"
@@ -1241,8 +1255,6 @@ else
        padr(alltrim(token(s1,cDelimiter,1)),5,'9')
 endif
 return s
-
-*
 
 ***** 15.01.14 функция сортировки шифров услуг по возрастанию (для команды INDEX)
 Function fsort_usl(sh_u)
@@ -1323,8 +1335,6 @@ if len(lshifr) == len(lshifr1) .and. len(lshifr) == len(lshifr2)
 endif
 return fl 
 
-*
-
 ***** 13.01.18 является ли шифр услуги кодом КСГ
 Function is_ksg(lshifr,k)
 // k = nil - любая КСГ
@@ -1350,8 +1360,6 @@ if fl .and. valtype(k) == "N"
 endif
 return fl
 
-*
-
 ***** исправление введённого полиса
 Function val_polis(s)
 Local fl := .t., i, c, s1 := ""
@@ -1363,8 +1371,6 @@ for i := 1 to len(s)
   endif
 next
 return ltrim(charone(" ",s1))
-
-*
 
 ***** вернуть имя файла без пути и расширения
 Function Name_Without_Ext(cFile)
@@ -1385,8 +1391,6 @@ LOCAL cExt
 //ENDIF
 HB_FNameSplit(cFile,,,@cExt)
 return cExt
-
-*
 
 ***** 14.03.16 возврат кода по картотеке
 Function polikl1_kart()
@@ -1549,8 +1553,6 @@ SetIniSect(tmp_ini,"polikl1",{{"s_regim"  ,lstr(s_regim)},;
                               {"s_snils"  ,s_snils      }})
 return mkod
 
-*
-
 ***** 26.09.13 запрос года
 Function input_year()
 Local ky, begin_date, end_date, r1, c1, r2, c2
@@ -1566,10 +1568,7 @@ begin_date := end_date := chr(int(val(left(str(ky,4),2))))+;
 begin_date += chr(1)+chr(1)
 end_date += chr(12)+chr(1)
 end_date := dtoc4(eom(c4tod(end_date)))
-return {ky, 1, 12, "за"+str(ky,5)+" год", ;
-           c4tod(begin_date), c4tod(end_date), begin_date, end_date}
-
-*
+return {ky, 1, 12, "за"+str(ky,5)+" год", c4tod(begin_date), c4tod(end_date), begin_date, end_date}
 
 ***** 31.10.13
 Function year_month(rr,cc,za_v,kmp,ch_mm,ret_time)
@@ -1783,8 +1782,7 @@ SetIniSect(tmp_ini,"ymonth",;
             {"mbeg",lstr(mbeg)},{"mend",lstr(mend)},{"sdate",dtos(sdate)},;
             {"s1date",dtos(s1date)},{"sdek",lstr(sdek)},;
             {"s1time",s1time},{"s2time",s2time}})
-return {ret_year, k1, k2, s_mes_god, ;
-           c4tod(begin_date), c4tod(end_date), begin_date, end_date}
+return {ret_year, k1, k2, s_mes_god, c4tod(begin_date), c4tod(end_date), begin_date, end_date}
 
 ***** перевод левого верхнего угла прямоугольника из координат 25х80 в "maxrow(col)"
 Function get_row_col_max(r,c,/*@*/r1,/*@*/c1,/*@*/r2,/*@*/c2)
@@ -1793,8 +1791,6 @@ r1 := maxrow()-d ; r2 := r1+2
 d := int(79-2*c)
 c1 := int((maxcol()-d)/2) ; c2 := c1 + d
 return NIL
-
-*
 
 ***** проверить дату и время на правильность периода
 function v_date_time(date1,time1,date2,time2)
@@ -1826,8 +1822,6 @@ return fl
 *****
 Static Function f_time(t)
 return round_5(val(substr(t,1,2))+val(substr(t,4,2))/60,5)
-
-*
 
 ***** вернуть УЕТ по дате оказания услуги
 Function opr_uet(lvzros_reb,k)
@@ -1891,8 +1885,6 @@ else
 endif
 return muet
 
-*
-
 ***** вернуть шифр ТФОМС по дате окончания лечения
 Function opr_shifr_TFOMS(lshifr,lkod,ldate)
 Local tmp_select := select()
@@ -1916,8 +1908,6 @@ if found()
 endif
 select (tmp_select)
 return lshifr
-
-*
 
 ***** 31.12.17 найти услугу по шифру ТФОМС в нашем справочнике услуг
 Function foundOurUsluga(lshifr,ldate,lprofil,lvzros_reb,/*@*/lu_cena,ipar,not_cycle)
@@ -2032,8 +2022,6 @@ if (v1 := f1cena_oms(usl->shifr,;
 endif
 return lu_kod
 
-*
-
 ***** 07.04.14 найти все услуги по шифру ТФОМС в нашем справочнике услуг
 Function foundAllShifrTF(lshifr,ldate)
 Local au := {}, s, ret_u := {}
@@ -2088,8 +2076,6 @@ for i := 1 to len(au) // цикл по кодам услуг, по которым стоит нужный шифр ТФОМС
 next
 return ret_u
 
-*
-
 ***** 02.02.17 вернуть строку для кода дефекта
 Function ret_t005(lkod)
 Local s := "", tmp_select := select()
@@ -2102,8 +2088,6 @@ t005->(dbCloseArea())
 select (tmp_select)
 return s
 
-*
-
 ***** 07.02.16 вернуть строку вида ВМП
 Function ret_V018(lVIDVMP,lk_data)
 Local i, s := space(10)
@@ -2112,8 +2096,6 @@ if !empty(lVIDVMP) .and. (i := ascan(glob_V018, {|x| x[1] == alltrim(lVIDVMP) })
   s := glob_V018[i,1]+"."+glob_V018[i,2]
 endif
 return s
-
-*
 
 ***** 07.02.16 вернуть строку метода ВМП
 Function ret_V019(lMETVMP,lVIDVMP,lk_data)
@@ -2125,8 +2107,6 @@ if !emptyany(lMETVMP,lVIDVMP) ;
   s := lstr(glob_V019[i,1])+"."+glob_V019[i,2]
 endif
 return s
-
-*
 
 ***** 06.02.17 в GET-е вернуть строку из glob_V018
 Function f_get_vidvmp(k,r,c)
@@ -2158,8 +2138,6 @@ if valtype(ret_arr) == "A"
 endif
 return ret
 
-*
-
 ***** 17.01.14 в GET-е вернуть строку из glob_V019
 Function f_get_metvmp(k,r,c,lvidvmp)
 Local arr := {}, i, ret, ret_arr
@@ -2183,8 +2161,6 @@ if valtype(ret_arr) == "A"
   ret[2] := ret_arr[1]
 endif
 return ret
-
-*
 
 ***** 23.12.15 в GET'е вернуть множественный выбор учреждений/отделений 
 Function ret_Nuch_Notd(k,r,c)
@@ -2221,8 +2197,6 @@ else
   s := "Выбрано учреждений: "+lstr(k)
 endif
 return {k,charone('"',s)} 
-
-*
 
 ***** 23.12.15 инициализация выборки нескольких типов счёта
 Function ini_ed_tip_schet(lval)
