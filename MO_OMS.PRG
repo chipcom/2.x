@@ -25,8 +25,6 @@ else
 endif
 return fl
 
-*
-
 ***** 13.02.17 ДДС - добавление или редактирование случая (листа учета)
 Function oms_sluch_DDS(tip_lu,Loc_kod,kod_kartotek,f_print)
 // tip_lu - TIP_LU_DDS или TIP_LU_DDSOP
@@ -2138,11 +2136,12 @@ else  // гематологические иссл-ия проводятся в ЛПУ
 endif
 return s
 
-***** 23.06.17 СМП - добавление или редактирование случая (листа учета)
-Function oms_sluch_SMP(Loc_kod,kod_kartotek)
+***** 23.07.18 СМП - добавление или редактирование случая (листа учета)
+Function oms_sluch_SMP(Loc_kod,kod_kartotek,tip_lu)
 // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
 // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
-Static mm_brigada, st_brigada, mm_trombolit, st_trombolit, SKOD_DIAG := '     ',;
+// tip_lu - TIP_LU_SMP или TIP_LU_NMP - скорая помощь (неотложная медицинская помощь)
+Static mm_brigada, st_brigada, mm_trombolit, st_trombolit, mm_spec, SKOD_DIAG := '     ',;
        st_N_DATA, st_vrach := 0, st_rslt := 0, st_ishod := 0
 Local top2, ar, ibrm := 0
 Local bg := {|o,k| get_MKB10(o,k,.t.) }, arr_del := {}, mrec_hu := 0,;
@@ -2231,7 +2230,7 @@ else
   endif
   close databases
 endif
-if empty(mm_brigada)
+if tip_lu == TIP_LU_SMP .and. empty(mm_brigada)
   mm_brigada := {} ; mm_trombolit := {}
   Use_base("luslc")
   set order to 2
@@ -2309,10 +2308,16 @@ if empty(mm_brigada)
     next
   endif
 endif
+if tip_lu == TIP_LU_NMP .and. empty(mm_spec)
+  mm_spec := {{"фельдшер",1},{"врач",2}}
+endif  
 chm_help_code := 3002
 //
 ar := GetIniVar(tmp_ini,{{"RAB_MESTO","kart_polis","1"}} )
 Private mm_rslt := {}, mm_ishod := {}, rslt_umolch := 401, ishod_umolch := 401, p_find_polis := int(val(ar[1])) 
+if tip_lu == TIP_LU_NMP
+  rslt_umolch := 301 ; ishod_umolch := 301
+endif 
 //
 if mem_smp_input == 0
   Private mfio := space(50), mpol, mdate_r, madres, ;
@@ -2348,6 +2353,7 @@ Private mkod := Loc_kod, mtip_h, is_talon := .f.,;
   mbrigada, m1brigada := st_brigada,;
   mtrombolit, m1trombolit := st_trombolit,;
   m1brig := 0, mbrig, mm_brig,;
+  m1spec := 1, mspec,;
   mprer_b := space(28), m1prer_b := 0,; // прерывание беременности
   mm1prer_b := {{"по медицинским показаниям   ",1},;
                 {"НЕ по медицинским показаниям",2}},;
@@ -2356,14 +2362,14 @@ Private mkod := Loc_kod, mtip_h, is_talon := .f.,;
   mm3prer_b := {{"отсутствие болевого синдрома",0},;
                 {"наличие болевого синдрома   ",1}},;
   mtip, m1tip := 0,;
-  m1USL_OK :=  4,;
-  m1VIDPOM := 21,;
-  m1PROFIL := 84,;
-  m1IDSP   := 24
+  m1USL_OK := iif(tip_lu == TIP_LU_SMP, 4, 3),;
+  m1VIDPOM := iif(tip_lu == TIP_LU_SMP, 21, 11),;
+  m1PROFIL := iif(tip_lu == TIP_LU_SMP, 84, 160),;
+  m1IDSP   := iif(tip_lu == TIP_LU_SMP, 24, 41)
 Private mm_prer_b := mm2prer_b
 //
-aeval(glob_V009,{|x| iif(x[5]==m1USL_OK, aadd(mm_rslt,x), nil) })
-aeval(glob_V012,{|x| iif(x[5]==m1USL_OK, aadd(mm_ishod,x), nil) })
+aeval(glob_V009,{|x| iif(x[5] == m1USL_OK, aadd(mm_rslt,x), nil) })
+aeval(glob_V012,{|x| iif(x[5] == m1USL_OK, aadd(mm_ishod,x), nil) })
 if ascan(mm_rslt, {|x| x[2] == rslt_umolch}) > 0
   m1rslt := rslt_umolch
 endif
@@ -2457,7 +2463,7 @@ if Loc_kod > 0
     mpol2 := human_->POL2
   endif
   m1okato    := human_->OKATO  // ОКАТО субъекта РФ территории страхования
-  M1F14_EKST := int(val(substr(human_->FORMA14,1,1)))
+  M1F14_EKST := int(val(substr(human_->FORMA14, 1, 1)))
   mn_data := mk_data := human->N_DATA
   m1rslt     := human_->RSLT_NEW
   m1ishod    := human_->ISHOD_NEW
@@ -2473,7 +2479,7 @@ if Loc_kod > 0
     if empty(lshifr := opr_shifr_TFOMS(usl->shifr1,usl->kod,mk_data))
       lshifr := usl->shifr
     endif
-    if left(lshifr,3) == "71." .and. mrec_hu == 0
+    if tip_lu == TIP_LU_SMP .and. left(lshifr,3) == "71." .and. mrec_hu == 0
       if left(lshifr,5) == "71.3."
         m1trombolit := right(rtrim(lshifr),1)
         m1tip := 1 
@@ -2481,6 +2487,9 @@ if Loc_kod > 0
         m1brigada := right(rtrim(lshifr),1)
         m1tip := 0 
       endif
+      mrec_hu := hu->(recno())
+    elseif tip_lu == TIP_LU_NMP .and. eq_any(alltrim(lshifr),"2.80.27","2.80.28") .and. mrec_hu == 0
+      m1spec := iif(alltrim(lshifr) == "2.80.27", 1, 2)
       mrec_hu := hu->(recno())
     else
       aadd(arr_del,hu->(recno()))
@@ -2548,14 +2557,19 @@ if m1company == 34
     mcompany := padr(mnameismo,38)
   endif
 endif
-f_valid_brig(,-1,mm_brigada,mm_trombolit,st_brigada,st_trombolit)
-if m1tip == 0
-  m1brig := m1brigada
+if tip_lu == TIP_LU_SMP
+  f_valid_brig(,-1,mm_brigada,mm_trombolit,st_brigada,st_trombolit)
+  if m1tip == 0
+    m1brig := m1brigada
+  else
+    m1brig := m1trombolit
+  endif
+  mbrig := inieditspr(A__MENUVERT, mm_brig, m1brig)
+  str_1 := " случая оказания СМП"
 else
-  m1brig := m1trombolit
-endif
-mbrig := inieditspr(A__MENUVERT, mm_brig, m1brig)
-str_1 := " случая оказания СМП"
+  mspec := inieditspr(A__MENUVERT, mm_spec, m1spec)
+  str_1 := " случая оказания неотложной медицинской помощи"
+endif  
 if Loc_kod == 0
   str_1 := "Добавление"+str_1
   mtip_h := yes_vypisan
@@ -2580,9 +2594,15 @@ do while .t.
   ++j; @ j,1 say "Учреждение" get mlpu when .f. color cDataCSay
        @ row(),col()+2 say "Отделение" get motd when .f. color cDataCSay
   //
+if tip_lu == TIP_LU_SMP
   ++j; @ j,1 say "Карта вызова: №" get much_doc picture "999999"
        @ row(),col() say ", дата выезда" get mn_data ;
              valid {|g| mk_data := mn_data, f_k_data(g,1)}
+else
+  ++j; @ j,1 say "Карта №" get much_doc picture "999999"
+       @ row(),col() say ", дата приёма" get mn_data ;
+             valid {|g| mk_data := mn_data, f_k_data(g,1)}
+endif             
   //
 if mem_smp_input == 0
   ++j; @ j,1 say "ФИО" get mfio_kart ;
@@ -2664,8 +2684,10 @@ endif
              reader {|o|MyGetReader(o,bg)} ;
              when when_diag() ;
              valid val1_10diag(.t.,.t.,.t.,mn_data,iif(m1novor==0,mpol,mpol2))
+if tip_lu == TIP_LU_SMP
        @ row(),col()+3 say "Форма оказания СМП" get MF14_EKST ;
             reader {|x|menu_reader(x,mm_ekst_smp,A__MENUVERT,,,.f.)}
+endif            
   ++j ; rdiag := j
   if (ibrm := f_oms_beremenn(mkod_diag)) == 1
        @ j,26 say "прерывание беременности"
@@ -2688,16 +2710,21 @@ endif
   ++j; @ j,1 say "Исход заболевания" get mishod ;
            reader {|x|menu_reader(x,mm_ishod,A__MENUVERT,,,.f.)}
   //
-if empty(mm_trombolit)
+if tip_lu == TIP_LU_SMP
+ if empty(mm_trombolit)
   ++j; @ j,1 say "Бригада СМП" get mbrig ;
             reader {|x|menu_reader(x,mm_brig,A__MENUVERT,,,.f.)}
-else
+ else
   ++j; @ j,1 say "Тромболитическая терапия:" get mtip ;
             reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
             valid {|g,o| f_valid_brig(g,o,mm_brigada,mm_trombolit,st_brigada,st_trombolit) } 
        @ j,32 say "Бригада СМП" get mbrig ;
             reader {|x|menu_reader(x,mm_brig,A__MENUVERT,,,.f.)}
-endif            
+ endif
+else
+  ++j; @ j,1 say "Врач (фельдшер)" get mspec ;
+            reader {|x|menu_reader(x,mm_spec,A__MENUVERT,,,.f.)}
+endif             
   //
   ++j; @ j,1 say "Таб.№ врача (фельдшера)" get MTAB_NOM pict "99999" ;
              valid {|g| v_kart_vrach(g,.t.) } when diag_screen(2)
@@ -2717,13 +2744,13 @@ endif
     loop
   elseif k == 2
     if empty(much_doc)
-      func_error(4,'Не заполнен номер карты вызова')
+      func_error(4,'Не заполнен номер карты'+iif(tip_lu == TIP_LU_SMP,' вызова',''))
       loop
     endif
     if empty(mn_data)
-      func_error(4,"Не введена дата выезда.")
+      func_error(4,'Не введена дата '+iif(tip_lu == TIP_LU_SMP,'выезда.','приёма.'))
       loop
-    elseif year(mn_data) < 2016 .and. m1tip == 1
+    elseif tip_lu == TIP_LU_SMP .and. year(mn_data) < 2016 .and. m1tip == 1
       func_error(4,"Тромболитическая терапия разрешена только с 2016 года.")
       loop
     endif
@@ -2770,26 +2797,29 @@ endif
     endif
     Private old_vzros_reb := M1VZROS_REB
     fv_date_r(MN_DATA) // переопределение M1VZROS_REB
-    // определяем шифр услуги СМП
-    lshifr := "71."
-    if m1tip == 0
-      if is_komm_SMP() // если это коммерческая скорая
-        lshifr += "2."
-      elseif m1komu == 0
-        if len(alltrim(msmo)) == 5 .and. left(msmo,2) == '34'
-          lshifr += "1."
-        else
+    if tip_lu == TIP_LU_SMP // определяем шифр услуги СМП
+      lshifr := "71."
+      if m1tip == 0
+        if is_komm_SMP() // если это коммерческая скорая
           lshifr += "2."
+        elseif m1komu == 0
+          if len(alltrim(msmo)) == 5 .and. left(msmo,2) == '34'
+            lshifr += "1."
+          else
+            lshifr += "2."
+          endif
+        else
+          lshifr += "1."
         endif
-      else
-        lshifr += "1."
+        lshifr += m1brig
+        st_brigada := m1brig
+      else // тромболитическая терапия
+        lshifr += "3."+m1brig
+        st_trombolit := m1brig
+        M1F14_EKST := 1 // экстренная
       endif
-      lshifr += m1brig
-      st_brigada := m1brig
-    else // тромболитическая терапия
-      lshifr += "3."+m1brig
-      st_trombolit := m1brig
-      M1F14_EKST := 1 // экстренная
+    else // определяем шифр услуги НМП
+      lshifr := iif(m1spec == 1, "2.80.27", "2.80.28")
     endif
     lshifr := padr(lshifr,10)
     //
@@ -3118,7 +3148,7 @@ if m1tip != old .and. old != NIL
 endif
 return .t.
 
-***** 09.05.18 добавление или редактирование случая (листа учета)
+***** 23.07.18 добавление или редактирование случая (листа учета)
 Function oms_sluch(Loc_kod,kod_kartotek)
 // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
 // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -3133,10 +3163,10 @@ Local bg := {|o,k| get_MKB10(o,k,.t.) },;
       tmp_help := chm_help_code, fl_write_sluch := .f., when_uch_doc := .t.
 Local mm_reg_lech := {{"Основные",0},{"Дополнительные",9}}
 if len(glob_otd) > 2 .and. glob_otd[3] == 4 // скорая помощь
-  return oms_sluch_SMP(Loc_kod,kod_kartotek)
+  return oms_sluch_SMP(Loc_kod,kod_kartotek,TIP_LU_SMP)
 elseif len(glob_otd) > 3
-  if glob_otd[4] == TIP_LU_SMP       // скорая помощь
-    return oms_sluch_SMP(Loc_kod,kod_kartotek)
+  if eq_any(glob_otd[4],TIP_LU_SMP,TIP_LU_NMP) // скорая помощь (неотложная медицинская помощь)
+    return oms_sluch_SMP(Loc_kod,kod_kartotek,glob_otd[4])
   elseif eq_any(glob_otd[4],TIP_LU_DDS,TIP_LU_DDSOP) // диспансеризация сирот
     return oms_sluch_DDS(glob_otd[4],Loc_kod,kod_kartotek)
   elseif glob_otd[4] == TIP_LU_DVN   // диспансеризация взрослого населения
@@ -4549,8 +4579,6 @@ if !fl
 endif
 return fl
 
-*
-
 *****
 Function func_valid_ismo(get,lkomu,sh,name_var)
 Local r1, r2, n := 4, buf, tmp_keys, tmp_list, tmp_color
@@ -4699,8 +4727,6 @@ if !empty(m1okato)
   smo->(dbCloseArea())
 endif
 return len(mm_ismo) > 0
-
-*
 
 ***** 11.04.18 ввод услуг в случай (лист учёта)
 Function oms_usl_sluch(mkod_human,mkod_kartotek,fl_edit)
@@ -5061,8 +5087,6 @@ oColumn:colorBlock := blk_color
 oBrow:addColumn(oColumn)
 status_key("^<Esc>^ выход; ^<Enter>^ ред-ие; ^<Ins>^ добавление; ^<Del>^ удаление; ^<F1>^ помощь")
 return NIL
-
-*
 
 *****
 Function f1oms_usl_sluch()
@@ -5915,8 +5939,6 @@ endcase
 restuchotd(uch_otd)
 return flag
 
-*
-
 ***** 28.02.18
 Function verify_OMS_sluch(mkod)
 Local buf := save_maxrow(), fl := .t., name_file := "err_sl"+stxt
@@ -6000,14 +6022,11 @@ if !fl
 endif
 return NIL
 
-*
-
 ***** 19.11.13 Добавление листка учета лечения больного
 Function oms_add()
 Local buf, str_sem
 change_sys_date() // перечитать системную дату (для травмпунктов, работающих ночами)
-if input_uch(T_ROW-1,T_COL+5,sys_date) != NIL .and. ;
-                       input_otd(T_ROW-1,T_COL+5,sys_date) != NIL
+if input_uch(T_ROW-1,T_COL+5,sys_date) != NIL .and. input_otd(T_ROW-1,T_COL+5,sys_date) != NIL
   buf := box_shadow(0,41,2,77,color13)
   @ 1,42 say padc(glob_otd[2],35) color color14
   Private fl_edit_oper, fl_edit_smp, fl_edit_DDS, fl_edit_DVN
@@ -6031,8 +6050,6 @@ if input_uch(T_ROW-1,T_COL+5,sys_date) != NIL .and. ;
   if buf != NIL ; rest_box(buf) ; endif
 endif
 return NIL
-
-*
 
 ***** Редактирование листка учета лечения больного
 Function oms_edit(k)
@@ -6075,8 +6092,6 @@ if k > 0
   sk := k
 endif
 return NIL
-
-*
 
 ***** 19.01.15 Редактирование случая с выбором по учреждению/отделению
 Function f1oms_edit()
@@ -6239,8 +6254,6 @@ if (arr_m := input_year()) != NIL .and. ;
 endif
 return NIL
 
-*
-
 ***** 19.01.15 Редактирование случая с выбором по отчётному периоду
 Function f2oms_edit()
 Static si := 1
@@ -6360,8 +6373,6 @@ if (arr_m := year_month(T_ROW,T_COL+5,,3)) != NIL
   close databases
 endif
 return NIL
-
-*
 
 ***** 06.02.14 Редактирование случая с выбором по конкретной ошибке из ТФОМС
 Function f3oms_edit()
@@ -6507,8 +6518,6 @@ if (arr_m := year_month(T_ROW,T_COL+5,,3)) != NIL
 endif
 return NIL
 
-*
-
 ***** Редактирование повторно выставленных случаев (после ввода актов снятия из СМО)
 Function f4oms_edit()
 Static si := 1
@@ -6626,8 +6635,6 @@ if (arr_m := year_month(T_ROW,T_COL+5)) != NIL
 endif
 return NIL
 
-*
-
 ***** 03.10.13 Редактирование листка учета лечения больного + смена отделения
 Function oms_smena_otd()
 Static si := 1, sk := 1
@@ -6722,8 +6729,6 @@ if input_uch(T_ROW-1,T_COL+5,sys_date) != NIL .and. ;
   if buf != NIL ; rest_box(buf) ; endif
 endif
 return NIL
-
-*
 
 ***** 28.10.15 Удаление листка учета лечения больного
 Function oms_del()
@@ -6834,8 +6839,6 @@ if (arr_m := input_year()) != NIL .and. ;
 endif
 return NIL
 
-*
-
 ***** Режимы работы с завершением лечения
 Function oms_zav_lech(k)
 Static sk := 1, str_sem := "Завершение лечения"
@@ -6869,8 +6872,6 @@ if k > 0
   sk := k
 endif
 return NIL
-
-*
 
 *****
 Function f1oms_zav_lech(k)
@@ -6992,12 +6993,9 @@ endif
 close databases
 return NIL
 
-*
-
 *****
 Function f2oms_zav_lech(oBrow)
-Local oColumn, tmp_color, blk_color := {|| if(tmp->plus, {3,4}, {1,2}) },;
-      s1, s2, s3, n := 46
+Local oColumn, tmp_color, blk_color := {|| if(tmp->plus, {3,4}, {1,2}) }, s1, s2, s3, n := 46
 oColumn := TBColumnNew(" ", {|| if(tmp->plus," ","  ") })
 oColumn:colorBlock := blk_color
 oBrow:addColumn(oColumn)
@@ -7025,8 +7023,6 @@ mark_keys({s1},"R/W")
 mark_keys({"<Esc>","<Enter>","<Ins>","<+>","<->","<F8>","<F9>"},"B/W")
 setcolor(tmp_color)
 return NIL
-
-*
 
 *****
 Function f3oms_zav_lech(nKey,oBrow)
@@ -7198,8 +7194,6 @@ do case
     k := 0
 endcase
 return k
-
-*
 
 ***** поиск больного
 Function ret_oms_human(dostup,arr_m)

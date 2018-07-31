@@ -718,6 +718,16 @@ if !empty(_sys_date) .and. !empty(_mdate) .and. _sys_date > _mdate
 endif
 return k
 
+***** 14.06.13 определение количества лет по дате (возврат строки)
+Function ccount_years(_mdate, _sys_date)
+// _mdate    - дата для определения количества полных лет
+// _sys_date - "системная" дата
+Local ret_s := "", y
+if (y := count_years(_mdate, _sys_date)) > 0
+  ret_s := lstr(y)+" "+s_let(y)
+endif
+return ret_s
+
 ***** 22.07.18 лицо считается достигшим определённого возраста не в день рождения, а начиная со следующих суток
 Function correct_count_ym(_mdate,_sys_date) 
 Local s1 := right(dtos(_mdate),4), s2 := right(dtos(_sys_date),4), fl := .f. 

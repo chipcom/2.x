@@ -3696,7 +3696,7 @@ for i := 1 to 2
 next
 return NIL
 
-***** 11.07.18 форма 14-МЕД (ОМС)
+***** 31.07.18 форма 14-МЕД (ОМС)
 Function forma14_med_oms()
 Static group_ini := "f14_med_oms"
 Local begin_date, end_date, buf := savescreen(), arr_m, i, j, k, k1, k2,;
@@ -4155,6 +4155,18 @@ do while !eof()
                     mkol := 0
                   endif
                 endif
+                if is_dializ
+                  if human_->USL_OK == 1 // стационар
+                    ii := 1
+                  elseif human_->USL_OK == 2 // дневной стационар
+                    ii := 4
+                  elseif human_->USL_OK == 3 // поликлиника
+                    ii := 2
+                    mkol := 0  // участвует не количеством, а только суммой
+                    ds_spec := ds1_spec := 1
+                    vid_vp := 2 // по поводу заболевания
+                  endif
+                endif
                 if fl_stom // стоматология
                   //
                 elseif ii > 0
@@ -4199,17 +4211,21 @@ do while !eof()
         do case
           // стационар
           case tfoms_pz[1,1] > 0
+            if (i := ascan(arr_profil, {|x| x[1] == human_->PROFIL })) == 0
+              aadd(arr_profil, {human_->PROFIL,0,0,0,0}) ; i := len(arr_profil)
+            endif
             if is_dializ
               tfoms_pz[1,1] := tfoms_pz[1,2] := 0
             else 
-              if (i := ascan(arr_profil, {|x| x[1] == human_->PROFIL })) == 0
-                aadd(arr_profil, {human_->PROFIL,0,0,0,0}) ; i := len(arr_profil)
-              endif
-              arr_profil[i,2] ++ ; arr_profil[i,3] += round(human->cena_1*koef,2)
+              arr_profil[i,2] ++
               if is_inogoro
-                arr_profil[i,4] ++ ; arr_profil[i,5] += round(human->cena_1*koef,2)
+                arr_profil[i,4] ++
               endif
             endif 
+            arr_profil[i,3] += round(human->cena_1*koef,2)
+            if is_inogoro
+              arr_profil[i,4] ++ ; arr_profil[i,5] += round(human->cena_1*koef,2)
+            endif
             arr_pril5[15,igs] += tfoms_pz[1,2] // "Стационар - койко-дней"
             arr_pril5[16,igs] += tfoms_pz[1,1] // "Стационар - случаев госпитализации"
             arr_pril5[17,igs] += tfoms_pz[1,3] // "Стационар - руб."
@@ -4247,6 +4263,7 @@ do while !eof()
             elseif is_dializ // перит.диализ
               vid_vp := 2 // по поводу заболевания
               ds_spec := 1
+              tfoms_pz[ii,2] := tfoms_pz[ii,5] := tfoms_pz[ii,7] := tfoms_pz[ii,9] := 0
             endif
             if kol_2_60 > 0 .and. ascan(arr_usl,"2.78.") > 0
               arr_pril5[8,igs] += kol_2_60 // "Всего посещений"
@@ -4323,54 +4340,59 @@ do while !eof()
               endif
             elseif vid_vp == 0 // профилактика
               tfoms_pz[2,2] := tfoms_pz[2,7] := tfoms_pz[2,9] := tfoms_pz[2,5] := 0 // обнулим количество приемов
-              for i := 1 to len(ap)
-                lshifr := ap[i,1] ; lkol := ap[i,2]
+              if eq_any(schet_->BUKVA,'O','F','R','D','U') // диспансеризация и профосмотры
+                lshifr := "дисп-ия" ; lkol := 1
                 if (j := ascan(arr_prof, {|x| x[1] == lshifr })) == 0
                   aadd(arr_prof, {lshifr,0}) ; j := len(arr_prof)
                 endif
                 arr_prof[j,2] += lkol
                 //
                 tfoms_pz[2,2] += lkol
-                if ap[i,3] // is_obsh
-                  tfoms_pz[2,7] += lkol
-                  if ds1_spec == 1
-                    tfoms_pz[2,9] += lkol
-                  endif
-                else
-                  if ds1_spec == 1
-                    tfoms_pz[2,5] += lkol
-                  endif
+                if is_prvs_206 // лечебное дело в диспансеризации
+                  fl_pol1[15] += lkol                             
                 endif
-                if eq_any(left(lshifr,5),"2.79.","2.76.") // профилактика и центры здоровья
-                  if between_shifr(lshifr,"2.79.44","2.79.50")  // патронаж
-                    fl_pol1[9] += lkol
-                    if eq_any(human_->profil,49,53,54) // паллиативная медицинская помощь                             
-                      fl_pol1[10] += lkol
+                // терапевт, педиатр, врач общей практики, фельдшер при диспансеризации                             
+                fl_pol1[3] += lkol                             
+                fl_pol1[4] += lkol 
+              else
+                for i := 1 to len(ap)
+                  lshifr := ap[i,1] ; lkol := ap[i,2]
+                  if (j := ascan(arr_prof, {|x| x[1] == lshifr })) == 0
+                    aadd(arr_prof, {lshifr,0}) ; j := len(arr_prof)
+                  endif
+                  arr_prof[j,2] += lkol
+                  //
+                  tfoms_pz[2,2] += lkol
+                  if ap[i,3] // is_obsh
+                    tfoms_pz[2,7] += lkol
+                    if ds1_spec == 1
+                      tfoms_pz[2,9] += lkol
                     endif
                   else
-                    fl_pol1[3] += lkol
+                    if ds1_spec == 1
+                      tfoms_pz[2,5] += lkol
+                    endif
+                  endif
+                  if eq_any(left(lshifr,5),"2.79.","2.76.") // профилактика и центры здоровья
+                    if between_shifr(lshifr,"2.79.44","2.79.50")  // патронаж
+                      fl_pol1[9] += lkol
+                      if eq_any(human_->profil,49,53,54) // паллиативная медицинская помощь                             
+                        fl_pol1[10] += lkol
+                      endif
+                    else
+                      fl_pol1[3] += lkol
+                    endif      
+                  endif
+                  if eq_any(lshifr,"2.79.34","2.79.37","2.79.38","2.79.49","2.79.50",; // фельдшерские приёмы
+                                   "2.80.19","2.80.22","2.80.23","2.80.27",;
+                                   "2.88.35","2.88.36","2.88.37","2.90.2") 
+                    fl_pol1[15] += lkol                             
                   endif      
-                endif
-                if eq_any(lshifr,"2.79.34","2.79.37","2.79.38","2.79.49","2.79.50",; // фельдшерские приёмы
-                                 "2.80.19","2.80.22","2.80.23","2.80.27",;
-                                 "2.88.35","2.88.36","2.88.37","2.90.2") 
-                  fl_pol1[15] += lkol                             
-                endif      
-                if is_prvs_206 .and. eq_any(left(lshifr,5),"70.3.","72.1.") // лечебное дело в диспансеризации
-                  fl_pol1[15] += lkol                             
-                endif
-                if eq_any(lshifr,"2.83.14","2.83.15","2.83.38","2.83.39",;
-                                 "2.84.9","2.84.11","2.84.12",;
-                                 "2.85.14","2.85.15","2.85.38","2.85.39",;
-                                 "2.87.14","2.87.15","2.87.38","2.87.39","2.91.1") .or. ;  
-                          left(lshifr,5) == "2.90." .or. eq_any(left(lshifr,3),"70.","72.")
-                  fl_pol1[3] += lkol                             
-                  fl_pol1[4] += lkol // терапевт, педиатр, врач общей практики, фельдшер при диспансеризации                             
-                endif
-                if eq_any(left(lshifr,5),"2.88.","2.81.") // разовое посещение или консультации
-                  fl_pol1[6] += lkol                             
-                endif
-              next
+                  if eq_any(left(lshifr,5),"2.88.","2.81.") // разовое посещение или консультации
+                    fl_pol1[6] += lkol                             
+                  endif
+                next
+              endif
               if is_z_sl .and. tfoms_pz[2,2] > 0
                 tfoms_pz[2,3] := round(human->cena_1*koef,2)
                 if ds1_spec == 1
@@ -4522,16 +4544,15 @@ do while !eof()
               endif
             endif
             // 
+            if (i := ascan(arr_dn_stac, {|x| x[1] == human_->PROFIL })) == 0
+              aadd(arr_dn_stac, {human_->PROFIL,0,0,0,0}) ; i := len(arr_dn_stac)
+            endif
             if is_dializ
               tfoms_pz[4,2] := 0
               lvidpom := 31 // !!!!!!!
-            else 
-              if (i := ascan(arr_dn_stac, {|x| x[1] == human_->PROFIL })) == 0
-                aadd(arr_dn_stac, {human_->PROFIL,0,0,0,0}) ; i := len(arr_dn_stac)
-              endif
-              arr_dn_stac[i,2] += tfoms_pz[4,1]
-              arr_dn_stac[i,3] += tfoms_pz[4,3]
             endif
+            arr_dn_stac[i,2] += tfoms_pz[4,1]
+            arr_dn_stac[i,3] += tfoms_pz[4,3]
             if lvidpom == 13
               ds_spec := 1
             elseif lvidpom == 31

@@ -15,8 +15,8 @@
 #include "chip_mo.ch"
 
 Static _version := {2,6,13}
-Static char_version := ""
-Static _date_version := "23.07.18г."
+Static char_version := "a"
+Static _date_version := "31.07.18г."
 Static __s_full_name := "ЧИП + Учёт работы Медицинской Организации"
 Static __s_version
 
@@ -222,17 +222,6 @@ f_create_copy_R0()
   endif
 endif
 Init_Program() // инициализация программы (переменных, массивов,...)
-/*
-my_debug(,lstr(count_months(0d20170720,0d20180719)))
-my_debug(,lstr(count_months(0d20170720,0d20180720)))
-my_debug(,lstr(count_months(0d20170720,0d20180721)))
-my_debug(,lstr(count_months(0d20160229,0d20180227)))
-my_debug(,lstr(count_months(0d20160229,0d20180228)))
-my_debug(,lstr(count_months(0d20160229,0d20180301)))
-my_debug(,lstr(count_months(0d20150228,0d20160228)))
-my_debug(,lstr(count_months(0d20150228,0d20160229)))
-my_debug(,lstr(count_months(0d20150228,0d20160301)))
-*/
 f_main(r,a_parol)
 f_end()
 return

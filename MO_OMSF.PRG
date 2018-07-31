@@ -1845,9 +1845,7 @@ elseif is_uchastok == 3
 endif
 return lnomer
 
-*
-
-***** 14.03.16 выбрать карточку пациента из картотеки
+***** 24.07.18 выбрать карточку пациента из картотеки
 Function polikl_kart(k)
 // k = 1 - начало лечения -> ввод карточки
 // k = 2 - возврат кода по картотеке
@@ -1883,7 +1881,8 @@ do while .t.
     if empty(s_shablon)
       s_shablon := "*"
     endif
-    if mem_smp_input == 1 .and. len(glob_otd) > 2 .and. glob_otd[3] == 4
+    if mem_smp_input == 1 .and. ((len(glob_otd) > 2 .and. glob_otd[3] == 4) .or. ;
+       (len(glob_otd) > 3 .and. eq_any(glob_otd[4],TIP_LU_SMP,TIP_LU_NMP))) // скорая помощь (неотложная мед.помощь)
       s_shablon := ""
       keyboard chr(K_ENTER)
     endif

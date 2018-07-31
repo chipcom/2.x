@@ -4681,6 +4681,9 @@ Private mm_tiplu := {;
   {"пренатальная диагностика"             ,TIP_LU_PREND},;  // 9
   {"гемодиализ"                           ,TIP_LU_H_DIA},;  // 10
   {"перитонеальный диализ"                ,TIP_LU_P_DIA}}   // 11
+if glob_mo[_MO_KOD_TFOMS] == '126501'
+  Ins_Array(mm_tiplu, 3, {"неотложная медицинская помощь",TIP_LU_NMP})
+endif
 if ascan(glob_klin_diagn,1) > 0
   aadd(mm_tiplu, {"жидкостная цитология рака шейки матки",TIP_LU_G_CIT})
 elseif ascan(glob_klin_diagn,2) > 0
