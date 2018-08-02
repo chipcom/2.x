@@ -131,6 +131,7 @@ Private mbukva := " ", muchast := 0, mkod_vu := 0, mkod_AK := space(6),;
     m1KOMU := 0, MKOMU, M1STR_CRB := 0, ;
     mBEG_POLIS := ctod(""), MSROK_POLIS := ctod(""),; // срок действия страхового полиса
     mSTRANA := space(10), m1strana := "",;
+    mosn_preb, m1osn_preb := 0,;
     mvidpolis, m1vidpolis := 1, mmesto_r := space(100),;
     mgragd, m1gragd,;
     msnils := space(11),;
@@ -308,6 +309,7 @@ if !is_append .and. R_Use(dir_server+"kartote_",,"KART_") ;
   find (str(mkod,7))
   if found()
     fl_kis := .t.
+    m1osn_preb  := kis->osn_preb   // основание пребывания в РФ
     MADRES_PRO  := kis->ADRES_PRO  // адрес проживания в Волг.обл.
     MMIGR_KARTA := kis->MIGR_KARTA // данные миграционной карты
     MDATE_P_G   := kis->DATE_P_G   // дата пересечения границы
@@ -363,6 +365,7 @@ mkategor2  := inieditspr(A__MENUVERT, stm_kategor2, m1kategor2)
 mKOD_LGOT  := inieditspr(A__MENUVERT, glob_katl, m1KOD_LGOT)
 mkomu      := inieditspr(A__MENUVERT, mm_komu, m1komu)
 minvalid   := inieditspr(A__MENUVERT, mm_invalid, m1invalid)
+mosn_preb  := inieditspr(A__MENUVERT, menu_osn_preb_RF, m1osn_preb)
 madres_reg := ini_adres(1)
 madres_pre := ini_adres(2)
 if empty(m1namesmo := int(val(msmo)))
@@ -433,8 +436,8 @@ endif
 if eq_any(glob_task,X_MO)
   ++count_row // льгота по ДЛО
 endif
+++count_row // Житель:город/село + Гражданин РФ?
 if eq_any(glob_task,X_PPOKOJ)
-  ++count_row // Житель:город/село + Гражданин РФ?
   ++count_row // рост и вес
 endif
 if (title_top := (_top_r == NIL))
@@ -582,13 +585,13 @@ do while .t.
     ++ix ; @ ix,1 say "Льгота по ДЛО" get mKOD_LGOT ;
           reader {|x|menu_reader(x,glob_katl,A__MENUVERT,,,.f.)}
   endif
-  if eq_any(glob_task,X_PPOKOJ)
-    ++ix ; @ ix,1  say "Житель:" GET mgorod_selo ;
-               reader {|x|menu_reader(x,mm_gorod_selo,A__MENUVERT,,,.f.)}
+  ++ix ; @ ix,1 say "Житель:" GET mgorod_selo ;
+               reader {|x| menu_reader(x,mm_gorod_selo,A__MENUVERT,,,.f.)}
          @ ix,col()+6 say "Гражданин РФ?" get mgragd ;
-               reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
+               reader {|x| menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
                valid {|| iif(m1gragd==1, .t., get_oksm(ix) ) }
          @ ix,col()+5 get mstrana when .f. color color14
+  if eq_any(glob_task,X_PPOKOJ)
     ++ix ; @ ix,1 SAY "Рост" GET mHEIGHT pict "999"
          @ ix,col()+1 SAY "см,  вес" GET mWEIGHT pict "999"
          @ ix,col()+1 SAY "кг"
@@ -714,7 +717,7 @@ do while .t.
       kart_->NPOLIS := mNPOLIS
       kart_->SMO    := lstr(m1namesmo)
       kart_->beg_polis := dtoc4(mbeg_polis)
-      kart_->strana    := m1strana
+      kart_->strana    := iif(m1gragd == 0, m1strana, "")
       kart_->gorod_selo := m1gorod_selo
       kart_->vid_ud   := m1vid_ud
       kart_->ser_ud   := mser_ud
@@ -907,6 +910,7 @@ do while .t.
           endif
         endif
         if m1gragd == 0
+          kis->osn_PREB   := m1osn_preb
           kis->ADRES_PRO  := MADRES_PRO  // адрес проживания в Волг.обл.
           kis->MIGR_KARTA := MMIGR_KARTA // данные миграционной карты
           kis->DATE_P_G   := MDATE_P_G   // дата пересечения границы
@@ -1190,18 +1194,15 @@ if rec > 0 .and. lkod_k == rec
 endif
 return .t.
 
-*
-
-*****
+***** 01.08.18
 Function get_oksm(r)
-Local c := 14, r1, r2, buf, tmp_help, tmp_list, tmp_color, tmp_cursor,;
-      tek_sost, tmp_keys
+Local c := 13, r1, r2, buf, tmp_help, tmp_list, tmp_color, tmp_cursor, tek_sost, tmp_keys
 if r < int(maxrow()/2)
   r1 := r+1
-  r2 := r1+7
+  r2 := r1+8
 else
   r2 := r-1
-  r1 := r2-7
+  r1 := r2-8
 endif
 buf := savescreen()
 //tmp_help := help_code
@@ -1215,12 +1216,14 @@ change_attr()
 box_shadow(r1,c,r2,77,,"Ввод доп.сведений по иностранцу","GR+/BG")
 setcursor()
 @ r1+1,c+2 say "Страна" get mstrana ;  //reader {|x|menu_reader(x,glob_O001,A__MENUVERT,,,.f.)}
-    reader {|x|menu_reader(x,{{|k,r,c|f1get_oksm(k,r,c)}},A__FUNCTION,,,.f.)}
-@ r1+2,c+2 say "Адрес проживания в Волгоградской области"
-@ r1+3,c+3 get MADRES_PRO
-@ r1+4,c+2 say "Миграционная карта" get MMIGR_KARTA
-@ r1+5,c+2 say "Дата пересечения границы" get MDATE_P_G
-@ r1+6,c+2 say "Дата регистрации в миграционной службе" get MDATE_R_M
+           reader {|x|menu_reader(x,{{|k,r,c|f1get_oksm(k,r,c)}},A__FUNCTION,,,.f.)}
+@ r1+2,c+2 say "Основания пребывания в РФ" get mosn_preb ;  
+           reader {|x|menu_reader(x,menu_osn_preb_RF,A__MENUVERT,,,.f.)}
+@ r1+3,c+2 say "Адрес проживания в Волгоградской области"
+@ r1+4,c+3 get MADRES_PRO
+@ r1+5,c+2 say "Миграционная карта" get MMIGR_KARTA
+@ r1+6,c+2 say "Дата пересечения границы" get MDATE_P_G
+@ r1+7,c+2 say "Дата регистрации в миграционной службе" get MDATE_R_M
 status_key("^<PgDn>^ - запись и переход в карточку пациента")
 myread()
 restscreen(buf)
@@ -1234,7 +1237,7 @@ if tmp_cursor != 0
 endif
 return .t.
 
-*****
+***** 01.08.18
 Function f1get_oksm(k,r,c)
 Static skodN := ""
 Static arr_sng := {;
@@ -1280,12 +1283,14 @@ do while .t.
   if lsng == 0
     lcolor := color5
     for i := 1 to len(glob_O001)
-      append blank
-      rg->kodN := glob_O001[i,2]
-      rg->kodA := glob_O001[i,6]
-      rg->name := glob_O001[i,1]
-      if ascan(arr_sng,rg->kodN) > 0
-        rg->sng := 1
+      if !(glob_O001[i,2] == "643") // не включать Россию
+        append blank
+        rg->kodN := glob_O001[i,2]
+        rg->kodA := glob_O001[i,6]
+        rg->name := glob_O001[i,1]
+        if ascan(arr_sng,rg->kodN) > 0
+          rg->sng := 1
+        endif
       endif
     next
   else

@@ -25,7 +25,7 @@ else
 endif
 return fl
 
-***** 13.02.17 ДДС - добавление или редактирование случая (листа учета)
+***** 01.08.18 ДДС - добавление или редактирование случая (листа учета)
 Function oms_sluch_DDS(tip_lu,Loc_kod,kod_kartotek,f_print)
 // tip_lu - TIP_LU_DDS или TIP_LU_DDSOP
 // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -63,6 +63,7 @@ Private mkod := Loc_kod, mtip_h, is_talon := .f.,;
   M1OTD := glob_otd[1], MOTD,;
   M1FIO_KART := 1, MFIO_KART,;
   MUCH_DOC    := space(10)         ,; // вид и номер учетного документа
+  mmobilbr, m1mobilbr := 0,;
   MKOD_DIAG   := space(5)          ,; // шифр 1-ой осн.болезни
   MKOD_DIAG2  := space(5)          ,; // шифр 2-ой осн.болезни
   MKOD_DIAG3  := space(5)          ,; // шифр 3-ой осн.болезни
@@ -537,6 +538,7 @@ else
   mdate_post := ctod("")
   Del_Array(mm_gde_nahod,1)
 endif
+mmobilbr := inieditspr(A__MENUVERT, mm_danet, m1mobilbr)
 mstacionar := inieditspr(A__POPUPMENU, dir_server+"mo_stdds",m1stacionar)
 mkateg_uch := inieditspr(A__MENUVERT, mm_kateg_uch, m1kateg_uch)
 mgde_nahod := inieditspr(A__MENUVERT, mm_gde_nahod, m1gde_nahod)
@@ -661,6 +663,8 @@ do while .t.
                when !(is_uchastok == 1 .and. is_task(X_REGIST)) ;
                      .or. mem_edit_ist==2
     ++j
+    ++j; @ j,1 say "Медосмотр проведён мобильной бригадой?" get mmobilbr ;
+               reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
     ++j; @ j,1 say "МО прикрепления" get mMO_PR ;
               reader {|x|menu_reader(x,{{|k,r,c|f_get_mo(k,r,c)}},A__FUNCTION,,,.f.)}
     ++j; @ j,1 say "Вес" get mWEIGHT pict "999" ;
@@ -2102,36 +2106,68 @@ if fl_write_sluch // если записали - запускаем проверку
 endif
 return NIL
 
-***** 13.02.17 вернуть шифр услуги законченного случая для диспансеризации детей-сирот
+***** 01.08.18 вернуть шифр услуги законченного случая для диспансеризации детей-сирот
 Function ret_shifr_zs_DDS(tip_lu)
 Local s := ""
-if m1lis == 1 // без гематологических иссл-ий
-  if mvozrast < 1
-    s := iif(tip_lu==TIP_LU_DDS, "70.5.15", "70.6.13")
-  elseif mvozrast < 3
-    s := iif(tip_lu==TIP_LU_DDS, "70.5.16", "70.6.14")
-  elseif mvozrast < 5
-    s := iif(tip_lu==TIP_LU_DDS, "70.5.17", "70.6.15")
-  elseif mvozrast < 7
-    s := iif(tip_lu==TIP_LU_DDS, "70.5.18", "70.6.16")
-  elseif mvozrast < 15
-    s := iif(tip_lu==TIP_LU_DDS, "70.5.19", "70.6.17")
-  else
-    s := iif(tip_lu==TIP_LU_DDS, "70.5.20", "70.6.18")
+if m1mobilbr == 1 // диспансеризация проведена мобильной бригадой
+  if m1lis == 1 // без гематологических иссл-ий
+    if mvozrast < 1
+      s := iif(tip_lu==TIP_LU_DDS, "70.5.21", "70.6.19")
+    elseif mvozrast < 3
+      s := iif(tip_lu==TIP_LU_DDS, "70.5.22", "70.6.20")
+    elseif mvozrast < 5
+      s := iif(tip_lu==TIP_LU_DDS, "70.5.23", "70.6.21")
+    elseif mvozrast < 7
+      s := iif(tip_lu==TIP_LU_DDS, "70.5.24", "70.6.22")
+    elseif mvozrast < 15
+      s := iif(tip_lu==TIP_LU_DDS, "70.5.25", "70.6.23")
+    else
+      s := iif(tip_lu==TIP_LU_DDS, "70.5.26", "70.6.24")
+    endif
+  else  // гематологические иссл-ия проводятся в ЛПУ
+    if mvozrast < 1
+      s := iif(tip_lu==TIP_LU_DDS, "70.5.9", "70.6.7")
+    elseif mvozrast < 3
+      s := iif(tip_lu==TIP_LU_DDS, "70.5.10", "70.6.8")
+    elseif mvozrast < 5
+      s := iif(tip_lu==TIP_LU_DDS, "70.5.11", "70.6.9")
+    elseif mvozrast < 7
+      s := iif(tip_lu==TIP_LU_DDS, "70.5.12", "70.6.10")
+    elseif mvozrast < 15
+      s := iif(tip_lu==TIP_LU_DDS, "70.5.13", "70.6.11")
+    else
+      s := iif(tip_lu==TIP_LU_DDS, "70.5.14", "70.6.12")
+    endif
   endif
-else  // гематологические иссл-ия проводятся в ЛПУ
-  if mvozrast < 1
-    s := iif(tip_lu==TIP_LU_DDS, "70.5.3", "70.6.1")
-  elseif mvozrast < 3
-    s := iif(tip_lu==TIP_LU_DDS, "70.5.4", "70.6.2")
-  elseif mvozrast < 5
-    s := iif(tip_lu==TIP_LU_DDS, "70.5.5", "70.6.3")
-  elseif mvozrast < 7
-    s := iif(tip_lu==TIP_LU_DDS, "70.5.6", "70.6.4")
-  elseif mvozrast < 15
-    s := iif(tip_lu==TIP_LU_DDS, "70.5.7", "70.6.5")
-  else
-    s := iif(tip_lu==TIP_LU_DDS, "70.5.8", "70.6.6")
+else // дисп-ия проведена в МО (не мобильной бригадой) 
+  if m1lis == 1 // без гематологических иссл-ий
+    if mvozrast < 1
+      s := iif(tip_lu==TIP_LU_DDS, "70.5.15", "70.6.13")
+    elseif mvozrast < 3
+      s := iif(tip_lu==TIP_LU_DDS, "70.5.16", "70.6.14")
+    elseif mvozrast < 5
+      s := iif(tip_lu==TIP_LU_DDS, "70.5.17", "70.6.15")
+    elseif mvozrast < 7
+      s := iif(tip_lu==TIP_LU_DDS, "70.5.18", "70.6.16")
+    elseif mvozrast < 15
+      s := iif(tip_lu==TIP_LU_DDS, "70.5.19", "70.6.17")
+    else
+      s := iif(tip_lu==TIP_LU_DDS, "70.5.20", "70.6.18")
+    endif
+  else  // гематологические иссл-ия проводятся в ЛПУ
+    if mvozrast < 1
+      s := iif(tip_lu==TIP_LU_DDS, "70.5.3", "70.6.1")
+    elseif mvozrast < 3
+      s := iif(tip_lu==TIP_LU_DDS, "70.5.4", "70.6.2")
+    elseif mvozrast < 5
+      s := iif(tip_lu==TIP_LU_DDS, "70.5.5", "70.6.3")
+    elseif mvozrast < 7
+      s := iif(tip_lu==TIP_LU_DDS, "70.5.6", "70.6.4")
+    elseif mvozrast < 15
+      s := iif(tip_lu==TIP_LU_DDS, "70.5.7", "70.6.5")
+    else
+      s := iif(tip_lu==TIP_LU_DDS, "70.5.8", "70.6.6")
+    endif
   endif
 endif
 return s

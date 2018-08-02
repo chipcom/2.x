@@ -3516,9 +3516,7 @@ setcolor(tmp_color)
 restscreen(buf)
 return ret
 
-*
-
-***** 29.01.17
+***** 01.08.18
 Function save_arr_DDS(lkod)
 Local arr := {}, k, ta
 Private mvar
@@ -3528,6 +3526,7 @@ endif
 if type("mdate_r") == "D"
   aadd(arr,{"mdate_r",mdate_r})
 endif
+aadd(arr,{"0",m1mobilbr})   // "N",мобильная бригада
 aadd(arr,{"1",m1stacionar}) // "N",код стационара
 aadd(arr,{"2.3",m1kateg_uch}) // "N",Категория учета ребенка: 0-ребенок-сирота; 1-ребенок, оставшийся без попечения родителей; 2-ребенок, находящийся в трудной жизненной ситуации, 3-нет категории
 aadd(arr,{"2.4",m1gde_nahod}) // "N",На момент проведения диспансеризации находится 0-в стационарном учреждении, 1-под опекой, 2-попечительством, 3-передан в приемную семью, 4-передан в патронатную семью, 5-усыновлен (удочерена), 6-другое
@@ -3692,9 +3691,7 @@ endif
 save_arr_DISPANS(lkod,arr)
 return NIL
 
-*
-
-***** 29.01.17
+***** 01.08.18
 Function read_arr_DDS(lkod)
 Local arr, i, k
 Private mvar
@@ -3702,6 +3699,8 @@ arr := read_arr_DISPANS(lkod)
 for i := 1 to len(arr)
   if valtype(arr[i]) == "A" .and. valtype(arr[i,1]) == "C"
     do case
+      case arr[i,1] == "0" .and. valtype(arr[i,2]) == "N"
+        m1mobilbr := arr[i,2]
       case arr[i,1] == "1"
         //m1stacionar := arr[i,2]
       case arr[i,1] == "2.3" .and. valtype(arr[i,2]) == "N"
@@ -3893,8 +3892,6 @@ for i := 1 to len(arr)
 next
 return NIL
 
-*
-
 ***** 29.01.17
 Function save_arr_DVN(lkod)
 Local arr := {}, i, sk, ta
@@ -4001,8 +3998,6 @@ if type("m1profil_kojki") == "N"
 endif  
 save_arr_DISPANS(lkod,arr)
 return NIL
-
-*
 
 ***** 29.01.17
 Function read_arr_DVN(lkod,is_all)

@@ -2665,12 +2665,14 @@ if is_s_dializ
 endif
 if is_disp_DDS //
   metap := 1
+  m1mobilbr := 0
   tip_lu := iif(!empty(human->ZA_SMO), TIP_LU_DDS, TIP_LU_DDSOP)
   if d1_year != d2_year
     aadd(ta,'Дата начала и окончания случая должны быть в одном году')
   endif
   if eq_any(human->ishod,101,102)
     metap := human->ishod-100
+    read_arr_DDS(human->kod)
   else
     aadd(ta,'Диспансеризацию детей-сирот надо вводить через специальный экран ввода')
   endif
