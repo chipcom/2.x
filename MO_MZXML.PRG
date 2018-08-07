@@ -978,7 +978,7 @@ else
 endif
 return _ist_fin
 
-***** 06.08.18
+***** 07.08.18
 Function f3pr_inog_inostr(j,arr_m)
 Static sprofil := "терапии"
 Static mm_vid := {"Стационарная","Амбулаторная","Экстренная"}
@@ -999,6 +999,7 @@ dbcreate(fr_data,{;
         {"ist_fin","C",20,0},;
         {"osnov","C",50,0},;
         {"fio","C",60,0},;
+        {"kol","N",6,0},;
         {"summa","N",15,2}})
 use (fr_data) new alias FRD
 R_Use(dir_exe+"_okator",cur_dir+"_okatr","REGION")
@@ -1053,6 +1054,7 @@ else
                            {"region","C",3,0},;
                            {"osnov","N",2,0},;
                            {"ist_fin","N",1,0},;
+                           {"kol","N",6,0},;
                            {"summa","N",15,2}})
   use (cur_dir+"tmp1") new
   index on region+str(osnov,2)+str(ist_fin,1)+str(vid,1)+str(profil,3) to (cur_dir+"tmp1")
@@ -1080,6 +1082,7 @@ else
         tmp1->osnov := tmp_kart->osnov
         tmp1->ist_fin := tmp_kart->ist_fin
       endif
+      tmp1->kol ++
       tmp1->summa += tmp_kart->summa
     endif
     select TMP_KART
@@ -1103,6 +1106,7 @@ else
       frd->region := inieditspr(A__MENUVERT, glob_O001, tmp1->region)
       frd->osnov := inieditspr(A__MENUVERT, menu_osn_preb_RF, tmp1->osnov)
     endif
+    frd->kol := tmp1->kol
     frd->summa := tmp1->summa
     select TMP1
     skip
