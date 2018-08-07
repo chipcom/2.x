@@ -1213,11 +1213,11 @@ tmp_cursor := setcursor(0)
 //tek_sost := CSETALL()
 tmp_keys := my_savekey()
 change_attr()
-box_shadow(r1,c,r2,77,,"Ввод доп.сведений по иностранцу","GR+/BG")
+box_shadow(r1,c,r2,77,,"Ввод дополнительных сведений по иностранцу","GR+/BG")
 setcursor()
 @ r1+1,c+2 say "Страна" get mstrana ;  //reader {|x|menu_reader(x,glob_O001,A__MENUVERT,,,.f.)}
            reader {|x|menu_reader(x,{{|k,r,c|f1get_oksm(k,r,c)}},A__FUNCTION,,,.f.)}
-@ r1+2,c+2 say "Основания пребывания в РФ" get mosn_preb ;  
+@ r1+2,c+2 say "Основание пребывания в РФ" get mosn_preb ;  
            reader {|x|menu_reader(x,menu_osn_preb_RF,A__MENUVERT,,,.f.)}
 @ r1+3,c+2 say "Адрес проживания в Волгоградской области"
 @ r1+4,c+3 get MADRES_PRO
@@ -1335,9 +1335,9 @@ oBrow:addColumn(TBColumnNew("Код", {|| rg->kodN }) )
 oBrow:addColumn(TBColumnNew("   ", {|| rg->kodA }) )
 if lsng == 0
   oBrow:addColumn(TBColumnNew(center("Наименование страны",n), {|| padr(rg->name,n) }) )
-  status_key("^<Esc>^ - выход;  ^<Enter>^ - выбор страны;  ^<F3>^ - страны СНГ")
+  status_key("^<Esc>^ - выход;  ^<Enter>^ - выбор страны;  ^<F3>^ - страны ближнего зарубежья")
 else
-  oBrow:addColumn(TBColumnNew(center("Страны СНГ",n), {|| padr(rg->name,n) }) )
+  oBrow:addColumn(TBColumnNew(center("Страны ближнего зарубежья",n), {|| padr(rg->name,n) }) )
   status_key("^<Esc>^ - выход;  ^<Enter>^ - выбор страны;  ^<F3>^ - все страны")
 endif
 return NIL

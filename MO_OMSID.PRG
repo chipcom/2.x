@@ -3330,10 +3330,10 @@ Static Function f_131_u_da_net(k,sb1,sb2)
 if k > 1 ; k := 1 ; endif // если вместо "да" битовый ответ
 return f3_inf_DDS_karta({{"да - 1",1},{"нет - 2",0}},k,";  ",sb1,sb2,.f.)
 
-***** 26.06.18 Приложение к Приказу ГБУЗ "ВОМИАЦ" от 12.05.2017г. №1615
+***** 06.08.18 Приложение к Приказу ГБУЗ "ВОМИАЦ" от 12.05.2017г. №1615
 Function f21_inf_DVN(par)
 Local arr_m, buf := save_maxrow(), s, as := {}, as1[14],;
-      i, j, k, n, ar, at, ii, g1, sh := 65, fl
+      i, j, k, n, ar, at, ii, g1, sh := 65, fl, mdvozrast
 if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
               .and. (arr_m := year_month(,,,5)) != NIL .and. f0_inf_DVN(arr_m,par > 1,par == 3,.t.)
   Private arr_21[40], arr_316 := {}, arr_ne := {}
@@ -3358,14 +3358,20 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
     @ maxrow(),0 say str(++ii/tmp->(lastrec())*100,6,2)+"%" color cColorWait
     if !empty(tmp->kod4h) // Диспансеризация 1 раз в 2 года
       human->(dbGoto(tmp->kod4h))
+      mdvozrast := year(human->n_data) - year(human->date_r)
       g1 := ret_gruppa_DVN(human_->RSLT_NEW)
       if between(g1,1,4)
+        arr_21[31] ++
         if human->pol == "М"
-          arr_21[31] ++
-        else
           arr_21[32] ++
+        else
+          arr_21[33] ++
         endif
-        arr_21[32+g1] ++ // по группам здоровья
+        if human->pol == "Ж" .and. ascan(arr2g_vozrast_DVN,mdvozrast) > 0
+          arr_21[34] ++
+        else
+          arr_21[35] ++
+        endif
       endif
     elseif emptyall(tmp->kod1h,tmp->kod2h) // профилактика
       human->(dbGoto(tmp->kod3h))
@@ -4765,7 +4771,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
       {"7001 Общее число работающих граждан, прошедших диспансеризацию",0,15},;           //  1
       {"7002 Общее число неработающих граждан, прошедших диспансеризацию",0,16},;         //  2
       {"7003 Общее число прошедших диспансеризацию обучающихся по очной форме",0,17},;    //  3
-      {"7004 Общее число граждан, имеющих право на государст.социальную помощь",0,0},;   //  4
+      {"7004 Общее число граждан, имеющих право на государст.социальную помощь",0,0},;    //  4
       {"     из них: - инвалиды войны",0,19},;                                            //  5
       {"             - участники Великой Отечественной войны",0,20},;                     //  6
       {"             - ветераны боевых действий (закон №5-ФЗ от 12.01.95г.)",0,21},;      //  7

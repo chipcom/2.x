@@ -729,3 +729,386 @@ for i := 1 to len(ar)
   endif
 next
 return ret_arr
+
+***** 06.08.18 Создание отчётов по иногородним / иностранцам для КЗВО
+Function pr_inog_inostr()
+Local arr_m, fl_exit := .f., buf := save_maxrow(), kh := 0, jh := 0
+if (arr_m := year_month()) == NIL
+  return NIL
+endif
+WaitStatus("ОМС")
+dbcreate(cur_dir+"tmp_kart",{{"kod","N",7,0},;
+                             {"vid","N",1,0},;
+                             {"profil","N",3,0},;
+                             {"region","C",3,0},;
+                             {"osnov","N",2,0},;
+                             {"ist_fin","N",1,0},;
+                             {"summa","N",10,2}})
+use (cur_dir+"tmp_kart") new
+index on str(kod,7)+str(vid,1)+str(profil,3)+region+str(osnov,2)+str(ist_fin,1) to (cur_dir+"tmp_kart")
+//
+Private _arr_if := {}, _what_if := _init_if(), _arr_komit := {}
+R_Use(dir_exe+"_okator",cur_dir+"_okatr","REGION")
+R_Use(dir_server+"kartote_",,"KART_")
+R_Use(dir_server+"kartotek",,"KART")
+set relation to recno() into KART_
+R_Use(dir_server+"mo_otd",,"OTD")
+R_Use(dir_server+"mo_kinos",dir_server+"mo_kinos","KIS")
+R_Use(dir_server+"uslugi",,"USL")
+R_Use(dir_server+"human_u",dir_server+"human_u","HU")
+R_Use(dir_server+"human_2",,"HUMAN_2")
+R_Use(dir_server+"human_",,"HUMAN_")
+R_Use(dir_server+"human",{dir_server+"humand",;
+                          dir_server+"humank"},"HUMAN")
+set relation to kod_k into KART, to recno() into HUMAN_, to recno() into HUMAN_2
+dbseek(dtos(arr_m[5]),.t.)
+do while human->k_data <= arr_m[6] .and. !eof()
+  @ maxrow(),71 say date_8(human->k_data) color "W/R"
+  @ maxrow(),1 say lstr(++kh) color cColorSt2Msg
+  if jh > 0
+    @ row(),col() say "/" color "W/R"
+    @ row(),col() say lstr(jh) color cColorStMsg
+  endif
+  UpdateStatus()
+  if inkey() == K_ESC
+    fl_exit := .t. ; exit
+  endif
+  if human_->oplata < 9
+    lregion := space(3) ; losnov := 0
+    if f1pr_inog_inostr(human->kod_k,@lregion,@losnov) .and. human->CENA_1 > 0
+      lprofil := human_->profil
+      lvid := 2
+      do case
+        case human_->USL_OK == 1
+          lvid := 1
+        case human_->USL_OK == 2
+          select HU
+          find (str(human->kod,7))
+          do while hu->kod == human->kod .and. !eof()
+            usl->(dbGoto(hu->u_kod))
+            if empty(lshifr := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data))
+              lshifr := usl->shifr
+            endif
+            lshifr := alltrim(lshifr)
+            if lshifr == "55.1.1" .or. left(lshifr,3) == "63."
+              lvid := 1 ; exit
+            endif
+            select HU
+            skip
+          enddo
+        case human_->USL_OK == 3
+          lvid := 2
+        case human_->USL_OK == 4
+          lvid := 3
+      endcase
+      list_fin := f2pr_inog_inostr(_what_if)
+      select TMP_KART
+      find (str(human->kod_k,7)+str(lvid,1)+str(lprofil,3)+lregion+str(losnov,2)+str(list_fin,1))
+      if !found()
+        append blank
+        tmp_kart->kod := human->kod_k
+        tmp_kart->vid := lvid
+        tmp_kart->profil := lprofil
+        tmp_kart->region := lregion
+        tmp_kart->osnov := losnov
+        tmp_kart->ist_fin := list_fin
+      endif
+      tmp_kart->summa += human->CENA_1
+      ++jh
+    endif
+  endif
+  select HUMAN
+  skip
+enddo
+if is_task(X_PLATN)
+  WaitStatus("Платные услуги")
+  R_Use(dir_server+"hum_p",dir_server+"hum_pd","HUMP")
+  set relation to kod_k into KART
+  dbseek(dtos(arr_m[5]),.t.)
+  do while hump->k_data <= arr_m[6] .and. !eof()
+    @ maxrow(),71 say date_8(hump->k_data) color "W/R"
+    @ maxrow(),1 say lstr(++kh) color cColorSt2Msg
+    if jh > 0
+      @ row(),col() say "/" color "W/R"
+      @ row(),col() say lstr(jh) color cColorStMsg
+    endif
+    UpdateStatus()
+    if inkey() == K_ESC
+      fl_exit := .t. ; exit
+    endif
+    lregion := space(3) ; losnov := 0
+    if f1pr_inog_inostr(hump->kod_k,@lregion,@losnov) .and. hump->CENA > 0
+      lprofil := 97 // терапии
+      lvid := 2     // амбулаторно
+      if hump->otd > 0
+        otd->(dbGoto(hump->otd))
+        if !empty(otd->profil)
+          lprofil := otd->profil
+        endif
+        if otd->IDUMP == 1
+          lvid := 1
+        endif
+      endif
+      list_fin := iif(hump->tip_usl == 1, 2, 1)
+      select TMP_KART
+      find (str(hump->kod_k,7)+str(lvid,1)+str(lprofil,3)+lregion+str(losnov,2)+str(list_fin,1))
+      if !found()
+        append blank
+        tmp_kart->kod := hump->kod_k
+        tmp_kart->vid := lvid
+        tmp_kart->profil := lprofil
+        tmp_kart->region := lregion
+        tmp_kart->osnov := losnov
+        tmp_kart->ist_fin := list_fin
+      endif
+      tmp_kart->summa += hump->CENA
+      ++jh
+    endif
+    select HUMP
+    skip
+  enddo
+endif  
+if is_task(X_ORTO)
+  WaitStatus("Ортопедия")
+  R_Use(dir_server+"hum_ort",dir_server+"hum_ortd","HUMO")
+  set relation to kod_k into KART
+  dbseek(dtos(arr_m[5]),.t.)
+  do while humo->k_data <= arr_m[6] .and. !eof()
+    @ maxrow(),71 say date_8(humo->k_data) color "W/R"
+    @ maxrow(),1 say lstr(++kh) color cColorSt2Msg
+    if jh > 0
+      @ row(),col() say "/" color "W/R"
+      @ row(),col() say lstr(jh) color cColorStMsg
+    endif
+    UpdateStatus()
+    if inkey() == K_ESC
+      fl_exit := .t. ; exit
+    endif
+    lregion := space(3) ; losnov := 0
+    if f1pr_inog_inostr(humo->kod_k,@lregion,@losnov) .and. humo->CENA > 0
+      lprofil := 88 // стоматологии ортопедической
+      lvid := 2     // амбулаторно
+      if humo->tip_usl == 1
+        list_fin := 4
+      elseif humo->tip_usl == 3
+        list_fin := 2
+      else
+        list_fin := 1
+      endif
+      select TMP_KART
+      find (str(humo->kod_k,7)+str(lvid,1)+str(lprofil,3)+lregion+str(losnov,2)+str(list_fin,1))
+      if !found()
+        append blank
+        tmp_kart->kod := humo->kod_k
+        tmp_kart->vid := lvid
+        tmp_kart->profil := lprofil
+        tmp_kart->region := lregion
+        tmp_kart->osnov := losnov
+        tmp_kart->ist_fin := list_fin
+      endif
+      tmp_kart->summa += humo->CENA
+      ++jh
+    endif
+    select HUMO
+    skip
+  enddo
+endif  
+rest_box(buf)
+close databases
+if jh == 0
+  func_error(4,"Не обнаружено информации по иногородним и иностранцам за указанный период")
+else
+  j := 0
+  do while (j := popup_prompt(T_ROW,T_COL-5,j,;
+                            {"Приложение 1 - список иностранцев",;
+                             "Приложение 2 - список иногородних",;
+                             "Приложение 3 - сводная информация по иностранцам",;
+                             "Приложение 4 - сводная информация по иногородним"})) > 0
+    f3pr_inog_inostr(j,arr_m)
+  enddo
+endif
+return NIL
+
+***** 05.08.18
+Function f1pr_inog_inostr(lkod,/*@*/lregion,/*@*/losnov)
+select KART
+goto (lkod)
+if !empty(kart_->strana) .and. ascan(glob_O001, {|x| x[2] == kart_->strana }) > 0
+  lregion := kart_->strana
+  select KIS
+  find (str(lkod,7))
+  if found()
+    losnov := kis->osn_preb
+  endif
+endif
+if lregion == "643"
+  lregion := space(3) ; losnov := 0
+endif
+if empty(lregion) .and. !eq_any(left(kart_->okatog,2),'  ','00','18')
+  select REGION
+  find (left(kart_->okatog,2))
+  if found()
+    lregion := left(kart_->okatog,2)+" "
+    losnov := -1
+  endif
+endif
+return !empty(lregion)
+
+***** 06.08.18
+Function f2pr_inog_inostr(_what_if)
+Local list_fin := I_FIN_OMS, _ist_fin, i
+if human->komu == 5
+  list_fin := I_FIN_PLAT // личный счет = платные услуги
+elseif eq_any(human->komu,1,3)
+  if (i := ascan(_what_if[2], {|x| x[1]==human->komu .and. x[2]==human->str_crb})) > 0
+    list_fin := _what_if[2,i,3]
+  endif
+endif
+// 1-пл.,2-ДМС,3-ОМС,4-бюджет
+if list_fin == I_FIN_OMS
+  _ist_fin := 3
+elseif list_fin == I_FIN_PLAT
+  _ist_fin := 1
+elseif list_fin == I_FIN_DMS
+  _ist_fin := 2
+elseif list_fin == I_FIN_LPU
+  _ist_fin := 1
+else
+  _ist_fin := 4
+endif
+return _ist_fin
+
+***** 06.08.18
+Function f3pr_inog_inostr(j,arr_m)
+Static sprofil := "терапии"
+Static mm_vid := {"Стационарная","Амбулаторная","Экстренная"}
+Static mm_ist_fin := {"Платные без ДМС","ДМС","ОМС","Областной бюджет"}
+Local name_fr := "mo_iipr", buf := save_maxrow()
+mywait()
+delFRfiles()
+dbcreate(fr_titl, {{"name","C",255,0},;
+                   {"period","C",255,0}})
+use (fr_titl) new alias FRT
+append blank
+frt->name := glob_mo[_MO_FULL_NAME]
+frt->period := arr_m[4]					
+dbcreate(fr_data,{;
+        {"vid","C",15,0},;
+        {"profil","C",255,0},;
+        {"region","C",255,0},;
+        {"ist_fin","C",20,0},;
+        {"osnov","C",50,0},;
+        {"fio","C",60,0},;
+        {"summa","N",15,2}})
+use (fr_data) new alias FRD
+R_Use(dir_exe+"_okator",cur_dir+"_okatr","REGION")
+R_Use(dir_server+"kartotek",,"KART")
+use (cur_dir+"tmp_kart") new
+if j == 1 .or. j == 2
+  set relation to kod into KART
+  index on upper(kart->fio)+str(vid,1)+str(profil,3)+region+str(osnov,2)+str(ist_fin,1) to (cur_dir+"tmp_kart")
+else  
+  index on region+str(osnov,2)+str(ist_fin,1)+str(vid,1)+str(profil,3) to (cur_dir+"tmp_kart")
+endif  
+if j == 1 .or. j == 2
+  select TMP_KART
+  go top
+  do while !eof()
+    if j == 2
+      if tmp_kart->osnov < 0
+        select FRD
+        append blank
+        frd->vid := mm_vid[tmp_kart->vid]
+        if empty(frd->profil := inieditspr(A__MENUVERT, glob_V002, tmp_kart->PROFIL))
+          frd->profil := sprofil
+        endif
+        frd->ist_fin := mm_ist_fin[tmp_kart->ist_fin]
+        select REGION
+        find (left(tmp_kart->region,2))
+        frd->region := charrem("*",name)
+        frd->fio := kart->fio
+        frd->summa := tmp_kart->summa
+      endif
+    else
+      if tmp_kart->osnov >= 0
+        select FRD
+        append blank
+        frd->vid := mm_vid[tmp_kart->vid]
+        if empty(frd->profil := inieditspr(A__MENUVERT, glob_V002, tmp_kart->PROFIL))
+          frd->profil := sprofil
+        endif
+        frd->ist_fin := mm_ist_fin[tmp_kart->ist_fin]
+        frd->region := inieditspr(A__MENUVERT, glob_O001, tmp_kart->region)
+        frd->osnov := inieditspr(A__MENUVERT, menu_osn_preb_RF, tmp_kart->osnov)
+        frd->fio := kart->fio
+        frd->summa := tmp_kart->summa
+      endif
+    endif
+    select TMP_KART
+    skip
+  enddo
+else  
+  dbcreate(cur_dir+"tmp1",{{"vid","N",1,0},;
+                           {"profil","N",3,0},;
+                           {"region","C",3,0},;
+                           {"osnov","N",2,0},;
+                           {"ist_fin","N",1,0},;
+                           {"summa","N",15,2}})
+  use (cur_dir+"tmp1") new
+  index on region+str(osnov,2)+str(ist_fin,1)+str(vid,1)+str(profil,3) to (cur_dir+"tmp1")
+  select TMP_KART
+  go top
+  do while !eof()
+    fl := .f.
+    if j == 4
+      if tmp_kart->osnov < 0
+        fl := .t.
+      endif
+    else
+      if tmp_kart->osnov >= 0
+        fl := .t.
+      endif
+    endif
+    if fl
+      select TMP1
+      find (tmp_kart->region+str(tmp_kart->osnov,2)+str(tmp_kart->ist_fin,1)+str(tmp_kart->vid,1)+str(tmp_kart->profil,3))
+      if !found()
+        append blank
+        tmp1->vid := tmp_kart->vid
+        tmp1->profil := tmp_kart->profil
+        tmp1->region := tmp_kart->region
+        tmp1->osnov := tmp_kart->osnov
+        tmp1->ist_fin := tmp_kart->ist_fin
+      endif
+      tmp1->summa += tmp_kart->summa
+    endif
+    select TMP_KART
+    skip
+  enddo
+  select TMP1
+  go top
+  do while !eof()
+    select FRD
+    append blank
+    frd->vid := mm_vid[tmp1->vid]
+    if empty(frd->profil := inieditspr(A__MENUVERT, glob_V002, tmp1->PROFIL))
+      frd->profil := sprofil
+    endif
+    frd->ist_fin := mm_ist_fin[tmp1->ist_fin]
+    if tmp1->osnov < 0
+      select REGION
+      find (left(tmp1->region,2))
+      frd->region := charrem("*",name)
+    else
+      frd->region := inieditspr(A__MENUVERT, glob_O001, tmp1->region)
+      frd->osnov := inieditspr(A__MENUVERT, menu_osn_preb_RF, tmp1->osnov)
+    endif
+    frd->summa := tmp1->summa
+    select TMP1
+    skip
+  enddo
+endif  
+close databases
+rest_box(buf)
+call_fr(name_fr+lstr(j))
+return NIL

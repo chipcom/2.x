@@ -1,23 +1,4 @@
-*******************************************************************************
-* mo_ppi.prg - режимы информации для задачи "Приёмный покой"
-*******************************************************************************
-*          pr_gurnal_pp()
-*          pr_svod_pp(k)
-* 26.12.12 pr_ob_svod_pp()
-*          pr_otd_lpu_pp()
-*          pr_otd_stol_pp()
-*          pr_otd_gosp_pp()
-*          pr_otd_vozr_pp()
-*          pr_otd_vozr_deti_pp()
-*          pr_otd_tek_pp()
-* 31.08.14 z_gurnal_pp() - Просмотр/печать журнала регистрации стационарных больных по запросу
-* 31.08.14 wr_mn_pp(k)
-*          pp_mnog_poisk()
-*          f_gur_inostr_pp(sh)
-*          pr_perevod_pp()
-*          pr_error_pp(k)
-*          dubl_ist_b_pp()
-*******************************************************************************
+***** mo_ppi.prg - режимы информации для задачи "Приёмный покой"
 #include "inkey.ch"
 #include "..\_mylib_hbt\function.ch"
 #include "..\_mylib_hbt\edit_spr.ch"

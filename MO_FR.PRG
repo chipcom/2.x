@@ -1156,10 +1156,9 @@ endif
 //
 return fl
 
-
 *
 
-***** 5.07.18 запрос к кассовому аппарату
+***** 2.08.18 запрос к кассовому аппарату
 Function f1_inf_fr(tip)
 Local arr := {}, s,  sd, buf := save_row(maxrow()),;
       c4date := dtoc4(sys_date), n_file := "_kassa.txt",;
@@ -1201,7 +1200,7 @@ if glob_kassa == 1 .and. mek_kassa == 1
                                   @lkdocumentNumber,;
                                   @lkdateDoc,;
                                   @lktimeDoc ))
-   aadd(arr," -Сообщений для пердачи в ОФД                 "+str(lkmessageCount))
+   aadd(arr," -Сообщений для передачи в ОФД                "+str(lkmessageCount))
    aadd(arr," -Номер документа для ОФД первого в очереди   "+str(lkdocumentNumber))
    aadd(arr," -Дата документа для ОФД первого в очереди    "+full_date(lkdateDoc))
  else

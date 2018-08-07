@@ -4614,7 +4614,7 @@ return NIL
 #define CSV_A_STATUS 7
 #define CSV_A_CERR   8
 
-***** 28.03.18 чтение в память и анализ CSV-файла ответа на файл прикрепления
+***** 05.08.18 чтение в память и анализ CSV-файла ответа на файл прикрепления
 Function read_CSV_FILE_ANSWER(cFile,aerr,nkod_reestr)
 Local i, j, s, arr_csv, kol1 := 0, mmo_pr, md_prik, ar[2], fl_et, buf := save_maxrow()
 stat_msg("Чтение файла "+upper(StripPath(cFile)))
@@ -4779,7 +4779,7 @@ if empty(aerr)
           s += " ("+alltrim(arr_csv[i,CSV_A_ENP])+")"
         elseif krte->REFREASON == 704 // Дата прикрепления больше даты смерти
           s_death := '1' // Застрахованный умер до отправки файла MO2...
-        elseif eq_any(krte->REFREASON,404,709)
+        elseif eq_any(krte->REFREASON,404,703)
           n_del := 1
         endif
         n := len(lstr(i))+2

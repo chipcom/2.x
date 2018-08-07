@@ -14,9 +14,9 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-Static _version := {2,6,13}
-Static char_version := "a"
-Static _date_version := "01.08.18г."
+Static _version := {2,6,14}
+Static char_version := ""
+Static _date_version := "06.08.18г."
 Static __s_full_name := "ЧИП + Учёт работы Медицинской Организации"
 Static __s_version
 
@@ -191,7 +191,6 @@ endif
 //
 Public chm_help_code := 0
 Init_first() // начальная инициализация программы (переменных, массивов,...)
-tmp_rec_kinos() // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! удалить
 if ControlBases(1,_version) // если необходимо
   if G_SLock1Task(sem_task,sem_vagno)  // запрет доступа всем
     buf := savescreen()
@@ -225,23 +224,6 @@ endif
 Init_Program() // инициализация программы (переменных, массивов,...)
 f_main(r,a_parol)
 f_end()
-return
-
-Function tmp_rec_kinos()
-Local fl, mo_kinos := {;  // справочник сведений об иностранце (при картотеке)
-   {"KOD"      ,   "N",     7,     0},; // код (номер записи по БД kartotek)
-   {"OSN_PREB",    "N",     2,     0},; // основание пребывания в РФ
-   {"ADRES_PRO",   "C",    60,     0},; // адрес проживания в Волг.обл.
-   {"MIGR_KARTA",  "C",    20,     0},; // данные миграционной карты
-   {"DATE_P_G",    "D",     8,     0},; // дата пересечения границы
-   {"DATE_R_M",    "D",     8,     0};  // дата регистрации в миграционной службе
-  }
-R_Use(dir_server+"mo_kinos",,"KIS")
-fl := (fieldnum("OSN_PREB") == 0)
-Use
-if fl
-  reconstruct(dir_server+"mo_kinos",mo_kinos,"index_base('mo_kinos')",,.t.)
-endif
 return
 
 #define SW_SHOWNORMAL 1

@@ -1054,14 +1054,14 @@ if left(lshifr,2) == sl
 endif
 return fl
 
-***** 10.04.18
+***** 06.08.18
 Function is_usluga_disp_nabl(_shifr,_shifr1)
 if empty(_shifr1)
   _shifr := alltrim(_shifr)
 else
   _shifr := alltrim(_shifr1)
 endif  
-return between_shifr(_shifr,"2.78.61","2.78.74") .or. between_shifr(_shifr,"2.88.52","2.88.65")
+return between_shifr(_shifr,"2.78.61","2.78.84") .or. between_shifr(_shifr,"2.88.52","2.88.75")
 
 ***** 04.09.17 функция для when и valid при вводе услуг в лист учёта
 Function f5editkusl(get,when_valid,k)
