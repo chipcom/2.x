@@ -2876,6 +2876,8 @@ Local _table4 := {;
 Local _table5 := {;
    {"KOD",      "N", 6,0},; // код
    {"IDCASE",   "C",12,0},; // номер позиции записи в реестре;поле "IDCASE" (и "ZAP") в реестре случаев
+   {"NAZ_N"   , "C", 2,0},; // PRESCRIPTIONS - Номер по порядку
+   {"NAZ_R"   , "C", 2,0},; // PRESCRIPTIONS - Код назначения
    {"NAZR"    , "C", 2,0},; // PRESCRIPTIONS - Код назначения
    {"NAZ_SP1" , "C", 5,0},; //
    {"NAZ_SP2" , "C", 5,0},; //
@@ -2974,7 +2976,6 @@ if (arr_f := Extract_Zip_XML(goal_dir,name_zip)) != NIL
                 t1->REASON_INV := mo_read_xml_stroke(oNode2,"REASON_INV")
                 t1->DS_INV     := mo_read_xml_stroke(oNode2,"DS_INV",,.f.)
               endif
-              t1->MSE     := mo_read_xml_stroke(oNode1,"MSE",,.f.)
             endif
             if (oNode1 := oXmlNode:Find("SLUCH")) != NIL
               t1->IDCASE   := mo_read_xml_stroke(oNode1,"IDCASE")
@@ -3035,6 +3036,7 @@ if (arr_f := Extract_Zip_XML(goal_dir,name_zip)) != NIL
                 &pole := _ar[j1]
               next
               t1->DN := mo_read_xml_stroke(oNode1,"DN",,.f.)
+              t1->MSE := mo_read_xml_stroke(oNode1,"MSE",,.f.)
               _ar := mo_read_xml_array(oNode1,"VNOV_M") // М.Б.НЕСКОЛЬКО VNOV_M
               for j1 := 1 to min(3,len(_ar))
                 pole := "t1->VNOV_M"+iif(j1==1, "", "_"+lstr(j1))
@@ -3050,7 +3052,9 @@ if (arr_f := Extract_Zip_XML(goal_dir,name_zip)) != NIL
                     append blank
                     t5->KOD      := mkod
                     t5->IDCASE   := t1->IDCASE // для связи со случаем
-                    t5->NAZR     := mo_read_xml_stroke(oNode2,"NAZR")
+                    t5->NAZ_N    := mo_read_xml_stroke(oNode2,"NAZ_N",,.f.)  // версия 3.1
+                    t5->NAZ_R    := mo_read_xml_stroke(oNode2,"NAZ_R",,.f.)  // версия 3.1
+                    t5->NAZR     := mo_read_xml_stroke(oNode2,"NAZR",,.f.)
                     _ar := mo_read_xml_array(oNode2,"NAZ_SP") // М.Б.НЕСКОЛЬКО NAZ_SP
                     for j1 := 1 to min(3,len(_ar))
                       pole := "t5->NAZ_SP"+lstr(j1)

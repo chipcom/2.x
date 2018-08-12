@@ -2202,7 +2202,6 @@ do while !eof()
        mo_add_xml_stroke(oDISAB,"DS_INV",inv->DIAG_INV)
       endif
     endif
-    //mo_add_xml_stroke(oPAC,"MSE",'1')
    oSLUCH := oZAP:Add( HXMLNode():New( "SLUCH" ) )
     mo_add_xml_stroke(oSLUCH,"IDCASE"  ,lstr(rhum->REES_ZAP))
     mo_add_xml_stroke(oSLUCH,"ID_C"    ,human_->ID_C)
@@ -2332,6 +2331,7 @@ do while !eof()
         endif
         mo_add_xml_stroke(oSLUCH,"DN",lstr(s))
       endif
+      //mo_add_xml_stroke(oSLUCH,"MSE",'1')
       if human_->USL_OK == 1 // стационар
         // вес недоношенных детей для л/у матери
         if human_2->VNR1 > 0
@@ -2374,7 +2374,12 @@ do while !eof()
       oPRESCRIPTION := oSLUCH:Add( HXMLNode():New( "PRESCRIPTION" ) )
       for j := 1 to len(arr_nazn)
        oPRESCRIPTIONS := oPRESCRIPTION:Add( HXMLNode():New( "PRESCRIPTIONS" ) )
-        mo_add_xml_stroke(oPRESCRIPTIONS,"NAZR",lstr(arr_nazn[j,1]))
+        if .f. // версия 3.1
+          mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_N",lstr(j))
+          mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_R",lstr(arr_nazn[j,1]))
+        else 
+          mo_add_xml_stroke(oPRESCRIPTIONS,"NAZR",lstr(arr_nazn[j,1]))
+        endif
         if eq_any(arr_nazn[j,1],1,2)
           for i := 1 to len(arr_nazn[j,2])
             mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_SP",lstr(arr_nazn[j,2,i]))
@@ -3049,9 +3054,6 @@ for ii := 1 to len(arr_schet)
           mo_add_xml_stroke(oDISAB,"DS_INV",t1->DS_INV)
          endif
         endif
-        if !empty(t1->MSE)
-          mo_add_xml_stroke(oPAC,"MSE",t1->MSE)
-        endif
        oSLUCH := oZAP:Add( HXMLNode():New( "SLUCH" ) )
         mo_add_xml_stroke(oSLUCH,"IDCASE",lstr(human_->schet_zap))
         mo_add_xml_stroke(oSLUCH,"ID_C"  ,t1->ID_C)
@@ -3142,6 +3144,9 @@ for ii := 1 to len(arr_schet)
         if !empty(t1->DN)
           mo_add_xml_stroke(oSLUCH,"DN",t1->DN)
         endif
+        if !empty(t1->MSE)
+          mo_add_xml_stroke(oSLUCH,"MSE",t1->MSE)
+        endif
         for j := 1 to 3
           pole := "t1->VNOV_M"+iif(j==1, "", "_"+lstr(j))
           if !empty(&pole)
@@ -3173,7 +3178,15 @@ for ii := 1 to len(arr_schet)
           oPRESCRIPTION := oSLUCH:Add( HXMLNode():New( "PRESCRIPTION" ) )
           do while t1->IDCASE == t5->IDCASE .and. !eof()
             oPRESCRIPTIONS := oPRESCRIPTION:Add( HXMLNode():New( "PRESCRIPTIONS" ) ) 
-            mo_add_xml_stroke(oPRESCRIPTIONS,"NAZR",t5->nazr)
+            if !empty(t5->NAZ_N)
+              mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_N",t5->NAZ_N)
+            endif
+            if !empty(t5->NAZ_R)
+              mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_R",t5->NAZ_R)
+            endif 
+            if !empty(t5->NAZR)
+              mo_add_xml_stroke(oPRESCRIPTIONS,"NAZR",t5->nazr)
+            endif
             for i := 1 to 3
               pole := "t5->NAZ_SP"+lstr(i)
               if !empty(&pole)

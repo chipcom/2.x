@@ -730,7 +730,7 @@ for i := 1 to len(ar)
 next
 return ret_arr
 
-***** 06.08.18 Создание отчётов по иногородним / иностранцам для КЗВО
+***** 12.08.18 Создание отчётов по иногородним / иностранцам для КЗВО
 Function pr_inog_inostr()
 Local arr_m, fl_exit := .f., buf := save_maxrow(), kh := 0, jh := 0
 if (arr_m := year_month()) == NIL
@@ -738,6 +738,7 @@ if (arr_m := year_month()) == NIL
 endif
 WaitStatus("ОМС")
 dbcreate(cur_dir+"tmp_kart",{{"kod","N",7,0},;
+                             {"vozr","N",2,0},;
                              {"vid","N",1,0},;
                              {"profil","N",3,0},;
                              {"region","C",3,0},;
@@ -759,7 +760,8 @@ R_Use(dir_server+"human_u",dir_server+"human_u","HU")
 R_Use(dir_server+"human_2",,"HUMAN_2")
 R_Use(dir_server+"human_",,"HUMAN_")
 R_Use(dir_server+"human",{dir_server+"humand",;
-                          dir_server+"humank"},"HUMAN")
+                          dir_server+"humank",;
+                          dir_server+"humankk"},"HUMAN")
 set relation to kod_k into KART, to recno() into HUMAN_, to recno() into HUMAN_2
 dbseek(dtos(arr_m[5]),.t.)
 do while human->k_data <= arr_m[6] .and. !eof()
@@ -773,9 +775,9 @@ do while human->k_data <= arr_m[6] .and. !eof()
   if inkey() == K_ESC
     fl_exit := .t. ; exit
   endif
-  if human_->oplata < 9
+  if human_->oplata < 9  
     lregion := space(3) ; losnov := 0
-    if f1pr_inog_inostr(human->kod_k,@lregion,@losnov) .and. human->CENA_1 > 0
+    if human->CENA_1 > 0 .and. f1pr_inog_inostr(human->kod_k,@lregion,@losnov)
       lprofil := human_->profil
       lvid := 2
       do case
@@ -813,6 +815,7 @@ do while human->k_data <= arr_m[6] .and. !eof()
         tmp_kart->osnov := losnov
         tmp_kart->ist_fin := list_fin
       endif
+      tmp_kart->vozr := f0pr_inog_inostr(human->date_r,human->n_data)
       tmp_kart->summa += human->CENA_1
       ++jh
     endif
@@ -837,7 +840,7 @@ if is_task(X_PLATN)
       fl_exit := .t. ; exit
     endif
     lregion := space(3) ; losnov := 0
-    if f1pr_inog_inostr(hump->kod_k,@lregion,@losnov) .and. hump->CENA > 0
+    if hump->CENA > 0 .and. f1pr_inog_inostr(hump->kod_k,@lregion,@losnov)
       lprofil := 97 // терапии
       lvid := 2     // амбулаторно
       if hump->otd > 0
@@ -861,6 +864,8 @@ if is_task(X_PLATN)
         tmp_kart->osnov := losnov
         tmp_kart->ist_fin := list_fin
       endif
+      kart->(dbGoto(hump->kod_k))
+      tmp_kart->vozr := f0pr_inog_inostr(kart->date_r,hump->n_data)
       tmp_kart->summa += hump->CENA
       ++jh
     endif
@@ -885,7 +890,7 @@ if is_task(X_ORTO)
       fl_exit := .t. ; exit
     endif
     lregion := space(3) ; losnov := 0
-    if f1pr_inog_inostr(humo->kod_k,@lregion,@losnov) .and. humo->CENA > 0
+    if humo->CENA > 0 .and. f1pr_inog_inostr(humo->kod_k,@lregion,@losnov)
       lprofil := 88 // стоматологии ортопедической
       lvid := 2     // амбулаторно
       if humo->tip_usl == 1
@@ -906,6 +911,8 @@ if is_task(X_ORTO)
         tmp_kart->osnov := losnov
         tmp_kart->ist_fin := list_fin
       endif
+      kart->(dbGoto(humo->kod_k))
+      tmp_kart->vozr := f0pr_inog_inostr(kart->date_r,humo->n_data)
       tmp_kart->summa += humo->CENA
       ++jh
     endif
@@ -920,17 +927,23 @@ if jh == 0
 else
   j := 0
   do while (j := popup_prompt(T_ROW,T_COL-5,j,;
-                            {"Приложение 1 - список иностранцев",;
-                             "Приложение 2 - список иногородних",;
-                             "Приложение 3 - сводная информация по иностранцам",;
-                             "Приложение 4 - сводная информация по иногородним"})) > 0
+                            {"Приложение ~1 - список иностранцев",;
+                             "Приложение ~2 - список иногородних",;
+                             "Приложение ~3 - сводная информация по иностранцам",;
+                             "Приложение ~4 - сводная информация по иногородним"})) > 0
     f3pr_inog_inostr(j,arr_m)
   enddo
 endif
 return NIL
 
-***** 05.08.18
+***** 12.08.18
+Function f0pr_inog_inostr(ldate_r,_data)
+Local cy := count_years(ldate_r,_data)
+return iif(cy < 100, cy, 99)
+
+***** 12.08.18
 Function f1pr_inog_inostr(lkod,/*@*/lregion,/*@*/losnov)
+Local rec
 select KART
 goto (lkod)
 if !empty(kart_->strana) .and. ascan(glob_O001, {|x| x[2] == kart_->strana }) > 0
@@ -950,6 +963,22 @@ if empty(lregion) .and. !eq_any(left(kart_->okatog,2),'  ','00','18')
   if found()
     lregion := left(kart_->okatog,2)+" "
     losnov := -1
+  endif
+  if !empty(lregion) // иногородний?
+    select HUMAN
+    rec := recno()
+    set order to 3
+    find (str(lkod,7))
+    do while human->kod_k == lkod .and. !eof()
+      if human->CENA_1 > 0 .and. human_->oplata < 9 .and. human->kod != rec
+        if human->komu == 0 .and. val(human_->smo) > 34000 // полис Волгоградский
+          lregion := space(3) ; losnov := 0 ; exit         // не учитываем
+        endif
+      endif  
+      skip
+    enddo 
+    set order to 1
+    goto (rec) 
   endif
 endif
 return !empty(lregion)
@@ -978,7 +1007,7 @@ else
 endif
 return _ist_fin
 
-***** 07.08.18
+***** 12.08.18
 Function f3pr_inog_inostr(j,arr_m)
 Static sprofil := "терапии"
 Static mm_vid := {"Стационарная","Амбулаторная","Экстренная"}
@@ -1000,6 +1029,7 @@ dbcreate(fr_data,{;
         {"osnov","C",50,0},;
         {"fio","C",60,0},;
         {"kol","N",6,0},;
+        {"vozr","N",2,0},;
         {"summa","N",15,2}})
 use (fr_data) new alias FRD
 R_Use(dir_exe+"_okator",cur_dir+"_okatr","REGION")
@@ -1028,6 +1058,7 @@ if j == 1 .or. j == 2
         find (left(tmp_kart->region,2))
         frd->region := charrem("*",name)
         frd->fio := kart->fio
+        frd->vozr := tmp_kart->vozr
         frd->summa := tmp_kart->summa
       endif
     else
@@ -1042,6 +1073,7 @@ if j == 1 .or. j == 2
         frd->region := inieditspr(A__MENUVERT, glob_O001, tmp_kart->region)
         frd->osnov := inieditspr(A__MENUVERT, menu_osn_preb_RF, tmp_kart->osnov)
         frd->fio := kart->fio
+        frd->vozr := tmp_kart->vozr
         frd->summa := tmp_kart->summa
       endif
     endif

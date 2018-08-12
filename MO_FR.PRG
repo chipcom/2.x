@@ -85,7 +85,7 @@ return NIL
 
 *
 
-***** 02.07.18
+***** 12.08.18
 Function f5_sist_fr(k)
 Static mm_da_net := {{"да ",1},{"нет",2}}
 Static mm_chek := {{"Сквозной номер документа ККМ",1},{"Номер чека продажи ККМ",2}}
@@ -94,8 +94,6 @@ Local mm_tmp := {}, buf, fl := .f., s
 
 if k == 1
   Public meK_ostato := 0,;
-         meK_sdacha := 1,;
-         meK_w_sdac := 1,;
          meK_bank   := 2,;
          meK_lof_fi := 2,;
          meK_otrez  := 1,;
@@ -103,6 +101,9 @@ if k == 1
          meK_pr_FIO := 1,;
          MEK_KASSIR := space(20),;
          mek_chek   := 1
+         //meK_sdacha := 1,;
+         //meK_w_sdac := 1,;
+
   if file("_kassa_.mem")
     restore from _kassa_ additive
   else
@@ -130,8 +131,6 @@ elseif k == 2
   //mek_tkassa := 2 // ККМ по 54-ФЗ
 
   Private mostatok := meK_ostato,;
-          msdacha, m1sdacha := meK_sdacha,;
-          mw_sdacha, m1w_sdacha := meK_w_sdac,;
           mmeK_bank, m1meK_bank := meK_bank,;
           mmeK_kassa, m1meK_kassa := meK_kassa,;
           mmeK_lof_fi, m1meK_lof_fi := meK_lof_fi,;
@@ -141,8 +140,7 @@ elseif k == 2
           mkassir := mek_kassir,;
           mmek_chek := m1mek_chek := mek_chek
 
-  msdacha     := inieditspr(A__MENUVERT,mm_da_net,m1sdacha)
-  mw_sdacha   := inieditspr(A__MENUVERT,mm_da_net,m1w_sdacha)
+
   mmeK_bank   := inieditspr(A__MENUVERT,mm_da_net,m1meK_bank)
   mmeK_kassa  := inieditspr(A__MENUVERT,mm_da_net,m1meK_kassa)
   mmeK_otrez  := inieditspr(A__MENUVERT,mm_da_net,m1meK_otrez)
@@ -161,10 +159,10 @@ elseif k == 2
 
     @ ++ix,3 say "Сумма денег, внесенная в кассу УТРОМ" get mostatok  pict "999999.99"
       ++ix
-    @ ++ix,3 say "Запрашивать вносимую покупателем сумму и подсчитывать сдачу?" get msdacha ;
-                reader {|x|menu_reader(x,mm_da_net,A__MENUVERT,,,.f.)}
-    @ ++ix,3 say "Печатать вносимую покупателем сумму и сдачу в чек?" get mw_sdacha ;
-                reader {|x|menu_reader(x,mm_da_net,A__MENUVERT,,,.f.)}
+//    @ ++ix,3 say "Запрашивать вносимую покупателем сумму и подсчитывать сдачу?" get msdacha ;
+//                reader {|x|menu_reader(x,mm_da_net,A__MENUVERT,,,.f.)}
+//    @ ++ix,3 say "Печатать вносимую покупателем сумму и сдачу в чек?" get mw_sdacha ;
+//                reader {|x|menu_reader(x,mm_da_net,A__MENUVERT,,,.f.)}
     if tip_polzovat == 0
       ++ix
       @ ++ix,3 say "Работать с банковскими картами ?" get mmeK_bank ;
@@ -186,8 +184,6 @@ elseif k == 2
   endif
   if f_Esc_Enter(1)
     meK_ostato := mostatok
-    meK_sdacha := m1sdacha
-    meK_w_sdac := m1w_sdacha
     mek_kassir := mkassir
     if tip_polzovat == 0
       mek_bank   := m1mek_bank
@@ -838,7 +834,7 @@ return update_gets()
 *
 
 
-*****
+*****  12.08.18
 Function chek_fr(vsum,vsd,/*@*/cur_chek,vbank,sekcia,/*@*/fr_serial_number,address,tip_kart,tip_oplat)
 Local fl := .t., name_tov, buf := save_maxrow(), ;
       s_err := "", s, last_chek := 0, fl_str := 0, fl_err_annul := .f., ;
@@ -926,7 +922,7 @@ if fl
   DEFAULT vbank TO 0
   if empty(vbank)
     s := round_5(p_summa,2)
-    if meK_w_sdac == 1 .and. round_5(p_summa,2) < round_5(vsum,2)
+    if round_5(p_summa,2) < round_5(vsum,2)
       s := vsum
     endif
   else
@@ -977,88 +973,12 @@ endif
 return fl
 
 
-*
-
-***** 02.05.18
-Function vozv_fr(value,/*@*/cur_chek,v_bank,tip_kart)
-Local fl := .t., buf := save_maxrow(), name_tov, ;
-      s_err := "", s, last_chek, fl_err_annul := .f., summa_kassa := 0
-//
-DEFAULT v_bank TO 0, tip_kart to 2
-//
-cur_chek := 0
-// запрашиваем наличие наличности в кассе
-if (value - v_bank) > 0
-  if valtype(summa_kassa := (FRCH_d_registr(193))) != "N"
-    return func_error(4,summa_kassa)
-  endif
-  if (value - v_bank) > summa_kassa
-    return func_error(4,"Недостаточная сумма в кассе")
-  endif
-endif
-// запрашиваем наличие БЕЗНАЛА в кассе
-if v_bank > 0
-  if tip_kart == 1
-    if valtype(summa_kassa := (FRCH_d_registr(197))) != "N"
-      return func_error(4,summa_kassa)
-    endif
-  elseif tip_kart == 2
-    if valtype(summa_kassa := (FRCH_d_registr(201))) != "N"
-      return func_error(4,summa_kassa)
-    endif
-  else
-    if valtype(summa_kassa := (FRCH_d_registr(205))) != "N"
-      return func_error(4,summa_kassa)
-    endif
-  endif
-  if v_bank > summa_kassa
-    return func_error(4,"Недостаточная сумма БЕЗНАЛА в кассе")
-  endif
-endif
-mywait()
-last_chek := FR_ret_chek()
-if !empty(s_err := FRCH_vozvrat(value+v_bank))
-  fl := .f.
-  func_error(4,s_err)
-else
-  FR_stroka(" ") // печать в чеке пустой строки перед ФИО больного
-  name_tov := lstr(glob_kartotek)+"  "+fam_i_o(glob_k_fio)
-  FR_stroka(name_tov)
-  if !empty(s_err := FRCH_close(value,v_bank,,0,tip_kart))
-    fl := .f.
-    func_error(4,s_err)
-  endif
-  cur_chek := FR_ret_chek()
-  if !fl .and. last_chek > 0
-    if cur_chek > 0 .and. cur_chek != last_chek
-      fl := .t. ; s_err := ""
-    endif
-  endif
-endif
-FR_gudok()
-if !fl
-  if FRCH_annul() == 1
-    fl_err_annul := .t.
-  endif
-endif
-rest_box(buf)
-if fl_err_annul
-  f_err_annul(s_err)
-elseif !fl
-  write_err_kassa(s_err,"ЧЕК АННУЛИРОВАН")
-endif
-FR_otrezka(1)
-if type("delta_chek") == "N"
-  cur_chek += delta_chek
-endif
-return fl
-
 
 *
 
-***** 17.06.15
+***** 12.08.18
 Function vozvrat_fr(value,bn_value,/*@*/cur_chek,sekcia,tip_banka)
-Local fl := .t.,  buf := save_maxrow(), name_tov, ;
+Local fl := .t.,  buf := save_maxrow(), ;
       s_err := "", s, last_chek, fl_err_annul := .f., summa_kassa := 0
 
 // запрашиваем наличие наличности в кассе
@@ -1068,6 +988,26 @@ endif
 if value > summa_kassa
   return func_error(4,"Недостаточная сумма в кассе")
 endif
+// запрашиваем наличие БЕЗНАЛА в кассе
+if bn_value > 0
+  if tip_banka == 1
+    if valtype(summa_kassa := (FRCH_d_registr(197))) != "N"
+      return func_error(4,summa_kassa)
+    endif
+  elseif tip_banka == 2
+    if valtype(summa_kassa := (FRCH_d_registr(201))) != "N"
+      return func_error(4,summa_kassa)
+    endif
+  else
+    if valtype(summa_kassa := (FRCH_d_registr(205))) != "N"
+      return func_error(4,summa_kassa)
+    endif
+  endif
+  if bn_value > summa_kassa
+    return func_error(4,"Недостаточная сумма БЕЗНАЛА в кассе")
+  endif
+endif
+
 mywait()
 
 DEFAULT sekcia TO 1
@@ -1086,12 +1026,7 @@ select TMP
 go top
 do while !eof()
   if fl .and. tmp->kol1 > 0
-    name_tov := alltrim(tmp->name_u)
-    s_err := FRCH_vozvrat(tmp->u_cena,tmp->kol1,sekcia,name_tov)
-       //cena   - цена товара в рублях
-       //kol_vo - количество товара
-       //sekcia - номер секции
-       //name   - наименование товара
+    s_err := FRCHF_registr(tmp->u_cena,tmp->kol1,sekcia,tmp->name_u,0,2,4,4)
     if (fl := empty(s_err))
       //++cs //количество продаж
     else
@@ -1100,12 +1035,9 @@ do while !eof()
   endif
   skip
 enddo
-//quit
 //  КОНЕЦ печати услуг
-//
 if fl
   s_err := FRCH_close(value,bn_value,,0,tip_banka)
-//  s_err := FRCH_close(lport,s,vbank,,t_nds,tip_kart)
   if (fl := empty(s_err))
     //количество продаж
   else
@@ -1431,56 +1363,15 @@ return NIL
 
 *
 
-***** Продажа товара
-function FRCH_registr(n_port,cena,kol_vo,sekcia,name,t_nds,tip_tovar,tip_rachet)
-/*  n_prot - номер порта
-    cena   - цена товара в рублях
-    kol_vo - количество товара
-    sekcia - номер секции
-    name   - наименование товара
-*/
-return FRCHF_registr(cena,kol_vo,sekcia,name,t_nds,1,tip_tovar,tip_rachet)
-//return FRCHN_registr(cena,kol_vo,sekcia,name,t_nds)
-
-
-*
-
-***** 03.09.17 Продажа товара
-/*function FRCHN_registr(cena,kol_vo,sekcia,name,t_nds)
-//  cena   - цена товара в рублях
-//    kol_vo - количество товара
-//    sekcia - номер секции
-//    name   - наименование товара
-
-local t := ""
-
-drvFR:Password := oper_parol
-drvFR:Quantity := kol_vo
-drvFR:Price    := cena
-drvFR:Department := sekcia
-drvFR:StringForPrinting := upper(alltrim(name))
-drvFR:Tax1 := t_nds
-// HB_CDPSELECT("RU1251")
-IF drvFR:Sale() < 0
-  t := upper(drvFR:ResultCodeDescription)
-  return alltrim(t)
-endif
-HB_CDPSELECT("RU866")
-if (t := upper(drvFR:ResultCodeDescription)) == "ОШИБОК НЕТ"
-  return NIL
-else
-  return alltrim(t)
-endif
-return NIL
-*/
-*
-
-***** 20.09.17 Продажа товара
+***** 12.08.18 Регистрация товара
 function FRCHF_registr(cena,kol_vo,sekcia,name,t_nds,Tip_operation,tip_tovar,tip_rachet)
-/*  cena   - цена товара в рублях
-    kol_vo - количество товара
-    sekcia - номер секции
-    name   - наименование товара
+/*  cena          - цена товара в рублях
+    kol_vo        - количество товара
+    sekcia        - номер секции
+    name          - наименование товара
+    Tip_operation - 1 == продажа 2 == возврат продажи
+    tip_tovar     - тип товара 4 == услуга
+    tip_rachet    - тип расчета 4 == полный
 */
 local t := ""
 
@@ -1490,19 +1381,18 @@ DEFAULT tip_tovar to 4, tip_rachet to 4
 if len(name) > 127
   name := substr(name,1,128)
 endif
-name := alltrim(name)
+name := upper(alltrim(name))
 drvFR:Password := oper_parol
-drvFR:CheckType := Tip_operation // 1 - продажа
+drvFR:CheckType := Tip_operation // 1 - продажа 2 - возврат
 drvFR:Quantity := kol_vo
 drvFR:Price    := cena
 drvFR:Department := sekcia
 drvFR:Summ1Enabled := .F.
-drvFR:StringForPrinting := upper(name)
+drvFR:StringForPrinting := name
 drvFR:Tax1 := t_nds
 drvFR:PaymentTypeSign := 4 //tip_tovar
 drvFR:PaymentItemSign  := 4 //tip_rachet
 
-// HB_CDPSELECT("RU1251")
 IF drvFR:FNOperation() < 0
   t := upper(drvFR:ResultCodeDescription)
   return alltrim(t)
@@ -1518,7 +1408,8 @@ return NIL
 
 *
 
-***** Закрытие чека
+
+***** 12.08.18  Закрытие чека
 function FRCH_close(summa,summa1,name,t_nds,tip_kart)
 /*  summa  - сумма наличных
     summa1 - по кредитной карте
@@ -1534,6 +1425,27 @@ drvFR:Summ1 := 0
 drvFR:Summ2 := 0
 drvFR:Summ3 := 0
 drvFR:Summ4 := 0
+drvFR:Summ5 := 0
+drvFR:Summ6 := 0
+drvFR:Summ7 := 0
+drvFR:Summ8 := 0
+drvFR:Summ9 := 0
+drvFR:Summ10 := 0
+drvFR:Summ11 := 0
+drvFR:Summ12 := 0
+drvFR:Summ13 := 0
+drvFR:Summ14 := 0
+drvFR:Summ15 := 0
+drvFR:Summ16 := 0
+//
+drvFR:TaxValue1  := 0
+drvFR:TaxValue2  := 0
+drvFR:TaxValue3  := 0
+drvFR:TaxValue4  := 0
+drvFR:TaxValue5  := 0
+drvFR:TaxValue6  := 0
+//
+drvFR:RoundingSumm :=2
 //
 drvFR:Summ1 := summa
 if tip_kart == 0 //старые кассы
@@ -1545,9 +1457,13 @@ elseif tip_kart == 2 //VISA
 elseif tip_kart == 3 //Masterkard
   drvFR:Summ4 := summa1
 endif
-drvFR:StringForPrinting := upper(name)
-drvFR:Tax1 := t_nds
-IF drvFR:CloseCheck() < 0
+drvFR:RoundingSumm := 0  //Сумма округления
+drvFR:StringForPrinting := name
+drvFR:TaxValue1 := t_nds //Налоги
+!!!!!! ВНИМАНИЕ !!!!!!
+drvFR:TaxType := 1 //Основная система Налогооблажения
+//
+IF drvFR:FNCloseCheckEx() < 0
   t := upper(drvFR:ResultCodeDescription)
   return alltrim(t)
 endif
@@ -1558,6 +1474,7 @@ else
   return alltrim(t)
 endif
 return NIL
+
 
 *
 
@@ -1654,38 +1571,6 @@ local t := ""
 IF drvFR:PrintDepartmentReport() < 0
    t := drvFR:ResultCodeDescription
    return alltrim(t)
-endif
-return NIL
-
-
-*
-
-***** Возврат продажи (для аннулирования чека)
-function FRCH_vozvrat(cena,kol_vo,sekcia,name)
-/*  cena   - цена товара в рублях
-    kol_vo - количество товара
-    sekcia - номер секции
-    name   - наименование товара
-*/
-local t
-DEFAULT kol_vo TO 1, sekcia TO 1, name TO ""
-
-drvFR:Password := oper_parol
-drvFR:Quantity := kol_vo
-drvFR:Price    := cena
-drvFR:Department := sekcia
-drvFR:StringForPrinting := alltrim(upper(padr(name,90)))
-HB_CDPSELECT("RU1251")
-IF drvFR:ReturnSale() < 0
-   t := drvFR:ResultCodeDescription
-   HB_CDPSELECT("RU866")
-   return alltrim(t)
-endif
-HB_CDPSELECT("RU866")
-if (t := upper(drvFR:ResultCodeDescription)) == "ОШИБОК НЕТ"
-  return NIL
-else
-  return alltrim(t)
 endif
 return NIL
 
