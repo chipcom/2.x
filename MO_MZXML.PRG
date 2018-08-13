@@ -941,7 +941,7 @@ Function f0pr_inog_inostr(ldate_r,_data)
 Local cy := count_years(ldate_r,_data)
 return iif(cy < 100, cy, 99)
 
-***** 12.08.18
+***** 13.08.18
 Function f1pr_inog_inostr(lkod,/*@*/lregion,/*@*/losnov)
 Local rec
 select KART
@@ -970,7 +970,7 @@ if empty(lregion) .and. !eq_any(left(kart_->okatog,2),'  ','00','18')
     set order to 3
     find (str(lkod,7))
     do while human->kod_k == lkod .and. !eof()
-      if human->CENA_1 > 0 .and. human_->oplata < 9 .and. human->kod != rec
+      if human->CENA_1 > 0 .and. human_->oplata < 9 
         if human->komu == 0 .and. val(human_->smo) > 34000 // полис Волгоградский
           lregion := space(3) ; losnov := 0 ; exit         // не учитываем
         endif

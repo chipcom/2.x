@@ -3929,27 +3929,41 @@ Local s := put_val_0(v,l,2)
 DEFAULT fl_plus TO .t.
 return padl(if(empty(s).or.!fl_plus,"","+")+alltrim(s),l)
 
-***** 15.02.18 печать бланков
+***** 13.08.18 печать бланков
 Function prn_blank(k)
-Static si1 := 1, si2 := 1, si3 := 1, si4 := 1, si5 := 1
+Static si1 := 1, si2 := 1, si3 := 1, si4 := 1, si5 := 1, si6 := 1
 Local mas_pmt, mas_msg, mas_fun, j
 DEFAULT k TO 1
 do case
   case k == 1
-    mas_pmt := {"Скорая ~помощь",;
+    mas_pmt := {"~Онкология",;
+                "Скорая ~помощь",;
                 "Диспансеризация детей-~сирот",;
                 "Диспансеризация ~взрослых",;
                 "Медосмотры ~несовершеннолетних"}
-    mas_msg := {"Распечатка бланков для скорой помощи",;
+    mas_msg := {"Распечатка бланков и справочников для онкологических листов учёта",;
+                "Распечатка бланков для скорой помощи",;
                 "Распечатка бланков по диспансеризации детей-сирот",;
                 "Распечатка бланков по диспансеризации и профилактике взрослого населения",;
                 "Распечатка бланков по медицинским осмотрам несовершеннолетних"}
     mas_fun := {"prn_blank(11)",;
                 "prn_blank(12)",;
                 "prn_blank(13)",;
-                "prn_blank(14)"}
+                "prn_blank(14)",;
+                "prn_blank(15)"}
     popup_prompt(T_ROW,T_COL-5,si1,mas_pmt,mas_msg,mas_fun)
   case k == 11
+    mas_pmt := {"~Контрольный лист учёта ЗНО",;
+                "~Правила заполнения контрольного листа учёта ЗНО",;
+                "Справочник соответствия ~стадий TNM (N006)"}
+    mas_msg := {"Распечатка контрольного листа учёта мед.помощи, оказанной пациентам, страдающим ЗНО",;
+                "Распечатка правил заполнения контрольного листа учёта ЗНО",;
+                "Распечатка справочника соответствия стадий TNM (N006)"}
+    mas_fun := {"prn_blank(61)",;
+                "prn_blank(62)",;
+                "prn_blank(63)"}
+    popup_prompt(T_ROW,T_COL-5,si6,mas_pmt,mas_msg,mas_fun)
+  case k == 12
     mas_pmt := {"Приложение к ~карте вызова СМП",;
                 "~Правила заполнения приложения"}
     mas_msg := {"Распечатка приложения к карте вызова скорой помощи",;
@@ -3957,7 +3971,7 @@ do case
     mas_fun := {"prn_blank(21)",;
                 "prn_blank(22)"}
     popup_prompt(T_ROW,T_COL-5,si2,mas_pmt,mas_msg,mas_fun)
-  case k == 12
+  case k == 13
     mas_pmt := {"Диспансеризация детей-~сирот",;
                 "~Памятка по заполнению л/у по диспансеризации детей-сирот"}
     mas_msg := {"Распечатка бланка листа учёта для диспансеризации детей-сирот",;
@@ -3965,7 +3979,7 @@ do case
     mas_fun := {"prn_blank(31)",;
                 "prn_blank(32)"}
     popup_prompt(T_ROW,T_COL-5,si3,mas_pmt,mas_msg,mas_fun)
-  case k == 13
+  case k == 14
     mas_pmt := {"~Диспансеризация I этап",;
                 "Диспансеризация II ~этап",;
                 "~Профилактический осмотр",;
@@ -3979,7 +3993,7 @@ do case
                 "prn_blank(43)",;
                 "prn_blank(44)"}
     popup_prompt(T_ROW,T_COL-5,si4,mas_pmt,mas_msg,mas_fun)
-  case k == 14
+  case k == 15
     mas_pmt := {"Лист учёта ~профилактики несовершеннолетних",;
                 "~Вклыдыш(и) услуг к л/у профилактики несовершеннолетних",;
                 "Лист учёта пред~варительного медосмотра",;
@@ -4017,6 +4031,10 @@ do case
     call_fr("mo_b_predn")
   case k == 54
     call_fr("mo_b_pern")
+  case k == 61 // Контрольный лист учёта ЗНО
+  case k == 62 // Правила заполнения контрольного листа учёта ЗНО
+  case k == 63 // Справочник соответствия стадий TNM
+    pr_sprav_N006()
 endcase
 if k > 10
   j := int(val(right(lstr(k),1)))
@@ -4030,8 +4048,60 @@ if k > 10
     si4 := j
   elseif between(k,51,59)
     si5 := j
+  elseif between(k,61,69)
+    si6 := j
   endif
 endif
+return NIL
+
+***** 13.08.18
+FUNCTION pr_sprav_N006()
+Local sh := 75, HH := 60, reg_print := 2, name_file := "n006.txt", i, ad := {}
+R_Use(dir_exe+"_mo_mkb",cur_dir+"_mo_mkb","DIAG")
+R_Use(dir_exe+"_mo_N002",,"N2")
+index on str(id_st,6) to tmp_n2 memory
+R_Use(dir_exe+"_mo_N003",,"N3")
+index on str(id_t,6) to tmp_n3 memory
+R_Use(dir_exe+"_mo_N004",,"N4")
+index on str(id_n,6) to tmp_n4 memory
+R_Use(dir_exe+"_mo_N005",,"N5")
+index on str(id_m,6) to tmp_n5 memory
+R_Use(dir_exe+"_mo_N006",,"N6")
+index on ds_gr to tmp_n6 unique memory
+dbeval({|| aadd(ad, padr(n6->ds_gr,6)) })
+fp := fcreate(name_file) ; tek_stroke := 0 ; n_list := 1
+add_string(center("Справочник соответствия стадий TNM",sh))
+add_string("")
+for i := 1 to len(ad)
+  verify_FF(HH-2,.t.,sh)
+  add_string(replicate("-",sh))
+  fl := .t.
+  select DIAG
+  find (ad[i])
+  do while diag->shifr == ad[i] .and. !eof()
+    add_string(iif(fl, left(ad[i],4), space(4))+diag->name)
+    fl := .f.
+    skip
+  enddo
+  verify_FF(HH-3,.t.,sh)
+  add_string(replicate("-",sh))
+  add_string(padl("Стадия",15)+padl("Tumor",15)+padl("Nodus",15)+padl("Metastasis",15))
+  add_string(replicate("-",sh))
+  ad[i] := left(ad[i],3)
+  select N6
+  set relation to str(id_st,6) into N2, to str(id_t,6) into N3, to str(id_n,6) into N4, to str(id_m,6) into N5
+  index on id_gr to tmp_n6 for ds_gr == ad[i] memory
+  go top
+  do while !eof()
+    verify_FF(HH,.t.,sh)
+    add_string(padl(n2->kod_st,15)+padl(n3->kod_t,15)+padl(n4->kod_n,15)+padl(n5->kod_m,15))
+    select N6
+    skip
+  enddo   
+next
+fclose(fp)
+close databases
+viewtext(name_file,,,,.t.,,,reg_print)
 return NIL
 
 ***** 28.01.18
