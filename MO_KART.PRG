@@ -88,7 +88,7 @@ if p_edit_kartoteka
 endif
 return mkod
 
-***** 20.08.17
+***** 29.08.17
 Function edit_kartotek_(mkod,_top_r,_bot_r,fl_oms,_Human_kod)
 Static mm_kart_error := {{"нет замечаний",0},{"полис недействителен",-8},{"ошибки в реквизитах",-9}}
 Static mm_invalid := {{"нет",0},{"1 группа",1},{"2 группа",2},{"3 группа",3},{"дети-инвалиды",4}}
@@ -448,6 +448,7 @@ if (title_top := (_top_r == NIL))
 else
   if (_bot_r := _top_r + count_row + 1) > maxrow()-1
     _bot_r := maxrow()-1
+    _top_r := _bot_r - count_row - 1
   endif
 endif
 do while .t.
@@ -630,7 +631,9 @@ do while .t.
                        !empty(mser_ud) .and. empty(del_spec_symbol(mmesto_r))
         func_error(4,iif(m1vid_ud==3,'Для свид-ва о рождении','Для паспорта РФ')+;
                      ' обязательно заполнение поля "Место рождения"')
-        loop
+        if !(glob_mo[_MO_KOD_TFOMS] == '126501')
+          loop
+        endif
       endif
     endif
     func_valid_polis(m1vidpolis,mspolis,mnpolis,between(m1namesmo,34001,34007))
@@ -1076,9 +1079,7 @@ if !empty(s)
 endif
 return fl
 
-*
-
-***** 01.12.16 поиск пациента в картотеке во время режима добавления
+***** 29.08.18 поиск пациента в картотеке во время режима добавления
 Function findKartoteka(k,/*@*/lkod_k)
 Local s, buf, rec := 0
 if lkod_k > 0 ; return .t. ; endif
@@ -1145,6 +1146,7 @@ if rec > 0
     mser_ud     := kart_->ser_ud   // серия удостоверения личности
     mnom_ud     := kart_->nom_ud   // номер удостоверения личности
     mokatog     := kart_->okatog       // код места жительства по ОКАТО
+    mmesto_r    := kart_->mesto_r      // место рождения
     m1okato     := kart_->KVARTAL_D    // ОКАТО субъекта РФ территории страхования
     //
     arr := retFamImOt(1,.f.)

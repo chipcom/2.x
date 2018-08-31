@@ -4,9 +4,9 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-***** просмотр/печать общих справочников
+***** 18.08.18 просмотр/печать общих справочников
 Function o_sprav(k)
-Static sk := 1
+Static sk := 1, sk1 := 1
 Local str_sem, mas_pmt, mas_msg, mas_fun, j
 DEFAULT k TO 0
 do case
@@ -14,19 +14,22 @@ do case
     mas_pmt := {"~Услуги",;
                 "~Диагнозы",;
                 "~Персонал",;
+                "~Онкология",;
                 "~Другие справочники"}
     mas_msg := {"Услуги",;
                 "Диагнозы",;
                 "Персонал",;
+                "Просмотр справочников, относящихся к Приказу ФОМС №59 по онкологии",;
                 "Другие справочники"}
     mas_fun := {"o_sprav(1)",;
                 "o_sprav(2)",;
                 "o_sprav(3)",;
-                "o_sprav(4)"}
+                "o_sprav(4)",;
+                "o_sprav(5)"}
     if mem_kodotd == 2
       aadd(mas_pmt, "Коды ~отделений")
       aadd(mas_msg, "Коды отделений")
-      aadd(mas_fun, "o_sprav(5)")
+      aadd(mas_fun, "o_sprav(6)")
     endif
     uch_otd := saveuchotd()
     popup_prompt(T_ROW,T_COL-5,sk,mas_pmt,mas_msg,mas_fun)
@@ -38,18 +41,33 @@ do case
   case k == 3
     spr_personal()
   case k == 4
-    spr_other()
+    mas_pmt := {"Услуги диагностики при дообследовании на ~ЗНО",;
+                "Услуги по типам лечения ~ОНКОзаболеваний",;
+                "Справочник соответствия стадий TNM (N00~6)"}
+    mas_msg := {"Вывод списка услуг диагностики при дообследовании в направлениях на ЗНО",;
+                "Вывод списка услуг по типам лечения ОНКОзаболеваний",;
+                "Распечатка справочника соответствия стадий TNM (N006)"}
+    mas_fun := {"o_sprav(11)",;
+                "o_sprav(12)",;
+                "o_sprav(13)"}
+    popup_prompt(T_ROW-3-len(mas_pmt),T_COL-5,sk,mas_pmt,mas_msg,mas_fun)
   case k == 5
+    spr_other()
+  case k == 6
     spr_kod_otd()
+  case k == 11 // Вывод списка услуг диагностики при дообследовании в направлениях на ЗНО
+    usl_napr_FFOMS()
+  case k == 12 // Вывод списка услуг по типам лечения ОНКОзаболеваний
+    usl_ksg_FFOMS()
+  case k == 13 // Справочник соответствия стадий TNM
+    pr_sprav_N006()
 endcase
 if k > 0
   sk := k
 endif
 return NIL
 
-*
-
-***** 02.02.16
+***** 18.08.18
 Function fspr_uslugi(k)
 Static _su := 110
 Static sk := 1, sk1 := 1, sk2 := 1
@@ -188,8 +206,6 @@ if k > 0
   endif
 endif
 return NIL
-
-*
 
 ***** 13.01.17
 Function f4_uslugi(reg)
@@ -1738,6 +1754,102 @@ fclose(fp)
 viewtext(name_file,,,,.t.,,,2)
 return NIL
 
+***** 30.08.18 Вывод списка услуг диагностики при дообследовании в направлениях на ЗНО
+Function usl_napr_FFOMS()
+Static arr_gr := {;
+  {"1 - лабораторная диагностика",1},;
+  {"2 - инструментальная диагностика",2},;
+  {"3 - методы лучевой диагностики, за исключением дорогостоящих",3},;
+  {"4 - дорогостоящие методы лучевой диагностики (КТ, МРТ, ангиография)",4}}
+Local i, j, k, buf := save_maxrow(), name_file := "uslugiON"+stxt, sh := 80, HH := 60, t_arr[2], fl, ar 
+if (t_arr := bit_popup(T_ROW,T_COL-5,arr_gr,,color0,1,"Метод диагностического исследования","B/BG")) == NIL
+  return NIL
+endif
+ar := aclone(t_arr)
+mywait()
+R_Use(exe_dir+"_mo8uslf",,"luslf")
+index on str(onko_napr,1)+shifr to (cur_dir+"tmp_uslf")
+fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
+add_string("2018 год")
+add_string(center("Номенклатура услуг диагностики при дообследовании на ЗНО МЗРФ (ФФОМС)",sh))
+add_string(center("(услуги в направлениях при подозрении на ЗНО)",sh))
+for j := 1 to len(ar)
+  fl := .t.
+  find (str(ar[j,2],1))
+  do while luslf->onko_napr == ar[j,2] .and. !eof()
+    k := perenos(t_arr,alltrim(luslf->shifr)+" "+luslf->name,sh)
+    if fl
+      verify_FF(HH-k-3,.t.,sh)
+      add_string(replicate("=",sh))
+      add_string(center(ar[j,1],sh))
+      add_string(replicate("=",sh))
+      fl := .f.
+    endif
+    verify_FF(HH-k,.t.,sh)
+    add_string(padr(t_arr[1],sh))
+    for i := 2 to k
+      add_string(padl(alltrim(t_arr[i]),sh))
+    next
+    skip
+  enddo
+next  
+close databases
+rest_box(buf)
+fclose(fp)
+viewtext(name_file,,,,.t.,,,2)
+return NIL
+
+***** 30.08.18 Вывод списка услуг по типам лечения ОНКОзаболеваний
+Function usl_ksg_FFOMS()
+Static arr_gr := {;
+  {"1 - Хирургическое лечение",1},;
+  {"2 - Лекарственная противоопухолевая терапия",2},;
+  {"3 - Лучевая терапия",3},;
+  {"4 - Химиолучевая терапия",4},;
+  {"5 - Неспецифическое лечение (осложнения противоопухолевой терапии, установка/замена порт системы (катетера))",5},;
+  {"д - Диагностика",9}}
+Local i, j, k, buf := save_maxrow(), name_file := "uslugiOK"+stxt, sh := 80, HH := 60, t_arr[2], fl, ar 
+if (t_arr := bit_popup(T_ROW,T_COL-5,arr_gr,,color0,1,"Тип лечения онкологических заболеваний","B/BG")) == NIL
+  return NIL
+endif
+ar := aclone(t_arr)
+mywait()
+R_Use(exe_dir+"_mo8uslf",,"luslf")
+index on str(onko_ksg,1)+shifr to (cur_dir+"tmp_uslf")
+fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
+add_string("2018 год")
+add_string(center("Номенклатура услуг по типам лечения ОНКОзаболеваний МЗРФ (ФФОМС)",sh))
+for j := 1 to len(ar)
+  fl := .t.
+  find (str(ar[j,2],1))
+  do while luslf->onko_ksg == ar[j,2] .and. !eof()
+    k := perenos(t_arr,alltrim(luslf->shifr)+" "+luslf->name,sh)
+    if fl
+      verify_FF(HH-k-3,.t.,sh)
+      add_string(replicate("=",sh))
+      k := perenos(t_arr,ar[j,1],sh)
+      add_string(center(alltrim(t_arr[1]),sh))
+      if k > 1
+        add_string(center(alltrim(t_arr[2]),sh))
+      endif
+      add_string(replicate("=",sh))
+      fl := .f.
+      k := perenos(t_arr,alltrim(luslf->shifr)+" "+luslf->name,sh)
+    endif
+    verify_FF(HH-k,.t.,sh)
+    add_string(padr(t_arr[1],sh))
+    for i := 2 to k
+      add_string(padl(alltrim(t_arr[i]),sh))
+    next
+    skip
+  enddo
+next  
+close databases
+rest_box(buf)
+fclose(fp)
+viewtext(name_file,,,,.t.,,,2)
+return NIL
+
 ***** 12.01.14
 Function usl1FFOMS()
 Static su := "A01", suA := "01", suB := "001"
@@ -3013,6 +3125,12 @@ if G_SLock1Task(sem_task,sem_vagno) // запрет доступа всем
       index on IDCASE to (cur_dir+"tmpt4")
       use (cur_dir+"tmp_r_t5") new alias T5
       index on IDCASE to (cur_dir+"tmpt5")
+      use (cur_dir+"tmp_r_t5") new alias T6
+      index on IDCASE to (cur_dir+"tmpt6")
+      use (cur_dir+"tmp_r_t5") new alias T7
+      index on IDCASE to (cur_dir+"tmpt7")
+      use (cur_dir+"tmp_r_t5") new alias T8
+      index on IDCASE to (cur_dir+"tmpt8")
       use (cur_dir+"tmp2file") new alias TMP2
       go top
       do while !eof()

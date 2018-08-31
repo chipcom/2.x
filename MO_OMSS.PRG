@@ -103,39 +103,22 @@ if !empty(full_zip)
 endif
 return fl
 
-***** 07.12.17 чтение в память и анализ XML-файла
+***** 28.08.18 чтение в память и анализ XML-файла
 Function read_XML_from_TF(cFile,arr_XML_info,arr_f)
 Local nTypeFile := 0, aerr := {}, j, oXmlDoc, oXmlNode, oNode1, oNode2, ;
       nCountWithErr := 0, adbf, go_to_schet := .f., go_to_akt := .f.,;
       go_to_rpd := .f., buf := save_maxrow()
 nTypeFile := arr_XML_info[1]
-if !myFileDeleted(cur_dir+"tmp1file"+sdbf)
-  return NIL
-endif
-if !myFileDeleted(cur_dir+"tmp2file"+sdbf)
-  return NIL
-endif
-if !myFileDeleted(cur_dir+"tmp3file"+sdbf)
-  return NIL
-endif
-if !myFileDeleted(cur_dir+"tmp4file"+sdbf)
-  return NIL
-endif
-if !myFileDeleted(cur_dir+"tmp_r_t1"+sdbf)
-  return NIL
-endif
-if !myFileDeleted(cur_dir+"tmp_r_t2"+sdbf)
-  return NIL
-endif
-if !myFileDeleted(cur_dir+"tmp_r_t3"+sdbf)
-  return NIL
-endif
-if !myFileDeleted(cur_dir+"tmp_r_t4"+sdbf)
-  return NIL
-endif
-if !myFileDeleted(cur_dir+"tmp_r_t5"+sdbf)
-  return NIL
-endif
+for j := 1 to 4
+  if !myFileDeleted(cur_dir+"tmp"+lstr(j)+"file"+sdbf)
+    return NIL
+  endif
+next  
+for j := 1 to 8
+  if !myFileDeleted(cur_dir+"tmp_r_t"+lstr(j)+sdbf)
+    return NIL
+  endif
+next  
 if eq_any(nTypeFile,_XML_FILE_FLK,_XML_FILE_R02,_XML_FILE_R06)
   //
 elseif !mo_Lock_Task(X_OMS)
@@ -285,6 +268,9 @@ if is_err_FLK
   use (cur_dir+"tmp_r_t3") new alias T3
   use (cur_dir+"tmp_r_t4") new alias T4
   use (cur_dir+"tmp_r_t5") new alias T5
+  use (cur_dir+"tmp_r_t6") new alias T6
+  use (cur_dir+"tmp_r_t7") new alias T7
+  use (cur_dir+"tmp_r_t8") new alias T8
   // заполнить поле "N_ZAP" в файле "tmp2"
   fill_tmp2_file_flk()
   R_Use(dir_server+"mo_otd",,"OTD")
@@ -643,6 +629,12 @@ if empty(aerr)
     index on IDCASE to (cur_dir+"tmpt4")
     use (cur_dir+"tmp_r_t5") new alias T5
     index on IDCASE to (cur_dir+"tmpt5")
+    use (cur_dir+"tmp_r_t6") new alias T6
+    index on IDCASE to (cur_dir+"tmpt6")
+    use (cur_dir+"tmp_r_t7") new alias T7
+    index on IDCASE to (cur_dir+"tmpt7")
+    use (cur_dir+"tmp_r_t8") new alias T8
+    index on IDCASE to (cur_dir+"tmpt8")
     //
     G_Use(dir_server+"mo_kfio",,"KFIO")
     index on str(kod,7) to (cur_dir+"tmp_kfio")
@@ -2722,7 +2714,7 @@ if !empty(full_zip)
 endif
 return NIL
 
-***** 10.05.18 вынуть реестр из XML-файлов и записать во временные DBF-файлы
+***** 27.08.18 вынуть реестр из XML-файлов и записать во временные DBF-файлы
 Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
 Local _table1 := {;
    {"KOD",      "N", 6,0},; // код
@@ -2798,11 +2790,22 @@ Local _table1 := {;
    {"DS3"   ,   "C", 6,0},; //
    {"DS3_2" ,   "C", 6,0},; //
    {"DS3_3" ,   "C", 6,0},; //
+   {"DS_ONK",   "C", 1,0},; //
+   {"C_ZAB" ,   "C", 1,0},; //
    {"DN"    ,   "C", 1,0},; //
    {"VNOV_M",   "C", 4,0},; // вес новорожденного в граммах
    {"VNOV_M_2", "C", 4,0},; // вес новорожденного в граммах
    {"VNOV_M_3", "C", 4,0},; // вес новорожденного в граммах
    {"CODE_MES1","C",20,0},; //
+   {"DS1_T"    ,"C", 1,0},; // Повод обращения:0 - первичное лечение;1 - рецидив;2 - прогрессирование
+   {"PR_CONS"  ,"C", 1,0},; // Сведения о проведении консилиума:1 - определена тактика обследования;2 - определена тактика лечения;3 - изменена тактика лечения.
+   {"DT_CONS"  ,"C",10,0},; // Дата проведения консилиума	Обязательно к заполнению при заполненном PR_CONS
+   {"STAD"     ,"C", 3,0},; // Стадия заболевания	Заполняется в соответствии со справочником N002 
+   {"ONK_T"    ,"C", 3,0},; // Значение Tumor	Заполняется в соответствии со справочником N003 
+   {"ONK_N"    ,"C", 3,0},; // Значение Nodus	Заполняется в соответствии со справочником N004 
+   {"ONK_M"    ,"C", 3,0},; // Значение Metastasis 	Заполняется в соответствии со справочником N005 
+   {"MTSTZ"    ,"C", 1,0},; // Признак выявления отдалённых метастазов	Подлежит заполнению значением 1 при выявлении отдалённых метастазов только при DS1_T=1 или DS1_T=2 
+   {"SOD"      ,"C", 6,0},;  // Суммарная очаговая доза	Обязательно для заполнения при проведении лучевой или химиолучевой терапии (USL_TIP=3 или USL_TIP=4)
    {"RSLT"    , "C", 3,0},; //
    {"ISHOD"   , "C", 3,0},; //
    {"PRVS"    , "C", 9,0},; //
@@ -2839,6 +2842,11 @@ Local _table2 := {;
    {"KOL_USL" , "C", 6,0},; //
    {"TARIF"   , "C",10,0},; //
    {"SUMV_USL", "C",10,0},; //
+   {"USL_TIP"  ,"C", 1,0},; // Тип онкоуслуги в соответствии со справочником N013	
+   {"HIR_TIP"  ,"C", 1,0},; // Тип хирургического лечения При USL_TIP=1 в соответствии со справочником N014	
+   {"LEK_TIP_L","C", 1,0},; // Линия лекарственной терапии При USL_TIP=2 в соответствии со справочником N015	
+   {"LEK_TIP_V","C", 1,0},; // Цикл лекарственной терапии	При USL_TIP=2 в соответствии со справочником N016
+   {"LUCH_TIP" ,"C", 1,0},; // Тип лучевой терапии	При USL_TIP=3,4 в соответствии со справочником N017
    {"PRVS"    , "C", 9,0},; //
    {"CODE_MD",  "C",16,0},; //
    {"COMENTU" , "C",99,0};  //
@@ -2888,8 +2896,29 @@ Local _table5 := {;
    {"NAZ_PMP" , "C", 3,0},; //
    {"NAZ_PK"  , "C", 3,0}; //
   }
-Local arr_f, ii, oXmlDoc, j, j1, _ar, buf := save_maxrow(),;
-      name_zip := alltrim(mname_xml)+szip, fl := .f.
+Local _table6 := {;  // онконаправления
+   {"KOD",      "N", 6,0},; // код
+   {"IDCASE",   "C",12,0},; // номер позиции записи в реестре;поле "IDCASE" (и "ZAP") в реестре случаев
+   {"NAPR_DATE","C",10,0},; // Дата направления
+   {"NAPR_V"  , "C", 1,0},; // Вид направления:1-к онкологу,2-на биопсию,3-на дообследование,4-для опр.тактики лечения
+   {"MET_ISSL" ,"C", 1,0},; // Метод диагностического исследования(при NAPR_V=3):1-лаб.диагностика;2-инстр.диагностика;3-луч.диагностика;4-КТ, МРТ, ангиография
+   {"U_KOD"    ,"C",15,0};  // шифр услуги
+  }
+Local _table7 := {;  // Диагностический блок
+   {"KOD",      "N", 6,0},; // код
+   {"IDCASE",   "C",12,0},; // номер позиции записи в реестре;поле "IDCASE" (и "ZAP") в реестре случаев
+   {"DIAG_DATE","C",10,0},; // Дата взятия материала для проведения диагностики
+   {"DIAG_TIP" ,"C", 1,0},; // Тип диагностического показателя: 1 - гистологический признак; 2 - маркёр (ИГХ)
+   {"DIAG_CODE","C", 3,0},; // Код диагностического показателя При DIAG_TIP=1 в соответствии со справочником N007 При DIAG_TIP=2 в соответствии со справочником N010 
+   {"DIAG_RSLT","C", 3,0};  // Код результата диагностики При DIAG_TIP=1 в соответствии со справочником N008 При DIAG_TIP=2 в соответствии со справочником N011
+  }
+Local _table8 := {;  // Сведения об имеющихся противопоказаниях
+   {"KOD",      "N", 6,0},; // код
+   {"IDCASE",   "C",12,0},; // номер позиции записи в реестре;поле "IDCASE" (и "ZAP") в реестре случаев
+   {"PROT"     ,"C", 1,0},; // Код противопоказания или отказа в соответствии со справочником N001
+   {"D_PROT"   ,"C",10,0};  // Дата регистрации противопоказания или отказа
+  }
+Local arr_f, ii, oXmlDoc, j, j1, _ar, buf := save_maxrow(), name_zip := alltrim(mname_xml)+szip, fl := .f.
 //
 DEFAULT flag_tmp1 TO .f., is_all TO .t.,;
         goal_dir TO dir_server+dir_XML_MO+cslash
@@ -2903,11 +2932,17 @@ if (arr_f := Extract_Zip_XML(goal_dir,name_zip)) != NIL
   dbcreate(cur_dir+"tmp_r_t3",_table3)
   dbcreate(cur_dir+"tmp_r_t4",_table4)
   dbcreate(cur_dir+"tmp_r_t5",_table5)
+  dbcreate(cur_dir+"tmp_r_t6",_table6)
+  dbcreate(cur_dir+"tmp_r_t7",_table7)
+  dbcreate(cur_dir+"tmp_r_t8",_table8)
   use (cur_dir+"tmp_r_t1") new alias T1
   use (cur_dir+"tmp_r_t2") new alias T2
   use (cur_dir+"tmp_r_t3") new alias T3
   use (cur_dir+"tmp_r_t4") new alias T4
   use (cur_dir+"tmp_r_t5") new alias T5
+  use (cur_dir+"tmp_r_t6") new alias T6
+  use (cur_dir+"tmp_r_t7") new alias T7
+  use (cur_dir+"tmp_r_t8") new alias T8
   if flag_tmp1
     dbcreate(cur_dir+"tmp1file", {;
      {"_VERSION",   "C",  5,0},;
@@ -3035,6 +3070,8 @@ if (arr_f := Extract_Zip_XML(goal_dir,name_zip)) != NIL
                 pole := "t1->DS3"+iif(j1==1, "", "_"+lstr(j1))
                 &pole := _ar[j1]
               next
+              t1->DS_ONK := mo_read_xml_stroke(oNode1,"DS_ONK",,.f.)
+              t1->C_ZAB := mo_read_xml_stroke(oNode1,"C_ZAB",,.f.)
               t1->DN := mo_read_xml_stroke(oNode1,"DN",,.f.)
               t1->MSE := mo_read_xml_stroke(oNode1,"MSE",,.f.)
               _ar := mo_read_xml_array(oNode1,"VNOV_M") // М.Б.НЕСКОЛЬКО VNOV_M
@@ -3043,18 +3080,49 @@ if (arr_f := Extract_Zip_XML(goal_dir,name_zip)) != NIL
                 &pole := _ar[j1]
               next
               t1->CODE_MES1:= mo_read_xml_stroke(oNode1,"CODE_MES1",,.f.)
-              t1->RSLT     := mo_read_xml_stroke(oNode1,"RSLT")
+              if (oNode3 := oNode1:Find("ONK_SL")) != NIL
+                t1->DS1_T := mo_read_xml_stroke(oNode3,"DS1_T",,.f.)
+                t1->PR_CONS := mo_read_xml_stroke(oNode3,"PR_CONS",,.f.)
+                t1->DT_CONS := mo_read_xml_stroke(oNode3,"DT_CONS",,.f.)
+                t1->STAD := mo_read_xml_stroke(oNode3,"STAD",,.f.) 
+                t1->ONK_T := mo_read_xml_stroke(oNode3,"ONK_T",,.f.) 
+                t1->ONK_N := mo_read_xml_stroke(oNode3,"ONK_N",,.f.) 
+                t1->ONK_M := mo_read_xml_stroke(oNode3,"ONK_M",,.f.) 
+                t1->MTSTZ := mo_read_xml_stroke(oNode3,"MTSTZ",,.f.) 
+                for j1 := 1 to len(oNode3:aitems) // последовательный просмотр
+                  oNode2 := oNode3:aItems[j1]     // т.к. услуг м.б. несколько
+                  if valtype(oNode2) != "C" .AND. oNode2:title == "B_DIAG"
+                    select T7
+                    append blank
+                    t7->KOD       := mkod
+                    t7->IDCASE    := t1->IDCASE // для связи со случаем
+                    t7->DIAG_DATE := mo_read_xml_stroke(oNode2,"DIAG_DATE",,.f.) 
+                    t7->DIAG_TIP  := mo_read_xml_stroke(oNode2,"DIAG_TIP",,.f.) 
+                    t7->DIAG_CODE := mo_read_xml_stroke(oNode2,"DIAG_CODE",,.f.) 
+                    t7->DIAG_RSLT := mo_read_xml_stroke(oNode2,"DIAG_RSLT",,.f.) 
+                  elseif valtype(oNode2) != "C" .AND. oNode2:title == "B_PROT"
+                    select T8
+                    append blank
+                    t8->KOD    := mkod
+                    t8->IDCASE := t1->IDCASE // для связи со случаем
+                    t8->PROT   := mo_read_xml_stroke(oNode2,"PROT",,.f.) 
+                    t8->D_PROT := mo_read_xml_stroke(oNode2,"D_PROT",,.f.) 
+                  endif
+                next j1
+                t1->SOD := mo_read_xml_stroke(oNode3,"SOD",,.f.)
+              endif
+              t1->RSLT := mo_read_xml_stroke(oNode1,"RSLT")
               if (oNode3 := oNode1:Find("PRESCRIPTION")) != NIL
                 for i := 1 to len(oNode3:aitems) // последовательный просмотр
                   oNode2 := oNode3:aItems[i]     // т.к. назначений м.б. несколько
                   if valtype(oNode2) != "C" .AND. oNode2:title == "PRESCRIPTIONS"
                     select T5
                     append blank
-                    t5->KOD      := mkod
-                    t5->IDCASE   := t1->IDCASE // для связи со случаем
-                    t5->NAZ_N    := mo_read_xml_stroke(oNode2,"NAZ_N",,.f.)  // версия 3.1
-                    t5->NAZ_R    := mo_read_xml_stroke(oNode2,"NAZ_R",,.f.)  // версия 3.1
-                    t5->NAZR     := mo_read_xml_stroke(oNode2,"NAZR",,.f.)
+                    t5->KOD    := mkod
+                    t5->IDCASE := t1->IDCASE // для связи со случаем
+                    t5->NAZ_N  := mo_read_xml_stroke(oNode2,"NAZ_N",,.f.)  // версия 3.1
+                    t5->NAZ_R  := mo_read_xml_stroke(oNode2,"NAZ_R",,.f.)  // версия 3.1
+                    t5->NAZR   := mo_read_xml_stroke(oNode2,"NAZR",,.f.)
                     _ar := mo_read_xml_array(oNode2,"NAZ_SP") // М.Б.НЕСКОЛЬКО NAZ_SP
                     for j1 := 1 to min(3,len(_ar))
                       pole := "t5->NAZ_SP"+lstr(j1)
@@ -3089,7 +3157,16 @@ if (arr_f := Extract_Zip_XML(goal_dir,name_zip)) != NIL
               endif
               for j1 := 1 to len(oNode1:aitems) // последовательный просмотр
                 oNode2 := oNode1:aItems[j1]     // т.к. услуг м.б. несколько
-                if valtype(oNode2) != "C" .AND. oNode2:title == "USL"
+                if valtype(oNode2) != "C" .AND. oNode2:title == "NAPR"
+                  select T6
+                  append blank
+                  t6->KOD      := mkod
+                  t6->IDCASE   := t1->IDCASE // для связи со случаем
+                  t6->NAPR_DATE:= mo_read_xml_stroke(oNode2,"NAPR_DATE")
+                  t6->NAPR_V   := mo_read_xml_stroke(oNode2,"NAPR_V")
+                  t6->MET_ISSL := mo_read_xml_stroke(oNode2,"MET_ISSL")
+                  t6->U_KOD    := mo_read_xml_stroke(oNode2,"NAPR_USL")
+                elseif valtype(oNode2) != "C" .AND. oNode2:title == "USL"
                   select T2
                   append blank
                   t2->KOD      := mkod
@@ -3110,6 +3187,13 @@ if (arr_f := Extract_Zip_XML(goal_dir,name_zip)) != NIL
                   t2->KOL_USL  := mo_read_xml_stroke(oNode2,"KOL_USL")
                   t2->TARIF    := mo_read_xml_stroke(oNode2,"TARIF")
                   t2->SUMV_USL := mo_read_xml_stroke(oNode2,"SUMV_USL")
+                  if (oNode3 := oNode2:Find("ONK_USL")) != NIL
+                    t2->USL_TIP  := mo_read_xml_stroke(oNode3,"USL_TIP",,.f.)
+                    t2->HIR_TIP  := mo_read_xml_stroke(oNode3,"HIR_TIP",,.f.)
+                    t2->LEK_TIP_L:= mo_read_xml_stroke(oNode3,"LEK_TIP_L",,.f.)
+                    t2->LEK_TIP_V:= mo_read_xml_stroke(oNode3,"LEK_TIP_V",,.f.)
+                    t2->LUCH_TIP := mo_read_xml_stroke(oNode3,"LUCH_TIP",,.f.)
+                  endif
                   t2->PRVS     := mo_read_xml_stroke(oNode2,"PRVS")
                   t2->CODE_MD  := mo_read_xml_stroke(oNode2,"CODE_MD",,.f.)
                   t2->COMENTU  := mo_read_xml_stroke(oNode2,"COMENTU",,.f.)

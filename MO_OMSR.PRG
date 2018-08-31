@@ -399,7 +399,7 @@ return lp
 
 *
 
-***** 10.05.18
+***** 28.08.18
 Function verify_1_sluch(fl_view)
 Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
       i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -412,7 +412,8 @@ endif
 DEFAULT fl_view TO .t.
 rec_human := human->(recno())
 Private mdate_r := human->date_r, mvozrast, mdvozrast, M1VZROS_REB := human->VZROS_REB,;
-        arr_usl_otkaz := {}, m1novor := 0, mpol := human->pol, mDATE_R2 := ctod("")
+        arr_usl_otkaz := {}, m1novor := 0, mpol := human->pol, mDATE_R2 := ctod(""),;
+        version_3_1 := left(dtos(human->k_data),6) > "201808" // с сентября 2018 года
 if human_->NOVOR > 0
   m1novor := 1 // для переопределения M1VZROS_REB
   mDATE_R2 := human_->DATE_R2
@@ -1323,9 +1324,11 @@ do while mohu->kod == human->kod .and. !eof()
   elseif mohu->profil != correct_profil(mohu->profil)
     mohu->profil := correct_profil(mohu->profil)
   endif
+  ltip_onko := 0
   dbSelectArea(al)
   find (padr(lshifr,20)) 
   if found()
+    ltip_onko := &al.->onko_ksg
     do case
       case human_->usl_ok == 1
         if &al.->tip == 2
@@ -1358,8 +1361,6 @@ do while mohu->kod == human->kod .and. !eof()
     mohu->ID_U := mo_guid(4,mohu->(recno()))
   endif
   mohu->date_u2 := mohu->date_u
-  mohu->PZTIP := 0
-  mohu->PZKOL := 0
   if empty(mohu->kod_diag) .and. len(mdiagnoz) > 0
     mohu->kod_diag := mdiagnoz[1]
   endif
@@ -1375,10 +1376,54 @@ do while mohu->kod == human->kod .and. !eof()
                mosu->shifr,;          // 5
                mohu->kol_1,;          // 6
                c4tod(mohu->date_u2),; // 7
-               mohu->kod_diag})       // 8
+               mohu->kod_diag,;       // 8
+               mohu->(recno()),;      // 9
+               ltip_onko,;            // 10 тип онкологического лечения
+               .f.})                  // 11 тип онкологического лечения ставим в услугу
   select MOHU
   skip
 enddo
+v := 0
+if version_3_1
+  select ONKUS
+  find (str(human->kod,7))
+  do while onkus->kod == human->kod .and. !eof()
+    if onkus->USL_TIP > 0 // Тип онкоуслуги в соответствии со справочником N013
+      if (i := ascan(au_flu, {|x| x[10] == onkus->USL_TIP })) > 0
+        select MOHU
+        goto (au_flu[i,9])
+        G_RLock(forever)
+        mohu->USL_TIP := onkus->USL_TIP	
+        mohu->HIR_TIP := onkus->HIR_TIP	
+        mohu->LEK_TIP_L := onkus->LEK_TIP_L	
+        mohu->LEK_TIP_V := onkus->LEK_TIP_V
+        mohu->LUCH_TIP := onkus->LUCH_TIP
+        mohu->PZKOL := onkus->SOD
+        v += onkus->SOD
+        au_flu[i,11] := .t. 
+      else
+        // !!!!!!!!!!!!!!!!!!!!!! ошибка
+      endif	
+    endif
+    select ONKUS
+    skip
+  enddo
+  for i := 1 to len(au_flu)
+    if !au_flu[i,11]  // очистим те услуги, в которых ничего не прописали
+      select MOHU
+      goto (au_flu[i,9])
+      if mohu->USL_TIP > 0
+        G_RLock(forever)
+        mohu->USL_TIP := 0	
+        mohu->HIR_TIP := 0	
+        mohu->LEK_TIP_L := 0	
+        mohu->LEK_TIP_V := 0
+        mohu->LUCH_TIP := 0
+        mohu->PZKOL := 0
+      endif
+    endif
+  next i
+endif  
 mpztip := mpzkol := 0
 if !(round(human->cena_1,2) == round(ssumma,2))
   aadd(ta,'Сумма случая '+lstr(human->cena_1)+' не равна сумме услуг '+lstr(ssumma))
@@ -1538,9 +1583,6 @@ if fl_stom
     endif
   endif 
 endif
-if eq_any(human_->USL_OK,1,2) .and. empty(human_2->profil_k)
-  aadd(ta,'в случае не проставлен профиль койки')
-endif  
 if human_->USL_OK == 1  // стационар
   if kol_ksg > 1
     aadd(ta,'введено более одной КСГ')
@@ -2081,6 +2123,46 @@ if empty(human_->USL_OK)
 endif
 if empty(human_->PROFIL)
   aadd(ta,'не заполнено поле "Профиль"')
+elseif eq_any(human_->USL_OK,1,2)
+  if empty(human_2->profil_k)
+    aadd(ta,'в случае не проставлен профиль койки')
+  else
+    if select("PRPRK") == 0
+      R_Use(dir_exe+"_mo_prprk",cur_dir+"_mo_prprk","PRPRK")
+      //index on str(profil,3)+str(profil_k,3) to (cur_dir+sbase)
+    endif
+    select PRPRK
+    find (str(human_->profil,3)+str(human_2->profil_k,3))
+    if found()
+      if !empty(prprk->vozr)
+        if human->vzros_reb == 0
+          if prprk->vozr == "Д"
+            aadd(ta,'возраст пациента не соответствует профилю койки')
+          endif
+        else
+          if prprk->vozr == "Ж"
+            aadd(ta,'возраст пациента не соответствует профилю койки')
+          endif
+        endif
+      endif                
+      if !empty(prprk->pol) .and. !(human->pol == prprk->pol)
+        aadd(ta,'значение поля "Пол" не соответствует профилю койки')
+      endif
+    else                
+      s := ""
+      select PRPRK
+      find (str(human_->profil,3))
+      do while prprk->profil == human_->profil .and. !eof()
+        s += '"'+inieditspr(A__MENUVERT, glob_V020, prprk->profil_k)+'" '
+        skip
+      enddo
+      if empty(s)
+        aadd(ta,'профиль медицинской помощи не оплачивается в ОМС')
+      else
+        aadd(ta,'профиль мед.помощи не соответствует профилю койки; допустимый профиль койки: '+s)
+      endif
+    endif
+  endif  
 endif
 if empty(human_->IDSP)
   aadd(ta,'не заполнено поле "Способ оплаты"')
@@ -2810,7 +2892,7 @@ if is_prof_PN //
         endif
       next j
     endif
-    is_1_den := is_last_den := .f. ; zs := kvp := 0 ; oth_usl := "" ; is_neonat := .f.
+    is_1_den := is_last_den := .f. ; zs := kvp := 0 ; oth_usl := kod_zs := "" ; is_neonat := .f.
     for i := 1 to len(au_lu)
       if au_lu[i,3] == 0
         aadd(ta,'в услуге '+alltrim(au_lu[i,1])+' не проставлен профиль')
@@ -2824,6 +2906,9 @@ if is_prof_PN //
       if is_issled_PN(au_lu[i],mperiod,ta,mpol)
         s := 'услуга '+au_lu[i,5]+'('+date_8(au_lu[i,2])+')'
         if mvozrast < 2
+          if left(au_lu[i,5],5) == "4.26."
+            is_neonat := .t.
+          endif
           if au_lu[i,2] < addmonth(d1,-1)
             aadd(ta,s+' оказана более 1 месяца назад')
           endif
@@ -2856,11 +2941,7 @@ if is_prof_PN //
         endif
         if left(au_lu[i,1],5) == "72.2."
           ++zs
-          s := ret_shifr_zs_PN(mperiod)
-          if !(alltrim(au_lu[i,1]) == s)
-            aadd(ta,'в л/у услуга '+alltrim(au_lu[i,1])+', а должна быть '+s+;
-                    ' для возраста '+lstr(mvozrast)+' '+s_let(mvozrast))
-          endif
+          kod_zs := alltrim(au_lu[i,1])
         elseif eq_any(au_lu[i,3],68,57) // педиатр (врач общей практики)
           ++kvp
           if d1 == au_lu[i,2]
@@ -2884,7 +2965,13 @@ if is_prof_PN //
         endif
       endif
     next
-    if metap == 1 .and. zs > 1
+    if metap == 1 .and. zs == 1
+      s := ret_shifr_zs_PN(mperiod)
+      if !(kod_zs == s)
+        aadd(ta,'в л/у услуга '+kod_zs+', а должна быть '+s+;
+                ' для возраста '+lstr(mvozrast)+' '+s_let(mvozrast))
+      endif
+    elseif metap == 1 .and. zs > 1
       aadd(ta,'в листе учета более одной услуги "законченный случай"')
     elseif metap == 2 .and. zs > 0
       aadd(ta,'для двухэтапной профилактики несовершеннолетних не должно быть услуг "законченный случай"')
@@ -3656,6 +3743,11 @@ set relation to u_kod into MOSU
 G_Use(dir_server+"kartote_",,"KART_")
 R_Use(dir_server+"kartotek",,"KART")
 set relation to recno() into KART_
+G_Use(dir_server+"mo_onkna",dir_server+"mo_onkna","ONKNA") // онконаправления
+G_Use(dir_server+"mo_onksl",dir_server+"mo_onksl","ONKSL") // Сведения о случае лечения онкологического заболевания
+G_Use(dir_server+"mo_onkdi",dir_server+"mo_onkdi","ONKDI") // Диагностический блок
+G_Use(dir_server+"mo_onkpr",dir_server+"mo_onkpr","ONKPR") // Сведения об имеющихся противопоказаниях
+G_Use(dir_server+"mo_onkus",dir_server+"mo_onkus","ONKUS")
 G_Use(dir_server+"human_2",,"HUMAN_2")
 G_Use(dir_server+"human_",,"HUMAN_")
 G_Use(dir_server+"human",dir_server+"humand","HUMAN")

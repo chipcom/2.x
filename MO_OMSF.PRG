@@ -485,7 +485,7 @@ if empty(mdiagnoz[1]) // если пустой основной диагноз, заполним его
 endif
 return mdiagnoz
 
-***** вернуть диагнозы в массиве
+***** 17.08.2018 вернуть диагнозы в массиве
 Function diag_to_array(al,fl_trim,fl_dop,fl_del,fl_6,adiag_talon)
 Local ad, _arr := {}, j, k, s, lshifr, dp, dp1, _ta, tmp_select := select()
 DEFAULT al      TO "human", ; // alias БД листов учета
@@ -493,14 +493,25 @@ DEFAULT al      TO "human", ; // alias БД листов учета
         fl_dop  TO .f., ;     // дописывать букву
         fl_del  TO .t., ;     // удалять повторяющиеся диагнозы
         fl_6    TO .f.        // разрешать поиск шестизначных диагнозов
-ad := {&al.->KOD_DIAG ,;
-       &al.->KOD_DIAG2,;
-       &al.->KOD_DIAG3,;
-       &al.->KOD_DIAG4,;
-       &al.->SOPUT_B1 ,;
-       &al.->SOPUT_B2 ,;
-       &al.->SOPUT_B3 ,;
-       &al.->SOPUT_B4}
+if empty(al)
+  ad := {MKOD_DIAG ,;
+         MKOD_DIAG2,;
+         MKOD_DIAG3,;
+         MKOD_DIAG4,;
+         MSOPUT_B1 ,;
+         MSOPUT_B2 ,;
+         MSOPUT_B3 ,;
+         MSOPUT_B4}
+else        
+  ad := {&al.->KOD_DIAG ,;
+         &al.->KOD_DIAG2,;
+         &al.->KOD_DIAG3,;
+         &al.->KOD_DIAG4,;
+         &al.->SOPUT_B1 ,;
+         &al.->SOPUT_B2 ,;
+         &al.->SOPUT_B3 ,;
+         &al.->SOPUT_B4}
+endif       
 if fl_6
   if select("MKB_10") == 0
     R_Use(dir_exe+"_mo_mkb",cur_dir+"_mo_mkb","MKB_10")
@@ -523,15 +534,17 @@ for j := 1 to 8
         dp += "д"+lstr(s)
       endif
     endif
-    k := substr(&al.->diag_plus,j,1)
-    if fl_6 .and. !empty(k)
-      find (ad[j]+k)
-      if found() // если нашли шестизначный шифр
-        lshifr := ad[j]+k
+    if !empty(al)
+      k := substr(&al.->diag_plus,j,1)
+      if fl_6 .and. !empty(k)
+        find (ad[j]+k)
+        if found() // если нашли шестизначный шифр
+          lshifr := ad[j]+k
+        endif
       endif
-    endif
-    if fl_dop .and. !empty(k) .and. k $ yes_d_plus
-      dp1 := k
+      if fl_dop .and. !empty(k) .and. k $ yes_d_plus
+        dp1 := k
+      endif
     endif
     aadd(_arr, {lshifr,dp+dp1})
   endif
@@ -894,11 +907,12 @@ if hb_fileExists(dir_server+"usl1year"+smem)
 endif
 return arr1
 
-*****
+***** 18.08.18
 Function verify_uva(reg)
 Local i
 DEFAULT reg TO 1
-if len(arr_uva) > 0 .and. (i := ascan(arr_uva, {|x| like(x[1],alltrim(mshifr)) } )) > 0
+if type("arr_uva") == "A" .and. len(arr_uva) > 0 ;
+                          .and. (i := ascan(arr_uva, {|x| like(x[1],alltrim(mshifr)) } )) > 0
   if arr_uva[i,2] == 1
     vr_uva := .f.
     mkod_vr := 0 ; mvrach := space(35)
@@ -1054,6 +1068,105 @@ if left(lshifr,2) == sl
 endif
 return fl
 
+***** 28.08.2018
+Function f_valid_tnm(g)
+Local buf    
+if !emptyany(m1ONK_T,m1ONK_N,m1ONK_M)
+  select N6
+  find (left(mkod_diag,3))
+  if found()
+    find (left(mkod_diag,3)+str(m1ONK_T,6)+str(m1ONK_N,6)+str(m1ONK_M,6))
+    if found()
+      if m1stad != n6->id_st
+        m1stad := n6->id_st
+        mSTAD  := padr(inieditspr(A__MENUVERT, mm_N002, m1STAD),5)
+        buf := save_maxrow()
+        stat_msg('Справочник N006: по сочетанию стадий TNM исправлено поле "Стадия"') ; mybell(1,OK)
+        rest_box(buf)
+        update_get("mstad")
+      endif
+    else
+      func_error(2,"Справочник N006: некорректное сочетание стадий TNM")
+    endif
+  endif  
+endif
+return .t.
+
+***** 19.08.18
+Function when_ds_onk()
+Private yes_oncology := .f.
+f_is_oncology(2)
+return !yes_oncology
+
+***** 20.08.18
+Function f_is_oncology(r)
+Local i, k, mdiagnoz, lprofil, lzno := 0
+if r == 1
+  mdiagnoz := diag_to_array()
+  lprofil := human_->profil
+  if human->OBRASHEN == '1'
+    lzno := 1
+  endif
+else
+  mdiagnoz := diag_to_array(" ")
+  lprofil := m1profil
+  lzno := m1ds_onk
+endif
+if empty(mdiagnoz)
+  aadd(mdiagnoz,space(6))
+endif
+k := lzno  
+if left(mdiagnoz[1],1) == "C"
+  k := 2
+elseif left(mdiagnoz[1],3) == "D70"
+  for i := 2 to len(mdiagnoz)
+    if left(mdiagnoz[i],1) == "C"
+      if between(left(mdiagnoz[i],3),"C00","C80") .or. left(mdiagnoz[i],3) == "C97"
+        k := 2
+      endif
+    endif
+  next
+endif
+if k == 2
+  yes_oncology := .t.
+  m1ds_onk := 0 ; mds_onk := inieditspr(A__MENUVERT, mm_danet, m1ds_onk)
+  if lprofil == 158
+    k := 1
+  endif
+endif
+return k
+
+***** 22.08.18
+Function f_valid_usl_tip(g,o)
+if o != NIL .and. o != m1usl_tip
+  lstr1 := space(12) ; m1usl_tip1 := 0 ;  musl_tip1 := space(69)
+  lstr2 := space(13) ; m1usl_tip2 := 0 ;  musl_tip2 := space(19)
+  lstr3 := space(3) ; mvsod := 0 ; msod := space(6)
+  if between(m1usl_tip,1,4) 
+    lstr1 := padr(mm_str1[m1usl_tip+1],12)
+    if m1usl_tip == 1
+      mm_usl_tip1 := mm_N014
+    elseif m1usl_tip == 2 
+      lstr2 := "Линия терапии"
+      mm_usl_tip1 := mm_N016
+      mm_usl_tip2 := mm_N015
+      musl_tip2 := padr(mm_usl_tip2[1,1],19) ; m1usl_tip2 := mm_usl_tip2[1,2]
+    elseif between(m1usl_tip,3,4) 
+      mm_usl_tip1 := mm_N017
+      lstr3 := "СОД"
+      msod := padr(alltrim(str_0(mvsod,6,2)),6)
+    endif
+    musl_tip1 := padr(mm_usl_tip1[1,1],69) ; m1usl_tip1 := mm_usl_tip1[1,2]
+  endif
+  update_get("lstr1")
+  update_get("musl_tip1")
+  update_get("lstr2")
+  update_get("musl_tip2")
+  update_get("lstr3")
+  update_get("msod")
+endif
+return .t.
+
 ***** 06.08.18
 Function is_usluga_disp_nabl(_shifr,_shifr1)
 if empty(_shifr1)
@@ -1063,7 +1176,7 @@ else
 endif  
 return between_shifr(_shifr,"2.78.61","2.78.84") .or. between_shifr(_shifr,"2.88.52","2.88.75")
 
-***** 04.09.17 функция для when и valid при вводе услуг в лист учёта
+***** 18.08.18 функция для when и valid при вводе услуг в лист учёта
 Function f5editkusl(get,when_valid,k)
 Local fl := .t., s, i, lu_cena, lshifr1, v, old_kod, amsg, arr_zf, fl1, fl2, ;
       msg1_err := "Код врача равен коду ассистента! Это недопустимо.",;
@@ -1101,7 +1214,7 @@ else  // valid
     if !empty(mshifr) .and. !(mshifr == get:original)
       mshifr := transform_shifr(mshifr)
       // сначала проверим на код лаб.услуги, направляемой в ЦКДЛ
-      if is_lab_usluga(mshifr)
+      if is_lab_usluga(mshifr) .and. !(type("is_oncology") == "N")
         fl := .f.
         if f1cena_oms(mshifr,;
                       mshifr,;
@@ -1158,6 +1271,8 @@ else  // valid
       select LUSLF
       find (padr(mshifr,20))
       if found() .and. alltrim(mshifr) == alltrim(luslf->shifr)
+        tip_onko_napr := luslf->onko_napr
+        tip_onko_ksg := luslf->onko_ksg
         fl1 := .t.
         select MOSU
         set order to 3
@@ -1213,6 +1328,12 @@ else  // valid
           @ row_dom,1 say space(78) color color1
         endif
         return fl  // !!!!!!!!!!!!!!!!!!!!!
+      endif
+      if type("is_oncology") == "N"
+        if !empty(mshifr)
+          fl := func_error(4,"Такого шифра нет в базе данных услуг.")
+        endif
+        return fl
       endif
       if fl2
         fl := func_error(4,"Данную СТОМАТОЛОГИЧЕСКУЮ услугу запрещено вводить после 2016г!")

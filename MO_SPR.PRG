@@ -5119,7 +5119,7 @@ if !G_SLock("edit_pass")
   return func_error(4,"В данный момент пароли редактирует другой администратор. Ждите.")
 endif
 mywait()
-c_2 := c_1+62
+c_2 := c_1+64
 if is_task(X_KEK)
   c_1 := 2 ; c_2 := 77
   aadd(mas12, {4,"Группа КЭК"})

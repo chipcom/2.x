@@ -14,9 +14,9 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-Static _version := {2,6,14}
-Static char_version := "c"
-Static _date_version := "13.08.18г."
+Static _version := {2,7,0}
+Static char_version := ""
+Static _date_version := "30.08.18г."
 Static __s_full_name := "ЧИП + Учёт работы Медицинской Организации"
 Static __s_version
 
@@ -1286,12 +1286,13 @@ Static Function cmain_next_pos(n)
 DEFAULT n TO 5
 return atail(cmain_menu)+len(atail(main_menu))+n
 
-***** 28.05.17
-Function readme2wordpad()
+***** 18.08.18
+Function readme2wordpad(rtf_file)
+DEFAULT rtf_file TO exe_dir+cslash+'README.RTF'
 ShellExecute(GetDeskTopWindow(),;
              'open',;
              'wordpad.exe',;
-             exe_dir+cslash+'README.RTF',;
+             rtf_file,;
              ,;
              SW_SHOWNORMAL)
 return NIL

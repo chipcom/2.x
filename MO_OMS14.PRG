@@ -956,8 +956,6 @@ do while mohu->kod == human->kod .and. !eof()
     endif
   endif
   mohu->date_u2 := mohu->date_u
-  mohu->PZTIP := 0
-  mohu->PZKOL := 0
   if empty(mohu->kod_diag) .and. len(mdiagnoz) > 0
     mohu->kod_diag := mdiagnoz[1]
   endif

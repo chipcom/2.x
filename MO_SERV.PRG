@@ -4380,7 +4380,7 @@ return fl
 
 *==============================================================================
 
-***** 01.04.18 создание первичной БД из реестров
+***** 26.08.18 создание первичной БД из реестров
 Function create_main_base_from_reestrs()
 Local full_zip, name_zip, i, k, n, fl := .t., buf := save_maxrow(),;
       arr_r := {}, arr_rsptk := {}, arr_s := {}, a_reestr := {},;
@@ -4388,7 +4388,7 @@ Local full_zip, name_zip, i, k, n, fl := .t., buf := save_maxrow(),;
 R_Use(dir_server+"human")
 k := lastrec()
 use
-Private p_lpu := 5, p_otd := 15 // для Котельниковской стоматологии
+Private p_lpu := 1, p_otd := 2 // для онкологии
 Private flag_is_lu := .t. // для пустой БД поставить .f.
 if flag_is_lu
   // уже есть (почти все) листы учёта
@@ -4740,7 +4740,7 @@ next
 close databases
 return fl
 
-***** 21.05.17
+***** 26.08.18
 Function f2_create_main_base_from_reestrs(mname_xml)
 Local fl := .t., auch_otd, _tip_lu
 use (cur_dir+"tmp_r_t1") new alias T1
@@ -4811,9 +4811,11 @@ index on str(kod,7) to (cur_dir+"tmphismo")
 R_Use(dir_server+"mo_otd",,"OTD")
 index on str(tiplu,2)+str(kod_lpu,3) to (cur_dir+"tmpotd1") ;
       for empty(dend) .and. kod > 0 .and. kod_lpu > 0
-index on str(profil,3)+str(kod_lpu,3) to (cur_dir+"tmpotd2") ;
+index on str(profil,3)+str(idump,2)+str(kod_lpu,3) to (cur_dir+"tmpotd2") ;
       for empty(dend) .and. kod > 0 .and. kod_lpu > 0
-set index to (cur_dir+"tmpotd1"),(cur_dir+"tmpotd2")
+index on str(code_dep,3)+str(idump,2)+str(kod_lpu,3) to (cur_dir+"tmpotd3") ;
+      for empty(dend) .and. kod > 0 .and. kod_lpu > 0
+set index to (cur_dir+"tmpotd1"),(cur_dir+"tmpotd2"),(cur_dir+"tmpotd3")
 Use_base("kartotek")
 Use_base("mo_hu")
 Use_base("human_u")
@@ -5182,9 +5184,12 @@ my_debug(,"  "+rtrim(human->fio)+"=второй раз в реестре="+lstr(mkod_reestr))
       if human_->USL_OK == 4 // скорая помощь
         _tip_lu := TIP_LU_SMP
       endif
-      auch_otd := ret_otd_with_lu_prof(_tip_lu,human_->PROFIL,human_->VRACH)
+      auch_otd := ret_otd_with_lu_prof(int(val(t1->PODR)),human_->USL_OK,_tip_lu,human_->PROFIL,human_->VRACH)
       human->LPU := auch_otd[1]
       human->OTD := auch_otd[2]
+      if human->LPU == 6 .and. human->OTD == 25 // специально для онкологии
+        human->ishod := 98 // жидкостная цитология рака шейки матки
+      endif
       //
       for i := 1 to 3
         pole := "t1->ds3"+iif(i==1,"","_"+lstr(i))
@@ -5381,7 +5386,7 @@ rees->KOL := pkol
 close databases
 return fl
 
-***** 01.04.18 перезаписать лист учёта, если таковой уже есть в БД
+***** 26.08.18 перезаписать лист учёта, если таковой уже есть в БД
 Function f3_create_main_base_from_reestrs()
 Local i, j, k, arr_hu, ta, arr_ne, fl
 select KART
@@ -5740,7 +5745,7 @@ arr_ne := {}
 select T2
 find (t1->IDCASE)
 do while t1->IDCASE == t2->IDCASE .and. !eof()
-  if !eq_any(t2->p_otk,'1','2')
+  if !eq_any(t2->p_otk,'1','2') // не отказ и невозможность в диспансеризации
     fl := .t.
     for i := 1 to len(arr_hu)
       select HU
@@ -6023,25 +6028,46 @@ if empty(lvrach)
 endif
 return lvrach
 
-***** 01.04.18 поискать отделение по типу л/у (и м.б.по профилю) (и м.б. по врачу)
-Static Function ret_otd_with_lu_prof(lu,lprof,lvrach)
-Local uch_otd := {1,1}
+***** 26.08.18 поискать отделение по типу л/у (и м.б.по профилю) (и м.б. по врачу)
+Static Function ret_otd_with_lu_prof(lpodr,lump,llu,lprof,lvrach)
+// lpodr  - код подразделения
+// lump   - условия оказания мед.помощи
+// llu    - тип листа учёта
+// lprof  - профиль
+// lvrach - врач
+Local uch_otd := {1,2} // для онкологии
 select OTD
-if lu > 0
+if llu > 0
   set order to 1
-  find (str(lu,2))
+  find (str(llu,2))
   if found()
     uch_otd := {otd->kod_lpu,otd->kod}
   endif
-elseif lprof > 0
-  set order to 2
-  find (str(lprof,3))
+elseif lpodr > 0  
+  set order to 3
+  find (str(lpodr,3)+str(lump,2))
   if found()
     uch_otd := {otd->kod_lpu,otd->kod}
+  else  
+    find (str(lpodr,3))
+    if found()
+      uch_otd := {otd->kod_lpu,otd->kod}
+    endif
   endif
-elseif lvrach > 0
+elseif lvrach > 0 // для онкологии подняли перед профилем
   perso->(dbGoto(lvrach))  
   uch_otd := {perso->uch,perso->otd}
+elseif lprof > 0
+  set order to 2
+  find (str(lprof,3)+str(lump,2))
+  if found()
+    uch_otd := {otd->kod_lpu,otd->kod}
+  else  
+    find (str(lprof,3))
+    if found()
+      uch_otd := {otd->kod_lpu,otd->kod}
+    endif
+  endif
 endif
 return uch_otd
 

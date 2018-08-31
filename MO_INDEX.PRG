@@ -1350,7 +1350,7 @@ endif
 restscreen(buf)
 return fl
 
-***** 03.12.17 инициализировать массив DBF-файлов базы данных
+***** 14.08.18 инициализировать массив DBF-файлов базы данных
 Function init_array_files_DB()
 Local i, arr
 Public array_files_DB := {}, array_task_DB[24,2]
@@ -1438,6 +1438,11 @@ aadd(array_files_DB,"mo_raksh")
 aadd(array_files_DB,"mo_rpd")
 aadd(array_files_DB,"mo_rpds")
 aadd(array_files_DB,"mo_rpdsh")
+aadd(array_files_DB,"mo_onkna")
+aadd(array_files_DB,"mo_onksl")
+aadd(array_files_DB,"mo_onkdi")
+aadd(array_files_DB,"mo_onkpr")  
+aadd(array_files_DB,"mo_onkus")
 // реестры и счета
 aadd(array_files_DB,"mo_rees")
 aadd(array_files_DB,"mo_xml")

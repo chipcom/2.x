@@ -745,12 +745,126 @@ if hb_FileExists(exe_dir+sbase+sdbf)
 else
   fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
 endif*/
+// N002
+sbase := "_mo_N002"
+if hb_FileExists(exe_dir+sbase+sdbf)
+  if files_time(exe_dir+sbase+sdbf,cur_dir+sbase+sntx)
+    R_Use(exe_dir+sbase)
+    index on str(id_st,6) to (cur_dir+sbase)
+    index on ds_st+kod_st to (cur_dir+sbase+"d")
+    use
+  endif
+else
+  fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
+endif
+// N003
+sbase := "_mo_N003"
+if hb_FileExists(exe_dir+sbase+sdbf)
+  if files_time(exe_dir+sbase+sdbf,cur_dir+sbase+sntx)
+    R_Use(exe_dir+sbase)
+    index on str(id_t,6) to (cur_dir+sbase)
+    index on ds_t+kod_t to (cur_dir+sbase+"d")
+    use
+  endif
+else
+  fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
+endif
+// N004
+sbase := "_mo_N004"
+if hb_FileExists(exe_dir+sbase+sdbf)
+  if files_time(exe_dir+sbase+sdbf,cur_dir+sbase+sntx)
+    R_Use(exe_dir+sbase)
+    index on str(id_n,6) to (cur_dir+sbase)
+    index on ds_n+kod_n to (cur_dir+sbase+"d")
+    use
+  endif
+else
+  fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
+endif
+// N005
+sbase := "_mo_N005"
+if hb_FileExists(exe_dir+sbase+sdbf)
+  if files_time(exe_dir+sbase+sdbf,cur_dir+sbase+sntx)
+    R_Use(exe_dir+sbase)
+    index on str(id_m,6) to (cur_dir+sbase)
+    index on ds_m+kod_m to (cur_dir+sbase+"d")
+    use
+  endif
+else
+  fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
+endif
+// N006
+sbase := "_mo_N006"
+if hb_FileExists(exe_dir+sbase+sdbf)
+  if files_time(exe_dir+sbase+sdbf,cur_dir+sbase+sntx)
+    R_Use(exe_dir+sbase)
+    index on ds_gr+str(id_t,6)+str(id_n,6)+str(id_m,6) to (cur_dir+sbase)
+    use
+  endif
+else
+  fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
+endif
+// N007
+sbase := "_mo_N007"
+if hb_FileExists(exe_dir+sbase+sdbf)
+  if files_time(exe_dir+sbase+sdbf,cur_dir+sbase+sntx)
+    R_Use(exe_dir+sbase)
+    index on str(id_mrf,6) to (cur_dir+sbase)
+    use
+  endif
+else
+  fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
+endif
+// N008
+sbase := "_mo_N008"
+if hb_FileExists(exe_dir+sbase+sdbf)
+  if files_time(exe_dir+sbase+sdbf,cur_dir+sbase+sntx)
+    R_Use(exe_dir+sbase)
+    index on str(id_mrf,6) to (cur_dir+sbase)
+    use
+  endif
+else
+  fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
+endif
+// N010
+sbase := "_mo_N010"
+if hb_FileExists(exe_dir+sbase+sdbf)
+  if files_time(exe_dir+sbase+sdbf,cur_dir+sbase+sntx)
+    R_Use(exe_dir+sbase)
+    index on str(id_igh,6) to (cur_dir+sbase)
+    use
+  endif
+else
+  fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
+endif
+// N011
+sbase := "_mo_N011"
+if hb_FileExists(exe_dir+sbase+sdbf)
+  if files_time(exe_dir+sbase+sdbf,cur_dir+sbase+sntx)
+    R_Use(exe_dir+sbase)
+    index on str(id_igh,6) to (cur_dir+sbase)
+    use
+  endif
+else
+  fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
+endif
 // справочник подразделений из паспорта ЛПУ
 sbase := "_mo_podr"
 if hb_FileExists(exe_dir+sbase+sdbf)
   if files_time(exe_dir+sbase+sdbf,cur_dir+sbase+sntx)
     R_Use(exe_dir+sbase)
     index on codemo+padr(upper(kodotd),25) to (cur_dir+sbase)
+    use
+  endif
+else
+  fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
+endif
+// справочник соответствия профиля мед.помощи с профилем койки
+sbase := "_mo_prprk"
+if hb_FileExists(exe_dir+sbase+sdbf)
+  if files_time(exe_dir+sbase+sdbf,cur_dir+sbase+sntx)
+    R_Use(exe_dir+sbase)
+    index on str(profil,3)+str(profil_k,3) to (cur_dir+sbase)
     use
   endif
 else
@@ -2809,7 +2923,7 @@ if fl .and. valtype(_vozrast) == "N"
 endif
 return fl
 
-***** 08.08.18 реконстукция баз данных
+***** 14.08.18 реконстукция баз данных
 Function Reconstruct_BD(is_cur_dir,is_create)
 Local base1 := {;
    {"P1",      "C",  20,   0},; // Ф.И.О.
@@ -3085,7 +3199,7 @@ Local human := {;
    {"SOPUT_B3" ,   "C",     5,     0},; // шифр 3-ой сопутствующей болезни
    {"SOPUT_B4" ,   "C",     5,     0},; // шифр 4-ой сопутствующей болезни
    {"DIAG_PLUS",   "C",     8,     0},; // дополнение к диагнозам (+,-)
-   {"OBRASHEN" ,   "C",     1,     0},; // продолжаемость и исход (N2_TO_C)
+   {"OBRASHEN" ,   "C",     1,     0},; // пробел-ничего, '1'-подозрение на ЗНО, '2'-онкология???
    {"KOMU"     ,   "N",     1,     0},; // от 1 до 5
    {"STR_CRB"  ,   "N",     2,     0},; // код стр.компании, комитета и т.п.
    {"ZA_SMO"   ,   "N",     2,     0},; // ЗаСМО
@@ -3186,18 +3300,46 @@ Local human_2 := {;
    {"PN5",      "N", 10,0},; // 
    {"PN6",      "N", 10,0};  // 
   }
-/*Local mo_onksl := {;
-   {"KOD"      ,   "N",     7,     0},; // код больного
-   {"DATE_U"   ,   "C",     4,     0},; // дата оказания услуги
-   {"date_u2"  ,   "C",     4,     0},; // дата окончания оказания услуги
-   {"U_KOD"    ,   "N",     6,     0},; // код услуги
-Local mo_onkna := {;
+Local mo_onkna := {; // онконаправления
    {"KOD"      ,   "N",     7,     0},; // код больного
    {"NAPR_DATE",   "D",     8,     0},; // Дата направления
    {"NAPR_V"  ,    "N",     1,     0},; // Вид направления:1-к онкологу,2-на биопсию,3-на дообследование,4-для опр.тактики лечения
    {"MET_ISSL" ,   "N",     1,     0},; // Метод диагностического исследования(при NAPR_V=3):1-лаб.диагностика;2-инстр.диагностика;3-луч.диагностика;4-КТ, МРТ, ангиография
    {"U_KOD"    ,   "N",     6,     0};  // код услуги
-  }*/
+  }
+Local mo_onksl := {; // Сведения о случае лечения онкологического заболевания
+   {"KOD"      ,   "N",     7,     0},; // код больного
+   {"DS1_T"    ,   "N",     1,     0},; // Повод обращения:0 - первичное лечение;1 - рецидив;2 - прогрессирование
+   {"PR_CONS"  ,   "N",     1,     0},; // Сведения о проведении консилиума:1 - определена тактика обследования;2 - определена тактика лечения;3 - изменена тактика лечения.
+   {"DT_CONS"  ,   "D",     8,     0},; // Дата проведения консилиума	Обязательно к заполнению при заполненном PR_CONS
+   {"STAD"     ,   "N",     3,     0},; // Стадия заболевания	Заполняется в соответствии со справочником N002 
+   {"ONK_T"    ,   "N",     3,     0},; // Значение Tumor	Заполняется в соответствии со справочником N003 
+   {"ONK_N"    ,   "N",     3,     0},; // Значение Nodus	Заполняется в соответствии со справочником N004 
+   {"ONK_M"    ,   "N",     3,     0},; // Значение Metastasis 	Заполняется в соответствии со справочником N005 
+   {"MTSTZ"    ,   "N",     1,     0},; // Признак выявления отдалённых метастазов	Подлежит заполнению значением 1 при выявлении отдалённых метастазов только при DS1_T=1 или DS1_T=2 
+   {"SOD"      ,   "N",     6,     2};  // Суммарная очаговая доза	Обязательно для заполнения при проведении лучевой или химиолучевой терапии (USL_TIP=3 или USL_TIP=4)
+  }
+Local mo_onkdi := {; // Диагностический блок
+   {"KOD"      ,   "N",     7,     0},; // код больного
+   {"DIAG_DATE",   "D",     8,     0},; // Дата взятия материала для проведения диагностики
+   {"DIAG_TIP" ,   "N",     1,     0},; // Тип диагностического показателя: 1 - гистологический признак; 2 - маркёр (ИГХ)
+   {"DIAG_CODE",   "N",     3,     0},; // Код диагностического показателя При DIAG_TIP=1 в соответствии со справочником N007 При DIAG_TIP=2 в соответствии со справочником N010 
+   {"DIAG_RSLT",   "N",     3,     0};  // Код результата диагностики При DIAG_TIP=1 в соответствии со справочником N008 При DIAG_TIP=2 в соответствии со справочником N011
+  }
+Local mo_onkpr := {; // Сведения об имеющихся противопоказаниях
+   {"KOD"      ,   "N",     7,     0},; // код больного
+   {"PROT"     ,   "N",     1,     0},; // Код противопоказания или отказа в соответствии со справочником N001
+   {"D_PROT"   ,   "D",     8,     0};  // Дата регистрации противопоказания или отказа
+  }
+Local mo_onkus := {; // Сведения о проведённых лечениях
+   {"KOD"      ,   "N",     7,     0},; // код больного
+   {"USL_TIP"  ,   "N",     1,     0},; // Тип онкоуслуги в соответствии со справочником N013	
+   {"HIR_TIP"  ,   "N",     1,     0},; // Тип хирургического лечения При USL_TIP=1 в соответствии со справочником N014	
+   {"LEK_TIP_L",   "N",     1,     0},; // Линия лекарственной терапии При USL_TIP=2 в соответствии со справочником N015	
+   {"LEK_TIP_V",   "N",     1,     0},; // Цикл лекарственной терапии	При USL_TIP=2 в соответствии со справочником N016
+   {"LUCH_TIP" ,   "N",     1,     0},; // Тип лучевой терапии	При USL_TIP=3,4 в соответствии со справочником N017
+   {"SOD"      ,   "N",     6,     2};  // SOD - Суммарная очаговая доза - При USL_TIP=3,4 
+  }
 Local mo_rhum := {; // список листов учёта в реестрах (т.к. можно попасть в несколько реестров)
    {"REESTR",   "N", 6,0},; // код реестра;по файлу "mo_rees"
    {"KOD_HUM",  "N", 7,0},; // код листа учёта по файлу "human"
@@ -3337,8 +3479,13 @@ Local mo_hu := {;
    {"ID_U"     ,   "C",    36,     0},; // код записи об оказанной услуге;GUID оказанной услуги;создается при добавлении записи
    {"PROFIL"   ,   "N",     3,     0},; // профиль;по справочнику V002
    {"PRVS"     ,   "N",     9,     0},; // Специальность врача по справочнику V004, с минусом - по справочнику V015
+   {"USL_TIP"  ,   "N",     1,     0},; // Тип онкоуслуги в соответствии со справочником N013	
+   {"HIR_TIP"  ,   "N",     1,     0},; // Тип хирургического лечения При USL_TIP=1 в соответствии со справочником N014	
+   {"LEK_TIP_L",   "N",     1,     0},; // Линия лекарственной терапии При USL_TIP=2 в соответствии со справочником N015	
+   {"LEK_TIP_V",   "N",     1,     0},; // Цикл лекарственной терапии	При USL_TIP=2 в соответствии со справочником N016
+   {"LUCH_TIP" ,   "N",     1,     0},; // Тип лучевой терапии	При USL_TIP=3,4 в соответствии со справочником N017
    {"PZTIP"    ,   "N",     1,     0},; // тип план-заказа от 1 до 4
-   {"PZKOL"    ,   "N",     6,     2},; // кол-во выполненного план-заказа
+   {"PZKOL"    ,   "N",     6,     2},; // SOD - Суммарная очаговая доза - При USL_TIP=3,4 
    {"OPLATA"   ,   "N",     1,     0},; // тип оплаты;от 1 до 4;
    {"REES_ZAP" ,   "N",     8,     0},; // номер записи в реестре услуг файла реестра;"порядковый номер записи об услуге для всего Реестра случаев (поле ""IDSERV"")";
    {"SCHET_ZAP",   "N",     6,     0};  // номер позиции записи в реестре услуг счета;"поле ""IDSERV"" в реестре счетов";сформировать по индексу humans для schet > 0 для всех услуг
@@ -4213,6 +4360,11 @@ reconstruct(dir_server+"mo_raksh",mo_raksh,,"актам контроля3",.t.)
 reconstruct(dir_server+"mo_rpd",mo_rpd,,"платёжным документам",.t.)
 reconstruct(dir_server+"mo_rpds",mo_rpds,,"платёжным документам2",.t.)
 reconstruct(dir_server+"mo_rpdsh",mo_rpdsh,,"платёжным документам3",.t.)
+reconstruct(dir_server+"mo_onkna",mo_onkna,"index_base('mo_onkna')","онкологии1",.t.)
+reconstruct(dir_server+"mo_onksl",mo_onksl,"index_base('mo_onksl')","онкологии2",.t.)
+reconstruct(dir_server+"mo_onkdi",mo_onkdi,"index_base('mo_onkdi')","онкологии3",.t.)
+reconstruct(dir_server+"mo_onkpr",mo_onkpr,"index_base('mo_onkpr')","онкологии4",.t.)  
+reconstruct(dir_server+"mo_onkus",mo_onkus,"index_base('mo_onkus')","онкологии5",.t.)  
 //
 reconstruct(dir_server+"mo_rees",mo_rees,,"реестрам случаев",.t.)
 reconstruct(dir_server+"mo_xml",mo_xml,,"принятым файлам",.t.)
@@ -8191,6 +8343,8 @@ aadd(glob_T008,{"Профиль койки не соответствует профилю МП",14,"",stod("20140701
 aadd(glob_T008,{"Некорректная дата госпитализации",15,"",stod("20140701"),stod("22220101")})
 aadd(glob_T008,{"Запись по данному направлению уже была загружена",16,"",stod("20140701"),stod("22220101")})
 aadd(glob_T008,{"Отсутствуют сведения о выполненных объемах для СМО",17,"",stod("20160915"),stod("22220101")})
+aadd(glob_T008,{"Отчетная дата отлична от текущей",18,"",stod("20170220"),stod("22220101")})
+aadd(glob_T008,{"Нарушена уникальность ID_D",19,"",stod("20180829"),stod("22220101")})
 // T012.xml - Классификатор ошибок ИСОМП
 //  1 - NAME(C)  2 - CODE(N)  3 - STAGE_TK(C)  4 - DATE_B(D)  5 - DATE_E(D)
 Public glob_T012 := {}

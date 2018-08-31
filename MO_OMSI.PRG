@@ -3954,14 +3954,11 @@ do case
     popup_prompt(T_ROW,T_COL-5,si1,mas_pmt,mas_msg,mas_fun)
   case k == 11
     mas_pmt := {"~Контрольный лист учёта ЗНО",;
-                "~Правила заполнения контрольного листа учёта ЗНО",;
-                "Справочник соответствия ~стадий TNM (N006)"}
+                "~Правила заполнения контрольного листа учёта ЗНО"}
     mas_msg := {"Распечатка контрольного листа учёта мед.помощи, оказанной пациентам, страдающим ЗНО",;
-                "Распечатка правил заполнения контрольного листа учёта ЗНО",;
-                "Распечатка справочника соответствия стадий TNM (N006)"}
+                "Распечатка правил заполнения контрольного листа учёта ЗНО"}
     mas_fun := {"prn_blank(61)",;
-                "prn_blank(62)",;
-                "prn_blank(63)"}
+                "prn_blank(62)"}
     popup_prompt(T_ROW,T_COL-5,si6,mas_pmt,mas_msg,mas_fun)
   case k == 12
     mas_pmt := {"Приложение к ~карте вызова СМП",;
@@ -4032,9 +4029,9 @@ do case
   case k == 54
     call_fr("mo_b_pern")
   case k == 61 // Контрольный лист учёта ЗНО
+    call_fr("mo_onko_KL")
   case k == 62 // Правила заполнения контрольного листа учёта ЗНО
-  case k == 63 // Справочник соответствия стадий TNM
-    pr_sprav_N006()
+    readme2wordpad(exe_dir+cslash+'RULE_KL.RTF')
 endcase
 if k > 10
   j := int(val(right(lstr(k),1)))
@@ -4070,7 +4067,9 @@ R_Use(dir_exe+"_mo_N006",,"N6")
 index on ds_gr to tmp_n6 unique memory
 dbeval({|| aadd(ad, padr(n6->ds_gr,6)) })
 fp := fcreate(name_file) ; tek_stroke := 0 ; n_list := 1
+add_string("")
 add_string(center("Справочник соответствия стадий TNM",sh))
+add_string(center("( правильное соответствие значений идентификаторов TNM и стадии )",sh))
 add_string("")
 for i := 1 to len(ad)
   verify_FF(HH-2,.t.,sh)
