@@ -2348,6 +2348,9 @@ do while !eof()
           s := 1 // взят
         endif
       endif
+      if version_3_1 .and. human->OBRASHEN == '1'
+        mo_add_xml_stroke(oSLUCH,"DS_ONK",'1')
+      endif
       mo_add_xml_stroke(oSLUCH,"PR_D_N",lstr(s))
     endif
     if p_tip_reestr == 1
@@ -3027,6 +3030,7 @@ for ii := 1 to len(arr_schet)
   stat_msg("Составление реестра случаев по счёту № "+mn_schet)
   //
   c := upper(left(name_sp_tk,1)) // {"H","F"}[p_tip_reestr]+s
+  p_tip_reestr := iif(c == "H", 1, 2)
   select SCHET
   AddRec(6)
   arr_schet[ii,8] := mkod := recno()
@@ -3055,7 +3059,7 @@ for ii := 1 to len(arr_schet)
   schet_->NYEAR      := tmp1->_YEAR
   schet_->NMONTH     := tmp1->_MONTH
   schet_->NN         := mnn
-  schet_->NAME_XML   := upper(left(name_sp_tk,1))+s // {"H","F"}[p_tip_reestr]+s
+  schet_->NAME_XML   := c+s // {"H","F"}[p_tip_reestr]+s
   schet_->XML_REESTR := mXML_REESTR
   schet_->NREGISTR   := 1 // ещё не зарегистрирован
   schet_->CODE := ret_unique_code(mkod,12)
@@ -3244,6 +3248,9 @@ for ii := 1 to len(arr_schet)
         if !empty(t1->DS1_PR)
           mo_add_xml_stroke(oSLUCH,"DS1_PR",t1->DS1_PR)
         endif
+        if p_tip_reestr == 2 .and. !empty(t1->DS_ONK)
+          mo_add_xml_stroke(oSLUCH,"DS_ONK",t1->DS_ONK)
+        endif
         if !empty(t1->PR_D_N)
           mo_add_xml_stroke(oSLUCH,"PR_D_N",t1->PR_D_N)
         endif
@@ -3259,7 +3266,7 @@ for ii := 1 to len(arr_schet)
             mo_add_xml_stroke(oSLUCH,"DS3",&pole)
           endif
         next
-        if !empty(t1->DS_ONK)
+        if p_tip_reestr == 1 .and. !empty(t1->DS_ONK)
           mo_add_xml_stroke(oSLUCH,"DS_ONK",t1->DS_ONK)
         endif
         if !empty(t1->C_ZAB)

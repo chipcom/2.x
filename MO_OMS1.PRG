@@ -4,7 +4,7 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 07.05.18 ПН - добавление или редактирование случая (листа учета)
+***** 03.09.18 ПН - добавление или редактирование случая (листа учета)
 Function oms_sluch_PN(Loc_kod,kod_kartotek,f_print)
 // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
 // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -201,6 +201,7 @@ Private mprivivki1, m1privivki1 := 0,;
         mprivivki2, m1privivki2 := 0,;
         mprivivki3 := space(100)
 Private mvar, m1var, m1lis := 0
+Private mDS_ONK, m1DS_ONK := 0 // Признак подозрения на злокачественное новообразование
 Private mnapr_stac, m1napr_stac := 0, ;
         mm_napr_stac := {{"--- нет ---",0},{"в стационар",1},{"в дн. стац.",2}}, ;
         mprofil_stac, m1profil_stac := 0
@@ -404,6 +405,9 @@ if Loc_kod > 0
   m1VIDPOLIS  := human_->VPOLIS
   mSPOLIS     := human_->SPOLIS
   mNPOLIS     := human_->NPOLIS
+  if human->OBRASHEN == '1'
+    m1DS_ONK := 1
+  endif
   if empty(val(msmo := human_->SMO))
     m1komu := human->KOMU
     m1str_crb := human->STR_CRB
@@ -625,6 +629,7 @@ mprivivki1 := inieditspr(A__MENUVERT, mm_privivki1, m1privivki1)
 mprivivki2 := inieditspr(A__MENUVERT, mm_privivki2, m1privivki2)
 mgr_fiz_do := inieditspr(A__MENUVERT, mm_gr_fiz_do, m1gr_fiz_do)
 mgr_fiz    := inieditspr(A__MENUVERT, mm_gr_fiz, m1gr_fiz)
+mDS_ONK    := inieditspr(A__MENUVERT, mm_danet, M1DS_ONK)
 mnapr_stac := inieditspr(A__MENUVERT, mm_napr_stac, m1napr_stac)
 mprofil_stac := inieditspr(A__MENUVERT, glob_V002, m1profil_stac)
 mnapr_reab := inieditspr(A__MENUVERT, mm_danet, m1napr_reab)
@@ -651,7 +656,7 @@ do while .t.
   close databases
   DispBegin()
   if num_screen == 5
-    hS := 30 ; wS := 90
+    hS := 31 ; wS := 90
   elseif num_screen == 3
     hS := 30 ; wS := 80
   else
@@ -1128,6 +1133,8 @@ do while .t.
       next
     next
     ++j; @ j,1 to j,78
+    ++j; @ j,1 say "Признак подозрения на злокачественное новообразование" get mDS_ONK ;
+               reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} 
     ++j; @ j,1 say "Направлен на лечение" get mnapr_stac ;
                reader {|x|menu_reader(x,mm_napr_stac,A__MENUVERT,,,.f.)} ; 
                valid {|| iif(m1napr_stac==0, (m1profil_stac:=0,mprofil_stac:=space(32)), ), update_get("mprofil_stac")}  
@@ -1163,7 +1170,7 @@ do while .t.
                when m1invalid1 == 1
     ++j; @ j,1 say "Прививки" get mprivivki1 ;
                reader {|x|menu_reader(x,mm_privivki1,A__MENUVERT,,,.f.)}
-         @ j,45 say "Не привит" get mprivivki2 ;
+         @ j,50 say "Не привит" get mprivivki2 ;
                reader {|x|menu_reader(x,mm_privivki2,A__MENUVERT,,,.f.)} ;
                when m1privivki1 > 0
     ++j; @ j,2 say "Нуждается в вакцинации" get mprivivki3 pict "@S54" ;
@@ -1837,6 +1844,7 @@ do while .t.
     human->K_DATA     := MK_DATA       // дата окончания лечения
     human->CENA := human->CENA_1 := MCENA_1 // стоимость лечения
     human->ishod      := 300+metap
+    human->OBRASHEN   := iif(m1DS_ONK == 1, '1', " ")
     human->bolnich    := 0
     human->date_b_1   := ""
     human->date_b_2   := ""

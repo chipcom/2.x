@@ -25,7 +25,7 @@ else
 endif
 return fl
 
-***** 01.08.18 ДДС - добавление или редактирование случая (листа учета)
+***** 03.09.18 ДДС - добавление или редактирование случая (листа учета)
 Function oms_sluch_DDS(tip_lu,Loc_kod,kod_kartotek,f_print)
 // tip_lu - TIP_LU_DDS или TIP_LU_DDSOP
 // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -235,6 +235,7 @@ Private mprivivki1, m1privivki1 := 0,;
         mprivivki2, m1privivki2 := 0,;
         mprivivki3 := space(100)
 Private mvar, m1var, m1lis := 0
+Private mDS_ONK, m1DS_ONK := 0 // Признак подозрения на злокачественное новообразование
 Private mnapr_stac, m1napr_stac := 0, ;
         mm_napr_stac := {{"--- нет ---",0},{"в стационар",1},{"в дн. стац.",2}}, ;
         mprofil_stac, m1profil_stac := 0
@@ -383,6 +384,9 @@ if Loc_kod > 0
   MSOPUT_B4   := human->SOPUT_B4
   MDIAG_PLUS  := human->DIAG_PLUS
   MPOLIS      := human->POLIS         // серия и номер страхового полиса
+  if human->OBRASHEN == '1'
+    m1DS_ONK := 1
+  endif
   for i := 1 to 16
     adiag_talon[i] := int(val(substr(human_->DISPANS,i,1)))
   next
@@ -565,6 +569,7 @@ minvalid6 := inieditspr(A__MENUVERT, mm_invalid6, m1invalid6)
 minvalid8 := inieditspr(A__MENUVERT, mm_invalid8, m1invalid8)
 mprivivki1 := inieditspr(A__MENUVERT, mm_privivki1, m1privivki1)
 mprivivki2 := inieditspr(A__MENUVERT, mm_privivki2, m1privivki2)
+mDS_ONK    := inieditspr(A__MENUVERT, mm_danet, M1DS_ONK)
 mnapr_stac := inieditspr(A__MENUVERT, mm_napr_stac, m1napr_stac)
 mprofil_stac := inieditspr(A__MENUVERT, glob_V002, m1profil_stac)
 mnapr_reab := inieditspr(A__MENUVERT, mm_danet, m1napr_reab)
@@ -591,7 +596,7 @@ do while .t.
   close databases
   DispBegin()
   if num_screen == 5
-    hS := 29 ; wS := 90
+    hS := 30 ; wS := 90
   else
     hS := 25 ; wS := 80
   endif
@@ -1299,6 +1304,8 @@ do while .t.
       next
     next
     ++j; @ j,1 to j,78
+    ++j; @ j,1 say "Признак подозрения на злокачественное новообразование" get mDS_ONK ;
+               reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} 
     ++j; @ j,1 say "Направлен на лечение" get mnapr_stac ;
                reader {|x|menu_reader(x,mm_napr_stac,A__MENUVERT,,,.f.)} ; 
                valid {|| iif(m1napr_stac==0, (m1profil_stac:=0,mprofil_stac:=space(32)), ), update_get("mprofil_stac")}  
@@ -1334,10 +1341,10 @@ do while .t.
                when m1invalid1 == 1
     ++j; @ j,1 say "Прививки" get mprivivki1 ;
                reader {|x|menu_reader(x,mm_privivki1,A__MENUVERT,,,.f.)}
-         @ j,45 say "Не привит" get mprivivki2 ;
+         @ j,50 say "Не привит" get mprivivki2 ;
                reader {|x|menu_reader(x,mm_privivki2,A__MENUVERT,,,.f.)} ;
                when m1privivki1 > 0
-    ++j; @ j,2 say "Нуждается в вакцинации" get mprivivki3 pict "@S54" ;
+    ++j; @ j,2 say "Нуждается в вакцинации" get mprivivki3 pict "@S64" ;
                when m1privivki1 > 0
     ++j; @ j,1 say "Рекомендации здорового образа жизни" get mrek_form pict "@S52"
     ++j; @ j,1 say "Рекомендации по диспансерному наблюдению" get mrek_disp pict "@S47"
@@ -1961,6 +1968,7 @@ do while .t.
     human->K_DATA     := MK_DATA       // дата окончания лечения
     human->CENA := human->CENA_1 := MCENA_1 // стоимость лечения
     human->ishod      := 100+metap
+    human->OBRASHEN   := iif(m1DS_ONK == 1, '1', " ")
     human->bolnich    := 0
     human->date_b_1   := ""
     human->date_b_2   := ""
@@ -4126,7 +4134,7 @@ do while .t.
           enddo
           return nil
       }  
-      R_Use(exe_dir+"_mo_N002",{exe_dir+"_mo_N002",exe_dir+"_mo_N002d"},"N2")
+      R_Use(exe_dir+"_mo_N002",{cur_dir+"_mo_N002",cur_dir+"_mo_N002d"},"N2")
       set order to 2
       find (left(mkod_diag,5))
       if found()
@@ -4148,7 +4156,7 @@ do while .t.
           enddo
           return nil
       }  
-      R_Use(exe_dir+"_mo_N003",{exe_dir+"_mo_N003",exe_dir+"_mo_N003d"},"N3")
+      R_Use(exe_dir+"_mo_N003",{cur_dir+"_mo_N003",cur_dir+"_mo_N003d"},"N3")
       set order to 2
       find (left(mkod_diag,5))
       if found()
@@ -4170,7 +4178,7 @@ do while .t.
           enddo
           return nil
       }  
-      R_Use(exe_dir+"_mo_N004",{exe_dir+"_mo_N004",exe_dir+"_mo_N004d"},"N4")
+      R_Use(exe_dir+"_mo_N004",{cur_dir+"_mo_N004",cur_dir+"_mo_N004d"},"N4")
       set order to 2
       find (left(mkod_diag,5))
       if found()
@@ -4192,7 +4200,7 @@ do while .t.
           enddo
           return nil
       }  
-      R_Use(exe_dir+"_mo_N005",{exe_dir+"_mo_N005",exe_dir+"_mo_N005d"},"N5")
+      R_Use(exe_dir+"_mo_N005",{cur_dir+"_mo_N005",cur_dir+"_mo_N005d"},"N5")
       set order to 2
       find (left(mkod_diag,5))
       if found()
@@ -4214,15 +4222,15 @@ do while .t.
       mONK_N := padr(inieditspr(A__MENUVERT, mm_N004, m1ONK_N),5) 
       mONK_M := padr(inieditspr(A__MENUVERT, mm_N005, m1ONK_M),5)
       //
-      R_Use(exe_dir+"_mo_N006",exe_dir+"_mo_N006","N6")
+      R_Use(exe_dir+"_mo_N006",cur_dir+"_mo_N006","N6")
       // гистология
       mm_N009 := {}
       R_Use(exe_dir+"_mo_N009",,"N9")
       dbeval({|| aadd(mm_N009,{"",n9->id_mrf,{}}) }, {|| left(mkod_diag,3) == n9->ds_mrf })
       asort(mm_N009,,,{|x,y| x[2] < y[2] })
       if len(mm_N009) > 0
-        R_Use(exe_dir+"_mo_N007",exe_dir+"_mo_N007","N7")
-        R_Use(exe_dir+"_mo_N008",exe_dir+"_mo_N008","N8")
+        R_Use(exe_dir+"_mo_N007",cur_dir+"_mo_N007","N7")
+        R_Use(exe_dir+"_mo_N008",cur_dir+"_mo_N008","N8")
         for i := 1 to min(2,len(mm_N009))
           select N7
           find (str(mm_N009[i,2],6))
@@ -4249,8 +4257,8 @@ do while .t.
       dbeval({|| aadd(mm_N012,{"",n12->id_igh,{}}) }, {|| left(mkod_diag,3) == n12->ds_igh })
       asort(mm_N012,,,{|x,y| x[2] < y[2] })
       if len(mm_N012) > 0
-        R_Use(exe_dir+"_mo_N010",exe_dir+"_mo_N010","N10")
-        R_Use(exe_dir+"_mo_N011",exe_dir+"_mo_N011","N11")
+        R_Use(exe_dir+"_mo_N010",cur_dir+"_mo_N010","N10")
+        R_Use(exe_dir+"_mo_N011",cur_dir+"_mo_N011","N11")
         for i := 1 to min(5,len(mm_N012))
           select N10
           find (str(mm_N012[i,2],6))

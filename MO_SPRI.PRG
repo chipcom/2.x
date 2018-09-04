@@ -371,7 +371,7 @@ Local arr_usl, atf := {0,"",""}, i := 1, k, mas[2], sh := 80, HH := 60, j := 0, 
 if (arr_usl := input_usluga(atf)) != NIL
   mywait()
   fp := fcreate(n_file) ; n_list := 1 ; tek_stroke := 0
-  R_Use(dir_exe+"_mo8dep",dir_exe+"_mo8dep","DEP")
+  R_Use(dir_exe+"_mo8dep",cur_dir+"_mo8dep","DEP")
   Use_base("lusl")
   Use_base("luslc")
   R_Use(dir_server+"uslugi",dir_server+"uslugi","USL")
@@ -670,7 +670,7 @@ if ret != NIL
                            {"depart","N",3,0},;
                            {"cenav","N",10,2},;
                            {"cenad","N",10,2}})
-  R_Use(dir_exe+"_mo8dep",dir_exe+"_mo8dep","DEP")
+  R_Use(dir_exe+"_mo8dep",cur_dir+"_mo8dep","DEP")
   use (cur_dir+"tmp1") new
   index on shifr+str(depart,3) to (cur_dir+"tmp1")
   fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0

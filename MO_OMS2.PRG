@@ -4,7 +4,7 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 07.07.18 „‚ - ¤®¡ ¢«¥­¨¥ ¨«¨ à¥¤ ªâ¨à®¢ ­¨¥ á«ãç ï («¨áâ  ãç¥â )
+***** 03.09.18 „‚ - ¤®¡ ¢«¥­¨¥ ¨«¨ à¥¤ ªâ¨à®¢ ­¨¥ á«ãç ï («¨áâ  ãç¥â )
 Function oms_sluch_DVN(Loc_kod,kod_kartotek,f_print)
 // Loc_kod - ª®¤ ¯® „ human.dbf (¥á«¨ =0 - ¤®¡ ¢«¥­¨¥ «¨áâ  ãç¥â )
 // kod_kartotek - ª®¤ ¯® „ kartotek.dbf (¥á«¨ =0 - ¤®¡ ¢«¥­¨¥ ¢ ª àâ®â¥ªã)
@@ -144,6 +144,7 @@ Private mm_dispans := {{"­¥ ãáâ ­®¢«¥­®             ",0},;
                        {"ãç áâª®¢ë¬ â¥à ¯¥¢â®¬      ",3},;
                        {"¢à ç®¬ ®â¤.¬¥¤.¯à®ä¨« ªâ¨ª¨",1},;
                        {"¢à ç®¬ æ¥­âà  §¤®à®¢ìï     ",2}}
+Private mDS_ONK, m1DS_ONK := 0 // à¨§­ ª ¯®¤®§à¥­¨ï ­  §«®ª ç¥áâ¢¥­­®¥ ­®¢®®¡à §®¢ ­¨¥
 Private mm_dopo_na := {{"« ¡.¤¨ £­®áâ¨ª ",1},{"¨­áâà.¤¨ £­®áâ¨ª ",2},{"«ãç¥¢ ï ¤¨ £­®áâ¨ª ",3}}               
 Private gl_arr := {;  // ¤«ï ¡¨â®¢ëå ¯®«¥©
   {"dopo_na","N",10,0,,,,{|x|inieditspr(A__MENUBIT,mm_dopo_na,x)} };
@@ -311,6 +312,9 @@ if Loc_kod > 0
   m1VIDPOLIS  := human_->VPOLIS
   mSPOLIS     := human_->SPOLIS
   mNPOLIS     := human_->NPOLIS
+  if human->OBRASHEN == '1'
+    m1DS_ONK := 1
+  endif
   if empty(val(msmo := human_->SMO))
     m1komu := human->KOMU
     m1str_crb := human->STR_CRB
@@ -528,6 +532,7 @@ mot_nasl2 := inieditspr(A__MENUVERT, mm_danet, m1ot_nasl2)
 mot_nasl3 := inieditspr(A__MENUVERT, mm_danet, m1ot_nasl3)
 mot_nasl4 := inieditspr(A__MENUVERT, mm_danet, m1ot_nasl4)
 mdispans  := inieditspr(A__MENUVERT, mm_dispans, m1dispans)
+mDS_ONK   := inieditspr(A__MENUVERT, mm_danet, M1DS_ONK)
 mnazn_l   := inieditspr(A__MENUVERT, mm_danet, m1nazn_l)
 mdopo_na  := inieditspr(A__MENUBIT, mm_dopo_na, m1dopo_na)
 mnapr_v_mo := inieditspr(A__MENUVERT, mm_napr_v_mo, m1napr_v_mo) 
@@ -863,6 +868,8 @@ do while .t.
     else
       ++j
     endif
+    ++j; @ j,1 say "à¨§­ ª ¯®¤®§à¥­¨ï ­  §«®ª ç¥áâ¢¥­­®¥ ­®¢®®¡à §®¢ ­¨¥" get mDS_ONK ;
+               reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} 
     ++j; @ j,1 say " §­ ç¥­® «¥ç¥­¨¥" get mnazn_l ;
                reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
     ++j; @ j,1 say " ¯à ¢«¥­ ­  ¤®¯®«­¨â¥«ì­®¥ ®¡á«¥¤®¢ ­¨¥" get mdopo_na ;
@@ -887,7 +894,6 @@ do while .t.
                when m1napr_reab > 0
     ++j; @ j,1 say " ¯à ¢«¥­ ­  á ­®â®à­®-ªãà®àâ­®¥ «¥ç¥­¨¥" get msank_na ;
                reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
-    ++j
     ++j; @ j,1 say "ƒ“€ á®áâ®ï­¨ï ‡„‚œŸ"
          @ j,col()+1 get mGRUPPA ;
                 reader {|x|menu_reader(x,mm_gruppa,A__MENUVERT,,,.f.)}
@@ -1511,6 +1517,7 @@ do while .t.
     human->K_DATA     := MK_DATA       // ¤ â  ®ª®­ç ­¨ï «¥ç¥­¨ï
     human->CENA := human->CENA_1 := MCENA_1 // áâ®¨¬®áâì «¥ç¥­¨ï
     human->ishod      := 200+metap
+    human->OBRASHEN   := iif(m1DS_ONK == 1, '1', " ")
     human->bolnich    := 0
     human->date_b_1   := ""
     human->date_b_2   := ""
