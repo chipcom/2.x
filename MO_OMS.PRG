@@ -3206,7 +3206,7 @@ if m1tip != old .and. old != NIL
 endif
 return .t.
 
-***** 29.08.18 добавление или редактирование случая (листа учета)
+***** 04.09.18 добавление или редактирование случая (листа учета)
 Function oms_sluch(Loc_kod,kod_kartotek)
 // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
 // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -3654,7 +3654,7 @@ if Loc_kod > 0
         endif 
       elseif diag->DIAG_TIP == 2 // маркёр (ИГХ)
         if ++j < 6
-          mmark[i] := diag->DIAG_CODE
+          mmark[j] := diag->DIAG_CODE
           &("m1mark"+lstr(j)) := diag->DIAG_RSLT
         endif
       endif 
@@ -3797,20 +3797,16 @@ f_valid_usl_ok(,-1)
 f_valid2ad_cr()
 Private rdiag := 1, rpp := 1, num_screen := 1
 do while .t.
-  if num_screen == 1
-    SetMode(kscr1,80)
-  else
-    SetMode(iif(is_oncology==2,iif(m1usl_ok<3,34,31),25),80)
-  endif
-  j := 1
-  myclear(j)
-  if yes_num_lu == 1 .and. Loc_kod > 0
-    @ j,50 say padl("Лист учета № "+lstr(Loc_kod),29) color color14
-  endif
-  diag_screen(0)
-  pos_read := 0
   if num_screen == 1 //
+    SetMode(kscr1,80)
     pr_1_str(str_1)
+    j := 1
+    myclear(j)
+    if yes_num_lu == 1 .and. Loc_kod > 0
+      @ j,50 say padl("Лист учета № "+lstr(Loc_kod),29) color color14
+    endif
+    diag_screen(0)
+    pos_read := 0
     put_dop_diag(0)
     ++j; @ j,1 say "Учреждение" get mlpu when .f. color cDataCSay
          @ row(),col()+2 say "Отделение" get motd when .f. color cDataCSay
@@ -4084,11 +4080,11 @@ do while .t.
     @ maxrow(),0 say padc("<Esc> - выход;  <PgDn> - запись;  <F1> - помощь",maxcol()+1) color color0
     mark_keys({"<F1>","<Esc>","<PgDn>"},"R/BG")
   elseif num_screen == 2 //
-    pr_1_str("Ввод/редактирование контрольного листа учёта ЗНО")
     use_base("luslf")
     Use_base("mo_su")
     use (cur_dir+"tmp_onkna") new alias TNAPR
-    if cur_napr > 0 .and. cur_napr <= (count_napr := lastrec())
+    count_napr := lastrec()
+    if cur_napr > 0 .and. cur_napr <= count_napr
       goto (cur_napr) // номер текущего направления
       mNAPR_DATE := tnapr->NAPR_DATE
       m1NAPR_V := tnapr->NAPR_V
@@ -4110,6 +4106,7 @@ do while .t.
     mNAPR_V := inieditspr(A__MENUVERT, mm_napr_v, m1napr_v)
     mMET_ISSL := inieditspr(A__MENUVERT, mm_MET_ISSL, m1MET_ISSL)
     tip_onko_napr := 0
+    k := 9
     if is_oncology == 2
       for i := 1 to 6
         &("m1prot"+lstr(i)) := 0
@@ -4331,24 +4328,45 @@ do while .t.
           msod := padr(alltrim(str_0(mvsod,6,2)),6)
         endif
       endif
+      if len(mm_N009) == 0
+        k++
+      else
+        k += min(2,len(mm_N009))
+      endif
+      if len(mm_N012) == 0
+        k++
+      else
+        k += min(5,len(mm_N012))
+      endif
+      if m1usl_ok < 3
+        k += 3
+      endif
+      k += 16
     endif
+    SetMode(max(25,k),80)
+    pr_1_str("Ввод/редактирование контрольного листа учёта ЗНО")
+    j := 1
+    myclear(j)
+    pos_read := 0
          @ j,1 say "Осн.диагноз" color color8 get mkod_diag when .f.
+    if yes_num_lu == 1 .and. Loc_kod > 0
+         @ j,50 say padl("Лист учета № "+lstr(Loc_kod),29) color color14
+    endif
     ++j; @ j,1 say "ФИО" get mfio_kart when .f.
          @ j,57 get mn_data when .f.
          @ row(),col()+1 say "-" get mk_data when .f.
     ++j; @ j,1 say "НАПРАВЛЕНИЕ №" get cur_napr pict "9" when .f.
          @ j,col() say "(из" get count_napr pict "9" when .f.
          @ j,col() say ")"
+         @j,29 say "(<F5> - добавление/редактирование направления №...)" color "G/B"
     ++j; @ j,3 say "Дата направления" get mNAPR_DATE ; 
                valid {|| iif(empty(mNAPR_DATE) .or. between(mNAPR_DATE,mn_data,mk_data), .t., ; 
                              func_error(4,"Дата направления должна быть внутри сроков лечения")) } 
     ++j; @ j,3 say "Вид направления" get mnapr_v ;
-               reader {|x|menu_reader(x,mm_napr_v,A__MENUVERT,,,.f.)} ;
-               color colget_menu 
+               reader {|x|menu_reader(x,mm_napr_v,A__MENUVERT,,,.f.)} //; color colget_menu 
     ++j; @ j,5 say "Метод диагностического исследования" get mmet_issl ; 
                reader {|x|menu_reader(x,mm_met_issl,A__MENUVERT,,,.f.)} ;
-               when m1napr_v == 3 ;
-               color colget_menu 
+               when m1napr_v == 3 //; color colget_menu 
     ++j; @ j,5 say "Медицинская услуга" get mshifr pict "@!" ;
                when {|g| m1napr_v == 3 .and. m1MET_ISSL > 0 } ;
                valid {|g| 
@@ -4486,11 +4504,15 @@ do while .t.
     //
     status_key("^<Esc>^ выход без записи ^<PgUp>^ на 1-ю страницу ^<PgDn>^ ЗАПИСЬ")
   endif
+  if num_screen == 2
+    set key K_F5 TO change_num_napr
+  endif
   count_edit += myread(,@pos_read)
   //count_edit := myread(,@pos_read,++k_read)
   close databases
   if num_screen == 2
-    if !emptyany(mNAPR_DATE,m1NAPR_V)
+    set key K_F5 TO
+    if !(emptyany(mNAPR_DATE,m1NAPR_V) .and. count_napr == 0)
       if cur_napr == 0
         cur_napr := 1
       endif
@@ -4503,11 +4525,11 @@ do while .t.
       endif
       tnapr->NAPR_DATE := mNAPR_DATE
       tnapr->NAPR_V := m1NAPR_V
-      tnapr->MET_ISSL := m1MET_ISSL
-      tnapr->U_KOD := mu_kod
-      tnapr->shifr_u := mshifr
-      tnapr->shifr1 := mshifr1
-      tnapr->name_u := mname_u
+      tnapr->MET_ISSL := iif(m1NAPR_V == 3, m1MET_ISSL, 0)
+      tnapr->U_KOD := iif(m1NAPR_V == 3, mu_kod, 0)
+      tnapr->shifr_u := iif(m1NAPR_V == 3, mshifr, "")
+      tnapr->shifr1 := iif(m1NAPR_V == 3, mshifr1, "")
+      tnapr->name_u := iif(m1NAPR_V == 3, mname_u, "")
       cur_napr := recno()
     endif
     if is_oncology == 2
@@ -4923,8 +4945,8 @@ do while .t.
           endif
           napr->NAPR_DATE := tnapr->NAPR_DATE
           napr->NAPR_V := tnapr->NAPR_V
-          napr->MET_ISSL := tnapr->MET_ISSL
-          napr->U_KOD := tnapr->U_KOD
+          napr->MET_ISSL := iif(tnapr->NAPR_V == 3, tnapr->MET_ISSL, 0)
+          napr->U_KOD := iif(tnapr->NAPR_V == 3, tnapr->U_KOD, 0)
         endif  
         select TNAPR
         skip
@@ -8278,10 +8300,10 @@ close databases
 restscreen(buf)
 return (mkod > 0)
 
-***** 03.05.17
+***** 09.09.18
 Function f1ret_oms_human(oBrow)
 Local oColumn, blk, r := 34
-blk := {|| iif(human_->KOD_UP>0, {3,4}, iif(human_->OPLATA==2, {5,6},{1,2})) }
+blk := {|| iif(human_->KOD_UP > 0, {3,4}, iif(human_->OPLATA == 2, {5,6},{1,2})) }
 if yes_h_otd == 1
   r += 6
 endif
@@ -8306,7 +8328,11 @@ oColumn := TBColumnNew(" Стоимость;  лечения", {|| put_kopE(human->cena_1,10) })
 oColumn:colorBlock := blk
 oBrow:addColumn(oColumn)
 if tip_polzovat == TIP_ADM
-  status_key("^<Esc>^ выход  ^<Enter>^ выбор  ^<F2>^ поиск  ^<CTRL+F12>^ снятие флага об ошибке у всех")
+  s := "^<Esc>^ выход  ^<Enter>^ выбор  ^<F2>^ поиск"
+  if type("p_del_error") == "A" .and. p_del_error[2] > 0
+    s += "  ^<Ctrl+F12>^ снятие флага об ошибке у всех"
+  endif
+  status_key(s)
 else
   status_key("^^ или нач.буква - просмотр;  ^<Esc>^ - выход;  ^<Enter>^ - выбор;  ^<F2>^ - поиск")
 endif  

@@ -833,7 +833,7 @@ oBrow:addColumn(oColumn)
 status_key("^<Esc>^ выход ^<Enter>^ редактирование ^<Ins>^ добавление ^<Del>^ удаление ^<F2>^ поиск")
 return NIL
 
-***** 
+***** 09.09.18
 Function f2_FF_uslugi(nKey,oBrow)
 Static sshifr := "          "
 LOCAL j := 0, k := -1, buf := save_maxrow(), buf1, fl := .f., rec,;
@@ -874,6 +874,12 @@ do case
     find (str(mosu->kod,6))
     fl := found()
     hu->(dbCloseArea())
+    if !fl
+      R_Use(dir_server+"mo_onkna",,"NAPR") // онконаправления
+      Locate for U_KOD == mosu->kod 
+      fl := found()
+      napr->(dbCloseArea())
+    endif
     select MOSU
     if fl
       func_error(4,"Данная услуга встречается в других базах данных. Удаление запрещено!")

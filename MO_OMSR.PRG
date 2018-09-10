@@ -399,7 +399,7 @@ return lp
 
 *
 
-***** 28.08.18
+***** 09.09.18
 Function verify_1_sluch(fl_view)
 Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
       i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -413,7 +413,7 @@ DEFAULT fl_view TO .t.
 rec_human := human->(recno())
 Private mdate_r := human->date_r, mvozrast, mdvozrast, M1VZROS_REB := human->VZROS_REB,;
         arr_usl_otkaz := {}, m1novor := 0, mpol := human->pol, mDATE_R2 := ctod(""),;
-        version_3_1 := left(dtos(human->k_data),6) > "201808" // с сентября 2018 года
+        is_oncology := 0, version_3_1 := left(dtos(human->k_data),6) > "201808" // с сентября 2018 года
 if human_->NOVOR > 0
   m1novor := 1 // для переопределения M1VZROS_REB
   mDATE_R2 := human_->DATE_R2
@@ -425,6 +425,9 @@ if M1VZROS_REB != human->VZROS_REB  // если неверно,
   human->(G_RLock(forever))
   human->VZROS_REB := M1VZROS_REB   // то перезаписываем
   UnLock
+endif
+if version_3_1 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  is_oncology := f_is_oncology(1)
 endif
 //
 glob_kartotek := human->kod_k
@@ -1268,8 +1271,65 @@ if !(is_disp_DDS .or. is_disp_DVN .or. is_prof_PN)
     endif
   next
 endif
-//
 al := "luslf"
+if is_oncology > 0 // онкология - направления
+  if human->OBRASHEN == '1' .and. ascan(mdiagnoz, {|x| padr(x,5) == "Z03.1" }) == 0
+    aadd(ta,'при "подозрении на ЗНО" в листе учёта обязательно должен быть основной (или сопутствующий) диагноз Z03.1 "наблюдение при подозрении на злокачественную опухоль"')
+  endif
+  i := 0
+  arr := {}
+  select ONKNA // онконаправления
+  find (str(human->kod,7))
+  do while onkna->kod == human->kod .and. !eof()
+    ++i
+    aadd(arr, {onkna->NAPR_DATE,;
+               onkna->NAPR_V,;
+               iif(onkna->NAPR_V == 3, onkna->MET_ISSL, 0),;
+               iif(onkna->NAPR_V == 3, onkna->U_KOD, 0),;
+               "",;
+               onkna->(recno()) })
+    if !between(onkna->NAPR_DATE,d1,d2)
+      aadd(ta,"дата направления должна быть внутри сроков лечения (направление "+lstr(i)+')')
+    endif
+    if onkna->NAPR_V == 3
+      if empty(onkna->MET_ISSL)
+        aadd(ta,'не определён "Метод диагн.исследования" для направления '+lstr(i))
+      elseif empty(onkna->U_KOD)
+        aadd(ta,'не определена "Медицинская услуга" для направления '+lstr(i))
+      else
+        select MOSU
+        goto (onkna->U_KOD)
+        if empty(mosu->shifr1)
+          aadd(ta,'не определена "Медицинская услуга" для направления '+lstr(i))
+        else
+          dbSelectArea(al)
+          find (padr(mosu->shifr1,20)) 
+          if found()
+            if onkna->MET_ISSL != &al.->onko_napr
+              aadd(ta,'не тот метод диагн.исследования в услуге '+;
+                      alltrim(iif(empty(mosu->shifr),mosu->shifr1,mosu->shifr))+' для направления '+lstr(i))
+            endif
+          else
+            aadd(ta,'услуга '+alltrim(iif(empty(mosu->shifr),mosu->shifr1,mosu->shifr))+;
+                    ' не найдена в справочнике (для направления '+lstr(i)+')')
+          endif
+        endif
+      endif
+    endif         
+    select ONKNA
+    skip
+  enddo
+  for i := 1 to len(arr)  // ищем дубликаты направления
+    s := dtos(arr[i,1])+str(arr[i,2],1)+str(arr[i,3],1)+str(arr[i,4],6) 
+    arr[i,5] := s
+    if i > 1 .and. (j := ascan(arr, {|x| s == x[5] }, 1, i-1)) > 0
+      select ONKNA
+      goto (arr[i,6])
+      DeleteRec(.t.)  // удаляем дубликат направления
+    endif
+  next
+endif
+//
 select MOHU
 find (str(human->kod,7))
 do while mohu->kod == human->kod .and. !eof()
@@ -1384,30 +1444,234 @@ do while mohu->kod == human->kod .and. !eof()
   skip
 enddo
 v := 0
-if version_3_1
+if is_oncology == 2 // онкология
+  select ONKSL
+  find (str(human->kod,7))
+  if between(onksl->PR_CONS,1,3) .and. !between(onksl->DT_CONS,d1,d2)
+    aadd(ta,"дата консилиума по онкологии должна быть внутри сроков лечения")
+  endif
+  fl := .t.
+  if empty(onksl->ONK_T)
+    fl := .f. ; aadd(ta,"онкология: не введена стадия заболевания T")
+  endif
+  if empty(onksl->ONK_N)
+    fl := .f. ; aadd(ta,"онкология: не введена стадия заболевания N")
+  endif
+  if empty(onksl->ONK_M)
+    fl := .f. ; aadd(ta,"онкология: не введена стадия заболевания M")
+  endif
+  fl_lock_onksl := .t.
+  if fl
+    if select("N6") == 0
+      R_Use(dir_exe+"_mo_N006",cur_dir+"_mo_N006","N6")
+    endif
+    select N6
+    find (padr(mdiagnoz[1],3))
+    if found()
+      find (padr(mdiagnoz[1],3)+str(onksl->ONK_T,6)+str(onksl->ONK_N,6)+str(onksl->ONK_M,6))
+      if found()
+        if onksl->stad != n6->id_st
+          fl_lock_onksl := .f.
+          select ONKSL
+          G_RLock(forever)
+          onksl->stad := n6->id_st // Справочник N006: по сочетанию стадий TNM исправлено поле "Стадия"
+        endif
+      else
+        aadd(ta,"справочник N006: некорректное сочетание стадий TNM")
+      endif
+    elseif empty(onksl->STAD)
+      aadd(ta,"онкология: не введена стадия заболевания")
+    endif
+  endif
+  // гистология
+  ar_N009 := {}
+  if select("N9") == 0
+    R_Use(dir_exe+"_mo_N009",,"N9")
+  endif
+  select N9
+  dbeval({|| aadd(ar_N009,{"",n9->id_mrf,{}}) }, {|| padr(mdiagnoz[1],3) == n9->ds_mrf })
+  /*if len(ar_N009) > 0
+        R_Use(exe_dir+"_mo_N007",cur_dir+"_mo_N007","N7")
+        R_Use(exe_dir+"_mo_N008",cur_dir+"_mo_N008","N8")
+        for i := 1 to min(2,len(mm_N009))
+          select N7
+          find (str(mm_N009[i,2],6))
+          if found()
+            mm_N009[i,1] := alltrim(n7->mrf_name)
+          else
+            func_error(4,"Не найден гистологический признак ID_MRF="+lstr(mm_N009[i,2])+" для "+mkod_diag)
+          endif
+          select N8
+          find (str(mm_N009[i,2],6))
+          do while n8->id_mrf == mm_N009[i,2] .and. !eof()
+            aadd(mm_N009[i,3], {alltrim(n8->r_m_name),n8->id_r_m})
+            skip
+          enddo
+          if ascan(mm_N009[i,3], {|x| x[2] == &("m1gist"+lstr(i)) }) == 0
+            &("m1gist"+lstr(i)) := 0
+          endif
+          &("mgist"+lstr(i)) := inieditspr(A__MENUVERT, mm_N009[i,3], &("m1gist"+lstr(i)))
+        next
+      endif*/
+  // Иммуногистохимия/маркеры
+  ar_N012 := {}
+  if select("N12") == 0
+    R_Use(dir_exe+"_mo_N012",,"N12")
+  endif
+  select N12
+  dbeval({|| aadd(ar_N012,{"",n12->id_igh,{}}) }, {|| padr(mdiagnoz[1],3) == n12->ds_igh })
+  /*if len(ar_N012) > 0
+        R_Use(exe_dir+"_mo_N010",cur_dir+"_mo_N010","N10")
+        R_Use(exe_dir+"_mo_N011",cur_dir+"_mo_N011","N11")
+        for i := 1 to min(5,len(mm_N012))
+          select N10
+          find (str(mm_N012[i,2],6))
+          if found()
+            mm_N012[i,1] := alltrim(n10->igh_name)
+          else
+            func_error(4,"Не найден гистологический признак ID_IGH="+lstr(mm_N012[i,2])+" для "+mkod_diag)
+          endif
+          select N11
+          find (str(mm_N012[i,2],6))
+          do while n11->id_igh == mm_N012[i,2] .and. !eof()
+            aadd(mm_N012[i,3], {alltrim(n11->kod_r_i),n11->id_r_i})
+            skip
+          enddo
+          if ascan(mm_N012[i,3], {|x| x[2] == &("m1mark"+lstr(i)) }) == 0
+            &("m1mark"+lstr(i)) := 0
+          endif
+          &("mmark"+lstr(i)) := inieditspr(A__MENUVERT, mm_N012[i,3], &("m1mark"+lstr(i)))
+        next
+      endif*/
+  arr_onkdi0 := {}
+  arr_onkdi1 := {}
+  arr_onkdi2 := {}
+  select ONKDI
+  find (str(human->kod,7))
+  do while onkdi->kod == human->kod .and. !eof()
+    if !empty(onkdi->DIAG_DATE)
+      aadd(arr_onkdi0, {onkdi->DIAG_DATE,onkdi->DIAG_TIP,onkdi->DIAG_CODE,onkdi->DIAG_RSLT})
+    elseif onkdi->DIAG_TIP == 1
+      aadd(arr_onkdi1, {onkdi->DIAG_DATE,onkdi->DIAG_TIP,onkdi->DIAG_CODE,onkdi->DIAG_RSLT})
+    elseif onkdi->DIAG_TIP == 2
+      aadd(arr_onkdi2, {onkdi->DIAG_DATE,onkdi->DIAG_TIP,onkdi->DIAG_CODE,onkdi->DIAG_RSLT})
+    endif
+    skip
+  enddo
+  if len(arr_onkdi0) == 0
+    if len(arr_onkdi1) != len(ar_N009)
+      aadd(ta,"не все гистологии заполнены")
+    endif
+    if len(arr_onkdi2) != len(ar_N012)
+      aadd(ta,"не все иммуногистохимии заполнены")
+    endif
+  else
+    if len(arr_onkdi1) > 0
+      aadd(ta,"гистология не должна заполняться при заполненной дате взятия материала")
+    endif
+    if len(arr_onkdi2) > 0
+      aadd(ta,"иммуногистохимия не должна заполняться при заполненной дате взятия материала")
+    endif
+  endif
+  //
+  if select("N1") == 0
+    R_Use(dir_exe+"_mo_N001",,"N1")
+  endif
+  select ONKPR
+  find (str(human->kod,7))
+  do while onkpr->kod == human->kod .and. !eof()
+    if !between(onkpr->PROT,1,6)
+      aadd(ta,"Некорректно записано противопоказание к проведению (отказ от проведения)")
+    elseif onkpr->D_PROT > d2
+      n1->(dbGoto(onkpr->PROT))
+      aadd(ta,alltrim(lower(n1->prot_name))+" - дата регистрации больше даты окончания лечения")
+    endif
+    select ONKPR
+    skip
+  enddo
+  //
+  fl_lek_ter := .f.
   select ONKUS
   find (str(human->kod,7))
   do while onkus->kod == human->kod .and. !eof()
-    if onkus->USL_TIP > 0 // Тип онкоуслуги в соответствии со справочником N013
-      if (i := ascan(au_flu, {|x| x[10] == onkus->USL_TIP })) > 0
-        select MOHU
-        goto (au_flu[i,9])
-        G_RLock(forever)
-        mohu->USL_TIP := onkus->USL_TIP	
-        mohu->HIR_TIP := onkus->HIR_TIP	
-        mohu->LEK_TIP_L := onkus->LEK_TIP_L	
-        mohu->LEK_TIP_V := onkus->LEK_TIP_V
-        mohu->LUCH_TIP := onkus->LUCH_TIP
-        mohu->PZKOL := onkus->SOD
-        v += onkus->SOD
-        au_flu[i,11] := .t. 
-      else
-        // !!!!!!!!!!!!!!!!!!!!!! ошибка
-      endif	
+    i := k := k1 := 0
+    do case // Тип онкоуслуги в соответствии со справочником N013
+      case between(onkus->USL_TIP,1,3)
+        k := onkus->USL_TIP
+      case onkus->USL_TIP == 4
+        k := 3
+      case onkus->USL_TIP == 5
+        k := 5 ; k1 := 9
+    endcase
+    if k > 0
+      i := ascan(au_flu, {|x| x[10] == k })
+    endif
+    if i == 0 .and. k1 > 0
+      i := ascan(au_flu, {|x| x[10] == k1 })
+    endif
+    if i > 0
+      select MOHU
+      goto (au_flu[i,9])
+      G_RLock(forever)
+      mohu->USL_TIP := onkus->USL_TIP	
+      mohu->HIR_TIP := onkus->HIR_TIP	
+      mohu->LEK_TIP_L := onkus->LEK_TIP_L	
+      mohu->LEK_TIP_V := onkus->LEK_TIP_V
+      mohu->LUCH_TIP := onkus->LUCH_TIP
+      mohu->PZKOL := onkus->SOD
+      v += onkus->SOD
+      au_flu[i,11] := .t. 
+    elseif onkus->USL_TIP == 2
+      fl_lek_ter := .t.
+    elseif between(onkus->USL_TIP,1,5) .and. !eq_any(shifr_ksg,"1138.0","2051.0")
+      s := {"Хирургическое лечение",;
+            "Лекарственная противоопухолевая терапия",;
+            "Лучевая терапия",;
+            "Химиолучевая терапия",;
+            "Другое"}[onkus->USL_TIP]
+      aadd(ta,'для онколечения "'+lower(s)+'" не введена услуга')      
     endif
     select ONKUS
     skip
   enddo
+  /*if fl_lek_ter
+    select MOSU
+    set order to 3
+    find (padr("А25.30.033",20))
+            if found()  // наверное, добавили только что 
+              select MOHU
+              if nKey == K_INS
+                Add1Rec(7)
+                mrec_hu := mohu->(recno())
+                fl_found := .t.
+                select TMP
+                append blank
+                rec_tmp := tmp->(recno())
+                ++mvu[1,1]  // услуга добавлена оператором
+              else
+                goto (mrec_hu)
+                G_RLock(forever)
+                select TMP
+                goto (rec_tmp)
+                ++mvu[2,1]  // услуга отредактирована оператором
+              endif
+              select MOHU
+              mohu->kod     := human->kod
+              mohu->kod_vr  := mkod_vr
+              mohu->kod_as  := mkod_as
+              mohu->u_kod   := mu_kod
+              mohu->u_cena  := mu_cena
+              mohu->date_u  := dtoc4(mdate_u1)
+              mohu->otd     := m1otd
+              mohu->kol_1   := mkol_1
+              mohu->stoim_1 := mstoim_1
+              if nKey == K_INS .or. !valid_GUID(mohu->ID_U)
+                mohu->ID_U  := mo_guid(4,mohu->(recno()))
+              endif
+              mohu->PROFIL  := m1PROFIL
+              mohu->PRVS    := m1PRVS
+              mohu->kod_diag:= mkod_diag
+              mohu->zf      := mzf*/
   for i := 1 to len(au_flu)
     if !au_flu[i,11]  // очистим те услуги, в которых ничего не прописали
       select MOHU
@@ -1423,6 +1687,13 @@ if version_3_1
       endif
     endif
   next i
+  if !(onksl->SOD == v)
+    select ONKSL
+    if fl_lock_onksl
+      G_RLock(forever)
+    endif
+    onksl->SOD := v // суммарная очаговая доза
+  endif
 endif  
 mpztip := mpzkol := 0
 if !(round(human->cena_1,2) == round(ssumma,2))
