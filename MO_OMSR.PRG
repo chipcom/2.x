@@ -399,7 +399,7 @@ return lp
 
 *
 
-***** 09.09.18
+***** 10.09.18
 Function verify_1_sluch(fl_view)
 Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
       i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -1202,7 +1202,7 @@ do while hu->kod == human->kod .and. !eof()
           aadd(ta,'для услуги '+alltrim_lshifr+' "дата следующей явки пациента для диспансерного наблюдения" меньше даты окончания лечения')
         endif
         if left_lshifr_5 == "2.88." 
-          mpovod := 4 // 1.3
+          mpovod := 4 // 1.3-Диспансерное наблюдение
         endif
       endif
       kvp += hu->kol_1
@@ -1267,12 +1267,19 @@ endif
 if !(is_disp_DDS .or. is_disp_DVN .or. is_prof_PN)
   for i := 1 to len(au_lu)
     if !between(au_lu[i,2],d1,d2)
-      aadd(ta,'услуга '+au_lu[i,5]+'('+date_8(au_lu[i,2])+') не попадает в диапазон лечения 1')
+      aadd(ta,'услуга '+au_lu[i,5]+'('+date_8(au_lu[i,2])+') не попадает в диапазон лечения')
     endif
   next
 endif
 al := "luslf"
 if is_oncology > 0 // онкология - направления
+  if is_oncology == 2 // онкология
+    if mpovod == 4  // 1.3-Диспансерное наблюдение
+      is_oncology := 1 // для дисп.наблюдения не вводится онкология
+    elseif human_->USL_OK == 3 .and. len(au_lu) == 0
+      is_oncology := 1 // пока не введены услуги - не проверяем онкологию
+    endif
+  endif
   if human->OBRASHEN == '1' .and. ascan(mdiagnoz, {|x| padr(x,5) == "Z03.1" }) == 0
     aadd(ta,'при "подозрении на ЗНО" в листе учёта обязательно должен быть основной (или сопутствующий) диагноз Z03.1 "наблюдение при подозрении на злокачественную опухоль"')
   endif
@@ -1590,6 +1597,7 @@ if is_oncology == 2 // онкология
     skip
   enddo
   //
+  fl := .t.
   fl_lek_ter := .f.
   select ONKUS
   find (str(human->kod,7))
@@ -1599,6 +1607,9 @@ if is_oncology == 2 // онкология
       case between(onkus->USL_TIP,1,3)
         k := onkus->USL_TIP
       case onkus->USL_TIP == 4
+        if ascan(au_flu, {|x| x[10] == 2 }) == 0 .and. !(left(human_2->pc3,2) == "sh")
+          aadd(ta,'для химиолучевой терапии обязательны к заполнению либо услуга назначения лекарственных препаратов, либо номер схемы лечения')
+        endif
         k := 3
       case onkus->USL_TIP == 5
         k := 5 ; k1 := 9
@@ -1607,18 +1618,22 @@ if is_oncology == 2 // онкология
       i := ascan(au_flu, {|x| x[10] == k })
     endif
     if i == 0 .and. k1 > 0
-      i := ascan(au_flu, {|x| x[10] == k1 })
+      k := k1
+      i := ascan(au_flu, {|x| x[10] == k })
     endif
     if i > 0
       select MOHU
       goto (au_flu[i,9])
       G_RLock(forever)
-      mohu->USL_TIP := onkus->USL_TIP	
+      mohu->USL_TIP := iif(onkus->USL_TIP == 5, k, onkus->USL_TIP)	
       mohu->HIR_TIP := onkus->HIR_TIP	
       mohu->LEK_TIP_L := onkus->LEK_TIP_L	
       mohu->LEK_TIP_V := onkus->LEK_TIP_V
       mohu->LUCH_TIP := onkus->LUCH_TIP
       mohu->PZKOL := onkus->SOD
+      if empty(onkus->SOD) .and. between(onkus->USL_TIP,3,4)
+        aadd(ta,'для '+iif(onkus->USL_TIP==3,'','химио')+'лучевой терапии не заполнена суммарная очаговая доза (СОД)')
+      endif
       v += onkus->SOD
       au_flu[i,11] := .t. 
     elseif onkus->USL_TIP == 2
@@ -1630,50 +1645,35 @@ if is_oncology == 2 // онкология
             "Химиолучевая терапия",;
             "Другое"}[onkus->USL_TIP]
       aadd(ta,'для онколечения "'+lower(s)+'" не введена услуга')      
+      fl := .f.
     endif
     select ONKUS
     skip
   enddo
-  /*if fl_lek_ter
-    select MOSU
-    set order to 3
-    find (padr("А25.30.033",20))
-            if found()  // наверное, добавили только что 
-              select MOHU
-              if nKey == K_INS
-                Add1Rec(7)
-                mrec_hu := mohu->(recno())
-                fl_found := .t.
-                select TMP
-                append blank
-                rec_tmp := tmp->(recno())
-                ++mvu[1,1]  // услуга добавлена оператором
-              else
-                goto (mrec_hu)
-                G_RLock(forever)
-                select TMP
-                goto (rec_tmp)
-                ++mvu[2,1]  // услуга отредактирована оператором
-              endif
-              select MOHU
-              mohu->kod     := human->kod
-              mohu->kod_vr  := mkod_vr
-              mohu->kod_as  := mkod_as
-              mohu->u_kod   := mu_kod
-              mohu->u_cena  := mu_cena
-              mohu->date_u  := dtoc4(mdate_u1)
-              mohu->otd     := m1otd
-              mohu->kol_1   := mkol_1
-              mohu->stoim_1 := mstoim_1
-              if nKey == K_INS .or. !valid_GUID(mohu->ID_U)
-                mohu->ID_U  := mo_guid(4,mohu->(recno()))
-              endif
-              mohu->PROFIL  := m1PROFIL
-              mohu->PRVS    := m1PRVS
-              mohu->kod_diag:= mkod_diag
-              mohu->zf      := mzf*/
+  if fl_lek_ter
+    k := ret_kod_usl_lek_ter(M1VZROS_REB)
+    select MOHU
+    Add1Rec(7)
+    mohu->kod     := human->kod
+    mohu->kod_vr  := human_->VRACH
+    mohu->kod_as  := 0
+    mohu->u_kod   := k
+    mohu->u_cena  := 0
+    mohu->date_u  := cd1
+    mohu->otd     := human->OTD
+    mohu->kol_1   := 1
+    mohu->stoim_1 := 0
+    mohu->ID_U    := mo_guid(4,mohu->(recno()))
+    mohu->PROFIL  := human_->PROFIL
+    mohu->PRVS    := human_->PRVS
+    mohu->kod_diag:= mdiagnoz[1]
+    mohu->zf      := ""
+    fl := .f.
+  endif
   for i := 1 to len(au_flu)
-    if !au_flu[i,11]  // очистим те услуги, в которых ничего не прописали
+    if au_flu[i,11]
+      fl := .f.
+    else // очистим те услуги, в которых ничего не прописали
       select MOHU
       goto (au_flu[i,9])
       if mohu->USL_TIP > 0
@@ -1694,6 +1694,9 @@ if is_oncology == 2 // онкология
     endif
     onksl->SOD := v // суммарная очаговая доза
   endif
+  if human_->USL_OK < 3 .and. fl .and. !eq_any(shifr_ksg,"1138.0","2051.0")
+    aadd(ta,'не введено проведённое онкологическое лечение')
+  endif      
 endif  
 mpztip := mpzkol := 0
 if !(round(human->cena_1,2) == round(ssumma,2))
@@ -1978,6 +1981,9 @@ if human_->USL_OK == 1  // стационар
     endif
   endif
   if human_2->VMP == 1 // проверим ВМП
+    if left(mdiagnoz[1],1) == "C" .and. is_oncology == 2
+      aadd(ta,'проверка ВМП при онкозаболевании пока не реализована')
+    endif
     if is_12_VMP  // ВМП по-новому
       make_V018_V019(d2)
       if empty(human_2->TAL_NUM)

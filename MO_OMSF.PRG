@@ -1139,6 +1139,40 @@ setcolor(tmp_color)
 setcursor()
 return update_gets()
 
+***** 10.09.2018
+Function ret_kod_usl_lek_ter(lVZROS_REB)
+Static skodv := 0, skodr := 0
+Local s, lkod
+lkod := iif(lVZROS_REB == 0, skodv, skodr)
+if lkod == 0
+  s := iif(lVZROS_REB == 0, "A25.30.033", "A25.30.014")
+  use_base("mo_su","MOSU1")
+  set order to 3
+  find (padr(s,20))
+  if found() 
+    lkod := mosu1->kod
+  else
+    set order to 1
+    FIND (STR(-1,6))
+    if found()
+      G_RLock(forever)
+    else
+      AddRec(6)
+    endif
+    lkod := mosu1->kod := recno()
+    mosu1->name := "Назначение лекарственных препаратов при онкологическом заболевании у "+;
+                   iif(lVZROS_REB == 0, "взрослых", "детей")
+    mosu1->shifr1 := s
+  endif
+  mosu1->(dbCloseArea())
+  if lVZROS_REB == 0
+    skodv := lkod
+  else
+    skodr := lkod
+  endif
+endif
+return lkod
+
 ***** 09.09.2018
 Function f_valid_tnm(g)
 Local buf    
@@ -2376,9 +2410,7 @@ oColumn:colorBlock := blk
 oBrow:addColumn(oColumn)
 return NIL
 
-*
-
-***** 19.08.13 есть ли листы учёта по данному пациенту
+***** 10.09.18 есть ли листы учёта по данному пациенту
 Function verify_lechenie(kod_kart,/*@*/p1)
 Local buf := save_maxrow(), arr := {}, i, k, r2, mas2, mpic
 p1 := 0
@@ -2403,7 +2435,8 @@ for k := 1 to B_STANDART
                  "",;
                  human->tip_h,;
                  human->lpu,;
-                 "";
+                 "",;
+                 human->k_data;
                 } )
       i := len(arr)
       select PP
@@ -2448,7 +2481,7 @@ if (k := len(arr)) > 0
     R_Use(dir_server+"mo_uch",,"UCH")
     aeval(arr, {|x,i| uch->(dbGoto(x[9])), arr[i,10] := uch->short_name } )
     Use
-    asort(arr,,,{|x,y| x[3] < y[3] } )
+    asort(arr,,,{|x,y| x[11] < y[11] } )
     mas2 := {{ 1,center("Отделение",30)},;
              {10,"Учреж;дение"},;
              { 2,"Начало;лечения"},;
@@ -2461,8 +2494,8 @@ if (k := len(arr)) > 0
       r2 := maxrow()-2
     endif
     if (k := Arrn_Browse(T_ROW,2,r2,77,arr,mas2,1,,color0,;
-        "Листы учета по больному, не включенные в реестры",'B/BG',,,mpic,,,;
-        {"═","░","═"})) > 0
+                         "Листы учета по больному, не включенные в реестры",'B/BG',,,mpic,,,;
+                         {"═","░","═"})) > 0
       glob_perso := p1 := arr[k,5]
       R_Use(dir_server+"mo_otd",,"OTD")
       goto (arr[k,6])

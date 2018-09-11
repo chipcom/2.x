@@ -27,9 +27,9 @@ else
   return .f.
 endif
 if glob_kassa == 1
-  if hb_FileExists("__kassa_.log") .and. filesize("__kassa_.log") > 5000000
-    delete file __kassa_.log
-  endif
+  //if hb_FileExists("__kassa_.log") .and. filesize("__kassa_.log") > 5000000
+  //  delete file __kassa_.log
+  //endif
   f5_sist_fr(1)
 endif
 return .t.
@@ -563,7 +563,9 @@ endcase
 return ret
 
 *
+*
 
+//05.09.18
 ***** à¨ç¨­ë ¯®«®¬®ª ¯à®â¥§®¢
 Function O_pr_polom()
 Local buf := save_row(maxrow()), sh, HH := 58, skol, arr, arr_title,;
@@ -584,7 +586,7 @@ dbcreate(cur_dir+"tmp", {;
   })
 use (cur_dir+"tmp") new
 index on str(kod,3) to (cur_dir+"tmp")
-G_Use(dir_server+"hum_ort",dir_server+"hum_ortd","HUMAN")
+R_Use(dir_server+"hum_ort",dir_server+"hum_ortd","HUMAN")
 select HUMAN
 dbseek(dtos(begin_date),.t.)
 do while human->k_data <= end_date .and. !eof()
@@ -637,6 +639,7 @@ return NIL
 
 *
 
+//05.09.18
 ***** ‘¯¨á®ª ¡®«ì­ëå ¯® ¯®«®¬ª ¬
 Function O_sb_pr_polom()
 Static sk
@@ -664,7 +667,7 @@ dbcreate(cur_dir+"tmp", {;
    {"KOD",        "N",      7,      0};  // ª®¤ ­ àï¤ 
   })
 use (cur_dir+"tmp") new
-G_Use(dir_server+"hum_ort",dir_server+"hum_ortd","HUMAN")
+R_Use(dir_server+"hum_ort",dir_server+"hum_ortd","HUMAN")
 select HUMAN
 dbseek(dtos(begin_date),.t.)
 do while human->k_data <= end_date .and. !eof()
@@ -3288,16 +3291,15 @@ endif
 return NIL
 
 *
-
-*****
+***** 05.09.18
 Function Ort_nar_material()
 Local arr, sh, HH := 58, s, s1, s2, s3, fl,;
       begin_date, end_date, fl_exit := .f., name_file := "orto_mt"+stxt,;
       tip_tit, s4,;
     arr_title := {;
-"ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄ",;
-"           ¨¬¥­®¢ ­¨¥ ¬ â¥à¨ «         ³     áå®¤    ",;
-"ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄ"}
+"ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄ",;
+"                     ¨¬¥­®¢ ­¨¥ ¬ â¥à¨ «                   ³     áå®¤    ",;
+"ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄ"}
 Local reg, reg1, mperso, musluga, mkod, buf := save_row(maxrow())
 Local msl1usluga, msl2usluga, l_delen, mslusluga
 WaitStatus("<Esc> - ¯à¥à¢ âì ¯®¨áª") ; mark_keys({"<Esc>"})
@@ -3380,7 +3382,7 @@ if len(arr_mt) > 0
       aeval(arr_title, {|x| add_string(x) } )
     endif
     if arr_mt[i,3] > 0
-      add_string(padr(arr_mt[i,4],40)+" "+umest_val(arr_mt[i,3],12,3))
+      add_string(padr(arr_mt[i,4],60)+" "+umest_val(arr_mt[i,3],12,3))
     endif
   next
   add_string("")
@@ -3448,7 +3450,7 @@ if len(arr_mt) > 0
       aeval(arr_title, {|x| add_string(x) } )
     endif
     if arr_mt[i,3] > 0
-      add_string(padr(arr_mt[i,4],40)+" "+umest_val(arr_mt[i,3],12,3))
+      add_string(padr(arr_mt[i,4],60)+" "+umest_val(arr_mt[i,3],12,3))
     endif
   next
   add_string("")

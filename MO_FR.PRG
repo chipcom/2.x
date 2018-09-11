@@ -1409,7 +1409,7 @@ return NIL
 *
 
 
-***** 12.08.18  Закрытие чека
+***** 10.09.18  Закрытие чека
 function FRCH_close(summa,summa1,name,t_nds,tip_kart)
 /*  summa  - сумма наличных
     summa1 - по кредитной карте
@@ -1445,7 +1445,7 @@ drvFR:TaxValue4  := 0
 drvFR:TaxValue5  := 0
 drvFR:TaxValue6  := 0
 //
-drvFR:RoundingSumm :=2
+//drvFR:RoundingSumm :=2
 //
 drvFR:Summ1 := summa
 if tip_kart == 0 //старые кассы

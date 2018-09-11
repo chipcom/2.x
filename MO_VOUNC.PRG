@@ -1946,6 +1946,9 @@ do while !eof()
   ldate_next := ctod("")
   //   
   is_oncology := f_is_oncology(1)
+  if is_oncology == 2 .and. human_->USL_OK == 3 .and. human_->povod == 4 // 1.3-Диспансерное наблюдение
+    is_oncology := 1 // для дисп.наблюдения не вводится онкология
+  endif
   arr_onkna := {}
   select ONKNA
   find (str(human->kod,7))
@@ -1983,7 +1986,6 @@ do while !eof()
       lshifr := alltrim(iif(empty(lshifr1), usl->shifr, lshifr1))
       if human_->USL_OK == 3 .and. is_usluga_disp_nabl(lshifr)
         ldate_next := c4tod(human->DATE_OPL)
-        is_oncology := 0 // для дисп.наблюдения не вводится онкология
       endif
       aadd(atmpusl,lshifr)
       if !empty(s) .and. "," $ s
@@ -2365,7 +2367,7 @@ do while !eof()
         endif
       next
       if version_3_1 .and. human_->USL_OK < 4
-        if human->OBRASHEN == '1' .and. is_oncology < 2 .and. human_->PROFIL != 158
+        if human->OBRASHEN == '1' .and. is_oncology < 2 //.and. human_->PROFIL != 158
           mo_add_xml_stroke(oSLUCH,"DS_ONK",'1')
         endif
         if human_->USL_OK == 3
@@ -2639,7 +2641,7 @@ do while !eof()
         mo_add_xml_stroke(oUSL,"PRVS",put_prvs_to_reestr(mohu->PRVS,_NYEAR))
         p2->(dbGoto(mohu->kod_vr))
         mo_add_xml_stroke(oUSL,"CODE_MD" ,p2->snils)
-        if is_oncology == 2 .and. mohu->USL_TIP > 0
+        if is_oncology == 2 .and. mohu->USL_TIP > 0 .and. human_->USL_OK < 3
          oONK := oUSL:Add( HXMLNode():New( "ONK_USL" ) )
           mo_add_xml_stroke(oONK,"USL_TIP",lstr(iif(mohu->USL_TIP==9,0,mohu->USL_TIP)))
           if mohu->USL_TIP == 1	

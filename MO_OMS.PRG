@@ -3997,7 +3997,7 @@ do while .t.
     ++j ; p_nstr_ad_cr := j
     p_str_ad_cr := "Доп.критерий"
     @ p_nstr_ad_cr,1 say p_str_ad_cr get MAD_CR ;
-                     reader {|x| menu_reader(x,mm_ad_cr,A__MENUVERT,,,.f.)} ;
+                     reader {|x| menu_reader(x,mm_ad_cr,A__MENUVERT_SPACE,,,.f.)} ;
                      when input_ad_cr ;
                      color colget_menu
     if !input_ad_cr

@@ -284,7 +284,7 @@ endif
 mark_keys({"<Esc>","<Enter>","<Ins>","<Del>","<Ctrl+Enter>","<F3>","<F4>","<F8>","<F9>","<F10>"},"R/W")
 return NIL
 
-***** 02.07.18
+***** 10.09.18
 Function f3_k_plat(nKey,oBrow)
 LOCAL j := 0, flag := -1, buf := save_row(maxrow()), buf1, fl := .f., rec, mkod,;
       tmp_color := setcolor(), r1 := 15, c1 := 2, v_summa, v_sdacha, adbf, s,;
@@ -370,10 +370,14 @@ do case
       if !empty(round_5(hu->stoim,2))
         select TMP
         append blank
-        if len(alltrim(usl->full_name)) > 3
-           tmp->name := alltrim(usl->shifr)+" "+alltrim(usl->full_name)
+        if glob_mo[_MO_KOD_TFOMS] == '171004' // КБ-4
+          tmp->name := alltrim(usl->name)+" "+alltrim(usl->full_name)
         else
-          tmp->name := alltrim(usl->shifr)+" "+alltrim(usl->name)
+          if len(alltrim(usl->full_name)) > 3
+             tmp->name := alltrim(usl->shifr)+" "+alltrim(usl->full_name)
+          else
+            tmp->name := alltrim(usl->shifr)+" "+alltrim(usl->name)
+          endif
         endif
         if hu->kod_vr > 0 .and. fl
           perso->(dbGoto(hu->kod_vr))
@@ -2762,7 +2766,9 @@ return fl
 
 *
 
-*****
+*
+
+***** 10.09.18
 Function vozvrat_platn(kod_human)
 Local buf := savescreen(), sotgr, str_sem, s, arr_v := {}, arr_p := {},;
       s_msg, mtitle, m1title := "", fl, tmp_s, i_m_otv := 0, j := 0,;
@@ -2795,41 +2801,42 @@ aadd(adbf, {"shifr_u","C", 10,0} )
 aadd(adbf, {"name_u", "C",128,0} )
 aadd(adbf, {"is_nul", "L",  1,0} )
 aadd(adbf, {"summa1", "N",  9,3} )
+aadd(adbf, {"summa2", "N",  9,3} )
 aadd(adbf, {"kol1",   "N",  5,0} )
 aadd(adbf, {"number", "N",  6,0} )
 aadd(adbf, {"rec_hu", "N",  7,0} )
 dbcreate(cur_dir+"tmp_usl",adbf)
 use (cur_dir+"tmp_usl") new alias tmp
-Private i_date_u1 := fieldpos("date_u1")
-index on str(u_kod)+date_u+str(hu->kod_vr) to (cur_dir+"tmp_usl")
+index on str(u_kod,4)+str(kod_vr,4)+date_u to (cur_dir+"tmp1usl")
 select HU
 set relation to u_kod into USL
 find (str(kod_human,7))
 if (fl_found := found())
   adbf := array(fcount())
+  cls
   do while hu->kod == kod_human .and. !eof()
     aeval(adbf, {|x,i| adbf[i] := fieldget(i) } )
     select TMP
-    find (str(hu->u_kod)+hu->date_u+str(hu->kod_vr))
+    find (str(hu->u_kod,4)+str(hu->kod_vr,4)+hu->date_u)
     if found()
+      tmp->kol    := tmp->kol  + hu->kol
       tmp->kol1   := tmp->kol1 + hu->kol
       tmp->summa1 := tmp->summa1 + hu->stoim
+      tmp->summa2 := tmp->summa1
     else
       append blank
       aeval(adbf, {|x,i| fieldput(i,x) } )
-      pr_kod_vr := tmp->kod_vr
-      pr_kod_as := tmp->kod_as
-      tmp->date_u1 := c4tod(hu->date_u)
-      tmp->shifr_u := usl->shifr
+      tmp->date_u1  := c4tod(hu->date_u)
+      tmp->shifr_u  := usl->shifr
       if len(alltrim(usl->full_name)) > 3
         tmp->name_u := alltrim(usl->shifr)+" "+alltrim(usl->full_name)
       else
         tmp->name_u := alltrim(usl->shifr)+" "+alltrim(usl->name)
       endif
-      tmp->is_nul := usl->is_nulp
-      tmp->rec_hu := hu->(recno())
-      tmp->kol1 := hu->kol
-      tmp->summa1 := tmp->stoim
+      tmp->is_nul   := usl->is_nulp
+      tmp->rec_hu   := hu->(recno())
+      tmp->kol1     := hu->kol
+      tmp->summa1   := tmp->stoim
     endif
     select HU
     skip
@@ -2845,23 +2852,15 @@ tmp->(dbeval({|| tmp->number := ++j } ) )
 hu->(dbCloseArea())
 usl->(dbCloseArea())
 // удаление пред-х возвратов
-//
-//
-
 p_summa := summa_oplat
-
-
+//
 select TMP
 go top
 box_shadow(3,4,20,75,color1,mtitle,color8,0)
 Alpha_Browse(5,7,20,72,"f1v_vozvrat",color0,m1title,"BG+/GR",;
              .t.,.t.,,,"f2v_vozvrat",,;
-             {"═","░","═","N/BG,W+/N,B/BG,W+/B,R/BG",.t.,180,"*+"} )
-
-//close databases
+             {"═","░","═","N/BG,W+/N,B/BG,W+/B,R/BG,R/B",.t.,180,"*+"} )
 if f_Esc_Enter("возврата",.t.)
-  //summa_oplat := (human->cena - human->sum_voz)
-  //summa_oplat_bn := human->sbank
   // вначале возвращаем наличку
   if p_summa <= (summa_oplat - summa_oplat_bn)
     sum_bank  := 0
@@ -2885,12 +2884,14 @@ if f_Esc_Enter("возврата",.t.)
     go top
     do while !eof()
       select TMP
-      aeval(adbf, {|x,i| adbf[i] := fieldget(i) } )
-      select HU
-      append blank
-      aeval(adbf, {|x,i| fieldput(i,x) } )
-      hu->kol   := tmp->kol1 * (-1)
-      hu->stoim := tmp->summa1 * (-1)
+      if tmp->kol1 > 0
+        aeval(adbf, {|x,i| adbf[i] := fieldget(i) } )
+        select HU
+        append blank
+        aeval(adbf, {|x,i| fieldput(i,x) } )
+        hu->kol   := tmp->kol1 * (-1)
+        hu->stoim := tmp->summa1 * (-1)
+      endif
       select TMP
       skip
     enddo
@@ -2910,9 +2911,9 @@ tmp->(dbCloseArea())
 restscreen(buf)
 return NIL
 
-*****
+*****  10.09.18
 Function f1v_vozvrat(oBrow)
-Local n, oColumn, blk := {|| if(tmp->kol1 > 0, {3,4}, {5,5} ) }
+Local n, oColumn, blk := {|| if(tmp->kol1 > 0, {3,4}, {5,6} ) }
 //
 oColumn := TBColumnNew(" NN; пп",{|| str(tmp->number,3) })
 oColumn:colorBlock := blk
@@ -2940,13 +2941,14 @@ oBrow:addColumn(oColumn)
 //
 oColumn := TBColumnNew("Вернуть;кол-во",{|| put_val_0(tmp->kol1,5,0) })
 oColumn:defColor := {5,5}
-oColumn:colorBlock := {|| if(tmp->kol1 > 0, {3,4}, {5,5}) }
+oColumn:colorBlock := {|| if(tmp->kol1 > 0, {3,4}, {5,6}) }
 oBrow:addColumn(oColumn)
 //
 status_key("^<Esc>^ - выход для записи;  ^<Enter>^ - редактирование количества;")
 return NIL
 
-*****
+
+***** 10.09.18
 Function f2v_vozvrat(nKey,oBrow)
 Local j := 0, flag := -1, buf := save_row(24), buf1, fl := .f., t_rec,;
       nr := row(), c1, rec, mkod, buf0, tmp_color := setcolor(), ;
@@ -2957,11 +2959,14 @@ t_rec := recno()
 go top
 do while !eof()
   old_summa += round(tmp->u_cena * tmp->kol1, 2)
+  //old_summa += round((tmp->summa2/tmp->kol) * tmp->kol1, 2)
   skip
 enddo
 eval(blk)
 goto t_rec
 do case
+  case nKey == K_ESC
+    setcolor(tmp_color) ; flag := 1
   case nKey == K_ENTER
     setcolor("GR+/RB,GR+/RB,,,G+/RB")
     old_kol := mkol1 := tmp->kol1
@@ -2969,12 +2974,14 @@ do case
     @ nr,c1 get mkol1 pict "99999" valid {|g|f3v_vozvrat(g)}
     myread()
     if lastkey() != K_ESC
-      p1_summa += round(tmp->u_cena * (tmp->kol1- mkol1), 2)
+      p1_summa := round(tmp->u_cena * tmp->kol1, 2)
+      //p1_summa += round((tmp->summa2/tmp->kol) * (tmp->kol1- mkol1), 2)
       p_summa  := old_summa - p1_summa
       tmp->summa1 := round_5(tmp->u_cena * mkol1, 2)
+      p_summa :=  p_summa + tmp->summa1
       tmp->kol1   := mkol1
       tmp->stoim  := tmp->summa1
-      keyboard chr(K_ESC)
+      //keyboard chr(K_ESC)
     endif
     //
     eval(blk)
@@ -2984,6 +2991,7 @@ do case
     keyboard ""
 endcase
 return flag
+
 
 *****
 Function f3v_vozvrat(get)

@@ -11042,7 +11042,8 @@ return NIL
 
 *
 
-***** 15.12.14
+
+***** 05.09.18
 Function pl_priemshk()
 Local fl := .t., buf := save_row(maxrow()), sm2 := 0, HH := 52,;
       n_file := "platn.txt", arr_m, sh, krvz, arr_dms,;
@@ -11173,11 +11174,11 @@ if bkol_oper > 0
     endif
     add_string(str(++ii,3)+" "+;
                padr(tmp->fio,38)+;
-               iif(tmp->summa_bn > 1,"","  ")+;
+               iif(tmp->summa_bn > 0,"","  ")+;
                padr(sectotime(tmp->fr_time),5)+" "+;
                padl(lstr(tmp->chek),5)+" "+;
                padl(lstr(tmp->kod_hum),6)+" "+;
-               iif(tmp->summa_bn > 1,put_kope(tmp->summa_bn,10),put_kope(tmp->summa,10))+" "+;
+               iif(tmp->summa_bn > 0,put_kope(tmp->summa_bn,10),put_kope(tmp->summa,10))+" "+;
                padr(fam_i_o(tmp->fio_vr),20)+;
                iif(tmp->t_flag==1,"*"," "))
     if tmp->summa > tmp->summa_bn .and. tmp->summa_bn > 0
