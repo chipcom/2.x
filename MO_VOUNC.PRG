@@ -1943,11 +1943,12 @@ do while !eof()
   m1profil_stac := 0
   m1napr_reab := 0
   m1profil_kojki := 0
+  fl_disp_nabl := .f.
   ldate_next := ctod("")
   //   
   is_oncology := f_is_oncology(1)
-  if is_oncology == 2 .and. human_->USL_OK == 3 .and. human_->povod == 4 // 1.3-Диспансерное наблюдение
-    is_oncology := 1 // для дисп.наблюдения не вводится онкология
+  if p_tip_reestr == 2
+    is_oncology := 0
   endif
   arr_onkna := {}
   select ONKNA
@@ -1986,6 +1987,7 @@ do while !eof()
       lshifr := alltrim(iif(empty(lshifr1), usl->shifr, lshifr1))
       if human_->USL_OK == 3 .and. is_usluga_disp_nabl(lshifr)
         ldate_next := c4tod(human->DATE_OPL)
+        fl_disp_nabl := .t.
       endif
       aadd(atmpusl,lshifr)
       if !empty(s) .and. "," $ s
@@ -2051,6 +2053,9 @@ do while !eof()
     select HU
     skip
   enddo
+  if is_oncology == 2 .and. human_->USL_OK == 3 .and. fl_disp_nabl // Диспансерное наблюдение
+    is_oncology := 1 // для дисп.наблюдения не вводится онкология
+  endif
   if !empty(lvidpoms) 
     if !eq_ascan(atmpusl,"55.1.2","55.1.3") .or. glob_mo[_MO_KOD_TFOMS] == '801935' // ЭКО-Москва
       lvidpoms := ret_vidpom_licensia(human_->USL_OK,lvidpoms) // только для дн.стационара при стационаре

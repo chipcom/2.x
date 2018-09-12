@@ -2908,7 +2908,7 @@ for im := 1 to len(amohu)
         fl := (k006->los $ llos)
         if fl ; j ++ ; endif
       endif
-      if fl 
+      /*if fl 
         if empty(lad_cr) // в случае нет доп.критерия
           if !empty(k006->ad_cr) // в справочнике есть доп.критерий
             fl := .f.
@@ -2921,7 +2921,7 @@ for im := 1 to len(amohu)
             if fl ; j ++ ; endif
           endif
         endif
-      endif
+      endif*/
       if fl .and. !empty(sds1)
         fl := .f.
         for i := 1 to len(sop_diag)

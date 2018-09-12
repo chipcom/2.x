@@ -745,6 +745,17 @@ if hb_FileExists(exe_dir+sbase+sdbf)
 else
   fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
 endif*/
+// onkko_vmp
+sbase := "_mo_ovmp"
+if hb_FileExists(exe_dir+sbase+sdbf)
+  if files_time(exe_dir+sbase+sdbf,cur_dir+sbase+sntx)
+    R_Use(exe_dir+sbase)
+    index on str(metod,3) to (cur_dir+sbase)
+    use
+  endif
+else
+  fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
+endif
 // N002
 sbase := "_mo_N002"
 if hb_FileExists(exe_dir+sbase+sdbf)

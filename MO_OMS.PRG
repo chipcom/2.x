@@ -3425,12 +3425,14 @@ dbcreate(cur_dir+"tmp_onkus", {; // Сведения о проведённых лечениях
    {"SOD"      ,   "N",     6,     2};  // SOD - Суммарная очаговая доза - При USL_TIP=3,4 
   })
 Private musl_tip, m1usl_tip, musl_tip1, m1usl_tip1, musl_tip2, m1usl_tip2, msod, ;
+        musl_vmp, m1usl_vmp, musl_vmp1, m1usl_vmp1, musl_vmp2, m1usl_vmp2, msod_vmp, ;
         mm_usl_tip := {{"не проводилось",0},;
                        {"Хирургическое лечение",1},;
                        {"Лекарственная противоопухолевая терапия",2},;
                        {"Лучевая терапия",3},;
                        {"Химиолучевая терапия",4},;
                        {"Другое",5}}
+mm_USL_TIP_all := aclone(mm_USL_TIP)                       
 //
 afill(adiag_talon,0)
 R_Use(dir_server+"human_2",,"HUMAN_2")
@@ -3674,16 +3676,23 @@ if Loc_kod > 0
       skip
     enddo
     use (cur_dir+"tmp_onkus") alias TMPOU
-    append blank
     R_Use(dir_server+"mo_onkus",dir_server+"mo_onkus","OU") // Сведения о проведённых лечениях
     find (str(Loc_kod,7))
-    if found()
+    do while ou->kod == Loc_kod .and. !eof()
+      select TMPOU
+      append blank
       tmpou->USL_TIP   := ou->USL_TIP  
       tmpou->HIR_TIP   := ou->HIR_TIP  
       tmpou->LEK_TIP_L := ou->LEK_TIP_L      
       tmpou->LEK_TIP_V := ou->LEK_TIP_V
       tmpou->LUCH_TIP  := ou->LUCH_TIP 
-      tmpou->SOD       := ou->SOD      
+      tmpou->SOD       := ou->SOD
+      select OU
+      skip      
+    enddo
+    select TMPOU
+    if lastrec() == 0
+      append blank
     endif
   endif
 endif
@@ -4276,6 +4285,18 @@ do while .t.
           &("mmark"+lstr(i)) := inieditspr(A__MENUVERT, mm_N012[i,3], &("m1mark"+lstr(i)))
         next
       endif
+      is_onko_VMP := .f. ; musl1vmp := musl2vmp := mtipvmp := 0
+      if m1usl_ok < 3 .and. m1vmp == 1 .and. m1metvmp > 0
+        R_Use(exe_dir+"_mo_ovmp",cur_dir+"_mo_ovmp","OVMP")
+        find (str(m1metvmp,3)) // номер метода ВМП
+        if found()
+          is_onko_VMP := .t.
+          musl1vmp := ovmp->usl1  // 1-я услуга
+          musl2vmp := ovmp->usl2  // 2-я услуга
+          mtipvmp  := ovmp->tip   // 0-применяется одна услуга, 1-применяются две услуги
+        endif
+        ovmp->(dbCloseArea())
+      endif
       //
       mm_N014 := {;
         {"Первичной опухоли, в т.ч. с удалением регионарных лимфатических узлов",1},;
@@ -4297,12 +4318,79 @@ do while .t.
       lstr1 := space(12) ; m1usl_tip1 := 0 ; musl_tip1 := space(69) ; mm_usl_tip1 := {}
       lstr2 := space(13) ; m1usl_tip2 := 0 ; musl_tip2 := space(19) ; mm_usl_tip2 := {}
       lstr3 := space(3) ; mvsod := 0 ; msod := space(6)
+      lstr_vmp1 := space(12) ; m1usl_vmp1 := 0 ; musl_vmp1 := space(69) ; mm_usl_vmp1 := {}
+      lstr_vmp2 := space(13) ; m1usl_vmp2 := 0 ; musl_vmp2 := space(19) ; mm_usl_vmp2 := {}
+      lstr_vmp3 := space(3) ; mvsod_vmp := 0 ; msod_vmp := space(6)
       use (cur_dir+"tmp_onkus") new alias TMPOU
+      index on str(usl_tip,1) to (cur_dir+"tmp_onkus")
+      go top
       if lastrec() == 0
         append blank
       endif
       m1USL_TIP := tmpou->USL_TIP
+      //
+      if len(mm_N009) == 0
+        k++
+      else
+        k += min(2,len(mm_N009))
+      endif
+      if len(mm_N012) == 0
+        k++
+      else
+        k += min(5,len(mm_N012))
+      endif
+      if m1usl_ok < 3
+        if is_onko_VMP
+          m1USL_TIP := musl1vmp
+          mm_USL_TIP := {}
+          if (i := ascan(mm_USL_TIP_all,{|x| x[2] == musl1vmp })) > 0
+            aadd(mm_USL_TIP, aclone(mm_USL_TIP_all[i]))
+          endif
+          k += 3
+          if mtipvmp == 0 // одна услуга
+            if musl2vmp > 0 .and. (i := ascan(mm_USL_TIP_all,{|x| x[2] == musl2vmp })) > 0 // одна услуга из двух
+              aadd(mm_USL_TIP, aclone(mm_USL_TIP_all[i]))
+            endif
+          else//if mtipvmp == 1 две услуги
+            k += 3
+            m1usl_vmp := musl2vmp
+          endif
+        else
+          k += 3
+          if len(mm_USL_TIP) != len(mm_USL_TIP_all)
+            mm_USL_TIP := aclone(mm_USL_TIP_all)
+          endif
+        endif
+      endif
+      if is_onko_VMP .and. mtipvmp == 1 // две услуги
+        mUSL_VMP := inieditspr(A__MENUVERT, mm_USL_TIP_all, m1USL_VMP)
+        select TMPOU
+        find (str(m1usl_vmp,1))
+        if m1usl_vmp == 2
+          m1usl_vmp1 := iif(found(), tmpou->LEK_TIP_V, 0)
+          mm_usl_vmp1 := mm_N016
+          m1usl_vmp2 := iif(found(), tmpou->LEK_TIP_L, 0)
+          mm_usl_vmp2 := mm_N015
+          lstr_vmp2 := "Линия терапии"
+          musl_vmp2 := inieditspr(A__MENUVERT, mm_usl_vmp2, m1usl_vmp2)
+        elseif eq_any(m1usl_vmp,3,4)
+          m1usl_vmp1 := iif(found(), tmpou->LUCH_TIP, 0)
+          mm_usl_vmp1 := mm_N017
+          mvsod_vmp := iif(found(), tmpou->sod, 0)
+          lstr_vmp3 := "СОД"
+          msod_vmp := padr(alltrim(str_0(mvsod_vmp,6,2)),6)
+        endif       
+        lstr_vmp1 := padr(mm_str1[m1usl_vmp+1],12)
+        musl_vmp1 := inieditspr(A__MENUVERT, mm_usl_vmp1, m1usl_vmp1) 
+      endif
+      k += 16
+      //
       mUSL_TIP := inieditspr(A__MENUVERT, mm_USL_TIP, m1USL_TIP)
+      select TMPOU
+      find (str(m1usl_tip,1))
+      if !found()
+        go top
+      endif
       if m1usl_tip == 1
         m1usl_tip1 := tmpou->HIR_TIP
         mm_usl_tip1 := mm_N014
@@ -4328,20 +4416,6 @@ do while .t.
           msod := padr(alltrim(str_0(mvsod,6,2)),6)
         endif
       endif
-      if len(mm_N009) == 0
-        k++
-      else
-        k += min(2,len(mm_N009))
-      endif
-      if len(mm_N012) == 0
-        k++
-      else
-        k += min(5,len(mm_N012))
-      endif
-      if m1usl_ok < 3
-        k += 3
-      endif
-      k += 16
     endif
     SetMode(max(25,k),80)
     pr_1_str("Ввод/редактирование контрольного листа учёта ЗНО")
@@ -4464,6 +4538,7 @@ do while .t.
    if m1usl_ok < 3
     ++j; @ j,3 say "Проведённое лечение" get musl_tip ; 
                reader {|x|menu_reader(x,mm_usl_tip,A__MENUVERT,,,.f.)} ;
+               when len(mm_usl_tip) > 1 ;
                valid {|g,o| f_valid_usl_tip(g,o) } ;      
                color colget_menu
     ++j; @ j,5 get lstr1 color color1 when .f. 
@@ -4477,6 +4552,20 @@ do while .t.
          @ j,60 get lstr3 color color1 when .f.
          @ j,64 get msod ;
                when between(m1usl_tip,3,4) 
+    if is_onko_VMP .and. mtipvmp == 1 // две услуги
+    ++j; @ j,3 say "ВМП: дополнительное лечение" get musl_vmp when .f. ; 
+               color colget_menu
+    ++j; @ j,5 get lstr_vmp1 color color1 when .f. 
+         @ j,col()+1 get musl_vmp1 ; 
+               reader {|x|menu_reader(x,mm_usl_vmp1,A__MENUVERT,,,.f.)} 
+    ++j; @ j,5 get lstr_vmp2 color color1 when .f. 
+         @ j,col()+1 get musl_vmp2 ; 
+               reader {|x|menu_reader(x,mm_usl_vmp2,A__MENUVERT,,,.f.)} ;
+               when m1usl_vmp == 2 
+         @ j,60 get lstr_vmp3 color color1 when .f.
+         @ j,64 get msod_vmp ;
+               when between(m1usl_vmp,3,4) 
+    endif
    endif 
     //             
     arr := {"хирургического лечения","химиотерапевтического лечения","лучевой терапии"}
@@ -4570,6 +4659,7 @@ do while .t.
         endif
       next i 
       use (cur_dir+"tmp_onkus") new alias TMPOU
+      go top
       if lastrec() == 0
         append blank
       endif
@@ -4587,7 +4677,33 @@ do while .t.
       else
         tmpou->sod := 0
       endif
-      if between(m1usl_tip,1,4) 
+      if is_onko_VMP .and. mtipvmp == 1 // две услуги
+        if lastrec() == 1
+          append blank
+        endif
+        goto (2)
+        tmpou->USL_TIP := m1USL_VMP
+        tmpou->HIR_TIP := iif(m1usl_vmp == 1, m1usl_vmp1, 0) 
+        tmpou->LEK_TIP_V := iif(m1usl_vmp == 2, m1usl_vmp1, 0)
+        tmpou->LEK_TIP_L := iif(m1usl_vmp == 2, m1usl_vmp2, 0)
+        tmpou->LUCH_TIP := iif(eq_any(m1usl_vmp,3,4), m1usl_vmp1, 0)
+        if eq_any(m1usl_vmp,3,4)
+          if val(msod) < 1000
+            tmpou->sod := val(msod_vmp)
+          else
+            tmpou->sod := 999.99
+          endif
+        else
+          tmpou->sod := 0
+        endif
+      else
+        for i := 2 to lastrec()
+          goto (i)
+          delete
+        next
+        pack
+      endif
+      /*if between(m1usl_tip,1,4) 
         lstr1 := padr(mm_str1[m1usl_tip+1],12)
         musl_tip1 := inieditspr(A__MENUVERT, mm_usl_tip1, m1usl_tip1) 
         if m1usl_tip == 2 
@@ -4598,7 +4714,7 @@ do while .t.
           lstr3 := "СОД"
           msod := padr(alltrim(str_0(mvsod,6,2)),6)
         endif
-      endif
+      endif*/
     endif 
     close databases
   else
@@ -5035,21 +5151,39 @@ do while .t.
           goto (arr[i])
           DeleteRec(.t.)
         enddo  
-        use (cur_dir+"tmp_onkus") new alias TMPOU
+        arr := {}
         G_Use(dir_server+"mo_onkus",dir_server+"mo_onkus","US")
         find (str(mkod,7))
-        if found()
-          G_RLock(forever)
-        else
-          AddRec(7)
-          us->kod := mkod
-        endif  
-        us->USL_TIP   := tmpou->USL_TIP  
-        us->HIR_TIP   := tmpou->HIR_TIP  
-        us->LEK_TIP_V := tmpou->LEK_TIP_V
-        us->LEK_TIP_L := tmpou->LEK_TIP_L
-        us->LUCH_TIP  := tmpou->LUCH_TIP 
-        us->sod       := tmpou->sod      
+        do while us->kod == mkod .and. !eof()
+          aadd(arr,recno())
+          skip
+        enddo
+        i := 0
+        use (cur_dir+"tmp_onkus") new alias TMPOU
+        go top
+        do while !eof() 
+          select US
+          if ++i > len(arr)
+            AddRec(7)
+            us->kod := mkod
+          else
+            goto (arr[i])
+            G_RLock(forever)
+          endif
+          us->USL_TIP   := tmpou->USL_TIP  
+          us->HIR_TIP   := tmpou->HIR_TIP  
+          us->LEK_TIP_V := tmpou->LEK_TIP_V
+          us->LEK_TIP_L := tmpou->LEK_TIP_L
+          us->LUCH_TIP  := tmpou->LUCH_TIP 
+          us->sod       := tmpou->sod      
+          select TMPOU
+          skip
+        enddo
+        select US
+        do while ++i <= len(arr)
+          goto (arr[i])
+          DeleteRec(.t.)
+        enddo  
       endif
     endif
     Private fl_nameismo := .f.

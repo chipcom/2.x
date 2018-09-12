@@ -783,7 +783,7 @@ if is_dop_ob_em
 endif
 au_lu := {} ; au_flu := {} ; au_lu_ne := {} ; arr_perso := {} ; arr_unit := {}
 is_kt := is_mrt := is_angio := is_koronaro := is_g_cit := is_pr_skr := .f.
-is_71_1 := is_71_2 := is_71_3 := is_dom := .f.
+is_71_1 := is_71_2 := is_71_3 := is_dom := fl_disp_nabl := .f.
 kvp_2_78 := kvp_2_89 := kol_2_3 := kol_2_60 := kol_2_4 := kol_2_6 := kol_55_1 := 0
 kvp_70_5 := kvp_70_6 := kvp_70_3 := kvp_72_2 := kvp_72_3 := kvp_72_4 := 0
 is_2_78 := is_2_79 := is_2_80 := is_2_81 := is_2_82 := .f.
@@ -1195,6 +1195,7 @@ do while hu->kod == human->kod .and. !eof()
         mdate_u2 := dtoc4(human->k_data)
       endif
       if is_usluga_disp_nabl(alltrim_lshifr)
+        fl_disp_nabl := .t.
         ldate_next := c4tod(human->DATE_OPL)
         if empty(ldate_next)
           aadd(ta,'для услуги '+alltrim_lshifr+' не заполнена "Дата следующей явки пациента для диспансерного наблюдения"')
@@ -1264,7 +1265,9 @@ if is_dom .and. mpovod == 1
   mpovod := 3 // 1.2 - активное посещение, т.е. на дому
 endif
 //
-if !(is_disp_DDS .or. is_disp_DVN .or. is_prof_PN)
+if is_disp_DDS .or. is_disp_DVN .or. is_prof_PN
+  is_oncology := 0
+else
   for i := 1 to len(au_lu)
     if !between(au_lu[i,2],d1,d2)
       aadd(ta,'услуга '+au_lu[i,5]+'('+date_8(au_lu[i,2])+') не попадает в диапазон лечения')
@@ -1274,7 +1277,7 @@ endif
 al := "luslf"
 if is_oncology > 0 // онкология - направления
   if is_oncology == 2 // онкология
-    if mpovod == 4  // 1.3-Диспансерное наблюдение
+    if fl_disp_nabl  // Диспансерное наблюдение
       is_oncology := 1 // для дисп.наблюдения не вводится онкология
     elseif human_->USL_OK == 3 .and. len(au_lu) == 0
       is_oncology := 1 // пока не введены услуги - не проверяем онкологию
@@ -1636,7 +1639,7 @@ if is_oncology == 2 // онкология
       endif
       v += onkus->SOD
       au_flu[i,11] := .t. 
-    elseif onkus->USL_TIP == 2
+    elseif onkus->USL_TIP == 2 .and. human_2->VMP == 0 // если ВМП, пусть добавляют сами
       fl_lek_ter := .t.
     elseif between(onkus->USL_TIP,1,5) .and. !eq_any(shifr_ksg,"1138.0","2051.0")
       s := {"Хирургическое лечение",;
@@ -1981,9 +1984,6 @@ if human_->USL_OK == 1  // стационар
     endif
   endif
   if human_2->VMP == 1 // проверим ВМП
-    if left(mdiagnoz[1],1) == "C" .and. is_oncology == 2
-      aadd(ta,'проверка ВМП при онкозаболевании пока не реализована')
-    endif
     if is_12_VMP  // ВМП по-новому
       make_V018_V019(d2)
       if empty(human_2->TAL_NUM)

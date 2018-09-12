@@ -599,6 +599,17 @@ do while .t.
          @ ix,col()+5 SAY "Количество представителей" GET mkol_pred pict "9" ;
                valid {|| between(mkol_pred,0,2) .and. f_kart_valid_pred(ix) }
   endif
+  if pos_read > 0
+    if lower(GetList[pos_read]:name) == "mgragd"
+      --pos_read
+    endif
+    if lower(GetList[pos_read]:name) == "mgorod_selo"
+      --pos_read
+    endif
+    if lower(GetList[pos_read]:name) == "minvalid"
+      --pos_read
+    endif
+  endif
   status_key("^<Esc>^ - выход без записи;  ^<PgDn>^ - подтверждение ввода")
   set key K_F2 TO f_prim1
   if fl_mr_dol
@@ -1196,9 +1207,9 @@ if rec > 0 .and. lkod_k == rec
 endif
 return .t.
 
-***** 01.08.18
+***** 11.09.18
 Function get_oksm(r)
-Local c := 13, r1, r2, buf, tmp_help, tmp_list, tmp_color, tmp_cursor, tek_sost, tmp_keys
+Local c := 7, r1, r2, buf, tmp_help, tmp_list, tmp_color, tmp_cursor, tek_sost, tmp_keys
 if r < int(maxrow()/2)
   r1 := r+1
   r2 := r1+8

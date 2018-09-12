@@ -1084,7 +1084,6 @@ if (n := input_value(4,33,6,77,color5,"Добавление/редактирование направления №",
 elseif eq_any(n,0,cur_napr)  
   // выбрали то же направление, что и редактируется
 else
-my_debug(,print_array({n,cur_napr,count_napr}))  
   if cur_napr == 0
     cur_napr := 1
   endif
@@ -1203,40 +1202,46 @@ Private yes_oncology := .f.
 f_is_oncology(2)
 return !yes_oncology
 
-***** 20.08.18
+***** 11.09.18
 Function f_is_oncology(r)
-Local i, k, mdiagnoz, lprofil, lzno := 0
+Local i, k, mdiagnoz, lusl_ok, lprofil, lzno := 0
 if r == 1
+  lusl_ok := human_->USL_OK
   mdiagnoz := diag_to_array()
   lprofil := human_->profil
   if human->OBRASHEN == '1'
     lzno := 1
   endif
 else
+  lusl_ok := m1USL_OK
   mdiagnoz := diag_to_array(" ")
   lprofil := m1profil
   lzno := m1ds_onk
 endif
-if empty(mdiagnoz)
-  aadd(mdiagnoz,space(6))
-endif
-k := lzno  
-if left(mdiagnoz[1],1) == "C"
-  k := 2
-elseif left(mdiagnoz[1],3) == "D70"
-  for i := 2 to len(mdiagnoz)
-    if left(mdiagnoz[i],1) == "C"
-      if between(left(mdiagnoz[i],3),"C00","C80") .or. left(mdiagnoz[i],3) == "C97"
-        k := 2
+if lusl_ok == 4 // скорая помощь
+  k := 0
+else
+  if empty(mdiagnoz)
+    aadd(mdiagnoz,space(6))
+  endif
+  k := lzno  
+  if left(mdiagnoz[1],1) == "C"
+    k := 2
+  elseif left(mdiagnoz[1],3) == "D70"
+    for i := 2 to len(mdiagnoz)
+      if left(mdiagnoz[i],1) == "C"
+        if between(left(mdiagnoz[i],3),"C00","C80") .or. left(mdiagnoz[i],3) == "C97"
+          k := 2
+        endif
       endif
+    next
+  endif
+  if k == 2
+    yes_oncology := .t.
+    m1ds_onk := 0 ; mds_onk := inieditspr(A__MENUVERT, mm_danet, m1ds_onk)
+    if lprofil == 158
+      k := 1
     endif
-  next
-endif
-if k == 2
-  yes_oncology := .t.
-  m1ds_onk := 0 ; mds_onk := inieditspr(A__MENUVERT, mm_danet, m1ds_onk)
-  if lprofil == 158
-    k := 1
   endif
 endif
 return k

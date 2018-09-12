@@ -4051,6 +4051,35 @@ if k > 10
 endif
 return NIL
 
+***** 11.09.18
+FUNCTION pr_sprav_onk_vmp()
+Static mm_usl_tip := {'"Хирургическое лечение"',;
+                      '"Лекарственная противоопухолевая терапия"',;
+                      '"Лучевая терапия"'}
+Local buf := save_maxrow(), name_file := "metodVMPonko"+stxt, sh := 80, HH := 60, t_arr[2], i, s
+mywait()
+fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
+R_Use(exe_dir+"_mo_ovmp",cur_dir+"_mo_ovmp","OVMP")
+add_string("")
+add_string(center("Классификатор методов ВМП по онкозаболеваниям с указанием типов лечения",sh))
+add_string("")
+for i := 1 to 1000
+  find (str(i,3))
+  if found()
+    verify_FF(HH,.t.,sh)
+    s := str(i,3)+"  "+mm_usl_tip[OVMP->USL1]
+    if ovmp->usl2 > 0
+      s += iif(ovmp->tip == 0, " или ", " и ")+mm_usl_tip[OVMP->USL2]
+    endif
+    add_string(s)
+  endif
+next
+rest_box(buf)
+fclose(fp)
+viewtext(name_file,,,,.t.,,,2)
+close databases
+return NIL
+
 ***** 13.08.18
 FUNCTION pr_sprav_N006()
 Local sh := 75, HH := 60, reg_print := 2, name_file := "n006.txt", i, ad := {}
