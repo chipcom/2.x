@@ -397,9 +397,7 @@ elseif lp == 64 // оториноларингологии
 endif
 return lp
 
-*
-
-***** 10.09.18
+***** 16.09.18
 Function verify_1_sluch(fl_view)
 Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
       i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -1265,14 +1263,25 @@ if is_dom .and. mpovod == 1
   mpovod := 3 // 1.2 - активное посещение, т.е. на дому
 endif
 //
+fl := (ascan(mdiagnoz, {|x| padr(x,5) == "Z03.1" }) > 0)
 if is_disp_DDS .or. is_disp_DVN .or. is_prof_PN
   is_oncology := 0
+  if fl
+    aadd(ta,'при диспансеризации не должно быть основного (или сопутствующего) диагноза Z03.1 "наблюдение при подозрении на злокачественную опухоль"')
+  endif
 else
   for i := 1 to len(au_lu)
     if !between(au_lu[i,2],d1,d2)
       aadd(ta,'услуга '+au_lu[i,5]+'('+date_8(au_lu[i,2])+') не попадает в диапазон лечения')
     endif
   next
+  if version_3_1 .and. human_->usl_ok < 4 .and. fl .and. !(human->OBRASHEN == '1')
+    if is_oncology > 0 // онкология - направления
+      aadd(ta,'основной (или сопутствующий) диагноз Z03.1 "наблюдение при подозрении на злокачественную опухоль", но лист учёта и так онкологический')
+    else
+      aadd(ta,'если основной (или сопутствующий) диагноз Z03.1 "наблюдение при подозрении на злокачественную опухоль", то в поле "подозрение на ЗНО" должно стоять "да"')
+    endif  
+  endif
 endif
 al := "luslf"
 if is_oncology > 0 // онкология - направления
@@ -1472,25 +1481,52 @@ if is_oncology == 2 // онкология
   endif
   fl_lock_onksl := .t.
   if fl
-    if select("N6") == 0
-      R_Use(dir_exe+"_mo_N006",cur_dir+"_mo_N006","N6")
+    if select("N3") == 0
+      R_Use(exe_dir+"_mo_N003",{cur_dir+"_mo_N003",cur_dir+"_mo_N003d"},"N3")
     endif
-    select N6
-    find (padr(mdiagnoz[1],3))
-    if found()
-      find (padr(mdiagnoz[1],3)+str(onksl->ONK_T,6)+str(onksl->ONK_N,6)+str(onksl->ONK_M,6))
-      if found()
-        if onksl->stad != n6->id_st
-          fl_lock_onksl := .f.
-          select ONKSL
-          G_RLock(forever)
-          onksl->stad := n6->id_st // Справочник N006: по сочетанию стадий TNM исправлено поле "Стадия"
+    fl := f_verify_tnm(3,onksl->ONK_T,mdiagnoz[1],ta)
+    if select("N4") == 0
+      R_Use(exe_dir+"_mo_N004",{cur_dir+"_mo_N004",cur_dir+"_mo_N004d"},"N4")
+    endif
+    fl := f_verify_tnm(4,onksl->ONK_N,mdiagnoz[1],ta)
+    if select("N5") == 0
+      R_Use(exe_dir+"_mo_N005",{cur_dir+"_mo_N005",cur_dir+"_mo_N005d"},"N5")
+    endif
+    fl := f_verify_tnm(5,onksl->ONK_M,mdiagnoz[1],ta)
+    if fl
+      if select("N6") == 0
+        R_Use(dir_exe+"_mo_N006",cur_dir+"_mo_N006","N6")
+      endif
+      select N6
+      s := padr(mdiagnoz[1],5)
+      find (s)
+      if !(fl_found := found())
+        s := padr(mdiagnoz[1],3)
+        find (s)
+        fl_found := found()
+      endif
+      if fl_found
+        find (padr(s,5)+str(onksl->ONK_T,6)+str(onksl->ONK_N,6)+str(onksl->ONK_M,6))
+        if found()
+          if onksl->stad != n6->id_st
+            fl_lock_onksl := .f.
+            select ONKSL
+            G_RLock(forever)
+            onksl->stad := n6->id_st // Справочник N006: по сочетанию стадий TNM исправлено поле "Стадия"
+          endif
+        else
+          aadd(ta,"справочник N006: некорректное сочетание стадий TNM")
         endif
       else
-        aadd(ta,"справочник N006: некорректное сочетание стадий TNM")
+        if empty(onksl->STAD)
+          aadd(ta,"онкология: не введена стадия заболевания")
+        else
+          if select("N2") == 0
+            R_Use(exe_dir+"_mo_N002",{cur_dir+"_mo_N002",cur_dir+"_mo_N002d"},"N2")
+          endif
+          f_verify_tnm(2,onksl->STAD,mdiagnoz[1],ta)
+        endif
       endif
-    elseif empty(onksl->STAD)
-      aadd(ta,"онкология: не введена стадия заболевания")
     endif
   endif
   // гистология

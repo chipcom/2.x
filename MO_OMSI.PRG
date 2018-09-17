@@ -4080,7 +4080,81 @@ viewtext(name_file,,,,.t.,,,2)
 close databases
 return NIL
 
-***** 13.08.18
+***** 16.08.18
+Function pr_sprav_N002(n)
+Local sh := 75, HH := 60, reg_print := 2, name_file := "n00"+lstr(n)+".txt", i, ad := {},;
+      as_ := {"","st","t","n","m"}, poled, polen, polek, lal, j, k, t_arr[2]
+lal := "N"+lstr(n)
+poled := lal+"->ds_"+as_[n]
+polek := lal+"->kod_"+as_[n]
+polen := lal+"->"+as_[n]+"_name"
+R_Use(dir_exe+"_mo_mkb",cur_dir+"_mo_mkb","DIAG")
+R_Use(dir_exe+"_mo_N00"+lstr(n),,"N"+lstr(n))
+do case
+  case n == 2
+    index on ds_st to tmp_n2 unique memory
+  case n == 3
+    index on ds_t to tmp_n3 unique memory
+  case n == 4
+    index on ds_n to tmp_n4 unique memory
+  case n == 5
+    index on ds_m to tmp_n5 unique memory
+endcase
+go top
+do while !eof()     
+  aadd(ad, padr(&poled,6)) 
+  skip
+enddo
+my_debug(,print_array(ad))
+if empty(ad[1])
+  aadd(ad,space(6))
+  Del_Array(ad,1)
+endif  
+my_debug(,print_array(ad))
+set index to (cur_dir+"_mo_N00"+lstr(n)+"d")
+fp := fcreate(name_file) ; tek_stroke := 0 ; n_list := 1
+add_string("")
+add_string(center("Классификатор "+{"","стадий","Tumor","Nodus","Metastasis"}[n]+" N00"+lstr(n),sh))
+add_string("")
+for i := 1 to len(ad)
+  verify_FF(HH-2,.t.,sh)
+  add_string(replicate("-",sh))
+  if empty(ad[i])
+    add_string("Прочие диагнозы")
+  else
+    fl := .t.
+    select DIAG
+    find (ad[i])
+    do while diag->shifr == ad[i] .and. !eof()
+      add_string(iif(fl, ad[i], space(6))+diag->name)
+      fl := .f.
+      skip
+    enddo
+  endif
+  verify_FF(HH-3,.t.,sh)
+  add_string(replicate("-",sh))
+  add_string(space(5)+padl({"","Стадия","Tumor","Nodus","Metastasis"}[n],15)+space(10)+iif(n > 2, "Наименование",""))
+  add_string(replicate("-",sh))
+  ad[i] := left(ad[i],5)
+  dbSelectArea(lal)
+  find (ad[i])
+  do while &poled == ad[i] .and. !eof()
+    verify_FF(HH,.t.,sh)
+    k := perenos(t_arr,iif(n > 2, &polen, ""),55)
+    add_string(space(5)+padl(&polek,15)+t_arr[1])
+    for j := 2 to k
+      verify_FF(HH,.t.,sh)
+      add_string(space(20)+t_arr[j])
+    next
+    skip
+  enddo   
+next
+fclose(fp)
+close databases
+viewtext(name_file,,,,.t.,,,reg_print)
+return NIL
+
+***** 16.08.18
 FUNCTION pr_sprav_N006()
 Local sh := 75, HH := 60, reg_print := 2, name_file := "n006.txt", i, ad := {}
 R_Use(dir_exe+"_mo_mkb",cur_dir+"_mo_mkb","DIAG")
@@ -4107,22 +4181,22 @@ for i := 1 to len(ad)
   select DIAG
   find (ad[i])
   do while diag->shifr == ad[i] .and. !eof()
-    add_string(iif(fl, left(ad[i],4), space(4))+diag->name)
+    add_string(iif(fl, ad[i], space(6))+diag->name)
     fl := .f.
     skip
   enddo
   verify_FF(HH-3,.t.,sh)
   add_string(replicate("-",sh))
-  add_string(padl("Стадия",15)+padl("Tumor",15)+padl("Nodus",15)+padl("Metastasis",15))
+  add_string(space(5)+padl("Tumor",15)+padl("Nodus",15)+padl("Metastasis",15)+padl("Стадия",15))
   add_string(replicate("-",sh))
-  ad[i] := left(ad[i],3)
+  ad[i] := left(ad[i],5)
   select N6
   set relation to str(id_st,6) into N2, to str(id_t,6) into N3, to str(id_n,6) into N4, to str(id_m,6) into N5
   index on id_gr to tmp_n6 for ds_gr == ad[i] memory
   go top
   do while !eof()
     verify_FF(HH,.t.,sh)
-    add_string(padl(n2->kod_st,15)+padl(n3->kod_t,15)+padl(n4->kod_n,15)+padl(n5->kod_m,15))
+    add_string(space(5)+padl(n3->kod_t,15)+padl(n4->kod_n,15)+padl(n5->kod_m,15)+padl(n2->kod_st,15))
     select N6
     skip
   enddo   

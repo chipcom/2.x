@@ -1172,14 +1172,49 @@ if lkod == 0
 endif
 return lkod
 
-***** 09.09.2018
+***** 16.09.18
+Function f_verify_tnm(n,lkod,ldiag,ar)
+Local fl := .t., lal := "n"+lstr(n), polek, poled, s := {"","ST","T","N","M"}[n]
+Local smsg := "онкология: в справочнике N00"+lstr(n)+" не найдена стадия заболевания "+s
+polek := lal+"->kod_"+s
+poled := lal+"->ds_"+s
+dbSelectArea(lal)
+set order to 1
+find (str(lkod,6))
+if found()
+  if empty(&poled)
+    set order to 2
+    find (left(ldiag,3))
+    if found()
+      fl := .f. ; aadd(ar,smsg)
+    endif 
+  elseif len(alltrim(&poled)) == 5
+    if !(left(ldiag,5) == &poled)
+      fl := .f. ; aadd(ar,smsg)
+    endif 
+  else
+    if !(left(ldiag,3) == left(&poled,3))
+      fl := .f. ; aadd(ar,smsg)
+    endif 
+  endif
+else
+  fl := .f. ; aadd(ar,smsg)
+endif 
+return fl 
+
+***** 16.09.2018
 Function f_valid_tnm(g)
-Local buf    
+Local buf, fl_found, s := padr(mkod_diag,5)    
 if !emptyany(m1ONK_T,m1ONK_N,m1ONK_M)
   select N6
-  find (padr(mkod_diag,3))
-  if found()
-    find (padr(mkod_diag,3)+str(m1ONK_T,6)+str(m1ONK_N,6)+str(m1ONK_M,6))
+  find (s)
+  if !(fl_found := found())
+    s := padr(mkod_diag,3)
+    find (s)
+    fl_found := found()
+  endif
+  if fl_found
+    find (s+str(m1ONK_T,6)+str(m1ONK_N,6)+str(m1ONK_M,6))
     if found()
       if m1stad != n6->id_st
         m1stad := n6->id_st
