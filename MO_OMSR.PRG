@@ -397,7 +397,7 @@ elseif lp == 64 // оториноларингологии
 endif
 return lp
 
-***** 16.09.18
+***** 18.09.18
 Function verify_1_sluch(fl_view)
 Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
       i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -1670,8 +1670,24 @@ if is_oncology == 2 // онкология
       mohu->LEK_TIP_V := onkus->LEK_TIP_V
       mohu->LUCH_TIP := onkus->LUCH_TIP
       mohu->PZKOL := onkus->SOD
-      if empty(onkus->SOD) .and. between(onkus->USL_TIP,3,4)
-        aadd(ta,'для '+iif(onkus->USL_TIP==3,'','химио')+'лучевой терапии не заполнена суммарная очаговая доза (СОД)')
+      if onkus->USL_TIP == 1
+        if empty(onkus->HIR_TIP)
+          aadd(ta,'не заполнен тип хирургического лечения')
+        endif
+      elseif onkus->USL_TIP == 2
+        if empty(onkus->LEK_TIP_V)
+          aadd(ta,'не заполнен цикл лекарственной терапии')
+        endif
+        if empty(onkus->LEK_TIP_L)
+          aadd(ta,'не заполнена линия лекарственной терапии')
+        endif
+      elseif between(onkus->USL_TIP,3,4)
+        if empty(onkus->LUCH_TIP)
+          aadd(ta,'не заполнен тип '+iif(onkus->USL_TIP==3,'','химио')+'лучевой терапии')
+        endif
+        if empty(onkus->SOD)
+          aadd(ta,'для '+iif(onkus->USL_TIP==3,'','химио')+'лучевой терапии не заполнена суммарная очаговая доза (СОД)')
+        endif
       endif
       v += onkus->SOD
       au_flu[i,11] := .t. 

@@ -1202,7 +1202,7 @@ else
 endif 
 return fl 
 
-***** 16.09.2018
+***** 18.09.2018
 Function f_valid_tnm(g)
 Local buf, fl_found, s := padr(mkod_diag,5)    
 if !emptyany(m1ONK_T,m1ONK_N,m1ONK_M)
@@ -1214,7 +1214,7 @@ if !emptyany(m1ONK_T,m1ONK_N,m1ONK_M)
     fl_found := found()
   endif
   if fl_found
-    find (s+str(m1ONK_T,6)+str(m1ONK_N,6)+str(m1ONK_M,6))
+    find (padr(s,5)+str(m1ONK_T,6)+str(m1ONK_N,6)+str(m1ONK_M,6))
     if found()
       if m1stad != n6->id_st
         m1stad := n6->id_st

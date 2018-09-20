@@ -2453,7 +2453,7 @@ do while !eof()
         mo_add_xml_stroke(oONK_SL,"ONK_T",lstr(onksl->ONK_T))
         mo_add_xml_stroke(oONK_SL,"ONK_N",lstr(onksl->ONK_N))
         mo_add_xml_stroke(oONK_SL,"ONK_M",lstr(onksl->ONK_M))
-        if between(onksl->DS1_T,1,2)
+        if between(onksl->DS1_T,1,2) .and. onksl->MTSTZ == 1
           mo_add_xml_stroke(oONK_SL,"MTSTZ",lstr(onksl->MTSTZ))
         endif
         for j := 1 to len(arr_onkdi)

@@ -465,9 +465,7 @@ if i > 0
 endif
 return NIL
 
-*
-
-***** 07.02.17 прочитать и "разнести" по базам данных реестр СП
+***** 19.09.18 прочитать и "разнести" по базам данных реестр СП
 Function read_XML_FILE_SP(arr_XML_info,aerr,/*@*/current_i2)
 Local count_in_schet := 0, mnschet, bSaveHandler, ii1, ii2, i, k, t_arr[2],;
       ldate_sptk, s, fl_589, mANSREESTR
@@ -729,6 +727,7 @@ if empty(aerr)
           strfile(lstr(current_i2)+". "+alltrim(human->fio)+", "+;
                        full_date(human->date_r)+;
                        iif(empty(otd->SHORT_NAME), "", " ["+alltrim(otd->SHORT_NAME)+"]")+;
+                       " "+alltrim(human->KOD_DIAG)+;
                        " "+date_8(human->n_data)+"-"+;
                        date_8(human->k_data)+hb_eol(),cFileProtokol,.t.)
           // изменение ФИО
