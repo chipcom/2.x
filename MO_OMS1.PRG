@@ -4,7 +4,7 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 03.09.18 ПН - добавление или редактирование случая (листа учета)
+***** 27.09.18 ПН - добавление или редактирование случая (листа учета)
 Function oms_sluch_PN(Loc_kod,kod_kartotek,f_print)
 // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
 // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -763,6 +763,7 @@ do while .t.
       n_message(a_smert,,"GR+/R","W+/R",,,"G+/R")
     endif
   elseif num_screen == 2 //
+    np_oftal_2_85_21(mperiod,mk_data)
     ar := np_arr_1_etap[mperiod]
     if !empty(ar[5]) // не пустой массив исследований
       ++j; @ j,1 say "I этап наименований исследований       Врач Ассис.  Дата     Выполнение Результат" color "RB+/B"
@@ -1991,7 +1992,22 @@ if fl_write_sluch // если записали - запускаем проверку
 endif
 return NIL
 
-***** 28.01.18 вернуть шифр услуги законченного случая для ПН
+***** 27.09.18 добавить или удалить офтальмолога в массив для несовершеннолетних для 12 месяцев
+Function np_oftal_2_85_21(_period,_k_data)
+Static lshifr := "2.85.21", ldate := "20180831"
+Local i := ascan(np_arr_1_etap[_period,4],lshifr)
+if dtos(_k_data) > ldate // с 1 сентября
+  if i == 0
+    Ins_Array(np_arr_1_etap[_period,4], 4, lshifr) //добавить пере ЛОРом 4-ым элементом
+  endif
+else
+  if i > 0
+    Del_Array(np_arr_1_etap[_period,4], i)
+  endif
+endif
+return NIL    
+
+***** 27.09.18 вернуть шифр услуги законченного случая для ПН
 Function ret_shifr_zs_PN(_period)
 Local lshifr := ""
 do case
@@ -2006,9 +2022,11 @@ do case
   case eq_any(_period,5,6,7,8,9,10,11,12,14,15)
     lshifr := "72.2.42" // 4мес,5мес,6мес,7мес,8мес,9мес,10мес,11мес,1год3мес,1год6мес
   case _period == 13
-    lshifr := iif(m1lis == 1, "72.2.45", "72.2.44") // 12 месяцев
-    //!!!!!!!!!!!!!!! с 1 сентября !!!!!!!!!!!!!!!!!!!!!!!!!!
-      //lshifr := iif(m1lis == 1, "72.2.65", "72.2.64") // 12 месяцев
+    if ascan(np_arr_1_etap[_period,4],"2.85.21") > 0  // если есть офтальмолог
+      lshifr := iif(m1lis == 1, "72.2.65", "72.2.64") // 12 месяцев с 1 сентября
+    else
+      lshifr := iif(m1lis == 1, "72.2.45", "72.2.44") // 12 месяцев
+    endif
   case _period == 16
     lshifr := "72.2.46" // 2 года
   case _period == 17

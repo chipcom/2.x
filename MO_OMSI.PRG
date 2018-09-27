@@ -4206,7 +4206,7 @@ close databases
 viewtext(name_file,,,,.t.,,,reg_print)
 return NIL
 
-***** 28.01.18
+***** 27.09.18
 FUNCTION f_blank_usl_pn()
 Static arrv := {;
   {"Новорожденный",1},;
@@ -4237,6 +4237,7 @@ do while (mperiod := popup_2array(arrv,3,11,mperiod,1,@ret_arr,;
   frt->name := ret_arr[1]
   dbcreate(fr_data,{{"name","C",100,0}})
   use (fr_data) new alias FRD
+  np_oftal_2_85_21(mperiod,0d20180901)
   ar := np_arr_1_etap[mperiod]
   if !empty(ar[5]) // не пустой массив исследований
     for i := 1 to count_pn_arr_iss

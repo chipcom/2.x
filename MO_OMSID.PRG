@@ -6422,7 +6422,7 @@ close databases
 call_fr("mo_030pou17")
 return NIL
 
-***** 19.02.18
+***** 27.09.18
 Function f4_inf_DNL_karta(par,_etap)
 Local i, k := 0, fl, arr := {}, ar
 if type("mperiod") == "N" .and. between(mperiod,1,31)
@@ -6436,6 +6436,7 @@ endif
 if !between(mperiod,1,31)
   mperiod := 31
 endif
+np_oftal_2_85_21(mperiod,mk_data)
 ar := np_arr_1_etap[mperiod]
 if par == 1
   if iif(_etap==nil, .t., _etap==1)

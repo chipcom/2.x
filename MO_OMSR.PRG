@@ -781,7 +781,7 @@ if is_dop_ob_em
 endif
 au_lu := {} ; au_flu := {} ; au_lu_ne := {} ; arr_perso := {} ; arr_unit := {}
 is_kt := is_mrt := is_angio := is_koronaro := is_g_cit := is_pr_skr := .f.
-is_71_1 := is_71_2 := is_71_3 := is_dom := fl_disp_nabl := .f.
+is_71_1 := is_71_2 := is_71_3 := is_dom := .f.
 kvp_2_78 := kvp_2_89 := kol_2_3 := kol_2_60 := kol_2_4 := kol_2_6 := kol_55_1 := 0
 kvp_70_5 := kvp_70_6 := kvp_70_3 := kvp_72_2 := kvp_72_3 := kvp_72_4 := 0
 is_2_78 := is_2_79 := is_2_80 := is_2_81 := is_2_82 := .f.
@@ -1193,15 +1193,12 @@ do while hu->kod == human->kod .and. !eof()
         mdate_u2 := dtoc4(human->k_data)
       endif
       if is_usluga_disp_nabl(alltrim_lshifr)
-        fl_disp_nabl := .t.
+        mpovod := 4 // 1.3-Диспансерное наблюдение
         ldate_next := c4tod(human->DATE_OPL)
         if empty(ldate_next)
           aadd(ta,'для услуги '+alltrim_lshifr+' не заполнена "Дата следующей явки пациента для диспансерного наблюдения"')
         elseif ldate_next < d2
           aadd(ta,'для услуги '+alltrim_lshifr+' "дата следующей явки пациента для диспансерного наблюдения" меньше даты окончания лечения')
-        endif
-        if left_lshifr_5 == "2.88." 
-          mpovod := 4 // 1.3-Диспансерное наблюдение
         endif
       endif
       kvp += hu->kol_1
@@ -1286,7 +1283,7 @@ endif
 al := "luslf"
 if is_oncology > 0 // онкология - направления
   if is_oncology == 2 // онкология
-    if fl_disp_nabl  // Диспансерное наблюдение
+    if mpovod == 4  // Диспансерное наблюдение
       is_oncology := 1 // для дисп.наблюдения не вводится онкология
     elseif human_->USL_OK == 3 .and. len(au_lu) == 0
       is_oncology := 1 // пока не введены услуги - не проверяем онкологию
@@ -3199,6 +3196,7 @@ if is_prof_PN //
   endif
   mperiod := ret_period_PN(mdate_r,d1,d2)
   if between(mperiod,1,31)
+    np_oftal_2_85_21(mperiod,d2) // добавить или удалить офтальмолога в массив для несовершеннолетних для 12 месяцев
     read_arr_PN(human->kod)
     kol_d_otkaz := 0
     if valtype(arr_usl_otkaz) == "A"
