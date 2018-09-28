@@ -1992,17 +1992,20 @@ if fl_write_sluch // если записали - запускаем проверку
 endif
 return NIL
 
-***** 27.09.18 добавить или удалить офтальмолога в массив для несовершеннолетних для 12 месяцев
+***** 28.09.18 добавить или удалить офтальмолога в массив для несовершеннолетних для 12 месяцев
 Function np_oftal_2_85_21(_period,_k_data)
-Static lshifr := "2.85.21", ldate := "20180831"
-Local i := ascan(np_arr_1_etap[_period,4],lshifr)
-if dtos(_k_data) > ldate // с 1 сентября
-  if i == 0
-    Ins_Array(np_arr_1_etap[_period,4], 4, lshifr) //добавить пере ЛОРом 4-ым элементом
-  endif
-else
-  if i > 0
-    Del_Array(np_arr_1_etap[_period,4], i)
+Static lshifr := "2.85.21"
+Local i
+if _period == 13 // 12 месяцев с 1 сентября
+  i := ascan(np_arr_1_etap[_period,4],lshifr)
+  if _k_data > 0d20180831 // с 1 сентября
+    if i == 0
+      Ins_Array(np_arr_1_etap[_period,4], 4, lshifr) //добавить пере ЛОРом 4-ым элементом
+    endif
+  else
+    if i > 0
+      Del_Array(np_arr_1_etap[_period,4], i)
+    endif
   endif
 endif
 return NIL    

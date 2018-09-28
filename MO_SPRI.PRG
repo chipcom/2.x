@@ -3161,11 +3161,11 @@ if G_SLock1Task(sem_task,sem_vagno) // запрет доступа всем
       index on IDCASE to (cur_dir+"tmpt4")
       use (cur_dir+"tmp_r_t5") new alias T5
       index on IDCASE to (cur_dir+"tmpt5")
-      use (cur_dir+"tmp_r_t5") new alias T6
+      use (cur_dir+"tmp_r_t6") new alias T6
       index on IDCASE to (cur_dir+"tmpt6")
-      use (cur_dir+"tmp_r_t5") new alias T7
+      use (cur_dir+"tmp_r_t7") new alias T7
       index on IDCASE to (cur_dir+"tmpt7")
-      use (cur_dir+"tmp_r_t5") new alias T8
+      use (cur_dir+"tmp_r_t8") new alias T8
       index on IDCASE to (cur_dir+"tmpt8")
       use (cur_dir+"tmp2file") new alias TMP2
       go top
