@@ -15,8 +15,8 @@
 #include "chip_mo.ch"
 
 Static _version := {2,7,1}
-Static char_version := "a"
-Static _date_version := "28.09.18г."
+Static char_version := "b"
+Static _date_version := "30.09.18г."
 Static __s_full_name := "ЧИП + Учёт работы Медицинской Организации"
 Static __s_version
 
@@ -1686,57 +1686,64 @@ END
 ERRORBLOCK(bSaveHandler)
 return fl
 
-***** 08.04.17 проверить, есть ли неотосланные просроченные листы учёта
+***** 28.09.17 проверить, есть ли неотосланные просроченные листы учёта
 Function find_time_limit_human_reestr_sp_tk()
 Local buf := savescreen(), arr[10,2], i, mas_pmt, r, c, n, d := sys_date-23
-if !hb_FileExists(dir_server+"mo_refr"+sntx)
-  return NIL
-endif
+Local fl := .f., bSaveHandler := ERRORBLOCK( {|x| BREAK(x)} )
 mywait()
-dbcreate(cur_dir+"tmp_tl",{{"kod_h","N",8,0},;
-                           {"kod_xml","N",6,0},;
-                           {"dni","N",2,0}})
-use (cur_dir+"tmp_tl") new
-R_Use(dir_server+"human_",,"HUMAN_")
-R_Use(dir_server+"human",,"HUMAN")
-set relation to recno() into HUMAN_
-R_Use(dir_server+"mo_refr",dir_server+"mo_refr","REFR")
-R_Use(dir_server+"mo_xml",,"MO_XML")
-R_Use(dir_server+"mo_rees",,"REES")
-set relation to KOD_XML into MO_XML
-R_Use(dir_server+"mo_rhum",,"RHUM")
-set relation to reestr into REES
-index on str(reestr,6) to (cur_dir+"tmp_rhum") ;
-      for OPLATA == 2 .and. d < rees->DSCHET
-go top
-do while !eof()
-  if (r := sys_date - rees->DSCHET) <= 0
-    r := 1
-  endif
-  human->(dbGoto(rhum->kod_hum))
-  // проверим, не попал ли ещё в другой реестр (или прочий счёт)
-  if emptyall(human->schet,human_->REESTR) .and. rhum->REES_ZAP == human_->REES_ZAP
-    select REFR
-    find (str(1,1)+str(mo_xml->REESTR,6)+str(1,1)+str(rhum->kod_hum,8))
-    do while refr->TIPD == 1 .and. refr->KODD == mo_xml->REESTR .and. ;
-             refr->TIPZ == 1 .and. refr->KODZ == rhum->kod_hum  .and. !eof()
-      if !eq_any(refr->REFREASON,50,57)
-        select TMP_TL
-        append blank
-        tmp_tl->kod_h   := rhum->kod_hum
-        tmp_tl->kod_xml := mo_xml->kod
-        tmp_tl->dni     := r
-        if lastrec() % 1000 == 0
-          Commit
-        endif
-      endif
+BEGIN SEQUENCE
+  dbcreate(cur_dir+"tmp_tl",{{"kod_h","N",8,0},;
+                             {"kod_xml","N",6,0},;
+                             {"dni","N",2,0}})
+  use (cur_dir+"tmp_tl") new
+  R_Use(dir_server+"human_",,"HUMAN_")
+  R_Use(dir_server+"human",,"HUMAN")
+  set relation to recno() into HUMAN_
+  R_Use(dir_server+"mo_refr",dir_server+"mo_refr","REFR")
+  R_Use(dir_server+"mo_xml",,"MO_XML")
+  R_Use(dir_server+"mo_rees",,"REES")
+  set relation to KOD_XML into MO_XML
+  R_Use(dir_server+"mo_rhum",,"RHUM")
+  set relation to reestr into REES
+  index on str(reestr,6) to (cur_dir+"tmp_rhum") for OPLATA == 2 .and. d < rees->DSCHET
+  go top
+  do while !eof()
+    if (r := sys_date - rees->DSCHET) <= 0
+      r := 1
+    endif
+    human->(dbGoto(rhum->kod_hum))
+    // проверим, не попал ли ещё в другой реестр (или прочий счёт)
+    if emptyall(human->schet,human_->REESTR) .and. rhum->REES_ZAP == human_->REES_ZAP
       select REFR
-      skip
-    enddo
-  endif
-  select RHUM
-  skip
-enddo
+      find (str(1,1)+str(mo_xml->REESTR,6)+str(1,1)+str(rhum->kod_hum,8))
+      do while refr->TIPD == 1 .and. refr->KODD == mo_xml->REESTR .and. ;
+               refr->TIPZ == 1 .and. refr->KODZ == rhum->kod_hum  .and. !eof()
+        if !eq_any(refr->REFREASON,50,57)
+          select TMP_TL
+          append blank
+          tmp_tl->kod_h   := rhum->kod_hum
+          tmp_tl->kod_xml := mo_xml->kod
+          tmp_tl->dni     := r
+          if lastrec() % 1000 == 0
+            Commit
+          endif
+        endif
+        select REFR
+        skip
+      enddo
+    endif
+    select RHUM
+    skip
+  enddo
+RECOVER USING error
+  fl := .t.
+END
+ERRORBLOCK(bSaveHandler)
+if fl
+  close databases
+  restscreen(buf)
+  return func_error(4,"Непонятная ошибка. Выполните переиндексирование в подзадаче ОМС")
+endif  
 select TMP_TL
 if lastrec() > 0
   afillall(arr,0)
