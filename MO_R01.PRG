@@ -2838,7 +2838,7 @@ if regim == "edit" .and. nKey == K_ENTER
 endif
 return ret
 
-***** 22.05.18 пропустить реестры по актуализации за I квартал
+***** 02.05.18 пропустить реестры по актуализации за I квартал
 Static Function is_update_R01(lal)
 Local fl := .f.
 DEFAULT lal TO "rees"
@@ -2847,7 +2847,7 @@ if between(&lal.->dschet,0d20180325,0d20180520)
 endif
 return fl
 
-***** 10.07.18 проверить, есть ли не до конца обработанные операции с файлами R01...
+***** 03.10.18 проверить, есть ли не до конца обработанные операции с файлами R01...
 Function find_unfinished_R01()
 Local fl := .t., skol := 0, mkol := 0, arr := {}, fl_date := .t.
 Private sgod := 2018, mrec := 2
@@ -2870,7 +2870,9 @@ if glob_mo[_MO_IS_UCH]
         fl := .f.
         aadd(arr,"Файл R02 за "+lstr(rees->NQUARTER)+"-й квартал "+lstr(sgod)+" года не был прочитан")
       else
-        mkol += (rees->KOL - rees->KOL_ERR)
+        if rees->dschet < 0d20180925
+          mkol += (rees->KOL - rees->KOL_ERR)
+        endif
         select MO_XML
         find (str(rees->kod,6)) 
         if found() .and. empty(mo_xml->TWORK2)

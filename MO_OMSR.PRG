@@ -397,7 +397,7 @@ elseif lp == 64 // оториноларингологии
 endif
 return lp
 
-***** 18.09.18
+***** 01.10.18
 Function verify_1_sluch(fl_view)
 Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
       i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -1643,8 +1643,8 @@ if is_oncology == 2 // онкология
       case between(onkus->USL_TIP,1,3)
         k := onkus->USL_TIP
       case onkus->USL_TIP == 4
-        if ascan(au_flu, {|x| x[10] == 2 }) == 0 .and. !(left(human_2->pc3,2) == "sh")
-          aadd(ta,'для химиолучевой терапии обязательны к заполнению либо услуга назначения лекарственных препаратов, либо номер схемы лечения')
+        if ascan(au_flu, {|x| x[10] == 2 }) == 0 //.and. !(left(human_2->pc3,2) == "sh")
+          aadd(ta,'для химиолучевой терапии обязательна к заполнению услуга назначения лекарственных препаратов')
         endif
         k := 3
       case onkus->USL_TIP == 5
@@ -1661,7 +1661,7 @@ if is_oncology == 2 // онкология
       select MOHU
       goto (au_flu[i,9])
       G_RLock(forever)
-      mohu->USL_TIP := iif(onkus->USL_TIP == 5, k, onkus->USL_TIP)	
+      mohu->USL_TIP := iif(eq_any(onkus->USL_TIP,4,5), k, onkus->USL_TIP)	
       mohu->HIR_TIP := onkus->HIR_TIP	
       mohu->LEK_TIP_L := onkus->LEK_TIP_L	
       mohu->LEK_TIP_V := onkus->LEK_TIP_V

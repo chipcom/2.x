@@ -4105,12 +4105,10 @@ do while !eof()
   aadd(ad, padr(&poled,6)) 
   skip
 enddo
-my_debug(,print_array(ad))
 if empty(ad[1])
   aadd(ad,space(6))
   Del_Array(ad,1)
 endif  
-my_debug(,print_array(ad))
 set index to (cur_dir+"_mo_N00"+lstr(n)+"d")
 fp := fcreate(name_file) ; tek_stroke := 0 ; n_list := 1
 add_string("")

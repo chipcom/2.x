@@ -1461,7 +1461,11 @@ drvFR:RoundingSumm := 0  //Сумма округления
 drvFR:StringForPrinting := name
 drvFR:TaxValue1 := t_nds //Налоги
 !!!!!! ВНИМАНИЕ !!!!!!
-drvFR:TaxType := 1 //Основная система Налогооблажения
+if glob_mo[_MO_KOD_TFOMS] == '605301' // ЗАО Стоматолог
+  drvFR:TaxType := 2 //УСН
+else
+  drvFR:TaxType := 1 //Основная система Налогооблажения
+endif
 //
 IF drvFR:FNCloseCheckEx() < 0
   t := upper(drvFR:ResultCodeDescription)

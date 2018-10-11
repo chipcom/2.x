@@ -3696,7 +3696,7 @@ for i := 1 to 2
 next
 return NIL
 
-***** 31.07.18 форма 14-МЕД (ОМС)
+***** 11.10.18 форма 14-МЕД (ОМС)
 Function forma14_med_oms()
 Static group_ini := "f14_med_oms"
 Local begin_date, end_date, buf := savescreen(), arr_m, i, j, k, k1, k2,;
@@ -3757,7 +3757,7 @@ arr_pril5[26,1] := "Дн.стац. - руб."
 arr_pril5[27,1] := "Дн.стац.ЭКО - пациенто-дней"
 arr_pril5[28,1] := "Дн.стац.ЭКО - пациентов, чел."
 arr_pril5[29,1] := "Дн.стац.ЭКО - руб."
-arr_m := {2018,1,6,"за январь - июнь 2018 года",0d20180101,0d20180630}
+arr_m := {2018,1,9,"за январь - сентябрь 2018 года",0d20180101,0d20180930}
 Private mk1, mk2, mk3, mk4, md1, md11, md12, md2, md21, md22, md3, md4
 ar := GetIniSect(tmp_ini,group_ini)
 mk1 := int(val(a2default(ar,"mk1","0")))
@@ -5961,9 +5961,7 @@ else
 endif
 return fl
 
-*
-
-***** 18.04.16
+***** 11.10.18
 Function prikaz_848_miac()
 Static mm_poisk := {{"По дате врачебного приёма",0},;
                     {"По дате окончания лечения",1}}
@@ -6007,8 +6005,8 @@ myread()
 if lastkey() != K_ESC
   if mdate11 > mdate12
     func_error(4,"Начальная дата больше конечной даты периода")
-  elseif year(mdate11) < 2016
-    func_error(4,"Данный режим переписан для 2016 года")
+  elseif year(mdate11) < 2018
+    func_error(4,"Данный режим переписан для 2018 года")
   else
     sdate11  := mdate11
     sdate12  := mdate12
@@ -6022,11 +6020,9 @@ endif
 restscreen(buf)
 return NIL
 
-*
-
-***** 05.07.17
+***** 11.10.18
 Function f1_prikaz_848_miac()
-Local tfoms_pz[11], rec, vid_vp, vid1vp, lshifr1, _what_if := _init_if(), d2_year
+Local tfoms_pz[11], rec, vid_vp, vid1vp, lshifr1, _what_if := _init_if(), d2_year, ss[20]
 mywait()
 adbf := {{"nn","N",1,0},;       // 0-основная,1-старики
          {"ist_fin","N",1,0},;  // 1-ОМС,2-бюджет,3-платные,4-ДМС,5-расчеты с МО
@@ -6194,6 +6190,7 @@ for _tip := 1 to 5
             "Дневной стационар на дому"}[_tip]+" - "+;
            {"ОМС","Бюджет","Платные","ДМС","Расчеты с МО"}[_ist_fin]
       add_string(s)
+      afill(ss,0)
       aeval(arr_title, {|x| add_string(x) } )
       asort(arr,,,{|x,y| upper(x[2]) < upper(y[2]) })
       for j := 1 to len(arr)
@@ -6238,6 +6235,9 @@ for _tip := 1 to 5
                    put_val(tmp->p3,7)+;
                    put_val(tmp->p4,7)
           endcase
+          for iss := 1 to 20
+            ss[iss] += &("tmp->p"+lstr(iss))
+          next iss
         endif
         verify_FF(HH,.t.,sh)
         add_string(s)
@@ -6319,6 +6319,48 @@ for _tip := 1 to 5
           next ju
         endif
       next j
+      if m1usl == 0
+        s := padr("Итого:",n)
+        do case
+          case _tip == 1
+            s += put_val(ss[1],6)+;
+                 put_val(ss[2],6)+;
+                 put_val(ss[3],6)+;
+                 put_val(ss[4],5)+;
+                 put_val(ss[5],6)+;
+                 put_val(ss[6],5)+;
+                 put_val(ss[7],7)+;
+                 put_val(ss[8],7)+;
+                 put_val(ss[9],7)
+          case _tip == 2
+            s += put_val(ss[1]+ss[2],6)+;
+                 put_val(ss[18],6)+;
+                 put_val(ss[2],6)+;
+                 put_val(ss[19],6)+;
+                 put_val(ss[3],6)+;
+                 put_val(ss[12],6)+;
+                 put_val(ss[4],6)+;
+                 put_val(ss[13],6)+;
+                 put_val(ss[5]+ss[6],6)+;
+                 put_val(ss[20],6)+;
+                 put_val(ss[7]+ss[8],6)+;
+                 put_val(ss[6],6)+;
+                 put_val(ss[8],6)+;
+                 put_val(ss[14],6)+;
+                 put_val(ss[15],6)+;
+                 put_val(ss[16],6)+;
+                 put_val(ss[17],6)
+          case eq_any(_tip,3,4,5)
+            s += put_val(ss[1]+ss[2],6)+;
+                 put_val(ss[1],6)+;
+                 put_val(ss[2],6)+;
+                 put_val(ss[3]+ss[4],7)+;
+                 put_val(ss[3],7)+;
+                 put_val(ss[4],7)
+        endcase
+        add_string(replicate("-",len(arr_title[1])))
+        add_string(s)
+      endif    
     endif
   next _ist_fin
   if len(arr2) > 0
@@ -6381,6 +6423,7 @@ for _tip := 1 to 5
             "Дневной стационар при стационаре",;
             "Дневной стационар при поликлинике",;
             "Дневной стационар на дому"}[_tip]+" - СПРАВОЧНО-пожилые"
+    afill(ss,0)
     add_string(s)
     aeval(arr_title, {|x| add_string(x) } )
     asort(arr2,,,{|x,y| upper(x[2]) < upper(y[2]) })
@@ -6428,6 +6471,9 @@ for _tip := 1 to 5
                  put_val(tmp->p15,7)+;
                  put_val(tmp->p16,7)
         endcase
+        for iss := 1 to 20
+          ss[iss] += &("tmp->p"+lstr(iss))
+        next iss
       endif
       verify_FF(HH,.t.,sh)
       add_string(s)
@@ -6511,6 +6557,50 @@ for _tip := 1 to 5
         next ju
       endif
     next j
+    if m1usl == 0
+      s := padr("Итого:",n)
+      do case
+        case _tip == 1
+          s += put_val(ss[1],6)+;
+               put_val(ss[2],6)+;
+               put_val(ss[3],6)+;
+               put_val(ss[4],6)+;
+               put_val(ss[5],6)+;
+               put_val(ss[6],6)+;
+               put_val(ss[7],6)+;
+               put_val(ss[8],6)+;
+               put_val(ss[9],5)+;
+               put_val(ss[10],5)+;
+               put_val(ss[11],5)+;
+               put_val(ss[12],5)+;
+               put_val(ss[13],7)+;
+               put_val(ss[14],7)+;
+               put_val(ss[15],7)+;
+               put_val(ss[16],7)
+        case _tip == 2
+          s += put_val(ss[1],6)+;
+               put_val(ss[2],6)+;
+               put_val(ss[3],6)+;
+               put_val(ss[4],6)+;
+               put_val(ss[5],6)+;
+               put_val(ss[6],6)+;
+               put_val(ss[7],6)+;
+               put_val(ss[8],6)+;
+               put_val(ss[9],6)+;
+               put_val(ss[10],6)
+        case eq_any(_tip,3,4,5)
+          s += put_val(ss[1],6)+;
+               put_val(ss[2],6)+;
+               put_val(ss[3],6)+;
+               put_val(ss[4],6)+;
+               put_val(ss[13],7)+;
+               put_val(ss[14],7)+;
+               put_val(ss[15],7)+;
+               put_val(ss[16],7)
+      endcase
+      add_string(replicate("-",len(arr_title[1])))
+      add_string(s)
+    endif
   endif
 next _tip
 fclose(fp)
