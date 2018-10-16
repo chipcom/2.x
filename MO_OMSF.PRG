@@ -1172,28 +1172,77 @@ if lkod == 0
 endif
 return lkod
 
-***** 16.09.18
-Function f_verify_tnm(n,lkod,ldiag,ar)
-Local fl := .t., lal := "n"+lstr(n), polek, poled, s := {"","ST","T","N","M"}[n]
-Local smsg := "онкология: в справочнике N00"+lstr(n)+" не найдена стадия заболевания "+s
+***** 16.10.18 функция определения массива в ф-ии редактирования листа учёта
+Function f_define_tnm(n,ldiag)
+Local ar, sn := lstr(n), sd := padr(ldiag,5)
+Local lal := "n"+sn, polek, poled, s := {"","ST","T","N","M"}[n]
 polek := lal+"->kod_"+s
 poled := lal+"->ds_"+s
-dbSelectArea(lal)
-set order to 1
+polei := lal+"->id_"+s
+if select(lal) == 0
+  R_Use(exe_dir+"_mo_N00"+sn,{cur_dir+"_mo_N00"+sn,cur_dir+"_mo_N00"+sn+"d"},lal)
+endif
+dbSelectArea(lal) // встать на справочник N0...
+set order to 2
+find (sd)
+if found()
+  ar := f1_define_tnm(sd,5,polek,poled,polei)
+else
+  sd := padr(ldiag,3)
+  find (sd)
+  if found() .and. sd == alltrim(&poled)
+    ar := f1_define_tnm(sd,3,polek,poled,polei)
+  else
+    find (space(5))
+    ar := f1_define_tnm(space(5),5,polek,poled,polei)
+  endif
+endif
+return ar
+ 
+***** 16.10.18
+Function f1_define_tnm(s,n,polek,poled,polei)
+Local arr := {}
+do while left(&poled,n) == s .and. !eof()
+  if empty(s) .or. alltrim(&poled) == s
+    aadd(arr,{&polek,&polei})
+  endif
+  skip
+enddo
+return arr
+
+***** 16.10.18 проверка правильности соответствующей стадии по соответствующему справочнику
+Function f_verify_tnm(n,lkod,ldiag,ar)
+Local sn := lstr(n), sd
+Local fl := .t., lal := "n"+sn, polek, poled, s := {"","ST","T","N","M"}[n]
+Local smsg := "онкология: в справочнике N00"+sn+" не найдена стадия заболевания "+s
+polek := lal+"->kod_"+s
+poled := lal+"->ds_"+s
+if select(lal) == 0
+  R_Use(exe_dir+"_mo_N00"+sn,{cur_dir+"_mo_N00"+sn,cur_dir+"_mo_N00"+sn+"d"},lal)
+endif
+dbSelectArea(lal) // встать на справочник N0...
+set order to 1    // переключиться на индекс по коду
 find (str(lkod,6))
 if found()
-  if empty(&poled)
-    set order to 2
-    find (left(ldiag,3))
-    if found()
+  if empty(&poled) // если не заполнено поле диагноза
+    sd := padr(ldiag,5)
+    set order to 2 // переключиться на индекс по диагнозу
+    find (sd)      // поиск пятизначного диагноза
+    if found()     // если нашли - ошибка
       fl := .f. ; aadd(ar,smsg)
+    else
+      sd := padr(ldiag,3)
+      find (sd)    // поиск трёхзначного диагноза
+      if found() .and. sd == alltrim(&poled)  // если нашли - ошибка
+        fl := .f. ; aadd(ar,smsg)
+      endif 
     endif 
   elseif len(alltrim(&poled)) == 5
     if !(left(ldiag,5) == &poled)
       fl := .f. ; aadd(ar,smsg)
     endif 
   else
-    if !(left(ldiag,3) == left(&poled,3))
+    if !(left(ldiag,3) == alltrim(&poled))
       fl := .f. ; aadd(ar,smsg)
     endif 
   endif
@@ -1202,7 +1251,7 @@ else
 endif 
 return fl 
 
-***** 18.09.2018
+***** 16.10.18 проверка правильности введённых стадий по справочнику N006 в get'e
 Function f_valid_tnm(g)
 Local buf, fl_found, s := padr(mkod_diag,5)    
 if !emptyany(m1ONK_T,m1ONK_N,m1ONK_M)
@@ -1211,7 +1260,7 @@ if !emptyany(m1ONK_T,m1ONK_N,m1ONK_M)
   if !(fl_found := found())
     s := padr(mkod_diag,3)
     find (s)
-    fl_found := found()
+    fl_found := (found() .and. s == alltrim(n6->ds_gr)) 
   endif
   if fl_found
     find (padr(s,5)+str(m1ONK_T,6)+str(m1ONK_N,6)+str(m1ONK_M,6))

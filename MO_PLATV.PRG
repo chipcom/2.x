@@ -1387,7 +1387,7 @@ return fl
 
 *
 
-*****
+***** 16.10.18
 Function poisk_plat()
 Static sdate, sn_kvit := 0, skv1 := 0, skv2 := 0
 Local buf := savescreen(), tmp_color := setcolor(cDataCGet),;
@@ -1410,7 +1410,7 @@ Local buf := savescreen(), tmp_color := setcolor(cDataCGet),;
                {"san3"     ,   "N",     5,     0},; // код санитарки
                {"FL_EDIT"  ,   "L",     1,     0}}  // флаг редактирования
 DEFAULT sdate TO sys_date
-if glob_kassa == 1 .and. mek_kassa == 1 .and. mek_nkassa == 1
+if glob_kassa == 1 .and. mek_kassa == 1
   Private drvFR
   IF ( drvFR := win_oleCreateObject( "AddIn.DrvFr" ) ) != NIL
     //

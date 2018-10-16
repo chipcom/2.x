@@ -1865,8 +1865,6 @@ do case
 endcase
 return ret
 
-*
-
 ***** 19.02.17 Список информационных пакетов с выписанными направлениями
 Function _263_to_I01()
 Static str_sem := "263_to_I01"
@@ -1936,10 +1934,10 @@ elseif k == 3
 endif
 return NIL
 
-***** 19.02.17
+***** 16.10.18
 Function f2_263_to_I01(nKey,oBrow,regim)
 Local lkod, buf, r1, rec, i, ret := -1, arr, lcodem, n1, n2, ;
-      n_file := "i01"+stxt, sh := 80, HH := 60, t_arr[4], s1, s2, s3, s4
+      n_file := "i01"+stxt, sh := 80, HH := 60, t_arr[4], s, s1, s2, s3, s4
 if regim == "edit"
   do case
     case nKey == K_F5
@@ -1999,6 +1997,8 @@ if regim == "edit"
       R_Use(dir_server+"kartote_",,"_KART_")
       R_Use(dir_server+"kartotek",,"_KART")
       set relation to kod into _KART_
+      R_Use(dir_server+"mo_nfina",,"NFN")
+      index on str(kod_n,6) to (cur_dir+"tmp_nfn") for kod_f == nf->kod
       R_Use(dir_server+"mo_nnapr",,"NAPR")
       set relation to kod_k into _KART
       index on upper(_kart->fio)+str(_kart->kod,7) to (cur_dir+"tmp_napr") for KOD_F_1out == nf->kod
@@ -2017,8 +2017,17 @@ if regim == "edit"
         add_string(space(3)+"планируемая дата госпитализации "+date_8(napr->DATE_H_1)+" по диагнозу "+alltrim(napr->DS_1))
         add_string(space(3)+inieditspr(A__MENUVERT, arr_t007, napr->PROFIL_K_1)+;
                                      " ("+inieditspr(A__MENUVERT, glob_V002, napr->PROFIL_1)+")")
+        select NFN
+        find (str(napr->kod,6))
+        if found() .and. nfn->OSHIB > 0
+          s := space(3)+"ОШИБКА "+lstr(nfn->OSHIB)+" - "+inieditspr(A__MENUVERT,glob_T008,nfn->OSHIB)
+          if !empty(nfn->IM_POL)
+            s += " (в поле "+alltrim(nfn->IM_POL)+")"
+          endif
+          add_string(s)
+        endif
         if napr->t_ans_1 == 2
-          add_string("   ответ из ТФОМС получен - ОШИБКА ещё не отредактирована")
+          add_string(space(3)+"ответ из ТФОМС получен - ОШИБКА ещё не отредактирована")
         endif
         select NAPR
         skip
@@ -2026,6 +2035,7 @@ if regim == "edit"
       fclose(fp)
       _kart->(dbCloseArea())
       _kart_->(dbCloseArea())
+      nfn->(dbCloseArea())
       napr->(dbCloseArea())
       rest_box(buf)
       viewtext(n_file,,,,.t.,,,2)
@@ -2034,9 +2044,7 @@ if regim == "edit"
 endif
 return ret
 
-*
-
-***** 19.02.17 Список информационных пакетов с аннулированными направлениями
+***** 16.10.18 Список информационных пакетов с аннулированными направлениями
 Function _263_to_I03()
 Static str_sem := "263_to_I03"
 Local buf := save_maxrow(), blk, t_arr[BR_LEN]
@@ -2074,7 +2082,7 @@ G_SUnLock(str_sem)
 rest_box(buf)
 return NIL
 
-***** 19.02.17
+***** 16.10.18
 Function f2_263_to_I03(nKey,oBrow,regim)
 Local lkod, buf, r1, rec, i, ret := -1, arr, lcodem, n1, n2, ;
       n_file := "I03"+stxt, sh := 80, HH := 60, t_arr[4], s1, s2, s3, s4
@@ -2137,6 +2145,8 @@ if regim == "edit"
       R_Use(dir_server+"kartote_",,"_KART_")
       R_Use(dir_server+"kartotek",,"_KART")
       set relation to kod into _KART_
+      R_Use(dir_server+"mo_nfina",,"NFN")
+      index on str(kod_n,6) to (cur_dir+"tmp_nfn") for kod_f == nf->kod
       R_Use(dir_server+"mo_nnapr",,"NAPR")
       set relation to kod_k into _KART
       index on upper(_kart->fio)+str(_kart->kod,7) to (cur_dir+"tmp_napr") for KOD_F_3out == nf->kod
@@ -2162,12 +2172,20 @@ if regim == "edit"
           add_string(space(3)+"направление аннулировано в нашем СТАЦИОНАРЕ")
         endif
         add_string(space(3)+alltrim(_kart->fio)+", д.р."+full_date(_kart->date_r))
-        //add_string(space(3)+"планируемая дата госпитализации "+date_8(napr->DATE_H_2)+" по диагнозу "+alltrim(napr->DS_1))
         add_string(space(3)+"форма оказания медицинской помощи - "+inieditspr(A__MENUVERT,glob_V014,napr->F_MEDC_1))
         add_string(space(3)+inieditspr(A__MENUVERT, arr_t007, napr->PROFIL_K_1)+;
                                      " ("+inieditspr(A__MENUVERT, glob_V002, napr->PROFIL_1)+")")
         add_string(space(3)+"причина аннулирования: "+inieditspr(A__MENUVERT, mm_reason_annul, napr->rea_annul))
         add_string(space(3)+"дата аннулирования "+full_date(napr->date_3))
+        select NFN
+        find (str(napr->kod,6))
+        if found() .and. nfn->OSHIB > 0
+          s := space(3)+"ОШИБКА "+lstr(nfn->OSHIB)+" - "+inieditspr(A__MENUVERT,glob_T008,nfn->OSHIB)
+          if !empty(nfn->IM_POL)
+            s += " (в поле "+alltrim(nfn->IM_POL)+")"
+          endif
+          add_string(s)
+        endif
         if napr->t_ans_3 == 2
           add_string(space(3)+"ответ из ТФОМС получен - ОШИБКА ещё не отредактирована")
         endif
@@ -2177,6 +2195,7 @@ if regim == "edit"
       fclose(fp)
       _kart->(dbCloseArea())
       _kart_->(dbCloseArea())
+      nfn->(dbCloseArea())
       napr->(dbCloseArea())
       rest_box(buf)
       viewtext(n_file,,,,.t.,,,2)
@@ -2184,8 +2203,6 @@ if regim == "edit"
   endcase
 endif
 return ret
-
-*
 
 ***** 19.02.17 Список информационных пакетов с госпитализациями по направлениям
 Function _263_to_I04(k)
@@ -2226,7 +2243,7 @@ G_SUnLock(str_sem)
 rest_box(buf)
 return NIL
 
-***** 19.02.17
+***** 16.04.18
 Function f2_263_to_I04(nKey,oBrow,regim)
 Local lkod, buf, r1, rec, i, ret := -1, arr, lcodem, n1, n2, s1, s2, s3, s4, ;
       n_file := "i0"+lstr(ppaket)+stxt, sh := 80, HH := 60, t_arr[4]
@@ -2293,10 +2310,11 @@ if regim == "edit"
       R_Use(dir_server+"kartote_",,"_KART_")
       R_Use(dir_server+"kartotek",,"_KART")
       set relation to kod into _KART_
+      R_Use(dir_server+"mo_nfina",,"NFN")
+      index on str(kod_n,6) to (cur_dir+"tmp_nfn") for kod_f == nf->kod
       R_Use(dir_server+"mo_nnapr",,"NAPR")
       set relation to kod_k into _KART
-      index on upper(_kart->fio)+str(_kart->kod,7) to (cur_dir+"tmp_napr") ;
-               for KOD_F_4out == nf->kod
+      index on upper(_kart->fio)+str(_kart->kod,7) to (cur_dir+"tmp_napr") for KOD_F_4out == nf->kod
       i := 0
       go top
       do while !eof()
@@ -2325,6 +2343,15 @@ if regim == "edit"
                                      " ("+inieditspr(A__MENUVERT, glob_V002, napr->PROFIL_4)+")")
         add_string(space(3)+"Форма оказания медицинской помощи - "+inieditspr(A__MENUVERT,glob_V014,napr->F_MEDC_4))
         add_string(space(3)+"Номер истории болезни - "+alltrim(napr->NUM_HIST_4))
+        select NFN
+        find (str(napr->kod,6))
+        if found() .and. nfn->OSHIB > 0
+          s := space(3)+"ОШИБКА "+lstr(nfn->OSHIB)+" - "+inieditspr(A__MENUVERT,glob_T008,nfn->OSHIB)
+          if !empty(nfn->IM_POL)
+            s += " (в поле "+alltrim(nfn->IM_POL)+")"
+          endif
+          add_string(s)
+        endif
         if napr->t_ans_4 == 2
           add_string(space(3)+"ответ из ТФОМС получен - ОШИБКА ещё не отредактирована")
         endif
@@ -2334,6 +2361,7 @@ if regim == "edit"
       fclose(fp)
       _kart->(dbCloseArea())
       _kart_->(dbCloseArea())
+      nfn->(dbCloseArea())
       napr->(dbCloseArea())
       rest_box(buf)
       viewtext(n_file,,,,.t.,,,2)
@@ -2341,8 +2369,6 @@ if regim == "edit"
   endcase
 endif
 return ret
-
-*
 
 ***** 19.02.17 Список информационных пакетов со сведениями о выбывших пациентах
 Function _263_to_I06()
@@ -2383,7 +2409,7 @@ G_SUnLock(str_sem)
 rest_box(buf)
 return NIL
 
-***** 19.02.17
+***** 16.10.18
 Function f2_263_to_I06(nKey,oBrow,regim)
 Local lkod, buf, r1, rec, i, ret := -1, arr, lcodem, n1, n2, s1, s2, s3, s4, ;
       n_file := "i06"+stxt, sh := 80, HH := 60, t_arr[4]
@@ -2446,6 +2472,8 @@ if regim == "edit"
       R_Use(dir_server+"kartote_",,"_KART_")
       R_Use(dir_server+"kartotek",,"_KART")
       set relation to kod into _KART_
+      R_Use(dir_server+"mo_nfina",,"NFN")
+      index on str(kod_n,6) to (cur_dir+"tmp_nfn") for kod_f == nf->kod
       R_Use(dir_server+"mo_nnapr",,"NAPR")
       set relation to kod_k into _KART
       index on upper(_kart->fio)+str(_kart->kod,7) to (cur_dir+"tmp_napr") for KOD_F_6out == nf->kod
@@ -2479,6 +2507,15 @@ if regim == "edit"
         add_string(space(3)+"Номер истории болезни - "+alltrim(napr->NUM_HIST_4))
         add_string(space(3)+"Тип выбытия - "+inieditspr(A__MENUVERT,mm_tip_vyb,napr->type_6))
         add_string(space(3)+"Дата выбытия - "+full_date(napr->date_6))
+        select NFN
+        find (str(napr->kod,6))
+        if found() .and. nfn->OSHIB > 0
+          s := space(3)+"ОШИБКА "+lstr(nfn->OSHIB)+" - "+inieditspr(A__MENUVERT,glob_T008,nfn->OSHIB)
+          if !empty(nfn->IM_POL)
+            s += " (в поле "+alltrim(nfn->IM_POL)+")"
+          endif
+          add_string(s)
+        endif
         if napr->t_ans_6 == 2
           add_string(space(3)+"ответ из ТФОМС получен - ОШИБКА ещё не отредактирована")
         endif
@@ -2488,6 +2525,7 @@ if regim == "edit"
       fclose(fp)
       _kart->(dbCloseArea())
       _kart_->(dbCloseArea())
+      nfn->(dbCloseArea())
       napr->(dbCloseArea())
       rest_box(buf)
       viewtext(n_file,,,,.t.,,,2)
@@ -2495,8 +2533,6 @@ if regim == "edit"
   endcase
 endif
 return ret
-
-*
 
 ***** 24.09.14 записать файл любого пакета в каталог обмена
 Function copy_I0_file_once_more()
@@ -2591,8 +2627,9 @@ endif
 close databases
 return NIL
 
-***** 23.08.17 Получение из ТФОМС файлов обмена (информационных пакетов)
+***** 16.10.18 Получение из ТФОМС файлов обмена (информационных пакетов)
 Function _263_from_read()
+Static nerrf := 999
 Local i, j, k, n, s, af := {}, arr_f := {}, aerr := {}, blk := {|x| aadd(af,x) }, ii, ;
       name_zip, cName, is_err, buf := save_maxrow(), name_txt, fl, is_read := .f., nerr
 if empty(dir_263_from)
@@ -2686,8 +2723,7 @@ for ii := 1 to len(arr_f)
                       space(5)+"- "+lstr(tmp2->OSHIB)+" - "+inieditspr(A__MENUVERT,glob_T008,tmp2->OSHIB)+;
                       hb_eol(),cFileProtokol,.t.)
             else
-              strfile(space(5)+"обнаружены ошибки:"+;
-                      hb_eol(),cFileProtokol,.t.)
+              strfile(space(5)+"обнаружены ошибки:"+hb_eol(),cFileProtokol,.t.)
             endif
             do case
               case nf->TIP_F == 1
@@ -2706,7 +2742,7 @@ for ii := 1 to len(arr_f)
                       goto (napr->KOD_K)
                       strfile(space(5)+"- "+alltrim(kart->fio)+" д.р."+full_date(kart->DATE_R)+hb_eol()+;
                               space(7)+lstr(tmp2->OSHIB)+" - "+inieditspr(A__MENUVERT,glob_T008,tmp2->OSHIB)+hb_eol()+;
-                              space(7)+"ошибка в поле "+tmp2->IM_POL+;
+                              space(7)+"ошибка в поле "+tmp2->IM_POL+hb_eol()+;
                               hb_eol(),cFileProtokol,.t.)
                       nerr := 2        
                       select NFN
@@ -2715,6 +2751,20 @@ for ii := 1 to len(arr_f)
                         G_RLock(forever)
                         nfn->OSHIB := tmp2->OSHIB
                         nfn->IM_POL := tmp2->IM_POL
+                        dbUnLock()
+                      endif
+                    else
+                      select KART
+                      goto (napr->KOD_K)
+                      strfile(space(5)+"- "+alltrim(kart->fio)+" д.р."+full_date(kart->DATE_R)+hb_eol()+;
+                              space(7)+lstr(nerrf)+" - "+inieditspr(A__MENUVERT,glob_T008,nerrf)+hb_eol()+;
+                              hb_eol(),cFileProtokol,.t.)
+                      nerr := 2        
+                      select NFN
+                      find (str(napr->kod,6))
+                      if found()
+                        G_RLock(forever)
+                        nfn->OSHIB := nerrf
                         dbUnLock()
                       endif
                     endif
@@ -2741,7 +2791,7 @@ for ii := 1 to len(arr_f)
                       goto (napr->KOD_K)
                       strfile(space(5)+"- "+alltrim(kart->fio)+" д.р."+full_date(kart->DATE_R)+hb_eol()+;
                               space(7)+lstr(tmp2->OSHIB)+" - "+inieditspr(A__MENUVERT,glob_T008,tmp2->OSHIB)+hb_eol()+;
-                              space(7)+"ошибка в поле "+tmp2->IM_POL+;
+                              space(7)+"ошибка в поле "+tmp2->IM_POL+hb_eol()+;
                               hb_eol(),cFileProtokol,.t.)
                       nerr := 2        
                       select NFN
@@ -2752,11 +2802,25 @@ for ii := 1 to len(arr_f)
                         nfn->IM_POL := tmp2->IM_POL
                         dbUnLock()
                       endif
+                    else
+                      select KART
+                      goto (napr->KOD_K)
+                      strfile(space(5)+"- "+alltrim(kart->fio)+" д.р."+full_date(kart->DATE_R)+hb_eol()+;
+                              space(7)+lstr(nerrf)+" - "+inieditspr(A__MENUVERT,glob_T008,nerrf)+hb_eol()+;
+                              hb_eol(),cFileProtokol,.t.)
+                      nerr := 2        
+                      select NFN
+                      find (str(napr->kod,6))
+                      if found()
+                        G_RLock(forever)
+                        nfn->OSHIB := nerrf
+                        dbUnLock()
+                      endif
                     endif
                   endif
                   select NAPR
                   G_RLock(forever)
-                  napr->T_ANS_3 := nerr
+                  napr->T_ANS_3 := nerrf
                   dbUnLock()
                   skip
                 enddo
@@ -2776,7 +2840,7 @@ for ii := 1 to len(arr_f)
                       goto (napr->KOD_K)
                       strfile(space(5)+"- "+alltrim(kart->fio)+" д.р."+full_date(kart->DATE_R)+hb_eol()+;
                               space(7)+lstr(tmp2->OSHIB)+" - "+inieditspr(A__MENUVERT,glob_T008,tmp2->OSHIB)+hb_eol()+;
-                              space(7)+"ошибка в поле "+tmp2->IM_POL+;
+                              space(7)+"ошибка в поле "+tmp2->IM_POL+hb_eol()+;
                               hb_eol(),cFileProtokol,.t.)
                       nerr := 2        
                       select NFN
@@ -2785,6 +2849,20 @@ for ii := 1 to len(arr_f)
                         G_RLock(forever)
                         nfn->OSHIB := tmp2->OSHIB
                         nfn->IM_POL := tmp2->IM_POL
+                        dbUnLock()
+                      endif
+                    else
+                      select KART
+                      goto (napr->KOD_K)
+                      strfile(space(5)+"- "+alltrim(kart->fio)+" д.р."+full_date(kart->DATE_R)+hb_eol()+;
+                              space(7)+lstr(nerrf)+" - "+inieditspr(A__MENUVERT,glob_T008,nerrf)+hb_eol()+;
+                              hb_eol(),cFileProtokol,.t.)
+                      nerr := 2        
+                      select NFN
+                      find (str(napr->kod,6))
+                      if found()
+                        G_RLock(forever)
+                        nfn->OSHIB := nerrf
                         dbUnLock()
                       endif
                     endif
@@ -2811,7 +2889,7 @@ for ii := 1 to len(arr_f)
                       goto (napr->KOD_K)
                       strfile(space(5)+"- "+alltrim(kart->fio)+" д.р."+full_date(kart->DATE_R)+hb_eol()+;
                               space(7)+lstr(tmp2->OSHIB)+" - "+inieditspr(A__MENUVERT,glob_T008,tmp2->OSHIB)+hb_eol()+;
-                              space(7)+"ошибка в поле "+tmp2->IM_POL+;
+                              space(7)+"ошибка в поле "+tmp2->IM_POL+hb_eol()+;
                               hb_eol(),cFileProtokol,.t.)
                       nerr := 2        
                       select NFN
@@ -2820,6 +2898,20 @@ for ii := 1 to len(arr_f)
                         G_RLock(forever)
                         nfn->OSHIB := tmp2->OSHIB
                         nfn->IM_POL := tmp2->IM_POL
+                        dbUnLock()
+                      endif
+                    else
+                      select KART
+                      goto (napr->KOD_K)
+                      strfile(space(5)+"- "+alltrim(kart->fio)+" д.р."+full_date(kart->DATE_R)+hb_eol()+;
+                              space(7)+lstr(nerrf)+" - "+inieditspr(A__MENUVERT,glob_T008,nerrf)+hb_eol()+;
+                              hb_eol(),cFileProtokol,.t.)
+                      nerr := 2        
+                      select NFN
+                      find (str(napr->kod,6))
+                      if found()
+                        G_RLock(forever)
+                        nfn->OSHIB := nerrf
                         dbUnLock()
                       endif
                     endif

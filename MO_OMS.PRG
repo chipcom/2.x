@@ -4132,94 +4132,10 @@ do while .t.
         &("mprot"+lstr(i)) := inieditspr(A__MENUVERT, mm_danet, &("m1prot"+lstr(i)))
       next
       //
-      mm_N002 := {}
-      blk_N2 := {|s,n| // блок кода в виде функции
-          do while left(n2->ds_st,n) == s .and. !eof()
-            aadd(mm_N002,{n2->kod_st,n2->id_st})
-            skip
-          enddo
-          return nil
-      }  
-      R_Use(exe_dir+"_mo_N002",{cur_dir+"_mo_N002",cur_dir+"_mo_N002d"},"N2")
-      set order to 2
-      find (left(mkod_diag,5))
-      if found()
-        eval(blk_N2,left(mkod_diag,5),5)
-      else
-        find (left(mkod_diag,3))
-        if found()
-          eval(blk_N2,left(mkod_diag,3),3)
-        else
-          find (space(5))
-          eval(blk_N2,space(5),5)
-        endif
-      endif
-      mm_N003 := {}
-      blk_N3 := {|s,n| // блок кода в виде функции
-          do while left(n3->ds_t,n) == s .and. !eof()
-            aadd(mm_N003,{n3->kod_t,n3->id_t})
-            skip
-          enddo
-          return nil
-      }  
-      R_Use(exe_dir+"_mo_N003",{cur_dir+"_mo_N003",cur_dir+"_mo_N003d"},"N3")
-      set order to 2
-      find (left(mkod_diag,5))
-      if found()
-        eval(blk_N3,left(mkod_diag,5),5)
-      else
-        find (left(mkod_diag,3))
-        if found()
-          eval(blk_N3,left(mkod_diag,3),3)
-        else
-          find (space(5))
-          eval(blk_N3,space(5),5)
-        endif
-      endif
-      mm_N004 := {}
-      blk_N4 := {|s,n| // блок кода в виде функции
-          do while left(n4->ds_n,n) == s .and. !eof()
-            aadd(mm_N004,{n4->kod_n,n4->id_n})
-            skip
-          enddo
-          return nil
-      }  
-      R_Use(exe_dir+"_mo_N004",{cur_dir+"_mo_N004",cur_dir+"_mo_N004d"},"N4")
-      set order to 2
-      find (left(mkod_diag,5))
-      if found()
-        eval(blk_N4,left(mkod_diag,5),5)
-      else
-        find (left(mkod_diag,3))
-        if found()
-          eval(blk_N4,left(mkod_diag,3),3)
-        else
-          find (space(5))
-          eval(blk_N4,space(5),5)
-        endif
-      endif
-      mm_N005 := {}
-      blk_N5 := {|s,n| // блок кода в виде функции
-          do while left(n5->ds_m,n) == s .and. !eof()
-            aadd(mm_N005,{n5->kod_m,n5->id_m})
-            skip
-          enddo
-          return nil
-      }  
-      R_Use(exe_dir+"_mo_N005",{cur_dir+"_mo_N005",cur_dir+"_mo_N005d"},"N5")
-      set order to 2
-      find (left(mkod_diag,5))
-      if found()
-        eval(blk_N5,left(mkod_diag,5),5)
-      else
-        find (left(mkod_diag,3))
-        if found()
-          eval(blk_N5,left(mkod_diag,3),3)
-        else
-          find (space(5))
-          eval(blk_N5,space(5),5)
-        endif
-      endif
+      mm_N002 := f_define_tnm(2,mkod_diag)
+      mm_N003 := f_define_tnm(3,mkod_diag)
+      mm_N004 := f_define_tnm(4,mkod_diag)
+      mm_N005 := f_define_tnm(5,mkod_diag)
       mDS1_T := inieditspr(A__MENUVERT, mm_DS1_T, m1DS1_T)
       mMTSTZ := inieditspr(A__MENUVERT, mm_danet, m1MTSTZ)
       mPR_CONS := inieditspr(A__MENUVERT, mm_PR_CONS, m1PR_CONS)

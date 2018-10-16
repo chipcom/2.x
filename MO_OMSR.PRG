@@ -1478,18 +1478,13 @@ if is_oncology == 2 // онкология
   endif
   fl_lock_onksl := .t.
   if fl
-    if select("N3") == 0
-      R_Use(exe_dir+"_mo_N003",{cur_dir+"_mo_N003",cur_dir+"_mo_N003d"},"N3")
-    endif
     fl := f_verify_tnm(3,onksl->ONK_T,mdiagnoz[1],ta)
-    if select("N4") == 0
-      R_Use(exe_dir+"_mo_N004",{cur_dir+"_mo_N004",cur_dir+"_mo_N004d"},"N4")
+    if fl
+      fl := f_verify_tnm(4,onksl->ONK_N,mdiagnoz[1],ta)
     endif
-    fl := f_verify_tnm(4,onksl->ONK_N,mdiagnoz[1],ta)
-    if select("N5") == 0
-      R_Use(exe_dir+"_mo_N005",{cur_dir+"_mo_N005",cur_dir+"_mo_N005d"},"N5")
+    if fl
+      fl := f_verify_tnm(5,onksl->ONK_M,mdiagnoz[1],ta)
     endif
-    fl := f_verify_tnm(5,onksl->ONK_M,mdiagnoz[1],ta)
     if fl
       if select("N6") == 0
         R_Use(dir_exe+"_mo_N006",cur_dir+"_mo_N006","N6")
@@ -1500,7 +1495,7 @@ if is_oncology == 2 // онкология
       if !(fl_found := found())
         s := padr(mdiagnoz[1],3)
         find (s)
-        fl_found := found()
+        fl_found := (found() .and. s == alltrim(n6->ds_gr)) 
       endif
       if fl_found
         find (padr(s,5)+str(onksl->ONK_T,6)+str(onksl->ONK_N,6)+str(onksl->ONK_M,6))
@@ -1518,9 +1513,6 @@ if is_oncology == 2 // онкология
         if empty(onksl->STAD)
           aadd(ta,"онкология: не введена стадия заболевания")
         else
-          if select("N2") == 0
-            R_Use(exe_dir+"_mo_N002",{cur_dir+"_mo_N002",cur_dir+"_mo_N002d"},"N2")
-          endif
           f_verify_tnm(2,onksl->STAD,mdiagnoz[1],ta)
         endif
       endif
@@ -1638,13 +1630,16 @@ if is_oncology == 2 // онкология
   select ONKUS
   find (str(human->kod,7))
   do while onkus->kod == human->kod .and. !eof()
-    i := k := k1 := 0
+    i := j := k := k1 := 0
     do case // Тип онкоуслуги в соответствии со справочником N013
       case between(onkus->USL_TIP,1,3)
         k := onkus->USL_TIP
       case onkus->USL_TIP == 4
-        if ascan(au_flu, {|x| x[10] == 2 }) == 0 //.and. !(left(human_2->pc3,2) == "sh")
-          aadd(ta,'для химиолучевой терапии обязательна к заполнению услуга назначения лекарственных препаратов')
+        s := iif(M1VZROS_REB == 0, "A25.30.033", "A25.30.014") 
+        if !(left(human_2->pc3,2) == "sh") .and. (j := ascan(au_flu, {|x| x[10] == 2 })) == 0
+          aadd(ta,'для химиолучевой терапии обязательна к заполнению услуга назначения лекарственных препаратов '+s)
+        elseif j > 0 .and. !(alltrim(au_flu[j,1]) == s)
+          aadd(ta,'для химиолучевой терапии обязательна к заполнению услуга назначения лекарственных препаратов '+s)
         endif
         k := 3
       case onkus->USL_TIP == 5

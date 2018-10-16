@@ -1962,7 +1962,7 @@ do case
                 "prn_kartoteka(33)"}
     popup_prompt(T_ROW,T_COL+5,si3,mas_pmt,mas_msg,mas_fun)
   case k == 23
-    spisok_pripisnoe_naselenie(1)
+    spisok_pripisnoe_naselenie(2)
   case k == 24
     spisok_pripisnoe_naselenie(3)
   case k == 31
