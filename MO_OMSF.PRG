@@ -1199,11 +1199,11 @@ else
 endif
 return ar
  
-***** 16.10.18
+***** 17.10.18
 Function f1_define_tnm(s,n,polek,poled,polei)
 Local arr := {}
 do while left(&poled,n) == s .and. !eof()
-  if empty(s) .or. alltrim(&poled) == s
+  if empty(s) .or. alltrim(&poled) == alltrim(s)
     aadd(arr,{&polek,&polei})
   endif
   skip

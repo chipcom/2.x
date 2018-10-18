@@ -4265,7 +4265,24 @@ if f_alert(ar,ar2,1,"GR+/R","W+/R",,,"GR+/R,N/BG") == 2
       // 1 - Код типа ДПФС
       s := iif(kart_->vpolis==3, "П", iif(kart_->vpolis==2, "В", "С"))
       s1 += eval(blk,s)+";"
-      if fl_polis
+      if kart_->vpolis < 3
+        s := alltrim(kart_->SPOLIS)+alltrim(kart_->NPOLIS)
+        if empty(s)
+          s :=  iif(kart_->vpolis == 2, "123456789", "34")
+        endif
+        if kart_->vpolis == 2
+          s := padr(s,9,"0")
+        else 
+          s := padr(s,16,"0")
+        endif
+      else
+        s := ""
+      endif
+      s1 += eval(blk,s)+";"
+      // 3 - Единый номер полиса ОМС
+      s := iif(kart_->vpolis == 3, alltrim(kart_->NPOLIS), "")
+      s1 += eval(blk,s)+";"
+      /*if fl_polis
         // 2 - Серия и номер ДПФС (только номер - наша область)
         s := iif(kart_->vpolis < 3, alltrim(kart_->NPOLIS), "")
         s1 += eval(blk,s)+";"
@@ -4274,7 +4291,7 @@ if f_alert(ar,ar2,1,"GR+/R","W+/R",,,"GR+/R,N/BG") == 2
         s1 += eval(blk,s)+";"
       else
         s1 += ";;"
-      endif
+      endif*/
       // 4 - Фамилия застрахованного лица
       s1 += eval(blk,arr_fio[1])+";"
       // 5 - Имя застрахованного лица
