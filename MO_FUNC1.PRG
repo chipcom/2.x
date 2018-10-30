@@ -1402,7 +1402,7 @@ LOCAL cExt
 HB_FNameSplit(cFile,,,@cExt)
 return cExt
 
-***** 14.03.16 возврат кода по картотеке
+***** 29.10.18 возврат кода по картотеке
 Function polikl1_kart()
 Static sesc := "^<Esc>^ выход  "
 Static senter := "^<Enter>^ ввод  "
@@ -1412,8 +1412,7 @@ Static sF10s := "^<F10>^ поиск по СНИЛС  "
 Static sF11 := "^<F11>^ читать электронный полис"
 Static s_regim := 1, s_shablon := "", s_polis := "", s_snils := ""
 Local tmp1, tmp_help := chm_help_code, mkod := -1, i, fl_number := .t.,;
-      k1 := 0, k2 := 1, str_sem, mbukva := "", tmp_color, buf, buf24, ar,;
-      s
+      k1 := 0, k2 := 1, str_sem, mbukva := "", tmp_color, buf, buf24, ar, s
 chm_help_code := 1//HK_shablon_fio
 // обмен информацией с программой Smart Delta Systems
 import_kart_from_sds()
@@ -1501,7 +1500,9 @@ do while .t.
 enddo
 chm_help_code := tmp_help
 if tmp == NIL .or. mkod > 0
-  //
+  if tmp == NIL // нажали ESC
+    mkod := 0
+  endif
 elseif s_regim == 1
   s_shablon := alltrim(tmp)
   if empty(tmp := alltrim(tmp))
@@ -1509,6 +1510,8 @@ elseif s_regim == 1
   elseif tmp == "*"
     if view_kart(0,T_ROW)
       mkod := glob_kartotek
+    else
+      mkod := 0
     endif
   else
     if is_uchastok == 1
@@ -1568,13 +1571,10 @@ Function input_year()
 Local ky, begin_date, end_date, r1, c1, r2, c2
 Store 0 TO r1, c1, r2, c2
 get_row_col_max(20,15,@r1,@c1,@r2,@c2)
-if (ky := input_value(r1,c1,r2,c2,color1,;
-                      "За какой год желаете получить информацию",;
-                      year(sys_date),"9999")) == NIL
+if (ky := input_value(r1,c1,r2,c2,color1,"За какой год желаете получить информацию",year(sys_date),"9999")) == NIL
   return NIL
 endif
-begin_date := end_date := chr(int(val(left(str(ky,4),2))))+;
-                          chr(int(val(substr(str(ky,4),3))))
+begin_date := end_date := chr(int(val(left(str(ky,4),2))))+chr(int(val(substr(str(ky,4),3))))
 begin_date += chr(1)+chr(1)
 end_date += chr(12)+chr(1)
 end_date := dtoc4(eom(c4tod(end_date)))
@@ -1610,9 +1610,7 @@ endif
 Store 0 TO r1, c1, r2, c2
 if eq_any(kmp,3,4)
   get_row_col_max(20,15,@r1,@c1,@r2,@c2)
-  if (ky := input_value(r1,c1,r2,c2,color1,;
-                        "За какой год желаете получить информацию",;
-                        sy,"9999")) == NIL
+  if (ky := input_value(r1,c1,r2,c2,color1,"За какой год желаете получить информацию",sy,"9999")) == NIL
     return NIL
   endif
   ret_year := sy := ky
@@ -1699,8 +1697,7 @@ elseif kmp == 4
   if k1 > k2
     k1 := k2
   endif
-  @ r1+1,c1+2 say "Введите начальный и конечный месяцы для периода" get k1 ;
-                             picture "99" valid {|| k1 >= 0}
+  @ r1+1,c1+2 say "Введите начальный и конечный месяцы для периода" get k1 picture "99" valid {|| k1 >= 0}
   @ row(),col()+1 say "-" get k2 picture "99" valid {|| k1 <= k2 .and. k2 <= 12}
   myread({"confirm"})
   rest_box(buf)
@@ -1781,8 +1778,7 @@ else
   endif
 endif
 if kmp > 2
-  begin_date := end_date := chr(int(val(left(str(ret_year,4),2))))+;
-                            chr(int(val(substr(str(ret_year,4),3))))
+  begin_date := end_date := chr(int(val(left(str(ret_year,4),2))))+chr(int(val(substr(str(ret_year,4),3))))
   begin_date += chr(k1)+chr(1)
   end_date += chr(k2)+chr(1)
   end_date := dtoc4(eom(c4tod(end_date)))
@@ -1794,7 +1790,7 @@ SetIniSect(tmp_ini,"ymonth",;
             {"s1time",s1time},{"s2time",s2time}})
 return {ret_year, k1, k2, s_mes_god, c4tod(begin_date), c4tod(end_date), begin_date, end_date}
 
-***** перевод левого верхнего угла прямоугольника из координат 25х80 в "maxrow(col)"
+***** перевод левого верхнего угла прямоугольника из координат 25х80 в "maxrow(maxcol)"
 Function get_row_col_max(r,c,/*@*/r1,/*@*/c1,/*@*/r2,/*@*/c2)
 Local d := 24-r
 r1 := maxrow()-d ; r2 := r1+2

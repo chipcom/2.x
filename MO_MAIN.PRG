@@ -14,9 +14,9 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-Static _version := {2,7,1}
-Static char_version := "d"
-Static _date_version := "18.10.18г."
+Static _version := {2,7,2}
+Static char_version := ""
+Static _date_version := "29.10.18г."
 Static __s_full_name := "ЧИП + Учёт работы Медицинской Организации"
 Static __s_version
 
@@ -695,21 +695,15 @@ do case
     //
     aadd(cmain_menu,cmain_next_pos(3))
     aadd(main_menu," ~Диспансеризация ")
-    aadd(main_message,"Просмотр / печать информации по диспансеризации, профилактике и медосмотрам")
-    aadd(first_menu, {"~Дети-сироты",;
-                      "~Взрослое население",;
-                      "~Несовершеннолетние",0,;
-                      "~Сводная информация"} )
+    aadd(main_message,"Диспансеризация, профилактика, медосмотры и диспансерное наблюдение")
+    aadd(first_menu, {"~Диспансеризация и профосмотры",0,;
+                      "Диспансерное ~наблюдение"} )
     aadd(first_message, { ;
-        "Информация по диспансеризации детей-сирот",;
-        "Информация по диспансеризации и профилактике взрослого населения",;
-        "Информация по медицинским осмотрам несовершеннолетних",;
-        "Сводные документы по всем видам диспансеризации и профилактики";
+        "Диспансеризация, профилактика и медосмотры",;
+        "Диспансерное наблюдение";
       } )
-    aadd(func_menu, {"inf_DDS()",;
-                     "inf_DVN()",;
-                     "inf_DNL()",;
-                     "inf_DISP()"} )
+    aadd(func_menu, {"dispanserizacia()",;
+                     "disp_nabludenie()"} )
   case glob_task == X_263 //
     fl := begin_task_263()
     if is_napr_pol

@@ -932,10 +932,10 @@ Public glob_perso := 0    // код по БД human
 Public glob_kartotek := 0 // код по БД kartotek
 Public glob_k_fio := ""   // глобальное ФИО
 Public glob_uch := {0,""} // глобальное учреждение
-Public glob_otd := {0,""} // глобальное отделение
+Public glob_otd := {0,"",0,0} // глобальное отделение
 Public sys1_date := sys_date
 Public c4sys_date := dtoc4(sys1_date)
-Public glob_human := {0,"",0,0,0}
+Public glob_human := {0,"",0,0,0,"",0,0}
 Public glob_komu := 1
 Public glob_all := {0,""}
 Public glob_strah := {0,""}
@@ -2934,7 +2934,7 @@ if fl .and. valtype(_vozrast) == "N"
 endif
 return fl
 
-***** 14.08.18 реконстукция баз данных
+***** 29.10.18 реконстукция баз данных
 Function Reconstruct_BD(is_cur_dir,is_create)
 Local base1 := {;
    {"P1",      "C",  20,   0},; // Ф.И.О.
@@ -3168,6 +3168,17 @@ Local mo_regi := {; // регистрация посещения в регистратуре
    {"PDATE","C",4,0},; // дата листа учета;;
    {"CTIME","C",5,0},; // время листа учета;;
    {"KOD_P","C",1,0};  // код оператора;;
+  }
+Local mo_dnab := {; // диспансерное наблюдение
+   {"KOD_K",    "N", 7,0},; // код по картотеке
+   {"VRACH",    "N", 4,0},; // лечащий врач
+   {"PRVS",     "N", 9,0},; // Специальность врача по справочнику V004, с минусом - по справочнику V015
+   {"KOD_DIAG" ,"C", 5,0},; // диагноз заболевания, по поводу которого пациент подлежит диспансерному наблюдению
+   {"N_DATA"   ,"D", 8,0},; // дата начала диспансерного наблюдения
+   {"NEXT_DATA","D", 8,0},; // дата явки с целью диспансерного наблюдения
+   {"MESTO",    "N", 1,0},; // место проведения диспансерного наблюдения: 0 - в МО или 1 - на дому
+   {"K_DATA"   ,"D", 8,0},; // дата окончания лечения
+   {"K_TIP",    "N", 1,0};  // тип снятия: выздоровление - 1, выбытие из района обслуживания - 2, смерть - 3
   }
 Local msek := {;
    {"KOD_K"    ,   "N",     7,     0},; // код по картотеке
@@ -4351,6 +4362,7 @@ reconstruct(dir_server+"mo_krte",mo_krte,,,.t.)
 reconstruct(dir_server+"mo_krtr",mo_krtr,,,.t.)
 reconstruct(dir_server+"mo_krto",mo_krto,,,.t.)
 reconstruct(dir_server+"mo_krtf",mo_krtf,,,.t.)
+reconstruct(dir_server+"mo_dnab",mo_dnab,,,.t.)
 //
 reconstruct(dir_server+"mo_sprav",spr_OMS,,,.t.)
 reconstruct(dir_server+"human",human,"index_base('human')","пролеченным больным",.t.)

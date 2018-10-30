@@ -10,6 +10,43 @@ Static mas1pmt := {"~все оказанные случаи",;
                    "случаи в выставленных ~счетах",;
                    "случаи в за~регистрированных счетах"}
 
+***** 28.10.18 Диспансеризация, профилактика и медосмотры
+Function dispanserizacia(k)
+Static si1 := 1, si2 := 1, sj := 1, sj1 := 1
+Local mas_pmt, mas_msg, mas_fun, j, j1
+DEFAULT k TO 1
+do case
+  case k == 1
+    mas_pmt := {"~Дети-сироты",;
+                "~Взрослое население",;
+                "~Несовершеннолетние",;
+                "~Сводная информация"}
+    mas_msg := {"Информация по диспансеризации детей-сирот",;
+                "Информация по диспансеризации и профилактике взрослого населения",;
+                "Информация по медицинским осмотрам несовершеннолетних",;
+                "Сводные документы по всем видам диспансеризации и профилактики"}
+    mas_fun := {"dispanserizacia(11)",;
+                "dispanserizacia(12)",;
+                "dispanserizacia(13)",;
+                "dispanserizacia(14)"}
+    popup_prompt(T_ROW,T_COL-5,si1,mas_pmt,mas_msg,mas_fun)
+  case k == 11
+    inf_DDS()
+  case k == 12
+    inf_DVN()
+  case k == 13
+    inf_DNL()
+  case k == 14
+    inf_DISP()
+endcase
+if k > 10
+  j := int(val(right(lstr(k),1)))
+  if between(k,11,19)
+    si1 := j
+  endif
+endif
+return NIL
+
 ***** 22.11.13 Информация по диспансеризации детей-сирот
 Function inf_DDS(k)
 Static si1 := 1, si2 := 1, sj := 1, sj1 := 1
@@ -74,8 +111,6 @@ if k > 10
   endif
 endif
 return NIL
-
-*
 
 ***** 12.07.13 Распечатка карты диспансеризации (учётная форма № 030-Д/с/у-13)
 Function inf_DDS_karta()

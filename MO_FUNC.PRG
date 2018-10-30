@@ -16,7 +16,7 @@ else
 endif  
 Return Nil
 
-***** 17.08.18
+***** 28.10.18
 Function index_base(sBase)
 Millisec(100)  // задержка на 0.1 с
 if type("fl_open") == "L" .and. fl_open
@@ -89,6 +89,7 @@ do case
     index on if(kod>0,"1","0")+polis to (dir_server+"kartotep") progress
     index on strzero(uchast,2)+strzero(kod_vu,5) to (dir_server+"kartoteu") progress
     index on if(kod>0,"1","0")+snils to (dir_server+"kartotes") progress
+    index on if(kod>0,"1","0")+kod_mis to (dir_server+"kartotee") progress
   case sBase == "k_prim1"
     index on str(kod,7)+str(stroke,1) to (dir_server+sBase) progress
   case sBase == "mo_kartp"
@@ -239,13 +240,11 @@ if type("fl_open") == "L" .and. fl_open
 endif
 return NIL
 
-*
-
 ***** 31.01.17
 Function R_Use_base(sBase,lalias)
 return use_base(sBase,lalias,,.t.)
 
-***** 31.01.17
+***** 28.10.18
 Function use_base(sBase,lalias,lExcluUse,lREADONLY)
 Local fl := .t., sind1, sind2
 sBase := lower(sBase)
@@ -282,7 +281,8 @@ do case
                                        dir_server+"kartoten",;
                                        dir_server+"kartotep",;
                                        dir_server+"kartoteu",;
-                                       dir_server+"kartotes"},"KART",,lExcluUse,lREADONLY)
+                                       dir_server+"kartotes",;
+                                       dir_server+"kartotee"},"KART",,lExcluUse,lREADONLY)
     if fl
       set relation to recno() into KART_, to recno() into KART2
     endif
@@ -1627,8 +1627,6 @@ Local s := afteratnum(".",tmp_ga->name,1)
 s := space(2*tmp_ga->uroven)+s
 return s
 
-*
-
 ***** 13.02.14
 FUNCTION input_uch(r,c,date1,date2)
 Local ret, k, fl_is, tmp_select := select()
@@ -1679,8 +1677,6 @@ if ret != NIL
   SetIniVar(tmp_ini,{{"uch_otd","uch",glob_uch[1]}})
 endif
 return ret
-
-*
 
 ***** 13.02.14
 FUNCTION input_otd(r,c,date1,date2,nTask)
@@ -1739,7 +1735,95 @@ if ret != NIL
 endif
 return ret
 
-*
+***** 29.10.18
+Function input_perso(r,c,is_null,is_rab)
+Static si := 1
+Local fl := .f., fl1 := .f., mas_pmt, s_input, s_glob, s_pict, tmp_help := 0,; 
+      arr_dolj := {}, arr_kod := {}, lr, r1, r2, i, buf := save_row(maxrow())
+DEFAULT is_null TO .t., is_rab TO .f.
+mas_pmt := {"Поиск сотрудника по ~таб.номеру","Поиск сотрудника по ~фамилии"}
+s_input := space(10)+"Введите табельный номер сотрудника"
+s_glob := glob_human[5]
+s_pict := "99999"
+if (i := popup_prompt(r,c,si,mas_pmt)) == 0
+  return .f.
+elseif i == 1
+  si := 1
+  if (i := input_value(18,6,20,73,color1,s_input,s_glob,s_pict)) == NIL
+    return .f.
+  elseif i == 0
+    if is_null
+      glob_human := {0,"",0,0,0,"",0,0}
+      return .t.
+    else
+      return .f.
+    endif
+  elseif i < 0
+    return func_error(4,"Неверный ввод - отрицательный код!")
+  endif
+  R_Use(dir_server+"mo_pers",dir_server+"mo_pers","PERSO")
+  find (str(i,5))
+  if found()
+    glob_human := {perso->kod,;
+                   alltrim(perso->fio),;
+                   perso->uch,;
+                   perso->otd,;
+                   i,;
+                   alltrim(perso->name_dolj),;
+                   perso->prvs,;
+                   perso->prvs_new }
+    fl1 := .t.
+  else
+    func_error(4,"Сотрудника с табельным номером "+lstr(i)+" нет в базе данных персонала!")
+  endif
+  close databases
+  return fl1
+endif
+si := 2
+Private mr := r
+mywait()
+//help_code := H_Input_fio
+if R_Use(dir_server+"mo_pers",,"PERSO")
+  index on upper(fio) to (cur_dir+"tmp_pers") for kod > 0
+  if glob_human[1] > 0
+    goto (glob_human[1])
+    fl := !eof() .and. !deleted()
+  endif
+  if !fl ; go top ; endif
+  if Alpha_Browse(r,9,maxrow()-2,70,"f1inp_perso",color0,,,,,,,,,{"═","░","═","N/BG,W+/N,B/BG,BG+/B"} )
+    lr := row()
+    if perso->kod == 0
+      func_error(4,"База данных персонала пустая!")
+    else
+      glob_human := {perso->kod,;
+                     alltrim(perso->fio),;
+                     perso->uch,;
+                     perso->otd,;
+                     perso->tab_nom,;
+                     alltrim(perso->name_dolj),;
+                     perso->prvs,;
+                     perso->prvs_new }
+      fl1 := .t.
+    endif
+  endif
+endif
+close databases
+//help_code := tmp_help
+rest_box(buf)
+return fl1
+
+***** 29.10.18
+Function f1inp_perso(oBrow)
+Local oColumn
+oColumn := TBColumnNew(center("Ф.И.О.",30), {|| left(perso->fio,30) })
+oBrow:addColumn(oColumn)
+oColumn := TBColumnNew("Таб.№", {|| perso->tab_nom })
+oColumn:defColor := {3,3}
+oColumn:colorBlock := {|| {3,3} }
+oBrow:addColumn(oColumn)
+oColumn := TBColumnNew(center("Специальность",21), {|| padr(ret_tmp_prvs(perso->prvs,perso->prvs_new),21) })
+oBrow:addColumn(oColumn)
+return NIL
 
 ***** вернуть учреждение и отделение в GET'е
 FUNCTION ret_uch_otd(k,r,c,date1,date2,nTask)

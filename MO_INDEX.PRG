@@ -24,7 +24,7 @@ else
 endif
 return NIL
 
-***** 19.02.17 внутренняя функция переиндексирования
+***** 28.10.18 внутренняя функция переиндексирования
 Function pereindex()
 Local buf := savescreen(), t1, t2, i, hGauge, ae[3], k, ab
 f_message({"Ждите! Пpоизводится пеpеиндексирование базы данных.",;
@@ -45,6 +45,27 @@ pereindex_263()
 if is_task(X_KEK)
   pereindex_KEK()
 endif
+//
+Stat_Msg('Поиск и копирование ЕНП')
+use_base("kartotek",,.t.) // открыть в монопольном режиме
+set order to 0
+go top
+do while !eof()
+  if kart->kod > 0
+    @ maxrow(),1 say str(recno()/lastrec()*100,6,2)+"%" color cColorStMsg
+    select KART2
+    goto (kart->(recno()))
+    if !empty(kart2->kod_mis) .and. !(kart->kod_mis == kart2->kod_mis)
+      kart->kod_mis := kart2->kod_mis
+    endif
+  endif
+  select KART
+  if recno() % 5000 == 0
+    commit
+  endif 
+  skip
+enddo
+close databases
 //
 mywait()
 Use (dir_server+"mo_raksh") new alias RAKSH
@@ -881,7 +902,7 @@ stat_msg("Поиск/попытка исправления полисов в картотеке")
 Use (dir_server+"human_") new
 use (dir_server+"human") new
 set relation to recno() into HUMAN_
-Private mdate := stod("20160630")
+Private mdate := stod("20180630")
 index on str(kod_k,7)+str(descend(k_data),10) to (cur_dir+"tmp_human") for k_data > mdate 
 use_base("kartotek",,.t.) // открываем в монопольном режиме
 set order to 2
@@ -1350,7 +1371,7 @@ endif
 restscreen(buf)
 return fl
 
-***** 14.08.18 инициализировать массив DBF-файлов базы данных
+***** 29.10.18 инициализировать массив DBF-файлов базы данных
 Function init_array_files_DB()
 Local i, arr
 Public array_files_DB := {}, array_task_DB[24,2]
@@ -1403,6 +1424,7 @@ aadd(array_files_DB,"mo_krte")
 aadd(array_files_DB,"mo_krtr")
 aadd(array_files_DB,"mo_krto")
 aadd(array_files_DB,"mo_krtf")
+aadd(array_files_DB,"mo_dnab")
 aadd(array_files_DB,"k_prim1")
 aadd(array_files_DB,"mo_regi")
 aadd(array_files_DB,"mo_kpred")
@@ -1508,8 +1530,6 @@ for i := 1 to len(arr)
   aadd(array_files_DB,arr[i])
 next
 return NIL
-
-*
 
 ***** 03.12.16 специально для ЦРБ Городищенского р-на
 Function ___uslugi()

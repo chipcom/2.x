@@ -681,7 +681,11 @@ do while .t.
     ret_ndisp(Loc_kod,kod_kartotek)
     ++j; @ j,8 get mndisp when .f. color color14
     if mvozrast != mdvozrast
-      s := "(в "+lstr(year(mn_data))+" году исполняется "+lstr(mdvozrast)+" "+s_let(mdvozrast)+")"
+      if m1veteran == 1
+        s := "(для ветерана проводится по возрасту "+lstr(mdvozrast)+" "+s_let(mdvozrast)+")"
+      else
+        s := "(в "+lstr(year(mn_data))+" году исполняется "+lstr(mdvozrast)+" "+s_let(mdvozrast)+")"
+      endif
       @ j,80-len(s) say s color color14
     endif
     ++j; @ j,1 say "────────────────────────────────────────────┬─────┬─────┬──────────┬──────────" color color8
@@ -765,7 +769,11 @@ do while .t.
     ret_ndisp(Loc_kod,kod_kartotek)
     ++j; @ j,8 get mndisp when .f. color color14
     if mvozrast != mdvozrast
-      s := "(в "+lstr(year(mn_data))+" году исполняется "+lstr(mdvozrast)+" "+s_let(mdvozrast)+")"
+      if m1veteran == 1
+        s := "(для ветерана проводится по возрасту "+lstr(mdvozrast)+" "+s_let(mdvozrast)+")"
+      else
+        s := "(в "+lstr(year(mn_data))+" году исполняется "+lstr(mdvozrast)+" "+s_let(mdvozrast)+")"
+      endif
       @ j,80-len(s) say s color color14
     endif
     ++j; @ j,1  say "───────┬────────────┬──────────┬──────┬────────────────────────"

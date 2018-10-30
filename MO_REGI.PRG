@@ -2867,7 +2867,7 @@ return ret
 
 *
 
-***** 09.09.15
+***** 24.10.18
 Function f3_view_r_pr_nas(oBrow)
 Static si := 1, snfile := "", sarr_mo, sarr_err, sjmo, sjerr
 Local i, j, r := row(), r1, r2, buf := save_maxrow(), fl := .f., ii,;
@@ -2875,6 +2875,7 @@ Local i, j, r := row(), r1, r2, buf := save_maxrow(), fl := .f., ii,;
 Private fl_csv := .f., mm_err := {}
 if krtf->TIP_OUT == _CSV_FILE_SVERKAZ
   mm_err := {{'Не имеет текущего страхования',708},; // !!!
+             {'Прикрепление к МО отсутствует',709},; //
              {'ТФОМС не вернул никакой информации',-99}} // !!!
 endif
 if left(krtr->FNAME,2) == "MO"

@@ -24,7 +24,7 @@ Function f_stom_39_terap()
 f39_ter()
 return NIL
 
-***** 01.07.18 Запрос лиц, подлежащих диспасеризации, методом многовариантного поиска
+***** 23.10.18 Запрос лиц, подлежащих диспасеризации, методом многовариантного поиска
 Function mnog_poisk_DVN1()
 Local mm_tmp := {}, mm_sort
 Local buf := savescreen(), tmp_color := setcolor(cDataCGet),;
@@ -87,7 +87,15 @@ aadd(mm_tmp, {"god","N",4,0,"9999",;
 aadd(mm_tmp, {"tip_disp","N",1,0,NIL,;
               {|x|menu_reader(x,mm_tip,A__MENUVERT)},;
               1,{|x|inieditspr(A__MENUVERT,mm_tip,x)},;
-              "Тип диспансеризации"})
+              "Тип диспансеризации",;
+              {|g,o| iif(o == m1tip_disp,;
+                         nil,;
+                         (ta:=f2_mnog_poisk_DVN2(,,,1),m1v_period:=ta[1],mv_period:=ta[2]);
+                        ),;
+                     .t.;
+              };
+             };
+    )
 aadd(mm_tmp, {"v_period","C",100,0,NIL,;
               {|x|menu_reader(x,{{ |k,r,c| f2_mnog_poisk_DVN2(k,r,c) }},A__FUNCTION)},;
               ta[1],{|x| ta[2] },;
@@ -1328,10 +1336,10 @@ if m1vid_obsl != old .and. old != NIL // при смене значения
 endif
 return .t.
 
-***** 01.07.18 запрос в GET-е возрастных периодов диспансеризации
+***** 23.10.18 запрос в GET-е возрастных периодов диспансеризации
 Function f2_mnog_poisk_DVN2(k,r,c,par)
 Static sast, sarr, sast2, sarr2
-Local buf := save_maxrow(), a, i, j, s, s1
+Local buf := save_maxrow(), a, i, j, s, s1, fl
 DEFAULT par TO 2
 if sast == NIL
   sast := {} ; sarr := {}
@@ -1380,14 +1388,26 @@ endif
 s := s1 := ""
 if par == 1
   sast := {}
+  fl := .t. // инициализация до 1-го вызова f_edit_spr()
+  if type("m1tip_disp") == "N"
+    fl := (m1tip_disp == 1)
+  endif
   for i := 1 to len(sarr)
     aadd(sast,.t.)
-    s += lstr(sarr[i,2])+iif(i < len(sarr),",","")
+    if fl
+      s += lstr(sarr[i,2])+iif(i < len(sarr),",","")
+    endif
   next
   sast2 := {}
+  fl := .f. // инициализация после смены значения m1tip_disp внутри f_edit_spr()
+  if type("m1tip_disp") == "N"
+    fl := (m1tip_disp == 2)
+  endif
   for i := 1 to len(sarr2)
     aadd(sast2,.t.)
-    //s += lstr(sarr[i,2])+iif(i < len(sarr),",","")
+    if fl
+      s += lstr(sarr2[i,2])+iif(sarr2[i,3]=="Ж","Ж","")+iif(i < len(sarr2),",","")
+    endif
   next
   s1 := "все"
 else
@@ -1433,13 +1453,10 @@ if k == 1
 endif
 return fl
 
-*
-
 ***** 22.12.14
 Function f1_mnog_poisk_DVN2(cv,cf)
 Static P_BEGIN_RSLT := 342, D_BEGIN_RSLT := 316, D_BEGIN_RSLT2 := 351
-Local i, j, k, n, s, arr, fl := .t., flu := .f., mkol, mstoim := 0, fl1, fl2,;
-      god_r, arr1
+Local i, j, k, n, s, arr, fl := .t., flu := .f., mkol, mstoim := 0, fl1, fl2, god_r, arr1
 ++cv
 kart->(dbGoto(human->kod_k))
 Private metap := 0, m1gruppa := 0, mdvozrast := 0,;
@@ -1644,7 +1661,7 @@ if fl
     tmp_k->(dbCommit())
   endif
 endif
-@ 24,1 say lstr(cv) color cColorSt2Msg
+@ maxrow(),1 say lstr(cv) color cColorSt2Msg
 @ row(),col() say "/" color "W/R"
 @ row(),col() say lstr(cf) color cColorStMsg
 return NIL
