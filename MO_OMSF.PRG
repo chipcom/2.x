@@ -1361,16 +1361,29 @@ if o != NIL .and. o != m1usl_tip
 endif
 return .t.
 
-***** 06.08.18
+***** 01.11.18
 Function is_usluga_disp_nabl(_shifr,_shifr1)
 if empty(_shifr1)
   _shifr := alltrim(_shifr)
 else
   _shifr := alltrim(_shifr1)
 endif  
-return between_shifr(_shifr,"2.78.61","2.78.84") .or. between_shifr(_shifr,"2.88.52","2.88.75")
+return between_shifr(_shifr,"2.78.61","2.78.86") .or. between_shifr(_shifr,"2.88.52","2.88.77")
 
-***** 18.08.18 функция для when и valid при вводе услуг в лист учёта
+***** 01.11.18 является услугой телемедицины - не заполняется код врача
+Function is_telemedicina(lshifr) 
+Local fl := .f., tmp_select := select() 
+select LUSLF
+if fieldnum("telemed") > 0
+  find (padr(lshifr,20))
+  if found() .and. alltrim(lshifr) == alltrim(luslf->shifr) .and. luslf->telemed == 1
+    fl := .t.
+  endif
+endif  
+select (tmp_select)
+return fl
+
+***** 01.11.18 функция для when и valid при вводе услуг в лист учёта
 Function f5editkusl(get,when_valid,k)
 Local fl := .t., s, i, lu_cena, lshifr1, v, old_kod, amsg, arr_zf, fl1, fl2, ;
       msg1_err := "Код врача равен коду ассистента! Это недопустимо.",;
@@ -1467,6 +1480,7 @@ else  // valid
       if found() .and. alltrim(mshifr) == alltrim(luslf->shifr)
         tip_onko_napr := luslf->onko_napr
         tip_onko_ksg := luslf->onko_ksg
+        tip_telemed := luslf->telemed
         fl1 := .t.
         select MOSU
         set order to 3
@@ -1513,6 +1527,9 @@ else  // valid
       if fl1
         mn_base := 1
         mstoim_1 := mu_cena := 0
+        if is_telemedicina(mshifr1) // является услугой телемедицины - не заполняется код врача
+          mis_edit := -1  
+        endif
         mis_nul := .t.
         mkol := mkol_1 := 1
         verify_uva(2)

@@ -5733,7 +5733,7 @@ if !empty(m1okato)
 endif
 return len(mm_ismo) > 0
 
-***** 11.04.18 ввод услуг в случай (лист учёта)
+***** 01.11.18 ввод услуг в случай (лист учёта)
 Function oms_usl_sluch(mkod_human,mkod_kartotek,fl_edit)
 // mkod_human - код по БД human
 // mkod_kartotek - код по БД kartotek
@@ -5948,6 +5948,9 @@ if found()
     tmp->is_nul  := .t.
     tmp->is_oms  := .t.
     tmp->rec_hu  := mohu->(recno())
+    if is_telemedicina(tmp->shifr1) 
+      tmp->is_edit := -1 // не заполняется код врача
+    endif
     last_date := max(tmp->date_u1,last_date)
     select MOHU
     skip
@@ -6112,7 +6115,7 @@ Function f3oms_usl_sluch()
 @ maxrow()-4,59 say padl("Итого: "+lstr(human->cena_1,11,2),20) color "W+/N"
 return NIL
 
-***** 26.06.18 ввод услуг в лист учёта
+***** 01.11.18 ввод услуг в лист учёта
 Function f2oms_usl_sluch(nKey,oBrow)
 Static skod_k := 0, skod_human := 0, SKOD_DIAG, SZF,;
        st_vzrosl, st_arr_dbf, skod_vr, skod_as, aksg := {}

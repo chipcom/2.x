@@ -1747,7 +1747,7 @@ do case
 endcase
 return k
 
-***** 27.08.18 создание XML-файлов реестра
+***** 01.11.18 создание XML-файлов реестра
 Function create2reestr17(_recno,_nyear,_nmonth,reg_sort)
 Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, ;
       lst, lshifr1, code_reestr, mb, me, nsh, adiag_talon[16]
@@ -1821,6 +1821,7 @@ Commit
 //R_Use(exe_dir+"_mo_v024",cur_dir+"_mo_v024","V024")
 use_base("lusl")
 use_base("luslc")
+use_base("luslf")
 R_Use(dir_server+"mo_uch",,"UCH")
 R_Use(dir_server+"mo_otd",,"OTD")
 R_Use(dir_server+"mo_pers",,"P2")
@@ -2644,8 +2645,12 @@ do while !eof()
         mo_add_xml_stroke(oUSL,"TARIF"   ,'0')//lstr(mohu->U_CENA,10,2))
         mo_add_xml_stroke(oUSL,"SUMV_USL",'0')//lstr(mohu->STOIM_1,10,2))
         mo_add_xml_stroke(oUSL,"PRVS",put_prvs_to_reestr(mohu->PRVS,_NYEAR))
-        p2->(dbGoto(mohu->kod_vr))
-        mo_add_xml_stroke(oUSL,"CODE_MD" ,p2->snils)
+        if is_telemedicina(lshifr) // не заполняется код врача
+          mo_add_xml_stroke(oUSL,"CODE_MD",'0')
+        else        
+          p2->(dbGoto(mohu->kod_vr))
+          mo_add_xml_stroke(oUSL,"CODE_MD" ,p2->snils)
+        endif
         if is_oncology == 2 .and. mohu->USL_TIP > 0 .and. human_->USL_OK < 3
          oONK := oUSL:Add( HXMLNode():New( "ONK_USL" ) )
           mo_add_xml_stroke(oONK,"USL_TIP",lstr(iif(mohu->USL_TIP==9,0,mohu->USL_TIP)))

@@ -1350,6 +1350,9 @@ select MOHU
 find (str(human->kod,7))
 do while mohu->kod == human->kod .and. !eof()
   lshifr := mosu->shifr1
+  dbSelectArea(al)
+  find (padr(lshifr,20)) 
+  usl_found := found()
   s := alltrim(mosu->shifr1)+iif(empty(mosu->shifr),"","("+alltrim(mosu->shifr)+")") 
   if mosu->tip == 5
     aadd(ta,'услуга "'+s+'" удалена в 2017 году')
@@ -1364,7 +1367,16 @@ do while mohu->kod == human->kod .and. !eof()
   otd->(dbGoto(mohu->OTD))
   mohu->(G_RLock(forever))
   if empty(mohu->kod_vr)
-    aadd(ta,'не заполнено поле "Врач, оказавший услугу '+s+'"')
+    if usl_found .and. &al.->telemed == 1
+      if !(mohu->PRVS == human_->PRVS)
+        mohu->PRVS := human_->PRVS // для телемедицины специальность копируем из случая
+      endif
+      if mohu->profil == human_->profil
+        mohu->profil := human_->profil // для телемедицины профиль копируем из случая
+      endif
+    else
+      aadd(ta,'не заполнено поле "Врач, оказавший услугу '+s+'"')
+    endif
   else
     if ascan(arr_perso,mohu->kod_vr) == 0
       aadd(arr_perso,mohu->kod_vr)
@@ -1401,9 +1413,7 @@ do while mohu->kod == human->kod .and. !eof()
     mohu->profil := correct_profil(mohu->profil)
   endif
   ltip_onko := 0
-  dbSelectArea(al)
-  find (padr(lshifr,20)) 
-  if found()
+  if usl_found
     ltip_onko := &al.->onko_ksg
     do case
       case human_->usl_ok == 1
@@ -1424,7 +1434,7 @@ do while mohu->kod == human->kod .and. !eof()
             // проверяем на специальность
             UslugaAccordancePRVS(lshifr,human->vzros_reb,mohu->prvs,ta,mosu->shifr,mohu->kod_vr)
           endif
-        else
+        elseif &al.->telemed == 0
           aadd(ta,'услугу '+s+' нельзя вводить для амбулаторной помощи')
         endif
       case human_->usl_ok == 4

@@ -9,13 +9,17 @@ Static lcount_uch  := 1
 
 ***** 28.10.18 Диспансерное наблюдение
 Function disp_nabludenie(k)
-Static si1 := 1
+Static si1 := 1, si2 := 1
 Local mas_pmt, mas_msg, mas_fun, j
 DEFAULT k TO 1
 do case
   case k == 1
+    Private file_form, mdate_r, M1VZROS_REB, diag1 := {}, len_diag := 0
+    if (file_form := search_file("DISP_NAB"+sfrm)) == NIL
+      return func_error(4,"Не обнаружен файл DISP_NAB"+sfrm)
+    endif
     mas_pmt := {"Первичный ~ввод",;
-                "~Просмотр",;
+                "~Информация",;
                 "~Обмен с ТФОМС"}
     mas_msg := {"Первичный ввод сведений о состоящих на диспансерном учёте в Вашей МО",;
                 "Информация по первичному вводу сведений о состоящих на диспансерном учёте",;
@@ -27,14 +31,21 @@ do case
   case k == 11
     vvod_disp_nabl()
   case k == 12
-    inf_disp_nabl()
+    mas_pmt := {"~Пациенты с диагнозами для диспансерного учёта"}
+    mas_msg := {"Список пациентов с диагнозами, обязательными для диспансерного учёта (за 2 года)"}
+    mas_fun := {"disp_nabludenie(21)"}
+    popup_prompt(T_ROW,T_COL-5,si2,mas_pmt,mas_msg,mas_fun)
   case k == 13
     obmen_disp_nabl()
+  case k == 21
+    inf_disp_nabl()
 endcase
 if k > 10
   j := int(val(right(lstr(k),1)))
   if between(k,11,19)
     si1 := j
+  elseif between(k,21,29)
+    si2 := j
   endif
 endif
 return NIL
@@ -42,10 +53,7 @@ return NIL
 ***** 29.10.18 Первичный ввод сведений о состоящих на диспансерном учёте в Вашей МО
 Function vvod_disp_nabl()
 Local buf := savescreen(), k, s, t_arr := array(BR_LEN)
-Private str_find, muslovie, file_form, mdate_r, M1VZROS_REB, diag1 := {}, len_diag := 0
-if (file_form := search_file("DISP_NAB"+sfrm)) == NIL
-  return func_error(4,"Не обнаружен файл DISP_NAB"+sfrm)
-endif
+Private str_find, muslovie
 G_Use(dir_server+"mo_dnab",,"DN")
 index on str(KOD_K,7)+KOD_DIAG to (cur_dir+"tmp_dnab")
 use
@@ -245,9 +253,104 @@ next
 endif  
 return !(ret_f_14(ldiag) == NIL)
 
-***** 28.10.18 Информация по первичному вводу сведений о состоящих на диспансерном учёте
+***** 01.11.18 Информация по первичному вводу сведений о состоящих на диспансерном учёте
 Function inf_disp_nabl()
-ne_real()
+Static su := 0
+Local ku, i, adiagnoz, ar, sh := 80, HH := 60, buf := save_maxrow(), name_file := "disp_nabl"+stxt,;
+      s, c1, cv := 0, cf := 0, fl_exit := .f.
+if (ku := input_value(20,20,22,59,color1,space(6)+"Введите номер участка",su,"99")) == NIL
+  return NIL
+endif
+su := ku
+stat_msg("Поиск информации...")
+fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
+add_string("")
+add_string(center("Список пациентов с диагнозами, обязательными для диспансерного учёта (за 2 года)",sh))
+add_string(center("участок № "+lstr(ku),sh))
+add_string("")
+R_Use(dir_server+"human_",,"HUMAN_")
+R_Use(dir_server+"human",dir_server+"humankk","HUMAN")
+R_Use_base("kartotek")
+set order to 4
+find (strzero(ku,2))
+index on upper(fio) to (cur_dir+"tmp_kart") ;
+      for kart->kod > 0 .and. kart2->MO_PR == glob_mo[_MO_KOD_TFOMS] .and. !(left(kart2->PC2,1) == "1") ;
+      while ku == uchast
+go top      
+do while !eof()
+  @ maxrow(),1 say lstr(++cv) color cColorSt2Msg
+  @ row(),col() say "/" color "W/R"
+  c1 := col()
+  @ row(),c1 say lstr(cf) color cColorStMsg
+  if inkey() == K_ESC
+    fl_exit := .t. ; exit
+  endif
+  if kart->kod > 0 .and. kart2->MO_PR == glob_mo[_MO_KOD_TFOMS] .and. !(left(kart2->PC2,1) == "1")
+    mdate_r := kart->date_r ; M1VZROS_REB := kart->VZROS_REB
+    fv_date_r(sys_date) // переопределение M1VZROS_REB
+    if M1VZROS_REB == 0
+      ar := {} 
+      select HUMAN
+      find (str(kart->kod,7))
+      do while human->kod_k == kart->kod .and. !eof()
+        if human->k_data > 0d20161231 // т.е. последние два года и не скорая помощь
+          human_->(dbGoto(human->(recno())))
+          if human_->USL_OK < 4
+            adiagnoz := diag_to_array()
+            for i := 1 to len(adiagnoz)
+              if !empty(adiagnoz[i]) .and. f2_vvod_disp_nabl(adiagnoz[i])
+                s := padr(adiagnoz[i],5)
+                if ascan(ar,s) == 0
+                  aadd(ar,s)
+                endif
+              endif
+            next i
+          endif
+        endif 
+        select HUMAN
+        skip
+      enddo
+      if len(ar) > 0
+        s2 := "" 
+        if mem_kodkrt == 2
+          s2 := "["
+          if is_uchastok > 0
+            s2 += alltrim(kart->bukva)
+            s2 += lstr(kart->uchast,2)+"/"
+          endif
+          if is_uchastok == 1
+            s2 += lstr(kart->kod_vu)
+          elseif is_uchastok == 3
+            s2 += alltrim(kart2->kod_AK)
+          else
+            s2 += lstr(kart->kod)
+          endif
+          s2 += "] "
+        endif
+        verify_FF(HH,.t.,sh)
+        add_string(left(s2+alltrim(kart->fio)+" д.р."+full_date(kart->date_r),99))
+        add_string(left("  "+arr2Slist(ar),99))
+        if empty(kart_->okatop)
+          add_string(left("  "+ret_okato_ulica(kart->adres,kart_->okatog,0,2),99))
+        else
+          add_string(left("  "+ret_okato_ulica(kart_->adresp,kart_->okatop,0,2),99))
+        endif
+        @ row(),c1 say lstr(++cf) color cColorStMsg
+      endif
+    endif
+  endif
+  select KART
+  skip
+enddo
+if fl_exit
+  add_string("*** "+expand("ОПЕРАЦИЯ ПРЕРВАНА"))
+elseif empty(cf)
+  add_string("Не обнаружено запрашиваемых пациентов по данному участку.")
+endif
+close databases
+fclose(fp)
+viewtext(name_file,,,,.t.,,,2)
+rest_box(buf)  
 return NIL
 
 ***** 28.10.18 Обмен с ТФОМС информацией по диспансерному наблюдению

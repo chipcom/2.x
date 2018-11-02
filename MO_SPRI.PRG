@@ -154,11 +154,13 @@ do case
   case k == 3
     mas_pmt := {"Номенклатура медуслуг ~ФФОМС",;
                 "~Стоматологические услуги",;
+                "Услуги ~телемедицины",;
                 "Классификатор ~видов ВМП",;
                 "Классификатор ~методов ВМП",;
                 "Услуги ФФОМС -> ~наши услуги"}
     mas_msg := {"Вывод списка услуг Минздрава РФ (ФФОМС) по подразделам",;
                 "Вывод списка стоматологических услуг Минздрава РФ (ФФОМС) по группам",;
+                "Распечатка списка услуг с использованием телемедицинских технологий",;
                 "Распечатка классификатора видов ВМП",;
                 "Распечатка классификатора методов ВМП (с группировкой по видам ВМП)",;
                 "Привязка Ваших услуг к услугам ФФОМС"}
@@ -166,7 +168,8 @@ do case
                 "fspr_uslugi(22)",;
                 "fspr_uslugi(23)",;
                 "fspr_uslugi(24)",;
-                "fspr_uslugi(25)"}
+                "fspr_uslugi(25)",;
+                "fspr_uslugi(26)"}
     k := len(mas_pmt) 
     use_base("luslc")
     set order to 2
@@ -177,7 +180,7 @@ do case
         if year(luslc->datebeg) == 2018 .and. is_ksg(luslc->shifr,2) 
           aadd(mas_pmt, "Услуги + КСГ (~дневной стационар)")
           aadd(mas_msg, "Вывод списка разрешённых услуг ФФОМС вместе с КСГ дневного стационара")
-          aadd(mas_fun, "fspr_uslugi(26)")
+          aadd(mas_fun, "fspr_uslugi(27)")
           exit
         endif
         skip
@@ -192,7 +195,7 @@ do case
         if year(luslc->datebeg) == 2018 .and. is_ksg(luslc->shifr,1) 
           aadd(mas_pmt, "Услуги + ~КСГ (стационар)")
           aadd(mas_msg, "Вывод списка разрешённых услуг ФФОМС вместе с КСГ стационара")
-          aadd(mas_fun, "fspr_uslugi(27)")
+          aadd(mas_fun, "fspr_uslugi(28)")
           exit
         endif
         skip
@@ -222,14 +225,16 @@ do case
   case k == 22
     usl_stom_FFOMS()
   case k == 23
-    usl11FFOMS()
+    usl_telemedicina()
   case k == 24
-    usl12FFOMS()
+    usl11FFOMS()
   case k == 25
-    usl2FFOMS()
+    usl12FFOMS()
   case k == 26
-    usl6FFOMS(2)
+    usl2FFOMS()
   case k == 27
+    usl6FFOMS(2)
+  case k == 28
     usl6FFOMS(1)
 endcase
 if k > 0
@@ -1784,6 +1789,32 @@ for j := 1 to len(arr_gr)
     skip
   enddo
 next  
+close databases
+rest_box(buf)
+fclose(fp)
+viewtext(name_file,,,,.t.,,,2)
+return NIL
+
+***** 01.11.18 Распечатка списка услуг с использованием телемедицинских технологий
+Function usl_telemedicina()
+Local i, j, k, buf := save_maxrow(), name_file := "uslugiT"+stxt, sh := 80, HH := 60, t_arr[2], fl 
+mywait()
+R_Use(exe_dir+"_mo8uslf",,"luslf")
+index on shifr to (cur_dir+"tmp_uslf") for telemed == 1
+fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
+add_string("2018 год")
+add_string(center("Услуги с использованием телемедицинских технологий Минздрава РФ (ФФОМС)",sh))
+add_string("")
+go top
+do while !eof()
+  k := perenos(t_arr,alltrim(luslf->shifr)+" "+luslf->name,sh)
+  verify_FF(HH-k,.t.,sh)
+  add_string(t_arr[1])
+  for i := 2 to k
+    add_string(padl(alltrim(t_arr[i]),sh))
+  next
+  skip
+enddo
 close databases
 rest_box(buf)
 fclose(fp)
