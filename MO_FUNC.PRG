@@ -132,6 +132,8 @@ do case
     index on date_u to (dir_server+"mo_hud") progress
     index on str(kod_vr,4)+date_u to (dir_server+"mo_huv") progress
     index on str(kod_as,4)+date_u to (dir_server+"mo_hua") progress
+  case sBase == "mo_dnab"
+    index on str(KOD_K,7)+KOD_DIAG to (dir_server+"mo_dnab")
   case sBase == "mo_hdisp"
     index on str(kod,7)+str(ks,2) to (dir_server+sBase) progress
   case sBase == "mo_onkna"
@@ -317,9 +319,12 @@ do case
                                     dir_server+"mo_hud",;
                                     dir_server+"mo_huv",;
                                     dir_server+"mo_hua"},lalias,,lExcluUse,lREADONLY)
+  case sBase == "mo_dnab"
+    DEFAULT lalias TO "DN"
+    fl := G_Use(dir_server+"mo_dnab",dir_server+"mo_dnab",lalias,,lExcluUse,lREADONLY)
   case sBase == "mo_hdisp"
     DEFAULT lalias TO "HDISP"
-    fl := G_Use(dir_server+"mo_hdisp",{dir_server+"mo_hdisp"},lalias,,lExcluUse,lREADONLY)
+    fl := G_Use(dir_server+"mo_hdisp",dir_server+"mo_hdisp",lalias,,lExcluUse,lREADONLY)
   case sBase == "schet"
     DEFAULT lalias TO "SCHET"
     fl := G_Use(dir_server+"schet_",,"SCHET_",,lExcluUse,lREADONLY) .and. ;

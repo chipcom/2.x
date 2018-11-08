@@ -731,7 +731,7 @@ for i := 1 to len(ar)
 next
 return ret_arr
 
-***** 12.08.18 Создание отчётов по иногородним / иностранцам для КЗВО
+***** 06.11.18 Создание отчётов по иногородним / иностранцам для КЗВО
 Function pr_inog_inostr()
 Local arr_m, fl_exit := .f., buf := save_maxrow(), kh := 0, jh := 0
 if (arr_m := year_month()) == NIL
@@ -778,7 +778,7 @@ do while human->k_data <= arr_m[6] .and. !eof()
   endif
   if human_->oplata < 9  
     lregion := space(3) ; losnov := 0
-    if human->CENA_1 > 0 .and. f1pr_inog_inostr(human->kod_k,@lregion,@losnov)
+    if human->CENA_1 > 0 .and. f1pr_inog_inostr(human->kod_k,@lregion,@losnov,arr_m)
       lprofil := human_->profil
       lvid := 2
       do case
@@ -841,7 +841,7 @@ if is_task(X_PLATN)
       fl_exit := .t. ; exit
     endif
     lregion := space(3) ; losnov := 0
-    if hump->CENA > 0 .and. f1pr_inog_inostr(hump->kod_k,@lregion,@losnov)
+    if hump->CENA > 0 .and. f1pr_inog_inostr(hump->kod_k,@lregion,@losnov,arr_m)
       lprofil := 97 // терапии
       lvid := 2     // амбулаторно
       if hump->otd > 0
@@ -891,7 +891,7 @@ if is_task(X_ORTO)
       fl_exit := .t. ; exit
     endif
     lregion := space(3) ; losnov := 0
-    if humo->CENA > 0 .and. f1pr_inog_inostr(humo->kod_k,@lregion,@losnov)
+    if humo->CENA > 0 .and. f1pr_inog_inostr(humo->kod_k,@lregion,@losnov,arr_m)
       lprofil := 88 // стоматологии ортопедической
       lvid := 2     // амбулаторно
       if humo->tip_usl == 1
@@ -942,8 +942,8 @@ Function f0pr_inog_inostr(ldate_r,_data)
 Local cy := count_years(ldate_r,_data)
 return iif(cy < 100, cy, 99)
 
-***** 13.08.18
-Function f1pr_inog_inostr(lkod,/*@*/lregion,/*@*/losnov)
+***** 06.11.18
+Function f1pr_inog_inostr(lkod,/*@*/lregion,/*@*/losnov,arr_m)
 Local rec
 select KART
 goto (lkod)
@@ -971,9 +971,9 @@ if empty(lregion) .and. !eq_any(left(kart_->okatog,2),'  ','00','18')
     set order to 3
     find (str(lkod,7))
     do while human->kod_k == lkod .and. !eof()
-      if human->CENA_1 > 0 .and. human_->oplata < 9 
-        if human->komu == 0 .and. val(human_->smo) > 34000 // полис Волгоградский
-          lregion := space(3) ; losnov := 0 ; exit         // не учитываем
+      if between(human->k_data,arr_m[5],arr_m[6]) .and. human->CENA_1 > 0 .and. human_->oplata < 9  
+        if human->komu == 0 .and. val(human_->smo) > 34000 .and. val(human_->smo) < 35000 // полис Волгоградский
+          lregion := space(3) ; losnov := 0 ; exit                                        // не учитываем
         endif
       endif  
       skip

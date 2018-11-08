@@ -31,14 +31,24 @@ do case
   case k == 11
     vvod_disp_nabl()
   case k == 12
-    mas_pmt := {"~Пациенты с диагнозами для диспансерного учёта"}
-    mas_msg := {"Список пациентов с диагнозами, обязательными для диспансерного учёта (за 2 года)"}
-    mas_fun := {"disp_nabludenie(21)"}
+    mas_pmt := {"~Информация по первичному вводу",;
+                "Список обязательных ~диагнозов",;
+                "~Пациенты с диагнозами для диспансерного учёта"}
+    mas_msg := {"Информация по первичному вводу сведений о состоящих на диспансерном учёте",;
+                "Список диагнозов, обязательных для диспансерного наблюдения",;
+                "Список пациентов с диагнозами, обязательными для диспансерного учёта (за 2 года)"}
+    mas_fun := {"disp_nabludenie(21)",;
+                "disp_nabludenie(22)",;
+                "disp_nabludenie(23)"}
     popup_prompt(T_ROW,T_COL-5,si2,mas_pmt,mas_msg,mas_fun)
   case k == 13
     obmen_disp_nabl()
   case k == 21
     inf_disp_nabl()
+  case k == 22
+    spr_disp_nabl()
+  case k == 23
+    pac_disp_nabl()
 endcase
 if k > 10
   j := int(val(right(lstr(k),1)))
@@ -50,14 +60,20 @@ if k > 10
 endif
 return NIL
 
-***** 29.10.18 Первичный ввод сведений о состоящих на диспансерном учёте в Вашей МО
+***** 08.11.18 Первичный ввод сведений о состоящих на диспансерном учёте в Вашей МО
 Function vvod_disp_nabl()
-Local buf := savescreen(), k, s, t_arr := array(BR_LEN)
+Local buf := savescreen(), k, s, t_arr := array(BR_LEN), str_sem, str_sem1
 Private str_find, muslovie
-G_Use(dir_server+"mo_dnab",,"DN")
-index on str(KOD_K,7)+KOD_DIAG to (cur_dir+"tmp_dnab")
-use
+if !hb_fileExists(dir_server+"mo_dnab"+sntx)
+  G_Use(dir_server+"mo_dnab")
+  index on str(KOD_K,7)+KOD_DIAG to (dir_server+"mo_dnab")
+  use
+endif  
 if input_perso(T_ROW,T_COL-5)
+  str_sem := lstr(glob_human[1])
+  if !G_SLock(str_sem)
+    return func_error(4,"По этому врачу в данный момент вводит информацию другой пользователь")
+  endif
   k := -ret_new_spec(glob_human[7],glob_human[8])
   box_shadow(0,0,2,49,color13,,,0)
   @ 0,0 say padc("["+lstr(glob_human[5])+"] "+glob_human[2],50) color color8
@@ -67,10 +83,11 @@ if input_perso(T_ROW,T_COL-5)
     k := polikl1_kart()
     close databases
     //
-    R_Use(dir_server+"kartotek",,"_KART")
+    str_sem1 := lstr(glob_kartotek)
     if k == 0
       exit
-    else
+    elseif G_SLock(str_sem1)
+      R_Use(dir_server+"kartotek",,"_KART")
       goto (glob_kartotek)
       s := alltrim(padr(_kart->fio,37))+" ("+full_date(_kart->date_r)+")"
       @ 2,0 say padc(s,50) color color1
@@ -97,12 +114,16 @@ if input_perso(T_ROW,T_COL-5)
         aadd(t_arr[BR_COLUMN],{"   Дата;следующего;посещения",{|| full_date(dn->next_data) }})
         aadd(t_arr[BR_COLUMN],{"Место проведения;диспансерного;наблюдения",{|| iif(empty(dn->kod_diag),space(7),iif(dn->mesto==0," в МО  ","на дому")) }})
         t_arr[BR_EDIT] := {|nk,ob| f1_vvod_disp_nabl(nk,ob,"edit") }
-        G_Use(dir_server+"mo_dnab",cur_dir+"tmp_dnab","DN")
+        Use_base("mo_dnab")
         edit_browse(t_arr)
       endif
+      G_SUnLock(str_sem1)
+    else
+      func_error(4,"По этому пациенту в данный момент вводит информацию другой пользователь")
     endif
     close databases
   enddo
+  G_SUnLock(str_sem)
 endif
 close databases
 restscreen(buf)
@@ -234,27 +255,167 @@ if len_diag == 0
   do while !feof(lfp)
     UpdateStatus()
     s := fReadLn(lfp)
-for i := 1 to len(s) // проверка на русские буквы в диагнозах
+/*for i := 1 to len(s) // проверка на русские буквы в диагнозах
   if ISRALPHA(substr(s,i,1))
     strfile(s+eos,"ttt.ttt",.t.)
     exit
   endif
-next
+next*/
     if "-" $ s
       d1 := token(s,"-",1)
       d2 := token(s,"-",2)
     else
       d1 := d2 := s
     endif
-    aadd(diag1, {1,{{diag_to_num(d1,1),diag_to_num(d2,2)}}} )
+    aadd(diag1, {1,{{diag_to_num(d1,1),diag_to_num(d2,2)}},s} )
   enddo
   fclose(lfp)
   len_diag := len(diag1)
 endif  
 return !(ret_f_14(ldiag) == NIL)
 
-***** 01.11.18 Информация по первичному вводу сведений о состоящих на диспансерном учёте
+***** 08.11.18 Информация по первичному вводу сведений о состоящих на диспансерном учёте
 Function inf_disp_nabl()
+Static suchast := 0, svrach := 0, sdiag := ''
+Local bg := {|o,k| get_MKB10(o,k,.f.) }
+Local buf := savescreen(), r := 15, sh, HH := 60, name_file := "info_dn"+stxt
+if !hb_fileExists(dir_server+"mo_dnab"+sntx)
+  G_Use(dir_server+"mo_dnab")
+  index on str(KOD_K,7)+KOD_DIAG to (dir_server+"mo_dnab")
+  use
+endif  
+f2_vvod_disp_nabl("A00")
+setcolor(cDataCGet)
+myclear(r)
+Private muchast := suchast,;
+        mvrach := svrach,; 
+        mkod_diag := padr(sdiag,5),;
+        gl_area := {r,0,maxrow()-1,maxcol(),0}
+status_key("^<Esc>^ - выход;  ^<PgDn>^ - составление документа")
+//
+@ r,0 to r+8,maxcol() COLOR color8
+str_center(r," Запрос информации по ведённому диспансерному наблюдению ",color14)
+@ r+2,2 say "Номер участка (0 - по всем участкам)" get muchast pict "99999"
+@ r+3,2 say "Табельный номер врача (0 - по всем врачам)" get mvrach pict "99999"
+@ r+4,2 say "Диагноз (или начальные символы, или пустая строка)" get mkod_diag ;
+        pict "@K@!" reader {|o|MyGetReader(o,bg)} 
+myread()
+if lastkey() != K_ESC
+  if mvrach > 0
+    R_Use(dir_server+"mo_pers",dir_server+"mo_pers","PERSO")
+    find (str(mvrach,5))
+    if found()
+      glob_human := {perso->kod,;
+                     alltrim(perso->fio),;
+                     perso->uch,;
+                     perso->otd,;
+                     mvrach,;
+                     alltrim(perso->name_dolj),;
+                     perso->prvs,;
+                     perso->prvs_new }
+      fl1 := .t.
+    else
+      func_error(4,"Сотрудника с табельным номером "+lstr(i)+" нет в базе данных персонала!")
+      mvrach := 0
+    endif
+    close databases
+  endif
+  if !empty(mkod_diag)
+    mkod_diag := alltrim(mkod_diag) ; l := len(mkod_diag)
+    if ascan(diag1, {|x| padr(x[3],l) == mkod_diag }) == 0
+      func_error(4,"Диагноз не входит в список допустимых из Приказа КЗ и ТФОМС")
+      mkod_diag := ""
+    endif
+  endif
+  //
+  suchast := muchast 
+  svrach := mvrach 
+  sdiag := mkod_diag
+  //
+  arr_title := {;
+    "─────────────────────────────────────────────┬──────────┬──┬─────┬─────┬────────┬────────",;
+    "                                             │   Дата   │Уч│ Таб.│Диаг-│Постанов│Следующ.",;
+    "  ФИО пациента                               │ рождения │ас│номер│ноз  │на учёт │визит   ",;
+    "─────────────────────────────────────────────┴──────────┴──┴─────┴─────┴────────┴────────"}
+  sh := len(arr_title[1])
+  mywait()
+  fp := fcreate(name_file) ; tek_stroke := 0 ; n_list := 1
+  add_string("")
+  add_string(center("Список пациентов, состоящих на диспансерном учёте",sh))
+  add_string("")
+  aeval(arr_title, {|x| add_string(x) } )
+  R_Use(dir_server+"mo_pers",,"PERS")
+  R_Use(dir_server+"kartotek",,"KART")
+  R_Use_base("mo_dnab")
+  set relation to kod_k into KART, to vrach into PERS
+  index on upper(kart->fio)+dtos(kart->date_r)+str(dn->kod_k,7)+dn->kod_diag to (cur_dir+"tmp_dn")
+  old := r := rs := 0
+  go top
+  do while !eof()
+    fl := .t.
+    if muchast > 0
+      fl := (kart->uchast == muchast)
+    endif
+    if fl .and. mvrach > 0
+      fl := (glob_human[1] == dn->vrach)
+    endif
+    if fl .and. !empty(mkod_diag)
+      fl := (padr(dn->kod_diag,l) == mkod_diag)
+    endif
+    if fl
+      if old == dn->kod_k
+        s := space(45)+space(1+10+3)
+      else
+        s := padr(kart->fio,45)+" "+full_date(kart->date_r)+str(kart->uchast,3)
+        ++r
+      endif  
+      s += str(pers->tab_nom,6)+" "+dn->kod_diag+" "+date_8(dn->n_data)+" "+date_8(dn->next_data)
+      if verify_FF(HH,.t.,sh)
+        aeval(arr_title, {|x| add_string(x) } )
+      endif
+      add_string(s)
+      old := dn->kod_k
+      ++rs
+    endif
+    select DN
+    skip
+  enddo
+  if empty(r)
+    add_string("Не найдено пациентов по заданному условию")
+  else 
+    add_string("=== Итого пациентов - "+lstr(r)+" чел., итого случаев - "+lstr(rs)+" ===")
+  endif
+  close databases
+  fclose(fp)
+  viewtext(name_file,,,,(sh>80),,,2)
+endif
+restscreen(buf)
+return NIL
+
+***** 07.11.18 Список диагнозов, обязательных для диспансерного наблюдения
+Function spr_disp_nabl()
+Local i, j, s := "", c := "  ", sh := 80, HH := 60, buf := save_maxrow(), name_file := "diagn_dn"+stxt
+f2_vvod_disp_nabl("A00")
+fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
+add_string(center("Список диагнозов, обязательных для диспансерного наблюдения",sh))
+for i := 1 to len(diag1)
+  if c == substr(diag1[i,3],2,2)
+    s += diag1[i,3]+" "
+  else
+    verify_FF(HH,.t.,sh)
+    add_string(s)
+    s := diag1[i,3]+" "
+    c := substr(diag1[i,3],2,2)
+  endif
+next
+add_string(s)
+fclose(fp)
+viewtext(name_file,,,,.t.,,,2)
+rest_box(buf)  
+return NIL
+
+***** 07.11.18 Список пациентов с диагнозами, обязательными для диспансерного учёта (за 2 года)
+Function pac_disp_nabl()
 Static su := 0
 Local ku, i, adiagnoz, ar, sh := 80, HH := 60, buf := save_maxrow(), name_file := "disp_nabl"+stxt,;
       s, c1, cv := 0, cf := 0, fl_exit := .f.
@@ -346,6 +507,8 @@ if fl_exit
   add_string("*** "+expand("ОПЕРАЦИЯ ПРЕРВАНА"))
 elseif empty(cf)
   add_string("Не обнаружено запрашиваемых пациентов по данному участку.")
+else  
+  add_string("=== Итого пациентов - "+lstr(cf)+" чел. ===")
 endif
 close databases
 fclose(fp)
