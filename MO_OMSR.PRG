@@ -397,7 +397,7 @@ elseif lp == 64 // оториноларингологии
 endif
 return lp
 
-***** 01.10.18
+***** 12.11.18
 Function verify_1_sluch(fl_view)
 Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
       i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -967,6 +967,13 @@ do while hu->kod == human->kod .and. !eof()
       if left(kodKSG,1) == "1"
         musl_ok := 1  // стационар
         midsp := 33
+        if d2 > 0d20181031   
+          if glob_mo[_MO_KOD_TFOMS] == '791904'
+            aadd(ta,'в Вашей МО работа со стационаром приостановлена до следующей тарифной комиссии')
+          elseif eq_any(substr(kodKSG,4,1),"2","4","5")
+            aadd(ta,'работа с данной КСГ приостановлена до следующей тарифной комиссии')
+          endif
+        endif 
       else
         musl_ok := 2  // дневной стационар
         midsp := 43
