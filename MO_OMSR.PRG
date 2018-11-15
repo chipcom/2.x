@@ -970,7 +970,7 @@ do while hu->kod == human->kod .and. !eof()
         if d2 > 0d20181031   
           if glob_mo[_MO_KOD_TFOMS] == '791904'
             aadd(ta,'в Вашей МО работа со стационаром приостановлена до следующей тарифной комиссии')
-          elseif eq_any(substr(kodKSG,4,1),"2","4","5")
+          elseif eq_any(int(val(kodKSG)),1002,1004,1005)
             aadd(ta,'работа с данной КСГ приостановлена до следующей тарифной комиссии')
           endif
         endif 

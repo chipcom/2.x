@@ -2418,7 +2418,7 @@ else
 endif
 return NIL
 
-***** 08.01.17
+***** 15.11.17
 Function f_export(k)
 Static si1 := 1, sds := 1, ssp := 1
 Local mas_pmt, mas_msg, mas_fun, j
@@ -2428,9 +2428,17 @@ if glob_mo[_MO_KOD_TFOMS] == kod_LIS // КДП-2
 else
   do case
     case k == 1
-      mas_pmt := {"Экспорт ~военнослужащих"}
-      mas_msg := {"Экспорт в ТФОМС сведений о медицинской помощи, оказанной военнослужащим"}
-      mas_fun := {"f_export(11)"}
+      mas_pmt := {"Экспорт ~военнослужащих",;
+                  'Экспорт в программную систему "БАРС"'}
+      mas_msg := {"Экспорт в ТФОМС сведений о медицинской помощи, оказанной военнослужащим",;
+                  "Экспорт всей картотеки в файл для передачи в программную систему БАРС"}
+      mas_fun := {"f_export(11)",;
+                  "f_export(12)"}
+      if glob_mo[_MO_IS_UCH]
+        aadd(mas_pmt, "Экспорт прикрепленного населения в ВОМИАЦ")
+        aadd(mas_msg, 'Создание файла для передачи в ВОМИАЦ (письмо №14-10-1/328 от 07.11.18г.)')
+        aadd(mas_fun, "f_export(13)")
+      endif
       popup_prompt(T_ROW,T_COL+5,si1,mas_pmt,mas_msg,mas_fun)
     case k == 11
       mas_pmt := {"~Просмотр/запись",;
@@ -2443,6 +2451,30 @@ else
               Svoenn_sem := "Работа с военнослужащими",;
               Svoenn_err := "В данный момент с военнослужащими работает другой пользователь"
       popup_prompt(T_ROW-len(mas_pmt)-3,T_COL+5,1,mas_pmt,mas_msg,mas_fun)
+    case k == 12
+      if tip_polzovat == TIP_ADM
+        str_sem := "Создание файла отправки в систему БАРС"
+        if G_SLock(str_sem)
+          full_naselenie_create_BARS()
+          G_SUnLock(str_sem)
+        else
+          func_error(4,err_slock)
+        endif
+      else
+        func_error(4,err_admin)
+      endif
+    case k == 13
+      if tip_polzovat == TIP_ADM
+        str_sem := "Создание файла отправки в ОБЛЗДРАВ"
+        if G_SLock(str_sem)
+          pripisnoe_naselenie_create_OBLSDRAV()
+          G_SUnLock(str_sem)
+        else
+          func_error(4,err_slock)
+        endif
+      else
+        func_error(4,err_admin)
+      endif
     case k == 21
       export_military()
     case k == 22
@@ -2850,7 +2882,430 @@ if regim == "edit"
 endif
 return k
 
-*
+***** 15.11.18 создать файл в БАРС
+Function full_naselenie_create_BARS()
+Local ii := 0, s, buf := savescreen(), fl, af := {}, arr_fio, ta, fl_polis, fl_pasport, tt
+Local mo_bars :=  {;
+   {"C_NAME",     "C",    160,      0},;
+   {"CARD_NUMB",  "C",     26,      0},;
+   {"SURNAME",    "C",     60,      0},;
+   {"FIRSTNAME",  "C",     60,      0},;
+   {"LASTNAME",   "C",     60,      0},;
+   {"BIRTHDATE",  "D",      8,      0},;
+   {"SEX",        "C",     10,      0},;
+   {"SNILS",      "C",     11,      0},;
+   {"OMS_TYPE",   "C",      1,      0},;
+   {"OMS_SER",    "C",     60,      0},;
+   {"OMS_NUM",    "C",     60,      0},;
+   {"OMS_AGCODE", "C",    250,      0},;
+   {"OMS_WHEN",   "D",      8,      0},;
+   {"OMS_BEGIN",  "D",      8,      0},;
+   {"OMS_END",    "D",      8,      0},;
+   {"DMS_TYPE",   "C",      1,      0},;
+   {"DMS_SER",    "C",     60,      0},;
+   {"DMS_NUM",    "C",     60,      0},;
+   {"DMS_AGCODE", "C",    250,      0},;
+   {"DMS_WHEN",   "D",      8,      0},;
+   {"DMS_BEGIN",  "D",      8,      0},;
+   {"DMS_END",    "D",      8,      0},;
+   {"REGLPUCOD",  "C",     20,      0},;
+   {"SITE_CODE",  "C",     20,      0},;
+   {"REGPURPCOD", "C",     20,      0},;
+   {"RS_BEGIN",   "D",      8,      0},;
+   {"RS_END",     "D",      8,      0},;
+   {"SOC_STATE",  "C",    250,      0},;
+   {"SOC_BEGIN",  "D",      8,      0},;
+   {"SOC_END",    "D",      8,      0},;
+   {"PHONE1",     "C",     60,      0},;
+   {"PHONE2",     "C",     60,      0},;
+   {"EMAIL",      "C",     60,      0},;
+   {"FAX",        "C",     60,      0},;
+   {"TELEX",      "C",     60,      0},;
+   {"CONT_BEGIN", "D",      8,      0},;
+   {"CONT_END",   "D",      8,      0},;
+   {"IS_MAIN",    "C",      1,      0},;
+   {"PD_TYPE",    "C",     60,      0},;
+   {"PD_SER",     "C",     60,      0},;
+   {"PD_NUMB",    "C",     60,      0},;
+   {"PD_WHEN",    "D",      8,      0},;
+   {"PD_WHO",     "C",    250,      0},;
+   {"CITIZEN",    "C",    250,      0},;
+   {"PD_BEGIN",   "D",      8,      0},;
+   {"PD_END",     "D",      8,      0},;
+   {"KLADR_CODE", "C",     20,      0},;
+   {"RAION",      "C",    250,      0},;
+   {"CITY",       "C",    250,      0},;
+   {"STREET",     "C",     60,      0},;
+   {"HOUSE",      "C",     11,      0},;
+   {"HOUSELIT",   "C",      1,      0},;
+   {"BLOCK",      "N",      5,      0},;
+   {"FLAT",       "N",      5,      0},;
+   {"FLATLIT",    "C",      1,      0},;
+   {"ADDR_INDEX", "C",     10,      0},;
+   {"ADDR_BEGIN", "D",      8,      0},;
+   {"ADDR_END",   "D",      8,      0},;
+   {"MANUAL_INP", "C",    250,      0},;
+   {"MARITAL",    "C",     60,      0},;
+   {"MAR_BEGIN",  "D",      8,      0},;
+   {"MAR_END",    "D",      8,      0},;
+   {"ADDR_MAIN",  "C",      1,      0},;
+   {"WORK_PLACE", "C",     40,      0},;
+   {"WORK_OKVED", "C",    250,      0},;
+   {"WORK_RAION", "C",    250,      0},;
+   {"WORK_DEP",   "C",    250,      0},;
+   {"JOBTITLE",   "C",    250,      0},;
+   {"WORK_HAND",  "C",    250,      0},;
+   {"WORK_BEGIN", "D",      8,      0},;
+   {"WORK_END",   "D",      8,      0},;
+   {"CATEGORY",   "C",    250,      0},;
+   {"CAT_SER",    "C",     60,      0},;
+   {"CAT_NUM",    "C",     60,      0},;
+   {"AC_DATE",    "D",      8,      0},;
+   {"CAT_BEGIN",  "D",      8,      0},;
+   {"CAT_END",    "D",      8,      0},;
+   {"INAB_NUM",   "C",     60,      0},;
+   {"INAB_TYPE",  "C",     60,      0},;
+   {"INAB_GRADE", "C",     60,      0},;
+   {"INAB_GROUP", "C",     60,      0},;
+   {"DISAB_GRAD", "C",     60,      0},;
+   {"INAB_BEGIN", "D",      8,      0},;
+   {"INAB_END",   "D",      8,      0},;
+   {"DEATHDATE",  "D",      8,      0},;
+   {"DEATHTIME",  "C",      5,      0},;
+   {"DEATH_DOC",  "C",     60,      0},;
+   {"DEATH_NUM",  "C",     60,      0},;
+   {"DEATH_DATE", "D",      8,      0},;
+   {"PRIMECH",    "C",    250,      0},;
+   {"REGTYPECOD", "C",     30,      0},;
+   {"REGCATCOD",  "C",     20,      0},;
+   {"REGDOCNUMB", "C",     15,      0},;
+   {"F_KLADR",    "C",     20,      0},;
+   {"F_RAION",    "C",    250,      0},;
+   {"F_CITY",     "C",    250,      0},;
+   {"F_STREET",   "C",     60,      0},;
+   {"F_HOUSE",    "C",     11,      0},;
+   {"F_HOUSELIT", "C",      1,      0},;
+   {"F_BLOCK",    "N",      5,      0},;
+   {"F_FLAT",     "N",      5,      0},;
+   {"F_FLATLIT",  "C",      1,      0},;
+   {"F_INDEX",    "C",     10,      0},;
+   {"F_BEGIN",    "D",      8,      0},;
+   {"F_END",      "D",      8,      0},;
+   {"F_MANL_INP", "C",    250,      0};
+  }
+if !f_Esc_Enter("создания файла для БАРСа",.t.)
+  return NIL
+endif
+ClrLine(maxrow(),color0)
+dbcreate(cur_dir+"bars",mo_bars)
+use (cur_dir+"bars") new
+hGauge := GaugeNew(,,,"Составление файла для БАРСа",.t.)
+GaugeDisplay( hGauge )
+curr := 0
+R_Use(dir_server+"s_kemvyd",,"VID")
+R_Use(exe_dir+"_mo_smo",cur_dir+"_mo_smo2","SMO")
+//index on smo to (cur_dir+sbase+'2')
+//G_Use(dir_server+"mo_krtr",,"KRTR")
+//index on str(kod,6) to (cur_dir+"tmp_krtr")
+//G_Use(dir_server+"mo_krtf",,"KRTF")
+//index on str(kod,6) to (cur_dir+"tmp_krtf")
+//G_Use(dir_server+"mo_krtp",,"KRTP")
+//index on str(reestr,6) to (cur_dir+"tmp_k")
+//R_Use(dir_server+"mo_kfio",cur_dir+"tmp_kfio","KFIO")
+R_Use_base("kartotek")
+set order to 0
+go top
+do while  !eof()
+  GaugeUpdate( hGauge, ++curr/lastrec() )
+  if kart->kod > 0
+    fl := .t.
+    if empty(kart->date_r)
+      fl := .f. // не заполнено поле "Дата рождения"
+    elseif kart->date_r >= sys_date
+      fl := .f. // дата рождения больше сегодняшней даты
+    elseif year(kart->date_r) < 1900
+      fl := .f. // дата рождения < 1900г.
+    endif
+    //a1[i] := hb_AnsiToOem(arr_pac[i])
+    //a2[i] := hb_OemToAnsi(a1[i])
+    if fl
+      select BARS
+      append blank
+      bars->C_NAME       := hb_OemToAnsi("Пациенты")
+      bars->CARD_NUMB    := lstr(kart->kod)
+      arr_fio := retFamImOt(1,.f.,.F.)
+      bars->SURNAME      := hb_OemToAnsi(arr_fio[1])
+      bars->FIRSTNAME    := hb_OemToAnsi(arr_fio[2])
+      bars->LASTNAME     := hb_OemToAnsi(arr_fio[3])
+      bars->BIRTHDATE    := kart->DATE_R
+      bars->SEX          := hb_OemToAnsi(iif(kart->pol=="М","Мужской","Женский"))
+      bars->SNILS        := kart->snils
+      bars->OMS_TYPE     := lstr(kart_->vpolis)
+      bars->OMS_SER      := kart_->spolis
+      bars->OMS_NUM      := kart_->npolis
+      select SMO
+      find (kart_->smo)
+      if found()
+        bars->OMS_AGCODE := hb_OemToAnsi(smo->name)   // наименование страховой
+      endif
+      bars->OMS_WHEN     := date()
+      bars->OMS_BEGIN    := date()
+      bars->OMS_END      := c4tod(kart->srok_polis)
+     // bars->DMS_TYPE",   "C",      1,      0},;
+     // bars->DMS_SER",    "C",     60,      0},;
+     // bars->DMS_NUM",    "C",     60,      0},;
+     // bars->DMS_AGCODE", "C",    250,      0},;
+     // bars->DMS_WHEN",   "D",      8,      0},;
+     // bars->DMS_BEGIN",  "D",      8,      0},;
+     // bars->DMS_END",    "D",      8,      0},;
+     // bars->REGLPUCOD",  "C",     20,      0},;
+     // bars->SITE_CODE",  "C",     20,      0},;
+     // bars->REGPURPCOD", "C",     20,      0},;
+     // bars->RS_BEGIN",   "D",      8,      0},;
+     // bars->RS_END",     "D",      8,      0},;
+     // bars->SOC_STATE",  "C",    250,      0},;
+     // bars->SOC_BEGIN",  "D",      8,      0},;
+     // bars->SOC_END",    "D",      8,      0},;
+      bars->PHONE1       := kart_->phone_h
+      bars->PHONE2       := kart_->phone_m
+     // bars->EMAIL",      "C",     60,      0},;
+     // bars->FAX",        "C",     60,      0},;
+     // bars->TELEX",      "C",     60,      0},;
+      bars->CONT_BEGIN   := date()
+     // bars->CONT_END",   "D",      8,      0},;
+      bars->IS_MAIN      := "1"
+
+      bars->PD_TYPE      := hb_OemToAnsi(inieditspr(A__MENUVERT, menu_vidud, kart_->vid_ud))// тип документа
+      bars->PD_SER       := kart_->ser_ud
+      bars->PD_NUMB      := kart_->nom_ud
+      bars->PD_WHEN      := kart_->kogdavyd
+      select VID
+      goto (kart_->kemvyd)
+      bars->PD_WHO       := hb_OemToAnsi(vid->name)
+     //bars->CITIZEN",    "C",    250,      0},;
+      bars->PD_BEGIN     := date()
+     //bars->PD_END",     "D",      8,      0},;
+     // bars->KLADR_CODE", "C",     20,      0},;
+      tt := ret_okato_Array(kart_->okatog,.T.)
+      bars->RAION        := hb_OemToAnsi(tt[2])
+      bars->CITY         := hb_OemToAnsi(tt[3])
+     // bars->STREET",     "C",     60,      0},;
+     // bars->HOUSE",      "C",     11,      0},;
+     // bars->HOUSELIT",   "C",      1,      0},;
+     // bars->BLOCK",      "N",      5,      0},;
+     // bars->FLAT",       "N",      5,      0},;
+     //bars->FLATLIT",    "C",      1,      0},;
+     //bars->ADDR_INDEX", "C",     10,      0},;
+      bars->ADDR_BEGIN   := date()
+     // bars->ADDR_END",   "D",      8,      0},;
+      bars->MANUAL_INP   := hb_OemToAnsi(kart->adres)
+     // bars->MARITAL",    "C",     60,      0},;
+     // bars->MAR_BEGIN",  "D",      8,      0},;
+     // bars->MAR_END",    "D",      8,      0},;
+      bars->ADDR_MAIN       := iif(kart->rab_nerab==0,lstr(1),"")
+     // bars->WORK_PLACE", "C",     40,      0},;
+     // bars->WORK_OKVED", "C",    250,      0},;
+     // bars->WORK_RAION", "C",    250,      0},;
+     // bars->WORK_DEP",   "C",    250,      0},;
+     // bars->JOBTITLE",   "C",    250,      0},;
+      if kart->rab_nerab==0
+        bars->WORK_HAND    := hb_OemToAnsi(kart->mr_dol)
+        bars->WORK_BEGIN   := date()
+      endif
+     // bars->WORK_END",   "D",      8,      0},;
+     // bars->CATEGORY",   "C",    250,      0},;
+     // bars->CAT_SER",    "C",     60,      0},;
+     // bars->CAT_NUM",    "C",     60,      0},;
+     // bars->AC_DATE",    "D",      8,      0},;
+     // bars->CAT_BEGIN",  "D",      8,      0},;
+     // bars->CAT_END",    "D",      8,      0},;
+     // bars->INAB_NUM",   "C",     60,      0},;
+     // bars->INAB_TYPE",  "C",     60,      0},;
+     // bars->INAB_GRADE", "C",     60,      0},;
+     // bars->INAB_GROUP", "C",     60,      0},;
+     // bars->DISAB_GRAD", "C",     60,      0},;
+     // bars->INAB_BEGIN", "D",      8,      0},;
+     // bars->INAB_END",   "D",      8,      0},;
+     // bars->DEATHDATE",  "D",      8,      0},;
+     // bars->DEATHTIME",  "C",      5,      0},;
+     // bars->DEATH_DOC",  "C",     60,      0},;
+     // bars->DEATH_NUM",  "C",     60,      0},;
+     // bars->DEATH_DATE", "D",      8,      0},;
+     // bars->PRIMECH",    "C",    250,      0},;
+     // bars->REGTYPECOD", "C",     30,      0},;
+     // bars->REGCATCOD",  "C",     20,      0},;
+     // bars->REGDOCNUMB", "C",     15,      0},;
+     // bars->F_KLADR",    "C",     20,      0},;
+     // bars->F_RAION",    "C",    250,      0},;
+     // bars->F_CITY",     "C",    250,      0},;
+     // bars->F_STREET",   "C",     60,      0},;
+     // bars->F_HOUSE",    "C",     11,      0},;
+     // bars->F_HOUSELIT", "C",      1,      0},;
+     // bars->F_BLOCK",    "N",      5,      0},;
+     // bars->F_FLAT",     "N",      5,      0},;
+     // bars->F_FLATLIT",  "C",      1,      0},;
+     // bars->F_INDEX",    "C",     10,      0},;
+     // bars->F_BEGIN",    "D",      8,      0},;
+     // bars->F_END",      "D",      8,      0},;
+     // bars->F_MANL_INP", "C",    250,      0};
+      if bars->(recno()) % 100 == 0
+        @ maxrow(),1 say lstr(bars->(recno())) color color0
+        if bars->(recno()) % 2000 == 0
+          Commit
+        endif
+      endif
+    endif
+  endif
+  select KART
+  skip
+enddo
+close databases
+CloseGauge(hGauge)
+n_message({"в каталоге "+upper(cur_dir)+" создан файл "+upper("bars"+sdbf),;
+           "для загрузки в систему БАРС."},,;
+           cColorStMsg,cColorStMsg,,,cColorSt2Msg)
+return NIL
+
+***** 15.11.18 создать файл приписного населения в Облздрав
+Function pripisnoe_naselenie_create_OBLSDRAV()
+Local buf := savescreen(),  arr_fio, pr_date, name_file, name_zip
+Local mo_bars :=  {;
+   {"UCHAST",     "C",     20,      0},; //У
+   {"FAM",        "C",     40,      0},; //Да
+   {"NAME",       "C",     40,      0},; //Да
+   {"OTCH",       "C",     40,      0},; //Да
+   {"POL",        "N",      1,      0},; //Да
+   {"DATE_R",     "D",      8,      0},; //Да
+   {"MESTO_R",    "C",    100,      0},; //У
+   {"OKATOP",     "C",     11,      0},; //Да
+   {"ADRESP",     "C",    120,      0},; //Да
+   {"RABOTA",     "N",      1,      0},; //У
+   {"BEG_POLIS",  "D",      8,      0},; //У
+   {"END_POLIS",  "D",      8,      0},; //У
+   {"VPOLIS",     "N",      1,      0},; //У
+   {"POLIS",      "C",     16,      0},; //У
+   {"KOD_SMO",    "C",      5,      0},; //У
+   {"SMO",        "C",    250,      0},; //У
+   {"SNILS",      "C",     14,      0},; //У XXX-XXX-XXX XX
+   {"VID_UD",     "C",      2,      0},; //У
+   {"SER_UD",     "C",     10,      0},; //У
+   {"NOM_UD",     "C",     20,      0},; //У
+   {"KEMVYD",     "C",     80,      0},; //У
+   {"KOGDAVYD",   "D",      8,      0},; //У
+   {"MO_PR",      "C",      6,      0},; //Да
+   {"DATE_PR",    "D",      8,      0},; //Да
+   {"SNILS_VR",   "C",     14,      0}; //У XXX-XXX-XXX XX
+  }
+if !f_Esc_Enter("создания файла для ВОМИАЦ",.t.)
+  return NIL
+endif
+ClrLine(maxrow(),color0)
+dbcreate(cur_dir+"tmpbars",mo_bars)
+use (cur_dir+"tmpbars") new alias BARS
+hGauge := GaugeNew(,,,"Составление файла для ВОМИАЦ",.t.)
+GaugeDisplay( hGauge )
+curr := 0
+R_Use(dir_server+"s_kemvyd",,"VID")
+R_Use(exe_dir+"_mo_smo",cur_dir+"_mo_smo2","SMO")
+//index on smo to (cur_dir+sbase+'2')
+//G_Use(dir_server+"mo_krtr",,"KRTR")
+//index on str(kod,6) to (cur_dir+"tmp_krtr")
+//G_Use(dir_server+"mo_krtf",,"KRTF")
+//index on str(kod,6) to (cur_dir+"tmp_krtf")
+//G_Use(dir_server+"mo_krtp",,"KRTP")
+//index on str(reestr,6) to (cur_dir+"tmp_k")
+//R_Use(dir_server+"mo_kfio",cur_dir+"tmp_kfio","KFIO")
+R_Use_base("kartotek")
+set order to 0
+go top
+do while  !eof()
+  GaugeUpdate( hGauge, ++curr/lastrec() )
+  if kart->kod > 0 .and. kart2->mo_pr == glob_MO[_MO_KOD_TFOMS]
+    //a1[i] := hb_AnsiToOem(arr_pac[i])
+    //a2[i] := hb_OemToAnsi(a1[i])
+    select BARS
+    append blank
+    bars->UCHAST       :=  lstr(kart->uchast)       //У
+    arr_fio := retFamImOt(1,.f.,.F.)
+    bars->FAM          := arr_fio[1]                //Да
+    bars->NAME         := arr_fio[2]                //Да
+    bars->OTCH         := arr_fio[3]                //Да
+    bars->POL          := iif(kart->pol == "М",1,2)   //Да
+    bars->DATE_R       := kart->DATE_R              //Да
+    bars->MESTO_R      := kart_->mesto_r            //У
+    if len(alltrim(kart_->okatop)) > 1
+      bars->OKATOP     := kart_->okatop             //Да
+      bars->ADRESP     := kart_->adresp             //Да
+    else
+      bars->OKATOP     := kart_->okatog             //Да
+      bars->ADRESP     := kart->adres               //Да
+    endif
+    bars->RABOTA       := iif(kart->rab_nerab == 0,1,0)//У
+    //bars->BEG_POLIS",  "D",      8,      0},; //У
+    bars->END_POLIS    := c4tod(kart->srok_polis)   //У
+    // 1 старый 2 - врем 3 новый == 1 новый 2 врем 3 старый
+    if kart_->vpolis == 2
+      bars->VPOLIS     := 2                       //У
+    elseif kart_->vpolis == 1
+      bars->VPOLIS     := 3                       //У
+    else
+      bars->VPOLIS     := 1                       //У
+    endif
+    bars->POLIS        := kart->polis               //У
+    bars->KOD_SMO      := kart_->smo                //У
+    select SMO
+    find (kart_->smo)
+    if found()
+      bars->SMO        := smo->name                 //У
+    endif
+    bars->SNILS        := transform(kart->snils,picture_pf) //У XXX-XXX-XXX XX
+    bars->VID_UD       := lstr(kart_->vid_ud)       //У
+    bars->SER_UD       := kart_->ser_ud             //У
+    bars->NOM_UD       := kart_->nom_ud             //У
+    select VID
+    goto (kart_->kemvyd)
+    bars->KEMVYD       := vid->name                 //У
+    bars->KOGDAVYD     := kart_->kogdavyd           //У
+    bars->MO_PR        := glob_MO[_MO_KOD_TFOMS]    //Да
+    pr_date := date()
+    if !empty(kart2->pc4)
+      pr_date := ctod(alltrim(kart2->pc4))
+    elseif !empty(kart2->DATE_PR)
+      pr_date := kart2->DATE_PR
+    endif
+    bars->DATE_PR      := pr_date            //Да
+    if !empty(kart2->snils_vr)
+      bars->SNILS_VR     := transform(kart2->snils_vr,picture_pf) //У XXX-XXX-XXX XX
+    endif
+    if bars->(recno()) % 100 == 0
+      @ maxrow(),1 say lstr(bars->(recno())) color color0
+      if bars->(recno()) % 2000 == 0
+        Commit
+      endif
+    endif
+  endif
+  select KART
+  skip
+enddo
+close databases
+CloseGauge(hGauge)
+//
+name_file := alltrim("ZLERPN2"+glob_MO[_MO_KOD_TFOMS]+dtos(date()))
+name_zip := name_file+szip
+copy file (cur_dir+"tmpbars"+sdbf) to (cur_dir+name_file+sdbf)
+//
+if hb_FileExists(name_file+sdbf)
+  if chip_create_zipXML(name_zip,{name_file+sdbf},.t.)
+    copy file (dir_server+dir_XML_MO+cslash+name_zip) to (cur_dir+name_zip)
+    n_message({"В каталоге "+cur_dir+" создан файл "+upper(name_zip),;
+               "c прикрепленным населением для оправки в ВОМИАЦ."},,;
+               cColorSt2Msg,cColorStMsg,,,"G+/R")
+    delete file (dir_server+dir_XML_MO+cslash+name_zip)
+  endif
+else
+  func_error(4,"Ошибка создания файла "+name_file)
+endif
+return NIL
 
 ***** Общие настройки каждой задачи
 Function nastr_all(k,nTask)
