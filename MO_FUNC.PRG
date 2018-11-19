@@ -2530,7 +2530,7 @@ if fl
 endif
 return fl
 
-***** 18.09.18 определение КСГ по остальным введённым полям ввода - 2018 год
+***** 18.11.18 определение КСГ по остальным введённым полям ввода - 2018 год
 Function definition_KSG(par)
 // файлы "human", "human_" и "human_2" открыты и стоят на нужной записи
 //       "human" открыт для записи суммы случая
@@ -2997,10 +2997,12 @@ for im := 1 to len(amohu)
         fl := (k006->los $ llos)
         if fl ; j ++ ; endif
       endif
-      if fl .and. !empty(k006->ad_cr) ; // в справочнике есть доп.критерий
-            .and. !empty(lad_cr)        // в случае есть доп.критерий
-        fl := (lad_cr == alltrim(k006->ad_cr))
-        if fl ; j ++ ; endif
+      if fl .and. !empty(k006->ad_cr)  // в справочнике есть доп.критерий
+        fl := .f.
+        if !empty(lad_cr)        // в случае есть доп.критерий
+          fl := (lad_cr == alltrim(k006->ad_cr))
+          if fl ; j ++ ; endif
+        endif
       endif
       /*if fl .and. !(left(lad_cr,2) == "sh") 
         if empty(lad_cr) // в случае нет доп.критерия

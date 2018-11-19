@@ -1784,6 +1784,14 @@ if eval(blk_open,1)
               func_error(4,"По данному больному выписан лист учета. Удаление запрещено!")
             elseif f_Esc_Enter(2)
               mywait()
+              if hb_fileExists(dir_server+"mo_dnab"+sntx)
+                Use_base("mo_dnab")
+                do while .t.
+                  find (str(glob_kartotek,7))
+                  if !found() ; exit ; endif
+                  DeleteRec(.t.)
+                enddo
+              endif
               G_Use(dir_server+"mo_kinos",dir_server+"mo_kinos","KIS")
               do while .t.
                 find (str(glob_kartotek,7))
@@ -2706,7 +2714,7 @@ else
 endif
 return NIL
 
-***** 09.07.18
+***** 18.11.18
 Function f2dubl_zap()
 Local buf := savescreen()
 Private dubl1_kart := 0, dubl2_kart := 0, top_frm
@@ -2763,6 +2771,17 @@ if view_kart(3) .and. dubl1_kart > 0 .and. dubl2_kart > 0
         napr->kod_k := dubl1_kart
       enddo
       close databases // на всякий случай
+      //
+      if hb_fileExists(dir_server+"mo_dnab"+sntx)
+        Use_base("mo_dnab")
+        do while .t.
+          find (str(dubl2_kart,7))
+          if !found() ; exit ; endif
+          G_RLock(forever)
+          dn->kod_k := dubl1_kart
+        enddo
+        close databases // на всякий случай
+      endif
       //
       G_Use(dir_server+"human",dir_server+"humankk","HUMAN")
       do while .t.

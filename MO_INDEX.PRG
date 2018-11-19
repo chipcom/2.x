@@ -24,7 +24,7 @@ else
 endif
 return NIL
 
-***** 28.10.18 внутренняя функция переиндексирования
+***** 18.11.18 внутренняя функция переиндексирования
 Function pereindex()
 Local buf := savescreen(), t1, t2, i, hGauge, ae[3], k, ab
 f_message({"Ждите! Пpоизводится пеpеиндексирование базы данных.",;
@@ -48,7 +48,7 @@ endif
 //
 Stat_Msg('Поиск и копирование ЕНП')
 use_base("kartotek",,.t.) // открыть в монопольном режиме
-set order to 0
+set index to
 go top
 do while !eof()
   if kart->kod > 0
@@ -65,6 +65,7 @@ do while !eof()
   endif 
   skip
 enddo
+index on if(kod>0,"1","0")+kod_mis to (dir_server+"kartotee") progress
 close databases
 //
 mywait()

@@ -857,6 +857,15 @@ fr_serial_number := tt1[FR_R_ZAVNOMER]
 lfr_time         := round_5(timetosec(tt1[FR_R_TIME]),0)
 sost             := tt1[FR_R_FLAG]
 if tt1[FR_R_REGIM] == 4  // смена не открыта
+  // загрузка текущего кассира
+  // fio_polzovat
+  // oper_parol
+  if oper_parol > 0 .and. oper_parol < 31
+    t_vrem := FR_ReadPassword(oper_parol)
+    if substr(alltrim(t_vrem[1]),1,6) == "КАССИР" //alltrim(fio_polzovat)
+      FR_WritePassword(oper_parol,fio_polzovat)
+    endif
+  endif
   // открыть смену.
   FRCHN_OpenSession()
 endif
@@ -1090,7 +1099,8 @@ return fl
 
 *
 
-***** 2.08.18 запрос к кассовому аппарату
+
+***** 16.11.18 запрос к кассовому аппарату
 Function f1_inf_fr(tip)
 Local arr := {}, s,  sd, buf := save_row(maxrow()),;
       c4date := dtoc4(sys_date), n_file := "_kassa.txt",;
@@ -1113,18 +1123,26 @@ aadd(arr, center(date_month(sys_date,.t.),60))
 if glob_kassa == 1 .and. mek_kassa == 1
  mas_sost := FR_ret_dan()
  aadd(arr, "Дата в ФР  "+full_date(mas_sost[FR_R_DATE]))
- aadd(arr, "Состояние ФР " )
- aadd(arr, mas_sost[FR_R_PODREGIM]  )
+ aadd(arr, "Состояние ФР : "+alltrim(mas_sost[FR_R_PODREGIM]))
  //fr_serial_number := tt1[FR_R_ZAVNOMER]
  aadd(arr, " ")
  aadd(arr,"ПО СВЕДЕНИЮ ФИСКАЛЬНОГО РЕГИСТРАТОРА:")
- aadd(arr," -Накопление наличности в кассе          "+str(FRCH_d_registr(241),15,2)) //наличность за смену
- aadd(arr," -Продажа наличными за смену             "+str(FRCH_d_registr(193),15,2)) //наличность за смену
- aadd(arr," -Возврат продаж наличными за смену      "+str(FRCH_d_registr(195),15,2)) //наличность за смену
- aadd(arr," -Продажа карта МИР  за смену            "+str(FRCH_d_registr(197),15,2)) //безнал за смену
- aadd(arr," -Продажа карта VISA за смену            "+str(FRCH_d_registr(201),15,2)) //безнал за смену
- aadd(arr," -Продажа карта MasterCard за смену      "+str(FRCH_d_registr(205),15,2)) //безнал за смену
- aadd(arr, " ")
+ aadd(arr," -Накопление наличности в кассе             "+str(FRCH_d_registr(241),15,2))
+ aadd(arr," -Продажа наличными за смену                "+str(FRCH_d_registr(193),15,2))
+ aadd(arr,"  -Возврат продаж наличными за смену        "+str(FRCH_d_registr(195),15,2))
+ aadd(arr," -Продажа карта МИР  за смену               "+str(FRCH_d_registr(197),15,2))
+ aadd(arr,"  -Возврат продаж карта МИР  за смену       "+str(FRCH_d_registr(199),15,2))
+ aadd(arr," -Продажа карта VISA за смену               "+str(FRCH_d_registr(201),15,2))
+ aadd(arr,"  -Возврат продаж карта VISA за смену       "+str(FRCH_d_registr(203),15,2))
+ aadd(arr," -Продажа карта MasterCard за смену         "+str(FRCH_d_registr(205),15,2))
+ aadd(arr,"  -Возврат продаж карта MasterCard за смену "+str(FRCH_d_registr(207),15,2))
+ aadd(arr,"НДС ")
+ aadd(arr," -Продажа услуги с НДС 18%                  "+str(FRCH_d_registr(209),15,2))
+ //aadd(arr,"   -Возврат услуги с НДС 18%                "+str(FRCH_d_registr(211),15,2))
+ aadd(arr," -Продажа НДС 18%                           "+str(FRCH_d_registr(225),15,2))
+ //aadd(arr,"   -Возврат НДС 18%                         "+str(FRCH_d_registr(227),15,2))
+
+ aadd(arr," ")
  aadd(arr,"СТАТУС ИНФОРМАЦИОННОГО ОБМЕНА")
  if empty(FRN_GetInfoExchangeStatusShtih( @lkexchangeStatus ,;
                                   @lkmessageStatus,;
@@ -1132,9 +1150,9 @@ if glob_kassa == 1 .and. mek_kassa == 1
                                   @lkdocumentNumber,;
                                   @lkdateDoc,;
                                   @lktimeDoc ))
-   aadd(arr," -Сообщений для передачи в ОФД                "+str(lkmessageCount))
-   aadd(arr," -Номер документа для ОФД первого в очереди   "+str(lkdocumentNumber))
-   aadd(arr," -Дата документа для ОФД первого в очереди    "+full_date(lkdateDoc))
+   aadd(arr," -Сообщений для передачи в ОФД                   "+padr(str(lkmessageCount),10))
+   aadd(arr," -Номер документа для ОФД первого в очереди      "+padr(str(lkdocumentNumber),10))
+   aadd(arr," -Дата документа для ОФД первого в очереди       "+full_date(lkdateDoc))
  else
    aadd(arr," -ДАННЫЕ НЕ СЧИТАНЫ")
  endif
@@ -1204,17 +1222,17 @@ if tip < 5
   endif
   close databases
   if tip < 3
-    aadd(arr, " -Сумма возвратов:                       "+str(abs(sv),15,2))
-    aadd(arr, " -Сумма общего итога оплат за смену:     "+str(s,15,2))
+    aadd(arr, " -Сумма возвратов:                          "+str(abs(sv),15,2))
+    aadd(arr, " -Сумма общего итога оплат за смену:        "+str(s,15,2))
   else
-    aadd(arr, " -Количество чеков за смену:             "+str(kol,15))
-    aadd(arr, " -Сумма общего итога оплат за смену:     "+str(sum,15,2))
+    aadd(arr, " -Количество чеков за смену:                "+str(kol,15))
+    aadd(arr, " -Сумма общего итога оплат за смену:        "+str(sum,15,2))
   endif
-  aadd(arr,   " -Сумма наличных денег в ящике ККМ:      "+str(sd,15,2))
+  aadd(arr, " -Сумма наличных денег в ящике ККМ:         "+str(sd,15,2))
   if meK_ostato > 0
     aadd(arr, "")
-    aadd(arr, " -Сумма денег, внесенная в кассу УТРОМ:    "+str(meK_ostato,15,2))
-    aadd(arr, " -Итого сумма наличных денег в ящике ККМ:   "+str(sd+meK_ostato,15,2))
+    aadd(arr, " -Сумма денег, внесенная в кассу УТРОМ:        "+str(meK_ostato,15,2))
+    aadd(arr, " -Итого сумма наличных денег в ящике ККМ:      "+str(sd+meK_ostato,15,2))
   endif
 endif
 s := eos

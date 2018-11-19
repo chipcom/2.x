@@ -3166,7 +3166,7 @@ n_message({"в каталоге "+upper(cur_dir)+" создан файл "+upper("bars"+sdbf),;
            cColorStMsg,cColorStMsg,,,cColorSt2Msg)
 return NIL
 
-***** 15.11.18 создать файл приписного населения в Облздрав
+***** 16.11.18 создать файл приписного населения в Облздрав
 Function pripisnoe_naselenie_create_OBLSDRAV()
 Local buf := savescreen(),  arr_fio, pr_date, name_file, name_zip
 Local mo_bars :=  {;
@@ -3269,7 +3269,7 @@ do while  !eof()
     bars->MO_PR        := glob_MO[_MO_KOD_TFOMS]    //Да
     pr_date := date()
     if !empty(kart2->pc4)
-      pr_date := ctod(alltrim(kart2->pc4))
+      pr_date := ctod(alltrim(left(kart2->pc4,6)+"20"+substr(kart2->pc4,7)))
     elseif !empty(kart2->DATE_PR)
       pr_date := kart2->DATE_PR
     endif

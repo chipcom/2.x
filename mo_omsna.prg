@@ -348,7 +348,8 @@ if lastkey() != K_ESC
   R_Use(dir_server+"kartotek",,"KART")
   R_Use_base("mo_dnab")
   set relation to kod_k into KART, to vrach into PERS
-  index on upper(kart->fio)+dtos(kart->date_r)+str(dn->kod_k,7)+dn->kod_diag to (cur_dir+"tmp_dn")
+  index on upper(kart->fio)+dtos(kart->date_r)+str(dn->kod_k,7)+dn->kod_diag to (cur_dir+"tmp_dn") ;
+        for kart->kod > 0 
   old := r := rs := 0
   go top
   do while !eof()

@@ -3206,7 +3206,7 @@ if m1tip != old .and. old != NIL
 endif
 return .t.
 
-***** 04.09.18 добавление или редактирование случая (листа учета)
+***** 18.11.18 добавление или редактирование случая (листа учета)
 Function oms_sluch(Loc_kod,kod_kartotek)
 // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
 // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -4139,6 +4139,18 @@ do while .t.
       mDS1_T := inieditspr(A__MENUVERT, mm_DS1_T, m1DS1_T)
       mMTSTZ := inieditspr(A__MENUVERT, mm_danet, m1MTSTZ)
       mPR_CONS := inieditspr(A__MENUVERT, mm_PR_CONS, m1PR_CONS)
+      if len(mm_N002) == 1
+        m1STAD := mm_N002[1,2]
+      endif
+      if len(mm_N003) == 1
+        m1ONK_T := mm_N003[1,2]
+      endif
+      if len(mm_N004) == 1
+        m1ONK_N := mm_N004[1,2]
+      endif
+      if len(mm_N005) == 1
+        m1ONK_M := mm_N005[1,2]
+      endif
       mSTAD  := padr(inieditspr(A__MENUVERT, mm_N002, m1STAD),5) 
       mONK_T := padr(inieditspr(A__MENUVERT, mm_N003, m1ONK_T),5) 
       mONK_N := padr(inieditspr(A__MENUVERT, mm_N004, m1ONK_N),5) 
