@@ -255,12 +255,12 @@ if len_diag == 0
   do while !feof(lfp)
     UpdateStatus()
     s := fReadLn(lfp)
-/*for i := 1 to len(s) // проверка на русские буквы в диагнозах
+for i := 1 to len(s) // проверка на русские буквы в диагнозах
   if ISRALPHA(substr(s,i,1))
     strfile(s+eos,"ttt.ttt",.t.)
     exit
   endif
-next*/
+next
     if "-" $ s
       d1 := token(s,"-",1)
       d2 := token(s,"-",2)
@@ -398,7 +398,7 @@ Function spr_disp_nabl()
 Local i, j, s := "", c := "  ", sh := 80, HH := 60, buf := save_maxrow(), name_file := "diagn_dn"+stxt
 f2_vvod_disp_nabl("A00")
 fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
-add_string(center("Список диагнозов, обязательных для диспансерного наблюдения",sh))
+add_string(center("Список диагнозов, обязательных для диспансерного наблюдения от 21.11.18г.",sh))
 for i := 1 to len(diag1)
   if c == substr(diag1[i,3],2,2)
     s += diag1[i,3]+" "

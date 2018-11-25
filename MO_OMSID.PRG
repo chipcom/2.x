@@ -3365,7 +3365,7 @@ Static Function f_131_u_da_net(k,sb1,sb2)
 if k > 1 ; k := 1 ; endif // если вместо "да" битовый ответ
 return f3_inf_DDS_karta({{"да - 1",1},{"нет - 2",0}},k,";  ",sb1,sb2,.f.)
 
-***** 06.08.18 Приложение к Приказу ГБУЗ "ВОМИАЦ" от 12.05.2017г. №1615
+***** 25.11.18 Приложение к Приказу ГБУЗ "ВОМИАЦ" от 12.05.2017г. №1615
 Function f21_inf_DVN(par)
 Local arr_m, buf := save_maxrow(), s, as := {}, as1[14],;
       i, j, k, n, ar, at, ii, g1, sh := 65, fl, mdvozrast
@@ -3418,6 +3418,9 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
           arr_21[15] ++
         endif
         arr_21[15+g1] ++ // профосмотры по группам здоровья
+        if f_starshe_trudosp(human->POL,human->DATE_R,human->n_data)
+          arr_21[40] ++
+        endif
       endif
     else
       f1_f21_inf_DVN()
