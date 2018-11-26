@@ -465,7 +465,7 @@ if i > 0
 endif
 return NIL
 
-***** 19.09.18 прочитать и "разнести" по базам данных реестр СП
+***** 19.09.18 прочитать и "разнести" по базам данных реестр СП и ТК
 Function read_XML_FILE_SP(arr_XML_info,aerr,/*@*/current_i2)
 Local count_in_schet := 0, mnschet, bSaveHandler, ii1, ii2, i, k, t_arr[2],;
       ldate_sptk, s, fl_589, mANSREESTR
@@ -898,7 +898,7 @@ endif
 close databases
 return count_in_schet
 
-***** 19.11.18 создать счета по результатам прочитанного реестра СП
+***** 26.11.18 создать счета по результатам прочитанного реестра СП
 Function create_schet_from_XML(arr_XML_info,aerr,fl_msg,arr_s,name_sp_tk)
 Local arr_schet := {}, c, len_stand, _arr_stand, lshifr, i, j, k, lbukva,;
       doplataF, doplataR, mnn, fl, name_zip, arr_zip := {}, lshifr1,;
@@ -910,8 +910,9 @@ Private pole
 use (cur_dir+"tmp1file") new alias TMP1
 mdate_schet := tmp1->_DSCHET
 nsh := f_mb_me_nsh(tmp1->_year,@mb,@me)
+k := tmp1->_year
 close databases
-if tmp1->_year > 2018
+if k > 2018
   return create_schet19_from_XML(arr_XML_info,aerr,fl_msg,arr_s,name_sp_tk)
 else
   return create_schet17_from_XML(arr_XML_info,aerr,fl_msg,arr_s,name_sp_tk)
