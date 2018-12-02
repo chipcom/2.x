@@ -1372,7 +1372,7 @@ endif
 restscreen(buf)
 return fl
 
-***** 29.10.18 инициализировать массив DBF-файлов базы данных
+***** 29.11.18 инициализировать массив DBF-файлов базы данных
 Function init_array_files_DB()
 Local i, arr
 Public array_files_DB := {}, array_task_DB[24,2]
@@ -1425,7 +1425,6 @@ aadd(array_files_DB,"mo_krte")
 aadd(array_files_DB,"mo_krtr")
 aadd(array_files_DB,"mo_krto")
 aadd(array_files_DB,"mo_krtf")
-aadd(array_files_DB,"mo_dnab")
 aadd(array_files_DB,"k_prim1")
 aadd(array_files_DB,"mo_regi")
 aadd(array_files_DB,"mo_kpred")
@@ -1439,6 +1438,11 @@ aadd(array_files_DB,"mo_dr05")
 aadd(array_files_DB,"mo_dr05k")
 aadd(array_files_DB,"mo_dr05p")
 aadd(array_files_DB,"mo_dr05e")
+aadd(array_files_DB,"mo_d01")
+aadd(array_files_DB,"mo_d01k")
+aadd(array_files_DB,"mo_d01d")
+aadd(array_files_DB,"mo_d01e")
+aadd(array_files_DB,"mo_dnab")
 aadd(array_files_DB,"msek")
 aadd(array_files_DB,"p_priem")
 // листы учёта ОМС

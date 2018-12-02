@@ -71,6 +71,8 @@ if !empty(full_zip)
         s += "файла ответа на R01"
       case arr_XML_info[1] == _XML_FILE_R06
         s += "файла ответа на R05"
+      case arr_XML_info[1] == _XML_FILE_D02
+        s += "файла ответа на D01"
     endcase
     buf := savescreen()
     f_message({"Системная дата: "+date_month(sys_date,.t.),;
@@ -119,7 +121,7 @@ for j := 1 to 8
     return NIL
   endif
 next  
-if eq_any(nTypeFile,_XML_FILE_FLK,_XML_FILE_R02,_XML_FILE_R06)
+if eq_any(nTypeFile,_XML_FILE_FLK,_XML_FILE_R02,_XML_FILE_R06,_XML_FILE_D02)
   //
 elseif !mo_Lock_Task(X_OMS)
   return .f.
@@ -147,6 +149,8 @@ elseif nTypeFile == _XML_FILE_R02
   reestr_R02_tmpfile(oXmlDoc,aerr,cReadFile)
 elseif nTypeFile == _XML_FILE_R06
   reestr_R06_tmpfile(oXmlDoc,aerr,cReadFile)
+elseif nTypeFile == _XML_FILE_D02
+  reestr_D02_tmpfile(oXmlDoc,aerr,cReadFile)
 endif
 close databases
 if empty(aerr)
@@ -206,11 +210,19 @@ if empty(aerr)
       goto (mXML_REESTR)
       G_RLock(forever)
       mo_xml->TWORK2 := hour_min(seconds())
+    case nTypeFile == _XML_FILE_D02
+      strfile(hb_eol()+"Тип файла: D02 (ответ на файл D01)"+hb_eol()+hb_eol(),cFileProtokol,.t.)
+      nCountWithErr := 0
+      read_XML_FILE_D02(arr_XML_info,aerr,@nCountWithErr)
+      G_Use(dir_server+"mo_xml",,"MO_XML")
+      goto (mXML_REESTR)
+      G_RLock(forever)
+      mo_xml->TWORK2 := hour_min(seconds())
   endcase
 endif
 close databases
 rest_box(buf)
-if eq_any(nTypeFile,_XML_FILE_FLK,_XML_FILE_R02,_XML_FILE_R06)
+if eq_any(nTypeFile,_XML_FILE_FLK,_XML_FILE_R02,_XML_FILE_R06,_XML_FILE_D02)
   //
 else
   mo_UnLock_Task(X_OMS)

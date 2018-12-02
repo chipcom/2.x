@@ -2429,15 +2429,18 @@ else
   do case
     case k == 1
       mas_pmt := {"Экспорт ~военнослужащих",;
-                  'Экспорт в программную систему "БАРС"'}
+                  'Экспорт в программную систему "БАРС"',;
+                  "Экспорт счетов в ВОМИАЦ"}
       mas_msg := {"Экспорт в ТФОМС сведений о медицинской помощи, оказанной военнослужащим",;
-                  "Экспорт всей картотеки в файл для передачи в программную систему БАРС"}
+                  "Экспорт всей картотеки в файл для передачи в программную систему БАРС",;
+                  "Экспорт счетов за отчётный период сентябрь-октябрь 2018 года в ВОМИАЦ"}
       mas_fun := {"f_export(11)",;
-                  "f_export(12)"}
+                  "f_export(12)",;
+                  "f_export(13)"}
       if glob_mo[_MO_IS_UCH]
         aadd(mas_pmt, "Экспорт прикрепленного населения в ВОМИАЦ")
         aadd(mas_msg, 'Создание файла для передачи в ВОМИАЦ (письмо №14-10-1/328 от 07.11.18г.)')
-        aadd(mas_fun, "f_export(13)")
+        aadd(mas_fun, "f_export(14)")
       endif
       popup_prompt(T_ROW,T_COL+5,si1,mas_pmt,mas_msg,mas_fun)
     case k == 11
@@ -2464,6 +2467,18 @@ else
         func_error(4,err_admin)
       endif
     case k == 13
+      if tip_polzovat == TIP_ADM
+        str_sem := "Создание файла отправки в ОБЛЗДРАВ"
+        if G_SLock(str_sem)
+          create_schets_OBLSDRAV()
+          G_SUnLock(str_sem)
+        else
+          func_error(4,err_slock)
+        endif
+      else
+        func_error(4,err_admin)
+      endif
+    case k == 14
       if tip_polzovat == TIP_ADM
         str_sem := "Создание файла отправки в ОБЛЗДРАВ"
         if G_SLock(str_sem)
@@ -3164,6 +3179,72 @@ CloseGauge(hGauge)
 n_message({"в каталоге "+upper(cur_dir)+" создан файл "+upper("bars"+sdbf),;
            "для загрузки в систему БАРС."},,;
            cColorStMsg,cColorStMsg,,,cColorSt2Msg)
+return NIL
+
+***** 02.12.18 создать файл приписного населения в Облздрав
+Function create_schets_OBLSDRAV()
+Local arr_f, ar, hZip, i, cPassword, fl := .t., hGauge, s, y, cFile, buf := savescreen()
+f_message({"Ждите! Создаётся архив счетов",;
+           "за отчётный период сентябрь-октябрь 2018 года.",; 
+           "",;
+           "Ни в коем случае не прерывайте процесс",;
+           "во избежание нежелательных последствий!"},,"GR+/R","W+/R",12)
+zip_file := "СОМП_"+alltrim(glob_mo[_MO_SHORT_NAME])
+zip_file := charrem('№",',zip_file)
+zip_file := charone(" ",zip_file)
+zip_file := charrepl(" ",zip_file,"_")
+zip_file := charrepl(".",zip_file,"_")
+zip_file := charrepl("-",zip_file,"_")
+zip_file += szip
+arr_f := {}
+G_Use(dir_server+"schet_",,"SCHET_")
+index on dtos(schet_->dschet) to (cur_dir+"tmp_sch") ;
+      for schet_->nyear == 2018 .and. eq_any(schet_->nmonth,9,10)
+go top
+do while !eof()
+  cFile := dir_server+dir_XML_MO+cslash+alltrim(schet_->name_xml)+szip
+  if hb_FileExists(cFile)
+    aadd(arr_f,cFile)
+  endif
+  skip
+enddo
+close databases
+my_debug(,zip_file)
+delete file (zip_file)
+if len(arr_f) == 0
+  fl := func_error(4,"Не обнаружено файлов счетов для архивирования.")
+elseif !empty(hZip := HB_ZIPOPEN(hb_OemtoAnsi(zip_file)))
+  Private p_var_manager := "m_copy_DB"
+  hGauge := GaugeNew(,,{"B/BG*","B/BG*","B/BG*"},"Создание архива "+zip_file,.t.)
+  GaugeDisplay( hGauge )
+  for i := 1 To Len(arr_f)
+    cFile := StripPath(arr_f[i])  // имя файла без пути
+    GaugeUpdate( hGauge, i/Len(arr_f) )
+    stat_msg("Добавление в архив файла "+cFile)
+    HB_ZipStoreFile( hZip, arr_f[i], cFile)//, cPassword )
+  next
+  CloseGauge(hGauge) // Закроем окно отображения
+  HB_ZIPCLOSE( hZip )
+else
+  fl := func_error(4,"Возникла ошибка при архивировании базы данных.")
+endif
+restscreen(buf)
+if fl 
+  s := manager(T_ROW,T_COL+5,maxrow()-2,,.f.,2) // "norton" для выбора каталога
+  if !empty(s)
+    mywait('Копирование "'+zip_file+'" в каталог "'+s+'"')
+    delete file (s+zip_file)
+    copy file (zip_file) to (s+zip_file)
+    if hb_fileExists(s+zip_file)
+      stat_msg("Файл "+s+zip_file+" успешно записан!")
+    else
+      stat_msg("Ошибка записи файла "+s+zip_file+"!")
+    endif
+    mybell(2,OK)
+  endif
+endif
+delete file (zip_file)
+restscreen(buf)
 return NIL
 
 ***** 16.11.18 создать файл приписного населения в Облздрав

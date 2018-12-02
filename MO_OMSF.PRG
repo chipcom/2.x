@@ -672,6 +672,15 @@ else
 endif
 return new_kod
 
+***** 28.11.18 вернуть значение специальности в кодировке справочника V021
+Function ret_prvs_V021(_prvs)
+Local i, new_kod := 76, ; // по умолчанию - терапия
+      lkod := ret_new_prvs(_prvs) // в кодировке справочника V015
+if (i := ascan(glob_arr_V015_V021, {|x| x[1] == lkod })) > 0
+  new_kod := glob_arr_V015_V021[i,2]
+endif
+return new_kod 
+
 ***** 01.04.18 вернуть массив соответствий специальности V015 специальностям V0004
 Function ret_arr_new_olds_prvs()
 Local i, j, np, op, arr := {}

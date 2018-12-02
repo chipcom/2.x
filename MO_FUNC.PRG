@@ -704,8 +704,6 @@ me := mem_enn13rees
 endif*/
 return iif(_nyear < 2017, 3, 5) // начиная с 2017 года - 5 символов
 
-*
-
 ***** 02.02.17 если это укрупнённый архив, распаковать и прочитать
 Function Is_Our_ZIP(cName,/*@*/tip_csv_file,/*@*/kod_csv_reestr)
 Static cStFile, si
@@ -849,8 +847,6 @@ else
 endif
 return fl
 
-*
-
 ***** 17.06.15 если это файл с расширениием CSV - прочитать
 Function Is_Our_CSV(cName,/*@*/tip_csv_file,/*@*/kod_csv_reestr)
 Local fl := .f., i, s := cName, s1
@@ -892,7 +888,7 @@ else
 endif
 return fl
 
-***** 07.12.17 проверить, нам ли предназначен данный XML-файл
+***** 29.11.18 проверить, нам ли предназначен данный XML-файл
 Function Is_Our_XML(cName,ret_arr)
 Local c, arr_err := {}, i, s, nSMO, nTypeFile, cFrom, cTo, _nYear, _nMonth, nNN, nReestr := 0
 s := cName
@@ -915,7 +911,7 @@ if eq_any(left(s,3),"PHR","PFR") // файл протокола ФЛК
   endif
   rees->(dbCloseArea())
   mo_xml->(dbCloseArea())
-elseif eq_any(left(s,3),"R02","R06") // ответный файл на отосланный файл R01 (R05)
+elseif eq_any(left(s,3),"D02","R02","R06") // ответный файл на отосланный файл D01 R01 (R05)
   s := substr(s,4)
   if left(s,1) == "M"
     s := substr(s,2)
@@ -938,7 +934,26 @@ elseif eq_any(left(s,3),"R02","R06") // ответный файл на отосланный файл R01 (R0
     endif
   endif
   if len(arr_err) == 0
-    if left(cName,3) == "R02"
+    if left(cName,3) == "D02"
+      nTypeFile := _XML_FILE_D02
+      R_Use(dir_server+"mo_d01",,"REES")
+      R_Use(dir_server+"mo_xml",,"MO_XML")
+      index on upper(fname) to (cur_dir+"tmpmoxml")
+      find (padr("D01T34M"+glob_MO[_MO_KOD_TFOMS]+"_"+s,26)) // сконструировали имя файла D01
+      if found() .and. (nReestr := mo_xml->REESTR) > 0
+        select REES
+        goto (nReestr)
+        cFrom   := '34'
+        cTo     := glob_MO[_MO_KOD_TFOMS]
+        _nYear  := rees->NYEAR
+        _nMonth := rees->MM
+        nNN     := rees->NN
+      else
+        aadd(arr_err, "Это файл ответа на D01, но мы не отправляли соответствующий пакет в ТФОМС!")
+      endif
+      rees->(dbCloseArea())
+      mo_xml->(dbCloseArea())
+    elseif left(cName,3) == "R02"
       nTypeFile := _XML_FILE_R02
       R_Use(dir_server+"mo_dr01",,"REES")
       R_Use(dir_server+"mo_xml",,"MO_XML")
