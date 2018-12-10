@@ -1378,7 +1378,7 @@ do while mohu->kod == human->kod .and. !eof()
       if !(mohu->PRVS == human_->PRVS)
         mohu->PRVS := human_->PRVS // для телемедицины специальность копируем из случая
       endif
-      if mohu->profil == human_->profil
+      if !(mohu->profil == human_->profil)
         mohu->profil := human_->profil // для телемедицины профиль копируем из случая
       endif
     else
@@ -1445,7 +1445,9 @@ do while mohu->kod == human->kod .and. !eof()
           aadd(ta,'услугу '+s+' нельзя вводить для амбулаторной помощи')
         endif
       case human_->usl_ok == 4
-        aadd(ta,'услугу '+s+' нельзя вводить для скорой помощи')
+        if &al.->telemed == 0
+          aadd(ta,'услугу '+s+' нельзя вводить для скорой помощи')
+        endif
     endcase
   else
     aadd(ta,'услуга '+s+' не найдена в справочнике')

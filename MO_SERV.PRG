@@ -3435,7 +3435,7 @@ return NIL
 
 *
 
-***** 25.03.18 Общие настройки каждой задачи
+***** 09.12.18 Общие настройки каждой задачи
 Function f1nastr_all(nameTask,nTask)
 Local mm_tmp := {}, ctitle
 Local str_sem := "Редактирование общих настроек задачи "+lstr(nTask)
@@ -3490,6 +3490,10 @@ if G_SLock(str_sem)
                     {|x|menu_reader(x,mm_danet,A__MENUVERT)},;
                     0,{|x|inieditspr(A__MENUVERT,mm_danet,x)},;
                     'Для СМП реквизиты пациента редактируются внутри листа учета?'})
+      aadd(mm_tmp, {"a_smp_tel","N",1,0,NIL,;
+                    {|x|menu_reader(x,mm_danet,A__MENUVERT)},;
+                    0,{|x|inieditspr(A__MENUVERT,mm_danet,x)},;
+                    'В специализированном листе учёта по СМП вводим услуги телемедицины?'})
       aadd(mm_tmp, {"a_dom_akt","N",1,0,NIL,;
                     {|x|menu_reader(x,mm_danet,A__MENUVERT)},;
                     0,{|x|inieditspr(A__MENUVERT,mm_danet,x)},;
@@ -3703,6 +3707,7 @@ if G_SLock(str_sem)
       append blank
       tmp->_okato    := okato_umolch
       tmp->a_smp_inp := mem_smp_input
+      tmp->a_smp_tel := mem_smp_tel
       tmp->a_dom_akt := mem_dom_aktiv
       tmp->standart  := iif(yes_vypisan==B_END, 2, 1) //
       tmp->many_uch  := iif(yes_many_uch, 2, 1)
@@ -3950,6 +3955,7 @@ if G_SLock(str_sem)
     do case
       case nTask == 0
         mem_smp_input:= tmp->a_smp_inp
+        mem_smp_tel  := tmp->a_smp_tel
         mem_dom_aktiv:= tmp->a_dom_akt
         okato_umolch := tmp->_okato
         is_0_schet   := tmp->schet_nul
@@ -4108,10 +4114,11 @@ return fl
 
 *
 
-***** 11.03.15
+***** 09.12.18
 Function Tools_Ini_OMS(reg,k1,k2,fll)
 Static arr := {{"okato_umolch",  "C"},;
                {"mem_smp_input", "N"},;
+               {"mem_smp_tel",   "N"},;
                {"mem_dom_aktiv", "N"},;
                {"mem_kart_error","N"},;
                {"is_0_schet",    "N"},;

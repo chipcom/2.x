@@ -2875,10 +2875,11 @@ return lnum
 
 *
 
-***** 05.02.13 инициализировать все mem (public) - переменные
+***** 09.12.18 инициализировать все mem (public) - переменные
 Function init_all_mem_public()
 // настраиваемые из всех задач
 Public mem_smp_input := 0
+Public mem_smp_tel := 0
 Public mem_dom_aktiv := 0
 Public mem_beg_rees := 1
 Public mem_end_rees := 999999

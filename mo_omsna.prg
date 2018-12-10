@@ -125,20 +125,17 @@ if k > 10
 endif
 return NIL
 
-***** 27.11.18 Первичный ввод сведений о состоящих на диспансерном учёте в Вашей МО
+***** 09.12.18 Первичный ввод сведений о состоящих на диспансерном учёте в Вашей МО
 Function vvod_disp_nabl()
-Local buf := savescreen(), k, s, t_arr := array(BR_LEN), str_sem, str_sem1, lcolor
+Local buf := savescreen(), k, s, s1, t_arr := array(BR_LEN), str_sem1, lcolor
 Private str_find, muslovie
 if input_perso(T_ROW,T_COL-5)
-  //str_sem := lstr(glob_human[1])
-  //if !G_SLock(str_sem)
-    //return func_error(4,"По этому врачу в данный момент вводит информацию другой пользователь")
-  //endif
-  k := -ret_new_spec(glob_human[7],glob_human[8])
-  box_shadow(0,0,2,49,color13,,,0)
-  @ 0,0 say padc("["+lstr(glob_human[5])+"] "+glob_human[2],50) color color14
-  @ 1,0 say padc(ret_tmp_prvs(k),50) color color14
-  do while .t. 
+  do while .t.
+    buf := savescreen()
+    k := -ret_new_spec(glob_human[7],glob_human[8])
+    box_shadow(0,0,2,49,color13,,,0)
+    @ 0,0 say padc("["+lstr(glob_human[5])+"] "+glob_human[2],50) color color14
+    @ 1,0 say padc(ret_tmp_prvs(k),50) color color14
     @ 2,0 say padc("... Выбор пациента ...",50) color color1
     k := polikl1_kart()
     close databases
@@ -147,6 +144,7 @@ if input_perso(T_ROW,T_COL-5)
     if k == 0
       exit
     elseif G_SLock(str_sem1)
+      s1 := f0_vvod_disp_nabl()
       R_Use(dir_server+"kartote2",,"_KART2")
       goto (glob_kartotek)
       R_Use(dir_server+"kartotek",,"_KART")
@@ -164,6 +162,9 @@ if input_perso(T_ROW,T_COL-5)
       if M1VZROS_REB > 0
         func_error(4,"Данный режим только для взрослых, а выбранный пациент пока РЕБЁНОК!")
       else
+        if !empty(s1)
+          box_shadow(3,0,3,49,color13,center(s1,50),"BG+/B",0)
+        endif
         str_find := str(glob_kartotek,7) ; muslovie := "dn->kod_k == glob_kartotek"
         t_arr[BR_TOP] := T_ROW
         t_arr[BR_BOTTOM] := maxrow()-2
@@ -190,12 +191,33 @@ if input_perso(T_ROW,T_COL-5)
       func_error(4,"По этому пациенту в данный момент вводит информацию другой пользователь")
     endif
     close databases
+    restscreen(buf)
   enddo
-  //G_SUnLock(str_sem)
 endif
 close databases
 restscreen(buf)
 return NIL
+
+***** 09.12.18
+Function f0_vvod_disp_nabl()
+Local s := "" 
+R_Use(dir_server+"mo_d01k",,"DK")
+index on str(reestr,6) to (cur_dir+"tmp_dk") for kod_k == glob_kartotek
+go top
+do while !eof()
+  if dk->oplata == 0
+    s := "отправлен в ТФОМС - ответ ещё не получен"
+    exit
+  elseif dk->oplata == 1
+    s := "отправлен в ТФОМС - без ошибок"
+    exit
+  else
+    s := "вернулся из с ошибками"
+  endif
+  skip
+enddo  
+dk->(dbCloseArea())
+return s
 
 ***** 29.10.18
 Function f1_vvod_disp_nabl(nKey,oBrow,regim)
@@ -315,7 +337,7 @@ do case
 endcase
 return ret
 
-***** 29.10.18 Информация по первичному вводу сведений о состоящих на диспансерном учёте
+***** 09.12.18 Информация по первичному вводу сведений о состоящих на диспансерном учёте
 Function f2_vvod_disp_nabl(ldiag)
 Local fl := .f., lfp, i, s, d1, d2
 if len_diag == 0
@@ -329,18 +351,14 @@ if len_diag == 0
     exit
   endif
 next*/
-    if "-" $ s
-      d1 := token(s,"-",1)
-      d2 := token(s,"-",2)
-    else
-      d1 := d2 := s
+    if !empty(s)
+      aadd(diag1, alltrim(s))
     endif
-    aadd(diag1, {1,{{diag_to_num(d1,1),diag_to_num(d2,2)}},s} )
   enddo
   fclose(lfp)
   len_diag := len(diag1)
 endif  
-return !(ret_f_14(ldiag) == NIL)
+return ascan(diag1,alltrim(ldiag)) > 0
 
 ***** 08.11.18 Информация по первичному вводу сведений о состоящих на диспансерном учёте
 Function inf_disp_nabl()
@@ -384,9 +402,12 @@ if lastkey() != K_ESC
     close databases
   endif
   if !empty(mkod_diag)
+    fl_all_diag := .f.
     mkod_diag := alltrim(mkod_diag) ; l := len(mkod_diag)
-    if ascan(diag1, {|x| padr(x[3],l) == mkod_diag }) == 0
-      func_error(4,"Диагноз не входит в список допустимых из Приказа КЗ и ТФОМС")
+    if ascan(diag1,mkod_diag) > 0
+      fl_all_diag := .t.
+    elseif ascan(diag1, {|x| left(x,l) == mkod_diag }) == 0
+      func_error(4,mkod_diag+" не входит в список допустимых диагнозов из Приказа КЗ и ТФОМС")
       mkod_diag := ""
     endif
   endif
@@ -424,7 +445,11 @@ if lastkey() != K_ESC
       fl := (glob_human[1] == dn->vrach)
     endif
     if fl .and. !empty(mkod_diag)
-      fl := (padr(dn->kod_diag,l) == mkod_diag)
+      if fl_all_diag
+        fl := (alltrim(dn->kod_diag) == mkod_diag)
+      else
+        fl := (left(dn->kod_diag,l) == mkod_diag)
+      endif
     endif
     if fl
       if old == dn->kod_k
@@ -463,13 +488,13 @@ f2_vvod_disp_nabl("A00")
 fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
 add_string(center("Список диагнозов, обязательных для диспансерного наблюдения от 21.11.18г.",sh))
 for i := 1 to len(diag1)
-  if c == substr(diag1[i,3],2,2)
-    s += diag1[i,3]+" "
+  if c == substr(diag1[i],2,2)
+    s += diag1[i]+" "
   else
     verify_FF(HH,.t.,sh)
     add_string(s)
-    s := diag1[i,3]+" "
-    c := substr(diag1[i,3],2,2)
+    s := diag1[i]+" "
+    c := substr(diag1[i],2,2)
   endif
 next
 add_string(s)
@@ -953,19 +978,27 @@ else
 endif
 return NIL
 
-***** 29.11.18
+***** 03.12.18
 Static Function f11_view_D01()
 Local s := ""
-if !hb_fileExists(goal_dir+alltrim(rees->NAME_XML)+szip)
-  s := "нет файла"
-elseif empty(rees->date_out)
-  s := "не записан"
-else
-  s := "зап. "+lstr(rees->NUMB_OUT)+" раз"
+if rees->kod_xml > 0
+  mo_xml->(dbGoto(rees->kod_xml))
+  if empty(mo_xml->twork2)
+    s := "НЕ СОЗДАН"
+  endif
+endif
+if empty(s)  
+  if !hb_fileExists(goal_dir+alltrim(rees->NAME_XML)+szip)
+    s := "нет файла"
+  elseif empty(rees->date_out)
+    s := "не записан"
+  else
+    s := "зап. "+lstr(rees->NUMB_OUT)+" раз"
+  endif
 endif
 return padr(s,10)
 
-***** 29.11.18
+***** 03.12.18
 Function f2_view_D01(nKey,oBrow)
 Local ret := -1, rec := rees->(recno()), tmp_color := setcolor(), r, r1, r2,;
       s, buf := savescreen(), arr := {}, i := 1, k, mdate, t_arr[2], arr_pmt := {}
@@ -1036,11 +1069,22 @@ do case
     f3_view_D01(oBrow)
     ret := 0
   case nKey == K_CTRL_F12
-    ret := delete_reestr_D02(rees->(recno()),alltrim(rees->NAME_XML))
+    if rees->ANSWER == 0
+      mo_xml->(dbGoto(rees->kod_xml))
+      if empty(mo_xml->twork2)
+        ret := delete_reestr_D01(rees->(recno()))
+      else
+        func_error(4,"Файл "+alltrim(rees->NAME_XML)+sxml+" создан корректно. Аннулирование запрещено!")
+      endif
+    else
+      ret := delete_reestr_D02(rees->(recno()),alltrim(rees->NAME_XML))
+    endif
     close databases
     G_Use(dir_server+"mo_xml",,"MO_XML")
     G_Use(dir_server+"mo_d01",cur_dir+"tmp_rees","REES")
-    goto (rec)
+    if ret != 1
+      goto (rec)
+    endif
 endcase
 setcolor(tmp_color)
 restscreen(buf)
@@ -1520,6 +1564,48 @@ if empty(aerr) // если проверка прошла успешно
 endif
 close databases
 return count_in_schet
+
+***** 03.12.18
+Function delete_reestr_D01(mkod_reestr)
+Local ret := -1, rec, ir, fl := .t.
+if f_Esc_Enter("аннулирования D01")
+  mywait()
+  select REES
+  goto (mkod_reestr)
+  G_Use(dir_server+"mo_d01d",,"DD")
+  index on str(kod_d,6) to (cur_dir+"tmp_d01d")
+  G_Use(dir_server+"mo_d01k",,"DK")
+  index on str(reestr,6) to (cur_dir+"tmp_d01k")
+  do while .t.
+    select DK
+    find (str(mkod_reestr,6))
+    if found()
+      select DD
+      do while .t.
+        find (str(dk->(recno()),6))
+        if found()
+          DeleteRec(.t.)
+        else
+          exit
+        endif
+      enddo
+      select DK
+      DeleteRec(.t.)
+    else
+      exit
+    endif
+  enddo
+  select MO_XML
+  goto (rees->KOD_XML)
+  DeleteRec(.t.)
+  select REES
+  DeleteRec(.t.)
+  dbUnlockAll()
+  dbCommitAll()
+  stat_msg("Аннулирование завершено!") ; mybell(2,OK)
+  ret := 1 
+endif
+return ret
 
 ***** 29.11.18 аннулировать чтение недочитанного реестра D02
 Function delete_reestr_D02(mkod_reestr,mname_reestr)

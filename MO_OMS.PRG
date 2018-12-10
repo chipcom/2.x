@@ -2180,7 +2180,7 @@ else // дисп-ия проведена в МО (не мобильной бригадой)
 endif
 return s
 
-***** 23.07.18 СМП - добавление или редактирование случая (листа учета)
+***** 09.12.18 СМП - добавление или редактирование случая (листа учета)
 Function oms_sluch_SMP(Loc_kod,kod_kartotek,tip_lu)
 // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
 // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -2190,7 +2190,7 @@ Static mm_brigada, st_brigada, mm_trombolit, st_trombolit, mm_spec, SKOD_DIAG :=
 Local top2, ar, ibrm := 0
 Local bg := {|o,k| get_MKB10(o,k,.t.) }, arr_del := {}, mrec_hu := 0,;
       buf := savescreen(), tmp_color := setcolor(), a_smert := {},;
-      p_uch_doc := "@!", pic_diag := "@K@!",;
+      arr_usluga := {}, p_uch_doc := "@!", pic_diag := "@K@!",;
       i, colget_menu := "R/W", colgetImenu := "R/BG",;
       pos_read := 0, k_read := 0, count_edit := 0,;
       tmp_help := chm_help_code, fl_write_sluch := .f.
@@ -2407,6 +2407,9 @@ Private mkod := Loc_kod, mtip_h, is_talon := .f.,;
   mm3prer_b := {{"отсутствие болевого синдрома",0},;
                 {"наличие болевого синдрома   ",1}},;
   mtip, m1tip := 0,;
+  musluga, m1usluga := 0,;
+  mm_usluga := {{"А05.10.004.001 Расшифровка ЭКГ",1},;
+                {"В01.015.007 Консультация кардиолога",2}},;
   m1USL_OK := iif(tip_lu == TIP_LU_SMP, 4, 3),;
   m1VIDPOM := iif(tip_lu == TIP_LU_SMP, 21, 11),;
   m1PROFIL := iif(tip_lu == TIP_LU_SMP, 84, 160),;
@@ -2548,6 +2551,25 @@ if Loc_kod > 0
     goto (arr_del[i])
     DeleteRec(.t.,.f.)  // очистка записи без пометки на удаление
   next
+  if mem_smp_tel == 1
+    R_Use(dir_server+"mo_su",,"MOSU")
+    G_Use(dir_server+"mo_hu",dir_server+"mo_hu","MOHU")
+    find (str(Loc_kod,7))
+    do while mohu->kod == Loc_kod .and. !eof()
+      mosu->(dbGoto(mohu->u_kod))
+      if alltrim(mosu->shifr1) == "A05.10.004.001"
+        m1usluga := setbit(m1usluga,1)
+        aadd(arr_usluga, {1,mohu->(recno())})
+      elseif alltrim(mosu->shifr1) == "B01.015.007"
+        m1usluga := setbit(m1usluga,2)
+        aadd(arr_usluga, {2,mohu->(recno())})
+      else
+        aadd(arr_usluga, {0,mohu->(recno())})
+      endif
+      select MOHU
+      skip
+    enddo
+  endif
   if alltrim(msmo) == '34'
     mnameismo := ret_inogSMO_name(2,@rec_inogSMO,.t.) // открыть и закрыть
   endif
@@ -2576,6 +2598,7 @@ mvidpolis := inieditspr(A__MENUVERT, mm_vid_polis, m1vidpolis)
 mokato    := inieditspr(A__MENUVERT, glob_array_srf, m1okato)
 mkomu     := inieditspr(A__MENUVERT, mm_komu, m1komu)
 mtip      := inieditspr(A__MENUVERT, mm_danet, m1tip)
+musluga   := inieditspr(A__MENUBIT,  mm_usluga,m1usluga)
 mismo     := init_ismo(m1ismo)
 if ibrm > 0
   mm_prer_b := iif(ibrm == 1, mm1prer_b, iif(ibrm == 2, mm2prer_b, mm3prer_b))
@@ -2626,6 +2649,9 @@ setcolor(color8)
 myclear(top2)
 @ top2-1,0 say padc(str_1,80) color "B/BG*"
 Private gl_area := {1,0,maxrow()-1,maxcol(),0}
+Private gl_arr := {;  // для битовых полей
+  {"usluga","N",10,0,,,,{|x|inieditspr(A__MENUBIT,mm_usluga,x)} };
+ }
 @ maxrow(),0 say padc("<Esc> - выход;  <PgDn> - запись;  <F1> - помощь",maxcol()+1) color color0
 mark_keys({"<F1>","<Esc>","<PgDn>"},"R/BG")
 setcolor(cDataCGet)
@@ -2770,6 +2796,10 @@ if tip_lu == TIP_LU_SMP
        @ j,32 say "Бригада СМП" get mbrig ;
             reader {|x|menu_reader(x,mm_brig,A__MENUVERT,,,.f.)}
  endif
+ if mem_smp_tel == 1
+  ++j; @ j,1 say "Услуга(и) телемедицины" get musluga ;
+             reader {|x| menu_reader(x,mm_usluga,A__MENUBIT,,,.f.)}
+ endif            
 else
   ++j; @ j,1 say "Врач (фельдшер)" get mspec ;
             reader {|x|menu_reader(x,mm_spec,A__MENUVERT,,,.f.)}
@@ -3168,6 +3198,82 @@ endif
     hu_->PRVS     := m1PRVS
     hu_->kod_diag := mkod_diag
     hu_->zf       := ""
+    //
+    if mem_smp_tel == 1 .and. (len(arr_usluga) > 0 .or. m1usluga > 0)
+      for i := 1 to 2
+        j := ascan(arr_usluga,{|x| x[1] == i })                  
+        if isbit(m1usluga,i)
+          if j == 0
+            aadd(arr_usluga, {i,0})
+          endif
+        else
+          if j > 0
+            arr_usluga[j,1] := 0
+          endif
+        endif
+      next
+      use_base("luslf")
+      Use_base("mo_su")
+      Use_base("mo_hu")
+      for i := 1 to len(arr_usluga)
+        if arr_usluga[i,1] > 0
+          kod_uslf := 0
+          lshifr := iif(arr_usluga[i,1] == 1, "A05.10.004.001", "B01.015.007")
+          select MOSU
+          set order to 3 // по шифру ФФОМС
+          find (padr(lshifr,20))
+          if found()
+            kod_uslf := mosu->kod
+          else
+            select LUSLF
+            find (padr(lshifr,20))
+            if found()
+              select MOSU
+              set order to 1
+              FIND (STR(-1,6))
+              if found()
+                G_RLock(forever)
+              else
+                AddRec(6)
+              endif
+              kod_uslf := mosu->kod := recno()
+              mosu->name := luslf->name
+              mosu->shifr1 := lshifr
+              mosu->PROFIL := 0
+            endif
+          endif
+          if !empty(kod_uslf)
+            select MOHU
+            if arr_usluga[i,2] > 0
+              goto (arr_usluga[i,2])
+              G_RLock(forever)
+            else
+              Add1Rec(7)
+            endif
+            mohu->kod     := human->kod
+            mohu->kod_vr  := 0
+            mohu->u_kod   := kod_uslf
+            mohu->u_cena  := 0
+            mohu->date_u  := dtoc4(MK_DATA)
+            mohu->date_u2 := dtoc4(MK_DATA)
+            mohu->otd     := m1otd
+            mohu->kol_1   := 1
+            mohu->stoim_1 := 0
+            mohu->ID_U    := mo_guid(4,mohu->(recno()))
+            mohu->PROFIL  := m1PROFIL
+            mohu->PRVS    := m1PRVS
+            mohu->kod_diag:= mkod_diag
+          endif
+        else
+          select MOHU
+          if arr_usluga[i,2] > 0
+            goto (arr_usluga[i,2])
+            DeleteRec(.t.)
+          endif
+        endif
+      next i
+    endif
+    //
     write_work_oper(glob_task,OPER_LIST,iif(Loc_kod==0,1,2),1,count_edit)
     fl_write_sluch := .t.
     close databases
