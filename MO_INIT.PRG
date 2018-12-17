@@ -3725,6 +3725,10 @@ Local u_usl_7 := {;    // группы услуг для способа оплаты = 7
   {"usl_del",   "C", 110,0};   // массив настроек группы услуг
  }
 // для стоматологий
+Local kart_delz := {; // удалённые зубы
+   {"KOD"      ,   "N",     7,     0},; // код по картотеке
+   {"ZF"       ,   "N",     2,     0},; // зубная формула
+   {"DATE_U"   ,   "C",     4,     0}}  // дата оказания услуги
 Local kart_st := {;
    {"KOD"      ,   "N",     7,     0},; // код по картотеке
    {"ZF"       ,   "N",     2,     0},; // зубная формула
@@ -4332,6 +4336,7 @@ reconstruct(dir_server+"usl_otd",usl_otd,"index_base('usl_otd')",,.t.)
 reconstruct(dir_server+"u_usl_5",u_usl_5,,,.t.)
 reconstruct(dir_server+"u_usl_7",u_usl_7,,,.t.)
 // для стоматологий
+reconstruct(dir_server+"kartdelz",kart_delz,"index_base('kartdelz')",,.t.)
 reconstruct(dir_server+"kart_st",kart_st,"index_base('kart_st')",,.t.)
 reconstruct(dir_server+"humanst",humanst,"index_base('humanst')",,.t.)
 //

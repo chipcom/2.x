@@ -127,6 +127,7 @@ Local mo_dr05e := {; // список ошибок в реестрах будущих диспансеризаций
    {"R05_ZAP",  "N", 6,0},; // номер позиции записи в реестре;"ZAP") в R05
    {"KOD_ERR",  "N", 3,0};  // код ошибки ТК
   }
+Local fl  
 reconstruct(dir_server+"mo_dr01", mo_dr01 ,,,.t.)
 reconstruct(dir_server+"mo_dr01m",mo_dr01m,,,.t.)
 reconstruct(dir_server+"mo_dr01k",mo_dr01k,,,.t.)
@@ -136,95 +137,80 @@ reconstruct(dir_server+"mo_dr05p",mo_dr05p,,,.t.)
 reconstruct(dir_server+"mo_dr05k",mo_dr05k,,,.t.)
 reconstruct(dir_server+"mo_dr05e",mo_dr05e,,,.t.)
 reconstruct(dir_server+"mo_dr00", mo_dr00 ,,,.t.)
+//
+G_Use(dir_server+"mo_dr05p",,"R05p")
+Locate for n_y < 2019
+fl := found()
+Use
+if fl
+  f_zap_all_mo_dr()
+endif  
 return NIL
 
-***** 12.07.18 Создание файла обмена R05...
+***** 14.12.18 очистить файлы - удалить 2018 год
+Function f_zap_all_mo_dr()
+Local i, arrx := {}
+use (dir_server+"mo_dr01") new 
+zap
+use (dir_server+"mo_dr01m") new
+zap
+use (dir_server+"mo_dr01k") new
+zap
+use (dir_server+"mo_dr01e") new
+zap
+use (dir_server+"mo_dr05") new 
+zap
+use (dir_server+"mo_dr05k") new
+zap
+use (dir_server+"mo_dr05e") new
+zap
+use (dir_server+"mo_dr00") new
+zap
+G_Use(dir_server+"mo_xml",,"MO_XML")
+index on FNAME to (cur_dir+"tmp_xml") ;
+      for eq_any(tip_in,_XML_FILE_R02,_XML_FILE_R06) .or. eq_any(TIP_OUT,_XML_FILE_R01,_XML_FILE_R05)
+go top
+do while !eof()
+  aadd(arrx,mo_xml->(recno()))
+  skip
+enddo
+set index to
+for i := 1 to len(arrx)
+  goto (arrx[i])
+  DeleteRec(.t.)
+next    
+use (dir_server+"mo_dr05p") new
+zap
+close databases
+return NIL
+
+***** 13.12.18 Создание файла обмена R05...
 Function f_create_R05()
-Static arr_plan := {;
-  {8771,"114504 - ГУЗ Поликлиника № 4"},;
-  {5245,"121018 - ГУЗ Больница № 18"},;
-  {8128,"124528 - ГУЗ Клиническая поликлиника № 28"},;
-  {4753,"124530 - ГУЗ Поликлиника № 30"},;
-  {9128,"134505 - ГУЗ Поликлиника № 5"},;
-  {4423,"141016 - ГУЗ Больница № 16"},;
-  {4662,"141022 - ГУЗ Больница №22"},;
-  {5231,"141023 - ГУЗ КБСМП № 15"},;
-  {3597,"141024 - ГУЗ Больница № 24"},;
-  {11789,"154602 - ГУЗ Поликлиника № 2"},;
-  {4781,"154620 - ГУЗ Поликлиника № 20"},;
-  {4471,"161007 - ГУЗ КБ СМП № 7"},;
-  {4807,"161015 - ГУЗ Клиническая больница № 11"},;
-  {13976,"174601 - ГУЗ КП № 1"},;
-  {4164,"184512 - ГУЗ Клиническая поликлиника № 12"},;
-  {4308,"184603 - ГУЗ Клиническая поликлиника №3"},;
-  {8038,"251001 - ГБУЗ ГКБ № 1 им. С.З.Фишера"},;
-  {6163,"251002 - ГБУЗ ГКБ №3"},;
-  {9251,"251003 - ГБУЗ Городская больница № 2"},;
-  {7616,"254505 - ГБУЗ Городская поликлиника №5"},;
-  {1630,"301001 - ГБУЗ Алексеевская ЦРБ"},;
-  {2517,"311001 - ГБУЗ Быковская ЦРБ"},;
-  {6178,"321001 - ГБУЗ Городищенская ЦРБ"},;
-  {1843,"331001 - ГБУЗ Даниловская ЦРБ"},;
-  {2806,"341001 - ГБУЗ ЦРБ Дубовского муниципального района"},;
-  {3281,"351001 - ГБУЗ Еланская ЦРБ"},;
-  {4421,"361001 - ГУЗ Жирновская ЦРБ"},;
-  {3279,"371001 - ГБУЗ Иловлинская ЦРБ"},;
-  {5898,"381001 - ГБУЗ Калачевская ЦРБ"},;
-  {9447,"391001 - ГБУЗ г.Камышина Городская больница № 1"},;
-  {6079,"391002 - ГБУЗ ЦГБ"},;
-  {1692,"401001 - ГБУЗ Киквидзенская ЦРБ"},;
-  {1712,"411001 - ГБУЗ ЦРБ Клетского муниципального района"},;
-  {3353,"421001 - ГБУЗ Котельниковская ЦРБ"},;
-  {3766,"431001 - ГБУЗ ЦРБ Котовского муниципального района"},;
-  {2984,"441001 - ГБУЗ Ленинская ЦРБ"},;
-  {8379,"451001 - ГБУЗ МЦРБ"},;
-  {1608,"461001 - ГБУЗ Нехаевская ЦРБ"},;
-  {3209,"471001 - ГБУЗ Николаевская ЦРБ"},;
-  {3744,"481001 - ГБУЗ Новоаннинская ЦРБ"},;
-  {2497,"491001 - ГБУЗ Новониколаевская ЦРБ"},;
-  {2251,"501001 - ГБУЗ Октябрьская ЦРБ"},;
-  {1700,"511001 - ГБУЗ ЦРБ Ольховского муниципального района"},;
-  {4189,"521001 - ГБУЗ Палласовская ЦРБ"},;
-  {2093,"531001 - ГБУЗ Кумылженская ЦРБ"},;
-  {1814,"541001 - ГБУ ЦРБ Руднянского муниципального района"},;
-  {3736,"551001 - ГБУЗ Светлоярская ЦРБ"},;
-  {2365,"561001 - ГБУЗ Серафимовичская ЦРБ"},;
-  {5204,"571001 - ГБУЗ Среднеахтубинская ЦРБ"},;
-  {2028,"581001 - ГБУЗ Старополтавская ЦРБ"},;
-  {3551,"591001 - ГБУЗ ЦРБ Суровикинского муниципального района"},;
-  {7191,"601001 - ГБУЗ Урюпинская ЦРБ"},;
-  {4460,"611001 - ГБУЗ Фроловская ЦРБ"},;
-  {1716,"621001 - ГБУЗ Чернышковская ЦРБ"},;
-  {3573,"711001 - НУЗ Отделенческая клиническая больница на ст. Волгоград-1 ОАО РЖД"};
-}  
 Local buf := save_maxrow(), i, fl
-Private sgod := 2018, mkol1 := 0, mkol2 := 0, mkol3 := 0, mdate := sys_date, ;
+Private sgod := 2019, mkol1 := 0, mkol2 := 0, mkol3 := 0, mdate := sys_date, ;
         mrec, CODE_LPU := glob_mo[_MO_KOD_TFOMS], splan_d2 := 0
 mywait()
-if (i := ascan(arr_plan, {|x| left(x[2],6) == glob_mo[_MO_KOD_TFOMS]})) == 0
-  func_error(4,"Нет плана диспансеризации 1 раз в 2 года для Вашего МО")
-else
-  splan_d2 := arr_plan[i,1]
+G_Use(dir_server+"mo_dr05p",,"R05p")
+Locate for n_y < 2019
+fl := found()
+Use
+if fl
+  f_zap_all_mo_dr()
 endif  
 G_Use(dir_server+"mo_dr05p",,"R05p")
-if (mrec := lastrec()) == 0
-  use
-  return func_error(4,'Почему-то в "mo_dr05p" нет записей')  
-endif
-if mrec == 1
+if lastrec() == 0
   G_RLock(.t.,forever)
-  UnLock
 endif
-mrec := 2 // пока так  
-goto (mrec)
+mrec := 1 // пока так
+goto (mrec)  
 G_RLock(forever)  
-if .t.//empty(r05p->n_y)
+if empty(r05p->n_y)
   r05p->N_Y := sgod // год для диспансеризации
-  r05p->D_KZ := 0d20180621
-  r05p->TYPEOFREC := 1 // 0-первично представленная запись, 1-актуализированная запись
+  r05p->D_KZ := 0d20181218
+  r05p->TYPEOFREC := 0 // 0-первично представленная запись, 1-актуализированная запись
   r05p->KOL1 := 0 // количество пациентов для диспансеризации на год
   r05p->KOL2 := 0 // количество пациентов для профосмотров на год
-  r05p->KOL3 := splan_d2
+  r05p->KOL3 := 0
 endif  
 //sgod := r05p->N_Y
 mkol1 := r05p->KOL1
@@ -232,22 +218,9 @@ mkol2 := r05p->KOL2
 mkol3 := r05p->KOL3
 mdate := r05p->D_KZ
 r05p->(dbCloseArea())
-Private r05_nn := 0, write_reestr := .f., edit_R05 := .t., is_reestr := .f.
-if !verify_packet_R05(1,{})
-  Use (dir_server+"mo_dr00") new alias TMP
-  fl := (tmp->(lastrec()) == 0)
-  close databases
-  if fl
-    G_Use(dir_server+"mo_dr05p",,"R05p")
-    goto (mrec)  
-    G_RLock(forever)
-    for i := 1 to 12
-      &("r05p->kol3_"+strzero(i,2)) := 0
-    next
-    r05p->(dbCloseArea())
-    fill_dr00()
-  endif
-endif
+Private r05_nn := 0, write_reestr := .f.  
+verify_packet_R05(1,{},@r05_nn)
+Private is_reestr := (r05_nn > 0)
 close databases 
 if emptyall(mkol1,mkol2,mkol3)
   keyboard chr(K_HOME)+chr(K_ENTER)
@@ -265,23 +238,20 @@ popup_prompt(T_ROW,T_COL-5,1,mas_pmt,mas_msg,mas_fun)
 rest_box(buf)     
 return NIL
 
-***** 05.07.18 Ввод/редактирование плана-графика диспансеризации на год
+***** 13.12.18 Ввод/редактирование плана-графика диспансеризации на год
 Function f1_create_R05()
 Local r1 := 15, buf, buf24 := save_maxrow(), tmp_color := setcolor(cDataCGet)
 buf := box_shadow(r1,2,maxrow()-2,77,,"План-график на "+lstr(sgod)+" год",color8)
 @ r1+2,4 say "Дата приказа Комитета здравоохранения Волгоградской области" get mdate
-@ r1+3,4 say "Плановая численность лиц, подлежащих диспансеризации" get mkol1 pict "99999" when .f.
-@ r1+4,4 say "Плановая численность лиц, подлежащих профилактическим осмотрам" get mkol2 pict "99999" when .f.
-@ r1+5,4 say "Плановая численность лиц диспансеризации 1 раз в 2 года" get mkol3 pict "99999" when .f.
+@ r1+3,4 say "Плановая численность лиц для диспансеризации 1 раз в 3 года" get mkol1 pict "99999"
+@ r1+4,4 say "Плановая численность лиц для диспансеризации 1 раз в 2 года" get mkol3 pict "99999"
+@ r1+5,4 say "Плановая численность лиц, подлежащих профилактическим осмотрам" get mkol2 pict "99999"
 if is_reestr
   status_key("^<Esc>^ - выход из режима (файл обмена R05 уже составлен)")
   mybell(0,ERR)
   clear_gets()
 else
-  status_key("^<Esc>^ - выход из режима")
-  mybell(0,ERR)
-  clear_gets()
-  /*status_key("^<Esc>^ - выход из режима;  ^<Enter>^ - подтверждение ввода")
+  status_key("^<Esc>^ - выход из режима;  ^<Enter>^ - подтверждение ввода")
   myread()
   if lastkey() != K_ESC .and. f_Esc_Enter(1)
     G_Use(dir_server+"mo_dr05p",,"R05p")
@@ -295,16 +265,16 @@ else
     r05p->KOL3 := mkol3
     r05p->D_KZ := mdate
     use
-  endif*/
+  endif
 endif
 setcolor(tmp_color)
 rest_box(buf)     
 rest_box(buf24)     
 return NIL
 
-***** 09.07.18 Ввод/редактирование плана-графика с разбивкой по месяцам
+***** 13.12.18 Ввод/редактирование плана-графика с разбивкой по месяцам
 Function f2_create_R05()
-Local buf := savescreen(), tmp_color, t_arr[BR_LEN], blk, i, d, n, kol_6 := 0
+Local buf := savescreen(), tmp_color, t_arr[BR_LEN], blk, i, d, n
 Private skol[3], ekol := {0,0,0}, mmes := 1
 tmp_color := setcolor(color5)
 R_Use(dir_server+"mo_dr05p",,"R05p")
@@ -312,12 +282,6 @@ goto (mrec)
 skol[1] := r05p->KOL1
 skol[2] := r05p->KOL2
 skol[3] := r05p->KOL3
-if year(r05p->D_KZ) == sgod // приказ КЗ об изменении численности в течение года
-  mmes := month(r05p->D_KZ)+1
-  if mmes > 12
-    mmes := 12
-  endif
-endif
 dbcreate("tmp1",{{"MES",   "N",2,0},;  // месяц
                  {"kol1",  "N",6,0},; 
                  {"kol2",  "N",6,0},; 
@@ -334,24 +298,14 @@ for i := 1 to 12
   ekol[3] += tmp1->kol3
 next
 if emptyall(ekol[1],ekol[2],ekol[3])
-  mywait()
-  Use (dir_server+"mo_dr00") new alias TMP
-  index on kod to (cur_dir+"tmp_r00") for n_m == 6 memory
-  dbeval({|| ++kol_6 })
-  tmp->(dbCloseArea())  
-  n := 13 - mmes
-  select TMP1
-  if kol_6 > 0
-    goto (6)
-    ekol[3] := tmp1->kol3 := kol_6
-  endif
+  n := 12
   for i := mmes to 12
     goto (i)
     tmp1->kol1 := round(skol[1]/n,0)
     ekol[1] += tmp1->kol1
     tmp1->kol2 := round(skol[2]/n,0)
     ekol[2] += tmp1->kol2
-    tmp1->kol3 := round((skol[3]-kol_6)/n,0)
+    tmp1->kol3 := round(skol[3]/n,0)
     ekol[3] += tmp1->kol3
   next
   d := skol[1] - ekol[1]
@@ -384,9 +338,9 @@ t_arr[BR_TITUL_COLOR] := "B/W"
 t_arr[BR_ARR_BROWSE] := {'═','░','═',"N/W,W+/N,B/W,W+/B",.t.}
 t_arr[BR_COLUMN] := {;
  { "  Месяц;проведения", {|| padr(mm_month[tmp1->mes],10) }, blk },;
- { "Кол-во;дисп-ий", {|| str(tmp1->kol1,6) }, blk },;
- { "Кол-во;проф-ов", {|| str(tmp1->kol2,6) }, blk },;
- { "1 раз в;2 года", {|| str(tmp1->kol3,6) }, blk };
+ { "1 раз в;3 года", {|| str(tmp1->kol1,6) }, blk },;
+ { "1 раз в;2 года", {|| str(tmp1->kol3,6) }, blk },;
+ { "Кол-во;проф-ов", {|| str(tmp1->kol2,6) }, blk };
 }
 t_arr[BR_EDIT] := {|nk,ob| f1_f2_create_R05(nk,ob,"edit") }
 t_arr[BR_FL_INDEX] := .f.
@@ -419,20 +373,20 @@ close databases
 setcolor(tmp_color)
 return NIL
 
-***** 09.07.18
+***** 13.12.18
 Function f1_f2_create_R05(nKey,oBrow,regim)
 Local ret := -1, rr := row()
-if regim == "edit" .and. nKey == K_ENTER .and. between(oBrow:colPos,2,4) .and. !is_reestr .and. tmp1->mes > 6 // !
+if regim == "edit" .and. nKey == K_ENTER .and. between(oBrow:colPos,2,4) .and. !is_reestr
   Private mkol
   if oBrow:colPos == 2 
     ncol := 14
     mkol := tmp1->kol1 
   elseif oBrow:colPos == 3 
     ncol := 22
-    mkol := tmp1->kol2 
+    mkol := tmp1->kol3 
   elseif oBrow:colPos == 4 
     ncol := 30
-    mkol := tmp1->kol3 
+    mkol := tmp1->kol2 
   endif
   @ rr,ncol get mkol color "GR+/R" pict "999999"
   myread()
@@ -440,9 +394,9 @@ if regim == "edit" .and. nKey == K_ENTER .and. between(oBrow:colPos,2,4) .and. !
     if oBrow:colPos == 2 
       tmp1->kol1 := mkol 
     elseif oBrow:colPos == 3 
-      tmp1->kol2 := mkol 
-    elseif oBrow:colPos == 4 
       tmp1->kol3 := mkol 
+    elseif oBrow:colPos == 4 
+      tmp1->kol2 := mkol 
     endif
     f2_f2_create_R05()
     ret := 0
@@ -468,9 +422,9 @@ for i := 1 to 3
   endif
 next  
 @ 20,14 say str(ekol[1],6) color lcolor[1]
-@ 20,22 say str(ekol[2],6) color lcolor[2]
-@ 20,30 say str(ekol[3],6) color lcolor[3]
-@ 21,14 say str(skol[1],6)+str(skol[2],8)+str(skol[3],8) color color5
+@ 20,22 say str(ekol[3],6) color lcolor[3]
+@ 20,30 say str(ekol[2],6) color lcolor[2]
+@ 21,14 say str(skol[1],6)+str(skol[3],8)+str(skol[2],8) color color5
 SetPos(rr,cc)
 return NIL
 
@@ -507,7 +461,7 @@ if (arr_f := Extract_Zip_XML(KeepPath(full_zip),name_zip)) != NIL
 endif  
 return fl
 
-***** 12.07.18 Создание файла обмена R05
+***** 13.12.18 Создание файла обмена R05
 Function f3_create_R05()
 Local buf := save_maxrow(), i, j, skol[3], ekol := {0,0,0}, k, fl := .t.
 if !write_reestr 
@@ -571,48 +525,48 @@ if fl
     endif
   next
   for i := 1 to len(auch)
-    //my_debug(,print_array(auch[i]))
+    my_debug(,print_array(auch[i]))
   next
   for i := 1 to 12
     for j := 1 to 3
       aumes[i,j] := f1_f3_create_R05(ames[i,j],k)
-      //my_debug(,print_array({i,j,ames[i,j],aumes[i,j]}))
+      my_debug(,print_array({i,j,ames[i,j],aumes[i,j]}))
     next
   next
-  ikol1 := ikol2 := 0
+  /*ikol1 := ikol2 := ikol3 := 0
   tmp_aumes := aclone(aumes)
-  aumes := array(12,2)
+  aumes := array(12,3)
   for i := 1 to 12
     for j := 1 to 3
-      j1 := iif(j == 2, 2, 1)
-      if aumes[i,j1] == NIL
-        aumes[i,j1] := {} // инициализация
+      if aumes[i,j] == NIL
+        aumes[i,j] := {} // инициализация
       endif
       for k := 1 to len(tmp_aumes[i,j]) // участки
         luch := tmp_aumes[i,j,k,1] // номер участка (для отсылки в ТФОМС)
         lkol := tmp_aumes[i,j,k,2] // количество пациентов в реестре/файле
         if lkol > 0
-          if (k1 := ascan(aumes[i,j1], {|x| x[1] == luch })) == 0
-            aadd(aumes[i,j1], {luch,0}) ; k1 := len(aumes[i,j1])
+          if (k1 := ascan(aumes[i,j], {|x| x[1] == luch })) == 0
+            aadd(aumes[i,j], {luch,0}) ; k1 := len(aumes[i,j])
           endif
-          aumes[i,j1,k1,2] += lkol
+          aumes[i,j,k1,2] += lkol
         endif
       next
     next
-    for j1 := 1 to 2
+    for j := 1 to 3
       v := 0
-      for k := 1 to len(aumes[i,j1])
-        v += aumes[i,j1,k,2]
+      for k := 1 to len(aumes[i,j])
+        v += aumes[i,j,k,2]
       next
-      //my_debug(,print_array({i,j1,v,aumes[i,j1]}))
+      my_debug(,print_array({i,j,v,aumes[i,j]}))
     next
   next
   R_Use(dir_server+"mo_dr05p",,"R05p")
   for ir := 1 to mrec
     select R05p 
     goto (ir)
-    ikol1 += r05p->kol1 + r05p->kol3
+    ikol1 += r05p->kol1
     ikol2 += r05p->kol2
+    ikol3 += r05p->kol3
   next
   if mrec > 1 // пока так - только для одного дополнительного приказа КЗ
     R_Use(dir_server+"mo_dr05",,"R05")
@@ -659,14 +613,14 @@ if fl
       next
     next
   endif 
-  close databases
+  close databases*/
   rest_box(buf)
   if f_Esc_Enter("создания файла R05")
     nsh := 3
     R_Use(dir_server+"mo_dr05p",,"R05p")
     goto (mrec)
     mmes := 1
-    if year(r05p->D_KZ) == sgod // приказ КЗ об изменении численности в течение года
+    /*if year(r05p->D_KZ) == sgod // приказ КЗ об изменении численности в течение года
       for i := 1 to 12
         if &("r05p->kol3_"+strzero(i,2)) > 0
           mmes := i ; exit
@@ -676,7 +630,7 @@ if fl
       if mmes > 12
         mmes := 12
       endif
-    endif
+    endif*/
     G_Use(dir_server+"mo_dr05k",,"RHUM")
     index on str(REESTR,6) to (cur_dir+"tmp_rhum")
     G_Use(dir_server+"mo_dr05",,"REES")
@@ -725,25 +679,29 @@ if fl
       oVOLUMES := oXmlNode:Add( HXMLNode():New( "VOLUMES" ) )
        oVOLUME := oVOLUMES:Add( HXMLNode():New( "VOLUME" ) )
         mo_add_xml_stroke(oVOLUME,"PREVENTIVE_ACTION","O")
-        mo_add_xml_stroke(oVOLUME,"QUANTITY",lstr(ikol1))
+        mo_add_xml_stroke(oVOLUME,"QUANTITY",lstr(r05p->kol1))
        oVOLUME := oVOLUMES:Add( HXMLNode():New( "VOLUME" ) )
         mo_add_xml_stroke(oVOLUME,"PREVENTIVE_ACTION","R")
-        mo_add_xml_stroke(oVOLUME,"QUANTITY",lstr(ikol2))
+        mo_add_xml_stroke(oVOLUME,"QUANTITY",lstr(r05p->kol2))
+       oVOLUME := oVOLUMES:Add( HXMLNode():New( "VOLUME" ) )
+        mo_add_xml_stroke(oVOLUME,"PREVENTIVE_ACTION","D")
+        mo_add_xml_stroke(oVOLUME,"QUANTITY",lstr(r05p->kol3))
      oZAPS := oXmlDoc:aItems[1]:Add( HXMLNode():New( "ZAPS" ) )
     icode := 0  
     for i := mmes to 12 // месяцы
       oZAP := oZAPS:Add( HXMLNode():New( "ZAP" ) )
        mo_add_xml_stroke(oZAP,"MONTH",lstr(i))
-      for j := 1 to 2 // 1-диспансеризация 1 этап, 2-профосмотр
+      for j := 1 to 3 // 1-диспансеризация 1 этап, 2-профосмотр
         if len(aumes[i,j]) == 0// участки
           loop
         endif
         oQUANTITY_INFO := oZAP:Add( HXMLNode():New( "QUANTITY_INFO" ) )
-         mo_add_xml_stroke(oQUANTITY_INFO,"PR_ACTION",{"O","R"}[j])
-         v := 0
+         mo_add_xml_stroke(oQUANTITY_INFO,"PR_ACTION",{"O","R","D"}[j])
+         /*v := 0
          for k := 1 to len(aumes[i,j]) // участки
            v += aumes[i,j,k,2]
-         next
+         next*/
+         v := &("r05p->kol"+lstr(j)+"_"+strzero(i,2))
          mo_add_xml_stroke(oQUANTITY_INFO,"QUANTITY_MONTH",lstr(v))
          oRECORDS := oQUANTITY_INFO:Add( HXMLNode():New( "RECORDS" ) )
         for k := 1 to len(aumes[i,j]) // участки
@@ -1254,7 +1212,7 @@ endif
 select REES
 return NIL
 
-***** 06.07.18
+***** 13.12.18
 Function f31_view_R05(reg,s)
 Local fl, buf := save_maxrow(), i, j, v, n_file := "r05_spis"+stxt
 mywait()
@@ -1268,7 +1226,7 @@ for j := 1 to 3
   v := &("r05p->kol"+lstr(j))
   if v > 0
     add_string("")
-    s := {"Диспансеризация взрослого населения",;
+    s := {"Диспансеризация 1 раз в 3 года",;
           "Профилактические осмотры взрослых",;
           "Диспансеризация 1 раз в 2 года"}[j]
     add_string(s+" на "+lstr(r05p->n_y)+" год - "+lstr(v)+" чел.")
@@ -1288,9 +1246,10 @@ rest_box(buf)
 viewtext(n_file,,,,.t.,,,2)
 return NIL
 
-***** 24.05.18 
-Function verify_packet_R05(par,arr)
+***** 13.12.18 
+Function verify_packet_R05(par,arr,/*@*/ret_nn)
 Local fl := .t.
+ret_nn := 0
 is_reestr := .f.
 R_Use(dir_server+"mo_dr05e",,"REFR")
 R_Use(dir_server+"mo_xml",,"MO_XML")
@@ -1299,6 +1258,7 @@ R_Use(dir_server+"mo_dr05",,"R05")
 index on str(REC_5P,3)+str(1000-nn,4) to (cur_dir+"tmp_r05") for nyear == sgod
 find (str(mrec,3))
 if found()
+  ret_nn := r05->nn
   is_reestr := .t.
   fl_edit := .f.
   select MO_XML
@@ -1333,7 +1293,7 @@ return fl
 
 ********************************************************************************
 
-***** 09.07.18
+/***** 09.07.18
 Function fill_dr00()
 Local buf := save_maxrow(), hGauge, fl := .t., fl_exit := .f.
 Private sgod := 2018, mrec := 2, c_view := 0, c_found := 0, ;
@@ -1382,41 +1342,37 @@ if !fl
 endif
 close databases
 rest_box(buf)
-return fl
+return fl*/
 
-***** 30.09.18 Создание файла обмена R01...
+***** 14.12.18 Создание файла обмена R01...
 Function f_create_R01()
 Local buf := save_maxrow(), i, j, ir, s := "", arr := {}, fl := .t., fl1 := .f., a_reestr := {},;
       azip := {}, aerr := {}, full_zip, name_zip, cFile, cName, oXmlDoc
-Private sgod := 2018, SQUARTER := 3, mdate := sys_date, mrec := 2
+Private sgod := 2019, SQUARTER := 1, mdate := sys_date, mrec := 1
 Private c_view := 0, c_found := 0, fl_exit := .f., pj, arr_rees := {},;
         pkol := 0, CODE_LPU := glob_mo[_MO_KOD_TFOMS], CODE_MO := glob_mo[_MO_KOD_FFOMS],;
         mkol := {0,0,0}, skol := {0,0,0}, akv[4,3], ames[12,3], bm := int(SQUARTER*3) // начальный месяц минус один        
-if !myFileDeleted(cur_dir+"tmp1file"+sdbf)
-  return NIL
-endif
-if !myFileDeleted(cur_dir+"tmp2file"+sdbf)
-  return NIL
-endif
-if !myFileDeleted(cur_dir+"tmp3file"+sdbf)
-  return NIL
-endif
-if !myFileDeleted(cur_dir+"tmp4file"+sdbf)
-  return NIL
-endif
 mywait()  
 if (fl := verify_packet_R05(1,arr))
+  R_Use(dir_server+"mo_dr05p",,"R05p")
+  goto (mrec)
+  skol[1] := r05p->KOL1
+  skol[2] := r05p->KOL2
+  skol[3] := r05p->KOL3
+  for i := 1 to 12
+    for j := 1 to 3
+      ames[i,j] := { &("r05p->kol"+lstr(j)+"_"+strzero(i,2)), 0 }
+    next
+  next
+  afillall(akv,0)
+  //
   select MO_XML
   index on str(reestr,6) to (cur_dir+"tmp_xml") for tip_in == _XML_FILE_R02 .and. empty(TIP_OUT)
   R_Use(dir_server+"mo_dr01",,"REES")
   index on str(nn,3)+str(NQUARTER,1) to (cur_dir+"tmp_dr01") for NYEAR == sgod
   go top
   do while !eof()
-    if rees->dschet > stod(strzero(sgod,4)+strzero(bm,2)+"25")
-      fl := func_error(4,"Актуализированные записи за первые три квартала "+lstr(sgod)+" года уже отправлены в ТФОМС")
-      exit
-    endif
-    aadd(a_reestr, rees->kod)
+    fl1 := .t.
     if rees->kol_err < 0
       //fl := func_error(4,"В файле R02 за "+lstr(rees->NQUARTER)+"-й квартал "+;
       //                   lstr(sgod)+"г. ошибки на уровне файла! Операция запрещена")
@@ -1439,181 +1395,103 @@ if (fl := verify_packet_R05(1,arr))
     skip
   enddo
   if fl
-    select MO_XML
-    index on str(reestr,6) to (cur_dir+"tmp_xml") for tip_in == _XML_FILE_R02 .and. empty(TIP_OUT)
-    select REES
-    index on str(nn,3) to (cur_dir+"tmp_dr01") ;
-          for NYEAR == sgod .and. NQUARTER <= SQUARTER .and. ANSWER > 0 .and. kol_err >= 0 .and. kol > kol_err
-    go top
-    do while !eof()
-      select MO_XML
-      find (str(rees->kod,6)) 
-      aadd(azip, {alltrim(rees->NAME_XML), alltrim(mo_xml->FNAME), rees->kod})
-      select REES
-      skip
-    enddo
-    delete file (cur_dir+"tmp_4"+sdbf)
-    R_Use(dir_server+"mo_dr01k",,"RHUM")
-    for i := 1 to len(azip)
-      full_zip := dir_server+dir_XML_MO+cslash+azip[i,1]+szip
-      name_zip := StripPath(full_zip)
-      cName := Name_Without_Ext(name_zip)
-      if (arr_f := Extract_Zip_XML(KeepPath(full_zip),name_zip)) != NIL
-        if (n := ascan(arr_f,{|x| upper(Name_Without_Ext(x)) == upper(cName)})) > 0
-          cFile := arr_f[n]
-          // читаем файл в память
-          oXmlDoc := HXMLDoc():Read(_tmp_dir1+cFile)
-          if empty( oXmlDoc:aItems )
-            aadd(aerr,"Ошибка в чтении файла "+cFile)
-          else
-            reestr_R01_tmpfile(oXmlDoc,aerr,Name_Without_Ext(cFile))
-          endif
-        else
-          aadd(aerr,"В архиве "+name_zip+" нет файла "+cName+sxml)
-        endif
-      endif
-      if empty(aerr)
-        full_zip := dir_server+dir_XML_TF+cslash+azip[i,2]+szip
-        name_zip := StripPath(full_zip)
-        cName := Name_Without_Ext(name_zip)
-        if (arr_f := Extract_Zip_XML(KeepPath(full_zip),name_zip)) != NIL
-          if (n := ascan(arr_f,{|x| upper(Name_Without_Ext(x)) == upper(cName)})) > 0
-            cFile := arr_f[n]
-            // читаем файл в память
-            oXmlDoc := HXMLDoc():Read(_tmp_dir1+cFile)
-            if empty( oXmlDoc:aItems )
-              aadd(aerr,"Ошибка в чтении файла "+cFile)
-            else
-              reestr_R02_tmpfile(oXmlDoc,aerr,Name_Without_Ext(cFile))
-            endif
-          else
-            aadd(aerr,"В архиве "+name_zip+" нет файла "+cName+sxml)
-          endif
-        endif
-        if empty(aerr)
-          select RHUM
-          index on str(R01_ZAP,6) to (cur_dir+"tmp_rhum") for REESTR == azip[i,3]
-          use (cur_dir+"tmp4file") new alias TMP4
-          index on str(zap,6) to (cur_dir+"tmp4file")
-          select TMP2
-          go top
-          do while !eof()
-            select RHUM
-            find (str(tmp2->_n_zap,6))
-            select TMP4
-            find (str(tmp2->_n_zap,6))
-            if tmp4->TYPEOFREC == "I" // т.е. пропускаем актуализированные записи
-              tmp4->oplata := tmp2->_oplata
-              if tmp2->_oplata == 1
-                tmp4->enp := tmp2->_enp
-                tmp4->kod_k := rhum->kod_k
-                tmp4->tip := iif(between(rhum->tip,1,3), rhum->tip, 1)
+    if fl1 // не первый раз составляется реестр в отчётном году
+      R_Use(dir_server+"mo_dr01k",,"R01k")
+      index on str(reestr,6)+str(kod_k,7) to (cur_dir+"tmp_dr01k")
+      Use (dir_server+"mo_dr00") new alias TMP
+      index on kod to (cur_dir+"tmp_dr00") for reestr == 0
+      go top
+      do while !eof()
+        j := tmp->tip
+        mkol[j] ++ // подсчёт оставшегося кол-ва в пуле пациентов
+        skip
+      enddo
+      index on str(reestr,6) to (cur_dir+"tmp_dr00")
+      for ir := 1 to len(arr_rees)
+        select TMP
+        find (str(arr_rees[ir],6))
+        do while tmp->reestr == arr_rees[ir] .and. !eof()
+          select R01k
+          find (str(tmp->reestr,6)+str(tmp->kod,7))
+          if found()
+            if r01k->oplata == 1  // учтён в ТФОМС
+              i := tmp->n_m
+              if !between(i,1,12)
+                fl := func_error(4,"Некорректный месяц в файле MO_DR00.DBF! Операция запрещена")
+                exit
               endif
+              j := tmp->tip
+              if !between(j,1,3)
+                fl := func_error(4,"Некорректный вид осмотра в файле MO_DR00.DBF! Операция запрещена")
+                exit
+              endif
+              ames[i,j,2] ++
+              skol[j] --
             endif
-            select TMP2
-            skip
-          enddo
-          tmp1->(dbCloseArea())
-          tmp2->(dbCloseArea())
-          tmp3->(dbCloseArea())
-          tmp4->(dbCloseArea())
-          if hb_fileExists(cur_dir+"tmp_4"+sdbf)
-            use (cur_dir+"tmp_4") new
-            append from (cur_dir+"tmp4file") codepage "RU866"
-            tmp_4->(dbCloseArea())
-          else
-            copy file (cur_dir+"tmp4file"+sdbf) to (cur_dir+"tmp_4"+sdbf)
           endif
+          select TMP
+          skip
+        enddo
+        if !fl ; exit ; endif
+      next ir
+    else // первый раз составляется реестр в отчётном году
+      Status_Key("^<Esc>^ - прервать поиск")
+      hGauge := GaugeNew(,,,"Поиск пациентов, подлежащих дисп-ии/профосмотрам",.t.)
+      GaugeDisplay( hGauge )
+      Use (dir_server+"mo_dr00") new alias TMP
+      zap  // т.к.первый раз
+      R_Use(dir_server+"human_",,"HUMAN_")
+      R_Use(dir_server+"human",dir_server+"humankk","HUMAN")
+      set relation to recno() into HUMAN_
+      R_Use(dir_server+"kartote2",,"KART2")
+      R_Use(dir_server+"kartote_",,"KART_")
+      R_Use(dir_server+"kartotek",,"KART")
+      set relation to recno() into KART_, recno() into KART2
+      go top
+      do while !eof()
+        GaugeUpdate( hGauge, recno()/lastrec() )
+        if inkey() == K_ESC
+          fl_exit := .t. ; exit
         endif
-      endif
-      if !empty(aerr)
-        delete file ttt.ttt
-        aeval(aerr,{|x| strfile(x+hb_eol(),"ttt.ttt",.t.) })
-        viewtext(Devide_Into_Pages("ttt.ttt",60,80),,,,.t.,,,2)
-        fl := .f.
-        exit
-      endif
-    next
-  endif
-  if fl
-    R_Use(dir_server+"mo_dr05p",,"R05p")
-    goto (1)
-    for i := 1 to 12
-      ames[i,1] := { 0,0,&("r05p->kol1_"+strzero(i,2)) }
-      ames[i,2] := { 0,0,&("r05p->kol2_"+strzero(i,2)) }
-    next
-    goto (2)
-    for i := 1 to 12
-      ames[i,3] := { 0,0,&("r05p->kol3_"+strzero(i,2)) }
-    next
-    afillall(akv,0)
-    //
-    R_Use(dir_server+"human",dir_server+"humand","HUMAN")
-    dbseek(strzero(sgod,4)+"0101",.t.)
-    index on str(kod_k,7) to (cur_dir+"tmphuman") ;
-          for kod > 0 .and. between(ishod,201,205) ;
-          while !eof()
-    R_Use(dir_server+"kartotek",,"KART")
-    use (cur_dir+"tmp_4") new alias TMP4
-    go top
-    do while !eof()
-      if tmp4->kod_k > 0
+        if kart->kod > 0
+          f0_create_R01(sgod,@c_view,@c_found)
+        endif
         select KART
-        goto (tmp4->kod_k)
-        if kart->kod == 0 // запись удалена (скорее всего, было удаление дубликатов)
-          tmp4->kod_k := 0 // значит считаем, что была диспансеризация
-        else
-          select HUMAN
-          find (str(kart->kod,7))
-          if found() 
-            tmp4->kod_k := 0 // в этом году была диспансеризация
-          endif
-        endif
-        if tmp4->kod_k > 0
-          skol[tmp4->tip] ++  // подсчёт кол-ва, которое нужно разбить по месяцам
-        endif
+        skip
+      enddo
+      CloseGauge(hGauge)
+      if tmp->(lastrec()) == 0
+        fl := func_error(4,"При поиске пациентов для диспансеризации не обнаружено сведений!")
+      elseif fl_exit
+        fl := func_error(4,"Прервано пользователем!")
       endif
-      select TMP4
-      skip
-    enddo
-    my_debug(,"skol"+print_array(skol))
-    my_debug(,"mkol"+print_array(mkol))
-    for j := 1 to 3
-      f0_create_R01(j,bm+1)
-    next
-    select TMP4
-    delete for empty(kod_k)
-    pack
-    if tmp4->(lastrec()) == 0
-      fl := func_error(4,"В первых трёх кварталах "+lstr(sgod)+" года все запланированные пациенты прошли диспансеризацию")
     endif
   endif
   if fl
     mywait()
-    my_debug(,"skol"+print_array(skol))
-    my_debug(,"mkol"+print_array(mkol))
-    my_debug(,"ames"+print_array(ames))
+    my_debug(,print_array(skol))
+    my_debug(,print_array(mkol))
+    my_debug(,print_array(ames))
     for j := 1 to 3
       if empty(skol[j])
         loop
       endif
       pj := j
-      d := koef := 2 // через сколько записей прыгаем
-      my_debug(,print_array({j,koef}))      
-      i := bm
+      d := koef := int(mkol[j] / skol[j]) + 1 // через сколько записей прыгаем
+      i := 0
       do while skol[j] > 0
-        select TMP4
-        index on recno() to (cur_dir+"tmp_4") for tmp4->tip == j .and. tmp4->n_q == 0
+        select TMP
+        index on kod to (cur_dir+"tmp_dr00") for tmp->tip == pj .and. tmp->n_q == 0 DESCENDING
         go top
         do while !eof()
           if d == koef
             if i >= 12
-              i := bm
+              i := 0
             endif
             do while i < 12
               ++i
               if ames[i,j,1] > ames[i,j,2] // если ещё не набрали месяц
-                tmp4->n_m := i
+                tmp->n_m := i
                 ames[i,j,2] ++
                 skol[j] --
                 exit
@@ -1627,21 +1505,21 @@ if (fl := verify_packet_R05(1,arr))
           endif
           skip
         enddo
-        select TMP4
-        index on recno() to (cur_dir+"tmp_4") for tmp4->tip == j .and. tmp4->n_m > bm
+        select TMP
+        index on kod to (cur_dir+"tmp_dr00") for tmp->tip == pj .and. tmp->n_m > 0
         go top
         do while !eof()
-          if tmp4->n_q == 0
-            tmp4->n_q := int((tmp4->n_m+2)/3) // определяем номер квартала по месяцу
-            akv[tmp4->n_q,j] ++
+          if tmp->n_q == 0
+            tmp->n_q := int((tmp->n_m+2)/3) // определяем номер квартала по месяцу
+            akv[tmp->n_q,j] ++
           endif
           skip
         enddo
       enddo
     next j
-    my_debug(,"skol"+print_array(skol))
-    my_debug(,"ames"+print_array(ames))
-    my_debug(,"akv"+print_array(akv))
+    my_debug(,print_array(skol))
+    my_debug(,print_array(mkol))
+    my_debug(,print_array(ames))
   endif
 else
   func_error(4,arr[1])  
@@ -1649,13 +1527,21 @@ endif
 close databases
 rest_box(buf)
 if fl
-  f1_create_R01()
+  if fl1
+    if emptyall(akv[1,1],akv[1,2],akv[2,1],akv[2,2],akv[3,1],akv[3,2],akv[4,1],akv[4,2])
+      func_error(4,"Больше нет необходимости создавать файлы R01 за "+lstr(sgod)+" год")
+    else
+      f1_create_R01()
+    endif
+  else
+    f1_create_R01()
+  endif
 endif  
 close databases
 rest_box(buf)
 return NIL
 
-***** 30.09.18
+/***** 30.09.18
 Function f0_create_R01(j,bm)
 Local i, d, k := 0, v := 0, fl
 for i := bm to 12
@@ -1687,56 +1573,70 @@ do while d > 0
     exit
   endif
 enddo 
-return NIL
+return NIL*/
 
-/***** 09.07.18
+***** 14.12.18
 Static Function f0_create_R01(sgod,cv,cf)
-Static d1, d2
-Local fl, v, ltip := 0, lm := 0, ag, lgod_r, s
-DEFAULT d1 TO stod(lstr(sgod)+"0101"), d2 TO stod(lstr(sgod)+"0630")
+Local fl, v, ltip, ag, lgod_r, s
 ++cv
 if (fl := (kart2->MO_PR == CODE_LPU)) // прикреплён к нашей МО
   lgod_r := year(kart->date_r)
   v := sgod - lgod_r
-  if ascan(arr_vozrast_DVN,v) > 0
-    fl := .f. // диспансеризация 1 раз в 3 года
+  if (fl := (ascan(arr_vozrast_DVN,v) > 0))
+    ltip := 1 // диспансеризация
+    select HUMAN
+    find (str(kart->kod,7))
+    do while human->kod_k == kart->kod .and. !eof()
+      if year(human->k_data) == sgod .and. between(human->ishod,201,203)
+        fl := .f. ; exit // в этом году была диспансеризация
+      endif
+      skip
+    enddo
   elseif v > 18
+    ltip := 2 // поищем профосмотры
     if ascan(arr2m_vozrast_DVN,v) > 0
       ltip := 3
     elseif kart->pol == "Ж" .and. ascan(arr2g_vozrast_DVN,v) > 0
       ltip := 3
-    else
-      fl := .f.
     endif
-    if fl // За исключением умерших (по сведению ТФОМС) и моложе 100 лет
-      fl := !(left(kart2->PC2,1) == "1") .or. v < 100
-    endif
-    if fl
-      s := upper(kart->fio)+" "
-      if " УМЕР " $ s .or. " УМЕРЛА " $ s
-        fl := .f.
-      endif 
-    endif
-    if fl
+    if ltip == 3
+      fl := .t.
       select HUMAN
       find (str(kart->kod,7))
       do while human->kod_k == kart->kod .and. !eof()
-        if between(human->k_data,d1,d2) .and. human->ishod == 204
-          lm := 6 ; exit // в этом году была диспансеризация 1 раз в 2 года
+        if year(human->k_data) == sgod .and. human->ishod == 204
+          fl := .f. ; exit // в этом году была диспансеризация 1 раз в 2 года
+        endif
+        skip
+      enddo
+    else
+      fl := .t.
+      ag := {sgod,sgod-1}
+      select HUMAN
+      find (str(kart->kod,7))
+      do while human->kod_k == kart->kod .and. !eof()
+        if ascan(ag,year(human->k_data)) > 0 .and. between(human->ishod,201,203)
+          fl := .f. ; exit // в этом (или прошлом) году была диспансеризация или профилактика
         endif
         skip
       enddo
     endif
   endif
 endif
-if fl .and. ltip > 0
+if fl // За исключением умерших (по сведению ТФОМС) и моложе 100 лет
+  fl := !(left(kart2->PC2,1) == "1") .or. v < 100
+endif
+if fl
+  s := upper(kart->fio)+" "
+  if " УМЕР " $ s .or. " УМЕРЛА " $ s
+    fl := .f.
+  endif 
+endif
+if fl
   select TMP
   append blank
   tmp->kod := kart->kod
   tmp->tip := ltip
-  tmp->n_m := lm
-  tmp->n_q := 0
-  tmp->enp := kart2->kod_mis
   ++mkol[ltip]
   if ++cf % 500 == 0
     tmp->(dbCommit())
@@ -1745,9 +1645,9 @@ endif
 @ maxrow(),1 say lstr(cv) color cColorSt2Msg
 @ row(),col() say "/" color "W/R"
 @ row(),col() say lstr(cf) color cColorStMsg
-return NIL*/
+return NIL
 
-***** 30.09.18
+***** 14.12.18
 Function f1_create_R01()
 Local SQUARTER, nsh := 3, smsg, arr_nn[4]
 if !f_Esc_Enter("создания файлов R01",.t.)
@@ -1775,10 +1675,14 @@ for SQUARTER := 1 to 4
 next
 set index to
 G_Use(dir_server+"mo_xml",,"MO_XML")
-G_Use(dir_server+"kartotek",,"KART")
-use (cur_dir+"tmp_4") new alias TMP
-set relation to kod_k into KART
-for SQUARTER := 4 to 4 // !!!!!!
+R_Use(dir_server+"kartote2",,"KART2")
+R_Use(dir_server+"kartote_",,"KART_")
+R_Use(dir_server+"kartotek",,"KART")
+set relation to recno() into KART_, recno() into KART2
+G_Use(dir_server+"mo_dr00",,"TMP")
+set relation to kod into KART
+index on str(n_q,1)+upper(kart->fio)+dtos(kart->date_r) to (cur_dir+"tmp_dr00")
+for SQUARTER := 1 to 4
   if emptyall(akv[SQUARTER,1],akv[SQUARTER,2])
     loop
   endif
@@ -1814,28 +1718,26 @@ for SQUARTER := 4 to 4 // !!!!!!
   Commit
   pkol := 0 
   select TMP
-  index on upper(kart->fio)+dtos(kart->date_r) to (cur_dir+"tmp_4") for n_q == SQUARTER
-  go top
-  do while !eof()
-    if .t. //tmp->reestr == 0
+  find (str(SQUARTER,1))
+  do while tmp->n_q == SQUARTER .and. !eof()
+    if tmp->reestr == 0
       ++pkol
       @ maxrow(),1 say lstr(pkol) color cColorSt2Msg
-      //select TMP
-      //G_RLock(forever)
-      //tmp->reestr := mkod_reestr
+      select TMP
+      G_RLock(forever)
+      tmp->reestr := mkod_reestr
       //
       select RHUM
       AddRec(6)
       rhum->REESTR := mkod_reestr
-      rhum->KOD_K := tmp->kod_k
+      rhum->KOD_K := tmp->kod
       rhum->n_q := SQUARTER
       rhum->n_m := tmp->n_m
       rhum->tip := tmp->tip
       rhum->R01_ZAP := pkol
-      rhum->ID_PAC := tmp->IDPAC
-      rhum->TYPEOFREC := 1 // 0-первично представленная запись, 1-актуализированная запись
+      rhum->ID_PAC := mo_guid(1,tmp->kod)
+      rhum->TYPEOFREC := 0 // 0-первично представленная запись, 1-актуализированная запись
       rhum->OPLATA := 0
-      tmp->kod_k := rhum->R01_ZAP
     endif
     if pkol % 2000 == 0
       dbUnlockAll()
@@ -1844,8 +1746,6 @@ for SQUARTER := 4 to 4 // !!!!!!
     select TMP
     skip
   enddo
-  select TMP
-  index on str(kod_k,7) to (cur_dir+"tmp_4") for n_q == SQUARTER
   select REES
   G_RLock(forever)
   rees->KOL := pkol
@@ -1868,56 +1768,68 @@ for SQUARTER := 4 to 4 // !!!!!!
     mo_add_xml_stroke(oXmlNode,"N_PACK",lstr(rees->NN))
   //
   select RHUM
+  set relation to kod_k into KART
   index on str(R01_ZAP,6) to (cur_dir+"tmp_rhum") for REESTR == mkod_reestr
   go top
   do while !eof()
     @ maxrow(),0 say str(rhum->R01_ZAP/pkol*100,6,2)+"%" color cColorSt2Msg
-    select TMP
-    find (str(rhum->R01_ZAP,7))
+    arr_fio := retFamImOt(1,.f.)
    oXmlNode := oXmlDoc:aItems[1]:Add( HXMLNode():New( "PERSONS" ) )
     mo_add_xml_stroke(oXmlNode,"ZAP",lstr(rhum->R01_ZAP))
-    mo_add_xml_stroke(oXmlNode,"IDPAC",tmp->IDPAC)
-    mo_add_xml_stroke(oXmlNode,"SURNAME",tmp->SURNAME)
-    mo_add_xml_stroke(oXmlNode,"NAME",tmp->name)
-    if !empty(tmp->PATRONYMIC)
-      mo_add_xml_stroke(oXmlNode,"PATRONYMIC",tmp->PATRONYMIC)
+    mo_add_xml_stroke(oXmlNode,"IDPAC",rhum->ID_PAC)
+    mo_add_xml_stroke(oXmlNode,"SURNAME",arr_fio[1])
+    mo_add_xml_stroke(oXmlNode,"NAME",arr_fio[2])
+    if !empty(arr_fio[3])
+      mo_add_xml_stroke(oXmlNode,"PATRONYMIC",arr_fio[3])
     endif
-    mo_add_xml_stroke(oXmlNode,"BIRTHDAY",tmp->BIRTHDAY)
-    mo_add_xml_stroke(oXmlNode,"SEX",tmp->sex)
-    if !empty(tmp->ss)
-      mo_add_xml_stroke(oXmlNode,"SS",tmp->ss)
+    mo_add_xml_stroke(oXmlNode,"BIRTHDAY",date2xml(kart->date_r))
+    mo_add_xml_stroke(oXmlNode,"SEX",iif(kart->pol=="М",'1','2'))
+    if !empty(kart->snils)
+      mo_add_xml_stroke(oXmlNode,"SS",transform(kart->SNILS,picture_pf))
     endif
-    mo_add_xml_stroke(oXmlNode,"TYPE_P",tmp->TYPE_P)
-    if !empty(tmp->SER_P)
-      mo_add_xml_stroke(oXmlNode,"SER_P",tmp->SER_P)
+    mo_add_xml_stroke(oXmlNode,"TYPE_P",lstr(iif(between(kart_->VPOLIS,1,3),kart_->VPOLIS,1)))
+    if !empty(kart_->SPOLIS)
+      mo_add_xml_stroke(oXmlNode,"SER_P",kart_->SPOLIS)
     endif
-    mo_add_xml_stroke(oXmlNode,"NUM_P",tmp->NUM_P)
-    mo_add_xml_stroke(oXmlNode,"ENP",tmp->ENP)
-    mo_add_xml_stroke(oXmlNode,"DOCTYPE",tmp->DOCTYPE)
-    if !empty(tmp->DOCSER)
-      mo_add_xml_stroke(oXmlNode,"DOCSER",tmp->DOCSER)
+    s := alltrim(kart_->NPOLIS)
+    if kart_->VPOLIS == 3 .and. len(s) != 16
+      s := padr(s,16,"0")
     endif
-    mo_add_xml_stroke(oXmlNode,"DOCNUM",tmp->DOCNUM)
-    if !empty(tmp->mr)
-      mo_add_xml_stroke(oXmlNode,"MR",tmp->mr)
+    mo_add_xml_stroke(oXmlNode,"NUM_P",s)
+    if kart_->VPOLIS == 3
+      mo_add_xml_stroke(oXmlNode,"ENP",s)
+    endif 
+    mo_add_xml_stroke(oXmlNode,"DOCTYPE",lstr(kart_->vid_ud))
+    if !empty(kart_->ser_ud)
+      mo_add_xml_stroke(oXmlNode,"DOCSER",kart_->ser_ud)
     endif
-    mo_add_xml_stroke(oXmlNode,"CATEGORY",tmp->CATEGORY)
-    mo_add_xml_stroke(oXmlNode,"T_PR",tmp->T_PR)
-    mo_add_xml_stroke(oXmlNode,"TYPEOFRECORD","U")
+    mo_add_xml_stroke(oXmlNode,"DOCNUM",kart_->nom_ud)
+    if !empty(smr := del_spec_symbol(kart_->mesto_r))
+      mo_add_xml_stroke(oXmlNode,"MR",smr)
+    endif
+    mo_add_xml_stroke(oXmlNode,"CATEGORY",'0')
+    mo_add_xml_stroke(oXmlNode,"T_PR",{"O","R","D"}[rhum->tip])
+    mo_add_xml_stroke(oXmlNode,"TYPEOFRECORD",iif(.t.,"I","U"))
     oPERIOD := oXmlNode:Add( HXMLNode():New( "PERIOD" ) )
      mo_add_xml_stroke(oPERIOD,"DATE_B",date2xml(f_date_period(rhum->n_m,1)))
      mo_add_xml_stroke(oPERIOD,"DATE_E",date2xml(f_date_period(rhum->n_m,2)))
     oCONTACTS := oXmlNode:Add( HXMLNode():New( "CONTACTS" ) )
-     if !empty(tmp->TEL_F)
-       mo_add_xml_stroke(oCONTACTS,"TEL_F",tmp->TEL_F)
+     if !empty(kart_->PHONE_H)
+       mo_add_xml_stroke(oCONTACTS,"TEL_F",left(kart_->PHONE_H,1)+"-"+substr(kart_->PHONE_H,2,4)+"-"+substr(kart_->PHONE_H,6))
      endif
-     if !empty(tmp->TEL_M)
-       mo_add_xml_stroke(oCONTACTS,"TEL_M",tmp->TEL_M)
+     if !empty(kart_->PHONE_M)
+       mo_add_xml_stroke(oCONTACTS,"TEL_M",left(kart_->PHONE_M,1)+"-"+substr(kart_->PHONE_M,2,3)+"-"+substr(kart_->PHONE_M,5))
      endif
      oADDRESS := oCONTACTS:Add( HXMLNode():New( "ADDRESS" ) )
-      mo_add_xml_stroke(oADDRESS,"SUBJ",tmp->SUBJ)
-      if !empty(tmp->ul)
-        mo_add_xml_stroke(oADDRESS,"UL",tmp->ul)
+      s := "18000"
+      if len(alltrim(kart_->okatop)) == 11
+        s := left(kart_->okatop,5)
+      elseif len(alltrim(kart_->okatog)) == 11
+        s := left(kart_->okatog,5)
+      endif
+      mo_add_xml_stroke(oADDRESS,"SUBJ",s)
+      if !empty(kart->adres)
+        mo_add_xml_stroke(oADDRESS,"UL",kart->adres)
       endif
     select RHUM
     skip
@@ -2211,7 +2123,7 @@ do while !eof()
     else
       s += padr(upper(kart->fio),43)+" "+full_date(kart->date_r)
     endif
-    s += " ("+iif(rhum->tip==1,"ДИСП.",iif(rhum->tip==2,"проф.","раз/2г."))+") "+lstr(rhum->n_q)+"кв."
+    s += " ("+iif(rhum->tip==1,"ДИСП/3г.",iif(rhum->tip==2,"проф.","Дисп/2г."))+") "+lstr(rhum->n_q)+"кв."
     verify_FF(60,.t.,80)
     add_string(s)
   endif

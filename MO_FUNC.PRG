@@ -94,6 +94,8 @@ do case
     index on str(kod,7)+str(stroke,1) to (dir_server+sBase) progress
   case sBase == "mo_kartp"
     index on str(kod_k,7)+dtos(d_prik) to (dir_server+sBase) progress
+  case sBase == "kartdelz"
+    index on str(kod,7)+str(zf,2) to (dir_server+"kartdelz") progress
   case sBase == "kart_st"
     index on str(kod,7)+str(zf,2)+date_u to (dir_server+"kart_st") progress
     index on str(tip_bd,1)+str(rec_bd,8) to (dir_server+"kart_st1") progress
@@ -335,6 +337,8 @@ do case
     if fl
       set relation to recno() into SCHET_
     endif
+  case sBase == "kartdelz"
+    fl := G_Use(dir_server+"kartdelz",dir_server+"kartdelz",,,lExcluUse,lREADONLY)
   case sBase == "kart_st"
     fl := G_Use(dir_server+"kart_st",{dir_server+"kart_st",;
                                       dir_server+"kart_st1"},,,lExcluUse,lREADONLY)
@@ -1925,17 +1929,109 @@ if len(arr_zf) > 0
 endif
 return NIL
 
-***** проверка, не удалён ли зуб
-Function STverDelZub(lkod_k,arr_zf,ldate_u,ltip,lrec,/*@*/amsg)
-Static arr_STdelzub
-Local i, n_file := dir_server+"STdelzub"+smem
-if arr_STdelzub == NIL
-  if hb_FileExists(n_file)
-    arr_STdelzub := rest_arr(n_file)
-  endif
-  DEFAULT arr_STdelzub TO {} // если ещё не настраивали услуги по удалению зуба
+***** 17.12.18 добавление удалённого зуба
+Function STappendDelZ(lkod_k,_zf,ldate_u,lu_kod)
+Static arr_STdelzub 
+Local i, arr_zf := STretArrZF(_zf)
+DEFAULT arr_STdelzub TO ret_arr_STdelzub()
+my_debug(,print_array(arr_zf))
+my_debug(,print_array(arr_STdelzub))
+my_debug(,print_array({lu_kod}))
+if len(arr_zf) > 0 .and. ascan(arr_STdelzub,lu_kod) > 0 .and. select("KARTDELZ") > 0
+  my_debug(,'t')
+  select KARTDELZ
+  for i := 1 to len(arr_zf)
+    find (str(lkod_k,7)+str(arr_zf[i],2))
+    if found()
+      if !(kartdelz->DATE_U == ldate_u)  
+        G_RLock(forever)
+        kartdelz->DATE_U := ldate_u
+        kartdelz->(dbUnLock())
+      endif
+    else
+      AddRec(7)
+      kartdelz->KOD    := lkod_k
+      kartdelz->ZF     := arr_zf[i]
+      kartdelz->DATE_U := ldate_u
+      kartdelz->(dbUnLock())
+    endif
+  next
 endif
-if len(arr_STdelzub) > 0
+return NIL
+
+***** 17.12.18 удаление удалённого зуба
+Function STDelDelZ(lkod_k,_zf,lu_kod)
+Static arr_STdelzub 
+Local i, arr_zf := STretArrZF(_zf)
+DEFAULT arr_STdelzub TO ret_arr_STdelzub()
+if len(arr_zf) > 0 .and. ascan(arr_STdelzub,lu_kod) > 0 .and. select("KARTDELZ") > 0
+  select KARTDELZ
+  for i := 1 to len(arr_zf)
+    find (str(lkod_k,7)+str(arr_zf[i],2))
+    if found()
+      DeleteRec(.t.)
+    endif
+  next
+endif  
+return NIL
+
+***** 11.12.2018 вернуть массив с кодами услуг удаления зуба
+Function ret_arr_STdelzub()
+Static arr := {;
+  {"A16.07.030.001", "Удаление временного зуба"},;
+  {"A16.07.030.002", "Удаление постоянного зуба"},;
+  {"A16.07.030.003", "Удаление зуба сложное с разъединением корней"},;
+  {"A16.07.039"    , "Операция удаления ретинированного, дистопированного или сверхкомплектного зуба"};
+}
+Static akod
+Local i, s, lkod := 0
+if akod == NIL
+  use_base("mo_su","MOSU1")
+  akod := {}
+  for i := 1 to len(arr)
+    s := arr[i,1]
+    select MOSU1
+    set order to 3
+    find (padr(s,20))
+    do while mosu1->shifr1 == padr(s,20) .and. !eof()
+      if !("*" $ mosu1->shifr)
+        lkod := mosu1->kod ; exit
+      endif
+      skip
+    enddo
+    if lkod == 0 
+      set order to 1
+      FIND (STR(-1,6))
+      if found()
+        G_RLock(forever)
+      else
+        AddRec(6)
+      endif
+      lkod := mosu1->kod := recno()
+      mosu1->name := arr[i,2]
+      mosu1->shifr1 := s
+    endif
+    aadd(akod,lkod)
+  next
+  mosu1->(dbCloseArea())
+endif
+return akod
+
+***** 17.12.18 проверка, не удалён ли зуб
+Function STverDelZub(lkod_k,arr_zf,ldate_u,ltip,lrec,/*@*/amsg)
+Static arr_STdelzub 
+Local i
+DEFAULT arr_STdelzub TO ret_arr_STdelzub()
+if len(arr_STdelzub) > 0 .and. select("KARTDELZ") > 0
+  select KARTDELZ
+  for i := 1 to len(arr_zf)
+    find (str(lkod_k,7)+str(arr_zf[i],2))
+    if found() .and. kartdelz->DATE_U < ldate_u
+      aadd(amsg, lstr(arr_zf[i])+': данный зуб удален '+full_date(c4tod(kartdelz->DATE_U)))
+    endif
+  next
+endif
+/*if len(arr_STdelzub) > 0
   select KART_ST
   set order to 1
   for i := 1 to len(arr_zf)
@@ -1949,8 +2045,19 @@ if len(arr_STdelzub) > 0
       skip
     enddo
   next
-endif
+endif*/
 return NIL
+
+***** 17.12.18 проверка правильности ввода зубной формулы
+Function STVerifyKolZf(arr_zf,mkol,/*@*/amsg)
+if valtype(arr_zf) == "A" .and. valtype(mkol) == "N"
+  if len(arr_zf) == 0 //
+    aadd(amsg, 'не введена зубная формула')
+  elseif len(arr_zf) != mkol
+    aadd(amsg, 'количество зубов не соответствует количеству введённых зубных формул')
+  endif
+endif
+return !empty(amsg)
 
 ***** проверка правильности ввода зубной формулы
 Function STverifyZF(_zf,_date_r,_sys_date,/*@*/amsg)
@@ -1977,9 +2084,22 @@ if len(arr_zf) > 0
 endif
 return arr_zf
 
-***** 03.10.17 синтаксический анализ зубной формулы, возврат массива зубов
+***** 17.10.17 синтаксический анализ зубной формулы, возврат массива зубов
 Function STretArrZF(_zf,/*@*/amsg)
-Static ssymb := "12345678,-МДВЖН", nsymb := 15
+Static ssymb := "12345678,", nsymb := 9
+Local i, j, s, tmps, v1, v2, arr_zf := {}
+DEFAULT amsg TO {}
+s := charrem(" ",_zf) // удалить все пробелы
+// проверяем на допустимые символы
+tmps := charrem(" ",CHARREPL(ssymb, s, SPACE(nsymb)))
+if !empty(tmps)
+  aadd(amsg, '"'+tmps+'" - зубная формула: некорректные символы')
+endif
+for i := 1 to numtoken(s,",")
+  v1 := int(val(token(s,",",i)))
+  aadd(arr_zf,v1) // массив зубов
+next
+/*Static ssymb := "12345678,-МДВЖН", nsymb := 15
 Local i, j, s, tmps, v1, v2, arr_zf := {}
 DEFAULT amsg TO {}
 s := charrem(" ",_zf) // удалить все пробелы
@@ -2005,7 +2125,7 @@ for i := 1 to numtoken(s,",")
   for j := v1 to v2
     aadd(arr_zf,j) // массив зубов
   next
-next
+next*/
 return arr_zf
 
 ***** проверка на правильность серии удостоверения личности

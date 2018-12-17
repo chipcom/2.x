@@ -59,11 +59,6 @@ do case
                 "edit_spr_uslugi(7)",;
                 "edit_spr_uslugi(8)",;
                 "edit_spr_uslugi(9)"}
-    if is_zf_stomat == 1
-      aadd(mas_pmt, 'Услуги - "удаление ~зуба"')
-      aadd(mas_msg, "Ввод/редактирование услуг, которые означают удаление зуба")
-      aadd(mas_fun, "edit_spr_uslugi(10)")
-    endif
     popup_prompt(T_ROW, T_COL+5, sk, mas_pmt, mas_msg, mas_fun)
   case k == 1
     f1_uslugi()
@@ -83,8 +78,6 @@ do case
     f_usl_raz()
   case k == 9
     f5_uslugi(2,T_COL+10)
-  case k == 10
-    f_STdelzub()
 endcase
 if k > 0
   sk := k
@@ -2502,123 +2495,6 @@ do case
     endif
 endcase
 return -1
-
-*
-
-***** редактирование списка услуг, которые означают удаление зуба
-Function f_STdelzub()
-Local buf := savescreen(), adbf, i, n_file := dir_server+"STdelzub"+smem
-Private fl_found := .f., arr_STdelzub := {}
-if hb_fileExists(n_file)
-  arr_STdelzub := rest_arr(n_file)
-endif
-mywait()
-R_Use(dir_server+"uslugi",dir_server+"uslugish","USL")
-adbf := {{"kod","N",4,0},;
-         {"shifr","C",10,0},;
-         {"name","C",64,0}}
-dbcreate(cur_dir+"tmp",adbf)
-use (cur_dir+"tmp") new alias TMP
-index on fsort_usl(shifr) to (cur_dir+"tmp")
-for i := 1 to len(arr_STdelzub)
-  fl_found := .t.
-  select USL
-  goto (arr_STdelzub[i])
-  select TMP
-  append blank
-  tmp->kod := arr_STdelzub[i]
-  tmp->shifr := usl->shifr
-  tmp->name := usl->name
-next
-select TMP
-go top
-if !fl_found ; keyboard chr(K_INS) ; endif
-box_shadow(0,2,0,77,"GR+/RB","Список услуг, которые означают удаление зуба",,0)
-Alpha_Browse(2,1,maxrow()-1,77,"f4_ns_uslugi",color0,,,.t.,.t.,,,"f1_STdelzub",,;
-             {"═","░","═","N/BG,W+/N,B/BG",.t.,58} )
-close databases
-restscreen(buf)
-if f_Esc_Enter(1)
-  arr_STdelzub := {}
-  use (cur_dir+"tmp")
-  go top
-  do while !eof()
-    if !empty(tmp->kod)
-      aadd(arr_STdelzub, tmp->kod )
-    endif
-    skip
-  enddo
-  save_arr(arr_STdelzub,n_file)
-endif
-close databases
-return NIL
-
-*****
-Function f1_STdelzub(nKey,oBrow)
-LOCAL j := 0, k := -1, buf := save_maxrow(), buf1, fl := .f., rec,;
-      tmp_color := setcolor(), r1 := maxrow()-10, c1 := 2, ;
-      rec_tmp := tmp->(recno())
-do case
-  case nKey == K_INS
-    if !fl_found
-      colorwin(5,0,5,79,"N/N","W+/N")
-    endif
-    Private mkod := 0,;
-            mname := space(60),;
-            mshifr := space(10),;
-            gl_area := {1,0,maxrow()-1,79,0}
-    buf1 := box_shadow(r1,c1,maxrow()-3,77,color8,;
-             "Добавление новой услуги в список",cDataPgDn)
-    setcolor(cDataCGet)
-    @ r1+2,pc1+3 say "Шифр услуги" get mshifr picture "@!" ;
-                valid f6_ns_uslugi()
-    @ r1+3,pc1+3 say "Наименование услуги"
-    @ r1+4,pc1+5 get mname when .f.
-    status_key("^<Esc>^ - выход без записи;  ^<Enter>^ - подтверждение ввода")
-    myread()
-    if lastkey() != K_ESC .and. !empty(mshifr) .and. f_Esc_Enter(1)
-      mywait()
-      select TMP
-      append blank
-      tmp->kod := mkod
-      tmp->shifr := mshifr
-      tmp->name := mname
-      rec_tmp := tmp->(recno())
-      COMMIT
-      k := 0
-    elseif !fl_found
-      k := 1
-    endif
-    select TMP
-    oBrow:goTop()
-    goto (rec_tmp)
-    setcolor(tmp_color)
-    rest_box(buf) ; rest_box(buf1)
-  case nKey == K_DEL .and. !empty(tmp->shifr) .and. f_Esc_Enter(2)
-    mywait()
-    select TMP
-    DeleteRec(.t.)
-    COMMIT
-    k := 0
-    select TMP
-    oBrow:goTop()
-    go top
-    if eof()
-      fl_found := .f. ; k := 1
-    endif
-    rest_box(buf)
-  otherwise
-    keyboard ""
-endcase
-return k
-
-*****
-Function arr_STdelzub()
-Local arr := {}
-if hb_fileExists(dir_server+"STdelzub"+smem)
-  arr := rest_arr(dir_server+"STdelzub"+smem)
-endif
-return arr
 
 *
 

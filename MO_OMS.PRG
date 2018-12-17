@@ -3972,11 +3972,11 @@ do while .t.
     //
     ++j; @ j,1 say "Первичный диагноз" get mkod_diag0 picture pic_diag reader {|o| MyGetReader(o,bg)} valid val1_10diag(.t.,.f.,.t.,mk_data,iif(m1novor==0,mpol,mpol2)) ;
                when diag_screen(2) .and. when_diag()
-    if yes_bukva // если в настройке для отделения - работа со статусом стом.больного
-         @ j,34 say "Статус стоматологического больного" get mstatus_st picture "@!" ;
-               when diag_screen(2) ;
-               valid {|g| f_valid_status_st(g) }
-    endif
+    //if yes_bukva // если в настройке для отделения - работа со статусом стом.больного
+    //     @ j,34 say "Статус стоматологического больного" get mstatus_st picture "@!" ;
+    //           when diag_screen(2) ;
+    //           valid {|g| f_valid_status_st(g) }
+    //endif
     ++j; rdiag := j
           @ j,1 say "Основной диагноз" get mkod_diag picture pic_diag ;
                reader {|o| MyGetReader(o,bg)} ;
@@ -5851,12 +5851,12 @@ if !empty(m1okato)
 endif
 return len(mm_ismo) > 0
 
-***** 01.11.18 ввод услуг в случай (лист учёта)
+***** 17.12.18 ввод услуг в случай (лист учёта)
 Function oms_usl_sluch(mkod_human,mkod_kartotek,fl_edit)
 // mkod_human - код по БД human
 // mkod_kartotek - код по БД kartotek
 Local adbf, buf := savescreen(), i, j := 0, tmp_color := setcolor(color1), rec_ksg := 0,;
-      lshifr := "", l_color, tmp_help, mtitle, d1, d2, cd1, cd2, fl_oms, fl, kol_rec
+      lshifr := "", l_color, tmp_help, mtitle, d1, d2, cd1, cd2, fl_oms, fl, kol_rec, old_is_zf_stomat
 DEFAULT fl_edit TO .t.
 //
 Private fl_edit_usl := fl_edit
@@ -6087,15 +6087,17 @@ if !is_1_vvod
 endif
 summa_usl(.f.)
 //
+old_is_zf_stomat := is_zf_stomat
 select HU
 set relation to  // "отвязываем" human_u_
 select USL
 set order to 1
-if glob_mo[_MO_KOD_TFOMS] == kod_LIS
-  is_zf_stomat := 0
+is_zf_stomat := 0
+if eq_any(human_->profil,85,86,87,88,89,90,171)
+  is_zf_stomat := 1
 endif  
 if is_zf_stomat == 1
-  Use_base("kart_st")
+  Use_base("kartdelz")
 endif
 R_Use(dir_server+"usl_otd",dir_server+"usl_otd","UO")
 R_Use(dir_server+"mo_pers",dir_server+"mo_pers","PERSO")
@@ -6160,6 +6162,7 @@ chm_help_code := tmp_help
 if (mcena_1 > 0 .or. is_smp(m1USL_OK,m1PROFIL)) .and. !empty(val(msmo))
   verify_OMS_sluch(mkod_human)
 endif
+is_zf_stomat := old_is_zf_stomat
 return NIL
 
 *****
@@ -6624,7 +6627,7 @@ do case
             mdom, m1dom := if(nKey == K_INS, 0, tmp->dom),;
             mdate_next := if(nKey == K_INS, ctod(""), tmp->DATE_NEXT), fl_date_next := .f.,;  
             mvrach := massist := space(35), vr_uva := as_uva := .t., ;
-            pr_k_usl := {},;  // массив комплексных услуг
+            arr_zf, is_usluga_zf, pr_k_usl := {},;  // массив комплексных услуг
             row_dom, gl_area := {1,0,maxrow()-1,79,0}
     if nKey == K_ENTER
       fl_date_next := is_usluga_disp_nabl(mshifr,mshifr1)
@@ -6751,7 +6754,8 @@ do case
       if eq_any(lastkey(),K_CTRL_F10,K_F11)
         hb_KeyPut(K_CTRL_F10) //keysend(KS_CTRL_F10)
       elseif lastkey() != K_ESC
-        mkol := mkol_1 ; mstoim := mstoim_1
+        mkol := mkol_1 ; mstoim := mstoim_1 
+        Private amsg := {}
         if empty(mdate_u1)
           func_error(4,"Не введена дата оказания услуги!")
           loop
@@ -6825,7 +6829,6 @@ do case
               hu_->PROFIL := m1PROFIL
               hu_->PRVS   := m1PRVS
               hu_->kod_diag := mkod_diag
-              //hu_->zf := mzf // зубную формулу не записываем
               UNLOCK
               //
               pr1otd := m1otd
@@ -6856,7 +6859,7 @@ do case
             next
           else// запись одной введённой услуги
             SKOD_DIAG := mkod_diag
-            if is_zf_stomat == 1 .and. !empty(mzf)
+            /*if is_zf_stomat == 1 .and. !empty(mzf)
               SZF := mzf
               if mn_base == 0
                 usl->(dbGoto(mu_kod))
@@ -6869,7 +6872,7 @@ do case
                   mzf := ""  // обнуляем
                 endif
               endif
-            endif
+            endif*/
             if mn_base == 1 .and. mu_kod == 0
               // добавляем в свой справочник федеральную услугу
               select MOSU
@@ -6932,9 +6935,6 @@ do case
               hu_->PROFIL   := m1PROFIL
               hu_->PRVS     := m1PRVS
               hu_->kod_diag := mkod_diag
-              if !(glob_mo[_MO_KOD_TFOMS] == kod_LIS)
-                hu_->zf     := mzf
-              endif
             else
               select MOHU
               if nKey == K_INS
@@ -6971,13 +6971,21 @@ do case
               mohu->zf      := mzf
               //
               mrec_hu := mohu->(recno())
+              if is_zf_stomat == 1
+                if valtype(is_usluga_zf) == "N" .and. is_usluga_zf == 1 ; // должна быть формула зуба
+                                 .and. STVerifyKolZf(arr_zf,mkol_1,@amsg) // проверка по количеству зубов
+                  func_error(4,amsg[1])
+                endif
+                //STappendDelZ(human->kod_k,mzf,mohu->date_u,mohu->u_kod)
+                select MOHU
+              endif
             endif
             UNLOCK
             //
             pr1otd := m1otd
-            if is_zf_stomat == 1
+            /*if is_zf_stomat == 1
               STappend(iif(mn_base==0,1,7),mrec_hu,human->kod_k,hu->date_u,mu_kod,mkod_vr,mzf,mkod_diag)
-            endif
+            endif*/
             select TMP
             tmp->KOD     := human->kod
             tmp->DATE_U  := dtoc4(mdate_u1)
@@ -7029,8 +7037,8 @@ do case
   case nKey == K_DEL .and. tmp->kod > 0 .and. f_Esc_Enter(2)
     mywait()
     ++mvu[3,1]  // услуга удалена оператором
-    if is_zf_stomat == 1
-      STdelKart(iif(tmp->n_base==0,1,7),tmp->rec_hu)
+    if is_zf_stomat == 1  .and. tmp->n_base == 1 .and. !empty(mohu->zf)
+      //STDelDelZ(human->kod_k,mohu->zf,mohu->u_kod)
     endif
     if tmp->n_base == 0
       select HU

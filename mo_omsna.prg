@@ -343,7 +343,6 @@ Local fl := .f., lfp, i, s, d1, d2
 if len_diag == 0
   lfp := fopen(file_form)
   do while !feof(lfp)
-    UpdateStatus()
     s := fReadLn(lfp)
 /*for i := 1 to len(s) // проверка на русские буквы в диагнозах
   if ISRALPHA(substr(s,i,1))

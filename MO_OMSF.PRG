@@ -1392,9 +1392,9 @@ endif
 select (tmp_select)
 return fl
 
-***** 01.11.18 функция для when и valid при вводе услуг в лист учёта
+***** 17.12.18 функция для when и valid при вводе услуг в лист учёта
 Function f5editkusl(get,when_valid,k)
-Local fl := .t., s, i, lu_cena, lshifr1, v, old_kod, amsg, arr_zf, fl1, fl2, ;
+Local fl := .t., s, i, lu_cena, lshifr1, v, old_kod, amsg, fl1, fl2, ;
       msg1_err := "Код врача равен коду ассистента! Это недопустимо.",;
       msg2_err := "Человека с таким кодом нет в базе данных персонала!",;
       blk_sum := {|| mstoim_1 := round_5(mu_cena * mkol_1, 2) }
@@ -1487,6 +1487,7 @@ else  // valid
       select LUSLF
       find (padr(mshifr,20))
       if found() .and. alltrim(mshifr) == alltrim(luslf->shifr)
+        is_usluga_zf := luslf->zf
         tip_onko_napr := luslf->onko_napr
         tip_onko_ksg := luslf->onko_ksg
         tip_telemed := luslf->telemed
@@ -1526,6 +1527,14 @@ else  // valid
             if !empty(mosu->profil)
               m1PROFIL := mosu->profil
               mPROFIL := padr(inieditspr(A__MENUVERT, glob_V002, m1PROFIL),69)
+            endif
+            select LUSLF
+            find (padr(mshifr1,20))
+            if found()
+              is_usluga_zf := luslf->zf
+              tip_onko_napr := luslf->onko_napr
+              tip_onko_ksg := luslf->onko_ksg
+              tip_telemed := luslf->telemed
             endif
           else // Старая стоматология 2016
             fl1 := .f.
@@ -1621,13 +1630,13 @@ else  // valid
                 mdate_next := ctod("")
                 @ row_dom,35 say space(42) color color1
               endif
-              if is_zf_stomat == 1 .and. !empty(mzf)
-                usl->(dbGoto(mu_kod)) // на всякий случай
-                if usl->zf == 0
+              //if is_zf_stomat == 1 .and. !empty(mzf)
+                //usl->(dbGoto(mu_kod)) // на всякий случай
+                //if usl->zf == 0
                   //n_message({"В данную услугу запрещен ввод зубной формулы!",;
                   //           "(Не будет записана)"},,"W/G","N/G",,,"GR/G")
-                endif
-              endif
+                //endif
+              //endif
               if !empty(arr_usl1year)
                 f_usl1year(iif(empty(mshifr1),mshifr,mshifr1),mshifr,mname_u)
               endif

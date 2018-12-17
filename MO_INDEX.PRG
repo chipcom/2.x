@@ -1284,7 +1284,6 @@ if !empty(hZip := HB_ZIPOPEN(dir_archiv+zip_file))
          tools_ini,;
          f_stat_lpu,;
          dir_server+"f39_nast"+sini,;
-         dir_server+"STdelzub"+smem,;
          dir_server+"usl1year"+smem,;
          dir_server+"error"+stxt}
   if !empty(zip_xml_mo)
@@ -1449,6 +1448,7 @@ aadd(array_files_DB,"p_priem")
 aadd(array_files_DB,"human")   ; array_task_DB[X_OMS,1] := len(array_files_DB)
 aadd(array_files_DB,"human_")
 aadd(array_files_DB,"human_2")
+aadd(array_files_DB,"kartdelz")
 aadd(array_files_DB,"mo_sprav")
 aadd(array_files_DB,"mo_rhum")
 aadd(array_files_DB,"mo_refr")
