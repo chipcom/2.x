@@ -1392,9 +1392,11 @@ if (fl := verify_packet_R05(1,arr))
       go top
       do while !eof()
         j := tmp->tip
+        tmp->n_m := tmp->n_q := 0 // если уже заходили в режим и не подтвердили создание XML
         mkol[j] ++ // подсчёт оставшегося кол-ва в пуле пациентов
         skip
       enddo
+      commit
       index on str(reestr,6) to (cur_dir+"tmp_dr00")
       for ir := 1 to len(arr_rees)
         select TMP
@@ -1509,6 +1511,7 @@ if (fl := verify_packet_R05(1,arr))
     my_debug(,print_array(skol))
     my_debug(,print_array(mkol))
     my_debug(,print_array(ames))
+    my_debug(,print_array(akv))
   endif
 else
   func_error(4,arr[1])  
@@ -1517,7 +1520,14 @@ close databases
 rest_box(buf)
 if fl
   if fl1
-    if emptyall(akv[1,1],akv[1,2],akv[2,1],akv[2,2],akv[3,1],akv[3,2],akv[4,1],akv[4,2])
+    for i := 1 to 4
+      for j := 1 to 3
+        if !empty(akv[i,j])
+          fl := .f.
+        endif
+      next
+    next
+    if fl
       func_error(4,"Больше нет необходимости создавать файлы R01 за "+lstr(sgod)+" год")
     else
       f1_create_R01()
@@ -1672,7 +1682,7 @@ G_Use(dir_server+"mo_dr00",,"TMP")
 set relation to kod into KART
 index on str(n_q,1)+upper(kart->fio)+dtos(kart->date_r) to (cur_dir+"tmp_dr00")
 for SQUARTER := 1 to 4
-  if emptyall(akv[SQUARTER,1],akv[SQUARTER,2])
+  if emptyall(akv[SQUARTER,1],akv[SQUARTER,2],akv[SQUARTER,3])
     loop
   endif
   smsg := "Составление файла R01 за "+lstr(SQUARTER)+"-й квартал"
@@ -2748,32 +2758,29 @@ if between(&lal.->dschet,0d20180325,0d20180520)
 endif
 return fl
 
-***** 03.10.18 проверить, есть ли не до конца обработанные операции с файлами R01...
+***** 20.12.18 проверить, есть ли не до конца обработанные операции с файлами R01...
 Function find_unfinished_R01()
 Local fl := .t., skol := 0, mkol := 0, arr := {}, fl_date := .t.
-Private sgod := 2018, mrec := 2
+Private sgod := 2019, mrec := 1
 if glob_mo[_MO_IS_UCH]
   if (fl := verify_packet_R05(2,arr))
     R_Use(dir_server+"mo_dr05p",,"R05p")
-    dbeval({|| skol += r05p->KOL1 + r05p->KOL2 + r05p->KOL3 })
+    goto (mrec)
+    skol := r05p->KOL1 + r05p->KOL2 + r05p->KOL3
     select MO_XML
     index on str(reestr,6) to (cur_dir+"tmp_xml") for tip_in == _XML_FILE_R02 .and. empty(TIP_OUT)
     R_Use(dir_server+"mo_dr01",,"REES")
     index on str(nn,3)+str(NQUARTER,1) to (cur_dir+"tmp_dr01") for NYEAR == sgod
     go top
     do while fl .and. !eof()
-      if is_update_R01()//between(rees->dschet,0d20180325,0d20180520)
-        // пропустить актуализированные реестры за I квартал
-      elseif rees->kol_err < 0
-        //fl := .f.
-        //aadd(arr,"В файле R02 за "+lstr(rees->NQUARTER)+"-й квартал "+lstr(sgod)+"г. ошибки на уровне файла")
+      if rees->kol_err < 0
+        fl := .f.
+        aadd(arr,"В файле R02 за "+lstr(rees->NQUARTER)+"-й квартал "+lstr(sgod)+"г. ошибки на уровне файла")
       elseif empty(rees->answer)
         fl := .f.
         aadd(arr,"Файл R02 за "+lstr(rees->NQUARTER)+"-й квартал "+lstr(sgod)+" года не был прочитан")
       else
-        if rees->dschet < 0d20180925
-          mkol += (rees->KOL - rees->KOL_ERR)
-        endif
+        mkol += (rees->KOL - rees->KOL_ERR)
         select MO_XML
         find (str(rees->kod,6)) 
         if found() .and. empty(mo_xml->TWORK2)
@@ -2798,140 +2805,4 @@ if glob_mo[_MO_IS_UCH]
     n_message(arr,,"GR+/R","W+/R",,,"G+/R")
   endif
 endif  
-return NIL
-
-***** 09.07.18
-Function f_create_copy_R0()
-Local fl, tdir, name_dir, arr_f, i, buf
-if (fl := hb_fileExists(dir_server+"mo_dr05p"+sdbf))
-  R_Use(dir_server+"mo_dr05p",,"R05p")
-  fl := (fieldpos("KOL4") > 0)
-  use
-  if fl
-    name_dir := dir_server+'R01_OLD'
-    if !hb_DirExists(name_dir)
-      if hb_DirCreate(name_dir) != 0
-        //return NIL // Невозможно создать подкаталог для копии
-        return func_error("Невозможно создать подкаталог для копии R01_OLD")
-      endif
-    endif
-    buf := save_maxrow()
-    mywait("Сохранение файлов R01 и R05 предыдущей версии...")
-    name_dir += cslash
-    arr_f := {"mo_dr01","mo_dr01m","mo_dr01k","mo_dr01e","mo_dr05",;
-              "mo_dr05p","mo_dr05k","mo_dr05e","mo_dr00","mo_xml","ver_base"}
-    for i := 1 to len(arr_f)
-      copy file (dir_server+arr_f[i]+sdbf) to (name_dir+arr_f[i]+sdbf)
-    next
-    tdir := dir_server+dir_XML_MO+cslash
-    arr_f := directory(tdir+"R0*"+szip)
-    for i := 1 to len(arr_f)
-      copy file (tdir+arr_f[i,1]) to (name_dir+arr_f[i,1])
-    next
-    tdir := dir_server+dir_XML_TF+cslash
-    arr_f := directory(tdir+"R0*"+szip)
-    for i := 1 to len(arr_f)
-      copy file (tdir+arr_f[i,1]) to (name_dir+arr_f[i,1])
-    next
-    mywait("Удаление файлов R01 и R05 за май месяц...")
-    use (dir_server+"mo_xml") new alias MO_XML
-    use (dir_server+"mo_dr01") new alias R01
-    use (dir_server+"mo_dr01e") new alias R01E
-    index on str(REESTR,6) to (cur_dir+"tmp_r01e")
-    use (dir_server+"mo_dr01k") new alias R01K
-    index on str(REESTR,6) to (cur_dir+"tmp_r01k")
-    use (dir_server+"mo_dr01m") new alias R01M
-    arrm := {} ; dbeval({|| aadd(arrm,recno()) })
-    for i := len(arrm) to 1 step -1
-      select R01M
-      goto (arrm[i])
-      if r01m->dwork <= 0d20180520
-        loop // не рассматриваем реестры, сзданные до 20 мая
-      endif
-      for j := 4 to 1 step -1  // с 4-го по 1 кварталы
-        select R01M
-        goto (arrm[i])
-        if (mkod_reestr := &("r01m->REESTR"+lstr(j))) > 0
-          select R01
-          goto (mkod_reestr)
-          if r01->nquarter == j
-            select R01E
-            do while .t.
-              find (str(mkod_reestr,6)) // удалим ошибки 
-              if !found() ; exit ; endif
-              DeleteRec(.t.)
-            enddo
-            select MO_XML
-            index on FNAME to (cur_dir+"tmp_xml") ;
-                  for reestr == mkod_reestr .and. tip_in == _XML_FILE_R02 .and. TIP_OUT == 0
-            go top
-            mreestr_sp_tk := recno()
-            set index to      
-            select R01K
-            do while .t.
-              find (str(mkod_reestr,6))
-              if !found() ; exit ; endif
-              DeleteRec(.t.)
-            enddo
-            select MO_XML
-            goto (mreestr_sp_tk)
-            DeleteRec(.t.)
-            goto (r01->kod_xml)
-            DeleteRec(.t.)
-            select R01
-            DeleteRec(.t.)
-            select R01m
-            &("r01m->reestr"+lstr(j)) := 0
-          endif
-        endif
-      next j
-      select R01M
-      goto (arrm[i])
-      DeleteRec(.t.)
-    next i
-    select R01K
-    set index to
-    pack
-    select R01E
-    set index to
-    pack
-    //
-    Private mrec := 2
-    use (dir_server+"mo_dr05k") new alias R05k
-    use (dir_server+"mo_dr05e") new alias R05e
-    use (dir_server+"mo_dr05") new alias R05
-    arrm := {} ; dbeval({|| aadd(arrm,recno()) })
-    for i := len(arrm) to 1 step -1
-      select R05
-      goto (arrm[i])
-      if r05->rec_5p == mrec .and. (mkod_reestr := r05->kod) > 0
-        select R05e
-        delete for reestr == mkod_reestr
-        pack
-        select R05k
-        delete for reestr == mkod_reestr
-        pack
-        select MO_XML
-        goto (r05->kod_xml)
-        DeleteRec(.t.)
-        select MO_XML
-        index on FNAME to (cur_dir+"tmp_xml") ;
-              for reestr == mkod_reestr .and. tip_in == _XML_FILE_R06 .and. TIP_OUT == 0
-        go top
-        if !eof()
-          DeleteRec(.t.)
-        endif
-        set index to      
-        select R05
-        DeleteRec(.t.)
-      endif
-    next i
-    use (dir_server+"mo_dr05p") new alias R05p
-    goto (mrec)
-    DeleteRec(.t.,.f.) // очистить без пометки на удаление
-    close databases
-    delete file (dir_server+"mo_dr00"+sdbf) // удалить файл с пулом пациентов ?????
-    rest_box(buf)
-  endif   
-endif
 return NIL
