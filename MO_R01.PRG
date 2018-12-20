@@ -184,19 +184,11 @@ zap
 close databases
 return NIL
 
-***** 13.12.18 Создание файла обмена R05...
+***** 20.12.18 Создание файла обмена R05...
 Function f_create_R05()
 Local buf := save_maxrow(), i, fl
 Private sgod := 2019, mkol1 := 0, mkol2 := 0, mkol3 := 0, mdate := sys_date, ;
         mrec, CODE_LPU := glob_mo[_MO_KOD_TFOMS], splan_d2 := 0
-mywait()
-G_Use(dir_server+"mo_dr05p",,"R05p")
-Locate for n_y < 2019
-fl := found()
-Use
-if fl
-  f_zap_all_mo_dr()
-endif  
 G_Use(dir_server+"mo_dr05p",,"R05p")
 if lastrec() == 0
   G_RLock(.t.,forever)
@@ -218,9 +210,8 @@ mkol2 := r05p->KOL2
 mkol3 := r05p->KOL3
 mdate := r05p->D_KZ
 r05p->(dbCloseArea())
-Private r05_nn := 0, write_reestr := .f.  
-verify_packet_R05(1,{},@r05_nn)
-Private is_reestr := (r05_nn > 0)
+Private write_reestr := .f., is_reestr := .f.  
+verify_packet_R05(1,{})
 close databases 
 if emptyall(mkol1,mkol2,mkol3)
   keyboard chr(K_HOME)+chr(K_ENTER)
@@ -1246,10 +1237,9 @@ rest_box(buf)
 viewtext(n_file,,,,.t.,,,2)
 return NIL
 
-***** 13.12.18 
-Function verify_packet_R05(par,arr,/*@*/ret_nn)
+***** 20.12.18 
+Function verify_packet_R05(par,arr)
 Local fl := .t.
-ret_nn := 0
 is_reestr := .f.
 R_Use(dir_server+"mo_dr05e",,"REFR")
 R_Use(dir_server+"mo_xml",,"MO_XML")
@@ -1258,7 +1248,6 @@ R_Use(dir_server+"mo_dr05",,"R05")
 index on str(REC_5P,3)+str(1000-nn,4) to (cur_dir+"tmp_r05") for nyear == sgod
 find (str(mrec,3))
 if found()
-  ret_nn := r05->nn
   is_reestr := .t.
   fl_edit := .f.
   select MO_XML

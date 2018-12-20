@@ -5851,7 +5851,7 @@ if !empty(m1okato)
 endif
 return len(mm_ismo) > 0
 
-***** 17.12.18 ¢¢®¤ ãá«ã£ ¢ á«ãç © («¨áâ ãçñâ )
+***** 20.12.18 ¢¢®¤ ãá«ã£ ¢ á«ãç © («¨áâ ãçñâ )
 Function oms_usl_sluch(mkod_human,mkod_kartotek,fl_edit)
 // mkod_human - ª®¤ ¯® „ human
 // mkod_kartotek - ª®¤ ¯® „ kartotek
@@ -6093,7 +6093,7 @@ set relation to  // "®â¢ï§ë¢ ¥¬" human_u_
 select USL
 set order to 1
 is_zf_stomat := 0
-if eq_any(human_->profil,85,86,87,88,89,90,171)
+if m1USL_OK == 3 .and. eq_any(m1PROFIL,85,86,87,88,89,90,171)
   is_zf_stomat := 1
 endif  
 if is_zf_stomat == 1
@@ -6121,7 +6121,11 @@ if yes_num_lu == 1
   @ 1,50 say padl("‹¨áâ ãç¥â  ü "+lstr(human->kod),29) color color14
 endif
 l_color := "W+/B,W+/RB,BG+/B,BG+/RB,G+/B,GR+/B"
-@ maxrow()-3,0 say "ÕÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍ ®«­®¥ ­ ¨¬¥­®¢ ­¨¥ ãá«ã£¨ ÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÑÍÍ –¥­  ÍÍÍ¸"
+s := "®«­®¥ ­ ¨¬¥­®¢ ­¨¥ ãá«ã£¨"
+if is_zf_stomat == 1
+  s := "”®à¬ã«  §ã¡  / "+s
+endif
+@ maxrow()-3,0 say "Õ"+padc(s,66,"Í")+                                                "ÑÍÍ –¥­  ÍÍÍ¸"
 @ maxrow()-2,0 say "³                                                                  ³           ³"
 @ maxrow()-1,0 say "ÔÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÍÏÍÍÍÍÍÍÍÍÍÍÍ¾"
 if fl_found
@@ -6165,7 +6169,7 @@ endif
 is_zf_stomat := old_is_zf_stomat
 return NIL
 
-*****
+***** 20.12.18
 Function f_oms_usl_sluch(oBrow)
 Local oColumn, blk_color
 oColumn := TBColumnNew(" NN; ¯¯",{|| tmp->number })
@@ -6193,15 +6197,9 @@ oBrow:addColumn(oColumn)
 oColumn := TBColumnNew("ŒŠ10",{|| tmp->kod_diag })
 oColumn:colorBlock := blk_color
 oBrow:addColumn(oColumn)
-if is_zf_stomat == 1
-  oColumn := TBColumnNew("‡ã¡­ ï ä®à¬ã« ",{|| left(tmp->zf,15) })
-  oColumn:colorBlock := blk_color
-  oBrow:addColumn(oColumn)
-else
-  oColumn := TBColumnNew("à®ä¨«ì ãá«ã£¨",{|| padr(inieditspr(A__MENUVERT,glob_V002,tmp->PROFIL),15) })
-  oColumn:colorBlock := blk_color
-  oBrow:addColumn(oColumn)
-endif
+oColumn := TBColumnNew("à®ä¨«ì ãá«ã£¨",{|| padr(inieditspr(A__MENUVERT,glob_V002,tmp->PROFIL),15) })
+oColumn:colorBlock := blk_color
+oBrow:addColumn(oColumn)
 oColumn := TBColumnNew("‚à ç",{|| put_val(ret_tabn(tmp->kod_vr),5) })
 oColumn:colorBlock := blk_color
 oBrow:addColumn(oColumn)
@@ -6217,10 +6215,14 @@ oBrow:addColumn(oColumn)
 status_key("^<Esc>^ ¢ëå®¤; ^<Enter>^ à¥¤-¨¥; ^<Ins>^ ¤®¡ ¢«¥­¨¥; ^<Del>^ ã¤ «¥­¨¥; ^<F1>^ ¯®¬®éì")
 return NIL
 
-*****
+***** 20.12.18
 Function f1oms_usl_sluch()
-LOCAL nRow := ROW(), nCol := COL(), s
-@ maxrow()-2,2 say tmp->name_u color cDataCSay
+LOCAL nRow := ROW(), nCol := COL(), s := tmp->name_u, lcolor := cDataCSay
+if is_zf_stomat == 1 .and. !empty(tmp->zf)
+  s := alltrim(tmp->zf)+" / "+s
+  lcolor := color8
+endif  
+@ maxrow()-2,2 say padr(s,65) color lcolor 
 if empty(tmp->u_cena)
   s := iif(tmp->n_base==0, "", "””ŽŒ‘")
 else
