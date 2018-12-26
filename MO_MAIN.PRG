@@ -15,8 +15,8 @@
 #include "chip_mo.ch"
 
 Static _version := {2,7,5}
-Static char_version := "+"
-Static _date_version := "20.12.18г."
+Static char_version := "a"
+Static _date_version := "26.12.18г."
 Static __s_full_name := "ЧИП + Учёт работы Медицинской Организации"
 Static __s_version
 
@@ -235,9 +235,21 @@ if ControlBases(1,_version) // если необходимо
   endif
 endif
 Init_Program() // инициализация программы (переменных, массивов,...)
+//tttt()
 f_main(r,a_parol)
 f_end()
 return
+
+/*Function tttt()
+Local s := "", ret := 0, p := 0, d := sys_date
+Private mdvozrast
+do while year(d) > 2016
+  mdvozrast := year(sys_date) - year(d)
+  p := ret_period_PN(d,sys_date,sys_date,@s,@ret)
+  my_debug(,print_array({d,count_ymd(d,sys_date),s,p,ret}))
+  --d
+enddo
+return nil*/
 
 #define SW_SHOWNORMAL 1
 

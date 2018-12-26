@@ -559,7 +559,7 @@ Local buf, str_sem
 if  mek_kassa == 1 //.and. mek_nkassa == 1
   Private drvFR
   IF ( drvFR := win_oleCreateObject( "AddIn.DrvFr" ) ) != NIL
-    //
+    FR_ZAMENA_otrezka()
   else
     return func_error(4,"Ошибка запуска драйвера КАССЫ")
   endif

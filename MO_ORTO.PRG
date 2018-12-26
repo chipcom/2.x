@@ -1154,6 +1154,7 @@ do case
              {"vrach","C",40,0},;
              {"cena", "N",10,2},;
              {"kol",  "N", 5,1},;
+             {"nds20","N", 1,0},; //10.08.08
              {"nds18","N", 1,0},; //10.08.08
              {"nds10","N", 1,0}}
     dbcreate(cur_dir+"tmp",adbf)
@@ -1242,6 +1243,7 @@ else
            {"vrach", "C", 40,0},;
            {"u_cena","N", 10,2},;
            {"kol1",  "N",  5,1},;
+           {"nds20", "N",  1,0},; //10.08.08
            {"nds18", "N",  1,0},; //10.08.08
            {"nds10", "N",  1,0}}
   dbcreate(cur_dir+"tmp",adbf)
@@ -1301,7 +1303,7 @@ Local i, j, r2, ln, buf, str_sem, arr_n := {}
 if glob_kassa == 1 .and. mek_kassa == 1  //.and. mek_nkassa == 1
   Private drvFR
   IF ( drvFR := win_oleCreateObject( "AddIn.DrvFr" ) ) != NIL
-    //
+    FR_ZAMENA_otrezka()
   else
     return func_error(4,"Ошибка запуска драйвера КАССЫ")
   endif

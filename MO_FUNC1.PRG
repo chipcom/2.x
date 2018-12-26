@@ -652,7 +652,7 @@ if fl_end
 endif
 return .t.
 
-***** 22.07.18 количество лет, месяцев и дней в строке
+***** 23.12.18 количество лет, месяцев и дней в строке
 Function count_ymd(_mdate, _sys_date, /*@*/y, /*@*/m, /*@*/d)
 // _mdate    - дата для определения количества лет, месяцев и дней
 // _sys_date - "системная" дата
@@ -664,18 +664,24 @@ if !empty(_sys_date) .and. !empty(_mdate) .and. _sys_date > _mdate
   enddo
   if y > 0 .and. correct_count_ym(_mdate,_sys_date)
     --y  
+    //my_debug(,"исправление года")
   endif
   md := addmonth(_mdate,12*y)
   do while (md := addmonth(md,1)) <= _sys_date
     ++m
   enddo
-  if m > 0 .and. correct_count_ym(_mdate,_sys_date)
+  if m > 0 .and. correct_count_ym(_mdate,_sys_date,2)
     --m  
+    //my_debug(,"исправление месяца")
   endif
   md := addmonth(_mdate,12*y+m)
   do while (md := md+1) <= _sys_date
     ++d
   enddo
+  if !emptyall(y,m) .and. d > 0 // только не для новорожденного
+    --d
+    //my_debug(,"исправление дня")
+  endif
 endif
 if y > 0
   ret_s := lstr(y)+" "+s_let(y)+" "
@@ -688,7 +694,7 @@ if d > 0
 endif
 return rtrim(ret_s)
 
-***** 22.07.18 определение количества месяцев по дате (возврат числа)
+***** 23.12.18 определение количества месяцев по дате (возврат числа)
 Function count_months(_mdate,_sys_date)
 // _mdate    - дата для определения количества лет
 // _sys_date - "системная" дата
@@ -697,7 +703,7 @@ if !empty(_sys_date) .and. !empty(_mdate) .and. _sys_date > _mdate
   do while (md := addmonth(md,1)) <= _sys_date
     k++
   enddo
-  if k > 0 .and. correct_count_ym(_mdate,_sys_date)
+  if k > 0 .and. correct_count_ym(_mdate,_sys_date,2)
     --k  
   endif
 endif
@@ -719,7 +725,7 @@ endif
 return k
 
 ***** 14.06.13 определение количества лет по дате (возврат строки)
-Function ccount_years(_mdate, _sys_date)
+Function ccount_years(_mdate,_sys_date)
 // _mdate    - дата для определения количества полных лет
 // _sys_date - "системная" дата
 Local ret_s := "", y
@@ -728,12 +734,15 @@ if (y := count_years(_mdate, _sys_date)) > 0
 endif
 return ret_s
 
-***** 22.07.18 лицо считается достигшим определённого возраста не в день рождения, а начиная со следующих суток
-Function correct_count_ym(_mdate,_sys_date) 
-Local s1 := right(dtos(_mdate),4), s2 := right(dtos(_sys_date),4), fl := .f. 
+***** 23.12.18 лицо считается достигшим определённого возраста не в день рождения, а начиная со следующих суток
+Function correct_count_ym(_mdate,_sys_date,y_m) 
+Local s1 := right(dtos(_mdate),4), s2 := right(dtos(_sys_date),4), fl := .f.
+DEFAULT y_m TO 1 
 if s1 == s2 // проверяем равенство дня и месяца
   fl := .t.
 elseif s1 == "0229" .and. s2 == "0228" .and. !IsLeap(_sys_date) //_mdate - високосный год, а _sys_date - нет
+  fl := .t.
+elseif y_m == 2 .and. right(s1,2) == right(s2,2) // проверяем равенство дня (для опр-ия кол-ва месяцев)
   fl := .t.
 endif
 return fl

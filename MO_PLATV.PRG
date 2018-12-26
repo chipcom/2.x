@@ -166,7 +166,7 @@ if polikl1_kart() > 0
   if glob_kassa == 1 .and. mek_kassa == 1 //.and. mek_nkassa == 1
     Private drvFR
     IF ( drvFR := win_oleCreateObject( "AddIn.DrvFr" ) ) != NIL
-      //
+      FR_ZAMENA_otrezka()
     else
       return func_error(4,"Ошибка запуска драйвера КАССЫ")
     endif
@@ -350,6 +350,7 @@ do case
              {"vrach","C", 50,0},;
              {"cena", "N", 10,2},;
              {"kol",  "N",  4,0},;
+             {"nds20","N",  1,0},;
              {"nds18","N",  1,0},;
              {"nds10","N",  1,0}}
     dbcreate(cur_dir+"tmp",adbf)
@@ -398,6 +399,8 @@ do case
           tmp->nds18 := 1
         elseif lnds == 10
           tmp->nds10 := 1
+        elseif lnds == 20
+          tmp->nds20 := 1
         endif
       endif
       select HU
@@ -525,9 +528,9 @@ do case
              {"kod_vr",    "N",  4, 0},;
              {"full_name", "C",255, 0},;
              {"vrach",     "C", 50, 0},;
+             {"nds20",     "N",  1, 0},;
              {"nds18",     "N",  1, 0},;
-             {"nds10",     "N",  1, 0};
-             }
+             {"nds10",     "N",  1, 0}}
     dbcreate(cur_dir+"tmp",adbf)
     use (cur_dir+"tmp") new
     select HU
@@ -556,6 +559,8 @@ do case
         tmp->nds18 := 1
       elseif lnds == 10
         tmp->nds10 := 1
+      elseif lnds == 20
+        tmp->nds20 := 1
       endif
       select HU
       skip
@@ -578,7 +583,6 @@ do case
       endif
     endif
     close databases
-    //quit
     //
     R_Use(dir_server+"mo_pers",dir_server+"mo_pers","PERSO")
     use_base("hum_p","HUMAN")

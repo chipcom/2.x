@@ -96,7 +96,7 @@ if k == 1
   Public meK_ostato := 0,;
          meK_bank   := 2,;
          meK_lof_fi := 2,;
-         meK_otrez  := 1,;
+         meK_otrez  := 1,;  // отрезка чека
          meK_kassa  := 1,;  // рабочее место кассира
          meK_pr_FIO := 1,;
          MEK_KASSIR := space(20),;
@@ -116,6 +116,7 @@ if k == 1
     if iif(glob_task == X_KASSA,.T.,glob_kassa == 1) .and. mek_kassa == 1
       Private drvFR
       IF ( drvFR := win_oleCreateObject( "AddIn.DrvFr" ) ) != NIL
+        FR_ZAMENA_otrezka()
         fiskal_inf_fr()
       endif
     endif
@@ -133,17 +134,17 @@ elseif k == 2
   Private mostatok := meK_ostato,;
           mmeK_bank, m1meK_bank := meK_bank,;
           mmeK_kassa, m1meK_kassa := meK_kassa,;
-          mmeK_lof_fi, m1meK_lof_fi := meK_lof_fi,;
-          mmeK_otrez, m1meK_otrez := meK_otrez,;
           mmek_pr_fio, m1mek_pr_fio := mek_pr_fio,;
           mnkassa := space(10), m1nkassa := 0,;
           mkassir := mek_kassir,;
           mmek_chek := m1mek_chek := mek_chek
+         // mmeK_otrez, m1meK_otrez := meK_otrez,;
+         //mmeK_lof_fi, m1meK_lof_fi := meK_lof_fi,;
 
 
   mmeK_bank   := inieditspr(A__MENUVERT,mm_da_net,m1meK_bank)
   mmeK_kassa  := inieditspr(A__MENUVERT,mm_da_net,m1meK_kassa)
-  mmeK_otrez  := inieditspr(A__MENUVERT,mm_da_net,m1meK_otrez)
+  //mmeK_otrez  := inieditspr(A__MENUVERT,mm_da_net,m1meK_otrez)
   mmek_pr_fio := inieditspr(A__MENUVERT,mm_da_net,m1mek_pr_fio)
   mmek_chek   := inieditspr(A__MENUVERT,mm_chek,m1mek_chek)
 
@@ -170,8 +171,8 @@ elseif k == 2
       ++ix
       @ ++ix,3 say "Это рабочее место кассира ?" get mmeK_kassa ;
                   reader {|x|menu_reader(x,mm_da_net,A__MENUVERT,,,.f.)}
-      @ ++ix,3 say "Проводить программную отрезку чека?" get mmeK_otrez ;
-                  reader {|x|menu_reader(x,mm_da_net,A__MENUVERT,,,.f.)}
+//      @ ++ix,3 say "Проводить программную отрезку чека?" get mmeK_otrez ;
+//                  reader {|x|menu_reader(x,mm_da_net,A__MENUVERT,,,.f.)}
       @ ++ix,3 say "Печатать ФИО пациента/плательщика в чеке?" get mmek_pr_fio ;
                   reader {|x|menu_reader(x,mm_da_net,A__MENUVERT,,,.f.)}
       @ ++ix,3 say "ФИО кассира" get mkassir
@@ -188,7 +189,7 @@ elseif k == 2
     if tip_polzovat == 0
       mek_bank   := m1mek_bank
       mek_kassa  := m1mek_kassa
-      meK_otrez  := m1meK_otrez
+//      meK_otrez  := m1meK_otrez
       mek_pr_fio := m1mek_pr_fio
       mek_chek   := m1mek_chek
     endif
@@ -209,7 +210,7 @@ Local fl := .t.,  parol := 0, t, tt, tt1, s_err
 
 Private drvFR
 IF ( drvFR := win_oleCreateObject( "AddIn.DrvFr" ) ) != NIL
-  //
+  FR_ZAMENA_otrezka()
 else
   return func_error(4,"Ошибка запуска драйвера КАССЫ")
 endif
@@ -270,7 +271,7 @@ Local fl := .t., t, tt, tt1, x, cur_time,;
 
 Private drvFR
 IF ( drvFR := win_oleCreateObject( "AddIn.DrvFr" ) ) != NIL
-  //
+  FR_Read_otrezka()
 else
   return func_error(4,"Ошибка запуска драйвера КАССЫ")
 endif
@@ -340,7 +341,7 @@ buf := save_row(maxrow())
 
 Private drvFR
 IF ( drvFR := win_oleCreateObject( "AddIn.DrvFr" ) ) != NIL
-  //
+  FR_ZAMENA_otrezka()
 else
   return func_error(4,"Ошибка запуска драйвера КАССЫ")
 endif
@@ -356,11 +357,7 @@ if (fl := empty(s_err := FR_normgach(tip)))
     n_message({"","Гашение суточного отчета выполнено!"},,;
               color1,cDataCSay,,,color8)
   endif
-  if meK_otrez == 1
-    mywait()
-    inkey(3)
-    FR_otrezka(1)
-  endif
+  FR_otrezka(1,2)
   rest_box(buf)
 else
   rest_box(buf)
@@ -405,7 +402,7 @@ buf := save_row(maxrow())
 
 Private drvFR
 IF ( drvFR := win_oleCreateObject( "AddIn.DrvFr" ) ) != NIL
-  //
+  FR_ZAMENA_otrezka()
 else
   return func_error(4,"Ошибка запуска драйвера КАССЫ")
 endif
@@ -414,7 +411,6 @@ if (fl := empty(s_err := FR_prodol()))
   rest_box(buf)
   mywait()
   stat_msg("Команда выполнена!")
-  mywait()
   FR_otrezka(1)
   rest_box(buf)
 else
@@ -434,7 +430,7 @@ buf := save_row(maxrow())
 
 Private drvFR
 IF ( drvFR := win_oleCreateObject( "AddIn.DrvFr" ) ) != NIL
-  //
+  FR_ZAMENA_otrezka()
 else
   return func_error(4,"Ошибка запуска драйвера КАССЫ")
 endif
@@ -443,7 +439,6 @@ if (fl := empty(s_err := FRCH_annul()))
   rest_box(buf)
   mywait()
   stat_msg("Команда выполнена!")
-  mywait()
   FR_otrezka(1)
   rest_box(buf)
 else
@@ -467,7 +462,7 @@ buf := save_row(maxrow())
 if glob_kassa == 1 .and. mek_kassa == 1
   Private drvFR
   IF ( drvFR := win_oleCreateObject( "AddIn.DrvFr" ) ) != NIL
-    //
+    FR_ZAMENA_otrezka()
   else
     return func_error(4,"Ошибка запуска драйвера КАССЫ")
   endif
@@ -481,11 +476,7 @@ if (fl := empty(s_err := FRN_PrintDepartmentReport()))
   rest_box(buf)
   mywait()
   stat_msg("Команда выполнена!")
-  if meK_otrez == 1
-    mywait()
-    inkey(3)
-    FR_otrezka(1)
-  endif
+  FR_otrezka(1,2)
   rest_box(buf)
 else
   rest_box(buf)
@@ -508,7 +499,7 @@ buf := save_row(maxrow())
 if glob_kassa == 1 .and. mek_kassa == 1
   Private drvFR
   IF ( drvFR := win_oleCreateObject( "AddIn.DrvFr" ) ) != NIL
-    //
+    FR_ZAMENA_otrezka()
   else
     return func_error(4,"Ошибка запуска драйвера КАССЫ")
   endif
@@ -522,11 +513,7 @@ if (fl := empty(s_err := FRN_PrintTaxReport()))
   rest_box(buf)
   mywait()
   stat_msg("Команда выполнена!")
-  if meK_otrez == 1
-    mywait()
-    inkey(3)
-    FR_otrezka(1)
-  endif
+  FR_otrezka(1,2)
   rest_box(buf)
 else
   rest_box(buf)
@@ -573,7 +560,7 @@ buf := save_row(maxrow())
 
 Private drvFR
 IF ( drvFR := win_oleCreateObject( "AddIn.DrvFr" ) ) != NIL
-  //
+  FR_ZAMENA_otrezka()
 else
   return func_error(4,"Ошибка запуска драйвера КАССЫ")
 endif
@@ -905,7 +892,7 @@ do while !eof()
   if fl .and. tmp->kol > 0
     name_tov := alltrim(tmp->name)
     t_nds := 0
-    if tmp->nds18 > 0
+    if tmp->nds18 > 0 .or. tmp->nds20 > 0
       t_nds := 1
     elseif tmp->nds10 > 0
       t_nds := 2
@@ -1112,7 +1099,7 @@ DEFAULT tip TO 1
 
 Private drvFR
 IF ( drvFR := win_oleCreateObject( "AddIn.DrvFr" ) ) != NIL
-  //
+  FR_ZAMENA_otrezka()
 else
   return func_error(4,"Ошибка запуска драйвера КАССЫ")
 endif
@@ -1137,9 +1124,9 @@ if glob_kassa == 1 .and. mek_kassa == 1
  aadd(arr," -Продажа карта MasterCard за смену         "+str(FRCH_d_registr(205),15,2))
  aadd(arr,"  -Возврат продаж карта MasterCard за смену "+str(FRCH_d_registr(207),15,2))
  aadd(arr,"НДС ")
- aadd(arr," -Продажа услуги с НДС 18%                  "+str(FRCH_d_registr(209),15,2))
+ aadd(arr," -Продажа услуги с НДС 18% (20%)            "+str(FRCH_d_registr(209),15,2))
  //aadd(arr,"   -Возврат услуги с НДС 18%                "+str(FRCH_d_registr(211),15,2))
- aadd(arr," -Продажа НДС 18%                           "+str(FRCH_d_registr(225),15,2))
+ aadd(arr," -Продажа НДС 18% (20%)                     "+str(FRCH_d_registr(225),15,2))
  //aadd(arr,"   -Возврат НДС 18%                         "+str(FRCH_d_registr(227),15,2))
 
  aadd(arr," ")
@@ -1270,7 +1257,6 @@ return NIL
 
 ***** гудок на кассовом аппарате
 function FR_gudok()
-//local drvFR
 
 IF ( drvFR := win_oleCreateObject( "AddIn.DrvFr" ) ) != NIL
   drvFR:Password := oper_parol
@@ -1345,17 +1331,25 @@ return NIL
 *
 
 ***** ДРАЙВЕР отрезка чековой ленты
-function FR_otrezka(flag)
+function FR_otrezka(flag,zad_time)
 /* flag - 0 полная отрезка
           1 частичный отрез
 */
-drvFR:Password := oper_parol
-if flag == 0
-  drvFR:CutType := 0
-else
-  drvFR:CutType := 1
+DEFAULT zad_time to 0
+
+if meK_otrez == 1
+  if zad_time > 0
+    mywait()
+    inkey(zad_time)
+  endif
+  drvFR:Password := oper_parol
+  if flag == 0
+    drvFR:CutType := 0
+  else
+    drvFR:CutType := 1
+  endif
+  drvFR:CutCheck()
 endif
-drvFR:CutCheck()
 return NIL
 
 
@@ -1752,7 +1746,7 @@ function FR_lenstring()
 Private drvFR
 IF ( drvFR := win_oleCreateObject( "AddIn.DrvFr" ) ) != NIL
   if drvFR:GetDeviceMetrics()  < 0
-   //
+    FR_ZAMENA_otrezka()
   else
     t := drvFR:UDescription
   ENDIF
@@ -2010,4 +2004,42 @@ function TransformPhone( address )
 	endif
 	return address
 
+*
 
+***** 24.12.18
+function FR_Read_otrezka()
+Local t1, t
+
+drvFR:Password    := oper_frparol
+drvFR:TableNumber := 1   // номер таблицы
+drvFR:FieldNumber := 7   // номер поля
+IF drvFR:GetFieldStruct() < 0
+   t := drvFR:ResultCodeDescription
+else
+   t := drvFR:ContentsOfCashRegister
+endif
+drvFR:ValueOfFieldString := ""
+drvFR:ValueOfFieldInteger := 0
+// читаем
+drvFR:Password    := oper_frparol
+drvFR:TableNumber := 1   // номер таблицы
+drvFR:RowNumber   := 1   // номер ряда
+drvFR:FieldNumber := 7   // номер поля
+IF drvFR:ReadTable() < 0
+   t := drvFR:ResultCodeDescription
+else
+   t := drvFR:ContentsOfCashRegister
+endif
+return drvFR:ValueOfFieldInteger
+
+*
+
+***** 24.12.18
+function FR_ZAMENA_otrezka()
+
+if FR_Read_otrezka() > 0
+  meK_otrez  := 2 // не отрезать
+else
+  meK_otrez  := 1 // отрезать
+endif
+return NIL

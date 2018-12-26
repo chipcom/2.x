@@ -1983,9 +1983,9 @@ Static arr := {;
   {"A16.07.030.003", "Удаление зуба сложное с разъединением корней"},;
   {"A16.07.039"    , "Операция удаления ретинированного, дистопированного или сверхкомплектного зуба"};
 }
-Static akod
+Static akod := {}
 Local i, s, lkod := 0
-if akod == NIL
+/*if len(akod) == 0
   use_base("mo_su","MOSU1")
   akod := {}
   for i := 1 to len(arr)
@@ -2014,7 +2014,7 @@ if akod == NIL
     aadd(akod,lkod)
   next
   mosu1->(dbCloseArea())
-endif
+endif*/
 return akod
 
 ***** 17.12.18 проверка, не удалён ли зуб
