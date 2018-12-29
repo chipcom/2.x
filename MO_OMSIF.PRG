@@ -130,7 +130,7 @@ adbf := {{"stroke","C",8,0},;
          {"sluch5","N",7,0},;
          {"sluch6","N",7,0},;
          {"sluch7","N",7,0},;
-         {"sluch8","N",7,0},;
+         {"sluch8","N",7,0},; 
          {"sluch9","N",7,0},;
          {"sluch10","N",7,0},;
          {"sluch11","N",7,0},;
@@ -193,7 +193,7 @@ do while !eof()
     p_tip := 1
     if eq_any(substr(lstr(tmp->table),2,1),"1","6")
       p_tip := 2
-    endif
+    endif 
     select TMP_TAB
     append blank
     tmp_tab->stroke := s1
@@ -428,7 +428,7 @@ frt->adres := alltrim(org->adres)
 frt->period := speriod
 if fl_12_selo
   frt->name1 := "(по сельскому населению)"
-endif
+endif  
 adbf := {;
   {"name","C",250,0},;
   {"stroke","C",10,0},;
@@ -438,11 +438,11 @@ for i := 4 to 16
   aadd(adbf, {"kol"+lstr(i),"N",8,0})
 next
 for i := 0 to 9
-  name_f := fr_data+iif(i > 0, lstr(i), "")
-  al := "FRD"+iif(i > 0, lstr(i), "")
+  name_f := fr_data+iif(i > 0, lstr(i), "") 
+  al := "FRD"+iif(i > 0, lstr(i), "") 
   dbcreate(cur_dir+name_f,adbf)
   E_Use(cur_dir+name_f,,al)
-next
+next 
 if is_diag
   R_Use(dir_exe+"_mo_mkb",cur_dir+"_mo_mkb","MKB10")
   use (cur_dir+"tmp_dia") new alias TMP_D
@@ -470,13 +470,13 @@ for x := 1 to 5 // diag1[x] => {s1,p_tip,diapazon,tmp->table,s2,s4}
   add_string(" ("+lstr(diag1[x,1,4])+")"+padl("Код по ОКЕИ: человек - 792",sh-8))
   aeval(arr_title, {|x| add_string(x) } )
   v := x
-  al := "FRD"+iif(x > 1, lstr(int(x*2-2)), "")
+  al := "FRD"+iif(x > 1, lstr(int(x*2-2)), "") 
   //diag1[x] => {s1,p_tip,diapazon,tmp->table,s2,s4}
   for ix := 1 to len(diag1[x])
     s1 := padr(diag1[x,ix,1],8) ; s1_ := diag1[x,ix,1]
     p_tip := diag1[x,ix,2]
     if p_tip == 2 .and. v == x
-      v := 0
+      v := 0 
       if !is_100000
         if is_diag
           add_string(replicate("-",sh1))
@@ -501,7 +501,7 @@ for x := 1 to 5 // diag1[x] => {s1,p_tip,diapazon,tmp->table,s2,s4}
         add_string(" ("+lstr(diag1[x,ix,4])+")"+padl("Код по ОКЕИ: единица - 642",sh1-8))
         aeval(arr_title, {|x| add_string(x) } )
       endif
-      al := "FRD"+lstr(int(x*2-1))
+      al := "FRD"+lstr(int(x*2-1)) 
       --ix
     elseif iif(is_diag, (right(s1_,2) == ".0"), .t.)
       if is_100000 .and. p_tip == 2
@@ -525,7 +525,7 @@ for x := 1 to 5 // diag1[x] => {s1,p_tip,diapazon,tmp->table,s2,s4}
                padc(alltrim(s1),10)+;
                padc(alltrim(t_arr2[1]),12)
         dbSelectArea(al)
-        append blank
+        append blank       
         &al.->name := s3
         &al.->stroke := s1
         &al.->diagnoz := s2
@@ -546,19 +546,19 @@ for x := 1 to 5 // diag1[x] => {s1,p_tip,diapazon,tmp->table,s2,s4}
             endif
           endif
           if p_tip == 2
-            &al.->kol4  := tmp->sluch
+            &al.->kol4  := tmp->sluch 
             &al.->kol5  := tmp->sluch5
             ls1 += put_val(tmp->sluch,8)
           elseif x == 1
-            &al.->kol4  := tmp->sluch
+            &al.->kol4  := tmp->sluch 
             &al.->kol5  := tmp->sluch11
             &al.->kol6  := tmp->sluch14
-            &al.->kol8  := tmp->sluch6
-            &al.->kol9  := tmp->sluch7
-            &al.->kol10 := tmp->sluch8
-            &al.->kol11 := tmp->sluch9
-            &al.->kol14 := tmp->sluch12
-            &al.->kol15 := k15
+            &al.->kol8  := tmp->sluch6 
+            &al.->kol9  := tmp->sluch7 
+            &al.->kol10 := tmp->sluch8 
+            &al.->kol11 := tmp->sluch9 
+            &al.->kol14 := tmp->sluch12 
+            &al.->kol15 := k15 
             ls1 += put_val(tmp->sluch,8)+;
                    put_val(tmp->sluch11,7)+;
                    put_val(tmp->sluch14,7)+;
@@ -569,14 +569,14 @@ for x := 1 to 5 // diag1[x] => {s1,p_tip,diapazon,tmp->table,s2,s4}
                    put_val(tmp->sluch12,6)+;
                    put_val(k15,6)
           elseif x == 2
-            &al.->kol4  := tmp->sluch
+            &al.->kol4  := tmp->sluch 
             &al.->kol5  := tmp->sluch5
-            &al.->kol8  := tmp->sluch6
-            &al.->kol9  := tmp->sluch7
-            &al.->kol10 := tmp->sluch8
-            &al.->kol11 := tmp->sluch9
-            &al.->kol14 := tmp->sluch12
-            &al.->kol15 := k15
+            &al.->kol8  := tmp->sluch6 
+            &al.->kol9  := tmp->sluch7 
+            &al.->kol10 := tmp->sluch8 
+            &al.->kol11 := tmp->sluch9 
+            &al.->kol14 := tmp->sluch12 
+            &al.->kol15 := k15 
             ls1 += put_val(tmp->sluch,8)+;
                    put_val(tmp->sluch5,7)+;
                    put_val(tmp->sluch6,7)+;
@@ -586,17 +586,17 @@ for x := 1 to 5 // diag1[x] => {s1,p_tip,diapazon,tmp->table,s2,s4}
                    put_val(tmp->sluch12,6)+;
                    put_val(k15,6)
           elseif x == 3
-            &al.->kol4  := tmp->sluch
-            &al.->kol7  := tmp->sluch5
-            &al.->kol8  := tmp->sluch6
-            &al.->kol9  := tmp->sluch7
-            &al.->kol10 := tmp->sluch8
-            &al.->kol11 := tmp->sluch9
-            &al.->kol12 := tmp->sluch10
-            &al.->kol13 := tmp->sluch11
-            &al.->kol14 := tmp->sluch12
-            &al.->kol15 := k15
-            &al.->kol16 := k16
+            &al.->kol4  := tmp->sluch 
+            &al.->kol7  := tmp->sluch5 
+            &al.->kol8  := tmp->sluch6 
+            &al.->kol9  := tmp->sluch7 
+            &al.->kol10 := tmp->sluch8 
+            &al.->kol11 := tmp->sluch9 
+            &al.->kol12 := tmp->sluch10 
+            &al.->kol13 := tmp->sluch11 
+            &al.->kol14 := tmp->sluch12 
+            &al.->kol15 := k15 
+            &al.->kol16 := k16 
             ls1 += put_val(tmp->sluch,6)+;
                    put_val(tmp->sluch5,6)+;
                    put_val(tmp->sluch6,5)+;
@@ -609,14 +609,14 @@ for x := 1 to 5 // diag1[x] => {s1,p_tip,diapazon,tmp->table,s2,s4}
                    put_val(k15,5)+;
                    put_val(k16,5)
           else
-            &al.->kol4  := tmp->sluch
-            &al.->kol8  := tmp->sluch6
-            &al.->kol9  := tmp->sluch7
-            &al.->kol10 := tmp->sluch8
-            &al.->kol11 := tmp->sluch9
-            &al.->kol12 := tmp->sluch10
-            &al.->kol14 := tmp->sluch12
-            &al.->kol15 := k15
+            &al.->kol4  := tmp->sluch 
+            &al.->kol8  := tmp->sluch6 
+            &al.->kol9  := tmp->sluch7 
+            &al.->kol10 := tmp->sluch8 
+            &al.->kol11 := tmp->sluch9 
+            &al.->kol12 := tmp->sluch10 
+            &al.->kol14 := tmp->sluch12 
+            &al.->kol15 := k15 
             ls1 += put_val(tmp->sluch,8)+;
                    put_val(tmp->sluch6,7)+;
                    put_val(tmp->sluch7,7)+;
@@ -661,7 +661,7 @@ for x := 1 to 5 // diag1[x] => {s1,p_tip,diapazon,tmp->table,s2,s4}
               aeval(arr_title, {|x| add_string(x) } )
             endif
             dbSelectArea(al)
-            append blank
+            append blank       
             &al.->name := s
             &al.->diagnoz := tmp_d->diagnoz
             ls1 := padr(t_arr1[1],len_name[x]+10)+;
@@ -674,19 +674,19 @@ for x := 1 to 5 // diag1[x] => {s1,p_tip,diapazon,tmp->table,s2,s4}
               endif
             endif
             if p_tip == 2
-              &al.->kol4  := tmp_d->sluch
+              &al.->kol4  := tmp_d->sluch 
               &al.->kol5  := tmp_d->sluch5
               ls1 += put_val(tmp_d->sluch,8)
             elseif x == 1
-              &al.->kol4  := tmp_d->sluch
+              &al.->kol4  := tmp_d->sluch 
               &al.->kol5  := tmp_d->sluch11
               &al.->kol6  := tmp_d->sluch14
-              &al.->kol8  := tmp_d->sluch6
-              &al.->kol9  := tmp_d->sluch7
-              &al.->kol10 := tmp_d->sluch8
-              &al.->kol11 := tmp_d->sluch9
-              &al.->kol14 := tmp_d->sluch12
-              &al.->kol15 := k15
+              &al.->kol8  := tmp_d->sluch6 
+              &al.->kol9  := tmp_d->sluch7 
+              &al.->kol10 := tmp_d->sluch8 
+              &al.->kol11 := tmp_d->sluch9 
+              &al.->kol14 := tmp_d->sluch12 
+              &al.->kol15 := k15 
               ls1 += put_val(tmp_d->sluch,8)+;
                      put_val(tmp_d->sluch11,7)+;
                      put_val(tmp_d->sluch14,7)+;
@@ -697,14 +697,14 @@ for x := 1 to 5 // diag1[x] => {s1,p_tip,diapazon,tmp->table,s2,s4}
                      put_val(tmp_d->sluch12,6)+;
                      put_val(k15,6)
             elseif x == 2
-              &al.->kol4  := tmp_d->sluch
+              &al.->kol4  := tmp_d->sluch 
               &al.->kol5  := tmp_d->sluch5
-              &al.->kol8  := tmp_d->sluch6
-              &al.->kol9  := tmp_d->sluch7
-              &al.->kol10 := tmp_d->sluch8
-              &al.->kol11 := tmp_d->sluch9
-              &al.->kol14 := tmp_d->sluch12
-              &al.->kol15 := k15
+              &al.->kol8  := tmp_d->sluch6 
+              &al.->kol9  := tmp_d->sluch7 
+              &al.->kol10 := tmp_d->sluch8 
+              &al.->kol11 := tmp_d->sluch9 
+              &al.->kol14 := tmp_d->sluch12 
+              &al.->kol15 := k15 
               ls1 += put_val(tmp_d->sluch,8)+;
                      put_val(tmp_d->sluch5,7)+;
                      put_val(tmp_d->sluch6,7)+;
@@ -714,17 +714,17 @@ for x := 1 to 5 // diag1[x] => {s1,p_tip,diapazon,tmp->table,s2,s4}
                      put_val(tmp_d->sluch12,6)+;
                      put_val(k15,6)
             elseif x == 3
-              &al.->kol4  := tmp_d->sluch
-              &al.->kol7  := tmp_d->sluch5
-              &al.->kol8  := tmp_d->sluch6
-              &al.->kol9  := tmp_d->sluch7
-              &al.->kol10 := tmp_d->sluch8
-              &al.->kol11 := tmp_d->sluch9
-              &al.->kol12 := tmp_d->sluch10
-              &al.->kol13 := tmp_d->sluch11
-              &al.->kol14 := tmp_d->sluch12
-              &al.->kol15 := k15
-              &al.->kol16 := k16
+              &al.->kol4  := tmp_d->sluch 
+              &al.->kol7  := tmp_d->sluch5 
+              &al.->kol8  := tmp_d->sluch6 
+              &al.->kol9  := tmp_d->sluch7 
+              &al.->kol10 := tmp_d->sluch8 
+              &al.->kol11 := tmp_d->sluch9 
+              &al.->kol12 := tmp_d->sluch10 
+              &al.->kol13 := tmp_d->sluch11 
+              &al.->kol14 := tmp_d->sluch12 
+              &al.->kol15 := k15 
+              &al.->kol16 := k16 
               ls1 += put_val(tmp_d->sluch,6)+;
                      put_val(tmp_d->sluch5,6)+;
                      put_val(tmp_d->sluch6,5)+;
@@ -737,14 +737,14 @@ for x := 1 to 5 // diag1[x] => {s1,p_tip,diapazon,tmp->table,s2,s4}
                      put_val(k15,5)+;
                      put_val(k16,5)
             else
-              &al.->kol4  := tmp_d->sluch
-              &al.->kol8  := tmp_d->sluch6
-              &al.->kol9  := tmp_d->sluch7
-              &al.->kol10 := tmp_d->sluch8
-              &al.->kol11 := tmp_d->sluch9
-              &al.->kol12 := tmp_d->sluch10
-              &al.->kol14 := tmp_d->sluch12
-              &al.->kol15 := k15
+              &al.->kol4  := tmp_d->sluch 
+              &al.->kol8  := tmp_d->sluch6 
+              &al.->kol9  := tmp_d->sluch7 
+              &al.->kol10 := tmp_d->sluch8 
+              &al.->kol11 := tmp_d->sluch9 
+              &al.->kol12 := tmp_d->sluch10 
+              &al.->kol14 := tmp_d->sluch12 
+              &al.->kol15 := k15 
               ls1 += put_val(tmp_d->sluch,8)+;
                      put_val(tmp_d->sluch6,7)+;
                      put_val(tmp_d->sluch7,7)+;
@@ -773,7 +773,7 @@ if is_100000
   viewtext(name_file,,,,.t.,,,reg_print)
 else
   call_fr("mo_forma12")
-endif
+endif  
 return NIL
 
 ***** 11.12.16
@@ -804,7 +804,7 @@ do while !eof()
     endif
   endif
   skip
-enddo
+enddo  
 use
 verify_FF(HH-3,.t.,sh)
 add_string("("+lstr(diag1[x,1,4]+1)+") Число физических лиц зарегистрированных пациентов - всего 1(___"+lstr(v1)+"___),")
@@ -933,7 +933,7 @@ if par == 1 .and. human->ishod == 201
   select HUMAN
   set order to 2
   find (str(lkod_k,7))
-  do while lkod_k == human->kod_k .and. !eof()
+  do while lkod_k == human->kod_k .and. !eof() 
     if human->ishod == 202 .and. lyear == year(human->k_data) .and. human_->oplata < 9
       rec2 := human->(recno()) ; exit
     endif
@@ -966,7 +966,7 @@ for i := 1 to 5
         is_1 := .t.
       else // ранее выявленный
         &pole_1pervich := 2
-      endif
+      endif 
       if &pole_1dispans == 1
         if &pole_1pervich == 1 // впервые
           is_disp := .t.
@@ -987,7 +987,7 @@ if is_student .and. select("frt") > 0
   frt->v5000_2 ++
   if is_1
     frt->v5000_3 ++
-    if is_disp
+    if is_disp 
       frt->v5000_4 ++
     endif
   endif
@@ -1047,7 +1047,7 @@ else
             frt->v1900_9 ++
           elseif lshifr == "4.26.5" // "Неонатальный скрининг на галактоземию"
             frt->v1900_8 ++
-          endif
+          endif 
         endif
       next
       select HU
@@ -1122,7 +1122,7 @@ if eq_any(human->ishod,101,102,201,202,203,204,205,301,302)
     arr := ret_f12_PN(human->kod,2)
     lnum_kol := 9 // профосмотр
   endif
-  if empty(arr) .and. eq_any(human->ishod,202,205)
+  if empty(arr) .and. eq_any(human->ishod,202,205) 
     aadd(arr, {human->KOD_DIAG,0,0})
   endif
   for i := 1 to len(arr)
@@ -1155,7 +1155,7 @@ if eq_any(human->ishod,101,102,201,202,203,204,205,301,302)
       endif
     endif
   next
-else
+else      
   afill(adiag_talon,0)
   for i := 1 to 16
     adiag_talon[i] := int(val(substr(human_->DISPANS,i,1)))
@@ -1229,25 +1229,25 @@ for j := 1 to len(k)
   tmp_tab->sluch += kol_sluch
   tmp_tab->sluch7 += kol_plus
   if eq_any(_dispans,1,2) // Состоит, Взят
-    tmp_tab->sluch6 += kol_sluch
+    tmp_tab->sluch6 += kol_sluch 
     tmp_tab->sluch13 += kol_sluch
     if kol_plus > 0 .and. _dispans == 2 // Взят
-      tmp_tab->sluch8 += kol_plus
+      tmp_tab->sluch8 += kol_plus 
     endif
   elseif _dispans == 3 // Снят
     tmp_tab->sluch12 += kol_sluch
   endif
   if kol_plus > 0 .and. eq_any(lnom_kol,9,10)
     pole := "tmp_tab->sluch"+lstr(lnom_kol)
-    &pole := &pole + min(1,kol_plus)
+    &pole := &pole + min(1,kol_plus) 
   endif
   if v == 1
     if spec_vozrast == 2
       tmp_tab->sluch11 += kol_plus
-    elseif spec_vozrast == 3
+    elseif spec_vozrast == 3 
       tmp_tab->sluch14 += kol_sluch
     endif
-  elseif v == 2 .and. spec_vozrast == 1
+  elseif v == 2 .and. spec_vozrast == 1 
     tmp_tab->sluch5 += kol_sluch
   elseif v == 3 .and. upper(lpol) == "М"
     tmp_tab->sluch5 += kol_sluch
@@ -1275,25 +1275,25 @@ if is_diag
   tmp_d->sluch += kol_sluch
   tmp_d->sluch7 += kol_plus
   if eq_any(_dispans,1,2) // Состоит, Взят
-    tmp_d->sluch6 += kol_sluch
+    tmp_d->sluch6 += kol_sluch 
     tmp_d->sluch13 += kol_sluch
     if kol_plus > 0 .and. _dispans == 2 // Взят
-      tmp_d->sluch8 += kol_plus
+      tmp_d->sluch8 += kol_plus 
     endif
   elseif _dispans == 3 // Снят
     tmp_d->sluch12 += kol_sluch
   endif
   if kol_plus > 0 .and. eq_any(lnom_kol,9,10)
     pole := "tmp_d->sluch"+lstr(lnom_kol)
-    &pole := &pole + min(1,kol_plus)
+    &pole := &pole + min(1,kol_plus) 
   endif
   if v == 1
     if spec_vozrast == 2
       tmp_d->sluch11 += kol_plus
-    elseif spec_vozrast == 3
+    elseif spec_vozrast == 3 
       tmp_d->sluch14 += kol_sluch
     endif
-  elseif v == 2 .and. spec_vozrast == 1
+  elseif v == 2 .and. spec_vozrast == 1 
     tmp_d->sluch5 += kol_sluch
   elseif v == 3 .and. upper(lpol) == "М"
     tmp_d->sluch5 += kol_sluch
@@ -1328,7 +1328,7 @@ do while tmp1rule->tip == 1 .and. !eof()
     fl := .t.
     if (fl_plus := (tmp1rule->kol1 > 0))
       lnum_kol := tmp1rule->num_kol
-    endif
+    endif 
     if tmp1rule->dispan > 0 .and. ascan(ad,lshifr3) == 0
       aadd(ad,lshifr3)
       _dispans := tmp1rule->dispan
@@ -1393,7 +1393,7 @@ do while tmp1rule->tip == 2 .and. !eof()
     fl := .t.
     if (fl_plus := (tmp1rule->kol1 > 0))
       lnum_kol := tmp1rule->num_kol
-    endif
+    endif 
   endif
   if fl .or. _dispans > 0
     mdate := kart->date_r
@@ -1479,7 +1479,7 @@ if (v := ascan(arr_v, {|x| between(mvozrast,x[1],x[2]) } )) == 0
 endif
 v4 := 0
 if v == 1 .and. mvozrast < 1
-  v4 := 2 // дети до одного года
+  v4 := 2 // дети до одного года 
 elseif v == 4 .and. ((mpol == "Ж" .and. mvozrast >= 55) .or. (mpol == "М" .and. mvozrast >= 60))
   v4 := 5 // взрослые старше трудоспособного возраста
 endif
@@ -1726,7 +1726,7 @@ if eq_any(human->ishod,101,102,201,202,203,204,205,301,302)
       endif
     endif
   next
-else
+else      
   afill(adiag_talon,0)
   for i := 1 to 16
     adiag_talon[i] := int(val(substr(human_->DISPANS,i,1)))
@@ -4612,10 +4612,7 @@ adbf := {{"tip",   "N",1,0},;  // 1-4
          {"p10",   "N",7,0},;
          {"p11",   "N",7,0},;
          {"p12",   "N",7,0},;
-         {"p13",   "N",7,0},;
-         {"p16",   "N",7,0},;
-         {"p17",   "N",7,0},;
-         {"p18",   "N",7,0}}
+         {"p13",   "N",7,0}}
 dbcreate(cur_dir+"tmp",adbf)
 use (cur_dir+"tmp") new
 index on str(tip,1)+str(kod,9) to (cur_dir+"tmp")
@@ -4632,10 +4629,7 @@ adbf := {{"tip",   "N",1,0},;  // 1-4
          {"p12",   "N",7,0},;
          {"p13",   "N",7,0},;
          {"p14",   "N",7,0},;
-         {"p15",   "N",7,0},;
-         {"p16",   "N",7,0},;
-         {"p17",   "N",7,0},;
-         {"p18",   "N",7,0}}
+         {"p15",   "N",7,0}}
 dbcreate(cur_dir+"tmp1",adbf)
 use (cur_dir+"tmp1") new
 index on str(tip,1)+str(kod,9) to (cur_dir+"tmp1")
@@ -4803,104 +4797,6 @@ if found()
     skip
   enddo
 endif
-/// вставка
-mywait()
-arr_title := {;
-"───────────────────────┬──┬────────────────────┬────────────────────┬",;
-"                       │№ │   Число посещений  │из общего числа по  │",;
-"                       │ст├──────┬──────┬──────┤ поводу заболеваний ├",;
-"Наименование должностей│ро│      │в т.ч.│детьми├──────┬──────┬──────┤",;
-"                       │ки│всего │сельск│ 0-17 │сельс.│18 лет│ дети │",;
-"                       │  │      │жителя│ лет  │жител.│и стар│0-17л.│",;
-"───────────────────────┼──┼──────┼──────┼──────┼──────┼──────┼──────┼",;
-"           1           │2 │  3   │  4   │  5   │  6   │  7   │  8   │",;
-"───────────────────────┴──┴──────┴──────┴──────┴──────┴──────┴──────┴";
-}
-sh := len(arr_title[1])
-reg_print := 6
-fp := fcreate(name_file) ; tek_stroke := 0 ; n_list := 1
-R_Use(dir_server+"organiz",,"ORG")
-add_string(padr(org->name,60)+padl("Форма № 30",sh-60))
-add_string(padl("Утверждена Приказом",sh))
-add_string(padl("Росстата России",sh))
-add_string(padl("от 27.12.2016г. № 866",sh))
-add_string(center("СВЕДЕНИЯ ОБ УЧРЕЖДЕНИИ ЗДРАВООХРАНЕНИЯ",sh))
-add_string(center(arr_m[4],sh))
-if pi1 == 1
-  add_string(center(str_pi_schet(),sh))
-else
-  add_string(center("[ по дате выписки счета ]",sh))
-endif
-add_string("")
-add_string(center("Раздел III. ДЕЯТЕЛЬНОСТЬ МО ПО ОКАЗАНИЮ МЕД.ПОМОЩИ В АМБУЛАТОРНЫХ УСЛОВИЯХ",sh))
-add_string("")
-add_string(center("1. Работа врачей медицинской организации в амбулаторных условиях",sh))
-add_string("(2100)"+padl("Код по ОКЕИ: посещение в смену - 545",sh-6))
-aeval(arr_title, {|x| add_string(x) } )
-use (cur_dir+"tmp") new index (cur_dir+"tmp")
-find (str(0,1))
-if found()
-  f2_f30("Врачи всего","01")
-  add_string(replicate("-",sh))
-  add_string("в т.ч. по врачам")
-  R_Use(dir_server+"mo_pers",,"PERS")
-  select TMP
-  set relation to kod into PERS
-  index on upper(pers->fio) to (cur_dir+"tmp") for tip == 1
-  go top
-  do while !eof()
-    f2_f30(lstr(pers->tab_nom)+" "+fam_i_o(pers->fio))
-    skip
-  enddo
-  add_string(replicate("-",sh))
-  add_string("в т.ч. по профилям")
-  select TMP
-  set relation to
-  index on str(kod,9) to (cur_dir+"tmp") for tip == 2
-  go top
-  do while !eof()
-    f2_f30(inieditspr(A__MENUVERT, glob_V002, tmp->kod))
-    skip
-  enddo
-  add_string(replicate("-",sh))
-  add_string("в т.ч. по специальностям")
-  select TMP
-  set relation to
-  index on padr(lstr(kod),9) to (cur_dir+"tmp") for tip == 3
-  go top
-  do while !eof()
-    f2_f30(inieditspr(A__MENUVERT, glob_V015, tmp->kod))
-    skip
-  enddo
-  R_Use(dir_server+"uslugi",,"USL")
-  add_string(replicate("-",sh))
-  add_string("в т.ч. по услугам")
-  select TMP
-  set relation to kod into USL
-  index on fsort_usl(usl->shifr) to (cur_dir+"tmp") for tip == 4
-  go top
-  do while !eof()
-    f2_f30(alltrim(usl->shifr)+" "+usl->name)
-    skip
-  enddo
-  R_Use(dir_server+"mo_su",,"MOSU")
-  select TMP
-  set relation to kod into MOSU
-  index on fsort_usl(mosu->shifr) to (cur_dir+"tmp") for tip == 5
-  go top
-  do while !eof()
-    lshifr := alltrim(mosu->shifr1)
-    if !empty(mosu->shifr)
-      lshifr += "("+alltrim(mosu->shifr)+")"
-    endif
-    f2_f30(lshifr+" "+mosu->name)
-    skip
-  enddo
-endif
-
-
-
-
 arr_title := {;
 "──────────────────────────┬───────────────────────────┬────────────────────┬─────────────┬─────────────",;
 "                          │   Поступило больных       │  выписано больных  │   умерло    │ койко-дней  ",;
@@ -5068,9 +4964,6 @@ if fl_stom_new
           endif
           if mvozrast < 18
             tmp->p5 += mkol
-            if mvozrast < 15
-              tmp->p16 += mkol
-            endif
           endif
           if is_zabol
             if is_selo
@@ -5078,21 +4971,15 @@ if fl_stom_new
             endif
             if mvozrast >= 18
               tmp->p7 += mkol
-              if fl_pensioner
-                tmp->p18 += mkol
-              endif
             else
               tmp->p8 += mkol
-              if mvozrast < 15
-                tmp->p17 += mkol
-              endif
             endif
           endif
         endif
       next
     endif
   next
-else
+else  
   select HU
   find (str(human->kod,7))
   do while hu->kod == human->kod .and. !eof()
@@ -5166,9 +5053,6 @@ else
                 endif
                 if mvozrast < 18
                   tmp->p5 += mkol
-                  if mvozrast < 15
-                    tmp->p16 += mkol
-                  endif
                 endif
                 if is_zabol
                   if is_selo
@@ -5176,14 +5060,8 @@ else
                   endif
                   if mvozrast >= 18
                     tmp->p7 += mkol
-                    if fl_pensioner
-                      tmp->p18 += mkol
-                    endif
                   else
                     tmp->p8 += mkol
-                    if mvozrast < 15
-                      tmp->p17 += mkol
-                    endif
                   endif
                 endif
               endif

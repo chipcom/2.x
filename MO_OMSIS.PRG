@@ -6611,7 +6611,7 @@ return NIL
 
 *
 
-***** 04.07.17
+***** 28.12.17
 Function f2_prikaz_848_miac(par,_what_if)
 Local tfoms_pz[20], a_usl := {}, i, j, lshifr1, mkol,;
       _ist_fin := f3_prikaz_848_miac(_what_if), ;
@@ -6749,13 +6749,13 @@ else
           if ii > 0
             if ii == 1 // стационар
               lusl_ok := 1
-              aadd(a_usl,{ii,hu_->PROFIL,hu->u_kod,mkol})
+              aadd(a_usl,{ii,hu_->PROFIL,hu->u_kod,mkol,is_dom})
             elseif ii == 2 // поликлиника
               lusl_ok := 2
               aadd(a_usl,{ii,iif(m1dolpro==0, hu_->PRVS, hu_->PROFIL),hu->u_kod,mkol,is_dom})
             else // дневной стационар
               lusl_ok := 3
-              aadd(a_usl,{ii,hu_->PROFIL,hu->u_kod,mkol})
+              aadd(a_usl,{ii,hu_->PROFIL,hu->u_kod,mkol,is_dom})
             endif
           endif
         endif

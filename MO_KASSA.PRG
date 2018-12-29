@@ -920,6 +920,7 @@ do while .t.
              {"U_CENA","N", 10,2},;
              {"kol",   "N",  4,0},;
              {"kol1",  "N",  4,0},;
+             {"nds20", "N",  1,0},; //10.08.08
              {"nds18", "N",  1,0},; //10.08.08
              {"nds10", "N",  1,0}}
     dbcreate(cur_dir+"tmp",adbf)
@@ -966,6 +967,8 @@ do while .t.
         if round_5(usl->pnds_d,2) > 0
           if round_5(usl->pnds_d,0) == 18
             tmp->nds18 := 1
+          elseif round_5(usl->pnds_d,0) == 20
+            tmp->nds20 := 1
           elseif round_5(usl->pnds_d,0) == 10
             tmp->nds10 := 1
           endif
@@ -974,6 +977,8 @@ do while .t.
         if round_5(usl->pnds,2) > 0
           if round_5(usl->pnds,0) == 18
             tmp->nds18 := 1
+          elseif round_5(usl->pnds,0) == 20
+            tmp->nds20 := 1
           elseif round_5(usl->pnds,0) == 10
             tmp->nds10 := 1
           endif
