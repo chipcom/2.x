@@ -4534,7 +4534,8 @@ else
             pack
           endif
           if tmp->nyear > 2018
-            create1reestr19(tmp->(recno()),tmp->nyear,tmp->nmonth)
+            //create1reestr19(tmp->(recno()),tmp->nyear,tmp->nmonth)
+            func_error(4,"Пока нельзя создавать реестры за 2019 год")
           else
             create1reestr17(tmp->(recno()),tmp->nyear,tmp->nmonth)
           endif
