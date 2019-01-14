@@ -8825,120 +8825,6 @@ return NIL
 *
 
 *****
-Function is_up_usl(arr_usl,mkod)
-Local i := 0, tmp_select := select()
-select USL
-do while .t.
-  find (str(mkod,4))
-  if !found() ; exit ; endif
-  if usl->kod_up == 0 .or. i > 20
-    exit
-  endif
-  mkod := usl->kod_up ; ++i
-enddo
-if tmp_select > 0
-  select(tmp_select)
-endif
-return ( ascan(arr_usl,usl->kod) > 0 )
-
-*
-
-***** 13.01.18
-Function input_usluga(arr_tfoms)
-Local ar, musl, arr_usl, buf, fl_tfoms := (valtype(arr_tfoms)=="A")
-ar := GetIniSect(tmp_ini,"uslugi")
-musl := padr(a2default(ar,"shifr"),10)
-if (musl := input_value(18,6,20,73,color1,;
-          space(17)+"Введите шифр услуги",musl,"@K")) != NIL .and. !empty(musl)
-  buf := save_maxrow()
-  mywait()
-  musl := transform_shifr(musl)
-  SetIniSect(tmp_ini,"uslugi",{{"shifr",musl}})
-  R_Use(dir_server+"uslugi",dir_server+"uslugish","USL")
-  find (musl)
-  if found()
-    susl := musl
-    arr_usl := {usl->kod,alltrim(usl->shifr)+". "+alltrim(usl->name),usl->shifr}
-  else
-    func_error(4,"Услуга с шифром "+alltrim(musl)+" не найдена в нашем справочнике!")
-    if fl_tfoms
-      arr_usl := {0,"",""}
-    endif
-  endif
-  usl->(dbCloseArea())
-  if fl_tfoms
-    use_base("lusl")
-    find (musl)
-    if found()
-      arr_tfoms[1] := lusl->(recno())
-      arr_tfoms[2] := alltrim(lusl->shifr)+". "+alltrim(lusl->name)
-      arr_tfoms[3] := lusl->shifr
-    endif
-    lusl->(dbCloseArea())
-    lusl17->(dbCloseArea())
-  endif
-  rest_box(buf)
-endif
-return arr_usl
-
-*
-
-*****
-Function ret_1st_otd(lkod_uch)
-Local k, tmp_select := select()
-R_Use(dir_server+"mo_otd",,"OTD")
-Locate for otd->kod_lpu == lkod_uch
-if found()
-  k := {otd->(recno()),alltrim(otd->name)}
-else
-  func_error(3,"Нет отделений для данного учреждения!")
-endif
-otd->(dbCloseArea())
-if tmp_select > 0
-  select(tmp_select)
-endif
-return k
-
-*
-
-***** вернуть процент выполнения плана
-Function ret_trudoem(lkod_vr,ltrudoem,kol_mes,arr_m,/*@*/plan)
-Local i := 0, trd := 0, ltrud, tmp_select := select()
-plan := 0
-do while i < kol_mes
-  ltrud := 0
-  // сначала поиск конкретного месяца
-  select UCHP
-  find (str(lkod_vr,4)+str(arr_m[1],4)+str(arr_m[2]+i,2))
-  if found()
-    ltrud := uchp->m_trud
-  endif
-  if empty(ltrud)  // если не нашли
-    // то поиск среднемесячного плана
-    select UCHP
-    find (str(lkod_vr,4)+str(0,4)+str(0,2))
-    if found()
-      ltrud := uchp->m_trud
-    endif
-  endif
-  plan += ltrud
-  ++i
-enddo
-if plan > 0
-  trd := ltrudoem / plan * 100
-endif
-select (tmp_select)
-return trd
-
-*
-
-*****
-Function inputE_otd(r1,c1,r2)
-return input_otd(r1,c1,sys_date)
-
-*
-
-*****
 Function SOuslPkart(mkod_human,mkod_lpu)
 // mkod_human - код по БД human
 Local adbf, buf := savescreen(), j := 0, tmp_color := setcolor(color1), ;

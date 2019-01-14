@@ -2486,8 +2486,10 @@ if human_->oplata < 9 .and. f_is_uch(st_a_uch,human->lpu)
   fl_tmp := .f. ; fl_next := .t.
   // проверим правильность определения КСГ
   if human_->USL_OK < 3
-    if (y := year(human->K_DATA)) > 2017
+    if (y := year(human->K_DATA)) > 2018
       arr := definition_KSG()
+    elseif y > 2017
+      arr := definition_KSG_18()
     elseif y > 2016
       arr := definition_KSG_17()
     else

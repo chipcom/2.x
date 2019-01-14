@@ -138,7 +138,7 @@ Use (dir_server+"mo_rpdsh") new
 pack // упаковка файла нижнего уровня
 close databases
 //
-Use (dir_server+"mo_rak") new alias RAK
+/*Use (dir_server+"mo_rak") new alias RAK
 index on str(akt,6) to (cur_dir+"tmprak") for empty(kod_xml)
 arr_rak := {}
 dbeval({|| aadd(arr_rak, {akt,codea,nakt,dakt}) })
@@ -183,7 +183,7 @@ if !empty(arr_rak) // не заполнен kod_xml из-за моей ошибки
     endif
   next
 endif  
-close databases
+close databases*/
 Use (dir_server+"mo_nnapr") new alias NAPR
 go top
 do while !eof()
@@ -222,7 +222,6 @@ do while !eof()
 enddo   
 close databases
 //
-delete file (dir_server+"to_st_17"+sdbf)
 stat_msg("Пеpеиндексирование завеpшено!")
 t2 := seconds() - t1
 restscreen(buf)
@@ -641,8 +640,10 @@ delete file ("t1dubl"+sdbf)
 restscreen(buf)
 return {j1,j2}
 
-***** 08.02.17 открыть все файлы для удаления дубликатов записей в картотеке
+***** 11.01.19 открыть все файлы для удаления дубликатов записей в картотеке
 Function f_open_files_dubl_zap(lExcluUse)
+G_Use(dir_server+"mo_d01k",,"D01K",,lExcluUse)
+index on str(kod_k,7) to (cur_dir+"tmp_d01k")
 // список пациентов в реестрах будущих диспансеризаций
 G_Use(dir_server+"mo_dr01k",,"R01K",,lExcluUse)
 index on str(kod_k,7) to (cur_dir+"tmp_r01k")
@@ -696,13 +697,22 @@ G_Use(dir_server+"mo_krto",,"KRTO",,lExcluUse)
 index on str(kod_k,7) to (cur_dir+"tmp_krto")
 return NIL
 
-***** 08.02.17 удалить дубликаты записей в картотеке
+***** 11.01.19 удалить дубликаты записей в картотеке
 Function f_delete_dubl_zap(dubl1_kart,dubl2_kart,is_lock)
 // dubl1_kart - Человек, которому переносится информация
 // dubl2_kart - Человек, который удаляется
 // is_lock    - логическая величина - блокировать ли запись
 DEFAULT is_lock TO .t.
 // список пациентов в реестрах будущих диспансеризаций
+select D01K
+do while .t.
+  find (str(dubl2_kart,7))
+  if !found() ; exit ; endif
+  if is_lock
+    G_RLock(forever)
+  endif
+  d01k->kod_k := dubl1_kart
+enddo
 select R01K
 do while .t.
   find (str(dubl2_kart,7))
@@ -1371,7 +1381,7 @@ endif
 restscreen(buf)
 return fl
 
-***** 29.11.18 инициализировать массив DBF-файлов базы данных
+***** 10.01.19 инициализировать массив DBF-файлов базы данных
 Function init_array_files_DB()
 Local i, arr
 Public array_files_DB := {}, array_task_DB[24,2]
@@ -1460,8 +1470,10 @@ aadd(array_files_DB,"mo_hdisp")
 aadd(array_files_DB,"mo_hod")
 aadd(array_files_DB,"mo_hod_k")
 aadd(array_files_DB,"mo_rak")
+aadd(array_files_DB,"mo_rakexp")
 aadd(array_files_DB,"mo_raks")
 aadd(array_files_DB,"mo_raksh")
+aadd(array_files_DB,"mo_raksherr")
 aadd(array_files_DB,"mo_rpd")
 aadd(array_files_DB,"mo_rpds")
 aadd(array_files_DB,"mo_rpdsh")
@@ -1470,6 +1482,8 @@ aadd(array_files_DB,"mo_onksl")
 aadd(array_files_DB,"mo_onkdi")
 aadd(array_files_DB,"mo_onkpr")  
 aadd(array_files_DB,"mo_onkus")
+aadd(array_files_DB,"mo_onkco")
+aadd(array_files_DB,"mo_onkle")
 // реестры и счета
 aadd(array_files_DB,"mo_rees")
 aadd(array_files_DB,"mo_xml")

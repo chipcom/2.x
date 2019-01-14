@@ -173,35 +173,19 @@ do case
     k := len(mas_pmt) 
     use_base("luslc")
     set order to 2
-    for j := 0 to 9
-      s := "2"+str(j,1)
-      find (glob_mo[_MO_KOD_TFOMS]+s)
-      do while luslc->codemo == glob_mo[_MO_KOD_TFOMS] .and. s == left(luslc->shifr,2) .and. !eof()
-        if year(luslc->datebeg) == 2018 .and. is_ksg(luslc->shifr,2) 
-          aadd(mas_pmt, "Услуги + КСГ (~дневной стационар)")
-          aadd(mas_msg, "Вывод списка разрешённых услуг ФФОМС вместе с КСГ дневного стационара")
-          aadd(mas_fun, "fspr_uslugi(27)")
-          exit
-        endif
-        skip
-      enddo
-      if len(mas_pmt) == k+1 ; exit ; endif
-    next
+    find (glob_mo[_MO_KOD_TFOMS]+"ds")
+    if found() 
+      aadd(mas_pmt, "Услуги + КСГ (~дневной стационар)")
+      aadd(mas_msg, "Вывод списка разрешённых услуг ФФОМС вместе с КСГ дневного стационара")
+      aadd(mas_fun, "fspr_uslugi(27)")
+    endif
     k := len(mas_pmt) 
-    for j := 0 to 9
-      s := "1"+str(j,1)
-      find (glob_mo[_MO_KOD_TFOMS]+s)
-      do while luslc->codemo == glob_mo[_MO_KOD_TFOMS] .and. s == left(luslc->shifr,2) .and. !eof()
-        if year(luslc->datebeg) == 2018 .and. is_ksg(luslc->shifr,1) 
-          aadd(mas_pmt, "Услуги + ~КСГ (стационар)")
-          aadd(mas_msg, "Вывод списка разрешённых услуг ФФОМС вместе с КСГ стационара")
-          aadd(mas_fun, "fspr_uslugi(28)")
-          exit
-        endif
-        skip
-      enddo
-      if len(mas_pmt) == k+1 ; exit ; endif
-    next
+    find (glob_mo[_MO_KOD_TFOMS]+"st")
+    if found() 
+      aadd(mas_pmt, "Услуги + ~КСГ (стационар)")
+      aadd(mas_msg, "Вывод списка разрешённых услуг ФФОМС вместе с КСГ стационара")
+      aadd(mas_fun, "fspr_uslugi(28)")
+    endif
     close databases
     popup_prompt(T_ROW-len(mas_pmt)-3, T_COL-5, sk2, mas_pmt, mas_msg, mas_fun)
   case k == 4
@@ -248,7 +232,7 @@ if k > 0
 endif
 return NIL
 
-***** 13.01.17
+***** 03.01.18
 Function f4_uslugi(reg)
 Local i, s := "Список услуг ", mas[2], buf := save_maxrow(),;
       n_file := "uslugi"+stxt, sh := 80, HH := 60, l, k, j, lshifr, lshifr1, lname
@@ -301,9 +285,9 @@ do while !eof()
       lshifr += "("+alltrim(lshifr1)+")"
     endif
     lshifr += "."
-    if usl->zf == 1
-      lshifr += " [ЗФ] "
-    endif
+    //if usl->zf == 1
+      //lshifr += " [ЗФ] "
+    //endif
     s := f42_uslugi(reg,s)
     if !empty(s)
       if mem_trudoem == 2
@@ -319,10 +303,10 @@ do while !eof()
         if found()
           lname := alltrim(lusl->name)
         else
-          select LUSL17
+          select LUSL18
           find (usl->shifr)
           if found()
-            lname := alltrim(lusl17->name)
+            lname := alltrim(lusl18->name)
           endif
         endif
       endif
@@ -412,7 +396,7 @@ Local arr_usl, atf := {0,"",""}, i := 1, k, mas[2], sh := 80, HH := 60, j := 0, 
 if (arr_usl := input_usluga(atf)) != NIL
   mywait()
   fp := fcreate(n_file) ; n_list := 1 ; tek_stroke := 0
-  R_Use(dir_exe+"_mo8dep",cur_dir+"_mo8dep","DEP")
+  R_Use(dir_exe+"_mo9dep",cur_dir+"_mo9dep","DEP")
   Use_base("lusl")
   Use_base("luslc")
   R_Use(dir_server+"uslugi",dir_server+"uslugi","USL")
@@ -485,15 +469,24 @@ if (arr_usl := input_usluga(atf)) != NIL
     for i := 2 to k
       add_string(padl(alltrim(mas[i]),sh))
     next
-    /*select LUSLC15
-    set order to 2
-    find (glob_mo[_MO_KOD_TFOMS]+atf[3])
-    do while luslc15->shifr == atf[3] .and. luslc15->CODEMO == glob_mo[_MO_KOD_TFOMS] .and. !eof()
-      s := space(2)+"c "+date_8(luslc15->datebeg)+" по "+date_8(luslc15->dateend)+": ЦЕНА "+;
-           iif(luslc15->VZROS_REB==0,'взрослая=','детская =')+dellastnul(luslc15->cena)
+    select LUSLC18
+    set order to 1
+    find (atf[3])
+    do while luslc18->shifr == atf[3] .and. !eof()
+      s := space(2)+"c "+date_8(luslc18->datebeg)+" по "+date_8(luslc18->dateend)+": ЦЕНА "+;
+           iif(luslc18->VZROS_REB==0,'взрослая=','детская =')+dellastnul(luslc18->cena)
+      if is_otd_dep .and. luslc18->depart > 0
+        select DEP
+        find (str(luslc18->depart,3))
+        if found()
+          s += "  ("+alltrim(dep->name_short)+")" 
+        endif
+      endif
+      verify_FF(HH)       
       add_string(s)
+      select LUSLC18
       skip
-    enddo*/
+    enddo
     select LUSLC
     set order to 1
     find (atf[3])
@@ -588,9 +581,9 @@ for i := 1 to 2
       verify_FF(HH, .t., sh)
     endif
     s := rtrim(usl->shifr)+" "
-    if usl->zf == 1
-      s += "[ЗФ] "
-    endif
+    //if usl->zf == 1
+      //s += "[ЗФ] "
+    //endif
     k := perenos(mas,s+alltrim(usl->name),l," ,;")
     s := padr(mas[1],l)
     if mem_trudoem == 2
@@ -617,7 +610,7 @@ return NIL
 
 *
 
-***** 13.01.18 даты смены цен
+***** 03.01.19 даты смены цен
 Function usl1TFOMS()
 Local k, buf := save_maxrow(), name_file := "uslugi"+stxt, sh := 80, HH := 60, ;
       i, s, fl, v1, v2, mdate, pole, nu, t_arr[BR_LEN], ret, ret_arr, scode, dy
@@ -626,29 +619,29 @@ dbcreate(cur_dir+"tmp",{{"ibeg","N",1,0},{"iend","N",1,0},{"data","D",8,0}})
 use (cur_dir+"tmp") new
 index on dtos(data) to (cur_dir+"tmp")
 use_base("luslc")
-select LUSLC15
-index on datebeg to (cur_dir+"tmp_uslc15") for !empty(datebeg) .and. codemo == glob_mo[_MO_KOD_TFOMS] unique
+select LUSLC18
+index on datebeg to (cur_dir+"tmp_uslc18") for !empty(datebeg) .and. codemo == glob_mo[_MO_KOD_TFOMS] unique
 go top
 do while !eof()
   select TMP
   append blank
   tmp->ibeg := 1
-  tmp->data := luslc15->datebeg
-  select LUSLC15
+  tmp->data := luslc18->datebeg
+  select LUSLC18
   skip
 enddo
-select LUSLC15
-index on dateend to (cur_dir+"tmp_uslc15") for !empty(dateend) .and. codemo == glob_mo[_MO_KOD_TFOMS] unique
+select LUSLC18
+index on dateend to (cur_dir+"tmp_uslc18") for !empty(dateend) .and. codemo == glob_mo[_MO_KOD_TFOMS] unique
 go top
 do while !eof()
   select TMP
-  find (dtos(luslc15->dateend))
+  find (dtos(luslc18->dateend))
   if !found()
     append blank
-    tmp->data := luslc15->dateend
+    tmp->data := luslc18->dateend
   endif
   tmp->iend := 1
-  select LUSLC15
+  select LUSLC18
   skip
 enddo
 //
@@ -694,16 +687,8 @@ edit_browse(t_arr)
 close databases
 if ret != NIL
   mdate := ret[1]
-  if (dy := year(mdate)) < 2018
-    if is_adres_podr .and. mdate >= d_01_08_2017
-      ret_arr := f_spr_usl_adres_podr() 
-    else
-      glob_podr := ""
-    endif
-    scode := iif(empty(glob_podr),glob_mo[_MO_KOD_TFOMS],glob_podr)
-  else
-    scode := glob_mo[_MO_KOD_TFOMS]
-  endif 
+  dy := year(mdate)
+  scode := glob_mo[_MO_KOD_TFOMS]
   mywait()
   dbcreate(cur_dir+"tmp1",{{"shifr","C",10,0},;
                            {"flv","L",1,0},;
@@ -711,7 +696,7 @@ if ret != NIL
                            {"depart","N",3,0},;
                            {"cenav","N",10,2},;
                            {"cenad","N",10,2}})
-  R_Use(dir_exe+"_mo8dep",cur_dir+"_mo8dep","DEP")
+  R_Use(dir_exe+"_mo9dep",cur_dir+"_mo9dep","DEP")
   use (cur_dir+"tmp1") new
   index on shifr+str(depart,3) to (cur_dir+"tmp1")
   fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
@@ -722,27 +707,28 @@ if ret != NIL
     add_string(center("[ цены установлены "+date_8(mdate)+"г. ]",sh))
     add_string("")
     use_base("luslc")
-    if dy < 2018
-      select LUSLC15
+    if dy < 2019
+      select LUSLC18
       set order to 2 // работаем с собственными ценами
       find (scode)
-      do while luslc15->CODEMO == scode .and. !eof()
-        if luslc15->datebeg == mdate
+      do while luslc18->CODEMO == scode .and. !eof()
+        if luslc18->datebeg == mdate
           select TMP1
-          find (luslc15->shifr)
+          find (luslc18->shifr+str(luslc18->depart,3))
           if !found()
             append blank
-            tmp1->shifr := luslc15->shifr
+            tmp1->shifr := luslc18->shifr
+            tmp1->depart := luslc18->depart
           endif
-          if luslc15->VZROS_REB == 0
+          if luslc18->VZROS_REB == 0
             tmp1->flv := .t.
-            tmp1->cenav := luslc15->CENA
+            tmp1->cenav := luslc18->CENA
           else
             tmp1->fld := .t.
-            tmp1->cenad := luslc15->CENA
+            tmp1->cenad := luslc18->CENA
           endif
         endif
-        select LUSLC15
+        select LUSLC18
         skip
       enddo
     else
@@ -771,8 +757,8 @@ if ret != NIL
     endif
     use_base("lusl")
     select TMP1
-    if dy < 2018
-      set relation to shifr into LUSL17
+    if dy < 2019
+      set relation to shifr into LUSL18
     else
       set relation to shifr into LUSL
     endif
@@ -781,7 +767,7 @@ if ret != NIL
     old := tmp1->shifr
     do while !eof()
       n := iif(empty(tmp1->depart), 50, 70)
-      k := perenos(t_arr,iif(dy < 2018, lusl17->name, lusl->name),n)
+      k := perenos(t_arr,iif(dy < 2019, lusl18->name, lusl->name),n)
       if empty(tmp1->depart)
         s := tmp1->shifr+padr(t_arr[1],n)
         if emptyall(tmp1->cenav,tmp1->cenad)
@@ -822,27 +808,28 @@ if ret != NIL
     add_string(center(date_month(mdate,.t.),sh))
     add_string("")
     use_base("luslc")
-    if dy < 2018
-      select LUSLC15
+    if dy < 2019
+      select LUSLC18
       set order to 2 // работаем с собственными ценами
       find (scode)
-      do while luslc15->CODEMO == scode .and. !eof()
-        if !empty(luslc15->dateend) .and. luslc15->dateend == mdate
+      do while luslc18->CODEMO == scode .and. !eof()
+        if !empty(luslc18->dateend) .and. luslc18->dateend == mdate
           select TMP1
-          find (luslc15->shifr)
+          find (luslc18->shifr+str(luslc18->depart,3))
           if !found()
             append blank
-            tmp1->shifr := luslc15->shifr
+            tmp1->shifr := luslc18->shifr
+            tmp1->depart := luslc18->depart
           endif
-          if luslc15->VZROS_REB == 0
+          if luslc18->VZROS_REB == 0
             tmp1->flv := .t.
-            tmp1->cenav := luslc15->CENA
+            tmp1->cenav := luslc18->CENA
           else
             tmp1->fld := .t.
-            tmp1->cenad := luslc15->CENA
+            tmp1->cenad := luslc18->CENA
           endif
         endif
-        select LUSLC15
+        select LUSLC18
         skip
       enddo
     else
@@ -871,8 +858,8 @@ if ret != NIL
     endif
     use_base("lusl")
     select TMP1
-    if dy < 2018
-      set relation to shifr into LUSL17
+    if dy < 2019
+      set relation to shifr into LUSL18
     else
       set relation to shifr into LUSL
     endif
@@ -881,7 +868,7 @@ if ret != NIL
     old := tmp1->shifr
     do while !eof()
       n := iif(empty(tmp1->depart), 50, 70)
-      k := perenos(t_arr,iif(dy < 2018, lusl17->name, lusl->name),n)
+      k := perenos(t_arr,iif(dy < 2019, lusl18->name, lusl->name),n)
       if empty(tmp1->depart)
         s := tmp1->shifr+padr(t_arr[1],n)
         if emptyall(tmp1->cenav,tmp1->cenad)
@@ -955,7 +942,7 @@ if empty(ret_arr)
 endif
 return ret_arr    
 
-***** 10.04.18
+***** 03.01.19
 Function usl2TFOMS()
 Static sdate
 Local k, buf := save_maxrow(), name_file := "uslugi"+stxt, nu, ret_arr,;
@@ -968,15 +955,14 @@ mdate := input_value(20,5,22,73,color1,;
 if mdate == NIL
   return NIL
 endif
+if (lyear := year(mdate)) < 2018
+  return func_error(4,"Вы запрашиваете слишком старую информацию")
+endif
 sdate := mdate
 if (k := popup_2array(usl9TFOMS(mdate),T_ROW,T_COL-5,su,1,@t_arr,;
                       "Выберите группу услуг","B/BG",color0)) > 0
-  if is_adres_podr .and. eq_any(t_arr[2],1,401) .and. between(mdate,d_01_08_2017,eoy(d_01_08_2017))
-    ret_arr := f_spr_usl_adres_podr() 
-  else
-    glob_podr := ""
-  endif                        
-  if is_otd_dep .and. t_arr[2] == 501 .and. year(mdate) > 2017
+  glob_podr := ""
+  if is_otd_dep .and. t_arr[2] == 501
     if (ret_arr := ret_otd_dep()) == NIL
       return NIL
     endif 
@@ -985,16 +971,15 @@ if (k := popup_2array(usl9TFOMS(mdate),T_ROW,T_COL-5,su,1,@t_arr,;
   endif                        
   mywait()
   su := k
-  lyear := year(mdate)
   fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
   nu := get_uroven(mdate)
-  if between(nu,1,3)
+  /*if between(nu,1,3)
     s := "Уровень цен на мед.услуги: "+lstr(nu)
   else
     s := "Индивидуальные тарифы на мед.услуги"
-  endif
+  endif*/
   add_string(glob_mo[_MO_SHORT_NAME]+iif(valtype(ret_arr)=="A", " ("+ret_arr[1]+")",""))
-  add_string('') //  add_string(s)
+  add_string('') 
   add_string(center("Список услуг по группе",sh))
   add_string(center('"'+alltrim(t_arr[1])+'"',sh))
   add_string(center("[ цены по состоянию на "+date_8(mdate)+"г. ]",sh))
@@ -1005,57 +990,34 @@ if (k := popup_2array(usl9TFOMS(mdate),T_ROW,T_COL-5,su,1,@t_arr,;
    if t_arr[2] == 502
     add_string('      12 - ЭКО 1 этап(коэф=0.6), 13 - ЭКО полн с крио(коэф=1.1), 14 - ЭКО подсадка(коэф=0.19)')
    endif
-    add_string('КИРО: 1 - менее 4-х дней и выполнено хирург.вмешательство(коэф=0.8)')
-    add_string('      2 - менее 4-х дней и хирург.лечение не проводилось(коэф=0.2)')
-    len_ksg := 6
-    R_Use(exe_dir+"_mo8k006",,"K006")
+    add_string('КИРО: 1 - менее 4-х дней, выполнено хирург.вмешательство(коэф=0.8)')
+    add_string('      2 - менее 4-х дней, хирург.лечение не проводилось(коэф=0.2)')
+    add_string('      3 - более 3-х дней, выполнено хирург.вмешательство, лечение прервано(коэф=0.9)')
+    add_string('      4 - более 3-х дней, хирург.лечение не проводилось, лечение прервано(коэф=0.9)')
+    add_string('      5 - менее 4-х дней, несоблюдён режим введения лек.препарата(коэф=0.2)')
+    add_string('      6 - более 3-х дней, несоблюдён режим введения лек.препарата, лечение прервано(коэф=0.9)')
+    if lyear > 2018
+      R_Use(exe_dir+"_mo9k006",,"K006")
+      len_ksg := 10
+    else
+      R_Use(exe_dir+"_mo8k006",,"K006")
+      len_ksg := 6
+    endif
     index on SHIFR+str(ns,6) to (cur_dir+"tmp_k006") unique
     index on SHIFR+str(ns,6)+ds+sy to (cur_dir+"tmp_k006_")
     set index to (cur_dir+"tmp_k006"),(cur_dir+"tmp_k006_")
-  elseif t_arr[2] > 400
-    len_ksg := 8
-    R_Use(exe_dir+"_mo7k006",,"K006")
-    index on SHIFR+str(ns,6) to (cur_dir+"tmp_k006") unique
-    index on SHIFR+str(ns,6)+ds+sy to (cur_dir+"tmp_k006_")
-    set index to (cur_dir+"tmp_k006"),(cur_dir+"tmp_k006_")
-  elseif t_arr[2] > 300
-    R_Use(exe_dir+"_mo6k006",,"K006")
-    index on SHIFR+str(ns,6) to (cur_dir+"tmp_k006") unique
-    index on SHIFR+str(ns,6)+ds+sy to (cur_dir+"tmp_k006_")
-    set index to (cur_dir+"tmp_k006"),(cur_dir+"tmp_k006_")
-  elseif t_arr[2] >= 130
-    R_Use(exe_dir+"_mo5k006",,"K006")
-    index on SHIFR+str(ns,6) to (cur_dir+"tmp_k006") unique
-    index on SHIFR+str(ns,6)+ds+sy to (cur_dir+"tmp_k006_")
-    set index to (cur_dir+"tmp_k006"),(cur_dir+"tmp_k006_")
-    R_Use(exe_dir+"_mo5t006",,"T006")
-    index on SHIFR+NAME to (cur_dir+"tmp_t006")
-  elseif t_arr[2] > 100
-    R_Use(exe_dir+"_mo_t006",,"T006")
-    index on str(TYPE_KSG,1)+SHIFR+NAME to (cur_dir+"tmp_t006")
   endif
   use_base("luslc")
   use_base("lusl")
-  lal := "lusl17"
-  select LUSL17
+  lal := "lusl"
+  if lyear == 2018
+    lal += "18"
+  endif
+  dbSelectArea(lal)
   if t_arr[2] > 500
-    lal := "lusl"
-    select LUSL
     index on fsort_usl(shifr) to (cur_dir+"tmplu") for is_ksg(shifr,t_arr[2]-500) .and. datebeg >= boy(mdate)
-  elseif t_arr[2] > 400
-    index on fsort_usl(shifr) to (cur_dir+"tmplu") for usl == t_arr[2]-400 .and. datebeg >= boy(mdate)
-  elseif t_arr[2] > 300
-    index on fsort_usl(shifr) to (cur_dir+"tmplu") for usl == t_arr[2]-300 .and. datebeg >= boy(mdate)
-  elseif t_arr[2] >= 130
-    index on fsort_usl(shifr) to (cur_dir+"tmp") for left(shifr,2)==left(lstr(t_arr[2]),2) .and. !empty(type_ksg)
-  elseif t_arr[2] > 100
-    index on fsort_usl(shifr) to (cur_dir+"tmp") for left(shifr,3)==lstr(t_arr[2]) .and. !empty(type_ksg)
-  elseif year(mdate) > 2017
-    lal := "lusl"
-    select LUSL
-    index on fsort_usl(shifr) to (cur_dir+"tmp") for usl2arr(shifr)[1]==k
   else
-    index on fsort_usl(shifr) to (cur_dir+"tmp") for usl2arr(shifr)[1]==k .and. empty(usl) .and. empty(type_ksg)
+    index on fsort_usl(shifr) to (cur_dir+"tmp") for usl2arr(shifr)[1]==k .and. !is_ksg(shifr)
   endif
   go top
   do while !eof()
@@ -1063,9 +1025,6 @@ if (k := popup_2array(usl9TFOMS(mdate),T_ROW,T_COL-5,su,1,@t_arr,;
     v2 := fcena_oms(&lal.->shifr,.f.,mdate,@fl2del,@fl2uslc)
     if !(fl1del .and. fl2del)
       s := alltrim(&lal.->name)
-      if t_arr[2] > 100 .and. &lal.->bukva == "N"
-        s += " (дополнительные объёмы)"
-      endif
       k := perenos(ta,s,50)
       verify_FF(HH-k-1,.t.,sh)
       if t_arr[2] > 100
@@ -1081,23 +1040,14 @@ if (k := popup_2array(usl9TFOMS(mdate),T_ROW,T_COL-5,su,1,@t_arr,;
       for i := 3 to k
         add_string(space(10)+ta[i])
       next
-      if t_arr[2] > 300 
+      if t_arr[2] > 500 
         select K006
         set order to 1
         find (padr(&lal.->shifr,len_ksg))
-        if t_arr[2] > 500 
-          s1 := f_ret_kz_ksg(k006->kz,k006->kz,'',&lal.->kslps,&lal.->kiros)
-        else
-          s1 := f_ret_kz_ksg(k006->kzv,k006->kzd,k006->profil)
-        endif
+        s1 := f_ret_kz_ksg(k006->kz,&lal.->kslps,&lal.->kiros)
         add_string(space(10)+s1)
         do while padr(&lal.->shifr,len_ksg) == k006->shifr .and. !eof()
-          if t_arr[2] > 500 
-            fl := between_date(k006->DATEBEG,k006->DATEEND,mdate)
-          else
-           fl := .t.
-          endif
-          if fl        
+          if between_date(k006->DATEBEG,k006->DATEEND,mdate)
             lrec := k006->(recno())
             lns := k006->ns
             i := 0
@@ -1119,7 +1069,11 @@ if (k := popup_2array(usl9TFOMS(mdate),T_ROW,T_COL-5,su,1,@t_arr,;
                   s += "УСЛУГА "+alltrim(k006->sy)+"; "
                 endif
                 if !empty(k006->AGE)
-                  s += "ВОЗРАСТ "+ret_vozrast_t006(k006->AGE)+"; "
+                  if lyear > 2018
+                    s += "ВОЗРАСТ "+ret_vozrast_t006(k006->AGE)+"; "
+                  else
+                    s += "ВОЗРАСТ "+ret_vozrast_t006_18(k006->AGE)+"; "
+                  endif
                 endif
                 if !empty(k006->SEX)
                   s += "ПОЛ "+iif(k006->SEX=='1',"мужской","женский")+"; "
@@ -1132,6 +1086,9 @@ if (k := popup_2array(usl9TFOMS(mdate),T_ROW,T_COL-5,su,1,@t_arr,;
                 endif
                 if k006->(fieldpos("AD_CR")) > 0 .and. !empty(k006->AD_CR)
                   s += "ДОП.КРИТЕРИЙ "+alltrim(k006->AD_CR)+"; "
+                endif
+                if k006->(fieldpos("AD_CR1")) > 0 .and. !empty(k006->AD_CR1)
+                  s += "ИНОЙ КРИТЕРИЙ "+alltrim(k006->AD_CR1)+"; "
                 endif
               endif
               skip
@@ -1152,116 +1109,6 @@ if (k := popup_2array(usl9TFOMS(mdate),T_ROW,T_COL-5,su,1,@t_arr,;
           endif
           skip
         enddo
-      elseif t_arr[2] >= 130
-        if substr(lstr(t_arr[2]),2,1) == '3' // комбинированные КСГ
-          select K006
-          set order to 1
-          find (padr(&lal.->shifr,7))
-          s1 := f_ret_kz_ksg(k006->kzv,k006->kzd,k006->profil)
-          add_string(space(10)+s1)
-          do while padr(&lal.->shifr,7) == k006->shifr .and. !eof()
-            lrec := k006->(recno())
-            lns := k006->ns
-            i := 0
-            s := s1 := ""
-            set order to 2
-            find (padr(&lal.->shifr,7)+str(lns,6))
-            do while padr(&lal.->shifr,7)==k006->shifr .and. lns==k006->ns .and. !eof()
-              if !empty(k006->DS)
-                s1 += alltrim(k006->DS)+" "
-              endif
-              if ++i == 1
-                if !empty(k006->DS1)
-                  s += "СОПУТ.Диагноз "+alltrim(k006->DS1)+"; "
-                endif
-                if !empty(k006->DS2)
-                  s += "Диагноз ОСЛОЖНЕНИЯ "+alltrim(k006->DS2)+"; "
-                endif
-                if !empty(k006->SY)
-                  s += "УСЛУГА "+alltrim(k006->sy)+"; "
-                endif
-                if !empty(k006->AGE)
-                  s += "ВОЗРАСТ "+ret_vozrast_t006_15(k006->AGE)+"; "
-                endif
-                if !empty(k006->SEX)
-                  s += "ПОЛ "+iif(k006->SEX=='1',"мужской","женский")+"; "
-                endif
-                if !empty(k006->LOS)
-                  s += iif(left(lstr(t_arr[2]),1)=='1',"койко","пациенто")+"-дней "+;
-                       ret_duration_t006_15(k006->LOS)+"; "
-                endif
-                if !empty(k006->RSLT)
-                  s += "РЕЗУЛЬТАТ "+alltrim(k006->RSLT)+"; "
-                endif
-              endif
-              skip
-            enddo
-            if !empty(s1)
-              s1 := "ОСН.Диагноз "+left(s1,len(s1)-1)+"; "
-            endif
-            s := s1+s
-            s := left(s,len(s)-2)
-            k := perenos(ta,s,70)
-            for i := 1 to k
-              verify_FF(HH,.t.,sh)
-              add_string(iif(i==1,space(8)+"- ",space(10))+ta[i])
-            next
-            goto (lrec)
-            set order to 1
-            skip
-          enddo
-        else
-          s := "[" ; s1 := ""
-          select T006
-          find (padr(&lal.->shifr,7))
-          do while padr(&lal.->shifr,7) == t006->shifr .and. !eof()
-            if empty(s1)
-              s1 := f_ret_kz_ksg(t006->kzv,t006->kzd,t006->profil)
-              add_string(space(10)+s1)
-            endif
-            s += alltrim(t006->name)+" "
-            skip
-          enddo
-          s := rtrim(s)+"]"
-          k := perenos(ta,s,70)
-          for i := 1 to k
-            verify_FF(HH,.t.,sh)
-            add_string(space(10)+ta[i])
-          next
-        endif
-      elseif t_arr[2] > 100
-        s := "["
-        ksgType := int(val(substr(&lal.->shifr,2,1)))
-        ksgShifr := substr(&lal.->shifr,5,3)
-        select T006
-        find (str(ksgType,1)+ksgShifr)
-        do while ksgType==t006->type_ksg .and. ksgShifr==t006->shifr .and. !eof()
-          fl := .f.
-          _c := substr(&lal.->shifr,4,1)
-          if !eq_any(_c,'0','8','9')
-            _c := '0'
-          endif
-          pole := "t006->c"+_c
-          if substr(&lal.->shifr,3,1)=='0' // спец.
-            if t006->r0 == 1 .and. &pole == 1
-              fl := .t.
-            endif
-          else // ВМП
-            if t006->r1 == 1 .and. &pole == 1
-              fl := .t.
-            endif
-          endif
-          if fl
-            s += alltrim(t006->name)+" "
-          endif
-          skip
-        enddo
-        s := rtrim(s)+"]"
-        k := perenos(ta,s,70)
-        for i := 1 to k
-          verify_FF(HH,.t.,sh)
-          add_string(space(10)+ta[i])
-        next
       endif
     endif
     dbSelectArea(lal)
@@ -1274,8 +1121,27 @@ if (k := popup_2array(usl9TFOMS(mdate),T_ROW,T_COL-5,su,1,@t_arr,;
 endif
 return NIL
 
-***** 28.01.17
+***** 12.01.19
 Function ret_vozrast_t006(s)
+Local ret := ""
+do case
+  case s == '1'
+    ret := "0-28 дней"
+  case s == '2'
+    ret := "29-90 дней"
+  case s == '3'
+    ret := "от 91 дня до 1 года"
+  case s == '4'  
+    ret := "до 2 лет включительно"
+  case s == '5'  
+    ret := "ребёнок"
+  case s == '6'
+    ret := "взрослый"
+endcase
+return ret
+
+***** 28.01.17
+Function ret_vozrast_t006_18(s)
 Local ret := ""
 do case
   case s == '1'
@@ -1293,21 +1159,6 @@ do case
 endcase
 return ret
 
-***** 24.01.15
-Function ret_vozrast_t006_15(s)
-Local ret := ""
-do case
-  case s == '1'
-    ret := "до 28 дней"
-  case s == '2'
-    ret := "до 90 дней"
-  case s == '3'
-    ret := "дети"
-  case s == '4'
-    ret := "взрослые"
-endcase
-return ret
-
 ***** 10.03.16
 Function ret_duration_t006(s,s1)
 Static sd := "день", sdr := "дня", sdm := "дней"
@@ -1321,23 +1172,9 @@ Local arr := {"1-3 "+s1+sdr,;
 Local i := int(val(s))
 return "дл-ть "+iif(between(i,1,7), arr[i], "")
 
-***** 09.07.15
-Function ret_duration_t006_15(s)
-Static arr := {"3 и более","от 1 до 4","от 1 до 3","4 и более"}
-Local i := int(val(s))
-return iif(between(i,1,4), arr[i], "")
-
-***** 21.01.18
-Static Function f_ret_kz_ksg(lkzv,lkzd,lprofil,lkslp,lkiro)
-Local s := 'коэф-т затратоёмкости '
-if round(lkzv,2) == round(lkzd,2)
-  s += lstr(lkzv,5,2)
-else
-  s += lstr(lkzv,5,2)+"(взр.), "+lstr(lkzd,5,2)+"(реб.)"
-endif
-if !empty(lprofil)
-  s += ', профиль "'+inieditspr(A__MENUVERT, glob_arr_ksg_profil, lprofil)+'"'
-endif
+***** 14.01.19
+Static Function f_ret_kz_ksg(lkz,lkslp,lkiro)
+Local s := 'коэф-т затратоёмкости '+lstr(lkz,5,2)
 if !empty(lkslp)
   s += '; КСЛП: '+alltrim(lkslp)
 endif  
@@ -1346,18 +1183,20 @@ if !empty(lkiro)
 endif  
 return s
 
-*
-
-***** 13.01.18
+***** 03.01.19
 Function usl3TFOMS()
 Local i, k, buf := save_maxrow(), name_file := "uslugi"+stxt,;
-      sh := 85, HH := 80, mas1[5], mas2[5], arr[5], k1, k2, t_arr, mdate
+      sh := 85, HH := 80, mas1[5], mas2[5], arr[5], k1, k2, t_arr, mdate, lyear
 //
 if (mdate := input_value(20,5,22,74,color1,;
         "Введите дату, на которую необходимо получить информацию",;
-        sys_date)) != NIL .and. ;
-   (k := popup_2array(usl9TFOMS(mdate),T_ROW,T_COL-5,su,1,@t_arr,;
-                      "Выберите группу услуг","B/BG",color0)) > 0
+        sys_date)) == NIL
+  return NIL
+endif          
+if (lyear := year(mdate)) < 2018
+  return func_error(4,"Вы запрашиваете слишком старую информацию")
+endif
+if (k := popup_2array(usl9TFOMS(mdate),T_ROW,T_COL-5,su,1,@t_arr,"Выберите группу услуг","B/BG",color0)) > 0
   su := k
   mywait()
   arr_title := {;
@@ -1389,22 +1228,15 @@ if (mdate := input_value(20,5,22,74,color1,;
   set relation to recno() into USL
   index on shifr+fsort_usl(usl->shifr) to (cur_dir+"tmp")
   use_base("lusl")
-  lal := "LUSL17" 
-  select LUSL17
+  lal := "lusl"
+  if lyear == 2018
+    lal += "18"
+  endif
+  dbSelectArea(lal)
   if t_arr[2] > 500
-    lal := "LUSL" 
-    select LUSL
-    index on fsort_usl(shifr) to (cur_dir+"tmplu") for usl_ok == t_arr[2]-500 .and. datebeg >= boy(mdate)
-  elseif t_arr[2] > 400
-    index on fsort_usl(shifr) to (cur_dir+"tmplu") for usl == t_arr[2]-400 .and. datebeg >= boy(mdate)
-  elseif t_arr[2] > 300
-    index on fsort_usl(shifr) to (cur_dir+"tmplu") for usl == t_arr[2]-300 .and. datebeg >= boy(mdate)
-  elseif t_arr[2] >= 130
-    index on fsort_usl(shifr) to (cur_dir+"tmp") for left(shifr,2)==left(lstr(t_arr[2]),2) .and. !empty(type_ksg)
-  elseif t_arr[2] > 100
-    index on fsort_usl(shifr) to (cur_dir+"tmplu") for left(shifr,3)==lstr(t_arr[2]) .and. !empty(type_ksg)
+    index on fsort_usl(shifr) to (cur_dir+"tmplu") for is_ksg(shifr,t_arr[2]-500) .and. datebeg >= boy(mdate)
   else
-    index on fsort_usl(shifr) to (cur_dir+"tmplu") for usl2arr(shifr)[1]==k .and. empty(type_ksg)
+    index on fsort_usl(shifr) to (cur_dir+"tmplu") for usl2arr(shifr)[1]==k .and. !is_ksg(shifr)
   endif
   go top
   do while !eof()
@@ -1454,7 +1286,7 @@ return NIL
 
 *
 
-***** 13.01.17
+***** 03.01.19
 Static Function usl9TFOMS(mdate)
 Static sdate, sarr1
 Local arr := {{" 1. Койко-дни по профилям",1},;
@@ -1473,110 +1305,47 @@ Local arr := {{" 1. Койко-дни по профилям",1},;
               {"22. Рефлексотерапия",22},;
               {"55. Дневные стационары",55},;
               {"56. Прочие услуги",56},;
-              {"57. Амбулаторные стоматологические услуги",57},;
               {"60. Тарифы на отдельные медицинские услуги",60},;
               {"70. Диспансеризация",70},;
               {"71. Скорая медицинская помощь",71},;
               {"72. Профилактические медицинские осмотры",72}}
-Local i, ls, sShifr, arr1 := {}, lyear, fl_delete, fl_yes
+Local i, ls, sShifr, arr1 := {}, lyear, fl_delete, fl_yes, lal := "luslc"
 if empty(sdate) .or. sdate != mdate
-  lyear := year(mdate)
-  if lyear < 2013
-    arr1 := aclone(arr)
-  else
-    if lyear > 2017
-      Ins_Array(arr,1,{"КСГ в ДНЕВНОМ стационаре",502})
-      Ins_Array(arr,1,{"КСГ в СТАЦИОНАРЕ",501})
-    elseif lyear > 2016
-      Ins_Array(arr,1,{"КСГ в ДНЕВНОМ стационаре",402})
-      Ins_Array(arr,1,{"КСГ в СТАЦИОНАРЕ",401})
-    elseif lyear > 2015
-      Ins_Array(arr,1,{"КСГ в ДНЕВНОМ стационаре",302})
-      Ins_Array(arr,1,{"КСГ в СТАЦИОНАРЕ",301})
-    elseif lyear > 2014
-      Ins_Array(arr,1,{"КСГ комбинированные в ДНЕВНОМ стационаре",230})
-      Ins_Array(arr,1,{"КСГ хирургические в ДНЕВНОМ стационаре",250})
-      Ins_Array(arr,1,{"КСГ терапевтические в ДНЕВНОМ стационаре",240})
-      Ins_Array(arr,1,{"КСГ комбинированные в СТАЦИОНАРЕ",130})
-      Ins_Array(arr,1,{"КСГ хирургические в СТАЦИОНАРЕ",150})
-      Ins_Array(arr,1,{"КСГ терапевтические в СТАЦИОНАРЕ",140})
-    elseif lyear > 2013
-      Ins_Array(arr,1,{"КСГ хирургические (ВМП)",121})
-      Ins_Array(arr,1,{"КСГ терапевтические (ВМП)",111})
-      Ins_Array(arr,1,{"КСГ хирургические",120})
-      Ins_Array(arr,1,{"КСГ терапевтические",110})
-    endif
-    use_base("luslc")
-    for i := 1 to len(arr)
-      if arr[i,2] > 500 // 2018 год
-        sShifr := right(lstr(arr[i,2]),1) 
-      elseif arr[i,2] > 400 // 2017 год
-        sShifr := right(lstr(arr[i,2]),1)
-      elseif arr[i,2] > 300 // 2016 год
-        sShifr := right(lstr(arr[i,2]),1)
-      elseif arr[i,2] >= 130 // 2015 год
-        sShifr := left(lstr(arr[i,2]),2) 
-      elseif arr[i,2] > 100
-        sShifr := lstr(arr[i,2])
-      else
-        sShifr := lstr(arr[i,2])+"."
-      endif
-      ls := len(sShifr)
-      fl_delete := .t. ; fl_yes := .f.
-      if lyear < 2016 // по-старому
-        select LUSLC14
-        set order to 2
-        find (glob_mo[_MO_KOD_TFOMS]+sShifr)
-        do while luslc14->CODEMO == glob_mo[_MO_KOD_TFOMS] .and. ;
-                 sShifr == left(luslc14->shifr,ls) .and. !eof()
-          // в КСГ нет точки
-          if iif(arr[i,2] >= 130, !("." $ luslc14->shifr), .t.)
-            fl_yes := .t.
-            // поиск цены по дате окончания лечения
-            if between_date(luslc14->datebeg,luslc14->dateend,mdate)
-              fl_delete := .f. ; exit
-            endif
-          endif
-          skip
-        enddo
-      elseif lyear < 2018
-        select LUSLC15
-        set order to 2
-        find (glob_mo[_MO_KOD_TFOMS]+sShifr)
-        do while luslc15->CODEMO == glob_mo[_MO_KOD_TFOMS] .and. ;
-                 sShifr == left(luslc15->shifr,ls) .and. !eof()
-          // в КСГ нет точки
-          if iif(arr[i,2] > 300, !("." $ luslc15->shifr), .t.)
-            fl_yes := .t.
-            // поиск цены по дате окончания лечения
-            if between_date(luslc15->datebeg,luslc15->dateend,mdate)
-              fl_delete := .f. ; exit
-            endif
-          endif
-          skip
-        enddo
-      else // 2018 год
-        select LUSLC
-        set order to 1
-        find (sShifr)
-        do while sShifr == left(luslc->shifr,ls) .and. !eof()
-          // в КСГ стоит точка на 5 знакоместе
-          if iif(arr[i,2] > 500, is_ksg(luslc->shifr), .t.)
-            fl_yes := .t.
-            // поиск цены по дате окончания лечения
-            if between_date(luslc->datebeg,luslc->dateend,mdate)
-              fl_delete := .f. ; exit
-            endif
-          endif
-          skip
-        enddo
-      endif
-      if fl_yes .and. !fl_delete
-        aadd(arr1,arr[i])
-      endif
-    next
-    close databases
+  if (lyear := year(mdate)) == 2018
+    lal += "18"
   endif
+  Ins_Array(arr,1,{"КСГ в ДНЕВНОМ стационаре",502})
+  Ins_Array(arr,1,{"КСГ в СТАЦИОНАРЕ",501})
+  use_base("luslc")
+  for i := 1 to len(arr)
+    if arr[i,2] > 500 
+      if year(mdate) == 2019 // 2019 год
+        sShifr := iif(arr[i,2] == 501, "st", "ds")
+      else
+        sShifr := right(lstr(arr[i,2]),1)
+      endif
+    else
+      sShifr := lstr(arr[i,2])+"."
+    endif
+    ls := len(sShifr)
+    dbselectArea(lal)
+    set order to 1
+    find (sShifr)
+    do while sShifr == left(&lal.->shifr,ls) .and. !eof()
+      if iif(arr[i,2] > 500, is_ksg(&lal.->shifr), .t.)
+        fl_yes := .t.
+        // поиск цены по дате окончания лечения
+        if between_date(&lal.->datebeg,&lal.->dateend,mdate)
+          fl_delete := .f. ; exit
+        endif
+      endif
+      skip
+    enddo
+    if fl_yes .and. !fl_delete
+      aadd(arr1,arr[i])
+    endif
+  next
+  close databases
 else
   arr1 := aclone(sarr1)
 endif
@@ -1758,22 +1527,26 @@ for i := 1 to len(arr)
 next
 return arr
 
-***** 13.01.18
+***** 03.01.19
 Function usl_stom_FFOMS()
 Static arr_gr := {"Общепрофильные","Ортодонтия","Терапевтическая стоматология","Физиотерапия","Хирургическая стоматология"}
-Local i, j, k, buf := save_maxrow(), name_file := "uslugiS"+stxt, sh := 80, HH := 60, t_arr[2], fl 
+Local i, j, k, s, buf := save_maxrow(), name_file := "uslugiS"+stxt, sh := 80, HH := 60, t_arr[2], fl 
 mywait()
-R_Use(exe_dir+"_mo8uslf",,"luslf")
+R_Use_base("luslf")
 index on str(grp,1)+shifr to (cur_dir+"tmp_uslf")
 fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
-add_string("2018 год")
+add_string("2019 год")
 add_string(center("Номенклатура стоматологических услуг Минздрава РФ (ФФОМС)",sh))
 add_string("")
 for j := 1 to len(arr_gr)
   fl := .t.
   find (str(j,1))
   do while luslf->grp == j .and. !eof()
-    k := perenos(t_arr,alltrim(luslf->shifr)+" "+luslf->name,sh-12)
+    s := alltrim(luslf->shifr)+" "+rtrim(luslf->name)
+    if luslf->zf == 1
+     s += " [ЗФ]"
+    endif
+    k := perenos(t_arr,s,sh-12)
     if fl
       verify_FF(HH-k-3,.t.,sh)
       add_string(replicate("=",sh))
@@ -1795,14 +1568,14 @@ fclose(fp)
 viewtext(name_file,,,,.t.,,,2)
 return NIL
 
-***** 01.11.18 Распечатка списка услуг с использованием телемедицинских технологий
+***** 03.01.19 Распечатка списка услуг с использованием телемедицинских технологий
 Function usl_telemedicina()
 Local i, j, k, buf := save_maxrow(), name_file := "uslugiT"+stxt, sh := 80, HH := 60, t_arr[2], fl 
 mywait()
-R_Use(exe_dir+"_mo8uslf",,"luslf")
+R_Use_base("luslf")
 index on shifr to (cur_dir+"tmp_uslf") for telemed == 1
 fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
-add_string("2018 год")
+add_string("2019 год")
 add_string(center("Услуги с использованием телемедицинских технологий Минздрава РФ (ФФОМС)",sh))
 add_string("")
 go top
@@ -1821,7 +1594,7 @@ fclose(fp)
 viewtext(name_file,,,,.t.,,,2)
 return NIL
 
-***** 30.08.18 Вывод списка услуг диагностики при дообследовании в направлениях на ЗНО
+***** 03.01.19 Вывод списка услуг диагностики при дообследовании в направлениях на ЗНО
 Function usl_napr_FFOMS()
 Static arr_gr := {;
   {"1 - лабораторная диагностика",1},;
@@ -1834,10 +1607,10 @@ if (t_arr := bit_popup(T_ROW,T_COL-5,arr_gr,,color0,1,"Метод диагностического ис
 endif
 ar := aclone(t_arr)
 mywait()
-R_Use(exe_dir+"_mo8uslf",,"luslf")
+R_Use_base("luslf")
 index on str(onko_napr,1)+shifr to (cur_dir+"tmp_uslf")
 fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
-add_string("2018 год")
+add_string("2019 год")
 add_string(center("Номенклатура услуг диагностики при дообследовании на ЗНО МЗРФ (ФФОМС)",sh))
 add_string(center("(услуги в направлениях при подозрении на ЗНО)",sh))
 for j := 1 to len(ar)
@@ -1866,7 +1639,7 @@ fclose(fp)
 viewtext(name_file,,,,.t.,,,2)
 return NIL
 
-***** 30.08.18 Вывод списка услуг по типам лечения ОНКОзаболеваний
+***** 04.01.19 Вывод списка услуг по типам лечения ОНКОзаболеваний
 Function usl_ksg_FFOMS()
 Static arr_gr := {;
   {"1 - Хирургическое лечение",1},;
@@ -1874,17 +1647,17 @@ Static arr_gr := {;
   {"3 - Лучевая терапия",3},;
   {"4 - Химиолучевая терапия",4},;
   {"5 - Неспецифическое лечение (осложнения противоопухолевой терапии, установка/замена порт системы (катетера))",5},;
-  {"д - Диагностика",9}}
+  {"6 - Диагностика",6}}
 Local i, j, k, buf := save_maxrow(), name_file := "uslugiOK"+stxt, sh := 80, HH := 60, t_arr[2], fl, ar 
 if (t_arr := bit_popup(T_ROW,T_COL-5,arr_gr,,color0,1,"Тип лечения онкологических заболеваний","B/BG")) == NIL
   return NIL
 endif
 ar := aclone(t_arr)
 mywait()
-R_Use(exe_dir+"_mo8uslf",,"luslf")
+R_Use_base("luslf")
 index on str(onko_ksg,1)+shifr to (cur_dir+"tmp_uslf")
 fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
-add_string("2018 год")
+add_string("2019 год")
 add_string(center("Номенклатура услуг по типам лечения ОНКОзаболеваний МЗРФ (ФФОМС)",sh))
 for j := 1 to len(ar)
   fl := .t.
@@ -1990,9 +1763,7 @@ if fl
 endif
 return NIL
 
-*
-
-***** 31.01.17
+***** 03.01.19
 Function usl2FFOMS()
 Local i, k, buf := save_maxrow(), name_file := "uslugiF"+stxt, sh := 85, HH := 80, mas1[5]
 //
@@ -2011,10 +1782,10 @@ go top
 do while !eof()
   k := 1 ; afill(mas1,"")
   if mosu->tip == 5
-    select LUSLF15
+    select LUSLF18
     find (mosu->shifr1)
     if found()
-      k := perenos(mas1,"...удалена..."+luslf15->name,55)
+      k := perenos(mas1,"...удалена..."+luslf18->name,55)
     endif
   else
     select LUSLF
@@ -2022,10 +1793,10 @@ do while !eof()
     if found()
       k := perenos(mas1,luslf->name,55)
     else
-      select LUSLF15
+      select LUSLF18
       find (mosu->shifr1)
       if found()
-        k := perenos(mas1,"...удалена..."+luslf15->name,55)
+        k := perenos(mas1,"...удалена..."+luslf18->name,55)
       endif
     endif
   endif
@@ -2045,9 +1816,7 @@ fclose(fp)
 viewtext(name_file,,,,.t.,,,5)
 return NIL
 
-*
-
-***** 15.01.18
+***** 03.01.19
 Function usl6FFOMS(lksg)
 Local k, buf := save_maxrow(), name_file := "usl_ksg"+stxt, nu, sh := 80, HH := 78, ;
       t_arr, i, s, fl, v1, v2, mdate, fl1uslc, fl2uslc, ta[2], fl1del, fl2del, ret_arr
@@ -2068,11 +1837,11 @@ dbcreate(cur_dir+"tmp1",{;
 use (cur_dir+"tmp1") new
 index on shifr1+shifr to (cur_dir+"tmp1")
 mdate := sys_date
-R_Use(exe_dir+"_mo8k006",,"K006")
-index on SHIFR+SY to (cur_dir+"tmp_t006") for left(shifr,1) == lstr(lksg)
+R_Use(exe_dir+"_mo9k006",,"K006")
+index on SHIFR+SY to (cur_dir+"tmp_t009")
 use_base("luslc")
 use_base("lusl")
-index on fsort_usl(shifr) to (cur_dir+"tmp_lusl") for usl_ok == lksg .and. datebeg >= boy(mdate)
+index on fsort_usl(shifr) to (cur_dir+"tmp_lusl") for is_ksg(shifr,lksg) .and. datebeg >= boy(mdate)
 go top
 do while !eof()
   v1 := fcena_oms(lusl->shifr,.t.,mdate,@fl1del,@fl1uslc)
@@ -2085,8 +1854,8 @@ do while !eof()
     tmp->CENA_V := iif(fl1del,"      -   ",str(v1,10,2))
     tmp->CENA_D := iif(fl2del,"      -   ",str(v2,10,2))
     select K006
-    find (padr(lusl->shifr,6))
-    do while (padr(lusl->shifr,6)) == k006->shifr .and. !eof()
+    find (padr(lusl->shifr,10))
+    do while (padr(lusl->shifr,10)) == k006->shifr .and. !eof()
       if !empty(k006->sy)
         select TMP1
         find (padr(k006->sy,20)+padr(lusl->shifr,10))
@@ -2186,13 +1955,11 @@ else
 endif
 return NIL
 
-*
-
-***** 19.01.18
+***** 03.01.19
 Function usl11FFOMS()
 Local buf := save_maxrow(), name_file := "vidVMP"+stxt, sh := 80, HH := 60, t_arr[2], i, j, k
 mywait()
-make_V018_V019(stod("20180101"))
+make_V018_V019(0d20190101)
 fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
 add_string("")
 add_string(center("Классификатор видов ВМП",sh))
@@ -2210,13 +1977,11 @@ fclose(fp)
 viewtext(name_file,,,,.t.,,,2)
 return NIL
 
-*
-
 ***** 19.01.18
 Function usl12FFOMS()
 Static sast, sarr
 Local buf := save_maxrow(), name_file := "metodVMP"+stxt, sh := 80, HH := 60, t_arr[2], a, i, j, k, n, s
-make_V018_V019(stod("20180101"))
+make_V018_V019(0d20190101)
 if sast == NIL
   sast := {} ; sarr := {}
   for j := 1 to len(glob_V018)
@@ -2265,8 +2030,6 @@ if (a := bit_popup(T_ROW,T_COL-5,sarr,sast)) != NIL
   viewtext(name_file,,,,.t.,,,2)
 endif
 return NIL
-
-*
 
 *****
 Function spr_other()

@@ -2449,7 +2449,7 @@ do while !eof()
         endif
       next j
       if is_oncology == 2
-       if between(onksl->PR_CONS,0,3)
+       if .f. // between(onksl->PR_CONS,0,3)
          oCONS := oSL:Add( HXMLNode():New( "CONS" ) ) // консилиумов м.б.несколько
           mo_add_xml_stroke(oCONS,"PR_CONS",lstr(onksl->PR_CONS)) // N019
           if !empty(onksl->DT_CONS)

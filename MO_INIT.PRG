@@ -189,7 +189,7 @@ else
   fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
 endif
 // справочник отделений на 2018 год
-sbase := "_mo8dep"
+sbase := "_mo9dep"
 Public is_otd_dep := .f., glob_otd_dep := 0, mm_otd_dep := {} 
 if hb_FileExists(exe_dir+sbase+sdbf)
   R_Use(exe_dir+sbase,,"DEP")
@@ -204,7 +204,7 @@ else
 endif
 if is_otd_dep
   // справочник отделения + профили
-  sbase := "_mo8deppr"
+  sbase := "_mo9deppr"
   if hb_FileExists(exe_dir+sbase+sdbf)
     R_Use(exe_dir+sbase,,"DEP")
     index on str(code,3)+str(pr_mp,3) to (cur_dir+sbase) for codem == glob_mo[_MO_KOD_TFOMS]
@@ -213,12 +213,12 @@ if is_otd_dep
     fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
   endif
 endif
-// справочник услуг ТФОМС на 2018 год
-sbase := "_mo8usl"
+// справочник услуг ТФОМС на 2019 год
+sbase := "_mo9usl"
 Public arr_12_VMP := {}
 if hb_FileExists(exe_dir+sbase+sdbf)
   R_Use(exe_dir+sbase,,"LUSL")
-  index on shifr to (cur_dir+sbase)
+  index on shifr to (cur_dir+"tmp_usl")
   find ("1.12.") // ВМП федеральное
   do while left(lusl->shifr,5) == "1.12." .and. !eof()
     aadd(arr_12_VMP,int(val(substr(lusl->shifr,6))))
@@ -228,31 +228,44 @@ if hb_FileExists(exe_dir+sbase+sdbf)
 else
   fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
 endif
-sbase := "_mo_usl"
+if empty(arr_12_VMP)
+  sbase := "_mo8usl"
+  if hb_FileExists(exe_dir+sbase+sdbf)
+    R_Use(exe_dir+sbase,,"LUSL")
+    index on shifr to (cur_dir+"tmp_usl")
+    find ("1.12.") // ВМП федеральное
+    do while left(lusl->shifr,5) == "1.12." .and. !eof()
+      aadd(arr_12_VMP,int(val(substr(lusl->shifr,6))))
+      skip
+    enddo
+    use
+  endif
+endif
+/*sbase := "_mo_usl"
 Public arr_14_VMP := {}
 if hb_FileExists(exe_dir+sbase+sdbf)
   if files_time(exe_dir+sbase+sdbf,cur_dir+sbase+sntx)
     R_Use(exe_dir+sbase,,"LUSL")
     index on shifr to (cur_dir+sbase)
-    /*for i := 12 to 16 step 4
+    for i := 12 to 16 step 4
       s := "1."+str(i,2)+"." 
       find (s) // ВМП федеральное
       do while left(lusl->shifr,5) == s .and. !eof()
         aadd(arr_12_VMP,int(val(substr(lusl->shifr,6))))
         skip
       enddo
-    next*/
+    next
     use
   endif
 else
   fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
-endif
-// справочник цен на услуги ТФОМС
-sbase := "_mo_uslc"
+endif*/
 Public is_napr_pol := .f.,; // работа с направлениями на госпитализацию в п-ке
        is_napr_stac := .f.,;  // работа с направлениями на госпитализацию в стационаре
        glob_klin_diagn := {} // работа со специальными лабораторными исследованиями
 Public is_ksg_VMP := .f., is_12_VMP := .f., is_14_VMP := .f., is_ds_VMP := .f.
+// справочник цен на услуги ТФОМС
+/*sbase := "_mo_uslc"
 if hb_FileExists(exe_dir+sbase+sdbf)
   if files_time(exe_dir+sbase+sdbf,cur_dir+sbase+sntx)
     R_Use(exe_dir+sbase)
@@ -275,18 +288,19 @@ if hb_FileExists(exe_dir+sbase+sdbf)
   endif
 else
   //fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
-endif
+endif*/
 // справочник цен на услуги ТФОМС 2016-2017
-Public glob_MU_dializ := {"A18.05.002.001","A18.05.002.002","A18.05.002.003",;
-                          "A18.05.003","A18.05.003.001","A18.05.011","A18.30.001","A18.30.001.001"}
-Public glob_KSG_dializ := {"10000901","10000902","10000903","10000905","10000906","10000907","10000913",;
-                           "20000912","20000916","20000917","20000918","20000919","20000920"}
+Public glob_MU_dializ := {}//"A18.05.002.001","A18.05.002.002","A18.05.002.003",;
+                          //"A18.05.003","A18.05.003.001","A18.05.011","A18.30.001","A18.30.001.001"}
+Public glob_KSG_dializ := {}//"10000901","10000902","10000903","10000905","10000906","10000907","10000913",;
+                           //"20000912","20000916","20000917","20000918","20000919","20000920"}
                            //"1000901","1000902","1000903","1000905","1000906","1000907","1000913",;
                            //"2000912","2000916","2000917","2000918","2000919","2000920"}
-sbase := "_mo5uslc"
+
 Public is_vr_pr_pp := .f., is_hemodializ := .f., is_per_dializ := .f., is_reabil_slux := .f.,;
        is_ksg_1300098 := .f., is_dop_ob_em := .f., glob_yes_kdp2[10], glob_menu_mz_rf := {.f.,.f.,.f.}
 afill(glob_yes_kdp2,.f.)
+/*sbase := "_mo5uslc"
 if hb_FileExists(exe_dir+sbase+sdbf)
   R_Use(exe_dir+"_mo_usl",cur_dir+"_mo_usl","LUSL")
   R_Use(exe_dir+sbase,,"LUSLC")
@@ -405,9 +419,106 @@ if hb_FileExists(exe_dir+sbase+sdbf)
   close databases
 else
   fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
+endif*/
+// цены на услуги на 2019 год
+Public is_alldializ := .f.
+sbase := "_mo9uslc" 
+if hb_FileExists(exe_dir+sbase+sdbf) .and. valtype(glob_mo) == "A"
+  R_Use(exe_dir+sbase,,"LUSLC")
+  index on shifr+str(vzros_reb,1)+str(depart,3)+dtos(datebeg) to (cur_dir+sbase) ; 
+        for codemo == glob_mo[_MO_KOD_TFOMS]
+  index on codemo+shifr+str(vzros_reb,1)+str(depart,3)+dtos(datebeg) to (cur_dir+"_mo9uslu") ;
+        for codemo == glob_mo[_MO_KOD_TFOMS] // для совместимости со старой версией справочника
+  // Медицинская реабилитация детей с нарушениями слуха без замены речевого процессора системы кохлеарной имплантации
+  find (glob_mo[_MO_KOD_TFOMS]+"st37.015")
+  if found()
+    is_reabil_slux := .t.
+  endif
+  find (glob_mo[_MO_KOD_TFOMS]+"2.") // врачебные приёмы
+  do while codemo==glob_mo[_MO_KOD_TFOMS] .and. left(shifr,2)=="2." .and. !eof()
+    if left(shifr,5) == "2.82."
+      is_vr_pr_pp := .t. // врачебный прием в приёмном отделении стационара
+      if is_napr_pol
+        exit
+      endif
+    else
+      is_napr_pol := .t.
+      if is_vr_pr_pp
+        exit
+      endif
+    endif
+    skip
+  enddo
+  find (glob_mo[_MO_KOD_TFOMS]+"60.3.")
+  if found()
+    is_alldializ := .t.
+  endif
+  find (glob_mo[_MO_KOD_TFOMS]+"60.3.1 ")
+  if found()
+    is_per_dializ := .t.
+  endif
+  find (glob_mo[_MO_KOD_TFOMS]+"60.3.9")
+  if found()
+    is_hemodializ := .t.
+  else
+    find (glob_mo[_MO_KOD_TFOMS]+"60.3.10")
+    if found()
+      is_hemodializ := .t.
+    endif
+  endif
+  find (glob_mo[_MO_KOD_TFOMS]+"st") // койко-дни
+  if (is_napr_stac := found())
+    glob_menu_mz_rf[1] := .t.
+  endif
+  //
+  find (glob_mo[_MO_KOD_TFOMS]+"1.12.") // ВМП 
+  is_12_VMP := found()
+  //
+  find (glob_mo[_MO_KOD_TFOMS]+"ds") // дневной стационар
+  if found()
+    if !is_napr_stac
+      is_napr_stac := .t.
+    endif
+    glob_menu_mz_rf[2] := found()
+  endif
+  //
+  tmp_stom := {"2.78.54","2.78.55","2.78.56","2.78.57","2.78.58","2.78.59","2.78.60"}
+  for i := 1 to len(tmp_stom)
+    find (glob_mo[_MO_KOD_TFOMS]+tmp_stom[i]) //
+    if found()
+      glob_menu_mz_rf[3] := .t. ; exit
+    endif
+  next
+  //
+  find (glob_mo[_MO_KOD_TFOMS]+"4.20.702") // жидкостной цитологии
+  if found()
+    aadd(glob_klin_diagn,1)
+  endif
+  find (glob_mo[_MO_KOD_TFOMS]+"4.15.746") // пренатального скрининга 
+  if found()
+    aadd(glob_klin_diagn,2)
+  endif
+  find (glob_mo[_MO_KOD_TFOMS]+"70.5.15") // Законченный случай диспансеризации детей-сирот (0-11 месяцев), 1 этап без гематологических исследований 
+  if found()
+    glob_yes_kdp2[TIP_LU_DDS] := .t.
+  endif
+  find (glob_mo[_MO_KOD_TFOMS]+"70.6.13") // Законченный случай диспансеризации детей-сирот (0-11 месяцев), 1 этап без гематологических исследований 
+  if found()
+    glob_yes_kdp2[TIP_LU_DDSOP] := .t.
+  endif
+  find (glob_mo[_MO_KOD_TFOMS]+"70.3.123") // Законченный случай диспансеризации женщин (в возрасте 21,24,27 лет), 1 этап без гематологических исследований 
+  if found()
+    glob_yes_kdp2[TIP_LU_DVN] := .t.
+  endif
+  find (glob_mo[_MO_KOD_TFOMS]+"72.2.41") // Законченный случай профилактического осмотра несовершеннолетних (2 мес.) 1 этап без гематологического исследования 
+  if found()
+    glob_yes_kdp2[TIP_LU_PN] := .t.
+  endif
+  close databases
+else
+  fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
 endif
 // цены на услуги на 2018 год
-Public is_alldializ := .f.
 sbase := "_mo8uslc" 
 if hb_FileExists(exe_dir+sbase+sdbf) .and. valtype(glob_mo) == "A"
   R_Use(exe_dir+sbase,,"LUSLC")
@@ -415,7 +526,7 @@ if hb_FileExists(exe_dir+sbase+sdbf) .and. valtype(glob_mo) == "A"
         for codemo == glob_mo[_MO_KOD_TFOMS]
   index on codemo+shifr+str(vzros_reb,1)+str(depart,3)+dtos(datebeg) to (cur_dir+"_mo8uslu") ;
         for codemo == glob_mo[_MO_KOD_TFOMS] // для совместимости со старой версией справочника
-  t_arr := {"1331.0","1332.0","1333.0","1335.0","2127.0","2128.0","2130.0"}
+  /*t_arr := {"1331.0","1332.0","1333.0","1335.0","2127.0","2128.0","2130.0"}
   for i := 1 to len(t_arr)
     find (glob_mo[_MO_KOD_TFOMS]+t_arr[i])
     if found()
@@ -501,14 +612,17 @@ if hb_FileExists(exe_dir+sbase+sdbf) .and. valtype(glob_mo) == "A"
   find (glob_mo[_MO_KOD_TFOMS]+"72.2.41") // Законченный случай профилактического осмотра несовершеннолетних (2 мес.) 1 этап без гематологического исследования 
   if found()
     glob_yes_kdp2[TIP_LU_PN] := .t.
-  endif
+  endif*/
   close databases
 else
   fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
 endif
+if !is_12_VMP .and. len(arr_12_VMP) > 0
+  is_12_VMP := .t.
+endif
 Public is_MO_VMP := (is_ksg_VMP .or. is_12_VMP .or. is_14_VMP .or. is_ds_VMP)
 // справочник доплат по законченным случаям (старый справочник)
-sbase := "_mo_usld"
+/*sbase := "_mo_usld"
 if hb_FileExists(exe_dir+sbase+sdbf)
   if files_time(exe_dir+sbase+sdbf,cur_dir+sbase+sntx)
     R_Use(exe_dir+sbase)
@@ -517,9 +631,9 @@ if hb_FileExists(exe_dir+sbase+sdbf)
   endif
 else
   //fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
-endif
+endif*/
 // справочник "услуги по законченным случаям + диагнозы"
-sbase := "_mo_uslz"
+/*sbase := "_mo_uslz"
 if hb_FileExists(exe_dir+sbase+sdbf)
   if files_time(exe_dir+sbase+sdbf,cur_dir+sbase+sntx)
     R_Use(exe_dir+sbase)
@@ -528,13 +642,22 @@ if hb_FileExists(exe_dir+sbase+sdbf)
   endif
 else
   //fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
+endif*/
+// справочник услуг ФФОМС 2019
+sbase := "_mo9uslf"
+if hb_FileExists(exe_dir+sbase+sdbf)
+  R_Use(exe_dir+sbase,,"LUSLF")
+  index on shifr to (cur_dir+sbase)
+  close databases
+else
+  fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
 endif
 // справочник услуг ФФОМС 2018
 sbase := "_mo8uslf"
 if hb_FileExists(exe_dir+sbase+sdbf)
   R_Use(exe_dir+sbase,,"LUSLF")
   index on shifr to (cur_dir+sbase)
-  if hb_FileExists(dir_server+"mo_su"+sdbf)
+  /*if hb_FileExists(dir_server+"mo_su"+sdbf)
     G_Use(dir_server+"mo_su",,"MOSU")
     if fieldpos("tip") > 0 
       index on kod to tmpmosu for tip == 5 memory  // остались ли старые строки
@@ -559,7 +682,7 @@ if hb_FileExists(exe_dir+sbase+sdbf)
         enddo
       endif
     endif
-  endif
+  endif*/
   close databases
 else
   fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
@@ -573,7 +696,7 @@ if hb_FileExists(exe_dir+sbase+sdbf)
     use
   endif
 else
-  fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
+  //fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
 endif
 // справочник услуг ФФОМС 2015-2016
 sbase := "_mo5uslf"
@@ -616,6 +739,14 @@ else
   fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
 endif
 // план-заказ
+sbase := "_mo9unit"
+if hb_FileExists(exe_dir+sbase+sdbf)
+  R_Use(exe_dir+sbase)
+  index on str(code,3) to (cur_dir+sbase)
+  use
+else
+  fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
+endif
 sbase := "_mo8unit"
 if hb_FileExists(exe_dir+sbase+sdbf)
   R_Use(exe_dir+sbase)
@@ -632,7 +763,7 @@ if hb_FileExists(exe_dir+sbase+sdbf)
     use
   endif
 else
-  fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
+  //fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
 endif
 // T005
 sbase := "_mo_t005"
@@ -643,8 +774,33 @@ if hb_FileExists(exe_dir+sbase+sdbf)
 else
   fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
 endif
+Public arr_ad_cr_it := {}
+// T006 2019 год
+sbase := "_mo9it"
+if hb_FileExists(exe_dir+sbase+sdbf)
+  R_Use(exe_dir+sbase,,"IT")
+  index on ds to tmpit memory
+  dbeval({|| aadd(arr_ad_cr_it,{it->ds,it->it}) })
+  use
+else
+  fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
+endif
+if !hb_FileExists(exe_dir+"_mo9shema"+sdbf)
+  fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
+endif
+sbase := "_mo9k006"
+if hb_FileExists(exe_dir+sbase+sdbf)
+  R_Use(exe_dir+sbase)
+  index on substr(shifr,1,2)+ds+sy+age+sex+los to (cur_dir+sbase) // по диагнозу/операции
+  index on substr(shifr,1,2)+sy+ds+age+sex+los to (cur_dir+sbase+"_") // по операции/диагнозу
+  use
+else
+  fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
+endif
+if !hb_FileExists(exe_dir+sbase+".dbt")
+  fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+'.dbt"')
+endif
 // T006 2018 год
-Public arr_ad_cr_it := {}, arr_ad_cr_onko := {}
 sbase := "_mo8it"
 if hb_FileExists(exe_dir+sbase+sdbf)
   R_Use(exe_dir+sbase,,"IT")
@@ -680,10 +836,10 @@ for i := 5 to 7
       use
     endif
   else
-    fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
+    //fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
   endif
   if !hb_FileExists(exe_dir+sbase+".dbt")
-    fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+'.dbt"')
+    //fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+'.dbt"')
   endif
 next
 // T006 - 2015
@@ -695,7 +851,7 @@ if hb_FileExists(exe_dir+sbase+sdbf)
     use
   endif
 else
-  fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
+  //fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
 endif
 // T006 - 2014
 sbase := "_mo_t006"
@@ -804,8 +960,8 @@ if hb_FileExists(exe_dir+sbase+sdbf)
 else
   fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
 endif
-// N006
-sbase := "_mo_N006"
+// N006 - в 2019 году пустой
+/*sbase := "_mo_N006"
 if hb_FileExists(exe_dir+sbase+sdbf)
   if files_time(exe_dir+sbase+sdbf,cur_dir+sbase+sntx)
     R_Use(exe_dir+sbase)
@@ -814,7 +970,7 @@ if hb_FileExists(exe_dir+sbase+sdbf)
   endif
 else
   fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
-endif
+endif*/
 // N007
 sbase := "_mo_N007"
 if hb_FileExists(exe_dir+sbase+sdbf)
@@ -2934,7 +3090,7 @@ if fl .and. valtype(_vozrast) == "N"
 endif
 return fl
 
-***** 02.12.18 реконстукция баз данных
+***** 02.01.19 реконстукция баз данных
 Function Reconstruct_BD(is_cur_dir,is_create)
 Local base1 := {;
    {"P1",      "C",  20,   0},; // Ф.И.О.
@@ -3302,7 +3458,7 @@ Local human_2 := {;
    {"PC1",      "C", 10,0},; // КСЛП (в 2017 - в первом знаке 1-3 - кол-во стентов в коронарных сосудах)
    {"PC2",      "C", 10,0},; // КИРО
    {"PC3",      "C", 10,0},; // дополнительный критерий
-   {"PC4",      "C", 10,0},; //
+   {"PC4",      "C", 10,0},; // "1-NNNNNNN" (1-ый л/у + ссылка на 2-ой лист) или "2-NNNNNNN" (2-ой л/у + ссылка на 1-ый лист)
    {"PC5",      "C", 10,0},; //
    {"PC6",      "C", 10,0},; //
    {"PN1",      "N", 10,0},; // для реабилитации пациентов после кохлеарной имплантации
@@ -3315,28 +3471,41 @@ Local human_2 := {;
 Local mo_onkna := {; // онконаправления
    {"KOD"      ,   "N",     7,     0},; // код больного
    {"NAPR_DATE",   "D",     8,     0},; // Дата направления
-   {"NAPR_V"  ,    "N",     1,     0},; // Вид направления:1-к онкологу,2-на биопсию,3-на дообследование,4-для опр.тактики лечения
-   {"MET_ISSL" ,   "N",     1,     0},; // Метод диагностического исследования(при NAPR_V=3):1-лаб.диагностика;2-инстр.диагностика;3-луч.диагностика;4-КТ, МРТ, ангиография
-   {"U_KOD"    ,   "N",     6,     0};  // код услуги
+   {"NAPR_MO",     "C",     6,     0},; // код другого МО, куда выписано направление
+   {"NAPR_V"  ,    "N",     1,     0},; // Вид направления(V028):1-к онкологу,2-на биопсию,3-на дообследование,4-для опр.тактики лечения
+   {"MET_ISSL" ,   "N",     1,     0},; // Метод диагн.исследования(V029)(при NAPR_V=3):1-лаб.диагностика;2-инстр.диагностика;3-луч.диагностика;4-КТ, МРТ, ангиография
+   {"U_KOD"    ,   "N",     6,     0};  // код услуги(V001)
   }
 Local mo_onksl := {; // Сведения о случае лечения онкологического заболевания
    {"KOD"      ,   "N",     7,     0},; // код больного
-   {"DS1_T"    ,   "N",     1,     0},; // Повод обращения:0 - первичное лечение;1 - рецидив;2 - прогрессирование
-   {"PR_CONS"  ,   "N",     1,     0},; // Сведения о проведении консилиума:1 - определена тактика обследования;2 - определена тактика лечения;3 - изменена тактика лечения.
-   {"DT_CONS"  ,   "D",     8,     0},; // Дата проведения консилиума	Обязательно к заполнению при заполненном PR_CONS
-   {"STAD"     ,   "N",     3,     0},; // Стадия заболевания	Заполняется в соответствии со справочником N002 
-   {"ONK_T"    ,   "N",     3,     0},; // Значение Tumor	Заполняется в соответствии со справочником N003 
-   {"ONK_N"    ,   "N",     3,     0},; // Значение Nodus	Заполняется в соответствии со справочником N004 
-   {"ONK_M"    ,   "N",     3,     0},; // Значение Metastasis 	Заполняется в соответствии со справочником N005 
-   {"MTSTZ"    ,   "N",     1,     0},; // Признак выявления отдалённых метастазов	Подлежит заполнению значением 1 при выявлении отдалённых метастазов только при DS1_T=1 или DS1_T=2 
-   {"SOD"      ,   "N",     6,     2};  // Суммарная очаговая доза	Обязательно для заполнения при проведении лучевой или химиолучевой терапии (USL_TIP=3 или USL_TIP=4)
+   {"DS1_T"    ,   "N",     1,     0},; // Повод обращения(N018):0-первичное лечение;1-рецидив;2-прогрессирование;3-динам.наблюдение;4-диспанс.наблюдение;5-диагностика;6-симптоматическое лечение
+   {"STAD"     ,   "N",     3,     0},; // Стадия заболевания(N002)обязательно при DS1_T = от 0 до 4  
+   {"ONK_T"    ,   "N",     3,     0},; // Значение Tumor(N003) обязательно для взрослых при при DS1_T=0 
+   {"ONK_N"    ,   "N",     3,     0},; // Значение Nodus(N004) обязательно для взрослых при при DS1_T=0 
+   {"ONK_M"    ,   "N",     3,     0},; // Значение Metastasis(N005) обязательно для взрослых при при DS1_T=0 
+   {"MTSTZ"    ,   "N",     1,     0},; // Признак выявления отдалённых метастазов	Подлежит заполнению значением 1 при выявлении отдалённых метастазов только при DS1_T=1,2 
+   {"B_DIAG"   ,   "N",     2,     0},; // гистология:99-не надо,98-сделана(результат получен),97-сделана(результат не получен),0-отказ,7-не показано,8-противопоказано 
+   {"SOD"      ,   "N",     6,     2},; // Суммарная очаговая доза	Обязательно для заполнения при проведении лучевой или химиолучевой терапии (USL_TIP=3 или USL_TIP=4)м.б.=0
+   {"K_FR"     ,   "N",     2,     0},; // кол-во фракций проведения лучевой терапии	Обязательно для заполнения при проведении лучевой или химиолучевой терапии (USL_TIP=3 или USL_TIP=4)м.б.=0
+   {"CRIT"     ,   "C",    10,     0},; // код схемы лек.терапии V024 (sh..., mt...)
+   {"CRIT2"    ,   "C",    10,     0},; // доп.критерий (fr...)
+   {"IS_ERR"   ,   "N",     1,     0},; // Признак несоблюдения схемы лекарственной терапии: 0-нормально, 1-не соблюдена 
+   {"WEI"      ,   "N",     5,     1},; // масса тела в кг	Обязательно для заполнения при проведении лекарственной или химиолучевой терапии (USL_TIP=2 или USL_TIP=4)
+   {"HEI"      ,   "N",     3,     0},; // рост в см	Обязательно для заполнения при проведении лекарственной или химиолучевой терапии (USL_TIP=2 или USL_TIP=4)
+   {"BSA"      ,   "N",     4,     2};  // площадь поверхности тела в кв.м.	Обязательно для заполнения при проведении лекарственной или химиолучевой терапии (USL_TIP=2 или USL_TIP=4)
   }
 Local mo_onkdi := {; // Диагностический блок
    {"KOD"      ,   "N",     7,     0},; // код больного
    {"DIAG_DATE",   "D",     8,     0},; // Дата взятия материала для проведения диагностики
    {"DIAG_TIP" ,   "N",     1,     0},; // Тип диагностического показателя: 1 - гистологический признак; 2 - маркёр (ИГХ)
    {"DIAG_CODE",   "N",     3,     0},; // Код диагностического показателя При DIAG_TIP=1 в соответствии со справочником N007 При DIAG_TIP=2 в соответствии со справочником N010 
-   {"DIAG_RSLT",   "N",     3,     0};  // Код результата диагностики При DIAG_TIP=1 в соответствии со справочником N008 При DIAG_TIP=2 в соответствии со справочником N011
+   {"DIAG_RSLT",   "N",     3,     0},; // Код результата диагностики При DIAG_TIP=1 в соответствии со справочником N008 При DIAG_TIP=2 в соответствии со справочником N011
+   {"REC_RSLT",    "N",     1,     0};  // признак получения результата диагностики 1 - получен
+  }
+Local mo_onkco := {; // Сведения о проведении консилиума
+   {"KOD"      ,   "N",     7,     0},; // код больного
+   {"PR_CONS"  ,   "N",     1,     0},; // Сведения о проведении консилиума(N019):0-отсутствует необходимость;1-определена тактика обследования;2-определена тактика лечения;3-изменена тактика лечения
+   {"DT_CONS"  ,   "D",     8,     0};  // Дата проведения консилиума	Обязательно к заполнению при PR_CONS=1,2,3
   }
 Local mo_onkpr := {; // Сведения об имеющихся противопоказаниях
    {"KOD"      ,   "N",     7,     0},; // код больного
@@ -3350,7 +3519,13 @@ Local mo_onkus := {; // Сведения о проведённых лечениях
    {"LEK_TIP_L",   "N",     1,     0},; // Линия лекарственной терапии При USL_TIP=2 в соответствии со справочником N015	
    {"LEK_TIP_V",   "N",     1,     0},; // Цикл лекарственной терапии	При USL_TIP=2 в соответствии со справочником N016
    {"LUCH_TIP" ,   "N",     1,     0},; // Тип лучевой терапии	При USL_TIP=3,4 в соответствии со справочником N017
-   {"SOD"      ,   "N",     6,     2};  // SOD - Суммарная очаговая доза - При USL_TIP=3,4 
+   {"PPTR" ,       "N",     1,     0};  // Признак проведения профилактики тошноты и рвотного рефлекса - указывается "1" при USL_TIP=2,4
+  }
+Local mo_onkle := {; // Сведения о применённых лекарственных препаратах
+   {"KOD"      ,   "N",     7,     0},; // код больного
+   {"REGNUM",      "C",     6,     0},; // IDD лек.препарата N020
+   {"CODE_SH",     "C",    10,     0},; // код схемы лек.терапии V024
+   {"DATE_INJ",    "D",     8,     0};  // дата введения лек.препарата
   }
 Local mo_rhum := {; // список листов учёта в реестрах (т.к. можно попасть в несколько реестров)
    {"REESTR",   "N", 6,0},; // код реестра;по файлу "mo_rees"
@@ -3367,10 +3542,10 @@ Local mo_refr := {; // список отказов в реестрах и счетах по случаям и услугам
    {"REFREASON","N", 3,0};  // код причины отказа (частичной оплаты);по справочнику F014
   }
 Local mo_rak := {; // реестр актов контроля счетов
-   {"AKT",      "N",  6,0},; // код акта
+   {"AKT",      "N",  6,0},; // код акта(номер записи)
    {"KOD_XML",  "N",  6,0},; // ссылка на файл "mo_xml", присланный из ТФ или СМО
    {"CODEA",    "N", 10,0},; // код записи акта
-   {"NAKT",     "C", 25,0},; // номер акта контроля
+   {"NAKT",     "C", 30,0},; // номер акта контроля
    {"DAKT",     "D",  8,0},; // дата акта контроля
    {"NSCHET",   "C", 15,0},; // номер счета (если он один в акте)
    {"KOL_SCH",  "N",  6,0},; // кол-во счетов в акте
@@ -3379,6 +3554,10 @@ Local mo_rak := {; // реестр актов контроля счетов
    {"KONT",     "N",  2,0},; // 1-МЭК, 2-МЭЭ, 3-ЭКМП и т.д. (из справочника F006)
    {"TYPEK",    "N",  1,0},; // 1-первичный контроль, 2-повторный
    {"SKONT",    "N",  1,0};  // вид экспертизы: 0-МЭК, 1-плановая, 2-целевая
+  }
+Local mo_rakexp := {; // реестр актов контроля счетов + эксперты
+   {"AKT",      "N",  6,0},; // код акта
+   {"CODE_EXP", "C",  8,0};  // код эксперта качества мед.помощи по F004
   }
 Local mo_raks := {; // реестр актов контроля + счета
    {"KOD_RAKS", "N",  6,0},; // № записи в файле (один счёт м.б. более 1 раза)
@@ -3389,22 +3568,33 @@ Local mo_raks := {; // реестр актов контроля + счета
    {"PLAT",     "C",  5,0},; // плательщик (СМО или ТФ) ?????????????
    {"SUMMAV",   "N", 15,2},; // сумма МО, выставленная на оплату
    {"SUMMAP",   "N", 15,2},; // сумма, принятая к оплате СМО или ТФ
-   {"SANK_MEK", "N", 15,2},; // финансовые санкции МЭК
+   {"SANK_MEK", "N", 15,2},; // финансовые санкции МЭК (или SANK_SUM)
    {"SANK_MEE", "N", 15,2},; // финансовые санкции МЭЭ
-   {"SANK_EKMP","N", 15,2};  // финансовые санкции ЭКМП
+   {"SANK_EKMP","N", 15,2},; // финансовые санкции ЭКМП
+   {"PENALTY",  "N", 15,2};  // Сумма штрафов
   }
 Local mo_raksh := {; // реестр актов контроля + счета + листы учета
    {"KOD_RAKS", "N",  6,0},; // № записи в файле RAKS
    {"KOD_H",    "N",  7,0},; // код листа учета по БД "human"
    {"OPLATA",   "N",  1,0},; // тип оплаты;1-оплата,2-отказ,3-част.отказ,4-восстановление
    {"SUMP",     "N", 10,2},; // сумма, принятая к оплате СМО (ТФОМС);;
-   {"REFREASON","N",  3,0},; // код причины отказа
-   {"SANK_MEK", "N", 10,2},; // финансовые санкции (МЭК)
+   {"REFREASON","N",  3,0},; // код причины отказа (по-старому - 2018 год)
+   {"SANK_MEK", "N", 10,2},; // финансовые санкции (МЭК) (или SANK_IT)
    {"SANK_MEE", "N", 10,2},; // финансовые санкции (МЭЭ)
    {"SANK_EKMP","N", 10,2},; // финансовые санкции (ЭКМП)
+   {"PENALTY",  "N", 15,2},; // Сумма штрафов
    {"IS_REPEAT","N",  1,0},; // 0-нет, 1-повторное выставление листа учёта
    {"DATE_REP", "D",  8,0},; // дата оплаты (экспертизы)
    {"NEXT_KOD", "N",  7,0};  // ссылка на повторно выставленный лист учета
+  }
+Local mo_raksherr := {; // реестр актов контроля + счета + листы учета + ошибки (по-новому - 2019 год)
+   {"KOD_RAKSH","N",  8,0},; // № записи в файле RAKSH
+   {"S_CODE",   "C", 36,0},; // идентификатор санкции
+   {"S_SUM",    "N", 10,2},; // сумма уменьшения оплаты
+   {"REFREASON","N",  3,0},; // код причины отказа (частичной) оплаты
+   {"PENALTY",  "N", 15,2},; // Сумма штрафов
+   {"SL_ID",    "C",  6,0},; // идентификатор случая (в законченном случае)
+   {"SL_ID2",   "C",  6,0};  // идентификатор второго случая (в законченном случае)
   }
 Local mo_os := {; // оплата, санкции, результат экспертизы счетов
    {"KOD",      "N",  7,0},; // код листа учета по БД "human"
@@ -4373,8 +4563,10 @@ reconstruct(dir_server+"mo_hdisp",mo_hdisp,,"диспансеризациям",.t.)
 reconstruct(dir_server+"mo_hod",mo_hod,,"ходатайствам",.t.)
 reconstruct(dir_server+"mo_hod_k",mo_hod_k,,"ходатайствам1",.t.)
 reconstruct(dir_server+"mo_rak",mo_rak,,"актам контроля",.t.)
+reconstruct(dir_server+"mo_rakexp",mo_rakexp,,"актам контроля4",.t.)
 reconstruct(dir_server+"mo_raks",mo_raks,,"актам контроля2",.t.)
 reconstruct(dir_server+"mo_raksh",mo_raksh,,"актам контроля3",.t.)
+reconstruct(dir_server+"mo_raksherr",mo_raksherr,,"актам контроля5",.t.)
 reconstruct(dir_server+"mo_rpd",mo_rpd,,"платёжным документам",.t.)
 reconstruct(dir_server+"mo_rpds",mo_rpds,,"платёжным документам2",.t.)
 reconstruct(dir_server+"mo_rpdsh",mo_rpdsh,,"платёжным документам3",.t.)
@@ -4383,6 +4575,8 @@ reconstruct(dir_server+"mo_onksl",mo_onksl,"index_base('mo_onksl')","онкологии2"
 reconstruct(dir_server+"mo_onkdi",mo_onkdi,"index_base('mo_onkdi')","онкологии3",.t.)
 reconstruct(dir_server+"mo_onkpr",mo_onkpr,"index_base('mo_onkpr')","онкологии4",.t.)  
 reconstruct(dir_server+"mo_onkus",mo_onkus,"index_base('mo_onkus')","онкологии5",.t.)  
+reconstruct(dir_server+"mo_onkco",mo_onkco,"index_base('mo_onkko')","онкологии5",.t.)  
+reconstruct(dir_server+"mo_onkle",mo_onkle,"index_base('mo_onkle')","онкологии5",.t.)  
 //
 reconstruct(dir_server+"mo_rees",mo_rees,,"реестрам случаев",.t.)
 reconstruct(dir_server+"mo_xml",mo_xml,,"принятым файлам",.t.)
@@ -6018,6 +6212,134 @@ aadd(glob_V015, {"Медицинская биофизика",289,"287","198",stod("20131226"),stod("
 aadd(glob_V015, {"Медицинская кибернетика",290,"287","199",stod("20131226"),stod("")})
 aadd(glob_V015, {"Биохимия",3200,"287","200",stod("20131226"),stod("")})
 aadd(glob_V015, {"Медицинская биохимия",3201,"287","201",stod("20131226"),stod("")})
+// V021.xml - Классификатор медицинских специальностей (последний)
+//  1 - SPECNAME(C)  2 - IDSPEC(N)  3 - DATEBEG(D)  4 - DATEEND(D)
+Public glob_V021 := {} 
+aadd(glob_V021, {"Авиационная и космическая медицина",1,stod("20151128"),stod("")})
+aadd(glob_V021, {"Акушерство и гинекология",2,stod("20151128"),stod("")})
+aadd(glob_V021, {"Аллергология и иммунология",3,stod("20151128"),stod("")})
+aadd(glob_V021, {"Анестезиология-реаниматология",4,stod("20151128"),stod("")})
+aadd(glob_V021, {"Бактериология",5,stod("20151128"),stod("")})
+aadd(glob_V021, {"Вирусология",6,stod("20151128"),stod("")})
+aadd(glob_V021, {"Водолазная медицина",7,stod("20151128"),stod("")})
+aadd(glob_V021, {"Гастроэнтерология",8,stod("20151128"),stod("")})
+aadd(glob_V021, {"Гематология",9,stod("20151128"),stod("")})
+aadd(glob_V021, {"Генетика",10,stod("20151128"),stod("")})
+aadd(glob_V021, {"Гериатрия",11,stod("20151128"),stod("")})
+aadd(glob_V021, {"Гигиена детей и подростков",12,stod("20151128"),stod("")})
+aadd(glob_V021, {"Гигиена питания",13,stod("20151128"),stod("")})
+aadd(glob_V021, {"Гигиена труда",14,stod("20151128"),stod("")})
+aadd(glob_V021, {"Гигиеническое воспитание",15,stod("20151128"),stod("")})
+aadd(glob_V021, {"Дезинфектология",16,stod("20151128"),stod("")})
+aadd(glob_V021, {"Дерматовенерология",17,stod("20151128"),stod("")})
+aadd(glob_V021, {"Детская кардиология",18,stod("20151128"),stod("")})
+aadd(glob_V021, {"Детская онкология",19,stod("20151128"),stod("")})
+aadd(glob_V021, {"Детская урология-андрология",20,stod("20151128"),stod("")})
+aadd(glob_V021, {"Детская хирургия",21,stod("20151128"),stod("")})
+aadd(glob_V021, {"Детская эндокринология",22,stod("20151128"),stod("")})
+aadd(glob_V021, {"Диетология",23,stod("20151128"),stod("")})
+aadd(glob_V021, {"Инфекционные болезни",24,stod("20151128"),stod("")})
+aadd(glob_V021, {"Кардиология",25,stod("20151128"),stod("")})
+aadd(glob_V021, {"Клиническая лабораторная диагностика",26,stod("20151128"),stod("")})
+aadd(glob_V021, {"Клиническая фармакология",27,stod("20151128"),stod("")})
+aadd(glob_V021, {"Колопроктология",28,stod("20151128"),stod("")})
+aadd(glob_V021, {"Коммунальная гигиена",29,stod("20151128"),stod("")})
+aadd(glob_V021, {"Косметология",30,stod("20151128"),stod("")})
+aadd(glob_V021, {"Лабораторная генетика",31,stod("20151128"),stod("")})
+aadd(glob_V021, {"Лечебная физкультура и спортивная медицина",32,stod("20151128"),stod("")})
+aadd(glob_V021, {"Мануальная терапия",33,stod("20151128"),stod("")})
+aadd(glob_V021, {"Медико-социальная экспертиза",34,stod("20151128"),stod("")})
+aadd(glob_V021, {"Неврология",35,stod("20151128"),stod("")})
+aadd(glob_V021, {"Нейрохирургия",36,stod("20151128"),stod("")})
+aadd(glob_V021, {"Неонатология",37,stod("20151128"),stod("")})
+aadd(glob_V021, {"Нефрология",38,stod("20151128"),stod("")})
+aadd(glob_V021, {"Общая врачебная практика (семейная медицина)",39,stod("20151128"),stod("")})
+aadd(glob_V021, {"Общая гигиена",40,stod("20151128"),stod("")})
+aadd(glob_V021, {"Онкология",41,stod("20151128"),stod("")})
+aadd(glob_V021, {"Организация здравоохранения и общественное здоровье",42,stod("20151128"),stod("")})
+aadd(glob_V021, {"Ортодонтия",43,stod("20151128"),stod("")})
+aadd(glob_V021, {"Остеопатия",44,stod("20151128"),stod("")})
+aadd(glob_V021, {"Оториноларингология",45,stod("20151128"),stod("")})
+aadd(glob_V021, {"Офтальмология",46,stod("20151128"),stod("")})
+aadd(glob_V021, {"Паразитология",47,stod("20151128"),stod("")})
+aadd(glob_V021, {"Патологическая анатомия",48,stod("20151128"),stod("")})
+aadd(glob_V021, {"Педиатрия",49,stod("20151128"),stod("")})
+aadd(glob_V021, {"Пластическая хирургия",50,stod("20151128"),stod("")})
+aadd(glob_V021, {"Профпатология",51,stod("20151128"),stod("")})
+aadd(glob_V021, {"Психиатрия",52,stod("20151128"),stod("")})
+aadd(glob_V021, {"Психиатрия-наркология",53,stod("20151128"),stod("")})
+aadd(glob_V021, {"Психотерапия",54,stod("20151128"),stod("")})
+aadd(glob_V021, {"Пульмонология",55,stod("20151128"),stod("")})
+aadd(glob_V021, {"Радиационная гигиена",56,stod("20151128"),stod("")})
+aadd(glob_V021, {"Радиология",57,stod("20151128"),stod("")})
+aadd(glob_V021, {"Радиотерапия",58,stod("20151128"),stod("")})
+aadd(glob_V021, {"Ревматология",59,stod("20151128"),stod("")})
+aadd(glob_V021, {"Рентгенология",60,stod("20151128"),stod("")})
+aadd(glob_V021, {"Рентгенэндоваскулярные диагностика и лечение",61,stod("20151128"),stod("")})
+aadd(glob_V021, {"Рефлексотерапия",62,stod("20151128"),stod("")})
+aadd(glob_V021, {"Санитарно-гигиенические лабораторные исследования",63,stod("20151128"),stod("")})
+aadd(glob_V021, {"Сексология",64,stod("20151128"),stod("")})
+aadd(glob_V021, {"Сердечно-сосудистая хирургия",65,stod("20151128"),stod("")})
+aadd(glob_V021, {"Скорая медицинская помощь",66,stod("20151128"),stod("")})
+aadd(glob_V021, {"Социальная гигиена и организация госсанэпидслужбы",67,stod("20151128"),stod("")})
+aadd(glob_V021, {"Стоматология детская",68,stod("20151128"),stod("")})
+aadd(glob_V021, {"Стоматология общей практики",69,stod("20151128"),stod("")})
+aadd(glob_V021, {"Стоматология ортопедическая",70,stod("20151128"),stod("")})
+aadd(glob_V021, {"Стоматология терапевтическая",71,stod("20151128"),stod("")})
+aadd(glob_V021, {"Стоматология хирургическая",72,stod("20151128"),stod("")})
+aadd(glob_V021, {"Судебно-медицинская экспертиза",73,stod("20151128"),stod("")})
+aadd(glob_V021, {"Судебно-психиатрическая экспертиза",74,stod("20151128"),stod("")})
+aadd(glob_V021, {"Сурдология-оториноларингология",75,stod("20151128"),stod("")})
+aadd(glob_V021, {"Терапия",76,stod("20151128"),stod("")})
+aadd(glob_V021, {"Токсикология",77,stod("20151128"),stod("")})
+aadd(glob_V021, {"Торакальная хирургия",78,stod("20151128"),stod("")})
+aadd(glob_V021, {"Травматология и ортопедия",79,stod("20151128"),stod("")})
+aadd(glob_V021, {"Трансфузиология",80,stod("20151128"),stod("")})
+aadd(glob_V021, {"Ультразвуковая диагностика",81,stod("20151128"),stod("")})
+aadd(glob_V021, {"Управление и экономика фармации",82,stod("20151128"),stod("")})
+aadd(glob_V021, {"Управление сестринской деятельностью",83,stod("20151128"),stod("")})
+aadd(glob_V021, {"Урология",84,stod("20151128"),stod("")})
+aadd(glob_V021, {"Фармацевтическая технология",85,stod("20151128"),stod("")})
+aadd(glob_V021, {"Фармацевтическая химия и фармакогнозия",86,stod("20151128"),stod("")})
+aadd(glob_V021, {"Физиотерапия",87,stod("20151128"),stod("")})
+aadd(glob_V021, {"Фтизиатрия",88,stod("20151128"),stod("")})
+aadd(glob_V021, {"Функциональная диагностика",89,stod("20151128"),stod("")})
+aadd(glob_V021, {"Хирургия",90,stod("20151128"),stod("")})
+aadd(glob_V021, {"Челюстно-лицевая хирургия",91,stod("20151128"),stod("")})
+aadd(glob_V021, {"Эндокринология",92,stod("20151128"),stod("")})
+aadd(glob_V021, {"Эндоскопия",93,stod("20151128"),stod("")})
+aadd(glob_V021, {"Эпидемиология",94,stod("20151128"),stod("")})
+aadd(glob_V021, {"Лечебное дело",95,stod("20170107"),stod("")})
+aadd(glob_V021, {"Медико-профилактическое дело",96,stod("20170107"),stod("")})
+aadd(glob_V021, {"Медицинская биохимия",97,stod("20170107"),stod("")})
+aadd(glob_V021, {"Медицинская биофизика",98,stod("20170107"),stod("")})
+aadd(glob_V021, {"Медицинская кибернетика",99,stod("20170107"),stod("")})
+aadd(glob_V021, {"Сестринское дело",100,stod("20170107"),stod("")})
+aadd(glob_V021, {"Фармация",101,stod("20170107"),stod("")})
+aadd(glob_V021, {"Лечебное дело (средний медперсонал)",206,stod("20151128"),stod("")})
+aadd(glob_V021, {"Акушерское дело (средний медперсонал)",207,stod("20151128"),stod("")})
+aadd(glob_V021, {"Стоматология (средний медперсонал)",208,stod("20151128"),stod("")})
+aadd(glob_V021, {"Стоматология ортопедическая",209,stod("20151128"),stod("")})
+aadd(glob_V021, {"Эпидемиология (паразитология)",210,stod("20151128"),stod("")})
+aadd(glob_V021, {"Гигиеническое воспитание",213,stod("20151128"),stod("")})
+aadd(glob_V021, {"Лабораторная диагностика",215,stod("20151128"),stod("")})
+aadd(glob_V021, {"Лабораторное дело",217,stod("20151128"),stod("")})
+aadd(glob_V021, {"Сестринское дело",219,stod("20151128"),stod("")})
+aadd(glob_V021, {"Сестринское дело в педиатрии",221,stod("20151128"),stod("")})
+aadd(glob_V021, {"Операционное дело",222,stod("20151128"),stod("")})
+aadd(glob_V021, {"Анестезиология и реаниматология",223,stod("20151128"),stod("")})
+aadd(glob_V021, {"Общая практика",224,stod("20151128"),stod("")})
+aadd(glob_V021, {"Функциональная диагностика",226,stod("20151128"),stod("")})
+aadd(glob_V021, {"Физиотерапия",227,stod("20151128"),stod("")})
+aadd(glob_V021, {"Медицинский массаж",228,stod("20151128"),stod("")})
+aadd(glob_V021, {"Лечебная физкультура",230,stod("20151128"),stod("")})
+aadd(glob_V021, {"Диетология",231,stod("20151128"),stod("")})
+aadd(glob_V021, {"Стоматология профилактическая",233,stod("20151128"),stod("")})
+aadd(glob_V021, {"Судебно-медицинская экспертиза",234,stod("20151128"),stod("")})
+aadd(glob_V021, {"Наркология",280,stod("20151128"),stod("")})
+aadd(glob_V021, {"Реабилитационное сестринское дело",281,stod("20151128"),stod("")})
+aadd(glob_V021, {"Скорая и неотложная помощь",283,stod("20151128"),stod("")})
+aadd(glob_V021, {"Бактериология",284,stod("20151128"),stod("")})
 // V016.xml - Классификатор видов диспансеризации/профосмотров
 //  1 - kod(N), 2 - IDDT(C)  3 - DTNAME(C)  4 - DATEBEG(D)
 Public glob_V016 := {} 
@@ -8250,7 +8572,7 @@ aadd(_glob_V019, {543,"баллонная вазодилатация с установкой 3 стентов в сосуд (с
     next
     _glob_V019[j,3] := aclone(ar)
   next
-  make_V018_V019(stod("20170101"))
+  make_V018_V019(0d20190101)
 endif
 // V020.xml - Классификатор профилей койки
 Public glob_V020 := {}
@@ -8412,44 +8734,6 @@ aadd(glob_T012, {"Численность ЗЛ за месяц не равна сумме численностей ЗЛ по учас
 aadd(glob_T012, {"Численность ЗЛ за год не равна утвержденным показателям.",510,"ТК1",stod("20170101"),stod("22220101")})
 aadd(glob_T012, {"Отчетный год в имени файла не соответствует отчетному году в поле YEAR.",511,"ТК1",stod("20170101"),stod("22220101")})
 aadd(glob_T012, {"Предоставление сведений об изменениях без предоставления первичных сведений.",512,"ТК1",stod("20170101"),stod("22220101")})
-// массив специальных профилей для справочника КСГ 2014-15 гг.
-Public glob_arr_ksg_profil := {;
-  {"Акушерство и гинекология",2},;
-  {"Аллергология и иммунология",3},;
-  {"Гастроэнтерология",4},;
-  {"Гематология",5},;
-  {"Дерматология",6},;
-  {"Детская кардиология",7},;
-  {"Детская онкология",8},;
-  {"Детская урология-андрология",9},;
-  {"Детская хирургия",10},;
-  {"Детская эндокринология",11},;
-  {"Инфекционные болезни",12},;
-  {"Кардиология",13},;
-  {"Колопроктология",14},;
-  {"Неврология",15},;
-  {"Нейрохирургия",16},;
-  {"Неонатология",17},;
-  {"Нефрология",18},;
-  {"Онкология",19},;
-  {"Оториноларингология",20},;
-  {"Офтальмология",21},;
-  {"Педиатрия",22},;
-  {"Пульмонология",23},;
-  {"Ревматология",24},;
-  {"Сердечно-сосудистая хирургия",25},;
-  {"Стоматология детская",26},;
-  {"Терапия",27},;
-  {"Торакальная хирургия",28},;
-  {"Травматология и ортопедия",29},;
-  {"Урология",30},;
-  {"Хирургия",31},;
-  {"Хирургия (абдоминальная)",32},;
-  {"Хирургия (комбустиология)",33},;
-  {"Челюстно-лицевая хирургия",34},;
-  {"Эндокринология",35},;
-  {"Прочее",36};
- }
 // массив перекодировки специальностей из V015 в V021
 Public glob_arr_V015_V021 := {;
   {  1,  49  },; //    Педиатрия
@@ -9004,74 +9288,6 @@ Public glob_arr_V015_V004 := {;
   { 2022,"Физиотерапия", 286, 1};
 }
 //
-Public glob_array_PZ := {; // 2017 год  
-  { 1,163,"случай госпитализации ВМП 17-01","ВМП-01","к/д",""},;
-  { 2,164,"случай госпитализации ВМП 17-02","ВМП-02","к/д",""},;
-  { 3,165,"случай госпитализации ВМП 17-03","ВМП-03","к/д",""},;
-  { 4,166,"случай госпитализации ВМП 17-04","ВМП-04","к/д",""},;
-  { 5,167,"случай госпитализации ВМП 17-05","ВМП-05","к/д",""},;
-  { 6,168,"случай госпитализации ВМП 17-06","ВМП-06","к/д",""},;
-  { 7,169,"случай госпитализации ВМП 17-07","ВМП-07","к/д",""},;
-  { 8,170,"случай госпитализации ВМП 17-08","ВМП-08","к/д",""},;
-  { 9,171,"случай госпитализации ВМП 17-09","ВМП-09","к/д",""},;
-  {10,172,"случай госпитализации ВМП 17-10","ВМП-10","к/д",""},;
-  {11,173,"случай госпитализации ВМП 17-11","ВМП-11","к/д",""},;
-  {12,174,"случай госпитализации ВМП 17-12","ВМП-12","к/д",""},;
-  {13,175,"случай госпитализации ВМП 17-13","ВМП-13","к/д",""},;
-  {14,176,"случай госпитализации ВМП 17-14","ВМП-14","к/д",""},;
-  {15,177,"случай госпитализации ВМП 17-15","ВМП-15","к/д",""},;
-  {16,178,"случай госпитализации ВМП 17-16","ВМП-16","к/д",""},;
-  {17,179,"случай госпитализации ВМП 17-17","ВМП-17","к/д",""},;
-  {18,180,"случай госпитализации ВМП 17-18","ВМП-18","к/д",""},;
-  {19,181,"случай госпитализации ВМП 17-19","ВМП-19","к/д",""},;
-  {20,182,"случай госпитализации ВМП 17-20","ВМП-20","к/д",""},;
-  {21,183,"случай госпитализации ВМП 17-21","ВМП-21","к/д",""},;
-  {22,184,"случай госпитализации ВМП 17-22","ВМП-22","к/д",""},;
-  {23,185,"случай госпитализации ВМП 17-23","ВМП-23","к/д",""},;
-  {24,186,"случай госпитализации ВМП 17-24","ВМП-24","к/д",""},;
-  {25,187,"случай госпитализации ВМП 17-25","ВМП-25","к/д",""},;
-  {26,188,"случай госпитализации ВМП 17-26","ВМП-26","к/д",""},;
-  {27,189,"случай госпитализации ВМП 17-27","ВМП-27","к/д",""},;
-  {28,190,"случай госпитализации ВМП 17-28","ВМП-28","к/д",""},;
-  {29,191,"случай госпитализации ВМП 17-29","ВМП-29","к/д",""},;
-  {30,192,"случай госпитализации ВМП 17-30","ВМП-30","к/д",""},;
-  {31,193,"случай госпитализации ВМП 17-31","ВМП-31","к/д",""},;
-  {32,194,"случай госпитализации ВМП 17-32","ВМП-32","к/д",""},;
-  {33,195,"случай госпитализации ВМП 17-33","ВМП-33","к/д",""},;
-  {34,196,"случай госпитализации ВМП 17-34","ВМП-34","к/д",""},;
-  {35,197,"случай госпитализации ВМП 17-35","ВМП-35","к/д",""},;
-  {36,198,"случай госпитализации ВМП 17-36","ВМП-36","к/д",""},;
-  {37,199,"случай госпитализации ВМП 17-37","ВМП-37","к/д",""},;
-  {38,200,"случай госпитализации ВМП 17-38","ВМП-38","к/д",""},;
-  {39,201,"случай госпитализации ВМП 17-39","ВМП-39","к/д",""},;
-  {40,202,"случай госпитализации ВМП 17-40","ВМП-40","к/д",""},;
-  {41,203,"случай госпитализации ВМП 17-41","ВМП-41","к/д",""},;
-  {42,204,"случай госпитализации ВМП 17-42","ВМП-42","к/д",""},;
-  {51, 26,"Вызов СМП","вызовСМП","",{"71.*"}},;
-  {52, 29,"случай госпитализации","случГоспит","к/д",""},;
-  {53,142,"случай госпитализации при реабилитации","случГоспРеаб","к/д",""},;
-  {54,141,"случай ЗПТ","случайЗПТ","диал.",""},;
-  {55,143,"случай лечения","случЛечения","п/д",""},;
-  {56,152,"случай диализа","случДиализа","п/д",""},;
-  {57, 30,"Посещение профилактическое","амбПрофил.","",{"2.79.*","2.81.*","2.88.*"},{"2.79.52","2.79.53","2.79.54","2.79.55","2.79.56","2.79.57","2.79.58","2.88.40","2.88.41","2.88.42","2.88.43","2.88.44","2.88.45"}},;
-  {58, 31,"Посещение неотложное","амбНеотлож.","",{"2.80.*","2.82.*"},{"2.80.29","2.80.30","2.80.31","2.80.32","2.80.33"}},;
-  {59, 32,"Обращение","амбОбращен.","",{"2.78.*","2.89.*"},{"2.78.47","2.78.48","2.78.49","2.78.50","2.78.51","2.78.52","2.78.53"}},;
-  {60, 38,"Посещение профилактическое Центра здоровья","ПосПрофЦЗ","",{"2.76.*"}},;
-  {61,144,"комплексное посещение при диспансеризации","ПосДиспанс.","",{"70.*","72.*","2.83.14","2.83.15","2.83.38","2.83.39","2.84.9","2.84.11","2.84.12","2.85.14","2.85.15","2.85.38","2.85.39","2.86.14","2.86.15","2.86.38","2.86.39","2.87.14","2.87.15","2.87.38","2.87.39","2.90.*"}},;
-  {62,  5,"УЕТ стоматологии","УЕТ","",{"57.*"}},;  // ????????????????
-  {63,145,"посещение профилактическое в стоматологии","стомПроф.","",""},;
-  {64,146,"посещение неотложное в стоматологии","стомНеотл.","",""},;
-  {65,147,"обращение в стоматологии","стомОбращ.","",""},;
-  {66, 33,"Р-исследование","Р-исслед.","",{"60.2.*"}},;
-  {67,153,"пренатальный скрининг","ПренСкрининг","",{"4.15.746"}},;
-  {68, 69,"жидкостная цитология","ЖидкЦитология","",{"4.20.702"}},;
-  {69,148,"исследование биохимическое","исслБиохим.","",""},;
-  {70,149,"исследование гематологическое","исслГематол.","",""},;
-  {71,150,"исследование коагулогическое","исслКоагул.","",""},;
-  {72,151,"исследование ИХЛ","исслИХЛ","",""},;
-  {73,161,"исследование микробиологическое","исслМикробиол","",""},;
-  {74,162,"исследование ПЦР","исслПЦР","",""};
-}
 Public glob_array_PZ_18 := {;  
   { 1,207,"случай госпитализации ВМП 18-01","ВМП-01","к/д",""},;
   { 2,208,"случай госпитализации ВМП 18-02","ВМП-02","к/д",""},;
@@ -9153,12 +9369,95 @@ Public glob_array_PZ_18 := {;
   {85,161,"исследование микробиологическое","исслМикробиол","",""},;
   {86,162,"исследование ПЦР","исслПЦР","",""};
 }
-G_Use(exe_dir+"_mo8unit",cur_dir+"_mo8unit","UNIT")
-for i := 1 to len(glob_array_PZ_18)
-  find (str(glob_array_PZ_18[i,2],3))
-  if found() .and. !(unit->pz == glob_array_PZ_18[i,1] .and. unit->ii == i)
+Public glob_array_PZ_19 := {;  
+  { 1,263,"случай госпитализации ВМП 19-01","ВМП-01","к/д",""},;
+  { 2,264,"случай госпитализации ВМП 19-02","ВМП-02","к/д",""},;
+  { 3,265,"случай госпитализации ВМП 19-03","ВМП-03","к/д",""},;
+  { 4,266,"случай госпитализации ВМП 19-04","ВМП-04","к/д",""},;
+  { 5,267,"случай госпитализации ВМП 19-05","ВМП-05","к/д",""},;
+  { 6,268,"случай госпитализации ВМП 19-06","ВМП-06","к/д",""},;
+  { 7,269,"случай госпитализации ВМП 19-07","ВМП-07","к/д",""},;
+  { 8,270,"случай госпитализации ВМП 19-08","ВМП-08","к/д",""},;
+  { 9,271,"случай госпитализации ВМП 19-09","ВМП-09","к/д",""},;
+  {10,272,"случай госпитализации ВМП 19-10","ВМП-10","к/д",""},;
+  {11,273,"случай госпитализации ВМП 19-11","ВМП-11","к/д",""},;
+  {12,274,"случай госпитализации ВМП 19-12","ВМП-12","к/д",""},;
+  {13,275,"случай госпитализации ВМП 19-13","ВМП-13","к/д",""},;
+  {14,276,"случай госпитализации ВМП 19-14","ВМП-14","к/д",""},;
+  {15,277,"случай госпитализации ВМП 19-15","ВМП-15","к/д",""},;
+  {16,278,"случай госпитализации ВМП 19-16","ВМП-16","к/д",""},;
+  {17,279,"случай госпитализации ВМП 19-17","ВМП-17","к/д",""},;
+  {18,280,"случай госпитализации ВМП 19-18","ВМП-18","к/д",""},;
+  {19,281,"случай госпитализации ВМП 19-19","ВМП-19","к/д",""},;
+  {20,282,"случай госпитализации ВМП 19-20","ВМП-20","к/д",""},;
+  {21,283,"случай госпитализации ВМП 19-21","ВМП-21","к/д",""},;
+  {22,284,"случай госпитализации ВМП 19-22","ВМП-22","к/д",""},;
+  {23,285,"случай госпитализации ВМП 19-23","ВМП-23","к/д",""},;
+  {24,286,"случай госпитализации ВМП 19-24","ВМП-24","к/д",""},;
+  {25,287,"случай госпитализации ВМП 19-25","ВМП-25","к/д",""},;
+  {26,288,"случай госпитализации ВМП 19-26","ВМП-26","к/д",""},;
+  {27,289,"случай госпитализации ВМП 19-27","ВМП-27","к/д",""},;
+  {28,290,"случай госпитализации ВМП 19-28","ВМП-28","к/д",""},;
+  {29,291,"случай госпитализации ВМП 19-29","ВМП-29","к/д",""},;
+  {30,292,"случай госпитализации ВМП 19-30","ВМП-30","к/д",""},;
+  {31,293,"случай госпитализации ВМП 19-31","ВМП-31","к/д",""},;
+  {32,294,"случай госпитализации ВМП 19-32","ВМП-32","к/д",""},;
+  {33,295,"случай госпитализации ВМП 19-33","ВМП-33","к/д",""},;
+  {34,296,"случай госпитализации ВМП 19-34","ВМП-34","к/д",""},;
+  {35,297,"случай госпитализации ВМП 19-35","ВМП-35","к/д",""},;
+  {36,298,"случай госпитализации ВМП 19-36","ВМП-36","к/д",""},;
+  {37,299,"случай госпитализации ВМП 19-37","ВМП-37","к/д",""},;
+  {38,300,"случай госпитализации ВМП 19-38","ВМП-38","к/д",""},;
+  {39,301,"случай госпитализации ВМП 19-39","ВМП-39","к/д",""},;
+  {40,302,"случай госпитализации ВМП 19-40","ВМП-40","к/д",""},;
+  {41,303,"случай госпитализации ВМП 19-41","ВМП-41","к/д",""},;
+  {42,304,"случай госпитализации ВМП 19-42","ВМП-42","к/д",""},;
+  {43,305,"случай госпитализации ВМП 19-43","ВМП-43","к/д",""},;
+  {44,306,"случай госпитализации ВМП 19-44","ВМП-44","к/д",""},;
+  {45,307,"случай госпитализации ВМП 19-45","ВМП-45","к/д",""},;
+  {46,308,"случай госпитализации ВМП 19-46","ВМП-46","к/д",""},;
+  {47,309,"случай госпитализации ВМП 19-47","ВМП-47","к/д",""},;
+  {48,310,"случай госпитализации ВМП 19-48","ВМП-48","к/д",""},;
+  {49,311,"случай госпитализации ВМП 19-49","ВМП-49","к/д",""},;
+  {50,312,"случай госпитализации ВМП 19-50","ВМП-50","к/д",""},;
+  {51,313,"случай госпитализации ВМП 19-51","ВМП-51","к/д",""},;
+  {52,314,"случай госпитализации ВМП 19-52","ВМП-52","к/д",""},;
+  {53,315,"случай госпитализации ВМП 19-52","ВМП-53","к/д",""},;
+  {54,316,"случай госпитализации ВМП 19-52","ВМП-54","к/д",""},;
+  {60, 26,"Вызов СМП","вызовСМП","",""},; //
+  {61, 29,"случай госпитализации","случГоспит","к/д",""},; //
+  {62,142,"случай госпитализации при реабилитации","случГоспРеаб","к/д",""},; //
+  {63,205,"обращение для ЗПТ","обр.ЗПТ","",""},;
+  {64,206,"резус-фактор плода","р/ф плода","",""},;
+  {65,141,"случай ЗПТ","случайЗПТ","",""},; 
+  {66,143,"случай лечения","случЛечения","п/д",""},;
+  {67,259,"случай диализа","случДиализа","п/д",""},; //
+  {68, 30,"Посещение профилактическое","амбПрофил.","",""},;
+  {69, 31,"Посещение неотложное","амбНеотлож.","",""},;
+  {70, 32,"Обращение","амбОбращен.","",""},;
+  {71, 38,"Посещение профилактическое Центра здоровья","ПосПрофЦЗ","",""},;
+  {72,260,"комплексное посещение при диспансеризации","ПосДиспанс.","",""},; //
+  {73,261,"комплексное посещение при ДВН 1 этап","ДВН 1","",""},; //
+  {74,262,"комплексное посещение при ДВН 2 этап","ДВН 2","",""},; //
+  {75,145,"посещение профилактическое в стоматологии","стомПроф.","",""},;
+  {76,146,"посещение неотложное в стоматологии","стомНеотл.","",""},;
+  {77,147,"обращение в стоматологии","стомОбращ.","",""},;
+  {78, 33,"Р-исследование","Р-исслед.","",""},;
+  {79,153,"пренатальный скрининг","ПренСкрининг","",""},;
+  {80, 69,"жидкостная цитология","ЖидкЦитология","",""},;
+  {81,148,"исследование биохимическое","исслБиохим.","",""},;
+  {82,149,"исследование гематологическое","исслГематол.","",""},;
+  {83,150,"исследование коагулогическое","исслКоагул.","",""},;
+  {84,151,"исследование ИХЛ","исслИХЛ","",""},;
+  {85,161,"исследование микробиологическое","исслМикробиол","",""},;
+  {86,162,"исследование ПЦР","исслПЦР","",""};
+}
+G_Use(exe_dir+"_mo9unit",cur_dir+"_mo9unit","UNIT")
+for i := 1 to len(glob_array_PZ_19)
+  find (str(glob_array_PZ_19[i,2],3))
+  if found() .and. !(unit->pz == glob_array_PZ_19[i,1] .and. unit->ii == i)
     G_RLock(forever)
-    unit->pz := glob_array_PZ_18[i,1]
+    unit->pz := glob_array_PZ_19[i,1]
     unit->ii := i           
     UnLock
     Commit
@@ -9167,58 +9466,47 @@ next
 unit->(dbCloseArea())
 return NIL
 
-***** 19.01.18
+***** 03.01.19
 Function make_V018_V019(lk_data)
-Static sy := 0, sd2015, sd2016, sd2017, sd2018
+Static sy := 0, sd2017 := 0d20170101, sd2018 := 0d20180101, sd2019 := 0d20190101
 Local i, y
-if (y := year(lk_data)) > 2017
+if (y := year(lk_data)) > 2018
+  y := 2019
+elseif y  == 2018
   y := 2018
-elseif y  == 2017
-  y := 2017
-elseif y  == 2016
-  y := 2016
 else
-  y := 2015
+  y := 2017
 endif
 if sy != y
-  DEFAULT sd2015 TO stod("20151231"), sd2016 TO stod("20160101"), sd2017 TO stod("20170101"), sd2018 TO stod("20180101")
   sy := y
   glob_V018 := {}
   for i := 1 to len(_glob_V018)
-    if y == 2018
+    if y == 2019
+      if between_date(_glob_V018[i,3],_glob_V018[i,4],sd2019)
+        aadd(glob_V018, aclone(_glob_V018[i]))
+      endif 
+    elseif y == 2018
       if between_date(_glob_V018[i,3],_glob_V018[i,4],sd2018)
         aadd(glob_V018, aclone(_glob_V018[i]))
       endif 
-    elseif y == 2017
-      if between_date(_glob_V018[i,3],_glob_V018[i,4],sd2017)
-        aadd(glob_V018, aclone(_glob_V018[i]))
-      endif 
-    elseif y == 2016
-      if between_date(_glob_V018[i,3],_glob_V018[i,4],sd2016)
-        aadd(glob_V018, aclone(_glob_V018[i]))
-      endif 
     else
-      if between_date(_glob_V018[i,3],_glob_V018[i,4],sd2015)
+      if between_date(_glob_V018[i,3],_glob_V018[i,4],sd2017)
         aadd(glob_V018, aclone(_glob_V018[i]))
       endif 
     endif
   next
   glob_V019 := {}
   for i := 1 to len(_glob_V019)
-    if y == 2018
+    if y == 2019
+      if between_date(_glob_V019[i,5],_glob_V019[i,6],sd2019)
+        aadd(glob_V019, aclone(_glob_V019[i]))
+      endif 
+    elseif y == 2018
       if between_date(_glob_V019[i,5],_glob_V019[i,6],sd2018)
         aadd(glob_V019, aclone(_glob_V019[i]))
       endif 
-    elseif y == 2017
-      if between_date(_glob_V019[i,5],_glob_V019[i,6],sd2017)
-        aadd(glob_V019, aclone(_glob_V019[i]))
-      endif 
-    elseif y == 2016
-      if between_date(_glob_V019[i,5],_glob_V019[i,6],sd2016)
-        aadd(glob_V019, aclone(_glob_V019[i]))
-      endif 
     else
-      if between_date(_glob_V019[i,5],_glob_V019[i,6],sd2015)
+      if between_date(_glob_V019[i,5],_glob_V019[i,6],sd2017)
         aadd(glob_V019, aclone(_glob_V019[i]))
       endif 
     endif
@@ -9226,11 +9514,11 @@ if sy != y
 endif
 return NIL
 
-***** 01.12.17 вернуть код план-заказа по методу ВМП
+***** 03.01.19 вернуть код план-заказа по методу ВМП
 Function ret_PZ_VMP(lunit)
 Local mpztip := 0
 if select("MOUNIT") == 0
-  R_Use(dir_exe+"_mo8unit",cur_dir+"_mo8unit","MOUNIT")
+  R_Use(dir_exe+"_mo9unit",cur_dir+"_mo9unit","MOUNIT")
 endif
 select MOUNIT
 find (str(lunit,3))

@@ -2698,6 +2698,10 @@ do while .t.
       func_error(4,"Данный режим работает только с 2018 года.")
       loop
     endif
+    if year(mk_data) > 2018
+      func_error(4,"Данный режим пока не работает с 2019 годом.")
+      loop
+    endif
     if mk_data < mn_data
       func_error(4,"Дата окончания меньше даты начала процедур.")
       loop

@@ -4,7 +4,7 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 23.10.18 создать XML-файл по несовершеннолетним
+***** 11.01.19 создать XML-файл по несовершеннолетним
 Function mo_mzxml_N(_regim,n_file,stitle,lvozrast)
 Static oXmlDoc, _kol, ;
        arr_np := {0,1,2,3,4,5,6,7,8,9,10,11,12,15,18,24,36,48,60,72,84,96,108,120,132,144,156,168,180,192,204}
@@ -67,12 +67,9 @@ elseif _regim == 2
    mo_add_xml_stroke(oChild,"medSanName",ret_mo(m1MO_PR)[_MO_FULL_NAME])
    mo_add_xml_stroke(oChild,"medSanAddress",ret_mo(m1MO_PR)[_MO_ADRES])
    oAddress := oChild:Add( HXMLNode():New( "address" ) )
-    //mo_add_xml_stroke(oAddress,"index","400131")
-    mo_add_xml_stroke(oAddress,"kladrNP",    "3400000000000")
-    //mo_add_xml_stroke(oAddress,"kladrStreet","34000001000262000")
-    //mo_add_xml_stroke(oAddress,"house","1")
-    //mo_add_xml_stroke(oAddress,"building","")
-    //mo_add_xml_stroke(oAddress,"appartment","1")
+    //mo_add_xml_stroke(oAddress,"fiasAoid","") // код города проживания по ФИАС
+    //mo_add_xml_stroke(oAddress,"cityName","")   // строковое наименование пункта проживания
+    mo_add_xml_stroke(oAddress,"regionCode","34")   // код региона по ФИАС
    if eq_any(p_tip_lu,TIP_LU_PREDN,TIP_LU_PERN)  //if type("m1school") == "N" .and. m1school > 0
      mo_add_xml_stroke(oChild,"idEducationOrg",'90713')  // лицей 5
    endif

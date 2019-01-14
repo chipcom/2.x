@@ -177,7 +177,7 @@ if fl
 endif
 return k
 
-***** 30.01.18
+***** 12.01.19
 Function print_l_uch(mkod, par, regim, lnomer)
 // mkod - ª®¤ ¡®«ì­®£® ¯® „ human
 Local sh := 80, HH := 77, buf := save_maxrow(),;
@@ -234,7 +234,7 @@ R_Use(dir_server+"human",,"HUMAN")
 goto (mkod)
 R_Use(dir_server+"mo_pers",,"PERSO")
 goto (human_->vrach)
-mlech_vr := alltrim(perso->fio)
+mlech_vr := iif(empty(perso->tab_nom), "", lstr(perso->tab_nom)+" ")+alltrim(perso->fio)
 otd->(dbGoto(human->otd))
 R_Use(dir_server+"kartote_",,"KART_")
 goto (human->kod_k)
@@ -407,9 +407,9 @@ s := "  "
 if !empty(human_->KOD_DIAG0)
   s := padr("  ¥à¢¨ç­ë© ¤¨ £­®§: "+human_->KOD_DIAG0,40)
 endif
-if !empty(human_->STATUS_ST)
-  s += "‘â âãá áâ®¬.¡®«ì­®£®: "+alltrim(human_->STATUS_ST)
-endif
+//if !empty(human_->STATUS_ST)
+  //s += "‘â âãá áâ®¬.¡®«ì­®£®: "+alltrim(human_->STATUS_ST)
+//endif
 if !empty(s)
   add_string(s)
 endif
@@ -436,6 +436,13 @@ add_string("  Œ¥¤¨æ¨­áª ï ¯®¬®éì: ãá«®¢¨ï ®ª § ­¨ï: "+inieditspr(A__MENUVERT, gl
 //add_string("    ¢¨¤: "+inieditspr(A__MENUVERT, glob_V008, human_->VIDPOM))
 if human_->PROFIL > 0
   k := perenos(tmp,"¯à®ä¨«ì: "+inieditspr(A__MENUVERT, glob_V002, human_->PROFIL),sh-4)
+  add_string(space(4)+tmp[1])
+  for i := 2 to k
+    add_string(padl(alltrim(tmp[i]),sh))
+  next
+endif
+if human_2->PROFIL_K > 0
+  k := perenos(tmp,"¯à®ä¨«ì ª®©ª¨: "+inieditspr(A__MENUVERT, glob_V020, human_2->PROFIL_K),sh-4)
   add_string(space(4)+tmp[1])
   for i := 2 to k
     add_string(padl(alltrim(tmp[i]),sh))
@@ -508,6 +515,12 @@ do while hu->kod == mkod .and. !eof()
     find (padr(usl->shifr,10))
     if found()
       lname := lusl->name  // ­ ¨¬¥­®¢ ­¨¥ ãá«ã£¨ ¨§ á¯à ¢®ç­¨ª  ’”ŽŒ‘
+    else
+      select LUSL18
+      find (padr(usl->shifr,10))
+      if found()
+        lname := lusl18->name  // ­ ¨¬¥­®¢ ­¨¥ ãá«ã£¨ ¨§ á¯à ¢®ç­¨ª  ’”ŽŒ‘
+      endif
     endif
     lshifr1 := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data)
     select TMP1
@@ -521,11 +534,8 @@ do while hu->kod == mkod .and. !eof()
     tmp1->rec_hu := hu->(recno())
     tmp1->kod_diag := hu_->KOD_DIAG
     tmp1->dom := iif(between(hu->kol_rcp,-2,-1), -hu->kol_rcp, 0)
-    if !(glob_mo[_MO_KOD_TFOMS] == kod_LIS)
-      tmp1->zf := hu_->ZF
-    endif
     tmp1->otd := otd->short_name
-    if human->k_data < stod("20120301")
+    if human->k_data < 0d20120301
       tmp1->plus := !f_paraklinika(usl->shifr,lshifr1,c4tod(hu->date_u))
     else
       tmp1->plus := !f_paraklinika(usl->shifr,lshifr1,human->k_data)
@@ -549,29 +559,17 @@ do while mohu->kod == mkod .and. !eof()
     Select MOSU
     goto (mohu->u_kod)
     lname := mosu->name
-    if year(human->k_data) > 2017
+    if year(human->k_data) > 2018
       select LUSLF
       find (padr(mosu->shifr1,20))
       if found()
         lname := luslf->name  // ­ ¨¬¥­®¢ ­¨¥ ãá«ã£¨ ¨§ á¯à ¢®ç­¨ª  ’”ŽŒ‘
       endif
-    elseif year(human->k_data) > 2016
-      select LUSLF17
-      find (padr(mosu->shifr1,20))
-      if found()
-        lname := luslf17->name  // ­ ¨¬¥­®¢ ­¨¥ ãá«ã£¨ ¨§ á¯à ¢®ç­¨ª  ’”ŽŒ‘
-      endif
-    elseif year(human->k_data) > 2014
-      select LUSLF15
-      find (padr(mosu->shifr1,20))
-      if found()
-        lname := luslf15->name  // ­ ¨¬¥­®¢ ­¨¥ ãá«ã£¨ ¨§ á¯à ¢®ç­¨ª  ’”ŽŒ‘
-      endif
     else
-      select LUSLF14
+      select LUSLF18
       find (padr(mosu->shifr1,20))
       if found()
-        lname := luslf14->name  // ­ ¨¬¥­®¢ ­¨¥ ãá«ã£¨ ¨§ á¯à ¢®ç­¨ª  ’”ŽŒ‘
+        lname := luslf18->name  // ­ ¨¬¥­®¢ ­¨¥ ãá«ã£¨ ¨§ á¯à ¢®ç­¨ª  ’”ŽŒ‘
       endif
     endif
     select TMP1
@@ -665,9 +663,11 @@ do while !eof()
       endif
     elseif human_->USL_OK == 1 // áâ æ¨®­ à
       s := iif(empty(tmp1->shifr1),tmp1->shifr,tmp1->shifr1)
-      akslp := f_cena_kslp(@k,s,iif(human_->NOVOR==0,human->date_r,human_->DATE_R2),human->n_data,human->k_data)
-      if !empty(akslp)
-        s1 += "(á ãçñâ®¬ Š‘‹="+str(akslp[2],4,2)+")" 
+      if human_->USL_OK < 3 .and. !empty(human_2->pc1)
+        akslp := List2Arr(human_2->pc1)
+        if !empty(akslp)
+          s1 += "(á ãçñâ®¬ Š‘‹="+str(akslp[2],4,2)+")"
+        endif 
       endif
     endif
   endif
@@ -923,11 +923,8 @@ for ii := 1 to len(arr_h)
       tmp1->dom := iif(between(hu->kol_rcp,-2,-1), -hu->kol_rcp, 0)
       tmp1->rec_hu := hu->(recno())
       tmp1->kod_diag := hu_->KOD_DIAG
-      if !(glob_mo[_MO_KOD_TFOMS] == kod_LIS)
-        tmp1->zf := hu_->ZF
-      endif
       tmp1->otd := otd->short_name
-      if human->k_data < stod("20120301")
+      if human->k_data < 0d20120301
         tmp1->plus := !f_paraklinika(usl->shifr,lshifr1,c4tod(hu->date_u))
       else
         tmp1->plus := !f_paraklinika(usl->shifr,lshifr1,human->k_data)
@@ -1920,8 +1917,7 @@ afill(tfoms_pz,0)
 if par > 1 .and. (arr_goi := ret_g_o_i(T_ROW,T_COL-5)) == NIL
   return NIL
 endif
-Private v_deti := 1, is_2014 := .f., apz2014 := {}, luapz2014 := {},;
-        apf := {},   is_2016 := .f., apz2016 := {}, luapz2016 := {}, is_2018 := .f.
+Private v_deti := 1, apf := {},   apz2016 := {}, luapz2016 := {}, is_2019 := .f.
 if (v_deti := popup_prompt(T_ROW,T_COL-5,1,;
                            {"¯® ~¢á¥¬ ¯ æ¨¥­â ¬","¯® ~¤¥âï¬"},,,;
                            "N/G*,W+/B,B/G*,BG+/B")) == 0
@@ -1947,8 +1943,8 @@ elseif par == 2
       return NIL
     endif
   endif
-  if par2 == 2 .and. arr_m[5] < stod("20111201")
-    return func_error(4," ç «® ¯¥à¨®¤  ¤®«¦­® ¡ëâì ­¥ à ­¥¥ 01.11.2011£.")
+  if par2 == 2 .and. arr_m[6] < 0d20180101
+    return func_error(4,"¥à¨®¤ ¤®«¦¥­ ¡ëâì ­¥ à ­¥¥ 2018 £®¤ ")
   endif
   if mem_trudoem == 2 .and. mem_tr_plan == 2 .and. ym_kol_mes > 0
     fl_plan := .t.
@@ -1969,9 +1965,6 @@ mas_pmt := {"‘¯¨á®ª ~®â¤¥«¥­¨© (¯« ­-§ ª §)",;
             "‚ë¢®¤ á¯¨áª  ~ãá«ã£ (¯« ­-§ ª §)",;
             "~‘«ã¦¡ë + ãá«ã£¨ (á¯¨á®ª ãá«ã£)",;
             " à ¡®âª  ¯® ~¢à ç ¬ (á¯¨á®ª ãá«ã£)"}
-if par == 2 .and. par2 == 1 .and. arr_m[1] >= 2014
-  //aadd(mas_pmt, "‘¯¨á®ª áç¥â®¢ ¯® à¥¥áâà ¬ ‘ ¨ ’Š")
-endif
 if (su := popup_prompt(T_ROW,T_COL-5,_su,mas_pmt)) == 0
   fl := .f.
 elseif su == 4 .and. (su1 := popup_prompt(T_ROW,T_COL-5,1,;
@@ -1984,21 +1977,19 @@ if !fl
 endif
 _su := su
 if par == 2 .and. eq_any(su,1,2,5) 
-  if arr_m[1] >= 2018
+  if arr_m[1] > 2018
+    R_Use(dir_exe+"_mo9unit",,"MOUNIT")
+    index on str(ii,3) to (cur_dir+"tmp_unitii")
+    set index to (cur_dir+"_mo9unit"),(cur_dir+"tmp_unitii") 
+    is_2019 := .t.
+    apz2016 := arr_plan_zakaz(.t.)
+    luapz2016 := arr_plan_zakaz(.t.)
+  else
     R_Use(dir_exe+"_mo8unit",,"MOUNIT")
     index on str(ii,3) to (cur_dir+"tmp_unitii")
     set index to (cur_dir+"_mo8unit"),(cur_dir+"tmp_unitii") 
-    is_2018 := .t.
-    apz2016 := arr_plan_zakaz_16(.t.)
-    luapz2016 := arr_plan_zakaz_16(.t.)
-  elseif arr_m[1] >= 2016
-    is_2016 := .t.
-    apz2016 := arr_plan_zakaz_16()
-    luapz2016 := arr_plan_zakaz_16()
-  elseif arr_m[1] >= 2014
-    is_2014 := .t.
-    apz2014 := arr_plan_zakaz(.t.)
-    luapz2014 := arr_plan_zakaz(.t.)
+    apz2016 := arr_plan_zakaz(.f.)
+    luapz2016 := arr_plan_zakaz(.f.)
   endif
 endif
 if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) == NIL
@@ -2153,8 +2144,7 @@ elseif par == 2
       select TMP_SMO
       find (str(mkomu,1)+str(mstr_crb,2)+msmo)
       if found() .and. tmp_smo->is == 1
-        @ maxrow(),0 say padr("ü "+alltrim(schet_->NSCHET)+" ®â "+;
-                              date_8(schet_->DSCHET),28) color "W/R"
+        @ maxrow(),0 say padr("ü "+alltrim(schet_->NSCHET)+" ®â "+date_8(schet_->DSCHET),28) color "W/R"
         select HUMAN
         find (str(schet->kod,6))
         do while human->schet == schet->kod .and. !eof()
@@ -2204,36 +2194,9 @@ endif
 if su == 1
   sh := 86
 endif
-if is_2014
-  //call_fr("mo_planz",,,{|| FrPrn:SetMasterDetail("_data","_data1",{|| _data->shifr1 }) })
-endif
-delFRfiles()
-dbcreate(fr_titl, {;
-  {"mo","C",90,0},;
-  {"str1","C",90,0},;
-  {"str2","C",90,0},;
-  {"str3","C",90,0};
- })
-use (fr_titl) new alias FRT
-append blank
-frt->mo := glob_mo[_MO_SHORT_NAME]
-frt->str1 := "¤ â  ¯¥ç â¨ "+date_8(sys_date)
-adbf := {{"kod", "C", 6,0},;
-         {"kod1","N", 6,0},;
-         {"NAME","C",50,0}}
-if is_2016 .or. is_2018
-  for i := 1 to len(apz2016)
-    aadd(adbf, {"kol"+strzero(apz2016[i,2],2),"N",9,2})
-  next
-else
-  for i := 1 to len(apz2014)
-    aadd(adbf, {"kol"+strzero(apz2014[i,2],2),"N",9,2})
-  next
-endif  
-dbcreate(fr_data,adbf)
-use (fr_data) new alias _d
-dbcreate(fr_data+'1',adbf)
-use (fr_data+'1') new alias _d1
+for i := 1 to len(apz2016)
+  aadd(adbf, {"kol"+strzero(apz2016[i,2],2),"N",9,2})
+next
 //
 fp := fcreate(name_file) ; tek_stroke := 0 ; n_list := 1
 add_string(padl("¤ â  ¯¥ç â¨ "+date_8(sys_date)+" "+hour_min(seconds()),sh))
@@ -2272,95 +2235,27 @@ if par < 3
 endif
 if eq_any(su,1,2,5)
   add_string("")
-  if is_2016 .or. is_2018
-    k := 0
-    add_string("ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄ")
-    add_string("                                          ³¯« ­-§ ª §³«¨áâ®¢ ãç¥â ³    áã¬¬      ")
-    add_string("ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄ")
-    for i := 1 to len(luapz2016)
-      if luapz2016[i,3] > 0 .or. apz2016[i,3] > 0
-        s := padl(luapz2016[i,1],42)
-        if is_2016 .and. apz2016[i,2] == 62 // “…’ áâ®¬ â®«®£¨¨
-          s += str(apz2016[i,3],10,2)
-        elseif empty(apz2016[i,3]) .and. !empty(luapz2016[i,3])
-          s += str(luapz2016[i,3],10,0)
-        else
-          s += str(apz2016[i,3],10,0)
-        endif
-        s += str(luapz2016[i,3],10,0)+str(luapz2016[i,2],17,2)
-        add_string(s)
-        k += luapz2016[i,3]
+  k := 0
+  add_string("ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄ")
+  add_string("                                          ³¯« ­-§ ª §³«¨áâ®¢ ãç¥â ³    áã¬¬      ")
+  add_string("ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄ")
+  for i := 1 to len(luapz2016)
+    if luapz2016[i,3] > 0 .or. apz2016[i,3] > 0
+      s := padl(luapz2016[i,1],42)
+      if is_2016 .and. apz2016[i,2] == 62 // “…’ áâ®¬ â®«®£¨¨
+        s += str(apz2016[i,3],10,2)
+      elseif empty(apz2016[i,3]) .and. !empty(luapz2016[i,3])
+        s += str(luapz2016[i,3],10,0)
+      else
+        s += str(apz2016[i,3],10,0)
       endif
-    next
-    add_string(replicate("Ä",sh))
-    add_string(padl("‚á¥£® «¨áâ®¢ ãç¥â ",42)+str(k,20,0)+str(sstoim,17,2))
-  elseif is_2014
-    k := 0
-    add_string("ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ")
-    add_string("                              ³ ¯« ­-§ ª § ³ «¨áâ®¢ ãç¥â  ³    áã¬¬             ")
-    add_string("ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ")
-    for i := 1 to len(luapz2014)
-      if luapz2014[i,3] > 0 .or. apz2014[i,3] > 0
-        s := padl(luapz2014[i,1],30)
-        if apz2014[i,2] == 5 // “…’ áâ®¬ â®«®£¨¨
-          s += str(apz2014[i,3],13,2)
-        else
-          s += str(apz2014[i,3],10,0)+space(3)
-        endif
-        s += str(luapz2014[i,3],10,0)+str(luapz2014[i,2],19,2)
-        add_string(s)
-        k += luapz2014[i,3]
-      endif
-    next
-    add_string(replicate("Ä",sh))
-    add_string(padl("‚á¥£® «¨áâ®¢ ãç¥â ",30)+str(k,23,0)+str(sstoim,19,2))
-  else
-    add_string("‚á¥£® «¨áâ®¢ ãç¥â : "+lstr(s_stac+sdstac+s_amb+skt+ssmp))
-    add_string("   ¢ â®¬ ç¨á«¥:")
-    if s_stac > 0
-      add_string(padl("áâ æ¨®­ à:",31)+" "+lstr(s_stac))
+      s += str(luapz2016[i,3],10,0)+str(luapz2016[i,2],17,2)
+      add_string(s)
+      k += luapz2016[i,3]
     endif
-    if sdstac > 0
-      add_string(padl("¤­¥¢­®© áâ æ¨®­ à:",31)+" "+lstr(sdstac))
-    endif
-    if s_amb > 0
-      add_string(padl("¯®«¨ª«¨­¨ª :",31)+" "+lstr(s_amb))
-    endif
-    if skt > 0
-      add_string(padl("®â¤¥«ì­ë¥ ¬¥¤¨æ¨­áª¨¥ ãá«ã£¨:",31)+" "+lstr(skt))
-    endif
-    if ssmp > 0
-      add_string(padl("áª®à ï ¬¥¤¨æ¨­áª ï ¯®¬®éì:",31)+" "+lstr(ssmp))
-    endif
-    add_string("")
-    add_string("Ž¡é ï áã¬¬  «¥ç¥­¨ï :  "+lstr(sstoim,13,2))
-    if empty(suet)
-      flag_uet := .f.
-    else
-      add_string("Ž¡é¥¥ ª®«¨ç¥áâ¢® “…’:  "+alltrim(str_0(suet,13,4)))
-    endif
-    add_string("")
-    add_string("®¤áçñâ ¯« ­ -§ ª §  ¤«ï ’”ŽŒ‘:")
-    add_string("===============================")
-    if tfoms_pz[1] > 0
-      add_string("Š®©ª®-¤­¥©                  - "+lstr(tfoms_pz[1]))
-    endif
-    if tfoms_pz[2] > 0
-      add_string(" æ¨¥­â®-¤­¥©               - "+lstr(tfoms_pz[2]))
-    endif
-    if tfoms_pz[3] > 0
-      add_string("‚à ç¥¡­ëå ¯à¨ñ¬®¢           - "+lstr(tfoms_pz[3]))
-    endif
-    if tfoms_pz[4] > 0
-      add_string("‘â®¬ â®«®£¨ç¥áª¨å “…’       - "+ltrim(str_0(tfoms_pz[4],15,2)))
-    endif
-    if tfoms_pz[5] > 0
-      add_string("Žâ¤¥«ì­ëå ¬¥¤¨æ¨­áª¨å ãá«ã£ - "+lstr(tfoms_pz[5]))
-    endif
-    if tfoms_pz[6] > 0
-      add_string("‚ë§®¢®¢ áª®à®© ¬¥¤.¯®¬®é¨   - "+lstr(tfoms_pz[6]))
-    endif
-  endif
+  next
+  add_string(replicate("Ä",sh))
+  add_string(padl("‚á¥£® «¨áâ®¢ ãç¥â ",42)+str(k,20,0)+str(sstoim,17,2))
   add_string("")
   add_string("ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄ")
   add_string("                                                 ³Š®«-¢®³        ³  ‘â®¨¬®áâì   ")
@@ -2705,11 +2600,7 @@ if glob_schet_akt == 2 .and. human_->oplata == 3
   koef := human_->sump/human->cena_1
 endif
 sstoim += human->cena_1*koef
-if is_2016 .or. is_2018
-  ar := array(len(luapz2016)) ; afill(ar,0)
-elseif is_2014
-  ar := array(len(luapz2014)) ; afill(ar,0)
-endif
+ar := array(len(luapz2016)) ; afill(ar,0)
 select HU
 find (str(human->kod,7))
 do while hu->kod == human->kod .and. !eof()
@@ -2719,68 +2610,23 @@ do while hu->kod == human->kod .and. !eof()
     endif
     ta := f14tf_nastr(lshifr,,d2_year)
     for j := 1 to len(ta)
-      if is_2016 .or. is_2018
-        if (k := ta[j,3]) > 0
-          ar[k] ++
-        endif
-      elseif is_2014
-        if (k := ta[j,3]) > 0
-          ar[k] ++
-        endif
-      else
-        k := ta[j,1]
-        if between(k,1,8) .and. ta[j,2] >= 0
-          i := 2                // ®áâ «ì­ë¥ -  ¬¡ã« â®à­®
-          if k == 2             // k := 2 - ª®©ª®-¤­¨
-            i := 1
-          elseif between(k,3,5) // k := 3,4,5 - ¤­¥¢­®© áâ æ¨®­ à
-            i := 3
-          elseif k == 7 // ®/¬/ã
-            i := 4
-          elseif k == 8 // ‘Œ
-            i := 5
-          endif
-          ++ lreg_lech[i]
-        endif
+      if (k := ta[j,3]) > 0
+        ar[k] ++
       endif
     next
   endif
   select HU
   skip
 enddo
-if is_2016 .or. is_2018
-  for j := 1 to len(ar)
-    if ar[j] > 0
-      if empty(luapz2016[j,3])
-        luapz2016[j,2] := 0
-      endif
-      luapz2016[j,3] ++
-      luapz2016[j,2] += human->cena_1*koef
+for j := 1 to len(ar)
+  if ar[j] > 0
+    if empty(luapz2016[j,3])
+      luapz2016[j,2] := 0
     endif
-  next
-elseif is_2014
-  for j := 1 to len(ar)
-    if ar[j] > 0
-      if empty(luapz2014[j,3])
-        luapz2014[j,2] := 0
-      endif
-      luapz2014[j,3] ++
-      luapz2014[j,2] += human->cena_1*koef
-    endif
-  next
-else
-  if lreg_lech[1] > 0
-    ++s_stac
-  elseif lreg_lech[3] > 0
-    ++sdstac
-  elseif lreg_lech[4] > 0
-    ++skt
-  elseif lreg_lech[5] > 0
-    ++ssmp
-  else
-    ++s_amb
+    luapz2016[j,3] ++
+    luapz2016[j,2] += human->cena_1*koef
   endif
-endif
+next
 select HU
 find (str(human->kod,7))
 do while hu->kod == human->kod .and. !eof()
@@ -2856,11 +2702,7 @@ do while hu->kod == human->kod .and. !eof()
       lshifr := padr(lshifr,10)
       fl := .t.
       for j := 1 to len(ta)
-        if is_2016 .or. is_2018
-          i16 := ta[j,3]
-        else
-          i14 := ta[j,3]
-        endif
+        i16 := ta[j,3]
         k := ta[j,1] ; mkol1 := 0
         if between(k,1,10)
           if ta[j,2] == 1  // § ª®­ç¥­­ë© á«ãç ©
@@ -2889,10 +2731,7 @@ do while hu->kod == human->kod .and. !eof()
               arr_dn_st[1] := lshifr
             endif
           endif
-          if between(d2_year,2016,2017) .and. ascan(glob_KSG_dializ,alltrim(lshifr)) > 0
-            sdializ := lshifr
-          endif
-          if d2_year > 2012 .and. mkol > 0
+          if mkol > 0
             if hu->kol_rcp < 0 .and. DomUslugaTFOMS(lshifr)
               s := iif(hu->kol_rcp == -1, "­  ¤®¬ã", "­  ¤®¬ã(€Š’ˆ‚)")
               if (i := ascan(arr_lp, {|x| x[1] == lshifr })) == 0
@@ -2930,48 +2769,26 @@ do while hu->kod == human->kod .and. !eof()
           msum := hu->stoim_1*koef
           if eq_any(k,9,10)  // “…’ ¤«ï áâ®¬ â®«®£¨©
             suet += muet
-            if i16 > 0 .and. apz2016[i16,2] == 62 // “…’ áâ®¬ â®«®£¨¨
+            if apz2016[i16,2] == 62 // “…’ áâ®¬ â®«®£¨¨
               apz2016[i16,3] += muet
-            elseif i14 > 0 .and. apz2014[i14,2] == 5 // “…’ áâ®¬ â®«®£¨¨
-              apz2014[i14,3] += muet
             endif
           elseif i16 > 0
-            if is_2018
-              select MOUNIT
-              set order to 2
-              find (str(i16,3))
-              if mounit->c_t == 2 // ¯« ­-§ ª § ¯®¤áç¨âë¢ ¥âáï ¯® á«ãç î
-                //apz2016[i16,3] ++
-                apz2016[i16,3] := 0
-              else
-                apz2016[i16,3] += mkol
-              endif
-              set order to 1
+            select MOUNIT
+            set order to 2
+            find (str(i16,3))
+            if mounit->c_t == 2 // ¯« ­-§ ª § ¯®¤áç¨âë¢ ¥âáï ¯® á«ãç î
+              //apz2016[i16,3] ++
+              apz2016[i16,3] := 0
+            else
+              apz2016[i16,3] += mkol
+            endif
+            set order to 1
               /*if eq_any(apz2016[i16,2],57,60,61)
                 if (i := ascan(apf, {|x| x[1]==lshifr })) == 0
                   aadd(apf, {lshifr,0}) ; i := len(apf)
                 endif
                 apf[i,2] += iif(empty(mkol), mkol1, mkol)
               endif*/
-            else
-              if between(apz2016[i16,2],1,56) .or. eq_any(apz2016[i16,2],59,61,65) // áâ æ¨®­ à, ¤­.áâ æ¨®­ à, ®¡à é¥­¨¥
-                apz2016[i16,3] ++
-              elseif apz2016[i16,2] != 62 // ­¥ áâ®¬ â®«®£¨ï
-                apz2016[i16,3] += mkol
-              endif
-              if eq_any(apz2016[i16,2],57,60,61)
-                if (i := ascan(apf, {|x| x[1]==lshifr })) == 0
-                  aadd(apf, {lshifr,0}) ; i := len(apf)
-                endif
-                apf[i,2] += iif(empty(mkol), mkol1, mkol)
-              endif
-            endif
-          elseif i14 > 0
-            if eq_any(i14,1,2,11) // ‘«ãç © £®á¯¨â «¨§ æ¨¨ ¨«¨ Ž¡à é¥­¨¥
-              apz2014[i14,3] ++
-            elseif apz2014[i14,2] != 5 // ­¥ áâ®¬ â®«®£¨ï
-              apz2014[i14,3] += mkol
-            endif
           endif
           select TMP
           find (padr(lshifr,10))

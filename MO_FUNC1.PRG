@@ -301,12 +301,12 @@ return iif(empty(schet_->dregistr), schet_->dschet, schet_->dregistr)
 Function ret_vid_pom(k,mshifr,lk_data)
 Local svp, vp := 0, lal, is_18 := .t.
 if valtype(lk_data) == "D"
-  is_18 := (year(lk_data) > 2017)
+  is_19 := (year(lk_data) > 2018)
 endif  
 if select("LUSL") == 0
   Use_base("lusl")
 endif
-lal := iif(is_18,"lusl","lusl17")
+lal := iif(is_19,"lusl","lusl18")
 dbSelectArea(lal)
 find (padr(mshifr,10))
 if found()
@@ -1354,7 +1354,7 @@ if len(lshifr) == len(lshifr1) .and. len(lshifr) == len(lshifr2)
 endif
 return fl 
 
-***** 13.01.18 является ли шифр услуги кодом КСГ
+***** 03.01.19 является ли шифр услуги кодом КСГ
 Function is_ksg(lshifr,k)
 // k = nil - любая КСГ
 // k = 1 - стационар
@@ -1362,6 +1362,22 @@ Function is_ksg(lshifr,k)
 Static ss := "0123456789"
 Local i, fl := .f.
 lshifr := alltrim(lshifr)
+if left(lshifr,2) == "st"
+  if valtype(k) == "N"
+    fl := (int(k) == 1)
+  else
+    fl := .t.
+  endif
+elseif left(lshifr,2) == "ds"
+  if valtype(k) == "N"
+    fl := (int(k) == 2)
+  else
+    fl := .t.
+  endif
+endif
+if fl
+  return fl // для 2019 года
+endif  
 if left(lshifr,1) $ "12" .and. substr(lshifr,5,1) == "." .and. len(lshifr) == 6 // 2018 год
   fl := .t.
   for i := 2 to 6

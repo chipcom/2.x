@@ -92,11 +92,21 @@ return count_years(_date_r,_data) >= iif(_pol=="М", 60, 55)
 
 *
 
-***** 04.02.18
-Function arr_plan_zakaz_16(fl_18)
+***** 02.01.19
+Function arr_plan_zakaz(fl_19)
 Local i, apz := {}
-DEFAULT fl_18 TO .f.
-if fl_18
+DEFAULT fl_19 TO .f.
+if fl_19
+  for i := 1 to len(glob_array_PZ_19)
+    aadd(apz,{glob_array_PZ_19[i,3],;
+              glob_array_PZ_19[i,1],;
+              0,;
+              glob_array_PZ_19[i,6],;
+              glob_array_PZ_19[i,5],;
+              {};
+             } )  
+  next
+else  
   for i := 1 to len(glob_array_PZ_18)
     aadd(apz,{glob_array_PZ_18[i,3],;
               glob_array_PZ_18[i,1],;
@@ -106,21 +116,11 @@ if fl_18
               {};
              } )  
   next
-else
-  for i := 1 to len(glob_array_PZ)
-    aadd(apz,{glob_array_PZ[i,3],;
-              glob_array_PZ[i,1],;
-              0,;
-              glob_array_PZ[i,6],;
-              glob_array_PZ[i,5],;
-              iif(len(glob_array_PZ[i]) > 6, glob_array_PZ[i,7], {});
-             } )  
-  next
 endif
 return apz
 
-***** 04.02.18 по шифру услуги вернуть номер элемента массива "arr_plan_zakaz" для 2018 года
-Function f_arr_plan_zakaz_18(lshifr)
+***** 02.01.19 по шифру услуги вернуть номер элемента массива "arr_plan_zakaz" для 2018 года
+Function f_arr_plan_zakaz_19(lshifr)
 Local i, j, c, k := 0, shb, i16 := 0
 if select("LUSL") == 0
   Use_base("lusl")
@@ -129,7 +129,7 @@ select LUSL
 find (padr(lshifr,10))
 if found() .and. !empty(lusl->unit_code)
   if select("MOUNIT") == 0
-    R_Use(dir_exe+"_mo8unit",cur_dir+"_mo8unit","MOUNIT")
+    R_Use(dir_exe+"_mo9unit",cur_dir+"_mo9unit","MOUNIT")
   endif
   select MOUNIT
   find (str(lusl->unit_code,3))
@@ -139,63 +139,35 @@ if found() .and. !empty(lusl->unit_code)
   endif
 endif
 if k > 0 .and. empty(i16) 
-  i16 := ascan(glob_array_PZ_18, {|x| x[1] == k })
+  i16 := ascan(glob_array_PZ_19, {|x| x[1] == k })
 endif    
 return i16
 
-***** 24.01.18 по шифру услуги вернуть номер элемента массива "arr_plan_zakaz" для 2016 года
-Function f_arr_plan_zakaz_16(lshifr)
+***** 04.02.18 по шифру услуги вернуть номер элемента массива "arr_plan_zakaz" для 2018 года
+Function f_arr_plan_zakaz_18(lshifr)
 Local i, j, c, k := 0, shb, i16 := 0
 if select("LUSL") == 0
   Use_base("lusl")
 endif
-select LUSL17
+select LUSL18
 find (padr(lshifr,10))
-if found() .and. !empty(lusl17->unit_code)
-  if select("MOUNIT17") == 0
-    R_Use(dir_exe+"_mo_unit",cur_dir+"_mo_unit","MOUNIT17")
+if found() .and. !empty(lusl18->unit_code)
+  if select("MOUNIT18") == 0
+    R_Use(dir_exe+"_mo8unit",cur_dir+"_mo8unit","MOUNIT18")
   endif
-  select MOUNIT17
-  find (str(lusl17->unit_code,3))
-  if found() .and. mounit17->pz > 0
-    k := mounit17->pz
-    i16 := mounit17->ii
-  endif
-endif
-if k == 0   
-  lshifr := alltrim(lshifr)
-  if is_ksg(lshifr,1)
-    if (c := substr(lshifr,2,1)) == '2' // случай госпитализации при реабилитации
-      k := 53
-    elseif c == '5' // Случай госпитализации НСЗ 2016
-      k := 43
-    elseif c == '6' // Случай госпитализации при реабилитации НСЗ 2016
-      k := 44
-    else 
-      if ascan(glob_KSG_dializ,lshifr) > 0 // случай ЗПТ
-        k := 54 
-      else // случай госпитализации
-        k := 52 
-      endif
-    endif
-  elseif is_ksg(lshifr,2) 
-    if substr(lshifr,2,1) == '5' // случай лечения НСЗ 2016
-      k := 45
-    else
-      if ascan(glob_KSG_dializ,lshifr) > 0 // случай диализа
-        k := 56
-      else // случай лечения
-        k := 55
-      endif
-    endif
+  select MOUNIT18
+  find (str(lusl18->unit_code,3))
+  if found() .and. mounit18->pz > 0
+    k := mounit18->pz
+    i16 := mounit18->ii
   endif
 endif
 if k > 0 .and. empty(i16) 
-  i16 := ascan(glob_array_PZ, {|x| x[1] == k })
+  i16 := ascan(glob_array_PZ_18, {|x| x[1] == k })
 endif    
 return i16
 
-***** 19.04.15
+/***** 19.04.15
 Function arr_plan_zakaz(fl)
 Local i, apz := {}
 DEFAULT fl TO .f.
@@ -221,36 +193,7 @@ if fl // вызываем из план-заказа, чтобы выделить жидкостную цитологию
 endif
 aadd(apz,{"Вызов СМП",                    26,0,{"71.*"}})
 //aadd(apz,{"Случай в дневном стационаре",  99,0,{}})
-return apz
-
-***** 17.02.15 по шифру услуги вернуть номер элемента массива "arr_plan_zakaz"
-Function f_arr_plan_zakaz(lshifr)
-Local i, j, shb, i14 := 0
-lshifr := alltrim(lshifr)
-for j := 1 to len(apz2014)
-  if apz2014[j,2]==0 .and. empty(apz2014[j,4]) .and. (is_ksg(lshifr,1) .or. eq_any(left(lshifr,5),"1.12.","1.13.","1.14."))
-    i14 := j ; exit
-  endif
-  if apz2014[j,2]==-1 .and. empty(apz2014[j,4]) .and. is_ksg(lshifr,2)
-    i14 := j ; exit
-  endif
-  for i := 1 to len(apz2014[j,4])
-    if !empty(shb := apz2014[j,4,i])
-      if "*" $ shb .or. "?" $ shb
-        if like(alltrim(shb),lshifr)
-          i14 := j ; exit
-        endif
-      else
-        if shb == lshifr
-          i14 := j ; exit
-        endif
-      endif
-    endif
-  next
-next
-return i14
-
-*
+return apz*/
 
 ***** 26.02.13
 Function f14tf_array()
@@ -268,18 +211,16 @@ Static arr_name := {;
   "Услуги, не вошедшие в 14-ю форму"}
 return arr_name
 
-***** 02.12.17
+***** 02.01.19
 Function f14tf_nastr(/*@*/lshifr,/*@*/lname,lyear)
 Static a_usl, a_zak_sl, syear
 Local ta := {}, i, j, k, i14 := 0, arr, shb, fl := .f., fl1 := .f., ret := {}
 if type("apz2016") == "A" .and. !empty(apz2016)
-  if type("is_2018") == "L" .and. is_2018
-    i14 := f_arr_plan_zakaz_18(lshifr)
+  if type("is_2019") == "L" .and. is_2019
+    i14 := f_arr_plan_zakaz_19(lshifr)
   else
-    i14 := f_arr_plan_zakaz_16(lshifr)
+    i14 := f_arr_plan_zakaz_18(lshifr)
   endif
-elseif type("apz2014") == "A" .and. !empty(apz2014)
-  i14 := f_arr_plan_zakaz(lshifr)
 endif
 if a_usl == NIL .or. syear != lyear
   a_usl := array(10,2)
@@ -290,9 +231,6 @@ if a_usl == NIL .or. syear != lyear
                  "2.79.52","2.79.53","2.79.54","2.79.55","2.79.56","2.79.57","2.79.58",;
                  "2.88.40","2.88.41","2.88.42","2.88.43","2.88.44","2.88.45",;
                  "2.80.29","2.80.30","2.80.31","2.80.32","2.80.33"}
-  if valtype(lyear) == "N" .and. lyear < 2016
-    aadd(a_usl[1,2],"2.90.*")
-  endif
   // койко-дни
   a_usl[2,1] := {"1.*"} // включаемые услуги
   a_usl[2,2] := {"1.12.*","1.13.*","1.14.*","1.15.*","1.16.*","1.17.*","1.18.*"} // исключаемые услуги
@@ -306,18 +244,8 @@ if a_usl == NIL .or. syear != lyear
   a_usl[5,1] := {"55.1.3","55.4.*","55.7.*"}
   a_usl[5,2] := {}
   // стомат.врачебные приемы
-  syear := lyear
-  if lyear < 2014
-    a_usl[6,1] := {"57.1.1" ,"57.1.2" ,"57.1.3" ,"57.1.4" ,"57.1.5",;
-                   "57.1.32","57.1.33","57.1.35",;
-                   "57.1.36","57.1.37","57.1.38","57.1.39","57.1.40",;
-                   "57.1.41","57.1.42","57.1.43","57.1.44","57.1.45",;
-                   "57.1.46","57.1.47","57.1.48","57.1.49","57.1.50",;
-                   "57.1.51","57.1.52","57.1.53"}
-  else
-    a_usl[6,1] := {}
-    f_vid_p_stom({},{},a_usl[6,1]) // добавим все новые стоматологические приёмы
-  endif
+  a_usl[6,1] := {}
+  f_vid_p_stom({},{},a_usl[6,1]) // добавим все новые стоматологические приёмы
   a_usl[6,2] := {}
   // отдельные медицинские услуги
   a_usl[7,1] := {"4.20.702","4.15.746","60.2.*","60.3.*"}
@@ -341,27 +269,10 @@ find (padr(lshifr,10))
 if found()
   lname := lusl->name  // наименование услуги из справочника ТФОМС
 endif
-if is_ksg(lshifr,1) .or. eq_any(left(lshifr,5),"1.12.","1.13.","1.14.","1.15.","1.16.","1.17.","1.18.")
+if is_ksg(lshifr,1) .or. left(lshifr,5) == "1.12."
   return {{2,-1,i14}}
 elseif is_ksg(lshifr,2) // КСГ дневного стационара
   return {{3,-1,i14}}
-elseif eq_any(left(lshifr,4),"1.7.","1.9.","1.10") // законченный случай старый
-  DEFAULT a_zak_sl TO ChangeUslugiZakSluch()
-  if (i := ascan(a_zak_sl,{|x| x[1]==lshifr})) > 0
-    lshifr := a_zak_sl[i,2]  // подменяем шифр
-  endif
-  return {{2,1,i14}}
-endif
-if human->k_data < d_01_04_2013 // дневной стационар до 1 апреля
-  if left(lshifr,5) == "55.5." // законченный случай
-    return {{3,1,i14}}
-  endif
-  if left(lshifr,5) == "55.6." // законченный случай
-    return {{4,1,i14}}
-  endif
-  if left(lshifr,5) == "55.7." // законченный случай
-    return {{5,1,i14}}
-  endif
 endif
 // включаемые услуги
 for j := 1 to len(a_usl)
@@ -374,7 +285,7 @@ for j := 1 to len(a_usl)
       endif
       if fl
         if f_is_zak_sl_vr(lshifr) .or. f_dn_stac_01_04(lshifr)
-          k := -1 // зак.случай в п-ке или дневной стационар с 1 апреля
+          k := -1 // зак.случай в п-ке или дневной стационар
         else
           k := 0
         endif
@@ -405,8 +316,6 @@ if len(ret) == 0
   aadd(ret,{len(a_usl)+1,0,i14})
 endif
 return ret
-
-*
 
 ***** подменить услуги по по законченным случаям на обычные койко-дни
 Function ChangeUslugiZakSluch()

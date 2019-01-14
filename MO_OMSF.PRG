@@ -86,8 +86,9 @@ if eq_any(k,1,2) .and. type("m1USL_OK") == "N" .and. m1USL_OK == 4 // СМП
 endif 
 return k
               
-***** 21.06.17
+***** 02.01.18
 Function f_valid_beremenn(sdiag)
+Local k
 if (ibrm := f_oms_beremenn(sdiag)) > 0
   SetPos(rdiag,26)
   mm_prer_b := iif(ibrm == 1, mm1prer_b, iif(ibrm == 2, mm2prer_b, mm3prer_b))
@@ -103,7 +104,8 @@ if (ibrm := f_oms_beremenn(sdiag)) > 0
     endif
   elseif ibrm == 3
     DispOut("     боли при онкологии",cDataCGet)
-    if !between(m1prer_b,0,1)
+    k := iif(year(mk_data) > 2018, 4, 1)
+    if !between(m1prer_b,0,k)
       m1prer_b := 0
     endif
   endif
@@ -118,7 +120,28 @@ else
 endif  
 return update_get("mprer_b") 
 
-***** 10.04.18
+***** 14.01.19
+Function ret_arr_shema(k)
+Static ashema := {{},{},{}}
+Local i
+if empty(ashema[1])
+  R_Use(exe_dir+"_mo9shema",,"IT") // с 2019 года
+  aadd(ashema[1],{space(10)+"лекарственная терапия не проводилась",space(10)}) 
+  index on kod to (cur_dir+"tmp_schema") for left(kod,2) == "sh"
+  dbeval({|| aadd(ashema[1],{it->kod+left(it->name,68),it->kod}) })
+  index on kod to (cur_dir+"tmp_schema") for left(kod,2) == "mt"
+  dbeval({|| aadd(ashema[2],{it->kod+left(it->name,68),it->kod}) })
+  index on kod to (cur_dir+"tmp_schema") for left(kod,2) == "fr"
+  dbeval({|| aadd(ashema[3],{it->kod+left(it->name,68),it->kod,0,0}) })
+  use
+  for i := 1 to len(ashema[3])
+    ashema[3,i,3] := int(val(substr(ashema[3,i,1],3,2)))
+    ashema[3,i,4] := int(val(substr(ashema[3,i,1],6,2)))
+  next
+endif  
+return ashema[k]
+
+***** 14.01.19
 Function f_valid2ad_cr()
 Static mm_st1 := {}, mm_dn1 := {}, mm_st2 := {}, mm_dn2 := {}
 Static mm_bartel := {;
@@ -136,8 +159,8 @@ Static mm_rb := {;
   {"rb5 - оценка состояния пациента 5 баллов по ШРМ","rb5"},;
   {"rb6 - оценка состояния пациента 6 баллов по ШРМ","rb6"},;
   {"rbs - медицинская реабилитация детей с нарушениями слуха","rbs"}}
+Static sd1kv := 0d20180331
 Local i
-Static sd1kv
 input_ad_cr := .f. ; mm_ad_cr := {}
 if m1usl_ok < 3 .and. m1vmp == 0
   if m1profil == 158 // реабилитация
@@ -158,9 +181,8 @@ if m1usl_ok < 3 .and. m1vmp == 0
     input_ad_cr := .t.
     aadd(mm_ad_cr,mm_it[1])
     aadd(mm_ad_cr,mm_it[pr_ds_it+1])
-  elseif pr_ds_it == 3
+  elseif pr_ds_it == 3 .and. year(mk_data) == 2018 // в 2019 году вводим схему химиотерапии на 2-ом листе
     input_ad_cr := .t.
-    DEFAULT sd1kv TO stod("20180331")
     if m1usl_ok == 1
       if mk_data > sd1kv
         if empty(mm_st2)
@@ -611,7 +633,7 @@ if found() // если данная услуга участвует в проверке по профилю
 endif
 return lprofil
 
-***** 08.08.16 проверка на соответствие услуги специальности
+***** 12.01.19 проверка на соответствие услуги специальности
 Function UslugaAccordancePRVS(lshifr,lvzros_reb,lprvs,ta,short_shifr,lvrach)
 Local s := "", s1 := ""
 if valtype(short_shifr)=="C" .and. !empty(short_shifr) .and. !(alltrim(lshifr)==alltrim(short_shifr))
@@ -623,11 +645,12 @@ if select("MOSPEC") == 0
 endif
 lshifr := padr(lshifr,20)
 lvzros_reb := iif(lvzros_reb==0, 0, 1)
-if lprvs < 0
+lprvs := ret_prvs_V021(lprvs)
+/*if lprvs < 0
   lprvs := abs(lprvs)
 else
   lprvs := ret_V004_V015(human_->PRVS)
-endif
+endif*/
 select MOSPEC
 find (lshifr)
 if found() // если данная услуга участвует в проверке по специальности
@@ -636,7 +659,8 @@ if found() // если данная услуга участвует в проверке по специальности
     find (lshifr+str(lvzros_reb,1))
     // формируем сообщение об ошибке
     do while mospec->shifr==lshifr .and. mospec->vzros_reb==lvzros_reb .and. !eof()
-      s += '"'+lstr(mospec->prvs_new)+"."+inieditspr(A__MENUVERT, glob_V015, mospec->prvs_new)+'", '
+      //s += '"'+lstr(mospec->prvs_new)+"."+inieditspr(A__MENUVERT, glob_V015, mospec->prvs_new)+'", '
+      s += '"'+lstr(mospec->prvs_new)+"."+inieditspr(A__MENUVERT, glob_V021, mospec->prvs_new)+'", '
       skip
     enddo
     pers->(dbGoto(lvrach))
@@ -702,12 +726,14 @@ for i := 1 to len(glob_arr_V015_V004)
 next
 return asort(arr,,,{|x,y| x[1] < y[1] })  
 
-***** 08.02.17 вернуть значение специальности для XML-файла реестра
+***** 12.01.19 вернуть значение специальности для XML-файла реестра
 Function put_prvs_to_reestr(_PRVS,_YEAR)
 Local k := _PRVS
-if _YEAR < 2016
-  k := ret_old_prvs(_PRVS)
-else  
+if _YEAR > 2018             // в кодировке V021
+  k := ret_prvs_V021(_PRVS) 
+elseif _YEAR < 2016         // в кодировке V004
+  k := ret_old_prvs(_PRVS)  
+else                        // в кодировке V015
   if _PRVS < 0
     k := abs(_PRVS)
   else
@@ -1001,15 +1027,15 @@ if !fl .and. empty(val(human_->smo)) // если не ОМС
 endif
 return fl
 
-***** 24.01.18 является ли данная услуга услугой ТФОМС
+***** 12.01.19 является ли данная услуга услугой ТФОМС
 Function is_usluga_TFOMS(lshifr,lshifr1,ldate_usl,;
                          /*@*/arr_uet,/*@*/lbukva,/*@*/lst,/*@*/lidsp,/*@*/lvidpoms)
-Local _shifr, tmp_select := select(), fl := .f., is_18, lal 
-is_18 := (year(ldate_usl) > 2017)
+Local _shifr, tmp_select := select(), fl := .f., is_19, lal 
+is_19 := (year(ldate_usl) > 2018)
 if select("LUSL") == 0
   use_base("lusl")
 endif
-lal := iif(is_18, "lusl", "lusl17")
+lal := iif(is_19, "lusl", "lusl18")
 lst := 0 ; lvidpoms := "" ; lbukva := " "
 _shifr := iif(empty(lshifr1), lshifr, lshifr1)
 dbSelectArea(lal)
@@ -1032,7 +1058,7 @@ if !fl
   if select("LUSLF") == 0
     use_base("luslf")
   endif
-  lal := iif(is_18, "luslf", "luslf17")
+  lal := iif(is_19, "luslf", "luslf18")
   dbSelectArea(lal)
   find (padr(_shifr,20))
   if found() //.and. between_date(luslf->datebeg,luslf->dateend,ldate_usl)
@@ -1077,7 +1103,7 @@ if left(lshifr,2) == sl
 endif
 return fl
 
-***** 09.09.2018 редактировать другое направление (№...)
+***** 04.01.2019 редактировать другое направление (№...)
 Function change_num_napr()
 Local n, fl := .f., tmp_keys, tmp_gets, buf, tmp_color := setcolor()
 if emptyany(mNAPR_DATE,m1NAPR_V)
@@ -1108,6 +1134,7 @@ else
     append blank
   endif
   tnapr->NAPR_DATE := mNAPR_DATE
+  tnapr->NAPR_MO := m1NAPR_MO
   tnapr->NAPR_V := m1NAPR_V
   tnapr->MET_ISSL := m1MET_ISSL
   tnapr->U_KOD := mu_kod
@@ -1120,6 +1147,7 @@ else
     cur_napr := n 
     goto (cur_napr) // номер текущего направления
     mNAPR_DATE := tnapr->NAPR_DATE
+    m1NAPR_MO := tnapr->NAPR_MO
     m1NAPR_V := tnapr->NAPR_V
     m1MET_ISSL := iif(m1napr_v == 3, tnapr->MET_ISSL, 0)
     mu_kod := iif(m1napr_v == 3, tnapr->U_KOD, 0)
@@ -1129,6 +1157,8 @@ else
   else
     cur_napr := count_napr+1
     mNAPR_DATE := ctod("")
+    m1NAPR_MO := space(6)
+    mNAPR_MO := space(60)
     m1NAPR_V := 0
     m1MET_ISSL := 0
     mu_kod := 0
@@ -1260,10 +1290,10 @@ else
 endif 
 return fl 
 
-***** 16.10.18 проверка правильности введённых стадий по справочнику N006 в get'e
+***** 14.01.19 проверка правильности введённых стадий по справочнику N006 в get'e
 Function f_valid_tnm(g)
 Local buf, fl_found, s := padr(mkod_diag,5)    
-if !emptyany(m1ONK_T,m1ONK_N,m1ONK_M)
+/*if !emptyany(m1ONK_T,m1ONK_N,m1ONK_M)
   select N6
   find (s)
   if !(fl_found := found())
@@ -1286,7 +1316,7 @@ if !emptyany(m1ONK_T,m1ONK_N,m1ONK_M)
       func_error(2,"Справочник N006: некорректное сочетание стадий TNM")
     endif
   endif  
-endif
+endif*/
 return .t.
 
 ***** 19.08.18
@@ -1295,10 +1325,11 @@ Private yes_oncology := .f.
 f_is_oncology(2)
 return !yes_oncology
 
-***** 11.09.18
+***** 14.01.19
 Function f_is_oncology(r)
-Local i, k, mdiagnoz, lusl_ok, lprofil, lzno := 0
+Local i, k, mdiagnoz, lusl_ok, lprofil, lzno := 0, lyear
 if r == 1
+  lyear := year(human->k_data)
   lusl_ok := human_->USL_OK
   mdiagnoz := diag_to_array()
   lprofil := human_->profil
@@ -1306,6 +1337,7 @@ if r == 1
     lzno := 1
   endif
 else
+  lyear := year(mk_data)
   lusl_ok := m1USL_OK
   mdiagnoz := diag_to_array(" ")
   lprofil := m1profil
@@ -1318,7 +1350,9 @@ else
     aadd(mdiagnoz,space(6))
   endif
   k := lzno  
-  if left(mdiagnoz[1],1) == "C"
+  if lyear == 2019 .and. (left(mdiagnoz[1],1) == "C" .or. between(left(mdiagnoz[1],3),"D00","D09")) 
+    k := 2
+  elseif lyear == 2018 .and. left(mdiagnoz[1],1) == "C" 
     k := 2
   elseif left(mdiagnoz[1],3) == "D70"
     for i := 2 to len(mdiagnoz)
@@ -1879,7 +1913,7 @@ return nU
 
 *
 
-***** 13.01.18
+***** 03.01.19
 Function fcena_oms(sShifr,lVzReb,dDate,/*@*/fl_delete,/*@*/fl_yes,/*@*/_ifin)
 Local i, v, tmp_select := select(), lvr, nu, lal, s := glob_mo[_MO_KOD_TFOMS]
 sShifr := padr(sShifr,10)
@@ -1896,49 +1930,23 @@ for i := 1 to len(dDate)
   _ifin := 0
   fl_delete := .t. ; fl_yes := .f.
   lal := "luslc"
-  if year(dDate[i]) < 2016
-   lal += "14"
-  elseif year(dDate[i]) < 2018
-   lal += "15"
+  if year(dDate[i]) < 2019
+    lal += "18"
   endif
   dbselectarea(lal)
-  if year(dDate[1]) > 2017 // 2018 год
-    set order to 1
-    find (sShifr+str(lvr,1)+str(glob_otd_dep,3)) // сначала ищем цену для конкретного отделения
-    do while sShifr == &lal.->shifr .and. &lal.->VZROS_REB == lvr .and. &lal.->depart == glob_otd_dep .and. !eof()
-      fl_yes := .t.
-      if between_date(&lal.->datebeg,&lal.->dateend,dDate[i]) // поиск цены по дате окончания лечения
-        fl_delete := .f.
-        v := &lal.->CENA ; exit
-      endif
-      skip
-    enddo
-    if !fl_yes .and. fl_delete // если не нашли
-      find (sShifr+str(lvr,1)+str(0,3)) // то ищем цену для depart = 0 
-      do while sShifr == &lal.->shifr .and. &lal.->VZROS_REB == lvr .and. &lal.->depart == 0 .and. !eof()
-        fl_yes := .t.
-        if between_date(&lal.->datebeg,&lal.->dateend,dDate[i]) // поиск цены по дате окончания лечения
-          fl_delete := .f.
-          v := &lal.->CENA ; exit
-        endif
-        skip
-      enddo
+  set order to 1
+  find (sShifr+str(lvr,1)+str(glob_otd_dep,3)) // сначала ищем цену для конкретного отделения
+  do while sShifr == &lal.->shifr .and. &lal.->VZROS_REB == lvr .and. &lal.->depart == glob_otd_dep .and. !eof()
+    fl_yes := .t.
+    if between_date(&lal.->datebeg,&lal.->dateend,dDate[i]) // поиск цены по дате окончания лечения
+      fl_delete := .f.
+      v := &lal.->CENA ; exit
     endif
-  elseif nu > 3 // работаем с индивидуальными тарифами
-    set order to 2
-    find (s+sShifr+str(lvr,1))
-    do while sShifr == &lal.->shifr .and. &lal.->CODEMO == s .and. &lal.->VZROS_REB == lvr .and. !eof()
-      fl_yes := .t.
-      if between_date(&lal.->datebeg,&lal.->dateend,dDate[i]) // поиск цены по дате окончания лечения
-        fl_delete := .f.
-        v := &lal.->CENA ; exit
-      endif
-      skip
-    enddo
-  else // уровни с 1 по 3
-    set order to 1
-    find (sShifr+str(nu,1)+str(lvr,1))
-    do while sShifr == &lal.->shifr .and. &lal.->uroven == nu .and. &lal.->VZROS_REB == lvr .and. !eof()
+    skip
+  enddo
+  if !fl_yes .and. fl_delete // если не нашли
+    find (sShifr+str(lvr,1)+str(0,3)) // то ищем цену для depart = 0 
+    do while sShifr == &lal.->shifr .and. &lal.->VZROS_REB == lvr .and. &lal.->depart == 0 .and. !eof()
       fl_yes := .t.
       if between_date(&lal.->datebeg,&lal.->dateend,dDate[i]) // поиск цены по дате окончания лечения
         fl_delete := .f.
@@ -1947,7 +1955,6 @@ for i := 1 to len(dDate)
       skip
     enddo
   endif
-  set order to 1
   if empty(v)
     exit
   endif

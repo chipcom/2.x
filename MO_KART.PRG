@@ -1759,11 +1759,6 @@ if eval(blk_open,1)
               find (str(glob_kartotek,7))
               fl := found()
             endif
-            /*if !fl  // список пациентов в реестрах будущих диспансеризаций
-              R_Use(dir_server+"mo_r01k",,"R01K")
-              Locate for kod_k == glob_kartotek
-              fl := found()
-            endif*/
             if !fl  // направления на госпитализацию
               R_Use(dir_server+"mo_nnapr",,"NAPR")
               Locate for kod_k == glob_kartotek
