@@ -870,7 +870,7 @@ Public arr_t007 := {}
 if hb_FileExists(exe_dir+sbase+sdbf)
   R_Use(exe_dir+sbase,,"T7")
   index on upper(left(NAME,50))+str(profil_k,3) to (cur_dir+sbase) UNIQUE
-  dbeval({|| aadd(arr_t007, {alltrim(t7->name),profil_k}) })
+  dbeval({|| aadd(arr_t007, {alltrim(t7->name),profil_k,pk_V020}) })
   index on str(profil_k,3)+str(profil,3) to (cur_dir+sbase)
   use
 else

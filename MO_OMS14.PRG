@@ -3630,7 +3630,7 @@ return (_ocenka >= 5)
 
 *
 
-***** 22.09.14 определение КСГ по остальным введённым полям ввода
+/***** 22.09.14 определение КСГ по остальным введённым полям ввода
 Function definition_KSG_14(par)
 // файлы "human", "human_" и "human_2" открыты и стоят на нужной записи
 //       "human" открыт для записи суммы случая
@@ -4080,11 +4080,11 @@ else
   next
 endif
 aadd(ars,s)
-return NIL
+return NIL*/
 
 *
 
-***** 22.09.14 вернуть одну терапевтическую КСГ (если их 2 и более)
+/***** 22.09.14 вернуть одну терапевтическую КСГ (если их 2 и более)
 Function f_TerKSG_1_of_2(aTer,aHir,lpol,lvr,ldni,ta,ea)
 // 0039 при стенокардии (кроме нестабильной), хронической ИБС
 // 0107 при проведении коронарографии диагностической при ИБС + A06.10.006
@@ -4312,11 +4312,11 @@ else
   aadd(ea,' более двух терапевтических КСГ')
 endif
 aTer[1,3] := len(aTer[1,4])
-return iif(aTer[1,3]==0, 0, aTer[1,4,1,2])
+return iif(aTer[1,3]==0, 0, aTer[1,4,1,2])*/
 
 *
 
-***** 22.01.14 вернуть одну хирургическую КСГ (если их 2 и более)
+/***** 22.01.14 вернуть одну хирургическую КСГ (если их 2 и более)
 Function f_HirKSG_1_of_2(aTer,aHir,jh,lpol,lvr,ldni,ta,ea)
 Local osn_diag, sop_diag, osn_diag3, i, j, k, fl, lksg := ""
 osn_diag := aTer[1,1]
@@ -4520,11 +4520,11 @@ endif
 if empty(ar)
   aadd(ea,' для манипуляции '+aHir[jh,1]+' и диагноза '+aTer[1,1]+' не найдена КСГ')
 endif
-return NIL
+return NIL*/
 
 *
 
-***** 28.08.15 определение КСГ по остальным введённым полям ввода
+/***** 28.08.15 определение КСГ по остальным введённым полям ввода
 Function definition_KSG_15(par)
 // файлы "human", "human_" и "human_2" открыты и стоят на нужной записи
 //       "human" открыт для записи суммы случая
@@ -4773,14 +4773,14 @@ endif
 //aadd(ars,'   ║age='+lage+' sex='+lsex+' los='+llos)
 if select("K006") == 0
   R_Use(exe_dir+"_mo5k006",{cur_dir+"_mo5k006",cur_dir+"_mo5k006_"},"K006")
-  /*{"SHIFR",      "C",     10,      0},;
+    {"SHIFR",      "C",     10,      0},;
     {"DS",         "C",      6,      0},;
     {"DS1",        "M",     10,      0},;
     {"DS2",        "M",     10,      0},;
     {"SY",         "C",     20,      0},;
     {"AGE",        "C",      1,      0},;
     {"SEX",        "C",      1,      0},;
-    {"LOS",        "C",      1,      0},;*/
+    {"LOS",        "C",      1,      0},;  
   //index on substr(shifr,1,1)+ds+sy to (sbase)      // по диагнозу/операции
   //index on substr(shifr,1,1)+sy+ds to (sbase+"_")  // по операции/диагнозу
 endif
@@ -4891,10 +4891,10 @@ if len(ar) > 0
   if len(aTerKSG) > 1
     asort(aTerKSG,,,{|x,y| iif(x[13]==y[13], x[3] > y[3], x[13] > y[13]) })
   endif
-  /*aadd(ars,"   ║тер.КСГ: "+print_array(aTerKSG[1]))
+    aadd(ars,"   ║тер.КСГ: "+print_array(aTerKSG[1]))
   for j := 2 to len(aTerKSG)
     aadd(ars,"   ║"+space(9)+print_array(aTerKSG[j]))
-  next*/
+  next  
   if (kol_ter := f_put_debug_KSG(1,aTerKSG,ars)) > 1
     aadd(ars," └─> выбираем терап.КСГ="+aTerKSG[1,1]+" [КЗ="+lstr(aTerKSG[1,3])+"]")
   endif
@@ -4996,10 +4996,10 @@ if len(ar) > 0
   if len(aHirKSG) > 1
     asort(aHirKSG,,,{|x,y| iif(x[13]==y[13], x[3] > y[3], x[13] > y[13]) })
   endif
-  /*aadd(ars,"   ║хир.КСГ: "+print_array(aHirKSG[1]))
+    aadd(ars,"   ║хир.КСГ: "+print_array(aHirKSG[1]))
   for j := 2 to len(aHirKSG)
     aadd(ars,"   ║"+space(9)+print_array(aHirKSG[j]))
-  next*/
+  next  
   if (kol_hir := f_put_debug_KSG(2,aHirKSG,ars)) > 1
     aadd(ars," └─> выбираем хирур.КСГ="+aHirKSG[1,1]+" [КЗ="+lstr(aHirKSG[1,3])+"]")
   endif
@@ -5050,11 +5050,11 @@ else
   aadd(arerr," РЕЗУЛЬТАТ: не получилось выбрать КСГ"+;
              iif(fl_reabil,' для случая медицинской реабилитации',''))
 endif
-return {ars,arerr,alltrim(lksg),lcena}
+return {ars,arerr,alltrim(lksg),lcena}*/
 
 *
 
-***** 13.12.16 определение КСГ по остальным введённым полям ввода
+/***** 13.12.16 определение КСГ по остальным введённым полям ввода
 Function definition_KSG_16(par)
 // файлы "human", "human_" и "human_2" открыты и стоят на нужной записи
 //       "human" открыт для записи суммы случая
@@ -5333,14 +5333,14 @@ endif
 //aadd(ars,'   ║age='+lage+' sex='+lsex+' los='+llos)
 if select("K006") == 0
   R_Use(exe_dir+"_mo6k006",{cur_dir+"_mo6k006",cur_dir+"_mo6k006_"},"K006")
-  /*{"SHIFR",      "C",     10,      0},;
+    {"SHIFR",      "C",     10,      0},;
     {"DS",         "C",      6,      0},;
     {"DS1",        "M",     10,      0},;
     {"DS2",        "M",     10,      0},;
     {"SY",         "C",     20,      0},;
     {"AGE",        "C",      1,      0},;
     {"SEX",        "C",      1,      0},;
-    {"LOS",        "C",      1,      0},;*/
+    {"LOS",        "C",      1,      0},;  
   //index on substr(shifr,1,1)+ds+sy to (sbase)      // по диагнозу/операции
   //index on substr(shifr,1,1)+sy+ds to (sbase+"_")  // по операции/диагнозу
 endif
@@ -5439,10 +5439,10 @@ if len(ar) > 0
   if len(aTerKSG) > 1
     asort(aTerKSG,,,{|x,y| iif(x[13]==y[13], x[3] > y[3], x[13] > y[13]) })
   endif
-  /*aadd(ars,"   ║КСГ: "+print_array(aTerKSG[1]))
+    aadd(ars,"   ║КСГ: "+print_array(aTerKSG[1]))
   for j := 2 to len(aTerKSG)
     aadd(ars,"   ║     "+print_array(aTerKSG[j]))
-  next*/
+  next  
   if (kol_ter := f_put_debug_KSG(0,aTerKSG,ars)) > 1
     aadd(ars," └─> выбираем КСГ="+aTerKSG[1,1]+" [КЗ="+lstr(aTerKSG[1,3])+"]")
   endif
@@ -5534,10 +5534,10 @@ if len(ar) > 0
   if len(aHirKSG) > 1
     asort(aHirKSG,,,{|x,y| iif(x[13]==y[13], x[3] > y[3], x[13] > y[13]) })
   endif
-  /*aadd(ars,"   ║КСГ: "+print_array(aHirKSG[1]))
+    aadd(ars,"   ║КСГ: "+print_array(aHirKSG[1]))
   for j := 2 to len(aHirKSG)
     aadd(ars,"   ║     "+print_array(aHirKSG[j]))
-  next*/
+  next  
   if (kol_hir := f_put_debug_KSG(0,aHirKSG,ars)) > 1
     aadd(ars," └─> выбираем КСГ="+aHirKSG[1,1]+" [КЗ="+lstr(aHirKSG[1,3])+"]")
   endif
@@ -5589,11 +5589,11 @@ else
   aadd(arerr," РЕЗУЛЬТАТ: не получилось выбрать КСГ"+;
              iif(fl_reabil,' для случая медицинской реабилитации',''))
 endif
-return {ars,arerr,alltrim(lksg),lcena,akslp}
+return {ars,arerr,alltrim(lksg),lcena,akslp}*/
 
 *
 
-***** 04.08.17 определение КСГ по остальным введённым полям ввода - 2017 год
+/***** 04.08.17 определение КСГ по остальным введённым полям ввода - 2017 год
 Function definition_KSG_17(par)
 // файлы "human", "human_" и "human_2" открыты и стоят на нужной записи
 //       "human" открыт для записи суммы случая
@@ -5888,14 +5888,14 @@ endif
 //aadd(ars,'   ║age='+lage+' sex='+lsex+' los='+llos)
 if select("K006") == 0
   R_Use(exe_dir+"_mo7k006",{cur_dir+"_mo7k006",cur_dir+"_mo7k006_"},"K006")
-  /*{"SHIFR",      "C",     10,      0},;
+    {"SHIFR",      "C",     10,      0},;
     {"DS",         "C",      6,      0},;
     {"DS1",        "M",     10,      0},;
     {"DS2",        "M",     10,      0},;
     {"SY",         "C",     20,      0},;
     {"AGE",        "C",      1,      0},;
     {"SEX",        "C",      1,      0},;
-    {"LOS",        "C",      1,      0},;*/
+    {"LOS",        "C",      1,      0},;  
   //index on substr(shifr,1,1)+ds+sy to (sbase)      // по диагнозу/операции
   //index on substr(shifr,1,1)+sy+ds to (sbase+"_")  // по операции/диагнозу
 endif
@@ -5994,10 +5994,10 @@ if len(ar) > 0
   if len(aTerKSG) > 1
     asort(aTerKSG,,,{|x,y| iif(x[13]==y[13], x[3] > y[3], x[13] > y[13]) })
   endif
-  /*aadd(ars,"   ║КСГ: "+print_array(aTerKSG[1]))
+    aadd(ars,"   ║КСГ: "+print_array(aTerKSG[1]))
   for j := 2 to len(aTerKSG)
     aadd(ars,"   ║     "+print_array(aTerKSG[j]))
-  next*/
+  next  
   if (kol_ter := f_put_debug_KSG(0,aTerKSG,ars)) > 1
     aadd(ars," └─> выбираем КСГ="+aTerKSG[1,1]+" [КЗ="+lstr(aTerKSG[1,3])+"]")
   endif
@@ -6089,10 +6089,10 @@ if len(ar) > 0
   if len(aHirKSG) > 1
     asort(aHirKSG,,,{|x,y| iif(x[13]==y[13], x[3] > y[3], x[13] > y[13]) })
   endif
-  /*aadd(ars,"   ║КСГ: "+print_array(aHirKSG[1]))
+    aadd(ars,"   ║КСГ: "+print_array(aHirKSG[1]))
   for j := 2 to len(aHirKSG)
     aadd(ars,"   ║     "+print_array(aHirKSG[j]))
-  next*/
+  next  
   if (kol_hir := f_put_debug_KSG(0,aHirKSG,ars)) > 1
     aadd(ars," └─> выбираем КСГ="+aHirKSG[1,1]+" [КЗ="+lstr(aHirKSG[1,3])+"]")
   endif
@@ -6144,7 +6144,7 @@ else
   aadd(arerr," РЕЗУЛЬТАТ: не получилось выбрать КСГ"+;
              iif(fl_reabil,' для случая медицинской реабилитации',''))
 endif
-return {ars,arerr,alltrim(lksg),lcena,akslp}
+return {ars,arerr,alltrim(lksg),lcena,akslp}*/
 
 ***** 18.11.18 определение КСГ по остальным введённым полям ввода - 2018 год
 Function definition_KSG_18(par)

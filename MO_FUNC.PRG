@@ -3567,12 +3567,8 @@ lyear := year(human->K_DATA)
 if human_->USL_OK < 3
   if lyear > 2018
     arr := definition_KSG()
-  elseif lyear > 2017
-    arr := definition_KSG_18()
-  elseif lyear > 2016
-    arr := definition_KSG_17()
   else
-    arr := definition_KSG_16()
+    arr := definition_KSG_18()
   endif
   if len(arr) < 7 // не диализ
     aeval(arr[1],{|x| my_debug(,x) })
@@ -3607,17 +3603,10 @@ if human_->USL_OK < 3
           lrec := hu->(recno())
           exit
         endif
-      elseif lyear > 2017
+      else
         select LUSL18
         find (lshifr) // длина lshifr 10 знаков
         if found() .and. (eq_any(left(lshifr,5),"1.12.") .or. is_ksg(lusl18->shifr)) // стоит другой КСГ
-          lrec := hu->(recno())
-          exit
-        endif
-      else
-        select LUSL17
-        find (lshifr) // длина lshifr 10 знаков
-        if found() .and. (eq_any(left(lshifr,5),"1.12.","1.15.","1.16.","1.17.","1.18.") .or. lusl17->usl > 0) // стоит другой КСГ
           lrec := hu->(recno())
           exit
         endif
@@ -3735,12 +3724,8 @@ if human_->USL_OK < 3
   set relation to
   if lyear > 2018
     arr := definition_KSG()
-  elseif lyear > 2017
-    arr := definition_KSG_18()
-  elseif lyear > 2016
-    arr := definition_KSG_17()
   else
-    arr := definition_KSG_16()
+    arr := definition_KSG_18()
   endif
   if len(arr) < 7 // не диализ
     aeval(arr[1],{|x| my_debug(,x), aadd(ret,x) })
@@ -3777,17 +3762,10 @@ if human_->USL_OK < 3
           lrec := tmp->(recno())
           exit
         endif
-      elseif lyear > 2017
+      else
         select LUSL18
         find (padr(lshifr,10)) // длина lshifr 10 знаков
         if found() .and. (eq_any(left(lshifr,5),"1.12.") .or. is_ksg(lusl18->shifr)) // стоит другой КСГ
-          lrec := tmp->(recno())
-          exit
-        endif
-      else
-        select LUSL17
-        find (padr(lshifr,10)) // длина lshifr 10 знаков
-        if found() .and. (eq_any(left(lshifr,5),"1.12.","1.15.","1.16.","1.17.","1.18.") .or. lusl17->usl > 0) // стоит другой КСГ
           lrec := tmp->(recno())
           exit
         endif

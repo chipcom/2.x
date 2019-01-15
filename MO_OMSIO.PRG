@@ -2488,12 +2488,8 @@ if human_->oplata < 9 .and. f_is_uch(st_a_uch,human->lpu)
   if human_->USL_OK < 3
     if (y := year(human->K_DATA)) > 2018
       arr := definition_KSG()
-    elseif y > 2017
-      arr := definition_KSG_18()
-    elseif y > 2016
-      arr := definition_KSG_17()
     else
-      arr := definition_KSG_16()
+      arr := definition_KSG_18()
     endif
     if select("K006") > 0
       k006->(dbCloseArea())

@@ -170,7 +170,7 @@ Private tmp := readvar()
 &tmp := transform_shifr(&tmp)
 return .t.
 
-***** трансформирование шифра услуги (запятую на точку, посл.точку убрать)
+***** 15.01.2019 трансформирование шифра услуги (запятую на точку, посл.точку убрать)
 Function transform_shifr(s)
 Local n := len(s)  // длина поля может быть 10 или 15 символов
 s := DelEndSymb(charrepl(",",s,"."),".") // запятую - на точку и удалить последнюю точку
@@ -178,6 +178,8 @@ s := DelEndSymb(charrepl(",",s,"."),".") // запятую - на точку и удалить последн
 if eq_any(left(s,1),"А","В") .and. substr(s,4,1) == "." ;
                .and. EMPTY(CHARREPL("0123456789", substr(s,2,2), SPACE(10)))
   s := iif(left(s,1)=="А","A","B")+substr(s,2)  // заменим на английскую A,B
+elseif eq_any(upper(left(s,2)),"ST","DS")
+  s := lower(s)  
 endif
 return padr(s,n)
 
@@ -1296,7 +1298,7 @@ for i := 1 to len(arr)
 next
 return s
 
-***** 28.01.17 превратить шифр услуги в 5-мерный числовой массив
+***** 15.01.19 превратить шифр услуги в 5-мерный числовой массив
 Function usl2arr(sh_u,/*@*/j)
 Local i, k, c, ascc, arr := {}, cDelimiter := ".", s := alltrim(sh_u), ;
       s1 := "", is_all_digit := .t.

@@ -86,7 +86,7 @@ return NIL
 
 *
 
-***** 13.01.17
+***** 15.01.19
 FUNCTION f1_uslugi()
 Local arr_block, buf := savescreen(), str_sem := "Редактирование услуг"
 if !G_SLock(str_sem)
@@ -102,20 +102,19 @@ if !Use_base("lusl") .or. !Use_base("luslc") .or. ;
   return NIL
 endif
 mywait()
+if is_otd_dep .and. glob_otd_dep == 0 .and. len(mm_otd_dep) > 0
+  glob_otd_dep := mm_otd_dep[1,2] // просто берём первое отделение
+endif
 if !(type("arr_date_usl") == "A")
   Public arr_date_usl := {}
-  select LUSLC14
+  select LUSLC18
   index on dtos(datebeg) to (cur_dir+"tmp1") unique
-  dbeval({|| aadd(arr_date_usl,luslc14->datebeg) })
-  set index to (cur_dir+"_mo_uslc"),(cur_dir+"_mo_uslu")
-  select LUSLC15
-  index on dtos(datebeg) to (cur_dir+"tmp1") unique
-  dbeval({|| aadd(arr_date_usl,luslc->datebeg) })
-  set index to (cur_dir+"_mo5uslc"),(cur_dir+"_mo5uslu")
+  dbeval({|| aadd(arr_date_usl,luslc18->datebeg) })
+  set index to (cur_dir+"_mo8uslc"),(cur_dir+"_mo8uslu")
   select LUSLC
   index on dtos(datebeg) to (cur_dir+"tmp1") unique
   dbeval({|| aadd(arr_date_usl,luslc->datebeg) })
-  set index to (cur_dir+"_mo8uslc"),(cur_dir+"_mo8uslu")
+  set index to (cur_dir+"_mo9uslc"),(cur_dir+"_mo9uslu")
 endif
 Private tmp_V002 := create_classif_FFOMS(0,"V002") // PROFIL
 dbcreate(cur_dir+"tmp_usl1",{{"shifr1",  "C",10,0},;
@@ -153,10 +152,10 @@ G_SUnLock(str_sem)
 restscreen(buf)
 return NIL
 
-*****
+***** 15.01.19
 Function f0_es_uslugi()
-Local k := 3, v1, v2, fl1del, fl2del,;
-      s := iif(empty(usl->shifr1), usl->shifr, usl->shifr1)
+Local k := 3, v1, v2, fl1del, fl2del, s := iif(empty(usl->shifr1), usl->shifr, usl->shifr1)
+s := padr(transform_shifr(s),10)      
 select LUSL
 find (s)
 if found()
@@ -209,7 +208,7 @@ do case
               sshifr,"@K@!")) != NIL
       sshifr := mshifr := transform_shifr(mshifr)
       set order to 3
-      find (mshifr)
+      find (padr(mshifr,10))
       if found()
         rec := recno()
         fl := .t.
@@ -523,7 +522,7 @@ select USL
 set order to 1
 Return ret
 
-*****
+***** 15.01.19
 Function f4_es_uslugi(k,fl_poisk,nKey)
 Local fl, v1, v2, s, rec, fl1del, fl2del
 if k > 0
@@ -564,6 +563,7 @@ s := iif(empty(mshifr1), mshifr, mshifr1)
 mname1 := space(77)
 yes_tfoms := .f.
 if !empty(s)
+  s := padr(transform_shifr(s),10)
   select LUSL
   find (s)
   if found()

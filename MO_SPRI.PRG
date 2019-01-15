@@ -2162,10 +2162,9 @@ do while !eof()
   skip
 enddo
 luslc->(dbCloseArea())
-luslc14->(dbCloseArea())
-luslc15->(dbCloseArea())
+luslc18->(dbCloseArea())
 lusl->(dbCloseArea())
-lusl17->(dbCloseArea())
+lusl18->(dbCloseArea())
 usl->(dbCloseArea())
 if mem_trudoem == 2
   uu->(dbCloseArea())

@@ -1070,22 +1070,22 @@ endif
 select (tmp_select)
 return fl // подтверждение, что услуга - ОМС
 
-***** 24.01.18
+***** 15.01.19
 Function ret_tfoms_uet(lshifr,lshifr1,lvzros_reb)
 Local _shifr, tmp_select, luet := 0
-_shifr := iif(empty(lshifr1), lshifr, lshifr1)
+/*_shifr := iif(empty(lshifr1), lshifr, lshifr1)
 if left(_shifr,3) == "57."
   tmp_select := select()
   if select("LUSL") == 0
     use_base("lusl")
   endif
-  select LUSL17
+  select LUSL18
   find (padr(_shifr,10))
   if found()
-    luet := iif(lvzros_reb==0,lusl17->uetv,lusl17->uetd)
+    luet := iif(lvzros_reb==0,lusl18->uetv,lusl18->uetd)
   endif
   select (tmp_select)
-endif
+endif*/
 return luet
 
 ***** 04.09.17 проверка на код лабораторной услуги, направляемой в ЦКДЛ
