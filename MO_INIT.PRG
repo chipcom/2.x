@@ -218,7 +218,7 @@ sbase := "_mo9usl"
 Public arr_12_VMP := {}
 if hb_FileExists(exe_dir+sbase+sdbf)
   R_Use(exe_dir+sbase,,"LUSL")
-  index on shifr to (cur_dir+"tmp_usl")
+  index on shifr to (cur_dir+sbase)
   find ("1.12.") // ВМП федеральное
   do while left(lusl->shifr,5) == "1.12." .and. !eof()
     aadd(arr_12_VMP,int(val(substr(lusl->shifr,6))))
@@ -232,7 +232,7 @@ if empty(arr_12_VMP)
   sbase := "_mo8usl"
   if hb_FileExists(exe_dir+sbase+sdbf)
     R_Use(exe_dir+sbase,,"LUSL")
-    index on shifr to (cur_dir+"tmp_usl")
+    index on shifr to (cur_dir+sbase)
     find ("1.12.") // ВМП федеральное
     do while left(lusl->shifr,5) == "1.12." .and. !eof()
       aadd(arr_12_VMP,int(val(substr(lusl->shifr,6))))
