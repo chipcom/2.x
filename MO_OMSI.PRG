@@ -2240,9 +2240,7 @@ if eq_any(su,1,2,5)
   for i := 1 to len(luapz2016)
     if luapz2016[i,3] > 0 .or. apz2016[i,3] > 0
       s := padl(luapz2016[i,1],42)
-      if is_2016 .and. apz2016[i,2] == 62 // “…’ αβ®¬ β®«®£¨¨
-        s += str(apz2016[i,3],10,2)
-      elseif empty(apz2016[i,3]) .and. !empty(luapz2016[i,3])
+      if empty(apz2016[i,3]) .and. !empty(luapz2016[i,3])
         s += str(luapz2016[i,3],10,0)
       else
         s += str(apz2016[i,3],10,0)

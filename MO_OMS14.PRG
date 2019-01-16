@@ -6146,7 +6146,7 @@ else
 endif
 return {ars,arerr,alltrim(lksg),lcena,akslp}*/
 
-***** 18.11.18 определение КСГ по остальным введённым полям ввода - 2018 год
+***** 16.01.19 определение КСГ по остальным введённым полям ввода - 2018 год
 Function definition_KSG_18(par)
 // файлы "human", "human_" и "human_2" открыты и стоят на нужной записи
 //       "human" открыт для записи суммы случая
@@ -6452,9 +6452,9 @@ set order to 1
 find (lusl+padr(osn_diag,6))
 do while left(k006->shifr,1)==lusl .and. k006->ds==padr(osn_diag,6) .and. !eof()
   lkoef := k006->kz
-  select LUSL
+  select LUSL18
   find (padr(k006->shifr,10))
-  fl := lkoef > 0 .and. between_date(lusl->DATEBEG,lusl->DATEEND,date_usl)
+  fl := lkoef > 0 .and. between_date(lusl18->DATEBEG,lusl18->DATEEND,date_usl)
   if fl
     fl := between_date(k006->DATEBEG,k006->DATEEND,date_usl)
   endif
@@ -6530,7 +6530,7 @@ do while left(k006->shifr,1)==lusl .and. k006->ds==padr(osn_diag,6) .and. !eof()
     aadd(ar,{k006->shifr,; //  1
              0,;           //  2
              lkoef,;       //  3
-             lusl->kiro,;  //  4 k006->profil,;
+             lusl18->kiro,;  //  4 k006->profil,;
              osn_diag,;    //  5
              k006->sy,;    //  6
              k006->age,;   //  7
@@ -6540,7 +6540,7 @@ do while left(k006->shifr,1)==lusl .and. k006->ds==padr(osn_diag,6) .and. !eof()
              sds1,;        // 11 
              sds2,;        // 12 
              j,;           // 13 
-             lusl->kslps}) // 14 
+             lusl18->kslps}) // 14
   endif
   select K006
   skip
@@ -6577,9 +6577,9 @@ for im := 1 to len(amohu)
     find (lusl+padr(lshifr,20))
     do while left(k006->shifr,1)==lusl .and. k006->sy==padr(lshifr,20) .and. !eof()
       lkoef := k006->kz
-      select LUSL
+      select LUSL18
       find (padr(k006->shifr,10))
-      fl := lkoef > 0 .and. between_date(lusl->DATEBEG,lusl->DATEEND,date_usl) 
+      fl := lkoef > 0 .and. between_date(lusl18->DATEBEG,lusl18->DATEEND,date_usl) 
       if fl
         fl := between_date(k006->DATEBEG,k006->DATEEND,date_usl)
       endif
@@ -6656,7 +6656,7 @@ for im := 1 to len(amohu)
         aadd(ar,{k006->shifr,; //  1
                  0,;           //  2
                  lkoef,;       //  3
-                 lusl->kiro,;  //  4 k006->profil,;
+                 lusl18->kiro,;  //  4 k006->profil,;
                  k006->ds,;    //  5
                  lshifr,;      //  6
                  k006->age,;   //  7
@@ -6666,7 +6666,7 @@ for im := 1 to len(amohu)
                  sds1,;        // 11 
                  sds2,;        // 12 
                  j,;           // 13 
-                 lusl->kslps}) // 14 
+                 lusl18->kslps}) // 14 
       endif
       select K006
       skip

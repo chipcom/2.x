@@ -4355,9 +4355,8 @@ do while .t.
       mONK_N := padr(inieditspr(A__MENUVERT, mm_N004, m1ONK_N),5) 
       mONK_M := padr(inieditspr(A__MENUVERT, mm_N005, m1ONK_M),5)
       if m1usl_ok == 3
-        mONK_T := m1ONK_T := space(5) 
-        mONK_N := m1ONK_N := space(5) 
-        mONK_M := m1ONK_M := space(5)
+        mONK_T := mONK_N := mONK_M := space(5)
+        m1ONK_T := m1ONK_N := m1ONK_M := 0
       endif
       //
       R_Use(exe_dir+"_mo_N006",cur_dir+"_mo_N006","N6")
