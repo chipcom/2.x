@@ -6614,7 +6614,7 @@ elseif lprof > 0
 endif
 return uch_otd
 
-***** 21.01.18 Изменение цен на услуги в соответствии со справочником услуг ТФОМС
+***** 16.01.19 Изменение цен на услуги в соответствии со справочником услуг ТФОМС
 Function Change_Cena_OMS()
 Local buf := save_maxrow(), lshifr1, fl, lrec, kod_ksg, begin_date := addmonth(sys_date,-3)
 if begin_date < boy(begin_date)
@@ -6712,7 +6712,11 @@ if f_Esc_Enter("изменения цен",.t.) .and. mo_Lock_Task(X_OMS)
           skip
         enddo
         if !empty(kod_ksg)
-          arr_ksg := definition_KSG()
+          if year(human->k_data) > 2018
+            arr_ksg := definition_KSG()
+          else
+            arr_ksg := definition_KSG_18()
+          endif
           if len(arr_ksg) == 7 // диализ
             //
           elseif empty(arr_ksg[2]) // нет ошибок

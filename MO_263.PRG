@@ -4659,9 +4659,9 @@ if ldate_r > 0d20190115 // с 16 января
 endif
 return lstr(lprk)
 
-***** 15.01.19 профиль койки из строки в число, затем из v020 в t007
+***** 16.01.19 профиль койки из строки в число, затем из v020 в t007
 Function f_profil_k_v020_t007(sprk,ldate_r)
-Local i, lprk := int(val(lprk))
+Local i, lprk := int(val(sprk))
 if ldate_r > 0d20190115 // с 16 января
   if (i := ascan(arr_t007, {|x| x[3] == lprk })) > 0
     lprk := arr_t007[i,3]

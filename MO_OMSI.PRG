@@ -2213,13 +2213,11 @@ endif
 if par == 1
   add_string(center("по счету № "+p_number+" от "+full_date(p_date)+" г.",sh))
 elseif par == 2 .and. par2 == 1
-  frt->str2 := "отчётный период "+arr_m[4]
   add_string(center("по счетам "+arr_m[4],sh))
   if fl_period
     add_string(center("[ подсчёт производится по отчётному периоду]",sh))
     if mdate_reg != NIL
       add_string(center("[ по счетам, зарегистрированным по "+full_date(mdate_reg)+"г. включительно ]",sh))
-      frt->str3 := "по счетам, зарегистрированным по "+full_date(mdate_reg)+"г. включительно"
     endif
   endif
 elseif par == 2 .and. par2 == 2

@@ -4354,6 +4354,11 @@ do while .t.
       mONK_T := padr(inieditspr(A__MENUVERT, mm_N003, m1ONK_T),5) 
       mONK_N := padr(inieditspr(A__MENUVERT, mm_N004, m1ONK_N),5) 
       mONK_M := padr(inieditspr(A__MENUVERT, mm_N005, m1ONK_M),5)
+      if m1usl_ok == 3
+        mONK_T := m1ONK_T := space(5) 
+        mONK_N := m1ONK_N := space(5) 
+        mONK_M := m1ONK_M := space(5)
+      endif
       //
       R_Use(exe_dir+"_mo_N006",cur_dir+"_mo_N006","N6")
       // гистология
@@ -4623,15 +4628,14 @@ do while .t.
                reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
                when m1DS1_T > 0 ;
                color colget_menu
-   if len(mm_N009) == 0 .and. len(mm_N012) == 0
+  if len(mm_N009) == 0 .and. len(mm_N012) == 0
     ++j; @ j,3 say "Гистология / иммуногистохимия: не нужно для "+mkod_diag
-   else
+  else
     ++j; @ j,3 say "Гистология / иммуногистохимия" get mB_DIAG ;
                reader {|x|menu_reader(x,mmb_diag,A__MENUVERT,,,.f.)} 
     ++j; @ j,3 say "Дата взятия материала" get mDIAG_DATE ;
                valid {|| iif(empty(mDIAG_DATE) .or. mDIAG_DATE <= mk_data, .t., ; 
                              func_error(4,"Дата взятия материала больше даты окончания лечения")) } 
-   endif
    if len(mm_N009) == 0
     ++j; @ j,3 say "Гистология: не нужно для "+mkod_diag
    else
@@ -4646,7 +4650,7 @@ do while .t.
                color colget_menu  
     endif
    endif  
-   if len(mm_N012) == 0 .and. len(mm_N009) > 0
+   if len(mm_N012) == 0
     ++j; @ j,3 say "Иммуногистохимия: не нужно для "+mkod_diag
    else
     ++j; @ j,3 say mm_N012[1,1] get mmark1 ;
@@ -4677,7 +4681,8 @@ do while .t.
                when m1b_diag == 98 ;
                color colget_menu  
     endif
-   endif  
+   endif
+  endif  
    if m1usl_ok < 3
     ++j; @ j,3 say "Консилиум: дата" get mDT_CONS ; 
                valid {|| iif(empty(mDT_CONS) .or. between(mDT_CONS,mn_data,mk_data), .t., ; 
