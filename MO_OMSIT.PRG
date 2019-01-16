@@ -3760,22 +3760,14 @@ if (arr_m := year_month(,,,5)) != NIL
       aeval(arr_title, {|x| add_string(x) } )
     endif
     if !(old == padr(tmp->shifr,20))
-      if arr_m[1] > 2017
+      if arr_m[1] > 2018
         select luslf
         find (padr(tmp->shifr,20))
         add_string(alltrim(tmp->shifr)+" "+alltrim(luslf->name))
-      elseif arr_m[1] > 2016
-        select luslf17
-        find (padr(tmp->shifr,20))
-        add_string(alltrim(tmp->shifr)+" "+alltrim(luslf17->name))
-      elseif arr_m[1] > 2014
-        select luslf15
-        find (padr(tmp->shifr,20))
-        add_string(alltrim(tmp->shifr)+" "+alltrim(luslf15->name))
       else
-        select luslf14
+        select luslf18
         find (padr(tmp->shifr,20))
-        add_string(alltrim(tmp->shifr)+" "+alltrim(luslf14->name))
+        add_string(alltrim(tmp->shifr)+" "+alltrim(luslf18->name))
       endif
     endif
     old := padr(tmp->shifr,20)

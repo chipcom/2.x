@@ -654,22 +654,10 @@ else
           if found()
             lname := luslf->name
           else
-            select LUSLF17
+            select LUSLF18
             find (usl->shifr1)
             if found()
-              lname := luslf17->name
-            else
-              select LUSLF15
-              find (usl->shifr1)
-              if found()
-                lname := luslf15->name
-              else
-                select LUSLF14
-                find (usl->shifr1)
-                if found()
-                  lname := luslf14->name
-                endif  
-              endif
+              lname := luslf18->name
             endif
           endif
           tmp->u_shifr := usl->shifr1
@@ -1014,18 +1002,14 @@ Local mtrud := {0,0,0}
 select USL
 goto (lu_kod)
 if !eof() .and. !empty(usl->shifr1)
-  if year(human->k_data) > 2017
+  if year(human->k_data) > 2018
     select LUSLF
     find (usl->shifr1)
     mtrud[1] := mtrud[2] := mtrud[3] := round_5(lkol * iif(lvzros_reb==0, luslf->uetv, luslf->uetd), 2)
-  elseif year(human->k_data) > 2016
-    select LUSLF17
-    find (usl->shifr1)
-    mtrud[1] := mtrud[2] := mtrud[3] := round_5(lkol * iif(lvzros_reb==0, luslf17->uetv, luslf17->uetd), 2)
   else
-    select LUSLF15
+    select LUSLF18
     find (usl->shifr1)
-    mtrud[1] := mtrud[2] := mtrud[3] := round_5(lkol * iif(lvzros_reb==0, luslf15->uetv, luslf15->uetd), 2)
+    mtrud[1] := mtrud[2] := mtrud[3] := round_5(lkol * iif(lvzros_reb==0, luslf18->uetv, luslf18->uetd), 2)
   endif
   if lkod_vr > 0 .and. lkod_as == 0
     mtrud[3] := 0

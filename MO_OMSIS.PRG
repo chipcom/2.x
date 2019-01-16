@@ -3486,18 +3486,14 @@ if fl
           if au[iau,1] == 1
             muet += round_5(hu->kol_1 * opr_uet(human->vzros_reb), 4)
           elseif human_->usl_ok == 3 // только для стоматологии
-            if year(human->k_data) > 2017
+            if year(human->k_data) > 2018
               select LUSLF
               find (mosu->shifr1)
               muet += round_5(mohu->kol_1 * iif(human->vzros_reb==0, luslf->uetv, luslf->uetd), 4)
-            elseif year(human->k_data) > 2016
-              select LUSLF17
-              find (mosu->shifr1)
-              muet += round_5(mohu->kol_1 * iif(human->vzros_reb==0, luslf17->uetv, luslf17->uetd), 4)
             else
-              select LUSLF15
+              select LUSLF18
               find (mosu->shifr1)
-              muet += round_5(mohu->kol_1 * iif(human->vzros_reb==0, luslf15->uetv, luslf15->uetd), 4)
+              muet += round_5(mohu->kol_1 * iif(human->vzros_reb==0, luslf18->uetv, luslf18->uetd), 4)
             endif        
           endif
         endif

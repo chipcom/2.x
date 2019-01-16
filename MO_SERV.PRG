@@ -6712,6 +6712,9 @@ if f_Esc_Enter("изменения цен",.t.) .and. mo_Lock_Task(X_OMS)
           skip
         enddo
         if !empty(kod_ksg)
+          if select("K006") != 0
+            k006->(dbCloseArea())
+          endif
           if year(human->k_data) > 2018
             arr_ksg := definition_KSG()
           else

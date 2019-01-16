@@ -2575,22 +2575,14 @@ for k := 1 to len(arr_4000)
         select TMP_D4
         find (s1)
         do while tmp_d4->stroke == s1 .and. !eof()
-          if arr_m[1] > 2017
+          if arr_m[1] > 2018
             select luslf
             find (tmp_d4->shifr)
             s := alltrim(tmp_d4->shifr)+" "+alltrim(luslf->name)
-          elseif arr_m[1] > 2016
-            select luslf17
-            find (tmp_d4->shifr)
-            s := alltrim(tmp_d4->shifr)+" "+alltrim(luslf17->name)
-          elseif arr_m[1] > 2014
-            select luslf15
-            find (tmp_d4->shifr)
-            s := alltrim(tmp_d4->shifr)+" "+alltrim(luslf15->name)
           else
-            select luslf14
+            select luslf18
             find (tmp_d4->shifr)
-            s := alltrim(tmp_d4->shifr)+" "+alltrim(luslf14->name)
+            s := alltrim(tmp_d4->shifr)+" "+alltrim(luslf18->name)
           endif
           j1 := perenos(t_arr1,s,len_name+11)
           if verify_FF(HH-j1,.t.,sh)
@@ -2677,22 +2669,14 @@ if yes_vmp
           find (s1)
           do while tmp_d4->stroke==s1 .and. !eof()
             if !empty(tmp_d4->_p_boln)
-              if arr_m[1] > 2017
+              if arr_m[1] > 2018
                 select luslf
                 find (tmp_d4->shifr)
                 s := alltrim(tmp_d4->shifr)+" "+alltrim(luslf->name)
-              elseif arr_m[1] > 2016
-                select luslf17
-                find (tmp_d4->shifr)
-                s := alltrim(tmp_d4->shifr)+" "+alltrim(luslf17->name)
-              elseif arr_m[1] > 2014
-                select luslf15
-                find (tmp_d4->shifr)
-                s := alltrim(tmp_d4->shifr)+" "+alltrim(luslf15->name)
               else
-                select luslf14
+                select luslf18
                 find (tmp_d4->shifr)
-                s := alltrim(tmp_d4->shifr)+" "+alltrim(luslf14->name)
+                s := alltrim(tmp_d4->shifr)+" "+alltrim(luslf18->name)
               endif
               j1 := perenos(t_arr1,s,len_name+11)
               if verify_FF(HH-j1,.t.,sh)

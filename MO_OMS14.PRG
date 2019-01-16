@@ -541,10 +541,10 @@ do while hu->kod == human->kod .and. !eof()
     if human_->USL_OK == 4 .and. lprofil != hu_->profil
       hu_->profil := lprofil
     endif 
-    select LUSL
+    select LUSL18
     find (padr(lshifr,10))
-    if found() .and. !empty(lusl->unit_code) .and. ascan(arr_unit,lusl->unit_code) == 0
-      aadd(arr_unit,lusl->unit_code)
+    if found() .and. !empty(lusl18->unit_code) .and. ascan(arr_unit,lusl18->unit_code) == 0
+      aadd(arr_unit,lusl18->unit_code)
     endif
     aadd(au_lu,{lshifr,;              // 1
                 mdate,;               // 2
@@ -894,7 +894,7 @@ else
     endif  
   endif
 endif
-al := "luslf"
+al := "luslf18"
 if is_oncology > 0 // онкология - направления
   if is_oncology == 2 // онкология
     if mpovod == 4  // Диспансерное наблюдение
@@ -3481,7 +3481,7 @@ if is_disp_DDS .or. is_disp_DVN .or. is_prof_PN
 endif
 if len(arr_unit) > 1
   if select("MOUNIT") == 0
-    R_Use(dir_exe+"_mo_unit",cur_dir+"_mo_unit","MOUNIT")
+    R_Use(dir_exe+"_mo8unit",cur_dir+"_mo8unit","MOUNIT")
   endif
   s := "совокупность услуг должна быть из одной учётной единицы объёма, а в данном случае: "
   select MOUNIT
