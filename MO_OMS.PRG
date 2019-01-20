@@ -4275,7 +4275,7 @@ do while .t.
     if cur_napr > 0 .and. cur_napr <= count_napr
       goto (cur_napr) // номер текущего направления
       mNAPR_DATE := tnapr->NAPR_DATE
-      m1NAPR_MO := tnapr->NPR_MO
+      m1NAPR_MO := tnapr->NAPR_MO
       if empty(m1NAPR_MO)
         mNAPR_MO := space(60)
       else
@@ -6314,7 +6314,7 @@ set relation to  // "отвязываем" human_u_
 select USL
 set order to 1
 is_zf_stomat := 0
-if m1USL_OK == 3 .and. eq_any(m1PROFIL,85,86,87,88,89,90,171)
+if STisZF(m1USL_OK,m1PROFIL)
   is_zf_stomat := 1
 endif  
 if is_zf_stomat == 1

@@ -155,12 +155,14 @@ do case
     mas_pmt := {"Номенклатура медуслуг ~ФФОМС",;
                 "~Стоматологические услуги",;
                 "Услуги ~телемедицины",;
+                "Операции на ~парных органах",;
                 "Классификатор ~видов ВМП",;
                 "Классификатор ~методов ВМП",;
                 "Услуги ФФОМС -> ~наши услуги"}
     mas_msg := {"Вывод списка услуг Минздрава РФ (ФФОМС) по подразделам",;
                 "Вывод списка стоматологических услуг Минздрава РФ (ФФОМС) по группам",;
                 "Распечатка списка услуг с использованием телемедицинских технологий",;
+                "Распечатка списка операций на парных органах (частях тела)",;
                 "Распечатка классификатора видов ВМП",;
                 "Распечатка классификатора методов ВМП (с группировкой по видам ВМП)",;
                 "Привязка Ваших услуг к услугам ФФОМС"}
@@ -169,7 +171,8 @@ do case
                 "fspr_uslugi(23)",;
                 "fspr_uslugi(24)",;
                 "fspr_uslugi(25)",;
-                "fspr_uslugi(26)"}
+                "fspr_uslugi(26)",;
+                "fspr_uslugi(27)"}
     k := len(mas_pmt) 
     use_base("luslc")
     set order to 2
@@ -177,14 +180,14 @@ do case
     if found() 
       aadd(mas_pmt, "Услуги + КСГ (~дневной стационар)")
       aadd(mas_msg, "Вывод списка разрешённых услуг ФФОМС вместе с КСГ дневного стационара")
-      aadd(mas_fun, "fspr_uslugi(27)")
+      aadd(mas_fun, "fspr_uslugi(28)")
     endif
     k := len(mas_pmt) 
     find (glob_mo[_MO_KOD_TFOMS]+"st")
     if found() 
       aadd(mas_pmt, "Услуги + ~КСГ (стационар)")
       aadd(mas_msg, "Вывод списка разрешённых услуг ФФОМС вместе с КСГ стационара")
-      aadd(mas_fun, "fspr_uslugi(28)")
+      aadd(mas_fun, "fspr_uslugi(29)")
     endif
     close databases
     popup_prompt(T_ROW-len(mas_pmt)-3, T_COL-5, sk2, mas_pmt, mas_msg, mas_fun)
@@ -211,14 +214,16 @@ do case
   case k == 23
     usl_telemedicina()
   case k == 24
-    usl11FFOMS()
+    usl_par_organ()
   case k == 25
-    usl12FFOMS()
+    usl11FFOMS()
   case k == 26
-    usl2FFOMS()
+    usl12FFOMS()
   case k == 27
-    usl6FFOMS(2)
+    usl2FFOMS()
   case k == 28
+    usl6FFOMS(2)
+  case k == 29
     usl6FFOMS(1)
 endcase
 if k > 0
@@ -1309,7 +1314,7 @@ Local arr := {{" 1. Койко-дни по профилям",1},;
               {"70. Диспансеризация",70},;
               {"71. Скорая медицинская помощь",71},;
               {"72. Профилактические медицинские осмотры",72}}
-Local i, ls, sShifr, arr1 := {}, lyear, fl_delete, fl_yes, lal := "luslc"
+Local i, ls, sShifr, arr1 := {}, lyear, fl_delete := .t., fl_yes := .f., lal := "luslc"
 if empty(sdate) .or. sdate != mdate
   if (lyear := year(mdate)) == 2018
     lal += "18"
@@ -1581,6 +1586,46 @@ add_string("")
 go top
 do while !eof()
   k := perenos(t_arr,alltrim(luslf->shifr)+" "+luslf->name,sh)
+  verify_FF(HH-k,.t.,sh)
+  add_string(t_arr[1])
+  for i := 2 to k
+    add_string(padl(alltrim(t_arr[i]),sh))
+  next
+  skip
+enddo
+close databases
+rest_box(buf)
+fclose(fp)
+viewtext(name_file,,,,.t.,,,2)
+return NIL
+
+***** 20.01.19 Распечатка списка операций на парных органах
+Function usl_par_organ()
+***** 03.01.19 Распечатка списка услуг с использованием телемедицинских технологий
+Local i, j, k, buf := save_maxrow(), name_file := "uslugiT"+stxt, sh := 80, HH := 60, t_arr[2], fl 
+mywait()
+R_Use_base("luslf")
+index on shifr to (cur_dir+"tmp_uslf") for !empty(par_org)
+fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
+add_string("2019 год")
+add_string("")
+add_string("=== Описание обозначения органа (части тела)")
+add_string(" 1  Правая нижняя конечность")
+add_string(" 2  Левая нижняя конечность")
+add_string(" 3  Правая верхняя конечность")
+add_string(" 4  Левая верхняя конечности")
+add_string(" 5  Правая молочная железа")
+add_string(" 6  Левая молочная железа")
+add_string(" 7  Правый глаз, придатки глаза") 
+add_string(" 8  Левый глаз, придатки глаза")
+add_string(" 9  Правая сторона")
+add_string("10  Левая сторона")
+add_string("===")
+add_string(center("Операции на парных органах (частях тела) Минздрава РФ (ФФОМС)",sh))
+add_string("")
+go top
+do while !eof()
+  k := perenos(t_arr,alltrim(luslf->shifr)+" ("+alltrim(luslf->par_org)+") "+luslf->name,sh)
   verify_FF(HH-k,.t.,sh)
   add_string(t_arr[1])
   for i := 2 to k

@@ -1411,7 +1411,7 @@ if empty(_shifr1)
 else
   _shifr := alltrim(_shifr1)
 endif  
-return between_shifr(_shifr,"2.78.61","2.78.86") .or. between_shifr(_shifr,"2.88.52","2.88.77")
+return between_shifr(_shifr,"2.78.61","2.78.86") .or. between_shifr(_shifr,"2.88.52","2.88.103")
 
 ***** 01.11.18 является услугой телемедицины - не заполняется код врача
 Function is_telemedicina(lshifr) 

@@ -2434,18 +2434,25 @@ if regim == "edit" .and. nkey == K_INS
 endif
 return 0
 
-***** 10.05.18 гемодиализ (1) и перитонеальный диализ (2)
+***** 20.01.19 гемодиализ (1) и перитонеальный диализ (2)
 Function oms_sluch_dializ(par,Loc_kod,kod_kartotek)
 // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
 // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
 Static SKOD_DIAG := 'N18.5', st_N_DATA, st_K_DATA, st_vrach := 0
-Local top2 := {9,11}[par]
+Local top2 := {2,11}[par]
 Local bg := {|o,k| get_MKB10(o,k,.t.) },;
       buf := savescreen(), tmp_color := setcolor(), a_smert := {},;
       p_uch_doc := "@!", pic_diag := "@K@!",;
       i, d, colget_menu := "R/W", colgetImenu := "R/BG",;
       pos_read := 0, k_read := 0, count_edit := 0, arr_usl, fl, ss,;
       tmp_help := chm_help_code, fl_write_sluch := .f.
+Static kod_ksg := "ds18.002", arr_lek := {;
+  {"A25.28.001.001","препараты железа"},;
+  {"A25.28.001.002","антианемические препараты (стимуляторы эритропоэза)"},;
+  {"A25.28.001.003","антипаратиреоидные препараты"},;
+  {"A25.28.001.004","препараты витамина D и его аналогов"},;
+  {"A25.28.001.005","препараты аминокислот, включая комбинации с полипептидами"},;
+  {"A25.28.001.006","препараты для лечения гиперкальциемии, гиперкалиемии и гиперфосфатемии"}}
 //
 Default st_N_DATA TO bom(sys_date), st_K_DATA TO eom(sys_date)
 Private mkol_proc := 0, mkol_proc2 := 0,;
@@ -2468,7 +2475,10 @@ Private mkol_proc := 0, mkol_proc2 := 0,;
   mokatog := padr(alltrim(okato_umolch),11,"0"),;
   m1adres_reg := 1, madres_reg,;
   rec_inogSMO := 0, ;
+  mkol[6], musl_lek[6],;
   mokato, m1okato := "", mismo, m1ismo := "", mnameismo := space(100)
+afill(mkol,0)
+afill(musl_lek,0)  
 //
 Private mkod := Loc_kod, mtip_h, is_talon := .f.,;
         mkod_k := kod_kartotek, fl_kartotek := (kod_kartotek == 0),;
@@ -2664,6 +2674,11 @@ do while .t.
        @ row(),col()+1 say            "по" get mk_data valid {|g| f_d_dializ()}
   //
   if par == 1
+    ++j; @ j,1 say "Количество процедур лекарственной терапии:"
+   for i := 1 to 6
+    ++j; @ j,2 say arr_lek[i,1] get mkol[i] pict "99"
+         @ j,col()+1 say arr_lek[i,2]
+   next
     ++j; @ j,1 say "Количество НИЗКОпоточных процедур" get mkol_proc pict "99"
     ++j; @ j,1 say "Количество ВЫСОКОпоточных процедур" get mkol_proc2 pict "99"
   endif
@@ -2698,10 +2713,6 @@ do while .t.
       func_error(4,"Данный режим работает только с 2018 года.")
       loop
     endif
-    if year(mk_data) > 2018
-      func_error(4,"Данный режим пока не работает с 2019 годом.")
-      loop
-    endif
     if mk_data < mn_data
       func_error(4,"Дата окончания меньше даты начала процедур.")
       loop
@@ -2711,13 +2722,27 @@ do while .t.
       loop
     endif
     ldnej := mk_data - mn_data + 1
+    vlek := vdial := 0 
     if par == 1
-      if empty(mkol_proc + mkol_proc2)
+      if empty(vdial := mkol_proc + mkol_proc2)
         func_error(4,"Количество процедур гемодиализа равно нулю")
         loop
       elseif mkol_proc + mkol_proc2 > ldnej
-        func_error(4,"Количество процедур гемодиализа большедлительности лечения")
+        func_error(4,"Количество процедур гемодиализа больше длительности лечения")
         loop
+      endif
+      vlek := 0
+      for i := 1 to 6
+        vlek += mkol[i]
+      next
+      if vlek > 0
+        if year(mk_data) == 2018
+          func_error(4,"Работа с лекарственными препаратами разрешена только с 2019 года.")
+          loop
+        elseif !(alltrim(mkod_diag) == "N18.5")
+          func_error(4,"Для КСГ лекарственной терапии основной диагноз должен быть N18.5")
+          loop
+        endif
       endif
     endif
     if empty(CHARREPL("0",much_doc,space(10)))
@@ -2748,6 +2773,9 @@ do while .t.
     err_date_diap(mk_data,"Дата окончания процедур")
     arr_usl := {}
     if par == 1
+      if vlek > 0
+        aadd(arr_usl,{"55.1.1",0,0,iif(vlek > vdial, vdial, vlek)})
+      endif
       if mkol_proc > 0
         aadd(arr_usl,{"60.3.9",0,0,mkol_proc})
       endif
@@ -2766,7 +2794,7 @@ do while .t.
     glob_podr := "" ; glob_otd_dep := 0 ; fl := .t.
     for i := 1 to len(arr_usl)
       arr_usl[i,2] := foundOurUsluga(arr_usl[i,1],mk_data,m1PROFIL,M1VZROS_REB,@arr_usl[i,3])
-      if emptyany(arr_usl[i,2],arr_usl[i,3])
+      if empty(arr_usl[i,2])
         fl := func_error(4,'Цена на услугу '+arr_usl[i,1]+' отсутствует в справочнике ТФОМС')
       endif
     next
@@ -2810,6 +2838,7 @@ do while .t.
                                 dir_server+"uslugi1s"},"USL1")
     G_Use(dir_server+"mo_hismo",,"SN")
     index on str(kod,7) to (cur_dir+"tmp_ismo")
+    Use_base("mo_hu")
     use_base("human_u")
     Use_base("human")
     Add1Rec(7)
@@ -2923,7 +2952,7 @@ do while .t.
       select HU
       Add1Rec(7)
       mrec_hu := hu->(recno())
-      replace hu->kod     with human->kod,;
+      replace hu->kod     with mkod,;
               hu->kod_vr  with m1vrach,;
               hu->kod_as  with 0,;
               hu->u_koef  with 1,;
@@ -2952,11 +2981,36 @@ do while .t.
       hu_->kod_diag := mkod_diag
       hu_->zf       := ""
     next i
+    if par == 1 .and. vlek > 0
+      for i := 1 to len(arr_lek)
+        if mkol[i] > 0
+          mu_kod := append_shifr_mo_su(arr_lek[i,1]) 
+          select MOHU
+          Add1Rec(7)
+          mohu->kod     := mkod
+          mohu->kod_vr  := m1vrach
+          mohu->kod_as  := 0
+          mohu->u_kod   := mu_kod
+          mohu->u_cena  := 0
+          mohu->date_u  := dtoc4(MN_DATA)
+          mohu->otd     := m1otd
+          mohu->kol_1   := mkol[i]
+          mohu->stoim_1 := 0
+          mohu->ID_U    := mo_guid(4,mohu->(recno()))
+          mohu->PROFIL  := m1PROFIL
+          mohu->PRVS    := m1PRVS
+          mohu->kod_diag := mkod_diag
+        endif
+      next
+    endif
     human->CENA := human->CENA_1 := ss // стоимость лечения
     write_work_oper(glob_task,OPER_LIST,iif(Loc_kod==0,1,2),1,count_edit)
     fl_write_sluch := .t.
     close databases
     stat_msg("Запись завершена!",.f.)
+    if par == 1 .and. vlek > 0
+      f_1pac_definition_KSG(mkod)
+    endif
   endif
   exit
 enddo

@@ -2162,23 +2162,25 @@ endif
 endif*/
 return NIL
 
-***** 17.12.18 проверка правильности ввода зубной формулы
-Function STVerifyKolZf(arr_zf,mkol,/*@*/amsg)
+***** 16.01.19 проверка правильности ввода зубной формулы
+Function STVerifyKolZf(arr_zf,mkol,/*@*/amsg,lshifr)
 if valtype(arr_zf) == "A" .and. valtype(mkol) == "N"
+  DEFAULT lshifr TO ""
   if len(arr_zf) == 0 //
-    aadd(amsg, 'не введена зубная формула')
+    aadd(amsg, 'не введена зубная формула '+lshifr)
   elseif len(arr_zf) != mkol
-    aadd(amsg, 'количество зубов не соответствует количеству введённых зубных формул')
+    aadd(amsg, 'количество зубов не соответствует количеству введённых зубных формул '+lshifr)
   endif
 endif
 return !empty(amsg)
 
-***** проверка правильности ввода зубной формулы
-Function STverifyZF(_zf,_date_r,_sys_date,/*@*/amsg)
+***** 16.01.19 проверка правильности ввода зубной формулы
+Function STverifyZF(_zf,_date_r,_sys_date,/*@*/amsg,lshifr)
 Static fz := {{11,18},{21,28},{31,38},{41,48},{51,55},{61,65},{71,75},{81,85}}
-//               возраст больного с 12 лет   |       возраст до 5 лет
-Local i, j, k, v, arr_zf := STretArrZF(_zf,@amsg)
+//               возраст больного с 14 лет   |       возраст до 5 лет
+Local i, j, k, v, arr_zf := STretArrZF(_zf,@amsg,lshifr)
 if len(arr_zf) > 0
+  DEFAULT lshifr TO ""
   v := count_years(_date_r,_sys_date)
   for i := 1 to len(arr_zf)
     k := 0
@@ -2188,27 +2190,27 @@ if len(arr_zf) > 0
       endif
     next
     if k == 0
-      aadd(amsg, lstr(arr_zf[i])+' - неверная зубная формула')
+      aadd(amsg, lstr(arr_zf[i])+' - неверная зубная формула '+lshifr)
     elseif v <= 5 .and. between(k,1,4)
-      aadd(amsg, lstr(arr_zf[i])+' - у ребенка зубная формула взрослого')
-    elseif v >= 12 .and. between(k,5,8)
-      aadd(amsg, lstr(arr_zf[i])+' - у взрослого зубная формула ребенка')
+      aadd(amsg, lstr(arr_zf[i])+' - у ребенка зубная формула взрослого '+lshifr)
+    elseif v > 14 .and. between(k,5,8)
+      aadd(amsg, lstr(arr_zf[i])+' - у взрослого зубная формула ребенка '+lshifr)
     endif
   next
 endif
 return arr_zf
 
-***** 10.01.19 синтаксический анализ зубной формулы, возврат массива зубов
-Function STretArrZF(_zf,/*@*/amsg)
+***** 16.01.19 синтаксический анализ зубной формулы, возврат массива зубов
+Function STretArrZF(_zf,/*@*/amsg,lshifr)
 //Static ssymb := "12345678,-МДВЖН", nsymb := 15  так было у Демиденко Татьяны
 Static ssymb := "12345678,-", nsymb := 10
 Local i, j, s, tmps, v1, v2, arr_zf := {}
-DEFAULT amsg TO {}
+DEFAULT amsg TO {}, lshifr TO ""
 s := charrem(" ",_zf) // удалить все пробелы
 // проверяем на допустимые символы
 tmps := charrem(" ",CHARREPL(ssymb, s, SPACE(nsymb)))
 if !empty(tmps)
-  aadd(amsg, '"'+tmps+'" - зубная формула: некорректные символы')
+  aadd(amsg, '"'+tmps+'" - зубная формула: некорректные символы '+lshifr)
 endif
 for i := 1 to numtoken(s,",")
   tmps := token(s,",",i)
@@ -2221,7 +2223,7 @@ for i := 1 to numtoken(s,",")
   v1 := int(val(v1))
   v2 := int(val(v2))
   if v2 < v1
-    aadd(amsg, '"'+tmps+'" - зубная формула: некорректный диапазон')
+    aadd(amsg, '"'+tmps+'" - зубная формула: некорректный диапазон '+lshifr)
     v2 := v1
   endif
   for j := v1 to v2
@@ -2229,6 +2231,10 @@ for i := 1 to numtoken(s,",")
   next
 next
 return arr_zf
+
+***** 16.01.19 является ли случай стоматологическим для ввода зубной формулы
+Function STisZF(_USL_OK,_PROFIL)
+return (_USL_OK == 3 .and. eq_any(_PROFIL,85,86,87,88,89,90,140,171))
 
 ***** проверка на правильность серии удостоверения личности
 Function val_ud_ser(par,k,s,/*@*/msg)
@@ -2767,7 +2773,7 @@ if fl
 endif
 return fl
 
-***** 14.01.19 определение КСГ по остальным введённым полям ввода - 2019 год
+***** 20.01.19 определение КСГ по остальным введённым полям ввода - 2019 год
 Function definition_KSG(par)
 // файлы "human", "human_" и "human_2" открыты и стоят на нужной записи
 //       "human" открыт для записи суммы случая
@@ -2824,7 +2830,7 @@ Local mdiagnoz, aHirKSG := {}, aTerKSG := {}, fl_cena := .f., lvmp, lvidvmp := 0
       lksg := "", lcena := 0, osn_diag3, lprofil, ldnej := 0, y := 0, m := 0, d := 0,;
       osn_diag := space(6), sop_diag := {}, osl_diag := {}, tmp, lrslt, akslp, akiro,;
       kol_ter := 0, kol_hir := 0, lkoef, fl_reabil, lkiro := 0, lkslp := "", lbartell := "",;
-      lusl, susl, is_dializ := .f., ahu := {}, amohu := {}, date_usl := stod("20190101")
+      lusl, susl, s_dializ := 0, ahu := {}, amohu := {}, date_usl := stod("20190101")
 DEFAULT par TO 1, sp0 TO "", sp1 TO space(1), sp6 TO space(6), sp15 TO space(20)
 Private pole
 if par == 1
@@ -2939,8 +2945,8 @@ if empty(osn_diag)
   aadd(arerr,' не введён основной диагноз')
   return {ars,arerr,lksg,lcena,{},{}}
 endif
-if f_put_glob_podr(lusl,date_usl,arerr) // заполнить код подразделения 
-  return {ars,arerr,lksg,lcena}
+if f_put_glob_podr(lusl,date_usl,arerr) // если не заполнен код подразделения 
+  return {ars,arerr,lksg,lcena,{},{}}
 endif
 if lvmp > 0
   if lvidvmp == 0
@@ -2970,8 +2976,7 @@ if par == 1
     endif
     lshifr := alltrim(lshifr)
     if left(lshifr,5) == "60.3."
-      is_dializ := .t.
-      exit
+      s_dializ += hu->stoim_1
     endif
     if ascan(ahu,lshifr) == 0
       aadd(ahu,lshifr)
@@ -3010,8 +3015,7 @@ else
         aadd(ahu,alltrim(ihu->CODE_USL))
       endif
       if left(ihu->CODE_USL,5) == "60.3."
-        is_dializ := .t.
-        exit
+        s_dializ += ihu->SUMV_USL
       endif
       if lusl == 2 .and. left(ihu->CODE_USL,5)=='55.1.'
         ldnej += ihu->KOL_USL
@@ -3019,9 +3023,6 @@ else
     endif
     skip
   enddo
-endif
-if is_dializ
-  return {{},{"это диализ"},"",0,{},{},.t.}
 endif
 if lvr == 0 //
   lage := '6'
@@ -3444,7 +3445,7 @@ if !empty(lksg)
 else
   aadd(arerr," РЕЗУЛЬТАТ: не получилось выбрать КСГ"+iif(fl_reabil,' для случая медицинской реабилитации',''))
 endif
-return {ars,arerr,alltrim(lksg),lcena,akslp,akiro}
+return {ars,arerr,alltrim(lksg),lcena,akslp,akiro,s_dializ}
 
 ***** 12.01.19
 Function f_cena_kiro(/*@*/_cena,lkiro)
@@ -3542,9 +3543,9 @@ else
 endif
 return v
 
-***** 12.01.19 определить КСГ для 1 пациента с открытием файлов
+***** 20.01.19 определить КСГ для 1 пациента с открытием файлов
 Function f_1pac_definition_KSG(lkod,is_msg)
-Local arr, i, s, buf := save_maxrow(), lshifr, lrec, lu_kod, lcena, lyear, mrec_hu, not_ksg := .t.
+Local arr, i, s, buf := save_maxrow(), lshifr, lrec, lu_kod, lcena, lyear, mrec_hu, not_ksg := .t., sdial, fl
 DEFAULT is_msg TO .t.
 mywait("Определение КСГ")
 R_Use(dir_server+"mo_uch",,"UCH")
@@ -3570,7 +3571,15 @@ if human_->USL_OK < 3
   else
     arr := definition_KSG_18()
   endif
-  if len(arr) < 7 // не диализ
+  sdial := 0 ; fl := .t.
+  if len(arr) == 7
+    if valtype(arr[7]) == "N"
+      sdial := arr[7] // для 2019 года
+    else
+      fl := .f. // для 2018 года
+    endif
+  endif
+  if fl // не диализ 2018 года
     aeval(arr[1],{|x| my_debug(,x) })
     if !empty(arr[2])
       my_debug(,"ОШИБКА:")
@@ -3677,10 +3686,10 @@ if human_->USL_OK < 3
       DeleteRec(.t.,.f.)  // очистка записи без пометки на удаление
       lcena := 0
     endif
-    if !(round(human->CENA_1,2) == round(lcena,2))
+    if !(round(human->CENA_1,2) == round(lcena+sdial,2))
       select HUMAN
       G_RLock(forever)
-      human->CENA := human->CENA_1 := lcena // перезапишем стоимость лечения
+      human->CENA := human->CENA_1 := lcena+sdial // перезапишем стоимость лечения
       UnLock
     endif
     put_str_kslp_kiro(arr)
@@ -3703,11 +3712,11 @@ close databases
 rest_box(buf)
 return NIL
 
-***** 12.01.19 определить КСГ для 1 пациента из режима редактирования услуг
+***** 20.01.19 определить КСГ для 1 пациента из режима редактирования услуг
 Function f_usl_definition_KSG(lkod)
 Local arr, buf := save_maxrow(), lshifr, lrec, lu_kod, lcena, not_ksg := .t.,;
       mrec_hu, tmp_rec := 0, tmp_select := select(), is_usl1 := .f.,;
-      ret := {}, lyear := year(human->K_DATA), i, s
+      ret := {}, lyear := year(human->K_DATA), i, s, sdial, fl
 if human_->USL_OK < 3
   mywait("Определение КСГ")
   usl->(dbCloseArea()) // переоткрыть справочник услуг
@@ -3727,7 +3736,15 @@ if human_->USL_OK < 3
   else
     arr := definition_KSG_18()
   endif
-  if len(arr) < 7 // не диализ
+  sdial := 0 ; fl := .t.
+  if len(arr) == 7
+    if valtype(arr[7]) == "N"
+      sdial := arr[7] // для 2019 года
+    else
+      fl := .f. // для 2018 года
+    endif
+  endif
+  if fl // не диализ 2018 года
     aeval(arr[1],{|x| my_debug(,x), aadd(ret,x) })
     if !empty(arr[2])
       my_debug(,"ОШИБКА:")
@@ -3875,10 +3892,10 @@ if human_->USL_OK < 3
       DeleteRec(.t.)  // с пометкой на удаление
       lcena := 0
     endif
-    if !(round(human->CENA_1,2) == round(lcena,2))
+    if !(round(human->CENA_1,2) == round(lcena+sdial,2))
       select HUMAN
       G_RLock(forever)
-      human->CENA := human->CENA_1 := lcena // перезапишем стоимость лечения
+      human->CENA := human->CENA_1 := lcena+sdial // перезапишем стоимость лечения
       UnLock
     endif
     put_str_kslp_kiro(arr)

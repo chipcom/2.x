@@ -3692,7 +3692,7 @@ for i := 1 to 2
 next
 return NIL
 
-***** 11.10.18 форма 14-МЕД (ОМС)
+***** 19.01.19 форма 14-МЕД (ОМС)
 Function forma14_med_oms()
 Static group_ini := "f14_med_oms"
 Local begin_date, end_date, buf := savescreen(), arr_m, i, j, k, k1, k2,;
@@ -3703,7 +3703,12 @@ Local begin_date, end_date, buf := savescreen(), arr_m, i, j, k, k1, k2,;
       cFileProtokol := "tmp"+stxt, arr_prof := {}, arr_usl, au, ii,;
       filetmp14 := "tmp14"+stxt, sum_k := 0, sum_ki := 0, sum_kd := 0, sum_kt := 0, kol_d := 0 , sum_d := 0
 Local arr_skor[81,2], arr_eko[2,2], arr_profil := {}, arr_dn_stac := {}, arrDdn_stac[4], fl_pol1[15],;
-      arr_pol[32], arr_pol1[15,5], arr_pril5[29,3], ifff := 0, kol_stom_pos := 0
+      arr_pol[32], arr_pol1[15,5], arr_pril5[29,3], ifff := 0, kol_stom_pos := 0,;
+      lal := "lusl", lalf := "luslf"
+if arr_m[1] == 2018
+  lal += "18"
+  lalf += "18"
+endif      
 old5 := old2 := 0
 afillall(arr_skor,0)
 afillall(arr_eko,0)
@@ -3753,7 +3758,7 @@ arr_pril5[26,1] := "Дн.стац. - руб."
 arr_pril5[27,1] := "Дн.стац.ЭКО - пациенто-дней"
 arr_pril5[28,1] := "Дн.стац.ЭКО - пациентов, чел."
 arr_pril5[29,1] := "Дн.стац.ЭКО - руб."
-arr_m := {2018,1,9,"за январь - сентябрь 2018 года",0d20180101,0d20180930}
+arr_m := {2018,1,12,"за январь - декабрь 2018 года",0d20180101,0d20181231}
 Private mk1, mk2, mk3, mk4, md1, md11, md12, md2, md21, md22, md3, md4
 ar := GetIniSect(tmp_ini,group_ini)
 mk1 := int(val(a2default(ar,"mk1","0")))
@@ -3790,6 +3795,10 @@ restscreen(buf)
 if lastkey() == K_ESC
   return nil
 endif
+if arr_m[1] == 2018
+  lal += "18"
+  lalf += "18"
+endif      
 SetIniSect(tmp_ini,group_ini,{{"mk1",mk1},;
                               {"mk2",mk2},;
                               {"mk3",mk3},;
@@ -3852,7 +3861,7 @@ R_Use(dir_server+"human",dir_server+"humans","HUMAN")
 set relation to recno() into HUMAN_, to recno() into HUMAN_2, to kod_k into KART
 //
 *********************************************************************
-mdate_rak := arr_m[6]+10 // по какую дату РАК сумма к оплате 10.04.18
+mdate_rak := arr_m[6]+21 // по какую дату РАК сумма к оплате 10.04.18
 *********************************************************************
 R_Use(dir_server+"mo_xml",,"MO_XML")
 R_Use(dir_server+"mo_rak",,"RAK")
@@ -3878,7 +3887,7 @@ do while !eof()
     mdate1 := stod(strzero(schet_->nyear,4)+strzero(schet_->nmonth,2)+"15")
     //
     *** 2018 год
-    k := 10 // дата регистрации по 10.04.18
+    k := 20 // дата регистрации по 10.04.18
     ***
     fl := between(mdate,arr_m[5],arr_m[6]+k) .and. between(mdate1,arr_m[5],arr_m[6]) // !!отч.период 2018 год
   endif
@@ -3982,11 +3991,11 @@ do while !eof()
             lshifr := alltrim(lshifr)
             aadd(au,{lshifr,hu->kol_1,round(hu->stoim_1*koef,2),0,0,hu->kol_1})
             i16 := 0 
-            select LUSL
+            dbSelectArea(lal)
             find (padr(lshifr,10))
-            if found() .and. !empty(lusl->unit_code)
+            if found() .and. !empty(&lal.->unit_code)
               select MOUNIT
-              find (str(lusl->unit_code,3))
+              find (str(&lal.->unit_code,3))
               if found() .and. mounit->pz > 0
                 if (i16 := mounit->ii) > 0
                   j1 := glob_array_PZ_18[i16,1]
@@ -4470,9 +4479,9 @@ do while !eof()
                            mohu->kol_1,;          // 6
                            c4tod(mohu->date_u2),; // 7
                            mohu->kod_diag})       // 8
-              select LUSLF
+              dbSelectArea(&lalf)
               find (mosu->shifr1)
-              muet += round_5(mohu->kol_1 * iif(human->vzros_reb==0, luslf->uetv, luslf->uetd), 2)
+              muet += round_5(mohu->kol_1 * iif(human->vzros_reb==0, &lalf.->uetv, &lalf.->uetd), 2)
               select MOHU
               skip
             enddo
@@ -5080,10 +5089,11 @@ return NIL
 
 *
 
-***** 18.02.18 распечатка формы №1 из приказа ФОМС №146
+***** 19.01.19 распечатка формы №1 из приказа ФОМС №146
 Function forma1_ffoms()
-Local arr_m, mdate, i, j, k, d1, d2, arr_smo := {}, at1, at2, ta, fl_month, tmp, b1_1, a1_1,;
+Local mdate, i, j, k, d1, d2, arr_smo := {}, at1, at2, ta, fl_month, tmp, b1_1, a1_1,;
       _bd, fl, b1, b2, a1, a2, lsmo, name_file := "forma1", HH := 80, sh := 84
+Private arr_m      
 if (arr_m := year_month(,,,3)) == NIL
   return NIL
 elseif arr_m[1] < 2018
@@ -5171,8 +5181,8 @@ do while !eof()
     endif
     mdate1 := stod(strzero(schet_->nyear,4)+strzero(schet_->nmonth,2)+"15")
     fl_month := between(mdate1,arr_m[5],arr_m[6]) // отч.период текущий месяц
-    if arr_m[1] == 2017 .and. arr_m[3] == 12
-      d2 := 18
+    if arr_m[1] == 2018 .and. arr_m[3] == 12
+      d2 := 20
     endif
     msmo := int(val(schet_->smo))
     fl := between(mdate,boy(arr_m[5]),arr_m[6]+d2) ;// дата регистрации по 10 числа след.месяца
@@ -5735,11 +5745,14 @@ return NIL
 
 *
 
-***** 12.02.18
+***** 19.01.19
 Function f2forma1_ffoms(msmo,fl_month)
 Local tfoms_pz[6,3], mkol, ta, i, ii, j, k, lshifr, lvidpom := 1, lshifr1, j1, fl,;
       arr := {}, mkol_k := 0, mkol_1 := 0, mkol_2 := 0, mkol_55 := 0, lenp,;
-      fl_T := (schet_->bukva == "T"), fl_K := (schet_->bukva == "K")
+      fl_T := (schet_->bukva == "T"), fl_K := (schet_->bukva == "K"), lalf := "luslf"
+if arr_m[1] == 2018
+  lalf += "18"
+endif      
 select HU
 find (str(human->kod,7))
 do while hu->kod == human->kod .and. !eof()
@@ -5802,9 +5815,9 @@ elseif human_->USL_OK == 3 // поликлиника
     select MOHU
     find (str(human->kod,7))
     do while mohu->kod == human->kod .and. !eof()
-      select LUSLF
+      dbSelectArea(lalf)
       find (mosu->shifr1)
-      mkol := round_5(mohu->kol_1 * iif(human->vzros_reb==0, luslf->uetv, luslf->uetd), 2)
+      mkol := round_5(mohu->kol_1 * iif(human->vzros_reb==0, &lalf.->uetv, &lalf.->uetd), 2)
       tfoms_pz[ii,1] += mkol // кол-во УЕТ
       if fl_month
         if valtype(tfoms_pz[ii,3]) == "N"

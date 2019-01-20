@@ -1499,7 +1499,7 @@ return ret
 
 *===============================================================================
 
-***** 19.11.19
+***** 16.01.19
 Function create1reestr19(_recno,_nyear,_nmonth)
 Local buf := savescreen(), s, i, j, pole
 Private mpz[100], oldpz[100], atip[100]
@@ -1507,8 +1507,8 @@ for j := 0 to 99
   pole := "tmp->PZ"+lstr(j)
   mpz[j+1] := oldpz[j+1] := &pole
   atip[j+1] := "-"
-  if (i := ascan(glob_array_PZ_18, {|x| x[1] == j })) > 0
-    atip[j+1] := glob_array_PZ_18[i,4]
+  if (i := ascan(glob_array_PZ_19, {|x| x[1] == j })) > 0
+    atip[j+1] := glob_array_PZ_19[i,4]
   endif
 next
 Private pkol := tmp->kol, psumma := tmp->summa, pnyear := _nyear
@@ -1569,13 +1569,13 @@ for i := 1 to 2
 next
 return NIL
 
-***** 19.11.18
+***** 16.01.19
 Static Function f_p_z19(_pzkol,_pz,k)
 Local s, s2, i
 s2 := alltrim(str_0(_pzkol,9,2))
 s := atip[_PZ+1]
-if (i := ascan(glob_array_PZ_18, {|x| x[1] == _PZ })) > 0 .and. !empty(glob_array_PZ_18[i,5])
-  s2 += glob_array_PZ_18[i,5]
+if (i := ascan(glob_array_PZ_19, {|x| x[1] == _PZ })) > 0 .and. !empty(glob_array_PZ_19[i,5])
+  s2 += glob_array_PZ_19[i,5]
 endif
 return iif(k == 1, s, s2)
 
@@ -1612,24 +1612,24 @@ mark_keys({"<Esc>","<Enter>","<Ins>","<+>","<->","<F9>"},"R/BG")
 setcolor(tmp_color)
 return NIL
 
-***** 24.01.18
+***** 16.01.19
 Function f2create1reestr19(nKey,oBrow)
 Local buf, rec, k := -1, s, i, j, mas_pmt := {}, arr, r1, r2
 do case
   case nkey == K_INS
     replace tmp->plus with !tmp->plus
     j := tmp->pz + 1
-    i := ascan(glob_array_PZ_18, {|x| x[1] == tmp->PZ })
+    i := ascan(glob_array_PZ_19, {|x| x[1] == tmp->PZ })
     if tmp->plus
       psumma += human->cena_1 ; pkol++
-      if i > 0 .and. !empty(glob_array_PZ_18[i,5])
+      if i > 0 .and. !empty(glob_array_PZ_19[i,5])
         mpz[j] ++
       else
         mpz[j] += human_->PZKOL
       endif
     else
       psumma -= human->cena_1 ; pkol--
-      if i > 0 .and. !empty(glob_array_PZ_18[i,5])
+      if i > 0 .and. !empty(glob_array_PZ_19[i,5])
         mpz[j] --
       else
         mpz[j] -= human_->PZKOL
@@ -1645,8 +1645,8 @@ do case
       aadd(mas_pmt, "Отметить неопределённых пациентов") ; aadd(arr,0)
     endif
     for j := 2 to len(oldpz)
-      if !empty(oldpz[j]) .and. (i := ascan(glob_array_PZ_18, {|x| x[1] == j-1 })) > 0
-        aadd(mas_pmt, 'Отметить "'+glob_array_PZ_18[i,3]+'"') ; aadd(arr,j-1)
+      if !empty(oldpz[j]) .and. (i := ascan(glob_array_PZ_19, {|x| x[1] == j-1 })) > 0
+        aadd(mas_pmt, 'Отметить "'+glob_array_PZ_19[i,3]+'"') ; aadd(arr,j-1)
       endif
     next
     r1 := 12
@@ -1702,7 +1702,7 @@ do case
 endcase
 return k
 
-***** 22.11.18 создание XML-файлов реестра
+***** 16.01.19 создание XML-файлов реестра
 Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
 Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, ;
       lst, lshifr1, code_reestr, mb, me, nsh, adiag_talon[16]
@@ -1775,6 +1775,7 @@ Commit
 use_base("lusl")
 use_base("luslc")
 use_base("luslf")
+laluslf := "luslf"
 R_Use(dir_server+"mo_uch",,"UCH")
 R_Use(dir_server+"mo_otd",,"OTD")
 R_Use(dir_server+"mo_pers",,"P2")
@@ -1796,10 +1797,12 @@ R_Use(dir_server+"kartote_",,"KART_")
 R_Use(dir_server+"kartotek",,"KART")
 set relation to recno() into KART_, to recno() into KART2 
 R_Use(dir_server+"mo_onkna",dir_server+"mo_onkna","ONKNA") // онконаправления
+R_Use(dir_server+"mo_onkco",dir_server+"mo_onkco","ONKCO")
 R_Use(dir_server+"mo_onksl",dir_server+"mo_onksl","ONKSL") // Сведения о случае лечения онкологического заболевания
 R_Use(dir_server+"mo_onkdi",dir_server+"mo_onkdi","ONKDI") // Диагностический блок
 R_Use(dir_server+"mo_onkpr",dir_server+"mo_onkpr","ONKPR") // Сведения об имеющихся противопоказаниях
 G_Use(dir_server+"mo_onkus",dir_server+"mo_onkus","ONKUS")
+G_Use(dir_server+"mo_onkle",dir_server+"mo_onkle","ONKLE")
 G_Use(dir_server+"human_2",,"HUMAN_2")
 G_Use(dir_server+"human_",,"HUMAN_")
 R_Use(dir_server+"human",,"HUMAN")
@@ -1843,7 +1846,7 @@ rees->SUMMA := psumma
 dbUnlockAll()
 dbCommitAll()
 //
-Private arr_usl_otkaz, fl_2_14 := .f.
+Private arr_usl_otkaz
 //
 oXmlDoc := HXMLDoc():New()
 oXmlDoc:Add( HXMLNode():New( "ZL_LIST") )
@@ -1861,6 +1864,7 @@ oXmlDoc:Add( HXMLNode():New( "ZL_LIST") )
   mo_add_xml_stroke(oXmlNode,"NSCHET" ,lstr(rees->NSCHET))
   mo_add_xml_stroke(oXmlNode,"DSCHET" ,date2xml(rees->DSCHET))
   mo_add_xml_stroke(oXmlNode,"SUMMAV" ,str(psumma,15,2))
+  //mo_add_xml_stroke(oXmlNode,"COMENTS","")
 //
 select RHUM
 set relation to kod_hum into HUMAN
@@ -1901,6 +1905,8 @@ do while !eof()
     aadd(arr_onkna, {onkna->NAPR_DATE,onkna->NAPR_V,onkna->MET_ISSL,mosu->shifr1})
     skip
   enddo
+  select ONKCO
+  find (str(human->kod,7))
   //
   mvsod := 0
   select ONKSL
@@ -2140,6 +2146,7 @@ do while !eof()
   oZAP := oXmlDoc:aItems[1]:Add( HXMLNode():New( "ZAP" ) )
    mo_add_xml_stroke(oZAP,"N_ZAP" ,lstr(rhum->REES_ZAP))
    mo_add_xml_stroke(oZAP,"PR_NOV",iif(human_->SCHET_NUM > 0, '1', '0')) // если попал в счёт 2-й раз и т.д.
+   // Сведения о пациенте
    oPAC := oZAP:Add( HXMLNode():New( "PACIENT" ) )
     mo_add_xml_stroke(oPAC,"ID_PAC",human_->ID_PAC)
     mo_add_xml_stroke(oPAC,"VPOLIS",lstr(human_->VPOLIS))
@@ -2185,6 +2192,7 @@ do while !eof()
        mo_add_xml_stroke(oDISAB,"DS_INV",inv->DIAG_INV)
       endif
     endif
+   // Сведения о законченном случае оказания медицинской помощи
    oSLUCH := oZAP:Add( HXMLNode():New( "Z_SL" ) )
     mo_add_xml_stroke(oSLUCH,"IDCASE"  ,lstr(rhum->REES_ZAP))
     mo_add_xml_stroke(oSLUCH,"ID_C"    ,human_->ID_C)
@@ -2296,8 +2304,10 @@ do while !eof()
      endif
      mo_add_xml_stroke(oSL,"DATE_1",date2xml(human->N_DATA))
      mo_add_xml_stroke(oSL,"DATE_2",date2xml(human->K_DATA))
-     if p_tip_reestr == 1 .and. kol_kd > 0
-      mo_add_xml_stroke(oSL,"KD",lstr(kol_kd)) // Указывается количество койко-дней для стационара, количество пациенто-дней для дневного стационара
+     if p_tip_reestr == 1
+      if kol_kd > 0
+       mo_add_xml_stroke(oSL,"KD",lstr(kol_kd)) // Указывается количество койко-дней для стационара, количество пациенто-дней для дневного стационара
+      endif
       if !empty(human_->kod_diag0)
        mo_add_xml_stroke(oSL,"DS0",human_->kod_diag0)
       endif
@@ -2333,17 +2343,17 @@ do while !eof()
           mo_add_xml_stroke(oSL,"DS3",rtrim(mdiagnoz3[i]))
         endif
       next
+      if need_reestr_c_zab(human_->USL_OK,mdiagnoz[1])
+        mo_add_xml_stroke(oSL,"C_ZAB",'1') // Характер основного заболевания
+      endif
       if human_->USL_OK < 4
-        if !(left(mdiagnoz[1],1) == "Z")
-          mo_add_xml_stroke(oSL,"C_ZAB",'1') // Характер основного заболевания
-        endif
         i := 0
         if human->OBRASHEN == '1' .and. is_oncology < 2
           i := 1
         endif
         mo_add_xml_stroke(oSL,"DS_ONK",lstr(i))
       endif
-      if human_->USL_OK == 3 .and. fl_2_14 .and. human_->povod == 4 // Обязательно, если P_CEL=1.3
+      if human_->USL_OK == 3 .and. human_->povod == 4 // Обязательно, если P_CEL=1.3
         s := 2 // взят
         if adiag_talon[1] == 2 // ранее
           if adiag_talon[2] == 1
@@ -2423,7 +2433,7 @@ do while !eof()
       mo_add_xml_stroke(oKSG,"SL_K",iif(empty(akslp),'0','1'))
       if !empty(akslp)
         mo_add_xml_stroke(oKSG,"IT_SL",lstr(akslp[2],7,5))
-        oSLk := oKSG:Add( HXMLNode():New( "SL_KOEFF" ) )
+        oSLk := oKSG:Add( HXMLNode():New( "SL_KOEF" ) )
          mo_add_xml_stroke(oSLk,"ID_SL",lstr(akslp[1]))
          mo_add_xml_stroke(oSLk,"VAL_C",lstr(akslp[2],7,5))
       endif
@@ -2448,37 +2458,42 @@ do while !eof()
           mo_add_xml_stroke(oNAPR,"NAPR_USL",arr_onkna[j,4])
         endif
       next j
-      if is_oncology == 2
-       if .f. // between(onksl->PR_CONS,0,3)
-         oCONS := oSL:Add( HXMLNode():New( "CONS" ) ) // консилиумов м.б.несколько
-          mo_add_xml_stroke(oCONS,"PR_CONS",lstr(onksl->PR_CONS)) // N019
-          if !empty(onksl->DT_CONS)
-            mo_add_xml_stroke(oCONS,"DT_CONS",date2xml(onksl->DT_CONS))
-          endif
+      oCONS := oSL:Add( HXMLNode():New( "CONS" ) ) // консилиумов м.б.несколько
+       mo_add_xml_stroke(oCONS,"PR_CONS",lstr(onkco->PR_CONS)) // N019
+       if !empty(onkco->DT_CONS)
+         mo_add_xml_stroke(oCONS,"DT_CONS",date2xml(onkco->DT_CONS))
        endif
+      if is_oncology == 2
        oONK_SL := oSL:Add( HXMLNode():New( "ONK_SL" ) )
         mo_add_xml_stroke(oONK_SL,"DS1_T",lstr(onksl->DS1_T))
-        mo_add_xml_stroke(oONK_SL,"STAD",lstr(onksl->STAD))
-        mo_add_xml_stroke(oONK_SL,"ONK_T",lstr(onksl->ONK_T))
-        mo_add_xml_stroke(oONK_SL,"ONK_N",lstr(onksl->ONK_N))
-        mo_add_xml_stroke(oONK_SL,"ONK_M",lstr(onksl->ONK_M))
-        if between(onksl->DS1_T,1,2) .and. onksl->MTSTZ == 1
-          mo_add_xml_stroke(oONK_SL,"MTSTZ",lstr(onksl->MTSTZ))
+        if between(onksl->DS1_T,0,4)
+          mo_add_xml_stroke(oONK_SL,"STAD",lstr(onksl->STAD))
+          if onksl->DS1_T == 0 .and. human->vzros_reb == 0
+            mo_add_xml_stroke(oONK_SL,"ONK_T",lstr(onksl->ONK_T))
+            mo_add_xml_stroke(oONK_SL,"ONK_N",lstr(onksl->ONK_N))
+            mo_add_xml_stroke(oONK_SL,"ONK_M",lstr(onksl->ONK_M))
+          endif
+          if between(onksl->DS1_T,1,2) .and. onksl->MTSTZ == 1
+            mo_add_xml_stroke(oONK_SL,"MTSTZ",lstr(onksl->MTSTZ))
+          endif
         endif
-        if mvsod > 0
-          mo_add_xml_stroke(oONK_SL,"SOD",lstr(mvsod,6,2))
+        if ascan(arr_onk_usl,3) > 0 .or. ascan(arr_onk_usl,4) > 0 
+          mo_add_xml_stroke(oONK_SL,"SOD",lstr(onksl->sod,6,2))
+          mo_add_xml_stroke(oONK_SL,"K_FR",lstr(onksl->k_fr))
+        endif
+        if ascan(arr_onk_usl,2) > 0 .or. ascan(arr_onk_usl,4) > 0 
+          mo_add_xml_stroke(oONK_SL,"WEI",lstr(onksl->WEI,5,1))
+          mo_add_xml_stroke(oONK_SL,"HEI",lstr(onksl->HEI))
+          mo_add_xml_stroke(oONK_SL,"BSA",lstr(onksl->BSA,5,2))
         endif
         for j := 1 to len(arr_onkdi)
          oDIAG := oONK_SL:Add( HXMLNode():New( "B_DIAG" ) )
-          if arr_onkdi[j,2] == 0
-            mo_add_xml_stroke(oDIAG,"DIAG_DATE",date2xml(arr_onkdi[j,1]))
-          else
-            mo_add_xml_stroke(oDIAG,"DIAG_TIP", lstr(arr_onkdi[j,2]))
-            mo_add_xml_stroke(oDIAG,"DIAG_CODE",lstr(arr_onkdi[j,3]))
+          mo_add_xml_stroke(oDIAG,"DIAG_DATE",date2xml(arr_onkdi[j,1]))
+          mo_add_xml_stroke(oDIAG,"DIAG_TIP", lstr(arr_onkdi[j,2]))
+          mo_add_xml_stroke(oDIAG,"DIAG_CODE",lstr(arr_onkdi[j,3]))
+          if arr_onkdi[j,4] > 0
             mo_add_xml_stroke(oDIAG,"DIAG_RSLT",lstr(arr_onkdi[j,4]))
-            if .f. // Признак получения результата диагностики
-              mo_add_xml_stroke(oDIAG,"REC_RSLT",'1')
-            endif
+            mo_add_xml_stroke(oDIAG,"REC_RSLT",'1')
           endif
         next j
         for j := 1 to len(arr_onkpr)
@@ -2489,7 +2504,7 @@ do while !eof()
         select ONKUS
         find (str(human->kod,7))
         do while onkus->kod == human->kod .and. !eof()
-         if between(onkus->USL_TIP,1,5)
+         if between(onkus->USL_TIP,1,6)
           oONK := oONK_SL:Add( HXMLNode():New( "ONK_USL" ) )
            mo_add_xml_stroke(oONK,"USL_TIP",lstr(onkus->USL_TIP))
            if onkus->HIR_TIP == 1
@@ -2508,6 +2523,9 @@ do while !eof()
               mo_add_xml_stroke(oLEK,"REGNUM",...)
               // цикл по датам приёма данного лекарства
                mo_add_xml_stroke(oLEK,"DATE_INJ",...)*/
+            if onkus->PPTR > 0   
+             mo_add_xml_stroke(oONK,"PPTR",'1')
+            endif
            endif 
          endif
          select ONKUS
@@ -2515,6 +2533,7 @@ do while !eof()
         enddo
       endif
     endif
+    sCOMENTSL := ""
     if p_tip_reestr == 1
       mo_add_xml_stroke(oSL,"PRVS",put_prvs_to_reestr(human_->PRVS,_NYEAR))
       if glob_mo[_MO_KOD_TFOMS] == kod_LIS .and. eq_any(human_->profil,6,34)
@@ -2530,7 +2549,21 @@ do while !eof()
       mo_add_xml_stroke(oSL,"SUM_M",lstr(human->cena_1,10,2))
       if !empty(ldate_next)
         mo_add_xml_stroke(oSL,"NEXT_VISIT",date2xml(bom(ldate_next)))
+      endif
+      //
+      j := 0
+      if (ibrm := f_oms_beremenn(mdiagnoz[1])) == 1 .and. eq_any(human_->profil,136,137) // акушерству и гинекологии
+        j := iif(human_2->pn2 == 1, 4, 3)
+      elseif ibrm == 2 .and. human_->USL_OK == 3 // поликлиника
+        j := iif(human_2->pn2 == 1, 5, 6)
+        if j == 5 .and. !eq_any(human_->profil,136,137)
+          j := 6  // т.е. только акушер-гинеколог может поставить на учёт по беременности
+        endif
       endif 
+      if j > 0
+        sCOMENTSL += lstr(j)
+      endif
+      sCOMENTSL += ":;" // пока так (потом добавим дисп.наблюдение)
     else
       if is_zak_sl .or. is_zak_sl_vr
         mo_add_xml_stroke(oSL,"ED_COL",'1')
@@ -2540,7 +2573,21 @@ do while !eof()
         mo_add_xml_stroke(oSL,"TARIF" ,lstr(tarif_zak_sl,10,2))
       endif
       mo_add_xml_stroke(oSL,"SUM_M",lstr(human->cena_1,10,2))
+      //
+      if between(human->ishod,201,205) // ДВН
+        j := iif(human->RAB_NERAB==0,20,iif(human->RAB_NERAB==1,10,14))
+        if human->ishod != 203 .and. m1veteran == 1
+          j := iif(human->RAB_NERAB==0, 21, 11)
+        endif
+        sCOMENTSL := lstr(j)+":;"  // пока так (потом добавим постановку на дисп.учёт)
+      //elseif between(human->ishod,301,302)  
+        //j := iif(between(m1mesto_prov,0,1), m1mesto_prov, 0)
+        //fl := .t.
+      endif
     endif
+    if !empty(sCOMENTSL)
+      mo_add_xml_stroke(oSL,"COMENTSL",sCOMENTSL)
+    endif 
     if !is_zak_sl
       for j := 1 to len(a_usl)
         select HU
@@ -2652,40 +2699,14 @@ do while !eof()
           p2->(dbGoto(mohu->kod_vr))
           mo_add_xml_stroke(oUSL,"CODE_MD" ,p2->snils)
         endif
-        //mo_add_xml_stroke(oUSL,"COMENTU",...)  // формула зуба
-      next
-    endif
-    j := 0 ; fl := .f.
-    if p_tip_reestr == 1 
-      if (ibrm := f_oms_beremenn(mdiagnoz[1])) == 1 .and. eq_any(human_->profil,136,137) // акушерству и гинекологии
-        j := iif(human_2->pn2 == 1, 4, 3)
-      elseif ibrm == 2 .and. human_->USL_OK == 3 // поликлиника
-        j := iif(human_2->pn2 == 1, 5, 6)
-        if j == 5 .and. !eq_any(human_->profil,136,137)
-          j := 6  // т.е. только акушер-гинеколог может поставить на учёт по беременности
+        if STisZF(human_->USL_OK,human_->PROFIL)
+          dbSelectArea(laluslf)
+          find (padr(lshifr,20)) 
+          if &laluslf.->zf == 1  // обязателен ввод зубной формулы
+            mo_add_xml_stroke(oUSL,"COMENTU",arr2list(STretArrZF(mohu->zf))) // формула зуба
+          endif
         endif
-      elseif ibrm == 3 // основной диагноз - онкология
-        /*Примечание. По случаям оказания медицинской помощи пациентам с установленным 
-        основным диагнозом ЗНО при наличии у пациента болевого синдрома в обязательном 
-        порядке в качестве диагноза осложнения заболевания (DS3) указывается код из 
-        рубрики R52 (<Боль, не классифицированная в других рубриках). 
-        Требование о необходимости заполнения поля COMENTSL  значениями  
-        7 <отсутствие болевого синдрома при ЗНО>  и 8 - <наличие болевого синдрома при ЗНО>, отменяется.
-        j := iif(human_2->pn2 == 1, 8, 7)*/
-      endif
-    elseif p_tip_reestr == 2
-      if between(human->ishod,201,205) // ДВН
-        j := iif(human->RAB_NERAB==0,20,iif(human->RAB_NERAB==1,10,14))
-        if human->ishod != 203 .and. m1veteran == 1
-          j := iif(human->RAB_NERAB==0, 21, 11)
-        endif
-      elseif between(human->ishod,301,302)  
-        j := iif(between(m1mesto_prov,0,1), m1mesto_prov, 0)
-        fl := .t.
-      endif
-    endif
-    if j > 0 .or. fl
-      mo_add_xml_stroke(oSL,"COMENTSL",lstr(j))
+      next j
     endif
    next isl  
   select RHUM

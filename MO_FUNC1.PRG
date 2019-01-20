@@ -144,6 +144,18 @@ else // теперь по району области
 endif
 return vozvr
 
+***** 16.01.19 необходимо ли вывести характер заболевания в реестр
+Function need_reestr_c_zab(lUSL_OK,osn_diag)
+Local fl := .f.
+if lUSL_OK < 4
+  if lUSL_OK == 3 .and. !(left(osn_diag,1) == "Z")
+    fl := .t. // условия оказания <амбулаторно> (USL_OK=3) и основной диагноз не из группы Z00-Z99
+  elseif is_oncology == 2
+    fl := .t. // при установленном ЗНО
+  endif
+endif
+return fl  
+      
 ***** работает хотя бы одно учреждение с талоном
 Function ret_is_talon()
 Local is_talon := .f., tmp_select := select()
@@ -2141,16 +2153,16 @@ if !emptyany(lMETVMP,lVIDVMP) ;
 endif
 return s
 
-***** 06.02.17 в GET-е вернуть строку из glob_V018
+***** 20.01.19 в GET-е вернуть строку из glob_V018
 Function f_get_vidvmp(k,r,c)
 Static sy := 0, arr, svidvmp := ""
 Local ret, ret_arr, y
-if (y := year(mk_data)) > 2016
-  y := 2017
-elseif y  == 2016
-  y := 2016
+if (y := year(mk_data)) > 2018
+  y := 2019
+elseif y  == 2018
+  y := 2018
 else
-  y := 2015
+  y := 2017
 endif
 if sy != y  // при первом вызове или смене года
   make_V018_V019(mk_data)

@@ -177,7 +177,7 @@ if fl
 endif
 return k
 
-***** 12.01.19
+***** 20.01.19
 Function print_l_uch(mkod, par, regim, lnomer)
 // mkod - ª®¤ ΅®«μ­®£® ―® „ human
 Local sh := 80, HH := 77, buf := save_maxrow(),;
@@ -647,17 +647,17 @@ do while !eof()
   s += put_kopE(tmp1->summa,9)
   add_string(s)
   s1 := ""
-  if tmp1->summa > 0
+  if tmp1->summa > 0 .and. is_ksg(tmp1->shifr)
     if year(human->k_data) > 2017
       if !empty(human_2->pc1)
         akslp := List2Arr(human_2->pc1)
-        if !empty(akslp)
+        if len(akslp) > 1
           s1 += "(α γηρβ®¬ ‘‹="+str(akslp[2],4,2)+") " 
         endif
       endif
       if !empty(human_2->pc2)
         akiro := List2Arr(human_2->pc2)
-        if !empty(akiro)
+        if len(akiro) > 1
           s1 += "(α γηρβ®¬ ="+str(akiro[2],4,2)+")" 
         endif
       endif
@@ -665,7 +665,7 @@ do while !eof()
       s := iif(empty(tmp1->shifr1),tmp1->shifr,tmp1->shifr1)
       if human_->USL_OK < 3 .and. !empty(human_2->pc1)
         akslp := List2Arr(human_2->pc1)
-        if !empty(akslp)
+        if len(akslp) > 1 .and. valtype(akslp) == "N"
           s1 += "(α γηρβ®¬ ‘‹="+str(akslp[2],4,2)+")"
         endif 
       endif

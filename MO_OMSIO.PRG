@@ -2543,8 +2543,7 @@ if human_->oplata < 9 .and. f_is_uch(st_a_uch,human->lpu)
         endif
         select LUSL
         find (lshifr) // длина lshifr 10 знаков
-        if found() .and. (eq_any(left(lshifr,5),"1.12.","1.14.","1.15.","1.16.*","1.17.*","1.18.*") ;
-                          .or. is_ksg(lusl->shifr)) // стоит другой КСГ
+        if found() .and. (left(lshifr,5) == "1.12." .or. is_ksg(lusl->shifr)) // стоит другой КСГ
           if !fl_tmp
             select TMP
             AddRec(6)

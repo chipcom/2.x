@@ -6614,7 +6614,7 @@ elseif lprof > 0
 endif
 return uch_otd
 
-***** 16.01.19 Изменение цен на услуги в соответствии со справочником услуг ТФОМС
+***** 20.01.19 Изменение цен на услуги в соответствии со справочником услуг ТФОМС
 Function Change_Cena_OMS()
 Local buf := save_maxrow(), lshifr1, fl, lrec, kod_ksg, begin_date := addmonth(sys_date,-3)
 if begin_date < boy(begin_date)
@@ -6674,7 +6674,7 @@ if f_Esc_Enter("изменения цен",.t.) .and. mo_Lock_Task(X_OMS)
         uch->(dbGoto(human->LPU))
         otd->(dbGoto(human->OTD))
         f_put_glob_podr(human_->USL_OK,human->k_data) // заполнить код подразделения 
-        mcena_1 := 0 ; fl := .f. ; kod_ksg := ""
+        sdial := mcena_1 := 0 ; fl := .f. ; kod_ksg := ""
         select HU
         find (str(human->kod,7))
         do while hu->kod == human->kod .and. !eof()
@@ -6720,7 +6720,15 @@ if f_Esc_Enter("изменения цен",.t.) .and. mo_Lock_Task(X_OMS)
           else
             arr_ksg := definition_KSG_18()
           endif
-          if len(arr_ksg) == 7 // диализ
+          fl1 := .t.
+          if len(arr_ksg) == 7
+            if valtype(arr_ksg[7]) == "N"
+              sdial := arr_ksg[7] // для 2019 года
+            else
+              fl1 := .f. // для 2018 года
+            endif
+          endif
+          if !fl1 // диализ 2018 года
             //
           elseif empty(arr_ksg[2]) // нет ошибок
             mcena_1 := arr_ksg[4]
@@ -6734,10 +6742,10 @@ if f_Esc_Enter("изменения цен",.t.) .and. mo_Lock_Task(X_OMS)
             put_str_kslp_kiro(arr_ksg)
           endif
         endif
-        if fl .or. !(round(mcena_1,2) == round(human->cena_1,2))
+        if fl .or. !(round(mcena_1+sdial,2) == round(human->cena_1,2))
           ++i_human
           human->(G_RLock(forever))
-          human->cena := human->cena_1 := mcena_1
+          human->cena := human->cena_1 := mcena_1+sdial
           human_->(G_RLock(forever))
           human_->OPLATA    := 0 // уберём "2", если отредактировали запись из реестра СП и ТК
           human_->ST_VERIFY := 0 // снова ещё не проверен

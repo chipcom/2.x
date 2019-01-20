@@ -397,7 +397,7 @@ elseif lp == 64 // оториноларингологии
 endif
 return lp
 
-***** 02.01.19
+***** 20.01.19
 Function verify_1_sluch(fl_view)
 Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
       i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -411,7 +411,7 @@ DEFAULT fl_view TO .t.
 rec_human := human->(recno())
 Private mdate_r := human->date_r, mvozrast, mdvozrast, M1VZROS_REB := human->VZROS_REB,;
         arr_usl_otkaz := {}, m1novor := 0, mpol := human->pol, mDATE_R2 := ctod(""),;
-        is_oncology := 0, version_3_1 := left(dtos(human->k_data),6) > "201808" // с сентября 2018 года
+        is_oncology := 0
 if human_->NOVOR > 0
   m1novor := 1 // для переопределения M1VZROS_REB
   mDATE_R2 := human_->DATE_R2
@@ -487,7 +487,7 @@ do while human->kod_k == glob_kartotek .and. !eof()
     fl2 := overlap_diapazon(human->n_data,human->k_data,d1,d2) // перекрывается диапазон лечения
     fl3 := .t. 
     k := 0
-    if is_alldializ .and. (fl1 .or. fl2) .and. year(human->k_data) > 2017 // прошлый год не смотрим вообще
+    if is_alldializ .and. (fl1 .or. fl2) .and. year(human->k_data) > 2018 // прошлый год не смотрим вообще
       select HU
       find (str(human->kod,7))
       do while hu->kod == human->kod .and. !eof()
@@ -513,7 +513,7 @@ do while human->kod_k == glob_kartotek .and. !eof()
         aadd(a_dializ,{human->n_data,human->k_data,human_->USL_OK,human->OTD,k}) // диализы не в кругл.стационаре
       endif
     endif
-    if k < 2 .and. fl2 .and. fl3 .and. iif(is_alldializ, year(human->k_data) > 2017, .t.)
+    if k < 2 .and. fl2 .and. fl3 .and. iif(is_alldializ, year(human->k_data) > 2018, .t.)
       aadd(a_srok_lech,{human->n_data,human->k_data,human_->USL_OK,human->OTD,k})
     endif
   endif
@@ -1296,7 +1296,7 @@ else
       aadd(ta,'услуга '+au_lu[i,5]+'('+date_8(au_lu[i,2])+') не попадает в диапазон лечения')
     endif
   next
-  if version_3_1 .and. human_->usl_ok < 4 .and. fl .and. !(human->OBRASHEN == '1')
+  if human_->usl_ok < 4 .and. fl .and. !(human->OBRASHEN == '1')
     if is_oncology > 0 // онкология - направления
       aadd(ta,'основной (или сопутствующий) диагноз Z03.1 "наблюдение при подозрении на злокачественную опухоль", но лист учёта и так онкологический')
     else
@@ -1458,6 +1458,10 @@ do while mohu->kod == human->kod .and. !eof()
             UslugaAccordanceProfil(lshifr,human->vzros_reb,mohu->profil,ta,mosu->shifr)
             // проверяем на специальность
             UslugaAccordancePRVS(lshifr,human->vzros_reb,mohu->prvs,ta,mosu->shifr,mohu->kod_vr)
+          endif
+          if &al.->zf == 1  // обязателен ввод зубной формулы
+            arr_zf := STverifyZF(mohu->zf,human->date_r,d1,ta,s)
+            STVerifyKolZf(arr_zf,mohu->kol_1,ta,s)
           endif
         elseif &al.->telemed == 0
           aadd(ta,'услугу '+s+' нельзя вводить для амбулаторной помощи')
@@ -1764,7 +1768,7 @@ if human_->USL_OK == 3 // для поликлиники
     aadd(ta,s)
   endif
 endif
-if human_->USL_OK == 1 .and. substr(human_->FORMA14,1,1)=='0' .and. !is_s_dializ
+if human_->USL_OK == 1 .and. substr(human_->FORMA14,1,1)=='0' 
   if empty(human_->NPR_MO)
     aadd(ta,'при ПЛАНОВОЙ госпитализации должно быть заполнено поле "Направившая МО"')
   elseif empty(human_2->NPR_DATE)
@@ -1854,9 +1858,7 @@ if human_->USL_OK == 1  // стационар
     i := 1
   endif
   if kkd_1_11 != i
-    if !is_s_dializ
-      aadd(ta,'количество койко-дней 1.11.* должно равняться '+lstr(i))
-    endif
+    aadd(ta,'количество койко-дней 1.11.* должно равняться '+lstr(i))
   elseif is_reabil // реабилитация
     mpztip := 53 // 53,"случай госпитализации при реабилитации","госп.реаб."},;
     if human_2->VMP == 1 // если установили ВМП
@@ -1963,7 +1965,7 @@ if human_->USL_OK == 1  // стационар
         fl := .t. ; exit
       endif
     next
-    if !fl .and. !is_s_dializ
+    if !fl
       aadd(ta,'в одной из услуг должны повториться диагноз+профиль+врач из случая')
     endif
   endif
@@ -2022,7 +2024,7 @@ if human_->USL_OK == 1  // стационар
       human_2->TAL_P   := ctod("")
     endif
   endif
-  if is_alldializ .and. len(a_period_stac) > 0
+  /*if is_alldializ .and. len(a_period_stac) > 0
     fl := .f.
     for i := 1 to len(a_period_stac)
       otd->(dbGoto(a_period_stac[i,4]))
@@ -2062,7 +2064,7 @@ if human_->USL_OK == 1  // стационар
     if !fl .and. is_s_dializ
       aadd(ta,'совместно со случаем стационарного диализа должен быть введён стационарный случай основного лечения (с КСГ)')
     endif
-  endif
+  endif*/
   // добавим период, если лечился в стационаре
   aadd(a_period_stac,{human->n_data,;
                       human->k_data,;
@@ -2073,7 +2075,7 @@ if human_->USL_OK == 1  // стационар
                       human_->RSLT_NEW,;
                       human_->ISHOD_NEW,;
                       iif(is_s_dializ, 1, 0)})
-elseif human_->USL_OK == 2 .and. !is_dializ // дневной стационар
+elseif human_->USL_OK == 2 .and. kol_ksg > 0 // дневной стационар
   if kol_ksg > 1
     aadd(ta,'введено более одной КСГ')
   endif
@@ -2248,7 +2250,7 @@ elseif human_->USL_OK == 2 .and. !is_dializ // дневной стационар
     endif
   endif
 endif
-if len(a_period_stac) > 0 .and. !is_s_dializ .and. !is_dializ .and. !is_perito
+if len(a_period_stac) > 0 //.and. !is_s_dializ .and. !is_dializ .and. !is_perito
   select HU
   find (str(human->kod,7))
   do while hu->kod == human->kod .and. !eof()
@@ -2284,7 +2286,7 @@ if len(a_period_stac) > 0 .and. !is_s_dializ .and. !is_dializ .and. !is_perito
   select HU
   set relation to recno() into HU_, to u_kod into USL
 endif
-if eq_any(human_->USL_OK,1,2) .and. !is_s_dializ .and. !is_dializ .and. human_2->VMP == 0 // не ВМП
+if eq_any(human_->USL_OK,1,2) .and. kol_ksg > 0 .and. human_2->VMP == 0 // не ВМП
   arr_ksg := definition_KSG()
   if empty(arr_ksg[2]) // нет ошибок
     if shifr_ksg == arr_ksg[3] // КСГ определена правильно
@@ -2791,7 +2793,7 @@ elseif kkt > 0 .and. !is_s_dializ .and. !is_dializ .and. !is_perito
   mPZTIP := 66 // 66,"Р-исследование","Р-исслед."},;
   mPZKOL := kkt
   if !emptyall(kkd,kds,kvp,ksmp)
-    aadd(ta,'кроме услуг 60.2.* в листе учета не должно быть других услуг ТФОМС')
+    aadd(ta,'кроме услуг 60.* в листе учета не должно быть других услуг ТФОМС')
   endif
   if human_->USL_OK != 3
     aadd(ta,'в поле "Условия оказания" должно быть "Поликлиника"')
@@ -2917,7 +2919,7 @@ elseif ksmp > 0
 endif
 if is_dializ
   s := "гемодиализа"
-  if kds > 0
+  if kds > 0 .and. kol_ksg == 0
     aadd(ta,'для '+s+' не вводится пациенто-день')
   endif
   if !eq_any(human_->PROFIL,56) // НЕФРОЛОГИЯ
@@ -2947,9 +2949,6 @@ if is_dializ
 endif
 if is_perito
   s := "для ПЕРИТОНЕАЛЬНОГО ДИАЛИЗА "
-  if kds > 0
-    aadd(ta,'для '+s+' не вводится пациенто-день')
-  endif
   if human_->PROFIL != 56
     aadd(ta,s+'профиль должен быть НЕФРОЛОГИЯ')
   endif
@@ -2980,9 +2979,6 @@ if is_perito
 endif
 if is_s_dializ
   s := "услуги диализа в стационаре"
-  if kkd > 0
-    aadd(ta,'для '+s+' не вводится койко-день')
-  endif
   human_->NPR_MO := glob_mo[_MO_KOD_TFOMS] // безусловно проставляем направившую МО
   human_2->NPR_DATE := d1
   mpztip := 54 // 54,"случай ЗПТ","случай ЗПТ"},; 
@@ -3790,12 +3786,12 @@ endif
 if human_->oplata == 2
   aadd(ta,'вернулся из ТФОМС с ошибкой и ещё не отредактирован')
 endif
-if is_disp_DDS .or. is_disp_DVN .or. is_prof_PN
-  arr_unit := {144} // "комплексное посещение при диспансеризации"
-endif
+//if is_disp_DDS .or. is_disp_DVN .or. is_prof_PN
+  //arr_unit := {144} // "комплексное посещение при диспансеризации"
+//endif
 if len(arr_unit) > 1
   if select("MOUNIT") == 0
-    R_Use(dir_exe+"_mo_unit",cur_dir+"_mo_unit","MOUNIT")
+    R_Use(dir_exe+"_mo9unit",cur_dir+"_mo9unit","MOUNIT")
   endif
   s := "совокупность услуг должна быть из одной учётной единицы объёма, а в данном случае: "
   select MOUNIT
@@ -3918,7 +3914,7 @@ else
   endif 
   if len(arr_unit) == 1
     if select("MOUNIT") == 0
-      R_Use(dir_exe+"_mo8unit",cur_dir+"_mo8unit","MOUNIT")
+      R_Use(dir_exe+"_mo9unit",cur_dir+"_mo9unit","MOUNIT")
     endif
     select MOUNIT
     find (str(arr_unit[1],3))

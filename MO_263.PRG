@@ -1129,7 +1129,7 @@ for i := 1 to len(arr_i01)
      mo_add_xml_stroke(oDir,"LPU_H", napr->S_CODEM)
      mo_add_xml_stroke(oDir,"USL_OK", lstr(iif(napr->usl_ok_1==2,2,1)))
      mo_add_xml_stroke(oDir,"PROFIL", lstr(napr->PROFIL_1))
-     mo_add_xml_stroke(oDir,"PROFIL_K", f_profil_k_t007_v020(napr->PROFIL_K_1,nf->DATE_R))
+     mo_add_xml_stroke(oDir,"PROFIL_K", f_profil_k_t007_v020(napr->PROFIL_K_1,napr->PROFIL_1,nf->DATE_R))
      mo_add_xml_stroke(oDir,"DS", napr->DS_1)
      mo_add_xml_stroke(oDir,"IDDOKT", p2->snils)
      mo_add_xml_stroke(oDir,"F_MEDC", lstr(napr->F_MEDC_1))
@@ -1373,7 +1373,7 @@ if !fl_error
        mo_add_xml_stroke(oDir,"DS", napr->DS_4)
        mo_add_xml_stroke(oDir,"F_MEDC", lstr(napr->F_MEDC_4))
        mo_add_xml_stroke(oDir,"PROFIL", lstr(napr->PROFIL_4))
-       mo_add_xml_stroke(oDir,"PROFIL_K", f_profil_k_t007_v020(napr->PROFIL_K_4,nf->DATE_R))
+       mo_add_xml_stroke(oDir,"PROFIL_K", f_profil_k_t007_v020(napr->PROFIL_K_4,napr->PROFIL_4,nf->DATE_R))
        mo_add_xml_stroke(oDir,"NUM_HIST", napr->NUM_HIST_4)
        oPAC := oDir:Add( HXMLNode():New( "PATIENT" ) )
         mo_add_xml_stroke(oPAC,"SURNAME",arr_fio[1])
@@ -1500,7 +1500,7 @@ if !fl_error
        mo_add_xml_stroke(oDir,"DS", napr->DS_4)
        mo_add_xml_stroke(oDir,"F_MEDC", lstr(napr->F_MEDC_4))
        mo_add_xml_stroke(oDir,"PROFIL", lstr(napr->PROFIL_4))
-       mo_add_xml_stroke(oDir,"PROFIL_K", f_profil_k_t007_v020(napr->PROFIL_K_4,nf->DATE_R))
+       mo_add_xml_stroke(oDir,"PROFIL_K", f_profil_k_t007_v020(napr->PROFIL_K_4,napr->PROFIL_4,nf->DATE_R))
        mo_add_xml_stroke(oDir,"NUM_HIST", napr->NUM_HIST_4)
        oPAC := oDir:Add( HXMLNode():New( "PATIENT" ) )
         mo_add_xml_stroke(oPAC,"SURNAME",arr_fio[1])
@@ -1625,7 +1625,7 @@ if !fl_error
        mo_add_xml_stroke(oDir,"DATE_D", date2xml(napr->DATE_6))
        mo_add_xml_stroke(oDir,"F_MEDC", lstr(napr->F_MEDC_4))
        mo_add_xml_stroke(oDir,"PROFIL", lstr(napr->PROFIL_4))
-       mo_add_xml_stroke(oDir,"PROFIL_K", f_profil_k_t007_v020(napr->PROFIL_K_4,nf->DATE_R))
+       mo_add_xml_stroke(oDir,"PROFIL_K", f_profil_k_t007_v020(napr->PROFIL_K_4,napr->PROFIL_4,nf->DATE_R))
        mo_add_xml_stroke(oDir,"USL_OK", lstr(iif(napr->usl_ok_4==2,2,1)))
        if napr->TYPE_H_4 == 1
          mo_add_xml_stroke(oDir,"ID_D", napr->id_1)
@@ -1713,7 +1713,7 @@ if !fl_error .and. yes_i07
      mo_add_xml_stroke(oDir,"ID_PL", mo_guid(1,n7->(recno())))
      mo_add_xml_stroke(oDir,"USL_OK", lstr(iif(n7->usl_ok==2,2,1)))
      mo_add_xml_stroke(oDir,"PROFIL", lstr(n7->PROFIL))
-     mo_add_xml_stroke(oDir,"PROFIL_K", f_profil_k_t007_v020(n7->PROFIL_K,nf->DATE_R))
+     mo_add_xml_stroke(oDir,"PROFIL_K", f_profil_k_t007_v020(n7->PROFIL_K,n7->PROFIL,nf->DATE_R))
      mo_add_xml_stroke(oDir,"QUANTITY", lstr(n7->QUANTITY))
      mo_add_xml_stroke(oDir,"Q_P", lstr(n7->Q_P))
      mo_add_xml_stroke(oDir,"Q_AP", lstr(n7->Q_AP))
@@ -3022,7 +3022,7 @@ for ii := 1 to len(arr_f)
           elseif c == "S"
             s := substr(s,2)
             if s == "34007"
-              s := 'от СМО "Росгосстрах"'
+              s := 'от СМО ООО "Капитал МС"'
             elseif s == "34002"
               s := 'от СМО "Согаз"'
             elseif s == "34001"
@@ -4163,7 +4163,7 @@ if upper(right(nfile,4)) == sxml
             tmp2->USL_OK := 1
           endif
           tmp2->PROFIL   :=      val(mo_read_xml_stroke(oNode2,"PROFIL",aerr))
-          tmp2->PROFIL_K := f_profil_k_v020_t007(mo_read_xml_stroke(oNode2,"PROFIL_K",aerr),tmp1->DATE_R)
+          tmp2->PROFIL_K := f_profil_k_v020_t007(mo_read_xml_stroke(oNode2,"PROFIL_K",aerr),tmp2->PROFIL,tmp1->DATE_R)
           tmp2->DS       :=          mo_read_xml_stroke(oNode2,"DS",aerr)
           tmp2->IDDOKT   :=          mo_read_xml_stroke(oNode2,"IDDOKT",aerr,.f.)
           tmp2->F_MEDC   :=      val(mo_read_xml_stroke(oNode2,"F_MEDC",aerr))
@@ -4364,7 +4364,7 @@ if upper(right(nfile,4)) == sxml
           tmp2->DS       :=          mo_read_xml_stroke(oNode2,"DS",aerr)
           tmp2->F_MEDC   :=      val(mo_read_xml_stroke(oNode2,"F_MEDC",aerr))
           tmp2->PROFIL   :=      val(mo_read_xml_stroke(oNode2,"PROFIL",aerr))
-          tmp2->PROFIL_K := f_profil_k_v020_t007(mo_read_xml_stroke(oNode2,"PROFIL_K",aerr),tmp1->DATE_R)
+          tmp2->PROFIL_K := f_profil_k_v020_t007(mo_read_xml_stroke(oNode2,"PROFIL_K",aerr),tmp2->PROFIL,tmp1->DATE_R)
           tmp2->NUM_HIST :=          mo_read_xml_stroke(oNode2,"NUM_HIST",aerr)
           tmp2->COMMENT  :=          mo_read_xml_stroke(oNode2,"COMMENT",aerr,.f.)
           if (oNode1 := oNode2:Find("PATIENT")) != NIL
@@ -4466,7 +4466,7 @@ if upper(right(nfile,4)) == sxml
             tmp2->USL_OK := 1
           endif
           tmp2->PROFIL   :=      val(mo_read_xml_stroke(oNode2,"PROFIL",aerr))
-          tmp2->PROFIL_K := f_profil_k_v020_t007(mo_read_xml_stroke(oNode2,"PROFIL_K",aerr),tmp1->DATE_R)
+          tmp2->PROFIL_K := f_profil_k_v020_t007(mo_read_xml_stroke(oNode2,"PROFIL_K",aerr),tmp2->PROFIL,tmp1->DATE_R)
           tmp2->ID_D     :=          mo_read_xml_stroke(oNode2,"ID_D",aerr,.f.)
           tmp2->MO_D     :=          mo_read_xml_stroke(oNode2,"MO_D",aerr,.f.)
           tmp2->LPU_D    :=          mo_read_xml_stroke(oNode2,"LPU_D",aerr,.f.)
@@ -4599,7 +4599,7 @@ if upper(right(nfile,4)) == sxml
             tmp2->USL_OK := 1
           endif
           tmp2->PROFIL   := val(mo_read_xml_stroke(oNode2,"PROFIL",aerr))
-          tmp2->PROFIL_K := f_profil_k_v020_t007(mo_read_xml_stroke(oNode2,"PROFIL_K",aerr),tmp1->DATE_R)
+          tmp2->PROFIL_K := f_profil_k_v020_t007(mo_read_xml_stroke(oNode2,"PROFIL_K",aerr),tmp2->PROFIL,tmp1->DATE_R)
           tmp2->QUANTITY := val(mo_read_xml_stroke(oNode2,"QUANTITY",aerr))
           tmp2->Q_P      := val(mo_read_xml_stroke(oNode2,"Q_P",aerr))
           tmp2->Q_AP     := val(mo_read_xml_stroke(oNode2,"Q_AP",aerr))
@@ -4649,22 +4649,45 @@ endif
 rest_box(buf)
 return fl .and. empty(aerr)
 
-***** 15.01.19 профиль койки из t007 в v020 и в строку
-Function f_profil_k_t007_v020(lprk,ldate_r)
-Local i
+***** 20.01.19 профиль койки из t007 в v020 и в строку
+Function f_profil_k_t007_v020(lprk,lpr,ldate_r)
+Local i, lprk20 := lprk
 if ldate_r > 0d20190115 // с 16 января
-  if (i := ascan(arr_t007, {|x| x[2] == lprk })) > 0
-    lprk := arr_t007[i,3]
+  if select("T7") > 0
+    t7->(dbCloseArea())
   endif
+  R_Use(exe_dir+"_mo_t007",exe_dir+"_mo_t007","T7")
+  find (str(lprk,3)+str(lpr,3))
+  if found()
+    lprk20 := t7->pk_V020
+  else
+    find (str(lprk,3))
+    if found()
+      lprk20 := t7->pk_V020
+    endif
+  endif
+  t7->(dbCloseArea())
 endif
-return lstr(lprk)
+return lstr(lprk20)
 
-***** 16.01.19 профиль койки из строки в число, затем из v020 в t007
-Function f_profil_k_v020_t007(sprk,ldate_r)
-Local i, lprk := int(val(sprk))
+***** 20.01.19 профиль койки из строки в число, затем из v020 в t007
+Function f_profil_k_v020_t007(sprk20,lpr,ldate_r)
+Local i, lprk, lprk20 := int(val(sprk20))
+lprk := lprk20
 if ldate_r > 0d20190115 // с 16 января
-  if (i := ascan(arr_t007, {|x| x[3] == lprk })) > 0
-    lprk := arr_t007[i,3]
+  if select("T7") > 0
+    t7->(dbCloseArea())
   endif
+  R_Use(exe_dir+"_mo_t007",exe_dir+"_mo_t0072","T7")
+  find (str(lprk20,3)+str(lpr,3))
+  if found()
+    lprk := t7->profil_k
+  else
+    find (str(lprk20,3))
+    if found()
+      lprk := t7->profil_k
+    endif
+  endif
+  t7->(dbCloseArea())
 endif
 return lprk

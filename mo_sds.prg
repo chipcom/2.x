@@ -734,9 +734,12 @@ do while !eof()
       select IHU
       set order to 1
       arr_ksg := definition_KSG(2)
-      if len(arr_ksg) == 7 // диализ
-        //
-      elseif empty(arr_ksg[2]) // если нет ошибок
+      sdial := 0
+      if len(arr_ksg) == 7 ; // диализ
+                .and. valtype(arr_ksg[7]) == "N"
+        sdial := arr_ksg[7] // для 2019 года
+      endif
+      if empty(arr_ksg[2]) // если нет ошибок
         select IHU
         append blank 
         ihu->KOD := ihuman->kod
