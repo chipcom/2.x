@@ -1807,6 +1807,8 @@ G_Use(dir_server+"human_2",,"HUMAN_2")
 G_Use(dir_server+"human_",,"HUMAN_")
 R_Use(dir_server+"human",,"HUMAN")
 set relation to recno() into HUMAN_, to recno() into HUMAN_2, to kod_k into KART
+R_Use(exe_dir+"_mo_t2_v1",,"T21")
+index on shifr to (cur_dir+"tmp_t21")
 use (cur_dir+"tmpb") new
 set relation to kod_human into HUMAN
 if reg_sort == 1
@@ -1928,6 +1930,7 @@ do while !eof()
     skip
   enddo
   //
+  arr_t21 := {}
   select HU
   find (str(human->kod,7))
   do while hu->kod == human->kod .and. !eof()
@@ -1939,6 +1942,14 @@ do while !eof()
         fl_disp_nabl := .t.
       endif
       aadd(atmpusl,lshifr)
+      select T21
+      find (padr(lshifr,10))
+      if found()
+        if (i := ascan(arr_t21, {|x| x[1] == padr(lshifr,10) })) == 0
+          aadd(arr_t21, {t21->shifr,t21->shifr_mz,0,hu->(recno())}) ; i := len(arr_t21)
+        endif
+        arr_t21[i,3] += hu->kol_1
+      endif
       if eq_any(left(lshifr,5),"1.11.","55.1.")
         kol_kd += hu->kol_1
         is_KSG := .t.
@@ -2708,6 +2719,9 @@ do while !eof()
         endif
       next j
     endif
+    if len(arr_t21) > 0
+      //        aadd(arr_t21, {t21->shifr,t21->shifr_mz,0,hu->(recno())})
+    endif 
    next isl  
   select RHUM
   if rhum->REES_ZAP % 2000 == 0

@@ -4,7 +4,7 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 03.09.18 ДВН - добавление или редактирование случая (листа учета)
+***** 21.01.19 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_DVN(Loc_kod,kod_kartotek,f_print)
 // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
 // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -169,6 +169,7 @@ for i := 1 to 5
   pole_dispans := "mdispans"+sk
   pole_1dispans := "m1dispans"+sk
   pole_d_dispans := "mddispans"+sk
+  pole_dn_dispans := "mdndispans"+sk
   Private &pole_diag := space(6)
   Private &pole_d_diag := ctod("")
   Private &pole_pervich := space(7)
@@ -177,6 +178,7 @@ for i := 1 to 5
   Private &pole_dispans := space(10)
   Private &pole_1dispans := 0
   Private &pole_d_dispans := ctod("")
+  Private &pole_dn_dispans := ctod("")
 next
 Private mg_cit := "", m1g_cit := 0, m1lis := 0, mm_g_cit := {;
   {"ОБЫЧНОЕ иссл-е взятого цитологичес.материала",1},;
@@ -776,10 +778,10 @@ do while .t.
       endif
       @ j,80-len(s) say s color color14
     endif
-    ++j; @ j,1  say "───────┬────────────┬──────────┬──────┬────────────────────────"
-    ++j; @ j,1  say "       │  выявлено  │   дата   │стадия│установлено диспансерное"
-    ++j; @ j,1  say "диагноз│заболевание │выявления │забол.│наблюдение     (когда)  "
-    ++j; @ j,1  say "───────┴────────────┴──────────┴──────┴────────────────────────"
+    ++j; @ j,1  say "───────┬────────────┬──────────┬──────┬───────────────────────────────────────"
+    ++j; @ j,1  say "       │  выявлено  │   дата   │стадия│установлено диспансерное Дата следующего"
+    ++j; @ j,1  say "диагноз│заболевание │выявления │забол.│наблюдение     (когда)     визита"
+    ++j; @ j,1  say "───────┴────────────┴──────────┴──────┴───────────────────────────────────────"
     //                2      9            22           35       44        54
     ++j; @ j,2  get mdiag1 picture pic_diag ;
                 reader {|o| MyGetReader(o,bg)} ;
@@ -796,6 +798,7 @@ do while .t.
                 reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
                 when !empty(mdiag1)
          @ j,54 get mddispans1 when m1dispans1==1
+         @ j,67 get mdndispans1 when m1dispans1==1
     //
     ++j; @ j,2  get mdiag2 picture pic_diag ;
                 reader {|o| MyGetReader(o,bg)} ;
@@ -812,6 +815,7 @@ do while .t.
                 reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
                 when !empty(mdiag2)
          @ j,54 get mddispans2 when m1dispans2==1
+         @ j,67 get mdndispans2 when m1dispans2==1
     //
     ++j; @ j,2  get mdiag3 picture pic_diag ;
                 reader {|o| MyGetReader(o,bg)} ;
@@ -828,6 +832,7 @@ do while .t.
                 reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
                 when !empty(mdiag3)
          @ j,54 get mddispans3 when m1dispans3==1
+         @ j,67 get mdndispans3 when m1dispans3==1
     //
     ++j; @ j,2  get mdiag4 picture pic_diag ;
                 reader {|o| MyGetReader(o,bg)} ;
@@ -844,6 +849,7 @@ do while .t.
                 reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
                 when !empty(mdiag4)
          @ j,54 get mddispans4 when m1dispans4==1
+         @ j,67 get mdndispans4 when m1dispans4==1
     //
     ++j; @ j,2  get mdiag5 picture pic_diag ;
                 reader {|o| MyGetReader(o,bg)} ;
@@ -860,8 +866,9 @@ do while .t.
                 reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
                 when !empty(mdiag5)
          @ j,54 get mddispans5 when m1dispans5==1
+         @ j,67 get mdndispans5 when m1dispans5==1
     //
-    ++j; @ j,1 say replicate("─",64) color color1
+    ++j; @ j,1 say replicate("─",78) color color1
     ++j; @ j,1 say "Диспансерное наблюдение установлено" get mdispans ;
                reader {|x|menu_reader(x,mm_dispans,A__MENUVERT,,,.f.)} ;
                when !emptyall(mdispans1,mdispans2,mdispans3,mdispans4,mdispans5)
@@ -1211,6 +1218,7 @@ do while .t.
       pole_1pervich := "m1pervich"+sk
       pole_1dispans := "m1dispans"+sk
       pole_d_dispans := "mddispans"+sk
+      pole_dn_dispans := "mdndispans"+sk
       if !empty(&pole_diag)
         if left(&pole_diag,1) == "Z"
           fl := func_error(4,'Диагноз '+rtrim(&pole_diag)+'(первый символ "Z") не вводится. Это не заболевание!')

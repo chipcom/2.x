@@ -1404,14 +1404,15 @@ if o != NIL .and. o != m1usl_tip
 endif
 return .t.
 
-***** 01.11.18
+***** 21.01.19
 Function is_usluga_disp_nabl(_shifr,_shifr1)
 if empty(_shifr1)
   _shifr := alltrim(_shifr)
 else
   _shifr := alltrim(_shifr1)
 endif  
-return between_shifr(_shifr,"2.78.61","2.78.86") .or. between_shifr(_shifr,"2.88.52","2.88.103")
+return between_shifr(_shifr,"2.78.61","2.78.86") .or. between_shifr(_shifr,"2.88.52","2.88.99") ;
+                                                 .or. between_shifr(_shifr,"2.88.100","2.88.103")
 
 ***** 01.11.18 является услугой телемедицины - не заполняется код врача
 Function is_telemedicina(lshifr) 
@@ -1664,13 +1665,6 @@ else  // valid
                 mdate_next := ctod("")
                 @ row_dom,35 say space(42) color color1
               endif
-              //if is_zf_stomat == 1 .and. !empty(mzf)
-                //usl->(dbGoto(mu_kod)) // на всякий случай
-                //if usl->zf == 0
-                  //n_message({"В данную услугу запрещен ввод зубной формулы!",;
-                  //           "(Не будет записана)"},,"W/G","N/G",,,"GR/G")
-                //endif
-              //endif
               if !empty(arr_usl1year)
                 f_usl1year(iif(empty(mshifr1),mshifr,mshifr1),mshifr,mname_u)
               endif
@@ -4248,7 +4242,7 @@ for i := 1 to len(arr)
 next
 return NIL
 
-***** 29.01.17
+***** 21.01.18
 Function save_arr_DVN(lkod)
 Local arr := {}, i, sk, ta
 if type("mfio") == "C"
@@ -4287,6 +4281,7 @@ for i := 1 to 5
   pole_1san := "m1san"+sk
   pole_d_diag := "mddiag"+sk
   pole_d_dispans := "mddispans"+sk
+  pole_dn_dispans := "mdndispans"+sk
   if !empty(&pole_diag)
     ta := {&pole_diag,;
            &pole_1pervich,;
@@ -4308,9 +4303,14 @@ for i := 1 to 5
       aadd(ta,ctod(""))
       aadd(ta,ctod(""))
     endif
+    if type(pole_dn_dispans)=="D"
+      aadd(ta, &pole_dn_dispans)
+    else
+      aadd(ta,ctod(""))
+    endif
     aadd(arr,{lstr(20+i),ta})
   endif
-next
+next i
 if !empty(arr_usl_otkaz)
   aadd(arr,{"29",arr_usl_otkaz}) // массив
 endif
@@ -4355,7 +4355,7 @@ endif
 save_arr_DISPANS(lkod,arr)
 return NIL
 
-***** 29.01.17
+***** 21.01.19
 Function read_arr_DVN(lkod,is_all)
 Local arr, i, sk
 Private mvar
@@ -4414,6 +4414,7 @@ for i := 1 to len(arr)
         pole_1san := "m1san"+sk
         pole_d_diag := "mddiag"+sk
         pole_d_dispans := "mddispans"+sk
+        pole_dn_dispans := "mdndispans"+sk
         if valtype(arr[i,2,1]) == "C"
           &pole_diag := arr[i,2,1]
         endif
@@ -4440,6 +4441,9 @@ for i := 1 to len(arr)
         endif
         if len(arr[i,2]) >= 9 .and. valtype(arr[i,2,9]) == "D" .and. type(pole_d_dispans) == "D"
           &pole_d_dispans := arr[i,2,9]
+        endif
+        if len(arr[i,2]) >= 10 .and. valtype(arr[i,2,10]) == "D" .and. type(pole_dn_dispans) == "D"
+          &pole_dn_dispans := arr[i,2,10]
         endif
       case is_all .and. arr[i,1] == "29" .and. valtype(arr[i,2]) == "A"
         arr_usl_otkaz := arr[i,2]

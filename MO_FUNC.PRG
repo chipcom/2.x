@@ -4267,8 +4267,8 @@ elseif _k_data > s_1_may ;                 // с 1 мая 2016 года
 endif  
 return _akslp
 
-***** 20.01.18 если надо, перезаписать значения КСЛП и КИРО в HUMAN_2 
-Function put_str_kslp_kiro(arr)
+***** 21.01.18 если надо, перезаписать значения КСЛП и КИРО в HUMAN_2 
+Function put_str_kslp_kiro(arr,fl)
 Local lpc1 := "", lpc2 := ""
 if len(arr) > 4 .and. !empty(arr[5])
   lpc1 := lstr(arr[5,1])+","+lstr(arr[5,2],5,2)
@@ -4276,11 +4276,23 @@ endif
 if len(arr) > 5 .and. !empty(arr[6])
   lpc2 := lstr(arr[6,1])+","+lstr(arr[6,2],5,2)
 endif
-if !(padr(lpc1,10) == human_2->pc1 .and. padr(lpc2,10) == human_2->pc2) 
+if !(padr(lpc1,10) == human_2->pc1 .and. padr(lpc2,10) == human_2->pc2)
+  DEFAULT fl TO .t. // блокировать и разблокировать запись в HUMAN_2
   select HUMAN_2
-  G_RLock(forever)
+  if fl
+    G_RLock(forever)
+  endif
   human_2->pc1 := lpc1
   human_2->pc2 := lpc2
-  UnLock
+  if fl
+    UnLock
+  endif
+endif
+return NIL
+
+***** 21.01.19 проверить, заблокирована ли запись, и, если нет, то заблокировать её
+Function my_Rec_Lock(n)
+if ascan(dbRLockList(),n) == 0
+  G_RLock(forever)
 endif
 return NIL

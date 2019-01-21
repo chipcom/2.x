@@ -397,7 +397,7 @@ elseif lp == 64 // оториноларингологии
 endif
 return lp
 
-***** 20.01.19
+***** 21.01.19
 Function verify_1_sluch(fl_view)
 Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
       i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -533,7 +533,7 @@ do while human->kod_k == glob_kartotek .and. !eof()
                           k})
     // поликлиника
     elseif human_->USL_OK == 3 .and. human->ishod < 101 ;
-             .and. !(human_->profil==60 .and. glob_mo[_MO_KOD_TFOMS]=='103001') // не онкология
+             .and. !(human_->profil == 60 .and. glob_mo[_MO_KOD_TFOMS] == '103001') // не онкология
       is_period_amb := .t.
     endif
     select HU
@@ -588,6 +588,8 @@ select HUMAN
 set order to 1
 dbGoto(rec_human)
 G_RLock(forever)
+human_->(G_RLock(forever))
+human_2->(G_RLock(forever))
 uch->(dbGoto(human->LPU))
 otd->(dbGoto(human->OTD))
 s := fam_i_o(human->fio)+" "
@@ -689,8 +691,6 @@ if len(mdiagnoz) > 0 .and. f_oms_beremenn(mdiagnoz[1]) == 3 .and. between(human_
   s := "R52."+{"0","1","2","9"}[human_2->pn2]
 endif
 if !emptyall(s,ar)
-  select HUMAN_2
-  G_RLock(forever)
   if empty(ar)
     human_2->OSL3 := s
   else
@@ -704,7 +704,7 @@ if !emptyall(s,ar)
             &pole := s  // самый последний - перезапишем
           endif
         else
-          &pole := ""   // остальные - удалим
+          &pole := ""   // остальные - очистим
         endif
       endif
     next
@@ -771,11 +771,9 @@ if !empty(kart->snils)
     aadd(ta,s+" у пациента")
   endif
 endif
-human_->(G_RLock(forever))
 human_->SPOLIS := val_polis(human_->SPOLIS)
 human_->NPOLIS := val_polis(human_->NPOLIS)
 Valid_SN_Polis(human_->vpolis,human_->SPOLIS,human_->NPOLIS,ta,between(human_->smo,'34001','34007'))
-human_2->(G_RLock(forever))
 //
 if select("SMO") == 0
   R_Use(dir_exe+"_mo_smo",cur_dir+"_mo_smo2","SMO")
@@ -876,12 +874,12 @@ do while hu->kod == human->kod .and. !eof()
       next
     endif
     otd->(dbGoto(hu->OTD))
+    hu->(G_RLock(forever))
     hu_->(G_RLock(forever))
     if glob_mo[_MO_KOD_TFOMS] == kod_LIS .and. eq_any(human_->profil,6,34)
       hu_->kod_diag := mdiagnoz[1]
     endif
     if hu->is_edit == 0 .and. is_lab_usluga(lshifr)
-      hu->(G_RLock(forever))
       hu->is_edit := -1
       hu->kod_vr := hu->kod_as := 0
       lprofil := iif(left(lshifr,5) == "4.16.", 6, 34)
@@ -1648,14 +1646,6 @@ if is_oncology == 2 // онкология
       k := onkus->USL_TIP
     endif
     if (i := ascan(au_flu, {|x| x[10] == k })) > 0
-      /*select MOHU более не заносим эту информацию в услугу
-      goto (au_flu[i,9])
-      G_RLock(forever)
-      mohu->USL_TIP := onkus->USL_TIP	
-      mohu->HIR_TIP := onkus->HIR_TIP	
-      mohu->LEK_TIP_L := onkus->LEK_TIP_L	
-      mohu->LEK_TIP_V := onkus->LEK_TIP_V
-      mohu->LUCH_TIP := onkus->LUCH_TIP*/
       if onkus->USL_TIP == 1
         if empty(onkus->HIR_TIP)
           aadd(ta,'не заполнен тип хирургического лечения')
@@ -1739,7 +1729,7 @@ else
     human_->PRVS := mprvs
   endif
   if human_->PRVS > 0 .and. ret_V004_V015(human_->PRVS) == 0
-    aadd(ta,'не найдено специальности в справочнике V015 у "'+alltrim(pers->fio)+'"')
+    aadd(ta,'не найдено специальности в справочнике у "'+alltrim(pers->fio)+'"')
   endif
   if ascan(arr_perso,human_->VRACH) == 0
     aadd(arr_perso,human_->VRACH)
@@ -2090,10 +2080,6 @@ elseif human_->USL_OK == 2 .and. kol_ksg > 0 // дневной стационар
         if !(alltrim(au_lu[i,1]) == "55.1.4")
           aadd(ta,'неверная услуга '+rtrim(au_lu[i,1])+", должна быть 55.1.4")
         endif
-        select HU
-        goto (au_lu[i,9])
-        select HU_
-        UnLock
         aadd(a_1_11,{au_lu[i,2],;  // 1-mdate
                      au_lu[i,7],;  // 2-c4tod(mdate_u2)
                      au_lu[i,3],;  // 3-hu_->profil
@@ -2109,9 +2095,8 @@ elseif human_->USL_OK == 2 .and. kol_ksg > 0 // дневной стационар
       if a_1_11[1,2] != d2
         select HU
         goto (a_1_11[1,6])
-        hu_->(G_RLock(forever))
+        hu_->(my_Rec_Lock(a_1_11[1,6]))
         hu_->date_u2 := cd2
-        //aadd(ta,'дата окончания услуги 55.1.4 должна равняться дате окончания лечения')
       endif
     else
       aadd(ta,'услуга 55.1.4 должна встречаться один раз')
@@ -2127,10 +2112,6 @@ elseif human_->USL_OK == 2 .and. kol_ksg > 0 // дневной стационар
         elseif !eq_any(alltrim(au_lu[i,1]),"55.1.1","55.1.2","55.1.3")
           aadd(ta,'неверная услуга '+rtrim(au_lu[i,1]))
         endif
-        select HU
-        goto (au_lu[i,9])
-        select HU_
-        UnLock
         aadd(a_1_11,{au_lu[i,2],;   // 1-mdate
                      au_lu[i,7],;   // 2-c4tod(mdate_u2)
                      au_lu[i,3],;   // 3-hu_->profil
@@ -2157,7 +2138,7 @@ elseif human_->USL_OK == 2 .and. kol_ksg > 0 // дневной стационар
         for i := 1 to k
           select HU
           goto (a_1_11[i,6])
-          hu_->(G_RLock(forever))
+          hu_->(my_Rec_Lock(a_1_11[i,6]))
           if i == k
             a_1_11[i,2] := d2   // для последней услуги
             hu_->date_u2 := cd2 // поставим дату окончания лечения
@@ -2282,7 +2263,7 @@ if len(a_period_stac) > 0 //.and. !is_s_dializ .and. !is_dializ .and. !is_perito
         endif
       endif
     endif
-  next
+  next i
   select HU
   set relation to recno() into HU_, to u_kod into USL
 endif
@@ -2293,7 +2274,7 @@ if eq_any(human_->USL_OK,1,2) .and. kol_ksg > 0 .and. human_2->VMP == 0 // не ВМ
       if !(round(cena_ksg,2) == round(arr_ksg[4],2)) // не та цена
         aadd(ta,"в л/у для КСГ="+arr_ksg[3]+" стоит цена "+lstr(cena_ksg,10,2)+", а должна быть "+lstr(arr_ksg[4],10,2))
       else
-        put_str_kslp_kiro(arr_ksg)
+        put_str_kslp_kiro(arr_ksg,.f.)
       endif
     else // не тот шифр КСГ
       aadd(ta,"в л/у стоит КСГ="+alltrim(shifr_ksg)+"("+lstr(cena_ksg,10,2)+"), а должна быть "+arr_ksg[3]+"("+lstr(arr_ksg[4],10,2)+")")
@@ -2357,7 +2338,11 @@ if is_prof_PN // is_72_2
     aadd(ta,'в случае применены '+lstr(kvp_72_2)+' услуги "72.2.*" (должна быть одна)')
   endif
 endif
-if (k := len(a_idsp)) == 0
+if (k := len(a_idsp)) == 0 .and. is_dializ
+  a_idsp := {{4,"Лечебно-диагностическая процедура"}}
+  k := 1
+endif
+if k == 0
   aadd(ta,'ни в одной из услуг в справочнике ТФОМС не установлен способ оплаты')
 elseif k == 1
   midsp := human_->IDSP := a_idsp[1,1]

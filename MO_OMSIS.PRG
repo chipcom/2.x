@@ -3692,7 +3692,7 @@ for i := 1 to 2
 next
 return NIL
 
-***** 19.01.19 форма 14-МЕД (ОМС)
+***** 21.01.19 форма 14-МЕД (ОМС)
 Function forma14_med_oms()
 Static group_ini := "f14_med_oms"
 Local begin_date, end_date, buf := savescreen(), arr_m, i, j, k, k1, k2,;
@@ -3705,10 +3705,6 @@ Local begin_date, end_date, buf := savescreen(), arr_m, i, j, k, k1, k2,;
 Local arr_skor[81,2], arr_eko[2,2], arr_profil := {}, arr_dn_stac := {}, arrDdn_stac[4], fl_pol1[15],;
       arr_pol[32], arr_pol1[15,5], arr_pril5[29,3], ifff := 0, kol_stom_pos := 0,;
       lal := "lusl", lalf := "luslf"
-if arr_m[1] == 2018
-  lal += "18"
-  lalf += "18"
-endif      
 old5 := old2 := 0
 afillall(arr_skor,0)
 afillall(arr_eko,0)
@@ -3812,6 +3808,7 @@ SetIniSect(tmp_ini,group_ini,{{"mk1",mk1},;
                               {"md3",md3},;
                               {"md4",md4}})
 WaitStatus(arr_m[4])
+@ maxrow(),0 say " ждите..." color "W/R"
 begin_date := dtoc4(arr_m[5])
 end_date := dtoc4(arr_m[6])
 dbcreate(cur_dir+"tmp",{{"nstr","N",2,0},;
@@ -3861,7 +3858,7 @@ R_Use(dir_server+"human",dir_server+"humans","HUMAN")
 set relation to recno() into HUMAN_, to recno() into HUMAN_2, to kod_k into KART
 //
 *********************************************************************
-mdate_rak := arr_m[6]+21 // по какую дату РАК сумма к оплате 10.04.18
+mdate_rak := arr_m[6]+22 // по какую дату РАК сумма к оплате 10.04.18
 *********************************************************************
 R_Use(dir_server+"mo_xml",,"MO_XML")
 R_Use(dir_server+"mo_rak",,"RAK")
@@ -3887,7 +3884,7 @@ do while !eof()
     mdate1 := stod(strzero(schet_->nyear,4)+strzero(schet_->nmonth,2)+"15")
     //
     *** 2018 год
-    k := 20 // дата регистрации по 10.04.18
+    k := 21 // дата регистрации по 10.04.18
     ***
     fl := between(mdate,arr_m[5],arr_m[6]+k) .and. between(mdate1,arr_m[5],arr_m[6]) // !!отч.период 2018 год
   endif
@@ -4479,7 +4476,7 @@ do while !eof()
                            mohu->kol_1,;          // 6
                            c4tod(mohu->date_u2),; // 7
                            mohu->kod_diag})       // 8
-              dbSelectArea(&lalf)
+              dbSelectArea(lalf)
               find (mosu->shifr1)
               muet += round_5(mohu->kol_1 * iif(human->vzros_reb==0, &lalf.->uetv, &lalf.->uetd), 2)
               select MOHU
@@ -5089,7 +5086,7 @@ return NIL
 
 *
 
-***** 19.01.19 распечатка формы №1 из приказа ФОМС №146
+***** 21.01.19 распечатка формы №1 из приказа ФОМС №146
 Function forma1_ffoms()
 Local mdate, i, j, k, d1, d2, arr_smo := {}, at1, at2, ta, fl_month, tmp, b1_1, a1_1,;
       _bd, fl, b1, b2, a1, a2, lsmo, name_file := "forma1", HH := 80, sh := 84
@@ -5182,7 +5179,7 @@ do while !eof()
     mdate1 := stod(strzero(schet_->nyear,4)+strzero(schet_->nmonth,2)+"15")
     fl_month := between(mdate1,arr_m[5],arr_m[6]) // отч.период текущий месяц
     if arr_m[1] == 2018 .and. arr_m[3] == 12
-      d2 := 20
+      d2 := 21
     endif
     msmo := int(val(schet_->smo))
     fl := between(mdate,boy(arr_m[5]),arr_m[6]+d2) ;// дата регистрации по 10 числа след.месяца
