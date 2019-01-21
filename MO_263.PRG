@@ -4649,14 +4649,14 @@ endif
 rest_box(buf)
 return fl .and. empty(aerr)
 
-***** 20.01.19 профиль койки из t007 в v020 и в строку
+***** 21.01.19 профиль койки из t007 в v020 и в строку
 Function f_profil_k_t007_v020(lprk,lpr,ldate_r)
 Local i, lprk20 := lprk
 if ldate_r > 0d20190115 // с 16 января
   if select("T7") > 0
     t7->(dbCloseArea())
   endif
-  R_Use(exe_dir+"_mo_t007",exe_dir+"_mo_t007","T7")
+  R_Use(exe_dir+"_mo_t007",cur_dir+"_mo_t007","T7")
   find (str(lprk,3)+str(lpr,3))
   if found()
     lprk20 := t7->pk_V020
@@ -4670,7 +4670,7 @@ if ldate_r > 0d20190115 // с 16 января
 endif
 return lstr(lprk20)
 
-***** 20.01.19 профиль койки из строки в число, затем из v020 в t007
+***** 21.01.19 профиль койки из строки в число, затем из v020 в t007
 Function f_profil_k_v020_t007(sprk20,lpr,ldate_r)
 Local i, lprk, lprk20 := int(val(sprk20))
 lprk := lprk20
@@ -4678,7 +4678,7 @@ if ldate_r > 0d20190115 // с 16 января
   if select("T7") > 0
     t7->(dbCloseArea())
   endif
-  R_Use(exe_dir+"_mo_t007",exe_dir+"_mo_t0072","T7")
+  R_Use(exe_dir+"_mo_t007",cur_dir+"_mo_t0072","T7")
   find (str(lprk20,3)+str(lpr,3))
   if found()
     lprk := t7->profil_k
