@@ -1599,7 +1599,7 @@ fclose(fp)
 viewtext(name_file,,,,.t.,,,2)
 return NIL
 
-***** 20.01.19 Распечатка списка операций на парных органах
+***** 22.01.19 Распечатка списка операций на парных органах
 Function usl_par_organ()
 ***** 03.01.19 Распечатка списка услуг с использованием телемедицинских технологий
 Local i, j, k, buf := save_maxrow(), name_file := "uslugiT"+stxt, sh := 80, HH := 60, t_arr[2], fl 
@@ -1610,16 +1610,9 @@ fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
 add_string("2019 год")
 add_string("")
 add_string("=== Описание обозначения органа (части тела)")
-add_string(" 1  Правая нижняя конечность")
-add_string(" 2  Левая нижняя конечность")
-add_string(" 3  Правая верхняя конечность")
-add_string(" 4  Левая верхняя конечности")
-add_string(" 5  Правая молочная железа")
-add_string(" 6  Левая молочная железа")
-add_string(" 7  Правый глаз, придатки глаза") 
-add_string(" 8  Левый глаз, придатки глаза")
-add_string(" 9  Правая сторона")
-add_string("10  Левая сторона")
+for i := 1 to len(garr_par_org)
+  add_string(" "+garr_par_org[i,1])
+next  
 add_string("===")
 add_string(center("Операции на парных органах (частях тела) Минздрава РФ (ФФОМС)",sh))
 add_string("")

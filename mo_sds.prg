@@ -121,7 +121,7 @@ Local _sluch := {;
    {"METOD_HMP",   "N",     4,     0},; // метод ВМП по справочнику V019
    {"AD_CR",       "C",    10,     0},;
    {"AD_CR1",      "C",    10,     0},;
-   {"KSLP",        "C",    10,     0},;
+   {"KSLP",        "C",    20,     0},;
    {"KIRO",        "C",    10,     0},;
    {"KSG",         "C",    10,     0},;
    {"CENA_KSG" ,   "N",    10,     2},;
@@ -149,6 +149,8 @@ Local _sluch_u := {; // услуги (в отделении)
    {"PROFIL",      "N",     3,     0},;
    {"DS",          "C",     6,     0},;
    {"CODE_USL"   , "C",    20,     0},;
+   {"PAR_ORG",     "C",    10,     0},;
+   {"ZF",          "C",    30,     0},;
    {"DATE_IN"   ,  "D",     8,     0},;
    {"DATE_OUT"  ,  "D",     8,     0},;
    {"KOL_USL"  ,   "N",     3,     0},;
@@ -756,6 +758,9 @@ do while !eof()
         ihu->VR_SNILS := ihuman->VR_SNILS
         if len(arr_ksg) > 4 .and. !empty(arr_ksg[5])
           ihuman->kslp := lstr(arr_ksg[5,1])+","+lstr(arr_ksg[5,2],5,2)
+          if len(arr_ksg[5]) >= 4
+            ihuman->kslp := alltrim(ihuman->kslp)+","+lstr(arr_ksg[5,3])+","+lstr(arr_ksg[5,4],5,2)
+          endif
         endif
         if len(arr_ksg) > 5 .and. !empty(arr_ksg[6])
           ihuman->kiro := lstr(arr_ksg[6,1])+","+lstr(arr_ksg[6,2],5,2)

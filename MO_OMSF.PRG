@@ -1427,6 +1427,72 @@ endif
 select (tmp_select)
 return fl
 
+***** 22.01.19 вернуть разрешённые парные органы
+Function ret_par_org(lshifr) 
+Local s := "", tmp_select := select() 
+select LUSLF
+if fieldnum("par_org") > 0
+  find (padr(lshifr,20))
+  if found() .and. alltrim(lshifr) == alltrim(luslf->shifr)
+    s := alltrim(luslf->par_org)
+  endif
+endif  
+select (tmp_select)
+return s
+
+***** 22.01.19 обязательна ли зубная формула
+Function ret_is_zf(lshifr) 
+Local n := 0, tmp_select := select() 
+select LUSLF
+if fieldnum("zf") > 0
+  find (padr(lshifr,20))
+  if found() .and. alltrim(lshifr) == alltrim(luslf->shifr) 
+    n := luslf->zf
+  endif
+endif  
+select (tmp_select)
+return n
+
+***** 22.01.19 вернуть строку парных органов
+Function ini_par_org(val,orig)
+Local i, j, a := List2Arr(orig), a1 := List2Arr(val), ret := ""
+for i := 1 to len(a)
+  if ascan(a1,a[i]) > 0 .and. (j := ascan(garr_par_org, {|x| x[2] == a[i] })) > 0
+    ret += garr_par_org[j,1]+","
+  endif
+next
+return iif(empty(ret), space(10), left(ret,len(ret)-1))
+
+***** 22.01.19 в GET'е выбор парных органов
+Function get_par_org(r,c,val,orig)
+Local fl := .t., i, j, a := List2Arr(orig), a1 := List2Arr(val), arr := {}, sast, ret, rets
+for i := 1 to len(a)
+  if (j := ascan(garr_par_org, {|x| x[2] == a[i] })) > 0
+    aadd(arr, aclone(garr_par_org[j]))
+  endif
+next
+sast := array(len(arr)) ; afill(sast,.f.)
+for i := 1 to len(arr)
+  if ascan(a1,arr[i,2]) > 0
+    sast[i] := .t.
+  endif
+next
+a := NIL
+if len(arr) > 0
+  a := bit_popup(r,c,arr,sast)
+endif
+ret := rets := space(10)
+if valtype(a) == "A"
+  ret := rets := ""
+  for i := 1 to len(a)
+    rets += a[i,1]+","
+    ret += lstr(a[i,2])+","
+  next
+  rets := left(rets,len(rets)-1)
+  ret := left(ret,len(ret)-1)
+endif
+return {ret,rets}
+
 ***** 17.12.18 функция для when и valid при вводе услуг в лист учёта
 Function f5editkusl(get,when_valid,k)
 Local fl := .t., s, i, lu_cena, lshifr1, v, old_kod, amsg, fl1, fl2, ;
@@ -1526,6 +1592,7 @@ else  // valid
         tip_onko_napr := luslf->onko_napr
         tip_onko_ksg := luslf->onko_ksg
         tip_telemed := luslf->telemed
+        tip_par_org := luslf->par_org
         fl1 := .t.
         select MOSU
         set order to 3
@@ -1570,6 +1637,7 @@ else  // valid
               tip_onko_napr := luslf->onko_napr
               tip_onko_ksg := luslf->onko_ksg
               tip_telemed := luslf->telemed
+              tip_par_org := luslf->par_org
             endif
           else // Старая стоматология 2016
             fl1 := .f.
@@ -1587,7 +1655,7 @@ else  // valid
         mkol := mkol_1 := 1
         verify_uva(2)
         update_gets()
-        if type("row_dom") == "N"
+        if type("row_dom") == "N" .and. empty(tip_par_org)
           m1dom := 0 ; mdom := space(20)
           @ row_dom,1 say space(78) color color1
         endif

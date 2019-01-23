@@ -6176,6 +6176,7 @@ adbf := {;
   {"KOL_1"    ,   "N",     3,     0},; // оплачиваемое количество услуг
   {"STOIM_1"  ,   "N",    10,     2},; // оплачиваемая стоимость услуги
   {"ZF"       ,   "C",    30,     0},; // зубная формула;для стоматологий
+  {"PAR_ORG"  ,   "C",    10,     0},; // разрешённые парные органы
   {"ID_U"     ,   "C",    36,     0},; // код записи об оказанной услуге;GUID оказанной услуги;создается при добавлении записи
   {"PROFIL"   ,   "N",     3,     0},; // профиль;по справочнику V002
   {"PRVS"     ,   "N",     9,     0},; // Специальность врача;по справочнику V004;
@@ -6183,6 +6184,7 @@ adbf := {;
   {"n_base"   ,   "N",     1,     0},; // номер справочника услуг 0-старый,1-новый
   {"is_nul"   ,   "L",     1,     0},;
   {"is_oms"   ,   "L",     1,     0},;
+  {"is_zf"    ,   "N",     1,     0},;
   {"is_edit"  ,   "N",     2,     0},;
   {"number"   ,   "N",     3,     0},;
   {"rec_hu"   ,   "N",     8,     0}}
@@ -6286,7 +6288,9 @@ if found()
     tmp->n_base  := 1
     tmp->is_nul  := .t.
     tmp->is_oms  := .t.
+    tmp->is_zf   := ret_is_zf(tmp->shifr1)
     tmp->rec_hu  := mohu->(recno())
+    tmp->par_org := ret_par_org(tmp->shifr1)
     if is_telemedicina(tmp->shifr1) 
       tmp->is_edit := -1 // не заполняется код врача
     endif
@@ -6459,7 +6463,7 @@ Function f3oms_usl_sluch()
 @ maxrow()-4,59 say padl("Итого: "+lstr(human->cena_1,11,2),20) color "W+/N"
 return NIL
 
-***** 01.11.18 ввод услуг в лист учёта
+***** 22.01.19 ввод услуг в лист учёта
 Function f2oms_usl_sluch(nKey,oBrow)
 Static skod_k := 0, skod_human := 0, SKOD_DIAG, SZF,;
        st_vzrosl, st_arr_dbf, skod_vr, skod_as, aksg := {}
@@ -6843,6 +6847,7 @@ do case
             mname_u := if(nKey == K_INS, space(65), tmp->name_u),;
             mKOD_DIAG := if(nKey == K_INS, SKOD_DIAG, tmp->KOD_DIAG),;
             mZF := if(nKey == K_INS, SZF, tmp->ZF),;
+            mpar_org := space(10), m1par_org := if(nKey == K_INS, "", tmp->ZF),;
             m1PROFIL := if(nKey == K_INS, human_->profil, tmp->profil), mPROFIL,;
             mkol_1 := if(nKey == K_INS, 0, tmp->kol_1),;
             mstoim_1 := if(nKey == K_INS, 0, tmp->stoim_1),;
@@ -6850,10 +6855,13 @@ do case
             mdom, m1dom := if(nKey == K_INS, 0, tmp->dom),;
             mdate_next := if(nKey == K_INS, ctod(""), tmp->DATE_NEXT), fl_date_next := .f.,;  
             mvrach := massist := space(35), vr_uva := as_uva := .t., ;
-            arr_zf, is_usluga_zf, pr_k_usl := {},;  // массив комплексных услуг
+            arr_zf, is_usluga_zf := if(nKey == K_INS, 0, tmp->is_zf),; 
+            pr_k_usl := {},;  // массив комплексных услуг
+            tip_par_org := if(nKey == K_INS, "", tmp->par_org),;
             row_dom, gl_area := {1,0,maxrow()-1,79,0}
     if nKey == K_ENTER
       fl_date_next := is_usluga_disp_nabl(mshifr,mshifr1)
+      mpar_org := ini_par_org(m1par_org,tip_par_org)
       select TMP
       in_array := get_field()
     endif
@@ -6927,13 +6935,17 @@ do case
       ++ix
       @ r1+ix,2 say "Услуга" get mname_u when .f. color color14
       ++ix ; row_dom := r1+ix
-      if iif(empty(mshifr), .t., DomUslugaTFOMS(iif(empty(mshifr1), mshifr, mshifr1)))
+      if human_->usl_ok == 3
+       if iif(empty(mshifr), .t., DomUslugaTFOMS(iif(empty(mshifr1), mshifr, mshifr1)))
         @ row_dom,2 say "Где оказана услуга" get mdom ;
                     reader {|x|menu_reader(x,mm_dom,A__MENUVERT,,,.f.)} ;
                     when iif(empty(mshifr), .t., DomUslugaTFOMS(iif(empty(mshifr1), mshifr, mshifr1)))
-      endif
-      if human_->usl_ok == 3
+       endif
         @ row_dom,35 say "Дата след.явки для дисп.набл-ия" get mdate_next when fl_date_next
+      elseif human_->usl_ok < 3
+        @ row_dom,2 say "Органы/части тела" get mpar_org ;
+                    reader {|x|menu_reader(x,{{|k,r,c|get_par_org(r,c,k,tip_par_org)}},A__FUNCTION,,,.f.)} ;
+                    when !empty(tip_par_org)
       endif
       ++ix
       @ r1+ix,2 say "Профиль" get MPROFIL ;
@@ -7082,20 +7094,6 @@ do case
             next
           else// запись одной введённой услуги
             SKOD_DIAG := mkod_diag
-            /*if is_zf_stomat == 1 .and. !empty(mzf)
-              SZF := mzf
-              if mn_base == 0
-                usl->(dbGoto(mu_kod))
-                if usl->zf == 0 // не вводится зубная формула
-                  mzf := ""  // обнуляем
-                endif
-              else
-                mosu->(dbGoto(mu_kod))
-                if mosu->zf == 0 // не вводится зубная формула
-                  mzf := ""  // обнуляем
-                endif
-              endif
-            endif*/
             if mn_base == 1 .and. mu_kod == 0
               // добавляем в свой справочник федеральную услугу
               select MOSU
@@ -7191,7 +7189,11 @@ do case
               mohu->PROFIL  := m1PROFIL
               mohu->PRVS    := m1PRVS
               mohu->kod_diag:= mkod_diag
-              mohu->zf      := mzf
+              if is_zf_stomat == 1
+                mohu->ZF    := mzf
+              else
+                mohu->ZF    := m1par_org
+              endif
               //
               mrec_hu := mohu->(recno())
               if is_zf_stomat == 1
@@ -7221,7 +7223,11 @@ do case
             tmp->KOL_1   := mkol_1
             tmp->STOIM_1 := mstoim_1
             tmp->kod_diag:= mkod_diag
-            tmp->ZF      := mzf
+            if is_zf_stomat == 1
+              tmp->ZF    := mzf
+            else
+              tmp->ZF    := m1par_org
+            endif
             tmp->PROFIL  := m1profil
             tmp->PRVS    := m1prvs
             tmp->date_u1 := mdate_u1
@@ -7231,6 +7237,10 @@ do case
             tmp->is_nul  := mis_nul
             tmp->is_oms  := mis_oms
             tmp->is_edit := mis_edit
+            if nKey == K_INS
+              tmp->is_zf := is_usluga_zf
+            endif
+            tmp->par_org := tip_par_org
             tmp->n_base  := mn_base
             tmp->dom     := m1dom
             tmp->rec_hu  := mrec_hu

@@ -1284,6 +1284,7 @@ endif
 //
 fl := (ascan(mdiagnoz, {|x| padr(x,5) == "Z03.1" }) > 0)
 if is_disp_DDS .or. is_disp_DVN .or. is_prof_PN
+  aadd(ta,'для данного л/учёта пока не реализовано создание реестра/счёта')
   is_oncology := 0
   if fl
     aadd(ta,'при диспансеризации не должно быть основного (или сопутствующего) диагноза Z03.1 "наблюдение при подозрении на злокачественную опухоль"')
@@ -1304,13 +1305,14 @@ else
 endif
 al := "luslf"
 if is_oncology > 0 // онкология - направления
-  if is_oncology == 2 // онкология
+  aadd(ta,'для данного л/учёта пока не реализовано создание реестра/счёта')
+  /*if is_oncology == 2 // онкология
     if mpovod == 4  // Диспансерное наблюдение
       is_oncology := 1 // для дисп.наблюдения не вводится онкология
     elseif human_->USL_OK == 3 .and. len(au_lu) == 0
       is_oncology := 1 // пока не введены услуги - не проверяем онкологию
     endif
-  endif
+  endif*/
   if human->OBRASHEN == '1' .and. ascan(mdiagnoz, {|x| padr(x,5) == "Z03.1" }) == 0
     aadd(ta,'при "подозрении на ЗНО" в листе учёта обязательно должен быть основной (или сопутствующий) диагноз Z03.1 "наблюдение при подозрении на злокачественную опухоль"')
   endif
@@ -1437,6 +1439,26 @@ do while mohu->kod == human->kod .and. !eof()
   endif
   ltip_onko := 0
   if usl_found
+    if !empty(&al.->par_org)
+      if empty(mohu->zf)
+        aadd(ta,'в услуге '+s+' не введены органы (части тела), на которых выполнена операция')
+      else
+        a1 := List2Arr(mohu->zf)
+        a2 := List2Arr(&al.->par_org)
+        s1 := ""
+        for i := 1 to len(a2)
+          if ascan(a1,a2[i]) > 0
+            s1 += lstr(a2[i])+","
+          endif
+        next
+        if !empty(s1) 
+          s1 := left(s1,len(s1)-1)
+        endif
+        if empty(s1) .or. !(s1 == alltrim(mohu->zf))
+          aadd(ta,'в услуге '+s+' некорректно введены органы (части тела) '+alltrim(mohu->zf))
+        endif
+      endif
+    endif 
     ltip_onko := &al.->onko_ksg
     do case
       case human_->usl_ok == 1
@@ -4331,9 +4353,7 @@ else
                   "Невыписанные реестры случаев","R/BG",,,,,"f2create_reestr",,;
                   {'═','░','═',"N/BG,W+/N,B/BG,W+/B,R/BG",.f.,180} )
     rest_box(buf)
-    if tmp->nyear > 2018 // 2019 год
-      func_error(10,"В ТФОМС пока закрыт приём реестров за 2019 год")
-    elseif sys_date < stod(strzero(tmp->nyear,4)+strzero(tmp->nmonth,2)+"11")
+    if sys_date < stod(strzero(tmp->nyear,4)+strzero(tmp->nmonth,2)+"11")
       func_error(10,"Сегодня "+date_8(sys_date)+", а реестры разрешается отсылать с 11 числа")
     elseif mo_Lock_Task(X_OMS)
       close databases

@@ -1702,7 +1702,7 @@ do case
 endcase
 return k
 
-***** 16.01.19 создание XML-файлов реестра
+***** 22.01.19 создание XML-файлов реестра
 Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
 Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, ;
       lst, lshifr1, code_reestr, mb, me, nsh, adiag_talon[16]
@@ -1970,6 +1970,7 @@ do while !eof()
         else
           is_zak_sl_vr := .t. // КСГ
           if human_->USL_OK < 3 .and. p_tip_reestr == 1
+            tarif_zak_sl := hu->STOIM_1
             if !empty(human_2->pc1)
               akslp := List2Arr(human_2->pc1)
             endif  
@@ -2245,7 +2246,7 @@ do while !eof()
       else
         s := "2.2" // Диспансеризация
       endif
-      mo_add_xml_stroke(oSL,"P_CEL",s)
+      mo_add_xml_stroke(oSLUCH,"P_CEL",s)
       mo_add_xml_stroke(oSLUCH,"P_OTK",iif(m1p_otk==0,'0','1')) // Признак отказа
     endif
     mo_add_xml_stroke(oSLUCH,"DATE_Z_1",date2xml(human->N_DATA))
@@ -2438,15 +2439,20 @@ do while !eof()
      oKSG := oSL:Add( HXMLNode():New( "KSG_KPG" ) )
       mo_add_xml_stroke(oKSG,"N_KSG",lshifr_zak_sl)
       if !empty(human_2->pc3) .and. !left(human_2->pc3,1) == '6' // кроме "старости"
-        mo_add_xml_stroke(oKSG,"DKK1",human_2->pc3)
-        //mo_add_xml_stroke(oKSG,"DKK2",human_2->pc3)
+        mo_add_xml_stroke(oKSG,"CRIT",human_2->pc3)
+        //mo_add_xml_stroke(oKSG,"CRIT",human_2->pc3)  // второй критерий
       endif
       mo_add_xml_stroke(oKSG,"SL_K",iif(empty(akslp),'0','1'))
       if !empty(akslp)
-        mo_add_xml_stroke(oKSG,"IT_SL",lstr(akslp[2],7,5))
+        mo_add_xml_stroke(oKSG,"IT_SL",lstr(ret_koef_kslp(akslp),7,5))
         oSLk := oKSG:Add( HXMLNode():New( "SL_KOEF" ) )
          mo_add_xml_stroke(oSLk,"ID_SL",lstr(akslp[1]))
          mo_add_xml_stroke(oSLk,"VAL_C",lstr(akslp[2],7,5))
+       if len(akslp) >= 4
+        oSLk := oKSG:Add( HXMLNode():New( "SL_KOEF" ) )
+         mo_add_xml_stroke(oSLk,"ID_SL",lstr(akslp[3]))
+         mo_add_xml_stroke(oSLk,"VAL_C",lstr(akslp[4],7,5))
+       endif
       endif
       if !empty(akiro)
         oSLk := oKSG:Add( HXMLNode():New( "S_KIRO" ) )
@@ -2574,7 +2580,9 @@ do while !eof()
       if j > 0
         sCOMENTSL += lstr(j)
       endif
-      sCOMENTSL += ":;" // пока так (потом добавим дисп.наблюдение)
+      if human_->USL_OK == 3 .and. eq_any(lvidpom,1,11,12,13)
+        sCOMENTSL += ":;" // пока так (потом добавим дисп.наблюдение)
+      endif
     else
       if is_zak_sl .or. is_zak_sl_vr
         mo_add_xml_stroke(oSL,"ED_COL",'1')
@@ -2591,12 +2599,12 @@ do while !eof()
           j := iif(human->RAB_NERAB==0, 21, 11)
         endif
         sCOMENTSL := lstr(j)+":;"  // пока так (потом добавим постановку на дисп.учёт)
-      //elseif between(human->ishod,301,302)  
-        //j := iif(between(m1mesto_prov,0,1), m1mesto_prov, 0)
-        //fl := .t.
+      elseif between(human->ishod,301,302)  
+        j := iif(between(m1mesto_prov,0,1), m1mesto_prov, 0)
+        sCOMENTSL := lstr(j)
       endif
     endif
-    if !empty(sCOMENTSL)
+    if p_tip_reestr == 1 .and. !empty(sCOMENTSL)
       mo_add_xml_stroke(oSL,"COMENTSL",sCOMENTSL)
     endif 
     if !is_zak_sl
@@ -2685,7 +2693,7 @@ do while !eof()
         mo_add_xml_stroke(oUSL,"ID_U"    ,mohu->ID_U)
         mo_add_xml_stroke(oUSL,"LPU"     ,CODE_LPU)
         if human_->USL_OK == 1 .and. is_otd_dep
-          otd->(dbGoto(hu->OTD))
+          otd->(dbGoto(mohu->OTD))
           f_put_glob_podr(human_->USL_OK,human->K_DATA) // заполнить код подразделения
           if (i := ascan(mm_otd_dep, {|x| x[2] == glob_otd_dep})) == 0
             i := 1
@@ -2710,17 +2718,66 @@ do while !eof()
           p2->(dbGoto(mohu->kod_vr))
           mo_add_xml_stroke(oUSL,"CODE_MD" ,p2->snils)
         endif
-        if STisZF(human_->USL_OK,human_->PROFIL)
+        if !empty(mohu->zf)
           dbSelectArea(laluslf)
-          find (padr(lshifr,20)) 
-          if &laluslf.->zf == 1  // обязателен ввод зубной формулы
-            mo_add_xml_stroke(oUSL,"COMENTU",arr2list(STretArrZF(mohu->zf))) // формула зуба
+          find (padr(lshifr,20))
+          if found() 
+            if STisZF(human_->USL_OK,human_->PROFIL) .and. &laluslf.->zf == 1  // обязателен ввод зубной формулы
+              mo_add_xml_stroke(oUSL,"COMENTU",arr2list(STretArrZF(mohu->zf))) // формула зуба
+            elseif !empty(&laluslf.->par_org) // проверим на парные операции
+              mo_add_xml_stroke(oUSL,"COMENTU",mohu->zf) // парные органы
+            endif
           endif
         endif
       next j
     endif
     if len(arr_t21) > 0
-      //        aadd(arr_t21, {t21->shifr,t21->shifr_mz,0,hu->(recno())})
+      for j := 1 to len(arr_t21) //        aadd(arr_t21, {t21->shifr,t21->shifr_mz,0,hu->(recno())})
+        ++iusl
+        select HU
+        goto (arr_t21[j,4])
+        //
+        oUSL := oSL:Add( HXMLNode():New( "USL" ) )
+        mo_add_xml_stroke(oUSL,"IDSERV"  ,lstr(iusl))
+        mo_add_xml_stroke(oUSL,"ID_U"    ,mo_guid(4,iusl))
+        if hu->is_edit == 1 // гематологические исследования
+          mo_add_xml_stroke(oUSL,"LPU"   ,'125901') // т.е. иссл-ие проводится в КДП №2
+        elseif alltrim(arr_t21[j,1]) == "4.20.2" // жидкостная цитология
+          mo_add_xml_stroke(oUSL,"LPU"   ,'103001') // т.е. иссл-ие проводится в онкологии
+        else
+          mo_add_xml_stroke(oUSL,"LPU"   ,CODE_LPU)
+        endif
+        if human_->USL_OK == 1 .and. is_otd_dep
+          otd->(dbGoto(hu->OTD))
+          f_put_glob_podr(human_->USL_OK,human->K_DATA) // заполнить код подразделения
+          if (i := ascan(mm_otd_dep, {|x| x[2] == glob_otd_dep})) == 0
+            i := 1
+          endif  
+          mo_add_xml_stroke(oUSL,"LPU_1",lstr(mm_otd_dep[i,3]))
+          mo_add_xml_stroke(oUSL,"PODR" ,lstr(glob_otd_dep))
+        endif
+        mo_add_xml_stroke(oUSL,"PROFIL"  ,lstr(hu_->PROFIL))
+        mo_add_xml_stroke(oUSL,"VID_VME",alltrim(arr_t21[j,2]))
+        mo_add_xml_stroke(oUSL,"DET"     ,iif(human->VZROS_REB==0,'0','1'))
+        mo_add_xml_stroke(oUSL,"DATE_IN" ,date2xml(c4tod(hu->DATE_U)))
+        mo_add_xml_stroke(oUSL,"DATE_OUT",date2xml(c4tod(hu_->DATE_U2)))
+        mo_add_xml_stroke(oUSL,"DS"      ,hu_->kod_diag)
+        mo_add_xml_stroke(oUSL,"CODE_USL",alltrim(arr_t21[j,2]))
+        mo_add_xml_stroke(oUSL,"KOL_USL" ,lstr(arr_t21[j,3],6,2))
+        mo_add_xml_stroke(oUSL,"TARIF"   ,'0')//lstr(hu->U_CENA,10,2))
+        mo_add_xml_stroke(oUSL,"SUMV_USL",'0')//lstr(hu->STOIM_1,10,2))
+        mo_add_xml_stroke(oUSL,"PRVS",put_prvs_to_reestr(hu_->PRVS,_NYEAR))
+        if c4tod(hu->DATE_U) < human->n_data ; // если сделано ранее
+               .or. eq_any(hu->is_edit,-1,1) .or. alltrim(arr_t21[j,1]) == "4.20.2" // не заполняется код врача
+          mo_add_xml_stroke(oUSL,"CODE_MD",'0')
+        else
+          p2->(dbGoto(hu->kod_vr))
+          mo_add_xml_stroke(oUSL,"CODE_MD" ,p2->snils)
+        endif
+      next j  
+    endif 
+    if p_tip_reestr == 2 .and. !empty(sCOMENTSL)
+      mo_add_xml_stroke(oSL,"COMENTSL",sCOMENTSL)
     endif 
    next isl  
   select RHUM
@@ -2832,7 +2889,7 @@ if chip_create_zipXML(name_zip,arr_zip,.t.)
 endif
 return NIL
 
-***** 28.08.18 создать счета по результатам прочитанного реестра СП
+***** 23.01.19 создать счета по результатам прочитанного реестра СП
 Function create_schet19_from_XML(arr_XML_info,aerr,fl_msg,arr_s,name_sp_tk)
 Local arr_schet := {}, c, len_stand, _arr_stand, lshifr, i, j, k, lbukva,;
       doplataF, doplataR, mnn, fl, name_zip, arr_zip := {}, lshifr1,;
@@ -2854,6 +2911,9 @@ use (cur_dir+"tmp_r_t5") new index (cur_dir+"tmpt5") alias T5
 use (cur_dir+"tmp_r_t6") new index (cur_dir+"tmpt6") alias T6
 use (cur_dir+"tmp_r_t7") new index (cur_dir+"tmpt7") alias T7
 use (cur_dir+"tmp_r_t8") new index (cur_dir+"tmpt8") alias T8
+use (cur_dir+"tmp_r_t9") new index (cur_dir+"tmpt9") alias T9
+use (cur_dir+"tmp_r_t10") new index (cur_dir+"tmpt10") alias T10
+use (cur_dir+"tmp_r_t11") new index (cur_dir+"tmpt11") alias T11
 R_Use(dir_server+"mo_pers",,"PERS")
 R_Use(dir_server+"mo_otd",,"OTD")
 R_Use(dir_server+"uslugi",,"USL")
@@ -3130,19 +3190,7 @@ for ii := 1 to len(arr_schet)
   oXmlDoc := HXMLDoc():New()
   oXmlDoc:Add( HXMLNode():New( "ZL_LIST") )
    oXmlNode := oXmlDoc:aItems[1]:Add( HXMLNode():New( "ZGLV" ) )
-    if tmp1->_YEAR > 2018 .or. (tmp1->_YEAR == 2018 .and. tmp1->_MONTH >= 9) // с сентября 2018 года
-      s := '3.1'
-    else
-      s := '2.12'
-      if c == "H"
-        if tmp1->_YEAR > 2017
-          s := '2.13'
-          if tmp1->_YEAR == 2018 .and. tmp1->_MONTH >= 5 // с мая 2018 года
-            s := '2.14'
-          endif
-        endif
-      endif
-    endif
+    s := '3.11'
     mo_add_xml_stroke(oXmlNode,"VERSION" ,s)
     mo_add_xml_stroke(oXmlNode,"DATA"    ,date2xml(schet_->DSCHET))
     mo_add_xml_stroke(oXmlNode,"FILENAME",mo_xml->FNAME)
@@ -3193,7 +3241,7 @@ for ii := 1 to len(arr_schet)
       enddo
       oZAP := oXmlDoc:aItems[1]:Add( HXMLNode():New( "ZAP" ) )
        mo_add_xml_stroke(oZAP,"N_ZAP" ,lstr(human_->schet_zap))
-       mo_add_xml_stroke(oZAP,"PR_NOV",t1->PR_NOV) // по версии 2.12
+       mo_add_xml_stroke(oZAP,"PR_NOV",t1->PR_NOV) 
        oPAC := oZAP:Add( HXMLNode():New( "PACIENT" ) )
         mo_add_xml_stroke(oPAC,"ID_PAC",t1->ID_PAC)
         mo_add_xml_stroke(oPAC,"VPOLIS",t1->VPOLIS)
@@ -3204,8 +3252,14 @@ for ii := 1 to len(arr_schet)
         if !empty(t1->ENP)
           mo_add_xml_stroke(oPAC,"ENP",t1->ENP)
         endif
-        mo_add_xml_stroke(oPAC,"SMO"   ,t1->smo)
+        //mo_add_xml_stroke(oPAC,"ST_OKATO" ,...) // Регион страхования
+        if !empty(t1->smo)
+          mo_add_xml_stroke(oPAC,"SMO",t1->smo)
+        endif
         mo_add_xml_stroke(oPAC,"SMO_OK",t1->SMO_OK)
+        if !empty(t1->SMO_NAM)
+          mo_add_xml_stroke(oPAC,"SMO_NAM",t1->SMO_NAM)
+        endif
         mo_add_xml_stroke(oPAC,"NOVOR",t1->NOVOR)
         mo_add_xml_stroke(oPAC,"MO_PR",t1->MO_PR)
         if !empty(t1->VNOV_D)
@@ -3220,7 +3274,7 @@ for ii := 1 to len(arr_schet)
           mo_add_xml_stroke(oDISAB,"DS_INV",t1->DS_INV)
          endif
         endif
-       oSLUCH := oZAP:Add( HXMLNode():New( "SLUCH" ) )
+       oSLUCH := oZAP:Add( HXMLNode():New( "Z_SL" ) )
         mo_add_xml_stroke(oSLUCH,"IDCASE",lstr(human_->schet_zap))
         mo_add_xml_stroke(oSLUCH,"ID_C"  ,t1->ID_C)
         if !empty(t1->DISP)
@@ -3228,17 +3282,15 @@ for ii := 1 to len(arr_schet)
         endif
         mo_add_xml_stroke(oSLUCH,"USL_OK",t1->USL_OK)
         mo_add_xml_stroke(oSLUCH,"VIDPOM",t1->VIDPOM)
+       if p_tip_reestr == 1
+        mo_add_xml_stroke(oSLUCH,"ISHOD",t1->ISHOD)
+        //if !empty(t1->VB_P)
+        //mo_add_xml_stroke(oSLUCH,"VB_P"  ,t1->VB_P)) // Признак внутрибольничного перевода при оплате законченного случая как суммы стоимостей пребывания пациента в разных профильных отделениях, каждое из которых оплачивается по КСГ
+        //endif
+        mo_add_xml_stroke(oSLUCH,"IDSP",t1->IDSP)
+        mo_add_xml_stroke(oSLUCH,"SUMV",t1->sumv)
         if !empty(t1->FOR_POM)
           mo_add_xml_stroke(oSLUCH,"FOR_POM",t1->FOR_POM)
-        endif
-        if !empty(t1->VID_HMP)               
-          mo_add_xml_stroke(oSLUCH,"VID_HMP",t1->VID_HMP)
-        endif
-        if !empty(t1->METOD_HMP)
-          mo_add_xml_stroke(oSLUCH,"METOD_HMP",t1->METOD_HMP)
-        endif
-        if !empty(t1->F_SP)
-          mo_add_xml_stroke(oSLUCH,"F_SP",t1->F_SP)
         endif
         if !empty(t1->NPR_MO)
           mo_add_xml_stroke(oSLUCH,"NPR_MO",t1->NPR_MO)
@@ -3246,81 +3298,20 @@ for ii := 1 to len(arr_schet)
         if !empty(t1->NPR_DATE)
           mo_add_xml_stroke(oSLUCH,"NPR_DATE",t1->NPR_DATE)
         endif
-        if !empty(t1->EXTR)
-          mo_add_xml_stroke(oSLUCH,"EXTR",t1->EXTR)
+        mo_add_xml_stroke(oSLUCH,"LPU",t1->LPU)
+       else
+        if !empty(t1->FOR_POM)
+          mo_add_xml_stroke(oSLUCH,"FOR_POM",t1->FOR_POM)
         endif
         mo_add_xml_stroke(oSLUCH,"LPU",t1->LPU)
-        if !empty(t1->LPU_1)
-          mo_add_xml_stroke(oSLUCH,"LPU_1",t1->LPU_1)
-        endif
-        if !empty(t1->PODR)
-          mo_add_xml_stroke(oSLUCH,"PODR",t1->PODR)
-        endif
-        mo_add_xml_stroke(oSLUCH,"PROFIL",t1->PROFIL)
-        if !empty(t1->PROFIL_K)
-          mo_add_xml_stroke(oSLUCH,"PROFIL_K",t1->PROFIL_K)
-        endif
-        if !empty(t1->DET)
-          mo_add_xml_stroke(oSLUCH,"DET",t1->DET)
-        endif
-        if !empty(t1->P_CEL)
-          mo_add_xml_stroke(oSLUCH,"P_CEL",t1->P_CEL)
-        endif
-        if !empty(t1->VBR)
-          mo_add_xml_stroke(oSLUCH,"VBR"     ,t1->VBR)
-        endif
-        if !empty(t1->TAL_D)
-          mo_add_xml_stroke(oSLUCH,"TAL_D"   ,t1->TAL_D)
-          mo_add_xml_stroke(oSLUCH,"TAL_P"   ,t1->TAL_P)
-          if !empty(t1->TAL_NUM)
-            mo_add_xml_stroke(oSLUCH,"TAL_NUM",t1->TAL_NUM)
-          endif
-        endif
-        mo_add_xml_stroke(oSLUCH,"NHISTORY",t1->NHISTORY)
-        if !empty(t1->P_PER)
-          mo_add_xml_stroke(oSLUCH,"P_PER"   ,t1->P_PER)
-        endif
-        if !empty(t1->P_OTK)
-          mo_add_xml_stroke(oSLUCH,"P_OTK"   ,t1->P_OTK)
-        endif
-        mo_add_xml_stroke(oSLUCH,"DATE_1"  ,t1->DATE_1)
-        mo_add_xml_stroke(oSLUCH,"DATE_2"  ,t1->DATE_2)
-        if !empty(t1->DS0)
-          mo_add_xml_stroke(oSLUCH,"DS0"   ,t1->DS0)
-        endif
-        mo_add_xml_stroke(oSLUCH,"DS1"     ,t1->DS1)
-        if !empty(t1->DS1_PR)
-          mo_add_xml_stroke(oSLUCH,"DS1_PR",t1->DS1_PR)
-        endif
-        if p_tip_reestr == 2 .and. !empty(t1->DS_ONK)
-          mo_add_xml_stroke(oSLUCH,"DS_ONK",t1->DS_ONK)
-        endif
-        if !empty(t1->PR_D_N)
-          mo_add_xml_stroke(oSLUCH,"PR_D_N",t1->PR_D_N)
-        endif
-        for j := 1 to 7
-          pole := "t1->DS2"+iif(j==1, "", "_"+lstr(j))
-          if !empty(&pole)
-            mo_add_xml_stroke(oSLUCH,"DS2",&pole)
-          endif
-        next
-        for j := 1 to 3
-          pole := "t1->DS3"+iif(j==1, "", "_"+lstr(j))
-          if !empty(&pole)
-            mo_add_xml_stroke(oSLUCH,"DS3",&pole)
-          endif
-        next
-        if p_tip_reestr == 1 .and. !empty(t1->DS_ONK)
-          mo_add_xml_stroke(oSLUCH,"DS_ONK",t1->DS_ONK)
-        endif
-        if !empty(t1->C_ZAB)
-          mo_add_xml_stroke(oSLUCH,"C_ZAB",t1->C_ZAB)
-        endif
-        if !empty(t1->DN)
-          mo_add_xml_stroke(oSLUCH,"DN",t1->DN)
-        endif
-        if !empty(t1->MSE)
-          mo_add_xml_stroke(oSLUCH,"MSE",t1->MSE)
+        mo_add_xml_stroke(oSLUCH,"VBR",t1->VBR)
+        mo_add_xml_stroke(oSLUCH,"P_CEL",t1->p_cel)
+        mo_add_xml_stroke(oSLUCH,"P_OTK",t1->p_otk) // Признак отказа
+       endif 
+        mo_add_xml_stroke(oSLUCH,"DATE_Z_1",t1->DATE_Z_1)
+        mo_add_xml_stroke(oSLUCH,"DATE_Z_2",t1->DATE_Z_2)
+        if !empty(t1->kd_z)
+          mo_add_xml_stroke(oSLUCH,"KD_Z",t1->kd_z) // Указывается количество койко-дней для стационара, количество пациенто-дней для дневного стационара
         endif
         for j := 1 to 3
           pole := "t1->VNOV_M"+iif(j==1, "", "_"+lstr(j))
@@ -3328,10 +3319,98 @@ for ii := 1 to len(arr_schet)
             mo_add_xml_stroke(oSLUCH,"VNOV_M",&pole)
           endif
         next
-        for j1 := 1 to 4
+        mo_add_xml_stroke(oSLUCH,"RSLT",t1->RSLT)
+       if p_tip_reestr == 1
+        if !empty(t1->MSE)
+          mo_add_xml_stroke(oSLUCH,"MSE",t1->MSE)
+        endif
+       else
+        mo_add_xml_stroke(oSLUCH,"ISHOD",t1->ISHOD)
+        mo_add_xml_stroke(oSLUCH,"IDSP",t1->IDSP)
+        mo_add_xml_stroke(oSLUCH,"SUMV",t1->sumv)
+       endif
+       for isl := 1 to 1//kol_sl
+        oSL := oSLUCH:Add( HXMLNode():New( "SL" ) )
+         mo_add_xml_stroke(oSL,"SL_ID",t1->SL_ID)
+         if !empty(t1->VID_HMP)               
+          mo_add_xml_stroke(oSL,"VID_HMP",t1->VID_HMP)
+         endif
+         if !empty(t1->METOD_HMP)
+          mo_add_xml_stroke(oSL,"METOD_HMP",t1->METOD_HMP)
+         endif
+         if !empty(t1->LPU_1)
+          mo_add_xml_stroke(oSL,"LPU_1",t1->LPU_1)
+         endif
+         if !empty(t1->PODR)
+          mo_add_xml_stroke(oSL,"PODR",t1->PODR)
+         endif
+         mo_add_xml_stroke(oSL,"PROFIL",t1->PROFIL)
+        if p_tip_reestr == 1
+         if !empty(t1->PROFIL_K)
+          mo_add_xml_stroke(oSL,"PROFIL_K",t1->PROFIL_K)
+         endif
+         if !empty(t1->DET)
+          mo_add_xml_stroke(oSL,"DET",t1->DET)
+         endif
+         if !empty(t1->P_CEL)
+          mo_add_xml_stroke(oSL,"P_CEL",t1->P_CEL)
+         endif
+        endif
+         if !empty(t1->TAL_D)
+          mo_add_xml_stroke(oSL,"TAL_D",t1->TAL_D)
+          mo_add_xml_stroke(oSL,"TAL_P",t1->TAL_P)
+          if !empty(t1->TAL_NUM)
+            mo_add_xml_stroke(oSL,"TAL_NUM",t1->TAL_NUM)
+          endif
+         endif
+         mo_add_xml_stroke(oSL,"NHISTORY",t1->NHISTORY)
+         if !empty(t1->P_PER)
+          mo_add_xml_stroke(oSL,"P_PER",t1->P_PER)
+         endif
+         mo_add_xml_stroke(oSL,"DATE_1",t1->DATE_1)
+         mo_add_xml_stroke(oSL,"DATE_2",t1->DATE_2)
+         if !empty(t1->kd)
+          mo_add_xml_stroke(oSL,"KD",t1->kd) // Указывается количество койко-дней для стационара, количество пациенто-дней для дневного стационара
+         endif
+         if !empty(t1->DS0)
+          mo_add_xml_stroke(oSL,"DS0",t1->DS0)
+         endif
+         mo_add_xml_stroke(oSL,"DS1",t1->DS1)
+        if p_tip_reestr == 2
+         if !empty(t1->DS1_PR)
+          mo_add_xml_stroke(oSL,"DS1_PR",t1->DS1_PR)
+         endif
+         if !empty(t1->PR_D_N)
+          mo_add_xml_stroke(oSL,"PR_D_N",t1->PR_D_N)
+         endif
+        endif
+        if p_tip_reestr == 1
+         for j := 1 to 7
+          pole := "t1->DS2"+iif(j==1, "", "_"+lstr(j))
+          if !empty(&pole)
+            mo_add_xml_stroke(oSL,"DS2",&pole)
+          endif
+         next
+         for j := 1 to 3
+          pole := "t1->DS3"+iif(j==1, "", "_"+lstr(j))
+          if !empty(&pole)
+            mo_add_xml_stroke(oSL,"DS3",&pole)
+          endif
+         next
+         if !empty(t1->C_ZAB)
+          mo_add_xml_stroke(oSL,"C_ZAB",t1->C_ZAB)
+         endif
+         if !empty(t1->DS_ONK)
+          mo_add_xml_stroke(oSL,"DS_ONK",t1->DS_ONK)
+         endif
+         if !empty(t1->DN)
+          mo_add_xml_stroke(oSL,"DN",t1->DN)
+         endif
+        else // диспансеризация
+         for j1 := 1 to 4
           pole := "t1->DS2N"+iif(j1==1, "", "_"+lstr(j1))
           if !empty(&pole)
-           oD := oSLUCH:Add( HXMLNode():New( "DS2_N" ) )
+           oD := oSL:Add( HXMLNode():New( "DS2_N" ) )
             mo_add_xml_stroke(oD,"DS2",&pole)
             pole := "t1->DS2N"+iif(j1==1, "", "_"+lstr(j1))+"_PR"
             if !empty(&pole)
@@ -3342,66 +3421,12 @@ for ii := 1 to len(arr_schet)
               mo_add_xml_stroke(oD,"PR_D",&pole)
             endif
           endif
-        next
-        if !empty(t1->CODE_MES1)
-          mo_add_xml_stroke(oSLUCH,"CODE_MES1",t1->CODE_MES1)
-        endif
-        select T6
-        find (t1->IDCASE)
-        do while t1->IDCASE == t6->IDCASE .and. !eof()
-         oNAPR := oSLUCH:Add( HXMLNode():New( "NAPR" ) )
-          mo_add_xml_stroke(oNAPR,"NAPR_DATE",t6->NAPR_DATE)
-          mo_add_xml_stroke(oNAPR,"NAPR_V",t6->NAPR_V)
-          if int(val(t6->NAPR_V)) == 3
-            mo_add_xml_stroke(oNAPR,"MET_ISSL",t6->MET_ISSL)
-            mo_add_xml_stroke(oNAPR,"NAPR_USL",t6->U_KOD)
-          endif
-          skip
-        enddo
-        if !empty(t1->DS1_T)
-         oONK_SL := oSLUCH:Add( HXMLNode():New( "ONK_SL" ) )
-          mo_add_xml_stroke(oONK_SL,"DS1_T",t1->DS1_T)
-          if !empty(t1->PR_CONS)
-           mo_add_xml_stroke(oONK_SL,"PR_CONS",t1->PR_CONS)
-           mo_add_xml_stroke(oONK_SL,"DT_CONS",t1->DT_CONS)
-          endif
-          mo_add_xml_stroke(oONK_SL,"STAD",t1->STAD)
-          mo_add_xml_stroke(oONK_SL,"ONK_T",t1->ONK_T)
-          mo_add_xml_stroke(oONK_SL,"ONK_N",t1->ONK_N)
-          mo_add_xml_stroke(oONK_SL,"ONK_M",t1->ONK_M)
-          if !empty(t1->MTSTZ)
-           mo_add_xml_stroke(oONK_SL,"MTSTZ",t1->MTSTZ)
-          endif
-          select T7
-          find (t1->IDCASE)
-          do while t1->IDCASE == t7->IDCASE .and. !eof()
-           oDIAG := oONK_SL:Add( HXMLNode():New( "B_DIAG" ) )
-            if !empty(t7->DIAG_DATE)
-             mo_add_xml_stroke(oDIAG,"DIAG_DATE",t7->DIAG_DATE)
-            else
-             mo_add_xml_stroke(oDIAG,"DIAG_TIP", t7->DIAG_TIP)
-             mo_add_xml_stroke(oDIAG,"DIAG_CODE",t7->DIAG_CODE)
-             mo_add_xml_stroke(oDIAG,"DIAG_RSLT",t7->DIAG_RSLT)
-            endif
-           skip
-          enddo
-          select T8
-          find (t1->IDCASE)
-          do while t1->IDCASE == t8->IDCASE .and. !eof()
-           oPROT := oONK_SL:Add( HXMLNode():New( "B_PROT" ) )
-            mo_add_xml_stroke(oPROT,"PROT",t8->PROT)
-            mo_add_xml_stroke(oPROT,"D_PROT",t8->D_PROT)
-           skip
-          enddo
-          if !empty(t1->SOD)
-           mo_add_xml_stroke(oONK_SL,"SOD",t1->SOD)
-          endif
-        endif
-        mo_add_xml_stroke(oSLUCH,"RSLT",t1->RSLT)
-        select T5
-        find (t1->IDCASE)
-        if found()
-          oPRESCRIPTION := oSLUCH:Add( HXMLNode():New( "PRESCRIPTION" ) )
+         next
+         mo_add_xml_stroke(oSL,"DS_ONK",lstr(i))
+         select T5
+         find (t1->IDCASE)
+         if found()
+          oPRESCRIPTION := oSL:Add( HXMLNode():New( "PRESCRIPTION" ) )
           do while t1->IDCASE == t5->IDCASE .and. !eof()
             oPRESCRIPTIONS := oPRESCRIPTION:Add( HXMLNode():New( "PRESCRIPTIONS" ) ) 
             if !empty(t5->NAZ_N)
@@ -3434,38 +3459,117 @@ for ii := 1 to len(arr_schet)
             select T5
             skip
           enddo
+         endif
         endif
-        mo_add_xml_stroke(oSLUCH,"ISHOD"   ,t1->ISHOD)
-        mo_add_xml_stroke(oSLUCH,"PRVS"    ,t1->PRVS)
-        if !empty(t1->IDDOKT)
-          mo_add_xml_stroke(oSLUCH,"IDDOKT",t1->IDDOKT)
-        endif
-        if !empty(t1->OS_SLUCH)
-          mo_add_xml_stroke(oSLUCH,"OS_SLUCH",t1->OS_SLUCH)
-        endif
-        mo_add_xml_stroke(oSLUCH,"IDSP"    ,t1->IDSP)
-        if !empty(t1->ED_COL)
-          mo_add_xml_stroke(oSLUCH,"ED_COL",t1->ED_COL)
-          mo_add_xml_stroke(oSLUCH,"TARIF" ,t1->TARIF)
-        endif
-        mo_add_xml_stroke(oSLUCH,"SUMV"    ,t1->SUMV)
-        if !empty(t1->AD_CR)
-          mo_add_xml_stroke(oSLUCH,"AD_CRITERION",t1->AD_CR)
-          if !empty(t1->DKK2)
-            mo_add_xml_stroke(oSLUCH,"DKK2",t1->DKK2)
+        if !empty(t1->n_ksg)
+         oKSG := oSL:Add( HXMLNode():New( "KSG_KPG" ) )
+          mo_add_xml_stroke(oKSG,"N_KSG",t1->n_ksg)
+          if !empty(t1->crit)
+           mo_add_xml_stroke(oKSG,"CRIT",t1->crit)
           endif
+          if !empty(t1->crit2)
+           mo_add_xml_stroke(oKSG,"CRIT",t1->crit2)
+          endif
+          mo_add_xml_stroke(oKSG,"SL_K",t1->sl_k)
+          if !empty(t1->IT_SL)
+           mo_add_xml_stroke(oKSG,"IT_SL",t1->IT_SL)
+           if !empty(t1->kod_kslp)
+            oSLk := oKSG:Add( HXMLNode():New( "SL_KOEF" ) )
+             mo_add_xml_stroke(oSLk,"ID_SL",t1->kod_kslp)
+             mo_add_xml_stroke(oSLk,"VAL_C",t1->koef_kslp)
+           endif 
+           if !empty(t1->kod_kslp2)
+            oSLk := oKSG:Add( HXMLNode():New( "SL_KOEF" ) )
+             mo_add_xml_stroke(oSLk,"ID_SL",t1->kod_kslp2)
+             mo_add_xml_stroke(oSLk,"VAL_C",t1->koef_kslp2)
+           endif 
+           if !empty(t1->CODE_KIRO)
+            oSLk := oKSG:Add( HXMLNode():New( "S_KIRO" ) )
+             mo_add_xml_stroke(oSLk,"CODE_KIRO",t1->CODE_KIRO)
+             mo_add_xml_stroke(oSLk,"VAL_K",t1->VAL_K)
+           endif
+          endif
+        elseif !empty(t1->CODE_MES1)
+          mo_add_xml_stroke(oSL,"CODE_MES1",t1->CODE_MES1)
         endif
-        if !empty(t1->IT_SL)
-          mo_add_xml_stroke(oSLUCH,"IT_SL" ,t1->IT_SL)
+        /*
+        select T6
+        find (t1->IDCASE)
+        do while t1->IDCASE == t6->IDCASE .and. !eof()
+         oNAPR := oSL:Add( HXMLNode():New( "NAPR" ) )
+          mo_add_xml_stroke(oNAPR,"NAPR_DATE",t6->NAPR_DATE)
+          mo_add_xml_stroke(oNAPR,"NAPR_V",t6->NAPR_V)
+          if int(val(t6->NAPR_V)) == 3
+            mo_add_xml_stroke(oNAPR,"MET_ISSL",t6->MET_ISSL)
+            mo_add_xml_stroke(oNAPR,"NAPR_USL",t6->U_KOD)
+          endif
+          skip
+        enddo
+        if !empty(t1->DS1_T)
+         oONK_SL := oSL:Add( HXMLNode():New( "ONK_SL" ) )
+          mo_add_xml_stroke(oONK_SL,"DS1_T",t1->DS1_T)
+          if !empty(t1->PR_CONS)
+           mo_add_xml_stroke(oONK_SL,"PR_CONS",t1->PR_CONS)
+           mo_add_xml_stroke(oONK_SL,"DT_CONS",t1->DT_CONS)
+          endif
+          mo_add_xml_stroke(oONK_SL,"STAD",t1->STAD)
+          mo_add_xml_stroke(oONK_SL,"ONK_T",t1->ONK_T)
+          mo_add_xml_stroke(oONK_SL,"ONK_N",t1->ONK_N)
+          mo_add_xml_stroke(oONK_SL,"ONK_M",t1->ONK_M)
+          if !empty(t1->MTSTZ)
+           mo_add_xml_stroke(oONK_SL,"MTSTZ",t1->MTSTZ)
+          endif
+          if !empty(t1->SOD)
+           mo_add_xml_stroke(oONK_SL,"SOD",t1->SOD)
+          endif
+          select T7
+          find (t1->IDCASE)
+          do while t1->IDCASE == t7->IDCASE .and. !eof()
+           oDIAG := oONK_SL:Add( HXMLNode():New( "B_DIAG" ) )
+            if !empty(t7->DIAG_DATE)
+             mo_add_xml_stroke(oDIAG,"DIAG_DATE",t7->DIAG_DATE)
+            else
+             mo_add_xml_stroke(oDIAG,"DIAG_TIP", t7->DIAG_TIP)
+             mo_add_xml_stroke(oDIAG,"DIAG_CODE",t7->DIAG_CODE)
+             mo_add_xml_stroke(oDIAG,"DIAG_RSLT",t7->DIAG_RSLT)
+            endif
+           skip
+          enddo
+          select T8
+          find (t1->IDCASE)
+          do while t1->IDCASE == t8->IDCASE .and. !eof()
+           oPROT := oONK_SL:Add( HXMLNode():New( "B_PROT" ) )
+            mo_add_xml_stroke(oPROT,"PROT",t8->PROT)
+            mo_add_xml_stroke(oPROT,"D_PROT",t8->D_PROT)
+           skip
+          enddo
+        endif*/
+       if p_tip_reestr == 1
+        mo_add_xml_stroke(oSL,"PRVS",t1->PRVS)
+        if !empty(t1->IDDOKT)
+          mo_add_xml_stroke(oSL,"IDDOKT",t1->IDDOKT)
         endif
-        if !empty(t1->CODE_KIRO)
-          oSL := oSLUCH:Add( HXMLNode():New( "S_KIRO" ) )
-           mo_add_xml_stroke(oSL,"CODE_KIRO",t1->CODE_KIRO)
-           mo_add_xml_stroke(oSL,"VAL_K",t1->VAL_K)
+        if !empty(t1->ED_COL)
+          mo_add_xml_stroke(oSL,"ED_COL",t1->ED_COL)
+          mo_add_xml_stroke(oSL,"TARIF" ,t1->TARIF)
         endif
+        mo_add_xml_stroke(oSL,"SUM_M",t1->SUM_M)
         if !empty(t1->NEXT_VISIT)
-          mo_add_xml_stroke(oSLUCH,"NEXT_VISIT",t1->NEXT_VISIT)
-        endif 
+          mo_add_xml_stroke(oSL,"NEXT_VISIT",t1->NEXT_VISIT)
+        endif
+        if !empty(t1->COMENTSL) 
+          mo_add_xml_stroke(oSL,"COMENTSL",t1->COMENTSL)
+        endif
+       else
+        if !empty(t1->ED_COL)
+          mo_add_xml_stroke(oSL,"ED_COL",t1->ED_COL)
+        endif
+        mo_add_xml_stroke(oSL,"PRVS",t1->PRVS)
+        if !empty(t1->TARIF)
+          mo_add_xml_stroke(oSL,"TARIF" ,t1->TARIF)
+        endif
+        mo_add_xml_stroke(oSL,"SUM_M",t1->SUM_M)
+       endif
         select T2
         find (t1->IDCASE)
         do while t1->IDCASE == t2->IDCASE .and. !eof()
@@ -3477,10 +3581,8 @@ for ii := 1 to len(arr_schet)
             mohu->SCHET_ZAP := iidserv
             UnLock
           else
-            if (j := ascan(a_usl, {|x| x[2] == int(val(t2->IDSERV))} )) == 0
-              j := 1 // ????? такого не может быть
-            endif
-            if j <= len(a_usl)
+            j := ascan(a_usl, {|x| x[2] == int(val(t2->IDSERV))} )
+            if between(j,1,len(a_usl))
               select HU
               goto (a_usl[j,1])
               hu_->(G_RLock(forever))
@@ -3488,8 +3590,8 @@ for ii := 1 to len(arr_schet)
               UnLock
             endif
           endif
-          oUSL := oSLUCH:Add( HXMLNode():New( "USL" ) )
-          mo_add_xml_stroke(oUSL,"IDSERV"  ,lstr(iidserv))
+          oUSL := oSL:Add( HXMLNode():New( "USL" ) )
+          mo_add_xml_stroke(oUSL,"IDSERV"  ,t2->IDSERV)
           mo_add_xml_stroke(oUSL,"ID_U"    ,t2->ID_U)
           mo_add_xml_stroke(oUSL,"LPU"     ,t2->LPU)
           if !empty(t2->LPU_1)
@@ -3519,41 +3621,16 @@ for ii := 1 to len(arr_schet)
           mo_add_xml_stroke(oUSL,"SUMV_USL",t2->SUMV_USL)
           mo_add_xml_stroke(oUSL,"PRVS"    ,t2->PRVS)
           mo_add_xml_stroke(oUSL,"CODE_MD",t2->CODE_MD)
-          if !empty(t2->USL_TIP)
-           oONK := oUSL:Add( HXMLNode():New( "ONK_USL" ) )
-            mo_add_xml_stroke(oONK,"USL_TIP",t2->USL_TIP)
-            if !empty(t2->HIR_TIP)
-             mo_add_xml_stroke(oONK,"HIR_TIP",t2->HIR_TIP)
-            endif	
-            if !empty(t2->LEK_TIP_L)	
-             mo_add_xml_stroke(oONK,"LEK_TIP_L",t2->LEK_TIP_L)	
-             mo_add_xml_stroke(oONK,"LEK_TIP_V",t2->LEK_TIP_V)
-            endif	
-            if !empty(t2->LUCH_TIP)	
-             mo_add_xml_stroke(oONK,"LUCH_TIP",t2->LUCH_TIP)
-            endif	
-          endif
           if !empty(t2->COMENTU)
             mo_add_xml_stroke(oUSL,"COMENTU",t2->COMENTU)
           endif
           select T2
           skip
         enddo
-        select T4
-        find (t1->IDCASE)
-        if found()
-          oSL := oSLUCH:Add( HXMLNode():New( "SL_KOEFF" ) )
-          do while t1->IDCASE == t4->IDCASE .and. !eof()
-            oCOEFF := oSL:Add( HXMLNode():New( "COEFF" ) ) 
-            mo_add_xml_stroke(oCOEFF,"CODE_SL",t4->CODE_SL)
-            mo_add_xml_stroke(oCOEFF,"VAL_C"  ,t4->VAL_C)
-            select T4
-            skip
-          enddo
+        if p_tip_reestr == 2 .and. !empty(t1->COMENTSL)
+          mo_add_xml_stroke(oSL,"COMENTSL",t1->COMENTSL)
         endif
-        if !empty(t1->COMENTSL)
-          mo_add_xml_stroke(oSLUCH,"COMENTSL",t1->COMENTSL)
-        endif
+      next isl  
     else // не нашли в отосланном реестре - почему?
       func_error(4,'В реестре не найден пациент "'+alltrim(human->fio)+'"')
     endif
@@ -3571,7 +3648,7 @@ for ii := 1 to len(arr_schet)
   oXmlDoc := HXMLDoc():New()
   oXmlDoc:Add( HXMLNode():New( "PERS_LIST") )
    oXmlNode := oXmlDoc:aItems[1]:Add( HXMLNode():New( "ZGLV" ) )
-    mo_add_xml_stroke(oXmlNode,"VERSION" ,'2.12')
+    mo_add_xml_stroke(oXmlNode,"VERSION" ,'3.11')
     mo_add_xml_stroke(oXmlNode,"DATA"     ,date2xml(schet_->DSCHET))
     mo_add_xml_stroke(oXmlNode,"FILENAME" ,mo_xml->FNAME2)
     mo_add_xml_stroke(oXmlNode,"FILENAME1",mo_xml->FNAME)

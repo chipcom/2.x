@@ -2829,6 +2829,7 @@ Local mdiagnoz, aHirKSG := {}, aTerKSG := {}, fl_cena := .f., lvmp, lvidvmp := 0
       lad_cr := "", lfio, cenaTer := 0, cenaHir := 0, ksgHir, ars := {}, arerr := {}, ;
       lksg := "", lcena := 0, osn_diag3, lprofil, ldnej := 0, y := 0, m := 0, d := 0,;
       osn_diag := space(6), sop_diag := {}, osl_diag := {}, tmp, lrslt, akslp, akiro,;
+      akslp2, lpar_org := 0,; 
       kol_ter := 0, kol_hir := 0, lkoef, fl_reabil, lkiro := 0, lkslp := "", lbartell := "",;
       lusl, susl, s_dializ := 0, ahu := {}, amohu := {}, date_usl := stod("20190101")
 DEFAULT par TO 1, sp0 TO "", sp1 TO space(1), sp6 TO space(6), sp15 TO space(20)
@@ -2965,6 +2966,9 @@ if lvmp > 0
   endif
   return {ars,arerr,alltrim(lksg),lcena,{},{}}
 endif
+if select("LUSLF") == 0
+  use_base("LUSLF")
+endif
 // составляем массив услуг и массив манипуляций
 if par == 1
   select HU
@@ -2999,6 +3003,11 @@ if par == 1
     if ascan(amohu,mosu->shifr1) == 0
       aadd(amohu,mosu->shifr1)
     endif
+    select LUSLF
+    find (padr(mosu->shifr1,20))
+    if found() .and. !empty(luslf->par_org)
+      lpar_org += len(List2Arr(mohu->zf))
+    endif
     select MOHU
     skip
   enddo
@@ -3009,6 +3018,11 @@ else
     if eq_any(left(ihu->CODE_USL,1),"A","B")
       if ascan(amohu,ihu->CODE_USL)==0
         aadd(amohu,ihu->CODE_USL)
+      endif
+      select LUSLF
+      find (padr(ihu->CODE_USL,20))
+      if found() .and. !empty(luslf->par_org)
+        lpar_org += len(List2Arr(ihu->par_org))
       endif
     else
       if ascan(ahu,alltrim(ihu->CODE_USL)) == 0
@@ -3021,6 +3035,7 @@ else
         ldnej += ihu->KOL_USL
       endif
     endif
+    select IHU
     skip
   enddo
 endif
@@ -3413,9 +3428,13 @@ if !empty(lksg)
     if lksg == 'st38.001' .and. lbartell == '61' // Старческая астения 
       lkslp := ""
     endif
-    akslp := f_cena_kslp(@lcena,lksg,ldate_r,ln_data,lk_data,lkslp,amohu,lprofil_k,mdiagnoz)
+    akslp := f_cena_kslp(@lcena,lksg,ldate_r,ln_data,lk_data,lkslp,amohu,lprofil_k,mdiagnoz,lpar_org)
     if !empty(akslp)
-      s += "  (КСЛП = "+str(akslp[2],4,2)+", цена "+lstr(lcena,11,0)+"р.)" 
+      s += "  (КСЛП = "+str(akslp[2],4,2)
+      if len(akslp) >= 4
+        s += "+"+str(akslp[4],4,2)
+      endif
+      s += ", цена "+lstr(lcena,11,0)+"р.)" 
     endif
     if !empty(lkiro)
       // впереди добавить ещё несоблюдение схемы химиотерапии (КИРО=5 и КИРО=6 - позже)
@@ -3446,6 +3465,7 @@ else
   aadd(arerr," РЕЗУЛЬТАТ: не получилось выбрать КСГ"+iif(fl_reabil,' для случая медицинской реабилитации',''))
 endif
 return {ars,arerr,alltrim(lksg),lcena,akslp,akiro,s_dializ}
+//       1     2      3            4     5     6       7
 
 ***** 12.01.19
 Function f_cena_kiro(/*@*/_cena,lkiro)
@@ -3628,7 +3648,7 @@ if human_->USL_OK < 3
         lu_kod := foundOurUsluga(arr[3],human->k_data,human_->profil,human->VZROS_REB,@lcena)
         if lyear > 2018  // округление до рублей с 2019 года
           if len(arr) > 4 .and. !empty(arr[5])
-            lcena := round_5(lcena*arr[5,2],0)
+            lcena := round_5(lcena*ret_koef_kslp(arr[5]),0)
           endif
           if len(arr) > 5 .and. !empty(arr[6])
             lcena := round_5(lcena*arr[6,2],0)
@@ -3795,7 +3815,7 @@ if human_->USL_OK < 3
         lu_kod := foundOurUsluga(arr[3],human->k_data,human_->profil,human->VZROS_REB,@lcena)
         if lyear > 2018  // округление до рублей с 2019 года
           if len(arr) > 4 .and. !empty(arr[5])
-            lcena := round_5(lcena*arr[5,2],0)
+            lcena := round_5(lcena*ret_koef_kslp(arr[5]),0)
           endif
           if len(arr) > 5 .and. !empty(arr[6])
             lcena := round_5(lcena*arr[6,2],0)
@@ -4096,8 +4116,8 @@ rest_box(buf)
 fclose(fp)
 return NIL*/
 
-***** 14.01.19 определить коэф-т сложности лечения пациента и пересчитать цену
-Function f_cena_kslp(/*@*/_cena,_lshifr,_date_r,_n_data,_k_data,lkslp,arr_usl,lPROFIL_K,arr_diag)
+***** 23.01.19 определить коэф-т сложности лечения пациента и пересчитать цену
+Function f_cena_kslp(/*@*/_cena,_lshifr,_date_r,_n_data,_k_data,lkslp,arr_usl,lPROFIL_K,arr_diag,lpar_org)
 Static s_1_may := 0d20160430, s_18 := 0d20171231, s_19 := 0d20181231
 Static s_kslp17 := {;
   {1,1.1, 0,  3},;   // до 4 лет
@@ -4170,14 +4190,18 @@ if _k_data > s_19  // с 2019 года
             if fl
               aadd(_akslp,s_kslp[i,1])
               aadd(_akslp,s_kslp[i,2])
-              _cena := round_5(_cena*s_kslp[i,2],0)  // с 2019 года цена округляется до рублей
               exit
             endif
           endif
         endif
       next
-      // ещё проверим парные операции
-      //  {11,1.20, 0,999};   // однотипные операции на парных органах
+      if lpar_org > 1 // ещё проверим парные операции
+        aadd(_akslp,11)
+        aadd(_akslp,1.2)
+      endif
+      if !empty(_akslp)
+        _cena := round_5(_cena*ret_koef_kslp(_akslp),0)  // с 2019 года цена округляется до рублей
+      endif
     endif
   endif
 elseif _k_data > s_18  // с 2018 года
@@ -4267,16 +4291,19 @@ elseif _k_data > s_1_may ;                 // с 1 мая 2016 года
 endif  
 return _akslp
 
-***** 21.01.18 если надо, перезаписать значения КСЛП и КИРО в HUMAN_2 
+***** 22.01.18 если надо, перезаписать значения КСЛП и КИРО в HUMAN_2 
 Function put_str_kslp_kiro(arr,fl)
 Local lpc1 := "", lpc2 := ""
 if len(arr) > 4 .and. !empty(arr[5])
   lpc1 := lstr(arr[5,1])+","+lstr(arr[5,2],5,2)
+  if len(arr[5]) >= 4
+    lpc1 += ","+lstr(arr[5,3])+","+lstr(arr[5,4],5,2)
+  endif
 endif
 if len(arr) > 5 .and. !empty(arr[6])
   lpc2 := lstr(arr[6,1])+","+lstr(arr[6,2],5,2)
 endif
-if !(padr(lpc1,10) == human_2->pc1 .and. padr(lpc2,10) == human_2->pc2)
+if !(padr(lpc1,20) == human_2->pc1 .and. padr(lpc2,10) == human_2->pc2)
   DEFAULT fl TO .t. // блокировать и разблокировать запись в HUMAN_2
   select HUMAN_2
   if fl
@@ -4289,6 +4316,17 @@ if !(padr(lpc1,10) == human_2->pc1 .and. padr(lpc2,10) == human_2->pc2)
   endif
 endif
 return NIL
+
+***** 23.01.19 вернуть итоговый КСЛП
+Function ret_koef_kslp(akslp)
+Local k := 1
+if valtype(akslp) == "A" .and. len(akslp) >= 2
+  k := akslp[2] 
+  if len(akslp) >= 4
+    k += akslp[4] - 1
+  endif
+endif
+return k
 
 ***** 21.01.19 проверить, заблокирована ли запись, и, если нет, то заблокировать её
 Function my_Rec_Lock(n)

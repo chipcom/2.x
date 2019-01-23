@@ -6774,3 +6774,296 @@ elseif lkiro == 2
 endif
 _cena := round_5(_cena*_akiro[2],1)
 return _akiro
+
+***** 27.08.18 вынуть старый реестр из XML-файлов и записать во временные DBF-файлы
+Function extract_old_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
+Local arr_f, ii, oXmlDoc, j, j1, _ar, buf := save_maxrow(), name_zip := alltrim(mname_xml)+szip, fl := .f.
+Private pole
+for ii := 1 to len(arr_f)
+  // читаем файл в память
+  oXmlDoc := HXMLDoc():Read(_tmp_dir1+arr_f[ii])
+  if Empty( oXmlDoc:aItems )
+    fl := func_error(4,"Ошибка в чтении файла "+arr_f[ii])
+    exit
+  endif
+  FOR j := 1 TO Len( oXmlDoc:aItems[1]:aItems )
+    @ maxrow(),1 say padr(lstr(ii)+"/"+lstr(j),8) color cColorSt2Msg
+    oXmlNode := oXmlDoc:aItems[1]:aItems[j]
+    do case
+      case flag_tmp1 .and. "ZGLV" == oXmlNode:title 
+        tmp1->_VERSION :=          mo_read_xml_stroke(oXmlNode,"VERSION")
+        tmp1->_DATA    := xml2date(mo_read_xml_stroke(oXmlNode,"DATA"))
+        tmp1->_FILENAME:=          mo_read_xml_stroke(oXmlNode,"FILENAME")
+        tmp1->_SD_Z    :=      val(mo_read_xml_stroke(oXmlNode,"SD_Z",,.f.))
+      case flag_tmp1 .and. "SCHET" == oXmlNode:title
+        tmp1->_CODE    :=      val(mo_read_xml_stroke(oXmlNode,"CODE"))
+        tmp1->_CODE_MO :=          mo_read_xml_stroke(oXmlNode,"CODE_MO")
+        tmp1->_YEAR    :=      val(mo_read_xml_stroke(oXmlNode,"YEAR"))
+        tmp1->_MONTH   :=      val(mo_read_xml_stroke(oXmlNode,"MONTH"))
+        tmp1->_NSCHET  :=          mo_read_xml_stroke(oXmlNode,"NSCHET")
+        tmp1->_DSCHET  := xml2date(mo_read_xml_stroke(oXmlNode,"DSCHET"))
+        tmp1->_SUMMAV  :=      val(mo_read_xml_stroke(oXmlNode,"SUMMAV"))
+      case "ZAP" == oXmlNode:title
+        if is_all
+          select T1
+          append blank
+          t1->kod := mkod
+          t1->N_ZAP := mo_read_xml_stroke(oXmlNode,"N_ZAP")
+          t1->PR_NOV := mo_read_xml_stroke(oXmlNode,"PR_NOV")
+          if (oNode1 := oXmlNode:Find("PACIENT")) != NIL
+            t1->ID_PAC  := mo_read_xml_stroke(oNode1,"ID_PAC")
+            t1->VPOLIS  := mo_read_xml_stroke(oNode1,"VPOLIS")
+            t1->SPOLIS  := mo_read_xml_stroke(oNode1,"SPOLIS",,.f.)
+            t1->NPOLIS  := mo_read_xml_stroke(oNode1,"NPOLIS")
+            t1->ENP     := mo_read_xml_stroke(oNode1,"ENP",,.f.)
+            t1->SMO     := mo_read_xml_stroke(oNode1,"SMO")
+            t1->SMO_OK  := mo_read_xml_stroke(oNode1,"SMO_OK",,.f.)
+            t1->SMO_NAM := mo_read_xml_stroke(oNode1,"SMO_NAM",,.f.)
+            t1->MO_PR   := mo_read_xml_stroke(oNode1,"MO_PR",,.f.)
+            t1->NOVOR   := mo_read_xml_stroke(oNode1,"NOVOR",,.f.)
+            t1->VNOV_D  := mo_read_xml_stroke(oNode1,"VNOV_D",,.f.)
+            if (oNode2 := oNode1:Find("DISABILITY")) != NIL
+              t1->INV        := mo_read_xml_stroke(oNode2,"INV")
+              t1->DATA_INV   := mo_read_xml_stroke(oNode2,"DATA_INV")
+              t1->REASON_INV := mo_read_xml_stroke(oNode2,"REASON_INV")
+              t1->DS_INV     := mo_read_xml_stroke(oNode2,"DS_INV",,.f.)
+            endif
+          endif
+          if (oNode1 := oXmlNode:Find("SLUCH")) != NIL
+            t1->IDCASE   := mo_read_xml_stroke(oNode1,"IDCASE")
+            t1->ID_C     := mo_read_xml_stroke(oNode1,"ID_C")
+            t1->DISP     := mo_read_xml_stroke(oNode1,"DISP",,.f.)
+            t1->USL_OK   := mo_read_xml_stroke(oNode1,"USL_OK")
+            t1->VIDPOM   := mo_read_xml_stroke(oNode1,"VIDPOM")
+            t1->FOR_POM  := mo_read_xml_stroke(oNode1,"FOR_POM",,.f.)
+            t1->VID_HMP  := mo_read_xml_stroke(oNode1,"VID_HMP",,.f.)
+            t1->METOD_HMP:= mo_read_xml_stroke(oNode1,"METOD_HMP",,.f.)
+            t1->F_SP     := mo_read_xml_stroke(oNode1,"F_SP",,.f.)
+            t1->NPR_MO   := mo_read_xml_stroke(oNode1,"NPR_MO",,.f.)
+            t1->NPR_DATE := mo_read_xml_stroke(oNode1,"NPR_DATE",,.f.)
+            t1->EXTR     := mo_read_xml_stroke(oNode1,"EXTR",,.f.)
+            t1->LPU      := mo_read_xml_stroke(oNode1,"LPU")
+            t1->LPU_1    := mo_read_xml_stroke(oNode1,"LPU_1",,.f.)
+            t1->PODR     := mo_read_xml_stroke(oNode1,"PODR",,.f.)
+            t1->PROFIL   := mo_read_xml_stroke(oNode1,"PROFIL")
+            t1->PROFIL_K := mo_read_xml_stroke(oNode1,"PROFIL_K",,.f.)
+            t1->DET      := mo_read_xml_stroke(oNode1,"DET",,.f.)
+            t1->P_CEL    := mo_read_xml_stroke(oNode1,"P_CEL",,.f.)
+            t1->TAL_D    := mo_read_xml_stroke(oNode1,"TAL_D",,.f.)
+            t1->TAL_P    := mo_read_xml_stroke(oNode1,"TAL_P",,.f.)
+            t1->TAL_NUM  := mo_read_xml_stroke(oNode1,"TAL_NUM",,.f.)
+            t1->VBR      := mo_read_xml_stroke(oNode1,"VBR",,.f.)
+            t1->NHISTORY := mo_read_xml_stroke(oNode1,"NHISTORY")
+            t1->P_OTK    := mo_read_xml_stroke(oNode1,"P_OTK",,.f.)
+            t1->P_PER    := mo_read_xml_stroke(oNode1,"P_PER",,.f.)
+            t1->DATE_1   := mo_read_xml_stroke(oNode1,"DATE_1"  )
+            t1->DATE_2   := mo_read_xml_stroke(oNode1,"DATE_2"  )
+            t1->DS0      := mo_read_xml_stroke(oNode1,"DS0",,.f.)
+            t1->DS1      := mo_read_xml_stroke(oNode1,"DS1")
+            t1->DS1_PR   := mo_read_xml_stroke(oNode1,"DS1_PR",,.f.) // для диспансеризации
+            t1->PR_D_N   := mo_read_xml_stroke(oNode1,"PR_D_N",,.f.) // для диспансеризации
+            // DS2 для диспансеризации
+            j1 := 0
+            for i := 1 to len(oNode1:aitems) // последовательный просмотр
+              oNode2 := oNode1:aItems[i]     // т.к. услуг м.б. несколько
+              if valtype(oNode2) != "C" .AND. oNode2:title == "DS2_N"
+                if ++j1 > 4 ; exit ; endif
+                pole := "t1->DS2N"+iif(j1==1, "", "_"+lstr(j1))
+                &pole := mo_read_xml_stroke(oNode2,"DS2")
+                pole := "t1->DS2N"+iif(j1==1, "", "_"+lstr(j1))+"_PR"
+                &pole := mo_read_xml_stroke(oNode2,"DS2_PR",,.f.)
+                pole := "t1->DS2N"+iif(j1==1, "", "_"+lstr(j1))+"_D"
+                &pole := mo_read_xml_stroke(oNode2,"PR_D",,.f.)
+              endif
+            next
+            // DS2 для обычного листа учёта
+            _ar := mo_read_xml_array(oNode1,"DS2") // М.Б.НЕСКОЛЬКО DS2
+            for j1 := 1 to min(7,len(_ar))
+              pole := "t1->DS2"+iif(j1==1, "", "_"+lstr(j1))
+              &pole := _ar[j1]
+            next
+            _ar := mo_read_xml_array(oNode1,"DS3") // М.Б.НЕСКОЛЬКО DS3
+            for j1 := 1 to min(3,len(_ar))
+              pole := "t1->DS3"+iif(j1==1, "", "_"+lstr(j1))
+              &pole := _ar[j1]
+            next
+            t1->DS_ONK := mo_read_xml_stroke(oNode1,"DS_ONK",,.f.)
+            t1->C_ZAB := mo_read_xml_stroke(oNode1,"C_ZAB",,.f.)
+            t1->DN := mo_read_xml_stroke(oNode1,"DN",,.f.)
+            t1->MSE := mo_read_xml_stroke(oNode1,"MSE",,.f.)
+            _ar := mo_read_xml_array(oNode1,"VNOV_M") // М.Б.НЕСКОЛЬКО VNOV_M
+            for j1 := 1 to min(3,len(_ar))
+              pole := "t1->VNOV_M"+iif(j1==1, "", "_"+lstr(j1))
+              &pole := _ar[j1]
+            next
+            t1->CODE_MES1:= mo_read_xml_stroke(oNode1,"CODE_MES1",,.f.)
+            if (oNode3 := oNode1:Find("ONK_SL")) != NIL
+              t1->DS1_T := mo_read_xml_stroke(oNode3,"DS1_T",,.f.)
+              t1->PR_CONS := mo_read_xml_stroke(oNode3,"PR_CONS",,.f.)
+              t1->DT_CONS := mo_read_xml_stroke(oNode3,"DT_CONS",,.f.)
+              t1->STAD := mo_read_xml_stroke(oNode3,"STAD",,.f.) 
+              t1->ONK_T := mo_read_xml_stroke(oNode3,"ONK_T",,.f.) 
+              t1->ONK_N := mo_read_xml_stroke(oNode3,"ONK_N",,.f.) 
+              t1->ONK_M := mo_read_xml_stroke(oNode3,"ONK_M",,.f.) 
+              t1->MTSTZ := mo_read_xml_stroke(oNode3,"MTSTZ",,.f.) 
+              for j1 := 1 to len(oNode3:aitems) // последовательный просмотр
+                oNode2 := oNode3:aItems[j1]     // т.к. услуг м.б. несколько
+                if valtype(oNode2) != "C" .AND. oNode2:title == "B_DIAG"
+                  select T7
+                  append blank
+                  t7->KOD       := mkod
+                  t7->IDCASE    := t1->IDCASE // для связи со случаем
+                  t7->DIAG_DATE := mo_read_xml_stroke(oNode2,"DIAG_DATE",,.f.) 
+                  t7->DIAG_TIP  := mo_read_xml_stroke(oNode2,"DIAG_TIP",,.f.) 
+                  t7->DIAG_CODE := mo_read_xml_stroke(oNode2,"DIAG_CODE",,.f.) 
+                  t7->DIAG_RSLT := mo_read_xml_stroke(oNode2,"DIAG_RSLT",,.f.) 
+                elseif valtype(oNode2) != "C" .AND. oNode2:title == "B_PROT"
+                  select T8
+                  append blank
+                  t8->KOD    := mkod
+                  t8->IDCASE := t1->IDCASE // для связи со случаем
+                  t8->PROT   := mo_read_xml_stroke(oNode2,"PROT",,.f.) 
+                  t8->D_PROT := mo_read_xml_stroke(oNode2,"D_PROT",,.f.) 
+                endif
+              next j1
+              t1->SOD := mo_read_xml_stroke(oNode3,"SOD",,.f.)
+            endif
+            t1->RSLT := mo_read_xml_stroke(oNode1,"RSLT")
+            if (oNode3 := oNode1:Find("PRESCRIPTION")) != NIL
+              for i := 1 to len(oNode3:aitems) // последовательный просмотр
+                oNode2 := oNode3:aItems[i]     // т.к. назначений м.б. несколько
+                if valtype(oNode2) != "C" .AND. oNode2:title == "PRESCRIPTIONS"
+                  select T5
+                  append blank
+                  t5->KOD    := mkod
+                  t5->IDCASE := t1->IDCASE // для связи со случаем
+                  t5->NAZ_N  := mo_read_xml_stroke(oNode2,"NAZ_N",,.f.)  // версия 3.1
+                  t5->NAZ_R  := mo_read_xml_stroke(oNode2,"NAZ_R",,.f.)  // версия 3.1
+                  t5->NAZR   := mo_read_xml_stroke(oNode2,"NAZR",,.f.)
+                  _ar := mo_read_xml_array(oNode2,"NAZ_SP") // М.Б.НЕСКОЛЬКО NAZ_SP
+                  for j1 := 1 to min(3,len(_ar))
+                    pole := "t5->NAZ_SP"+lstr(j1)
+                    &pole := _ar[j1]
+                  next
+                  _ar := mo_read_xml_array(oNode2,"NAZ_V") // М.Б.НЕСКОЛЬКО NAZ_V
+                  for j1 := 1 to min(3,len(_ar))
+                    pole := "t5->NAZ_V"+lstr(j1)
+                    &pole := _ar[j1]
+                  next
+                  t5->NAZ_PMP := mo_read_xml_stroke(oNode2,"NAZ_PMP",,.f.)
+                  t5->NAZ_PK  := mo_read_xml_stroke(oNode2,"NAZ_PK",,.f.)
+                endif
+              next
+            endif
+            t1->ISHOD    := mo_read_xml_stroke(oNode1,"ISHOD")
+            t1->PRVS     := mo_read_xml_stroke(oNode1,"PRVS")
+            t1->IDDOKT   := mo_read_xml_stroke(oNode1,"IDDOKT",,.f.)
+            t1->OS_SLUCH := mo_read_xml_stroke(oNode1,"OS_SLUCH",,.f.)
+            t1->IDSP     := mo_read_xml_stroke(oNode1,"IDSP")
+            t1->ED_COL   := mo_read_xml_stroke(oNode1,"ED_COL",,.f.)
+            t1->TARIF    := mo_read_xml_stroke(oNode1,"TARIF",,.f.)
+            t1->SUMV     := mo_read_xml_stroke(oNode1,"SUMV")
+            t1->AD_CR    := mo_read_xml_stroke(oNode1,"AD_CRITERION",,.f.)
+            t1->DKK2     := mo_read_xml_stroke(oNode1,"DKK2",,.f.)
+            t1->NEXT_VISIT := mo_read_xml_stroke(oNode1,"NEXT_VISIT",,.f.)
+            t1->IT_SL    := mo_read_xml_stroke(oNode1,"IT_SL",,.f.)
+            t1->COMENTSL := mo_read_xml_stroke(oNode1,"COMENTSL",,.f.)
+            if (oNode3 := oNode1:Find("S_KIRO")) != NIL
+              t1->CODE_KIRO := mo_read_xml_stroke(oNode3,"CODE_KIRO")
+              t1->VAL_K     := mo_read_xml_stroke(oNode3,"VAL_K")
+            endif
+            for j1 := 1 to len(oNode1:aitems) // последовательный просмотр
+              oNode2 := oNode1:aItems[j1]     // т.к. услуг м.б. несколько
+              if valtype(oNode2) != "C" .AND. oNode2:title == "NAPR"
+                select T6
+                append blank
+                t6->KOD      := mkod
+                t6->IDCASE   := t1->IDCASE // для связи со случаем
+                t6->NAPR_DATE:= mo_read_xml_stroke(oNode2,"NAPR_DATE")
+                t6->NAPR_V   := mo_read_xml_stroke(oNode2,"NAPR_V")
+                t6->MET_ISSL := mo_read_xml_stroke(oNode2,"MET_ISSL")
+                t6->U_KOD    := mo_read_xml_stroke(oNode2,"NAPR_USL")
+              elseif valtype(oNode2) != "C" .AND. oNode2:title == "USL"
+                select T2
+                append blank
+                t2->KOD      := mkod
+                t2->IDCASE   := t1->IDCASE // для связи со случаем
+                t2->IDSERV   := mo_read_xml_stroke(oNode2,"IDSERV")
+                t2->ID_U     := mo_read_xml_stroke(oNode2,"ID_U")
+                t2->LPU      := mo_read_xml_stroke(oNode2,"LPU")
+                t2->LPU_1    := mo_read_xml_stroke(oNode2,"LPU_1",,.f.)
+                t2->PODR     := mo_read_xml_stroke(oNode2,"PODR",,.f.)
+                t2->PROFIL   := mo_read_xml_stroke(oNode2,"PROFIL")
+                t2->VID_VME  := mo_read_xml_stroke(oNode2,"VID_VME",,.f.)
+                t2->DET      := mo_read_xml_stroke(oNode2,"DET",,.f.)
+                t2->DATE_IN  := mo_read_xml_stroke(oNode2,"DATE_IN")
+                t2->DATE_OUT := mo_read_xml_stroke(oNode2,"DATE_OUT")
+                t2->P_OTK    := mo_read_xml_stroke(oNode2,"P_OTK",,.f.)
+                t2->DS       := mo_read_xml_stroke(oNode2,"DS",,.f.)
+                t2->CODE_USL := mo_read_xml_stroke(oNode2,"CODE_USL")
+                t2->KOL_USL  := mo_read_xml_stroke(oNode2,"KOL_USL")
+                t2->TARIF    := mo_read_xml_stroke(oNode2,"TARIF")
+                t2->SUMV_USL := mo_read_xml_stroke(oNode2,"SUMV_USL")
+                if (oNode3 := oNode2:Find("ONK_USL")) != NIL
+                  t2->USL_TIP  := mo_read_xml_stroke(oNode3,"USL_TIP",,.f.)
+                  t2->HIR_TIP  := mo_read_xml_stroke(oNode3,"HIR_TIP",,.f.)
+                  t2->LEK_TIP_L:= mo_read_xml_stroke(oNode3,"LEK_TIP_L",,.f.)
+                  t2->LEK_TIP_V:= mo_read_xml_stroke(oNode3,"LEK_TIP_V",,.f.)
+                  t2->LUCH_TIP := mo_read_xml_stroke(oNode3,"LUCH_TIP",,.f.)
+                endif
+                t2->PRVS     := mo_read_xml_stroke(oNode2,"PRVS")
+                t2->CODE_MD  := mo_read_xml_stroke(oNode2,"CODE_MD",,.f.)
+                t2->COMENTU  := mo_read_xml_stroke(oNode2,"COMENTU",,.f.)
+              endif
+            next
+            if (oNode3 := oNode1:Find("SL_KOEFF")) != NIL
+              for j1 := 1 to len(oNode3:aitems) // последовательный просмотр
+                oNode2 := oNode3:aItems[j1]     // т.к. услуг м.б. несколько
+                if valtype(oNode2) != "C" .AND. oNode2:title == "COEFF"
+                  select T4
+                  append blank
+                  t4->KOD      := mkod
+                  t4->IDCASE   := t1->IDCASE // для связи со случаем
+                  t4->CODE_SL  := mo_read_xml_stroke(oNode2,"CODE_SL")
+                  t4->VAL_C    := mo_read_xml_stroke(oNode2,"VAL_C")
+                endif
+              next
+            endif
+          endif
+        endif
+        if flag_tmp1
+          tmp1->_KOL ++
+          tmp1->_MAX := max(tmp1->_MAX,int(val(mo_read_xml_stroke(oXmlNode,"N_ZAP"))))
+        endif
+      case is_all .and. "PERS" == oXmlNode:title
+        select T3
+        append blank
+        t3->KOD     := mkod
+        t3->ID_PAC  := mo_read_xml_stroke(oXmlNode,"ID_PAC")
+        t3->FAM     := mo_read_xml_stroke(oXmlNode,"FAM")
+        t3->IM      := mo_read_xml_stroke(oXmlNode,"IM")
+        t3->OT      := mo_read_xml_stroke(oXmlNode,"OT",,.f.)
+        t3->W       := mo_read_xml_stroke(oXmlNode,"W")
+        t3->DR      := mo_read_xml_stroke(oXmlNode,"DR")
+        t3->DOST    := mo_read_xml_stroke(oXmlNode,"DOST",,.f.)
+        t3->TEL     := mo_read_xml_stroke(oXmlNode,"TEL",,.f.)
+        t3->FAM_P   := mo_read_xml_stroke(oXmlNode,"FAM_P",,.f.)
+        t3->IM_P    := mo_read_xml_stroke(oXmlNode,"IM_P",,.f.)
+        t3->OT_P    := mo_read_xml_stroke(oXmlNode,"OT_P",,.f.)
+        t3->W_P     := mo_read_xml_stroke(oXmlNode,"W_P",,.f.)
+        t3->DR_P    := mo_read_xml_stroke(oXmlNode,"DR_P",,.f.)
+        t3->DOST_P  := mo_read_xml_stroke(oXmlNode,"DOST_P",,.f.)
+        t3->MR      := mo_read_xml_stroke(oXmlNode,"MR",,.f.)
+        t3->DOCTYPE := mo_read_xml_stroke(oXmlNode,"DOCTYPE",,.f.)
+        t3->DOCSER  := mo_read_xml_stroke(oXmlNode,"DOCSER",,.f.)
+        t3->DOCNUM  := mo_read_xml_stroke(oXmlNode,"DOCNUM",,.f.)
+        t3->SNILS   := mo_read_xml_stroke(oXmlNode,"SNILS",,.f.)
+        t3->OKATOG  := mo_read_xml_stroke(oXmlNode,"OKATOG",,.f.)
+        t3->OKATOP  := mo_read_xml_stroke(oXmlNode,"OKATOP",,.f.)
+    endcase
+    if j % 2000 == 0
+      commit
+    endif
+  next j
+next ii
+return fl

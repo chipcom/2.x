@@ -582,7 +582,9 @@ do while mohu->kod == mkod .and. !eof()
     tmp1->date_u2 := c4tod(mohu->date_u2)
     tmp1->rec_hu := mohu->(recno())
     tmp1->kod_diag := mohu->KOD_DIAG
-    tmp1->zf := mohu->ZF
+    if STisZF(human_->USL_OK,human_->PROFIL)
+      tmp1->zf := mohu->ZF
+    endif
     tmp1->otd := otd->short_name
     tmp1->plus := .f.
     tmp1->kod_vr := mohu->kod_vr
@@ -652,7 +654,7 @@ do while !eof()
       if !empty(human_2->pc1)
         akslp := List2Arr(human_2->pc1)
         if len(akslp) > 1
-          s1 += "(α γηρβ®¬ ‘‹="+str(akslp[2],4,2)+") " 
+          s1 += "(α γηρβ®¬ ‘‹="+str(ret_koef_kslp(akslp),4,2)+") " 
         endif
       endif
       if !empty(human_2->pc2)
@@ -955,7 +957,9 @@ for ii := 1 to len(arr_h)
       tmp1->date_u1 := c4tod(mohu->date_u)
       tmp1->rec_hu := mohu->(recno())
       tmp1->kod_diag := mohu->KOD_DIAG
-      tmp1->zf := mohu->ZF
+      if STisZF(human_->USL_OK,human_->PROFIL)
+        tmp1->zf := mohu->ZF
+      endif
       tmp1->otd := otd->short_name
       tmp1->plus := .f.
       tmp1->kod_vr := mohu->kod_vr
