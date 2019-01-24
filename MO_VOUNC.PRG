@@ -2363,7 +2363,9 @@ do while !eof()
         if human->OBRASHEN == '1' .and. is_oncology < 2
           i := 1
         endif
-        mo_add_xml_stroke(oSL,"DS_ONK",lstr(i))
+        mo_add_xml_stroke(oSL,"DS_ONK",lstr(i))  
+      else
+        mo_add_xml_stroke(oSL,"DS_ONK",'0')
       endif
       if human_->USL_OK == 3 .and. human_->povod == 4 // Обязательно, если P_CEL=1.3
         s := 2 // взят

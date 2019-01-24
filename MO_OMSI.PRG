@@ -4152,7 +4152,10 @@ R_Use(dir_server+"human",dir_server+"humans","HUMAN")
 set relation to recno() into HUMAN_, to recno() into HUMAN_2, to kod_k into KART
 //
 *********************************************************************
-mdate_rak := arr_m[6]+iif(arr_m[3]==12,19,10) // по какую дату РАК сумма к оплате 10.04.18
+mdate_rak := arr_m[6]+iif(arr_m[3]==12,22,10) // по какую дату РАК сумма к оплате 10.04.18
+if arr_m[3] == 12 .and. glob_mo[_MO_KOD_TFOMS] == '134505'
+  mdate_rak := 23
+endif
 *********************************************************************
 R_Use(dir_server+"mo_xml",,"MO_XML")
 R_Use(dir_server+"mo_rak",,"RAK")
@@ -4178,7 +4181,10 @@ do while !eof()
     mdate1 := stod(strzero(schet_->nyear,4)+strzero(schet_->nmonth,2)+"15")
     //
     *** 2018 год
-    k := iif(arr_m[3]==12,18,10) // дата регистрации по 10.04.18
+    k := iif(arr_m[3]==12,21,10) // дата регистрации по 10.04.18
+    if arr_m[3] == 12 .and. glob_mo[_MO_KOD_TFOMS] == '134505'
+      k := 23
+    endif
     ***
     fl := between(mdate,arr_m[5],arr_m[6]+k) ;
             .and. between(mdate1,arr_m[5],arr_m[6]) // !!отч.период 2018 год

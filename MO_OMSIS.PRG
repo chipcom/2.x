@@ -3859,6 +3859,9 @@ set relation to recno() into HUMAN_, to recno() into HUMAN_2, to kod_k into KART
 //
 *********************************************************************
 mdate_rak := arr_m[6]+22 // по какую дату РАК сумма к оплате 10.04.18
+if glob_mo[_MO_KOD_TFOMS] == '134505'
+  mdate_rak := arr_m[6]+23
+endif
 *********************************************************************
 R_Use(dir_server+"mo_xml",,"MO_XML")
 R_Use(dir_server+"mo_rak",,"RAK")
@@ -5086,7 +5089,7 @@ return NIL
 
 *
 
-***** 21.01.19 распечатка формы №1 из приказа ФОМС №146
+***** 24.01.19 распечатка формы №1 из приказа ФОМС №146
 Function forma1_ffoms()
 Local mdate, i, j, k, d1, d2, arr_smo := {}, at1, at2, ta, fl_month, tmp, b1_1, a1_1,;
       _bd, fl, b1, b2, a1, a2, lsmo, name_file := "forma1", HH := 80, sh := 84
@@ -5180,6 +5183,9 @@ do while !eof()
     fl_month := between(mdate1,arr_m[5],arr_m[6]) // отч.период текущий месяц
     if arr_m[1] == 2018 .and. arr_m[3] == 12
       d2 := 21
+      if glob_mo[_MO_KOD_TFOMS] == '134505'
+        d2 := 23
+      endif
     endif
     msmo := int(val(schet_->smo))
     fl := between(mdate,boy(arr_m[5]),arr_m[6]+d2) ;// дата регистрации по 10 числа след.месяца
