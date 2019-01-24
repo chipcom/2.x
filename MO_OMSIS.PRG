@@ -3692,7 +3692,7 @@ for i := 1 to 2
 next
 return NIL
 
-***** 21.01.19 форма 14-МЕД (ОМС)
+***** 24.01.19 форма 14-МЕД (ОМС)
 Function forma14_med_oms()
 Static group_ini := "f14_med_oms"
 Local begin_date, end_date, buf := savescreen(), arr_m, i, j, k, k1, k2,;
@@ -3888,6 +3888,9 @@ do while !eof()
     //
     *** 2018 год
     k := 21 // дата регистрации по 10.04.18
+    if glob_mo[_MO_KOD_TFOMS] == '134505'
+      k := 23
+    endif
     ***
     fl := between(mdate,arr_m[5],arr_m[6]+k) .and. between(mdate1,arr_m[5],arr_m[6]) // !!отч.период 2018 год
   endif
@@ -4552,8 +4555,8 @@ do while !eof()
             if (i := ascan(arr_dn_stac, {|x| x[1] == human_->PROFIL })) == 0
               aadd(arr_dn_stac, {human_->PROFIL,0,0,0,0}) ; i := len(arr_dn_stac)
             endif
-            if is_dializ
-              tfoms_pz[4,2] := 0
+            if ascan(arr_usl,"2043.0") > 0 // is_dializ
+              tfoms_pz[4,2] := 0 // дле лекарственной терапии при диализе не учитываем пациенто-дни
               lvidpom := 31 // !!!!!!!
             endif
             arr_dn_stac[i,2] += tfoms_pz[4,1]

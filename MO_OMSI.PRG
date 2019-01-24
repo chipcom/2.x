@@ -4112,7 +4112,7 @@ n_message({"Приносим извинения.",;
            "В данный момент функция не реализована."},,c,c,,,c1 )
 return NIL
 
-***** 10.04.18 отчёт Ф-МПП
+***** 24.01.19 отчёт Ф-МПП
 Function report_f_mpp()
 Local begin_date, end_date, buf := savescreen(), arr_m, i, j, k, k1, k2, is_rebenok, is_inogoro,;
       lshifr1, koef, mvid, mour, fl_exit := .f., mkol, musl, d2_year, ar, arr_profil, ii, fl_K

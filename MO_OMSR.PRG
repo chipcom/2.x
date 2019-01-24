@@ -397,7 +397,7 @@ elseif lp == 64 // оториноларингологии
 endif
 return lp
 
-***** 21.01.19
+***** 24.01.19
 Function verify_1_sluch(fl_view)
 Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
       i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -1861,6 +1861,15 @@ if fl_stom
   endif 
 endif
 if human_->USL_OK == 1  // стационар
+  if human_2->VNR > 0 .and. !between(human_2->VNR,301,2499)
+    aadd(ta,'вес недоношенного ребёнка должен быть более 300 г и менее 2500 г')
+  endif
+  for i := 1 to 3
+    pole := "human_2->VNR"+lstr(i) 
+    if &pole > 0 .and. !between(&pole,301,2499)
+      aadd(ta,'вес '+lstr(i)+'-го недоношенного ребёнка должен быть более 300 г и менее 2500 г')
+    endif
+  next    
   if kol_ksg > 1
     aadd(ta,'введено более одной КСГ')
   endif
