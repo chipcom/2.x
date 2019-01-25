@@ -1181,7 +1181,7 @@ do case
       skip
     enddo
     if len(arr) == 0
-      func_error(4,"Нечего записывать!")
+      func_error(4,"Неудачный поиск!")
     else
       if len(arr) > 1
         for i := 1 to len(arr)
@@ -1215,8 +1215,7 @@ do case
         ret := 1
       endif
     endif
-  case nKey == K_CTRL_F12 .and. !empty(schet_->NAME_XML) ;
-                          .and. schet_->XML_REESTR > 0
+  case nKey == K_CTRL_F12 .and. !empty(schet_->NAME_XML) .and. schet_->XML_REESTR > 0
     ReCreate_some_Schet_From_FILE_SP({schet->(recno())})
     close databases
     R_Use(dir_server+"mo_rees",,"REES")
@@ -2325,12 +2324,11 @@ if (arr_f := Extract_Zip_XML(goal_dir,name_zip)) != NIL
                           &lal.->kod_kslp2 := mo_read_xml_stroke(oNode2,"ID_SL")
                           &lal.->koef_kslp2:= mo_read_xml_stroke(oNode2,"VAL_C")
                         endif
+                      elseif valtype(oNode2) != "C" .AND. oNode2:title == "S_KIRO"
+                        &lal.->CODE_KIRO := mo_read_xml_stroke(oNode2,"CODE_KIRO")
+                        &lal.->VAL_K     := mo_read_xml_stroke(oNode2,"VAL_K")
                       endif
                     next j1
-                    if (oNode2 := oNode3:Find("S_KIRO")) != NIL
-                      &lal.->CODE_KIRO := mo_read_xml_stroke(oNode2,"CODE_KIRO")
-                      &lal.->VAL_K     := mo_read_xml_stroke(oNode2,"VAL_K")
-                    endif
                   endif
                   for j1 := 1 to len(oNode11:aitems) // последовательный просмотр
                     oNode2 := oNode11:aItems[j1]     // т.к. услуг м.б. несколько

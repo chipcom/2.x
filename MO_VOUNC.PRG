@@ -3484,12 +3484,12 @@ for ii := 1 to len(arr_schet)
             oSLk := oKSG:Add( HXMLNode():New( "SL_KOEF" ) )
              mo_add_xml_stroke(oSLk,"ID_SL",t1->kod_kslp2)
              mo_add_xml_stroke(oSLk,"VAL_C",t1->koef_kslp2)
-           endif 
-           if !empty(t1->CODE_KIRO)
+           endif
+          endif 
+          if !empty(t1->CODE_KIRO)
             oSLk := oKSG:Add( HXMLNode():New( "S_KIRO" ) )
              mo_add_xml_stroke(oSLk,"CODE_KIRO",t1->CODE_KIRO)
              mo_add_xml_stroke(oSLk,"VAL_K",t1->VAL_K)
-           endif
           endif
         elseif !empty(t1->CODE_MES1)
           mo_add_xml_stroke(oSL,"CODE_MES1",t1->CODE_MES1)

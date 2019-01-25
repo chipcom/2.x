@@ -2871,7 +2871,7 @@ return NIL
 
 *
 
-***** 14.02.17 удалить счет(а) по одному реестру СП и ТК и по этим людям создать заново счета (м.б.другое кол-во счетов)
+***** 25.01.19 удалить счет(а) по одному реестру СП и ТК и по этим людям создать заново счета (м.б.другое кол-во счетов)
 Function ReCreate_some_Schet_From_FILE_SP(arr)
 Local arr_XML_info[8], cFile, arr_f, n, oXmlDoc, aerr := {},;
       i, s, rec_schet, rec_schet_xml, go_to_schet := .f., arr_schet := {}
@@ -2999,6 +2999,12 @@ if G_SLock1Task(sem_task,sem_vagno) // запрет доступа всем
       index on IDCASE to (cur_dir+"tmpt7")
       use (cur_dir+"tmp_r_t8") new alias T8
       index on IDCASE to (cur_dir+"tmpt8")
+      use (cur_dir+"tmp_r_t9") new alias T
+      index on IDCASE to (cur_dir+"tmpt9")
+      use (cur_dir+"tmp_r_t10") new alias T10
+      index on IDCASE to (cur_dir+"tmpt10")
+      use (cur_dir+"tmp_r_t11") new alias T11
+      index on IDCASE to (cur_dir+"tmpt11")
       use (cur_dir+"tmp2file") new alias TMP2
       go top
       do while !eof()
