@@ -3773,14 +3773,14 @@ if Loc_kod > 0
       select NAPR
       skip
     enddo
-  endif
-  if is_oncology == 2 // онкология
     R_Use(dir_server+"mo_onkco",dir_server+"mo_onkco","CO")
     find (str(Loc_kod,7))
     if found()
       m1PR_CONS := co->pr_cons
       mDT_CONS := co->dt_cons
     endif
+  endif
+  if is_oncology == 2 // онкология
     R_Use(dir_server+"mo_onksl",dir_server+"mo_onksl","SL")
     find (str(Loc_kod,7))
     if found()
@@ -4493,8 +4493,7 @@ do while .t.
             mm_USL_TIP := aclone(mm_USL_TIP_all)
           endif
         endif
-      endif
-      if is_onko_VMP .and. mtipvmp == 1 // две услуги
+       if is_onko_VMP .and. mtipvmp == 1 // две услуги
         mUSL_VMP := inieditspr(A__MENUVERT, mm_USL_TIP_all, m1USL_VMP)
         select TMPOU
         find (str(m1usl_vmp,1))
@@ -4514,8 +4513,11 @@ do while .t.
         endif       
         lstr_vmp1 := padr(mm_str1[m1usl_vmp+1],12)
         musl_vmp1 := inieditspr(A__MENUVERT, mm_usl_vmp1, m1usl_vmp1) 
+       endif
+       k += 17
+      else
+       k += 9
       endif
-      k += 17
       //
       mUSL_TIP := inieditspr(A__MENUVERT, mm_USL_TIP, m1USL_TIP)
       select TMPOU
@@ -4625,7 +4627,7 @@ do while .t.
                color colget_menu  
     ++j; @ j,5 say "Наличие отдаленных метастазов (при рецидиве или прогрессировании)" get mMTSTZ ; 
                reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
-               when m1DS1_T > 0 ;
+               when eq_any(m1DS1_T,1,2) ;
                color colget_menu
   if len(mm_N009) == 0 .and. len(mm_N012) == 0
     ++j; @ j,3 say "Гистология / иммуногистохимия: не нужно для "+mkod_diag
@@ -4633,6 +4635,7 @@ do while .t.
     ++j; @ j,3 say "Гистология / иммуногистохимия" get mB_DIAG ;
                reader {|x|menu_reader(x,mmb_diag,A__MENUVERT,,,.f.)} 
     ++j; @ j,3 say "Дата взятия материала" get mDIAG_DATE ;
+               when eq_any(m1b_diag,97,98) ;
                valid {|| iif(empty(mDIAG_DATE) .or. mDIAG_DATE <= mk_data, .t., ; 
                              func_error(4,"Дата взятия материала больше даты окончания лечения")) } 
    if len(mm_N009) == 0
@@ -4682,7 +4685,7 @@ do while .t.
     endif
    endif
   endif  
-   if m1usl_ok < 3
+  if m1usl_ok < 3
     ++j; @ j,3 say "Консилиум: дата" get mDT_CONS ; 
                valid {|| iif(empty(mDT_CONS) .or. between(mDT_CONS,mn_data,mk_data), .t., ; 
                              func_error(4,"Дата консилиума должна быть внутри сроков лечения")) } 
@@ -4719,7 +4722,6 @@ do while .t.
          @ j,64 get msod_vmp ;
                when between(m1usl_vmp,3,4) 
     endif
-   endif 
     //             
     arr := {"хирургического лечения","химиотерапевтического лечения","лучевой терапии"}
     ++j; @ j,3 say "Противопоказания к проведению:"
@@ -4742,6 +4744,7 @@ do while .t.
                color colget_menu
          @ j,53 get &mdval
    next i             
+  endif 
   endif
     //
     status_key("^<Esc>^ выход без записи ^<PgUp>^ на 1-ю страницу ^<PgDn>^ ЗАПИСЬ")
@@ -4781,35 +4784,31 @@ do while .t.
       if eq_any(m1B_DIAG,97,98) // гистология:98-сделана,97-нет результата 
         if len(mm_N009) > 0
           for i := 1 to min(2,len(mm_N009))
-            if &("m1gist"+lstr(i)) > 0
-              append blank
-              tdiag->DIAG_DATE := mDIAG_DATE
-              tdiag->DIAG_TIP := 1 // 1 - гистологический признак
-              tdiag->DIAG_CODE := mm_N009[i,2]
-              if m1B_DIAG == 98 
-                tdiag->DIAG_RSLT := &("m1gist"+lstr(i))
-                tdiag->REC_RSLT := 1
-              else
-                tdiag->DIAG_RSLT := 0
-                tdiag->REC_RSLT := 0
-              endif
+            append blank
+            tdiag->DIAG_DATE := mDIAG_DATE
+            tdiag->DIAG_TIP := 1 // 1 - гистологический признак
+            tdiag->DIAG_CODE := mm_N009[i,2]
+            if m1B_DIAG == 98 
+              tdiag->DIAG_RSLT := &("m1gist"+lstr(i))
+              tdiag->REC_RSLT := 1
+            else
+              tdiag->DIAG_RSLT := 0
+              tdiag->REC_RSLT := 0
             endif
           next
         endif
         if len(mm_N012) > 0
           for i := 1 to min(5,len(mm_N012))
-            if &("m1mark"+lstr(i)) > 0
-              append blank
-              tdiag->DIAG_DATE := mDIAG_DATE
-              tdiag->DIAG_TIP := 2 // 2 - маркёр (ИГХ)
-              tdiag->DIAG_CODE := mm_N012[i,2] 
-              if m1B_DIAG == 98 
-                tdiag->DIAG_RSLT := &("m1mark"+lstr(i))
-                tdiag->REC_RSLT := 1
-              else
-                tdiag->DIAG_RSLT := 0
-                tdiag->REC_RSLT := 0
-              endif
+            append blank
+            tdiag->DIAG_DATE := mDIAG_DATE
+            tdiag->DIAG_TIP := 2 // 2 - маркёр (ИГХ)
+            tdiag->DIAG_CODE := mm_N012[i,2] 
+            if m1B_DIAG == 98 
+              tdiag->DIAG_RSLT := &("m1mark"+lstr(i))
+              tdiag->REC_RSLT := 1
+            else
+              tdiag->DIAG_RSLT := 0
+              tdiag->REC_RSLT := 0
             endif
           next
         endif
@@ -7341,6 +7340,8 @@ G_Use(dir_server+"mo_onksl",dir_server+"mo_onksl","ONKSL") // Сведения о случае 
 G_Use(dir_server+"mo_onkdi",dir_server+"mo_onkdi","ONKDI") // Диагностический блок
 G_Use(dir_server+"mo_onkpr",dir_server+"mo_onkpr","ONKPR") // Сведения об имеющихся противопоказаниях
 G_Use(dir_server+"mo_onkus",dir_server+"mo_onkus","ONKUS")
+G_Use(dir_server+"mo_onkco",dir_server+"mo_onkco","ONKCO")
+G_Use(dir_server+"mo_onkle",dir_server+"mo_onkle","ONKLE")
 G_Use(dir_server+"human_2",,"HUMAN_2")
 G_Use(dir_server+"human_",,"HUMAN_")
 G_Use(dir_server+"human",{dir_server+"humans",;

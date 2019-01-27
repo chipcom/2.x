@@ -158,7 +158,7 @@ Private mnapr_stac, m1napr_stac := 0, ;
 Private mnapr_reab, m1napr_reab := 0, mprofil_kojki, m1profil_kojki := 0   
 //
 Private pole_diag, pole_pervich, pole_1pervich, pole_d_diag, ;
-        pole_stadia, pole_dispans, pole_1dispans, pole_d_dispans
+        pole_stadia, pole_dispans, pole_1dispans, pole_d_dispans, pole_dn_dispans
 for i := 1 to 5
   sk := lstr(i)
   pole_diag := "mdiag"+sk

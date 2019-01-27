@@ -1831,7 +1831,7 @@ if !empty(full_zip)
 endif
 return NIL
 
-***** 23.01.19 вынуть реестр из XML-файлов и записать во временные DBF-файлы
+***** 27.01.19 вынуть реестр из XML-файлов и записать во временные DBF-файлы
 Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
 Local _table1 := {;
    {"KOD",      "N", 6,0},; // код
@@ -2034,6 +2034,9 @@ Local _table5 := {;
    {"NAZ_V1"  , "C", 1,0},; //
    {"NAZ_V2"  , "C", 1,0},; //
    {"NAZ_V3"  , "C", 1,0},; //
+   {"NAPR_DATE","C",10,0},; // Дата направления
+   {"NAPR_MO",  "C", 6,0},; // 
+   {"NAZ_USL"  ,"C",15,0},;  // шифр услуги
    {"NAZ_PMP" , "C", 3,0},; //
    {"NAZ_PK"  , "C", 3,0}; //
   }
@@ -2245,8 +2248,8 @@ if (arr_f := Extract_Zip_XML(goal_dir,name_zip)) != NIL
                   &lal.->KD        := mo_read_xml_stroke(oNode11,"KD",,.f.)
                   &lal.->DS0       := mo_read_xml_stroke(oNode11,"DS0",,.f.)
                   &lal.->DS1       := mo_read_xml_stroke(oNode11,"DS1")
-                  &lal.->DS1_PR    := mo_read_xml_stroke(oNode11,"DS1_PR",,.f.) // для диспансеризации
-                  &lal.->PR_D_N    := mo_read_xml_stroke(oNode11,"PR_D_N",,.f.) // для диспансеризации
+                  &lal.->DS1_PR    := mo_read_xml_stroke(oNode11,"DS1_PR",,.f.) // 2
+                  &lal.->PR_D_N    := mo_read_xml_stroke(oNode11,"PR_D_N",,.f.) // 2
                   // DS2 для диспансеризации
                   j1 := 0
                   for i := 1 to len(oNode11:aitems) // последовательный просмотр
@@ -2284,9 +2287,8 @@ if (arr_f := Extract_Zip_XML(goal_dir,name_zip)) != NIL
                         t5->sluch  := isl
                         t5->KOD    := mkod
                         t5->IDCASE := &lal.->IDCASE // для связи со случаем
-                        t5->NAZ_N  := mo_read_xml_stroke(oNode2,"NAZ_N",,.f.)  // версия 3.1
-                        t5->NAZ_R  := mo_read_xml_stroke(oNode2,"NAZ_R",,.f.)  // версия 3.1
-                        t5->NAZR   := mo_read_xml_stroke(oNode2,"NAZR",,.f.)
+                        t5->NAZ_N  := mo_read_xml_stroke(oNode2,"NAZ_N",,.f.)  
+                        t5->NAZ_R  := mo_read_xml_stroke(oNode2,"NAZ_R",,.f.)  
                         _ar := mo_read_xml_array(oNode2,"NAZ_SP") // М.Б.НЕСКОЛЬКО NAZ_SP
                         for j1 := 1 to min(3,len(_ar))
                           pole := "t5->NAZ_SP"+lstr(j1)
@@ -2297,8 +2299,11 @@ if (arr_f := Extract_Zip_XML(goal_dir,name_zip)) != NIL
                           pole := "t5->NAZ_V"+lstr(j1)
                           &pole := _ar[j1]
                         next
-                        t5->NAZ_PMP := mo_read_xml_stroke(oNode2,"NAZ_PMP",,.f.)
-                        t5->NAZ_PK  := mo_read_xml_stroke(oNode2,"NAZ_PK",,.f.)
+                        t5->NAZ_USL  := mo_read_xml_stroke(oNode2,"NAZ_USL",,.f.)
+                        t5->NAPR_DATE:= mo_read_xml_stroke(oNode2,"NAPR_DATE",,.f.)
+                        t5->NAPR_MO  := mo_read_xml_stroke(oNode2,"NAPR_MO",,.f.)
+                        t5->NAZ_PMP  := mo_read_xml_stroke(oNode2,"NAZ_PMP",,.f.)
+                        t5->NAZ_PK   := mo_read_xml_stroke(oNode2,"NAZ_PK",,.f.)
                       endif
                     next
                   endif
@@ -2341,11 +2346,11 @@ if (arr_f := Extract_Zip_XML(goal_dir,name_zip)) != NIL
                       t6->NAPR_DATE:= mo_read_xml_stroke(oNode2,"NAPR_DATE")
                       t6->NAPR_MO  := mo_read_xml_stroke(oNode2,"NAPR_MO",,.f.)
                       t6->NAPR_V   := mo_read_xml_stroke(oNode2,"NAPR_V")
-                      t6->MET_ISSL := mo_read_xml_stroke(oNode2,"MET_ISSL")
-                      t6->U_KOD    := mo_read_xml_stroke(oNode2,"NAPR_USL")
+                      t6->MET_ISSL := mo_read_xml_stroke(oNode2,"MET_ISSL",,.f.)
+                      t6->U_KOD    := mo_read_xml_stroke(oNode2,"NAPR_USL",,.f.)
                     elseif valtype(oNode2) != "C" .AND. oNode2:title == "CONS"
-                      &lal.->PR_CONS := mo_read_xml_stroke(oNode3,"PR_CONS",,.f.)
-                      &lal.->DT_CONS := mo_read_xml_stroke(oNode3,"DT_CONS",,.f.)
+                      &lal.->PR_CONS := mo_read_xml_stroke(oNode2,"PR_CONS",,.f.)
+                      &lal.->DT_CONS := mo_read_xml_stroke(oNode2,"DT_CONS",,.f.)
                     endif
                   next
                   if (oNode3 := oNode11:Find("ONK_SL")) != NIL
@@ -2392,6 +2397,7 @@ if (arr_f := Extract_Zip_XML(goal_dir,name_zip)) != NIL
                         t9->LEK_TIP_L:= mo_read_xml_stroke(oNode2,"LEK_TIP_L",,.f.)
                         t9->LEK_TIP_V:= mo_read_xml_stroke(oNode2,"LEK_TIP_V",,.f.)
                         t9->LUCH_TIP := mo_read_xml_stroke(oNode2,"LUCH_TIP",,.f.)
+                        t9->PPTR     := mo_read_xml_stroke(oNode2,"PPTR",,.f.)
                         for j2 := 1 to len(oNode2:aitems) // последовательный просмотр
                           oNode4 := oNode2:aItems[j2]     // т.к. услуг м.б. несколько
                           if valtype(oNode4) != "C" .AND. oNode4:title == "LEK_PR"

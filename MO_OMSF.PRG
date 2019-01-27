@@ -4383,7 +4383,7 @@ if !empty(arr_usl_otkaz)
   aadd(arr,{"29",arr_usl_otkaz}) // массив
 endif
 aadd(arr,{"30",m1GRUPPA})    // "N1",группа здоровья после дисп-ии
-if type("m1prof_ko}") == "N"
+if type("m1prof_ko") == "N"
   aadd(arr,{"31",m1prof_ko})    // "N1",вид проф.консультирования
 endif
 if type("m1ot_nasl1") == "N"
