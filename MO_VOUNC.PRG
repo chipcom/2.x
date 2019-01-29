@@ -1915,8 +1915,9 @@ do while !eof()
   is_disp_DVN := .f.
   ldate_next := ctod("")
   ar_dn := {}
-  //   
-  is_oncology := f_is_oncology(1) 
+  //
+  is_oncology_smp := 0    
+  is_oncology := f_is_oncology(1,@is_oncology_smp) 
   if p_tip_reestr == 2
     is_oncology := 0
   endif
@@ -2520,13 +2521,16 @@ do while !eof()
           mo_add_xml_stroke(oNAPR,"NAPR_USL",arr_onkna[j,4])
         endif
       next j
+    endif
+    if is_oncology > 0 .or. is_oncology_smp > 0
       oCONS := oSL:Add( HXMLNode():New( "CONS" ) ) // консилиумов м.б.несколько (но у нас один)
        mo_add_xml_stroke(oCONS,"PR_CONS",lstr(onkco->PR_CONS)) // N019
        if !empty(onkco->DT_CONS)
          mo_add_xml_stroke(oCONS,"DT_CONS",date2xml(onkco->DT_CONS))
        endif
-      if is_oncology == 2
-       oONK_SL := oSL:Add( HXMLNode():New( "ONK_SL" ) )
+    endif
+    if human_->USL_OK < 4 .and. is_oncology == 2
+      oONK_SL := oSL:Add( HXMLNode():New( "ONK_SL" ) )
         mo_add_xml_stroke(oONK_SL,"DS1_T",lstr(onksl->DS1_T))
         if between(onksl->DS1_T,0,4)
           mo_add_xml_stroke(oONK_SL,"STAD",lstr(onksl->STAD))
@@ -2595,7 +2599,6 @@ do while !eof()
            skip 	
           enddo
         endif
-      endif
     endif
     sCOMENTSL := ""
     if p_tip_reestr == 1
@@ -3523,12 +3526,12 @@ for ii := 1 to len(arr_schet)
                 mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_V",&pole)
               endif
             next
-            if !empty(t1->naz_usl)
-              mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_USL",t1->naz_usl)
+            if !empty(t5->naz_usl)
+              mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_USL",t5->naz_usl)
             endif
-            if !empty(t1->NAPR_DATE)
-              mo_add_xml_stroke(oPRESCRIPTIONS,"NAPR_DATE",t1->NAPR_DATE)
-              mo_add_xml_stroke(oPRESCRIPTIONS,"NAPR_MO",t1->NAPR_MO)  
+            if !empty(t5->NAPR_DATE)
+              mo_add_xml_stroke(oPRESCRIPTIONS,"NAPR_DATE",t5->NAPR_DATE)
+              mo_add_xml_stroke(oPRESCRIPTIONS,"NAPR_MO",t5->NAPR_MO)  
             endif
             if !empty(t5->NAZ_PMP)
               mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_PMP",t5->NAZ_PMP)

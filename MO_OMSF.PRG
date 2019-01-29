@@ -1325,8 +1325,8 @@ Private yes_oncology := .f.
 f_is_oncology(2)
 return !yes_oncology
 
-***** 14.01.19
-Function f_is_oncology(r)
+***** 28.01.19
+Function f_is_oncology(r,/*@*/_onk_smp)
 Local i, k, mdiagnoz, lusl_ok, lprofil, lzno := 0, lyear
 if r == 1
   lyear := year(human->k_data)
@@ -1343,34 +1343,34 @@ else
   lprofil := m1profil
   lzno := m1ds_onk
 endif
-if lusl_ok == 4 // скорая помощь
-  k := 0
-else
-  if empty(mdiagnoz)
-    aadd(mdiagnoz,space(6))
-  endif
-  k := lzno  
-  if lyear == 2019 .and. (left(mdiagnoz[1],1) == "C" .or. between(left(mdiagnoz[1],3),"D00","D09")) 
-    k := 2
-  elseif lyear == 2018 .and. left(mdiagnoz[1],1) == "C" 
-    k := 2
-  elseif left(mdiagnoz[1],3) == "D70"
-    for i := 2 to len(mdiagnoz)
-      if left(mdiagnoz[i],1) == "C"
-        if between(left(mdiagnoz[i],3),"C00","C80") .or. left(mdiagnoz[i],3) == "C97"
-          k := 2
-        endif
+if empty(mdiagnoz)
+  aadd(mdiagnoz,space(6))
+endif
+k := lzno  
+if lyear == 2019 .and. (left(mdiagnoz[1],1) == "C" .or. between(left(mdiagnoz[1],3),"D00","D09")) 
+  k := 2
+elseif lyear == 2018 .and. left(mdiagnoz[1],1) == "C" 
+  k := 2
+elseif left(mdiagnoz[1],3) == "D70"
+  for i := 2 to len(mdiagnoz)
+    if left(mdiagnoz[i],1) == "C"
+      if between(left(mdiagnoz[i],3),"C00","C80") .or. left(mdiagnoz[i],3) == "C97"
+        k := 2
       endif
-    next
-  endif
-  if k == 2
-    yes_oncology := .t.
-    m1ds_onk := 0 ; mds_onk := inieditspr(A__MENUVERT, mm_danet, m1ds_onk)
-    if lprofil == 158
-      k := 1
     endif
+  next
+endif
+if k == 2
+  yes_oncology := .t.
+  m1ds_onk := 0 ; mds_onk := inieditspr(A__MENUVERT, mm_danet, m1ds_onk)
+  if lprofil == 158
+    k := 1
   endif
 endif
+if lusl_ok == 4 // скорая помощь
+  _onk_smp := k
+  k := 0
+endif  
 return k
 
 ***** 22.08.18

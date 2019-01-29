@@ -1831,7 +1831,7 @@ if !empty(full_zip)
 endif
 return NIL
 
-***** 27.01.19 вынуть реестр из XML-файлов и записать во временные DBF-файлы
+***** 28.01.19 вынуть реестр из XML-файлов и записать во временные DBF-файлы
 Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
 Local _table1 := {;
    {"KOD",      "N", 6,0},; // код
@@ -2237,7 +2237,10 @@ if (arr_f := Extract_Zip_XML(goal_dir,name_zip)) != NIL
                   &lal.->PROFIL    := mo_read_xml_stroke(oNode11,"PROFIL")
                   &lal.->PROFIL_K  := mo_read_xml_stroke(oNode11,"PROFIL_K",,.f.)
                   &lal.->DET       := mo_read_xml_stroke(oNode11,"DET",,.f.)
-                  &lal.->P_CEL     := mo_read_xml_stroke(oNode11,"P_CEL",,.f.)
+                  s := mo_read_xml_stroke(oNode11,"P_CEL",,.f.)
+                  if !empty(s)
+                    &lal.->P_CEL := s
+                  endif
                   &lal.->TAL_D     := mo_read_xml_stroke(oNode11,"TAL_D",,.f.)
                   &lal.->TAL_P     := mo_read_xml_stroke(oNode11,"TAL_P",,.f.)
                   &lal.->TAL_NUM   := mo_read_xml_stroke(oNode11,"TAL_NUM",,.f.)

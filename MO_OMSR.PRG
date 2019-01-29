@@ -412,7 +412,7 @@ DEFAULT fl_view TO .t.
 rec_human := human->(recno())
 Private mdate_r := human->date_r, mvozrast, mdvozrast, M1VZROS_REB := human->VZROS_REB,;
         arr_usl_otkaz := {}, m1novor := 0, mpol := human->pol, mDATE_R2 := ctod(""),;
-        is_oncology := 0
+        is_oncology := 0, is_oncology_smp := 0
 if human_->NOVOR > 0
   m1novor := 1 // для переопределения M1VZROS_REB
   mDATE_R2 := human_->DATE_R2
@@ -425,7 +425,7 @@ if M1VZROS_REB != human->VZROS_REB  // если неверно,
   human->VZROS_REB := M1VZROS_REB   // то перезаписываем
   UnLock
 endif
-is_oncology := f_is_oncology(1)
+is_oncology := f_is_oncology(1,@is_oncology_smp)
 //
 glob_kartotek := human->kod_k
 d1 := human->n_data ; d2 := human->k_data ; cuch_doc := human->uch_doc
@@ -1303,15 +1303,23 @@ else
     endif  
   endif
 endif
+if is_oncology_smp > 0 // специально для скорой помощи
+  select ONKCO
+  find (str(human->kod,7))
+  if found()
+    if between(onkco->PR_CONS,1,3) .and. !between(onkco->DT_CONS,d1,d2)
+      aadd(ta,"дата консилиума по онкологии должна быть внутри сроков лечения")
+    endif
+  else
+    AddRec(7)
+    onkco->kod := human->kod
+    onkco->PR_CONS := 0 // 0-отсутствует необходимость
+    onkco->DT_CONS := ctod("")
+    UnLock
+  endif
+endif  
 al := "luslf"
 if is_oncology > 0 // онкология - направления
-  /*if is_oncology == 2 // онкология
-    if mpovod == 4  // Диспансерное наблюдение
-      is_oncology := 1 // для дисп.наблюдения не вводится онкология
-    elseif human_->USL_OK == 3 .and. len(au_lu) == 0
-      is_oncology := 1 // пока не введены услуги - не проверяем онкологию
-    endif
-  endif*/
   if human->OBRASHEN == '1' .and. ascan(mdiagnoz, {|x| padr(x,5) == "Z03.1" }) == 0
     aadd(ta,'при "подозрении на ЗНО" в листе учёта обязательно должен быть основной (или сопутствующий) диагноз Z03.1 "наблюдение при подозрении на злокачественную опухоль"')
   endif
