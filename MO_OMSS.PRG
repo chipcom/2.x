@@ -648,7 +648,7 @@ if empty(aerr)
     use (cur_dir+"tmp_r_t9") new alias T9
     index on IDCASE to (cur_dir+"tmpt9")
     use (cur_dir+"tmp_r_t10") new alias T10
-    index on IDCASE to (cur_dir+"tmpt10")
+    index on IDCASE+regnum+code_sh+date_inj to (cur_dir+"tmpt10")
     use (cur_dir+"tmp_r_t11") new alias T11
     index on IDCASE to (cur_dir+"tmpt11")
     //
@@ -1831,7 +1831,7 @@ if !empty(full_zip)
 endif
 return NIL
 
-***** 28.01.19 вынуть реестр из XML-файлов и записать во временные DBF-файлы
+***** 30.01.19 вынуть реестр из XML-файлов и записать во временные DBF-файлы
 Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
 Local _table1 := {;
    {"KOD",      "N", 6,0},; // код

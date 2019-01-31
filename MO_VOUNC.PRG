@@ -1704,7 +1704,7 @@ do case
 endcase
 return k
 
-***** 25.01.19 создание XML-файлов реестра
+***** 30.01.19 создание XML-файлов реестра
 Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
 Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, ;
       lst, lshifr1, code_reestr, mb, me, nsh, adiag_talon[16]
@@ -1953,7 +1953,8 @@ do while !eof()
       skip
     enddo
   endif
-  if eq_any(onksl->b_diag,0,7,8) // добавим отказ,не показано,противопоказано по гистологии
+  if eq_any(onksl->b_diag,0,7,8) .and. ascan(arr_onkpr,{|x| x[1] == onksl->b_diag }) == 0
+    // добавим отказ,не показано,противопоказано по гистологии
     aadd(arr_onkpr, {onksl->b_diag,human->n_data})
   endif
   //
@@ -2486,7 +2487,13 @@ do while !eof()
       mo_add_xml_stroke(oKSG,"N_KSG",lshifr_zak_sl)
       if !empty(human_2->pc3) .and. !left(human_2->pc3,1) == '6' // кроме "старости"
         mo_add_xml_stroke(oKSG,"CRIT",human_2->pc3)
-        //mo_add_xml_stroke(oKSG,"CRIT",human_2->pc3)  // второй критерий
+      elseif is_oncology  == 2
+        if !empty(onksl->crit) .and. !(alltrim(onksl->crit) == "нет")
+          mo_add_xml_stroke(oKSG,"CRIT",onksl->crit)
+        endif
+        if !empty(onksl->crit2)
+          mo_add_xml_stroke(oKSG,"CRIT",onksl->crit2)  // второй критерий
+        endif
       endif
       mo_add_xml_stroke(oKSG,"SL_K",iif(empty(akslp),'0','1'))
       if !empty(akslp)
@@ -2574,10 +2581,10 @@ do while !eof()
             if between(onkus->USL_TIP,1,6)
             oONK := oONK_SL:Add( HXMLNode():New( "ONK_USL" ) )
              mo_add_xml_stroke(oONK,"USL_TIP",lstr(onkus->USL_TIP))
-             if onkus->HIR_TIP == 1
+             if onkus->USL_TIP == 1
               mo_add_xml_stroke(oONK,"HIR_TIP",lstr(onkus->HIR_TIP))
              endif	
-             if onkus->HIR_TIP == 2
+             if onkus->USL_TIP == 2
               mo_add_xml_stroke(oONK,"LEK_TIP_L",lstr(onkus->LEK_TIP_L))	
               mo_add_xml_stroke(oONK,"LEK_TIP_V",lstr(onkus->LEK_TIP_V))
              endif	
@@ -2585,11 +2592,21 @@ do while !eof()
               mo_add_xml_stroke(oONK,"LUCH_TIP",lstr(onkus->LUCH_TIP))
              endif
              if eq_any(onkus->USL_TIP,2,4)
-              /*цикл по БД лекарств
-               oLEK := oONK:Add( HXMLNode():New( "LEK_PR" ) )
-                mo_add_xml_stroke(oLEK,"REGNUM",...)
-                // цикл по датам приёма данного лекарства
-                 mo_add_xml_stroke(oLEK,"DATE_INJ",...)*/
+              old_lek := space(6) ; old_sh := space(10)
+              select ONKLE  //  цикл по БД лекарств
+              find (str(human->kod,7))
+              do while onkle->kod == human->kod .and. !eof()
+                if !(old_lek == onkle->REGNUM .and. old_sh == onkle->CODE_SH)
+                 oLEK := oONK:Add( HXMLNode():New( "LEK_PR" ) )
+                  mo_add_xml_stroke(oLEK,"REGNUM",onkle->REGNUM)
+                  mo_add_xml_stroke(oLEK,"CODE_SH",onkle->CODE_SH)
+                endif  
+                  // цикл по датам приёма данного лекарства
+                  mo_add_xml_stroke(oLEK,"DATE_INJ",date2xml(onkle->DATE_INJ))
+                old_lek := onkle->REGNUM ; old_sh := onkle->CODE_SH
+                select ONKLE
+                skip
+              enddo
               if onkus->PPTR > 0   
                mo_add_xml_stroke(oONK,"PPTR",'1')
               endif
@@ -2603,7 +2620,7 @@ do while !eof()
     sCOMENTSL := ""
     if p_tip_reestr == 1
       mo_add_xml_stroke(oSL,"PRVS",put_prvs_to_reestr(human_->PRVS,_NYEAR))
-      if glob_mo[_MO_KOD_TFOMS] == kod_LIS .and. eq_any(human_->profil,6,34)
+      if ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil,6,34)
         mo_add_xml_stroke(oSL,"IDDOKT","0")
       else
         p2->(dbGoto(human_->vrach))
@@ -2965,7 +2982,7 @@ if chip_create_zipXML(name_zip,arr_zip,.t.)
 endif
 return NIL
 
-***** 23.01.19 создать счета по результатам прочитанного реестра СП
+***** 30.01.19 создать счета по результатам прочитанного реестра СП
 Function create_schet19_from_XML(arr_XML_info,aerr,fl_msg,arr_s,name_sp_tk)
 Local arr_schet := {}, c, len_stand, _arr_stand, lshifr, i, j, k, lbukva,;
       doplataF, doplataR, mnn, fl, name_zip, arr_zip := {}, lshifr1,;
@@ -3656,7 +3673,7 @@ for ii := 1 to len(arr_schet)
           enddo
           select T9
           find (t1->IDCASE)
-          do while t1->IDCASE == t8->IDCASE .and. !eof()
+          do while t1->IDCASE == t9->IDCASE .and. !eof()
            oONK := oONK_SL:Add( HXMLNode():New( "ONK_USL" ) )
             mo_add_xml_stroke(oONK,"USL_TIP",t9->USL_TIP)
             if !empty(t9->HIR_TIP)
@@ -3672,15 +3689,27 @@ for ii := 1 to len(arr_schet)
              mo_add_xml_stroke(oONK,"LUCH_TIP",t9->LUCH_TIP)
             endif
             if eq_any(int(val(t9->USL_TIP)),2,4)
-              /*цикл по БД лекарств
-               oLEK := oONK:Add( HXMLNode():New( "LEK_PR" ) )
-                mo_add_xml_stroke(oLEK,"REGNUM",...)
-                // цикл по датам приёма данного лекарства
-                 mo_add_xml_stroke(oLEK,"DATE_INJ",...)*/
+              old_lek := space(6) ; old_sh := space(10)
+              //цикл по БД лекарств
+              select T10
+              find (t1->IDCASE)
+              do while t1->IDCASE == t10->IDCASE .and. !eof()
+                if !(old_lek == t10->REGNUM .and. old_sh == t10->CODE_SH)
+                 oLEK := oONK:Add( HXMLNode():New( "LEK_PR" ) )
+                  mo_add_xml_stroke(oLEK,"REGNUM",t10->REGNUM)
+                  mo_add_xml_stroke(oLEK,"CODE_SH",t10->CODE_SH)
+                endif  
+                  // цикл по датам приёма данного лекарства
+                  mo_add_xml_stroke(oLEK,"DATE_INJ",t10->DATE_INJ)
+                old_lek := t10->REGNUM ; old_sh := t10->CODE_SH
+                select T10
+                skip
+              enddo
               if !empty(t9->PPTR)   
                mo_add_xml_stroke(oONK,"PPTR",t9->PPTR)
               endif
-            endif 
+            endif
+            select T9 
             skip
           enddo
         endif

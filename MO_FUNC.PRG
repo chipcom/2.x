@@ -151,7 +151,7 @@ do case
   case sBase == "mo_onkco"
     index on str(kod,7) to (dir_server+sBase) progress
   case sBase == "mo_onkle"
-    index on str(kod,7) to (dir_server+sBase) progress
+    index on str(kod,7)+regnum+code_sh+dtos(date_inj) to (dir_server+sBase) progress
   case sBase == "humanst"
     index on str(tip_bd,1)+str(rec_bd,8) to (dir_server+sBase) progress
   case sBase == "mo_refr"
@@ -2174,7 +2174,7 @@ if valtype(arr_zf) == "A" .and. valtype(mkol) == "N"
 endif
 return !empty(amsg)
 
-***** 16.01.19 проверка правильности ввода зубной формулы
+***** 31.01.19 проверка правильности ввода зубной формулы
 Function STverifyZF(_zf,_date_r,_sys_date,/*@*/amsg,lshifr)
 Static fz := {{11,18},{21,28},{31,38},{41,48},{51,55},{61,65},{71,75},{81,85}}
 //               возраст больного с 14 лет   |       возраст до 5 лет
@@ -2191,10 +2191,10 @@ if len(arr_zf) > 0
     next
     if k == 0
       aadd(amsg, lstr(arr_zf[i])+' - неверная зубная формула '+lshifr)
-    elseif v <= 5 .and. between(k,1,4)
-      aadd(amsg, lstr(arr_zf[i])+' - у ребенка зубная формула взрослого '+lshifr)
-    elseif v > 14 .and. between(k,5,8)
-      aadd(amsg, lstr(arr_zf[i])+' - у взрослого зубная формула ребенка '+lshifr)
+    //elseif v <= 5 .and. between(k,1,4)
+      //aadd(amsg, lstr(arr_zf[i])+' - у ребенка зубная формула взрослого '+lshifr)
+    //elseif v > 14 .and. between(k,5,8)
+      //aadd(amsg, lstr(arr_zf[i])+' - у взрослого зубная формула ребенка '+lshifr)
     endif
   next
 endif
@@ -2773,7 +2773,7 @@ if fl
 endif
 return fl
 
-***** 20.01.19 определение КСГ по остальным введённым полям ввода - 2019 год
+***** 29.01.19 определение КСГ по остальным введённым полям ввода - 2019 год
 Function definition_KSG(par)
 // файлы "human", "human_" и "human_2" открыты и стоят на нужной записи
 //       "human" открыт для записи суммы случая
@@ -2826,10 +2826,10 @@ Static a_iskl_1 := {; // исключение из правил №1
  }
 Local mdiagnoz, aHirKSG := {}, aTerKSG := {}, fl_cena := .f., lvmp, lvidvmp := 0, lstentvmp := 0,;
       i, j, k, c, s, ar, fl, im, lshifr, ln_data, lk_data, lvr, ldni, ldate_r, lpol, lprofil_k,;
-      lad_cr := "", lfio, cenaTer := 0, cenaHir := 0, ksgHir, ars := {}, arerr := {}, ;
+      lfio, cenaTer := 0, cenaHir := 0, ksgHir, ars := {}, arerr := {}, ;
       lksg := "", lcena := 0, osn_diag3, lprofil, ldnej := 0, y := 0, m := 0, d := 0,;
       osn_diag := space(6), sop_diag := {}, osl_diag := {}, tmp, lrslt, akslp, akiro,;
-      akslp2, lpar_org := 0,; 
+      lad_cr := "", lad_cr1 := "", lis_err := 0, akslp2, lpar_org := 0,; 
       kol_ter := 0, kol_hir := 0, lkoef, fl_reabil, lkiro := 0, lkslp := "", lbartell := "",;
       lusl, susl, s_dializ := 0, ahu := {}, amohu := {}, date_usl := stod("20190101")
 DEFAULT par TO 1, sp0 TO "", sp1 TO space(1), sp6 TO space(6), sp15 TO space(20)
@@ -2868,6 +2868,19 @@ if par == 1
   endif
   if !empty(human_2->OSL3)
     aadd(osl_diag,human_2->OSL3)
+  endif
+  if lusl < 3 .and. f_is_oncology(1) == 2
+    if select("ONKSL") == 0
+      G_Use(dir_server+"mo_onksl",dir_server+"mo_onksl","ONKSL") // Сведения о случае лечения онкологического заболевания
+    endif
+    select ONKSL
+    find (str(human->kod,7))
+    lad_cr := alltrim(onksl->crit)
+    if lad_cr == "нет"
+      lad_cr := ""
+    endif
+    lad_cr1 := alltrim(onksl->crit2)
+    lis_err := onksl->is_err
   endif
 else // из режима импорта случаев
   if (lvmp := iif(empty(ihuman->VID_HMP), 0, 1)) == 1
@@ -3180,6 +3193,20 @@ do while left(k006->shifr,2)==susl .and. k006->ds==padr(osn_diag,6) .and. !eof()
       endif
     endif
   endif
+  if fl 
+    if empty(lad_cr1) // в случае нет доп.критерия2
+      if !empty(k006->ad_cr1) // а в справочнике есть доп.критерий2
+        fl := .f.
+      endif
+    else // в случае есть доп.критерий2
+      if empty(k006->ad_cr1) // а в справочнике нет доп.критерия2
+        fl := .f.
+      else                  // а в справочнике есть доп.критерий2
+        fl := (lad_cr1 == alltrim(k006->ad_cr1))
+        if fl ; j ++ ; endif
+      endif
+    endif
+  endif
   if fl .and. !empty(sds1)
     fl := .f.
     for i := 1 to len(sop_diag)
@@ -3215,7 +3242,8 @@ do while left(k006->shifr,2)==susl .and. k006->ds==padr(osn_diag,6) .and. !eof()
              sds1,;        // 11 
              sds2,;        // 12 
              j,;           // 13 
-             lusl->kslps}) // 14 
+             lusl->kslps,; // 14 
+             k006->ad_cr1}) // 15 
   endif
   select K006
   skip
@@ -3297,20 +3325,13 @@ for im := 1 to len(amohu)
           if fl ; j ++ ; endif
         endif
       endif
-      /*if fl .and. !(left(lad_cr,2) == "sh") 
-        if empty(lad_cr) // в случае нет доп.критерия
-          if !empty(k006->ad_cr) // в справочнике есть доп.критерий
-            fl := .f.
-          endif
-        else // в случае есть доп.критерий
-          if empty(k006->ad_cr) // в справочнике нет доп.критерия
-            fl := .f.
-          else                  // в справочнике есть доп.критерий
-            fl := (lad_cr == alltrim(k006->ad_cr))
-            if fl ; j ++ ; endif
-          endif
+      if fl .and. !empty(k006->ad_cr1)  // в справочнике есть доп.критерий2
+        fl := .f.
+        if !empty(lad_cr1)        // в случае есть доп.критерий2
+          fl := (lad_cr1 == alltrim(k006->ad_cr1))
+          if fl ; j ++ ; endif
         endif
-      endif*/
+      endif
       if fl .and. !empty(sds1)
         fl := .f.
         for i := 1 to len(sop_diag)
@@ -3343,7 +3364,8 @@ for im := 1 to len(amohu)
                  sds1,;        // 11 
                  sds2,;        // 12 
                  j,;           // 13 
-                 lusl->kslps}) // 14 
+                 lusl->kslps,; // 14 
+                 k006->ad_cr1}) // 15 
       endif
       select K006
       skip
@@ -3444,12 +3466,16 @@ if !empty(lksg)
           vkiro := 1
         elseif ascan(lkiro,2) > 0
           vkiro := 2
+        elseif lis_err == 1 .and. ascan(lkiro,5) > 0
+          vkiro := 5
         endif
       elseif ascan({102,105,107,110,202,205,207},lrslt) > 0 // более 3-х дней, лечение прервано
         if ascan(lkiro,3) > 0
           vkiro := 3
         elseif ascan(lkiro,4) > 0
           vkiro := 4
+        elseif lis_err == 1 .and. ascan(lkiro,6) > 0
+          vkiro := 6
         endif
       endif
       if vkiro > 0 
@@ -3487,7 +3513,7 @@ endcase
 _cena := round_5(_cena*_akiro[2],0)  // округление до рублей с 2019 года
 return _akiro
 
-***** 12.01.19 вывести строку в отладочный массив о КСГ
+***** 30.01.19 вывести строку в отладочный массив о КСГ
 Function f_put_debug_KSG(k,arr,ars)
 // k = 1 - терапевтическая
 // k = 2 - хирургическая
@@ -3521,6 +3547,9 @@ else
     endif
     if !empty(arr[i,10])
       s1 += "доп.критерий,"
+    endif
+    if len(arr[i]) >= 15 .and. !empty(arr[i,15])
+      s1 += "иной критерий,"
     endif
     if !empty(arr[i,11])
       s1 += "соп.диаг.,"

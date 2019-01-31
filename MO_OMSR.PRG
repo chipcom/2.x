@@ -398,7 +398,7 @@ elseif lp == 64 // оториноларингологии
 endif
 return lp
 
-***** 24.01.19
+***** 31.01.19
 Function verify_1_sluch(fl_view)
 Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
       i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -636,7 +636,7 @@ if human_->NOVOR > 0
     aadd(ta, "новорожденному более двух месяцев")
   endif
 endif
-if glob_mo[_MO_KOD_TFOMS] == kod_LIS .and. eq_any(human_->profil,6,34)
+if ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil,6,34)
   human->KOD_DIAG := "Z01.7" // всегда
 endif  
 mdiagnoz := diag_to_array(,,,,.t.)
@@ -877,7 +877,7 @@ do while hu->kod == human->kod .and. !eof()
     otd->(dbGoto(hu->OTD))
     hu->(G_RLock(forever))
     hu_->(G_RLock(forever))
-    if glob_mo[_MO_KOD_TFOMS] == kod_LIS .and. eq_any(human_->profil,6,34)
+    if ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil,6,34)
       hu_->kod_diag := mdiagnoz[1]
     endif
     if hu->is_edit == 0 .and. is_lab_usluga(lshifr)
@@ -908,7 +908,7 @@ do while hu->kod == human->kod .and. !eof()
         aadd(ta,'не заполнено поле "Врач, оказавший услугу '+alltrim(usl->shifr)+'"')
       endif
     else
-      if empty(mvrach) .and. !(glob_mo[_MO_KOD_TFOMS] == kod_LIS .and. eq_any(human_->profil,6,34))
+      if empty(mvrach) .and. !(ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil,6,34))
         mvrach := hu->kod_vr
       endif
       pers->(dbGoto(hu->kod_vr))
@@ -1413,7 +1413,7 @@ do while mohu->kod == human->kod .and. !eof()
     if ascan(arr_perso,mohu->kod_vr) == 0
       aadd(arr_perso,mohu->kod_vr)
     endif
-    if empty(mvrach) .and. !(glob_mo[_MO_KOD_TFOMS] == kod_LIS .and. eq_any(human_->profil,6,34))
+    if empty(mvrach) .and. !(ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil,6,34))
       mvrach := mohu->kod_vr
     endif
     pers->(dbGoto(mohu->kod_vr))
@@ -1702,49 +1702,119 @@ if is_oncology == 2 // онкология
     skip
   enddo
   // услуга обязательна для стационара и дневного стационара при проведении противоопухолевого лечения  
-  if human_->usl_ok < 3 .and. between(onksl->ds1_t,0,2)
-    fl := .t.
+  if human_->usl_ok < 3
+    arr_onk_usl := {}
     select ONKUS
     find (str(human->kod,7))
     do while onkus->kod == human->kod .and. !eof()
-      fl := .f.
-      if onkus->USL_TIP == 4
-        k := 3
-      else
-        k := onkus->USL_TIP
-      endif
-      if (i := ascan(au_flu, {|x| x[10] == k })) > 0
-        if onkus->USL_TIP == 1
-          if empty(onkus->HIR_TIP)
-            aadd(ta,'не заполнен тип хирургического лечения')
+      if between(onkus->USL_TIP,1,6)
+        aadd(arr_onk_usl,onkus->USL_TIP)
+        k := iif(onkus->USL_TIP == 4, 3, onkus->USL_TIP)
+        if (i := ascan(au_flu, {|x| x[10] == k })) > 0
+          if onkus->USL_TIP == 1
+            if empty(onkus->HIR_TIP)
+              aadd(ta,'не заполнен тип хирургического лечения')
+            endif
+          elseif onkus->USL_TIP == 2
+            if empty(onkus->LEK_TIP_V)
+              aadd(ta,'не заполнен цикл лекарственной терапии')
+            endif
+            if empty(onkus->LEK_TIP_L)
+              aadd(ta,'не заполнена линия лекарственной терапии')
+            endif
+          elseif between(onkus->USL_TIP,3,4)
+            if empty(onkus->LUCH_TIP)
+              aadd(ta,'не заполнен тип '+iif(onkus->USL_TIP==3,'','химио')+'лучевой терапии')
+            endif
+            if onkus->USL_TIP == 4
+              if empty(onksl->crit2)
+                aadd(ta,'не заполнена схема лекарственной терапии для химиолучевой терапии')
+              endif
+            endif
           endif
-        elseif onkus->USL_TIP == 2
-          if empty(onkus->LEK_TIP_V)
-            aadd(ta,'не заполнен цикл лекарственной терапии')
-          endif
-          if empty(onkus->LEK_TIP_L)
-            aadd(ta,'не заполнена линия лекарственной терапии')
-          endif
-          aadd(ta,'не заполнена схема лекарственной терапии') // ?????????????????????
-          aadd(ta,'не заполнены даты введения препаратов') // ?????????????????????
-        elseif between(onkus->USL_TIP,3,4)
-          if empty(onkus->LUCH_TIP)
-            aadd(ta,'не заполнен тип '+iif(onkus->USL_TIP==3,'','химио')+'лучевой терапии')
-          endif
-          if onkus->USL_TIP == 4
-            aadd(ta,'не заполнена схема лекарственной терапии') // ?????????????????????
-            aadd(ta,'не заполнены даты введения препаратов') // ?????????????????????
-          endif
+          au_flu[i,11] := .t.
+        elseif onkus->USL_TIP != 2  
+          aadd(ta,'не введена услуга для выбранного типа онкологического лечения')
         endif
-        au_flu[i,11] := .t.
-      elseif onkus->USL_TIP != 2  
-        aadd(ta,'не введена услуга для выбранного типа лечения')
       endif
       select ONKUS
       skip
     enddo
-    if fl
-      aadd(ta,'не введено проведённое онкологическое лечение')
+    if empty(arr_onk_usl) .and. between(onksl->ds1_t,0,2)
+      aadd(ta,'не введено онкологическое лечение')
+    elseif eq_ascan(arr_onk_usl,2,4)
+      if empty(onksl->wei)
+        aadd(ta,'не введена масса тела для выбранного типа онкологического лечения')
+      elseif !(onksl->wei < 200) 
+        aadd(ta,'слишком большая масса тела для выбранного типа онкологического лечения')
+      endif
+      if empty(onksl->hei)
+        aadd(ta,'не введен рост пациента для выбранного типа онкологического лечения')
+      endif
+      if empty(onksl->bsa)
+        aadd(ta,'не введена площадь поверхности тела для выбранного типа онкологического лечения')
+      endif
+      arr_lek := {} ; fl := .t.
+      Select ONKLE
+      find (str(human->kod,7))
+      do while onkle->kod == human->kod .and. !eof()
+        if empty(onkle->REGNUM)
+          aadd(ta,'не введен идентификатор лекарственного препарата - отредактируйте cписок лекарственных препаратов')
+          fl := .f.
+          exit
+        else
+          if empty(onkle->CODE_SH)
+            aadd(ta,'не введена схема лекарственной терапии в лекарствах - отредактируйте cписок лекарственных препаратов')
+            fl := .f.
+            exit
+          else
+            if (i := ascan(arr_lek, {|x| x[1] == onkle->REGNUM .and. x[2] == onkle->CODE_SH })) == 0
+              aadd(arr_lek, {onkle->REGNUM,onkle->CODE_SH}) 
+            endif
+          endif
+          if empty(onkle->DATE_INJ)
+            aadd(ta,'не введена дата введения препарата - отредактируйте cписок лекарственных препаратов')
+            fl := .f.
+            exit
+          elseif !between(onkle->DATE_INJ,d1,d2)
+            aadd(ta,'дата введения препарата выходит за сроки лечения - отредактируйте cписок лекарственных препаратов')
+            fl := .f.
+            exit
+          endif
+        endif
+        Select ONKLE
+        skip
+      enddo
+      if fl
+        if empty(arr_lek)
+          aadd(ta,'не заполнен cписок лекарственных препаратов')
+        endif
+        if select("N20") == 0
+          R_Use(exe_dir+"_mo_N020",cur_dir+"_mo_N020","N20")
+        endif
+        if select("N21") == 0
+          R_Use(exe_dir+"_mo_N021",cur_dir+"_mo_N021","N21")
+        endif
+        select N21
+        find (onksl->crit)
+        if found()
+          n := 0
+          do while n21->code_sh == onksl->crit .and. !eof()
+            if (i := ascan(arr_lek, {|x| x[1] == n21->id_lekp })) > 0
+              ++n
+            else
+              aadd(ta,'не по всем препаратам введены даты - отредактируйте cписок лекарственных препаратов')
+              fl := .f.
+              exit
+            endif
+            select N21
+            skip
+          enddo
+          if fl .and. n != len(arr_lek)
+            aadd(ta,'отредактируйте cписок лекарственных препаратов')
+          endif
+        endif
+      endif
     endif
   endif      
 endif  
@@ -1777,13 +1847,13 @@ if len(mdiagnoz) > 0 .and. left(mdiagnoz[1],3) == "O04" .and. eq_any(human_->pro
     aadd(ta,"для диагноза "+alltrim(mdiagnoz[1])+" (искусственное прерывание беременности по медицинским показаниям) не указан сопутствующий диагноз")
   endif
 endif
-if empty(human_->VRACH) .and. !(glob_mo[_MO_KOD_TFOMS] == kod_LIS .and. eq_any(human_->profil,6,34))
+if empty(human_->VRACH) .and. !(ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil,6,34))
   human_->VRACH := mvrach // врача из первой услуги
 endif
-if glob_mo[_MO_KOD_TFOMS] == kod_LIS .and. eq_any(human_->profil,6,34)
+if ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil,6,34)
   mpzkol := len(au_lu)
 endif
-if glob_mo[_MO_KOD_TFOMS] == kod_LIS .and. eq_any(human_->profil,6,34)
+if ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil,6,34)
   human->UCH_DOC := lstr(human_2->PN3) // ORDER по ЛИС перезаписываем (вдруг исправили)
   human_->VRACH := 0
   human_->PRVS := iif(human_->profil == 34, -13, -54)
@@ -2365,7 +2435,7 @@ endif
 if human_->USL_OK == 3 .and. human->ishod < 101 ;// не диспансеризация
                         .and. m1novor == human_->NOVOR ;
                          .and. !(is_2_80 .or. is_2_82) ;// не неотложная помощь
-                          .and. !(glob_mo[_MO_KOD_TFOMS] == kod_LIS .and. eq_any(human_->profil,6,34)) ; // не КДП2
+                          .and. !(ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil,6,34)) ; // не КДП2
                            .and. len(a_period_amb) > 0
   for i := 1 to len(a_period_amb)
     if a_period_amb[i,3] == human_->profil
@@ -2557,7 +2627,7 @@ else
     aadd(ta,'в случае не проставлен профиль')
   endif
   //
-  if glob_mo[_MO_KOD_TFOMS] == kod_LIS .and. eq_any(human_->profil,6,34)
+  if ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil,6,34)
     // не проверять
   else
     arr_prvs := {human_->PRVS}
@@ -2907,7 +2977,7 @@ elseif kkt > 0 .and. !is_s_dializ .and. !is_dializ .and. !is_perito
       aadd(ta,'в поле "Результат обращения" должно быть "Лечение продолжено"')
     endif
     if kkt > 2
-      aadd(ta,'кол-во услуг '+s+' ('+lstr(kkt)+') не должно быть более 2')
+      //aadd(ta,'кол-во услуг '+s+' ('+lstr(kkt)+') не должно быть более 2')
     endif
     if human_->PROFIL != 78
       aadd(ta,'для '+s+' профиль должен быть РЕНТГЕНОЛОГИЯ')
@@ -2998,7 +3068,7 @@ if is_dializ
   /*if human_->RSLT_NEW != 201
     aadd(ta,'в поле "Результат обращения" должно быть "Выписан"')
   endif*/
-  for i := 1 to len(a_dializ)
+  /*for i := 1 to len(a_dializ)
     if a_dializ[i,5] == 2
       aadd(ta,'в данном отчётном месяце уже был гемодиализ '+date_8(a_dializ[i,1])+"-"+date_8(a_dializ[i,2]))
     elseif a_dializ[i,5] == 3 .and. overlap_diapazon(a_dializ[i,1],a_dializ[i,2],d1,d2)
@@ -3008,7 +3078,7 @@ if is_dializ
         aadd(ta,'пересечение гемодиализа с перитонеальным диализом '+date_8(a_dializ[i,1])+"-"+date_8(a_dializ[i,2]))
       endif
     endif
-  next
+  next*/
 endif
 if is_perito
   s := "для ПЕРИТОНЕАЛЬНОГО ДИАЛИЗА "
@@ -3028,7 +3098,7 @@ if is_perito
   if human_->ISHOD_NEW == 201
     aadd(ta,'в поле "Исход заболевания" стоит неверное значение')
   endif*/
-  for i := 1 to len(a_dializ)
+  /*for i := 1 to len(a_dializ)
     if a_dializ[i,5] == 3
       aadd(ta,'в данном отчётном месяце уже был перитонеальный диализ '+date_8(a_dializ[i,1])+"-"+date_8(a_dializ[i,2]))
     elseif a_dializ[i,5] == 2 .and. overlap_diapazon(a_dializ[i,1],a_dializ[i,2],d1,d2)
@@ -3038,7 +3108,7 @@ if is_perito
         aadd(ta,'пересечение перитонеального диализа с гемодиализом '+date_8(a_dializ[i,1])+"-"+date_8(a_dializ[i,2]))
       endif
     endif
-  next
+  next*/
 endif
 if is_s_dializ
   s := "услуги диализа в стационаре"
@@ -4065,7 +4135,7 @@ else
     mpztip := 74 // {74,262,"комплексное посещение при ДВН 2 этап","ДВН 2","",""},; // 
     mpzkol := 1
   endif
-  if glob_mo[_MO_KOD_TFOMS] == kod_LIS .and. eq_any(human_->profil,6,34)
+  if ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil,6,34)
     mpzkol := len(au_lu) // кол-во анализов
   endif 
   if len(arr_unit) == 1
@@ -4535,7 +4605,7 @@ else
         R_Use(dir_server+"mo_onkus")
         index on str(kod,7)+str(usl_tip,1) to (dir_server+"mo_onkus") progress
         R_Use(dir_server+"mo_onkle")
-        index on str(kod,7) to (dir_server+"mo_onkle") progress
+        index on str(kod,7)+regnum+code_sh+dtos(date_inj) to (dir_server+"mo_onkle") progress
         Use
       RECOVER USING error
         fl := func_error(10,"Возникла непредвиденная ошибка при переиндексировании!")
@@ -5686,7 +5756,7 @@ do while !eof()
     endif
     mo_add_xml_stroke(oSLUCH,"ISHOD",lstr(human_->ISHOD_NEW))
     mo_add_xml_stroke(oSLUCH,"PRVS",put_prvs_to_reestr(human_->PRVS,_NYEAR))
-    if p_tip_reestr == 1 .and. glob_mo[_MO_KOD_TFOMS] == kod_LIS .and. eq_any(human_->profil,6,34)
+    if p_tip_reestr == 1 .and. ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil,6,34)
       mo_add_xml_stroke(oSLUCH,"IDDOKT","0")
     else
       p2->(dbGoto(human_->vrach))

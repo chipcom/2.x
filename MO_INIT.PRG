@@ -962,7 +962,7 @@ else
   fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
 endif
 // N006 - в 2019 году пустой
-/*sbase := "_mo_N006"
+sbase := "_mo_N006"
 if hb_FileExists(exe_dir+sbase+sdbf)
   if files_time(exe_dir+sbase+sdbf,cur_dir+sbase+sntx)
     R_Use(exe_dir+sbase)
@@ -971,7 +971,7 @@ if hb_FileExists(exe_dir+sbase+sdbf)
   endif
 else
   fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
-endif*/
+endif
 // N007
 sbase := "_mo_N007"
 if hb_FileExists(exe_dir+sbase+sdbf)
@@ -1011,6 +1011,29 @@ if hb_FileExists(exe_dir+sbase+sdbf)
   if files_time(exe_dir+sbase+sdbf,cur_dir+sbase+sntx)
     R_Use(exe_dir+sbase)
     index on str(id_igh,6) to (cur_dir+sbase)
+    use
+  endif
+else
+  fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
+endif
+// N020
+sbase := "_mo_N020"
+if hb_FileExists(exe_dir+sbase+sdbf)
+  if files_time(exe_dir+sbase+sdbf,cur_dir+sbase+sntx)
+    R_Use(exe_dir+sbase)
+    index on id_lekp to (cur_dir+sbase)
+    index on upper(mnn) to (cur_dir+sbase+"n")
+    use
+  endif
+else
+  fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
+endif
+// N021
+sbase := "_mo_N021"
+if hb_FileExists(exe_dir+sbase+sdbf)
+  if files_time(exe_dir+sbase+sdbf,cur_dir+sbase+sntx)
+    R_Use(exe_dir+sbase)
+    index on code_sh+id_lekp to (cur_dir+sbase)
     use
   endif
 else

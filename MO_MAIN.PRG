@@ -15,8 +15,8 @@
 #include "chip_mo.ch"
 
 Static _version := {2,8,2}
-Static char_version := "e++"
-Static _date_version := "29.01.19г."
+Static char_version := "g"
+Static _date_version := "31.01.19г."
 Static __s_full_name := "ЧИП + Учёт работы Медицинской Организации"
 Static __s_version
 
@@ -47,7 +47,7 @@ FOR EACH s IN hb_AParams() // анализ входных параметров
 NEXT
 //
 Public kod_VOUNC := '101004'
-Public kod_LIS   := '125901'
+Public kod_LIS   := {'125901','805965'}
 //
 Public DELAY_SPRD := 0 // время задержки для разворачивания строк
 Public sdbf := ".DBF", sntx := ".NTX", stxt := ".TXT", szip := ".ZIP",;

@@ -10,7 +10,7 @@ Function f_import(k)
 Static si1 := 1, sds := 1, ssp := 1
 Local mas_pmt, mas_msg, mas_fun, j
 DEFAULT k TO 1
-if glob_mo[_MO_KOD_TFOMS] == kod_LIS // äÑè-2
+if ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 // äÑè-2
   import_from_LIS()
 else  
   do case
@@ -2423,7 +2423,7 @@ Function f_export(k)
 Static si1 := 1, sds := 1, ssp := 1
 Local mas_pmt, mas_msg, mas_fun, j
 DEFAULT k TO 1
-if glob_mo[_MO_KOD_TFOMS] == kod_LIS // äÑè-2
+if ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 // äÑè-2
   export_to_LIS()
 else
   do case

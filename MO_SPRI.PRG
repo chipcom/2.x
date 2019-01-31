@@ -2454,7 +2454,7 @@ if pregim == 1
   oColumn:colorBlock := blk
   oBrow:addColumn(oColumn)
   if uregim > 0
-    status_key("^<Esc>^ - выход;  ^<F2>^ - поиск по шифру;  ^<F3>^ - поиск по ключу"+;
+    status_key("^<Esc>^ - выход;  ^<F2>^ - поиск по шифру;  ^<F3>^ - поиск по подстроке"+;
                               if(uregim==1,"",";  ^<Enter>^ - выбор"))
   endif
 else
@@ -2569,7 +2569,7 @@ do case
         Private k1 := r1+3, k2 := r2-1
         buf := box_shadow(r1,c1,r2,c2,color0)
         buf24 := save_maxrow()
-        @ r1+1,c1+1 say "Ключевое слово: "+mname color "B/BG"
+        @ r1+1,c1+1 say "Подстрока: "+mname color "B/BG"
         SETCOLOR(color0)
         if t_len < k2-k1-1
           k2 := k1 + t_len + 2
@@ -2601,7 +2601,7 @@ if nKey == K_F9
   Private sh := 76, HH := 77
   fp := fcreate("diagtmp.txt") ; n_list := 1 ; tek_stroke := 0
   add_string("")
-  add_string(center("Результат поиска по ключу: "+mname,sh))
+  add_string(center("Результат поиска по подстроке: "+mname,sh))
   add_string("")
   for i := 1 to len(parr)
     find (left(parr[i],6))
@@ -3002,7 +3002,7 @@ if G_SLock1Task(sem_task,sem_vagno) // запрет доступа всем
       use (cur_dir+"tmp_r_t9") new alias T
       index on IDCASE to (cur_dir+"tmpt9")
       use (cur_dir+"tmp_r_t10") new alias T10
-      index on IDCASE to (cur_dir+"tmpt10")
+      index on IDCASE+regnum+code_sh+date_inj to (cur_dir+"tmpt10")
       use (cur_dir+"tmp_r_t11") new alias T11
       index on IDCASE to (cur_dir+"tmpt11")
       use (cur_dir+"tmp2file") new alias TMP2

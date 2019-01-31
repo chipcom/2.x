@@ -70,6 +70,7 @@ elseif _regim == 2
     //mo_add_xml_stroke(oAddress,"fiasAoid","") // код города проживания по ФИАС
     //mo_add_xml_stroke(oAddress,"cityName","")   // строковое наименование пункта проживания
     mo_add_xml_stroke(oAddress,"regionCode","34")   // код региона по ФИАС
+    mo_add_xml_stroke(oAddress,"fiasAoid","af757d44-3438-4040-9b68-d95099318998") // код города проживания по ФИАС
    if eq_any(p_tip_lu,TIP_LU_PREDN,TIP_LU_PERN)  //if type("m1school") == "N" .and. m1school > 0
      mo_add_xml_stroke(oChild,"idEducationOrg",'90713')  // лицей 5
    endif

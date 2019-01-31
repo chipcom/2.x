@@ -2627,7 +2627,7 @@ endif
 close databases
 return NIL
 
-***** 16.10.18 Получение из ТФОМС файлов обмена (информационных пакетов)
+***** 29.01.19 Получение из ТФОМС файлов обмена (информационных пакетов)
 Function _263_from_read()
 Static nerrf := 999
 Local i, j, k, n, s, af := {}, arr_f := {}, aerr := {}, blk := {|x| aadd(af,x) }, ii, ;
@@ -2820,7 +2820,7 @@ for ii := 1 to len(arr_f)
                   endif
                   select NAPR
                   G_RLock(forever)
-                  napr->T_ANS_3 := nerrf
+                  napr->T_ANS_3 := nerr
                   dbUnLock()
                   skip
                 enddo

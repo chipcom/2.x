@@ -242,7 +242,7 @@ if human_->NOVOR > 0
     aadd(ta, "новорожденному более двух месяцев")
   endif
 endif
-if glob_mo[_MO_KOD_TFOMS] == kod_LIS .and. eq_any(human_->profil,6,34)
+if ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil,6,34)
   human->KOD_DIAG := "Z01.7" // всегда
 endif  
 mdiagnoz := diag_to_array(,,,,.t.)
@@ -456,7 +456,7 @@ do while hu->kod == human->kod .and. !eof()
     endif
     otd->(dbGoto(hu->OTD))
     hu_->(G_RLock(forever))
-    if glob_mo[_MO_KOD_TFOMS] == kod_LIS .and. eq_any(human_->profil,6,34)
+    if ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil,6,34)
       hu_->kod_diag := mdiagnoz[1]
     endif
     if hu->is_edit == 0 .and. is_lab_usluga(lshifr)
@@ -488,7 +488,7 @@ do while hu->kod == human->kod .and. !eof()
         aadd(ta,'не заполнено поле "Врач, оказавший услугу '+alltrim(usl->shifr)+'"')
       endif
     else
-      if empty(mvrach) .and. !(glob_mo[_MO_KOD_TFOMS] == kod_LIS .and. eq_any(human_->profil,6,34))
+      if empty(mvrach) .and. !(ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil,6,34))
         mvrach := hu->kod_vr
       endif
       pers->(dbGoto(hu->kod_vr))
@@ -995,7 +995,7 @@ do while mohu->kod == human->kod .and. !eof()
     if ascan(arr_perso,mohu->kod_vr) == 0
       aadd(arr_perso,mohu->kod_vr)
     endif
-    if empty(mvrach) .and. !(glob_mo[_MO_KOD_TFOMS] == kod_LIS .and. eq_any(human_->profil,6,34))
+    if empty(mvrach) .and. !(ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil,6,34))
       mvrach := mohu->kod_vr
     endif
     pers->(dbGoto(mohu->kod_vr))
@@ -1400,13 +1400,13 @@ if len(mdiagnoz) > 0 .and. left(mdiagnoz[1],3) == "O04" .and. eq_any(human_->pro
     aadd(ta,"для диагноза "+alltrim(mdiagnoz[1])+" (искусственное прерывание беременности по медицинским показаниям) не указан сопутствующий диагноз")
   endif
 endif
-if empty(human_->VRACH) .and. !(glob_mo[_MO_KOD_TFOMS] == kod_LIS .and. eq_any(human_->profil,6,34))
+if empty(human_->VRACH) .and. !(ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil,6,34))
   human_->VRACH := mvrach // врача из первой услуги
 endif
-if glob_mo[_MO_KOD_TFOMS] == kod_LIS .and. eq_any(human_->profil,6,34)
+if ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil,6,34)
   mpzkol := len(au_lu)
 endif
-if glob_mo[_MO_KOD_TFOMS] == kod_LIS .and. eq_any(human_->profil,6,34)
+if ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil,6,34)
   human->UCH_DOC := lstr(human_2->PN3) // ORDER по ЛИС перезаписываем (вдруг исправили)
   human_->VRACH := 0
   human_->PRVS := iif(human_->profil == 34, -13, -54)
@@ -1990,7 +1990,7 @@ endif
 if human_->USL_OK == 3 .and. human->ishod < 101 ;// не диспансеризация
                         .and. m1novor == human_->NOVOR ;
                          .and. !(is_2_80 .or. is_2_82) ;// не неотложная помощь
-                          .and. !(glob_mo[_MO_KOD_TFOMS] == kod_LIS .and. eq_any(human_->profil,6,34)) ; // не КДП2
+                          .and. !(ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil,6,34)) ; // не КДП2
                            .and. len(a_period_amb) > 0
   for i := 1 to len(a_period_amb)
     if a_period_amb[i,3] == human_->profil
@@ -2178,7 +2178,7 @@ else
     aadd(ta,'в случае не проставлен профиль')
   endif
   //
-  if glob_mo[_MO_KOD_TFOMS] == kod_LIS .and. eq_any(human_->profil,6,34)
+  if ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil,6,34)
     // не проверять
   else
     arr_prvs := {human_->PRVS}
@@ -3599,7 +3599,7 @@ else
     mpztip := 74 // {74,262,"комплексное посещение при ДВН 2 этап","ДВН 2","",""},; // 
     mpzkol := 1
   endif
-  if glob_mo[_MO_KOD_TFOMS] == kod_LIS .and. eq_any(human_->profil,6,34)
+  if ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil,6,34)
     mpzkol := len(au_lu) // кол-во анализов
   endif 
   if len(arr_unit) == 1

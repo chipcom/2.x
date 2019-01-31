@@ -3315,7 +3315,7 @@ if m1tip != old .and. old != NIL
 endif
 return .t.
 
-***** 14.01.19 добавление или редактирование случая (листа учета)
+***** 30.01.19 добавление или редактирование случая (листа учета)
 Function oms_sluch(Loc_kod,kod_kartotek)
 // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
 // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -3486,14 +3486,15 @@ Private is_oncology := 0, old_oncology := .f.,;
         mONK_M, m1ONK_M := 0,; // Значение Metastasis   Заполняется в соответствии со справочником N005 
         mMTSTZ, m1MTSTZ := 0,;   // Признак выявления отдалённых метастазов       Подлежит заполнению значением 1 при выявлении отдалённых метастазов только при DS1_T=1 или DS1_T=2 
         mB_DIAG, m1B_DIAG := 98,; // гистология:99-не надо,98-сделана,97-нет результата,0-отказ,7-не показано,8-противопоказано 
-        mK_FR := 0,; // кол-во фракций проведения лучевой терапии	Обязательно для заполнения при проведении лучевой или химиолучевой терапии (USL_TIP=3 или USL_TIP=4)м.б.=0
+        mK_FR := space(2),; // кол-во фракций проведения лучевой терапии	Обязательно для заполнения при проведении лучевой или химиолучевой терапии (USL_TIP=3 или USL_TIP=4)м.б.=0
         mCRIT, m1crit := space(10),; // код схемы лек.терапии V024 (sh..., mt...)
         mCRIT2,; // доп.критерий (fr...)
-        mIS_ERR, m1is_err := 1,; // Признак несоблюдения схемы лекарственной терапии: 0-нормально, 1-не соблюдена
-        mm_shema_err := {{"соблюдён",0},{"не соблюдён",1}},; 
-        mWEI := 0,; // масса тела в кг	Обязательно для заполнения при проведении лекарственной или химиолучевой терапии (USL_TIP=2 или USL_TIP=4)
-        mHEI := 0,; // рост в см	Обязательно для заполнения при проведении лекарственной или химиолучевой терапии (USL_TIP=2 или USL_TIP=4)
-        mBSA := 0   // площадь поверхности тела в кв.м.	Обязательно для заполнения при проведении лекарственной или химиолучевой терапии (USL_TIP=2 или USL_TIP=4)
+        mIS_ERR, m1is_err := 0,; // Признак несоблюдения схемы лекарственной терапии: 0-нормально, 1-не соблюдена
+        mm_shema_err := {{"соблюдён",0},{"не соблюдён",1}},;
+        mm_shema_usl := {},; 
+        mWEI := space(5),; // масса тела в кг	Обязательно для заполнения при проведении лекарственной или химиолучевой терапии (USL_TIP=2 или USL_TIP=4)
+        mHEI := space(3),; // рост в см	Обязательно для заполнения при проведении лекарственной или химиолучевой терапии (USL_TIP=2 или USL_TIP=4)
+        mBSA := space(4)   // площадь поверхности тела в кв.м.	Обязательно для заполнения при проведении лекарственной или химиолучевой терапии (USL_TIP=2 или USL_TIP=4)
 dbcreate(cur_dir+"tmp_onkna", {; // онконаправления
    {"KOD"      ,   "N",     7,     0},; // код больного
    {"NAPR_DATE",   "D",     8,     0},; // Дата направления
@@ -3574,7 +3575,6 @@ dbcreate(cur_dir+"tmp_onkle", {; // Сведения о применённых лекарственных препара
   })
 Private musl_tip, m1usl_tip, musl_tip1, m1usl_tip1, musl_tip2, m1usl_tip2, msod, ;
         musl_vmp, m1usl_vmp, musl_vmp1, m1usl_vmp1, musl_vmp2, m1usl_vmp2, msod_vmp, ;
-        mIS_ERR, m1is_err := 1,; // Признак несоблюдения схемы лекарственной терапии: 0-нормально, 1-не соблюдена
         mpptr, m1pptr := 0, mpptr_vmp, m1pptr_vmp := 0,;
         _arr_sh := ret_arr_shema(1), _arr_mt := ret_arr_shema(2), _arr_fr := ret_arr_shema(3),;
         mm_usl_tip := {{"не проводилось",0},; // N013
@@ -3791,13 +3791,21 @@ if Loc_kod > 0
       m1ONK_N := sl->ONK_N 
       m1ONK_M := sl->ONK_M 
       m1MTSTZ := sl->MTSTZ
-      m1B_DIAG := sl->b_diag 
-      mK_FR := sl->k_fr
+      m1B_DIAG := sl->b_diag
+      if sl->k_fr > 0 
+        mK_FR := padr(lstr(sl->k_fr),2)
+      endif
       m1crit := sl->crit
-      m1is_err := sl->is_err 
-      mWEI := sl->WEI
-      mHEI := sl->HEI
-      mBSA := sl->BSA
+      m1is_err := sl->is_err
+      if sl->WEI > 0 
+        mWEI := padr(alltrim(str_0(sl->WEI,5,1)),5)
+      endif
+      if sl->HEI > 0
+        mHEI := padr(lstr(sl->HEI),3)
+      endif
+      if sl->BSA > 0
+        mBSA := padr(alltrim(str_0(sl->BSA,4,2)),4)
+      endif
     endif
     i := j := 0
     use (cur_dir+"tmp_onkdi") new alias TDIAG 
@@ -3826,7 +3834,7 @@ if Loc_kod > 0
       select DIAG
       skip
     enddo
-    use (cur_dir+"tmp_onkpr") new alias TPR 
+    use (cur_dir+"tmp_onkpr") new alias TPR
     R_Use(dir_server+"mo_onkpr",dir_server+"mo_onkpr","PR") // Сведения об имеющихся противопоказаниях
     find (str(Loc_kod,7))
     do while pr->kod == Loc_kod .and. !eof()
@@ -3840,7 +3848,7 @@ if Loc_kod > 0
       select PR
       skip
     enddo
-    use (cur_dir+"tmp_onkus") alias TMPOU
+    use (cur_dir+"tmp_onkus") new alias TMPOU
     R_Use(dir_server+"mo_onkus",dir_server+"mo_onkus","OU") // Сведения о проведённых лечениях
     find (str(Loc_kod,7))
     do while ou->kod == Loc_kod .and. !eof()
@@ -3852,7 +3860,7 @@ if Loc_kod > 0
       tmpou->LEK_TIP_V := ou->LEK_TIP_V
       tmpou->LUCH_TIP  := ou->LUCH_TIP 
       tmpou->SOD       := iif(eq_any(ou->USL_TIP,3,4),sl->sod,0)
-      tmpou->PPTR      := ou->PPTR 
+      tmpou->PPTR      := iif(eq_any(ou->USL_TIP,2,4),ou->PPTR,0) 
       select OU
       skip      
     enddo
@@ -3860,10 +3868,10 @@ if Loc_kod > 0
     if lastrec() == 0
       append blank
     endif
-    use (cur_dir+"tmp_onkle") alias TMPLE
+    use (cur_dir+"tmp_onkle") new alias TMPLE
     R_Use(dir_server+"mo_onkle",dir_server+"mo_onkle","LE") // Сведения о применённых лекарственных препаратах
     find (str(Loc_kod,7))
-    do while ou->kod == Loc_kod .and. !eof()
+    do while le->kod == Loc_kod .and. !eof()
       select TMPLE
       append blank
       tmple->REGNUM   := le->REGNUM
@@ -4322,10 +4330,10 @@ do while .t.
       //
       lmm_DS1_T := aclone(mm_DS1_T)
       if m1usl_ok < 3
-        Del_Array(lmm_DS1_T,4)
-        Del_Array(lmm_DS1_T,3)
+        Del_Array(lmm_DS1_T,5) // удалим диспансерное наблюдение
+        Del_Array(lmm_DS1_T,4) // удалим динамическое наблюдение
       else
-        Del_Array(lmm_DS1_T,1)
+        Del_Array(lmm_DS1_T,1) // удаляем первые 3 строки (лечение)
         Del_Array(lmm_DS1_T,1)
         Del_Array(lmm_DS1_T,1)
       endif
@@ -4449,7 +4457,16 @@ do while .t.
       mm_str1 := {"","Тип лечения","Цикл терапии","Тип терапии","Тип терапии",""}              
       lstr1 := space(12) ; m1usl_tip1 := 0 ; musl_tip1 := space(69) ; mm_usl_tip1 := {}
       lstr2 := space(13) ; m1usl_tip2 := 0 ; musl_tip2 := space(19) ; mm_usl_tip2 := {}
-      lstr3 := space(3) ; mvsod := 0 ; msod := space(6)
+      lstr_sod := ret_str_onc(1,2) ; mvsod := 0 ; msod := space(6)
+      lstr_fr  := ret_str_onc(2,2)
+      lstr_wei := ret_str_onc(3,2)
+      lstr_hei := ret_str_onc(4,2)
+      lstr_bsa := ret_str_onc(5,2)
+      lstr_err := ret_str_onc(6,2) ; mis_err := space(11) 
+      lstr_she := ret_str_onc(7,2) ; mcrit := space(57)
+      lstr_lek := ret_str_onc(8,2) ; mlek := space(53) ; m1lek := space(53)
+      mpptr := mpptr_vmp := space(10)
+      // 
       lstr_vmp1 := space(12) ; m1usl_vmp1 := 0 ; musl_vmp1 := space(69) ; mm_usl_vmp1 := {}
       lstr_vmp2 := space(13) ; m1usl_vmp2 := 0 ; musl_vmp2 := space(19) ; mm_usl_vmp2 := {}
       lstr_vmp3 := space(3) ; mvsod_vmp := 0 ; msod_vmp := space(6)
@@ -4488,9 +4505,11 @@ do while .t.
             m1usl_vmp := musl2vmp
           endif
         else
-          k += 4
-          if len(mm_USL_TIP) != len(mm_USL_TIP_all)
-            mm_USL_TIP := aclone(mm_USL_TIP_all)
+          k += 9
+          mm_USL_TIP := aclone(mm_USL_TIP_all)
+          if m1vzros_reb  > 0 .or. is_lymphoid(mkod_diag) // если ребёнок или ЗНО кроветворная или лимфоидная 
+            Del_Array(mm_USL_TIP,5) // удалим химиолучевую
+            Del_Array(mm_USL_TIP,4) // удалим лучевую
           endif
         endif
        if is_onko_VMP .and. mtipvmp == 1 // две услуги
@@ -4508,7 +4527,7 @@ do while .t.
           m1usl_vmp1 := iif(found(), tmpou->LUCH_TIP, 0)
           mm_usl_vmp1 := mm_N017
           mvsod_vmp := iif(found(), tmpou->sod, 0)
-          lstr_vmp3 := "СОД (в Греях)"
+          lstr_vmp3 := ret_str_onc(1,1)
           msod_vmp := padr(alltrim(str_0(mvsod_vmp,6,2)),6)
         endif       
         lstr_vmp1 := padr(mm_str1[m1usl_vmp+1],12)
@@ -4537,20 +4556,39 @@ do while .t.
         m1usl_tip1 := tmpou->LUCH_TIP
         mm_usl_tip1 := mm_N017
         mvsod := tmpou->sod
-      endif       
-      //  Режим введения лекарственного препарата (дней введения в схеме)
-      //  mm_shema_err := {{"соблюдён",0},{"не соблюдён",1}},; 
-      //  mpptr, m1pptr := 0, mpptr_vmp, m1pptr_vmp := 0,;
+      endif
       if between(m1usl_tip,1,4) 
         lstr1 := padr(mm_str1[m1usl_tip+1],12)
         musl_tip1 := inieditspr(A__MENUVERT, mm_usl_tip1, m1usl_tip1) 
         if m1usl_tip == 2 
           lstr2 := "Линия терапии"
           musl_tip2 := inieditspr(A__MENUVERT, mm_usl_tip2, m1usl_tip2)
+          lstr_err := ret_str_onc(6,1)
+          mis_err := inieditspr(A__MENUVERT, mm_shema_err, m1is_err)
         endif 
         if between(m1usl_tip,3,4) 
-          lstr3 := "СОД"
+          lstr_sod := ret_str_onc(1,1)
           msod := padr(alltrim(str_0(mvsod,6,2)),6)
+          lstr_fr  := ret_str_onc(2,1)
+        endif
+        if between(m1usl_tip,2,4) 
+          lstr_wei := ret_str_onc(3,1)
+          lstr_hei := ret_str_onc(4,1)
+          lstr_bsa := ret_str_onc(5,1)
+          lstr_she := ret_str_onc(7,1)
+          if left(m1crit,2) == "mt" .and. m1usl_tip == 2
+            m1crit := space(10) 
+          elseif eq_any(left(m1crit,2),"не","sh") .and. m1usl_tip == 4
+            m1crit := space(10) 
+          endif
+          mm_shema_usl := iif(m1usl_tip == 2, _arr_sh, _arr_mt)
+          mcrit := inieditspr(A__MENUVERT, mm_shema_usl, m1crit)
+          lstr_lek := ret_str_onc(8,1)
+          mlek := m1lek := init_lek_pr(m1usl_tip,m1crit)
+          m1pptr := tmpou->pptr
+          mpptr := inieditspr(A__MENUVERT, mm_danet, m1pptr)
+          m1pptr_vmp := 0 // ????
+          mpptr_vmp := inieditspr(A__MENUVERT, mm_danet, m1pptr_vmp)
         endif
       endif
       mmb_diag := {{"выполнено (результат получен)",98},;
@@ -4705,9 +4743,30 @@ do while .t.
          @ j,col()+1 get musl_tip2 ; 
                reader {|x|menu_reader(x,mm_usl_tip2,A__MENUVERT,,,.f.)} ;
                when m1usl_tip == 2 
-         @ j,60 get lstr3 color color1 when .f.
-         @ j,64 get msod ;
-               when between(m1usl_tip,3,4) 
+    ++j; @ j,5 get lstr_sod color color1 when .f.
+         @ j,col()+1 get msod when between(m1usl_tip,3,4)
+         @ j,col()+5 get lstr_fr color color1 when .f.
+         @ j,col()+1 get mk_fr when between(m1usl_tip,3,4)
+         //        
+    ++j; @ j,5 get lstr_wei color color1 when .f.  
+         @ j,col()+1 get mwei when eq_any(m1usl_tip,2,4)  
+         @ j,col()+1 get lstr_hei color color1 when .f.
+         @ j,col()+1 get mhei when eq_any(m1usl_tip,2,4) 
+         @ j,col()+1 get lstr_bsa color color1 when .f. 
+         @ j,col()+1 get mbsa when eq_any(m1usl_tip,2,4) 
+    ++j; @ j,5 get lstr_err color color1 when .f.
+         @ j,col()+1 get mis_err ;
+               reader {|x|menu_reader(x,mm_shema_err,A__MENUVERT,,,.f.)} ;
+               when m1usl_tip == 2
+    ++j; @ j,5 get lstr_she color color1 when .f.
+         @ j,col()+1 get mcrit ;
+               reader {|x| menu_reader(x,mm_shema_usl,A__MENUVERT,,,.f.)} ;
+               when eq_any(m1usl_tip,2,4)
+    ++j; @ j,5 get lstr_lek color color1 when .f.
+         @ j,col()+1 get mlek ;
+               reader {|x|menu_reader(x,{{|k,r,c| get_lek_pr(k,r,c,m1crit)}},A__FUNCTION,,,.f.)} ;
+               when eq_any(m1usl_tip,2,4)
+/*                
     if is_onko_VMP .and. mtipvmp == 1 // две услуги
     ++j; @ j,3 say "ВМП: дополнительное лечение" get musl_vmp when .f. ; 
                color colget_menu
@@ -4721,7 +4780,7 @@ do while .t.
          @ j,60 get lstr_vmp3 color color1 when .f.
          @ j,64 get msod_vmp ;
                when between(m1usl_vmp,3,4) 
-    endif
+    endif*/
     //             
     arr := {"хирургического лечения","химиотерапевтического лечения","лучевой терапии"}
     ++j; @ j,3 say "Противопоказания к проведению:"
@@ -4842,7 +4901,7 @@ do while .t.
         if val(msod) < 1000
           tmpou->sod := val(msod)
         else
-          tmpou->sod := 999.99
+          tmpou->sod := 999
         endif
       else
         tmpou->sod := 0
@@ -4862,7 +4921,7 @@ do while .t.
           if val(msod) < 1000
             tmpou->sod := val(msod_vmp)
           else
-            tmpou->sod := 999.99
+            tmpou->sod := 999
           endif
         else
           tmpou->sod := 0
@@ -4874,18 +4933,6 @@ do while .t.
         next
         pack
       endif
-      /*if between(m1usl_tip,1,4) 
-        lstr1 := padr(mm_str1[m1usl_tip+1],12)
-        musl_tip1 := inieditspr(A__MENUVERT, mm_usl_tip1, m1usl_tip1) 
-        if m1usl_tip == 2 
-          lstr2 := "Линия терапии"
-          musl_tip2 := inieditspr(A__MENUVERT, mm_usl_tip2, m1usl_tip2)
-        endif 
-        if between(m1usl_tip,3,4) 
-          lstr3 := "СОД"
-          msod := padr(alltrim(str_0(mvsod,6,2)),6)
-        endif
-      endif*/
     endif 
     close databases
   else
@@ -5285,11 +5332,7 @@ do while .t.
         sl->MTSTZ := m1MTSTZ
         sl->b_diag := m1b_diag
         sl->sod := 0
-        if eq_any(m1usl_tip,3,4)
-          sl->k_fr := val(mk_fr)
-        else
-          sl->sod := 0
-        endif
+        sl->k_fr := iif(eq_any(m1usl_tip,3,4), val(mk_fr), 0)
         if eq_any(m1usl_tip,2,4)
           sl->crit := m1crit
         else
@@ -5301,10 +5344,10 @@ do while .t.
           sl->crit2 := _arr_fr[i,2]
         endif
         if eq_any(m1usl_tip,2,4)
-          sl->is_err := m1is_err
-          sl->WEI := mWEI
-          sl->HEI := mHEI
-          sl->BSA := mBSA
+          sl->is_err := iif(m1usl_tip == 2, m1is_err, 0)
+          sl->WEI := iif(val(mWEI) > 999, 70, val(mWEI))
+          sl->HEI := val(mHEI)  
+          sl->BSA := iif(val(mBSA) > 9.9, 2, val(mBSA)) 
         else
           sl->is_err := sl->WEI := sl->HEI := sl->BSA := 0
         endif
