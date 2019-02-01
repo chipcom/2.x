@@ -2039,6 +2039,9 @@ do while !eof()
     select HU
     skip
   enddo
+  if human_->USL_OK == 1 .and. human_2->VMP == 1 .and. !emptyany(human_2->VIDVMP,human_2->METVMP) // ВМП
+    is_KSG := .f.
+  endif
   if !empty(lvidpoms) 
     if !eq_ascan(atmpusl,"55.1.2","55.1.3") .or. glob_mo[_MO_KOD_TFOMS] == '801935' // ЭКО-Москва
       lvidpoms := ret_vidpom_licensia(human_->USL_OK,lvidpoms) // только для дн.стационара при стационаре
