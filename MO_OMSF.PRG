@@ -1377,7 +1377,7 @@ return k
 Function is_lymphoid(_diag) // ‡ ªà®¢¥â¢®à­®© ¨«¨ «¨¬ä®¨¤­®© âª ­¥©
 return !empty(_diag) .and. between(left(_diag,3),"C81","C96")
 
-***** 29.01.19
+***** 02.02.19
 Function ret_str_onc(k,par)
 Static arr := {;
   "‘ã¬¬ à­ ï ®ç £®¢ ï ¤®§  (¢ ƒà¥ïå)",;  // 1 lstr_sod
@@ -1387,12 +1387,13 @@ Static arr := {;
   "«®é ¤ì ¯®¢-â¨ â¥«  (¢ ª¢.¬)",;       // 5 lstr_bsa
   "¥¦¨¬ ¢¢¥¤¥­¨ï «¥ª àáâ¢¥­­®£® ¯à¥¯ à â  (¤­¥© ¢¢¥¤¥­¨ï)",; // 6 lstr_err
   "‘å¥¬  «¥ª àáâ¢¥­­®© â¥à ¯¨¨",;        // 7 lstr_she
-  "‘¯¨á®ª «¥ª àáâ¢¥­­ëå ¯à¥¯ à â®¢"}     // 8 lstr_lek
+  "‘¯¨á®ª «¥ª àáâ¢¥­­ëå ¯à¥¯ à â®¢",;    // 8 lstr_lek
+  "à®¢®¤¨« áì «¨ ¯à®ä¨« ªâ¨ª  â®è­®âë ¨ à¢®â­®£® à¥ä«¥ªá "}     // 9 lstr_ptr
 Local s := arr[k]
 DEFAULT par TO 1
 return iif(par == 1, s, space(len(s)))                  
 
-***** 30.01.19
+***** 02.02.19
 Function f_valid_usl_tip(g,o)
 if o != NIL .and. o != m1usl_tip
   mm_shema_usl := {}
@@ -1406,6 +1407,7 @@ if o != NIL .and. o != m1usl_tip
   lstr_err := ret_str_onc(6,2) ; mis_err := space(11)
   lstr_she := ret_str_onc(7,2) ; mcrit := space(57)
   lstr_lek := ret_str_onc(8,2) ; mlek := space(53)
+  lstr_ptr := ret_str_onc(9,2) ; mpptr := space(3) ; m1pptr := 0
   if between(m1usl_tip,1,4) 
     lstr1 := padr(mm_str1[m1usl_tip+1],12)
     if m1usl_tip == 1
@@ -1439,6 +1441,8 @@ if o != NIL .and. o != m1usl_tip
       mcrit := padr(inieditspr(A__MENUVERT, mm_shema_usl, m1crit), 57)
       lstr_lek := ret_str_onc(8,1)
       mlek := padr(init_lek_pr(m1usl_tip,m1crit), 53)
+      lstr_ptr := ret_str_onc(9,1)
+      mpptr := inieditspr(A__MENUVERT, mm_danet, m1pptr)
     endif
     musl_tip1 := padr(mm_usl_tip1[1,1],69) ; m1usl_tip1 := mm_usl_tip1[1,2]
   endif
@@ -1462,6 +1466,8 @@ if o != NIL .and. o != m1usl_tip
   update_get("mcrit")
   update_get("lstr_lek")
   update_get("mlek")
+  update_get("lstr_ptr")
+  update_get("mpptr")
 endif
 return .t.
 
@@ -2959,7 +2965,7 @@ oColumn:colorBlock := blk
 oBrow:addColumn(oColumn)
 return NIL
 
-***** 10.09.18 ¥áâì «¨ «¨áâë ãçñâ  ¯® ¤ ­­®¬ã ¯ æ¨¥­âã
+***** 05.02.19 ¥áâì «¨ «¨áâë ãçñâ  ¯® ¤ ­­®¬ã ¯ æ¨¥­âã
 Function verify_lechenie(kod_kart,/*@*/p1)
 Local buf := save_maxrow(), arr := {}, i, k, r2, mas2, mpic
 p1 := 0
@@ -2974,7 +2980,7 @@ for k := 1 to B_STANDART
   find (str(kod_kart,7)+str(k,1))
   do while human->kod_k == kod_kart .and. human->tip_h == k .and. !eof()
     human_->(dbGoto(human->(recno())))
-    if empty(human_->reestr) // ¥á«¨ ç¥«®¢¥ª ¢ ¤ ­­ë© ¬®¬¥­â «¥ç¨âáï
+    if empty(human_->reestr) .and. !eq_any(human->ishod,88,89) // ¥á«¨ ç¥«®¢¥ª ¢ ¤ ­­ë© ¬®¬¥­â «¥ç¨âáï
       aadd(arr, {"",;
                  date_8(human->n_data),;
                  date_8(human->k_data),;

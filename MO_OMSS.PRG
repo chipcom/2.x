@@ -477,7 +477,7 @@ if i > 0
 endif
 return NIL
 
-***** 23.01.19 прочитать и "разнести" по базам данных реестр СП и ТК
+***** 05.02.19 прочитать и "разнести" по базам данных реестр СП и ТК
 Function read_XML_FILE_SP(arr_XML_info,aerr,/*@*/current_i2)
 Local count_in_schet := 0, mnschet, bSaveHandler, ii1, ii2, i, k, t_arr[2],;
       ldate_sptk, s, fl_589, mANSREESTR
@@ -544,9 +544,10 @@ if empty(aerr)
     find (str(tmp2->_N_ZAP,6))
     if found()
       human_->(dbGoto(rhum->KOD_HUM))
+      human->(dbGoto(rhum->KOD_HUM))
+      tmp2->fio := human->fio
       if rhum->OPLATA > 0
         aadd(aerr,"Пациент с REES_ZAP="+lstr(rhum->REES_ZAP)+" был прочитан в предыдущем реестре СП и ТК")
-        human->(dbGoto(rhum->KOD_HUM))
         if !empty(human->fio)
           aadd(aerr,"└─>(ФИО пациента = "+alltrim(human->fio)+")")
         endif
@@ -632,23 +633,23 @@ if empty(aerr)
     use (cur_dir+"tmp_r_t1") new alias T1
     index on str(val(n_zap),6) to (cur_dir+"tmpt1")
     use (cur_dir+"tmp_r_t2") new alias T2
-    index on IDCASE to (cur_dir+"tmpt2")
+    index on IDCASE+str(sluch,6) to (cur_dir+"tmpt2")
     use (cur_dir+"tmp_r_t3") new alias T3
     index on upper(ID_PAC) to (cur_dir+"tmpt3")
     use (cur_dir+"tmp_r_t4") new alias T4
-    index on IDCASE to (cur_dir+"tmpt4")
+    index on IDCASE+str(sluch,6) to (cur_dir+"tmpt4")
     use (cur_dir+"tmp_r_t5") new alias T5
-    index on IDCASE to (cur_dir+"tmpt5")
+    index on IDCASE+str(sluch,6) to (cur_dir+"tmpt5")
     use (cur_dir+"tmp_r_t6") new alias T6
-    index on IDCASE to (cur_dir+"tmpt6")
+    index on IDCASE+str(sluch,6) to (cur_dir+"tmpt6")
     use (cur_dir+"tmp_r_t7") new alias T7
-    index on IDCASE to (cur_dir+"tmpt7")
+    index on IDCASE+str(sluch,6) to (cur_dir+"tmpt7")
     use (cur_dir+"tmp_r_t8") new alias T8
-    index on IDCASE to (cur_dir+"tmpt8")
+    index on IDCASE+str(sluch,6) to (cur_dir+"tmpt8")
     use (cur_dir+"tmp_r_t9") new alias T9
-    index on IDCASE to (cur_dir+"tmpt9")
+    index on IDCASE+str(sluch,6) to (cur_dir+"tmpt9")
     use (cur_dir+"tmp_r_t10") new alias T10
-    index on IDCASE+regnum+code_sh+date_inj to (cur_dir+"tmpt10")
+    index on IDCASE+str(sluch,6)+regnum+code_sh+date_inj to (cur_dir+"tmpt10")
     use (cur_dir+"tmp_r_t11") new alias T11
     index on IDCASE to (cur_dir+"tmpt11")
     //
@@ -1470,121 +1471,141 @@ if reg > 1
   R_Use(dir_server+"kartote_",,"KART_")
   R_Use(dir_server+"kartotek",,"KART")
   set relation to recno() into KART_
+  G_Use(dir_server+"human_3",{dir_server+"human_3",dir_server+"human_32"},"HUMAN_3")
   R_Use(dir_server+"human_",,"HUMAN_")
   R_Use(dir_server+"human",dir_server+"humans","HUMAN")
   set relation to recno() into HUMAN_, to kod_k into KART
   Select HUMAN
   find (str(schet->kod,6))
   do while human->schet == schet->kod .and. !eof()
-    GaugeUpdate( hGauge, ++ii/schet->kol )
-    ldate1 := iif(ldate1==nil, human->k_data, min(ldate1,human->k_data))
-    ldate2 := iif(ldate2==nil, human->k_data, max(ldate2,human->k_data))
-    a_diag := diag_for_xml(,.t.,,,.t.)
-    is_zak_sl := is_zak_sl_d := is_zak_sl_v := .f.
-    lst := kol_dn := mcena := 0 ; lvidpom := 1 ; au := {}
-    select HU
-    find (str(human->kod,7))
-    do while hu->kod == human->kod .and. !eof()
-      lshifr1 := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data)
-      if is_usluga_TFOMS(usl->shifr,lshifr1,human->k_data,,,@lst)
-        lshifr := alltrim(iif(empty(lshifr1), usl->shifr, lshifr1))
-        if (i := ret_vid_pom(1,lshifr,human->k_data)) > 0
-          lvidpom := i
-        endif
-        if left(lshifr,5) == "55.1." // дневной стационар с 1 апреля 2013 года
-          kol_dn += hu->KOL_1
-        elseif eq_any(left(lshifr,4),"55.2","55.3","55.4") // старый дневной стационар
-          kol_dn += hu->KOL_1 ; mcena := hu->u_cena
-        elseif left(lshifr,2) == "1."
-          kol_dn += hu->KOL_1 ; mcena := hu->u_cena
-        endif
-        if lst == 1
-          if left(lshifr,2) == "1."
-            is_zak_sl := .t. ; mcena := hu->u_cena
-          elseif left(lshifr,3) == "55."
-            if human->k_data < d_01_04_2013 // дневной стационар до 1 апреля
-              is_zak_sl_d := .t.
-            endif
-            mcena := hu->u_cena
-          elseif f_is_zak_sl_vr(lshifr) // зак.случай в п-ке
-            is_zak_sl_v := .t. ; mcena := hu->u_cena
-          endif
-        else
-          j := ascan(au,{|x| x[1]==lshifr .and. x[2]==hu->date_u })
-          if j == 0
-            aadd(au,{lshifr,hu->date_u,0,hu->u_cena})
-            j := len(au)
-          endif
-          au[j,3] += hu->kol_1
-        endif
-      endif
+    fl := .t. ; fl_2 := .f.
+    lal := "human"
+    if human->ishod == 88
+      fl_2 := .t.
+      lal += "_3"
+      select HUMAN_3
+      find (str(human->kod,7))
+    elseif human->ishod == 89
+      fl := .f. // второй случай в двойном пропускаем
+    endif
+    if fl
+      GaugeUpdate( hGauge, ++ii/schet->kol )
+      ldate1 := iif(ldate1==nil, &lal.->k_data, min(ldate1,&lal.->k_data))
+      ldate2 := iif(ldate2==nil, &lal.->k_data, max(ldate2,&lal.->k_data))
+      a_diag := diag_for_xml(,.t.,,,.t.)
+      is_zak_sl := is_zak_sl_d := is_zak_sl_v := .f.
+      lst := kol_dn := mcena := 0 ; lvidpom := 1 ; au := {}
       select HU
-      skip
-    enddo
-    if is_zak_sl
-      kol_dn := human->k_data - human->n_data
-    elseif is_zak_sl_d
-      kol_dn := human->k_data - human->n_data + 1
-    elseif is_zak_sl_v
-      for j := 1 to len(au)
-        if left(au[j,1],2) == "2."
-          kol_dn += au[j,3]
+      find (str(human->kod,7))
+      do while hu->kod == human->kod .and. !eof()
+        lshifr1 := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data)
+        if is_usluga_TFOMS(usl->shifr,lshifr1,human->k_data,,,@lst)
+          lshifr := alltrim(iif(empty(lshifr1), usl->shifr, lshifr1))
+          if (i := ret_vid_pom(1,lshifr,human->k_data)) > 0
+            lvidpom := i
+          endif
+          if left(lshifr,5) == "55.1." // дневной стационар с 1 апреля 2013 года
+            kol_dn += hu->KOL_1
+          elseif eq_any(left(lshifr,4),"55.2","55.3","55.4") // старый дневной стационар
+            kol_dn += hu->KOL_1 ; mcena := hu->u_cena
+          elseif left(lshifr,2) == "1."
+            kol_dn += hu->KOL_1 ; mcena := hu->u_cena
+          endif
+          if lst == 1
+            if left(lshifr,2) == "1."
+              is_zak_sl := .t. ; mcena := hu->u_cena
+            elseif left(lshifr,3) == "55."
+              if human->k_data < d_01_04_2013 // дневной стационар до 1 апреля
+                is_zak_sl_d := .t.
+              endif
+              mcena := hu->u_cena
+            elseif f_is_zak_sl_vr(lshifr) // зак.случай в п-ке
+              is_zak_sl_v := .t. ; mcena := hu->u_cena
+            endif
+          else
+            j := ascan(au,{|x| x[1]==lshifr .and. x[2]==hu->date_u })
+            if j == 0
+              aadd(au,{lshifr,hu->date_u,0,hu->u_cena})
+              j := len(au)
+            endif
+            au[j,3] += hu->kol_1
+          endif
         endif
-      next
-    elseif empty(kol_dn)
-      for j := 1 to len(au)
-        kol_dn += au[j,3]
-      next
-      if kol_dn > 0
-        mcena := round_5(human->cena_1/kol_dn,2)
-        if !(round(mcena,2) == round(au[1,4],2))
-          kol_dn := mcena := 0
+        select HU
+        skip
+      enddo
+      if fl_2
+        kol_dn := human_3->k_data - human_3->n_data
+      elseif is_zak_sl
+        kol_dn := human->k_data - human->n_data
+      elseif is_zak_sl_d
+        kol_dn := human->k_data - human->n_data + 1
+      elseif is_zak_sl_v
+        for j := 1 to len(au)
+          if left(au[j,1],2) == "2."
+            kol_dn += au[j,3]
+          endif
+        next
+      elseif empty(kol_dn)
+        for j := 1 to len(au)
+          kol_dn += au[j,3]
+        next
+        if kol_dn > 0
+          mcena := round_5(human->cena_1/kol_dn,2)
+          if !(round(mcena,2) == round(au[1,4],2))
+            kol_dn := mcena := 0
+          endif
         endif
       endif
+      select FRD
+      append blank
+      frd->nomer := iif(fl_numeration, ii, human_->SCHET_ZAP)
+      frd->fio := human->fio
+      frd->pol := iif(human->pol=="М","муж","жен")
+      frd->date_r := full_date(human->date_r)
+      frd->mesto_r := kart_->mesto_r
+      s := ""
+      if (j := ascan(menu_vidud, {|x| x[2] == kart_->vid_ud})) > 0
+        s := menu_vidud[j,4]+" "
+      endif
+      if !empty(kart_->ser_ud)
+        s += alltrim(kart_->ser_ud)+" "
+      endif
+      if !empty(kart_->nom_ud)
+        s += alltrim(kart_->nom_ud)
+      endif
+      frd->pasport := s
+      frd->adresg := ret_okato_ulica(kart->adres,kart_->okatog,0,2)
+      if empty(kart_->okatop)
+        frd->adresp := frd->adresg
+      else
+        frd->adresp := ret_okato_ulica(kart_->adresp,kart_->okatop,0,2)
+      endif
+      if !empty(kart->snils)
+        frd->snils := transform(kart->SNILS,picture_pf)
+      endif
+      frd->polis := alltrim(alltrim(human_->SPOLIS)+" "+human_->NPOLIS)
+      frd->vid_pom := lstr(lvidpom)
+      frd->diagnoz := a_diag[1]
+      frd->n_data := full_date(&lal.->n_data)
+      frd->k_data := full_date(&lal.->k_data)
+      frd->ob_em := kol_dn
+      if human_->PROFIL > 0
+        frd->profil := lstr(human_->PROFIL)
+      endif
+      if !empty(human_->PRVS)
+        frd->vrach := put_prvs_to_reestr(human_->PRVS,schet_->nyear) 
+        lstr(abs(human_->PRVS))
+      endif
+      if fl_2
+        frd->cena := frd->stoim := human_3->cena_1
+        frd->rezultat := lstr(human_3->RSLT_NEW)
+      else
+        frd->cena := mcena
+        frd->stoim := human->cena_1
+        frd->rezultat := lstr(human_->RSLT_NEW)
+      endif
     endif
-    select FRD
-    append blank
-    frd->nomer := iif(fl_numeration, ii, human_->SCHET_ZAP)
-    frd->fio := human->fio
-    frd->pol := iif(human->pol=="М","муж","жен")
-    frd->date_r := full_date(human->date_r)
-    frd->mesto_r := kart_->mesto_r
-    s := ""
-    if (j := ascan(menu_vidud, {|x| x[2] == kart_->vid_ud})) > 0
-      s := menu_vidud[j,4]+" "
-    endif
-    if !empty(kart_->ser_ud)
-      s += alltrim(kart_->ser_ud)+" "
-    endif
-    if !empty(kart_->nom_ud)
-      s += alltrim(kart_->nom_ud)
-    endif
-    frd->pasport := s
-    frd->adresg := ret_okato_ulica(kart->adres,kart_->okatog,0,2)
-    if empty(kart_->okatop)
-      frd->adresp := frd->adresg
-    else
-      frd->adresp := ret_okato_ulica(kart_->adresp,kart_->okatop,0,2)
-    endif
-    if !empty(kart->snils)
-      frd->snils := transform(kart->SNILS,picture_pf)
-    endif
-    frd->polis := alltrim(alltrim(human_->SPOLIS)+" "+human_->NPOLIS)
-    frd->vid_pom := lstr(lvidpom)
-    frd->diagnoz := a_diag[1]
-    frd->n_data := full_date(human->n_data)
-    frd->k_data := full_date(human->k_data)
-    frd->ob_em := kol_dn
-    if human_->PROFIL > 0
-      frd->profil := lstr(human_->PROFIL)
-    endif
-    if !empty(human_->PRVS)
-      frd->vrach := lstr(abs(human_->PRVS))
-    endif
-    frd->cena := mcena
-    frd->stoim := human->cena_1
-    frd->rezultat := lstr(human_->RSLT_NEW)
-    //
     Select HUMAN
     skip
   enddo
@@ -1595,6 +1616,7 @@ if reg > 1
   hu->(dbCloseArea())
   kart_->(dbCloseArea())
   kart->(dbCloseArea())
+  human_3->(dbCloseArea())
   human_->(dbCloseArea())
   human->(dbCloseArea())
   frd->(dbCloseArea())
@@ -1831,7 +1853,7 @@ if !empty(full_zip)
 endif
 return NIL
 
-***** 30.01.19 вынуть реестр из XML-файлов и записать во временные DBF-файлы
+***** 05.02.19 вынуть реестр из XML-файлов и записать во временные DBF-файлы
 Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
 Local _table1 := {;
    {"KOD",      "N", 6,0},; // код
@@ -2225,9 +2247,19 @@ if (arr_f := Extract_Zip_XML(goal_dir,name_zip)) != NIL
                   if iisl == 1
                     lal := "t1"
                   else
+                    if iisl > 2 // на всякий случай
+                      fl := func_error(4,"Ошибка в файле "+arr_f[ii]+;
+                                         ", зак.случай № "+alltrim(t1->IDCASE)+", случай № "+lstr(iisl))
+                      exit
+                    endif
                     lal := "t11"
                     select T11
                     append blank
+                    t11->kod    := t1->kod 
+                    t11->N_ZAP  := t1->N_ZAP
+                    t11->ID_PAC := t1->ID_PAC 
+                    t11->IDCASE := t1->IDCASE
+                    t11->ID_C   := t1->ID_C
                   endif
                   &lal.->SL_ID     := mo_read_xml_stroke(oNode11,"SL_ID")
                   &lal.->VID_HMP   := mo_read_xml_stroke(oNode11,"VID_HMP",,.f.)
@@ -2287,7 +2319,7 @@ if (arr_f := Extract_Zip_XML(goal_dir,name_zip)) != NIL
                       if valtype(oNode2) != "C" .AND. oNode2:title == "PRESCRIPTIONS"
                         select T5
                         append blank
-                        t5->sluch  := isl
+                        t5->sluch  := iisl
                         t5->KOD    := mkod
                         t5->IDCASE := &lal.->IDCASE // для связи со случаем
                         t5->NAZ_N  := mo_read_xml_stroke(oNode2,"NAZ_N",,.f.)  
@@ -2343,7 +2375,7 @@ if (arr_f := Extract_Zip_XML(goal_dir,name_zip)) != NIL
                     if valtype(oNode2) != "C" .AND. oNode2:title == "NAPR"
                       select T6
                       append blank
-                      t6->sluch    := isl
+                      t6->sluch    := iisl
                       t6->KOD      := mkod
                       t6->IDCASE   := &lal.->IDCASE // для связи со случаем
                       t6->NAPR_DATE:= mo_read_xml_stroke(oNode2,"NAPR_DATE")
@@ -2373,7 +2405,7 @@ if (arr_f := Extract_Zip_XML(goal_dir,name_zip)) != NIL
                       if valtype(oNode2) != "C" .AND. oNode2:title == "B_DIAG"
                         select T7
                         append blank
-                        t7->sluch     := isl
+                        t7->sluch     := iisl
                         t7->KOD       := mkod
                         t7->IDCASE    := &lal.->IDCASE // для связи со случаем
                         t7->DIAG_DATE := mo_read_xml_stroke(oNode2,"DIAG_DATE",,.f.) 
@@ -2384,7 +2416,7 @@ if (arr_f := Extract_Zip_XML(goal_dir,name_zip)) != NIL
                       elseif valtype(oNode2) != "C" .AND. oNode2:title == "B_PROT"
                         select T8
                         append blank
-                        t8->sluch  := isl
+                        t8->sluch  := iisl
                         t8->KOD    := mkod
                         t8->IDCASE := &lal.->IDCASE // для связи со случаем
                         t8->PROT   := mo_read_xml_stroke(oNode2,"PROT",,.f.) 
@@ -2392,7 +2424,7 @@ if (arr_f := Extract_Zip_XML(goal_dir,name_zip)) != NIL
                       elseif valtype(oNode2) != "C" .AND. oNode2:title == "ONK_USL"
                         select T9
                         append blank
-                        t9->sluch  := isl
+                        t9->sluch  := iisl
                         t9->KOD    := mkod
                         t9->IDCASE := &lal.->IDCASE // для связи со случаем
                         t9->USL_TIP  := mo_read_xml_stroke(oNode2,"USL_TIP",,.f.)
@@ -2410,7 +2442,7 @@ if (arr_f := Extract_Zip_XML(goal_dir,name_zip)) != NIL
                             for j3 := 1 to len(_ar)
                               select T10
                               append blank
-                              t10->sluch  := isl
+                              t10->sluch  := iisl
                               t10->KOD    := mkod
                               t10->IDCASE := &lal.->IDCASE // для связи со случаем
                               t10->REGNUM := lREGNUM
@@ -2434,7 +2466,7 @@ if (arr_f := Extract_Zip_XML(goal_dir,name_zip)) != NIL
                     if valtype(oNode2) != "C" .AND. oNode2:title == "USL"
                       select T2
                       append blank
-                      t2->sluch    := isl
+                      t2->sluch    := iisl
                       t2->KOD      := mkod
                       t2->IDCASE   := &lal.->IDCASE // для связи со случаем
                       t2->IDSERV   := mo_read_xml_stroke(oNode2,"IDSERV")
@@ -2688,6 +2720,7 @@ dbcreate(cur_dir+"tmp2file", {;
  {"_SMO_OK",    "C",  5,0},;
  {"_MO_PR",     "C",  6,0},;
  {"KOD_HUMAN",  "N",  7,0},; // код по БД листов учёта
+ {"FIO",        "C", 50,0},;
  {"SCHET_CHAR", "C",  1,0},; // пусто, буква "M", или буква "D"
  {"SCHET"    ,  "N",  6,0},; // код счета
  {"SCHET_ZAP",  "N",  6,0},; // номер позиции записи в счете

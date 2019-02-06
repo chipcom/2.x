@@ -14,9 +14,9 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-Static _version := {2,8,3}
+Static _version := {2,8,4}
 Static char_version := ""
-Static _date_version := "01.02.19г."
+Static _date_version := "05.02.19г."
 Static __s_full_name := "ЧИП + Учёт работы Медицинской Организации"
 Static __s_version
 
@@ -235,21 +235,9 @@ if ControlBases(1,_version) // если необходимо
   endif
 endif
 Init_Program() // инициализация программы (переменных, массивов,...)
-//tttt()
 f_main(r,a_parol)
 f_end()
 return
-
-/*Function tttt()
-Local s := "", ret := 0, p := 0, d := sys_date
-Private mdvozrast
-do while year(d) > 2016
-  mdvozrast := year(sys_date) - year(d)
-  p := ret_period_PN(d,sys_date,sys_date,@s,@ret)
-  my_debug(,print_array({d,count_ymd(d,sys_date),s,p,ret}))
-  --d
-enddo
-return nil*/
 
 #define SW_SHOWNORMAL 1
 
@@ -611,16 +599,19 @@ do case
     aadd(main_message,"Ввод данных по обязательному медицинскому страхованию")
     aadd(first_menu, {"~Добавление",;
                       "~Редактирование",;
+                      "Д~войные случаи",;
                       "Смена ~отделения",;
                       "~Удаление"} )
     aadd(first_message, { ;
         "Добавление листка учета лечения больного",;
         "Редактирование листка учета лечения больного",;
+        "Добавление, просмотр, удаление двойных случаев",;
         "Редактирование листка учета лечения больного со сменой отделения",;
         "Удаление листка учета лечения больного";
       } )
     aadd(func_menu, {"oms_add()",;
                      "oms_edit()",;
+                     "oms_double()",;
                      "oms_smena_otd()",;
                      "oms_del()"} )
     if yes_vypisan == B_END

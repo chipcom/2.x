@@ -457,7 +457,7 @@ select HUMAN
 set order to 2
 find (str(glob_kartotek,7))
 do while human->kod_k == glob_kartotek .and. !eof()
-  fl := (rec_human != human->(recno()) .and. year(human->k_data) > 2016) // прошлый год не смотрим вообще
+  fl := (rec_human != human->(recno()) .and. year(human->k_data) > 2018) // прошлый год не смотрим вообще
   if fl .and. human->schet > 0 .and. eq_any(human_->oplata,2,9)
     fl := .f. // лист учёта снят по акту (и выставлен повторно)
   endif
@@ -1734,7 +1734,8 @@ if is_oncology == 2 // онкология
           endif
           au_flu[i,11] := .t.
         elseif onkus->USL_TIP != 2  
-          aadd(ta,'не введена услуга для выбранного типа онкологического лечения')
+          aadd(ta,'не введена услуга для выбранного типа онкологического лечения ('+;
+                  {"хирург.","","лучевая","химиолучевая","катетер","диагн."}[onkus->USL_TIP]+")")
         endif
       endif
       select ONKUS
@@ -1743,6 +1744,23 @@ if is_oncology == 2 // онкология
     if empty(arr_onk_usl) .and. between(onksl->ds1_t,0,2)
       aadd(ta,'не введено онкологическое лечение')
     elseif eq_ascan(arr_onk_usl,2,4)
+      if empty(onksl->crit)
+        aadd(ta,'не введена схема лекарственной терапии')
+      else
+        if human->vzros_reb  > 0 .or. is_lymphoid(mdiagnoz[1]) // если ребёнок или ЗНО кроветворная или лимфоидная
+          if alltrim(onksl->crit) == "нет"
+            // всё правильно
+          else
+            aadd(ta,'для гематологии и/или детей вместо схемы лечения необходимо указывать "без схемы лекарственной терапии"')
+          endif
+        else
+          if alltrim(onksl->crit) == "нет"
+            aadd(ta,'нельзя указывать "без схемы", необходимо указывать схему')
+          else
+            // всё правильно
+          endif
+        endif 
+      endif
       if empty(onksl->wei)
         aadd(ta,'не введена масса тела для выбранного типа онкологического лечения')
       elseif !(onksl->wei < 200) 
@@ -4175,7 +4193,7 @@ dbcreate(cur_dir+"tmp_d_srok",{{"kod","N",7,0},;
 use (cur_dir+"tmp_d_srok") new alias D_SROK
 return NIL
 
-***** 28.02.18
+***** 04.02.19
 Function verify_OMS(arr_m,fl_view)
 Local ii := 0, iprov := 0, inprov := 0, ko := 2, fl, name_file := "err_sl"+stxt,;
       name_file2, name_file3, kr_unlock, i,;
@@ -4240,7 +4258,7 @@ G_Use(dir_server+"human",dir_server+"humand","HUMAN")
 dbseek(dtos(arr_m[5]),.t.)
 index on upper(fio)+str(kod_k,7) to (cur_dir+"tmp_hfio") ; 
       while human->k_data <= arr_m[6] .and. !eof() ;
-      for tip_h == B_STANDART .and. empty(schet) .and. !empty(k_data) 
+      for tip_h == B_STANDART .and. empty(schet) .and. !empty(k_data)  
 set index to (dir_server+"humans"),(dir_server+"humankk"),(dir_server+"humand"),(cur_dir+"tmp_hfio")
 set relation to recno() into HUMAN_, to recno() into HUMAN_2, to kod_k into KART
 set order to 4                          
@@ -4278,12 +4296,13 @@ do while !eof()
       endif
       if fl
         ++iprov
-        if !fl_view
+        if !fl_view .and. human->ishod != 89 //  // это не 2-ой л/у в двойном случае
           select TMPB
           find (str(human->kod,7))
           if !found()
             append blank
             tmpb->kod_human := human->kod
+            tmpb->ishod := human->ishod
             tmpb->plus := .t.
             tmpb->kod_tmp := 1
             tmpb->plus := .t.
@@ -4325,6 +4344,54 @@ if inprov == 0
   endif
 endif
 fclose(fp)
+if !fl_view
+  select HUMAN 
+  set index to
+  G_Use(dir_server+"human_3",{dir_server+"human_3",dir_server+"human_32"},"HUMAN_3")
+  select TMPB
+  index on str(kod_human,7) to (cur_dir+"tmpb") for ishod == 88  // 1-ый лист учёта в двойном случае
+  go top
+  do while !eof()
+    select HUMAN_3
+    find (str(tmpb->kod_human,7))
+    if found()
+      select HUMAN
+      goto (tmpb->kod_human)
+      ln_data := human->n_data
+      lk_data := human->k_data
+      ldiag := human->kod_diag
+      lcena := human->cena_1
+      pz := human_->PZKOL
+      select HUMAN
+      goto (human_3->kod2)
+      if human_->ST_VERIFY >= 5 // если 2-ой л/у также прошёл проверку 
+        lk_data := human->k_data
+        lcena += human->cena_1
+        pz += human_->PZKOL
+        select HUMAN_3
+        G_RLock(forever)
+        human_3->N_DATA    := ln_data 
+        human_3->K_DATA    := lk_data
+        human_3->CENA_1    := lcena
+        human_3->RSLT_NEW  := human_->RSLT_NEW
+        human_3->ISHOD_NEW := human_->ISHOD_NEW
+        human_3->VNR1      := human_2->VNR1
+        human_3->VNR2      := human_2->VNR2
+        human_3->VNR3      := human_2->VNR3
+        human_3->PZKOL     := pz
+        human_3->ST_VERIFY := 5
+      else
+        tmpb->tip := 0 //p_tip_reestr
+        kol_1r--
+      endif
+    else
+      tmpb->tip := 0 //p_tip_reestr
+      kol_1r--
+    endif
+    select TMPB
+    skip
+  enddo
+endif
 if fl_view .and. d_srok->(lastrec()) > 0
   name_file2 := "err_sl2"+stxt
   delete file (name_file2)
@@ -4482,9 +4549,7 @@ if fl_view
 endif
 return NIL
 
-*
-
-***** 19.11.18
+***** 04.02.19
 Function create_reestr()
 Local buf := save_maxrow(), i, j, k := 0, k1 := 0, arr, bSaveHandler, fl, rec, pole, arr_m
 if tip_polzovat != 0
@@ -4514,6 +4579,7 @@ stat_msg("Подождите, работаю...")
 dbcreate(cur_dir+"tmpb",{;
     {"kod_tmp"  ,"N",6,0},;
     {"kod_human","N",7,0},;
+    {"ishod"    ,"N",3,0},;
     {"PZ"       ,"N",2,0},;
     {"tip"      ,"N",1,0},; // 1 - обычный реестр, 2 -диспансеризация
     {"yes_del"  ,"L",1,0},; // надо ли удалить после дополнительной проверки
@@ -4592,6 +4658,10 @@ else
         R_Use(dir_server+"mo_hu")
         index on str(kod,7)+date_u to (dir_server+"mo_hu") progress
         Use
+        R_Use(dir_server+"human_3")
+        index on str(kod,7) to (dir_server+"human_3") progress
+        index on str(kod2,7) to (dir_server+"human_32") progress
+        Use
         R_Use(dir_server+"mo_onkna")
         index on str(kod,7) to (dir_server+"mo_onkna") progress
         R_Use(dir_server+"mo_onksl")
@@ -4639,6 +4709,7 @@ else
           pole := "tmp->PZ"+lstr(i)
           &pole := 0
         next    
+        R_Use(dir_server+"human_3",{dir_server+"human_3",dir_server+"human_32"},"HUMAN_3")
         R_Use(dir_server+"human_",,"HUMAN_")
         R_Use(dir_server+"human",,"HUMAN")
         use (cur_dir+"tmpb") new
@@ -4647,8 +4718,18 @@ else
         do while !eof()
           if human_->ST_VERIFY >= 5 .and. tmpb->tip == p_tip_reestr 
             tmp->kol++
-            tmp->summa += human->cena_1
-            tmp->min_date := min(tmp->min_date,human->k_data)
+            if tmpb->ishod == 88
+              select HUMAN_3
+              find (str(human->kod,7))
+              tmp->summa += human_3->cena_1
+              tmp->min_date := min(tmp->min_date,human_3->k_data)
+              k := human_3->PZKOL
+              select TMPB
+            else
+              tmp->summa += human->cena_1
+              tmp->min_date := min(tmp->min_date,human->k_data)
+              k := human_->PZKOL
+            endif
             j := human_->PZTIP
             tmpb->PZ := j
             pole := "tmp->PZ"+lstr(j)
@@ -4656,7 +4737,7 @@ else
               if (i := ascan(glob_array_PZ_19, {|x| x[1] == j })) > 0 .and. !empty(glob_array_PZ_19[i,5]) 
                 &pole := &pole + 1 // учёт по случаям
               else
-                &pole := &pole + human_->PZKOL // учёт по единицам план-заказа
+                &pole := &pole + k // учёт по единицам план-заказа
               endif
             else
               if (i := ascan(glob_array_PZ_18, {|x| x[1] == j })) > 0 .and. !empty(glob_array_PZ_18[i,5]) 
@@ -7306,6 +7387,8 @@ if f_Esc_Enter("удаления реестра № "+lstr(rees->nschet),.t.)
     G_Use(dir_server+"human_u_",,"HU_")
     R_Use(dir_server+"human_u",dir_server+"human_u","HU")
     set relation to recno() into HU_
+    G_Use(dir_server+"human_3",{dir_server+"human_3",dir_server+"human_32"},"HUMAN_3")
+    G_Use(dir_server+"human",,"HUMAN")
     G_Use(dir_server+"human_",,"HUMAN_")
     G_Use(dir_server+"mo_rhum",,"RHUM")
     index on str(reestr,6) to (cur_dir+"tmp_rhum")
@@ -7317,6 +7400,43 @@ if f_Esc_Enter("удаления реестра № "+lstr(rees->nschet),.t.)
       select HUMAN_
       goto (rhum->KOD_HUM)
       if human_->REESTR == mkod_reestr // на всякий случай
+        select HUMAN
+        goto (rhum->KOD_HUM)
+        if human->ishod == 88 // сначала проверим, не двойной ли это случай
+          select HUMAN_3
+          find (str(human->kod,7))
+          if found()
+            select HUMAN_
+            goto (human_3->kod2) // встать на 2-ой лист учёта
+            select HU
+            find (str(human_3->kod2,7))
+            do while human_3->kod2 == hu->kod .and. !eof()
+              hu_->(G_RLock(forever))
+              hu_->REES_ZAP := 0
+              hu_->(dbUnLock())
+              select HU
+              skip
+            enddo
+            human_->(G_RLock(forever))
+            if human_->REES_NUM > 0
+              human_->REES_NUM := human_->REES_NUM-1
+            endif
+            human_->REES_ZAP := 0
+            human_->REESTR := 0
+            human_->(dbUnLock())
+            // обработка заголовка двойного случая
+            human_3->(G_RLock(forever))
+            if human_3->REES_NUM > 0
+              human_3->REES_NUM := human_3->REES_NUM-1
+            endif
+            human_3->REES_ZAP := 0
+            human_3->REESTR := 0
+            human_3->(dbUnLock())
+          endif
+        endif
+        // возвращаемся к 1-му листу учёта
+        select HUMAN_
+        goto (rhum->KOD_HUM)
         select HU
         find (str(rhum->KOD_HUM,7))
         do while rhum->KOD_HUM == hu->kod .and. !eof()
@@ -7330,8 +7450,8 @@ if f_Esc_Enter("удаления реестра № "+lstr(rees->nschet),.t.)
         if human_->REES_NUM > 0
           human_->REES_NUM := human_->REES_NUM-1
         endif
-        human_->REESTR := 0
         human_->REES_ZAP := 0
+        human_->REESTR := 0
         human_->(dbUnLock())
       endif
       //
@@ -7358,7 +7478,7 @@ return NIL
 
 *
 
-***** 08.02.13 аннулировать чтение реестра СП и ТК по реестру с кодом mkod_reestr
+***** 05.02.19 аннулировать чтение реестра СП и ТК по реестру с кодом mkod_reestr
 Function delete_reestr_sp_tk(mkod_reestr,mname_reestr)
 Local i, s, r := row(), r1, r2, buf := save_maxrow(), ;
       mm_menu := {}, mm_func := {}, mm_flag := {}, mreestr_sp_tk, ;
@@ -7554,10 +7674,10 @@ if (i := popup_prompt(r1,10,1,mm_menu,,,color5)) > 0
               G_Use(dir_server+"mo_refr",dir_server+"mo_refr","REFR")
               G_Use(dir_server+"mo_rhum",,"RHUM")
               index on str(REES_ZAP,6) to (cur_dir+"tmp_rhum") for reestr == mkod_reestr
+              G_Use(dir_server+"human_3",{dir_server+"human_3",dir_server+"human_32"},"HUMAN_3")
               use_base("human")
               set order to 0
               use (cur_dir+"tmp2file") new alias TMP2
-              set relation to kod_human into HUMAN
               go top
               do while !eof()
                 select RHUM
@@ -7565,7 +7685,39 @@ if (i := popup_prompt(r1,10,1,mm_menu,,,color5)) > 0
                 G_RLock(forever)
                 rhum->OPLATA := 0
                 select HUMAN
-                G_RLock(forever)
+                goto (tmp2->kod_human)
+                if human->ishod == 88
+                  select HUMAN
+                  goto (human_3->kod2)  // встали на 2-ой лист учёта
+                  human->(G_RLock(forever))
+                  human->schet := 0 ; human->tip_h := B_STANDART
+                  human_->(G_RLock(forever))
+                  if human_->schet_zap > 0
+                    if human_->SCHET_NUM > 0
+                      human_->SCHET_NUM := human_->SCHET_NUM-1
+                    endif
+                    human_->schet_zap := 0
+                  endif
+                  human_->OPLATA := 0
+                  human_->REESTR := mkod_reestr
+                  UnLock
+                  //
+                  select HUMAN_3
+                  find (str(tmp2->kod_human,7))
+                  human_3->(G_RLock(forever))
+                  human_3->schet := 0
+                  if human_3->schet_zap > 0
+                    if human_3->SCHET_NUM > 0
+                      human_3->SCHET_NUM := human_3->SCHET_NUM - 1
+                    endif
+                    human_3->schet_zap := 0
+                  endif
+                  human_3->OPLATA := 0
+                  human_3->REESTR := mkod_reestr
+                endif
+                select HUMAN
+                goto (tmp2->kod_human)
+                human->(G_RLock(forever))
                 human->schet := 0 ; human->tip_h := B_STANDART
                 human_->(G_RLock(forever))
                 if human_->schet_zap > 0

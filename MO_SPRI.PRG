@@ -2871,7 +2871,7 @@ return NIL
 
 *
 
-***** 25.01.19 удалить счет(а) по одному реестру СП и ТК и по этим людям создать заново счета (м.б.другое кол-во счетов)
+***** 05.02.19 удалить счет(а) по одному реестру СП и ТК и по этим людям создать заново счета (м.б.другое кол-во счетов)
 Function ReCreate_some_Schet_From_FILE_SP(arr)
 Local arr_XML_info[8], cFile, arr_f, n, oXmlDoc, aerr := {},;
       i, s, rec_schet, rec_schet_xml, go_to_schet := .f., arr_schet := {}
@@ -2986,23 +2986,23 @@ if G_SLock1Task(sem_task,sem_vagno) // запрет доступа всем
       use (cur_dir+"tmp_r_t1") new alias T1
       index on str(val(n_zap),6) to (cur_dir+"tmpt1")
       use (cur_dir+"tmp_r_t2") new alias T2
-      index on IDCASE to (cur_dir+"tmpt2")
+      index on IDCASE+str(sluch,6) to (cur_dir+"tmpt2")
       use (cur_dir+"tmp_r_t3") new alias T3
       index on upper(ID_PAC) to (cur_dir+"tmpt3")
       use (cur_dir+"tmp_r_t4") new alias T4
-      index on IDCASE to (cur_dir+"tmpt4")
+      index on IDCASE+str(sluch,6) to (cur_dir+"tmpt4")
       use (cur_dir+"tmp_r_t5") new alias T5
-      index on IDCASE to (cur_dir+"tmpt5")
+      index on IDCASE+str(sluch,6) to (cur_dir+"tmpt5")
       use (cur_dir+"tmp_r_t6") new alias T6
-      index on IDCASE to (cur_dir+"tmpt6")
+      index on IDCASE+str(sluch,6) to (cur_dir+"tmpt6")
       use (cur_dir+"tmp_r_t7") new alias T7
-      index on IDCASE to (cur_dir+"tmpt7")
+      index on IDCASE+str(sluch,6) to (cur_dir+"tmpt7")
       use (cur_dir+"tmp_r_t8") new alias T8
-      index on IDCASE to (cur_dir+"tmpt8")
+      index on IDCASE+str(sluch,6) to (cur_dir+"tmpt8")
       use (cur_dir+"tmp_r_t9") new alias T
-      index on IDCASE to (cur_dir+"tmpt9")
+      index on IDCASE+str(sluch,6) to (cur_dir+"tmpt9")
       use (cur_dir+"tmp_r_t10") new alias T10
-      index on IDCASE+regnum+code_sh+date_inj to (cur_dir+"tmpt10")
+      index on IDCASE+str(sluch,6)+regnum+code_sh+date_inj to (cur_dir+"tmpt10")
       use (cur_dir+"tmp_r_t11") new alias T11
       index on IDCASE to (cur_dir+"tmpt11")
       use (cur_dir+"tmp2file") new alias TMP2

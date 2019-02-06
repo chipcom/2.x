@@ -3315,7 +3315,7 @@ if m1tip != old .and. old != NIL
 endif
 return .t.
 
-***** 30.01.19 добавление или редактирование случая (листа учета)
+***** 02.02.19 добавление или редактирование случая (листа учета)
 Function oms_sluch(Loc_kod,kod_kartotek)
 // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
 // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -3489,7 +3489,6 @@ Private is_oncology := 0, old_oncology := .f.,;
         mK_FR := space(2),; // кол-во фракций проведения лучевой терапии	Обязательно для заполнения при проведении лучевой или химиолучевой терапии (USL_TIP=3 или USL_TIP=4)м.б.=0
         mCRIT, m1crit := space(10),; // код схемы лек.терапии V024 (sh..., mt...)
         mCRIT2,; // доп.критерий (fr...)
-        mIS_ERR, m1is_err := 0,; // Признак несоблюдения схемы лекарственной терапии: 0-нормально, 1-не соблюдена
         mm_shema_err := {{"соблюдён",0},{"не соблюдён",1}},;
         mm_shema_usl := {},; 
         mWEI := space(5),; // масса тела в кг	Обязательно для заполнения при проведении лекарственной или химиолучевой терапии (USL_TIP=2 или USL_TIP=4)
@@ -3576,6 +3575,8 @@ dbcreate(cur_dir+"tmp_onkle", {; // Сведения о применённых лекарственных препара
 Private musl_tip, m1usl_tip, musl_tip1, m1usl_tip1, musl_tip2, m1usl_tip2, msod, ;
         musl_vmp, m1usl_vmp, musl_vmp1, m1usl_vmp1, musl_vmp2, m1usl_vmp2, msod_vmp, ;
         mpptr, m1pptr := 0, mpptr_vmp, m1pptr_vmp := 0,;
+        mIS_ERR, m1is_err := 0,; // Признак несоблюдения схемы лекарственной терапии: 0-нормально, 1-не соблюдена
+        mIS_ERR_vmp, m1is_err_vmp := 0,; 
         _arr_sh := ret_arr_shema(1), _arr_mt := ret_arr_shema(2), _arr_fr := ret_arr_shema(3),;
         mm_usl_tip := {{"не проводилось",0},; // N013
                        {"Хирургическое лечение",1},;
@@ -4310,7 +4311,6 @@ do while .t.
     mNAPR_V := inieditspr(A__MENUVERT, mm_napr_v, m1napr_v)
     mMET_ISSL := inieditspr(A__MENUVERT, mm_MET_ISSL, m1MET_ISSL)
     tip_onko_napr := 0
-    k := 9
     if is_oncology == 2
       for i := 1 to 6
         &("m1prot"+lstr(i)) := 0
@@ -4465,11 +4465,19 @@ do while .t.
       lstr_err := ret_str_onc(6,2) ; mis_err := space(11) 
       lstr_she := ret_str_onc(7,2) ; mcrit := space(57)
       lstr_lek := ret_str_onc(8,2) ; mlek := space(53) ; m1lek := space(53)
-      mpptr := mpptr_vmp := space(10)
+      lstr_ptr := ret_str_onc(6,2) ; mpptr := space(3) 
       // 
       lstr_vmp1 := space(12) ; m1usl_vmp1 := 0 ; musl_vmp1 := space(69) ; mm_usl_vmp1 := {}
       lstr_vmp2 := space(13) ; m1usl_vmp2 := 0 ; musl_vmp2 := space(19) ; mm_usl_vmp2 := {}
-      lstr_vmp3 := space(3) ; mvsod_vmp := 0 ; msod_vmp := space(6)
+      lstr_vmpsod := ret_str_onc(1,2) ; mvsod_vmp := 0 ; msod_vmp := space(6)
+      lstr_vmpfr  := ret_str_onc(2,2)
+      lstr_vmpwei := ret_str_onc(3,2)
+      lstr_vmphei := ret_str_onc(4,2)
+      lstr_vmpbsa := ret_str_onc(5,2)
+      lstr_vmperr := ret_str_onc(6,2) 
+      lstr_vmpshe := ret_str_onc(7,2)
+      lstr_vmplek := ret_str_onc(8,2)
+      lstr_vmpptr := ret_str_onc(6,2) 
       use (cur_dir+"tmp_onkus") new alias TMPOU
       index on str(usl_tip,1) to (cur_dir+"tmp_onkus")
       go top
@@ -4478,34 +4486,64 @@ do while .t.
       endif
       m1USL_TIP := tmpou->USL_TIP
       //
-      if len(mm_N009) == 0
-        k++
+      k := 15
+      if len(mm_N009) == 0 .and. len(mm_N012) == 0
+        k--
       else
-        k += min(2,len(mm_N009))
+        if len(mm_N009) == 0
+          k++
+        else
+          k += min(2,len(mm_N009))
+        endif
+        if len(mm_N012) == 0
+          k++
+        else
+          k += min(5,len(mm_N012))
+        endif
       endif
-      if len(mm_N012) == 0
-        k++
-      else
-        k += min(5,len(mm_N012))
-      endif
-      if m1usl_ok < 3
+      fl_2_4 := fl_3_4 := .f.
+      fl2_2_4 := fl2_3_4 := .f.
+      if m1usl_ok < 3 // стационар или дневной стационар
         if is_onko_VMP
+          k += 15
           m1USL_TIP := musl1vmp
           mm_USL_TIP := {}
           if (i := ascan(mm_USL_TIP_all,{|x| x[2] == musl1vmp })) > 0
             aadd(mm_USL_TIP, aclone(mm_USL_TIP_all[i]))
           endif
-          k += 4
           if mtipvmp == 0 // одна услуга
             if musl2vmp > 0 .and. (i := ascan(mm_USL_TIP_all,{|x| x[2] == musl2vmp })) > 0 // одна услуга из двух
               aadd(mm_USL_TIP, aclone(mm_USL_TIP_all[i]))
             endif
+            if ascan(mm_USL_TIP, {|x| x[2] == 2 }) > 0
+              fl_2_4 := .t.
+              k += 5
+            endif
+            if ascan(mm_USL_TIP, {|x| x[2] == 3 }) > 0
+              fl_3_4 := .t.
+              ++k
+            endif
           else//if mtipvmp == 1 две услуги
-            k += 3
             m1usl_vmp := musl2vmp
+            if musl1vmp == 2  // 1-я услуга
+              fl_2_4 := .t.
+              k += 5
+            elseif musl1vmp == 3
+              fl_3_4 := .t.
+              ++k
+            endif
+            k += 3 // строки наименования и шапки для 2-ой услуги
+            if musl2vmp == 2  // 2-я услуга
+              fl2_2_4 := .t.
+              k += 5
+            elseif musl2vmp == 3
+              fl2_3_4 := .t.
+              ++k
+            endif
           endif
-        else
-          k += 9
+        else // нет ВМП
+          k += 21
+          fl_2_4 := fl_3_4 := .t.
           mm_USL_TIP := aclone(mm_USL_TIP_all)
           if m1vzros_reb  > 0 .or. is_lymphoid(mkod_diag) // если ребёнок или ЗНО кроветворная или лимфоидная 
             Del_Array(mm_USL_TIP,5) // удалим химиолучевую
@@ -4523,19 +4561,30 @@ do while .t.
           mm_usl_vmp2 := mm_N015
           lstr_vmp2 := "Линия терапии"
           musl_vmp2 := inieditspr(A__MENUVERT, mm_usl_vmp2, m1usl_vmp2)
-        elseif eq_any(m1usl_vmp,3,4)
+          lstr_vmperr := ret_str_onc(6,1)
+          mis_err := inieditspr(A__MENUVERT, mm_shema_err, m1is_err)
+          lstr_vmpwei := ret_str_onc(3,1)
+          lstr_vmphei := ret_str_onc(4,1)
+          lstr_vmpbsa := ret_str_onc(5,1)
+          lstr_vmpshe := ret_str_onc(7,1)
+          mm_shema_usl := _arr_sh
+          mcrit := inieditspr(A__MENUVERT, mm_shema_usl, m1crit)
+          lstr_vmplek := ret_str_onc(8,1)
+          mlek := m1lek := init_lek_pr(m1usl_vmp,m1crit)
+          lstr_vmpptr := ret_str_onc(9,1)
+          m1pptr := tmpou->pptr
+          mpptr := inieditspr(A__MENUVERT, mm_danet, m1pptr)
+        elseif m1usl_vmp == 3
           m1usl_vmp1 := iif(found(), tmpou->LUCH_TIP, 0)
           mm_usl_vmp1 := mm_N017
           mvsod_vmp := iif(found(), tmpou->sod, 0)
-          lstr_vmp3 := ret_str_onc(1,1)
+          lstr_vmpsod := ret_str_onc(1,1)
           msod_vmp := padr(alltrim(str_0(mvsod_vmp,6,2)),6)
+          lstr_vmpfr  := ret_str_onc(2,1)
         endif       
         lstr_vmp1 := padr(mm_str1[m1usl_vmp+1],12)
         musl_vmp1 := inieditspr(A__MENUVERT, mm_usl_vmp1, m1usl_vmp1) 
        endif
-       k += 17
-      else
-       k += 9
       endif
       //
       mUSL_TIP := inieditspr(A__MENUVERT, mm_USL_TIP, m1USL_TIP)
@@ -4566,12 +4615,12 @@ do while .t.
           lstr_err := ret_str_onc(6,1)
           mis_err := inieditspr(A__MENUVERT, mm_shema_err, m1is_err)
         endif 
-        if between(m1usl_tip,3,4) 
+        if eq_any(m1usl_tip,3,4)
           lstr_sod := ret_str_onc(1,1)
           msod := padr(alltrim(str_0(mvsod,6,2)),6)
           lstr_fr  := ret_str_onc(2,1)
         endif
-        if between(m1usl_tip,2,4) 
+        if eq_any(m1usl_tip,2,4)
           lstr_wei := ret_str_onc(3,1)
           lstr_hei := ret_str_onc(4,1)
           lstr_bsa := ret_str_onc(5,1)
@@ -4585,10 +4634,9 @@ do while .t.
           mcrit := inieditspr(A__MENUVERT, mm_shema_usl, m1crit)
           lstr_lek := ret_str_onc(8,1)
           mlek := m1lek := init_lek_pr(m1usl_tip,m1crit)
+          lstr_ptr := ret_str_onc(9,1)
           m1pptr := tmpou->pptr
           mpptr := inieditspr(A__MENUVERT, mm_danet, m1pptr)
-          m1pptr_vmp := 0 // ????
-          mpptr_vmp := inieditspr(A__MENUVERT, mm_danet, m1pptr_vmp)
         endif
       endif
       mmb_diag := {{"выполнено (результат получен)",98},;
@@ -4742,12 +4790,14 @@ do while .t.
     ++j; @ j,5 get lstr2 color color1 when .f. 
          @ j,col()+1 get musl_tip2 ; 
                reader {|x|menu_reader(x,mm_usl_tip2,A__MENUVERT,,,.f.)} ;
-               when m1usl_tip == 2 
+               when m1usl_tip == 2
+   if fl_3_4             
     ++j; @ j,5 get lstr_sod color color1 when .f.
          @ j,col()+1 get msod when between(m1usl_tip,3,4)
          @ j,col()+5 get lstr_fr color color1 when .f.
          @ j,col()+1 get mk_fr when between(m1usl_tip,3,4)
-         //        
+   endif        
+   if fl_2_4             
     ++j; @ j,5 get lstr_wei color color1 when .f.  
          @ j,col()+1 get mwei when eq_any(m1usl_tip,2,4)  
          @ j,col()+1 get lstr_hei color color1 when .f.
@@ -4765,8 +4815,12 @@ do while .t.
     ++j; @ j,5 get lstr_lek color color1 when .f.
          @ j,col()+1 get mlek ;
                reader {|x|menu_reader(x,{{|k,r,c| get_lek_pr(k,r,c,m1crit)}},A__FUNCTION,,,.f.)} ;
+               when !empty(m1crit) .and. eq_any(m1usl_tip,2,4)
+    ++j; @ j,5 get lstr_ptr color color1 when .f.
+         @ j,col()+1 get mpptr ;
+               reader {|x| menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
                when eq_any(m1usl_tip,2,4)
-/*                
+   endif        
     if is_onko_VMP .and. mtipvmp == 1 // две услуги
     ++j; @ j,3 say "ВМП: дополнительное лечение" get musl_vmp when .f. ; 
                color colget_menu
@@ -4777,10 +4831,37 @@ do while .t.
          @ j,col()+1 get musl_vmp2 ; 
                reader {|x|menu_reader(x,mm_usl_vmp2,A__MENUVERT,,,.f.)} ;
                when m1usl_vmp == 2 
-         @ j,60 get lstr_vmp3 color color1 when .f.
-         @ j,64 get msod_vmp ;
-               when between(m1usl_vmp,3,4) 
-    endif*/
+     if fl2_3_4             
+    ++j; @ j,5 get lstr_vmpsod color color1 when .f.
+         @ j,col()+1 get msod_vmp when between(m1usl_vmp,3,4)
+         @ j,col()+5 get lstr_vmpfr color color1 when .f.
+         @ j,col()+1 get mk_fr when between(m1usl_vmp,3,4)
+     endif        
+     if fl2_2_4             
+    ++j; @ j,5 get lstr_vmpwei color color1 when .f.  
+         @ j,col()+1 get mwei when eq_any(m1usl_vmp,2,4)  
+         @ j,col()+1 get lstr_vmphei color color1 when .f.
+         @ j,col()+1 get mhei when eq_any(m1usl_vmp,2,4) 
+         @ j,col()+1 get lstr_vmpbsa color color1 when .f. 
+         @ j,col()+1 get mbsa when eq_any(m1usl_vmp,2,4) 
+    ++j; @ j,5 get lstr_vmperr color color1 when .f.
+         @ j,col()+1 get mis_err ;
+               reader {|x|menu_reader(x,mm_shema_err,A__MENUVERT,,,.f.)} ;
+               when m1usl_vmp == 2
+    ++j; @ j,5 get lstr_vmpshe color color1 when .f.
+         @ j,col()+1 get mcrit ;
+               reader {|x| menu_reader(x,mm_shema_usl,A__MENUVERT,,,.f.)} ;
+               when eq_any(m1usl_vmp,2,4)
+    ++j; @ j,5 get lstr_vmplek color color1 when .f.
+         @ j,col()+1 get mlek ;
+               reader {|x|menu_reader(x,{{|k,r,c| get_lek_pr(k,r,c,m1crit)}},A__FUNCTION,,,.f.)} ;
+               when !empty(m1crit) .and. eq_any(m1usl_vmp,2,4)
+    ++j; @ j,5 get lstr_vmpptr color color1 when .f.
+         @ j,col()+1 get mpptr ;
+               reader {|x| menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
+               when eq_any(m1usl_vmp,2,4)
+     endif        
+    endif
     //             
     arr := {"хирургического лечения","химиотерапевтического лечения","лучевой терапии"}
     ++j; @ j,3 say "Противопоказания к проведению:"
@@ -4899,9 +4980,9 @@ do while .t.
       tmpou->PPTR := iif(eq_any(m1usl_tip,2,4), m1PPTR, 0)
       if eq_any(m1usl_tip,3,4)
         if val(msod) < 1000
-          tmpou->sod := val(msod)
+          tmpou->sod := val(CHARREPL(",",msod,"."))
         else
-          tmpou->sod := 999
+          tmpou->sod := 100
         endif
       else
         tmpou->sod := 0
@@ -4916,12 +4997,12 @@ do while .t.
         tmpou->LEK_TIP_V := iif(m1usl_vmp == 2, m1usl_vmp1, 0)
         tmpou->LEK_TIP_L := iif(m1usl_vmp == 2, m1usl_vmp2, 0)
         tmpou->LUCH_TIP := iif(eq_any(m1usl_vmp,3,4), m1usl_vmp1, 0)
-        tmpou->PPTR := iif(eq_any(m1usl_vmp,2,4), m1PPTR_vmp1, 0)
+        tmpou->PPTR := iif(eq_any(m1usl_vmp,2,4), m1PPTR, 0)
         if eq_any(m1usl_vmp,3,4)
-          if val(msod) < 1000
-            tmpou->sod := val(msod_vmp)
+          if val(msod_vmp) < 1000
+            tmpou->sod := val(CHARREPL(",",msod_vmp,"."))
           else
-            tmpou->sod := 999
+            tmpou->sod := 100
           endif
         else
           tmpou->sod := 0
@@ -5333,6 +5414,9 @@ do while .t.
         sl->b_diag := m1b_diag
         sl->sod := 0
         sl->k_fr := iif(eq_any(m1usl_tip,3,4), val(mk_fr), 0)
+        if is_onko_VMP .and. mtipvmp == 1 .and. musl2vmp == 3 // две услуги
+          sl->k_fr := val(mk_fr)
+        endif
         if eq_any(m1usl_tip,2,4)
           sl->crit := m1crit
         else
@@ -5345,12 +5429,19 @@ do while .t.
         endif
         if eq_any(m1usl_tip,2,4)
           sl->is_err := iif(m1usl_tip == 2, m1is_err, 0)
-          sl->WEI := iif(val(mWEI) > 999, 70, val(mWEI))
+          sl->WEI := iif(val(mWEI) < 1000, val(CHARREPL(",",mWEI,".")), 70 )
           sl->HEI := val(mHEI)  
-          sl->BSA := iif(val(mBSA) > 9.9, 2, val(mBSA)) 
+          sl->BSA := iif(val(mBSA) < 10, val(CHARREPL(",",mBSA,".")), 2) 
         else
           sl->is_err := sl->WEI := sl->HEI := sl->BSA := 0
         endif
+        if is_onko_VMP .and. mtipvmp == 1 .and. musl2vmp == 2 // две услуги
+          sl->crit := m1crit
+          sl->is_err := m1is_err
+          sl->WEI := iif(val(mWEI) < 1000, val(CHARREPL(",",mWEI,".")), 70 )
+          sl->HEI := val(mHEI)  
+          sl->BSA := iif(val(mBSA) < 10, val(CHARREPL(",",mBSA,".")), 2)
+        endif 
         //
         arr := {}
         G_Use(dir_server+"mo_onkdi",dir_server+"mo_onkdi","DIAG") // Диагностический блок
@@ -5457,7 +5548,7 @@ do while .t.
           skip
         enddo
         i := 0
-        if eq_any(m1usl_tip,2,4)
+        if eq_any(m1usl_tip,2,4) .or. (is_onko_VMP .and. mtipvmp == 1 .and. musl2vmp == 2) 
           use (cur_dir+"tmp_onkle") new alias TMPLE
           go top
           do while !eof() 
@@ -7508,7 +7599,7 @@ if k > 0
 endif
 return NIL
 
-***** 19.01.15 Редактирование случая с выбором по учреждению/отделению
+***** 05.02.19 Редактирование случая с выбором по учреждению/отделению
 Function f1oms_edit()
 Static si := 1, sk := 1
 Local buf, mas_pmt, arr_m, str_sem, i, buf24, buf_scr, dostup, k := 1,;
@@ -7607,6 +7698,8 @@ if (arr_m := input_year()) != NIL .and. ;
                       .t.,,,"f2ret_oms_human",,{'═','░','═',"N/BG,W+/N,B/BG,BG+/B,R/BG,W+/R"} )
         if (glob_perso := tmp_h->kod) == 0
           func_error(4,"Не найдено нужных записей!")
+        elseif eq_any(human->ishod,88,89)
+          func_error(4,"Данный случай - часть двойного случая. Редактирование запрещено!")
         else
           srec := tmp_h->(recno())
           mkod := glob_perso
@@ -7669,11 +7762,10 @@ if (arr_m := input_year()) != NIL .and. ;
 endif
 return NIL
 
-***** 19.01.15 Редактирование случая с выбором по отчётному периоду
+***** 05.02.19 Редактирование случая с выбором по отчётному периоду
 Function f2oms_edit()
 Static si := 1
-Local buf, str_sem, i, arr_m, mas_pmt, buf24, buf_scr, srec, ;
-      old_yes_h_otd := yes_h_otd
+Local buf, str_sem, i, arr_m, mas_pmt, buf24, buf_scr, srec, old_yes_h_otd := yes_h_otd
 if !myFileDeleted(cur_dir+"tmp_h"+sdbf)
   return NIL
 endif
@@ -7725,6 +7817,8 @@ if (arr_m := year_month(T_ROW,T_COL+5,,3)) != NIL
                                      {'═','░','═',"N/BG,W+/N,B/BG,BG+/B,R/BG,W+/R"} )
         if (glob_perso := tmp_h->kod) == 0
           func_error(4,"Не найдено нужных записей!")
+        elseif eq_any(human->ishod,88,89)
+          func_error(4,"Данный случай - часть двойного случая. Редактирование запрещено!")
         else
           srec := tmp_h->(recno())
           mkod := glob_perso
@@ -7789,7 +7883,7 @@ if (arr_m := year_month(T_ROW,T_COL+5,,3)) != NIL
 endif
 return NIL
 
-***** 06.02.14 Редактирование случая с выбором по конкретной ошибке из ТФОМС
+***** 05.02.19 Редактирование случая с выбором по конкретной ошибке из ТФОМС
 Function f3oms_edit()
 Static si := 1
 Local buf, str_sem, i, k, arr, old_yes_h_otd := yes_h_otd,;
@@ -7869,6 +7963,8 @@ if (arr_m := year_month(T_ROW,T_COL+5,,3)) != NIL
                                      {'═','░','═',"N/BG,W+/N,B/BG,BG+/B,R/BG,W+/R"} )
         if (glob_perso := tmp_h->kod) == 0
           func_error(4,"Не найдено нужных записей!")
+        elseif eq_any(human->ishod,88,89)
+          func_error(4,"Данный случай - часть двойного случая. Редактирование запрещено!")
         else
           srec := tmp_h->(recno())
           mkod := glob_perso
@@ -7933,7 +8029,7 @@ if (arr_m := year_month(T_ROW,T_COL+5,,3)) != NIL
 endif
 return NIL
 
-***** Редактирование повторно выставленных случаев (после ввода актов снятия из СМО)
+***** 05.05.19 Редактирование повторно выставленных случаев (после ввода актов снятия из СМО)
 Function f4oms_edit()
 Static si := 1
 Local buf, str_sem, i, k, arr_m, arr, old_yes_h_otd := yes_h_otd,;
@@ -7986,6 +8082,8 @@ if (arr_m := year_month(T_ROW,T_COL+5)) != NIL
                                      {'═','░','═',"N/BG,W+/N,B/BG,BG+/B,R/BG,W+/R"} )
         if (glob_perso := tmp_h->kod) == 0
           func_error(4,"Не найдено нужных записей!")
+        elseif eq_any(human->ishod,88,89)
+          func_error(4,"Данный случай - часть двойного случая. Редактирование запрещено!")
         else
           srec := tmp_h->(recno())
           mkod := glob_perso
@@ -8050,7 +8148,7 @@ if (arr_m := year_month(T_ROW,T_COL+5)) != NIL
 endif
 return NIL
 
-***** 03.10.13 Редактирование листка учета лечения больного + смена отделения
+***** 05.02.19 Редактирование листка учета лечения больного + смена отделения
 Function oms_smena_otd()
 Static si := 1, sk := 1
 Local buf, buf1, buf2, str_sem, i, sou, old_otd, fl, fl1, mas_pmt, k := 1
@@ -8099,6 +8197,7 @@ if input_uch(T_ROW-1,T_COL+5,sys_date) != NIL .and. ;
           use_base("human")
           set order to 0
           goto (glob_perso)
+          k := human->ishod
           G_RLock(forever)
           human->LPU := glob_uch[1] // код учреждения
           human->OTD := glob_otd[1] // код отделения
@@ -8120,19 +8219,23 @@ if input_uch(T_ROW-1,T_COL+5,sys_date) != NIL .and. ;
           endif
           close databases
           func_error(2,"Смена отделения завершена!")
-          @ 1,42 say padc(glob_otd[2],35) color color14
-          mas_pmt := {"Редактирование ~карточки","Редактирование ~услуг"}
-          if glob_otd[3] == 4 .or. glob_otd[4] > 0
-            si := 1
-            asize(mas_pmt,1)
-          endif
-          do while (i := popup_prompt(T_ROW,T_COL+5,si,mas_pmt)) > 0
-            if (si := i) == 1
-              oms_sluch(glob_perso,glob_kartotek)
-            else
-              oms_usl_sluch(glob_perso,glob_kartotek)
+          if eq_any(k,88,89)
+            func_error(4,"Данный случай - часть двойного случая. Редактирование запрещено!")
+          else
+            @ 1,42 say padc(glob_otd[2],35) color color14
+            mas_pmt := {"Редактирование ~карточки","Редактирование ~услуг"}
+            if glob_otd[3] == 4 .or. glob_otd[4] > 0
+              si := 1
+              asize(mas_pmt,1)
             endif
-          enddo
+            do while (i := popup_prompt(T_ROW,T_COL+5,si,mas_pmt)) > 0
+              if (si := i) == 1
+                oms_sluch(glob_perso,glob_kartotek)
+              else
+                oms_usl_sluch(glob_perso,glob_kartotek)
+              endif
+            enddo
+          endif
           G_SUnLock(str_sem)
         else
           func_error(4,"В данный момент с карточкой этого пациента работает другой пользователь.")
@@ -8145,7 +8248,7 @@ if input_uch(T_ROW-1,T_COL+5,sys_date) != NIL .and. ;
 endif
 return NIL
 
-***** 11.01.19 Удаление листка учета лечения больного
+***** 05.02.19 Удаление листка учета лечения больного
 Function oms_del()
 Static sk := 1
 Local buf, str_sem, j, k := 1, arr_m, fl := .t., lkod_k, lyear
@@ -8174,6 +8277,9 @@ if (arr_m := input_year()) != NIL .and. ;
       Use_base("human_u")
       Use_base("human")
       find (str(glob_perso,7))
+      if fl .and. eq_any(human->ishod,88,89)
+        fl := func_error(10,"Данный случай - часть двойного случая. Удаление запрещено!")
+      endif
       if fl .and. human_->KOD_UP > 0
         fl := func_error(10,"Данный случай выставлен повторно (по акту снятия). Удаление запрещено!")
       endif

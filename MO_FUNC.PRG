@@ -122,6 +122,9 @@ do case
     index on dtos(k_data)+uch_doc to (dir_server+"humand") progress
     index on date_opl to (dir_server+"humano") progress
     index on str(schet,6)+str(tip_h,1)+upper(substr(fio,1,20)) to (dir_server+"humans") progress
+  case sBase == "human_3"
+    index on str(kod,7) to (dir_server+"human_3") progress
+    index on str(kod2,7) to (dir_server+"human_32") progress
   case sBase == "human_u"
     index on str(kod,7)+date_u to (dir_server+"human_u") progress
     index on str(u_kod,4) to (dir_server+"human_uk") progress
@@ -2869,7 +2872,7 @@ if par == 1
   if !empty(human_2->OSL3)
     aadd(osl_diag,human_2->OSL3)
   endif
-  if lusl < 3 .and. f_is_oncology(1) == 2
+  if lusl < 3 .and. lVMP == 0 .and. f_is_oncology(1) == 2
     if select("ONKSL") == 0
       G_Use(dir_server+"mo_onksl",dir_server+"mo_onksl","ONKSL") // Сведения о случае лечения онкологического заболевания
     endif
@@ -4224,7 +4227,7 @@ if _k_data > s_19  // с 2019 года
           endif
         endif
       next
-      if lpar_org > 1 // ещё проверим парные операции
+      if ascan(lkslp,11) > 0 .and. lpar_org > 1 // разрешена КСЛП=11 и введены парные органы
         aadd(_akslp,11)
         aadd(_akslp,1.2)
       endif

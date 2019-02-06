@@ -35,8 +35,8 @@ mo_moder.prg
 mo_mzxml.prg
 mo_oms.prg
 mo_oms1.prg
-mo_oms14.prg
 mo_oms2.prg
+mo_oms3.prg
 mo_omsi.prg
 mo_omsid.prg
 mo_omsio.prg
@@ -51,6 +51,7 @@ mo_omsp.prg
 mo_omspr.prg
 mo_omsr.prg
 mo_omss.prg
+mo_oms14.prg
 mo_orto.prg
 mo_ortop.prg
 mo_pp.prg
