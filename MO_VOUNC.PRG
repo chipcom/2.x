@@ -1501,7 +1501,7 @@ return ret
 
 *===============================================================================
 
-***** 04.02.19
+***** 06.02.19
 Function create1reestr19(_recno,_nyear,_nmonth)
 Local buf := savescreen(), s, i, j, pole
 Private mpz[100], oldpz[100], atip[100]
@@ -1522,7 +1522,7 @@ R_Use(dir_server+"human",,"HUMAN")
 set relation to recno() into HUMAN_
 use (cur_dir+"tmpb") new alias TMP
 set relation to kod_human into HUMAN
-index on upper(human->fio)+dtos(human->k_data) to (cur_dir+"tmpb") for kod_tmp == _recno
+index on upper(human->fio)+dtos(tmp->k_data) to (cur_dir+"tmpb") for kod_tmp == _recno
 go top
 eval(p_blk)
 if Alpha_Browse(3,0,maxrow()-4,79,"f1create1reestr19",color0,;
@@ -1582,28 +1582,28 @@ if (i := ascan(glob_array_PZ_19, {|x| x[1] == _PZ })) > 0 .and. !empty(glob_arra
 endif
 return iif(k == 1, s, s2)
 
-***** 29.03.16
+***** 06.02.19
 Function f1create1reestr19(oBrow)
-Local oColumn, tmp_color, blk_color := {|| if(tmp->plus, {1,2}, {3,4}) }, n := 30
+Local oColumn, tmp_color, blk_color := {|| if(tmp->plus, {1,2}, {3,4}) }, n := 32
 oColumn := TBColumnNew(" ", {|| if(tmp->plus,""," ") })
 oColumn:colorBlock := blk_color
 oBrow:addColumn(oColumn)
-oColumn := TBColumnNew(center("Ф.И.О. больного",n), {|| padr(human->fio,n) })
+oColumn := TBColumnNew(center("Ф.И.О. больного",n), {|| iif(tmp->ishod==88,padr(human->fio,n-4)+" 2сл",padr(human->fio,n)) })
 oColumn:colorBlock := blk_color
 oBrow:addColumn(oColumn)
-oColumn := TBColumnNew("План-заказ", {|| padc(f_p_z19(human_->pzkol,tmp->pz,1),10) })
+oColumn := TBColumnNew("План-заказ", {|| padc(f_p_z19(tmp->pzkol,tmp->pz,1),10) })
 oColumn:colorBlock := blk_color
 oBrow:addColumn(oColumn)
-oColumn := TBColumnNew("Кол-во", {|| padc(f_p_z19(human_->pzkol,tmp->pz,2),6) })
+oColumn := TBColumnNew("Кол-во", {|| padc(f_p_z19(tmp->pzkol,tmp->pz,2),6) })
 oColumn:colorBlock := blk_color
 oBrow:addColumn(oColumn)
-oColumn := TBColumnNew("Нача-; ло", {|| left(dtoc(human->n_data),5) })
+oColumn := TBColumnNew("Нача-; ло", {|| left(dtoc(tmp->n_data),5) })
 oColumn:colorBlock := blk_color
 oBrow:addColumn(oColumn)
-oColumn := TBColumnNew("Окончан.;лечения", {|| date_8(human->k_data) })
+oColumn := TBColumnNew("Окончан.;лечения", {|| date_8(tmp->k_data) })
 oColumn:colorBlock := blk_color
 oBrow:addColumn(oColumn)
-oColumn := TBColumnNew(" Стоимость; лечения", {|| put_kopE(human->cena_1,10) })
+oColumn := TBColumnNew(" Стоимость; лечения", {|| put_kopE(tmp->cena_1,10) })
 oColumn:colorBlock := blk_color
 oBrow:addColumn(oColumn)
 tmp_color := setcolor("N/BG")
@@ -1615,7 +1615,7 @@ mark_keys({"<Esc>","<Enter>","<Ins>","<+>","<->","<F9>"},"R/BG")
 setcolor(tmp_color)
 return NIL
 
-***** 16.01.19
+***** 06.02.19
 Function f2create1reestr19(nKey,oBrow)
 Local buf, rec, k := -1, s, i, j, mas_pmt := {}, arr, r1, r2
 do case
@@ -1624,18 +1624,18 @@ do case
     j := tmp->pz + 1
     i := ascan(glob_array_PZ_19, {|x| x[1] == tmp->PZ })
     if tmp->plus
-      psumma += human->cena_1 ; pkol++
+      psumma += tmp->cena_1 ; pkol++
       if i > 0 .and. !empty(glob_array_PZ_19[i,5])
         mpz[j] ++
       else
-        mpz[j] += human_->PZKOL
+        mpz[j] += tmp->PZKOL
       endif
     else
-      psumma -= human->cena_1 ; pkol--
+      psumma -= tmp->cena_1 ; pkol--
       if i > 0 .and. !empty(glob_array_PZ_19[i,5])
         mpz[j] --
       else
-        mpz[j] -= human_->PZKOL
+        mpz[j] -= tmp->PZKOL
       endif
     endif
     eval(p_blk)
@@ -1678,7 +1678,7 @@ do case
         do while !eof()
           if tmp->pz == j
             tmp->plus := .t.
-            psumma += human->cena_1
+            psumma += tmp->cena_1
             pkol++
           else
             tmp->plus := .f.

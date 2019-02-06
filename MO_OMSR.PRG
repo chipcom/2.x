@@ -4302,6 +4302,10 @@ do while !eof()
           if !found()
             append blank
             tmpb->kod_human := human->kod
+            tmpb->n_data := human->n_data
+            tmpb->k_data := human->k_data
+            tmpb->cena_1 := human->cena_1
+            tmpb->PZKOL := human_->pzkol
             tmpb->ishod := human->ishod
             tmpb->plus := .t.
             tmpb->kod_tmp := 1
@@ -4380,6 +4384,10 @@ if !fl_view
         human_3->VNR3      := human_2->VNR3
         human_3->PZKOL     := pz
         human_3->ST_VERIFY := 5
+        tmpb->n_data := ln_data
+        tmpb->k_data := lk_data
+        tmpb->cena_1 := lcena
+        tmpb->PZKOL := pz
       else
         tmpb->tip := 0 //p_tip_reestr
         kol_1r--
@@ -4577,13 +4585,17 @@ Private pkol := 0, psumma := 0, ;
         CODE_MO  := glob_mo[_MO_KOD_FFOMS]
 stat_msg("Подождите, работаю...")
 dbcreate(cur_dir+"tmpb",{;
-    {"kod_tmp"  ,"N",6,0},;
-    {"kod_human","N",7,0},;
-    {"ishod"    ,"N",3,0},;
-    {"PZ"       ,"N",2,0},;
-    {"tip"      ,"N",1,0},; // 1 - обычный реестр, 2 -диспансеризация
-    {"yes_del"  ,"L",1,0},; // надо ли удалить после дополнительной проверки
-    {"PLUS"     ,"L",1,0};  // включается ли в счет
+    {"kod_tmp"  ,"N", 6,0},;
+    {"kod_human","N", 7,0},;
+    {"n_data"   ,"D", 8,0},;
+    {"k_data"   ,"D", 8,0},;
+    {"cena_1"   ,"N",11,2},;
+    {"PZKOL"    ,"N", 3,0},;
+    {"PZ"       ,"N", 2,0},;
+    {"ishod"    ,"N", 3,0},;
+    {"tip"      ,"N", 1,0},; // 1 - обычный реестр, 2 -диспансеризация
+    {"yes_del"  ,"L", 1,0},; // надо ли удалить после дополнительной проверки
+    {"PLUS"     ,"L", 1,0};  // включается ли в счет
    })
 use (cur_dir+"tmpb") new
 index on str(kod_human,7) to (cur_dir+"tmpb")

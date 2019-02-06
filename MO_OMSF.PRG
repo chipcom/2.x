@@ -1114,7 +1114,7 @@ tmp_keys := my_savekey()
 save gets to tmp_gets
 buf := savescreen()
 change_attr()
-if (n := input_value(4,33,6,77,color5,"Добавление/редактирование направления №",cur_napr,"9")) == NIL
+if (n := input_value(4,33,6,77,color5,"Добавление/редактирование направления №",cur_napr,"99")) == NIL
   // отказ
 elseif eq_any(n,0,cur_napr)  
   // выбрали то же направление, что и редактируется

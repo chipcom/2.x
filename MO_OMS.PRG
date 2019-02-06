@@ -4658,8 +4658,8 @@ do while .t.
     ++j; @ j,1 say "ФИО" get mfio_kart when .f.
          @ j,57 get mn_data when .f.
          @ row(),col()+1 say "-" get mk_data when .f.
-    ++j; @ j,1 say "НАПРАВЛЕНИЕ №" get cur_napr pict "9" when .f.
-         @ j,col() say "(из" get count_napr pict "9" when .f.
+    ++j; @ j,1 say "НАПРАВЛЕНИЕ №" get cur_napr pict "99" when .f.
+         @ j,col() say "(из" get count_napr pict "99" when .f.
          @ j,col() say ")"
          @j,29 say "(<F5> - добавление/редактирование направления №...)" color "G/B"
     ++j; @ j,3 say "Дата направления" get mNAPR_DATE ; 
