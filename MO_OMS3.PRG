@@ -70,9 +70,9 @@ Local human_3 := {;
 reconstruct(dir_server+"human_3",human_3,"index_base('human_3')","пролеченным больным3",.t.)
 return NIL
 
-***** 04.02.19 склеить два случая
+***** 07.02.19 склеить два случая
 Function create_double_sl()
-Local buf, str_sem, i, arr_m, mas_pmt, buf24, buf_scr, srec, old_yes_h_otd := yes_h_otd
+Local buf, str_sem, i, d, arr_m, mas_pmt, buf24, buf_scr, srec, old_yes_h_otd := yes_h_otd
 if !myFileDeleted(cur_dir+"tmp_h"+sdbf)
   return NIL
 endif
@@ -87,7 +87,11 @@ if (arr_m := year_month(T_ROW,T_COL+5,,3)) != NIL
   R_Use(dir_server+"human_",,"HUMAN_")
   R_Use(dir_server+"human",dir_server+"humand","HUMAN")
   set relation to recno() into HUMAN_, to recno() into HUMAN_2
-  dbseek(dtos(arr_m[5]),.t.)
+  d := addmonth(arr_m[5],-1)  // учесть предыдущий месяц
+  if year(d) != year(arr_m[5]) // если не текущий год
+    d := arr_m[5]                // то не брать прошлый месяц
+  endif
+  dbseek(dtos(d),.t.)
   index on upper(fio) to (cur_dir+"tmp_h2") ;
         while human->k_data <= arr_m[6] ;
         for tip_h == B_STANDART .and. schet < 1 .and. human_->reestr == 0 .and. human_->USL_OK == 1 ;
@@ -354,14 +358,14 @@ Local buf, i, arr_m, buf24, blk, t_arr[BR_LEN], ret
 if (arr_m := year_month(T_ROW,T_COL+5,,3)) != NIL
   buf24 := save_maxrow()
   mywait()
-  R_Use(dir_server+"human_3",dir_server+"human_3","HUMAN_3")
+  R_Use(dir_server+"human_3",dir_server+"human_32","HUMAN_3")
   R_Use(dir_server+"human_",,"HUMAN_")
   R_Use(dir_server+"human",dir_server+"humand","HUMAN")
   set relation to kod into HUMAN_, to str(kod,7) into HUMAN_3
   dbseek(dtos(arr_m[5]),.t.)
   index on upper(fio) to (cur_dir+"tmp_h2") ;
         while human->k_data <= arr_m[6] ;
-        for ishod == 88 .and. schet < 1 .and. human_->reestr == 0
+        for ishod == 89 .and. schet < 1 .and. human_->reestr == 0
   go top
   if eof()
     func_error(4,"Не найдено двойных случаев "+arr_m[4])
@@ -384,7 +388,7 @@ if (arr_m := year_month(T_ROW,T_COL+5,,3)) != NIL
                          { "  Сроки лечения",{|| date_8(human_3->N_DATA)+"-"+date_8(human_3->K_DATA) },blk },;
                          { "   Сумма",{|| put_kop(human_3->CENA_1,11) },blk }}
     t_arr[BR_STAT_MSG] := {|| status_key("^<Esc>^ - выход"+iif(par==2,";  ^<Enter>^ - выбор двойного случая для расформирования","")) }
-    t_arr[BR_ENTER] := {|| ret := {human->kod,human->fio} }
+    t_arr[BR_ENTER] := {|| ret := {human_3->kod,human->fio} }
     edit_browse(t_arr)
     if valtype(ret) == "A"
       srec := ret[1]
