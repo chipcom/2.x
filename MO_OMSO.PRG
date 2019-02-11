@@ -7,7 +7,18 @@
 Static lcount_uch := 1
 Static lcount_otd := 1
 
-***** 14.01.19 прочитать и "разнести" по базам данных РАК
+***** 11.02.19
+Static Function put_long_str(s,cFile,n,sh)
+Local i, k, t_arr[2]
+DEFAULT n TO 0, sh TO 80
+k := perenos(t_arr,s,sh-n)     
+strfile(space(n)+t_arr[1]+hb_eol(),cFile,.t.)
+for i := 2 to k
+  strfile(space(n)+padl(alltrim(t_arr[i]),sh-n)+hb_eol(),cFile,.t.)
+next
+return NIL
+
+***** 11.02.19 прочитать и "разнести" по базам данных РАК
 Function read_XML_FILE_RAK(arr_XML_info,aerr)
 Local fl_akt, fl_schet, blk_akt, blk_schet, i, k, s, s1, arr_s := {}, t_arr[2],;
       ia, is, ih, arr, aakt := {}, no_write := .t., fl_2019 
@@ -193,10 +204,11 @@ do while !eof()
     if tmp2->KOL_PEN > 0
       s += ", в т.ч. штрафов - "+lstr(tmp2->KOL_PEN)
     endif
-    strfile(s+hb_eol(),cFileProtokol,.t.)
+    put_long_str(s,cFileProtokol)
     if ascan(glob_F006,{|x| x[2] == tmp2->_KONT }) > 0
       s := "Вид контроля: "+inieditspr(A__MENUVERT,glob_F006,tmp2->_KONT)
-      strfile(s+hb_eol(),cFileProtokol,.t.)
+      
+      put_long_str(s,cFileProtokol)
     endif
     if tmp2->_TYPEK > 0
       s := "Проведенный Контроль: "+iif(tmp2->_TYPEK==1, "первичный", "повторный")
@@ -204,6 +216,7 @@ do while !eof()
         s += ", вид экспертизы: "+iif(tmp2->_skont==1,"плановая","целевая")
       endif
       strfile(s+hb_eol(),cFileProtokol,.t.)
+      put_long_str(s,cFileProtokol)
     endif
     select RAK
     set order to 1
@@ -249,18 +262,18 @@ do while !eof()
           rak->NSCHET := schet_->NSCHET
         endif
         //
-        s := hb_eol()+;
-             "  СЧЁТ № "+alltrim(tmp3->_nschet)+" от "+date_8(tmp3->_dschet)+;
-             ", отчётный период - "+strzero(schet_->nyear,4)+"/"+strzero(schet_->nmonth,2)+hb_eol()+;
-             "  пациентов всего - "+lstr(tmp3->KOL_PAC)
+        strfile(hb_eol(),cFileProtokol,.t.)
+        s := "СЧЁТ № "+alltrim(tmp3->_nschet)+" от "+date_8(tmp3->_dschet)+;
+             ", отч.период - "+strzero(schet_->nyear,4)+"/"+strzero(schet_->nmonth,2)+;
+             ", пациентов всего - "+lstr(tmp3->KOL_PAC)
         if tmp3->KOL_ERR > 0
           s += ", в т.ч. снятий - "+lstr(tmp3->KOL_ERR)
         endif
         if tmp3->KOL_PEN > 0
           s += ", в т.ч. штрафов - "+lstr(tmp3->KOL_PEN)
         endif
-        s += hb_eol()+;
-             "  Выставлено: "+lstr(tmp3->_SUMMAV,15,2)+"р., "+;
+        put_long_str(s,cFileProtokol,2)
+        s := "Выставлено: "+lstr(tmp3->_SUMMAV,15,2)+"р., "+;
              "принято к оплате: "+lstr(tmp3->_SUMMAP,15,2)+"р."
         if !empty(tmp3->_SANK_MEK)
           if fl_2019
@@ -278,7 +291,7 @@ do while !eof()
         if !empty(tmp3->PENALTY)
           s += ", сумма штрафов: "+lstr(tmp3->PENALTY,15,2)+"р."
         endif
-        strfile(s+hb_eol(),cFileProtokol,.t.)
+        put_long_str(s,cFileProtokol,2)
         if tmp3->KOL_ERR > 0
           strfile(hb_eol()+space(4)+"Список снятий:"+hb_eol(),cFileProtokol,.t.)
         endif
@@ -338,18 +351,17 @@ do while !eof()
             elseif tmp4->_OPLATA == 4
               s1 := " (восстановление ранее удержанной суммы)"
             endif
-            strfile(hb_eol()+;
-                    space(4)+"Случай № "+lstr(tmp4->_IDCASE)+". "+alltrim(human->fio)+", "+;
+            strfile(hb_eol(),cFileProtokol,.t.)
+            put_long_str("Случай № "+lstr(tmp4->_IDCASE)+". "+alltrim(human->fio)+", "+;
                          full_date(human->date_r)+;
                          iif(empty(otd->SHORT_NAME), "", " ["+alltrim(otd->SHORT_NAME)+"]")+;
-                         " "+date_8(human->n_data)+"-"+;
-                         date_8(human->k_data)+hb_eol()+;
-                    space(5)+s+hb_eol()+;
-                    space(5)+"OPLATA = "+lstr(tmp4->_OPLATA)+s1+hb_eol(),cFileProtokol,.t.)
+                         " "+date_8(human->n_data)+"-"+date_8(human->k_data),cFileProtokol,4)
+            put_long_str(s,cFileProtokol,5)
+            put_long_str("OPLATA = "+lstr(tmp4->_OPLATA)+s1,cFileProtokol,5)
             if emptyall(tmp4->_SANK_MEK,tmp4->_SANK_MEE,tmp4->_SANK_EKMP,tmp4->PENALTY)
               if ascan(glob_F006,{|x| x[2] == tmp2->_KONT }) > 0
                 s := "Вид контроля: "+inieditspr(A__MENUVERT,glob_F006,tmp2->_KONT)
-                strfile(space(5)+s+hb_eol(),cFileProtokol,.t.)
+                put_long_str(s,cFileProtokol,5)
               endif
               s := ""
               if tmp2->_TYPEK > 0
@@ -363,16 +375,13 @@ do while !eof()
               else
                 s += " (подтвердил предыдущее снятие)"
               endif
-              strfile(space(5)+s+hb_eol(),cFileProtokol,.t.)
+              put_long_str(s,cFileProtokol,5)
             elseif tmp4->_REFREASON > 0
               if empty(s := ret_t005(tmp4->_REFREASON))
                 strfile(space(5)+lstr(tmp4->_REFREASON)+" неизвестная причина отказа"+;
                         hb_eol(),cFileProtokol,.t.)
               else
-                k := perenos(t_arr,"код дефекта: "+s,75)
-                for i := 1 to k
-                  strfile(space(5)+t_arr[i]+hb_eol(),cFileProtokol,.t.)
-                next
+                put_long_str("код дефекта: "+s,cFileProtokol,5)
               endif
             endif
           endif
@@ -425,10 +434,7 @@ do while !eof()
               strfile(space(5)+lstr(tmp6->REFREASON)+" неизвестная причина отказа"+;
                       hb_eol(),cFileProtokol,.t.)
             else
-              k := perenos(t_arr,"код дефекта: "+s,75)
-              for i := 1 to k
-                strfile(space(5)+t_arr[i]+hb_eol(),cFileProtokol,.t.)
-              next
+              put_long_str("код дефекта: "+s,cFileProtokol,5)
             endif
             if !emptyall(tmp6->S_SUM,tmp6->PENALTY)
               raksh->REFREASON := tmp6->REFREASON
@@ -1595,7 +1601,7 @@ if popup_2array(arr,r,c,si,1,@ret_arr) > 0 .and. valtype(ret_arr) == "A"
 endif
 return ret
 
-***** 18.06.18 список снятий по актам
+***** 11.02.19 список снятий по актам
 Function akt_list_of_refusal_pacient()
 Static si := 3
 Static mas_pmt := {"случаи полного снятия",;
@@ -1647,13 +1653,16 @@ delFRfiles()
 adbf := {{"name","C",130,0},;
          {"name1","C",130,0},;
          {"name2","C",130,0},;
+         {"name3","C",130,0},;
          {"sroki","C",100,0},;
          {"sdata","C",100,0},;
          {"ssmo","C",50,0},;
          {"summa1","N",15,2},;
          {"summa2","N",15,2},;
+         {"summa3","N",15,2},;
          {"nitog1","N",5,0},;
-         {"nitog2","N",5,0}}
+         {"nitog2","N",5,0},;
+         {"nitog3","N",5,0}}
 dbcreate(fr_titl, adbf)
 use (fr_titl) new alias FRT
 append blank
@@ -1674,7 +1683,7 @@ adbf := {{"nrak","C",50,0},;
          {"n_data","C",10,0},;
          {"k_data","C",10,0},;
          {"cena_1","N",11,2},;
-         {"sum_sn","N",11,2},;
+         {"sum_sn","C",30,0},;
          {"REFREASON","C",15,0},;
          {"DATE_REP","C",10,0}}
 dbcreate(fr_data,adbf)
@@ -1743,21 +1752,22 @@ do while !eof()
             find (str(raks->kod_raks,6))
             do while raks->kod_raks == raksh->kod_raks .and. !eof()
               human->(dbGoto(raksh->KOD_H))
-              s := raksh->SANK_MEK + raksh->SANK_MEE + raksh->SANK_EKMP + raksh->penalty
+              s := raksh->SANK_MEK + raksh->SANK_MEE + raksh->SANK_EKMP
+              ssh := raksh->penalty
               s1 := ""
               if !empty(raksh->SANK_MEK)
-                s1 += "МЭК"
+                s1 += "/МЭК"
               endif
               if !empty(raksh->SANK_MEE)
-                s1 += "МЭЭ"
+                s1 += "/МЭЭ"
               endif
               if !empty(raksh->SANK_EKMP)
-                s1 += "ЭКМП"
+                s1 += "/ЭКМП"
               endif
               if !empty(raksh->penalty)
-                s1 += "штраф"
+                s1 += "/ штраф"
               endif
-              if (fl := (raksh->REFREASON > 0 .and. s > 0)) //round(human->cena_1,2)==round(s+raksh->SUMP,2)
+              if (fl := (raksh->REFREASON > 0 .and. !emptyall(s,ssh))) //round(human->cena_1,2)==round(s+raksh->SUMP,2)
                 if ireg == 2 // частичное
                   fl := (raksh->oplata == 3)
                 elseif ireg == 3 // все случаи
@@ -1814,6 +1824,10 @@ do while !eof()
                   frt->nitog2 ++
                   frt->summa2 += s
                 endif
+                if !empty(ssh)
+                  frt->nitog3 ++
+                  frt->summa3 += ssh
+                endif
                 frd->fio    := human->fio
                 frd->date_r := full_date(human->date_r)
                 pers->(dbGoto(human_->vrach))
@@ -1821,11 +1835,17 @@ do while !eof()
                 frd->n_data := left(date_8(human->n_data),5)
                 frd->k_data := date_8(human->k_data)
                 frd->cena_1 := human->cena_1
-                frd->sum_sn := s
+                if !empty(s) .and. empty(ssh)
+                  frd->sum_sn := lstr(s,15,2)
+                elseif empty(s) .and. !empty(ssh)
+                  frd->sum_sn := lstr(ssh,15,2)+"шт"
+                else
+                  frd->sum_sn := lstr(s,15,2)+eos+lstr(ssh,15,2)+"шт"
+                endif
                 if empty(s := ret_t005(raksh->REFREASON))
                   s := lstr(raksh->REFREASON)+" неизвестная причина отказа"
                 endif
-                frd->REFREASON := lstr(raksh->REFREASON)+"/"+s1
+                frd->REFREASON := lstr(raksh->REFREASON)+s1
                 select FRD1
                 find (str(raksh->REFREASON,3))
                 if !found()
@@ -1869,6 +1889,9 @@ if frt->nitog2 > 0
   s += " Итого пациентов с частичным отказом "+lstr(frt->nitog2)+" чел. на сумму "+lstr(frt->summa2,15,2)+"р."
 endif
 frt->name2 := s
+if frt->nitog3 > 0
+  frt->name3 := "Итого штрафов: "+lstr(frt->nitog3)+" на сумму "+lstr(frt->summa3,15,2)+"р."
+endif
 close databases
 rest_box(buf)
 name_fr := "mo_spis_sn"+sfr3

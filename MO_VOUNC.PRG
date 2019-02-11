@@ -1950,7 +1950,7 @@ do while !eof()
       select HUMAN
       goto (human_3->kod2)  // встали на 2-ой лист учёта
     endif
-    f1_create2reestr19()
+    f1_create2reestr19(_nyear,_nmonth)
  if isl == 1
   oZAP := oXmlDoc:aItems[1]:Add( HXMLNode():New( "ZAP" ) )
    mo_add_xml_stroke(oZAP,"N_ZAP" ,lstr(rhum->REES_ZAP))
@@ -2222,9 +2222,9 @@ do while !eof()
          oPRESCRIPTIONS := oPRESCRIPTION:Add( HXMLNode():New( "PRESCRIPTIONS" ) )
           mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_N",lstr(j))
           mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_R",lstr(arr_nazn[j,1]))
-          if eq_any(arr_nazn[j,1],1,2)
-            for i := 1 to len(arr_nazn[j,2])
-              mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_SP",lstr(arr_nazn[j,2,i]))
+          if eq_any(arr_nazn[j,1],1,2) // {"в нашу МО",1},{"в иную МО",2}}
+            for i := 1 to len(arr_nazn[j,2]) // к какому специалисту направлен
+              mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_SP",arr_nazn[j,2,i]) // результат ф-ии put_prvs_to_reestr(human_->PRVS,_NYEAR)
             next
           elseif arr_nazn[j,1] == 3
             for i := 1 to len(arr_nazn[j,2])

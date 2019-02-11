@@ -4,7 +4,7 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 01.03.17
+***** 11.02.19
 Function begin_task_263()
 Static n_zapusk := 0
 Local i, ar, fl := .t., group_ini := "OBMEN_263"
@@ -23,9 +23,9 @@ if n_zapusk == 0
   work_otd_263 := int(val(a2default(ar,"work_otd","0")))
   ar := GetIniSect(tools_ini,group_ini)
   work_otd_263 := int(val(a2default(ar,"work_otd",lstr(work_otd_263))))
-  R_Use(exe_dir+"_mo5uslc",,"USLC")
+  R_Use(exe_dir+"_mo9uslc",,"USLC")
   index on codemo to (cur_dir+"tmp_uslc") ;
-        for datebeg==stod("20170101") .and. eq_any(left(shifr,5),"1.11.","55.1.") ;
+        for datebeg == 0d20190101 .and. eq_any(left(shifr,5),"1.11.","55.1.") ;
         UNIQUE
   dbeval({|| aadd(p_arr_stac_VO,uslc->codemo) })
   use
@@ -1128,8 +1128,9 @@ for i := 1 to len(arr_i01)
      mo_add_xml_stroke(oDir,"MO_H", napr->S_MCOD)
      mo_add_xml_stroke(oDir,"LPU_H", napr->S_CODEM)
      mo_add_xml_stroke(oDir,"USL_OK", lstr(iif(napr->usl_ok_1==2,2,1)))
-     mo_add_xml_stroke(oDir,"PROFIL", lstr(napr->PROFIL_1))
-     mo_add_xml_stroke(oDir,"PROFIL_K", f_profil_k_t007_v020(napr->PROFIL_K_1,napr->PROFIL_1,nf->DATE_R))
+     ar := _263_pr_prk(napr->PROFIL_K_1,napr->PROFIL_1,nf->DATE_R)
+     mo_add_xml_stroke(oDir,"PROFIL", ar[1])
+     mo_add_xml_stroke(oDir,"PROFIL_K", ar[2])
      mo_add_xml_stroke(oDir,"DS", napr->DS_1)
      mo_add_xml_stroke(oDir,"IDDOKT", p2->snils)
      mo_add_xml_stroke(oDir,"F_MEDC", lstr(napr->F_MEDC_1))
@@ -1372,8 +1373,9 @@ if !fl_error
        mo_add_xml_stroke(oDir,"TIME_H", charrepl(":",napr->TIME_H_4,"-"))
        mo_add_xml_stroke(oDir,"DS", napr->DS_4)
        mo_add_xml_stroke(oDir,"F_MEDC", lstr(napr->F_MEDC_4))
-       mo_add_xml_stroke(oDir,"PROFIL", lstr(napr->PROFIL_4))
-       mo_add_xml_stroke(oDir,"PROFIL_K", f_profil_k_t007_v020(napr->PROFIL_K_4,napr->PROFIL_4,nf->DATE_R))
+       ar := _263_pr_prk(napr->PROFIL_K_4,napr->PROFIL_4,nf->DATE_R)
+       mo_add_xml_stroke(oDir,"PROFIL", ar[1])
+       mo_add_xml_stroke(oDir,"PROFIL_K", ar[2])
        mo_add_xml_stroke(oDir,"NUM_HIST", napr->NUM_HIST_4)
        oPAC := oDir:Add( HXMLNode():New( "PATIENT" ) )
         mo_add_xml_stroke(oPAC,"SURNAME",arr_fio[1])
@@ -1498,9 +1500,10 @@ if !fl_error
        mo_add_xml_stroke(oDir,"DATE_H", date2xml(napr->DATE_H_4))
        mo_add_xml_stroke(oDir,"TIME_H", charrepl(":",napr->TIME_H_4,"-"))
        mo_add_xml_stroke(oDir,"DS", napr->DS_4)
-       mo_add_xml_stroke(oDir,"F_MEDC", lstr(napr->F_MEDC_4))
-       mo_add_xml_stroke(oDir,"PROFIL", lstr(napr->PROFIL_4))
-       mo_add_xml_stroke(oDir,"PROFIL_K", f_profil_k_t007_v020(napr->PROFIL_K_4,napr->PROFIL_4,nf->DATE_R))
+       mo_add_xml_stroke(oDir,"F_MEDC", lstr(napr->F_MEDC_4)) 
+       ar := _263_pr_prk(napr->PROFIL_K_4,napr->PROFIL_4,nf->DATE_R)
+       mo_add_xml_stroke(oDir,"PROFIL", ar[1])
+       mo_add_xml_stroke(oDir,"PROFIL_K", ar[2])
        mo_add_xml_stroke(oDir,"NUM_HIST", napr->NUM_HIST_4)
        oPAC := oDir:Add( HXMLNode():New( "PATIENT" ) )
         mo_add_xml_stroke(oPAC,"SURNAME",arr_fio[1])
@@ -1624,8 +1627,9 @@ if !fl_error
        mo_add_xml_stroke(oDir,"DATE_H", date2xml(napr->DATE_H_4))
        mo_add_xml_stroke(oDir,"DATE_D", date2xml(napr->DATE_6))
        mo_add_xml_stroke(oDir,"F_MEDC", lstr(napr->F_MEDC_4))
-       mo_add_xml_stroke(oDir,"PROFIL", lstr(napr->PROFIL_4))
-       mo_add_xml_stroke(oDir,"PROFIL_K", f_profil_k_t007_v020(napr->PROFIL_K_4,napr->PROFIL_4,nf->DATE_R))
+       ar := _263_pr_prk(napr->PROFIL_K_4,napr->PROFIL_4,nf->DATE_R)
+       mo_add_xml_stroke(oDir,"PROFIL", ar[1])
+       mo_add_xml_stroke(oDir,"PROFIL_K", ar[2])
        mo_add_xml_stroke(oDir,"USL_OK", lstr(iif(napr->usl_ok_4==2,2,1)))
        if napr->TYPE_H_4 == 1
          mo_add_xml_stroke(oDir,"ID_D", napr->id_1)
@@ -1712,8 +1716,9 @@ if !fl_error .and. yes_i07
     oDir := oMo_d:Add( HXMLNode():New( "PLACES" ) )
      mo_add_xml_stroke(oDir,"ID_PL", mo_guid(1,n7->(recno())))
      mo_add_xml_stroke(oDir,"USL_OK", lstr(iif(n7->usl_ok==2,2,1)))
-     mo_add_xml_stroke(oDir,"PROFIL", lstr(n7->PROFIL))
-     mo_add_xml_stroke(oDir,"PROFIL_K", f_profil_k_t007_v020(n7->PROFIL_K,n7->PROFIL,nf->DATE_R))
+     ar := _263_pr_prk(n7->PROFIL_K,n7->PROFIL,nf->DATE_R)
+     mo_add_xml_stroke(oDir,"PROFIL", ar[1])
+     mo_add_xml_stroke(oDir,"PROFIL_K", ar[2])
      mo_add_xml_stroke(oDir,"QUANTITY", lstr(n7->QUANTITY))
      mo_add_xml_stroke(oDir,"Q_P", lstr(n7->Q_P))
      mo_add_xml_stroke(oDir,"Q_AP", lstr(n7->Q_AP))
@@ -4649,8 +4654,15 @@ endif
 rest_box(buf)
 return fl .and. empty(aerr)
 
-***** 21.01.19 профиль койки из t007 в v020 и в строку
-Function f_profil_k_t007_v020(lprk,lpr,ldate_r)
+***** 11.02.19 вернуть профиль и профиль койки в виде строк в массиве
+Function _263_pr_prk(lprk,lpr,ldate_r)
+Local ar[2]
+ar[2] := f_profil_k_t007_v020(lprk,@lpr,ldate_r)
+ar[1] := lstr(lpr)
+return ar
+
+***** 11.02.19 профиль койки из t007 в v020 и в строку
+Function f_profil_k_t007_v020(lprk,/*@*/lpr,ldate_r)
 Local i, lprk20 := lprk
 if ldate_r > 0d20190115 // с 16 января
   if select("T7") > 0
@@ -4667,6 +4679,11 @@ if ldate_r > 0d20190115 // с 16 января
     endif
   endif
   t7->(dbCloseArea())
+  if lprk20 == 50
+    lpr := 162
+  elseif lprk20 == 51
+    lpr := 163
+  endif
 endif
 return lstr(lprk20)
 

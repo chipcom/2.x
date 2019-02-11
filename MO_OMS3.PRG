@@ -399,8 +399,8 @@ if (arr_m := year_month(T_ROW,T_COL+5,,3)) != NIL
 endif  
 return ret
 
-***** 05.02.19 работаем по текущей записи
-Function f1_create2reestr19()
+***** 08.02.19 работаем по текущей записи
+Function f1_create2reestr19(_nyear,_nmonth)
 Local i, j, lst, s
 fl_DISABILITY := is_zak_sl := is_zak_sl_vr := .f.
 lshifr_zak_sl := lvidpoms := ""
@@ -668,7 +668,7 @@ endif
 if between(m1napr_v_mo,1,2) .and. !empty(arr_mo_spec) // {{"-- нет --",0},{"в нашу МО",1},{"в иную МО",2}}, ;
   aadd(arr_nazn,{m1napr_v_mo,{}}) ; j := len(arr_nazn)
   for i := 1 to min(3,len(arr_mo_spec))
-    aadd(arr_nazn[j,2],arr_mo_spec[i])
+    aadd(arr_nazn[j,2],put_prvs_to_reestr(-arr_mo_spec[i],_NYEAR)) // "-", т.к. спец-ть была в кодировке V015
   next
 endif 
 if between(m1napr_stac,1,2) .and. m1profil_stac > 0 // {{"--- нет ---",0},{"в стационар",1},{"в дн. стац.",2}}, ;

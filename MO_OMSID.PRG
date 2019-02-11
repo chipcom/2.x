@@ -4496,16 +4496,78 @@ else
 endif
 return arr
 
-***** 03.04.18 форма 131
+***** 11.02.19 вернуть план диспансеризации на год из R01 для фрмы 131
+Function ret_plan_disp_131(d)
+Local arr[2,3], ar, s, s1, fl, sgod := year(d), v, i, j, group_ini := "DISP_PLAN_131"
+ar := GetIniSect(tools_ini,group_ini)
+fl := .f.
+if len(ar) > 0
+  for v := 1 to len(ar)
+    s := ar[v,1]
+    s1 := beforatnum("-",s,1) ; s := afteratnum("-",s,1)
+    if int(val(s1)) == sgod
+      i := int(val(s))
+      j := int(val(afteratnum("-",s,1)))
+      if between(i,1,2) .and. between(j,1,3)
+        arr[i,j] := int(val(ar[v,2]))
+      endif
+    endif
+  next
+  fl := .t.
+  for i := 1 to 2
+    for j := 1 to 3
+      if !(valtype(arr[i,j]) == "N")
+        fl := .f.
+      endif
+    next
+  next
+endif
+if !fl
+  afillall(arr,0)
+endif
+if sgod >= 2019 .and. !fl
+  R_Use(dir_server+"kartotek",,"KART")
+  G_Use(dir_server+"mo_dr01k",,"R01")
+  index on str(kod_k,7) to (cur_dir+"tmp_r01") ;
+        for kod_k > 0 .and. oplata == 1 .and. tip == 1 .and. TYPEOFREC == 0
+  go top
+  do while !eof()
+    select KART
+    goto (r01->kod_k)
+    v := sgod - year(kart->date_r)
+    i := iif(kart->pol == "М", 1, 2)
+    if v < 39
+      j := 1
+    elseif v < 61
+      j := 2
+    else
+      j := 3
+    endif
+    arr[i,j] ++  
+    select R01
+    skip
+  enddo
+  ar := {}
+  for i := 1 to 2
+    for j := 1 to 3
+      aadd(ar, {lstr(sgod)+"-"+lstr(i)+"-"+lstr(j),arr[i,j]})
+    next
+  next
+  SetIniSect(tools_ini, group_ini, ar) // запись секции в ini.файл
+  close databases
+endif           
+return arr
+
+***** 11.02.19 форма 131
 Function f4_inf_DVN(par)
 Static arr_v := {"21-36 лет","39-60 лет","старше 60 лет"}
 Local arr_m, buf := save_maxrow(), s, as := {}, ar, sh := 80, HH := 80, n, ;
-      ii, n_file := "f_131"+stxt, d1, d2, fl, arr_excel := {}
-if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
-                                .and. (arr_m := year_month(,,,5)) != NIL
+      ii, n_file := "f_131"+stxt, d1, d2, fl, arr_excel := {}, arr_plan_god
+if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := year_month(,,,5)) != NIL
   mywait()
   if f0_inf_DVN(arr_m,par > 1,par == 3)
     mywait("Сбор статистики")
+    arr_plan_god := ret_plan_disp_131(arr_m[5])
     dbcreate(cur_dir+"tmp1000",{{"vozrast","N",1,0},;
                                 {"vm1","N",8,0},;
                                 {"vm2","N",8,0},;
@@ -4900,8 +4962,10 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
       i := recno()
       //aadd(ar, {6+i, 5,tmp->vm1+tmp->vg1})
       //aadd(ar, {6+i, 6,tmp->vm2+tmp->vg2})
+      aadd(ar, {6+i,8,arr_plan_god[1,i]})
       //aadd(ar, {6+i, 9,tmp->vm1})
       aadd(ar, {6+i,10,tmp->vm2})
+      aadd(ar, {6+i,12,arr_plan_god[2,i]})
       //aadd(ar, {6+i,13,tmp->vg1})
       aadd(ar, {6+i,14,tmp->vg2})
       s := arr_v[i]

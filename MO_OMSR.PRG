@@ -1650,23 +1650,29 @@ if is_oncology == 2 // онкология
     ngist := nimmun := 0
     select ONKDI
     find (str(human->kod,7))
-    do while onkdi->kod == human->kod .and. !eof()
+    if found()
       if empty(onkdi->DIAG_DATE)
         aadd(arr_onkdi0, .f.)
-      endif
-      if onkdi->DIAG_TIP == 1
-        aadd(arr_onkdi1, {onkdi->DIAG_DATE,onkdi->DIAG_TIP,onkdi->DIAG_CODE,onkdi->DIAG_RSLT})
-        if onkdi->DIAG_RSLT > 0
-          ++ngist
-        endif
-      elseif onkdi->DIAG_TIP == 2
-        aadd(arr_onkdi2, {onkdi->DIAG_DATE,onkdi->DIAG_TIP,onkdi->DIAG_CODE,onkdi->DIAG_RSLT})
-        if onkdi->DIAG_RSLT > 0
-          ++nimmun
+      else
+        if onkdi->DIAG_DATE < addmonth(d1,-20*12)+1 // отмотаем 20 лет от начала лечения
+          aadd(ta,"Дата взятия материала "+full_date(onkdi->DIAG_DATE)+"г. меньше КРИТИЧЕСКОЙ даты")
         endif
       endif
-      skip
-    enddo
+      do while onkdi->kod == human->kod .and. !eof()
+        if onkdi->DIAG_TIP == 1
+          aadd(arr_onkdi1, {onkdi->DIAG_DATE,onkdi->DIAG_TIP,onkdi->DIAG_CODE,onkdi->DIAG_RSLT})
+          if onkdi->DIAG_RSLT > 0
+            ++ngist
+          endif
+        elseif onkdi->DIAG_TIP == 2
+          aadd(arr_onkdi2, {onkdi->DIAG_DATE,onkdi->DIAG_TIP,onkdi->DIAG_CODE,onkdi->DIAG_RSLT})
+          if onkdi->DIAG_RSLT > 0
+            ++nimmun
+          endif
+        endif
+        skip
+      enddo
+    endif
     if len(arr_onkdi0) > 0
       aadd(ta,"не заполннена дата взятия материала")
     endif
