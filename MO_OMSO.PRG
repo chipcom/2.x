@@ -1733,6 +1733,7 @@ do while !eof()
     find (str(mo_xml->kod,6))
     do while mo_xml->kod == rak->kod_xml .and. !eof()
       if iif(lmenu[1] == 4, between(rak->dakt,arr_m[5],arr_m[6]), .t.)
+        vid_eks := ret_vid_eks()
         fl_rak := .t.
         select RAKS
         find (str(rak->akt,6))
@@ -1755,14 +1756,12 @@ do while !eof()
               s := raksh->SANK_MEK + raksh->SANK_MEE + raksh->SANK_EKMP
               ssh := raksh->penalty
               s1 := ""
-              if !empty(raksh->SANK_MEK)
-                s1 += "/ŒŠ"
-              endif
-              if !empty(raksh->SANK_MEE)
-                s1 += "/Œ"
-              endif
-              if !empty(raksh->SANK_EKMP)
+              if vid_eks == 2 .or. !empty(raksh->SANK_EKMP)
                 s1 += "/ŠŒ"
+              elseif vid_eks == 1 .or. !empty(raksh->SANK_MEE)
+                s1 += "/Œ"
+              else
+                s1 += "/ŒŠ"
               endif
               if !empty(raksh->penalty)
                 s1 += "/ èâà ä"
@@ -1902,11 +1901,11 @@ else
 endif
 return NIL
 
-***** 20.02.18 ‘¯¨á®ª €Š
+***** 13.02.19 ‘¯¨á®ª €Š
 Function pr_list_RAK()
 Static arr_smo
 Local buf := save_maxrow(), arr_m, n_file := "list_RAK"+stxt, ta[2], i, s, asmo,;
-      krak := 0, kakt, ksch, kpac, kerr, sh, HH := 60
+      krak := 0, kakt, ksch, kpac, kerr, kpen, sh, HH := 60
 if arr_smo == NIL
   arr_smo := mo_cut_menu(glob_arr_smo)
 endif
@@ -1921,10 +1920,10 @@ for i := 1 to len(asmo)
   s += asmo[i,1]+", "
 next
 arr_title := {;
-  "ÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄ",;
-  "   „ â    ³âçñâ³                         ³     ³ª®«-¢®³ª®«-¢®³ª®«-¢®³ª®«-¢®",;
-  "   €Š    ³¯¥à¨®³      €ªâ ª®­âà®«ï       ³ ‘Œ ³ ªâ®¢ ³áç¥â®¢³¯ æ¨¥­³á­ïâ¨©",;
-  "ÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄ"}
+  "ÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄ",;
+  "   „ â    ³âçñâ³                         ³     ³ª®«-¢®³ª®«-¢®³ª®«-¢®³ª®«-¢®³ª®«-¢®",;
+  "   €Š    ³¯¥à¨®³      €ªâ ª®­âà®«ï       ³ ‘Œ ³ ªâ®¢ ³áç¥â®¢³¯ æ¨¥­³á­ïâ¨©³èâà ä®¢",;
+  "ÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄ"}
 sh := len(arr_title[1])
 k := perenos(ta,left(s,len(s)-2),sh)   
 //
@@ -1939,6 +1938,8 @@ next
 add_string("")
 aeval(arr_title, {|x| add_string(x) } )
 //
+R_Use(dir_server+"mo_raksh",,"RAKSH")
+index on str(kod_raks,6) to tmp_raksh for !empty(PENALTY) memory // â®«ìª® ¯ æ¨¥­âë á® èâà ä®¬
 R_Use(dir_server+"schet_",,"SCHET_")
 R_Use(dir_server+"mo_raks",,"RAKS")
 index on str(akt,6) to tmpraks memory 
@@ -1950,7 +1951,7 @@ go top
 do while !eof()
   if between(mo_xml->DFILE,arr_m[5],arr_m[6])
     otch_period := space(6) ; lsmo := space(5)
-    kakt := ksch := kpac := kerr := 0
+    kakt := ksch := kpac := kerr := kpen := 0
     select RAK
     find (str(mo_xml->kod,6))
     do while mo_xml->kod == rak->kod_xml .and. !eof()
@@ -1966,6 +1967,12 @@ do while !eof()
           elseif !(otch_period == s) .and. !(right(otch_period,1) == "+") 
             otch_period := left(otch_period,5)+"+"
           endif
+          select RAKSH
+          find (str(raks->kod_raks,6))
+          do while raks->kod_raks == raksh->kod_raks .and. !eof()
+            kpen ++
+            skip
+          enddo
         endif
         select RAKS
         skip
@@ -1983,7 +1990,7 @@ do while !eof()
       endif
       krak++
       add_string(full_date(mo_xml->DFILE)+" "+otch_period+padr(mo_xml->FNAME,26)+lsmo+;
-                 put_val(kakt,7)+put_val(ksch,7)+put_val(kpac,7)+put_val(kerr,7))
+                 put_val(kakt,7)+put_val(ksch,7)+put_val(kpac,7)+put_val(kerr,7)+put_val(kpen,7))
     endif
   endif
   select MO_XML
@@ -1994,7 +2001,7 @@ add_string("  ˆâ®£® ª®«¨ç¥áâ¢® €Š (à¥¥áâà®¢  ªâ®¢ ª®­âà®«ï) - "+lstr(krak))
 fclose(fp)
 close databases
 rest_box(buf)
-viewtext(n_file,,,,.f.,,,2)
+viewtext(n_file,,,,.t.,,,2)
 return NIL
 
 ***** 29.11.15 ‘¯¨á®ª áç¥â®¢ ¡¥§ €Š
@@ -2056,13 +2063,13 @@ rest_box(buf)
 viewtext(n_file,,,,.f.,,,2)
 return NIL
 
-***** 29.11.15 áã¬¬ë á­ïâ¨© ¯®  ªâ ¬
+***** 13.02.19 áã¬¬ë á­ïâ¨© ¯®  ªâ ¬
 Function akt_summa_of_refusal()
-Local buf := save_maxrow(), arr_m, n_file := "sum_RAK"+stxt, sh, HH := 40,;
-      arr_smo := aclone(glob_arr_smo)
+Local buf := save_maxrow(), arr_m, n_file := "sum_RAK"+stxt, sh, HH := 40, arr_smo := aclone(glob_arr_smo)
 if (arr_m := year_month(T_ROW,T_COL-5)) == NIL
   return NIL
 endif
+mywait()
 adbf := {{"REFREASON","N",3,0},;
          {"srefr","C",12,0},;
          {"smo","C",5,0},;
@@ -2072,6 +2079,8 @@ adbf := {{"REFREASON","N",3,0},;
          {"summa1","N",15,2},;
          {"kol2","N",6,0},;
          {"summa2","N",15,2},;
+         {"kol4","N",6,0},;
+         {"summa4","N",15,2},;
          {"kol3","N",6,0},;
          {"summa3","N",15,2}}
 dbcreate(cur_dir+"tmp",adbf)
@@ -2086,6 +2095,7 @@ index on dtos(dakt) to (cur_dir+"tmprak") for between(dakt,arr_m[5],arr_m[6])
 go top
 do while !eof()
   @ maxrow(),0 say padr(date_8(rak->dakt),80) color "W/R"
+  vid_eks := ret_vid_eks()
   select RAKS
   find (str(rak->akt,6))
   do while rak->akt == raks->akt .and. !eof()
@@ -2093,7 +2103,7 @@ do while !eof()
     find (str(raks->kod_raks,6))
     do while raks->kod_raks == raksh->kod_raks .and. !eof()
       s := raksh->SANK_MEK + raksh->SANK_MEE + raksh->SANK_EKMP
-      if raksh->REFREASON > 0 .and. s > 0
+      if raksh->REFREASON > 0 .and. !emptyall(s,raksh->penalty)
         select TMP
         for i := 1 to 2
           lsmo := {space(5),raks->plat}[i]
@@ -2105,23 +2115,23 @@ do while !eof()
               tmp->REFREASON := lrefr
               tmp->smo := lsmo
             endif
-            tmp->kol ++
-            tmp->summa += s
-            if !empty(raksh->SANK_MEK)
+            if !empty(s)
+              tmp->kol ++
+              tmp->summa += s
+            endif
+            if vid_eks == 2 .or. !empty(raksh->SANK_EKMP)
+              tmp->kol3 ++
+              tmp->summa3 += s
+            elseif vid_eks == 1 .or. !empty(raksh->SANK_MEE)
+              tmp->kol2 ++
+              tmp->summa2 += s
+            else
               tmp->kol1 ++
-              tmp->summa1 += raksh->SANK_MEK
+              tmp->summa1 += s
             endif
             if !empty(raksh->penalty)
-              tmp->kol1 ++
-              tmp->summa1 += raksh->penalty
-            endif
-            if !empty(raksh->SANK_MEE)
-              tmp->kol2 ++
-              tmp->summa2 += raksh->SANK_MEE
-            endif
-            if !empty(raksh->SANK_EKMP)
-              tmp->kol3 ++
-              tmp->summa3 += raksh->SANK_EKMP
+              tmp->kol4 ++
+              tmp->summa4 += raksh->penalty
             endif
           next k
         next i
@@ -2200,6 +2210,9 @@ for i := 1 to len(arr_smo)
                  put_val(tmp->kol1,7)+put_kopE(tmp->summa1,14)+;
                  put_val(tmp->kol2,7)+put_kopE(tmp->summa2,14)+;
                  put_val(tmp->kol3,7)+put_kopE(tmp->summa3,14))
+      if tmp->kol4 > 0
+        add_string(padr("  ªà®¬¥ â®£®, èâà äë",11+6+14)+put_val(tmp->kol4,7)+put_kopE(tmp->summa4,14))
+      endif           
       select TMP
       skip
     enddo
@@ -2302,7 +2315,7 @@ enddo
 restscreen(buf)
 return NIL
 
-***** 17.12.15 äã­ªæ¨ï ¤«ï á¯¨áª  á­ïâ¨© ¯®  ªâ ¬ (¤¥ä¥ªâë)
+***** 13.02.19 äã­ªæ¨ï ¤«ï á¯¨áª  á­ïâ¨© ¯®  ªâ ¬ (¤¥ä¥ªâë)
 Function f1akt_list_of_refusal_defect(asmo,ssmo)
 Local adbf, s, otch_period, n_file := "sp_sn"+stxt, HH := 60, buf := save_maxrow()
 mywait()
@@ -2323,6 +2336,8 @@ adbf := {{"nrak","C",26,0},;
          {"otd","N",3,0},;
          {"kol","N",6,0},;
          {"sum_sn","N",15,2},;
+         {"kolp","N",6,0},;
+         {"penalty","N",15,2},;
          {"REFREASON","N",3,0}}
 dbcreate(cur_dir+"tmp",adbf)
 use (cur_dir+"tmp") new
@@ -2344,6 +2359,7 @@ do while !eof()
     find (str(mo_xml->kod,6))
     do while mo_xml->kod == rak->kod_xml .and. !eof()
       if iif(m1poisk == 1, between(rak->dakt,pdate[5],pdate[6]), .t.)
+        vid_eks := ret_vid_eks()
         select RAKS
         find (str(rak->akt,6))
         do while rak->akt == raks->akt .and. !eof()
@@ -2354,17 +2370,22 @@ do while !eof()
             find (str(raks->kod_raks,6))
             do while raks->kod_raks == raksh->kod_raks .and. !eof()
               human->(dbGoto(raksh->KOD_H))
-              s := 0 
+              s := raksh->SANK_MEK + raksh->SANK_MEE + raksh->SANK_EKMP
+              ssh := raksh->penalty
+              fl := .f. 
               if m1eks == 0
-                s := raksh->SANK_MEK + raksh->SANK_MEE + raksh->SANK_EKMP + raksh->penalty
-              elseif m1eks == 1
-                s := raksh->SANK_MEK + raksh->penalty
-              elseif m1eks == 2                                 
-                s := raksh->SANK_MEE
-              elseif m1eks == 3                                
-                s := raksh->SANK_EKMP
+                fl := .t.
+              elseif vid_eks == 2 .or. !empty(raksh->SANK_EKMP)
+                fl := (m1eks == 3)
+              elseif vid_eks == 1 .or. !empty(raksh->SANK_MEE)
+                fl := (m1eks == 2)
+              else
+                fl := (m1eks == 1)
               endif
-              if raksh->REFREASON > 0 .and. s > 0
+              if !fl
+                s := ssh := 0
+              endif
+              if raksh->REFREASON > 0 .and. !emptyall(s,ssh)
                 select TMP
                 append blank
                 tmp->nrak := alltrim(mo_xml->FNAME)
@@ -2378,6 +2399,7 @@ do while !eof()
                 tmp->schet := raks->KOD_RAKS
                 tmp->op := otch_period
                 tmp->sum_sn := s
+                tmp->penalty := ssh
                 tmp->REFREASON := raksh->REFREASON
                 tmp->otd := human->otd
               endif
@@ -2465,9 +2487,15 @@ do while !eof()
     endif 
     tmp1->REFREASON := tmp->REFREASON
     tmp1->otd := tmp->otd
-  endif     
-  tmp1->kol ++
-  tmp1->sum_sn += tmp->sum_sn  
+  endif
+  if !empty(tmp->sum_sn)     
+    tmp1->kol ++
+    tmp1->sum_sn += tmp->sum_sn
+  endif
+  if !empty(tmp->penalty)
+    tmp1->kolp ++  
+    tmp1->penalty += tmp->penalty
+  endif  
   select TMP
   skip
 enddo
@@ -2488,6 +2516,7 @@ add_string(center("¤ âë "+iif(m1poisk == 0, "€Š - ", " ªâ®¢ ª®­âà®«ï - ")+pdate
 aeval(arr_title, {|x| add_string(x) } )
 R_Use(exe_dir+"_mo_t005",cur_dir+"_mo_t005","T5")
 ssum := skol := sum_rak := kol_rak := 0 ; n := 20
+ssump := skolp := sump_rak := kolp_rak := 0
 select TMP1
 set order to 0
 go top
@@ -2496,7 +2525,11 @@ do while !eof()
     if !empty(kol_rak)  
       add_string(space(n)+replicate("-",n*2+3))
       add_string(padl("ˆâ®£® ¯® €Š:",41)+str(kol_rak,7)+str(sum_rak,14,2))
+      if !empty(kolp_rak)
+        add_string(space(41)+str(kolp_rak,7)+str(sump_rak,14,2)+"(èâà ä)")
+      endif
       sum_rak := kol_rak := 0
+      sump_rak := kolp_rak := 0
     endif
     add_string("")
     add_string(padc(alltrim(tmp1->srak),sh,"_"))
@@ -2541,15 +2574,30 @@ do while !eof()
     aeval(arr_title, {|x| add_string(x) } )
   endif
   add_string(s)
+  if !empty(tmp1->penalty)
+    add_string(space(41)+str(tmp1->kolp,7)+str(tmp1->penalty,14,2)+"(èâà ä)")
+    skolp += tmp1->kolp 
+    ssump += tmp1->penalty
+    if m1poisk == 0
+      kolp_rak += tmp1->kolp 
+      sump_rak += tmp1->penalty
+    endif
+  endif
   select TMP1
   skip
 enddo
 if !empty(kol_rak)  
   add_string(space(n)+replicate("-",n*2+3))
   add_string(padl("ˆâ®£® ¯® €Š:",41)+str(kol_rak,7)+str(sum_rak,14,2))
+  if !empty(kolp_rak)
+    add_string(space(41)+str(kolp_rak,7)+str(sump_rak,14,2)+"(èâà ä)")
+  endif
 endif
 add_string(replicate("-",sh))
 add_string(padl("‚á¥£®:",41)+str(skol,7)+str(ssum,14,2))
+if !empty(skolp)
+  add_string(space(41)+str(skolp,7)+str(ssump,14,2)+"(èâà ä)")
+endif
 fclose(fp)
 close databases
 rest_box(buf)  

@@ -1211,9 +1211,23 @@ do while .t.
 enddo
 return NIL
 
-*
+***** 13.02.19 вернуть вид экспертизы
+Function ret_vid_eks()
+Local i
+if rak->TYPEK > 0
+  i := rak->SKONT // до 2019 года
+elseif rak->kont < 4    // далее работаем по F006
+  i := rak->kont-1    // 1,2,3
+elseif rak->kont < 20
+  i := 0 // МЭК
+elseif rak->kont < 30
+  i := 1 // МЭЭ
+else
+  i := 2 // ЭКМП
+endif
+return i
 
-***** 16.03.17 Акты сверки по СМО
+***** 13.02.19 Акты сверки по СМО
 Function akt_sverki_smo()
 Static sitog := {;
   "2. Общая сумма средств на оплату по зарег.счетам за месяц",;
@@ -1221,9 +1235,9 @@ Static sitog := {;
   " 3.1. по результатам МЭК",;
   " 3.2. по результатам МЭЭ",;
   " 3.3. по результатам ЭКМП",;
-  "5. Перечисленная сумма средств";
- }
-Local buf := save_maxrow(), lsmo, i, j, k, s, aitog[2,6], hitog[2,6], ismo,;
+  "5. Перечисленная сумма средств",;
+  "      кроме того, сумма штрафов"}
+Local buf := save_maxrow(), lsmo, i, j, k, s, aitog[2,7], hitog[2,7], ismo, vid_eks,;
       b1, b2, a1, a2, name_file := "aktsver", sh := 80, HH := 60, is_smp := {.f.,.f.}
 if (lsmo := ret_actual_smo()) == NIL
   return NIL
@@ -1274,7 +1288,7 @@ R_Use(dir_server+"human",,"HUMAN")
 set relation to recno() into HUMAN_
 R_Use(dir_server+"mo_raksh",,"RAKSH")
 set relation to KOD_H into HUMAN
-index on str(kod_raks,6) to (cur_dir+"tmp_raksh") for !emptyall(SANK_MEK,SANK_MEE,SANK_EKMP)
+index on str(kod_raks,6) to (cur_dir+"tmp_raksh") for !emptyall(SANK_MEK,SANK_MEE,SANK_EKMP,PENALTY)
 R_Use(dir_server+"mo_raks",,"RAKS")
 set relation to schet into SCHET
 index on str(akt,6) to (cur_dir+"tmpraks") for plat == lsmo[1]
@@ -1291,95 +1305,27 @@ do while !eof()
   select RAK
   find (str(mo_xml->kod,6))
   do while mo_xml->kod == rak->kod_xml .and. !eof()
+    vid_eks := ret_vid_eks()
     select RAKS
     find (str(rak->akt,6))
     do while rak->akt == raks->akt .and. !eof()
       ltip := iif(schet_->BUKVA == "E", 2, 1)
-      is_smp[ltip] := .t.
-      aitog[ltip,2] += raks->SANK_MEK+raks->SANK_MEE+raks->SANK_EKMP
-      aitog[ltip,3] += raks->SANK_MEK
-      aitog[ltip,4] += raks->SANK_MEE
-      aitog[ltip,5] += raks->SANK_EKMP
-      if !empty(raks->SANK_MEK)
-        select TMP
-        append blank
-        tmp->tip := ltip
-        tmp->nomer := 3
-        tmp->ndoc := rak->NAKT
-        tmp->ddoc := rak->DAKT
-        tmp->nsch := schet_->NSCHET
-        tmp->dsch := schet_->DSCHET
-        tmp->summa := raks->SANK_MEK
-        select RAKSH
-        find (str(raks->kod_raks,6))
-        do while raks->kod_raks == raksh->kod_raks .and. !eof()
-          if !empty(raksh->SANK_MEK)
-            if hitog[ltip,3] == NIL
-              hitog[ltip,3] := {}
-            endif
-            if (i := ascan(hitog[ltip,3], {|x| x[1] == raksh->REFREASON})) == 0
-              aadd(hitog[ltip,3], {raksh->REFREASON,0,0}) ; i := len(hitog[ltip,3])
-            endif
-            hitog[ltip,3,i,2] += raksh->SANK_MEK
-            hitog[ltip,3,i,3] ++
-          endif
-          select RAKSH
-          skip
-        enddo
-      endif
-      if !empty(raks->SANK_MEE)
-        select TMP
-        append blank
-        tmp->tip := ltip
-        tmp->nomer := 4
-        tmp->ndoc := rak->NAKT
-        tmp->ddoc := rak->DAKT
-        tmp->nsch := schet_->NSCHET
-        tmp->dsch := schet_->DSCHET
-        tmp->summa := raks->SANK_MEE
-        select RAKSH
-        find (str(raks->kod_raks,6))
-        do while raks->kod_raks == raksh->kod_raks .and. !eof()
-          if !empty(raksh->SANK_MEE)
-            if hitog[ltip,4] == NIL
-              hitog[ltip,4] := {}
-            endif
-            if (i := ascan(hitog[ltip,4], {|x| x[1] == raksh->REFREASON})) == 0
-              aadd(hitog[ltip,4], {raksh->REFREASON,0,0}) ; i := len(hitog[ltip,4])
-            endif
-            hitog[ltip,4,i,2] += raksh->SANK_MEE
-            hitog[ltip,4,i,3] ++
-          endif
-          select RAKSH
-          skip
-        enddo
-      endif
-      if !empty(raks->SANK_EKMP)
-        select TMP
-        append blank
-        tmp->tip := ltip
-        tmp->nomer := 5
-        tmp->ndoc := rak->NAKT
-        tmp->ddoc := rak->DAKT
-        tmp->nsch := schet_->NSCHET
-        tmp->dsch := schet_->DSCHET
-        tmp->summa := raks->SANK_EKMP
-        select RAKSH
-        find (str(raks->kod_raks,6))
-        do while raks->kod_raks == raksh->kod_raks .and. !eof()
-          if !empty(raksh->SANK_EKMP)
-            if hitog[ltip,5] == NIL
-              hitog[ltip,5] := {}
-            endif
-            if (i := ascan(hitog[ltip,5], {|x| x[1] == raksh->REFREASON})) == 0
-              aadd(hitog[ltip,5], {raksh->REFREASON,0,0}) ; i := len(hitog[ltip,5])
-            endif
-            hitog[ltip,5,i,2] += raksh->SANK_EKMP
-            hitog[ltip,5,i,3] ++
-          endif
-          select RAKSH
-          skip
-        enddo
+      s := raks->SANK_MEK+raks->SANK_MEE+raks->SANK_EKMP
+      if !emptyall(s,raks->PENALTY)
+        is_smp[ltip] := .t.
+        aitog[ltip,2] += s
+        if vid_eks == 2 .or. !empty(raks->SANK_EKMP)
+          aitog[ltip,5] += s
+          f1akt_sverki_smo(5,s,hitog)
+        elseif vid_eks == 1 .or. !empty(raks->SANK_MEE)
+          aitog[ltip,4] += s
+          f1akt_sverki_smo(4,s,hitog)
+        else
+          aitog[ltip,3] += s
+          f1akt_sverki_smo(3,s,hitog)
+        endif
+        aitog[ltip,7] += raks->PENALTY
+        f1akt_sverki_smo(7,raks->PENALTY,hitog)
       endif
       select RAKS
       skip
@@ -1467,6 +1413,9 @@ if ireg == 1
       add_string("")
       for j := 1 to 6
         add_string(padr(sitog[j],sh-15)+str(aitog[i,j],15,2))
+        if j == 5 .and. !empty(aitog[i,7])
+          add_string(padr(sitog[7],sh-15)+str(aitog[i,7],15,2))
+        endif
       next
     endif
   next
@@ -1487,7 +1436,14 @@ else
   add_string(center("по состоянию на "+date_month(arr_m[6]+1,.t.),sh))
   add_string("")
   aeval(arr_title, {|x| add_string(x) } )
-  for j := 1 to 6
+  for k := 1 to 7
+    if k == 6
+      j := 7
+    elseif k == 7
+      j := 6
+    else 
+      j := k
+    endif
     if verify_FF(HH-3,.t.,sh)
       aeval(arr_title, {|x| add_string(x) } )
     endif
@@ -1497,7 +1453,7 @@ else
     skol := 0
     add_string(str(aitog[ireg-1,j],15,2)+" "+sitog[j])
     add_string(replicate("-",sh))
-    if eq_any(j,3,4,5) .and. valtype(hitog[ireg-1,j]) == "A"
+    if eq_any(j,3,4,5,7) .and. valtype(hitog[ireg-1,j]) == "A"
       asort(hitog[ireg-1,j],,,{|x,y| x[1] < y[1] })
       for j1 := 1 to len(hitog[ireg-1,j])
         if verify_FF(HH,.t.,sh)
@@ -1510,7 +1466,7 @@ else
       add_string(replicate("-",sh))
     endif
     find (str(ireg-1,1)+str(j,1))
-    do while tmp->tip==ireg-1 .and. tmp->nomer==j .and. !eof()
+    do while tmp->tip == ireg-1 .and. tmp->nomer == j .and. !eof()
       if verify_FF(HH,.t.,sh)
         aeval(arr_title, {|x| add_string(x) } )
       endif
@@ -1525,7 +1481,7 @@ else
       add_string(s)
       skip
     enddo
-  next
+  next k
 endif
 close databases
 fclose(fp)
@@ -1533,16 +1489,53 @@ rest_box(buf)
 viewtext(name_file+stxt,,,,.t.,,,2)
 return NIL
 
+***** 13.02.19
+Function f1akt_sverki_smo(k,s,hitog)
+Local i, s1
+if !empty(s)
+  select TMP
+  append blank
+  tmp->tip := ltip
+  tmp->nomer := k
+  tmp->ndoc := rak->NAKT
+  tmp->ddoc := rak->DAKT
+  tmp->nsch := schet_->NSCHET
+  tmp->dsch := schet_->DSCHET
+  tmp->summa := s
+  select RAKSH
+  find (str(raks->kod_raks,6))
+  do while raks->kod_raks == raksh->kod_raks .and. !eof()
+    if k == 7
+      s1 := raksh->penalty
+    else
+      s1 := raksh->SANK_MEK+raksh->SANK_MEE+raksh->SANK_EKMP
+    endif
+    if !empty(s1)
+      if hitog[ltip,k] == NIL
+        hitog[ltip,k] := {}
+      endif
+      if (i := ascan(hitog[ltip,k], {|x| x[1] == raksh->REFREASON})) == 0
+        aadd(hitog[ltip,k], {raksh->REFREASON,0,0}) ; i := len(hitog[ltip,k])
+      endif
+      hitog[ltip,k,i,2] += s1
+      hitog[ltip,k,i,3] ++
+    endif
+    select RAKSH
+    skip
+  enddo
+endif
+return NIL
+
 ***** 24.01.2019 график регистрации счетов, включаемых в акт сверки на 2018 год
 *****            в соответствии с письмом ТФОМС от 04.12.2018г. №03-30/304
 Function ret_days_for_akt_sverki(arr_m,/*@*/b1,/*@*/b2,/*@*/a1,/*@*/a2)
-Static sd16 := {12,4,7,6,7,7,5,7,7,8,7,19}
-Static sd17 :=  {9,7, 7, 5,7, 7,7,7,6,8,7,18}
-Static sad17 := {2,9,10,10,8,10,8,8,9,9,8,19}
-Static sd18 :=  {7, 7, 6,7,7,6,7, 7,5,8, 7,21}
-Static sad18 := {8,12,10,8,8,9,8,10,8,9,10,22}
-Static sd19 :=  {7, 7, 6,7,7,6,7, 7,5,8, 7,16}
-Static sad19 := {8,12,10,8,8,9,8,10,8,9,10,17}
+Static sd16 :=  {12, 4, 7, 6,7, 7,5, 7,7,8, 7,19}
+Static sd17 :=  { 9, 7, 7, 5,7, 7,7, 7,6,8, 7,18}
+Static sad17 := { 2, 9,10,10,8,10,8, 8,9,9, 8,19}
+Static sd18 :=  { 7, 7, 6, 7,7, 6,7, 7,5,8, 7,21}
+Static sad18 := { 8,12,10, 8,8, 9,8,10,8,9,10,22}
+Static sd19 :=  { 7, 7, 6, 7,7, 6,7, 7,5,8, 7,16}
+Static sad19 := { 8,12,10, 8,8, 9,8,10,8,9,10,17}
 Local y := arr_m[1], m := arr_m[2]
 b1 := b2 := a1 := a2 := 0
 if y == 2019
@@ -1579,8 +1572,6 @@ elseif y == 2016
   a2 := b2 := sd16[m] 
 endif
 return NIL
-
-*
 
 ***** 22.12.15 Распечатка информации по выставленным счетам, снятиям по ним, оплате и долге
 Function pr1_oborot_schet()
@@ -1688,7 +1679,7 @@ enddo
 restscreen(buf)
 return NIL
 
-***** 27.12.15
+***** 13.02.19
 Function f1pr1_oborot_schet(asmo,ssmo)
 Local adbf, i, n, arr_title, n_file := "oborot1"+stxt, sh, HH := 60, buf := save_maxrow() 
 mywait()
@@ -1706,6 +1697,7 @@ adbf := {{"nschet","C",15,0},;
          {"summa","N",15,2},;
          {"summa1","N",15,2},;
          {"sum_sn","N",15,2},;
+         {"penalty","N",15,2},;
          {"sum_op","N",15,2}}
 dbcreate(cur_dir+"tmp",adbf)
 use (cur_dir+"tmp") new
@@ -1765,6 +1757,7 @@ do while !eof()
   tmp->summa1 := 0
   tmp->sum_sn := 0
   tmp->sum_op := 0
+  tmp->penalty:= 0
   if ascan(asmo,schet_->smo) > 0 .and. schet_->bukva $ m1bukva
     select HUMAN
     find (str(schet->kod,6))
@@ -1788,8 +1781,10 @@ do while !eof()
         find(str(human->kod,7))
         do while raksh->kod_h == human->kod .and. !eof()
           tmp->sum_sn += raksh->SANK_MEK+raksh->SANK_MEE+raksh->SANK_EKMP
+          tmp->penalty += raksh->penalty
           if m1schet == 1 // итого по учреждениям/отделениям
             tmp1->sum_sn += raksh->SANK_MEK+raksh->SANK_MEE+raksh->SANK_EKMP
+            tmp1->penalty += raksh->penalty
           endif
           select RAKSH
           skip
@@ -1836,6 +1831,7 @@ if eq_any(m1schet,0,2)
       tmp1->summa1 += tmp->summa1
       tmp1->sum_sn += tmp->sum_sn
       tmp1->sum_op += tmp->sum_op
+      tmp1->penalty+= tmp->penalty
     endif
     select TMP
     skip
@@ -1893,7 +1889,7 @@ add_string(center("Учреждения/отделения: "+much_otd,sh))
 add_string(center("Типы счетов: "+mbukva,sh))
 add_string(center("["+mpoisk+"] "+pdate[4],sh))
 aeval(arr_title, {|x| add_string(x) } )
-s1 := s2 := s3 := 0
+s1 := s2 := s3 := spenalty := 0
 do case
   case m1schet == 0 // по СМО
     for i := 1 to len(glob_arr_smo)
@@ -1905,6 +1901,10 @@ do case
         s1 += tmp1->summa1
         s2 += tmp1->sum_sn
         s3 += tmp1->sum_op
+        if !empty(tmp1->penalty)
+          add_string(put_kop(tmp1->penalty,n+15+12,2)+"(штраф)")
+          spenalty += tmp1->penalty
+        endif
       endif
     next          
   case m1schet == 1 // по отделениям           
@@ -1928,6 +1928,10 @@ do case
       s1 += tmp1->summa1
       s2 += tmp1->sum_sn
       s3 += tmp1->sum_op
+      if !empty(tmp1->penalty)
+        add_string(put_kop(tmp1->penalty,n+15+12,2)+"(штраф)")
+        spenalty += tmp1->penalty
+      endif
       select TMP1
       skip
     enddo
@@ -1941,6 +1945,10 @@ do case
         s1 += tmp1->summa1
         s2 += tmp1->sum_sn
         s3 += tmp1->sum_op
+        if !empty(tmp1->penalty)
+          add_string(put_kop(tmp1->penalty,n+15+12,2)+"(штраф)")
+          spenalty += tmp1->penalty
+        endif
       endif
     next          
   case m1schet == 3 // по счетам
@@ -1956,6 +1964,10 @@ do case
       s1 += tmp1->summa1
       s2 += tmp1->sum_sn
       s3 += tmp1->sum_op
+      if !empty(tmp1->penalty)
+        add_string(put_kop(tmp1->penalty,n+15+12,2)+"(штраф)")
+        spenalty += tmp1->penalty
+      endif
       select TMP1
       skip
     enddo
@@ -1964,6 +1976,9 @@ add_string(replicate("─",sh))
 add_string(padc("Итого:",n)+put_kop(s1,15,2)+;
                  put_kopE(s2,12,2)+put_kopE(s3,15,2)+;
                  put_kopE(s1-s2-s3,15,2))
+if !empty(spenalty)
+  add_string(put_kop(spenalty,n+15+12,2)+"(штраф)")
+endif
 close databases
 fclose(fp)
 rest_box(buf)  

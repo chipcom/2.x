@@ -177,7 +177,7 @@ if fl
 endif
 return k
 
-***** 20.01.19
+***** 13.02.19
 Function print_l_uch(mkod, par, regim, lnomer)
 // mkod - код больного по БД human
 Local sh := 80, HH := 77, buf := save_maxrow(),;
@@ -501,6 +501,7 @@ if human->bolnich > 0
   endif
   add_string("")
 endif
+print_luch_onk(sh)
 add_string(center("О_К_А_З_А_Н_Ы   У_С_Л_У_Г_И",sh))
 Select HU
 find (str(mkod,7))
@@ -730,6 +731,45 @@ endif
 if !empty(s)
   add_string("")
   add_string(center(" ["+s+"]",sh))
+endif
+return NIL
+
+***** 13.02.19 добовка по онкологии к листу учёта
+Function print_luch_onk(sh)
+Static mm_DS1_T := {{"первичное лечение",0},;  // N019
+                    {"лечение при рецидиве",1},;
+                    {"лечение при прогрессировании",2},;
+                    {"динамическое наблюдение",3},;   
+                    {"диспансерное наблюдение (здоров/ремиссия)",4},;
+                    {"диагностика (без специфического лечения)",5},;
+                    {"симптоматическое лечение",6}}
+Static mm_usl_tip := {{"Хирургическое лечение",1},;
+                      {"Лекарственная противоопухолевая терапия",2},;
+                      {"Лучевая терапия",3},;
+                      {"Химиолучевая терапия",4},;
+                      {"Неспецифическое лечение (катетер, прочее)",5},;
+                      {"Диагностика",6}}
+if f_is_oncology(1) == 2 .and. human_->USL_OK < 3
+  add_string("  Онкология:")
+  R_Use(dir_server+"mo_onksl",dir_server+"mo_onksl","ONKSL") // Сведения о случае лечения онкологического заболевания
+  find (str(human->kod,7))
+  add_string("   Повод обращения: "+inieditspr(A__MENUVERT, mm_DS1_T, onksl->DS1_T))
+  R_Use(dir_server+"mo_onkus",dir_server+"mo_onkus","ONKUS")
+  find (str(human->kod,7))
+  do while onkus->kod == human->kod .and. !eof()
+    if between(onkus->USL_TIP,1,6)
+      add_string("   Проведённое лечение: "+inieditspr(A__MENUVERT, mm_usl_tip, onkus->USL_TIP))
+      if eq_any(onkus->USL_TIP,2,4) .and. !empty(onksl->crit)
+        add_string("    Схема: "+alltrim(onksl->crit)+" "+inieditspr(A__POPUPEDIT,exe_dir+"_mo9shema",onksl->crit))
+      endif
+      if eq_any(onkus->USL_TIP,3,4) 
+        add_string("    Количество фракций: "+lstr(onksl->k_fr))
+      endif
+    endif
+    select ONKUS
+    skip
+  enddo
+  add_string("")
 endif
 return NIL
 
