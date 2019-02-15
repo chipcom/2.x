@@ -477,7 +477,7 @@ if i > 0
 endif
 return NIL
 
-***** 05.02.19 прочитать и "разнести" по базам данных реестр СП и ТК
+***** 15.02.19 прочитать и "разнести" по базам данных реестр СП и ТК
 Function read_XML_FILE_SP(arr_XML_info,aerr,/*@*/current_i2)
 Local count_in_schet := 0, mnschet, bSaveHandler, ii1, ii2, i, k, t_arr[2],;
       ldate_sptk, s, fl_589, mANSREESTR
@@ -521,6 +521,7 @@ if empty(aerr) .and. !extract_reestr(rees->(recno()),rees->name_xml)
   aadd(aerr,center("Без данного архива дальнейшая работа НЕВОЗМОЖНА!",80))
 endif
 if empty(aerr)
+  R_Use(dir_server+"human_3",{dir_server+"human_3",dir_server+"human_32"},"HUMAN_3")
   R_Use(dir_server+"human",,"HUMAN")
   R_Use(dir_server+"human_",,"HUMAN_")
   R_Use(dir_server+"mo_rhum",,"RHUM")
@@ -545,6 +546,15 @@ if empty(aerr)
     if found()
       human_->(dbGoto(rhum->KOD_HUM))
       human->(dbGoto(rhum->KOD_HUM))
+      if human->ishod == 89 // это 2-ой случай в двойном случае
+        select HUMAN_3
+        set order to 2
+        find (str(rhum->KOD_HUM,7))
+        if found()
+          human_->(dbGoto(human_3->kod))   // встать на 1-ый случай
+          human->(dbGoto(human_3->kod))    // т.к. GUID'ы в реестре из 1-го случая
+        endif
+      endif
       tmp2->fio := human->fio
       if rhum->OPLATA > 0
         aadd(aerr,"Пациент с REES_ZAP="+lstr(rhum->REES_ZAP)+" был прочитан в предыдущем реестре СП и ТК")
@@ -579,6 +589,7 @@ if empty(aerr)
       if ii1 > 0 // были пациенты без ошибок
         index_base("schet") // для составления счетов
         index_base("human") // для разноски счетов
+        index_base("human_3") // для разноски счетов
         use (dir_server+"human_u") new READONLY
         index on str(kod,7)+date_u to (dir_server+"human_u") progress
         use
@@ -664,6 +675,7 @@ if empty(aerr)
     G_Use(dir_server+"human",{dir_server+"humann",dir_server+"humans"},"HUMAN")
     set order to 0 // индексы открыты для реконструкции при перезаписи ФИО
     set relation to recno() into HUMAN_, to otd into OTD
+    G_Use(dir_server+"human_3",{dir_server+"human_3",dir_server+"human_32"},"HUMAN_3")
     G_Use(dir_server+"mo_rhum",,"RHUM")
     index on str(REES_ZAP,6) to (cur_dir+"tmp_rhum") for reestr == mkod_reestr
     use (cur_dir+"tmp3file") new alias TMP3
@@ -690,6 +702,29 @@ if empty(aerr)
       G_RLock(forever)
       rhum->OPLATA := tmp2->_OPLATA
       tmp2->kod_human := rhum->KOD_HUM
+      select HUMAN
+      goto (rhum->KOD_HUM)
+      if eq_any(human->ishod,88,89)
+        select HUMAN_3
+        if human->ishod == 88
+          set order to 1
+        else
+          set order to 2
+        endif
+        find (str(rhum->KOD_HUM,7))
+        if found() // если нашли двойной случай
+          select HUMAN
+          if human->ishod == 88  // если реестр составлен по 1-му листу
+            goto (human_3->kod2)  // встать на 2-ой
+          else
+            goto (human_3->kod)   // иначе - на 1-ый
+          endif
+          human_->(G_RLock(forever))
+          human_->OPLATA := tmp2->_OPLATA
+          human_3->(G_RLock(forever))
+          human_3->OPLATA := tmp2->_OPLATA
+        endif
+      endif
       select HUMAN
       goto (rhum->KOD_HUM)
       G_RLock(forever)

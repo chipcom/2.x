@@ -1501,7 +1501,7 @@ return ret
 
 *===============================================================================
 
-***** 06.02.19
+***** 14.02.19
 Function create1reestr19(_recno,_nyear,_nmonth)
 Local buf := savescreen(), s, i, j, pole
 Private mpz[100], oldpz[100], atip[100]
@@ -1517,6 +1517,7 @@ Private pkol := tmp->kol, psumma := tmp->summa, pnyear := _nyear
 Private old_kol := pkol, old_summa := psumma, p_blk := {|mkol,msum| f_blk_create1reestr19(_nyear) }
 close databases
 R_Use(dir_server+"human_3",{dir_server+"human_3",dir_server+"human_32"},"HUMAN_3")
+set order to 2
 R_Use(dir_server+"human_",,"HUMAN_")
 R_Use(dir_server+"human",,"HUMAN")
 set relation to recno() into HUMAN_
@@ -1588,7 +1589,7 @@ Local oColumn, tmp_color, blk_color := {|| if(tmp->plus, {1,2}, {3,4}) }, n := 3
 oColumn := TBColumnNew(" ", {|| if(tmp->plus,""," ") })
 oColumn:colorBlock := blk_color
 oBrow:addColumn(oColumn)
-oColumn := TBColumnNew(center("Ф.И.О. больного",n), {|| iif(tmp->ishod==88,padr(human->fio,n-4)+" 2сл",padr(human->fio,n)) })
+oColumn := TBColumnNew(center("Ф.И.О. больного",n), {|| iif(tmp->ishod==89,padr(human->fio,n-4)+" 2сл",padr(human->fio,n)) })
 oColumn:colorBlock := blk_color
 oBrow:addColumn(oColumn)
 oColumn := TBColumnNew("План-заказ", {|| padc(f_p_z19(tmp->pzkol,tmp->pz,1),10) })
@@ -1705,7 +1706,7 @@ do case
 endcase
 return k
 
-***** 05.02.19 создание XML-файлов реестра
+***** 15.02.19 создание XML-файлов реестра
 Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
 Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, ;
       lst, lshifr1, code_reestr, mb, me, nsh
@@ -1823,6 +1824,7 @@ R_Use(dir_server+"mo_onkpr",dir_server+"mo_onkpr","ONKPR") // Сведения об имеющи
 G_Use(dir_server+"mo_onkus",dir_server+"mo_onkus","ONKUS")
 G_Use(dir_server+"mo_onkle",dir_server+"mo_onkle","ONKLE")
 G_Use(dir_server+"human_3",{dir_server+"human_3",dir_server+"human_32"},"HUMAN_3")
+set order to 2 // индекс по 2-му случаю
 G_Use(dir_server+"human_2",,"HUMAN_2")
 G_Use(dir_server+"human_",,"HUMAN_")
 R_Use(dir_server+"human",,"HUMAN")
@@ -1853,7 +1855,7 @@ do while !eof()
   endif
   human_->REESTR := mkod_reestr
   human_->REES_ZAP := pkol
-  if tmpb->ishod == 88
+  if tmpb->ishod == 89  // 2-й случай
     select HUMAN_3
     find (str(tmpb->kod_human,7))
     if found()
@@ -1865,7 +1867,7 @@ do while !eof()
       human_3->REES_ZAP := pkol
       //
       select HUMAN
-      goto (human_3->kod2)
+      goto (human_3->kod)  // встать на 1-й случай
       human_->(G_RLock(forever))
       psumma += human->cena_1
       if human_->REES_NUM < 99
@@ -1939,12 +1941,14 @@ do while !eof()
   arr_nazn := {}
   //
   select HUMAN
-  goto (rhum->kod_hum)  // встали на 1-ый лист учёта
-  kol_sl := iif(human->ishod == 88, 2, 1)
+  goto (rhum->kod_hum)  // встали на 2-ой лист учёта
+  kol_sl := iif(human->ishod == 89, 2, 1)
   for isl := 1 to kol_sl
     if isl == 1 .and. kol_sl == 2
       select HUMAN_3
       find (str(rhum->kod_hum,7))
+      select HUMAN
+      goto (human_3->kod)  // встали на 1-й лист учёта
     endif
     if isl == 2
       select HUMAN
@@ -2341,7 +2345,7 @@ do while !eof()
           select ONKUS
           find (str(human->kod,7))
           do while onkus->kod == human->kod .and. !eof()
-            if between(onkus->USL_TIP,1,6)
+            if between(onkus->USL_TIP,1,5)
             oONK := oONK_SL:Add( HXMLNode():New( "ONK_USL" ) )
              mo_add_xml_stroke(oONK,"USL_TIP",lstr(onkus->USL_TIP))
              if onkus->USL_TIP == 1
@@ -2373,7 +2377,7 @@ do while !eof()
               if onkus->PPTR > 0   
                mo_add_xml_stroke(oONK,"PPTR",'1')
               endif
-             endif 
+            endif 
            endif
            select ONKUS
            skip 	
@@ -2664,6 +2668,13 @@ do while !eof()
   @ maxrow(),0 say str(rhum->REES_ZAP/pkol*100,6,2)+"%" color cColorSt2Msg
   select HUMAN
   goto (rhum->kod_hum)  // встали на 1-ый лист учёта
+  if human->ishod == 89  // а это не 1-ый, а 2-ой л/у
+    select HUMAN_3
+    set order to 2
+    find (str(rhum->kod_hum,7))
+    select HUMAN
+    goto (human_3->kod)  // встали на 1-й лист учёта
+  endif
   arr_fio := retFamImOt(2,.f.)
   oPAC := oXmlDoc:aItems[1]:Add( HXMLNode():New( "PERS" ) )
   mo_add_xml_stroke(oPAC,"ID_PAC" ,human_->ID_PAC)
@@ -2747,7 +2758,7 @@ if chip_create_zipXML(name_zip,arr_zip,.t.)
 endif
 return NIL
 
-***** 05.02.19 создать счета по результатам прочитанного реестра СП
+***** 15.02.19 создать счета по результатам прочитанного реестра СП
 Function create_schet19_from_XML(arr_XML_info,aerr,fl_msg,arr_s,name_sp_tk)
 Local arr_schet := {}, c, len_stand, _arr_stand, lshifr, i, j, k, lbukva,;
       doplataF, doplataR, mnn, fl, name_zip, arr_zip := {}, lshifr1,;
@@ -2798,8 +2809,14 @@ do while !eof()
   dbSelectArea(lal)
   goto (tmp2->kod_human)
   if human->ishod == 88
-    lal := "HUMAN_3"
+    lal += "_3"
     dbSelectArea(lal)
+    set order to 1
+    find (str(tmp2->kod_human,7))
+  elseif human->ishod == 89
+    lal += "_3"
+    dbSelectArea(lal)
+    set order to 2
     find (str(tmp2->kod_human,7))
   endif
   select HU
@@ -3082,8 +3099,16 @@ for ii := 1 to len(arr_schet)
     if found() // нашли в отосланном реестре
      kol_sl := iif(int(val(t1->VB_P)) == 1, 2, 1)
      for isl := 1 to kol_sl
+      select HUMAN
+      goto (tmp2->kod_human)
       if isl == 1 .and. kol_sl == 2
+        fl := .f.
         select HUMAN_3
+        if human->ishod == 88
+          set order to 1
+        else
+          set order to 2
+        endif
         find (str(tmp2->kod_human,7))
         human_3->(G_RLock(forever))
         human_3->schet := mkod
@@ -3092,11 +3117,11 @@ for ii := 1 to len(arr_schet)
           human_3->SCHET_NUM := human_3->SCHET_NUM + 1
         endif
         UnLock
+        select HUMAN
+        goto (human_3->kod)  // встали на 1-й лист учёта
       endif
       select HUMAN
-      if isl == 1
-        goto (tmp2->kod_human)
-      else
+      if isl == 2
         goto (human_3->kod2)  // встали на 2-ой лист учёта
       endif
       human->(G_RLock(forever))

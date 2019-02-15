@@ -1227,7 +1227,7 @@ else
 endif
 return i
 
-***** 13.02.19 Акты сверки по СМО
+***** 14.02.19 Акты сверки по СМО
 Function akt_sverki_smo()
 Static sitog := {;
   "2. Общая сумма средств на оплату по зарег.счетам за месяц",;
@@ -1313,19 +1313,20 @@ do while !eof()
       s := raks->SANK_MEK+raks->SANK_MEE+raks->SANK_EKMP
       if !emptyall(s,raks->PENALTY)
         is_smp[ltip] := .t.
-        aitog[ltip,2] += s
         if vid_eks == 2 .or. !empty(raks->SANK_EKMP)
+          s := f1akt_sverki_smo(5,s,hitog)
           aitog[ltip,5] += s
-          f1akt_sverki_smo(5,s,hitog)
         elseif vid_eks == 1 .or. !empty(raks->SANK_MEE)
+          s := f1akt_sverki_smo(5,s,hitog)
           aitog[ltip,4] += s
-          f1akt_sverki_smo(4,s,hitog)
         else
+          s := f1akt_sverki_smo(3,s,hitog)
           aitog[ltip,3] += s
-          f1akt_sverki_smo(3,s,hitog)
         endif
-        aitog[ltip,7] += raks->PENALTY
-        f1akt_sverki_smo(7,raks->PENALTY,hitog)
+        aitog[ltip,2] += s
+        //
+        s := f1akt_sverki_smo(7,raks->PENALTY,hitog)
+        aitog[ltip,7] += s
       endif
       select RAKS
       skip
@@ -1489,19 +1490,11 @@ rest_box(buf)
 viewtext(name_file+stxt,,,,.t.,,,2)
 return NIL
 
-***** 13.02.19
+***** 14.02.19
 Function f1akt_sverki_smo(k,s,hitog)
 Local i, s1
 if !empty(s)
-  select TMP
-  append blank
-  tmp->tip := ltip
-  tmp->nomer := k
-  tmp->ndoc := rak->NAKT
-  tmp->ddoc := rak->DAKT
-  tmp->nsch := schet_->NSCHET
-  tmp->dsch := schet_->DSCHET
-  tmp->summa := s
+  s := 0 // обнуляем, т.к. в РАК на уровне счёта м.б. ошибка
   select RAKSH
   find (str(raks->kod_raks,6))
   do while raks->kod_raks == raksh->kod_raks .and. !eof()
@@ -1519,12 +1512,24 @@ if !empty(s)
       endif
       hitog[ltip,k,i,2] += s1
       hitog[ltip,k,i,3] ++
+      s += s1
     endif
     select RAKSH
     skip
   enddo
+  if !empty(s)
+    select TMP
+    append blank
+    tmp->tip := ltip
+    tmp->nomer := k
+    tmp->ndoc := rak->NAKT
+    tmp->ddoc := rak->DAKT
+    tmp->nsch := schet_->NSCHET
+    tmp->dsch := schet_->DSCHET
+    tmp->summa := s
+  endif
 endif
-return NIL
+return s
 
 ***** 24.01.2019 график регистрации счетов, включаемых в акт сверки на 2018 год
 *****            в соответствии с письмом ТФОМС от 04.12.2018г. №03-30/304

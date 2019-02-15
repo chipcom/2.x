@@ -1214,7 +1214,7 @@ next
 select (tmp_select)
 return NIL
 
-***** 11.01.19
+***** 15.02.19
 Function rak_akt_schet_human_add_next(s,s1,lrec)
 Local i, arr1, arr2, mkod, buf := save_maxrow()
 glob_perso := raksh->kod_h
@@ -1233,6 +1233,12 @@ if f_alert(arr1,arr2,1,"N+/G*","N/G*",13,,"N/G*") == 2
     use_base("human")
     set relation to // "отвязываем"
     goto (glob_perso)
+    if eq_any(human->ishod,88,89)
+      func_error(10,"Это двойной лист учёта. Свяжитесь с разработчиками!!!")
+      close databases
+      rest_box(buf)
+      return NIL
+    endif
     ahuman := get_field()
     select HUMAN_
     goto (glob_perso)
