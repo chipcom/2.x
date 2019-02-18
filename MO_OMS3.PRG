@@ -399,7 +399,7 @@ if (arr_m := year_month(T_ROW,T_COL+5,,3)) != NIL
 endif  
 return ret
 
-***** 08.02.19 работаем по текущей записи
+***** 18.02.19 работаем по текущей записи
 Function f1_create2reestr19(_nyear,_nmonth)
 Local i, j, lst, s
 fl_DISABILITY := is_zak_sl := is_zak_sl_vr := .f.
@@ -467,14 +467,16 @@ if eq_any(onksl->b_diag,0,7,8) .and. ascan(arr_onkpr,{|x| x[1] == onksl->b_diag 
 endif
 //
 arr_onk_usl := {}
-select ONKUS
-find (str(human->kod,7))
-do while onkus->kod == human->kod .and. !eof()
-  if between(onkus->USL_TIP,1,6)
-    aadd(arr_onk_usl,onkus->USL_TIP)
-  endif
-  skip
-enddo
+if eq_any(onksl->b_diag,98,99)
+  select ONKUS
+  find (str(human->kod,7))
+  do while onkus->kod == human->kod .and. !eof()
+    if between(onkus->USL_TIP,1,5)
+      aadd(arr_onk_usl,onkus->USL_TIP)
+    endif
+    skip
+  enddo
+endif  
 //
 arr_t21 := {}
 select HU

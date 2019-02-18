@@ -1470,9 +1470,7 @@ close databases
 viewtext(n_file,,,,(sh > 80),,,reg_print)
 return NIL
 
-*
-
-***** 15.04.18 ¬­®£®¢ à¨ ­â­ë© ¯®¨áª
+***** 18.02.19 ¬­®£®¢ à¨ ­â­ë© ¯®¨áª
 Function s_mnog_poisk()
 Static mm_rak := {;
   {"¢á¥ á«ãç ¨",0},;
@@ -1541,7 +1539,8 @@ Private arr_doc := {"„ â  à®¦¤.",;
                     "‘ç¥â",;
                     "€Š",;
                     "‹¥ç.¢à ç",;
-                    "“á«ã£¨"}
+                    "“á«ã£¨",;
+                    "„®¯.ªà¨â¥à¨©"}
 if yes_parol
   aadd(arr_doc, "„ â  ¢¢®¤ ")
 endif
@@ -2257,8 +2256,14 @@ if k > 0
       arr_title[3] += "³     ‘¯¨á®ª ãá«ã£      "
       arr_title[4] += "ÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ"
     endif
+    if isbit(mn->vid_doc,9)
+      arr_title[1] += "ÂÄÄÄÄÄÄÄÄ"
+      arr_title[2] += "³„®¯®«­¨â"
+      arr_title[3] += "³ªà¨â¥à¨©"
+      arr_title[4] += "ÁÄÄÄÄÄÄÄÄ"
+    endif
     if yes_parol
-      if isbit(mn->vid_doc,9)
+      if isbit(mn->vid_doc,10)
         arr_title[1] += "ÂÄÄÄÄÄÄÄÄÄÄ"
         arr_title[2] += "³„ â  ¢¢®¤ "
         arr_title[3] += "³¨ ®¯¥à â®à"
@@ -2284,9 +2289,11 @@ if k > 0
     R_Use(dir_server+"kartote_",,"KART_")
     R_Use(dir_server+"kartotek",,"KART")
     set relation to recno() into KART_, to recno() into KART2
+    R_Use(dir_server+"mo_onksl",dir_server+"mo_onksl","ONKSL") // ‘¢¥¤¥­¨ï ® á«ãç ¥ «¥ç¥­¨ï ®­ª®«®£¨ç¥áª®£® § ¡®«¥¢ ­¨ï
+    R_Use(dir_server+"human_2",,"HUMAN_2")
     R_Use(dir_server+"human_",,"HUMAN_")
     R_Use(dir_server+"human",dir_server+"humank","HUMAN")
-    set relation to recno() into HUMAN_
+    set relation to recno() into HUMAN_, to recno() into HUMAN_2
     fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
     add_string("")
     add_string(center(expand("…‡“‹œ’€’ ŒŽƒŽ‚€ˆ€’ŽƒŽ Žˆ‘Š€"),sh))
@@ -2599,6 +2606,9 @@ if k > 0
       if verify_FF(HH,.t.,sh)
         aeval(arr_title, {|x| add_string(x) } )
       endif
+      select ONKSL
+      find (str(human->kod,7))
+      is_oncology := f_is_oncology(1) 
       k_diagnoz := k_usl := 0
       afill(tt_diagnoz,"") ; afill(tt_usl,"")
       s1 := left(human->fio,40)
@@ -2810,8 +2820,24 @@ if k > 0
         endif
       endif
       //
+      if isbit(mn->vid_doc,9)
+        afill(a_diagnoz,"") ; i := 0
+        if !empty(human_2->pc3) .and. !left(human_2->pc3,1) == '6' // ªà®¬¥ "áâ à®áâ¨"
+          a_diagnoz[++i] := human_2->pc3
+        elseif is_oncology  == 2
+          if !empty(onksl->crit)
+            a_diagnoz[++i] := onksl->crit
+          endif
+          if !empty(onksl->crit2)
+            a_diagnoz[++i] := onksl->crit2  // ¢â®à®© ªà¨â¥à¨©
+          endif
+        endif
+        s1 += " "+padc(a_diagnoz[1],8)
+        s2 += " "+padc(a_diagnoz[2],8)
+        s3 += " "+padc(a_diagnoz[3],8)
+      endif
       if yes_parol
-        if isbit(mn->vid_doc,9)
+        if isbit(mn->vid_doc,10)
           s1 += " "+date_8(c4tod(human->date_e))+"£."
           if asc(human->kod_p) > 0
             select BASE1

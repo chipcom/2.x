@@ -1946,7 +1946,7 @@ if k > 10
 endif
 return NIL
 
-***** 05.02.19
+***** 18.02.19
 Function pz1statist(par,par2)
 Static _su := 2
 Local buf := savescreen(), fl_exit := .f., fl := .t., a_otd := {},;
@@ -2020,7 +2020,7 @@ if !fl
   return NIL
 endif
 _su := su
-if par == 2 .and. eq_any(su,1,2,5) 
+if between(par,2,3) .and. eq_any(su,1,2,5) 
   if arr_m[1] > 2018
     R_Use(dir_exe+"_mo9unit",,"MOUNIT")
     index on str(ii,3) to (cur_dir+"tmp_unitii")
