@@ -1649,15 +1649,16 @@ if is_oncology == 2 // онкология
     arr_onkdi0 := {}
     arr_onkdi1 := {}
     arr_onkdi2 := {}
-    ngist := nimmun := 0
+    ngist := nimmun := 0 ; fl_krit_date := .f.
     select ONKDI
     find (str(human->kod,7))
     if found()
       if empty(onkdi->DIAG_DATE)
         aadd(arr_onkdi0, .f.)
       else
-        if onkdi->DIAG_DATE < 0d20180901 
-          aadd(ta,"Дата взятия материала "+full_date(onkdi->DIAG_DATE)+"г. меньше КРИТИЧЕСКОЙ даты")
+        if onkdi->DIAG_DATE < 0d20180901
+          fl_krit_date := .t.
+          //aadd(ta,"Дата взятия материала "+full_date(onkdi->DIAG_DATE)+"г. меньше КРИТИЧЕСКОЙ даты")
         endif
       endif
       do while onkdi->kod == human->kod .and. !eof()
@@ -1675,21 +1676,34 @@ if is_oncology == 2 // онкология
         skip
       enddo
     endif
-    if len(arr_onkdi0) > 0
-      aadd(ta,"не заполннена дата взятия материала")
-    endif
-    if len(arr_onkdi1) != len(ar_N009)
-      aadd(ta,"ошибки заполнения таблицы гистологий")
-    endif
-    if len(arr_onkdi2) != len(ar_N012)
-      aadd(ta,"ошибки заполнения таблицы иммуногистохимий")
-    endif
-    if onksl->b_diag == 98
-      if ngist != len(ar_N009)
-        aadd(ta,"не все гистологии заполнены")
+    if fl_krit_date // выполнено (до 1 сентября 2018 года)
+      select ONKDI // при составлении реестра блок B_DIAG не заполняется
+      do while .t.
+        find (str(human->kod,7))
+        if !found() ; exit ; endif
+        DeleteRec(.t.)
+      enddo
+      select ONKSL
+      G_RLock(forever)
+      onksl->b_diag := -1
+      UnLock
+    else
+      if len(arr_onkdi0) > 0
+        aadd(ta,"не заполннена дата взятия материала")
       endif
-      if nimmun != len(ar_N012)
-        aadd(ta,"не все иммуногистохимии заполнены")
+      if len(arr_onkdi1) != len(ar_N009)
+        aadd(ta,"ошибки заполнения таблицы гистологий")
+      endif
+      if len(arr_onkdi2) != len(ar_N012)
+        aadd(ta,"ошибки заполнения таблицы иммуногистохимий")
+      endif
+      if onksl->b_diag == 98
+        if ngist != len(ar_N009)
+          aadd(ta,"не все гистологии заполнены")
+        endif
+        if nimmun != len(ar_N012)
+          aadd(ta,"не все иммуногистохимии заполнены")
+        endif
       endif
     endif
   endif

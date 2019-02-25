@@ -477,7 +477,7 @@ if i > 0
 endif
 return NIL
 
-***** 15.02.19 прочитать и "разнести" по базам данных реестр СП и ТК
+***** 22.02.19 прочитать и "разнести" по базам данных реестр СП и ТК
 Function read_XML_FILE_SP(arr_XML_info,aerr,/*@*/current_i2)
 Local count_in_schet := 0, mnschet, bSaveHandler, ii1, ii2, i, k, t_arr[2],;
       ldate_sptk, s, fl_589, mANSREESTR
@@ -589,7 +589,7 @@ if empty(aerr)
       if ii1 > 0 // были пациенты без ошибок
         index_base("schet") // для составления счетов
         index_base("human") // для разноски счетов
-        index_base("human_3") // для разноски счетов
+        index_base("human_3") // двойные случаи
         use (dir_server+"human_u") new READONLY
         index on str(kod,7)+date_u to (dir_server+"human_u") progress
         use
@@ -702,14 +702,17 @@ if empty(aerr)
       G_RLock(forever)
       rhum->OPLATA := tmp2->_OPLATA
       tmp2->kod_human := rhum->KOD_HUM
+      is_2 := 0
       select HUMAN
       goto (rhum->KOD_HUM)
       if eq_any(human->ishod,88,89)
         select HUMAN_3
         if human->ishod == 88
           set order to 1
+          is_2 := 1
         else
           set order to 2
+          is_2 := 2
         endif
         find (str(rhum->KOD_HUM,7))
         if found() // если нашли двойной случай
@@ -721,8 +724,13 @@ if empty(aerr)
           endif
           human_->(G_RLock(forever))
           human_->OPLATA := tmp2->_OPLATA
+          if tmp2->_OPLATA > 1 .and. !p_ctrl_enter_sp_tk
+            human_->REESTR := 0 // направляется на дальнейшее редактирование
+            human_->ST_VERIFY := 0 // снова ещё не проверен
+          endif
           human_3->(G_RLock(forever))
           human_3->OPLATA := tmp2->_OPLATA
+          human_3->REESTR := 0
         endif
       endif
       select HUMAN
@@ -778,12 +786,16 @@ if empty(aerr)
             strfile(space(10)+"Список случаев с ошибками"+hb_eol()+hb_eol(),cFileProtokol,.t.)
           endif
           ++current_i2
+          lal := "human"
+          if is_2 > 0
+            lal += "_3"
+          endif
           strfile(lstr(current_i2)+". "+alltrim(human->fio)+", "+;
                        full_date(human->date_r)+;
                        iif(empty(otd->SHORT_NAME), "", " ["+alltrim(otd->SHORT_NAME)+"]")+;
                        " "+alltrim(human->KOD_DIAG)+;
-                       " "+date_8(human->n_data)+"-"+;
-                       date_8(human->k_data)+hb_eol(),cFileProtokol,.t.)
+                       " "+date_8(&lal.->n_data)+"-"+;
+                       date_8(&lal.->k_data)+hb_eol(),cFileProtokol,.t.)
           // изменение ФИО
           if !emptyall(tmp2->CORRECT,tmp2->_FAM,tmp2->_IM,tmp2->_OT,tmp2->_DR)
             arr_fio := retFamImOt(2,.f.,.t.)
@@ -915,6 +927,14 @@ if empty(aerr)
             select TMP3
             skip
           enddo
+          if is_2 > 0
+            strfile(space(5)+'- разбейте двойной случай в режиме "ОМС/Двойные случаи/Разделить"'+;
+                    hb_eol(),cFileProtokol,.t.)
+            strfile(space(5)+'- отредактируйте каждый из случаев в режиме "ОМС/Редактирование"'+;
+                    hb_eol(),cFileProtokol,.t.)
+            strfile(space(5)+'- снова соберите случай в режиме "ОМС/Двойные случаи/Создать"'+;
+                    hb_eol(),cFileProtokol,.t.)
+          endif
         endif
       endif
       UnLock ALL

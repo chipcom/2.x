@@ -11,11 +11,11 @@ Local mas_pmt, mas_msg, mas_fun, j
 DEFAULT k TO 0
 do case
   case k == 0 
-    mas_pmt := {"~Добавление",;
-                "~Просмотр",;
-                "~Удаление"}
+    mas_pmt := {"~Собрать двойной случай",;
+                "Список ~двойных случаев",;
+                "~Разделить двойной случай"}
     mas_msg := {"Добавление двойного случая (составить из двух случаев один двойной)",;
-                "Просмотр двойных случаев",;
+                "Просмотр списка двойных случаев",;
                 "Удаление двойного случая (снова разделить двойной случай на два отдельных)"}
     mas_fun := {"oms_double(1)",;
                 "oms_double(2)",;
@@ -298,7 +298,9 @@ return NIL
 
 ***** 05.02.19 просмотр двойных случаев
 Function view_double_sl()
-input_double_sl(1)
+if (k := input_double_sl(1)) != NIL
+
+endif 
 return NIL
 
 ***** 05.02.19 снова разделить два случая
@@ -387,7 +389,7 @@ if (arr_m := year_month(T_ROW,T_COL+5,,3)) != NIL
     t_arr[BR_COLUMN] := {{ center("ФИО",42), {|| padr(human->fio,42) },blk },;
                          { "  Сроки лечения",{|| date_8(human_3->N_DATA)+"-"+date_8(human_3->K_DATA) },blk },;
                          { "   Сумма",{|| put_kop(human_3->CENA_1,11) },blk }}
-    t_arr[BR_STAT_MSG] := {|| status_key("^<Esc>^ - выход"+iif(par==2,";  ^<Enter>^ - выбор двойного случая для расформирования","")) }
+    t_arr[BR_STAT_MSG] := {|| status_key("^<Esc>^ - выход;  ^<Enter>^ - выбор двойного случая для "+iif(par==2,"расформирования","просмотра")) }
     t_arr[BR_ENTER] := {|| ret := {human_3->kod,human->fio} }
     edit_browse(t_arr)
     if valtype(ret) == "A"

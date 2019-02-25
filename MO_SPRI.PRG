@@ -2869,11 +2869,9 @@ Public is_r_mu := .f.
 Public gpath_reg := "" // путь к файлам R_MU.DBF
 return NIL
 
-*
-
-***** 05.02.19 удалить счет(а) по одному реестру СП и ТК и по этим людям создать заново счета (м.б.другое кол-во счетов)
+***** 24.02.19 удалить счет(а) по одному реестру СП и ТК и по этим людям создать заново счета (м.б.другое кол-во счетов)
 Function ReCreate_some_Schet_From_FILE_SP(arr)
-Local arr_XML_info[8], cFile, arr_f, n, oXmlDoc, aerr := {},;
+Local arr_XML_info[8], cFile, arr_f, k, n, oXmlDoc, aerr := {}, t_arr[2],;
       i, s, rec_schet, rec_schet_xml, go_to_schet := .f., arr_schet := {}
 Private name_schet, _date_schet, mXML_REESTR
 for i := 1 to len(arr)
@@ -2930,13 +2928,14 @@ if G_SLock1Task(sem_task,sem_vagno) // запрет доступа всем
     Private fl_open := .t.
     index_base("schet") // для составления счетов
     index_base("human") // для разноски счетов
-    // для определения модернизации по законченным случаям (один индекс)
+    index_base("human_3") // двойные случаи
     use (dir_server+"human_u") new READONLY
     index on str(kod,7)+date_u to (dir_server+"human_u") progress
     use
     Use (dir_server+"mo_hu") new READONLY
     index on str(kod,7)+date_u to (dir_server+"mo_hu") progress
     Use
+    index_base("mo_refr")  // для записи причин отказов
     //
     mywait()
     strfile(hb_eol()+;
@@ -3006,6 +3005,7 @@ if G_SLock1Task(sem_task,sem_vagno) // запрет доступа всем
       use (cur_dir+"tmp_r_t11") new alias T11
       index on IDCASE to (cur_dir+"tmpt11")
       use (cur_dir+"tmp2file") new alias TMP2
+      is_new_err := .f.  // ушли ли какие-либо случаи в ошибки (т.е. новые ошибки) 
       go top
       do while !eof()
         if tmp2->_OPLATA == 1
@@ -3028,6 +3028,9 @@ if G_SLock1Task(sem_task,sem_vagno) // запрет доступа всем
           find (str(rhum->KOD_HUM,7))
           if found()
             tmp2->kod_human := rhum->KOD_HUM
+            if tmp2->_OPLATA > 1
+              is_new_err := .t. // т.е. в новом реестре СП и ТК человек ушёл в ошибки (а раньше попадал в счёт)
+            endif
           endif
         else
           aadd(aerr,"")
@@ -3041,6 +3044,146 @@ if G_SLock1Task(sem_task,sem_vagno) // запрет доступа всем
       pack
     endif
     close databases
+    if empty(aerr) .and. is_new_err
+      R_Use(dir_server+"mo_otd",,"OTD")
+      G_Use(dir_server+"human_",,"HUMAN_")
+      G_Use(dir_server+"human",{dir_server+"humann",dir_server+"humans"},"HUMAN")
+      set order to 0 // индексы открыты для реконструкции при перезаписи ФИО
+      set relation to recno() into HUMAN_, to otd into OTD
+      G_Use(dir_server+"human_3",{dir_server+"human_3",dir_server+"human_32"},"HUMAN_3")
+      G_Use(dir_server+"mo_rhum",,"RHUM")
+      index on str(REES_ZAP,6) to (cur_dir+"tmp_rhum") for reestr == mkod_reestr
+      G_Use(dir_server+"mo_refr",dir_server+"mo_refr","REFR")
+      use (cur_dir+"tmp3file") new alias TMP3
+      index on str(_n_zap,8) to (cur_dir+"tmp3")
+      use (cur_dir+"tmp2file") new alias TMP2
+      go top
+      do while !eof()
+        if tmp2->_OPLATA > 1 // удаляем из счёта, удаляем из реестра, оформляем ошибку
+          select RHUM
+          find (str(tmp2->_N_ZAP,6))
+          G_RLock(forever)
+          rhum->OPLATA := tmp2->_OPLATA
+          is_2 := 0
+          select HUMAN
+          goto (rhum->KOD_HUM)
+          if eq_any(human->ishod,88,89)
+            select HUMAN_3
+            if human->ishod == 88
+              set order to 1
+              is_2 := 1
+            else
+              set order to 2
+              is_2 := 2
+            endif
+            find (str(rhum->KOD_HUM,7))
+            if found() // если нашли двойной случай
+              select HUMAN
+              if human->ishod == 88  // если реестр составлен по 1-му листу
+                goto (human_3->kod2)  // встать на 2-ой
+              else
+                goto (human_3->kod)   // иначе - на 1-ый
+              endif
+              human->(G_RLock(forever))
+              human->schet := 0 ; human->tip_h := B_STANDART
+              //
+              human_->(G_RLock(forever))
+              human_->OPLATA := tmp2->_OPLATA
+              human_->REESTR := 0 // направляется на дальнейшее редактирование
+              human_->ST_VERIFY := 0 // снова ещё не проверен
+              if human_->REES_NUM > 0
+                human_->REES_NUM := human_->REES_NUM-1
+              endif
+              human_->REES_ZAP := 0
+              if human_->schet_zap > 0
+                if human_->SCHET_NUM > 0
+                  human_->SCHET_NUM := human_->SCHET_NUM-1
+                endif
+                human_->schet_zap := 0
+              endif
+              //
+              human_3->(G_RLock(forever))
+              human_3->OPLATA := tmp2->_OPLATA
+              human_3->schet := 0
+              human_3->REESTR := 0
+              if human_3->REES_NUM > 0
+                human_3->REES_NUM := human_3->REES_NUM-1
+              endif
+              human_3->REES_ZAP := 0
+              if human_3->SCHET_NUM > 0
+                human_3->SCHET_NUM := human_3->SCHET_NUM - 1
+              endif
+              human_3->schet_zap := 0
+            endif
+          endif
+          select HUMAN
+          goto (rhum->KOD_HUM)
+          G_RLock(forever)
+          human->schet := 0 ; human->tip_h := B_STANDART
+          human_->(G_RLock(forever))
+          human_->OPLATA := tmp2->_OPLATA
+          human_->REESTR := 0 // а направляется на дальнейшее редактирование
+          human_->ST_VERIFY := 0 // снова ещё не проверен
+          if human_->REES_NUM > 0
+            human_->REES_NUM := human_->REES_NUM-1
+          endif
+          human_->REES_ZAP := 0
+          if human_->SCHET_NUM > 0
+            human_->SCHET_NUM := human_->SCHET_NUM-1
+          endif
+          human_->schet_zap := 0
+          //
+          lal := "human"
+          if is_2 > 0
+            lal += "_3"
+          endif
+          strfile("!!! "+alltrim(human->fio)+", "+full_date(human->date_r)+;
+                       iif(empty(otd->SHORT_NAME), "", " ["+alltrim(otd->SHORT_NAME)+"]")+;
+                       " "+alltrim(human->KOD_DIAG)+;
+                       " "+date_8(&lal.->n_data)+"-"+date_8(&lal.->k_data)+;
+                       hb_eol(),cFileProtokol,.t.)
+          select REFR
+          do while .t.
+            find (str(1,1)+str(mkod_reestr,6)+str(1,1)+str(rhum->KOD_HUM,8))
+            if !found() ; exit ; endif
+            DeleteRec(.t.)
+          enddo
+          select TMP3
+          find (str(tmp2->_N_ZAP,8))
+          do while tmp2->_N_ZAP == tmp3->_N_ZAP .and. !eof()
+            select REFR
+            AddRec(1)
+            refr->TIPD := 1
+            refr->KODD := mkod_reestr
+            refr->TIPZ := 1
+            refr->KODZ := rhum->KOD_HUM
+            refr->IDENTITY := tmp2->_IDENTITY
+            refr->REFREASON := tmp3->_REFREASON
+            if empty(s := ret_t005(refr->REFREASON))
+              s := lstr(refr->REFREASON)+" неизвестная причина отказа"
+            endif 
+            k := perenos(t_arr,s,75)
+            for i := 1 to k
+              strfile(space(5)+t_arr[i]+hb_eol(),cFileProtokol,.t.)
+            next
+            select TMP3
+            skip
+          enddo
+          if is_2 > 0
+            strfile(space(5)+'- разбейте двойной случай в режиме "ОМС/Двойные случаи/Разделить"'+;
+                    hb_eol(),cFileProtokol,.t.)
+            strfile(space(5)+'- отредактируйте каждый из случаев в режиме "ОМС/Редактирование"'+;
+                    hb_eol(),cFileProtokol,.t.)
+            strfile(space(5)+'- снова соберите случай в режиме "ОМС/Двойные случаи/Создать"'+;
+                    hb_eol(),cFileProtokol,.t.)
+          endif
+        endif
+        select TMP2
+        skip
+      enddo
+      close databases
+      strfile(hb_eol(),cFileProtokol,.t.)
+    endif
     if empty(aerr)
       arr_f := {}
       // создадим новые счета

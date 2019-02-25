@@ -15,8 +15,8 @@
 #include "chip_mo.ch"
 
 Static _version := {2,8,4}
-Static char_version := "f"
-Static _date_version := "18.02.19г."
+Static char_version := "g"
+Static _date_version := "24.02.19г."
 Static __s_full_name := "ЧИП + Учёт работы Медицинской Организации"
 Static __s_version
 
@@ -1598,9 +1598,9 @@ return it
 
 *
 
-***** 19.09.13 запрос "хитрого" пароля для доступа к операции аннулирования
-Function involved_password(par,n_reestr,smsg)
-Local fl := .f., c, n := 0, n1, s, i, i_p := 0
+***** 22.02.19 запрос "хитрого" пароля для доступа к операции аннулирования
+Function involved_password(par,_n_reestr,smsg)
+Local fl := .f., c, c1, n := 0, n1, s, i, i_p := 0, n_reestr
 DEFAULT smsg TO ""
 smsg := "Введите пароль для "+smsg
 if (n := len(smsg)) > 61
@@ -1608,11 +1608,12 @@ if (n := len(smsg)) > 61
 elseif n < 59
   smsg := space((61-n)/2)+smsg
 endif
-c := int((maxcol()-75)/2)
+c1 := int((maxcol()-75)/2)
 n := 0
 do while i_p < 3  // до 3х попыток
   ++i_p
-  if (n := input_value(maxrow()-6,c,maxrow()-4,maxcol()-c,color1,smsg,n,"9999999999")) != NIL
+  n_reestr := _n_reestr
+  if (n := input_value(maxrow()-6,c1,maxrow()-4,maxcol()-c1,color1,smsg,n,"9999999999")) != NIL
     if par == 1 // реестр
       s := lstr(n_reestr)
     elseif par == 2 // РАК или РПД
@@ -1620,12 +1621,13 @@ do while i_p < 3  // до 3х попыток
       s := right(beforatnum("M",s),1)+left(afteratnum("_",s),7)
     elseif eq_any(par,3,4) // счёт
       s := iif(par == 3, "", "1")
-      n_reestr := substr(alltrim(n_reestr),3)
+      n_reestr := substr(alltrim(upper(n_reestr)),3)
       for i := 1 to len(n_reestr)
-        if between(substr(n_reestr,i,1),'0','9')
-          s += substr(n_reestr,i,1)
-        elseif between(substr(n_reestr,i,1),'A','Z')
-          s += lstr(asc(substr(n_reestr,i,1)))
+        c := substr(n_reestr,i,1)
+        if between(c,'0','9')
+          s += c
+        elseif between(c,'A','Z')
+          s += lstr(asc(c))
         endif
       next
     endif

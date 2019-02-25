@@ -1,3 +1,7 @@
+#include "..\_mylib_hbt\function.ch"
+#include "..\_mylib_hbt\edit_spr.ch"
+
+***** 22.02.19
 proc main()
 f_first()
 n_reestr := 0
@@ -41,10 +45,10 @@ if (par := popup_prompt(10,20,1,mmenu)) > 0
         s1 := substr(alltrim(mschet),3)
         for i := 1 to len(s1)
           c := substr(s1,i,1)
-          if '0' <= c .and. c <= '9'
+          if between(c,'0','9')
             s += c
-          elseif 'A' <= c .and. c <= 'Z'
-            s += ltrim(str(asc(c)))
+          elseif between(c,'A','Z')
+            s += lstr(asc(c))
           endif
         next
       endif
