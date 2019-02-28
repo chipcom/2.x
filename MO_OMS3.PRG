@@ -296,10 +296,39 @@ endif
 rest_box(buf)
 return NIL
 
-***** 05.02.19 просмотр двойных случаев
+***** 25.02.19 просмотр двойных случаев
 Function view_double_sl()
+Local k, s, buf, arr := {}
 if (k := input_double_sl(1)) != NIL
-
+  buf := savescreen()
+  G_Use(dir_server+"human_3",{dir_server+"human_3",dir_server+"human_32"},"HUMAN_3")
+  find (str(k[1],7))
+  R_Use(dir_server+"mo_otd",,"OTD")
+  G_Use(dir_server+"human_2",,"HUMAN_2")
+  G_Use(dir_server+"human_",,"HUMAN_")
+  G_Use(dir_server+"human",,"HUMAN")
+  set relation to recno() into HUMAN_, to recno() into HUMAN_2, to otd into OTD
+  goto (k[1])
+  aadd(arr,"Двойной лист учёта по пациенту: "+alltrim(k[2]))
+  aadd(arr,"на сумму "+lstr(human_3->cena_1,11,2)+" руб.")
+  aadd(arr,"1-ый в отд. "+alltrim(otd->name)+" на сумму "+lstr(human->cena_1,11,2)+" руб.")
+  aadd(arr,"c "+date_8(human->n_data)+" по "+date_8(human->k_data)+iif(human_->ST_VERIFY == 5, "", " (с ошибкой)"))
+  fl := (human_->ST_VERIFY < 5)
+  select HUMAN
+  goto (human_3->kod2)
+  aadd(arr,"2-ой в отд. "+alltrim(otd->name)+" на сумму "+lstr(human->cena_1,11,2)+" руб.")
+  aadd(arr,"c "+date_8(human->n_data)+" по "+date_8(human->k_data)+iif(human_->ST_VERIFY == 5, "", " (с ошибкой)"))
+  if !fl
+    fl := (human_->ST_VERIFY < 5)
+  endif
+  if fl
+    aadd(arr,"")
+    aadd(arr,"Расформируйте двойной лист учёта и отредактируйте оба листа учёта")
+  endif
+  close databases
+  f_message(arr,,color8,color1)
+  mybell(1) ; inkey(0)
+  restscreen(buf)
 endif 
 return NIL
 
@@ -353,7 +382,7 @@ if (k := input_double_sl(2)) != NIL .and. G_SLock(str_sem)
 endif
 return NIL
 
-***** 05.02.19 
+***** 25.02.19 
 Function input_double_sl(par)
 Static srec := 0
 Local buf, i, arr_m, buf24, blk, t_arr[BR_LEN], ret
@@ -385,7 +414,8 @@ if (arr_m := year_month(T_ROW,T_COL+5,,3)) != NIL
     t_arr[BR_COLOR] := color0
     t_arr[BR_TITUL] := "Двойные случаи "+arr_m[4]
     t_arr[BR_TITUL_COLOR] := "B/BG"
-    t_arr[BR_ARR_BROWSE] := {'═','░','═',"N/BG,W+/N,B/BG,W+/B",.f.}
+    t_arr[BR_ARR_BROWSE] := {'═','░','═',"N/BG,W+/N,R/BG,W+/R",.f.}
+    blk := {|| iif(f1_input_double_sl(), {1,2}, {3,4}) }
     t_arr[BR_COLUMN] := {{ center("ФИО",42), {|| padr(human->fio,42) },blk },;
                          { "  Сроки лечения",{|| date_8(human_3->N_DATA)+"-"+date_8(human_3->K_DATA) },blk },;
                          { "   Сумма",{|| put_kop(human_3->CENA_1,11) },blk }}
@@ -400,6 +430,27 @@ if (arr_m := year_month(T_ROW,T_COL+5,,3)) != NIL
   rest_box(buf24)       
 endif  
 return ret
+
+***** 25.02.19
+Function f1_input_double_sl()
+Local fl, rec, rec3 
+if (fl := (human_->ST_VERIFY == 5))
+  rec3 := human_3->(recno())
+  select HUMAN
+  rec := human->(recno())  // на 2-ом случае
+  set relation to
+  set index to
+  select HUMAN_3
+  goto (rec3)
+  select HUMAN_
+  goto (human_3->kod) // встать на 1-ый случай
+  fl := (human_->ST_VERIFY == 5)
+  select HUMAN
+  set index to (cur_dir+"tmp_h2")
+  set relation to kod into HUMAN_, to str(kod,7) into HUMAN_3
+  goto (rec)
+endif 
+return fl
 
 ***** 18.02.19 работаем по текущей записи
 Function f1_create2reestr19(_nyear,_nmonth)
@@ -447,12 +498,14 @@ select ONKSL
 find (str(human->kod,7))
 //
 arr_onkdi := {}
-select ONKDI
-find (str(human->kod,7))
-do while onkdi->kod == human->kod .and. !eof()
-  aadd(arr_onkdi, {onkdi->DIAG_DATE,onkdi->DIAG_TIP,onkdi->DIAG_CODE,onkdi->DIAG_RSLT})
-  skip
-enddo
+if eq_any(onksl->b_diag,98,99)
+  select ONKDI
+  find (str(human->kod,7))
+  do while onkdi->kod == human->kod .and. !eof()
+    aadd(arr_onkdi, {onkdi->DIAG_DATE,onkdi->DIAG_TIP,onkdi->DIAG_CODE,onkdi->DIAG_RSLT})
+    skip
+  enddo
+endif  
 //
 arr_onkpr := {}
 if human_->USL_OK < 3 // противопоказания по лечению только в стационаре и дневном стационаре
@@ -469,7 +522,7 @@ if eq_any(onksl->b_diag,0,7,8) .and. ascan(arr_onkpr,{|x| x[1] == onksl->b_diag 
 endif
 //
 arr_onk_usl := {}
-if eq_any(onksl->b_diag,98,99)
+if between(onksl->DS1_T,0,2)
   select ONKUS
   find (str(human->kod,7))
   do while onkus->kod == human->kod .and. !eof()

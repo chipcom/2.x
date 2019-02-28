@@ -3181,7 +3181,7 @@ n_message({"в каталоге "+upper(cur_dir)+" создан файл "+upper("bars"+sdbf),;
            cColorStMsg,cColorStMsg,,,cColorSt2Msg)
 return NIL
 
-***** 02.12.18 создать файл приписного населения в Облздрав
+***** 02.12.18 создать файл счетов в Облздрав
 Function create_schets_OBLSDRAV()
 Local arr_f, ar, hZip, i, cPassword, fl := .t., hGauge, s, y, cFile, buf := savescreen()
 f_message({"Ждите! Создаётся архив счетов",;
