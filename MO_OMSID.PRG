@@ -156,10 +156,10 @@ return NIL
 
 *
 
-***** 22.09.15
-Function f0_inf_DDS(arr_m,is_schet,is_reg)
+***** 11.03.19
+Function f0_inf_DDS(arr_m,is_schet,is_reg,is_snils)
 Local fl := .t.
-DEFAULT is_schet TO .t., is_reg TO .f.
+DEFAULT is_schet TO .t., is_reg TO .f., is_snils TO .f.
 if !del_dbf_file("tmp"+sdbf)
   return .f.
 endif
@@ -167,9 +167,10 @@ dbcreate(cur_dir+"tmp",{{"kod","N",7,0},;
                         {"is", "N",1,0}})
 use (cur_dir+"tmp") new
 R_Use(dir_server+"schet_",,"SCHET_")
+R_Use(dir_server+"kartotek",,"KART")
 R_Use(dir_server+"human_",,"HUMAN_")
 R_Use(dir_server+"human",dir_server+"humand","HUMAN")
-set relation to recno() into HUMAN_
+set relation to recno() into HUMAN_, to kod_k into KART
 dbseek(dtos(arr_m[5]),.t.)
 index on kod to (cur_dir+"tmp_h") ;
       for iif(p_tip_lu==TIP_LU_DDS,!empty(za_smo),empty(za_smo)) .and. ;
@@ -191,7 +192,7 @@ do while !eof()
     select TMP
     append blank
     tmp->kod := human->kod
-    tmp->is := 1
+    tmp->is := iif(is_snils .and. empty(kart->snils), 0, 1)
   endif
   select HUMAN
   skip
@@ -2289,13 +2290,13 @@ return NIL
 
 *
 
-***** 22.11.13
+***** 11.03.19
 Function inf_DDS_XMLfile(is_schet)
 Static stitle := "Диспансеризация детей-сирот "
 Local arr_m, n, buf := save_maxrow(), lkod_h, lkod_k, rec, blk, t_arr[BR_LEN]
 if (arr_m := year_month(T_ROW,T_COL-5)) != NIL
   mywait()
-  if f0_inf_DDS(arr_m,is_schet > 1,is_schet == 3)
+  if f0_inf_DDS(arr_m,is_schet > 1,is_schet == 3,.t.)
     R_Use(dir_server+"human",,"HUMAN")
     use (cur_dir+"tmp") new
     set relation to kod into HUMAN
@@ -6004,10 +6005,10 @@ return NIL
 
 *
 
-***** 22.09.15
-Function f0_inf_DNL(arr_m,is_schet,is_reg,arr_ishod)
+***** 11.03.19
+Function f0_inf_DNL(arr_m,is_schet,is_reg,arr_ishod,is_snils)
 Local fl := .t.
-DEFAULT is_schet TO .t., is_reg TO .f., arr_ishod TO {301,302} // профилактика 1 и 2 этап
+DEFAULT is_schet TO .t., is_reg TO .f., is_snils TO .f., arr_ishod TO {301,302} // профилактика 1 и 2 этап
 if !del_dbf_file("tmp"+sdbf)
   return .f.
 endif
@@ -6017,9 +6018,10 @@ dbcreate(cur_dir+"tmp",{{"kod","N",7,0},;
                         {"ishod","N",6,0}})
 use (cur_dir+"tmp") new
 R_Use(dir_server+"schet_",,"SCHET_")
+R_Use(dir_server+"kartotek",,"KART")
 R_Use(dir_server+"human_",,"HUMAN_")
 R_Use(dir_server+"human",dir_server+"humand","HUMAN")
-set relation to recno() into HUMAN_
+set relation to recno() into HUMAN_, to kod_k into KART
 dbseek(dtos(arr_m[5]),.t.)
 index on kod to (cur_dir+"tmp_h") ;
       for ascan(arr_ishod,ishod) > 0 .and. iif(is_schet, schet > 0, .t.) ;
@@ -6042,7 +6044,7 @@ do while !eof()
     tmp->kod := human->kod
     tmp->kod_k := human->kod_k
     tmp->ishod := human->ishod
-    tmp->is := 1
+    tmp->is := iif(is_snils .and. empty(kart->snils), 0, 1)
   endif
   select HUMAN
   skip
@@ -7881,7 +7883,7 @@ return NIL
 
 *
 
-***** 19.02.18
+***** 11.03.19
 Function inf_DNL_XMLfile(is_schet,stitle)
 Local arr_m, n, buf := save_maxrow(), lkod_h, lkod_k, rec, blk, t_arr[BR_LEN], arr, n_func
 if (arr_m := year_month(T_ROW,T_COL-5)) != NIL
@@ -7894,7 +7896,7 @@ if (arr_m := year_month(T_ROW,T_COL-5)) != NIL
     case p_tip_lu == TIP_LU_PERN
       arr := {305} // период.осмотры
   endcase
-  if f0_inf_DNL(arr_m,is_schet > 1,is_schet == 3,arr)
+  if f0_inf_DNL(arr_m,is_schet > 1,is_schet == 3,arr,.t.)
     copy file (cur_dir+"tmp"+sdbf) to (cur_dir+"tmpDNL"+sdbf) // т.к. внутри тоже есть TMP-файл
     R_Use(dir_server+"human",,"HUMAN")
     use (cur_dir+"tmpDNL") new

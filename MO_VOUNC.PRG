@@ -2167,7 +2167,7 @@ do while !eof()
           mo_add_xml_stroke(oSL,"DS3",rtrim(mdiagnoz3[i]))
         endif
       next
-      if need_reestr_c_zab(human_->USL_OK,mdiagnoz[1])
+      if need_reestr_c_zab(human_->USL_OK,mdiagnoz[1]) .or. is_oncology_smp > 0
         mo_add_xml_stroke(oSL,"C_ZAB",'1') // Характер основного заболевания
       endif
       if human_->USL_OK < 4
