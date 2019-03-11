@@ -346,7 +346,7 @@ return NIL
 
 *
 
-***** 26.02.17
+***** 01.03.19
 Function Pob2_statist(k,serv_arr,is_all)
 Local i, j, arr[2], begin_date, end_date, bk := 1, ek := 99, al,;
       fl_exit := .f., sh := 80, HH := 57, regim := 2, s, fl_1_list := .t.,;
@@ -978,7 +978,11 @@ else
           DELETE
         else
           tmp->u_shifr := usl->shifr
-          tmp->u_name := usl->name
+          if glob_mo[_MO_KOD_TFOMS] == '171004' // Š-4
+            tmp->u_name := usl->full_name
+          else
+            tmp->u_name := usl->name
+          endif
         endif
       endif
       if equalany(k,2,4,5,7)
@@ -4509,13 +4513,14 @@ return NIL
 
 *
 
-***** 18.11.16
+***** 01.03.19
 Function pl_pl_dogovor()
 Local buf := save_row(maxrow()), sh, HH := 49, arr_title, s, i, j, k, sk, ss,;
       arr2title, reg_print := 6, afio[10], lfio := 19, kfio, lsk, lss, adbf,;
       aadres[2], kadres, apolis[10], kpolis, name_file := "jurnal.txt", arr_dms,;
       kol_vo := 0, usl_nds18 := 0, usl_nds18_1 := 0,;
-      usl_nds10 := 0, usl_nds10_1 := 0
+      usl_nds10 := 0, usl_nds10_1 := 0,;
+      usl_nds20 := 0, usl_nds20_1 := 0
 arr_title := {;
 "ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄ",;
 "        ”.ˆ..,  ¤à¥á        ³ Œ… ³                    §¢ ­¨¥ ¬¥¤¨æ¨­áª®© ãá«ã£¨                   ³  –¥­  ³Š®«.³ ‘ã¬¬  §  ³   „ â    ³   ‘à®ª   ",;
@@ -4568,23 +4573,40 @@ do while !eof()
       usl->(dbGoto(hpu->u_kod))
       if fl_hu
         fl_hu := .F.
-        add_string(afio[1]+" "+;
-                   padr(lstr(hu->kod_k),7)+" "+;
-                   padr(usl->name,65)+" "+put_kop(hpu->u_cena,7)+" "+;
-                   padr(lstr(hpu->kol),4)+" "+put_kop(hpu->stoim,10)+" "+;
-                   full_date(c4tod(hu->Pdate))+" "+full_date(c4tod(hpu->date_u)))
+        if glob_mo[_MO_KOD_TFOMS] == '171004' // Š-4
+          add_string(afio[1]+" "+;
+                     padr(lstr(hu->kod_k),7)+" "+;
+                     padr(usl->full_name,65)+" "+put_kop(hpu->u_cena,7)+" "+;
+                     padr(lstr(hpu->kol),4)+" "+put_kop(hpu->stoim,10)+" "+;
+                     full_date(c4tod(hu->Pdate))+" "+full_date(c4tod(hpu->date_u)))
+
+        else
+          add_string(afio[1]+" "+;
+                     padr(lstr(hu->kod_k),7)+" "+;
+                     padr(usl->name,65)+" "+put_kop(hpu->u_cena,7)+" "+;
+                     padr(lstr(hpu->kol),4)+" "+put_kop(hpu->stoim,10)+" "+;
+                     full_date(c4tod(hu->Pdate))+" "+full_date(c4tod(hpu->date_u)))
+        endif
         i := 1
         ++kol_vo
       else
         ++i
-        add_string(iif(i<=kfio,afio[i],space(29))+" "+;
-                   space(7)+" "+;
-                   padr(usl->name,65)+" "+put_kop(hpu->u_cena,7)+" "+;
-                   padr(lstr(hpu->kol),4)+" "+put_kop(hpu->stoim,10)+" "+;
-                   full_date(c4tod(hu->Pdate))+" "+full_date(c4tod(hpu->date_u)))
+        if glob_mo[_MO_KOD_TFOMS] == '171004' // Š-4
+          add_string(iif(i<=kfio,afio[i],space(29))+" "+;
+                     space(7)+" "+;
+                     padr(usl->full_name,65)+" "+put_kop(hpu->u_cena,7)+" "+;
+                     padr(lstr(hpu->kol),4)+" "+put_kop(hpu->stoim,10)+" "+;
+                     full_date(c4tod(hu->Pdate))+" "+full_date(c4tod(hpu->date_u)))
+        else
+          add_string(iif(i<=kfio,afio[i],space(29))+" "+;
+                     space(7)+" "+;
+                     padr(usl->name,65)+" "+put_kop(hpu->u_cena,7)+" "+;
+                     padr(lstr(hpu->kol),4)+" "+put_kop(hpu->stoim,10)+" "+;
+                     full_date(c4tod(hu->Pdate))+" "+full_date(c4tod(hpu->date_u)))
+        endif
       endif
       select HPU
-      // ‚ë¡®àª  „‘ 18/10
+      // ‚ë¡®àª  „‘ 18/10/20
       // ¢®§à áâ
       if fv_dog_date_r(hu->n_data,kart->date_r) > 0 // ¤¥â¨
         if round_5(usl->pnds_d,0) == 18
@@ -4593,6 +4615,9 @@ do while !eof()
         elseif round_5(usl->pnds_d,0) == 10
           usl_nds10 := usl_nds10+hpu->kol
           usl_nds10_1 := usl_nds10_1+hpu->stoim
+        elseif round_5(usl->pnds_d,0) == 20
+          usl_nds20 := usl_nds20+hpu->kol
+          usl_nds20_1 := usl_nds20_1+hpu->stoim
         endif
       else
         if round_5(usl->pnds,0) == 18
@@ -4601,6 +4626,9 @@ do while !eof()
         elseif round_5(usl->pnds,0) == 10
           usl_nds10 := usl_nds10+hpu->kol
           usl_nds10_1 := usl_nds10_1+hpu->stoim
+        elseif round_5(usl->pnds,0) == 20
+          usl_nds20 := usl_nds20+hpu->kol
+          usl_nds20_1 := usl_nds20_1+hpu->stoim
         endif
       endif
       //
@@ -4629,6 +4657,12 @@ endif
 if usl_nds10_1 > 0
   add_string(padl("‘ã¬¬  ãá«ã£ á „‘ 10% : "+str(usl_nds10_1,11,2),sh-12))
 endif
+if usl_nds20 > 0
+  add_string(padl("Š®«¨ç¥áâ¢® ãá«ã£ á „‘ 20% : "+str(usl_nds20,11),sh-12))
+endif
+if usl_nds20_1 > 0
+  add_string(padl("‘ã¬¬  ãá«ã£ á „‘ 20% : "+str(usl_nds20_1,11,2),sh-12))
+endif
 add_string("")
 add_string(center("ƒ« ¢­ë© ¢à ç _________________                         ƒ« ¢­ë© ¡ãå£ «â¥à _________________",sh))
 fclose(fp)
@@ -4637,16 +4671,20 @@ Private yes_albom := .t.
 viewtext(name_file,,,,(sh>80),,,reg_print)
 return NIL
 
+
 *
 
-***** 18.11.16
+
+***** 01.03.19
 Function pl_pl_2dogovor()
 Local buf := save_row(maxrow()), sh, HH := 49, arr_title, s, i, k, sk, ss,;
       arr2title, reg_print := 6, afio[10], lfio := 19, kfio, lsk, lss, adbf,;
       aadres[2], kadres, apolis[10], kpolis, name_file := "jurnal1.txt",;
       usl_nds18 := 0, usl_nds18_1 := 0,;
       usl_nds10 := 0, usl_nds10_1 := 0,;
-      t_vr, t_as, t_nvr, t_nas, arr_dms, kol_vo := 0
+      usl_nds20 := 0, usl_nds20_1 := 0,;
+      t_vr, t_as, t_nvr, t_nas, arr_dms, kol_vo := 0,;
+      nom_prihod
 arr_title := {;
 "ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ",;
 "        ”.ˆ..,  ¤à¥á        ",;
@@ -4884,49 +4922,91 @@ do while !eof()
         //goto (hpu->kod_as)
         //t_nas := "  "//fam_i_o(perso->fio)
         //
-        add_string(afio[1]+" "+;
-                   iif(f_is_pozic(glob_pozic,0),full_date(kart->date_r)+" ","")+;
-                   iif(f_is_pozic(glob_pozic,1),padr(lstr(hu->kod_k),7)+" ","")+;
-                   iif(f_is_pozic(glob_pozic,2),padr(lstr(hu->kod_k)+"/"+lstr(nom_prihod),9)+" ","")+;
-                   iif(f_is_pozic(glob_pozic,3),padr(lstr(hu->kv_cia),6)+" ","")+;
-                   iif(f_is_pozic(glob_pozic,4),usl->shifr+" ","")+;
-                   iif(f_is_pozic(glob_pozic,5),padr(alltrim(usl->name),51)+" ","")+;
-                   iif(f_is_pozic(glob_pozic,6),iif(t_vr>0,padl(lstr(t_vr),5),space(5))+" ","")+;
-                   iif(f_is_pozic(glob_pozic,7),iif(t_as>0,padr(lstr(t_as),5),space(5))+" ","")+;
-                   iif(f_is_pozic(glob_pozic,8),padr(t_nvr,15)+" ","")+;
-                   iif(f_is_pozic(glob_pozic,9),padr(t_nvr,15)+" ","")+;
-                   iif(f_is_pozic(glob_pozic,10),put_kop(hpu->u_cena,7)+" ","")+;
-                   iif(f_is_pozic(glob_pozic,11),put_kop(hpu->u_cena,7)+" ","")+;
-                   iif(f_is_pozic(glob_pozic,12),padr(lstr(hpu->kol),4)+" ","")+;
-                   iif(f_is_pozic(glob_pozic,13),full_date(c4tod(hu->pdate))+" ","")+;
-                   iif(f_is_pozic(glob_pozic,14),full_date(c4tod(hpu->date_u))+" ","")+;
-                   put_kop(hpu->stoim,10)+" "+;
-                   full_date(c4tod(hpu->date_u)))
+        if glob_mo[_MO_KOD_TFOMS] == '171004' // Š-4
+          add_string(afio[1]+" "+;
+                     iif(f_is_pozic(glob_pozic,0),full_date(kart->date_r)+" ","")+;
+                     iif(f_is_pozic(glob_pozic,1),padr(lstr(hu->kod_k),7)+" ","")+;
+                     iif(f_is_pozic(glob_pozic,2),padr(lstr(hu->kod_k)+"/"+lstr(nom_prihod),9)+" ","")+;
+                     iif(f_is_pozic(glob_pozic,3),padr(lstr(hu->kv_cia),6)+" ","")+;
+                     iif(f_is_pozic(glob_pozic,4),usl->shifr+" ","")+;
+                     iif(f_is_pozic(glob_pozic,5),padr(alltrim(usl->full_name),51)+" ","")+;
+                     iif(f_is_pozic(glob_pozic,6),iif(t_vr>0,padl(lstr(t_vr),5),space(5))+" ","")+;
+                     iif(f_is_pozic(glob_pozic,7),iif(t_as>0,padr(lstr(t_as),5),space(5))+" ","")+;
+                     iif(f_is_pozic(glob_pozic,8),padr(t_nvr,15)+" ","")+;
+                     iif(f_is_pozic(glob_pozic,9),padr(t_nvr,15)+" ","")+;
+                     iif(f_is_pozic(glob_pozic,10),put_kop(hpu->u_cena,7)+" ","")+;
+                     iif(f_is_pozic(glob_pozic,11),put_kop(hpu->u_cena,7)+" ","")+;
+                     iif(f_is_pozic(glob_pozic,12),padr(lstr(hpu->kol),4)+" ","")+;
+                     iif(f_is_pozic(glob_pozic,13),iif(hu->kv_cia > 0,full_date(c4tod(hu->pdate)),space(10))+" ","")+;
+                     iif(f_is_pozic(glob_pozic,14),full_date(c4tod(hpu->date_u))+" ","")+;
+                     put_kop(hpu->stoim,10)+" "+;
+                     full_date(c4tod(hpu->date_u)))
+        else
+          add_string(afio[1]+" "+;
+                     iif(f_is_pozic(glob_pozic,0),full_date(kart->date_r)+" ","")+;
+                     iif(f_is_pozic(glob_pozic,1),padr(lstr(hu->kod_k),7)+" ","")+;
+                     iif(f_is_pozic(glob_pozic,2),padr(lstr(hu->kod_k)+"/"+lstr(nom_prihod),9)+" ","")+;
+                     iif(f_is_pozic(glob_pozic,3),padr(lstr(hu->kv_cia),6)+" ","")+;
+                     iif(f_is_pozic(glob_pozic,4),usl->shifr+" ","")+;
+                     iif(f_is_pozic(glob_pozic,5),padr(alltrim(usl->name),51)+" ","")+;
+                     iif(f_is_pozic(glob_pozic,6),iif(t_vr>0,padl(lstr(t_vr),5),space(5))+" ","")+;
+                     iif(f_is_pozic(glob_pozic,7),iif(t_as>0,padr(lstr(t_as),5),space(5))+" ","")+;
+                     iif(f_is_pozic(glob_pozic,8),padr(t_nvr,15)+" ","")+;
+                     iif(f_is_pozic(glob_pozic,9),padr(t_nvr,15)+" ","")+;
+                     iif(f_is_pozic(glob_pozic,10),put_kop(hpu->u_cena,7)+" ","")+;
+                     iif(f_is_pozic(glob_pozic,11),put_kop(hpu->u_cena,7)+" ","")+;
+                     iif(f_is_pozic(glob_pozic,12),padr(lstr(hpu->kol),4)+" ","")+;
+                     iif(f_is_pozic(glob_pozic,13),full_date(c4tod(hu->pdate))+" ","")+;
+                     iif(f_is_pozic(glob_pozic,14),full_date(c4tod(hpu->date_u))+" ","")+;
+                     put_kop(hpu->stoim,10)+" "+;
+                     full_date(c4tod(hpu->date_u)))
+        endif
         i := 1
         ++kol_vo
       else
         ++i
-        add_string(iif(i<=kfio,afio[i],space(29))+" "+;
-                   iif(f_is_pozic(glob_pozic,0),space(11),"")+;
-                   iif(f_is_pozic(glob_pozic,1),space(8),"")+;
-                   iif(f_is_pozic(glob_pozic,2),space(10),"")+;
-                   iif(f_is_pozic(glob_pozic,3),space(7),"")+;
-                   iif(f_is_pozic(glob_pozic,4),usl->shifr+" ","")+;
-                   iif(f_is_pozic(glob_pozic,5),padr(alltrim(usl->name),51)+" ","")+;
-                   iif(f_is_pozic(glob_pozic,6),iif(t_vr>0,padl(lstr(t_vr),5),space(5))+" ","")+;
-                   iif(f_is_pozic(glob_pozic,7),iif(t_as>0,padl(lstr(t_as),5),space(5))+" ","")+;
-                   iif(f_is_pozic(glob_pozic,8),padr(t_nvr,15)+" ","")+;
-                   iif(f_is_pozic(glob_pozic,9),padr(t_nvr,15)+" ","")+;
-                   iif(f_is_pozic(glob_pozic,10),put_kop(hpu->u_cena,7)+" ","")+;
-                   iif(f_is_pozic(glob_pozic,11),put_kop(hpu->u_cena,7)+" ","")+;
-                   iif(f_is_pozic(glob_pozic,12),padr(lstr(hpu->kol),4)+" ","")+;
-                   iif(f_is_pozic(glob_pozic,13),space(10)+" ","")+;
-                   iif(f_is_pozic(glob_pozic,14),full_date(c4tod(hpu->date_u))+" ","")+;
-                   put_kop(hpu->stoim,10)+" "+;
-                   full_date(c4tod(hpu->date_u)))
+        if glob_mo[_MO_KOD_TFOMS] == '171004' // Š-4
+          add_string(iif(i<=kfio,afio[i],space(29))+" "+;
+                     iif(f_is_pozic(glob_pozic,0),space(11),"")+;
+                     iif(f_is_pozic(glob_pozic,1),space(8),"")+;
+                     iif(f_is_pozic(glob_pozic,2),space(10),"")+;
+                     iif(f_is_pozic(glob_pozic,3),space(7),"")+;
+                     iif(f_is_pozic(glob_pozic,4),usl->shifr+" ","")+;
+                     iif(f_is_pozic(glob_pozic,5),padr(alltrim(usl->full_name),51)+" ","")+;
+                     iif(f_is_pozic(glob_pozic,6),iif(t_vr>0,padl(lstr(t_vr),5),space(5))+" ","")+;
+                     iif(f_is_pozic(glob_pozic,7),iif(t_as>0,padl(lstr(t_as),5),space(5))+" ","")+;
+                     iif(f_is_pozic(glob_pozic,8),padr(t_nvr,15)+" ","")+;
+                     iif(f_is_pozic(glob_pozic,9),padr(t_nvr,15)+" ","")+;
+                     iif(f_is_pozic(glob_pozic,10),put_kop(hpu->u_cena,7)+" ","")+;
+                     iif(f_is_pozic(glob_pozic,11),put_kop(hpu->u_cena,7)+" ","")+;
+                     iif(f_is_pozic(glob_pozic,12),padr(lstr(hpu->kol),4)+" ","")+;
+                     iif(f_is_pozic(glob_pozic,13),space(10)+" ","")+;
+                     iif(f_is_pozic(glob_pozic,14),full_date(c4tod(hpu->date_u))+" ","")+;
+                     put_kop(hpu->stoim,10)+" "+;
+                     full_date(c4tod(hpu->date_u)))
+        else
+          add_string(iif(i<=kfio,afio[i],space(29))+" "+;
+                     iif(f_is_pozic(glob_pozic,0),space(11),"")+;
+                     iif(f_is_pozic(glob_pozic,1),space(8),"")+;
+                     iif(f_is_pozic(glob_pozic,2),space(10),"")+;
+                     iif(f_is_pozic(glob_pozic,3),space(7),"")+;
+                     iif(f_is_pozic(glob_pozic,4),usl->shifr+" ","")+;
+                     iif(f_is_pozic(glob_pozic,5),padr(alltrim(usl->name),51)+" ","")+;
+                     iif(f_is_pozic(glob_pozic,6),iif(t_vr>0,padl(lstr(t_vr),5),space(5))+" ","")+;
+                     iif(f_is_pozic(glob_pozic,7),iif(t_as>0,padl(lstr(t_as),5),space(5))+" ","")+;
+                     iif(f_is_pozic(glob_pozic,8),padr(t_nvr,15)+" ","")+;
+                     iif(f_is_pozic(glob_pozic,9),padr(t_nvr,15)+" ","")+;
+                     iif(f_is_pozic(glob_pozic,10),put_kop(hpu->u_cena,7)+" ","")+;
+                     iif(f_is_pozic(glob_pozic,11),put_kop(hpu->u_cena,7)+" ","")+;
+                     iif(f_is_pozic(glob_pozic,12),padr(lstr(hpu->kol),4)+" ","")+;
+                     iif(f_is_pozic(glob_pozic,13),space(10)+" ","")+;
+                     iif(f_is_pozic(glob_pozic,14),full_date(c4tod(hpu->date_u))+" ","")+;
+                     put_kop(hpu->stoim,10)+" "+;
+                     full_date(c4tod(hpu->date_u)))
+        endif
       endif
       select HPU
-      // ‚ë¡®àª  „‘ 18/10
+      // ‚ë¡®àª  „‘ 18/10/20
       // ¢®§à áâ
       if fv_dog_date_r(hu->n_data,kart->date_r) > 0 // ¤¥â¨
         if round_5(usl->pnds_d,0) == 18
@@ -4935,6 +5015,9 @@ do while !eof()
         elseif round_5(usl->pnds_d,0) == 10
           usl_nds10 := usl_nds10+hpu->kol
           usl_nds10_1 := usl_nds10_1+hpu->stoim
+        elseif round_5(usl->pnds_d,0) == 20
+          usl_nds20 := usl_nds20+hpu->kol
+          usl_nds20_1 := usl_nds20_1+hpu->stoim
         endif
       else
         if round_5(usl->pnds,0) == 18
@@ -4943,6 +5026,9 @@ do while !eof()
         elseif round_5(usl->pnds,0) == 10
           usl_nds10 := usl_nds10+hpu->kol
           usl_nds10_1 := usl_nds10_1+hpu->stoim
+        elseif round_5(usl->pnds,0) == 20
+          usl_nds20 := usl_nds20+hpu->kol
+          usl_nds20_1 := usl_nds20_1+hpu->stoim
         endif
       endif
       skip
@@ -4973,6 +5059,12 @@ endif
 if usl_nds10_1 > 0
   add_string(padl("‘ã¬¬  ãá«ã£ á „‘ 10% : "+str(usl_nds10_1,11,2),sh-11))
 endif
+if usl_nds20 > 0
+  add_string(padl("Š®«¨ç¥áâ¢® ãá«ã£ á „‘ 20% : "+str(usl_nds20,11),sh-12))
+endif
+if usl_nds20_1 > 0
+  add_string(padl("‘ã¬¬  ãá«ã£ á „‘ 20% : "+str(usl_nds20_1,11,2),sh-12))
+endif
 add_string("")
 add_string("")
 add_string(center("ƒ« ¢­ë© ¢à ç _________________                         ƒ« ¢­ë© ¡ãå£ «â¥à _________________",sh))
@@ -4981,6 +5073,7 @@ rest_box(buf)
 Private yes_albom := .t.
 viewtext(name_file,,,,(sh>80),,,reg_print)
 return NIL
+
 
 *
 
@@ -10758,7 +10851,7 @@ return NIL
 
 *
 
-*****
+***** 01.03.19
 Function pl_vozvrat()
 Local fl := .t., buf := save_row(maxrow()), sm := 0, HH := 52,;
       n_file := "platn.txt", arr_m, sh, sm_sn := 0, krvz, arr_dms,;
@@ -10811,7 +10904,7 @@ do while !eof()
       endif
       select USL
       goto (hum_u->u_kod )
-      add_string(usl->shifr+padr(usl->name,40)+;
+      add_string(usl->shifr+padr(iif(!empty(usl->full_name),usl->full_name,usl->name),40)+;
                  str(hum_u->kol,9)+;
                  put_kope(hum_u->stoim,12))
       select P2
@@ -10840,16 +10933,24 @@ return NIL
 *
 
 
-***** 05.09.18
+***** 01.03.19
 Function pl_priemshk()
 Local fl := .t., buf := save_row(maxrow()), sm2 := 0, HH := 52,;
       n_file := "platn.txt", arr_m, sh, krvz, arr_dms,;
-      mas_op1 := {}, mas_op2 := {}, mas_op3 := {}, i, arr[2], sm_bn := 0
+      mas_op1 := {}, mas_op2 := {}, mas_op3 := {}, i, arr[2], sm_bn := 0,;
+      t_hum_rec, kart_kod, t_k_data, nom_prihod := 0
 
 Local arr_title := {;
   "ÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ",;
   " N ³           ”.ˆ.. ¯ æ¨¥­â             ³‚à¥¬ï ³ —¥ª ³Š®¤  ³  ‘ã¬¬    ³        ‚à ç        ",;
   "ÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ"}
+
+if glob_mo[_MO_KOD_TFOMS] == '171004' // Š-4
+  arr_title := {;
+  "ÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ",;
+  " N ³           ”.ˆ.. ¯ æ¨¥­â             ³‚à¥¬ï ³ —¥ª ³ „®£®¢®à³  ‘ã¬¬    ³       ‚à ç       ",;
+  "ÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ"}
+endif
 
 sh := len(arr_title[1])
 if (krvz := fbp_tip_usl(T_ROW,T_COL-5,@arr_dms)) == NIL
@@ -10867,6 +10968,7 @@ dbcreate(cur_dir+"tmp", {{"kod",     "N",  4,  0},;
                  {"fio",     "C", 60,  0},;
                  {"chek",    "N", 10,  0},;
                  {"kod_hum", "N", 10,  0},;
+                 {"dogovor", "C", 10,  0},;
                  {"operat",  "N", 10,  0},;
                  {"operatf", "C", 40,  0},;
                  {"operatd", "C", 40,  0},;
@@ -10884,7 +10986,8 @@ endif
 R_Use(dir_server+"kartotek",,"KART")
 R_Use(dir_server+"mo_pers",,"PERS")
 R_Use(dir_server+"hum_p_u",dir_server+"hum_p_u","HUM_U")
-R_Use(dir_server+"hum_p",,"HUM")
+R_Use(dir_server+"hum_p",dir_server+"hum_pkk","HUM")
+// index on str(kod_k,7)+dtos(k_data)+str(KV_CIA,6) to (dir_server+"hum_pkk") descending progress
 go top
 do while !eof()
   if !empty(hum->fr_data) .and. between(hum->fr_data,arr_m[7],arr_m[8]) ;
@@ -10902,6 +11005,20 @@ do while !eof()
       tmp->summa    := hum->cena
       tmp->summa_bn := hum->sbank
       tmp->operat   := hum->kod_oper
+      tmp->dogovor  := lstr(hum->kod_k)
+      if glob_mo[_MO_KOD_TFOMS] == '171004' // Š-4
+        nom_prihod := 0
+        t_hum_rec := hum->(recno())
+        kart_kod := hum->kod_k
+        t_k_data := year(hum->k_data)
+        select HUM
+        do while hum->kod_k == kart_kod .and. year(hum->k_data) == t_k_data .and. !eof()
+          ++nom_prihod
+          skip
+        enddo
+        goto (t_hum_rec)
+        tmp->dogovor  := lstr(hum->kod_k)+"/"+lstr(nom_prihod)
+      endif
       if c4tod(hum->fr_data) != hum->n_data .or.;
          c4tod(hum->fr_data) != hum->k_data
         tmp->t_flag := 1
@@ -10969,31 +11086,57 @@ if bkol_oper > 0
     if verify_FF(HH,.t.,sh)
       aeval(arr_title, {|x| add_string(x) } )
     endif
-    add_string(str(++ii,3)+" "+;
-               padr(tmp->fio,38)+;
-               iif(tmp->summa_bn > 0,"","  ")+;
-               padr(sectotime(tmp->fr_time),5)+" "+;
-               padl(lstr(tmp->chek),5)+" "+;
-               padl(lstr(tmp->kod_hum),6)+" "+;
-               iif(tmp->summa_bn > 0,put_kope(tmp->summa_bn,10),put_kope(tmp->summa,10))+" "+;
-               padr(fam_i_o(tmp->fio_vr),20)+;
-               iif(tmp->t_flag==1,"*"," "))
-    if tmp->summa > tmp->summa_bn .and. tmp->summa_bn > 0
+    if glob_mo[_MO_KOD_TFOMS] == '171004' // Š-4
       add_string(str(++ii,3)+" "+;
-                 padr(tmp->fio,38)+"  "+;
+                 padr(tmp->fio,38)+;
+                 iif(tmp->summa_bn > 0,"","  ")+;
+                 padr(sectotime(tmp->fr_time),5)+" "+;
+                 padl(lstr(tmp->chek),5)+" "+;
+                 padr(tmp->dogovor,8)+" "+;
+                 iif(tmp->summa_bn > 0,put_kope(tmp->summa_bn,10),put_kope(tmp->summa,10))+" "+;
+                 padr(fam_i_o(tmp->fio_vr),18)+;
+                 iif(tmp->t_flag==1,"*"," "))
+      if tmp->summa > tmp->summa_bn .and. tmp->summa_bn > 0
+        add_string(str(++ii,3)+" "+;
+                   padr(tmp->fio,38)+"  "+;
+                   padr(sectotime(tmp->fr_time),5)+" "+;
+                   padl(lstr(tmp->chek),5)+" "+;
+                   padr(tmp->dogovor,8)+" "+;
+                   put_kope(tmp->summa-tmp->summa_bn,10)+" "+;
+                   padr(fam_i_o(tmp->fio_vr),18)+;
+                   iif(tmp->t_flag==1,"*"," "))
+      endif
+    else
+      add_string(str(++ii,3)+" "+;
+                 padr(tmp->fio,38)+;
+                 iif(tmp->summa_bn > 0,"","  ")+;
                  padr(sectotime(tmp->fr_time),5)+" "+;
                  padl(lstr(tmp->chek),5)+" "+;
                  padl(lstr(tmp->kod_hum),6)+" "+;
-                 put_kope(tmp->summa-tmp->summa_bn,10)+" "+;
+                 iif(tmp->summa_bn > 0,put_kope(tmp->summa_bn,10),put_kope(tmp->summa,10))+" "+;
                  padr(fam_i_o(tmp->fio_vr),20)+;
                  iif(tmp->t_flag==1,"*"," "))
+      if tmp->summa > tmp->summa_bn .and. tmp->summa_bn > 0
+        add_string(str(++ii,3)+" "+;
+                   padr(tmp->fio,38)+"  "+;
+                   padr(sectotime(tmp->fr_time),5)+" "+;
+                   padl(lstr(tmp->chek),5)+" "+;
+                   padl(lstr(tmp->kod_hum),6)+" "+;
+                   put_kope(tmp->summa-tmp->summa_bn,10)+" "+;
+                   padr(fam_i_o(tmp->fio_vr),20)+;
+                   iif(tmp->t_flag==1,"*"," "))
+      endif
     endif
     sm2 += tmp->summa
     sm_bn += tmp->summa_bn
     skip
   enddo
   add_string(replicate("Ä",sh))
-  add_string(padR("ˆâ®£®: ",61)+put_kope(sm2,12))
+  if glob_mo[_MO_KOD_TFOMS] == '171004' // Š-4
+    add_string(padR("ˆâ®£®: ",63)+put_kope(sm2,12))
+  else
+    add_string(padR("ˆâ®£®: ",61)+put_kope(sm2,12))
+  endif
   add_string(replicate("Ä",sh))
   for i := 1 to perenos(arr,"‚á¥£® ­  áã¬¬ã: "+srub_kop(sm2,.t.),sh)
     add_string(arr[i])

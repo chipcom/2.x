@@ -70,7 +70,7 @@ Local human_3 := {;
 reconstruct(dir_server+"human_3",human_3,"index_base('human_3')","пролеченным больным3",.t.)
 return NIL
 
-***** 07.02.19 склеить два случая
+***** 10.03.19 склеить два случая
 Function create_double_sl()
 Local buf, str_sem, i, d, arr_m, mas_pmt, buf24, buf_scr, srec, old_yes_h_otd := yes_h_otd
 if !myFileDeleted(cur_dir+"tmp_h"+sdbf)
@@ -139,6 +139,7 @@ if (arr_m := year_month(T_ROW,T_COL+5,,3)) != NIL
         ln_data := human->n_data
         lk_data := human->k_data
         ldiag := human->kod_diag
+        lprofil := human_->profil
         lcena := human->cena_1
         glob_k_fio := fio_plus_novor()
         glob_otd[1] := human->otd
@@ -205,6 +206,8 @@ if (arr_m := year_month(T_ROW,T_COL+5,,3)) != NIL
               func_error(4,"Дата начала 2-го случая должна быть равна дате окончания 1-го случая!")
             elseif !(ldiag == human->kod_diag)
               func_error(4,"Основной диагноз в обоих случаях должен совпадать!")
+            elseif lprofil != human_->profil
+              func_error(4,"Профиль мед.помощи в обоих случаях должен совпадать!")
             else
               mkod := glob_perso2
               ln_data2 := human->n_data

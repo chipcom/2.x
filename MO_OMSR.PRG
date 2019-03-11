@@ -847,6 +847,7 @@ if human_->USL_OK < 3
     skip
   enddo
 endif
+d_sroks := ""
 select HU
 find (str(human->kod,7))
 do while hu->kod == human->kod .and. !eof()
@@ -1110,6 +1111,7 @@ do while hu->kod == human->kod .and. !eof()
         mIDSP := 12 // Комплексная услуга центра здоровья
       elseif left_lshifr_5 == "2.78."
         mpovod := 10 // 3.0
+        d_sroks := AfterAtNum(".",alltrim_lshifr)
         if between_shifr(alltrim_lshifr,"2.78.54","2.78.60")
           fl_stom := .t.
           mpztip := 4
@@ -1120,6 +1122,7 @@ do while hu->kod == human->kod .and. !eof()
         endif
         mdate_u2 := dtoc4(human->k_data)
       elseif left_lshifr_5 == "2.79."
+        d_sroks := AfterAtNum(".",alltrim_lshifr)
         if between_shifr(alltrim_lshifr,"2.79.44","2.79.50") 
           mpovod := 8 // 2.5 - патронаж
         else
@@ -1135,6 +1138,7 @@ do while hu->kod == human->kod .and. !eof()
           endif
         endif
       elseif left_lshifr_5 == "2.80."
+        d_sroks := AfterAtNum(".",alltrim_lshifr)
         mpovod := 2 // 1.1
         if between_shifr(alltrim_lshifr,"2.80.34","2.80.38")
           fl_stom := .t.
@@ -1163,6 +1167,7 @@ do while hu->kod == human->kod .and. !eof()
         is_disp_DDS := .t.
         is_2_87 := .t.
       elseif left_lshifr_5 == "2.88."
+        d_sroks := AfterAtNum(".",alltrim_lshifr)
         mpovod := 1 // 1.0
         if between_shifr(alltrim_lshifr,"2.88.46","2.88.51")
           fl_stom := .t.
@@ -4073,7 +4078,7 @@ if len(arr_unit) > 1
   aadd(ta,left(s,len(s)-2))
 endif
 if fl_view .and. !is_s_dializ .and. !is_dializ .and. !is_perito .and. len(a_rec_ffoms) > 0 // повтор диагноза
-  ltip := 0
+  ltip := 0 ; s := ""
   i := 1
   asort(a_rec_ffoms,,,{|x,y| x[3] < y[3] })
   if gusl_ok == 3     // поликлиника
@@ -4101,22 +4106,26 @@ if fl_view .and. !is_s_dializ .and. !is_dializ .and. !is_perito .and. len(a_rec_
             if left_lshifr_5 == "2.78."
               if !between_shifr(lshifr,"2.78.54","2.78.60")
                 a_rec_ffoms[i,2] := 1
+                s := AfterAtNum(".",lshifr)
                 fl := .t.
               endif
             elseif left_lshifr_5 == "2.80."
               if !between_shifr(lshifr,"2.80.34","2.80.38")
                 if ltip == 2 // если прошлое и новое лечение "2.80."
                   a_rec_ffoms[i,2] := 2
+                  s := AfterAtNum(".",lshifr)
                   fl := .t.
                 endif
               endif
             elseif left_lshifr_5 == "2.88."
               if !between_shifr(lshifr,"2.88.46","2.88.51")
                 a_rec_ffoms[i,2] := 3
+                s := AfterAtNum(".",lshifr)
                 fl := .t.
               endif
             elseif left_lshifr_5 == "2.89."
               a_rec_ffoms[i,2] := 4
+              s := AfterAtNum(".",lshifr)
               fl := .t.
             endif
           endif
@@ -4134,12 +4143,14 @@ if fl_view .and. !is_s_dializ .and. !is_dializ .and. !is_perito .and. len(a_rec_
   if i > 0
     select D_SROK
     append blank
-    d_srok->kod  := human->kod
-    d_srok->tip  := ltip
-    d_srok->otd  := human->otd
-    d_srok->kod1 := a_rec_ffoms[i,1]
-    d_srok->tip1 := a_rec_ffoms[i,2]
-    d_srok->dni  := a_rec_ffoms[i,3]
+    d_srok->kod   := human->kod
+    d_srok->tip   := ltip
+    d_srok->tips  := d_sroks
+    d_srok->otd   := human->otd
+    d_srok->kod1  := a_rec_ffoms[i,1]
+    d_srok->tip1  := a_rec_ffoms[i,2]
+    d_srok->tip1s := s
+    d_srok->dni   := a_rec_ffoms[i,3]
   endif
 endif
 if len(ta) > 0
@@ -4207,13 +4218,15 @@ if fl_view
 endif  
 return (_ocenka >= 5)
 
-***** 28.02.18
+***** 04.03.19
 Function f_create_diag_srok()
 dbcreate(cur_dir+"tmp_d_srok",{{"kod","N",7,0},;
                                {"tip","N",1,0},;
+                               {"tips","C",3,0},;
                                {"otd","N",3,0},;
                                {"kod1","N",7,0},;
                                {"tip1","N",1,0},;
+                               {"tip1s","C",3,0},;
                                {"dni","N",2,0}})
 use (cur_dir+"tmp_d_srok") new alias D_SROK
 return NIL
@@ -4501,8 +4514,8 @@ if fl_view .and. d_srok->(lastrec()) > 0
            {"diag1","C",5,0},;
            {"srok","C",30,0},;
            {"srok1","C",30,0},;
-           {"tip","C",10,0},;
-           {"tip1","C",10,0},;
+           {"tip","C",12,0},;
+           {"tip1","C",12,0},;
            {"otd","C",200,0},;
            {"otd1","C",200,0},;
            {"vrach","C",100,0},;
@@ -4523,7 +4536,7 @@ if fl_view .and. d_srok->(lastrec()) > 0
     frd->diag := human->kod_diag
     frd->srok := full_date(human->n_data)+" - "+full_date(human->k_data)
     if d_srok->tip > 0
-      frd->tip := "( 2."+am[d_srok->tip]+".* )"
+      frd->tip := "( 2."+am[d_srok->tip]+"."+d_srok->tips+" )"
     elseif human_->usl_ok == 1
       frd->tip := "( стац. )"
     elseif human_->usl_ok == 2
@@ -4543,7 +4556,7 @@ if fl_view .and. d_srok->(lastrec()) > 0
     frd->diag1 := human->kod_diag
     frd->srok1 := full_date(human->n_data)+" - "+full_date(human->k_data)
     if d_srok->tip1 > 0
-      frd->tip1 := "( 2."+am[d_srok->tip1]+".* )"
+      frd->tip1 := "( 2."+am[d_srok->tip1]+"."+d_srok->tip1s+" )"
     elseif human_->usl_ok == 1
       frd->tip1 := "( стац. )"
     elseif human_->usl_ok == 2

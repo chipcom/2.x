@@ -2776,7 +2776,7 @@ if fl
 endif
 return fl
 
-***** 29.01.19 определение КСГ по остальным введённым полям ввода - 2019 год
+***** 10.03.19 определение КСГ по остальным введённым полям ввода - 2019 год
 Function definition_KSG(par)
 // файлы "human", "human_" и "human_2" открыты и стоят на нужной записи
 //       "human" открыт для записи суммы случая
@@ -3278,6 +3278,7 @@ endif
 ar := {}
 for im := 1 to len(amohu)
   if !empty(lshifr := alltrim(amohu[im]))
+    _a1 := {}
     select K006
     set order to 2
     find (susl+padr(lshifr,20))
@@ -3354,25 +3355,31 @@ for im := 1 to len(amohu)
         if fl ; j ++ ; endif
       endif
       if fl
-        aadd(ar,{k006->shifr,; //  1
-                 0,;           //  2
-                 lkoef,;       //  3
-                 lusl->kiros,; //  4 
-                 k006->ds,;    //  5
-                 lshifr,;      //  6
-                 k006->age,;   //  7
-                 k006->sex,;   //  8
-                 k006->los,;   //  9
-                 k006->ad_cr,; // 10 
-                 sds1,;        // 11 
-                 sds2,;        // 12 
-                 j,;           // 13 
-                 lusl->kslps,; // 14 
-                 k006->ad_cr1}) // 15 
+        aadd(_a1,{k006->shifr,; //  1
+                  0,;           //  2
+                  lkoef,;       //  3
+                  lusl->kiros,; //  4 
+                  k006->ds,;    //  5
+                  lshifr,;      //  6
+                  k006->age,;   //  7
+                  k006->sex,;   //  8
+                  k006->los,;   //  9
+                  k006->ad_cr,; // 10 
+                  sds1,;        // 11 
+                  sds2,;        // 12 
+                  j,;           // 13 
+                  lusl->kslps,; // 14 
+                  k006->ad_cr1}) // 15 
       endif
       select K006
       skip
     enddo
+    if len(_a1) > 1 // если по данной услуге более одной КСГ, сортируем по убыванию критериев
+      asort(_a1,,,{|x,y| iif(x[13]==y[13], x[3] > y[3], x[13] > y[13]) })
+    endif
+    if len(_a1) > 0
+      aadd(ar,aclone(_a1[1]))
+    endif
   endif
 next
 if len(ar) > 0
@@ -3384,7 +3391,7 @@ if len(ar) > 0
   next
   aHirKSG := aclone(ar)
   if len(aHirKSG) > 1
-    asort(aHirKSG,,,{|x,y| iif(x[13]==y[13], x[3] > y[3], x[13] > y[13]) })
+    asort(aHirKSG,,,{|x,y| iif(x[3]==y[3], x[13] > y[13], x[3] > y[3]) })
   endif
   /*aadd(ars,"   ║КСГ: "+print_array(aHirKSG[1]))
   for j := 2 to len(aHirKSG)
@@ -3462,14 +3469,17 @@ if !empty(lksg)
       s += ", цена "+lstr(lcena,11,0)+"р.)" 
     endif
     if !empty(lkiro)
-      // впереди добавить ещё несоблюдение схемы химиотерапии (КИРО=5 и КИРО=6 - позже)
       vkiro := 0 
       if ldnej < 4 // менее 4-х дней
         if ascan(lkiro,1) > 0
           vkiro := 1
         elseif ascan(lkiro,2) > 0
           vkiro := 2
-        elseif lis_err == 1 .and. ascan(lkiro,5) > 0
+          if lksg == 'ds02.005' ; // Экстракорпоральное оплодотворение
+                 .and. lk_data >= 0d20190301 // с 1 марта КИРО=2 не действует
+            vkiro := 0
+          endif
+        elseif lis_err == 1 .and. ascan(lkiro,5) > 0 // добавляем ещё несоблюдение схемы химиотерапии (КИРО=5)
           vkiro := 5
         endif
       elseif ascan({102,105,107,110,202,205,207},lrslt) > 0 // более 3-х дней, лечение прервано
@@ -3477,7 +3487,7 @@ if !empty(lksg)
           vkiro := 3
         elseif ascan(lkiro,4) > 0
           vkiro := 4
-        elseif lis_err == 1 .and. ascan(lkiro,6) > 0
+        elseif lis_err == 1 .and. ascan(lkiro,6) > 0 // добавляем ещё несоблюдение схемы химиотерапии (КИРО=6)
           vkiro := 6
         endif
       endif

@@ -5562,7 +5562,7 @@ do while .t.
               G_RLock(forever)
             endif
             le->REGNUM   := tmple->REGNUM
-            le->CODE_SH  := tmple->CODE_SH
+            le->CODE_SH  := m1crit // tmple->CODE_SH
             le->DATE_INJ := tmple->DATE_INJ
             select TMPLE
             skip

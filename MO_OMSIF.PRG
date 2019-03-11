@@ -1951,7 +1951,7 @@ return NIL
 
 *
 
-*****
+***** 10.03.19
 Function forma_14(k)
 Static si1 := 1
 Local mas_pmt, mas_msg, mas_fun, j, uch_otd
@@ -1960,13 +1960,16 @@ do case
   case k == 1
     mas_pmt := {"Распечатка ~формы 14",;
                 "Форма 14 + ~диагнозы",;
-                "~Отделение + форма 14"}
+                "~Отделение + форма 14",;
+                "~Переведённые в другие ЛПУ"}
     mas_msg := {"Распечатка формы № 14",;
                 "Распечатка аналога формы 14 с уточнением диагнозов",;
-                "Распечатка аналога формы 14 с диагнозами по конкретному отделению"}
+                "Распечатка аналога формы 14 с диагнозами по конкретному отделению",;
+                "Распечатка аналога формы 14 с уточнением диагнозов по переведённым в другие ЛПУ"}
     mas_fun := {"forma_14(11)",;
                 "forma_14(12)",;
-                "forma_14(13)"}
+                "forma_14(13)",;
+                "forma_14(14)"}
     popup_prompt(T_ROW,T_COL-5,si1,mas_pmt,mas_msg,mas_fun)
   case k == 11
     forma_14_(.f.,.f.)
@@ -1974,6 +1977,8 @@ do case
     forma_14_(.t.,.f.)
   case k == 13
     forma_14_(.t.,.t.)
+  case k == 14
+    forma_14_(.t.,.f.,.t.)
 endcase
 if k > 10
   j := int(val(right(lstr(k),1)))
@@ -1985,19 +1990,19 @@ return NIL
 
 *
 
-***** 29.12.16
-Function forma_14_(is_diag,is_otd)
+***** 10.03.19
+Function forma_14_(is_diag,is_otd,is_pereved)
 Local i, j, k, arr, begin_date, end_date, s, buf := save_maxrow(),;
       fl_exit := .f., sh, HH := 80, reg_print, speriod,;
-      arr_title, name_file, ;
-      jh := 0, jh1 := 0, arr_m, nf, file_form
+      arr_title, name_file, jh := 0, jh1 := 0, arr_m, nf, file_form
+DEFAULT is_pereved TO .f.      
 name_file := iif(is_diag, "_frm_14d", "_form_14")+stxt
 if (file_form := search_file("forma_14"+sfrm)) == NIL
   return func_error(4,"Не обнаружен файл FORMA_14"+sfrm)
 endif
-Private len_name := 28, arr_usl, yes_vmp := .f.
+Private len_name := 28, arr_usl, yes_vmp := .f., yes_perevod := is_pereved
+st_a_uchast := {}
 if is_otd
-  st_a_uchast := {}
   if input_uch(T_ROW,T_COL-5,sys_date) == NIL .or. ;
                      input_otd(T_ROW,T_COL-5,sys_date) == NIL
     return NIL
@@ -2006,7 +2011,7 @@ else
   if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) == NIL
     return NIL
   endif
-  if (st_a_uchast := ret_uchast(T_ROW,T_COL-5)) == NIL
+  if !is_pereved .and. (st_a_uchast := ret_uchast(T_ROW,T_COL-5)) == NIL
     return NIL
   endif
 endif
@@ -2216,7 +2221,8 @@ if pi1 == 1 // по дате окончания лечения
     endif
     if human_->usl_ok == 1 .and. human_->oplata < 9 .and. ;
        iif(is_otd, (human->otd == glob_otd[1]), f_is_uch(st_a_uch,human->lpu)) ;
-       .and. func_pi_schet() .and. f_is_uchast(st_a_uchast,kart->uchast)
+       .and. func_pi_schet() .and. f_is_uchast(st_a_uchast,kart->uchast) ; 
+       .and. iif(is_pereved, human_->RSLT_NEW == 102, .t.)
       jh := f1_f14(jh,@jh1,is_diag)
       @ maxrow(),1 say lstr(jh) color cColorSt2Msg
       @ row(),col() say "/" color "W/R"
@@ -2245,7 +2251,8 @@ else
     do while human->schet == schet->kod .and. !eof()
       if human_->usl_ok == 1 .and. human_->oplata < 9 .and. ;
          iif(is_otd, (human->otd == glob_otd[1]), f_is_uch(st_a_uch,human->lpu)) ;
-         .and. f_is_uchast(st_a_uchast,kart->uchast)
+         .and. f_is_uchast(st_a_uchast,kart->uchast) ;
+         .and. iif(is_pereved, human_->RSLT_NEW == 102, .t.)
         UpdateStatus()
         if inkey() == K_ESC
           fl_exit := .t. ; exit
@@ -2291,6 +2298,9 @@ if is_otd
 else
   titleN_uch(st_a_uch,sh,lcount_uch)
   title_uchast(st_a_uchast,sh)
+endif
+if is_pereved
+  add_string(center("[ переведённые в другие ЛПУ ]",sh))
 endif
 add_string("")
 add_string(center(speriod,sh))
@@ -2564,7 +2574,7 @@ for k := 1 to len(arr_4000)
         add_string(replicate("-",sh))
       endif
       add_string(ls1)
-      for i := 2 to max(j1,j2)
+      for i := 2 to j1
         ls2 := padl(alltrim(t_arr1[i]),len_name)
         add_string(ls2)
       next
@@ -2933,7 +2943,7 @@ elseif left(lshifr,2) == "1."  // остальные койко-дни
 endif
 return mkol
 
-***** 02.01.16
+***** 10.03.19
 Function f1_f14(jh,jh1,is_diag)
 Local arr := {}, arr_d := {}, i, j, k, n, lkd := 0, lum, _kd, arr_tip,;
       M1F14_EKST := 0, M1F14_SKOR := 0, M1F14_VSKR := 0, M1F14_RASH := 0,;
@@ -3000,7 +3010,7 @@ if nkd > 0 .and. (k := ret_f_14(mdiag)) != NIL
       fl_death := .t.
       lum := 1 ; lv := 0 ; lkd := 0 // если умер, то койко-дни не учитывать
     endif
-    if fl_perevod
+    if fl_perevod .and. !yes_perevod
       if mvozrast >= 18
         arr_perevod[4] += lv
         arr_perevod[5] += lkd
@@ -3049,8 +3059,7 @@ if nkd > 0 .and. (k := ret_f_14(mdiag)) != NIL
             append blank
             tmp_d->tip := arr_tip[x]
             tmp_d->diagnoz := mdiag
-            if (j := ascan(k, {|y| n := alltrim(y[1]), ;
-                                 (!(n=="1.0") .and. right(n,2)==".0")} )) > 0
+            if (j := ascan(k, {|y| n := alltrim(y[1]), (!(n=="1.0") .and. right(n,2)==".0")} )) > 0
               tmp_d->stroke := padr(k[j,1],9)
             endif
           endif
@@ -3080,8 +3089,7 @@ if nkd > 0 .and. (k := ret_f_14(mdiag)) != NIL
   endif
 endif
 // проверяем таблицу 3000 (новорожденных)
-if nkd > 0 .and. human_->NOVOR > 0 .and. ;
-                     mvozrast == 0 .and. mmonth == 0 .and. mday <= 6
+if nkd > 0 .and. human_->NOVOR > 0 .and. mvozrast == 0 .and. mmonth == 0 .and. mday <= 6
   k := ret_f_14_3000(mdiag)
   for j := 1 to len(k)
     select TMP_3000

@@ -1273,7 +1273,7 @@ return NIL
 
 *
 
-***** 05.12.12 печать прочего счёта
+***** 04.03.19 печать прочего счёта
 Function print_other_schet(is_vyp,is_usl,n_file)
 Local sh := 169, HH := 40, regim := 3, buf := save_maxrow(), ;
       tmp, tmp1, tmp2 := "", mcena_1, hGauge, lshifr1,;
@@ -1558,6 +1558,7 @@ if is_usl == 1
 endif
 if select("LUSL") > 0
   lusl->(dbCloseArea())
+  lusl18->(dbCloseArea())
 endif
 CloseGauge(hGauge)
 if verify_FF(HH-8,.t.,sh)
@@ -1570,8 +1571,7 @@ frt->ssumma := srub_kop(ob_summa,.t.)
 frt->summa := ob_summa
 frt->kol := j
 add_string(replicate("─",sh))
-add_string(padr("Количество пролеченных больных в счете - "+lstr(j),sh-20)+;
-           "Итого: "+str(ob_summa,13,2))
+add_string(padr("Количество пролеченных больных в счете - "+lstr(j),sh-20)+"Итого: "+str(ob_summa,13,2))
 pj := j
 add_string("")
 for i := 1 to perenos(a_fio,"("+srub_kop(ob_summa,.t.)+")",sh)
