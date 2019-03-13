@@ -1946,7 +1946,7 @@ if k > 10
 endif
 return NIL
 
-***** 18.02.19
+***** 12.03.19
 Function pz1statist(par,par2)
 Static _su := 2
 Local buf := savescreen(), fl_exit := .f., fl := .t., a_otd := {},;
@@ -1955,16 +1955,14 @@ Local buf := savescreen(), fl_exit := .f., fl := .t., a_otd := {},;
       mstr_crb, mismo, ltrud, lplan, lcount_uch, lcount_otd
 Private flag_uet := .t., as[10,3], s_stac, sdstac, s_amb, skt, ssmp, suet, sstoim, ;
         su, su1, arr_goi, arr_zn := {B_END,B_STANDART}, arr_rees_no := {1,2},;
-        kol_sl_2 := 0, arr_lp := {}, fl_period := .f.
+        kol_sl_2 := {}, arr_lp := {}, fl_period := .f.
 Private fl_plan := .f., ym_kol_mes := 1, tfoms_pz[6]
 afill(tfoms_pz,0)
 if par > 1 .and. (arr_goi := ret_g_o_i(T_ROW,T_COL-5)) == NIL
   return NIL
 endif
 Private v_deti := 1, apf := {},   apz2016 := {}, luapz2016 := {}, is_2019 := .f.
-if (v_deti := popup_prompt(T_ROW,T_COL-5,1,;
-                           {"по ~всем пациентам","по ~детям"},,,;
-                           "N/G*,W+/B,B/G*,BG+/B")) == 0
+if (v_deti := popup_prompt(T_ROW,T_COL-5,1,{"по ~всем пациентам","по ~детям"},,,"N/G*,W+/B,B/G*,BG+/B")) == 0
   restscreen(buf)
   return NIL
 endif
@@ -2035,6 +2033,8 @@ if between(par,2,3) .and. eq_any(su,1,2,5)
     apz2016 := arr_plan_zakaz(.f.)
     luapz2016 := arr_plan_zakaz(.f.)
   endif
+  kol_sl_2 := array(len(apz2016))
+  afill(kol_sl_2,0)
 endif
 if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) == NIL
   restscreen(buf)
@@ -2285,9 +2285,9 @@ if eq_any(su,1,2,5)
     if luapz2016[i,3] > 0 .or. apz2016[i,3] > 0
       s := padl(luapz2016[i,1],42)
       if empty(apz2016[i,3]) .and. !empty(luapz2016[i,3])
-        s += str(luapz2016[i,3]-kol_sl_2,10,0)
+        s += str(luapz2016[i,3]-kol_sl_2[i],10,0)
       else
-        s += str(apz2016[i,3]-kol_sl_2,10,0)
+        s += str(apz2016[i,3]-kol_sl_2[i],10,0)
       endif
       s += str(luapz2016[i,3],10,0)+str(luapz2016[i,2],17,2)
       add_string(s)
@@ -2621,7 +2621,7 @@ restscreen(buf)
 viewtext(name_file,,,,(sh>80),,,reg_print)
 return NIL
 
-***** 05.02.19
+***** 12.03.19
 Function f1pz1statist(arr_otd,par)
 Local lreg_lech := {0,0,0,0,0}, s, lkod, lshifr, ta, i, j, k, mkol1,;
       mkol, muet, msum, koef := 1, lshifr1, fl := .t., arr_dn_st := {"","",0},;
@@ -2639,9 +2639,6 @@ endif
 if glob_schet_akt == 2 .and. human_->oplata == 3
   koef := human_->sump/human->cena_1
 endif
-if human->ishod == 89 // это 2-ой л/у в двойном случае
-  kol_sl_2++
-endif  
 sstoim += human->cena_1*koef
 ar := array(len(luapz2016)) ; afill(ar,0)
 select HU
@@ -2668,6 +2665,9 @@ for j := 1 to len(ar)
     endif
     luapz2016[j,3] ++
     luapz2016[j,2] += human->cena_1*koef
+    if human->ishod == 89 // это 2-ой л/у в двойном случае
+      kol_sl_2[j]++
+    endif  
   endif
 next
 select HU

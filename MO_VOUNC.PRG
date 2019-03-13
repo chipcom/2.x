@@ -1706,7 +1706,7 @@ do case
 endcase
 return k
 
-***** 15.02.19 создание XML-файлов реестра
+***** 13.03.19 создание XML-файлов реестра
 Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
 Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, ;
       lst, lshifr1, code_reestr, mb, me, nsh
@@ -1936,7 +1936,6 @@ do while !eof()
   arr_onkdi := {}
   arr_onkpr := {}
   arr_onk_usl := {}
-  arr_t21 := {}
   a_otkaz := {}
   arr_nazn := {}
   //
@@ -2473,6 +2472,11 @@ do while !eof()
           endif
         endif
         mo_add_xml_stroke(oUSL,"PROFIL"  ,lstr(hu_->PROFIL))
+        select T21
+        find (padr(lshifr,10))
+        if found()
+          mo_add_xml_stroke(oUSL,"VID_VME",alltrim(t21->shifr_mz))
+        endif
         if p_tip_reestr == 1
           mo_add_xml_stroke(oUSL,"DET"   ,iif(human->VZROS_REB==0,'0','1'))
         endif
@@ -2504,6 +2508,11 @@ do while !eof()
         mo_add_xml_stroke(oUSL,"ID_U"    ,mo_guid(3,iusl))
         mo_add_xml_stroke(oUSL,"LPU"     ,CODE_LPU)
         mo_add_xml_stroke(oUSL,"PROFIL"  ,lstr(a_otkaz[j,4]))
+        select T21
+        find (padr(a_otkaz[j,1],10))
+        if found()
+          mo_add_xml_stroke(oUSL,"VID_VME",alltrim(t21->shifr_mz))
+        endif
         mo_add_xml_stroke(oUSL,"DATE_IN" ,date2xml(a_otkaz[j,3]))
         mo_add_xml_stroke(oUSL,"DATE_OUT",date2xml(a_otkaz[j,3]))
         mo_add_xml_stroke(oUSL,"P_OTK"   ,lstr(a_otkaz[j,7]))
@@ -2565,51 +2574,6 @@ do while !eof()
         endif
       next j
     endif
-    if len(arr_t21) > 0
-      for j := 1 to len(arr_t21) //        aadd(arr_t21, {t21->shifr,t21->shifr_mz,0,hu->(recno())})
-        ++iusl
-        select HU
-        goto (arr_t21[j,4])
-        //
-        oUSL := oSL:Add( HXMLNode():New( "USL" ) )
-        mo_add_xml_stroke(oUSL,"IDSERV"  ,lstr(iusl))
-        mo_add_xml_stroke(oUSL,"ID_U"    ,mo_guid(4,iusl))
-        if hu->is_edit == 1 // гематологические исследования
-          mo_add_xml_stroke(oUSL,"LPU"   ,'125901') // т.е. иссл-ие проводится в КДП №2
-        elseif alltrim(arr_t21[j,1]) == "4.20.2" // жидкостная цитология
-          mo_add_xml_stroke(oUSL,"LPU"   ,'103001') // т.е. иссл-ие проводится в онкологии
-        else
-          mo_add_xml_stroke(oUSL,"LPU"   ,CODE_LPU)
-        endif
-        if human_->USL_OK == 1 .and. is_otd_dep
-          otd->(dbGoto(hu->OTD))
-          f_put_glob_podr(human_->USL_OK,human->K_DATA) // заполнить код подразделения
-          if (i := ascan(mm_otd_dep, {|x| x[2] == glob_otd_dep})) == 0
-            i := 1
-          endif  
-          mo_add_xml_stroke(oUSL,"LPU_1",lstr(mm_otd_dep[i,3]))
-          mo_add_xml_stroke(oUSL,"PODR" ,lstr(glob_otd_dep))
-        endif
-        mo_add_xml_stroke(oUSL,"PROFIL"  ,lstr(hu_->PROFIL))
-        mo_add_xml_stroke(oUSL,"VID_VME",alltrim(arr_t21[j,2]))
-        mo_add_xml_stroke(oUSL,"DET"     ,iif(human->VZROS_REB==0,'0','1'))
-        mo_add_xml_stroke(oUSL,"DATE_IN" ,date2xml(c4tod(hu->DATE_U)))
-        mo_add_xml_stroke(oUSL,"DATE_OUT",date2xml(c4tod(hu_->DATE_U2)))
-        mo_add_xml_stroke(oUSL,"DS"      ,hu_->kod_diag)
-        mo_add_xml_stroke(oUSL,"CODE_USL",alltrim(arr_t21[j,2]))
-        mo_add_xml_stroke(oUSL,"KOL_USL" ,lstr(arr_t21[j,3],6,2))
-        mo_add_xml_stroke(oUSL,"TARIF"   ,'0')//lstr(hu->U_CENA,10,2))
-        mo_add_xml_stroke(oUSL,"SUMV_USL",'0')//lstr(hu->STOIM_1,10,2))
-        mo_add_xml_stroke(oUSL,"PRVS",put_prvs_to_reestr(hu_->PRVS,_NYEAR))
-        if c4tod(hu->DATE_U) < human->n_data ; // если сделано ранее
-               .or. eq_any(hu->is_edit,-1,1) .or. alltrim(arr_t21[j,1]) == "4.20.2" // не заполняется код врача
-          mo_add_xml_stroke(oUSL,"CODE_MD",'0')
-        else
-          p2->(dbGoto(hu->kod_vr))
-          mo_add_xml_stroke(oUSL,"CODE_MD" ,p2->snils)
-        endif
-      next j  
-    endif 
     if p_tip_reestr == 2 .and. !empty(sCOMENTSL)
       if is_disp_DVN
         sCOMENTSL += ":"

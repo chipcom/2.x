@@ -228,38 +228,16 @@ if hb_FileExists(exe_dir+sbase+sdbf)
 else
   fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
 endif
-if empty(arr_12_VMP)
-  sbase := "_mo8usl"
-  if hb_FileExists(exe_dir+sbase+sdbf)
-    R_Use(exe_dir+sbase,,"LUSL")
-    index on shifr to (cur_dir+sbase)
-    find ("1.12.") // ВМП федеральное
-    do while left(lusl->shifr,5) == "1.12." .and. !eof()
-      aadd(arr_12_VMP,int(val(substr(lusl->shifr,6))))
-      skip
-    enddo
-    use
-  endif
-endif
-/*sbase := "_mo_usl"
-Public arr_14_VMP := {}
+sbase := "_mo8usl"
 if hb_FileExists(exe_dir+sbase+sdbf)
-  if files_time(exe_dir+sbase+sdbf,cur_dir+sbase+sntx)
+  if !hb_FileExists(cur_dir+sbase+sntx)
     R_Use(exe_dir+sbase,,"LUSL")
     index on shifr to (cur_dir+sbase)
-    for i := 12 to 16 step 4
-      s := "1."+str(i,2)+"." 
-      find (s) // ВМП федеральное
-      do while left(lusl->shifr,5) == s .and. !eof()
-        aadd(arr_12_VMP,int(val(substr(lusl->shifr,6))))
-        skip
-      enddo
-    next
     use
   endif
 else
   fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
-endif*/
+endif
 Public is_napr_pol := .f.,; // работа с направлениями на госпитализацию в п-ке
        is_napr_stac := .f.,;  // работа с направлениями на госпитализацию в стационаре
        glob_klin_diagn := {} // работа со специальными лабораторными исследованиями

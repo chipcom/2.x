@@ -455,7 +455,7 @@ if (fl := (human_->ST_VERIFY == 5))
 endif 
 return fl
 
-***** 18.02.19 работаем по текущей записи
+***** 13.03.19 работаем по текущей записи
 Function f1_create2reestr19(_nyear,_nmonth)
 Local i, j, lst, s
 fl_DISABILITY := is_zak_sl := is_zak_sl_vr := .f.
@@ -536,7 +536,6 @@ if between(onksl->DS1_T,0,2)
   enddo
 endif  
 //
-arr_t21 := {}
 select HU
 find (str(human->kod,7))
 do while hu->kod == human->kod .and. !eof()
@@ -548,14 +547,6 @@ do while hu->kod == human->kod .and. !eof()
       fl_disp_nabl := .t.
     endif
     aadd(atmpusl,lshifr)
-    select T21
-    find (padr(lshifr,10))
-    if found()
-      if (i := ascan(arr_t21, {|x| x[1] == padr(lshifr,10) })) == 0
-        aadd(arr_t21, {t21->shifr,t21->shifr_mz,0,hu->(recno())}) ; i := len(arr_t21)
-      endif
-      arr_t21[i,3] += hu->kol_1
-    endif
     if eq_any(left(lshifr,5),"1.11.","55.1.")
       kol_kd += hu->kol_1
       is_KSG := .t.
