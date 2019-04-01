@@ -813,20 +813,22 @@ kvp_2_78 := kvp_2_89 := kol_2_3 := kol_2_60 := kol_2_4 := kol_2_6 := kol_55_1 :=
 kvp_70_5 := kvp_70_6 := kvp_70_3 := kvp_72_2 := kvp_72_3 := kvp_72_4 := 0
 is_2_78 := is_2_79 := is_2_80 := is_2_81 := is_2_82 := .f.
 is_2_83 := is_2_84 := is_2_85 := is_2_86 := is_2_87 := is_2_88 := is_2_89 := .f.
-a_2_89 := {0,0,0}
+a_2_89 := array(11) ; afill(a_2_89,0)
 is_disp_DDS := is_disp_DVN := is_disp_DVN3 := is_prof_PN := is_neonat := is_pren_diagn := .f.
 is_70_3 := is_70_5 := is_70_6 := is_72_2 := is_72_3 := is_72_4 := .f.
 lstkol := 0 ; lstshifr := shifr_ksg := "" ; cena_ksg := 0
 midsp := musl_ok := mRSLT_NEW := mprofil := mvrach := m1lis := 0
 lvidpoms := ""
-// для физкультурного диспансера
-arr_lfk := {"3.1.5","3.1.19","3.4.31","4.2.153","4.11.136","7.12.5",;
-            "7.12.6","7.12.7","7.2.2","13.1.1","14.2.3",;
-            "19.1.2","19.1.5","19.1.6","19.1.7","19.1.9","19.1.11","19.1.12","19.1.29","19.1.30",;
-            "19.2.2","19.2.4","19.3.1","19.5.19","19.6.1",;
-            "20.1.1","20.1.2","20.1.3",;
-            "20.2.1","20.2.2",;
-            "21.1.1","21.1.2","21.1.3",;
+// реабилитация - для физкультурного диспансера и других
+arr_lfk := {"3.1.5","3.1.19","3.4.31",;
+            "4.2.153","4.11.136",;
+            "7.12.5","7.12.6","7.12.7","7.2.2",;
+            "13.1.1",;
+            "14.2.3",;
+            "19.1.1","19.1.2","19.1.3","19.1.5","19.1.6","19.1.7","19.1.9","19.1.11","19.1.12","19.1.29","19.1.30",;
+            "19.2.1","19.2.2","19.2.4","19.3.1","19.5.1","19.5.2","19.5.19","19.6.1",;
+            "20.1.1","20.1.2","20.1.3","20.1.4","20.2.1","20.2.2",;
+            "21.1.1","21.1.2","21.1.3","21.1.4","21.2.1",;
             "22.1.1","22.1.2","22.1.3"}
 //
 f_put_glob_podr(human_->USL_OK,d2,ta) // заполнить код подразделения 
@@ -905,7 +907,7 @@ do while hu->kod == human->kod .and. !eof()
         else
           aadd(ta,'лабораторная услуга "'+alltrim(usl->shifr)+'" может быть оказана только в поликлинике')
         endif
-      else
+      elseif hu->is_edit == 0
         aadd(ta,'не заполнено поле "Врач, оказавший услугу '+alltrim(usl->shifr)+'"')
       endif
     else
@@ -1088,8 +1090,8 @@ do while hu->kod == human->kod .and. !eof()
       if left_lshifr_5 == "4.26."
         is_neonat := .t.
       endif
-      if hu->is_edit == 1 .and. d1 <= c4tod(mdate_u2)
-        m1lis := 1
+      if eq_any(hu->is_edit,1,2) .and. d1 <= c4tod(mdate_u2)
+        m1lis := hu->is_edit
       endif
     else
       musl_ok := 3  // п-ка
@@ -1753,26 +1755,25 @@ if is_oncology == 2 // онкология
             if empty(onkus->LUCH_TIP)
               aadd(ta,'не заполнен тип '+iif(onkus->USL_TIP==3,'','химио')+'лучевой терапии')
             endif
-            if onkus->USL_TIP == 4
-              if empty(onksl->crit2)
-                aadd(ta,'не заполнена схема лекарственной терапии для химиолучевой терапии')
-              endif
-            endif
           endif
           au_flu[i,11] := .t.
-        elseif onkus->USL_TIP != 2  
+        elseif eq_any(onkus->USL_TIP,1,3,4)  
           aadd(ta,'не введена услуга для выбранного типа онкологического лечения ('+;
-                  {"хирург.","","лучевая","химиолучевая","катетер","диагн."}[onkus->USL_TIP]+")")
+                  {"хирург.","","лучевая","химиолучевая"}[onkus->USL_TIP]+')')
         endif
-        if onkus->USL_TIP == 6 .and. between(onksl->ds1_t,0,2)
+        if onkus->USL_TIP == 5 .and. onksl->ds1_t != 6
+          aadd(ta,'для выбранного повода обращения нельзя вводить "неспецифическое лечение"')
+        elseif onkus->USL_TIP == 6 .and. onksl->ds1_t != 5
           aadd(ta,'для выбранного повода обращения нельзя вводить лечение "диагностика"')
         endif
       endif
       select ONKUS
       skip
     enddo
-    if empty(arr_onk_usl) .and. between(onksl->ds1_t,0,2)
-      aadd(ta,'не введено онкологическое лечение')
+    if empty(arr_onk_usl)
+      if iif(human_2->VMP == 1, .t., between(onksl->ds1_t,0,2))
+        aadd(ta,'не введено онкологическое лечение')
+      endif
     elseif eq_ascan(arr_onk_usl,2,4)
       if empty(onksl->crit)
         aadd(ta,'не введена схема лекарственной терапии')
@@ -2763,12 +2764,13 @@ elseif is_2_89 // медицинская реабилитация (физкультурный диспансер)
     elseif human_2->NPR_DATE+60 < d1
       aadd(ta,'Направлению на лечение больше двух месяцев')
     endif
-    if !ret_mo(human_->NPR_MO)[_MO_IS_UCH]
+    if !(glob_mo[_MO_KOD_TFOMS] == '103001') .and. !ret_mo(human_->NPR_MO)[_MO_IS_UCH]
       aadd(ta,'введена "Направившая МО", которая не имеет право прикреплять пациентов')
     endif
   endif
   aps := {} // сочетание профиля и специальности
   aadd(aps, {17, {113403}})  // детская кардиология
+  aadd(aps, {18, {112801,113401,113501}})  // детской онкологии
   aadd(aps, {29, {112205}})  // кардиология
   aadd(aps, {34, {1107,1301,1402,1702}})  // клинической лабораторной диагностике
   aadd(aps, {37, {2013}})  // лабораторному делу
@@ -2777,6 +2779,7 @@ elseif is_2_89 // медицинская реабилитация (физкультурный диспансер)
   aadd(aps, {42, {2002}})  // лечебному делу
   aadd(aps, {53, {1109}})  // неврологии
   aadd(aps, {57, {1110}})  // общей врачебной практике (семейной медицине)
+  aadd(aps, {60, {1128}})  // онкологии
   aadd(aps, {65, {1112}})  // офтальмологии
   aadd(aps, {68, {1134}})  // педиатрии
   aadd(aps, {78, {1118,1802,2020}})  // рентгенологии
@@ -2820,15 +2823,12 @@ elseif is_2_89 // медицинская реабилитация (физкультурный диспансер)
     if !between(au_lu[i,2],d1,d2)
       aadd(ta,'дата услуги '+alltrim_lshifr+' вне диапазона лечения ('+date_8(au_lu[i,2])+')')
     endif
-    if len(mdiagnoz) > 0 .and. !(alltrim(mdiagnoz[1])==alltrim(au_lu[i,8]))
+    if len(mdiagnoz) > 0 .and. !(alltrim(mdiagnoz[1]) == alltrim(au_lu[i,8]))
       aadd(ta,'в услуге '+alltrim_lshifr+' должен стоять основной диагноз')
     endif
     if left_lshifr_5 == "2.89."
       zs += au_lu[i,6]
     elseif left_lshifr_4 == "2.6."
-      if au_lu[i,6] != 1
-        aadd(ta,'в услуге '+alltrim_lshifr+' количество не должно быть больше 1')
-      endif
       if d1 == au_lu[i,2]
         is_1_den := .t.
       elseif d2 == au_lu[i,2]
@@ -2847,31 +2847,40 @@ elseif is_2_89 // медицинская реабилитация (физкультурный диспансер)
       endif
       fl_not_2_89 := .f.
       if left_lshifr_3 == "20." // ЛФК
-        atmp := {"20.1.2","20.1.1","20.1.3"}
-        for j := 1 to 3
-          if alltrim_lshifr == atmp[j] .and. a_2_89[j] == 0
-            fl_not_2_89 := .t.
-          endif
-        next
+        atmp := {"20.1.2","20.1.1","20.1.3","20.1.1","20.1.1","20.1.4","20.1.4","20.1.4","20.1.4","20.1.4","20.1.4"}
+        if ascan(atmp,alltrim_lshifr) > 0
+          for j := 1 to 11
+            if a_2_89[j] == 1 .and. !(alltrim_lshifr == atmp[j])
+              fl_not_2_89 := .t.
+            endif
+          next
+        endif
         if alltrim_lshifr == "20.2.1" .and. emptyall(a_2_89[1],a_2_89[2])
           fl_not_2_89 := .t.
         elseif alltrim_lshifr == "20.2.2" .and. a_2_89[3] == 0
           fl_not_2_89 := .t.
         endif
       elseif left_lshifr_3 == "21." // массаж
-        atmp := {"21.1.2","21.1.1","21.1.3"}
-        for j := 1 to 3
-          if alltrim_lshifr == atmp[j] .and. a_2_89[j] == 0
-            fl_not_2_89 := .t.
-          endif
-        next
+        atmp := {"21.1.2","21.1.1","21.1.3","21.1.1","21.1.1","21.1.4","21.1.4","21.1.4","21.1.4","21.1.4","21.1.4"}
+        if ascan(atmp,alltrim_lshifr) > 0
+          for j := 1 to 11
+            if a_2_89[j] == 1 .and. !(alltrim_lshifr == atmp[j])
+              fl_not_2_89 := .t.
+            endif
+          next
+        endif
+        if alltrim_lshifr == "21.2.1" .and. emptyall(a_2_89[6],a_2_89[7],a_2_89[8],a_2_89[9],a_2_89[11])
+          fl_not_2_89 := .t.
+        endif
       elseif left_lshifr_3 == "22." // рефлексотерапия
-        atmp := {"22.1.2","22.1.1","22.1.3"}
-        for j := 1 to 3
-          if alltrim_lshifr == atmp[j] .and. a_2_89[j] == 0
-            fl_not_2_89 := .t.
-          endif
-        next
+        atmp := {"22.1.2","22.1.1","22.1.3","22.1.1","22.1.1"}
+        if ascan(atmp,alltrim_lshifr) > 0
+          for j := 1 to 5
+            if a_2_89[j] == 1 .and. !(alltrim_lshifr == atmp[j])
+              fl_not_2_89 := .t.
+            endif
+          next
+        endif
       endif
       if fl_not_2_89
         aadd(ta,'услуга '+alltrim_lshifr+' не совпадает по наименованию с кодом законченного случая обращения')
@@ -2885,7 +2894,7 @@ elseif is_2_89 // медицинская реабилитация (физкультурный диспансер)
     endif
   next
   if zs > 1
-    aadd(ta,'в листе учета более одной услуги "законченный случай"')
+    aadd(ta,'в листе учета более одной услуги 2.89.* "законченный случай"')
   endif
   if oth_usl > 0
     aadd(ta,'в листе учета не должно быть данных услуг: '+s)
@@ -3186,6 +3195,7 @@ endif
 if is_disp_DDS //
   metap := 1
   m1mobilbr := 0
+  human->OBRASHEN := ''
   tip_lu := iif(!empty(human->ZA_SMO), TIP_LU_DDS, TIP_LU_DDSOP)
   if d1_year != d2_year
     aadd(ta,'Дата начала и окончания случая должны быть в одном году')

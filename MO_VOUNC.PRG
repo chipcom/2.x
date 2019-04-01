@@ -2449,14 +2449,14 @@ do while !eof()
         lshifr1 := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data)
         lshifr := alltrim(iif(empty(lshifr1), usl->shifr, lshifr1))
         oUSL := oSL:Add( HXMLNode():New( "USL" ) )
-        mo_add_xml_stroke(oUSL,"IDSERV"  ,lstr(hu_->REES_ZAP))
-        mo_add_xml_stroke(oUSL,"ID_U"    ,hu_->ID_U)
-        if hu->is_edit == 1 // гематологические исследования
-          mo_add_xml_stroke(oUSL,"LPU"   ,'125901') // т.е. иссл-ие проводится в КДП №2
-        elseif lshifr == "4.20.2" // жидкостная цитология
-          mo_add_xml_stroke(oUSL,"LPU"   ,'103001') // т.е. иссл-ие проводится в онкологии
+        mo_add_xml_stroke(oUSL,"IDSERV",lstr(hu_->REES_ZAP))
+        mo_add_xml_stroke(oUSL,"ID_U",hu_->ID_U)
+        if eq_any(hu->is_edit,1,2) // гематологические исследования
+          mo_add_xml_stroke(oUSL,"LPU",kod_LIS[hu->is_edit]) // иссл-ие проводится в КДП2 или РДЛ
+        elseif lshifr == "4.20.2" .or. hu->is_edit == 3 // жидкостная цитология или приём в ВОКОД
+          mo_add_xml_stroke(oUSL,"LPU",'103001') // т.е. иссл-ие проводится в онкологии
         else
-          mo_add_xml_stroke(oUSL,"LPU"   ,CODE_LPU)
+          mo_add_xml_stroke(oUSL,"LPU",CODE_LPU)
         endif
         if p_tip_reestr == 1 
           if human_->USL_OK == 1 .and. is_otd_dep
@@ -2493,11 +2493,11 @@ do while !eof()
         mo_add_xml_stroke(oUSL,"SUMV_USL",lstr(hu->STOIM_1,10,2))
         mo_add_xml_stroke(oUSL,"PRVS",put_prvs_to_reestr(hu_->PRVS,_NYEAR))
         if c4tod(hu->DATE_U) < human->n_data ; // если сделано ранее
-                       .or. eq_any(hu->is_edit,-1,1) .or. lshifr == "4.20.2" // не заполняется код врача
+                       .or. eq_any(hu->is_edit,-1,1,2,3) .or. lshifr == "4.20.2" // не заполняется код врача
           mo_add_xml_stroke(oUSL,"CODE_MD",'0')
         else
           p2->(dbGoto(hu->kod_vr))
-          mo_add_xml_stroke(oUSL,"CODE_MD" ,p2->snils)
+          mo_add_xml_stroke(oUSL,"CODE_MD",p2->snils)
         endif
       next
     endif

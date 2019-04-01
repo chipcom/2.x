@@ -2757,7 +2757,7 @@ if k > 0
             //if empty(l1 := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data))
               l1 := usl->shifr
             //endif
-            l3 := iif(hu->is_edit > 1, "[-"+lstr(hu->is_edit)+"%]", "")
+            l3 := ""//iif(hu->is_edit > 1, "[-"+lstr(hu->is_edit)+"%]", "")
             if (i := ascan(aup, {|x| x[1]==l1 .and. x[3]==l3} )) == 0
               aadd(aup, {l1,0,l3}) ; i := len(aup)
             endif

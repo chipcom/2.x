@@ -625,9 +625,11 @@ do while !eof()
   endif
   if tmp1->is_edit == 1
     s += "КДП№2 "
+  elseif tmp1->is_edit == 2
+    s += " РДЛ  "
   elseif tmp1->is_edit == -1
     s += "ЦКДЛ  "
-  elseif alltrim(tmp1->shifr) == "4.20.2" 
+  elseif alltrim(tmp1->shifr) == "4.20.2" .or. tmp1->is_edit == 3 
     s += "ВОКОД "
   else
     s += tmp1->otd+" "
@@ -1031,9 +1033,11 @@ for ii := 1 to len(arr_h)
     s := date_8(tmp1->date_u1)+" "
     if tmp1->is_edit == 1
       s += "КДП№2 "
+    elseif tmp1->is_edit == 2
+      s += " РДЛ  "
     elseif tmp1->is_edit == -1
       s += "ЦКДЛ  "
-    elseif alltrim(tmp1->shifr) == "4.20.2" 
+    elseif alltrim(tmp1->shifr) == "4.20.2" .or. tmp1->is_edit == 3 
       s += "ВОКОД "
     else
       s += tmp1->otd+" "
@@ -3911,11 +3915,14 @@ if k > 10
 endif
 return NIL
 
-***** 11.09.18
+***** 14.03.19
 FUNCTION pr_sprav_onk_vmp()
 Static mm_usl_tip := {'"Хирургическое лечение"',;
                       '"Лекарственная противоопухолевая терапия"',;
-                      '"Лучевая терапия"'}
+                      '"Лучевая терапия"',;
+                      '',;
+                      '"Неспецифическое лечение"',;
+                      '"Диагностика"'}
 Local buf := save_maxrow(), name_file := "metodVMPonko"+stxt, sh := 80, HH := 60, t_arr[2], i, s
 mywait()
 fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0

@@ -4,7 +4,7 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 27.09.18 ПН - добавление или редактирование случая (листа учета)
+***** 27.03.19 ПН - добавление или редактирование случая (листа учета)
 Function oms_sluch_PN(Loc_kod,kod_kartotek,f_print)
 // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
 // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -29,12 +29,12 @@ if kod_kartotek == 0 // добавление в картотеку
 endif
 chm_help_code := 3002
 Private mfio := space(50), mpol, mdate_r, madres, mvozrast, mdvozrast, msvozrast := " ",;
-  M1VZROS_REB, MVZROS_REB, m1novor := 0,;
-  m1company := 0, mcompany, mm_company,;
-  mkomu, M1KOMU := 0, M1STR_CRB := 0,; // 0-ОМС,1-компании,3-комитеты/ЛПУ,5-личный счет
-  msmo := "34007", rec_inogSMO := 0,;
-  mokato, m1okato := "", mismo, m1ismo := "", mnameismo := space(100),;
-  mvidpolis, m1vidpolis := 1, mspolis := space(10), mnpolis := space(20)
+        M1VZROS_REB, MVZROS_REB, m1novor := 0,;
+        m1company := 0, mcompany, mm_company,;
+        mkomu, M1KOMU := 0, M1STR_CRB := 0,; // 0-ОМС,1-компании,3-комитеты/ЛПУ,5-личный счет
+        msmo := "34007", rec_inogSMO := 0,;
+        mokato, m1okato := "", mismo, m1ismo := "", mnameismo := space(100),;
+        mvidpolis, m1vidpolis := 1, mspolis := space(10), mnpolis := space(20)
 Private mkod := Loc_kod, mtip_h, is_talon := .f.,;
         mkod_k := kod_kartotek, fl_kartotek := (kod_kartotek == 0),;
   M1LPU := glob_uch[1], MLPU,;
@@ -145,7 +145,7 @@ Private mm_privivki1 := {{"привит по возрасту",0},;
 Private mm_privivki2 := {{"полностью",1},;
                          {"частично",2}}
 //
-Private metap := 1, mperiod := 0, mshifr_zs := "",;
+Private metap := 1, mperiod := 0, mshifr_zs := "", mnapr_onk := space(10), m1napr_onk := 0,;
         mkateg_uch, m1kateg_uch := 3,; // Категория учета ребенка:
         mmesto_prov := space(10), m1mesto_prov := 0,; // место проведения
         mMO_PR := space(10), m1MO_PR := st_mo_pr,; // код МО прикрепления
@@ -517,8 +517,8 @@ if Loc_kod > 0
         if j == 1
           m1var := "m1lis"+lstr(i)
           if glob_yes_kdp2[TIP_LU_PN] .and. ascan(glob_arr_usl_LIS,np_arr_issled[i,1]) > 0 ;
-                                      .and. hu->is_edit == 1
-            &m1var := 1
+                                      .and. hu->is_edit > 0
+            &m1var := hu->is_edit
           endif
           mvar := "mlis"+lstr(i)
           &mvar := inieditspr(A__MENUVERT, mm_kdp2, &m1var)
@@ -656,7 +656,10 @@ do while .t.
   close databases
   DispBegin()
   if num_screen == 5
-    hS := 31 ; wS := 90
+    hS := 30 ; wS := 90
+    if m1step2 == 2
+      hS += 2
+    endif
   elseif num_screen == 3
     hS := 30 ; wS := 80
   else
@@ -1134,8 +1137,13 @@ do while .t.
       next
     next
     ++j; @ j,1 to j,78
+   if m1step2 == 2
     ++j; @ j,1 say "Признак подозрения на злокачественное новообразование" get mDS_ONK ;
-               reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} 
+               reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
+    ++j; @ j,1 say "Направления при подозрении на ЗНО" get mnapr_onk ;
+               reader {|x|menu_reader(x,{{|k,r,c| fget_napr_PN(k,r,c)}},A__FUNCTION,,,.f.)} ;
+               when m1ds_onk == 1
+   endif             
     ++j; @ j,1 say "Направлен на лечение" get mnapr_stac ;
                reader {|x|menu_reader(x,mm_napr_stac,A__MENUVERT,,,.f.)} ; 
                valid {|| iif(m1napr_stac==0, (m1profil_stac:=0,mprofil_stac:=space(32)), ), update_get("mprofil_stac")}  
@@ -1313,6 +1321,10 @@ do while .t.
         not_audio_s := .f.
       endif
       if _fl_ .and. not_audio_s /*.and. np_arr_issled[i,4] == 0 // не гормон*/
+        m1var := "m1lis"+lstr(i)
+        if glob_yes_kdp2[TIP_LU_PN] .and. &m1var > 0 
+          &mvart := -1
+        endif
         if empty(&mvard)
           fl := func_error(4,'Не введена дата иссл-ия "'+np_arr_issled[i,3]+'"')
         elseif metap == 2 .and. &mvard > d12
@@ -1322,18 +1334,23 @@ do while .t.
         endif
       endif
       if _fl_ .and. !emptyany(&mvard,&mvart)
-        select P2
-        find (str(&mvart,5))
-        if found()
-          arr_iss[i,1] := p2->kod
-          arr_iss[i,2] := -ret_new_spec(p2->prvs,p2->prvs_new)
-        endif
-        if !empty(&mvara)
+        if &mvart > 0
           select P2
-          find (str(&mvara,5))
+          find (str(&mvart,5))
           if found()
-            arr_iss[i,3] := p2->kod
+            arr_iss[i,1] := p2->kod
+            arr_iss[i,2] := -ret_new_spec(p2->prvs,p2->prvs_new)
           endif
+          if !empty(&mvara)
+            select P2
+            find (str(&mvara,5))
+            if found()
+              arr_iss[i,3] := p2->kod
+            endif
+          endif
+        else
+          arr_iss[i,2] := -ret_new_spec(np_arr_issled[i,6,1])
+          arr_iss[i,10] := &m1var // кровь проверяют в КДП2 или в РДЛ
         endif
         if valtype(np_arr_issled[i,5]) == "N"
           arr_iss[i,4] := np_arr_issled[i,5] // профиль
@@ -1344,16 +1361,12 @@ do while .t.
         arr_iss[i,6] := mdef_diagnoz
         arr_iss[i,9] := &mvard  
         //        
-        m1var := "m1lis"+lstr(i)
-        if glob_yes_kdp2[TIP_LU_PN] .and. &m1var == 1 
-          arr_iss[i,10] := 1 // кровь проверяют в КДП2
-        endif
         m1var := "M1OTKAZi"+lstr(i)
         if &m1var == 1 .and. !between(arr_iss[i,9],mn_data,mk_data) // если отказ и не в диапазоне
           &m1var := 0
         endif
         if &m1var == 1
-          arr_iss[i,10] := 2 // отказ от услуги
+          arr_iss[i,10] := 9 // отказ от услуги
           is_otkaz := .t.
         elseif left(arr_iss[i,5],5) == "4.26."
           is_neonat := .t.
@@ -1418,7 +1431,7 @@ do while .t.
             &m1var := 0
           endif
           if &m1var == 1
-            arr_osm1[i,10] := 2 // отказ от осмотра
+            arr_osm1[i,10] := 9 // отказ от осмотра
             is_otkaz := .t.
           endif
           max_date1 := max(max_date1,arr_osm1[i,9])
@@ -1501,7 +1514,7 @@ do while .t.
             endif
             m1var := "M1OTKAZo"+lstr(i)
             if &m1var == 1
-              arr_osm2[i,10] := 2 // отказ от осмотра
+              arr_osm2[i,10] := 9 // отказ от осмотра
             endif
             arr_osm2[i,9] := &mvard
             max_date2 := max(max_date2,arr_osm2[i,9])
@@ -1611,8 +1624,8 @@ do while .t.
     if glob_yes_kdp2[TIP_LU_PN]
       for i := 1 to count_pn_arr_iss
         if valtype(arr_iss[i,9]) == "D" .and. arr_iss[i,9] >= mn_data .and. len(arr_iss[i]) > 9 ;
-                                        .and. valtype(arr_iss[i,10]) == "N" .and. arr_iss[i,10] == 1
-          m1lis := 1 // в рамках диспансеризации
+                                        .and. valtype(arr_iss[i,10]) == "N" .and. arr_iss[i,10] > 0
+          m1lis := arr_iss[i,10] // в рамках диспансеризации
         endif
       next
     endif
@@ -1621,7 +1634,7 @@ do while .t.
     if metap == 1 // I этап
       for i := 1 to len(arr_iss)
         if valtype(arr_iss[i,5]) == "C"
-          if arr_iss[i,10] == 2 // отказ
+          if arr_iss[i,10] == 9 // отказ
             arr_iss[i,10] := "i"
             aadd(arr_usl_otkaz,arr_iss[i])
           else
@@ -1639,7 +1652,7 @@ do while .t.
       next
       for i := 1 to len(arr_osm1)
         if valtype(arr_osm1[i,5]) == "C"
-          if arr_osm1[i,10] == 2 // отказ
+          if arr_osm1[i,10] == 9 // отказ
             arr_osm1[i,10] := "o"
             aadd(arr_usl_otkaz,arr_osm1[i])
           else
@@ -1686,7 +1699,7 @@ do while .t.
       use
       for i := 1 to len(arr_iss)
         if valtype(arr_iss[i,5]) == "C"
-          if arr_iss[i,10] == 2 // отказ
+          if arr_iss[i,10] == 9 // отказ
             arr_iss[i,10] := "i"
             aadd(arr_usl_otkaz,arr_iss[i])
           else
@@ -1704,7 +1717,7 @@ do while .t.
       for i := 1 to len(arr_osm1)
         if valtype(arr_osm1[i,5]) == "C"
           lshifr := alltrim(arr_osm1[i,5])
-          if arr_osm1[i,10] == 2 // отказ от осмотра
+          if arr_osm1[i,10] == 9 // отказ от осмотра
             arr_osm1[i,10] := "o"
             aadd(arr_usl_otkaz,arr_osm1[i])
           else
@@ -1733,7 +1746,7 @@ do while .t.
       for i := 1 to len(arr_osm2)
         if valtype(arr_osm2[i,5]) == "C"
           lshifr := alltrim(arr_osm2[i,5])
-          if arr_osm2[i,10] == 2 // отказ от осмотра
+          if arr_osm2[i,10] == 9 // отказ от осмотра
             arr_osm2[i,10] := "o"
             aadd(arr_usl_otkaz,arr_osm2[i])
           else
@@ -2010,7 +2023,7 @@ if _period == 13 // 12 месяцев с 1 сентября
 endif
 return NIL    
 
-***** 27.09.18 вернуть шифр услуги законченного случая для ПН
+***** 19.03.19 вернуть шифр услуги законченного случая для ПН
 Function ret_shifr_zs_PN(_period)
 Local lshifr := ""
 do case
@@ -2019,39 +2032,39 @@ do case
   case _period == 2
     lshifr := "72.2.39" // 1 месяц
   case _period == 3
-    lshifr := iif(m1lis == 1, "72.2.41", "72.2.40") // 2 мес
+    lshifr := iif(m1lis > 0, "72.2.41", "72.2.40") // 2 мес
   case _period == 4
     lshifr := "72.2.43" // 3 месяца
   case eq_any(_period,5,6,7,8,9,10,11,12,14,15)
     lshifr := "72.2.42" // 4мес,5мес,6мес,7мес,8мес,9мес,10мес,11мес,1год3мес,1год6мес
   case _period == 13
     if ascan(np_arr_1_etap[_period,4],"2.85.21") > 0  // если есть офтальмолог
-      lshifr := iif(m1lis == 1, "72.2.65", "72.2.64") // 12 месяцев с 1 сентября
+      lshifr := iif(m1lis > 0, "72.2.65", "72.2.64") // 12 месяцев с 1 сентября
     else
-      lshifr := iif(m1lis == 1, "72.2.45", "72.2.44") // 12 месяцев
+      lshifr := iif(m1lis > 0, "72.2.45", "72.2.44") // 12 месяцев
     endif
   case _period == 16
     lshifr := "72.2.46" // 2 года
   case _period == 17
-    lshifr := iif(m1lis == 1, "72.2.48", "72.2.47") // 3 года
+    lshifr := iif(m1lis > 0, "72.2.48", "72.2.47") // 3 года
   case eq_any(_period,18,19,22,23,25,26)
     lshifr := "72.2.49" // 4 года,5 лет,8 лет,9 лет,11 лет,12лет
   case _period == 20
-    lshifr := iif(m1lis == 1, "72.2.51", "72.2.50") // 6 лет
+    lshifr := iif(m1lis > 0, "72.2.51", "72.2.50") // 6 лет
   case _period == 21
-    lshifr := iif(m1lis == 1, "72.2.53", "72.2.52") // 7 лет
+    lshifr := iif(m1lis > 0, "72.2.53", "72.2.52") // 7 лет
   case _period == 24
-    lshifr := iif(m1lis == 1, "72.2.55", "72.2.54") // 10 лет
+    lshifr := iif(m1lis > 0, "72.2.55", "72.2.54") // 10 лет
   case _period == 27
     lshifr := "72.2.56" // 13 лет
   case _period == 28
     lshifr := "72.2.57" // 14 лет
   case _period == 29
-    lshifr := iif(m1lis == 1, "72.2.59", "72.2.58") // 15 лет
+    lshifr := iif(m1lis > 0, "72.2.59", "72.2.58") // 15 лет
   case _period == 30
-    lshifr := iif(m1lis == 1, "72.2.61", "72.2.60") // 16 лет
+    lshifr := iif(m1lis > 0, "72.2.61", "72.2.60") // 16 лет
   case _period == 31
-    lshifr := iif(m1lis == 1, "72.2.63", "72.2.62") // 17 лет
+    lshifr := iif(m1lis > 0, "72.2.63", "72.2.62") // 17 лет
 endcase
 return lshifr
 

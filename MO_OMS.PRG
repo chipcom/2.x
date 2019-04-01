@@ -25,7 +25,7 @@ else
 endif
 return fl
 
-***** 03.09.18 ДДС - добавление или редактирование случая (листа учета)
+***** 24.03.19 ДДС - добавление или редактирование случая (листа учета)
 Function oms_sluch_DDS(tip_lu,Loc_kod,kod_kartotek,f_print)
 // tip_lu - TIP_LU_DDS или TIP_LU_DDSOP
 // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -234,8 +234,8 @@ Private minvalid1, m1invalid1 := 0,;
 Private mprivivki1, m1privivki1 := 0,;
         mprivivki2, m1privivki2 := 0,;
         mprivivki3 := space(100)
-Private mvar, m1var, m1lis := 0
-Private mDS_ONK, m1DS_ONK := 0 // Признак подозрения на злокачественное новообразование
+Private mvar, m1var, m1lis := 0, m1onko8 := 0, monko8, m1onko10 := 0, monko10
+//Private mDS_ONK, m1DS_ONK := 0 // Признак подозрения на злокачественное новообразование
 Private mnapr_stac, m1napr_stac := 0, ;
         mm_napr_stac := {{"--- нет ---",0},{"в стационар",1},{"в дн. стац.",2}}, ;
         mprofil_stac, m1profil_stac := 0
@@ -384,9 +384,9 @@ if Loc_kod > 0
   MSOPUT_B4   := human->SOPUT_B4
   MDIAG_PLUS  := human->DIAG_PLUS
   MPOLIS      := human->POLIS         // серия и номер страхового полиса
-  if human->OBRASHEN == '1'
-    m1DS_ONK := 1
-  endif
+  //if human->OBRASHEN == '1'
+    //m1DS_ONK := 1
+  //endif
   for i := 1 to 16
     adiag_talon[i] := int(val(substr(human_->DISPANS,i,1)))
   next
@@ -443,6 +443,13 @@ if Loc_kod > 0
         for i := 1 to count_dds_arr_osm2
           if ascan(dds_arr_osm2[i,5],hu_->PROFIL) > 0 .and. empty(larr[3,i])
             fl := .f. ; larr[3,i] := hu->(recno())
+            if hu->is_edit == 3
+              if hu_->PROFIL == 12
+                m1onko8 := 3
+              elseif hu_->PROFIL == 18
+                m1onko10 := 3
+              endif
+            endif
             if i == count_dds_arr_osm2
               mdate2 := c4tod(hu->date_u)
             endif
@@ -487,8 +494,8 @@ if Loc_kod > 0
         if j == 1
           m1var := "m1lis"+lstr(i)
           if glob_yes_kdp2[tip_lu] .and. ascan(glob_arr_usl_LIS,dds_arr_iss[i,7,1]) > 0 ;
-                                   .and. hu->is_edit == 1
-            &m1var := 1
+                                   .and. hu->is_edit > 0
+            &m1var := hu->is_edit
           endif
           mvar := "mlis"+lstr(i)
           &mvar := inieditspr(A__MENUVERT, mm_kdp2, &m1var)
@@ -517,6 +524,8 @@ motd      := inieditspr(A__POPUPMENU, dir_server+"mo_otd", m1otd)
 mvidpolis := inieditspr(A__MENUVERT, mm_vid_polis, m1vidpolis)
 mokato    := inieditspr(A__MENUVERT, glob_array_srf, m1okato)
 mkomu     := inieditspr(A__MENUVERT, mm_komu, m1komu)
+monko8    := inieditspr(A__MENUVERT, mm_vokod, m1onko8)
+monko10   := inieditspr(A__MENUVERT, mm_vokod, m1onko10)
 mismo     := init_ismo(m1ismo)
 f_valid_komu(,-1)
 if m1komu == 0
@@ -569,7 +578,7 @@ minvalid6 := inieditspr(A__MENUVERT, mm_invalid6, m1invalid6)
 minvalid8 := inieditspr(A__MENUVERT, mm_invalid8, m1invalid8)
 mprivivki1 := inieditspr(A__MENUVERT, mm_privivki1, m1privivki1)
 mprivivki2 := inieditspr(A__MENUVERT, mm_privivki2, m1privivki2)
-mDS_ONK    := inieditspr(A__MENUVERT, mm_danet, M1DS_ONK)
+//mDS_ONK    := inieditspr(A__MENUVERT, mm_danet, M1DS_ONK)
 mnapr_stac := inieditspr(A__MENUVERT, mm_napr_stac, m1napr_stac)
 mprofil_stac := inieditspr(A__MENUVERT, glob_V002, m1profil_stac)
 mnapr_reab := inieditspr(A__MENUVERT, mm_danet, m1napr_reab)
@@ -1009,9 +1018,10 @@ do while .t.
          //       reader {|o|MyGetReader(o,bg)} valid val1_10diag(.t.,.f.,.f.,mn_data,mpol) ;
          //       when m1step2==1
     ++j; @ j,1 say "гематолог"
-         @ j,30 get MTAB_NOM2ov8 pict "99999" valid {|g| v_kart_vrach(g) } when m1step2==1
+         @ j,24 get monko8 reader {|x|menu_reader(x,mm_vokod,A__MENUVERT,,,.f.)} when m1step2==1
+         @ j,30 get MTAB_NOM2ov8 pict "99999" valid {|g| v_kart_vrach(g) } when m1step2==1 .and. m1onko8==0
        if mem_por_ass > 0
-         @ j,36 get MTAB_NOM2oa8 pict "99999" valid {|g| v_kart_vrach(g) } when m1step2==1
+         @ j,36 get MTAB_NOM2oa8 pict "99999" valid {|g| v_kart_vrach(g) } when m1step2==1 .and. m1onko8==0
        endif
          @ j,42 get MDATE2o8 when m1step2==1
          //@ j,53 get mkod_diag2o8 picture pic_diag ;
@@ -1027,9 +1037,10 @@ do while .t.
          //       reader {|o|MyGetReader(o,bg)} valid val1_10diag(.t.,.f.,.f.,mn_data,mpol) ;
          //       when m1step2==1
     ++j; @ j,1 say "детский онколог"
-         @ j,30 get MTAB_NOM2ov10 pict "99999" valid {|g| v_kart_vrach(g) } when m1step2==1
+         @ j,24 get monko10 reader {|x|menu_reader(x,mm_vokod,A__MENUVERT,,,.f.)} when m1step2==1
+         @ j,30 get MTAB_NOM2ov10 pict "99999" valid {|g| v_kart_vrach(g) } when m1step2==1 .and. m1onko10==0
        if mem_por_ass > 0
-         @ j,36 get MTAB_NOM2oa10 pict "99999" valid {|g| v_kart_vrach(g) } when m1step2==1
+         @ j,36 get MTAB_NOM2oa10 pict "99999" valid {|g| v_kart_vrach(g) } when m1step2==1 .and. m1onko10==0
        endif
          @ j,42 get MDATE2o10 when m1step2==1
          //@ j,53 get mkod_diag2o10 picture pic_diag ;
@@ -1304,19 +1315,19 @@ do while .t.
       next
     next
     ++j; @ j,1 to j,78
-    ++j; @ j,1 say "Признак подозрения на злокачественное новообразование" get mDS_ONK ;
-               reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} 
+    //++j; @ j,1 say "Признак подозрения на злокачественное новообразование" get mDS_ONK ;
+    //           reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} 
     ++j; @ j,1 say "Направлен на лечение" get mnapr_stac ;
                reader {|x|menu_reader(x,mm_napr_stac,A__MENUVERT,,,.f.)} ; 
                valid {|| iif(m1napr_stac==0, (m1profil_stac:=0,mprofil_stac:=space(32)), ), update_get("mprofil_stac")}  
          @ j,col()+1 say "по профилю" get mprofil_stac ;      
-               reader {|x|menu_reader(x,glob_V002,A__MENUVERT,,,.f.)} ; 
+               reader {|x|menu_reader(x,glob_V002,A__MENUVERT,,,.f.,,,.t.)} ; 
                when m1napr_stac > 0
     ++j; @ j,1 say "Направлен на реабилитацию" get mnapr_reab ;
                reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
                valid {|| iif(m1napr_reab==0, (m1profil_kojki:=0,mprofil_kojki:=space(30)), ), update_get("mprofil_kojki")}  
          @ j,col()+1 say ", профиль койки" get mprofil_kojki ;      
-               reader {|x|menu_reader(x,glob_V020,A__MENUVERT,,,.f.)} ; 
+               reader {|x|menu_reader(x,glob_V020,A__MENUVERT,,,.f.,,,.t.)} ; 
                when m1napr_reab > 0
     ++j; @ j,1 to j,78
     ++j; @ j,1 say "Инвалидность" get minvalid1 ;
@@ -1485,6 +1496,10 @@ do while .t.
       mvard := "MDATEi"+lstr(i)
       mvarr := "MREZi"+lstr(i)
       if between(mvozrast,dds_arr_iss[i,3],dds_arr_iss[i,4])
+        m1var := "m1lis"+lstr(i)
+        if glob_yes_kdp2[tip_lu] .and. &m1var > 0
+          &mvart := -1
+        endif
         if empty(&mvard)
           fl := func_error(4,'Не введена дата иссл-ия "'+dds_arr_iss[i,1]+'"')
         elseif metap == 2 .and. &mvard > d12
@@ -1492,18 +1507,23 @@ do while .t.
         elseif empty(&mvart)
           fl := func_error(4,'Не введен врач в иссл-ии "'+dds_arr_iss[i,1]+'"')
         else
-          select P2
-          find (str(&mvart,5))
-          if found()
-            arr_iss[i,1] := p2->kod
-            arr_iss[i,2] := -ret_new_spec(p2->prvs,p2->prvs_new)
-          endif
-          if !empty(&mvara)
+          if &mvart > 0
             select P2
-            find (str(&mvara,5))
+            find (str(&mvart,5))
             if found()
-              arr_iss[i,3] := p2->kod
+              arr_iss[i,1] := p2->kod
+              arr_iss[i,2] := -ret_new_spec(p2->prvs,p2->prvs_new)
             endif
+            if !empty(&mvara)
+              select P2
+              find (str(&mvara,5))
+              if found()
+                arr_iss[i,3] := p2->kod
+              endif
+            endif
+          else
+            arr_iss[i,2] := -ret_new_spec(dds_arr_iss[i,6,1])
+            arr_iss[i,10] := &m1var // кровь проверяют в КДП2
           endif
           arr_iss[i,4] := dds_arr_iss[i,5,1]
           arr_iss[i,5] := dds_arr_iss[i,7,1]
@@ -1514,10 +1534,6 @@ do while .t.
           arr_iss[i,6] := mdef_diagnoz
           arr_iss[i,9] := &mvard
           //        
-          m1var := "m1lis"+lstr(i)
-          if glob_yes_kdp2[tip_lu] .and. &m1var == 1 
-            arr_iss[i,10] := 1 // кровь проверяют в КДП2
-          endif
           max_date1 := max(max_date1,arr_iss[i,9])
         endif
       endif
@@ -1528,7 +1544,7 @@ do while .t.
     endif
     fl := .t.
     k := 0
-    arr_osm1 := array(count_dds_arr_osm1,9) ; afillall(arr_osm1,0)
+    arr_osm1 := array(count_dds_arr_osm1,10) ; afillall(arr_osm1,0)
     for i := 1 to count_dds_arr_osm1
       mvart := "MTAB_NOMov"+lstr(i)
       mvara := "MTAB_NOMoa"+lstr(i)
@@ -1543,7 +1559,7 @@ do while .t.
           fl := func_error(4,'Не введена дата осмотра I этапа "'+dds_arr_osm1[i,1]+'"')
         elseif metap == 2 .and. &mvard > d12
           fl := func_error(4,'Дата осмотра "'+dds_arr_osm1[i,1]+'" не в I-ом этапе (> 10 дней)')
-        elseif empty(&mvart)
+        elseif empty(&mvart) 
           fl := func_error(4,'Не введен врач в осмотре I этапа  "'+dds_arr_osm1[i,1]+'"')
         else
           select P2
@@ -1587,10 +1603,6 @@ do while .t.
     if !fl
       loop
     endif
-    //if k == 0
-      //func_error(4,"Дата первого осмотра на I этапе должна равняться дате начала лечения.")
-      //loop
-    //endif
     if emptyall(arr_osm1[count_dds_arr_osm1,1],arr_osm1[count_dds_arr_osm1,9])
       fl := func_error(4,'Не введён педиатр (врач общей практики) в осмотрах I этапа')
     elseif arr_osm1[count_dds_arr_osm1,9] < max_date1
@@ -1651,12 +1663,18 @@ do while .t.
     if !fl
       loop
     endif
-    arr_osm2 := array(count_dds_arr_osm2,9) ; afillall(arr_osm2,0)
+    arr_osm2 := array(count_dds_arr_osm2,10) ; afillall(arr_osm2,0)
     for i := 1 to count_dds_arr_osm2
       mvart := "MTAB_NOM2ov"+lstr(i)
       mvara := "MTAB_NOM2oa"+lstr(i)
       mvard := "MDATE2o"+lstr(i)
       mvarz := "MKOD_DIAG2o"+lstr(i)
+      arr_osm2[i,4] := dds_arr_osm2[i,5,1]
+      if arr_osm2[i,4] == 12 .and. m1onko8 == 3
+        &mvart := -1
+      elseif arr_osm2[i,4] == 18 .and. m1onko10 == 3
+        &mvart := -1
+      endif 
       if !empty(&mvard) .and. empty(&mvart)
         fl := func_error(4,'Не введен врач в осмотре II этапа  "'+dds_arr_osm2[i,1]+'"')
       elseif !empty(&mvart) .and. empty(&mvard)
@@ -1666,20 +1684,24 @@ do while .t.
         if &mvard < max_date1
           fl := func_error(4,'Дата осмотра II этапа "'+dds_arr_osm2[i,1]+'" внутри I этапа')
         endif
-        select P2
-        find (str(&mvart,5))
-        if found()
-          arr_osm2[i,1] := p2->kod
-          arr_osm2[i,2] := -ret_new_spec(p2->prvs,p2->prvs_new)
-        endif
-        if !empty(&mvara)
+        if &mvart > 0
           select P2
-          find (str(&mvara,5))
+          find (str(&mvart,5))
           if found()
-            arr_osm2[i,3] := p2->kod
+            arr_osm2[i,1] := p2->kod
+            arr_osm2[i,2] := -ret_new_spec(p2->prvs,p2->prvs_new)
           endif
+          if !empty(&mvara)
+            select P2
+            find (str(&mvara,5))
+            if found()
+              arr_osm2[i,3] := p2->kod
+            endif
+          endif
+        else // приём в онкодиспансере
+          arr_osm2[i,2] := -ret_new_spec(dds_arr_osm2[i,6,1])
+          arr_osm2[i,10] := 3
         endif
-        arr_osm2[i,4] := dds_arr_osm2[i,5,1]
         arr_osm2[i,5] := dds_arr_osm2[i,7,1]
         // "педиатр","",0,17,{68,57},{1134,1110},{"2.83.14","2.83.15"}
         if len(dds_arr_osm2[i,5]) == 2 .and. len(dds_arr_osm2[i,6]) == 2 ;
@@ -1801,8 +1823,8 @@ do while .t.
     if glob_yes_kdp2[tip_lu]
       for i := 1 to count_dds_arr_iss
         if valtype(arr_iss[i,9]) == "D" .and. arr_iss[i,9] >= mn_data .and. len(arr_iss[i]) > 9 ;
-                                        .and. valtype(arr_iss[i,10]) == "N" .and. arr_iss[i,10] == 1
-          m1lis := 1 // в рамках диспансеризации отправили в КДП2
+                                        .and. valtype(arr_iss[i,10]) == "N" .and. arr_iss[i,10] > 0
+          m1lis := arr_iss[i,10] // в рамках диспансеризации отправили в КДП2
         endif
       next
     endif
@@ -1830,7 +1852,7 @@ do while .t.
       m1PROFIL := arr_osm1[i,4]
       //MKOD_DIAG := padr(arr_osm1[i,6],6)
     else  // metap := 2
-      if m1lis == 1 // услуги заменим на аналогичные шифры без гематологии
+      if m1lis > 0 // услуги заменим на аналогичные шифры без гематологии
         for i := 1 to len(arr_osm1)
           if valtype(arr_osm1[i,5]) == "C" .and. (j := ascan(dds_arr_osmotr_KDP2,{|x| x[1] == arr_osm1[i,5]})) > 0
             arr_osm1[i,5] := dds_arr_osmotr_KDP2[j,2]
@@ -1842,6 +1864,11 @@ do while .t.
           endif
         next
       endif
+      for i := 1 to len(arr_osm2)
+        if arr_osm2[i,10] == 3 // если услуга оказана в ВОКОД
+          arr_osm2[i,5] := "2.3.1"
+        endif
+      next
       if tip_lu == TIP_LU_DDSOP // дли детей-сирот под опекой вместо услуг "2.83.*" сделаем "2.87.*"
         for i := 1 to count_dds_arr_osm1
           if valtype(arr_osm1[i,5])=="C" .and. left(arr_osm1[i,5],5)=="2.83."
@@ -1968,7 +1995,7 @@ do while .t.
     human->K_DATA     := MK_DATA       // дата окончания лечения
     human->CENA := human->CENA_1 := MCENA_1 // стоимость лечения
     human->ishod      := 100+metap
-    human->OBRASHEN   := iif(m1DS_ONK == 1, '1', " ")
+    human->OBRASHEN   := "" // <Признак подозрения на ЗНО>: - всегда указывается <0>iif(m1DS_ONK == 1, '1', " ")
     human->bolnich    := 0
     human->date_b_1   := ""
     human->date_b_2   := ""
@@ -2114,11 +2141,11 @@ if fl_write_sluch // если записали - запускаем проверку
 endif
 return NIL
 
-***** 01.08.18 вернуть шифр услуги законченного случая для диспансеризации детей-сирот
+***** 19.03.19 вернуть шифр услуги законченного случая для диспансеризации детей-сирот
 Function ret_shifr_zs_DDS(tip_lu)
 Local s := ""
 if m1mobilbr == 1 // диспансеризация проведена мобильной бригадой
-  if m1lis == 1 // без гематологических иссл-ий
+  if m1lis > 0 // без гематологических иссл-ий
     if mvozrast < 1
       s := iif(tip_lu==TIP_LU_DDS, "70.5.21", "70.6.19")
     elseif mvozrast < 3
@@ -2148,7 +2175,7 @@ if m1mobilbr == 1 // диспансеризация проведена мобильной бригадой
     endif
   endif
 else // дисп-ия проведена в МО (не мобильной бригадой) 
-  if m1lis == 1 // без гематологических иссл-ий
+  if m1lis > 0 // без гематологических иссл-ий
     if mvozrast < 1
       s := iif(tip_lu==TIP_LU_DDS, "70.5.15", "70.6.13")
     elseif mvozrast < 3
@@ -3583,9 +3610,10 @@ Private musl_tip, m1usl_tip, musl_tip1, m1usl_tip1, musl_tip2, m1usl_tip2, msod,
                        {"Лекарственная противоопухолевая терапия",2},;
                        {"Лучевая терапия",3},;
                        {"Химиолучевая терапия",4},;
-                       {"Неспецифическое лечение (катетер, прочее)",5}}
-                       //{"Диагностика",6}} т.к. лечение + диагностика = такое невозможно
-mm_USL_TIP_all := aclone(mm_USL_TIP)                       
+                       {"Неспецифическое лечение (катетер, прочее)",5},;
+                       {"Диагностика",6}} 
+mm_USL_TIP_all := aclone(mm_USL_TIP)
+asize(mm_USL_TIP,6) // без диагностики                       
 //
 afill(adiag_talon,0)
 R_Use(dir_server+"human_2",,"HUMAN_2")
@@ -4545,7 +4573,7 @@ do while .t.
           k += 21
           fl_2_4 := fl_3_4 := .t.
           mm_USL_TIP := aclone(mm_USL_TIP_all)
-          if m1vzros_reb  > 0 .or. is_lymphoid(mkod_diag) // если ребёнок или ЗНО кроветворная или лимфоидная 
+          if m1vzros_reb > 0 .or. is_lymphoid(mkod_diag) // если ребёнок или ЗНО кроветворная или лимфоидная 
             Del_Array(mm_USL_TIP,5) // удалим химиолучевую
             Del_Array(mm_USL_TIP,4) // удалим лучевую
           endif

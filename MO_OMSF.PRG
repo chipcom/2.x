@@ -633,9 +633,9 @@ if found() // если данная услуга участвует в проверке по профилю
 endif
 return lprofil
 
-***** 12.01.19 проверка на соответствие услуги специальности
+***** 14.03.19 проверка на соответствие услуги специальности
 Function UslugaAccordancePRVS(lshifr,lvzros_reb,lprvs,ta,short_shifr,lvrach)
-Local s := "", s1 := ""
+Local s := "", s1 := "", s2, i, k
 if valtype(short_shifr)=="C" .and. !empty(short_shifr) .and. !(alltrim(lshifr)==alltrim(short_shifr))
   s1 := "("+alltrim(short_shifr)+")"
 endif
@@ -644,13 +644,15 @@ if select("MOSPEC") == 0
   //index on shifr+str(vzros_reb,1)+str(prvs_new,4) to (sbase)
 endif
 lshifr := padr(lshifr,20)
-lvzros_reb := iif(lvzros_reb==0, 0, 1)
-lprvs := ret_prvs_V021(lprvs)
-/*if lprvs < 0
-  lprvs := abs(lprvs)
+lvzros_reb := iif(lvzros_reb == 0, 0, 1)
+if lprvs < 0
+  k := abs(lprvs)
 else
-  lprvs := ret_V004_V015(human_->PRVS)
-endif*/
+  k := ret_V004_V015(lprvs)
+endif
+s2 := lstr(k)+'.'+inieditspr(A__MENUVERT, glob_V015, k)
+//
+lprvs := ret_prvs_V021(lprvs)
 select MOSPEC
 find (lshifr)
 if found() // если данная услуга участвует в проверке по специальности
@@ -659,15 +661,16 @@ if found() // если данная услуга участвует в проверке по специальности
     find (lshifr+str(lvzros_reb,1))
     // формируем сообщение об ошибке
     do while mospec->shifr==lshifr .and. mospec->vzros_reb==lvzros_reb .and. !eof()
-      //s += '"'+lstr(mospec->prvs_new)+"."+inieditspr(A__MENUVERT, glob_V015, mospec->prvs_new)+'", '
-      s += '"'+lstr(mospec->prvs_new)+"."+inieditspr(A__MENUVERT, glob_V021, mospec->prvs_new)+'", '
+      k := mospec->prvs_new
+      if (i := ascan(glob_arr_V015_V021,{|x| x[2] == k})) > 0
+        k := glob_arr_V015_V021[i,1]
+      endif
+      s += '"'+lstr(k)+"."+inieditspr(A__MENUVERT, glob_V015, k)+'", '
       skip
     enddo
     pers->(dbGoto(lvrach))
     aadd(ta,rtrim(lshifr)+s1+' - ('+fam_i_o(pers->fio)+' ['+lstr(pers->tab_nom)+;
-            ']) специальность "'+lstr(lprvs)+'.'+;
-            inieditspr(A__MENUVERT, glob_V015, lprvs)+;
-            '" для '+{'взрослого','ребёнка'}[lvzros_reb+1]+;
+            ']) специальность "'+s2+'" для '+{'взрослого','ребёнка'}[lvzros_reb+1]+;
             ' недопустима'+iif(empty(s),"",' (разрешается '+left(s,len(s)-2)+')'))
   endif
 endif
@@ -1364,7 +1367,7 @@ if k == 2
   yes_oncology := .t.
   m1ds_onk := 0 ; mds_onk := inieditspr(A__MENUVERT, mm_danet, m1ds_onk)
   if lprofil == 158
-    k := 1
+    _onk_smp := k := 1
   endif
 endif
 if lusl_ok == 4 // скорая помощь
@@ -1486,7 +1489,7 @@ s += ", дней приёма - "+lstr(n)
 tmple->(dbCloseArea())                
 return s
 
-***** 31.01.19
+***** 26.03.19
 Function get_lek_pr(k,r,c,_crit)
 Local i, j, nrec, t_arr := array(BR_LEN), ret := {space(10),space(10)}
 Private arr_lek_pr := {}, yes_crit
@@ -1588,13 +1591,15 @@ nrec := tmp->(lastrec())
 select TMPLE
 zap
 for i := 1 to nrec
-  for j := 1 to len(arr_lek_pr[i,3])
-    select TMPLE
-    append blank
-    tmple->REGNUM   := arr_lek_pr[i,1]
-    tmple->CODE_SH  := _crit
-    tmple->DATE_INJ := arr_lek_pr[i,3,j]
-  next
+  if len(arr_lek_pr) >= i
+    for j := 1 to len(arr_lek_pr[i,3])
+      select TMPLE
+      append blank
+      tmple->REGNUM   := arr_lek_pr[i,1]
+      tmple->CODE_SH  := _crit
+      tmple->DATE_INJ := arr_lek_pr[i,3,j]
+    next
+  endif
 next
 index on dtos(DATE_INJ) to (cur_dir+"tmp_onkle") UNIQUE
 ndn := 0

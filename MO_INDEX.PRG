@@ -1155,7 +1155,7 @@ if fl
 endif
 return fl
 
-***** 02.07.18
+***** 13.03.19
 Function f_aadd_copy_DB(arr_f,x)
 Local fl := .t., s, y
 x := upper(x)
@@ -1163,12 +1163,12 @@ if eq_any(right(x,4),szip,stxt)
   s := StripPath(x)
   // реестры, ФЛК и счета
   if eq_any(left(s,3),"FRM","HRM") .or. eq_any(left(s,4),"PFRM","PHRM") ;
-                                   .or. eq_any(left(s,2),"FM","HM","AT","AS","DT","DS")
+                                   .or. eq_any(left(s,2),"I0","FM","HM","AT","AS","DT","DS")
     y := int(val(left(afteratnum("_",s),2)))
-    fl := (y > 17)  // с 2018 года
+    fl := (y > 18)  // с 2019 года
   elseif eq_any(left(s,3),"FRT","HRT")
     y := int(val(substr(s,14,2)))
-    fl := (y > 17)  // с 2018 года
+    fl := (y > 18)  // с 2019 года
   endif
 endif
 if fl

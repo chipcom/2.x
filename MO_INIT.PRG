@@ -595,9 +595,6 @@ if hb_FileExists(exe_dir+sbase+sdbf) .and. valtype(glob_mo) == "A"
 else
   fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
 endif
-if !is_12_VMP .and. len(arr_12_VMP) > 0
-  is_12_VMP := .t.
-endif
 Public is_MO_VMP := (is_ksg_VMP .or. is_12_VMP .or. is_14_VMP .or. is_ds_VMP)
 // справочник доплат по законченным случаям (старый справочник)
 /*sbase := "_mo_usld"
@@ -1719,9 +1716,10 @@ return NIL
 
 *
 
-***** 14.02.18 инициализация программы
+***** 24.03.19 инициализация программы
 Function Init_Program()
-Public mm_kdp2 := {{"в МО",0},{"КДП2",1}}
+Public mm_kdp2 := {{"в МО",0},{"КДП2",1},{"РДЛ ",2}}
+Public mm_vokod := {{"в МО ",0},{"ВОКОД",3}}
 Public glob_arr_usl_LIS := {;
   "4.11.136",;//   "Клинический анализ крови (развёрнутый)"
   "4.11.137",;//   "Клинический анализ крови (3 показателя)"
@@ -1798,9 +1796,9 @@ Public dds_arr_osm2 := {;
   {"детский кардиолог","",0,17,{17},{113403},{"2.83.5"}},;
   {"гастроэнтеролог","",0,17,{11},{113407,112201},{"2.83.6"}},;
   {"нефролог","",0,17,{56},{113412,112207},{"2.83.7"}},;
-  {"гематолог","",0,17,{12},{113408,112202},{"2.83.8"}},;
+  {"гематолог","",0,17,{12},{113408,112202},{"2.83.8","2.3.1"}},;
   {"инфекционист","",0,17,{28},{1106},{"2.83.9"}},;
-  {"детский онколог","",0,17,{18},{113401,112801,113501},{"2.83.10"}},;
+  {"детский онколог","",0,17,{18},{113401,112801,113501},{"2.83.10","2.3.1"}},;
   {"нейрохирург","",0,17,{54},{112602,113504},{"2.83.11"}},;
   {"колопроктолог","",0,17,{30},{112601,113503},{"2.83.12"}},;
   {"сердечно-сосудистый хирург","",0,17,{81},{112604,113505},{"2.83.13"}},;
@@ -3013,8 +3011,8 @@ if tip_lu == TIP_LU_DDSOP .and. left(lshifr,5)=="2.87."
   lshifr := "2.83."+substr(lshifr,6)
 endif
 for i := 1 to count_dds_arr_osm1
-  if iif(empty(dds_arr_osm1[i,2]), .t., dds_arr_osm1[i,2]==mpol) .and. ; 
-         between(_vozrast,dds_arr_osm1[i,3],dds_arr_osm1[i,4])
+  if iif(empty(dds_arr_osm1[i,2]), .t., dds_arr_osm1[i,2] == mpol) .and. ; 
+                           between(_vozrast,dds_arr_osm1[i,3],dds_arr_osm1[i,4])
     if _etap == 1
       if ascan(dds_arr_osm1[i,5],ausl[3]) > 0
         fl := .t. ; exit
@@ -3068,7 +3066,7 @@ if fl
 endif
 if !fl .and. _etap == 2
   for i := 1 to count_dds_arr_osm2
-    if ascan(dds_arr_osm2[i,7],lshifr) > 0
+    if ascan(dds_arr_osm2[i,7],lshifr) > 0 .and. ascan(dds_arr_osm2[i,5],ausl[3]) > 0
       fl := .t. ; exit
     endif
   next
@@ -3076,7 +3074,7 @@ if !fl .and. _etap == 2
     s := '"'+lshifr+'.'+dds_arr_osm2[i,1]+'"'
     if !between(_vozrast,dds_arr_osm2[i,3],dds_arr_osm2[i,4])
       aadd(arr,'Некорректный возраст пациента для услуги '+s)
-    endif
+    endif 
     if ascan(dds_arr_osm2[i,5],ausl[3]) == 0
       aadd(arr,'Не тот профиль в услуге '+s)
     endif

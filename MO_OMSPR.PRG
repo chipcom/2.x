@@ -324,7 +324,7 @@ return k
 
 *
 
-*****
+***** 14.03.19
 Function verify_1_other_sluch()
 Local ta := {}, ssumma := 0, fl, _ocenka := 5, lshifr1, auet
 rec_human := human->(recno())
@@ -383,7 +383,7 @@ do while hu->kod == human->kod .and. !eof()
     aadd(ta,'услуга '+alltrim(usl->shifr)+'('+date_8(mdate)+') не попадает в диапазон лечения')
   endif
   lshifr1 := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data)
-  is_usluga_TFOMS(usl->shifr,lshifr1,human->k_data,@auet)
+  lst := 0
   is_usluga_TFOMS(usl->shifr,lshifr1,human->k_data,@auet,,@lst)
   if f_paraklinika(usl->shifr,lshifr1,human->k_data)
     lshifr := iif(empty(lshifr1), usl->shifr, lshifr1)
