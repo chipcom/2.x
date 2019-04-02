@@ -16,7 +16,7 @@
 
 Static _version := {2,8,6}
 Static char_version := "b+"
-Static _date_version := "01.04.19г."
+Static _date_version := "02.04.19г."
 Static __s_full_name := "ЧИП + Учёт работы Медицинской Организации"
 Static __s_version
 

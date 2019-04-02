@@ -4816,7 +4816,7 @@ else
         endif 
         mywait()
         use (cur_dir+"tmp") new
-        k := tmp->kol
+        _k := tmp->kol
         tmp->kol := 0
         tmp->summa := 0
         tmp->min_date := stod(strzero(tmp->nyear,4)+strzero(tmp->nmonth,2)+"01")
@@ -4870,7 +4870,7 @@ else
         if tmp->kol == 0
           func_error(4,"После дополнительной проверки некого включать в реестр")
         else
-          if k != tmp->kol
+          if _k != tmp->kol
             select TMPB
             delete for yes_del
             pack

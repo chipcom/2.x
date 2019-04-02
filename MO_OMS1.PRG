@@ -4,7 +4,7 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 27.03.19 ПН - добавление или редактирование случая (листа учета)
+***** 02.04.19 ПН - добавление или редактирование случая (листа учета)
 Function oms_sluch_PN(Loc_kod,kod_kartotek,f_print)
 // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
 // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -1137,7 +1137,7 @@ do while .t.
       next
     next
     ++j; @ j,1 to j,78
-   if m1step2 == 2
+   if m1step2 == 2  // напрвлен и отказался от 2-го этапа
     ++j; @ j,1 say "Признак подозрения на злокачественное новообразование" get mDS_ONK ;
                reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
     ++j; @ j,1 say "Направления при подозрении на ЗНО" get mnapr_onk ;

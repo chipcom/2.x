@@ -4,8 +4,19 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 27.03.19 ввод направлений при подозрении на ЗНО - профосмотры несовершеннолетних
+***** 02.04.19 ввод направлений при подозрении на ЗНО - профосмотры несовершеннолетних
 Function fget_napr_PN(k,r,c)
+Local r1, r2, n := 4, buf, tmp_keys, tmp_list, tmp_color
+  buf := savescreen()
+  change_attr()
+  tmp_keys := my_savekey()
+  save gets to tmp_list
+  
+  
+  setcolor(tmp_color)
+  restore gets from tmp_list
+  my_restkey(tmp_keys)
+  restscreen(buf)
 return NIL
 
 ***** 21.01.19 ДВН - добавление или редактирование случая (листа учета)
