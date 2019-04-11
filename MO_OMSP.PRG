@@ -447,7 +447,7 @@ return ret
 ***** 15.03.13
 Function delete_rpd(lrec,lname,not_end)
 Local ret := 0, fl, ia, is, ih
-if not_end .or. tip_polzovat == TIP_ADM 
+if not_end .or. tip_polzovat == TIP_ADM
   fl := .t.
 else
   fl := involved_password(2,lname,"подтверждения расформирования РПД")
@@ -1227,7 +1227,7 @@ else
 endif
 return i
 
-***** 14.02.19 Акты сверки по СМО
+***** 08.04.19 Акты сверки по СМО
 Function akt_sverki_smo()
 Static sitog := {;
   "2. Общая сумма средств на оплату по зарег.счетам за месяц",;
@@ -1299,7 +1299,7 @@ if ismo == 34
   index on dfile to (cur_dir+"tmp_xml") for TIP_IN == _XML_FILE_RAK .and. between(dfile,arr_m[5],arr_m[6])
 else
   index on dfile to (cur_dir+"tmp_xml") for TIP_IN == _XML_FILE_RAK .and. between(dfile,arr_m[5]+a1,arr_m[6]+a2)
-endif  
+endif
 go top
 do while !eof()
   select RAK
@@ -1317,7 +1317,7 @@ do while !eof()
           s := f1akt_sverki_smo(5,s,hitog)
           aitog[ltip,5] += s
         elseif vid_eks == 1 .or. !empty(raks->SANK_MEE)
-          s := f1akt_sverki_smo(5,s,hitog)
+          s := f1akt_sverki_smo(4,s,hitog)
           aitog[ltip,4] += s
         else
           s := f1akt_sverki_smo(3,s,hitog)
@@ -1347,9 +1347,9 @@ index on str(kod_xml,6) to (cur_dir+"tmprpd") //for between(d_pd,arr_m[5],arr_m[
 select MO_XML
 if ismo == 34
   index on dfile to (cur_dir+"tmp_xml") for TIP_IN == _XML_FILE_RPD .and. between(dfile,arr_m[5],arr_m[6])
-else  
+else
   index on dfile to (cur_dir+"tmp_xml") for TIP_IN == _XML_FILE_RPD .and. between(dfile,arr_m[5]+a1,arr_m[6]+a2)
-endif  
+endif
 go top
 do while !eof()
   select RPD
@@ -1442,7 +1442,7 @@ else
       j := 7
     elseif k == 7
       j := 6
-    else 
+    else
       j := k
     endif
     if verify_FF(HH-3,.t.,sh)
@@ -1544,37 +1544,37 @@ Static sad19 := { 8,12,10, 8,8, 9,8,10,8,9,10,17}
 Local y := arr_m[1], m := arr_m[2]
 b1 := b2 := a1 := a2 := 0
 if y == 2019
-  b1 := 21 ; a1 := 22 
+  b1 := 21 ; a1 := 22
   if m > 1
     b1 := sd19[m-1]
     a1 := sad19[m-1]
   endif
-  b2 := sd19[m] 
+  b2 := sd19[m]
   a2 := sad19[m]
 elseif y == 2018
-  b1 := 24 ; a1 := 25 
+  b1 := 24 ; a1 := 25
   if m > 1
     b1 := sd18[m-1]
     a1 := sad18[m-1]
   endif
-  b2 := sd18[m] 
+  b2 := sd18[m]
   a2 := sad18[m]
   if m == 12 .and. glob_mo[_MO_KOD_TFOMS] == '134505'
     b2 := a2 := 23
   endif
 elseif y == 2017
-  b1 := 19 ; a1 := 2 
+  b1 := 19 ; a1 := 2
   if m > 1
     b1 := sd17[m-1]
     a1 := sad17[m-1]
   endif
-  b2 := sd17[m] 
+  b2 := sd17[m]
   a2 := sad17[m]
 elseif y == 2016
   if m > 1
     a1 := b1 := sd16[m-1]
   endif
-  a2 := b2 := sd16[m] 
+  a2 := b2 := sd16[m]
 endif
 return NIL
 
@@ -1597,7 +1597,7 @@ if empty(s1bukva)
   for i := 1 to len(mm_bukva)
     s1bukva += mm_bukva[i,2]
   next
-endif  
+endif
 if arr_smo == NIL
   arr_smo := mo_cut_menu(glob_arr_smo)
   for i := 1 to len(arr_smo)
@@ -1686,7 +1686,7 @@ return NIL
 
 ***** 13.02.19
 Function f1pr1_oborot_schet(asmo,ssmo)
-Local adbf, i, n, arr_title, n_file := "oborot1"+stxt, sh, HH := 60, buf := save_maxrow() 
+Local adbf, i, n, arr_title, n_file := "oborot1"+stxt, sh, HH := 60, buf := save_maxrow()
 mywait()
 adbf := {{"nschet","C",15,0},;
          {"dschet","D",8,0},;
@@ -1748,7 +1748,7 @@ endcase
 go top
 do while !eof()
   select TMP
-  append blank  
+  append blank
   tmp->nschet := schet_->nschet
   tmp->dschet := schet_->dschet
   tmp->dregis := schet_->DREGISTR
@@ -1756,8 +1756,8 @@ do while !eof()
   tmp->ot_per := right(str(schet_->NYEAR,4),2)+strzero(schet_->NMONTH,2)
   tmp->BUKVA  := schet_->bukva
   tmp->SMO    := schet_->smo
-  tmp->kol    := schet->kol 
-  tmp->kol1   := 0 
+  tmp->kol    := schet->kol
+  tmp->kol1   := 0
   tmp->summa  := schet->summa
   tmp->summa1 := 0
   tmp->sum_sn := 0
@@ -1768,18 +1768,18 @@ do while !eof()
     find (str(schet->kod,6))
     do while schet->kod == human->schet .and. !eof()
       if ascan(pr_a_otd, {|x| x[1] == human->otd }) > 0
-        tmp->kol1 ++ 
+        tmp->kol1 ++
         tmp->summa1 += human->cena_1
         if m1schet == 1 // итого по учреждениям/отделениям
           select TMP1
           find (str(human->otd,3))
           if !found()
-            append blank  
+            append blank
             tmp1->otd := human->otd
             otd->(dbGoto(human->otd))
             tmp1->uch := otd->kod_lpu
           endif
-          tmp1->kol1 ++ 
+          tmp1->kol1 ++
           tmp1->summa1 += human->cena_1
         endif
         select RAKSH
@@ -1793,7 +1793,7 @@ do while !eof()
           endif
           select RAKSH
           skip
-        enddo 
+        enddo
         select RPDSH
         find(str(human->kod,7))
         do while rpdsh->kod_h == human->kod .and. !eof()
@@ -1804,7 +1804,7 @@ do while !eof()
           select RPDSH
           skip
         enddo
-      endif 
+      endif
       select HUMAN
       skip
     enddo
@@ -1818,7 +1818,7 @@ if eq_any(m1schet,0,2)
   go top
   do while !eof()
     if tmp->kol1 > 0
-      select TMP1           
+      select TMP1
       if m1schet == 0 // итого по СМО
         find (tmp->smo)
         if !found()
@@ -1832,7 +1832,7 @@ if eq_any(m1schet,0,2)
           tmp1->bukva := tmp->bukva
         endif
       endif
-      tmp1->kol1   += tmp->kol1 
+      tmp1->kol1   += tmp->kol1
       tmp1->summa1 += tmp->summa1
       tmp1->sum_sn += tmp->sum_sn
       tmp1->sum_op += tmp->sum_op
@@ -1844,13 +1844,13 @@ if eq_any(m1schet,0,2)
 elseif m1schet == 3 // по счетам
   close databases
   copy file tmp.dbf to tmp1.dbf
-  use (cur_dir+"tmp1") new    
+  use (cur_dir+"tmp1") new
 endif
 Commit
 select TMP1
 do case
   case m1schet == 0 // по СМО
-    index on smo to (cur_dir+"tmp1")  
+    index on smo to (cur_dir+"tmp1")
     n := 25 // glob_arr_smo[i,1]
     arr_title := {;
 "_________________________",;
@@ -1858,31 +1858,31 @@ do case
 "_________________________"}
   case m1schet == 1 // по отделениям
     set relation to otd into OTD, to uch into UCH
-    index on upper(uch->name)+str(uch,3)+upper(otd->name)+str(otd,3) to (cur_dir+"tmp1") 
-    n := 31 
+    index on upper(uch->name)+str(uch,3)+upper(otd->name)+str(otd,3) to (cur_dir+"tmp1")
+    n := 31
     arr_title := {;
 "_______________________________",;
 "    Учреждение/отделение       ",;
-"_______________________________"}  
-  case m1schet == 2 // по типам счетов           
-    index on bukva to (cur_dir+"tmp1")  
-    n := 45 
+"_______________________________"}
+  case m1schet == 2 // по типам счетов
+    index on bukva to (cur_dir+"tmp1")
+    n := 45
     arr_title := {;
 "_____________________________________________",;
 "   Типы счетов                               ",;
-"_____________________________________________"}  
+"_____________________________________________"}
   case m1schet == 3 // по счетам
     index on ot_per+smo+nschet+dtos(dschet) to (cur_dir+"tmp1") ;
-          for kol1 > 0 .and. iif(m1dolg==0, .t., !empty(summa1-sum_sn-sum_op))             
-    n := 39 
+          for kol1 > 0 .and. iif(m1dolg==0, .t., !empty(summa1-sum_sn-sum_op))
+    n := 39
     arr_title := {;
 "_______________________________________",;
 " Номер счёта   |  Дата  |Дата рег|От/пе",;
-"_______________|________|________|_____"}  
+"_______________|________|________|_____"}
 endcase
 arr_title[1] += "_________________________________________________________"
 arr_title[2] += "|  выставлено  |   снято   |  оплачено    |    долг      "
-arr_title[3] += "|______________|___________|______________|______________"             
+arr_title[3] += "|______________|___________|______________|______________"
 sh := len(arr_title[1])
 //
 fp := fcreate(n_file) ; n_list := 1 ; tek_stroke := 0
@@ -1911,8 +1911,8 @@ do case
           spenalty += tmp1->penalty
         endif
       endif
-    next          
-  case m1schet == 1 // по отделениям           
+    next
+  case m1schet == 1 // по отделениям
     old_uch := 0
     go top
     do while !eof()
@@ -1940,7 +1940,7 @@ do case
       select TMP1
       skip
     enddo
-  case m1schet == 2 // по типам счетов           
+  case m1schet == 2 // по типам счетов
     for i := 1 to len(mm_bukva)
       find (mm_bukva[i,2])
       if found()
@@ -1955,7 +1955,7 @@ do case
           spenalty += tmp1->penalty
         endif
       endif
-    next          
+    next
   case m1schet == 3 // по счетам
     go top
     do while !eof()
@@ -1986,7 +1986,7 @@ if !empty(spenalty)
 endif
 close databases
 fclose(fp)
-rest_box(buf)  
+rest_box(buf)
 viewtext(n_file,,,,.t.,,,2)
 return NIL
 

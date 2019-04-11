@@ -12,7 +12,7 @@ Local mas_pmt, mas_msg, mas_fun, j
 DEFAULT k TO 1
 if ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 // КДП-2
   import_from_LIS()
-else  
+else
   do case
     case k == 1
       mas_pmt := {"Импорт ~случаев ОМС",;
@@ -32,7 +32,7 @@ else
     case k == 13
       import_fluoroteka()
   endcase
-endif  
+endif
 if k > 10
   if between(k,11,19)
     si1 := int(val(right(lstr(k),1)))
@@ -60,7 +60,7 @@ if !empty(full_o79) .and. hb_FileExists(full_o79)
   if hb_FileExists(cur_dir+cFileProtokol)
     viewtext(Devide_Into_Pages(cur_dir+cFileProtokol,60,80),,,,.t.,,,2)
   endif
-endif  
+endif
 return NIL
 
 ***** 02.03.18
@@ -90,7 +90,7 @@ if found()
                    "Выберите действие:"},;
                   {" Выход "," Попытка повторного чтения "},;
                   1,"GR+/R","W+/R",,,"GR+/R,N/BG") == 2
-  else 
+  else
     func_error(4,"Файл "+alltrim(sname)+" уже был прочитан "+date_8(fl->dread)+" в "+fl->tread2)
   endif
 else
@@ -98,7 +98,7 @@ else
 endif
 if fl .and. f_Esc_Enter("чтения файла из ЛИС")
   select FL
-  G_RLock(!found(),forever) // добавить ИЛИ заблокировать запись 
+  G_RLock(!found(),forever) // добавить ИЛИ заблокировать запись
   fl->KOD := recno()
   fl->FNAME := upper(sname)
   fl->DREAD := sys_date
@@ -153,7 +153,7 @@ if fl .and. f_Esc_Enter("чтения файла из ЛИС")
                                dir_server+"kartotes"},"KART")
   Private such := 1, sotd := 1,; // код отделения "Лаборатория-ЛИС на Ангарском"
           sotd2 := 3 // код отделения "ЛИС в Краснооктябрьском р-не"
-  dbcreate("ttmp",{;        
+  dbcreate("ttmp",{;
     {"nn","N",6,0},;
     {"ko","N",6,0},;
     {"ko1","N",6,0},;
@@ -172,7 +172,7 @@ if fl .and. f_Esc_Enter("чтения файла из ЛИС")
   do while !feof(lfp)
     s := Utf82Oem(fReadLn(lfp))
     if "<PAT " $ s
-      arr := {s} 
+      arr := {s}
       do while !feof(lfp)
         s := fReadLn(lfp)
         aadd(arr,s)
@@ -185,7 +185,7 @@ if fl .and. f_Esc_Enter("чтения файла из ЛИС")
         exit
       endif
     endif
-    if inkey() == K_ESC 
+    if inkey() == K_ESC
       fl_exit := .t.
       exit
     endif
@@ -193,10 +193,10 @@ if fl .and. f_Esc_Enter("чтения файла из ЛИС")
   fclose(lfp)
   if !fl_exit
     select FL
-    G_RLock(forever) // заблокировать запись 
+    G_RLock(forever) // заблокировать запись
     fl->TREAD2 := hour_min(seconds())
     fl->KOLP := ip
-    fl->KOLS := is 
+    fl->KOLS := is
     fl->KOLU := iu
   endif
   dbUnlockAll()
@@ -218,7 +218,7 @@ if fl .and. f_Esc_Enter("чтения файла из ЛИС")
             "Время работы - "+sectotime(t2)+".",;
             "",;
             "Пациентов "+lstr(ip)+", случаев "+lstr(is)+iif(isp==0,""," (в т.ч.повторно "+lstr(isp)+")")+", услуг "+lstr(iu)+"."}
-  endif          
+  endif
   n_message(arr,,"GR+/R","W+/R",,,"G+/R")
 endif
 close databases
@@ -252,14 +252,14 @@ if found()
                    "Выберите действие:"},;
                   {" Выход "," Попытка повторного чтения "},;
                   1,"GR+/R","W+/R",,,"GR+/R,N/BG") == 2
-  else 
+  else
     func_error(4,"Файл "+alltrim(sname)+" уже был прочитан "+date_8(fl->dread)+" в "+fl->tread2)
   endif
 else
   fl := .t.
 endif
 if fl .and. f_Esc_Enter("чтения файла из ЛИС") .and. (iencode := f_define_LIS_coding(name_file)) > 0
-  G_RLock(!found(),forever) // добавить ИЛИ заблокировать запись 
+  G_RLock(!found(),forever) // добавить ИЛИ заблокировать запись
   fl->KOD := recno()
   fl->FNAME := upper(sname)
   fl->DREAD := sys_date
@@ -367,10 +367,10 @@ if fl .and. f_Esc_Enter("чтения файла из ЛИС") .and. (iencode := f_define_LIS_co
   endif
   if !fl_exit
     select FL
-    G_RLock(forever) // заблокировать запись 
+    G_RLock(forever) // заблокировать запись
     fl->TREAD2 := hour_min(seconds())
     fl->KOLP := ip
-    fl->KOLS := is 
+    fl->KOLS := is
     fl->KOLU := iu
   endif
   dbUnlockAll()
@@ -389,7 +389,7 @@ if fl .and. f_Esc_Enter("чтения файла из ЛИС") .and. (iencode := f_define_LIS_co
             "Время работы - "+sectotime(t2)+".",;
             "",;
             "Пациентов "+lstr(ip)+", случаев "+lstr(is)+iif(isp==0,""," (в т.ч.повторно "+lstr(isp)+")")+", услуг "+lstr(iu)+"."}
-  endif          
+  endif
   n_message(arr,,"GR+/R","W+/R",,,"G+/R")
 endif
 close databases
@@ -438,19 +438,19 @@ Function f2_impXML_from_LIS(ta)
 Static arr[LISU_ID]
 Local i, j := 1, s
 s := afteratnum('Pat_code="',ta[1]) ; arr_pac[LIS_KOD_AK ] := beforatnum('"',s,1)
-s := afteratnum('Last_name="',s)    ; arr_pac[LIS_FAM    ] := beforatnum('"',s,1)   
-s := afteratnum('First_name="',s)   ; arr_pac[LIS_IMA    ] := beforatnum('"',s,1)  
-s := afteratnum('Father_name="',s)  ; arr_pac[LIS_OTS    ] := beforatnum('"',s,1) 
-s := afteratnum('Birth_date="',s)   ; arr_pac[LIS_DATE_R ] := beforatnum('"',s,1)  
-s := afteratnum('Sex="',s)          ; arr_pac[LIS_POL    ] := beforatnum('"',s,1)         
-s := afteratnum('OMS_type="',s)     ; arr_pac[LIS_VPOLIS ] := beforatnum('"',s,1)    
-s := afteratnum('OMS_series="',s)   ; arr_pac[LIS_SPOLIS ] := beforatnum('"',s,1)  
-s := afteratnum('OMS_number="',s)   ; arr_pac[LIS_NPOLIS ] := beforatnum('"',s,1)  
+s := afteratnum('Last_name="',s)    ; arr_pac[LIS_FAM    ] := beforatnum('"',s,1)
+s := afteratnum('First_name="',s)   ; arr_pac[LIS_IMA    ] := beforatnum('"',s,1)
+s := afteratnum('Father_name="',s)  ; arr_pac[LIS_OTS    ] := beforatnum('"',s,1)
+s := afteratnum('Birth_date="',s)   ; arr_pac[LIS_DATE_R ] := beforatnum('"',s,1)
+s := afteratnum('Sex="',s)          ; arr_pac[LIS_POL    ] := beforatnum('"',s,1)
+s := afteratnum('OMS_type="',s)     ; arr_pac[LIS_VPOLIS ] := beforatnum('"',s,1)
+s := afteratnum('OMS_series="',s)   ; arr_pac[LIS_SPOLIS ] := beforatnum('"',s,1)
+s := afteratnum('OMS_number="',s)   ; arr_pac[LIS_NPOLIS ] := beforatnum('"',s,1)
 s := afteratnum('Ins_OKATO="',s)    ; arr_pac[LIS_OKATO  ] := beforatnum('"',s,1)
-s := afteratnum('UDL_type="',s)     ; arr_pac[LIS_VID_UD ] := beforatnum('"',s,1)    
-s := afteratnum('UDL_series="',s)   ; arr_pac[LIS_SER_UD ] := beforatnum('"',s,1)  
-s := afteratnum('UDL_number="',s)   ; arr_pac[LIS_NOM_UD ] := beforatnum('"',s,1)  
-s := afteratnum('Birth_place="',s)  ; arr_pac[LIS_MESTO_R] := beforatnum('"',s,1) 
+s := afteratnum('UDL_type="',s)     ; arr_pac[LIS_VID_UD ] := beforatnum('"',s,1)
+s := afteratnum('UDL_series="',s)   ; arr_pac[LIS_SER_UD ] := beforatnum('"',s,1)
+s := afteratnum('UDL_number="',s)   ; arr_pac[LIS_NOM_UD ] := beforatnum('"',s,1)
+s := afteratnum('Birth_place="',s)  ; arr_pac[LIS_MESTO_R] := beforatnum('"',s,1)
 s := afteratnum('SNILS="',s)        ; arr_pac[LIS_SNILS  ] := beforatnum('"',s,1)
 arr_order := {}
 for i := 2 to len(ta)
@@ -497,13 +497,13 @@ endif
 if !val_fio(afio,aerr)
   aadd(aerr,"PAT="+arr_pac[LIS_KOD_AK]+' "'+mfio+'"')
   return aerr
-endif  
+endif
 arr_pac[LIS_DATE_R] := ctod(arr_pac[LIS_DATE_R])
 if empty(arr_pac[LIS_DATE_R])
   aadd(aerr,"Некорректная дата рождения у пациента")
   aadd(aerr,"PAT="+arr_pac[LIS_KOD_AK]+' "'+mfio+'"')
   return aerr
-endif  
+endif
 //my_debug(ip < 1000,"1"+print_array(arr_pac))
 arr_pac[LIS_POL] := iif(arr_pac[LIS_POL]=="M", "М", "Ж")
 f_LIS_polis()
@@ -516,7 +516,7 @@ for j := 1 to len(arr_order)
     aadd(aerr,"Некорректный ORDER у пациента")
     aadd(aerr,"PAT="+arr_pac[LIS_KOD_AK]+' "'+mfio+'"')
     return aerr
-  endif  
+  endif
   if empty(arr_order[j,LISS_MO])
     aadd(aerr,"Не заполнена направляющая мед.организация у пациента")
     aadd(aerr,"PAT="+arr_pac[LIS_KOD_AK]+' "'+mfio+'" (ORDER='+lstr(arr_order[j,LISS_KOD])+')')
@@ -564,7 +564,7 @@ for j := 1 to len(arr_order)
     endif
     if arr_order[j,LISS_USL,i,LISU_SHIFR] == "4.11.738"
       i_738 := i
-    elseif arr_order[j,LISS_USL,i,LISU_SHIFR] == "4.11.739" 
+    elseif arr_order[j,LISS_USL,i,LISU_SHIFR] == "4.11.739"
       i_739 := i
     endif
     arr_order[j,LISS_USL,i,LISU_DATE] := ctod(arr_order[j,LISS_USL,i,LISU_DATE])
@@ -582,7 +582,7 @@ for j := 1 to len(arr_order)
     arr_order[j,LISS_USL,i,LISU_SPEC] := int(val(arr_order[j,LISS_USL,i,LISU_SPEC]))
     if ascan(glob_V004, {|x| x[2] == arr_order[j,LISS_USL,i,LISU_SPEC] }) == 0
       arr_order[j,LISS_USL,i,LISU_SPEC] := 1107 // Клиническая лабораторная диагностика
-    endif 
+    endif
     arr_order[j,LISS_USL,i,LISU_SNILS] := charrem("- ",arr_order[j,LISS_USL,i,LISU_SNILS])
     if empty(arr_order[j,LISS_USL,i,LISU_SNILS])
       arr_order[j,LISS_USL,i,LISU_SNILS] := 0
@@ -605,11 +605,11 @@ for j := 1 to len(arr_order)
         perso->prvs := arr_order[j,LISS_USL,i,LISU_SPEC]
         perso->snils := arr_order[j,LISS_USL,i,LISU_SNILS]
       endif
-      arr_order[j,LISS_USL,i,LISU_SPEC] := perso->prvs 
+      arr_order[j,LISS_USL,i,LISU_SPEC] := perso->prvs
       arr_order[j,LISS_USL,i,LISU_SNILS] := perso->kod
     endif
   next i
-  if i_738 > 0 .and. i_739 > 0 // если встречаются в одном случае "4.11.738" и "4.11.739" 
+  if i_738 > 0 .and. i_739 > 0 // если встречаются в одном случае "4.11.738" и "4.11.739"
     Del_Array(arr_order[j,LISS_USL],i_738) // то удаляем "4.11.738" (она дешевле)
   endif
   arr_order[j,LISS_DIAG] := "Z01.7" // всегда
@@ -626,7 +626,7 @@ find (padr(arr_pac[LIS_KOD_AK],10))
 if found()
   lkod_k := recno()
   select KART
-  set order to 0                             
+  set order to 0
   goto (lkod_k)
   select KART_
   goto (lkod_k)
@@ -707,9 +707,9 @@ if par == 1 // по-старому / из текстового файла / ключевое поле - номер наряда-з
     select HUMAN_2
     set order to 1
     find (str(arr_order[j,LISS_KOD],10))
-    if found() 
+    if found()
       arr_order[j,LISS_KOD] := 0 // т.е. данный случай заносили
-    endif 
+    endif
   next
 endif
 for j := 1 to len(arr_order) // разбивка случаев по план-заказу
@@ -728,11 +728,11 @@ for j := 1 to len(arr_order) // разбивка случаев по план-заказу
       else
         aadd(tmp_arr,{arr_order[j,1],arr_order[j,2],arr_order[j,3],{},ctod(""),ctod(""),arr_order[j,7]})
       endif
-      n := len(tmp_arr)  
+      n := len(tmp_arr)
       //my_debug(ip < 100,"    tmp_arr"+print_array(tmp_arr[n]))
       for i := 1 to len(arr_order[j,LISS_USL])
         if arr_unit[k] == arr_order[j,LISS_USL,i,LISU_UNIT]
-          aadd(tmp_arr[n,LISS_USL],aclone(arr_order[j,LISS_USL,i])) 
+          aadd(tmp_arr[n,LISS_USL],aclone(arr_order[j,LISS_USL,i]))
           //my_debug(ip < 100,"    1tmp_arr"+print_array(tmp_arr[n]))
           if empty(tmp_arr[n,LISS_NDATA])
             tmp_arr[n,LISS_NDATA] := tmp_arr[n,LISS_KDATA] := arr_order[j,LISS_USL,i,LISU_DATE]
@@ -755,10 +755,10 @@ if par == 2 // по-новому / из XML-файла / ключевое поле - ID услуги
   for j := 1 to len(arr_order)
     for i := 1 to len(arr_order[j,LISS_USL])
       find (padr(arr_order[j,LISS_USL,i,LISU_ID],30))
-      if found() // данную услугу уже заносили 
+      if found() // данную услугу уже заносили
         arr_order[j,LISS_KOD] := 0 // значит считаем, что данный случай также заносили
         exit
-      endif 
+      endif
     next i
   next j
   set order to 0
@@ -774,9 +774,9 @@ for j := 1 to len(arr_order)
   //for i := 1 to len(arr_order[j,LISS_USL])
     //my_debug(ip < 100,"    *"+print_array(arr_order[j,4,i]))
   //next
-  if arr_order[j,LISS_KOD] == 0 .or. len(arr_order[j,LISS_USL]) == 0 
+  if arr_order[j,LISS_KOD] == 0 .or. len(arr_order[j,LISS_USL]) == 0
     ++isp
-  else // т.е. данный случай ещё не заносили 
+  else // т.е. данный случай ещё не заносили
     lvzros_reb := 1 // ребенок по умолчанию
     if (k := count_years(kart->DATE_R,arr_order[j,LISS_NDATA])) < 14
       m1vzros_reb := 1  // ребенок
@@ -865,7 +865,7 @@ for j := 1 to len(arr_order)
     human_2->PC1 := human_2->PC2 := human_2->PC3 := ""
     human_2->PN1 := human_2->PN2 := 0
     human_2->PN3 := arr_order[j,LISS_KOD] // ключевое поле (для par = 1)
-    sstoim := 0 
+    sstoim := 0
     for i := 1 to len(arr_order[j,LISS_USL])
       if (n := ascan(arr_usl, {|x| x[1]==arr_order[j,LISS_USL,i,LISU_SHIFR] .and. x[4]==lvzros_reb})) == 0
         ++ku1
@@ -879,11 +879,11 @@ for j := 1 to len(arr_order)
                       arr_order[j,LISS_USL,i,LISU_KODU],;
                       arr_order[j,LISS_USL,i,LISU_CENA],;
                       lvzros_reb})
-      else                                                      
+      else
         arr_order[j,LISS_USL,i,LISU_KODU] := arr_usl[n,2]
         arr_order[j,LISS_USL,i,LISU_CENA] := arr_usl[n,3]
       endif
-      sstoim += arr_order[j,LISS_USL,i,LISU_CENA] 
+      sstoim += arr_order[j,LISS_USL,i,LISU_CENA]
       select HU
       Add1Rec(7)
       hu->kod     := human->kod
@@ -930,11 +930,11 @@ if tmp->t4 > 5
   k := t3
   for i := 1 to len(aat)
     aat[i,1] -= k
-    k += aat[i,1] 
+    k += aat[i,1]
   next
   my_debug(,lstr(ip)+print_array(aat))
 endif*/
-@ maxrow(),0 say "пациентов "+lstr(ip) color "G+/R" 
+@ maxrow(),0 say "пациентов "+lstr(ip) color "G+/R"
 @ row(),col() say "/" color "W/R"
 @ row(),col() say "случаев "+lstr(is)+iif(isp==0,""," (повтор "+lstr(isp)+")") color cColorSt2Msg
 @ row(),col() say "/" color "W/R"
@@ -979,11 +979,11 @@ Function f_LIS_polis()
 Local n
 if empty(arr_pac[LIS_OKATO]) .or. mo_nodigit(arr_pac[LIS_OKATO]) // пустое или не цифры
   arr_pac[LIS_OKATO] := "18"
-endif  
+endif
 arr_pac[LIS_OKATO] := padr(arr_pac[LIS_OKATO],11,"0")
 if ascan(glob_array_srf, {|x| x[2] == left(arr_pac[LIS_OKATO],2) }) == 0
   arr_pac[LIS_OKATO] := padr("18",11,"0")
-endif 
+endif
 //
 arr_pac[LIS_VPOLIS] := int(val(arr_pac[LIS_VPOLIS]))
 if !between(arr_pac[LIS_VPOLIS],1,3)
@@ -998,10 +998,10 @@ endif
 n := len(arr_pac[LIS_NPOLIS])
 if n == 9 .and. empty(arr_pac[LIS_SPOLIS])
   arr_pac[LIS_VPOLIS] := 2  // то пусть это будет временный полис
-endif  
+endif
 if n == 16 .and. !empty(arr_pac[LIS_SPOLIS])
   arr_pac[LIS_SPOLIS] := ""  // то очистим - какой-то мусор
-endif  
+endif
 if arr_pac[LIS_VPOLIS] == 1
   if left(arr_pac[LIS_OKATO],2) == "18" .and. empty(arr_pac[LIS_SPOLIS]) .and. n != 16
     arr_pac[LIS_NPOLIS] := padr(arr_pac[LIS_NPOLIS],16,"0")
@@ -1017,7 +1017,7 @@ elseif arr_pac[LIS_VPOLIS] == 3
   if !f_checksum_polis(arr_pac[LIS_NPOLIS]) // если неверная контрольная сумма в новом полисе
     arr_pac[LIS_VPOLIS] := 1  // то пусть это будет старый полис
   endif
-endif  
+endif
 return NIL
 
 ***** 15.01.17 проверить паспорт при импорте из ЛИС
@@ -1033,7 +1033,7 @@ if arr_pac[LIS_VID_UD] == 0 // ели новый полис и нет документа, очистим серию и 
 else
   arr_pac[LIS_SER_UD] := upper(arr_pac[LIS_SER_UD])
   if eq_any(arr_pac[LIS_VID_UD],1,3) // "Паспорт гражд.СССР" или "Свид-во о рождении"
-    if "-" $ arr_pac[LIS_SER_UD]  
+    if "-" $ arr_pac[LIS_SER_UD]
       _sl := ALLTRIM(TOKEN(arr_pac[LIS_SER_UD], "-", 1))
       _sr := ALLTRIM(TOKEN(arr_pac[LIS_SER_UD], "-", 2))
       arr_pac[LIS_SER_UD] := _sl+"-"+lat_rus(_sr) // латынь -> в русский
@@ -1063,7 +1063,7 @@ else
       arr_pac[LIS_MESTO_R] := del_spec_symbol(arr_pac[LIS_MESTO_R])
     endif
   endif
-endif  
+endif
 return NIL
 
 ***** 03.05.17
@@ -1116,7 +1116,7 @@ if ret[1] == ret[2]
   func_error(4,"Не удалось автоматически определить кодировку файла "+StripPath(name_file))
 else
   j := iif(ret[1], 1, 2)
-endif 
+endif
 return j
 
 ***** Импорт случаев ОМС (листов учёта) из других программ
@@ -2537,10 +2537,10 @@ index on dtos(dfile) to (cur_dir+"tmp_voen") DESCENDING
 go top
 if eof()
   keyboard chr(K_END)+chr(K_ENTER)
-else  
+else
   Alpha_Browse(T_ROW,2,22,77,"f1_export_military",color0,,,,,,,;
                "f2_export_military",,{'═','░','═',"N/BG,W+/N,B/BG,BG+/B,R/BG,W+/R",.t.,180} )
-endif             
+endif
 close databases
 G_SUnLock(Svoenn_sem)
 restscreen(buf)
@@ -2671,7 +2671,7 @@ if !eof()
   arr := VoenList2arr(alltrim(voen->company))
   Locate for dfile == sys_date
   fl := found()
-endif  
+endif
 close databases
 if fl
   G_SUnLock(Svoenn_sem)
@@ -2690,7 +2690,7 @@ do while !eof()
   replace kod with kom->kod,;
           tip with 3,;
           name with kom->name,;
-          is with (ascan(arr, {|x| x[1]==3 .and. x[2]==kom->kod }) > 0)  
+          is with (ascan(arr, {|x| x[1]==3 .and. x[2]==kom->kod }) > 0)
   select KOM
   skip
 enddo
@@ -2709,10 +2709,10 @@ do while !eof()
   skip
 enddo
 k := tmp->(lastrec())
-close databases 
+close databases
 rest_box(buf24)
 if k == 0
-  func_error(4,"В Вашей МО не работают с комитетами и прочими компаниями.") 
+  func_error(4,"В Вашей МО не работают с комитетами и прочими компаниями.")
 else
   close databases
   use (cur_dir+"tmp") new
@@ -2742,14 +2742,14 @@ else
     endif
     skip
   enddo
-  k := len(arr) 
+  k := len(arr)
   close databases
 endif
 if k == 0
-  func_error(4,"Не выбрано ни одной компании") 
+  func_error(4,"Не выбрано ни одной компании")
 elseif (arr_m := year_month(T_ROW,T_COL+5)) != NIL
   mywait()
-  dbcreate(cur_dir+"tmp1",{; 
+  dbcreate(cur_dir+"tmp1",{;
     {"KOD"      ,   "N",     7,     0},; // код человека по kartotek.dbf
     {"DATE_R"   ,   "D",     8,     0},; // дата рождения больного
     {"KOMU"     ,   "N",     1,     0},; // от 1 до 5
@@ -2761,7 +2761,7 @@ elseif (arr_m := year_month(T_ROW,T_COL+5)) != NIL
     {"IM"       ,   "C",    40,     0},;
     {"OT"       ,   "C",    40,     0}})
   use (cur_dir+"tmp1") new
-  index on str(kod,7) to (cur_dir+"tmp1") 
+  index on str(kod,7) to (cur_dir+"tmp1")
   R_Use(dir_server+"mo_kfio",,"KFIO")
   index on str(kod,7) to (cur_dir+"tmp_kfio")
   R_Use(dir_server+"kartotek",,"KART")
@@ -2786,7 +2786,7 @@ elseif (arr_m := year_month(T_ROW,T_COL+5)) != NIL
         tmp1->STR_CRB := arr[k,2]
         tmp1->N_DATA := human->n_data
         tmp1->K_DATA := human->k_data
-        tmp1->name := arr[k,3] 
+        tmp1->name := arr[k,3]
         tmp1->FAM := arr_fio[1]
         tmp1->IM  := arr_fio[2]
         tmp1->OT  := arr_fio[3]
@@ -2798,7 +2798,7 @@ elseif (arr_m := year_month(T_ROW,T_COL+5)) != NIL
   k := tmp1->(lastrec())
   rest_box(buf24)
   if k == 0
-    func_error(4,"Не найдено листов учёта военнослужащих "+arr_m[4]) 
+    func_error(4,"Не найдено листов учёта военнослужащих "+arr_m[4])
   elseif f_alert({'Составляется таблица Excel с военнослужащими',;
                   '(количество пациентов - '+lstr(k)+').',;
                   '',;
@@ -2826,7 +2826,7 @@ elseif (arr_m := year_month(T_ROW,T_COL+5)) != NIL
     frt->name_f := n_file+sxls
     frt->codemo := glob_mo[_MO_KOD_TFOMS]
     frt->name   := glob_mo[_MO_SHORT_NAME]
-    frt->data   := full_date(sys_date)                                         
+    frt->data   := full_date(sys_date)
     frt->period := arr_m[4]
     adbf := {{"nomer","N",4,0},;
              {"fam","C",50,0},;
@@ -2872,7 +2872,7 @@ elseif (arr_m := year_month(T_ROW,T_COL+5)) != NIL
     if chip_copy_zipXML(n_file+sxls,goal_dir,.t.)
       keyboard chr(K_HOME)+chr(K_ENTER)
     endif
-  endif 
+  endif
   close databases
 endif
 G_SUnLock(Svoenn_sem)
@@ -3185,7 +3185,7 @@ return NIL
 Function create_schets_OBLSDRAV()
 Local arr_f, ar, hZip, i, cPassword, fl := .t., hGauge, s, y, cFile, buf := savescreen()
 f_message({"Ждите! Создаётся архив счетов",;
-           "за отчётный период сентябрь-октябрь 2018 года.",; 
+           "за отчётный период сентябрь-октябрь 2018 года.",;
            "",;
            "Ни в коем случае не прерывайте процесс",;
            "во избежание нежелательных последствий!"},,"GR+/R","W+/R",12)
@@ -3229,7 +3229,7 @@ else
   fl := func_error(4,"Возникла ошибка при архивировании базы данных.")
 endif
 restscreen(buf)
-if fl 
+if fl
   s := manager(T_ROW,T_COL+5,maxrow()-2,,.f.,2) // "norton" для выбора каталога
   if !empty(s)
     mywait('Копирование "'+zip_file+'" в каталог "'+s+'"')
@@ -5283,7 +5283,7 @@ next
 close databases
 return fl
 
-***** 26.08.18
+***** 11.04.19
 Function f2_create_main_base_from_reestrs(mname_xml)
 Local fl := .t., auch_otd, _tip_lu
 use (cur_dir+"tmp_r_t1") new alias T1
@@ -5431,6 +5431,7 @@ my_debug(,"|полис|"+rtrim(mpolis))
       if empty(lkod_k)
         Add1Rec(7)
         lkod_k := kart->kod := recno()
+my_debug(,print_array({"добавление",lkod_k,mfio}))
       else
         find (str(lkod_k,7))
         G_RLock(forever)
@@ -5513,7 +5514,7 @@ my_debug(,"|полис|"+rtrim(mpolis))
       endif
       UnLock
       //
-      lvrach := 0 ; n := int(val(t1->PRVS))
+      lvrach := 0 ; n := prvs_V021_to_V015(t1->PRVS)
       if len(alltrim(t1->IDDOKT)) == 11
         lvrach := ret_perso_with_tab_nom(t1->IDDOKT,n)
         if empty(lvrach) .and. !flag_is_lu
@@ -5592,6 +5593,7 @@ my_debug(,"  "+rtrim(human->fio)+"=второй раз в реестре="+lstr(mkod_reestr))
       human->N_DATA     := xml2date(t1->DATE_1)
       human->K_DATA     := xml2date(t1->DATE_2)
       human->CENA := human->CENA_1 := val(t1->SUMV)
+      human->OBRASHEN   := t1->ds_onk
       human_->VPOLIS    := val(t1->vpolis)
       human_->SPOLIS    := t1->SPOLIS
       human_->NPOLIS    := t1->NPOLIS
@@ -5602,8 +5604,7 @@ my_debug(,"  "+rtrim(human->fio)+"=второй раз в реестре="+lstr(mkod_reestr))
         human_->POL2    := ""
       else
         human_->NOVOR   := val(right(t1->NOVOR,2))
-        human_->DATE_R2 := stod("20"+substr(t1->NOVOR,6,2)+;
-                                     substr(t1->NOVOR,4,2)+substr(t1->NOVOR,2,2))
+        human_->DATE_R2 := stod("20"+substr(t1->NOVOR,6,2)+substr(t1->NOVOR,4,2)+substr(t1->NOVOR,2,2))
         human_->POL2    := iif(M1NOVOR==1,"М","Ж")
       endif
       human_->USL_OK    := val(t1->USL_OK)
@@ -5623,7 +5624,7 @@ my_debug(,"  "+rtrim(human->fio)+"=второй раз в реестре="+lstr(mkod_reestr))
       human_->RSLT_NEW  := val(t1->rslt)
       human_->ISHOD_NEW := val(t1->ishod)
       human_->VRACH     := lvrach
-      human_->PRVS      := -val(t1->prvs)
+      human_->PRVS      := -prvs_V021_to_V015(t1->prvs)
       human_->OPLATA    := 0
       human_->ST_VERIFY := 0
       human_->ID_PAC    := t1->ID_PAC
@@ -5637,11 +5638,26 @@ my_debug(,"  "+rtrim(human->fio)+"=второй раз в реестре="+lstr(mkod_reestr))
       human_->SCHET_ZAP := 0
       human->kod_p      := chr(0)
       human->date_e     := ''
+      if !empty(t1->CRIT)  // потом добавим t1->CRIT2 и онкологию
+        human_2->pc3 := t1->CRIT
+      endif
+      if t1->SL_K == '1'
+        s := lstr(int(val(t1->kod_kslp)))+","+lstr(val(t1->koef_kslp),5,2)
+        if !empty(t1->kod_kslp2)
+          s += ","+lstr(int(val(t1->kod_kslp2)))+","+lstr(val(t1->koef_kslp2),5,2)
+        endif
+        human_2->pc1 := s
+      endif
+      if !empty(t1->CODE_KIRO)
+        human_2->pc2 := lstr(int(val(t1->CODE_KIRO)))+","+lstr(val(t1->VAL_K),5,2)
+      endif
       _tip_lu := 0
       // проверяем диспансеризацию
       m1veteran := m1gruppa := m1etap := 0
       k := int(val(t1->COMENTSL))
-      if k == 20
+      if eq_any(k,4,5)
+        human_2->PN2 := 1
+      elseif k == 20
         human->RAB_NERAB := 0
       elseif k == 10
         human->RAB_NERAB := 1
@@ -5664,11 +5680,11 @@ my_debug(,"  "+rtrim(human->fio)+"=второй раз в реестре="+lstr(mkod_reestr))
             _tip_lu := TIP_LU_DVN
             mdvozrast := year(human->K_DATA) - year(human->date_r)
             if ascan(arr2m_vozrast_DVN,mdvozrast) > 0
-              m1etap := 5 
-              human->ishod := 205 
+              m1etap := 5
+              human->ishod := 205
             elseif human->POL == "Ж" .and. ascan(arr2g_vozrast_DVN,mdvozrast) > 0
-              m1etap := 5 
-              human->ishod := 205 
+              m1etap := 5
+              human->ishod := 205
             endif
           case t1->DISP == "ОПВ" //"Профилактические медицинские осмотры взрослого населения",stod("2013-12-26")})
             m1etap := 3
@@ -5776,8 +5792,14 @@ my_debug(,"  "+rtrim(human->fio)+"=второй раз в реестре="+lstr(mkod_reestr))
       endif
       UnLock
       // если присутствует шифр законченного случая
+      fl := .f.
       if t1->ED_COL == '1' .and. !empty(t1->CODE_MES1)
-        kod_usl := foundOurUsluga(t1->CODE_MES1,human->k_data,human_->profil,human->VZROS_REB)
+        fl := .t. ; s := t1->CODE_MES1
+      elseif !empty(t1->n_ksg)
+        fl := .t. ; s := t1->n_ksg
+      endif
+      if fl
+        kod_usl := foundOurUsluga(s,human->k_data,human_->profil,human->VZROS_REB)
         //
         select HU
         Add1Rec(7)
@@ -5801,7 +5823,7 @@ my_debug(,"  "+rtrim(human->fio)+"=второй раз в реестре="+lstr(mkod_reestr))
         hu_->ID_U := mo_guid(3,hu_->(recno()))
         hu_->date_u2 := dtoc4(human->K_DATA)
         hu_->PROFIL := val(t1->PROFIL)
-        hu_->PRVS   := -val(t1->PRVS)
+        hu_->PRVS   := -prvs_V021_to_V015(t1->PRVS)
         hu_->kod_diag := t1->ds1
         UNLOCK
       endif
@@ -5809,7 +5831,7 @@ my_debug(,"  "+rtrim(human->fio)+"=второй раз в реестре="+lstr(mkod_reestr))
       select T2
       find (t1->IDCASE)
       do while t1->IDCASE == t2->IDCASE .and. !eof()
-        lvrach := 0 ; n := int(val(t2->PRVS))
+        lvrach := 0 ; n := prvs_V021_to_V015(t2->PRVS)
         if len(alltrim(t2->CODE_MD)) == 11
           lvrach := ret_perso_with_tab_nom(t2->CODE_MD,n)
           if empty(lvrach) .and. !flag_is_lu
@@ -5869,7 +5891,7 @@ my_debug(,"  "+rtrim(human->fio)+"=второй раз в реестре="+lstr(mkod_reestr))
             mohu->stoim_1 := 0
             mohu->ID_U    := t2->ID_U
             mohu->PROFIL  := val(t2->PROFIL)
-            mohu->PRVS    := -val(t2->PRVS)
+            mohu->PRVS    := -prvs_V021_to_V015(t2->PRVS)
             mohu->kod_diag := t2->ds
             UNLOCK
           endif
@@ -5889,6 +5911,16 @@ my_debug(,"  "+rtrim(human->fio)+"=второй раз в реестре="+lstr(mkod_reestr))
           hu->otd     := human->OTD
           hu->kol := hu->kol_1 := val(t2->KOL_USL)
           hu->stoim := hu->stoim_1 := val(t2->SUMV_USL)
+          if human_->USL_OK == 3
+            if t2->PODR == '0' .and. hu->KOL_RCP >= 0
+              hu->KOL_RCP := -1 // на дому
+            endif
+            if !(alltrim(arr_hu[i,2]) == "4.20.2")
+              if (j := ascan({'125901','805965','103001'},t2->LPU)) > 0
+                hu->is_edit := j
+              endif
+            endif
+          endif
           select HU_
           do while hu_->(lastrec()) < hu->(recno())
             APPEND BLANK
@@ -5898,7 +5930,7 @@ my_debug(,"  "+rtrim(human->fio)+"=второй раз в реестре="+lstr(mkod_reestr))
           hu_->ID_U := t2->ID_U
           hu_->date_u2 := dtoc4(xml2date(t2->DATE_OUT))
           hu_->PROFIL := val(t2->PROFIL)
-          hu_->PRVS   := -val(t2->PRVS)
+          hu_->PRVS   := -prvs_V021_to_V015(t2->PRVS)
           hu_->kod_diag := t2->ds
           UNLOCK
         endif
@@ -5929,7 +5961,7 @@ rees->KOL := pkol
 close databases
 return fl
 
-***** 26.08.18 перезаписать лист учёта, если таковой уже есть в БД
+***** 11.04.19 перезаписать лист учёта, если таковой уже есть в БД
 Function f3_create_main_base_from_reestrs()
 Local i, j, k, arr_hu, ta, arr_ne, fl
 select KART
@@ -6012,7 +6044,7 @@ else
 endif
 UnLock
 //
-lvrach := human_->VRACH ; n := int(val(t1->PRVS))
+lvrach := human_->VRACH ; n := prvs_V021_to_V015(t1->PRVS)
 if empty(lvrach) .and. len(alltrim(t1->IDDOKT)) == 11
   lvrach := ret_perso_with_tab_nom(t1->IDDOKT,n)
   if empty(lvrach) .and. !flag_is_lu
@@ -6064,8 +6096,7 @@ for i := 1 to 7
   pole := "t1->DS2"+iif(i==1, "", "_"+lstr(i))
   s += right(&pole,1)
   if !empty(&pole)
-    poleh := {"KOD_DIAG2","KOD_DIAG3","KOD_DIAG4",;
-              "SOPUT_B1","SOPUT_B2","SOPUT_B3","SOPUT_B4"}[i]
+    poleh := {"KOD_DIAG2","KOD_DIAG3","KOD_DIAG4","SOPUT_B1","SOPUT_B2","SOPUT_B3","SOPUT_B4"}[i]
     poleh := "human->"+poleh
     &poleh := &pole
   endif
@@ -6088,6 +6119,7 @@ human_->SPOLIS := t1->SPOLIS
 human_->NPOLIS := t1->NPOLIS
 human_->OKATO  := t1->SMO_OK // ОКАТО субъекта РФ территории страхования
 human->CENA := human->CENA_1 := val(t1->SUMV)
+human->OBRASHEN := t1->DS_ONK
 if M1NOVOR == 0
   human_->NOVOR   := 0
   human_->DATE_R2 := ctod("")
@@ -6114,7 +6146,7 @@ human_->KOD_DIAG0 := t1->ds0
 human_->RSLT_NEW  := val(t1->rslt)
 human_->ISHOD_NEW := val(t1->ishod)
 human_->VRACH     := lvrach
-human_->PRVS      := -val(t1->prvs)
+human_->PRVS      := -prvs_V021_to_V015(t1->prvs)
 human_->OPLATA    := 0
 human_->ST_VERIFY := 0
 human_->ID_PAC    := t1->ID_PAC
@@ -6126,12 +6158,27 @@ if human_->REES_NUM < 99
 endif
 human->schet      := 0
 human_->SCHET_ZAP := 0
+if !empty(t1->CRIT)  // потом добавим t1->CRIT2 и онкологию
+  human_2->pc3 := t1->CRIT
+endif
+if t1->SL_K == '1'
+  s := lstr(int(val(t1->kod_kslp)))+","+lstr(val(t1->koef_kslp),5,2)
+  if !empty(t1->kod_kslp2)
+    s += ","+lstr(int(val(t1->kod_kslp2)))+","+lstr(val(t1->koef_kslp2),5,2)
+  endif
+  human_2->pc1 := s
+endif
+if !empty(t1->CODE_KIRO)
+  human_2->pc2 := lstr(int(val(t1->CODE_KIRO)))+","+lstr(val(t1->VAL_K),5,2)
+endif
 //human->kod_p  := chr(0) // данное поле заполнено
 //human->date_e := ''     // данное поле заполнено
 // проверяем диспансеризацию
 m1veteran := m1gruppa := m1etap := 0
 k := int(val(t1->COMENTSL))
-if k == 20
+if eq_any(k,4,5)
+  human_2->PN2 := 1
+elseif k == 20
   human->RAB_NERAB := 0
 elseif k == 10
   human->RAB_NERAB := 1
@@ -6154,11 +6201,11 @@ if !empty(t1->DISP)
       _tip_lu := TIP_LU_DVN
       mdvozrast := year(human->K_DATA) - year(human->date_r)
       if ascan(arr2m_vozrast_DVN,mdvozrast) > 0
-        m1etap := 5 
-        human->ishod := 205 
+        m1etap := 5
+        human->ishod := 205
       elseif human->POL == "Ж" .and. ascan(arr2g_vozrast_DVN,mdvozrast) > 0
-        m1etap := 5 
-        human->ishod := 205 
+        m1etap := 5
+        human->ishod := 205
       endif
     case t1->DISP == "ОПВ" //"Профилактические медицинские осмотры взрослого населения",stod("2013-12-26")})
       m1etap := 3
@@ -6282,8 +6329,6 @@ do while mohu->kod == mkod .and. !eof()
   select MOHU
   skip
 enddo
-my_debug(,mfio)
-my_debug(,print_array(arr_mohu))
 arr_ne := {}
 select T2
 find (t1->IDCASE)
@@ -6321,19 +6366,25 @@ do while t1->IDCASE == t2->IDCASE .and. !eof()
 enddo
 my_debug(,print_array(arr_mohu))
 // если присутствует шифр законченного случая
+fl := .f.
 if t1->ED_COL == '1' .and. !empty(t1->CODE_MES1)
-  ta := foundAllShifrTF(t1->CODE_MES1,human->k_data)
+  fl := .t. ; s := t1->CODE_MES1
+elseif !empty(t1->n_ksg)
+  fl := .t. ; s := t1->n_ksg
+endif
+if fl
+  ta := foundAllShifrTF(s,human->k_data)
   if len(ta) > 0 // попытаемся найти в массиве необходимый код услуг
     for i := 1 to len(arr_hu)
       if empty(arr_hu[i,3]) .and. ascan(ta,arr_hu[i,4]) > 0
-        arr_hu[i,2] := alltrim(t1->CODE_MES1)
+        arr_hu[i,2] := alltrim(s)
         arr_hu[i,3] := -1
         exit
       endif
     next
   endif
   if ascan(arr_hu, {|x| x[3] < 0 }) == 0 // если не нашли
-    kod_usl := foundOurUsluga(t1->CODE_MES1,human->k_data,human_->profil,human->VZROS_REB)
+    kod_usl := foundOurUsluga(s,human->k_data,human_->profil,human->VZROS_REB)
     //
     select HU
     Add1Rec(7)
@@ -6357,7 +6408,7 @@ if t1->ED_COL == '1' .and. !empty(t1->CODE_MES1)
     hu_->ID_U := mo_guid(3,hu_->(recno()))
     hu_->date_u2 := dtoc4(human->K_DATA)
     hu_->PROFIL := val(t1->PROFIL)
-    hu_->PRVS   := -val(t1->PRVS)
+    hu_->PRVS   := -prvs_V021_to_V015(t1->PRVS)
     hu_->kod_diag := t1->ds1
     UNLOCK
   endif
@@ -6387,7 +6438,7 @@ for i := 1 to len(arr_hu)
       endif
       hu_->date_u2 := dtoc4(human->K_DATA)
       hu_->PROFIL := val(t1->PROFIL)
-      hu_->PRVS   := -val(t1->PRVS)
+      hu_->PRVS   := -prvs_V021_to_V015(t1->PRVS)
       hu_->kod_diag := t1->ds1
     else
       select T2
@@ -6399,11 +6450,21 @@ for i := 1 to len(arr_hu)
       hu_->ID_U := t2->ID_U
       hu_->date_u2 := dtoc4(xml2date(t2->DATE_OUT))
       hu_->PROFIL := val(t2->PROFIL)
-      hu_->PRVS   := -val(t2->PRVS)
+      hu_->PRVS   := -prvs_V021_to_V015(t2->PRVS)
       hu_->kod_diag := t2->ds
+      if human_->USL_OK == 3
+        if t2->PODR == '0' .and. hu->KOL_RCP >= 0
+          hu->KOL_RCP := -1 // на дому
+        endif
+        if !(alltrim(arr_hu[i,2]) == "4.20.2")
+          if (j := ascan({'125901','805965','103001'},t2->LPU)) > 0
+            hu->is_edit := j
+          endif
+        endif
+      endif
     endif
     if empty(hu->kod_vr)
-      hu->kod_vr := human_->vrach 
+      hu->kod_vr := human_->vrach
     endif
     hu->u_koef  := 1
     hu->is_edit := 0
@@ -6431,10 +6492,10 @@ for i := 1 to len(arr_mohu)
     mohu->ID_U := t2->ID_U
     mohu->date_u2 := dtoc4(xml2date(t2->DATE_OUT))
     mohu->PROFIL := val(t2->PROFIL)
-    mohu->PRVS   := -val(t2->PRVS)
+    mohu->PRVS   := -prvs_V021_to_V015(t2->PRVS)
     mohu->kod_diag := t2->ds
     if empty(mohu->kod_vr)
-      mohu->kod_vr := human_->vrach 
+      mohu->kod_vr := human_->vrach
     endif
     if empty(mohu->otd)
       mohu->otd := human->otd
@@ -6446,13 +6507,13 @@ next
 for i := 1 to len(arr_ne)
   select T2
   goto (arr_ne[i])
-  lvrach := 0 ; n := int(val(t2->PRVS))
+  lvrach := 0 ; n := prvs_V021_to_V015(t2->PRVS)
   if abs(human_->PRVS) == n // если спец-ть как в случае
     lvrach := human_->VRACH  // берём код врача из случая
     n := 0 // обнуляем, чтобы больше не искать врача
   endif
   if n > 0 .and. len(alltrim(t2->CODE_MD)) == 11
-    lvrach := ret_perso_with_tab_nom(t2->CODE_MD,int(val(t2->PRVS)))
+    lvrach := ret_perso_with_tab_nom(t2->CODE_MD,n)
     if empty(lvrach) .and. !flag_is_lu
       select PERSO
       AddRecN()
@@ -6461,7 +6522,7 @@ for i := 1 to len(arr_ne)
       perso->fio  := "Сотрудник с кодом "+lstr(lvrach)
       perso->uch  := human->uch
       perso->otd  := human->otd
-      perso->prvs_new := int(val(t2->PRVS))
+      perso->prvs_new := n
       perso->snils := t2->CODE_MD
       UnLock
     endif
@@ -6507,7 +6568,7 @@ for i := 1 to len(arr_ne)
       mohu->stoim_1 := 0
       mohu->ID_U    := t2->ID_U
       mohu->PROFIL  := val(t2->PROFIL)
-      mohu->PRVS    := -val(t2->PRVS)
+      mohu->PRVS    := -prvs_V021_to_V015(t2->PRVS)
       mohu->kod_diag := t2->ds
       UNLOCK
     endif
@@ -6536,21 +6597,21 @@ for i := 1 to len(arr_ne)
     hu_->ID_U := t2->ID_U
     hu_->date_u2 := dtoc4(xml2date(t2->DATE_OUT))
     hu_->PROFIL := val(t2->PROFIL)
-    hu_->PRVS   := -val(t2->PRVS)
+    hu_->PRVS   := -prvs_V021_to_V015(t2->PRVS)
     hu_->kod_diag := t2->ds
     UNLOCK
   endif
 next
 return NIL
 
-***** 01.04.18 поискать врача по СНИЛС и, м.б., по специальности
+***** 10.04.19 поискать врача по СНИЛС и, м.б., по специальности
 Function ret_perso_with_tab_nom(lsnils,lprvs)
 Static aprvs
 Local i, j, lvrach := 0
-DEFAULT aprvs TO ret_arr_new_olds_prvs() // массив соответствий специальности V015 специальностям V0004
+DEFAULT aprvs TO ret_arr_new_olds_prvs() // массив соответствий специальности V015 специальностям V004
 select PERSO
 set order to 1
-find (padr(lsnils,11)+str(lprvs,4)) // ищем по коду новой специальности
+find (padr(lsnils,11)+str(lprvs,4)) // ищем по коду специальности V015
 if found()
   lvrach := perso->kod
 elseif (j := ascan(aprvs,{|x| x[1] == lprvs })) > 0
@@ -6562,8 +6623,8 @@ elseif (j := ascan(aprvs,{|x| x[1] == lprvs })) > 0
       exit
     endif
   next
-endif  
-if empty(lvrach)   
+endif
+if empty(lvrach)
   find (padr(lsnils,11))  // ищем просто по СНИЛС
   if found()
     lvrach := perso->kod
@@ -6571,14 +6632,15 @@ if empty(lvrach)
 endif
 return lvrach
 
-***** 26.08.18 поискать отделение по типу л/у (и м.б.по профилю) (и м.б. по врачу)
+***** 10.04.19 поискать отделение по типу л/у (и м.б.по профилю) (и м.б. по врачу)
 Static Function ret_otd_with_lu_prof(lpodr,lump,llu,lprof,lvrach)
 // lpodr  - код подразделения
 // lump   - условия оказания мед.помощи
 // llu    - тип листа учёта
 // lprof  - профиль
 // lvrach - врач
-Local uch_otd := {1,2} // для онкологии
+Static such_otd := {1,2} // для Калачевской ЦРБ
+Local uch_otd := {0,0}
 select OTD
 if llu > 0
   set order to 1
@@ -6586,31 +6648,50 @@ if llu > 0
   if found()
     uch_otd := {otd->kod_lpu,otd->kod}
   endif
-elseif lpodr > 0  
+elseif lpodr > 0
   set order to 3
   find (str(lpodr,3)+str(lump,2))
   if found()
     uch_otd := {otd->kod_lpu,otd->kod}
-  else  
+  else
     find (str(lpodr,3))
     if found()
       uch_otd := {otd->kod_lpu,otd->kod}
     endif
   endif
-elseif lvrach > 0 // для онкологии подняли перед профилем
-  perso->(dbGoto(lvrach))  
-  uch_otd := {perso->uch,perso->otd}
+elseif lvrach > 0 // в справочнике персонала стоит учреждение + отделение
+  perso->(dbGoto(lvrach))
+  if emptyany(perso->uch,perso->otd)
+    if lprof > 0
+      select OTD
+      set order to 2
+      find (str(lprof,3)+str(lump,2))
+      if found()
+        uch_otd := {otd->kod_lpu,otd->kod}
+      else
+        find (str(lprof,3))
+        if found()
+          uch_otd := {otd->kod_lpu,otd->kod}
+        endif
+      endif
+    endif
+  else
+    uch_otd := {perso->uch,perso->otd}
+  endif
 elseif lprof > 0
   set order to 2
   find (str(lprof,3)+str(lump,2))
   if found()
     uch_otd := {otd->kod_lpu,otd->kod}
-  else  
+  else
     find (str(lprof,3))
     if found()
       uch_otd := {otd->kod_lpu,otd->kod}
     endif
   endif
+endif
+if emptyany(uch_otd[1],uch_otd[2])
+  uch_otd := aclone(such_otd)
 endif
 return uch_otd
 
@@ -6619,7 +6700,7 @@ Function Change_Cena_OMS()
 Local buf := save_maxrow(), lshifr1, fl, lrec, kod_ksg, begin_date := addmonth(sys_date,-3)
 if begin_date < boy(begin_date)
   begin_date := boy(begin_date)
-endif  
+endif
 n_message({"Данный режим предназначен для изменения цен на услуги",;
            "и суммы случаев в листах учёта, которые не включены",;
            "в реестры (счета), на цены из справочника услуг ТФОМС.",;
@@ -6673,7 +6754,7 @@ if f_Esc_Enter("изменения цен",.t.) .and. mo_Lock_Task(X_OMS)
         @ row(),col() say lstr(sm_human) color "GR+/R"
         uch->(dbGoto(human->LPU))
         otd->(dbGoto(human->OTD))
-        f_put_glob_podr(human_->USL_OK,human->k_data) // заполнить код подразделения 
+        f_put_glob_podr(human_->USL_OK,human->k_data) // заполнить код подразделения
         sdial := mcena_1 := 0 ; fl := .f. ; kod_ksg := ""
         select HU
         find (str(human->kod,7))
@@ -6686,7 +6767,7 @@ if f_Esc_Enter("изменения цен",.t.) .and. mo_Lock_Task(X_OMS)
             lshifr := iif(empty(lshifr1), usl->shifr, lshifr1)
             if human_->USL_OK < 3 .and. is_ksg(lshifr)
               kod_ksg := lshifr
-              lrec := hu->(recno()) 
+              lrec := hu->(recno())
             else
               lu_cena := hu->u_cena
               fl_del := fl_uslc := .f.
@@ -6706,7 +6787,7 @@ if f_Esc_Enter("изменения цен",.t.) .and. mo_Lock_Task(X_OMS)
                 fl := .t.
               endif
               mcena_1 += hu->stoim_1
-            endif  
+            endif
           endif
           select HU
           skip

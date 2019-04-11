@@ -4,7 +4,7 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 02.04.19 ПН - добавление или редактирование случая (листа учета)
+***** 08.04.19 ПН - добавление или редактирование случая (листа учета)
 Function oms_sluch_PN(Loc_kod,kod_kartotek,f_print)
 // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
 // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -205,8 +205,33 @@ Private mDS_ONK, m1DS_ONK := 0 // Признак подозрения на злокачественное новообра
 Private mnapr_stac, m1napr_stac := 0, ;
         mm_napr_stac := {{"--- нет ---",0},{"в стационар",1},{"в дн. стац.",2}}, ;
         mprofil_stac, m1profil_stac := 0
-Private mnapr_reab, m1napr_reab := 0, mprofil_kojki, m1profil_kojki := 0, arr_usl_otkaz := {}   
+Private mnapr_reab, m1napr_reab := 0, mprofil_kojki, m1profil_kojki := 0, arr_usl_otkaz := {}
 Private mm_otkaz := {{"выпол.",0},{"ОТКАЗ ",1}}, is_neonat := .f.
+//
+dbcreate(cur_dir+"tmp_onkna", {; // онконаправления
+   {"KOD"      ,   "N",     7,     0},; // код больного
+   {"NAPR_DATE",   "D",     8,     0},; // Дата направления
+   {"NAPR_MO",     "C",     6,     0},; // код другого МО, куда выписано направление
+   {"NAPR_V"  ,    "N",     1,     0},; // Вид направления:1-к онкологу,2-на биопсию,3-на дообследование,4-для опр.тактики лечения
+   {"MET_ISSL" ,   "N",     1,     0},; // Метод диагностического исследования(при NAPR_V=3):1-лаб.диагностика;2-инстр.диагностика;3-луч.диагностика;4-КТ, МРТ, ангиография
+   {"shifr"  ,     "C",    20,     0},;
+   {"shifr_u"  ,   "C",    20,     0},;
+   {"shifr1"   ,   "C",    20,     0},;
+   {"name_u"   ,   "C",    65,     0},;
+   {"U_KOD"    ,   "N",     6,     0};  // код услуги
+  })
+Private m1NAPR_MO, mNAPR_MO, mNAPR_DATE, mNAPR_V, m1NAPR_V, mMET_ISSL, m1MET_ISSL, ;
+        mshifr, mshifr1, mname_u, mU_KOD, cur_napr := 0, count_napr := 0, tip_onko_napr := 0
+Private mm_napr_v := {{"нет",0},;
+                      {"к онкологу",1},;
+                      {"на биопсию",2},;
+                      {"на дообследование",3},;
+                      {"для опредения тактики лечения",4}}
+Private mm_met_issl := {{"нет",0},;
+                        {"лабораторная диагностика",1},;
+                        {"инструментальная диагностика",2},;
+                        {"методы лучевой диагностики (недорогостоящие)",3},;
+                        {"дорогостоящие методы лучевой диагностики",4}}
 //
 for i := 1 to 5
   for k := 1 to 14
@@ -292,7 +317,7 @@ dbcreate(cur_dir+"tmp", {;
 use (cur_dir+"tmp")
 index on str(u_kod,4) to (cur_dir+"tmpk")
 index on fsort_usl(u_shifr) to (cur_dir+"tmpn")
-set index to (cur_dir+"tmpk"),(cur_dir+"tmpn") 
+set index to (cur_dir+"tmpk"),(cur_dir+"tmpn")
 R_Use(dir_server+"human_",,"HUMAN_")
 R_Use(dir_server+"human",,"HUMAN")
 set relation to recno() into HUMAN_
@@ -452,7 +477,7 @@ if Loc_kod > 0
         if np_arr_issled[i,1] == lshifr
           fl := .f. ; larr_i[i] := hu->(recno()) ; exit
         elseif (j := ascan(np_arr_not_zs,{|x| x[2] == lshifr })) > 0 .and. ;
-                                        np_arr_issled[i,1] == np_arr_not_zs[j,1] 
+                                        np_arr_issled[i,1] == np_arr_not_zs[j,1]
           fl := .f. ; larr_i[i] := hu->(recno()) ; exit
         endif
       next
@@ -534,7 +559,7 @@ if Loc_kod > 0
     next
   next
   read_arr_PN(Loc_kod)
-  if metap == 1 .and. m1p_otk == 1 
+  if metap == 1 .and. m1p_otk == 1
     m1step2 := 2
   endif
   if valtype(arr_usl_otkaz) == "A"
@@ -567,6 +592,29 @@ if Loc_kod > 0
         endif
       endif
     next
+  endif
+  if .t.
+    use (cur_dir+"tmp_onkna") new alias TNAPR
+    R_Use(dir_server+"mo_su",,"MOSU")
+    R_Use(dir_server+"mo_onkna",dir_server+"mo_onkna","NAPR") // онконаправления
+    set relation to u_kod into MOSU
+    find (str(Loc_kod,7))
+    do while napr->kod == Loc_kod .and. !eof()
+      cur_napr := 1 // при ред-ии - сначала первое направление текущее
+      ++count_napr
+      select TNAPR
+      append blank
+      tnapr->NAPR_DATE := napr->NAPR_DATE
+      tnapr->NAPR_MO   := napr->NAPR_MO
+      tnapr->NAPR_V    := napr->NAPR_V
+      tnapr->MET_ISSL  := napr->MET_ISSL
+      tnapr->U_KOD     := napr->U_KOD
+      tnapr->shifr_u   := iif(empty(mosu->shifr),mosu->shifr1,mosu->shifr)
+      tnapr->shifr1    := mosu->shifr1
+      tnapr->name_u    := mosu->name
+      select NAPR
+      skip
+    enddo
   endif
   if alltrim(msmo) == '34'
     mnameismo := ret_inogSMO_name(2,@rec_inogSMO,.t.) // открыть и закрыть
@@ -633,7 +681,7 @@ mDS_ONK    := inieditspr(A__MENUVERT, mm_danet, M1DS_ONK)
 mnapr_stac := inieditspr(A__MENUVERT, mm_napr_stac, m1napr_stac)
 mprofil_stac := inieditspr(A__MENUVERT, glob_V002, m1profil_stac)
 mnapr_reab := inieditspr(A__MENUVERT, mm_danet, m1napr_reab)
-mprofil_kojki := inieditspr(A__MENUVERT, glob_V020, m1profil_kojki)   
+mprofil_kojki := inieditspr(A__MENUVERT, glob_V020, m1profil_kojki)
 //
 if !empty(f_print)
   return &(f_print+"("+lstr(Loc_kod)+","+lstr(kod_kartotek)+","+lstr(mdvozrast)+")")
@@ -794,7 +842,7 @@ do while .t.
           fl_kdp2 := .f.
           if glob_yes_kdp2[TIP_LU_PN] .and. ascan(glob_arr_usl_LIS,np_arr_issled[i,1]) > 0
             fl_kdp2 := .t.
-          endif 
+          endif
           mvarv := "MTAB_NOMiv"+lstr(i)
           mvara := "MTAB_NOMia"+lstr(i)
           mvard := "MDATEi"+lstr(i)
@@ -807,7 +855,7 @@ do while .t.
      ++j; @ j,1 say padr(np_arr_issled[i,3],38)
           if fl_kdp2
             @ j,34 get &mvarlis reader {|x|menu_reader(x,mm_kdp2,A__MENUVERT,,,.f.)}
-          endif         
+          endif
           @ j,39 get &mvarv pict "99999" valid {|g| v_kart_vrach(g) }
         if mem_por_ass > 0
           @ j,45 get &mvara pict "99999" valid {|g| v_kart_vrach(g) }
@@ -1143,18 +1191,18 @@ do while .t.
     ++j; @ j,1 say "Направления при подозрении на ЗНО" get mnapr_onk ;
                reader {|x|menu_reader(x,{{|k,r,c| fget_napr_PN(k,r,c)}},A__FUNCTION,,,.f.)} ;
                when m1ds_onk == 1
-   endif             
+   endif
     ++j; @ j,1 say "Направлен на лечение" get mnapr_stac ;
-               reader {|x|menu_reader(x,mm_napr_stac,A__MENUVERT,,,.f.)} ; 
-               valid {|| iif(m1napr_stac==0, (m1profil_stac:=0,mprofil_stac:=space(32)), ), update_get("mprofil_stac")}  
-         @ j,col()+1 say "по профилю" get mprofil_stac ;      
-               reader {|x|menu_reader(x,glob_V002,A__MENUVERT,,,.f.)} ; 
+               reader {|x|menu_reader(x,mm_napr_stac,A__MENUVERT,,,.f.)} ;
+               valid {|| iif(m1napr_stac==0, (m1profil_stac:=0,mprofil_stac:=space(32)), ), update_get("mprofil_stac")}
+         @ j,col()+1 say "по профилю" get mprofil_stac ;
+               reader {|x|menu_reader(x,glob_V002,A__MENUVERT,,,.f.)} ;
                when m1napr_stac > 0
     ++j; @ j,1 say "Направлен на реабилитацию" get mnapr_reab ;
                reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
-               valid {|| iif(m1napr_reab==0, (m1profil_kojki:=0,mprofil_kojki:=space(30)), ), update_get("mprofil_kojki")}  
-         @ j,col()+1 say ", профиль койки" get mprofil_kojki ;      
-               reader {|x|menu_reader(x,glob_V020,A__MENUVERT,,,.f.)} ; 
+               valid {|| iif(m1napr_reab==0, (m1profil_kojki:=0,mprofil_kojki:=space(30)), ), update_get("mprofil_kojki")}
+         @ j,col()+1 say ", профиль койки" get mprofil_kojki ;
+               reader {|x|menu_reader(x,glob_V020,A__MENUVERT,,,.f.)} ;
                when m1napr_reab > 0
     ++j; @ j,1 to j,78
     ++j; @ j,1 say "Инвалидность" get minvalid1 ;
@@ -1322,7 +1370,7 @@ do while .t.
       endif
       if _fl_ .and. not_audio_s /*.and. np_arr_issled[i,4] == 0 // не гормон*/
         m1var := "m1lis"+lstr(i)
-        if glob_yes_kdp2[TIP_LU_PN] .and. &m1var > 0 
+        if glob_yes_kdp2[TIP_LU_PN] .and. &m1var > 0
           &mvart := -1
         endif
         if empty(&mvard)
@@ -1359,8 +1407,8 @@ do while .t.
         endif
         arr_iss[i,5] := np_arr_issled[i,1] // шифр услуги
         arr_iss[i,6] := mdef_diagnoz
-        arr_iss[i,9] := &mvard  
-        //        
+        arr_iss[i,9] := &mvard
+        //
         m1var := "M1OTKAZi"+lstr(i)
         if &m1var == 1 .and. !between(arr_iss[i,9],mn_data,mk_data) // если отказ и не в диапазоне
           &m1var := 0
@@ -1552,7 +1600,7 @@ do while .t.
           exit
         endif
         pole_1pervich := "m1diag_16_"+lstr(i)+"_2" // 0,1
-        pole_1dispans := "m1diag_16_"+lstr(i)+"_3" // mm_dispans := {{"ранее",1},{"впервые",2},{"не уст.",0}} 
+        pole_1dispans := "m1diag_16_"+lstr(i)+"_3" // mm_dispans := {{"ранее",1},{"впервые",2},{"не уст.",0}}
         aadd(arr_diag, {&mvar,&pole_1pervich,&pole_1dispans})
       endif
     next
@@ -1573,7 +1621,7 @@ do while .t.
         adiag_talon[i*2-1] := arr_diag[i,2]
         adiag_talon[i*2  ] := arr_diag[i,3]
         if i == 1
-          MKOD_DIAG := arr_diag[i,1] 
+          MKOD_DIAG := arr_diag[i,1]
         elseif i == 2
           MKOD_DIAG2 := arr_diag[i,1]
         elseif i == 3
@@ -1643,10 +1691,10 @@ do while .t.
                   arr_iss[i,10] == 0 .and. ; // услуга не в КДП2
                      between(arr_iss[i,9],mn_data,mk_data) .and. ; // умещается в период
                                      (j := ascan(np_arr_not_zs, {|x| x[1] == arr_iss[i,5]})) > 0
-              arr := aclone(arr_iss[i])  // добавим                       
+              arr := aclone(arr_iss[i])  // добавим
               arr[5] := np_arr_not_zs[j,2] // шифр исследования
               aadd(arr_usl_dop,arr)          // с ценой
-            endif                          
+            endif
           endif
         endif
       next
@@ -1664,7 +1712,7 @@ do while .t.
             if is_otkaz .and.;// в случае были отказы
                      between(arr_osm1[i,9],mn_data,mk_data) ; // и умещается в период
                                                     .and. j > 0  // и найдено соответствие
-              arr := aclone(arr_osm1[i])       // добавим                       
+              arr := aclone(arr_osm1[i])       // добавим
               arr[5] := np_arr_osmotr_KDP2[j,4]  // замена на 2.91.*
               aadd(arr_usl_dop,arr)             // с ценой
             endif
@@ -1707,10 +1755,10 @@ do while .t.
             if arr_iss[i,10] == 0 ; // кровь проверяют у нас в МО
                         .and. between(arr_iss[i,9],mn_data,mk_data) .and. ; // и в сроки профосмотра
                                      (j := ascan(np_arr_not_zs, {|x| x[1] == arr_iss[i,5]})) > 0
-              arr := aclone(arr_iss[i])  // добавим                       
+              arr := aclone(arr_iss[i])  // добавим
               arr[5] := np_arr_not_zs[j,2] // шифр исследования
               aadd(arr_usl_dop,arr)          // с ценой
-            endif                          
+            endif
           endif
         endif
       next
@@ -1728,7 +1776,7 @@ do while .t.
             aadd(arr_usl_dop,arr_osm1[i])
             if between(arr_osm1[i,9],mn_data,mk_data) ; // и умещается в период
                                                     .and. j > 0  // и найдено соответствие
-              arr := aclone(arr_osm1[i])       // добавим                       
+              arr := aclone(arr_osm1[i])       // добавим
               arr[5] := np_arr_osmotr_KDP2[j,4]  // замена на 2.91.*
               aadd(arr_usl_dop,arr)             // с ценой
             endif
@@ -1750,7 +1798,7 @@ do while .t.
             arr_osm2[i,10] := "o"
             aadd(arr_usl_otkaz,arr_osm2[i])
           else
-            if !empty(arr_lis2) .and.; 
+            if !empty(arr_lis2) .and.;
                  (j := ascan(np_arr_osmotr_KDP2,{|x| x[1] == lshifr})) > 0
               arr_osm2[i,5] := np_arr_osmotr_KDP2[j,2] // услуги заменим на аналогичные шифры без гематологии
             endif
@@ -2021,7 +2069,7 @@ if _period == 13 // 12 месяцев с 1 сентября
     endif
   endif
 endif
-return NIL    
+return NIL
 
 ***** 19.03.19 вернуть шифр услуги законченного случая для ПН
 Function ret_shifr_zs_PN(_period)
@@ -2627,11 +2675,11 @@ do while .t.
         fl_kdp2 := .f.
         if glob_yes_kdp2[TIP_LU_PREDN] .and. ascan(glob_arr_usl_LIS,npred_arr_issled[i,1]) > 0
           fl_kdp2 := .t.
-        endif 
+        endif
    ++j; @ j,1 say padr(npred_arr_issled[i,3],38)
         if fl_kdp2
           @ j,34 get &mvarlis reader {|x|menu_reader(x,mm_kdp2,A__MENUVERT,,,.f.)}
-        endif         
+        endif
         @ j,39 get &mvarv pict "99999" valid {|g| v_kart_vrach(g) }
       if mem_por_ass > 0
         @ j,45 get &mvara pict "99999" valid {|g| v_kart_vrach(g) }
@@ -2873,7 +2921,7 @@ do while .t.
         arr_iss[i,6] := mdef_diagnoz
         arr_iss[i,9] := &mvard
         m1var := "m1lis"+lstr(i)
-        if glob_yes_kdp2[TIP_LU_PREDN] .and. &m1var == 1 
+        if glob_yes_kdp2[TIP_LU_PREDN] .and. &m1var == 1
           arr_iss[i,10] := 1 // кровь проверяют в КДП2
         endif
         max_date1 := max(max_date1,arr_iss[i,9])
@@ -3935,7 +3983,7 @@ do while .t.
           arr_iss[i,6] := mdef_diagnoz
           arr_iss[i,9] := &mvard
           m1var := "m1lis"+lstr(i)
-          if glob_yes_kdp2[TIP_LU_PERN] .and. &m1var == 1 
+          if glob_yes_kdp2[TIP_LU_PERN] .and. &m1var == 1
             arr_iss[i,10] := 1 // кровь проверяют в КДП2
           endif
           max_date1 := max(max_date1,arr_iss[i,9])
@@ -5015,7 +5063,7 @@ MFIO_KART := _f_fio_kart()
 if !empty(m1NPR_MO)
   mNPR_MO := ret_mo(m1NPR_MO)[_MO_SHORT_NAME]
 endif
-MKOD_DIAG := padr(MKOD_DIAG,6) 
+MKOD_DIAG := padr(MKOD_DIAG,6)
 mvzros_reb:= inieditspr(A__MENUVERT, menu_vzros, m1vzros_reb)
 mlpu      := inieditspr(A__POPUPMENU, dir_server+"mo_uch", m1lpu)
 motd      := inieditspr(A__POPUPMENU, dir_server+"mo_otd", m1otd)
@@ -5135,7 +5183,7 @@ do while .t.
     elseif empty(m1NPR_MO)
       func_error(4,"Не введена направившая медицинская организация")
       loop
-    elseif left(mkod_diag,1) == "Z" .and. !(alltrim(mkod_diag) == "Z01.7")  
+    elseif left(mkod_diag,1) == "Z" .and. !(alltrim(mkod_diag) == "Z01.7")
       func_error(4,"Основной диагноз на Z может быть только Z01.7")
       loop
     endif
@@ -5147,7 +5195,7 @@ do while .t.
     find (str(MTAB_NOM,5))
     if found()
       arr_iss[1,1] := p2->kod
-      arr_iss[1,2] := -ret_new_spec(p2->prvs,p2->prvs_new) 
+      arr_iss[1,2] := -ret_new_spec(p2->prvs,p2->prvs_new)
     endif
     arr_iss[1,4] := 34 // профиль - клиническая лабораторная диагностика
     if ascan(glob_klin_diagn,1) > 0 // жидкостной цитологии

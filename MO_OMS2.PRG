@@ -4,7 +4,7 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 02.04.19 ввод направлений при подозрении на ЗНО - профосмотры несовершеннолетних
+***** 08.04.19 ввод направлений при подозрении на ЗНО - профосмотры несовершеннолетних
 Function fget_napr_PN(k,r,c)
 Local r1, r2, n := 4, buf, tmp_keys, tmp_list, tmp_color
   buf := savescreen()

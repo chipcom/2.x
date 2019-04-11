@@ -177,7 +177,7 @@ if fl
 endif
 return k
 
-***** 13.02.19
+***** 11.04.19
 Function print_l_uch(mkod, par, regim, lnomer)
 // mkod - код больного по БД human
 Local sh := 80, HH := 77, buf := save_maxrow(),;
@@ -431,7 +431,7 @@ for j := 1 to len(arr)
 next
 if !empty(tmp1)
   add_string("  Диагнозы осложнения:"+tmp1)
-endif  
+endif
 add_string("  Медицинская помощь: условия оказания: "+inieditspr(A__MENUVERT, glob_V006, human_->USL_OK))
 //add_string("    вид: "+inieditspr(A__MENUVERT, glob_V008, human_->VIDPOM))
 if human_->PROFIL > 0
@@ -629,7 +629,7 @@ do while !eof()
     s += " РДЛ  "
   elseif tmp1->is_edit == -1
     s += "ЦКДЛ  "
-  elseif alltrim(tmp1->shifr) == "4.20.2" .or. tmp1->is_edit == 3 
+  elseif alltrim(tmp1->shifr) == "4.20.2" .or. tmp1->is_edit == 3
     s += "ВОКОД "
   else
     s += tmp1->otd+" "
@@ -657,13 +657,13 @@ do while !eof()
       if !empty(human_2->pc1)
         akslp := List2Arr(human_2->pc1)
         if len(akslp) > 1
-          s1 += "(с учётом КСЛП="+str(ret_koef_kslp(akslp),4,2)+") " 
+          s1 += "(с учётом КСЛП="+str(ret_koef_kslp(akslp),4,2)+") "
         endif
       endif
       if !empty(human_2->pc2)
         akiro := List2Arr(human_2->pc2)
         if len(akiro) > 1
-          s1 += "(с учётом КИРО="+str(akiro[2],4,2)+")" 
+          s1 += "(с учётом КИРО="+str(akiro[2],4,2)+")"
         endif
       endif
     elseif human_->USL_OK == 1 // стационар
@@ -672,16 +672,16 @@ do while !eof()
         akslp := List2Arr(human_2->pc1)
         if len(akslp) > 1 .and. valtype(akslp) == "N"
           s1 += "(с учётом КСЛП="+str(akslp[2],4,2)+")"
-        endif 
+        endif
       endif
     endif
   endif
-  if k == 1 .and. !empty(s1)
-    k := 2
-  endif
   for i := 2 to k
-    add_string(space(21)+padl(rtrim(tmp[i]),w1)+iif(i==2.and.!empty(s1),padl(s1,25),""))
+    add_string(space(21)+padl(rtrim(tmp[i]),w1))
   next
+  if !empty(s1)
+    add_string(space(21)+s1)
+  endif
   select TMP1
   skip
 enddo
@@ -741,7 +741,7 @@ Function print_luch_onk(sh)
 Static mm_DS1_T := {{"первичное лечение",0},;  // N019
                     {"лечение при рецидиве",1},;
                     {"лечение при прогрессировании",2},;
-                    {"динамическое наблюдение",3},;   
+                    {"динамическое наблюдение",3},;
                     {"диспансерное наблюдение (здоров/ремиссия)",4},;
                     {"диагностика (без специфического лечения)",5},;
                     {"симптоматическое лечение",6}}
@@ -764,7 +764,7 @@ if f_is_oncology(1) == 2 .and. human_->USL_OK < 3
       if eq_any(onkus->USL_TIP,2,4) .and. !empty(onksl->crit)
         add_string("    Схема: "+alltrim(onksl->crit)+" "+inieditspr(A__POPUPEDIT,exe_dir+"_mo9shema",onksl->crit))
       endif
-      if eq_any(onkus->USL_TIP,3,4) 
+      if eq_any(onkus->USL_TIP,3,4)
         add_string("    Количество фракций: "+lstr(onksl->k_fr))
       endif
     endif
@@ -1037,7 +1037,7 @@ for ii := 1 to len(arr_h)
       s += " РДЛ  "
     elseif tmp1->is_edit == -1
       s += "ЦКДЛ  "
-    elseif alltrim(tmp1->shifr) == "4.20.2" .or. tmp1->is_edit == 3 
+    elseif alltrim(tmp1->shifr) == "4.20.2" .or. tmp1->is_edit == 3
       s += "ВОКОД "
     else
       s += tmp1->otd+" "
@@ -1202,8 +1202,8 @@ do case
                 "Список счетов ~без РАК"}
     mas_msg := {"Суммы снятий с расшифровкой по СМО, дефектам и видам экспертизы",;
                 "Список снятий по актам контроля с указанием кодов дефектов",;
-                "Список снятий по актам контроля с указанием пациентов",;   
-                "Список реестров актов контроля с указанием наименований и дат файлов РАК",;   
+                "Список снятий по актам контроля с указанием пациентов",;
+                "Список реестров актов контроля с указанием наименований и дат файлов РАК",;
                 "Список счетов, по которым нет актов контроля"}
     mas_fun := {"e_statist(151)",;
                 "e_statist(152)",;
@@ -2022,18 +2022,18 @@ if !fl
   return NIL
 endif
 _su := su
-if between(par,2,3) .and. eq_any(su,1,2,5) 
+if between(par,2,3) .and. eq_any(su,1,2,5)
   if arr_m[1] > 2018
     R_Use(dir_exe+"_mo9unit",,"MOUNIT")
     index on str(ii,3) to (cur_dir+"tmp_unitii")
-    set index to (cur_dir+"_mo9unit"),(cur_dir+"tmp_unitii") 
+    set index to (cur_dir+"_mo9unit"),(cur_dir+"tmp_unitii")
     is_2019 := .t.
     apz2016 := arr_plan_zakaz(.t.)
     luapz2016 := arr_plan_zakaz(.t.)
   else
     R_Use(dir_exe+"_mo8unit",,"MOUNIT")
     index on str(ii,3) to (cur_dir+"tmp_unitii")
-    set index to (cur_dir+"_mo8unit"),(cur_dir+"tmp_unitii") 
+    set index to (cur_dir+"_mo8unit"),(cur_dir+"tmp_unitii")
     apz2016 := arr_plan_zakaz(.f.)
     luapz2016 := arr_plan_zakaz(.f.)
   endif
@@ -2619,7 +2619,7 @@ endif
 fclose(fp)
 close databases
 /*for i := 1 to len(apf)
-  my_debug(,padr(apf[i,1],10) + lstr(apf[i,2])) 
+  my_debug(,padr(apf[i,1],10) + lstr(apf[i,2]))
 next*/
 restscreen(buf)
 viewtext(name_file,,,,(sh>80),,,reg_print)
@@ -2671,7 +2671,7 @@ for j := 1 to len(ar)
     luapz2016[j,2] += human->cena_1*koef
     if human->ishod == 89 // это 2-ой л/у в двойном случае
       kol_sl_2[j]++
-    endif  
+    endif
   endif
 next
 select HU
@@ -3968,14 +3968,14 @@ do case
     index on ds_m to tmp_n5 unique memory
 endcase
 go top
-do while !eof()     
-  aadd(ad, padr(&poled,6)) 
+do while !eof()
+  aadd(ad, padr(&poled,6))
   skip
 enddo
 if empty(ad[1])
   aadd(ad,space(6))
   Del_Array(ad,1)
-endif  
+endif
 set index to (cur_dir+"_mo_N00"+lstr(n)+"d")
 fp := fcreate(name_file) ; tek_stroke := 0 ; n_list := 1
 add_string("")
@@ -4012,7 +4012,7 @@ for i := 1 to len(ad)
       add_string(space(20)+t_arr[j])
     next
     skip
-  enddo   
+  enddo
 next
 fclose(fp)
 close databases
@@ -4064,7 +4064,7 @@ for i := 1 to len(ad)
     add_string(space(5)+padl(n3->kod_t,15)+padl(n4->kod_n,15)+padl(n5->kod_m,15)+padl(n2->kod_st,15))
     select N6
     skip
-  enddo   
+  enddo
 next
 fclose(fp)
 close databases
@@ -4172,7 +4172,7 @@ elseif arr_m[1] < 2018
   return func_error(4,"Алгоритм введен с 2018 года!")
 elseif !eq_any(arr_m[3],3,6,9,12)
   return func_error(4,"Последний месяц должен быть окончанием квартала.")
-elseif arr_m[2] != 1  
+elseif arr_m[2] != 1
   return func_error(4,"Первый месяц должен быть ЯНВАРЬ.")
 endif
 WaitStatus(arr_m[4])
@@ -4372,7 +4372,7 @@ if fl_exit
 elseif tmp1->(lastrec()) == 0
   func_error(4,"Нет информации!")
 else
-  name_file := "_fmpp"+stxt  
+  name_file := "_fmpp"+stxt
   HH := 55
   arr_title := {;
 "────────────────────────────────────────┬────────────────────────────────┬────────────────────────────────┬────────────────────────────────",;
@@ -4400,8 +4400,8 @@ else
       arr_profil := {}
       find (str(ii,1))
       do while tmp1->usl_ok == ii .and. !eof()
-        if tmp1->is_our == mour .and. ascan(arr_profil, {|x| x[1] == tmp1->profil }) == 0 
-          aadd(arr_profil, {tmp1->profil,inieditspr(A__MENUVERT, glob_V002, tmp1->profil)}) 
+        if tmp1->is_our == mour .and. ascan(arr_profil, {|x| x[1] == tmp1->profil }) == 0
+          aadd(arr_profil, {tmp1->profil,inieditspr(A__MENUVERT, glob_V002, tmp1->profil)})
         endif
         skip
       enddo
@@ -4458,8 +4458,8 @@ else
       arr_profil := {}
       find (str(ii,1))
       do while tmp1->usl_ok == ii .and. !eof()
-        if tmp1->is_our == mour .and. ascan(arr_profil, {|x| x[1] == tmp1->profil }) == 0 
-          aadd(arr_profil, {tmp1->profil,inieditspr(A__MENUVERT, glob_V002, tmp1->profil)}) 
+        if tmp1->is_our == mour .and. ascan(arr_profil, {|x| x[1] == tmp1->profil }) == 0
+          aadd(arr_profil, {tmp1->profil,inieditspr(A__MENUVERT, glob_V002, tmp1->profil)})
         endif
         skip
       enddo
@@ -4518,8 +4518,8 @@ else
       arr_profil := {}
       find (str(ii,1))
       do while tmp1->usl_ok == ii .and. !eof()
-        if tmp1->is_our == mour .and. ascan(arr_profil, {|x| x[1] == tmp1->profil }) == 0 
-          aadd(arr_profil, {tmp1->profil,inieditspr(A__MENUVERT, glob_V002, tmp1->profil)}) 
+        if tmp1->is_our == mour .and. ascan(arr_profil, {|x| x[1] == tmp1->profil }) == 0
+          aadd(arr_profil, {tmp1->profil,inieditspr(A__MENUVERT, glob_V002, tmp1->profil)})
         endif
         skip
       enddo
@@ -4571,8 +4571,8 @@ else
       find (str(ii,1))
       do while tmp1->usl_ok == ii .and. !eof()
         if tmp1->is_our == mour
-          ss[mour+1,1] += tmp1->kol 
-          ss[mour+1,2] += tmp1->summa 
+          ss[mour+1,1] += tmp1->kol
+          ss[mour+1,2] += tmp1->summa
         endif
         skip
       enddo
@@ -4585,7 +4585,7 @@ else
   restscreen(buf)
   Private yes_albom := .t.
   viewtext(name_file,,,,.t.,,,reg_print)
-endif  
+endif
 close databases
 restscreen(buf)
 return NIL

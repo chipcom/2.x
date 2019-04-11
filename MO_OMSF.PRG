@@ -42,7 +42,7 @@ if lusl == 1 .and. lkdate >= d_01_08_2017
 endif
 return len(_arr) > 0
 
-***** 02.08.17 работало в 2017 году, в 2018 - закомментировано 
+***** 02.08.17 работало в 2017 году, в 2018 - закомментировано
 /*Function f_valid_metvmp(_metvmp)
 if between(_metvmp,498,499)
   if !(mstentvmp $ "123")
@@ -50,14 +50,14 @@ if between(_metvmp,498,499)
   endif
   SetPos(p_nstr_stent,1)
   DispOut(p_str_stent,cDataCGet)
-else             
+else
   mstentvmp := ' '
   SetPos(p_nstr_stent,1)
   DispOut(space(len(p_str_stent)),cDataCGet)
-endif  
-return update_get("mstentvmp")*/ 
+endif
+return update_get("mstentvmp")*/
 
-***** 13.02.18 
+***** 13.02.18
 Function f_oms_beremenn(sdiag)
 Static arr := {"O10","O11","O12","O13","O14","O15","O16",;
                "O20","O21","O22","O23","O24","O25","O26","O28",;
@@ -77,15 +77,15 @@ elseif c == "O" .or. c == "Z"
 endif
 if pr_ds_it == 0 .and. alltrim(sdiag) == "R54"
   pr_ds_it := 4
-endif 
+endif
 if pr_ds_it == 0 .and. (j := ascan(arr_ad_cr_it,{|x| x[1] == padr(sdiag,5) })) > 0
   pr_ds_it := arr_ad_cr_it[j,2]
-endif 
+endif
 if eq_any(k,1,2) .and. type("m1USL_OK") == "N" .and. m1USL_OK == 4 // СМП
   k := 0
-endif 
+endif
 return k
-              
+
 ***** 02.01.18
 Function f_valid_beremenn(sdiag)
 Local k
@@ -114,11 +114,11 @@ if (ibrm := f_oms_beremenn(sdiag)) > 0
   else
     mprer_b := inieditspr(A__MENUVERT, mm_prer_b, m1prer_b)
   endif
-else             
+else
   m1prer_b := 0
   mprer_b := space(28)
-endif  
-return update_get("mprer_b") 
+endif
+return update_get("mprer_b")
 
 ***** 31.01.19
 Function ret_arr_shema(k)
@@ -126,7 +126,7 @@ Static ashema := {{},{},{}}
 Local i
 if empty(ashema[1])
   R_Use(exe_dir+"_mo9shema",,"IT") // с 2019 года
-  aadd(ashema[1],{"-----     без схемы лекарственной терапии",padr("нет",10)}) 
+  aadd(ashema[1],{"-----     без схемы лекарственной терапии",padr("нет",10)})
   index on kod to (cur_dir+"tmp_schema") for left(kod,2) == "sh"
   dbeval({|| aadd(ashema[1],{it->kod+left(it->name,68),it->kod}) })
   index on kod to (cur_dir+"tmp_schema") for left(kod,2) == "mt"
@@ -138,7 +138,7 @@ if empty(ashema[1])
     ashema[3,i,3] := int(val(substr(ashema[3,i,1],3,2)))
     ashema[3,i,4] := int(val(substr(ashema[3,i,1],6,2)))
   next
-endif  
+endif
 return ashema[k]
 
 ***** 14.01.19
@@ -224,7 +224,7 @@ if m1usl_ok < 3 .and. m1vmp == 0
   endif
   if input_ad_cr
     if (i := ascan(mm_ad_cr,{|x| padr(x[2],10) == padr(m1ad_cr,10) })) > 0
-      mad_cr := padr(mm_ad_cr[i,1],66) 
+      mad_cr := padr(mm_ad_cr[i,1],66)
     else
       mad_cr := space(66) ; m1ad_cr := space(10)
     endif
@@ -234,7 +234,7 @@ if m1usl_ok < 3 .and. m1vmp == 0
     endif
   endif
 endif
-return .t.               
+return .t.
 
 ***** 11.09.14 составить усечённые массивы учреждений/отделений на конкретную дату
 Function make_arr_uch_otd(mdate,mlpu)
@@ -284,13 +284,13 @@ if not_lpu
 endif
 return NIL
 
-***** 25.01.16 вернуть код специальности из справочника V015 по коду из справочника V004 
+***** 25.01.16 вернуть код специальности из справочника V015 по коду из справочника V004
 Function ret_V004_V015(_PRVS)
 Local i, ret := 0
 if (i := ascan(glob_arr_V004_V015, {|x| x[1] == _PRVS })) > 0
-  ret := glob_arr_V004_V015[i,2] 
+  ret := glob_arr_V004_V015[i,2]
 endif
-return ret 
+return ret
 
 ***** 23.12.12 является ли услуга приёмом на дому
 Function priem_na_domu(lshifr)
@@ -524,7 +524,7 @@ if empty(al)
          MSOPUT_B2 ,;
          MSOPUT_B3 ,;
          MSOPUT_B4}
-else        
+else
   ad := {&al.->KOD_DIAG ,;
          &al.->KOD_DIAG2,;
          &al.->KOD_DIAG3,;
@@ -533,7 +533,7 @@ else
          &al.->SOPUT_B2 ,;
          &al.->SOPUT_B3 ,;
          &al.->SOPUT_B4}
-endif       
+endif
 if fl_6
   if select("MKB_10") == 0
     R_Use(dir_exe+"_mo_mkb",cur_dir+"_mo_mkb","MKB_10")
@@ -682,10 +682,10 @@ Local i, old_kod := new_kod
 if new_kod < 0
   new_kod := abs(new_kod)
   if (i := ascan(glob_arr_V004_V015, {|x| x[2] == new_kod })) > 0
-    old_kod := glob_arr_V004_V015[i,1] 
-  elseif (i := ascan(glob_arr_V015_V004, {|x| x[3] == new_kod })) > 0 
+    old_kod := glob_arr_V004_V015[i,1]
+  elseif (i := ascan(glob_arr_V015_V004, {|x| x[3] == new_kod })) > 0
     old_kod := glob_arr_V015_V004[i,1]
-  endif 
+  endif
 endif
 return old_kod
 
@@ -695,7 +695,7 @@ Local new_kod
 if _prvs < 0
   new_kod := abs(_prvs)
 else
-  new_kod := ret_V004_V015(_prvs)  
+  new_kod := ret_V004_V015(_prvs)
 endif
 return new_kod
 
@@ -706,7 +706,18 @@ Local i, new_kod := 76, ; // по умолчанию - терапия
 if (i := ascan(glob_arr_V015_V021, {|x| x[1] == lkod })) > 0
   new_kod := glob_arr_V015_V021[i,2]
 endif
-return new_kod 
+return new_kod
+
+***** 10.04.19 перевести специальность из кодировки справочника V021 в V015
+Function prvs_V021_to_V015(_prvs)
+Local i, new_kod := 27 // по умолчанию - терапия
+if valtype(_prvs) == "C"
+  _prvs := int(val(_prvs))
+endif
+if (i := ascan(glob_arr_V015_V021, {|x| x[2] == _prvs })) > 0
+  new_kod := glob_arr_V015_V021[i,1]
+endif
+return new_kod
 
 ***** 01.04.18 вернуть массив соответствий специальности V015 специальностям V0004
 Function ret_arr_new_olds_prvs()
@@ -718,7 +729,7 @@ for i := 1 to len(glob_arr_V004_V015)
     aadd(arr, {np,{}}) ;  j := len(arr)
   endif
   aadd(arr[j,2], op)
-next  
+next
 for i := 1 to len(glob_arr_V015_V004)
   op := glob_arr_V015_V004[i,1]
   np := glob_arr_V015_V004[i,3]
@@ -727,25 +738,25 @@ for i := 1 to len(glob_arr_V015_V004)
   endif
   aadd(arr[j,2], op)
 next
-return asort(arr,,,{|x,y| x[1] < y[1] })  
+return asort(arr,,,{|x,y| x[1] < y[1] })
 
 ***** 12.01.19 вернуть значение специальности для XML-файла реестра
 Function put_prvs_to_reestr(_PRVS,_YEAR)
 Local k := _PRVS
 if _YEAR > 2018             // в кодировке V021
-  k := ret_prvs_V021(_PRVS) 
+  k := ret_prvs_V021(_PRVS)
 elseif _YEAR < 2016         // в кодировке V004
-  k := ret_old_prvs(_PRVS)  
+  k := ret_old_prvs(_PRVS)
 else                        // в кодировке V015
   if _PRVS < 0
     k := abs(_PRVS)
   else
     k := ret_V004_V015(_PRVS)
-  endif 
+  endif
 endif
 return lstr(k)
 
-***** 26.01.17 
+***** 26.01.17
 Function add_val_2_array(arr,i,j,k1,k2)
 // arr - двумерный массив
 // i   - элемент (первое измерение), в который добавляем
@@ -1033,7 +1044,7 @@ return fl
 ***** 12.01.19 является ли данная услуга услугой ТФОМС
 Function is_usluga_TFOMS(lshifr,lshifr1,ldate_usl,;
                          /*@*/arr_uet,/*@*/lbukva,/*@*/lst,/*@*/lidsp,/*@*/lvidpoms)
-Local _shifr, tmp_select := select(), fl := .f., is_19, lal 
+Local _shifr, tmp_select := select(), fl := .f., is_19, lal
 is_19 := (year(ldate_usl) > 2018)
 if select("LUSL") == 0
   use_base("lusl")
@@ -1112,14 +1123,14 @@ Local n, fl := .f., tmp_keys, tmp_gets, buf, tmp_color := setcolor()
 if emptyany(mNAPR_DATE,m1NAPR_V)
   func_error(4,"Ещё не заполнено направление № "+lstr(cur_napr))
   return .t.
-endif  
+endif
 tmp_keys := my_savekey()
 save gets to tmp_gets
 buf := savescreen()
 change_attr()
 if (n := input_value(4,33,6,77,color5,"Добавление/редактирование направления №",cur_napr,"99")) == NIL
   // отказ
-elseif eq_any(n,0,cur_napr)  
+elseif eq_any(n,0,cur_napr)
   // выбрали то же направление, что и редактируется
 else
   if cur_napr == 0
@@ -1147,7 +1158,7 @@ else
   count_napr := lastrec()
   //
   if n <= count_napr
-    cur_napr := n 
+    cur_napr := n
     goto (cur_napr) // номер текущего направления
     mNAPR_DATE := tnapr->NAPR_DATE
     m1NAPR_MO := tnapr->NAPR_MO
@@ -1168,11 +1179,11 @@ else
     mshifr := space(20)
     mshifr1 := space(20)
     mname_u := space(65)
-  endif 
+  endif
   mNAPR_V := padr(inieditspr(A__MENUVERT, mm_napr_v, m1napr_v),30)
   mMET_ISSL := padr(inieditspr(A__MENUVERT, mm_MET_ISSL, m1MET_ISSL),45)
   tip_onko_napr := 0
-endif                      
+endif
 restscreen(buf)
 restore gets from tmp_gets
 my_restkey(tmp_keys)
@@ -1190,7 +1201,7 @@ if lkod == 0
   use_base("mo_su","MOSU1")
   set order to 3
   find (padr(s,20))
-  if found() 
+  if found()
     lkod := mosu1->kod
   else
     set order to 1
@@ -1240,7 +1251,7 @@ else
   endif
 endif
 return ar
- 
+
 ***** 17.10.18
 Function f1_define_tnm(s,n,polek,poled,polei)
 Local arr := {}
@@ -1277,32 +1288,32 @@ if found()
       find (sd)    // поиск трёхзначного диагноза
       if found() .and. sd == alltrim(&poled)  // если нашли - ошибка
         fl := .f. ; aadd(ar,smsg)
-      endif 
-    endif 
+      endif
+    endif
   elseif len(alltrim(&poled)) == 5
     if !(left(ldiag,5) == &poled)
       fl := .f. ; aadd(ar,smsg)
-    endif 
+    endif
   else
     if !(left(ldiag,3) == alltrim(&poled))
       fl := .f. ; aadd(ar,smsg)
-    endif 
+    endif
   endif
 else
   fl := .f. ; aadd(ar,smsg)
-endif 
-return fl 
+endif
+return fl
 
 ***** 14.01.19 проверка правильности введённых стадий по справочнику N006 в get'e
 Function f_valid_tnm(g)
-Local buf, fl_found, s := padr(mkod_diag,5)    
+Local buf, fl_found, s := padr(mkod_diag,5)
 /*if !emptyany(m1ONK_T,m1ONK_N,m1ONK_M)
   select N6
   find (s)
   if !(fl_found := found())
     s := padr(mkod_diag,3)
     find (s)
-    fl_found := (found() .and. s == alltrim(n6->ds_gr)) 
+    fl_found := (found() .and. s == alltrim(n6->ds_gr))
   endif
   if fl_found
     find (padr(s,5)+str(m1ONK_T,6)+str(m1ONK_N,6)+str(m1ONK_M,6))
@@ -1318,7 +1329,7 @@ Local buf, fl_found, s := padr(mkod_diag,5)
     else
       func_error(2,"Справочник N006: некорректное сочетание стадий TNM")
     endif
-  endif  
+  endif
 endif*/
 return .t.
 
@@ -1349,10 +1360,10 @@ endif
 if empty(mdiagnoz)
   aadd(mdiagnoz,space(6))
 endif
-k := lzno  
-if lyear == 2019 .and. (left(mdiagnoz[1],1) == "C" .or. between(left(mdiagnoz[1],3),"D00","D09")) 
+k := lzno
+if lyear == 2019 .and. (left(mdiagnoz[1],1) == "C" .or. between(left(mdiagnoz[1],3),"D00","D09"))
   k := 2
-elseif lyear == 2018 .and. left(mdiagnoz[1],1) == "C" 
+elseif lyear == 2018 .and. left(mdiagnoz[1],1) == "C"
   k := 2
 elseif left(mdiagnoz[1],3) == "D70"
   for i := 2 to len(mdiagnoz)
@@ -1373,7 +1384,7 @@ endif
 if lusl_ok == 4 // скорая помощь
   _onk_smp := k
   k := 0
-endif  
+endif
 return k
 
 ***** 29.01.19
@@ -1394,7 +1405,7 @@ Static arr := {;
   "Проводилась ли профилактика тошноты и рвотного рефлекса"}     // 9 lstr_ptr
 Local s := arr[k]
 DEFAULT par TO 1
-return iif(par == 1, s, space(len(s)))                  
+return iif(par == 1, s, space(len(s)))
 
 ***** 02.02.19
 Function f_valid_usl_tip(g,o)
@@ -1411,16 +1422,16 @@ if o != NIL .and. o != m1usl_tip
   lstr_she := ret_str_onc(7,2) ; mcrit := space(57)
   lstr_lek := ret_str_onc(8,2) ; mlek := space(53)
   lstr_ptr := ret_str_onc(9,2) ; mpptr := space(3) ; m1pptr := 0
-  if between(m1usl_tip,1,4) 
+  if between(m1usl_tip,1,4)
     lstr1 := padr(mm_str1[m1usl_tip+1],12)
     if m1usl_tip == 1
       mm_usl_tip1 := mm_N014
-    elseif m1usl_tip == 2 
+    elseif m1usl_tip == 2
       lstr2 := "Линия терапии"
       mm_usl_tip1 := mm_N016
       mm_usl_tip2 := mm_N015
       musl_tip2 := padr(mm_usl_tip2[1,1],19) ; m1usl_tip2 := mm_usl_tip2[1,2]
-    elseif between(m1usl_tip,3,4) 
+    elseif between(m1usl_tip,3,4)
       mm_usl_tip1 := mm_N017
       lstr_sod := ret_str_onc(1,1)
       msod := padr(alltrim(str_0(mvsod,6,2)),6)
@@ -1428,9 +1439,9 @@ if o != NIL .and. o != m1usl_tip
     endif
     if eq_any(m1usl_tip,2,4)
       if left(m1crit,2) == "mt" .and. m1usl_tip == 2
-        m1crit := space(10) 
+        m1crit := space(10)
       elseif eq_any(left(m1crit,2),"не","sh") .and. m1usl_tip == 4
-        m1crit := space(10) 
+        m1crit := space(10)
       endif
       lstr_wei := ret_str_onc(3,1)
       lstr_hei := ret_str_onc(4,1)
@@ -1480,13 +1491,13 @@ Local s, n
 use (cur_dir+"tmp_onkle") new alias TMPLE
 index on REGNUM to (cur_dir+"tmp_onkle") UNIQUE
 n := 0
-dbeval({|| ++n }) 
+dbeval({|| ++n })
 s := "препаратов - "+lstr(n)
 index on dtos(DATE_INJ) to (cur_dir+"tmp_onkle") UNIQUE
 n := 0
-dbeval({|| ++n }) 
+dbeval({|| ++n })
 s += ", дней приёма - "+lstr(n)
-tmple->(dbCloseArea())                
+tmple->(dbCloseArea())
 return s
 
 ***** 26.03.19
@@ -1497,11 +1508,11 @@ dbcreate(cur_dir+"tmp",{{"id_lekp","C",6,0},;
                         {"mnn","C",70,0},;
                         {"kol","N",3,0}})
 use (cur_dir+"tmp") new
-index on id_lekp to (cur_dir+"tmp")                
+index on id_lekp to (cur_dir+"tmp")
 R_Use(exe_dir+"_mo_N020",{cur_dir+"_mo_N020",cur_dir+"_mo_N020n"},"N20")
 R_Use(exe_dir+"_mo_N021",cur_dir+"_mo_N021","N21")
 find (_crit)
-yes_crit := found() 
+yes_crit := found()
 use (cur_dir+"tmp_onkle") new alias TMPLE
 index on REGNUM+dtos(DATE_INJ) to (cur_dir+"tmp_onkle") UNIQUE
 if yes_crit // по данному критерию есть препараты в схеме
@@ -1518,10 +1529,10 @@ if yes_crit // по данному критерию есть препараты в схеме
       tmp->mnn := n20->mnn
     else
       tmp->mnn := "Препарат "+n21->id_lekp+" не найден в справочнике N020"
-    endif   
+    endif
     select TMPLE
     find (tmp->id_lekp)
-    do while tmp->id_lekp == tmple->REGNUM .and. !eof() 
+    do while tmp->id_lekp == tmple->REGNUM .and. !eof()
       aadd(arr_lek_pr[i,3],tmple->DATE_INJ)
       skip
     enddo
@@ -1560,7 +1571,7 @@ if yes_crit
   t_arr[BR_TOP] := r-nrec-4
 else//
   t_arr[BR_TOP] := r-4-4
-endif  
+endif
 if t_arr[BR_TOP] < 2
   t_arr[BR_TOP] := 2
 endif
@@ -1603,27 +1614,27 @@ for i := 1 to nrec
 next
 index on dtos(DATE_INJ) to (cur_dir+"tmp_onkle") UNIQUE
 ndn := 0
-dbeval({|| ++ndn }) 
+dbeval({|| ++ndn })
 ret[1] := ret[2] := padr("препаратов - "+lstr(nrec)+", дней приёма - "+lstr(ndn), 53)
 //
-tmp->(dbCloseArea())                
-tmple->(dbCloseArea())                
-n20->(dbCloseArea())                
-n21->(dbCloseArea())                
+tmp->(dbCloseArea())
+tmple->(dbCloseArea())
+n20->(dbCloseArea())
+n21->(dbCloseArea())
 return ret
 
 ***** 31.01.19 выбор нескольких дат
 Function f1_get_lek_pr(nKey,oBrow,regim,get_row)
-Local mlen, t_mas := {}, buf := savescreen(), i, j, d, tmp_color := setcolor(),; 
+Local mlen, t_mas := {}, buf := savescreen(), i, j, d, tmp_color := setcolor(),;
       k, n, r1, r2, top_bottom, r := row(), ret := -1
-if regim == "edit" 
+if regim == "edit"
   if nKey == K_ENTER .and. tmp->(lastrec()) > 0
     if (i := ascan(arr_lek_pr, {|x| x[2] == tmp->(recno()) })) == 0
       func_error(4,"Непонятная ошибка!")
-    else      
+    else
       for d := mn_data to mk_data
         aadd(t_mas, iif(ascan(arr_lek_pr[i,3],d) > 0, " * ", "   ")+full_date(d))
-      next  
+      next
       mlen := len(t_mas)
       status_key("^<Esc>^ - отказ; ^<Enter>^ - подтверждение; ^<Ins,+,->^ - смена выбора даты")
       top_bottom := (r < maxrow()/2)
@@ -1659,7 +1670,7 @@ if regim == "edit"
         AddRecN()
         tmp->id_lekp := k[1]
         tmp->mnn := k[2]
-        aadd(arr_lek_pr, {tmp->id_lekp,tmp->(recno()),{}} ) 
+        aadd(arr_lek_pr, {tmp->id_lekp,tmp->(recno()),{}} )
       endif
       ret := 0
     endif
@@ -1672,7 +1683,7 @@ if regim == "edit"
     go top
     oBrow:gotop()
     ret := 1
-  endif      
+  endif
 endif
 restscreen(buf)
 setcolor(tmp_color)
@@ -1699,7 +1710,7 @@ select N20
 set order to 2
 if srec > 0
   goto (srec)
-else  
+else
   go top
 endif
 edit_browse(t_arr)
@@ -1777,46 +1788,46 @@ if empty(_shifr1)
   _shifr := alltrim(_shifr)
 else
   _shifr := alltrim(_shifr1)
-endif  
+endif
 return between_shifr(_shifr,"2.78.61","2.78.86") .or. between_shifr(_shifr,"2.88.52","2.88.99") ;
                                                  .or. between_shifr(_shifr,"2.88.100","2.88.103")
 
 ***** 01.11.18 является услугой телемедицины - не заполняется код врача
-Function is_telemedicina(lshifr) 
-Local fl := .f., tmp_select := select() 
+Function is_telemedicina(lshifr)
+Local fl := .f., tmp_select := select()
 select LUSLF
 if fieldnum("telemed") > 0
   find (padr(lshifr,20))
   if found() .and. alltrim(lshifr) == alltrim(luslf->shifr) .and. luslf->telemed == 1
     fl := .t.
   endif
-endif  
+endif
 select (tmp_select)
 return fl
 
 ***** 22.01.19 вернуть разрешённые парные органы
-Function ret_par_org(lshifr) 
-Local s := "", tmp_select := select() 
+Function ret_par_org(lshifr)
+Local s := "", tmp_select := select()
 select LUSLF
 if fieldnum("par_org") > 0
   find (padr(lshifr,20))
   if found() .and. alltrim(lshifr) == alltrim(luslf->shifr)
     s := alltrim(luslf->par_org)
   endif
-endif  
+endif
 select (tmp_select)
 return s
 
 ***** 22.01.19 обязательна ли зубная формула
-Function ret_is_zf(lshifr) 
-Local n := 0, tmp_select := select() 
+Function ret_is_zf(lshifr)
+Local n := 0, tmp_select := select()
 select LUSLF
 if fieldnum("zf") > 0
   find (padr(lshifr,20))
-  if found() .and. alltrim(lshifr) == alltrim(luslf->shifr) 
+  if found() .and. alltrim(lshifr) == alltrim(luslf->shifr)
     n := luslf->zf
   endif
-endif  
+endif
 select (tmp_select)
 return n
 
@@ -1917,7 +1928,7 @@ else  // valid
           else
             func_error(4,"Введена несуществующая лабораторная услуга")
           endif
-          mshifr := space(20)               
+          mshifr := space(20)
         else // услуга разрешена данной МО
           if select("MOPROF") == 0
             R_Use(dir_exe+"_mo_prof",cur_dir+"_mo_prof","MOPROF")
@@ -1926,7 +1937,7 @@ else  // valid
           m1profil := iif(left(mshifr,5) == "4.16.", 6, 34)
           select MOPROF
           find (padr(mshifr,20)+str(iif(human->vzros_reb == 0, 0, 1),1))
-          if found()                
+          if found()
             m1profil := moprof->profil
           endif
           select USL
@@ -2020,7 +2031,7 @@ else  // valid
         mn_base := 1
         mstoim_1 := mu_cena := 0
         if is_telemedicina(mshifr1) // является услугой телемедицины - не заполняется код врача
-          mis_edit := -1  
+          mis_edit := -1
         endif
         mis_nul := .t.
         mkol := mkol_1 := 1
@@ -2378,7 +2389,7 @@ for i := 1 to len(dDate)
     skip
   enddo
   if !fl_yes .and. fl_delete // если не нашли
-    find (sShifr+str(lvr,1)+str(0,3)) // то ищем цену для depart = 0 
+    find (sShifr+str(lvr,1)+str(0,3)) // то ищем цену для depart = 0
     do while sShifr == &lal.->shifr .and. &lal.->VZROS_REB == lvr .and. &lal.->depart == 0 .and. !eof()
       fl_yes := .t.
       if between_date(&lal.->datebeg,&lal.->dateend,dDate[i]) // поиск цены по дате окончания лечения
@@ -4465,18 +4476,18 @@ for i := 1 to count_dds_arr_iss
     aadd(arr,{"18."+lstr(i),alltrim(&mvar)})
   endif
 next
-if type("m1napr_stac") == "N" 
+if type("m1napr_stac") == "N"
   aadd(arr,{"54",m1napr_stac})
-endif  
-if type("m1profil_stac") == "N"       
+endif
+if type("m1profil_stac") == "N"
   aadd(arr,{"55",m1profil_stac})
-endif  
-if type("m1napr_reab") == "N" 
+endif
+if type("m1napr_reab") == "N"
   aadd(arr,{"56",m1napr_reab})
-endif  
-if type("m1profil_kojki") == "N"       
+endif
+if type("m1profil_kojki") == "N"
   aadd(arr,{"57",m1profil_kojki})
-endif  
+endif
 save_arr_DISPANS(lkod,arr)
 return NIL
 
@@ -4662,7 +4673,7 @@ for i := 1 to len(arr)
       case arr[i,1] == "16.11" .and. valtype(arr[i,2]) == "C"
         mrek_disp := padr(arr[i,2],255)
       case arr[i,1] == "54" .and. valtype(arr[i,2]) == "N"
-        m1napr_stac := arr[i,2] 
+        m1napr_stac := arr[i,2]
       case arr[i,1] == "55" .and. valtype(arr[i,2]) == "N"
         m1profil_stac := arr[i,2]
       case arr[i,1] == "56" .and. valtype(arr[i,2]) == "N"
@@ -4772,25 +4783,25 @@ if type("m1ot_nasl1") == "N"
 endif
 if type("m1p_otk") == "N"
   aadd(arr,{"51",m1p_otk})
-endif  
+endif
 if type("m1napr_v_mo") == "N"
   aadd(arr,{"52",m1napr_v_mo})
-endif  
+endif
 if type("arr_mo_spec") == "A" .and. !empty(arr_mo_spec)
   aadd(arr,{"53",arr_mo_spec}) // массив
 endif
-if type("m1napr_stac") == "N" 
+if type("m1napr_stac") == "N"
   aadd(arr,{"54",m1napr_stac})
-endif  
-if type("m1profil_stac") == "N"       
+endif
+if type("m1profil_stac") == "N"
   aadd(arr,{"55",m1profil_stac})
-endif  
-if type("m1napr_reab") == "N" 
+endif
+if type("m1napr_reab") == "N"
   aadd(arr,{"56",m1napr_reab})
-endif  
-if type("m1profil_kojki") == "N"       
+endif
+if type("m1profil_kojki") == "N"
   aadd(arr,{"57",m1profil_kojki})
-endif  
+endif
 save_arr_DISPANS(lkod,arr)
 return NIL
 
@@ -4919,7 +4930,7 @@ for i := 1 to len(arr)
       case arr[i,1] == "53" .and. valtype(arr[i,2]) == "A"
         arr_mo_spec := arr[i,2]
       case arr[i,1] == "54" .and. valtype(arr[i,2]) == "N"
-        m1napr_stac := arr[i,2] 
+        m1napr_stac := arr[i,2]
       case arr[i,1] == "55" .and. valtype(arr[i,2]) == "N"
         m1profil_stac := arr[i,2]
       case arr[i,1] == "56" .and. valtype(arr[i,2]) == "N"
@@ -5092,19 +5103,19 @@ if !empty(arr_usl_otkaz)
 endif
 if type("m1p_otk") == "N"
   aadd(arr,{"51",m1p_otk})
-endif  
-if type("m1napr_stac") == "N" 
+endif
+if type("m1napr_stac") == "N"
   aadd(arr,{"54",m1napr_stac})
-endif  
-if type("m1profil_stac") == "N"       
+endif
+if type("m1profil_stac") == "N"
   aadd(arr,{"55",m1profil_stac})
-endif  
-if type("m1napr_reab") == "N" 
+endif
+if type("m1napr_reab") == "N"
   aadd(arr,{"56",m1napr_reab})
-endif  
-if type("m1profil_kojki") == "N"       
+endif
+if type("m1profil_kojki") == "N"
   aadd(arr,{"57",m1profil_kojki})
-endif  
+endif
 save_arr_DISPANS(lkod,arr)
 return NIL
 
@@ -5294,7 +5305,7 @@ for i := 1 to len(arr)
         case arr[i,1] == "51" .and. valtype(arr[i,2]) == "N"
           m1p_otk  := arr[i,2]
         case arr[i,1] == "54" .and. valtype(arr[i,2]) == "N"
-          m1napr_stac := arr[i,2] 
+          m1napr_stac := arr[i,2]
         case arr[i,1] == "55" .and. valtype(arr[i,2]) == "N"
           m1profil_stac := arr[i,2]
         case arr[i,1] == "56" .and. valtype(arr[i,2]) == "N"
