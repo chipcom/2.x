@@ -1533,7 +1533,7 @@ do while .t.
         larr := {}
         for i := 1 to len(arr_osm1)
           if valtype(arr_osm1[i,5]) == "C" ;
-                 .and. !(len(arr_osm1[i]) > 10 .and. valtype(arr_osm1[i,11]) == "N" .and. arr_osm1[i,11] == 0) ; // не в КДП2
+                 .and. !(len(arr_osm1[i]) > 10 .and. valtype(arr_osm1[i,11]) == "N" .and. arr_osm1[i,11] > 0) ; // не в КДП2
                  .and. eq_any(arr_osm1[i,10],0,3) ; // не отказ
                  .and. arr_osm1[i,9] >= mn_data ; // оказано во время дисп-ии
                  .and. (k := ascan(dvn_700, {|x| x[1] == arr_osm1[i,5] })) > 0
