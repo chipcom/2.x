@@ -4,20 +4,112 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 08.04.19 ввод направлений при подозрении на ЗНО - профосмотры несовершеннолетних
+***** 15.04.19 ввод направлений при подозрении на ЗНО - профосмотры несовершеннолетних
 Function fget_napr_PN(k,r,c)
 Local r1, r2, n := 4, buf, tmp_keys, tmp_list, tmp_color
   buf := savescreen()
   change_attr()
   tmp_keys := my_savekey()
   save gets to tmp_list
-  
-  
+  //
+  use_base("luslf")
+  Use_base("mo_su")
+  use (cur_dir+"tmp_onkna") new alias TNAPR
+  count_napr := lastrec()
+  mNAPR_MO := space(6)
+  if cur_napr > 0 .and. cur_napr <= count_napr
+    goto (cur_napr) // номер текущего направления
+    mNAPR_DATE := tnapr->NAPR_DATE
+    m1NAPR_MO := tnapr->NAPR_MO
+    if empty(m1NAPR_MO)
+      mNAPR_MO := space(60)
+    else
+      mNAPR_MO := ret_mo(m1NAPR_MO)[_MO_SHORT_NAME]
+    endif
+    m1NAPR_V := tnapr->NAPR_V
+    m1MET_ISSL := tnapr->MET_ISSL
+    mu_kod := iif(m1napr_v == 3, tnapr->U_KOD, 0)
+    mshifr := iif(m1napr_v == 3, tnapr->shifr_u, space(20))
+    mshifr1 := iif(m1napr_v == 3, tnapr->shifr1, space(20))
+    mname_u := iif(m1napr_v == 3, tnapr->name_u, space(65))
+  else
+    cur_napr := 1
+    mNAPR_DATE := ctod("")
+    m1NAPR_MO := space(6)
+    mNAPR_MO := space(60)
+    m1NAPR_V := 0
+    m1MET_ISSL := 0
+    mu_kod := 0
+    mshifr := space(20)
+    mshifr1 := space(20)
+    mname_u := space(65)
+  endif
+  mNAPR_V := inieditspr(A__MENUVERT, mm_napr_v, m1napr_v)
+  mMET_ISSL := inieditspr(A__MENUVERT, mm_MET_ISSL, m1MET_ISSL)
+  tip_onko_napr := 0
+  j := r-9
+  box_shadow(j,0,j+8,maxcol()-2,color1,"Ввод направлений при подозрении на ЗНО",color8)
+  ++j; @ j,1 say "НАПРАВЛЕНИЕ №" get cur_napr pict "99" when .f.
+       @ j,col() say "(из" get count_napr pict "99" when .f.
+       @ j,col() say ")"
+       @j,29 say "(<F5> - добавление/редактирование направления №...)" color "G/B"
+  ++j; @ j,3 say "Дата направления" get mNAPR_DATE ;
+             valid {|| iif(empty(mNAPR_DATE) .or. between(mNAPR_DATE,mn_data,mk_data), .t., ;
+                           func_error(4,"Дата направления должна быть внутри сроков лечения")) }
+  ++j; @ j,3 say "В какую МО направлен" get mnapr_mo ;
+             reader {|x|menu_reader(x,{{|k,r,c|f_get_mo(k,r,c)}},A__FUNCTION,,,.f.)}
+  ++j; @ j,3 say "Вид направления" get mnapr_v ;
+             reader {|x|menu_reader(x,mm_napr_v,A__MENUVERT,,,.f.)} //; color colget_menu
+  ++j; @ j,5 say "Метод диагностического исследования" get mmet_issl ;
+             reader {|x|menu_reader(x,mm_met_issl,A__MENUVERT,,,.f.)} ;
+             when m1napr_v == 3 //; color colget_menu
+  ++j; @ j,5 say "Медицинская услуга" get mshifr pict "@!" ;
+             when {|g| m1napr_v == 3 .and. m1MET_ISSL > 0 } ;
+             valid {|g|
+                        Local fl := f5editkusl(g,2,2)
+                        if empty(mshifr)
+                          mu_kod  := 0
+                          mname_u := space(65)
+                          mshifr1 := mshifr
+                        elseif fl .and. tip_onko_napr > 0 .and. tip_onko_napr != m1MET_ISSL
+                          func_error(4,"Тип медуслуги не соответствует методу диагностического исследования")
+                        endif
+                        return fl
+                   }
+  ++j; @ j,7 say "Услуга" get mname_u when .f. color color14
+  //
+  set key K_F5 TO change_num_napr
+  myread()
+  set key K_F5
+  close databases
+  if !(emptyany(mNAPR_DATE,m1NAPR_V) .and. count_napr == 0)
+    if cur_napr == 0
+      cur_napr := 1
+    endif
+    use (cur_dir+"tmp_onkna") new alias TNAPR
+    count_napr := lastrec()
+    if cur_napr <= count_napr
+      goto (cur_napr) // номер текущего направления
+    else
+      append blank
+    endif
+    tnapr->NAPR_DATE := mNAPR_DATE
+    tnapr->NAPR_MO := m1NAPR_MO
+    tnapr->NAPR_V := m1NAPR_V
+    tnapr->MET_ISSL := iif(m1NAPR_V == 3, m1MET_ISSL, 0)
+    tnapr->U_KOD := iif(m1NAPR_V == 3, mu_kod, 0)
+    tnapr->shifr_u := iif(m1NAPR_V == 3, mshifr, "")
+    tnapr->shifr1 := iif(m1NAPR_V == 3, mshifr1, "")
+    tnapr->name_u := iif(m1NAPR_V == 3, mname_u, "")
+    cur_napr := recno()
+    count_napr := lastrec()
+    use
+  endif
   setcolor(tmp_color)
   restore gets from tmp_list
   my_restkey(tmp_keys)
   restscreen(buf)
-return NIL
+return {0,"Количество направлений - "+lstr(count_napr)}
 
 ***** 21.01.19 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_DVN(Loc_kod,kod_kartotek,f_print)
@@ -123,7 +215,7 @@ Private mm_ndisp := {{"Диспансеризация I  этап",1},;
 Private mm_gruppa, mm_ndisp1
 mm_ndisp1 := aclone(mm_ndisp)
 // оставляем 3-ий и 4-ый этапы
-asize(mm_ndisp1,4) ; hb_ADel(mm_ndisp1, 1, .t.) ; hb_ADel(mm_ndisp1, 1, .t.) 
+asize(mm_ndisp1,4) ; hb_ADel(mm_ndisp1, 1, .t.) ; hb_ADel(mm_ndisp1, 1, .t.)
 Private mm_gruppaP := {{"Присвоена I группа здоровья"  ,1,343},;
                        {"Присвоена II группа здоровья" ,2,344},;
                        {"Присвоена III группа здоровья",3,345}}
@@ -160,17 +252,17 @@ Private mm_dispans := {{"не установлено             ",0},;
                        {"врачом отд.мед.профилактики",1},;
                        {"врачом центра здоровья     ",2}}
 Private mDS_ONK, m1DS_ONK := 0 // Признак подозрения на злокачественное новообразование
-Private mm_dopo_na := {{"лаб.диагностика",1},{"инстр.диагностика",2},{"лучевая диагностика",3}}               
+Private mm_dopo_na := {{"лаб.диагностика",1},{"инстр.диагностика",2},{"лучевая диагностика",3}}
 Private gl_arr := {;  // для битовых полей
   {"dopo_na","N",10,0,,,,{|x|inieditspr(A__MENUBIT,mm_dopo_na,x)} };
  }
 Private mnapr_v_mo, m1napr_v_mo := 0, ;
         mm_napr_v_mo := {{"-- нет --",0},{"в нашу МО",1},{"в иную МО",2}}, ;
-        arr_mo_spec := {}, ma_mo_spec, m1a_mo_spec := 1 
+        arr_mo_spec := {}, ma_mo_spec, m1a_mo_spec := 1
 Private mnapr_stac, m1napr_stac := 0, ;
         mm_napr_stac := {{"--- нет ---",0},{"в стационар",1},{"в дн. стац.",2}}, ;
         mprofil_stac, m1profil_stac := 0
-Private mnapr_reab, m1napr_reab := 0, mprofil_kojki, m1profil_kojki := 0   
+Private mnapr_reab, m1napr_reab := 0, mprofil_kojki, m1profil_kojki := 0
 //
 Private pole_diag, pole_pervich, pole_1pervich, pole_d_diag, ;
         pole_stadia, pole_dispans, pole_1dispans, pole_d_dispans, pole_dn_dispans
@@ -278,11 +370,11 @@ if mkod_k > 0
   if len(ah) > 0
     asort(ah,,,{|x,y| x[2] < y[2] })
     select HUMAN
-    goto (atail(ah)[1])    
+    goto (atail(ah)[1])
     M1RAB_NERAB := human->RAB_NERAB // 0-работающий, 1-неработающий, 2-обучающ.ОЧНО
     letap := human->ishod - 200
-    if eq_any(letap,1,4) 
-      lrslt_1_etap := human_->RSLT_NEW 
+    if eq_any(letap,1,4)
+      lrslt_1_etap := human_->RSLT_NEW
     endif
     read_arr_DVN(human->kod,.f.)
   endif
@@ -552,20 +644,20 @@ mdispans  := inieditspr(A__MENUVERT, mm_dispans, m1dispans)
 mDS_ONK   := inieditspr(A__MENUVERT, mm_danet, M1DS_ONK)
 mnazn_l   := inieditspr(A__MENUVERT, mm_danet, m1nazn_l)
 mdopo_na  := inieditspr(A__MENUBIT, mm_dopo_na, m1dopo_na)
-mnapr_v_mo := inieditspr(A__MENUVERT, mm_napr_v_mo, m1napr_v_mo) 
+mnapr_v_mo := inieditspr(A__MENUVERT, mm_napr_v_mo, m1napr_v_mo)
 if empty(arr_mo_spec)
   ma_mo_spec := "---"
-else 
+else
   ma_mo_spec := ""
   for i := 1 to len(arr_mo_spec)
-    ma_mo_spec += lstr(arr_mo_spec[i])+"," 
+    ma_mo_spec += lstr(arr_mo_spec[i])+","
   next
   ma_mo_spec := left(ma_mo_spec,len(ma_mo_spec)-1)
-endif   
+endif
 mnapr_stac := inieditspr(A__MENUVERT, mm_napr_stac, m1napr_stac)
 mprofil_stac := inieditspr(A__MENUVERT, glob_V002, m1profil_stac)
 mnapr_reab := inieditspr(A__MENUVERT, mm_danet, m1napr_reab)
-mprofil_kojki := inieditspr(A__MENUVERT, glob_V020, m1profil_kojki)   
+mprofil_kojki := inieditspr(A__MENUVERT, glob_V020, m1profil_kojki)
 mssh_na   := inieditspr(A__MENUVERT, mm_danet, m1ssh_na)
 mspec_na  := inieditspr(A__MENUVERT, mm_danet, m1spec_na)
 msank_na  := inieditspr(A__MENUVERT, mm_danet, m1sank_na)
@@ -635,9 +727,9 @@ do while .t.
     if eq_any(metap,3,4) .and. is_dostup_2_year
          @ row(),col()+7 get mndisp /*color color14*/ reader {|x|menu_reader(x,mm_ndisp1,A__MENUVERT,,,.f.)} ;
                          valid {|| metap := m1ndisp, .t. }
-    else     
+    else
          @ row(),col()+7 get mndisp when .f. color color14
-    endif     
+    endif
     ++j; @ j,1 say "№ амбулаторной карты" get much_doc picture "@!" ;
                when !(is_uchastok == 1 .and. is_task(X_REGIST)) .or. mem_edit_ist==2
          @ j,col()+5 say "Мобильная бригада?" get mmobilbr ;
@@ -738,7 +830,7 @@ do while .t.
             mg_cit := inieditspr(A__MENUVERT, mm_g_cit, m1g_cit)
           elseif glob_yes_kdp2[TIP_LU_DVN] .and. ascan(glob_arr_usl_LIS,dvn_arr_usl[i,2]) > 0
             fl_kdp2 := .t.
-          endif 
+          endif
         endif
         mvarv := "MTAB_NOMv"+lstr(i)
         mvara := "MTAB_NOMa"+lstr(i)
@@ -757,7 +849,7 @@ do while .t.
         endif
         if fl_kdp2
           @ j,41 get &mvarlis reader {|x|menu_reader(x,mm_kdp2,A__MENUVERT,,,.f.)}
-        endif         
+        endif
         @ j,46 get &mvarv pict "99999" valid {|g| v_kart_vrach(g) }
       if mem_por_ass > 0
         @ j,52 get &mvara pict "99999" valid {|g| v_kart_vrach(g) }
@@ -899,28 +991,28 @@ do while .t.
       ++j
     endif
     ++j; @ j,1 say "Признак подозрения на злокачественное новообразование" get mDS_ONK ;
-               reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} 
+               reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
     ++j; @ j,1 say "Назначено лечение" get mnazn_l ;
                reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
     ++j; @ j,1 say "Направлен на дополнительное обследование" get mdopo_na ;
                reader {|x|menu_reader(x,mm_dopo_na,A__MENUBIT,,,.f.)}
     ++j; @ j,1 say "Направлен" get mnapr_v_mo ;
                reader {|x|menu_reader(x,mm_napr_v_mo,A__MENUVERT,,,.f.)} ;
-               valid {|| iif(m1napr_v_mo==0, (arr_mo_spec:={},ma_mo_spec:=padr("---",42)), ), update_get("ma_mo_spec")}  
-         @ j,col()+1 say "к специалистам" get ma_mo_spec ;      
+               valid {|| iif(m1napr_v_mo==0, (arr_mo_spec:={},ma_mo_spec:=padr("---",42)), ), update_get("ma_mo_spec")}
+         @ j,col()+1 say "к специалистам" get ma_mo_spec ;
                reader {|x|menu_reader(x,{{|k,r,c| fget_spec_DVN(k,r,c,arr_mo_spec)}},A__FUNCTION,,,.f.)} ;
                when m1napr_v_mo > 0
     ++j; @ j,1 say "Направлен на лечение" get mnapr_stac ;
-               reader {|x|menu_reader(x,mm_napr_stac,A__MENUVERT,,,.f.)} ; 
-               valid {|| iif(m1napr_stac==0, (m1profil_stac:=0,mprofil_stac:=space(32)), ), update_get("mprofil_stac")}  
-         @ j,col()+1 say "по профилю" get mprofil_stac ;      
-               reader {|x|menu_reader(x,glob_V002,A__MENUVERT,,,.f.)} ; 
+               reader {|x|menu_reader(x,mm_napr_stac,A__MENUVERT,,,.f.)} ;
+               valid {|| iif(m1napr_stac==0, (m1profil_stac:=0,mprofil_stac:=space(32)), ), update_get("mprofil_stac")}
+         @ j,col()+1 say "по профилю" get mprofil_stac ;
+               reader {|x|menu_reader(x,glob_V002,A__MENUVERT,,,.f.)} ;
                when m1napr_stac > 0
     ++j; @ j,1 say "Направлен на реабилитацию" get mnapr_reab ;
                reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
-               valid {|| iif(m1napr_reab==0, (m1profil_kojki:=0,mprofil_kojki:=space(30)), ), update_get("mprofil_kojki")}  
-         @ j,col()+1 say ", профиль койки" get mprofil_kojki ;      
-               reader {|x|menu_reader(x,glob_V020,A__MENUVERT,,,.f.)} ; 
+               valid {|| iif(m1napr_reab==0, (m1profil_kojki:=0,mprofil_kojki:=space(30)), ), update_get("mprofil_kojki")}
+         @ j,col()+1 say ", профиль койки" get mprofil_kojki ;
+               reader {|x|menu_reader(x,glob_V020,A__MENUVERT,,,.f.)} ;
                when m1napr_reab > 0
     ++j; @ j,1 say "Направлен на саноторно-курортное лечение" get msank_na ;
                reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
@@ -1118,7 +1210,7 @@ do while .t.
           if valtype(ar[2]) == "C"
             arr_osm1[i,5] := ar[2] // шифр услуги
             m1var := "m1lis"+lstr(i)
-            if glob_yes_kdp2[TIP_LU_DVN] .and. &m1var > 0 
+            if glob_yes_kdp2[TIP_LU_DVN] .and. &m1var > 0
               arr_osm1[i,11] := &m1var // кровь проверяют в КДП2
             endif
           else
@@ -1274,7 +1366,7 @@ do while .t.
         adiag_talon[i*2-1] := arr_diag[i,2]
         adiag_talon[i*2  ] := arr_diag[i,3]
         if i == 1
-          MKOD_DIAG := arr_diag[i,1] 
+          MKOD_DIAG := arr_diag[i,1]
         elseif i == 2
           MKOD_DIAG2 := arr_diag[i,1]
         elseif i == 3
@@ -1315,17 +1407,17 @@ do while .t.
       func_error(4,"Не введена ГРУППА состояния ЗДОРОВЬЯ")
       loop
     endif
-    m1ssh_na := m1psih_na := m1spec_na := 0 
+    m1ssh_na := m1psih_na := m1spec_na := 0
     if m1napr_v_mo > 0
       if eq_ascan(arr_mo_spec,45,141) // Направлен к врачу-сердечно-сосудистому хирургу
         m1ssh_na := 1
-      endif 
+      endif
       if eq_ascan(arr_mo_spec,23,97) // Направлен к врачу-психиатру (врачу-психиатру-наркологу)
         m1psih_na := 1
-      endif 
+      endif
     endif
     if m1napr_stac > 0 .and. m1profil_stac > 0
-      m1spec_na := 1 // Направлен для получения специализированной медицинской помощи (в т.ч. ВМП) 
+      m1spec_na := 1 // Направлен для получения специализированной медицинской помощи (в т.ч. ВМП)
     endif
     //
     err_date_diap(mn_data,"Дата начала лечения")
@@ -1387,7 +1479,7 @@ do while .t.
         arr_osm1[j,9] := iif(dvn_arr_umolch[i,8]==0, mn_data, mk_data)
         arr_osm1[j,10] := 0
       endif
-    next                        
+    next
     if eq_any(metap,1,4) // если первый этап, проверим на 85%
       not_zs := .f.
       kol := kol_otkaz := kol_n_date := 0
@@ -1440,8 +1532,8 @@ do while .t.
         Del_Array(arr_osm1,i_zs) // удаляем законченный случай
         larr := {}
         for i := 1 to len(arr_osm1)
-          if valtype(arr_osm1[i,5]) == "C" ; 
-                 .and. !(len(arr_osm1[i]) > 10 .and. valtype(arr_osm1[i,11]) == "N" .and. arr_osm1[i,11] == 1) ; // не в КДП2
+          if valtype(arr_osm1[i,5]) == "C" ;
+                 .and. !(len(arr_osm1[i]) > 10 .and. valtype(arr_osm1[i,11]) == "N" .and. arr_osm1[i,11] == 0) ; // не в КДП2
                  .and. eq_any(arr_osm1[i,10],0,3) ; // не отказ
                  .and. arr_osm1[i,9] >= mn_data ; // оказано во время дисп-ии
                  .and. (k := ascan(dvn_700, {|x| x[1] == arr_osm1[i,5] })) > 0
@@ -1761,7 +1853,7 @@ if fl .and. eq_any(_etap,1,4,5)
     i := iif(_pol == "М", 6, 7)
   elseif len(ar) < 14
     return .f.
-  else    
+  else
     i := iif(_pol == "М", 13, 14)
   endif
   if valtype(ar[i]) == "N" // специально для услуги "Электрокардиография","13.1.1" ранее 2018 года
@@ -1788,7 +1880,7 @@ Function f_is_umolch_sluch_DVN(i,_etap,_vozrast,_pol)
 Local fl := .f., ar := dvn_arr_umolch[i]
 if _etap > 3
   return fl
-endif  
+endif
 if valtype(ar[3]) == "N"
   fl := (ar[3] == _etap)
 else
@@ -1847,7 +1939,7 @@ if !(is_disp := ascan(arr_vozrast_DVN,mdvozrast) > 0)
   if !is_dostup_2_year .and. mpol == "Ж"
     is_dostup_2_year := ascan(arr2g_vozrast_DVN,mdvozrast) > 0
   endif
-endif  
+endif
 if metap == 0
   if is_disp
     new_etap := 1
@@ -1922,7 +2014,7 @@ else //if new_etap == 3
         new_etap := 4 // сразу разрешаем дисп-ию 1 раз в 2 года, т.к. в прошлом
       else
         msg := "Профилактика проводится 1 раз в 2 года ("+date_8(ar[2,1,2])+"г. уже проведена)"
-      endif 
+      endif
     endif
   else
     i1 := i2 := i3 := i4 := i5 := 0
@@ -1943,7 +2035,7 @@ else //if new_etap == 3
           i5 := i
       endcase
     next
-    if i4 > 0 
+    if i4 > 0
       if i5 > 0
         msg := "В "+lstr(year(mn_data))+" году уже проведены оба этапа диспансеризации (раз в 2 года)!"
       elseif !empty(ar[1,i4,2]) .and. ar[1,i4,2] > mn_data
@@ -2362,25 +2454,25 @@ Static as := {;
   {97,1};
 }
 Local tmp_select := select(), s, blk, t_arr[BR_LEN], n_file := cur_dir+"tmpspecdvn"
-if !hb_fileExists(n_file+sdbf) 
+if !hb_fileExists(n_file+sdbf)
   dbcreate(n_file,{{"name","C",30,0},;
                    {"kod","C",4,0},;
                    {"kod_up","C",4,0},;
                    {"name1","C",50,0},;
                    {"isn","N",1,0},;
                    {"is","L",1,0}})
-  use (n_file) new alias SDVN                 
+  use (n_file) new alias SDVN
   use (cur_dir+"tmp_v015") index (cur_dir+"tmpkV015") new alias tmp_ga
   go top
   do while !eof()
     if (i := ascan(as,{|x| lstr(x[1]) == rtrim(tmp_ga->kod)})) > 0
       select SDVN
       append blank
-      sdvn->name := afteratnum(".",tmp_ga->name,1) 
+      sdvn->name := afteratnum(".",tmp_ga->name,1)
       sdvn->kod := tmp_ga->kod
       sdvn->isn := as[i,2]
       s := ""
-      select TMP_GA 
+      select TMP_GA
       rec := recno()
       do while !empty(tmp_ga->kod_up)
         find (tmp_ga->kod_up)
@@ -2395,9 +2487,9 @@ if !hb_fileExists(n_file+sdbf)
     endif
     skip
   enddo
-  sdvn->(dbCloseArea())      
-  tmp_ga->(dbCloseArea())      
-endif    
+  sdvn->(dbCloseArea())
+  tmp_ga->(dbCloseArea())
+endif
 use (n_file) new alias tmp_ga
 do while !eof()
   tmp_ga->is := (ascan(a_spec,int(val(tmp_ga->kod))) > 0)
@@ -2407,7 +2499,7 @@ if metap == 3
   index on upper(name)+kod to (n_file)
 else
   index on upper(name)+kod to (n_file) for isn == 1
-endif                   
+endif
 if r <= maxrow()/2
   t_arr[BR_TOP] := r+1
   t_arr[BR_BOTTOM] := maxrow()-2
@@ -2421,7 +2513,7 @@ t_arr[BR_RIGHT] := 79
 t_arr[BR_COLOR] := color0
 t_arr[BR_ARR_BROWSE] := {"═","░","═","N/BG,W+/N,B/BG,W+/B",.f.}
 t_arr[BR_COLUMN] := {;
-  { " ", {|| iif(tmp_ga->is,""," ") }, blk },; 
+  { " ", {|| iif(tmp_ga->is,""," ") }, blk },;
   { "Код", {|| left(tmp_ga->kod,3) },blk },;
   { center("Медицинская специальность",26), {|| padr(tmp_ga->name,26) },blk },;
   { center("подчинение",45), {|| left(tmp_ga->name1,45) },blk };
@@ -2431,7 +2523,7 @@ t_arr[BR_STAT_MSG] := {|| status_key("^<Esc>^ - выход;  ^<Ins>^ - отметить специ
 go top
 edit_browse(t_arr)
 s := ""
-asize(a_spec,0)  
+asize(a_spec,0)
 go top
 do while !eof()
   if iif(metap == 3, .t., tmp_ga->isn==1) .and. tmp_ga->is
@@ -2441,17 +2533,17 @@ do while !eof()
   skip
 enddo
 if empty(s)
-  s := "---" 
+  s := "---"
 else
   s := left(s,len(s)-1)
-endif   
+endif
 tmp_ga->(dbCloseArea())
 select (tmp_select)
 return {1,s}
 
 ***** 11.11.17
 Function f1get_spec_DVN(nKey,oBrow,regim)
-if regim == "edit" .and. nkey == K_INS 
+if regim == "edit" .and. nkey == K_INS
   tmp_ga->is := !tmp_ga->is
   keyboard chr(K_TAB)
 endif
@@ -2501,7 +2593,7 @@ Private mkol_proc := 0, mkol_proc2 := 0,;
   mkol[6], musl_lek[6],;
   mokato, m1okato := "", mismo, m1ismo := "", mnameismo := space(100)
 afill(mkol,0)
-afill(musl_lek,0)  
+afill(musl_lek,0)
 //
 Private mkod := Loc_kod, mtip_h, is_talon := .f.,;
         mkod_k := kod_kartotek, fl_kartotek := (kod_kartotek == 0),;
@@ -2537,7 +2629,7 @@ else // перитонеальный диализ (2)
   m1USL_OK := 3
   aeval(glob_V009,{|x| iif(x[5]==m1usl_ok.and.x[2]<316, aadd(mm_rslt,x), nil) })
   m1rslt := 314 ; m1ishod := 304
-endif  
+endif
 aeval(glob_V012,{|x| iif(x[5]==m1usl_ok, aadd(mm_ishod,x), nil) })
 //
 R_Use(dir_server+"kartote_",,"KART_")
@@ -2745,7 +2837,7 @@ do while .t.
       loop
     endif
     ldnej := mk_data - mn_data + 1
-    vlek := vdial := 0 
+    vlek := vdial := 0
     if par == 1
       if empty(vdial := mkol_proc + mkol_proc2)
         func_error(4,"Количество процедур гемодиализа равно нулю")
@@ -2917,7 +3009,7 @@ do while .t.
     human_->NOVOR     := iif(m1novor==0, 0       , mcount_reb)
     human_->DATE_R2   := iif(m1novor==0, ctod(""), mDATE_R2  )
     human_->POL2      := iif(m1novor==0, ""      , mpol2     )
-    human_->USL_OK    := m1USL_OK //  
+    human_->USL_OK    := m1USL_OK //
     human_->PROFIL    := m1PROFIL // 56
     human_->FORMA14   := "0000"
     human_->RSLT_NEW  := m1rslt
@@ -3007,7 +3099,7 @@ do while .t.
     if par == 1 .and. vlek > 0
       for i := 1 to len(arr_lek)
         if mkol[i] > 0
-          mu_kod := append_shifr_mo_su(arr_lek[i,1]) 
+          mu_kod := append_shifr_mo_su(arr_lek[i,1])
           select MOHU
           Add1Rec(7)
           mohu->kod     := mkod

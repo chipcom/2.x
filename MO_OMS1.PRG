@@ -4,7 +4,7 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 08.04.19 ПН - добавление или редактирование случая (листа учета)
+***** 15.04.19 ПН - добавление или редактирование случая (листа учета)
 Function oms_sluch_PN(Loc_kod,kod_kartotek,f_print)
 // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
 // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -224,9 +224,12 @@ Private m1NAPR_MO, mNAPR_MO, mNAPR_DATE, mNAPR_V, m1NAPR_V, mMET_ISSL, m1MET_ISS
         mshifr, mshifr1, mname_u, mU_KOD, cur_napr := 0, count_napr := 0, tip_onko_napr := 0
 Private mm_napr_v := {{"нет",0},;
                       {"к онкологу",1},;
+                      {"на дообследование",3}}
+/*Private mm_napr_v := {{"нет",0},;
+                      {"к онкологу",1},;
                       {"на биопсию",2},;
                       {"на дообследование",3},;
-                      {"для опредения тактики лечения",4}}
+                      {"для опредения тактики лечения",4}}*/
 Private mm_met_issl := {{"нет",0},;
                         {"лабораторная диагностика",1},;
                         {"инструментальная диагностика",2},;
@@ -261,6 +264,12 @@ for i := 1 to 5
   next
 next
 for i := 1 to count_pn_arr_iss // исследования
+  if eq_any(i,8,10)  // гематолог и детский онколог
+    m1var := "M1ONKO"+lstr(i)
+    Private &m1var := 0
+    mvar := "MONKO"+lstr(i)
+    Private &mvar := inieditspr(A__MENUVERT, mm_vokod, &m1var)
+  endif
   mvar := "MTAB_NOMiv"+lstr(i)
   Private &mvar := 0
   mvar := "MTAB_NOMia"+lstr(i)
@@ -476,8 +485,7 @@ if Loc_kod > 0
       for i := 1 to count_pn_arr_iss
         if np_arr_issled[i,1] == lshifr
           fl := .f. ; larr_i[i] := hu->(recno()) ; exit
-        elseif (j := ascan(np_arr_not_zs,{|x| x[2] == lshifr })) > 0 .and. ;
-                                        np_arr_issled[i,1] == np_arr_not_zs[j,1]
+        elseif (j := ascan(np_arr_not_zs,{|x| x[2] == lshifr })) > 0 .and. np_arr_issled[i,1] == np_arr_not_zs[j,1]
           fl := .f. ; larr_i[i] := hu->(recno()) ; exit
         endif
       next
@@ -541,12 +549,18 @@ if Loc_kod > 0
         &mvar := c4tod(hu->date_u)
         if j == 1
           m1var := "m1lis"+lstr(i)
-          if glob_yes_kdp2[TIP_LU_PN] .and. ascan(glob_arr_usl_LIS,np_arr_issled[i,1]) > 0 ;
-                                      .and. hu->is_edit > 0
+          if glob_yes_kdp2[TIP_LU_PN] .and. ascan(glob_arr_usl_LIS,np_arr_issled[i,1]) > 0 .and. hu->is_edit > 0
             &m1var := hu->is_edit
           endif
           mvar := "mlis"+lstr(i)
           &mvar := inieditspr(A__MENUVERT, mm_kdp2, &m1var)
+        elseif j == 2 .and. eq_any(i,8,10)
+          m1var := "m1onko"+lstr(i)
+          if hu->is_edit > 0
+            &m1var := hu->is_edit
+          endif
+          mvar := "monko"+lstr(i)
+          &mvar := inieditspr(A__MENUVERT, mm_vokod, &m1var)
         elseif !empty(hu_->kod_diag) .and. !(left(hu_->kod_diag,1)=="Z")
           mvar := "MKOD_DIAG"+bukva+lstr(i)
           &mvar := hu_->kod_diag
@@ -615,6 +629,9 @@ if Loc_kod > 0
       select NAPR
       skip
     enddo
+    if count_napr > 0
+      mnapr_onk := "Количество направлений - "+lstr(count_napr)
+    endif
   endif
   if alltrim(msmo) == '34'
     mnameismo := ret_inogSMO_name(2,@rec_inogSMO,.t.) // открыть и закрыть
@@ -930,12 +947,16 @@ do while .t.
         fl := (ascan(ar[4],np_arr_osmotr[i,1]) == 0)
       endif
       if fl
+        mvonk := "MONKO"+lstr(i)
         mvarv := "MTAB_NOMov"+lstr(i)
         mvara := "MTAB_NOMoa"+lstr(i)
         mvard := "MDATEo"+lstr(i)
         mvaro := "MOTKAZo"+lstr(i)
         mvarz := "MKOD_DIAGo"+lstr(i)
    ++j; @ j,1 say padr(np_arr_osmotr[i,3],38)
+      if eq_any(i,8,10)
+        @ j,32 get &mvonk reader {|x|menu_reader(x,mm_vokod,A__MENUVERT,,,.f.)} when m1step2==1
+      endif
         @ j,39 get &mvarv pict "99999" valid {|g| v_kart_vrach(g) } when m1step2 == 1
       if mem_por_ass > 0
         @ j,45 get &mvara pict "99999" valid {|g| v_kart_vrach(g) } when m1step2 == 1
@@ -1185,7 +1206,7 @@ do while .t.
       next
     next
     ++j; @ j,1 to j,78
-   if m1step2 == 2  // напрвлен и отказался от 2-го этапа
+   if m1step2 == 2  // направлен и отказался от 2-го этапа
     ++j; @ j,1 say "Признак подозрения на злокачественное новообразование" get mDS_ONK ;
                reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
     ++j; @ j,1 say "Направления при подозрении на ЗНО" get mnapr_onk ;
@@ -1521,10 +1542,14 @@ do while .t.
           _fl_ := (ascan(ar[4],np_arr_osmotr[i,1]) == 0)
         endif
         if _fl_
+          mvonk := "m1onko"+lstr(i)
           mvart := "MTAB_NOMov"+lstr(i)
           mvara := "MTAB_NOMoa"+lstr(i)
           mvard := "MDATEo"+lstr(i)
           mvarz := "MKOD_DIAGo"+lstr(i)
+          if eq_any(i,8,10) .and. &mvonk == 3
+            &mvart := -1
+          endif
           if !empty(&mvard) .and. empty(&mvart)
             fl := func_error(4,'Не введен врач в осмотре II этапа "'+np_arr_osmotr[i,3]+'"')
           elseif !empty(&mvart) .and. empty(&mvard)
@@ -1535,18 +1560,23 @@ do while .t.
             if &mvard < MDATEp1
               fl := func_error(4,'Дата осмотра II этапа "'+np_arr_osmotr[i,3]+'" внутри I этапа')
             endif
-            select P2
-            find (str(&mvart,5))
-            if found()
-              arr_osm2[i,1] := p2->kod
-              arr_osm2[i,2] := -ret_new_spec(p2->prvs,p2->prvs_new)
-            endif
-            if !empty(&mvara)
+            if &mvart > 0
               select P2
-              find (str(&mvara,5))
+              find (str(&mvart,5))
               if found()
-                arr_osm2[i,3] := p2->kod
+                arr_osm2[i,1] := p2->kod
+                arr_osm2[i,2] := -ret_new_spec(p2->prvs,p2->prvs_new)
               endif
+              if !empty(&mvara)
+                select P2
+                find (str(&mvara,5))
+                if found()
+                  arr_osm2[i,3] := p2->kod
+                endif
+              endif
+            else // приём в онкодиспансере
+              arr_osm2[i,2] := -ret_new_spec(np_arr_osmotr[i,5,1])
+              arr_osm2[i,10] := 3
             endif
             arr_osm2[i,4] := np_arr_osmotr[i,4] // профиль
             arr_osm2[i,5] := np_arr_osmotr[i,1] // шифр услуги
@@ -1672,7 +1702,7 @@ do while .t.
     if glob_yes_kdp2[TIP_LU_PN]
       for i := 1 to count_pn_arr_iss
         if valtype(arr_iss[i,9]) == "D" .and. arr_iss[i,9] >= mn_data .and. len(arr_iss[i]) > 9 ;
-                                        .and. valtype(arr_iss[i,10]) == "N" .and. arr_iss[i,10] > 0
+                                        .and. valtype(arr_iss[i,10]) == "N" .and. eq_any(arr_iss[i,10],1,2)
           m1lis := arr_iss[i,10] // в рамках диспансеризации
         endif
       next
@@ -1798,22 +1828,24 @@ do while .t.
             arr_osm2[i,10] := "o"
             aadd(arr_usl_otkaz,arr_osm2[i])
           else
-            if !empty(arr_lis2) .and.;
-                 (j := ascan(np_arr_osmotr_KDP2,{|x| x[1] == lshifr})) > 0
+            if arr_osm2[i,10] == 3 // если услуга оказана в ВОКОД
+              arr_osm2[i,5] := "2.3.1"
+            endif
+            if !empty(arr_lis2) .and. (j := ascan(np_arr_osmotr_KDP2,{|x| x[1] == lshifr})) > 0
               arr_osm2[i,5] := np_arr_osmotr_KDP2[j,2] // услуги заменим на аналогичные шифры без гематологии
             endif
             aadd(arr_usl_dop,arr_osm2[i])
           endif
         endif
       next
-      if !empty(arr_lis2) // были направления на анализы в КДП2
+      if !empty(arr_lis2) // на 2-ом этапе были направления на анализы в КДП2
         if (mdate := max_date1+1) > max_date2 // следующий день после педиатра 1-го этапа
           mdate := max_date2 // если этого много, то окончание 2-го этапа
         endif
         for j := 1 to len(arr_lis2)
           aadd(arr_usl_dop, array(10)) ; i := len(arr_usl_dop)
           afill(arr_usl_dop[i],0)
-          arr_usl_dop[i,4] := 34 // профиль
+          arr_usl_dop[i,4] := iif(left(arr_lis2[j,2],5) == "4.16.", 6, 34) // профиль
           arr_usl_dop[i,5] := arr_lis2[j,2] // шифр услуги
           arr_usl_dop[i,6] := mkod_diag
           arr_usl_dop[i,7] := arr_lis2[j,1] // код услуги
@@ -2032,6 +2064,65 @@ do while .t.
       next
     endif
     save_arr_PN(mkod)
+    // направления при подозрении на ЗНО
+    cur_napr := 0
+    arr := {}
+    G_Use(dir_server+"mo_onkna",dir_server+"mo_onkna","NAPR") // онконаправления
+    find (str(mkod,7))
+    do while napr->kod == mkod .and. !eof()
+      aadd(arr,recno())
+      skip
+    enddo
+    if m1step2 == 2 ; // направлен и отказался от 2-го этапа
+             .and. m1ds_onk == 1 // подозрение на злокачественное новообразование
+      Use_base("mo_su")
+      use (cur_dir+"tmp_onkna") new alias TNAPR
+      select TNAPR
+      go top
+      do while !eof()
+        if !emptyany(tnapr->NAPR_DATE,tnapr->NAPR_V)
+          if tnapr->U_KOD == 0 // добавляем в свой справочник федеральную услугу
+            select MOSU
+            set order to 3
+            find (tnapr->shifr1)
+            if found()  // наверное, добавили только что
+              tnapr->U_KOD := mosu->kod
+            else
+              set order to 1
+              FIND (STR(-1,6))
+              if found()
+                G_RLock(forever)
+              else
+                AddRec(6)
+              endif
+              tnapr->U_KOD := mosu->kod := recno()
+              mosu->name   := tnapr->name_u
+              mosu->shifr1 := tnapr->shifr1
+            endif
+          endif
+          select NAPR
+          if ++cur_napr > len(arr)
+            AddRec(7)
+            napr->kod := mkod
+          else
+            goto (arr[cur_napr])
+            G_RLock(forever)
+          endif
+          napr->NAPR_DATE := tnapr->NAPR_DATE
+          napr->NAPR_MO := tnapr->NAPR_MO
+          napr->NAPR_V := tnapr->NAPR_V
+          napr->MET_ISSL := iif(tnapr->NAPR_V == 3, tnapr->MET_ISSL, 0)
+          napr->U_KOD := iif(tnapr->NAPR_V == 3, tnapr->U_KOD, 0)
+        endif
+        select TNAPR
+        skip
+      enddo
+    endif
+    select NAPR
+    do while ++cur_napr <= len(arr)
+      goto (arr[cur_napr])
+      DeleteRec(.t.)
+    enddo
     write_work_oper(glob_task,OPER_LIST,iif(Loc_kod==0,1,2),1,count_edit)
     fl_write_sluch := .t.
     close databases

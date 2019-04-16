@@ -2608,7 +2608,7 @@ if k > 0
       endif
       select ONKSL
       find (str(human->kod,7))
-      is_oncology := f_is_oncology(1) 
+      is_oncology := f_is_oncology(1)
       k_diagnoz := k_usl := 0
       afill(tt_diagnoz,"") ; afill(tt_usl,"")
       s1 := left(human->fio,40)
@@ -3107,9 +3107,9 @@ if fl .and. mn->inostran > 0
 endif
 if fl .and. mn->gorod_selo > 0
   if mn->gorod_selo == 1
-    fl := !f_is_selo(kart_->gorod_selo,kart_->okatog) 
+    fl := !f_is_selo(kart_->gorod_selo,kart_->okatog)
   else
-    fl := f_is_selo(kart_->gorod_selo,kart_->okatog) 
+    fl := f_is_selo(kart_->gorod_selo,kart_->okatog)
   endif
 endif
 if fl .and. !empty(madres)
@@ -3380,8 +3380,8 @@ if fl
                     hu->is_edit})         // 10
         if flag_hu
           aadd(au,{1,hu->(recno()),len(au_lu)})
-        endif            
-      endif  
+        endif
+      endif
       select HU
       skip
     enddo
@@ -3401,11 +3401,11 @@ if fl
                    c4tod(mohu->date_u2),; // 7
                    mohu->kod_diag,;       // 8
                    mohu->(recno())})      // 9 - номер записи
-      aadd(au,{2,mohu->(recno()),len(au_flu)})            
+      aadd(au,{2,mohu->(recno()),len(au_flu)})
       select MOHU
       skip
     enddo
-    if mn->kol_pos == 2 
+    if mn->kol_pos == 2
       k := 0
       f_vid_p_stom(au_lu,{},,,human->k_data,@vid_vp,@k,,au_flu)
       if vid_vp == 1 // с лечебной целью
@@ -3453,7 +3453,7 @@ if fl
               flu := (hu->KOL_RCP < 0)
           endcase
         elseif mn->dom > 1 // фед.услуги только в поликлинике
-          flu := .f. 
+          flu := .f.
         endif
       endif
       if flu .and. mn->otd_usl > 0
@@ -3488,7 +3488,7 @@ if fl
       if flu .and. mn->slug_usl > 0 .and. au[iau,1] == 1 // только для HU
         flu := (usl->slugba == mn->slug_usl)
       endif
-      if flu 
+      if flu
         if au[iau,1] == 1 .and. mn->uslugi > 0
           i := ascan(arr_usl,{|x| x[1] == hu->u_kod})
           if (flu := (i > 0))
@@ -3520,7 +3520,7 @@ if fl
               select LUSLF18
               find (mosu->shifr1)
               muet += round_5(mohu->kol_1 * iif(human->vzros_reb==0, luslf18->uetv, luslf18->uetd), 4)
-            endif        
+            endif
           endif
         endif
         if mn->kol_pos == 2 .and. eq_any(human_->USL_OK,2,3) .and. au[iau,1] == 1
@@ -3546,11 +3546,11 @@ if fl
           elseif !f_is_zak_sl_vr(lshifr)  // поликлиника
             if left(lshifr,2) == "2." // врачебные приёмы амбулаторные
               if between_shifr(lshifr,"2.79.52","2.79.64")
-                vid_vp := 2 // с профилактической целью 
-              elseif between_shifr(lshifr,"2.88.40","2.88.51") 
+                vid_vp := 2 // с профилактической целью
+              elseif between_shifr(lshifr,"2.88.40","2.88.51")
                 vid_vp := 2 // с профилактической целью
               elseif between_shifr(lshifr,"2.80.29","2.80.38")
-                vid_vp := 3 // при оказании неотложной помощи  
+                vid_vp := 3 // при оказании неотложной помощи
               else
                 kol_pos_amb += hu->kol_1
               endif
@@ -3718,7 +3718,7 @@ for i := 1 to 2
 next
 return NIL
 
-***** 24.01.19 форма 14-МЕД (ОМС)
+***** 15.04.19 форма 14-МЕД (ОМС)
 Function forma14_med_oms()
 Static group_ini := "f14_med_oms"
 Local begin_date, end_date, buf := savescreen(), arr_m, i, j, k, k1, k2,;
@@ -3780,7 +3780,7 @@ arr_pril5[26,1] := "Дн.стац. - руб."
 arr_pril5[27,1] := "Дн.стац.ЭКО - пациенто-дней"
 arr_pril5[28,1] := "Дн.стац.ЭКО - пациентов, чел."
 arr_pril5[29,1] := "Дн.стац.ЭКО - руб."
-arr_m := {2018,1,12,"за январь - декабрь 2018 года",0d20180101,0d20181231}
+arr_m := {2019,1,3,"за январь - март 2019 года",0d20190101,0d20190331}
 Private mk1, mk2, mk3, mk4, md1, md11, md12, md2, md21, md22, md3, md4
 ar := GetIniSect(tmp_ini,group_ini)
 mk1 := int(val(a2default(ar,"mk1","0")))
@@ -3817,10 +3817,6 @@ restscreen(buf)
 if lastkey() == K_ESC
   return nil
 endif
-if arr_m[1] == 2018
-  lal += "18"
-  lalf += "18"
-endif      
 SetIniSect(tmp_ini,group_ini,{{"mk1",mk1},;
                               {"mk2",mk2},;
                               {"mk3",mk3},;
@@ -3865,8 +3861,8 @@ dbcreate(cur_dir+"tmpf14",{;
    {"KOD_H",    "N", 7,0};  // код листа учета по БД "human"
   })
 use (cur_dir+"tmpf14") new alias TMPF14
-Use_base("lusl") 
-Use_base("luslf") 
+Use_base("lusl")
+Use_base("luslf")
 R_Use(dir_exe+"_mo8unit",cur_dir+"_mo8unit","MOUNIT")
 R_Use(dir_server+"mo_su",,"MOSU")
 R_Use(dir_server+"mo_hu",dir_server+"mo_hu","MOHU")
@@ -3884,10 +3880,7 @@ R_Use(dir_server+"human",dir_server+"humans","HUMAN")
 set relation to recno() into HUMAN_, to recno() into HUMAN_2, to kod_k into KART
 //
 *********************************************************************
-mdate_rak := arr_m[6]+22 // по какую дату РАК сумма к оплате 10.04.18
-if glob_mo[_MO_KOD_TFOMS] == '134505'
-  mdate_rak := arr_m[6]+23
-endif
+mdate_rak := arr_m[6]+8 // по какую дату РАК сумма к оплате 08.04.19
 *********************************************************************
 R_Use(dir_server+"mo_xml",,"MO_XML")
 R_Use(dir_server+"mo_rak",,"RAK")
@@ -3912,13 +3905,10 @@ do while !eof()
     // дата отчетного периода
     mdate1 := stod(strzero(schet_->nyear,4)+strzero(schet_->nmonth,2)+"15")
     //
-    *** 2018 год
-    k := 21 // дата регистрации по 10.04.18
-    if glob_mo[_MO_KOD_TFOMS] == '134505'
-      k := 23
-    endif
+    *** 2019 год
+    k := 5 // дата регистрации по 05.04.18
     ***
-    fl := between(mdate,arr_m[5],arr_m[6]+k) .and. between(mdate1,arr_m[5],arr_m[6]) // !!отч.период 2018 год
+    fl := between(mdate,arr_m[5],arr_m[6]+k) .and. between(mdate1,arr_m[5],arr_m[6]) // !!отч.период 2019 год
   endif
   if fl
     select HUMAN
@@ -4019,7 +4009,7 @@ do while !eof()
             ta := f14tf_nastr(@lshifr,,d2_year)
             lshifr := alltrim(lshifr)
             aadd(au,{lshifr,hu->kol_1,round(hu->stoim_1*koef,2),0,0,hu->kol_1})
-            i16 := 0 
+            i16 := 0
             dbSelectArea(lal)
             find (padr(lshifr,10))
             if found() .and. !empty(&lal.->unit_code)
@@ -4028,22 +4018,22 @@ do while !eof()
               if found() .and. mounit->pz > 0
                 if (i16 := mounit->ii) > 0
                   j1 := glob_array_PZ_18[i16,1]
-                  if eq_any(j1,68,75)
+                  if eq_any(j1,68,75,87)
                     vid_vp := 0 // Посещение профилактическое
-                  elseif eq_any(j1,69,76) 
+                  elseif eq_any(j1,69,76)
                     vid_vp := 1 // в неотложной форме
-                  elseif eq_any(j1,70,77) 
+                  elseif eq_any(j1,70,77)
                     vid_vp := 2 // обращения с лечебной целью
-                  elseif j1 == 71 
+                  elseif j1 == 71
                     is_centr_z := .t.
                     vid_vp := 0 // Посещение профилактическое Центра здоровья
-                  elseif eq_any(j1,72,73,74) 
+                  elseif eq_any(j1,72,73,74)
                     vid_vp := 0 // комплексное посещение при диспансеризации
                     is_z_sl := .t.
                   elseif j1 == 64 .or. between(j1,78,86) // исследования
-                    is_kt := .t. ; ds1_spec := 1 
+                    is_kt := .t. ; ds1_spec := 1
                     vid_vp := 0 // Посещение профилактическое
-                  elseif eq_any(j1,63,65,67) 
+                  elseif eq_any(j1,63,65,67)
                     is_dializ := .t.
                   endif
                 endif
@@ -4077,23 +4067,23 @@ do while !eof()
               is_z_sl := .t.
             endif
             //
-            if eq_any(left(lshifr,4),"2.6.","2.60") 
-              kol_stom += hu->kol_1 
+            if eq_any(left(lshifr,4),"2.6.","2.60")
+              kol_stom += hu->kol_1
             endif
             if eq_any(lshifr,"2.3.3","2.3.4","2.60.3","2.60.4") // фельдшерские приёмы
-              fl_pol1[15] := -1                             
-            endif      
+              fl_pol1[15] := -1
+            endif
             if eq_any(lshifr,"2.78.60","2.79.63","2.79.64","2.80.38","2.88.50") // зубной врач (средний мед.персонал)
-              fl_pol1[15] := -1                             
+              fl_pol1[15] := -1
               is_sred_stom := .t.
             endif
             if left(lshifr,5) == "2.80." .and. hu->KOL_RCP < 0 // посещения в неотложной форме на дому
-              fl_pol1[12] += hu->kol_1                             
-            endif                             
-            if left(lshifr,5) == "2.88." .and. hu->KOL_RCP < 0 // разовое посещение на дому
-              fl_pol1[7] += hu->kol_1                             
+              fl_pol1[12] += hu->kol_1
             endif
-            //          
+            if left(lshifr,5) == "2.88." .and. hu->KOL_RCP < 0 // разовое посещение на дому
+              fl_pol1[7] += hu->kol_1
+            endif
+            //
             for j := 1 to len(ta)
               k := ta[j,1] ; mkol1 := 0
               if between(k,1,10)
@@ -4250,12 +4240,12 @@ do while !eof()
             endif
             if is_dializ
               tfoms_pz[1,1] := tfoms_pz[1,2] := 0
-            else 
+            else
               arr_profil[i,2] ++
               if is_inogoro
                 arr_profil[i,4] ++
               endif
-            endif 
+            endif
             arr_profil[i,3] += round(human->cena_1*koef,2)
             if is_inogoro
               arr_profil[i,4] ++ ; arr_profil[i,5] += round(human->cena_1*koef,2)
@@ -4383,11 +4373,11 @@ do while !eof()
                 //
                 tfoms_pz[2,2] += lkol
                 if is_prvs_206 // лечебное дело в диспансеризации
-                  fl_pol1[15] += lkol                             
+                  fl_pol1[15] += lkol
                 endif
-                // терапевт, педиатр, врач общей практики, фельдшер при диспансеризации                             
-                fl_pol1[3] += lkol                             
-                fl_pol1[4] += lkol 
+                // терапевт, педиатр, врач общей практики, фельдшер при диспансеризации
+                fl_pol1[3] += lkol
+                fl_pol1[4] += lkol
               else
                 for i := 1 to len(ap)
                   lshifr := ap[i,1] ; lkol := ap[i,2]
@@ -4410,20 +4400,20 @@ do while !eof()
                   if eq_any(left(lshifr,5),"2.79.","2.76.") // профилактика и центры здоровья
                     if between_shifr(lshifr,"2.79.44","2.79.50")  // патронаж
                       fl_pol1[9] += lkol
-                      if eq_any(human_->profil,49,53,54) // паллиативная медицинская помощь                             
+                      if eq_any(human_->profil,49,53,54) // паллиативная медицинская помощь
                         fl_pol1[10] += lkol
                       endif
                     else
                       fl_pol1[3] += lkol
-                    endif      
+                    endif
                   endif
                   if eq_any(lshifr,"2.79.34","2.79.37","2.79.38","2.79.49","2.79.50",; // фельдшерские приёмы
                                    "2.80.19","2.80.22","2.80.23","2.80.27",;
-                                   "2.88.35","2.88.36","2.88.37","2.90.2") 
-                    fl_pol1[15] += lkol                             
-                  endif      
+                                   "2.88.35","2.88.36","2.88.37","2.90.2")
+                    fl_pol1[15] += lkol
+                  endif
                   if eq_any(left(lshifr,5),"2.88.","2.81.") // разовое посещение или консультации
-                    fl_pol1[6] += lkol                             
+                    fl_pol1[6] += lkol
                   endif
                 next
               endif
@@ -4444,10 +4434,10 @@ do while !eof()
                 if is_rebenok
                   sum_kd += tfoms_pz[2,3]
                 endif
-                if is_trudosp 
+                if is_trudosp
                   sum_kt += tfoms_pz[2,3]
                 endif
-                if is_inogoro 
+                if is_inogoro
                   sum_ki += tfoms_pz[2,3]
                 endif
               elseif eq_any(schet_->BUKVA,'G','J','D','O','R','F','V','I','U')
@@ -4532,18 +4522,18 @@ do while !eof()
                 vid_vp := 0 // профилактика
                 if is_2_88 // разовое по поводу заболевания
                   fl_pol1[6] := -1
-                  fl_pol1[8] := -1                             
-                else                             
+                  fl_pol1[8] := -1
+                else
                   fl_pol1[3] := -1
-                  fl_pol1[5] := -1                             
+                  fl_pol1[5] := -1
                 endif
               case ret_tip == 3
                 vid_vp := 1 // в неотложной форме
-                fl_pol1[11] := -1                             
+                fl_pol1[11] := -1
             endcase
             tfoms_pz[3,1] := 1
             tfoms_pz[3,2] := ret_kol
-            tfoms_pz[3,3] := round(human->cena_1*koef,2) 
+            tfoms_pz[3,3] := round(human->cena_1*koef,2)
             func_f14_stom(tfoms_pz[3,3],ret_tip,ret_kol,is_2_88,is_rebenok,is_trudosp,is_inogoro,is_sred_stom)
             kol_stom := ret_kol
             kol_stom_pos += ret_kol
@@ -4577,7 +4567,7 @@ do while !eof()
                 endif
               endif
             endif
-            // 
+            //
             if (i := ascan(arr_dn_stac, {|x| x[1] == human_->PROFIL })) == 0
               aadd(arr_dn_stac, {human_->PROFIL,0,0,0,0}) ; i := len(arr_dn_stac)
             endif
@@ -4607,7 +4597,7 @@ do while !eof()
               else
                 arrDdn_stac[3] += tfoms_pz[4,2]
               endif
-            endif        
+            endif
             arr_pril5[24,igs] += tfoms_pz[4,2] // "Дн.стац. - пациенто-дней"
             arr_pril5[25,igs] += tfoms_pz[4,1] // "Дн.стац. - пациентов, чел."
             arr_pril5[26,igs] += tfoms_pz[4,3] // "Дн.стац. - руб."
@@ -4904,7 +4894,7 @@ if kol_stom_pos > 0
   strfile(hb_eol()+;
           "Отчёт о количестве и стоимости обращений и посещений при оказании стоматологической помощи"+;
           hb_eol()+;
-"___________________________________________________________________________________________________________________________"+hb_eol()+;          
+"___________________________________________________________________________________________________________________________"+hb_eol()+;
 "___________________________|______всего____________|_________дети__________|____старше трудоспос.__|____иногородние________"+hb_eol()+;
 "                           |случа|посе-|  сумма    |случа|посе-|  сумма    |случа|посе-|  сумма    |случа|посе-|  сумма    "+hb_eol()+;
 "___________________________|ев___|щений|___________|ев___|щений|___________|ев___|щений|___________|ев___|щений|___________"+hb_eol(),cFileProtokol,.t.)
@@ -4939,7 +4929,7 @@ if fl
               hb_eol(),cFileProtokol,.t.)
     endif
   next
-endif  
+endif
 if !empty(arr_dn_stac)
   fl_error := .t.
   asort(arr_dn_stac,,,{|x,y| x[1] < y[1] })
@@ -4952,37 +4942,37 @@ if !empty(arr_dn_stac)
 "                              │случаев│    сумма    │1случ.│ всего │взрос.│ дети  "+hb_eol()+;
 "──────────────────────────────┴───────┴─────────────┴──────┴───────┴──────┴───────"+hb_eol(),cFileProtokol,.t.)
   for i := 1 to len(arr_dn_stac)-1
-    s := padr(lstr(arr_dn_stac[i,1])+" "+inieditspr(A__MENUVERT, glob_V002, arr_dn_stac[i,1]),30)+; 
+    s := padr(lstr(arr_dn_stac[i,1])+" "+inieditspr(A__MENUVERT, glob_V002, arr_dn_stac[i,1]),30)+;
             put_val(arr_dn_stac[i,2],8)+put_kope(arr_dn_stac[i,3],14)
     k := 0
     if arr_dn_stac[i,2] > 0
       k := (arr_dn_stac[i,4]+arr_dn_stac[i,5])/arr_dn_stac[i,2]
-    endif        
+    endif
     s += str(k,6,1)+put_val(arr_dn_stac[i,4]+arr_dn_stac[i,5],9)+;
          put_val(arr_dn_stac[i,4],7)+put_val(arr_dn_stac[i,5],7)
     strfile(s+hb_eol(),cFileProtokol,.t.)
     arr_dn_stac[j,2] += arr_dn_stac[i,2]
     arr_dn_stac[j,3] += arr_dn_stac[i,3]
     arr_dn_stac[j,4] += arr_dn_stac[i,4]
-    arr_dn_stac[j,5] += arr_dn_stac[i,5] 
+    arr_dn_stac[j,5] += arr_dn_stac[i,5]
   next
   strfile(replicate("─",83)+hb_eol(),cFileProtokol,.t.)
-  s := padr("Итого:",30)+; 
+  s := padr("Итого:",30)+;
             put_val(arr_dn_stac[j,2],8)+put_kope(arr_dn_stac[j,3],14)
   k := 0
   if arr_dn_stac[j,2] > 0
     k := (arr_dn_stac[j,4]+arr_dn_stac[j,5])/arr_dn_stac[j,2]
-  endif        
+  endif
   s += str(k,6,1)+put_val(arr_dn_stac[j,4]+arr_dn_stac[j,5],9)+;
        put_val(arr_dn_stac[j,4],7)+put_val(arr_dn_stac[j,5],7)
   strfile(s+hb_eol(),cFileProtokol,.t.)
   strfile(replicate("─",83)+hb_eol(),cFileProtokol,.t.)
-  s := padr("в т.ч.в дн.стационарах на дому",30)+; 
+  s := padr("в т.ч.в дн.стационарах на дому",30)+;
             put_val(arrDdn_stac[1],8)+put_kope(arrDdn_stac[2],14)
   k := 0
   if arrDdn_stac[1] > 0
     k := (arrDdn_stac[3]+arrDdn_stac[4])/arrDdn_stac[1]
-  endif        
+  endif
   s += str(k,6,1)+put_val(arrDdn_stac[3]+arrDdn_stac[4],9)+;
        put_val(arrDdn_stac[3],7)+put_val(arrDdn_stac[4],7)
   strfile(s+hb_eol(),cFileProtokol,.t.)
@@ -5058,14 +5048,14 @@ if fl
   add_val_2_array(arr_pol1,1,2,2,5)
   add_val_2_array(arr_pol1,1,11,2,5)
   add_val_2_array(arr_pol1,1,13,2,5)
-  for i := 1 to len(arr_pol1)  
+  for i := 1 to len(arr_pol1)
     k := perenos(t_arr,arr_pol1[i,1],33)
     strfile(padr(rtrim(t_arr[1]),34,".")+strzero(i,2)+;
             put_val(arr_pol1[i,2],8)+put_val(arr_pol1[i,3],8)+;
             put_kope(arr_pol1[i,4],14)+put_kope(arr_pol1[i,5],14)+hb_eol(),cFileProtokol,.t.)
     for j := 2 to k
       strfile(padl(alltrim(t_arr[j]),34)+hb_eol(),cFileProtokol,.t.)
-    next        
+    next
   next
 endif
 if !empty(sum_k)
@@ -5122,7 +5112,7 @@ return NIL
 Function forma1_ffoms()
 Local mdate, i, j, k, d1, d2, arr_smo := {}, at1, at2, ta, fl_month, tmp, b1_1, a1_1,;
       _bd, fl, b1, b2, a1, a2, lsmo, name_file := "forma1", HH := 80, sh := 84
-Private arr_m      
+Private arr_m
 if (arr_m := year_month(,,,3)) == NIL
   return NIL
 elseif arr_m[1] < 2018
@@ -5183,8 +5173,8 @@ ret_days_for_akt_sverki(tmp,@b1_1,,@a1_1,)
 d1 := d2 := 10
 ret_days_for_akt_sverki(arr_m,@b1,@b2,@a1,@a2)
 //my_debug(,print_array({arr_m,b1,b2,a1,a2}))
-Use_base("lusl") 
-Use_base("luslf") 
+Use_base("lusl")
+Use_base("luslf")
 R_Use(dir_server+"mo_su",,"MOSU")
 R_Use(dir_server+"mo_hu",dir_server+"mo_hu","MOHU")
 set relation to u_kod into MOSU
@@ -5249,7 +5239,7 @@ R_Use(dir_server+"mo_raks",,"RAKS")
 set relation to akt into RAK
 R_Use(dir_server+"mo_raksh",,"RAKSH")
 set relation to kod_raks into RAKS
-index on str(kod_h,7) to (cur_dir+"tmp_raksh") for between(mo_xml->dfile,boy(arr_m[5]),arr_m[6]+a2) 
+index on str(kod_h,7) to (cur_dir+"tmp_raksh") for between(mo_xml->dfile,boy(arr_m[5]),arr_m[6]+a2)
                                              //for between(rak->DAKT,boy(arr_m[5]),arr_m[6])
 go top
 do while !eof()
@@ -5435,7 +5425,7 @@ if ireg == 2 // протокол созданияя формы 1
                 if (k := ascan(au, {|x| x[1] == tmp2pr_u->shifr })) == 0
                   aadd(au, {tmp2pr_u->shifr,0}) ; k := len(au)
                 endif
-                au[k,2] += tmp2pr_u->kol  
+                au[k,2] += tmp2pr_u->kol
                 skip
               enddo
               s := left(s,len(s)-1)
@@ -5656,7 +5646,7 @@ if ireg == 2
               if (k := ascan(au, {|x| x[1] == tmp2pr_u->shifr })) == 0
                 aadd(au, {tmp2pr_u->shifr,0}) ; k := len(au)
               endif
-              au[k,2] += tmp2pr_u->kol  
+              au[k,2] += tmp2pr_u->kol
               skip
             enddo
             s := left(s,len(s)-1)
@@ -5784,7 +5774,7 @@ Local tfoms_pz[6,3], mkol, ta, i, ii, j, k, lshifr, lvidpom := 1, lshifr1, j1, f
       fl_T := (schet_->bukva == "T"), fl_K := (schet_->bukva == "K"), lalf := "luslf"
 if arr_m[1] == 2018
   lalf += "18"
-endif      
+endif
 select HU
 find (str(human->kod,7))
 do while hu->kod == human->kod .and. !eof()
@@ -5800,9 +5790,9 @@ do while hu->kod == human->kod .and. !eof()
       mkol_1 += hu->kol_1
       fl := .t.
     elseif left(lshifr,2) == "2."
-      if eq_any(left(lshifr,4),"2.4.","2.78","2.89","2.90","2.91") .or. fl_T 
+      if eq_any(left(lshifr,4),"2.4.","2.78","2.89","2.90","2.91") .or. fl_T
         //
-      else 
+      else
         fl := .t.
         mkol_2 += hu->kol_1
       endif
@@ -5832,18 +5822,18 @@ afillall(tfoms_pz,0)
 if human_->USL_OK == 1 // стационар
   ii := 2
   lvidpom := 3
-  tfoms_pz[ii,1] := mkol_1 
+  tfoms_pz[ii,1] := mkol_1
 elseif human_->USL_OK == 2 // дневной стационар
   ii := 3
   if empty(mkol_55)
     lvidpom := 3
   else
-    tfoms_pz[ii,1] := mkol_55 
+    tfoms_pz[ii,1] := mkol_55
   endif
 elseif human_->USL_OK == 3 // поликлиника
   if fl_T // стоматология
     lvidpom := 1
-    ii := 4 
+    ii := 4
     select MOHU
     find (str(human->kod,7))
     do while mohu->kod == human->kod .and. !eof()
@@ -5866,7 +5856,7 @@ elseif human_->USL_OK == 3 // поликлиника
   elseif fl_K // отдельные услуги
     ii := 5
     lvidpom := 3
-    tfoms_pz[ii,1] := mkol_k 
+    tfoms_pz[ii,1] := mkol_k
   else
     ii := 1
     tfoms_pz[ii,1] := mkol_2 // кол-во врачебных приёмов
@@ -6401,7 +6391,7 @@ for _tip := 1 to 5
         endcase
         add_string(replicate("-",len(arr_title[1])))
         add_string(s)
-      endif    
+      endif
     endif
   next _ist_fin
   if len(arr2) > 0
@@ -6445,10 +6435,10 @@ for _tip := 1 to 5
 "│ 10  │10.1 │ 11  │11.1 │  13  │ 13.1 │  14  │ 14.1 ",;
 "┴─────┴─────┴─────┴─────┴──────┴──────┴──────┴──────"}
           if _tip == 3
-            arr_title[9] := ; 
+            arr_title[9] := ;
 "│  4  │ 4.1 │  5  │ 5.1 │   7  │  7.1 │   8  │  8.1 "
           elseif _tip == 5
-            arr_title[9] := ; 
+            arr_title[9] := ;
 "│     │     │     │     │      │      │      │      "
           endif
           n := f4_prikaz_848_miac(40,"Профили коек",arr_title)
@@ -6659,7 +6649,7 @@ Local tfoms_pz[20], a_usl := {}, i, j, lshifr1, mkol,;
       is_rebenok := (human->VZROS_REB > 0), d2_year := year(human->k_data),;
       is_trudosp := f_starshe_trudosp(human->POL,human->DATE_R,human->n_data),;
       fl_death := is_death(human_->RSLT_NEW), au_lu := {}, fl_stom := .f., fl_stom_new := .f.,;
-      is_selo := f_is_selo(kart_->gorod_selo,kart_->okatog), is_2_88 := .f., au_flu := {},; 
+      is_selo := f_is_selo(kart_->gorod_selo,kart_->okatog), is_2_88 := .f., au_flu := {},;
       is_patronag := .f., lusl_ok := 0, vid_vp := 0, vid1vp := 0 // по умолчанию профилактика
 select HU
 find (str(human->kod,7))
@@ -6683,7 +6673,7 @@ do while hu->kod == human->kod .and. !eof()
     elseif eq_any(left(lshifr,5),"2.78.","2.89.") .and. is_2_stomat(lshifr) == 0 .and. is_2_stomat(lshifr,,.t.) == 0
       vid_vp := 2 // по поводу заболевания
       exit
-    elseif left(lshifr,5) == "2.88." .and. is_2_stomat(lshifr) == 0 .and. is_2_stomat(lshifr,,.t.) == 0    
+    elseif left(lshifr,5) == "2.88." .and. is_2_stomat(lshifr) == 0 .and. is_2_stomat(lshifr,,.t.) == 0
       vid_vp := 2 // разовое по поводу заболевания
       vid1vp := 1
       exit
@@ -6724,7 +6714,7 @@ if fl_stom_new
   elseif j == 1  // с лечебной целью
     vid_vp := 2 // по поводу заболевания
   elseif j == 3  // при оказании неотложной помощи
-    vid_vp := 1 // в неотложной форме 
+    vid_vp := 1 // в неотложной форме
   endif
   lusl_ok := 2
   is_zabol := (vid_vp > 0)
@@ -6744,7 +6734,7 @@ elseif fl_stom
   elseif j == 1  // с лечебной целью
     vid_vp := 2 // по поводу заболевания
   elseif j == 3  // при оказании неотложной помощи
-    vid_vp := 1 // в неотложной форме 
+    vid_vp := 1 // в неотложной форме
   endif
   lusl_ok := 2
   is_zabol := (vid_vp > 0)
@@ -6805,7 +6795,7 @@ else
     select HU
     skip
   enddo
-endif  
+endif
 for i := 1 to len(a_usl)
   select TMP
   find ("0"+str(_ist_fin,1)+str(a_usl[i,1],1)+str(a_usl[i,2],9))

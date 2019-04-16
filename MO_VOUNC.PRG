@@ -2219,8 +2219,8 @@ do while !eof()
       next
       i := iif(human->OBRASHEN == '1', 1, 0)
       mo_add_xml_stroke(oSL,"DS_ONK",lstr(i))
-      if len(arr_nazn) > 0
-        oPRESCRIPTION := oSL:Add( HXMLNode():New( "PRESCRIPTION" ) )
+      if len(arr_nazn) > 0 .or. (human->OBRASHEN == '1' .and. len(arr_onkna) > 0)
+       oPRESCRIPTION := oSL:Add( HXMLNode():New( "PRESCRIPTION" ) )
         for j := 1 to len(arr_nazn)
          oPRESCRIPTIONS := oPRESCRIPTION:Add( HXMLNode():New( "PRESCRIPTIONS" ) )
           mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_N",lstr(j))
@@ -2241,11 +2241,24 @@ do while !eof()
           elseif arr_nazn[j,1] == 6
             mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_PK",lstr(arr_nazn[j,2]))
           endif
-          if eq_any(arr_nazn[j,1],2,3) .and. human->OBRASHEN == '1'
-            mo_add_xml_stroke(oPRESCRIPTIONS,"NAPR_DATE",date2xml(arr_nazn[j,4])) // Дата направления
-            mo_add_xml_stroke(oPRESCRIPTIONS,"NAPR_MO",arr_nazn[j,5]) // Код МО, куда оформлено направление
-          endif
         next j
+       if human->OBRASHEN == '1' // подозрение на ЗНО
+        for j := 1 to len(arr_onkna)
+         oPRESCRIPTIONS := oPRESCRIPTION:Add( HXMLNode():New( "PRESCRIPTIONS" ) )
+          mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_N",lstr(j+len(arr_nazn)))
+          mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_R",lstr(iif(arr_onkna[j,2]==1, 2, arr_onkna[j,2])))
+         if arr_onkna[j,2] == 1 // направление к онкологу
+          mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_SP",'19') // специальность - детская онкология
+         else // == 3 на дообследование
+          mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_V",lstr(arr_onkna[j,3]))
+          mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_USL",arr_onkna[j,4])
+         endif
+          mo_add_xml_stroke(oPRESCRIPTIONS,"NAPR_DATE",date2xml(arr_onkna[j,1]))
+         if !empty(arr_onkna[j,5])
+          mo_add_xml_stroke(oPRESCRIPTIONS,"NAPR_MO",arr_onkna[j,5])
+         endif
+        next j
+       endif
       endif
     endif
     if is_KSG
@@ -2340,11 +2353,11 @@ do while !eof()
           mo_add_xml_stroke(oPROT,"PROT",lstr(arr_onkpr[j,1]))
           mo_add_xml_stroke(oPROT,"D_PROT",date2xml(arr_onkpr[j,2]))
         next j
-        if human_->USL_OK < 3 .and. between(onksl->DS1_T,0,2) .and. len(arr_onk_usl) > 0
+        if human_->USL_OK < 3 .and. iif(human_2->VMP == 1, .t., between(onksl->DS1_T,0,2)) .and. len(arr_onk_usl) > 0
           select ONKUS
           find (str(human->kod,7))
           do while onkus->kod == human->kod .and. !eof()
-            if between(onkus->USL_TIP,1,5)
+           if between(onkus->USL_TIP,1,5)
             oONK := oONK_SL:Add( HXMLNode():New( "ONK_USL" ) )
              mo_add_xml_stroke(oONK,"USL_TIP",lstr(onkus->USL_TIP))
              if onkus->USL_TIP == 1
@@ -2376,7 +2389,7 @@ do while !eof()
               if onkus->PPTR > 0
                mo_add_xml_stroke(oONK,"PPTR",'1')
               endif
-            endif
+             endif
            endif
            select ONKUS
            skip

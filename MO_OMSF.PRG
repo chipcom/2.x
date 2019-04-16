@@ -1117,9 +1117,9 @@ if left(lshifr,2) == sl
 endif
 return fl
 
-***** 04.01.2019 редактировать другое направление (№...)
+***** 15.04.2019 редактировать другое направление (№...)
 Function change_num_napr()
-Local n, fl := .f., tmp_keys, tmp_gets, buf, tmp_color := setcolor()
+Local r, n, fl := .f., tmp_keys, tmp_gets, buf, tmp_color := setcolor()
 if emptyany(mNAPR_DATE,m1NAPR_V)
   func_error(4,"Ещё не заполнено направление № "+lstr(cur_napr))
   return .t.
@@ -1128,7 +1128,8 @@ tmp_keys := my_savekey()
 save gets to tmp_gets
 buf := savescreen()
 change_attr()
-if (n := input_value(4,33,6,77,color5,"Добавление/редактирование направления №",cur_napr,"99")) == NIL
+r := 4
+if (n := input_value(r,33,r+2,77,color5,"Добавление/редактирование направления №",cur_napr,"99")) == NIL
   // отказ
 elseif eq_any(n,0,cur_napr)
   // выбрали то же направление, что и редактируется

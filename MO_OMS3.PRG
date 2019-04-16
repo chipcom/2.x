@@ -10,7 +10,7 @@ Static sk := 1
 Local mas_pmt, mas_msg, mas_fun, j
 DEFAULT k TO 0
 do case
-  case k == 0 
+  case k == 0
     mas_pmt := {"~Собрать двойной случай",;
                 "Список ~двойных случаев",;
                 "~Разделить двойной случай"}
@@ -33,7 +33,7 @@ if k > 0
 endif
 return NIL
 
-***** 04.02.19 
+***** 04.02.19
 Function reconstruct_double_sl()
 Local human_3 := {;
    {"KOD"      ,   "N",     7,     0},; // код (номер записи)
@@ -95,7 +95,7 @@ if (arr_m := year_month(T_ROW,T_COL+5,,3)) != NIL
   index on upper(fio) to (cur_dir+"tmp_h2") ;
         while human->k_data <= arr_m[6] ;
         for tip_h == B_STANDART .and. schet < 1 .and. human_->reestr == 0 .and. human_->USL_OK == 1 ;
-                          .and. empty(human->ishod) .and. human_->profil != 158 .and. human_2->vmp == 0 
+                          .and. empty(human->ishod) .and. human_->profil != 158 .and. human_2->vmp == 0
   srec := 1
   go top
   do while !eof()
@@ -171,7 +171,7 @@ if (arr_m := year_month(T_ROW,T_COL+5,,3)) != NIL
               while human->k_data <= arr_m[6] ;
               for kod_k==glob_kartotek .and. kod!=glob_perso .and. schet<1 .and. ;
                   tip_h==B_STANDART .and. human_->reestr==0 .and. human_->USL_OK==1 .and. ;
-                  ishod==0 .and. human_->profil!=158 .and. human_2->vmp==0 
+                  ishod==0 .and. human_->profil!=158 .and. human_2->vmp==0
         go top
         do while !eof()
           select TMP_H
@@ -235,7 +235,7 @@ if (arr_m := year_month(T_ROW,T_COL+5,,3)) != NIL
                 human_3->KOD       := glob_perso
                 human_3->KOD2      := glob_perso2
                 human_3->KOD_DIAG  := human->kod_diag
-                human_3->N_DATA    := ln_data 
+                human_3->N_DATA    := ln_data
                 human_3->K_DATA    := lk_data2
                 human_3->USL_OK    := human_->USL_OK
                 human_3->VIDPOM    := human_->VIDPOM
@@ -280,7 +280,7 @@ if (arr_m := year_month(T_ROW,T_COL+5,,3)) != NIL
                 close databases
                 stat_msg("Операция слияния завершена!") ; mybell(2,OK)
                 rest_box(buf24)
-              endif  
+              endif
               G_SUnLock(str_sem2)
             else
               func_error(4,"В данный момент с карточкой этого пациента работает другой пользователь.")
@@ -291,7 +291,7 @@ if (arr_m := year_month(T_ROW,T_COL+5,,3)) != NIL
       else
         func_error(4,"В данный момент с карточкой этого пациента работает другой пользователь.")
       endif
-    endif  
+    endif
   endif
   yes_h_otd := old_yes_h_otd
   close databases
@@ -332,7 +332,7 @@ if (k := input_double_sl(1)) != NIL
   f_message(arr,,color8,color1)
   mybell(1) ; inkey(0)
   restscreen(buf)
-endif 
+endif
 return NIL
 
 ***** 05.02.19 снова разделить два случая
@@ -385,7 +385,7 @@ if (k := input_double_sl(2)) != NIL .and. G_SLock(str_sem)
 endif
 return NIL
 
-***** 25.02.19 
+***** 25.02.19
 Function input_double_sl(par)
 Static srec := 0
 Local buf, i, arr_m, buf24, blk, t_arr[BR_LEN], ret
@@ -403,14 +403,14 @@ if (arr_m := year_month(T_ROW,T_COL+5,,3)) != NIL
   go top
   if eof()
     func_error(4,"Не найдено двойных случаев "+arr_m[4])
-  else       
+  else
     if srec > 0
       Locate for kod == srec
       if !found()
         go top
       endif
     endif
-    t_arr[BR_TOP] := T_ROW 
+    t_arr[BR_TOP] := T_ROW
     t_arr[BR_BOTTOM] := maxrow()-2
     t_arr[BR_LEFT] := 2
     t_arr[BR_RIGHT] := 77
@@ -430,13 +430,13 @@ if (arr_m := year_month(T_ROW,T_COL+5,,3)) != NIL
     endif
   endif
   close databases
-  rest_box(buf24)       
-endif  
+  rest_box(buf24)
+endif
 return ret
 
 ***** 25.02.19
 Function f1_input_double_sl()
-Local fl, rec, rec3 
+Local fl, rec, rec3
 if (fl := (human_->ST_VERIFY == 5))
   rec3 := human_3->(recno())
   select HUMAN
@@ -452,7 +452,7 @@ if (fl := (human_->ST_VERIFY == 5))
   set index to (cur_dir+"tmp_h2")
   set relation to kod into HUMAN_, to str(kod,7) into HUMAN_3
   goto (rec)
-endif 
+endif
 return fl
 
 ***** 13.03.19 работаем по текущей записи
@@ -468,10 +468,10 @@ v_reabil_slux := 0
 m1veteran := 0
 m1mobilbr := 0  // мобильная бригада
 m1mesto_prov := 0
-m1p_otk := 0    // признак отказа 
+m1p_otk := 0    // признак отказа
 m1dopo_na := 0
 m1napr_v_mo := 0 // {{"-- нет --",0},{"в нашу МО",1},{"в иную МО",2}}, ;
-arr_mo_spec := {} 
+arr_mo_spec := {}
 m1napr_stac := 0 // {{"--- нет ---",0},{"в стационар",1},{"в дн. стац.",2}}, ;
 m1profil_stac := 0
 m1napr_reab := 0
@@ -481,8 +481,8 @@ is_disp_DVN := .f.
 ldate_next := ctod("")
 ar_dn := {}
 //
-is_oncology_smp := 0    
-is_oncology := f_is_oncology(1,@is_oncology_smp) 
+is_oncology_smp := 0
+is_oncology := f_is_oncology(1,@is_oncology_smp)
 if p_tip_reestr == 2
   is_oncology := 0
 endif
@@ -508,7 +508,7 @@ if eq_any(onksl->b_diag,98,99)
     aadd(arr_onkdi, {onkdi->DIAG_DATE,onkdi->DIAG_TIP,onkdi->DIAG_CODE,onkdi->DIAG_RSLT})
     skip
   enddo
-endif  
+endif
 //
 arr_onkpr := {}
 if human_->USL_OK < 3 // противопоказания по лечению только в стационаре и дневном стационаре
@@ -525,7 +525,7 @@ if eq_any(onksl->b_diag,0,7,8) .and. ascan(arr_onkpr,{|x| x[1] == onksl->b_diag 
 endif
 //
 arr_onk_usl := {}
-if between(onksl->DS1_T,0,2)
+if iif(human_2->VMP == 1, .t., between(onksl->DS1_T,0,2))
   select ONKUS
   find (str(human->kod,7))
   do while onkus->kod == human->kod .and. !eof()
@@ -534,7 +534,7 @@ if between(onksl->DS1_T,0,2)
     endif
     skip
   enddo
-endif  
+endif
 //
 select HU
 find (str(human->kod,7))
@@ -570,10 +570,10 @@ do while hu->kod == human->kod .and. !eof()
           tarif_zak_sl := hu->STOIM_1
           if !empty(human_2->pc1)
             akslp := List2Arr(human_2->pc1)
-          endif  
+          endif
           if !empty(human_2->pc2)
             akiro := List2Arr(human_2->pc2)
-          endif  
+          endif
         endif
         if !empty(akslp) .or. !empty(akiro)
           otd->(dbGoto(human->OTD))
@@ -584,12 +584,12 @@ do while hu->kod == human->kod .and. !eof()
           if _NYEAR == 2018
             t_arr := {"1331.0","1332.0","1333.0","1335.0","2127.0","2128.0","2130.0"}
             for i := 1 to len(t_arr)
-              if t_arr[i] == lshifr .and. !between(human_2->PN1,1,3) 
-                v_reabil_slux := human_2->PN1 
+              if t_arr[i] == lshifr .and. !between(human_2->PN1,1,3)
+                v_reabil_slux := human_2->PN1
               endif
             next
           endif
-        endif*/ 
+        endif*/
       endif
     else
       aadd(a_usl,hu->(recno()))
@@ -601,7 +601,7 @@ enddo
 if human_->USL_OK == 1 .and. human_2->VMP == 1 .and. !emptyany(human_2->VIDVMP,human_2->METVMP) // ВМП
   is_KSG := .f.
 endif
-if !empty(lvidpoms) 
+if !empty(lvidpoms)
   if !eq_ascan(atmpusl,"55.1.2","55.1.3") .or. glob_mo[_MO_KOD_TFOMS] == '801935' // ЭКО-Москва
     lvidpoms := ret_vidpom_licensia(human_->USL_OK,lvidpoms) // только для дн.стационара при стационаре
   endif
@@ -659,7 +659,7 @@ elseif eq_any(human->ishod,301,302) // профосмотры несовершеннолетних
                           ar[2],; // специальность
                           0,;     // цена
                           1})     // 1-отказ,2-невозможность
-          endif                
+          endif
         elseif (i := ascan(np_arr_osmotr, {|x| valtype(x[1]) == "C" .and. x[1] == lshifr})) > 0 // осмотры
           if (i := ascan(np_arr_osmotr_KDP2, {|x| x[1] == lshifr })) > 0
             lshifr := np_arr_osmotr_KDP2[i,3]  // замена врачебного приёма на 2.3.*
@@ -721,13 +721,13 @@ if between(m1napr_v_mo,1,2) .and. !empty(arr_mo_spec) // {{"-- нет --",0},{"в на
   for i := 1 to min(3,len(arr_mo_spec))
     aadd(arr_nazn[j,2],put_prvs_to_reestr(-arr_mo_spec[i],_NYEAR)) // "-", т.к. спец-ть была в кодировке V015
   next
-endif 
+endif
 if between(m1napr_stac,1,2) .and. m1profil_stac > 0 // {{"--- нет ---",0},{"в стационар",1},{"в дн. стац.",2}}, ;
   aadd(arr_nazn,{iif(m1napr_stac==1,5,4),m1profil_stac})
-endif 
-if m1napr_reab == 1 .and. m1profil_kojki > 0   
+endif
+if m1napr_reab == 1 .and. m1profil_kojki > 0
   aadd(arr_nazn,{6,m1profil_kojki})
-endif 
+endif
 cSMOname := ""
 if alltrim(human_->smo) == '34'
   cSMOname := ret_inogSMO_name(2)
@@ -743,10 +743,10 @@ if p_tip_reestr == 1
     if found() .and. !emptyany(inv->DATE_INV,inv->PRICH_INV)
       // дата начала лечения отстоит от даты первичного установления инвалидности не более чем на год
       fl_DISABILITY := (inv->DATE_INV < human->n_data .and. human->n_data <= addmonth(inv->DATE_INV,12))
-    endif 
+    endif
   endif
 else
-  afill(adiag_talon,0) 
+  afill(adiag_talon,0)
   for i := 1 to 16
     adiag_talon[i] := int(val(substr(human_->DISPANS,i,1)))
   next
