@@ -218,7 +218,7 @@ restscreen(buf)
 G_SUnLock(str_find)
 return NIL
 
-*****
+*****  10.03.19
 Function fi_opl_vz(nKey,oBrow,regim,lregim)
 Local ret := -1
 Local buf, fl := .f., rec, rec1, k := 14, tmp_color, arr, mdate, nfile, sh := 60
@@ -232,7 +232,7 @@ do case
       case is_task(X_ORTO) .and. par == 2 .and. nKey == K_F3
         arr := {}
         use_base("hum_oro")
-        use_base("hum_ort")
+        r_use_base("hum_ort")
         find (str(glob_kartotek,7))
         do while human->kod_k == glob_kartotek
           select HO

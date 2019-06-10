@@ -124,7 +124,7 @@ do case
   case k == 32
     pl_napr2vrach()
   case k == 71
-    pl1_priemden(1)
+    pl2_priemden(1)
   case k == 72
     pl1_priemden(2)
   case k == 73
@@ -5127,6 +5127,7 @@ next
 asort(arr)
 return arr
 
+*
 ***** 02.05.18
 Function pl1_priemden(tip)
 //  1 - á¢®¤­ë©
@@ -5334,6 +5335,194 @@ fclose(fp)
 viewtext(n_file,,,,(sh>80),,,1)
 rest_box(buf)
 return NIL
+
+
+*
+
+***** 02.04.19
+Function pl2_priemden(tip)
+//  2 - ¯® ª áá®¢ë¬  ¯¯ à â ¬
+//  3 - ¯® ª áá¨à ¬
+Local fl := .t., buf := save_row(maxrow()), sm := 0, HH := 51,;
+      n_file := "platn.txt", arr_m, sum3 := 0, sh, sm_sn := 0, arr_dms,;
+      sm_1 := 0, sm_2 := 0, vrem_kas, sm1, sm2, t_name_ysl, mas_name := {},;
+      t, t1
+
+Local arr_title := {;
+  "ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ",;
+  "                                                          ³        ˆ’ƒ       ",;
+  "                          “á«ã£¨                          ÃÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄ",;
+  "                                                          ³ Š®«-¢® ³   ‘ã¬¬    ",;
+  "ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄ";
+  }
+Local arr_1title := {;
+  "ÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ",;
+  "³",;
+  "ÃÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄ",;
+  "³ Š®«-¢® ³   ‘ã¬¬    ",;
+  "ÁÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄ";
+  }
+Private krvz, lpole, spole
+Private arr_kkm := {}
+if (krvz := fbp_tip_usl(T_ROW,T_COL-5,@arr_dms)) == NIL
+  return NIL
+endif
+if (arr_m := year_month()) == NIL
+  return NIL
+endif
+//
+mywait()
+dbcreate(cur_dir+"tmp", {{"kod",        "N",  4,  0},;
+                         {"name",       "C", 65,  0},;
+                         {"full_name",  "C",120,  0},;
+                         {"kod_1",      "C", 10,  0},;
+                         {"kol_vo",     "N", 10,  0},;
+                         {"summa",      "N", 12,  2},;
+                         {"operat",     "N",  3,  0},;
+                         {"operatf",    "C", 40,  0},;
+                         {"summa1",     "N", 12,  2},;
+                         {"kol_vo1",    "N", 10,  0},;
+                         {"summa2",     "N", 12,  2},;
+                         {"kol_vo2",    "N", 10,  0},;
+                         {"summa3",     "N", 12,  2},;
+                         {"kol_vo3",    "N", 10,  0},;
+                         {"summa4",     "N", 12,  2},;
+                         {"kol_vo4",    "N", 10,  0},;
+                         {"summa5",     "N", 12,  2},;
+                         {"kol_vo5",    "N", 10,  0},;
+                         {"summa6",     "N", 12,  2},;
+                         {"kol_vo6",    "N", 10,  0},;
+                         {"summa7",     "N", 12,  2},;
+                         {"kol_vo7",    "N", 10,  0},;
+                         {"summa8",     "N", 12,  2},;
+                         {"kol_vo8",    "N", 10,  0};
+                         })
+use (cur_dir+"tmp") new
+index on str(kod,4) to (cur_dir+"tmp_u")
+R_Use(dir_server+"hum_p",,"HUM")
+R_Use(dir_server+"hum_p_U",dir_server+"hum_p_U","HUM_U")
+select HUM
+go top
+sum3 := 0
+do while !eof()
+  if arr_m[5] <= hum->N_data .and. hum->n_data <= arr_m[6] .AND.;
+     ascan(krvz,hum->tip_usl) > 0 //16.04.08
+    //sm_sn += hum->SUM_VOZ  // 16.06.08
+    t := hum->(RECNO())
+    select HUM_U
+    find (str(t,7))
+    do while t == hum_u->kod .and. !eof()
+      select TMP
+      find (str(hum_u->u_kod,4)+hum->FR_zavod)
+      if !found()
+        append blank
+        tmp->kod      := hum_u->u_kod
+        tmp->operat   := hum->KOD_OPER
+      endif
+      tmp->kol_vo := tmp->kol_vo + hum_u->kol
+      tmp->summa  := tmp->summa  + hum_u->stoim
+      if (i := ascan(arr_kkm, {|x| alltrim(x[1]) == alltrim(hum->FR_zavod)})) == 0
+        aadd(arr_kkm, {hum->FR_zavod,0,0})
+        i := len(arr_kkm)
+      endif
+      t1 := lstr(i)
+      Spole := "tmp->summa"+t1
+      kpole := "tmp->kol_vo"+t1
+      &spole := &spole + hum_u->stoim
+      &kpole := &kpole + hum_u->kol
+      select HUM_U
+      skip
+    enddo
+  endif
+  select HUM
+  skip
+enddo
+//
+R_Use(dir_server+"uslugi",,"USL")
+select TMP
+go top
+do while !eof()
+  t := tmp->kod
+  select usl
+  goto t
+  select tmp
+  tmp->name       := usl->name
+  tmp->full_name  := usl->full_name
+  tmp->kod_1      := usl->shifr
+  skip
+enddo
+//
+select TMP
+index on kod_1 to (cur_dir+"tmp_u")
+fp := fcreate(n_file) ; n_list := 1 ; tek_stroke := 0
+for i := 1 to len(arr_kkm)
+  arr_title[1] := arr_title[1] + arr_1title[1]
+  arr_title[2] := arr_title[2] + arr_1title[2]+ padc(alltrim(arr_kkm[i,1]),20)
+  arr_title[3] := arr_title[3] + arr_1title[3]
+  arr_title[4] := arr_title[4] + arr_1title[4]
+  arr_title[5] := arr_title[5] + arr_1title[5]
+next
+sh := len(arr_title[1])
+add_string(center("¯« â  ãá«ã£",sh))
+add_string(center("¯® ¤ â¥ ­ ç «  «¥ç¥­¨ï",sh))
+add_string(center(arr_m[4],sh))
+tit_tip_usl(krvz,arr_dms,sh) //16.04.08
+add_string("")
+aeval(arr_title, {|x| add_string(x) })
+index on kod_1 to (cur_dir+"tmp_u")
+go top
+sm1 := 0
+sm2 := 0
+do while !eof()
+  if verify_FF(HH,.t.,sh)
+    aeval(arr_title, {|x| add_string(x) } )
+  endif
+  if !empty(tmp->full_name)
+    t_name_ysl := tmp->full_name
+  else
+    t_name_ysl := tmp->name
+  endif
+  for i := 1 to perenos(mas_name,t_name_ysl,48)
+    if i == 1
+      t_str := tmp->kod_1+padr(mas_name[i],48)+;
+                 STR(tmp->kol_vo,9)+;
+                 put_kope(tmp->summa,12)
+      for j := 1 to len(arr_kkm)
+        t1 := lstr(j)
+        Spole := "tmp->summa"+t1
+        kpole := "tmp->kol_vo"+t1
+        t_str += (STR(&kpole,9) + put_kope(&spole,12))
+        arr_kkm[j,2] += &kpole
+        arr_kkm[j,3] += &spole
+      next
+      add_string(t_str)
+    else
+      add_string(space(10)+mas_name[i])
+    endif
+  next
+  sm1 += tmp->kol_vo
+  SM2 += tmp->summa
+  skip
+enddo
+
+add_string(replicate("Ä",sh))
+t_str := padR("ˆâ®£®: ",58)+;
+             STR(SM1,9)+;
+             put_kope(SM2,12)
+for j := 1 to len(arr_kkm)
+  t_str += (STR(arr_kkm[j,2],9) + put_kope(arr_kkm[j,3],12))
+next
+add_string(t_str)
+add_string(replicate("Ä",sh))                 // 16.06.08
+//add_string(padR("¨§ ­¨å ¢®§¢à â: ",67)+;
+//             put_kope(sm_sn,12))
+close databases
+fclose(fp)
+Private yes_albom := .t.
+viewtext(n_file,,,,(sh>80),,,6)
+rest_box(buf)
+return NIL
+
 
 ***** 02.12.12
 Function inputNplpozic(r,c,fl_max)
@@ -10456,7 +10645,11 @@ else
     find(str(human->(recno()),7))
     do while human->(recno()) == hu->kod .and. !eof()
       if hu->otd == tmp->otd
-        add_string("  "+padr(usl->name,60)+" "+put_kop(hu->stoim,12))
+        if glob_mo[_MO_KOD_TFOMS] == '171004' // Š-4
+          add_string("  "+padr(usl->full_name,60)+" "+put_kop(hu->stoim,12))
+        else
+          add_string("  "+padr(usl->name,60)+" "+put_kop(hu->stoim,12))
+        endif
       endif
       if verify_FF(HH,.t.,sh)
         aeval(arr_title, {|x| add_string(x) } )
@@ -10933,7 +11126,7 @@ return NIL
 *
 
 
-***** 01.03.19
+***** 27.03.19
 Function pl_priemshk()
 Local fl := .t., buf := save_row(maxrow()), sm2 := 0, HH := 52,;
       n_file := "platn.txt", arr_m, sh, krvz, arr_dms,;
@@ -10965,20 +11158,20 @@ endif
 //
 mywait()
 dbcreate(cur_dir+"tmp", {{"kod",     "N",  4,  0},;
-                 {"fio",     "C", 60,  0},;
-                 {"chek",    "N", 10,  0},;
-                 {"kod_hum", "N", 10,  0},;
-                 {"dogovor", "C", 10,  0},;
-                 {"operat",  "N", 10,  0},;
-                 {"operatf", "C", 40,  0},;
-                 {"operatd", "C", 40,  0},;
-                 {"FR_DATA", "D",  8,  0},;
-                 {"fr_time", "N",  5,  0},;
-                 {"t_flag",  "N",  1,  0},;
-                 {"summa",   "N", 12,  2},;
-                 {"kod_vr",  "N",  4,  0},;
-                 {"fio_vr",  "C", 60,  0},;
-                 {"summa_bn","N", 12,  2}})
+                         {"fio",     "C", 60,  0},;
+                         {"chek",    "N", 10,  0},;
+                         {"kod_hum", "N", 10,  0},;
+                         {"dogovor", "C", 10,  0},;
+                         {"operat",  "N", 10,  0},;
+                         {"operatf", "C", 40,  0},;
+                         {"operatd", "C", 40,  0},;
+                         {"FR_DATA", "D",  8,  0},;
+                         {"fr_time", "N",  5,  0},;
+                         {"t_flag",  "N",  1,  0},;
+                         {"summa",   "N", 12,  2},;
+                         {"kod_vr",  "N",  4,  0},;
+                         {"fio_vr",  "C", 60,  0},;
+                         {"summa_bn","N", 12,  2}})
 use (cur_dir+"tmp") new
 if yes_parol
   R_Use(dir_server+"base1",,"BASE1")
@@ -10987,59 +11180,59 @@ R_Use(dir_server+"kartotek",,"KART")
 R_Use(dir_server+"mo_pers",,"PERS")
 R_Use(dir_server+"hum_p_u",dir_server+"hum_p_u","HUM_U")
 R_Use(dir_server+"hum_p",dir_server+"hum_pkk","HUM")
+index on fr_data  to (cur_dir+"tmp_uu") for !empty(fr_data)
 // index on str(kod_k,7)+dtos(k_data)+str(KV_CIA,6) to (dir_server+"hum_pkk") descending progress
-go top
-do while !eof()
-  if !empty(hum->fr_data) .and. between(hum->fr_data,arr_m[7],arr_m[8]) ;
-                          .and. ascan(krvz,hum->tip_usl) > 0
-    if hum->kod_oper == asc(kod_polzovat) .or. tip_polzovat == 0
-      select KART
-      goto (hum->kod_k)
-      select TMP
-      append blank
-      tmp->fio      := kart->fio
-      tmp->chek     := hum->kv_cia
-      tmp->kod_hum  := hum->kod_k
-      tmp->fr_data  := c4tod(hum->fr_data)
-      tmp->fr_time  := hum->fr_time
-      tmp->summa    := hum->cena
-      tmp->summa_bn := hum->sbank
-      tmp->operat   := hum->kod_oper
-      tmp->dogovor  := lstr(hum->kod_k)
-      if glob_mo[_MO_KOD_TFOMS] == '171004' // Š-4
-        nom_prihod := 0
-        t_hum_rec := hum->(recno())
-        kart_kod := hum->kod_k
-        t_k_data := year(hum->k_data)
-        select HUM
-        do while hum->kod_k == kart_kod .and. year(hum->k_data) == t_k_data .and. !eof()
-          ++nom_prihod
-          skip
-        enddo
-        goto (t_hum_rec)
-        tmp->dogovor  := lstr(hum->kod_k)+"/"+lstr(nom_prihod)
+//go top
+find(arr_m[7])
+do while hum->fr_data <= arr_m[8] .and. !eof()
+  if (hum->kod_oper == asc(kod_polzovat) .or. tip_polzovat == 0) .and.;
+      ascan(krvz,hum->tip_usl) > 0
+    select KART
+    goto (hum->kod_k)
+    select TMP
+    append blank
+    tmp->fio      := kart->fio
+    tmp->chek     := hum->kv_cia
+    tmp->kod_hum  := hum->kod_k
+    tmp->fr_data  := c4tod(hum->fr_data)
+    tmp->fr_time  := hum->fr_time
+    tmp->summa    := hum->cena
+    tmp->summa_bn := hum->sbank
+    tmp->operat   := hum->kod_oper
+    tmp->dogovor  := lstr(hum->kod_k)
+    if glob_mo[_MO_KOD_TFOMS] == '171004' // Š-4
+      nom_prihod := 0
+      t_hum_rec := hum->(recno())
+      kart_kod := hum->kod_k
+      t_k_data := year(hum->k_data)
+      select HUM
+      do while hum->kod_k == kart_kod .and. year(hum->k_data) == t_k_data .and. !eof()
+        ++nom_prihod
+        skip
+      enddo
+      goto (t_hum_rec)
+      tmp->dogovor  := lstr(hum->kod_k)+"/"+lstr(nom_prihod)
+    endif
+    if c4tod(hum->fr_data) != hum->n_data .or.;
+       c4tod(hum->fr_data) != hum->k_data
+      tmp->t_flag := 1
+    else
+      tmp->t_flag := 0
+    endif
+    if yes_parol .and. hum->KOD_OPER > 0
+      select BASE1
+      goto (hum->KOD_OPER)
+      if !eof() .and. !empty(base1->p1)
+        tmp->operatf := alltrim(crypt(base1->p1,gpasskod))
+        tmp->operatd := alltrim(crypt(base1->p5,gpasskod))
       endif
-      if c4tod(hum->fr_data) != hum->n_data .or.;
-         c4tod(hum->fr_data) != hum->k_data
-        tmp->t_flag := 1
-      else
-        tmp->t_flag := 0
-      endif
-      if yes_parol .and. hum->KOD_OPER > 0
-        select BASE1
-        goto (hum->KOD_OPER)
-        if !eof() .and. !empty(base1->p1)
-          tmp->operatf := alltrim(crypt(base1->p1,gpasskod))
-          tmp->operatd := alltrim(crypt(base1->p5,gpasskod))
-        endif
-      endif
-      select HUM_U
-      find (str(hum->(recno()),7))
-      if found()
-        select PERS
-        goto (hum_u->kod_vr)
-        tmp->fio_vr  := pers->fio
-      endif
+    endif
+    select HUM_U
+    find (str(hum->(recno()),7))
+    if found()
+      select PERS
+      goto (hum_u->kod_vr)
+      tmp->fio_vr  := pers->fio
     endif
   endif
   select HUM

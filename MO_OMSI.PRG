@@ -16,7 +16,7 @@ if !empty(_smo)
 endif
 return s
 
-***** просмотр/печать листов учёта
+***** 12.05.2019 просмотр/печать листов учёта
 Function o_list_uch()
 Local j := 0, buf := savescreen(), mtitul, func_step := "", r2 := maxrow()-2
 if polikl1_kart() > 0
@@ -31,8 +31,10 @@ if polikl1_kart() > 0
     R_Use(dir_server+"schet_",,"SCHET_"),;
     R_Use(dir_server+"schet",,"SCHET"),;
     dbSetRelation( "SCHET_", {|| recno()}, "recno()" ),;
+    R_Use(dir_server+"human_2",,"HUMAN_2"),;
     R_Use(dir_server+"human_",,"HUMAN_"),;
     R_Use(dir_server+"human",,"HUMAN"),;
+    dbSetRelation( "HUMAN_2", {|| recno()}, "recno()" ),;
     dbSetRelation( "HUMAN_", {|| recno()}, "recno()" ),;
     dbSetRelation( "OTD", {|| otd}, "otd" ),;
     dbSetRelation( "SCHET", {|| schet}, "schet" ) }
@@ -113,7 +115,7 @@ if k >= B_SCHET  // добавление номера счета
 endif
 return s
 
-*****
+***** 12.05.2019
 Function f3o_list_uch()
 Local s := "Добавление "+date_8(c4tod(human->date_e))+"г. "
 if asc(human->kod_p) > 0
@@ -122,6 +124,8 @@ if asc(human->kod_p) > 0
   if !eof() .and. !empty(base1->p1)
     s += alltrim(crypt(base1->p1,gpasskod))+" "
   endif
+elseif human_2->PN3 > 0
+  s += "ИМПОРТ "
 endif
 if !empty(human_->DATE_E2)
   s := alltrim(s)+", "
@@ -177,7 +181,7 @@ if fl
 endif
 return k
 
-***** 11.04.19
+***** 12.05.19
 Function print_l_uch(mkod, par, regim, lnomer)
 // mkod - код больного по БД human
 Local sh := 80, HH := 77, buf := save_maxrow(),;
@@ -269,10 +273,8 @@ if mvid_ud > 0
 endif
 mpolis := alltrim(rtrim(human_->SPOLIS)+" "+human_->NPOLIS)+" ("+;
           alltrim(inieditspr(A__MENUVERT, mm_vid_polis, human_->VPOLIS))+")"
-madres := iif(emptyall(kart_->okatog,kart->adres), "",;
-              ret_okato_ulica(kart->adres,kart_->okatog))
-madresp := iif(emptyall(kart_->okatop,kart_->adresp), "",;
-               ret_okato_ulica(kart_->adresp,kart_->okatop))
+madres := iif(emptyall(kart_->okatog,kart->adres), "", ret_okato_ulica(kart->adres,kart_->okatog))
+madresp := iif(emptyall(kart_->okatop,kart_->adresp), "", ret_okato_ulica(kart_->adresp,kart_->okatop))
 //
 if human->tip_h >= B_SCHET .and. human->schet > 0 // добавление номера счета
   R_Use(dir_server+"schet_",,"SCHET_")
@@ -3915,7 +3917,7 @@ if k > 10
 endif
 return NIL
 
-***** 14.03.19
+***** 05.05.19
 FUNCTION pr_sprav_onk_vmp()
 Static mm_usl_tip := {'"Хирургическое лечение"',;
                       '"Лекарственная противоопухолевая терапия"',;
@@ -3934,7 +3936,7 @@ for i := 1 to 1000
   find (str(i,3))
   if found()
     verify_FF(HH,.t.,sh)
-    s := str(i,3)+"  "+mm_usl_tip[OVMP->USL1]
+    s := str(i,3)+"  "+iif(between(OVMP->USL1,1,6), mm_usl_tip[OVMP->USL1], lstr(OVMP->USL1))
     if ovmp->usl2 > 0
       s += iif(ovmp->tip == 0, " или ", " и ")+mm_usl_tip[OVMP->USL2]
     endif

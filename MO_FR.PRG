@@ -100,7 +100,8 @@ if k == 1
          meK_kassa  := 1,;  // рабочее место кассира
          meK_pr_FIO := 1,;
          MEK_KASSIR := space(20),;
-         mek_chek   := 1
+         mek_chek   := 1,;
+         mek_bnbank := 2
          //meK_sdacha := 1,;
          //meK_w_sdac := 1,;
 
@@ -116,7 +117,7 @@ if k == 1
     if iif(glob_task == X_KASSA,.T.,glob_kassa == 1) .and. mek_kassa == 1
       Private drvFR
       IF ( drvFR := win_oleCreateObject( "AddIn.DrvFr" ) ) != NIL
-        FR_ZAMENA_otrezka()
+        FR_ZAMENA_otrezka(2)
         fiskal_inf_fr()
       endif
     endif
@@ -137,12 +138,14 @@ elseif k == 2
           mmek_pr_fio, m1mek_pr_fio := mek_pr_fio,;
           mnkassa := space(10), m1nkassa := 0,;
           mkassir := mek_kassir,;
-          mmek_chek := m1mek_chek := mek_chek
+          mmek_chek := m1mek_chek := mek_chek,;
+          mmeK_bnbank, m1meK_bnbank := meK_bnbank
          // mmeK_otrez, m1meK_otrez := meK_otrez,;
          //mmeK_lof_fi, m1meK_lof_fi := meK_lof_fi,;
 
 
   mmeK_bank   := inieditspr(A__MENUVERT,mm_da_net,m1meK_bank)
+  mmeK_bnbank   := inieditspr(A__MENUVERT,mm_da_net,m1meK_bnbank)
   mmeK_kassa  := inieditspr(A__MENUVERT,mm_da_net,m1meK_kassa)
   //mmeK_otrez  := inieditspr(A__MENUVERT,mm_da_net,m1meK_otrez)
   mmek_pr_fio := inieditspr(A__MENUVERT,mm_da_net,m1mek_pr_fio)
@@ -157,18 +160,20 @@ elseif k == 2
       @ ++ix,3 say "Вызов драйвера ..." get mnkassa ;
                 reader {|x|menu_reader(x,{{||FR_draiver()}},A__FUNCTION,,,.f.)}
     endif
-
     @ ++ix,3 say "Сумма денег, внесенная в кассу УТРОМ" get mostatok  pict "999999.99"
-      ++ix
+//      ++ix
 //    @ ++ix,3 say "Запрашивать вносимую покупателем сумму и подсчитывать сдачу?" get msdacha ;
 //                reader {|x|menu_reader(x,mm_da_net,A__MENUVERT,,,.f.)}
 //    @ ++ix,3 say "Печатать вносимую покупателем сумму и сдачу в чек?" get mw_sdacha ;
 //                reader {|x|menu_reader(x,mm_da_net,A__MENUVERT,,,.f.)}
     if tip_polzovat == 0
       ++ix
+      @ ++ix,3 say "Учреждение принимает оплату банковскими переводами ?" get mmeK_bnbank ;
+                  reader {|x|menu_reader(x,mm_da_net,A__MENUVERT,,,.f.)}
+//      ++ix
       @ ++ix,3 say "Работать с банковскими картами ?" get mmeK_bank ;
                   reader {|x|menu_reader(x,mm_da_net,A__MENUVERT,,,.f.)}
-      ++ix
+//      ++ix
       @ ++ix,3 say "Это рабочее место кассира ?" get mmeK_kassa ;
                   reader {|x|menu_reader(x,mm_da_net,A__MENUVERT,,,.f.)}
 //      @ ++ix,3 say "Проводить программную отрезку чека?" get mmeK_otrez ;
@@ -188,6 +193,7 @@ elseif k == 2
     mek_kassir := mkassir
     if tip_polzovat == 0
       mek_bank   := m1mek_bank
+      mek_bnbank := m1mek_bnbank
       mek_kassa  := m1mek_kassa
 //      meK_otrez  := m1meK_otrez
       mek_pr_fio := m1mek_pr_fio
@@ -284,7 +290,7 @@ tt1 := tt[FR_R_TIME] ; cur_time := time()
 buf := box_shadow(r1,5,r2,74)
 setcolor(color8)
 str_center(r1+2,"Предупреждение!")
-str_center(r1+3,"Этот режим пердназначен для синхронизации времени")
+str_center(r1+3,"Этот режим предназначен для синхронизации времени")
 str_center(r1+4,"между персональным компьютером и фискальным регистратором.")
 str_center(r1+5,"Время в ФР "+tt1+"   Время в компьютере "+cur_time)
 mark_keys({tt1,cur_time},"G+/B")
@@ -357,7 +363,7 @@ if (fl := empty(s_err := FR_normgach(tip)))
     n_message({"","Гашение суточного отчета выполнено!"},,;
               color1,cDataCSay,,,color8)
   endif
-  FR_otrezka(1,2)
+  FR_otrezka(1,3)
   rest_box(buf)
 else
   rest_box(buf)
@@ -411,7 +417,7 @@ if (fl := empty(s_err := FR_prodol()))
   rest_box(buf)
   mywait()
   stat_msg("Команда выполнена!")
-  FR_otrezka(1)
+  FR_otrezka(1,2)
   rest_box(buf)
 else
   rest_box(buf)
@@ -439,7 +445,7 @@ if (fl := empty(s_err := FRCH_annul()))
   rest_box(buf)
   mywait()
   stat_msg("Команда выполнена!")
-  FR_otrezka(1)
+  FR_otrezka(1,2)
   rest_box(buf)
 else
   rest_box(buf)
@@ -476,7 +482,7 @@ if (fl := empty(s_err := FRN_PrintDepartmentReport()))
   rest_box(buf)
   mywait()
   stat_msg("Команда выполнена!")
-  FR_otrezka(1,2)
+  FR_otrezka(1,3)
   rest_box(buf)
 else
   rest_box(buf)
@@ -513,7 +519,7 @@ if (fl := empty(s_err := FRN_PrintTaxReport()))
   rest_box(buf)
   mywait()
   stat_msg("Команда выполнена!")
-  FR_otrezka(1,2)
+  FR_otrezka(1,3)
   rest_box(buf)
 else
   rest_box(buf)
@@ -647,14 +653,18 @@ return NIL
 
 *
 
-***** 07.08.17
+***** 03.06.19
 Function yes_chek(/*@*/vsum,/*@*/vsd,/*@*/vbank,rm,/*@*/address,/*@*/tip_kart)
 Static spict := "9999999.99"
 Local tip_bank_kart := {{"МИР",1},;
                         {"VISA",2},;
-                        {"MasterCard",3}}
+                        {"MasterCard",3},;
+                        {"БАНКОВСКИЙ ПЕРЕВОД",4}}
 Local j, fl := .f., tmp_color, buf, buf24, a[3], r := 16
 //
+if  mek_bnbank == 2
+  asize(tip_bank_kart,3) 
+endif
 if p_summa >= 0 //касса по 54-ФЗ
   tmp_color := setcolor(cDataCGet)
   Private vnos_summa := 0, bank_summa := 0,;
@@ -821,7 +831,7 @@ return update_gets()
 *
 
 
-*****  12.08.18
+*****  19.04.19
 Function chek_fr(vsum,vsd,/*@*/cur_chek,vbank,sekcia,/*@*/fr_serial_number,address,tip_kart,tip_oplat)
 Local fl := .t., name_tov, buf := save_maxrow(), ;
       s_err := "", s, last_chek := 0, fl_str := 0, fl_err_annul := .f., ;
@@ -837,6 +847,10 @@ fr_serial_number := ""
 mywait()
 //
 tt1 := FR_ret_dan()
+if empty(tt1)
+  return func_error(4,'КАССА НЕ ОТВЕЧАЕТ')
+endif
+//
 last_chek        := tt1[FR_R_NOMER]
 cur_chek         := tt1[FR_R_NOMER]
 lfr_data         := dtoc4(tt1[FR_R_DATE])
@@ -849,9 +863,14 @@ if tt1[FR_R_REGIM] == 4  // смена не открыта
   // oper_parol
   if oper_parol > 0 .and. oper_parol < 31
     t_vrem := FR_ReadPassword(oper_parol)
-    if substr(alltrim(t_vrem[1]),1,6) == "КАССИР" //alltrim(fio_polzovat)
-      FR_WritePassword(oper_parol,fio_polzovat)
-    endif
+    //if substr(alltrim(t_vrem[1]),1,6) == "КАССИР" //alltrim(fio_polzovat)
+    FR_WritePassword(oper_parol,fio_polzovat)
+    //endif
+  endif
+  if FR_Read_otrezka() > 0
+    meK_otrez  := 2 // не отрезать
+  else
+    meK_otrez  := 1 // отрезать
   endif
   // открыть смену.
   FRCHN_OpenSession()
@@ -937,9 +956,9 @@ if fl
   //tt1 := FR_ret_dan()
   if mek_chek == 1
     //cur_chek := tt1[FR_R_NOMER]-1 //
-    cur_chek := FR_ret_dok()-1
+    cur_chek := FR_ret_dok()+1
   else
-    cur_chek := FR_ret_chek()-1
+    cur_chek := FR_ret_chek() //-1
   endif
   if !isbit(sost,10)
     func_error(4,"Заканчивается ЧЕКОВАЯ лента.")
@@ -961,11 +980,11 @@ elseif !fl
   write_err_kassa(s_err,"ЧЕК АННУЛИРОВАН")
 endif
 //
-FR_otrezka(1)
+FR_otrezka(1,2)
 //
-if type("delta_chek") == "N"
-  cur_chek += delta_chek
-endif
+//if type("delta_chek") == "N"
+//  cur_chek += delta_chek
+//endif
 return fl
 
 
@@ -1022,7 +1041,9 @@ select TMP
 go top
 do while !eof()
   if fl .and. tmp->kol1 > 0
-    s_err := FRCHF_registr(tmp->u_cena,tmp->kol1,sekcia,tmp->name_u,0,2,4,4)
+    s_err := FRCHF_registr(tmp->vz_cena,tmp->kol1,sekcia,tmp->name_u,0,2,4,4)
+    // доработка 05.19
+    //s_err := FRCHF_registr(tmp->u_cena,tmp->kol1,sekcia,tmp->name_u,0,2,4,4)
     if (fl := empty(s_err))
       //++cs //количество продаж
     else
@@ -1078,9 +1099,9 @@ elseif !fl
 endif
 //
 FR_otrezka(1)
-if type("delta_chek") == "N"
-  cur_chek += delta_chek
-endif
+//if type("delta_chek") == "N"
+//  cur_chek += delta_chek
+//endif
 //
 return fl
 
@@ -1468,6 +1489,8 @@ elseif tip_kart == 2 //VISA
   drvFR:Summ3 := summa1
 elseif tip_kart == 3 //Masterkard
   drvFR:Summ4 := summa1
+elseif tip_kart == 4 //Банковский перевлд
+  drvFR:Summ5 := summa1
 endif
 drvFR:RoundingSumm := 0  //Сумма округления
 drvFR:StringForPrinting := name
@@ -1678,7 +1701,7 @@ Function FR_ret_dan()
 Local mas_vozvr := {}, t, t1, t2, i, t4
 drvFR:Password := oper_parol
 for i := 1 to FR_R_LEN
-  t := ""
+  t := " "
   aadd(mas_vozvr,t)
 next
 IF drvFR:GetECRStatus() < 0 //ошибка
@@ -2035,11 +2058,14 @@ return drvFR:ValueOfFieldInteger
 *
 
 ***** 24.12.18
-function FR_ZAMENA_otrezka()
+function FR_ZAMENA_otrezka(tip)
+DEFAULT tip to 1
 
-if FR_Read_otrezka() > 0
-  meK_otrez  := 2 // не отрезать
-else
-  meK_otrez  := 1 // отрезать
+if tip > 1
+  if FR_Read_otrezka() > 0
+    meK_otrez  := 2 // не отрезать
+  else
+    meK_otrez  := 1 // отрезать
+  endif
 endif
 return NIL

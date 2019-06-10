@@ -5143,7 +5143,7 @@ for i := 1 to len(a_reestr)
               cFile := arr_f[n]
               // читаем XML-файл в память
               oXmlDoc := HXMLDoc():Read(_tmp_dir1+cFile)
-              if empty( oXmlDoc:aItems )
+              if oXmlDoc == NIL .or. empty( oXmlDoc:aItems )
                 strfile(full_zip+": ошибка в чтении файла"+hb_eol(),cImportProtokol,.t.)
                 fl := .f. ; exit
               endif
@@ -5211,7 +5211,7 @@ for i := 1 to len(a_reestr)
               cFile := arr_f[n]
               // читаем XML-файл в память
               oXmlDoc := HXMLDoc():Read(_tmp_dir1+cFile)
-              if empty( oXmlDoc:aItems )
+              if oXmlDoc == NIL .or. empty( oXmlDoc:aItems )
                 strfile(a_reestr[i,7,j,1]+": ошибка в чтении файла"+hb_eol(),cImportProtokol,.t.)
                 fl := .f. ; exit
               endif

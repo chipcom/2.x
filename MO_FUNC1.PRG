@@ -154,8 +154,8 @@ if lUSL_OK < 4
     fl := .t. // при установленном ЗНО
   endif
 endif
-return fl  
-      
+return fl
+
 ***** работает хотя бы одно учреждение с талоном
 Function ret_is_talon()
 Local is_talon := .f., tmp_select := select()
@@ -182,7 +182,7 @@ Private tmp := readvar()
 &tmp := transform_shifr(&tmp)
 return .t.
 
-***** 15.01.2019 трансформирование шифра услуги (запятую на точку, посл.точку убрать)
+***** 15.01.19 трансформирование шифра услуги (запятую на точку, посл.точку убрать)
 Function transform_shifr(s)
 Local n := len(s)  // длина поля может быть 10 или 15 символов
 s := DelEndSymb(charrepl(",",s,"."),".") // запятую - на точку и удалить последнюю точку
@@ -191,11 +191,11 @@ if eq_any(left(s,1),"А","В") .and. substr(s,4,1) == "." ;
                .and. EMPTY(CHARREPL("0123456789", substr(s,2,2), SPACE(10)))
   s := iif(left(s,1)=="А","A","B")+substr(s,2)  // заменим на английскую A,B
 elseif eq_any(upper(left(s,2)),"ST","DS")
-  s := lower(s)  
+  s := lower(s)
 endif
 return padr(s,n)
 
-***** удалить все спецсимволы из строки
+***** 28.05.19 удалить все спецсимволы из строки и оставить по одному пробелу
 Function del_spec_symbol(s)
 Local i, c, s1 := ""
 for i := 1 to len(s)
@@ -205,7 +205,7 @@ for i := 1 to len(s)
     s1 += c
   endif
 next
-return s1
+return charone(" ",s1)
 
 ***** подставить впереди строки какое-то кол-во пробелов
 Function st_nom_stroke(lstroke)
@@ -316,7 +316,7 @@ Function ret_vid_pom(k,mshifr,lk_data)
 Local svp, vp := 0, lal, is_18 := .t.
 if valtype(lk_data) == "D"
   is_19 := (year(lk_data) > 2018)
-endif  
+endif
 if select("LUSL") == 0
   Use_base("lusl")
 endif
@@ -677,7 +677,7 @@ if !empty(_sys_date) .and. !empty(_mdate) .and. _sys_date > _mdate
     ++y
   enddo
   if y > 0 .and. correct_count_ym(_mdate,_sys_date)
-    --y  
+    --y
     //my_debug(,"исправление года")
   endif
   md := addmonth(_mdate,12*y)
@@ -685,7 +685,7 @@ if !empty(_sys_date) .and. !empty(_mdate) .and. _sys_date > _mdate
     ++m
   enddo
   if m > 0 .and. correct_count_ym(_mdate,_sys_date,2)
-    --m  
+    --m
     //my_debug(,"исправление месяца")
   endif
   md := addmonth(_mdate,12*y+m)
@@ -718,7 +718,7 @@ if !empty(_sys_date) .and. !empty(_mdate) .and. _sys_date > _mdate
     k++
   enddo
   if k > 0 .and. correct_count_ym(_mdate,_sys_date,2)
-    --k  
+    --k
   endif
 endif
 return k
@@ -733,7 +733,7 @@ if !empty(_sys_date) .and. !empty(_mdate) .and. _sys_date > _mdate
     k++
   enddo
   if k > 0 .and. correct_count_ym(_mdate,_sys_date)
-    --k  
+    --k
   endif
 endif
 return k
@@ -749,9 +749,9 @@ endif
 return ret_s
 
 ***** 23.12.18 лицо считается достигшим определённого возраста не в день рождения, а начиная со следующих суток
-Function correct_count_ym(_mdate,_sys_date,y_m) 
+Function correct_count_ym(_mdate,_sys_date,y_m)
 Local s1 := right(dtos(_mdate),4), s2 := right(dtos(_sys_date),4), fl := .f.
-DEFAULT y_m TO 1 
+DEFAULT y_m TO 1
 if s1 == s2 // проверяем равенство дня и месяца
   fl := .t.
 elseif s1 == "0229" .and. s2 == "0228" .and. !IsLeap(_sys_date) //_mdate - високосный год, а _sys_date - нет
@@ -1360,13 +1360,26 @@ else // остальные услуги
 endif
 return arr
 
-***** 30.01.16 ф-ия between для шифров услуг 
+***** 22.04.19 ф-ия between для шифров услуг
 Function between_shifr(lshifr,lshifr1,lshifr2)
-Local fl := .f.
+Local fl := .f., k, k1, k2, k3, v, v1, v2
+lshifr  := alltrim(lshifr)
+lshifr1 := alltrim(lshifr1)
+lshifr2 := alltrim(lshifr2)
 if len(lshifr) == len(lshifr1) .and. len(lshifr) == len(lshifr2)
-  fl := between(lshifr,lshifr1,lshifr2) 
+  fl := between(lshifr,lshifr1,lshifr2)
+else // для варианта between_shifr(_shifr,"2.88.52","2.88.103")
+  k := rat(".",lshifr)
+  k1 := rat(".",lshifr1)
+  k2 := rat(".",lshifr2)
+  if left(lshifr,k) == left(lshifr1,k1) .and. k == k1 .and. k1 == k2
+    v := int(val(substr(lshifr,k+1)))
+    v1 := int(val(substr(lshifr1,k1+1)))
+    v2 := int(val(substr(lshifr2,k2+1)))
+    fl := between(v,v1,v2)
+  endif
 endif
-return fl 
+return fl
 
 ***** 03.01.19 является ли шифр услуги кодом КСГ
 Function is_ksg(lshifr,k)
@@ -1391,7 +1404,7 @@ elseif left(lshifr,2) == "ds"
 endif
 if fl
   return fl // для 2019 года
-endif  
+endif
 if left(lshifr,1) $ "12" .and. substr(lshifr,5,1) == "." .and. len(lshifr) == 6 // 2018 год
   fl := .t.
   for i := 2 to 6
@@ -2207,7 +2220,7 @@ if valtype(ret_arr) == "A"
 endif
 return ret
 
-***** 23.12.15 в GET'е вернуть множественный выбор учреждений/отделений 
+***** 23.12.15 в GET'е вернуть множественный выбор учреждений/отделений
 Function ret_Nuch_Notd(k,r,c)
 Local lcount_uch, lcount_otd, s
 pr_a_uch := {} ; pr_a_otd := {}
@@ -2222,7 +2235,7 @@ if (st_a_uch := inputN_uch(-r,c,,,@lcount_uch)) != NIL
     R_Use(dir_server+"mo_otd",,"OTD")
     go top
     do while !eof()
-      if f_is_uch(st_a_uch,otd->kod_lpu) 
+      if f_is_uch(st_a_uch,otd->kod_lpu)
         aadd(pr_a_otd, {otd->(recno()),otd->name})
       endif
       skip
@@ -2232,16 +2245,16 @@ if (st_a_uch := inputN_uch(-r,c,,,@lcount_uch)) != NIL
 endif
 if (k := len(pr_a_uch)) == 0
   s := "Ничего не выбрано"
-elseif k == 1 
+elseif k == 1
   if (k := len(pr_a_otd)) == 1
     s := '"'+alltrim(pr_a_otd[1,2])+'" в "'+alltrim(glob_uch[2])+'"'
   else
     s := "Выбрано отделений: "+lstr(k)+' в "'+alltrim(glob_uch[2])+'"'
   endif
-else  
+else
   s := "Выбрано учреждений: "+lstr(k)
 endif
-return {k,charone('"',s)} 
+return {k,charone('"',s)}
 
 ***** 23.12.15 инициализация выборки нескольких типов счёта
 Function ini_ed_tip_schet(lval)

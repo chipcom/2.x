@@ -5,7 +5,7 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-*****
+***** 13.11.18
 Function begin_task_orto()
 Static n_zapusk := 0
 if n_zapusk == 0
@@ -27,9 +27,6 @@ else
   return .f.
 endif
 if glob_kassa == 1
-  //if hb_FileExists("__kassa_.log") .and. filesize("__kassa_.log") > 5000000
-  //  delete file __kassa_.log
-  //endif
   f5_sist_fr(1)
 endif
 return .t.
@@ -112,10 +109,11 @@ do case
           else
             G_RLock(forever)
           endif
-          replace dbf1->shifr with mshifr, dbf1->name with mname,;
-                  dbf1->col_f39 with m1col_f39
-          UNLOCK
-          COMMIT
+          dbf1->shifr   := mshifr
+          dbf1->name    := mname
+          dbf1->col_f39 := m1col_f39
+          dbf1->(dbUNLOCK())
+          dbCOMMITall()   //19.04
           oBrow:goTop()
           find (mshifr)
           ret := 0
@@ -159,14 +157,14 @@ popup_edit(dir_server+"ort_brk",T_ROW,T_COL-10,T_ROW+11,,1,,;
            "fdel_prich",,,,,,"Причины поломок протезов",col_tit_popup)
 return NIL
 
-*****
+***** 13.11.18
 Function fdel_prich(mkod)
 Local fl := .t., buf := save_row(maxrow())
 stat_msg("Ждите! Производится проверка на допустимость удаления данной причины")
-G_Use(dir_server+"hum_ort",,"HU")
+R_Use(dir_server+"hum_ort",,"HU")
 Locate for hu->PRICH_POL == mkod progress
 fl := !found()
-Use
+HU->(dbCloseArea())
 if !fl
   func_error(4,"Данная причина поломок встречается в других базах данных. Удаление запрещено!")
 endif
@@ -251,7 +249,7 @@ enddo
 restscreen(buf)
 return NIL
 
-*****
+*****  13.11.18
 Function dop_or_menu(tip,kod)
 Local mm_tmp := {}, buf, a_default, len_orto := 0, mas_pit :={}
 Local mm_tehnik := {{"ТЕХНИКОВ",0},;
@@ -294,8 +292,8 @@ init_base(cur_dir+"tmp",,mm_tmp,0)
 use (cur_dir+"tmp") new
 if tip != A__APPEND
   append blank
-  MT_use_base('tip_orto')
-  MT_use_base('ortoped1')
+  MT_R_use_base('tip_orto')
+  MT_R_use_base('ortoped1')
   index on str(kod_menu,4)+str(kod_ort,4) to (cur_dir+"tmp1")
   select TIP_ORTO
   goto kod
@@ -314,7 +312,7 @@ if tip != A__APPEND
 endif
 close databases
 if f_edit_spr(tip,mm_tmp,"настройке программы","g_use(cur_dir+'tmp',,,.t.,.t.)",0,1) > 0
-  MT_use_base('ortoped')
+  MT_R_use_base('ortoped')
   MT_use_base('ortoped1')
   index on str(kod_menu,4)+str(kod_ort,4) to (cur_dir+"tmp1")
   MT_use_base('tip_orto')
@@ -353,7 +351,7 @@ Function fdel_t_orto(k)
 Local fl := .t., buf := save_row(maxrow())
 return fl
 
-*****
+***** 13.11.18
 FUNCTION input_t_orto(r,c,mkod,top_bot)
 Static st := 0
 Local k, r1, r2, tmp_select
@@ -368,9 +366,9 @@ if (k := popup_edit(dir_server+"tip_orto",r1,c,r2,;
   st := k[1]
   if !top_bot .and. st != mkod
     tmp_select := select()
-    G_Use(dir_server+"tip_orto",,"ORT")
-    goto (st)
-    ort->(dbCloseArea())
+    //G_Use(dir_server+"tip_orto",,"ORT")
+    //goto (st)
+    //ort->(dbCloseArea())
     if tmp_select > 0
       select (tmp_select)
     endif
@@ -449,10 +447,10 @@ do case
           else
             G_RLock(forever)
           endif
-          replace dbf1->name with mname,;
-                  dbf1->kod with m1col_mat
-          UNLOCK
-          COMMIT
+          dbf1->name := mname
+          dbf1->kod  := m1col_mat
+          dbf1->(dbUNLOCK())
+          dbCOMMITall()   //19.04
           oBrow:goTop()
           find (upper(mname))
           ret := 0
@@ -539,10 +537,12 @@ do case
           else
             G_RLock(forever)
           endif
-          replace dbf1->shifr with mshifr, dbf1->kod_vr with m1kod_vr,;
-                  dbf1->kod_as with m1kod_as, dbf1->kod_ms with m1kod_ms
-          UNLOCK
-          COMMIT
+          dbf1->shifr  := mshifr
+          dbf1->kod_vr := m1kod_vr
+          dbf1->kod_as := m1kod_as
+          dbf1->kod_ms := m1kod_ms
+          dbf1->(dbUNLOCK())
+          dbCOMMITall()   //19.04
           oBrow:goTop()
           find (mshifr)
           ret := 0
@@ -566,7 +566,7 @@ return ret
 *
 
 //05.09.18
-***** Причины поломок протезов
+***** 13.11.18 Причины поломок протезов
 Function O_pr_polom()
 Local buf := save_row(maxrow()), sh, HH := 58, skol, arr, arr_title,;
       begin_date, end_date, name_file := "orto_pp"+stxt
@@ -613,7 +613,7 @@ else
   add_string(center("[ по дате окончания лечения ]",sh))
   add_string("")
   aeval(arr_title, {|x| add_string(x) } )
-  G_Use(dir_server+"ort_brk",,"PP")
+  R_Use(dir_server+"ort_brk",,"PP")
   select TMP
   set relation to kod into PP
   index on upper(pp->name) to (cur_dir+"tmp")
@@ -723,13 +723,15 @@ return NIL
 
 *
 
-*****
+***** 10.03.19
 Function opl_kart(mkod_human,mkod_lpu)
 // mkod_human - код по БД human
 Local adbf, buf := savescreen(), j := 0, tmp_color := setcolor(color1), ;
       l_color, mtitle, i, k
 mywait()
-G_Use(dir_server+"hum_ort",,"HUMAN")
+use_base("hum_ort")
+set order to 0
+//G_Use(dir_server+"hum_ort",,"HUMAN")
 goto (mkod_human)
 //
 Private fl_found, str_find, muslovie, mvu[3,2], mcena_opl := 0, flag_1 := .t.
@@ -762,8 +764,8 @@ Alpha_Browse(2,0,maxrow()-2,79,"fe_o_kopl",color1,mtitle,col_tit_popup,;
              .f.,.t.,arr_blk,"f1e_o_kopl","f2e_o_kopl",,;
              {'═','░','═',l_color,.t.,180} )
 // были добавлены строки оплаты
-if yes_parol .and. (mvu[1,1] > 0 .or. mvu[2,1] > 0 .or. mvu[3,1] > 0) ;
-             .and. hb_FileExists(dir_server+"mo_opern"+sdbf)
+if yes_parol .and. (mvu[1,1] > 0 .or. mvu[2,1] > 0 .or. mvu[3,1] > 0)
+//;              .and. hb_FileExists(dir_server+"mo_opern"+sdbf)
   k := glob_task+iif(human->tip_usl==OU_B_PLAT,100,0)
   close databases
   if G_Use(dir_server+"mo_opern",dir_server+"mo_opern","OP")
@@ -873,7 +875,7 @@ Function f3e_o_kopl()
 @ 23,2 say padl("Итого: "+lstr(mcena_opl,11,2),20) color "W+/N"
 return NIL
 
-***** 05.07.18
+***** 19.02.19
 Function f2e_o_kopl(nKey,oBrow)
 Static skod_vr := 0, sn_kvit := 0
 LOCAL flag := -1, buf := savescreen(), fl := .f., rec, ;
@@ -885,10 +887,13 @@ LOCAL flag := -1, buf := savescreen(), fl := .f., rec, ;
       menu_opl := {{"аванс               ",0},;
                    {"окончательная оплата",1},;
                    {"напыление           ",2}}
+Local menu_opl_chek := {{"аванс за ортопедические услуги по ",0},;
+                        {"окончательная оплата за ортопедические услуги по ",1},;
+                        {"за напыление по ",2}}
 Local err_close := "Данный лист учета ЗАКРЫТ. Доступ разрешен только администратору системы!"
 Local t_hum_rec, kart_kod, hum_o_kod, t_select
 //
-Private r1 := 12
+Private r1 := 13
 Private ldate_voz, lsum_voz, lfr_data, lfr_time
 if equalany(nKey,K_INS,K_ENTER,K_DEL)
   if !ver_pub_date(human->k_data,.t.)
@@ -964,6 +969,16 @@ do case
       mvrach := padr(perso->fio,35)
       mtabn_vr := perso->tab_nom
     endif
+    // 19.04
+    if glob_kassa == 1
+      //
+    else
+      if mem_ort_ysl == 1
+        r1 += 1
+      endif
+      r1 += 1
+    endif
+    //
     box_shadow(r1,0,23,79,color8,;
                iif(nKey == K_INS,"Добавление","Редактирование")+;
                        " строки оплаты ортопедической услуги","RB+/B")
@@ -995,7 +1010,7 @@ do case
                   valid {|g| f0e_o_kopl(g) }
       endif
       @ r1+ii,28 get mvrach when .f. color color14
-      ++ii
+      //++ii
       @ r1+ii,2 say "Примечание" get mprim
       status_key("^<Esc>^ - выход без записи;  ^<PgDn>^ - подтверждение записи")
       count_edit := myread(,@pos_read,++k_read)
@@ -1047,7 +1062,7 @@ do case
               ho->d_polis := ""
             endif
           endif
-          UNLOCK
+          ho->(dbUNLOCK()) //19.04
           mcena_opl := 0
           select HO
           find (str_find)
@@ -1055,8 +1070,8 @@ do case
           select HUMAN
           G_RLock(forever)
           human->cena_opl := mcena_opl
-          UNLOCK
-          COMMIT
+          human->(dbUNLOCK())
+          dbCOMMITall()   //19.04
           skod_vr := mkod_vr
           sn_kvit := mn_kvit
         endif
@@ -1083,8 +1098,8 @@ do case
         select HUMAN
         G_RLock(forever)
         replace human->cena_opl with mcena_opl
-        UNLOCK
-        COMMIT
+        human->(dbUNLOCK())
+        dbCOMMITall() //19.04
         flag := 0
         select HO
         oBrow:goTop()
@@ -1106,8 +1121,8 @@ do case
           select HUMAN
           G_RLock(forever)
           replace human->cena_opl with mcena_opl
-          UNLOCK
-          COMMIT
+          human->(dbUNLOCK())
+          dbCOMMITall() //19.04
           flag := 0
           select HO
           oBrow:goTop()
@@ -1132,8 +1147,8 @@ do case
         select HUMAN
         G_RLock(forever)
         replace human->cena_opl with mcena_opl
-        UNLOCK
-        COMMIT
+        human->(dbUNLOCK())
+        dbCOMMITall() //19.04
         flag := 0
         select HO
         oBrow:goTop()
@@ -1150,37 +1165,22 @@ do case
                         ho->is_kas == 2 .and. ho->cena_opl > 0
     buf := savescreen()
     ClrLine(23,color0)
-    adbf := {{"name", "C",40,0},;
-             {"vrach","C",40,0},;
-             {"cena", "N",10,2},;
-             {"kol",  "N", 5,1},;
-             {"nds20","N", 1,0},; //10.08.08
-             {"nds18","N", 1,0},; //10.08.08
-             {"nds10","N", 1,0}}
+    adbf := {{"name", "C",128,0},;
+             {"vrach","C", 40,0},;
+             {"cena", "N", 10,2},;
+             {"kol",  "N",  5,1},;
+             {"nds20","N",  1,0},; //10.08.08
+             {"nds18","N",  1,0},; //10.08.08
+             {"nds10","N",  1,0}}
     dbcreate(cur_dir+"tmp",adbf)
     use (cur_dir+"tmp") new
     adbf := {}
     select TMP
     append blank
-    tmp->name := inieditspr(A__MENUVERT, menu_opl, ho->tip_opl)+" наряд N "+lstr(human->nar_z)
+    tmp->name := inieditspr(A__MENUVERT, menu_opl_chek, ho->tip_opl)+" наряду N "+lstr(human->nar_z)
     tmp->cena := round_5(ho->cena_opl, 2)
     tmp->kol := round_5(1,0)
     // 10.08.08 - НДС
-    /*if round(tmp->cena,2) == round(usl->pcena_d,2) // дети
-      lnds := round_5(usl->pnds_d,0)
-    else // взрослые
-      lnds := round_5(usl->pnds,0)
-    endif
-    if lnds == 18
-      tmp->nds18 := 1
-    elseif lnds == 10
-      tmp->nds10 := 1
-    endif
-    */
-    //ho->(dbCloseArea())
-    //  menu_opl := {{"аванс               ",0},;
-    //               {"окончательная оплата",1},;
-    //               {"напыление           ",2}}
     if ho->tip_opl == 0
       tip_oplatFR := 3 // аванс
     else
@@ -1218,13 +1218,16 @@ return flag
 
 *
 
-*****
+***** 19.12.19
 Function vozvrat_orto()
 Local buf := savescreen(), sotgr, str_sem, s, ln_chek,;
       sum_bank, sum_nal, sum_itog, tip_banka,;
       menu_opl := {{"аванс               ",0},;
                    {"окончательная оплата",1},;
                    {"напыление           ",2}}
+Local menu_opl_chek := {{"аванс за ортопедические услуги по ",0},;
+                        {"окончательная оплата за ортопедические услуги по ",1},;
+                        {"за напыление по ",2}}
 
 Private  summa_oplat := 0, summa_oplat_bn := 0, p_summa := 0
 
@@ -1251,7 +1254,7 @@ else
   adbf := {}
   select TMP
   append blank
-  tmp->name_u := inieditspr(A__MENUVERT, menu_opl, ho->tip_opl)+" наряд N "+lstr(human->nar_z)
+  tmp->name_u := inieditspr(A__MENUVERT, menu_opl_chek, ho->tip_opl)+" наряду N "+lstr(human->nar_z)
   tmp->u_cena := round_5(ho->cena_opl, 2)
   tmp->kol1   := round_5(1,0)
   //
@@ -1273,14 +1276,12 @@ else
       // заносим возврат
       select HO
       G_RLock(forever)
-      replace ho->date_voz    with dtoc4(ldate_voz), ;
-              ho->sum_voz     with summa_oplat
-             /* ,;
-              ho->vzfr_data   with ,;
-              ho->vzfr_time   with ,;
-              ho->vzkod_oper  with ,;
-              ho->vzfr_zavod   with
-            */
+      ho->date_voz   := dtoc4(ldate_voz)
+      ho->sum_voz    := summa_oplat
+      ho->VZFR_DATA  := lfr_data
+      ho->VZFR_TIME  := lfr_time
+      ho->VZKOD_OPER := asc(kod_polzovat)
+      ho->VZFR_zavod := lstr(ln_chek)
       UnLock
       ho->(dbCommit())
       stat_msg("Сумма возврата записана!") ; mybell(1,OK)
@@ -1300,7 +1301,7 @@ Function kart_orto(r)
 Static snar_z := 0
 Local i, j, r2, ln, buf, str_sem, arr_n := {}
 //
-if glob_kassa == 1 .and. mek_kassa == 1  //.and. mek_nkassa == 1
+if glob_kassa == 1 .and. mek_kassa == 1
   Private drvFR
   IF ( drvFR := win_oleCreateObject( "AddIn.DrvFr" ) ) != NIL
     FR_ZAMENA_otrezka()
@@ -1461,7 +1462,7 @@ oBrow:addColumn(oColumn)
 mark_keys({"<Esc>","<Enter>","<Ins>","<Del>","<F2>","<Ctrl>+<Enter>","<Ctrl>+<O>","<F9/F10>"},"R/W")
 return NIL
 
-*****
+***** 12.05.19
 Function f3_k_orto(nKey,oBrow)
 LOCAL j := 0, flag := -1, buf := save_row(maxrow()), buf1, fl := .f., rec, mkod,;
       tmp_color := setcolor(), r, llpu, mkod_as, mn_data, buf2 := save_row(23),;
@@ -1504,8 +1505,8 @@ do case
       goto (rec)
     endif
   case nKey == K_F6 // занос техника и даты начала лечения из шапки в услуги
-    if f_Esc_Enter("занесения техника в услуги")
-      mKOD_AS     := human->kod_as        // код зубного техника
+    if f_Esc_Enter("занесения ДАТЫ в услуги")
+      //mKOD_AS     := human->kod_as        // код зубного техника
       MN_DATA     := human->N_DATA        // дата начала лечения
       rec := human->(recno())
       use_base("hum_oru")
@@ -1896,7 +1897,7 @@ do while .t.
       kart->bukva := mbukva
       kart->uchast := muchast
       kart->kod_vu := mkod_vu
-      Use
+      kart->(dbCloseArea())  //19.04
     endif
     select HUMAN
     if nKey == K_INS
@@ -1950,10 +1951,10 @@ do while .t.
     if regim == 1
       st_tip_usl := m1tip_usl
     endif
-    UnLock
-    Commit
+    human->(dbUNLOCK()) //19.04
+    dbCommitall()
     G_Use(dir_server+"hum_orpl",dir_server+"hum_orpl","KPLAT")
-    if len(alltrim(mplat_adres)) > 2 .or. len(alltrim(mplat_pasport)) > 2
+    if len(alltrim(mplat_adres)) > 2 //.or. len(alltrim(mplat_pasport)) > 2
       find (str(human->(recno()),7))
       if !found()
         append blank
@@ -1991,7 +1992,7 @@ return ret
 
 *
 
-*****
+***** 15.11.18
 Function v_ort_diag()
 Local n := 6, fl := .t., mshifr, tmp_select := select()
 Private mvar := readvar()
@@ -2004,7 +2005,7 @@ if !empty(mshifr)
     &mvar := space(n)
     fl := func_error(4,"Ортопедический диагноз с таким шифром не найден!")
   endif
-  Use
+  DBF1->(dbCloseArea())
   if tmp_select > 0
     select (tmp_select)
   endif
@@ -2054,7 +2055,7 @@ return fl
 
 *
 
-*****
+***** 15.11.18
 Function usl_ort_kart(mkod_human,mkod_lpu)
 // mkod_human - код по БД human
 Local adbf, buf := savescreen(), j := 0, tmp_color := setcolor(color1), ;
@@ -2088,7 +2089,8 @@ else
 endif
 //
 R_Use(dir_server+"uslugi",,"USL")
-G_Use(dir_server+"hum_oru",dir_server+"hum_oru","HU")
+R_Use(dir_server+"hum_oru",dir_server+"hum_oru","HU") //19.04
+//r_use_base("hum_oru") //19.04
 adbf := dbstruct()
 aadd(adbf, {"date_u1","D", 8,0} )
 aadd(adbf, {"shifr_u","C",10,0} )
@@ -2128,16 +2130,17 @@ tmp->(dbeval({|| tmp->number := ++j } ) )
 close databases
 //
 Private flag_1 := .t., arr_uva := {}
-G_Use(dir_server+"orto_uva",,"OU")
+R_Use(dir_server+"orto_uva",,"OU")
 dbeval({|| aadd(arr_uva, {alltrim(ou->shifr),ou->kod_vr,ou->kod_as,ou->kod_ms} ) } )
 ou->(dbCloseArea())
-if G_Use(dir_server+"hum_ort",,"HUMAN") .and. ;
-                    use_base("hum_oru") .and. ;
+if use_base("hum_ort").and. ;
+   use_base("hum_oru") .and. ;
    R_Use(dir_server+"uslugi",dir_server+"uslugish","USL") .and. ;
    R_Use(dir_server+"mo_otd",,"OTD") .and. ;
    R_Use(dir_server+"usl_otd",dir_server+"usl_otd","UO") .and. ;
    R_Use(dir_server+"mo_pers",dir_server+"mo_pers","PERSO")
   select HUMAN
+  set order to 0
   goto (mkod_human)
   last_date := max(human->n_data,last_date)
   pr1otd := human->otd
@@ -2169,8 +2172,8 @@ if G_Use(dir_server+"hum_ort",,"HUMAN") .and. ;
                .f.,.t.,,"f1e_o_kusl","f2e_o_kusl",,;
                {"═","░","═",l_color,.t.,180} )
   if yes_parol .and. (mvu[1,1] > 0 .or. mvu[2,1] > 0 .or. mvu[3,1] > 0 .or. ;
-                      mvp[1,1] > 0 .or. mvp[2,1] > 0 .or. mvp[3,1] > 0) ;
-               .and. hb_FileExists(dir_server+"mo_opern"+sdbf)
+                      mvp[1,1] > 0 .or. mvp[2,1] > 0 .or. mvp[3,1] > 0)
+//                       ;   .and. hb_FileExists(dir_server+"mo_opern"+sdbf)
     close databases
     if G_Use(dir_server+"mo_opern",dir_server+"mo_opern","OP")
       for i := 1 to 3
@@ -2306,9 +2309,9 @@ do case
       summa_usl(@mcena)
       select HUMAN
       G_RLock(forever)
-      replace human->cena with mcena
-      UNLOCK
-      COMMIT
+      human->cena := mcena
+      human->(dbUNLOCK()) //19.04
+      human->(dbCommit())
       restscreen(buf)
       f3e_o_kusl()
       select TMP
@@ -2502,7 +2505,7 @@ do case
                   hu->kol     with mkol,;
                   hu->date_u  with dtoc4(mdate_u1),;
                   hu->otd     with m1otd
-          UNLOCK
+          hu->(dbUNLOCK()) //19.04
           st_tip_usl := m1tip_usl
           pr1otd := m1otd
           adbf := array(fcount())
@@ -2520,8 +2523,8 @@ do case
           select HUMAN
           G_RLock(forever)
           human->cena := mcena
-          UNLOCK
-          COMMIT
+          human->(dbUNLOCK()) //19.04
+          dbCommitall()
         endif
       endif
       exit
@@ -2553,9 +2556,9 @@ do case
       summa_usl(@mcena)
       select HUMAN
       G_RLock(forever)
-      replace human->cena with mcena
-      UNLOCK
-      COMMIT
+      human->cena := mcena
+      human->(dbUNLOCK()) //19.04
+      dbCommitall()
       select TMP
       oBrow:goTop()
       go top
@@ -2764,7 +2767,7 @@ return fl
 
 *
 
-*****
+*****  15.11.18
 Function pr_zak_nar(tip_print) //21.05.08
 Static st_tip_usl := 0
 Local i := 1, j, k, s, fl, buf := save_row(maxrow())
@@ -3082,6 +3085,7 @@ if len(arr_mt) > 0
 endif
 //
 tmp11->(dbclosearea())
+hu->(dbclosearea())
 //
 orto_list_uch(tip_print)
 rest_box(buf)

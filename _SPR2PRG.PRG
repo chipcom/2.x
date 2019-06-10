@@ -124,8 +124,8 @@ aadd(af, {"V014.xml","Классификатор форм медицинской помощи",;
   {"DATEEND",  "D"}}})
 aadd(af, {"V015.xml","Классификатор медицинских специальностей",;
  {{"NAME",    "C"},;
-  {"CODE",    "N"},;   
-  {"HIGH",    "C"},;  
+  {"CODE",    "N"},;
+  {"HIGH",    "C"},;
   {"OKSO",    "C"},;
   {"DATEBEG", "D"},;
   {"DATEEND", "D"}}})
@@ -148,7 +148,7 @@ aadd(af, {"V020.xml","Классификатор профиля койки",;
   {"DATEEND",  "D"}}})
 aadd(af, {"V021.xml","Классификатор медицинских специальностей (последний)",;
  {{"SPECNAME","C"},;
-  {"IDSPEC",  "N"},;   
+  {"IDSPEC",  "N"},;
   {"DATEBEG", "D"},;
   {"DATEEND", "D"}}})
 aadd(af, {"T012.xml","Классификатор ошибок ИСОМП",;
@@ -178,7 +178,7 @@ for i := 1 to len(af)
   arr_UQ := {}
   if right(upper(af[i,1]),4) == ".XML" // XML-файл
     oXmlDoc := HXMLDoc():Read(af[i,1])
-    IF Empty( oXmlDoc:aItems )
+    IF oXmlDoc == NIL .or. Empty( oXmlDoc:aItems )
       ? "Ошибка в чтении файла",af[i,1]
       wait
     else
@@ -396,26 +396,30 @@ add_string("// 1 - NAME (C), 2 - CODE (N), 3 - NAME_F (C), 4 - DATE_B (D), 5 - D
 add_string("Public glob_T008 := {}")
 // читаем файл в память
 oXmlDoc := HXMLDoc():Read("T008.xml")
-FOR j := 1 TO Len( oXmlDoc:aItems[1]:aItems )
-  if Empty( oXmlDoc:aItems )
-    fl := func_error(4,"Ошибка в чтении файла "+nfile)
-    exit
-  endif
-  mNAME := ""
-  oXmlNode := oXmlDoc:aItems[1]:aItems[j]
-  if "ZGLV" == oXmlNode:title
-  elseif "ZAP" == oXmlNode:title
-    mNAME   := mo_read_xml_stroke(oXmlNode,"NAME")
-    mCODE   := mo_read_xml_stroke(oXmlNode,"CODE")
-    mNAME_F := mo_read_xml_stroke(oXmlNode,"NAME_F")
-    mDATE_B := charrem("-",(mo_read_xml_stroke(oXmlNode,"DATE_B")))
-    mDATE_E := charrem("-",(mo_read_xml_stroke(oXmlNode,"DATE_E")))
-  endif
-  if !empty(mNAME)
-    add_string('aadd(glob_T008,{"'+mNAME+'",'+mCODE+',"'+mNAME_F+'",'+;
-               'stod("'+alltrim(mDATE_B)+'"),stod("'+alltrim(mDATE_E)+'")})')
-  endif
-next j
+if oXmlDoc == NIL
+  fl := func_error(4,"Ошибка в чтении файла "+nfile)
+else
+  FOR j := 1 TO Len( oXmlDoc:aItems[1]:aItems )
+    if Empty( oXmlDoc:aItems )
+      fl := func_error(4,"Ошибка в чтении файла "+nfile)
+      exit
+    endif
+    mNAME := ""
+    oXmlNode := oXmlDoc:aItems[1]:aItems[j]
+    if "ZGLV" == oXmlNode:title
+    elseif "ZAP" == oXmlNode:title
+      mNAME   := mo_read_xml_stroke(oXmlNode,"NAME")
+      mCODE   := mo_read_xml_stroke(oXmlNode,"CODE")
+      mNAME_F := mo_read_xml_stroke(oXmlNode,"NAME_F")
+      mDATE_B := charrem("-",(mo_read_xml_stroke(oXmlNode,"DATE_B")))
+      mDATE_E := charrem("-",(mo_read_xml_stroke(oXmlNode,"DATE_E")))
+    endif
+    if !empty(mNAME)
+      add_string('aadd(glob_T008,{"'+mNAME+'",'+mCODE+',"'+mNAME_F+'",'+;
+                 'stod("'+alltrim(mDATE_B)+'"),stod("'+alltrim(mDATE_E)+'")})')
+    endif
+  next j
+endif
 add_string("return NIL")
 fclose(fp)
 return NIL

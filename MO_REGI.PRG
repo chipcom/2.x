@@ -2001,7 +2001,7 @@ do while !eof()
     j := iif(kart->pol == "М", 2, 3)
     k := 4 // город
     fl := .f.
-    if kart_->gorod_selo == 2 
+    if kart_->gorod_selo == 2
       fl := .t.  // нашли
       k := 5   // село
     endif
@@ -2079,7 +2079,7 @@ else
       for j := 2 to 5
         arr[j] += arr1[i,j]
       next
-    next                            
+    next
     add_string(replicate("─",sh))
     add_string(" Итого:"+put_val(arr[2],12)+put_val(arr[3],12)+;
                          put_val(arr[4],12)+put_val(arr[5],12)+put_val(arr[2]+arr[3],12))
@@ -2100,7 +2100,7 @@ else
       for j := 2 to 5
         arr[j] += arr2[i,j]
       next
-    next                            
+    next
     add_string(replicate("─",sh))
     add_string(" Итого:"+put_val(arr[2],12)+put_val(arr[3],12)+;
                          put_val(arr[4],12)+put_val(arr[5],12)+put_val(arr[2]+arr[3],12))
@@ -2185,7 +2185,7 @@ if fl_exit
   func_error(4,"Операция прервана!")
 elseif i  == 0
   func_error(4,"Некого включать в файл!")
-else  
+else
   n_message({"В каталоге "+cur_dir+" создан файл "+upper(n_file+sdbf),;
              lstr(i)+" пациентов."},,;
             cColorSt2Msg,cColorStMsg,,,"G+/R")
@@ -3480,6 +3480,8 @@ if tmp_krtp->(lastrec()) > 0
         UnLock
         //
         s1 := iif(i==1, "", hb_eol())
+        // 1 - Номер записи в файле с 10.06.19г.
+        s1 += eval(blk,lstr(i))+";"
         // 1 - Действие
         s := "Р"
         s1 += eval(blk,s)+";"
@@ -4273,7 +4275,7 @@ if f_alert(ar,ar2,1,"GR+/R","W+/R",,,"GR+/R,N/BG") == 2
         endif
         if kart_->vpolis == 2
           s := padr(s,9,"0")
-        else 
+        else
           s := padr(s,16,"0")
         endif
       else
@@ -5375,7 +5377,7 @@ else
       kart2->pc4 := date_8(kart2->DATE_PR)
     endif
   elseif !emptyany(lprik_mo,ldate_prik_mo) .and. lprik_mo == kart2->MO_PR
-    kart2->pc4 := date_8(ldate_prik_mo) 
+    kart2->pc4 := date_8(ldate_prik_mo)
   endif
 endif
 if kart2->MO_PR == glob_MO[_MO_KOD_TFOMS]

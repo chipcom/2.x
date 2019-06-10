@@ -205,7 +205,7 @@ return NIL
 ***** 08.10.17
 Function f2_k_plat(oBrow)
 Local oColumn, s, blk := {|| iif(human->is_kas==2, {5,6}, iif(human->cena > 0, {1,2}, {3,4})) }
-Local tip_bank := {"бн","МИ","VI","MC"}
+Local tip_bank := {"бн","МИ","VI","MC","БАНК"}
 
 if glob_kassa == 1 .and. mek_kassa == 1 // в кассе 01.12.2008
   //oColumn := TBColumnNew("  ",{|| iif(human->sbank < 1, "    ",iif(human->sbank == human->cena, "б/н ","б/нН")) })
@@ -284,7 +284,7 @@ endif
 mark_keys({"<Esc>","<Enter>","<Ins>","<Del>","<Ctrl+Enter>","<F3>","<F4>","<F8>","<F9>","<F10>"},"R/W")
 return NIL
 
-***** 10.09.18
+***** 02.04.19
 Function f3_k_plat(nKey,oBrow)
 LOCAL j := 0, flag := -1, buf := save_row(maxrow()), buf1, fl := .f., rec, mkod,;
       tmp_color := setcolor(), r1 := 15, c1 := 2, v_summa, v_sdacha, adbf, s,;
@@ -313,6 +313,88 @@ do case
     rest_box(buf) ; flag := 0
   case nKey == K_F10 .and. glob_kassa == 1 .and. human->is_kas == 2 .and. human->cena > 0
     buf := savescreen()
+    if glob_mo[_MO_KOD_TFOMS] == '175303' //ксп-3
+      if human->cena >= 3000 .and.;
+         human->n_data > stod("20190604") .and.; //!!!!тест
+         human->n_data < stod("20190701")
+         // начинаем проверку на 3000 надо удалить 1000
+         // запрос
+         if !ret_zapros3000()
+           // ничего не делаем
+         else
+           // удаляем услуги
+           R_Use(dir_server+"hum_p_u",,"HU")
+           select HU
+           set order to 0
+           index on u_cena to ("tmp_3000") for kod==human->(recno()) progress
+           Private sm_3000 := 0, mas_ydal := {}, sm_old_3000 := human->cena
+           go top
+           // проверим нет-ли услуги 1000-1100 руб
+           do while !eof()
+             if sm_3000 < 1000
+               for iii := 1 to hu->kol
+                 if hu->u_cena >= 1000 .and. hu->u_cena <= 1100
+                   sm_3000 := sm_3000 + hu->u_cena
+                   aadd(mas_ydal,hu->(recno()))
+                   if sm_3000 >= 1000
+                     exit
+                   endif
+                 endif
+               next
+               //sm_3000 := sm_3000 + hu->stoim
+               //aadd(mas_ydal,hu->(recno()))
+             endif
+             select HU
+             skip
+           enddo
+           //
+           go top
+           do while !eof()
+             if sm_3000 < 1000
+               for iii := 1 to hu->kol
+                 sm_3000 := sm_3000 + hu->u_cena
+                 aadd(mas_ydal,hu->(recno()))
+                 if sm_3000 >= 1000
+                   exit
+                 endif
+               next
+               //sm_3000 := sm_3000 + hu->stoim
+               //aadd(mas_ydal,hu->(recno()))
+             endif
+             select HU
+             skip
+           enddo
+           //
+           hu->(dbCloseArea())
+           //
+           if sm_3000 > 1300
+             ret_soob_3000(2, sm_old_3000, sm_3000)
+           else
+             use_base("hum_p_u",,.T.)
+             for iii := 1 to len(mas_ydal)
+               goto mas_ydal[iii]
+               if hu->kol == 1
+                 DeleteRec(.t.,.f.)  // очистка записи без пометки на удаление
+               else
+                 G_RLock(forever)
+                 hu->kol := hu->kol-1
+                 hu->stoim := hu->kol*hu->u_cena
+                 UNLOCK
+               endif
+             next
+             select HUMAN
+             G_RLock(forever)
+             human->cena := (human->cena - sm_3000)
+             human->vzfr_tip := 1
+             UNLOCK
+             hu->(dbCloseArea())
+             COMMIT
+             //
+             ret_soob_3000(1, sm_old_3000, sm_3000)
+           endif
+         endif
+      endif
+    endif
     ClrLine(maxrow()-1,color0)
     // поиск номера или эл.почты
     t_hum_rec := human->(recno())
@@ -441,7 +523,7 @@ do case
     Private mplat_adres  := space(50),; // адрес плательщика
             mplat_pasport := space(15)  // документ плательщика
     Private lnomer, l1nomer, muchastok
-    //
+    Private okato_adresr, okato_adresg
     buf := savescreen()
     ClrLine(23,color0)
     t_hum_rec := human->(recno())
@@ -498,6 +580,8 @@ do case
     kr->(dbCloseArea())
     R_Use(dir_server+"kartote_",,"KR1")
     goto (human->kod_k)
+    okato_adresg := ret_okato_ulica("",kr1->okatog,1,2)
+    okato_adresr := ret_okato_ulica("",kr1->okatop,1,2)
     m1vid_ud := kr1->vid_ud
     mnom     := kr1->nom_ud
     mser     := kr1->ser_ud
@@ -705,6 +789,51 @@ do case
     keyboard ""
 endcase
 return flag
+
+*****
+Function ret_zapros3000()
+Local buf, r1 := 12, r2 := 18, i, tmp_color := setcolor(color1)
+buf := box_shadow(r1,10,r2,69,,"РАБОТА со СКИДОЧНЫМИ картами","W/R+")
+setcolor(color8)
+str_center(r1+2,"Внимание !")
+str_center(r1+3,"Плательщик имеет СКИДОЧНУЮ КАРТУ ?")
+setcolor(color1)
+str_center(r2-2,"Выберите действие:")
+setmtcolor("BG+/B,W+/R,GR+/B,GR+/R")
+@ r2-1,24 prompt " ~Карты НЕТ "
+@ r2-1,44 prompt " ~СКИДКА 1000р "
+menu to i
+setcolor(tmp_color)
+rest_box(buf)
+return (i == 2)
+
+*****
+Function ret_soob_3000(tip, sum_1, sum_2)
+Local buf, r1 := 12, r2 := 18, i, tmp_color := setcolor(color1)
+if tip == 1
+  buf := box_shadow(r1,10,r2,69,,"РАБОТА со СКИДОЧНЫМИ картами","W/R+")
+  setcolor(color8)
+  str_center(r1+2,"Внимание !")
+  //str_center(r1+3,"Сумма ДО скидки    :"+put_kop(sum_1))
+  str_center(r1+3,"Сумма ПОСЛЕ скидки :"+put_kop(sum_1-sum_2,8))
+  str_center(r1+4,"Сумма СКИДКИ :"+put_kop(sum_2,8))
+  setcolor(color1)
+  setmtcolor("BG+/B,W+/R,GR+/B,GR+/R")
+  @ r2-1,37 prompt " ~ОК "
+  menu to i
+  setcolor(tmp_color)
+  rest_box(buf)
+else
+  buf := savescreen()
+  f_message({"Внимание !",;
+           "",;
+           "Сумма cкидки ВЕЛИКА :"+put_kop(sum_2,8),;
+           "Скидка отменена Проведите скидку вручную !"},,"GR+/R","W+/R",13)
+  inkey(0)
+  restscreen(buf)
+endif
+return NIL
+
 
 *****
 Function view_p_kvit(nkey)
@@ -2806,6 +2935,7 @@ aadd(adbf, {"name_u", "C",128,0} )
 aadd(adbf, {"is_nul", "L",  1,0} )
 aadd(adbf, {"summa1", "N",  9,3} )
 aadd(adbf, {"summa2", "N",  9,3} )
+aadd(adbf, {"vz_cena","N",  9,3} )
 aadd(adbf, {"kol1",   "N",  5,0} )
 aadd(adbf, {"number", "N",  6,0} )
 aadd(adbf, {"rec_hu", "N",  7,0} )
@@ -2823,10 +2953,11 @@ if (fl_found := found())
     select TMP
     find (str(hu->u_kod,4)+str(hu->kod_vr,4)+hu->date_u)
     if found()
-      tmp->kol    := tmp->kol  + hu->kol
-      tmp->kol1   := tmp->kol1 + hu->kol
-      tmp->summa1 := tmp->summa1 + hu->stoim
-      tmp->summa2 := tmp->summa1
+      tmp->kol     := tmp->kol  + hu->kol
+      tmp->kol1    := tmp->kol1 + hu->kol
+      tmp->summa1  := tmp->summa1 + hu->stoim
+      tmp->summa2  := tmp->summa1
+      tmp->vz_cena := round_5(tmp->summa1/tmp->kol,2)
     else
       append blank
       aeval(adbf, {|x,i| fieldput(i,x) } )
@@ -2841,6 +2972,7 @@ if (fl_found := found())
       tmp->rec_hu   := hu->(recno())
       tmp->kol1     := hu->kol
       tmp->summa1   := tmp->stoim
+      tmp->vz_cena  := round_5(tmp->summa1/tmp->kol1,2)
     endif
     select HU
     skip
@@ -2962,8 +3094,9 @@ old_summa := 0
 t_rec := recno()
 go top
 do while !eof()
-  old_summa += round(tmp->u_cena * tmp->kol1, 2)
-  //old_summa += round((tmp->summa2/tmp->kol) * tmp->kol1, 2)
+  //old_summa += round(tmp->u_cena * tmp->kol1, 2)
+  old_summa += round(tmp->vz_cena * tmp->kol1, 2)
+  //old_summa += round_5(round_5(tmp->summa2/tmp->kol,2) * tmp->kol1, 2)
   skip
 enddo
 eval(blk)
@@ -2978,10 +3111,13 @@ do case
     @ nr,c1 get mkol1 pict "99999" valid {|g|f3v_vozvrat(g)}
     myread()
     if lastkey() != K_ESC
-      p1_summa := round(tmp->u_cena * tmp->kol1, 2)
+      //p1_summa := round(tmp->u_cena * tmp->kol1, 2)
+      p1_summa := round(tmp->vz_cena * tmp->kol1, 2)
       //p1_summa += round((tmp->summa2/tmp->kol) * (tmp->kol1- mkol1), 2)
       p_summa  := old_summa - p1_summa
-      tmp->summa1 := round_5(tmp->u_cena * mkol1, 2)
+      //tmp->summa1 := round_5(tmp->u_cena * mkol1, 2)
+      tmp->summa1 := round_5(tmp->vz_cena * mkol1, 2)
+
       p_summa :=  p_summa + tmp->summa1
       tmp->kol1   := mkol1
       tmp->stoim  := tmp->summa1

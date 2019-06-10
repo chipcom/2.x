@@ -2845,6 +2845,8 @@ if k > 0
             if !eof() .and. !empty(base1->p1)
               s2 += " "+left(crypt(base1->p1,gpasskod),10)
             endif
+          elseif human_2->PN3 > 0
+            s2 += " ˆŒ’"
           endif
         endif
       endif

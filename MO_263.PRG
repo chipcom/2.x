@@ -242,7 +242,7 @@ return .t.
 
 *
 
-***** 02.07.14 в GET-е вернуть профиль койки из Т007 
+***** 02.07.14 в GET-е вернуть профиль койки из Т007
 Function f_get_profil_k(k,r,c)
 Static sprofil_k := 0
 Local ret, ret_arr
@@ -1500,7 +1500,7 @@ if !fl_error
        mo_add_xml_stroke(oDir,"DATE_H", date2xml(napr->DATE_H_4))
        mo_add_xml_stroke(oDir,"TIME_H", charrepl(":",napr->TIME_H_4,"-"))
        mo_add_xml_stroke(oDir,"DS", napr->DS_4)
-       mo_add_xml_stroke(oDir,"F_MEDC", lstr(napr->F_MEDC_4)) 
+       mo_add_xml_stroke(oDir,"F_MEDC", lstr(napr->F_MEDC_4))
        ar := _263_pr_prk(napr->PROFIL_K_4,napr->PROFIL_4,nf->DATE_R)
        mo_add_xml_stroke(oDir,"PROFIL", ar[1])
        mo_add_xml_stroke(oDir,"PROFIL_K", ar[2])
@@ -2749,7 +2749,7 @@ for ii := 1 to len(arr_f)
                               space(7)+lstr(tmp2->OSHIB)+" - "+inieditspr(A__MENUVERT,glob_T008,tmp2->OSHIB)+hb_eol()+;
                               space(7)+"ошибка в поле "+tmp2->IM_POL+hb_eol()+;
                               hb_eol(),cFileProtokol,.t.)
-                      nerr := 2        
+                      nerr := 2
                       select NFN
                       find (str(napr->kod,6))
                       if found()
@@ -2764,7 +2764,7 @@ for ii := 1 to len(arr_f)
                       strfile(space(5)+"- "+alltrim(kart->fio)+" д.р."+full_date(kart->DATE_R)+hb_eol()+;
                               space(7)+lstr(nerrf)+" - "+inieditspr(A__MENUVERT,glob_T008,nerrf)+hb_eol()+;
                               hb_eol(),cFileProtokol,.t.)
-                      nerr := 2        
+                      nerr := 2
                       select NFN
                       find (str(napr->kod,6))
                       if found()
@@ -2798,7 +2798,7 @@ for ii := 1 to len(arr_f)
                               space(7)+lstr(tmp2->OSHIB)+" - "+inieditspr(A__MENUVERT,glob_T008,tmp2->OSHIB)+hb_eol()+;
                               space(7)+"ошибка в поле "+tmp2->IM_POL+hb_eol()+;
                               hb_eol(),cFileProtokol,.t.)
-                      nerr := 2        
+                      nerr := 2
                       select NFN
                       find (str(napr->kod,6))
                       if found()
@@ -2813,7 +2813,7 @@ for ii := 1 to len(arr_f)
                       strfile(space(5)+"- "+alltrim(kart->fio)+" д.р."+full_date(kart->DATE_R)+hb_eol()+;
                               space(7)+lstr(nerrf)+" - "+inieditspr(A__MENUVERT,glob_T008,nerrf)+hb_eol()+;
                               hb_eol(),cFileProtokol,.t.)
-                      nerr := 2        
+                      nerr := 2
                       select NFN
                       find (str(napr->kod,6))
                       if found()
@@ -2847,7 +2847,7 @@ for ii := 1 to len(arr_f)
                               space(7)+lstr(tmp2->OSHIB)+" - "+inieditspr(A__MENUVERT,glob_T008,tmp2->OSHIB)+hb_eol()+;
                               space(7)+"ошибка в поле "+tmp2->IM_POL+hb_eol()+;
                               hb_eol(),cFileProtokol,.t.)
-                      nerr := 2        
+                      nerr := 2
                       select NFN
                       find (str(napr->kod,6))
                       if found()
@@ -2862,7 +2862,7 @@ for ii := 1 to len(arr_f)
                       strfile(space(5)+"- "+alltrim(kart->fio)+" д.р."+full_date(kart->DATE_R)+hb_eol()+;
                               space(7)+lstr(nerrf)+" - "+inieditspr(A__MENUVERT,glob_T008,nerrf)+hb_eol()+;
                               hb_eol(),cFileProtokol,.t.)
-                      nerr := 2        
+                      nerr := 2
                       select NFN
                       find (str(napr->kod,6))
                       if found()
@@ -2896,7 +2896,7 @@ for ii := 1 to len(arr_f)
                               space(7)+lstr(tmp2->OSHIB)+" - "+inieditspr(A__MENUVERT,glob_T008,tmp2->OSHIB)+hb_eol()+;
                               space(7)+"ошибка в поле "+tmp2->IM_POL+hb_eol()+;
                               hb_eol(),cFileProtokol,.t.)
-                      nerr := 2        
+                      nerr := 2
                       select NFN
                       find (str(napr->kod,6))
                       if found()
@@ -2911,7 +2911,7 @@ for ii := 1 to len(arr_f)
                       strfile(space(5)+"- "+alltrim(kart->fio)+" д.р."+full_date(kart->DATE_R)+hb_eol()+;
                               space(7)+lstr(nerrf)+" - "+inieditspr(A__MENUVERT,glob_T008,nerrf)+hb_eol()+;
                               hb_eol(),cFileProtokol,.t.)
-                      nerr := 2        
+                      nerr := 2
                       select NFN
                       find (str(napr->kod,6))
                       if found()
@@ -3552,7 +3552,7 @@ for ii := 1 to len(arr_f)
                     n7->KOD_F      := nf->KOD          // код файла - по файлу mo_nfile
                     n7->CODEM      := tmp2->LPU        // код стационара
                     n7->ID_PL      := tmp2->ID_PL      // GUID записи
-                    n7->USL_OK     := tmp2->USL_OK     // 
+                    n7->USL_OK     := tmp2->USL_OK     //
                     n7->PROFIL_K   := tmp2->PROFIL_K   // профиль койки
                     n7->PROFIL     := tmp2->PROFIL     // профиль мед.помощи
                     n7->QUANTITY   := tmp2->QUANTITY   // количество коек
@@ -4046,6 +4046,9 @@ dbcreate(cur_dir+"tmp2file",adbf,,.t.,"TMP2")  // элементы PR
 if upper(right(nfile,4)) == sxml
   // читаем файл в память
   oXmlDoc := HXMLDoc():Read(_tmp_dir1+nfile)
+  is_err_FLK := (oXmlDoc == NIL)
+endif
+if !is_err_FLK
   FOR j := 1 TO Len( oXmlDoc:aItems[1]:aItems )
     oXmlNode := oXmlDoc:aItems[1]:aItems[j]
     do case
@@ -4095,8 +4098,8 @@ Local _table2 := {;
    {"DATE_D",    "D",  8,0},; // дата направления
    {"MO_H",      "C",  6,0},; // mcod стационара
    {"LPU_H",     "C",  6,0},; // codem стационара
-   {"USL_OK",    "N",  1,0},; // 
-   {"DISP",      "N",  1,0},; // 
+   {"USL_OK",    "N",  1,0},; //
+   {"DISP",      "N",  1,0},; //
    {"PROFIL",    "N",  3,0},; // профиль медпомощи
    {"PROFIL_K",  "N",  3,0},; // профиль койки
    {"DS",        "C",  6,0},; // диагноз
@@ -4131,6 +4134,11 @@ if upper(right(nfile,4)) == sxml
   fl := .t.
   // читаем файл в память
   oXmlDoc := HXMLDoc():Read(_tmp_dir1+nfile)
+  if oXmlDoc == NIL
+    fl := func_error(4,"Ошибка в чтении файла "+nfile)
+  endif
+endif
+if fl
   FOR j := 1 TO Len( oXmlDoc:aItems[1]:aItems )
     if Empty( oXmlDoc:aItems )
       fl := func_error(4,"Ошибка в чтении файла "+nfile)
@@ -4232,6 +4240,11 @@ if upper(right(nfile,4)) == sxml
   fl := .t.
   // читаем файл в память
   oXmlDoc := HXMLDoc():Read(_tmp_dir1+nfile)
+  if oXmlDoc == NIL
+    fl := func_error(4,"Ошибка в чтении файла "+nfile)
+  endif
+endif
+if fl
   FOR j := 1 TO Len( oXmlDoc:aItems[1]:aItems )
     if Empty( oXmlDoc:aItems )
       fl := func_error(4,"Ошибка в чтении файла "+nfile)
@@ -4289,7 +4302,7 @@ Local _table2 := {;
    {"LPU_D",     "C",  6,0},; // codem
    {"DATE_H",    "D",  8,0},; // дата госпитализации
    {"TIME_H",    "C",  5,0},; // время госпитализации
-   {"USL_OK",    "N",  1,0},; // 
+   {"USL_OK",    "N",  1,0},; //
    {"PROFIL",    "N",  3,0},; // профиль медпомощи
    {"PROFIL_K",  "N",  3,0},; // профиль койки
    {"DS",        "C",  6,0},; // диагноз
@@ -4313,8 +4326,7 @@ Local _table2 := {;
    {"TEL_M",     "C", 13,0},; //
    {"TEL_F",     "C", 13,0};  //
   }
-Local arr_f, ii, oXmlDoc, j, j1, _ar, buf := save_maxrow(), fl := .f.,;
-      sMO, sLPU, oNode1, oNode2, oNode3
+Local arr_f, ii, oXmlDoc, j, j1, _ar, buf := save_maxrow(), fl := .f., sMO, sLPU, oNode1, oNode2, oNode3
 //
 dbcreate(cur_dir+"tmp1file",_table1,,.t.,"TMP1")
 append blank
@@ -4323,6 +4335,11 @@ if upper(right(nfile,4)) == sxml
   fl := .t.
   // читаем файл в память
   oXmlDoc := HXMLDoc():Read(_tmp_dir1+nfile)
+  if oXmlDoc == NIL
+    fl := func_error(4,"Ошибка в чтении файла "+nfile)
+  endif
+endif
+if fl
   FOR j := 1 TO Len( oXmlDoc:aItems[1]:aItems )
     if Empty( oXmlDoc:aItems )
       fl := func_error(4,"Ошибка в чтении файла "+nfile)
@@ -4416,7 +4433,7 @@ Local _table2 := {;
    {"LPU_D",     "C",  6,0},; // codem
    {"DATE_H",    "D",  8,0},; // дата госпитализации
    {"DATE_D",    "D",  8,0},; // дата госпитализации
-   {"USL_OK",    "N",  1,0},; // 
+   {"USL_OK",    "N",  1,0},; //
    {"PROFIL",    "N",  3,0},; // профиль медпомощи
    {"PROFIL_K",  "N",  3,0},; // профиль койки
    {"F_MEDC",    "N",  1,0},; // форма оказания медпомощи
@@ -4426,8 +4443,7 @@ Local _table2 := {;
    {"SEX",       "N",  1,0},; //
    {"ENP",       "C", 16,0};  //
   }
-Local arr_f, ii, oXmlDoc, j, j1, _ar, buf := save_maxrow(), fl := .f.,;
-      sMO, sLPU, oNode1, oNode2, oNode3
+Local arr_f, ii, oXmlDoc, j, j1, _ar, buf := save_maxrow(), fl := .f., sMO, sLPU, oNode1, oNode2, oNode3
 //
 dbcreate(cur_dir+"tmp1file",_table1,,.t.,"TMP1")
 append blank
@@ -4436,6 +4452,11 @@ if upper(right(nfile,4)) == sxml
   fl := .t.
   // читаем файл в память
   oXmlDoc := HXMLDoc():Read(_tmp_dir1+nfile)
+  if oXmlDoc == NIL
+    fl := func_error(4,"Ошибка в чтении файла "+nfile)
+  endif
+endif
+if fl
   FOR j := 1 TO Len( oXmlDoc:aItems[1]:aItems )
     if Empty( oXmlDoc:aItems )
       fl := func_error(4,"Ошибка в чтении файла "+nfile)
@@ -4505,7 +4526,7 @@ Local _table2 := {;
    {"MO",        "C",  6,0},; // mcod п-ки
    {"LPU",       "C",  6,0},; // codem п-ки
    {"ID_PL",     "C", 36,0},; // GUID записи
-   {"USL_OK",    "N",  1,0},; // 
+   {"USL_OK",    "N",  1,0},; //
    {"PROFIL_K",  "N",  3,0},; // профиль койки
    {"PROFIL",    "N",  3,0},; // профиль мед.помощи
    {"QUANTITY",  "N",  3,0},; // количество коек
@@ -4573,6 +4594,11 @@ if upper(right(nfile,4)) == sxml
   fl := .t.
   // читаем файл в память
   oXmlDoc := HXMLDoc():Read(_tmp_dir1+nfile)
+  if oXmlDoc == NIL
+    fl := func_error(4,"Ошибка в чтении файла "+nfile)
+  endif
+endif
+if fl
   FOR j := 1 TO Len( oXmlDoc:aItems[1]:aItems )
     if Empty( oXmlDoc:aItems )
       fl := func_error(4,"Ошибка в чтении файла "+nfile)
@@ -4616,7 +4642,7 @@ if upper(right(nfile,4)) == sxml
               oNode4 := oNode3:aItems[j2]
               if "ZAP" == oNode4:title
                 d := xml2date(mo_read_xml_stroke(oNode4,"DATE_PL",aerr))
-                v1 := val(mo_read_xml_stroke(oNode4,"PLACE_FREE",aerr)) 
+                v1 := val(mo_read_xml_stroke(oNode4,"PLACE_FREE",aerr))
                 v2 := val(mo_read_xml_stroke(oNode4,"PF_M",aerr))
                 v3 := val(mo_read_xml_stroke(oNode4,"PF_W",aerr))
                 v4 := val(mo_read_xml_stroke(oNode4,"PF_C",aerr))
@@ -4624,16 +4650,16 @@ if upper(right(nfile,4)) == sxml
               endif
             next j2
             asort(arr,,,{|x,y| x[5] < y[5]}) // если у других не отсортированы даты
-            for j2 := 1 to min(11,len(arr))  
+            for j2 := 1 to min(11,len(arr))
               ifp := j2-1
               pole := iif(ifp==0, "tmp2->PLACE_FREE", "tmp2->PLACE"+lstr(ifp))
-              &pole := arr[j2,1] 
+              &pole := arr[j2,1]
               pole := "tmp2->PF_M"+iif(ifp==0, "", lstr(ifp))
-              &pole := arr[j2,2] 
+              &pole := arr[j2,2]
               pole := "tmp2->PF_W"+iif(ifp==0, "", lstr(ifp))
-              &pole := arr[j2,3] 
+              &pole := arr[j2,3]
               pole := "tmp2->PF_C"+iif(ifp==0, "", lstr(ifp))
-              &pole := arr[j2,4] 
+              &pole := arr[j2,4]
             next j2
           endif
           tmp2->COMMENT := mo_read_xml_stroke(oNode2,"COMMENT",aerr,.f.)

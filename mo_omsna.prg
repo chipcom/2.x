@@ -18,7 +18,7 @@ Local mo_dnab := {; // диспансерное наблюдение
    {"NEXT_DATA","D", 8,0},; // дата явки с целью диспансерного наблюдения
    {"MESTO",    "N", 1,0};  // место проведения диспансерного наблюдения: 0 - в МО или 1 - на дому
   }
-Local mo_d01 := {; // отсылаемые файлы D01 
+Local mo_d01 := {; // отсылаемые файлы D01
    {"KOD",         "N", 6,0},; // код реестра (номер записи)
    {"DSCHET",      "D", 8,0},; // дата файла
    {"NYEAR",       "N", 4,0},; // отчетный год
@@ -200,7 +200,7 @@ return NIL
 
 ***** 09.12.18
 Function f0_vvod_disp_nabl()
-Local s := "" 
+Local s := ""
 R_Use(dir_server+"mo_d01k",,"DK")
 index on str(reestr,6) to (cur_dir+"tmp_dk") for kod_k == glob_kartotek
 go top
@@ -215,7 +215,7 @@ do while !eof()
     s := "вернулся из с ошибками"
   endif
   skip
-enddo  
+enddo
 dk->(dbCloseArea())
 return s
 
@@ -254,14 +254,14 @@ do case
         tmp_color := setcolor(cDataCScr)
         box_shadow(r1,pc1+1,r2,pc2-1,,iif(nKey == K_INS,"Добавление","Редактирование"),cDataPgDn)
         setcolor(cDataCGet)
-        do while .t.               
+        do while .t.
           @ r1+1,pc1+3 say "Диагноз, по поводу которого пациент подлежит дисп.наблюдению" get mkod_diag ;
                        pict "@K@!" reader {|o|MyGetReader(o,bg)} ;
                        valid val1_10diag(.t.,.f.,.f.,0d20181201,_kart->pol)
           @ r1+2,pc1+3 say "Дата начала диспансерного наблюдения" get mn_data
           @ r1+3,pc1+3 say "Дата следующей явки с целью диспансерного наблюдения" get mnext_data
           @ r1+4,pc1+3 say "Место проведения диспансерного наблюдения" get mmesto ;
-                       reader {|x|menu_reader(x,mm_dom,A__MENUVERT,,,.f.)} 
+                       reader {|x|menu_reader(x,mm_dom,A__MENUVERT,,,.f.)}
           status_key("^<Esc>^ - выход без записи;  ^<Enter>^ - подтверждение ввода")
           myread()
           if lastkey() != K_ESC .and. f_Esc_Enter(1)
@@ -356,7 +356,7 @@ next*/
   enddo
   fclose(lfp)
   len_diag := len(diag1)
-endif  
+endif
 return ascan(diag1,alltrim(ldiag)) > 0
 
 ***** 08.11.18 Информация по первичному вводу сведений о состоящих на диспансерном учёте
@@ -368,7 +368,7 @@ f2_vvod_disp_nabl("A00")
 setcolor(cDataCGet)
 myclear(r)
 Private muchast := suchast,;
-        mvrach := svrach,; 
+        mvrach := svrach,;
         mkod_diag := padr(sdiag,5),;
         gl_area := {r,0,maxrow()-1,maxcol(),0}
 status_key("^<Esc>^ - выход;  ^<PgDn>^ - составление документа")
@@ -378,7 +378,7 @@ str_center(r," Запрос информации по ведённому диспансерному наблюдению ",color14
 @ r+2,2 say "Номер участка (0 - по всем участкам)" get muchast pict "99999"
 @ r+3,2 say "Табельный номер врача (0 - по всем врачам)" get mvrach pict "99999"
 @ r+4,2 say "Диагноз (или начальные символы, или пустая строка)" get mkod_diag ;
-        pict "@K@!" reader {|o|MyGetReader(o,bg)} 
+        pict "@K@!" reader {|o|MyGetReader(o,bg)}
 myread()
 if lastkey() != K_ESC
   if mvrach > 0
@@ -411,8 +411,8 @@ if lastkey() != K_ESC
     endif
   endif
   //
-  suchast := muchast 
-  svrach := mvrach 
+  suchast := muchast
+  svrach := mvrach
   sdiag := mkod_diag
   //
   arr_title := {;
@@ -432,7 +432,7 @@ if lastkey() != K_ESC
   R_Use_base("mo_dnab")
   set relation to kod_k into KART, to vrach into PERS
   index on upper(kart->fio)+dtos(kart->date_r)+str(dn->kod_k,7)+dn->kod_diag to (cur_dir+"tmp_dn") ;
-        for kart->kod > 0 
+        for kart->kod > 0
   old := r := rs := 0
   go top
   do while !eof()
@@ -456,7 +456,7 @@ if lastkey() != K_ESC
       else
         s := padr(kart->fio,45)+" "+full_date(kart->date_r)+str(kart->uchast,3)
         ++r
-      endif  
+      endif
       s += str(pers->tab_nom,6)+" "+dn->kod_diag+" "+date_8(dn->n_data)+" "+date_8(dn->next_data)
       if verify_FF(HH,.t.,sh)
         aeval(arr_title, {|x| add_string(x) } )
@@ -470,7 +470,7 @@ if lastkey() != K_ESC
   enddo
   if empty(r)
     add_string("Не найдено пациентов по заданному условию")
-  else 
+  else
     add_string("=== Итого пациентов - "+lstr(r)+" чел., итого случаев - "+lstr(rs)+" ===")
   endif
   close databases
@@ -499,7 +499,7 @@ next
 add_string(s)
 fclose(fp)
 viewtext(name_file,,,,.t.,,,2)
-rest_box(buf)  
+rest_box(buf)
 return NIL
 
 ***** 07.11.18 Список пациентов с диагнозами, обязательными для диспансерного учёта (за 2 года)
@@ -525,7 +525,7 @@ find (strzero(ku,2))
 index on upper(fio) to (cur_dir+"tmp_kart") ;
       for kart->kod > 0 .and. kart2->MO_PR == glob_mo[_MO_KOD_TFOMS] .and. !(left(kart2->PC2,1) == "1") ;
       while ku == uchast
-go top      
+go top
 do while !eof()
   @ maxrow(),1 say lstr(++cv) color cColorSt2Msg
   @ row(),col() say "/" color "W/R"
@@ -538,7 +538,7 @@ do while !eof()
     mdate_r := kart->date_r ; M1VZROS_REB := kart->VZROS_REB
     fv_date_r(sys_date) // переопределение M1VZROS_REB
     if M1VZROS_REB == 0
-      ar := {} 
+      ar := {}
       select HUMAN
       find (str(kart->kod,7))
       do while human->kod_k == kart->kod .and. !eof()
@@ -555,12 +555,12 @@ do while !eof()
               endif
             next i
           endif
-        endif 
+        endif
         select HUMAN
         skip
       enddo
       if len(ar) > 0
-        s2 := "" 
+        s2 := ""
         if mem_kodkrt == 2
           s2 := "["
           if is_uchastok > 0
@@ -595,13 +595,13 @@ if fl_exit
   add_string("*** "+expand("ОПЕРАЦИЯ ПРЕРВАНА"))
 elseif empty(cf)
   add_string("Не обнаружено запрашиваемых пациентов по данному участку.")
-else  
+else
   add_string("=== Итого пациентов - "+lstr(cf)+" чел. ===")
 endif
 close databases
 fclose(fp)
 viewtext(name_file,,,,.t.,,,2)
-rest_box(buf)  
+rest_box(buf)
 return NIL
 
 ***** 28.11.18 Обмен с ТФОМС информацией по диспансерному наблюдению
@@ -621,7 +621,7 @@ do while !eof()
     fl := func_error(4,"Файл D02 не был прочитан! Операция запрещена")
   else
     select MO_XML
-    find (str(rees->kod,6)) 
+    find (str(rees->kod,6))
     if found()
       if empty(mo_xml->TWORK2)
         fl := func_error(4,"Прервано чтение файла "+alltrim(mo_xml->FNAME)+;
@@ -664,7 +664,7 @@ do while .t.
 enddo
 Commit
 dbcreate(cur_dir+"tmp",{{"KOD_K","N",7,0}})
-use (cur_dir+"tmp") new  
+use (cur_dir+"tmp") new
 select DK
 index on str(kod_k,7) to (cur_dir+"tmp_d01k")
 R_Use(dir_server+"kartotek",,"KART")
@@ -681,8 +681,8 @@ do while !eof()
       fl := .f.
     endif
     skip
-  enddo 
-  if fl 
+  enddo
+  if fl
     select TMP
     append blank
     tmp->kod_k := dn->kod_k
@@ -702,13 +702,13 @@ else
   go top
   do while !eof()
     arr := {} ; lmesto := 0
-    select DN 
+    select DN
     find (str(tmp->kod_k,7))
     do while dn->kod_k == tmp->kod_k .and. !eof()
       if f2_vvod_disp_nabl(dn->kod_diag) // только диагнозы из последнего списка от 21 ноября
         lspec := ret_prvs_V021(iif(empty(perso->prvs_new), perso->prvs, -perso->prvs_new))
         aadd(arr,{lspec,dn->kod_diag,dn->n_data,bom(dn->next_data)})
-        if dn->mesto == 1    
+        if dn->mesto == 1
           lmesto := 1
         endif
       endif
@@ -759,7 +759,7 @@ if id01 > 0 .and. f_Esc_Enter("создания файла D01",.t.)
   R_Use(dir_server+"kartotek",,"KART")
   G_Use(dir_server+"mo_xml",,"MO_XML")
   smsg := "Составление файла D01..."
-  stat_msg(smsg) 
+  stat_msg(smsg)
   select REES
   AddRecN()
   rees->KOD    := recno()
@@ -787,7 +787,7 @@ if id01 > 0 .and. f_Esc_Enter("создания файла D01",.t.)
   rees->KOD_XML := mo_xml->KOD
   UnLock
   Commit
-  pkol := 0 
+  pkol := 0
   G_Use(dir_server+"mo_d01d",cur_dir+"tmp_d01d","DD")
   G_Use(dir_server+"mo_d01k",,"RHUM")
   index on str(REESTR,6)+str(D01_ZAP,6) to (cur_dir+"tmp_rhum")
@@ -814,7 +814,7 @@ if id01 > 0 .and. f_Esc_Enter("создания файла D01",.t.)
   dbUnlockAll()
   dbCommitAll()
   //
-  stat_msg(smsg) 
+  stat_msg(smsg)
   //
   oXmlDoc := HXMLDoc():New()
   oXmlDoc:Add( HXMLNode():New( "ZL_LIST") )
@@ -860,7 +860,7 @@ if id01 > 0 .and. f_Esc_Enter("создания файла D01",.t.)
     mo_add_xml_stroke(oXmlNode,"NUM_P",s)
     if kart_->VPOLIS == 3
       mo_add_xml_stroke(oXmlNode,"ENP",s)
-    endif 
+    endif
     mo_add_xml_stroke(oXmlNode,"DOCTYPE",lstr(kart_->vid_ud))
     if !empty(kart_->ser_ud)
       mo_add_xml_stroke(oXmlNode,"DOCSER",kart_->ser_ud)
@@ -916,12 +916,12 @@ if id01 > 0 .and. f_Esc_Enter("создания файла D01",.t.)
   stat_msg("Запись XML-файла")
   oXmlDoc:Save(alltrim(mo_xml->FNAME)+sxml)
   chip_create_zipXML(alltrim(mo_xml->FNAME)+szip,{alltrim(mo_xml->FNAME)+sxml},.t.)
-  mo_xml->(G_RLock(forever))  
+  mo_xml->(G_RLock(forever))
   mo_xml->TWORK2 := hour_min(seconds())
   close databases
   keyboard chr(K_TAB)+chr(K_ENTER)
   rest_box(buf)
-endif  
+endif
 return NIL
 
 ***** 29.11.18 Обмен с ТФОМС информацией по диспансерному наблюдению
@@ -930,7 +930,7 @@ Local i, k, buf := savescreen()
 Private goal_dir := dir_server+dir_XML_MO+cslash
 G_Use(dir_server+"mo_xml",,"MO_XML")
 G_Use(dir_server+"mo_d01",,"REES")
-index on descend(strzero(nn,3)) to (cur_dir+"tmp_rees") 
+index on descend(strzero(nn,3)) to (cur_dir+"tmp_rees")
 go top
 if eof()
   func_error(4,"Не было создано файлов D01...")
@@ -986,7 +986,7 @@ if rees->kod_xml > 0
     s := "НЕ СОЗДАН"
   endif
 endif
-if empty(s)  
+if empty(s)
   if !hb_fileExists(goal_dir+alltrim(rees->NAME_XML)+szip)
     s := "нет файла"
   elseif empty(rees->date_out)
@@ -1106,7 +1106,7 @@ do while !eof()
   aadd(mm_func, -2)
   aadd(mm_menu, "2-присутствуют ошибки технологического контроля")
   aadd(mm_func, -3)
-  aadd(mm_menu, "3-не установлена страховая принадлежность") 
+  aadd(mm_menu, "3-не установлена страховая принадлежность")
   aadd(mm_func, -4)
   aadd(mm_menu, "4-не установлена страх.принадлежность, не подтверждено прикрепление к МО")
   s := "Протокол чтения "+rtrim(mo_xml->FNAME)+" прочитан "+date_8(mo_xml->DWORK)
@@ -1376,7 +1376,7 @@ i := 0 ; k := lastrec()
 ii1 := ii2 := 0
 go top
 do while !eof()
-  @ maxrow(),0 say str(++i/k*100,6,2)+"%" color cColorWait 
+  @ maxrow(),0 say str(++i/k*100,6,2)+"%" color cColorWait
   if tmp2->_OPLATA == 1
     ++ii1
     if !empty(tmp2->_SMO) .and. ascan(glob_arr_smo,{|x| x[2] == int(val(tmp2->_SMO)) }) == 0
@@ -1402,7 +1402,7 @@ if empty(ii2)
   index on str(_n_zap,6) to (cur_dir+"tmp3")
   find (str(0,6))
   err_file := found() // ошибки на уровне файла
-endif  
+endif
 close databases
 if empty(aerr) // если проверка прошла успешно
   // запишем принимаемый файл (реестр СП)
@@ -1435,11 +1435,11 @@ if empty(aerr) // если проверка прошла успешно
   goto (mkod_reestr)
   G_RLock(forever)
   rees->answer := 1
-  if ii2 > 0 
+  if ii2 > 0
     rees->kol_err := ii2
   elseif err_file
     rees->kol_err := -1
-  endif  
+  endif
   use
   if ii2 > 0 .or. err_file
     use (cur_dir+"tmp3file") new alias TMP3
@@ -1482,7 +1482,7 @@ if empty(aerr) // если проверка прошла успешно
   if err_file
     go top
     do while !eof()
-      @ maxrow(),0 say str(++i/rees_kol*100,6,2)+"%" color cColorWait 
+      @ maxrow(),0 say str(++i/rees_kol*100,6,2)+"%" color cColorWait
       G_RLock(forever)
       rhum->OPLATA := 2 // искусственно присваиваем ошибку "2"
       skip
@@ -1495,7 +1495,7 @@ if empty(aerr) // если проверка прошла успешно
     count_in_schet := lastrec() ; current_i2 := 0
     go top
     do while !eof()
-      @ maxrow(),0 say str(++i/k*100,6,2)+"%" color cColorWait 
+      @ maxrow(),0 say str(++i/k*100,6,2)+"%" color cColorWait
       select RHUM
       find (str(tmp2->_N_ZAP,6))
       G_RLock(forever)
@@ -1510,7 +1510,7 @@ if empty(aerr) // если проверка прошла успешно
           G_RLock(forever)
           kart2->kod_mis := tmp2->_enp
           dbUnLock()
-        endif 
+        endif
       endif
       if tmp2->_OPLATA > 1
         --count_in_schet    // не включается в счет,
@@ -1602,7 +1602,7 @@ if f_Esc_Enter("аннулирования D01")
   dbUnlockAll()
   dbCommitAll()
   stat_msg("Аннулирование завершено!") ; mybell(2,OK)
-  ret := 1 
+  ret := 1
 endif
 return ret
 
@@ -1654,11 +1654,11 @@ if (i := popup_prompt(r1,10,1,mm_menu,,,color5)) > 0
     func_error(4,"Файл "+cFile+sxml+" корректно прочитан. Аннулирование запрещено!")
     return 0
   endif
-  if (arr_f := Extract_Zip_XML(dir_server+dir_XML_TF,cFile+szip)) != NIL 
+  if (arr_f := Extract_Zip_XML(dir_server+dir_XML_TF,cFile+szip)) != NIL
     cFile += sxml
     // читаем файл в память
     oXmlDoc := HXMLDoc():Read(_tmp_dir1+cFile)
-    if Empty( oXmlDoc:aItems )
+    if oXmlDoc == NIL .or. Empty( oXmlDoc:aItems )
       func_error(4,"Ошибка в чтении файла "+cFile)
     else // читаем и записываем XML-файл во временные TMP-файлы
       reestr_D02_tmpfile(oXmlDoc,aerr,cFile)

@@ -2915,7 +2915,7 @@ endif
     if tip_lu == TIP_LU_SMP // определяем шифр услуги СМП
       lshifr := "71."
       if m1tip == 0
-        if is_komm_SMP() // если это коммерческая скорая
+        if is_komm_SMP() .and. mk_data < 0d20190501 // если это коммерческая скорая
           lshifr += "2."
         elseif m1komu == 0
           if len(alltrim(msmo)) == 5 .and. left(msmo,2) == '34'
@@ -4019,7 +4019,7 @@ setcolor(cDataCGet)
 make_diagP(1)  // сделать "шестизначные" диагнозы
 f_valid_usl_ok(,-1)
 f_valid2ad_cr()
-Private rdiag := 1, rpp := 1, num_screen := 1
+Private rdiag := 1, rpp := 1, num_screen := 1, is_onko_VMP := .f.
 do while .t.
   if num_screen == 1 //
     SetMode(kscr1,80)
@@ -4514,7 +4514,7 @@ do while .t.
       endif
       m1USL_TIP := tmpou->USL_TIP
       //
-      k := 15
+      k := 16
       if len(mm_N009) == 0 .and. len(mm_N012) == 0
         k--
       else
@@ -4533,7 +4533,7 @@ do while .t.
       fl2_2_4 := fl2_3_4 := .f.
       if m1usl_ok < 3 // стационар или дневной стационар
         if is_onko_VMP
-          k += 15
+          k += 14
           m1USL_TIP := musl1vmp
           mm_USL_TIP := {}
           if (i := ascan(mm_USL_TIP_all,{|x| x[2] == musl1vmp })) > 0
@@ -4570,13 +4570,13 @@ do while .t.
             endif
           endif
         else // нет ВМП
-          k += 21
+          k += 20
           fl_2_4 := fl_3_4 := .t.
           mm_USL_TIP := aclone(mm_USL_TIP_all)
-          if m1vzros_reb > 0 .or. is_lymphoid(mkod_diag) // если ребёнок или ЗНО кроветворная или лимфоидная
-            Del_Array(mm_USL_TIP,5) // удалим химиолучевую
-            Del_Array(mm_USL_TIP,4) // удалим лучевую
-          endif
+          //if m1vzros_reb > 0 .or. is_lymphoid(mkod_diag) // если ребёнок или ЗНО кроветворная или лимфоидная
+            //Del_Array(mm_USL_TIP,5) // удалим химиолучевую
+            //Del_Array(mm_USL_TIP,4) // удалим лучевую
+          //endif
         endif
        if is_onko_VMP .and. mtipvmp == 1 // две услуги
         mUSL_VMP := inieditspr(A__MENUVERT, mm_USL_TIP_all, m1USL_VMP)
@@ -4800,13 +4800,14 @@ do while .t.
     endif
    endif
   endif
+  ++j; @ j,3 say "Консилиум: дата" get mDT_CONS ;
+             valid {|| iif(empty(mDT_CONS) .or. between(mDT_CONS,mn_data,mk_data), .t., ;
+                           func_error(4,"Дата консилиума должна быть внутри сроков лечения")) }
+       @ j,col()+1 say "проведение" get mPR_CONS ;
+             reader {|x|menu_reader(x,mm_PR_CONS,A__MENUVERT,,,.f.)} ;
+             when !empty(mDT_CONS) ;
+             color colget_menu
   if m1usl_ok < 3
-    ++j; @ j,3 say "Консилиум: дата" get mDT_CONS ;
-               valid {|| iif(empty(mDT_CONS) .or. between(mDT_CONS,mn_data,mk_data), .t., ;
-                             func_error(4,"Дата консилиума должна быть внутри сроков лечения")) }
-         @ j,col()+1 say "проведение" get mPR_CONS ;
-               reader {|x|menu_reader(x,mm_PR_CONS,A__MENUVERT,,,.f.)} ;
-               color colget_menu
     ++j; @ j,3 say "Проведённое лечение" get musl_tip ;
                reader {|x|menu_reader(x,mm_usl_tip,A__MENUVERT,,,.f.)} ;
                when len(mm_usl_tip) > 1 ;
@@ -6067,7 +6068,7 @@ if mval > 0
   do case
     case par == 1
       if (fl := between(m1,1,2))
-        s := {"Выявлено впервые в жизни",;
+        s := {"Выявлено впервые в жизни (или острое)",;
               "Ранее зарегистрированное заболевание"}[m1]
       endif
     case par == 2

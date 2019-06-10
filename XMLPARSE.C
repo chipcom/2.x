@@ -547,6 +547,7 @@ HB_FUNC( HBXML_GETDOC )
    BOOL           bFile;
    unsigned char  *ptr;
    int            iMainTags = 0;
+   char BOM[3] = {239,187,191}; //  маркер последовательности байтов начала файла в кодировке UTF-8
 
    if( ISCHAR(2) )
    {
@@ -572,6 +573,12 @@ HB_FUNC( HBXML_GETDOC )
    nParseError = 0;
    ptr = cBuffer;
    HB_SKIPTABSPACES( ptr );
+   if( !memcmp( ptr, BOM, 3 ) )  // если это заголовок файла в кодировке UTF-8, пропустить 3 байта
+   {
+      ptr ++;
+      ptr ++;
+      ptr ++;
+   }
    if( *ptr != '<' )
    {
       hbxml_error( HBXML_ERROR_NOT_LT, ptr );

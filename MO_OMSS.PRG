@@ -105,22 +105,22 @@ if !empty(full_zip)
 endif
 return fl
 
-***** 28.08.18 чтение в память и анализ XML-файла
+***** 26.05.19 чтение в память и анализ XML-файла
 Function read_XML_from_TF(cFile,arr_XML_info,arr_f)
 Local nTypeFile := 0, aerr := {}, j, oXmlDoc, oXmlNode, oNode1, oNode2, ;
       nCountWithErr := 0, adbf, go_to_schet := .f., go_to_akt := .f.,;
-      go_to_rpd := .f., buf := save_maxrow()
+      go_to_rpd := .f., nerror, buf := save_maxrow()
 nTypeFile := arr_XML_info[1]
 for j := 1 to 4
   if !myFileDeleted(cur_dir+"tmp"+lstr(j)+"file"+sdbf)
     return NIL
   endif
-next  
+next
 for j := 1 to 8
   if !myFileDeleted(cur_dir+"tmp_r_t"+lstr(j)+sdbf)
     return NIL
   endif
-next  
+next
 if eq_any(nTypeFile,_XML_FILE_FLK,_XML_FILE_R02,_XML_FILE_R06,_XML_FILE_D02)
   //
 elseif !mo_Lock_Task(X_OMS)
@@ -134,9 +134,12 @@ Private cFileProtokol := cReadFile+stxt
 strfile(space(10)+"Протокол обработки файла: "+cFile+hb_eol(),cFileProtokol)
 strfile(space(10)+full_date(sys_date)+"г. "+cTimeBegin+hb_eol(),cFileProtokol,.t.)
 // читаем файл в память
-oXmlDoc := HXMLDoc():Read(_tmp_dir1+cFile)
-if empty( oXmlDoc:aItems )
+oXmlDoc := HXMLDoc():Read(_tmp_dir1+cFile,,@nerror)
+if oXmlDoc == NIL .or. empty( oXmlDoc:aItems )
   aadd(aerr,"Ошибка в чтении файла "+cFile)
+elseif oXmlDoc:GetAttribute("encoding") == "UTF-8"
+  aadd(aerr,"")
+  aadd(aerr,"В файле "+cFile+" кодировка UTF-8, а должна быть Windows-1251")
 elseif nTypeFile == _XML_FILE_FLK
   is_err_FLK := protokol_flk_tmpfile(arr_f,aerr)
 elseif nTypeFile == _XML_FILE_SP
@@ -231,7 +234,7 @@ if empty(aerr) .or. nCountWithErr > 0 // запишем файл протокола обработки
   chip_copy_zipXML(cFileProtokol,dir_server+dir_XML_TF)
 endif
 if !empty(aerr)
-  aeval(aerr,{|x| strfile(x+hb_eol(),cFileProtokol,.t.) })
+  aeval(aerr,{|x| put_long_str(x,cFileProtokol) })
 endif
 viewtext(Devide_Into_Pages(cFileProtokol,60,80),,,,.t.,,,2)
 delete file (cFileProtokol)
@@ -755,7 +758,7 @@ if empty(aerr)
           kart->za_smo := 0  // снять признак "Проблемы с полисом"
           dbUnLock()
         endif
-        if !eq_any(tmp2->_MO_PR,space(6),replicate('0',6)) .or. !empty(tmp2->_enp) 
+        if !eq_any(tmp2->_MO_PR,space(6),replicate('0',6)) .or. !empty(tmp2->_enp)
           select KART2
           do while kart2->(lastrec()) < human->kod_k
             APPEND BLANK
@@ -763,7 +766,7 @@ if empty(aerr)
           goto (human->kod_k)
           if empty(kart2->MO_PR)
             G_RLock(forever)
-            if !eq_any(tmp2->_MO_PR,space(6),replicate('0',6)) 
+            if !eq_any(tmp2->_MO_PR,space(6),replicate('0',6))
               kart2->MO_PR := tmp2->_MO_PR
               kart2->TIP_PR := 2 // тип/статус прикрепления 2-из реестра СП и ТК
               kart2->DATE_PR := ldate_sptk
@@ -773,7 +776,7 @@ if empty(aerr)
             endif
             if !empty(tmp2->_enp)
               kart2->kod_mis := tmp2->_enp
-            endif 
+            endif
             dbUnLock()
           endif
         endif
@@ -803,24 +806,24 @@ if empty(aerr)
             s := ""
             //s := space(5)+"!Ошибки в персональных данных!"+eos
             if !empty(tmp2->_FAM)
-              //s += space(5)+'старая фамилия "'+alltrim(arr_fio[1])+'", изменена на "'+alltrim(tmp2->_FAM)+'"'+eos 
-              s += space(5)+'фамилия в нашей БД "'+alltrim(arr_fio[1])+'", в регистре ТФОМС "'+alltrim(tmp2->_FAM)+'"'+eos 
-              arr_fio[1] := alltrim(tmp2->_FAM) 
-            endif 
+              //s += space(5)+'старая фамилия "'+alltrim(arr_fio[1])+'", изменена на "'+alltrim(tmp2->_FAM)+'"'+eos
+              s += space(5)+'фамилия в нашей БД "'+alltrim(arr_fio[1])+'", в регистре ТФОМС "'+alltrim(tmp2->_FAM)+'"'+eos
+              arr_fio[1] := alltrim(tmp2->_FAM)
+            endif
             if !empty(tmp2->_IM)
-              //s += space(5)+'старое имя "'+alltrim(arr_fio[2])+'", изменено на "'+alltrim(tmp2->_IM)+'"'+eos 
-              s += space(5)+'имя в нашей БД "'+alltrim(arr_fio[2])+'", в регистре ТФОМС "'+alltrim(tmp2->_IM)+'"'+eos 
-              arr_fio[2] := alltrim(tmp2->_IM) 
-            endif 
+              //s += space(5)+'старое имя "'+alltrim(arr_fio[2])+'", изменено на "'+alltrim(tmp2->_IM)+'"'+eos
+              s += space(5)+'имя в нашей БД "'+alltrim(arr_fio[2])+'", в регистре ТФОМС "'+alltrim(tmp2->_IM)+'"'+eos
+              arr_fio[2] := alltrim(tmp2->_IM)
+            endif
             if !emptyall(tmp2->CORRECT,tmp2->_OT)
-              //s += space(5)+'старое отчество "'+alltrim(arr_fio[3])+'", изменено на "'+alltrim(tmp2->_OT)+'"'+eos 
-              s += space(5)+'отчество в нашей БД "'+alltrim(arr_fio[3])+'", в регистре ТФОМС "'+alltrim(tmp2->_OT)+'"'+eos 
-              arr_fio[3] := alltrim(tmp2->_OT) 
-            endif 
+              //s += space(5)+'старое отчество "'+alltrim(arr_fio[3])+'", изменено на "'+alltrim(tmp2->_OT)+'"'+eos
+              s += space(5)+'отчество в нашей БД "'+alltrim(arr_fio[3])+'", в регистре ТФОМС "'+alltrim(tmp2->_OT)+'"'+eos
+              arr_fio[3] := alltrim(tmp2->_OT)
+            endif
             if !empty(tmp2->_DR)
               mdate_r := xml2date(tmp2->_DR)
-              //s += space(5)+"старая дата рождения "+full_date(human->date_r)+", изменена на "+full_date(mdate_r)+eos 
-              s += space(5)+"дата рождения в нашей БД "+full_date(human->date_r)+", в регистре ТФОМС "+full_date(mdate_r)+eos 
+              //s += space(5)+"старая дата рождения "+full_date(human->date_r)+", изменена на "+full_date(mdate_r)+eos
+              s += space(5)+"дата рождения в нашей БД "+full_date(human->date_r)+", в регистре ТФОМС "+full_date(mdate_r)+eos
             endif
             //s += space(5)+"(исправлено - войти в редактирование л/у и подтвердить запись)"+eos
             //s += space(5)+"(исправляйте самостоятельно; в случае несогласия обращайтесь в отдел ТФОМС"+eos
@@ -1649,7 +1652,7 @@ if reg > 1
         frd->profil := lstr(human_->PROFIL)
       endif
       if !empty(human_->PRVS)
-        frd->vrach := put_prvs_to_reestr(human_->PRVS,schet_->nyear) 
+        frd->vrach := put_prvs_to_reestr(human_->PRVS,schet_->nyear)
         lstr(abs(human_->PRVS))
       endif
       if fl_2
@@ -1930,8 +1933,8 @@ Local _table1 := {;
    {"REASON_INV","C",2,0},; //
    {"DS_INV",   "C",10,0},; //
    {"MSE",      "C", 1,0},; //
-   {"KD_Z",     "C", 3,0},; // 
-   {"KD",       "C", 3,0},; // 
+   {"KD_Z",     "C", 3,0},; //
+   {"KD",       "C", 3,0},; //
    {"IDCASE",   "C",12,0},; //
    {"ID_C",     "C",36,0},; //
    {"SL_ID",    "C",36,0},; //
@@ -2004,11 +2007,11 @@ Local _table1 := {;
    {"DS1_T"    ,"C", 1,0},; // Повод обращения:0 - первичное лечение;1 - рецидив;2 - прогрессирование
    {"PR_CONS"  ,"C", 1,0},; // Сведения о проведении консилиума:1 - определена тактика обследования;2 - определена тактика лечения;3 - изменена тактика лечения.
    {"DT_CONS"  ,"C",10,0},; // Дата проведения консилиума       Обязательно к заполнению при заполненном PR_CONS
-   {"STAD"     ,"C", 3,0},; // Стадия заболевания       Заполняется в соответствии со справочником N002 
-   {"ONK_T"    ,"C", 3,0},; // Значение Tumor   Заполняется в соответствии со справочником N003 
-   {"ONK_N"    ,"C", 3,0},; // Значение Nodus   Заполняется в соответствии со справочником N004 
-   {"ONK_M"    ,"C", 3,0},; // Значение Metastasis      Заполняется в соответствии со справочником N005 
-   {"MTSTZ"    ,"C", 1,0},; // Признак выявления отдалённых метастазов  Подлежит заполнению значением 1 при выявлении отдалённых метастазов только при DS1_T=1 или DS1_T=2 
+   {"STAD"     ,"C", 3,0},; // Стадия заболевания       Заполняется в соответствии со справочником N002
+   {"ONK_T"    ,"C", 3,0},; // Значение Tumor   Заполняется в соответствии со справочником N003
+   {"ONK_N"    ,"C", 3,0},; // Значение Nodus   Заполняется в соответствии со справочником N004
+   {"ONK_M"    ,"C", 3,0},; // Значение Metastasis      Заполняется в соответствии со справочником N005
+   {"MTSTZ"    ,"C", 1,0},; // Признак выявления отдалённых метастазов  Подлежит заполнению значением 1 при выявлении отдалённых метастазов только при DS1_T=1 или DS1_T=2
    {"SOD"      ,"C", 6,0},;  // Суммарная очаговая доза Обязательно для заполнения при проведении лучевой или химиолучевой терапии (USL_TIP=3 или USL_TIP=4)
    {"K_FR"    , "C", 2,0},; //
    {"WEI"    ,  "C", 5,0},; //
@@ -2058,9 +2061,9 @@ Local _table2 := {;
    {"KOL_USL" , "C", 6,0},; //
    {"TARIF"   , "C",10,0},; //
    {"SUMV_USL", "C",10,0},; //
-   {"USL_TIP"  ,"C", 1,0},; // Тип онкоуслуги в соответствии со справочником N013       
-   {"HIR_TIP"  ,"C", 1,0},; // Тип хирургического лечения При USL_TIP=1 в соответствии со справочником N014     
-   {"LEK_TIP_L","C", 1,0},; // Линия лекарственной терапии При USL_TIP=2 в соответствии со справочником N015    
+   {"USL_TIP"  ,"C", 1,0},; // Тип онкоуслуги в соответствии со справочником N013
+   {"HIR_TIP"  ,"C", 1,0},; // Тип хирургического лечения При USL_TIP=1 в соответствии со справочником N014
+   {"LEK_TIP_L","C", 1,0},; // Линия лекарственной терапии При USL_TIP=2 в соответствии со справочником N015
    {"LEK_TIP_V","C", 1,0},; // Цикл лекарственной терапии       При USL_TIP=2 в соответствии со справочником N016
    {"LUCH_TIP" ,"C", 1,0},; // Тип лучевой терапии      При USL_TIP=3,4 в соответствии со справочником N017
    {"PRVS"    , "C", 9,0},; //
@@ -2112,7 +2115,7 @@ Local _table5 := {;
    {"NAZ_V2"  , "C", 1,0},; //
    {"NAZ_V3"  , "C", 1,0},; //
    {"NAPR_DATE","C",10,0},; // Дата направления
-   {"NAPR_MO",  "C", 6,0},; // 
+   {"NAPR_MO",  "C", 6,0},; //
    {"NAZ_USL"  ,"C",15,0},;  // шифр услуги
    {"NAZ_PMP" , "C", 3,0},; //
    {"NAZ_PK"  , "C", 3,0}; //
@@ -2122,7 +2125,7 @@ Local _table6 := {;  // онконаправления
    {"KOD",      "N", 6,0},; // код
    {"IDCASE",   "C",12,0},; // номер позиции записи в реестре;поле "IDCASE" (и "ZAP") в реестре случаев
    {"NAPR_DATE","C",10,0},; // Дата направления
-   {"NAPR_MO",  "C", 6,0},; // 
+   {"NAPR_MO",  "C", 6,0},; //
    {"NAPR_V"  , "C", 1,0},; // Вид направления:1-к онкологу,2-на биопсию,3-на дообследование,4-для опр.тактики лечения
    {"MET_ISSL" ,"C", 1,0},; // Метод диагностического исследования(при NAPR_V=3):1-лаб.диагностика;2-инстр.диагностика;3-луч.диагностика;4-КТ, МРТ, ангиография
    {"U_KOD"    ,"C",15,0};  // шифр услуги
@@ -2133,9 +2136,9 @@ Local _table7 := {;  // Диагностический блок
    {"IDCASE",   "C",12,0},; // номер позиции записи в реестре;поле "IDCASE" (и "ZAP") в реестре случаев
    {"DIAG_DATE","C",10,0},; // Дата взятия материала для проведения диагностики
    {"DIAG_TIP" ,"C", 1,0},; // Тип диагностического показателя: 1 - гистологический признак; 2 - маркёр (ИГХ)
-   {"DIAG_CODE","C", 3,0},; // Код диагностического показателя При DIAG_TIP=1 в соответствии со справочником N007 При DIAG_TIP=2 в соответствии со справочником N010 
+   {"DIAG_CODE","C", 3,0},; // Код диагностического показателя При DIAG_TIP=1 в соответствии со справочником N007 При DIAG_TIP=2 в соответствии со справочником N010
    {"DIAG_RSLT","C", 3,0},;  // Код результата диагностики При DIAG_TIP=1 в соответствии со справочником N008 При DIAG_TIP=2 в соответствии со справочником N011
-   {"REC_RSLT", "C", 1,0};  
+   {"REC_RSLT", "C", 1,0};
   }
 Local _table8 := {;  // Сведения об имеющихся противопоказаниях
    {"SLUCH",    "N", 6,0},; // номер случая
@@ -2148,12 +2151,12 @@ Local _table9 := {;  // Сведения об онкологических услугах
    {"SLUCH",    "N", 6,0},; // номер случая
    {"KOD",      "N", 6,0},; // код
    {"IDCASE",   "C",12,0},; // номер позиции записи в реестре;поле "IDCASE" (и "ZAP") в реестре случаев
-   {"USL_TIP"  ,"C", 1,0},; // Тип онкоуслуги в соответствии со справочником N013       
-   {"HIR_TIP"  ,"C", 1,0},; // Тип хирургического лечения При USL_TIP=1 в соответствии со справочником N014     
-   {"LEK_TIP_L","C", 1,0},; // Линия лекарственной терапии При USL_TIP=2 в соответствии со справочником N015    
+   {"USL_TIP"  ,"C", 1,0},; // Тип онкоуслуги в соответствии со справочником N013
+   {"HIR_TIP"  ,"C", 1,0},; // Тип хирургического лечения При USL_TIP=1 в соответствии со справочником N014
+   {"LEK_TIP_L","C", 1,0},; // Линия лекарственной терапии При USL_TIP=2 в соответствии со справочником N015
    {"LEK_TIP_V","C", 1,0},; // Цикл лекарственной терапии       При USL_TIP=2 в соответствии со справочником N016
    {"LUCH_TIP" ,"C", 1,0},; // Тип лучевой терапии      При USL_TIP=3,4 в соответствии со справочником N017
-   {"PPTR"     ,"C", 1,0}; 
+   {"PPTR"     ,"C", 1,0};
   }
 Local _table10 := {;  // Сведения об онкологических лек.препаратах
    {"SLUCH",    "N", 6,0},; // номер случая
@@ -2161,7 +2164,7 @@ Local _table10 := {;  // Сведения об онкологических лек.препаратах
    {"IDCASE",   "C",12,0},; // номер позиции записи в реестре;поле "IDCASE" (и "ZAP") в реестре случаев
    {"REGNUM",   "C", 6,0},;
    {"CODE_SH" , "C",10,0},;
-   {"DATE_INJ" ,"C",10,0}; 
+   {"DATE_INJ" ,"C",10,0};
   }
 Local arr_f, ii, oXmlDoc, j, j1, _ar, buf := save_maxrow(), name_zip := alltrim(mname_xml)+szip, fl := .f.
       is_old := .f.
@@ -2216,7 +2219,7 @@ if (arr_f := Extract_Zip_XML(goal_dir,name_zip)) != NIL
   for ii := 1 to len(arr_f)
     // читаем файл в память
     oXmlDoc := HXMLDoc():Read(_tmp_dir1+arr_f[ii])
-    if Empty( oXmlDoc:aItems )
+    if oXmlDoc == NIL .or. Empty( oXmlDoc:aItems )
       fl := func_error(4,"Ошибка в чтении файла "+arr_f[ii])
       exit
     endif
@@ -2224,7 +2227,7 @@ if (arr_f := Extract_Zip_XML(goal_dir,name_zip)) != NIL
       @ maxrow(),1 say padr(lstr(ii)+"/"+lstr(j),8) color cColorSt2Msg
       oXmlNode := oXmlDoc:aItems[1]:aItems[j]
       do case
-        case flag_tmp1 .and. "ZGLV" == oXmlNode:title 
+        case flag_tmp1 .and. "ZGLV" == oXmlNode:title
           tmp1->_VERSION :=          mo_read_xml_stroke(oXmlNode,"VERSION")
           if !(alltrim(tmp1->_VERSION) == "3.11")
             is_old := .t.
@@ -2310,9 +2313,9 @@ if (arr_f := Extract_Zip_XML(goal_dir,name_zip)) != NIL
                     lal := "t11"
                     select T11
                     append blank
-                    t11->kod    := t1->kod 
+                    t11->kod    := t1->kod
                     t11->N_ZAP  := t1->N_ZAP
-                    t11->ID_PAC := t1->ID_PAC 
+                    t11->ID_PAC := t1->ID_PAC
                     t11->IDCASE := t1->IDCASE
                     t11->ID_C   := t1->ID_C
                   endif
@@ -2377,8 +2380,8 @@ if (arr_f := Extract_Zip_XML(goal_dir,name_zip)) != NIL
                         t5->sluch  := iisl
                         t5->KOD    := mkod
                         t5->IDCASE := &lal.->IDCASE // для связи со случаем
-                        t5->NAZ_N  := mo_read_xml_stroke(oNode2,"NAZ_N",,.f.)  
-                        t5->NAZ_R  := mo_read_xml_stroke(oNode2,"NAZ_R",,.f.)  
+                        t5->NAZ_N  := mo_read_xml_stroke(oNode2,"NAZ_N",,.f.)
+                        t5->NAZ_R  := mo_read_xml_stroke(oNode2,"NAZ_R",,.f.)
                         _ar := mo_read_xml_array(oNode2,"NAZ_SP") // М.Б.НЕСКОЛЬКО NAZ_SP
                         for j1 := 1 to min(3,len(_ar))
                           pole := "t5->NAZ_SP"+lstr(j1)
@@ -2445,11 +2448,11 @@ if (arr_f := Extract_Zip_XML(goal_dir,name_zip)) != NIL
                   next
                   if (oNode3 := oNode11:Find("ONK_SL")) != NIL
                     &lal.->DS1_T := mo_read_xml_stroke(oNode3,"DS1_T",,.f.)
-                    &lal.->STAD  := mo_read_xml_stroke(oNode3,"STAD",,.f.) 
-                    &lal.->ONK_T := mo_read_xml_stroke(oNode3,"ONK_T",,.f.) 
-                    &lal.->ONK_N := mo_read_xml_stroke(oNode3,"ONK_N",,.f.) 
-                    &lal.->ONK_M := mo_read_xml_stroke(oNode3,"ONK_M",,.f.) 
-                    &lal.->MTSTZ := mo_read_xml_stroke(oNode3,"MTSTZ",,.f.) 
+                    &lal.->STAD  := mo_read_xml_stroke(oNode3,"STAD",,.f.)
+                    &lal.->ONK_T := mo_read_xml_stroke(oNode3,"ONK_T",,.f.)
+                    &lal.->ONK_N := mo_read_xml_stroke(oNode3,"ONK_N",,.f.)
+                    &lal.->ONK_M := mo_read_xml_stroke(oNode3,"ONK_M",,.f.)
+                    &lal.->MTSTZ := mo_read_xml_stroke(oNode3,"MTSTZ",,.f.)
                     &lal.->SOD   := mo_read_xml_stroke(oNode3,"SOD",,.f.)
                     &lal.->K_FR   := mo_read_xml_stroke(oNode3,"K_FR",,.f.)
                     &lal.->WEI   := mo_read_xml_stroke(oNode3,"WEI",,.f.)
@@ -2463,19 +2466,19 @@ if (arr_f := Extract_Zip_XML(goal_dir,name_zip)) != NIL
                         t7->sluch     := iisl
                         t7->KOD       := mkod
                         t7->IDCASE    := &lal.->IDCASE // для связи со случаем
-                        t7->DIAG_DATE := mo_read_xml_stroke(oNode2,"DIAG_DATE",,.f.) 
-                        t7->DIAG_TIP  := mo_read_xml_stroke(oNode2,"DIAG_TIP",,.f.) 
-                        t7->DIAG_CODE := mo_read_xml_stroke(oNode2,"DIAG_CODE",,.f.) 
-                        t7->DIAG_RSLT := mo_read_xml_stroke(oNode2,"DIAG_RSLT",,.f.) 
-                        t7->REC_RSLT  := mo_read_xml_stroke(oNode2,"REC_RSLT",,.f.) 
+                        t7->DIAG_DATE := mo_read_xml_stroke(oNode2,"DIAG_DATE",,.f.)
+                        t7->DIAG_TIP  := mo_read_xml_stroke(oNode2,"DIAG_TIP",,.f.)
+                        t7->DIAG_CODE := mo_read_xml_stroke(oNode2,"DIAG_CODE",,.f.)
+                        t7->DIAG_RSLT := mo_read_xml_stroke(oNode2,"DIAG_RSLT",,.f.)
+                        t7->REC_RSLT  := mo_read_xml_stroke(oNode2,"REC_RSLT",,.f.)
                       elseif valtype(oNode2) != "C" .AND. oNode2:title == "B_PROT"
                         select T8
                         append blank
                         t8->sluch  := iisl
                         t8->KOD    := mkod
                         t8->IDCASE := &lal.->IDCASE // для связи со случаем
-                        t8->PROT   := mo_read_xml_stroke(oNode2,"PROT",,.f.) 
-                        t8->D_PROT := mo_read_xml_stroke(oNode2,"D_PROT",,.f.) 
+                        t8->PROT   := mo_read_xml_stroke(oNode2,"PROT",,.f.)
+                        t8->D_PROT := mo_read_xml_stroke(oNode2,"D_PROT",,.f.)
                       elseif valtype(oNode2) != "C" .AND. oNode2:title == "ONK_USL"
                         select T9
                         append blank
@@ -2710,9 +2713,7 @@ append blank
 use (cur_dir+"tmp2file") new alias TMP2
 for ii := 1 to len(arr_f)
   // т.к. в ZIP'е два XML-файла, второй файл также прочитать
-  if upper(right(arr_f[ii],4)) == sxml
-    // читаем файл в память
-    oXmlDoc := HXMLDoc():Read(_tmp_dir1+arr_f[ii])
+  if upper(right(arr_f[ii],4)) == sxml .and. valtype(oXmlDoc := HXMLDoc():Read(_tmp_dir1+arr_f[ii])) == "O"
     FOR j := 1 TO Len( oXmlDoc:aItems[1]:aItems )
       oXmlNode := oXmlDoc:aItems[1]:aItems[j]
       do case
@@ -2838,7 +2839,7 @@ FOR j := 1 TO Len( oXmlDoc:aItems[1]:aItems )
           tmp2->_DR  := mo_read_xml_stroke(oNode2,"DR",aerr,.f.)
           if oNode2:Find("OT") != NIL .and. empty(tmp2->_OT)
             tmp2->CORRECT := "OT" // т.е. пустое отчество
-          endif 
+          endif
         endif
       endif
       if alltrim(tmp1->_VERSION) == "3.11"

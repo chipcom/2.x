@@ -147,7 +147,7 @@ Private mbukva := " ", muchast := 0, mkod_vu := 0, mkod_AK := space(6),;
     fl_invalid := .f., m1INVALID := 0, mINVALID, mINVALID_ST := 0,;
     MDATE_INV := CTOD(""),; // дата первичного установления инвалидности
     MPRICH_INV := SPACE(10), M1PRICH_INV := 0,; // причина первичного установления инвалидности
-    mDIAG_INV := space(5),;  // 
+    mDIAG_INV := space(5),;  //
     mBLOOD_G := 0, mBLOOD_R := " ", mWEIGHT := 0, mHEIGHT := 0,;
     m1WHERE_KART := 0, mWHERE_KART, rec_inogSMO := 0, ;
     mokato, m1okato := "", mismo, m1ismo := "", mnameismo := space(100),;
@@ -288,10 +288,10 @@ if !is_append .and. R_Use(dir_server+"kartote_",,"KART_") ;
     if (fl_invalid := found())
       MDATE_INV := inv->DATE_INV
       M1PRICH_INV := inv->PRICH_INV
-      MPRICH_INV := inieditspr(A__MENUVERT, mm_prich_inv, M1PRICH_INV) 
+      MPRICH_INV := inieditspr(A__MENUVERT, mm_prich_inv, M1PRICH_INV)
       mDIAG_INV := inv->DIAG_INV
     endif
-  endif 
+  endif
   R_Use(dir_server+"k_prim1",dir_server+"k_prim1","K_PRIM1")
   find (str(mkod,7))
   do while k_prim1->kod == mkod .and. !eof()
@@ -509,7 +509,7 @@ do while .t.
          valid {|g| iif(mdate_r==g:original, .t., fv_date_r()), findKartoteka(1,@mkod) }
   @ row(),30 say "==>" get mvzros_reb when .f. color cDataCSay
   @ row(),50 say "СНИЛС" get msnils pict picture_pf ;
-         valid {|| val_snils(msnils,1), findKartoteka(3,@mkod) } 
+         valid {|| val_snils(msnils,1), findKartoteka(3,@mkod) }
   ++ix ; @ ix,1 say "Уд-ие личности:" get mvid_ud ;
          reader {|x|menu_reader(x,menu_vidud,A__MENUVERT,,,.f.)}
          @ ix,42 say "Серия" get mser_ud pict "@!" valid val_ud_ser(1,m1vid_ud,mser_ud)
@@ -621,7 +621,7 @@ do while .t.
   endif
   set key K_F2 TO
   if p_edit_kartoteka // при добавлении нашли в картотеке такого пациента
-    exit 
+    exit
   endif
   if lastkey() != K_ESC
     MFIO := rtrim(mfam)+" "+rtrim(mim)+" "+mot
@@ -810,7 +810,7 @@ do while .t.
           inv->PRICH_INV := M1PRICH_INV
           inv->DIAG_INV := mDIAG_INV
         endif
-      endif 
+      endif
       if fl_nameismo .or. rec_inogSMO > 0
         G_Use(dir_server+"mo_kismo",,"SN")
         index on str(kod,7) to (cur_dir+"tmp_ismo")
@@ -1049,7 +1049,7 @@ SAVE GETS TO tmp_list
 tmp_keys := my_savekey()
 change_attr()
 box_shadow(r1,c,r2,77,,"Ввод информации об инвалидности","G+/B+")
-@ r1+1,c+1 say "Инвалидность" get MINVALID WHEN .F. 
+@ r1+1,c+1 say "Инвалидность" get MINVALID WHEN .F.
 @ r1+2,c+1 say "Дата первичного установления инвалидности" get MDATE_INV ;
            valid {|| !empty(MDATE_INV) .and. mdate_r < MDATE_INV .and. MDATE_INV < sys_date }
 @ r1+3,c+1 say "Причина первичного установления инвалидности"
@@ -1198,7 +1198,7 @@ endif
 kart->(dbCloseArea())
 restscreen(buf)
 if rec > 0 .and. lkod_k == rec
-  if type("p_edit_kartoteka") == "L"   
+  if type("p_edit_kartoteka") == "L"
     p_edit_kartoteka := .t.
     ReadKill(.t.)
   else
@@ -1230,7 +1230,7 @@ box_shadow(r1,c,r2,77,,"Ввод дополнительных сведений по иностранцу","GR+/BG")
 setcursor()
 @ r1+1,c+2 say "Страна" get mstrana ;  //reader {|x|menu_reader(x,glob_O001,A__MENUVERT,,,.f.)}
            reader {|x|menu_reader(x,{{|k,r,c|f1get_oksm(k,r,c)}},A__FUNCTION,,,.f.)}
-@ r1+2,c+2 say "Основание пребывания в РФ" get mosn_preb ;  
+@ r1+2,c+2 say "Основание пребывания в РФ" get mosn_preb ;
            reader {|x|menu_reader(x,menu_osn_preb_RF,A__MENUVERT,,,.f.)}
 @ r1+3,c+2 say "Адрес проживания в Волгоградской области"
 @ r1+4,c+3 get MADRES_PRO
@@ -1925,7 +1925,7 @@ return NIL
 
 ***** 05.07.16
 Function ret_last3_pos()
-Local i, s, arr := {}, mes_arr := {}      
+Local i, s, arr := {}, mes_arr := {}
 R_Use(dir_server+"mo_regi",dir_server+"mo_regi3","RU")
 find (str(kart->kod,7))
 if found()
@@ -1964,7 +1964,7 @@ if found()
 endif
 ru->(dbCloseArea())
 select KART
-return mes_arr 
+return mes_arr
 
 ***** 05.07.16
 Function f2_v_kart(nkey,oBrow)
@@ -2366,7 +2366,7 @@ if i == 1
   arr_title := {"────┬─────────────────────────────────────────────┬────────┬──────",;
                 " NN │                   Ф.И.О.                    │ Дата р.│Кол-во",;
                 "────┴─────────────────────────────────────────────┴────────┴──────"}
-  sh := len(arr_title[1])              
+  sh := len(arr_title[1])
   fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
   add_string("")
   add_string(center("Список дублирующихся записей в картотеке",sh))
@@ -2629,7 +2629,7 @@ elseif i == 4
   R_Use(dir_server+"kartotek",,"KART")
   select KART2
   set relation to recno() into KART, to recno() into KART_
-  index on kod_mis to (cur_dir+"tmp_kodmis") for !empty(kod_mis) .and. !empty(kart->kod) 
+  index on kod_mis to (cur_dir+"tmp_kodmis") for !empty(kod_mis) .and. !empty(kart->kod)
   go top
   do while !eof()
     GaugeUpdate( hGauge, ++curr/lastrec() )
@@ -3578,7 +3578,7 @@ return NIL
 
 ***** 16.01.17
 Function f1_wq_edit_uchast(oBrow)
-Local oColumn, blk := {|| iif(wq->uchast <= 0, {3,4}, {1,2}) } 
+Local oColumn, blk := {|| iif(wq->uchast <= 0, {3,4}, {1,2}) }
 oColumn := TBColumnNew(center("ФИО",30),{|| padr(wq->fio,30) })
 oColumn:colorBlock := blk
 oBrow:addColumn(oColumn)
@@ -3655,7 +3655,7 @@ return flag
 
 *
 
-***** 16.07.15 Подготовка и создание файлов прикрепления для WQ...
+***** 09.06.17 Подготовка и создание файлов прикрепления для WQ...
 Function wq_prikreplenie()
 Local i, j := 0, arr_uch := {}, fl_err := .f., buf := save_maxrow(),;
       fl := .f., filename := wq_ret_last_name()
@@ -3943,6 +3943,8 @@ if !fl_err .and. ;
       krtp->D_PRIK1  := ctod("")       // дата прикрепления
       //
       s1 := iif(ii==1, "", hb_eol())
+      // 1 - Номер записи в файле с 10.06.19г.
+      s1 += eval(blk,lstr(ii))+";"
       // 1 - Действие
       s := "Р"
       s1 += eval(blk,s)+";"
@@ -4123,13 +4125,13 @@ else
 endif
 return NIL
 
-***** 12.10.15 заменить ";" в поле на " " для отправки в файле CSV
+***** 09.06.16 заменить ";" в поле на " " для отправки в файле CSV
 Function f_s_csv(s)
 Static c := ";"
 if c $ s
   s := charrepl(c,s," ")
 endif
-return s
+return charone(" ",s)
 
 ***** 20.11.15 Подсчёт количества пациентов, прикреплённых ко всем участковым врачам
 Function prn_itogo_uch_vrach()
@@ -4214,7 +4216,7 @@ do while !eof()
   endif
   select KART_ET
   skip
-enddo  
+enddo
 close databases
 asort(arr,,,{|x,y| iif(x[5,1,1]==y[5,1,1], x[5,1,2]<y[5,1,2], x[5,1,1]<y[5,1,1]) })
 rest_box(buf)

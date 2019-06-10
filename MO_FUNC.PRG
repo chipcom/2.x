@@ -13,7 +13,7 @@ if hb_FileExists(n_file)
   hb_hrbUnload( handle )
 else
   func_error(4,"Не обнаружен файл "+n_file)
-endif  
+endif
 Return Nil
 
 ***** 28.10.18
@@ -147,7 +147,7 @@ do case
     index on str(kod,7) to (dir_server+sBase) progress
   case sBase == "mo_onkdi"
     index on str(kod,7)+str(diag_tip,1)+str(diag_code,3) to (dir_server+sBase) progress
-  case sBase == "mo_onkpr"  
+  case sBase == "mo_onkpr"
     index on str(kod,7)+str(prot,1) to (dir_server+sBase) progress
   case sBase == "mo_onkus"
     index on str(kod,7)+str(usl_tip,1) to (dir_server+sBase) progress
@@ -186,10 +186,10 @@ do case
     index on str(kod,7) to (dir_server+sBase) progress
   case sBase == "payments"
     index on str(IDCONTR,7) to (dir_server+'payments') progress
-    index on dtos(DATE) to (dir_server+'payments_date') progress 
-    index on str(TYPEPAYER,1)+str(IDPAYER,7) to (dir_server+'payments_payer') progress 
+    index on dtos(DATE) to (dir_server+'payments_date') progress
+    index on str(TYPEPAYER,1)+str(IDPAYER,7) to (dir_server+'payments_payer') progress
   case sBase == "payer"
-    index on upper(NAME) to (dir_server+sBase) progress 
+    index on upper(NAME) to (dir_server+sBase) progress
   case sBase == "pu_date"
     index on dtos(data) to (dir_server+sBase) descending
   case sBase == "pu_cena"
@@ -1509,7 +1509,7 @@ return ret
 Function f1get_tmp_ga(nKey,oBrow,regim,arr)
 Static tmp := ""
 Local ret := -1, buf, buf1, tmp1, rec1 := recno()
-if regim == "edit" .and. nkey == K_INS .and. valtype(arr) == "A" .and. fieldnum("ISN") > 0 
+if regim == "edit" .and. nkey == K_INS .and. valtype(arr) == "A" .and. fieldnum("ISN") > 0
   //специально для множественного выбора из справочника новых специальностей V015
   tmp_ga->isn := iif(tmp_ga->isn==1, 0, 1)
   keyboard chr(K_TAB)
@@ -1592,7 +1592,7 @@ if valtype(a_spec) == "A"
       skip
     enddo
   endif
-else  
+else
   blk := {|| iif(tmp_ga->vs=="врач", {1,2}, {3,4}) }
 endif
 t_arr[BR_LEFT] := 2
@@ -1609,11 +1609,11 @@ t_arr[BR_EDIT] := {|nk,ob| f1get_tmp_ga(nk,ob,"edit",a_spec) }
 if valtype(a_spec) == "A"
   Ins_Array(t_arr[BR_COLUMN], 1, {" ", {|| iif(tmp_ga->isn==1,""," ") }, blk })
   t_arr[BR_STAT_MSG] := {|| status_key("^<Esc>^ - выход;  ^<Ins>^ - отметить специальность;  ^<F2>^ - поиск по подстроке") }
-else  
+else
   t_arr[BR_ENTER] := {|| iif(tmp_ga->uroven==0, (func_error(4,"Запрещается выбирать данную специальность"),ret:=nil),;
                                                 (ret := {tmp_ga->kod,alltrim(tmp_ga->name)})) }
   t_arr[BR_STAT_MSG] := {|| status_key("^<Esc>^ - выход;  ^<Enter>^ - выбор;  ^<F2>^ - поиск по подстроке") }
-endif  
+endif
 fl := .f. ; nRec := 0
 if !(valtype(a_spec) == "A") .and. k != NIL
   set order to 2
@@ -1637,7 +1637,7 @@ endif
 edit_browse(t_arr)
 if valtype(a_spec) == "A"
   s := ""
-  asize(a_spec,0)  
+  asize(a_spec,0)
   go top
   do while !eof()
     if tmp_ga->isn == 1
@@ -1648,10 +1648,10 @@ if valtype(a_spec) == "A"
     skip
   enddo
   if empty(s)
-    s := "---" 
+    s := "---"
   else
     s := left(s,len(s)-1)
-  endif   
+  endif
   ret := {1,s}
 endif
 tmp_ga->(dbCloseArea())
@@ -1879,7 +1879,7 @@ return ret
 ***** 29.10.18
 Function input_perso(r,c,is_null,is_rab)
 Static si := 1
-Local fl := .f., fl1 := .f., mas_pmt, s_input, s_glob, s_pict, tmp_help := 0,; 
+Local fl := .f., fl1 := .f., mas_pmt, s_input, s_glob, s_pict, tmp_help := 0,;
       arr_dolj := {}, arr_kod := {}, lr, r1, r2, i, buf := save_row(maxrow())
 DEFAULT is_null TO .t., is_rab TO .f.
 mas_pmt := {"Поиск сотрудника по ~таб.номеру","Поиск сотрудника по ~фамилии"}
@@ -2048,7 +2048,7 @@ return NIL
 
 ***** 17.12.18 добавление удалённого зуба
 Function STappendDelZ(lkod_k,_zf,ldate_u,lu_kod)
-Static arr_STdelzub 
+Static arr_STdelzub
 Local i, arr_zf := STretArrZF(_zf)
 DEFAULT arr_STdelzub TO ret_arr_STdelzub()
 my_debug(,print_array(arr_zf))
@@ -2060,7 +2060,7 @@ if len(arr_zf) > 0 .and. ascan(arr_STdelzub,lu_kod) > 0 .and. select("KARTDELZ")
   for i := 1 to len(arr_zf)
     find (str(lkod_k,7)+str(arr_zf[i],2))
     if found()
-      if !(kartdelz->DATE_U == ldate_u)  
+      if !(kartdelz->DATE_U == ldate_u)
         G_RLock(forever)
         kartdelz->DATE_U := ldate_u
         kartdelz->(dbUnLock())
@@ -2078,7 +2078,7 @@ return NIL
 
 ***** 17.12.18 удаление удалённого зуба
 Function STDelDelZ(lkod_k,_zf,lu_kod)
-Static arr_STdelzub 
+Static arr_STdelzub
 Local i, arr_zf := STretArrZF(_zf)
 DEFAULT arr_STdelzub TO ret_arr_STdelzub()
 if len(arr_zf) > 0 .and. ascan(arr_STdelzub,lu_kod) > 0 .and. select("KARTDELZ") > 0
@@ -2089,7 +2089,7 @@ if len(arr_zf) > 0 .and. ascan(arr_STdelzub,lu_kod) > 0 .and. select("KARTDELZ")
       DeleteRec(.t.)
     endif
   next
-endif  
+endif
 return NIL
 
 ***** 11.12.2018 вернуть массив с кодами услуг удаления зуба
@@ -2116,7 +2116,7 @@ Local i, s, lkod := 0
       endif
       skip
     enddo
-    if lkod == 0 
+    if lkod == 0
       set order to 1
       FIND (STR(-1,6))
       if found()
@@ -2136,7 +2136,7 @@ return akod
 
 ***** 17.12.18 проверка, не удалён ли зуб
 Function STverDelZub(lkod_k,arr_zf,ldate_u,ltip,lrec,/*@*/amsg)
-Static arr_STdelzub 
+Static arr_STdelzub
 Local i
 DEFAULT arr_STdelzub TO ret_arr_STdelzub()
 if len(arr_STdelzub) > 0 .and. select("KARTDELZ") > 0
@@ -2776,7 +2776,7 @@ if fl
 endif
 return fl
 
-***** 10.03.19 определение КСГ по остальным введённым полям ввода - 2019 год
+***** 14.05.19 определение КСГ по остальным введённым полям ввода - 2019 год
 Function definition_KSG(par)
 // файлы "human", "human_" и "human_2" открыты и стоят на нужной записи
 //       "human" открыт для записи суммы случая
@@ -2832,7 +2832,7 @@ Local mdiagnoz, aHirKSG := {}, aTerKSG := {}, fl_cena := .f., lvmp, lvidvmp := 0
       lfio, cenaTer := 0, cenaHir := 0, ksgHir, ars := {}, arerr := {}, ;
       lksg := "", lcena := 0, osn_diag3, lprofil, ldnej := 0, y := 0, m := 0, d := 0,;
       osn_diag := space(6), sop_diag := {}, osl_diag := {}, tmp, lrslt, akslp, akiro,;
-      lad_cr := "", lad_cr1 := "", lis_err := 0, akslp2, lpar_org := 0,; 
+      lad_cr := "", lad_cr1 := "", lis_err := 0, akslp2, lpar_org := 0,;
       kol_ter := 0, kol_hir := 0, lkoef, fl_reabil, lkiro := 0, lkslp := "", lbartell := "",;
       lusl, susl, s_dializ := 0, ahu := {}, amohu := {}, date_usl := stod("20190101")
 DEFAULT par TO 1, sp0 TO "", sp1 TO space(1), sp6 TO space(6), sp15 TO space(20)
@@ -2890,6 +2890,11 @@ else // из режима импорта случаев
     lvidvmp := ihuman->METOD_HMP
   endif
   lad_cr  := alltrim(ihuman->ad_cr)
+  if lad_cr == "нет"
+    lad_cr := ""
+  endif
+  lad_cr1 := alltrim(ihuman->ad_cr2)
+  lis_err := ihuman->is_err
   lusl    := ihuman->USL_OK
   lfio    := alltrim(ihuman->fio)
   ln_data := ihuman->date_1
@@ -2938,7 +2943,7 @@ endif
 if eq_any(lad_cr,'60','61')
   lbartell := lad_cr
   lad_cr := ""
-endif  
+endif
 ldni := ln_data - ldate_r // для ребёнка возраст в днях
 count_ymd(ldate_r,ln_data,@y,@m,@d)
 date_usl := lk_data //!!!!!!!!!!!!раскомментировать после теста!!!!!!!!!!!!!!!
@@ -2962,7 +2967,7 @@ if empty(osn_diag)
   aadd(arerr,' не введён основной диагноз')
   return {ars,arerr,lksg,lcena,{},{}}
 endif
-if f_put_glob_podr(lusl,date_usl,arerr) // если не заполнен код подразделения 
+if f_put_glob_podr(lusl,date_usl,arerr) // если не заполнен код подразделения
   return {ars,arerr,lksg,lcena,{},{}}
 endif
 if lvmp > 0
@@ -3093,27 +3098,27 @@ if ldnej < 4
   llos += '1'
 endif
 /*
-0 - КИРО не применяется 
-1 - длительность случая 3 койко-дня (дней лечения) и менее и пациенту выполнена хирургическая операция 
-    либо другое вмешательство, являющиеся классификационным критерием отнесения данного случая лечения 
-    к конкретной КСГ вне зависимости от сочетания с результатами обращения за медицинской помощью  
-2 - длительность случая 3 койко-дня (дней лечения) и менее, но хирургическое лечение либо другое вмешательство, 
-    определяющее отнесение к КСГ не проводилось и критерием отнесения в случае является код диагноза по МКБ 10 
-    вне зависимости от сочетания с результатами обращения за медицинской помощью; 
-3 - длительность случая 4 койко-дня (дней лечения) и более и пациенту выполнена хирургическая операция 
-    либо другое вмешательство, являющиеся классификационным критерием отнесения данного случая лечения 
-    к конкретной КСГ в сочетании с результатами обращения за медицинской помощью 
+0 - КИРО не применяется
+1 - длительность случая 3 койко-дня (дней лечения) и менее и пациенту выполнена хирургическая операция
+    либо другое вмешательство, являющиеся классификационным критерием отнесения данного случая лечения
+    к конкретной КСГ вне зависимости от сочетания с результатами обращения за медицинской помощью
+2 - длительность случая 3 койко-дня (дней лечения) и менее, но хирургическое лечение либо другое вмешательство,
+    определяющее отнесение к КСГ не проводилось и критерием отнесения в случае является код диагноза по МКБ 10
+    вне зависимости от сочетания с результатами обращения за медицинской помощью;
+3 - длительность случая 4 койко-дня (дней лечения) и более и пациенту выполнена хирургическая операция
+    либо другое вмешательство, являющиеся классификационным критерием отнесения данного случая лечения
+    к конкретной КСГ в сочетании с результатами обращения за медицинской помощью
     (Классификатор V009) 102, 105, 107, 110, 202, 205, 207
-4 - длительность случая 4 койко-дня (дней лечения) и более, но хирургическое лечение либо другое вмешательство, 
-    определяющее отнесение к КСГ не проводилось, в сочетании с результатами обращения за медицинской помощью 
+4 - длительность случая 4 койко-дня (дней лечения) и более, но хирургическое лечение либо другое вмешательство,
+    определяющее отнесение к КСГ не проводилось, в сочетании с результатами обращения за медицинской помощью
     (Классификатор V009) 102, 105, 107, 110, 202, 205, 207
-5 - случаи с несоблюдением режима введения лекарственного препарата (дней введения в схеме) согласно инструкции 
-    к препарату при длительности случая 3 койко-дня (дня лечения) и менее вне зависимости от результата обращения 
+5 - случаи с несоблюдением режима введения лекарственного препарата (дней введения в схеме) согласно инструкции
+    к препарату при длительности случая 3 койко-дня (дня лечения) и менее вне зависимости от результата обращения
     за медицинской помощью
-6 - случаи с несоблюдением режима введения лекарственного препарата (дней введения в схеме) согласно инструкции 
-    к препарату при длительности случая 4 койко-дня (дня лечения) и более в сочетании с результатами обращения 
+6 - случаи с несоблюдением режима введения лекарственного препарата (дней введения в схеме) согласно инструкции
+    к препарату при длительности случая 4 койко-дня (дня лечения) и более в сочетании с результатами обращения
     за медицинской помощью (Классификатор V009) 102, 105, 107, 110, 202, 205, 207
-*/    
+*/
 //aadd(ars,'   ║age='+lage+' sex='+lsex+' los='+llos)
 if select("K006") == 0
   R_Use(exe_dir+"_mo9k006",{cur_dir+"_mo9k006",cur_dir+"_mo9k006_"},"K006")
@@ -3147,7 +3152,7 @@ do while left(k006->shifr,2)==susl .and. k006->ds==padr(osn_diag,6) .and. !eof()
   if fl
     fl := between_date(k006->DATEBEG,k006->DATEEND,date_usl)
   endif
-  if fl 
+  if fl
     sds1 := iif(empty(k006->ds1), sp0, alltrim(k006->ds1)+sp6) // соп.диагноз
     sds2 := iif(empty(k006->ds2), sp0, alltrim(k006->ds2)+sp6) // диагн.осложнения
   endif
@@ -3182,7 +3187,7 @@ do while left(k006->shifr,2)==susl .and. k006->ds==padr(osn_diag,6) .and. !eof()
     fl := (k006->los $ llos)
     if fl ; j ++ ; endif
   endif
-  if fl 
+  if fl
     if empty(lad_cr) // в случае нет доп.критерия
       if !empty(k006->ad_cr) // а в справочнике есть доп.критерий
         fl := .f.
@@ -3196,7 +3201,7 @@ do while left(k006->shifr,2)==susl .and. k006->ds==padr(osn_diag,6) .and. !eof()
       endif
     endif
   endif
-  if fl 
+  if fl
     if empty(lad_cr1) // в случае нет доп.критерия2
       if !empty(k006->ad_cr1) // а в справочнике есть доп.критерий2
         fl := .f.
@@ -3213,7 +3218,7 @@ do while left(k006->shifr,2)==susl .and. k006->ds==padr(osn_diag,6) .and. !eof()
   if fl .and. !empty(sds1)
     fl := .f.
     for i := 1 to len(sop_diag)
-      if sop_diag[i] $ sds1
+      if alltrim(sop_diag[i]) $ sds1
         fl := .t. ; exit
       endif
     next
@@ -3222,7 +3227,7 @@ do while left(k006->shifr,2)==susl .and. k006->ds==padr(osn_diag,6) .and. !eof()
   if fl .and. !empty(sds2)
     fl := .f.
     for i := 1 to len(osl_diag)
-      if osl_diag[i] $ sds2
+      if alltrim(osl_diag[i]) $ sds2
         fl := .t. ; exit
       endif
     next
@@ -3235,18 +3240,18 @@ do while left(k006->shifr,2)==susl .and. k006->ds==padr(osn_diag,6) .and. !eof()
     aadd(ar,{k006->shifr,; //  1
              0,;           //  2
              lkoef,;       //  3
-             lusl->kiros,; //  4 
+             lusl->kiros,; //  4
              osn_diag,;    //  5
              k006->sy,;    //  6
              k006->age,;   //  7
              k006->sex,;   //  8
              k006->los,;   //  9
-             k006->ad_cr,; // 10 
-             sds1,;        // 11 
-             sds2,;        // 12 
-             j,;           // 13 
-             lusl->kslps,; // 14 
-             k006->ad_cr1}) // 15 
+             k006->ad_cr,; // 10
+             sds1,;        // 11
+             sds2,;        // 12
+             j,;           // 13
+             lusl->kslps,; // 14
+             k006->ad_cr1}) // 15
   endif
   select K006
   skip
@@ -3254,7 +3259,7 @@ enddo
 if len(ar) > 0
   for i := 1 to len(tmp)
     im := tmp[i]
-    amohu[im] := "" // очистить, чтобы не включать в хирургическую КСГ 
+    amohu[im] := "" // очистить, чтобы не включать в хирургическую КСГ
   next
   for i := 1 to len(ar)
     ar[i,2] := ret_cena_KSG(ar[i,1],lvr,date_usl)
@@ -3286,14 +3291,14 @@ for im := 1 to len(amohu)
       lkoef := k006->kz
       select LUSL
       find (padr(k006->shifr,10))
-      fl := lkoef > 0 .and. between_date(lusl->DATEBEG,lusl->DATEEND,date_usl) 
+      fl := lkoef > 0 .and. between_date(lusl->DATEBEG,lusl->DATEEND,date_usl)
       if fl
         fl := between_date(k006->DATEBEG,k006->DATEEND,date_usl)
       endif
       if fl
         sds1 := iif(empty(k006->ds1), sp0, alltrim(k006->ds1)+sp6) // соп.диагноз
         sds2 := iif(empty(k006->ds2), sp0, alltrim(k006->ds2)+sp6) // диагн.осложнения
-      endif  
+      endif
       j := 0
       if fl .and. !empty(k006->ds)
         fl := (k006->ds == osn_diag)
@@ -3339,7 +3344,7 @@ for im := 1 to len(amohu)
       if fl .and. !empty(sds1)
         fl := .f.
         for i := 1 to len(sop_diag)
-          if sop_diag[i] $ sds1
+          if alltrim(sop_diag[i]) $ sds1
             fl := .t. ; exit
           endif
         next
@@ -3348,7 +3353,7 @@ for im := 1 to len(amohu)
       if fl .and. !empty(sds2)
         fl := .f.
         for i := 1 to len(osl_diag)
-          if osl_diag[i] $ sds2
+          if alltrim(osl_diag[i]) $ sds2
             fl := .t. ; exit
           endif
         next
@@ -3358,18 +3363,18 @@ for im := 1 to len(amohu)
         aadd(_a1,{k006->shifr,; //  1
                   0,;           //  2
                   lkoef,;       //  3
-                  lusl->kiros,; //  4 
+                  lusl->kiros,; //  4
                   k006->ds,;    //  5
                   lshifr,;      //  6
                   k006->age,;   //  7
                   k006->sex,;   //  8
                   k006->los,;   //  9
-                  k006->ad_cr,; // 10 
-                  sds1,;        // 11 
-                  sds2,;        // 12 
-                  j,;           // 13 
-                  lusl->kslps,; // 14 
-                  k006->ad_cr1}) // 15 
+                  k006->ad_cr,; // 10
+                  sds1,;        // 11
+                  sds2,;        // 12
+                  j,;           // 13
+                  lusl->kslps,; // 14
+                  k006->ad_cr1}) // 15
       endif
       select K006
       skip
@@ -3447,7 +3452,7 @@ elseif kol_hir > 0
   lkiro := list2arr(aHirKSG[1,4])
   lkslp := aHirKSG[1,14]
 endif
-akslp := {} ; akiro := {} 
+akslp := {} ; akiro := {}
 if !empty(lksg)
   s := " РЕЗУЛЬТАТ: выбрана КСГ="+lksg
   if empty(lcena)
@@ -3457,8 +3462,8 @@ if !empty(lksg)
     s += ", цена "+lstr(lcena,11,0)+"р. "
     aadd(ars,s)
     s := ""
-    if lksg == 'st38.001' .and. lbartell == '61' // Старческая астения 
-      lkslp := ""
+    if lksg == 'st38.001' .and. lbartell == '61' // Старческая астения (это правило уже устарело и не применяется)
+      lkslp := ""                                                       // т.к. у данной КСГ нет КСЛП
     endif
     akslp := f_cena_kslp(@lcena,lksg,ldate_r,ln_data,lk_data,lkslp,amohu,lprofil_k,mdiagnoz,lpar_org)
     if !empty(akslp)
@@ -3466,10 +3471,10 @@ if !empty(lksg)
       if len(akslp) >= 4
         s += "+"+str(akslp[4],4,2)
       endif
-      s += ", цена "+lstr(lcena,11,0)+"р.)" 
+      s += ", цена "+lstr(lcena,11,0)+"р.)"
     endif
     if !empty(lkiro)
-      vkiro := 0 
+      vkiro := 0
       if ldnej < 4 // менее 4-х дней
         if ascan(lkiro,1) > 0
           vkiro := 1
@@ -3491,10 +3496,10 @@ if !empty(lksg)
           vkiro := 6
         endif
       endif
-      if vkiro > 0 
-        akiro := f_cena_kiro(@lcena,vkiro) 
+      if vkiro > 0
+        akiro := f_cena_kiro(@lcena,vkiro)
         s += "  (КИРО = "+str(akiro[2],4,2)+", цена "+lstr(lcena,11,0)+"р.)"
-      endif 
+      endif
     endif
     if !empty(s)
       aadd(ars,s)
@@ -3762,7 +3767,7 @@ if human_->USL_OK < 3
         s := arr[1,i]
         if !("РЕЗУЛЬТАТ" $ arr[1,i]) .and. i > 1
           s := alltrim(arr[1,i-1] + s)
-        endif  
+        endif
         stat_msg(s) ; mybell(2,OK)
       endif
     else
@@ -3968,7 +3973,7 @@ if human_->USL_OK < 3
         s := arr[1,i]
         if !("РЕЗУЛЬТАТ" $ arr[1,i]) .and. i > 1
           s := alltrim(arr[1,i-1] + s)
-        endif  
+        endif
         stat_msg(s) ; mybell(2,OK)
       endif
     else
@@ -4049,7 +4054,7 @@ do while !eof()
     arr := definition_KSG()
     if len(arr) == 7 // диализ
       add_string("== диализ == ")
-    else 
+    else
       aeval(arr[1],{|x| add_string(x) })
       if !empty(arr[2])
         add_string("ОШИБКА:")
@@ -4158,7 +4163,7 @@ rest_box(buf)
 fclose(fp)
 return NIL*/
 
-***** 23.01.19 определить коэф-т сложности лечения пациента и пересчитать цену
+***** 06.06.19 определить коэф-т сложности лечения пациента и пересчитать цену
 Function f_cena_kslp(/*@*/_cena,_lshifr,_date_r,_n_data,_k_data,lkslp,arr_usl,lPROFIL_K,arr_diag,lpar_org)
 Static s_1_may := 0d20160430, s_18 := 0d20171231, s_19 := 0d20181231
 Static s_kslp17 := {;
@@ -4176,9 +4181,9 @@ if _k_data > s_19  // с 2019 года
     if _lshifr == "ds02.005" // ЭКО, lkslp = 12,13,14
       s_kslp := {;
         {12,0.60},;
-        {13,1.10},;               
-        {14,0.19};      
-      } 
+        {13,1.10},;
+        {14,0.19};
+      }
       for i := 1 to len(arr_usl)
         if valtype(arr_usl[i]) == "A"
           aadd(ausl,alltrim(arr_usl[i,1]))  // массив многомерный
@@ -4201,23 +4206,23 @@ if _k_data > s_19  // с 2019 года
         endif
       elseif ascan(ausl,"A11.20.030.001") > 0  // только четвертый этап
         j := 14  // 7 схема
-      endif 
-      if (i := ascan(s_kslp, {|x| x[1] == j})) > 0 
+      endif
+      if (i := ascan(s_kslp, {|x| x[1] == j})) > 0
         aadd(_akslp,s_kslp[i,1])
         aadd(_akslp,s_kslp[i,2])
         _cena := round_5(_cena*s_kslp[i,2],0)  // с 2019 года цена округляется до рублей
       endif
-    else // остальные КСГ 
+    else // остальные КСГ
       s_kslp := {;
         { 1,1.10, 0,  0},;  // до 1 года
         { 2,1.10, 1,  3},;  // от 1 до 3 лет включительно
-        { 4,1.02,75,999},;  // 75 и старше               
-        { 5,1.10,60,999};   // 60 и старше и астения     
-      } 
+        { 4,1.02,75,999},;  // 75 и старше
+        { 5,1.10,60,999};   // 60 и старше и астения
+      }
       count_ymd(_date_r,_n_data,@y)
       lkslp := list2arr(lkslp)
       for j := 1 to len(lkslp)
-        if (i := ascan(s_kslp, {|x| x[1] == lkslp[j]})) > 0 // стоит данный КСЛП в выбранной КСГ 
+        if (i := ascan(s_kslp, {|x| x[1] == lkslp[j]})) > 0 // стоит данный КСЛП в выбранной КСГ
           if between(y,s_kslp[i,3],s_kslp[i,4])
             fl := .t.
             if lkslp[j] == 4
@@ -4226,7 +4231,7 @@ if _k_data > s_19  // с 2019 года
               sop_diag := aclone(arr_diag)
               del_array(sop_diag,1)
               fl := (lprofil_k == 16 .and. ; // пациент лежит на геронтологической койке
-                      !(alltrim(arr_diag[1]) == "R54") .and. ; // с основным диагнозом не <R54-старость>
+                      !(_lshifr == "st38.001") .and. ;//!(alltrim(arr_diag[1]) == "R54") .and. ; // с основным диагнозом не <R54-старость>
                       ascan(sop_diag, {|x| alltrim(x) == "R54"}) > 0 ) // в соп.диагнозах есть <R54-старость>
             endif
             if fl
@@ -4252,9 +4257,9 @@ elseif _k_data > s_18  // с 2018 года
     if _lshifr == "2005.0" // ЭКО, lkslp = 12,13,14
       s_kslp := {;
         {12,0.60},;
-        {13,1.10},;               
-        {14,0.19};      
-      } 
+        {13,1.10},;
+        {14,0.19};
+      }
       for i := 1 to len(arr_usl)
         if valtype(arr_usl[i]) == "A"
           aadd(ausl,alltrim(arr_usl[i,1]))  // массив многомерный
@@ -4277,23 +4282,23 @@ elseif _k_data > s_18  // с 2018 года
         endif
       elseif ascan(ausl,"A11.20.030.001") > 0  // только четвертый этап
         j := 14  // 7 схема
-      endif 
-      if (i := ascan(s_kslp, {|x| x[1] == j})) > 0 
+      endif
+      if (i := ascan(s_kslp, {|x| x[1] == j})) > 0
         aadd(_akslp,s_kslp[i,1])
         aadd(_akslp,s_kslp[i,2])
         _cena := round_5(_cena*s_kslp[i,2],1)
       endif
-    else // остальные КСГ 
+    else // остальные КСГ
       s_kslp := {;
         { 1,1.10, 0,  0},;  // до 1 года
         { 2,1.10, 1,  3},;  // от 1 до 3 лет включительно
-        { 4,1.05,75,999},;  // 75 и старше               
-        { 5,1.10,60,999};   // 60 и старше и астения     
-      } 
+        { 4,1.05,75,999},;  // 75 и старше
+        { 5,1.10,60,999};   // 60 и старше и астения
+      }
       count_ymd(_date_r,_n_data,@y)
       lkslp := list2arr(lkslp)
       for j := 1 to len(lkslp)
-        if (i := ascan(s_kslp, {|x| x[1] == lkslp[j]})) > 0 
+        if (i := ascan(s_kslp, {|x| x[1] == lkslp[j]})) > 0
           if between(i,1,5) .and. between(y,s_kslp[i,3],s_kslp[i,4])
             aadd(_akslp,s_kslp[i,1])
             aadd(_akslp,s_kslp[i,2])
@@ -4326,14 +4331,14 @@ elseif _k_data > s_1_may ;                 // с 1 мая 2016 года
           aadd(_akslp,s_kslp[i,2])
           _cena := round_5(_cena*s_kslp[i,2],1)
           exit
-        endif  
+        endif
       next
     endif
   endif
-endif  
+endif
 return _akslp
 
-***** 22.01.18 если надо, перезаписать значения КСЛП и КИРО в HUMAN_2 
+***** 22.01.18 если надо, перезаписать значения КСЛП и КИРО в HUMAN_2
 Function put_str_kslp_kiro(arr,fl)
 Local lpc1 := "", lpc2 := ""
 if len(arr) > 4 .and. !empty(arr[5])
@@ -4363,7 +4368,7 @@ return NIL
 Function ret_koef_kslp(akslp)
 Local k := 1
 if valtype(akslp) == "A" .and. len(akslp) >= 2
-  k := akslp[2] 
+  k := akslp[2]
   if len(akslp) >= 4
     k += akslp[4] - 1
   endif

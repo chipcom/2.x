@@ -374,7 +374,7 @@ kkd_1_7 := 0 ; fl_1_7_12 := .f. ; kkd_1_10 := 0 ; fl_70_1 := .f. ; au_lu := {}
 kkd_1_9 := 0 ; is_kt := is_mrt := is_71_1 := is_71_2 := .f. ; lstkol := kvp_2_78 := 0
 is_2_78 := is_2_79 := is_2_80 := is_2_81 := is_2_82 := .f. ; lstshifr := ""
 midsp := musl_ok := mRSLT_NEW := mprofil := mvrach := 0
-f_put_glob_podr(human_->USL_OK,d2,ta) // заполнить код подразделения 
+f_put_glob_podr(human_->USL_OK,d2,ta) // заполнить код подразделения
 select HU
 find (str(human->kod,7))
 do while hu->kod == human->kod .and. !eof()
@@ -612,7 +612,7 @@ elseif ksmp > 0
   if d1 < d2
     aadd(ta,'для скорой помощи дата начала должна равняться дате окончания лечения')
   endif
-  if is_komm_SMP() // если это коммерческая скорая
+  if is_komm_SMP() .and. d2 < 0d20190501 // если это коммерческая скорая
     if is_71_1
       aadd(ta,'для коммерческой СМП необходимо применять услуги 71.2.*')
     endif
@@ -1103,7 +1103,7 @@ do case
       use (cur_dir+"tmp1") new
       index on str(kod,4) to (cur_dir+"tmp11")
       index on fsort_usl(shifr) to (cur_dir+"tmp12")
-      set index to (cur_dir+"tmp11"),(cur_dir+"tmp12") 
+      set index to (cur_dir+"tmp11"),(cur_dir+"tmp12")
       //
       R_Use(dir_server+"uslugi",dir_server+"uslugi","USL")
       R_Use(dir_server+"human_u",dir_server+"human_u","HU")

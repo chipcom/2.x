@@ -1,53 +1,53 @@
 *******************************************************************************
 * mo_ortop.prg
 *******************************************************************************
-*          sin_ysl()
-*          f1edit_ort(oBrow)
-*          f2edit_ort(nKey,oBrow)
-*          vvod_tor_ysl()
-*          ff1edit_ysl(oBrow)
-*          ff2edit_ysl(nKey,oBrow)
-*          fore_o_kusl(get,when_valid,k)
-*          MT_use_base(k)
-*          Ort_boln(par1)
-*          add_orto_usl(larr,lkod)
-*          Ort_oborot()
-*          Ort_diagnoz()
-* 11.02.13 O_dms_reestr()
-*          f1_Ort_vzaim(nKey,oBrow,regim)
-*          f2_Ort_vzaim(nKey,oBrow,regim)
-* 11.02.13 Orees2_vzaim(name_file)
-* 19.07.14 Oo_proverka(k)
-*          Oo_1_proverka()
-* 16.04.15 Oo_2_proverka()
-*          Ort_den_sr(par)
-* 19.07.14 Oo_statist(k)
-*          Oob_statist(par1,par2,par3)
-*          Oob1_statist(par1)
-* 19.07.13 Ort_material()
-*          Ort_dolgi(tip)
-* 09.03.14 Ort_otkr_nar(par1,par2)
-*          Ort_mnog_poisk()
-*          s1_mnog_poisk(cv,cf)
-*          writeOmn_p(k)
-*          O_ret_pl_b()
-*          O_ved_narabot()
-* 28.10.14 O_vr_kol_nar() - врачи/техники + количество нарядов
-*          inputNorpozic(r,c,fl_max)
-* 02.12.12 pl_ordogovor()
-*          pl_or2dogovor(tip_jurn)
-*          oo_spmater()
-*          oo1spmater()
-* 18.09.12 f1_forma_30_prn_na(par,title)
-* 18.09.12 cre_tmp_30(adbf)
-* 18.09.12 get_nastr_orto_f30()
-* 18.09.12 f1_forma_30_na(par,title)
-* 02.12.12 forma_30_na(tip)
-* 18.09.12 write_f30(ar)
-* 15.12.13 ___f_30(k)
-* 18.09.12 yes_f_30(par1)
-* 18.09.12 forma_30all(tip_f30)
-*          or_vozvrat()
+*  sin_ysl()
+*  f1edit_ort(oBrow)
+*  f2edit_ort(nKey,oBrow)
+*  vvod_tor_ysl()
+*  ff1edit_ysl(oBrow)
+*  ff2edit_ysl(nKey,oBrow)
+*  fore_o_kusl(get,when_valid,k)
+*  MT_use_base(k)
+*  Ort_boln(par1)
+*  add_orto_usl(larr,lkod)
+*  Ort_oborot()
+*  Ort_diagnoz()
+*  O_dms_reestr()
+*  f1_Ort_vzaim(nKey,oBrow,regim)
+*  f2_Ort_vzaim(nKey,oBrow,regim)
+*  Orees2_vzaim(name_file)
+*  Oo_proverka(k)
+*  Oo_1_proverka()
+*  Oo_2_proverka()
+*  Ort_den_sr(par)
+*  Oo_statist(k)
+*  Oob_statist(par1,par2,par3)
+*  Oob1_statist(par1)
+*  Ort_material()
+*  Ort_dolgi(tip)
+*  Ort_otkr_nar(par1,par2)
+*  Ort_mnog_poisk()
+*  s1_mnog_poisk(cv,cf)
+*  writeOmn_p(k)
+*  O_ret_pl_b()
+*  O_ved_narabot()
+*  O_vr_kol_nar() - врачи/техники + количество нарядов
+*  inputNorpozic(r,c,fl_max)
+*  pl_ordogovor()
+*  pl_or2dogovor(tip_jurn)
+*  oo_spmater()
+*  oo1spmater()
+*  f1_forma_30_prn_na(par,title)
+*  cre_tmp_30(adbf)
+*  get_nastr_orto_f30()
+*  f1_forma_30_na(par,title)
+*  forma_30_na(tip)
+*  write_f30(ar)
+*  ___f_30(k)
+*  yes_f_30(par1)
+*  forma_30all(tip_f30)
+*  or_vozvrat()
 *******************************************************************************
 #include "inkey.ch"
 #include "..\_mylib_hbt\function.ch"
@@ -59,12 +59,12 @@ Static f30_sect := "Форма 30 - "
 
 *
 
-*****
+***** 13.11.18
 Function sin_ysl()
 Local buf := save_row(maxrow()), fl := .f.
 Private rr := T_ROW, fl_found := .f., reg_klient := 1
 mywait()
-if G_Use(dir_server+"tip_orto",,"TO")
+if R_Use(dir_server+"tip_orto",,"TO")
   go top
   Alpha_Browse(rr,27,maxrow()-2,70,"f1edit_ort",color0,,,,,,,"f2edit_ort",,{,,,"N/BG,W+/N",.t.,200})
   to->(dbclosearea())
@@ -100,7 +100,7 @@ return flag
 
 *
 
-*****
+***** 13.03.19
 Function vvod_tor_ysl()
 Local buf := save_row(maxrow()), fl := .f.
 Private rr := T_ROW, fl_found := .f., reg_klient := 1
@@ -111,9 +111,9 @@ arr_blk := {{|| FindFirst(str_find)},;
             {|n| SkipPointer(n, muslovie)},;
             str_find, muslovie;
            }
-G_Use(dir_server+"uslugi",{dir_server+"uslugi",;
+R_Use(dir_server+"uslugi",{dir_server+"uslugi",;
                                    dir_server+"uslugish"},"USL")
-G_Use(dir_server+"ortoped2",dir_server+"ortoped2","ORTO2")
+G_Use(dir_server+"ortoped2",dir_server+"ortoped2","ORTO2") //19.04
 set relation to str(kod_usl,4) into USL
 find (str_find)
 if !(fl_found := found())
@@ -239,6 +239,22 @@ do case
     fl := G_use(dir_server+"ortoped1")
   case k == "tip_orto"
     fl := G_Use(dir_server+"tip_orto")
+endcase
+return fl
+
+*
+
+***** 13.11.18
+Function MT_R_use_base(k)
+Local fl := .t.
+k := lower(k)
+do case
+  case k == "ortoped"
+    fl := R_use(dir_server+"ortoped")
+  case k == "ortoped1"
+    fl := R_use(dir_server+"ortoped1")
+  case k == "tip_orto"
+    fl := R_Use(dir_server+"tip_orto")
 endcase
 return fl
 
@@ -4862,7 +4878,7 @@ return i
 
 *
 
-*****
+*****  13.11.18
 Function O_ved_narabot()
 Static sname1 := "", s1d1, s1d2,;
        sname2 := "", s2d1, s2d2,;
@@ -4877,7 +4893,7 @@ DEFAULT s1d1 TO ctod(""), s1d2 TO ctod(""),;
         s3d1 TO ctod(""), s3d2 TO ctod("")
 R_Use(dir_server+"diag_ort",dir_server+"diag_ort")
 dbeval({|| aadd(arr_diag, {shifr+" "+name,shifr}) } )
-Use
+diag_ort->(dbCloseArea())
 if (a_diag := bit_popup(T_ROW,T_COL-5,arr_diag)) == NIL
   return NIL
 endif
@@ -5872,7 +5888,7 @@ return NIL
 
 *
 
-*****
+***** 13.11.18
 Function oo_spmater()
 Local arr, sh, HH := 58, s, s1, s2, s3, fl,;
       begin_date, end_date, fl_exit := .f., name_file := "orto_mt"+stxt,;
@@ -5890,14 +5906,14 @@ add_string("")
 add_string(center("Настройка расхода материалов",sh))
 add_string("")
 aeval(arr_title, {|x| add_string(x) } )
-G_Use(dir_server+"tip_orto",,"OR0")
+R_Use(dir_server+"tip_orto",,"OR0")
 index on str(tip,1)+name to (cur_dir+"tmp1")
-G_Use(dir_server+"uslugi",dir_server+"uslugi","USL")
-G_Use(dir_server+"ortoped",,"OR")
-G_Use(dir_server+"ortoped1",,"OR1")
+R_Use(dir_server+"uslugi",dir_server+"uslugi","USL")
+R_Use(dir_server+"ortoped",,"OR")
+R_Use(dir_server+"ortoped1",,"OR1")
 index on str(kod_menu,4) to (cur_dir+"tmp2")
 set relation to kod_ort into OR
-G_Use(dir_server+"ortoped2",,"OR2")
+R_Use(dir_server+"ortoped2",,"OR2")
 set relation to str(kod_usl,4) into USL
 //
 select OR0
@@ -5944,7 +5960,7 @@ return NIL
 
 *
 
-*****
+***** 13.11.18
 Function oo1spmater()
 Local arr, sh, HH := 58, s, s1, s2, s3, fl,;
       begin_date, end_date, fl_exit := .f., name_file := "orto1mt"+stxt,;
@@ -5962,14 +5978,14 @@ add_string("")
 add_string(center("Настройка расхода материалов",sh))
 add_string("")
 aeval(arr_title, {|x| add_string(x) } )
-G_Use(dir_server+"uslugi",dir_server+"uslugi","USL")
-G_Use(dir_server+"ortoped",,"OR")
+R_Use(dir_server+"uslugi",dir_server+"uslugi","USL")
+R_Use(dir_server+"ortoped",,"OR")
 //
-G_Use(dir_server+"ortoped1",,"OR1")
+R_Use(dir_server+"ortoped1",,"OR1")
 index on str(kod_menu,4) to (cur_dir+"tmp2")
 set relation to kod_ort into OR
 //
-G_Use(dir_server+"ortoped2",,"OR2")
+R_Use(dir_server+"ortoped2",,"OR2")
 set relation to str(kod_usl,4) into USL
 index on usl->shifr to (cur_dir+"tmp1")
 //
@@ -6498,7 +6514,7 @@ return NIL
 
 *
 
-***** 05.09.18
+***** 11.11.18
 Function ort_priemshk()
 Local fl := .t., buf := save_row(maxrow()), sm2 := 0, HH := 52,;
       n_file := "platn.txt", arr_m, sh, krvz, arr_dms,;
@@ -6546,7 +6562,7 @@ endif
 R_Use(dir_server+"kartotek",,"KART")
 R_Use(dir_server+"hum_ort",,"HUMAN")
 R_Use(dir_server+"mo_pers",,"PERS")
-use_base("hum_oro")
+R_Use_base("hum_oro")
 go top
 do while !eof()
   if !empty(ho->fr_data) .and. between(ho->fr_data,arr_m[7],arr_m[8])

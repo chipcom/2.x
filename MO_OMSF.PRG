@@ -332,11 +332,11 @@ if !fl .and. lprofil == 57
 endif
 return fl
 
-***** 30.01.16 проверить, нулевая ли цена услуги в ТФОМС
+***** 09.06.19 проверить, нулевая ли цена услуги в ТФОМС
 Function NulUslugaTFOMS(lshifr1)
 lshifr1 := alltrim(lshifr1)
 return eq_any(left(lshifr1,2),"3.","4.","7.") .or. ;
-       eq_any(left(lshifr1,5),"1.11.","2.60.","55.1.","71.1.") .or. ;
+       eq_any(left(lshifr1,5),"1.11.","1.19.","2.60.","55.1.","71.1.") .or. ;
        eq_any(left(lshifr1,4),"2.3.","2.4.","2.5.","2.6.") .or. ;
        eq_any(left(lshifr1,3),"13.","14.","19.","20.","21.","22.") .or. ;
        between_shifr(lshifr1,"2.78.47","2.78.53") .or. between_shifr(lshifr1,"2.79.52","2.79.58") .or. ;
@@ -1264,11 +1264,11 @@ do while left(&poled,n) == s .and. !eof()
 enddo
 return arr
 
-***** 16.10.18 проверка правильности соответствующей стадии по соответствующему справочнику
+***** 22.10.19 проверка правильности соответствующей стадии по соответствующему справочнику
 Function f_verify_tnm(n,lkod,ldiag,ar)
 Local sn := lstr(n), sd
 Local fl := .t., lal := "n"+sn, polek, poled, s := {"","ST","T","N","M"}[n]
-Local smsg := "онкология: в справочнике N00"+sn+" не найдена стадия заболевания "+s
+Local smsg := "онкология: в справочнике N00"+sn+" не найдена стадия заболевания "+s+"="+lstr(lkod)+" для диагноза "+ldiag
 polek := lal+"->kod_"+s
 poled := lal+"->ds_"+s
 if select(lal) == 0
@@ -1783,15 +1783,15 @@ restscreen(buf)
 setcolor(tmp_color)
 return ret
 
-***** 21.01.19
+***** 09.06.19
 Function is_usluga_disp_nabl(_shifr,_shifr1)
 if empty(_shifr1)
   _shifr := alltrim(_shifr)
 else
   _shifr := alltrim(_shifr1)
 endif
-return between_shifr(_shifr,"2.78.61","2.78.86") .or. between_shifr(_shifr,"2.88.52","2.88.99") ;
-                                                 .or. between_shifr(_shifr,"2.88.100","2.88.103")
+return between_shifr(_shifr,"2.78.61","2.78.86") .or. between_shifr(_shifr,"2.88.52","2.88.103") ;
+                                                 .or. between_shifr(_shifr,"2.88.105","2.88.106")
 
 ***** 01.11.18 является услугой телемедицины - не заполняется код врача
 Function is_telemedicina(lshifr)

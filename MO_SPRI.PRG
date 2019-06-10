@@ -1,4 +1,4 @@
-***** распечатка различных справочников - mo_spri.prg 
+***** распечатка различных справочников - mo_spri.prg
 #include "inkey.ch"
 #include "..\_mylib_hbt\function.ch"
 #include "..\_mylib_hbt\edit_spr.ch"
@@ -83,11 +83,11 @@ do case
     popup_prompt(T_ROW,T_COL-5,sk2,mas_pmt,mas_msg,mas_fun)
   case k == 21 //
     pr_sprav_N002(2)
-  case k == 22 // 
+  case k == 22 //
     pr_sprav_N002(3)
-  case k == 23 // 
+  case k == 23 //
     pr_sprav_N002(4)
-  case k == 24 // 
+  case k == 24 //
     pr_sprav_N002(5)
   case k == 25 // Справочник соответствия стадий TNM
     pr_sprav_N006()
@@ -173,18 +173,18 @@ do case
                 "fspr_uslugi(25)",;
                 "fspr_uslugi(26)",;
                 "fspr_uslugi(27)"}
-    k := len(mas_pmt) 
+    k := len(mas_pmt)
     use_base("luslc")
     set order to 2
     find (glob_mo[_MO_KOD_TFOMS]+"ds")
-    if found() 
+    if found()
       aadd(mas_pmt, "Услуги + КСГ (~дневной стационар)")
       aadd(mas_msg, "Вывод списка разрешённых услуг ФФОМС вместе с КСГ дневного стационара")
       aadd(mas_fun, "fspr_uslugi(28)")
     endif
-    k := len(mas_pmt) 
+    k := len(mas_pmt)
     find (glob_mo[_MO_KOD_TFOMS]+"st")
-    if found() 
+    if found()
       aadd(mas_pmt, "Услуги + ~КСГ (стационар)")
       aadd(mas_msg, "Вывод списка разрешённых услуг ФФОМС вместе с КСГ стационара")
       aadd(mas_fun, "fspr_uslugi(29)")
@@ -484,10 +484,10 @@ if (arr_usl := input_usluga(atf)) != NIL
         select DEP
         find (str(luslc18->depart,3))
         if found()
-          s += "  ("+alltrim(dep->name_short)+")" 
+          s += "  ("+alltrim(dep->name_short)+")"
         endif
       endif
-      verify_FF(HH)       
+      verify_FF(HH)
       add_string(s)
       select LUSLC18
       skip
@@ -502,10 +502,10 @@ if (arr_usl := input_usluga(atf)) != NIL
         select DEP
         find (str(luslc->depart,3))
         if found()
-          s += "  ("+alltrim(dep->name_short)+")" 
+          s += "  ("+alltrim(dep->name_short)+")"
         endif
       endif
-      verify_FF(HH)       
+      verify_FF(HH)
       add_string(s)
       select LUSLC
       skip
@@ -797,11 +797,11 @@ if ret != NIL
         select DEP
         find (str(tmp1->depart,3))
         if found()
-          s := padl(alltrim(dep->name_short),60) 
+          s := padl(alltrim(dep->name_short),60)
           s += put_kopE(tmp1->cenav,10)+put_kopE(tmp1->cenad,10)
           add_string(s)
         endif
-      endif       
+      endif
       old := tmp1->shifr
       select TMP1
       skip
@@ -898,11 +898,11 @@ if ret != NIL
         select DEP
         find (str(tmp1->depart,3))
         if found()
-          s := padl(alltrim(dep->name_short),60) 
+          s := padl(alltrim(dep->name_short),60)
           s += put_kopE(tmp1->cenav,10)+put_kopE(tmp1->cenad,10)
           add_string(s)
         endif
-      endif       
+      endif
       old := tmp1->shifr
       select TMP1
       skip
@@ -920,12 +920,12 @@ Function ret_otd_dep()
 Local ret_arr
 if !(valtype(glob_otd_dep) == "N")
   glob_otd_dep := 0
-endif  
+endif
 popup_2array(mm_otd_dep,T_ROW,T_COL-5,glob_otd_dep,1,@ret_arr,"Выбор отделения стационара","B/BG")
 if valtype(ret_arr) == "A"
   glob_otd_dep := ret_arr[2]
 endif
-return ret_arr    
+return ret_arr
 
 ***** 07.08.17
 Function f_spr_usl_adres_podr()
@@ -934,18 +934,18 @@ Local i, j, ret_arr
 if (i := ascan(glob_adres_podr, {|x| x[1] == glob_mo[_MO_KOD_TFOMS] })) > 0
   if empty(arr)
     for j := 1 to len(glob_adres_podr[i,2])
-      aadd(arr,{glob_adres_podr[i,2,j,3],glob_adres_podr[i,2,j,1]}) 
+      aadd(arr,{glob_adres_podr[i,2,j,3],glob_adres_podr[i,2,j,1]})
     next
   endif
   popup_2array(arr,T_ROW,T_COL-5,glob_podr,1,@ret_arr,"Адрес удалённого подразделения","B/BG")
   if valtype(ret_arr) == "A"
-    glob_podr := ret_arr[2] 
+    glob_podr := ret_arr[2]
   endif
 endif
 if empty(ret_arr)
   glob_podr := glob_mo[_MO_KOD_TFOMS] // по умолчанию
 endif
-return ret_arr    
+return ret_arr
 
 ***** 03.01.19
 Function usl2TFOMS()
@@ -970,10 +970,10 @@ if (k := popup_2array(usl9TFOMS(mdate),T_ROW,T_COL-5,su,1,@t_arr,;
   if is_otd_dep .and. t_arr[2] == 501
     if (ret_arr := ret_otd_dep()) == NIL
       return NIL
-    endif 
+    endif
   else
     glob_otd_dep := 0
-  endif                        
+  endif
   mywait()
   su := k
   fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
@@ -984,7 +984,7 @@ if (k := popup_2array(usl9TFOMS(mdate),T_ROW,T_COL-5,su,1,@t_arr,;
     s := "Индивидуальные тарифы на мед.услуги"
   endif*/
   add_string(glob_mo[_MO_SHORT_NAME]+iif(valtype(ret_arr)=="A", " ("+ret_arr[1]+")",""))
-  add_string('') 
+  add_string('')
   add_string(center("Список услуг по группе",sh))
   add_string(center('"'+alltrim(t_arr[1])+'"',sh))
   add_string(center("[ цены по состоянию на "+date_8(mdate)+"г. ]",sh))
@@ -1045,7 +1045,7 @@ if (k := popup_2array(usl9TFOMS(mdate),T_ROW,T_COL-5,su,1,@t_arr,;
       for i := 3 to k
         add_string(space(10)+ta[i])
       next
-      if t_arr[2] > 500 
+      if t_arr[2] > 500
         select K006
         set order to 1
         find (padr(&lal.->shifr,len_ksg))
@@ -1136,9 +1136,9 @@ do case
     ret := "29-90 дней"
   case s == '3'
     ret := "от 91 дня до 1 года"
-  case s == '4'  
+  case s == '4'
     ret := "до 2 лет включительно"
-  case s == '5'  
+  case s == '5'
     ret := "ребёнок"
   case s == '6'
     ret := "взрослый"
@@ -1155,7 +1155,7 @@ do case
     ret := "29-90 дней"
   case s == '3'
     ret := "от 91 дня до 1 года"
-  case s == '4'  
+  case s == '4'
     ret := "ребёнок"
   case s == '5'
     ret := "взрослый"
@@ -1182,10 +1182,10 @@ Static Function f_ret_kz_ksg(lkz,lkslp,lkiro)
 Local s := 'коэф-т затратоёмкости '+lstr(lkz,5,2)
 if !empty(lkslp)
   s += '; КСЛП: '+alltrim(lkslp)
-endif  
+endif
 if !empty(lkiro)
   s += '; КИРО: '+alltrim(lkiro)
-endif  
+endif
 return s
 
 ***** 03.01.19
@@ -1197,7 +1197,7 @@ if (mdate := input_value(20,5,22,74,color1,;
         "Введите дату, на которую необходимо получить информацию",;
         sys_date)) == NIL
   return NIL
-endif          
+endif
 if (lyear := year(mdate)) < 2018
   return func_error(4,"Вы запрашиваете слишком старую информацию")
 endif
@@ -1323,7 +1323,7 @@ if empty(sdate) .or. sdate != mdate
   Ins_Array(arr,1,{"КСГ в СТАЦИОНАРЕ",501})
   use_base("luslc")
   for i := 1 to len(arr)
-    if arr[i,2] > 500 
+    if arr[i,2] > 500
       if year(mdate) == 2019 // 2019 год
         sShifr := iif(arr[i,2] == 501, "st", "ds")
       else
@@ -1535,7 +1535,7 @@ return arr
 ***** 03.01.19
 Function usl_stom_FFOMS()
 Static arr_gr := {"Общепрофильные","Ортодонтия","Терапевтическая стоматология","Физиотерапия","Хирургическая стоматология"}
-Local i, j, k, s, buf := save_maxrow(), name_file := "uslugiS"+stxt, sh := 80, HH := 60, t_arr[2], fl 
+Local i, j, k, s, buf := save_maxrow(), name_file := "uslugiS"+stxt, sh := 80, HH := 60, t_arr[2], fl
 mywait()
 R_Use_base("luslf")
 index on str(grp,1)+shifr to (cur_dir+"tmp_uslf")
@@ -1566,7 +1566,7 @@ for j := 1 to len(arr_gr)
     next
     skip
   enddo
-next  
+next
 close databases
 rest_box(buf)
 fclose(fp)
@@ -1575,7 +1575,7 @@ return NIL
 
 ***** 03.01.19 Распечатка списка услуг с использованием телемедицинских технологий
 Function usl_telemedicina()
-Local i, j, k, buf := save_maxrow(), name_file := "uslugiT"+stxt, sh := 80, HH := 60, t_arr[2], fl 
+Local i, j, k, buf := save_maxrow(), name_file := "uslugiT"+stxt, sh := 80, HH := 60, t_arr[2], fl
 mywait()
 R_Use_base("luslf")
 index on shifr to (cur_dir+"tmp_uslf") for telemed == 1
@@ -1602,7 +1602,7 @@ return NIL
 ***** 22.01.19 Распечатка списка операций на парных органах
 Function usl_par_organ()
 ***** 03.01.19 Распечатка списка услуг с использованием телемедицинских технологий
-Local i, j, k, buf := save_maxrow(), name_file := "uslugiT"+stxt, sh := 80, HH := 60, t_arr[2], fl 
+Local i, j, k, buf := save_maxrow(), name_file := "uslugiT"+stxt, sh := 80, HH := 60, t_arr[2], fl
 mywait()
 R_Use_base("luslf")
 index on shifr to (cur_dir+"tmp_uslf") for !empty(par_org)
@@ -1612,7 +1612,7 @@ add_string("")
 add_string("=== Описание обозначения органа (части тела)")
 for i := 1 to len(garr_par_org)
   add_string(" "+garr_par_org[i,1])
-next  
+next
 add_string("===")
 add_string(center("Операции на парных органах (частях тела) Минздрава РФ (ФФОМС)",sh))
 add_string("")
@@ -1639,7 +1639,7 @@ Static arr_gr := {;
   {"2 - инструментальная диагностика",2},;
   {"3 - методы лучевой диагностики, за исключением дорогостоящих",3},;
   {"4 - дорогостоящие методы лучевой диагностики (КТ, МРТ, ангиография)",4}}
-Local i, j, k, buf := save_maxrow(), name_file := "uslugiON"+stxt, sh := 80, HH := 60, t_arr[2], fl, ar 
+Local i, j, k, buf := save_maxrow(), name_file := "uslugiON"+stxt, sh := 80, HH := 60, t_arr[2], fl, ar
 if (t_arr := bit_popup(T_ROW,T_COL-5,arr_gr,,color0,1,"Метод диагностического исследования","B/BG")) == NIL
   return NIL
 endif
@@ -1670,7 +1670,7 @@ for j := 1 to len(ar)
     next
     skip
   enddo
-next  
+next
 close databases
 rest_box(buf)
 fclose(fp)
@@ -1686,7 +1686,7 @@ Static arr_gr := {;
   {"4 - Химиолучевая терапия",4},;
   {"5 - Неспецифическое лечение (осложнения противоопухолевой терапии, установка/замена порт системы (катетера))",5},;
   {"6 - Диагностика",6}}
-Local i, j, k, buf := save_maxrow(), name_file := "uslugiOK"+stxt, sh := 80, HH := 60, t_arr[2], fl, ar 
+Local i, j, k, buf := save_maxrow(), name_file := "uslugiOK"+stxt, sh := 80, HH := 60, t_arr[2], fl, ar
 if (t_arr := bit_popup(T_ROW,T_COL-5,arr_gr,,color0,1,"Тип лечения онкологических заболеваний","B/BG")) == NIL
   return NIL
 endif
@@ -1721,7 +1721,7 @@ for j := 1 to len(ar)
     next
     skip
   enddo
-next  
+next
 close databases
 rest_box(buf)
 fclose(fp)
@@ -1861,7 +1861,7 @@ Local k, buf := save_maxrow(), name_file := "usl_ksg"+stxt, nu, sh := 80, HH := 
 glob_otd_dep := 0
 if is_otd_dep .and. lksg == 1 .and. (ret_arr := ret_otd_dep()) == NIL
   return NIL
-endif 
+endif
 mywait()
 dbcreate(cur_dir+"tmp",{;
    {"SHIFR",      "C",     10,      0},;
@@ -2923,8 +2923,7 @@ if G_SLock1Task(sem_task,sem_vagno) // запрет доступа всем
   k := len(arr_schet)
   s := iif(k == 1, "счёта ", lstr(k)+" счетов ")
   if involved_password(3,arr_schet[1,4],"пересоздания "+s+arr_schet[1,4]) ;
-     .and. f_Esc_Enter("пересоздания "+s) ;
-     .and. m_copy_DB_from_end(.t.) // резервное копирование
+     .and. f_Esc_Enter("пересоздания "+s) // .and. m_copy_DB_from_end(.t.) // резервное копирование
     Private fl_open := .t.
     index_base("schet") // для составления счетов
     index_base("human") // для разноски счетов
@@ -2946,7 +2945,7 @@ if G_SLock1Task(sem_task,sem_vagno) // запрет доступа всем
     mywait("Производится анализ файла "+cFile)
     // читаем файл в память
     oXmlDoc := HXMLDoc():Read(_tmp_dir1+cFile)
-    if empty( oXmlDoc:aItems )
+    if oXmlDoc == NIL .or. empty( oXmlDoc:aItems )
       aadd(aerr,"Ошибка в чтении файла "+cFile)
     else
       reestr_sp_tk_tmpfile(oXmlDoc,aerr,cReadFile)
@@ -3005,7 +3004,7 @@ if G_SLock1Task(sem_task,sem_vagno) // запрет доступа всем
       use (cur_dir+"tmp_r_t11") new alias T11
       index on IDCASE to (cur_dir+"tmpt11")
       use (cur_dir+"tmp2file") new alias TMP2
-      is_new_err := .f.  // ушли ли какие-либо случаи в ошибки (т.е. новые ошибки) 
+      is_new_err := .f.  // ушли ли какие-либо случаи в ошибки (т.е. новые ошибки)
       go top
       do while !eof()
         if tmp2->_OPLATA == 1
@@ -3161,7 +3160,7 @@ if G_SLock1Task(sem_task,sem_vagno) // запрет доступа всем
             refr->REFREASON := tmp3->_REFREASON
             if empty(s := ret_t005(refr->REFREASON))
               s := lstr(refr->REFREASON)+" неизвестная причина отказа"
-            endif 
+            endif
             k := perenos(t_arr,s,75)
             for i := 1 to k
               strfile(space(5)+t_arr[i]+hb_eol(),cFileProtokol,.t.)

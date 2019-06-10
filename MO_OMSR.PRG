@@ -1181,7 +1181,7 @@ do while hu->kod == human->kod .and. !eof()
         mpovod := 10 // 3.0
         ++kvp_2_89
         is_2_89 := .t.
-        i := int(val(right(alltrim_lshifr,1)))
+        i := int(val(AfterAtNum(".",alltrim_lshifr)))
         if !between(i,1,len(a_2_89))
           i := 2
         endif
@@ -1794,11 +1794,13 @@ if is_oncology == 2 // онкология
       endif
       if empty(onksl->wei)
         aadd(ta,'не введена масса тела для выбранного типа онкологического лечения')
-      elseif !(onksl->wei < 200)
+      elseif !(onksl->wei < 201)
         aadd(ta,'слишком большая масса тела для выбранного типа онкологического лечения')
       endif
       if empty(onksl->hei)
         aadd(ta,'не введен рост пациента для выбранного типа онкологического лечения')
+      elseif !(onksl->hei < 251)
+        aadd(ta,'слишком большой рост пациента для выбранного типа онкологического лечения')
       endif
       if empty(onksl->bsa)
         aadd(ta,'не введена площадь поверхности тела для выбранного типа онкологического лечения')
@@ -2156,8 +2158,31 @@ if human_->USL_OK == 1  // стационар
       aadd(ta,'в одной из услуг должны повториться диагноз+профиль+врач из случая')
     endif
   endif
+  ar_1_19_1 := {}
+  for i := 1 to len(au_lu)
+    if left(au_lu[i,1],5) == "1.19."
+      aadd(ar_1_19_1,au_lu[i,2])
+      if au_lu[i,6] > 1
+        aadd(ta,'в услуге 1.19.1 ('+dtoc(au_lu[i,2])+") количество больше 1")
+      endif
+    endif
+  next
+  for j := 1 to len(ar_1_19_1)
+    fl := .t.
+    for i := 1 to len(au_lu)
+      if left(au_lu[i,1],5) == "1.11." .and. eq_any(ar_1_19_1[j],au_lu[i,2],au_lu[i,7])
+        fl := .f. ; exit
+      endif
+    next
+    if fl
+      aadd(ta,'дата услуги 1.19.1 ('+dtoc(ar_1_19_1[j])+") обязательно должна равняться дате начала/окончания одной из услуг 1.11.1/1.11.2")
+    endif
+  next
   if human_2->VMP == 1 // проверим ВМП
     if is_12_VMP  // ВМП по-новому
+      if !empty(ar_1_19_1)
+        aadd(ta,'при оказании ВМП не может быть применена услуга 1.19.1')
+      endif
       make_V018_V019(d2)
       if empty(human_2->TAL_NUM)
         aadd(ta,'ВМП оказана, но не введен номер талона на ВМП')
@@ -2585,7 +2610,7 @@ elseif eq_any(human_->USL_OK,1,2)
             aadd(ta,'возраст пациента не соответствует профилю койки')
           endif
         else
-          if prprk->vozr == "Ж"
+          if prprk->vozr == "В"
             aadd(ta,'возраст пациента не соответствует профилю койки')
           endif
         endif
@@ -2800,7 +2825,7 @@ elseif is_2_89 // медицинская реабилитация (физкультурный диспансер)
   human_->profil := 158  // медицинской реабилитации
   if a_2_89[1] == 1 .and. ret_old_prvs(human_->PRVS) != 1123
     aadd(ta,'специальность у лечащего врача должна быть Травматология и ортопедия')
-  elseif a_2_89[2] == 1 .and. ret_old_prvs(human_->PRVS) != 1109
+  elseif eq_any(1,a_2_89[2],a_2_89[4],a_2_89[5]) .and. ret_old_prvs(human_->PRVS) != 1109
     aadd(ta,'специальность у лечащего врача должна быть Неврология')
   elseif a_2_89[3] == 1
     if human->vzros_reb == 0
@@ -2813,7 +2838,12 @@ elseif is_2_89 // медицинская реабилитация (физкультурный диспансер)
       endif
     endif
   endif
-  is_1_den := is_last_den := .f. ; zs := km := oth_usl := 0 ; s := ""
+  is_1_den := is_last_den := .f. ; zs := km := oth_usl := 0 ; s := "" ; shifr_zs := ""
+  for i := 1 to len(au_lu)
+    if left(au_lu[i,1],5) == "2.89."
+      shifr_zs := au_lu[i,1] ; exit
+    endif
+  next
   for i := 1 to len(au_lu)
     alltrim_lshifr := alltrim(au_lu[i,1])
     left_lshifr_2 := left(au_lu[i,1],2)
@@ -2855,24 +2885,30 @@ elseif is_2_89 // медицинская реабилитация (физкультурный диспансер)
             endif
           next
         endif
-        if alltrim_lshifr == "20.2.1" .and. emptyall(a_2_89[1],a_2_89[2])
+        if alltrim_lshifr == "20.2.1" .and. emptyall(a_2_89[1],a_2_89[2],a_2_89[4],a_2_89[5])
           fl_not_2_89 := .t.
         elseif alltrim_lshifr == "20.2.2" .and. a_2_89[3] == 0
           fl_not_2_89 := .t.
         endif
       elseif left_lshifr_3 == "21." // массаж
-        atmp := {"21.1.2","21.1.1","21.1.3","21.1.1","21.1.1","21.1.4","21.1.4","21.1.4","21.1.4","21.1.4","21.1.4"}
+        // кроме онкологии
+        atmp := {"21.1.2","21.1.1","21.1.3","21.1.1","21.1.1"}
         if ascan(atmp,alltrim_lshifr) > 0
-          for j := 1 to 11
+          for j := 1 to len(atmp)
             if a_2_89[j] == 1 .and. !(alltrim_lshifr == atmp[j])
               fl_not_2_89 := .t.
             endif
           next
         endif
+        // онкология
+        if alltrim_lshifr == "21.1.4" .and. emptyall(a_2_89[6],a_2_89[7],a_2_89[9],a_2_89[10])
+          fl_not_2_89 := .t.
+        endif
         if alltrim_lshifr == "21.2.1" .and. emptyall(a_2_89[6],a_2_89[7],a_2_89[8],a_2_89[9],a_2_89[11])
           fl_not_2_89 := .t.
         endif
       elseif left_lshifr_3 == "22." // рефлексотерапия
+        // кроме онкологии
         atmp := {"22.1.2","22.1.1","22.1.3","22.1.1","22.1.1"}
         if ascan(atmp,alltrim_lshifr) > 0
           for j := 1 to 5
@@ -2883,7 +2919,7 @@ elseif is_2_89 // медицинская реабилитация (физкультурный диспансер)
         endif
       endif
       if fl_not_2_89
-        aadd(ta,'услуга '+alltrim_lshifr+' не совпадает по наименованию с кодом законченного случая обращения')
+        aadd(ta,'услуга '+alltrim_lshifr+' не входит в набор услуг для обращения с целью медицинской реабилитации '+shifr_zs)
       endif
     else
       s += alltrim_lshifr+" " ; ++oth_usl
@@ -3091,7 +3127,7 @@ elseif ksmp > 0
   if d1 < d2
     aadd(ta,'для скорой помощи дата начала должна равняться дате окончания лечения')
   endif
-  if is_komm_SMP() // если это коммерческая скорая
+  if is_komm_SMP() .and. d2 < 0d20190501 // если это коммерческая скорая
     if is_71_1
       aadd(ta,'для коммерческой СМП необходимо применять услуги 71.2.*')
     endif
@@ -3307,6 +3343,7 @@ endif
 if is_prof_PN //
   human_->profil := 151  // медицинским осмотрам профилактическим
   metap := 1
+  m1mobilbr := 0
   if d1_year != d2_year
     aadd(ta,'Дата начала и окончания случая должны быть в одном году')
   endif
@@ -3503,6 +3540,7 @@ if is_prof_PN //
   endif
 endif
 if is_disp_DVN //
+  m1mobilbr := 0
   human_->profil := 151  // медицинским осмотрам профилактическим
   m1g_cit := m1veteran := m1dispans := 0
   if empty(sadiag1)
@@ -3883,9 +3921,9 @@ if is_disp_DVN //
       endif
     elseif ascan(dvn_700,{|x| x[2] == lshifr}) > 0
       ++k700 // к нулевой услуге добавлена услуга с ценой на "700"
-    elseif eq_any(left(lshifr,5),"70.3.","72.1.")
+    elseif eq_any(left(lshifr,5),"70.3.","70.7.","72.1.","72.5.","72.6.")
       ++zs
-      s := ret_shifr_zs_DVN(metap,mv,mpol)
+      s := ret_shifr_zs_DVN(metap,mv,mpol,d2)
       if !(lshifr == s)
         aadd(ta,'в л/у услуга '+lshifr+', а должна быть '+s+' для возраста '+lstr(mv)+' '+s_let(mv))
       endif
@@ -7742,7 +7780,7 @@ if (i := popup_prompt(r1,10,1,mm_menu,,,color5)) > 0
       cFile += sxml
       // читаем файл в память
       oXmlDoc := HXMLDoc():Read(_tmp_dir1+cFile)
-      if Empty( oXmlDoc:aItems )
+      if oXmlDoc == NIL .or. Empty( oXmlDoc:aItems )
         func_error(4,"Ошибка в чтении файла "+cFile)
       else // читаем и записываем XML-файл во временные TMP-файлы
         reestr_sp_tk_tmpfile(oXmlDoc,aerr,cFile)
@@ -8049,7 +8087,7 @@ if (i := popup_prompt(r1,10,1,mm_menu,,,color5)) > 0
       cFile += sxml
       // читаем файл в память
       oXmlDoc := HXMLDoc():Read(_tmp_dir1+cFile)
-      if Empty( oXmlDoc:aItems )
+      if oXmlDoc == NIL .or. Empty( oXmlDoc:aItems )
         func_error(4,"Ошибка в чтении файла "+cFile)
       else // читаем и записываем XML-файл во временные TMP-файлы
         is_err_FLK := protokol_flk_tmpfile(arr_f,aerr)
