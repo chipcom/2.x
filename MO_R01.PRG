@@ -1401,23 +1401,22 @@ close databases
 rest_box(buf)
 return fl*/
 
-***** 14.12.18 Создание файла обмена R01...
+***** 10.06.19 Создание файла обмена R01...
 Function f_create_R01()
 Local buf := save_maxrow(), i, j, ir, s := "", arr := {}, fl := .t., fl1 := .f., a_reestr := {},;
       azip := {}, aerr := {}, full_zip, name_zip, cFile, cName, oXmlDoc
-Private sgod := 2019, SQUARTER := 1, mdate := sys_date, mrec := 1
+Private sgod := 2019, SQUARTER := 3, mdate := sys_date, mrec := 2
 Private c_view := 0, c_found := 0, fl_exit := .f., pj, arr_rees := {},;
         pkol := 0, CODE_LPU := glob_mo[_MO_KOD_TFOMS], CODE_MO := glob_mo[_MO_KOD_FFOMS],;
-        mkol := {0,0,0}, skol := {0,0,0}, akv[4,3], ames[12,3], bm := int(SQUARTER*3) // начальный месяц минус один
+        mkol := {0,0}, skol := {0,0}, akv[4,2], ames[12,2], bm := int(SQUARTER*3) // начальный месяц минус один
 mywait()
 if (fl := verify_packet_R05(1,arr))
   R_Use(dir_server+"mo_dr05p",,"R05p")
   goto (mrec)
   skol[1] := r05p->KOL1
   skol[2] := r05p->KOL2
-  skol[3] := r05p->KOL3
   for i := 1 to 12
-    for j := 1 to 3
+    for j := 1 to 2
       ames[i,j] := { &("r05p->kol"+lstr(j)+"_"+strzero(i,2)), 0 }
     next
   next
@@ -1455,13 +1454,21 @@ if (fl := verify_packet_R05(1,arr))
     if fl1 // не первый раз составляется реестр в отчётном году
       R_Use(dir_server+"mo_dr01k",,"R01k")
       index on str(reestr,6)+str(kod_k,7) to (cur_dir+"tmp_dr01k")
+      R_Use(dir_server+"kartotek",,"KART")
       Use (dir_server+"mo_dr00") new alias TMP
+      set relation to kod into KART
       index on kod to (cur_dir+"tmp_dr00") for reestr == 0
       go top
       do while !eof()
         j := tmp->tip
         tmp->n_m := tmp->n_q := 0 // если уже заходили в режим и не подтвердили создание XML
-        mkol[j] ++ // подсчёт оставшегося кол-ва в пуле пациентов
+        if j == 2 // только профосмотры
+          if sgod - year(kart->date_r) < 40 // моложе 40 лет
+            mkol[j] ++ // подсчёт оставшегося кол-ва в пуле пациентов
+          else
+            tmp->tip := 0 // т.е. 40 лет и старше - это диспансеризация
+          endif
+        endif
         skip
       enddo
       commit
@@ -1483,9 +1490,10 @@ if (fl := verify_packet_R05(1,arr))
               if !between(j,1,3)
                 fl := func_error(4,"Некорректный вид осмотра в файле MO_DR00.DBF! Операция запрещена")
                 exit
+              elseif between(j,1,2)
+                ames[i,j,2] ++
+                skol[j] --
               endif
-              ames[i,j,2] ++
-              skol[j] --
             endif
           endif
           select TMP
@@ -1493,6 +1501,11 @@ if (fl := verify_packet_R05(1,arr))
         enddo
         if !fl ; exit ; endif
       next ir
+      if empty(skol[2])
+        fl := func_error(4,"БОлее не требуется создания файлов обмена!")
+      elseif mkol[2] < skol[2]
+        fl := func_error(4,"Не хватает "+lstr(skol[2]-mkol[2])+" чел. (моложе 40 лет) в картотеке для профосмотров")
+      endif
     else // первый раз составляется реестр в отчётном году
       Status_Key("^<Esc>^ - прервать поиск")
       hGauge := GaugeNew(,,,"Поиск пациентов, подлежащих дисп-ии/профосмотрам",.t.)
@@ -1531,13 +1544,13 @@ if (fl := verify_packet_R05(1,arr))
     my_debug(,print_array(skol))
     my_debug(,print_array(mkol))
     my_debug(,print_array(ames))
-    for j := 1 to 3
+    for j := 2 to 2 // только профосмотры
       if empty(skol[j])
-        loop
+        exit
       endif
       pj := j
       d := koef := int(mkol[j] / skol[j]) + 1 // через сколько записей прыгаем
-      i := 0
+      i := 6 // начиная с июля
       do while skol[j] > 0
         select TMP
         index on kod to (cur_dir+"tmp_dr00") for tmp->tip == pj .and. tmp->n_q == 0 DESCENDING
@@ -1545,7 +1558,7 @@ if (fl := verify_packet_R05(1,arr))
         do while !eof()
           if d == koef
             if i >= 12
-              i := 0
+              i := 6 // начиная с июля
             endif
             do while i < 12
               ++i
@@ -1588,8 +1601,8 @@ close databases
 rest_box(buf)
 if fl
   if fl1
-    for i := 1 to 4
-      for j := 1 to 3
+    for i := 3 to 4
+      for j := 2 to 2
         if !empty(akv[i,j])
           fl := .f.
         endif
@@ -1714,7 +1727,7 @@ endif
 @ row(),col() say lstr(cf) color cColorStMsg
 return NIL
 
-***** 14.12.18
+***** 10.06.19
 Function f1_create_R01()
 Local SQUARTER, nsh := 3, smsg, arr_nn[4]
 if !f_Esc_Enter("создания файлов R01",.t.)
@@ -1731,7 +1744,7 @@ G_Use(dir_server+"mo_dr01k",,"RHUM")
 index on str(REESTR,6) to (cur_dir+"tmp_rhum")
 G_Use(dir_server+"mo_dr01",,"REES")
 index on str(NQUARTER,1)+str(nn,3) to (cur_dir+"tmp_dr01") for NYEAR == sgod
-for SQUARTER := 1 to 4
+for SQUARTER := 3 to 4
   find (str(SQUARTER,1))
   do while SQUARTER == rees->NQUARTER .and. !eof()
     if arr_nn[SQUARTER] < rees->nn
@@ -1749,8 +1762,8 @@ set relation to recno() into KART_, recno() into KART2
 G_Use(dir_server+"mo_dr00",,"TMP")
 set relation to kod into KART
 index on str(n_q,1)+upper(kart->fio)+dtos(kart->date_r) to (cur_dir+"tmp_dr00")
-for SQUARTER := 1 to 4
-  if emptyall(akv[SQUARTER,1],akv[SQUARTER,2],akv[SQUARTER,3])
+for SQUARTER := 3 to 4
+  if empty(akv[SQUARTER,2])
     loop
   endif
   smsg := "Составление файла R01 за "+lstr(SQUARTER)+"-й квартал"
@@ -1803,7 +1816,7 @@ for SQUARTER := 1 to 4
       rhum->tip := tmp->tip
       rhum->R01_ZAP := pkol
       rhum->ID_PAC := mo_guid(1,tmp->kod)
-      rhum->TYPEOFREC := 0 // 0-первично представленная запись, 1-актуализированная запись
+      rhum->TYPEOFREC := 1 // 0-первично представленная запись, 1-актуализированная запись
       rhum->OPLATA := 0
     endif
     if pkol % 2000 == 0
@@ -2826,15 +2839,17 @@ if between(&lal.->dschet,0d20180325,0d20180520)
 endif
 return fl
 
-***** 20.12.18 проверить, есть ли не до конца обработанные операции с файлами R01...
+***** 10.06.19 проверить, есть ли не до конца обработанные операции с файлами R01...
 Function find_unfinished_R01()
 Local fl := .t., skol := 0, mkol := 0, arr := {}, fl_date := .t.
-Private sgod := 2019, mrec := 1
+Private sgod := 2019, mrec := 2
 if glob_mo[_MO_IS_UCH]
   if (fl := verify_packet_R05(2,arr))
     R_Use(dir_server+"mo_dr05p",,"R05p")
+    goto (1)
+    skol := r05p->KOL1 + r05p->KOL3
     goto (mrec)
-    skol := r05p->KOL1 + r05p->KOL2 + r05p->KOL3
+    skol += r05p->KOL2
     select MO_XML
     index on str(reestr,6) to (cur_dir+"tmp_xml") for tip_in == _XML_FILE_R02 .and. empty(TIP_OUT)
     R_Use(dir_server+"mo_dr01",,"REES")

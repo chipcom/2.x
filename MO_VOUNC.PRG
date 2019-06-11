@@ -2254,8 +2254,8 @@ do while !eof()
           mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_USL",arr_onkna[j,4])
          endif
           mo_add_xml_stroke(oPRESCRIPTIONS,"NAPR_DATE",date2xml(arr_onkna[j,1]))
-         if !empty(arr_onkna[j,5])
-          mo_add_xml_stroke(oPRESCRIPTIONS,"NAPR_MO",arr_onkna[j,5])
+         if !empty(arr_onkna[j,5]) .and. !empty(mNPR_MO := ret_mo(arr_onkna[j,5])[_MO_KOD_FFOMS])
+          mo_add_xml_stroke(oPRESCRIPTIONS,"NAPR_MO",mNPR_MO)
          endif
         next j
        endif
@@ -2298,8 +2298,8 @@ do while !eof()
       for j := 1 to len(arr_onkna)
        oNAPR := oSL:Add( HXMLNode():New( "NAPR" ) )
         mo_add_xml_stroke(oNAPR,"NAPR_DATE",date2xml(arr_onkna[j,1]))
-        if !empty(arr_onkna[j,5])
-          mo_add_xml_stroke(oNAPR,"NAPR_MO",arr_onkna[j,5])
+        if !empty(arr_onkna[j,5]) .and. !empty(mNPR_MO := ret_mo(arr_onkna[j,5])[_MO_KOD_FFOMS])
+          mo_add_xml_stroke(oNAPR,"NAPR_MO",mNPR_MO)
         endif
         mo_add_xml_stroke(oNAPR,"NAPR_V",lstr(arr_onkna[j,2]))
         if arr_onkna[j,2] == 3
