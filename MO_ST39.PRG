@@ -1534,7 +1534,7 @@ endif
 if fl .and. mn->vid_obsl == 0
   mdvozrast := year(human->n_data) - year(human->date_r)
   if m1veteran == 1
-    mdvozrast := ret_vozr_DVN_veteran(mdvozrast)
+    mdvozrast := ret_vozr_DVN_veteran(mdvozrast,human->k_data)
   endif
   if !empty(arr_vozr)
     fl := (ascan(arr_vozr,mdvozrast) > 0)

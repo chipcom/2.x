@@ -2815,7 +2815,7 @@ if regim == "edit" .and. nKey == K_ENTER
   mvozrast := count_years(human->date_r,human->n_data)
   mdvozrast := year(human->n_data) - year(human->date_r)
   if m1veteran == 1
-    mdvozrast := ret_vozr_DVN_veteran(mdvozrast)
+    mdvozrast := ret_vozr_DVN_veteran(mdvozrast,human->k_data)
   endif
   select HU
   find (str(human->kod,7))
@@ -4246,7 +4246,7 @@ read_arr_DVN(kod_h)
 mvozrast := count_years(human->date_r,human->n_data)
 mdvozrast := year(human->n_data) - year(human->date_r)
 if m1veteran == 1
-  mdvozrast := ret_vozr_DVN_veteran(mdvozrast)
+  mdvozrast := ret_vozr_DVN_veteran(mdvozrast,human->k_data)
 endif
 for i := 1 to iif(is_2013,count_dvn_arr_usl13,count_dvn_arr_usl)
   mvar := "MTAB_NOMv"+lstr(i)
@@ -5400,7 +5400,7 @@ ret_tip_mas(mWEIGHT,mHEIGHT,@m1tip_mas)
 mvozrast := count_years(human->date_r,human->n_data)
 mdvozrast := year(human->n_data) - year(human->date_r)
 if m1veteran == 1
-  mdvozrast := ret_vozr_DVN_veteran(mdvozrast)
+  mdvozrast := ret_vozr_DVN_veteran(mdvozrast,human->k_data)
 endif
 if mdvozrast < 39
   ivozrast := 1

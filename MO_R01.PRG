@@ -1452,10 +1452,32 @@ if (fl := verify_packet_R05(1,arr))
   enddo
   if fl
     if fl1 // не первый раз составляется реестр в отчётном году
+      hGauge := GaugeNew(,,,"Дополнительный поиск пациентов до 40 лет для профосмотров",.t.)
+      GaugeDisplay( hGauge )
+      Use (dir_server+"mo_dr00") new alias TMP
+      index on str(kod,7) to (cur_dir+"tmp_dr00")
+      R_Use(dir_server+"human_",,"HUMAN_")
+      R_Use(dir_server+"human",dir_server+"humankk","HUMAN")
+      set relation to recno() into HUMAN_
+      R_Use(dir_server+"kartote2",,"KART2")
+      R_Use(dir_server+"kartote_",,"KART_")
+      R_Use(dir_server+"kartotek",,"KART")
+      set relation to recno() into KART_, recno() into KART2
+      go top
+      do while !eof()
+        GaugeUpdate( hGauge, recno()/lastrec() )
+        if kart->kod > 0
+          f0_prof_create_R01(sgod)
+        endif
+        select KART
+        skip
+      enddo
+      CloseGauge(hGauge)
+      //
       R_Use(dir_server+"mo_dr01k",,"R01k")
       index on str(reestr,6)+str(kod_k,7) to (cur_dir+"tmp_dr01k")
-      R_Use(dir_server+"kartotek",,"KART")
-      Use (dir_server+"mo_dr00") new alias TMP
+      select TMP
+      commit
       set relation to kod into KART
       index on kod to (cur_dir+"tmp_dr00") for reestr == 0
       go top
@@ -1725,6 +1747,56 @@ endif
 @ maxrow(),1 say lstr(cv) color cColorSt2Msg
 @ row(),col() say "/" color "W/R"
 @ row(),col() say lstr(cf) color cColorStMsg
+return NIL
+
+***** 12.06.19 поик доступных профосмотров до 40 лет
+Static Function f0_prof_create_R01(sgod)
+Static cf := 0
+Local fl, v, ltip, ag, lgod_r, s
+if (fl := (kart2->MO_PR == CODE_LPU)) // прикреплён к нашей МО
+  lgod_r := year(kart->date_r)
+  v := sgod - lgod_r
+  if (fl := (ascan(arr_vozrast_DVN,v) > 0))// диспансеризация
+    fl := .f.
+  elseif (fl := between(v,19,38)) // моложе 40 лет
+    ltip := 2 // профосмотры
+    select HUMAN
+    find (str(kart->kod,7))
+    do while human->kod_k == kart->kod .and. !eof()
+      if year(human->k_data) == sgod .and. between(human->ishod,201,205)
+        fl := .f. ; exit // в этом году была диспансеризация или профилактика
+      endif
+      skip
+    enddo
+  endif
+endif
+if fl // За исключением умерших (по сведению ТФОМС)
+  fl := !(left(kart2->PC2,1) == "1")
+endif
+if fl
+  s := upper(kart->fio)+" "
+  if " УМЕР " $ s .or. " УМЕРЛА " $ s
+    fl := .f.
+  endif
+endif
+if fl
+  select TMP
+  find (str(kart->kod,7))
+  if found()
+    if tmp->reestr == 0 // ещё не попадал в ТФОМС
+      tmp->tip := ltip  // на всякий случай перезапишем тип = профосмотр
+      ++cf
+    endif
+  else
+    ++cf
+    append blank
+    tmp->kod := kart->kod
+    tmp->tip := ltip
+  endif
+  if cf % 500 == 0
+    tmp->(dbCommit())
+  endif
+endif
 return NIL
 
 ***** 10.06.19

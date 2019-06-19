@@ -14,9 +14,9 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-Static _version := {2,8,8}
-Static char_version := "a"
-Static _date_version := "10.06.19г."
+Static _version := {2,9,0}
+Static char_version := ""
+Static _date_version := "18.06.19г."
 Static __s_full_name := "ЧИП + Учёт работы Медицинской Организации"
 Static __s_version
 
@@ -77,6 +77,7 @@ Public d_01_08_2016 := 0d20160801
 Public d_01_08_2017 := 0d20170801
 Public d_01_09_2017 := 0d20170901
 Public d_01_05_2018 := 0d20180501
+Public d_01_05_2019 := 0d20190501
 //
 Public p_arr_prazdnik := {{2013,{;
                                  { 1,{1,2,3,4,5,6,7,8,12,13,19,20,26,27}},;

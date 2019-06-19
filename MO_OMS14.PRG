@@ -3027,7 +3027,7 @@ if is_disp_DVN //
     if metap == 3
       aadd(ta,'Профилактику взрослых не проводят ветеранам ВОВ (блокадникам)')
     else
-      mdvozrast := ret_vozr_DVN_veteran(mdvozrast)
+      mdvozrast := ret_vozr_DVN_veteran(mdvozrast,human->k_data)
     endif
   endif
   for i := 1 to len(a_disp)
