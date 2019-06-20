@@ -2825,7 +2825,7 @@ return fl
 
 *
 
-***** 18.06.19
+***** 20.06.19
 Function is_usluga_dvn(ausl,_vozrast,arr,_etap,_pol,_spec_ter)
 // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
 Local i, j, s, fl := .f., as, lshifr := alltrim(ausl[1]), fl_19
@@ -2836,7 +2836,7 @@ if !fl_19 .and. ((lshifr == "2.3.3" .and. ausl[3] == 3) .or. ; // акушерскому де
   if ((lshifr == "2.3.3" .and. eq_any(ret_old_prvs(ausl[4]),2003,2002)) .or. ;
       (lshifr == "2.3.1" .and. ret_old_prvs(ausl[4]) == 1101))
   else
-    aadd(arr,'Не та специальность врача в случае невозможности использования услуги:')
+    aadd(arr,'не та специальность врача в случае невозможности использования услуги:')
     aadd(arr,' "4.1.12.Осмотр акушеркой, взятие мазка (соскоба)"')
   endif
   fl := .t.
@@ -2872,33 +2872,37 @@ if !fl
         endif
         if valtype(dvn_arr_usl[i,j]) == "N"
           if dvn_arr_usl[i,j] == 0
-            aadd(arr,'Несовместимость по полу в услуге '+s)
+            aadd(arr,'несовместимость по полу в услуге '+s)
           endif
         else
           if ascan(dvn_arr_usl[i,j],_vozrast) == 0
-            aadd(arr,'Некорректный возраст пациента для услуги '+s)
+            aadd(arr,'некорректный возраст пациента для услуги '+s)
           endif
         endif
       else
         j := iif(_pol == "М", 8, 9)
         if valtype(dvn_arr_usl[i,j]) == "N"
           if dvn_arr_usl[i,j] == 0
-            aadd(arr,'Несовместимость по полу в услуге '+s)
+            aadd(arr,'несовместимость по полу в услуге '+s)
+          endif
+        elseif type("is_disp_19") == "L" .and. is_disp_19
+          if ascan(dvn_arr_usl[i,j],_vozrast) == 0
+            aadd(arr,'некорректный возраст пациента для услуги '+s)
           endif
         else
           if !between(_vozrast,dvn_arr_usl[i,j,1],dvn_arr_usl[i,j,2])
-            aadd(arr,'Некорректный возраст пациента для услуги '+s)
+            aadd(arr,'некорректный возраст пациента для услуги '+s)
           endif
         endif
       endif
       if valtype(dvn_arr_usl[i,10]) == "N"
         if ret_profil_dispans(dvn_arr_usl[i,10],ausl[4]) != ausl[3]
         //if dvn_arr_usl[i,10] != ausl[3]
-          aadd(arr,'Не тот профиль в услуге '+s)
+          aadd(arr,'не тот профиль в услуге '+s)
         endif
       else
         if ascan(dvn_arr_usl[i,10],ausl[3]) == 0
-          aadd(arr,'Не тот профиль в услуге '+s)
+          aadd(arr,'не тот профиль в услуге '+s)
         endif
       endif
       as := aclone(dvn_arr_usl[i,11])

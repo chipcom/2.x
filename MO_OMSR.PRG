@@ -4441,7 +4441,7 @@ do while !eof()
       else
         fl := verify_1_sluch_18(fl_view)
       endif
-      if fl .and. !between(human->ishod,201,205)
+      if fl
         ++iprov
         if !fl_view .and. human->ishod != 88 //  // это не 1-ый л/у в двойном случае
           select TMPB
