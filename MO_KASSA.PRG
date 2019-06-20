@@ -913,16 +913,17 @@ do while .t.
     endif
     //
     use (cur_dir+"tmp_usl") new index (cur_dir+"tmp_usl")
-    adbf := {{"name",  "C",128,0},; // 24.12.17
-             {"name_u","C",128,0},;
-             {"vrach", "C", 40,0},;
-             {"cena",  "N", 10,2},;
-             {"U_CENA","N", 10,2},;
-             {"kol",   "N",  4,0},;
-             {"kol1",  "N",  4,0},;
-             {"nds20", "N",  1,0},; //10.08.08
-             {"nds18", "N",  1,0},; //10.08.08
-             {"nds10", "N",  1,0}}
+    adbf := {{"name",   "C",128,0},; // 24.12.17
+             {"name_u", "C",128,0},;
+             {"vrach",  "C", 40,0},;
+             {"cena",   "N", 10,2},;
+             {"U_CENA", "N", 10,2},;
+             {"vz_cena","N",  9,3},;
+             {"kol",    "N",  4,0},;
+             {"kol1",   "N",  4,0},;
+             {"nds20",  "N",  1,0},; //10.08.08
+             {"nds18",  "N",  1,0},; //10.08.08
+             {"nds10",  "N",  1,0}}
     dbcreate(cur_dir+"tmp",adbf)
     use (cur_dir+"tmp") new
     adbf := {}
@@ -958,8 +959,9 @@ do while .t.
           fl := .f.        // то печатаем его только в 1-ой услуге
         endif
       endif
-      tmp->cena := tmp_usl->U_CENA
-      tmp->u_cena := tmp_usl->U_CENA
+      tmp->cena    := tmp_usl->U_CENA
+      tmp->u_cena  := tmp_usl->U_CENA
+      tmp->vz_cena := tmp_usl->U_CENA
       select USL
       goto (tmp_usl->U_KOD)
       if round(tmp->cena,2) == round(usl->pcena_d,2) // дети-взрослые

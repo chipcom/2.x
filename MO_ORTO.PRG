@@ -1218,7 +1218,7 @@ return flag
 
 *
 
-***** 19.12.19
+***** 19.06.19
 Function vozvrat_orto()
 Local buf := savescreen(), sotgr, str_sem, s, ln_chek,;
       sum_bank, sum_nal, sum_itog, tip_banka,;
@@ -1242,13 +1242,14 @@ else
   summa_oplat_bn := ho->sbank
   tip_banka := ho->fr_tipkart
   //
-  adbf := {{"name_u","C",128,0},;
-           {"vrach", "C", 40,0},;
-           {"u_cena","N", 10,2},;
-           {"kol1",  "N",  5,1},;
-           {"nds20", "N",  1,0},; //10.08.08
-           {"nds18", "N",  1,0},; //10.08.08
-           {"nds10", "N",  1,0}}
+  adbf := {{"name_u", "C",128,0},;
+           {"vrach",  "C", 40,0},;
+           {"u_cena", "N", 10,2},;
+           {"vz_cena","N",  9,3},; 
+           {"kol1",   "N",  5,1},;
+           {"nds20",  "N",  1,0},; //10.08.08
+           {"nds18",  "N",  1,0},; //10.08.08
+           {"nds10",  "N",  1,0}}
   dbcreate(cur_dir+"tmp",adbf)
   use (cur_dir+"tmp") new
   adbf := {}
@@ -1256,6 +1257,7 @@ else
   append blank
   tmp->name_u := inieditspr(A__MENUVERT, menu_opl_chek, ho->tip_opl)+" наряду N "+lstr(human->nar_z)
   tmp->u_cena := round_5(ho->cena_opl, 2)
+  tmp->vz_cena := round_5(ho->cena_opl, 2)
   tmp->kol1   := round_5(1,0)
   //
   p_summa := summa_oplat

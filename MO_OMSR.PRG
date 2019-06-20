@@ -3667,8 +3667,14 @@ if is_disp_DVN //
     if metap == 3
       aadd(ta,'Профилактику взрослых не проводят ветеранам ВОВ (блокадникам)')
     else
-      mdvozrast := ret_vozr_DVN_veteran(mdvozrast,human->k_data)
+      mdvozrast := ret_vozr_DVN_veteran(mdvozrast,d2)
     endif
+  endif
+  is_prof_disp := .f.
+  // если это профосмотр
+  if metap == 3 .and. ascan(ret_arr_vozrast_DVN(d2),mdvozrast) > 0 // а возраст диспансеризации
+    metap := 1 // превращаем в диспансеризацию
+    is_prof_disp := .t.
   endif
   for i := 1 to len(a_disp)
     // {human->ishod-200,human->n_data,human->k_data,human_->RSLT_NEW}
@@ -3703,7 +3709,7 @@ if is_disp_DVN //
     lshifr := alltrim(au_lu[j,1])
     fl := .t.
     if !is_disp_19 .and. ((lshifr == "2.3.3" .and. au_lu[j,3] == 3) .or.  ; // акушерскому делу
-          (lshifr == "2.3.1" .and. au_lu[j,3] == 136))  ; // акушерству и гинекологии
+                          (lshifr == "2.3.1" .and. au_lu[j,3] == 136))  ; // акушерству и гинекологии
         .and. (i := ascan(dvn_arr_usl, {|x| valtype(x[2])=="C" .and. x[2]=="4.1.12"})) > 0
       arr1[i,1] ++
       fl := .f.
@@ -3717,6 +3723,18 @@ if is_disp_DVN //
     endif
     if fl
       for i := 1 to count_dvn_arr_usl
+        if metap == 2 .and. valtype(dvn_arr_usl[i,2]) == "C" .and. dvn_arr_usl[i,2] == lshifr
+          s := '"'+dvn_arr_usl[i,2]+' '+dvn_arr_usl[i,1]+'"'
+          if valtype(dvn_arr_usl[i,3]) == "N"
+            if dvn_arr_usl[i,3] != 2
+              aadd(ta,'не надо выполнять, а выполнили '+s)
+            endif
+          else
+            if ascan(dvn_arr_usl[i,3],2) == 0
+              aadd(ta,'не надо выполнять, а выполнили '+s)
+            endif
+          endif
+        endif
         if arr1[i,1] == 0
           if valtype(dvn_arr_usl[i,2]) == "C"
             if dvn_arr_usl[i,2] == "4.20.1"
@@ -3834,8 +3852,8 @@ if is_disp_DVN //
       endif
     next j
   endif
-  if kol_ob_otkaz > 0 //.and. metap == 3
-    aadd(ta,'в профоосмотрах нельзя отказываться от обязательных услуг')
+  if kol_ob_otkaz > 0 .and. metap == 1 .and. !is_prof_disp
+    aadd(ta,'некорректно записан случай профоосмотра в год диспансеризации- отредактируйте')
   endif
   if !eq_any(metap,2,5) // проверим, выполнены обязательные услуги (и наоборот)
     for i := 1 to count_dvn_arr_usl
@@ -3954,11 +3972,15 @@ if is_disp_DVN //
       endif
     elseif ascan(dvn_700,{|x| x[2] == lshifr}) > 0
       ++k700 // к нулевой услуге добавлена услуга с ценой на "700"
-    elseif eq_any(left(lshifr,5),"70.3.","70.7.","72.1.","72.5.","72.6.")
+    elseif eq_any(left(lshifr,5),"70.3.","70.7.","72.1.","72.5.","72.6.","72.7.")
       ++zs
-      s := ret_shifr_zs_DVN(metap,mv,mpol,d2)
+      if is_prof_disp
+        s := ret_shifr_zs_DVN(3,mv,mpol,d2)
+      else
+        s := ret_shifr_zs_DVN(metap,mv,mpol,d2)
+      endif
       if !(lshifr == s)
-        aadd(ta,'в л/у услуга '+lshifr+', а должна быть '+s+' для возраста '+lstr(mv)+' '+s_let(mv))
+        aadd(ta,'в л/у услуга '+lshifr+', а должна быть '+s+' для возраста '+lstr(mv)+' '+s_let(mv)+'. Отредактируйте!')
       endif
     else
       oth_usl += lshifr+" "

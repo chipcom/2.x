@@ -299,7 +299,7 @@ next
 Private mg_cit := "", m1g_cit := 0, m1lis := 0, mm_g_cit := {;
   {"ОБЫЧНОЕ иссл-е взятого цитологичес.материала",1},;
   {"ЖИДКОСТНОЕ иссл-ие цитологического материала",2}}
-for i := 1 to 30//count_dvn_arr_usl
+for i := 1 to 31//count_dvn_arr_usl
   mvar := "MTAB_NOMv"+lstr(i)
   Private &mvar := 0
   mvar := "MTAB_NOMa"+lstr(i)
@@ -443,12 +443,25 @@ if Loc_kod > 0
   mn_data    := human->N_DATA
   mk_data    := human->K_DATA
   mcena_1    := human->CENA_1
+  m1rslt     := human_->RSLT_NEW
   //
   is_disp_19 := !(mk_data < d_01_05_2019)
   ret_arr_vozrast_DVN(mk_data)
   ret_arrays_disp(is_disp_19)
   metap := human->ishod-200
   if is_disp_19
+    mdvozrast := year(mn_data) - year(mdate_r)
+    // если это профосмотр
+    if metap == 3 .and. ascan(ret_arr_vozrast_DVN(mk_data),mdvozrast) > 0 // а возраст диспансеризации
+      metap := 1 // превращаем в диспансеризацию
+      if m1rslt == 345
+        m1rslt := 355
+      elseif m1rslt == 344
+        m1rslt := 318
+      else
+        m1rslt := 317
+      endif
+    endif
     if metap == 4
       func_error(4,"Это диспансеризация раз в 2 года - преобразуем в обычную диспансеризацию")
       metap := 1
@@ -460,7 +473,7 @@ if Loc_kod > 0
   endif
   if between(metap,1,5)
     mm_gruppa := {mm_gruppaD1,mm_gruppaD2,mm_gruppaP,mm_gruppaD4,mm_gruppaD2}[metap]
-    if (i := ascan(mm_gruppa, {|x| x[3] == human_->RSLT_NEW })) > 0
+    if (i := ascan(mm_gruppa, {|x| x[3] == m1rslt })) > 0
       m1GRUPPA := mm_gruppa[i,2]
     endif
   endif
@@ -1606,12 +1619,23 @@ do while .t.
         if is_disp_19
           if kol_n_date+kol_otkaz <= k // отказы + ранее оказано менее 15%
             // выставляем по законченному случаю
-            if kol_ob_otkaz > 0
-              if metap == 1
-                // надо переделать в профосмотр !!!!!
-              elseif metap == 3
-                // отсечём в проверке
+            if kol_ob_otkaz > 0 .and. metap == 1 // надо переделать в профосмотр !!!!!
+              if (i := ascan(arr_osm1, {|x| valtype(x[5]) == "C" .and. x[5] == "2.3.7" })) > 0
+                arr_osm1[i,5] := "2.3.2" // шифр услуги приёма терапевта для профосмотра
               endif
+              metap := 3
+              if eq_any(m1rslt,355,356,357,358)
+                m1rslt := 345
+                m1gruppa := 3
+              elseif eq_any(m1rslt,318,353)
+                m1rslt := 344
+                m1gruppa := 2
+              else
+                m1rslt := 343
+                m1gruppa := 1
+              endif
+              arr_osm1[i_zs,5] := ret_shifr_zs_DVN(metap,mdvozrast,mpol,mk_data)
+              func_error(4,"Отказ от обязательного исследования - оформляем профилактический осмотр "+arr_osm1[i_zs,5])
             endif
           else
             // если < 85%, отсечём в проверке
@@ -1930,7 +1954,7 @@ update_get(pole_d_dispans)
 update_get("mdispans")
 return .t.
 
-***** 17.06.19 рабочая ли услуга ДВН в зависимости от этапа, возраста и пола
+***** 19.06.19 рабочая ли услуга ДВН в зависимости от этапа, возраста и пола
 Function f_is_usl_oms_sluch_DVN(i,_etap,_vozrast,_pol,/*@*/_diag,/*@*/_otkaz,/*@*/_ekg)
 Local fl := .f., ars := {}, ar := dvn_arr_usl[i]
 if valtype(ar[3]) == "N"
@@ -1976,6 +2000,8 @@ if fl .and. eq_any(_etap,2,3)
   i := iif(_pol=="М", 8, 9)
   if valtype(ar[i]) == "N"
     fl := (ar[i] != 0)
+  elseif type("is_disp_19") == "L" .and. is_disp_19
+    fl := ascan(ar[i],_vozrast) > 0
   else // для 2 этапа и профилактики возраст указан диапазоном
     fl := between(_vozrast,ar[i,1],ar[i,2])
   endif
@@ -2082,7 +2108,7 @@ if p != sp
        },;
       {"Маммография обеих молочных желез","7.57.3",1,0,1,; // женщины
         0,;
-        {40,42,44,46,48,50.52,54,56,58,60,62,64,66,68,70,72,74},;
+        {40,42,44,46,48,50,52,54,56,58,60,62,64,66,68,70,72,74},;
         0,1,78,{1118,1802,2020};
        },;
       {"Флюорография лёгких профилактическая","7.61.3",{1,3},0,1,;
@@ -2099,10 +2125,13 @@ if p != sp
         eval(blk,35,99),;
         111,{110103,110303,110906,111006,111905,112212,112611,113418,113509,180202,2021};
        },;
-      {"Фиброэзофагогастродуоденоскопия","10.3.13",{1,2},0,1,;
+      {"Фиброэзофагогастродуоденоскопия","10.3.13",1,0,1,;
         {45},;
         {45},;
         1,1,123,{110104,111007,112221,112609,113419,113511};
+       },;
+      {"Фиброэзофагогастродуоденоскопия","10.3.713",2,0,1,;
+        1,1,1,1,123,{110104,111007,112221,112609,113419,113511};
        },;
       {"Спирометрия","16.1.717",2,0,1,; // "2.84.11"
         1,1,1,1,111,{110103,110303,110906,111006,111905,112212,112611,113418,113509,180202,2021};
@@ -2429,28 +2458,12 @@ return padr(s,21)
 70.7.30	Законченный случай диспансеризации взрослых 1 этап (77,83,89,95)
 70.7.31	Законченный случай диспансеризации взрослых 1 этап (79,81,85,87,91,93,97,99)
 */
-***** 18.06.19 вернуть шифр услуги законченного случая для ДВН
+***** 19.06.19 вернуть шифр услуги законченного случая для ДВН
 Function ret_shifr_zs_DVN(_etap,_vozrast,_pol,_date)
-Local lshifr := "", fl, n := 1
+Local lshifr := "", fl, is_disp, n := 1
 if _date >= 0d20190501 // с 1 мая
   if _etap == 1
-    if eq_any(_vozrast,65,71)
-      n := 24
-    elseif eq_any(_vozrast,66,70,72)
-      n := 25
-    elseif eq_any(_vozrast,67,69,73,75)
-      n := 26
-    elseif eq_any(_vozrast,68,74)
-      n := 27
-    elseif eq_any(_vozrast,76,78,82,84,88,90,94,96)
-      n := 28
-    elseif eq_any(_vozrast,80,86,92,98)
-      n := 29
-    elseif eq_any(_vozrast,77,83,89,95)
-      n := 30
-    elseif eq_any(_vozrast,79,81,85,87,91,93,97,99)
-      n := 31
-    elseif _pol == "М" // мужчины
+    if _pol == "М" // мужчины
       if eq_any(_vozrast,18,24,30)
         n := 1
       elseif eq_any(_vozrast,21,27,33)
@@ -2477,6 +2490,22 @@ if _date >= 0d20190501 // с 1 мая
         n := 12
       elseif _vozrast == 45
         n := 13
+      elseif eq_any(_vozrast,65,71)
+        n := 24
+      elseif eq_any(_vozrast,66,70,72)
+        n := 25
+      elseif eq_any(_vozrast,67,69,73,75)
+        n := 26
+      elseif eq_any(_vozrast,68,74)
+        n := 27
+      elseif eq_any(_vozrast,76,78,82,84,88,90,94,96)
+        n := 28
+      elseif eq_any(_vozrast,80,86,92,98)
+        n := 29
+      elseif eq_any(_vozrast,77,83,89,95)
+        n := 30
+      elseif eq_any(_vozrast,79,81,85,87,91,93,97,99)
+        n := 31
       endif
     else // женщины
       if eq_any(_vozrast,18,24,30)
@@ -2499,6 +2528,22 @@ if _date >= 0d20190501 // с 1 мая
         n := 22
       elseif _vozrast == 45
         n := 23
+      elseif eq_any(_vozrast,65,71)
+        n := 32
+      elseif eq_any(_vozrast,66,70,72)
+        n := 33
+      elseif eq_any(_vozrast,67,69,73,75)
+        n := 34
+      elseif eq_any(_vozrast,68,74)
+        n := 35
+      elseif eq_any(_vozrast,76,78,82,84,88,90,94,96)
+        n := 36
+      elseif eq_any(_vozrast,77,83,89,95)
+        n := 37
+      elseif eq_any(_vozrast,79,81,85,87,91,93,97,99)
+        n := 38
+      elseif eq_any(_vozrast,80,86,92,98)
+        n := 39
       endif
     endif
     if m1g_cit == 2
@@ -2514,6 +2559,7 @@ if _date >= 0d20190501 // с 1 мая
     endif
     lshifr := "70.7."+lstr(n)
   elseif _etap == 3
+    is_disp := (ascan(ret_arr_vozrast_DVN(_date),_vozrast) > 0)
 /*
 72.5.1	Законченный случай профилактического медицинского осмотра взрослых (мужчины 19,23,25,29,31)
 72.5.2	Законченный случай профилактического медицинского осмотра взрослых (мужчины 20,22,26,28,32,34)
@@ -2524,7 +2570,7 @@ if _date >= 0d20190501 // с 1 мая
 72.5.7	Законченный случай профилактического медицинского осмотра взрослых (женщины 35,37)
 72.5.8	Законченный случай профилактического медицинского осмотра взрослых (женщины 38)
 */
-    if .t. // профосмотр оформлен как обычно
+    if !is_disp // профосмотр оформлен как обычно
       if _pol == "М" // мужчины
         if eq_any(_vozrast,19,23,25,29,31)
           n := 1
