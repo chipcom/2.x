@@ -11044,7 +11044,7 @@ return NIL
 
 *
 
-***** 01.03.19
+***** 23.06.19
 Function pl_vozvrat()
 Local fl := .t., buf := save_row(maxrow()), sm := 0, HH := 52,;
       n_file := "platn.txt", arr_m, sh, sm_sn := 0, krvz, arr_dms,;
@@ -11065,7 +11065,7 @@ endif
 mywait()
 fp := fcreate(n_file) ; n_list := 1 ; tek_stroke := 0
 add_string(center("‚‡‚€’ ®―« βλ γα«γ£",sh))
-add_string(center("(―® ¤ β¥ ­ η «  «¥η¥­¨ο)",sh))
+add_string(center("(―® ¤ β¥ Ά®§Άΰ β )",sh))
 add_string(center(arr_m[4],sh))
 tit_tip_usl(krvz,arr_dms,sh)
 add_string("")
@@ -11076,15 +11076,19 @@ R_Use(dir_server+"uslugi",,"USL")
 R_Use(dir_server+"kartotek",,"KART")
 R_Use(dir_server+"hum_p_U",dir_server+"hum_p_U","HUM_U")
 R_Use(dir_server+"hum_p",,"HUM")
+index on date_voz+FR_zavod  to (cur_dir+"tmp_uu") for sum_voz > 0
+// human->date_voz with dtoc4(date()), human->sum_voz with p_summa
 go top
 do while !eof()
-  if between(hum->n_data,arr_m[5],arr_m[6]) .and.;
-                     ascan(krvz,hum->tip_usl) > 0 .and. hum->SUM_VOZ > 0
+  if between(hum->date_voz,arr_m[7],arr_m[8]) .and.;
+                        ascan(krvz,hum->tip_usl) > 0
+                     //.and. hum->SUM_VOZ > 0
     if verify_FF(HH,.t.,sh)
       aeval(arr_title, {|x| add_string(x) } )
     endif
     select KART
     goto (hum->kod_k)
+    add_string("--"+hum->FR_zavod)
     add_string(padr("--"+alltrim(kart->fio)+"  ‚‡‚€’",59)+put_kope(hum->SUM_VOZ,12))
     sm_sn += hum->SUM_VOZ
     t := hum->(RECNO())

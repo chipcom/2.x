@@ -284,7 +284,7 @@ endif
 mark_keys({"<Esc>","<Enter>","<Ins>","<Del>","<Ctrl+Enter>","<F3>","<F4>","<F8>","<F9>","<F10>"},"R/W")
 return NIL
 
-***** 02.04.19
+***** 23.06.19
 Function f3_k_plat(nKey,oBrow)
 LOCAL j := 0, flag := -1, buf := save_row(maxrow()), buf1, fl := .f., rec, mkod,;
       tmp_color := setcolor(), r1 := 15, c1 := 2, v_summa, v_sdacha, adbf, s,;
@@ -518,7 +518,7 @@ do case
   case nKey == K_F9 //.and. human->cena > 0
     // печать договора
     Private pac_FIO, pac_adres, pac_data, dog_data, pac_kod, pac_1FIO, pac_kvit
-    Private m1vid_ud, mnom, MSER, MVID_UD, mregistrator := ""
+    Private m1vid_ud, mnom, MSER, MVID_UD, mregistrator := alltrim(fio_polzovat)
     Private mplat_fio := human->plat_fio, mplat_inn := human->plat_inn, nom_prihod := 0
     Private mplat_adres  := space(50),; // адрес плательщика
             mplat_pasport := space(15)  // документ плательщика

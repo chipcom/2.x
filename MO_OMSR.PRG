@@ -1039,8 +1039,8 @@ do while hu->kod == human->kod .and. !eof()
         // ошибка
       endif
       hu_->PZTIP := 2
-    elseif alltrim_lshifr == "56.1.723" .and. human->ishod == 202 // второй этап ДВН - одна услуга
-      is_disp_DVN := !is_disp_19
+    elseif alltrim_lshifr == "56.1.723" .and. human->ishod == 202 .and. !is_disp_19 // второй этап ДВН - одна услуга
+      is_disp_DVN := .t.
     elseif eq_any(left_lshifr_5,"60.4.","60.5.") .or. eq_any(alltrim_lshifr,"4.20.702","4.15.746") // ЛДП
       mpovod := 1 // 1.0
       mIDSP := 4 // лечебно-диагностическая процедура
@@ -3853,17 +3853,25 @@ if is_disp_DVN //
     next j
   endif
   if kol_ob_otkaz > 0 .and. metap == 1 .and. !is_prof_disp
-    aadd(ta,'некорректно записан случай профоосмотра в год диспансеризации- отредактируйте')
+    aadd(ta,'некорректно записан случай профоосмотра в год диспансеризации - отредактируйте')
   endif
   if !eq_any(metap,2,5) // проверим, выполнены обязательные услуги (и наоборот)
+//my_debug(,print_array(a_4_20_1))
     for i := 1 to count_dvn_arr_usl
       s := '"'+iif(valtype(dvn_arr_usl[i,2]) == "C", dvn_arr_usl[i,2]+' ', '')
       s += dvn_arr_usl[i,1]+'"'
+//my_debug(,s+print_array(arr1[i]))
       if arr1[i,2] == 0 // не надо выполнять
         if arr1[i,1] > 1
           aadd(ta,'не надо выполнять, а выполнили '+s)
         endif
       elseif arr1[i,2] == 1 // надо выполнять
+        if eq_any(arr1[i,4],1,2) ;// отказ, невозможно
+                  .and. valtype(dvn_arr_usl[i,2]) == "C" .and. dvn_arr_usl[i,2] == "4.1.12"
+          if a_4_20_1[2] == 3
+            aadd(ta,'не должно быть услуги "4.20.1 Исследование взятого цитологического материала", т.к. в услуге '+s+' стоит '+{"ОТКАЗ","НЕВОЗМОЖНОСТЬ"}[arr1[i,4]]+' - отредактируйте')
+          endif
+        endif
         if arr1[i,1] == 0 .and. arr1[i,5] == 0 // ЭКГ + обязательный возраст
           if arr1[i,4] == 2 .and. arr1[i,3] < 2 // "невозможно", разрешён "отказ"
             aadd(ta,'НЕВЕРНО установлена "невозможность" оказания услуги '+s)
@@ -4008,17 +4016,31 @@ if is_disp_DVN //
       elseif emptyall(zs,k700) .and. !is_disp_19
         aadd(ta,'в листе нет услуг с ценой')
       endif
+//my_debug(,"kol_d_usl ="+lstr(kol_d_usl))
+//my_debug(,"kol_d_otkaz ="+lstr(kol_d_otkaz))
+//my_debug(,"kol_n_date="+lstr(kol_n_date))
       if (i := ascan(dvn_85, {|x| x[1] == kol_d_usl })) > 0
-        if (k := dvn_85[i,1] - dvn_85[i,2]) < kol_d_otkaz
-          aadd(ta,'отказы пациента составляют '+lstr(kol_d_otkaz/kol_d_usl*100,5,0)+'% (должно быть не более 15%)')
-          aadd(ta,'отказов-'+lstr(kol_d_otkaz)+', всего учитываемых услуг-'+lstr(kol_d_usl))
-        elseif kol_n_date+kol_d_otkaz <= k // отказы + ранее оказано менее 15%
-          if zs == 0 .or. k700 > 0
-            aadd(ta,'в листе учета должна быть услуга "законченный случай" - отредактируйте')
+        if is_disp_19
+          k := dvn_85[i,1] - dvn_85[i,2]
+          if kol_n_date+kol_d_otkaz <= k // отказы + ранее оказано менее 15%
+            if zs == 0
+              aadd(ta,'в листе учета должна быть услуга "законченный случай" - отредактируйте')
+            endif
+          else
+            aadd(ta,'данный случай не может быть отправлен в ТФОМС, т.к. оказано менее 85% услуг (оказано в прошлом календарном году-'+lstr(kol_n_date)+', отказов-'+lstr(kol_d_otkaz)+', всего учитываемых услуг-'+lstr(kol_d_usl)+")")
           endif
-        elseif !is_disp_19
-          if zs > 0 .or. empty(k700)
-            aadd(ta,'в листе учета не должно быть услуги "законченный случай" - отредактируйте')
+        else
+          if (k := dvn_85[i,1] - dvn_85[i,2]) < kol_d_otkaz
+            aadd(ta,'отказы пациента составляют '+lstr(kol_d_otkaz/kol_d_usl*100,5,0)+'% (должно быть не более 15%)')
+            aadd(ta,'отказов-'+lstr(kol_d_otkaz)+', всего учитываемых услуг-'+lstr(kol_d_usl))
+          elseif kol_n_date+kol_d_otkaz <= k // отказы + ранее оказано менее 15%
+            if zs == 0 .or. k700 > 0
+              aadd(ta,'в листе учета должна быть услуга "законченный случай" - отредактируйте')
+            endif
+          else
+            if zs > 0 .or. empty(k700)
+              aadd(ta,'в листе учета не должно быть услуги "законченный случай" - отредактируйте')
+            endif
           endif
         endif
       else
