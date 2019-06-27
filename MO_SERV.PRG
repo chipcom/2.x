@@ -3379,7 +3379,7 @@ if hb_FileExists(name_file+sdbf)
   if chip_create_zipXML(name_zip,{name_file+sdbf},.t.)
     copy file (dir_server+dir_XML_MO+cslash+name_zip) to (cur_dir+name_zip)
     n_message({"В каталоге "+cur_dir+" создан файл "+upper(name_zip),;
-               "c прикрепленным населением для оправки в ВОМИАЦ."},,;
+               "c прикрепленным населением для отправки в ВОМИАЦ."},,;
                cColorSt2Msg,cColorStMsg,,,"G+/R")
     delete file (dir_server+dir_XML_MO+cslash+name_zip)
   endif

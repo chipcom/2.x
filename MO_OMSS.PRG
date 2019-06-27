@@ -1911,7 +1911,7 @@ if !empty(full_zip)
 endif
 return NIL
 
-***** 05.02.19 вынуть реестр из XML-файлов и записать во временные DBF-файлы
+***** 26.06.19 вынуть реестр из XML-файлов и записать во временные DBF-файлы
 Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
 Local _table1 := {;
    {"KOD",      "N", 6,0},; // код
@@ -2108,12 +2108,8 @@ Local _table5 := {;
    {"NAZ_N"   , "C", 2,0},; // PRESCRIPTIONS - Номер по порядку
    {"NAZ_R"   , "C", 2,0},; // PRESCRIPTIONS - Код назначения
    {"NAZR"    , "C", 2,0},; // PRESCRIPTIONS - Код назначения
-   {"NAZ_SP1" , "C", 5,0},; //
-   {"NAZ_SP2" , "C", 5,0},; //
-   {"NAZ_SP3" , "C", 5,0},; //
-   {"NAZ_V1"  , "C", 1,0},; //
-   {"NAZ_V2"  , "C", 1,0},; //
-   {"NAZ_V3"  , "C", 1,0},; //
+   {"NAZ_SP"  , "C", 5,0},; // специальность
+   {"NAZ_V"   , "C", 1,0},; // назначение
    {"NAPR_DATE","C",10,0},; // Дата направления
    {"NAPR_MO",  "C", 6,0},; //
    {"NAZ_USL"  ,"C",15,0},;  // шифр услуги
@@ -2382,16 +2378,18 @@ if (arr_f := Extract_Zip_XML(goal_dir,name_zip)) != NIL
                         t5->IDCASE := &lal.->IDCASE // для связи со случаем
                         t5->NAZ_N  := mo_read_xml_stroke(oNode2,"NAZ_N",,.f.)
                         t5->NAZ_R  := mo_read_xml_stroke(oNode2,"NAZ_R",,.f.)
-                        _ar := mo_read_xml_array(oNode2,"NAZ_SP") // М.Б.НЕСКОЛЬКО NAZ_SP
+                        t5->NAZ_SP := mo_read_xml_stroke(oNode2,"NAZ_SP",,.f.)
+                        /*_ar := mo_read_xml_array(oNode2,"NAZ_SP") // М.Б.НЕСКОЛЬКО NAZ_SP
                         for j1 := 1 to min(3,len(_ar))
                           pole := "t5->NAZ_SP"+lstr(j1)
                           &pole := _ar[j1]
-                        next
-                        _ar := mo_read_xml_array(oNode2,"NAZ_V") // М.Б.НЕСКОЛЬКО NAZ_V
+                        next*/
+                        t5->NAZ_V := mo_read_xml_stroke(oNode2,"NAZ_V",,.f.)
+                        /*_ar := mo_read_xml_array(oNode2,"NAZ_V") // М.Б.НЕСКОЛЬКО NAZ_V
                         for j1 := 1 to min(3,len(_ar))
                           pole := "t5->NAZ_V"+lstr(j1)
                           &pole := _ar[j1]
-                        next
+                        next*/
                         t5->NAZ_USL  := mo_read_xml_stroke(oNode2,"NAZ_USL",,.f.)
                         t5->NAPR_DATE:= mo_read_xml_stroke(oNode2,"NAPR_DATE",,.f.)
                         t5->NAPR_MO  := mo_read_xml_stroke(oNode2,"NAPR_MO",,.f.)

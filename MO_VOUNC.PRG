@@ -2226,16 +2226,13 @@ do while !eof()
           mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_N",lstr(j))
           mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_R",lstr(arr_nazn[j,1]))
           if eq_any(arr_nazn[j,1],1,2) // {"в нашу МО",1},{"в иную МО",2}}
-            for i := 1 to len(arr_nazn[j,2]) // к какому специалисту направлен
-              mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_SP",arr_nazn[j,2,i]) // результат ф-ии put_prvs_to_reestr(human_->PRVS,_NYEAR)
-            next
+            // к какому специалисту направлен
+            mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_SP",arr_nazn[j,2]) // результат ф-ии put_prvs_to_reestr(human_->PRVS,_NYEAR)
           elseif arr_nazn[j,1] == 3
-            for i := 1 to len(arr_nazn[j,2])
-              mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_V",lstr(arr_nazn[j,2,i]))
-            next
-            if human->OBRASHEN == '1'
-              mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_USL",arr_nazn[j,3]) // Мед.услуга (код), указанная в направлении
-            endif
+            mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_V",lstr(arr_nazn[j,2]))
+            //if human->OBRASHEN == '1'
+              //mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_USL",arr_nazn[j,3]) // Мед.услуга (код), указанная в направлении
+            //endif
           elseif eq_any(arr_nazn[j,1],4,5)
             mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_PMP",lstr(arr_nazn[j,2]))
           elseif arr_nazn[j,1] == 6
@@ -2248,7 +2245,7 @@ do while !eof()
           mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_N",lstr(j+len(arr_nazn)))
           mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_R",lstr(iif(arr_onkna[j,2]==1, 2, arr_onkna[j,2])))
          if arr_onkna[j,2] == 1 // направление к онкологу
-          mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_SP",'19') // специальность - детская онкология
+          mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_SP",iif(human->VZROS_REB==0,'41','19')) // спец-ть онкология или детская онкология
          else // == 3 на дообследование
           mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_V",lstr(arr_onkna[j,3]))
           mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_USL",arr_onkna[j,4])
@@ -3331,18 +3328,24 @@ for ii := 1 to len(arr_schet)
             if !empty(t5->NAZR)
               mo_add_xml_stroke(oPRESCRIPTIONS,"NAZR",t5->nazr)
             endif
-            for i := 1 to 3
+            if !empty(t5->NAZ_SP)
+              mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_SP",t5->NAZ_SP)
+            endif
+            /*for i := 1 to 3
               pole := "t5->NAZ_SP"+lstr(i)
               if !empty(&pole)
                 mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_SP",&pole)
               endif
-            next
-            for i := 1 to 3
+            next*/
+            if !empty(t5->NAZ_V)
+              mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_V",t5->NAZ_V)
+            endif
+            /*for i := 1 to 3
               pole := "t5->NAZ_V"+lstr(i)
               if !empty(&pole)
                 mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_V",&pole)
               endif
-            next
+            next*/
             if !empty(t5->naz_usl)
               mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_USL",t5->naz_usl)
             endif

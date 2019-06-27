@@ -709,18 +709,26 @@ elseif between(human->ishod,201,205) // дисп-ия I этап или профилактика
   endif
 endif
 if m1dopo_na > 0
-  aadd(arr_nazn,{3,{}}) ; j := len(arr_nazn)
   for i := 1 to 3
     if isbit(m1dopo_na,i)
-      aadd(arr_nazn[j,2],i)
+      aadd(arr_nazn,{3,i}) // теперь каждое назначение в отдельном PRESCRIPTIONS
     endif
   next
+  //aadd(arr_nazn,{3,{}}) ; j := len(arr_nazn)
+  //for i := 1 to 3
+    //if isbit(m1dopo_na,i)
+      //aadd(arr_nazn[j,2],i)
+    //endif
+  //next
 endif
 if between(m1napr_v_mo,1,2) .and. !empty(arr_mo_spec) // {{"-- нет --",0},{"в нашу МО",1},{"в иную МО",2}}, ;
-  aadd(arr_nazn,{m1napr_v_mo,{}}) ; j := len(arr_nazn)
-  for i := 1 to min(3,len(arr_mo_spec))
-    aadd(arr_nazn[j,2],put_prvs_to_reestr(-arr_mo_spec[i],_NYEAR)) // "-", т.к. спец-ть была в кодировке V015
+  for i := 1 to len(arr_mo_spec) // теперь каждая специальность в отдельном PRESCRIPTIONS
+    aadd(arr_nazn,{m1napr_v_mo,put_prvs_to_reestr(-arr_mo_spec[i],_NYEAR)}) // "-", т.к. спец-ть была в кодировке V015
   next
+  //aadd(arr_nazn,{m1napr_v_mo,{}}) ; j := len(arr_nazn)
+  //for i := 1 to min(3,len(arr_mo_spec))
+  //  aadd(arr_nazn[j,2],put_prvs_to_reestr(-arr_mo_spec[i],_NYEAR)) // "-", т.к. спец-ть была в кодировке V015
+  //next
 endif
 if between(m1napr_stac,1,2) .and. m1profil_stac > 0 // {{"--- нет ---",0},{"в стационар",1},{"в дн. стац.",2}}, ;
   aadd(arr_nazn,{iif(m1napr_stac==1,5,4),m1profil_stac})
