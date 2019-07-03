@@ -111,7 +111,7 @@ Local r1, r2, n := 4, buf, tmp_keys, tmp_list, tmp_color
   restscreen(buf)
 return {0,"Количество направлений - "+lstr(count_napr)}
 
-***** 18.06.19 ДВН - добавление или редактирование случая (листа учета)
+***** 02.07.19 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_DVN(Loc_kod,kod_kartotek,f_print)
 // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
 // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -194,7 +194,7 @@ Private mkod := Loc_kod, mtip_h, is_talon := .f., mshifr_zs := "",;
 //
 Private arr_usl_dop := {}, arr_usl_otkaz := {}, arr_otklon := {}, m1p_otk := 0
 Private metap := 0,;  // 1-первый этап, 2-второй этап, 3-профилактика
-        m1ndisp := 3, mndisp, is_dostup_2_year := .f.,;
+        m1ndisp := 3, mndisp, is_dostup_2_year := .f., mnapr_onk := space(10), m1napr_onk := 0,;
         mWEIGHT := 0,;   // вес в кг
         mHEIGHT := 0,;   // рост в см
         mOKR_TALII := 0,; // окружность талии в см
@@ -273,6 +273,34 @@ Private mnapr_stac, m1napr_stac := 0, ;
         mprofil_stac, m1profil_stac := 0
 Private mnapr_reab, m1napr_reab := 0, mprofil_kojki, m1profil_kojki := 0
 //
+dbcreate(cur_dir+"tmp_onkna", {; // онконаправления
+   {"KOD"      ,   "N",     7,     0},; // код больного
+   {"NAPR_DATE",   "D",     8,     0},; // Дата направления
+   {"NAPR_MO",     "C",     6,     0},; // код другого МО, куда выписано направление
+   {"NAPR_V"  ,    "N",     1,     0},; // Вид направления:1-к онкологу,2-на биопсию,3-на дообследование,4-для опр.тактики лечения
+   {"MET_ISSL" ,   "N",     1,     0},; // Метод диагностического исследования(при NAPR_V=3):1-лаб.диагностика;2-инстр.диагностика;3-луч.диагностика;4-КТ, МРТ, ангиография
+   {"shifr"  ,     "C",    20,     0},;
+   {"shifr_u"  ,   "C",    20,     0},;
+   {"shifr1"   ,   "C",    20,     0},;
+   {"name_u"   ,   "C",    65,     0},;
+   {"U_KOD"    ,   "N",     6,     0};  // код услуги
+  })
+Private m1NAPR_MO, mNAPR_MO, mNAPR_DATE, mNAPR_V, m1NAPR_V, mMET_ISSL, m1MET_ISSL, ;
+        mshifr, mshifr1, mname_u, mU_KOD, cur_napr := 0, count_napr := 0, tip_onko_napr := 0
+Private mm_napr_v := {{"нет",0},;
+                      {"к онкологу",1},;
+                      {"на дообследование",3}}
+/*Private mm_napr_v := {{"нет",0},;
+                      {"к онкологу",1},;
+                      {"на биопсию",2},;
+                      {"на дообследование",3},;
+                      {"для опредения тактики лечения",4}}*/
+Private mm_met_issl := {{"нет",0},;
+                        {"лабораторная диагностика",1},;
+                        {"инструментальная диагностика",2},;
+                        {"методы лучевой диагностики (недорогостоящие)",3},;
+                        {"дорогостоящие методы лучевой диагностики",4}}
+//
 Private pole_diag, pole_pervich, pole_1pervich, pole_d_diag, ;
         pole_stadia, pole_dispans, pole_1dispans, pole_d_dispans, pole_dn_dispans
 for i := 1 to 5
@@ -297,8 +325,8 @@ for i := 1 to 5
   Private &pole_dn_dispans := ctod("")
 next
 Private mg_cit := "", m1g_cit := 0, m1lis := 0, mm_g_cit := {;
-  {"ОБЫЧНОЕ иссл-е взятого цитологичес.материала",1},;
-  {"ЖИДКОСТНОЕ иссл-ие цитологического материала",2}}
+  {"в МО-обычное иссл-е взятого цитологичес.материала",1},;
+  {"в ВОКОД-жидкостное иссл-ие цитологического материала",2}}
 for i := 1 to 31//count_dvn_arr_usl
   mvar := "MTAB_NOMv"+lstr(i)
   Private &mvar := 0
@@ -638,6 +666,32 @@ if Loc_kod > 0
       endif
     next j
   endif
+  if .t.
+    use (cur_dir+"tmp_onkna") new alias TNAPR
+    R_Use(dir_server+"mo_su",,"MOSU")
+    R_Use(dir_server+"mo_onkna",dir_server+"mo_onkna","NAPR") // онконаправления
+    set relation to u_kod into MOSU
+    find (str(Loc_kod,7))
+    do while napr->kod == Loc_kod .and. !eof()
+      cur_napr := 1 // при ред-ии - сначала первое направление текущее
+      ++count_napr
+      select TNAPR
+      append blank
+      tnapr->NAPR_DATE := napr->NAPR_DATE
+      tnapr->NAPR_MO   := napr->NAPR_MO
+      tnapr->NAPR_V    := napr->NAPR_V
+      tnapr->MET_ISSL  := napr->MET_ISSL
+      tnapr->U_KOD     := napr->U_KOD
+      tnapr->shifr_u   := iif(empty(mosu->shifr),mosu->shifr1,mosu->shifr)
+      tnapr->shifr1    := mosu->shifr1
+      tnapr->name_u    := mosu->name
+      select NAPR
+      skip
+    enddo
+    if count_napr > 0
+      mnapr_onk := "Количество направлений - "+lstr(count_napr)
+    endif
+  endif
   for i := 1 to 5
     f_valid_diag_oms_sluch_DVN(,i)
   next i
@@ -724,8 +778,7 @@ else
   str_1 := "Редактирование"+str_1
 endif
 setcolor(color8)
-@ 0,0 say padc(str_1,80) color "B/BG*"
-Private gl_area := {1,0,maxrow()-1,maxcol(),0}
+Private gl_area
 setcolor(cDataCGet)
 make_diagP(1)  // сделать "шестизначные" диагнозы
 Private num_screen := 1
@@ -734,19 +787,23 @@ do while .t.
   DispBegin()
   if metap == 2 .and. num_screen == 2
     hS := 30 ; wS := 80
+  elseif num_screen == 3
+    hS := 26 ; wS := 85
   else
     hS := 25 ; wS := 80
   endif
   SetMode(hS,wS)
+  @ 0,0 say padc(str_1,wS) color "B/BG*"
+  gl_area := {1,0,maxrow()-1,maxcol(),0}
   j := 1
   myclear(j)
   if yes_num_lu == 1 .and. Loc_kod > 0
-    @ j,50 say padl("Лист учета № "+lstr(Loc_kod),29) color color14
+    @ j,(wS-30) say padl("Лист учета № "+lstr(Loc_kod),29) color color14
   endif
   @ j,0 say "Экран "+lstr(num_screen) color color8
   if num_screen > 1
     s := alltrim(mfio)+" ("+lstr(mvozrast)+" "+s_let(mvozrast)+")"
-    @ j,80-len(s) say s color color14
+    @ j,wS-len(s) say s color color14
   endif
   if num_screen == 1 //
     ++j; @ j,1 say "ФИО" get mfio_kart ;
@@ -1060,6 +1117,9 @@ do while .t.
   endif
     ++j; @ j,1 say "Признак подозрения на злокачественное новообразование" get mDS_ONK ;
                reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
+    ++j; @ j,1 say "Направления при подозрении на ЗНО" get mnapr_onk ;
+               reader {|x|menu_reader(x,{{|k,r,c| fget_napr_PN(k,r,c)}},A__FUNCTION,,,.f.)} ;
+               when m1ds_onk == 1
     ++j; @ j,1 say "Назначено лечение" get mnazn_l ;
                reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
     ++j; @ j,1 say "Направлен на дополнительное обследование" get mdopo_na ;
@@ -1896,6 +1956,64 @@ do while .t.
       next
     endif
     save_arr_DVN(mkod)
+    // направления при подозрении на ЗНО
+    cur_napr := 0
+    arr := {}
+    G_Use(dir_server+"mo_onkna",dir_server+"mo_onkna","NAPR") // онконаправления
+    find (str(mkod,7))
+    do while napr->kod == mkod .and. !eof()
+      aadd(arr,recno())
+      skip
+    enddo
+    if m1ds_onk == 1 // подозрение на злокачественное новообразование
+      Use_base("mo_su")
+      use (cur_dir+"tmp_onkna") new alias TNAPR
+      select TNAPR
+      go top
+      do while !eof()
+        if !emptyany(tnapr->NAPR_DATE,tnapr->NAPR_V)
+          if tnapr->U_KOD == 0 // добавляем в свой справочник федеральную услугу
+            select MOSU
+            set order to 3
+            find (tnapr->shifr1)
+            if found()  // наверное, добавили только что
+              tnapr->U_KOD := mosu->kod
+            else
+              set order to 1
+              FIND (STR(-1,6))
+              if found()
+                G_RLock(forever)
+              else
+                AddRec(6)
+              endif
+              tnapr->U_KOD := mosu->kod := recno()
+              mosu->name   := tnapr->name_u
+              mosu->shifr1 := tnapr->shifr1
+            endif
+          endif
+          select NAPR
+          if ++cur_napr > len(arr)
+            AddRec(7)
+            napr->kod := mkod
+          else
+            goto (arr[cur_napr])
+            G_RLock(forever)
+          endif
+          napr->NAPR_DATE := tnapr->NAPR_DATE
+          napr->NAPR_MO := tnapr->NAPR_MO
+          napr->NAPR_V := tnapr->NAPR_V
+          napr->MET_ISSL := iif(tnapr->NAPR_V == 3, tnapr->MET_ISSL, 0)
+          napr->U_KOD := iif(tnapr->NAPR_V == 3, tnapr->U_KOD, 0)
+        endif
+        select TNAPR
+        skip
+      enddo
+    endif
+    select NAPR
+    do while ++cur_napr <= len(arr)
+      goto (arr[cur_napr])
+      DeleteRec(.t.)
+    enddo
     write_work_oper(glob_task,OPER_LIST,iif(Loc_kod==0,1,2),1,count_edit)
     fl_write_sluch := .t.
     close databases
@@ -2249,7 +2367,7 @@ if p != sp
 endif
 return arr
 
-***** 15.06.19
+***** 02.07.19
 Function ret_ndisp(lkod_h,lkod_k,/*@*/new_etap,/*@*/msg)
 Local i, i1, i2, i3, i4, i5, s, s1, is_disp, ar, fl := .t.
 is_disp_19 := !(mk_data < d_01_05_2019)
@@ -2304,8 +2422,10 @@ if new_etap != 3
           msg := date_8(ar[1,i,2])+"г. уже проведён профилактический медосмотр!"
         case ar[1,i,1] == 4 // дисп-ия 1 этап 1 раз в 2 года
           i4 := i
+          msg := "В "+lstr(year(mn_data))+" году уже проведена диспансеризации 1 раз в 2 года"
         case ar[1,i,1] == 5 // дисп-ия 2 этап 1 раз в 2 года
           i5 := i
+          msg := "В "+lstr(year(mn_data))+" году уже проведена диспансеризации 1 раз в 2 года"
       endcase
     next
     if eq_any(new_etap,1,2) .and. new_etap != metap
@@ -2400,8 +2520,8 @@ do while human->kod_k == lkod_k .and. !eof()
     i := human->ishod-200
     if year(human->n_data) == d1 // текущий год
       aadd(ae[1],{i,human->k_data,human_->RSLT_NEW})
-    elseif i >= 3 .and. mk_data < d_01_05_2019 .and. year(human->n_data) == d1-1 // профилактика прошлый год ???
-      aadd(ae[2],{i,human->k_data,human_->RSLT_NEW})
+    //elseif i >= 3 .and. mk_data < d_01_05_2019 .and. year(human->n_data) == d1-1 // профилактика прошлый год ???
+      //aadd(ae[2],{i,human->k_data,human_->RSLT_NEW})
     endif
   endif
   skip

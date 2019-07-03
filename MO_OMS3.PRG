@@ -754,6 +754,9 @@ if p_tip_reestr == 1
     endif
   endif
 else
+  if human->OBRASHEN == '1' .and. ascan(mdiagnoz, {|x| padr(x,5) == "Z03.1" }) == 0
+    aadd(mdiagnoz,"Z03.1")
+  endif
   afill(adiag_talon,0)
   for i := 1 to 16
     adiag_talon[i] := int(val(substr(human_->DISPANS,i,1)))

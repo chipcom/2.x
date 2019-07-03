@@ -1840,30 +1840,31 @@ if is_oncology == 2 // онкология
       if fl
         if empty(arr_lek)
           aadd(ta,'не заполнен cписок лекарственных препаратов')
-        endif
-        if select("N20") == 0
-          R_Use(exe_dir+"_mo_N020",cur_dir+"_mo_N020","N20")
-        endif
-        if select("N21") == 0
-          R_Use(exe_dir+"_mo_N021",cur_dir+"_mo_N021","N21")
-        endif
-        select N21
-        find (onksl->crit)
-        if found()
-          n := 0
-          do while n21->code_sh == onksl->crit .and. !eof()
-            if (i := ascan(arr_lek, {|x| x[1] == n21->id_lekp })) > 0
-              ++n
-            elseif onksl->is_err == 0
-              aadd(ta,'не по всем препаратам введены даты - отредактируйте cписок лекарственных препаратов')
-              fl := .f.
-              exit
+        else
+          if select("N20") == 0
+            R_Use(exe_dir+"_mo_N020",cur_dir+"_mo_N020","N20")
+          endif
+          if select("N21") == 0
+            R_Use(exe_dir+"_mo_N021",cur_dir+"_mo_N021","N21")
+          endif
+          select N21
+          find (onksl->crit)
+          if found()
+            n := 0
+            do while n21->code_sh == onksl->crit .and. !eof()
+              if (i := ascan(arr_lek, {|x| x[1] == n21->id_lekp })) > 0
+                ++n
+              //elseif onksl->is_err == 0
+                //aadd(ta,'не по всем препаратам введены даты - отредактируйте cписок лекарственных препаратов')
+                //fl := .f.
+                //exit
+              endif
+              select N21
+              skip
+            enddo
+            if n != len(arr_lek)
+              aadd(ta,'отредактируйте cписок лекарственных препаратов')
             endif
-            select N21
-            skip
-          enddo
-          if fl .and. n != len(arr_lek)
-            aadd(ta,'отредактируйте cписок лекарственных препаратов')
           endif
         endif
       endif
