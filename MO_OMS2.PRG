@@ -261,7 +261,7 @@ Private mm_dispans := {{"не установлено             ",0},;
                        {"врачом отд.мед.профилактики",1},;
                        {"врачом центра здоровья     ",2}}
 Private mDS_ONK, m1DS_ONK := 0 // Признак подозрения на злокачественное новообразование
-Private mm_dopo_na := {{"лаб.диагностика",1},{"инстр.диагностика",2},{"лучевая диагностика",3}}
+Private mm_dopo_na := {{"лаб.диагностика",1},{"инстр.диагностика",2},{"лучевая диагностика",3},{"КТ, МРТ, ангиография",4}}
 Private gl_arr := {;  // для битовых полей
   {"dopo_na","N",10,0,,,,{|x|inieditspr(A__MENUBIT,mm_dopo_na,x)} };
  }
@@ -325,8 +325,8 @@ for i := 1 to 5
   Private &pole_dn_dispans := ctod("")
 next
 Private mg_cit := "", m1g_cit := 0, m1lis := 0, mm_g_cit := {;
-  {"в МО-обычное иссл-е взятого цитологичес.материала",1},;
-  {"в ВОКОД-жидкостное иссл-ие цитологического материала",2}}
+  {"в МО-обычное иссл-е цитологичес.материала",1},;
+  {"в ВОКОД-жидкостное иссл-ие цит.материала",2}}
 for i := 1 to 31//count_dvn_arr_usl
   mvar := "MTAB_NOMv"+lstr(i)
   Private &mvar := 0
@@ -3715,14 +3715,20 @@ if fl_write_sluch // если записали - запускаем проверку
 endif
 return nil
 
-***** 09.02.16 добавить шифр манипуляции в свой справочник MO_SU
-Function append_shifr_mo_su(lshifr)
-Local lu_kod := 0
+***** 04.07.19 добавить шифр манипуляции в свой справочник MO_SU
+Function append_shifr_mo_su(lshifr,fl_commit)
+Local lu_kod := 0, arr := {}
+DEFAULT fl_commit TO .t.
 select MOSU
 set order to 3 // по шифру ФФОМС
 find (padr(lshifr,20))
-if found()
-  lu_kod := mosu->kod
+do while mosu->shifr1 == padr(lshifr,20) .and. !eof()
+  aadd(arr,{iif(left(mosu->shifr,1)=="*",1,0),mosu->kod})
+  skip
+enddo
+if !empty(arr)
+  asort(arr,,,{|x,y| x[1] < y[1] }) // все старые стомат.услуги со звёздочкой в конец массива
+  lu_kod := arr[1,2]
 else
   select LUSLF
   find (padr(lshifr,20))
@@ -3738,8 +3744,10 @@ else
   mosu->name := luslf->name
   mosu->shifr1 := lshifr
   mosu->PROFIL := m1PROFIL
-  UnLock
-  Commit
+  if fl_commit
+    UnLock
+    Commit
+  endif
 endif
 return lu_kod
 

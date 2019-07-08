@@ -709,13 +709,13 @@ elseif between(human->ishod,201,205) // дисп-ия I этап или профилактика
   endif
 endif
 if m1dopo_na > 0
-  for i := 1 to 3
+  for i := 1 to 4
     if isbit(m1dopo_na,i)
       aadd(arr_nazn,{3,i}) // теперь каждое назначение в отдельном PRESCRIPTIONS
     endif
   next
   //aadd(arr_nazn,{3,{}}) ; j := len(arr_nazn)
-  //for i := 1 to 3
+  //for i := 1 to 4
     //if isbit(m1dopo_na,i)
       //aadd(arr_nazn[j,2],i)
     //endif

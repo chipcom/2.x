@@ -11130,7 +11130,7 @@ return NIL
 *
 
 
-***** 27.03.19
+***** 30.06.19
 Function pl_priemshk()
 Local fl := .t., buf := save_row(maxrow()), sm2 := 0, HH := 52,;
       n_file := "platn.txt", arr_m, sh, krvz, arr_dms,;
@@ -11187,7 +11187,7 @@ R_Use(dir_server+"hum_p",dir_server+"hum_pkk","HUM")
 index on fr_data  to (cur_dir+"tmp_uu") for !empty(fr_data)
 // index on str(kod_k,7)+dtos(k_data)+str(KV_CIA,6) to (dir_server+"hum_pkk") descending progress
 //go top
-find(arr_m[7])
+dbseek(arr_m[7],.t.)
 do while hum->fr_data <= arr_m[8] .and. !eof()
   if (hum->kod_oper == asc(kod_polzovat) .or. tip_polzovat == 0) .and.;
       ascan(krvz,hum->tip_usl) > 0

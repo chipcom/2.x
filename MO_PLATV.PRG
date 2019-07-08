@@ -316,17 +316,20 @@ do case
     if glob_mo[_MO_KOD_TFOMS] == '175303' //ксп-3
       if human->cena >= 3000 .and.;
          human->n_data > stod("20190604") .and.; //!!!!тест
-         human->n_data < stod("20190701")
+         human->n_data < stod("20190801")
          // начинаем проверку на 3000 надо удалить 1000
          // запрос
          if !ret_zapros3000()
            // ничего не делаем
          else
            // удаляем услуги
+           R_Use(dir_server+"uslugi",,"USL")
            R_Use(dir_server+"hum_p_u",,"HU")
+           set relation to u_kod into USL
            select HU
            set order to 0
-           index on u_cena to ("tmp_3000") for kod==human->(recno()) progress
+           index on u_cena to ("tmp_3000") for (kod==human->(recno()) .and.;
+                                                padr(alltrim(usl->shifr),2)!= "31") progress
            Private sm_3000 := 0, mas_ydal := {}, sm_old_3000 := human->cena
            go top
            // проверим нет-ли услуги 1000-1100 руб
@@ -392,6 +395,7 @@ do case
              //
              ret_soob_3000(1, sm_old_3000, sm_3000)
            endif
+           usl->(dbCloseArea())
          endif
       endif
     endif

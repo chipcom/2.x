@@ -1291,6 +1291,20 @@ if is_dom .and. mpovod == 1
   mpovod := 3 // 1.2 - активное посещение, т.е. на дому
 endif
 //
+if human->OBRASHEN == '1'
+  for i := 1 to len(mdiagnoz)
+    if left(mdiagnoz[i],1) == "C" .or. between(left(mdiagnoz[i],3),"D00","D09")
+      aadd(ta,alltrim(mdiagnoz[i])+' основной (или сопутствующий) диагноз - онкология, поэтому в поле "подозрение на ЗНО" не должно стоять "да"')
+      exit
+    endif
+  next
+  for i := 1 to len(mdiagnoz3)
+    if left(mdiagnoz3[i],1) == "C" .or. between(left(mdiagnoz3[i],3),"D00","D09")
+      aadd(ta,alltrim(mdiagnoz3[i])+' диагноз осложнения - онкология, поэтому в поле "подозрение на ЗНО" не должно стоять "да"')
+      exit
+    endif
+  next
+endif
 fl := (ascan(mdiagnoz, {|x| padr(x,5) == "Z03.1" }) > 0)
 if is_disp_DDS .or. is_disp_DVN .or. is_prof_PN
   is_oncology := 0
@@ -2771,7 +2785,7 @@ if is_2_78
   if oth_usl > 0
     aadd(ta,'кроме услуги '+lstshifr+' и '+s+' в листе учета не должно быть других услуг')
   endif
-  if kol_2_60 < 2
+  if kol_2_60 < 2 .and. human_->RSLT_NEW != 302
     aadd(ta,'кроме услуги '+lstshifr+' в листе учета должно быть 2 и более услуг '+s)
   endif
   if kol_2_60 > 0 .and. !is_1_den
@@ -3578,7 +3592,7 @@ if is_disp_DVN //
   read_arr_DVN(human->kod)
   if m1dopo_na > 0
     aadd(arr_nazn,{3,{}}) ; j := len(arr_nazn)
-    for i := 1 to 3
+    for i := 1 to 4
       if isbit(m1dopo_na,i)
         aadd(arr_nazn[j,2],i)
       endif
@@ -3589,11 +3603,6 @@ if is_disp_DVN //
     for i := 1 to min(3,len(arr_mo_spec))
       aadd(arr_nazn[j,2],arr_mo_spec[i])
     next
-  endif
-  if human->OBRASHEN == '1'
-    if ascan(arr_nazn,{|x| x[1] == 2 }) > 0 .or. ascan(arr_nazn,{|x| x[1] == 3 }) > 0
-      aadd(ta,"не введено направление при подозрении на ЗНО")
-    endif
   endif
   if between(m1napr_stac,1,2) .and. m1profil_stac > 0 // {{"--- нет ---",0},{"в стационар",1},{"в дн. стац.",2}}, ;
     aadd(arr_nazn,{iif(m1napr_stac==1,5,4),m1profil_stac})
@@ -5726,17 +5735,15 @@ do while !eof()
     endif
   endif
   if m1dopo_na > 0
-    aadd(arr_nazn,{3,{}}) ; j := len(arr_nazn)
-    for i := 1 to 3
+    for i := 1 to 4
       if isbit(m1dopo_na,i)
-        aadd(arr_nazn[j,2],i)
+        aadd(arr_nazn,{3,i}) // теперь каждое назначение в отдельном PRESCRIPTIONS
       endif
     next
   endif
   if between(m1napr_v_mo,1,2) .and. !empty(arr_mo_spec) // {{"-- нет --",0},{"в нашу МО",1},{"в иную МО",2}}, ;
-    aadd(arr_nazn,{m1napr_v_mo,{}}) ; j := len(arr_nazn)
-    for i := 1 to min(3,len(arr_mo_spec))
-      aadd(arr_nazn[j,2],arr_mo_spec[i])
+    for i := 1 to len(arr_mo_spec)
+      aadd(arr_nazn,{m1napr_v_mo,arr_mo_spec[i]})
     next
   endif
   if between(m1napr_stac,1,2) .and. m1profil_stac > 0 // {{"--- нет ---",0},{"в стационар",1},{"в дн. стац.",2}}, ;

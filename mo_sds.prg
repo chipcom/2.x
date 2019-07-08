@@ -838,7 +838,7 @@ do while !eof()
                 s1 := left(s1,len(s1)-1)
               endif
               if empty(s1) .or. !(s1 == alltrim(ihu->par_org))
-                aadd(ta,'в услуге '+alltrim(ihu->CODE_USL)+' некорректно введены органы (части тела) '+alltrim(ihu->par_org))
+                aadd(ae,'в услуге '+alltrim(ihu->CODE_USL)+' некорректно введены органы (части тела) '+alltrim(ihu->par_org))
               endif
             endif
           endif
@@ -1111,7 +1111,7 @@ do while !eof()
             skip
           enddo
         endif
-      else
+      elseif ihuman->PROFIL > 0
         aadd(ae,'не найдена соответствующая услуга '+left(lshifr,5)+'* ('+iif(m1VZROS_REB==0,"взрослый","ребёнок")+;
                 ') для профиля "'+inieditspr(A__MENUVERT, glob_V002, ihuman->PROFIL)+'"')
       endif
@@ -1123,17 +1123,17 @@ do while !eof()
     f_verify_tnm(2,ihuman->STAD,ihuman->ds1,ae)
     if ihuman->ds1_t == 0 .and. m1vzros_reb == 0
       if empty(ihuman->ONK_T)
-        aadd(ta,"не заполнена стадия заболевания T")
+        aadd(ae,"не заполнена стадия заболевания T")
       else
         f_verify_tnm(3,ihuman->ONK_T,ihuman->ds1,ae)
       endif
       if empty(ihuman->ONK_N)
-        aadd(ta,"не заполнена стадия заболевания N")
+        aadd(ae,"не заполнена стадия заболевания N")
       else
         f_verify_tnm(4,ihuman->ONK_N,ihuman->ds1,ae)
       endif
       if empty(ihuman->ONK_M)
-        aadd(ta,"не заполнена стадия заболевания M")
+        aadd(ae,"не заполнена стадия заболевания M")
       else
         f_verify_tnm(5,ihuman->ONK_M,ihuman->ds1,ae)
       endif
@@ -1665,30 +1665,7 @@ do while !eof()
       do while ihu->kod == ihuman->kod .and. !eof()
         kod_usl := kod_uslf := 0
         if len(alltrim(ihu->CODE_USL)) > 9
-          select MOSU
-          set order to 3 // по шифру ФФОМС
-          find (padr(ihu->CODE_USL,20))
-          if found()
-            kod_uslf := mosu->kod
-          else
-            select LUSLF
-            find (padr(ihu->CODE_USL,20))
-            if found()
-              select MOSU
-              set order to 1
-              FIND (STR(-1,6))
-              if found()
-                G_RLock(forever)
-              else
-                AddRec(6)
-              endif
-              kod_uslf := mosu->kod := recno()
-              mosu->name := luslf->name
-              mosu->shifr1 := ihu->CODE_USL
-              mosu->PROFIL := ihu->PROFIL
-              //UnLock
-            endif
-          endif
+          kod_uslf := append_shifr_mo_su(ihu->CODE_USL,.f.)
           if !empty(kod_uslf)
             select MOHU
             Add1Rec(7,.t.)
@@ -1782,23 +1759,7 @@ do while !eof()
       do while na->kod == ihuman->kod .and. !eof()
         if !emptyany(na->NAPR_DATE,na->NAPR_V)
           if !empty(na->CODE_USL) // добавляем в свой справочник федеральную услугу
-            select MOSU
-            set order to 3
-            find (na->CODE_USL)
-            if found()  // наверное, добавили только что
-              na->U_KOD := mosu->kod
-            else
-              set order to 1
-              FIND (STR(-1,6))
-              if found()
-                G_RLock(forever)
-              else
-                AddRec(6)
-              endif
-              na->U_KOD := mosu->kod := recno()
-              mosu->name   := na->name_u
-              mosu->shifr1 := na->CODE_USL
-            endif
+            na->U_KOD := append_shifr_mo_su(na->CODE_USL,.f.)
           endif
           select NAPR
           AddRec(7)
