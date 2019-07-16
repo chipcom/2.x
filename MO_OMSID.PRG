@@ -3366,7 +3366,7 @@ Static Function f_131_u_da_net(k,sb1,sb2)
 if k > 1 ; k := 1 ; endif // если вместо "да" битовый ответ
 return f3_inf_DDS_karta({{"да - 1",1},{"нет - 2",0}},k,";  ",sb1,sb2,.f.)
 
-***** 20.06.19 Приложение к Приказу ГБУЗ "ВОМИАЦ" от 12.05.2017г. №1615
+***** 15.07.19 Приложение к Приказу ГБУЗ "ВОМИАЦ" от 12.05.2017г. №1615
 Function f21_inf_DVN(par)
 Local arr_m, buf := save_maxrow(), s, as := {}, as1[14],;
       i, j, k, n, ar, at, ii, g1, sh := 65, fl, mdvozrast
@@ -3375,6 +3375,46 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
   Private arr_21[40], arr_316 := {}, arr_ne := {}
   afill(arr_21,0)
   mywait("Сбор статистики")
+  dbcreate(cur_dir+"tmp1",{{"name","C",49,0},;
+                   {"NN","N",2,0},;
+                   {"g1","N",6,0},;
+                   {"g2","N",6,0},;
+                   {"g3","N",6,0},;
+                   {"g4","N",6,0}})
+  use (cur_dir+"tmp1") new
+  index on str(nn,2) to (cur_dir+"tmp1")
+  append blank
+  tmp1->nn := 2 ;  tmp1->name := "Осмотрено всего (завершили I этап)"
+  append blank
+  tmp1->nn := 3 ;  tmp1->name := "из гр.2 после 18:00"
+  append blank
+  tmp1->nn := 4 ;  tmp1->name := "из гр.2 в субботу"
+  append blank
+  tmp1->nn := 5 ;  tmp1->name := "из гр.2 всего сельских жителей"
+  append blank
+  tmp1->nn := 6 ;  tmp1->name := "из гр.5 сельских жителей после 18:00"
+  append blank
+  tmp1->nn := 7 ;  tmp1->name := "из гр.5 сельских жителей в субботу"
+  append blank
+  tmp1->nn := 8 ;  tmp1->name := "ГРАЖДАН с впервые выявлен.неинф.заболеваниями"
+  append blank
+  tmp1->nn := 9 ;  tmp1->name := "всего впервые выявлено неинф.заболеваний"
+  append blank
+  tmp1->nn := 10 ; tmp1->name := "из гр.8 ГРАЖДАН болезни сист.кровообращения"
+  append blank
+  tmp1->nn := 11 ; tmp1->name := "из гр.8 ГРАЖДАН ЗНО"
+  append blank
+  tmp1->nn := 12 ; tmp1->name := "        из гр.11 в т.ч. в I и II стадиях"
+  append blank
+  tmp1->nn := 13 ; tmp1->name := "из гр.8 ГРАЖДАН сахарный диабет"
+  append blank
+  tmp1->nn := 14 ; tmp1->name := "        в т.ч. сахарный диабет I типа"
+  append blank
+  tmp1->nn := 15 ; tmp1->name := "из гр.8 ГРАЖДАН взяты на дисп.наблюдение"
+  append blank
+  tmp1->nn := 16 ; tmp1->name := "из гр.8 ГРАЖДАН было начато лечение"
+  append blank
+  tmp1->nn := 17 ; tmp1->name := "        из гр.16 из них сельских жителей"
   dbcreate(cur_dir+"tmp2",{{"kod_k","N",7,0},;
                            {"rslt1","N",3,0},;
                            {"rslt2","N",3,0}})
@@ -3411,6 +3451,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
       endif
     elseif emptyall(tmp->kod1h,tmp->kod2h) // профилактика
       human->(dbGoto(tmp->kod3h))
+      mdvozrast := year(human->n_data) - year(human->date_r)
       g1 := human_->RSLT_NEW - 342
       if between(g1,1,3)
         arr_21[14] ++
@@ -3421,6 +3462,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
         if f_starshe_trudosp(human->POL,human->DATE_R,human->n_data)
           arr_21[40] ++
         endif
+        f2_f21_inf_DVN(2)
       endif
     else
       f1_f21_inf_DVN()
@@ -3481,7 +3523,7 @@ close databases
 rest_box(buf)
 return NIL
 
-***** 26.06.18
+***** 15.07.19
 Function f1_f21_inf_DVN()
 Local sumr := 0, m1GRUPPA, fl2 := .f.
 select TMP2
@@ -3492,6 +3534,7 @@ if empty(tmp->kod1h)
   // нет 1 этапа, но есть второй
 else
   human->(dbGoto(tmp->kod1h))
+  mdvozrast := year(human->n_data) - year(human->date_r)
   m1GRUPPA := ret_gruppa_DVN(human_->RSLT_NEW,@fl2)
   if between(m1gruppa,0,4)
     tmp2->rslt1 := human_->RSLT_NEW
@@ -3516,6 +3559,7 @@ else
     if between(m1gruppa,1,4)
       arr_21[5+m1gruppa] ++
     endif
+    f2_f21_inf_DVN(1)
     if human->schet > 0
       select SCHET_
       goto (human->schet)
@@ -3556,6 +3600,86 @@ if !empty(tmp->kod2h) // диспансеризация II этап
     // почему-то неправильная группа
   endif
 endif
+return NIL
+
+***** 15.07.19
+Function f2_f21_inf_DVN(par)
+Local is_selo, i, j, k := 4, ar[17]
+afill(ar,0) ; ar[2] := 1
+if kart_->invalid > 0
+  arr_21[21] ++
+endif
+if par == 1
+  if mdvozrast < 40
+    k := 1
+  elseif mdvozrast < 65
+    k := 2
+  else
+    k := 3
+  endif
+endif
+if (is_selo := f_is_selo(kart_->gorod_selo,kart_->okatog))
+  ar[5] := 1
+endif
+if dow(human->k_data) == 7 // суббота
+  ar[4] := 1
+  if is_selo
+    ar[7] := 1
+  endif
+endif
+for i := 1 to 5
+  pole_diag := "mdiag"+lstr(i)
+  pole_1pervich := "m1pervich"+lstr(i)
+  pole_1stadia := "m1stadia"+lstr(i)
+  pole_1dispans := "m1dispans"+lstr(i)
+  Private &pole_diag := space(6)
+  Private &pole_1pervich := 0
+  Private &pole_1stadia := 0
+  Private &pole_1dispans := 0
+next
+read_arr_DVN(human->kod)
+for i := 1 to 5
+  pole_diag := "mdiag"+lstr(i)
+  pole_1pervich := "m1pervich"+lstr(i)
+  pole_1stadia := "m1stadia"+lstr(i)
+  pole_1dispans := "m1dispans"+lstr(i)
+  if !(left(&pole_diag,1) == "A" .or. left(&pole_diag,1) == "B") .and. &pole_1pervich == 1 // неинфекционные заболевания уст.впервые
+    ar[8] := 1
+    ar[9] ++
+    if left(&pole_diag,1) == "I" // болезни системы кровообращения
+      ar[10] := 1
+    endif
+    if left(&pole_diag,1) == "C" .or. between(left(&pole_diag,3),"D00","D09") // ЗНО
+      ar[11] := 1
+      if &pole_1stadia < 3 // 1 и 2 стадия
+        ar[12] := 1
+      endif
+    endif
+    if between(left(&pole_diag,3),"E10","E14") // сахарный диабет
+      ar[13] := 1
+      if left(&pole_diag,3) == "E10" // I стадия
+        ar[14] := 1
+      endif
+    endif
+    if &pole_1dispans == 1
+      ar[15] := 1
+    endif
+    if .f. // 1-лечение назначено
+      ar[16] := 1 // ?? было начато лечение
+      if is_selo
+        ar[17] := 1
+      endif
+    endif
+  endif
+next
+pole := "tmp1->g"+lstr(k)
+select TMP1
+for i := 1 to len(ar)
+  if ar[i] > 0
+    find (str(i,2))
+    &pole := &pole + ar[i]
+  endif
+next
 return NIL
 
 ***** 20.10.16 Индикаторы мониторинга диспансеризации взрослых
@@ -6664,7 +6788,7 @@ do case
 endcase
 return k
 
-***** 16.04.19 Приложение к Приказу МЗВО №14-08-6059 от 07.10.2014г.
+***** 15.07.19 Приложение к письму ГБУЗ "ВОМИАЦ" №1025 от 08.07.2019г.
 Function f21_inf_DNL(par)
 Local arr_m, buf := save_maxrow(), lkod_h, lkod_k, rec, s, adbf, as, i, j, k, ;
       sh, HH := 60, n, n_file := "svod_dnl"+stxt
@@ -6695,17 +6819,39 @@ if (arr_m := year_month(,,,5)) != NIL
              {"v2","N",6,0},;
              {"m15","N",6,0},;
              {"m15a","N",6,0},;
+             {"m15p","N",6,0},;
+             {"m15e","N",6,0},;
              {"g15","N",6,0},;
-             {"g15g","N",6,0}}
+             {"g15g","N",6,0},;
+             {"g15p","N",6,0},;
+             {"g15e","N",6,0}}
     dbcreate(cur_dir+"tmp1",adbf)
     use (cur_dir+"tmp1") new
     index on str(ti,1)+str(mm,2)+str(mm1,1) to (cur_dir+"tmp1")
+    adbf := {{"ti","N",1,0},;
+             {"g1","N",6,0},;
+             {"g2","N",6,0},;
+             {"g3","N",6,0},;
+             {"g4","N",6,0},;
+             {"g5","N",6,0},;
+             {"g6","N",6,0},;
+             {"g7","N",6,0},;
+             {"g8","N",6,0},;
+             {"g9","N",6,0},;
+             {"g10","N",6,0},;
+             {"g11","N",6,0},;
+             {"g12","N",6,0},;
+             {"g13","N",6,0}}
+    dbcreate(cur_dir+"tmp2",adbf)
+    use (cur_dir+"tmp2") new
+    index on str(ti,1) to (cur_dir+"tmp2")
     R_Use(dir_server+"mo_schoo",,"SCH")
     R_Use(dir_server+"schet_",,"SCHET_")
     R_Use_base("human_u")
+    R_Use(dir_server+"kartote_",,"KART_")
     R_Use(dir_server+"human_",,"HUMAN_")
     R_Use(dir_server+"human",,"HUMAN")
-    set relation to recno() into HUMAN_
+    set relation to recno() into HUMAN_, to kod_k into KART_
     use (cur_dir+"tmp") new
     set relation to kod into HUMAN
     go top
@@ -6727,8 +6873,8 @@ if (arr_m := year_month(,,,5)) != NIL
     sh := len(arr_title[1])
     fp := fcreate(n_file) ; n_list := 1 ; tek_stroke := 0
     add_string(glob_mo[_MO_SHORT_NAME])
-    add_string(padl("Приложение к Приказу МЗВО",sh))
-    add_string(padl("№14-08-6059 от 07.10.2014г.",sh))
+    add_string(padl('Приложение к письму ГБУЗ "ВОМИАЦ"',sh))
+    add_string(padl("№1025 от 08.07.2019г.",sh))
     add_string("")
     add_string(center("[ "+charrem("~",mas1pmt[par])+" ]",sh))
     add_string(center("("+arr_m[4]+")",sh))
@@ -6848,15 +6994,17 @@ if (arr_m := year_month(,,,5)) != NIL
     next
     //
     afillall(as,0)
-    verify_FF(HH-8,.t.,sh)
+    verify_FF(HH-10,.t.,sh)
     arr_title := {;
-"────────┬───────────┬───────────",;
-"        │Юноши 15-17│Девуш.15-17",;
-"отчетный├─────┬─────┼─────┬─────",;
-"период  │ факт│андро│ факт│гинек",;
-"────────┼─────┼─────┼─────┼─────",;
-"        │  1  │  2  │  3  │  4  ",;
-"────────┴─────┴─────┴─────┴─────"}
+"────────┬───────────────────────┬───────────────────────",;
+"        │    Юноши (15-17 лет)  │  Девушки (15-17 лет)  ",;
+"отчетный├───────────┬─────┬─────┼───────────┬─────┬─────",;
+"период  │факт (чел.)│патол│напр.│факт (чел.)│патол│напр.",;
+"        ├─────┬─────┤репр.│на II├─────┬─────┤репр.│на II",;
+"        │всего│андро│сист.│этап │всего│гинек│сист.│этап ",;
+"────────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────",;
+"        │  2  │  3  │  4  │  5  │  2  │  3  │  4  │  5  ",;
+"────────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────"}
     sh := len(arr_title[1])
     i := 1
     add_string("")
@@ -6867,8 +7015,12 @@ if (arr_m := year_month(,,,5)) != NIL
       s := padr(mm_month[tmp1->mm],8)+;
            put_val(tmp1->m15,6)+;
            put_val(tmp1->m15a,6)+;
+           put_val(tmp1->m15p,6)+;
+           put_val(tmp1->m15e,6)+;
            put_val(tmp1->g15,6)+;
-           put_val(tmp1->g15g,6)
+           put_val(tmp1->g15g,6)+;
+           put_val(tmp1->g15p,6)+;
+           put_val(tmp1->g15e,6)
       if verify_FF(HH-1,.t.,sh)
         aeval(arr_title, {|x| add_string(x) } )
       endif
@@ -6876,19 +7028,64 @@ if (arr_m := year_month(,,,5)) != NIL
       add_string(replicate("─",sh))
       as[ 1,j] += tmp1->m15
       as[ 2,j] += tmp1->m15a
-      as[ 3,j] += tmp1->g15
-      as[ 4,j] += tmp1->g15g
+      as[ 3,j] += tmp1->m15p
+      as[ 4,j] += tmp1->m15e
+      as[ 5,j] += tmp1->g15
+      as[ 6,j] += tmp1->g15g
+      as[ 7,j] += tmp1->g15p
+      as[ 8,j] += tmp1->g15e
       skip
     enddo
     j := 1
     s := padr(lstr(year(arr_m[6]))+" год",8)
-    for k := 1 to 4
+    for k := 1 to 8
       s += put_val(as[k,j],6)
     next
     add_string(s)
     add_string(replicate("─",sh))
     //
+    verify_FF(HH-11,.t.,sh)
+    arr_title := {;
+"─────────┬─────────────────┬─────────────────┬─────┬─────────────────┬─────┬─────┬─────",;
+"         │    Осмотрено    │из них сельских ж│впер-│     из них      │из г7│из г7│из   ",;
+"Контин-  ├─────┬─────┬─────┼─────┬─────┬─────┤вые  ├─────┬─────┬─────┤взяты│нача-│гр.12",;
+"гент     │     │после│в суб│     │после│в суб│неинф│болез│     │из г9│на   │то   │сель-",;
+"         │всего│18:00│боту │всего│18:00│боту │екцио│крово│ ЗНО │I иII│дисп.│лече-│ских ",;
+"         │     │     │     │     │     │     │нные │обращ│     │стад.│набл.│ние  │жител",;
+"─────────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────",;
+"         │  1  │  2  │  3  │  4  │  5  │  6  │  7  │  8  │  9  │  10 │  11 │  12 │  13 ",;
+"─────────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────"}
+    sh := len(arr_title[1])
+    add_string('в рамках национального проекта "Здравоохранение"')
+    add_string("")
+    aeval(arr_title, {|x| add_string(x) } )
+    use (cur_dir+"tmp2") index (cur_dir+"tmp2") new
+    go top
+    do while !eof()
+      s := padr({"0-14 лет","15-17 лет","Всего"}[tmp2->ti],9)+;
+           put_val(tmp2->g1,6)+;
+           put_val(tmp2->g2,6)+;
+           put_val(tmp2->g3,6)+;
+           put_val(tmp2->g4,6)+;
+           put_val(tmp2->g5,6)+;
+           put_val(tmp2->g6,6)+;
+           put_val(tmp2->g7,6)+;
+           put_val(tmp2->g8,6)+;
+           put_val(tmp2->g9,6)+;
+           put_val(tmp2->g10,6)+;
+           put_val(tmp2->g11,6)+;
+           put_val(tmp2->g12,6)+;
+           put_val(tmp2->g13,6)
+      if verify_FF(HH-1,.t.,sh)
+        aeval(arr_title, {|x| add_string(x) } )
+      endif
+      add_string(s)
+      add_string(replicate("─",sh))
+      skip
+    enddo
+    //
     fclose(fp)
+    close databases
     viewtext(n_file,,,,(.t.),,,3)
   endif
 endif
@@ -6896,24 +7093,40 @@ close databases
 rest_box(buf)
 return NIL
 
-***** 16.04.18
+***** 15.07.19
 Function f1_f21_inf_DNL(Loc_kod,kod_kartotek) // сводная информация
-Local ii, im, j, sumr := 0, is_do1g := 0, ltip_school := -1, ar15[4]
+Local ii, im, i, j, k, s, sumr := 0, is_do1g := 0, ltip_school := -1, ar15[8], is_2 := .f., ad := {}, arr, a3 := {}
 Private m1tip_school := -1, m1school := 0, mvozrast, mdvozrast, mgruppa := 0, m1GR_FIZ := 1, m1invalid1 := 0
+Private mvar, m1var
 afill(ar15,0)
 mvozrast := count_years(human->date_r,human->n_data)
 mdvozrast := year(human->n_data) - year(human->date_r)
+for i := 1 to 5
+  for k := 1 to 16
+    s := "diag_16_"+lstr(i)+"_"+lstr(k)
+    mvar := "m"+s
+    if k == 1
+      Private &mvar := space(6)
+    else
+      m1var := "m1"+s
+      Private &m1var := 0
+      Private &mvar := space(3)
+    endif
+  next
+next
 if human->ishod == 305
   ii := 3
   read_arr_PerN(Loc_kod)
   mGRUPPA := human_->RSLT_NEW - 342//L_BEGIN_RSLT
 elseif eq_any(human->ishod,303,304)
   ii := 2
+  is_2 := (human->ishod == 304) // это второй этап
   read_arr_PredN(Loc_kod)
   mGRUPPA := human_->RSLT_NEW - 336//L_BEGIN_RSLT
   ltip_school := m1tip_school
 else
   ii := 1
+  is_2 := (human->ishod == 302) // это второй этап
   read_arr_PN(Loc_kod)
   mGRUPPA := human_->RSLT_NEW - 331//L_BEGIN_RSLT
   is_do1g := iif(mvozrast == 0, 1, 0)
@@ -6922,9 +7135,68 @@ else
     goto (m1school)
     ltip_school := sch->tip
   endif
+  for i := 1 to 5
+    j := 0
+    for k := 1 to 16
+      s := "diag_16_"+lstr(i)+"_"+lstr(k)
+      mvar := "m"+s
+      if k == 1
+        if !empty(&mvar)
+          arr := array(16) ; afill(arr,0) ; arr[1] := alltrim(&mvar)
+          if len(arr[1]) > 5
+            arr[1] := left(arr[1],5)
+          endif
+          aadd(ad,arr) ; j := len(ad)
+        endif
+      elseif j > 0
+        m1var := "m1"+s
+        ad[j,k] := &m1var
+      endif
+    next
+  next
+  //
+  arr := array(14) ; afill(arr,0) ; arr[14] := 3
+  arr[1] := 1
+  if (is_selo := f_is_selo())
+    arr[4] := 1
+  endif
+  if dow(human->k_data) == 7 // суббота
+    arr[3] := 1
+    if is_selo
+      arr[6] := 1
+    endif
+  endif
+  for i := 1 to len(ad)
+    if !(left(ad[i,1],1) == "A" .or. left(ad[i,1],1) == "B") .and. ad[i,2] > 0 // неинфекционные заболевания уст.впервые
+      arr[7] ++
+      if left(ad[i,1],1) == "I" // болезни системы кровообращения
+        arr[8] ++
+      endif
+      if left(ad[i,1],1) == "C" .or. between(left(ad[i,1],3),"D00","D09") // ЗНО
+        arr[9] ++
+      endif
+      if ad[i,3] == 2 // дисп.набл.установлено впервые
+        arr[11] ++
+      endif
+      if ad[i,10] == 1 // 1-лечение назначено
+        arr[12] ++ // ?? было начато лечение
+        if is_selo
+          arr[13] ++
+        endif
+      endif
+    endif
+  next
+  aadd(a3,aclone(arr))
   if between(mdvozrast,15,17)
-    j := iif(human->pol == "М", 1, 3)
+    arr[14] := 2
+    j := iif(human->pol == "М", 1, 5)
     ar15[j] ++
+    if ascan(ad,{|x| left(x[1],1) == "N" }) > 0 // патология органов репродуктивной системы
+      ar15[j+2] ++
+    endif
+    if is_2
+      ar15[j+3] ++
+    endif
     select HU
     find (str(Loc_kod,7))
     do while hu->kod == Loc_kod .and. !eof()
@@ -6934,8 +7206,23 @@ else
       endif
       skip
     enddo
+  else
+    arr[14] := 1
   endif
+  aadd(a3,aclone(arr))
 endif
+for j := 1 to len(a3)
+  select TMP2
+  find (str(a3[j,14],1))
+  if !found()
+    append blank
+    tmp2->ti := a3[j,14]
+  endif
+  for i := 1 to 13
+    pole := "tmp2->g"+lstr(i)
+    &pole := &pole + a3[j,i]
+  next
+next
 im := month(human->k_data)
 if !between(im,1,12)
   im := 1
@@ -6955,8 +7242,12 @@ for j := 0 to is_do1g
   endif
   tmp1->m15  += ar15[1]
   tmp1->m15a += ar15[2]
-  tmp1->g15  += ar15[3]
-  tmp1->g15g += ar15[4]
+  tmp1->m15p += ar15[3]
+  tmp1->m15e += ar15[4]
+  tmp1->g15  += ar15[5]
+  tmp1->g15g += ar15[6]
+  tmp1->g15p += ar15[7]
+  tmp1->g15e += ar15[8]
   if between(mgruppa,1,5)
     pole := "tmp1->g"+lstr(mgruppa)
     &pole := &pole + 1
@@ -6968,7 +7259,7 @@ for j := 0 to is_do1g
       pole := "tmp1->mg"+lstr(m1GR_FIZ)
       &pole := &pole + 1
     endif
-    if eq_any(human->ishod,302,304) // I и II этап
+    if is_2 // I и II этап
       tmp1->v2 ++
     endif
   endif
@@ -7002,7 +7293,7 @@ if (arr_m := year_month(T_ROW,T_COL-5)) != NIL
   endif
   mywait()
   if f0_inf_DNL(arr_m,is_schet > 1,is_schet == 3)
-    Private arr_deti[6] ; afill(arr_deti,6)
+    Private arr_deti[6] ; afill(arr_deti,0)
     Private s12_1 := 0, s12_1m := 0, s12_2 := 0, s12_2m := 0
     Private arr_vozrast := {;
       {3,0,17};
@@ -7494,7 +7785,7 @@ close databases
 rest_box(buf)
 return NIL
 
-***** 25.03.18
+***** 14.07.19
 Function f2_inf_DNL_030poo(Loc_kod,kod_kartotek) // сводная информация
 Local i, j, k, av := {}, av1 := {}, ad := {}, arr, s, fl, ;
       is_man := (human->pol == "М"), blk_tbl, blk_tip, blk_put_tip, a10[9], a11[13]
@@ -7593,22 +7884,22 @@ if !between(mdvozrast,0,17)
 endif
 read_arr_PN(Loc_kod)
 arr_deti[1] ++
-if mvozrast < 5
+if mdvozrast < 5
   arr_deti[2] ++
-elseif mvozrast < 10
+elseif mdvozrast < 10
   arr_deti[3] ++
-elseif mvozrast < 15
+elseif mdvozrast < 15
   arr_deti[4] ++
 else
   arr_deti[5] ++
 endif
 for i := 1 to len(arr_vozrast)
-  if between(mvozrast,arr_vozrast[i,2],arr_vozrast[i,3])
+  if between(mdvozrast,arr_vozrast[i,2],arr_vozrast[i,3])
     aadd(av,arr_vozrast[i,1]) // список таблиц с 4 по 9
   endif
 next
 for i := 1 to len(arr1vozrast)
-  if between(mvozrast,arr1vozrast[i,1],arr1vozrast[i,2])
+  if between(mdvozrast,arr1vozrast[i,1],arr1vozrast[i,2])
     aadd(av1,i)
   endif
 next

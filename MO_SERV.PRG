@@ -2433,7 +2433,7 @@ else
                   "Экспорт счетов в ВОМИАЦ"}
       mas_msg := {"Экспорт в ТФОМС сведений о медицинской помощи, оказанной военнослужащим",;
                   "Экспорт всей картотеки в файл для передачи в программную систему БАРС",;
-                  "Экспорт счетов за отчётный период сентябрь-октябрь 2018 года в ВОМИАЦ"}
+                  "Экспорт счетов за отчётный период январь 2018 - июнь 2019 года в ВОМИАЦ"}
       mas_fun := {"f_export(11)",;
                   "f_export(12)",;
                   "f_export(13)"}
@@ -3181,11 +3181,11 @@ n_message({"в каталоге "+upper(cur_dir)+" создан файл "+upper("bars"+sdbf),;
            cColorStMsg,cColorStMsg,,,cColorSt2Msg)
 return NIL
 
-***** 02.12.18 создать файл счетов в Облздрав
+***** 14.07.19 создать файл счетов в Облздрав
 Function create_schets_OBLSDRAV()
 Local arr_f, ar, hZip, i, cPassword, fl := .t., hGauge, s, y, cFile, buf := savescreen()
 f_message({"Ждите! Создаётся архив счетов",;
-           "за отчётный период сентябрь-октябрь 2018 года.",;
+           "за отчётный период январь 2018 - июнь 2019 года.",;
            "",;
            "Ни в коем случае не прерывайте процесс",;
            "во избежание нежелательных последствий!"},,"GR+/R","W+/R",12)
@@ -3199,7 +3199,7 @@ zip_file += szip
 arr_f := {}
 G_Use(dir_server+"schet_",,"SCHET_")
 index on dtos(schet_->dschet) to (cur_dir+"tmp_sch") ;
-      for schet_->nyear == 2018 .and. eq_any(schet_->nmonth,9,10)
+      for schet_->nyear == 2018 .or. (schet_->nyear == 2019 .and. eq_any(schet_->nmonth,1,6))
 go top
 do while !eof()
   cFile := dir_server+dir_XML_MO+cslash+alltrim(schet_->name_xml)+szip
@@ -3215,7 +3215,7 @@ if len(arr_f) == 0
   fl := func_error(4,"Не обнаружено файлов счетов для архивирования.")
 elseif !empty(hZip := HB_ZIPOPEN(hb_OemtoAnsi(zip_file)))
   Private p_var_manager := "m_copy_DB"
-  hGauge := GaugeNew(,,{"B/BG*","B/BG*","B/BG*"},"Создание архива "+zip_file,.t.)
+  hGauge := GaugeNew(,,{"B/BG*","B/BG*","B/BG*"},"Создание архива счетов",.t.)
   GaugeDisplay( hGauge )
   for i := 1 To Len(arr_f)
     cFile := StripPath(arr_f[i])  // имя файла без пути

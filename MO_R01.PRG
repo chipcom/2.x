@@ -1401,14 +1401,15 @@ close databases
 rest_box(buf)
 return fl*/
 
-***** 10.06.19 Создание файла обмена R01...
+***** 11.07.19 Создание файла обмена R01...
 Function f_create_R01()
 Local buf := save_maxrow(), i, j, ir, s := "", arr := {}, fl := .t., fl1 := .f., a_reestr := {},;
-      azip := {}, aerr := {}, full_zip, name_zip, cFile, cName, oXmlDoc
+      azip := {}, aerr := {}, full_zip, name_zip, cFile, cName, oXmlDoc, lgod_r, _arr_vozr_DVN
 Private sgod := 2019, SQUARTER := 3, mdate := sys_date, mrec := 2
 Private c_view := 0, c_found := 0, fl_exit := .f., pj, arr_rees := {},;
         pkol := 0, CODE_LPU := glob_mo[_MO_KOD_TFOMS], CODE_MO := glob_mo[_MO_KOD_FFOMS],;
         mkol := {0,0}, skol := {0,0}, akv[4,2], ames[12,2], bm := int(SQUARTER*3) // начальный месяц минус один
+return ne_real()
 mywait()
 if (fl := verify_packet_R05(1,arr))
   R_Use(dir_server+"mo_dr05p",,"R05p")
@@ -1452,10 +1453,11 @@ if (fl := verify_packet_R05(1,arr))
   enddo
   if fl
     if fl1 // не первый раз составляется реестр в отчётном году
-      hGauge := GaugeNew(,,,"Дополнительный поиск пациентов до 40 лет для профосмотров",.t.)
+      hGauge := GaugeNew(,,,"Дополнительный поиск пациентов для профосмотров",.t.)
       GaugeDisplay( hGauge )
       Use (dir_server+"mo_dr00") new alias TMP
       index on str(kod,7) to (cur_dir+"tmp_dr00")
+      Use_base("mo_dnab")
       R_Use(dir_server+"human_",,"HUMAN_")
       R_Use(dir_server+"human",dir_server+"humankk","HUMAN")
       set relation to recno() into HUMAN_
@@ -1463,11 +1465,14 @@ if (fl := verify_packet_R05(1,arr))
       R_Use(dir_server+"kartote_",,"KART_")
       R_Use(dir_server+"kartotek",,"KART")
       set relation to recno() into KART_, recno() into KART2
+      index on dtos(date_r) to (cur_dir+"tmp_kart")
+      _arr_vozr_DVN := ret_arr_vozrast_DVN(0d20190701)
+      ii := 0
       go top
       do while !eof()
-        GaugeUpdate( hGauge, recno()/lastrec() )
-        if kart->kod > 0
-          f0_prof_create_R01(sgod)
+        GaugeUpdate( hGauge, ++ii/lastrec() )
+        if kart->kod > 0 .and. (lgod_r := sgod - year(kart->date_r)) > 18
+          f0_prof_create_R01(sgod,lgod_r,_arr_vozr_DVN)
         endif
         select KART
         skip
@@ -1484,17 +1489,21 @@ if (fl := verify_packet_R05(1,arr))
       do while !eof()
         j := tmp->tip
         tmp->n_m := tmp->n_q := 0 // если уже заходили в режим и не подтвердили создание XML
-        if j == 2 // только профосмотры
-          if sgod - year(kart->date_r) < 40 // моложе 40 лет
-            mkol[j] ++ // подсчёт оставшегося кол-ва в пуле пациентов
-          else
-            tmp->tip := 0 // т.е. 40 лет и старше - это диспансеризация
-          endif
+        if between(j,1,2)
+          mkol[j] ++ // подсчёт оставшегося кол-ва в пуле пациентов
         endif
         skip
       enddo
       commit
       index on str(reestr,6) to (cur_dir+"tmp_dr00")
+      my_debug(,"skol"+print_array(skol))
+      my_debug(,"mkol"+print_array(mkol))
+      if skol[2] - mkol[2] > 0
+        skol[1] := skol[2] - mkol[2]
+        skol[2] := mkol[2]
+        my_debug(,"skol"+print_array(skol))
+        my_debug(,"mkol"+print_array(mkol))
+      endif
       for ir := 1 to len(arr_rees)
         select TMP
         find (str(arr_rees[ir],6))
@@ -1513,7 +1522,7 @@ if (fl := verify_packet_R05(1,arr))
                 fl := func_error(4,"Некорректный вид осмотра в файле MO_DR00.DBF! Операция запрещена")
                 exit
               elseif between(j,1,2)
-                ames[i,j,2] ++
+                ames[i,2,2] ++
                 skol[j] --
               endif
             endif
@@ -1524,9 +1533,11 @@ if (fl := verify_packet_R05(1,arr))
         if !fl ; exit ; endif
       next ir
       if empty(skol[2])
-        fl := func_error(4,"БОлее не требуется создания файлов обмена!")
+        fl := func_error(4,"Более не требуется создания файлов обмена!")
       elseif mkol[2] < skol[2]
-        fl := func_error(4,"Не хватает "+lstr(skol[2]-mkol[2])+" чел. (моложе 40 лет) в картотеке для профосмотров")
+        fl := func_error(4,"Не хватает "+lstr(skol[2]-mkol[2])+" чел. в картотеке для профосмотров (П)")
+      elseif mkol[1] < skol[1]
+        fl := func_error(4,"Не хватает "+lstr(skol[1]-mkol[1])+" чел. в картотеке для профосмотров (Д)")
       endif
     else // первый раз составляется реестр в отчётном году
       Status_Key("^<Esc>^ - прервать поиск")
@@ -1566,7 +1577,7 @@ if (fl := verify_packet_R05(1,arr))
     my_debug(,print_array(skol))
     my_debug(,print_array(mkol))
     my_debug(,print_array(ames))
-    for j := 2 to 2 // только профосмотры
+    for j := 2 to 1
       if empty(skol[j])
         exit
       endif
@@ -1584,9 +1595,9 @@ if (fl := verify_packet_R05(1,arr))
             endif
             do while i < 12
               ++i
-              if ames[i,j,1] > ames[i,j,2] // если ещё не набрали месяц
+              if ames[i,2,1] > ames[i,2,2] // если ещё не набрали месяц
                 tmp->n_m := i
-                ames[i,j,2] ++
+                ames[i,2,2] ++
                 skol[j] --
                 exit
               endif
@@ -1749,34 +1760,41 @@ endif
 @ row(),col() say lstr(cf) color cColorStMsg
 return NIL
 
-***** 12.06.19 поик доступных профосмотров до 40 лет
-Static Function f0_prof_create_R01(sgod)
+***** 11.07.19 поик доступных профосмотров до 40 лет
+Static Function f0_prof_create_R01(sgod,v,_arr_vozr_DVN)
 Static cf := 0
-Local fl, v, ltip, ag, lgod_r, s
+Local fl, ltip, ag, s
 if (fl := (kart2->MO_PR == CODE_LPU)) // прикреплён к нашей МО
-  lgod_r := year(kart->date_r)
-  v := sgod - lgod_r
-  if (fl := (ascan(arr_vozrast_DVN,v) > 0))// диспансеризация
-    fl := .f.
-  elseif (fl := between(v,19,38)) // моложе 40 лет
+  if (fl := (ascan(_arr_vozr_DVN,v) > 0))// диспансеризация
+    ltip := 1
+  else // профосмотры
     ltip := 2 // профосмотры
-    select HUMAN
-    find (str(kart->kod,7))
-    do while human->kod_k == kart->kod .and. !eof()
-      if year(human->k_data) == sgod .and. between(human->ishod,201,205)
-        fl := .f. ; exit // в этом году была диспансеризация или профилактика
-      endif
-      skip
-    enddo
   endif
 endif
 if fl // За исключением умерших (по сведению ТФОМС)
   fl := !(left(kart2->PC2,1) == "1")
 endif
 if fl
+  select HUMAN
+  find (str(kart->kod,7))
+  do while human->kod_k == kart->kod .and. !eof()
+    if year(human->k_data) == sgod .and. between(human->ishod,201,205)
+      fl := .f. ; exit // в этом году была диспансеризация или профилактика
+    endif
+    skip
+  enddo
+endif
+if fl
   s := upper(kart->fio)+" "
   if " УМЕР " $ s .or. " УМЕРЛА " $ s
     fl := .f.
+  endif
+endif
+if fl .and. ltip == 1
+  select DN
+  find (str(kart->kod,7))
+  if found()
+    fl := .f. // не рассматриваем находящихся под диспансерным наблюдением
   endif
 endif
 if fl
