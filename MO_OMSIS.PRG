@@ -4155,7 +4155,7 @@ do while !eof()
                       if !eq_any(human_->PROFIL,3,42,57,68,97)
                         ds1_spec := 1
                       endif
-                      if lshifr == "2.88.3"
+                      if eq_any(lshifr,"2.88.3","2.88.53","2.88.79")
                         is_obsh := .t.
                       endif
                       if eq_any(lshifr,"2.88.35","2.88.36","2.88.37")
@@ -4240,7 +4240,9 @@ do while !eof()
             if (i := ascan(arr_profil, {|x| x[1] == human_->PROFIL })) == 0
               aadd(arr_profil, {human_->PROFIL,0,0,0,0}) ; i := len(arr_profil)
             endif
-            if is_dializ
+            if human->ishod == 88 // это 1-й л/у в двойном случае
+              tfoms_pz[1,1] := 0
+            elseif is_dializ
               tfoms_pz[1,1] := tfoms_pz[1,2] := 0
             else
               arr_profil[i,2] ++

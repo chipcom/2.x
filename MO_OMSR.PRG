@@ -398,13 +398,13 @@ elseif lp == 64 // оториноларингологии
 endif
 return lp
 
-***** 31.01.19
+***** 16.07.19
 Function verify_1_sluch(fl_view)
 Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
       i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
       d1, d2, cd1, cd2, ym2, a_period_amb := {}, a_1_11, u_1_stom := "", lprofil, ;
       lbukva, lst, lidsp, a_idsp := {}, a_bukva := {}, t_arr[2], ltip, lkol, ;
-      a_dializ := {}, is_2_88 := .f., a_rec_ffoms := {}, mpovod := 1 // 1.0
+      a_dializ := {}, is_2_88 := .f., a_rec_ffoms := {}, arr_povod := {}, mpovod := 0 // 1.0
 if empty(human->k_data)
   return .t.  // не проверять
 endif
@@ -1236,7 +1236,13 @@ do while hu->kod == human->kod .and. !eof()
       hu_->PZTIP := mPZTIP
       hu_->PZKOL := mPZKOL
     endif
-    if musl_ok != 3 .and. !(hu->date_u==mdate_u1) .and. len(au_lu) == 1
+    if musl_ok == 3
+      if is_disp_DDS .or. is_disp_DVN .or. is_prof_PN
+        //
+      elseif mpovod > 0 .and. ascan(arr_povod, {|x| x[1] == mpovod }) == 0
+        aadd(arr_povod,{mpovod,alltrim_lshifr})
+      endif
+    elseif !(hu->date_u==mdate_u1) .and. len(au_lu) == 1
       aadd(ta,'дата услуги '+alltrim_lshifr+' должна равняться дате начала лечения')
     endif
     hu_->date_u2 := mdate_u2
@@ -1287,8 +1293,12 @@ do while hu->kod == human->kod .and. !eof()
   select HU
   skip
 enddo
-if is_dom .and. mpovod == 1
-  mpovod := 3 // 1.2 - активное посещение, т.е. на дому
+if len(arr_povod) > 0
+  if len(arr_povod) > 1
+    aadd(ta,"смешивание целей посещения в случае "+print_array(arr_povod))
+  elseif is_dom .and. arr_povod[1,1] == 1
+    arr_povod[1,1] := 3 // 1.2 - активное посещение, т.е. на дому
+  endif
 endif
 //
 if human->OBRASHEN == '1'
@@ -4343,7 +4353,7 @@ else
       mpztip := mounit->pz
     endif
   endif
-  human_->POVOD := mpovod
+  human_->POVOD := iif(len(arr_povod) > 0, arr_povod[1,1], 1)
   human_->PZTIP := mpztip
   human_->PZKOL := mpzkol
 endif
