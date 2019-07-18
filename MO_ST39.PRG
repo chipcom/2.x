@@ -24,14 +24,14 @@ Function f_stom_39_terap()
 f39_ter()
 return NIL
 
-***** 23.10.18 Запрос лиц, подлежащих диспасеризации, методом многовариантного поиска
+***** 17.07.19 Запрос лиц, подлежащих диспасеризации, методом многовариантного поиска
 Function mnog_poisk_DVN1()
 Local mm_tmp := {}, mm_sort
 Local buf := savescreen(), tmp_color := setcolor(cDataCGet),;
       tmp_help := help_code, hGauge, name_file := "_kartDVN"+stxt,;
       sh := 80, HH := 77, i, a_diagnoz[10], ta, name_dbf := cur_dir+"_kartDVN"+sdbf,;
       mm_da_net := {{"нет",1},{"да ",2}}, ;
-      mm_tip := {{"диспансеризация 1 раз в 3 года",1},{"диспансеризация 1 раз в 2 года",2}}, ;
+      mm_tip := {{"диспансеризация",1},{"профилактический осмотр",2}}, ;
       mm_mest := {{"Волгоград или область",1},{"иногородние",2}},;
       mm_disp := {{"неважно",0},{"не проходили",1},{"прошли",2}},;
       mm_death := {{"выводить всех",0},{"не выводить умерших",1},{"выводить только умерших",2}},;
@@ -44,17 +44,17 @@ Local buf := savescreen(), tmp_color := setcolor(cDataCGet),;
 Local adbf := {;
    {"UCHAST" ,   "N",  2,0},; // номер участка
    {"KOD_VU" ,   "N",  6,0},; // код в участке
-   {"FIO"    ,   "C", 50,0},; // Ф.И.О. больного
-   {"PHONE"  ,   "C", 40,0},; // телефон больного
+   {"FIO"    ,   "C", 50,0},; // Ф.И.О. пациента
+   {"PHONE"  ,   "C", 40,0},; // телефон пациента
    {"POL"    ,   "C",  1,0},; // пол
-   {"DATE_R"   , "C", 10,0},; // дата рождения больного
+   {"DATE_R"   , "C", 10,0},; // дата рождения пациента
    {"LET"    ,   "N",  2,0},; // сколько лет в этом году
-   {"ADRESR"  ,  "C", 50,0},; // адрес больного
-   {"ADRESP"  ,  "C", 50,0},; // адрес больного
+   {"ADRESR"  ,  "C", 50,0},; // адрес пациента
+   {"ADRESP"  ,  "C", 50,0},; // адрес пациента
    {"RABOTA" ,   "C", 12,0},; // 0-работ,1-нераб
    {"POLIS",     "C", 17,0},; // полис
-   {"KOD_SMO",   "C",  5,0},; //
-   {"SMO",       "C", 80,0},; // реестровый номер СМО;;преобразовать из старых кодов в новые, иногродние = 34
+   {"KOD_SMO",   "C",  5,0},; // реестровый номер СМО
+   {"SMO",       "C", 80,0},; // наименование СМО
    {"SNILS"  ,   "C", 14,0},;
    {"PENSIONER", "C", 11,0},; // является пенсионером?;0-нет, 1-да;
    {"MO_PR",     "C",  6,0},; // код МО приписки
@@ -325,10 +325,10 @@ if k > 0
       add_string("Лица, не обращавшиеся в нашу МО после "+full_date(mn->net_dann))
     endif
     if !empty(mn->god)
-      add_string("Год проведения диспансеризации: "+lstr(mn->god))
+      add_string("Год проведения диспансеризации/профосмотра: "+lstr(mn->god))
       add_string("Тип: "+inieditspr(A__MENUVERT, mm_tip, mn->tip_disp))
       if !empty(mn->v_period)
-        add_string("Возрастные периоды диспансеризации: "+alltrim(mn->v_period))
+        add_string("Возрастные периоды: "+alltrim(mn->v_period))
       endif
     endif
     if mn->o_death == 1
@@ -457,10 +457,10 @@ if k > 0
       s1 += full_date(kart->date_r)+" "
       dvn->POL := kart->pol
       dvn->DATE_R := full_date(kart->date_r)
-      k_adr := perenos(tt_adr,kart->adres,35)
+      k_adr := perenos(tt_adr,ltrim(kart->adres),35)
       s1 += padr(tt_adr[1],36)
-      dvn->ADRESR := kart->adres
-      dvn->ADRESP := kart_->adresp
+      dvn->ADRESR := ltrim(kart->adres)
+      dvn->ADRESP := ltrim(kart_->adresp)
       dvn->RABOTA := inieditspr(A__MENUVERT, menu_rab, kart->RAB_NERAB)
       dvn->POLIS := ltrim(kart_->NPOLIS)
       dvn->KOD_SMO := kart_->smo
@@ -533,7 +533,7 @@ if k == 1
 endif
 return fl
 
-***** 01.07.18
+***** 17.07.19
 Static Function f1_mnog_poisk_DVN1(cv,cf)
 Local i, j, k, n, s, arr, fl := .t., fl_disp := .f., god_r, arr1
 ++cv
@@ -541,20 +541,15 @@ if !empty(mn->net_dann)
   fl := f11_mnog_poisk_DVN1(mn->net_dann)
 endif
 if fl .and. mn->god > 0
-  n := mn->god-year(kart->date_r)
+  n := mn->god - year(kart->date_r)
   k := ascan(arr_vozr,n)
-  fl := (k  > 0)
-  if fl .and. mn->tip_disp == 2
-    if "Ж" $ arrSvozr[k]
-      fl := (kart->pol == "Ж")
-    endif
-  endif
+  fl := (k > 0)
 endif
 if fl .and. mn->o_disp > 0 .and. mn->god > 0
   select HUMAN
   find (str(kart->kod,7))
   do while human->kod_k == kart->kod .and. !eof()
-    if year(human->k_data) == mn->god .and. eq_any(human->ishod,201,202,204,205)
+    if year(human->k_data) == mn->god .and. between(human->ishod,201,205)
       fl_disp := .t. ; exit
     endif
     skip
@@ -646,16 +641,16 @@ endif
 @ row(),col() say lstr(cf) color cColorStMsg
 return NIL
 
-***** 19.09.17
+***** 17.07.19
 Static Function f11_mnog_poisk_DVN1(date_otbor_old)
 Local fl_f11 := .T.
 // ОМС
 select HUMAN
 find (str(kart->kod,7))
 do while human->kod_k == kart->kod .and. !eof()
-  if fl_f11 .and. human->k_data >= date_otbor_old
+  if human->k_data >= date_otbor_old
     // был после ХХ убираем из списка
-    fl_f11 := .F.
+    fl_f11 := .F. ; exit
   endif
   skip
 enddo
@@ -665,9 +660,9 @@ if fl_f11
   find (str(kart->kod,7)+dtoc4(date_otbor_old))
   do while ru->kod_k == kart->kod .and. !eof()
     // индекс обратный
-    if fl_f11 .and. ru->pdate >= dtoc4(date_otbor_old)
+    if ru->pdate >= dtoc4(date_otbor_old)
       // был после ХХ убираем из списка
-      fl_f11 := .F.
+      fl_f11 := .F. ; exit
     endif
     skip -1
   enddo
@@ -678,8 +673,8 @@ if fl_f11
   find (str(kart->kod,7)+dtos(date_otbor_old))
   do while hum_p->kod_k == kart->kod .and. !eof()
     // индекс обратный
-    if fl_f11 .and. hum_p->k_data >= date_otbor_old
-      fl_f11 := .F.
+    if hum_p->k_data >= date_otbor_old
+      fl_f11 := .F. ; exit
     endif
     skip -1
   enddo
@@ -690,8 +685,8 @@ if fl_f11
   find (str(kart->kod,7)+dtos(date_otbor_old))
   do while hum_ort->kod_k == kart->kod .and. !eof()
     // индекс обратный
-    if fl_f11 .and. hum_opt->data >= date_otbor_old
-      fl_f11 := .F.
+    if hum_opt->data >= date_otbor_old
+      fl_f11 := .F. ; exit
     endif
     skip -1
   enddo
@@ -703,18 +698,19 @@ IF fl_f11
   do while ks_pl->kod_k == kart->kod .and. !eof()
     // сортировка по увеличению даты
     // индекс обратный
-    if fl_f11 .and. ks_pl->k_data >= date_otbor_old
-      fl_f11 := .F.
+    if ks_pl->k_data >= date_otbor_old
+      fl_f11 := .F. ; exit
     endif
     skip -1
   enddo
-  //
+ENDIF
+IF fl_f11
   select KS_ORT
   find (str(kart->kod,7)+dtos(date_otbor_old))
   do while ks_ort->kod_k == kart->kod .and. !eof()
     // индекс обратный
-    if fl_f11 .and. ks_ort->k_data >= date_otbor_old
-      fl_f11 := .F.
+    if ks_ort->k_data >= date_otbor_old
+      fl_f11 := .F. ; exit
     endif
     skip -1
   enddo
@@ -724,8 +720,8 @@ if fl_f11
   select PP
   find (str(kart->kod,7)+dtos(date_otbor_old))
   do while pp->kod_k == kart->kod .and. !eof()
-    if fl_f11 .and. pp->k_data >= date_otbor_old
-      fl_f11 := .F.
+    if pp->k_data >= date_otbor_old
+      fl_f11 := .F. ; exit
     endif
     skip -1
   enddo
@@ -735,8 +731,8 @@ if fl_f11
   select NAPR
   find (str(kart->kod,7)+dtos(date_otbor_old))
   do while napr->kod_k == kart->kod .and. !eof()
-    if fl_f11 .and. napr->date_d >= date_otbor_old
-      fl_f11 := .F.
+    if napr->date_d >= date_otbor_old
+      fl_f11 := .F. ; exit
     endif
     skip
   enddo
@@ -1336,16 +1332,17 @@ if m1vid_obsl != old .and. old != NIL // при смене значения
 endif
 return .t.
 
-***** 23.10.18 запрос в GET-е возрастных периодов диспансеризации
+***** 17.07.19 запрос в GET-е возрастных периодов диспансеризации
 Function f2_mnog_poisk_DVN2(k,r,c,par)
 Static sast, sarr, sast2, sarr2
-Local buf := save_maxrow(), a, i, j, s, s1, fl
+Local buf := save_maxrow(), a, i, j, s, s1, fl, _arr_vozrast_DVN
 DEFAULT par TO 2
 if sast == NIL
   sast := {} ; sarr := {}
-  for j := 1 to len(arr_vozrast_DVN)
+  _arr_vozrast_DVN := ret_arr_vozrast_DVN(0d20190701)
+  for j := 1 to len(_arr_vozrast_DVN)
     aadd(sast,.t.)
-    s := lstr(arr_vozrast_DVN[j])
+    s := lstr(_arr_vozrast_DVN[j])
     i := int(val(right(s,1)))
     if i == 1
       s += " год"
@@ -1354,36 +1351,24 @@ if sast == NIL
     else
       s += " лет"
     endif
-    aadd(sarr,{s,arr_vozrast_DVN[j],"МЖ"})
+    aadd(sarr,{s,_arr_vozrast_DVN[j],"МЖ"})
   next
   sast2 := {} ; sarr2 := {}
-  for j := 1 to len(arr2m_vozrast_DVN)
-    aadd(sast2,.t.)
-    s := lstr(arr2m_vozrast_DVN[j])
-    i := int(val(right(s,1)))
-    if i == 1
-      s += " год"
-    elseif between(i,2,4)
-      s += " года"
-    else
-      s += " лет"
+  for j := 18 to 40
+    if ascan(_arr_vozrast_DVN,j) == 0 // профосмотр
+      aadd(sast2,.t.)
+      s := lstr(j)
+      i := int(val(right(s,1)))
+      if i == 1
+        s += " год"
+      elseif between(i,2,4)
+        s += " года"
+      else
+        s += " лет"
+      endif
+      aadd(sarr2,{s,j,"МЖ"})
     endif
-    aadd(sarr2,{s,arr2m_vozrast_DVN[j],"МЖ"})
   next
-  for j := 1 to len(arr2g_vozrast_DVN)
-    aadd(sast2,.t.)
-    s := lstr(arr2g_vozrast_DVN[j])
-    i := int(val(right(s,1)))
-    if i == 1
-      s += " год"
-    elseif between(i,2,4)
-      s += " года"
-    else
-      s += " лет"
-    endif
-    aadd(sarr2,{s+"/Ж",arr2g_vozrast_DVN[j],"Ж"})
-  next
-  asort(sarr2,,,{|x,y| x[2] < y[2] })
 endif
 s := s1 := ""
 if par == 1
@@ -1411,7 +1396,7 @@ if par == 1
   next
   s1 := "все"
 else
-  if m1tip_disp == 1 .and. (a := bit_popup(r,c,sarr,sast)) != NIL // 1 раз в 3 года
+  if m1tip_disp == 1 .and. (a := bit_popup(r,c,sarr,sast)) != NIL // диспансеризация
     afill(sast,.f.)
     for i := 1 to len(a)
       if (j := ascan(sarr,{|x| x[2]==a[i,2] })) > 0
@@ -1422,7 +1407,7 @@ else
     if len(a) == len(sast)
       s1 := "все"
     endif
-  elseif m1tip_disp == 2 .and. (a := bit_popup(r,c,sarr2,sast2)) != NIL // 1 раз в 2 года
+  elseif m1tip_disp == 2 .and. (a := bit_popup(r,c,sarr2,sast2)) != NIL // профосмотры
     afill(sast2,.f.)
     for i := 1 to len(a)
       if (j := ascan(sarr2,{|x| x[2]==a[i,2] })) > 0

@@ -3199,7 +3199,7 @@ zip_file += szip
 arr_f := {}
 G_Use(dir_server+"schet_",,"SCHET_")
 index on dtos(schet_->dschet) to (cur_dir+"tmp_sch") ;
-      for schet_->nyear == 2018 .or. (schet_->nyear == 2019 .and. eq_any(schet_->nmonth,1,6))
+      for schet_->nyear == 2018 .or. (schet_->nyear == 2019 .and. between(schet_->nmonth,1,6))
 go top
 do while !eof()
   cFile := dir_server+dir_XML_MO+cslash+alltrim(schet_->name_xml)+szip

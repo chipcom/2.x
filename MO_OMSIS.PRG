@@ -3985,7 +3985,7 @@ do while !eof()
         kol_2_3 := kol_2_6 := kol_2_60 := kol_sr := kol_2_sr := 0
         isp := 1
         is_sred_stom := .f.
-        ds_spec := ds1_spec := kol_stom := 0
+        ds_spec := ds1_spec := kol_stom := kol_dializ := 0
         vid_vp := 0 // по умолчанию профилактика
         d2_year := year(human->k_data)
         if human_->USL_OK == 1 // стационар
@@ -4045,6 +4045,9 @@ do while !eof()
             if human_->USL_OK == 1 // стационар
               //
             elseif human_->USL_OK == 2  // дневной стационар
+              if left(lshifr,5) == "60.3."
+                kol_dializ += hu->kol_1
+              endif
               aadd(arr_usl,lshifr)
               if !empty(svp) .and. "," $ svp
                 lvidpoms := svp
@@ -4188,7 +4191,7 @@ do while !eof()
                     ii := 4
                   elseif human_->USL_OK == 3 // поликлиника
                     ii := 2
-                    mkol := 0  // участвует не количеством, а только суммой
+                    mkol := 1
                     ds_spec := ds1_spec := 1
                     vid_vp := 2 // по поводу заболевания
                   endif
@@ -4226,6 +4229,9 @@ do while !eof()
           select HU
           skip
         enddo
+        if kol_dializ > 0
+          tfoms_pz[ii,2] := kol_dializ // заменяем на кол-во диализных процедур
+        endif
         ta := {}
         if fl_stom // стоматология
           tfoms_pz[1,1] := 0
@@ -4242,8 +4248,6 @@ do while !eof()
             endif
             if human->ishod == 88 // это 1-й л/у в двойном случае
               tfoms_pz[1,1] := 0
-            elseif is_dializ
-              tfoms_pz[1,1] := tfoms_pz[1,2] := 0
             else
               arr_profil[i,2] ++
               if is_inogoro
@@ -4291,7 +4295,6 @@ do while !eof()
             elseif is_dializ // перит.диализ
               vid_vp := 2 // по поводу заболевания
               ds_spec := 1
-              tfoms_pz[ii,2] := tfoms_pz[ii,5] := tfoms_pz[ii,7] := tfoms_pz[ii,9] := 0
             endif
             if kol_2_60 > 0 .and. ascan(arr_usl,"2.78.") > 0
               arr_pril5[8,igs] += kol_2_60 // "Всего посещений"
@@ -4575,8 +4578,7 @@ do while !eof()
             if (i := ascan(arr_dn_stac, {|x| x[1] == human_->PROFIL })) == 0
               aadd(arr_dn_stac, {human_->PROFIL,0,0,0,0}) ; i := len(arr_dn_stac)
             endif
-            if ascan(arr_usl,"2043.0") > 0 // is_dializ
-              tfoms_pz[4,2] := 0 // дле лекарственной терапии при диализе не учитываем пациенто-дни
+            if is_dializ
               lvidpom := 31 // !!!!!!!
             endif
             arr_dn_stac[i,2] += tfoms_pz[4,1]
