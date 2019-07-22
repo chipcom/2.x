@@ -2818,9 +2818,9 @@ do while hu->kod == human->kod .and. !eof()
           msum := hu->stoim_1*koef
           if eq_any(k,9,10)  // “…’ ¤«ο αβ®¬ β®«®£¨©
             suet += muet
-            if apz2016[i16,2] == 62 // “…’ αβ®¬ β®«®£¨¨
-              apz2016[i16,3] += muet
-            endif
+            //if apz2016[i16,2] == 62 // “…’ αβ®¬ β®«®£¨¨
+              //apz2016[i16,3] += muet
+            //endif
           elseif i16 > 0
             select MOUNIT
             set order to 2

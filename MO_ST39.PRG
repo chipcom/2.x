@@ -24,12 +24,12 @@ Function f_stom_39_terap()
 f39_ter()
 return NIL
 
-***** 17.07.19 Запрос лиц, подлежащих диспасеризации, методом многовариантного поиска
+***** 19.07.19 Запрос лиц, подлежащих диспасеризации, методом многовариантного поиска
 Function mnog_poisk_DVN1()
-Local mm_tmp := {}, mm_sort
+Local mm_tmp := {}, mm_sort, t_arr[2]
 Local buf := savescreen(), tmp_color := setcolor(cDataCGet),;
       tmp_help := help_code, hGauge, name_file := "_kartDVN"+stxt,;
-      sh := 80, HH := 77, i, a_diagnoz[10], ta, name_dbf := cur_dir+"_kartDVN"+sdbf,;
+      sh := 80, HH := 77, i, j, a_diagnoz[10], ta, name_dbf := cur_dir+"_kartDVN"+sdbf,;
       mm_da_net := {{"нет",1},{"да ",2}}, ;
       mm_tip := {{"диспансеризация",1},{"профилактический осмотр",2}}, ;
       mm_mest := {{"Волгоград или область",1},{"иногородние",2}},;
@@ -96,7 +96,7 @@ aadd(mm_tmp, {"tip_disp","N",1,0,NIL,;
               };
              };
     )
-aadd(mm_tmp, {"v_period","C",100,0,NIL,;
+aadd(mm_tmp, {"v_period","C",255,0,NIL,;
               {|x|menu_reader(x,{{ |k,r,c| f2_mnog_poisk_DVN2(k,r,c) }},A__FUNCTION)},;
               ta[1],{|x| ta[2] },;
               'Возрастные периоды диспансеризации'})
@@ -328,7 +328,11 @@ if k > 0
       add_string("Год проведения диспансеризации/профосмотра: "+lstr(mn->god))
       add_string("Тип: "+inieditspr(A__MENUVERT, mm_tip, mn->tip_disp))
       if !empty(mn->v_period)
-        add_string("Возрастные периоды: "+alltrim(mn->v_period))
+        k := perenos(t_arr,"Возрастные периоды: "+alltrim(mn->v_period),sh)
+        add_string(t_arr[1])
+        for i := 2 to k
+          add_string(space(20)+t_arr[i])
+        next
       endif
     endif
     if mn->o_death == 1
@@ -972,8 +976,7 @@ if k > 0
     endif
     perso->(dbCloseArea())
   endif
-  Private much_doc := "", mfio := "", madres := "", mmr_dol := "", ;
-          arr_vozr := List2Arr(mn->v_period)
+  Private much_doc := "", mfio := "", madres := "", mmr_dol := "", arr_vozr := List2Arr(mn->v_period)
   if !empty(mn->uch_doc)
     much_doc := alltrim(mn->uch_doc)
     if !(right(much_doc,1) == "*")
