@@ -2418,19 +2418,24 @@ else
 endif
 return NIL
 
-***** 15.11.17
+***** 23.07.19
 Function f_export(k)
 Static si1 := 1, sds := 1, ssp := 1
 Local mas_pmt, mas_msg, mas_fun, j
 DEFAULT k TO 1
-if ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 // КДП-2
-  export_to_LIS()
-else
-  do case
-    case k == 1
+do case
+  case k == 1
+    if ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 // КДП-2
+      mas_pmt := {"Экспорт в ~ЛИС",;
+                  "Экспорт ~счетов в ВОМИАЦ"}
+      mas_msg := {"Экспорт сведений в ЛИС",;
+                  "Экспорт счетов за отчётный период январь 2018 - июнь 2019 года в ВОМИАЦ"}
+      mas_fun := {"export_to_LIS()",;
+                  "f_export(13)"}
+    else
       mas_pmt := {"Экспорт ~военнослужащих",;
-                  'Экспорт в программную систему "БАРС"',;
-                  "Экспорт счетов в ВОМИАЦ"}
+                  'Экспорт в программную систему "~БАРС"',;
+                  "Экспорт ~счетов в ВОМИАЦ"}
       mas_msg := {"Экспорт в ТФОМС сведений о медицинской помощи, оказанной военнослужащим",;
                   "Экспорт всей картотеки в файл для передачи в программную систему БАРС",;
                   "Экспорт счетов за отчётный период январь 2018 - июнь 2019 года в ВОМИАЦ"}
@@ -2442,60 +2447,60 @@ else
         aadd(mas_msg, 'Создание файла для передачи в ВОМИАЦ (письмо №14-10-1/328 от 07.11.18г.)')
         aadd(mas_fun, "f_export(14)")
       endif
-      popup_prompt(T_ROW,T_COL+5,si1,mas_pmt,mas_msg,mas_fun)
-    case k == 11
-      mas_pmt := {"~Просмотр/запись",;
-                  "~Создать файл отправки"}
-      mas_msg := {"Просмотреть созданные файлы для отправки в ТФОМС и записать их на носитель",;
-                  "Создание файла экспорта сведений о медицинской помощи, оказанной военнослужащим"}
-      mas_fun := {"f_export(21)",;
-                  "f_export(22)"}
-      Private sbase := "mo_voen", goal_dir := dir_server+dir_XML_MO+cslash,;
-              Svoenn_sem := "Работа с военнослужащими",;
-              Svoenn_err := "В данный момент с военнослужащими работает другой пользователь"
-      popup_prompt(T_ROW-len(mas_pmt)-3,T_COL+5,1,mas_pmt,mas_msg,mas_fun)
-    case k == 12
-      if tip_polzovat == TIP_ADM
-        str_sem := "Создание файла отправки в систему БАРС"
-        if G_SLock(str_sem)
-          full_naselenie_create_BARS()
-          G_SUnLock(str_sem)
-        else
-          func_error(4,err_slock)
-        endif
+    endif
+    popup_prompt(T_ROW,T_COL+5,si1,mas_pmt,mas_msg,mas_fun)
+  case k == 11
+    mas_pmt := {"~Просмотр/запись",;
+                "~Создать файл отправки"}
+    mas_msg := {"Просмотреть созданные файлы для отправки в ТФОМС и записать их на носитель",;
+                "Создание файла экспорта сведений о медицинской помощи, оказанной военнослужащим"}
+    mas_fun := {"f_export(21)",;
+                "f_export(22)"}
+    Private sbase := "mo_voen", goal_dir := dir_server+dir_XML_MO+cslash,;
+            Svoenn_sem := "Работа с военнослужащими",;
+            Svoenn_err := "В данный момент с военнослужащими работает другой пользователь"
+    popup_prompt(T_ROW-len(mas_pmt)-3,T_COL+5,1,mas_pmt,mas_msg,mas_fun)
+  case k == 12
+    if tip_polzovat == TIP_ADM
+      str_sem := "Создание файла отправки в систему БАРС"
+      if G_SLock(str_sem)
+        full_naselenie_create_BARS()
+        G_SUnLock(str_sem)
       else
-        func_error(4,err_admin)
+        func_error(4,err_slock)
       endif
-    case k == 13
-      if tip_polzovat == TIP_ADM
-        str_sem := "Создание файла отправки в ОБЛЗДРАВ"
-        if G_SLock(str_sem)
-          create_schets_OBLSDRAV()
-          G_SUnLock(str_sem)
-        else
-          func_error(4,err_slock)
-        endif
+    else
+      func_error(4,err_admin)
+    endif
+  case k == 13
+    if tip_polzovat == TIP_ADM
+      str_sem := "Создание файла отправки в ОБЛЗДРАВ"
+      if G_SLock(str_sem)
+        create_schets_OBLSDRAV()
+        G_SUnLock(str_sem)
       else
-        func_error(4,err_admin)
+        func_error(4,err_slock)
       endif
-    case k == 14
-      if tip_polzovat == TIP_ADM
-        str_sem := "Создание файла отправки в ОБЛЗДРАВ"
-        if G_SLock(str_sem)
-          pripisnoe_naselenie_create_OBLSDRAV()
-          G_SUnLock(str_sem)
-        else
-          func_error(4,err_slock)
-        endif
+    else
+      func_error(4,err_admin)
+    endif
+  case k == 14
+    if tip_polzovat == TIP_ADM
+      str_sem := "Создание файла отправки в ОБЛЗДРАВ"
+      if G_SLock(str_sem)
+        pripisnoe_naselenie_create_OBLSDRAV()
+        G_SUnLock(str_sem)
       else
-        func_error(4,err_admin)
+        func_error(4,err_slock)
       endif
-    case k == 21
-      export_military()
-    case k == 22
-      f_create_military()
-  endcase
-endif
+    else
+      func_error(4,err_admin)
+    endif
+  case k == 21
+    export_military()
+  case k == 22
+    f_create_military()
+endcase
 if k > 10
   if between(k,11,19)
     si1 := int(val(right(lstr(k),1)))

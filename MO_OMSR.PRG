@@ -469,16 +469,17 @@ do while human->kod_k == glob_kartotek .and. !eof()
         .and. gusl_ok == human_->usl_ok ; // если те же условия оказания помощи
         .and. !empty(gkod_diag) .and. left(gkod_diag,3) == left(human->kod_diag,3) ; // тот же основной диагноз
         .and. (k := d1 - human->k_data) >= 0  // и случай оказан раньше проверяемого
-    if gusl_ok == 3     // поликлиника
-      if k < 16
-        aadd(a_rec_ffoms,{human->(recno()),0,k})
-      endif
-    elseif gusl_ok == 4 // скорая помощь
+    //if gusl_ok == 3     // поликлиника
+    //  if k < 16
+    //    aadd(a_rec_ffoms,{human->(recno()),0,k})
+    //  endif
+    //elseif gusl_ok == 4 // скорая помощь
+    if gusl_ok == 4 // скорая помощь
       if k < 2
         aadd(a_rec_ffoms,{human->(recno()),0,k})
       endif
-    else                // круглосуточный и дневной стационар
-      if k < 31
+    else // поликлиника, круглосуточный и дневной стационар
+      if k < 31 // в течение 30 дней
         aadd(a_rec_ffoms,{human->(recno()),0,k})
       endif
     endif
