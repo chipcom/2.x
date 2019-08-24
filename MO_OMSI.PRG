@@ -181,7 +181,7 @@ if fl
 endif
 return k
 
-***** 12.05.19
+***** 22.08.19
 Function print_l_uch(mkod, par, regim, lnomer)
 // mkod - код больного по БД human
 Local sh := 80, HH := 77, buf := save_maxrow(),;
@@ -405,13 +405,33 @@ if M1F14_EKST == 1
   endif
   add_string(s)
 endif
-s := "  "
-if !empty(human_->KOD_DIAG0)
-  s := padr("  Первичный диагноз: "+human_->KOD_DIAG0,40)
+s := ""
+if between(human->ishod,201,203)  // дисп-ия (профосмотр) взрослого населения
+  Private pole_diag, pole_1pervich
+  for i := 1 to 5
+    pole_diag := "mdiag"+lstr(i)
+    pole_1pervich := "m1pervich"+lstr(i)
+    Private &pole_diag := space(6)
+    Private &pole_1pervich := 0
+  next
+  read_arr_DVN(human->kod)
+  arr := {}
+  for i := 1 to 5
+    pole_diag := "mdiag"+lstr(i)
+    pole_1pervich := "m1pervich"+lstr(i)
+    if !empty(&pole_diag) .and. &pole_1pervich == 2  // предварительный диагноз
+      aadd(arr,&pole_diag)
+    endif
+  next
+  for j := 1 to len(arr)
+    s += " "+alltrim(arr[j])
+  next
+  if !empty(s)
+    s := "  Предварительный диагноз: "+s
+  endif
+elseif !empty(human_->KOD_DIAG0)
+  s := "  Первичный диагноз: "+human_->KOD_DIAG0
 endif
-//if !empty(human_->STATUS_ST)
-  //s += "Статус стом.больного: "+alltrim(human_->STATUS_ST)
-//endif
 if !empty(s)
   add_string(s)
 endif

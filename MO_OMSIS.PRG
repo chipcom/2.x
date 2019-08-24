@@ -1812,32 +1812,52 @@ endif
 aadd(mm_tmp, {"diag","C",5,0,"@!",;
               nil,;
               space(5),nil,;
-              "Шифр заболевания: [ с ]",;
+              "Шифр диагноза (осн.+сопут.): [ с ]",;
               {|| val2_10diag() }})
 aadd(mm_tmp, {"diag1","C",5,0,"@!",;
               nil,;
               space(5),nil,;
-              "                 [ по ]",;
+              "                            [ по ]",;
               {|| val2_10diag() }})
 aadd(mm_tmp, {"kod_diag","C",5,0,"@!",;
               nil,;
               space(5),nil,;
-              "Шифр ОСНОВНОГО заболевания: [ с ]",;
+              "Шифр ОСНОВНОГО диагноза: [ с ]",;
               {|| val2_10diag() }})
 aadd(mm_tmp, {"kod_diag1","C",5,0,"@!",;
               nil,;
               space(5),nil,;
-              "                           [ по ]",;
+              "                        [ по ]",;
               {|| val2_10diag() }})
 aadd(mm_tmp, {"soput_d","C",5,0,"@!",;
               nil,;
               space(5),nil,;
-              "Шифр СОПУТСТВУЮЩЕГО заболевания: [ с ]",;
+              "Шифр СОПУТСТВУЮЩЕГО диагноза: [ с ]",;
               {|| val2_10diag() }})
 aadd(mm_tmp, {"soput_d1","C",5,0,"@!",;
               nil,;
               space(5),nil,;
-              "                                [ по ]",;
+              "                             [ по ]",;
+              {|| val2_10diag() }})
+aadd(mm_tmp, {"osl_d","C",5,0,"@!",;
+              nil,;
+              space(5),nil,;
+              "Шифр диагноза ОСЛОЖНЕНИЯ: [ с ]",;
+              {|| val2_10diag() }})
+aadd(mm_tmp, {"osl_d1","C",5,0,"@!",;
+              nil,;
+              space(5),nil,;
+              "                         [ по ]",;
+              {|| val2_10diag() }})
+aadd(mm_tmp, {"pred_d","C",5,0,"@!",;
+              nil,;
+              space(5),nil,;
+              "Шифр ПРЕДВАРИТЕЛЬНОГО диагноза: [ с ]",;
+              {|| val2_10diag() }})
+aadd(mm_tmp, {"pred_d1","C",5,0,"@!",;
+              nil,;
+              space(5),nil,;
+              "                               [ по ]",;
               {|| val2_10diag() }})
 if is_talon
   aadd(mm_tmp, {"talon_diag","N",1,0,NIL,;
@@ -2022,7 +2042,7 @@ if k > 0
       mmr_dol += "*"
     endif
   endif
-  Private arr_usl := {}, arr_uslF := {}, fl_summa := .t., NUMdiag, NUMdiag1, NUMsoput_d, NUMsoput_d1
+  Private arr_usl := {}, arr_uslF := {}, fl_summa := .t., NUMdiag, NUMdiag1
   // заранее диапазоны диагнозов переведём в числовые значения
   if !emptyall(mn->diag,mn->diag1)
     NUMdiag := diag2num(mn->diag)
@@ -2033,9 +2053,20 @@ if k > 0
     NUMkod_diag := diag2num(mn->kod_diag)
     NUMkod_diag1 := diag2num(mn->kod_diag1)
   endif
+  Private NUMsoput_d, NUMsoput_d1
   if !emptyall(mn->soput_d,mn->soput_d1)
     NUMsoput_d := diag2num(mn->soput_d)
     NUMsoput_d1 := diag2num(mn->soput_d1)
+  endif
+  Private NUMpred_d, NUMpred_d1
+  if !emptyall(mn->pred_d,mn->pred_d1)
+    NUMpred_d := diag2num(mn->pred_d)
+    NUMpred_d1 := diag2num(mn->pred_d1)
+  endif
+  Private NUMosl_d, NUMosl_d1
+  if !emptyall(mn->osl_d,mn->osl_d1)
+    NUMosl_d := diag2num(mn->osl_d)
+    NUMosl_d1 := diag2num(mn->osl_d1)
   endif
   if mn->otd_usl > 0 .or. mn->vr1 > 0 .or. mn->as1 > 0 .or. ;
        mn->vras1 > 0 .or. mn->slug_usl > 0 .or. mn->uslugi > 0 .or. mn->uslugiF > 0 .or. mn->dom > 0
@@ -2449,19 +2480,29 @@ if k > 0
       add_string("Статус стоматологического больного: "+alltrim(mn->status_st))
     endif
     if !emptyany(mn->diag,mn->diag1)
-      add_string("Шифр заболевания: с "+alltrim(mn->diag)+" по "+alltrim(mn->diag1))
+      add_string("Шифр диагноза (осн.+сопут.): с "+alltrim(mn->diag)+" по "+alltrim(mn->diag1))
     elseif !empty(mn->diag)
-      add_string("Шифр заболевания: "+mn->diag)
+      add_string("Шифр диагноза (осн.+сопут.): "+mn->diag)
     endif
     if !emptyany(mn->kod_diag,mn->kod_diag1)
-      add_string("Шифр основного заболевания: с "+alltrim(mn->kod_diag)+" по "+alltrim(mn->kod_diag1))
+      add_string("Шифр основного диагноза: с "+alltrim(mn->kod_diag)+" по "+alltrim(mn->kod_diag1))
     elseif !empty(mn->kod_diag)
-      add_string("Шифр основного заболевания: "+mn->kod_diag)
+      add_string("Шифр основного диагноза: "+mn->kod_diag)
     endif
     if !emptyany(mn->soput_d,mn->soput_d1)
-      add_string("Шифр сопутствующего заболевания: с "+alltrim(mn->soput_d)+" по "+alltrim(mn->soput_d1))
+      add_string("Шифр сопутствующего диагноза: с "+alltrim(mn->soput_d)+" по "+alltrim(mn->soput_d1))
     elseif !empty(mn->soput_d)
-      add_string("Шифр сопутствующего заболевания: "+mn->soput_d)
+      add_string("Шифр сопутствующего диагноза: "+mn->soput_d)
+    endif
+    if !emptyany(mn->osl_d,mn->osl_d1)
+      add_string("Шифр диагноза осложнения: с "+alltrim(mn->osl_d)+" по "+alltrim(mn->osl_d1))
+    elseif !empty(mn->osl_d)
+      add_string("Шифр диагноза осложнения: "+mn->osl_d)
+    endif
+    if !emptyany(mn->pred_d,mn->pred_d1)
+      add_string("Шифр предварительного диагноза: с "+alltrim(mn->pred_d)+" по "+alltrim(mn->pred_d1))
+    elseif !empty(mn->pred_d)
+      add_string("Шифр предварительного диагноза: "+mn->pred_d)
     endif
     f_put_tal_diag()  // вывод информации о характере, диспансеризации...
     if yes_h_otd == 1 .and. mn->otd > 0
@@ -3214,6 +3255,55 @@ if fl .and. yes_bukva .and. !empty(mn->status_st)
       if fl ; exit ; endif
     next
   endif
+endif
+if fl .and. !empty(mn->osl_d)
+  arr := {human_2->OSL1,human_2->OSL2,human_2->OSL3}
+  fl := .f.
+  for j := 1 to len(arr)
+    if !empty(arr[j])
+      arr[j] := padr(arr[j],5)
+      if empty(mn->osl_d1)
+        fl := (arr[j] == mn->osl_d)
+      else
+        fl := between(diag2num(arr[j]),NUMosl_d,NUMosl_d1)
+      endif
+      if fl ; exit ; endif  // т.е. один диагноз удовлетворяет условию
+    endif
+  next
+endif
+if fl .and. !empty(mn->pred_d)
+  if between(human->ishod,201,203)  // дисп-ия (профосмотр) взрослого населения
+    Private pole_diag, pole_1pervich
+    for i := 1 to 5
+      pole_diag := "mdiag"+lstr(i)
+      pole_1pervich := "m1pervich"+lstr(i)
+      Private &pole_diag := space(6)
+      Private &pole_1pervich := 0
+    next
+    read_arr_DVN(human->kod)
+    arr := {}
+    for i := 1 to 5
+      pole_diag := "mdiag"+lstr(i)
+      pole_1pervich := "m1pervich"+lstr(i)
+      if !empty(&pole_diag) .and. &pole_1pervich == 2  // предварительный диагноз
+        aadd(arr,&pole_diag)
+      endif
+    next
+  else
+    arr := {human_->KOD_DIAG0}
+  endif
+  fl := .f.
+  for j := 1 to len(arr)
+    if !empty(arr[j])
+      arr[j] := padr(arr[j],5)
+      if empty(mn->pred_d1)
+        fl := (arr[j] == mn->pred_d)
+      else
+        fl := between(diag2num(arr[j]),NUMpred_d,NUMpred_d1)
+      endif
+      if fl ; exit ; endif  // т.е. один диагноз удовлетворяет условию
+    endif
+  next
 endif
 if fl .and. !emptyall(mn->diag,mn->kod_diag,mn->soput_d)
   arr := {{human->KOD_DIAG ,1,0,0},;
@@ -4250,9 +4340,6 @@ do while !eof()
               tfoms_pz[1,1] := 0
             else
               arr_profil[i,2] ++
-              if is_inogoro
-                arr_profil[i,4] ++
-              endif
             endif
             arr_profil[i,3] += round(human->cena_1*koef,2)
             if is_inogoro
@@ -4549,8 +4636,8 @@ do while !eof()
           // дневной стационар
           case tfoms_pz[4,1] > 0
             if !empty(lvidpoms)
-              if !eq_ascan(arr_usl,"55.1.2","55.1.3")
-                lvidpoms := ret_vidpom_licensia(human_->USL_OK,lvidpoms) // только для дн.стационара при стационаре
+              if !eq_ascan(arr_usl,"55.1.2","55.1.3") .or. glob_mo[_MO_KOD_TFOMS] == '801935' // ЭКО-Москва
+                lvidpoms := ret_vidpom_licensia(human_->USL_OK,lvidpoms,human_->profil) // только для дн.стационара при стационаре
               endif
               if !empty(lvidpoms) .and. !("," $ lvidpoms)
                 lvidpom := int(val(lvidpoms))

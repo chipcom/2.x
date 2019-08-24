@@ -24,7 +24,7 @@ Function f_stom_39_terap()
 f39_ter()
 return NIL
 
-***** 19.07.19 ‡ ¯à®á «¨æ, ¯®¤«¥¦ é¨å ¤¨á¯ á¥à¨§ æ¨¨, ¬¥â®¤®¬ ¬­®£®¢ à¨ ­â­®£® ¯®¨áª 
+***** 06.08.19 ‡ ¯à®á «¨æ, ¯®¤«¥¦ é¨å ¤¨á¯ á¥à¨§ æ¨¨, ¬¥â®¤®¬ ¬­®£®¢ à¨ ­â­®£® ¯®¨áª 
 Function mnog_poisk_DVN1()
 Local mm_tmp := {}, mm_sort, t_arr[2]
 Local buf := savescreen(), tmp_color := setcolor(cDataCGet),;
@@ -42,6 +42,7 @@ Local buf := savescreen(), tmp_color := setcolor(cDataCGet),;
       tmp_file := cur_dir+"tmp_mn_p"+sdbf,;
       k_fio, k_adr, tt_fio[10], tt_adr[10], fl_exit := .f.
 Local adbf := {;
+   {"BUKVA"  ,   "C",  1,0},; // ¡ãª¢  ¢ ãç áâª¥
    {"UCHAST" ,   "N",  2,0},; // ­®¬¥à ãç áâª 
    {"KOD_VU" ,   "N",  6,0},; // ª®¤ ¢ ãç áâª¥
    {"FIO"    ,   "C", 50,0},; // ”.ˆ.Ž. ¯ æ¨¥­â 
@@ -272,10 +273,10 @@ if k > 0
      " ¯¯  ³",;
      "ÄÄÄÄÄÁ"}
     if is_uchastok > 0 .or. mn->i_sort == 3 // Š®¤ ¯® ª àâ®â¥ª¥
-      arr_title[1] += "ÄÄÄÄÄÄÄÄÄÂ"
-      arr_title[2] += " “ç áâ®ª ³"
-      arr_title[3] += "   ª®¤   ³"
-      arr_title[4] += "ÄÄÄÄÄÄÄÄÄÁ"
+      arr_title[1] += "ÄÄÄÄÄÄÄÄÄÄÂ"
+      arr_title[2] += " “ç áâ®ª  ³"
+      arr_title[3] += "   ª®¤    ³"
+      arr_title[4] += "ÄÄÄÄÄÄÄÄÄÄÁ"
     endif
     arr_title[1] += "ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄ"
     arr_title[2] += "             ”.ˆ.Ž. ¯ æ¨¥­â                ³‹¥³   ¤ â    ³              €¤à¥á                ³¯à¨- ³¯®á«¥¤­¨© "
@@ -418,7 +419,8 @@ if k > 0
       s1 := padr(lstr(ii),6)
       if is_uchastok > 0 .or. mn->i_sort == 3
         if is_uchastok > 0
-          s := ""
+          s := alltrim(kart->bukva)
+          dvn->bukva := kart->bukva
           if !empty(kart->uchast)
             dvn->UCHAST := kart->uchast
             s += lstr(kart->uchast)
@@ -434,9 +436,9 @@ if k > 0
             dvn->KOD_VU := val(kart2->kod_AK)
           endif
         else
-          s := padl(lstr(tmp->kod),9)
+          s := padl(lstr(tmp->kod),10)
         endif
-        s1 += padr(s,10)
+        s1 += padr(s,11)
       endif
       s := ""
       if !empty(kart_->PHONE_H)
@@ -496,7 +498,7 @@ if k > 0
       for i := 2 to max(k_fio,k_adr)
         s1 := space(6)
         if is_uchastok > 0 .or. mn->i_sort == 3
-          s1 += space(10)
+          s1 += space(11)
         endif
         s1 += padr(tt_fio[i],44)
         s1 += space(14)

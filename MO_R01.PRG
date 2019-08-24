@@ -1346,7 +1346,7 @@ close databases
 rest_box(buf)
 return fl*/
 
-***** 31.07.19 Создание файла обмена R01...
+***** 04.08.19 Создание файла обмена R01...
 Function f_create_R01()
 Local buf := save_maxrow(), i, j, ir, s := "", arr := {}, fl := .t., fl1 := .f., a_reestr := {},;
       azip := {}, aerr := {}, full_zip, name_zip, cFile, cName, oXmlDoc, lgod_r, _arr_vozr_DVN
@@ -1404,8 +1404,9 @@ if (fl := verify_packet_R05(1,arr))
       hGauge := GaugeNew(,,,"Дополнительный поиск пациентов для профосмотров",.t.)
       GaugeDisplay( hGauge )
       Use (dir_server+"mo_dr00") new alias TMP
+      replace tip with 0 for reestr == 0
       index on str(kod,7) to (cur_dir+"tmp_dr00")
-      Use_base("mo_dnab")
+      //Use_base("mo_dnab")
       R_Use(dir_server+"human_",,"HUMAN_")
       R_Use(dir_server+"human",dir_server+"humankk","HUMAN")
       set relation to recno() into HUMAN_
@@ -1419,22 +1420,26 @@ if (fl := verify_packet_R05(1,arr))
       go top
       do while !eof()
         GaugeUpdate( hGauge, ++ii/lastrec() )
-        if kart->kod > 0 .and. (lgod_r := sgod - year(kart->date_r)) > 18
-          f0_prof_create_R01(sgod,lgod_r,_arr_vozr_DVN)
+        if kart->kod > 0 .and. (v := sgod - year(kart->date_r)) > 18
+          f0_prof_create_R01(sgod,v,_arr_vozr_DVN)
         endif
         select KART
         skip
       enddo
+      commit
       CloseGauge(hGauge)
       //
-      R_Use(dir_server+"mo_dr01k",,"R01k")
-      index on str(reestr,6)+str(kod_k,7) to (cur_dir+"tmp_dr01k")
+      select KART
+      set index to
+      //
       select TMP
-      commit
       set relation to kod into KART
       index on kod to (cur_dir+"tmp_dr00") for reestr == 0
       go top
       do while !eof()
+        if emptyany(kart->kod,kart->fio,kart->date_r) // если данную запись в картотеке недавно удалили
+          tmp->tip := 0
+        endif
         j := tmp->tip
         tmp->n_m := tmp->n_q := 0 // если уже заходили в режим и не подтвердили создание XML
         if between(j,1,2)
@@ -1444,14 +1449,16 @@ if (fl := verify_packet_R05(1,arr))
       enddo
       commit
       index on str(reestr,6) to (cur_dir+"tmp_dr00")
-      /*my_debug(,"skol"+print_array(skol))
+      my_debug(,"skol"+print_array(skol))
       my_debug(,"mkol"+print_array(mkol))
-      if skol[2] - mkol[2] > 0
+      /*if skol[2] - mkol[2] > 0
         skol[1] := skol[2] - mkol[2]
         skol[2] := mkol[2]
         my_debug(,"skol"+print_array(skol))
         my_debug(,"mkol"+print_array(mkol))
       endif*/
+      R_Use(dir_server+"mo_dr01k",,"R01k")
+      index on str(reestr,6)+str(kod_k,7) to (cur_dir+"tmp_dr01k")
       for ir := 1 to len(arr_rees)
         select TMP
         find (str(arr_rees[ir],6))
@@ -1708,15 +1715,17 @@ endif
 @ row(),col() say lstr(cf) color cColorStMsg
 return NIL
 
-***** 11.07.19 поик доступных профосмотров до 40 лет
+***** 04.08.19 поик доступных профосмотров до 40 лет
 Static Function f0_prof_create_R01(sgod,v,_arr_vozr_DVN)
 Static cf := 0
 Local fl, ltip, ag, s
 if (fl := (kart2->MO_PR == CODE_LPU)) // прикреплён к нашей МО
-  if (fl := (ascan(_arr_vozr_DVN,v) > 0))// диспансеризация
+  if ascan(_arr_vozr_DVN,v) > 0// диспансеризация
     ltip := 1
-  else // профосмотры
+  elseif v < 40 // профосмотры
     ltip := 2 // профосмотры
+  else
+    fl := .f.
   endif
 endif
 if fl // За исключением умерших (по сведению ТФОМС)
@@ -1738,19 +1747,19 @@ if fl
     fl := .f.
   endif
 endif
-if fl .and. ltip == 1
+/*if fl .and. ltip == 1
   select DN
   find (str(kart->kod,7))
   if found()
     fl := .f. // не рассматриваем находящихся под диспансерным наблюдением
   endif
-endif
+endif*/
 if fl
   select TMP
   find (str(kart->kod,7))
   if found()
     if tmp->reestr == 0 // ещё не попадал в ТФОМС
-      tmp->tip := ltip  // на всякий случай перезапишем тип = профосмотр
+      tmp->tip := ltip  // на всякий случай перезапишем тип профосмотра
       ++cf
     endif
   else
@@ -2879,7 +2888,7 @@ return fl
 
 ***** 31.07.19 проверить, есть ли не до конца обработанные операции с файлами R01...
 Function find_unfinished_R01()
-Local fl := .t., skol := 0, mkol := 0, arr := {}, fl_date := .t.
+Local fl := .t., fl1, skol := 0, mkol := 0, arr := {}, rec, fl_date := .t.
 Private sgod := 2019, mrec := 3
 if glob_mo[_MO_IS_UCH]
   if (fl := verify_packet_R05(2,arr)) .and. ascan(arr_no_mo,glob_mo[_MO_KOD_TFOMS]) == 0
@@ -2895,8 +2904,14 @@ if glob_mo[_MO_IS_UCH]
     go top
     do while fl .and. !eof()
       if rees->kol_err < 0
-        fl := .f.
-        aadd(arr,"В файле R02 за "+lstr(rees->NQUARTER)+"-й квартал "+lstr(sgod)+"г. ошибки на уровне файла")
+        rec := rees->(recno())
+        find (str(rees->nn+1,3)+str(rees->NQUARTER,1))
+        fl1 := found()
+        goto (rec)
+        if !fl1
+          fl := .f.
+          aadd(arr,"В файле R02 за "+lstr(rees->NQUARTER)+"-й квартал "+lstr(sgod)+"г. ошибки на уровне файла")
+        endif
       elseif empty(rees->answer)
         fl := .f.
         aadd(arr,"Файл R02 за "+lstr(rees->NQUARTER)+"-й квартал "+lstr(sgod)+" года не был прочитан")

@@ -1995,7 +1995,7 @@ Function forma_14_(is_diag,is_otd,is_pereved)
 Local i, j, k, arr, begin_date, end_date, s, buf := save_maxrow(),;
       fl_exit := .f., sh, HH := 80, reg_print, speriod,;
       arr_title, name_file, jh := 0, jh1 := 0, arr_m, nf, file_form
-DEFAULT is_pereved TO .f.      
+DEFAULT is_pereved TO .f.
 name_file := iif(is_diag, "_frm_14d", "_form_14")+stxt
 if (file_form := search_file("forma_14"+sfrm)) == NIL
   return func_error(4,"Не обнаружен файл FORMA_14"+sfrm)
@@ -2221,7 +2221,7 @@ if pi1 == 1 // по дате окончания лечения
     endif
     if human_->usl_ok == 1 .and. human_->oplata < 9 .and. ;
        iif(is_otd, (human->otd == glob_otd[1]), f_is_uch(st_a_uch,human->lpu)) ;
-       .and. func_pi_schet() .and. f_is_uchast(st_a_uchast,kart->uchast) ; 
+       .and. func_pi_schet() .and. f_is_uchast(st_a_uchast,kart->uchast) ;
        .and. iif(is_pereved, human_->RSLT_NEW == 102, .t.)
       jh := f1_f14(jh,@jh1,is_diag)
       @ maxrow(),1 say lstr(jh) color cColorSt2Msg
@@ -7281,7 +7281,7 @@ if between(j,17,20)
       select HU
       skip
     enddo
-  else // начиная с 2016 года 
+  else // начиная с 2016 года
     if select("MOHU") == 0
       R_Use(dir_server+"mo_su",,"MOSU")
       R_Use(dir_server+"mo_hu",dir_server+"mo_hu","MOHU")
@@ -7534,7 +7534,7 @@ if _4
 endif
 return NIL
 
-***** 18.02.18 начиная с 2016 года
+***** 19.08.19 начиная с 2016 года
 Function ___f_39_2016(par1,jcol,mvozrast,is_selo)
 Local _1, _2, _3, _4, lshifr, lshifr1 := "", ldiag, ta, i, j, is_dom := .f., arr := {},;
       is_zabol, fl_stom_new := .f., au_lu := {}, au_flu := {}, vid_vp := 0,; // по умолчанию профилактика
@@ -7566,7 +7566,11 @@ do while hu->kod == human->kod .and. !eof()
       vid_vp := 2 // по поводу заболевания
       exit
     elseif left(lshifr,5) == "2.88."
-      vid_vp := 2 // разовое по поводу заболевания
+      if is_usluga_disp_nabl(lshifr)
+        vid_vp := 0 // считаем профилактикой
+      else
+        vid_vp := 2 // разовое по поводу заболевания
+      endif
       exit
     endif
   endif
@@ -7637,7 +7641,7 @@ if fl_stom_new
       endif
     endif
   next
-else  
+else
   select HU
   find (str(human->kod,7))
   do while hu->kod == human->kod .and. !eof()
@@ -7874,7 +7878,7 @@ arr   := {"","","",;  // 1 - 3
           "Y10-Y34",;
           "Y35-Y38",;
           "Y40-Y84",;
-          "Y85-Y89"}          
+          "Y85-Y89"}
 Private yes_rule := read_rule(D_RULE_N_F57), arr_57_wide := {}
 for j := 1 to len(arr)
   diapazon := {} ; s2 := arr[j]
@@ -8101,14 +8105,14 @@ for i := 4 to 20
   aadd(adbf, {"kol"+lstr(i),"N",8,0})
 next
 for i := 0 to 2
-  name_f := fr_data+iif(i > 0, lstr(i), "") 
-  al := "FRD"+iif(i > 0, lstr(i), "") 
+  name_f := fr_data+iif(i > 0, lstr(i), "")
+  al := "FRD"+iif(i > 0, lstr(i), "")
   dbcreate(cur_dir+name_f,adbf)
   E_Use(cur_dir+name_f,,al)
 next
 use (cur_dir+"tmp") index (cur_dir+"tmp") new
 for x := 1 to 3 // diag1[x] => {s1,1,diapazon,tmp->table,s2,s4}
-  al := "FRD"+iif(x > 1, lstr(x-1), "") 
+  al := "FRD"+iif(x > 1, lstr(x-1), "")
   //diag1[x] => {s1,p_tip,diapazon,tmp->table,s2,s4}
   for ix := 1 to len(diag1[x])
     s1 := padr(diag1[x,ix,1],2) ; s1_ := diag1[x,ix,1]
@@ -8118,7 +8122,7 @@ for x := 1 to 3 // diag1[x] => {s1,1,diapazon,tmp->table,s2,s4}
       select TMP
       find (str(x,1)+s1)
       dbSelectArea(al)
-      append blank       
+      append blank
       &al.->name := s3
       &al.->stroke := s1
       &al.->diagnoz := s2
@@ -8141,7 +8145,7 @@ for x := 1 to 3 // diag1[x] => {s1,1,diapazon,tmp->table,s2,s4}
             skip
           enddo
           dbSelectArea(al)
-          append blank       
+          append blank
           if is_diag == 3
             &al.->name := "<b>"+s+"</b>"
             &al.->diagnoz := "<b>"+lshifr+"</b>"
@@ -8169,7 +8173,7 @@ for x := 1 to 3 // diag1[x] => {s1,1,diapazon,tmp->table,s2,s4}
                 s += " сч.№"+alltrim(schet->nomer_s)+" от "+date_8(c4tod(schet->pdate))
               endif
               dbSelectArea(al)
-              append blank       
+              append blank
               &al.->name := s
               &al.->stroke := ""
               &al.->diagnoz := ""
@@ -8198,7 +8202,7 @@ return NIL
 Function f1_f57(is_diag)
 Local i, j, k, mshifr, mvozrast, d1, d2, fl, arr_d := {}, arr, tip_travma,;
       mpol, k1, v3 := 0, s, is_talon := .t., adiag_talon[16]
-Private arr_v := {{0,17},{18,999}}, arr_all := {}      
+Private arr_v := {{0,17},{18,999}}, arr_all := {}
 afill(adiag_talon,0)
 for i := 1 to 16
   adiag_talon[i] := int(val(substr(human_->DISPANS,i,1)))
@@ -8245,7 +8249,7 @@ if empty(tip_travma := ret_f_57_wide()) //  если NIL, то по-старому из меню типа
     otherwise
       aadd(tip_travma,7)
   endcase
-endif  
+endif
 for i := 1 to len(arr)
   fl := .f.
   s := substr(human->diag_plus,i,1)
@@ -8295,12 +8299,12 @@ ta := array(lk,20) ; afillall(ta,0)
 for j := 1 to lk
   for i := 1 to len(tip_travma)
     icol := tip_travma[i]
-    ta[j,icol] ++ 
+    ta[j,icol] ++
   next
 next
 for j := 1 to lk
   select TMP
-  find (str(v,1)+padr(k[j,1],2)) 
+  find (str(v,1)+padr(k[j,1],2))
   for i := 4 to 20
     pole := "tmp->v"+strzero(i,2)
     &pole := &pole + ta[j,i]
@@ -8339,7 +8343,7 @@ return NIL
 Function f2_f57(is_diag)
 Local i, j, k, ll, mshifr, mvozrast, d1, d2, fl, tip_travma, ret := .f.,;
       v3 := 0, mpol, s, is_talon := .t.
-Private arr_v := {{0,17},{18,999}}      
+Private arr_v := {{0,17},{18,999}}
 select TMP1RULE
 find ("1")
 do while tmp1rule->tip == 1 .and. !eof()
@@ -8603,8 +8607,8 @@ if nkey == K_ENTER
        human->SOPUT_B2  with MSOPUT_B2  ,;   // шифр 2-ой сопутствующей болезни
        human->SOPUT_B3  with MSOPUT_B3  ,;   // шифр 3-ой сопутствующей болезни
        human->SOPUT_B4  with MSOPUT_B4  ,;   // шифр 4-ой сопутствующей болезни
-       human->diag_plus with mdiag_plus 
-    */   
+       human->diag_plus with mdiag_plus
+    */
     UnLock
     Commit
   endif

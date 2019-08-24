@@ -60,9 +60,9 @@ reconstruct(dir_server+"mo_dnab",mo_dnab,"index_base('mo_dnab')",,.t.)
 //index on str(KOD_K,7)+KOD_DIAG to (dir_server+"mo_dnab")
 return NIL
 
-***** 27.11.18 Диспансерное наблюдение
+***** 22.08.19 Диспансерное наблюдение
 Function disp_nabludenie(k)
-Static si1 := 1, si2 := 1, si3 := 2
+Static si1 := 1, si2 := 1, si3 := 2, si4 := 1
 Local mas_pmt, mas_msg, mas_fun, j
 DEFAULT k TO 1
 do case
@@ -84,12 +84,12 @@ do case
   case k == 11
     vvod_disp_nabl()
   case k == 12
-    mas_pmt := {"~Информация по первичному вводу",;
-                "Список обязательных ~диагнозов",;
-                "~Пациенты с диагнозами для диспансерного учёта"}
+    mas_pmt := {"Информация по ~первичному вводу",;
+                "Список обязательных ~диагнозов",; //"~Пациенты с диагнозами для диспансерного учёта"
+                "~Информация о выполнении"}
     mas_msg := {"Информация по первичному вводу сведений о состоящих на диспансерном учёте",;
-                "Список диагнозов, обязательных для диспансерного наблюдения",;
-                "Список пациентов с диагнозами, обязательными для диспансерного учёта (за 2 года)"}
+                "Список диагнозов, обязательных для диспансерного наблюдения",; //"Список пациентов с диагнозами, обязательными для диспансерного учёта (за 2 года)"
+                "Информация о выполнении диспансерного наблюдения"}
     mas_fun := {"disp_nabludenie(21)",;
                 "disp_nabludenie(22)",;
                 "disp_nabludenie(23)"}
@@ -107,11 +107,27 @@ do case
   case k == 22
     spr_disp_nabl()
   case k == 23
-    pac_disp_nabl()
+    //pac_disp_nabl()
+    mas_pmt := {"~Не было л/у с диспансерным наблюдением",;
+                "~Были л/у с диспансерным наблюдением",;
+                "Были ~другие л/у с диагнозом из списка"}
+    mas_msg := {"Список пациентов, по которым не было л/у с диспансерным наблюдением",;
+                "Список пациентов, по которым были л/у с диспансерным наблюдением",;
+                "Список пациентов, по которым были другие листы учёта с диагнозом из списка"}
+    mas_fun := {"disp_nabludenie(41)",;
+                "disp_nabludenie(42)",;
+                "disp_nabludenie(43)"}
+    popup_prompt(T_ROW,T_COL-5,si4,mas_pmt,mas_msg,mas_fun)
   case k == 31
     f_create_D01()
   case k == 32
     f_view_D01()
+  case k == 41
+    f_inf_disp_nabl(1)
+  case k == 42
+    f_inf_disp_nabl(2)
+  case k == 43
+    f_inf_disp_nabl(3)
 endcase
 if k > 10
   j := int(val(right(lstr(k),1)))
@@ -121,7 +137,181 @@ if k > 10
     si2 := j
   elseif between(k,31,39)
     si3 := j
+  elseif between(k,41,49)
+    si4 := j
   endif
+endif
+return NIL
+
+***** 23.08.19 Список пациентов, по которым были л/у с диспансерным наблюдением
+Function f_inf_disp_nabl(par)
+Local arr, adiagnoz, sh := 80, HH := 60, buf := save_maxrow(), name_file := "disp_nabl"+stxt,;
+      ii1 := 0, ii2 := 0, ii3 := 0, s, name_dbf := "___DN"+sdbf
+stat_msg("Поиск информации...")
+fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
+if par == 1
+  arr_title := {;
+    "─────────────────────────────────────────────┬──────────┬───────────────────────────",;
+    "                                             │   Дата   │ Диагнозы для диспансерного",;
+    "  ФИО пациента                               │ рождения │ наблюдения                ",;
+    "─────────────────────────────────────────────┴──────────┴───────────────────────────"}
+  sh := len(arr_title[1])
+  s := "Список пациентов, по которым не было л/у с диспансерным наблюдением"
+elseif par == 2
+  arr_title := {;
+    "─────────────────────────────────────────────┬──────────┬────────┬─────┬─────┬────────┬────────",;
+    "                                             │   Дата   │Дата по-│ Таб.│Диаг-│  Шифр  │ Сумма  ",;
+    "  ФИО пациента                               │ рождения │сещения │номер│ноз  │ услуги │ случая ",;
+    "─────────────────────────────────────────────┴──────────┴────────┴─────┴─────┴────────┴────────"}
+  sh := len(arr_title[1])
+  s := "Список пациентов, по которым были л/у с диспансерным наблюдением"
+else
+  s := "Список пациентов, по которым были другие листы учёта с диагнозом из списка"
+  dbcreate(cur_dir+name_dbf,{;
+    {"nn","N",6,0},;
+    {"fio","C",50,0},;
+    {"date_rogd","C",10,0},;
+    {"date_lech","C",50,0},;
+    {"summa","C",10,0},;
+    {"diadnoz","C",35,0},;
+    {"shifr_usl","C",10,0},;
+    {"vrach","C",5,0},;
+    {"number_sch","C",15,0},;
+    {"date_sch","C",10,0},;
+    {"nomer_posi","C",6,0}})
+  use (cur_dir+name_dbf) new alias TMP
+endif
+add_string("")
+add_string(center(s,sh))
+add_string("")
+if par < 3
+  aeval(arr_title, {|x| add_string(x) } )
+endif
+//
+use_base("lusl")
+R_Use(dir_server+"uslugi",,"USL")
+R_Use(dir_server+"mo_pers",,"PERS")
+R_Use(dir_server+"schet_",,"SCHET_")
+R_Use(dir_server+"schet",,"SCHET")
+set relation to recno() into SCHET_
+R_Use(dir_server+"human_u",dir_server+"human_u","HU")
+set relation to u_kod into USL
+R_Use(dir_server+"human_",,"HUMAN_")
+set relation to vrach into PERS
+R_Use(dir_server+"human",dir_server+"humankk","HUMAN")
+set relation to recno() into HUMAN_
+index on str(kod_k,7)+dtos(k_data) to (cur_dir+"tmp_humankk") ;
+      for human_->USL_OK == 3 .and. human->k_data >= 0d20190101 ; // т.е. последний год
+      progress
+//
+R_Use(dir_server+"mo_d01d",,"DD")
+index on str(kod_d,6) to (cur_dir+"tmp_dd")
+R_Use(dir_server+"kartotek",,"KART")
+R_Use(dir_server+"mo_d01k",,"RHUM")
+set relation to kod_k into KART
+index on upper(kart->fio)+dtos(kart->date_r)+str(kart->kod,7) to (cur_dir+"tmp_rhum") ;
+      for kart->kod > 0 .and. rhum->oplata == 1
+go top
+do while !eof()
+  arr := {}
+  select DD
+  find (str(rhum->(recno()),6))
+  do while dd->kod_d == rhum->(recno()) .and. !eof()
+    aadd(arr,dd->kod_diag)
+    skip
+  enddo
+  if len(arr) > 0
+    fl1 := .f.
+    select HUMAN
+    find (str(kart->kod,7))
+    do while human->kod_k == kart->kod .and. !eof()
+      fl := .f. ; ar := {}
+      adiagnoz := diag_to_array()
+      for i := 1 to len(adiagnoz)
+        if !empty(adiagnoz[i]) //.and. f2_vvod_disp_nabl(adiagnoz[i])
+          s := padr(adiagnoz[i],5)
+          if ascan(arr,s) > 0
+            aadd(ar,s)
+            fl := .t.
+          endif
+        endif
+      next i
+      if fl // либо основной, либо сопутствующие диагнозы из списка
+        fl1 := .t.
+        fl_disp := .f. ; ausl := {}
+        select HU
+        find (str(human->kod,7))
+        do while hu->kod == human->kod .and. !eof()
+          lshifr1 := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data)
+          if is_usluga_TFOMS(usl->shifr,lshifr1,human->k_data)
+            lshifr := alltrim(iif(empty(lshifr1), usl->shifr, lshifr1))
+            left_lshifr_5 := left(lshifr,5)
+            if left_lshifr_5 == "2.88."
+              aadd(ausl,lshifr)
+              if is_usluga_disp_nabl(lshifr)
+                fl_disp := .t.
+              endif
+            elseif left_lshifr_5 == "2.79."
+              if ascan(ausl,lshifr) == 0
+                aadd(ausl,lshifr)
+              endif
+            endif
+          endif
+          select HU
+          skip
+        enddo
+        if fl_disp .and. par == 2
+          if verify_FF(HH,.t.,sh)
+            aeval(arr_title, {|x| add_string(x) } )
+          endif
+          add_string(padr(lstr(++ii2)+". "+kart->fio,45)+" "+full_date(kart->date_r)+" "+date_8(human->k_data)+;
+                     str(pers->tab_nom,6)+" "+padr(Arr2SList(ar),5)+" "+padr(ausl[1],8)+str(human->cena_1,9,2))
+        endif
+        if !fl_disp .and. par == 3 .and. len(ausl) > 0
+          select TMP
+          append blank
+          tmp->nn := ++ii3
+          tmp->fio := human->fio
+          tmp->date_rogd := full_date(human->date_r)
+          tmp->date_lech := full_date(human->k_data)
+          tmp->summa := str(human->cena_1,10,2)
+          tmp->diadnoz := Arr2SList(ar)
+          tmp->shifr_usl := Arr2SList(ausl)
+          tmp->vrach := str(pers->tab_nom,5)
+          if human->tip_h >= B_SCHET .and. human->schet > 0
+            select SCHET
+            goto (human->schet)
+            tmp->number_sch := schet_->nschet
+            tmp->date_sch := full_date(schet_->dschet)
+            tmp->nomer_posi := str(human_->schet_zap,6)
+          endif
+        endif
+      endif
+      select HUMAN
+      skip
+    enddo
+    if !fl1 .and. par == 1
+      if verify_FF(HH,.t.,sh)
+        aeval(arr_title, {|x| add_string(x) } )
+      endif
+      add_string(padr(lstr(++ii1)+". "+kart->fio,45)+" "+full_date(kart->date_r)+" "+Arr2SList(arr))
+    endif
+  endif
+  @ maxrow(),1 say lstr({ii1,ii2,ii3}[par]) color cColorStMsg
+  select RHUM
+  skip
+enddo
+close databases
+fclose(fp)
+rest_box(buf)
+if par == 3
+  if ii3 == 0
+    func_error(4,"Не найдено пациентов, по которым были другие листы учёта с диагнозом из списка")
+  else
+    n_message({"Создан файл для загрузки в Excel: "+name_dbf},,cColorStMsg,cColorStMsg,,,cColorSt2Msg)
+  endif
+else
+  viewtext(name_file,,,,(sh>80),,,2)
 endif
 return NIL
 
@@ -502,7 +692,7 @@ viewtext(name_file,,,,.t.,,,2)
 rest_box(buf)
 return NIL
 
-***** 07.11.18 Список пациентов с диагнозами, обязательными для диспансерного учёта (за 2 года)
+/***** 07.11.18 Список пациентов с диагнозами, обязательными для диспансерного учёта (за 2 года)
 Function pac_disp_nabl()
 Static su := 0
 Local ku, i, adiagnoz, ar, sh := 80, HH := 60, buf := save_maxrow(), name_file := "disp_nabl"+stxt,;
@@ -602,7 +792,7 @@ close databases
 fclose(fp)
 viewtext(name_file,,,,.t.,,,2)
 rest_box(buf)
-return NIL
+return NIL*/
 
 ***** 28.11.18 Обмен с ТФОМС информацией по диспансерному наблюдению
 Function f_create_D01()

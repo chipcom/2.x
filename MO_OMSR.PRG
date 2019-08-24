@@ -10,18 +10,25 @@ Static Sreestr_sem := "Работа с реестрами"
 Static Sreestr_err := "В данный момент с реестрами работает другой пользователь."
 Static sadiag1 := {}
 
-***** 10.05.19 скорректировать вид помощи для дневного стационара (в стационаре) по лицензии
-Function ret_vidpom_licensia(lusl_ok,lvidpoms)
+***** 04.08.19 скорректировать вид помощи для дневного стационара (в стационаре) по лицензии
+Function ret_vidpom_licensia(lusl_ok,lvidpoms,lprofil)
 Static mo_licensia := {;
-  {'101004',2,'31'},;  // ВОУНЦ
-  {'141023',2,'31'},;  // б-ца 15
-  {'801935',2,'31'},;  // ЭКО-Москва
-  {'391001',2,'31'};   // Камышинская гор.б-ца 1
+  {'101004',2,'31',0},;  // ВОУНЦ
+  {'141023',2,'31',0},;  // б-ца 15
+  {'801935',2,'31',0},;  // ЭКО-Москва
+  {'391001',2,'31',0},;  // Камышинская гор.б-ца 1
+  {'101001',2,'13',60};   // ОКБ-1 - онкология
  }
-Local i := ascan(mo_licensia, {|x| x[1] == glob_mo[_MO_KOD_TFOMS] .and. x[2] == lusl_ok })
-if i > 0
-  lvidpoms := mo_licensia[i,3]
-endif
+Local i, fl := .f.
+for i := 1 to len(mo_licensia)
+  if mo_licensia[i,1] == glob_mo[_MO_KOD_TFOMS] .and. mo_licensia[i,2] == lusl_ok
+    if mo_licensia[i,4] == 0 // все профили
+      lvidpoms := mo_licensia[i,3]
+    elseif mo_licensia[i,4] == lprofil // конкретный профиль
+      lvidpoms := mo_licensia[i,3]
+    endif
+  endif
+next i
 return lvidpoms
 
 ***** 20.09.15 если это коммерческая скорая
@@ -811,7 +818,7 @@ endif
 au_lu := {} ; au_flu := {} ; au_lu_ne := {} ; arr_perso := {} ; arr_unit := {}
 is_kt := is_mrt := is_angio := is_koronaro := is_g_cit := is_pr_skr := .f.
 is_71_1 := is_71_2 := is_71_3 := is_dom := .f.
-kvp_2_78 := kvp_2_89 := kol_2_3 := kol_2_60 := kol_2_4 := kol_2_6 := kol_55_1 := 0
+kvp_2_78 := kvp_2_79 := kvp_2_89 := kol_2_3 := kol_2_60 := kol_2_4 := kol_2_6 := kol_55_1 := 0
 kvp_70_5 := kvp_70_6 := kvp_70_3 := kvp_72_2 := kvp_72_3 := kvp_72_4 := 0
 is_2_78 := is_2_79 := is_2_80 := is_2_81 := is_2_82 := .f.
 is_2_83 := is_2_84 := is_2_85 := is_2_86 := is_2_87 := is_2_88 := is_2_89 := .f.
@@ -1139,6 +1146,8 @@ do while hu->kod == human->kod .and. !eof()
           is_2_79 := .t.
           if alltrim_lshifr == "2.79.51"
             is_pren_diagn := .t.
+          else
+            kvp_2_79++
           endif
         endif
       elseif left_lshifr_5 == "2.80."
@@ -2769,7 +2778,8 @@ if is_2_78
     elseif left(au_lu[i,1],4) == "2.60"
       if d1 == au_lu[i,2]
         is_1_den := .t.
-      elseif d2 == au_lu[i,2]
+      endif
+      if d2 == au_lu[i,2]
         is_last_den := .t.
       endif
       if (j := ascan(am,{|x| x[1] == month(au_lu[i,2])} )) == 0
@@ -2783,9 +2793,6 @@ if is_2_78
   j := len(am)
   if !is_last_den .and. j > 0
     asort(am,,,{|x,y| x[1] < y[1]})
-    if kol_2_60 > 1 .and. month(d2) == am[j,1]
-      aadd(ta,'последняя услуга '+s+' должна быть оказана в последний день лечения')
-    endif
     if month(d2) - am[j,1] > 1 .and. year(d1) == year(d2)
       aadd(ta,'в предыдущем месяце не оказано врачебных приёмов')
     endif
@@ -2796,11 +2803,39 @@ if is_2_78
   if oth_usl > 0
     aadd(ta,'кроме услуги '+lstshifr+' и '+s+' в листе учета не должно быть других услуг')
   endif
-  if kol_2_60 < 2 .and. human_->RSLT_NEW != 302
-    aadd(ta,'кроме услуги '+lstshifr+' в листе учета должно быть 2 и более услуг '+s)
+  if kol_2_60 == 0
+    aadd(ta,'не оказано ни одной услуги '+s)
+  else
+    if !is_1_den
+      aadd(ta,'первая услуга '+s+' должна быть оказана в первый день лечения')
+    elseif human_->RSLT_NEW != 302
+      if kol_2_60 < 2
+        aadd(ta,'кроме услуги '+lstshifr+' в листе учета должно быть не менее двух услуг '+s)
+      endif
+      if !is_last_den
+        aadd(ta,'последняя услуга '+s+' должна быть оказана в последний день лечения')
+      endif
+    endif
   endif
-  if kol_2_60 > 0 .and. !is_1_den
+elseif kvp_2_79 > 0
+  s := "2.79.*"
+  is_1_den := is_last_den := .f.
+  for i := 1 to len(au_lu)
+    if left(au_lu[i,1],4) == "2.79"
+      if d1 == au_lu[i,2]
+        is_1_den := .t.
+      endif
+      if d2 == au_lu[i,2]
+        is_last_den := .t.
+      endif
+    endif
+  next
+  if !is_1_den
     aadd(ta,'первая услуга '+s+' должна быть оказана в первый день лечения')
+  elseif human_->RSLT_NEW != 302
+    if !is_last_den
+      aadd(ta,'последняя услуга '+s+' должна быть оказана в последний день лечения')
+    endif
   endif
 elseif is_2_89 // медицинская реабилитация (физкультурный диспансер)
   if d1 == d2
@@ -3866,6 +3901,8 @@ if is_disp_DVN //
                 endif
                 // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
                 is_usluga_dvn({lshifr,ar[9],ar[4],ar[2]},mv,ta,metap,mpol,kod_spec_ter)
+                // проверяем на специальность
+                UslugaAccordancePRVS(lshifr,human->vzros_reb,ar[2],ta,lshifr,iif(valtype(ar[1])=="N", ar[1], 0))
               endif
             endif
           endif

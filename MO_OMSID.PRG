@@ -2579,7 +2579,7 @@ next it
 close databases
 return NIL
 
-***** 01.07.18
+***** 15.08.19
 Function f0_inf_DVN(arr_m,is_schet,is_reg,is_1_2)
 Local fl := .t., j := 0, n, buf := save_maxrow()
 DEFAULT is_schet TO .t., is_reg TO .f., is_1_2 TO .f.
@@ -2593,8 +2593,9 @@ dbcreate(cur_dir+"tmp",{{"kod_k","N",7,0},;
                         {"kod2h","N",7,0},;
                         {"date2","D",8,0},;
                         {"kod3h","N",7,0},;
+                        {"date3","D",8,0},;
                         {"kod4h","N",7,0},;
-                        {"date3","D",8,0}})
+                        {"date4","D",8,0}})
 use (cur_dir+"tmp") new
 index on str(kod_k,7) to (cur_dir+"tmp")
 R_Use(dir_server+"schet_",,"SCHET_")
@@ -2643,6 +2644,7 @@ do while !eof()
         endif
       case human->ishod == 204
         tmp->kod4h := human->kod
+        tmp->date4 := human->k_data
     endcase
     if ++j % 1000 == 0
       commit
@@ -3514,6 +3516,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
   set relation to recno() into HUMAN_, to kod_k into KART_
   R_Use(dir_server+"schet_",,"SCHET_")
   use (cur_dir+"tmp") index (cur_dir+"tmp") new
+  f_error_DVN(1)
   ii := 0
   go top
   do while !eof()
@@ -3553,6 +3556,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
     else
       f1_f21_inf_DVN()
     endif
+    f_error_DVN(2)
     select TMP
     skip
   enddo
@@ -3603,7 +3607,15 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
   close databases
   //
   at := {glob_mo[_MO_SHORT_NAME],"[ "+charrem("~",mas1pmt[par])+" §  ¢ëç¥â®¬ ®âª §®¢ ¢ ®¯« â¥ ]",arr_m[4]}
-  print_shablon("svod_dvn",{arr_21,at,ar})
+  print_shablon("svod_dvn",{arr_21,at,ar},"tmp1.txt",.f.)
+  fp := fcreate("tmp2.txt") ; n_list := 1 ; tek_stroke := 0
+  fl := f_error_DVN(3,60,80)
+  fclose(fp)
+  if fl
+    strfile("FF","tmp1.txt",.t.)
+    feval("tmp2.txt",{|s| strfile(s+eos,"tmp1.txt",.t.) })
+  endif
+  viewtext("tmp1.txt",,,,,,,2)
 endif
 close databases
 rest_box(buf)
@@ -4768,14 +4780,14 @@ if sgod >= 2019 .and. !fl
 endif
 return arr
 
-***** 11.02.19 ä®à¬  131
+***** 15.08.19 ä®à¬  131
 Function f4_inf_DVN(par)
 Static arr_v := {"21-36 «¥â","39-60 «¥â","áâ àè¥ 60 «¥â"}
 Local arr_m, buf := save_maxrow(), s, as := {}, ar, sh := 80, HH := 80, n, ;
       ii, n_file := "f_131"+stxt, d1, d2, fl, arr_excel := {}, arr_plan_god
 if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := year_month(,,,5)) != NIL
   mywait()
-  if f0_inf_DVN(arr_m,par > 1,par == 3)
+  if f0_inf_DVN(arr_m,par > 1,par == 3,.t.)
     mywait("‘¡®à áâ â¨áâ¨ª¨")
     arr_plan_god := ret_plan_disp_131(arr_m[5])
     dbcreate(cur_dir+"tmp1000",{{"vozrast","N",1,0},;
@@ -5125,14 +5137,16 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
     use (cur_dir+"tmp") index (cur_dir+"tmp") new
     set relation to kod_k into KART
     ii := 0
+    f_error_DVN(1)
     mywait(" ")
     go top
     do while !eof()
       @ maxrow(),0 say padr(str(++ii/tmp->(lastrec())*100,6,2)+"%  "+alltrim(kart->fio)+"  "+full_date(kart->date_r),80) color cColorWait
-      if !empty(tmp->kod1h) // ¥áâì ¤¨á¯ ­á¥à¨§ æ¨ï ¯¥à¢ë© íâ ¯
+      if empty(tmp->kod4h) .and. !empty(tmp->kod1h) // ¥áâì ¤¨á¯ ­á¥à¨§ æ¨ï ¯¥à¢ë© íâ ¯
         human->(dbGoto(tmp->kod1h))
         f1_f4_inf_DVN()
       endif
+      f_error_DVN(2)
       select TMP
       skip
     enddo
@@ -5554,6 +5568,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
       add_string(padr(str(i,3)+". ["+lstr(arr_vrach[i,2])+"] ",13)+padr(arr_vrach[i,3],33)+;
                  put_val(arr_vrach[i,4],7)+put_val(arr_vrach[i,5],7))
     next
+    f_error_DVN(3,HH,sh)
     fclose(fp)
     rest_box(buf)
     close databases
@@ -5568,7 +5583,54 @@ close databases
 rest_box(buf)
 return NIL
 
-***** 15.03.16
+***** 15.08.19 ®¨áª ®è¨¡®ª á®ç¥â ­¨© à §­ëå ¢¨¤®¢ ®á¬®âà®¢
+Function f_error_DVN(k,HH,sh)
+Static arr := {}, arr_title := {;
+  "ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄ",;
+  "                                            ³¤¨á¯-¨ï ³¤¨á¯-¨ï ³ ¯à®ä-  ³¤¨á¯-¨ï ",;
+  "     ”ˆŽ ¯ æ¨¥­â                            ³ 1 íâ ¯ ³ 2 íâ ¯ ³ ®á¬®âà ³à § ¢ 2£",;
+  "ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄ"}
+if k == 1
+  arr := {}
+elseif k == 2
+  if !empty(tmp->kod4h) // ¥áâì ¤¨á¯ ­á¥à¨§ æ¨ï 1 à § ¢ 2 £®¤ 
+    if !emptyall(tmp->kod1h,tmp->kod2h,tmp->kod3h)
+      aadd(arr,{" "," "," ","+",tmp->kod_k})
+    endif
+  elseif !empty(tmp->kod1h) // ¥áâì ¤¨á¯ ­á¥à¨§ æ¨ï ¯¥à¢ë© íâ ¯
+    if !emptyall(tmp->kod3h)
+      aadd(arr,{"+"," "," "," ",tmp->kod_k})
+    endif
+  elseif !empty(tmp->kod2h) // ¥áâì ¤¨á¯ ­á¥à¨§ æ¨ï ¢â®à®© íâ ¯
+    aadd(arr,{" "," "," "," ",tmp->kod_k})
+  endif
+elseif len(arr) > 1
+  R_Use(dir_server+"kartotek",,"KART")
+  use (cur_dir+"tmp") new
+  index on str(kod_k,7) to (cur_dir+"tmp")
+  verify_FF(HH-8, .f., sh)
+  add_string("")
+  add_string(center("¥á®¢¬¥áâ¨¬ë¥ ¬¥¤®á¬®âàë",sh))
+  add_string(center('(§­ ª®¬ "+" ®â¬¥ç¥­ë ®á¬®âàë, ãç¨âë¢ ¥¬ë¥ ¢ áâ â¨áâ¨ª¥)',sh))
+  aeval(arr_title,{|x| add_string(x) })
+  for i := 1 to len(arr)
+    select TMP
+    find (str(arr[i,5],7))
+    kart->(dbGoto(arr[i,5]))
+    s := padr(lstr(i)+". "+kart->fio,44)
+    s += iif(empty(tmp->kod1h), space(9), arr[i,1]+date_8(tmp->date1))
+    s += iif(empty(tmp->kod2h), space(9), arr[i,2]+date_8(tmp->date2))
+    s += iif(empty(tmp->kod3h), space(9), arr[i,3]+date_8(tmp->date3))
+    s += iif(empty(tmp->kod4h), space(9), arr[i,4]+date_8(tmp->date4))
+    if verify_FF(HH, .f., sh)
+      aeval(arr_title,{|x| add_string(x) })
+    endif
+    add_string(s)
+  next
+endif
+return (len(arr) > 0)
+
+***** 15.08.19
 Function f1_f4_inf_DVN(Loc_kod,kod_kartotek) // 131
 Local i, j, k, fl, lshifr, au := {}, a7[8], ar, metap, m1gruppa, m1gruppa2 := 0,;
       mpol, fl2 := .f., fl_dispans := .f., ivozrast

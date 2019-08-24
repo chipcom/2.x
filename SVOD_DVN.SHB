@@ -88,7 +88,6 @@ $103
 #var $30 put_val(skol1,6)
 #var $300 put_val(skol2,6)
 #var $200 ltrim(str(i))+". "+arr_316[i]
-#var $201 ltrim(str(i))+". "+arr_ne[i]
 #proc formfeed(5)
 Национальный проект "Здравоохранение"
 ─────────────────────────────────────────────────┬──┬─────┬─────┬─────┬─────
@@ -137,19 +136,6 @@ $1                                                $2 $3    $4    $5    $6
       #formfeed
       #proc i := i + 1
 $200
-    #enddo
-  #endif
-
-  #if len(arr_ne) > 0
-    #proc formfeed(4)
- Список пациентов, прошедших II этап диспасеризации и, почему-то,
-             не прошедших I этап (исключены из отчёта)
-
-    #proc i := 0
-    #do while i < len(arr_ne)
-      #formfeed
-      #proc i := i + 1
-$201
     #enddo
   #endif
 #endif

@@ -4,7 +4,7 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 11.01.19 создать XML-файл по несовершеннолетним
+***** 14.08.19 создать XML-файл по несовершеннолетним
 Function mo_mzxml_N(_regim,n_file,stitle,lvozrast)
 Static oXmlDoc, _kol, ;
        arr_np := {0,1,2,3,4,5,6,7,8,9,10,11,12,15,18,24,36,48,60,72,84,96,108,120,132,144,156,168,180,192,204}
@@ -456,8 +456,8 @@ elseif _regim == 2
            endif
            ++kol_DiagnosisAfter
            if (k := ascan(arr_before, {|x| x[1] == alltrim(arr[1]) })) > 0 // был такой диагноз до осмотра
-//my_debug(,print_array(arr_before[k]))           
-//my_debug(,print_array(arr))           
+//my_debug(,print_array(arr_before[k]))
+//my_debug(,print_array(arr))
              arr[2] := 0 // выявлен впервые - безусловно поставить "нет"
              if arr_before[k,2] == 1 // Диспансерное наблюдение 1 - было установлено ранее
                arr[3] := 1 // сейчас безусловно установлено ранее
@@ -468,7 +468,7 @@ elseif _regim == 2
                  arr[3] := 2 // меняем на установлено впервые
                endif
              endif
-//my_debug(,print_array(arr))           
+//my_debug(,print_array(arr))
            endif
            oDiagnosis := oDiagnosisAfter:Add( HXMLNode():New( "diagnosis" ) )
             mo_add_xml_stroke(oDiagnosis,"mkb",arr[1])
@@ -584,6 +584,9 @@ elseif _regim == 2
      if p_tip_lu == TIP_LU_PN        // профилактика 1 и 2 этап
        arr := f4_inf_DNL_karta(1)
        arr1 := f4_inf_DNL_karta(2)
+       if (i := ascan(arr1, {|x| x[5] == 7 })) == 7 // УЗИ сердца
+         arr[i,5] := 20                             // эхокардиография
+       endif
      elseif p_tip_lu == TIP_LU_PREDN // пред.осмотры 1 и 2 этап
        arr := f4_inf_PREDN_karta(1)
        arr1 := f4_inf_PREDN_karta(2)
@@ -611,7 +614,7 @@ elseif _regim == 2
          endif
          mo_add_xml_stroke(oRecord,"result",arr1[i,3])
       next
-    endif 
+    endif
       //oOther := oIssled:Add( HXMLNode():New( "other" ) )
       //цикл oOther // дополнительные исследования
       //  oRecord := oOther:Add( HXMLNode():New( "record" ) )
@@ -774,7 +777,7 @@ do while human->k_data <= arr_m[6] .and. !eof()
   if inkey() == K_ESC
     fl_exit := .t. ; exit
   endif
-  if human_->oplata < 9  
+  if human_->oplata < 9
     lregion := space(3) ; losnov := 0
     if human->CENA_1 > 0 .and. f1pr_inog_inostr(human->kod_k,@lregion,@losnov,arr_m)
       lprofil := human_->profil
@@ -871,7 +874,7 @@ if is_task(X_PLATN)
     select HUMP
     skip
   enddo
-endif  
+endif
 if is_task(X_ORTO)
   WaitStatus("Ортопедия")
   R_Use(dir_server+"hum_ort",dir_server+"hum_ortd","HUMO")
@@ -918,7 +921,7 @@ if is_task(X_ORTO)
     select HUMO
     skip
   enddo
-endif  
+endif
 rest_box(buf)
 close databases
 if jh == 0
@@ -969,15 +972,15 @@ if empty(lregion) .and. !eq_any(left(kart_->okatog,2),'  ','00','18')
     set order to 3
     find (str(lkod,7))
     do while human->kod_k == lkod .and. !eof()
-      if between(human->k_data,arr_m[5],arr_m[6]) .and. human->CENA_1 > 0 .and. human_->oplata < 9  
+      if between(human->k_data,arr_m[5],arr_m[6]) .and. human->CENA_1 > 0 .and. human_->oplata < 9
         if human->komu == 0 .and. val(human_->smo) > 34000 .and. val(human_->smo) < 35000 // полис Волгоградский
           lregion := space(3) ; losnov := 0 ; exit                                        // не учитываем
         endif
-      endif  
+      endif
       skip
-    enddo 
+    enddo
     set order to 1
-    goto (rec) 
+    goto (rec)
   endif
 endif
 return !empty(lregion)
@@ -1019,7 +1022,7 @@ dbcreate(fr_titl, {{"name","C",255,0},;
 use (fr_titl) new alias FRT
 append blank
 frt->name := glob_mo[_MO_FULL_NAME]
-frt->period := arr_m[4]					
+frt->period := arr_m[4]
 dbcreate(fr_data,{;
         {"vid","C",15,0},;
         {"profil","C",255,0},;
@@ -1037,9 +1040,9 @@ use (cur_dir+"tmp_kart") new
 if j == 1 .or. j == 2
   set relation to kod into KART
   index on upper(kart->fio)+str(vid,1)+str(profil,3)+region+str(osnov,2)+str(ist_fin,1) to (cur_dir+"tmp_kart")
-else  
+else
   index on region+str(osnov,2)+str(ist_fin,1)+str(vid,1)+str(profil,3) to (cur_dir+"tmp_kart")
-endif  
+endif
 if j == 1 .or. j == 2
   select TMP_KART
   go top
@@ -1079,7 +1082,7 @@ if j == 1 .or. j == 2
     select TMP_KART
     skip
   enddo
-else  
+else
   dbcreate(cur_dir+"tmp1",{{"vid","N",1,0},;
                            {"profil","N",3,0},;
                            {"region","C",3,0},;
@@ -1142,7 +1145,7 @@ else
     select TMP1
     skip
   enddo
-endif  
+endif
 close databases
 rest_box(buf)
 call_fr(name_fr+lstr(j))
