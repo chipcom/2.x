@@ -2565,7 +2565,8 @@ do while !eof()
         mo_add_xml_stroke(oUSL,"TARIF"   ,'0')//lstr(mohu->U_CENA,10,2))
         mo_add_xml_stroke(oUSL,"SUMV_USL",'0')//lstr(mohu->STOIM_1,10,2))
         mo_add_xml_stroke(oUSL,"PRVS",put_prvs_to_reestr(mohu->PRVS,_NYEAR))
-        if is_telemedicina(lshifr) // не заполняется код врача
+        fl := .f.
+        if is_telemedicina(lshifr,@fl) // не заполняется код врача
           mo_add_xml_stroke(oUSL,"CODE_MD",'0')
         else
           p2->(dbGoto(mohu->kod_vr))
@@ -2575,7 +2576,9 @@ do while !eof()
           dbSelectArea(laluslf)
           find (padr(lshifr,20))
           if found()
-            if STisZF(human_->USL_OK,human_->PROFIL) .and. &laluslf.->zf == 1  // обязателен ввод зубной формулы
+            if fl // телемедицина + НМИЦ
+              mo_add_xml_stroke(oUSL,"COMENTU",mohu->zf) // код НМИЦ:факт получения результата
+            elseif STisZF(human_->USL_OK,human_->PROFIL) .and. &laluslf.->zf == 1  // обязателен ввод зубной формулы
               mo_add_xml_stroke(oUSL,"COMENTU",arr2list(STretArrZF(mohu->zf))) // формула зуба
             elseif !empty(&laluslf.->par_org) // проверим на парные операции
               mo_add_xml_stroke(oUSL,"COMENTU",mohu->zf) // парные органы

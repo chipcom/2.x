@@ -7021,8 +7021,21 @@ do case
             arr_zf, is_usluga_zf := if(nKey == K_INS, 0, tmp->is_zf),;
             pr_k_usl := {},;  // массив комплексных услуг
             tip_par_org := if(nKey == K_INS, "", tmp->par_org),;
+            tip_telemed := 0, tip_telemed2 := .f.,;
+            mnmic := space(10), m1nmic := 0, mnmic1 := space(10), m1nmic1 := 0,;
             row_dom, gl_area := {1,0,maxrow()-1,79,0}
     if nKey == K_ENTER
+      if is_telemedicina(mshifr1,@tip_telemed2)
+        tip_telemed := 1
+        if tip_telemed2
+          m1nmic := int(val(beforatnum(":",mzf)))
+          mnmic := inieditspr(A__MENUVERT, glob_nmic, m1nmic)
+          if m1nmic > 0
+            m1nmic1 := int(val(afteratnum(":",mzf)))
+            mnmic1 := inieditspr(A__MENUVERT, mm_danet, m1nmic1)
+          endif
+        endif
+      endif
       fl_date_next := is_usluga_disp_nabl(mshifr,mshifr1)
       mpar_org := ini_par_org(m1par_org,tip_par_org)
       select TMP
@@ -7058,6 +7071,7 @@ do case
     endif
     mdom := inieditspr(A__MENUVERT, mm_dom, m1dom)
     mPROFIL := padr(inieditspr(A__MENUVERT, glob_V002, m1PROFIL), 69)
+    --r1
     box_shadow(r1-1,0,maxrow()-1,79,color8,;
                iif(nKey == K_INS,"Добавление новой услуги",;
                                  "Редактирование услуги"),iif(yes_color,"RB+/B","W/N"))
@@ -7098,17 +7112,30 @@ do case
       ++ix
       @ r1+ix,2 say "Услуга" get mname_u when .f. color color14
       ++ix ; row_dom := r1+ix
-      if human_->usl_ok == 3
-       if iif(empty(mshifr), .t., DomUslugaTFOMS(iif(empty(mshifr1), mshifr, mshifr1)))
-        @ row_dom,2 say "Где оказана услуга" get mdom ;
-                    reader {|x|menu_reader(x,mm_dom,A__MENUVERT,,,.f.)} ;
-                    when iif(empty(mshifr), .t., DomUslugaTFOMS(iif(empty(mshifr1), mshifr, mshifr1)))
-       endif
-        @ row_dom,35 say "Дата след.явки для дисп.набл-ия" get mdate_next when fl_date_next
-      elseif human_->usl_ok < 3
-        @ row_dom,2 say "Органы/части тела" get mpar_org ;
-                    reader {|x|menu_reader(x,{{|k,r,c|get_par_org(r,c,k,tip_par_org)}},A__FUNCTION,,,.f.)} ;
-                    when !empty(tip_par_org)
+      @ row_dom,2 say "Где оказана услуга" get mnmic ;
+                  reader {|x|menu_reader(x,glob_nmic,A__MENUVERT,,,.f.)} ;
+                  when tip_telemed2 ;
+                  valid {|| iif(m1nmic == 0, (mnmic1 := space(10), m1nmic1 := 0), ), update_get("mnmic1") }
+      ++ix
+      @ row_dom+1,2 say " Получены ли результаты на дату окончания лечения" get mnmic1 ;
+                    reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
+                    when m1nmic > 0
+      if !tip_telemed2
+        @ row_dom  ,1 say space(78) color color1
+        @ row_dom+1,1 say space(78) color color1
+        if human_->usl_ok == 3
+         if iif(empty(mshifr), .t., DomUslugaTFOMS(iif(empty(mshifr1), mshifr, mshifr1)))
+          @ row_dom,2 say "Где оказана услуга" get mdom ;
+                      reader {|x|menu_reader(x,mm_dom,A__MENUVERT,,,.f.)} ;
+                      when iif(empty(mshifr), .t., DomUslugaTFOMS(iif(empty(mshifr1), mshifr, mshifr1)))
+         endif
+          @ row_dom,35 say "Дата след.явки для дисп.набл-ия" get mdate_next when fl_date_next
+        endif
+        if human_->usl_ok < 3
+          @ row_dom+1,2 say "Органы/части тела" get mpar_org ;
+                      reader {|x|menu_reader(x,{{|k,r,c|get_par_org(r,c,k,tip_par_org)}},A__FUNCTION,,,.f.)} ;
+                      when !empty(tip_par_org)
+        endif
       endif
       ++ix
       @ r1+ix,2 say "Профиль" get MPROFIL ;
@@ -7156,6 +7183,9 @@ do case
         Private amsg := {}
         if empty(mdate_u1)
           func_error(4,"Не введена дата оказания услуги!")
+          loop
+        elseif mdate_u1 < human->n_data .and. !(tip_telemed2 .and. m1nmic > 0)
+          func_error(4,"Введенная дата меньше даты начала лечения!")
           loop
         elseif len(pr_k_usl) == 0 .and. emptyall(mu_kod,mshifr)
           func_error(4,"Не введена услуга!")
@@ -7354,6 +7384,8 @@ do case
               mohu->kod_diag:= mkod_diag
               if is_zf_stomat == 1
                 mohu->ZF    := mzf
+              elseif tip_telemed2
+                mohu->ZF    := iif(m1nmic > 0, lstr(m1nmic)+":"+lstr(m1nmic1), "")
               else
                 mohu->ZF    := m1par_org
               endif
@@ -7388,6 +7420,8 @@ do case
             tmp->kod_diag:= mkod_diag
             if is_zf_stomat == 1
               tmp->ZF    := mzf
+            elseif tip_telemed2
+              tmp->ZF    := iif(m1nmic > 0, lstr(m1nmic)+":"+lstr(m1nmic1), "")
             else
               tmp->ZF    := m1par_org
             endif

@@ -17,7 +17,8 @@ Static mo_licensia := {;
   {'141023',2,'31',0},;  // б-ца 15
   {'801935',2,'31',0},;  // ЭКО-Москва
   {'391001',2,'31',0},;  // Камышинская гор.б-ца 1
-  {'101001',2,'13',60};   // ОКБ-1 - онкология
+  {'101001',2,'13',60},;   // ОКБ-1 - онкология
+  {'124528',2,'13',158};   // 28 п-ка - реабилитация
  }
 Local i, fl := .f.
 for i := 1 to len(mo_licensia)
@@ -1436,7 +1437,11 @@ do while mohu->kod == human->kod .and. !eof()
   endif
   mdate := c4tod(mohu->date_u)
   if !between(mdate,d1,d2)
-    aadd(ta,'услуга '+s+' ('+date_8(mdate)+') не попадает в диапазон лечения')
+    if usl_found .and. &al.->telemed == 1 .and. left(lshifr,4) == "B01." .and. mdate < d1
+      // разерешается оказывать раньше
+    else
+      aadd(ta,'услуга '+s+' ('+date_8(mdate)+') не попадает в диапазон лечения')
+    endif
   endif
   otd->(dbGoto(mohu->OTD))
   mohu->(G_RLock(forever))

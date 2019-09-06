@@ -1,4 +1,4 @@
-***** mo_regi.prg
+***** mo_regi.prg функции подзадачи "Регистратура"
 #include "inkey.ch"
 #include "..\_mylib_hbt\function.ch"
 #include "..\_mylib_hbt\edit_spr.ch"
@@ -5378,6 +5378,8 @@ else
     if !empty(kart2->MO_PR) .and. (!(old_pr == kart2->MO_PR) .or. empty(kart2->pc4))
       kart2->pc4 := date_8(kart2->DATE_PR)
     endif
+  elseif ltip_pr == 4
+    kart2->pc4 := date_8(kart2->DATE_PR)
   elseif !emptyany(lprik_mo,ldate_prik_mo) .and. lprik_mo == kart2->MO_PR
     kart2->pc4 := date_8(ldate_prik_mo)
   endif

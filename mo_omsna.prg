@@ -169,6 +169,7 @@ else
   s := "Список пациентов, по которым были другие листы учёта с диагнозом из списка"
   dbcreate(cur_dir+name_dbf,{;
     {"nn","N",6,0},;
+    {"UCHAST"   ,   "N",     2,     0},; // номер участка
     {"fio","C",50,0},;
     {"date_rogd","C",10,0},;
     {"date_lech","C",50,0},;
@@ -271,6 +272,7 @@ do while !eof()
           select TMP
           append blank
           tmp->nn := ++ii3
+          tmp->uchast := kart->uchast
           tmp->fio := human->fio
           tmp->date_rogd := full_date(human->date_r)
           tmp->date_lech := full_date(human->k_data)

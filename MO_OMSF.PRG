@@ -1793,14 +1793,16 @@ endif
 return between_shifr(_shifr,"2.78.61","2.78.86") .or. between_shifr(_shifr,"2.88.52","2.88.103") ;
                                                  .or. between_shifr(_shifr,"2.88.105","2.88.106")
 
-***** 01.11.18 является услугой телемедицины - не заполняется код врача
-Function is_telemedicina(lshifr)
+***** 05.09.19 является услугой телемедицины - не заполняется код врача
+Function is_telemedicina(lshifr,/*@*/fl2)
 Local fl := .f., tmp_select := select()
+fl2 := .f.
 select LUSLF
 if fieldnum("telemed") > 0
   find (padr(lshifr,20))
   if found() .and. alltrim(lshifr) == alltrim(luslf->shifr) .and. luslf->telemed == 1
     fl := .t.
+    fl2 := (left(luslf->shifr,4) == "B01.")
   endif
 endif
 select (tmp_select)
@@ -1876,7 +1878,7 @@ if valtype(a) == "A"
 endif
 return {ret,rets}
 
-***** 17.12.18 функция для when и valid при вводе услуг в лист учёта
+***** 05.09.19 функция для when и valid при вводе услуг в лист учёта
 Function f5editkusl(get,when_valid,k)
 Local fl := .t., s, i, lu_cena, lshifr1, v, old_kod, amsg, fl1, fl2, ;
       msg1_err := "Код врача равен коду ассистента! Это недопустимо.",;
@@ -1902,7 +1904,8 @@ if when_valid == 1    // when
 else  // valid
   if k == 1     // Дата оказания услуги
     if !emptyany(human->n_data,mdate_u1) .and. mdate_u1 < human->n_data
-      fl := func_error(4,"Введенная дата меньше даты начала лечения!")
+      //fl := func_error(4,"Введенная дата меньше даты начала лечения!")
+      func_error(4,"Введенная дата меньше даты начала лечения!")
     elseif !emptyany(human->k_data,mdate_u1) .and. mdate_u1 > human->k_data
       fl := func_error(4,"Введенная дата больше даты окончания лечения!")
     endif
@@ -1974,7 +1977,9 @@ else  // valid
         is_usluga_zf := luslf->zf
         tip_onko_napr := luslf->onko_napr
         tip_onko_ksg := luslf->onko_ksg
-        tip_telemed := luslf->telemed
+        if (tip_telemed := luslf->telemed) == 1
+          tip_telemed2 := (left(mshifr,4) == "B01.")
+        endif
         tip_par_org := luslf->par_org
         fl1 := .t.
         select MOSU
@@ -2019,7 +2024,9 @@ else  // valid
               is_usluga_zf := luslf->zf
               tip_onko_napr := luslf->onko_napr
               tip_onko_ksg := luslf->onko_ksg
-              tip_telemed := luslf->telemed
+              if (tip_telemed := luslf->telemed) == 1
+                tip_telemed2 := (left(mshifr1,4) == "B01.")
+              endif
               tip_par_org := luslf->par_org
             endif
           else // Старая стоматология 2016
@@ -2031,16 +2038,25 @@ else  // valid
       if fl1
         mn_base := 1
         mstoim_1 := mu_cena := 0
-        if is_telemedicina(mshifr1) // является услугой телемедицины - не заполняется код врача
+        if is_telemedicina(mshifr1,@tip_telemed2) // является услугой телемедицины - не заполняется код врача
+          tip_telemed := 1
           mis_edit := -1
         endif
         mis_nul := .t.
         mkol := mkol_1 := 1
         verify_uva(2)
         update_gets()
-        if type("row_dom") == "N" .and. empty(tip_par_org)
-          m1dom := 0 ; mdom := space(20)
-          @ row_dom,1 say space(78) color color1
+        if type("row_dom") == "N"
+          if empty(tip_par_org)
+            m1dom := 0 ; mdom := space(20)
+            @ row_dom+1,1 say space(78) color color1
+          endif
+          if tip_telemed2
+            @ row_dom,2 say "Где оказана услуга" color color1
+            @ row(),col()+1 say padr(mnmic,58) color color13
+            @ row_dom+1,2 say " Получены ли результаты на дату окончания лечения" color color1
+            @ row(),col()+1 say padr(mnmic1,27) color color13
+          endif
         endif
         return fl  // !!!!!!!!!!!!!!!!!!!!!
       endif
@@ -2051,7 +2067,7 @@ else  // valid
         return fl
       endif
       if fl2
-        fl := func_error(4,"Данную СТОМАТОЛОГИЧЕСКУЮ услугу запрещено вводить после 2016г!")
+        fl := func_error(4,"Данную СТОМАТОЛОГИЧЕСКУЮ услугу запрещено вводить после 2016 года!")
       else // теперь проверим по старому алгоритму
         select USL
         set order to 1
@@ -2108,11 +2124,11 @@ else  // valid
               eval(blk_sum)
               verify_uva(2)
               update_gets()
-              if type("row_dom") == "N" .and. !DomUslugaTFOMS(iif(empty(lshifr1), usl->shifr, lshifr1))
+              if type("row_dom") == "N" .and. !DomUslugaTFOMS(iif(empty(lshifr1), usl->shifr, lshifr1)) .and. !tip_telemed2
                 m1dom := 0 ; mdom := space(20)
                 @ row_dom,1 say space(34) color color1
               endif
-              if type("row_dom") == "N" .and. !fl_date_next
+              if type("row_dom") == "N" .and. !fl_date_next .and. !tip_telemed2
                 mdate_next := ctod("")
                 @ row_dom,35 say space(42) color color1
               endif
