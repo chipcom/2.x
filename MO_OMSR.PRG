@@ -4528,7 +4528,9 @@ do while !eof()
       endif
       if fl
         ++iprov
-        if !fl_view .and. human->ishod != 88 //  // это не 1-ый л/у в двойном случае
+        if !fl_view .and. tmp->nmonth == 9 .and. human_->USL_OK == 1
+          // стационар в сентябре пока закрыт
+        elseif !fl_view .and. human->ishod != 88 //  // это не 1-ый л/у в двойном случае
           select TMPB
           find (str(human->kod,7))
           if !found()
@@ -4584,56 +4586,6 @@ if !fl_view
   select HUMAN
   set index to
   G_Use(dir_server+"human_3",{dir_server+"human_3",dir_server+"human_32"},"HUMAN_3")
-  /*
-  // сначала проверяем случаи, которые оба закончились в отчётном месяце
-  select TMPB
-  index on str(kod_human,7) to (cur_dir+"tmpb") for ishod == 88  // 1-ый лист учёта в двойном случае
-  go top
-  do while !eof()
-    select HUMAN_3
-    find (str(tmpb->kod_human,7))
-    if found()
-      select HUMAN
-      goto (tmpb->kod_human)
-      ln_data := human->n_data
-      lk_data := human->k_data
-      ldiag := human->kod_diag
-      lcena := human->cena_1
-      pz := human_->PZKOL
-      select HUMAN
-      goto (human_3->kod2)
-      if human->k_data <= arr_m[6] ; // если 2-ой л/у также заканчивается в текущем месяце
-                 .and. human_->ST_VERIFY >= 5 // если 2-ой л/у также прошёл проверку
-        lk_data := human->k_data
-        lcena += human->cena_1
-        pz += human_->PZKOL
-        select HUMAN_3
-        G_RLock(forever)
-        human_3->N_DATA    := ln_data
-        human_3->K_DATA    := lk_data
-        human_3->CENA_1    := lcena
-        human_3->RSLT_NEW  := human_->RSLT_NEW
-        human_3->ISHOD_NEW := human_->ISHOD_NEW
-        human_3->VNR1      := human_2->VNR1
-        human_3->VNR2      := human_2->VNR2
-        human_3->VNR3      := human_2->VNR3
-        human_3->PZKOL     := pz
-        human_3->ST_VERIFY := 5
-        tmpb->n_data := ln_data
-        tmpb->k_data := lk_data
-        tmpb->cena_1 := lcena
-        tmpb->PZKOL := pz
-      else
-        tmpb->tip := 0 //p_tip_reestr
-        kol_1r--
-      endif
-    else
-      tmpb->tip := 0 //p_tip_reestr
-      kol_1r--
-    endif
-    select TMPB
-    skip
-  enddo*/
   // проверяем случаи, где 2-ой случай закончился в текущем отчётном месяце, а 1-ый - неважно
   select HUMAN_3
   set order to 2 // встать на индекс по 2-му случаю
