@@ -111,7 +111,7 @@ Local r1, r2, n := 4, buf, tmp_keys, tmp_list, tmp_color
   restscreen(buf)
 return {0,"Количество направлений - "+lstr(count_napr)}
 
-***** 02.07.19 ДВН - добавление или редактирование случая (листа учета)
+***** 09.09.19 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_DVN(Loc_kod,kod_kartotek,f_print)
 // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
 // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -943,6 +943,10 @@ do while .t.
               m1g_cit := 1 // начальное присвоение
             endif
             mg_cit := inieditspr(A__MENUVERT, mm_g_cit, m1g_cit)
+            if mk_data > 0d20190831
+              fl_g_cit := .f.
+              m1g_cit := 1 // в МО
+            endif
           elseif !is_disp_19 .and. glob_yes_kdp2[TIP_LU_DVN] .and. ascan(glob_arr_usl_LIS,dvn_arr_usl[i,2]) > 0
             fl_kdp2 := .t.
           endif

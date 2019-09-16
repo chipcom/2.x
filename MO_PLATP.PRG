@@ -4871,7 +4871,11 @@ R_Use(dir_server+"kartotek",,"KART")
 R_Use(dir_server+"uslugi",,"USL")
 R_Use(dir_server+"hum_p_u",dir_server+"hum_p_u","HPU")
 R_Use(dir_server+"hum_p",,"HU")
-index on pdate+str(kv_cia,6) to (cur_dir+"tmp_hum") for between(pdate,arr_m[7],arr_m[8])
+if glob_mo[_MO_KOD_TFOMS] == '171004' // äÅ-4
+  index on dtos(N_data)+str(kv_cia,6) to (cur_dir+"tmp_hum") for between(N_data,arr_m[5],arr_m[6])
+else
+  index on pdate+str(kv_cia,6) to (cur_dir+"tmp_hum") for between(pdate,arr_m[7],arr_m[8])
+endif
 set index to (dir_server+"hum_pkk"),(cur_dir+"tmp_hum")
 set order to 2
 //

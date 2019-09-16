@@ -2035,10 +2035,15 @@ else  // valid
           endif
         endif
       endif
-      if fl1
+      if type("is_oncology") == "N"
+        if !fl1
+          fl := func_error(4,"Такого шифра ("+alltrim(mshifr)+") нет в базе данных услуг.")
+        endif
+        return fl
+      elseif fl1
         mn_base := 1
         mstoim_1 := mu_cena := 0
-        if is_telemedicina(mshifr1,@tip_telemed2) // является услугой телемедицины - не заполняется код врача
+        if type("tip_telemed2") .and. is_telemedicina(mshifr1,@tip_telemed2) // является услугой телемедицины - не заполняется код врача
           tip_telemed := 1
           mis_edit := -1
         endif
@@ -2051,7 +2056,7 @@ else  // valid
             m1dom := 0 ; mdom := space(20)
             @ row_dom+1,1 say space(78) color color1
           endif
-          if tip_telemed2
+          if type("tip_telemed2") .and. tip_telemed2
             @ row_dom,2 say "Где оказана услуга" color color1
             @ row(),col()+1 say padr(mnmic,58) color color13
             @ row_dom+1,2 say " Получены ли результаты на дату окончания лечения" color color1
@@ -2059,12 +2064,6 @@ else  // valid
           endif
         endif
         return fl  // !!!!!!!!!!!!!!!!!!!!!
-      endif
-      if type("is_oncology") == "N"
-        if !empty(mshifr)
-          fl := func_error(4,"Такого шифра нет в базе данных услуг.")
-        endif
-        return fl
       endif
       if fl2
         fl := func_error(4,"Данную СТОМАТОЛОГИЧЕСКУЮ услугу запрещено вводить после 2016 года!")

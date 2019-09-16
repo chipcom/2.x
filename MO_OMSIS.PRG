@@ -1470,7 +1470,7 @@ close databases
 viewtext(n_file,,,,(sh > 80),,,reg_print)
 return NIL
 
-***** 18.02.19 многовариантный поиск
+***** 15.09.19 многовариантный поиск
 Function s_mnog_poisk()
 Static mm_rak := {;
   {"все случаи",0},;
@@ -1507,6 +1507,7 @@ Static mm_regschet := {{"Не зарегистрированные счета",1},{"Зарегистрированные сч
 Static mm_schet := {{"Не попавшие в счета",1},{"Попавшие в счета",2}}
 Static mm_reestr := {{"Не попавшие в реестры",1},{"Попавшие в реестры",2}}
 Static mm_zav_lech := {{"Незаконченный случай",1},{"законченный случай",2}}
+Static mm_dvojn := {{"все случаи",1},{"только двойные случаи",2},{"все, кроме двойных случаев",3}}
 Local mm_tmp := {}, k, adiag_talon[16]
 Local buf := savescreen(), tmp_color := setcolor(cDataCGet),;
       tmp_help := help_code, hGauge, name_file := "in_boln"+stxt,;
@@ -1655,6 +1656,14 @@ aadd(mm_tmp, {"d_p_m","N",10,0,NIL,;
               {|x|menu_reader(x,mm_d_p_m,A__MENUBIT)},;
               0,{|x|inieditspr(A__MENUBIT,mm_d_p_m,x)},;
               "Диспансеризация/Профилактика/Медосмотр?"})
+aadd(mm_tmp, {"dvojn","N",1,0,NIL,;
+              {|x|menu_reader(x,mm_dvojn,A__MENUVERT)},;
+              1,{|x|inieditspr(A__MENUVERT,mm_dvojn,x)},;
+              "Учитывать двойные случаи?"})
+aadd(mm_tmp, {"zno","N",1,0,NIL,;
+              {|x|menu_reader(x,mm_da_net,A__MENUVERT)},;
+              0,{|| space(10) },;
+              "Признак подозрения на ЗНО?"})
 aadd(mm_tmp, {"kol_lu","N",2,0,,;
               nil,;
               0,nil,;
@@ -1945,6 +1954,14 @@ aadd(mm_tmp, {"slug_usl","N",3,0,NIL,;
                 { { |k,r,c| get_slugba(k,r,c) }},A__FUNCTION)},;
               0,{|| space(10) },;
               "Служба, в которой оказана услуга" })
+aadd(mm_tmp, {"srok_min","N",3,0,,;
+              nil,;
+              0,nil,;
+              "Срок лечения (минимальный)"})
+aadd(mm_tmp, {"srok_max","N",3,0,,;
+              nil,;
+              0,nil,;
+              "Срок лечения (максимальный)"})
 aadd(mm_tmp, {"summa_min","N",10,2,,;
               nil,;
               0,nil,;
@@ -2160,6 +2177,7 @@ if k > 0
   R_Use(dir_server+"kartotek",,"KART")
   set relation to recno() into KART_, recno() into KART2
   //
+  R_Use(dir_server+"human_3",{dir_server+"human_3",dir_server+"human_32"},"HUMAN_3")
   R_Use(dir_server+"human_",,"HUMAN_")
   R_Use(dir_server+"human",,"HUMAN")
   set relation to recno() into HUMAN_
@@ -2321,6 +2339,7 @@ if k > 0
     R_Use(dir_server+"kartotek",,"KART")
     set relation to recno() into KART_, to recno() into KART2
     R_Use(dir_server+"mo_onksl",dir_server+"mo_onksl","ONKSL") // Сведения о случае лечения онкологического заболевания
+    R_Use(dir_server+"human_3",{dir_server+"human_3",dir_server+"human_32"},"HUMAN_3")
     R_Use(dir_server+"human_2",,"HUMAN_2")
     R_Use(dir_server+"human_",,"HUMAN_")
     R_Use(dir_server+"human",dir_server+"humank","HUMAN")
@@ -2367,6 +2386,12 @@ if k > 0
         add_string(padl(alltrim(a_diagnoz[i]),sh))
       next
     endif
+    if mn->dvojn > 1
+      add_string("Двойные случаи: "+inieditspr(A__MENUVERT, mm_dvojn, mn->dvojn))
+    endif
+    if mn->zno == 2
+      add_string("Признак подорения на злокачественное новообразование: да")
+    endif
     if mn->kol_lu > 0
       add_string("Количество листов учета по одному больному более "+lstr(mn->kol_lu))
     endif
@@ -2382,23 +2407,19 @@ if k > 0
       endif
     endif
     if glob_mo[_MO_IS_UCH] .and. !empty(mn->o_prik)
-      add_string("Отношение к прикреплению: "+;
-                 inieditspr(A__MENUVERT, mm_prik, mn->o_prik))
+      add_string("Отношение к прикреплению: "+inieditspr(A__MENUVERT, mm_prik, mn->o_prik))
     endif
     if !empty(mfio)
       add_string("ФИО: "+mfio)
     endif
     if mn->inostran > 0
-      add_string("Документы иностранных граждан: "+;
-                 inieditspr(A__MENUVERT, mm_da_net, mn->inostran))
+      add_string("Документы иностранных граждан: "+inieditspr(A__MENUVERT, mm_da_net, mn->inostran))
     endif
     if mn->gorod_selo > 0
-      add_string("Житель: "+;
-                 inieditspr(A__MENUVERT, mm_g_selo, mn->gorod_selo))
+      add_string("Житель: "+inieditspr(A__MENUVERT, mm_g_selo, mn->gorod_selo))
     endif
     if mn->mi_git > 0
-      add_string("Место жительства: "+;
-                 inieditspr(A__MENUVERT, mm_mest, mn->mi_git))
+      add_string("Место жительства: "+inieditspr(A__MENUVERT, mm_mest, mn->mi_git))
     endif
     if !empty(mn->_okato)
       add_string("Адрес регистрации (ОКАТО): "+ret_okato_ulica('',mn->_okato))
@@ -2410,19 +2431,16 @@ if k > 0
       add_string("Место работы: "+mmr_dol)
     endif
     if is_talon .and. mn->kategor > 0
-      add_string("Код категории льготы: "+;
-                 inieditspr(A__MENUVERT, stm_kategor, mn->kategor))
+      add_string("Код категории льготы: "+inieditspr(A__MENUVERT, stm_kategor, mn->kategor))
     endif
     if is_talon .and. is_kategor2 .and. mn->kategor2 > 0
-      add_string("Категория МО: "+;
-                 inieditspr(A__MENUVERT, stm_kategor2, mn->kategor2))
+      add_string("Категория МО: "+inieditspr(A__MENUVERT, stm_kategor2, mn->kategor2))
     endif
     if !empty(mn->pol)
       add_string("Пол: "+mn->pol)
     endif
     if mn->vzros_reb >= 0
-      add_string("Возрастная принадлежность: "+;
-                 inieditspr(A__MENUVERT, menu_vzros, mn->vzros_reb))
+      add_string("Возрастная принадлежность: "+inieditspr(A__MENUVERT, menu_vzros, mn->vzros_reb))
     endif
     if !empty(mn->god_r_min) .or. !empty(mn->god_r_max)
       if empty(mn->god_r_min)
@@ -2430,8 +2448,7 @@ if k > 0
       elseif empty(mn->god_r_max)
         add_string("Лица, родившиеся после "+full_date(mn->god_r_min))
       else
-        add_string("Лица, родившиеся с "+;
-                   full_date(mn->god_r_min)+" по "+full_date(mn->god_r_max))
+        add_string("Лица, родившиеся с "+full_date(mn->god_r_min)+" по "+full_date(mn->god_r_max))
       endif
     endif
     if mn->rab_nerab >= 0
@@ -2467,8 +2484,7 @@ if k > 0
                  inieditspr(A__MENUVERT, stm_travma, mn->travma))
     endif*/
     if mn->bolnich1 > 0
-      add_string("Больничный: "+;
-                 inieditspr(A__MENUVERT, menu_bolnich, mn->bolnich1))
+      add_string("Больничный: "+inieditspr(A__MENUVERT, menu_bolnich, mn->bolnich1))
     endif
     if mn->bolnich > 0
       add_string("Кол-во дней на больничном более "+lstr(mn->bolnich))
@@ -2506,20 +2522,25 @@ if k > 0
     endif
     f_put_tal_diag()  // вывод информации о характере, диспансеризации...
     if yes_h_otd == 1 .and. mn->otd > 0
-      add_string("Отделение, в котором выписан счет: "+;
-                 inieditspr(A__POPUPMENU, dir_server+"mo_otd", mn->otd))
+      add_string("Отделение, в котором выписан счет: "+inieditspr(A__POPUPMENU, dir_server+"mo_otd", mn->otd))
     endif
     if mn->ist_fin >= 0
-      add_string("Источник финансирования "+;
-                 inieditspr(A__MENUVERT, mm_ist_fin, mn->ist_fin))
+      add_string("Источник финансирования "+inieditspr(A__MENUVERT, mm_ist_fin, mn->ist_fin))
     endif
     if mn->komu >= 0
-      add_string("Принадлежность счёта: "+;
-                 inieditspr(A__MENUVERT, mm_komu, mn->komu))
+      add_string("Принадлежность счёта: "+inieditspr(A__MENUVERT, mm_komu, mn->komu))
 
       if mn->company > 0
-        add_string("  ==> "+;
-                   inieditspr(A__MENUVERT, mm_company, mn->company))
+        add_string("  ==> "+inieditspr(A__MENUVERT, mm_company, mn->company))
+      endif
+    endif
+    if mn->srok_min > 0 .or. mn->srok_max > 0
+      if empty(mn->srok_min)
+        add_string("Срок лечения (максимальный) "+lstr(mn->srok_max)+" дн.")
+      elseif empty(mn->srok_max)
+        add_string("Срок лечения (минимальный) "+lstr(mn->srok_min)+" дн.")
+      else
+        add_string("Срок лечения от "+lstr(mn->srok_min)+" до "+lstr(mn->srok_max)+" дн.")
       endif
     endif
     if mn->summa_min > 0 .or. mn->summa_max > 0
@@ -2528,17 +2549,14 @@ if k > 0
       elseif empty(mn->summa_max)
         add_string("Стоимость лечения более "+lstr(mn->summa_min,10,2))
       else
-        add_string("Стоимость лечения в диапазоне от "+;
-                   lstr(mn->summa_min,10,2)+" до "+lstr(mn->summa_max,10,2))
+        add_string("Стоимость лечения в диапазоне от "+lstr(mn->summa_min,10,2)+" до "+lstr(mn->summa_max,10,2))
       endif
     endif
     if mn->dom > 0
-      add_string("Где оказана услуга: "+;
-                 inieditspr(A__MENUVERT, mm_dom, mn->dom))
+      add_string("Где оказана услуга: "+inieditspr(A__MENUVERT, mm_dom, mn->dom))
     endif
     if mn->otd_usl > 0
-      add_string("Отделение, в котором оказана услуга: "+;
-                 inieditspr(A__POPUPMENU, dir_server+"mo_otd", mn->otd_usl))
+      add_string("Отделение, в котором оказана услуга: "+inieditspr(A__POPUPMENU, dir_server+"mo_otd", mn->otd_usl))
     endif
     if mn->vr1 > 0
       add_string("Врач, оказавший услугу(и): "+alltrim(mn->vr))
@@ -2652,6 +2670,20 @@ if k > 0
       is_oncology := f_is_oncology(1)
       k_diagnoz := k_usl := 0
       afill(tt_diagnoz,"") ; afill(tt_usl,"")
+      //
+      is_2 := .f. ; rec_1 := 0
+      mn_data := human->n_data
+      if human->ishod == 89
+        select HUMAN_3
+        set order to 2 // встать на индекс по 2-му случаю
+        find (str(human->kod,7))
+        if found()
+          mn_data := human_3->N_DATA
+          is_2 := .t.
+          rec_1 := human_3->KOD
+        endif
+      endif
+      //
       s1 := left(human->fio,40)
       kart->(dbGoto(human->kod_k))
       if mem_kodkrt == 2
@@ -2709,11 +2741,11 @@ if k > 0
       endif
       //
       if isbit(mn->vid_doc,3)
-        if human->n_data == human->k_data
+        if mn_data == human->k_data
           s1 += " "+date_8(human->k_data)
           s2 += space(9)
         else
-          s1 += " с"+left(date_8(human->n_data),5)+"по"
+          s1 += " с"+left(date_8(mn_data),5)+"по"
           s2 += " "+date_8(human->k_data)
         endif
         s3 += space(9)
@@ -2789,41 +2821,49 @@ if k > 0
       //
       if isbit(mn->vid_doc,8)
         tmp1 := "" ; aup := {}
-        Select HU
-        find (str(human->kod,7))
-        do while hu->kod == human->kod .and. !eof()
-          if hu->kol_1 > 0
-            Select USL
-            goto (hu->u_kod)
-            //if empty(l1 := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data))
-              l1 := usl->shifr
-            //endif
-            l3 := ""//iif(hu->is_edit > 1, "[-"+lstr(hu->is_edit)+"%]", "")
-            if (i := ascan(aup, {|x| x[1]==l1 .and. x[3]==l3} )) == 0
-              aadd(aup, {l1,0,l3}) ; i := len(aup)
+        ar := {human->kod}
+        if is_2
+          Ins_Array(ar,1,rec_1)
+        endif
+        for j := 1 to len(ar)
+          Select HU
+          find (str(ar[j],7))
+          do while hu->kod == ar[j] .and. !eof()
+            if hu->kol_1 > 0
+              Select USL
+              goto (hu->u_kod)
+              //if empty(l1 := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data))
+                l1 := usl->shifr
+              //endif
+              l3 := ""//iif(hu->is_edit > 1, "[-"+lstr(hu->is_edit)+"%]", "")
+              if (i := ascan(aup, {|x| x[1]==l1 .and. x[3]==l3} )) == 0
+                aadd(aup, {l1,0,l3}) ; i := len(aup)
+              endif
+              aup[i,2] += hu->kol_1
             endif
-            aup[i,2] += hu->kol_1
-          endif
-          select HU
-          Skip
-        enddo
+            select HU
+            Skip
+          enddo
+        next j
         asort(aup,,,{|x,y| fsort_usl(x[1]) < fsort_usl(y[1]) } )
-        Select MOHU
-        find (str(human->kod,7))
-        do while mohu->kod == human->kod .and. !eof()
-          if !empty(mohu->kol_1)
-            Select MOSU
-            goto (mohu->u_kod)
-            l1 := iif(empty(mosu->shifr), mosu->shifr1, mosu->shifr)
-            l3 := ""
-            if (i := ascan(aup, {|x| x[1]==l1 .and. x[3]==l3} )) == 0
-              aadd(aup, {l1,0,l3}) ; i := len(aup)
-            endif
-            aup[i,2] += mohu->kol_1
-          endif
+        for j := 1 to len(ar)
           Select MOHU
-          Skip
-        enddo
+          find (str(ar[j],7))
+          do while mohu->kod == ar[j] .and. !eof()
+            if !empty(mohu->kol_1)
+              Select MOSU
+              goto (mohu->u_kod)
+              l1 := iif(empty(mosu->shifr), mosu->shifr1, mosu->shifr)
+              l3 := ""
+              if (i := ascan(aup, {|x| x[1]==l1 .and. x[3]==l3} )) == 0
+                aadd(aup, {l1,0,l3}) ; i := len(aup)
+              endif
+              aup[i,2] += mohu->kol_1
+            endif
+            Select MOHU
+            Skip
+          enddo
+        next j
         if mn->uslugi > 0
           bup := {}
           for i := 1 to len(arr_usl)
@@ -2924,6 +2964,9 @@ if k > 0
           add_string(s3)
         next
       endif
+      if is_2
+        add_string(space(5)+"! Это двойной случай !")
+      endif
       select TMP
       skip
     enddo
@@ -2970,11 +3013,11 @@ if k == 1
 endif
 return fl
 
-***** 16.04.18
+***** 15.09.19
 Static Function s1_mnog_poisk(cv,cf)
 Static a_stom_vp := {{},{},{}}
 Local i, j, k, n, s, arr, fl := .t., flu := .f., mkol, mstoim := 0, fl1, fl2, vid_vp := 1,;
-      au := {}, au_lu := {}, au_flu := {},;
+      au := {}, au_lu := {}, au_flu := {}, msumma, mn_data, rec_1 := 0, is_2 := .f.,;
       mrak_p := 0, mrak_s := 0, d, lshifr, muet := 0, god_r, arr1, adiag_talon[16]  // из статталона к диагнозам
 if empty(a_stom_vp[1])
   f_vid_p_stom({},{},a_stom_vp[1],{1})
@@ -2982,7 +3025,31 @@ if empty(a_stom_vp[1])
   f_vid_p_stom({},{},a_stom_vp[3],{3})
 endif
 ++cv
+mn_data := human->n_data
+msumma := human->cena_1
 kart->(dbGoto(human->kod_k))
+if fl
+  if mn->dvojn == 1
+    fl := (human->ishod != 88)
+  elseif mn->dvojn == 2
+    fl := (human->ishod == 89)
+  elseif mn->dvojn == 3
+    fl := !eq_any(human->ishod,88,89)
+  endif
+  if fl
+    if human->ishod == 89
+      select HUMAN_3
+      set order to 2 // встать на индекс по 2-му случаю
+      find (str(human->kod,7))
+      if found()
+        mn_data := human_3->N_DATA
+        msumma := human_3->CENA_1
+        rec_1 := human_3->KOD
+        is_2 := .t.
+      endif
+    endif
+  endif
+endif
 if fl .and. mn->date_lech > 0 .and. p_regim != 1
   fl := between(human->k_data,pdate_lech[5],pdate_lech[6])
 endif
@@ -3117,6 +3184,9 @@ if fl .and. mn->d_p_m > 0
   if !fl .and. isbit(mn->d_p_m,14) // периодический осмотр несовершеннолетних",12};
     fl := (human->ishod == 305)
   endif
+endif
+if fl .and. mn->zno == 2
+  fl := (human->OBRASHEN == '1')
 endif
 if fl .and. !empty(much_doc)
   fl := like(much_doc,human->uch_doc)
@@ -3430,73 +3500,90 @@ if fl .and. mn->komu >= 0
     if mn->komu == 0
       fl := !empty(human_->smo)
     else
-      fl := (mn->komu==human->komu)
+      fl := (mn->komu == human->komu)
     endif
   elseif mn->komu == 0
     if human->schet > 0
       if schet->kod != human->schet
         schet->(dbGoto(human->schet))
       endif
-      fl := (int(val(schet_->smo))==mn->company)
+      fl := (int(val(schet_->smo)) == mn->company)
     else
-      fl := (int(val(cut_code_smo(human_->smo)))==mn->company)
+      fl := (int(val(cut_code_smo(human_->smo))) == mn->company)
     endif
   else
-    fl := (mn->komu==human->komu .and. mn->company==human->str_crb)
+    fl := (mn->komu == human->komu .and. mn->company == human->str_crb)
   endif
 endif
+k := human->k_data - mn_data + 1
+if fl .and. mn->srok_min > 0
+  fl := (mn->srok_min <= k)
+endif
+if fl .and. mn->srok_max > 0
+  fl := (k <= mn->srok_max)
+endif
 if fl .and. mn->summa_min > 0
-  fl := (mn->summa_min <= human->cena_1)
+  fl := (mn->summa_min <= msumma)
 endif
 if fl .and. mn->summa_max > 0
-  fl := (human->cena_1 <= mn->summa_max)
+  fl := (msumma <= mn->summa_max)
 endif
 fl1 := fl2 := .t.
 if fl
   if flag_hu .or. flag_huF
-    select HU
-    find (str(human->kod,7))
-    do while hu->kod == human->kod .and. !eof()
-      lshifr1 := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data)
-      if f_paraklinika(usl->shifr,lshifr1,human->k_data)
-        lshifr := alltrim(iif(empty(lshifr1), usl->shifr, lshifr1))
-        aadd(au_lu,{lshifr,;              // 1
-                    c4tod(hu->date_u),;               // 2
-                    hu_->profil,;         // 3
-                    hu_->PRVS,;           // 4
-                    alltrim(usl->shifr),; // 5
-                    hu->kol_1,;           // 6
-                    c4tod(hu_->date_u2),;     // 7
-                    hu_->kod_diag,;       // 8
-                    hu->(recno()),;       // 9 - номер записи
-                    hu->is_edit})         // 10
-        if flag_hu
-          aadd(au,{1,hu->(recno()),len(au_lu)})
-        endif
-      endif
+    ar := {human->kod}
+    if is_2
+      Ins_Array(ar,1,rec_1)
+    endif
+  endif
+  if flag_hu
+    for i := 1 to len(ar)
       select HU
-      skip
-    enddo
+      find (str(ar[i],7))
+      do while hu->kod == ar[i] .and. !eof()
+        lshifr1 := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data)
+        if f_paraklinika(usl->shifr,lshifr1,human->k_data)
+          lshifr := alltrim(iif(empty(lshifr1), usl->shifr, lshifr1))
+          aadd(au_lu,{lshifr,;              // 1
+                      c4tod(hu->date_u),;               // 2
+                      hu_->profil,;         // 3
+                      hu_->PRVS,;           // 4
+                      alltrim(usl->shifr),; // 5
+                      hu->kol_1,;           // 6
+                      c4tod(hu_->date_u2),;     // 7
+                      hu_->kod_diag,;       // 8
+                      hu->(recno()),;       // 9 - номер записи
+                      hu->is_edit})         // 10
+          if flag_hu
+            aadd(au,{1,hu->(recno()),len(au_lu)})
+          endif
+        endif
+        select HU
+        skip
+      enddo
+    next i
   endif
   if flag_huF
-    select MOHU
-    find (str(human->kod,7))
-    do while mohu->kod == human->kod .and. !eof()
-      Select MOSU
-      goto (mohu->u_kod)
-      aadd(au_flu,{mosu->shifr1,;         // 1
-                   c4tod(mohu->date_u),;  // 2
-                   mohu->profil,;         // 3
-                   mohu->PRVS,;           // 4
-                   mosu->shifr,;          // 5
-                   mohu->kol_1,;          // 6
-                   c4tod(mohu->date_u2),; // 7
-                   mohu->kod_diag,;       // 8
-                   mohu->(recno())})      // 9 - номер записи
-      aadd(au,{2,mohu->(recno()),len(au_flu)})
+    for i := 1 to len(ar)
       select MOHU
-      skip
-    enddo
+      find (str(ar[i],7))
+      do while mohu->kod == ar[i] .and. !eof()
+        Select MOSU
+        goto (mohu->u_kod)
+        aadd(au_flu,{mosu->shifr1,;         // 1
+                     c4tod(mohu->date_u),;  // 2
+                     mohu->profil,;         // 3
+                     mohu->PRVS,;           // 4
+                     mosu->shifr,;          // 5
+                     mohu->kol_1,;          // 6
+                     c4tod(mohu->date_u2),; // 7
+                     mohu->kod_diag,;       // 8
+                     mohu->(recno())})      // 9 - номер записи
+        aadd(au,{2,mohu->(recno()),len(au_flu)})
+        select MOHU
+        skip
+      enddo
+    next i
     if mn->kol_pos == 2
       k := 0
       f_vid_p_stom(au_lu,{},,,human->k_data,@vid_vp,@k,,au_flu)
@@ -3682,7 +3769,7 @@ if fl
       fl := .f.
     endif
   else
-    mstoim := human->cena_1
+    mstoim := msumma
   endif
 endif
 if fl

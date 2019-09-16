@@ -1245,7 +1245,7 @@ else
   adbf := {{"name_u", "C",128,0},;
            {"vrach",  "C", 40,0},;
            {"u_cena", "N", 10,2},;
-           {"vz_cena","N",  9,3},; 
+           {"vz_cena","N",  9,3},;
            {"kol1",   "N",  5,1},;
            {"nds20",  "N",  1,0},; //10.08.08
            {"nds18",  "N",  1,0},; //10.08.08
@@ -1278,7 +1278,7 @@ else
       // заносим возврат
       select HO
       G_RLock(forever)
-      ho->date_voz   := dtoc4(ldate_voz)
+      ho->date_voz   := lfr_data //dtoc4(ldate_voz)
       ho->sum_voz    := summa_oplat
       ho->VZFR_DATA  := lfr_data
       ho->VZFR_TIME  := lfr_time

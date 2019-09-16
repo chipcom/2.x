@@ -4544,7 +4544,7 @@ do while hu->kod == kod_h .and. !eof()
     lshifr := usl->shifr
   endif
   lshifr := alltrim(lshifr)
-  if eq_any(left(lshifr,5),"70.3.","72.1.","2.90.")
+  if !eq_any(left(lshifr,5),"70.3.","70.7.","72.1.","72.5.","72.6.","72.7.","2.90.")
     mshifr_zs := lshifr
   else
     fl := .t.
@@ -4780,7 +4780,7 @@ if sgod >= 2019 .and. !fl
 endif
 return arr
 
-***** 15.08.19 форма 131
+***** 15.09.19 форма 131
 Function f4_inf_DVN(par)
 Static arr_v := {"21-36 лет","39-60 лет","старше 60 лет"}
 Local arr_m, buf := save_maxrow(), s, as := {}, ar, sh := 80, HH := 80, n, ;
@@ -5552,11 +5552,11 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
     add_string("")
     add_string(center("Отчёт о работе врачей-терапевтов по диспансеризации",sh))
     add_string("")
-    add_string("──────────────────────────────────────────────┬──────┬──────")
-    add_string("                                              │прошло│прошло")
-    add_string("     Врач                                     │1 этап│2 этап")
-    add_string("                                              │(чел.)│(чел.)")
-    add_string("──────────────────────────────────────────────┴──────┴──────")
+    add_string("──────────────────────────────────────────────┬──────┬──────┬──────┬──────")
+    add_string("                                              │прошло│прошло│прошло│прошло")
+    add_string("     Врач                                     │1 этап│2 этап│проф- │дисп-ю")
+    add_string("                                              │(чел.)│(чел.)│осмотр│1р.в2г")
+    add_string("──────────────────────────────────────────────┴──────┴──────┴──────┴──────")
     R_Use(dir_server+"mo_pers",,"PERS")
     for i := 1 to len(arr_vrach)
       goto (arr_vrach[i,1])
@@ -5566,7 +5566,8 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
     asort(arr_vrach,,,{|x,y| upper(x[3]) < upper(y[3])})
     for i := 1 to len(arr_vrach)
       add_string(padr(str(i,3)+". ["+lstr(arr_vrach[i,2])+"] ",13)+padr(arr_vrach[i,3],33)+;
-                 put_val(arr_vrach[i,4],7)+put_val(arr_vrach[i,5],7))
+                 put_val(arr_vrach[i,4],7)+put_val(arr_vrach[i,5],7)+;
+                 put_val(arr_vrach[i,6],7)+put_val(arr_vrach[i,7],7))
     next
     f_error_DVN(3,HH,sh)
     fclose(fp)
@@ -5583,17 +5584,23 @@ close databases
 rest_box(buf)
 return NIL
 
-***** 15.08.19 Поиск ошибок сочетаний разных видов осмотров
+***** 15.09.19 Поиск ошибок сочетаний разных видов осмотров
 Function f_error_DVN(k,HH,sh)
 Static arr := {}, arr_title := {;
   "────────────────────────────────────────────┬────────┬────────┬────────┬────────",;
   "                                            │дисп-ия │дисп-ия │ проф-  │дисп-ия ",;
   "     ФИО пациента                           │ 1 этап │ 2 этап │ осмотр │раз в 2г",;
   "────────────────────────────────────────────┴────────┴────────┴────────┴────────"}
+Local i
 if k == 1
   arr := {}
 elseif k == 2
   if !empty(tmp->kod4h) // есть диспансеризация 1 раз в 2 года
+    human->(dbGoto(tmp->kod4h))
+    if (i := ascan(arr_vrach, {|x| x[1] == human_->VRACH })) == 0
+      aadd(arr_vrach, {human_->VRACH,0,"",0,0,0,0}) ; i := len(arr_vrach)
+    endif
+    arr_vrach[i,7] ++
     if !emptyall(tmp->kod1h,tmp->kod2h,tmp->kod3h)
       aadd(arr,{" "," "," ","+",tmp->kod_k})
     endif
@@ -5603,6 +5610,12 @@ elseif k == 2
     endif
   elseif !empty(tmp->kod2h) // есть диспансеризация второй этап
     aadd(arr,{" "," "," "," ",tmp->kod_k})
+  elseif !empty(tmp->kod3h) // есть профосмотр
+    human->(dbGoto(tmp->kod3h))
+    if (i := ascan(arr_vrach, {|x| x[1] == human_->VRACH })) == 0
+      aadd(arr_vrach, {human_->VRACH,0,"",0,0,0,0}) ; i := len(arr_vrach)
+    endif
+    arr_vrach[i,6] ++
   endif
 elseif len(arr) > 1
   R_Use(dir_server+"kartotek",,"KART")
@@ -5642,7 +5655,7 @@ if !between(m1gruppa,0,4)
   return NIL
 endif
 if (i := ascan(arr_vrach, {|x| x[1] == human_->VRACH })) == 0
-  aadd(arr_vrach, {human_->VRACH,0,"",0,0}) ; i := len(arr_vrach)
+  aadd(arr_vrach, {human_->VRACH,0,"",0,0,0,0}) ; i := len(arr_vrach)
 endif
 arr_vrach[i,4] ++
 Private arr_otklon := {}, arr_usl_otkaz := {}, mvozrast, mdvozrast,;
@@ -5706,7 +5719,7 @@ do while hu->kod == tmp->kod1h .and. !eof()
   if empty(lshifr := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data))
     lshifr := usl->shifr
   endif
-  if !eq_any(left(lshifr,5),"70.3.","72.1.")
+  if !eq_any(left(lshifr,5),"70.3.","70.7.","72.1.","72.5.","72.6.","72.7.")
     aadd(au,{alltrim(lshifr),;
              hu_->PROFIL,;
              iif(left(hu_->kod_diag,1)=="Z","",hu_->kod_diag),;
@@ -5868,7 +5881,7 @@ if !empty(tmp->kod2h)
   m1GRUPPA2 := ret_gruppa_DVN(human_->RSLT_NEW)
   if between(m1gruppa2,1,4) // точно прошёл 2 этап
     if (i := ascan(arr_vrach, {|x| x[1] == human_->VRACH })) == 0
-      aadd(arr_vrach, {human_->VRACH,0,"",0,0}) ; i := len(arr_vrach)
+      aadd(arr_vrach, {human_->VRACH,0,"",0,0,0,0}) ; i := len(arr_vrach)
     endif
     arr_vrach[i,5] ++
     m1GRUPPA := m1GRUPPA2 // переприсвоить группу

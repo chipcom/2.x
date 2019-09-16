@@ -181,7 +181,7 @@ if fl
 endif
 return k
 
-***** 22.08.19
+***** 15.09.19
 Function print_l_uch(mkod, par, regim, lnomer)
 // mkod - код больного по БД human
 Local sh := 80, HH := 77, buf := save_maxrow(),;
@@ -230,6 +230,7 @@ set relation to recno() into HU_
 R_Use(dir_server+"mo_su",,"MOSU")
 R_Use(dir_server+"mo_hu",dir_server+"mo_hu","MOHU")
 R_Use(dir_server+"mo_otd",,"OTD")
+R_Use(dir_server+"human_3",{dir_server+"human_3",dir_server+"human_32"},"HUMAN_3")
 R_Use(dir_server+"human_2",,"HUMAN_2")
 goto (mkod)
 R_Use(dir_server+"human_",,"HUMAN_")
@@ -349,6 +350,21 @@ add_string("")
 add_string(center("Л_И_С_Т  У_Ч_Е_Т_А",sh))
 add_string(center("М_Е_Д_И_Ц_И_Н_С_К_И_Х  У_С_Л_У_Г  № "+mnum_lu,sh))
 print_l_uch_disp(sh)
+if eq_any(human->ishod,88,89)
+  select HUMAN_3
+  if human->ishod == 88
+    set order to 1
+    is_2 := 1
+  else
+    set order to 2
+    is_2 := 2
+  endif
+  find (str(human->kod,7))
+  if found() // если нашли двойной случай
+    add_string("")
+    add_string("Это двойной случай (с "+date_8(human_3->N_DATA)+" по "+date_8(human_3->K_DATA)+" на сумму "+lstr(human_3->CENA_1,10,2)+"р.)")
+  endif
+endif
 add_string("")
 add_string("  Ф.И.О.: "+human->fio+"          Пол: "+human->pol)
 add_string("  Дата рождения: "+full_date(human->date_r)+"  ("+mvzros_reb+")")
@@ -480,6 +496,9 @@ add_string("  "+tmp[1])
 for i := 2 to k
   add_string(padl(alltrim(tmp[i]),sh))
 next
+if human->OBRASHEN == '1'
+  add_string("  Признак подорения на злокачественное новообразование: да")
+endif
 add_string("  Исход заболевания: "+inieditspr(A__MENUVERT, glob_V012, human_->ISHOD_NEW))
 if is_death(human_->RSLT_NEW) .and. M1F14_VSKR == 1 // смерть
   s := "  Проведено патологоанатомическое вскрытие"
