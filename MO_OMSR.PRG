@@ -4528,9 +4528,7 @@ do while !eof()
       endif
       if fl
         ++iprov
-        if !fl_view .and. tmp->nmonth == 9 .and. human_->USL_OK == 1
-          // стационар в сентябре пока закрыт
-        elseif !fl_view .and. human->ishod != 88 //  // это не 1-ый л/у в двойном случае
+        if !fl_view .and. human->ishod != 88 //  // это не 1-ый л/у в двойном случае
           select TMPB
           find (str(human->kod,7))
           if !found()

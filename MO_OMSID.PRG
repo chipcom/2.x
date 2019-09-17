@@ -5597,10 +5597,12 @@ if k == 1
 elseif k == 2
   if !empty(tmp->kod4h) // есть диспансеризация 1 раз в 2 года
     human->(dbGoto(tmp->kod4h))
-    if (i := ascan(arr_vrach, {|x| x[1] == human_->VRACH })) == 0
-      aadd(arr_vrach, {human_->VRACH,0,"",0,0,0,0}) ; i := len(arr_vrach)
+    if type("arr_vrach") == "A"
+      if (i := ascan(arr_vrach, {|x| x[1] == human_->VRACH })) == 0
+        aadd(arr_vrach, {human_->VRACH,0,"",0,0,0,0}) ; i := len(arr_vrach)
+      endif
+      arr_vrach[i,7] ++
     endif
-    arr_vrach[i,7] ++
     if !emptyall(tmp->kod1h,tmp->kod2h,tmp->kod3h)
       aadd(arr,{" "," "," ","+",tmp->kod_k})
     endif
@@ -5612,10 +5614,12 @@ elseif k == 2
     aadd(arr,{" "," "," "," ",tmp->kod_k})
   elseif !empty(tmp->kod3h) // есть профосмотр
     human->(dbGoto(tmp->kod3h))
-    if (i := ascan(arr_vrach, {|x| x[1] == human_->VRACH })) == 0
-      aadd(arr_vrach, {human_->VRACH,0,"",0,0,0,0}) ; i := len(arr_vrach)
+    if type("arr_vrach") == "A"
+      if (i := ascan(arr_vrach, {|x| x[1] == human_->VRACH })) == 0
+        aadd(arr_vrach, {human_->VRACH,0,"",0,0,0,0}) ; i := len(arr_vrach)
+      endif
+      arr_vrach[i,6] ++
     endif
-    arr_vrach[i,6] ++
   endif
 elseif len(arr) > 1
   R_Use(dir_server+"kartotek",,"KART")
