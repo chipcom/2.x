@@ -937,9 +937,9 @@ if !emptyany(beg_data,end_data)
 endif
 return s
 
-*****
+***** 18.09.19
 Function f_arr_usl1()
-Local i, s, arr := {}, arr1 := {}
+Local i, s, arr := {}, arr1 := {"2.76.5"}
 if hb_fileExists(dir_server+"usl1year"+smem)
   arr := rest_arr(dir_server+"usl1year"+smem)
   for i := 1 to len(arr)
@@ -949,6 +949,7 @@ if hb_fileExists(dir_server+"usl1year"+smem)
     if empty(s := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data))
       s := usl->shifr
     endif
+    s := alltrim(s)
     if ascan(arr1,s) == 0
       aadd(arr1,s)
     endif
@@ -2298,12 +2299,12 @@ return fl
 
 *
 
-*****
+***** 18.09.19
 Function f_usl1year(lshifr,_mshifr,_mname)
 Local k := 0, c, s, tmp_select := select(), buf := save_maxrow(),;
       rec_human := human->(recno()), rec_hu := hu->(recno()),;
       lyear := year(mdate_u1), lshifr_
-lshifr := padr(lshifr,10) // на всякий случай сделаем ширину 10 сиволов
+lshifr := alltrim(lshifr) // на всякий случай
 if ascan(arr_usl1year,lshifr) > 0
   mywait()
   select HUMAN
@@ -2318,6 +2319,7 @@ if ascan(arr_usl1year,lshifr) > 0
         if empty(lshifr_ := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data))
           lshifr_ := usl->shifr
         endif
+        lshifr_ := alltrim(lshifr_)
         if lshifr == lshifr_ .and. lyear == year(c4tod(hu->date_u))
           ++k
         endif
