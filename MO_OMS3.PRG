@@ -70,7 +70,7 @@ Local human_3 := {;
 reconstruct(dir_server+"human_3",human_3,"index_base('human_3')","пролеченным больным3",.t.)
 return NIL
 
-***** 10.03.19 склеить два случая
+***** 24.09.19 склеить два случая
 Function create_double_sl()
 Local buf, str_sem, i, d, arr_m, mas_pmt, buf24, buf_scr, srec, old_yes_h_otd := yes_h_otd
 if !myFileDeleted(cur_dir+"tmp_h"+sdbf)
@@ -227,9 +227,12 @@ if (arr_m := year_month(T_ROW,T_COL+5,,3)) != NIL
             if G_SLock(str_sem2)
               @ 3,42 say padc("2: с "+date_8(ln_data2)+" по "+date_8(lk_data2),35) color color8
               if f_Esc_Enter("создания двойного случая",.t.)
+                mywait("Проверка (попытка пересчёта) цены КСГ первого случая.")
+                recount_double_sl(glob_perso,lk_data2)
                 mywait("Выполняется операция слияния двух листов учёта в двойной.")
                 use_base("human")
                 goto (glob_perso)
+                lcena := human->cena_1
                 G_Use(dir_server+"human_3",{dir_server+"human_3",dir_server+"human_32"},"HUMAN_3")
                 AddRec(7)
                 human_3->KOD       := glob_perso
@@ -297,6 +300,198 @@ if (arr_m := year_month(T_ROW,T_COL+5,,3)) != NIL
   close databases
 endif
 rest_box(buf)
+return NIL
+
+***** 24.09.19 Проверка (попытка пересчёта) цены КСГ первого случая
+Function recount_double_sl(mkod_human,k_data2)
+Local aksg, lcena, adbf := {;
+  {"KOD"      ,   "N",     7,     0},; // код больного
+  {"DATE_U"   ,   "C",     4,     0},; // дата оказания услуги
+  {"date_u2"  ,   "C",     4,     0},; // дата окончания оказания услуги
+  {"date_u1"  ,   "D",     8,     0},;
+  {"date_next",   "D",     8,     0},; // дата след.визита для дисп.наблюдения
+  {"shifr_u"  ,   "C",    20,     0},;
+  {"shifr1"   ,   "C",    20,     0},;
+  {"name_u"   ,   "C",    65,     0},;
+  {"U_KOD"    ,   "N",     6,     0},; // код услуги
+  {"U_CENA"   ,   "N",    10,     2},; // цена услуги
+  {"dom"      ,   "N",     2,     0},; // -1 - на дому
+  {"KOD_VR"   ,   "N",     4,     0},; // код врача
+  {"KOD_AS"   ,   "N",     4,     0},; // код ассистента
+  {"OTD"      ,   "N",     3,     0},; // код отделения
+  {"KOL_1"    ,   "N",     3,     0},; // оплачиваемое количество услуг
+  {"STOIM_1"  ,   "N",    10,     2},; // оплачиваемая стоимость услуги
+  {"ZF"       ,   "C",    30,     0},; // зубная формула или парные органы
+  {"PAR_ORG"  ,   "C",    40,     0},; // разрешённые парные органы
+  {"ID_U"     ,   "C",    36,     0},; // код записи об оказанной услуге;GUID оказанной услуги;создается при добавлении записи
+  {"PROFIL"   ,   "N",     3,     0},; // профиль;по справочнику V002
+  {"PRVS"     ,   "N",     9,     0},; // Специальность врача;по справочнику V004;
+  {"kod_diag" ,   "C",     6,     0},; // диагноз;перенести из основного диагноза
+  {"n_base"   ,   "N",     1,     0},; // номер справочника услуг 0-старый,1-новый
+  {"is_nul"   ,   "L",     1,     0},;
+  {"is_oms"   ,   "L",     1,     0},;
+  {"is_zf"    ,   "N",     1,     0},;
+  {"is_edit"  ,   "N",     2,     0},;
+  {"number"   ,   "N",     3,     0},;
+  {"rec_hu"   ,   "N",     8,     0}}
+use_base("lusl")
+use_base("luslc")
+use_base("luslf")
+Use_base("mo_su")
+set order to 0
+G_Use(dir_server+"uslugi",{dir_server+"uslugish",;
+                           dir_server+"uslugi"},"USL")
+set order to 0
+Use_base("mo_hu")
+Use_base("human_u")
+G_Use(dir_server+"human_2",,"HUMAN_2")
+G_Use(dir_server+"human_",,"HUMAN_")
+G_Use(dir_server+"human",{dir_server+"humank",;
+                          dir_server+"humankk",;
+                          dir_server+"humano"},"HUMAN")
+set relation to recno() into HUMAN_, to recno() into HUMAN_2
+find (str(mkod_human,7))
+glob_kartotek := human->kod_k
+lcena := human->cena_1
+last_date := human->n_data
+R_Use(dir_server+"mo_uch",,"UCH")
+uch->(dbGoto(human->LPU))
+R_Use(dir_server+"mo_otd",,"OTD")
+otd->(dbGoto(human->OTD))
+f_put_glob_podr(human_->USL_OK,k_data2) // заполнить код подразделения
+dbcreate(cur_dir+"tmp_usl_",adbf)
+use (cur_dir+"tmp_usl_") new alias TMP
+select HUMAN
+set order to 1
+find (str(mkod_human,7))
+select HU
+set relation to u_kod into USL additive
+find (str(mkod_human,7))
+if found()
+  do while hu->kod == mkod_human .and. !eof()
+    select TMP
+    append blank
+    tmp->KOD     := hu->kod
+    tmp->DATE_U  := hu->date_u
+    tmp->date_u2 := hu_->date_u2
+    tmp->date_u1 := c4tod(hu->date_u)
+    tmp->shifr_u := usl->shifr
+    tmp->shifr1  := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data)
+    if empty(lshifr := tmp->shifr1)
+      lshifr := tmp->shifr_u
+    endif
+    tmp->name_u  := usl->name
+    tmp->U_KOD   := hu->u_kod
+    tmp->U_CENA  := hu->u_cena
+    tmp->KOD_VR  := hu->kod_vr
+    tmp->dom     := hu->KOL_RCP
+    tmp->KOD_AS  := hu->kod_as
+    tmp->OTD     := hu->otd
+    tmp->KOL_1   := hu->kol_1
+    tmp->STOIM_1 := hu->stoim_1
+    tmp->ZF      := hu_->ZF
+    tmp->ID_U    := hu_->ID_U
+    tmp->PROFIL  := hu_->PROFIL
+    tmp->PRVS    := hu_->PRVS
+    tmp->kod_diag:= hu_->kod_diag
+    tmp->n_base  := 0
+    tmp->is_edit := hu->is_edit
+    tmp->is_nul  := usl->is_nul
+    tmp->rec_hu  := hu->(recno())
+    last_date := max(tmp->date_u1,last_date)
+    if human_->usl_ok < 3 .and. is_ksg(lshifr) // для КСГ цену не переопределяем - сделаем попозже
+      rec_ksg := tmp->(recno())
+    else
+      fl_oms := .f.
+      // переопределение цены
+      if (v := f1cena_oms(tmp->shifr_u,;
+                          tmp->shifr1,;
+                          (human->vzros_reb==0),;
+                          human->k_data,;
+                          tmp->is_nul,;
+                          @fl_oms)) != NIL
+        tmp->is_oms := fl_oms
+        if !(round(tmp->u_cena,2) == round(v,2))
+          tmp->u_cena := v
+          tmp->stoim_1 := round_5(tmp->u_cena * tmp->kol_1, 2)
+          select HU
+          G_RLock(forever)
+          hu->u_cena := tmp->u_cena
+          hu->stoim  := hu->stoim_1 := tmp->stoim_1
+          UNLOCK
+        endif
+      endif
+    endif
+    select HU
+    skip
+  enddo
+  commit
+endif
+select MOHU
+set relation to u_kod into MOSU
+find (str(mkod_human,7))
+if found()
+  do while mohu->kod == mkod_human .and. !eof()
+    select TMP
+    append blank
+    tmp->KOD     := mohu->kod
+    tmp->DATE_U  := mohu->date_u
+    tmp->date_u2 := mohu->date_u2
+    tmp->date_u1 := c4tod(mohu->date_u)
+    tmp->shifr_u := iif(empty(mosu->shifr),mosu->shifr1,mosu->shifr)
+    tmp->shifr1  := mosu->shifr1
+    tmp->name_u  := mosu->name
+    tmp->U_KOD   := mohu->u_kod
+    tmp->U_CENA  := mohu->u_cena
+    tmp->KOD_VR  := mohu->kod_vr
+    tmp->KOD_AS  := mohu->kod_as
+    tmp->OTD     := mohu->otd
+    tmp->KOL_1   := mohu->kol_1
+    tmp->STOIM_1 := mohu->stoim_1
+    tmp->ZF      := mohu->ZF
+    tmp->ID_U    := mohu->ID_U
+    tmp->PROFIL  := mohu->PROFIL
+    tmp->PRVS    := mohu->PRVS
+    tmp->kod_diag:= mohu->kod_diag
+    tmp->n_base  := 1
+    tmp->is_nul  := .t.
+    tmp->is_oms  := .t.
+    tmp->is_zf   := ret_is_zf(tmp->shifr1)
+    tmp->rec_hu  := mohu->(recno())
+    tmp->par_org := ret_par_org(tmp->shifr1)
+    last_date := max(tmp->date_u1,last_date)
+    select MOHU
+    skip
+  enddo
+  commit
+endif
+select TMP
+fl_found := (tmp->(lastrec()) > 0)
+is_1_vvod := (tmp->(lastrec()) == 0 .and. mem_ordu_1 == 1)
+if mem_ordusl == 1
+  index on dtos(date_u1)+fsort_usl(shifr_u) to (cur_dir+"tmp_usl_")
+else
+  index on fsort_usl(shifr_u)+dtos(date_u1) to (cur_dir+"tmp_usl_")
+endif
+//
+old_is_zf_stomat := is_zf_stomat
+select HU
+set relation to  // "отвязываем" human_u_
+select USL
+set order to 1
+is_zf_stomat := 0
+R_Use(dir_server+"usl_otd",dir_server+"usl_otd","UO")
+R_Use(dir_server+"mo_pers",dir_server+"mo_pers","PERSO")
+select TMP
+set relation to otd into OTD
+go top
+if rec_ksg > 0
+  f_usl_definition_KSG(human->kod,k_data2)
+else
+  func_error(4,"В первом случае не обнаружена КСГ!")
+endif
+close databases
+is_zf_stomat := old_is_zf_stomat
 return NIL
 
 ***** 25.02.19 просмотр двойных случаев

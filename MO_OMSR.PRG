@@ -406,7 +406,7 @@ elseif lp == 64 // оториноларингологии
 endif
 return lp
 
-***** 16.07.19
+***** 24.09.19
 Function verify_1_sluch(fl_view)
 Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
       i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -2531,7 +2531,14 @@ if len(a_period_stac) > 0 //.and. !is_s_dializ .and. !is_dializ .and. !is_perito
   set relation to recno() into HU_, to u_kod into USL
 endif
 if eq_any(human_->USL_OK,1,2) .and. kol_ksg > 0 .and. human_2->VMP == 0 // не ВМП
-  arr_ksg := definition_KSG()
+  k_data2 := human->k_data
+  if human->ishod == 88
+    select HUMAN
+    goto (human_2->pn4) // ссылка на 2-й лист учёта
+    k_data2 := human->k_data
+    goto (rec_human)
+  endif
+  arr_ksg := definition_KSG(1,k_data2)
   if empty(arr_ksg[2]) // нет ошибок
     if shifr_ksg == arr_ksg[3] // КСГ определена правильно
       if !(round(cena_ksg,2) == round(arr_ksg[4],2)) // не та цена

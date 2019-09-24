@@ -2776,8 +2776,8 @@ if fl
 endif
 return fl
 
-***** 14.05.19 определение КСГ по остальным введённым полям ввода - 2019 год
-Function definition_KSG(par)
+***** 24.09.19 определение КСГ по остальным введённым полям ввода - 2019 год
+Function definition_KSG(par,k_data2)
 // файлы "human", "human_" и "human_2" открыты и стоят на нужной записи
 //       "human" открыт для записи суммы случая
 // выполнено use_base("human_u","HU") - для записи
@@ -2846,7 +2846,11 @@ if par == 1
   lad_cr  := alltrim(human_2->pc3)
   lfio    := alltrim(human->fio)
   ln_data := human->n_data
-  lk_data := human->k_data
+  if valtype(k_data2) == "D"
+    lk_data := k_data2
+  else
+    lk_data := human->k_data
+  endif
   lusl    := human_->USL_OK
   ldate_r := iif(human_->NOVOR > 0, human_->date_r2, human->date_r)
   lpol    := iif(human_->NOVOR > 0, human_->pol2,    human->pol)
@@ -2898,7 +2902,11 @@ else // из режима импорта случаев
   lusl    := ihuman->USL_OK
   lfio    := alltrim(ihuman->fio)
   ln_data := ihuman->date_1
-  lk_data := ihuman->date_2
+  if valtype(k_data2) == "D"
+    lk_data := k_data2
+  else
+    lk_data := ihuman->date_2
+  endif
   ldate_r := iif(ihuman->NOVOR > 0, ihuman->reb_dr,  ihuman->dr)
   lpol    := iif(ihuman->NOVOR > 0, ihuman->reb_pol, ihuman->w)
   lpol    := iif(lpol == 1, "М","Ж")
@@ -3779,8 +3787,8 @@ close databases
 rest_box(buf)
 return NIL
 
-***** 20.01.19 определить КСГ для 1 пациента из режима редактирования услуг
-Function f_usl_definition_KSG(lkod)
+***** 29.09.19 определить КСГ для 1 пациента из режима редактирования услуг
+Function f_usl_definition_KSG(lkod,k_data2)
 Local arr, buf := save_maxrow(), lshifr, lrec, lu_kod, lcena, not_ksg := .t.,;
       mrec_hu, tmp_rec := 0, tmp_select := select(), is_usl1 := .f.,;
       ret := {}, lyear := year(human->K_DATA), i, s, sdial, fl
@@ -3799,7 +3807,7 @@ if human_->USL_OK < 3
   endif
   set relation to
   if lyear > 2018
-    arr := definition_KSG()
+    arr := definition_KSG(1,k_data2)
   else
     arr := definition_KSG_18()
   endif
