@@ -1239,18 +1239,21 @@ do case
     mas_pmt := {"~Суммы снятий",;
                 "Список снятий (~дефекты)",;
                 "Список снятий (~пациенты)",;
+                "~Восстановление объёмов",;
                 "Список ~РАК",;
                 "Список счетов ~без РАК"}
     mas_msg := {"Суммы снятий с расшифровкой по СМО, дефектам и видам экспертизы",;
                 "Список снятий по актам контроля с указанием кодов дефектов",;
                 "Список снятий по актам контроля с указанием пациентов",;
+                "Составление списка пациентов для восстановления объёмов (с полным снятием в РАК)",;
                 "Список реестров актов контроля с указанием наименований и дат файлов РАК",;
                 "Список счетов, по которым нет актов контроля"}
     mas_fun := {"e_statist(151)",;
                 "e_statist(152)",;
                 "e_statist(153)",;
                 "e_statist(154)",;
-                "e_statist(155)"}
+                "e_statist(155)",;
+                "e_statist(156)"}
     popup_prompt(T_ROW,T_COL-5,si15,mas_pmt,mas_msg,mas_fun)
   case k == 124
     mas_pmt := {"~Платёжные поручения"}
@@ -1404,9 +1407,11 @@ do case
     akt_list_of_refusal_defect()
   case k == 153 // Список снятий по актам (пациенты)
     akt_list_of_refusal_pacient()
-  case k == 154 // Список РАК
+  case k == 154 // восстановление объёмов
+    vosst_ob_em_RAK()
+  case k == 155 // Список РАК
     pr_list_RAK()
-  case k == 155 // Список счетов без РАК
+  case k == 156 // Список счетов без РАК
     pr_schet_bez_RAK()
   case k == 161 // Список платёжных поручений
     i_list_of_pd()
@@ -1625,6 +1630,278 @@ if k > 10
     si19 := j
   endif
 endif
+return NIL
+
+***** 30.09.19 восстановление объёмов
+Function vosst_ob_em_RAK()
+Static arr_smo, mm_pz
+Static mm_poisk := {{"По дате РАК (XML-файла)",0},;
+                    {"По дате акта контроля ",1}}
+Static mm_eks := {{"все ",0},{"МЭК ",1},{"МЭЭ ",2},{"ЭКМП",3}}
+Static s1eks := 0, s1smo := 0, s1pz := 0, s1poisk := 0
+Local buf := savescreen(), i, ar, s, r := 14
+if arr_smo == NIL
+  arr_smo := mo_cut_menu(glob_arr_smo)
+  for i := 1 to len(arr_smo)
+    arr_smo[i,3] := padr(lstr(arr_smo[i,2]),5)
+    arr_smo[i,2] := i
+  next
+  if len(arr_smo) > 2
+    asize(arr_smo,2) // отсекаем ТФОМС
+  endif
+  mm_pz := {{"все",0}}
+  for i := 1 to len(glob_array_PZ_19)
+    aadd(mm_pz, {glob_array_PZ_19[i,3],glob_array_PZ_19[i,1]})
+  next
+endif
+if empty(s1smo)
+  s1smo := 0
+  for i := 1 to len(arr_smo)
+    s1smo := setbit(s1smo,arr_smo[i,2])
+  next
+endif
+Private mdate := space(10), m1date := 0,;
+        msmo, m1smo := s1smo,;
+        meks, m1eks := s1eks,;
+        mpz, m1pz := s1pz,;
+        mpoisk, m1poisk := s1poisk
+Private pdate, gl_arr := {;  // для битовых полей
+  {"smo","N",10,0,,,,{|x|inieditspr(A__MENUBIT,arr_smo,x)} };
+ }
+mpoisk := inieditspr(A__MENUVERT, mm_poisk, m1poisk)
+meks   := inieditspr(A__MENUVERT, mm_eks,   m1eks )
+mpz    := inieditspr(A__MENUVERT, mm_pz,    m1pz  )
+msmo   := inieditspr(A__MENUBIT,  arr_smo,  m1smo )
+setcolor(cDataCGet)
+myclear(r)
+Private gl_area := {r,1,maxrow()-1,maxcol(),0}, pdate
+status_key("^<Esc>^ - выход;  ^<PgDn>^ - составление документа")
+//
+@ r,0 to maxrow()-1,maxcol() COLOR color8
+str_center(r," Восстановление объёмов (подготовка информации) ",color14)
+do while .t.
+  @ r+2,2 say "Страховая(ые) компания(и)" get msmo ;
+          reader {|x|menu_reader(x,arr_smo,A__MENUBIT,,,.f.)}
+  @ r+3,2 say "Период времени" get mdate ;
+          reader {|x| menu_reader(x,{{|k,r,c| ;
+                       k:=year_month(r+1,c),iif(k==nil,nil,(pdate:=aclone(k),k:={k[1],k[4]})),;
+                       k }},A__FUNCTION,,,.f.)}
+  @ r+4,2 say "Как подсчитывать (РАК/акты)" get mpoisk ;
+          reader {|x|menu_reader(x,mm_poisk,A__MENUVERT,,,.f.)}
+  @ r+5,2 say "Вид экспертизы" get meks ;
+          reader {|x|menu_reader(x,mm_eks,A__MENUVERT,,,.f.)}
+  @ r+6,2 say "Вид план-заказа" get mpz ;
+          reader {|x|menu_reader(x,mm_pz,A__MENUVERT_SPACE,,,.f.)}
+  myread()
+  if lastkey() == K_ESC
+    exit
+  endif
+  s1smo := m1smo
+  s1pz  := m1pz
+  s1eks := m1eks
+  s1poisk := m1poisk
+  if empty(pdate)
+    func_error(4,"Не введён период времени")
+  elseif pdate[1] < 2019
+    func_error(4,"Данный режим написан для 2019 года")
+  elseif empty(m1smo)
+    func_error(4,"Не введена страховая компания")
+  else
+    ar := {} ; s := ""
+    for i := 1 to len(arr_smo)
+      if isbit(s1smo,i)
+        aadd(ar, arr_smo[i,3])
+        s += arr_smo[i,1] + ", "
+      endif
+    next
+    s := substr(s,1,len(s)-2)
+    f1vosst_ob_em_RAK(ar,s,mm_pz)
+  endif
+enddo
+restscreen(buf)
+return NIL
+
+***** 30.09.19 функция для списка для восстановления объёмов
+Function f1vosst_ob_em_RAK(asmo,ssmo,mm_pz)
+Local adbf, i, nkvartal, n_file := "v_ob_em"+stxt, HH := 60, sh := 80, buf := save_maxrow(), t_arr[2]
+mywait()
+adbf := {{"kvartal","N",1,0},;
+         {"nschet","C",15,0},;
+         {"dschet","D",8,0},;
+         {"pos_sch","N",6,0},;
+         {"vid_pz","C",45,0},;
+         {"ed_pz","N",4,0},;
+         {"nakt","C",26,0},;
+         {"dakt","D",8,0},;
+         {"nrak","C",26,0},;
+         {"drak","D",8,0},;
+         {"usluga","C",10,0};
+}
+dbcreate(cur_dir+"v_ob_em",adbf)
+use (cur_dir+"v_ob_em") new alias TMP
+use_base("lusl")
+use_base("luslc")
+R_Use(dir_server+"uslugi",,"USL")
+R_Use(dir_server+"schet_",,"SCHET_")
+R_use_base("human_u")
+set relation to u_kod into USL
+R_Use(dir_server+"human_",,"HUMAN_")
+R_Use(dir_server+"human",,"HUMAN")
+set relation to recno() into HUMAN_
+R_Use(dir_server+"mo_raksh",,"RAKSH")
+index on str(kod_raks,6) to tmpraksh memory
+R_Use(dir_server+"mo_raks",,"RAKS")
+index on str(akt,6) to tmpraks memory
+R_Use(dir_server+"mo_rak",,"RAK")
+index on str(kod_xml,6)+dtos(dakt)+nakt to tmprak memory
+R_Use(dir_server+"mo_xml",,"MO_XML")
+index on dfile to tmp_xml for TIP_IN == _XML_FILE_RAK memory
+go top
+do while !eof()
+  if iif(m1poisk == 0, between(mo_xml->DFILE,pdate[5],pdate[6]), .t.)
+    select RAK
+    find (str(mo_xml->kod,6))
+    do while mo_xml->kod == rak->kod_xml .and. !eof()
+      if iif(m1poisk == 1, between(rak->dakt,pdate[5],pdate[6]), .t.)
+        vid_eks := ret_vid_eks()
+        select RAKS
+        find (str(rak->akt,6))
+        do while rak->akt == raks->akt .and. !eof()
+          if ascan(asmo,raks->plat) > 0
+            schet_->(dbGoto(raks->schet))
+            if schet_->NMONTH < 4
+              nkvartal := 1
+            elseif schet_->NMONTH < 7
+              nkvartal := 2
+            elseif schet_->NMONTH < 10
+              nkvartal := 3
+            else
+              nkvartal := 4
+            endif
+            select RAKSH
+            find (str(raks->kod_raks,6))
+            do while raks->kod_raks == raksh->kod_raks .and. !eof()
+              if raksh->OPLATA == 2 // полный отказ
+                human->(dbGoto(raksh->KOD_H))
+                s := raksh->SANK_MEK + raksh->SANK_MEE + raksh->SANK_EKMP
+                ssh := raksh->penalty
+                fl := .f.
+                if m1eks == 0
+                  fl := .t.
+                elseif vid_eks == 2 .or. !empty(raksh->SANK_EKMP)
+                  fl := (m1eks == 3)
+                elseif vid_eks == 1 .or. !empty(raksh->SANK_MEE)
+                  fl := (m1eks == 2)
+                else
+                  fl := (m1eks == 1)
+                endif
+                if fl .and. m1pz > 0
+                  fl := (m1pz == human_->pztip)
+                endif
+                if fl
+                  select TMP
+                  append blank
+                  tmp->kvartal := nkvartal
+                  tmp->nschet := alltrim(schet_->nschet)
+                  tmp->dschet := schet_->dschet
+                  tmp->pos_sch := human_->SCHET_ZAP
+                  tmp->vid_pz := inieditspr(A__MENUVERT, mm_pz, human_->pztip)
+                  tmp->ed_pz := iif(human_->usl_ok < 3, 1, human_->PZKOL)
+                  tmp->nakt := alltrim(rak->nakt)
+                  tmp->dakt := rak->dakt
+                  tmp->nrak := alltrim(mo_xml->FNAME)
+                  tmp->drak := mo_xml->DFILE
+                  if human_->usl_ok == 3
+                    select HU
+                    find (str(human->kod,7))
+                    do while hu->kod == human->kod .and. !eof()
+                      if empty(lshifr := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data))
+                        lshifr := usl->shifr
+                      endif
+                      if eq_any(left(lshifr,4),"2.78","2.79","2.80","2.82","2.88")
+                        tmp->usluga := lshifr
+                        exit
+                      endif
+                      select HU
+                      skip
+                    enddo
+                  endif
+                endif
+              endif
+              select RAKSH
+              skip
+            enddo
+          endif
+          select RAKS
+          skip
+        enddo
+      endif
+      select RAK
+      skip
+    enddo
+  endif
+  select MO_XML
+  skip
+enddo
+adbf := {{"vid_pz","C",45,0},;
+         {"ed_pz","N",4,0},;
+         {"nrak","C",26,0},;
+         {"drak","D",8,0};
+}
+dbcreate(cur_dir+"tmp1",adbf)
+use (cur_dir+"tmp1") new
+index on nrak+vid_pz to (cur_dir+"tmp1")
+select TMP
+go top
+do while !eof()
+  select TMP1
+  find (tmp->nrak+tmp->vid_pz)
+  if !found()
+    append blank
+    tmp1->vid_pz := tmp->vid_pz
+    tmp1->nrak := tmp->nrak
+    tmp1->drak := tmp->drak
+  endif
+  tmp1->ed_pz += tmp->ed_pz
+  select TMP
+  skip
+enddo
+if tmp1->(lastrec()) == 0
+  func_error(4,"По данному запросу ничего не найдено!")
+else
+  fp := fcreate(n_file) ; n_list := 1 ; tek_stroke := 0
+  add_string(glob_mo[_MO_SHORT_NAME])
+  add_string("")
+  add_string(center("Вид экспертизы: "+meks,sh))
+  add_string(center("СМО: "+ssmo,sh))
+  add_string(center("даты "+iif(m1poisk == 0, "РАК - ", "актов контроля - ")+pdate[4],sh))
+  if m1pz > 0
+    add_string(center("Вид план-заказа: "+mpz,sh))
+  endif
+  add_string(center("Восстановить объемы, удержанные по следующим файлам РАК:",sh))
+  select TMP1
+  go top
+  do while !eof()
+    s := alltrim(tmp1->nrak)+" от "+date_8(tmp1->drak)+", "+alltrim(tmp1->vid_pz)+;
+         " в количестве - "+lstr(tmp1->ed_pz)+" ед."
+    verify_FF(HH,.t.,sh)
+    add_string("")
+    for i := 1 to perenos(t_arr,s,sh)
+      add_string(t_arr[i])
+    next
+    skip
+  enddo
+  fclose(fp)
+  close databases
+  rest_box(buf)
+  viewtext(n_file,,,,.t.,,,2)
+  t_arr := {'В каталоге '+cur_dir,;
+            'создан файл V_OB_EM.DBF',;
+            'со списком пациентов для загрузки в Excel'}
+  n_message(t_arr,,"GR+/R","W+/R",,,"G+/R")
+endif
+close databases
+rest_box(buf)
 return NIL
 
 ***** объем работ персонала (по оказанным услуга)

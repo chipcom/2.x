@@ -1470,7 +1470,7 @@ close databases
 viewtext(n_file,,,,(sh > 80),,,reg_print)
 return NIL
 
-***** 15.09.19 многовариантный поиск
+***** 30.09.19 многовариантный поиск
 Function s_mnog_poisk()
 Static mm_rak := {;
   {"все случаи",0},;
@@ -1556,8 +1556,11 @@ if yes_bukva
   sd_plus := array(k_plus)
   afill(sd_plus,0)
 endif
-Private pr_arr := {}, pr_arr_otd := {}, is_talon := ret_is_talon(), arr_tal_diag[2,3]
+Private pr_arr := {}, pr_arr_otd := {}, is_talon := ret_is_talon(), arr_tal_diag[2,3], mm_pz := {}
 afillall(arr_tal_diag,0)
+for i := 1 to len(glob_array_PZ_19)
+  aadd(mm_pz, {glob_array_PZ_19[i,3],glob_array_PZ_19[i,1]})
+next
 if is_talon
   is_kategor2 := !empty(stm_kategor2)
 endif
@@ -1656,6 +1659,10 @@ aadd(mm_tmp, {"d_p_m","N",10,0,NIL,;
               {|x|menu_reader(x,mm_d_p_m,A__MENUBIT)},;
               0,{|x|inieditspr(A__MENUBIT,mm_d_p_m,x)},;
               "Диспансеризация/Профилактика/Медосмотр?"})
+aadd(mm_tmp, {"pz","N",2,0,NIL,;
+              {|x|menu_reader(x,mm_pz,A__MENUVERT_SPACE)},;
+              0,{|| space(10) },;
+              "Вид план-заказа"})
 aadd(mm_tmp, {"dvojn","N",1,0,NIL,;
               {|x|menu_reader(x,mm_dvojn,A__MENUVERT)},;
               1,{|x|inieditspr(A__MENUVERT,mm_dvojn,x)},;
@@ -2386,6 +2393,9 @@ if k > 0
         add_string(padl(alltrim(a_diagnoz[i]),sh))
       next
     endif
+    if mn->pz > 0
+      add_string("Вид план-заказа: "+inieditspr(A__MENUVERT, mm_pz, mn->pz))
+    endif
     if mn->dvojn > 1
       add_string("Двойные случаи: "+inieditspr(A__MENUVERT, mm_dvojn, mn->dvojn))
     endif
@@ -3013,7 +3023,7 @@ if k == 1
 endif
 return fl
 
-***** 15.09.19
+***** 30.09.19
 Static Function s1_mnog_poisk(cv,cf)
 Static a_stom_vp := {{},{},{}}
 Local i, j, k, n, s, arr, fl := .t., flu := .f., mkol, mstoim := 0, fl1, fl2, vid_vp := 1,;
@@ -3184,6 +3194,9 @@ if fl .and. mn->d_p_m > 0
   if !fl .and. isbit(mn->d_p_m,14) // периодический осмотр несовершеннолетних",12};
     fl := (human->ishod == 305)
   endif
+endif
+if fl .and. mn->pz > 0
+  fl := (human_->PZTIP == mn->pz)
 endif
 if fl .and. mn->zno == 2
   fl := (human->OBRASHEN == '1')

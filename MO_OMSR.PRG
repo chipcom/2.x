@@ -406,12 +406,12 @@ elseif lp == 64 // оториноларингологии
 endif
 return lp
 
-***** 24.09.19
+***** 30.09.19
 Function verify_1_sluch(fl_view)
 Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
       i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
       d1, d2, cd1, cd2, ym2, a_period_amb := {}, a_1_11, u_1_stom := "", lprofil, ;
-      lbukva, lst, lidsp, a_idsp := {}, a_bukva := {}, t_arr[2], ltip, lkol, ;
+      lbukva, lst, lidsp, a_idsp := {}, a_bukva := {}, t_arr[2], ltip, lkol, a_317 := {},;
       a_dializ := {}, is_2_88 := .f., a_rec_ffoms := {}, arr_povod := {}, mpovod := 0 // 1.0
 if empty(human->k_data)
   return .t.  // не проверять
@@ -489,6 +489,9 @@ do while human->kod_k == glob_kartotek .and. !eof()
     else // поликлиника, круглосуточный и дневной стационар
       if k < 31 // в течение 30 дней
         aadd(a_rec_ffoms,{human->(recno()),0,k})
+      endif
+      if gusl_ok == 3 .and. gkod_diag == human->kod_diag .and. human_->pztip == 87
+        aadd(a_317, human->k_data)
       endif
     endif
   endif
@@ -4353,6 +4356,10 @@ if fl_view .and. !is_s_dializ .and. !is_dializ .and. !is_perito .and. len(a_rec_
     d_srok->tip1s := s
     d_srok->dni   := a_rec_ffoms[i,3]
   endif
+endif
+if len(arr_unit) == 1 .and. arr_unit[1] == 317 .and. len(a_317) > 0
+  aadd(ta,"уже был выставлен случай первичного диспансерного наблюдения с данным основным диагнозом "+gkod_diag+;
+          " "+full_date(a_317[1])+"г.")
 endif
 if len(ta) > 0
   _ocenka := 0
