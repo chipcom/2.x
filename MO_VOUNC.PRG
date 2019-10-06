@@ -1706,7 +1706,7 @@ do case
 endcase
 return k
 
-***** 13.03.19 создание XML-файлов реестра
+***** 04.10.19 создание XML-файлов реестра
 Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
 Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, ;
       lst, lshifr1, code_reestr, mb, me, nsh
@@ -1833,9 +1833,9 @@ R_Use(exe_dir+"_mo_t2_v1",,"T21")
 index on shifr to (cur_dir+"tmp_t21")
 use (cur_dir+"tmpb") new
 if reg_sort == 1
-  index on upper(human->fio) to (cur_dir+"tmpb") for kod_tmp==_recno .and. plus
+  index on upper(fio) to (cur_dir+"tmpb") for kod_tmp==_recno .and. plus
 else
-  index on str(pz,2)+str(10000000-human->cena_1,11,2) to (cur_dir+"tmpb") for kod_tmp==_recno .and. plus
+  index on str(pz,2)+str(10000000-cena_1,11,2) to (cur_dir+"tmpb") for kod_tmp==_recno .and. plus
 endif
 pkol := psumma := iusl := 0
 go top

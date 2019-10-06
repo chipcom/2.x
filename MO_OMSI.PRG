@@ -1632,7 +1632,7 @@ if k > 10
 endif
 return NIL
 
-***** 30.09.19 восстановление объёмов
+***** 02.10.19 восстановление объёмов
 Function vosst_ob_em_RAK()
 Static arr_smo, mm_pz
 Static mm_poisk := {{"По дате РАК (XML-файла)",0},;
@@ -1664,7 +1664,8 @@ Private mdate := space(10), m1date := 0,;
         msmo, m1smo := s1smo,;
         meks, m1eks := s1eks,;
         mpz, m1pz := s1pz,;
-        mpoisk, m1poisk := s1poisk
+        mpoisk, m1poisk := s1poisk,;
+        myear := 2019, mkvartal := 0
 Private pdate, gl_arr := {;  // для битовых полей
   {"smo","N",10,0,,,,{|x|inieditspr(A__MENUBIT,arr_smo,x)} };
  }
@@ -1692,6 +1693,7 @@ do while .t.
           reader {|x|menu_reader(x,mm_eks,A__MENUVERT,,,.f.)}
   @ r+6,2 say "Вид план-заказа" get mpz ;
           reader {|x|menu_reader(x,mm_pz,A__MENUVERT_SPACE,,,.f.)}
+  @ r+7,2 say "Отчётный год 2019, отчётный квартал" get mkvartal pict "9" range 0,4
   myread()
   if lastkey() == K_ESC
     exit
@@ -1721,7 +1723,7 @@ enddo
 restscreen(buf)
 return NIL
 
-***** 30.09.19 функция для списка для восстановления объёмов
+***** 02.10.19 функция для списка для восстановления объёмов
 Function f1vosst_ob_em_RAK(asmo,ssmo,mm_pz)
 Local adbf, i, nkvartal, n_file := "v_ob_em"+stxt, HH := 60, sh := 80, buf := save_maxrow(), t_arr[2]
 mywait()
@@ -1778,59 +1780,64 @@ do while !eof()
             else
               nkvartal := 4
             endif
-            select RAKSH
-            find (str(raks->kod_raks,6))
-            do while raks->kod_raks == raksh->kod_raks .and. !eof()
-              if raksh->OPLATA == 2 // полный отказ
-                human->(dbGoto(raksh->KOD_H))
-                s := raksh->SANK_MEK + raksh->SANK_MEE + raksh->SANK_EKMP
-                ssh := raksh->penalty
-                fl := .f.
-                if m1eks == 0
-                  fl := .t.
-                elseif vid_eks == 2 .or. !empty(raksh->SANK_EKMP)
-                  fl := (m1eks == 3)
-                elseif vid_eks == 1 .or. !empty(raksh->SANK_MEE)
-                  fl := (m1eks == 2)
-                else
-                  fl := (m1eks == 1)
-                endif
-                if fl .and. m1pz > 0
-                  fl := (m1pz == human_->pztip)
-                endif
-                if fl
-                  select TMP
-                  append blank
-                  tmp->kvartal := nkvartal
-                  tmp->nschet := alltrim(schet_->nschet)
-                  tmp->dschet := schet_->dschet
-                  tmp->pos_sch := human_->SCHET_ZAP
-                  tmp->vid_pz := inieditspr(A__MENUVERT, mm_pz, human_->pztip)
-                  tmp->ed_pz := iif(human_->usl_ok < 3, 1, human_->PZKOL)
-                  tmp->nakt := alltrim(rak->nakt)
-                  tmp->dakt := rak->dakt
-                  tmp->nrak := alltrim(mo_xml->FNAME)
-                  tmp->drak := mo_xml->DFILE
-                  if human_->usl_ok == 3
-                    select HU
-                    find (str(human->kod,7))
-                    do while hu->kod == human->kod .and. !eof()
-                      if empty(lshifr := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data))
-                        lshifr := usl->shifr
-                      endif
-                      if eq_any(left(lshifr,4),"2.78","2.79","2.80","2.82","2.88")
-                        tmp->usluga := lshifr
-                        exit
-                      endif
+            if (fl := schet_->NYEAR == myear) .and. mkvartal > 0
+              fl := nkvartal == mkvartal
+            endif
+            if fl
+              select RAKSH
+              find (str(raks->kod_raks,6))
+              do while raks->kod_raks == raksh->kod_raks .and. !eof()
+                if raksh->OPLATA == 2 // полный отказ
+                  human->(dbGoto(raksh->KOD_H))
+                  s := raksh->SANK_MEK + raksh->SANK_MEE + raksh->SANK_EKMP
+                  ssh := raksh->penalty
+                  fl := .f.
+                  if m1eks == 0
+                    fl := .t.
+                  elseif vid_eks == 2 .or. !empty(raksh->SANK_EKMP)
+                    fl := (m1eks == 3)
+                  elseif vid_eks == 1 .or. !empty(raksh->SANK_MEE)
+                    fl := (m1eks == 2)
+                  else
+                    fl := (m1eks == 1)
+                  endif
+                  if fl .and. m1pz > 0
+                    fl := (m1pz == human_->pztip)
+                  endif
+                  if fl
+                    select TMP
+                    append blank
+                    tmp->kvartal := nkvartal
+                    tmp->nschet := alltrim(schet_->nschet)
+                    tmp->dschet := schet_->dschet
+                    tmp->pos_sch := human_->SCHET_ZAP
+                    tmp->vid_pz := inieditspr(A__MENUVERT, mm_pz, human_->pztip)
+                    tmp->ed_pz := iif(human_->usl_ok < 3, 1, human_->PZKOL)
+                    tmp->nakt := alltrim(rak->nakt)
+                    tmp->dakt := rak->dakt
+                    tmp->nrak := alltrim(mo_xml->FNAME)
+                    tmp->drak := mo_xml->DFILE
+                    if human_->usl_ok == 3
                       select HU
-                      skip
-                    enddo
+                      find (str(human->kod,7))
+                      do while hu->kod == human->kod .and. !eof()
+                        if empty(lshifr := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data))
+                          lshifr := usl->shifr
+                        endif
+                        if eq_any(left(lshifr,4),"2.78","2.79","2.80","2.82","2.88")
+                          tmp->usluga := lshifr
+                          exit
+                        endif
+                        select HU
+                        skip
+                      enddo
+                    endif
                   endif
                 endif
-              endif
-              select RAKSH
-              skip
-            enddo
+                select RAKSH
+                skip
+              enddo
+            endif
           endif
           select RAKS
           skip

@@ -475,23 +475,19 @@ do while human->kod_k == glob_kartotek .and. !eof()
   endif
   if fl .and. gnot_disp .and. human->ishod < 100 ; // если не диспансеризация
         .and. gusl_ok == human_->usl_ok ; // если те же условия оказания помощи
-        .and. !empty(gkod_diag) .and. left(gkod_diag,3) == left(human->kod_diag,3) ; // тот же основной диагноз
-        .and. (k := d1 - human->k_data) >= 0  // и случай оказан раньше проверяемого
-    //if gusl_ok == 3     // поликлиника
-    //  if k < 16
-    //    aadd(a_rec_ffoms,{human->(recno()),0,k})
-    //  endif
-    //elseif gusl_ok == 4 // скорая помощь
-    if gusl_ok == 4 // скорая помощь
-      if k < 2
-        aadd(a_rec_ffoms,{human->(recno()),0,k})
-      endif
-    else // поликлиника, круглосуточный и дневной стационар
-      if k < 31 // в течение 30 дней
-        aadd(a_rec_ffoms,{human->(recno()),0,k})
-      endif
-      if gusl_ok == 3 .and. gkod_diag == human->kod_diag .and. human_->pztip == 87
-        aadd(a_317, human->k_data)
+        .and. !empty(gkod_diag) .and. left(gkod_diag,3) == left(human->kod_diag,3)  // тот же основной диагноз
+    if gusl_ok == 3 .and. human_->pztip == 87 .and. gkod_diag == human->kod_diag
+      aadd(a_317, human->k_data)
+    endif
+    if (k := d1 - human->k_data) >= 0  // и случай оказан раньше проверяемого
+      if gusl_ok == 4 // скорая помощь
+        if k < 2
+          aadd(a_rec_ffoms,{human->(recno()),0,k})
+        endif
+      else // поликлиника, круглосуточный и дневной стационар
+        if k < 31 // в течение 30 дней
+          aadd(a_rec_ffoms,{human->(recno()),0,k})
+        endif
       endif
     endif
   endif
@@ -4838,6 +4834,7 @@ stat_msg("Подождите, работаю...")
 dbcreate(cur_dir+"tmpb",{;
     {"kod_tmp"  ,"N", 6,0},;
     {"kod_human","N", 7,0},;
+    {"fio"      ,"C",50,0},;
     {"n_data"   ,"D", 8,0},;
     {"k_data"   ,"D", 8,0},;
     {"cena_1"   ,"N",11,2},;
@@ -4995,6 +4992,7 @@ else
               k := human_->PZKOL
             endif
             j := human_->PZTIP
+            tmpb->fio := human->fio
             tmpb->PZ := j
             pole := "tmp->PZ"+lstr(j)
             if tmp->nyear > 2018 // 2019 год

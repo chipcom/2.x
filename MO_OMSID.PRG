@@ -2443,7 +2443,7 @@ do case
     popup_prompt(T_ROW,T_COL-5,si2,mas_pmt,mas_msg,mas_fun)
   case k == 15
     if (j := popup_prompt(T_ROW,T_COL-5,1,mas1pmt)) > 0
-      f4_inf_DVN(j)
+      forma_131(j)
     endif
   case k == 16
     mas_pmt := {"~План-график (R05)",;
@@ -3454,8 +3454,8 @@ Static Function f_131_u_da_net(k,sb1,sb2)
 if k > 1 ; k := 1 ; endif // если вместо "да" битовый ответ
 return f3_inf_DDS_karta({{"да - 1",1},{"нет - 2",0}},k,";  ",sb1,sb2,.f.)
 
-***** 15.07.19 Приложение к Приказу ГБУЗ "ВОМИАЦ" от 12.05.2017г. №1615
-Function f21_inf_DVN(par)
+***** 06.10.19 Приложение к Приказу ГБУЗ "ВОМИАЦ" от 12.05.2017г. №1615
+Function f21_inf_DVN(par) // свод
 Local arr_m, buf := save_maxrow(), s, as := {}, as1[14],;
       i, j, k, n, ar, at, ii, g1, sh := 65, fl, mdvozrast
 if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
@@ -3621,7 +3621,7 @@ close databases
 rest_box(buf)
 return NIL
 
-***** 15.07.19
+***** 06.10.19
 Function f1_f21_inf_DVN()
 Local sumr := 0, m1GRUPPA, fl2 := .f.
 select TMP2
@@ -3687,7 +3687,7 @@ if !empty(tmp->kod2h) // диспансеризация II этап
   if between(m1gruppa,1,4)
     tmp2->rslt2 := human_->RSLT_NEW
     if empty(tmp2->rslt1)
-      my_debug(,"II этап - нет первого "+lstr(human->kod)+" "+lstr(tmp->kod_k)+" "+human->fio)
+      //my_debug(,"II этап - нет первого "+lstr(human->kod)+" "+lstr(tmp->kod_k)+" "+human->fio)
     else
       arr_21[13] ++
       if !fl2  // не был направлен, но всё равно прошёл
@@ -3700,7 +3700,7 @@ if !empty(tmp->kod2h) // диспансеризация II этап
 endif
 return NIL
 
-***** 15.07.19
+***** 06.10.19
 Function f2_f21_inf_DVN(par)
 Local is_selo, i, j, k := 4, ar[17]
 afill(ar,0) ; ar[2] := 1
@@ -3736,6 +3736,14 @@ for i := 1 to 5
   Private &pole_1dispans := 0
 next
 read_arr_DVN(human->kod)
+// диспансеризация II этап
+if !empty(tmp->kod2h)
+  human->(dbGoto(tmp->kod2h))
+  m1GRUPPA2 := ret_gruppa_DVN(human_->RSLT_NEW)
+  if between(m1gruppa2,1,4) // точно прошёл 2 этап
+    read_arr_DVN(human->kod) // перечитать диагнозы и т.п.
+  endif
+endif
 for i := 1 to 5
   pole_diag := "mdiag"+lstr(i)
   pole_1pervich := "m1pervich"+lstr(i)
@@ -4781,7 +4789,7 @@ endif
 return arr
 
 ***** 15.09.19 форма 131
-Function f4_inf_DVN(par)
+Function forma_131(par)
 Static arr_v := {"21-36 лет","39-60 лет","старше 60 лет"}
 Local arr_m, buf := save_maxrow(), s, as := {}, ar, sh := 80, HH := 80, n, ;
       ii, n_file := "f_131"+stxt, d1, d2, fl, arr_excel := {}, arr_plan_god
@@ -5144,7 +5152,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
       @ maxrow(),0 say padr(str(++ii/tmp->(lastrec())*100,6,2)+"%  "+alltrim(kart->fio)+"  "+full_date(kart->date_r),80) color cColorWait
       if empty(tmp->kod4h) .and. !empty(tmp->kod1h) // есть диспансеризация первый этап
         human->(dbGoto(tmp->kod1h))
-        f1_f4_inf_DVN()
+        f1_forma_131()
       endif
       f_error_DVN(2)
       select TMP
@@ -5366,7 +5374,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
       skip
     enddo
     use
-    aadd(arr_excel, {"5000",f2_f4_inf_dvn(ar)})
+    aadd(arr_excel, {"5000",f2_forma_131(ar)})
     verify_FF(HH-40, .t., sh)
     add_string(center("Сведения о впервые выявленных заболеваниях (случаев)",sh))
     add_string("")
@@ -5450,7 +5458,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
       skip
     enddo
     use
-    aadd(arr_excel, {"5001",f2_f4_inf_dvn(ar)})
+    aadd(arr_excel, {"5001",f2_forma_131(ar)})
     verify_FF(HH-40, .t., sh)
     add_string(center("Сведения об установленных предварительных диагнозах (случаев)",sh))
     add_string("")
@@ -5496,7 +5504,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
       skip
     enddo
     use
-    aadd(arr_excel, {"6000",f2_f4_inf_dvn(ar)})
+    aadd(arr_excel, {"6000",f2_forma_131(ar)})
     verify_FF(HH-40, .t., sh)
     add_string(center("Общие результаты диспансеризации ...",sh))
     add_string("")
@@ -5648,7 +5656,7 @@ endif
 return (len(arr) > 0)
 
 ***** 15.08.19
-Function f1_f4_inf_DVN(Loc_kod,kod_kartotek) // 131
+Function f1_forma_131(Loc_kod,kod_kartotek) // 131
 Local i, j, k, fl, lshifr, au := {}, a7[8], ar, metap, m1gruppa, m1gruppa2 := 0,;
       mpol, fl2 := .f., fl_dispans := .f., ivozrast
 // диспансеризация I этап
@@ -5871,8 +5879,7 @@ elseif M1RAB_NERAB == 1
 else
   arr_7001[3,2] ++
 endif
-if (i := ascan(stm_kategor, {|x| x[2] == kart_->kategor })) > 0 ;
-                                     .and. between(stm_kategor[i,3],1,8)
+if (i := ascan(stm_kategor, {|x| x[2] == kart_->kategor })) > 0 .and. between(stm_kategor[i,3],1,8)
   arr_7001[4,2] ++  // всего льготников
   arr_7001[4+stm_kategor[i,3],2] ++  // по каждой льготе расшифровка
 endif
@@ -6120,7 +6127,7 @@ next
 return NIL
 
 ***** 15.03.16 клетки, исключаемые из таблиц 5000,5001,6000
-Function f2_f4_inf_dvn(ar1)
+Function f2_forma_131(ar1)
 Static s_ar := {{23,30,4,6},{31,32,8,10},{58,58,4,17},{70,70,8,10}}
 Local i, j, fl, arr := {}
 for i := 1 to len(ar1)

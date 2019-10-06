@@ -15,8 +15,8 @@
 #include "chip_mo.ch"
 
 Static _version := {2,9,4}
-Static char_version := "a"
-Static _date_version := "30.09.19г."
+Static char_version := "b"
+Static _date_version := "06.10.19г."
 Static __s_full_name := "ЧИП + Учёт работы Медицинской Организации"
 Static __s_version
 
@@ -1489,13 +1489,12 @@ return NIL
 
 *
 
-***** 11.03.15
+***** 06.10.19
 FUNCTION f_end(yes_copy)
 Static group_ini := "RAB_MESTO"
-Local i, spath := "", bSaveHandler
-write_rest_pp() // записать незаписанные истории болезней из приёмного покоя
-bSaveHandler := ERRORBLOCK( {|x| BREAK(x)} )
+Local i, spath := "", bSaveHandler := ERRORBLOCK( {|x| BREAK(x)} )
 BEGIN SEQUENCE
+  write_rest_pp() // записать незаписанные истории болезней из приёмного покоя
   CLOSE ALL
   DEFAULT yes_copy TO .t.
   if yes_copy
@@ -1891,7 +1890,7 @@ if glob_mo[_MO_KOD_TFOMS] == kod_VOUNC
 endif
 return arr
 
-***** 28.07.16 обновить системную дату (для травмпунктов, работающих ночами)
+***** 28.07.16 обновить системную дату (для работающих по ночам травмпунктов)
 Function change_sys_date()
 sys_date := DATE()
 sys1_date := sys_date
