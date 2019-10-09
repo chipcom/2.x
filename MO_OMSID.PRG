@@ -4788,7 +4788,7 @@ if sgod >= 2019 .and. !fl
 endif
 return arr
 
-***** 15.09.19 форма 131
+***** 09.10.19 форма 131
 Function forma_131(par)
 Static arr_v := {"21-36 лет","39-60 лет","старше 60 лет"}
 Local arr_m, buf := save_maxrow(), s, as := {}, ar, sh := 80, HH := 80, n, ;

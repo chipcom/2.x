@@ -4,7 +4,7 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 14.08.19 создать XML-файл по несовершеннолетним
+***** 09.10.19 создать XML-файл по несовершеннолетним
 Function mo_mzxml_N(_regim,n_file,stitle,lvozrast)
 Static oXmlDoc, _kol, ;
        arr_np := {0,1,2,3,4,5,6,7,8,9,10,11,12,15,18,24,36,48,60,72,84,96,108,120,132,144,156,168,180,192,204}
@@ -584,7 +584,7 @@ elseif _regim == 2
      if p_tip_lu == TIP_LU_PN        // профилактика 1 и 2 этап
        arr := f4_inf_DNL_karta(1)
        arr1 := f4_inf_DNL_karta(2)
-       if (i := ascan(arr1, {|x| x[5] == 7 })) == 7 // УЗИ сердца
+       if (i := ascan(arr1, {|x| x[5] == 7 })) > 0  // УЗИ сердца
          arr[i,5] := 20                             // эхокардиография
        endif
      elseif p_tip_lu == TIP_LU_PREDN // пред.осмотры 1 и 2 этап
