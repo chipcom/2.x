@@ -74,24 +74,15 @@ $103
 ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
 
 #release
-#var $1  tmp1->name
+#var $1  left(tmp1->name,49)
 #var $2  put_val(tmp1->nn,2)
 #var $3  put_val(tmp1->g1,5)
 #var $4  put_val(tmp1->g2,5)
 #var $5  put_val(tmp1->g3,5)
 #var $6  put_val(tmp1->g4,5)
-#var $21 {"0","I","II","III ","III¡"}[tmp3->gr1+1]
-#var $22 {" ","¤ "}[tmp3->et2+1]
-#var $23 put_val(tmp3->kol1,6)
-#var $24 {" ","I","II","III ","III¡"}[tmp3->gr2+1]
-#var $25 put_val(tmp3->kol2,6)
-#var $30 put_val(skol1,6)
-#var $300 put_val(skol2,6)
-#var $200 ltrim(str(i))+". "+arr_316[i]
-#proc formfeed(5)
- æ¨®­ «ì­ë© ¯à®¥ªâ "‡¤à ¢®®åà ­¥­¨¥"
+#proc formfeed(4)
 ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÂÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄ
-                                                 ³NN³18-39³40-64³65-99³¯à®ä.
+  æ¨®­ «ì­ë© ¯à®¥ªâ "‡¤à ¢®®åà ­¥­¨¥"           ³NN³18-39³40-64³65-99³¯à®ä.
 ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄ
 #proc R_Use("tmp1","tmp1"), dbGotop()
 #do while !eof()
@@ -101,10 +92,51 @@ $1                                                $2 $3    $4    $5    $6
 #enddo
 ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
 
+#release
+#var $1  left(tmp11->name,66)
+#var $2  put_val(tmp11->nn,2)
+#var $3  put_val(tmp11->g3,6)
+#proc formfeed(4)
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÂÄÄÄÄÄÄ
+ Ž’—…’ „‹Ÿ Ž‘‡„€‚€„‡Ž€                                        ³NN³
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÁÄÄÄÄÄÄ
+#proc R_Use("tmp11","tmp11"), dbGotop()
+#do while !eof()
+  #proc formfeed()
+$1                                                                 $2 $3
+  #proc dbSkip()
+#enddo
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
+#release
+#var $1  left(tmp12->name,66)
+#var $2  put_val(tmp12->nn,2)
+#var $3  put_val(tmp12->g3,6)
+#proc formfeed(4)
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÂÄÄÄÄÄÄ
+ Ž’—…’ „‹Ÿ ”ƒ“ "Œˆ– ®­ª®«®£¨¨ ¨¬. ..¥âà®¢ "                  ³NN³
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÁÄÄÄÄÄÄ
+#proc R_Use("tmp12","tmp12"), dbGotop()
+#do while !eof()
+  #proc formfeed()
+$1                                                                 $2 $3
+  #proc dbSkip()
+#enddo
+ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ
+
 #proc R_Use("tmp3","tmp3"), dbGotop()
 #if eof()
   #return
 #endif
+#release
+#var $21 {"0","I","II","III ","III¡"}[tmp3->gr1+1]
+#var $22 {" ","¤ "}[tmp3->et2+1]
+#var $23 put_val(tmp3->kol1,6)
+#var $24 {" ","I","II","III ","III¡"}[tmp3->gr2+1]
+#var $25 put_val(tmp3->kol2,6)
+#var $30 put_val(skol1,6)
+#var $300 put_val(skol2,6)
+#var $200 ltrim(str(i))+". "+arr_316[i]
 #private skol1, skol2, old_gr1, old_et2
 #proc skol1 := skol2 := 0, old_gr1 := tmp3->gr1, old_et2 := tmp3->et2
 #proc formfeed(5)

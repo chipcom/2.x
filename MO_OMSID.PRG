@@ -3454,21 +3454,66 @@ Static Function f_131_u_da_net(k,sb1,sb2)
 if k > 1 ; k := 1 ; endif // если вместо "да" битовый ответ
 return f3_inf_DDS_karta({{"да - 1",1},{"нет - 2",0}},k,";  ",sb1,sb2,.f.)
 
-***** 06.10.19 Приложение к Приказу ГБУЗ "ВОМИАЦ" от 12.05.2017г. №1615
+***** 28.10.19 Приложение к Приказу ГБУЗ "ВОМИАЦ" от 12.05.2017г. №1615
 Function f21_inf_DVN(par) // свод
 Local arr_m, buf := save_maxrow(), s, as := {}, as1[14],;
-      i, j, k, n, ar, at, ii, g1, sh := 65, fl, mdvozrast
+      i, j, k, n, ar, at, ii, g1, sh := 65, fl, mdvozrast, adbf
 if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
               .and. (arr_m := year_month(,,,5)) != NIL .and. f0_inf_DVN(arr_m,par > 1,par == 3,.t.)
+  Private arr_usl_bio := {{;
+    "A11.20.010",;//          Биопсия молочной железы чрескожная
+    "A11.20.010.001",;//      Биопсия новообразования молочной железы прицельная пункционная под контролем рентгенографического исследования
+    "A11.20.010.002",;//      Биопсия новообразования молочной железы аспирационная вакуумная под контролем рентгенографического исследования
+    "A11.20.010.004" ;//      Биопсия непальпируемых новообразования молочной железы аспирационная вакуумная под контролем ультразвукового исследования
+   },;
+   {;
+    "A11.18.001",;//          Биопсия ободочной кишки эндоскопическая
+    "A11.18.002",;//          Биопсия ободочной кишки оперативная
+    "A11.19.001",;//          Биопсия сигмовидной кишки с помощью видеоэндоскопических технологий
+    "A11.19.002",;//          Биопсия прямой кишки с помощью видеоэндоскопических технологий
+    "A11.19.003",;//          Биопсия ануса и перианальной области
+    "A11.19.009" ;//          Биопсия толстой кишки при лапароскопии
+   },;
+   {;
+    "A11.20.011",;//          Биопсия шейки матки
+    "A11.20.011.001",;//      Биопсия шейки матки радиоволновая
+    "A11.20.011.002",;//      Биопсия шейки матки радиоволновая конусовидная
+    "A11.20.011.003" ;//      Биопсия шейки матки ножевая
+   },;
+   {;
+    "A11.01.001",;//          Биопсия кожи
+    "A11.07.001",;//          Биопсия слизистой полости рта
+    "A11.07.002",;//          Биопсия языка
+    "A11.07.003",;//          Биопсия миндалины, зева и аденоидов
+    "A11.07.004",;//          Биопсия глотки, десны и язычка
+    "A11.07.005",;//          Биопсия слизистой преддверия полости рта
+    "A11.07.006",;//          Биопсия пульпы
+    "A11.07.007",;//          Биопсия тканей губы
+    "A11.07.016",;//          Биопсия слизистой ротоглотки
+    "A11.07.016.001",;//      Биопсия слизистой ротоглотки под контролем эндоскопического исследования
+    "A11.07.020",;//          Биопсия слюнной железы
+    "A11.07.020.001",;//      Биопсия околоушной слюнной железы
+    "A11.08.001",;//          Биопсия слизистой оболочки гортани
+    "A11.08.001.001",;//      Биопсия тканей гортани под контролем ларингоскопического исследования
+    "A11.08.002",;//          Биопсия слизистой оболочки полости носа
+    "A11.08.003",;//          Биопсия слизистой оболочки носоглотки
+    "A11.08.003.001",;//      Биопсия слизистой оболочки носоглотки под контролем эндоскопического исследования
+    "A11.08.015",;//          Биопсия слизистой оболочки околоносовых пазух
+    "A11.08.016",;//          Биопсия тканей грушевидного кармана
+    "A11.08.016.001",;//      Биопсия тканей грушевидного кармана под контролем эндоскопического исследования
+    "A11.26.001" ;//          Биопсия новообразования век, конъюнктивы или роговицы
+   };
+  }
   Private arr_21[40], arr_316 := {}, arr_ne := {}
   afill(arr_21,0)
   mywait("Сбор статистики")
-  dbcreate(cur_dir+"tmp1",{{"name","C",49,0},;
-                   {"NN","N",2,0},;
-                   {"g1","N",6,0},;
-                   {"g2","N",6,0},;
-                   {"g3","N",6,0},;
-                   {"g4","N",6,0}})
+  adbf := {{"name","C",80,0},;
+           {"NN","N",2,0},;
+           {"g1","N",6,0},;
+           {"g2","N",6,0},;
+           {"g3","N",6,0},;
+           {"g4","N",6,0}}
+  dbcreate(cur_dir+"tmp1",adbf)
   use (cur_dir+"tmp1") new
   index on str(nn,2) to (cur_dir+"tmp1")
   append blank
@@ -3492,17 +3537,143 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
   append blank
   tmp1->nn := 11 ; tmp1->name := "из гр.8 ГРАЖДАН ЗНО"
   append blank
-  tmp1->nn := 12 ; tmp1->name := "        из гр.11 в т.ч. в I и II стадиях"
+  tmp1->nn := 12 ; tmp1->name := "        из гр.11 в т.ч. в 1 и 2 стадиях"
   append blank
   tmp1->nn := 13 ; tmp1->name := "из гр.8 ГРАЖДАН сахарный диабет"
   append blank
   tmp1->nn := 14 ; tmp1->name := "        в т.ч. сахарный диабет I типа"
   append blank
-  tmp1->nn := 15 ; tmp1->name := "из гр.8 ГРАЖДАН взяты на дисп.наблюдение"
+  tmp1->nn := 15 ; tmp1->name := "из гр.8 ГРАЖДАН глаукома"
   append blank
-  tmp1->nn := 16 ; tmp1->name := "из гр.8 ГРАЖДАН было начато лечение"
+  tmp1->nn := 16 ; tmp1->name := "из гр.8 ГРАЖДАН взяты на дисп.наблюдение"
   append blank
-  tmp1->nn := 17 ; tmp1->name := "        из гр.16 из них сельских жителей"
+  tmp1->nn := 17 ; tmp1->name := "из гр.8 ГРАЖДАН было начато лечение"
+  append blank
+  tmp1->nn := 18 ; tmp1->name := "   из гр.16 из них сельских жителей"
+  dbcreate(cur_dir+"tmp11",adbf)
+  use (cur_dir+"tmp11") new
+  index on str(nn,2) to (cur_dir+"tmp11")
+  append blank
+  tmp11->nn :=  1 ; tmp11->name := "впервые взяты на диспансерный учёт"
+  append blank
+  tmp11->nn :=  2 ; tmp11->name := "оказана специализированная мед.помощь"
+  append blank
+  tmp11->nn :=  3 ; tmp11->name := "оказаны реабилитационные мероприятия"
+  append blank
+  tmp11->nn :=  4 ; tmp11->name := "отказались от проведения дисп-ии в целом"
+  append blank
+  tmp11->nn :=  5 ; tmp11->name := "выявлено пациентов с онкопатологией"
+  append blank
+  tmp11->nn :=  6 ; tmp11->name := "  в т.ч. 1 стадия"
+  append blank
+  tmp11->nn :=  7 ; tmp11->name := "         2 стадия"
+  append blank
+  tmp11->nn :=  8 ; tmp11->name := "         3 стадия"
+  append blank
+  tmp11->nn :=  9 ; tmp11->name := "         4 стадия"
+  append blank
+  tmp11->nn := 10 ; tmp11->name := "направлено на индивид.углубл.профилакт.конс-ие"
+  append blank
+  tmp11->nn := 11 ; tmp11->name := "кол-во прошедших индивид.углубл.профилакт.конс-ие"
+  append blank
+  tmp11->nn := 12 ; tmp11->name := "процент охвата индивид.углубл.профилакт.конс-ием"
+  append blank
+  tmp11->nn := 13 ; tmp11->name := "направлено граждан на групповое профилакт.конс-ие"
+  append blank
+  tmp11->nn := 14 ; tmp11->name := "кол-во прошедших групповое профилакт.конс-ие"
+  append blank
+  tmp11->nn := 15 ; tmp11->name := "процент охвата групповым профилакт.конс-ием"
+  //
+  dbcreate(cur_dir+"tmp12",adbf)
+  use (cur_dir+"tmp12") new
+  index on str(nn,2) to (cur_dir+"tmp12")
+  append blank
+  tmp12->nn :=  1 ; tmp12->name := "Кол-во маммографий в рамках диспансеризации"
+  append blank
+  tmp12->nn :=  2 ; tmp12->name := "  кол-во застрахованных"
+  append blank
+  tmp12->nn :=  3 ; tmp12->name := "    выявлена патология в молочной железе"
+  append blank
+  tmp12->nn :=  4 ; tmp12->name := "      направлено на 2 этап диспансеризации"
+  append blank
+  tmp12->nn :=  5 ; tmp12->name := "      выполнена биопсия молочной железы"
+  append blank                        // C50,D05
+  tmp12->nn :=  6 ; tmp12->name := "    выявлено ЗНО молочной железы, всего"
+  append blank
+  tmp12->nn :=  7 ; tmp12->name := "      in situ"
+  append blank
+  tmp12->nn :=  8 ; tmp12->name := "      из них 1 стадия"
+  append blank
+  tmp12->nn :=  9 ; tmp12->name := "      из них 2 стадия"
+  append blank
+  tmp12->nn := 10 ; tmp12->name := "      из них 3 стадия"
+  append blank
+  tmp12->nn := 11 ; tmp12->name := "      из них 4 стадия"
+  append blank
+  tmp12->nn := 12 ; tmp12->name := "Кол-во анализов кала на скрытую кровь"
+  append blank
+  tmp12->nn := 13 ; tmp12->name := "  кол-во застрахованных"
+  append blank
+  tmp12->nn := 14 ; tmp12->name := "    выявлен положительный тест на скрытую кровь в кале"
+  append blank
+  tmp12->nn := 15 ; tmp12->name := "      направлено на 2 этап диспансеризации"
+  append blank
+  tmp12->nn := 16 ; tmp12->name := "        выполнена колоноскопия"
+  append blank
+  tmp12->nn := 17 ; tmp12->name := "        выполнена ректороманоскопия"
+  append blank
+  tmp12->nn := 18 ; tmp12->name := "        выполнена биопсия при колоноскопии или ректороманоскопии"
+  append blank                     // C18-C21,D01.0-D01.3
+  tmp12->nn := 19 ; tmp12->name := "    выявлено ЗНО толстой/прямой кишки, всего"
+  append blank
+  tmp12->nn := 20 ; tmp12->name := "      in situ"
+  append blank
+  tmp12->nn := 21 ; tmp12->name := "      из них 1 стадия"
+  append blank
+  tmp12->nn := 22 ; tmp12->name := "      из них 2 стадия"
+  append blank
+  tmp12->nn := 23 ; tmp12->name := "      из них 3 стадия"
+  append blank
+  tmp12->nn := 24 ; tmp12->name := "      из них 4 стадия"
+  append blank
+  tmp12->nn := 25 ; tmp12->name := "Кол-во ПАП-тестов  в рамках диспансеризации"
+  append blank
+  tmp12->nn := 26 ; tmp12->name := "  кол-во застрахованных"
+  append blank
+  tmp12->nn := 27 ; tmp12->name := "    выялена патология шейки матки"
+  append blank
+  tmp12->nn := 28 ; tmp12->name := "      направлено на 2 этап диспансеризации"
+  append blank
+  tmp12->nn := 29 ; tmp12->name := "      выполнена биопсия шейки матки"
+  append blank                    // С53,D06
+  tmp12->nn := 30 ; tmp12->name := "    выявлено ЗНО шейки матки, всего"
+  append blank
+  tmp12->nn := 31 ; tmp12->name := "      in situ"
+  append blank
+  tmp12->nn := 32 ; tmp12->name := "      из них 1 стадия"
+  append blank
+  tmp12->nn := 33 ; tmp12->name := "      из них 2 стадия"
+  append blank
+  tmp12->nn := 34 ; tmp12->name := "      из них 3 стадия"
+  append blank
+  tmp12->nn := 35 ; tmp12->name := "      из них 4 стадия"
+  append blank
+  tmp12->nn := 36 ; tmp12->name := "Кол-во застр-ых, у которых выявлена патология кожи и видимых слизистых"
+  append blank
+  tmp12->nn := 37 ; tmp12->name := "  направлены на биопсию кожи и видимых слизистых"
+  append blank                      // C00,C14.8,C43,C44,D00.0,D03,D04
+  tmp12->nn := 38 ; tmp12->name := "  выявлено ЗНО кожи и видимых слизистых, всего"
+  append blank
+  tmp12->nn := 39 ; tmp12->name := "    in situ"
+  append blank
+  tmp12->nn := 40 ; tmp12->name := "    из них 1 стадия"
+  append blank
+  tmp12->nn := 41 ; tmp12->name := "    из них 2 стадия"
+  append blank
+  tmp12->nn := 42 ; tmp12->name := "    из них 3 стадия"
+  append blank
+  tmp12->nn := 43 ; tmp12->name := "    из них 4 стадия"
+  //
   dbcreate(cur_dir+"tmp2",{{"kod_k","N",7,0},;
                            {"rslt1","N",3,0},;
                            {"rslt2","N",3,0}})
@@ -3511,6 +3682,10 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
   R_Use(dir_server+"mo_rpdsh",,"RPDSH")
   index on str(KOD_H,7) to (cur_dir+"tmprpdsh")
   R_Use(dir_server+"kartote_",,"KART_")
+  R_Use(dir_server+"uslugi",,"USL")
+  R_Use(dir_server+"human_u_",,"HU_")
+  R_Use(dir_server+"human_u",dir_server+"human_u","HU")
+  set relation to recno() into HU_
   R_Use(dir_server+"human_",,"HUMAN_")
   R_Use(dir_server+"human",,"HUMAN")
   set relation to recno() into HUMAN_, to kod_k into KART_
@@ -3700,20 +3875,33 @@ if !empty(tmp->kod2h) // диспансеризация II этап
 endif
 return NIL
 
-***** 06.10.19
+***** 28.10.19
 Function f2_f21_inf_DVN(par)
-Local is_selo, i, j, k := 4, ar[17]
+Local is_selo, i, j, k, k1 := 4, fl2 := .f., ar[18], arr11[15], arr12[43], au := {}
+Private arr_otklon := {}, arr_usl_otkaz := {},;
+        M1RAB_NERAB := human->RAB_NERAB, m1veteran := 0, m1mobilbr := 0,;
+        m1kurenie := 0, mad1 := 120, mad2 := 80, m1tip_mas := 0, mssr := 0,;
+        m1holestdn := 0, m1glukozadn := 0, m1fiz_akt := 0, m1ner_pit := 0, ;
+        mholest := 0, mglukoza := 0, ;
+        m1riskalk := 0, m1pod_alk := 0, m1psih_na := 0, ;
+        m1ot_nasl1 := 0, m1ot_nasl2 := 0, m1ot_nasl3 := 0, m1ot_nasl4 := 0,;
+        m1dispans := 0, m1nazn_l  := 0, m1dopo_na := 0, m1ssh_na  := 0,;
+        m1spec_na := 0, m1sank_na := 0,;
+        pole_diag, pole_1pervich, pole_1stadia, pole_1dispans,;
+        mWEIGHT := 0, mHEIGHT := 0
 afill(ar,0) ; ar[2] := 1
+afill(arr11,0)
+afill(arr12,0)
 if kart_->invalid > 0
   arr_21[21] ++
 endif
 if par == 1
   if mdvozrast < 40
-    k := 1
+    k1 := 1
   elseif mdvozrast < 65
-    k := 2
+    k1 := 2
   else
-    k := 3
+    k1 := 3
   endif
 endif
 if (is_selo := f_is_selo(kart_->gorod_selo,kart_->okatog))
@@ -3736,6 +3924,58 @@ for i := 1 to 5
   Private &pole_1dispans := 0
 next
 read_arr_DVN(human->kod)
+m1GRUPPA := ret_gruppa_DVN(human_->RSLT_NEW,@fl2)
+if between(m1gruppa,0,4)
+  if m1gruppa == 0
+    fl2 := .t. // направлен на 2 этап
+  endif
+endif
+if !empty(tmp->kod2h)
+  fl2 := .t. // прошел 2 этап
+endif
+select HU
+find (str(tmp->kod1h,7))
+do while hu->kod == tmp->kod1h .and. !eof()
+  usl->(dbGoto(hu->u_kod))
+  if empty(lshifr := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data))
+    lshifr := usl->shifr
+  endif
+  aadd(au,{alltrim(lshifr),;
+           hu_->PROFIL,;
+           0,;
+           c4tod(hu->date_u);
+          })
+  select HU
+  skip
+enddo
+for k := 1 to len(au)
+  if ascan(arr_otklon,au[k,1]) > 0
+    au[k,3] := 1 // отклонения в исследовании
+  endif
+  if au[k,1] == "7.57.3"
+    arr12[1] := arr12[2] := 1
+    arr12[3] := au[k,3]
+    if fl2 .and. au[k,3] == 1
+      arr12[4] := 1
+    endif
+  elseif au[k,1] == "4.8.4"
+    arr12[12] := arr12[13] := 1
+    arr12[14] := au[k,3]
+    if fl2 .and. au[k,3] == 1
+      arr12[15] := 1
+    endif
+  elseif eq_any(au[k,1],"4.20.1","4.20.2")
+    arr12[25] := arr12[26] := 1
+    arr12[27] := au[k,3]
+    if fl2 .and. au[k,3] == 1
+      arr12[28] := 1
+    endif
+  //elseif eq_any(au[k,1],"56.1.15","56.1.20","56.1.21","56.1.721")
+    //arr11[10] := arr11[11] := 1
+  //elseif au[k,1] == "56.1.723"
+    //arr11[13] := arr11[14] := 1
+  endif
+next
 // диспансеризация II этап
 if !empty(tmp->kod2h)
   human->(dbGoto(tmp->kod2h))
@@ -3743,12 +3983,45 @@ if !empty(tmp->kod2h)
   if between(m1gruppa2,1,4) // точно прошёл 2 этап
     read_arr_DVN(human->kod) // перечитать диагнозы и т.п.
   endif
+  au := {}
+  select HU
+  find (str(tmp->kod1h,7))
+  do while hu->kod == tmp->kod1h .and. !eof()
+    usl->(dbGoto(hu->u_kod))
+    if empty(lshifr := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data))
+      lshifr := usl->shifr
+    endif
+    aadd(au,{alltrim(lshifr),;
+             hu_->PROFIL,;
+             0,;
+             c4tod(hu->date_u);
+            })
+    select HU
+    skip
+  enddo
+  for k := 1 to len(au)
+    if ascan(arr_otklon,au[k,1]) > 0
+      au[k,3] := 1 // отклонения в исследовании
+    endif
+    if eq_any(au[k,1],"10.6.10","10.6.710")
+      arr12[16] := 1
+    elseif eq_any(au[k,1],"10.4.1","10.4.701")
+      arr12[17] := 1
+    elseif eq_any(au[k,1],"56.1.15","56.1.20","56.1.21","56.1.721")
+      arr11[10] := arr11[11] := 1
+    elseif au[k,1] == "56.1.723"
+      arr11[13] := arr11[14] := 1
+    endif
+  next
 endif
 for i := 1 to 5
   pole_diag := "mdiag"+lstr(i)
   pole_1pervich := "m1pervich"+lstr(i)
   pole_1stadia := "m1stadia"+lstr(i)
   pole_1dispans := "m1dispans"+lstr(i)
+  if &pole_1pervich == 1 .and. &pole_1dispans == 1
+    arr11[1] := 1
+  endif
   if !(left(&pole_diag,1) == "A" .or. left(&pole_diag,1) == "B") .and. &pole_1pervich == 1 // неинфекционные заболевания уст.впервые
     ar[8] := 1
     ar[9] ++
@@ -3760,6 +4033,48 @@ for i := 1 to 5
       if &pole_1stadia < 3 // 1 и 2 стадия
         ar[12] := 1
       endif
+      arr11[5] := 1
+      if between(&pole_1stadia,1,4)
+        arr11[5+&pole_1stadia] := 1
+      endif
+      if left(&pole_diag,3) == "C50"
+        arr12[6] := 1
+        if between(&pole_1stadia,1,4)
+          arr12[7+&pole_1stadia] := 1
+        endif
+      elseif left(&pole_diag,3) == "D05"
+        arr12[6] := 1
+        arr12[7] := 1 // in situ
+      endif
+      if eq_any(left(&pole_diag,3),"C18","C19","C20","C21")
+        arr12[19] := 1
+        if between(&pole_1stadia,1,4)
+          arr12[20+&pole_1stadia] := 1
+        endif
+      elseif eq_any(left(&pole_diag,5),"D01.0","D01.1","D01.2","D01.3")
+        arr12[19] := 1
+        arr12[20] := 1 // in situ
+      endif
+      if left(&pole_diag,3) == "C53"
+        arr12[30] := 1
+        if between(&pole_1stadia,1,4)
+          arr12[31+&pole_1stadia] := 1
+        endif
+      elseif left(&pole_diag,3) == "D06"
+        arr12[30] := 1
+        arr12[31] := 1 // in situ
+      endif
+      if eq_any(left(&pole_diag,3),"C00","C43","C44") .or. left(&pole_diag,5) == "C14.8"
+        arr12[36] := 1
+        arr12[38] := 1
+        if between(&pole_1stadia,1,4)
+          arr12[39+&pole_1stadia] := 1
+        endif
+      elseif eq_any(left(&pole_diag,3),"D03","D04") .or. left(&pole_diag,5) == "D00.0"
+        arr12[36] := 1
+        arr12[38] := 1
+        arr12[39] := 1
+      endif
     endif
     if between(left(&pole_diag,3),"E10","E14") // сахарный диабет
       ar[13] := 1
@@ -3767,23 +4082,40 @@ for i := 1 to 5
         ar[14] := 1
       endif
     endif
-    if &pole_1dispans == 1
+    if eq_any(left(&pole_diag,3),"H40","H42") .or. left(&pole_diag,5) == "Q15.0" // глаукома
       ar[15] := 1
     endif
-    if .f. // 1-лечение назначено
-      ar[16] := 1 // ?? было начато лечение
+    if &pole_1dispans == 1
+      ar[16] := 1
       if is_selo
-        ar[17] := 1
+        ar[18] := 1
       endif
+    endif
+    if .f. // 1-лечение назначено
+      ar[17] := 1 // ?? было начато лечение
     endif
   endif
 next
-pole := "tmp1->g"+lstr(k)
+pole := "tmp1->g"+lstr(k1)
 select TMP1
 for i := 1 to len(ar)
   if ar[i] > 0
     find (str(i,2))
     &pole := &pole + ar[i]
+  endif
+next
+select TMP11
+for i := 1 to len(arr11)
+  if arr11[i] > 0
+    find (str(i,2))
+    tmp11->g3 += arr11[i]
+  endif
+next
+select TMP12
+for i := 1 to len(arr12)
+  if arr12[i] > 0
+    find (str(i,2))
+    tmp12->g3 += arr12[i]
   endif
 next
 return NIL
@@ -4854,7 +5186,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
       { 3,"Эзофагогастродуоденоскопия","10.3.13"},;
       { 4,"Осмотр врача-уролога","2.84.10"},;
       { 5,"Осмотр врача-колопроктолога","2.84.6"},;
-      { 6,"Колоноскопия (ректороманоскопия)",{"10.4.1","10.6.10","10.6.710"}},;
+      { 6,"Колоноскопия (ректороманоскопия)",{"10.4.1","10.4.701","10.6.10","10.6.710"}},;
       { 7,"Определение липидного спектра крови","4.12.173"},;
       { 8,"Спирометрия",{"16.1.17","16.1.717"}},;
       { 9,"Осмотр врача-акушера-гинеколога","2.84.5"},;
@@ -4862,8 +5194,8 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
       {11,"Осмотр врача-оториноларинголога","2.84.8"},;
       {12,"Анализ крови на ПСА","4.14.66"},;
       {13,"Осмотр врача-офтальмолога","2.84.3"},;
-      {14,"Индивидуальное профилактическое консультирование",{"56.1.15","56.1.20","56.1.723"}},;
-      {15,"Групповое профилактическое консультирование","0"},;
+      {14,"Индивидуальное профилактическое консультирование",{"56.1.15","56.1.20","56.1.21","56.1.721"}},;
+      {15,"Групповое профилактическое консультирование","56.1.723"},;
       {16,"Прием (осмотр) врача-терапевта",{"2.84.2","2.84.7","2.84.9","2.84.11"}};
      }
     dbcreate(cur_dir+"tmp3000",{{"name","C",100,0},;
@@ -6960,7 +7292,7 @@ do case
 endcase
 return k
 
-***** 15.07.19 Приложение к письму ГБУЗ "ВОМИАЦ" №1025 от 08.07.2019г.
+***** 27.10.19 Приложение к письму ГБУЗ "ВОМИАЦ" №1025 от 08.07.2019г.
 Function f21_inf_DNL(par)
 Local arr_m, buf := save_maxrow(), lkod_h, lkod_k, rec, s, adbf, as, i, j, k, ;
       sh, HH := 60, n, n_file := "svod_dnl"+stxt
@@ -6990,12 +7322,16 @@ if (arr_m := year_month(,,,5)) != NIL
              {"so","N",6,0},;
              {"v2","N",6,0},;
              {"m15","N",6,0},;
+             {"m15s","N",6,0},;
              {"m15a","N",6,0},;
              {"m15p","N",6,0},;
+             {"m15ps","N",6,0},;
              {"m15e","N",6,0},;
              {"g15","N",6,0},;
+             {"g15s","N",6,0},;
              {"g15g","N",6,0},;
              {"g15p","N",6,0},;
+             {"g15ps","N",6,0},;
              {"g15e","N",6,0}}
     dbcreate(cur_dir+"tmp1",adbf)
     use (cur_dir+"tmp1") new
@@ -7168,30 +7504,35 @@ if (arr_m := year_month(,,,5)) != NIL
     afillall(as,0)
     verify_FF(HH-10,.t.,sh)
     arr_title := {;
-"────────┬───────────────────────┬───────────────────────",;
-"        │    Юноши (15-17 лет)  │  Девушки (15-17 лет)  ",;
-"отчетный├───────────┬─────┬─────┼───────────┬─────┬─────",;
-"период  │факт (чел.)│патол│напр.│факт (чел.)│патол│напр.",;
-"        ├─────┬─────┤репр.│на II├─────┬─────┤репр.│на II",;
-"        │всего│андро│сист.│этап │всего│гинек│сист.│этап ",;
-"────────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────",;
-"        │  2  │  3  │  4  │  5  │  2  │  3  │  4  │  5  ",;
-"────────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────"}
+"────────┬───────────────────────────────────┬───────────────────────────────────",;
+"        │      Юноши (15-17 лет)            │        Девушки (15-17 лет)        ",;
+"отчетный├─────────────────┬─────┬─────┬─────┼─────────────────┬─────┬─────┬─────",;
+"период  │факт осмот.(чел.)│патол│ из  │напр.│факт осмот.(чел.)│патол│ из  │напр.",;
+"        ├─────┬─────┬─────┤репр.│ гр.6│на II├─────┬─────┬─────┤репр.│ гр.6│на II",;
+"        │всего│ село│андро│сист.│ село│этап │всего│ село│гинек│сист.│ село│этап ",;
+"────────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────",;
+"        │  3  │  4  │  5  │  6  │  7  │  8  │  3  │  4  │  5  │  6  │  7  │  8  ",;
+"────────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────"}
     sh := len(arr_title[1])
     i := 1
     add_string("")
+    add_string("Несовершеннолетние в возрасте 15-17 лет")
     aeval(arr_title, {|x| add_string(x) } )
     find (str(i,1))
     do while tmp1->ti == i .and. !eof()
       j := 1
       s := padr(mm_month[tmp1->mm],8)+;
            put_val(tmp1->m15,6)+;
+           put_val(tmp1->m15s,6)+;
            put_val(tmp1->m15a,6)+;
            put_val(tmp1->m15p,6)+;
+           put_val(tmp1->m15ps,6)+;
            put_val(tmp1->m15e,6)+;
            put_val(tmp1->g15,6)+;
+           put_val(tmp1->g15s,6)+;
            put_val(tmp1->g15g,6)+;
            put_val(tmp1->g15p,6)+;
+           put_val(tmp1->g15ps,6)+;
            put_val(tmp1->g15e,6)
       if verify_FF(HH-1,.t.,sh)
         aeval(arr_title, {|x| add_string(x) } )
@@ -7199,18 +7540,22 @@ if (arr_m := year_month(,,,5)) != NIL
       add_string(s)
       add_string(replicate("─",sh))
       as[ 1,j] += tmp1->m15
-      as[ 2,j] += tmp1->m15a
-      as[ 3,j] += tmp1->m15p
-      as[ 4,j] += tmp1->m15e
-      as[ 5,j] += tmp1->g15
-      as[ 6,j] += tmp1->g15g
-      as[ 7,j] += tmp1->g15p
-      as[ 8,j] += tmp1->g15e
+      as[ 2,j] += tmp1->m15s
+      as[ 3,j] += tmp1->m15a
+      as[ 4,j] += tmp1->m15p
+      as[ 5,j] += tmp1->m15ps
+      as[ 6,j] += tmp1->m15e
+      as[ 7,j] += tmp1->g15
+      as[ 8,j] += tmp1->g15s
+      as[ 9,j] += tmp1->g15g
+      as[10,j] += tmp1->g15p
+      as[11,j] += tmp1->g15ps
+      as[12,j] += tmp1->g15e
       skip
     enddo
     j := 1
     s := padr(lstr(year(arr_m[6]))+" год",8)
-    for k := 1 to 8
+    for k := 1 to 12
       s += put_val(as[k,j],6)
     next
     add_string(s)
@@ -7228,8 +7573,8 @@ if (arr_m := year_month(,,,5)) != NIL
 "         │  1  │  2  │  3  │  4  │  5  │  6  │  7  │  8  │  9  │  10 │  11 │  12 │  13 ",;
 "─────────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────"}
     sh := len(arr_title[1])
-    add_string('в рамках национального проекта "Здравоохранение"')
     add_string("")
+    add_string('В рамках национального проекта "Здравоохранение"')
     aeval(arr_title, {|x| add_string(x) } )
     use (cur_dir+"tmp2") index (cur_dir+"tmp2") new
     go top
@@ -7265,9 +7610,9 @@ close databases
 rest_box(buf)
 return NIL
 
-***** 15.07.19
+***** 27.10.19
 Function f1_f21_inf_DNL(Loc_kod,kod_kartotek) // сводная информация
-Local ii, im, i, j, k, s, sumr := 0, is_do1g := 0, ltip_school := -1, ar15[8], is_2 := .f., ad := {}, arr, a3 := {}
+Local ii, im, i, j, k, s, sumr := 0, is_do1g := 0, ltip_school := -1, ar15[12], is_2 := .f., ad := {}, arr, a3 := {}
 Private m1tip_school := -1, m1school := 0, mvozrast, mdvozrast, mgruppa := 0, m1GR_FIZ := 1, m1invalid1 := 0
 Private mvar, m1var
 afill(ar15,0)
@@ -7361,19 +7706,25 @@ else
   aadd(a3,aclone(arr))
   if between(mdvozrast,15,17)
     arr[14] := 2
-    j := iif(human->pol == "М", 1, 5)
+    j := iif(human->pol == "М", 1, 7)
     ar15[j] ++
+    if is_selo
+      ar15[j+1] ++
+    endif
     if ascan(ad,{|x| left(x[1],1) == "N" }) > 0 // патология органов репродуктивной системы
-      ar15[j+2] ++
+      ar15[j+3] ++
+      if is_selo
+        ar15[j+4] ++
+      endif
     endif
     if is_2
-      ar15[j+3] ++
+      ar15[j+5] ++
     endif
     select HU
     find (str(Loc_kod,7))
     do while hu->kod == Loc_kod .and. !eof()
       if eq_any(hu_->PROFIL,19,136)
-        ar15[j+1] ++
+        ar15[j+2] ++
         exit
       endif
       skip
@@ -7413,13 +7764,17 @@ for j := 0 to is_do1g
     tmp1->vsego1 ++
   endif
   tmp1->m15  += ar15[1]
-  tmp1->m15a += ar15[2]
-  tmp1->m15p += ar15[3]
-  tmp1->m15e += ar15[4]
-  tmp1->g15  += ar15[5]
-  tmp1->g15g += ar15[6]
-  tmp1->g15p += ar15[7]
-  tmp1->g15e += ar15[8]
+  tmp1->m15s += ar15[2]
+  tmp1->m15a += ar15[3]
+  tmp1->m15p += ar15[4]
+  tmp1->m15ps+= ar15[5]
+  tmp1->m15e += ar15[6]
+  tmp1->g15  += ar15[7]
+  tmp1->g15s += ar15[8]
+  tmp1->g15g += ar15[9]
+  tmp1->g15p += ar15[10]
+  tmp1->g15ps+= ar15[11]
+  tmp1->g15e += ar15[12]
   if between(mgruppa,1,5)
     pole := "tmp1->g"+lstr(mgruppa)
     &pole := &pole + 1

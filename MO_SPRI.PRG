@@ -615,7 +615,7 @@ return NIL
 
 *
 
-***** 03.01.19 даты смены цен
+***** 23.10.19 даты смены цен
 Function usl1TFOMS()
 Local k, buf := save_maxrow(), name_file := "uslugi"+stxt, sh := 80, HH := 60, ;
       i, s, fl, v1, v2, mdate, pole, nu, t_arr[BR_LEN], ret, ret_arr, scode, dy
@@ -769,7 +769,7 @@ if ret != NIL
     endif
     index on fsort_usl(shifr) to (cur_dir+"tmp1")
     go top
-    old := tmp1->shifr
+    old := space(10)
     do while !eof()
       n := iif(empty(tmp1->depart), 50, 70)
       k := perenos(t_arr,iif(dy < 2019, lusl18->name, lusl->name),n)
@@ -789,7 +789,7 @@ if ret != NIL
       endif
       if !empty(tmp1->depart)
         if !(old == tmp1->shifr)
-          verify_FF(HH-k,.t.,sh)
+          verify_FF(HH-k-1,.t.,sh)
           for i := 1 to k
             add_string(iif(i==1,tmp1->shifr,space(10))+t_arr[i])
           next
@@ -799,6 +799,7 @@ if ret != NIL
         if found()
           s := padl(alltrim(dep->name_short),60)
           s += put_kopE(tmp1->cenav,10)+put_kopE(tmp1->cenad,10)
+          verify_FF(HH,.t.,sh)
           add_string(s)
         endif
       endif
@@ -870,7 +871,7 @@ if ret != NIL
     endif
     index on fsort_usl(shifr) to (cur_dir+"tmp1")
     go top
-    old := tmp1->shifr
+    old := space(10)
     do while !eof()
       n := iif(empty(tmp1->depart), 50, 70)
       k := perenos(t_arr,iif(dy < 2019, lusl18->name, lusl->name),n)
@@ -890,7 +891,7 @@ if ret != NIL
       endif
       if !empty(tmp1->depart)
         if !(old == tmp1->shifr)
-          verify_FF(HH-k,.t.,sh)
+          verify_FF(HH-k-1,.t.,sh)
           for i := 1 to k
             add_string(iif(i==1,tmp1->shifr,space(10))+t_arr[i])
           next
@@ -900,6 +901,7 @@ if ret != NIL
         if found()
           s := padl(alltrim(dep->name_short),60)
           s += put_kopE(tmp1->cenav,10)+put_kopE(tmp1->cenad,10)
+          verify_FF(HH,.t.,sh)
           add_string(s)
         endif
       endif

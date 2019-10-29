@@ -6700,9 +6700,9 @@ if emptyany(uch_otd[1],uch_otd[2])
 endif
 return uch_otd
 
-***** 20.01.19 Изменение цен на услуги в соответствии со справочником услуг ТФОМС
+***** 23.10.19 Изменение цен на услуги в соответствии со справочником услуг ТФОМС
 Function Change_Cena_OMS()
-Local buf := save_maxrow(), lshifr1, fl, lrec, kod_ksg, begin_date := addmonth(sys_date,-3)
+Local buf := save_maxrow(), lshifr1, fl, lrec, rec_human, k_data2, kod_ksg, begin_date := addmonth(sys_date,-3)
 if begin_date < boy(begin_date)
   begin_date := boy(begin_date)
 endif
@@ -6752,7 +6752,15 @@ if f_Esc_Enter("изменения цен",.t.) .and. mo_Lock_Task(X_OMS)
     do while human->schet == 0 .and. !eof()
       // цикл по людям
       UpdateStatus()
-      if human_->reestr == 0 .and. human->k_data > begin_date
+      k_data2 := human->k_data
+      if human->ishod == 88
+        rec_human := human->(recno())
+        select HUMAN
+        goto (human_2->pn4) // ссылка на 2-й лист учёта
+        k_data2 := human->k_data // переприсваиваем дату окончания лечения
+        goto (rec_human)
+      endif
+      if human_->reestr == 0 .and. k_data2 > begin_date
         ++sm_human
         @ maxrow(),1  say lstr(i_human) color "G+/R"
         @ row(),col() say "/" color "R+/R"
@@ -6767,8 +6775,8 @@ if f_Esc_Enter("изменения цен",.t.) .and. mo_Lock_Task(X_OMS)
           // цикл по услугам
           usl->(dbGoto(hu->u_kod))
           mdate := c4tod(hu->date_u)
-          lshifr1 := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data)
-          if is_usluga_TFOMS(usl->shifr,lshifr1,human->k_data)
+          lshifr1 := opr_shifr_TFOMS(usl->shifr1,usl->kod,k_data2)
+          if is_usluga_TFOMS(usl->shifr,lshifr1,k_data2)
             lshifr := iif(empty(lshifr1), usl->shifr, lshifr1)
             if human_->USL_OK < 3 .and. is_ksg(lshifr)
               kod_ksg := lshifr
@@ -6778,7 +6786,7 @@ if f_Esc_Enter("изменения цен",.t.) .and. mo_Lock_Task(X_OMS)
               fl_del := fl_uslc := .f.
               v := fcena_oms(lshifr,;
                              (human->vzros_reb==0),;
-                             human->k_data,;
+                             k_data2,;
                              @fl_del,;
                              @fl_uslc)
               if fl_uslc // если нашли в справочнике ТФОМС
@@ -6802,7 +6810,7 @@ if f_Esc_Enter("изменения цен",.t.) .and. mo_Lock_Task(X_OMS)
             k006->(dbCloseArea())
           endif
           if year(human->k_data) > 2018
-            arr_ksg := definition_KSG()
+            arr_ksg := definition_KSG(1,k_data2)
           else
             arr_ksg := definition_KSG_18()
           endif

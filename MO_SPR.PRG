@@ -155,7 +155,7 @@ return NIL
 ***** 15.01.19
 Function f0_es_uslugi()
 Local k := 3, v1, v2, fl1del, fl2del, s := iif(empty(usl->shifr1), usl->shifr, usl->shifr1)
-s := padr(transform_shifr(s),10)      
+s := padr(transform_shifr(s),10)
 select LUSL
 find (s)
 if found()
@@ -320,9 +320,9 @@ Private mkod, mname, mpcena, mpcena_d, mshifr, mshifr1, mcena, mcena_d,;
         mname1:="", mslugba, m1slugba, gl_area,;
         m1is_nulp, mis_nulp, yes_tfoms := .f., pifin := 0, pifinr, pifinc
 if (is_full := (is_task(X_ORTO) .or. is_task(X_KASSA) .or. is_task(X_PLATN)))
-  r1 -= 4 
+  r1 -= 4
 endif
-gl_area := {r1+1, 0, 23, 79, 0}        
+gl_area := {r1+1, 0, 23, 79, 0}
 //
 select TMP_USL1
 zap
@@ -765,7 +765,7 @@ if !empty(mshifr1 := transform_shifr(mshifr1))
 endif
 return fl
 
-***** 
+*****
 Function spr_uslugi_FFOMS()
 Static menu_nul := {{"нет",.f.},{"да",.t.}}
 Local arr_block, buf := savescreen(),  str_sem
@@ -869,7 +869,7 @@ do case
     hu->(dbCloseArea())
     if !fl
       R_Use(dir_server+"mo_onkna",,"NAPR") // онконаправления
-      Locate for U_KOD == mosu->kod 
+      Locate for U_KOD == mosu->kod
       fl := found()
       napr->(dbCloseArea())
     endif
@@ -4083,7 +4083,7 @@ do case
       m1prvs     := ret_new_spec(p2->prvs,p2->prvs_new)
       if fieldpos("profil") > 0
         fl_profil := .t.
-        m1profil := p2->profil 
+        m1profil := p2->profil
       endif
       muroven    := p2->uroven
       motdal     := p2->otdal
@@ -4419,7 +4419,7 @@ dbcreate(cur_dir+"tmp_V015",{{"name","C",len1,0},;
                              {"sindex","C",56,0},;
                              {"isn","N",1,0},;
                              {"is","L",1,0}})
-use (cur_dir+"tmp_V015") new 
+use (cur_dir+"tmp_V015") new
 for i := 1 to len(_glob_array)
   fl_is := between_date(_glob_array[i,5],_glob_array[i,6],_date)
   if iif(is_all, .t., fl_is)
@@ -4450,7 +4450,7 @@ do while !eof()
       s := upper(padr(afteratnum(".",tmp_V015->name,1),10))+tmp_V015->kod+s
       if !empty(tmp_V015->kod_up)
         aadd(anu,tmp_V015->name)
-      endif 
+      endif
       ++i
     else
       exit
@@ -4470,7 +4470,7 @@ do while !eof()
   next
   tmp_V015->name_up := s
   skip
-enddo  
+enddo
 index on sindex to (cur_dir+"tmpsV015")
 tmp_V015->(dbCloseArea())
 select (tmp_select)
@@ -4480,11 +4480,11 @@ return NIL
 FUNCTION ret_new_spec(old_spec,new_spec)
 Local i, lkod := 0
 if empty(new_spec)
-  if !empty(old_spec) .and. (i := ascan(glob_arr_V004_V015, {|x| x[1] == old_spec })) > 0 
-    lkod := glob_arr_V004_V015[i,2] 
+  if !empty(old_spec) .and. (i := ascan(glob_arr_V004_V015, {|x| x[1] == old_spec })) > 0
+    lkod := glob_arr_V004_V015[i,2]
   endif
 else
-  lkod := new_spec 
+  lkod := new_spec
 endif
 return lkod
 
@@ -4633,10 +4633,10 @@ if is_otd_dep
                                 {|x|menu_reader(x,mm_otd_dep,A__MENUVERT_SPACE,,,.f.)},;
                                 0,{|x|inieditspr(A__MENUVERT,mm_otd_dep,x)},;
                                 "По справочнику ТФОМС"})
-endif                       
+endif
 /*if is_adres_podr
   if (i := ascan(glob_adres_podr, {|x| x[1] == glob_mo[_MO_KOD_TFOMS] })) > 0
-    for j := 1 to len(glob_adres_podr[i,2]) 
+    for j := 1 to len(glob_adres_podr[i,2])
       aadd(mm_adres_podr, {glob_adres_podr[i,2,j,3],glob_adres_podr[i,2,j,2]})
     next
   endif
@@ -4644,7 +4644,7 @@ endif
                                 {|x|menu_reader(x,mm_adres_podr,A__MENUVERT,,,.f.)},;
                                 0,{|x|inieditspr(A__MENUVERT,mm_adres_podr,x)},;
                                 "Адрес удалённого подразделения для стационара"})
-endif                       
+endif
 if is_adres_podr .and. (i := ascan(glob_adres_podr, {|x| x[1] == glob_mo[_MO_KOD_TFOMS] })) > 0
   G_Use(dir_server+"mo_otd",,"OTD")
   go top
@@ -4657,8 +4657,8 @@ if is_adres_podr .and. (i := ascan(glob_adres_podr, {|x| x[1] == glob_mo[_MO_KOD
     endif
     skip
   enddo
-  close databases                      
-endif*/                       
+  close databases
+endif*/
 if is_task(X_PLATN)
   aadd(arr[US_EDIT_SPR],{"dbeginp","D",8,0,,,boy(sys_date),,;
                          'Дата начала работы в задаче "Платные услуги"'})
@@ -4687,8 +4687,8 @@ edit_u_spr(1,arr)
     endif
     skip
   enddo
-  close databases                      
-endif*/                       
+  close databases
+endif*/
 return NIL
 
 *****
@@ -4901,7 +4901,7 @@ return fl
 
 *
 
-***** 03.09.17 ввод пароля
+***** 23.10.19 ввод пароля
 Function inp_password(is_cur_dir,is_create)
 Local pss := space(10), tmp_pss := my_parol(), i_p := 0, ta := {}, s, fl_g := .f.
 Public TIP_ADM := 0, TIP_OPER := 1, TIP_KONT := 3
@@ -4948,9 +4948,12 @@ do while i_p < 3  // до 3х попыток
             s := iif(empty(base1->p8), "", crypt(base1->p8,gpasskod))
             if !empty(s) .and. int(val(s)) > 0
               oper_frparol := int(val(s))
-            else 
+            else
               oper_frparol := oper_parol
             endif
+          endif
+          if fieldnum("inn") > 0 // ИНН кассира
+            oper_fr_inn := alltrim(crypt(base1->inn,gpasskod))
           endif
         endif
         base1->(dbCloseArea())
@@ -4981,7 +4984,7 @@ return ta
 
 *
 
-***** 03.09.17
+***** 22.10.19
 Function edit_password()
 Local buf := save_maxrow()
 Local mas11 := {}, mpic := {,,,{1,0}},;
@@ -5016,14 +5019,15 @@ do while !eof()
                p2,;                        //  6
                recno(),;                   //  7
                iif(empty(p7), p7, crypt(p7,gpasskod)),;   //  8
-               iif(empty(p8), p8, crypt(p8,gpasskod));    //  9
+               iif(empty(p8), p8, crypt(p8,gpasskod)),;    //  9
+               iif(empty(inn), inn, crypt(inn,gpasskod)); //  10
               };
       )
   skip
 enddo
 close databases
 if len(mas11) == 0
-  aadd(mas11, {space(20),space(25),space(20),0,space(10),1,0,space(10),space(10)})
+  aadd(mas11, {space(20),space(25),space(20),0,space(10),1,0,space(10),space(10),space(12)})
 endif
 Arrn_Browse(T_ROW,c_1,maxrow()-2,c_2,mas11,mas12,1,,color5,,,,,mpic,blk,{.f.,.f.,.t.})
 close databases
@@ -5032,7 +5036,7 @@ rest_box(buf)
 G_SUnlock("edit_pass")
 RETURN NIL
 
-***** 03.09.17
+***** 22.10.19
 Static Function f1editpass(b, ar, nDim, nElem, nKey)
 Local nRow := ROW(), nCol := COL(), tmp_color, buf := save_maxrow(), buf1, fl := .f., r1, r2, i,;
       mm_gruppa := {;
@@ -5043,7 +5047,7 @@ Local nRow := ROW(), nCol := COL(), tmp_color, buf := save_maxrow(), buf1, fl :=
 keyboard ""
 if nKey == K_ENTER
   Private mfio, mdolj, mgruppa, m1gruppa := 0, mtip, m1tip, mpass, moper,;
-  mfroper, gl_area := {1,0,maxrow()-1,79,0}
+  mfroper,minn, gl_area := {1,0,maxrow()-1,79,0}
 
   if ar[nElem,7] == 0 .and. len(ar) > 1
     ar[nElem,6] := 1 // по умолчанию добавляется оператор
@@ -5059,12 +5063,19 @@ if nKey == K_ENTER
     --r1
   endif
   if is_task(X_PLATN) .or. is_task(X_ORTO) .or. is_task(X_KASSA)
+    minn  := ar[nElem,10]
     moper := ar[nElem,8]
     --r1
     mfroper := ar[nElem,9]
     --r1
   endif
   buf1 := box_shadow(r1,c_1+1,r2,c_2-1,,iif(ar[nElem,7]==0,"Добавление","Редактирование"),cDataPgDn)
+  if is_task(X_PLATN) .or. is_task(X_ORTO) .or. is_task(X_KASSA)
+    @ r1+2,c_1+3 say "Ф.И.О. пользователя" get mfio valid func_empty(mfio)
+    @ r1+2,c_1+46 say "ИНН" get minn
+  else
+    @ r1+2,c_1+3 say "Ф.И.О. пользователя" get mfio valid func_empty(mfio)
+  endif
   @ r1+2,c_1+3 say "Ф.И.О. пользователя" get mfio valid func_empty(mfio)
   @ r1+3,c_1+3 say "Должность" get mdolj
   @ r1+4,c_1+3 say "Тип доступа" get mtip READER {|x|menu_reader(x,menu_tip,A__MENUVERT,,,.f.)}
@@ -5085,27 +5096,29 @@ if nKey == K_ENTER
   rest_box(buf)
   setcolor(tmp_color)
   if lastkey() != K_ESC .and. f_Esc_Enter(1)
-    ar[nElem,1] := mfio
-    ar[nElem,6] := m1tip
-    ar[nElem,3] := mdolj
-    ar[nElem,4] := m1gruppa
-    ar[nElem,2] := inieditspr(A__MENUVERT,menu_tip,m1tip)
-    ar[nElem,5] := mpass
-    ar[nElem,8] := moper
-    ar[nElem,9] := mfroper
+    ar[nElem,1]  := mfio
+    ar[nElem,6]  := m1tip
+    ar[nElem,3]  := mdolj
+    ar[nElem,4]  := m1gruppa
+    ar[nElem,2]  := inieditspr(A__MENUVERT,menu_tip,m1tip)
+    ar[nElem,5]  := mpass
+    ar[nElem,8]  := moper
+    ar[nElem,9]  := mfroper
+    ar[nElem,10] := minn
     if G_Use(dir_server+"base1",,,.t.)
       if ar[nElem,7] == 0
         G_RLock(.t.,FOREVER) ; ar[nElem,7] := recno()
       else
         goto (ar[nElem,7]) ; G_RLock(FOREVER)
       endif
-      replace p1 with crypt(mfio,gpasskod),;
-              p2 with m1tip,;
-              p3 with crypt(mpass,gpasskod),;
-              p5 with crypt(mdolj,gpasskod),;
-              p6 with m1gruppa,;
-              p7 with crypt(moper,gpasskod),;
-              p8 with crypt(mfroper,gpasskod)
+      replace p1  with crypt(mfio,gpasskod),;
+              p2  with m1tip,;
+              p3  with crypt(mpass,gpasskod),;
+              p5  with crypt(mdolj,gpasskod),;
+              p6  with m1gruppa,;
+              p7  with crypt(moper,gpasskod),;
+              p8  with crypt(mfroper,gpasskod),;
+              inn with crypt(minn,gpasskod)
       b:refreshAll() ; fl := .t.
     endif
   endif

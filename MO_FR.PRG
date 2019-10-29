@@ -663,7 +663,7 @@ Local tip_bank_kart := {{"МИР",1},;
 Local j, fl := .f., tmp_color, buf, buf24, a[3], r := 16
 //
 if  mek_bnbank == 2
-  asize(tip_bank_kart,3) 
+  asize(tip_bank_kart,3)
 endif
 if p_summa >= 0 //касса по 54-ФЗ
   tmp_color := setcolor(cDataCGet)
@@ -831,7 +831,7 @@ return update_gets()
 *
 
 
-*****  19.04.19
+*****  22.10.19
 Function chek_fr(vsum,vsd,/*@*/cur_chek,vbank,sekcia,/*@*/fr_serial_number,address,tip_kart,tip_oplat)
 Local fl := .t., name_tov, buf := save_maxrow(), ;
       s_err := "", s, last_chek := 0, fl_str := 0, fl_err_annul := .f., ;
@@ -865,6 +865,7 @@ if tt1[FR_R_REGIM] == 4  // смена не открыта
     t_vrem := FR_ReadPassword(oper_parol)
     //if substr(alltrim(t_vrem[1]),1,6) == "КАССИР" //alltrim(fio_polzovat)
     FR_WritePassword(oper_parol,fio_polzovat)
+    FR_WritePassword(30,fio_polzovat)
     //endif
   endif
   if FR_Read_otrezka() > 0
@@ -933,6 +934,11 @@ if fl .and. len(alltrim(address)) > 3
   // передача данных покупателя
   FRN_CustomerEmail(address)
 endif
+//
+if len(alltrim(oper_fr_inn)) == 12
+  FR_Write_INN_kassir(oper_fr_inn)
+endif
+//
 if fl
   DEFAULT vbank TO 0
   if empty(vbank)
@@ -1053,6 +1059,10 @@ do while !eof()
   skip
 enddo
 //  КОНЕЦ печати услуг
+if len(alltrim(oper_fr_inn)) == 12
+  FR_Write_INN_kassir(oper_fr_inn)
+endif
+//
 if fl
   s_err := FRCH_close(value,bn_value,,0,tip_banka)
   if (fl := empty(s_err))
@@ -1569,12 +1579,32 @@ if flag == 0 //без гашения
      return NIL
   endif
 elseif flag == 1
-  IF drvFR:PrintReportWithCleaning() < 0
-     t := drvFR:ResultCodeDescription
-     return alltrim(t)
+  if len(alltrim(oper_fr_inn)) == 12
+    //
+    drvFR:FNBeginCloseSession()
+    //
+    drvFR:Password    := oper_frparol
+    drvFR:TagNumber   := 1203
+    drvFR:TagType     := 7
+    drvFR:TagValueStr := oper_fr_inn
+    //
+    drvFR:FNSendTag()
+    drvFR:Password    := oper_frparol
+    IF drvFR:PrintReportWithCleaning() < 0
+       t := drvFR:ResultCodeDescription
+       return alltrim(t)
+    else
+       //t := drvFR:ResultCodeDescription
+       return NIL
+    endif
   else
-     //t := drvFR:ResultCodeDescription
-     return NIL
+    IF drvFR:PrintReportWithCleaning() < 0
+       t := drvFR:ResultCodeDescription
+       return alltrim(t)
+    else
+       //t := drvFR:ResultCodeDescription
+       return NIL
+    endif
   endif
 else
   IF drvFR:PrintDepartmentReport() < 0
@@ -1778,20 +1808,43 @@ return NIL
 
 *
 
-***** Открытие смены
+***** 22.10.19  Открытие смены
 function FRCHN_OpenSession()
 Local t, tt1
 
-drvFR:Password := oper_parol
-IF drvFR:OpenSession() < 0
-   t := drvFR:ResultCodeDescription
-   return alltrim(t)
+if len(alltrim(oper_fr_inn)) == 12
+  drvFR:Password := oper_frparol
+  drvFR:FNBeginOpenSession()
+  //
+  drvFR:Password    := oper_frparol
+  drvFR:TagNumber   := 1203
+  drvFR:TagType     := 7
+  drvFR:TagValueStr := oper_fr_inn
+  //
+  drvFR:FNSendTag()
+  //
+  drvFR:Password := oper_parol
+  IF drvFR:FNOpenSession() < 0
+     t := drvFR:ResultCodeDescription
+     return alltrim(t)
+  else
+     t := drvFR:ContentsOfCashRegister
+  endif
+  waitperiod(100) // время произвольно
+  do while waitperiod()
+  enddo
 else
-   t := drvFR:ContentsOfCashRegister
+  drvFR:Password := oper_parol
+  IF drvFR:OpenSession() < 0
+     t := drvFR:ResultCodeDescription
+     return alltrim(t)
+  else
+     t := drvFR:ContentsOfCashRegister
+  endif
+  waitperiod(100) // время произвольно
+  do while waitperiod()
+  enddo
 endif
-waitperiod(100) // время произвольно
-do while waitperiod()
-enddo
 //
 waitperiod(5000)
 // попытка открыть порт в течении 5 секунд
@@ -1803,7 +1856,6 @@ do while waitperiod() // в цикле пробуем открыть с нужными параметрами
   endif
 enddo
 return t
-
 
 *
 
@@ -2069,3 +2121,20 @@ if tip > 1
   endif
 endif
 return NIL
+
+
+*
+
+***** 30.06.19
+function FR_Write_INN_kassir(inn_kassir)
+Local t1
+
+//
+drvFR:Password    := oper_parol
+drvFR:TagNumber   := 1203
+drvFR:TagType     := 7
+drvFR:TagValueStr := inn_kassir
+//
+drvFR:FNSendTag()
+return NIL
+

@@ -7641,7 +7641,9 @@ do case
           "Печать ~акта выполненных работ",;
           "~Реестр медуслуг в Excel (новый)",;
           "Реестр - ~сокращённая форма (старый)",;
-          "Реестр - ~полная форма (старый)"}
+          "Реестр - ~полная форма (старый)",;
+          "~Реестр медуслуг в Excel (Для Облздрава)";
+          }
         select TMP
         rec := recno()
         sk := ss := 0
@@ -7674,6 +7676,8 @@ do case
             rees1_vzaim(name_file)
           elseif i == 5
             rees2_vzaim(name_file)
+          elseif i == 6
+            rees_new_vzaim_pol3(name_file)
           endif
           close databases
           use (cur_dir+"tmp1") index (cur_dir+"tmp1") new
@@ -9622,6 +9626,7 @@ do case
                   valid {|g| f5e_p_kusl(g,2,12) }
       endif
       status_key("^<Esc>^ - выход без записи;  ^<PgDn>^ - подтверждение записи")
+
       set key K_F11 to clear_gets
       set key K_CTRL_F10 to clear_gets
       count_edit := myread(,@pos_read,++k_read)
@@ -9662,11 +9667,6 @@ do case
               mt_edit := pr_k_usl[i,7]
               mis_nul := pr_k_usl[i,9]
               mstoim := round_5(mu_cena * mkol, 2)
-              /*if mt_edit > 0
-                k := (100-mt_edit) / 100
-                mstoim := round_5(mstoim * k, 2)
-              endif*/
-              //
               select HU
               Add1Rec(7)
               mrec_hu := hu->(recno())
@@ -9705,7 +9705,6 @@ do case
               tmp->name_u := mname_u
               tmp->is_nul := mis_nul
               tmp->rec_hu := mrec_hu
-            //last_date := max(tmp->date_u1,last_date) - так было
               last_date := tmp->date_u1  // - так стало
               pr_kod_vr := tmp->kod_vr
               pr_kod_as := tmp->kod_as
@@ -9716,6 +9715,10 @@ do case
               pr_san2 := tmp->san2
               pr_san3 := tmp->san3
             next
+            summa_usl(@mcena)
+            select HUMAN
+            G_RLock(forever)
+            human->cena := mcena
           else
             // одна услуга
             select HU
@@ -10225,12 +10228,12 @@ do case
         if empty(mdate_u1)
           func_error(4,"Не введена дата оказания услуги!")
           loop
-        elseif empty(mu_kod)
-          func_error(4,"Не введена услуга!")
-          loop
-        elseif !mis_nul .and. empty(mstoim)
-          func_error(4,"Не введена цена услуги!")
-          loop
+        //elseif empty(mu_kod)
+        //  func_error(4,"Не введена ЗДЕСЬ услуга!")
+         // loop
+        //elseif !mis_nul .and. empty(mstoim)
+        //  func_error(4,"Не введена цена услуги!")
+        //  loop
         elseif mem_vv_v_a == 1 .and. emptyall(mkod_vr,mkod_as)
           func_error(4,"Не введены врач и ассистент!")
           loop
@@ -10238,81 +10241,221 @@ do case
           err_date_diap(mdate_u1,"Дата оказания услуги")
           mywait()
           select HU
-          if nKey == K_INS
-            Add1Rec(7)
-            mrec_hu := hu->(recno())
-            fl_found := .t.
-            select TMP
-            append blank
-            rec_tmp := tmp->(recno())
-            ++mvu[1,1]  // услуга добавлена оператором
-            mvu[1,2] += count_edit
-          else
-            goto (mrec_hu)
+          if nKey == K_INS .and. len(pr_k_usl) > 0
+            // комплексная услуга
+            for i := 1 to len(pr_k_usl)
+              mshifr := pr_k_usl[i,1]
+              mu_kod := pr_k_usl[i,3]
+              mname_u := pr_k_usl[i,4]
+              mu_cena := pr_k_usl[i,5]
+              mt_edit := pr_k_usl[i,7]
+              mis_nul := pr_k_usl[i,9]
+              mstoim := round_5(mu_cena * mkol, 2)
+              select HU
+              Add1Rec(7)
+              mrec_hu := hu->(recno())
+              fl_found := .t.
+              select TMP
+              append blank
+              rec_tmp := tmp->(recno())
+              ++mvu[1,1]  // услуга добавлена оператором
+              //
+              select HU
+              replace hu->kod     with human->(recno()),;
+                      hu->kod_vr  with mkod_vr,;
+                      hu->kod_as  with mkod_as,;
+                      hu->u_koef  with 1,;
+                      hu->stoim   with mstoim,;
+                      hu->u_kod   with mu_kod,;
+                      hu->u_cena  with mu_cena,;
+                      hu->t_edit  with mt_edit,;
+                      hu->kol     with mkol,;
+                      hu->date_u  with dtoc4(mdate_u1),;
+                      hu->otd     with m1otd,;
+                      hu->med1    with pmmed1,;
+                      hu->med2    with pmmed2,;
+                      hu->med3    with pmmed3,;
+                      hu->san1    with pmsan1,;
+                      hu->san2    with pmsan2,;
+                      hu->san3    with pmsan3
+              UNLOCK
+              pr1otd := m1otd
+              adbf := array(fcount())
+              aeval(adbf, {|x,i| adbf[i] := fieldget(i) } )
+              STappend(2,mrec_hu,human->kod_k,hu->date_u,mu_kod,mkod_vr,mzf,mkod_diag)
+              select TMP
+              aeval(adbf, {|x,i| fieldput(i,x) } )
+              tmp->date_u1 := mdate_u1
+              tmp->shifr_u := mshifr
+              tmp->name_u := mname_u
+              tmp->is_nul := mis_nul
+              tmp->rec_hu := mrec_hu
+              tmp->stoim     := mstoim  // - новый
+              last_date := tmp->date_u1  // - так стало
+              pr_kod_vr := tmp->kod_vr
+              pr_kod_as := tmp->kod_as
+              pr_med1 := tmp->med1
+              pr_med2 := tmp->med2
+              pr_med3 := tmp->med3
+              pr_san1 := tmp->san1
+              pr_san2 := tmp->san2
+              pr_san3 := tmp->san3
+            next
+            summa_usl(@mcena)
+            select HUMAN
             G_RLock(forever)
-            select TMP
-            goto (rec_tmp)
-            ++mvu[2,1]  // услуга отредактирована оператором
-            mvu[2,2] += count_edit
-          endif
-          select HU
-          replace hu->kod     with human->(recno()),;
-                  hu->kod_vr  with mkod_vr,;
-                  hu->kod_as  with mkod_as,;
-                  hu->u_koef  with 1,;
-                  hu->stoim   with mstoim,;
-                  hu->u_kod   with mu_kod,;
-                  hu->u_cena  with mu_cena,;
-                  hu->t_edit  with mt_edit,;
-                  hu->kol     with mkol,;
-                  hu->date_u  with dtoc4(mdate_u1),;
-                  hu->otd     with m1otd,;
-                  hu->med1    with pmmed1,;
-                  hu->med2    with pmmed2,;
-                  hu->med3    with pmmed3,;
-                  hu->san1    with pmsan1,;
-                  hu->san2    with pmsan2,;
-                  hu->san3    with pmsan3
-          UNLOCK
-          pr1otd := m1otd
-          adbf := array(fcount())
-          aeval(adbf, {|x,i| adbf[i] := fieldget(i) } )
-          if !empty(mzf)
-            SKOD_DIAG  := mkod_diag
-            SZF        := mzf
-            usl->(dbGoto(mu_kod))
-            if usl->zf == 0 // не вводится зубная формула
-              mzf := space(30)  // обнуляем
+            human->cena := mcena
+
+          /*  for i := 1 to len(pr_k_usl)
+              mshifr := pr_k_usl[i,1]
+              mu_kod := pr_k_usl[i,3] //
+              mname_u := pr_k_usl[i,4] //
+              mu_cena := pr_k_usl[i,5] //
+              mis_nul := pr_k_usl[i,9]
+              mstoim := mstoim_1 := round_5(mu_cena * mkol, 2)
+              //
+              select HU
+              Add1Rec(7)
+              mrec_hu := hu->(recno())
+              fl_found := .t.
+              select TMP
+              append blank
+              rec_tmp := tmp->(recno())
+              ++mvu[1,1]  // услуга добавлена оператором
+              //
+              select HU
+              replace hu->kod     with human->(recno()),;
+                      hu->kod_vr  with mkod_vr,;
+                      hu->kod_as  with mkod_as,;
+                      hu->u_koef  with 1,;
+                      hu->stoim   with mstoim,;
+                      hu->u_kod   with mu_kod,;
+                      hu->u_cena  with mu_cena,;
+                      hu->t_edit  with mt_edit,;
+                      hu->kol     with mkol,;
+                      hu->date_u  with dtoc4(mdate_u1),;
+                      hu->otd     with m1otd,;
+                      hu->med1    with pmmed1,;
+                      hu->med2    with pmmed2,;
+                      hu->med3    with pmmed3,;
+                      hu->san1    with pmsan1,;
+                      hu->san2    with pmsan2,;
+                      hu->san3    with pmsan3
+              UNLOCK
+
+              //
+              pr1otd := m1otd
+              adbf := array(fcount())
+              aeval(adbf, {|x,i| adbf[i] := fieldget(i) } )
+              STappend(2,mrec_hu,human->kod_k,hu->date_u,mu_kod,mkod_vr,mzf,mkod_diag)
+              select TMP
+              tmp->KOD_DIAG  := mKOD_DIAG
+              tmp->ZF        := mZF
+              tmp->date_u1   := mdate_u1
+              tmp->shifr_u   := mshifr
+              tmp->name_u    := mname_u
+              tmp->is_nul    := mis_nul
+              tmp->rec_hu    := mrec_hu
+              tmp->stoim     := mstoim
+              tmp->u_kod     := mu_kod
+              tmp->u_cena    := mu_cena
+              tmp->t_edit    := mt_edit
+              tmp->kol       := mkol
+              tmp->date_u    := dtoc4(mdate_u1)
+              tmp->otd       := m1otd
+              tmp->med1      := pmmed1
+              tmp->med2      := pmmed2
+              tmp->med3      := pmmed3
+              tmp->san1      := pmsan1
+              tmp->san2      := pmsan2
+              tmp->san3      := pmsan3
+              tmp->kod_vr    := mkod_vr
+              tmp->kod_as    := mkod_as
+              tmp->stoim     := mstoim
+              summa_usl(@mcena)
+              select HUMAN
+              G_RLock(forever)
+              human->cena := mcena
+            next
+            */
+          else
+            // запись одной введённой услуги
+            if nKey == K_INS
+              Add1Rec(7)
+              mrec_hu := hu->(recno())
+              fl_found := .t.
+              select TMP
+              append blank
+              rec_tmp := tmp->(recno())
+              ++mvu[1,1]  // услуга добавлена оператором
+              mvu[1,2] += count_edit
+            else
+              goto (mrec_hu)
+              G_RLock(forever)
+              select TMP
+              goto (rec_tmp)
+              ++mvu[2,1]  // услуга отредактирована оператором
+              mvu[2,2] += count_edit
             endif
+            select HU
+            replace hu->kod     with human->(recno()),;
+                    hu->kod_vr  with mkod_vr,;
+                    hu->kod_as  with mkod_as,;
+                    hu->u_koef  with 1,;
+                    hu->stoim   with mstoim,;
+                    hu->u_kod   with mu_kod,;
+                    hu->u_cena  with mu_cena,;
+                    hu->t_edit  with mt_edit,;
+                    hu->kol     with mkol,;
+                    hu->date_u  with dtoc4(mdate_u1),;
+                    hu->otd     with m1otd,;
+                    hu->med1    with pmmed1,;
+                    hu->med2    with pmmed2,;
+                    hu->med3    with pmmed3,;
+                    hu->san1    with pmsan1,;
+                    hu->san2    with pmsan2,;
+                    hu->san3    with pmsan3
+            UNLOCK
+            pr1otd := m1otd
+            adbf := array(fcount())
+            aeval(adbf, {|x,i| adbf[i] := fieldget(i) } )
+            if !empty(mzf)
+              SKOD_DIAG  := mkod_diag
+              SZF        := mzf
+              usl->(dbGoto(mu_kod))
+              if usl->zf == 0 // не вводится зубная формула
+                mzf := space(30)  // обнуляем
+              endif
+            endif
+            if (nKey == K_INS .and. !empty(mzf)) .or. !(mold_zf == mzf) // если изменили зубную формулу
+              STappend(2,mrec_hu,human->kod_k,hu->date_u,mu_kod,mkod_vr,mzf,mkod_diag)
+            endif
+            select TMP
+            aeval(adbf, {|x,i| fieldput(i,x) } )
+            tmp->KOD_DIAG  := mKOD_DIAG
+            tmp->ZF        := mZF
+            tmp->date_u1 := mdate_u1
+            tmp->shifr_u := mshifr
+            tmp->name_u := mname_u
+            tmp->is_nul := mis_nul
+            tmp->rec_hu := mrec_hu
+            //last_date := max(tmp->date_u1,last_date) - так было
+            last_date := tmp->date_u1  // - так стало
+            pr_kod_vr := tmp->kod_vr
+            pr_kod_as := tmp->kod_as
+            pr_med1 := tmp->med1
+            pr_med2 := tmp->med2
+            pr_med3 := tmp->med3
+            pr_san1 := tmp->san1
+            pr_san2 := tmp->san2
+            pr_san3 := tmp->san3
+            summa_usl(@mcena)
+            select HUMAN
+            G_RLock(forever)
+            human->cena := mcena
+            UNLOCK
+            COMMIT
           endif
-          if (nKey == K_INS .and. !empty(mzf)) .or. !(mold_zf == mzf) // если изменили зубную формулу
-            STappend(2,mrec_hu,human->kod_k,hu->date_u,mu_kod,mkod_vr,mzf,mkod_diag)
-          endif
-          select TMP
-          aeval(adbf, {|x,i| fieldput(i,x) } )
-          tmp->KOD_DIAG  := mKOD_DIAG
-          tmp->ZF        := mZF
-          tmp->date_u1 := mdate_u1
-          tmp->shifr_u := mshifr
-          tmp->name_u := mname_u
-          tmp->is_nul := mis_nul
-          tmp->rec_hu := mrec_hu
-          //last_date := max(tmp->date_u1,last_date) - так было
-          last_date := tmp->date_u1  // - так стало
-          pr_kod_vr := tmp->kod_vr
-          pr_kod_as := tmp->kod_as
-          pr_med1 := tmp->med1
-          pr_med2 := tmp->med2
-          pr_med3 := tmp->med3
-          pr_san1 := tmp->san1
-          pr_san2 := tmp->san2
-          pr_san3 := tmp->san3
-          summa_usl(@mcena)
-          select HUMAN
-          G_RLock(forever)
-          human->cena := mcena
-          UNLOCK
-          COMMIT
         endif
       endif
       exit
@@ -11043,6 +11186,151 @@ n_message(arr,;
           ,;  // верхний ряд рамки (99 - центировать)
           ,;  // левая колонка рамки (99 - центрировать)
           color8)   // строка цвета для бегущей строки
+return NIL
+
+
+*
+
+***** 04.10.19
+Function rees_new_vzaim_pol3(nd_faktura)
+Local buf := save_row(maxrow()), s, i, j, k, ss, lss, adbf, km
+delFRfiles()
+mywait()
+adbf := {{"n_fakt","C",10,0},;
+         {"d_fakt","C",10,0},;
+         {"n_dog","C",30,0},;
+         {"d_dog","C",10,0},;
+         {"d_beg","C",40,0},;
+         {"d_end","C",40,0},;
+         {"prod_name","C",150,0},;
+         {"pok_name","C",150,0},;
+         {"prod1name","C",150,0},;
+         {"pok1name","C",150,0},;
+         {"prod2name","C",150,0},;
+         {"pok2name","C",150,0},;
+         {"stoim","N",15,2}}
+dbcreate(fr_titl,adbf)
+adbf := {{"nomer",   "N", 4,0},;
+         {"fio",     "C",60,0},;
+         {"pol",     "C", 1,0},;
+         {"adres",   "C",60,0},;
+         {"date_r",  "C",10,0},;
+         {"data",    "C",10,0},;
+         {"kod",     "C",10,0},;
+         {"name",    "C",70,0},;
+         {"cena",    "N",10,2},;
+         {"kol",     "N", 4,0},;
+         {"summa",   "N",12,2}}
+dbcreate(fr_data,adbf)
+use (fr_titl) new alias _t
+append blank
+use (fr_data) new alias _d
+//
+//_t->n_fakt := nd_faktura[1]
+//_t->d_fakt := full_date(nd_faktura[2])
+R_Use(dir_server+"organiz",,"ORG")
+_t->prod_name := alltrim(org->name)
+_t->prod1name := "ИНН/КПП "+alltrim(org->inn)+"    Адрес: "+alltrim(org->adres)
+_t->prod2name := "Банк "+alltrim(org->bank)+"    БИК "+alltrim(org->smfo)+"    Р/С "+;
+                 alltrim(org->r_schet)
+if tmp1->tip_usl == 1
+  R_Use(dir_server+"p_d_smo",,"PK")
+else
+  R_Use(dir_server+"p_pr_vz",,"PK")
+endif
+goto (tmp1->pr_smo)
+_t->pok_name := alltrim(iif(empty(pk->fname), pk->name, pk->fname))
+_t->n_dog := pk->n_dog
+_t->d_dog := full_date(pk->d_dog)
+_t->d_beg := date_month(arr_m[5])
+_t->d_end := date_month(arr_m[6])
+_t->pok1name := "ИНН/КПП "+alltrim(pk->inn)+"    Адрес: "+alltrim(pk->adres)
+_t->pok2name := "Банк "+alltrim(pk->bank)+"    БИК "+alltrim(pk->smfo)+"    Р/С "+;
+                 alltrim(pk->r_schet)
+Use_base("humanst")
+R_Use(dir_server+"uslugi",,"USL")
+R_Use(dir_server+"mo_pers",,"perso")
+R_Use(dir_server+"hum_p_u",dir_server+"hum_p_u","HPU")
+R_Use(dir_server+"hum_p",,"HP")
+j := ss := 0
+select TMP
+go top
+do while !eof()
+  select TMP2
+  find (str(tmp->(recno()),6))
+  do while tmp2->rec_tmp == tmp->(recno()) .and. !eof()
+    select HP
+    goto (tmp2->rec_hp)
+    //
+    adiag := {}
+    add_diagnoz(adiag) ; asort(adiag)
+    //
+    agp := {}
+    if !emptyall(hp->GP_NOMER,hp->GP_DATE)
+      aadd(agp,{hp->GP_NOMER,hp->GP_DATE})
+    endif
+    if !emptyall(hp->GP2NOMER,hp->GP2DATE)
+      aadd(agp,{hp->GP2NOMER,hp->GP2DATE})
+    endif
+    //
+    ausl := {}
+    select HPU
+    find (str(hp->(recno()),7))
+    do while hpu->kod == hp->(recno()) .and. !eof()
+      usl->(dbGoto(hpu->u_kod))
+      perso->(dbGoto(hpu->kod_vr))
+      select HUMANST
+      find (str(2,1)+str(hpu->(recno()),8))
+      aadd(ausl, {c4tod(hpu->date_u),;
+                  usl->shifr,;
+                  usl->name,;
+                  hpu->kol,;
+                  hpu->stoim;
+                 })
+      select HPU
+      skip
+    enddo
+    if max(len(ausl),len(adiag),len(agp)) == 0
+      aadd(adiag,"")
+    endif
+    asort(ausl,,,{|x,y| iif(x[1]==y[1], fsort_usl(x[2]) < fsort_usl(y[2]), x[1] < y[1]) } )
+    ++j ; lss := 0
+    km := max(len(ausl),len(adiag),len(agp))
+    for i := 1 to km
+      select _D
+      append blank
+      if i == 1
+        _d->nomer  := j
+        _d->fio    := alltrim(kart->fio)+eos
+        _d->pol    := alltrim(kart->pol)
+        _d->adres  := alltrim(kart->adres)
+        _d->date_r := full_date(kart->date_r)
+       // _d->n_kart := amb_kartaN()
+      endif
+      if i <= len(ausl)
+        _d->data  := full_date(ausl[i,1])
+        _d->kod   := ausl[i,2]
+        _d->name  := alltrim(ausl[i,3])+eos
+        _d->summa := ausl[i,5]
+        lss += ausl[i,5]
+      endif
+    next
+    //select _D
+    //append blank
+    //_d->fio := "Итого по пациенту:"
+    //_d->summa := lss
+    ss += lss
+    select TMP2
+    skip
+  enddo
+  select TMP
+  skip
+enddo
+_t->stoim := ss
+close databases
+rest_box(buf)
+message_fr_excel()
+call_fr("mo_reesdmsP3"+sfr3)
 return NIL
 
 

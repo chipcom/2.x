@@ -25,7 +25,7 @@ else
 endif
 return fl
 
-***** 24.03.19 ДДС - добавление или редактирование случая (листа учета)
+***** 22.10.19 ДДС - добавление или редактирование случая (листа учета)
 Function oms_sluch_DDS(tip_lu,Loc_kod,kod_kartotek,f_print)
 // tip_lu - TIP_LU_DDS или TIP_LU_DDSOP
 // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -57,7 +57,7 @@ Private mfio := space(50), mpol, mdate_r, madres, mvozrast,;
   msmo := "34007", rec_inogSMO := 0,;
   mokato, m1okato := "", mismo, m1ismo := "", mnameismo := space(100),;
   mvidpolis, m1vidpolis := 1, mspolis := space(10), mnpolis := space(20)
-Private mkod := Loc_kod, mtip_h, is_talon := .f.,;
+Private mkod := Loc_kod, mtip_h, is_talon := .f., is_disp_19 := .t.,;
         mkod_k := kod_kartotek, fl_kartotek := (kod_kartotek == 0),;
   M1LPU := glob_uch[1], MLPU,;
   M1OTD := glob_otd[1], MOTD,;
@@ -406,6 +406,7 @@ if Loc_kod > 0
   mcena_1    := human->CENA_1
   metap      := human->ishod-100
   mGRUPPA    := human_->RSLT_NEW-L_BEGIN_RSLT
+  is_disp_19 := !(mk_data < d_01_11_2019)
   //
   larr := array(3,count_dds_arr_osm2) ; afillall(larr,0)
   mdate1 := mdate2 := ctod("")
@@ -493,8 +494,9 @@ if Loc_kod > 0
         &mvar := c4tod(hu->date_u)
         if j == 1
           m1var := "m1lis"+lstr(i)
-          if glob_yes_kdp2[tip_lu] .and. ascan(glob_arr_usl_LIS,dds_arr_iss[i,7,1]) > 0 ;
-                                   .and. hu->is_edit > 0
+          if is_disp_19
+            &m1var := 0
+          elseif glob_yes_kdp2[tip_lu] .and. ascan(glob_arr_usl_LIS,dds_arr_iss[i,7,1]) > 0 .and. hu->is_edit > 0
             &m1var := hu->is_edit
           endif
           mvar := "mlis"+lstr(i)
@@ -619,6 +621,7 @@ do while .t.
   endif
   @ j,0 say "Экран "+lstr(num_screen) color color8
   if num_screen > 1
+    is_disp_19 := !(mk_data < d_01_11_2019)
     s := alltrim(mfio)+" ("+lstr(mvozrast)+" "+s_let(mvozrast)+")"
     @ j,wS-len(s) say s color color14
   endif
@@ -709,7 +712,7 @@ do while .t.
       if empty(&mvar)
         &mvar := mn_data
       endif
-      if glob_yes_kdp2[tip_lu] .and. ascan(glob_arr_usl_LIS,dds_arr_iss[i,7,1]) > 0
+      if !is_disp_19 .and. glob_yes_kdp2[tip_lu] .and. ascan(glob_arr_usl_LIS,dds_arr_iss[i,7,1]) > 0
         fl_kdp2[i] := .t.
       endif
     next
@@ -1497,7 +1500,7 @@ do while .t.
       mvarr := "MREZi"+lstr(i)
       if between(mvozrast,dds_arr_iss[i,3],dds_arr_iss[i,4])
         m1var := "m1lis"+lstr(i)
-        if glob_yes_kdp2[tip_lu] .and. &m1var > 0
+        if !is_disp_19 .and. glob_yes_kdp2[tip_lu] .and. &m1var > 0
           &mvart := -1
         endif
         if empty(&mvard)
@@ -1820,7 +1823,7 @@ do while .t.
     endif
     mywait("Ждите. Производится запись листа учёта...")
     m1lis := 0
-    if glob_yes_kdp2[tip_lu]
+    if !is_disp_19 .and. glob_yes_kdp2[tip_lu]
       for i := 1 to count_dds_arr_iss
         if valtype(arr_iss[i,9]) == "D" .and. arr_iss[i,9] >= mn_data .and. len(arr_iss[i]) > 9 ;
                                         .and. valtype(arr_iss[i,10]) == "N" .and. arr_iss[i,10] > 0

@@ -4,7 +4,7 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 15.04.19 ПН - добавление или редактирование случая (листа учета)
+***** 22.10.19 ПН - добавление или редактирование случая (листа учета)
 Function oms_sluch_PN(Loc_kod,kod_kartotek,f_print)
 // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
 // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -35,7 +35,7 @@ Private mfio := space(50), mpol, mdate_r, madres, mvozrast, mdvozrast, msvozrast
         msmo := "34007", rec_inogSMO := 0,;
         mokato, m1okato := "", mismo, m1ismo := "", mnameismo := space(100),;
         mvidpolis, m1vidpolis := 1, mspolis := space(10), mnpolis := space(20)
-Private mkod := Loc_kod, mtip_h, is_talon := .f.,;
+Private mkod := Loc_kod, mtip_h, is_talon := .f., is_disp_19 := .t.,;
         mkod_k := kod_kartotek, fl_kartotek := (kod_kartotek == 0),;
   M1LPU := glob_uch[1], MLPU,;
   M1OTD := glob_otd[1], MOTD,;
@@ -454,6 +454,7 @@ if Loc_kod > 0
   mcena_1    := human->CENA_1
   metap      := human->ishod-300
   mGRUPPA    := human_->RSLT_NEW-L_BEGIN_RSLT
+  is_disp_19 := !(mk_data < d_01_11_2019)
   if metap == 2
     m1step2 := 1
   endif
@@ -518,7 +519,7 @@ if Loc_kod > 0
       asize(larr_p,1) // отрезать лишние приёмы
     else
       do while len(larr_p) > 2 // когда педиатр I этапа введён как две услуги (2.3.* и 2.91.*)
-        hb_ADel(larr_p, 2, .t.) // т.е. оставляем первый м последний приём
+        hb_ADel(larr_p, 2, .t.) // т.е. оставляем первый и последний приём
       enddo
     endif
   endif
@@ -549,7 +550,9 @@ if Loc_kod > 0
         &mvar := c4tod(hu->date_u)
         if j == 1
           m1var := "m1lis"+lstr(i)
-          if glob_yes_kdp2[TIP_LU_PN] .and. ascan(glob_arr_usl_LIS,np_arr_issled[i,1]) > 0 .and. hu->is_edit > 0
+          if is_disp_19
+            &m1var := 0
+          elseif glob_yes_kdp2[TIP_LU_PN] .and. ascan(glob_arr_usl_LIS,np_arr_issled[i,1]) > 0 .and. hu->is_edit > 0
             &m1var := hu->is_edit
           endif
           mvar := "mlis"+lstr(i)
@@ -741,6 +744,7 @@ do while .t.
   @ j,0 say "Экран "+lstr(num_screen) color color8
   if num_screen > 1
     s1 := " "
+    is_disp_19 := !(mk_data < d_01_11_2019)
     mperiod := ret_period_PN(mdate_r,mn_data,mk_data,@s1)
     s := alltrim(mfio)
     if mperiod > 0
@@ -857,7 +861,7 @@ do while .t.
         endif*/
         if fl
           fl_kdp2 := .f.
-          if glob_yes_kdp2[TIP_LU_PN] .and. ascan(glob_arr_usl_LIS,np_arr_issled[i,1]) > 0
+          if !is_disp_19 .and. glob_yes_kdp2[TIP_LU_PN] .and. ascan(glob_arr_usl_LIS,np_arr_issled[i,1]) > 0
             fl_kdp2 := .t.
           endif
           mvarv := "MTAB_NOMiv"+lstr(i)
@@ -929,10 +933,12 @@ do while .t.
   elseif num_screen == 3 //
     ++j; @ j,1 say "Направлен на II этап ?" get mstep2 ;
                reader {|x|menu_reader(x,mm_step2,A__MENUVERT,,,.f.)}
-    ++j
-    ++j; @ j,1 say "Дополнительные гематологические исследования в КДП2" get musl2 ;
-               reader {|x| menu_reader(x, { { |k,r,c| ob2_v_usl(.t.,r+1) }},A__FUNCTION,,,.f.)} ;
-               when m1step2 == 1
+    if !is_disp_19
+      ++j
+      ++j; @ j,1 say "Дополнительные гематологические исследования в КДП2" get musl2 ;
+                 reader {|x| menu_reader(x, { { |k,r,c| ob2_v_usl(.t.,r+1) }},A__FUNCTION,,,.f.)} ;
+                 when m1step2 == 1
+    endif
     ar := np_arr_1_etap[mperiod]
     ++j; @ j,1 say "II этап наименований осмотров          Врач Ассис.  Дата     Выполнение" color "RB+/B"
     if mem_por_ass == 0
@@ -1391,7 +1397,7 @@ do while .t.
       endif
       if _fl_ .and. not_audio_s /*.and. np_arr_issled[i,4] == 0 // не гормон*/
         m1var := "m1lis"+lstr(i)
-        if glob_yes_kdp2[TIP_LU_PN] .and. &m1var > 0
+        if !is_disp_19 .and. glob_yes_kdp2[TIP_LU_PN] .and. &m1var > 0
           &mvart := -1
         endif
         if empty(&mvard)
@@ -1699,7 +1705,7 @@ do while .t.
     mywait("Ждите. Производится запись листа учёта...")
     m1lis := 0 ; arr_lis2 := {}
     arr_usl_dop := {} ; arr_usl_otkaz := {}
-    if glob_yes_kdp2[TIP_LU_PN]
+    if !is_disp_19 .and. glob_yes_kdp2[TIP_LU_PN]
       for i := 1 to count_pn_arr_iss
         if valtype(arr_iss[i,9]) == "D" .and. arr_iss[i,9] >= mn_data .and. len(arr_iss[i]) > 9 ;
                                         .and. valtype(arr_iss[i,10]) == "N" .and. eq_any(arr_iss[i,10],1,2)
