@@ -2679,7 +2679,7 @@ do case
   case regim == "edit"
     if nKey == K_INS .or. (nKey == K_ENTER .and. !empty(sa->name))
       rec := recno()
-      Private mname := if(nKey == K_INS, space(150), sa->name), gl_area := {1,0,maxrow()-1,79,0}
+      Private mname := iif(nKey == K_INS, space(150), sa->name), gl_area := {1,0,maxrow()-1,79,0}
       buf1 := box_shadow(pr2-3,pc1+1,pr2-1,pc2-1,color8,;
                          iif(nKey==K_INS,"Добавление","Редактирование"),cDataPgDn)
       setcolor(cDataCGet)
@@ -2742,8 +2742,7 @@ do while .t.
   mywait()
   tmp := alltrim(tmp1)
   i := 0
-  Private tmp_mas := {}, tmp_kod := {}, t_len, k1 := mr1+3, ;
-          k2 := 21, tmp2 := upper(tmp)
+  Private tmp_mas := {}, tmp_kod := {}, t_len, k1 := mr1+3, k2 := 21, tmp2 := upper(tmp)
   go top
   do while !eof()
     if tmp2 $ upper(sa->name)
@@ -4376,7 +4375,7 @@ restscreen(buf)
 return fl
 
 ***** 23.01.17 инициализировать tmp-файл БД медицинский специальностей
-FUNCTION init_tmp_prvs(_date,is_all)
+Function init_tmp_prvs(_date,is_all)
 Local i, s, len1, fl_is, rec, tmp_select := select()
 DEFAULT is_all TO .f.
 len1 := 0
@@ -4476,20 +4475,8 @@ tmp_V015->(dbCloseArea())
 select (tmp_select)
 return NIL
 
-***** 07.08.16 вернуть код новой медицинской специальности
-FUNCTION ret_new_spec(old_spec,new_spec)
-Local i, lkod := 0
-if empty(new_spec)
-  if !empty(old_spec) .and. (i := ascan(glob_arr_V004_V015, {|x| x[1] == old_spec })) > 0
-    lkod := glob_arr_V004_V015[i,2]
-  endif
-else
-  lkod := new_spec
-endif
-return lkod
-
 ***** 09.08.16 вернуть медицинскую специальность из tmp-файла
-FUNCTION ret_tmp_prvs(kod_old,kod_new)
+Function ret_tmp_prvs(kod_old,kod_new)
 Local i, k, tmp_select := select(), ret := space(10)
 if empty(kod_new)
   if valtype(kod_old) == "C"

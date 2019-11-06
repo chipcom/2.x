@@ -1911,7 +1911,7 @@ if !empty(full_zip)
 endif
 return NIL
 
-***** 26.06.19 вынуть реестр из XML-файлов и записать во временные DBF-файлы
+***** 05.11.19 вынуть реестр из XML-файлов и записать во временные DBF-файлы
 Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
 Local _table1 := {;
    {"KOD",      "N", 6,0},; // код
@@ -2090,6 +2090,8 @@ Local _table3 := {;
    {"DOCTYPE",  "C", 2,0},; //
    {"DOCSER" ,  "C",10,0},; //
    {"DOCNUM" ,  "C",20,0},; //
+   {"DOCDATE" , "C",10,0},; //
+   {"DOCORG" ,  "C",255,0},; //
    {"SNILS",    "C",14,0},; //
    {"OKATOG" ,  "C",11,0},; //
    {"OKATOP",   "C",11,0}; //
@@ -2162,13 +2164,11 @@ Local _table10 := {;  // Сведения об онкологических лек.препаратах
    {"CODE_SH" , "C",10,0},;
    {"DATE_INJ" ,"C",10,0};
   }
-Local arr_f, ii, oXmlDoc, j, j1, _ar, buf := save_maxrow(), name_zip := alltrim(mname_xml)+szip, fl := .f.
-      is_old := .f.
+Local arr_f, ii, oXmlDoc, j, j1, _ar, buf := save_maxrow(), name_zip := alltrim(mname_xml)+szip, fl := .f., is_old := .f.
 //
 DEFAULT flag_tmp1 TO .f., is_all TO .t., goal_dir TO dir_server+dir_XML_MO+cslash
 Private pole
-stat_msg("Распаковка/чтение/анализ "+;
-         iif(eq_any(left(mname_xml,3),"HRM","FRM"),"реестра ","счёта ")+mname_xml)
+stat_msg("Распаковка/чтение/анализ "+iif(eq_any(left(mname_xml,3),"HRM","FRM"),"реестра ","счёта ")+mname_xml)
 if (arr_f := Extract_Zip_XML(goal_dir,name_zip)) != NIL
   fl := .t.
   dbcreate(cur_dir+"tmp_r_t1",_table1)
@@ -2576,6 +2576,8 @@ if (arr_f := Extract_Zip_XML(goal_dir,name_zip)) != NIL
           t3->DOCTYPE := mo_read_xml_stroke(oXmlNode,"DOCTYPE",,.f.)
           t3->DOCSER  := mo_read_xml_stroke(oXmlNode,"DOCSER",,.f.)
           t3->DOCNUM  := mo_read_xml_stroke(oXmlNode,"DOCNUM",,.f.)
+          t3->DOCDATE := mo_read_xml_stroke(oXmlNode,"DOCDATE",,.f.)
+          t3->DOCORG  := mo_read_xml_stroke(oXmlNode,"DOCORG",,.f.)
           t3->SNILS   := mo_read_xml_stroke(oXmlNode,"SNILS",,.f.)
           t3->OKATOG  := mo_read_xml_stroke(oXmlNode,"OKATOG",,.f.)
           t3->OKATOP  := mo_read_xml_stroke(oXmlNode,"OKATOP",,.f.)
@@ -2684,19 +2686,21 @@ return fl
 
 *
 
-***** 05.01.13 зачитать протокол ФЛК во временные файлы
+***** 02.11.19 зачитать протокол ФЛК во временные файлы
 Function protokol_flk_tmpfile(arr_f,aerr)
-Local adbf, ii, j, oXmlDoc, oXmlNode, is_err_FLK := .f.
+Local adbf, ii, j, s, oXmlDoc, oXmlNode, is_err_FLK := .f.
 adbf := {;
- {"FNAME",  "C", 26,0},;
+ {"FNAME",  "C", 27,0},;
  {"FNAME1", "C", 26,0},;
  {"FNAME2", "C", 26,0},;
+ {"DATE_F", "D",  8,0},;
  {"KOL2",   "N",  6,0};   // кол-во ошибок
 }
 dbcreate(cur_dir+"tmp1file",adbf)
 adbf := {; // элементы PR
  {"TIP",        "N",  1,0},;  // тип(номер) обрабатываемого файла
- {"OSHIB",      "N",  3,0},;  // код ошибки  F012
+ {"OSHIB",      "N",  3,0},;  // код ошибки T005
+ {"SOSHIB",     "C", 12,0},;  // код ошибки Q015, Q022
  {"IM_POL",     "C", 20,0},;  // имя поля, в котором ошибка
  {"BAS_EL",     "C", 20,0},;  // имя базового элемента
  {"ID_BAS",     "C", 36,0},;  // GUID базового элемента
@@ -2723,11 +2727,18 @@ for ii := 1 to len(arr_f)
           else
             tmp1->FNAME2 := mo_read_xml_tag(oXmlNode,aerr,.t.)
           endif
+        case "DATE_F" == oXmlNode:title
+          tmp1->DATE_F := xml2date(mo_read_xml_stroke(oXmlNode,"DATE_F",aerr,.f.))
         case "PR" == oXmlNode:title
           select TMP2
           append blank
           tmp2->tip := ii
-          tmp2->OSHIB := val(mo_read_xml_stroke(oXmlNode,"OSHIB",aerr))
+          s := alltrim(mo_read_xml_stroke(oXmlNode,"OSHIB",aerr))
+          if len(s) > 3 .or. "." $ s
+            tmp2->SOSHIB := s
+          else
+            tmp2->OSHIB := val(s)
+          endif
           tmp2->IM_POL  := mo_read_xml_stroke(oXmlNode,"IM_POL",aerr,.f.)
           tmp2->BAS_EL  := mo_read_xml_stroke(oXmlNode,"BAS_EL",aerr,.f.)
           tmp2->ID_BAS  := mo_read_xml_stroke(oXmlNode,"ID_BAS",aerr,.f.)

@@ -111,7 +111,7 @@ Local r1, r2, n := 4, buf, tmp_keys, tmp_list, tmp_color
   restscreen(buf)
 return {0,"Количество направлений - "+lstr(count_napr)}
 
-***** 09.09.19 ДВН - добавление или редактирование случая (листа учета)
+***** 06.11.19 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_DVN(Loc_kod,kod_kartotek,f_print)
 // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
 // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -225,9 +225,15 @@ Private mm_gruppa, mm_ndisp1, is_disp_19 := .t., is_disp_nabl := .f.
 mm_ndisp1 := aclone(mm_ndisp)
 // оставляем 3-ий и 4-ый этапы
 asize(mm_ndisp1,4) ; hb_ADel(mm_ndisp1, 1, .t.) ; hb_ADel(mm_ndisp1, 1, .t.)
-Private mm_gruppaP := {{"Присвоена I группа здоровья"  ,1,343},;
-                       {"Присвоена II группа здоровья" ,2,344},;
-                       {"Присвоена III группа здоровья",3,345}}
+Private mm_gruppaP := {{"Присвоена I группа здоровья"   ,1,343},;
+                       {"Присвоена II группа здоровья"  ,2,344},;
+                       {"Присвоена III группа здоровья" ,3,345},;
+                       {"Присвоена IIIа группа здоровья",3,373},;
+                       {"Присвоена IIIб группа здоровья",4,374}}
+Private mm_gruppaP_old := aclone(mm_gruppaP)
+asize(mm_gruppaP_old,3)
+Private mm_gruppaP_new := aclone(mm_gruppaP)
+hb_ADel(mm_gruppaP_new,3,.t.)
 Private mm_gruppaD1 := {;
   {"Проведена диспансеризация - присвоена I группа здоровья"   ,1,317},;
   {"Проведена диспансеризация - присвоена II группа здоровья"  ,2,318},;
@@ -482,8 +488,12 @@ if Loc_kod > 0
     // если это профосмотр
     if metap == 3 .and. ascan(ret_arr_vozrast_DVN(mk_data),mdvozrast) > 0 // а возраст диспансеризации
       metap := 1 // превращаем в диспансеризацию
-      if m1rslt == 345
+      if mk_data < d_01_11_2019 .and. m1rslt == 345
         m1rslt := 355
+      elseif mk_data >= d_01_11_2019 .and. m1rslt == 373
+        m1rslt := 355
+      elseif mk_data >= d_01_11_2019 .and. m1rslt == 374
+        m1rslt := 356
       elseif m1rslt == 344
         m1rslt := 318
       else
@@ -993,7 +1003,14 @@ do while .t.
     status_key("^<Esc>^ выход без записи ^<PgUp>^ на 1-ю страницу ^<PgDn>^ на 3-ю страницу")
   elseif num_screen == 3 //
     mm_gruppa := {mm_gruppaD1,mm_gruppaD2,mm_gruppaP,mm_gruppaD4,mm_gruppaD2}[metap]
-    mgruppa  := inieditspr(A__MENUVERT, mm_gruppa, m1gruppa)
+    if metap == 3
+      if mk_data < d_01_11_2019
+        mm_gruppa := mm_gruppaP_old
+      else
+        mm_gruppa := mm_gruppaP_new
+      endif
+    endif
+    mgruppa := inieditspr(A__MENUVERT, mm_gruppa, m1gruppa)
     ret_ndisp(Loc_kod,kod_kartotek)
     ++j; @ j,8 get mndisp when .f. color color14
     if mvozrast != mdvozrast
@@ -1544,6 +1561,13 @@ do while .t.
       endif
     endif
     mm_gruppa := {mm_gruppaD1,mm_gruppaD2,mm_gruppaP,mm_gruppaD4,mm_gruppaD2}[metap]
+    if metap == 3
+      if mk_data < d_01_11_2019
+        mm_gruppa := mm_gruppaP_old
+      else
+        mm_gruppa := mm_gruppaP_new
+      endif
+    endif
     m1p_otk := 0
     if (i := ascan(mm_gruppa,{|x| x[2] == m1GRUPPA })) > 0
       if (m1rslt := mm_gruppa[i,3]) == 352
@@ -1692,9 +1716,15 @@ do while .t.
                 arr_osm1[i,5] := "2.3.2" // шифр услуги приёма терапевта для профосмотра
               endif
               metap := 3
-              if eq_any(m1rslt,355,356,357,358)
+              if eq_any(m1rslt,355,356,357,358) .and. mk_data < d_01_11_2019 // III группа
                 m1rslt := 345
                 m1gruppa := 3
+              elseif eq_any(m1rslt,355,357) // IIIа группа
+                m1rslt := 373
+                m1gruppa := 3
+              elseif eq_any(m1rslt,356,358) // IIIб группа
+                m1rslt := 374
+                m1gruppa := 4
               elseif eq_any(m1rslt,318,353)
                 m1rslt := 344
                 m1gruppa := 2

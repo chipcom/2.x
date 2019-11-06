@@ -406,7 +406,7 @@ elseif lp == 64 // оториноларингологии
 endif
 return lp
 
-***** 30.09.19
+***** 06.11.19
 Function verify_1_sluch(fl_view)
 Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
       i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -752,6 +752,15 @@ else
     s := space(80)
     if !val_ud_ser(2,kart_->vid_ud,kart_->ser_ud,@s)
       aadd(ta,s)
+    endif
+  endif
+  if human_->usl_ok < 4 .and. human_->vpolis < 3 .and. !(left(human_->OKATO,2) == "18") // иногородние
+    if empty(kart_->kogdavyd)
+      aadd(ta,'для иногородних без нового полиса обязательно заполнение поля "Дата выдачи документа, удостоверяющего личность"')
+    endif
+    if empty(kart_->kemvyd) .or. ;
+       empty(del_spec_symbol(inieditspr(A__POPUPMENU, dir_server+"s_kemvyd", kart_->kemvyd)))
+      aadd(ta,'для иногородних без нового полиса обязательно заполнение поля "Наименование органа, выдавшего документ, удостоверяющий личность""')
     endif
   endif
 endif
@@ -1115,7 +1124,7 @@ do while hu->kod == human->kod .and. !eof()
         kol_2_6++
       elseif left_lshifr_5 == "2.60."
         kol_2_60++
-      elseif alltrim_lshifr == "2.4.1"
+      elseif eq_any(alltrim_lshifr,"2.4.1","2.4.2")
         kol_2_4++
       elseif left_lshifr_5 == "2.76."
         mpovod := 7 // 2.3
@@ -1833,16 +1842,18 @@ if is_oncology == 2 // онкология
       endif
       if empty(onksl->wei)
         aadd(ta,'не введена масса тела для выбранного типа онкологического лечения')
-      elseif !(onksl->wei < 201)
+      elseif !(onksl->wei < 500)
         aadd(ta,'слишком большая масса тела для выбранного типа онкологического лечения')
       endif
       if empty(onksl->hei)
         aadd(ta,'не введен рост пациента для выбранного типа онкологического лечения')
-      elseif !(onksl->hei < 251)
+      elseif !(onksl->hei < 260)
         aadd(ta,'слишком большой рост пациента для выбранного типа онкологического лечения')
       endif
       if empty(onksl->bsa)
         aadd(ta,'не введена площадь поверхности тела для выбранного типа онкологического лечения')
+      elseif !(onksl->bsa < 6)
+        aadd(ta,'слишком большая площадь поверхности тела для выбранного типа онкологического лечения')
       endif
       arr_lek := {} ; fl := .t.
       Select ONKLE
@@ -3528,8 +3539,7 @@ if is_prof_PN //
     if metap == 1 .and. zs == 1
       s := ret_shifr_zs_PN(mperiod)
       if !(kod_zs == s)
-        aadd(ta,'в л/у услуга '+kod_zs+', а должна быть '+s+;
-                ' для возраста '+lstr(mvozrast)+' '+s_let(mvozrast))
+        aadd(ta,'в л/у услуга '+kod_zs+', а должна быть '+s+' для возраста '+lstr(mvozrast)+' '+s_let(mvozrast))
       endif
     elseif metap == 1 .and. zs > 1
       aadd(ta,'в листе учета более одной услуги "законченный случай"')
@@ -3586,11 +3596,25 @@ if is_prof_PN //
         else
           for k := 1 to len(au_lu)
             // проверяем только нулевые услуги
-            if eq_any(left(au_lu[k,1],4),"2.3.","2.4.") .and. au_lu[k,3] == np_arr_osmotr[j,4]
-              fl := .t. // услуга оказана (нашли по профилю)
-              exit
+            if eq_any(left(au_lu[k,1],4),"2.3.","2.4.")
+              if valtype(np_arr_osmotr[j,4]) == "N"
+                if au_lu[k,3] == np_arr_osmotr[j,4]
+                  fl := .t. // услуга оказана (нашли по профилю)
+                  exit
+                endif
+              elseif ascan(np_arr_osmotr[j,4],au_lu[k,3]) > 0
+                fl := .t. // услуга оказана (нашли по профилю)
+                exit
+              endif
             endif
           next k
+        endif
+        if !fl .and. mk_data < d_01_11_2019
+          if mperiod == 16 .and. np_arr_osmotr[j,1] == "2.4.2" // 2 года
+            fl := .t. // услуга не должна быть оказана
+          elseif mperiod == 20 .and. np_arr_osmotr[j,1] == "2.85.24" // 6 лет
+            fl := .t. // услуга не должна быть оказана
+          endif
         endif
         if !fl
           aadd(ta,'некорректно записан врачебный осмотр 1-го этапа "'+np_arr_osmotr[j,3]+'" (отредактируйте)')
@@ -7851,8 +7875,7 @@ do while !eof()
     if mo_xml->kol2 > 0
       aadd(mm_func, mo_xml->kod)
       aadd(mm_flag,.f.)
-      s := "Протокол ФЛК "+rtrim(mo_xml->FNAME)+" прочитан "+;
-           date_8(mo_xml->DWORK)+" в "+mo_xml->TWORK1
+      s := "Протокол ФЛК "+rtrim(mo_xml->FNAME)+" прочитан "+date_8(mo_xml->DWORK)+" в "+mo_xml->TWORK1
       aadd(mm_menu,s)
     endif
   endif
@@ -7882,8 +7905,7 @@ if (i := popup_prompt(r1,10,1,mm_menu,,,color5)) > 0
   mtip_in := mo_xml->TIP_IN
   close databases
   if mtip_in == _XML_FILE_SP // возврат реестра СП и ТК
-    if (arr_f := Extract_Zip_XML(dir_server+dir_XML_TF,cFile+szip)) != NIL ;
-                                                       .and. mo_Lock_Task(X_OMS)
+    if (arr_f := Extract_Zip_XML(dir_server+dir_XML_TF,cFile+szip)) != NIL .and. mo_Lock_Task(X_OMS)
       cFile += sxml
       // читаем файл в память
       oXmlDoc := HXMLDoc():Read(_tmp_dir1+cFile)

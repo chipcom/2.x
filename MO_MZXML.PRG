@@ -585,7 +585,7 @@ elseif _regim == 2
        arr := f4_inf_DNL_karta(1)
        arr1 := f4_inf_DNL_karta(2)
        if (i := ascan(arr1, {|x| x[5] == 7 })) > 0  // УЗИ сердца
-         arr[i,5] := 20                             // эхокардиография
+         arr1[i,5] := 20                             // эхокардиография
        endif
      elseif p_tip_lu == TIP_LU_PREDN // пред.осмотры 1 и 2 этап
        arr := f4_inf_PREDN_karta(1)

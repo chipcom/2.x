@@ -1582,8 +1582,8 @@ do while .t.
           arr_osm1[i,5] := dds_arr_osm1[i,7,1]
           // "педиатр","",0,17,{68,57},{1134,1110},{"2.83.14","2.83.15"}
           if len(dds_arr_osm1[i,5]) == 2 .and. len(dds_arr_osm1[i,6]) == 2 ;
-                                       .and. len(dds_arr_osm1[i,7]) == 2 ;
-                                    .and. ret_new_spec(dds_arr_osm1[i,6,2]) == arr_osm1[i,2]
+                                         .and. len(dds_arr_osm1[i,7]) == 2 ;
+                                         .and. dds_arr_osm1[i,6,2] == ret_old_prvs(arr_osm1[i,2])
             arr_osm1[i,4] := dds_arr_osm1[i,5,2]
             arr_osm1[i,5] := dds_arr_osm1[i,7,2]
           endif
@@ -2210,7 +2210,7 @@ else // дисп-ия проведена в МО (не мобильной бригадой)
 endif
 return s
 
-***** 09.12.18 СМП - добавление или редактирование случая (листа учета)
+***** 01.11.19 СМП - добавление или редактирование случая (листа учета)
 Function oms_sluch_SMP(Loc_kod,kod_kartotek,tip_lu)
 // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
 // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -2250,6 +2250,7 @@ else
     MVID_UD                          ,; // вид удостоверения
     M1VID_UD    := 14                ,; // 1-18
     mser_ud := space(10), mnom_ud := space(20), mmesto_r := space(100), ;
+    MKEMVYD, M1KEMVYD := 0, MKOGDAVYD := ctod(""),; // кем и когда выдан паспорт
     mspolis := space(10), mnpolis := space(20), msmo := '34007',;
     mnamesmo, m1namesmo,;
     m1company := 0, mcompany, mm_company, ;
@@ -2287,6 +2288,8 @@ else
     m1vid_ud    := kart_->vid_ud   // вид удостоверения личности
     mser_ud     := kart_->ser_ud   // серия удостоверения личности
     mnom_ud     := kart_->nom_ud   // номер удостоверения личности
+    m1kemvyd    := kart_->kemvyd   // кем выдан документ
+    mkogdavyd   := kart_->kogdavyd // когда выдан документ
     mmesto_r    := kart_->mesto_r      // место рождения
     mokatog     := kart_->okatog       // код места жительства по ОКАТО
     m1okato     := kart_->KVARTAL_D    // ОКАТО субъекта РФ территории страхования
@@ -2478,6 +2481,8 @@ if mkod_k > 0
     mSPOLIS     := kart_->SPOLIS
     mNPOLIS     := kart_->NPOLIS
     mmesto_r    := kart_->mesto_r      // место рождения
+    m1kemvyd    := kart_->kemvyd   // кем выдан документ
+    mkogdavyd   := kart_->kogdavyd // когда выдан документ
     m1okato     := kart_->KVARTAL_D    // ОКАТО субъекта РФ территории страхования
     msmo        := kart_->SMO
     if kart->MI_GIT == 9
@@ -2627,6 +2632,7 @@ mrslt     := inieditspr(A__MENUVERT, glob_V009, m1rslt)
 mishod    := inieditspr(A__MENUVERT, glob_V012, m1ishod)
 mlpu      := inieditspr(A__POPUPMENU, dir_server+"mo_uch", m1lpu)
 motd      := inieditspr(A__POPUPMENU, dir_server+"mo_otd", m1otd)
+MKEMVYD   := inieditspr(A__POPUPMENU, dir_server+"s_kemvyd", M1KEMVYD)
 mvidpolis := inieditspr(A__MENUVERT, mm_vid_polis, m1vidpolis)
 mokato    := inieditspr(A__MENUVERT, glob_array_srf, m1okato)
 mkomu     := inieditspr(A__MENUVERT, mm_komu, m1komu)
@@ -2669,6 +2675,7 @@ if tip_lu == TIP_LU_SMP
   mbrig := inieditspr(A__MENUVERT, mm_brig, m1brig)
   str_1 := " случая оказания СМП"
 else
+  --top2
   mspec := inieditspr(A__MENUVERT, mm_spec, m1spec)
   str_1 := " случая оказания неотложной медицинской помощи"
 endif
@@ -2744,7 +2751,10 @@ else
          @ j,42 say "Серия" get mser_ud pict "@!" valid val_ud_ser(1,m1vid_ud,mser_ud)
          @ j,col()+1 say "№" get mnom_ud pict "@!S18" valid val_ud_nom(1,m1vid_ud,mnom_ud)
   if tip_lu == TIP_LU_NMP
-    ++j ; @ j,1 say "Место рождения" get mmesto_r pict "@S63"
+    ++j ; @ j,2 say "Место рождения" get mmesto_r pict "@S62"
+    ++j ; @ j,2 say "Выдано" get mkogdavyd
+          @ j,col() say "," get mkemvyd ;
+          reader {|x|menu_reader(x,{{|k,r,c|get_s_kemvyd(k,r,c)}},A__FUNCTION,,,.f.)}
   endif
   ++j ; @ j,1 say "Адрес регистрации" get madres_reg ;
         reader {|x| menu_reader(x,{{|k,r,c| get_adres(1,k,r,c)}},A__FUNCTION,,,.f.)}
@@ -3000,7 +3010,9 @@ endif
       kart_->ser_ud := mser_ud
       kart_->nom_ud := mnom_ud
       if tip_lu == TIP_LU_NMP
-        kart_->mesto_r := mmesto_r
+        kart_->mesto_r  := mmesto_r
+        kart_->kemvyd   := m1kemvyd
+        kart_->kogdavyd := mkogdavyd
       endif
       kart_->okatog := mokatog
       Private fl_nameismo := .f.

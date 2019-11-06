@@ -2792,8 +2792,12 @@ if regim == "edit" .and. nKey == K_ENTER
   if emptyall(tmp->kod1h,tmp->kod2h) // §­ ç¨â ¯à®ä¨« ªâ¨ª 
     is_disp := .f.
     human->(dbGoto(tmp->kod3h))
-    m1GRUPPA := human_->RSLT_NEW - 342
-    if !between(m1gruppa,1,3)
+    if between(human_->RSLT_NEW,343,345)
+      m1GRUPPA := human_->RSLT_NEW - 342
+    elseif between(human_->RSLT_NEW,373,374)
+      m1GRUPPA := human_->RSLT_NEW - 370
+    endif
+    if !between(m1gruppa,1,4)
       m1GRUPPA := 0 ; func_error(4,s_smg)
     endif
   else // I íâ ¯
@@ -3716,12 +3720,18 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
     elseif emptyall(tmp->kod1h,tmp->kod2h) // ¯à®ä¨« ªâ¨ª 
       human->(dbGoto(tmp->kod3h))
       mdvozrast := year(human->n_data) - year(human->date_r)
-      g1 := human_->RSLT_NEW - 342
-      if between(g1,1,3)
+      g1 := 0
+      if between(human_->RSLT_NEW,343,345)
+        g1 := human_->RSLT_NEW - 342
+      elseif between(human_->RSLT_NEW,373,374)
+        g1 := human_->RSLT_NEW - 370
+      endif
+      if between(g1,1,4)
         arr_21[14] ++
         if f_is_selo(kart_->gorod_selo,kart_->okatog)
           arr_21[15] ++
         endif
+        if g1 == 4 ; g1 := 3 ; endif // ¯®ª  â ª
         arr_21[15+g1] ++ // ¯à®ä®á¬®âàë ¯® £àã¯¯ ¬ §¤®à®¢ìï
         if f_starshe_trudosp(human->POL,human->DATE_R,human->n_data)
           arr_21[40] ++

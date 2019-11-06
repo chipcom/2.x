@@ -1706,7 +1706,7 @@ do case
 endcase
 return k
 
-***** 04.10.19 создание XML-файлов реестра
+***** 05.11.19 создание XML-файлов реестра
 Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
 Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, ;
       lst, lshifr1, code_reestr, mb, me, nsh
@@ -2635,7 +2635,11 @@ stat_msg("Составление реестра пациентов")
 oXmlDoc := HXMLDoc():New()
 oXmlDoc:Add( HXMLNode():New( "PERS_LIST") )
  oXmlNode := oXmlDoc:aItems[1]:Add( HXMLNode():New( "ZGLV" ) )
-  mo_add_xml_stroke(oXmlNode,"VERSION" ,'3.11')
+  s := '3.11'
+  if strzero(_nyear,4)+strzero(_nmonth,2) > "201910" // с ноября 2019 года
+    s := '3.2'
+  endif
+  mo_add_xml_stroke(oXmlNode,"VERSION"  ,s)
   mo_add_xml_stroke(oXmlNode,"DATA"     ,date2xml(rees->DSCHET))
   mo_add_xml_stroke(oXmlNode,"FILENAME" ,mo_xml->FNAME2)
   mo_add_xml_stroke(oXmlNode,"FILENAME1",mo_xml->FNAME)
@@ -2711,6 +2715,15 @@ do while !eof()
     endif
     mo_add_xml_stroke(oPAC,"DOCNUM",kart_->nom_ud)
   endif
+  if human_->vpolis < 3 .and. !(left(human_->OKATO,2) == "18") // иногородние
+    if !empty(kart_->kogdavyd)
+      mo_add_xml_stroke(oPAC,"DOCDATE",date2xml(kart_->kogdavyd))
+    endif
+    if !empty(kart_->kemvyd) .and. ;
+       !empty(smr := del_spec_symbol(inieditspr(A__POPUPMENU, dir_server+"s_kemvyd", kart_->kemvyd)))
+      mo_add_xml_stroke(oPAC,"DOCORG",smr)
+    endif
+  endif
   if !empty(kart->snils)
     mo_add_xml_stroke(oPAC,"SNILS",transform(kart->SNILS,picture_pf))
   endif
@@ -2735,7 +2748,7 @@ if chip_create_zipXML(name_zip,arr_zip,.t.)
 endif
 return NIL
 
-***** 15.02.19 создать счета по результатам прочитанного реестра СП
+***** 05.11.19 создать счета по результатам прочитанного реестра СП
 Function create_schet19_from_XML(arr_XML_info,aerr,fl_msg,arr_s,name_sp_tk)
 Local arr_schet := {}, c, len_stand, _arr_stand, lshifr, i, j, k, lbukva,;
       doplataF, doplataR, mnn, fl, name_zip, arr_zip := {}, lshifr1,;
@@ -3623,13 +3636,17 @@ for ii := 1 to len(arr_schet)
   oXmlDoc := HXMLDoc():New()
   oXmlDoc:Add( HXMLNode():New( "PERS_LIST") )
    oXmlNode := oXmlDoc:aItems[1]:Add( HXMLNode():New( "ZGLV" ) )
-    mo_add_xml_stroke(oXmlNode,"VERSION" ,'3.11')
+    s := '3.11'
+    if strzero(tmp1->_YEAR,4)+strzero(tmp1->_MONTH,2) > "201910" // с ноября 2019 года
+      s := '3.2'
+    endif
+    mo_add_xml_stroke(oXmlNode,"VERSION" ,s)
     mo_add_xml_stroke(oXmlNode,"DATA"     ,date2xml(schet_->DSCHET))
     mo_add_xml_stroke(oXmlNode,"FILENAME" ,mo_xml->FNAME2)
     mo_add_xml_stroke(oXmlNode,"FILENAME1",mo_xml->FNAME)
   select TMP2
   find (str(ii,6))
-  do while tmp2->schet==ii .and. !eof()
+  do while tmp2->schet == ii .and. !eof()
     @ maxrow(),0 say str(tmp2->schet_zap/arr_schet[ii,3]*100,6,2)+"%" color cColorSt2Msg
     select T3
     find (upper(tmp2->_ID_PAC))
@@ -3670,6 +3687,12 @@ for ii := 1 to len(arr_schet)
           mo_add_xml_stroke(oPAC,"DOCSER",t3->DOCSER)
         endif
         mo_add_xml_stroke(oPAC,"DOCNUM" ,t3->DOCNUM)
+      endif
+      if !empty(t3->DOCDATE)
+        mo_add_xml_stroke(oPAC,"DOCDATE",t3->DOCDATE)
+      endif
+      if !empty(t3->DOCORG)
+        mo_add_xml_stroke(oPAC,"DOCORG",t3->DOCORG)
       endif
       if !empty(t3->SNILS)
         mo_add_xml_stroke(oPAC,"SNILS",t3->SNILS)

@@ -40,7 +40,7 @@ do case
   case sBase == "s_adres"
     index on upper(name) to (dir_server+sBase)
   case sBase == "s_kemvyd"
-    index on upper(name) to (dir_server+sBase)
+    index on upper(substr(name,1,80)) to (dir_server+sBase)
   case sBase == "mo_pers"
     index on str(tab_nom,5) to (dir_server+sBase)
   case sBase == "mo_regi"
@@ -721,7 +721,7 @@ me := mem_enn13rees
 endif*/
 return iif(_nyear < 2017, 3, 5) // начиная с 2017 года - 5 символов
 
-***** 02.02.17 если это укрупнённый архив, распаковать и прочитать
+***** 05.11.19 если это укрупнённый архив, распаковать и прочитать
 Function Is_Our_ZIP(cName,/*@*/tip_csv_file,/*@*/kod_csv_reestr)
 Static cStFile, si
 Local fl := .f., arr := {}, arr_f, i, s := cName, s1, name_ext, _date, _time, c
@@ -736,7 +736,7 @@ elseif eq_any(left(s,8),"RHRT34_M","RFRT34_M") .and. substr(s,9,6) == glob_MO[_M
       do case
         case left(s,8) == "P"+c+"RT34_M" .and. name_ext == spdf
           aadd(arr,{1,"протокол обработки поступивших сведений "+s,s,name_ext})
-        case left(s,4) == "P"+c+"RM" .and. name_ext == szip
+        case eq_any(left(s,4),"V"+c+"RM","P"+c+"RM") .and. name_ext == szip
           s1 := "протокол ФЛК "+s
           // проверим, читали ли уже данный файл
           if Verify_Is_Already_XML(Name_Without_Ext(s),@_date,@_time)
@@ -826,8 +826,7 @@ elseif eq_any(left(s,2),"E2","O2") // файлы протокола прикрепления и открепления
     endif
     krtf->(dbCloseArea())
   else
-    fl := func_error(4,"Ваш код МО "+glob_MO[_MO_KOD_TFOMS]+;
-                       " не соответствует коду получателя: "+s1)
+    fl := func_error(4,"Ваш код МО "+glob_MO[_MO_KOD_TFOMS]+" не соответствует коду получателя: "+s1)
     if (i := ascan(glob_arr_mo, {|x| x[_MO_KOD_TFOMS] == s1})) > 0
       func_error(4,"Это файл для: "+glob_arr_mo[i,_MO_SHORT_NAME])
     endif
@@ -894,8 +893,7 @@ if eq_any(left(s,3),"EO2","LO2") // файлы протокола прикрепления и открепления
     endif
     krtf->(dbCloseArea())
   else
-    fl := func_error(4,"Ваш код МО "+glob_MO[_MO_KOD_TFOMS]+;
-                       " не соответствует коду получателя: "+s1)
+    fl := func_error(4,"Ваш код МО "+glob_MO[_MO_KOD_TFOMS]+" не соответствует коду получателя: "+s1)
     if (i := ascan(glob_arr_mo, {|x| x[_MO_KOD_TFOMS] == s1})) > 0
       func_error(4,"Это файл для: "+glob_arr_mo[i,_MO_SHORT_NAME])
     endif
@@ -905,11 +903,11 @@ else
 endif
 return fl
 
-***** 29.11.18 проверить, нам ли предназначен данный XML-файл
+***** 05.11.19 проверить, нам ли предназначен данный XML-файл
 Function Is_Our_XML(cName,ret_arr)
 Local c, arr_err := {}, i, s, nSMO, nTypeFile, cFrom, cTo, _nYear, _nMonth, nNN, nReestr := 0
 s := cName
-if eq_any(left(s,3),"PHR","PFR") // файл протокола ФЛК
+if eq_any(left(s,3),"VHR","VFR","PHR","PFR") // файл протокола ФЛК
   nTypeFile := _XML_FILE_FLK
   R_Use(dir_server+"mo_rees",,"REES")
   R_Use(dir_server+"mo_xml",,"MO_XML")
@@ -1071,8 +1069,7 @@ else
         s := afteratnum("M",s)
         cTo := beforatnum("_",s)
         if !(cTo == glob_MO[_MO_KOD_TFOMS])
-          aadd(arr_err, "Ваш код МО "+glob_MO[_MO_KOD_TFOMS]+;
-                        " не соответствует коду получателя: "+cTo)
+          aadd(arr_err, "Ваш код МО "+glob_MO[_MO_KOD_TFOMS]+" не соответствует коду получателя: "+cTo)
           if (i := ascan(glob_arr_mo, {|x| x[_MO_KOD_TFOMS] == cTo})) > 0
             aadd(arr_err, "Это файл для: "+glob_arr_mo[i,_MO_SHORT_NAME])
           endif

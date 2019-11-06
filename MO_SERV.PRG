@@ -5134,7 +5134,7 @@ for i := 1 to len(a_reestr)
     s := Name_Without_Ext(a_reestr[i,1])
     if extract_reestr(1,s,.t.)
       if (fl := f2_create_main_base_from_reestrs(s))
-        s := "P"+s
+        s := "P"+s // !! добавить чтение файлов, начинающихся с "V"
         full_zip := name_path+s+szip
         if hb_FileExists(full_zip) // читать протокол ФЛК
           strfile(" "+StripPath(full_zip)+": обработка протокола ФЛК"+hb_eol(),cImportProtokol,.t.)

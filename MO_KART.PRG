@@ -88,7 +88,7 @@ if p_edit_kartoteka
 endif
 return mkod
 
-***** 29.08.17
+***** 01.11.19
 Function edit_kartotek_(mkod,_top_r,_bot_r,fl_oms,_Human_kod)
 Static mm_kart_error := {{"нет замечаний",0},{"полис недействителен",-8},{"ошибки в реквизитах",-9}}
 Static mm_invalid := {{"нет",0},{"1 группа",1},{"2 группа",2},{"3 группа",3},{"дети-инвалиды",4}}
@@ -404,9 +404,7 @@ count_row += 2 // Ф.И.О.
 if !is_smp
   ++count_row // Место рождения
 endif
-if eq_any(glob_task,X_REGIST,X_PLATN,X_ORTO,X_KASSA,X_PPOKOJ,X_MO)
-  ++count_row // Кем и когда выдано
-endif
+++count_row // Кем и когда выдано
 ++count_row // Адрес регистрации
 if !is_smp
   ++count_row // Адрес пребывания
@@ -517,11 +515,9 @@ do while .t.
   if !is_smp
     ++ix ; @ ix,2 say "Место рождения" get mmesto_r pict "@S62"
   endif
-  if eq_any(glob_task,X_REGIST,X_PLATN,X_ORTO,X_KASSA,X_PPOKOJ,X_MO)
-    ++ix ; @ ix,2 say "Выдано" get mkogdavyd
-           @ ix,col() say "," get mkemvyd ;
+  ++ix ; @ ix,2 say "Выдано" get mkogdavyd
+         @ ix,col() say "," get mkemvyd ;
         reader {|x|menu_reader(x,{{|k,r,c|get_s_kemvyd(k,r,c)}},A__FUNCTION,,,.f.)}
-  endif
   ++ix ; @ ix,1 say "Адрес регистрации" get madres_reg ;
         reader {|x| menu_reader(x,{{|k,r,c| get_adres(1,k,r,c)}},A__FUNCTION,,,.f.)}
   if !is_smp
@@ -3257,7 +3253,7 @@ if !empty(full_zip := manager(T_ROW,T_COL+5,maxrow()-2,,.t.,1,,,,"WQ2*"+szip))
               {"vid_ud",     "N",      2,      0},; // вид удостоверения личности;по кодировке ФФОМС;"PKRT_VID из ""APP_BASE"""
               {"ser_ud",     "C",     10,      0},; // серия удостоверения личности;;"PKRT_SER из ""APP_BASE"""
               {"nom_ud",     "C",     20,      0},; // номер удостоверения личности;;"PKRT_NOM из ""APP_BASE"""
-              {"kemvyd",     "N",      4,      0},; // кем выдан документ;"справочник ""s_kemvyd""";"PKRT_KEM из ""APP_BASE"""
+              {"kemvyd",     "N",      6,      0},; // кем выдан документ;"справочник ""s_kemvyd""";"PKRT_KEM из ""APP_BASE"""
               {"kogdavyd",   "D",      8,      0},; // когда выдан документ;;"PKRT_KOGDA из ""APP_BASE"""
               {"MESTO_R",    "C",    100,      0},; // место рождения
              */

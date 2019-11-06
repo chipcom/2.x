@@ -4396,7 +4396,7 @@ close databases
 viewtext(name_file,,,,.t.,,,reg_print)
 return NIL
 
-***** 27.09.18
+***** 05.11.19
 FUNCTION f_blank_usl_pn()
 Static arrv := {;
   {"Новорожденный",1},;
@@ -4433,9 +4433,9 @@ do while (mperiod := popup_2array(arrv,3,11,mperiod,1,@ret_arr,;
     for i := 1 to count_pn_arr_iss
       if ascan(ar[5],np_arr_issled[i,1]) > 0
         s := np_arr_issled[i,3]
-        if ascan(glob_arr_usl_LIS,np_arr_issled[i,1]) > 0
-          s += "    <b><i>в МО / в КДП2</b></i>"
-        endif
+        //if ascan(glob_arr_usl_LIS,np_arr_issled[i,1]) > 0
+          //s += "    <b><i>в МО / в КДП2</b></i>"
+        //endif
         if valtype(np_arr_issled[i,2]) == "C"
           s += " ("+iif(np_arr_issled[i,2]=="М","мальчики","девочки")+")"
         endif

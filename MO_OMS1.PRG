@@ -4,7 +4,7 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 22.10.19 ПН - добавление или редактирование случая (листа учета)
+***** 06.11.19 ПН - добавление или редактирование случая (листа учета)
 Function oms_sluch_PN(Loc_kod,kod_kartotek,f_print)
 // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
 // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -900,6 +900,12 @@ do while .t.
         if fl
           fl := (ascan(ar[4],np_arr_osmotr[i,1]) > 0)
         endif
+        if fl .and. mperiod == 16 .and. mk_data < d_01_11_2019 .and. np_arr_osmotr[i,1] == "2.4.2" // 2 года
+          fl := .f.
+        endif
+        if fl .and. mperiod == 20 .and. mk_data < d_01_11_2019 .and. np_arr_osmotr[i,1] == "2.85.24" // 6 лет
+          fl := .f.
+        endif
         if fl
           mvarv := "MTAB_NOMov"+lstr(i)
           mvara := "MTAB_NOMoa"+lstr(i)
@@ -1429,7 +1435,7 @@ do while .t.
         endif
         if valtype(np_arr_issled[i,5]) == "N"
           arr_iss[i,4] := np_arr_issled[i,5] // профиль
-        elseif arr_iss[i,2] > 0 .and. (j := ascan(np_arr_issled[i,6],arr_iss[i,2])) > 0
+        elseif arr_iss[i,2] < 0 .and. (j := ascan(np_arr_issled[i,6],ret_old_prvs(arr_iss[i,2]))) > 0
           arr_iss[i,4] := np_arr_issled[i,5,j] // профиль
         endif
         arr_iss[i,5] := np_arr_issled[i,1] // шифр услуги
@@ -1463,6 +1469,12 @@ do while .t.
       if _fl_
         _fl_ := (!empty(ar[4]) .and. ascan(ar[4],np_arr_osmotr[i,1]) > 0)
       endif
+      if _fl_ .and. mperiod == 16 .and. mk_data < d_01_11_2019 .and. np_arr_osmotr[i,1] == "2.4.2" // 2 года
+        _fl_ := .f.
+      endif
+      if _fl_ .and. mperiod == 20 .and. mk_data < d_01_11_2019 .and. np_arr_osmotr[i,1] == "2.85.24" // 6 лет
+        _fl_ := .f.
+      endif
       if _fl_
         mvart := "MTAB_NOMov"+lstr(i)
         mvara := "MTAB_NOMoa"+lstr(i)
@@ -1488,7 +1500,11 @@ do while .t.
               arr_osm1[i,3] := p2->kod
             endif
           endif
-          arr_osm1[i,4] := np_arr_osmotr[i,4] // профиль
+          if valtype(np_arr_osmotr[i,4]) == "N"
+            arr_osm1[i,4] := np_arr_osmotr[i,4] // профиль
+          elseif arr_osm1[i,2] < 0 .and. (j := ascan(np_arr_osmotr[i,5],ret_old_prvs(arr_osm1[i,2]))) > 0
+            arr_osm1[i,4] := np_arr_osmotr[i,4,j] // профиль
+          endif
           arr_osm1[i,5] := np_arr_osmotr[i,1] // шифр услуги
           if empty(&mvarz) .or. left(&mvarz,1) == "Z"
             arr_osm1[i,6] := mdef_diagnoz
@@ -5604,16 +5620,22 @@ return k
 
 *
 
-***** 14.12.14 сравнение профилей с учётом изменения правил в 2014 году
+***** 06.11.19 сравнение профилей с учётом изменения правил в 2014 году
 Function f_profil_ginek_otolar(lp1,lp2)
 Static arr_ginek := {2,136} // акушерству и гинекологии
 Static arr_otolar := {64,162} // отоларингологии
-Local fl := .f.
-if lp1 == lp2
-  fl := .t.
-elseif ascan(arr_ginek,lp1) > 0
-  fl := (ascan(arr_ginek,lp2) > 0)
-elseif ascan(arr_otolar,lp1) > 0
-  fl := (ascan(arr_otolar,lp2) > 0)
+Local i, fl := .f.
+if valtype(lp1) == "N"
+  lp1 := {lp1}
 endif
+for i := 1 to len(lp1)
+  if lp1[i] == lp2
+    fl := .t.
+  elseif ascan(arr_ginek,lp1[i]) > 0
+    fl := (ascan(arr_ginek,lp2) > 0)
+  elseif ascan(arr_otolar,lp1[i]) > 0
+    fl := (ascan(arr_otolar,lp2) > 0)
+  endif
+  if fl ; exit ; endif
+next i
 return fl

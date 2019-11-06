@@ -676,6 +676,18 @@ if found() // если данная услуга участвует в проверке по специальности
 endif
 return nil
 
+***** 07.08.16 вернуть код новой медицинской специальности в кодировке справочника V015
+Function ret_new_spec(old_spec,new_spec)
+Local i, lkod := 0
+if empty(new_spec)
+  if !empty(old_spec) .and. (i := ascan(glob_arr_V004_V015, {|x| x[1] == old_spec })) > 0
+    lkod := glob_arr_V004_V015[i,2]
+  endif
+else
+  lkod := new_spec
+endif
+return lkod
+
 ***** 08.08.16 вернуть значение специальности в кодировке справочника V004
 Function ret_old_prvs(new_kod)
 Local i, old_kod := new_kod
