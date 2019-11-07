@@ -406,7 +406,7 @@ elseif lp == 64 // оториноларингологии
 endif
 return lp
 
-***** 06.11.19
+***** 07.11.19
 Function verify_1_sluch(fl_view)
 Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
       i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -754,7 +754,7 @@ else
       aadd(ta,s)
     endif
   endif
-  if human_->usl_ok < 4 .and. human_->vpolis < 3 .and. !(left(human_->OKATO,2) == "18") // иногородние
+  if human_->usl_ok < 4 .and. human_->vpolis < 3 .and. !eq_any(left(human_->OKATO,2),"  ","18") // иногородние
     if empty(kart_->kogdavyd)
       aadd(ta,'для иногородних без нового полиса обязательно заполнение поля "Дата выдачи документа, удостоверяющего личность"')
     endif
@@ -3216,7 +3216,7 @@ elseif ksmp > 0
     if is_71_1
       aadd(ta,'для коммерческой СМП необходимо применять услуги 71.2.*')
     endif
-  elseif human_->OKATO == '18000'
+  elseif empty(human_->OKATO) .or. human_->OKATO == '18000'
     if is_71_2
       aadd(ta,'для пациентов, застрахованных на территории Волгоградской области,')
       aadd(ta,'необходимо применять услуги 71.1.*')
@@ -3609,7 +3609,7 @@ if is_prof_PN //
             endif
           next k
         endif
-        if !fl .and. mk_data < d_01_11_2019
+        if !fl .and. d2 < d_01_11_2019
           if mperiod == 16 .and. np_arr_osmotr[j,1] == "2.4.2" // 2 года
             fl := .t. // услуга не должна быть оказана
           elseif mperiod == 20 .and. np_arr_osmotr[j,1] == "2.85.24" // 6 лет

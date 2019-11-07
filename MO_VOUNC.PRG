@@ -2715,7 +2715,7 @@ do while !eof()
     endif
     mo_add_xml_stroke(oPAC,"DOCNUM",kart_->nom_ud)
   endif
-  if human_->vpolis < 3 .and. !(left(human_->OKATO,2) == "18") // иногородние
+  if human_->vpolis < 3 .and. !eq_any(left(human_->OKATO,2),"  ","18") // иногородние
     if !empty(kart_->kogdavyd)
       mo_add_xml_stroke(oPAC,"DOCDATE",date2xml(kart_->kogdavyd))
     endif
