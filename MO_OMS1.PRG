@@ -4,7 +4,7 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 06.11.19 ПН - добавление или редактирование случая (листа учета)
+***** 08.11.19 ПН - добавление или редактирование случая (листа учета)
 Function oms_sluch_PN(Loc_kod,kod_kartotek,f_print)
 // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
 // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -492,7 +492,12 @@ if Loc_kod > 0
       next
       if fl
         for i := 1 to count_pn_arr_osm
-          if f_profil_ginek_otolar(np_arr_osmotr[i,4],hu_->PROFIL)
+          if left(lshifr,4) == "2.4."
+            if lshifr == np_arr_osmotr[i,1]
+              fl := .f. ; larr_o[i] := hu->(recno())
+              exit
+            endif
+          elseif f_profil_ginek_otolar(np_arr_osmotr[i,4],hu_->PROFIL)
             fl := .f. ; larr_o[i] := hu->(recno())
             exit
           endif

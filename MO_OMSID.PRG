@@ -4481,7 +4481,7 @@ if !empty(ar)
 endif
 return NIL
 
-***** 01.07.18 список пациентов
+***** 10.11.19 список пациентов
 Function f2_inf_DVN(is_schet,par)
 Local arr_m, buf := save_maxrow(), lkod_h, lkod_k, rec, s, as := {},;
       a, sh, HH := 53, n, n_file := "spis_dvn"+stxt, reg_print
@@ -4508,13 +4508,17 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
      {"vrach"    ,   "C",    15,     0},; // врач
      {"DATA_O"   ,   "C",    35,     0} ; // сроки другого этапа
     }
-    for i := 1 to max(count_dvn_arr_usl13,count_dvn_arr_usl)
+    ret_arrays_disp(.f.)
+    Private count_dvn_arr_usl18 := len(dvn_arr_usl18)
+    Private count_dvn_arr_umolch18 := len(dvn_arr_umolch18)
+    ret_arrays_disp(.t.)
+    for i := 1 to max(count_dvn_arr_usl18,count_dvn_arr_usl)
       aadd(adbf,{"d_"+lstr(i),"C",24,0})
     next
-    for i := 1 to max(count_dvn_arr_umolch13,count_dvn_arr_umolch)
+    for i := 1 to max(count_dvn_arr_umolch18,count_dvn_arr_umolch)
       aadd(adbf,{"du_"+lstr(i),"C",8,0})
     next
-    aadd(adbf,{"fl_2013","L",1,0})
+    aadd(adbf,{"fl_2018","L",1,0})
     aadd(adbf,{"d_zs","C",8,0})
     dbcreate(cur_dir+"tmpfio",adbf)
     use (cur_dir+"tmpfio") new alias TF
@@ -4589,11 +4593,11 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
     index on upper(fio) to (cur_dir+"tmpfio")
     go top
     do while !eof()
-      for i := 1 to iif(tf->fl_2013,count_dvn_arr_usl13,count_dvn_arr_usl)
+      for i := 1 to iif(tf->fl_2018,count_dvn_arr_usl18,count_dvn_arr_usl)
         pole := "tf->d_"+lstr(i)
         if !empty(&pole)
           for j := 1 to lat
-            if at[j,3] == 0 .and. ascan(at[j,2],{|x| x[1]==ppar .and. x[2]==tf->fl_2013 .and. x[3]==i }) > 0
+            if at[j,3] == 0 .and. ascan(at[j,2],{|x| x[1]==ppar .and. x[2]==tf->fl_2018 .and. x[3]==i }) > 0
               at[j,3] := 1 ; exit
             endif
           next
@@ -4694,7 +4698,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
         if at[i,3] > 0
           fl := .t.
           for j := 1 to len(at[i,2])
-            if at[i,2,j,1] == ppar .and. at[i,2,j,2] == tf->fl_2013
+            if at[i,2,j,1] == ppar .and. at[i,2,j,2] == tf->fl_2018
               pole := "tf->d_"+lstr(at[i,2,j,3]) // номер элемента из массива ф-ии mo_init
               if !empty(&pole)
                 s1 += padr(substr(&pole, 1,8),9)
@@ -4726,7 +4730,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
         s3 += padr(substr(tf->data_o,19)  ,11)
       endif
       s1 += iif(tf->gruppa == 4, "3", put_val(tf->gruppa,1))+str(tf->CENA_1,8,2)
-      if ppar < 3 .and. tf->gruppa > 2
+      if tf->gruppa > 2
         s2 += iif(tf->gruppa == 3, "а", "б")
       endif
       s3 += alltrim(tf->vrach)
@@ -4773,19 +4777,19 @@ close databases
 rest_box(buf)
 return NIL
 
-***** 01.07.18
+***** 10.11.19
 Function f2_inf_DVN_svod(par,kod_h) // сводная информация
 Static P_BEGIN_RSLT := 342
 Local i, j, c, s, pole, ar, arr := {}, fl, lshifr, arr_usl := {}
 Private metap := ppar, m1gruppa, mvozrast, mdvozrast, mpol, mn_data, mk_data,;
         arr_usl_dop := {}, arr_usl_otkaz := {}, arr_otklon := {}, m1veteran := 0, mvar,;
-        fl2 := .f., mshifr_zs := "", is_2013
+        fl2 := .f., mshifr_zs := "", is_2019
 select HUMAN
 goto (kod_h)
 mpol    := human->pol
 mn_data := human->n_data
 mk_data := human->k_data
-is_2013 := year(mk_data) < 2018
+is_2018 := p := (mk_data < d_01_05_2019)
 if ppar == 1 // диспансеризация 1 этап
   m1GRUPPA := ret_gruppa_DVN(human_->RSLT_NEW,@fl2)
   if between(m1gruppa,0,4)
@@ -4806,8 +4810,13 @@ elseif ppar == 2 // диспансеризация 2 этап
     return NIL
   endif
 elseif ppar == 3 // профилактика
-  m1GRUPPA := human_->RSLT_NEW-P_BEGIN_RSLT
-  if !between(m1gruppa,1,3)
+  m1GRUPPA := 0
+  if between(human_->RSLT_NEW,343,345)
+    m1GRUPPA := human_->RSLT_NEW - 342
+  elseif between(human_->RSLT_NEW,373,374)
+    m1GRUPPA := human_->RSLT_NEW - 370
+  endif
+  if !between(m1gruppa,1,4)
     return NIL
   endif
 else
@@ -4819,7 +4828,7 @@ mdvozrast := year(human->n_data) - year(human->date_r)
 if m1veteran == 1
   mdvozrast := ret_vozr_DVN_veteran(mdvozrast,human->k_data)
 endif
-for i := 1 to iif(is_2013,count_dvn_arr_usl13,count_dvn_arr_usl)
+for i := 1 to iif(is_2018,count_dvn_arr_usl18,count_dvn_arr_usl)
   mvar := "MTAB_NOMv"+lstr(i)
   Private &mvar := 0
   mvar := "MDATE"+lstr(i)
@@ -4881,10 +4890,10 @@ if len(arr) > 0
 endif
 pers->(dbGoto(human_->vrach))
 tf->vrach := fam_i_o(pers->fio)
-lcount := iif(is_2013,count_dvn_arr_usl13,count_dvn_arr_usl)
-larr_dvn := iif(is_2013,dvn_arr_usl13,dvn_arr_usl)
-lcount_u := iif(is_2013,count_dvn_arr_umolch13,count_dvn_arr_umolch)
-larr_dvn_u := iif(is_2013,dvn_arr_umolch13,dvn_arr_umolch)
+lcount := iif(is_2018,count_dvn_arr_usl18,count_dvn_arr_usl)
+larr_dvn := iif(is_2018,dvn_arr_usl18,dvn_arr_usl)
+lcount_u := iif(is_2018,count_dvn_arr_umolch18,count_dvn_arr_umolch)
+larr_dvn_u := iif(is_2018,dvn_arr_umolch18,dvn_arr_umolch)
 larr := array(2,lcount) ; afillall(larr,0)
 select HU
 find (str(kod_h,7))
@@ -4899,9 +4908,9 @@ do while hu->kod == kod_h .and. !eof()
   else
     fl := .t.
     if metap != 2
-      if is_2013
+      if is_2018
         if lshifr == "2.3.3" .and. hu_->PROFIL == 3 ; // акушерскому делу
-            .and. (i := ascan(dvn_arr_usl13, {|x| valtype(x[2])=="C" .and. x[2]=="4.20.1"})) > 0
+            .and. (i := ascan(dvn_arr_usl18, {|x| valtype(x[2])=="C" .and. x[2]=="4.20.1"})) > 0
           fl := .f. ; larr[1,i] := hu->(recno())
         endif
       else
@@ -4955,9 +4964,9 @@ for i := 1 to lcount
     &mvar := c4tod(hu->date_u)
     mvar := "M1OTKAZ"+lstr(i)
     if metap != 2
-      if is_2013
+      if is_2018
         if hu_->PROFIL == 3 .and. ;
-            ascan(dvn_arr_usl13, {|x| valtype(x[2])=="C" .and. x[2]=="4.20.1"}) > 0
+            ascan(dvn_arr_usl18, {|x| valtype(x[2])=="C" .and. x[2]=="4.20.1"}) > 0
           &mvar := 2 // невозможность выполнения
         endif
       else
@@ -4994,8 +5003,8 @@ if metap != 2 .and. valtype(arr_usl_otkaz) == "A"
   next
 endif
 //
-if is_2013
-  arr := f21_inf_DVN_svod13(1)
+if is_2018
+  arr := f21_inf_DVN_svod18(1)
 else
   arr := f21_inf_DVN_svod(1)
 endif
@@ -5010,9 +5019,9 @@ for i := 1 to len(arr)
   endif
 next
 tf->d_zs := mshifr_zs
-tf->fl_2013 := is_2013
-if is_2013
-  arr := f21_inf_DVN_svod13(2)
+tf->fl_2018 := is_2018
+if is_2018
+  arr := f21_inf_DVN_svod18(2)
 else
   arr := f21_inf_DVN_svod(2)
 endif
@@ -5022,24 +5031,24 @@ for i := 1 to len(arr)
 next
 return NIL
 
-***** 08.11.13
-Function f21_inf_DVN_svod13(par)
+***** 10.11.19
+Function f21_inf_DVN_svod18(par)
 Local i, arr := {}
 if par == 1
-  for i := 1 to count_dvn_arr_usl13
+  for i := 1 to count_dvn_arr_usl18
     mvart := "MTAB_NOMv"+lstr(i)
     mvard := "MDATE"+lstr(i)
     mvaro := "M1OTKAZ"+lstr(i)
-    if f_is_usl_oms_sluch_DVN13(i,metap,iif(metap==3,mvozrast,mdvozrast),mpol)
+    if f_is_usl_oms_sluch_DVN(i,metap,iif(metap==3,mvozrast,mdvozrast),mpol)
       if !emptyany(&mvard,&mvart)
-        aadd(arr, {dvn_arr_usl13[i,1], &mvard, "", i, &mvaro})
+        aadd(arr, {dvn_arr_usl18[i,1], &mvard, "", i, &mvaro})
       endif
     endif
   next
 else
-  for i := 1 to count_dvn_arr_umolch13
-    if f_is_umolch_sluch_DVN13(i,metap,iif(metap==3,mvozrast,mdvozrast),mpol)
-      aadd(arr, {dvn_arr_umolch13[i,1], iif(dvn_arr_umolch13[i,8]==0, mn_data, mk_data), "", i, 0})
+  for i := 1 to count_dvn_arr_umolch18
+    if f_is_umolch_sluch_DVN(i,metap,iif(metap==3,mvozrast,mdvozrast),mpol)
+      aadd(arr, {dvn_arr_umolch18[i,1], iif(dvn_arr_umolch18[i,8]==0, mn_data, mk_data), "", i, 0})
     endif
   next
 endif
