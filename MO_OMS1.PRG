@@ -4,7 +4,7 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 08.11.19 ПН - добавление или редактирование случая (листа учета)
+***** 11.11.19 ПН - добавление или редактирование случая (листа учета)
 Function oms_sluch_PN(Loc_kod,kod_kartotek,f_print)
 // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
 // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -492,7 +492,7 @@ if Loc_kod > 0
       next
       if fl
         for i := 1 to count_pn_arr_osm
-          if left(lshifr,4) == "2.4."
+          if left(np_arr_osmotr[i,1],4) == "2.4."
             if lshifr == np_arr_osmotr[i,1]
               fl := .f. ; larr_o[i] := hu->(recno())
               exit
@@ -501,7 +501,7 @@ if Loc_kod > 0
             fl := .f. ; larr_o[i] := hu->(recno())
             exit
           endif
-        next
+        next i
       endif
       if fl .and. eq_any(hu_->PROFIL,68,57)
         aadd(larr_p,{hu->(recno()),c4tod(hu->date_u)})
@@ -1440,7 +1440,7 @@ do while .t.
         endif
         if valtype(np_arr_issled[i,5]) == "N"
           arr_iss[i,4] := np_arr_issled[i,5] // профиль
-        elseif arr_iss[i,2] < 0 .and. (j := ascan(np_arr_issled[i,6],ret_old_prvs(arr_iss[i,2]))) > 0
+        elseif (j := ascan(np_arr_issled[i,6],ret_old_prvs(arr_iss[i,2]))) > 0
           arr_iss[i,4] := np_arr_issled[i,5,j] // профиль
         endif
         arr_iss[i,5] := np_arr_issled[i,1] // шифр услуги
@@ -1507,7 +1507,7 @@ do while .t.
           endif
           if valtype(np_arr_osmotr[i,4]) == "N"
             arr_osm1[i,4] := np_arr_osmotr[i,4] // профиль
-          elseif arr_osm1[i,2] < 0 .and. (j := ascan(np_arr_osmotr[i,5],ret_old_prvs(arr_osm1[i,2]))) > 0
+          elseif (j := ascan(np_arr_osmotr[i,5],ret_old_prvs(arr_osm1[i,2]))) > 0
             arr_osm1[i,4] := np_arr_osmotr[i,4,j] // профиль
           endif
           arr_osm1[i,5] := np_arr_osmotr[i,1] // шифр услуги
@@ -1605,7 +1605,11 @@ do while .t.
               arr_osm2[i,2] := -ret_new_spec(np_arr_osmotr[i,5,1])
               arr_osm2[i,10] := 3
             endif
-            arr_osm2[i,4] := np_arr_osmotr[i,4] // профиль
+            if valtype(np_arr_osmotr[i,4]) == "N"
+              arr_osm2[i,4] := np_arr_osmotr[i,4] // профиль
+            elseif (j := ascan(np_arr_osmotr[i,5],ret_old_prvs(arr_osm2[i,2]))) > 0
+              arr_osm2[i,4] := np_arr_osmotr[i,4,j] // профиль
+            endif
             arr_osm2[i,5] := np_arr_osmotr[i,1] // шифр услуги
             if empty(&mvarz) .or. left(&mvarz,1) == "Z"
               arr_osm2[i,6] := mdef_diagnoz
