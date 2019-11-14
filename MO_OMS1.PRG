@@ -4,7 +4,7 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 11.11.19 ПН - добавление или редактирование случая (листа учета)
+***** 14.11.19 ПН - добавление или редактирование случая (листа учета)
 Function oms_sluch_PN(Loc_kod,kod_kartotek,f_print)
 // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
 // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -963,7 +963,7 @@ do while .t.
       if fl .and. !empty(ar[4])
         fl := (ascan(ar[4],np_arr_osmotr[i,1]) == 0)
       endif
-      if fl
+      if fl .and. !(np_arr_osmotr[i,1] == "2.4.2")
         mvonk := "MONKO"+lstr(i)
         mvarv := "MTAB_NOMov"+lstr(i)
         mvara := "MTAB_NOMoa"+lstr(i)

@@ -732,7 +732,7 @@ for i := 1 to len(ar)
 next
 return ret_arr
 
-***** 06.11.18 Создание отчётов по иногородним / иностранцам для КЗВО
+***** 14.11.19 Создание отчётов по иногородним / иностранцам для КЗВО
 Function pr_inog_inostr()
 Local arr_m, fl_exit := .f., buf := save_maxrow(), kh := 0, jh := 0
 if (arr_m := year_month()) == NIL
@@ -745,6 +745,7 @@ dbcreate(cur_dir+"tmp_kart",{{"kod","N",7,0},;
                              {"profil","N",3,0},;
                              {"region","C",3,0},;
                              {"osnov","N",2,0},;
+                             {"kols","N",6,0},;
                              {"ist_fin","N",1,0},;
                              {"summa","N",10,2}})
 use (cur_dir+"tmp_kart") new
@@ -786,7 +787,8 @@ do while human->k_data <= arr_m[6] .and. !eof()
         case human_->USL_OK == 1
           lvid := 1
         case human_->USL_OK == 2
-          select HU
+          lvid := 4
+          /*select HU
           find (str(human->kod,7))
           do while hu->kod == human->kod .and. !eof()
             usl->(dbGoto(hu->u_kod))
@@ -799,7 +801,7 @@ do while human->k_data <= arr_m[6] .and. !eof()
             endif
             select HU
             skip
-          enddo
+          enddo*/
         case human_->USL_OK == 3
           lvid := 2
         case human_->USL_OK == 4
@@ -817,6 +819,7 @@ do while human->k_data <= arr_m[6] .and. !eof()
         tmp_kart->osnov := losnov
         tmp_kart->ist_fin := list_fin
       endif
+      tmp_kart->kols ++
       tmp_kart->vozr := f0pr_inog_inostr(human->date_r,human->n_data)
       tmp_kart->summa += human->CENA_1
       ++jh
@@ -867,6 +870,7 @@ if is_task(X_PLATN)
         tmp_kart->ist_fin := list_fin
       endif
       kart->(dbGoto(hump->kod_k))
+      tmp_kart->kols ++
       tmp_kart->vozr := f0pr_inog_inostr(kart->date_r,hump->n_data)
       tmp_kart->summa += hump->CENA
       ++jh
@@ -914,6 +918,7 @@ if is_task(X_ORTO)
         tmp_kart->ist_fin := list_fin
       endif
       kart->(dbGoto(humo->kod_k))
+      tmp_kart->kols ++
       tmp_kart->vozr := f0pr_inog_inostr(kart->date_r,humo->n_data)
       tmp_kart->summa += humo->CENA
       ++jh
@@ -985,7 +990,7 @@ if empty(lregion) .and. !eq_any(left(kart_->okatog,2),'  ','00','18')
 endif
 return !empty(lregion)
 
-***** 06.08.18
+***** 14.11.19
 Function f2pr_inog_inostr(_what_if)
 Local list_fin := I_FIN_OMS, _ist_fin, i
 if human->komu == 5
@@ -1003,17 +1008,17 @@ elseif list_fin == I_FIN_PLAT
 elseif list_fin == I_FIN_DMS
   _ist_fin := 2
 elseif list_fin == I_FIN_LPU
-  _ist_fin := 1
+  _ist_fin := 5
 else
-  _ist_fin := 4
+  _ist_fin := 6
 endif
 return _ist_fin
 
-***** 12.08.18
+***** 14.11.19
 Function f3pr_inog_inostr(j,arr_m)
 Static sprofil := "терапии"
-Static mm_vid := {"Стационарная","Амбулаторная","Экстренная"}
-Static mm_ist_fin := {"Платные без ДМС","ДМС","ОМС","Областной бюджет"}
+Static mm_vid := {"Стационарная","Амбулаторная","Экстренная","Дневной стационар"}
+Static mm_ist_fin := {"Личные средства гражданина","ДМС","ОМС","средства фед.бюджета","средства МО","средства субъекта РФ"}
 Local name_fr := "mo_iipr", buf := save_maxrow()
 mywait()
 delFRfiles()
@@ -1024,13 +1029,14 @@ append blank
 frt->name := glob_mo[_MO_FULL_NAME]
 frt->period := arr_m[4]
 dbcreate(fr_data,{;
-        {"vid","C",15,0},;
+        {"vid","C",20,0},;
         {"profil","C",255,0},;
         {"region","C",255,0},;
-        {"ist_fin","C",20,0},;
+        {"ist_fin","C",30,0},;
         {"osnov","C",50,0},;
         {"fio","C",60,0},;
         {"kol","N",6,0},;
+        {"kols","N",6,0},;
         {"vozr","N",2,0},;
         {"summa","N",15,2}})
 use (fr_data) new alias FRD
@@ -1060,6 +1066,7 @@ if j == 1 .or. j == 2
         find (left(tmp_kart->region,2))
         frd->region := charrem("*",name)
         frd->fio := kart->fio
+        frd->kols += tmp_kart->kols
         frd->vozr := tmp_kart->vozr
         frd->summa := tmp_kart->summa
       endif
@@ -1075,6 +1082,7 @@ if j == 1 .or. j == 2
         frd->region := inieditspr(A__MENUVERT, glob_O001, tmp_kart->region)
         frd->osnov := inieditspr(A__MENUVERT, menu_osn_preb_RF, tmp_kart->osnov)
         frd->fio := kart->fio
+        frd->kols += tmp_kart->kols
         frd->vozr := tmp_kart->vozr
         frd->summa := tmp_kart->summa
       endif
@@ -1089,6 +1097,7 @@ else
                            {"osnov","N",2,0},;
                            {"ist_fin","N",1,0},;
                            {"kol","N",6,0},;
+                           {"kols","N",6,0},;
                            {"summa","N",15,2}})
   use (cur_dir+"tmp1") new
   index on region+str(osnov,2)+str(ist_fin,1)+str(vid,1)+str(profil,3) to (cur_dir+"tmp1")
@@ -1117,6 +1126,7 @@ else
         tmp1->ist_fin := tmp_kart->ist_fin
       endif
       tmp1->kol ++
+      tmp1->kols += tmp_kart->kols
       tmp1->summa += tmp_kart->summa
     endif
     select TMP_KART
@@ -1140,6 +1150,7 @@ else
       frd->region := inieditspr(A__MENUVERT, glob_O001, tmp1->region)
       frd->osnov := inieditspr(A__MENUVERT, menu_osn_preb_RF, tmp1->osnov)
     endif
+    frd->kols := tmp1->kols
     frd->kol := tmp1->kol
     frd->summa := tmp1->summa
     select TMP1
