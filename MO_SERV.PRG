@@ -4928,7 +4928,7 @@ return fl
 
 *==============================================================================
 
-***** 26.08.18 создание первичной БД из реестров
+***** 24.11.19 создание первичной БД из реестров
 Function create_main_base_from_reestrs()
 Local full_zip, name_zip, i, k, n, fl := .t., buf := save_maxrow(),;
       arr_r := {}, arr_rsptk := {}, arr_s := {}, a_reestr := {},;
@@ -4936,7 +4936,7 @@ Local full_zip, name_zip, i, k, n, fl := .t., buf := save_maxrow(),;
 R_Use(dir_server+"human")
 k := lastrec()
 use
-Private p_lpu := 1, p_otd := 2 // для онкологии
+Private p_lpu := 1, p_otd := 9 // для онкологии
 Private flag_is_lu := .t. // для пустой БД поставить .f.
 if flag_is_lu
   // уже есть (почти все) листы учёта
@@ -5047,7 +5047,7 @@ if !empty(full_zip)
       fl := .f. ; exit
     endif
   next
-  asort(pr_array_schet,,,{|x,y| iif(x[4]==y[4],;
+  asort(pr_array_schet,,,{|x,y| iif(x[4] == y[4],;
                                     val(x[3]) < val(y[3]),;
                                     x[4] < y[4]) })
   for i := 1 to len(pr_array_schet)
@@ -5072,7 +5072,7 @@ if !empty(full_zip)
           oXmlDoc := HXMLDoc():Read(_tmp_dir1+cFile)
           reestr_sp_tk_tmpfile(oXmlDoc,,cFile)
           n := int(val(tmp1->_NSCHET))  // в число (отрезать всё, что после "-")
-          if (k := ascan(a_reestr, {|x| x[3]==n .and. x[5]==tmp1->_YEAR})) > 0
+          if (k := ascan(a_reestr, {|x| x[3] == n .and. x[5] == tmp1->_YEAR})) > 0
             n := int(val(substr(afteratnum("_",Name_Without_Ext(StripPath(s))),12))) // номер пакета
             if empty(a_reestr[k,8])
               a_reestr[k,8] := n
@@ -5095,9 +5095,9 @@ if !empty(full_zip)
       endif
     next
     // реестры сортируем: отчётный период + min номер пакета реестров СП и ТК
-    asort(a_reestr,,,{|x,y| iif(x[5]==y[5],;
-                                iif(x[6]==y[6],;
-                                    iif(x[3]==y[3], x[8] < y[8], x[3] < y[3]),;
+    asort(a_reestr,,,{|x,y| iif(x[5] == y[5],;
+                                iif(x[6] == y[6],;
+                                    iif(x[3] == y[3], x[8] < y[8], x[3] < y[3]),;
                                     x[6] < y[6]),;
                                 x[5] < y[5]) })
     for i := 1 to len(a_reestr)
@@ -5119,7 +5119,7 @@ if !empty(full_zip)
 endif
 return NIL
 
-***** 04.04.18
+***** 22.11.19
 Function f1_create_main_base_from_reestrs(a_reestr)
 Local aerr, oXmlDoc, oXmlNode, oNode1, oNode2, cFile, old_sys_date,;
       i, j, n, s, arr_XML_info[7], fl := .t., arr_f, nCountWithErr
@@ -5134,7 +5134,8 @@ for i := 1 to len(a_reestr)
     s := Name_Without_Ext(a_reestr[i,1])
     if extract_reestr(1,s,.t.)
       if (fl := f2_create_main_base_from_reestrs(s))
-        s := "P"+s // !! добавить чтение файлов, начинающихся с "V"
+        //s := "P"+s // до 1 ноября
+        s := "V"+s // после 1 ноября
         full_zip := name_path+s+szip
         if hb_FileExists(full_zip) // читать протокол ФЛК
           strfile(" "+StripPath(full_zip)+": обработка протокола ФЛК"+hb_eol(),cImportProtokol,.t.)
@@ -5920,7 +5921,7 @@ my_debug(,"  "+rtrim(human->fio)+"=второй раз в реестре="+lstr(mkod_reestr))
             if t2->PODR == '0' .and. hu->KOL_RCP >= 0
               hu->KOL_RCP := -1 // на дому
             endif
-            if !(alltrim(arr_hu[i,2]) == "4.20.2")
+            if !(alltrim(t2->CODE_USL) == "4.20.2")
               if (j := ascan({'125901','805965','103001'},t2->LPU)) > 0
                 hu->is_edit := j
               endif

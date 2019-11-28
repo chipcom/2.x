@@ -2596,7 +2596,6 @@ do while !eof()
             pole_diag := "mdiag"+sk
             pole_1dispans := "m1dispans"+sk
             pole_dn_dispans := "mdndispans"+sk
-
             if !empty(&pole_diag) .and. &pole_1dispans == 1 .and. ascan(sadiag1,alltrim(&pole_diag)) > 0 ;
                                   .and. !empty(&pole_dn_dispans) ;
                                   .and. (j := ascan(ar_dn,{|x| alltrim(x[2]) == alltrim(&pole_diag) })) > 0

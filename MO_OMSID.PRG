@@ -7311,7 +7311,7 @@ do case
 endcase
 return k
 
-***** 27.10.19 à¨«®¦¥­¨¥ ª ¯¨áì¬ã ƒ“‡ "‚ŽŒˆ€–" ü1025 ®â 08.07.2019£.
+***** 24.11.19 à¨«®¦¥­¨¥ ª ¯¨áì¬ã ƒ“‡ "‚ŽŒˆ€–" ü1025 ®â 08.07.2019£.
 Function f21_inf_DNL(par)
 Local arr_m, buf := save_maxrow(), lkod_h, lkod_k, rec, s, adbf, as, i, j, k, ;
       sh, HH := 60, n, n_file := "svod_dnl"+stxt
@@ -7521,7 +7521,7 @@ if (arr_m := year_month(,,,5)) != NIL
     next
     //
     afillall(as,0)
-    verify_FF(HH-10,.t.,sh)
+    verify_FF(HH-12,.t.,sh)
     arr_title := {;
 "ÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ",;
 "        ³      ž­®è¨ (15-17 «¥â)            ³        „¥¢ãèª¨ (15-17 «¥â)        ",;
@@ -7580,7 +7580,7 @@ if (arr_m := year_month(,,,5)) != NIL
     add_string(s)
     add_string(replicate("Ä",sh))
     //
-    verify_FF(HH-11,.t.,sh)
+    verify_FF(HH-12,.t.,sh)
     arr_title := {;
 "ÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄ",;
 "         ³    Žá¬®âà¥­®    ³¨§ ­¨å á¥«ìáª¨å ¦³¢¯¥à-³     ¨§ ­¨å      ³¨§ £7³¨§ £7³¨§   ",;
@@ -9517,12 +9517,13 @@ return fl
 
 *
 
-***** 31.10.16
+***** 21.11.19
 Static Function f1_mnog_poisk_DNL(cv,cf)
-Local i, j, k, n, s, arr, fl := .t., god_r, arr1
+Local i, j, k, n, s, arr, fl, god_r, arr1, vozr
 ++cv
-if fl
-  fl := (ascan(arr_vozr,mn->god-year(kart->date_r)) > 0)
+vozr := mn->god - year(kart->date_r)
+if (fl := (vozr < 18))
+  fl := (ascan(arr_vozr,vozr) > 0)
 endif
 if fl
   select HUMAN

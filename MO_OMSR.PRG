@@ -1336,7 +1336,7 @@ if human->OBRASHEN == '1'
 endif
 fl := (ascan(mdiagnoz, {|x| padr(x,5) == "Z03.1" }) > 0)
 if is_disp_DDS .or. is_disp_DVN .or. is_prof_PN
-  is_oncology := 0
+  //is_oncology := 0
   if fl
     aadd(ta,'при диспансеризации не должно быть основного (или сопутствующего) диагноза Z03.1 "наблюдение при подозрении на злокачественную опухоль"')
   endif
@@ -1371,8 +1371,10 @@ if is_oncology_smp > 0 // специально для скорой помощи
 endif
 al := "luslf"
 if is_oncology > 0 // онкология - направления
-  if human->OBRASHEN == '1' .and. ascan(mdiagnoz, {|x| padr(x,5) == "Z03.1" }) == 0
-    aadd(ta,'при "подозрении на ЗНО" в листе учёта обязательно должен быть основной (или сопутствующий) диагноз Z03.1 "наблюдение при подозрении на злокачественную опухоль"')
+  if is_disp_DDS .or. is_disp_DVN .or. is_prof_PN
+    //
+  elseif human->OBRASHEN == '1' .and. ascan(mdiagnoz, {|x| padr(x,5) == "Z03.1" }) == 0
+    aadd(ta,'при "подозрении на ЗНО" в листе учёта обязательно должен быть основной (или сопутствующий) диагноз "Z03.1 Наблюдение при подозрении на злокачественную опухоль"')
   endif
   i := 0
   arr := {}
@@ -1405,7 +1407,7 @@ if is_oncology > 0 // онкология - направления
           find (padr(mosu->shifr1,20))
           if found()
             if onkna->MET_ISSL != &al.->onko_napr
-              aadd(ta,'не тот метод диагн.исследования в услуге '+;
+              aadd(ta,'не тот метод диагностического исследования в услуге '+;
                       alltrim(iif(empty(mosu->shifr),mosu->shifr1,mosu->shifr))+' для направления '+lstr(i))
             endif
           else
@@ -1418,6 +1420,9 @@ if is_oncology > 0 // онкология - направления
     select ONKNA
     skip
   enddo
+  if len(arr) == 0 .and. human_->RSLT_NEW == 315
+    aadd(ta,'при "подозрении на ЗНО" или онкологическом диагнозе в листе учёта и результате лечеия "315 Направлен на обследования" обязательно должны быть заполнены сведения о направлении')
+  endif
   for i := 1 to len(arr)  // ищем дубликаты направления
     s := dtos(arr[i,1])+arr[i,2]+str(arr[i,3],1)+str(arr[i,4],1)+str(arr[i,5],6)
     arr[i,6] := s
@@ -3319,13 +3324,13 @@ if is_disp_DDS //
   human->OBRASHEN := ''
   tip_lu := iif(!empty(human->ZA_SMO), TIP_LU_DDS, TIP_LU_DDSOP)
   if d1_year != d2_year
-    aadd(ta,'Дата начала и окончания случая должны быть в одном году')
+    aadd(ta,'дата начала и окончания случая должны быть в одном году')
   endif
   if eq_any(human->ishod,101,102)
     metap := human->ishod-100
     read_arr_DDS(human->kod)
   else
-    aadd(ta,'Диспансеризацию детей-сирот надо вводить через специальный экран ввода')
+    aadd(ta,'диспансеризацию детей-сирот надо вводить через специальный экран ввода')
   endif
   is_1_den := is_last_den := .f. ; zs := kvp := 0 ; oth_usl := ""
   for i := 1 to len(au_lu)
@@ -3342,7 +3347,7 @@ if is_disp_DDS //
       s := 'услуга '+au_lu[i,5]+'('+date_8(au_lu[i,2])+')'
       if alltrim(au_lu[i,1]) == "7.61.3"
         if au_lu[i,2] < addmonth(d1,-12)
-          aadd(ta,'Флюорография оказана более 1 года назад')
+          aadd(ta,'флюорография оказана более 1 года назад')
         endif
       elseif mvozrast < 2
         if au_lu[i,2] < addmonth(d1,-1)
@@ -3361,7 +3366,7 @@ if is_disp_DDS //
       if is_osmotr_DDS_1_etap(au_lu[i],mvozrast,metap,mpol,tip_lu) //eq_any(alltrim(au_lu[i,5]),'2.3.1','2.4.1') // + 2.4.1-психиатр
         if eq_any(au_lu[i,3],68,57) // педиатр (врач общей практики)
           if au_lu[i,2] < d1
-            aadd(ta,'Дата осмотра педиатра на I этапе не попадает в диапазон лечения')
+            aadd(ta,'дата осмотра педиатра на I этапе не попадает в диапазон лечения')
           endif
         elseif mvozrast < 2
           if au_lu[i,2] < addmonth(d1,-1)
@@ -3420,9 +3425,9 @@ if is_disp_DDS //
     endif
   next
   if metap == 1 .and. k > 10
-    aadd(ta,'Срок ДДС I этапа должен составлять не более 10 рабочих дней (у Вас '+lstr(k)+')')
+    aadd(ta,'срок ДДС I этапа должен составлять не более 10 рабочих дней (у Вас '+lstr(k)+')')
   elseif metap == 2 .and. k > 45
-    aadd(ta,'Срок ДДС I и II этапа должен составлять не более 45 рабочих дней (у Вас '+lstr(k)+')')
+    aadd(ta,'срок ДДС I и II этапа должен составлять не более 45 рабочих дней (у Вас '+lstr(k)+')')
   endif
 endif
 if is_prof_PN //
@@ -3430,13 +3435,13 @@ if is_prof_PN //
   metap := 1
   m1mobilbr := 0
   if d1_year != d2_year
-    aadd(ta,'Дата начала и окончания случая должны быть в одном году')
+    aadd(ta,'дата начала и окончания случая должны быть в одном году')
   endif
   if eq_any(human->ishod,301,302)
     metap := human->ishod-300
     license_for_dispans(2,d1,ta)
   else
-    aadd(ta,'Профилактику несовершеннолетних надо вводить через специальный экран ввода')
+    aadd(ta,'профилактику несовершеннолетних надо вводить через специальный экран ввода')
   endif
   mperiod := ret_period_PN(mdate_r,d1,d2)
   if between(mperiod,1,31)
@@ -3493,9 +3498,9 @@ if is_prof_PN //
         endif
       else
         s := 'услуга '+au_lu[i,5]+'-'+inieditspr(A__MENUVERT,glob_V002,au_lu[i,3])+'('+date_8(au_lu[i,2])+')'
-        if eq_any(au_lu[i,3],68,57) // педиатр (врач общей практики)
+        if eq_any(au_lu[i,3],68,57) .and. !(au_lu[i,5] == "2.4.2")// врачебный приём - педиатр (врач общей практики)
           if au_lu[i,2] < d1
-            aadd(ta,'Дата осмотра педиатра не попадает в диапазон лечения')
+            aadd(ta,'дата осмотра педиатра не попадает в диапазон лечения')
           endif
         elseif is_1_etap_PN(au_lu[i],mperiod,metap) // если услуга из 1 этапа
           if mvozrast < 2
@@ -3562,9 +3567,9 @@ if is_prof_PN //
       endif
     next
     if metap == 1 .and. k > 20
-      aadd(ta,'Срок ПН I этапа должен составлять 20 рабочих дней (у Вас '+lstr(k)+')')
+      aadd(ta,'срок ПН I этапа должен составлять 20 рабочих дней (у Вас '+lstr(k)+')')
     elseif metap == 2 .and. k > 45
-      aadd(ta,'Срок ПН I и II этапа должен составлять 45 рабочих дней (у Вас '+lstr(k)+')')
+      aadd(ta,'срок ПН I и II этапа должен составлять 45 рабочих дней (у Вас '+lstr(k)+')')
     endif
     // проверим, выполнены обязательные услуги (и наоборот)
     ar := aclone(np_arr_1_etap[mperiod,5])
@@ -3634,7 +3639,7 @@ if is_prof_PN //
       endif
     endif
   else
-    aadd(ta,"Не удалось определить возрастной период для профилактики несовершеннолетнего")
+    aadd(ta,"не удалось определить возрастной период для профилактики несовершеннолетнего")
   endif
 endif
 if is_disp_DVN //
@@ -3753,11 +3758,11 @@ if is_disp_DVN //
     metap := human->ishod-200
     license_for_dispans(1,d1,ta)
   else
-    aadd(ta,'Диспансеризацию/профилактику взрослых надо вводить через специальный экран ввода')
+    aadd(ta,'диспансеризацию/профилактику взрослых надо вводить через специальный экран ввода')
   endif
   if m1veteran == 1
     if metap == 3
-      aadd(ta,'Профилактику взрослых не проводят ветеранам ВОВ (блокадникам)')
+      aadd(ta,'профилактику взрослых не проводят ветеранам ВОВ (блокадникам)')
     else
       mdvozrast := ret_vozr_DVN_veteran(mdvozrast,d2)
     endif
@@ -4054,7 +4059,7 @@ if is_disp_DVN //
         if eq_any(year(au_lu[i,2]),d1_year,d1_year-1)
           // в течение предшествующего календарного года либо года проведения диспансеризации проводилась флюорография
         else
-          aadd(ta,'Флюорография оказана в позапрошлом календарном году')
+          aadd(ta,'флюорография оказана в позапрошлом календарном году')
         endif
       else
         if au_lu[i,2] < addmonth(d1,-12)
@@ -4214,10 +4219,10 @@ endif
 if is_pren_diagn //
   human_->PROFIL := 106 // ультразвуковой диагностике
   if human->n_data != human->k_data
-    aadd(ta,'Дата окончания лечения должна совпадать с датой начала лечения')
+    aadd(ta,'дата окончания лечения должна совпадать с датой начала лечения')
   endif
   if human->ishod != 99
-    aadd(ta,'Пренатальная диагностика вводится через специальный экран ввода')
+    aadd(ta,'пренатальная диагностика вводится через специальный экран ввода')
   endif
   k1 := k2 := 0 ; oth_usl := ""
   for i := 1 to len(au_lu)

@@ -1911,7 +1911,7 @@ if !empty(full_zip)
 endif
 return NIL
 
-***** 05.11.19 вынуть реестр из XML-файлов и записать во временные DBF-файлы
+***** 22.11.19 вынуть реестр из XML-файлов и записать во временные DBF-файлы
 Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
 Local _table1 := {;
    {"KOD",      "N", 6,0},; // код
@@ -2225,7 +2225,7 @@ if (arr_f := Extract_Zip_XML(goal_dir,name_zip)) != NIL
       do case
         case flag_tmp1 .and. "ZGLV" == oXmlNode:title
           tmp1->_VERSION :=          mo_read_xml_stroke(oXmlNode,"VERSION")
-          if !(alltrim(tmp1->_VERSION) == "3.11")
+          if !eq_any(alltrim(tmp1->_VERSION),"3.11","3.2")
             is_old := .t.
             exit
           endif
