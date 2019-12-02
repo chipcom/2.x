@@ -1320,7 +1320,7 @@ do case
   case k == 15
     s_mnog_poisk()
   case k == 16
-    mas_pmt := {"По иногородним и иностранцам",;
+    mas_pmt := {"По иногородним и ~иностранцам",;
                 "Приказ №~848 ВОМИАЦ",;
                 "Стационарные случаи по ~профилям",;
                 "Стоматологическая форма 39 - ~ХИРУРГИЯ",;
@@ -1338,6 +1338,11 @@ do case
                 "e_statist(184)",;
                 "e_statist(185)",;
                 "e_statist(186)"}
+    if glob_mo[_MO_KOD_TFOMS] == '103001' // онкодиспансер
+      aadd(mas_pmt, 'Отчёт для ФГБУ "НМИЦ онкологии им.Н.Н.Петрова"')
+      aadd(mas_msg, 'Отчёт для ФГБУ "НМИЦ онкологии им.Н.Н.Петрова"')
+      aadd(mas_fun, "ot_nmic_petrova()")
+    endif
     popup_prompt(T_ROW,T_COL-5,si18,mas_pmt,mas_msg,mas_fun)
   case k == 181
     pr_inog_inostr()

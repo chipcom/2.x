@@ -2630,12 +2630,14 @@ oXmlDoc:Save(alltrim(mo_xml->FNAME)+sxml)
 name_zip := alltrim(mo_xml->FNAME)+szip
 aadd(arr_zip, alltrim(mo_xml->FNAME)+sxml)
 //
+fl_ver := 311
 stat_msg("Составление реестра пациентов")
 oXmlDoc := HXMLDoc():New()
 oXmlDoc:Add( HXMLNode():New( "PERS_LIST") )
  oXmlNode := oXmlDoc:aItems[1]:Add( HXMLNode():New( "ZGLV" ) )
   s := '3.11'
   if strzero(_nyear,4)+strzero(_nmonth,2) > "201910" // с ноября 2019 года
+    fl_ver := 32
     s := '3.2'
   endif
   mo_add_xml_stroke(oXmlNode,"VERSION"  ,s)
@@ -2714,7 +2716,7 @@ do while !eof()
     endif
     mo_add_xml_stroke(oPAC,"DOCNUM",kart_->nom_ud)
   endif
-  if human_->vpolis < 3 .and. !eq_any(left(human_->OKATO,2),"  ","18") // иногородние
+  if fl_ver == 32 .and. human_->vpolis < 3 .and. !eq_any(left(human_->OKATO,2),"  ","18") // иногородние
     if !empty(kart_->kogdavyd)
       mo_add_xml_stroke(oPAC,"DOCDATE",date2xml(kart_->kogdavyd))
     endif

@@ -1336,7 +1336,9 @@ if human->OBRASHEN == '1'
 endif
 fl := (ascan(mdiagnoz, {|x| padr(x,5) == "Z03.1" }) > 0)
 if is_disp_DDS .or. is_disp_DVN .or. is_prof_PN
-  //is_oncology := 0
+  if is_oncology == 2
+    is_oncology := 1
+  endif
   if fl
     aadd(ta,'при диспансеризации не должно быть основного (или сопутствующего) диагноза Z03.1 "наблюдение при подозрении на злокачественную опухоль"')
   endif

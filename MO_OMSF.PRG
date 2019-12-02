@@ -1895,7 +1895,7 @@ return {ret,rets}
 Function f5editkusl(get,when_valid,k)
 Local fl := .t., s, i, lu_cena, lshifr1, v, old_kod, amsg, fl1, fl2, ;
       msg1_err := "Код врача равен коду ассистента! Это недопустимо.",;
-      msg2_err := "Человека с таким кодом нет в базе данных персонала!",;
+      msg2_err := "Сотрудника с таким кодом нет в базе данных персонала!",;
       blk_sum := {|| mstoim_1 := round_5(mu_cena * mkol_1, 2) }
 if when_valid == 1    // when
   if k == 2     // Шифр услуги
