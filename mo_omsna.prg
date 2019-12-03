@@ -312,7 +312,7 @@ do case
           if !between(k,2019,2022) // если некорректная дата след.визита
             dn->NEXT_DATA := addmonth(dn->LU_DATA,12)
           endif
-          do while dn->NEXT_DATA < 0d20191202
+          do while dn->NEXT_DATA < 0d20200101
             dn->NEXT_DATA := addmonth(dn->NEXT_DATA,dn->FREQUENCY)
           enddo
         endif
@@ -404,7 +404,7 @@ do case
                 "Просмотр файлов обмена D01... и результатов работы с ними"}
     mas_fun := {"disp_nabludenie(31)",;
                 "disp_nabludenie(32)"}
-    //popup_prompt(T_ROW,T_COL-5,si3,mas_pmt,mas_msg,mas_fun)
+    popup_prompt(T_ROW,T_COL-5,si3,mas_pmt,mas_msg,mas_fun)
   case k == 21
     inf_disp_nabl()
   case k == 22
@@ -574,7 +574,7 @@ do case
         Private gl_area := {1,0,maxrow()-1,79,0}, ;
                 mKOD_DIAG := iif(nKey == K_INS, space(5), dn->kod_diag),;
                 mN_DATA := iif(nKey == K_INS, sys_date-1, dn->n_data),;
-                mNEXT_DATA := iif(nKey == K_INS, 0d20191202, dn->next_data),;
+                mNEXT_DATA := iif(nKey == K_INS, 0d20200101, dn->next_data),;
                 mfrequency := iif(nKey == K_INS, 3, dn->frequency),;
                 MVRACH := space(10),; // фамилия и инициалы лечащего врача
                 M1VRACH := iif(nKey == K_INS, 0, dn->vrach), MTAB_NOM := 0, m1prvs := 0,; // код, таб.№ и спец-ть лечащего врача
@@ -975,7 +975,7 @@ do case
         Private gl_area := {1,0,maxrow()-1,79,0}, ;
                 mKOD_DIAG := iif(nKey == K_INS, space(5), dn->kod_diag),;
                 mN_DATA := iif(nKey == K_INS, sys_date-1, dn->n_data),;
-                mNEXT_DATA := iif(nKey == K_INS, 0d20191202, dn->next_data),;
+                mNEXT_DATA := iif(nKey == K_INS, 0d20200101, dn->next_data),;
                 mfrequency := iif(nKey == K_INS, 3, dn->frequency),;
                 mMESTO, m1mesto := iif(nKey == K_INS, 0, dn->mesto)
         mmesto := inieditspr(A__MENUVERT, mm_dom, m1mesto)
@@ -1199,7 +1199,7 @@ if lastkey() != K_ESC
       fl := between(diag_to_num(dn->kod_diag,1),d1,d2)
     endif
     if fl .and. m1spisok > 0
-      if dn->next_data < 0d20191202 .or. empty(dn->frequency)
+      if dn->next_data < 0d20200101 .or. empty(dn->frequency)
         fl := iif(m1spisok == 1, .t., .f.)
       else
         fl := iif(m1spisok == 2, .t., .f.)
@@ -1213,7 +1213,7 @@ if lastkey() != K_ESC
         ++r
       endif
       s += str(pers->tab_nom,6)+" "+dn->kod_diag+" "+date_8(dn->n_data)+" "+date_8(dn->next_data)
-      s += iif(dn->next_data < 0d20191202,"___","   ")
+      s += iif(dn->next_data < 0d20200101,"___","   ")
       s += iif(empty(dn->frequency),"_____",str(dn->frequency,5))
       if verify_FF(HH,.t.,sh)
         aeval(arr_title, {|x| add_string(x) } )
@@ -1364,19 +1364,20 @@ viewtext(name_file,,,,.t.,,,2)
 rest_box(buf)
 return NIL*/
 
-***** 28.11.18 Обмен с ТФОМС информацией по диспансерному наблюдению
+***** 03.12.19 Обмен с ТФОМС информацией по диспансерному наблюдению
 Function f_create_D01()
 Local fl := .t., arr, id01 := 0, lspec, lmesto, buf := save_maxrow()
 mywait()
 R_Use(dir_server+"mo_xml",,"MO_XML")
-index on str(reestr,6) to (cur_dir+"tmp_xml") for tip_in == _XML_FILE_D02 .and. empty(TIP_OUT)
+index on str(reestr,6) to (cur_dir+"tmp_xml") ;
+      for DFILE > 0d20191202 .and. tip_in == _XML_FILE_D02 .and. empty(TIP_OUT)
 R_Use(dir_server+"mo_d01",,"REES")
-index on str(nn,3) to (cur_dir+"tmp_d01")
+index on str(nn,3) to (cur_dir+"tmp_d01") for nyear == 2019
 go top
 do while !eof()
   //aadd(a_reestr, rees->kod)
   if rees->kol_err < 0
-    //fl := func_error(4,"В файле D02 за ошибки на уровне файла! Операция запрещена")
+    //fl := func_error(4,"В файле D02 ошибки на уровне файла! Операция запрещена")
   elseif empty(rees->answer)
     fl := func_error(4,"Файл D02 не был прочитан! Операция запрещена")
   else
@@ -1399,13 +1400,15 @@ if !fl
   rest_box(buf)
   return NIL
 endif
+select REES
+set index to
 G_Use(dir_server+"mo_d01d",,"DD")
 index on str(kod_d,6) to (cur_dir+"tmp_d01d")
 G_Use(dir_server+"mo_d01k",,"DK")
 index on str(reestr,6) to (cur_dir+"tmp_d01k")
 do while .t.
   select DK
-  find (str(0,6)) // если во время создания D01 был сбой
+  find (str(0,6)) // если во время создания D01...XML операция не была корректно завершена
   if found()
     select DD
     do while .t.
@@ -1426,11 +1429,12 @@ Commit
 dbcreate(cur_dir+"tmp",{{"KOD_K","N",7,0}})
 use (cur_dir+"tmp") new
 select DK
-index on str(kod_k,7) to (cur_dir+"tmp_d01k")
+set relation to reestr into REES
+index on str(kod_k,7) to (cur_dir+"tmp_d01k") for rees->nyear == 2019
 R_Use(dir_server+"kartotek",,"KART")
 R_Use(dir_server+"mo_dnab",,"DN")
 set relation to kod_k into KART
-index on str(kod_k,7) to (cur_dir+"tmp_dn") for kart->kod > 0 unique
+index on upper(kart->fio)+dtos(kart->date_r)+str(kod_k,7) to (cur_dir+"tmp_dn") for kart->kod > 0 unique
 go top
 do while !eof()
   fl := .t.
@@ -1453,6 +1457,8 @@ enddo
 if tmp->(lastrec()) == 0
   func_error(4,"Не обнаружено пациентов, состоящих под дисп.наблюдением, ещё не отправленных в ТФОМС")
 else
+  select DK
+  index on str(kod_k,7) to (cur_dir+"tmp_d01k")
   R_Use(dir_server+"mo_pers",,"PERSO")
   select DN
   set relation to vrach into PERSO
@@ -1466,7 +1472,14 @@ else
     do while dn->kod_k == tmp->kod_k .and. !eof()
       if f_is_diag_dn(dn->kod_diag) // только диагнозы из последнего списка от 21 ноября
         lspec := ret_prvs_V021(iif(empty(perso->prvs_new), perso->prvs, -perso->prvs_new))
-        aadd(arr,{lspec,dn->kod_diag,dn->n_data,bom(dn->next_data)})
+        aadd(arr,{lspec,dn->kod_diag,dn->n_data,bom(dn->next_data),dn->FREQUENCY})
+        i := len(arr)
+        if empty(arr[i,4]) .or. !between(arr[i,4],0d20200101,0d20230101)
+          arr[i,4] := 0d20200101
+        endif
+        if !between(arr[i,5],1,36)
+          arr[i,5] := 3
+        endif
         if dn->mesto == 1
           lmesto := 1
         endif
@@ -1474,7 +1487,19 @@ else
       select DN
       skip
     enddo
-    if len(arr) > 0
+    ar1 := {} ; ar2 := {}
+    for i := 1 to len(arr)
+      fl := .t.
+      if ascan(ar1,left(arr[i,2],3)) == 0
+        aadd(ar1,left(arr[i,2],3))
+      else
+        fl := .f.
+      endif
+      if fl
+        aadd(ar2,arr[i])
+      endif
+    next i
+    if len(ar2) > 0
       select DK
       AddRec(7)
       dk->REESTR  := 0                     // код реестра по файлу "mo_d01"
@@ -1484,14 +1509,15 @@ else
       dk->MESTO   := lmesto                // место проведения диспансерного наблюдения: 0 - в МО или 1 - на дому
       dk->OPLATA  := 0                     // тип оплаты: сначала 0, затем из ТФОМС 1,2,3,4
       select DD
-      for i := 1 to len(arr)
+      for i := 1 to len(ar2)
         AddRec(6)
         dd->KOD_D     := dk->(recno()) // код (номер записи) по файлу "mo_d01k"
-        dd->PRVS      := arr[i,1]      // Специальность врача по справочнику V021
-        dd->KOD_DIAG  := arr[i,2]      // диагноз заболевания, по поводу которого пациент подлежит диспансерному наблюдению
-        dd->N_DATA    := arr[i,3]      // дата начала диспансерного наблюдения
-        dd->NEXT_DATA := arr[i,4]      // дата явки с целью диспансерного наблюдения
-      next
+        dd->PRVS      := ar2[i,1]      // Специальность врача по справочнику V021
+        dd->KOD_DIAG  := ar2[i,2]      // диагноз заболевания, по поводу которого пациент подлежит диспансерному наблюдению
+        dd->N_DATA    := ar2[i,3]      // дата начала диспансерного наблюдения
+        dd->NEXT_DATA := ar2[i,4]      // дата явки с целью диспансерного наблюдения
+        dd->FREQUENCY := ar2[i,5]
+      next i
       if id01 % 500 == 0
         Commit
       endif
@@ -1506,7 +1532,7 @@ if id01 > 0 .and. f_Esc_Enter("создания файла D01",.t.)
   mywait()
   inn := 0 ; nsh := 3
   G_Use(dir_server+"mo_d01",,"REES")
-  index on str(nn,3) to (cur_dir+"tmp_d01")
+  index on str(nn,3) to (cur_dir+"tmp_d01") for nyear == 2019
   go top
   do while !eof()
     inn := rees->nn
@@ -1523,10 +1549,10 @@ if id01 > 0 .and. f_Esc_Enter("создания файла D01",.t.)
   AddRecN()
   rees->KOD    := recno()
   rees->DSCHET := sys_date
-  rees->NYEAR  := 2018
+  rees->NYEAR  := 2019
   rees->MM     := 12
   rees->NN     := inn+1
-  s := "D01"+"T34M"+glob_mo[_MO_KOD_TFOMS]+"_1812"+strzero(rees->NN,nsh)
+  s := "D01"+"T34M"+glob_mo[_MO_KOD_TFOMS]+"_1912"+strzero(rees->NN,nsh)
   rees->NAME_XML := s
   mkod_reestr := rees->KOD
   //
@@ -1654,7 +1680,7 @@ if id01 > 0 .and. f_Esc_Enter("создания файла D01",.t.)
       if (i := ascan(arr, {|x| x[1] == dd->prvs })) == 0
         aadd(arr, {dd->prvs,{}} ) ; i := len(arr)
       endif
-      aadd(arr[i,2], {dd->KOD_DIAG,dd->N_DATA,dd->NEXT_DATA} )
+      aadd(arr[i,2], {dd->KOD_DIAG,dd->N_DATA,dd->NEXT_DATA,dd->FREQUENCY} )
       skip
     enddo
     oSPECs := oXmlNode:Add( HXMLNode():New( "SPECIALISATIONS" ) )
@@ -1667,6 +1693,7 @@ if id01 > 0 .and. f_Esc_Enter("создания файла D01",.t.)
         mo_add_xml_stroke(oREASON,"DS",arr[i,2,j,1])
         mo_add_xml_stroke(oREASON,"DATE_B",date2xml(arr[i,2,j,2]))
         mo_add_xml_stroke(oREASON,"DATE_VISIT",date2xml(arr[i,2,j,3]))
+        mo_add_xml_stroke(oREASON,"FREQUENCY",lstr(arr[i,2,j,4]))
       next j
     next i
     select RHUM
@@ -1683,16 +1710,16 @@ if id01 > 0 .and. f_Esc_Enter("создания файла D01",.t.)
 endif
 return NIL
 
-***** 29.11.18 Обмен с ТФОМС информацией по диспансерному наблюдению
+***** 03.12.19 Обмен с ТФОМС информацией по диспансерному наблюдению
 Function f_view_D01()
 Local i, k, buf := savescreen()
 Private goal_dir := dir_server+dir_XML_MO+cslash
 G_Use(dir_server+"mo_xml",,"MO_XML")
 G_Use(dir_server+"mo_d01",,"REES")
-index on descend(strzero(nn,3)) to (cur_dir+"tmp_rees")
+index on descend(strzero(nn,3)) to (cur_dir+"tmp_rees") for nyear == 2019
 go top
 if eof()
-  func_error(4,"Не было создано файлов D01...")
+  func_error(4,"Не было создано файлов D01... для 2020 года")
 else
   Private reg := 1
   Alpha_Browse(T_ROW,2,maxrow()-2,77,"f1_view_D01",color0,,,,,,,;
@@ -1956,7 +1983,7 @@ rest_box(buf)
 viewtext(n_file,,,,.t.,,,2)
 return NIL
 
-***** 29.11.18 зачитать D01 во временные файлы
+***** 03.12.19 зачитать D01 во временные файлы
 Function reestr_D01_tmpfile(oXmlDoc,aerr,mname_xml)
 Local j, j1, _ar, oXmlNode, oNode1, oNode2, buf := save_maxrow()
 DEFAULT aerr TO {}, mname_xml TO ""
@@ -1991,7 +2018,8 @@ dbcreate(cur_dir+"tmp5file", {;
  {"PRVS"    ,   "C",  4,0},;
  {"DS"      ,   "C",  5,0},;
  {"DATE_B"  ,   "C", 10,0},;
- {"DATE_VIZIT", "C", 10,0};
+ {"DATE_VIZIT", "C", 10,0},;
+ {"FREQUENCY",  "N",  2,0};
 })
 use (cur_dir+"tmp4file") new alias TMP2
 use (cur_dir+"tmp5file") new alias TMP5
@@ -2040,6 +2068,7 @@ FOR j := 1 TO Len( oXmlDoc:aItems[1]:aItems )
             tmp5->DS := mo_read_xml_stroke(oNode2,"DS",aerr,.f.)
             tmp5->DATE_B := mo_read_xml_stroke(oNode2,"DATE_B",aerr,.f.)
             tmp5->DATE_VISIT := mo_read_xml_stroke(oNode2,"DATE_VISIT",aerr,.f.)
+            tmp5->FREQUENCY := val(mo_read_xml_stroke(oNode2,"FREQUENCY",aerr,.f.))
           next j2
         endif
       next j1

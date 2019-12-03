@@ -2163,6 +2163,7 @@ if human_->USL_OK == 1  // стационар
       endif
     endif
   endif
+  fl := .t.
   if empty(human_->profil)
     aadd(ta,'в случае не проставлен профиль')
   elseif empty(human_->PRVS)
@@ -2182,9 +2183,9 @@ if human_->USL_OK == 1  // стационар
         fl := .t. ; exit
       endif
     next
-    if !fl
-      aadd(ta,'в услуге 1.11.2 должны повториться диагноз+врач из случая')
-    endif
+    //if !fl
+      //aadd(ta,'в услуге 1.11.2 должны повториться диагноз+врач из случая')
+    //endif
   else // остальные койко-дни
     if human_->profil == 158
       aadd(ta,'в случае нельзя использовать профиль по: '+inieditspr(A__MENUVERT, glob_V002, 158))
@@ -2212,19 +2213,26 @@ if human_->USL_OK == 1  // стационар
         fl := .t. ; exit
       endif
     next
-    if !fl
-      aadd(ta,'в одной из услуг должны повториться диагноз+профиль+врач из случая')
-    endif
+    //if !fl
+      //aadd(ta,'в одной из услуг должны повториться диагноз+профиль+врач из случая')
+    //endif
   endif
-  ar_1_19_1 := {}
+  ar_1_19_1 := {} ; fl_19 := .f.
   for i := 1 to len(au_lu)
     if left(au_lu[i,1],5) == "1.19."
+      if len(mdiagnoz) > 0 .and. alltrim(mdiagnoz[1]) == alltrim(au_lu[i,8]) .and. ;
+              human_->profil == au_lu[i,3] .and. human_->PRVS == au_lu[i,4]
+        fl_19 := .t.
+      endif
       aadd(ar_1_19_1,au_lu[i,2])
       if au_lu[i,6] > 1
         aadd(ta,'в услуге 1.19.1 ('+dtoc(au_lu[i,2])+") количество больше 1")
       endif
     endif
   next
+  if !(fl .or. fl_19)
+    aadd(ta,'в одной из услуг 1.11.*(1.19.1) должны повториться диагноз+профиль+врач из случая')
+  endif
   for j := 1 to len(ar_1_19_1)
     fl := .t.
     for i := 1 to len(au_lu)
