@@ -8991,10 +8991,10 @@ else
 endif
 return NIL
 
-***** 06.02.14
+***** 05.12.19
 Function f2ret_oms_human(nkey)
 Static tmp := " "
-Local buf := savescreen(), buf1, rec1 := recno(), fl := -1, ;
+Local buf := savescreen(), buf1, rec1 := recno(), fl := -1, ss := 0, ;
       j, n_file := "omserror"+stxt, sh := 80, HH := 60
 Private tmp1
 if type("p_del_error") == "A" .and. p_del_error[2] > 0
@@ -9019,9 +9019,12 @@ if type("p_del_error") == "A" .and. p_del_error[2] > 0
         add_string(space(6)+"лечение с "+date_8(human->n_data)+" по "+date_8(human->k_data)+;
                             ", стоимость "+lstr(human->cena_1,11,2)+"р.")
       endif
+      ss += human->cena_1
       skip
     enddo
     goto rec1
+    add_string("")
+    add_string("Итого стоимость всех случаев "+lstr(ss,15,2)+"р.")
     fclose(fp)
     restscreen(buf)
     viewtext(n_file,,,,(sh>80),,,2)

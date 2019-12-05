@@ -550,7 +550,7 @@ select TMP_KART
 restscreen(buf)
 return NIL
 
-***** 02.12.19
+***** 05.12.19
 Function f3vvodP_disp_nabl(nKey,oBrow,regim)
 Local ret := -1
 Local buf, fl := .f., rec := 0, rec1, r1, r2, tmp_color
@@ -586,6 +586,7 @@ do case
           m1prvs := -ret_new_spec(p2->prvs,p2->prvs_new)
           mvrach := padr(fam_i_o(p2->fio)+" "+ret_tmp_prvs(m1prvs),36)
         endif
+        p2->(dbCloseArea())
         r1 := pr2-8 ; r2 := pr2-1
         tmp_color := setcolor(cDataCScr)
         box_shadow(r1,pc1+1,r2,pc2-1,,iif(nKey == K_INS,"Добавление","Редактирование"),cDataPgDn)
@@ -664,6 +665,7 @@ do case
           endif
           exit
         enddo
+        R_Use(dir_server+"mo_pers",dir_server+"mo_pers","P2")
         select DN
         setcolor(tmp_color)
         restore screen from buf
@@ -1090,7 +1092,7 @@ next*/
 endif
 return ascan(diag1,alltrim(ldiag)) > 0
 
-***** 01.12.19 Информация по первичному вводу сведений о состоящих на диспансерном учёте
+***** 05.12.19 Информация по первичному вводу сведений о состоящих на диспансерном учёте
 Function inf_disp_nabl()
 Static suchast := 0, svrach := 0, sdiag := '',;
        mm_spisok := {{"весь список пациентов",0},{"с неполным вводом",1},{"с корректным вводом",2}}
@@ -1103,10 +1105,11 @@ Private muchast := suchast,;
         mkod_diag := padr(sdiag,5),;
         mkod_diag1 := "   ", mkod_diag2 := "   ",;
         m1spisok := 0, mspisok := mm_spisok[1,1],;
+        m1adres := 0, madres := mm_danet[1,1],;
         gl_area := {r,0,maxrow()-1,maxcol(),0}
 status_key("^<Esc>^ - выход;  ^<PgDn>^ - составление документа")
 //
-@ r,0 to r+8,maxcol() COLOR color8
+@ r,0 to r+9,maxcol() COLOR color8
 str_center(r," Запрос информации по ведённому диспансерному наблюдению ",color14)
 @ r+2,2 say "Номер участка (0 - по всем участкам)" get muchast pict "99999"
 @ r+3,2 say "Табельный номер врача (0 - по всем врачам)" get mvrach pict "99999"
@@ -1118,6 +1121,8 @@ str_center(r," Запрос информации по ведённому диспансерному наблюдению ",color14
         pict "@K@!" reader {|o|MyGetReader(o,bg)} when empty(mkod_diag)
 @ r+6,2 say "Полнота списка" get mspisok ;
         reader {|x|menu_reader(x,mm_spisok,A__MENUVERT,,,.f.)}
+@ r+7,2 say "Выводить адреса пациентов" get madres ;
+        reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
 myread()
 if lastkey() != K_ESC
   if mvrach > 0
@@ -1173,12 +1178,14 @@ if lastkey() != K_ESC
   add_string("")
   aeval(arr_title, {|x| add_string(x) } )
   R_Use(dir_server+"mo_pers",,"PERS")
+  R_Use(dir_server+"kartote_",,"KART_")
   R_Use(dir_server+"kartotek",,"KART")
   R_Use_base("mo_dnab")
-  set relation to kod_k into KART, to vrach into PERS
+  set relation to kod_k into KART, to kod_k into KART_, to vrach into PERS
   index on upper(kart->fio)+dtos(kart->date_r)+str(dn->kod_k,7)+dn->kod_diag to (cur_dir+"tmp_dn") ;
         for kart->kod > 0
   old := r := rs := 0
+  sadres := ""
   go top
   do while !eof()
     fl := .t.
@@ -1207,9 +1214,20 @@ if lastkey() != K_ESC
     endif
     if fl
       if old == dn->kod_k
-        s := space(38)+space(1+10+3)
+        if !empty(sadres)
+          s := padr("  "+sadres,38+1+10+3)
+          sadres := ""
+        else
+          s := space(38)+space(1+10+3)
+        endif
       else
+        if !empty(sadres)
+          add_string("  "+sadres)
+        endif
         s := padr(kart->fio,38)+" "+full_date(kart->date_r)+str(kart->uchast,3)
+        if m1adres == 1
+          sadres := ret_okato_ulica(kart->adres,kart_->okatog,0,1)
+        endif
         ++r
       endif
       s += str(pers->tab_nom,6)+" "+dn->kod_diag+" "+date_8(dn->n_data)+" "+date_8(dn->next_data)
@@ -1225,6 +1243,9 @@ if lastkey() != K_ESC
     select DN
     skip
   enddo
+  if !empty(sadres)
+    add_string("  "+sadres)
+  endif
   if empty(r)
     add_string("Не найдено пациентов по заданному условию")
   else
