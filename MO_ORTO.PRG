@@ -3120,7 +3120,7 @@ return NIL
 
 ***** поиск свободного номера наряда (на 1 больше максимального)
 Function poisk_svob()
-Local myear, buf := save_row(maxrow()), arr, mvar := readvar(), ;
+Local myear, buf := save_maxrow(), arr, mvar := readvar(), ;
       psvob := 0, REC, i, old_plat := mnar_z, vr_sel, rec1,;
       nrow := row(), ncol := col(), icurs := setcursor(0), index_ord
 save gets to arr

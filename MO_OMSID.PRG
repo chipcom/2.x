@@ -2454,7 +2454,7 @@ do case
                 "inf_DVN(42)"}
     str_sem := "ИСОМП"
     if G_SLock(str_sem)
-//ffffff()
+fff_init_r01()
       popup_prompt(T_ROW-len(mas_pmt)-3,T_COL-5,si4,mas_pmt,mas_msg,mas_fun)
       G_SUnLock(str_sem)
     else
@@ -2480,7 +2480,7 @@ do case
       aadd(mas_msg, "Аннулирование недописанного пакета файлов R01")
       aadd(mas_fun, "delete_reestr_R01()")
     endif
-    popup_prompt(T_ROW,T_COL-5,si6,mas_pmt,mas_msg,mas_fun)
+    //popup_prompt(T_ROW,T_COL-5,si6,mas_pmt,mas_msg,mas_fun)
   case k == 21
     if (j := popup_prompt(T_ROW,T_COL-5,1,mas1pmt)) > 0
       f21_inf_DVN(j)
@@ -5103,7 +5103,7 @@ if len(ar) > 0
     next
   next
 endif
-if !fl
+/*if !fl
   afillall(arr,0)
 endif
 if sgod >= 2019 .and. !fl
@@ -5136,7 +5136,7 @@ if sgod >= 2019 .and. !fl
   next
   SetIniSect(tools_ini, group_ini, ar) // запись секции в ini.файл
   close databases
-endif
+endif*/
 return arr
 
 ***** 09.10.19 форма 131
