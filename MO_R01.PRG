@@ -1415,13 +1415,13 @@ rest_box(buf)
 viewtext(n_file,,,,.t.,,,2)
 return NIL
 
-***** 20.12.18
+***** 15.12.19
 Function verify_packet_R05(par,arr,/*@*/ret_nn)
 Local fl := .t.
 ret_nn := 0
 R_Use(dir_server+"mo_dr05e",,"REFR")
 R_Use(dir_server+"mo_xml",,"MO_XML")
-index on str(reestr,6) to (cur_dir+"tmp_xml") for tip_in==_XML_FILE_R06 .and. empty(TIP_OUT)
+index on str(reestr,6) to (cur_dir+"tmp_xml") for tip_in == _XML_FILE_R06 .and. empty(TIP_OUT)
 R_Use(dir_server+"mo_dr05",,"R05")
 index on str(REC_5P,3)+str(1000-nn,4) to (cur_dir+"tmp_r05") for nyear == sgod
 find (str(mrec,3))
@@ -1435,13 +1435,13 @@ if found()
     if found()
       fl := .f.
       write_reestr := .t.
-      aadd(arr,"В ответе R06 на файл обмена R05 присутствуют ошибки")
+      aadd(arr,"В ответе PR05 на файл обмена R05 присутствуют ошибки")
     else
       write_reestr := .f.
     endif
   else
     fl := .f.
-    aadd(arr,"Не получен ответ (R06) на файл обмена R05")
+    aadd(arr,"Не получен ответ (PR05) на файл обмена R05")
     write_reestr := .f.
   endif
 else

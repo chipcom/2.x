@@ -206,7 +206,7 @@ if empty(aerr)
       G_RLock(forever)
       mo_xml->TWORK2 := hour_min(seconds())
     case nTypeFile == _XML_FILE_R06
-      strfile(hb_eol()+"Тип файла: R06 (ответ на файл R05)"+hb_eol()+hb_eol(),cFileProtokol,.t.)
+      strfile(hb_eol()+"Тип файла: PR05 (ответ на файл R05)"+hb_eol()+hb_eol(),cFileProtokol,.t.)
       nCountWithErr := 0
       read_XML_FILE_R06(arr_XML_info,aerr,@nCountWithErr)
       G_Use(dir_server+"mo_xml",,"MO_XML")
