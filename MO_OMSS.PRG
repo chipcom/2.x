@@ -198,7 +198,7 @@ if empty(aerr)
       read_XML_FILE_RPD(arr_XML_info,aerr)
       go_to_rpd := empty(aerr)
     case nTypeFile == _XML_FILE_R02
-      strfile(hb_eol()+"Тип файла: R02 (ответ на файл R01)"+hb_eol()+hb_eol(),cFileProtokol,.t.)
+      strfile(hb_eol()+"Тип файла: PR01 (ответ на файл R01)"+hb_eol()+hb_eol(),cFileProtokol,.t.)
       nCountWithErr := 0
       read_XML_FILE_R02(arr_XML_info,aerr,@nCountWithErr)
       G_Use(dir_server+"mo_xml",,"MO_XML")

@@ -903,7 +903,7 @@ else
 endif
 return fl
 
-***** 05.11.19 проверить, нам ли предназначен данный XML-файл
+***** 17.12.19 проверить, нам ли предназначен данный XML-файл
 Function Is_Our_XML(cName,ret_arr)
 Local c, arr_err := {}, i, s, nSMO, nTypeFile, cFrom, cTo, _nYear, _nMonth, nNN, nReestr := 0
 s := cName
@@ -1041,10 +1041,71 @@ elseif eq_any(left(s,4),"PR01","PR11","PR05") // ответный файл на отосланный фай
         cFrom   := '34'
         cTo     := glob_MO[_MO_KOD_TFOMS]
         _nYear  := rees->NYEAR
-        _nMonth := rees->NQUARTER
+        _nMonth := rees->NMONTH
         nNN     := rees->NN
       else
         aadd(arr_err, "Это файл ответа на R01(R11), но мы не отправляли соответствующий пакет в ТФОМС!")
+      endif
+      rees->(dbCloseArea())
+      mo_xml->(dbCloseArea())
+    else // "R06"
+      nTypeFile := _XML_FILE_R06
+      R_Use(dir_server+"mo_dr05",,"REES")
+      R_Use(dir_server+"mo_xml",,"MO_XML")
+      index on upper(fname) to (cur_dir+"tmpmoxml")
+      find (padr(substr(cName,2),26)) // сконструировали имя файла R05
+      if found() .and. (nReestr := mo_xml->REESTR) > 0
+        select REES
+        goto (nReestr)
+        cFrom   := '34'
+        cTo     := glob_MO[_MO_KOD_TFOMS]
+        _nYear  := rees->NYEAR
+        _nMonth := 0
+        nNN     := rees->NN
+      else
+        aadd(arr_err, "Это файл ответа на R05, но мы не отправляли соответствующий пакет в ТФОМС!")
+      endif
+      rees->(dbCloseArea())
+      mo_xml->(dbCloseArea())
+    endif
+  endif
+elseif eq_any(left(s,4),"PR01","PR11","PR05") // ответный файл на отосланный файл R01 (R11) (R05)
+  s := substr(s,8)
+  if left(s,1) == "M"
+    s := substr(s,2)
+  else
+    aadd(arr_err, "Неверная буква в обозначении получателя: "+s)
+  endif
+  if len(arr_err) == 0
+    cTo := left(s,6)
+    if !(cTo == glob_MO[_MO_KOD_TFOMS])
+      aadd(arr_err, "Ваш код МО "+glob_MO[_MO_KOD_TFOMS]+" не соответствует коду получателя: "+cTo)
+      if (i := ascan(glob_arr_mo, {|x| x[_MO_KOD_TFOMS] == cTo})) > 0
+        aadd(arr_err, "Это файл для: "+glob_arr_mo[i,_MO_SHORT_NAME])
+      endif
+    endif
+    s := substr(cName,5,3)
+    if !(left(s,3) == "T34")
+      aadd(arr_err, "Неверный отправитель: "+s)
+    endif
+  endif
+  if len(arr_err) == 0
+    if eq_any(left(cName,4),"PR01","PR11")
+      nTypeFile := _XML_FILE_R02
+      R_Use(dir_server+"mo_dr01",,"REES")
+      R_Use(dir_server+"mo_xml",,"MO_XML")
+      index on upper(fname) to (cur_dir+"tmpmoxml")
+      find (padr(substr(cName,2),26)) // сконструировали имя файла R01
+      if found() .and. (nReestr := mo_xml->REESTR) > 0
+        select REES
+        goto (nReestr)
+        cFrom   := '34'
+        cTo     := glob_MO[_MO_KOD_TFOMS]
+        _nYear  := rees->NYEAR
+        _nMonth := rees->NMONTH
+        nNN     := rees->NN
+      else
+        aadd(arr_err, "Это файл ответа на R01(R11), но мы не отправляли такой пакет в ТФОМС!")
       endif
       rees->(dbCloseArea())
       mo_xml->(dbCloseArea())

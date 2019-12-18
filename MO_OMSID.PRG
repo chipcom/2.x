@@ -2454,7 +2454,7 @@ do case
                 "inf_DVN(42)"}
     str_sem := "ИСОМП"
     if G_SLock(str_sem)
-fff_init_r01()
+//fff_init_r01()
       popup_prompt(T_ROW-len(mas_pmt)-3,T_COL-5,si4,mas_pmt,mas_msg,mas_fun)
       G_SUnLock(str_sem)
     else
@@ -2480,7 +2480,7 @@ fff_init_r01()
       aadd(mas_msg, "Аннулирование недописанного пакета файлов R01")
       aadd(mas_fun, "delete_reestr_R01()")
     endif
-    //popup_prompt(T_ROW,T_COL-5,si6,mas_pmt,mas_msg,mas_fun)
+    popup_prompt(T_ROW,T_COL-5,si6,mas_pmt,mas_msg,mas_fun)
   case k == 21
     if (j := popup_prompt(T_ROW,T_COL-5,1,mas1pmt)) > 0
       f21_inf_DVN(j)
@@ -2514,69 +2514,6 @@ if k > 10
     si6 := j
   endif
 endif
-return NIL
-
-Function ffffff()
-Local aq[4,3], am[12,3], at[12,3]
-R_Use(dir_server+"mo_dr05p",,"R05p")
-goto (1)
-R_Use(dir_server+"mo_dr01k",,"R01k")
-index on str(reestr,6)+str(tip,1) to (cur_dir+"tmp_dr01k")
-R_Use(dir_server+"mo_dr01",,"REES")
-index on str(nn,3)+str(NQUARTER,1) to (cur_dir+"tmp_dr01") for NYEAR == 2018
-for it := 1 to 2
-  afillall(at,0)
-  my_debug(,"-it="+lstr(it)+"-")
-  ip := 0
-  do while .t.
-    ++ip
-    select REES
-    find (str(ip,3))
-    if !found()
-      exit
-    endif
-    afillall(aq,0)
-    afillall(am,0)
-    select REES
-    find (str(ip,3))
-    do while rees->nn == ip .and. !eof()
-      iq := rees->NQUARTER
-      select R01k
-      find (str(rees->kod,6)+str(it,1))
-      do while rees->kod == r01k->reestr .and. it == r01k->tip .and. !eof()
-        im := r01k->n_m
-        aq[iq,1] ++
-        am[im,1] ++
-        if r01k->oplata < 2
-          aq[iq,2] ++
-          am[im,2] ++
-        else
-          aq[iq,3] ++
-          am[im,3] ++
-        endif
-        skip
-      enddo
-      select REES
-      skip
-    enddo
-    my_debug(,"=== "+lstr(ip))
-    for i := 1 to 4
-      my_debug(,print_array(aq[i]))
-    next
-    my_debug(,"----")
-    for i := 1 to 12
-      my_debug(,print_array(am[i]))
-      at[i,2] += am[i,2]
-    next
-  enddo
-  my_debug(,"итого-it="+lstr(it)+"-")
-  for i := 1 to 12
-    at[i,1] := &("r05p->kol"+lstr(it)+"_"+strzero(i,2))
-    at[i,3] := at[i,1] - at[i,2]
-    my_debug(,print_array(at[i]))
-  next
-next it
-close databases
 return NIL
 
 ***** 15.08.19
