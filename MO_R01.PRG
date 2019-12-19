@@ -1686,10 +1686,13 @@ if (fl := verify_packet_R05(1,arr))
       j := {2,4,5,3,1}[v]
       // порядок: 2-профосмотр, 4-65 лет, 5-66 и старше, 3-пенсионеры, 1-остальная дисп-ия
       if empty(skol[j])
-        exit
+        loop
       endif
       pj := j
       d := koef := int(mkol[j] / skol[j]) + 1 // через сколько записей прыгаем
+      if d > 50
+        d := koef := 33
+      endif
       i := 0
       do while skol[j] > 0
         select TMP
