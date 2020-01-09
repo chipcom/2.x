@@ -999,9 +999,10 @@ return fl
 
 ***** 12.08.18
 Function vozvrat_fr(value,bn_value,/*@*/cur_chek,sekcia,tip_banka)
-Local fl := .t.,  buf := save_maxrow(), ;
-      s_err := "", s, last_chek, fl_err_annul := .f., summa_kassa := 0
-
+Local fl := .t.,  buf := save_maxrow(), tmp_color := setcolor(color1), ;
+      s_err := "", s, last_chek, fl_err_annul := .f., summa_kassa := 0,;
+      sm_b1 := sm_b2 := smb3 := 0, r1 := 12, r2 := 20,;
+      mas_oplat := {"МИР","VISA","MasterCard","Перевод"}
 // запрашиваем наличие наличности в кассе
 if valtype(summa_kassa := (FRCH_d_registr(193))) != "N"
   return func_error(4,summa_kassa)
@@ -1024,8 +1025,25 @@ if bn_value > 0
       return func_error(4,summa_kassa)
     endif
   endif
-  if bn_value > summa_kassa
-    return func_error(4,"Недостаточная сумма БЕЗНАЛА в кассе")
+  //
+  if bn_value > (summa_kassa)
+    buf := box_shadow(r1,5,r2,74,,,"W/B")
+    setcolor(color8)
+    str_center(r1+2,"Предупреждение!")
+    str_center(r1+3,"принятая за смену сумма по карте "+mas_oplat[tip_banka])
+    str_center(r1+4,put_kop(summa_kassa,10)+"руб.")
+    str_center(r1+5,"меньше, чем сумма воврата.")
+    setcolor(color1)
+    str_center(r2-2,"Выберите действие:")
+    setmtcolor("BG+/B,W+/R,GR+/B,GR+/R")
+    @ r2-1,10 prompt " ~Отказ от операции "
+    @ r2-1,55 prompt " ~Провести возврат "
+    menu to i
+    setcolor(tmp_color)
+    rest_box(buf)
+    if i == 1
+      return func_error(4,"Недостаточная сумма БЕЗНАЛА в кассе")
+    endif
   endif
 endif
 
@@ -2137,4 +2155,5 @@ drvFR:TagValueStr := inn_kassir
 //
 drvFR:FNSendTag()
 return NIL
+
 

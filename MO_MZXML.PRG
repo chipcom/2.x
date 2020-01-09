@@ -4,16 +4,19 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 09.10.19 создать XML-файл по несовершеннолетним
+***** 26.12.19 создать XML-файл по несовершеннолетним
 Function mo_mzxml_N(_regim,n_file,stitle,lvozrast)
-Static oXmlDoc, _kol, ;
+Static oXmlDoc, _kol, sname_xml, ;
        arr_np := {0,1,2,3,4,5,6,7,8,9,10,11,12,15,18,24,36,48,60,72,84,96,108,120,132,144,156,168,180,192,204}
-Local i, k, s, y, m, fl, arr, arr1, buf, blk_sex, arr_before
+Local i, k, s, y, m, d, fl, arr, arr1, buf, blk_sex, arr_before
 Private p_xml_code_page := "UTF-8"
 if _regim == 1
   oXmlDoc := HXMLDoc():New(p_xml_code_page)
   oXmlDoc:Add( HXMLNode():New( "children") )
   _kol := 0
+  R_Use(dir_server+"organiz",,"ORG")
+  sname_xml := alltrim(org->name_xml)
+  use
 elseif _regim == 2
   ++_kol
   oChild := oXmlDoc:aItems[1]:Add( HXMLNode():New( "child" ) )
@@ -52,9 +55,28 @@ elseif _regim == 2
      s := "111111"
    endif
    mo_add_xml_stroke(oChild,"documentNum",s)
-   if !empty(kart->snils)
+   if !empty(kart->snils) .and. val_snils(kart->snils,2)
      s := charrepl(" ",transform(kart->SNILS,picture_pf),"-")
      mo_add_xml_stroke(oChild,"snils",s)
+   else
+     i := 2 // другое
+     Store 0 TO m, d, y
+     count_ymd(human->date_r,human->n_data,@y,@m,@d) // реальный возраст на начало
+     if y == 0 .and. m == 0 // ребёнку менее 1 месяца
+       i := 0 // новорожденный
+     endif
+     if !empty(kart_->strana) .and. !(kart_->strana == "643") .and. ascan(glob_O001, {|x| x[2] == kart_->strana }) > 0
+       i := 1 // иностранный гражданин
+     endif
+     mo_add_xml_stroke(oChild,"without_snils_reason",lstr(i))
+     if i == 2
+       i := random()%3 + 1
+       if !between(i,1,3)
+         i := 1
+       endif
+       s := {"Утерян","Не представлен","Не предоставлен"}[i]
+       mo_add_xml_stroke(oChild,"without_snils_other",s)
+     endif
    endif
    if !empty(human_->SPOLIS)
      mo_add_xml_stroke(oChild,"polisSer",human_->SPOLIS)
@@ -64,7 +86,11 @@ elseif _regim == 2
    endif
    mo_add_xml_stroke(oChild,"polisNum",s)
    mo_add_xml_stroke(oChild,"idInsuranceCompany",iif(human_->smo=='34002','115','290'))
-   mo_add_xml_stroke(oChild,"medSanName",ret_mo(m1MO_PR)[_MO_FULL_NAME])
+   if len(sname_xml) > 5
+     mo_add_xml_stroke(oChild,"medSanName",sname_xml)
+   else
+     mo_add_xml_stroke(oChild,"medSanName",ret_mo(m1MO_PR)[_MO_FULL_NAME])
+   endif
    mo_add_xml_stroke(oChild,"medSanAddress",ret_mo(m1MO_PR)[_MO_ADRES])
    oAddress := oChild:Add( HXMLNode():New( "address" ) )
     //mo_add_xml_stroke(oAddress,"fiasAoid","") // код города проживания по ФИАС

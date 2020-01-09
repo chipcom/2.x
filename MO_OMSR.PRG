@@ -4940,7 +4940,9 @@ else
                   "Невыписанные реестры случаев","R/BG",,,,,"f2create_reestr",,;
                   {'═','░','═',"N/BG,W+/N,B/BG,W+/B,R/BG",.f.,180} )
     rest_box(buf)
-    if sys_date < stod(strzero(tmp->nyear,4)+strzero(tmp->nmonth,2)+"11")
+    if tmp->nyear > 2019
+      func_error(10,"Реестры за 2020 год пока не разрешается создавать (отсылать)")
+    elseif sys_date < stod(strzero(tmp->nyear,4)+strzero(tmp->nmonth,2)+"11")
       func_error(10,"Сегодня "+date_8(sys_date)+", а реестры разрешается отсылать с 11 числа")
     elseif mo_Lock_Task(X_OMS)
       close databases

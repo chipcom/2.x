@@ -2290,9 +2290,9 @@ return NIL
 
 *
 
-***** 11.03.19
+***** 24.12.19
 Function inf_DDS_XMLfile(is_schet)
-Static stitle := "Диспансеризация детей-сирот "
+Static stitle := "XML-портал: диспансеризация детей-сирот "
 Local arr_m, n, buf := save_maxrow(), lkod_h, lkod_k, rec, blk, t_arr[BR_LEN]
 if (arr_m := year_month(T_ROW,T_COL-5)) != NIL
   mywait()
@@ -2310,7 +2310,7 @@ if (arr_m := year_month(T_ROW,T_COL-5)) != NIL
                         }
     eval(blk_open)
     go top
-    t_arr[BR_TOP] := T_ROW
+    t_arr[BR_TOP] := 2
     t_arr[BR_BOTTOM] := 23
     t_arr[BR_LEFT] := 0
     t_arr[BR_RIGHT] := 79
@@ -8760,11 +8760,11 @@ if (arr_m := year_month(T_ROW,T_COL-5)) != NIL
                         }
     eval(blk_open)
     go top
-    t_arr[BR_TOP] := T_ROW
+    t_arr[BR_TOP] := 2
     t_arr[BR_BOTTOM] := 23
     t_arr[BR_LEFT] := 0
     t_arr[BR_RIGHT] := 79
-    stitle += " несовершеннолетних "
+    stitle := "XML-портал: "+stitle+" несовершеннолетних "
     t_arr[BR_TITUL] := stitle+arr_m[4]
     t_arr[BR_TITUL_COLOR] := "B/BG"
     t_arr[BR_COLOR] := color0

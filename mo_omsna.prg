@@ -388,11 +388,11 @@ do case
     popup_prompt(T_ROW,T_COL-5,si5,mas_pmt,mas_msg,mas_fun)
   case k == 12
     mas_pmt := {"Информация по ~первичному вводу",;
-                "Список обязательных ~диагнозов",; //"~Пациенты с диагнозами для диспансерного учёта"
-                "~Информация о выполнении"}
+                "Список обязательных ~диагнозов",; //"~Пациенты с диагнозами для диспансерного учёта"   "~Информация о выполнении",;
+                "Дополнительный поиск пациентов"}
     mas_msg := {"Информация по первичному вводу сведений о состоящих на диспансерном учёте",;
-                "Список диагнозов, обязательных для диспансерного наблюдения",; //"Список пациентов с диагнозами, обязательными для диспансерного учёта (за 2 года)"
-                "Информация о выполнении диспансерного наблюдения"}
+                "Список диагнозов, обязательных для диспансерного наблюдения",; //"Список пациентов с диагнозами, обязательными для диспансерного учёта (за 2 года)"              "Информация о выполнении диспансерного наблюдения",;
+                "Дополнительный поиск пациентов (посетивших поликлинику с диагнозами ДН)"}
     mas_fun := {"disp_nabludenie(21)",;
                 "disp_nabludenie(22)",;
                 "disp_nabludenie(23)"}
@@ -410,7 +410,7 @@ do case
   case k == 22
     spr_disp_nabl()
   case k == 23
-    ne_real()
+    f_inf_dop_disp_nabl()
     //pac_disp_nabl()
     /*mas_pmt := {"~Не было л/у с диспансерным наблюдением",;
                 "~Были л/у с диспансерным наблюдением",;
@@ -450,6 +450,171 @@ if k > 10
   elseif between(k,51,59)
     si5 := j
   endif
+endif
+return NIL
+
+***** 26.12.19
+Function f_inf_dop_disp_nabl()
+Local arr, adiagnoz, sh := 80, HH := 60, buf := save_maxrow(), name_file := "disp_nabl"+stxt,;
+      buf1, ii1 := 0, s, s2, i, t_arr[2], ar, ausl, fl
+Private mm_dopo_na := {{"2.78",1},{"2.79",2},{"2.88 ДН",3},{"2.88 не ДН",4}}
+Private gl_arr := {;  // для битовых полей
+  {"dopo_na","N",10,0,,,,{|x|inieditspr(A__MENUBIT,mm_dopo_na,x)} };
+ }
+Private mdopo_na, m1dopo_na := 0, muchast, m1uchast := 0, arr_uchast := {},;
+        m1period := 0, mperiod := space(10), parr_m
+m1dopo_na := setbit(m1dopo_na,3)
+mdopo_na  := inieditspr(A__MENUBIT, mm_dopo_na, m1dopo_na)
+muchast := init_uchast(arr_uchast)
+buf1 := box_shadow(15,2,19,77,color1)
+setcolor(cDataCGet)
+@ 16,10 say "По каким услугам проводить доп.поиск" get mdopo_na ;
+        reader {|x|menu_reader(x,mm_dopo_na,A__MENUBIT,,,.f.)}
+@ 17,10 say "Участок (участки)" get muchast ;
+        reader {|x|menu_reader(x,{{ |k,r,c| get_uchast(r+1,c) }},A__FUNCTION,,,.f.)}
+@ 18,10 say "За какой период времени вести поиск" get mperiod ;
+        reader {|x|menu_reader(x,;
+                 {{|k,r,c| k:=year_month(r+1,c),;
+                      if(k==nil,nil,(parr_m:=aclone(k),k:={k[1],k[4]})),;
+                      k }},A__FUNCTION,,,.f.)}
+myread()
+rest_box(buf1)
+if lastkey() == K_ESC .or. empty(m1dopo_na)
+  return NIL
+endif
+if !(valtype(parr_m) == "A")
+  parr_m := array(8)
+  parr_m[5] := 0d20190101
+  parr_m[6] := 0d20191231
+endif
+stat_msg("Поиск информации...")
+fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
+arr_title := {;
+  "──┬─────────────────────────────────────────────┬──────────┬────────┬─────┬──────────────────",;
+  "NN│  ФИО пациента                               │   Дата   │Дата по-│ Таб.│ Диагнозы         ",;
+  "уч│    адрес пациента                           │ рождения │сещения │номер│ для ДН           ",;
+  "──┴─────────────────────────────────────────────┴──────────┴────────┴─────┴──────────────────"}
+sh := len(arr_title[1])
+s := "Пациенты, не попавшие в первичный список"
+add_string("")
+add_string(center(s,sh))
+add_string("")
+aeval(arr_title, {|x| add_string(x) } )
+//
+use_base("lusl")
+R_Use(dir_server+"uslugi",,"USL")
+R_Use(dir_server+"mo_pers",,"PERS")
+R_Use(dir_server+"human_u",dir_server+"human_u","HU")
+set relation to u_kod into USL
+R_Use(dir_server+"human_",,"HUMAN_")
+set relation to vrach into PERS
+R_Use(dir_server+"human",dir_server+"humankk","HUMAN")
+set relation to recno() into HUMAN_
+index on str(kod_k,7)+descend(dtos(k_data)) to (cur_dir+"tmp_humankk") ;
+      for human_->USL_OK == 3 .and. between(human->k_data,parr_m[5],parr_m[6]) ;
+      progress
+//
+R_Use(dir_server+"mo_dnab",,"DD")
+index on str(kod_k,7) to (cur_dir+"tmp_dd") for kod_k > 0
+R_Use(dir_server+"kartote2",,"KART2")
+R_Use(dir_server+"kartotek",,"KART")
+set relation to recno() into KART2
+index on upper(kart->fio)+dtos(kart->date_r)+str(kart->kod,7) to (cur_dir+"tmp_rhum") ;
+      for kart->kod > 0
+go top
+do while !eof()
+  fl := .t.
+  if left(kart2->PC2,1) == "1"
+    fl := .f.
+  elseif !(kart2->MO_PR == glob_mo[_MO_KOD_TFOMS])
+    fl := .f.
+  endif
+  if fl
+    mdate_r := kart->date_r ; M1VZROS_REB := kart->VZROS_REB
+    fv_date_r(0d20191201) // переопределение M1VZROS_REB
+    fl := (M1VZROS_REB == 0)
+  endif
+  if fl .and. !empty(m1uchast)
+    fl := f_is_uchast(arr_uchast,kart->uchast)
+  endif
+  if fl
+    select DD
+    find (str(kart->kod,7))
+    fl := !found() // нет в файле для дисп.наблюдений
+  endif
+  if fl
+    select HUMAN
+    find (str(kart->kod,7))
+    do while human->kod_k == kart->kod .and. !eof()
+      ar := {}
+      adiagnoz := diag_to_array()
+      for i := 1 to len(adiagnoz)
+        if !empty(adiagnoz[i])
+          s := padr(adiagnoz[i],5)
+          if f_is_diag_dn(s)
+            aadd(ar,s)
+            fl := .t.
+          endif
+        endif
+      next i
+      if len(ar) > 0 // либо основной, либо сопутствующие диагнозы из списка
+        ausl := ""
+        select HU
+        find (str(human->kod,7))
+        do while hu->kod == human->kod .and. !eof()
+          lshifr1 := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data)
+          if is_usluga_TFOMS(usl->shifr,lshifr1,human->k_data)
+            lshifr := alltrim(iif(empty(lshifr1), usl->shifr, lshifr1))
+            left_lshifr_5 := left(lshifr,5)
+            if isbit(m1dopo_na,1) .and. left_lshifr_5 == "2.78."
+              ausl := lshifr
+            elseif isbit(m1dopo_na,2) .and. left_lshifr_5 == "2.79."
+              ausl := lshifr
+            elseif left_lshifr_5 == "2.88."
+              if is_usluga_disp_nabl(lshifr)
+                if isbit(m1dopo_na,3)
+                  ausl := lshifr
+                endif
+              else
+                if isbit(m1dopo_na,4)
+                  ausl := lshifr
+                endif
+              endif
+            endif
+          endif
+          if !empty(ausl) ; exit ; endif
+          select HU
+          skip
+        enddo
+        if !empty(ausl)
+          if verify_FF(HH,.t.,sh)
+            aeval(arr_title, {|x| add_string(x) } )
+          endif
+          ++ii1
+          perenos(t_arr,Arr2SList(ar),18)
+          add_string(str(kart->uchast,2)+" "+padr(kart->fio,45)+" "+full_date(kart->date_r)+" "+date_8(human->k_data)+;
+                     str(pers->tab_nom,6)+" "+t_arr[1])
+          add_string(space(3)+padr(kart->adres,45+12)+padr(ausl,15)+t_arr[2])
+          exit
+        endif
+      endif
+      select HUMAN
+      skip
+    enddo
+  endif
+  @ maxrow(),1 say lstr(ii1) color cColorStMsg
+  select KART
+  skip
+enddo
+close databases
+rest_box(buf)
+if ii1 == 0
+  fclose(fp)
+  func_error(4,"Не найдено пациентов, по которым были другие листы учёта с диагнозом из списка")
+else
+  add_string("=== Дополнительно найдено пациентов - "+lstr(ii1))
+  fclose(fp)
+  viewtext(name_file,,,,(sh>80),,,2)
 endif
 return NIL
 
@@ -1406,8 +1571,7 @@ do while !eof()
     find (str(rees->kod,6))
     if found()
       if empty(mo_xml->TWORK2)
-        fl := func_error(4,"Прервано чтение файла "+alltrim(mo_xml->FNAME)+;
-                           "! Аннулируйте (Ctrl+F12) и прочитайте снова")
+        fl := func_error(4,"Прервано чтение файла "+alltrim(mo_xml->FNAME)+"! Аннулируйте (Ctrl+F12) и прочитайте снова")
       else
         //aadd(arr_rees,rees->kod)
       endif
@@ -1549,7 +1713,7 @@ else
 endif
 close databases
 rest_box(buf)
-if id01 > 0 .and. f_Esc_Enter("создания файла D01",.t.)
+if id01 > 0 .and. f_Esc_Enter("создания D01 ("+lstr(id01)+" чел.)",.t.)
   mywait()
   inn := 0 ; nsh := 3
   G_Use(dir_server+"mo_d01",,"REES")

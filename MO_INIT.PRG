@@ -1524,6 +1524,8 @@ aadd(gmenu_organ, {"name","C",130,0,NIL,NIL,;
                    space(130),NIL,"Название"})
 aadd(gmenu_organ, {"name_schet","C",130,0,NIL,NIL,;
                    space(130),NIL,"Название для счёта"})
+aadd(gmenu_organ, {"name_xml","C",255,0,NIL,NIL,;
+                   space(255),NIL,"Название для портала МЗ РФ"})
 aadd(gmenu_organ, {"inn","C",20,0,NIL,NIL,;
                    space(20),NIL,"ИНН/КПП"})
 aadd(gmenu_organ, {"adres","C",70,0,NIL,NIL,;
@@ -1573,6 +1575,12 @@ aadd(gmenu_organ, {"filial_h","N",1,0,NIL,;
                    {|x|menu_reader(x,mm_filial_tf,A__MENUVERT)},;
                    0,{|x|inieditspr(A__MENUVERT,mm_filial_tf,x)},;
                    "Филиал ТФОМС, в который отправляется файл с ходатайствами"})
+R_Use(dir_server+"organiz",,"ORG")
+fl := (fieldnum("name_xml") == 0)
+use
+if fl
+  init_base(dir_server+"organiz",,gmenu_organ,0,,.t.)
+endif
 //
 Public mm_ortispol := {{"Техник",0},;
                        {"Врач",1}}
