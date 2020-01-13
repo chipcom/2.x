@@ -104,9 +104,9 @@ if fl_19
               glob_array_PZ_19[i,6],;
               glob_array_PZ_19[i,5],;
               {};
-             } )  
+             } )
   next
-else  
+else
   for i := 1 to len(glob_array_PZ_18)
     aadd(apz,{glob_array_PZ_18[i,3],;
               glob_array_PZ_18[i,1],;
@@ -114,13 +114,13 @@ else
               glob_array_PZ_18[i,6],;
               glob_array_PZ_18[i,5],;
               {};
-             } )  
+             } )
   next
 endif
 return apz
 
-***** 02.01.19 по шифру услуги вернуть номер элемента массива "arr_plan_zakaz" для 2018 года
-Function f_arr_plan_zakaz_19(lshifr)
+***** 12.01.20 по шифру услуги вернуть номер элемента массива "arr_plan_zakaz" для 2020 года
+Function f_arr_plan_zakaz_20(lshifr)
 Local i, j, c, k := 0, shb, i16 := 0
 if select("LUSL") == 0
   Use_base("lusl")
@@ -129,7 +129,7 @@ select LUSL
 find (padr(lshifr,10))
 if found() .and. !empty(lusl->unit_code)
   if select("MOUNIT") == 0
-    R_Use(dir_exe+"_mo9unit",cur_dir+"_mo9unit","MOUNIT")
+    R_Use(dir_exe+"_mo0unit",cur_dir+"_mo0unit","MOUNIT")
   endif
   select MOUNIT
   find (str(lusl->unit_code,3))
@@ -138,9 +138,33 @@ if found() .and. !empty(lusl->unit_code)
     i16 := mounit->ii
   endif
 endif
-if k > 0 .and. empty(i16) 
+if k > 0 .and. empty(i16)
+  i16 := ascan(glob_array_PZ_20, {|x| x[1] == k }) // пока так - потом заменим на glob_array_PZ_20
+endif
+return i16
+
+***** 02.01.19 по шифру услуги вернуть номер элемента массива "arr_plan_zakaz" для 2019 года
+Function f_arr_plan_zakaz_19(lshifr)
+Local i, j, c, k := 0, shb, i16 := 0
+if select("LUSL") == 0
+  Use_base("lusl")
+endif
+select LUSL19
+find (padr(lshifr,10))
+if found() .and. !empty(lusl19->unit_code)
+  if select("MOUNIT19") == 0
+    R_Use(dir_exe+"_mo9unit",cur_dir+"_mo9unit","MOUNIT19")
+  endif
+  select MOUNIT19
+  find (str(lusl19->unit_code,3))
+  if found() .and. mounit19->pz > 0
+    k := mounit19->pz
+    i16 := mounit19->ii
+  endif
+endif
+if k > 0 .and. empty(i16)
   i16 := ascan(glob_array_PZ_19, {|x| x[1] == k })
-endif    
+endif
 return i16
 
 ***** 04.02.18 по шифру услуги вернуть номер элемента массива "arr_plan_zakaz" для 2018 года
@@ -162,9 +186,9 @@ if found() .and. !empty(lusl18->unit_code)
     i16 := mounit18->ii
   endif
 endif
-if k > 0 .and. empty(i16) 
+if k > 0 .and. empty(i16)
   i16 := ascan(glob_array_PZ_18, {|x| x[1] == k })
-endif    
+endif
 return i16
 
 /***** 19.04.15
@@ -662,7 +686,7 @@ if Start_Excel(@oExcel,@is_open_or_create)
         elseif v == "D"
           s := full_date(a[jC,3])
         endif
-//my_debug(,print_array({oSheet:Name,a[jC,1],a[jC,2],s}))        
+//my_debug(,print_array({oSheet:Name,a[jC,1],a[jC,2],s}))
         oSheet:Cells(a[jC,1],a[jC,2]):Value := s
       next
     endif
@@ -729,39 +753,39 @@ Function func_f14_stom(s,ltip,lkol,is_2_88,is_rebenok,is_trudosp,is_inogoro,is_s
 Local i, k, al := "TMP_STOM"
 if select(al) == 0
   dbcreate(al,{{"name","C",27,0},;
-               {"k2","N",6,0},;   
-               {"k3","N",6,0},;   
-               {"k4","N",13,2},;   
-               {"k5","N",6,0},;   
-               {"k6","N",6,0},;   
-               {"k7","N",13,2},;   
-               {"k8","N",6,0},;   
-               {"k9","N",6,0},;   
-               {"k10","N",13,2},;   
-               {"k11","N",6,0},;   
-               {"k12","N",6,0},;   
+               {"k2","N",6,0},;
+               {"k3","N",6,0},;
+               {"k4","N",13,2},;
+               {"k5","N",6,0},;
+               {"k6","N",6,0},;
+               {"k7","N",13,2},;
+               {"k8","N",6,0},;
+               {"k9","N",6,0},;
+               {"k10","N",13,2},;
+               {"k11","N",6,0},;
+               {"k12","N",6,0},;
                {"k13","N",13,2}})
   use (al) new
   append blank
-  &al.->name := "Обращение с лечебной целью"                  
+  &al.->name := "Обращение с лечебной целью"
   append blank
-  &al.->name := " в т.ч. к зубному врачу"                  
+  &al.->name := " в т.ч. к зубному врачу"
   append blank
-  &al.->name := "Посещение с профилактической целью"                  
+  &al.->name := "Посещение с профилактической целью"
   append blank
-  &al.->name := " в т.ч. к среднему медперсоналу"                  
+  &al.->name := " в т.ч. к среднему медперсоналу"
   append blank
-  &al.->name := "Разовое посещение по заболеванию"                  
+  &al.->name := "Разовое посещение по заболеванию"
   append blank
-  &al.->name := " в т.ч. к среднему медперсоналу"                  
+  &al.->name := " в т.ч. к среднему медперсоналу"
   append blank
-  &al.->name := "Посещение при оказании неотложной помощи"                  
+  &al.->name := "Посещение при оказании неотложной помощи"
   append blank
-  &al.->name := " в т.ч. к среднему медперсоналу"                  
+  &al.->name := " в т.ч. к среднему медперсоналу"
   append blank
-  &al.->name := "Прочие"                  
+  &al.->name := "Прочие"
   append blank
-  &al.->name := "Общий итог"                  
+  &al.->name := "Общий итог"
 endif
 au := {} ; k := 0
 do case
@@ -784,23 +808,23 @@ aadd(au,10)
 dbSelectArea(al)
 for i := 1 to len(au)
   goto (au[i])
-  &al.->k2 ++ 
-  &al.->k3 += lkol 
+  &al.->k2 ++
+  &al.->k3 += lkol
   &al.->k4 += s
-  if is_rebenok  
-    &al.->k5 ++ 
-    &al.->k6 += lkol 
+  if is_rebenok
+    &al.->k5 ++
+    &al.->k6 += lkol
     &al.->k7 += s
-  endif 
-  if is_trudosp 
-    &al.->k8 ++ 
-    &al.->k9 += lkol 
-    &al.->k10+= s 
-  endif 
-  if is_inogoro 
-    &al.->k11 ++ 
-    &al.->k12 += lkol 
-    &al.->k13 += s 
-  endif 
-next  
+  endif
+  if is_trudosp
+    &al.->k8 ++
+    &al.->k9 += lkol
+    &al.->k10+= s
+  endif
+  if is_inogoro
+    &al.->k11 ++
+    &al.->k12 += lkol
+    &al.->k13 += s
+  endif
+next
 return NIL

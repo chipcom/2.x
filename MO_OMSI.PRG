@@ -558,10 +558,16 @@ do while hu->kod == mkod .and. !eof()
     if found()
       lname := lusl->name  // наименование услуги из справочника ТФОМС
     else
-      select LUSL18
+      select LUSL19
       find (padr(usl->shifr,10))
       if found()
-        lname := lusl18->name  // наименование услуги из справочника ТФОМС
+        lname := lusl19->name  // наименование услуги из справочника ТФОМС
+      else
+        select LUSL18
+        find (padr(usl->shifr,10))
+        if found()
+          lname := lusl18->name  // наименование услуги из справочника ТФОМС
+        endif
       endif
     endif
     lshifr1 := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data)
@@ -2353,7 +2359,7 @@ if !fl
 endif
 _su := su
 if between(par,2,3) .and. eq_any(su,1,2,5)
-  if arr_m[1] > 2018
+  if arr_m[1] > 2018  // пока так - до нового справочника
     R_Use(dir_exe+"_mo9unit",,"MOUNIT")
     index on str(ii,3) to (cur_dir+"tmp_unitii")
     set index to (cur_dir+"_mo9unit"),(cur_dir+"tmp_unitii")
@@ -4518,7 +4524,7 @@ dbcreate(cur_dir+"tmp1",{;
 use (cur_dir+"tmp1") new
 index on str(usl_ok,1)+str(profil,3)+str(is_our,1)+str(vid,1)+str(vz_reb,1) to (cur_dir+"tmp1")
 Use_base("lusl")
-R_Use(dir_exe+"_mo8unit",cur_dir+"_mo8unit","MOUNIT")
+R_Use(dir_exe+"_mo9unit",cur_dir+"_mo9unit","MOUNIT")
 R_Use(dir_server+"uslugi",,"USL")
 R_Use(dir_server+"human_u_",,"HU_")
 R_Use(dir_server+"human_u",dir_server+"human_u","HU")

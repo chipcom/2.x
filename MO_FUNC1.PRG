@@ -311,16 +311,20 @@ Function date_reg_schet()
 // если нет даты регистрации, берём дату счёта
 return iif(empty(schet_->dregistr), schet_->dschet, schet_->dregistr)
 
-***** 25.01.2018
+***** 05.01.2020
 Function ret_vid_pom(k,mshifr,lk_data)
-Local svp, vp := 0, lal, is_18 := .t.
+Local svp, vp := 0, lal := "lusl", y := 2020
 if valtype(lk_data) == "D"
-  is_19 := (year(lk_data) > 2018)
+  y := year(lk_data)
 endif
 if select("LUSL") == 0
   Use_base("lusl")
 endif
-lal := iif(is_19,"lusl","lusl18")
+if y == 2019
+  lal += "19"
+elseif y < 2019
+  lal += "18"
+endif
 dbSelectArea(lal)
 find (padr(mshifr,10))
 if found()
@@ -2166,16 +2170,16 @@ if !emptyany(lMETVMP,lVIDVMP) ;
 endif
 return s
 
-***** 20.01.19 в GET-е вернуть строку из glob_V018
+***** 12.01.20 в GET-е вернуть строку из glob_V018
 Function f_get_vidvmp(k,r,c)
 Static sy := 0, arr, svidvmp := ""
 Local ret, ret_arr, y
-if (y := year(mk_data)) > 2018
+if (y := year(mk_data)) > 2019
+  y := 2020
+elseif y == 2019
   y := 2019
-elseif y  == 2018
-  y := 2018
 else
-  y := 2017
+  y := 2018
 endif
 if sy != y  // при первом вызове или смене года
   make_V018_V019(mk_data)

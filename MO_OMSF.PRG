@@ -1054,15 +1054,19 @@ if !fl .and. empty(val(human_->smo)) // если не ОМС
 endif
 return fl
 
-***** 12.01.19 является ли данная услуга услугой ТФОМС
+***** 05.01.20 является ли данная услуга услугой ТФОМС
 Function is_usluga_TFOMS(lshifr,lshifr1,ldate_usl,;
                          /*@*/arr_uet,/*@*/lbukva,/*@*/lst,/*@*/lidsp,/*@*/lvidpoms)
-Local _shifr, tmp_select := select(), fl := .f., is_19, lal
-is_19 := (year(ldate_usl) > 2018)
+Local _shifr, tmp_select := select(), fl := .f., y := 2020, lal := "lusl"
+y := year(ldate_usl)
 if select("LUSL") == 0
   use_base("lusl")
 endif
-lal := iif(is_19, "lusl", "lusl18")
+if y < 2019
+  lal += "18"
+elseif y < 2020
+  lal += "19"
+endif
 lst := 0 ; lvidpoms := "" ; lbukva := " "
 _shifr := iif(empty(lshifr1), lshifr, lshifr1)
 dbSelectArea(lal)
@@ -1085,7 +1089,12 @@ if !fl
   if select("LUSLF") == 0
     use_base("luslf")
   endif
-  lal := iif(is_19, "luslf", "luslf18")
+  lal := "luslf"
+  if y < 2019
+    lal += "18"
+  elseif y < 2020
+    lal += "19"
+  endif
   dbSelectArea(lal)
   find (padr(_shifr,20))
   if found() //.and. between_date(luslf->datebeg,luslf->dateend,ldate_usl)
@@ -1375,7 +1384,7 @@ if empty(mdiagnoz)
   aadd(mdiagnoz,space(6))
 endif
 k := lzno
-if lyear == 2019 .and. (left(mdiagnoz[1],1) == "C" .or. between(left(mdiagnoz[1],3),"D00","D09"))
+if lyear >= 2019 .and. (left(mdiagnoz[1],1) == "C" .or. between(left(mdiagnoz[1],3),"D00","D09"))
   k := 2
 elseif lyear == 2018 .and. left(mdiagnoz[1],1) == "C"
   k := 2
@@ -1811,24 +1820,25 @@ Function is_telemedicina(lshifr,/*@*/fl2)
 Local fl := .f., tmp_select := select()
 fl2 := .f.
 select LUSLF
-if fieldnum("telemed") > 0
-  find (padr(lshifr,20))
-  if found() .and. alltrim(lshifr) == alltrim(luslf->shifr) .and. luslf->telemed == 1
-    fl := .t.
-    fl2 := (left(luslf->shifr,4) == "B01.")
-  endif
+find (padr(lshifr,20))
+if found() .and. alltrim(lshifr) == alltrim(luslf->shifr) .and. luslf->telemed == 1
+  fl := .t.
+  fl2 := (left(luslf->shifr,4) == "B01.")
 endif
 select (tmp_select)
 return fl
 
-***** 22.01.19 вернуть разрешённые парные органы
-Function ret_par_org(lshifr)
-Local s := "", tmp_select := select()
-select LUSLF
+***** 12.01.20 вернуть разрешённые парные органы
+Function ret_par_org(lshifr,_k_data)
+Local s := "", lalf := "LUSLF", tmp_select := select()
+if year(_k_data) < 2020 // т.к. в 2020 году пополнился список операций на парных органах
+  lalf += "19"
+endif
+dbSelectArea(lalf)
 if fieldnum("par_org") > 0
   find (padr(lshifr,20))
-  if found() .and. alltrim(lshifr) == alltrim(luslf->shifr)
-    s := alltrim(luslf->par_org)
+  if found() .and. alltrim(lshifr) == alltrim(&lalf.->shifr)
+    s := alltrim(&lalf.->par_org)
   endif
 endif
 select (tmp_select)
@@ -2150,8 +2160,7 @@ else  // valid
             endif
           endif
         elseif get_k_usluga(mshifr,human->vzros_reb,@fl)
-          box_shadow(r1-5,40,r1-3,77,cColorStMsg,;
-                     "Комплексная услуга",cColorSt2Msg)
+          box_shadow(r1-5,40,r1-3,77,cColorStMsg,"Комплексная услуга",cColorSt2Msg)
           @ r1-4,41 say padc("Количество услуг - "+lstr(len(pr_k_usl)),36) color cColorStMsg
           mkol := mkol_1 := 1
           if fl  // сменить код врача и ассистента
@@ -2193,8 +2202,7 @@ else  // valid
       if found()
         if type("mkod_as") == "N" .and. perso->kod == mkod_as
           fl := func_error(4,msg1_err)
-        elseif mem_kat_va == 2 .and. perso->kateg != 1 .and. ;
-                    !UslugaFeldsher(iif(empty(mshifr1),mshifr,mshifr1))
+        elseif mem_kat_va == 2 .and. perso->kateg != 1 .and. !UslugaFeldsher(iif(empty(mshifr1),mshifr,mshifr1))
           fl := func_error(4,"Данный сотрудник не является ВРАЧОМ по штатному расписанию")
         else
           mkod_vr := perso->kod
@@ -2285,8 +2293,7 @@ else  // valid
       select PERSO
       goto (old_kod)
       if iif(yes_many_uch, .t., perso->uch == glob_uch[1]) .and. ;
-              perso->otd > 0 .and. ;
-                (i := ascan(pr1arr_otd,{|x| x[1] == perso->otd})) > 0
+              perso->otd > 0 .and. (i := ascan(pr1arr_otd,{|x| x[1] == perso->otd})) > 0
         select UO
         find (str(mu_kod,4))
         if found() .and. !(chr(perso->otd) $ uo->otdel)
@@ -2387,7 +2394,7 @@ return nU
 
 *
 
-***** 03.01.19
+***** 12.01.20
 Function fcena_oms(sShifr,lVzReb,dDate,/*@*/fl_delete,/*@*/fl_yes,/*@*/_ifin)
 Local i, v, tmp_select := select(), lvr, nu, lal, s := glob_mo[_MO_KOD_TFOMS]
 sShifr := padr(sShifr,10)
@@ -2406,6 +2413,8 @@ for i := 1 to len(dDate)
   lal := "luslc"
   if year(dDate[i]) < 2019
     lal += "18"
+  elseif year(dDate[i]) < 2020
+    lal += "19"
   endif
   dbselectarea(lal)
   set order to 1
@@ -2685,7 +2694,7 @@ Static senter := "^<Enter>^ ввод  "
 Static sF10p := "^<F10>^ поиск по полису  "
 Static sF10f := "^<F10>^ поиск по ФИО  "
 Static sF10s := "^<F10>^ поиск по СНИЛС  "
-Static sF11 := "^<F11>^ читать электронный полис"
+Static sF11  := "^<F11>^ читать электронный полис"
 Static _err_slock := "В данный момент с карточкой этого пациента работает другой пользователь."
 Static s_regim := 1, s_shablon := "", s_polis := "", s_snils := ""
 Local tmp1, mkod := -1, i, fl_number := .t., s, append_or_edit := 0,;
@@ -3369,8 +3378,7 @@ return fl
 Function f1_v_fiotmp(oBrow)
 Local blk
 if glob_mo[_MO_IS_UCH]
-  blk := {|| iif(kart2->mo_pr==glob_MO[_MO_KOD_TFOMS], {1,2},;
-                           iif(empty(kart2->mo_pr), {3,4}, {5,6})) }
+  blk := {|| iif(kart2->mo_pr==glob_MO[_MO_KOD_TFOMS], {1,2}, iif(empty(kart2->mo_pr), {3,4}, {5,6})) }
 endif
 oColumn := TBColumnNew(center("Ф.И.О.",49),{||padr(tmp->fio,49)})
 oColumn:colorBlock := blk

@@ -407,7 +407,7 @@ if found()
       if (v := f1cena_oms(tmp->shifr_u,;
                           tmp->shifr1,;
                           (human->vzros_reb==0),;
-                          human->k_data,;
+                          k_data2,;
                           tmp->is_nul,;
                           @fl_oms)) != NIL
         tmp->is_oms := fl_oms
@@ -458,7 +458,7 @@ if found()
     tmp->is_oms  := .t.
     tmp->is_zf   := ret_is_zf(tmp->shifr1)
     tmp->rec_hu  := mohu->(recno())
-    tmp->par_org := ret_par_org(tmp->shifr1)
+    tmp->par_org := ret_par_org(tmp->shifr1,k_data2)
     last_date := max(tmp->date_u1,last_date)
     select MOHU
     skip
@@ -775,16 +775,6 @@ do while hu->kod == human->kod .and. !eof()
           f_put_glob_podr(human_->USL_OK,human->K_DATA) // заполнить код подразделения
           tarif_zak_sl := fcena_oms(lshifr,(human->vzros_reb==0),human->k_data)
         endif
-        /*if eq_any(human_->USL_OK,1,2) .and. human_->PROFIL == 158 .and. is_reabil_slux
-          if _NYEAR == 2018
-            t_arr := {"1331.0","1332.0","1333.0","1335.0","2127.0","2128.0","2130.0"}
-            for i := 1 to len(t_arr)
-              if t_arr[i] == lshifr .and. !between(human_2->PN1,1,3)
-                v_reabil_slux := human_2->PN1
-              endif
-            next
-          endif
-        endif*/
       endif
     else
       aadd(a_usl,hu->(recno()))

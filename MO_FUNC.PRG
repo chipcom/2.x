@@ -417,23 +417,17 @@ do case
   case sBase == "lusld"
     fl := R_Use(exe_dir+"_mo_usld",cur_dir+"_mo_usld",sBase)
   case sBase == "lusl"
-    /*fl := R_Use(exe_dir+"_mo_usl",cur_dir+"_mo_usl",sBase+"17") .and. ;
-          R_Use(exe_dir+"_mo8usl",cur_dir+"_mo8usl",sBase)*/
     fl := R_Use(exe_dir+"_mo8usl",cur_dir+"_mo8usl",sBase+"18") .and. ;
-          R_Use(exe_dir+"_mo9usl",cur_dir+"_mo9usl",sBase)
+          R_Use(exe_dir+"_mo9usl",cur_dir+"_mo9usl",sBase+"19") .and. ;
+          R_Use(exe_dir+"_mo0usl",cur_dir+"_mo0usl",sBase)
   case sBase == "luslc"
-    /*fl := R_Use(exe_dir+"_mo_uslc",{cur_dir+"_mo_uslc",cur_dir+"_mo_uslu"},sBase+"14") .and. ;
-          R_Use(exe_dir+"_mo5uslc",{cur_dir+"_mo5uslc",cur_dir+"_mo5uslu"},sBase+"15") .and. ;
-          R_Use(exe_dir+"_mo8uslc",{cur_dir+"_mo8uslc",cur_dir+"_mo8uslu"},sBase)*/
     fl := R_Use(exe_dir+"_mo8uslc",{cur_dir+"_mo8uslc",cur_dir+"_mo8uslu"},sBase+"18") .and. ;
-          R_Use(exe_dir+"_mo9uslc",{cur_dir+"_mo9uslc",cur_dir+"_mo9uslu"},sBase)
+          R_Use(exe_dir+"_mo9uslc",{cur_dir+"_mo9uslc",cur_dir+"_mo9uslu"},sBase+"19") .and. ;
+          R_Use(exe_dir+"_mo0uslc",{cur_dir+"_mo0uslc",cur_dir+"_mo0uslu"},sBase)
   case sBase == "luslf"
-    /*fl := R_Use(exe_dir+"_mo_uslf",cur_dir+"_mo_uslf",sBase+"14") .and. ;
-          R_Use(exe_dir+"_mo5uslf",cur_dir+"_mo5uslf",sBase+"15") .and. ;
-          R_Use(exe_dir+"_mo7uslf",cur_dir+"_mo7uslf",sBase+"17") .and. ;
-          R_Use(exe_dir+"_mo8uslf",cur_dir+"_mo8uslf",sBase)*/
     fl := R_Use(exe_dir+"_mo8uslf",cur_dir+"_mo8uslf",sBase+"18") .and. ;
-          R_Use(exe_dir+"_mo9uslf",cur_dir+"_mo9uslf",sBase)
+          R_Use(exe_dir+"_mo9uslf",cur_dir+"_mo9uslf",sBase+"19") .and. ;
+          R_Use(exe_dir+"_mo0uslf",cur_dir+"_mo0uslf",sBase)
 endcase
 return fl
 
@@ -1833,6 +1827,7 @@ if (musl := input_value(18,6,20,73,color1,;
     endif
     lusl->(dbCloseArea())
     lusl18->(dbCloseArea())
+    lusl19->(dbCloseArea())
   endif
   rest_box(buf)
 endif
@@ -2895,12 +2890,13 @@ if fl
 endif
 return fl
 
-***** 24.09.19 определение КСГ по остальным введённым полям ввода - 2019 год
+***** 12.01.20 определение КСГ по остальным введённым полям ввода - 2019-20 год
 Function definition_KSG(par,k_data2)
 // файлы "human", "human_" и "human_2" открыты и стоят на нужной записи
 //       "human" открыт для записи суммы случая
 // выполнено use_base("human_u","HU") - для записи
 // выполнено use_base("mo_hu","MOHU") - для записи
+Static ver_year := 0 // последний проверяемый год
 Static ad_ksg_3, ad_ksg_4
 Static sp0, sp1, sp6, sp15
 Static a_iskl_1 := {; // исключение из правил №1
@@ -2951,9 +2947,9 @@ Local mdiagnoz, aHirKSG := {}, aTerKSG := {}, fl_cena := .f., lvmp, lvidvmp := 0
       lfio, cenaTer := 0, cenaHir := 0, ksgHir, ars := {}, arerr := {}, ;
       lksg := "", lcena := 0, osn_diag3, lprofil, ldnej := 0, y := 0, m := 0, d := 0,;
       osn_diag := space(6), sop_diag := {}, osl_diag := {}, tmp, lrslt, akslp, akiro,;
-      lad_cr := "", lad_cr1 := "", lis_err := 0, akslp2, lpar_org := 0,;
+      lad_cr := "", lad_cr1 := "", lis_err := 0, akslp2, lpar_org := 0, lyear,;
       kol_ter := 0, kol_hir := 0, lkoef, fl_reabil, lkiro := 0, lkslp := "", lbartell := "",;
-      lusl, susl, s_dializ := 0, ahu := {}, amohu := {}, date_usl := stod("20190101")
+      lusl, susl, s_dializ := 0, ahu := {}, amohu := {}, date_usl := stod("20200101")
 DEFAULT par TO 1, sp0 TO "", sp1 TO space(1), sp6 TO space(6), sp15 TO space(20)
 Private pole
 if par == 1
@@ -3067,6 +3063,7 @@ else // из режима импорта случаев
     aadd(osl_diag, padr(ihuman->DS3_3,6))
   endif
 endif
+lyear := year(lk_data)
 if eq_any(lad_cr,'60','61')
   lbartell := lad_cr
   lad_cr := ""
@@ -3114,6 +3111,8 @@ if lvmp > 0
   endif
   return {ars,arerr,alltrim(lksg),lcena,{},{}}
 endif
+lal := "LUSL"+iif(lyear==2020,"","19")
+lalf := "LUSLF"+iif(lyear==2020,"","19")
 if select("LUSLF") == 0
   use_base("LUSLF")
 endif
@@ -3151,9 +3150,9 @@ if par == 1
     if ascan(amohu,mosu->shifr1) == 0
       aadd(amohu,mosu->shifr1)
     endif
-    select LUSLF
+    dbSelectArea(lalf)
     find (padr(mosu->shifr1,20))
-    if found() .and. !empty(luslf->par_org)
+    if found() .and. !empty(&lalf.->par_org)
       lpar_org += len(List2Arr(mohu->zf))
     endif
     select MOHU
@@ -3167,9 +3166,9 @@ else
       if ascan(amohu,ihu->CODE_USL)==0
         aadd(amohu,ihu->CODE_USL)
       endif
-      select LUSLF
+      dbSelectArea(lalf)
       find (padr(ihu->CODE_USL,20))
-      if found() .and. !empty(luslf->par_org)
+      if found() .and. !empty(&lalf.->par_org)
         lpar_org += len(List2Arr(ihu->par_org))
       endif
     else
@@ -3247,8 +3246,9 @@ endif
     за медицинской помощью (Классификатор V009) 102, 105, 107, 110, 202, 205, 207
 */
 //aadd(ars,'   ║age='+lage+' sex='+lsex+' los='+llos)
+nfile := "_mo"+iif(lyear==2020,"0","9")+"k006"
 if select("K006") == 0
-  R_Use(exe_dir+"_mo9k006",{cur_dir+"_mo9k006",cur_dir+"_mo9k006_"},"K006")
+  R_Use(exe_dir+nfile,{cur_dir+nfile,cur_dir+nfile+"_"},"K006")
   /*{"SHIFR",      "C",     10,      0},;
     {"DS",         "C",      6,      0},;
     {"DS1",        "M",     10,      0},;
@@ -3262,7 +3262,15 @@ if select("K006") == 0
   index on substr(shifr,1,2)+ds+sy+age+sex+los to (cur_dir+sbase) // по диагнозу/операции
   index on substr(shifr,1,2)+sy+ds+age+sex+los to (cur_dir+sbase+"_") // по операции/диагнозу
   */
+else
+  if ver_year == lyear // проверяем: если тот же год, что только что проверяли
+    // ничего не меняем
+  else // иначе переоткрываем данный файл с необходимым годом и тем же алиасом
+    k006->(dbCloseArea())
+    R_Use(exe_dir+nfile,{cur_dir+nfile,cur_dir+nfile+"_"},"K006")
+  endif
 endif
+ver_year := lyear
 fl_reabil := (ascan(ahu,"1.11.2") > 0 .or. ascan(ahu,"55.1.4") > 0)
 susl := iif(lusl == 1, "st", "ds")
 // собираем КСГ по осн.диагнозу (терапевтические и комбинированные)
@@ -3273,9 +3281,9 @@ set order to 1
 find (susl+padr(osn_diag,6))
 do while left(k006->shifr,2)==susl .and. k006->ds==padr(osn_diag,6) .and. !eof()
   lkoef := k006->kz
-  select LUSL
+  dbSelectArea(lal)
   find (padr(k006->shifr,10))
-  fl := lkoef > 0 .and. between_date(lusl->DATEBEG,lusl->DATEEND,date_usl)
+  fl := lkoef > 0 .and. between_date(&lal.->DATEBEG,&lal.->DATEEND,date_usl)
   if fl
     fl := between_date(k006->DATEBEG,k006->DATEEND,date_usl)
   endif
@@ -3367,7 +3375,7 @@ do while left(k006->shifr,2)==susl .and. k006->ds==padr(osn_diag,6) .and. !eof()
     aadd(ar,{k006->shifr,; //  1
              0,;           //  2
              lkoef,;       //  3
-             lusl->kiros,; //  4
+             &lal.->kiros,; //  4
              osn_diag,;    //  5
              k006->sy,;    //  6
              k006->age,;   //  7
@@ -3377,7 +3385,7 @@ do while left(k006->shifr,2)==susl .and. k006->ds==padr(osn_diag,6) .and. !eof()
              sds1,;        // 11
              sds2,;        // 12
              j,;           // 13
-             lusl->kslps,; // 14
+             &lal.->kslps,; // 14
              k006->ad_cr1}) // 15
   endif
   select K006
@@ -3416,9 +3424,9 @@ for im := 1 to len(amohu)
     find (susl+padr(lshifr,20))
     do while left(k006->shifr,2)==susl .and. k006->sy==padr(lshifr,20) .and. !eof()
       lkoef := k006->kz
-      select LUSL
+      dbSelectArea(lal)
       find (padr(k006->shifr,10))
-      fl := lkoef > 0 .and. between_date(lusl->DATEBEG,lusl->DATEEND,date_usl)
+      fl := lkoef > 0 .and. between_date(&lal.->DATEBEG,&lal.->DATEEND,date_usl)
       if fl
         fl := between_date(k006->DATEBEG,k006->DATEEND,date_usl)
       endif
@@ -3490,7 +3498,7 @@ for im := 1 to len(amohu)
         aadd(_a1,{k006->shifr,; //  1
                   0,;           //  2
                   lkoef,;       //  3
-                  lusl->kiros,; //  4
+                  &lal.->kiros,; //  4
                   k006->ds,;    //  5
                   lshifr,;      //  6
                   k006->age,;   //  7
@@ -3500,7 +3508,7 @@ for im := 1 to len(amohu)
                   sds1,;        // 11
                   sds2,;        // 12
                   j,;           // 13
-                  lusl->kslps,; // 14
+                  &lal.->kslps,; // 14
                   k006->ad_cr1}) // 15
       endif
       select K006
@@ -3799,10 +3807,17 @@ if human_->USL_OK < 3
         endif
         exit
       endif
-      if lyear > 2018
+      if lyear > 2019
         select LUSL
         find (lshifr) // длина lshifr 10 знаков
         if found() .and. (eq_any(left(lshifr,5),"1.12.") .or. is_ksg(lusl->shifr)) // стоит другой КСГ
+          lrec := hu->(recno())
+          exit
+        endif
+      elseif lyear > 2018
+        select LUSL19
+        find (lshifr) // длина lshifr 10 знаков
+        if found() .and. (eq_any(left(lshifr,5),"1.12.") .or. is_ksg(lusl19->shifr)) // стоит другой КСГ
           lrec := hu->(recno())
           exit
         endif
@@ -3966,10 +3981,17 @@ if human_->USL_OK < 3
         endif
         exit
       endif
-      if lyear > 2018
+      if lyear > 2019
         select LUSL
         find (padr(lshifr,10)) // длина lshifr 10 знаков
         if found() .and. (eq_any(left(lshifr,5),"1.12.") .or. is_ksg(lusl->shifr)) // стоит другой КСГ
+          lrec := tmp->(recno())
+          exit
+        endif
+      elseif lyear > 2018
+        select LUSL19
+        find (padr(lshifr,10)) // длина lshifr 10 знаков
+        if found() .and. (eq_any(left(lshifr,5),"1.12.") .or. is_ksg(lusl19->shifr)) // стоит другой КСГ
           lrec := tmp->(recno())
           exit
         endif
@@ -4177,7 +4199,7 @@ do while !eof()
   if inkey() == K_ESC
     exit
   endif
-  if human->K_DATA > stod("20180930") .and. eq_any(human_->USL_OK,1,2)
+  if human->K_DATA > stod("20190930") .and. eq_any(human_->USL_OK,1,2)
     arr := definition_KSG()
     if len(arr) == 7 // диализ
       add_string("== диализ == ")
@@ -4339,6 +4361,9 @@ if _k_data > s_19  // с 2019 года
         aadd(_akslp,s_kslp[i,2])
         _cena := round_5(_cena*s_kslp[i,2],0)  // с 2019 года цена округляется до рублей
       endif
+      if !empty(_akslp) .and. _k_data > 0d20191231 // с 2020 года
+        _akslp[1] += 3 // т.е. с 2020 года КСЛП для ЭКО 15,16,17
+      endif
     else // остальные КСГ
       s_kslp := {;
         { 1,1.10, 0,  0},;  // до 1 года
@@ -4353,7 +4378,8 @@ if _k_data > s_19  // с 2019 года
           if between(y,s_kslp[i,3],s_kslp[i,4])
             fl := .t.
             if lkslp[j] == 4
-              fl := (lprofil_k != 16) // пациент лежит не на геронтологической койке
+              fl := (lprofil_k != 16 ; // пациент лежит не на геронтологической койке
+                      .and. !(_lshifr == "st38.001"))
             elseif lkslp[j] == 5
               sop_diag := aclone(arr_diag)
               del_array(sop_diag,1)

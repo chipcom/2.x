@@ -13,13 +13,13 @@ Static sast := {}
 Local fl := .t., i, j, a, arr := {}
 if glob_menu_mz_rf[1]
   aadd(arr, {"стационар",1})
-endif  
+endif
 if glob_menu_mz_rf[2]
   aadd(arr, {"дневной стационар",2})
-endif  
+endif
 if glob_menu_mz_rf[3]
   aadd(arr, {"стоматология",3})
-endif  
+endif
 if (j := len(arr)) == 1
   return arr
 elseif j > 1
@@ -859,7 +859,7 @@ else
         skol1[tmp->vr_as] += tmp->kol1
         strud[tmp->vr_as] += tmp->trudoem
         s := rtrim(tmp->u_shifr)+" "+alltrim(tmp->u_name)
-        if len(s) > len_n 
+        if len(s) > len_n
           j := perenos(arr,s,len_n)
           s := padr(arr[1],len_n)
           if fl_uet
@@ -961,7 +961,7 @@ else
     enddo
     if k == 31
       add_string(space(4)+replicate(".",sh-4))
-      s := padr(space(4)+old_slugba,len_n) 
+      s := padr(space(4)+old_slugba,len_n)
       if fl_uet
         s += umest_val(ptrud,9,2)
       endif
@@ -1019,7 +1019,7 @@ if !eof() .and. !empty(usl->shifr1)
     mtrud[3] := mtrud[1]
   endif
 //my_debug(,usl->shifr1+"mtrud:"+print_array(mtrud))
-endif  
+endif
 return mtrud
 
 ***** 30.08.16
@@ -1466,13 +1466,12 @@ do case
 endcase
 return ret
 
-***** 16.05.18
+***** 05.01.19
 Function input_Fusluga()
 Local ar, musl, arr_usl, buf, fl, s
 ar := GetIniSect(tmp_ini,"Fuslugi")
 musl := padr(a2default(ar,"shifr"),20)
-if (musl := input_value(18,6,20,73,color1,;
-            space(13)+"Введите шифр услуги",musl,"@K@!")) != NIL .and. !empty(musl)
+if (musl := input_value(18,6,20,73,color1,space(13)+"Введите шифр услуги",musl,"@K@!")) != NIL .and. !empty(musl)
   buf := save_maxrow()
   mywait()
   musl := transform_shifr(musl)
@@ -1493,7 +1492,7 @@ if (musl := input_value(18,6,20,73,color1,;
   endif
   if fl
     s := iif(empty(usl->shifr), "", "("+alltrim(usl->shifr)+") ")
-    R_Use(exe_dir+"_mo8uslf",cur_dir+"_mo8uslf","luslf")
+    R_Use(exe_dir+"_mo0uslf",cur_dir+"_mo0uslf","luslf")
     find (usl->shifr1)
     arr_usl := {usl->kod,alltrim(usl->shifr1)+". "+s+alltrim(luslf->name),usl->shifr1}
     luslf->(dbCloseArea())

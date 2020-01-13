@@ -4055,7 +4055,7 @@ dbcreate(cur_dir+"tmpf14",{;
 use (cur_dir+"tmpf14") new alias TMPF14
 Use_base("lusl")
 Use_base("luslf")
-R_Use(dir_exe+"_mo8unit",cur_dir+"_mo8unit","MOUNIT")
+R_Use(dir_exe+"_mo9unit",cur_dir+"_mo9unit","MOUNIT")
 R_Use(dir_server+"mo_su",,"MOSU")
 R_Use(dir_server+"mo_hu",dir_server+"mo_hu","MOHU")
 set relation to u_kod into MOSU

@@ -1706,7 +1706,7 @@ do case
 endcase
 return k
 
-***** 05.11.19 создание XML-файлов реестра
+***** 12.01.20 создание XML-файлов реестра
 Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
 Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, ;
       lst, lshifr1, code_reestr, mb, me, nsh
@@ -1795,7 +1795,7 @@ Commit
 use_base("lusl")
 use_base("luslc")
 use_base("luslf")
-laluslf := "luslf"
+laluslf := "luslf"+iif(_nyear==2019,"19","")
 R_Use(dir_server+"mo_uch",,"UCH")
 R_Use(dir_server+"mo_otd",,"OTD")
 R_Use(dir_server+"mo_pers",,"P2")

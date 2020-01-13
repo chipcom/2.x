@@ -677,7 +677,7 @@ Function f2vvodP_disp_nabl(lkod_k)
 Local buf := savescreen(), k, s, s1, t_arr := array(BR_LEN), str_sem1, lcolor
 Private str_find, muslovie
 glob_kartotek := lkod_k
-str_sem1 := lstr(glob_kartotek)
+str_sem1 := lstr(glob_kartotek)+"f2vvodP_disp_nabl"
 if G_SLock(str_sem1)
   str_find := str(glob_kartotek,7) ; muslovie := "dn->kod_k == glob_kartotek"
   t_arr[BR_TOP] := T_ROW
@@ -1034,7 +1034,7 @@ if input_perso(T_ROW,T_COL-5)
     k := polikl1_kart()
     close databases
     //
-    str_sem1 := lstr(glob_kartotek)
+    str_sem1 := lstr(glob_kartotek)+"f2vvodP_disp_nabl"
     if k == 0
       exit
     elseif G_SLock(str_sem1)

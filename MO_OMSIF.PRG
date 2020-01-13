@@ -52,7 +52,7 @@ if k > 10
 endif
 return NIL
 
-***** 08.11.16
+***** 12.01.20
 Function forma_12_(is_diag,is_100000)
 Local i, j, k, arr, begin_date, end_date, s, buf := save_maxrow(),;
       s1_, s1, s2, s3, s4, d1, d2, diapazon, kh, hGauge, v,;
@@ -66,7 +66,7 @@ if is_100000
 else
   name_file := iif(is_diag, "_frm_12d", "_form_12")+stxt
 endif
-Private adiag_talon[16], arr_v := {{0,14},{0,0},{15,17},{18,999}}, ;
+Private adiag_talon[16], arr_v := {{0,14},{0,2},{15,17},{18,999}}, ;
         len_name := {28,28,28,28,28}, kol_dt, koef_dt[5], p_is_voz[5]
 afill(p_is_voz, .f.)
 
@@ -85,11 +85,11 @@ if (st_a_uchast := ret_uchast(T_ROW,T_COL-5)) == NIL
   return NIL
 endif
 if is_100000
-  kol_dt := {10000,1000,5000,15000,7000}
+  kol_dt := {10000,3000,5000,15000,7000}
   tmp_color := setcolor(cDataCGet)
   buf := box_shadow(14,2,22,77,color1,"Введите количество обслуживаемого населения",color8)
   @ 16,10 say padl("Дети (до 14 лет)",40) get kol_dt[1] pict "999999"
-  @ 17,10 say padl("Дети первого года жизни",40) get kol_dt[2] pict "999999"
+  @ 17,10 say padl("Дети первых трех лет жизни",40) get kol_dt[2] pict "999999"
   @ 18,10 say padl("Дети (15-17 лет)",40) get kol_dt[3] pict "999999"
   @ 19,10 say padl("Взрослые (старше 18 лет)",40) get kol_dt[4] pict "999999"
   @ 20,10 say padl("Взрослые старше трудоспособного возраста",40) get kol_dt[5] pict "999999"
@@ -408,7 +408,7 @@ add_string(alltrim(org->adres))
 add_string(padl("Форма № 12",sh))
 add_string(padl("Утверждена",sh))
 add_string(padl("Приказом Росстата",sh))
-add_string(padl("от 21.07.2016г. № 355",sh))
+add_string(padl("от 22.11.2019г. № 679",sh))
 add_string(center("СВЕДЕНИЯ О ЧИСЛЕ ЗАБОЛЕВАНИЙ, ЗАРЕГИСТРИРОВАННЫХ У ПАЦИЕНТОВ,",sh))
 add_string(center("ПРОЖИВАЮЩИХ В РАЙОНЕ ОБСЛУЖИВАНИЯ МЕДИЦИНСКОЙ ОРГАНИЗАЦИИ",sh))
 add_string(center(speriod,sh))
@@ -458,7 +458,7 @@ for x := 1 to 5 // diag1[x] => {s1,p_tip,diapazon,tmp->table,s2,s4}
   endif
   sh := sh1 := len(arr_title[1])
   name1 := {"Дети (0-14 лет включительно)",;
-            "Дети первого года жизни",;
+            "Дети первых трех лет жизни",;
             "Дети (15-17 лет включительно)",;
             "Взрослые 18 лет и более",;
             "Взрослые старше трудоспособного возраста (с 55 лет у женщин и с 60 лет у мужчин)"}[x]
@@ -912,15 +912,6 @@ return arr
 
 *
 
-***** 10.01.15
-Function f_replace_diagnoz(s)
-if "I84" $ s                 //           геморрой по-старому
-  s := atrepl("I84",s,"K64") // меняем на геморрой по-новому
-endif
-return s
-
-*
-
 ***** 13.12.16 возврат массива диагнозов для формы 12 из дисп-ии взрослого населения
 Function ret_f12_DVN(Loc_kod,par)
 Local rec, rec2 := 0, lkod_k, ldate, lyear, arr := {}, i, j, k, s, is_student, is_1 := .f., is_disp := .f.
@@ -1126,9 +1117,8 @@ if eq_any(human->ishod,101,102,201,202,203,204,205,301,302)
     aadd(arr, {human->KOD_DIAG,0,0})
   endif
   for i := 1 to len(arr)
-    arr[i,1] := padr(f_replace_diagnoz(arr[i,1]),5)
-    if !empty(arr[i,1]) .and. ;
-           ascan(arr_d, arr[i,1]) == 0 .and. (k := ret_f_12(v,arr[i,1])) != NIL
+    arr[i,1] := padr(arr[i,1],5)
+    if !empty(arr[i,1]) .and. ascan(arr_d, arr[i,1]) == 0 .and. (k := ret_f_12(v,arr[i,1])) != NIL
       fl := fl_plus := .f.
       _dispans := arr[i,3]
       if arr[i,2] > 0
@@ -1169,9 +1159,8 @@ else
           human->SOPUT_B3 ,;
           human->SOPUT_B4}
   for i := 1 to len(arr)
-    arr[i] := padr(f_replace_diagnoz(arr[i]),5)
-    if !empty(arr[i]) .and. ;
-           ascan(arr_d, arr[i]) == 0 .and. (k := ret_f_12(v,arr[i])) != NIL
+    arr[i] := padr(arr[i],5)
+    if !empty(arr[i]) .and. ascan(arr_d, arr[i]) == 0 .and. (k := ret_f_12(v,arr[i])) != NIL
       fl := fl_plus := .f. ; _dispans := 0
       s := substr(human->diag_plus,i,1)
       if eq_any(s,"+","-")  // старая форма
@@ -1319,7 +1308,7 @@ find ("1")
 do while tmp1rule->tip == 1 .and. !eof()
   kz := lnum_kol := 0
   fl := fl_plus := fl_z := .f. ; _dispans := 0
-  lshifr := padr(f_replace_diagnoz(tmp1rule->shifr),5)
+  lshifr := padr(tmp1rule->shifr,5)
   if left(lshifr,1) == "Z"
     fl := fl_z := .t.
   elseif tmp1rule->kol1 > 0 .or. tmp1rule->kol2 > 0 .or. tmp1rule->dispan > 0
@@ -1385,7 +1374,7 @@ select TMP1RULE
 find ("2")
 do while tmp1rule->tip == 2 .and. !eof()
   fl := fl_plus := fl_z := .f. ; dispans := lnum_kol := 0
-  lshifr := left(f_replace_diagnoz(tmp1rule->shifr),3)
+  lshifr := left(tmp1rule->shifr,3)
   if left(lshifr,1) == "Z"
     fl := fl_z := .t.  // т.к. уже занесли пятизначный шифр
   elseif ascan(a3,lshifr) == 0 .and. (tmp1rule->kol1 > 0 .or. tmp1rule->kol2 > 0)
@@ -1714,7 +1703,7 @@ if eq_any(human->ishod,101,102,201,202,203,204,205,301,302)
     arr := ret_f12_PN(human->kod,2)
   endif
   for i := 1 to len(arr)
-    arr[i,1] := padr(f_replace_diagnoz(arr[i,1]),5)
+    arr[i,1] := padr(arr[i,1],5)
     if !empty(arr[i,1])
       fl := fl_plus := .f.
       if arr[i,2] > 0
@@ -2972,7 +2961,7 @@ arr := diag_to_array(,,,,.t.)
 if len(arr) == 0
   return jh
 endif
-mdiag := padr(f_replace_diagnoz(arr[1]),6) // только основной диагноз
+mdiag := padr(arr[1],6) // только основной диагноз
 if human_2->VMP == 1 // если установили ВМП
   flag_vmp := .t.
 endif

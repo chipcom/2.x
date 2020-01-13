@@ -406,13 +406,14 @@ elseif lp == 64 // оториноларингологии
 endif
 return lp
 
-***** 07.11.19
+***** 12.01.20
 Function verify_1_sluch(fl_view)
 Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
       i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
       d1, d2, cd1, cd2, ym2, a_period_amb := {}, a_1_11, u_1_stom := "", lprofil, ;
       lbukva, lst, lidsp, a_idsp := {}, a_bukva := {}, t_arr[2], ltip, lkol, a_317 := {},;
-      a_dializ := {}, is_2_88 := .f., a_rec_ffoms := {}, arr_povod := {}, mpovod := 0 // 1.0
+      a_dializ := {}, is_2_88 := .f., a_rec_ffoms := {}, arr_povod := {}, mpovod := 0,; // 1.0
+      lal, lalf
 if empty(human->k_data)
   return .t.  // не проверять
 endif
@@ -439,6 +440,11 @@ glob_kartotek := human->kod_k
 d1 := human->n_data ; d2 := human->k_data ; cuch_doc := human->uch_doc
 ym2 := left(dtos(d2),6)
 d1_year := year(d1) ; d2_year := year(d2)
+lal := "lusl" ;  lalf := "luslf"
+if d2_year == 2019
+  lal += "19"
+  lalf += "19"
+endif
 cd1 := dtoc4(d1) ; cd2 := dtoc4(d2)
 gnot_disp := (human->ishod < 100)
 gkod_diag := human->kod_diag
@@ -982,10 +988,10 @@ do while hu->kod == human->kod .and. !eof()
     if human_->USL_OK == 4 .and. lprofil != hu_->profil
       hu_->profil := lprofil
     endif
-    select LUSL
+    dbSelectArea(lal)
     find (padr(lshifr,10))
-    if found() .and. !empty(lusl->unit_code) .and. ascan(arr_unit,lusl->unit_code) == 0
-      aadd(arr_unit,lusl->unit_code)
+    if found() .and. !empty(&lal.->unit_code) .and. ascan(arr_unit,&lal.->unit_code) == 0
+      aadd(arr_unit,&lal.->unit_code)
     endif
     aadd(au_lu,{lshifr,;              // 1
                 mdate,;               // 2
@@ -1371,7 +1377,6 @@ if is_oncology_smp > 0 // специально для скорой помощи
     UnLock
   endif
 endif
-al := "luslf"
 if is_oncology > 0 // онкология - направления
   if is_disp_DDS .or. is_disp_DVN .or. is_prof_PN
     //
@@ -1405,10 +1410,10 @@ if is_oncology > 0 // онкология - направления
         if empty(mosu->shifr1)
           aadd(ta,'не определена "Медицинская услуга" для направления '+lstr(i))
         else
-          dbSelectArea(al)
+          dbSelectArea(lalf)
           find (padr(mosu->shifr1,20))
           if found()
-            if onkna->MET_ISSL != &al.->onko_napr
+            if onkna->MET_ISSL != &lalf.->onko_napr
               aadd(ta,'не тот метод диагностического исследования в услуге '+;
                       alltrim(iif(empty(mosu->shifr),mosu->shifr1,mosu->shifr))+' для направления '+lstr(i))
             endif
@@ -1440,7 +1445,7 @@ select MOHU
 find (str(human->kod,7))
 do while mohu->kod == human->kod .and. !eof()
   lshifr := mosu->shifr1
-  dbSelectArea(al)
+  dbSelectArea(lalf)
   find (padr(lshifr,20))
   usl_found := found()
   s := alltrim(mosu->shifr1)+iif(empty(mosu->shifr),"","("+alltrim(mosu->shifr)+")")
@@ -1452,7 +1457,7 @@ do while mohu->kod == human->kod .and. !eof()
   endif
   mdate := c4tod(mohu->date_u)
   if !between(mdate,d1,d2)
-    if usl_found .and. &al.->telemed == 1 .and. left(lshifr,4) == "B01." .and. mdate < d1
+    if usl_found .and. &lalf.->telemed == 1 .and. left(lshifr,4) == "B01." .and. mdate < d1
       // разерешается оказывать раньше
     else
       aadd(ta,'услуга '+s+' ('+date_8(mdate)+') не попадает в диапазон лечения')
@@ -1461,7 +1466,7 @@ do while mohu->kod == human->kod .and. !eof()
   otd->(dbGoto(mohu->OTD))
   mohu->(G_RLock(forever))
   if empty(mohu->kod_vr)
-    if usl_found .and. &al.->telemed == 1
+    if usl_found .and. &lalf.->telemed == 1
       if !(mohu->PRVS == human_->PRVS)
         mohu->PRVS := human_->PRVS // для телемедицины специальность копируем из случая
       endif
@@ -1508,12 +1513,12 @@ do while mohu->kod == human->kod .and. !eof()
   endif
   ltip_onko := 0
   if usl_found
-    if !empty(&al.->par_org)
+    if !empty(&lalf.->par_org)
       if empty(mohu->zf)
         aadd(ta,'в услуге '+s+' не введены органы (части тела), на которых выполнена операция')
       else
         a1 := List2Arr(mohu->zf)
-        a2 := List2Arr(&al.->par_org)
+        a2 := List2Arr(&lalf.->par_org)
         s1 := ""
         for i := 1 to len(a2)
           if ascan(a1,a2[i]) > 0
@@ -1528,19 +1533,19 @@ do while mohu->kod == human->kod .and. !eof()
         endif
       endif
     endif
-    ltip_onko := &al.->onko_ksg
+    ltip_onko := &lalf.->onko_ksg
     do case
       case human_->usl_ok == 1
-        if &al.->tip == 2
+        if &lalf.->tip == 2
           aadd(ta,'услуга '+s+' относится к стоматологическим')
         endif
       case human_->usl_ok == 2
-        if &al.->tip == 2
+        if &lalf.->tip == 2
           aadd(ta,'услуга '+s+' относится к стоматологическим')
         endif
       case human_->usl_ok == 3
         if fl_stom
-          if empty(&al.->tip)
+          if empty(&lalf.->tip)
             aadd(ta,'услуга '+s+' не относится к стоматологическим')
           else
             // проверяем на профиль
@@ -1548,15 +1553,15 @@ do while mohu->kod == human->kod .and. !eof()
             // проверяем на специальность
             UslugaAccordancePRVS(lshifr,human->vzros_reb,mohu->prvs,ta,mosu->shifr,mohu->kod_vr)
           endif
-          if &al.->zf == 1  // обязателен ввод зубной формулы
+          if &lalf.->zf == 1  // обязателен ввод зубной формулы
             arr_zf := STverifyZF(mohu->zf,human->date_r,d1,ta,s)
             STVerifyKolZf(arr_zf,mohu->kol_1,ta,s)
           endif
-        elseif &al.->telemed == 0
+        elseif &lalf.->telemed == 0
           aadd(ta,'услугу '+s+' нельзя вводить для амбулаторной помощи')
         endif
       case human_->usl_ok == 4
-        if &al.->telemed == 0
+        if &lalf.->telemed == 0
           aadd(ta,'услугу '+s+' нельзя вводить для скорой помощи')
         endif
     endcase
@@ -1654,7 +1659,8 @@ if is_oncology == 2 // онкология
       R_Use(dir_exe+"_mo_N009",,"N9")
     endif
     select N9
-    dbeval({|| aadd(ar_N009,{"",n9->id_mrf,{}}) }, {|| padr(mdiagnoz[1],3) == n9->ds_mrf })
+    dbeval({|| aadd(ar_N009,{"",n9->id_mrf,{}}) }, ;
+           {|| between_date(n9->datebeg,n9->dateend,d2) .and. padr(mdiagnoz[1],3) == n9->ds_mrf })
     /*if len(ar_N009) > 0
           R_Use(exe_dir+"_mo_N007",cur_dir+"_mo_N007","N7")
           R_Use(exe_dir+"_mo_N008",cur_dir+"_mo_N008","N8")
@@ -1684,7 +1690,8 @@ if is_oncology == 2 // онкология
       R_Use(dir_exe+"_mo_N012",,"N12")
     endif
     select N12
-    dbeval({|| aadd(ar_N012,{"",n12->id_igh,{}}) }, {|| padr(mdiagnoz[1],3) == n12->ds_igh })
+    dbeval({|| aadd(ar_N012,{"",n12->id_igh,{}}) }, ;
+           {|| between_date(n12->datebeg,n12->dateend,d2) .and. padr(mdiagnoz[1],3) == n12->ds_igh })
     /*if len(ar_N012) > 0
           R_Use(exe_dir+"_mo_N010",cur_dir+"_mo_N010","N10")
           R_Use(exe_dir+"_mo_N011",cur_dir+"_mo_N011","N11")
@@ -4305,7 +4312,11 @@ endif
 //endif
 if len(arr_unit) > 1
   if select("MOUNIT") == 0
-    R_Use(dir_exe+"_mo9unit",cur_dir+"_mo9unit","MOUNIT")
+    if d2_year == 2019
+      R_Use(dir_exe+"_mo9unit",cur_dir+"_mo9unit","MOUNIT")
+    else
+      R_Use(dir_exe+"_mo0unit",cur_dir+"_mo0unit","MOUNIT")
+    endif
   endif
   s := "совокупность услуг должна быть из одной учётной единицы объёма, а в данном случае: "
   select MOUNIT
@@ -4393,7 +4404,7 @@ if fl_view .and. !is_s_dializ .and. !is_dializ .and. !is_perito .and. len(a_rec_
     d_srok->dni   := a_rec_ffoms[i,3]
   endif
 endif
-if len(arr_unit) == 1 .and. arr_unit[1] == 317 .and. len(a_317) > 0
+if len(arr_unit) == 1 .and. arr_unit[1] == 317 .and. len(a_317) > 0 // ???????????????????????????????????
   aadd(ta,"уже был выставлен случай первичного диспансерного наблюдения с данным основным диагнозом "+gkod_diag+;
           " "+full_date(a_317[1])+"г.")
 endif
@@ -4438,7 +4449,11 @@ else
   endif
   if len(arr_unit) == 1
     if select("MOUNIT") == 0
-      R_Use(dir_exe+"_mo9unit",cur_dir+"_mo9unit","MOUNIT")
+      if d2_year == 2019
+        R_Use(dir_exe+"_mo9unit",cur_dir+"_mo9unit","MOUNIT")
+      else
+        R_Use(dir_exe+"_mo0unit",cur_dir+"_mo0unit","MOUNIT")
+      endif
     endif
     select MOUNIT
     find (str(arr_unit[1],3))

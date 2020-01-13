@@ -107,14 +107,14 @@ if is_otd_dep .and. glob_otd_dep == 0 .and. len(mm_otd_dep) > 0
 endif
 if !(type("arr_date_usl") == "A")
   Public arr_date_usl := {}
-  select LUSLC18
+  select LUSLC19
   index on dtos(datebeg) to (cur_dir+"tmp1") unique
-  dbeval({|| aadd(arr_date_usl,luslc18->datebeg) })
-  set index to (cur_dir+"_mo8uslc"),(cur_dir+"_mo8uslu")
+  dbeval({|| aadd(arr_date_usl,luslc19->datebeg) })
+  set index to (cur_dir+"_mo9uslc"),(cur_dir+"_mo9uslu")
   select LUSLC
   index on dtos(datebeg) to (cur_dir+"tmp1") unique
   dbeval({|| aadd(arr_date_usl,luslc->datebeg) })
-  set index to (cur_dir+"_mo9uslc"),(cur_dir+"_mo9uslu")
+  set index to (cur_dir+"_mo0uslc"),(cur_dir+"_mo0uslu")
 endif
 Private tmp_V002 := create_classif_FFOMS(0,"V002") // PROFIL
 dbcreate(cur_dir+"tmp_usl1",{{"shifr1",  "C",10,0},;

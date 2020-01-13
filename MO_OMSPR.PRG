@@ -1558,6 +1558,7 @@ if is_usl == 1
 endif
 if select("LUSL") > 0
   lusl->(dbCloseArea())
+  lusl19->(dbCloseArea())
   lusl18->(dbCloseArea())
 endif
 CloseGauge(hGauge)

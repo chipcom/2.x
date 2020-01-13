@@ -4414,7 +4414,8 @@ do while .t.
       // гистология
       mm_N009 := {}
       R_Use(exe_dir+"_mo_N009",,"N9")
-      dbeval({|| aadd(mm_N009,{"",n9->id_mrf,{}}) }, {|| left(mkod_diag,3) == n9->ds_mrf })
+      dbeval({|| aadd(mm_N009,{"",n9->id_mrf,{}}) }, ;
+             {|| between_date(n9->datebeg,n9->dateend,mk_data) .and. left(mkod_diag,3) == n9->ds_mrf })
       asort(mm_N009,,,{|x,y| x[2] < y[2] })
       if len(mm_N009) > 0
         R_Use(exe_dir+"_mo_N007",cur_dir+"_mo_N007","N7")
@@ -4442,7 +4443,8 @@ do while .t.
       // Иммуногистохимия
       mm_N012 := {}
       R_Use(exe_dir+"_mo_N012",,"N12")
-      dbeval({|| aadd(mm_N012,{"",n12->id_igh,{}}) }, {|| left(mkod_diag,3) == n12->ds_igh })
+      dbeval({|| aadd(mm_N012,{"",n12->id_igh,{}}) }, ;
+             {|| between_date(n12->datebeg,n12->dateend,mk_data) .and. left(mkod_diag,3) == n12->ds_igh })
       asort(mm_N012,,,{|x,y| x[2] < y[2] })
       if len(mm_N012) > 0
         R_Use(exe_dir+"_mo_N010",cur_dir+"_mo_N010","N10")
@@ -4450,15 +4452,22 @@ do while .t.
         for i := 1 to min(5,len(mm_N012))
           select N10
           find (str(mm_N012[i,2],6))
-          if found()
-            mm_N012[i,1] := alltrim(n10->igh_name)
-          else
+          do while n10->id_igh == mm_N012[i,2] .and. !eof()
+            if between_date(n10->datebeg,n10->dateend,mk_data)
+              mm_N012[i,1] := alltrim(n10->igh_name)
+              exit
+            endif
+            skip
+          enddo
+          if empty(mm_N012[i,1])
             func_error(4,"Не найден гистологический признак ID_IGH="+lstr(mm_N012[i,2])+" для "+mkod_diag)
           endif
           select N11
           find (str(mm_N012[i,2],6))
           do while n11->id_igh == mm_N012[i,2] .and. !eof()
-            aadd(mm_N012[i,3], {alltrim(n11->kod_r_i),n11->id_r_i})
+            if between_date(n11->datebeg,n11->dateend,mk_data)
+              aadd(mm_N012[i,3], {alltrim(n11->kod_r_i),n11->id_r_i})
+            endif
             skip
           enddo
           if ascan(mm_N012[i,3], {|x| x[2] == &("m1mark"+lstr(i)) }) == 0
@@ -6468,7 +6477,7 @@ if found()
     tmp->is_oms  := .t.
     tmp->is_zf   := ret_is_zf(tmp->shifr1)
     tmp->rec_hu  := mohu->(recno())
-    tmp->par_org := ret_par_org(tmp->shifr1)
+    tmp->par_org := ret_par_org(tmp->shifr1,d2)
     if is_telemedicina(tmp->shifr1)
       tmp->is_edit := -1 // не заполняется код врача
     endif
