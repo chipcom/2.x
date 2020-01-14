@@ -607,11 +607,17 @@ do while mohu->kod == mkod .and. !eof()
     Select MOSU
     goto (mohu->u_kod)
     lname := mosu->name
-    if year(human->k_data) > 2018
+    if year(human->k_data) > 2019
       select LUSLF
       find (padr(mosu->shifr1,20))
       if found()
         lname := luslf->name  // наименование услуги из справочника ТФОМС
+      endif
+    elseif year(human->k_data) > 2018
+      select LUSLF19
+      find (padr(mosu->shifr1,20))
+      if found()
+        lname := luslf19->name  // наименование услуги из справочника ТФОМС
       endif
     else
       select LUSLF18
@@ -2286,7 +2292,7 @@ if k > 10
 endif
 return NIL
 
-***** 12.03.19
+***** 13.01.20
 Function pz1statist(par,par2)
 Static _su := 2
 Local buf := savescreen(), fl_exit := .f., fl := .t., a_otd := {},;
@@ -2301,7 +2307,7 @@ afill(tfoms_pz,0)
 if par > 1 .and. (arr_goi := ret_g_o_i(T_ROW,T_COL-5)) == NIL
   return NIL
 endif
-Private v_deti := 1, apf := {},   apz2016 := {}, luapz2016 := {}, is_2019 := .f.
+Private v_deti := 1, apf := {},   apz2016 := {}, luapz2016 := {}, is_2019 := .f., is_2020 := .f.
 if (v_deti := popup_prompt(T_ROW,T_COL-5,1,{"по ~всем пациентам","по ~детям"},,,"N/G*,W+/B,B/G*,BG+/B")) == 0
   restscreen(buf)
   return NIL
@@ -2325,8 +2331,8 @@ elseif par == 2
       return NIL
     endif
   endif
-  if par2 == 2 .and. arr_m[6] < 0d20180101
-    return func_error(4,"Период должен быть не ранее 2018 года")
+  if par2 == 2 .and. arr_m[6] < 0d20190101
+    return func_error(4,"Период должен быть не ранее 2019 года")
   endif
   if mem_trudoem == 2 .and. mem_tr_plan == 2 .and. ym_kol_mes > 0
     fl_plan := .t.
@@ -2349,8 +2355,7 @@ mas_pmt := {"Список ~отделений (план-заказ)",;
             "Наработка по ~врачам (список услуг)"}
 if (su := popup_prompt(T_ROW,T_COL-5,_su,mas_pmt)) == 0
   fl := .f.
-elseif su == 4 .and. (su1 := popup_prompt(T_ROW,T_COL-5,1,;
-               {"~Итоговые суммы по врачам","С расшифровкой ~услуг"})) == 0
+elseif su == 4 .and. (su1 := popup_prompt(T_ROW,T_COL-5,1,{"~Итоговые суммы по врачам","С расшифровкой ~услуг"})) == 0
   fl := .f.
 endif
 if !fl
@@ -2359,15 +2364,22 @@ if !fl
 endif
 _su := su
 if between(par,2,3) .and. eq_any(su,1,2,5)
-  if arr_m[1] > 2018  // пока так - до нового справочника
-    R_Use(dir_exe+"_mo9unit",,"MOUNIT")
+  if arr_m[1] > 2019
+    R_Use(dir_exe+"_mo0unit",,"MOUNIT")
+    index on str(ii,3) to (cur_dir+"tmp_unitii")
+    set index to (cur_dir+"_mo0unit"),(cur_dir+"tmp_unitii")
+    is_2020 := .t.
+    apz2016 := arr_plan_zakaz(.t.)
+    luapz2016 := arr_plan_zakaz(.t.)
+  elseif arr_m[1] > 2018
+    R_Use(dir_exe+"_mo9unit",,"MOUNIT19")
     index on str(ii,3) to (cur_dir+"tmp_unitii")
     set index to (cur_dir+"_mo9unit"),(cur_dir+"tmp_unitii")
     is_2019 := .t.
     apz2016 := arr_plan_zakaz(.t.)
     luapz2016 := arr_plan_zakaz(.t.)
   else
-    R_Use(dir_exe+"_mo8unit",,"MOUNIT")
+    R_Use(dir_exe+"_mo8unit",,"MOUNIT18")
     index on str(ii,3) to (cur_dir+"tmp_unitii")
     set index to (cur_dir+"_mo8unit"),(cur_dir+"tmp_unitii")
     apz2016 := arr_plan_zakaz(.f.)
@@ -2929,6 +2941,12 @@ elseif su == 4
         find (padr(usl->shifr,10))
         if found()
           lname := lusl->name  // наименование услуги из справочника ТФОМС
+        else
+          select LUSL19
+          find (padr(usl->shifr,10))
+          if found()
+            lname := lusl19->name  // наименование услуги из справочника ТФОМС
+          endif
         endif
         k := perenos(as,alltrim(usl->shifr)+" "+alltrim(lname),n1-2)
         s := "  "+padr(as[1],n1-2)
@@ -3156,10 +3174,11 @@ do while hu->kod == human->kod .and. !eof()
               //apz2016[i16,3] += muet
             //endif
           elseif i16 > 0
-            select MOUNIT
+            lalunit := "MOUNIT"+iif(is_2020,"","19")
+            dbSelectArea(lalunit)
             set order to 2
             find (str(i16,3))
-            if mounit->c_t == 2 // план-заказ подсчитывается по случаю
+            if &lalunit.->c_t == 2 // план-заказ подсчитывается по случаю
               //apz2016[i16,3] ++
               apz2016[i16,3] := 0
             else

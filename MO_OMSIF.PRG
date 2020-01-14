@@ -52,7 +52,7 @@ if k > 10
 endif
 return NIL
 
-***** 12.01.20
+***** 13.01.20
 Function forma_12_(is_diag,is_100000)
 Local i, j, k, arr, begin_date, end_date, s, buf := save_maxrow(),;
       s1_, s1, s2, s3, s4, d1, d2, diapazon, kh, hGauge, v,;
@@ -66,7 +66,7 @@ if is_100000
 else
   name_file := iif(is_diag, "_frm_12d", "_form_12")+stxt
 endif
-Private adiag_talon[16], arr_v := {{0,14},{0,2},{15,17},{18,999}}, ;
+Private adiag_talon[16], arr_v := {{0,14},{0,3},{15,17},{18,999}}, ;
         len_name := {28,28,28,28,28}, kol_dt, koef_dt[5], p_is_voz[5]
 afill(p_is_voz, .f.)
 
@@ -137,6 +137,17 @@ adbf := {{"stroke","C",8,0},;
          {"sluch12","N",7,0},;
          {"sluch13","N",7,0},;
          {"sluch14","N",7,0},;
+         {"sluch15","N",7,0},;
+         {"sluch16","N",7,0},;
+         {"sluch17","N",7,0},;
+         {"sluch18","N",7,0},;
+         {"sluch19","N",7,0},;
+         {"sluch20","N",7,0},;
+         {"sluch21","N",7,0},;
+         {"sluch22","N",7,0},;
+         {"sluch23","N",7,0},;
+         {"sluch24","N",7,0},;
+         {"sluch25","N",7,0},;
          {"pervich","N",7,0},;
          {"dispans1","N",7,0},;
          {"dispans","N",7,0},;
@@ -434,7 +445,7 @@ adbf := {;
   {"stroke","C",10,0},;
   {"diagnoz","C",40,0};
  }
-for i := 4 to 16
+for i := 4 to 19
   aadd(adbf, {"kol"+lstr(i),"N",8,0})
 next
 for i := 0 to 9
@@ -570,13 +581,21 @@ for x := 1 to 5 // diag1[x] => {s1,p_tip,diapazon,tmp->table,s2,s4}
                    put_val(k15,6)
           elseif x == 2
             &al.->kol4  := tmp->sluch
-            &al.->kol5  := tmp->sluch5
+            &al.->kol5  := tmp->sluch24
+            &al.->kol6  := tmp->sluch25
+            &al.->kol7  := tmp->sluch5
             &al.->kol8  := tmp->sluch6
-            &al.->kol9  := tmp->sluch7
-            &al.->kol10 := tmp->sluch8
-            &al.->kol11 := tmp->sluch9
-            &al.->kol14 := tmp->sluch12
-            &al.->kol15 := k15
+            &al.->kol9  := tmp->sluch16
+            &al.->kol10 := tmp->sluch7
+            &al.->kol11 := tmp->sluch17
+            &al.->kol12 := tmp->sluch8
+            &al.->kol13 := tmp->sluch18
+            &al.->kol14 := tmp->sluch9
+            &al.->kol15 := tmp->sluch19
+            &al.->kol16 := tmp->sluch12
+            &al.->kol17 := tmp->sluch22
+            &al.->kol18 := tmp->sluch6 - tmp->sluch12
+            &al.->kol19 := tmp->sluch16 - tmp->sluch22
             ls1 += put_val(tmp->sluch,8)+;
                    put_val(tmp->sluch5,7)+;
                    put_val(tmp->sluch6,7)+;
@@ -646,8 +665,7 @@ for x := 1 to 5 // diag1[x] => {s1,p_tip,diapazon,tmp->table,s2,s4}
         if is_diag
           select TMP_D
           find (s1+str(p_tip,1)+str(x,1))
-          do while tmp_d->stroke == s1 .and. tmp_d->tip == p_tip ;
-                                       .and. tmp_d->voz == x .and. !eof()
+          do while tmp_d->stroke == s1 .and. tmp_d->tip == p_tip .and. tmp_d->voz == x .and. !eof()
             select MKB10
             find (tmp_d->diagnoz)
             s := alltrim(mkb10->name)+" "
@@ -698,13 +716,21 @@ for x := 1 to 5 // diag1[x] => {s1,p_tip,diapazon,tmp->table,s2,s4}
                      put_val(k15,6)
             elseif x == 2
               &al.->kol4  := tmp_d->sluch
-              &al.->kol5  := tmp_d->sluch5
+              &al.->kol5  := tmp_d->sluch24
+              &al.->kol6  := tmp_d->sluch25
+              &al.->kol7  := tmp_d->sluch5
               &al.->kol8  := tmp_d->sluch6
-              &al.->kol9  := tmp_d->sluch7
-              &al.->kol10 := tmp_d->sluch8
-              &al.->kol11 := tmp_d->sluch9
-              &al.->kol14 := tmp_d->sluch12
-              &al.->kol15 := k15
+              &al.->kol9  := tmp_d->sluch16
+              &al.->kol10 := tmp_d->sluch7
+              &al.->kol11 := tmp_d->sluch17
+              &al.->kol12 := tmp_d->sluch8
+              &al.->kol13 := tmp_d->sluch18
+              &al.->kol14 := tmp_d->sluch9
+              &al.->kol15 := tmp_d->sluch19
+              &al.->kol16 := tmp_d->sluch12
+              &al.->kol17 := tmp_d->sluch22
+              &al.->kol18 := tmp_d->sluch6 - tmp_d->sluch12
+              &al.->kol19 := tmp_d->sluch16 - tmp_d->sluch22
               ls1 += put_val(tmp_d->sluch,8)+;
                      put_val(tmp_d->sluch5,7)+;
                      put_val(tmp_d->sluch6,7)+;
@@ -1073,11 +1099,11 @@ for i := 1 to len(ad) // цикл по диагнозам
 next
 return arr
 
-***** 11.12.16
+***** 13.01.20
 Function f1_f12(jh,is_diag)
 Local arr_d := {}, is_talon := .t., arr := {}, i, j, k, m, k4, k1, s, v, v4 := 0,;
       mvozrast, fl, fl_plus, _dispans, kol_sluch, kol_plus, fl_z, mpol, lnum_kol := 0
-Private spec_vozrast := 0, mlet := 0
+Private spec_vozrast := 0, spec1vozrast := 0, mlet := 0
 if human_->NOVOR > 0
   mpol := human_->POL2
   mvozrast := count_years(human_->DATE_R2,human->n_data)
@@ -1097,6 +1123,11 @@ if mvozrast < 5
     if m == 0
       spec_vozrast := 1
     endif
+  endif
+  if mvozrast < 1
+    spec1vozrast := 1
+  elseif mvozrast < 4
+    spec1vozrast := 2
   endif
 elseif mvozrast < 10
   spec_vozrast := 3
@@ -1207,7 +1238,7 @@ if len(arr_d) > 0
 endif
 return jh
 
-***** 08.01.17
+***** 14.01.20
 Function s_f1_f12(is_diag,lshifr,k,v,lpol,kol_sluch,kol_plus,_dispans,lnom_kol)
 Local j, n
 Private pole
@@ -1236,8 +1267,36 @@ for j := 1 to len(k)
     elseif spec_vozrast == 3
       tmp_tab->sluch14 += kol_sluch
     endif
-  elseif v == 2 .and. spec_vozrast == 1
-    tmp_tab->sluch5 += kol_sluch
+  elseif v == 2
+    if spec_vozrast == 1
+      tmp_tab->sluch5 += kol_sluch
+    endif
+    if spec1vozrast == 1
+      tmp_tab->sluch24 += kol_sluch
+    else
+      tmp_tab->sluch25 += kol_sluch
+      tmp_tab->sluch7 -= kol_plus
+      tmp_tab->sluch17 += kol_plus
+      if eq_any(_dispans,1,2) // Состоит, Взят
+        tmp_tab->sluch6 -= kol_sluch
+        tmp_tab->sluch16 += kol_sluch
+        tmp_tab->sluch13 -= kol_sluch
+        tmp_tab->sluch23 += kol_sluch
+        if kol_plus > 0 .and. _dispans == 2 // Взят
+          tmp_tab->sluch8 -= kol_plus
+          tmp_tab->sluch18 += kol_plus
+        endif
+      elseif _dispans == 3 // Снят
+        tmp_tab->sluch12 -= kol_sluch
+        tmp_tab->sluch22 += kol_sluch
+      endif
+      if kol_plus > 0 .and. eq_any(lnom_kol,9,10)
+        pole := "tmp_tab->sluch"+lstr(lnom_kol)
+        &pole := &pole - min(1,kol_plus)
+        pole := "tmp_tab->sluch"+lstr(lnom_kol+10)
+        &pole := &pole + min(1,kol_plus)
+      endif
+    endif
   elseif v == 3 .and. upper(lpol) == "М"
     tmp_tab->sluch5 += kol_sluch
     if kol_plus > 0 .and. _dispans == 2 // Взят
@@ -1254,8 +1313,7 @@ if is_diag
   if !found()
     append blank
     tmp_d->diagnoz := lshifr
-    if (j := ascan(k, {|x| n := alltrim(x[1]), ;
-                   (!(n=="1.0" .and. x[2]==1) .and. right(n,2)==".0")} )) > 0
+    if (j := ascan(k, {|x| n := alltrim(x[1]), (!(n=="1.0" .and. x[2]==1) .and. right(n,2)==".0")} )) > 0
       tmp_d->stroke := padr(k[j,1],8)
       tmp_d->tip := k[j,2]
     endif
@@ -1282,8 +1340,36 @@ if is_diag
     elseif spec_vozrast == 3
       tmp_d->sluch14 += kol_sluch
     endif
-  elseif v == 2 .and. spec_vozrast == 1
-    tmp_d->sluch5 += kol_sluch
+  elseif v == 2
+    if spec_vozrast == 1
+      tmp_d->sluch5 += kol_sluch
+    endif
+    if spec1vozrast == 1
+      tmp_d->sluch24 += kol_sluch
+    else
+      tmp_d->sluch25 += kol_sluch
+      tmp_d->sluch7 -= kol_plus
+      tmp_d->sluch17 += kol_plus
+      if eq_any(_dispans,1,2) // Состоит, Взят
+        tmp_d->sluch6 -= kol_sluch
+        tmp_d->sluch16 += kol_sluch
+        tmp_d->sluch13 -= kol_sluch
+        tmp_d->sluch23 += kol_sluch
+        if kol_plus > 0 .and. _dispans == 2 // Взят
+          tmp_d->sluch8 -= kol_plus
+          tmp_d->sluch18 += kol_plus
+        endif
+      elseif _dispans == 3 // Снят
+        tmp_d->sluch12 -= kol_sluch
+        tmp_d->sluch22 += kol_sluch
+      endif
+      if kol_plus > 0 .and. eq_any(lnom_kol,9,10)
+        pole := "tmp_d->sluch"+lstr(lnom_kol)
+        &pole := &pole - min(1,kol_plus)
+        pole := "tmp_d->sluch"+lstr(lnom_kol+10)
+        &pole := &pole + min(1,kol_plus)
+      endif
+    endif
   elseif v == 3 .and. upper(lpol) == "М"
     tmp_d->sluch5 += kol_sluch
     if kol_plus > 0 .and. _dispans == 2 // Взят
@@ -1298,11 +1384,11 @@ return NIL
 
 *
 
-***** 11.12.16
+***** 14.01.20
 Function f2_f12(jh,is_diag)
 Local i, j, k, k4, m, s, v, v4 := 0, mvozrast, mdate, ll, a3 := {}, fl_z, kz, ad := {},;
       lshifr, fl, fl_plus, _dispans, ret := .f., kol_sluch, kol_plus, lshifr3, lnum_kol := 0
-Private spec_vozrast := 0, mlet := 0
+Private spec_vozrast := 0, spec1vozrast := 0, mlet := 0
 select TMP1RULE
 find ("1")
 do while tmp1rule->tip == 1 .and. !eof()
@@ -1342,6 +1428,11 @@ do while tmp1rule->tip == 1 .and. !eof()
       if m == 0
         spec_vozrast := 1
       endif
+    endif
+    if mvozrast < 1
+      spec1vozrast := 1
+    elseif mvozrast < 4
+      spec1vozrast := 2
     endif
   elseif mvozrast < 10
     spec_vozrast := 3
@@ -1404,6 +1495,11 @@ do while tmp1rule->tip == 2 .and. !eof()
           spec_vozrast := 1
         endif
       endif
+      if mvozrast < 1
+        spec1vozrast := 1
+      elseif mvozrast < 4
+        spec1vozrast := 2
+      endif
     elseif mvozrast < 10
       spec_vozrast := 3
     endif
@@ -1460,15 +1556,15 @@ endif
 if len(ret) == 0 ; ret := NIL ; endif
 return ret
 
-***** 16.11.16
+***** 13.01.20
 Function ret_v_f12(mpol,mvozrast,/*@*/v4)
 Local v
 if (v := ascan(arr_v, {|x| between(mvozrast,x[1],x[2]) } )) == 0
   v := 4 // если почему-то не нашли - взрослые
 endif
 v4 := 0
-if v == 1 .and. mvozrast < 1
-  v4 := 2 // дети до одного года
+if v == 1 .and. mvozrast < 4
+  v4 := 2 // дети до 3х лет
 elseif v == 4 .and. ((mpol == "Ж" .and. mvozrast >= 55) .or. (mpol == "М" .and. mvozrast >= 60))
   v4 := 5 // взрослые старше трудоспособного возраста
 endif

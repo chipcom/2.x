@@ -132,6 +132,7 @@ if found() .and. !empty(lusl->unit_code)
     R_Use(dir_exe+"_mo0unit",cur_dir+"_mo0unit","MOUNIT")
   endif
   select MOUNIT
+  set order to 1
   find (str(lusl->unit_code,3))
   if found() .and. mounit->pz > 0
     k := mounit->pz
@@ -156,6 +157,7 @@ if found() .and. !empty(lusl19->unit_code)
     R_Use(dir_exe+"_mo9unit",cur_dir+"_mo9unit","MOUNIT19")
   endif
   select MOUNIT19
+  set order to 1
   find (str(lusl19->unit_code,3))
   if found() .and. mounit19->pz > 0
     k := mounit19->pz
@@ -180,6 +182,7 @@ if found() .and. !empty(lusl18->unit_code)
     R_Use(dir_exe+"_mo8unit",cur_dir+"_mo8unit","MOUNIT18")
   endif
   select MOUNIT18
+  set order to 1
   find (str(lusl18->unit_code,3))
   if found() .and. mounit18->pz > 0
     k := mounit18->pz
@@ -235,12 +238,14 @@ Static arr_name := {;
   "Услуги, не вошедшие в 14-ю форму"}
 return arr_name
 
-***** 02.01.19
+***** 13.01.20
 Function f14tf_nastr(/*@*/lshifr,/*@*/lname,lyear)
 Static a_usl, a_zak_sl, syear
 Local ta := {}, i, j, k, i14 := 0, arr, shb, fl := .f., fl1 := .f., ret := {}
 if type("apz2016") == "A" .and. !empty(apz2016)
-  if type("is_2019") == "L" .and. is_2019
+  if type("is_2020") == "L" .and. is_2020
+    i14 := f_arr_plan_zakaz_20(lshifr)
+  elseif type("is_2019") == "L" .and. is_2019
     i14 := f_arr_plan_zakaz_19(lshifr)
   else
     i14 := f_arr_plan_zakaz_18(lshifr)
@@ -272,7 +277,7 @@ if a_usl == NIL .or. syear != lyear
   f_vid_p_stom({},{},a_usl[6,1]) // добавим все новые стоматологические приёмы
   a_usl[6,2] := {}
   // отдельные медицинские услуги
-  a_usl[7,1] := {"4.20.702","4.15.746","60.2.*","60.3.*","60.4.*","60.5.*"}
+  a_usl[7,1] := {"4.20.702","4.15.746","60.*"}
   a_usl[7,2] := {"60.2.9"}
   // СМП
   a_usl[8,1] := {"71.*"}
