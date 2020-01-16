@@ -2292,7 +2292,7 @@ if k > 10
 endif
 return NIL
 
-***** 13.01.20
+***** 16.01.20
 Function pz1statist(par,par2)
 Static _su := 2
 Local buf := savescreen(), fl_exit := .f., fl := .t., a_otd := {},;
@@ -2319,6 +2319,16 @@ if par == 1
     restscreen(buf)
     return NIL
   endif
+  R_Use(dir_server+"schet_",,"SCHET_")
+  R_Use(dir_server+"schet",dir_server+"schetk","SCHET")
+  set relation to recno() into SCHET_
+  find (str(glob_schet,6))
+  begin_date := end_date := chr(int(val(left(str(schet_->nyear,4),2))))+chr(int(val(substr(str(schet_->nyear,4),3))))
+  begin_date += chr(schet_->nmonth)+chr(1)
+  end_date += chr(schet_->nmonth)+chr(1)
+  end_date := dtoc4(eom(c4tod(end_date)))
+  arr_m := {schet_->nyear, schet_->nmonth, schet_->nmonth, '', c4tod(begin_date), c4tod(end_date), begin_date, end_date}
+  use
 elseif par == 2
   if (arr_m := year_month(T_ROW,T_COL-5)) == NIL
     return NIL
@@ -2330,9 +2340,6 @@ elseif par == 2
     elseif !ret_date_reg_otch_period()
       return NIL
     endif
-  endif
-  if par2 == 2 .and. arr_m[6] < 0d20190101
-    return func_error(4,"¥à¨®¤ ¤®«¦¥­ ¡ëâì ­¥ à ­¥¥ 2019 £®¤ ")
   endif
   if mem_trudoem == 2 .and. mem_tr_plan == 2 .and. ym_kol_mes > 0
     fl_plan := .t.
@@ -2348,6 +2355,9 @@ else
   if (arr_m := year_month(T_ROW,T_COL-5)) == NIL
     return NIL
   endif
+endif
+if arr_m[6] < 0d20190101
+  return func_error(4,"Žâçñâ­ë© ¯¥à¨®¤ ¤®«¦¥­ ¡ëâì ­¥ à ­¥¥ 2019 £®¤ ")
 endif
 mas_pmt := {"‘¯¨á®ª ~®â¤¥«¥­¨© (¯« ­-§ ª §)",;
             "‚ë¢®¤ á¯¨áª  ~ãá«ã£ (¯« ­-§ ª §)",;
@@ -2369,22 +2379,18 @@ if between(par,2,3) .and. eq_any(su,1,2,5)
     index on str(ii,3) to (cur_dir+"tmp_unitii")
     set index to (cur_dir+"_mo0unit"),(cur_dir+"tmp_unitii")
     is_2020 := .t.
-    apz2016 := arr_plan_zakaz(.t.)
-    luapz2016 := arr_plan_zakaz(.t.)
   elseif arr_m[1] > 2018
     R_Use(dir_exe+"_mo9unit",,"MOUNIT19")
     index on str(ii,3) to (cur_dir+"tmp_unitii")
     set index to (cur_dir+"_mo9unit"),(cur_dir+"tmp_unitii")
     is_2019 := .t.
-    apz2016 := arr_plan_zakaz(.t.)
-    luapz2016 := arr_plan_zakaz(.t.)
   else
     R_Use(dir_exe+"_mo8unit",,"MOUNIT18")
     index on str(ii,3) to (cur_dir+"tmp_unitii")
     set index to (cur_dir+"_mo8unit"),(cur_dir+"tmp_unitii")
-    apz2016 := arr_plan_zakaz(.f.)
-    luapz2016 := arr_plan_zakaz(.f.)
   endif
+  apz2016 := arr_plan_zakaz(arr_m[1])
+  luapz2016 := arr_plan_zakaz(arr_m[1])
   kol_sl_2 := array(len(apz2016))
   afill(kol_sl_2,0)
 endif
@@ -2634,6 +2640,7 @@ if eq_any(su,1,2,5)
   add_string("                                          ³¯« ­-§ ª §³«¨áâ®¢ ãç¥â ³    áã¬¬      ")
   add_string("ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄ")
   for i := 1 to len(luapz2016)
+my_debug(,print_array(luapz2016[i])+print_array(apz2016[i]))
     if luapz2016[i,3] > 0 .or. apz2016[i,3] > 0
       s := padl(luapz2016[i,1],42)
       if empty(apz2016[i,3]) .and. !empty(luapz2016[i,3])

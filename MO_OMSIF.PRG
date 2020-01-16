@@ -1099,7 +1099,7 @@ for i := 1 to len(ad) // цикл по диагнозам
 next
 return arr
 
-***** 13.01.20
+***** 16.01.20
 Function f1_f12(jh,is_diag)
 Local arr_d := {}, is_talon := .t., arr := {}, i, j, k, m, k4, k1, s, v, v4 := 0,;
       mvozrast, fl, fl_plus, _dispans, kol_sluch, kol_plus, fl_z, mpol, lnum_kol := 0
@@ -1115,13 +1115,14 @@ endif
 if mvozrast < 5
   spec_vozrast := 2
   if mvozrast == 0
+    m := 0
     if human_->NOVOR > 0
       count_ymd(human_->DATE_R2,human->n_data,,@m,)
     else
-      count_ymd(human_->DATE_R2,human->n_data,,@m,)
+      count_ymd(human->DATE_R,human->n_data,,@m,)
     endif
     if m == 0
-      spec_vozrast := 1
+      spec_vozrast := 1  // до месяца
     endif
   endif
   if mvozrast < 1
@@ -1268,10 +1269,10 @@ for j := 1 to len(k)
       tmp_tab->sluch14 += kol_sluch
     endif
   elseif v == 2
-    if spec_vozrast == 1
+    if spec_vozrast == 1 // до 1 месяца
       tmp_tab->sluch5 += kol_sluch
     endif
-    if spec1vozrast == 1
+    if spec1vozrast == 1 // до 1 года
       tmp_tab->sluch24 += kol_sluch
     else
       tmp_tab->sluch25 += kol_sluch

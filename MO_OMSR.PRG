@@ -4414,7 +4414,7 @@ if len(ta) > 0
   add_string("")
   uch->(dbGoto(human->LPU))
   otd->(dbGoto(human->OTD))
-  add_string(alltrim(human->fio)+" "+alltrim(human->kod_diag)+" "+;
+  add_string(fio_plus_novor()+" "+alltrim(human->kod_diag)+" "+;
              date_8(human->n_data)+"-"+date_8(human->k_data)+;
              " ("+count_ymd(human->date_r,human->n_data)+")")
   Ins_Array(ta,1,alltrim(uch->name)+'/'+alltrim(otd->name)+'/профиль по "'+;

@@ -67,7 +67,7 @@ else
 endif
 return .t.
 
-***** 13.01.18 инициализация массива МО, запрос кода МО (при необходимости)
+***** 14.01.20 инициализация массива МО, запрос кода МО (при необходимости)
 Function init_mo()
 Local fl := .t., i, arr, arr1, cCode := "", buf := save_maxrow(), ;
       nfile := exe_dir+"_mo_mo.dbb"
@@ -245,7 +245,7 @@ else
 endif
 sbase := "_mo8usl"
 if hb_FileExists(exe_dir+sbase+sdbf)
-  if !hb_FileExists(cur_dir+sbase+sntx)
+  if files_time(exe_dir+sbase+sdbf,cur_dir+sbase+sntx)
     R_Use(exe_dir+sbase,,"LUSL")
     index on shifr to (cur_dir+sbase)
     use
@@ -655,18 +655,22 @@ endif
 // справочник услуг ФФОМС 2019
 sbase := "_mo9uslf"
 if hb_FileExists(exe_dir+sbase+sdbf)
-  R_Use(exe_dir+sbase,,"LUSLF")
-  index on shifr to (cur_dir+sbase)
-  close databases
+  if files_time(exe_dir+sbase+sdbf,cur_dir+sbase+sntx)
+    R_Use(exe_dir+sbase,,"LUSLF")
+    index on shifr to (cur_dir+sbase)
+    close databases
+  endif
 else
   fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
 endif
 // справочник услуг ФФОМС 2018
 sbase := "_mo8uslf"
 if hb_FileExists(exe_dir+sbase+sdbf)
-  R_Use(exe_dir+sbase,,"LUSLF")
-  index on shifr to (cur_dir+sbase)
-  close databases
+  if files_time(exe_dir+sbase+sdbf,cur_dir+sbase+sntx)
+    R_Use(exe_dir+sbase,,"LUSLF")
+    index on shifr to (cur_dir+sbase)
+    close databases
+  endif
 else
   fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
 endif
@@ -699,17 +703,21 @@ else
 endif
 sbase := "_mo9unit"
 if hb_FileExists(exe_dir+sbase+sdbf)
-  R_Use(exe_dir+sbase)
-  index on str(code,3) to (cur_dir+sbase)
-  use
+  if files_time(exe_dir+sbase+sdbf,cur_dir+sbase+sntx)
+    R_Use(exe_dir+sbase)
+    index on str(code,3) to (cur_dir+sbase)
+    use
+  endif
 else
   fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
 endif
 sbase := "_mo8unit"
 if hb_FileExists(exe_dir+sbase+sdbf)
-  R_Use(exe_dir+sbase)
-  index on str(code,3) to (cur_dir+sbase)
-  use
+  if files_time(exe_dir+sbase+sdbf,cur_dir+sbase+sntx)
+    R_Use(exe_dir+sbase)
+    index on str(code,3) to (cur_dir+sbase)
+    use
+  endif
 else
   //fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
 endif
@@ -763,10 +771,13 @@ if !hb_FileExists(exe_dir+"_mo9shema"+sdbf)
 endif
 sbase := "_mo9k006"
 if hb_FileExists(exe_dir+sbase+sdbf)
-  R_Use(exe_dir+sbase)
-  index on substr(shifr,1,2)+ds+sy+age+sex+los to (cur_dir+sbase) // по диагнозу/операции
-  index on substr(shifr,1,2)+sy+ds+age+sex+los to (cur_dir+sbase+"_") // по операции/диагнозу
-  use
+  if files_time(exe_dir+sbase+sdbf,cur_dir+sbase+sntx) .or. ;
+     files_time(exe_dir+sbase+sdbf,cur_dir+sbase+"_"+sntx)
+    R_Use(exe_dir+sbase)
+    index on substr(shifr,1,2)+ds+sy+age+sex+los to (cur_dir+sbase) // по диагнозу/операции
+    index on substr(shifr,1,2)+sy+ds+age+sex+los to (cur_dir+sbase+"_") // по операции/диагнозу
+    use
+  endif
 else
   fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
 endif
@@ -774,7 +785,7 @@ if !hb_FileExists(exe_dir+sbase+".dbt")
   fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+'.dbt"')
 endif
 // T006 2018 год
-sbase := "_mo8it"
+/*sbase := "_mo8it"
 if hb_FileExists(exe_dir+sbase+sdbf)
   R_Use(exe_dir+sbase,,"IT")
   index on ds to tmpit memory
@@ -785,13 +796,16 @@ else
 endif
 if !hb_FileExists(exe_dir+"_mo8shema"+sdbf)
   fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
-endif
+endif*/
 sbase := "_mo8k006"
 if hb_FileExists(exe_dir+sbase+sdbf)
-  R_Use(exe_dir+sbase)
-  index on substr(shifr,1,1)+ds+sy+age+sex+los to (cur_dir+sbase) // по диагнозу/операции
-  index on substr(shifr,1,1)+sy+ds+age+sex+los to (cur_dir+sbase+"_") // по операции/диагнозу
-  use
+  if files_time(exe_dir+sbase+sdbf,cur_dir+sbase+sntx) .or. ;
+     files_time(exe_dir+sbase+sdbf,cur_dir+sbase+"_"+sntx)
+    R_Use(exe_dir+sbase)
+    index on substr(shifr,1,1)+ds+sy+age+sex+los to (cur_dir+sbase) // по диагнозу/операции
+    index on substr(shifr,1,1)+sy+ds+age+sex+los to (cur_dir+sbase+"_") // по операции/диагнозу
+    use
+  endif
 else
   fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
 endif
@@ -10217,22 +10231,15 @@ next
 unit->(dbCloseArea())
 return NIL
 
-***** 20.01.20
+***** 14.01.20
 Function make_V018_V019(lk_data)
 Static sy := 0, sd2018 := 0d20180101, sd2019 := 0d20190101, sd2020 := 0d20200101
-Local i, y
-if (y := year(lk_data)) > 2019
-  y := 2020
-elseif y == 2019
-  y := 2019
-else
-  y := 2018
-endif
+Local i, y := year(lk_data)
 if sy != y
   sy := y
   glob_V018 := {}
   for i := 1 to len(_glob_V018)
-    if y == 2020
+    if y > 2019
       if between_date(_glob_V018[i,3],_glob_V018[i,4],sd2020)
         aadd(glob_V018, aclone(_glob_V018[i]))
       endif
@@ -10248,7 +10255,7 @@ if sy != y
   next
   glob_V019 := {}
   for i := 1 to len(_glob_V019)
-    if y == 2019
+    if y > 2019
       if between_date(_glob_V019[i,5],_glob_V019[i,6],sd2020)
         aadd(glob_V019, aclone(_glob_V019[i]))
       endif

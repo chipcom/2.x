@@ -6304,7 +6304,7 @@ do while human->k_data <= mdate12 .and. !eof()
     old := human->k_data
     @ maxrow(),0 say date_8(old) color "W/R"
   endif
-  fl := (human_->oplata != 9)
+  fl := (human_->oplata < 9)
   if fl .and. m1mest1 > 0
     if between(human_->smo,'34001','34007') .or. empty(human_->smo)
       fl := (m1mest1 == 1)

@@ -92,11 +92,21 @@ return count_years(_date_r,_data) >= iif(_pol=="М", 60, 55)
 
 *
 
-***** 02.01.19
-Function arr_plan_zakaz(fl_19)
+***** 14.01.20
+Function arr_plan_zakaz(ly)
 Local i, apz := {}
-DEFAULT fl_19 TO .f.
-if fl_19
+DEFAULT ly TO 2018
+if ly > 2019
+  for i := 1 to len(glob_array_PZ_20)
+    aadd(apz,{glob_array_PZ_20[i,3],;
+              glob_array_PZ_20[i,1],;
+              0,;
+              glob_array_PZ_20[i,6],;
+              glob_array_PZ_20[i,5],;
+              {};
+             } )
+  next
+elseif ly == 2019
   for i := 1 to len(glob_array_PZ_19)
     aadd(apz,{glob_array_PZ_19[i,3],;
               glob_array_PZ_19[i,1],;
@@ -140,7 +150,7 @@ if found() .and. !empty(lusl->unit_code)
   endif
 endif
 if k > 0 .and. empty(i16)
-  i16 := ascan(glob_array_PZ_20, {|x| x[1] == k }) // пока так - потом заменим на glob_array_PZ_20
+  i16 := ascan(glob_array_PZ_20, {|x| x[1] == k })
 endif
 return i16
 
