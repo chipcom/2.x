@@ -1524,7 +1524,7 @@ s += ", дней приёма - "+lstr(n)
 tmple->(dbCloseArea())
 return s
 
-***** 26.03.19
+***** 19.01.20
 Function get_lek_pr(k,r,c,_crit)
 Local i, j, nrec, t_arr := array(BR_LEN), ret := {space(10),space(10)}
 Private arr_lek_pr := {}, yes_crit
@@ -1534,7 +1534,9 @@ dbcreate(cur_dir+"tmp",{{"id_lekp","C",6,0},;
 use (cur_dir+"tmp") new
 index on id_lekp to (cur_dir+"tmp")
 R_Use(exe_dir+"_mo_N020",{cur_dir+"_mo_N020",cur_dir+"_mo_N020n"},"N20")
+set filter to between_date(datebeg,dateend,mk_data)
 R_Use(exe_dir+"_mo_N021",cur_dir+"_mo_N021","N21")
+set filter to between_date(datebeg,dateend,mk_data)
 find (_crit)
 yes_crit := found()
 use (cur_dir+"tmp_onkle") new alias TMPLE

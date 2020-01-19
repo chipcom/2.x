@@ -95,7 +95,7 @@ return count_years(_date_r,_data) >= iif(_pol=="М", 60, 55)
 ***** 14.01.20
 Function arr_plan_zakaz(ly)
 Local i, apz := {}
-DEFAULT ly TO 2018
+DEFAULT ly TO 2020
 if ly > 2019
   for i := 1 to len(glob_array_PZ_20)
     aadd(apz,{glob_array_PZ_20[i,3],;
@@ -287,7 +287,7 @@ if a_usl == NIL .or. syear != lyear
   f_vid_p_stom({},{},a_usl[6,1]) // добавим все новые стоматологические приёмы
   a_usl[6,2] := {}
   // отдельные медицинские услуги
-  a_usl[7,1] := {"4.20.702","4.15.746","60.*"}
+  a_usl[7,1] := {"4.20.702","4.15.746","4.17.777","60.*"}
   a_usl[7,2] := {"60.2.9"}
   // СМП
   a_usl[8,1] := {"71.*"}

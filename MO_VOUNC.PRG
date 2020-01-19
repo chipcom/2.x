@@ -1501,16 +1501,16 @@ return ret
 
 *===============================================================================
 
-***** 14.02.19
+***** 19.01.20
 Function create1reestr19(_recno,_nyear,_nmonth)
 Local buf := savescreen(), s, i, j, pole
-Private mpz[100], oldpz[100], atip[100]
+Private mpz[100], oldpz[100], atip[100], p_array_PZ := iif(_nyear > 2019, glob_array_PZ_20, glob_array_PZ_19)
 for j := 0 to 99
   pole := "tmp->PZ"+lstr(j)
   mpz[j+1] := oldpz[j+1] := &pole
   atip[j+1] := "-"
-  if (i := ascan(glob_array_PZ_19, {|x| x[1] == j })) > 0
-    atip[j+1] := glob_array_PZ_19[i,4]
+  if (i := ascan(p_array_PZ, {|x| x[1] == j })) > 0
+    atip[j+1] := p_array_PZ[i,4]
   endif
 next
 Private pkol := tmp->kol, psumma := tmp->summa, pnyear := _nyear
@@ -1573,13 +1573,13 @@ for i := 1 to 2
 next
 return NIL
 
-***** 16.01.19
+***** 19.01.20
 Static Function f_p_z19(_pzkol,_pz,k)
 Local s, s2, i
 s2 := alltrim(str_0(_pzkol,9,2))
 s := atip[_PZ+1]
-if (i := ascan(glob_array_PZ_19, {|x| x[1] == _PZ })) > 0 .and. !empty(glob_array_PZ_19[i,5])
-  s2 += glob_array_PZ_19[i,5]
+if (i := ascan(p_array_PZ, {|x| x[1] == _PZ })) > 0 .and. !empty(p_array_PZ[i,5])
+  s2 += p_array_PZ[i,5]
 endif
 return iif(k == 1, s, s2)
 
@@ -1616,24 +1616,24 @@ mark_keys({"<Esc>","<Enter>","<Ins>","<+>","<->","<F9>"},"R/BG")
 setcolor(tmp_color)
 return NIL
 
-***** 06.02.19
+***** 19.01.20
 Function f2create1reestr19(nKey,oBrow)
 Local buf, rec, k := -1, s, i, j, mas_pmt := {}, arr, r1, r2
 do case
   case nkey == K_INS
     replace tmp->plus with !tmp->plus
     j := tmp->pz + 1
-    i := ascan(glob_array_PZ_19, {|x| x[1] == tmp->PZ })
+    i := ascan(p_array_PZ, {|x| x[1] == tmp->PZ })
     if tmp->plus
       psumma += tmp->cena_1 ; pkol++
-      if i > 0 .and. !empty(glob_array_PZ_19[i,5])
+      if i > 0 .and. !empty(p_array_PZ[i,5])
         mpz[j] ++
       else
         mpz[j] += tmp->PZKOL
       endif
     else
       psumma -= tmp->cena_1 ; pkol--
-      if i > 0 .and. !empty(glob_array_PZ_19[i,5])
+      if i > 0 .and. !empty(p_array_PZ[i,5])
         mpz[j] --
       else
         mpz[j] -= tmp->PZKOL
@@ -1649,8 +1649,8 @@ do case
       aadd(mas_pmt, "Отметить неопределённых пациентов") ; aadd(arr,0)
     endif
     for j := 2 to len(oldpz)
-      if !empty(oldpz[j]) .and. (i := ascan(glob_array_PZ_19, {|x| x[1] == j-1 })) > 0
-        aadd(mas_pmt, 'Отметить "'+glob_array_PZ_19[i,3]+'"') ; aadd(arr,j-1)
+      if !empty(oldpz[j]) .and. (i := ascan(p_array_PZ, {|x| x[1] == j-1 })) > 0
+        aadd(mas_pmt, 'Отметить "'+p_array_PZ[i,3]+'"') ; aadd(arr,j-1)
       endif
     next
     r1 := 12
@@ -1708,8 +1708,7 @@ return k
 
 ***** 12.01.20 создание XML-файлов реестра
 Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
-Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, ;
-      lst, lshifr1, code_reestr, mb, me, nsh
+Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
 //
 close databases
 if empty(sadiag1)

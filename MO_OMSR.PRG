@@ -831,7 +831,7 @@ if is_dop_ob_em
   fl_dop_ob_em := (human->reg_lech == 9)
 endif
 au_lu := {} ; au_flu := {} ; au_lu_ne := {} ; arr_perso := {} ; arr_unit := {}
-is_kt := is_mrt := is_angio := is_koronaro := is_g_cit := is_pr_skr := .f.
+is_kt := is_mrt := is_uzi := is_endo := is_gisto := is_g_cit := is_pr_skr := .f.
 is_71_1 := is_71_2 := is_71_3 := is_dom := .f.
 kvp_2_78 := kvp_2_79 := kvp_2_89 := kol_2_3 := kol_2_60 := kol_2_4 := kol_2_6 := kol_55_1 := 0
 kvp_70_5 := kvp_70_6 := kvp_70_3 := kvp_72_2 := kvp_72_3 := kvp_72_4 := 0
@@ -1064,7 +1064,8 @@ do while hu->kod == human->kod .and. !eof()
       hu_->PZTIP := 2
     elseif alltrim_lshifr == "56.1.723" .and. human->ishod == 202 .and. !is_disp_19 // второй этап ДВН - одна услуга
       is_disp_DVN := .t.
-    elseif eq_any(left_lshifr_5,"60.4.","60.5.") .or. eq_any(alltrim_lshifr,"4.20.702","4.15.746") // ЛДП
+    elseif eq_any(left_lshifr_5,"60.4.","60.5.","60.6.","60.7.","60.8.") .or. ;
+           eq_any(alltrim_lshifr,"4.20.702","4.15.746") // ЛДП
       mpovod := 1 // 1.0
       mIDSP := 4 // лечебно-диагностическая процедура
       kkt += hu->kol_1
@@ -1075,6 +1076,12 @@ do while hu->kod == human->kod .and. !eof()
         is_kt := .t.
       elseif alltrim_lshifr == "60.5."
         is_mrt := .t.
+      elseif alltrim_lshifr == "60.6."
+        is_uzi := .t.
+      elseif alltrim_lshifr == "60.7."
+        is_endo := .t.
+      elseif alltrim_lshifr == "60.8."
+        is_gisto := .t.
       elseif alltrim_lshifr == "4.20.702"
         is_g_cit := .t.
       elseif alltrim_lshifr == "4.15.746"
@@ -1906,9 +1913,11 @@ if is_oncology == 2 // онкология
         else
           if select("N20") == 0
             R_Use(exe_dir+"_mo_N020",cur_dir+"_mo_N020","N20")
+            set filter to between_date(datebeg,dateend,d2)
           endif
           if select("N21") == 0
             R_Use(exe_dir+"_mo_N021",cur_dir+"_mo_N021","N21")
+            set filter to between_date(datebeg,dateend,d2)
           endif
           select N21
           find (onksl->crit)
@@ -3135,10 +3144,12 @@ elseif kkt > 0 .and. !is_s_dializ .and. !is_dializ .and. !is_perito
     s := "КТ"
   elseif is_mrt
     s := "МРТ"
-  elseif is_angio
-    s := "ангиографии"
-  elseif is_koronaro
-    s := "коронарографии"
+  elseif is_uzi
+    s := "УЗИ ССС"
+  elseif is_endo
+    s := "эндоскопии"
+  elseif is_gisto
+    s := "гистологии"
   elseif is_g_cit
     s := "жидкостной цитологии"
     mPZTIP := 68 // 68,"жидкостная цитология","жидк.цитол"},;
@@ -3159,13 +3170,13 @@ elseif kkt > 0 .and. !is_s_dializ .and. !is_dializ .and. !is_perito
   elseif human_2->NPR_DATE+60 < d1
     aadd(ta,'Направлению больше двух месяцев')
   endif
+  if !eq_any(human_->RSLT_NEW,314)
+    aadd(ta,'в поле "Результат обращения" должно быть "Динамическое наблюдение"')
+  endif
   if !eq_any(human_->ISHOD_NEW,304)
     aadd(ta,'в поле "Исход заболевания" должно быть "Без перемен"')
   endif
   if is_g_cit .or. is_pr_skr
-    if !eq_any(human_->RSLT_NEW,314)
-      aadd(ta,'в поле "Результат обращения" должно быть "Динамическое наблюдение"')
-    endif
     if kkt > 1
       aadd(ta,'кол-во услуг '+s+' ('+lstr(kkt)+') не должно быть более 1')
     endif
@@ -3173,14 +3184,17 @@ elseif kkt > 0 .and. !is_s_dializ .and. !is_dializ .and. !is_perito
       aadd(ta,'для '+s+' профиль должен быть КЛИНИЧЕСКАЯ ЛАБОРАТОРНАЯ ДИАГНОСТИКА')
     endif
   else
-    if !eq_any(human_->RSLT_NEW,304)
-      aadd(ta,'в поле "Результат обращения" должно быть "Лечение продолжено"')
-    endif
     if kkt > 2
       //aadd(ta,'кол-во услуг '+s+' ('+lstr(kkt)+') не должно быть более 2')
     endif
-    if human_->PROFIL != 78
-      aadd(ta,'для '+s+' профиль должен быть РЕНТГЕНОЛОГИЯ')
+    if is_kt
+      if !(padr(mdiagnoz[1],5) == "Z01.6")
+        aadd(ta,'для '+s+' диагноз должен быть Z01.6')
+      endif
+    elseif is_mrt .or. is_uzi .or. is_endo
+      if !(padr(mdiagnoz[1],5) == "Z01.8")
+        aadd(ta,'для '+s+' диагноз должен быть Z01.8')
+      endif
     endif
   endif
 elseif kvp > 0
@@ -4463,7 +4477,7 @@ else
   endif
   human_->POVOD := iif(len(arr_povod) > 0, arr_povod[1,1], 1)
   human_->PZTIP := mpztip
-  human_->PZKOL := mpzkol
+  human_->PZKOL := iif(mpzkol > 0, mpzkol, 1)
 endif
 if !valid_GUID(human_->ID_PAC)
   human_->ID_PAC := mo_guid(1,human_->(recno()))
@@ -4955,9 +4969,7 @@ else
                   "Невыписанные реестры случаев","R/BG",,,,,"f2create_reestr",,;
                   {'═','░','═',"N/BG,W+/N,B/BG,W+/B,R/BG",.f.,180} )
     rest_box(buf)
-    if tmp->nyear > 2019
-      func_error(10,"Реестры за 2020 год пока не разрешается создавать (отсылать)")
-    elseif sys_date < stod(strzero(tmp->nyear,4)+strzero(tmp->nmonth,2)+"11")
+    if sys_date < stod(strzero(tmp->nyear,4)+strzero(tmp->nmonth,2)+"11")
       func_error(10,"Сегодня "+date_8(sys_date)+", а реестры разрешается отсылать с 11 числа")
     elseif mo_Lock_Task(X_OMS)
       close databases
