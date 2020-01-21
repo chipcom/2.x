@@ -680,6 +680,10 @@ do while !eof()
     s += "Š„ü2 "
   elseif tmp1->is_edit == 2
     s += " „‹  "
+  elseif tmp1->is_edit == 4
+    s += "€¡îà®"
+  elseif tmp1->is_edit == 5
+    s += "€¯à®ç"
   elseif tmp1->is_edit == -1
     s += "–Š„‹  "
   elseif alltrim(tmp1->shifr) == "4.20.2" .or. tmp1->is_edit == 3
@@ -1088,6 +1092,10 @@ for ii := 1 to len(arr_h)
       s += "Š„ü2 "
     elseif tmp1->is_edit == 2
       s += " „‹  "
+    elseif tmp1->is_edit == 4
+      s += "€¡îà®"
+    elseif tmp1->is_edit == 5
+      s += "€¯à®ç"
     elseif tmp1->is_edit == -1
       s += "–Š„‹  "
     elseif alltrim(tmp1->shifr) == "4.20.2" .or. tmp1->is_edit == 3

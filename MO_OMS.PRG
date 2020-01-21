@@ -6650,7 +6650,7 @@ Function f3oms_usl_sluch()
 @ maxrow()-4,59 say padl("Итого: "+lstr(human->cena_1,11,2),20) color "W+/N"
 return NIL
 
-***** 22.01.19 ввод услуг в лист учёта
+***** 20.01.20 ввод услуг в лист учёта
 Function f2oms_usl_sluch(nKey,oBrow)
 Static skod_k := 0, skod_human := 0, SKOD_DIAG, SZF,;
        st_vzrosl, st_arr_dbf, skod_vr, skod_as, aksg := {}
@@ -7019,36 +7019,41 @@ do case
       kod_lech_vr := 0
     endif
     Private motd := space(10), ;
-            m1otd := if(nKey == K_INS, if(pr1otd == NIL, human->otd, pr1otd), tmp->otd),;
-            mu_kod := if(nKey == K_INS, 0, tmp->u_kod),;
-            mdate_u1 := if(nKey == K_INS, last_date, tmp->date_u1),;
-            mis_nul := if(nKey == K_INS, .f., tmp->is_nul),;
-            mis_oms := if(nKey == K_INS, .f., tmp->is_oms),;
-            mis_edit := if(nKey == K_INS, 0, tmp->is_edit),;
-            mu_cena := if(nKey == K_INS, 0, tmp->u_cena),;
-            mkod_vr := if(nKey == K_INS, skod_vr, tmp->kod_vr),;
-            mkod_as := if(nKey == K_INS, skod_as, tmp->kod_as),;
+            m1otd := iif(nKey == K_INS, iif(pr1otd == NIL, human->otd, pr1otd), tmp->otd),;
+            mu_kod := iif(nKey == K_INS, 0, tmp->u_kod),;
+            mdate_u1 := iif(nKey == K_INS, last_date, tmp->date_u1),;
+            mis_nul := iif(nKey == K_INS, .f., tmp->is_nul),;
+            mis_oms := iif(nKey == K_INS, .f., tmp->is_oms),;
+            mis_edit := iif(nKey == K_INS, 0, tmp->is_edit),;
+            mu_cena := iif(nKey == K_INS, 0, tmp->u_cena),;
+            mkod_vr := iif(nKey == K_INS, skod_vr, tmp->kod_vr),;
+            mkod_as := iif(nKey == K_INS, skod_as, tmp->kod_as),;
             mtabn_vr := 0, mtabn_as := 0, m1prvs := 0,;
-            mshifr := if(nKey == K_INS, space(20), tmp->shifr_u),;
-            mshifr1 := if(nKey == K_INS, space(20), tmp->shifr1),;
-            mname_u := if(nKey == K_INS, space(65), tmp->name_u),;
-            mKOD_DIAG := if(nKey == K_INS, SKOD_DIAG, tmp->KOD_DIAG),;
-            mZF := if(nKey == K_INS, SZF, tmp->ZF),;
-            mpar_org := space(10), m1par_org := if(nKey == K_INS, "", tmp->ZF),;
-            m1PROFIL := if(nKey == K_INS, human_->profil, tmp->profil), mPROFIL,;
-            mkol_1 := if(nKey == K_INS, 0, tmp->kol_1),;
-            mstoim_1 := if(nKey == K_INS, 0, tmp->stoim_1),;
-            mn_base := if(nKey == K_INS, 0, tmp->n_base),;
-            mdom, m1dom := if(nKey == K_INS, 0, tmp->dom),;
-            mdate_next := if(nKey == K_INS, ctod(""), tmp->DATE_NEXT), fl_date_next := .f.,;
+            mshifr := iif(nKey == K_INS, space(20), tmp->shifr_u),;
+            mshifr1 := iif(nKey == K_INS, space(20), tmp->shifr1),;
+            mname_u := iif(nKey == K_INS, space(65), tmp->name_u),;
+            mKOD_DIAG := iif(nKey == K_INS, SKOD_DIAG, tmp->KOD_DIAG),;
+            mZF := iif(nKey == K_INS, SZF, tmp->ZF),;
+            mpar_org := space(10), m1par_org := iif(nKey == K_INS, "", tmp->ZF),;
+            is_gist := .f., mgist := space(10), m1gist := iif(nKey == K_INS, 4, tmp->is_edit),;
+            m1PROFIL := iif(nKey == K_INS, human_->profil, tmp->profil), mPROFIL,;
+            mkol_1 := iif(nKey == K_INS, 0, tmp->kol_1),;
+            mstoim_1 := iif(nKey == K_INS, 0, tmp->stoim_1),;
+            mn_base := iif(nKey == K_INS, 0, tmp->n_base),;
+            mdom, m1dom := iif(nKey == K_INS, 0, tmp->dom),;
+            mdate_next := iif(nKey == K_INS, ctod(""), tmp->DATE_NEXT), fl_date_next := .f.,;
             mvrach := massist := space(35), vr_uva := as_uva := .t., ;
-            arr_zf, is_usluga_zf := if(nKey == K_INS, 0, tmp->is_zf),;
+            arr_zf, is_usluga_zf := iif(nKey == K_INS, 0, tmp->is_zf),;
             pr_k_usl := {},;  // массив комплексных услуг
-            tip_par_org := if(nKey == K_INS, "", tmp->par_org),;
+            tip_par_org := iif(nKey == K_INS, "", tmp->par_org),;
             tip_telemed := 0, tip_telemed2 := .f.,;
             mnmic := space(10), m1nmic := 0, mnmic1 := space(10), m1nmic1 := 0,;
             row_dom, gl_area := {1,0,maxrow()-1,79,0}
+    Private mm_gist := {{"в Волгоградском патал.анат.бюро",4},;
+                        {"в нашей медицинской организации",0},;
+                        {"в иногороднем патал.анат.бюро  ",5}}
     if nKey == K_ENTER
+      mshifr1 := iif(empty(mshifr1), mshifr, mshifr1)
       if is_telemedicina(mshifr1,@tip_telemed2)
         tip_telemed := 1
         if tip_telemed2
@@ -7062,6 +7067,10 @@ do case
       endif
       fl_date_next := is_usluga_disp_nabl(mshifr,mshifr1)
       mpar_org := ini_par_org(m1par_org,tip_par_org)
+      if left(mshifr1,5) == "60.8."
+        mgist := inieditspr(A__MENUVERT, mm_gist, m1gist)
+        is_gist := .t.
+      endif
       select TMP
       in_array := get_field()
     endif
@@ -7148,12 +7157,20 @@ do case
         @ row_dom  ,1 say space(78) color color1
         @ row_dom+1,1 say space(78) color color1
         if human_->usl_ok == 3
-         if iif(empty(mshifr), .t., DomUslugaTFOMS(iif(empty(mshifr1), mshifr, mshifr1)))
-          @ row_dom,2 say "Где оказана услуга" get mdom ;
-                      reader {|x|menu_reader(x,mm_dom,A__MENUVERT,,,.f.)} ;
-                      when iif(empty(mshifr), .t., DomUslugaTFOMS(iif(empty(mshifr1), mshifr, mshifr1)))
-         endif
-          @ row_dom,35 say "Дата след.явки для дисп.набл-ия" get mdate_next when fl_date_next
+          if iif(empty(mshifr), .t., is_gist)
+           @ row_dom,2 say " Где проведено это исследование" get mgist ;
+                       reader {|x|menu_reader(x,mm_gist,A__MENUVERT,,,.f.)} ;
+                       when iif(empty(mshifr), .f., is_gist) ;
+                       valid {|| mis_edit := m1gist, .t. }
+          endif
+          if iif(empty(mshifr), .t., DomUslugaTFOMS(mshifr1)) .and. !is_gist
+           @ row_dom,2 say "Где оказана услуга" get mdom ;
+                       reader {|x|menu_reader(x,mm_dom,A__MENUVERT,,,.f.)} ;
+                       when iif(empty(mshifr), .t., DomUslugaTFOMS(mshifr1))
+          endif
+          if !is_gist
+           @ row_dom,35 say "Дата след.явки для дисп.набл-ия" get mdate_next when fl_date_next
+          endif
         endif
         if human_->usl_ok < 3
           @ row_dom+1,2 say "Органы/части тела" get mpar_org ;
@@ -7217,7 +7234,7 @@ do case
         elseif len(pr_k_usl) == 0 .and. !mis_nul .and. empty(mstoim_1) .and. !NulUslugaTFOMS(iif(empty(mshifr1), mshifr, mshifr1))
           func_error(4,"Не введена цена услуги!")
           loop
-        elseif mis_edit >= 0 .and. empty(mkod_vr) .and. is_usluga_TFOMS(mshifr,mshifr1,human->k_data)
+        elseif mis_edit >= 0 .and. empty(mkod_vr) .and. !is_gist .and. is_usluga_TFOMS(mshifr,mshifr1,human->k_data)
           func_error(4,"Не введен врач!")
           loop
         else

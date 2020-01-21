@@ -2395,7 +2395,7 @@ do while !eof()
     sCOMENTSL := ""
     if p_tip_reestr == 1
       mo_add_xml_stroke(oSL,"PRVS",put_prvs_to_reestr(human_->PRVS,_NYEAR))
-      if ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil,6,34)
+      if (ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil,6,34)) .or. human_->profil == 15 //гистология
         mo_add_xml_stroke(oSL,"IDDOKT","0")
       else
         p2->(dbGoto(human_->vrach))
@@ -2464,6 +2464,10 @@ do while !eof()
           mo_add_xml_stroke(oUSL,"LPU",kod_LIS[hu->is_edit]) // иссл-ие проводится в КДП2 или РДЛ
         elseif lshifr == "4.20.2" .or. hu->is_edit == 3 // жидкостная цитология или приём в ВОКОД
           mo_add_xml_stroke(oUSL,"LPU",'103001') // т.е. иссл-ие проводится в онкологии
+        elseif hu->is_edit == 4
+          mo_add_xml_stroke(oUSL,"LPU",'00000') // т.е. иссл-ие проводится в нашем пат.анат.бюро
+        elseif hu->is_edit == 5
+          mo_add_xml_stroke(oUSL,"LPU",'99999') // т.е. иссл-ие проводится в пат.анат.бюро в другой области
         else
           mo_add_xml_stroke(oUSL,"LPU",CODE_LPU)
         endif
@@ -2502,8 +2506,8 @@ do while !eof()
         mo_add_xml_stroke(oUSL,"SUMV_USL",lstr(hu->STOIM_1,10,2))
         mo_add_xml_stroke(oUSL,"PRVS",put_prvs_to_reestr(hu_->PRVS,_NYEAR))
         if c4tod(hu->DATE_U) < human->n_data ; // если сделано ранее
-                       .or. eq_any(hu->is_edit,-1,1,2,3) .or. lshifr == "4.20.2" // не заполняется код врача
-          mo_add_xml_stroke(oUSL,"CODE_MD",'0')
+              .or. eq_any(hu->is_edit,-1,1,2,3) .or. lshifr == "4.20.2" .or. left(lshifr,5) == "60.8."
+          mo_add_xml_stroke(oUSL,"CODE_MD",'0') // не заполняется код врача
         else
           p2->(dbGoto(hu->kod_vr))
           mo_add_xml_stroke(oUSL,"CODE_MD",p2->snils)

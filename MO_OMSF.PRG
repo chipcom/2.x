@@ -1904,7 +1904,7 @@ if valtype(a) == "A"
 endif
 return {ret,rets}
 
-***** 05.09.19 функция для when и valid при вводе услуг в лист учёта
+***** 20.01.20 функция для when и valid при вводе услуг в лист учёта
 Function f5editkusl(get,when_valid,k)
 Local fl := .t., s, i, lu_cena, lshifr1, v, old_kod, amsg, fl1, fl2, ;
       msg1_err := "Код врача равен коду ассистента! Это недопустимо.",;
@@ -2098,7 +2098,7 @@ else  // valid
         set order to 1
         find (padr(mshifr,10))
         if found()
-          lu_cena := iif(human->vzros_reb==0, usl->cena, usl->cena_d)
+          lu_cena := iif(human->vzros_reb == 0, usl->cena, usl->cena_d)
           lshifr1 := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data)
           if (v := f1cena_oms(usl->shifr,;
                               lshifr1,;
@@ -2120,7 +2120,7 @@ else  // valid
           if !fl1
             fl := func_error(4,"В данной услуге не проставлена цена!")
           else
-            if mem_otdusl==2 .and. type("pr1arr_otd")=="A"
+            if mem_otdusl == 2 .and. type("pr1arr_otd") == "A"
               // автоматическое присвоение отделения по месту работы персонала
               fl := .t.
             else
@@ -2133,7 +2133,11 @@ else  // valid
             if fl
               mu_kod  := usl->kod
               mname_u := usl->name
-              mshifr1 := lshifr1
+              mshifr1 := iif(empty(lshifr1), mshifr, lshifr1)
+              if left(mshifr1,5) == "60.8."
+                mgist := inieditspr(A__MENUVERT, mm_gist, m1gist)
+                is_gist := .t.
+              endif
               mu_cena := lu_cena
               mis_nul := usl->is_nul
               mu_koef := 1
@@ -2149,13 +2153,17 @@ else  // valid
               eval(blk_sum)
               verify_uva(2)
               update_gets()
-              if type("row_dom") == "N" .and. !DomUslugaTFOMS(iif(empty(lshifr1), usl->shifr, lshifr1)) .and. !tip_telemed2
+              if type("row_dom") == "N" .and. !DomUslugaTFOMS(mshifr1) .and. !tip_telemed2
                 m1dom := 0 ; mdom := space(20)
                 @ row_dom,1 say space(34) color color1
               endif
               if type("row_dom") == "N" .and. !fl_date_next .and. !tip_telemed2
                 mdate_next := ctod("")
                 @ row_dom,35 say space(42) color color1
+              endif
+              if is_gist
+                @ row_dom,2 say " Где проведено это исследование"
+                update_get("mgist")
               endif
               if !empty(arr_usl1year)
                 f_usl1year(iif(empty(mshifr1),mshifr,mshifr1),mshifr,mname_u)

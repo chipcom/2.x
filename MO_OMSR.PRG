@@ -925,6 +925,8 @@ do while hu->kod == human->kod .and. !eof()
     if empty(hu->kod_vr)
       if eq_any(alltrim(lshifr),"4.20.2")
         // не заполняется код врача
+      elseif hu_->profil == 15   // гистология
+        hu_->PRVS := -13 // Клиническая лабораторная диагностика
       elseif hu->is_edit == -1
         if human_->USL_OK == 3
           hu_->PRVS := iif(hu_->profil == 34, -13, -54)
@@ -1982,6 +1984,8 @@ if ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil,6,34)
   human->UCH_DOC := lstr(human_2->PN3) // ORDER по ЛИС перезаписываем (вдруг исправили)
   human_->VRACH := 0
   human_->PRVS := iif(human_->profil == 34, -13, -54)
+elseif human_->profil == 15   // гистология
+  human_->PRVS := -13 // Клиническая лабораторная диагностика
 elseif empty(human_->VRACH)
   aadd(ta,'не заполнено поле "Лечащий врач"')
 else
@@ -3171,10 +3175,10 @@ elseif kkt > 0 .and. !is_s_dializ .and. !is_dializ .and. !is_perito
     aadd(ta,'Направлению больше двух месяцев')
   endif
   if !eq_any(human_->RSLT_NEW,314)
-    aadd(ta,'в поле "Результат обращения" должно быть "Динамическое наблюдение"')
+    aadd(ta,'в поле "Результат обращения" должно быть "314 Динамическое наблюдение"')
   endif
   if !eq_any(human_->ISHOD_NEW,304)
-    aadd(ta,'в поле "Исход заболевания" должно быть "Без перемен"')
+    aadd(ta,'в поле "Исход заболевания" должно быть "304 Без перемен"')
   endif
   if is_g_cit .or. is_pr_skr
     if kkt > 1
@@ -4969,7 +4973,9 @@ else
                   "Невыписанные реестры случаев","R/BG",,,,,"f2create_reestr",,;
                   {'═','░','═',"N/BG,W+/N,B/BG,W+/B,R/BG",.f.,180} )
     rest_box(buf)
-    if sys_date < stod(strzero(tmp->nyear,4)+strzero(tmp->nmonth,2)+"11")
+    if tmp->nyear == 2020
+      func_error(10,"Временно закрыто создание реестров за январь 2020 года")
+    elseif sys_date < stod(strzero(tmp->nyear,4)+strzero(tmp->nmonth,2)+"11")
       func_error(10,"Сегодня "+date_8(sys_date)+", а реестры разрешается отсылать с 11 числа")
     elseif mo_Lock_Task(X_OMS)
       close databases
