@@ -78,8 +78,8 @@ endif
 if pr_ds_it == 0 .and. alltrim(sdiag) == "R54"
   pr_ds_it := 4
 endif
-if pr_ds_it == 0 .and. (j := ascan(arr_ad_cr_it,{|x| x[1] == padr(sdiag,5) })) > 0
-  pr_ds_it := arr_ad_cr_it[j,2]
+if pr_ds_it == 0 .and. (j := ascan(arr_ad_cr_it19,{|x| x[1] == padr(sdiag,5) })) > 0
+  pr_ds_it := arr_ad_cr_it19[j,2]
 endif
 if eq_any(k,1,2) .and. type("m1USL_OK") == "N" .and. m1USL_OK == 4 // ‘Œ
   k := 0

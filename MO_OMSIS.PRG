@@ -5398,6 +5398,8 @@ do while !eof()
       if glob_mo[_MO_KOD_TFOMS] == '134505'
         d2 := 23
       endif
+    elseif arr_m[1] == 2019 .and. arr_m[3] == 12
+      d2 := 17
     endif
     msmo := int(val(schet_->smo))
     fl := between(mdate,boy(arr_m[5]),arr_m[6]+d2) ;// дата регистрации по 10 числа след.месяца

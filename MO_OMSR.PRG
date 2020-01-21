@@ -1068,7 +1068,11 @@ do while hu->kod == human->kod .and. !eof()
       is_disp_DVN := .t.
     elseif eq_any(left_lshifr_5,"60.4.","60.5.","60.6.","60.7.","60.8.") .or. ;
            eq_any(alltrim_lshifr,"4.20.702","4.15.746") // ЛДП
-      mpovod := 1 // 1.0
+      if left_lshifr_3 == "60."
+        mpovod := 7 // 2.3-Комплексное обследование"
+      else
+        mpovod := 1 // 1.0-Посещение по заболеванию
+      endif
       mIDSP := 4 // лечебно-диагностическая процедура
       kkt += hu->kol_1
       hu_->PZTIP := 5

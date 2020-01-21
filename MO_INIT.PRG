@@ -730,13 +730,38 @@ if hb_FileExists(exe_dir+sbase+sdbf)
 else
   fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
 endif
-Public arr_ad_cr_it := {}
+Public arr_ad_cr_it20 := {}
 // T006 2020 год
-sbase := "_mo0it"
+sbase := "_mo0it1"
 if hb_FileExists(exe_dir+sbase+sdbf)
   R_Use(exe_dir+sbase,,"IT")
-  index on ds to tmpit memory
-  dbeval({|| aadd(arr_ad_cr_it,{it->ds,it->it}) })
+  go top
+  do while !eof()
+    ar := {}
+    ar1 := {}
+    ar2 := {}
+    if !empty(it->ds)
+      ar := Slist2arr(it->ds)
+      for i := 1 to len(ar)
+        ar[i] := padr(ar[i],5)
+      next
+    endif
+    if !empty(it->ds1)
+      ar1 := Slist2arr(it->ds1)
+      for i := 1 to len(ar1)
+        ar1[i] := padr(ar1[i],5)
+      next
+    endif
+    if !empty(it->ds2)
+      ar2 := Slist2arr(it->ds2)
+      for i := 1 to len(ar2)
+        ar2[i] := padr(ar2[i],5)
+      next
+    endif
+    aadd(arr_ad_cr_it20,{it->USL_OK,it->CODE,ar,ar1,ar2})
+    my_debug(,print_array(atail(arr_ad_cr_it20)))
+    skip
+  enddo
   use
 else
   fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
@@ -757,11 +782,12 @@ if !hb_FileExists(exe_dir+sbase+".dbt")
   fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+'.dbt"')
 endif
 // T006 2019 год
+Public arr_ad_cr_it19 := {}
 sbase := "_mo9it"
 if hb_FileExists(exe_dir+sbase+sdbf)
   R_Use(exe_dir+sbase,,"IT")
   index on ds to tmpit memory
-  dbeval({|| aadd(arr_ad_cr_it,{it->ds,it->it}) })
+  dbeval({|| aadd(arr_ad_cr_it19,{it->ds,it->it}) })
   use
 else
   fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')

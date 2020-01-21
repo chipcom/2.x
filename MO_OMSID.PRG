@@ -3395,7 +3395,7 @@ Static Function f_131_u_da_net(k,sb1,sb2)
 if k > 1 ; k := 1 ; endif // если вместо "да" битовый ответ
 return f3_inf_DDS_karta({{"да - 1",1},{"нет - 2",0}},k,";  ",sb1,sb2,.f.)
 
-***** 28.10.19 Приложение к Приказу ГБУЗ "ВОМИАЦ" от 12.05.2017г. №1615
+***** 21.01.20 Приложение к Приказу ГБУЗ "ВОМИАЦ" от 12.05.2017г. №1615
 Function f21_inf_DVN(par) // свод
 Local arr_m, buf := save_maxrow(), s, as := {}, as1[14],;
       i, j, k, n, ar, at, ii, g1, sh := 65, fl, mdvozrast, adbf
@@ -3641,7 +3641,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
       human->(dbGoto(tmp->kod4h))
       mdvozrast := year(human->n_data) - year(human->date_r)
       g1 := ret_gruppa_DVN(human_->RSLT_NEW)
-      if between(g1,1,4)
+      /*if between(g1,1,4)
         arr_21[31] ++
         if human->pol == "М"
           arr_21[32] ++
@@ -3653,7 +3653,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
         else
           arr_21[35] ++
         endif
-      endif
+      endif*/
     elseif emptyall(tmp->kod1h,tmp->kod2h) // профилактика
       human->(dbGoto(tmp->kod3h))
       mdvozrast := year(human->n_data) - year(human->date_r)
@@ -3743,7 +3743,7 @@ close databases
 rest_box(buf)
 return NIL
 
-***** 06.10.19
+***** 21.01.20
 Function f1_f21_inf_DVN()
 Local sumr := 0, m1GRUPPA, fl2 := .f.
 select TMP2
@@ -3769,6 +3769,11 @@ else
     endif
     if m1mobilbr == 1
       arr_21[5] ++
+    endif
+    if mdvozrast == 65
+      arr_21[32] ++
+    elseif mdvozrast > 65
+      arr_21[33] ++
     endif
     if f_starshe_trudosp(human->POL,human->DATE_R,human->n_data)
       arr_21[19] ++
@@ -3822,7 +3827,7 @@ if !empty(tmp->kod2h) // диспансеризация II этап
 endif
 return NIL
 
-***** 28.10.19
+***** 21.01.20
 Function f2_f21_inf_DVN(par)
 Local is_selo, i, j, k, k1 := 4, fl2 := .f., ar[18], arr11[15], arr12[43], au := {}
 Private arr_otklon := {}, arr_usl_otkaz := {},;
