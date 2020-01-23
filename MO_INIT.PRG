@@ -759,7 +759,6 @@ if hb_FileExists(exe_dir+sbase+sdbf)
       next
     endif
     aadd(arr_ad_cr_it20,{it->USL_OK,it->CODE,ar,ar1,ar2})
-    my_debug(,print_array(atail(arr_ad_cr_it20)))
     skip
   enddo
   use

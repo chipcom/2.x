@@ -837,7 +837,7 @@ kvp_2_78 := kvp_2_79 := kvp_2_89 := kol_2_3 := kol_2_60 := kol_2_4 := kol_2_6 :=
 kvp_70_5 := kvp_70_6 := kvp_70_3 := kvp_72_2 := kvp_72_3 := kvp_72_4 := 0
 is_2_78 := is_2_79 := is_2_80 := is_2_81 := is_2_82 := .f.
 is_2_83 := is_2_84 := is_2_85 := is_2_86 := is_2_87 := is_2_88 := is_2_89 := .f.
-a_2_89 := array(11) ; afill(a_2_89,0)
+a_2_89 := array(12) ; afill(a_2_89,0)
 is_disp_DDS := is_disp_DVN := is_disp_DVN3 := is_prof_PN := is_neonat := is_pren_diagn := .f.
 is_70_3 := is_70_5 := is_70_6 := is_72_2 := is_72_3 := is_72_4 := .f.
 lstkol := 0 ; lstshifr := shifr_ksg := "" ; cena_ksg := 0
@@ -1078,15 +1078,15 @@ do while hu->kod == human->kod .and. !eof()
       hu_->PZTIP := 5
       hu_->PZKOL := hu->kol_1
       musl_ok := 3  // п-ка
-      if alltrim_lshifr == "60.4."
+      if left_lshifr_5 == "60.4."
         is_kt := .t.
-      elseif alltrim_lshifr == "60.5."
+      elseif left_lshifr_5 == "60.5."
         is_mrt := .t.
-      elseif alltrim_lshifr == "60.6."
+      elseif left_lshifr_5 == "60.6."
         is_uzi := .t.
-      elseif alltrim_lshifr == "60.7."
+      elseif left_lshifr_5 == "60.7."
         is_endo := .t.
-      elseif alltrim_lshifr == "60.8."
+      elseif left_lshifr_5 == "60.8."
         is_gisto := .t.
       elseif alltrim_lshifr == "4.20.702"
         is_g_cit := .t.
@@ -1220,9 +1220,30 @@ do while hu->kod == human->kod .and. !eof()
         mpovod := 10 // 3.0
         ++kvp_2_89
         is_2_89 := .t.
-        i := int(val(AfterAtNum(".",alltrim_lshifr)))
-        if !between(i,1,len(a_2_89))
-          i := 2
+        i := 3
+        k := int(val(AfterAtNum(".",alltrim_lshifr)))
+        if     eq_any(k,1,13)
+          i := 1  // оп.двиг.аппарат
+        elseif eq_any(k,3,14)
+          i := 3  // сердечно-сосудистая патология
+        elseif eq_any(k,4,15)
+          i := 4  // центральная нервная система
+        elseif eq_any(k,5,16)
+          i := 5  // периферическая нервная система
+        elseif eq_any(k,6,17)
+          i := 6  // рак молочной железы
+        elseif eq_any(k,7,18)
+          i := 7  // рак женских половых органов
+        elseif eq_any(k,8,19)
+          i := 8  // урогенетальный рак
+        elseif eq_any(k,9,20)
+          i := 9  // колоректальный рак
+        elseif eq_any(k,10,21)
+          i := 10 // рак легких и бронхов
+        elseif eq_any(k,11,22)
+          i := 11 // опухоль головы и шеи
+        elseif eq_any(k,12,23)
+          i := 12 // опухоль пищевода, желудка
         endif
         a_2_89[i] := 1
         mdate_u2 := dtoc4(human->k_data)
@@ -2913,12 +2934,12 @@ elseif is_2_89 // медицинская реабилитация (физкультурный диспансер)
     elseif human_2->NPR_DATE+60 < d1
       aadd(ta,'Направлению на лечение больше двух месяцев')
     endif
-    if !(glob_mo[_MO_KOD_TFOMS] == '103001') .and. !ret_mo(human_->NPR_MO)[_MO_IS_UCH]
+    if !(eq_any(glob_mo[_MO_KOD_TFOMS],'103001','104401') .or. ret_mo(human_->NPR_MO)[_MO_IS_UCH])
       aadd(ta,'введена "Направившая МО", которая не имеет право прикреплять пациентов')
     endif
   endif
   aps := {} // сочетание профиля и специальности
-  aadd(aps, {17, {113403}})  // детская кардиология
+  /*aadd(aps, {17, {113403}})  // детская кардиология
   aadd(aps, {18, {112801,113401,113501}})  // детской онкологии
   aadd(aps, {29, {112205}})  // кардиология
   aadd(aps, {34, {1107,1301,1402,1702}})  // клинической лабораторной диагностике
@@ -2937,6 +2958,7 @@ elseif is_2_89 // медицинская реабилитация (физкультурный диспансер)
   aadd(aps, {100,{1123}})  // травматологии и ортопедии
   aadd(aps, {109,{110102,110905,111005,111904,112220,1124,113417,140107,2022}})  // физиотерапии
   aadd(aps, {111,{110103,110303,110906,111006,111905,112212,112611,113418,113509,180202}})  // функциональной диагностике
+  */
   /*aadd(au_lu,{lshifr,;              // 1
                 mdate,;               // 2
                 hu_->profil,;         // 3
@@ -2947,7 +2969,7 @@ elseif is_2_89 // медицинская реабилитация (физкультурный диспансер)
                 hu_->kod_diag})       // 8
   */
   human_->profil := 158  // медицинской реабилитации
-  if a_2_89[1] == 1 .and. ret_old_prvs(human_->PRVS) != 1123
+  /*if a_2_89[1] == 1 .and. ret_old_prvs(human_->PRVS) != 1123
     aadd(ta,'специальность у лечащего врача должна быть Травматология и ортопедия')
   elseif eq_any(1,a_2_89[2],a_2_89[4],a_2_89[5]) .and. ret_old_prvs(human_->PRVS) != 1109
     aadd(ta,'специальность у лечащего врача должна быть Неврология')
@@ -2961,7 +2983,7 @@ elseif is_2_89 // медицинская реабилитация (физкультурный диспансер)
         aadd(ta,'специальность у лечащего врача должна быть Детская кардиология (или Педиатрия)')
       endif
     endif
-  endif
+  endif*/
   is_1_den := is_last_den := .f. ; zs := km := oth_usl := 0 ; s := "" ; shifr_zs := ""
   for i := 1 to len(au_lu)
     if left(au_lu[i,1],5) == "2.89."
@@ -3001,15 +3023,18 @@ elseif is_2_89 // медицинская реабилитация (физкультурный диспансер)
       endif
       fl_not_2_89 := .f.
       if left_lshifr_3 == "20." // ЛФК
-        atmp := {"20.1.2","20.1.1","20.1.3","20.1.1","20.1.1","20.1.4","20.1.4","20.1.4","20.1.4","20.1.4","20.1.4"}
+        atmp := {"20.1.2","20.1.1","20.1.3","20.1.1","20.1.1"}
+        for j := 1 to 7
+          aadd(atmp,"20.1.4")
+        next
         if ascan(atmp,alltrim_lshifr) > 0
-          for j := 1 to 11
+          for j := 1 to 12
             if a_2_89[j] == 1 .and. !(alltrim_lshifr == atmp[j])
               fl_not_2_89 := .t.
             endif
           next
         endif
-        if alltrim_lshifr == "20.2.1" .and. emptyall(a_2_89[1],a_2_89[2],a_2_89[4],a_2_89[5])
+        if alltrim_lshifr == "20.2.1" .and. emptyall(a_2_89[1],a_2_89[4],a_2_89[5])
           fl_not_2_89 := .t.
         elseif alltrim_lshifr == "20.2.2" .and. a_2_89[3] == 0
           fl_not_2_89 := .t.
@@ -3048,10 +3073,10 @@ elseif is_2_89 // медицинская реабилитация (физкультурный диспансер)
     else
       s += alltrim_lshifr+" " ; ++oth_usl
     endif
-    if (j := ascan(aps,{|x| x[1] == au_lu[i,3]})) > 0 .and. ascan(aps[j,2],ret_old_prvs(au_lu[i,4])) == 0
+    /*if (j := ascan(aps,{|x| x[1] == au_lu[i,3]})) > 0 .and. ascan(aps[j,2],ret_old_prvs(au_lu[i,4])) == 0
       aadd(ta,'в услуге '+alltrim_lshifr+' у врача стоит неверная специальность')
       aadd(ta,' у Вас: '+lstr(au_lu[i,4])+', разрешено: '+print_array(aps[j,2]))
-    endif
+    endif*/
   next
   if zs > 1
     aadd(ta,'в листе учета более одной услуги 2.89.* "законченный случай"')
@@ -3195,7 +3220,11 @@ elseif kkt > 0 .and. !is_s_dializ .and. !is_dializ .and. !is_perito
     if kkt > 2
       //aadd(ta,'кол-во услуг '+s+' ('+lstr(kkt)+') не должно быть более 2')
     endif
-    if is_kt
+    if padr(mdiagnoz[1],5) == "Z03.1"
+      //if !(human->OBRASHEN == '1')
+        //aadd(ta,'если основной (или сопутствующий) диагноз "Z03.1 наблюдение при подозрении на злокачественную опухоль", то в поле "подозрение на ЗНО" должно стоять "да"')
+      //endif
+    elseif is_kt
       if !(padr(mdiagnoz[1],5) == "Z01.6")
         aadd(ta,'для '+s+' диагноз должен быть Z01.6')
       endif
@@ -4977,9 +5006,7 @@ else
                   "Невыписанные реестры случаев","R/BG",,,,,"f2create_reestr",,;
                   {'═','░','═',"N/BG,W+/N,B/BG,W+/B,R/BG",.f.,180} )
     rest_box(buf)
-    if tmp->nyear == 2020
-      func_error(10,"Временно закрыто создание реестров за январь 2020 года")
-    elseif sys_date < stod(strzero(tmp->nyear,4)+strzero(tmp->nmonth,2)+"11")
+    if sys_date < stod(strzero(tmp->nyear,4)+strzero(tmp->nmonth,2)+"11")
       func_error(10,"Сегодня "+date_8(sys_date)+", а реестры разрешается отсылать с 11 числа")
     elseif mo_Lock_Task(X_OMS)
       close databases

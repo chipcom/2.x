@@ -1470,7 +1470,7 @@ close databases
 viewtext(n_file,,,,(sh > 80),,,reg_print)
 return NIL
 
-***** 30.09.19 многовариантный поиск
+***** 23.01.20 многовариантный поиск
 Function s_mnog_poisk()
 Static mm_rak := {;
   {"все случаи",0},;
@@ -1728,11 +1728,11 @@ aadd(mm_tmp, {"mr_dol","C",20,0,"@!",;
               nil,;
               space(20),nil,;
               "Место работы (подстрока или шаблон)"})
+aadd(mm_tmp, {"kategor","N",4,0,NIL,;
+              {|x|menu_reader(x,mo_cut_menu(stm_kategor),A__MENUVERT)},;
+              0,{|| space(10) },;
+              "Код категории льготы"})
 if is_talon
-  aadd(mm_tmp, {"kategor","N",4,0,NIL,;
-                {|x|menu_reader(x,mo_cut_menu(stm_kategor),A__MENUVERT)},;
-                0,{|| space(10) },;
-                "Код категории льготы"})
   if is_kategor2
     aadd(mm_tmp, {"kategor2","N",4,0,NIL,;
                   {|x|menu_reader(x,stm_kategor2,A__MENUVERT)},;
@@ -1993,7 +1993,6 @@ if k > 0
   if mn->ist_fin >= 0
     Private _arr_if := {mn->ist_fin}, _what_if := _init_if(), _arr_komit := {}
   endif
-  //if is_talon .and. mn->kategor == 0 .and. mn->povod == 0 .and. mn->travma <= 0 .and. mn->talon_diag == 0
   if is_talon .and. mn->kategor == 0 .and. mn->talon_diag == 0
     is_talon := (is_kategor2 .and. mn->kategor2 > 0)
   endif
@@ -2440,7 +2439,7 @@ if k > 0
     if !empty(mmr_dol)
       add_string("Место работы: "+mmr_dol)
     endif
-    if is_talon .and. mn->kategor > 0
+    if mn->kategor > 0
       add_string("Код категории льготы: "+inieditspr(A__MENUVERT, stm_kategor, mn->kategor))
     endif
     if is_talon .and. is_kategor2 .and. mn->kategor2 > 0
@@ -3244,7 +3243,7 @@ endif
 if fl .and. !empty(mmr_dol)
   fl := like(mmr_dol,upper(kart->mr_dol))
 endif
-if fl .and. is_talon .and. mn->kategor > 0
+if fl .and. mn->kategor > 0
   fl := (mn->kategor == kart_->kategor)
 endif
 if fl .and. is_kategor2 .and. mn->kategor2 > 0
