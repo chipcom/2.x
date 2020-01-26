@@ -920,7 +920,7 @@ if eq_any(left(s,3),"VHR","VFR","PHR","PFR") // файл протокола ФЛК
   endif
   rees->(dbCloseArea())
   mo_xml->(dbCloseArea())
-elseif eq_any(left(s,3),"D02","R02","R06") // ответный файл на отосланный файл D01 R01 (R05)
+elseif eq_any(left(s,3),"D02","R02","R12","R06") // ответный файл на отосланный файл D01 R01 (R05)
   s := substr(s,4)
   if left(s,1) == "M"
     s := substr(s,2)
@@ -981,6 +981,25 @@ elseif eq_any(left(s,3),"D02","R02","R06") // ответный файл на отосланный файл D
       endif
       rees->(dbCloseArea())
       mo_xml->(dbCloseArea())
+    elseif left(cName,3) == "R12"
+      nTypeFile := _XML_FILE_R12
+      R_Use(dir_server+"mo_dr01",,"REES")
+      R_Use(dir_server+"mo_xml",,"MO_XML")
+      index on upper(fname) to (cur_dir+"tmpmoxml")
+      find (padr("R11T34M"+glob_MO[_MO_KOD_TFOMS]+"_"+s,26)) // сконструировали имя файла R11
+      if found() .and. (nReestr := mo_xml->REESTR) > 0
+        select REES
+        goto (nReestr)
+        cFrom   := '34'
+        cTo     := glob_MO[_MO_KOD_TFOMS]
+        _nYear  := rees->NYEAR
+        _nMonth := rees->NQUARTER
+        nNN     := rees->NN
+      else
+        aadd(arr_err, "Это файл ответа на R11, но мы не отправляли соответствующий пакет в ТФОМС!")
+      endif
+      rees->(dbCloseArea())
+      mo_xml->(dbCloseArea())
     else // "R06"
       nTypeFile := _XML_FILE_R06
       R_Use(dir_server+"mo_dr05",,"REES")
@@ -1023,7 +1042,7 @@ elseif eq_any(left(s,4),"PR01","PR11","PR05") // ответный файл на отосланный фай
     endif
   endif
   if len(arr_err) == 0
-    if eq_any(left(cName,4),"PR01","PR11")
+    if left(cName,4) == "PR01"
       nTypeFile := _XML_FILE_R02
       R_Use(dir_server+"mo_dr01",,"REES")
       R_Use(dir_server+"mo_xml",,"MO_XML")
@@ -1038,7 +1057,26 @@ elseif eq_any(left(s,4),"PR01","PR11","PR05") // ответный файл на отосланный фай
         _nMonth := rees->NMONTH
         nNN     := rees->NN
       else
-        aadd(arr_err, "Это файл ответа на R01(R11), но мы не отправляли соответствующий пакет в ТФОМС!")
+        aadd(arr_err, "Это файл ответа на R01, но мы не отправляли соответствующий пакет в ТФОМС!")
+      endif
+      rees->(dbCloseArea())
+      mo_xml->(dbCloseArea())
+    elseif left(cName,4) == "PR11"
+      nTypeFile := _XML_FILE_R12
+      R_Use(dir_server+"mo_dr01",,"REES")
+      R_Use(dir_server+"mo_xml",,"MO_XML")
+      index on upper(fname) to (cur_dir+"tmpmoxml")
+      find (padr(substr(cName,2),26)) // сконструировали имя файла R01
+      if found() .and. (nReestr := mo_xml->REESTR) > 0
+        select REES
+        goto (nReestr)
+        cFrom   := '34'
+        cTo     := glob_MO[_MO_KOD_TFOMS]
+        _nYear  := rees->NYEAR
+        _nMonth := rees->NMONTH
+        nNN     := rees->NN
+      else
+        aadd(arr_err, "Это файл ответа на R11, но мы не отправляли соответствующий пакет в ТФОМС!")
       endif
       rees->(dbCloseArea())
       mo_xml->(dbCloseArea())

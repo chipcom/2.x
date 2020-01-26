@@ -3220,7 +3220,9 @@ elseif kkt > 0 .and. !is_s_dializ .and. !is_dializ .and. !is_perito
     if kkt > 2
       //aadd(ta,'кол-во услуг '+s+' ('+lstr(kkt)+') не должно быть более 2')
     endif
-    if padr(mdiagnoz[1],5) == "Z03.1"
+    if is_oncology == 2
+      // повод обращения - диагностика
+    elseif padr(mdiagnoz[1],5) == "Z03.1"
       //if !(human->OBRASHEN == '1')
         //aadd(ta,'если основной (или сопутствующий) диагноз "Z03.1 наблюдение при подозрении на злокачественную опухоль", то в поле "подозрение на ЗНО" должно стоять "да"')
       //endif

@@ -36,6 +36,7 @@ Local mo_dr01m := {; // пакеты по 12 реестра за год (по месяцам)
   }
 Local mo_dr01 := {; // отсылаемые файлы о будущих диспансеризациях взрослого населения
    {"KOD",         "N", 6,0},; // код реестра (номер записи)
+   {"tip",         "N", 1,0},; // 0-R01, 1-R11
    {"DSCHET",      "D", 8,0},; // дата файла
    {"NYEAR",       "N", 4,0},; // отчетный год
    {"NMONTH",      "N", 2,0},; // отчетный месяц
@@ -1613,7 +1614,7 @@ if (fl := verify_packet_R05(1,arr))
   select MO_XML
   index on str(reestr,6) to (cur_dir+"tmp_xml") for tip_in == _XML_FILE_R02 .and. empty(TIP_OUT)
   R_Use(dir_server+"mo_dr01",,"REES")
-  index on str(nn,3)+str(NMONTH,2) to (cur_dir+"tmp_dr01") for NYEAR == sgod
+  index on str(nn,3)+str(NMONTH,2) to (cur_dir+"tmp_dr01") for NYEAR == sgod .and. tip == 0
   go top
   do while !eof()
     fl1 := .t.
@@ -1947,7 +1948,7 @@ UnLock
 G_Use(dir_server+"mo_dr01k",,"RHUM")
 index on str(REESTR,6) to (cur_dir+"tmp_rhum")
 G_Use(dir_server+"mo_dr01",,"REES")
-index on str(NMONTH,2)+str(nn,3) to (cur_dir+"tmp_dr01") for NYEAR == sgod
+index on str(NMONTH,2)+str(nn,3) to (cur_dir+"tmp_dr01") for NYEAR == sgod .and. tip == 0
 for SMONTH := 1 to 12
   find (str(SMONTH,2))
   do while SMONTH == rees->NMONTH .and. !eof()
@@ -2141,16 +2142,21 @@ else
 endif
 return d*/
 
-***** 17.12.19 Просмотр файлов обмена R01... и результатов работы с ними
-Function f_view_R01()
+***** 26.01.20 Просмотр файлов обмена R01... и результатов работы с ними
+Function f_view_R01(tip_f)
 Local i, k, buf := savescreen()
-Private goal_dir := dir_server+dir_XML_MO+cslash
+DEFAULT tip_f TO _XML_FILE_R01
+Private goal_dir := dir_server+dir_XML_MO+cslash, ptip_f := tip_f, pname_f := iif(tip_f==_XML_FILE_R01,"R01","R11")
 G_Use(dir_server+"mo_xml",,"MO_XML")
 G_Use(dir_server+"mo_dr01",,"REES")
-index on descend(dtos(dschet))+str(NMONTH,2)+strzero(nn,3) to (cur_dir+"tmp_rees")
+if tip_f == _XML_FILE_R01
+  index on descend(dtos(dschet))+str(NMONTH,2)+strzero(nn,3) to (cur_dir+"tmp_rees") for tip == 0
+else
+  index on descend(dtos(dschet))+str(NMONTH,2)+strzero(nn,3) to (cur_dir+"tmp_rees") for tip == 1
+endif
 go top
 if eof()
-  func_error(4,"Не было создано файлов R01...")
+  func_error(4,"Не было создано файлов "+pname_f)
 else
   Private reg := 1
   Alpha_Browse(T_ROW,2,maxrow()-2,77,"f1_view_R01",color0,,,,,,,;
@@ -2191,7 +2197,11 @@ oColumn := TBColumnNew("Примечание",{|| f11_view_R01() })
 oColumn:colorBlock := blk
 oBrow:addColumn(oColumn)
 if reg == 1
-  status_key("^<Esc>^ выход ^<F5>^ запись для ТФОМС ^<F3>^ информация о файле ^<F9>^ общая информация")
+  if ptip_f == _XML_FILE_R01
+    status_key("^<Esc>^ выход ^<F5>^ запись для ТФОМС ^<F3>^ информация о файле ^<F9>^ общая информация")
+  else
+    status_key("^<Esc>^ - выход;  ^<F5>^ - запись для ТФОМС;  ^<F3>^ - информация о файле")
+  endif
 else
   status_key("^<Esc>^ - выход;  ^<Enter>^ - выбор реестра для возврата")
 endif
@@ -2214,7 +2224,7 @@ Function f2_view_R01(nKey,oBrow)
 Local ret := -1, rec := rees->(recno()), tmp_color := setcolor(), r, r1, r2,;
       s, buf := savescreen(), arr, i, k, mdate, t_arr[2], arr_pmt := {}
 do case
-  case nKey == K_F9
+  case nKey == K_F9 .and. ptip_f == _XML_FILE_R01
     f32_view_R01()
     select REES
     goto (rec)
@@ -2240,7 +2250,7 @@ do case
       if len(arr) == 0
         func_error(4,"Нечего записывать!")
       else
-        s := "Количество файлов R01 - "+lstr(len(arr))+", записываются в первый раз - "+lstr(k)+":"
+        s := "Количество файлов "+pname_f+" - "+lstr(len(arr))+", записываются в первый раз - "+lstr(k)+":"
         for i := 1 to len(arr)
           if i > 1
             s += ","
@@ -2249,7 +2259,7 @@ do case
         next
         perenos(t_arr,s,74)
         f_message(t_arr,,color1,color8)
-        if f_Esc_Enter("записи файлов R01")
+        if f_Esc_Enter("записи файлов "+pname_f)
           Private p_var_manager := "copy_schet"
           s := manager(T_ROW,T_COL+5,maxrow()-2,,.t.,2,.f.,,,) // "norton" для выбора каталога
           if !empty(s)
@@ -2271,7 +2281,7 @@ do case
                   if hb_fileExists(s+zip_file)
                     ++k
                     rees->(dbGoto(arr[i,4]))
-                    smsg := lstr(i)+". Пакет R01 № "+lstr(rees->nn)+;
+                    smsg := lstr(i)+". Пакет "+pname_f+" № "+lstr(rees->nn)+;
                             " от "+date_8(mdate)+"г. (отч.период "+;
                              lstr(rees->nyear)+"/"+strzero(rees->NMONTH,2)+;
                              ") "+alltrim(rees->name_xml)+szip
@@ -2334,7 +2344,7 @@ Local i, r := row(), r1, r2, buf := save_maxrow(), fl, s,;
 mywait()
 select MO_XML
 index on FNAME to (cur_dir+"tmp_xml") ;
-      for reestr==rees->kod .and. tip_in==_XML_FILE_R02 .and. empty(TIP_OUT)
+      for reestr == rees->kod .and. tip_in == ptip_f+1 .and. empty(TIP_OUT)
 go top
 do while !eof()
   aadd(mm_func, -1)
@@ -2383,7 +2393,7 @@ return NIL
 
 ***** 17.12.19
 Function f31_view_R01(reg,s)
-Local fl := .t., buf := save_maxrow(), k := 0, n_file := "r01_spis"+stxt
+Local fl := .t., buf := save_maxrow(), k := 0, n_file := pname_f+"_SPIS"+stxt
 mywait()
 fp := fcreate(n_file) ; tek_stroke := 0 ; n_list := 1
 add_string("")
@@ -2671,16 +2681,16 @@ commit
 rest_box(buf)
 return NIL
 
-***** 17.12.19 прочитать и "разнести" по базам данных файл R02
-Function read_XML_FILE_R02(arr_XML_info,aerr,/*@*/current_i2,lrec_xml)
+***** 26.01.20 прочитать и "разнести" по базам данных файл R02
+Function read_XML_FILE_R02(arr_XML_info,aerr,/*@*/current_i2,tip_f)
 Local count_in_schet := 0, bSaveHandler, ii1, ii2, i, j, k, t_arr[2], ldate_R02, s, err_file := .f.
-DEFAULT lrec_xml TO 0
+DEFAULT tip_f TO _XML_FILE_R02
 mkod_reestr := arr_XML_info[7]
 use (cur_dir+"tmp1file") new alias TMP1
 ldate_R02 := tmp1->_DATE_F
 R_Use(dir_server+"mo_dr01",,"REES")
 goto (arr_XML_info[7])
-strfile("Обрабатывается ответ ТФОМС (PR01) на информационный пакет "+alltrim(rees->NAME_XML)+sxml+hb_eol()+;
+strfile("Обрабатывается ответ ТФОМС на информационный пакет "+alltrim(rees->NAME_XML)+sxml+hb_eol()+;
         "за "+lstr(rees->NMONTH)+" мес. "+lstr(rees->NYEAR)+" года от "+date_8(rees->DSCHET)+;
         "г. ("+lstr(rees->kol)+" чел.)"+hb_eol()+hb_eol(),cFileProtokol,.t.)
 //
@@ -2725,12 +2735,7 @@ if empty(aerr) // если проверка прошла успешно
   //chip_copy_zipXML(hb_OemToAnsi(full_zip),dir_server+dir_XML_TF)
   chip_copy_zipXML(full_zip,dir_server+dir_XML_TF)
   G_Use(dir_server+"mo_xml",,"MO_XML")
-  if empty(lrec_xml)
-    AddRecN()
-  else
-    goto (lrec_xml)
-    G_RLock(forever)
-  endif
+  AddRecN()
   mo_xml->KOD := recno()
   mo_xml->KOD := recno()
   mo_xml->FNAME := cReadFile
@@ -2738,7 +2743,7 @@ if empty(aerr) // если проверка прошла успешно
   mo_xml->TFILE := ""
   mo_xml->DREAD := sys_date
   mo_xml->TREAD := hour_min(seconds())
-  mo_xml->TIP_IN := _XML_FILE_R02 // тип принимаемого файла
+  mo_xml->TIP_IN := tip_f // тип принимаемого файла
   mo_xml->DWORK  := sys_date
   mo_xml->TWORK1 := cTimeBegin
   mo_xml->REESTR := mkod_reestr
@@ -2879,7 +2884,7 @@ Local i, s, r := row(), r1, r2, buf := save_maxrow(), ;
 mywait()
 select MO_XML
 index on FNAME to (cur_dir+"tmp_xml") ;
-      for reestr == mkod_reestr .and. tip_in == _XML_FILE_R02 .and. TIP_OUT == 0
+      for reestr == mkod_reestr .and. tip_in == ptip_f+1 .and. TIP_OUT == 0
 go top
 do while !eof()
   aadd(mm_func, mo_xml->kod)
@@ -2898,7 +2903,7 @@ select MO_XML
 set index to
 rest_box(buf)
 if len(mm_menu) == 0
-  func_error(4,"Не было чтения файла PR01...")
+  func_error(4,"Не было чтения файла P"+pname_f)
   return 0
 endif
 if r <= 18
@@ -2933,7 +2938,7 @@ if (i := popup_prompt(r1,10,1,mm_menu,,,color5)) > 0
         viewtext(Devide_Into_Pages(cFileProtokol,60,80),,,,.t.,,,2)
         delete file (cFileProtokol)
       else
-        if !is_allow_delete .and. involved_password(2,cFile,"аннулирования чтения файла PR01")
+        if !is_allow_delete .and. involved_password(2,cFile,"аннулирования чтения файла P"+pname_f)
           is_allow_delete := .t.
         endif
         if is_allow_delete
@@ -2951,9 +2956,9 @@ if (i := popup_prompt(r1,10,1,mm_menu,,,color5)) > 0
           goto (mreestr_sp_tk)
           aadd(arr,"Аннулируется файл ответа "+cFile+" от "+date_8(mo_xml->DFILE)+"г.")
           aadd(arr,"После подтверждения аннулирования все последствия чтения данного")
-          aadd(arr,"файла PR01, а также сам файл PR01, будут удалены.")
+          aadd(arr,"файла P"+pname_f+", а также сам файл P"+pname_f+", будут удалены.")
           f_message(arr,,cColorSt2Msg,cColorSt1Msg)
-          s := "Подтвердите аннулирование файла PR01"
+          s := "Подтвердите аннулирование файла P"+pname_f
           stat_msg(s) ; mybell(1)
           is_allow_delete := .f.
           if f_Esc_Enter("аннулирования",.t.)
@@ -3085,7 +3090,10 @@ if regim == "edit" .and. nKey == K_ENTER
       if mkod_reestr > 0
         select REES
         goto (mkod_reestr)
-        if rees->ANSWER == 1
+        if rees->tip == 1
+          fl := func_error(4,"Это файл R11. Операция запрещена!")
+          exit
+        elseif rees->ANSWER == 1
           fl := func_error(4,"Уже получен ответ PR01 за "+lstr(ir)+"-й месяц. Операция запрещена!")
           exit
         endif
@@ -3161,7 +3169,7 @@ if glob_mo[_MO_IS_UCH]
     select MO_XML
     index on str(reestr,6) to (cur_dir+"tmp_xml") for tip_in == _XML_FILE_R02 .and. empty(TIP_OUT)
     R_Use(dir_server+"mo_dr01",,"REES")
-    index on str(nn,3)+str(NMONTH,2) to (cur_dir+"tmp_dr01") for NYEAR == sgod
+    index on str(nn,3)+str(NMONTH,2) to (cur_dir+"tmp_dr01") for NYEAR == sgod .and. tip == 0
     go top
     do while fl .and. !eof()
       if rees->kol_err < 0
@@ -3193,6 +3201,55 @@ if glob_mo[_MO_IS_UCH]
     Ins_Array(arr,1,"")
     Ins_Array(arr,1,"-------------------------------------------------------")
     Ins_Array(arr,1,"Операции создания (обмена) файлов R01(PR01) и R05(PR05)")
+    n_message(arr,,"GR+/R","W+/R",,,"G+/R")
+  endif
+endif
+return NIL
+
+***** 26.01.20 проверить, есть ли не до конца обработанные операции с файлами R11...
+Function find_unfinished_R11()
+Local fl := .t., fl1, skol := 0, mkol := 0, arr := {}, rec, fl_date := .t.
+Private sgod := 2020, mrec := 1, smonth := 2
+if glob_mo[_MO_IS_UCH]
+  if (fl := verify_packet_R05(2,arr))
+    R_Use(dir_server+"mo_dr05p",,"R05p")
+    goto (mrec)
+    skol := r05p->KOL1_02 + r05p->KOL2_02 // пока так - проверяем февраль
+    select MO_XML
+    index on str(reestr,6) to (cur_dir+"tmp_xml") for tip_in == _XML_FILE_R12 .and. empty(TIP_OUT)
+    R_Use(dir_server+"mo_dr01",,"REES")
+    index on str(nn,3) to (cur_dir+"tmp_dr01") for NYEAR == sgod .and. NMONTH == smonth .and. tip == 1
+    go top
+    do while fl .and. !eof()
+      if rees->kol_err < 0
+        fl := .f.
+        aadd(arr,"В файле PR11 за "+lstr(rees->NMONTH)+"-й месяц "+lstr(sgod)+"г. ошибки на уровне файла")
+      elseif empty(rees->answer)
+        fl := .f.
+        aadd(arr,"Файл PR11 за "+lstr(rees->NMONTH)+"-й месяц "+lstr(sgod)+" года не был прочитан")
+      else
+        mkol += (rees->KOL - rees->KOL_ERR)
+        select MO_XML
+        find (str(rees->kod,6))
+        if found() .and. empty(mo_xml->TWORK2)
+          fl := .f.
+          aadd(arr,"Прервано чтение файла "+alltrim(mo_xml->FNAME)+"! Аннулируйте (Ctrl+F12) и прочитайте снова")
+        endif
+      endif
+      select REES
+      skip
+    enddo
+    if fl .and. skol != mkol
+      fl := .f.
+      aadd(arr,"Количество, определённое в план-графике = "+lstr(skol))
+      aadd(arr,"Количество, отправленное в ТФОМС        = "+lstr(mkol))
+    endif
+  endif
+  close databases
+  if !fl .and. !empty(arr)
+    Ins_Array(arr,1,"")
+    Ins_Array(arr,1,"-------------------------------------------")
+    Ins_Array(arr,1,"Операции создания (обмена) файлов R11(PR11)")
     n_message(arr,,"GR+/R","W+/R",,,"G+/R")
   endif
 endif

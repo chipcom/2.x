@@ -14,9 +14,9 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-Static _version := {2,11,1}
-Static char_version := "c"
-Static _date_version := "23.01.20г."
+Static _version := {2,11,2}
+Static char_version := ""
+Static _date_version := "26.01.20г."
 Static __s_full_name := "ЧИП + Учёт работы Медицинской Организации"
 Static __s_version
 
@@ -348,6 +348,7 @@ else
     find_unfinished_reestr_sp_tk(.f.,.t.)
     find_time_limit_human_reestr_sp_tk()
     find_unfinished_R01()
+    find_unfinished_R11()
   endif
   //
   r := int((maxrow()-r0-len(arr))/2)-1
