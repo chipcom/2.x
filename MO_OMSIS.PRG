@@ -3909,7 +3909,7 @@ for i := 1 to 2
 next
 return NIL
 
-***** 26.01.20 форма 14-МЕД (ОМС)
+***** 28.01.20 форма 14-МЕД (ОМС)
 Function forma14_med_oms()
 Static group_ini := "f14_med_oms"
 Local begin_date, end_date, buf := savescreen(), arr_m, i, j, k, k1, k2,;
@@ -4210,15 +4210,15 @@ do while !eof()
                 if (i16 := mounit->ii) > 0
                   j1 := glob_array_PZ_19[i16,1]
                   if eq_any(j1,68,75,87)
-                    vid_vp := 0 // Посещение профилактическое
+                    //vid_vp := 0 // Посещение профилактическое
                   elseif eq_any(j1,69,76)
-                    vid_vp := 1 // в неотложной форме
+                    //vid_vp := 1 // в неотложной форме
                   elseif eq_any(j1,70,77)
-                    vid_vp := 2 // обращения с лечебной целью
+                    //vid_vp := 2 // обращения с лечебной целью
                   elseif j1 == 71
                     is_centr_z := .t.
-                    vid_vp := 0 // Посещение профилактическое Центра здоровья
-                  elseif eq_any(j1,72,73,74)
+                    //vid_vp := 0 // Посещение профилактическое Центра здоровья
+                  elseif eq_any(j1,72,73,74)  // т.е. 260, 261, 262
                     vid_vp := 0 // комплексное посещение при диспансеризации
                     is_z_sl := .t.
                   elseif j1 == 64 .or. between(j1,78,86) // исследования
@@ -4234,6 +4234,7 @@ do while !eof()
             if human_->USL_OK == 1 // стационар
               //
             elseif human_->USL_OK == 2  // дневной стационар
+              is_dializ := .t.
               if left(lshifr,5) == "60.3."
                 kol_dializ += hu->kol_1
               endif
@@ -4244,7 +4245,8 @@ do while !eof()
               if (i := ret_vid_pom(1,lshifr,human->k_data)) > 0
                 lvidpom := i
               endif
-            elseif eq_any(left(lshifr,5),"2.78.","2.89.") //vid_vp := 2 // обращения с лечебной целью
+            elseif eq_any(left(lshifr,5),"2.78.","2.89.") // обращения с лечебной целью
+              vid_vp := 2 // обращения с лечебной целью
               if lshifr == "2.78.2"
                 is_s_obsh := .t. // врачи общей практики
               elseif eq_any(lshifr,"2.78.36","2.78.39","2.78.40")
@@ -4253,7 +4255,7 @@ do while !eof()
               if left(lshifr,5) == "2.89."
                 ds_spec := 1 // первичная специализированная
                 is_reabili := .t.
-              elseif !eq_any(human_->PROFIL,97,57,68,3,42,63,85,86,87,89,90,171)
+              elseif !eq_any(human_->PROFIL,97,57,68,3,42,85,87)
                 ds_spec := 1
               endif
             endif
@@ -4312,7 +4314,8 @@ do while !eof()
                         kol_2_sr += hu->kol_1
                       endif
                     elseif left(lshifr,5) == "2.79." // посещение с профилактической целью
-                      if !eq_any(human_->PROFIL,3,42,57,68,97)
+                      vid_vp := 0 // Посещение профилактическое
+                      if !eq_any(human_->PROFIL,97,57,68,3,42,85,87)
                         ds1_spec := 1 // первичная специализированная
                       endif
                       if eq_any(lshifr,"2.79.2","2.79.45")
@@ -4322,7 +4325,8 @@ do while !eof()
                         kol_sr += hu->kol_1
                       endif
                     elseif left(lshifr,5) == "2.80." // в неотложной форме
-                      if !eq_any(human_->PROFIL,3,42,57,68,97,160)
+                      vid_vp := 1 // в неотложной форме
+                      if !eq_any(human_->PROFIL,97,57,68,3,42,85,87,160)
                         ds1_spec := 1
                       endif
                       if lshifr == "2.80.2"
@@ -4332,10 +4336,12 @@ do while !eof()
                         kol_sr += hu->kol_1
                       endif
                     elseif left(lshifr,5) == "2.81." // консультации специалистов
+                      vid_vp := 0 // Посещение профилактическое
                       if !eq_any(human_->PROFIL,68,97)
                         ds1_spec := 1
                       endif
-                    elseif left(lshifr,5) == "2.82." // Посещение в приёмном покое
+                    elseif left(lshifr,5) == "2.82." // Посещение в приёмном покое (в неотложной форме)
+                      vid_vp := 1 // в неотложной форме
                       if !eq_any(human_->PROFIL,57,68,97)
                         ds1_spec := 1
                       endif
@@ -4344,7 +4350,8 @@ do while !eof()
                         is_obsh := .t.
                       endif
                     elseif left(lshifr,5) == "2.88." // разовое посещение
-                      if !eq_any(human_->PROFIL,3,42,57,68,97)
+                      vid_vp := 0 // Посещение профилактическое
+                      if !eq_any(human_->PROFIL,97,57,68,3,42,85,87)
                         ds1_spec := 1
                       endif
                       if eq_any(lshifr,"2.88.3","2.88.53","2.88.79")
@@ -4354,6 +4361,8 @@ do while !eof()
                         kol_sr += hu->kol_1
                       endif
                     endif
+                  elseif left(lshifr,5) == "60.3."
+                    is_dializ := .t.
                   endif
                   if i16 > 0
                     aadd(ap,{lshifr,iif(empty(mkol),mkol1,mkol),is_obsh})
@@ -4478,6 +4487,7 @@ do while !eof()
             arr_pril5[9,igs] += round(human->cena_1*koef,2) // "Всего расходов на амб.помощь"
             if is_kt // для КТ обнуляем количество
               tfoms_pz[ii,1] := tfoms_pz[ii,2] := tfoms_pz[ii,5] := tfoms_pz[ii,7] := tfoms_pz[ii,9] := 0
+              vid_vp := 0 // Посещение профилактическое
             elseif is_dializ // перит.диализ
               vid_vp := 2 // по поводу заболевания
               ds_spec := 1

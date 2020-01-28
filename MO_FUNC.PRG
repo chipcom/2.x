@@ -2928,7 +2928,7 @@ if fl
 endif
 return fl
 
-***** 12.01.20 определение КСГ по остальным введённым полям ввода - 2019-20 год
+***** 28.01.20 определение КСГ по остальным введённым полям ввода - 2019-20 год
 Function definition_KSG(par,k_data2)
 // файлы "human", "human_" и "human_2" открыты и стоят на нужной записи
 //       "human" открыт для записи суммы случая
@@ -2981,7 +2981,7 @@ Static a_iskl_1 := {; // исключение из правил №1
   {"ds37.012",""};
  }
 Local mdiagnoz, aHirKSG := {}, aTerKSG := {}, fl_cena := .f., lvmp, lvidvmp := 0, lstentvmp := 0,;
-      i, j, k, c, s, ar, fl, im, lshifr, ln_data, lk_data, lvr, ldni, ldate_r, lpol, lprofil_k,;
+      i, j, k, c, s, ar, ar1, fl, im, lshifr, ln_data, lk_data, lvr, ldni, ldate_r, lpol, lprofil_k,;
       lfio, cenaTer := 0, cenaHir := 0, ksgHir, ars := {}, arerr := {}, ;
       lksg := "", lcena := 0, osn_diag3, lprofil, ldnej := 0, y := 0, m := 0, d := 0,;
       osn_diag := space(6), sop_diag := {}, osl_diag := {}, tmp, lrslt, akslp, akiro,;
@@ -3429,6 +3429,41 @@ do while left(k006->shifr,2)==susl .and. k006->ds==padr(osn_diag,6) .and. !eof()
   select K006
   skip
 enddo
+ar1 := {}
+if lusl == 2 .and. !empty(lad_cr) .and. lad_cr == "mgi"
+  select K006
+  Locate for k006->ad_cr == padr("mgi",20)
+  if found() // <CODE>ds19.033</CODE>
+    lkoef := k006->kz
+    dbSelectArea(lal)
+    find (padr(k006->shifr,10))
+    fl := lkoef > 0 .and. between_date(&lal.->DATEBEG,&lal.->DATEEND,date_usl)
+    if fl
+      fl := between_date(k006->DATEBEG,k006->DATEEND,date_usl)
+    endif
+    if fl
+      sds1 := iif(empty(k006->ds1), sp0, alltrim(k006->ds1)+sp6) // соп.диагноз
+      sds2 := iif(empty(k006->ds2), sp0, alltrim(k006->ds2)+sp6) // диагн.осложнения
+      j := 1
+      ar := {}
+      aadd(ar1,{k006->shifr,; //  1
+                0,;           //  2
+                lkoef,;       //  3
+                &lal.->kiros,; //  4
+                k006->ds,;    //  5
+                lshifr,;      //  6
+                k006->age,;   //  7
+                k006->sex,;   //  8
+                k006->los,;   //  9
+                k006->ad_cr,; // 10
+                sds1,;        // 11
+                sds2,;        // 12
+                j,;           // 13
+                &lal.->kslps,; // 14
+                k006->ad_cr1}) // 15
+    endif
+  endif
+endif
 if len(ar) > 0
   for i := 1 to len(tmp)
     im := tmp[i]
@@ -3453,7 +3488,7 @@ if len(ar) > 0
   endif
 endif
 // собираем КСГ по манипуляциям (хирургические и комбинированные)
-ar := {}
+ar := ar1
 for im := 1 to len(amohu)
   if !empty(lshifr := alltrim(amohu[im]))
     _a1 := {}
@@ -3704,7 +3739,7 @@ endcase
 _cena := round_5(_cena*_akiro[2],0)  // округление до рублей с 2019 года
 return _akiro
 
-***** 30.01.19 вывести строку в отладочный массив о КСГ
+***** 28.01.20 вывести строку в отладочный массив о КСГ
 Function f_put_debug_KSG(k,arr,ars)
 // k = 1 - терапевтическая
 // k = 2 - хирургическая
@@ -3725,7 +3760,11 @@ else
       s1 += "осн.диаг.,"
     endif
     if eq_any(k,0,1) .and. !empty(arr[i,6])
-      s1 += "усл.,"
+      if alltrim(arr[i,10]) == "mgi"
+        //
+      else
+        s1 += "усл.,"
+      endif
     endif
     if !empty(arr[i,7])
       s1 += "возр.,"
