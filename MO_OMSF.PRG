@@ -120,18 +120,19 @@ else
 endif
 return update_get("mprer_b")
 
-***** 31.01.19
+***** 27.01.20
 Function ret_arr_shema(k)
 Static ashema := {{},{},{}}
 Local i
 if empty(ashema[1])
-  R_Use(exe_dir+"_mo9shema",,"IT") // с 2019 года
+  Private _data := 0d20200102
+  R_Use(exe_dir+"_mo0shema",,"IT") // 2020 год
   aadd(ashema[1],{"-----     без схемы лекарственной терапии",padr("нет",10)})
-  index on kod to (cur_dir+"tmp_schema") for left(kod,2) == "sh"
+  index on kod to (cur_dir+"tmp_schema") for left(kod,2) == "sh" .and. between_date(it->datebeg,it->dateend,_data)
   dbeval({|| aadd(ashema[1],{it->kod+left(it->name,68),it->kod}) })
-  index on kod to (cur_dir+"tmp_schema") for left(kod,2) == "mt"
+  index on kod to (cur_dir+"tmp_schema") for left(kod,2) == "mt" .and. between_date(it->datebeg,it->dateend,_data)
   dbeval({|| aadd(ashema[2],{it->kod+left(it->name,68),it->kod}) })
-  index on kod to (cur_dir+"tmp_schema") for left(kod,2) == "fr"
+  index on kod to (cur_dir+"tmp_schema") for left(kod,2) == "fr" .and. between_date(it->datebeg,it->dateend,_data)
   dbeval({|| aadd(ashema[3],{it->kod+left(it->name,68),it->kod,0,0}) })
   use
   for i := 1 to len(ashema[3])
@@ -141,16 +142,14 @@ if empty(ashema[1])
 endif
 return ashema[k]
 
-***** 14.01.19
+***** 27.01.20
 Function f_valid2ad_cr()
-Static mm_st1 := {}, mm_dn1 := {}, mm_st2 := {}, mm_dn2 := {}
 Static mm_bartel := {;
   {"индекс Бартела 60 баллов и менее","60"},;
   {"индекс Бартела более 60 баллов",  "61"}}
-Static mm_it := {;
-  {"не проводилась непрерывная искусственная вентиляция легких","   "},;
-  {"it1-непрерывное проведение ИВЛ в течение 72 часов и более", "it1"},;
-  {"it2-непрерывное проведение ИВЛ в течение 480 часов и более","it2"}}
+Static mm_mgi := {;
+  {"не проставляется дополнительный критерий                  ","   "},;
+  {"mgi-выполнение биопсии при подозрении ЗНО и проведение МГИ","mgi"}}
 Static mm_rb := {;
   {"не оценивалось состояние по Шкале Реабилитационной Маршрутизации","   "},;
   {"rb2 - оценка состояния пациента 2 балла по ШРМ", "rb2"},;
@@ -159,8 +158,7 @@ Static mm_rb := {;
   {"rb5 - оценка состояния пациента 5 баллов по ШРМ","rb5"},;
   {"rb6 - оценка состояния пациента 6 баллов по ШРМ","rb6"},;
   {"rbs - медицинская реабилитация детей с нарушениями слуха","rbs"}}
-Static sd1kv := 0d20180331
-Local i
+Local i, j, arr_sop := {}, arr_osl := {}
 input_ad_cr := .f. ; mm_ad_cr := {}
 if m1usl_ok < 3 .and. m1vmp == 0
   if m1profil == 158 // реабилитация
@@ -177,50 +175,88 @@ if m1usl_ok < 3 .and. m1vmp == 0
       aadd(mm_ad_cr,mm_rb[3])
       aadd(mm_ad_cr,mm_rb[7])
     endif
+  elseif m1usl_ok == 1 .and. !empty(MKOD_DIAG)
+    if !empty(MKOD_DIAG2) ; aadd(arr_sop,padr(MKOD_DIAG2,5)) ; endif
+    if !empty(MKOD_DIAG3) ; aadd(arr_sop,padr(MKOD_DIAG2,3)) ; endif
+    if !empty(MKOD_DIAG4) ; aadd(arr_sop,padr(MKOD_DIAG2,4)) ; endif
+    if !empty(MSOPUT_B1) ; aadd(arr_sop,padr(MSOPUT_B1,5)) ; endif
+    if !empty(MSOPUT_B2) ; aadd(arr_sop,padr(MSOPUT_B2,5)) ; endif
+    if !empty(MSOPUT_B3) ; aadd(arr_sop,padr(MSOPUT_B3,5)) ; endif
+    if !empty(MSOPUT_B4) ; aadd(arr_sop,padr(MSOPUT_B4,5)) ; endif
+    if !empty(MOSL1) ; aadd(arr_osl,padr(MOSL1,5)) ; endif
+    if !empty(MOSL2) ; aadd(arr_osl,padr(MOSL2,5)) ; endif
+    if !empty(MOSL3) ; aadd(arr_osl,padr(MOSL3,5)) ; endif
+    for i := 1 to len(arr_ad_cr_it20)
+      if m1usl_ok == arr_ad_cr_it20[i,1] .and. ascan(mm_ad_cr,{|x| x[2] == arr_ad_cr_it20[i,2] }) == 0
+        if !empty(arr_ad_cr_it20[i,3]) .and. empty(arr_ad_cr_it20[i,4]) .and. empty(arr_ad_cr_it20[i,5]) // осн.диагноз
+          if ascan(arr_ad_cr_it20[i,3],padr(MKOD_DIAG,5)) > 0
+            aadd(mm_ad_cr,{"",arr_ad_cr_it20[i,2]})
+          endif
+        endif
+        if !empty(arr_ad_cr_it20[i,3]) .and. !empty(arr_ad_cr_it20[i,4]) .and. empty(arr_ad_cr_it20[i,5]) // осн.+сопут.диагнозы
+          if !empty(arr_sop)
+            if ascan(arr_ad_cr_it20[i,3],padr(MKOD_DIAG,5)) > 0
+              for j := 1 to len(arr_sop)
+                if ascan(arr_ad_cr_it20[i,4],arr_sop[j]) > 0
+                  aadd(mm_ad_cr,{"",arr_ad_cr_it20[i,2]})
+                  exit
+                endif
+              next
+            endif
+          endif
+        endif
+        if empty(arr_ad_cr_it20[i,3]) .and. empty(arr_ad_cr_it20[i,4]) .and. !empty(arr_ad_cr_it20[i,5]) // диагноз осложнения
+          if !empty(arr_osl)
+            for j := 1 to len(arr_osl)
+              if ascan(arr_ad_cr_it20[i,4],arr_osl[j]) > 0
+                aadd(mm_ad_cr,{"",arr_ad_cr_it20[i,2]})
+                exit
+              endif
+            next
+          endif
+        endif
+      endif
+    next
+  elseif m1usl_ok == 2 .and. !empty(MKOD_DIAG)
+    for i := 1 to len(arr_ad_cr_it20)
+      if m1usl_ok == arr_ad_cr_it20[i,1] .and. ascan(arr_ad_cr_it20[i,3],padr(MKOD_DIAG,5)) > 0
+        aadd(mm_ad_cr,{"",arr_ad_cr_it20[i,2]})
+      endif
+    next
   elseif eq_any(pr_ds_it,1,2) .and. m1usl_ok == 1
-    input_ad_cr := .t.
     aadd(mm_ad_cr,mm_it[1])
     aadd(mm_ad_cr,mm_it[pr_ds_it+1])
-  elseif pr_ds_it == 3 .and. year(mk_data) == 2018 // в 2019 году вводим схему химиотерапии на 2-ом листе
-    input_ad_cr := .t.
-    if m1usl_ok == 1
-      if mk_data > sd1kv
-        if empty(mm_st2)
-          R_Use(exe_dir+"_mo8shema",,"IT")
-          dbeval({|| aadd(mm_st2,{it->kod+it->name,it->kod}) },;
-                 {|| it->ksg > 0 .and. between(mk_data,it->datebeg,it->dateend) })
-          it->(dbCloseArea())
-        endif
-        mm_ad_cr := mm_st2
-      else
-        if empty(mm_st1)
-          R_Use(exe_dir+"_mo8shema",,"IT")
-          dbeval({|| aadd(mm_st1,{it->kod+it->name,it->kod}) },;
-                 {|| it->ksg > 0 .and. between(mk_data,it->datebeg,it->dateend) })
-          it->(dbCloseArea())
-        endif
-        mm_ad_cr := mm_st1
-      endif
-    else
-      if mk_data > sd1kv
-        if empty(mm_dn2)
-          R_Use(exe_dir+"_mo8shema",,"IT")
-          dbeval({|| aadd(mm_dn2,{it->kod+it->name,it->kod}) },{|| between(mk_data,it->datebeg,it->dateend) })
-          it->(dbCloseArea())
-        endif
-        mm_ad_cr := mm_dn2
-      else
-        if empty(mm_dn1)
-          R_Use(exe_dir+"_mo8shema",,"IT")
-          dbeval({|| aadd(mm_dn1,{it->kod+it->name,it->kod}) },{|| between(mk_data,it->datebeg,it->dateend) })
-          it->(dbCloseArea())
-        endif
-        mm_ad_cr := mm_dn1
-      endif
-    endif
   elseif pr_ds_it == 4
-    input_ad_cr := .t.
     mm_ad_cr := mm_bartel
+  endif
+  if (input_ad_cr := !empty(mm_ad_cr)) .and. empty(mm_ad_cr[1,1])
+    // заполним из справочника схем
+    for i := 1 to len(mm_ad_cr)
+      do case
+        case mm_ad_cr[i,2] == "it1"
+          mm_ad_cr[i,1] := "it1-непрерывное проведение ИВЛ в течение 72 часов и более"
+        case mm_ad_cr[i,2] == "it2"
+          mm_ad_cr[i,1] := "it2-непрерывное проведение ИВЛ в течение 480 часов и более"
+        case mm_ad_cr[i,2] == "if "
+          mm_ad_cr[i,1] := "if-назначение пегилированных интерферонов для лечения хрон.вирусного гепатита С"
+        case mm_ad_cr[i,2] == "nif"
+          mm_ad_cr[i,1] := "nif-назначение лек.преп. для лечения хрон.вирусного гепатита С+пегилир.интерферон"
+        case mm_ad_cr[i,2] == "pbt"
+          mm_ad_cr[i,1] := "pbt-назначение других генно-инженерных препаратов и селективных иммунодепрессантов"
+        case mm_ad_cr[i,2] == "ep1"
+          mm_ad_cr[i,1] := "ep1-МРТ 3Тс видео ЭЭГ-мониторинг с включением сна не менее 4 час."
+        case mm_ad_cr[i,2] == "ep2"
+          mm_ad_cr[i,1] := "ep2-МРТ 3Тс, видео ЭЭГ, сон не менее 4 час., противоэпилептическая терапия"
+        case mm_ad_cr[i,2] == "ep3"
+          mm_ad_cr[i,1] := "ep3-МРТ 3Тс, видео ЭЭГ, сон не менее 24 час., консультация врача-нейрохирурга"
+      endcase
+    next
+    Ins_Array(mm_ad_cr,1,mm_mgi[1])
+  endif
+  if !input_ad_cr .and. m1usl_ok == 2 // безусловно добавим МГИ для дневного стационара
+    input_ad_cr := .t.
+    aadd(mm_ad_cr,mm_mgi[1])
+    aadd(mm_ad_cr,mm_mgi[2])
   endif
   if input_ad_cr
     if (i := ascan(mm_ad_cr,{|x| padr(x[2],10) == padr(m1ad_cr,10) })) > 0

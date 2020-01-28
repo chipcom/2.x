@@ -3259,12 +3259,12 @@ elseif kvp > 0
     aadd(ta,'количество услуг должно быть равно 1')
   endif
   if is_2_78 .or. is_2_89
-    mpztip := 59 // 59,"Обращение","амб.обращ."},;
+    //mpztip := 59 // 59,"Обращение","амб.обращ."},;
     mPZKOL := 1 // ???
   elseif is_2_79 .or. is_2_81 .or. is_2_88
-    mpztip := 57 // 57,"Посещение профилактическое","амб.проф."},;
+    //mpztip := 57 // 57,"Посещение профилактическое","амб.проф."},;
   elseif is_2_80 .or. is_2_82
-    mpztip := 58 // 58,"Посещение неотложное","амб.неотл."},;
+    //mpztip := 58 // 58,"Посещение неотложное","амб.неотл."},;
   endif
 elseif ksmp > 0
   mpztip := 51 // 51,"Вызов СМП","вызов СМП"},;
@@ -4360,9 +4360,6 @@ endif
 if human_->oplata == 2
   aadd(ta,'вернулся из ТФОМС с ошибкой и ещё не отредактирован')
 endif
-//if is_disp_DDS .or. is_disp_DVN .or. is_prof_PN
-  //arr_unit := {144} // "комплексное посещение при диспансеризации"
-//endif
 if len(arr_unit) > 1
   if select("MOUNIT") == 0
     if d2_year == 2019
@@ -4457,6 +4454,9 @@ if fl_view .and. !is_s_dializ .and. !is_dializ .and. !is_perito .and. len(a_rec_
     d_srok->dni   := a_rec_ffoms[i,3]
   endif
 endif
+if len(arr_unit) == 0
+  aadd(ta,"ни в одной из услуг не обнаружен код план-заказа")
+endif
 if len(arr_unit) == 1 .and. arr_unit[1] == 317 .and. len(a_317) > 0 // ???????????????????????????????????
   aadd(ta,"уже был выставлен случай первичного диспансерного наблюдения с данным основным диагнозом "+gkod_diag+;
           " "+full_date(a_317[1])+"г.")
@@ -4487,8 +4487,11 @@ if len(ta) > 0
     next
   next
 else
-  if is_disp_DDS .or. is_disp_DVN3 .or. is_prof_PN
-    mpztip := 72 // {72,260,"комплексное посещение при диспансеризации","ПосДиспанс.","",""},; //
+  if is_disp_DDS
+    mpztip := 90 // {90,321,"комплексное посещение при ДДС","ДДС","",""},;
+    mpzkol := 1
+  elseif is_prof_PN
+    mpztip := 87 // {87,318,"комплексное посещение при ПОВН","ПОВН","",""},;
     mpzkol := 1
   elseif is_disp_DVN .and. eq_any(metap,1,4)
     mpztip := 73 // {73,261,"комплексное посещение при ДВН 1 этап","ДВН 1","",""},; //

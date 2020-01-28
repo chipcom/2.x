@@ -4208,7 +4208,7 @@ do while !eof()
               find (str(&lal.->unit_code,3))
               if found() .and. mounit->pz > 0
                 if (i16 := mounit->ii) > 0
-                  j1 := glob_array_PZ_18[i16,1]
+                  j1 := glob_array_PZ_19[i16,1]
                   if eq_any(j1,68,75,87)
                     vid_vp := 0 // Посещение профилактическое
                   elseif eq_any(j1,69,76)
