@@ -1141,7 +1141,7 @@ do while .t.
     ++j; @ j,1 say "Направления при подозрении на ЗНО" get mnapr_onk ;
                reader {|x|menu_reader(x,{{|k,r,c| fget_napr_PN(k,r,c)}},A__FUNCTION,,,.f.)} ;
                when m1ds_onk == 1
-    ++j; @ j,1 say "Назначено лечение" get mnazn_l ;
+    ++j; @ j,1 say "Назначено лечение (для ф.131)" get mnazn_l ;
                reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
     ++j; @ j,1 say "Направлен на дополнительное обследование" get mdopo_na ;
                reader {|x|menu_reader(x,mm_dopo_na,A__MENUBIT,,,.f.)}

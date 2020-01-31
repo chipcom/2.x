@@ -406,7 +406,7 @@ elseif lp == 64 // оториноларингологии
 endif
 return lp
 
-***** 12.01.20
+***** 30.01.20
 Function verify_1_sluch(fl_view)
 Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
       i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -831,6 +831,8 @@ if is_dop_ob_em
   fl_dop_ob_em := (human->reg_lech == 9)
 endif
 au_lu := {} ; au_flu := {} ; au_lu_ne := {} ; arr_perso := {} ; arr_unit := {}
+arr_onkna := {} ; arr_mo_spec := {}
+m1dopo_na := m1napr_v_mo := m1napr_stac := m1profil_stac := m1napr_reab := m1profil_kojki := 0
 is_kt := is_mrt := is_uzi := is_endo := is_gisto := is_g_cit := is_pr_skr := .f.
 is_71_1 := is_71_2 := is_71_3 := is_dom := .f.
 kvp_2_78 := kvp_2_79 := kvp_2_89 := kol_2_3 := kol_2_60 := kol_2_4 := kol_2_6 := kol_55_1 := 0
@@ -1461,8 +1463,12 @@ if is_oncology > 0 // онкология - направления
     select ONKNA
     skip
   enddo
-  if len(arr) == 0 .and. human_->RSLT_NEW == 315
-    aadd(ta,'при "подозрении на ЗНО" или онкологическом диагнозе в листе учёта и результате лечеия "315 Направлен на обследования" обязательно должны быть заполнены сведения о направлении')
+  if len(arr) == 0
+    if human_->RSLT_NEW == 315
+      aadd(ta,'при "подозрении на ЗНО" или онкологическом диагнозе в листе учёта и результате лечеия "315 Направлен на обследования" обязательно должны быть заполнены сведения о направлении')
+    endif
+  else
+    arr_onkna := aclone(arr)
   endif
   for i := 1 to len(arr)  // ищем дубликаты направления
     s := dtos(arr[i,1])+arr[i,2]+str(arr[i,3],1)+str(arr[i,4],1)+str(arr[i,5],6)
@@ -2680,7 +2686,10 @@ if is_prof_PN // is_72_2
   endif
 endif
 if (k := len(a_idsp)) == 0 .and. is_dializ
-  a_idsp := {{4,"Лечебно-диагностическая процедура"}}
+  a_idsp := {{28,"За медицинскую услугу"}}
+  if is_dializ .and. human_->usl_ok < 3
+    a_idsp := {{33,"За законченный случай"}}
+  endif
   k := 1
 endif
 if k == 0
@@ -4456,6 +4465,30 @@ if fl_view .and. !is_s_dializ .and. !is_dializ .and. !is_perito .and. len(a_rec_
 endif
 if len(arr_unit) == 0
   aadd(ta,"ни в одной из услуг не обнаружен код план-заказа")
+endif
+if is_disp_DDS .or. is_disp_DVN .or. is_prof_PN
+  if eq_any(human_->RSLT_NEW,317,321,332,343,347)
+    if human->OBRASHEN == '1' // подозрение на ЗНО
+      aadd(ta,"первая группа не может быть присвоена пациенту с подозрением на ЗНО")
+    endif
+  elseif eq_any(human_->RSLT_NEW,323,324,325,334,335,336,349,350,351,355,356,373,374)
+    fl := !empty(arr_onkna)
+    if !fl .and. m1dopo_na > 0
+      fl := .t.
+    endif
+    if !fl .and. between(m1napr_v_mo,1,2) .and. !empty(arr_mo_spec)
+      fl := .t.
+    endif
+    if !fl .and. between(m1napr_stac,1,2) .and. m1profil_stac > 0
+      fl := .t.
+    endif
+    if !fl .and. m1napr_reab == 1 .and. m1profil_kojki > 0
+      fl := .t.
+    endif
+    if !fl
+      aadd(ta,"пациент с группой здоровья большей 2 должен быть направлен на доп.обследование, к специалистам, на лечение или на реабилитацию")
+    endif
+  endif
 endif
 if len(arr_unit) == 1 .and. arr_unit[1] == 317 .and. len(a_317) > 0 // ???????????????????????????????????
   aadd(ta,"уже был выставлен случай первичного диспансерного наблюдения с данным основным диагнозом "+gkod_diag+;

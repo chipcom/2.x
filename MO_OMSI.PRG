@@ -2300,7 +2300,7 @@ if k > 10
 endif
 return NIL
 
-***** 16.01.20
+***** 30.01.20
 Function pz1statist(par,par2)
 Static _su := 2
 Local buf := savescreen(), fl_exit := .f., fl := .t., a_otd := {},;
@@ -2336,7 +2336,7 @@ if par == 1
   end_date += chr(schet_->nmonth)+chr(1)
   end_date := dtoc4(eom(c4tod(end_date)))
   arr_m := {schet_->nyear, schet_->nmonth, schet_->nmonth, '', c4tod(begin_date), c4tod(end_date), begin_date, end_date}
-  use
+  close databases
 elseif par == 2
   if (arr_m := year_month(T_ROW,T_COL-5)) == NIL
     return NIL
