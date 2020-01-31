@@ -2142,7 +2142,7 @@ else
 endif
 return d*/
 
-***** 26.01.20 Просмотр файлов обмена R01... и результатов работы с ними
+***** 29.01.20 Просмотр файлов обмена R01... и результатов работы с ними
 Function f_view_R01(tip_f)
 Local i, k, buf := savescreen()
 DEFAULT tip_f TO _XML_FILE_R01
@@ -2152,7 +2152,7 @@ G_Use(dir_server+"mo_dr01",,"REES")
 if tip_f == _XML_FILE_R01
   index on descend(dtos(dschet))+str(NMONTH,2)+strzero(nn,3) to (cur_dir+"tmp_rees") for tip == 0
 else
-  index on descend(dtos(dschet))+str(NMONTH,2)+strzero(nn,3) to (cur_dir+"tmp_rees") for tip == 1
+  index on descend(strzero(NMONTH,2)+strzero(nn,3)) to (cur_dir+"tmp_rees") for tip == 1
 endif
 go top
 if eof()

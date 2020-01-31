@@ -9809,7 +9809,7 @@ if (arr_m := year_month(,,,5)) != NIL
 endif
 return NIL
 
-***** 26.01.20 Создание файла обмена R11...
+***** 29.01.20 Создание файла обмена R11...
 Function f_create_R11()
 Local buf := save_maxrow(), i, j, ir, s := "", arr := {}, fl := .t., fl1 := .f., a_reestr := {},;
       azip := {}, aerr := {}, full_zip, name_zip, cFile, cName, oXmlDoc, lgod_r
@@ -9821,6 +9821,7 @@ Private c_view := 0, c_found := 0, fl_exit := .f., pj, arr_rees := {},;
 //
 mywait()
 fl := .t.
+fl_1 := .f.
 SMONTH := lm := 2
 dbcreate(cur_dir+"tmp_00",{;
    {"reestr",     "N", 6,0},;
@@ -9829,11 +9830,39 @@ dbcreate(cur_dir+"tmp_00",{;
    {"tip1",       "N", 1,0},; // 1-пенсионер,2-65 лет,3-66 лет и старше
    {"voz",        "N", 1,0}; // 1-65 лет, 2-66 лет и старше, 3-пенсионер, 4-остальные
   })
+R_Use(dir_server+"mo_xml",,"MO_XML")
+index on str(reestr,6) to (cur_dir+"tmp_xml") for tip_in == _XML_FILE_R12 .and. empty(TIP_OUT)
 R_Use(dir_server+"mo_dr01",,"REES")
-index on str(NMONTH,2)+str(nn,3) to (cur_dir+"tmp_dr01") for NYEAR == sgod .and. tip == 1
-find (str(lm,2))
-fl_1 := found()
-use
+index on str(nn,3) to (cur_dir+"tmp_dr01") for NYEAR == sgod .and. NMONTH == SMONTH .and. tip == 1
+go top
+do while !eof()
+  if rees->kol_err < 0
+    //fl := func_error(4,"В файле R12 за "+lstr(rees->NMONTH)+"-й месяц "+;
+    //                   lstr(sgod)+"г. ошибки на уровне файла! Операция запрещена")
+  elseif empty(rees->answer)
+    fl := func_error(4,"Файл PR11 за "+lstr(rees->NMONTH)+"-й месяц "+;
+                       lstr(sgod)+" года не был прочитан! Операция запрещена")
+  else
+    select MO_XML
+    find (str(rees->kod,6))
+    if found()
+      if empty(mo_xml->TWORK2)
+        fl := func_error(4,"Прервано чтение файла "+alltrim(mo_xml->FNAME)+;
+                           "! Аннулируйте (Ctrl+F12) и прочитайте снова")
+      else
+        aadd(arr_rees,rees->kod)
+      endif
+    endif
+  endif
+  select REES
+  skip
+enddo
+if fl
+  fl_1 := !empty(arr_rees)
+else
+  close databases
+  return NIL
+endif
 if fl_1 // не первый раз
   R_Use(dir_server+"mo_dr05p",,"R05p")
   goto (mrec)
@@ -9862,13 +9891,12 @@ if fl_1 // не первый раз
   next
   afill(ame,0)
   //
-  R_Use(dir_server+"mo_xml",,"MO_XML")
+  /*R_Use(dir_server+"mo_xml",,"MO_XML")
   index on str(reestr,6) to (cur_dir+"tmp_xml") for tip_in == _XML_FILE_R12 .and. empty(TIP_OUT)
   R_Use(dir_server+"mo_dr01",,"REES")
   index on str(nn,3) to (cur_dir+"tmp_dr01") for NYEAR == sgod .and. NMONTH == SMONTH .and. tip == 1
   go top
   do while !eof()
-    fl1 := .t.
     if rees->kol_err < 0
       //fl := func_error(4,"В файле R12 за "+lstr(rees->NMONTH)+"-й месяц "+;
       //                   lstr(sgod)+"г. ошибки на уровне файла! Операция запрещена")
@@ -9889,21 +9917,28 @@ if fl_1 // не первый раз
     endif
     select REES
     skip
-  enddo
+  enddo*/
   if fl
     R_Use(dir_server+"mo_dr01k",,"R01k")
     index on str(reestr,6)+str(kod_k,7) to (cur_dir+"tmp_dr01k")
+    R_Use(dir_server+"kartotek",,"KART")
     Use (dir_server+"mo_dr00") new alias TMP
     index on kod to (cur_dir+"tmp_dr00") for reestr == 0
     go top
     do while !eof()
+      kart->(dbGoto(tmp->kod))
+      if emptyany(kart->kod,kart->fio,kart->date_r) // если данную запись в картотеке недавно удалили
+        tmp->tip := 0
+      endif
       j := tmp->tip
       j1 := tmp->tip1
       tmp->n_m := tmp->n_q := 0 // если уже заходили в режим и не подтвердили создание XML
-      if between(j1,1,3)
-        mkol[j1+2] ++
-      else
-        mkol[j] ++ // подсчёт оставшегося кол-ва в пуле пациентов
+      if between(j,1,2)
+        if between(j1,1,3)
+          mkol[j1+2] ++
+        else
+          mkol[j] ++ // подсчёт оставшегося кол-ва в пуле пациентов
+        endif
       endif
       skip
     enddo
@@ -9957,18 +9992,18 @@ if fl_1 // не первый раз
       endif
       pj := j
       d := koef := int(mkol[j] / skol[j]) + 1 // через сколько записей прыгаем
-      if d > 50
-        d := koef := 33
+      if d > 40
+        d := koef := 31
       endif
       i := 0
       do while skol[j] > 0
         select TMP
         if j == 2
-          index on kod to (cur_dir+"tmp_dr00") for tmp->tip == 2 .and. tmp->n_q == 0 DESCENDING
+          index on kod to (cur_dir+"tmp_dr00") for tmp->tip == 2 .and. tmp->n_q == 0 //DESCENDING
         elseif j == 1
-          index on kod to (cur_dir+"tmp_dr00") for tmp->tip == 1 .and. tmp->tip1 == 0 .and. tmp->n_q == 0 DESCENDING
+          index on kod to (cur_dir+"tmp_dr00") for tmp->tip == 1 .and. tmp->tip1 == 0 .and. tmp->n_q == 0 //DESCENDING
         else
-          index on kod to (cur_dir+"tmp_dr00") for tmp->tip1 == pj-2 .and. tmp->n_q == 0 DESCENDING
+          index on kod to (cur_dir+"tmp_dr00") for tmp->tip1 == pj-2 .and. tmp->n_q == 0 //DESCENDING
         endif
         go top
         do while !eof()
@@ -10025,21 +10060,23 @@ if fl_1 // не первый раз
     enddo
   endif
 else // первый раз
-  R_Use(dir_server+"mo_dr01",,"REES")
+  select REES
   index on str(NMONTH,2)+str(nn,3) to (cur_dir+"tmp_dr01") for NYEAR == sgod .and. tip == 0
   find (str(lm,2))
   do while lm == rees->NMONTH .and. !eof()
-    aadd(arr_rees,rees->kod)
+    aadd(arr_rees,rees->kod) // список R01 за февраль
     skip
   enddo
   Use (cur_dir+"tmp_00") new alias TMP
+  R_Use(dir_server+"kartotek",,"KART")
   G_Use(dir_server+"mo_dr01k",,"RHUM")
   index on str(REESTR,6) to (cur_dir+"tmp_rhum")
   for i := 1 to len(arr_rees)
     select RHUM
     find (str(arr_rees[i],6))
     do while rhum->REESTR == arr_rees[i] .and. !eof()
-      if rhum->oplata == 1
+      kart->(dbGoto(rhum->kod_k))
+      if rhum->oplata == 1 .and. !emptyany(kart->kod,kart->fio,kart->date_r) // данную запись в картотеке недавно удалили
         select TMP
         append blank
         tmp->kod  := rhum->KOD_K
@@ -10054,12 +10091,12 @@ else // первый раз
 endif
 close databases
 if fl
-  f1_create_R11(lm)
+  f1_create_R11(lm,fl_1)
 endif
 return NIL
 
-***** 24.01.20
-Function f1_create_R11(lm)
+***** 29.01.20
+Function f1_create_R11(lm,fl_dr00)
 Local nsh := 3, smsg, lnn := 0
 if !f_Esc_Enter("создания файла R11",.t.)
   return NIL
@@ -10087,6 +10124,10 @@ R_Use(dir_server+"kartote2",,"KART2")
 R_Use(dir_server+"kartote_",,"KART_")
 R_Use(dir_server+"kartotek",,"KART")
 set relation to recno() into KART_, recno() into KART2
+if fl_dr00
+  G_Use(dir_server+"mo_dr00",,"DR00")
+  index on str(kod,7) to (cur_dir+"tmp_dr00")
+endif
 Use (cur_dir+"tmp_00") new alias TMP
 set relation to kod into KART
 index on upper(kart->fio)+dtos(kart->date_r) to (cur_dir+"tmp_00")
@@ -10130,9 +10171,14 @@ index on upper(kart->fio)+dtos(kart->date_r) to (cur_dir+"tmp_00")
     if tmp->reestr == 0
       ++pkol
       @ maxrow(),1 say lstr(pkol) color cColorSt2Msg
-      select TMP
-      G_RLock(forever)
-      tmp->reestr := mkod_reestr
+      if fl_dr00 // для второго и т.д. реестров в месяце
+        select DR00
+        find (str(tmp->kod,7))
+        if found()
+          G_RLock(forever)
+          dr00->reestr := mkod_reestr
+        endif
+      endif
       //
       select RHUM
       AddRec(6)

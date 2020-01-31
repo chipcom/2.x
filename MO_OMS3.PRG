@@ -650,7 +650,7 @@ if (fl := (human_->ST_VERIFY == 5))
 endif
 return fl
 
-***** 13.03.19 работаем по текущей записи
+***** 29.01.20 работаем по текущей записи
 Function f1_create2reestr19(_nyear,_nmonth)
 Local i, j, lst, s
 fl_DISABILITY := is_zak_sl := is_zak_sl_vr := .f.
@@ -752,8 +752,16 @@ do while hu->kod == human->kod .and. !eof()
     if (hu->stoim_1 > 0 .or. left(lshifr,3) == "71.") .and. (i := ret_vid_pom(1,lshifr,human->k_data)) > 0
       lvidpom := i
     endif
-    if f_is_neotl_pom(lshifr)
-      lfor_pom := 2 // неотложная
+    if human_->USL_OK == 3
+      if f_is_neotl_pom(lshifr)
+        lfor_pom := 2 // неотложная
+      elseif eq_any(left(lshifr,5),"60.4.","60.5.","60.6.","60.7.","60.8.")
+        select OTD
+        dbGoto(human->otd)
+        if fieldnum("TIP_OTD") > 0 .and. otd->TIP_OTD == 1  // отделение приёмного покоя стационара
+          lfor_pom := 2 // неотложная
+        endif
+      endif
     endif
     if lst == 1
       lshifr_zak_sl := lshifr
