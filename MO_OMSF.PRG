@@ -699,8 +699,8 @@ if found() // если данная услуга участвует в проверке по специальности
     // формируем сообщение об ошибке
     do while mospec->shifr==lshifr .and. mospec->vzros_reb==lvzros_reb .and. !eof()
       k := mospec->prvs_new
-      if (i := ascan(glob_arr_V015_V021,{|x| x[2] == k})) > 0
-        k := glob_arr_V015_V021[i,1]
+      if (i := ascan(glob_arr_V015_V021,{|x| x[2] == k})) > 0 // перевод из 21-го справочника
+        k := glob_arr_V015_V021[i,1]                          // в 15-ый справочник
       endif
       s += '"'+lstr(k)+"."+inieditspr(A__MENUVERT, glob_V015, k)+'", '
       skip
@@ -986,9 +986,9 @@ if !emptyany(beg_data,end_data)
 endif
 return s
 
-***** 18.09.19
+***** 02.02.20
 Function f_arr_usl1()
-Local i, s, arr := {}, arr1 := {"2.76.5"}
+Local i, s, arr := {}, arr1 := {"2.76.5","2.76.7"}
 if hb_fileExists(dir_server+"usl1year"+smem)
   arr := rest_arr(dir_server+"usl1year"+smem)
   for i := 1 to len(arr)
@@ -4401,7 +4401,7 @@ setcolor(tmp_color)
 restscreen(buf)
 return ret
 
-***** 01.08.18
+***** 01.02.20
 Function save_arr_DDS(lkod)
 Local arr := {}, k, ta
 Private mvar
@@ -4561,6 +4561,15 @@ for i := 1 to count_dds_arr_iss
     aadd(arr,{"18."+lstr(i),alltrim(&mvar)})
   endif
 next
+if type("m1dopo_na") == "N"
+  aadd(arr,{"47",m1dopo_na})
+endif
+if type("m1napr_v_mo") == "N"
+  aadd(arr,{"52",m1napr_v_mo})
+endif
+if type("arr_mo_spec") == "A" .and. !empty(arr_mo_spec)
+  aadd(arr,{"53",arr_mo_spec}) // массив
+endif
 if type("m1napr_stac") == "N"
   aadd(arr,{"54",m1napr_stac})
 endif
@@ -4576,7 +4585,7 @@ endif
 save_arr_DISPANS(lkod,arr)
 return NIL
 
-***** 01.08.18
+***** 01.02.20
 Function read_arr_DDS(lkod)
 Local arr, i, k
 Private mvar
@@ -4757,6 +4766,12 @@ for i := 1 to len(arr)
         mrek_form := padr(arr[i,2],255)
       case arr[i,1] == "16.11" .and. valtype(arr[i,2]) == "C"
         mrek_disp := padr(arr[i,2],255)
+      case arr[i,1] == "47" .and. valtype(arr[i,2]) == "N"
+        m1dopo_na  := arr[i,2]
+      case arr[i,1] == "52" .and. valtype(arr[i,2]) == "N"
+        m1napr_v_mo  := arr[i,2]
+      case arr[i,1] == "53" .and. valtype(arr[i,2]) == "A"
+        arr_mo_spec := arr[i,2]
       case arr[i,1] == "54" .and. valtype(arr[i,2]) == "N"
         m1napr_stac := arr[i,2]
       case arr[i,1] == "55" .and. valtype(arr[i,2]) == "N"
@@ -5029,7 +5044,7 @@ return NIL
 
 *
 
-***** 07.05.18
+***** 01.02.20
 Function save_arr_PN(lkod)
 Local arr := {}, k, ta
 Private mvar
@@ -5186,8 +5201,17 @@ next
 if !empty(arr_usl_otkaz)
   aadd(arr,{"29",arr_usl_otkaz}) // массив
 endif
+if type("m1dopo_na") == "N"
+  aadd(arr,{"47",m1dopo_na})
+endif
 if type("m1p_otk") == "N"
   aadd(arr,{"51",m1p_otk})
+endif
+if type("m1napr_v_mo") == "N"
+  aadd(arr,{"52",m1napr_v_mo})
+endif
+if type("arr_mo_spec") == "A" .and. !empty(arr_mo_spec)
+  aadd(arr,{"53",arr_mo_spec}) // массив
 endif
 if type("m1napr_stac") == "N"
   aadd(arr,{"54",m1napr_stac})
@@ -5204,7 +5228,7 @@ endif
 save_arr_DISPANS(lkod,arr)
 return NIL
 
-***** 07.05.18
+***** 01.02.20
 Function read_arr_PN(lkod,is_all)
 Local arr, i, k
 DEFAULT is_all TO .t.
@@ -5387,8 +5411,14 @@ for i := 1 to len(arr)
           mrek_disp := padr(arr[i,2],255)
         case is_all .and. arr[i,1] == "29" .and. valtype(arr[i,2]) == "A"
           arr_usl_otkaz := arr[i,2]
+        case arr[i,1] == "47" .and. valtype(arr[i,2]) == "N"
+          m1dopo_na  := arr[i,2]
         case arr[i,1] == "51" .and. valtype(arr[i,2]) == "N"
           m1p_otk  := arr[i,2]
+        case arr[i,1] == "52" .and. valtype(arr[i,2]) == "N"
+          m1napr_v_mo  := arr[i,2]
+        case arr[i,1] == "53" .and. valtype(arr[i,2]) == "A"
+          arr_mo_spec := arr[i,2]
         case arr[i,1] == "54" .and. valtype(arr[i,2]) == "N"
           m1napr_stac := arr[i,2]
         case arr[i,1] == "55" .and. valtype(arr[i,2]) == "N"

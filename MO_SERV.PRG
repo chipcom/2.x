@@ -153,6 +153,13 @@ if fl .and. f_Esc_Enter("чтения файла из ЛИС")
                                dir_server+"kartotes"},"KART")
   Private such := 1, sotd := 1,; // код отделения "Лаборатория-ЛИС на Ангарском"
           sotd2 := 3 // код отделения "ЛИС в Краснооктябрьском р-не"
+  Private _arr_otd := {{"MIH",1},{"ANG",2},{"MET",3}}
+  for i := 1 to len(_arr_otd)
+    if _arr_otd[i,1] $ upper(name_file)
+      sotd2 := i
+      exit
+    endif
+  next
   dbcreate("ttmp",{;
     {"nn","N",6,0},;
     {"ko","N",6,0},;
@@ -549,9 +556,9 @@ for j := 1 to len(arr_order)
         aadd(aerr,"PAT="+arr_pac[LIS_KOD_AK]+' "'+mfio+'" (ORDER='+lstr(arr_order[j,LISS_KOD])+')')
         return aerr
       endif
-      if eq_any(left(arr_order[j,LISS_USL,i,LISU_SHIFR],5),"4.16.","4.17.")
-        arr_order[j,LISS_OTD] := sotd2 // код отделения в Краснооктябрьском р-не
-      endif
+      //if eq_any(left(arr_order[j,LISS_USL,i,LISU_SHIFR],5),"4.16.","4.17.")
+        //arr_order[j,LISS_OTD] := sotd2 // код отделения в Краснооктябрьском р-не
+      //endif
     endif
     select LUSL
     find (padr(arr_order[j,LISS_USL,i,LISU_SHIFR],10))
@@ -597,11 +604,12 @@ for j := 1 to len(arr_order)
         perso->tab_nom := -perso->kod
         perso->fio  := "Сотрудник с кодом "+lstr(perso->kod)
         perso->uch  := such
-        if par == 1
-          perso->otd := sotd
-        else
-          perso->otd := arr_order[j,LISS_OTD]
-        endif
+        perso->otd  := sotd2
+        //if par == 1
+          //perso->otd := sotd
+        //else
+          //perso->otd := arr_order[j,LISS_OTD]
+        //endif
         perso->prvs := arr_order[j,LISS_USL,i,LISU_SPEC]
         perso->snils := arr_order[j,LISS_USL,i,LISU_SNILS]
       endif
@@ -812,11 +820,12 @@ for j := 1 to len(arr_order)
     human->KOMU       := 0
     human->POLIS      := kart->polis
     human->LPU        := such
-    if par == 1
-      human->OTD      := sotd
-    else
-      human->OTD      := arr_order[j,LISS_OTD]
-    endif
+    human->OTD        := sotd2
+    //if par == 1
+      //human->OTD      := sotd
+    //else
+      //human->OTD      := arr_order[j,LISS_OTD]
+    //endif
     human->UCH_DOC    := lstr(arr_order[j,LISS_KOD]) // ORDER по ЛИС
     human->N_DATA     := arr_order[j,LISS_NDATA]
     human->K_DATA     := arr_order[j,LISS_KDATA]

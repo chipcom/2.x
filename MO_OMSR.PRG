@@ -406,12 +406,12 @@ elseif lp == 64 // оториноларингологии
 endif
 return lp
 
-***** 30.01.20
+***** 02.02.20
 Function verify_1_sluch(fl_view)
 Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
       i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
       d1, d2, cd1, cd2, ym2, a_period_amb := {}, a_1_11, u_1_stom := "", lprofil, ;
-      lbukva, lst, lidsp, a_idsp := {}, a_bukva := {}, t_arr[2], ltip, lkol, a_317 := {},;
+      lbukva, lst, lidsp, a_idsp := {}, a_bukva := {}, t_arr[2], ltip, lkol,;
       a_dializ := {}, is_2_88 := .f., a_rec_ffoms := {}, arr_povod := {}, mpovod := 0,; // 1.0
       lal, lalf
 if empty(human->k_data)
@@ -472,7 +472,7 @@ select HUMAN
 set order to 2
 find (str(glob_kartotek,7))
 do while human->kod_k == glob_kartotek .and. !eof()
-  fl := (rec_human != human->(recno()) .and. year(human->k_data) > 2018) // прошлый год не смотрим вообще
+  fl := (rec_human != human->(recno()) .and. year(human->k_data) > 2019) // прошлый год не смотрим вообще
   if fl .and. human->schet > 0 .and. eq_any(human_->oplata,2,9)
     fl := .f. // лист учёта снят по акту (и выставлен повторно)
   endif
@@ -482,10 +482,7 @@ do while human->kod_k == glob_kartotek .and. !eof()
   if fl .and. gnot_disp .and. human->ishod < 100 ; // если не диспансеризация
         .and. gusl_ok == human_->usl_ok ; // если те же условия оказания помощи
         .and. !empty(gkod_diag) .and. left(gkod_diag,3) == left(human->kod_diag,3)  // тот же основной диагноз
-    if gusl_ok == 3 .and. human_->pztip == 87 .and. gkod_diag == human->kod_diag
-      aadd(a_317, human->k_data)
-    endif
-    if (k := d1 - human->k_data) >= 0  // и случай оказан раньше проверяемого
+    if (k := d1 - human->k_data) >= 0 // и случай оказан раньше проверяемого
       if gusl_ok == 4 // скорая помощь
         if k < 2
           aadd(a_rec_ffoms,{human->(recno()),0,k})
@@ -503,7 +500,7 @@ do while human->kod_k == glob_kartotek .and. !eof()
     fl2 := overlap_diapazon(human->n_data,human->k_data,d1,d2) // перекрывается диапазон лечения
     fl3 := .t.
     k := 0
-    if is_alldializ .and. (fl1 .or. fl2) .and. year(human->k_data) > 2018 // прошлый год не смотрим вообще
+    if is_alldializ .and. (fl1 .or. fl2) .and. year(human->k_data) > 2019 // прошлый год не смотрим вообще
       select HU
       find (str(human->kod,7))
       do while hu->kod == human->kod .and. !eof()
@@ -563,7 +560,7 @@ do while human->kod_k == glob_kartotek .and. !eof()
         lshifr1 := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data)
         if is_usluga_TFOMS(usl->shifr,lshifr1,human->k_data)
           lshifr := alltrim(iif(empty(lshifr1), usl->shifr, lshifr1))
-          if eq_any(left(lshifr,5),"2.80.","2.82.")
+          if eq_any(left(lshifr,5),"2.80.","2.82.","60.4.","60.5.","60.6.","60.7.","60.8.")
             is_period_amb := .f. ; exit
           elseif lshifr == "60.3.1" // перит.диализ
             aadd(a_dializ,{human->n_data,human->k_data,human_->USL_OK,human->OTD,3}) // диализы не в кругл.стационаре
@@ -1027,7 +1024,7 @@ do while hu->kod == human->kod .and. !eof()
         midsp := 33
       else
         musl_ok := 2  // дневной стационар
-        midsp := 43
+        midsp := 33
       endif
       mdate_u2 := dtoc4(human->k_data)
     elseif left_lshifr_2 == "1."
@@ -1658,6 +1655,9 @@ if is_oncology == 2 // онкология
     else
       f_verify_tnm(2,onksl->STAD,mdiagnoz[1],ta)
     endif
+  endif
+  if kkt > 0 .and. onksl->ds1_t != 5
+    aadd(ta,'онкология: для отдельных диагностических услуг в поле "Повод обращения" должно быть проставлено "Диагностика"')
   endif
   if onksl->ds1_t == 0 .and. human->vzros_reb == 0
     if empty(onksl->ONK_T)
@@ -2635,7 +2635,8 @@ if human_->USL_OK == 3 .and. human->ishod < 101 ;// не диспансеризация
                         .and. m1novor == human_->NOVOR ;
                          .and. !(is_2_80 .or. is_2_82) ;// не неотложная помощь
                           .and. !(ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil,6,34)) ; // не КДП2
-                           .and. len(a_period_amb) > 0
+                           .and. kkt == 0 ; // не отдельно стоящая иссл.процедура
+                            .and. len(a_period_amb) > 0
   for i := 1 to len(a_period_amb)
     if a_period_amb[i,3] == human_->profil
       aadd(ta,'данный случай пересекается со случаем амбулаторного лечения')
@@ -2686,8 +2687,9 @@ if is_prof_PN // is_72_2
   endif
 endif
 if (k := len(a_idsp)) == 0 .and. is_dializ
-  a_idsp := {{28,"За медицинскую услугу"}}
-  if is_dializ .and. human_->usl_ok < 3
+  if empty(kodKSG)
+    a_idsp := {{28,"За медицинскую услугу"}}
+  else // КСГ
     a_idsp := {{33,"За законченный случай"}}
   endif
   k := 1
@@ -3230,11 +3232,11 @@ elseif kkt > 0 .and. !is_s_dializ .and. !is_dializ .and. !is_perito
       //aadd(ta,'кол-во услуг '+s+' ('+lstr(kkt)+') не должно быть более 2')
     endif
     if is_oncology == 2
-      // повод обращения - диагностика
+      // повод обращения - диагностика уже проверен выше
     elseif padr(mdiagnoz[1],5) == "Z03.1"
-      //if !(human->OBRASHEN == '1')
-        //aadd(ta,'если основной (или сопутствующий) диагноз "Z03.1 наблюдение при подозрении на злокачественную опухоль", то в поле "подозрение на ЗНО" должно стоять "да"')
-      //endif
+      if is_gisto
+        aadd(ta,'для '+s+' не может быть установлен основной диагноз "Z03.1 наблюдение при подозрении на злокачественную опухоль"')
+      endif
     elseif is_kt
       if !(padr(mdiagnoz[1],5) == "Z01.6")
         aadd(ta,'для '+s+' диагноз должен быть Z01.6')
@@ -4489,10 +4491,6 @@ if is_disp_DDS .or. is_disp_DVN .or. is_prof_PN
       aadd(ta,"пациент с группой здоровья большей 2 должен быть направлен на доп.обследование, к специалистам, на лечение или на реабилитацию")
     endif
   endif
-endif
-if len(arr_unit) == 1 .and. arr_unit[1] == 317 .and. len(a_317) > 0 // ???????????????????????????????????
-  aadd(ta,"уже был выставлен случай первичного диспансерного наблюдения с данным основным диагнозом "+gkod_diag+;
-          " "+full_date(a_317[1])+"г.")
 endif
 if len(ta) > 0
   _ocenka := 0

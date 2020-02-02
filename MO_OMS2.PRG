@@ -3016,6 +3016,112 @@ if lprofil == 34 // если профиль по "клинической лабораторной диагностике"
 endif
 return lprofil
 
+***** 01.02.20
+Function fget_spec_deti(k,r,c,a_spec)
+Local tmp_select := select(), i, j, as := {}, s, blk, t_arr[BR_LEN], n_file := cur_dir+"tmpspecdeti"
+if !hb_fileExists(n_file+sdbf)
+  if select("MOSPEC") == 0
+    R_Use(dir_exe+"_mo_spec",cur_dir+"_mo_spec","MOSPEC")
+    //index on shifr+str(vzros_reb,1)+str(prvs_new,4) to (sbase)
+  endif
+  select MOSPEC
+  find ("2.")
+  do while left(mospec->shifr,2) == "2." .and. !eof()
+    if mospec->vzros_reb == 1 // дети
+      if ascan(as,mospec->prvs_new) == 0
+        aadd(as,mospec->prvs_new)
+      endif
+    endif
+    skip
+  enddo
+  if select("MOSPEC") > 0
+    mospec->(dbCloseArea())
+  endif
+  for i := 1 to len(as)
+    if (j := ascan(glob_arr_V015_V021,{|x| x[2] == as[i]})) > 0 // перевод из 21-го справочника
+      as[i] := glob_arr_V015_V021[j,1]                          // в 15-ый справочник
+    endif
+  next
+  dbcreate(n_file,{{"name","C",30,0},;
+                   {"kod","C",4,0},;
+                   {"kod_up","C",4,0},;
+                   {"name1","C",50,0},;
+                   {"is","L",1,0}})
+  use (n_file) new alias SDVN
+  use (cur_dir+"tmp_v015") index (cur_dir+"tmpkV015") new alias tmp_ga
+  go top
+  do while !eof()
+    if (i := ascan(as,int(val(tmp_ga->kod)))) > 0
+      select SDVN
+      append blank
+      sdvn->name := afteratnum(".",tmp_ga->name,1)
+      sdvn->kod := tmp_ga->kod
+      s := ""
+      select TMP_GA
+      rec := recno()
+      do while !empty(tmp_ga->kod_up)
+        find (tmp_ga->kod_up)
+        if found()
+          s += alltrim(afteratnum(".",tmp_ga->name,1))+"/"
+        else
+          exit
+        endif
+      enddo
+      goto (rec)
+      sdvn->name1 := s
+    endif
+    skip
+  enddo
+  sdvn->(dbCloseArea())
+  tmp_ga->(dbCloseArea())
+endif
+use (n_file) new alias tmp_ga
+do while !eof()
+  tmp_ga->is := (ascan(a_spec,int(val(tmp_ga->kod))) > 0)
+  skip
+enddo
+index on upper(name)+kod to (n_file)
+if r <= maxrow()/2
+  t_arr[BR_TOP] := r+1
+  t_arr[BR_BOTTOM] := maxrow()-2
+else
+  t_arr[BR_BOTTOM] := r-1
+  t_arr[BR_TOP] := 2
+endif
+blk := {|| iif(tmp_ga->is, {1,2}, {3,4}) }
+t_arr[BR_LEFT] := 0
+t_arr[BR_RIGHT] := 79
+t_arr[BR_COLOR] := color0
+t_arr[BR_ARR_BROWSE] := {"═","░","═","N/BG,W+/N,B/BG,W+/B",.f.}
+t_arr[BR_COLUMN] := {;
+  { " ", {|| iif(tmp_ga->is,""," ") }, blk },;
+  { "Код", {|| left(tmp_ga->kod,3) },blk },;
+  { center("Медицинская специальность",26), {|| padr(tmp_ga->name,26) },blk },;
+  { center("подчинение",45), {|| left(tmp_ga->name1,45) },blk };
+}
+t_arr[BR_EDIT] := {|nk,ob| f1get_spec_DVN(nk,ob,"edit") }
+t_arr[BR_STAT_MSG] := {|| status_key("^<Esc>^ - выход;  ^<Ins>^ - отметить специальность/снять отметку со специальности") }
+go top
+edit_browse(t_arr)
+s := ""
+asize(a_spec,0)
+go top
+do while !eof()
+  if tmp_ga->is
+    s += alltrim(tmp_ga->kod)+","
+    aadd(a_spec,int(val(tmp_ga->kod)))
+  endif
+  skip
+enddo
+if empty(s)
+  s := "---"
+else
+  s := left(s,len(s)-1)
+endif
+tmp_ga->(dbCloseArea())
+select (tmp_select)
+return {1,s}
+
 ***** 01.02.17
 Function fget_spec_DVN(k,r,c,a_spec)
 Static as := {;
@@ -3069,7 +3175,6 @@ if !hb_fileExists(n_file+sdbf)
                    {"kod","C",4,0},;
                    {"kod_up","C",4,0},;
                    {"name1","C",50,0},;
-                   {"isn","N",1,0},;
                    {"is","L",1,0}})
   use (n_file) new alias SDVN
   use (cur_dir+"tmp_v015") index (cur_dir+"tmpkV015") new alias tmp_ga
@@ -3080,7 +3185,6 @@ if !hb_fileExists(n_file+sdbf)
       append blank
       sdvn->name := afteratnum(".",tmp_ga->name,1)
       sdvn->kod := tmp_ga->kod
-      sdvn->isn := as[i,2]
       s := ""
       select TMP_GA
       rec := recno()

@@ -25,7 +25,7 @@ else
 endif
 return fl
 
-***** 22.10.19 ДДС - добавление или редактирование случая (листа учета)
+***** 01.02.20 ДДС - добавление или редактирование случая (листа учета)
 Function oms_sluch_DDS(tip_lu,Loc_kod,kod_kartotek,f_print)
 // tip_lu - TIP_LU_DDS или TIP_LU_DDSOP
 // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -236,6 +236,14 @@ Private mprivivki1, m1privivki1 := 0,;
         mprivivki3 := space(100)
 Private mvar, m1var, m1lis := 0, m1onko8 := 0, monko8, m1onko10 := 0, monko10
 //Private mDS_ONK, m1DS_ONK := 0 // Признак подозрения на злокачественное новообразование
+Private mdopo_na, m1dopo_na := 0
+Private mm_dopo_na := {{"лаб.диагностика",1},{"инстр.диагностика",2},{"лучевая диагностика",3},{"КТ, МРТ, ангиография",4}}
+Private gl_arr := {;  // для битовых полей
+  {"dopo_na","N",10,0,,,,{|x|inieditspr(A__MENUBIT,mm_dopo_na,x)} };
+ }
+Private mnapr_v_mo, m1napr_v_mo := 0, ;
+        mm_napr_v_mo := {{"-- нет --",0},{"в нашу МО",1},{"в иную МО",2}}, ;
+        arr_mo_spec := {}, ma_mo_spec, m1a_mo_spec := 1
 Private mnapr_stac, m1napr_stac := 0, ;
         mm_napr_stac := {{"--- нет ---",0},{"в стационар",1},{"в дн. стац.",2}}, ;
         mprofil_stac, m1profil_stac := 0
@@ -581,6 +589,17 @@ minvalid8 := inieditspr(A__MENUVERT, mm_invalid8, m1invalid8)
 mprivivki1 := inieditspr(A__MENUVERT, mm_privivki1, m1privivki1)
 mprivivki2 := inieditspr(A__MENUVERT, mm_privivki2, m1privivki2)
 //mDS_ONK    := inieditspr(A__MENUVERT, mm_danet, M1DS_ONK)
+mdopo_na   := inieditspr(A__MENUBIT,  mm_dopo_na, m1dopo_na)
+mnapr_v_mo := inieditspr(A__MENUVERT, mm_napr_v_mo, m1napr_v_mo)
+if empty(arr_mo_spec)
+  ma_mo_spec := "---"
+else
+  ma_mo_spec := ""
+  for i := 1 to len(arr_mo_spec)
+    ma_mo_spec += lstr(arr_mo_spec[i])+","
+  next
+  ma_mo_spec := left(ma_mo_spec,len(ma_mo_spec)-1)
+endif
 mnapr_stac := inieditspr(A__MENUVERT, mm_napr_stac, m1napr_stac)
 mprofil_stac := inieditspr(A__MENUVERT, glob_V002, m1profil_stac)
 mnapr_reab := inieditspr(A__MENUVERT, mm_danet, m1napr_reab)
@@ -607,7 +626,7 @@ do while .t.
   close databases
   DispBegin()
   if num_screen == 5
-    hS := 30 ; wS := 90
+    hS := 32 ; wS := 90
   else
     hS := 25 ; wS := 80
   endif
@@ -1320,6 +1339,14 @@ do while .t.
     ++j; @ j,1 to j,78
     //++j; @ j,1 say "Признак подозрения на злокачественное новообразование" get mDS_ONK ;
     //           reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
+    ++j; @ j,1 say "Направлен на дополнительное обследование" get mdopo_na ;
+               reader {|x|menu_reader(x,mm_dopo_na,A__MENUBIT,,,.f.)}
+    ++j; @ j,1 say "Направлен" get mnapr_v_mo ;
+               reader {|x|menu_reader(x,mm_napr_v_mo,A__MENUVERT,,,.f.)} ;
+               valid {|| iif(m1napr_v_mo==0, (arr_mo_spec:={},ma_mo_spec:=padr("---",42)), ), update_get("ma_mo_spec")}
+         @ j,col()+1 say "к специалистам" get ma_mo_spec ;
+               reader {|x|menu_reader(x,{{|k,r,c| fget_spec_deti(k,r,c,arr_mo_spec)}},A__FUNCTION,,,.f.)} ;
+               when m1napr_v_mo > 0
     ++j; @ j,1 say "Направлен на лечение" get mnapr_stac ;
                reader {|x|menu_reader(x,mm_napr_stac,A__MENUVERT,,,.f.)} ;
                valid {|| iif(m1napr_stac==0, (m1profil_stac:=0,mprofil_stac:=space(32)), ), update_get("mprofil_stac")}
