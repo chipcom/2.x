@@ -3661,6 +3661,9 @@ elseif kol_hir > 0
   lkslp := aHirKSG[1,14]
 endif
 akslp := {} ; akiro := {}
+if lksg == 'ds18.001' .and. s_dializ > 0
+  lksg := ""
+endif
 if !empty(lksg)
   s := " РЕЗУЛЬТАТ: выбрана КСГ="+lksg
   if empty(lcena)
@@ -3714,7 +3717,11 @@ if !empty(lksg)
     endif
   endif
 else
-  aadd(arerr," РЕЗУЛЬТАТ: не получилось выбрать КСГ"+iif(fl_reabil,' для случая медицинской реабилитации',''))
+  if lusl == 2 .and. s_dializ > 0
+    return {{},{},"",0,{},{},s_dializ}
+  else
+    aadd(arerr," РЕЗУЛЬТАТ: не получилось выбрать КСГ"+iif(fl_reabil,' для случая медицинской реабилитации',''))
+  endif
 endif
 return {ars,arerr,alltrim(lksg),lcena,akslp,akiro,s_dializ}
 //       1     2      3            4     5     6       7
@@ -3853,7 +3860,10 @@ if human_->USL_OK < 3
   sdial := 0 ; fl := .t.
   if len(arr) == 7
     if valtype(arr[7]) == "N"
-      sdial := arr[7] // для 2019 года
+      sdial := arr[7] // для 2019 года и позже
+      if emptyall(arr[1],arr[2],arr[3],arr[4])
+        fl := .f. // диализ в дневном стационаре без КСГ
+      endif
     else
       fl := .f. // для 2018 года
     endif
@@ -4026,6 +4036,9 @@ if human_->USL_OK < 3
   if len(arr) == 7
     if valtype(arr[7]) == "N"
       sdial := arr[7] // для 2019 года
+      if emptyall(arr[1],arr[2],arr[3],arr[4])
+        fl := .f. // диализ в дневном стационаре без КСГ
+      endif
     else
       fl := .f. // для 2018 года
     endif

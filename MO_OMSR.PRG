@@ -500,7 +500,7 @@ do while human->kod_k == glob_kartotek .and. !eof()
     fl2 := overlap_diapazon(human->n_data,human->k_data,d1,d2) // перекрывается диапазон лечения
     fl3 := .t.
     k := 0
-    if is_alldializ .and. (fl1 .or. fl2) .and. year(human->k_data) > 2019 // прошлый год не смотрим вообще
+    if is_alldializ .and. (fl1 .or. fl2) .and. year(human->k_data) > 2018 // прошлый год не смотрим вообще
       select HU
       find (str(human->kod,7))
       do while hu->kod == human->kod .and. !eof()
@@ -2699,9 +2699,15 @@ if k == 0
 elseif k == 1
   midsp := human_->IDSP := a_idsp[1,1]
 else
-  aadd(ta,'смешивание способов оплаты: '+;
-          lstr(a_idsp[1,1])+'-'+alltrim(a_idsp[1,2])+' и '+;
-          lstr(a_idsp[2,1])+'-'+alltrim(a_idsp[2,2]))
+  asort(a_idsp,,,{|x,y| x[1] < y[1] })
+  if len(a_idsp) == 2 .and. a_idsp[1,1] == 28 .and. a_idsp[2,1] == 33 .and. is_dializ
+    Del_Array(a_idsp,1) // удалить 1-ый элемент массива
+    midsp := human_->IDSP := a_idsp[1,1]
+  else
+    aadd(ta,'смешивание способов оплаты: '+;
+            lstr(a_idsp[1,1])+'-'+alltrim(a_idsp[1,2])+' и '+;
+            lstr(a_idsp[2,1])+'-'+alltrim(a_idsp[2,2]))
+  endif
 endif
 if (k := len(a_bukva)) == 0
   aadd(ta,'ни в одной из услуг в справочнике T002 не установлена буква счёта')
@@ -3366,11 +3372,7 @@ if is_perito
     if a_dializ[i,5] == 3
       aadd(ta,'в данном отчётном месяце уже был перитонеальный диализ '+date_8(a_dializ[i,1])+"-"+date_8(a_dializ[i,2]))
     elseif a_dializ[i,5] == 2 .and. overlap_diapazon(a_dializ[i,1],a_dializ[i,2],d1,d2)
-      if left(upper(human->fio),4) == "БОРЩ"
-        // этого человека не проверяем
-      else
-        aadd(ta,'пересечение перитонеального диализа с гемодиализом '+date_8(a_dializ[i,1])+"-"+date_8(a_dializ[i,2]))
-      endif
+      aadd(ta,'пересечение перитонеального диализа с гемодиализом '+date_8(a_dializ[i,1])+"-"+date_8(a_dializ[i,2]))
     endif
   next*/
 endif

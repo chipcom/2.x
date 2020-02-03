@@ -3175,6 +3175,7 @@ if !hb_fileExists(n_file+sdbf)
                    {"kod","C",4,0},;
                    {"kod_up","C",4,0},;
                    {"name1","C",50,0},;
+                   {"isn","N",1,0},;
                    {"is","L",1,0}})
   use (n_file) new alias SDVN
   use (cur_dir+"tmp_v015") index (cur_dir+"tmpkV015") new alias tmp_ga
@@ -3185,6 +3186,7 @@ if !hb_fileExists(n_file+sdbf)
       append blank
       sdvn->name := afteratnum(".",tmp_ga->name,1)
       sdvn->kod := tmp_ga->kod
+      sdvn->isn := as[i,2]
       s := ""
       select TMP_GA
       rec := recno()
