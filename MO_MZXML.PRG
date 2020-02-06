@@ -758,7 +758,7 @@ for i := 1 to len(ar)
 next
 return ret_arr
 
-***** 14.11.19 Создание отчётов по иногородним / иностранцам для КЗВО
+***** 06.02.20 Создание отчётов по иногородним / иностранцам для КЗВО
 Function pr_inog_inostr()
 Local arr_m, fl_exit := .f., buf := save_maxrow(), kh := 0, jh := 0
 if (arr_m := year_month()) == NIL
@@ -786,6 +786,8 @@ R_Use(dir_server+"mo_otd",,"OTD")
 R_Use(dir_server+"mo_kinos",dir_server+"mo_kinos","KIS")
 R_Use(dir_server+"uslugi",,"USL")
 R_Use(dir_server+"human_u",dir_server+"human_u","HU")
+R_Use(dir_server+"human_3",{dir_server+"human_3",;
+                            dir_server+"human_32"},"HUMAN_3")
 R_Use(dir_server+"human_2",,"HUMAN_2")
 R_Use(dir_server+"human_",,"HUMAN_")
 R_Use(dir_server+"human",{dir_server+"humand",;
@@ -804,7 +806,7 @@ do while human->k_data <= arr_m[6] .and. !eof()
   if inkey() == K_ESC
     fl_exit := .t. ; exit
   endif
-  if human_->oplata < 9
+  if human_->oplata < 9 .and. human->ishod != 88
     lregion := space(3) ; losnov := 0
     if human->CENA_1 > 0 .and. f1pr_inog_inostr(human->kod_k,@lregion,@losnov,arr_m)
       lprofil := human_->profil
@@ -814,26 +816,23 @@ do while human->k_data <= arr_m[6] .and. !eof()
           lvid := 1
         case human_->USL_OK == 2
           lvid := 4
-          /*select HU
-          find (str(human->kod,7))
-          do while hu->kod == human->kod .and. !eof()
-            usl->(dbGoto(hu->u_kod))
-            if empty(lshifr := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data))
-              lshifr := usl->shifr
-            endif
-            lshifr := alltrim(lshifr)
-            if lshifr == "55.1.1" .or. left(lshifr,3) == "63."
-              lvid := 1 ; exit
-            endif
-            select HU
-            skip
-          enddo*/
         case human_->USL_OK == 3
           lvid := 2
         case human_->USL_OK == 4
           lvid := 3
       endcase
       list_fin := f2pr_inog_inostr(_what_if)
+      mn_data := human->N_DATA
+      msumma := human->CENA_1
+      if human->ishod == 89
+        select HUMAN_3
+        set order to 2 // встать на индекс по 2-му случаю
+        find (str(human->kod,7))
+        if found()
+          msumma := human_3->CENA_1
+          mn_data := human_3->N_DATA
+        endif
+      endif
       select TMP_KART
       find (str(human->kod_k,7)+str(lvid,1)+str(lprofil,3)+lregion+str(losnov,2)+str(list_fin,1))
       if !found()
@@ -846,8 +845,8 @@ do while human->k_data <= arr_m[6] .and. !eof()
         tmp_kart->ist_fin := list_fin
       endif
       tmp_kart->kols ++
-      tmp_kart->vozr := f0pr_inog_inostr(human->date_r,human->n_data)
-      tmp_kart->summa += human->CENA_1
+      tmp_kart->vozr := f0pr_inog_inostr(human->date_r,mn_data)
+      tmp_kart->summa += msumma
       ++jh
     endif
   endif

@@ -3909,7 +3909,7 @@ for i := 1 to 2
 next
 return NIL
 
-***** 28.01.20 форма 14-МЕД (ОМС)
+***** 06.02.20 форма 14-МЕД (ОМС)
 Function forma14_med_oms()
 Static group_ini := "f14_med_oms"
 Local begin_date, end_date, buf := savescreen(), arr_m, i, j, k, k1, k2,;
@@ -3920,8 +3920,7 @@ Local begin_date, end_date, buf := savescreen(), arr_m, i, j, k, k1, k2,;
       cFileProtokol := "tmp"+stxt, arr_prof := {}, arr_usl, au, ii,;
       filetmp14 := "tmp14"+stxt, sum_k := 0, sum_ki := 0, sum_kd := 0, sum_kt := 0, kol_d := 0 , sum_d := 0
 Local arr_skor[81,2], arr_eko[2,2], arr_profil := {}, arr_dn_stac := {}, arrDdn_stac[4], fl_pol1[15],;
-      arr_pol[32], arr_pol1[15,5], arr_pril5[29,3], ifff := 0, kol_stom_pos := 0,;
-      lal := "lusl", lalf := "luslf"
+      arr_pol[32], arr_pol1[15,5], arr_pril5[29,3], ifff := 0, kol_stom_pos := 0, lal, lalf
 old5 := old2 := 0
 afillall(arr_skor,0)
 afillall(arr_eko,0)
@@ -3972,6 +3971,7 @@ arr_pril5[27,1] := "Дн.стац.ЭКО - пациенто-дней"
 arr_pril5[28,1] := "Дн.стац.ЭКО - пациентов, чел."
 arr_pril5[29,1] := "Дн.стац.ЭКО - руб."
 arr_m := {2019,1,12,"за январь - декабрь 2019 года",0d20190101,0d20191231}
+lal := "lusl19" ; lalf := "luslf19"
 Private mk1, mk2, mk3, mk4, md1, md11, md12, md2, md21, md22, md3, md4
 ar := GetIniSect(tmp_ini,group_ini)
 mk1 := int(val(a2default(ar,"mk1","0")))
@@ -4313,6 +4313,8 @@ do while !eof()
                       if eq_any(lshifr,"2.60.3","2.60.4")
                         kol_2_sr += hu->kol_1
                       endif
+                    elseif left(lshifr,5) == "2.76." // центр здоровья
+                      vid_vp := 0 // Посещение профилактическое
                     elseif left(lshifr,5) == "2.79." // посещение с профилактической целью
                       vid_vp := 0 // Посещение профилактическое
                       if !eq_any(human_->PROFIL,97,57,68,3,42,85,87)
@@ -4427,6 +4429,7 @@ do while !eof()
           select HU
           skip
         enddo
+my_debug(vid_vp < 0,print_array(au))
         if kol_dializ > 0
           tfoms_pz[ii,2] := kol_dializ // заменяем на кол-во диализных процедур
         endif

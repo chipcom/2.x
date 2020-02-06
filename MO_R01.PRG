@@ -2166,7 +2166,7 @@ close databases
 restscreen(buf)
 return NIL
 
-***** 17.12.19
+***** 06.02.20
 Function f1_view_R01(oBrow)
 Local oColumn, ;
       blk := {|| iif(hb_fileExists(goal_dir+alltrim(rees->NAME_XML)+szip), ;
@@ -2197,11 +2197,7 @@ oColumn := TBColumnNew("Примечание",{|| f11_view_R01() })
 oColumn:colorBlock := blk
 oBrow:addColumn(oColumn)
 if reg == 1
-  if ptip_f == _XML_FILE_R01
-    status_key("^<Esc>^ выход ^<F5>^ запись для ТФОМС ^<F3>^ информация о файле ^<F9>^ общая информация")
-  else
-    status_key("^<Esc>^ - выход;  ^<F5>^ - запись для ТФОМС;  ^<F3>^ - информация о файле")
-  endif
+  status_key("^<Esc>^ выход ^<F5>^ запись для ТФОМС ^<F3>^ информация о файле ^<F9>^ общая информация")
 else
   status_key("^<Esc>^ - выход;  ^<Enter>^ - выбор реестра для возврата")
 endif
@@ -2219,13 +2215,17 @@ else
 endif
 return padr(s,10)
 
-***** 17.12.19
+***** 06.02.20
 Function f2_view_R01(nKey,oBrow)
 Local ret := -1, rec := rees->(recno()), tmp_color := setcolor(), r, r1, r2,;
       s, buf := savescreen(), arr, i, k, mdate, t_arr[2], arr_pmt := {}
 do case
-  case nKey == K_F9 .and. ptip_f == _XML_FILE_R01
-    f32_view_R01()
+  case nKey == K_F9
+    if ptip_f == _XML_FILE_R01
+      f32_view_R01()
+    else
+      f32_view_R11(rees->NMONTH)
+    endif
     select REES
     goto (rec)
     ret := 0
@@ -2514,7 +2514,7 @@ endif
 //
 fp := fcreate(n_file) ; tek_stroke := 0 ; n_list := 1
 add_string("")
-add_string(center("Общая информация",80))
+add_string(center("Общая информация (R01)",80))
 add_string("")
 mmt := {"диспансеризация","профосмотр","дисп.пенсионеры","дисп.65 лет","дисп.66 и старше"}
 for i := 1 to 12
