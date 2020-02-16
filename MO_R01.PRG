@@ -2224,7 +2224,7 @@ do case
     if ptip_f == _XML_FILE_R01
       f32_view_R01()
     else
-      f32_view_R11(rees->NMONTH)
+      //f32_view_R11(rees->NMONTH)
     endif
     select REES
     goto (rec)
@@ -2875,7 +2875,7 @@ endif
 close databases
 return count_in_schet
 
-***** 14.12.17 аннулировать чтение недочитанного реестра R02
+***** 09.02.20 аннулировать чтение недочитанного реестра R02
 Function delete_reestr_R02(mkod_reestr,mname_reestr)
 Local i, s, r := row(), r1, r2, buf := save_maxrow(), ;
       mm_menu := {}, mm_func := {}, mm_flag := {}, mreestr_sp_tk, ;
@@ -2971,43 +2971,7 @@ if (i := popup_prompt(r1,10,1,mm_menu,,,color5)) > 0
           close databases
         endif
         if is_allow_delete
-          G_Use(dir_server+"mo_xml",,"MO_XML")
-          G_Use(dir_server+"mo_dr01",,"REES")
-          goto (mkod_reestr)
-          G_RLock(forever)
-          rees->answer := 0
-          rees->kol_err := 0
-          G_Use(dir_server+"mo_dr01e",,"REFR")
-          index on str(REESTR,6)+str(R01_ZAP,6) to (cur_dir+"tmp_r01e")
-          select REFR
-          do while .t.
-            find (str(mkod_reestr,6)+str(0,6)) // удалим ошибки на уровне файла
-            if !found() ; exit ; endif
-            DeleteRec(.t.)
-          enddo
-          G_Use(dir_server+"mo_dr01k",,"RHUM")
-          index on str(R01_ZAP,6) to (cur_dir+"tmp_rhum") for reestr == mkod_reestr
-          use (cur_dir+"tmp2file") new alias TMP2
-          go top
-          do while !eof()
-            select RHUM
-            find (str(tmp2->_N_ZAP,6))
-            G_RLock(forever)
-            rhum->OPLATA := 0
-            UnLock
-            select REFR
-            do while .t.
-              find (str(mkod_reestr,6)+str(tmp2->_N_ZAP,6))
-              if !found() ; exit ; endif
-              DeleteRec(.t.)
-            enddo
-            select TMP2
-            skip
-          enddo
-          select MO_XML
-          goto (mreestr_sp_tk)
-          DeleteRec()
-          close databases
+          f2_delete_reestr_R02(mkod_reestr,mreestr_sp_tk)
           stat_msg("Файл "+cFile+" успешно аннулирован. Можно прочитать ещё раз.") ; mybell(5)
         endif
       endif
@@ -3016,6 +2980,35 @@ if (i := popup_prompt(r1,10,1,mm_menu,,,color5)) > 0
 endif
 rest_box(buf)
 return 0
+
+***** 09.02.20 аннулировать чтение реестра PR01(PR11)
+Function f2_delete_reestr_R02(mkod_reestr,mreestr_sp_tk)
+G_Use(dir_server+"mo_dr01e",,"REFR")
+index on str(REESTR,6) to (cur_dir+"tmp_r01e")
+do while .t.
+  find (str(mkod_reestr,6)) // удалим ошибки
+  if !found() ; exit ; endif
+  DeleteRec(.t.)
+enddo
+G_Use(dir_server+"mo_dr01k",,"RHUM")
+index on str(REESTR,6) to (cur_dir+"tmp_rhum")
+find (str(mkod_reestr,6))
+do while rhum->reestr == mkod_reestr .and. !eof()
+  G_RLock(forever)
+  rhum->OPLATA := 0 // обнулим поле оплаты
+  UnLock
+  skip
+enddo
+G_Use(dir_server+"mo_dr01",,"REES")
+goto (mkod_reestr)
+G_RLock(forever)
+rees->answer := 0
+rees->kol_err := 0
+G_Use(dir_server+"mo_xml",,"MO_XML")
+goto (mreestr_sp_tk)
+DeleteRec()
+close databases
+return NIL
 
 ***** 18.12.17
 Function need_delete_reestr_R01()

@@ -407,7 +407,7 @@ elseif lp == 64 // оториноларингологии
 endif
 return lp
 
-***** 02.02.20
+***** 16.02.20
 Function verify_1_sluch(fl_view)
 Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
       i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -3734,7 +3734,7 @@ if is_disp_DVN //
   human_->profil := 151  // медицинским осмотрам профилактическим
   ret_arr_vozrast_DVN(d2)
   ret_arrays_disp(is_disp_19)
-  m1g_cit := m1veteran := m1dispans := 0
+  m1g_cit := m1veteran := m1dispans := 0 ; is_prazdnik := f_is_prazdnik_DVN(d1)
   if empty(sadiag1)
     Private file_form, diag1 := {}, len_diag := 0
     if (file_form := search_file("DISP_NAB"+sfrm)) == NIL

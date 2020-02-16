@@ -3003,7 +3003,7 @@ if is_prof_PN //
 endif
 if is_disp_DVN //
   human_->profil := 151  // медицинским осмотрам профилактическим
-  m1g_cit := m1veteran := m1dispans := 0
+  m1g_cit := m1veteran := m1dispans := 0 ; is_prazdnik := .f.
   read_arr_DVN(human->kod)
   if d1_year != d2_year
     aadd(ta,'Дата начала и окончания случая должны быть в одном году')

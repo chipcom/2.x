@@ -58,11 +58,9 @@ aadd(af, {"F014.xml","Классификатор причин отказа в оплате медицинской помощи",;
  {{"Komment", "C"},;
   {"Kod",     "N"},;
   {"DATEBEG", "D"},;
-  {"DATEEND", "D"},;
-  {"IDVID",   "N"},;
+  {"DATEEND", "D"},;  //   {"IDVID",   "N"},;
   {"Naim",    "C"},;
-  {"Osn",     "C"},;
-  {"KodPG",   "C"}}})
+  {"Osn",     "C"}}}) //   {"KodPG",   "C"}}})
 aadd(af, {"F015.xml","Классификатор федеральных округов",;
  {{"OKRNAME", "C"},;
   {"KOD_OK",  "N"},;
@@ -293,10 +291,10 @@ for i := 1 to len(af)
               endif
               s1 += sval + ","
               if k == iik
-                if ascan(arr_UQ, sval) == 0
+                if eq_any(upper(af[i,1]),"F014.XML","V018.XML","V019.XML")
+                  // есть дубликаты, т.к. хранится несколько лет
+                elseif ascan(arr_UQ, sval) == 0
                   aadd(arr_UQ, sval)
-                elseif eq_any(upper(af[i,1]),"V018.XML","V019.XML")
-                  // могут быть и есть дубликаты, т.к. хранится несколько лет
                 else
                   fl := .f.
                 endif

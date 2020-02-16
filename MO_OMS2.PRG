@@ -111,7 +111,7 @@ Local r1, r2, n := 4, buf, tmp_keys, tmp_list, tmp_color
   restscreen(buf)
 return {0,"Количество направлений - "+lstr(count_napr)}
 
-***** 06.11.19 ДВН - добавление или редактирование случая (листа учета)
+***** 16.02.20 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_DVN(Loc_kod,kod_kartotek,f_print)
 // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
 // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -128,7 +128,7 @@ Local bg := {|o,k| get_MKB10(o,k,.t.) }, arr_del := {}, mrec_hu := 0,;
 Default st_N_DATA TO sys_date, st_K_DATA TO sys_date
 Default Loc_kod TO 0, kod_kartotek TO 0
 //
-Private oms_sluch_DVN := .t., ps1dispans := s1dispans
+Private oms_sluch_DVN := .t., ps1dispans := s1dispans, is_prazdnik
 if kod_kartotek == 0 // добавление в картотеку
   if (kod_kartotek := edit_kartotek(0,,,.t.)) == 0
     return NIL
@@ -479,6 +479,7 @@ if Loc_kod > 0
   mcena_1    := human->CENA_1
   m1rslt     := human_->RSLT_NEW
   //
+  is_prazdnik := f_is_prazdnik_DVN(mn_data)
   is_disp_19 := !(mk_data < d_01_05_2019)
   ret_arr_vozrast_DVN(mk_data)
   ret_arrays_disp(is_disp_19)
@@ -1617,6 +1618,7 @@ do while .t.
         endif
       endif
     next
+    is_prazdnik := f_is_prazdnik_DVN(mn_data)
     if eq_any(metap,2,5)
       i := count_dvn_arr_usl
       m1vrach  := arr_osm1[i,1]
@@ -2583,6 +2585,10 @@ if !emptyany(_WEIGHT,_HEIGHT)
 endif
 return padr(s,21)
 
+***** 16.02.2020 является ли выходным (праздничным) днём проведения диспансеризации
+Function f_is_prazdnik_DVN(_n_data)
+return !is_work_day(_n_data)
+
 /*
 70.7.1	Законченный случай диспансеризации взрослых 1 этап (мужчины 18,24,30)
 70.7.2	Законченный случай диспансеризации взрослых 1 этап (мужчины 21,27,33)
@@ -2616,7 +2622,7 @@ return padr(s,21)
 70.7.30	Законченный случай диспансеризации взрослых 1 этап (77,83,89,95)
 70.7.31	Законченный случай диспансеризации взрослых 1 этап (79,81,85,87,91,93,97,99)
 */
-***** 19.06.19 вернуть шифр услуги законченного случая для ДВН
+***** 16.02.20 вернуть шифр услуги законченного случая для ДВН
 Function ret_shifr_zs_DVN(_etap,_vozrast,_pol,_date)
 Local lshifr := "", fl, is_disp, n := 1
 if _date >= 0d20190501 // с 1 мая
@@ -2711,7 +2717,9 @@ if _date >= 0d20190501 // с 1 мая
         n += 500
       endif
     else
-      if m1mobilbr == 1
+      if is_prazdnik
+        n += 700
+      elseif m1mobilbr == 1
         n += 300
       endif
     endif
@@ -2750,7 +2758,9 @@ if _date >= 0d20190501 // с 1 мая
           n := 8
         endif
       endif
-      if m1mobilbr == 1
+      if is_prazdnik
+        n += 700
+      elseif m1mobilbr == 1
         n += 300
       endif
       // "6" - в рамках диспансерного наблюдения
@@ -2815,7 +2825,9 @@ if _date >= 0d20190501 // с 1 мая
           n := 16
         endif
       endif
-      if m1mobilbr == 1
+      if is_prazdnik
+        n += 700
+      elseif m1mobilbr == 1
         n += 300
       endif
       lshifr := "72.7."+lstr(n)

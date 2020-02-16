@@ -2512,7 +2512,9 @@ do case
       aadd(mas_msg, "Аннулирование недописанного пакета R11")
       aadd(mas_fun, "delete_reestr_R11()")
     endif
+    set key K_CTRL_F10 to delete_month_R11()
     popup_prompt(T_ROW,T_COL-5,si7,mas_pmt,mas_msg,mas_fun)
+    set key K_CTRL_F10 to
   case k == 71
     f_create_R11()
   case k == 72
@@ -4741,7 +4743,7 @@ close databases
 rest_box(buf)
 return NIL
 
-***** 10.11.19
+***** 15.02.20
 Function f2_inf_DVN_svod(par,kod_h) // сводная информация
 Static P_BEGIN_RSLT := 342
 Local i, j, c, s, pole, ar, arr := {}, fl, lshifr, arr_usl := {}
@@ -4754,6 +4756,9 @@ mpol    := human->pol
 mn_data := human->n_data
 mk_data := human->k_data
 is_2018 := p := (mk_data < d_01_05_2019)
+is_2019 := !is_2018
+ret_arr_vozrast_DVN(mk_data)
+ret_arrays_disp(is_2019)
 if ppar == 1 // диспансеризация 1 этап
   m1GRUPPA := ret_gruppa_DVN(human_->RSLT_NEW,@fl2)
   if between(m1gruppa,0,4)
@@ -5041,7 +5046,7 @@ else
 endif
 return arr
 
-***** 11.02.19 вернуть план диспансеризации на год из R01 для фрмы 131
+***** 16.02.20 вернуть план диспансеризации на год из R01 для фрмы 131
 Function ret_plan_disp_131(d)
 Local arr[2,3], ar, s, s1, fl, sgod := year(d), v, i, j, group_ini := "DISP_PLAN_131"
 ar := GetIniSect(tools_ini,group_ini)
@@ -5067,14 +5072,16 @@ if len(ar) > 0
     next
   next
 endif
-/*if !fl
+if !fl
   afillall(arr,0)
 endif
-if sgod >= 2019 .and. !fl
+if sgod == 2020 .and. !fl
   R_Use(dir_server+"kartotek",,"KART")
-  G_Use(dir_server+"mo_dr01k",,"R01")
+  R_Use(dir_server+"mo_dr01",,"RR")
+  R_Use(dir_server+"mo_dr01k",,"R01")
+  set relation to reestr into RR
   index on str(kod_k,7) to (cur_dir+"tmp_r01") ;
-        for kod_k > 0 .and. oplata == 1 .and. tip == 1 .and. TYPEOFREC == 0
+        for kod_k > 0 .and. oplata == 1 .and. tip == 1 .and. rr->tip == 0
   go top
   do while !eof()
     select KART
@@ -5095,12 +5102,12 @@ if sgod >= 2019 .and. !fl
   ar := {}
   for i := 1 to 2
     for j := 1 to 3
-      aadd(ar, {lstr(sgod)+"-"+lstr(i)+"-"+lstr(j),arr[i,j]})
+      aadd(ar, {group_ini,lstr(sgod)+"-"+lstr(i)+"-"+lstr(j),arr[i,j]})
     next
   next
-  SetIniSect(tools_ini, group_ini, ar) // запись секции в ini.файл
+  SetIniVar(tools_ini, ar) // запись массива переменных в ini.файл
   close databases
-endif*/
+endif
 return arr
 
 ***** 09.10.19 форма 131
@@ -9809,10 +9816,9 @@ if (arr_m := year_month(,,,5)) != NIL
 endif
 return NIL
 
-***** 29.01.20 Создание файла обмена R11...
+***** 09.02.20 Создание файла обмена R11...
 Function f_create_R11()
-Local buf := save_maxrow(), i, j, ir, s := "", arr := {}, fl := .t., fl1 := .f., a_reestr := {},;
-      azip := {}, aerr := {}, full_zip, name_zip, cFile, cName, oXmlDoc, lgod_r
+Local buf := save_maxrow(), i, j, ir, s := "", arr := {}, fl := .t., fl1 := .f., a_reestr := {}, ar
 Private sgod := 2020, SMONTH := 1, mdate := sys_date, mrec := 1
 Private c_view := 0, c_found := 0, fl_exit := .f., pj, arr_rees := {},;
         pkol := 0, CODE_LPU := glob_mo[_MO_KOD_TFOMS], CODE_MO := glob_mo[_MO_KOD_FFOMS],;
@@ -9896,11 +9902,12 @@ if fl_1 // не первый раз
     index on str(reestr,6)+str(kod_k,7) to (cur_dir+"tmp_dr01k")
     R_Use(dir_server+"kartotek",,"KART")
     Use (dir_server+"mo_dr00") new alias TMP
-    index on kod to (cur_dir+"tmp_dr00") for reestr == 0
+    index on kod to (cur_dir+"tmp_dr00") for reestr == 0 .and. kod > 0
     go top
     do while !eof()
       kart->(dbGoto(tmp->kod))
-      if emptyany(kart->kod,kart->fio,kart->date_r) // если данную запись в картотеке недавно удалили
+      ar := f0_create_R11(sgod)
+      if !(tmp->tip == ar[1] .and. tmp->tip1 == ar[2] .and. tmp->voz == ar[3])
         tmp->tip := 0
       endif
       j := tmp->tip
@@ -9941,21 +9948,6 @@ if fl_1 // не первый раз
       enddo
       if !fl ; exit ; endif
     next ir
-    if glob_mo[_MO_KOD_TFOMS] == '321001' // специально для Городищенской ЦРБ
-      k := j := 0
-      for i := 1 to len(skol)
-        if skol[i] > 0
-          j := i
-          k += skol[i]
-        endif
-      next
-      if k == 1 .and. j > 1
-        skol[j] --
-        ames[SMONTH,j,2] ++
-        skol[1] ++
-        ames[SMONTH,1,2] --
-      endif
-    endif
     if emptyall(skol[1],skol[2],skol[3],skol[4],skol[5])
       fl := func_error(4,"Более не требуется создания файлов обмена!")
     else
@@ -10064,13 +10056,16 @@ else // первый раз
     find (str(arr_rees[i],6))
     do while rhum->REESTR == arr_rees[i] .and. !eof()
       kart->(dbGoto(rhum->kod_k))
-      if rhum->oplata == 1 .and. !emptyany(kart->kod,kart->fio,kart->date_r) // данную запись в картотеке недавно удалили
-        select TMP
-        append blank
-        tmp->kod  := rhum->KOD_K
-        tmp->tip  := rhum->tip
-        tmp->tip1 := rhum->tip1
-        tmp->voz  := rhum->voz
+      if rhum->oplata == 1
+        ar := f0_create_R11(sgod)
+        if rhum->tip == ar[1] .and. rhum->tip1 == ar[2] .and. rhum->voz == ar[3]
+          select TMP
+          append blank
+          tmp->kod  := rhum->KOD_K
+          tmp->tip  := rhum->tip
+          tmp->tip1 := rhum->tip1
+          tmp->voz  := rhum->voz
+        endif
       endif
       select RHUM
       skip
@@ -10082,6 +10077,36 @@ if fl
   f1_create_R11(lm,fl_1)
 endif
 return NIL
+
+***** 09.02.20 переопределить все три первичных ключа в картотеке
+Static Function f0_create_R11(sgod)
+Local fl, v, ltip := 0, ltip1 := 0, lvoz := 0, ag, lgod_r
+if !emptyany(kart->kod,kart->fio,kart->date_r) // данную запись в картотеке недавно удалили
+  lgod_r := year(kart->date_r)
+  v := sgod - lgod_r
+  if (fl := (v > 17)) // только взрослое население
+    lvoz := 4
+    ltip1 := 0
+    if ascan(_arr_vozrast_DVN,v) > 0
+      ltip := 1 // диспансеризация
+      // 1-65 лет, 2-66 лет и старше, 3-пенсионер, 4-прочие
+      if v >= iif(kart->POL == "М", 60, 55)
+        lvoz := 3
+        ltip1 := 1
+        if v == 65
+          lvoz := 1
+          ltip1 := 2
+        elseif v > 65
+          lvoz := 2
+          ltip1 := 3
+        endif
+      endif
+    else
+      ltip := 2 // профосмотры
+    endif
+  endif
+endif
+return {ltip,ltip1,lvoz}
 
 ***** 29.01.20
 Function f1_create_R11(lm,fl_dr00)
@@ -10327,9 +10352,9 @@ endif
 close databases
 return NIL
 
-***** 26.01.20
+***** 09.02.20
 Function f1_delete_reestr_R11(nKey,oBrow,regim)
-Local ret := -1, rec := r01m->(recno()), ir, fl := .t.
+Local ret := -1, rec_m := r01m->(recno()), ir, fl := .t.
 if regim == "edit" .and. nKey == K_ENTER
   if empty(r01m->twork2)
     G_Use(dir_server+"mo_dr01",,"REES")
@@ -10351,61 +10376,127 @@ if regim == "edit" .and. nKey == K_ENTER
     select R01m
     if fl .and. f_Esc_Enter("аннулирования R11")
       mywait()
-      G_Use(dir_server+"mo_xml",,"MO_XML")
-      G_Use(dir_server+"mo_dr00",,"TMP")
-      index on str(REESTR,6) to (cur_dir+"tmp_dr00")
-      G_Use(dir_server+"mo_dr01k",,"RHUM")
-      index on str(REESTR,6) to (cur_dir+"tmp_rhum")
-      G_Use(dir_server+"mo_dr01",,"REES")
-      for ir := 12 to 1 step -1
-        mkod_reestr := &("r01m->reestr"+strzero(ir,2))
-        if mkod_reestr > 0
-          select REES
-          goto (mkod_reestr)
-          if rees->nn > 1
-            select TMP
-            do while .t.
-              find (str(mkod_reestr,6))
-              if !found() ; exit ; endif
-              G_Rlock(forever)
-              tmp->n_m := 0
-              tmp->n_q := 0
-              tmp->reestr := 0
-              dbUnLock()
-            enddo
-          endif
-          select RHUM
-          do while .t.
-            find (str(mkod_reestr,6))
-            if !found() ; exit ; endif
-            DeleteRec(.t.)
-          enddo
-          select MO_XML
-          goto (rees->KOD_XML)
-          DeleteRec(.t.)
-          select REES
-          DeleteRec(.t.)
-          select R01m
-          G_RLock(forever)
-          &("r01m->reestr"+strzero(ir,2)) := 0
-          dbUnlockAll()
-          dbCommitAll()
-        endif
-      next
-      mo_xml->(dbCloseArea())
-      tmp->(dbCloseArea())
-      RHUM->(dbCloseArea())
-      REES->(dbCloseArea())
-      select R01m
-      DeleteRec()
+      f2_delete_reestr_R11(rec_m)
       stat_msg("Аннулирование завершено!") ; mybell(2,OK)
       ret := 1
     endif
   else
-    func_error(4,"Процесс создания пакета реестров R01 завершён корректно. Операция запрещена!")
+    func_error(4,"Процесс создания реестра R11 завершён корректно. Операция запрещена!")
   endif
 endif
 return ret
+
+***** 09.02.20 аннулировать чтение реестра R11
+Function f2_delete_reestr_R11(rec_m)
+Local ir, mkod_reestr
+G_Use(dir_server+"mo_xml",,"MO_XML")
+G_Use(dir_server+"mo_dr00",,"TMP")
+index on str(REESTR,6) to (cur_dir+"tmp_dr00")
+G_Use(dir_server+"mo_dr01k",,"RHUM")
+index on str(REESTR,6) to (cur_dir+"tmp_rhum")
+G_Use(dir_server+"mo_dr01",,"REES")
+select R01m
+goto (rec_m)
+for ir := 12 to 1 step -1
+  mkod_reestr := &("r01m->reestr"+strzero(ir,2))
+  if mkod_reestr > 0
+    select REES
+    goto (mkod_reestr)
+    select TMP
+    do while .t.
+      find (str(mkod_reestr,6))
+      if !found() ; exit ; endif
+      G_Rlock(forever)
+      tmp->n_m := 0
+      tmp->n_q := 0
+      tmp->reestr := 0
+      dbUnLock()
+    enddo
+    select RHUM
+    do while .t.
+      find (str(mkod_reestr,6))
+      if !found() ; exit ; endif
+      DeleteRec(.t.)
+    enddo
+    select MO_XML
+    goto (rees->KOD_XML)
+    DeleteRec(.t.)
+    select REES
+    DeleteRec(.t.)
+    select R01m
+    G_RLock(forever)
+    &("r01m->reestr"+strzero(ir,2)) := 0
+    dbUnlockAll()
+    dbCommitAll()
+  endif
+next
+mo_xml->(dbCloseArea())
+tmp->(dbCloseArea())
+RHUM->(dbCloseArea())
+REES->(dbCloseArea())
+select R01m
+DeleteRec()
+return NIL
+
+***** 13.02.20 удаление всех пакетов R11(PR11) за конкретный месяц
+Function delete_month_R11()
+Local pss := space(10), tmp_pss := my_parol()
+Local i, lm, mkod_reestr, ar_m := {}, buf
+if select("MO_XML") > 0
+  return NIL
+endif
+if (lm := input_value(18,6,20,73,color1,space(9)+"Введите удаляемый месяц (все файлы R11,PR11)",2,"99")) == NIL
+  return NIL
+elseif !between(lm,2,12)
+  return NIL
+else
+  pss := get_parol(,,,,,"N/W","W/N*")
+  if lastkey() == K_ENTER .and. ascan(tmp_pss,crypt(pss,gpasskod)) > 0 .and. f_Esc_Enter("удаления файлов R11",.t.)
+    //
+  else
+    return NIL
+  endif
+endif
+G_Use(dir_server+"mo_xml",,"MO_XML")
+index on str(reestr,6) to (cur_dir+"tmp_xml") for tip_in == _XML_FILE_R12 .and. TIP_OUT == 0
+G_Use(dir_server+"mo_dr01",,"REES")
+G_Use(dir_server+"mo_dr01m",,"R01m")
+go top
+do while !eof()
+  mkod_reestr := &("r01m->reestr"+strzero(lm,2))
+  if mkod_reestr > 0
+    select MO_XML
+    find (str(mkod_reestr,6))
+    select REES
+    goto (mkod_reestr)
+    if rees->tip == 1
+      aadd(ar_m,{r01m->(recno()),mkod_reestr,iif(rees->answer==1,mo_xml->kod,0)})
+    endif
+  endif
+  select R01m
+  skip
+enddo
+REES->(dbCloseArea())
+mo_xml->(dbCloseArea())
+buf := save_maxrow()
+if empty(ar_m)
+  func_error(10,"Не обнаружено реестров R11 за "+lstr(lm)+" месяц!")
+else
+  for i := len(ar_m) to 1 step -1
+    stat_msg("Удаляется "+lstr(i)+"-й реестр R11")
+    if ar_m[i,3] > 0
+      f2_delete_reestr_R02(ar_m[i,2],ar_m[i,3])
+    endif
+    close databases
+    G_Use(dir_server+"mo_dr01m",,"R01m")
+    f2_delete_reestr_R11(ar_m[i,1])
+  next
+  stat_msg("Успешно удалено реестров R11 - "+lstr(len(ar_m))+" (и, соответственно, ответов на них PR11)")
+  inkey(10)
+endif
+rest_box(buf)
+close databases
+return NIL
 
 ***** 06.02.20
 Function f32_view_R11(lm)
