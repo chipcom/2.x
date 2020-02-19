@@ -1636,15 +1636,15 @@ end_date += chr(12)+chr(1)
 end_date := dtoc4(eom(c4tod(end_date)))
 return {ky, 1, 12, "за"+str(ky,5)+" год", c4tod(begin_date), c4tod(end_date), begin_date, end_date}
 
-***** 31.10.13
+***** 18.02.20
 Function year_month(rr,cc,za_v,kmp,ch_mm,ret_time)
-// kmp = от 1 до 4(5)
+// kmp = от 1 до 4(5) или массив {3,4}
 // za_v = .t. - строка в винит.падеже
 // za_v = .f. - строка в творит.падеже
 Local mas2_pmt := {"За ~день","В диапа~зоне дат","За ~месяц","За ~период"}
 Local ky, km, kp, ret_arr, buf, s_mes_god, ret_year, dekad_date, blk,;
       begin_date, end_date, old_set, fl, ar, r1, c1, r2, c2
-Local sy, smp, sm, mbeg, mend, sdate, sdek, s1date, s1time, s2time
+Local i, sy, smp, sm, mbeg, mend, sdate, sdek, s1date, s1time, s2time
 ar := GetIniSect(tmp_ini,"ymonth")
 sy     := int(val(a2default(ar,"sy",lstr(year(sys_date)))))
 sm     := int(val(a2default(ar,"sm",lstr(month(sys_date)))))
@@ -1662,6 +1662,11 @@ Private k1, k2
 ym_kol_mes := 0  // определить количество месяцев
 if kmp == NIL .and. (kmp := popup_prompt(rr,cc,smp,mas2_pmt)) == 0
   return NIL
+elseif valtype(kmp) == "A" // специально только третья и четвёртая строки меню
+  if (i := popup_prompt(rr,cc,smp-2,{"За ~месяц","За ~период"})) == 0
+    return NIL
+  endif
+  kmp := i+2
 endif
 Store 0 TO r1, c1, r2, c2
 if eq_any(kmp,3,4)
@@ -1675,8 +1680,8 @@ smp := iif(kmp == 5, 2, kmp)
 if kmp == 1
   get_row_col_max(18,5,@r1,@c1,@r2,@c2)
   if (dekad_date := input_value(r1,c1,r2,c2,color1,;
-        "Введите дату, за которую необходимо получить информацию",;
-        ctod(left(dtoc(sdate),6)+lstr(sy)))) == NIL
+                                "Введите дату, за которую необходимо получить информацию",;
+                                ctod(left(dtoc(sdate),6)+lstr(sy)))) == NIL
     return NIL
   endif
   sdate := dekad_date

@@ -1241,19 +1241,22 @@ do case
                 "~Незарегистрированные счета",;
                 "форма 14-МЕД (~ОМС)",;
                 "форма ~1 приказа №146 ФФОМС",;
-                "отчёт ~Ф-МПП"}
+                "отчёт ~Ф-МПП",;
+                "Отчёт по ~КСГ"}
     mas_msg := {"Статистическая информация по всем счетам за период времени",;
                 "Выборка информации по форме 14-ТФОМС за период времени",;
                 "Список незарегистрированных счетов",;
                 "Подготовка формы №14-МЕД(ОМС)(во исполнение приказа Росстата от 17.04.14г. №258)",;
                 "Подготовка формы №1 (во исполнение приказа ФФОМС от 16.08.11г №146)",;
-                "Сведения о медицинской помощи, оказываемой по территориальной программе ОМС"}
-   mas_fun := {"e_statist(141)",;
+                "Сведения о медицинской помощи, оказываемой по территориальной программе ОМС",;
+                "Отчёт по КСГ - приложения 5 и 6 (продолжение к форме 62)"}
+    mas_fun := {"e_statist(141)",;
                 "e_statist(142)",;
                 "e_statist(143)",;
                 "e_statist(144)",;
                 "e_statist(145)",;
-                "e_statist(146)"}
+                "e_statist(146)",;
+                "e_statist(147)"}
     popup_prompt(T_ROW,T_COL-5,si14,mas_pmt,mas_msg,mas_fun)
   case k == 123
     mas_pmt := {"~Суммы снятий",;
@@ -1426,6 +1429,8 @@ do case
     forma1_ffoms()
   case k == 146
     report_f_mpp()
+  case k == 147
+    pril_5_6_62()
   case k == 151 // Суммы снятий по актам
     akt_summa_of_refusal()
   case k == 152 // Список снятий по актам (дефекты)
@@ -4958,4 +4963,278 @@ else
 endif
 close databases
 restscreen(buf)
+return NIL
+
+***** 18.02.20
+Function pril_5_6_62()
+Local begin_date, end_date, buf := savescreen(), i, j, k, k1, k2,;
+      t_arr[10], t_arr1[10], name_file := "f14med"+stxt, tfoms_pz[5,11],;
+      sh, HH := 80, reg_print := 5, is_trudosp, is_rebenok, is_inogoro,;
+      is_reabili, is_ekstra, lshifr1, koef, vid_vp, r1 := 9, fl_exit := .f.,;
+      is_vmp, d2_year, ar, arr_excel := {}, fl_error := .f., is_z_sl,;
+      arr_usl, au, ii, lal, lalf
+if !hb_FileExists(dir_exe+"_mo_pr62"+sdbf)
+  return func_error(4,"Не обнаружен файл _mo_pr62"+sdbf)
+endif
+Private arr_m := {2019,1,12,"за январь - декабрь 2019 года",0d20190101,0d20191231},;
+        mm_uslov := {{"по счетам отч.периода (без учёта РАК)",0},;
+                     {"с учётом РАК (как в форме 14-МЕД/ОМС)",1}}
+Private mdate := arr_m[4], m1date := arr_m[1], muslov := mm_uslov[1,1], m1uslov := mm_uslov[1,2],;
+        mdializ := mm_danet[1,1], m1dializ := mm_danet[1,2]
+r1 := 16
+box_shadow(r1,2,22,77,color1," Отчёт по КСГ ",color8)
+tmp_solor := setcolor(cDataCGet)
+@ r1+ 2,4 say "Период времени" get mdate ;
+          reader {|x|menu_reader(x,;
+                 {{|k,r,c| k := year_month(r+1,c,,{3,4}),;
+                           iif(k==nil, nil, (arr_m:=aclone(k),k:={k[1],k[4]})),;
+                           k }},A__FUNCTION,,,.f.)}
+@ r1+ 3,4 say "Условия отбора" get muslov ;
+          reader {|x|menu_reader(x,mm_uslov,A__MENUVERT,,,.f.)}
+@ r1+ 4,4 say "Учитывать стоимость процедур диализа (вместе с КСГ)?" get mdializ ;
+          reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
+status_key("^<Esc>^ - выход;  ^<PgDn>^ - создание отчёта")
+myread()
+restscreen(buf)
+if lastkey() == K_ESC
+  return nil
+elseif !between(arr_m[1],2019,2020)
+  return func_error(4,"Данный отчёт работает только с 2019-20 годами")
+endif
+lal := "lusl" ; lalf := "luslf"
+if arr_m[1] == 2019
+  lal += "19" ; lalf += "19"
+endif
+WaitStatus(arr_m[4])
+@ maxrow(),0 say " ждите..." color "W/R"
+begin_date := dtoc4(arr_m[5])
+end_date := dtoc4(arr_m[6])
+Use_base("lusl")
+Use_base("luslf")
+R_Use(dir_exe+"_mo9unit",cur_dir+"_mo9unit","MOUNIT")
+R_Use(dir_server+"mo_su",,"MOSU")
+R_Use(dir_server+"mo_hu",dir_server+"mo_hu","MOHU")
+set relation to u_kod into MOSU
+R_Use(dir_server+"uslugi",,"USL")
+R_Use(dir_server+"human_u_",,"HU_")
+R_Use(dir_server+"human_u",dir_server+"human_u","HU")
+set relation to recno() into HU_, to u_kod into USL
+R_Use(dir_server+"kartote_",,"KART_")
+R_Use(dir_server+"kartotek",,"KART")
+set relation to recno() into KART_
+R_Use(dir_server+"human_2",,"HUMAN_2")
+R_Use(dir_server+"human_",,"HUMAN_")
+R_Use(dir_server+"human",dir_server+"humans","HUMAN")
+set relation to recno() into HUMAN_, to recno() into HUMAN_2, to kod_k into KART
+//
+kds := kdr := 10
+if arr_m[1] == 2019 .and. arr_m[3] == 12
+  kds := 17 // дата регистрации по 17.01.20
+  kdr := 21 // по какую дату РАК сумма к оплате 21.01.20
+endif
+*********************************************************************
+mdate_rak := arr_m[6]+kdr
+*********************************************************************
+R_Use(dir_server+"mo_xml",,"MO_XML")
+R_Use(dir_server+"mo_rak",,"RAK")
+set relation to kod_xml into MO_XML
+R_Use(dir_server+"mo_raks",,"RAKS")
+set relation to akt into RAK
+R_Use(dir_server+"mo_raksh",,"RAKSH")
+set relation to kod_raks into RAKS
+index on str(kod_h,7) to (cur_dir+"tmp_raksh") for mo_xml->DFILE <= mdate_rak
+//
+dbcreate(cur_dir+"tmp",{{"usl_ok","N",1,0},;
+                        {"stroke","C",3,0},;
+                        {"shifr","C",10,0},;
+                        {"kols","N",6,0},;
+                        {"kold","N",10,0},;
+                        {"summa","N",15,2},;
+                        {"sr_kol","N",5,1}})
+use (cur_dir+"tmp") new alias TMP
+index on str(usl_ok,1)+shifr to (cur_dir+"tmp")
+R_Use(dir_server+"schet_",,"SCHET_")
+R_Use(dir_server+"schet",,"SCHET")
+set relation to recno() into SCHET_
+ob_kol := 0
+go top
+do while !eof()
+  fl := .f.
+  if schet_->IS_DOPLATA == 0 .and. !empty(val(schet_->smo)) .and. schet_->NREGISTR == 0 // только зарегистрированные
+    @ maxrow(),0 say padr(alltrim(schet_->NSCHET)+" от "+date_8(schet_->DSCHET),27) color "W/R"
+    // дата регистрации
+    mdate := date_reg_schet()
+    // дата отчетного периода
+    mdate1 := stod(strzero(schet_->nyear,4)+strzero(schet_->nmonth,2)+"15")
+    //
+    fl := between(mdate,arr_m[5],arr_m[6]+kds) .and. between(mdate1,arr_m[5],arr_m[6]) // !!отч.период
+  endif
+  if fl
+    select HUMAN
+    find (str(schet->kod,6))
+    do while human->schet == schet->kod .and. !eof()
+      UpdateStatus()
+      if inkey() == K_ESC
+        fl_exit := .t. ; exit
+      endif
+      // по умолчанию оплачен, если даже нет РАКа
+      koef := 1 ; k := j := 0
+      if m1uslov == 0
+        if human_->oplata == 9
+          koef := 0
+        endif
+      else // как в 14-МЕД
+        select RAKSH
+        find (str(human->kod,7))
+        do while human->kod == raksh->kod_h .and. !eof()
+          if !empty(raksh->SANK_MEK + raksh->SANK_MEE + raksh->SANK_EKMP)
+            ++j
+          endif
+          k += raksh->SANK_MEK + raksh->SANK_MEE + raksh->SANK_EKMP
+          skip
+        enddo
+        if !empty(round(k,2))
+          if empty(human->cena_1) // скорая помощь
+            koef := 0
+          elseif round_5(human->cena_1,2) <= round_5(k,2) // полное снятие
+            koef := 0
+          else // частичное снятие
+            koef := (human->cena_1-k)/human->cena_1
+          endif
+        endif
+      endif
+      if koef > 0 .and. human_->USL_OK < 3
+        kodKSG := ""
+        s_dializ := mkol := 0
+        select HU
+        find (str(human->kod,7))
+        do while hu->kod == human->kod .and. !eof()
+          lshifr1 := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data)
+          if is_usluga_TFOMS(usl->shifr,lshifr1,human->k_data)
+            lshifr := iif(empty(lshifr1), usl->shifr, lshifr1)
+            lshifr := alltrim(lshifr)
+            if is_ksg(lshifr)
+              kodKSG := lshifr
+            elseif left(lshifr,5) == "60.3."
+              s_dializ += round(hu->stoim_1*koef,2)
+            endif
+            if human_->USL_OK == 1
+              mkol := human->k_data - human->n_data  // койко-день
+            elseif left(lshifr,5) == "55.1."
+              mkol += hu->kol_1
+            endif
+          endif
+          select HU
+          skip
+        enddo
+        if m1dializ == 1 // если учитываем стоимость диализа
+          s_dializ := 0  // то не вычитаем его
+        endif
+        ssum := round(human->cena_1*koef,2)
+        if !empty(kodKSG)
+          select TMP
+          find (str(human_->USL_OK,1)+padr(kodKSG,10))
+          if !found()
+            append blank
+            tmp->usl_ok := human_->USL_OK
+            tmp->shifr  := kodKSG
+          endif
+          tmp->kols ++
+          tmp->kold += mkol
+          tmp->summa += ssum - s_dializ
+        endif
+      endif
+      select HUMAN
+      skip
+    enddo
+  endif
+  if fl_exit ; exit ; endif
+  select SCHET
+  skip
+enddo
+ar := {{0,0,0},{0,0,0}}
+select TMP
+go top
+do while !eof()
+  i := tmp->usl_ok
+  ar[i,1] += tmp->kols
+  ar[i,2] += tmp->kold
+  ar[i,3] += tmp->summa
+  tmp->sr_kol := tmp->kold/tmp->kols
+  skip
+enddo
+R_Use(dir_exe+"_mo_pr62",,"PR")
+go top
+do while !eof()
+  select TMP
+  find (str(pr->USL_OK,1)+padr(pr->shifr,10))
+  if !found()
+    append blank
+    tmp->usl_ok := pr->USL_OK
+    tmp->shifr  := pr->shifr
+    if empty(pr->shifr)
+      i := tmp->usl_ok
+      tmp->kols := ar[i,1]
+      tmp->kold := ar[i,2]
+      tmp->summa := ar[i,3]
+      tmp->sr_kol := tmp->kold/tmp->kols
+    endif
+  endif
+  tmp->stroke := pr->stroke
+  select PR
+  skip
+enddo
+select PR
+go top
+do while !eof()
+  if !empty(pr->shifr) .and. !("." $ pr->shifr)
+    afillall(ar,0)
+    i := tmp->usl_ok
+    select TMP
+    find (str(pr->USL_OK,1)+padr(pr->shifr,4))
+    do while pr->usl_ok == tmp->usl_ok .and. padr(pr->shifr,4) == left(tmp->shifr,4)
+      ar[i,1] += tmp->kols
+      ar[i,2] += tmp->kold
+      ar[i,3] += tmp->summa
+      skip
+    enddo
+    find (str(pr->USL_OK,1)+padr(pr->shifr,4))
+    tmp->kols := ar[i,1]
+    tmp->kold := ar[i,2]
+    tmp->summa := ar[i,3]
+    tmp->sr_kol := tmp->kold/tmp->kols
+  endif
+  select PR
+  skip
+enddo
+select TMP
+index on str(usl_ok,1)+stroke to (cur_dir+"tmp")
+for i := 1 to 2
+  ar := {}
+  bk := {4,5}[i] ; j := 0
+  select TMP
+  find (str(i,1))
+  do while tmp->usl_ok == i .and. !eof()
+    ++j
+    aadd(ar, {bk+j,4,tmp->kols})
+    aadd(ar, {bk+j,5,tmp->summa})
+    aadd(ar, {bk+j,6,tmp->sr_kol})
+    skip
+  enddo
+  if i == 1
+    ar_pr5 := {{"Свод КСГ (КС)",aclone(ar)}}
+  else
+    ar_pr6 := {{"Свод КСГ (ДС)",aclone(ar)}}
+  endif
+next
+close databases
+restscreen(buf)
+fill_in_Excel_Book(dir_exe+"mo_pr5_62"+sxls,;
+                   cur_dir+"__pr5_62"+sxls,;
+                   ar_pr5,;
+                   "присланный из ТФОМС")
+fill_in_Excel_Book(dir_exe+"mo_pr6_62"+sxls,;
+                   cur_dir+"__pr6_62"+sxls,;
+                   ar_pr6,;
+                   "присланный из ТФОМС")
 return NIL
