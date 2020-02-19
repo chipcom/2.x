@@ -407,7 +407,7 @@ elseif lp == 64 // оториноларингологии
 endif
 return lp
 
-***** 16.02.20
+***** 19.02.20
 Function verify_1_sluch(fl_view)
 Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
       i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -655,6 +655,21 @@ endif
 mdiagnoz := diag_to_array(,,,,.t.)
 if len(mdiagnoz) == 0 .or. empty(mdiagnoz[1])
   aadd(ta,'не заполнено поле "ОСНОВНОЙ ДИАГНОЗ"')
+elseif left(mdiagnoz[1],1) == "P" .and. human_->USL_OK == 1 // стационар
+  if left(mdiagnoz[1],3) == "P07"
+    if human_->NOVOR == 0  // лист учёта оформлен на ребёнка
+      if human_2->VNR == 0
+        aadd(ta, "для основного диагноза "+mdiagnoz[1]+" не указан вес недоношенного (маловесного) ребёнка")
+      endif
+    else // лист учёта оформлен на мать
+      if emptyall(human_2->VNR1,human_2->VNR2,human_2->VNR3)
+        aadd(ta, "для основного диагноза "+mdiagnoz[1]+" не указан вес недоношенных (маловесных) детей")
+      endif
+    endif
+    if mvozrast > 0
+      aadd(ta, "для основного диагноза "+mdiagnoz[1]+" возраст должен быть меньше года")
+    endif
+  endif
 endif
 if select("MKB_10") == 0
   R_Use(dir_exe+"_mo_mkb",cur_dir+"_mo_mkb","MKB_10")

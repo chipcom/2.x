@@ -611,7 +611,8 @@ do while .t.
   if fl_mr_dol
     set key K_F4 TO v_vvod_mr
   endif
-  count_edit := myread(,@pos_read,++k_read)
+  count_edit := myread()
+  //count_edit := myread(,@pos_read,++k_read)
   if fl_mr_dol
     set key K_F4 TO
   endif

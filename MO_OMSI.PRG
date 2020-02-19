@@ -4979,9 +4979,9 @@ endif
 Private arr_m := {2019,1,12,"за январь - декабрь 2019 года",0d20190101,0d20191231},;
         mm_uslov := {{"по счетам отч.периода (без учёта РАК)",0},;
                      {"с учётом РАК (как в форме 14-МЕД/ОМС)",1}}
-Private mdate := arr_m[4], m1date := arr_m[1], muslov := mm_uslov[1,1], m1uslov := mm_uslov[1,2],;
+Private mdate := arr_m[4], m1date := arr_m[1], muslov := mm_uslov[2,1], m1uslov := mm_uslov[2,2],;
         mdializ := mm_danet[1,1], m1dializ := mm_danet[1,2]
-r1 := 16
+r1 := 17
 box_shadow(r1,2,22,77,color1," Отчёт по КСГ ",color8)
 tmp_solor := setcolor(cDataCGet)
 @ r1+ 2,4 say "Период времени" get mdate ;
@@ -4991,8 +4991,8 @@ tmp_solor := setcolor(cDataCGet)
                            k }},A__FUNCTION,,,.f.)}
 @ r1+ 3,4 say "Условия отбора" get muslov ;
           reader {|x|menu_reader(x,mm_uslov,A__MENUVERT,,,.f.)}
-@ r1+ 4,4 say "Учитывать стоимость процедур диализа (вместе с КСГ)?" get mdializ ;
-          reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
+//@ r1+ 4,4 say "Учитывать стоимость процедур диализа (вместе с КСГ)?" get mdializ ;
+  //        reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
 status_key("^<Esc>^ - выход;  ^<PgDn>^ - создание отчёта")
 myread()
 restscreen(buf)

@@ -4,9 +4,9 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 09.02.14 прочитать и "разнести" по базам данных РПД
+***** 19.02.20 прочитать и "разнести" по базам данных РПД
 Function read_XML_FILE_RPD(arr_XML_info,aerr)
-Local fl_PD, fl_schet, blk_PD, blk_schet, i, k, s, s1, arr_s := {}, t_arr[2], ;
+Local fl_PD, fl_schet, blk_PD, blk_schet, i, k, s, s1, arr_s := {}, t_arr[2], ssum,;
       arr, apd := {}, no_write := .t.
 blk_PD := {|| aadd(aerr,"Платёжный документ № "+alltrim(tmp2->_N_PD)+" от "+date_8(tmp2->_D_PD)) }
 blk_schet := {|| aadd(aerr," СЧЁТ № "+alltrim(tmp3->_nschet)+" от "+date_8(tmp3->_dschet)) }
@@ -52,7 +52,7 @@ do while !eof()
       select HUMAN
       set index to (dir_server+"humans")
       find (str(tmp3->kod_schet,6))
-      index on str(human_->schet_zap,6) to (cur_dir+"tmp_hum") while schet==tmp3->kod_schet
+      index on str(human_->schet_zap,6) to (cur_dir+"tmp_hum") for ishod != 89 while schet == tmp3->kod_schet
       select TMP4
       find (str(tmp3->kod_pd,10)+str(tmp3->kod_s,10))
       do while tmp3->kod_pd == tmp4->kod_pd .and. tmp3->kod_s == tmp4->kod_s .and. !eof()
@@ -130,6 +130,7 @@ strfile(hb_eol()+;
 //
 select HUMAN
 set index to
+R_Use(dir_server+"human_3",{dir_server+"human_3",dir_server+"human_32"},"HUMAN_3")
 G_Use(dir_server+"schet",,"SCHET")
 G_Use(dir_server+"mo_rpd",,"RPD")
 index on str(PD,6) to (cur_dir+"tmprpd")
@@ -194,7 +195,14 @@ do while !eof()
           human->(dbGoto(tmp4->KOD_H))
           //human->(G_RLock(forever))
           //human->DATE_OPL := dtoc4(rpd->D_PD) т.к. будем заносить next_vizit
-          if round(human->cena_1,2) == round(tmp4->_S_SL,2)
+          ssum := human->cena_1
+          if human->ishod == 88
+            select HUMAN_3
+            set order to 1
+            find (str(human->kod,7))
+            ssum := human_3->CENA_1
+          endif
+          if round(ssum,2) == round(tmp4->_S_SL,2)
             ++k
           else
             sumr := 0
@@ -204,13 +212,13 @@ do while !eof()
               sumr += rpdsh->S_SL
               skip
             enddo
-            s := space(4)+"сумма лечения: "+lstr(human->cena_1,15,2)+"р., "+;
+            s := space(4)+"сумма лечения: "+lstr(ssum,15,2)+"р., "+;
                           "оплачено: "+lstr(tmp4->_S_SL,15,2)+"р., "
             if empty(sumr)
-              s += "не оплачено: "+lstr(human->cena_1-tmp4->_S_SL,15,2)+"р."
+              s += "не оплачено: "+lstr(ssum-tmp4->_S_SL,15,2)+"р."
             else
               s += "ранее оплачено: "+lstr(sumr,15,2)+"р."
-              if round(human->cena_1,2) == round(sumr+tmp4->_S_SL,2)
+              if round(ssum,2) == round(sumr+tmp4->_S_SL,2)
                 ++k1
                 s += hb_eol()+space(4)+"=итого случай полностью оплачен="
               endif

@@ -563,6 +563,8 @@ R_Use(dir_exe+"_mo_mkb",cur_dir+"_mo_mkb","MKB_10")
 use_base("lusl")
 use_base("luslc")
 use_base("luslf")
+R_Use(dir_exe+"_mo_t2_v1",,"T2V1")
+index on padr(shifr_mz,20) to (cur_dir+"tmp_t2v1")
 R_Use(dir_exe+"_mo_prof",,"MOPROF")
 index on str(vzros_reb,1)+str(profil,3)+shifr to (cur_dir+"tmp_prof")
 R_Use(dir_server+"mo_pers",dir_server+"mo_pers","PERS")
@@ -1028,7 +1030,7 @@ do while !eof()
         aeval(arr_ksg[2],{|x| aadd(ae,x) })
       endif
     endif
-  elseif ihuman->USL_OK == 3 .and. eq_any(ihuman->VID_AMB,1,2,3,4,5,6,22,40,41)// поликлиника
+  elseif ihuman->USL_OK == 3 .and. eq_any(ihuman->VID_AMB,1,2,3,4,5,6,7,22,40,41)// поликлиника
     a_vid_amb := {; // В теге <VID_AMB> проставляется вид амбулаторно-поликлинического случая, а именно:
       {1,"2.78."},; //	Обращение с лечебной целью
       {2,"2.79."},; //	Посещение с профилактической целью
@@ -1038,31 +1040,27 @@ do while !eof()
       {40,"2.88.78","2.88.106"},; //	Разовое посещение по поводу заболевания с целью проведения диспансерного наблюдения первичное
       {41,"2.88.52","2.88.77"},; //	Разовое посещение по поводу заболевания с целью проведения диспансерного наблюдения повторное
       {5,"2.82."},; //	Врачебный приём в приёмном покое стационара
-      {6,"2.81."};  //  Консультация
+      {6,"2.81."},;  //  Консультация
+      {7,"60."};  //
     } //  исправить потом для "2.88.104" !!!!!!!
     glob_otd_dep := 0 // для поликлиники всегда
     LVZROS_REB := iif(m1VZROS_REB == 0, 0, 1)
     v := 0
     fl := .f.
     if (i := ascan(a_vid_amb, {|x| x[1] == ihuman->VID_AMB })) > 0
-      lshifr := a_vid_amb[i,2]
-      lshifr2 := iif(len(a_vid_amb[i]) == 3, a_vid_amb[i,3], "")
-      select MOPROF
-      find (str(LVZROS_REB,1)+str(ihuman->PROFIL,3)+left(lshifr,5))
-      do while moprof->vzros_reb == LVZROS_REB .and. moprof->profil == ihuman->PROFIL ;
-                                               .and. left(moprof->shifr,5) == left(lshifr,5) .and. !eof()
-        if iif(empty(lshifr2), .t., between_shifr(alltrim(moprof->shifr),lshifr,lshifr2))
-          fldel := .f.
-          v := fcena_oms(moprof->shifr,(LVZROS_REB==0),ihuman->DATE_2,@fldel)
-          if !fldel
-            fl := .t. ; exit
+      if ihuman->VID_AMB == 7 // отдельные услуги
+        select IHU
+        set order to 1
+        find (str(ihuman->kod,10))
+        do while ihu->KOD == ihuman->kod .and. !eof()
+          select T2V1
+          find (padr(ihu->CODE_USL,20))
+          if found()
+            ihu->CODE_USL := t2v1->shifr
           endif
-        endif
-        select MOPROF
-        skip
-      enddo
-      if fl
-        lshifr := moprof->shifr
+          select IHU
+          skip
+        enddo
         k := 0
         select IPODR
         find (str(ihuman->kod,10))
@@ -1082,38 +1080,78 @@ do while !eof()
             aadd(ai,'дата начала и окончания лечения в отделении "'+rtrim(otd->short_name)+;
                     '" не равны аналогичным датам в случае')
           endif
-          if ihuman->VID_AMB > 1 .and. ihuman->DATE_1 < ihuman->DATE_2
-            aadd(ae,'дата начала и окончания лечения должна быть один день')
-          endif
-          select IHU
-          append blank
-          ihu->KOD := ihuman->kod
-          ihu->KODP := ipodr->(recno())
-          ihu->PROFIL := ipodr->PROFIL
-          ihu->otd := ipodr->otd
-          ihu->otd_sds := ipodr->otd_sds
-          ihu->DS := ipodr->DS
-          ihu->CODE_USL := lshifr
-          ihu->KOL_USL := 1
-          ihu->DATE_IN := ihu->DATE_OUT := ipodr->DATE_1
-          ihuman->sumv := ihu->TARIF := ihu->SUMV_USL := v
-          ihu->VRACH := ipodr->VRACH
-          ihu->VRACH_SDS := ipodr->VRACH_SDS
-          ihu->VR_SNILS := ipodr->VR_SNILS
-          select IHU
-          set order to 2
-          find (str(ipodr->(recno()),10))
-          do while ihu->kodp == ipodr->(recno()) .and. !eof()
-            if empty(ihu->CODE_USL)
-              ihu->CODE_USL := ret_shifr_2_60(ihu->profil,m1VZROS_REB)
+        endif
+      else
+        lshifr := a_vid_amb[i,2]
+        lshifr2 := iif(len(a_vid_amb[i]) == 3, a_vid_amb[i,3], "")
+        select MOPROF
+        find (str(LVZROS_REB,1)+str(ihuman->PROFIL,3)+left(lshifr,5))
+        do while moprof->vzros_reb == LVZROS_REB .and. moprof->profil == ihuman->PROFIL ;
+                                                 .and. left(moprof->shifr,5) == left(lshifr,5) .and. !eof()
+          if iif(empty(lshifr2), .t., between_shifr(alltrim(moprof->shifr),lshifr,lshifr2))
+            fldel := .f.
+            v := fcena_oms(moprof->shifr,(LVZROS_REB==0),ihuman->DATE_2,@fldel)
+            if !fldel
+              fl := .t. ; exit
             endif
-            select IHU
+          endif
+          select MOPROF
+          skip
+        enddo
+        if fl
+          lshifr := moprof->shifr
+          k := 0
+          select IPODR
+          find (str(ihuman->kod,10))
+          do while ihuman->kod == ipodr->kod .and. !eof()
+            ++k
             skip
           enddo
+          if k == 0
+            aadd(ae,'не заполнено подразделение')
+          elseif k > 1
+            aadd(ae,'для поликлиники нельзя вводить более одного подразделения')
+          else
+            select IPODR
+            find (str(ihuman->kod,10))
+            otd->(dbGoto(ipodr->otd))
+            if !(ipodr->DATE_1 == ihuman->DATE_1 .and. ipodr->DATE_2 == ihuman->DATE_2)
+              aadd(ai,'дата начала и окончания лечения в отделении "'+rtrim(otd->short_name)+;
+                      '" не равны аналогичным датам в случае')
+            endif
+            if ihuman->VID_AMB > 1 .and. ihuman->DATE_1 < ihuman->DATE_2
+              aadd(ae,'дата начала и окончания лечения должна быть один день')
+            endif
+            select IHU
+            append blank
+            ihu->KOD := ihuman->kod
+            ihu->KODP := ipodr->(recno())
+            ihu->PROFIL := ipodr->PROFIL
+            ihu->otd := ipodr->otd
+            ihu->otd_sds := ipodr->otd_sds
+            ihu->DS := ipodr->DS
+            ihu->CODE_USL := lshifr
+            ihu->KOL_USL := 1
+            ihu->DATE_IN := ihu->DATE_OUT := ipodr->DATE_1
+            ihuman->sumv := ihu->TARIF := ihu->SUMV_USL := v
+            ihu->VRACH := ipodr->VRACH
+            ihu->VRACH_SDS := ipodr->VRACH_SDS
+            ihu->VR_SNILS := ipodr->VR_SNILS
+            select IHU
+            set order to 2
+            find (str(ipodr->(recno()),10))
+            do while ihu->kodp == ipodr->(recno()) .and. !eof()
+              if empty(ihu->CODE_USL)
+                ihu->CODE_USL := ret_shifr_2_60(ihu->profil,m1VZROS_REB)
+              endif
+              select IHU
+              skip
+            enddo
+          endif
+        elseif ihuman->PROFIL > 0
+          aadd(ae,'не найдена соответствующая услуга '+left(lshifr,5)+'* ('+iif(m1VZROS_REB==0,"взрослый","ребёнок")+;
+                  ') для профиля "'+inieditspr(A__MENUVERT, glob_V002, ihuman->PROFIL)+'"')
         endif
-      elseif ihuman->PROFIL > 0
-        aadd(ae,'не найдена соответствующая услуга '+left(lshifr,5)+'* ('+iif(m1VZROS_REB==0,"взрослый","ребёнок")+;
-                ') для профиля "'+inieditspr(A__MENUVERT, glob_V002, ihuman->PROFIL)+'"')
       endif
     else
       aadd(ae,'некорректный вид амбулаторно-поликлинического случая '+lstr(ihuman->VID_AMB))

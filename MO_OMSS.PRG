@@ -66,7 +66,7 @@ if !empty(full_zip)
       case arr_XML_info[1] == _XML_FILE_RAK
         s += "р-ра актов контроля"
       case arr_XML_info[1] == _XML_FILE_RPD
-        s += "р-ра плат.док-тов"
+        s += "реестра плат.док-тов"
       case arr_XML_info[1] == _XML_FILE_R02
         s += "файла ответа на R01"
       case arr_XML_info[1] == _XML_FILE_R12
