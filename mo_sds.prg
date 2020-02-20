@@ -53,7 +53,7 @@ if k > 0
 endif
 return NIL
 
-***** 17.04.19
+***** 20.02.20
 Function read_file_XML_SDS(n_file)
 Static cDelimiter := " ,"
 Local _sluch := {;
@@ -1049,6 +1049,8 @@ do while !eof()
     fl := .f.
     if (i := ascan(a_vid_amb, {|x| x[1] == ihuman->VID_AMB })) > 0
       if ihuman->VID_AMB == 7 // отдельные услуги
+        is_kt := is_mrt := is_uzi := is_endo := is_gisto := .f.
+        ssum := 0
         select IHU
         set order to 1
         find (str(ihuman->kod,10))
@@ -1058,9 +1060,33 @@ do while !eof()
           if found()
             ihu->CODE_USL := t2v1->shifr
           endif
+          if left(ihu->CODE_USL,3) == "60."
+            k := int(val(substr(ihu->CODE_USL,4,1)))
+            if k == 4
+              is_kt := .t.
+            elseif k == 5
+              is_mrt := .t.
+            elseif k == 6
+              is_uzi := .t.
+            elseif k == 7
+              is_endo := .t.
+            elseif k == 8
+              is_gisto := .t.
+            endif
+            fldel := .f.
+            v := fcena_oms(ihu->CODE_USL,(LVZROS_REB==0),ihuman->DATE_2,@fldel)
+            if !fldel
+              ihu->TARIF := v
+              ihu->SUMV_USL := v * ihu->KOL_USL
+              ssum += ihu->SUMV_USL
+            endif
+          else
+            aadd(ae,'не найдена услуга '+alltrim(ihu->CODE_USL)+' ('+iif(m1VZROS_REB==0,"взрослый","ребёнок"))
+          endif
           select IHU
           skip
         enddo
+        ihuman->sumv := ssum
         k := 0
         select IPODR
         find (str(ihuman->kod,10))
@@ -1080,6 +1106,43 @@ do while !eof()
             aadd(ai,'дата начала и окончания лечения в отделении "'+rtrim(otd->short_name)+;
                     '" не равны аналогичным датам в случае')
           endif
+        endif
+        if empty(ae) // ошибок ещё нет?
+          if empty(ihuman->NPR_MO)
+            ihuman->NPR_MO := glob_mo[_MO_KOD_TFOMS]
+          endif
+          if empty(ihuman->NPR_DATE)
+            ihuman->NPR_DATE := ihuman->DATE_1
+          endif
+          if !eq_any(ihuman->RSLT,314)
+            ihuman->RSLT := 314
+          endif
+          if !eq_any(ihuman->ISHOD,304)
+            ihuman->ISHOD := 304
+          endif
+          if left(ihuman->ds1,1) == "C" .or. between(left(ihuman->ds1,3),"D00","D09")
+            // оставляем онкологический диагноз
+          elseif padr(ihuman->ds1,5) == "Z03.1"
+            if is_gisto
+              //aadd(ta,'для '+s+' не может быть установлен основной диагноз "Z03.1 наблюдение при подозрении на злокачественную опухоль"')
+            endif
+          elseif is_kt
+            if !(padr(ihuman->ds1,5) == "Z01.6")
+              ihuman->ds1 := "Z01.6"
+            endif
+          elseif is_mrt .or. is_uzi .or. is_endo
+            if !(padr(ihuman->ds1,5) == "Z01.8")
+              ihuman->ds1 := "Z01.8"
+            endif
+          endif
+          select IHU
+          set order to 1
+          find (str(ihuman->kod,10))
+          do while ihu->KOD == ihuman->kod .and. !eof()
+            ihu->ds := ihuman->ds1
+            select IHU
+            skip
+          enddo
         endif
       else
         lshifr := a_vid_amb[i,2]
@@ -1205,7 +1268,7 @@ do while !eof()
 enddo
 close databases
 rest_box(buf)
-return fl
+return .t.
 
 ***** 10.03.18 вернуть шифр услуги 2.60.*
 Function ret_shifr_2_60(lprofil,lvzros_reb)

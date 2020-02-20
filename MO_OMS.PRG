@@ -5912,7 +5912,7 @@ endif
 select (tmp_select)
 return .t.
 
-***** 11.03.14 действия в ответ на выбор в меню "Условия оказания медицинской помощи"
+***** 20.02.20 действия в ответ на выбор в меню "Условия оказания медицинской помощи"
 Function f_valid_usl_ok(get,old,is_input)
 Local _y, _m, s
 DEFAULT is_input TO .t.
@@ -5946,7 +5946,8 @@ if is_input .and. type("p_nstr_vnr") == "N"
   s := "" ; input_vnr := input_vnrm := .f.
   if m1usl_ok == 1 // стационар
     count_ymd(iif(M1NOVOR==1,mdate_r2,mdate_r),mn_data,@_y,@_m,)
-    if _y == 0 .and. _m < 7 // ребёнок не старше 6 месяцев
+    //if _y == 0 .and. _m < 7 // ребёнок не старше 6 месяцев
+    if _y == 0 // ребёнок до года
       s := p_str_vnr ; input_vnr := .t.
     else
       MVNR := space(4)

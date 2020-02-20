@@ -655,21 +655,6 @@ endif
 mdiagnoz := diag_to_array(,,,,.t.)
 if len(mdiagnoz) == 0 .or. empty(mdiagnoz[1])
   aadd(ta,'не заполнено поле "ОСНОВНОЙ ДИАГНОЗ"')
-elseif left(mdiagnoz[1],1) == "P" .and. human_->USL_OK == 1 // стационар
-  if left(mdiagnoz[1],3) == "P07"
-    if human_->NOVOR == 0  // лист учёта оформлен на ребёнка
-      if human_2->VNR == 0
-        aadd(ta, "для основного диагноза "+mdiagnoz[1]+" не указан вес недоношенного (маловесного) ребёнка")
-      endif
-    else // лист учёта оформлен на мать
-      if emptyall(human_2->VNR1,human_2->VNR2,human_2->VNR3)
-        aadd(ta, "для основного диагноза "+mdiagnoz[1]+" не указан вес недоношенных (маловесных) детей")
-      endif
-    endif
-    if mvozrast > 0
-      aadd(ta, "для основного диагноза "+mdiagnoz[1]+" возраст должен быть меньше года")
-    endif
-  endif
 endif
 if select("MKB_10") == 0
   R_Use(dir_exe+"_mo_mkb",cur_dir+"_mo_mkb","MKB_10")
@@ -715,6 +700,14 @@ for i := 1 to len(mdiagnoz3)
     aadd(ta,"не найден диагноз "+alltrim(mdiagnoz3[i])+" в справочнике МКБ-10")
   endif
 next
+if human_->USL_OK == 1 ; // стационар
+     .and. (ascan(mdiagnoz,{|x| left(x,3) == "P07" }) > 0 .or. ascan(mdiagnoz3,{|x| left(x,3) == "P07" }) > 0) ;
+           .and. mvozrast == 0 .and. human_2->VNR == 0
+  aadd(ta, "для диагноза P07.* не указан вес недоношенного (маловесного) ребёнка")
+endif
+if mvozrast > 0 .and. left(mdiagnoz[1],1) == "P"
+  aadd(ta, "для основного диагноза "+mdiagnoz[1]+" возраст должен быть меньше года")
+endif
 s := ""
 if len(mdiagnoz) > 0 .and. f_oms_beremenn(mdiagnoz[1]) == 3 .and. between(human_2->pn2,1,4)
   s := "R52."+{"0","1","2","9"}[human_2->pn2]
