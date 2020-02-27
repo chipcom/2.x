@@ -1470,7 +1470,7 @@ close databases
 viewtext(n_file,,,,(sh > 80),,,reg_print)
 return NIL
 
-***** 23.01.20 многовариантный поиск
+***** 26.02.20 многовариантный поиск
 Function s_mnog_poisk()
 Static mm_rak := {;
   {"все случаи",0},;
@@ -1516,6 +1516,7 @@ Local buf := savescreen(), tmp_color := setcolor(cDataCGet),;
       menu_bolnich := {{"нет",1},{"да",2},{"родители",3}},;
       mm_mest := {{"Волгоград или область",1},{"иногородние",2}},;
       mm_dom := {{"-----",0},{"в поликлинике",1},{"на дому",2}},;
+      mm_invalid := {{"неважно",0},{"любая группа",9},{"1 группа",1},{"2 группа",2},{"3 группа",3},{"дети-инвалиды",4}},;
       mm_prik := {{"неважно",0},;
                   {"прикреплён к нашей МО",1},;
                   {"не прикреплён к нашей МО",2}},;
@@ -1728,6 +1729,10 @@ aadd(mm_tmp, {"mr_dol","C",20,0,"@!",;
               nil,;
               space(20),nil,;
               "Место работы (подстрока или шаблон)"})
+aadd(mm_tmp, {"invalid","N",1,0,NIL,;
+              {|x|menu_reader(x,mm_invalid,A__MENUVERT)},;
+              0,{|x|inieditspr(A__MENUVERT,mm_invalid,x)},;
+              "Наличие инвалидности"})
 aadd(mm_tmp, {"kategor","N",4,0,NIL,;
               {|x|menu_reader(x,mo_cut_menu(stm_kategor),A__MENUVERT)},;
               0,{|| space(10) },;
@@ -2439,6 +2444,9 @@ if k > 0
     if !empty(mmr_dol)
       add_string("Место работы: "+mmr_dol)
     endif
+    if mn->invalid > 0
+      add_string("Наличие инвалидности: "+inieditspr(A__MENUVERT, mm_invalid, mn->invalid))
+    endif
     if mn->kategor > 0
       add_string("Код категории льготы: "+inieditspr(A__MENUVERT, stm_kategor, mn->kategor))
     endif
@@ -2724,6 +2732,17 @@ if k > 0
       s3 := iif(mem_kodkrt == 2, space(1), space(7))
       if !empty(kart->SNILS)
         s3 += transform(kart->SNILS,picture_pf)+" "
+      endif
+      if mn->invalid == 9
+        if kart_->INVALID == 1
+          s3 += "инв.1группы "
+        elseif kart_->INVALID == 2
+          s3 += "инв.2группы "
+        elseif kart_->INVALID == 3
+          s3 += "инв.3группы "
+        else
+          s3 += "дети-инвалиды "
+        endif
       endif
       if mn->bolnich1 > 1 .or. mn->bolnich > 0
         s3 += "больничн. "+left(date_8(c4tod(human->date_b_1)),5)+"-"+date_8(c4tod(human->date_b_2))
@@ -3022,7 +3041,7 @@ if k == 1
 endif
 return fl
 
-***** 30.09.19
+***** 26.02.20
 Static Function s1_mnog_poisk(cv,cf)
 Static a_stom_vp := {{},{},{}}
 Local i, j, k, n, s, arr, fl := .t., flu := .f., mkol, mstoim := 0, fl1, fl2, vid_vp := 1,;
@@ -3242,6 +3261,13 @@ if fl .and. !empty(madres)
 endif
 if fl .and. !empty(mmr_dol)
   fl := like(mmr_dol,upper(kart->mr_dol))
+endif
+if fl .and. mn->invalid > 0
+  if mn->invalid == 9
+    fl := (kart_->INVALID > 0)
+  else
+    fl := (kart_->INVALID == mn->invalid)
+  endif
 endif
 if fl .and. mn->kategor > 0
   fl := (mn->kategor == kart_->kategor)
@@ -5373,7 +5399,7 @@ index on str(smo,5)+str(vid,1)+str(pz,1)+enp to (cur_dir+"tmp3")
 tmp := aclone(arr_m)
 tmp[5] := 1 // январь
 ret_days_for_akt_sverki(tmp,@b1_1,,@a1_1,)
-//my_debug(,print_array({tmp,b1_1,a1_1}))
+//my_debug(,print_array({tmp,b1_1,,a1_1,}))
 //
 d1 := d2 := 10
 ret_days_for_akt_sverki(arr_m,@b1,@b2,@a1,@a2)
@@ -5399,9 +5425,16 @@ do while !eof()
   if !empty(lsmo) .and. schet_->NREGISTR == 0 // только зарегистрированные
     @ maxrow(),0 say padr("№ "+alltrim(schet_->NSCHET)+" от "+date_8(schet_->DSCHET),28) color "W/R"
     mdate := date_reg_schet() // дата регистрации
-    if between(mdate,boy(arr_m[5])+iif(lsmo==34,0,b1_1),arr_m[6]+iif(lsmo==34,0,b2))
-      fl_month := between(mdate,arr_m[5]+iif(lsmo==34,0,b1),arr_m[6]+iif(lsmo==34,0,b2))
-      f1forma1_ffoms(0,arr_m,arr_smo,fl_month,schet->summa,iif(lsmo==34,0,b1),iif(lsmo==34,0,b2))
+    if lsmo == 34
+      if between(mdate,boy(arr_m[5]),arr_m[6])
+        fl_month := between(mdate,arr_m[5],arr_m[6])
+        f1forma1_ffoms(0,arr_m,arr_smo,fl_month,schet->summa,0,0)
+      endif
+    else
+      if between(mdate,boy(arr_m[5])+b1_1,arr_m[6]+b2)
+        fl_month := between(mdate,arr_m[5]+b1,arr_m[6]+b2)
+        f1forma1_ffoms(0,arr_m,arr_smo,fl_month,schet->summa,b1,b2)
+      endif
     endif
     mdate1 := stod(strzero(schet_->nyear,4)+strzero(schet_->nmonth,2)+"15")
     fl_month := between(mdate1,arr_m[5],arr_m[6]) // отч.период текущий месяц
@@ -5909,7 +5942,7 @@ return NIL
 
 *
 
-***** 15.02.17
+***** 26.02.20
 Function f1forma1_ffoms(delta,arr_m,arr_smo,fl_month,_summa,_b1,_b2)
 Local msmo, ns, ns1, mdate
 DEFAULT _b1 TO 0, _b2 TO 0
@@ -5944,8 +5977,7 @@ if fl_month
 endif
 tmp1->summa2 += _summa
 if ns == 6+delta .and. fl_month
-  mdate := stod(strzero(schet_->nyear,4)+strzero(schet_->nmonth,2)+"15")
-  if between(mdate,arr_m[5]+_b1,arr_m[6]+_b2)
+  if schet_->nyear == arr_m[1] .and. schet_->nmonth == arr_m[3]
     ns1 := 2
   else
     ns1 := 1
@@ -5981,6 +6013,8 @@ Local tfoms_pz[6,3], mkol, ta, i, ii, j, k, lshifr, lvidpom := 1, lshifr1, j1, f
       fl_T := (schet_->bukva == "T"), fl_K := (schet_->bukva == "K"), lalf := "luslf"
 if arr_m[1] == 2018
   lalf += "18"
+elseif arr_m[1] == 2019
+  lalf += "19"
 endif
 select HU
 find (str(human->kod,7))

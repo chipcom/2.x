@@ -1893,9 +1893,9 @@ return fl
 
 *
 
-***** 30.11.15
+***** 27.02.20
 Function prn_kartoteka(k)
-Static si1 := 1, si2 := 1, si3 := 1
+Static si1 := 1, si2 := 1, si3 := 1, si4 := 1
 Local mas_pmt, mas_msg, mas_fun, j, r, nuch, nsmo
 DEFAULT k TO 1
 do case
@@ -1911,6 +1911,9 @@ do case
       aadd(mas_msg, "Просмотр прикреплённого населения")
       aadd(mas_fun, "prn_kartoteka(13)")
     endif
+    //aadd(mas_pmt, "Информация по ~инвалидам")
+    //aadd(mas_msg, "Просмотр сводной информации по инвалидам")
+    //aadd(mas_fun, "prn_kartoteka(14)")
     if T_ROW > 8
       r := T_ROW-len(mas_pmt)-3
     else
@@ -1948,6 +1951,20 @@ do case
                 "prn_kartoteka(24)"}
     Private arr_mo := {}, arr_no := {}
     popup_prompt(T_ROW-3-len(mas_pmt),T_COL+5,si2,mas_pmt,mas_msg,mas_fun)
+  case k == 14
+    mas_pmt := {"~Сводная информация",;
+                "Прикреплённые к нашей ~МО",;
+                "Прикреплённые к ~другим МО",;
+                "~Не прикреплённые ни к одной МО"}
+    mas_msg := {"Итоговая информация по прикреплённому населению из нашей картотеки",;
+                "Просмотр/печать населения, прикреплённого к нашей МО",;
+                "Просмотр/печать населения, прикреплённого к другим МО",;
+                "Просмотр/печать населения, не прикреплённого ни к одной МО"}
+    mas_fun := {"prn_kartoteka(41)",;
+                "prn_kartoteka(42)",;
+                "prn_kartoteka(43)",;
+                "prn_kartoteka(44)"}
+    popup_prompt(T_ROW-3-len(mas_pmt),T_COL+5,si4,mas_pmt,mas_msg,mas_fun)
   case k == 21
     pripisnoe_naselenie_view()
   case k == 22
@@ -1971,6 +1988,10 @@ do case
     prn_itogo_uch_vrach()
   case k == 33
     kol_uch_pripisnoe_naselenie()
+  case k == 41
+  case k == 42
+  case k == 43
+  case k == 44
 endcase
 if k > 10
   j := int(val(right(lstr(k),1)))
@@ -1980,6 +2001,8 @@ if k > 10
     si2 := j
   elseif between(k,31,39)
     si3 := j
+  elseif between(k,41,49)
+    si4 := j
   endif
 endif
 return NIL

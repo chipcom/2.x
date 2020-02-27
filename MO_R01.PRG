@@ -3199,7 +3199,7 @@ if glob_mo[_MO_IS_UCH]
 endif
 return NIL
 
-***** 26.01.20 проверить, есть ли не до конца обработанные операции с файлами R11...
+***** 25.02.20 проверить, есть ли не до конца обработанные операции с файлами R11...
 Function find_unfinished_R11()
 Local fl := .t., fl1, skol := 0, mkol := 0, arr := {}, rec, fl_date := .t.
 Private sgod := 2020, mrec := 1, smonth := 3
@@ -3207,7 +3207,7 @@ if glob_mo[_MO_IS_UCH]
   if (fl := verify_packet_R05(2,arr))
     R_Use(dir_server+"mo_dr05p",,"R05p")
     goto (mrec)
-    skol := r05p->KOL1_02 + r05p->KOL2_02 // пока так - проверяем февраль
+    skol := &("r05p->kol1_"+strzero(smonth,2)) + &("r05p->kol2_"+strzero(smonth,2))
     select MO_XML
     index on str(reestr,6) to (cur_dir+"tmp_xml") for tip_in == _XML_FILE_R12 .and. empty(TIP_OUT)
     R_Use(dir_server+"mo_dr01",,"REES")
