@@ -1648,12 +1648,14 @@ if (fl := verify_packet_R05(1,arr))
       go top
       do while !eof()
         j := tmp->tip
-        j1 := tmp->tip1
-        tmp->n_m := tmp->n_q := 0 // если уже заходили в режим и не подтвердили создание XML
-        if between(j1,1,3)
-          mkol[j1+2] ++
-        else
-          mkol[j] ++ // подсчёт оставшегося кол-ва в пуле пациентов
+        if between(j,1,2)
+          j1 := tmp->tip1
+          tmp->n_m := tmp->n_q := 0 // если уже заходили в режим и не подтвердили создание XML
+          if between(j1,1,3)
+            mkol[j1+2] ++
+          else
+            mkol[j] ++ // подсчёт оставшегося кол-ва в пуле пациентов
+          endif
         endif
         skip
       enddo

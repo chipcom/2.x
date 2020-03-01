@@ -930,11 +930,12 @@ do while hu->kod == human->kod .and. !eof()
       endif
       hu_->profil := lprofil
     endif
-    if empty(hu->kod_vr)
+    if left(lshifr,5) == "60.8."
+      hu_->profil := 15   // гистология
+      mprvs := hu_->PRVS := -13 // Клиническая лабораторная диагностика
+    elseif empty(hu->kod_vr)
       if eq_any(alltrim(lshifr),"4.20.2")
         // не заполняется код врача
-      elseif hu_->profil == 15   // гистология
-        hu_->PRVS := -13 // Клиническая лабораторная диагностика
       elseif hu->is_edit == -1
         if human_->USL_OK == 3
           hu_->PRVS := iif(hu_->profil == 34, -13, -54)
@@ -2863,7 +2864,7 @@ else
         aadd(arr_prvs,au_flu[i,4])
       endif
     next
-    if len(arr_prvs) > 1
+    if len(arr_prvs) > 1 .and. !is_gisto
       aadd(ta,'в случае использованы разные специальности врачей')
     endif
   endif
@@ -3246,23 +3247,23 @@ elseif kkt > 0 .and. !is_s_dializ .and. !is_dializ .and. !is_perito
       aadd(ta,'для '+s+' профиль должен быть КЛИНИЧЕСКАЯ ЛАБОРАТОРНАЯ ДИАГНОСТИКА')
     endif
   else
-    if kkt > 2
-      //aadd(ta,'кол-во услуг '+s+' ('+lstr(kkt)+') не должно быть более 2')
-    endif
     if is_oncology == 2
       // повод обращения - диагностика уже проверен выше
     elseif padr(mdiagnoz[1],5) == "Z03.1"
-      if is_gisto
-        aadd(ta,'для '+s+' не может быть установлен основной диагноз "Z03.1 наблюдение при подозрении на злокачественную опухоль"')
-      endif
+      //if is_gisto
+        //aadd(ta,'для '+s+' не может быть установлен основной диагноз "Z03.1 наблюдение при подозрении на злокачественную опухоль"')
+      //endif
     elseif is_kt
       if !(padr(mdiagnoz[1],5) == "Z01.6")
-        aadd(ta,'для '+s+' диагноз должен быть Z01.6')
+        aadd(ta,'для '+s+' основной диагноз должен быть Z01.6')
       endif
     elseif is_mrt .or. is_uzi .or. is_endo
       if !(padr(mdiagnoz[1],5) == "Z01.8")
-        aadd(ta,'для '+s+' диагноз должен быть Z01.8')
+        aadd(ta,'для '+s+' основной диагноз должен быть Z01.8')
       endif
+    elseif is_gisto
+      aadd(ta,'для '+s+' основной диагноз не может быть '+rtrim(mdiagnoz[1])+;
+              ' (кроме онкологического диагноза разрешается использовать только Z03.1)')
     endif
   endif
 elseif kvp > 0
@@ -4532,20 +4533,9 @@ if len(ta) > 0
     next
   next
 else
-  if is_disp_DDS
-    mpztip := 90 // {90,321,"комплексное посещение при ДДС","ДДС","",""},;
+  if is_disp_DDS .or. is_prof_PN .or. is_disp_DVN
     mpzkol := 1
-  elseif is_prof_PN
-    mpztip := 87 // {87,318,"комплексное посещение при ПОВН","ПОВН","",""},;
-    mpzkol := 1
-  elseif is_disp_DVN .and. eq_any(metap,1,4)
-    mpztip := 73 // {73,261,"комплексное посещение при ДВН 1 этап","ДВН 1","",""},; //
-    mpzkol := 1
-  elseif is_disp_DVN .and. eq_any(metap,2,5)
-    mpztip := 74 // {74,262,"комплексное посещение при ДВН 2 этап","ДВН 2","",""},; //
-    mpzkol := 1
-  endif
-  if ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil,6,34)
+  elseif ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil,6,34)
     mpzkol := len(au_lu) // кол-во анализов
   endif
   if len(arr_unit) == 1
