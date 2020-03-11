@@ -3266,6 +3266,15 @@ elseif kkt > 0 .and. !is_s_dializ .and. !is_dializ .and. !is_perito
               ' (кроме онкологического диагноза разрешается использовать только Z03.1)')
     endif
   endif
+  fl := .t.
+  for i := 1 to len(au_lu)
+    if au_lu[i,2] == d1
+      fl := .f. ; exit
+    endif
+  next
+  if fl
+    aadd(ta,'для '+s+' одна из услуг должна быть оказана в день начала лечения')
+  endif
 elseif kvp > 0
   mPZKOL := kvp-kvp_2_78-kvp_2_89
   if mIDSP == 12

@@ -730,7 +730,7 @@ do while !eof()
       aadd(ae,"неверное значение поля DN_STAC = "+lstr(ihuman->DN_STAC))
     endif
   elseif ihuman->USL_OK == 3
-    if !eq_any(ihuman->VID_AMB,1,2,3,4,5,6,7,22,40,41)
+    if !eq_any(ihuman->VID_AMB,1,11,2,3,4,5,6,7,22,40,41)
       aadd(ae,"неверное значение поля VID_AMB = "+lstr(ihuman->VID_AMB))
     endif
   else
@@ -807,7 +807,7 @@ do while !eof()
     find (str(ipodr->(recno()),10))
     do while ihu->kodp == ipodr->(recno()) .and. !eof()
       if empty(ihu->CODE_USL)
-        if ihuman->USL_OK == 3 .and. ihuman->VID_AMB == 1 // обращение в поликлинике
+        if ihuman->USL_OK == 3 .and. eq_any(ihuman->VID_AMB,1,11) // обращение в поликлинике
           // потом определим
         else
           otd->(dbGoto(ipodr->otd))
@@ -1030,9 +1030,10 @@ do while !eof()
         aeval(arr_ksg[2],{|x| aadd(ae,x) })
       endif
     endif
-  elseif ihuman->USL_OK == 3 .and. eq_any(ihuman->VID_AMB,1,2,3,4,5,6,7,22,40,41)// поликлиника
+  elseif ihuman->USL_OK == 3 .and. eq_any(ihuman->VID_AMB,1,11,2,3,4,5,6,7,22,40,41)// поликлиника
     a_vid_amb := {; // В теге <VID_AMB> проставляется вид амбулаторно-поликлинического случая, а именно:
       {1,"2.78."},; //	Обращение с лечебной целью
+      {11,"2.78."},; //	Обращение с лечебной целью
       {2,"2.79."},; //	Посещение с профилактической целью
       {22,"2.79.44","2.79.50"},; //	патронажное посещение на дому
       {3,"2.80."},; //	Посещение в неотложной форме
@@ -1123,9 +1124,9 @@ do while !eof()
           if left(ihuman->ds1,1) == "C" .or. between(left(ihuman->ds1,3),"D00","D09")
             // оставляем онкологический диагноз
           elseif padr(ihuman->ds1,5) == "Z03.1"
-            if is_gisto
+            //if is_gisto
               //aadd(ta,'для '+s+' не может быть установлен основной диагноз "Z03.1 наблюдение при подозрении на злокачественную опухоль"')
-            endif
+            //endif
           elseif is_kt
             if !(padr(ihuman->ds1,5) == "Z01.6")
               ihuman->ds1 := "Z01.6"
@@ -1134,6 +1135,9 @@ do while !eof()
             if !(padr(ihuman->ds1,5) == "Z01.8")
               ihuman->ds1 := "Z01.8"
             endif
+          elseif is_gisto
+            aadd(ta,'для '+s+' основной диагноз не может быть '+rtrim(mdiagnoz[1])+;
+                    ' (кроме онкологического диагноза разрешается использовать только Z03.1)')
           endif
           select IHU
           set order to 1
@@ -1145,6 +1149,12 @@ do while !eof()
           enddo
         endif
       else
+        if eq_any(ihuman->VID_AMB,11) // ищем вторую услугу
+          ku := 2
+        else // ищем первую услугу
+          ku := 1
+        endif
+        iu := 0
         lshifr := a_vid_amb[i,2]
         lshifr2 := iif(len(a_vid_amb[i]) == 3, a_vid_amb[i,3], "")
         select MOPROF
@@ -1155,7 +1165,10 @@ do while !eof()
             fldel := .f.
             v := fcena_oms(moprof->shifr,(LVZROS_REB==0),ihuman->DATE_2,@fldel)
             if !fldel
-              fl := .t. ; exit
+              ++iu
+              if iu == ku
+                fl := .t. ; exit
+              endif
             endif
           endif
           select MOPROF
@@ -1182,7 +1195,7 @@ do while !eof()
               aadd(ai,'дата начала и окончания лечения в отделении "'+rtrim(otd->short_name)+;
                       '" не равны аналогичным датам в случае')
             endif
-            if ihuman->VID_AMB > 1 .and. ihuman->DATE_1 < ihuman->DATE_2
+            if !eq_any(ihuman->VID_AMB,1,11) .and. ihuman->DATE_1 < ihuman->DATE_2
               aadd(ae,'дата начала и окончания лечения должна быть один день')
             endif
             select IHU
@@ -1200,6 +1213,7 @@ do while !eof()
             ihu->VRACH := ipodr->VRACH
             ihu->VRACH_SDS := ipodr->VRACH_SDS
             ihu->VR_SNILS := ipodr->VR_SNILS
+            ihu->prvs := ipodr->prvs
             select IHU
             set order to 2
             find (str(ipodr->(recno()),10))
@@ -1274,10 +1288,10 @@ return .t.
 Function ret_shifr_2_60(lprofil,lvzros_reb)
 Local lshifr
 //2.60.1 врач
-//2.60.2 уч.терапевт
+//2.60.2 участковый терапевт, педиатр, врач общей практики
 //2.60.3 фельдшер
-//2.60.4 уч.фельдшер
-//2.60.5 терапевт
+//2.60.4 участковый фельдшер
+//2.60.5 не участковый терапевт, педиатр, врач общей практики
 if lprofil == 97 .and. lvzros_reb == 0 .or. lprofil == 68 .and. lvzros_reb > 0
   lshifr := "2.60.5"
 else
