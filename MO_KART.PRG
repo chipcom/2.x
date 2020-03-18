@@ -635,8 +635,7 @@ do while .t.
         func_error(4,'Не заполнен номер полиса')
         loop
       endif
-      if !is_smp .and. eq_any(m1vid_ud,3,14) .and. ;
-                       !empty(mser_ud) .and. empty(del_spec_symbol(mmesto_r))
+      if !is_smp .and. eq_any(m1vid_ud,3,14) .and. !empty(mser_ud) .and. empty(del_spec_symbol(mmesto_r))
         func_error(4,iif(m1vid_ud==3,'Для свид-ва о рождении','Для паспорта РФ')+;
                      ' обязательно заполнение поля "Место рождения"')
         if !(glob_mo[_MO_KOD_TFOMS] == '126501')
@@ -945,8 +944,8 @@ do while .t.
         if (i := len(arr)) > 0
           keyboard ""
           if f_alert({'По пациенту "'+alltrim(mfio)+'" найдено',;
-                      'листов учёта, не попавших в реестр: '+lstr(i)+'.',;
-                      'Вам предлагается перезаписать отредактированные',;
+                      'листов учёта (ещё не попавших в реестр): '+lstr(i)+'.',;
+                      'Предлагается перезаписать отредактированные',;
                       'реквизиты пациента в данные листы учёта',;
                       '',;
                       'Выберите действие:'},;

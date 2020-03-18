@@ -1911,9 +1911,9 @@ do case
       aadd(mas_msg, "Просмотр прикреплённого населения")
       aadd(mas_fun, "prn_kartoteka(13)")
     endif
-    //aadd(mas_pmt, "Информация по ~инвалидам")
-    //aadd(mas_msg, "Просмотр сводной информации по инвалидам")
-    //aadd(mas_fun, "prn_kartoteka(14)")
+    aadd(mas_pmt, "Информация по ~инвалидам")
+    aadd(mas_msg, "Просмотр сводной информации по инвалидам")
+    aadd(mas_fun, "prn_kartoteka(14)")
     if T_ROW > 8
       r := T_ROW-len(mas_pmt)-3
     else
@@ -1952,19 +1952,7 @@ do case
     Private arr_mo := {}, arr_no := {}
     popup_prompt(T_ROW-3-len(mas_pmt),T_COL+5,si2,mas_pmt,mas_msg,mas_fun)
   case k == 14
-    mas_pmt := {"~Сводная информация",;
-                "Прикреплённые к нашей ~МО",;
-                "Прикреплённые к ~другим МО",;
-                "~Не прикреплённые ни к одной МО"}
-    mas_msg := {"Итоговая информация по прикреплённому населению из нашей картотеки",;
-                "Просмотр/печать населения, прикреплённого к нашей МО",;
-                "Просмотр/печать населения, прикреплённого к другим МО",;
-                "Просмотр/печать населения, не прикреплённого ни к одной МО"}
-    mas_fun := {"prn_kartoteka(41)",;
-                "prn_kartoteka(42)",;
-                "prn_kartoteka(43)",;
-                "prn_kartoteka(44)"}
-    popup_prompt(T_ROW-3-len(mas_pmt),T_COL+5,si4,mas_pmt,mas_msg,mas_fun)
+    pr_invalid()
   case k == 21
     pripisnoe_naselenie_view()
   case k == 22
@@ -2003,6 +1991,274 @@ if k > 10
     si3 := j
   elseif between(k,41,49)
     si4 := j
+  endif
+endif
+return NIL
+
+***** 17.03.20
+Function pr_invalid()
+Static suchast := 0, sinvalid := 0, sprik := 1, sspisok := 1,;
+       mm_invalid := {{"все",0},{"1 группа",1},{"2 группа",2},{"3 группа",3},{"дети-инвалиды",4}},;
+       mm_prik := {{"все",0},{"прикреплён к нашей МО",1},{"прикреплён к другим МО",2},{"прикрепление неизвестно",3}},;
+       mm_pol := {{"все",0},{"мужчины",1},{"женщины",2}},;
+       mm_rab := {{"все",0},{"работающие",1},{"неработающие",2}},;
+       mm_pens := {{"все",0},{"пенсионеры",1},{"не пенсионеры",2}},;
+       mm_gorod := {{"все",0},{"город",1},{"село",2}},;
+       mm_spisok := {{"список инвалидов",1},{"общее количество",2}}
+Local buf := savescreen(), r := 14, sh, HH := 60, name_file := "invalid"+stxt, k_fio, tt_fio[2]
+setcolor(cDataCGet)
+myclear(r)
+Private muchast := suchast,;
+        m1INVALID := sinvalid, mINVALID,;
+        m1prik := sprik, mprik,;
+        m1pol := 0, mpol := "все",;
+        m1rab := 0, mrab := "все",;
+        m1pens := 0, mpens := "все",;
+        m1gorod := 0, mgorod := "все",;
+        m1spisok := sspisok, mspisok := mm_spisok[sspisok,1],;
+        gl_area := {r,0,maxrow()-1,maxcol(),0}
+minvalid := inieditspr(A__MENUVERT, mm_invalid, m1invalid)
+mprik := inieditspr(A__MENUVERT, mm_prik, m1prik)
+status_key("^<Esc>^ - выход;  ^<PgDn>^ - запустить поиск")
+//
+@ r,0 to r+9,maxcol() COLOR color8
+str_center(r," Запрос в картотеке информации по инвалидам ",color14)
+@ r+1,2 SAY "Инвалидность" GET minvalid reader {|x| menu_reader(x,mm_invalid,A__MENUVERT,,,.f.)}
+@ r+2,2 SAY "Прикрепление" GET mprik reader {|x| menu_reader(x,mm_prik,A__MENUVERT,,,.f.)}
+@ r+3,2 say "Номер участка (0 - по всем участкам)" get muchast pict "99999"
+@ r+4,2 say "Пол" get mpol reader {|x|menu_reader(x,mm_pol,A__MENUVERT,,,.f.)}
+@ r+5,2 say "Работающий?" get mrab reader {|x|menu_reader(x,mm_rab,A__MENUVERT,,,.f.)}
+@ r+6,2 say "Пенсионер?" get mpens ;
+       reader {|x|menu_reader(x,mm_pens,A__MENUVERT,,,.f.)}
+@ r+7,2 say "Город/село" GET mgorod ;
+               reader {|x| menu_reader(x,mm_gorod,A__MENUVERT,,,.f.)}
+@ r+8,2 say "Как выводить результат поиска?" get mspisok ;
+        reader {|x|menu_reader(x,mm_spisok,A__MENUVERT,,,.f.)}
+myread()
+if lastkey() != K_ESC
+  mywait()
+  suchast := muchast
+  sinvalid := m1invalid
+  sprik := m1prik
+  sspisok := m1spisok
+  //
+  dbcreate(cur_dir+"tmp",{;
+    {"kod",       "N",  7,0},;
+    {"INVALID",   "N",  1,0},; // группа инвалидности
+    {"UCHAST" ,   "N",  2,0},; // номер участка
+    {"POL"    ,   "C",  1,0},; // пол
+    {"DATE_R"   , "D",  8,0},; // дата рождения пациента
+    {"pens"   ,   "N",  1,0},; //
+    {"rab"    ,   "N",  1,0},; //
+    {"gorod"  ,   "N",  1,0},; //
+    {"LET"    ,   "N",  2,0},; // сколько лет в этом году
+    {"MO_PR",     "C",  6,0}; // код МО приписки
+  },,.t.,"TMP")
+  R_Use(dir_server+"kartotek",,"KART")
+  R_Use(dir_server+"kartote2",,"KART2")
+  R_Use(dir_server+"kartote_",,"KART_")
+  set relation to recno() into KART, recno() into KART2
+  index on str(kart->kod,7) to (cur_dir+"tmp_kart") for between(kart_->INVALID,1,4)
+  go top
+  do while !eof()
+    f1_pr_invalid()
+    select KART_
+    skip
+  enddo
+  j := tmp->(lastrec())
+  close databases
+  if j == 0
+    if !fl_exit
+      func_error(4,"Нет сведений!")
+    endif
+  else
+    fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
+    add_string("")
+    add_string(center(expand("ИНФОРМАЦИЯ ПО ИНВАЛИДАМ"),sh))
+    add_string("")
+    add_string(" == ПАРАМЕТРЫ ПОИСКА ==")
+    if m1spisok == 1 // список инвалидов
+      arr_title := {"","","",""}
+      if muchast == 0
+        arr_title[1] += "──┬"
+        arr_title[2] += "№№│"
+        arr_title[3] += "уч│"
+        arr_title[4] += "──┴"
+      endif
+      arr_title[1] += "───────────────────────────────────────────┬──┬──────────┬───┬───────────────────────────────────"
+      arr_title[2] += "             Ф.И.О. пациента               │Ле│   дата   │Гр.│              Адрес                "
+      arr_title[3] += "                (телефон)                  │т │ рождения │инв│                                   "
+      arr_title[4] += "───────────────────────────────────────────┴──┴──────────┴───┴───────────────────────────────────"
+      reg_print := f_reg_print(arr_title,@sh,2)
+    else
+      sh := 2
+      reg_print := 2
+    endif
+    if m1invalid > 0
+      add_string("Группа инвалидности: "+inieditspr(A__MENUVERT, mm_invalid, m1invalid))
+    endif
+    if !empty(muchast)
+      add_string("Участок: "+lstr(muchast))
+    endif
+    if !empty(m1prik)
+      add_string("Отношение к прикреплению: "+inieditspr(A__MENUVERT, mm_prik, m1prik))
+    endif
+    if m1gorod > 0
+      add_string("Место жительства: "+inieditspr(A__MENUVERT, mm_gorod, m1gorod))
+    endif
+    if !empty(m1pol)
+      add_string("Пол: "+inieditspr(A__MENUVERT, mm_pol, m1pol))
+    endif
+    if m1rab > 0
+      add_string(upper(inieditspr(A__MENUVERT, mm_rab, m1rab)))
+    endif
+    if m1pens > 0
+      add_string(upper(inieditspr(A__MENUVERT, mm_pens, m1pens)))
+    endif
+    add_string("")
+    if m1spisok == 1 // список инвалидов
+      aeval(arr_title, {|x| add_string(x) } )
+      ii := 0
+      R_Use(dir_server+"kartote2",,"KART2")
+      R_Use(dir_server+"kartote_",,"KART_")
+      R_Use(dir_server+"kartotek",,"KART")
+      set relation to recno() into KART_, to recno() into KART2
+      use (cur_dir+"tmp") new
+      set relation to kod into KART
+      index on upper(kart->fio) to (cur_dir+"tmp")
+      select TMP
+      go top
+      do while !eof()
+        ++ii
+        @ maxrow(),1 say str(ii/tmp->(lastrec())*100,6,2)+"%" color cColorSt2Msg
+        s1 := ""
+        if muchast == 0
+          s1 += put_val(kart->uchast,2)+" "
+        endif
+        s := ""
+        if !empty(kart_->PHONE_H)
+          s += "д."+alltrim(kart_->PHONE_H)+" "
+        endif
+        if !empty(kart_->PHONE_M)
+          s += "м."+alltrim(kart_->PHONE_M)+" "
+        endif
+        if !empty(kart_->PHONE_W)
+          s += "р."+alltrim(kart_->PHONE_W)
+        endif
+        s := alltrim(kart->fio)+" "+s
+        k_fio := perenos(tt_fio,s,43)
+        s1 += padr(tt_fio[1],43)+str(tmp->let,3)+" "+full_date(kart->date_r)
+        if tmp->INVALID < 4
+          s1 += str(tmp->INVALID,3)+"  "
+        else
+          s1 += " дет "
+        endif
+        s1 += alltrim(kart->adres)
+        if verify_FF(HH,.t.,sh)
+          aeval(arr_title, {|x| add_string(x) } )
+        endif
+        add_string(s1)
+        for i := 2 to k_fio
+          s1 := ""
+          if muchast == 0
+            s1 += space(3)
+          endif
+          s1 += padr(tt_fio[i],44)
+          add_string(s1)
+        next
+        select TMP
+        skip
+      enddo
+    else //общее количество
+      arr := array(4)
+      afillall(arr,0)
+      use (cur_dir+"tmp") new
+      go top
+      do while !eof()
+        arr[tmp->INVALID] ++
+        select TMP
+        skip
+      enddo
+      add_string("1 группа      "+lstr(arr[1]))
+      add_string("2 группа      "+lstr(arr[2]))
+      add_string("3 группа      "+lstr(arr[3]))
+      add_string("дети-инвалиды "+lstr(arr[4]))
+    endif
+    add_string("")
+    add_string("Итого количество пациентов: "+lstr(tmp->(lastrec()))+" чел.")
+    fclose(fp)
+    close databases
+    restscreen(buf)
+    viewtext(name_file,,,,.t.,,,reg_print)
+  endif
+endif
+close databases
+restscreen(buf)
+return NIL
+
+***** 17.03.20
+Static Function f1_pr_invalid()
+Local i, j, k, n, s, arr, fl := .t., god_r, arr1
+// За исключением умерших (по сведению ТФОМС)
+fl := !(left(kart2->PC2,1) == "1")
+if fl
+  if fl .and. !empty(m1prik)
+    if m1prik == 1 // к нашей МО
+      fl := (kart2->MO_PR == glob_mo[_MO_KOD_TFOMS])
+    elseif m1prik == 2 // к другим МО
+      fl := !(kart2->MO_PR == glob_mo[_MO_KOD_TFOMS])
+    else // прикрепление неизвестно
+      fl := empty(kart2->MO_PR) .or. kart2->MO_PR == '000000'
+    endif
+  endif
+  if muchast > 0
+    fl := (kart->uchast == muchast)
+  endif
+  if fl .and. !empty(m1pol)
+    if kart->pol == "М"
+      fl := (m1pol == 1)
+    else
+      fl := (m1pol == 2)
+    endif
+  endif
+  is_selo := f_is_selo(kart_->gorod_selo,kart_->okatog)
+  if fl .and. m1gorod > 0
+    if is_selo
+      fl := (m1gorod == 1)
+    else
+      fl := (m1gorod == 2)
+    endif
+  endif
+  if fl .and. m1pens > 0
+    if kart_->PENSIONER == 1
+      fl := (m1pens == 1)
+    else
+      fl := (m1pens == 2)
+    endif
+  endif
+  if fl .and. m1invalid > 0
+    fl := (m1invalid == kart_->INVALID)
+  endif
+  if fl .and. m1rab > 0
+    fl := (kart->rab_nerab == m1rab-1)
+  endif
+  //
+  if fl
+    if (k := year(sys_date) - year(kart->date_r)) > 99
+      k := 99
+    endif
+    select TMP
+    append blank
+    tmp->kod     := kart->kod
+    tmp->INVALID := kart_->INVALID
+    tmp->UCHAST  := kart->uchast
+    tmp->POL     := kart->pol
+    tmp->DATE_R  := kart->date_r
+    tmp->pens    := iif(kart_->PENSIONER==1, 1, 2)
+    tmp->rab     := kart->rab_nerab+1
+    tmp->gorod   := iif(is_selo, 2, 1)
+    tmp->LET     := k
+    tmp->MO_PR   := kart2->MO_PR
   endif
 endif
 return NIL
@@ -2077,7 +2333,7 @@ else
   asort(arr2,,,{|x,y| x[1] < y[1] })
   arr_title := {;
     "─────────┬───────────┬───────────┬───────────┬───────────┬───────────",;
-    "№ участка│  мужчины  │  женщины  │   город   │   село    │   Всего",;
+    "№ участка│  мужчины  │  женщины  │   город   │   село    │   Всего   ",;
     "─────────┴───────────┴───────────┴───────────┴───────────┴───────────"}
   fp := fcreate(name_file) ; tek_stroke := 0 ; n_list := 1
   sh := len(arr_title[1])

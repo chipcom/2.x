@@ -1399,10 +1399,11 @@ Private yes_oncology := .f.
 f_is_oncology(2)
 return !yes_oncology
 
-***** 28.01.19
+***** 16.03.20
 Function f_is_oncology(r,/*@*/_onk_smp)
-Local i, k, mdiagnoz, lusl_ok, lprofil, lzno := 0, lyear
+Local i, k, mdiagnoz, lusl_ok, lprofil, lzno := 0, lyear, lk_data
 if r == 1
+  lk_data := human->k_data
   lyear := year(human->k_data)
   lusl_ok := human_->USL_OK
   mdiagnoz := diag_to_array()
@@ -1411,6 +1412,7 @@ if r == 1
     lzno := 1
   endif
 else
+  lk_data := mk_data
   lyear := year(mk_data)
   lusl_ok := m1USL_OK
   mdiagnoz := diag_to_array(" ")
@@ -1425,7 +1427,7 @@ if lyear >= 2019 .and. (left(mdiagnoz[1],1) == "C" .or. between(left(mdiagnoz[1]
   k := 2
 elseif lyear == 2018 .and. left(mdiagnoz[1],1) == "C"
   k := 2
-elseif left(mdiagnoz[1],3) == "D70"
+elseif left(mdiagnoz[1],3) == "D70" .and. lk_data < 0d20200401 // только до 1 апреля 2020 года
   for i := 2 to len(mdiagnoz)
     if left(mdiagnoz[i],1) == "C"
       if between(left(mdiagnoz[i],3),"C00","C80") .or. left(mdiagnoz[i],3) == "C97"
