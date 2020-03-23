@@ -4937,7 +4937,7 @@ return fl
 
 *==============================================================================
 
-***** 24.11.19 создание первичной БД из реестров
+***** 23.03.20 создание первичной БД из реестров
 Function create_main_base_from_reestrs()
 Local full_zip, name_zip, i, k, n, fl := .t., buf := save_maxrow(),;
       arr_r := {}, arr_rsptk := {}, arr_s := {}, a_reestr := {},;
@@ -4945,10 +4945,10 @@ Local full_zip, name_zip, i, k, n, fl := .t., buf := save_maxrow(),;
 R_Use(dir_server+"human")
 k := lastrec()
 use
-Private p_lpu := 1, p_otd := 9 // для онкологии
+Private p_lpu := 2, p_otd := 8 // для Камышинской детской больницы
 Private flag_is_lu := .t. // для пустой БД поставить .f.
 if flag_is_lu
-  // уже есть (почти все) листы учёта
+  // уже есть (какие-то) листы учёта
 elseif k > 0 // иначе работаем только с пустой БД листов учёта
   return NIL
 endif
@@ -5279,10 +5279,14 @@ for i := 1 to len(a_reestr)
               strfile(a_reestr[i,7,j,1]+": нет файла "+s+sxml+hb_eol(),cImportProtokol,.t.)
               fl := .f. ; exit
             endif
+          else
+            strfile(a_reestr[i,7,j,1]+": ошибка Extract_Zip_XML "+s+sxml+hb_eol(),cImportProtokol,.t.)
+            fl := .f. ; exit
           endif
           close databases
         next
       else
+        strfile(a_reestr[i,1]+": ошибка f2_create_main_base_from_reestrs"+hb_eol(),cImportProtokol,.t.)
         exit
       endif
     else
@@ -5694,13 +5698,13 @@ my_debug(,"  "+rtrim(human->fio)+"=второй раз в реестре="+lstr(mkod_reestr))
             human->ishod := 202 // или 205
             _tip_lu := TIP_LU_DVN
             mdvozrast := year(human->K_DATA) - year(human->date_r)
-            if ascan(arr2m_vozrast_DVN,mdvozrast) > 0
+            /*if ascan(arr2m_vozrast_DVN,mdvozrast) > 0
               m1etap := 5
               human->ishod := 205
             elseif human->POL == "Ж" .and. ascan(arr2g_vozrast_DVN,mdvozrast) > 0
               m1etap := 5
               human->ishod := 205
-            endif
+            endif*/
           case t1->DISP == "ОПВ" //"Профилактические медицинские осмотры взрослого населения",stod("2013-12-26")})
             m1etap := 3
             human->ishod := 203
@@ -5761,9 +5765,9 @@ my_debug(,"  "+rtrim(human->fio)+"=второй раз в реестре="+lstr(mkod_reestr))
       auch_otd := ret_otd_with_lu_prof(int(val(t1->PODR)),human_->USL_OK,_tip_lu,human_->PROFIL,human_->VRACH)
       human->LPU := auch_otd[1]
       human->OTD := auch_otd[2]
-      if human->LPU == 6 .and. human->OTD == 25 // специально для онкологии
-        human->ishod := 98 // жидкостная цитология рака шейки матки
-      endif
+      //if human->LPU == 6 .and. human->OTD == 25 // специально для онкологии
+        //human->ishod := 98 // жидкостная цитология рака шейки матки
+      //endif
       //
       for i := 1 to 3
         pole := "t1->ds3"+iif(i==1,"","_"+lstr(i))
@@ -6215,13 +6219,13 @@ if !empty(t1->DISP)
       human->ishod := 202 // или 205
       _tip_lu := TIP_LU_DVN
       mdvozrast := year(human->K_DATA) - year(human->date_r)
-      if ascan(arr2m_vozrast_DVN,mdvozrast) > 0
+      /*if ascan(arr2m_vozrast_DVN,mdvozrast) > 0
         m1etap := 5
         human->ishod := 205
       elseif human->POL == "Ж" .and. ascan(arr2g_vozrast_DVN,mdvozrast) > 0
         m1etap := 5
         human->ishod := 205
-      endif
+      endif*/
     case t1->DISP == "ОПВ" //"Профилактические медицинские осмотры взрослого населения",stod("2013-12-26")})
       m1etap := 3
       human->ishod := 203
