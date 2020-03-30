@@ -4529,10 +4529,11 @@ if is_disp_DDS .or. is_disp_DVN .or. is_prof_PN
     endif
   endif
 endif
-/*mpovod := iif(len(arr_povod) == 1, arr_povod[1,1], 0)
-if (is_disp_DDS .or. is_disp_DVN .or. is_prof_PN .or. mpovod == 4) .and. d2 > 0d20200319
+//mpovod := iif(len(arr_povod) == 1, arr_povod[1,1], 0)
+//if (is_disp_DDS .or. is_disp_DVN .or. is_prof_PN .or. mpovod == 4) .and. d2 > 0d20200319
+if (is_disp_DDS .or. is_disp_DVN .or. is_prof_PN) .and. d2 > 0d20200319
   aadd(ta,"случай не может быть отправлен в ТФОМС (приказ МЗ РФ от 19.03.20г. №198н в связи с коронавирусом)")
-endif*/
+endif
 if len(ta) > 0
   _ocenka := 0
   verify_FF(80-len(ta)-3,.t.,80)
