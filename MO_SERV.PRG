@@ -5811,13 +5811,13 @@ my_debug(,"  "+rtrim(human->fio)+"=второй раз в реестре="+lstr(mkod_reestr))
       endif
       UnLock
       // если присутствует шифр законченного случая
-      fl := .f.
+      fl1 := .f.
       if t1->ED_COL == '1' .and. !empty(t1->CODE_MES1)
-        fl := .t. ; s := t1->CODE_MES1
+        fl1 := .t. ; s := t1->CODE_MES1
       elseif !empty(t1->n_ksg)
-        fl := .t. ; s := t1->n_ksg
+        fl1 := .t. ; s := t1->n_ksg
       endif
-      if fl
+      if fl1
         kod_usl := foundOurUsluga(s,human->k_data,human_->profil,human->VZROS_REB)
         //
         select HU

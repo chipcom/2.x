@@ -2703,7 +2703,7 @@ do while !eof()
     if empty(arr_fio[3])
       mo_add_xml_stroke(oPAC,"DOST_P",'1') // отсутствует отчество
     endif
-    if !empty(arr_fio[2])
+    if empty(arr_fio[2])
       mo_add_xml_stroke(oPAC,"DOST_P",'3') // отсутствует имя
     endif
   endif

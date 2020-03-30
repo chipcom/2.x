@@ -394,13 +394,18 @@ FOR j := 1 TO Len( oXmlDoc:aItems[1]:aItems )
           if ihuman->K_FR > 0 .and. (i := ascan(_arr_fr, {|x| between(ihuman->k_fr,x[3],x[4]) })) > 0
             ihuman->AD_CR2 := _arr_fr[i,2]
           endif
+          mDIAG_DATE := ctod("")
           for j2 := 1 to len(oNode2:aitems) // последовательный просмотр
             oNode3 := oNode2:aItems[j2]
             if valtype(oNode3) != "C" .AND. oNode3:title == "B_DIAG"
               select DI
               append blank
               di->KOD       := ihuman->kod
-              di->DIAG_DATE := xml2date(mo_read_xml_stroke(oNode3,"DIAG_DATE"))
+              ldate := xml2date(mo_read_xml_stroke(oNode3,"DIAG_DATE"))
+              if !empty(ldate)
+                mDIAG_DATE := ldate
+              endif
+              di->DIAG_DATE := mDIAG_DATE
               di->DIAG_TIP  :=      val(mo_read_xml_stroke(oNode3,"DIAG_TIP"))
               di->DIAG_CODE :=      val(mo_read_xml_stroke(oNode3,"DIAG_CODE"))
               di->DIAG_RSLT :=      val(mo_read_xml_stroke(oNode3,"DIAG_RSLT",,.f.))
@@ -1253,6 +1258,19 @@ do while !eof()
         f_verify_tnm(5,ihuman->ONK_M,ihuman->ds1,ae)
       endif
     endif
+    select DI
+    find (str(ihuman->kod,10))
+    do while di->kod == ihuman->kod .and. !eof()
+      if empty(di->DIAG_DATE)
+        aadd(ae,"не заполнена дата взятия материала для гистологии/иммуногистохимии")
+      endif
+      //di->DIAG_TIP
+      //di->DIAG_CODE
+      //di->DIAG_RSLT
+      //di->REC_RSLT
+      select DI
+      skip
+    enddo
   endif
   //
   pikol[1] ++

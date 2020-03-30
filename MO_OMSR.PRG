@@ -19,6 +19,8 @@ Static mo_licensia := {;
   {'391001',2,'31',0},;  // Камышинская гор.б-ца 1
   {'101001',2,'13',60},;   // ОКБ-1 - онкология
   {'451001',2,'13',60},;   // Михайловская ЦРБ - онкология
+  {'451001',2,'13',136},;   // Михайловская ЦРБ - акушерству и гинекологии
+  {'451001',2,'13',184},;   // Михайловская ЦРБ - акушерству и гинекологии (искусственному прерыванию беременности)
   {'124528',2,'13',158};   // 28 п-ка - реабилитация
  }
 Local i, fl := .f.
@@ -705,7 +707,7 @@ if human_->USL_OK == 1 ; // стационар
            .and. mvozrast == 0 .and. human_2->VNR == 0
   aadd(ta, "для диагноза P07.* не указан вес недоношенного (маловесного) ребёнка")
 endif
-if mvozrast > 0 .and. left(mdiagnoz[1],1) == "P"
+if mvozrast > 0 .and. len(mdiagnoz) > 0 .and. left(mdiagnoz[1],1) == "P"
   aadd(ta, "для основного диагноза "+mdiagnoz[1]+" возраст должен быть меньше года")
 endif
 s := ""
@@ -4527,10 +4529,10 @@ if is_disp_DDS .or. is_disp_DVN .or. is_prof_PN
     endif
   endif
 endif
-mpovod := iif(len(arr_povod) == 1, arr_povod[1,1], 0)
+/*mpovod := iif(len(arr_povod) == 1, arr_povod[1,1], 0)
 if (is_disp_DDS .or. is_disp_DVN .or. is_prof_PN .or. mpovod == 4) .and. d2 > 0d20200319
   aadd(ta,"случай не может быть отправлен в ТФОМС (приказ МЗ РФ от 19.03.20г. №198н в связи с коронавирусом)")
-endif
+endif*/
 if len(ta) > 0
   _ocenka := 0
   verify_FF(80-len(ta)-3,.t.,80)

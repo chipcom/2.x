@@ -17,18 +17,15 @@ do case
     mas_pmt := {"Список ~прочих счетов",;
                 "~Невыписанные счета",;
                 "Выписка ~счёта",;
-                "~Корректировка счёта",;
                 "~Возврат счёта"}
     mas_msg := {"Просмотр/печать прочих счетов",;
                 "Составление прочего счёта через режим невыписанных счетов",;
                 "Составление прочего счёта по конкретной компании",;
-                "Редактирование (корректировка) прочего счёта",;
                 "Возврат прочего счёта"}
     mas_fun := {"other_schets(11)",;
                 "other_schets(12)",;
                 "other_schets(13)",;
-                "other_schets(14)",;
-                "other_schets(15)"}
+                "other_schets(14)"}
     str_sem := "Работа со счетами"
     if !G_SLock(str_sem)
       return func_error(4,"В данный момент со счетами работает другой пользователь.")
@@ -42,8 +39,6 @@ do case
   case k == 13
     other_schet_vyp()
   case k == 14
-    other_schet_edit()
-  case k == 15
     other_schet_vozvrat()
 endcase
 if k > 10
@@ -1821,13 +1816,6 @@ enddo
 restscreen(buf)
 setcolor(tmp_color)
 return fl
-
-*
-
-*****
-Function other_schet_edit()
-ne_real()
-return NIL
 
 *
 
