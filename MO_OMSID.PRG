@@ -47,7 +47,7 @@ if k > 10
 endif
 return NIL
 
-***** 22.11.13 Информация по диспансеризации детей-сирот
+***** 06.04.20 Информация по диспансеризации детей-сирот
 Function inf_DDS(k)
 Static si1 := 1, si2 := 1, sj := 1, sj1 := 1
 Local mas_pmt, mas_msg, mas_fun, j, j1
@@ -56,12 +56,14 @@ do case
   case k == 1
     mas_pmt := {"~Карта диспансеризации",;
                 "~Список пациентов",;
-                "Свод для Обл~здрава",;
+                "Свод для Обл~здрава (список)",;
+                "Свод для Обл~здрава (по возрастам)",;
                 "Форма № 030-Д/с/~о-13",;
                 "XML-файл для ~портала МЗРФ"}
     mas_msg := {"Распечатка карты диспансеризации (учётная форма № 030-Д/с/у-13)",;
                 "Распечатка списка пациентов, которым проведена диспансеризация детей-сирот",;
                 "Распечатка свода для Облздрава Волг.обл. (приказ № 10-03/1-3113 от 12.04.13г.)",;
+                "Распечатка свода для Облздрава Волг.области (письмо № 14-05/50 от 07.02.20г.)",;
                 "Сведения о диспансеризации несовершеннолетних (отчётная форма № 030-Д/с/о-13)",;
                 "Создание XML-файла для загрузки на портал Минздрава РФ"}
     mas_fun := {"inf_DDS(11)",;
@@ -94,9 +96,13 @@ do case
         endif
       case k == 14
         if (j1 := popup_prompt(T_ROW,T_COL-5,1,mas1pmt)) > 0
-          inf_DDS_030dso(j1)
+          inf_DDS_svod2(j,j1)
         endif
       case k == 15
+        if (j1 := popup_prompt(T_ROW,T_COL-5,1,mas1pmt)) > 0
+          inf_DDS_030dso(j1)
+        endif
+      case k == 16
         if (j1 := popup_prompt(T_ROW,T_COL-5,1,mas1pmt)) > 0
           inf_DDS_XMLfile(j1)
         endif
@@ -949,8 +955,6 @@ else
 endif
 return arr
 
-*
-
 ***** 28.01.15
 Function inf_DDS_svod(par,par2,is_schet)
 Local arr_m, i, buf := save_maxrow(), lkod_h, lkod_k, rec
@@ -1329,12 +1333,156 @@ for i := 1 to len(arr)
 next
 return NIL
 
-*
+***** 06.04.20
+Function inf_DDS_svod2(par2,is_schet)
+Local arr_m, i, buf := save_maxrow(), lkod_h, lkod_k, rec, sh := 80, HH := 60, n_file := "ddssvod2"+stxt
+if (arr_m := year_month(T_ROW,T_COL-5)) != NIL
+  mywait()
+  if f0_inf_DDS(arr_m,is_schet > 1,is_schet == 3)
+    Private arr_deti := {;
+      {"1","Всего",0,0,0,0,0,0,0,0,0,0,0},;
+      {"1.1","0-14 лет",0,0,0,0,0,0,0,0,0,0,0},;
+      {"1.2","15-17 лет",0,0,0,0,0,0,0,0,0,0,0};
+    }
+    Private blk_open := {|| dbCloseAll(),;
+                            R_Use(dir_server+"human_",,"HUMAN_"),;
+                            R_Use(dir_server+"human",,"HUMAN"),;
+                            dbSetRelation( "HUMAN_", {|| recno() }, "recno()" ),;
+                            R_Use(cur_dir+"tmp"),;
+                            dbSetRelation( "HUMAN", {|| kod }, "kod" );
+                        }
+    do while .t.
+      eval(blk_open)
+      if rec == NIL
+        go top
+      else
+        goto (rec)
+        skip
+        if eof()
+          exit
+        endif
+      endif
+      rec := tmp->(recno())
+      @ maxrow(),0 say str(rec/tmp->(lastrec())*100,6,2)+"%" color cColorWait
+      lkod_h := human->kod
+      lkod_k := human->kod_k
+      close databases
+      oms_sluch_DDS(p_tip_lu,lkod_h,lkod_k,"f2_inf_DDS_svod2")
+    enddo
+    close databases
+    fp := fcreate(n_file) ; n_list := 1 ; tek_stroke := 0
+    add_string(glob_mo[_MO_SHORT_NAME])
+    add_string(padl("Приложение",sh))
+    add_string(padl("к письму КЗВО",sh))
+    add_string(padl("№14-05/50 от 07.02.2020г.",sh))
+    add_string("")
+    add_string(center("Сведения о диспансеризации несовершеннолетних,",sh))
+    if p_tip_lu == TIP_LU_DDS
+      add_string(center("пребывающих в стационарных условиях детей-сирот и детей,",sh))
+      add_string(center("находящихся в трудной жизненной ситуации",sh))
+    else
+      add_string(center("детей-сирот и детей, оставшихся без попечения родителей, в том числе",sh))
+      add_string(center("усыновлённых (удочерённых), принятых под опеку (попечительство),",sh))
+      add_string(center("в приёмную или патронатную семью",sh))
+    endif
+    add_string(center("[ "+charrem("~",mas1pmt[is_schet])+" ]",sh))
+    add_string(center(arr_m[4],sh))
+    add_string("")
+    add_string("───┬─────────┬───────────┬───────────┬─────┬─────────────────┬─────┬─────┬─────")
+    add_string("№№ │ Контин- │ Осмотрено │из них село│неинф│     из них      │взято│из 7г│из 12")
+    add_string("пп │ генты   ├─────┬─────┼─────┬─────┤забол├─────┬─────┬─────┤на ди│начат│село ")
+    add_string("   │         │всего│в суб│всего│в суб│вперв│крово│ ЗНО │1и2ст│спанс│лечен│     ")
+    add_string("───┼─────────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────")
+    add_string(" 1 │    2    │  3  │  4  │  5  │  6  │  7  │  8  │  9  │  10 │  11 │  12 │  13 ")
+    add_string("───┴─────────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────")
+    for i := 1 to 3
+      s := padr(arr_deti[i,1],4)+padr(arr_deti[i,2],9)
+      for j := 3 to 13
+        s += put_val(arr_deti[i,j],6)
+      next
+      add_string(s)
+      add_string(replicate("─",sh))
+    next
+    fclose(fp)
+    viewtext(n_file,,,,.f.,,,2)
+  endif
+endif
+close databases
+rest_box(buf)
+return NIL
+
+***** 06.04.20
+Function f2_inf_DDS_svod2(Loc_kod,kod_kartotek)
+Local i, j, k, is_selo, ad := {}, ar := {1}
+if mvozrast < 15
+  aadd(ar,2)
+else
+  aadd(ar,3)
+endif
+for i := 1 to 5
+  j := 0
+  for k := 1 to 3
+    s := "diag_16_"+lstr(i)+"_"+lstr(k)
+    mvar := "m"+s
+    if k == 1
+      if !empty(&mvar)
+        arr := {alltrim(&mvar),0,0}
+        if len(arr[1]) > 5
+          arr[1] := left(arr[1],5)
+        endif
+        aadd(ad,arr) ; j := len(ad)
+      endif
+    elseif j > 0
+      m1var := "m1"+s
+      ad[j,k] := &m1var
+    endif
+  next
+next
+R_Use(dir_server+"kartote2",,"KART2")
+goto (kod_kartotek)
+R_Use(dir_server+"kartote_",,"KART_")
+goto (kod_kartotek)
+R_Use(dir_server+"kartotek",,"KART")
+goto (kod_kartotek)
+is_selo := f_is_selo(kart_->gorod_selo,kart_->okatog)
+for j := 1 to 2
+  k := ar[j]
+  arr_deti[k,3] ++
+  if dow(mk_data) == 7 // суббота
+    arr_deti[k,4] ++
+  endif
+  if is_selo
+    arr_deti[k,5] ++
+    if dow(mk_data) == 7 // суббота
+      arr_deti[k,6] ++
+    endif
+  endif
+  for i := 1 to len(ad) // цикл по диагнозам
+    if !(left(ad[i,1],1) == "A" .or. left(ad[i,1],1) == "B") .and. ad[i,2] == 1 // неинфекционные заболевания уст.впервые
+      arr_deti[k,7] ++
+      if left(ad[i,1],1) == "I" // болезни системы кровообращения
+        arr_deti[k,8] ++
+      endif
+      if left(ad[i,1],1) == "C" .or. between(left(ad[i,1],3),"D00","D09") // ЗНО
+        arr_deti[k,9] ++
+      endif
+      if ad[i,3] > 0
+        arr_deti[k,11] ++  // взяты на диспасерное наблюдение
+      endif
+      if m1napr_stac > 0 // направлен на лечение
+        arr_deti[k,12] ++ // считаем, что было начато лечение
+        if is_selo
+          arr_deti[k,13] ++
+        endif
+      endif
+    endif
+  next
+next
+return NIL
 
 ***** 08.11.13
 Function inf_DDS_030dso(is_schet)
-Local arr_m, i, n, buf := save_maxrow(), lkod_h, lkod_k, rec,;
-      sh := 80, HH := 80, n_file := "f_030dso"+stxt, d1, d2
+Local arr_m, i, n, buf := save_maxrow(), lkod_h, lkod_k, rec, sh := 80, HH := 80, n_file := "f_030dso"+stxt, d1, d2
 if (arr_m := year_month(T_ROW,T_COL-5)) != NIL
   mywait()
   if f0_inf_DDS(arr_m,is_schet > 1,is_schet == 3)
@@ -1926,8 +2074,6 @@ close databases
 rest_box(buf)
 return NIL
 
-*
-
 ***** 08.11.13
 Function f2_inf_DDS_030dso(Loc_kod,kod_kartotek) // сводная информация
 Local i, j, k, av := {}, av1 := {}, ad := {}, arr, s, fl, ;
@@ -2287,8 +2433,6 @@ for n := 1 to len(av1) // цикл по возрастам таблицы
   next
 next
 return NIL
-
-*
 
 ***** 24.12.19
 Function inf_DDS_XMLfile(is_schet)

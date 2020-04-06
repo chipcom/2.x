@@ -4606,6 +4606,7 @@ arr[US_EDIT_SPR ] := {{"name","C",30,0,,,space(30),,"Наименование отделения"},;
                        {|x| menu_reader(x,{{|k,r,c| get_kod_podr(k,r,c)}},A__FUNCTION,,,.f.)},;
                        "",{|x| ini_kod_podr(x)},;
                        "Код подразделения из паспорта ЛПУ"},;
+                      {"ADDRESS","C",150,0,,,space(150),,"Адрес"},;
                       {"dbegin","D",8,0,,,boy(sys_date),,;
                        "Дата начала работы в задаче ОМС"},;
                       {"dend","D",8,0,,,ctod(""),,;
@@ -4764,6 +4765,7 @@ arr[US_IM_PADEG ] := arr[US_SEMAPHORE] := "учреждения"
 arr[US_ROD_PADEG] := "учреждений"
 arr[US_EDIT_SPR ] := {{"name","C",30,0,,,space(30),,"Наименование учреждения"},;
                       {"short_name","C",5,0,,,space(5),,"Сокращённое наименование"},;
+                      {"ADDRESS","C",150,0,,,space(150),,"Адрес"},;
                       {"is_talon","N",1,0,,;
                        {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)},;
                        0,{|x|inieditspr(A__MENUVERT,mm_danet,x)},;

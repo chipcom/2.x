@@ -965,7 +965,7 @@ if empty(ret_arr)
 endif
 return ret_arr
 
-***** 11.01.20
+***** 06.04.20
 Function usl2TFOMS()
 Static sdate
 Local k, buf := save_maxrow(), name_file := "uslugi"+stxt, nu, ret_arr,;
@@ -982,8 +982,7 @@ if (lyear := year(mdate)) < 2019
   return func_error(4,"Вы запрашиваете слишком старую информацию")
 endif
 sdate := mdate
-if (k := popup_2array(usl9TFOMS(mdate),T_ROW,T_COL-5,su,1,@t_arr,;
-                      "Выберите группу услуг","B/BG",color0)) > 0
+if (k := popup_2array(usl9TFOMS(mdate),T_ROW,T_COL-5,su,1,@t_arr,"Выберите группу услуг","B/BG",color0)) > 0
   glob_podr := ""
   if is_otd_dep .and. t_arr[2] == 501
     if (ret_arr := ret_otd_dep()) == NIL
@@ -1051,6 +1050,9 @@ if (k := popup_2array(usl9TFOMS(mdate),T_ROW,T_COL-5,su,1,@t_arr,;
     v2 := fcena_oms(&lal.->shifr,.f.,mdate,@fl2del,@fl2uslc)
     if !(fl1del .and. fl2del)
       s := alltrim(&lal.->name)
+      if len(alltrim(&lal.->shifr)) == 10
+        s := " "+s
+      endif
       k := perenos(ta,s,50)
       verify_FF(HH-k-1,.t.,sh)
       if t_arr[2] > 100
@@ -2311,7 +2313,7 @@ else
     add_string(upper(uch->name))
     select OTD
     find (str(uch->kod,3))
-    do while otd->kod_lpu == uch->kod
+    do while otd->kod_lpu == uch->kod .and. !eof()
       add_string(str(otd->kod,14)+"   "+otd->name)
       select OTD
       skip
@@ -2361,7 +2363,7 @@ return NIL
 
 *
 
-*****
+***** 05.04.20
 Function f_10diag(k)
 Local buf := savescreen(), i := 1, c1 := 1, c2 := 77, msh_b, msh_e, arr_t, s, s1
 Private pregim := k, uregim := 1
@@ -2371,20 +2373,17 @@ do case
     mywait()
     R_Use(dir_exe+"_mo_mkb",cur_dir+"_mo_mkb","DIAG")
     go top
-    Alpha_Browse(2,c1,maxrow()-2,c2,"f1_10diag",color0,,,.t.,,,,"f2_10diag",,;
-                 {,,,"N/BG,W+/N,B/BG,BG+/B,GR/BG,BG+/GR",.t.} )
+    Alpha_Browse(2,c1,maxrow()-2,c2,"f1_10diag",color0,,,.t.,,,,"f2_10diag",,{,,,"N/BG,W+/N,B/BG,BG+/B,GR/BG,BG+/GR",.t.} )
   case k == 2
     R_Use(dir_exe+"_mo_mkbk")
     index on sh_b+str(ks,1) to (cur_dir+"tmp")
     go top
-    Alpha_Browse(2,0,maxrow()-2,79,"f1_10diag",color0,,,.t.,,,,,,;
-                 {'═','░','═',"N/BG,W+/N,B/BG,BG+/B"})
+    Alpha_Browse(2,0,maxrow()-2,79,"f1_10diag",color0,,,.t.,,,,,,{'═','░','═',"N/BG,W+/N,B/BG,BG+/B"})
   case k == 3
     R_Use(dir_exe+"_mo_mkbg")
     index on sh_b+str(ks,1) to (cur_dir+"tmp")
     go top
-    Alpha_Browse(2,c1,maxrow()-2,c2,"f1_10diag",color0,,,.t.,,,,,,;
-                 {'═','░','═',"N/BG,W+/N,B/BG,BG+/B"})
+    Alpha_Browse(2,c1,maxrow()-2,c2,"f1_10diag",color0,,,.t.,,,,,,{'═','░','═',"N/BG,W+/N,B/BG,BG+/B"})
   case k == 4 .or. k == 5
     R_Use(dir_exe+"_mo_mkb"+iif(pregim==4,"k","g"))
     index on sh_b+str(ks,1) to (cur_dir+"tmp_d")
@@ -2396,8 +2395,7 @@ do case
       if pregim == 4
         c1 := 0 ; c2 := 79
       endif
-      if Alpha_Browse(2,c1,maxrow()-2,c2,"f1_10diag",color0,,,.t.,,,,,,;
-                      {'═','░','═',"N/BG,W+/N,B/BG,BG+/B"})
+      if Alpha_Browse(2,c1,maxrow()-2,c2,"f1_10diag",color0,,,.t.,,,,,,{'═','░','═',"N/BG,W+/N,B/BG,BG+/B"})
         mywait()
         arr_t := {}
         do while ks > 0
@@ -2428,7 +2426,7 @@ do case
         add_string("")
         add_string(center('[ знаком "-" перед шифром отмечены диагнозы, не входящие в ОМС ]',sh))
         add_string("")
-        find (padr(msh_b,5))
+        dbseek(padr(msh_b,5),.t.)
         do while left(shifr,3) <= msh_e .and. !eof()
           if ks == 0
             verify_FF(HH,.t.,sh)
@@ -2436,8 +2434,7 @@ do case
           if !("." $ shifr) .and. ks == 0
             add_string("")
           endif
-          s1 := iif(ks==0 .and. !empty(diag->pol),;
-                      iif(diag->pol=="М","<муж.>","<жен.>"), space(6))
+          s1 := iif(ks==0 .and. !empty(diag->pol),iif(diag->pol=="М","<муж.>","<жен.>"), space(6))
           s := iif("." $ shifr, s1, "")
           s += iif(ks==0 .and. !between_date(diag->dbegin,diag->dend) , "-", " ")
           s += padr(if(ks == 0, shifr, ""), 6)
@@ -2470,7 +2467,7 @@ if pregim == 1
   oBrow:addColumn(oColumn)
   if uregim > 0
     status_key("^<Esc>^ - выход;  ^<F2>^ - поиск по шифру;  ^<F3>^ - поиск по подстроке"+;
-                              if(uregim==1,"",";  ^<Enter>^ - выбор"))
+                              iif(uregim==1,"",";  ^<Enter>^ - выбор"))
   endif
 else
   if equalany(pregim,2,4)
@@ -2486,16 +2483,14 @@ else
   oColumn:colorBlock := blk
   oBrow:addColumn(oColumn)
   oColumn := TBColumnNew(center("Наименование "+;
-       if(pregim==2.or.pregim==4,"","под")+"группы заболеваний",n),{||left(name,n)})
+       iif(pregim==2.or.pregim==4,"","под")+"группы заболеваний",n),{||left(name,n)})
   oColumn:colorBlock := blk
   oBrow:addColumn(oColumn)
   if uregim > 0
     if equalany(pregim,4,5)
-      status_key("^<Esc>^ - выход;  ^<Enter>^ - выбор "+;
-                      if(pregim==4,"","под")+"группы для печати")
+      status_key("^<Esc>^ - выход;  ^<Enter>^ - выбор "+iif(pregim==4,"","под")+"группы для печати")
     else
-      status_key("^^ - просмотр;  ^<Esc>^ - выход"+;
-                              if(uregim==1,"",";  ^<Enter>^ - выбор"))
+      status_key("^^ - просмотр;  ^<Esc>^ - выход"+iif(uregim==1,"",";  ^<Enter>^ - выбор"))
     endif
   endif
 endif
@@ -2542,8 +2537,7 @@ do case
       //
       Private i := j := 0, lshifr := "", lname := "",;
               tmp_mas := {}, tmp_kod := {}, t_len
-      hGauge := GaugeNew(,,{color8,color1,"G+/B"},;
-                         "Поиск подстроки <."+mname+".>",.t.)
+      hGauge := GaugeNew(,,{color8,color1,"G+/B"},"Поиск подстроки <."+mname+".>",.t.)
       GaugeDisplay( hGauge )
       buf24 := save_maxrow()
       s := "^<Esc>^ - прервать поиск"
@@ -2650,8 +2644,7 @@ go top
 if srec != NIL
   goto (srec)
 endif
-Alpha_Browse(2,c1,maxrow()-2,c2,"f1_10diag",color0,,,.t.,,,,"f2_10diag",,;
-             {,,,"N/BG,W+/N,B/BG,BG+/B",.t.} )
+Alpha_Browse(2,c1,maxrow()-2,c2,"f1_10diag",color0,,,.t.,,,,"f2_10diag",,{,,,"N/BG,W+/N,B/BG,BG+/B",.t.} )
 srec := diag->(recno())
 diag->(dbCloseArea())
 restscreen(buf)

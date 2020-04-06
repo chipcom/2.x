@@ -1700,6 +1700,9 @@ if is_oncology == 2 // онкология
                    {"отказ",0},;
                    {"не показано",7},;
                    {"противопоказано",8}} */
+  if is_gisto .and. onksl->b_diag != 98
+    aadd(ta,"для листа учёта по гистологии обязателен ввод результатов гистологии")
+  endif
   if onksl->b_diag == 0 // отказ
     // при составлении реестра самостоятельно дополнить блок противопоказаний id_prot = 0
   elseif onksl->b_diag == 7 // не показано
@@ -1780,9 +1783,11 @@ if is_oncology == 2 // онкология
       if empty(onkdi->DIAG_DATE)
         aadd(arr_onkdi0, .f.)
       else
-        if onkdi->DIAG_DATE < 0d20180901
+        if is_gisto .and. onkdi->DIAG_DATE != d1
+          aadd(ta,"для гистологии дата взятия материала "+date_8(onkdi->DIAG_DATE)+"г. не равняется дате начала лечения "+date_8(d1)+"г.")
+        elseif onkdi->DIAG_DATE < 0d20180901
           fl_krit_date := .t.
-          //aadd(ta,"Дата взятия материала "+full_date(onkdi->DIAG_DATE)+"г. меньше КРИТИЧЕСКОЙ даты")
+          //aadd(ta,"Дата взятия материала "+date_8(onkdi->DIAG_DATE)+"г. меньше КРИТИЧЕСКОЙ даты")
         endif
       endif
       do while onkdi->kod == human->kod .and. !eof()
@@ -1815,18 +1820,24 @@ if is_oncology == 2 // онкология
       if len(arr_onkdi0) > 0
         aadd(ta,"не заполннена дата взятия материала")
       endif
-      if len(arr_onkdi1) != len(ar_N009)
-        aadd(ta,"ошибки заполнения таблицы гистологий")
-      endif
-      if len(arr_onkdi2) != len(ar_N012)
-        aadd(ta,"ошибки заполнения таблицы иммуногистохимий")
-      endif
-      if onksl->b_diag == 98
-        if ngist != len(ar_N009)
-          aadd(ta,"не все гистологии заполнены")
+      if is_gisto .and. emptyall(len(ar_N009),len(ar_N012))  // взятие гистологии и справочники пустые
+        if empty(ngist)
+          aadd(ta,'для амбулаторного случая по взятию гистологического материала обязательно заполнение поля "Результаты гистологии"')
         endif
-        if nimmun != len(ar_N012)
-          aadd(ta,"не все иммуногистохимии заполнены")
+      else
+        if len(arr_onkdi1) != len(ar_N009)
+          aadd(ta,"ошибки заполнения таблицы гистологий")
+        endif
+        if len(arr_onkdi2) != len(ar_N012)
+          aadd(ta,"ошибки заполнения таблицы иммуногистохимий")
+        endif
+        if onksl->b_diag == 98
+          if ngist != len(ar_N009)
+            aadd(ta,"не все гистологии заполнены")
+          endif
+          if nimmun != len(ar_N012)
+            aadd(ta,"не все иммуногистохимии заполнены")
+          endif
         endif
       endif
     endif

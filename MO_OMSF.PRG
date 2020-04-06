@@ -142,7 +142,7 @@ if empty(ashema[1])
 endif
 return ashema[k]
 
-***** 27.01.20
+***** 06.04.20
 Function f_valid2ad_cr()
 Static mm_bartel := {;
   {"индекс Бартела 60 баллов и менее","60"},;
@@ -177,8 +177,8 @@ if m1usl_ok < 3 .and. m1vmp == 0
     endif
   elseif m1usl_ok == 1 .and. !empty(MKOD_DIAG)
     if !empty(MKOD_DIAG2) ; aadd(arr_sop,padr(MKOD_DIAG2,5)) ; endif
-    if !empty(MKOD_DIAG3) ; aadd(arr_sop,padr(MKOD_DIAG2,3)) ; endif
-    if !empty(MKOD_DIAG4) ; aadd(arr_sop,padr(MKOD_DIAG2,4)) ; endif
+    if !empty(MKOD_DIAG3) ; aadd(arr_sop,padr(MKOD_DIAG3,5)) ; endif
+    if !empty(MKOD_DIAG4) ; aadd(arr_sop,padr(MKOD_DIAG4,5)) ; endif
     if !empty(MSOPUT_B1) ; aadd(arr_sop,padr(MSOPUT_B1,5)) ; endif
     if !empty(MSOPUT_B2) ; aadd(arr_sop,padr(MSOPUT_B2,5)) ; endif
     if !empty(MSOPUT_B3) ; aadd(arr_sop,padr(MSOPUT_B3,5)) ; endif
@@ -237,6 +237,10 @@ if m1usl_ok < 3 .and. m1vmp == 0
           mm_ad_cr[i,1] := "it1-непрерывное проведение ИВЛ в течение 72 часов и более"
         case mm_ad_cr[i,2] == "it2"
           mm_ad_cr[i,1] := "it2-непрерывное проведение ИВЛ в течение 480 часов и более"
+        case mm_ad_cr[i,2] == "i3 "
+          mm_ad_cr[i,1] := "i3-непрерывное проведение ИВЛ в течение менее 120 часов"
+        case mm_ad_cr[i,2] == "i4 "
+          mm_ad_cr[i,1] := "i4-непрерывное проведение ИВЛ в течение 120 часов и более"
         case mm_ad_cr[i,2] == "if "
           mm_ad_cr[i,1] := "if-назначение пегилированных интерферонов для лечения хрон.вирусного гепатита С"
         case mm_ad_cr[i,2] == "nif"
@@ -1452,6 +1456,51 @@ return k
 ***** 29.01.19
 Function is_lymphoid(_diag) // ЗНО кроветворной или лимфоидной тканей
 return !empty(_diag) .and. between(left(_diag,3),"C81","C96")
+
+***** 03.04.20
+Function get_rez_gist(k,r,c)
+Local r1, r2, c1, c2, i, kg := len(arr_rez_gist), sk, buf, ret[2]
+r2 := r-1
+if (r1 := r2-kg-1) < 0
+  r1 := 0
+  r2 := r1+kg+1
+endif
+c1 := 10
+c2 := 77
+setcolor(color5)
+buf := box_shadow(r1,c1,r2,c2,,"Ввод результатов гистологии","G/W")
+@ r2,c1+7 say " <Esc> отказ,  <PgDn> запись,  <Пробел> очистить поле " color "R/W"
+Private pole_rslt, pole_1rslt, pole_menu
+for i := 1 to kg
+  sk := lstr(i)
+  pole_rslt := "mrslt"+sk
+  pole_1rslt := "m1rslt"+sk
+  pole_menu := "mm_rslt"+sk
+  Private &pole_1rslt := arr_rez_gist[i,4]
+  Private &pole_rslt := inieditspr(A__MENUVERT, arr_rez_gist[i,3], arr_rez_gist[i,4])
+  Private &pole_menu := arr_rez_gist[i,3]
+next
+for i := 1 to kg
+  sk := lstr(i)
+  pole_rslt := "mrslt"+sk
+  pole_1rslt := "m1rslt"+sk
+  pole_menu := "mm_rslt"+sk
+  @ r1+i,c1+2 say padr(arr_rez_gist[i,1],37) get &pole_rslt ;
+              reader {|x|menu_reader(x,&pole_menu,A__MENUVERT_SPACE,,,.f.)}
+next
+myread()
+if lastkey() != K_ESC
+  for i := 1 to kg
+    pole_1rslt := "m1rslt"+lstr(i)
+    arr_rez_gist[i,4] := &pole_1rslt
+  next
+endif
+kg := 0
+aeval(arr_rez_gist,{|x| iif(x[4] > 0, ++kg, )})
+ret[1] := iif(kg > 0, 1, 0)
+ret[2] := "количество гистологий - "+lstr(kg)
+rest_box(buf)
+return ret
 
 ***** 02.02.19
 Function ret_str_onc(k,par)

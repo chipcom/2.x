@@ -3384,11 +3384,11 @@ if m1tip != old .and. old != NIL
 endif
 return .t.
 
-***** 02.02.19 добавление или редактирование случая (листа учета)
+***** 03.04.20 добавление или редактирование случая (листа учета)
 Function oms_sluch(Loc_kod,kod_kartotek)
 // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
 // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
-Static SKOD_DIAG := '     ', st_l_z := 1, st_N_DATA, st_K_DATA, ;
+Static SKOD_DIAG := '     ', st_l_z := 1, st_N_DATA, st_K_DATA, st_rez_gist,;
        st_vrach := 0, st_profil := 0, st_profil_k := 0, st_rslt := 0, st_ishod := 0, st_povod := 9
 Static menu_bolnich := {{"нет",0},{"да ",1},{"РОД",2}}
 Local bg := {|o,k| get_MKB10(o,k,.t.) },;
@@ -3598,9 +3598,29 @@ Private mm_PR_CONS := {{"отсутствует необходимость проведения",0},; // N019
                        {"определена тактика обследования",1},;
                        {"определена тактика лечения",2},;
                        {"изменена тактика лечения",3}}
+if empty(st_rez_gist) // для гистологии в поликлинике
+  st_rez_gist := {}
+  R_Use(exe_dir+"_mo_N008",cur_dir+"_mo_N008","N8")
+  R_Use(exe_dir+"_mo_N007",cur_dir+"_mo_N007","N7")
+  go top
+  do while !eof()
+    aadd(st_rez_gist,{n7->mrf_name,n7->id_mrf,{},0}) ; i := len(st_rez_gist)
+    select N8
+    find (str(n7->id_mrf,6))
+    do while n8->id_mrf == n7->id_mrf .and. !eof()
+      aadd(st_rez_gist[i,3], {alltrim(n8->r_m_name),n8->id_r_m})
+      skip
+    enddo
+    select N7
+    skip
+  enddo
+  n7->(dbCloseArea())
+  n8->(dbCloseArea())
+endif
 Private mdiag_date := ctod(""), mgist1, mgist2, m1gist1 := 0, m1gist2 := 0, ;
         mmark1, mmark2, mmark3, mmark4, mmark5, mgist[2], mmark[5],;
-        m1mark1 := 0, m1mark2 := 0, m1mark3 := 0, m1mark4 := 0, m1mark5 := 0
+        m1mark1 := 0, m1mark2 := 0, m1mark3 := 0, m1mark4 := 0, m1mark5 := 0,;
+        is_gisto := .f., mrez_gist, m1rez_gist := 0, arr_rez_gist := aclone(st_rez_gist)
 afill(mgist, 0)
 afill(mmark, 0)
 dbcreate(cur_dir+"tmp_onkco", {; // Сведения о проведении консилиума
@@ -3878,6 +3898,7 @@ if Loc_kod > 0
         mBSA := padr(alltrim(str_0(sl->BSA,4,2)),4)
       endif
     endif
+    is_gisto := (m1usl_ok == 3 .and. m1profil == 15)  // поликлиника + профиль = гистология
     i := j := 0
     use (cur_dir+"tmp_onkdi") new alias TDIAG
     R_Use(dir_server+"mo_onkdi",dir_server+"mo_onkdi","DIAG") // Диагностический блок
@@ -3892,6 +3913,9 @@ if Loc_kod > 0
       tdiag->DIAG_CODE := diag->DIAG_CODE
       tdiag->DIAG_RSLT := diag->DIAG_RSLT
       if diag->DIAG_TIP == 1 // гистологический признак
+        if is_gisto .and. (k := ascan(arr_rez_gist, {|x| x[2] == diag->DIAG_CODE })) > 0
+          arr_rez_gist[k,4] := diag->DIAG_RSLT
+        endif
         if ++i < 3
           mgist[i] := diag->DIAG_CODE
           &("m1gist"+lstr(i)) := diag->DIAG_RSLT
@@ -4487,7 +4511,7 @@ do while .t.
             skip
           enddo
           if empty(mm_N012[i,1])
-            func_error(4,"Не найден гистологический признак ID_IGH="+lstr(mm_N012[i,2])+" для "+mkod_diag)
+            func_error(4,"Не найден признак иммуногистохимии ID_IGH="+lstr(mm_N012[i,2])+" для "+mkod_diag)
           endif
           select N11
           find (str(mm_N012[i,2],6))
@@ -4564,9 +4588,17 @@ do while .t.
         append blank
       endif
       m1USL_TIP := tmpou->USL_TIP
+      is_gisto := .f. ; m1rez_gist := 0 ; kg := 0
       //
       k := 16
       if len(mm_N009) == 0 .and. len(mm_N012) == 0
+        if (is_gisto := (m1usl_ok == 3 .and. m1profil == 15))  // поликлиника + профиль = гистология
+          aeval(arr_rez_gist,{|x| iif(x[4] > 0, ++kg, )})
+          m1rez_gist := iif(kg > 0, 1, 0)
+          mrez_gist := "количество гистологий - "+lstr(kg)
+          mDIAG_DATE := mn_data
+          m1B_DIAG := 98
+        endif
         k--
       else
         if len(mm_N009) == 0
@@ -4796,7 +4828,12 @@ do while .t.
                when eq_any(m1DS1_T,1,2) ;
                color colget_menu
   if len(mm_N009) == 0 .and. len(mm_N012) == 0
-    ++j; @ j,3 say "Гистология / иммуногистохимия: не нужно для "+mkod_diag
+    if is_gisto
+      ++j; @ j,3 say "Результаты гистологии" get mrez_gist ;
+               reader {|x|menu_reader(x,{{|k,r,c| get_rez_gist(k,r,c)}},A__FUNCTION,,,.f.)}
+    else
+      ++j; @ j,3 say "Гистология / иммуногистохимия: не нужно для "+mkod_diag
+    endif
   else
     ++j; @ j,3 say "Гистология / иммуногистохимия" get mB_DIAG ;
                reader {|x|menu_reader(x,mmb_diag,A__MENUVERT,,,.f.)}
@@ -5551,6 +5588,25 @@ do while .t.
           select TDIAG
           skip
         enddo
+        if is_gisto
+          for j := 1 to len(arr_rez_gist)
+            if !empty(arr_rez_gist[j,4])
+              select DIAG
+              if ++i > len(arr)
+                AddRec(7)
+                diag->kod := mkod
+              else
+                goto (arr[i])
+                G_RLock(forever)
+              endif
+              diag->DIAG_DATE := mDIAG_DATE
+              diag->DIAG_TIP  := 1
+              diag->DIAG_CODE := arr_rez_gist[j,2]
+              diag->DIAG_RSLT := arr_rez_gist[j,4]
+              diag->REC_RSLT  := 1
+            endif
+          next
+        endif
         select DIAG
         do while ++i <= len(arr)
           goto (arr[i])
