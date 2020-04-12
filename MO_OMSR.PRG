@@ -2646,14 +2646,16 @@ endif
 if eq_any(human_->USL_OK,1,2) .and. kol_ksg > 0 .and. human_2->VMP == 0 // не ВМП
   k_data2 := human->k_data
   if human->ishod == 88
+    s := "это двойной случай - он закачивается "+date_8(k_data2)+"; "
     select HUMAN
     goto (human_2->pn4) // ссылка на 2-й лист учёта
     k_data2 := human->k_data // переприсваиваем дату окончания лечения
     goto (rec_human)
+  else
+    s := ""
   endif
   arr_ksg := definition_KSG(1,k_data2)
   if empty(arr_ksg[2]) // нет ошибок
-    s := "это двойной случай - он закачивается "+date_8(k_data2)+"; "
     if shifr_ksg == arr_ksg[3] // КСГ определена правильно
       if !(round(cena_ksg,2) == round(arr_ksg[4],2)) // не та цена
         aadd(ta,s+"в л/у для КСГ="+arr_ksg[3]+" стоит цена "+lstr(cena_ksg,10,2)+", а должна быть "+lstr(arr_ksg[4],10,2))

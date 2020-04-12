@@ -3935,7 +3935,7 @@ for i := 1 to 2
 next
 return NIL
 
-***** 06.02.20 форма 14-МЕД (ОМС)
+***** 11.04.20 форма 14-МЕД (ОМС)
 Function forma14_med_oms()
 Static group_ini := "f14_med_oms"
 Local begin_date, end_date, buf := savescreen(), arr_m, i, j, k, k1, k2,;
@@ -3996,8 +3996,8 @@ arr_pril5[26,1] := "Дн.стац. - руб."
 arr_pril5[27,1] := "Дн.стац.ЭКО - пациенто-дней"
 arr_pril5[28,1] := "Дн.стац.ЭКО - пациентов, чел."
 arr_pril5[29,1] := "Дн.стац.ЭКО - руб."
-arr_m := {2019,1,12,"за январь - декабрь 2019 года",0d20190101,0d20191231}
-lal := "lusl19" ; lalf := "luslf19"
+arr_m := {2020,1,3,"за январь - март 2020 года",0d20200101,0d20200331}
+lal := "lusl" ; lalf := "luslf"
 Private mk1, mk2, mk3, mk4, md1, md11, md12, md2, md21, md22, md3, md4
 ar := GetIniSect(tmp_ini,group_ini)
 mk1 := int(val(a2default(ar,"mk1","0")))
@@ -4080,7 +4080,7 @@ dbcreate(cur_dir+"tmpf14",{;
 use (cur_dir+"tmpf14") new alias TMPF14
 Use_base("lusl")
 Use_base("luslf")
-R_Use(dir_exe+"_mo9unit",cur_dir+"_mo9unit","MOUNIT")
+R_Use(dir_exe+"_mo0unit",cur_dir+"_mo0unit","MOUNIT")
 R_Use(dir_server+"mo_su",,"MOSU")
 R_Use(dir_server+"mo_hu",dir_server+"mo_hu","MOHU")
 set relation to u_kod into MOSU
@@ -4097,7 +4097,7 @@ R_Use(dir_server+"human",dir_server+"humans","HUMAN")
 set relation to recno() into HUMAN_, to recno() into HUMAN_2, to kod_k into KART
 //
 *********************************************************************
-mdate_rak := arr_m[6]+21 // по какую дату РАК сумма к оплате 21.01.20
+mdate_rak := arr_m[6]+10 // по какую дату РАК сумма к оплате 21.01.20
 *********************************************************************
 R_Use(dir_server+"mo_xml",,"MO_XML")
 R_Use(dir_server+"mo_rak",,"RAK")
@@ -4123,7 +4123,7 @@ do while !eof()
     mdate1 := stod(strzero(schet_->nyear,4)+strzero(schet_->nmonth,2)+"15")
     //
     *** 2019 год
-    k := 17 // дата регистрации по 17.01.20
+    k := 10 // дата регистрации по 17.01.20
     ***
     fl := between(mdate,arr_m[5],arr_m[6]+k) .and. between(mdate1,arr_m[5],arr_m[6]) // !!отч.период 2019 год
   endif
@@ -4234,20 +4234,20 @@ do while !eof()
               find (str(&lal.->unit_code,3))
               if found() .and. mounit->pz > 0
                 if (i16 := mounit->ii) > 0
-                  j1 := glob_array_PZ_19[i16,1]
+                  j1 := glob_array_PZ_20[i16,1]
                   if eq_any(j1,68,75,87)
                     //vid_vp := 0 // Посещение профилактическое
                   elseif eq_any(j1,69,76)
                     //vid_vp := 1 // в неотложной форме
-                  elseif eq_any(j1,70,77)
+                  elseif eq_any(j1,70,77,91,92)
                     //vid_vp := 2 // обращения с лечебной целью
                   elseif j1 == 71
                     is_centr_z := .t.
                     //vid_vp := 0 // Посещение профилактическое Центра здоровья
-                  elseif eq_any(j1,72,73,74)  // т.е. 260, 261, 262
+                  elseif eq_any(j1,73,74,87,88,89,90)  // т.е. 261,262,318,319,320,321
                     vid_vp := 0 // комплексное посещение при диспансеризации
                     is_z_sl := .t.
-                  elseif j1 == 64 .or. between(j1,78,86) // исследования
+                  elseif j1 == 64 .or. between(j1,79,86) .or. between(j1,93,98) // исследования
                     is_kt := .t. ; ds1_spec := 1
                     vid_vp := 0 // Посещение профилактическое
                   elseif eq_any(j1,63,65,67)
