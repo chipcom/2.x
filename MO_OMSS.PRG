@@ -259,7 +259,7 @@ return NIL
 
 *
 
-***** прочитать реестр ФЛК
+***** 26.04.20 прочитать реестр ФЛК
 Function read_XML_FILE_FLK(arr_XML_info,aerr)
 Local ii, pole, i, k, t_arr[2], adbf, ar
 mkod_reestr := arr_XML_info[7]
@@ -276,7 +276,7 @@ if !emptyany(rees->nyear,rees->nmonth)
           hb_eol(),cFileProtokol,.t.)
 endif
 use (cur_dir+"tmp2file") new alias TMP2
-index on str(tip,1)+str(oshib,3) to (cur_dir+"tmp2")
+index on str(tip,1)+str(oshib,3)+soshib to (cur_dir+"tmp2")
 if is_err_FLK
   if !extract_reestr(rees->(recno()),rees->name_xml)
     aadd(aerr,center("Не найден ZIP-архив с РЕЕСТРом № "+lstr(rees->nschet)+" от "+date_8(rees->DSCHET),80))
@@ -339,9 +339,17 @@ for ii := 1 to 2
   if found()
     strfile("  Список ошибок:"+hb_eol(),cFileProtokol,.t.)
     do while tmp2->tip == ii .and. !eof()
-      s := "код ошибки = "+lstr(tmp2->OSHIB)
-      if (i := ascan(glob_F012,{|x| x[2] == tmp2->OSHIB})) > 0
-        s += ' "'+glob_F012[i,5]+'"'
+      if empty(tmp2->SOSHIB)
+        s := "код ошибки = "+lstr(tmp2->OSHIB)+" "
+        if (i := ascan(glob_F012,{|x| x[2] == tmp2->OSHIB})) > 0
+          s += '"'+glob_F012[i,5]+'"'
+        endif
+      else
+        s := "код ошибки = "+tmp2->SOSHIB+" "
+        if (i := ascan(glob_Q017,{|x| x[1] == left(tmp2->SOSHIB,4)})) > 0
+          s += '"'+glob_Q017[i,2]+'" '
+        endif
+        s += alltrim(inieditspr(A__POPUPMENU, dir_exe+"_mo_Q015", tmp2->SOSHIB))
       endif
       if !empty(tmp2->IM_POL)
         s += ", имя поля = "+alltrim(tmp2->IM_POL)
@@ -2767,7 +2775,7 @@ return is_err_FLK
 
 *
 
-***** 22.01.19 зачитать реестр СП и ТК во временные файлы
+***** 27.04.20 зачитать реестр СП и ТК во временные файлы
 Function reestr_sp_tk_tmpfile(oXmlDoc,aerr,mname_xml)
 Local j, j1, _ar, oXmlNode, oNode1, oNode2, buf := save_maxrow()
 DEFAULT aerr TO {}, mname_xml TO ""
@@ -2812,7 +2820,8 @@ dbcreate(cur_dir+"tmp2file", {;
 })
 dbcreate(cur_dir+"tmp3file", {;
  {"_N_ZAP",     "N",  8,0},;
- {"_REFREASON", "N",  3,0};
+ {"_REFREASON", "N",  3,0},;
+ {"SREFREASON", "C", 12,0};
 })
 use (cur_dir+"tmp1file") new alias TMP1
 append blank
@@ -2881,7 +2890,12 @@ FOR j := 1 TO Len( oXmlDoc:aItems[1]:aItems )
             select TMP3
             append blank
             tmp3->_N_ZAP := tmp2->_N_ZAP
-            tmp3->_REFREASON := val(_ar[j1])
+            s := alltrim(_ar[j1])
+            if len(s) > 3 .or. "." $ s
+              tmp3->SREFREASON := s
+            else
+              tmp3->_REFREASON := val(s)
+            endif
           next
         endif
       endif

@@ -3563,7 +3563,7 @@ Static Function f_131_u_da_net(k,sb1,sb2)
 if k > 1 ; k := 1 ; endif // если вместо "да" битовый ответ
 return f3_inf_DDS_karta({{"да - 1",1},{"нет - 2",0}},k,";  ",sb1,sb2,.f.)
 
-***** 21.01.20 Приложение к Приказу ГБУЗ "ВОМИАЦ" от 12.05.2017г. №1615
+***** 27.04.20 Приложение к Приказу ГБУЗ "ВОМИАЦ" от 12.05.2017г. №1615
 Function f21_inf_DVN(par) // свод
 Local arr_m, buf := save_maxrow(), s, as := {}, as1[14],;
       i, j, k, n, ar, at, ii, g1, sh := 65, fl, mdvozrast, adbf
@@ -3613,7 +3613,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
     "A11.26.001" ;//          Биопсия новообразования век, конъюнктивы или роговицы
    };
   }
-  Private arr_21[40], arr_316 := {}, arr_ne := {}
+  Private arr_21[50], arr_316 := {}, arr_ne := {}
   afill(arr_21,0)
   mywait("Сбор статистики")
   adbf := {{"name","C",80,0},;
@@ -3836,7 +3836,12 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
         if f_is_selo(kart_->gorod_selo,kart_->okatog)
           arr_21[15] ++
         endif
-        if g1 == 4 ; g1 := 3 ; endif // пока так
+        if g1 == 3
+          arr_21[41] ++
+        elseif g1 == 4
+          arr_21[42] ++
+        endif
+        if g1 == 4 ; g1 := 3 ; endif // Итого III группа
         arr_21[15+g1] ++ // профосмотры по группам здоровья
         if f_starshe_trudosp(human->POL,human->DATE_R,human->n_data)
           arr_21[40] ++
@@ -3911,9 +3916,9 @@ close databases
 rest_box(buf)
 return NIL
 
-***** 21.01.20
+***** 27.04.20
 Function f1_f21_inf_DVN()
-Local sumr := 0, m1GRUPPA, fl2 := .f.
+Local sumr := 0, m1GRUPPA, fl2 := .f., is_selo
 select TMP2
 append blank
 tmp2->kod_k := tmp->kod_k
@@ -3943,14 +3948,20 @@ else
     elseif mdvozrast > 65
       arr_21[33] ++
     endif
-    if f_starshe_trudosp(human->POL,human->DATE_R,human->n_data)
-      arr_21[19] ++
-      if f_is_selo(kart_->gorod_selo,kart_->okatog)
-        arr_21[20] ++
-      endif
-    endif
     if between(m1gruppa,1,4)
       arr_21[5+m1gruppa] ++
+    endif
+    if (is_selo := f_is_selo(kart_->gorod_selo,kart_->okatog))
+      arr_21[47] ++
+    endif
+    if f_starshe_trudosp(human->POL,human->DATE_R,human->n_data)
+      arr_21[19] ++
+      if is_selo
+        arr_21[20] ++
+      endif
+      if between(m1gruppa,1,4)
+        arr_21[42+m1gruppa] ++
+      endif
     endif
     f2_f21_inf_DVN(1)
     if human->schet > 0
@@ -7426,16 +7437,19 @@ do case
 endcase
 return k
 
-***** 24.11.19 Приложение к письму ГБУЗ "ВОМИАЦ" №1025 от 08.07.2019г.
+***** 27.04.20 Приложение к письму ГБУЗ "ВОМИАЦ" №1025 от 08.07.2019г.
 Function f21_inf_DNL(par)
-Local arr_m, buf := save_maxrow(), lkod_h, lkod_k, rec, s, adbf, as, i, j, k, ;
-      sh, HH := 60, n, n_file := "svod_dnl"+stxt
+Local arr_m, buf := save_maxrow(), lkod_h, lkod_k, rec, s, adbf, as, i, j, k, sh, HH := 60, n, n_file := "svod_dnl"+stxt
 if (arr_m := year_month(,,,5)) != NIL
+  if arr_m[1] < 2020
+    return func_error(4,"Данная форма утверждена с 2020 года")
+  endif
   mywait()
-  if f0_inf_DNL(arr_m,par > 1,par == 3,{301,302,303,304,305})
+  if f0_inf_DNL(arr_m,par > 1,par == 3,{301,302})
     R_Use(dir_server+"mo_rpdsh",,"RPDSH")
     index on str(KOD_H,7) to (cur_dir+"tmprpdsh")
     adbf := {{"ti","N",1,0},;
+             {"stroke","C",8,0},;
              {"mm","N",2,0},;
              {"mm1","N",1,0},;
              {"vsego","N",6,0},;
@@ -7457,19 +7471,39 @@ if (arr_m := year_month(,,,5)) != NIL
              {"v2","N",6,0},;
              {"m15","N",6,0},;
              {"m15s","N",6,0},;
+             {"m15pos","N",6,0},;
+             {"m15poss","N",6,0},;
              {"m15a","N",6,0},;
              {"m15p","N",6,0},;
              {"m15ps","N",6,0},;
+             {"m15p1","N",6,0},;
+             {"m15p1s","N",6,0},;
              {"m15e","N",6,0},;
              {"g15","N",6,0},;
              {"g15s","N",6,0},;
+             {"g15pos","N",6,0},;
+             {"g15poss","N",6,0},;
              {"g15g","N",6,0},;
              {"g15p","N",6,0},;
              {"g15ps","N",6,0},;
+             {"g15p1","N",6,0},;
+             {"g15p1s","N",6,0},;
              {"g15e","N",6,0}}
     dbcreate(cur_dir+"tmp1",adbf)
     use (cur_dir+"tmp1") new
-    index on str(ti,1)+str(mm,2)+str(mm1,1) to (cur_dir+"tmp1")
+    index on str(mm,2) to (cur_dir+"tmp1")
+    append blank
+    tmp1->mm := 0 ; tmp1->stroke := "Всего"
+    append blank
+    tmp1->mm := 1 ; tmp1->stroke := "0-14 лет"
+    append blank
+    tmp1->mm := 2 ; tmp1->stroke := "до 1 г."
+    append blank
+    tmp1->mm := 3 ; tmp1->stroke := "15-17 л."
+    append blank
+    tmp1->mm := 4 ; tmp1->stroke := "15-17 юн"
+    append blank
+    tmp1->mm := 5 ; tmp1->stroke := "школьники"
     adbf := {{"ti","N",1,0},;
              {"g1","N",6,0},;
              {"g2","N",6,0},;
@@ -7489,6 +7523,7 @@ if (arr_m := year_month(,,,5)) != NIL
     index on str(ti,1) to (cur_dir+"tmp2")
     R_Use(dir_server+"mo_schoo",,"SCH")
     R_Use(dir_server+"schet_",,"SCHET_")
+    R_Use(dir_server+"uslugi",,"USL")
     R_Use_base("human_u")
     R_Use(dir_server+"kartote_",,"KART_")
     R_Use(dir_server+"human_",,"HUMAN_")
@@ -7506,11 +7541,11 @@ if (arr_m := year_month(,,,5)) != NIL
     close databases
     arr_title := {;
 "────────┬─────────────────┬─────────────────────────────────────────┬───────────────────────┬───────────┬─────┬─────",;
-"        │Число детей Iэтап│распределение по группам здоровья I этап │распр-ие по мед.группам│Случаев Iэт│напр.│завер",;
-"отчетный├─────┬─────┬─────┼─────┬─────┬─────┬─────┬─────┬─────┬─────┼─────┬─────┬─────┬─────┼─────┬─────┤на   │шило ",;
-"период  │всего│до 1г│моб/к│  1  │  2  │  3  │  4  │4инв.│  5  │5инв.│основ│подго│спецА│спецБ│зарег│оплач│2 эт.│2 эт.",;
+"катего- │Число детей Iэтап│распределение по группам здоровья I этап │распр-ие по мед.группам│Случаев Iэт│напр.│завер",;
+"рии     ├─────┬─────┬─────┼─────┬─────┬─────┬─────┬─────┬─────┬─────┼─────┬─────┬─────┬─────┼─────┬─────┤на   │шило ",;
+"детей   │всего│ село│моб/к│  1  │  2  │  3  │  4  │4инв.│  5  │5инв.│основ│подго│спецА│спецБ│зарег│оплач│2 эт.│2 эт.",;
 "────────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────",;
-"        │  6  │  7  │  8  │  9  │  10 │  11 │  12 │  13 │  14 │  15 │  16 │  17 │  18 │  19 │  20 │  21 │  22 │  23 ",;
+"        │  5  │ 5.1 │  6  │  7  │  8  │  9  │  10 │ 10.1│  11 │ 11.1│  12 │  13 │  14 │  15 │  16 │  17 │  18 │  19 ",;
 "────────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────"}
     sh := len(arr_title[1])
     fp := fcreate(n_file) ; n_list := 1 ; tek_stroke := 0
@@ -7521,49 +7556,13 @@ if (arr_m := year_month(,,,5)) != NIL
     add_string(center("[ "+charrem("~",mas1pmt[par])+" ]",sh))
     add_string(center("("+arr_m[4]+")",sh))
     use (cur_dir+"tmp1") index (cur_dir+"tmp1") new
-    as := array(18,2)
-    for i := 1 to 1//iif(arr_m[1] < 18, 3, 1)
-      afillall(as,0)
-      if i == 3
-        arr_title := {;
-"────────┬───────────┬─────────────────────────────┬───────────",;
-"        │Число детей│распределение по группам здор│Случаев 1эт",;
-"отчетный├─────┬─────┼─────┬─────┬─────┬─────┬─────┼─────┬─────",;
-"период  │всего│моб/к│  1  │  2  │  3  │  4  │  5  │зарег│оплач",;
-"────────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────",;
-"        │  1  │  2  │  3  │  4  │  5  │  6  │  7  │  8  │  9  ",;
-"────────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────"}
-        sh := len(arr_title[1])
-      endif
-      verify_FF(HH-12,.t.,sh)
-      add_string("")
-      add_string(center("Сведения о "+{"профилактических",;
-                                       "предварительных",;
-                                       "периодических"}[i]+" осмотрах несовершеннолетних",sh))
-      add_string("")
-      aeval(arr_title, {|x| add_string(x) } )
-      find (str(i,1))
-      do while tmp1->ti == i .and. !eof()
-        j := 1
-        if i == 3
-          s := padr(mm_month[tmp1->mm],8)+;
-               put_val(tmp1->vsego,6)+;
-               put_val(tmp1->vsegoM,6)+;
-               put_val(tmp1->g1,6)+;
-               put_val(tmp1->g2,6)+;
-               put_val(tmp1->g3,6)+;
-               put_val(tmp1->g4,6)+;
-               put_val(tmp1->g5,6)+;
-               put_val(tmp1->sv,6)+;
-               put_val(tmp1->so,6)
-        else
-          if tmp1->mm1 == 0
-            s := padr(mm_month[tmp1->mm],8)
-          else
-            j := 2
-            s := padl("до 1г.",8)
-          endif
-          s += put_val(tmp1->vsego,6)+;
+    add_string("")
+    add_string(center("Сведения о профилактических осмотрах несовершеннолетних",sh))
+    add_string("")
+    aeval(arr_title, {|x| add_string(x) } )
+    go top
+    do while !eof()
+      s := tmp1->stroke + put_val(tmp1->vsego,6)+;
                put_val(tmp1->vsego1,6)+;
                put_val(tmp1->vsegoM,6)+;
                put_val(tmp1->g1,6)+;
@@ -7581,117 +7580,64 @@ if (arr_m := year_month(,,,5)) != NIL
                put_val(tmp1->so,6)+;
                put_val(tmp1->v2,6)+;
                put_val(tmp1->v2,6)
-        endif
-        if verify_FF(HH-1,.t.,sh)
-          aeval(arr_title, {|x| add_string(x) } )
-        endif
-        add_string(s)
-        add_string(replicate("─",sh))
-        as[ 1,j] += tmp1->vsego
-        as[ 2,j] += tmp1->vsego1
-        as[ 3,j] += tmp1->vsegoM
-        as[ 4,j] += tmp1->g1
-        as[ 5,j] += tmp1->g2
-        as[ 6,j] += tmp1->g3
-        as[ 7,j] += tmp1->g4
-        as[ 8,j] += tmp1->g4inv
-        as[ 9,j] += tmp1->g5
-        as[10,j] += tmp1->g5inv
-        as[11,j] += tmp1->mg1
-        as[12,j] += tmp1->mg2
-        as[13,j] += tmp1->mg3
-        as[14,j] += tmp1->mg4
-        as[15,j] += tmp1->sv
-        as[16,j] += tmp1->so
-        as[17,j] += tmp1->v2
-        as[18,j] += tmp1->v2
-        skip
-      enddo
-      j := 1
-      s := padr(lstr(year(arr_m[6]))+" год",8)
-      if i == 3
-        s += put_val(as[ 1,j],6)+;
-             put_val(as[ 3,j],6)+;
-             put_val(as[ 4,j],6)+;
-             put_val(as[ 5,j],6)+;
-             put_val(as[ 6,j],6)+;
-             put_val(as[ 7,j],6)+;
-             put_val(as[ 8,j],6)+;
-             put_val(as[13,j],6)+;
-             put_val(as[14,j],6)
-      else
-        for k := 1 to len(as)
-          s += put_val(as[k,j],6)
-        next
-      endif
-      add_string(s)
-      if i == 1
-        s := padl("до 1г.",8)
-        for k := 1 to len(as)
-          s += put_val(as[k,2],6)
-        next
-        add_string(s)
-      endif
-      add_string(replicate("─",sh))
-    next
-    //
-    afillall(as,0)
-    verify_FF(HH-12,.t.,sh)
-    arr_title := {;
-"────────┬───────────────────────────────────┬───────────────────────────────────",;
-"        │      Юноши (15-17 лет)            │        Девушки (15-17 лет)        ",;
-"отчетный├─────────────────┬─────┬─────┬─────┼─────────────────┬─────┬─────┬─────",;
-"период  │факт осмот.(чел.)│патол│ из  │напр.│факт осмот.(чел.)│патол│ из  │напр.",;
-"        ├─────┬─────┬─────┤репр.│ гр.6│на II├─────┬─────┬─────┤репр.│ гр.6│на II",;
-"        │всего│ село│андро│сист.│ село│этап │всего│ село│гинек│сист.│ село│этап ",;
-"────────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────",;
-"        │  3  │  4  │  5  │  6  │  7  │  8  │  3  │  4  │  5  │  6  │  7  │  8  ",;
-"────────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────"}
-    sh := len(arr_title[1])
-    i := 1
-    add_string("")
-    add_string("Несовершеннолетние в возрасте 15-17 лет")
-    aeval(arr_title, {|x| add_string(x) } )
-    find (str(i,1))
-    do while tmp1->ti == i .and. !eof()
-      j := 1
-      s := padr(mm_month[tmp1->mm],8)+;
-           put_val(tmp1->m15,6)+;
-           put_val(tmp1->m15s,6)+;
-           put_val(tmp1->m15a,6)+;
-           put_val(tmp1->m15p,6)+;
-           put_val(tmp1->m15ps,6)+;
-           put_val(tmp1->m15e,6)+;
-           put_val(tmp1->g15,6)+;
-           put_val(tmp1->g15s,6)+;
-           put_val(tmp1->g15g,6)+;
-           put_val(tmp1->g15p,6)+;
-           put_val(tmp1->g15ps,6)+;
-           put_val(tmp1->g15e,6)
       if verify_FF(HH-1,.t.,sh)
         aeval(arr_title, {|x| add_string(x) } )
       endif
       add_string(s)
       add_string(replicate("─",sh))
-      as[ 1,j] += tmp1->m15
-      as[ 2,j] += tmp1->m15s
-      as[ 3,j] += tmp1->m15a
-      as[ 4,j] += tmp1->m15p
-      as[ 5,j] += tmp1->m15ps
-      as[ 6,j] += tmp1->m15e
-      as[ 7,j] += tmp1->g15
-      as[ 8,j] += tmp1->g15s
-      as[ 9,j] += tmp1->g15g
-      as[10,j] += tmp1->g15p
-      as[11,j] += tmp1->g15ps
-      as[12,j] += tmp1->g15e
       skip
     enddo
-    j := 1
-    s := padr(lstr(year(arr_m[6]))+" год",8)
-    for k := 1 to 12
-      s += put_val(as[k,j],6)
-    next
+    //
+    verify_FF(HH-12,.t.,sh)
+/*    arr_title := {;
+"────────┬───────────────────────────────────┬───────────────────────────────────",;
+"        │      Юноши (15-17 лет)            │        Девушки (15-17 лет)        ",;
+"        ├─────────────────┬─────┬─────┬─────┼─────────────────┬─────┬─────┬─────",;
+"        │факт осмот.(чел.)│патол│ из  │напр.│факт осмот.(чел.)│патол│ из  │напр.",;
+"        ├─────┬─────┬─────┤репр.│ гр.6│на II├─────┬─────┬─────┤репр.│ гр.6│на II",;
+"        │всего│ село│андро│сист.│ село│этап │всего│ село│гинек│сист.│ село│этап ",;
+"────────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────",;
+"        │  3  │  4  │  5  │  6  │  7  │  8  │  3  │  4  │  5  │  6  │  7  │  8  ",;
+"────────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────"}*/
+    arr_title := {;
+"───────────────────────────────────────────────────────────┬───────────────────────────────────────────────────────────",;
+"            Юноши (15-17 лет)                              │                 Девушки (15-17 лет)                       ",;
+"─────────────────────────────┬─────┬─────┬─────┬─────┬─────┼─────────────────────────────┬─────┬─────┬─────┬─────┬─────",;
+"     факт осмот.(чел.)       │патол│ из  │из 7 │ из  │напр.│      факт осмот.(чел.)      │патол│ из  │из 14│ из  │напр.",;
+"─────┬─────┬─────┬─────┬─────┤репр.│ гр.7│впер-│ 7.2 │на II├─────┬─────┬─────┬─────┬─────┤репр.│гр.14│впер-│14.2 │на II",;
+"всего│ село│посещ│ село│андро│сист.│ село│вые  │ село│этап │всего│ село│посещ│ село│гинек│сист.│ село│вые  │ село│этап ",;
+"─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────",;
+"  3  │  4  │  5  │ 5.1 │  6  │  7  │ 7.1 │ 7.2 │ 7.3 │  8  │  11 │ 11.1│  12 │ 12.1│  13 │  14 │ 14.1│ 14.2│ 14.3│ 15  ",;
+"─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────"}
+    sh := len(arr_title[1])
+    i := 1
+    add_string("")
+    add_string("Несовершеннолетние в возрасте 15-17 лет")
+    aeval(arr_title, {|x| add_string(x) } )
+    go top
+    s :=   put_val(tmp1->m15,5)+;
+           put_val(tmp1->m15s,6)+;
+           put_val(tmp1->m15pos,6)+;
+           put_val(tmp1->m15poss,6)+;
+           put_val(tmp1->m15a,6)+;
+           put_val(tmp1->m15p,6)+;
+           put_val(tmp1->m15ps,6)+;
+           put_val(tmp1->m15p1,6)+;
+           put_val(tmp1->m15p1s,6)+;
+           put_val(tmp1->m15e,6)+;
+           put_val(tmp1->g15,6)+;
+           put_val(tmp1->g15s,6)+;
+           put_val(tmp1->g15pos,6)+;
+           put_val(tmp1->g15poss,6)+;
+           put_val(tmp1->g15g,6)+;
+           put_val(tmp1->g15p,6)+;
+           put_val(tmp1->g15ps,6)+;
+           put_val(tmp1->g15p1,6)+;
+           put_val(tmp1->g15p1s,6)+;
+           put_val(tmp1->g15e,6)
+    if verify_FF(HH-1,.t.,sh)
+      aeval(arr_title, {|x| add_string(x) } )
+    endif
     add_string(s)
     add_string(replicate("─",sh))
     //
@@ -7744,9 +7690,9 @@ close databases
 rest_box(buf)
 return NIL
 
-***** 27.10.19
+***** 27.04.20
 Function f1_f21_inf_DNL(Loc_kod,kod_kartotek) // сводная информация
-Local ii, im, i, j, k, s, sumr := 0, is_do1g := 0, ltip_school := -1, ar15[12], is_2 := .f., ad := {}, arr, a3 := {}
+Local ii, im, i, j, k, s, sumr := 0, ar := {0}, ltip_school := -1, ar15[22], is_2 := .f., ad := {}, arr, a3 := {}
 Private m1tip_school := -1, m1school := 0, mvozrast, mdvozrast, mgruppa := 0, m1GR_FIZ := 1, m1invalid1 := 0
 Private mvar, m1var
 afill(ar15,0)
@@ -7765,22 +7711,24 @@ for i := 1 to 5
     endif
   next
 next
-if human->ishod == 305
-  ii := 3
-  read_arr_PerN(Loc_kod)
-  mGRUPPA := human_->RSLT_NEW - 342//L_BEGIN_RSLT
-elseif eq_any(human->ishod,303,304)
-  ii := 2
-  is_2 := (human->ishod == 304) // это второй этап
-  read_arr_PredN(Loc_kod)
-  mGRUPPA := human_->RSLT_NEW - 336//L_BEGIN_RSLT
-  ltip_school := m1tip_school
+ii := 1
+is_2 := (human->ishod == 302) // это второй этап
+read_arr_PN(Loc_kod)
+mGRUPPA := human_->RSLT_NEW - 331//L_BEGIN_RSLT
+if mvozrast == 0
+  aadd(ar,2)
+endif
+if mdvozrast < 15
+  aadd(ar,1)
 else
-  ii := 1
-  is_2 := (human->ishod == 302) // это второй этап
-  read_arr_PN(Loc_kod)
-  mGRUPPA := human_->RSLT_NEW - 331//L_BEGIN_RSLT
-  is_do1g := iif(mvozrast == 0, 1, 0)
+  aadd(ar,3)
+  if human->pol == "М"
+    aadd(ar,4)
+  endif
+endif
+if mdvozrast > 6 // школьники ?
+  aadd(ar,5)
+endif
   if m1school > 0
     select SCH
     goto (m1school)
@@ -7845,29 +7793,63 @@ else
     if is_selo
       ar15[j+1] ++
     endif
-    if ascan(ad,{|x| left(x[1],1) == "N" }) > 0 // патология органов репродуктивной системы
+    if (i := ascan(ad,{|x| left(x[1],1) == "N" })) > 0 // патология органов репродуктивной системы
       ar15[j+3] ++
       if is_selo
         ar15[j+4] ++
+      endif
+      if ad[i,2] > 0 // заболевания уст.впервые
+        if j == 1
+          ar15[13] ++
+          if is_selo
+            ar15[14] ++
+          endif
+        else
+          ar15[15] ++
+          if is_selo
+            ar15[16] ++
+          endif
+        endif
       endif
     endif
     if is_2
       ar15[j+5] ++
     endif
+    fl := .f.
     select HU
     find (str(Loc_kod,7))
     do while hu->kod == Loc_kod .and. !eof()
       if eq_any(hu_->PROFIL,19,136)
-        ar15[j+2] ++
-        exit
+        fl := .t.
       endif
+      usl->(dbGoto(hu->u_kod))
+      if empty(lshifr := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data))
+        lshifr := usl->shifr
+      endif
+      if left(lshifr,2) == "2."  // врачебный приём
+        if j == 1
+          ar15[17] ++
+          if is_selo
+            ar15[18] ++
+          endif
+        else
+          ar15[19] ++
+          if is_selo
+            ar15[20] ++
+          endif
+        endif
+      endif
+      select HU
       skip
     enddo
+    if fl
+      ar15[j+2] ++
+    endif
   else
     arr[14] := 1
   endif
   aadd(a3,aclone(arr))
-endif
+//
 for j := 1 to len(a3)
   select TMP2
   find (str(a3[j,14],1))
@@ -7880,34 +7862,33 @@ for j := 1 to len(a3)
     &pole := &pole + a3[j,i]
   next
 next
-im := month(human->k_data)
-if !between(im,1,12)
-  im := 1
-endif
-for j := 0 to is_do1g
+for j := 1 to len(ar)
+  im := ar[j]
   select TMP1
-  find (str(ii,1)+str(im,2)+str(j,1))
-  if !found()
-    append blank
-    tmp1->ti := ii
-    tmp1->mm := im
-    tmp1->mm1 := j
-  endif
+  find (str(im,2))
   tmp1->vsego ++
-  if mvozrast == 0
+  if is_selo
     tmp1->vsego1 ++
   endif
   tmp1->m15  += ar15[1]
   tmp1->m15s += ar15[2]
+  tmp1->m15pos += ar15[17]
+  tmp1->m15poss += ar15[18]
   tmp1->m15a += ar15[3]
   tmp1->m15p += ar15[4]
-  tmp1->m15ps+= ar15[5]
+  tmp1->m15ps += ar15[5]
+  tmp1->m15p1 += ar15[13]
+  tmp1->m15p1s += ar15[14]
   tmp1->m15e += ar15[6]
   tmp1->g15  += ar15[7]
   tmp1->g15s += ar15[8]
+  tmp1->g15pos += ar15[19]
+  tmp1->g15poss += ar15[20]
   tmp1->g15g += ar15[9]
   tmp1->g15p += ar15[10]
-  tmp1->g15ps+= ar15[11]
+  tmp1->g15ps += ar15[11]
+  tmp1->g15p1 += ar15[15]
+  tmp1->g15p1s += ar15[16]
   tmp1->g15e += ar15[12]
   if between(mgruppa,1,5)
     pole := "tmp1->g"+lstr(mgruppa)
@@ -7946,8 +7927,7 @@ return NIL
 
 ***** 25.03.18
 Function inf_DNL_030poo(is_schet)
-Local arr_m, i, n, buf := save_maxrow(), lkod_h, lkod_k, rec,;
-      sh := 80, HH := 80, n_file := "f_030poo"+stxt, d1, d2
+Local arr_m, i, n, buf := save_maxrow(), lkod_h, lkod_k, rec, sh := 80, HH := 80, n_file := "f_030poo"+stxt, d1, d2
 if (arr_m := year_month(T_ROW,T_COL-5)) != NIL
   if arr_m[1] < 2018
     return func_error(4,"Данная форма утверждена с 2018 года")

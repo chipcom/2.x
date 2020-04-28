@@ -439,8 +439,9 @@ return hb_Utf8ToStr(s,"RU866")
 #define LISU_CENA      6
 #define LISU_UNIT      7
 #define LISU_ID        8
+#define LISU_D_RSLT    9
 
-***** 02.03.18
+***** 26.04.20
 Function f2_impXML_from_LIS(ta)
 Static arr[LISU_ID]
 Local i, j := 1, s
@@ -479,6 +480,9 @@ for i := 2 to len(ta)
     s := afteratnum('Exec_date="',s)  ; arr[LISU_DATE ] := beforatnum('"',s,1)
     s := afteratnum('Doc_spec="',s)   ; arr[LISU_SPEC ] := beforatnum('"',s,1)
     s := afteratnum('Doc_SNILS="',s)  ; arr[LISU_SNILS] := beforatnum('"',s,1)
+    if 'DIAG_RSLT' $ upper(s)
+      s := afteratnum('DIAG_RSLT="',upper(s))  ; arr[LISU_D_RSLT] := beforatnum('"',s,1)
+    endif
     if j <= len(arr_order)
       aadd(arr_order[j,4],aclone(arr))
     endif
@@ -486,11 +490,11 @@ for i := 2 to len(ta)
 next j
 return f2_import_from_LIS(2)
 
-***** 02.01.18
+***** 26.04.20
 Function f2_import_from_LIS(par)
 Static siu := 0, jsiu := 0
 Local i, j, k, fl, afio[3], mfio, aerr := {}, tmp_arr := {}, arr_unit, lvzros_reb, i_738, i_739
-Local t1, t2, t3, t4, ku := 0, ku1 := 0, ko := len(arr_order)
+Local t1, t2, t3, t4, ku := 0, ku1 := 0, is_mgi := .f., ko := len(arr_order)
 t1 := seconds()
 ++ip
 afio[1] := f_LIS_fio(arr_pac[LIS_FAM],1)
@@ -569,6 +573,9 @@ for j := 1 to len(arr_order)
       aadd(aerr,"PAT="+arr_pac[LIS_KOD_AK]+' "'+mfio+'" (ORDER='+lstr(arr_order[j,LISS_KOD])+')')
       return aerr
     endif
+    if left(arr_order[j,LISS_USL,i,LISU_SHIFR],5) == "60.9."
+      is_mgi := .t.
+    endif
     if arr_order[j,LISS_USL,i,LISU_SHIFR] == "4.11.738"
       i_738 := i
     elseif arr_order[j,LISS_USL,i,LISU_SHIFR] == "4.11.739"
@@ -620,7 +627,11 @@ for j := 1 to len(arr_order)
   if i_738 > 0 .and. i_739 > 0 // если встречаются в одном случае "4.11.738" и "4.11.739"
     Del_Array(arr_order[j,LISS_USL],i_738) // то удаляем "4.11.738" (она дешевле)
   endif
-  arr_order[j,LISS_DIAG] := "Z01.7" // всегда
+  if is_mgi
+    //
+  else
+    arr_order[j,LISS_DIAG] := "Z01.7" // всегда
+  endif
   //my_debug(ip < 100,"  "+print_array({arr_order[j,1],arr_order[j,2],arr_order[j,3],arr_order[j,5],arr_order[j,6]}))
   //for i := 1 to len(arr_order[j,LISS_USL])
     //my_debug(ip < 100,"    "+print_array(arr_order[j,4,i]))
@@ -1128,7 +1139,7 @@ else
 endif
 return j
 
-***** Импорт случаев ОМС (листов учёта) из других программ
+***** Импорт случаев ОМС (листов учёта) из других программ (по-старому)
 Function import_sluch_OMS()
 Local full_dbf, name_dbf, i, s := "", fl := .t.
 Private arr_f := {"_lpu","_otd","_sluch","_sluch_u"}, ;

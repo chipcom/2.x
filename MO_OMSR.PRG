@@ -563,7 +563,7 @@ do while human->kod_k == glob_kartotek .and. !eof()
         lshifr1 := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data)
         if is_usluga_TFOMS(usl->shifr,lshifr1,human->k_data)
           lshifr := alltrim(iif(empty(lshifr1), usl->shifr, lshifr1))
-          if eq_any(left(lshifr,5),"2.80.","2.82.","60.4.","60.5.","60.6.","60.7.","60.8.")
+          if eq_any(left(lshifr,5),"2.80.","2.82.","60.4.","60.5.","60.6.","60.7.","60.8.","60.9.")
             is_period_amb := .f. ; exit
           elseif lshifr == "60.3.1" // перит.диализ
             aadd(a_dializ,{human->n_data,human->k_data,human_->USL_OK,human->OTD,3}) // диализы не в кругл.стационаре
@@ -841,7 +841,7 @@ endif
 au_lu := {} ; au_flu := {} ; au_lu_ne := {} ; arr_perso := {} ; arr_unit := {}
 arr_onkna := {} ; arr_mo_spec := {}
 m1dopo_na := m1napr_v_mo := m1napr_stac := m1profil_stac := m1napr_reab := m1profil_kojki := 0
-is_kt := is_mrt := is_uzi := is_endo := is_gisto := is_g_cit := is_pr_skr := .f.
+is_kt := is_mrt := is_uzi := is_endo := is_gisto := is_mgi := is_g_cit := is_pr_skr := .f.
 is_71_1 := is_71_2 := is_71_3 := is_dom := .f.
 kvp_2_78 := kvp_2_79 := kvp_2_89 := kol_2_3 := kol_2_60 := kol_2_4 := kol_2_6 := kol_55_1 := 0
 kvp_70_5 := kvp_70_6 := kvp_70_3 := kvp_72_2 := kvp_72_3 := kvp_72_4 := 0
@@ -1077,7 +1077,7 @@ do while hu->kod == human->kod .and. !eof()
       hu_->PZTIP := 2
     elseif alltrim_lshifr == "56.1.723" .and. human->ishod == 202 .and. !is_disp_19 // второй этап ДВН - одна услуга
       is_disp_DVN := .t.
-    elseif eq_any(left_lshifr_5,"60.4.","60.5.","60.6.","60.7.","60.8.") .or. ;
+    elseif eq_any(left_lshifr_5,"60.4.","60.5.","60.6.","60.7.","60.8.","60.9.") .or. ;
            eq_any(alltrim_lshifr,"4.20.702","4.15.746") // ЛДП
       if alltrim_lshifr == "4.15.746" // пренатальный скрининг
         mpovod := 1 // 1.0-Посещение по заболеванию
@@ -1099,6 +1099,9 @@ do while hu->kod == human->kod .and. !eof()
         is_endo := .t.
       elseif left_lshifr_5 == "60.8."
         is_gisto := .t.
+      elseif left_lshifr_5 == "60.9."
+        is_mgi := .t.
+        shifr_mgi := alltrim_lshifr
       elseif alltrim_lshifr == "4.20.702"
         is_g_cit := .t.
       elseif alltrim_lshifr == "4.15.746"
@@ -1703,6 +1706,9 @@ if is_oncology == 2 // онкология
   if is_gisto .and. onksl->b_diag != 98
     aadd(ta,"для листа учёта по гистологии обязателен ввод результатов гистологии")
   endif
+  if is_mgi .and. onksl->b_diag != 98
+    aadd(ta,"для листа учёта по молекулярной генетике обязателен ввод результатов иммуногистохимии")
+  endif
   if onksl->b_diag == 0 // отказ
     // при составлении реестра самостоятельно дополнить блок противопоказаний id_prot = 0
   elseif onksl->b_diag == 7 // не показано
@@ -1825,10 +1831,18 @@ if is_oncology == 2 // онкология
           aadd(ta,'для амбулаторного случая по взятию гистологического материала обязательно заполнение поля "Результаты гистологии"')
         endif
       else
-        if len(arr_onkdi1) != len(ar_N009)
+        if is_mgi
+          if len(arr_onkdi1) > 0
+            aadd(ta,"для листа учёта по молекулярной генетике не должна заполняться таблица гистологий")
+          endif
+        elseif len(arr_onkdi1) != len(ar_N009)
           aadd(ta,"ошибки заполнения таблицы гистологий")
         endif
-        if len(arr_onkdi2) != len(ar_N012)
+        if is_mgi
+          if len(ar_N012) > 0 .and. len(arr_onkdi2) != 1
+            aadd(ta,"для листа учёта по молекулярной генетике зполняется только один маркер по иммуногистохимии")
+          endif
+        elseif len(arr_onkdi2) != len(ar_N012)
           aadd(ta,"ошибки заполнения таблицы иммуногистохимий")
         endif
         if onksl->b_diag == 98
@@ -2013,6 +2027,9 @@ if is_oncology == 2 // онкология
     endif
   endif
 endif
+if is_mgi .and. len(mdiagnoz) > 0 .and. !(left(mdiagnoz[1],1) == "C")
+  aadd(ta,"для листа учёта по молекулярной генетике основной диагноз должен быть C00-C97")
+endif
 mpztip := mpzkol := 0
 if !(round(human->cena_1,2) == round(ssumma,2))
   aadd(ta,'Сумма случая '+lstr(human->cena_1)+' не равна сумме услуг '+lstr(ssumma))
@@ -2049,8 +2066,12 @@ if ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil,6,34)
   mpzkol := len(au_lu)
 endif
 if ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil,6,34)
-  human->UCH_DOC := lstr(human_2->PN3) // ORDER по ЛИС перезаписываем (вдруг исправили)
-  human_->VRACH := 0
+  if !empty(human_2->PN3)
+    human->UCH_DOC := lstr(human_2->PN3) // ORDER по ЛИС перезаписываем (вдруг исправили)
+  endif
+  if !is_mgi
+    human_->VRACH := 0
+  endif
   human_->PRVS := iif(human_->profil == 34, -13, -54)
 elseif human_->profil == 15   // гистология
   human_->PRVS := -13 // Клиническая лабораторная диагностика
@@ -3239,6 +3260,8 @@ elseif kkt > 0 .and. !is_s_dializ .and. !is_dializ .and. !is_perito
     s := "эндоскопии"
   elseif is_gisto
     s := "гистологии"
+  elseif is_mgi
+    s := "молекулярной генетики"
   elseif is_g_cit
     s := "жидкостной цитологии"
     mPZTIP := 68 // 68,"жидкостная цитология","жидк.цитол"},;
@@ -8397,7 +8420,7 @@ if (i := popup_prompt(r1,10,1,mm_menu,,,color5)) > 0
           is_other_reestr := is_delete_human := .f.
           use (cur_dir+"tmp1file") new alias TMP1
           use (cur_dir+"tmp2file") new alias TMP2
-          index on str(tip,1)+str(oshib,3) to (cur_dir+"tmp2")
+          index on str(tip,1)+str(oshib,3)+soshib to (cur_dir+"tmp2")
           use (cur_dir+"tmp_r_t1") new alias T1
           index on upper(ID_PAC) to (cur_dir+"tmp_r_t1")
           use (cur_dir+"tmp_r_t2") new alias T2
