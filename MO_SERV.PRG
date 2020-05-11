@@ -63,7 +63,7 @@ if !empty(full_o79) .and. hb_FileExists(full_o79)
 endif
 return NIL
 
-***** 02.03.18
+***** 28.04.20
 Function f1_impXML_from_LIS(name_file)
 Local buf := save_maxrow(), aerr := {}, arr, fl_exit := .f., fl := .f., i, j, t1, t2, s, s1
 if !hb_FileExists(dir_server+"mo_flis"+sdbf)
@@ -117,6 +117,10 @@ if fl .and. f_Esc_Enter("чтения файла из ЛИС")
   R_Use(dir_exe+"_mo_prof",cur_dir+"_mo_prof","MOPROF")
   R_Use(dir_server+"uslugi1",{dir_server+"uslugi1",;
                               dir_server+"uslugi1s"},"USL1")
+  R_Use(dir_exe+"_mo_N012",,"N12")
+  G_Use(dir_server+"mo_onkco",dir_server+"mo_onkco","CO")
+  G_Use(dir_server+"mo_onksl",dir_server+"mo_onksl","SL")
+  G_Use(dir_server+"mo_onkdi",dir_server+"mo_onkdi","DIAG") // Диагностический блок
   G_Use(dir_server+"human_u_",,"HU_")
   index on padr(zf,30) to (cur_dir+"tmp_hu_") progress
   set order to 0
@@ -441,9 +445,9 @@ return hb_Utf8ToStr(s,"RU866")
 #define LISU_ID        8
 #define LISU_D_RSLT    9
 
-***** 26.04.20
+***** 28.04.20
 Function f2_impXML_from_LIS(ta)
-Static arr[LISU_ID]
+Static arr[LISU_D_RSLT]
 Local i, j := 1, s
 s := afteratnum('Pat_code="',ta[1]) ; arr_pac[LIS_KOD_AK ] := beforatnum('"',s,1)
 s := afteratnum('Last_name="',s)    ; arr_pac[LIS_FAM    ] := beforatnum('"',s,1)
@@ -480,8 +484,8 @@ for i := 2 to len(ta)
     s := afteratnum('Exec_date="',s)  ; arr[LISU_DATE ] := beforatnum('"',s,1)
     s := afteratnum('Doc_spec="',s)   ; arr[LISU_SPEC ] := beforatnum('"',s,1)
     s := afteratnum('Doc_SNILS="',s)  ; arr[LISU_SNILS] := beforatnum('"',s,1)
-    if 'DIAG_RSLT' $ upper(s)
-      s := afteratnum('DIAG_RSLT="',upper(s))  ; arr[LISU_D_RSLT] := beforatnum('"',s,1)
+    if 'Diag_rslt' $ s
+      s := afteratnum('Diag_rslt="',s) ; arr[LISU_D_RSLT] := beforatnum('"',s,1)
     endif
     if j <= len(arr_order)
       aadd(arr_order[j,4],aclone(arr))
@@ -490,11 +494,11 @@ for i := 2 to len(ta)
 next j
 return f2_import_from_LIS(2)
 
-***** 26.04.20
+***** 28.04.20
 Function f2_import_from_LIS(par)
 Static siu := 0, jsiu := 0
 Local i, j, k, fl, afio[3], mfio, aerr := {}, tmp_arr := {}, arr_unit, lvzros_reb, i_738, i_739
-Local t1, t2, t3, t4, ku := 0, ku1 := 0, is_mgi := .f., ko := len(arr_order)
+Local t1, t2, t3, t4, ku := 0, ku1 := 0, is_mgi, ko := len(arr_order)
 t1 := seconds()
 ++ip
 afio[1] := f_LIS_fio(arr_pac[LIS_FAM],1)
@@ -573,8 +577,10 @@ for j := 1 to len(arr_order)
       aadd(aerr,"PAT="+arr_pac[LIS_KOD_AK]+' "'+mfio+'" (ORDER='+lstr(arr_order[j,LISS_KOD])+')')
       return aerr
     endif
-    if left(arr_order[j,LISS_USL,i,LISU_SHIFR],5) == "60.9."
-      is_mgi := .t.
+    if left(arr_order[j,LISS_USL,i,LISU_SHIFR],5) == "60.9." .and. !(left(arr_order[j,LISS_DIAG],1) == "C")
+      aadd(aerr, "Для МГИ диагноз должен быыть ОНКОЛОГИЯ у пациента")
+      aadd(aerr,"PAT="+arr_pac[LIS_KOD_AK]+' "'+mfio+'" (ORDER='+lstr(arr_order[j,LISS_KOD])+')')
+      return aerr
     endif
     if arr_order[j,LISS_USL,i,LISU_SHIFR] == "4.11.738"
       i_738 := i
@@ -626,11 +632,6 @@ for j := 1 to len(arr_order)
   next i
   if i_738 > 0 .and. i_739 > 0 // если встречаются в одном случае "4.11.738" и "4.11.739"
     Del_Array(arr_order[j,LISS_USL],i_738) // то удаляем "4.11.738" (она дешевле)
-  endif
-  if is_mgi
-    //
-  else
-    arr_order[j,LISS_DIAG] := "Z01.7" // всегда
   endif
   //my_debug(ip < 100,"  "+print_array({arr_order[j,1],arr_order[j,2],arr_order[j,3],arr_order[j,5],arr_order[j,6]}))
   //for i := 1 to len(arr_order[j,LISS_USL])
@@ -810,6 +811,12 @@ for j := 1 to len(arr_order)
     if found()
       mprofil := moprof->profil
     endif
+    is_mgi := (left(arr_order[j,LISS_USL,1,LISU_SHIFR],5) == "60.9.")
+    if is_mgi
+      //
+    else
+      arr_order[j,LISS_DIAG] := "Z01.7" // всегда
+    endif
     select HUMAN
     Add1Rec(7)
     mkod := human->kod := recno()
@@ -877,6 +884,7 @@ for j := 1 to len(arr_order)
     human->kod_p   := chr(0)
     human->date_e  := ''
     //
+    human_2->NPR_DATE := human->N_DATA
     human_2->OSL1 := human_2->OSL2 := human_2->OSL3 := ""
     human_2->VMP := 0
     human_2->VIDVMP := ""
@@ -884,7 +892,7 @@ for j := 1 to len(arr_order)
     human_2->VNR := human_2->VNR1 := human_2->VNR2 := human_2->VNR3 := 0
     human_2->PC1 := human_2->PC2 := human_2->PC3 := ""
     human_2->PN1 := human_2->PN2 := 0
-    human_2->PN3 := arr_order[j,LISS_KOD] // ключевое поле (для par = 1)
+    human_2->PN3 := arr_order[j,LISS_KOD] // ключевое поле
     sstoim := 0
     for i := 1 to len(arr_order[j,LISS_USL])
       if (n := ascan(arr_usl, {|x| x[1]==arr_order[j,LISS_USL,i,LISU_SHIFR] .and. x[4]==lvzros_reb})) == 0
@@ -932,6 +940,10 @@ for j := 1 to len(arr_order)
       ++siu
     next
     human->CENA := human->CENA_1 := sstoim
+    if is_mgi
+      human_->VRACH := hu->kod_vr
+      f_LIS_mgi(human->kod,arr_order[j])
+    endif
     aadd(aat,{seconds(),len(arr_order[j,LISS_USL])})
   endif
 next
@@ -967,6 +979,38 @@ if siu > 500
   siu := 0
 endif
 return aerr
+
+***** 28.04.20 записать онкологическую добавку по МГИ
+Function f_LIS_mgi(mkod,ao)
+Local i, ar_N012 := {}
+select CO
+AddRec(7)
+co->kod := mkod
+co->PR_CONS := 0
+co->DT_CONS := ctod("")
+//
+select SL
+AddRec(7)
+sl->kod := mkod
+sl->DS1_T := 5
+sl->b_diag := 98 // выполнено (результат получен)
+//
+if (i := ascan(glob_MGI,{|x| x[1] == ao[LISS_USL,1,LISU_SHIFR] })) > 0 // услуга входит в список ТФОМС
+  select N12
+  dbeval({|| aadd(ar_N012,n12->id_igh) }, ;
+         {|| between_date(n12->datebeg,n12->dateend,ao[LISS_USL,1,LISU_DATE]) .and. left(human->KOD_DIAG,3) == n12->ds_igh })
+  if ascan(ar_N012,glob_MGI[i,2]) > 0 // по данному диагнозу присутствует необходимый маркер
+    select DIAG
+    AddRec(7)
+    diag->kod       := mkod
+    diag->DIAG_DATE := ao[LISS_USL,1,LISU_DATE]
+    diag->DIAG_TIP  := 2
+    diag->DIAG_CODE := glob_MGI[i,2]
+    diag->DIAG_RSLT := iif(ao[LISS_USL,1,LISU_D_RSLT] == '1', glob_MGI[i,4], glob_MGI[i,3])
+    diag->REC_RSLT  := 1
+  endif
+endif
+return NIL
 
 ***** 14.01.17 проверить отдельно фамилию, имя или отчество при импорте из ЛИС
 Function f_LIS_fio(s,n)

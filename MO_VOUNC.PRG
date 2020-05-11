@@ -1706,7 +1706,7 @@ do case
 endcase
 return k
 
-***** 12.01.20 создание XML-файлов реестра
+***** 28.04.20 создание XML-файлов реестра
 Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
 Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
 //
@@ -1920,7 +1920,7 @@ do while !eof()
   lshifr_zak_sl := lvidpoms := cSMOname := ""
   a_usl := {} ; a_fusl := {} ; lvidpom := 1 ; lfor_pom := 3
   atmpusl := {} ; akslp := {} ; akiro := {} ; mdiagnoz := {} ; mdiagnoz3 := {}
-  is_KSG := .f.
+  is_KSG := is_mgi := .f.
   kol_kd := v_reabil_slux := m1veteran := m1mobilbr := 0  // мобильная бригада
   tarif_zak_sl := m1mesto_prov := m1p_otk := 0    // признак отказа
   m1dopo_na := m1napr_v_mo := 0 // {{"-- нет --",0},{"в нашу МО",1},{"в иную МО",2}}, ;
@@ -2395,7 +2395,7 @@ do while !eof()
     sCOMENTSL := ""
     if p_tip_reestr == 1
       mo_add_xml_stroke(oSL,"PRVS",put_prvs_to_reestr(human_->PRVS,_NYEAR))
-      if (ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil,6,34)) .or. human_->profil == 15 //гистология
+      if (!is_mgi .and. ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil,6,34)) .or. human_->profil == 15 //гистология
         mo_add_xml_stroke(oSL,"IDDOKT","0")
       else
         p2->(dbGoto(human_->vrach))

@@ -3384,7 +3384,7 @@ if m1tip != old .and. old != NIL
 endif
 return .t.
 
-***** 03.04.20 добавление или редактирование случая (листа учета)
+***** 28.04.20 добавление или редактирование случая (листа учета)
 Function oms_sluch(Loc_kod,kod_kartotek)
 // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
 // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -4406,6 +4406,24 @@ do while .t.
     mMET_ISSL := inieditspr(A__MENUVERT, mm_MET_ISSL, m1MET_ISSL)
     tip_onko_napr := 0
     if is_oncology == 2
+      is_mgi := .f. ; lshifr := ""
+      if Loc_kod > 0 // редактирование
+        R_Use(dir_server+"uslugi",,"USL")
+        R_Use_base("human_u")
+        find (str(Loc_kod,7))
+        do while hu->kod == Loc_kod .and. !eof()
+          usl->(dbGoto(hu->u_kod))
+          if empty(lshifr := opr_shifr_TFOMS(usl->shifr1,usl->kod,mk_data))
+            lshifr := usl->shifr
+          endif
+          lshifr := alltrim(lshifr)
+          if left(lshifr,5) == "60.9."  // МГИ
+            is_mgi := .t. ; exit
+          endif
+          select HU
+          skip
+        enddo
+      endif
       for i := 1 to 6
         &("m1prot"+lstr(i)) := 0
         &("mdprot"+lstr(i)) := ctod("")
@@ -4464,10 +4482,12 @@ do while .t.
       R_Use(exe_dir+"_mo_N006",cur_dir+"_mo_N006","N6")
       // гистология
       mm_N009 := {}
-      R_Use(exe_dir+"_mo_N009",,"N9")
-      dbeval({|| aadd(mm_N009,{"",n9->id_mrf,{}}) }, ;
-             {|| between_date(n9->datebeg,n9->dateend,mk_data) .and. left(mkod_diag,3) == n9->ds_mrf })
-      asort(mm_N009,,,{|x,y| x[2] < y[2] })
+      if !is_mgi // для МГИ гистология не вводится
+        R_Use(exe_dir+"_mo_N009",,"N9")
+        dbeval({|| aadd(mm_N009,{"",n9->id_mrf,{}}) }, ;
+               {|| between_date(n9->datebeg,n9->dateend,mk_data) .and. left(mkod_diag,3) == n9->ds_mrf })
+        asort(mm_N009,,,{|x,y| x[2] < y[2] })
+      endif
       if len(mm_N009) > 0
         R_Use(exe_dir+"_mo_N007",cur_dir+"_mo_N007","N7")
         R_Use(exe_dir+"_mo_N008",cur_dir+"_mo_N008","N8")
@@ -4497,6 +4517,19 @@ do while .t.
       dbeval({|| aadd(mm_N012,{"",n12->id_igh,{}}) }, ;
              {|| between_date(n12->datebeg,n12->dateend,mk_data) .and. left(mkod_diag,3) == n12->ds_igh })
       asort(mm_N012,,,{|x,y| x[2] < y[2] })
+      if len(mm_N012) > 0 .and. is_mgi
+        if (i := ascan(glob_MGI,{|x| x[1] == lshifr })) > 0 // услуга входит в список ТФОМС
+          if (j := ascan(mm_N012,{|x| x[2] == glob_MGI[i,2] })) > 0 // по данному диагнозу присутствует необходимый маркер
+            tmp_arr := {}
+            aadd(tmp_arr, aclone(mm_N012[j]))
+            mm_N012 := aclone(tmp_arr) // оставим в массиве только один нужный нам маркер
+          else
+            mm_N012 := {}
+          endif
+        else
+          mm_N012 := {}
+        endif
+      endif
       if len(mm_N012) > 0
         R_Use(exe_dir+"_mo_N010",cur_dir+"_mo_N010","N10")
         R_Use(exe_dir+"_mo_N011",cur_dir+"_mo_N011","N11")
@@ -4832,7 +4865,7 @@ do while .t.
       ++j; @ j,3 say "Результаты гистологии" get mrez_gist ;
                reader {|x|menu_reader(x,{{|k,r,c| get_rez_gist(k,r,c)}},A__FUNCTION,,,.f.)}
     else
-      ++j; @ j,3 say "Гистология / иммуногистохимия: не нужно для "+mkod_diag
+      ++j; @ j,3 say "Гистология / иммуногистохимия: не нужно для "+iif(is_mgi, "МГИ", mkod_diag)
     endif
   else
     ++j; @ j,3 say "Гистология / иммуногистохимия" get mB_DIAG ;
@@ -4842,7 +4875,7 @@ do while .t.
                valid {|| iif(empty(mDIAG_DATE) .or. mDIAG_DATE <= mk_data, .t., ;
                              func_error(4,"Дата взятия материала больше даты окончания лечения")) }
    if len(mm_N009) == 0
-    ++j; @ j,3 say "Гистология: не нужно для "+mkod_diag
+    ++j; @ j,3 say "Гистология: не нужно для "+iif(is_mgi, "МГИ", mkod_diag)
    else
     ++j; @ j,3 say mm_N009[1,1] get mgist1 ;
                reader {|x|menu_reader(x,mm_N009[1,3],A__MENUVERT,,,.f.)} ;
@@ -4856,7 +4889,7 @@ do while .t.
     endif
    endif
    if len(mm_N012) == 0
-    ++j; @ j,3 say "Иммуногистохимия: не нужно для "+mkod_diag
+    ++j; @ j,3 say "Иммуногистохимия: не нужно для "+iif(is_mgi, "МГИ", mkod_diag)
    else
     ++j; @ j,3 say mm_N012[1,1] get mmark1 ;
                reader {|x|menu_reader(x,mm_N012[1,3],A__MENUVERT,,,.f.)} ;
@@ -8072,11 +8105,10 @@ if (arr_m := year_month(T_ROW,T_COL+5,,3)) != NIL
 endif
 return NIL
 
-***** 05.02.19 Редактирование случая с выбором по конкретной ошибке из ТФОМС
+***** 11.05.20 Редактирование случая с выбором по конкретной ошибке из ТФОМС
 Function f3oms_edit()
 Static si := 1
-Local buf, str_sem, i, k, arr, old_yes_h_otd := yes_h_otd,;
-      iRefr, ret_arr, srec, buf24, buf_scr, s, mas_pmt
+Local buf, str_sem, i, k, arr, old_yes_h_otd := yes_h_otd, iRefr, ret_arr, srec, buf24, buf_scr, s, mas_pmt
 if !myFileDeleted(cur_dir+"tmp_h"+sdbf)
   return NIL
 endif
@@ -8085,7 +8117,9 @@ if (arr_m := year_month(T_ROW,T_COL+5,,3)) != NIL
   buf24 := save_maxrow()
   mywait()
   arr := {}
-  dbcreate(cur_dir+"tmp_h",{{"kod","N",7,0},{"REFREASON","N",3,0}})
+  dbcreate(cur_dir+"tmp_h",{{"kod","N",7,0},;
+                            {"SREFREASON","C",12,0},;
+                            {"REFREASON","N",3,0}})
   use (cur_dir+"tmp_h") new
   R_Use(dir_server+"mo_refr",,"REFR")
   index on str(kodz,8) to (cur_dir+"tmp_refr") for tipz == 1
@@ -8095,11 +8129,12 @@ if (arr_m := year_month(T_ROW,T_COL+5,,3)) != NIL
   dbseek(dtos(arr_m[5]),.t.)
   do while human->k_data <= arr_m[6] .and. !eof()
     if human_->reestr == 0 .and. human_->REES_NUM > 0 .and. human->schet == 0
-      s := 0
+      s := 0 ; s1 := ""
       select REFR
       find (str(human->kod,8))
       do while human->kod == refr->kodz .and. !eof()
         s := refr->REFREASON // берём последнее значение
+        s1 := refr->SREFREASON
         skip
       enddo
       if s > 0
@@ -8110,6 +8145,14 @@ if (arr_m := year_month(T_ROW,T_COL+5,,3)) != NIL
           if empty(s := ret_t005(tmp_h->REFREASON))
             s := lstr(tmp_h->REFREASON)+" неизвестная причина отказа"
           endif
+          aadd(arr, {s,tmp_h->REFREASON})
+        endif
+      elseif !empty(s1)
+        select TMP_H
+        append blank
+        replace kod with human->kod, REFREASON with -99, SREFREASON with s1
+        if (i := ascan(arr,{|x| x[2]==tmp_h->REFREASON})) == 0
+          s := s1+" новая причина отказа"
           aadd(arr, {s,tmp_h->REFREASON})
         endif
       endif

@@ -783,7 +783,7 @@ if ret != NIL
     old := space(10)
     do while !eof()
       n := iif(empty(tmp1->depart), 50, 70)
-      k := perenos(t_arr,&lal.->name,n)
+      k := perenos(t_arr,if(len(alltrim(tmp1->shifr))==10," ","")+&lal.->name,n)
       if empty(tmp1->depart)
         s := tmp1->shifr+padr(t_arr[1],n)
         if emptyall(tmp1->cenav,tmp1->cenad)
@@ -2877,7 +2877,7 @@ Public is_r_mu := .f.
 Public gpath_reg := "" // путь к файлам R_MU.DBF
 return NIL
 
-***** 24.02.19 удалить счет(а) по одному реестру СП и ТК и по этим людям создать заново счета (м.б.другое кол-во счетов)
+***** 11.05.20 удалить счет(а) по одному реестру СП и ТК и по этим людям создать заново счета (м.б.другое кол-во счетов)
 Function ReCreate_some_Schet_From_FILE_SP(arr)
 Local arr_XML_info[8], cFile, arr_f, k, n, oXmlDoc, aerr := {}, t_arr[2],;
       i, s, rec_schet, rec_schet_xml, go_to_schet := .f., arr_schet := {}
@@ -3166,8 +3166,17 @@ if G_SLock1Task(sem_task,sem_vagno) // запрет доступа всем
             refr->KODZ := rhum->KOD_HUM
             refr->IDENTITY := tmp2->_IDENTITY
             refr->REFREASON := tmp3->_REFREASON
-            if empty(s := ret_t005(refr->REFREASON))
-              s := lstr(refr->REFREASON)+" неизвестная причина отказа"
+            refr->SREFREASON := tmp3->SREFREASON
+            if empty(refr->SREFREASON)
+              if empty(s := ret_t005(refr->REFREASON))
+                s := lstr(refr->REFREASON)+" неизвестная причина отказа"
+              endif
+            else
+              s := "код ошибки = "+tmp3->SREFREASON+" "
+              if (i := ascan(glob_Q017,{|x| x[1] == left(tmp3->SREFREASON,4)})) > 0
+                s += '"'+glob_Q017[i,2]+'" '
+              endif
+              s += alltrim(inieditspr(A__POPUPMENU, dir_exe+"_mo_Q015", tmp3->SREFREASON))
             endif
             k := perenos(t_arr,s,75)
             for i := 1 to k

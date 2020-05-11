@@ -671,7 +671,7 @@ if (fl := (human_->ST_VERIFY == 5))
 endif
 return fl
 
-***** 29.01.20 работаем по текущей записи
+***** 28.04.20 работаем по текущей записи
 Function f1_create2reestr19(_nyear,_nmonth)
 Local i, j, lst, s
 fl_DISABILITY := is_zak_sl := is_zak_sl_vr := .f.
@@ -679,7 +679,7 @@ lshifr_zak_sl := lvidpoms := ""
 a_usl := {} ; a_fusl := {} ; lvidpom := 1 ; lfor_pom := 3
 atmpusl := {} ; akslp := {} ; akiro := {} ; tarif_zak_sl := human->cena_1
 kol_kd := 0
-is_KSG := .f.
+is_KSG := is_mgi := .f.
 v_reabil_slux := 0
 m1veteran := 0
 m1mobilbr := 0  // мобильная бригада
@@ -766,6 +766,8 @@ do while hu->kod == human->kod .and. !eof()
     if eq_any(left(lshifr,5),"1.11.","55.1.")
       kol_kd += hu->kol_1
       is_KSG := .t.
+    elseif left(lshifr,5) == "60.9."
+      is_mgi := .t.
     endif
     if !empty(s) .and. "," $ s
       lvidpoms := s

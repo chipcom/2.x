@@ -651,9 +651,6 @@ if human_->NOVOR > 0
     aadd(ta, "новорожденному более двух месяцев")
   endif
 endif
-if ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil,6,34)
-  human->KOD_DIAG := "Z01.7" // всегда
-endif
 mdiagnoz := diag_to_array(,,,,.t.)
 if len(mdiagnoz) == 0 .or. empty(mdiagnoz[1])
   aadd(ta,'не заполнено поле "ОСНОВНОЙ ДИАГНОЗ"')
@@ -841,7 +838,7 @@ endif
 au_lu := {} ; au_flu := {} ; au_lu_ne := {} ; arr_perso := {} ; arr_unit := {}
 arr_onkna := {} ; arr_mo_spec := {}
 m1dopo_na := m1napr_v_mo := m1napr_stac := m1profil_stac := m1napr_reab := m1profil_kojki := 0
-is_kt := is_mrt := is_uzi := is_endo := is_gisto := is_mgi := is_g_cit := is_pr_skr := .f.
+is_kt := is_mrt := is_uzi := is_endo := is_gisto := is_mgi := is_g_cit := is_pr_skr := is_covid := .f.
 is_71_1 := is_71_2 := is_71_3 := is_dom := .f.
 kvp_2_78 := kvp_2_79 := kvp_2_89 := kol_2_3 := kol_2_60 := kol_2_4 := kol_2_6 := kol_55_1 := 0
 kvp_70_5 := kvp_70_6 := kvp_70_3 := kvp_72_2 := kvp_72_3 := kvp_72_4 := 0
@@ -914,9 +911,6 @@ do while hu->kod == human->kod .and. !eof()
     otd->(dbGoto(hu->OTD))
     hu->(G_RLock(forever))
     hu_->(G_RLock(forever))
-    if ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil,6,34)
-      hu_->kod_diag := mdiagnoz[1]
-    endif
     if hu->is_edit == 0 .and. is_lab_usluga(lshifr)
       hu->is_edit := -1
       hu->kod_vr := hu->kod_as := 0
@@ -1140,6 +1134,9 @@ do while hu->kod == human->kod .and. !eof()
     elseif left_lshifr_2 == "4."
       if left_lshifr_5 == "4.26."
         is_neonat := .t.
+      endif
+      if alltrim_lshifr == "4.17.785" // Молекулярно-биологическое исследование мазков со слизистой оболочки носоглотки, ротоглотки и отделяемого верхних дыхательных путей на новый коронавирус COVID-19 (за исключением тест-систем)
+        is_covid := .t.
       endif
       if eq_any(hu->is_edit,1,2) .and. d1 <= c4tod(mdate_u2)
         m1lis := hu->is_edit
@@ -1369,6 +1366,44 @@ do while hu->kod == human->kod .and. !eof()
   select HU
   skip
 enddo
+if !is_mgi .and. ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0
+  if eq_any(human_->profil,6,34)
+    human->KOD_DIAG := "Z01.7" // всегда
+  endif
+  mdiagnoz := diag_to_array(,,,,.t.)
+  select HU
+  find (str(human->kod,7))
+  do while hu->kod == human->kod .and. !eof()
+    hu_->(G_RLock(forever))
+    if eq_any(human_->profil,6,34)
+      hu_->kod_diag := mdiagnoz[1]
+    endif
+    skip
+  enddo
+elseif is_covid
+  if len(mdiagnoz) > 0 .and. !(padr(mdiagnoz[1],5) == "Z01.7")
+    aadd(ta,"для услуги 4.17.785 основной диагноз должен быть Z01.7")
+  endif
+  if empty(human_->NPR_MO)
+    aadd(ta,'для услуги 4.17.785 должно быть заполнено поле "Направившая МО"')
+  elseif empty(human_2->NPR_DATE)
+    if glob_mo[_MO_KOD_TFOMS] == ret_mo(human_->NPR_MO)[_MO_KOD_TFOMS]
+      human_2->NPR_DATE := d1
+    else
+      aadd(ta,'должно быть заполнено поле "Дата направления"')
+    endif
+  elseif human_2->NPR_DATE > d1
+    aadd(ta,'"Дата направления" больше "Даты начала лечения"')
+  elseif human_2->NPR_DATE+60 < d1
+    aadd(ta,'Направлению больше двух месяцев')
+  endif
+  if !eq_any(human_->RSLT_NEW,314)
+    aadd(ta,'в поле "Результат обращения" должно быть "314 Динамическое наблюдение"')
+  endif
+  if !eq_any(human_->ISHOD_NEW,304)
+    aadd(ta,'в поле "Исход заболевания" должно быть "304 Без перемен"')
+  endif
+endif
 if len(arr_povod) > 0
   if len(arr_povod) > 1
     aadd(ta,"смешивание целей посещения в случае "+print_array(arr_povod))
@@ -1722,9 +1757,11 @@ if is_oncology == 2 // онкология
     if select("N9") == 0
       R_Use(dir_exe+"_mo_N009",,"N9")
     endif
-    select N9
-    dbeval({|| aadd(ar_N009,{"",n9->id_mrf,{}}) }, ;
-           {|| between_date(n9->datebeg,n9->dateend,d2) .and. padr(mdiagnoz[1],3) == n9->ds_mrf })
+    if !is_mgi
+      select N9
+      dbeval({|| aadd(ar_N009,{"",n9->id_mrf,{}}) }, ;
+             {|| between_date(n9->datebeg,n9->dateend,d2) .and. padr(mdiagnoz[1],3) == n9->ds_mrf })
+    endif
     /*if len(ar_N009) > 0
           R_Use(exe_dir+"_mo_N007",cur_dir+"_mo_N007","N7")
           R_Use(exe_dir+"_mo_N008",cur_dir+"_mo_N008","N8")
@@ -1756,6 +1793,19 @@ if is_oncology == 2 // онкология
     select N12
     dbeval({|| aadd(ar_N012,{"",n12->id_igh,{}}) }, ;
            {|| between_date(n12->datebeg,n12->dateend,d2) .and. padr(mdiagnoz[1],3) == n12->ds_igh })
+    if is_mgi
+      if (i := ascan(glob_MGI,{|x| x[1] == shifr_mgi })) > 0 // услуга входит в список ТФОМС
+        if (j := ascan(ar_N012,{|x| x[2] == glob_MGI[i,2] })) > 0 // по данному диагнозу присутствует необходимый маркер
+          tmp_arr := {}
+          aadd(tmp_arr, aclone(ar_N012[j]))
+          ar_N012 := aclone(tmp_arr) // оставим в массиве только один нужный нам маркер
+        else
+          ar_N012 := {}
+        endif
+      else
+        ar_N012 := {}
+      endif
+    endif
     /*if len(ar_N012) > 0
           R_Use(exe_dir+"_mo_N010",cur_dir+"_mo_N010","N10")
           R_Use(exe_dir+"_mo_N011",cur_dir+"_mo_N011","N11")
@@ -1838,12 +1888,10 @@ if is_oncology == 2 // онкология
         elseif len(arr_onkdi1) != len(ar_N009)
           aadd(ta,"ошибки заполнения таблицы гистологий")
         endif
-        if is_mgi
-          if len(ar_N012) > 0 .and. len(arr_onkdi2) != 1
-            aadd(ta,"для листа учёта по молекулярной генетике зполняется только один маркер по иммуногистохимии")
-          endif
-        elseif len(arr_onkdi2) != len(ar_N012)
+        if len(arr_onkdi2) != len(ar_N012)
           aadd(ta,"ошибки заполнения таблицы иммуногистохимий")
+        elseif is_mgi .and. len(ar_N012) > 0 .and. len(arr_onkdi2) != 1
+          aadd(ta,"для листа учёта по молекулярной генетике зполняется только один маркер по иммуногистохимии")
         endif
         if onksl->b_diag == 98
           if ngist != len(ar_N009)

@@ -1212,16 +1212,14 @@ return s
 ***** выбор нескольких МО
 Function inp_bit_mo(k,r,c)
 Static arr
-Local mlen, t_mas := {}, buf := savescreen(), ret, ;
-      i, tmp_color := setcolor(), m1var := "", s := "", r1, r2,;
-      top_bottom := (r < maxrow()/2)
+Local mlen, t_mas := {}, buf := savescreen(), ret, i, tmp_color := setcolor(), ;
+      m1var := "", s := "", r1, r2, top_bottom := (r < maxrow()/2)
 mywait()
 if arr == NIL
   arr := {}
   aeval(glob_arr_mo,{|x| aadd(arr,x[_MO_SHORT_NAME])})
 endif
-aeval(glob_arr_mo, {|x| aadd(t_mas,iif(x[_MO_KOD_TFOMS] $ k," * ","   ")+;
-                                   x[_MO_SHORT_NAME]) })
+aeval(glob_arr_mo, {|x| aadd(t_mas,iif(x[_MO_KOD_TFOMS] $ k," * ","   ")+x[_MO_SHORT_NAME]) })
 mlen := len(t_mas)
 i := 1
 status_key("^<Esc>^ - отказ; ^<Enter>^ - подтверждение; ^<Ins,+,->^ - смена выбора МО")

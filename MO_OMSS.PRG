@@ -498,7 +498,7 @@ if i > 0
 endif
 return NIL
 
-***** 22.02.19 прочитать и "разнести" по базам данных реестр СП и ТК
+***** 11.05.20 прочитать и "разнести" по базам данных реестр СП и ТК
 Function read_XML_FILE_SP(arr_XML_info,aerr,/*@*/current_i2)
 Local count_in_schet := 0, mnschet, bSaveHandler, ii1, ii2, i, k, t_arr[2],;
       ldate_sptk, s, fl_589, mANSREESTR
@@ -907,43 +907,56 @@ if empty(aerr)
             refr->KODZ := rhum->KOD_HUM
             refr->IDENTITY := tmp2->_IDENTITY
             refr->REFREASON := tmp3->_REFREASON
-            if empty(s := ret_t005(refr->REFREASON))
-              strfile(space(5)+lstr(refr->REFREASON)+" неизвестная причина отказа"+;
-                      hb_eol(),cFileProtokol,.t.)
-            else
-              if tmp3->_REFREASON == 562
-                s += " (спец-ть врача "+ret_tmp_prvs(human_->PRVS)+")"
-              elseif tmp3->_REFREASON == 589 .and. int(val(tmp2->_SMO)) > 0
-                fl_589 := .t.
-                s += " (в л/у и в карточке пациента исправлены полис и СМО - войти в редактирование л/у и подтвердить запись)"
+            refr->SREFREASON := tmp3->SREFREASON
+            if empty(refr->SREFREASON)
+              if empty(s := ret_t005(refr->REFREASON))
+                strfile(space(5)+lstr(refr->REFREASON)+" неизвестная причина отказа"+;
+                        hb_eol(),cFileProtokol,.t.)
+              else
+                if tmp3->_REFREASON == 562
+                  s += " (спец-ть врача "+ret_tmp_prvs(human_->PRVS)+")"
+                elseif tmp3->_REFREASON == 589 .and. int(val(tmp2->_SMO)) > 0
+                  fl_589 := .t.
+                  s += " (в л/у и в карточке пациента исправлены полис и СМО - войти в редактирование л/у и подтвердить запись)"
+                endif
+                k := perenos(t_arr,s,75)
+                for i := 1 to k
+                  strfile(space(5)+t_arr[i]+hb_eol(),cFileProtokol,.t.)
+                next
               endif
+              if eq_any(refr->REFREASON,57,59) .and. kart->za_smo != -9
+                select KART
+                G_RLock(forever)
+                kart->za_smo := -9  // установить признак "Проблемы с полисом"
+                dbUnLock()
+              endif
+              if refr->REFREASON == 513 .or. !eq_any(tmp2->_MO_PR,space(6),replicate('0',6))
+                select KART2
+                do while kart2->(lastrec()) < human->kod_k
+                  APPEND BLANK
+                enddo
+                goto (human->kod_k)
+                if empty(kart2->MO_PR)
+                  G_RLock(forever)
+                  kart2->MO_PR := tmp2->_MO_PR
+                  kart2->TIP_PR := 2
+                  kart2->DATE_PR := ldate_sptk
+                  if empty(kart2->pc4)
+                    kart2->pc4 := date_8(kart2->pc4)
+                  endif
+                  dbUnLock()
+                endif
+              endif
+            else
+              s := "код ошибки = "+tmp3->SREFREASON+" "
+              if (i := ascan(glob_Q017,{|x| x[1] == left(tmp3->SREFREASON,4)})) > 0
+                s += '"'+glob_Q017[i,2]+'" '
+              endif
+              s += alltrim(inieditspr(A__POPUPMENU, dir_exe+"_mo_Q015", tmp3->SREFREASON))
               k := perenos(t_arr,s,75)
               for i := 1 to k
                 strfile(space(5)+t_arr[i]+hb_eol(),cFileProtokol,.t.)
               next
-            endif
-            if eq_any(refr->REFREASON,57,59) .and. kart->za_smo != -9
-              select KART
-              G_RLock(forever)
-              kart->za_smo := -9  // установить признак "Проблемы с полисом"
-              dbUnLock()
-            endif
-            if refr->REFREASON == 513 .or. !eq_any(tmp2->_MO_PR,space(6),replicate('0',6))
-              select KART2
-              do while kart2->(lastrec()) < human->kod_k
-                APPEND BLANK
-              enddo
-              goto (human->kod_k)
-              if empty(kart2->MO_PR)
-                G_RLock(forever)
-                kart2->MO_PR := tmp2->_MO_PR
-                kart2->TIP_PR := 2
-                kart2->DATE_PR := ldate_sptk
-                if empty(kart2->pc4)
-                  kart2->pc4 := date_8(kart2->pc4)
-                endif
-                dbUnLock()
-              endif
             endif
             select TMP3
             skip
