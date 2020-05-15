@@ -1110,6 +1110,7 @@ if empty(arr_mo3)
 endif
 dbcreate(cur_dir+"tmp_mo",{;
   {"kodN","C", 6,0},;
+  {"kodF","C", 6,0},;
   {"mo3", "N", 1,0},;
   {"name","C",72,0};
  })
@@ -1123,6 +1124,7 @@ do while .t.
       if iif(muslovie == NIL, .t., &muslovie)
         append blank
         rg->kodN := glob_arr_mo[i,_MO_KOD_TFOMS]
+        rg->kodF := glob_arr_mo[i,_MO_KOD_FFOMS]
         rg->name := glob_arr_mo[i,_MO_SHORT_NAME]
         if ascan(arr_mo3,rg->kodN) > 0
           rg->mo3 := 1
@@ -1135,6 +1137,7 @@ do while .t.
       if (i := ascan(glob_arr_mo,{|x| x[_MO_KOD_TFOMS] == arr_mo3[j] })) > 0
         append blank
         rg->kodN := glob_arr_mo[i,_MO_KOD_TFOMS]
+        rg->kodF := glob_arr_mo[i,_MO_KOD_FFOMS]
         rg->name := glob_arr_mo[i,_MO_SHORT_NAME]
         rg->mo3 := 1
       endif
@@ -1181,10 +1184,25 @@ else
 endif
 return NIL
 
-***** 18.12.14
-Function f3get_mo(nkey)
-Local ret := -1
-if nKey == K_F3 .and. glob_task != X_263 .and. muslovie == NIL
+***** 12.05.20
+Function f3get_mo(nkey,oBrow)
+Local ret := -1, cCode, rec
+if nKey == K_F2 .and. lmo3 == 0
+  if (cCode := input_value(18,2,20,77,color1,;
+                           "Введите код МО или обособленного подразделения, присвоенный ТФОМС",;
+                           space(6),"999999")) != NIL .and. !empty(cCode)
+    rec := rg->(recno())
+    go top
+    oBrow:gotop()
+    Locate for rg->kodN == cCode .or. rg->kodF == cCode
+    if !found()
+      go top
+      oBrow:gotop()
+      goto (rec)
+    endif
+    ret := 0
+  endif
+elseif nKey == K_F3 .and. glob_task != X_263 .and. muslovie == NIL
   ret := 1
   p_mo := 1
   pkodN := rg->kodN

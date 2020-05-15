@@ -18,7 +18,7 @@ for i := 2 to k
 next
 return NIL
 
-***** 11.02.19 прочитать и "разнести" по базам данных РАК
+***** 14.05.20 прочитать и "разнести" по базам данных РАК
 Function read_XML_FILE_RAK(arr_XML_info,aerr)
 Local fl_akt, fl_schet, blk_akt, blk_schet, i, k, s, s1, arr_s := {}, t_arr[2],;
       ia, is, ih, arr, aakt := {}, no_write := .t., fl_2019
@@ -168,6 +168,7 @@ strfile(hb_eol()+;
 //
 select HUMAN
 set index to
+R_Use(dir_server+"human_3",{dir_server+"human_3",dir_server+"human_32"},"HUMAN_3")
 G_Use(dir_server+"mo_rak",,"RAK")
 set relation to KOD_XML into MO_XML
 index on str(akt,6) to (cur_dir+"tmprak")
@@ -325,7 +326,13 @@ do while !eof()
             human_->OPLATA := tmp4->_OPLATA
           endif
           if tmp4->_OPLATA > 1 .or. !empty(tmp4->PENALTY)
-            s := "Сумма лечения: "+lstr(human->cena_1,15,2)+"р., "+;
+            v := human->cena_1
+            if human->ishod == 88
+              select HUMAN_3
+              find (str(human->kod,7))
+              v := human_3->cena_1
+            endif
+            s := "Сумма лечения: "+lstr(v,15,2)+"р., "+;
                  "принято к оплате: "+lstr(tmp4->_SUMP,15,2)+"р."
             if !empty(tmp4->_SANK_MEK)
               if fl_2019
@@ -352,7 +359,7 @@ do while !eof()
               s1 := " (восстановление ранее удержанной суммы)"
             endif
             strfile(hb_eol(),cFileProtokol,.t.)
-            put_long_str("Случай № "+lstr(tmp4->_IDCASE)+". "+alltrim(human->fio)+", "+;
+            put_long_str("Случай № "+lstr(tmp4->_IDCASE)+". "+alltrim(human->fio)+iif(human->ishod==88," (двойной случай), ",", ")+;
                          full_date(human->date_r)+;
                          iif(empty(otd->SHORT_NAME), "", " ["+alltrim(otd->SHORT_NAME)+"]")+;
                          " "+date_8(human->n_data)+"-"+date_8(human->k_data),cFileProtokol,4)
@@ -1025,11 +1032,12 @@ if regim == "edit" .and. nk == K_ENTER
 endif
 return ret
 
-***** 14.02.17
+***** 14.05.20
 Function view_rak_akt_schet_human(lkod_raks)
 Local blk, t_arr[BR_LEN], buf := savescreen()
 R_Use(dir_server+"schet",,"SCHET")
 goto (raks->schet)
+R_Use(dir_server+"human_3",{dir_server+"human_3",dir_server+"human_32"},"HUMAN_3")
 R_Use(dir_server+"human_",,"HUMAN_")
 R_Use(dir_server+"human",,"HUMAN")
 set relation to recno() into HUMAN_
@@ -1051,9 +1059,9 @@ t_arr[BR_COLOR] := color0
 t_arr[BR_ARR_BROWSE] := {'═','░','═',"N/BG,W+/N,B/BG,W+/B",.t.}
 blk := {|| iif(raksh->oplata==1, {1,2}, {3,4}) }
 t_arr[BR_COLUMN] := {{ " №№;случ", {|| str(human_->SCHET_ZAP,4) }, blk },;
-                     { " Ф.И.О.", {|| padr(human->fio,27) }, blk },;
+                     { " Ф.И.О.", {|| padr(f_view_rak_akt_schet_human(1),27) }, blk },;
                      { "Дата рожд.", {|| full_date(human->date_r) }, blk },;
-                     { " Стоимость", {|| put_kop(human->cena_1,10) }, blk },;
+                     { " Стоимость", {|| put_kop(f_view_rak_akt_schet_human(2),10) }, blk },;
                      { " Принято; к оплате", {|| put_kop(raksh->sump,10) }, blk },;
                      { "Код;деф", {|| put_val(raksh->REFREASON,3) }, blk },;
                      { "Повторн.;выставл.", {|| iif(empty(raksh->NEXT_KOD),space(8),date_8(raksh->DATE_REP)) }, blk } }
@@ -1066,7 +1074,19 @@ edit_browse(t_arr)
 restscreen(buf)
 return NIL
 
-***** 11.01.19
+***** 14.05.20
+Function f_view_rak_akt_schet_human(k)
+Local s := human->fio, v := human->cena_1, ret
+if human->ishod == 88
+  human_3->(dbseek(str(human->kod,7)))
+  if human_3->(found())
+    v := human_3->cena_1
+    s := padr(s,23)+"_2сл"
+  endif
+endif
+return iif(k == 1, s, v)
+
+***** 14.05.20
 Function f1_view_rak_akt_schet_human(nk,ob,regim)
 Local ret := -1, rec, s, s1
 if !(regim == "edit")
@@ -1098,7 +1118,7 @@ elseif nk == K_ENTER .and. year(human->k_data) > 2012
   if human->cena_1 > 0 .and. empty(s)
     func_error(4,"Повторное выставление случая невозможно при нулевой сумме отказа")
     return ret
-  elseif !(round(human->cena_1,2)==round(s+raksh->sump,2) .and. raksh->OPLATA == 2)
+  elseif !(round(f_view_rak_akt_schet_human(2),2)==round(s+raksh->sump,2) .and. raksh->OPLATA == 2)
     func_error(4,"Повторное выставление случая возможно только для OPLATA = 2 и полного отказа")
     return ret
   endif
@@ -1107,7 +1127,7 @@ elseif nk == K_ENTER .and. year(human->k_data) > 2012
     return ret
   endif
   rec := raksh->(recno())
-  s := alltrim(human->fio)+" "+date_8(human->n_data)+"-"+date_8(human->k_data)+" ("+lstr(human->cena_1)+"р.)"
+  s := alltrim(human->fio)+" "+date_8(human->n_data)+"-"+date_8(human->k_data)+" ("+lstr(f_view_rak_akt_schet_human(2))+"р.)"
   s1 := "код дефекта: "+lstr(raksh->REFREASON)
   if emptyall(human->cena_1,raksh->SANK_MEK,raksh->SANK_MEE,raksh->SANK_EKMP,raksh->PENALTY) // скорая помощь
     s1 += ", санкции "+inieditspr(A__MENUVERT,glob_F006,rak->KONT)+": 0р. (СМП)"
@@ -1133,6 +1153,7 @@ elseif nk == K_ENTER .and. year(human->k_data) > 2012
   endif
   //
   close databases
+  R_Use(dir_server+"human_3",{dir_server+"human_3",dir_server+"human_32"},"HUMAN_3")
   R_Use(dir_server+"human_",,"HUMAN_")
   R_Use(dir_server+"human",,"HUMAN")
   set relation to recno() into HUMAN_
@@ -1143,7 +1164,7 @@ elseif nk == K_ENTER .and. year(human->k_data) > 2012
 endif
 return ret
 
-***** 11.01.19
+***** 14.05.20
 Function f2_view_rak_akt_schet_human()
 Local arr := {}, i, n, s, lcolor := "N", tmp_select := select()
 n := 76-chuman
@@ -1191,12 +1212,12 @@ if raksh->OPLATA == 2
       lcolor := "RB"
       aadd(arr,"снято предыдущей санкцией")
     endif
-  elseif round(human->cena_1,2) == round(s+raksh->sump,2)
+  elseif round(f_view_rak_akt_schet_human(2),2) == round(s+raksh->sump,2)
     aadd(arr,"снято "+lstr(s,11,2)+"р.")
     lcolor := "B"
   endif
 elseif raksh->OPLATA == 3
-  if round(human->cena_1,2) == round(s+raksh->sump,2)
+  if round(f_view_rak_akt_schet_human(2),2) == round(s+raksh->sump,2)
     aadd(arr,"снято "+lstr(s,11,2)+"р.")
     lcolor := "B"
   endif
@@ -1233,12 +1254,6 @@ if f_alert(arr1,arr2,1,"N+/G*","N/G*",13,,"N/G*") == 2
     use_base("human")
     set relation to // "отвязываем"
     goto (glob_perso)
-    if eq_any(human->ishod,88,89)
-      func_error(10,"Это двойной лист учёта. Свяжитесь с разработчиками!!!")
-      close databases
-      rest_box(buf)
-      return NIL
-    endif
     ahuman := get_field()
     select HUMAN_
     goto (glob_perso)
@@ -1322,11 +1337,110 @@ if f_alert(arr1,arr2,1,"N+/G*","N/G*",13,,"N/G*") == 2
       skip
     enddo
     arr_disp := read_arr_DISPANS(glob_perso)
+    glob_persoh3 := 0
+    if human->ishod == 88 // двойной случай
+      G_Use(dir_server+"human_3",{dir_server+"human_3",dir_server+"human_32"},"HUMAN_3")
+      find (str(human->kod,7))
+      if found()
+        rec_h3 := recno()
+        ahuman_3 := get_field()
+        glob_persoh3 := human_3->kod2
+        //
+        select HUMAN
+        goto (glob_persoh3)
+        ahumanh3 := get_field()
+        select HUMAN_
+        goto (glob_persoh3)
+        ahuman_h3 := get_field()
+        select HUMAN_2
+        goto (glob_persoh3)
+        ahuman_2h3 := get_field()
+        if (fl_inameh3 := (human_->smo == '34   '))
+          G_Use(dir_server+"mo_hismo",,"SNh3")
+          index on str(kod,7) to (cur_dir+"tmp_ismoh3")
+          find (str(glob_persoh3,7))
+          mnameismoh3 := sn->smo_name
+        endif
+        arr_huh3 := {}
+        select HU
+        find (str(glob_persoh3,7))
+        do while hu->kod == glob_persoh3 .and. !eof()
+          ahu := get_field()
+          select HU_
+          goto (hu->(recno()))
+          ahu_ := get_field()
+          aadd(arr_huh3,{ahu,ahu_})
+          select HU
+          skip
+        enddo
+        arr_mohuh3 := {}
+        select MOHU
+        find (str(glob_persoh3,7))
+        do while mohu->kod == glob_persoh3 .and. !eof()
+          aadd(arr_mohuh3,get_field())
+          skip
+        enddo
+        aonknah3 := {}
+        select mo_onkna
+        find (str(glob_persoh3,7))
+        do while mo_onkna->kod == glob_persoh3 .and. !eof()
+          aadd(aonknah3,get_field())
+          skip
+        enddo
+        aonkslh3 := {}
+        select mo_onksl
+        find (str(glob_persoh3,7))
+        do while mo_onksl->kod == glob_persoh3 .and. !eof()
+          aadd(aonkslh3,get_field())
+          skip
+        enddo
+        aonkcoh3 := {}
+        select mo_onkco
+        find (str(glob_persoh3,7))
+        do while mo_onkco->kod == glob_persoh3 .and. !eof()
+          aadd(aonkcoh3,get_field())
+          skip
+        enddo
+        aonkdih3 := {}
+        select mo_onkdi
+        find (str(glob_persoh3,7))
+        do while mo_onkdi->kod == glob_persoh3 .and. !eof()
+          aadd(aonkdih3,get_field())
+          skip
+        enddo
+        aonkprh3 := {}
+        select mo_onkpr
+        find (str(glob_persoh3,7))
+        do while mo_onkpr->kod == glob_persoh3 .and. !eof()
+          aadd(aonkprh3,get_field())
+          skip
+        enddo
+        aonkush3 := {}
+        select mo_onkus
+        find (str(glob_persoh3,7))
+        do while mo_onkus->kod == glob_persoh3 .and. !eof()
+          aadd(aonkush3,get_field())
+          skip
+        enddo
+        aonkleh3 := {}
+        select mo_onkle
+        find (str(glob_persoh3,7))
+        do while mo_onkle->kod == glob_persoh3 .and. !eof()
+          aadd(aonkleh3,get_field())
+          skip
+        enddo
+      endif
+    endif
     //
     select HUMAN_
     goto (glob_perso)
     G_RLock(forever)
     human_->OPLATA := 9
+    if glob_persoh3 > 0
+      goto (glob_persoh3)
+      G_RLock(forever)
+      human_->OPLATA := 9
+    endif
     // теперь записываем в БД копию листа учёта
     select HUMAN
     Add1Rec(7)
@@ -1449,6 +1563,149 @@ if f_alert(arr1,arr2,1,"N+/G*","N/G*",13,,"N/G*") == 2
       mo_onkle->kod := mkod
     next
     save_arr_DISPANS(mkod,arr_disp)
+    if glob_persoh3 > 0
+      // теперь записываем в БД копию второго листа учёта
+      select HUMAN
+      Add1Rec(7)
+      mkodh3 := recno()
+      aeval(ahumanh3, {|x,i| fieldput(i,x) } )
+      human->kod      := mkodh3
+      human->TIP_H    := B_STANDART // лечение завершено
+      //human->DATE_OPL := ""
+      human->schet    := 0
+      //
+      select HUMAN_
+      do while human_->(lastrec()) < mkodh3
+        APPEND BLANK
+      enddo
+      goto (mkodh3)
+      G_RLock(forever)
+      aeval(ahuman_h3, {|x,i| fieldput(i,x) } )
+      human_->KOD_UP    := glob_persoh3 // код оригинального листа учёта
+      human_->SUMP      := 0
+      human_->OPLATA    := 0
+      human_->SANK_MEK  := 0
+      human_->SANK_MEE  := 0
+      human_->SANK_EKMP := 0
+      human_->REESTR    := 0
+      human_->REES_ZAP  := 0
+      human_->SCHET_ZAP := 0
+      human_->ST_VERIFY := 0 // снова ещё не проверен
+      //
+      select HUMAN_2
+      do while human_2->(lastrec()) < mkodh3
+        APPEND BLANK
+      enddo
+      goto (mkodh3)
+      G_RLock(forever)
+      aeval(ahuman_2h3, {|x,i| fieldput(i,x) } )
+      if fl_inameh3
+        select SNh3
+        find (str(mkodh3,7))
+        if found()
+          if !empty(mnameismoh3)
+            G_RLock(forever)
+            sn->smo_name := mnameismoh3
+          else
+            DeleteRec(.t.)
+          endif
+        else
+          if !empty(mnameismoh3)
+            AddRec(7)
+            sn->kod := mkodh3
+            sn->smo_name := mnameismoh3
+          endif
+        endif
+      endif
+      for i := 1 to len(arr_huh3)
+        select HU
+        Add1Rec(7)
+        aeval(arr_huh3[i,1], {|x,i| fieldput(i,x) } )
+        hu->kod := mkodh3
+        select HU_
+        do while hu_->(lastrec()) < hu->(recno())
+          APPEND BLANK
+        enddo
+        goto (hu->(recno()))
+        G_RLock(forever)
+        aeval(arr_huh3[i,2], {|x,i| fieldput(i,x) } )
+        hu_->OPLATA    := 0
+        hu_->REES_ZAP  := 0
+        hu_->SCHET_ZAP := 0
+      next
+      //
+      for i := 1 to len(arr_mohuh3)
+        select MOHU
+        Add1Rec(7)
+        aeval(arr_mohuh3[i], {|x,i| fieldput(i,x) } )
+        mohu->kod       := mkodh3
+        mohu->OPLATA    := 0
+        mohu->REES_ZAP  := 0
+        mohu->SCHET_ZAP := 0
+      next
+      dbSelectArea("mo_onkna")
+      for i := 1 to len(aonknah3)
+        AddRec(7)
+        aeval(aonknah3[i], {|x,i| fieldput(i,x) } )
+        mo_onkna->kod := mkodh3
+      next
+      dbSelectArea("mo_onksl")
+      for i := 1 to len(aonkslh3)
+        AddRec(7)
+        aeval(aonkslh3[i], {|x,i| fieldput(i,x) } )
+        mo_onksl->kod := mkodh3
+      next
+      dbSelectArea("mo_onkco")
+      for i := 1 to len(aonkcoh3)
+        AddRec(7)
+        aeval(aonkcoh3[i], {|x,i| fieldput(i,x) } )
+        mo_onkco->kod := mkodh3
+      next
+      dbSelectArea("mo_onkdi")
+      for i := 1 to len(aonkdih3)
+        AddRec(7)
+        aeval(aonkdih3[i], {|x,i| fieldput(i,x) } )
+        mo_onkdi->kod := mkodh3
+      next
+      dbSelectArea("mo_onkpr")
+      for i := 1 to len(aonkprh3)
+        AddRec(7)
+        aeval(aonkprh3[i], {|x,i| fieldput(i,x) } )
+        mo_onkpr->kod := mkodh3
+      next
+      dbSelectArea("mo_onkus")
+      for i := 1 to len(aonkush3)
+        AddRec(7)
+        aeval(aonkush3[i], {|x,i| fieldput(i,x) } )
+        mo_onkus->kod := mkodh3
+      next
+      dbSelectArea("mo_onkle")
+      for i := 1 to len(aonkleh3)
+        AddRec(7)
+        aeval(aonkleh3[i], {|x,i| fieldput(i,x) } )
+        mo_onkle->kod := mkodh3
+      next
+      select HUMAN_3
+      AddRec(7)
+      aeval(ahuman_3, {|x,i| fieldput(i,x) } )
+      human_3->KOD       := mkod
+      human_3->KOD2      := mkodh3
+      human_3->PZTIP     := 0
+      human_3->PZKOL     := 0
+      human_3->ST_VERIFY := 0
+      human_3->KOD_UP    := rec_h3
+      human_3->OPLATA    := 0
+      human_3->SUMP      := 0
+      human_3->SANK_MEK  := 0
+      human_3->SANK_MEE  := 0
+      human_3->SANK_EKMP := 0
+      human_3->REESTR    := 0
+      human_3->REES_NUM  := 0
+      human_3->REES_ZAP  := 0
+      human_3->SCHET     := 0
+      human_3->SCHET_NUM := 0
+      human_3->SCHET_ZAP := 0
+    endif
     //
     G_Use(dir_server+"mo_raksh",,"RAKSH")
     goto (lrec)
@@ -1463,9 +1720,9 @@ endif
 rest_box(buf)
 return NIL
 
-***** 11.01.19
+***** 14.05.20
 Function rak_akt_schet_human_del_next(s,s1,lrec)
-Local i, arr1, arr2, mkod, buf := save_maxrow()
+Local i, arr1, arr2, mkod, mkodh3 := 0, buf := save_maxrow()
 glob_perso := raksh->kod_h
 if (mkod := raksh->next_kod) > 0
   select RAKSH
@@ -1488,7 +1745,27 @@ if f_alert(arr1,arr2,1,"N+/GR*","N/GR*",15,,"N/GR*") == 2
     use_base("mo_hdisp")
     Use_base("mo_hu")
     Use_base("human_u")
+    G_Use(dir_server+"human_3",{dir_server+"human_3",dir_server+"human_32"},"HUMAN_3")
     Use_base("human")
+    goto (glob_perso)
+    glob_persoh3 := 0
+    if human->ishod == 88
+      select HUMAN_3
+      find (str(glob_perso,7))
+      if found()
+        glob_persoh3 := human_3->kod2
+      endif
+    endif
+    select HUMAN
+    goto (mkod)
+    if human->ishod == 88
+      select HUMAN_3
+      find (str(mkod,7))
+      if found()
+        mkodh3 := human_3->kod2
+        rech3 := recno()
+      endif
+    endif
     G_Use(dir_server+"mo_raksh",,"RAKSH")
     G_Use(dir_server+"mo_os",,"MO_OS")
     index on str(kod,7) to (cur_dir+"tmp_moos") for NEXT_KOD > 0
@@ -1508,47 +1785,103 @@ if f_alert(arr1,arr2,1,"N+/GR*","N/GR*",15,,"N/GR*") == 2
       if !found() ; exit ; endif
       DeleteRec(.t.)
     enddo
+    if mkodh3 > 0
+      do while .t.
+        find (str(mkodh3,7))
+        if !found() ; exit ; endif
+        DeleteRec(.t.)
+      enddo
+    endif
     G_Use(dir_server+"mo_onksl",dir_server+"mo_onksl")
     do while .t.
       find (str(mkod,7))
       if !found() ; exit ; endif
       DeleteRec(.t.)
     enddo
+    if mkodh3 > 0
+      do while .t.
+        find (str(mkodh3,7))
+        if !found() ; exit ; endif
+        DeleteRec(.t.)
+      enddo
+    endif
     G_Use(dir_server+"mo_onkco",dir_server+"mo_onkco")
     do while .t.
       find (str(mkod,7))
       if !found() ; exit ; endif
       DeleteRec(.t.)
     enddo
+    if mkodh3 > 0
+      do while .t.
+        find (str(mkodh3,7))
+        if !found() ; exit ; endif
+        DeleteRec(.t.)
+      enddo
+    endif
     G_Use(dir_server+"mo_onkdi",dir_server+"mo_onkdi")
     do while .t.
       find (str(mkod,7))
       if !found() ; exit ; endif
       DeleteRec(.t.)
     enddo
+    if mkodh3 > 0
+      do while .t.
+        find (str(mkodh3,7))
+        if !found() ; exit ; endif
+        DeleteRec(.t.)
+      enddo
+    endif
     G_Use(dir_server+"mo_onkpr",dir_server+"mo_onkpr")
     do while .t.
       find (str(mkod,7))
       if !found() ; exit ; endif
       DeleteRec(.t.)
     enddo
+    if mkodh3 > 0
+      do while .t.
+        find (str(mkodh3,7))
+        if !found() ; exit ; endif
+        DeleteRec(.t.)
+      enddo
+    endif
     G_Use(dir_server+"mo_onkus",dir_server+"mo_onkus")
     do while .t.
       find (str(mkod,7))
       if !found() ; exit ; endif
       DeleteRec(.t.)
     enddo
+    if mkodh3 > 0
+      do while .t.
+        find (str(mkodh3,7))
+        if !found() ; exit ; endif
+        DeleteRec(.t.)
+      enddo
+    endif
     G_Use(dir_server+"mo_onkle",dir_server+"mo_onkle")
     do while .t.
       find (str(mkod,7))
       if !found() ; exit ; endif
       DeleteRec(.t.)
     enddo
+    if mkodh3 > 0
+      do while .t.
+        find (str(mkodh3,7))
+        if !found() ; exit ; endif
+        DeleteRec(.t.)
+      enddo
+    endif
     do while .t.
       select MOHU
       find (str(mkod,7))
       if !found() ; exit ; endif
       DeleteRec(.t.,.f.)  // без пометки на удаление
+      if mkodh3 > 0
+        do while .t.
+          find (str(mkodh3,7))
+          if !found() ; exit ; endif
+          DeleteRec(.t.,.f.)  // без пометки на удаление
+        enddo
+      endif
     enddo
     do while .t.
       select HU
@@ -1560,6 +1893,28 @@ if f_alert(arr1,arr2,1,"N+/GR*","N/GR*",15,,"N/GR*") == 2
       select HU
       DeleteRec(.t.,.f.)  // без пометки на удаление
     enddo
+    if mkodh3 > 0
+      do while .t.
+        select HU
+        find (str(mkodh3,7))
+        if !found() ; exit ; endif
+        //
+        select HU_
+        DeleteRec(.t.,.f.)
+        select HU
+        DeleteRec(.t.,.f.)  // без пометки на удаление
+      enddo
+    endif
+    if mkodh3 > 0
+      select HUMAN
+      find (str(mkodh3,7))
+      select HUMAN_
+      DeleteRec(.t.,.f.)
+      select HUMAN
+      DeleteRec(.t.,.f.)  // без пометки на удаление
+      G_RLock(forever)
+      replace human->schet with -1  // (вместо нуля)
+    endif
     select HUMAN
     find (str(mkod,7))
     select HUMAN_
@@ -1576,6 +1931,18 @@ if f_alert(arr1,arr2,1,"N+/GR*","N/GR*",15,,"N/GR*") == 2
     raksh->DATE_REP  := ctod("")
     raksh->NEXT_KOD  := 0
     //
+    if glob_persoh3 > 0
+      select HUMAN
+      goto (glob_persoh3)
+      select HUMAN_
+      G_RLock(forever)
+      human_->OPLATA := raksh->OPLATA
+    endif
+    if mkodh3 > 0
+      select HUMAN_3
+      goto (rech3)
+      DeleteRec(.t.)
+    endif
     select HUMAN
     goto (glob_perso)
     select HUMAN_
