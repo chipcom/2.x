@@ -7298,7 +7298,7 @@ close databases
 call_fr("mo_030pou17")
 return NIL
 
-***** 27.09.18
+***** 25.05.20
 Function f4_inf_DNL_karta(par,_etap)
 Local i, k := 0, fl, arr := {}, ar
 if type("mperiod") == "N" .and. between(mperiod,1,31)
@@ -7316,7 +7316,7 @@ np_oftal_2_85_21(mperiod,mk_data)
 ar := np_arr_1_etap[mperiod]
 if par == 1
   if iif(_etap==nil, .t., _etap==1)
-    for i := 1 to count_pn_arr_osm
+    for i := 1 to count_pn_arr_osm-1
       mvart := "MTAB_NOMov"+lstr(i)
       mvard := "MDATEo"+lstr(i)
       fl := .t.
@@ -7333,7 +7333,7 @@ if par == 1
   endif
   aadd(arr, {"педиатр (врач общей практики)", MDATEp1, "", -1, 1})
   if metap == 2 .and. iif(_etap==nil, .t., _etap==2)
-    for i := 1 to count_pn_arr_osm
+    for i := 1 to count_pn_arr_osm-1
       mvart := "MTAB_NOMov"+lstr(i)
       mvard := "MDATEo"+lstr(i)
       fl := .t.
@@ -7407,6 +7407,13 @@ else
       aadd(arr, {np_arr_issled[i,3], &mvard, &mvarr, i, k})
     endif
   next
+  // добавим "2.4.2" "скрининг на выявление психич.развития"
+  i := count_pn_arr_osm  // последний элемент массива
+  mvart := "MTAB_NOMov"+lstr(i)
+  mvard := "MDATEo"+lstr(i)
+  if (!empty(ar[4]) .and. ascan(ar[4],np_arr_osmotr[i,1]) > 0) .and. !emptyany(&mvard,&mvart)
+    aadd(arr, {np_arr_osmotr[i,3], &mvard, "", i, 22})
+  endif
 endif
 return arr
 

@@ -4,7 +4,7 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 26.12.19 создать XML-файл по несовершеннолетним
+***** 25.05.20 создать XML-файл по несовершеннолетним
 Function mo_mzxml_N(_regim,n_file,stitle,lvozrast)
 Static oXmlDoc, _kol, sname_xml, ;
        arr_np := {0,1,2,3,4,5,6,7,8,9,10,11,12,15,18,24,36,48,60,72,84,96,108,120,132,144,156,168,180,192,204}
