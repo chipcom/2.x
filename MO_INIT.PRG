@@ -1,6 +1,7 @@
 ***** mo_init.prg
 #include "set.ch"
 #include "inkey.ch"
+#include "dbstruct.ch"
 #include "..\_mylib_hbt\function.ch"
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
@@ -1057,6 +1058,29 @@ return main_up_screen()
 Function Init_first()
 Local buf := save_maxrow()
 mywait()
+//
+if hb_FileExists(dir_server+"mo_rak"+sdbf)
+  R_Use(dir_server+"mo_rak",,"RAK")
+  fl := (dbFieldInfo(DBS_LEN, fieldnum("CODEA")) < 16)
+  close databases
+  if fl
+    Private _mo_rak := {; // реестр актов контроля счетов
+     {"AKT",      "N",  6,0},; // код акта(номер записи)
+     {"KOD_XML",  "N",  6,0},; // ссылка на файл "mo_xml", присланный из ТФ или СМО
+     {"CODEA",    "N", 16,0},; // код записи акта
+     {"NAKT",     "C", 30,0},; // номер акта контроля
+     {"DAKT",     "D",  8,0},; // дата акта контроля
+     {"NSCHET",   "C", 15,0},; // номер счета (если он один в акте)
+     {"KOL_SCH",  "N",  6,0},; // кол-во счетов в акте
+     {"KOL_PAC",  "N",  6,0},; // кол-во пациентов в акте
+     {"KOL_ERR",  "N",  6,0},; // кол-во пациентов с ошибкой в акте
+     {"KONT",     "N",  2,0},; // 1-МЭК, 2-МЭЭ, 3-ЭКМП и т.д. (из справочника F006)
+     {"TYPEK",    "N",  1,0},; // 1-первичный контроль, 2-повторный
+     {"SKONT",    "N",  1,0};  // вид экспертизы: 0-МЭК, 1-плановая, 2-целевая
+    }
+    reconstruct(dir_server+"mo_rak",_mo_rak,,"актам контроля",.t.)
+  endif
+endif
 // инициализировать массив DBF-файлов базы данных
 init_array_files_DB()
 // инициализировать все mem (public) - переменные
@@ -3637,7 +3661,7 @@ Local mo_refr := {; // список отказов в реестрах и счетах по случаям и услугам
 Local mo_rak := {; // реестр актов контроля счетов
    {"AKT",      "N",  6,0},; // код акта(номер записи)
    {"KOD_XML",  "N",  6,0},; // ссылка на файл "mo_xml", присланный из ТФ или СМО
-   {"CODEA",    "N", 10,0},; // код записи акта
+   {"CODEA",    "N", 16,0},; // код записи акта
    {"NAKT",     "C", 30,0},; // номер акта контроля
    {"DAKT",     "D",  8,0},; // дата акта контроля
    {"NSCHET",   "C", 15,0},; // номер счета (если он один в акте)

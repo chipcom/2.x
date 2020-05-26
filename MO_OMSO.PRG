@@ -470,9 +470,9 @@ mo_xml->TWORK2 := hour_min(seconds())
 close databases
 return NIL
 
-***** 14.01.19 зачитать Реестр Актов Контроля во временные файлы
+***** 26.05.20 зачитать Реестр Актов Контроля во временные файлы
 Function reestr_rak_tmpfile(oXmlDoc,aerr,mname_xml)
-Static s_big := 10000000000
+Static s_big := 10000000000000000
 Local j, j1, oXmlNode, oNode1, oNode2, buf := save_maxrow()
 DEFAULT aerr TO {}, mname_xml TO ""
 stat_msg("Распаковка/чтение/анализ реестра актов контроля "+beforatnum(".",mname_xml))
@@ -492,7 +492,7 @@ dbcreate(cur_dir+"tmp1file", {; // одна запись
 })
 dbcreate(cur_dir+"tmp2file", {;  // много актов
  {"kod_a",      "N",  6,0},; // код акта
- {"_CODEA",     "N", 10,0},; // код записи акта
+ {"_CODEA",     "N", 16,0},; // код записи акта
  {"_NAKT",      "C", 30,0},; // номер акта контроля
  {"_DAKT",      "D",  8,0},; // дата акта контроля
  {"KOL_SCH",    "N",  6,0},; // кол-во счетов в акте
