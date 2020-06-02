@@ -7298,7 +7298,7 @@ close databases
 call_fr("mo_030pou17")
 return NIL
 
-***** 25.05.20
+***** 02.06.20
 Function f4_inf_DNL_karta(par,_etap)
 Local i, k := 0, fl, arr := {}, ar
 if type("mperiod") == "N" .and. between(mperiod,1,31)
@@ -7412,7 +7412,7 @@ else
   mvart := "MTAB_NOMov"+lstr(i)
   mvard := "MDATEo"+lstr(i)
   if (!empty(ar[4]) .and. ascan(ar[4],np_arr_osmotr[i,1]) > 0) .and. !emptyany(&mvard,&mvart)
-    aadd(arr, {np_arr_osmotr[i,3], &mvard, "", i, 22})
+    aadd(arr, {np_arr_osmotr[i,3], &mvard, "", i, 21})
   endif
 endif
 return arr

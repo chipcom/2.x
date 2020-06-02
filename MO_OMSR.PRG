@@ -955,8 +955,11 @@ do while hu->kod == human->kod .and. !eof()
       if hu_->PRVS > 0 .and. ret_V004_V015(hu_->PRVS) == 0
         aadd(ta,'не найдено специальности в справочнике V015 у "'+alltrim(pers->fio)+'"')
       endif
-      // проверяем на специальность
-      UslugaAccordancePRVS(lshifr,human->vzros_reb,hu_->prvs,ta,usl->shifr,hu->kod_vr)
+      if alltrim(lshifr) == "1.11.1" .and. human_->profil == 28 .and. human_2->profil_k == 24
+        // профиль "инфекционные болезни" и профиль койки "инфекционные"
+      else // проверяем на специальность
+        UslugaAccordancePRVS(lshifr,human->vzros_reb,hu_->prvs,ta,usl->shifr,hu->kod_vr)
+      endif
     endif
     if empty(mprofil)
       mprofil := usl->profil
@@ -1229,6 +1232,13 @@ do while hu->kod == human->kod .and. !eof()
           mpztip := 4
         else
           is_2_88 := .t.
+          if between_shifr(alltrim_lshifr,"2.88.111","2.88.118")
+            if is_dom
+              is_dom := .f. // чтобы для услуги с коронавирусом (на дому) не менять повод обращения
+            else
+              aadd(ta,'услуга '+alltrim_lshifr+' может быть оказана только "на дому"')
+            endif
+          endif
         endif
       elseif left_lshifr_5 == "2.89."
         mpovod := 10 // 3.0
