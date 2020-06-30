@@ -4992,7 +4992,7 @@ return fl
 
 *==============================================================================
 
-***** 23.03.20 создание первичной БД из реестров
+***** 17.06.20 создание первичной БД из реестров
 Function create_main_base_from_reestrs()
 Local full_zip, name_zip, i, k, n, fl := .t., buf := save_maxrow(),;
       arr_r := {}, arr_rsptk := {}, arr_s := {}, a_reestr := {},;
@@ -5000,7 +5000,7 @@ Local full_zip, name_zip, i, k, n, fl := .t., buf := save_maxrow(),;
 R_Use(dir_server+"human")
 k := lastrec()
 use
-Private p_lpu := 2, p_otd := 8 // для Камышинской детской больницы
+Private p_lpu := 1, p_otd := 1 // для больницы им.Фишера
 Private flag_is_lu := .t. // для пустой БД поставить .f.
 if flag_is_lu
   // уже есть (какие-то) листы учёта
@@ -5048,7 +5048,7 @@ if !empty(full_zip)
                          tmp1->_MONTH,;   // 6
                          {},;             // 7
                          0,;              // 8
-                         n})              // 9 длина номера пакета - в 2017 году = 5
+                         n})              // 9 длина номера пакета = 5
           use
         else
           strfile(arr_r[i]+": не удалось открыть реестр"+hb_eol(),cImportProtokol,.t.)
@@ -5090,7 +5090,7 @@ if !empty(full_zip)
                                tmp1->_YEAR,;    // 6 год отчётного периода
                                tmp1->_KOL,;     // 7 кол-во пациентов
                                tmp1->_MAX,;     // 8 максимальный N_ZAP
-                               len(s1),;        // 9 длина номера пакета (2,3,в 2017 году = 5)
+                               len(s1),;        // 9 длина номера пакета = 5
                                cbukva,;         //10 буква счёта
                                k})              //11 код счёта в массиве
           use
@@ -5137,7 +5137,7 @@ if !empty(full_zip)
           reestr_sp_tk_tmpfile(oXmlDoc,,cFile)
           n := int(val(tmp1->_NSCHET))  // в число (отрезать всё, что после "-")
           if (k := ascan(a_reestr, {|x| x[3] == n .and. x[5] == tmp1->_YEAR})) > 0
-            n := int(val(substr(afteratnum("_",Name_Without_Ext(StripPath(s))),12))) // номер пакета
+            n := int(val(substr(afteratnum("_",Name_Without_Ext(StripPath(arr_rsptk[i]))),12))) // номер пакета
             if empty(a_reestr[k,8])
               a_reestr[k,8] := n
             endif

@@ -3563,10 +3563,9 @@ Static Function f_131_u_da_net(k,sb1,sb2)
 if k > 1 ; k := 1 ; endif // если вместо "да" битовый ответ
 return f3_inf_DDS_karta({{"да - 1",1},{"нет - 2",0}},k,";  ",sb1,sb2,.f.)
 
-***** 27.04.20 Приложение к Приказу ГБУЗ "ВОМИАЦ" от 12.05.2017г. №1615
+***** 29.06.20 Приложение к Приказу ГБУЗ "ВОМИАЦ" от 12.05.2017г. №1615
 Function f21_inf_DVN(par) // свод
-Local arr_m, buf := save_maxrow(), s, as := {}, as1[14],;
-      i, j, k, n, ar, at, ii, g1, sh := 65, fl, mdvozrast, adbf
+Local arr_m, buf := save_maxrow(), s, as := {}, as1[14], i, j, k, n, ar, at, ii, g1, sh := 65, fl, mdvozrast, adbf
 if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
               .and. (arr_m := year_month(,,,5)) != NIL .and. f0_inf_DVN(arr_m,par > 1,par == 3,.t.)
   Private arr_usl_bio := {{;
@@ -3621,7 +3620,8 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
            {"g1","N",6,0},;
            {"g2","N",6,0},;
            {"g3","N",6,0},;
-           {"g4","N",6,0}}
+           {"g4","N",6,0},;
+           {"g5","N",6,0}}
   dbcreate(cur_dir+"tmp1",adbf)
   use (cur_dir+"tmp1") new
   index on str(nn,2) to (cur_dir+"tmp1")
@@ -3654,11 +3654,15 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
   append blank
   tmp1->nn := 15 ; tmp1->name := "из гр.8 ГРАЖДАН глаукома"
   append blank
-  tmp1->nn := 16 ; tmp1->name := "из гр.8 ГРАЖДАН взяты на дисп.наблюдение"
+  tmp1->nn := 16 ; tmp1->name := "из гр.8 ГРАЖДАН хрон.болезни органов дыхания"
   append blank
-  tmp1->nn := 17 ; tmp1->name := "из гр.8 ГРАЖДАН было начато лечение"
+  tmp1->nn := 17 ; tmp1->name := "из гр.8 ГРАЖДАН болезни органов пищеварения"
   append blank
-  tmp1->nn := 18 ; tmp1->name := "   из гр.16 из них сельских жителей"
+  tmp1->nn := 18 ; tmp1->name := "из гр.8 ГРАЖДАН взяты на дисп.наблюдение"
+  append blank
+  tmp1->nn := 19 ; tmp1->name := "из гр.8 ГРАЖДАН было начато лечение"
+  append blank
+  tmp1->nn := 20 ; tmp1->name := "   из гр.18 из них сельских жителей"
   dbcreate(cur_dir+"tmp11",adbf)
   use (cur_dir+"tmp11") new
   index on str(nn,2) to (cur_dir+"tmp11")
@@ -4006,9 +4010,9 @@ if !empty(tmp->kod2h) // диспансеризация II этап
 endif
 return NIL
 
-***** 21.01.20
+***** 29.06.20
 Function f2_f21_inf_DVN(par)
-Local is_selo, i, j, k, k1 := 4, fl2 := .f., ar[18], arr11[15], arr12[43], au := {}
+Local is_selo, i, j, k, k1 := 5, fl2 := .f., ar[20], arr11[15], arr12[43], au := {}, fl_pens
 Private arr_otklon := {}, arr_usl_otkaz := {},;
         M1RAB_NERAB := human->RAB_NERAB, m1veteran := 0, m1mobilbr := 0,;
         m1kurenie := 0, mad1 := 120, mad2 := 80, m1tip_mas := 0, mssr := 0,;
@@ -4044,6 +4048,7 @@ if dow(human->k_data) == 7 // суббота
     ar[7] := 1
   endif
 endif
+fl_pens := f_starshe_trudosp(human->POL,human->DATE_R,human->n_data)
 for i := 1 to 5
   pole_diag := "mdiag"+lstr(i)
   pole_1pervich := "m1pervich"+lstr(i)
@@ -4158,6 +4163,10 @@ for i := 1 to 5
     ar[9] ++
     if left(&pole_diag,1) == "I" // болезни системы кровообращения
       ar[10] := 1
+    elseif left(&pole_diag,1) == "J" // болезни органов дыхания
+      ar[16] := 1
+    elseif left(&pole_diag,1) == "K" // болезни органов пищеварения
+      ar[17] := 1
     endif
     if left(&pole_diag,1) == "C" .or. between(left(&pole_diag,3),"D00","D09") // ЗНО
       ar[11] := 1
@@ -4217,13 +4226,13 @@ for i := 1 to 5
       ar[15] := 1
     endif
     if &pole_1dispans == 1
-      ar[16] := 1
+      ar[18] := 1
       if is_selo
-        ar[18] := 1
+        ar[20] := 1
       endif
     endif
     if .f. // 1-лечение назначено
-      ar[17] := 1 // ?? было начато лечение
+      ar[19] := 1 // ?? было начато лечение
     endif
   endif
 next
@@ -4233,6 +4242,9 @@ for i := 1 to len(ar)
   if ar[i] > 0
     find (str(i,2))
     &pole := &pole + ar[i]
+    if k1 < 4 .and. fl_pens
+      tmp1->g4 += ar[i]
+    endif
   endif
 next
 select TMP11

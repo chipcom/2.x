@@ -844,7 +844,7 @@ kvp_2_78 := kvp_2_79 := kvp_2_89 := kol_2_3 := kol_2_60 := kol_2_4 := kol_2_6 :=
 kvp_70_5 := kvp_70_6 := kvp_70_3 := kvp_72_2 := kvp_72_3 := kvp_72_4 := 0
 is_2_78 := is_2_79 := is_2_80 := is_2_81 := is_2_82 := .f.
 is_2_83 := is_2_84 := is_2_85 := is_2_86 := is_2_87 := is_2_88 := is_2_89 := .f.
-a_2_89 := array(12) ; afill(a_2_89,0)
+a_2_89 := array(14) ; afill(a_2_89,0)
 is_disp_DDS := is_disp_DVN := is_disp_DVN3 := is_prof_PN := is_neonat := is_pren_diagn := .f.
 is_70_3 := is_70_5 := is_70_6 := is_72_2 := is_72_3 := is_72_4 := .f.
 lstkol := 0 ; lstshifr := shifr_ksg := "" ; cena_ksg := 0
@@ -856,10 +856,12 @@ arr_lfk := {"3.1.5","3.1.19","3.4.31",;
             "7.12.5","7.12.6","7.12.7","7.2.2",;
             "13.1.1",;
             "14.2.3",;
-            "19.1.1","19.1.2","19.1.3","19.1.5","19.1.6","19.1.7","19.1.9","19.1.11","19.1.12","19.1.29","19.1.30",;
+            "16.1.17","16.1.18",;
+            "19.1.1","19.1.2","19.1.3","19.1.5","19.1.6","19.1.7","19.1.9","19.1.11","19.1.12","19.1.29","19.1.30","19.1.31",;
             "19.2.1","19.2.2","19.2.4","19.3.1","19.5.1","19.5.2","19.5.19","19.6.1",;
-            "20.1.1","20.1.2","20.1.3","20.1.4","20.2.1","20.2.2",;
-            "21.1.1","21.1.2","21.1.3","21.1.4","21.2.1",;
+            "19.3.1",;
+            "20.1.1","20.1.2","20.1.3","20.1.4","20.1.5","20.2.1","20.2.2",;
+            "21.1.1","21.1.2","21.1.3","21.1.4","21.1.5","21.2.1",;
             "22.1.1","22.1.2","22.1.3"}
 //
 f_put_glob_podr(human_->USL_OK,d2,ta) // заполнить код подразделения
@@ -1268,6 +1270,10 @@ do while hu->kod == human->kod .and. !eof()
           i := 11 // опухоль головы и шеи
         elseif eq_any(k,12,23)
           i := 12 // опухоль пищевода, желудка
+        elseif k == 24
+          i := 13 // 2.89.24 "Обращение с целью медицинской реабилитации пациентов при лечении органов дыхания, после COVID-19"
+        elseif k == 25
+          i := 14 // 2.89.25 "Обращение с целью медицинской реабилитации пациентов при лечении органов дыхания"
         endif
         a_2_89[i] := 1
         mdate_u2 := dtoc4(human->k_data)
@@ -3055,7 +3061,7 @@ elseif kvp_2_79 > 0
       aadd(ta,'последняя услуга '+s+' должна быть оказана в последний день лечения')
     endif
   endif
-elseif is_2_89 // медицинская реабилитация (физкультурный диспансер)
+elseif is_2_89 // медицинская реабилитация (физкультурный диспансер и другие)
   if d1 == d2
     aadd(ta,'время лечения не должно равняться одному дню')
   endif
@@ -3159,11 +3165,14 @@ elseif is_2_89 // медицинская реабилитация (физкультурный диспансер)
       fl_not_2_89 := .f.
       if left_lshifr_3 == "20." // ЛФК
         atmp := {"20.1.2","20.1.1","20.1.3","20.1.1","20.1.1"}
-        for j := 1 to 7
+        for j := 6 to 12
           aadd(atmp,"20.1.4")
         next
+        for j := 13 to 14
+          aadd(atmp,"20.1.5")
+        next
         if ascan(atmp,alltrim_lshifr) > 0
-          for j := 1 to 12
+          for j := 1 to 14
             if a_2_89[j] == 1 .and. !(alltrim_lshifr == atmp[j])
               fl_not_2_89 := .t.
             endif
@@ -3171,7 +3180,7 @@ elseif is_2_89 // медицинская реабилитация (физкультурный диспансер)
         endif
         if alltrim_lshifr == "20.2.1" .and. emptyall(a_2_89[1],a_2_89[4],a_2_89[5])
           fl_not_2_89 := .t.
-        elseif alltrim_lshifr == "20.2.2" .and. a_2_89[3] == 0
+        elseif alltrim_lshifr == "20.2.2" .and. empty(a_2_89[3])
           fl_not_2_89 := .t.
         endif
       elseif left_lshifr_3 == "21." // массаж
@@ -3189,6 +3198,10 @@ elseif is_2_89 // медицинская реабилитация (физкультурный диспансер)
           fl_not_2_89 := .t.
         endif
         if alltrim_lshifr == "21.2.1" .and. emptyall(a_2_89[6],a_2_89[7],a_2_89[8],a_2_89[9],a_2_89[11])
+          fl_not_2_89 := .t.
+        endif
+        // 2.89.25 "Обращение с целью медицинской реабилитации пациентов при лечении органов дыхания"
+        if alltrim_lshifr == "21.1.5" .and. empty(a_2_89[14])
           fl_not_2_89 := .t.
         endif
       elseif left_lshifr_3 == "22." // рефлексотерапия
@@ -4630,6 +4643,17 @@ if (is_disp_DDS .or. is_disp_DVN .or. is_prof_PN) .and. d2 > 0d20200319
 endif
 if len(ta) > 0
   _ocenka := 0
+  if ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 .and. type("old_npr_mo") == "C"
+    if !(old_npr_mo == human_->NPR_MO)
+      if !(old_npr_mo == '000000')
+        verify_FF(-1,.t.,80) // безусловный перевод страницы
+      endif
+      add_string(replicate("=",80))
+      add_string("Направление из МО: "+human_->NPR_MO+" "+ret_mo(human_->NPR_MO)[_MO_SHORT_NAME])
+      add_string(replicate("=",80))
+    endif
+    old_npr_mo := human_->NPR_MO
+  endif
   verify_FF(80-len(ta)-3,.t.,80)
   add_string("")
   uch->(dbGoto(human->LPU))
@@ -4702,7 +4726,12 @@ dbcreate(cur_dir+"tmp_d_srok",{{"kod","N",7,0},;
 use (cur_dir+"tmp_d_srok") new alias D_SROK
 return NIL
 
-***** 14.02.19
+***** 24.06.20
+Function f_napr_mo_lis()
+human_->(dbGoto(human->(recno())))
+return human_->NPR_MO
+
+***** 24.06.20
 Function verify_OMS(arr_m,fl_view)
 Local ii := 0, iprov := 0, inprov := 0, ko := 2, fl, name_file := "err_sl"+stxt,;
       name_file2, name_file3, kr_unlock, i,;
@@ -4765,9 +4794,16 @@ G_Use(dir_server+"human_2",,"HUMAN_2")
 G_Use(dir_server+"human_",,"HUMAN_")
 G_Use(dir_server+"human",dir_server+"humand","HUMAN")
 dbseek(dtos(arr_m[5]),.t.)
-index on upper(fio)+str(kod_k,7) to (cur_dir+"tmp_hfio") ;
-      while human->k_data <= arr_m[6] .and. !eof() ;
-      for tip_h == B_STANDART .and. empty(schet) .and. !empty(k_data)
+if ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 .and. fl_view
+  Private old_npr_mo := "000000"
+  index on f_napr_mo_lis()+upper(fio)+str(kod_k,7) to (cur_dir+"tmp_hfio") ;
+        while human->k_data <= arr_m[6] .and. !eof() ;
+        for tip_h == B_STANDART .and. empty(schet) .and. !empty(k_data)
+else
+  index on upper(fio)+str(kod_k,7) to (cur_dir+"tmp_hfio") ;
+        while human->k_data <= arr_m[6] .and. !eof() ;
+        for tip_h == B_STANDART .and. empty(schet) .and. !empty(k_data)
+endif
 set index to (dir_server+"humans"),(dir_server+"humankk"),(dir_server+"humand"),(cur_dir+"tmp_hfio")
 set relation to recno() into HUMAN_, to recno() into HUMAN_2, to kod_k into KART
 set order to 4
@@ -7701,23 +7737,26 @@ do case
     aeval(arr_title, {|x| add_string(x) } )
     oldy := oldm := 0
     select REES
-    index on str(NYEAR,4)+str(NMONTH,2)+str(NSCHET,6) to (cur_dir+"tmpr1") for NYEAR > 2014
+    index on str(NYEAR,4) to (cur_dir+"tmpr1") unique
+    go bottom
+    Private syear := rees->NYEAR
+    index on str(NYEAR,4)+str(NMONTH,2)+str(NSCHET,6) to (cur_dir+"tmpr1") for NYEAR == syear
     go top
     do while !eof()
       if verify_FF(HH-2, .t., sh)
         aeval(arr_title, {|x| add_string(x) } )
       endif
-      if !(oldy==rees->NYEAR .and. oldm==rees->NMONTH)
+      if !(oldy == rees->NYEAR .and. oldm == rees->NMONTH)
         add_string("")
         add_string(padc("Отчётный период "+lstr(rees->nyear)+"/"+strzero(rees->nmonth,2),sh,"_"))
         oldy := rees->NYEAR ; oldm := rees->NMONTH
+        @ maxrow(),1 say lstr(rees->nyear)+"/"+strzero(rees->nmonth,2) color cColorWait
       endif
-      s := str(rees->NSCHET,6)+" "+date_8(rees->DSCHET)+" "+;
-           padr(rees->NAME_XML,20)+;
+      s := str(rees->NSCHET,6)+" "+date_8(rees->DSCHET)+" "+padr(rees->NAME_XML,20)+;
            str(rees->KOL,5)+put_kop(rees->SUMMA,13)
       select MO_XML
       index on FNAME to (cur_dir+"tmp_x2") ;
-            for reestr==rees->kod .and. TIP_OUT==0 .and. TIP_IN==_XML_FILE_SP
+            for reestr == rees->kod .and. TIP_OUT == 0 .and. TIP_IN == _XML_FILE_SP
       kol_sp := 0 ; dbeval({|| ++kol_sp })
       select RHUM
       index on str(REES_ZAP,6) to (cur_dir+"tmp_r2") ;
