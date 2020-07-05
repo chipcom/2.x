@@ -1333,16 +1333,16 @@ for i := 1 to len(arr)
 next
 return NIL
 
-***** 06.04.20
+***** 05.07.20
 Function inf_DDS_svod2(par2,is_schet)
-Local arr_m, i, buf := save_maxrow(), lkod_h, lkod_k, rec, sh := 80, HH := 60, n_file := "ddssvod2"+stxt
+Local arr_m, i, buf := save_maxrow(), lkod_h, lkod_k, rec, sh := 91, HH := 60, n_file := "ddssvod2"+stxt
 if (arr_m := year_month(T_ROW,T_COL-5)) != NIL
   mywait()
   if f0_inf_DDS(arr_m,is_schet > 1,is_schet == 3)
     Private arr_deti := {;
-      {"1","Всего",0,0,0,0,0,0,0,0,0,0,0},;
-      {"1.1","0-14 лет",0,0,0,0,0,0,0,0,0,0,0},;
-      {"1.2","15-17 лет",0,0,0,0,0,0,0,0,0,0,0};
+      {"1","Всего",0,0,0,0,0,0,0,0,0,0,0,0,0},;
+      {"1.1","0-14 лет",0,0,0,0,0,0,0,0,0,0,0,0,0},;
+      {"1.2","15-17 лет",0,0,0,0,0,0,0,0,0,0,0,0,0};
     }
     Private blk_open := {|| dbCloseAll(),;
                             R_Use(dir_server+"human_",,"HUMAN_"),;
@@ -1388,30 +1388,30 @@ if (arr_m := year_month(T_ROW,T_COL-5)) != NIL
     add_string(center("[ "+charrem("~",mas1pmt[is_schet])+" ]",sh))
     add_string(center(arr_m[4],sh))
     add_string("")
-    add_string("───┬─────────┬───────────┬───────────┬─────┬─────────────────┬─────┬─────┬─────")
-    add_string("№№ │ Контин- │ Осмотрено │из них село│неинф│     из них      │взято│из 7г│из 12")
-    add_string("пп │ генты   ├─────┬─────┼─────┬─────┤забол├─────┬─────┬─────┤на ди│начат│село ")
-    add_string("   │         │всего│в суб│всего│в суб│вперв│крово│ ЗНО │1и2ст│спанс│лечен│     ")
-    add_string("───┼─────────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────")
-    add_string(" 1 │    2    │  3  │  4  │  5  │  6  │  7  │  8  │  9  │  10 │  11 │  12 │  13 ")
-    add_string("───┴─────────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────")
+    add_string("───┬─────────┬───────────┬───────────┬─────┬─────────────────────────────┬─────┬─────┬─────")
+    add_string("№№ │ Контин- │ Осмотрено │из них село│неинф│           из них            │взято│из 7г│из 14")
+    add_string("пп │ генты   ├─────┬─────┼─────┬─────┤забол├─────┬─────┬─────┬─────┬─────┤на ди│начат│село ")
+    add_string("   │         │всего│в суб│всего│в суб│вперв│крово│ ЗНО │1и2ст│дыхан│пищев│спанс│лечен│     ")
+    add_string("───┼─────────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────")
+    add_string(" 1 │    2    │  3  │  4  │  5  │  6  │  7  │  8  │  9  │  10 │  11 │  12 │  13 │  14 │  15 ")
+    add_string("───┴─────────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────")
     for i := 1 to 3
       s := padr(arr_deti[i,1],4)+padr(arr_deti[i,2],9)
-      for j := 3 to 13
+      for j := 3 to 15
         s += put_val(arr_deti[i,j],6)
       next
       add_string(s)
       add_string(replicate("─",sh))
     next
     fclose(fp)
-    viewtext(n_file,,,,.f.,,,2)
+    viewtext(n_file,,,,.t.,,,2)
   endif
 endif
 close databases
 rest_box(buf)
 return NIL
 
-***** 06.04.20
+***** 05.07.20
 Function f2_inf_DDS_svod2(Loc_kod,kod_kartotek)
 Local i, j, k, is_selo, ad := {}, ar := {1}
 if mvozrast < 15
@@ -1462,17 +1462,21 @@ for j := 1 to 2
       arr_deti[k,7] ++
       if left(ad[i,1],1) == "I" // болезни системы кровообращения
         arr_deti[k,8] ++
+      elseif left(ad[i,1],1) == "J" // болезни органов дыхания
+        arr_deti[k,11] ++
+      elseif left(ad[i,1],1) == "K" // болезни органов пищеварения
+        arr_deti[k,12] ++
       endif
       if left(ad[i,1],1) == "C" .or. between(left(ad[i,1],3),"D00","D09") // ЗНО
         arr_deti[k,9] ++
       endif
       if ad[i,3] > 0
-        arr_deti[k,11] ++  // взяты на диспасерное наблюдение
+        arr_deti[k,13] ++  // взяты на диспасерное наблюдение
       endif
       if m1napr_stac > 0 // направлен на лечение
-        arr_deti[k,12] ++ // считаем, что было начато лечение
+        arr_deti[k,14] ++ // считаем, что было начато лечение
         if is_selo
-          arr_deti[k,13] ++
+          arr_deti[k,15] ++
         endif
       endif
     endif
