@@ -1345,12 +1345,14 @@ do case
   case k == 16
     mas_pmt := {"® ¨­®£®à®¤­¨¬ ¨ ~¨­®áâà ­æ ¬",;
                 "à¨ª § ü~848 ‚Œˆ€–",;
+                "~Œ®­¨â®à¨­£ á®áâ®ï­¨ï §¤®à®¢ìï ­ á¥«¥­¨ï",;
                 "‘â æ¨®­ à/¤­.áâ æ¨®­ à - á«ãç ¨ ¯® ~¯à®ä¨«ï¬",;
                 "‘â®¬ â®«®£¨ç¥áª ï ä®à¬  39 - ~•ˆ“ƒˆŸ",;
                 "‘â®¬ â®«®£¨ç¥áª ï ä®à¬  39 - ~’…€ˆŸ",;
                 "âçñâ ® ª®«¨ç¥áâ¢¥ ¢ë¤ ­­ëå ~á¯à ¢®ª Œ‘"}
     mas_msg := {"‘®§¤ ­¨¥ ®âçñâ®¢ ¯® ¨­®£®à®¤­¨¬ ¨ ¨­®áâà ­æ ¬ ¤«ï Š‡‚",;
                 "®¤£®â®¢ª  ¨­ä®à¬ æ¨¨ ¢® ¨á¯®«­¥­¨¥ à¨ª §  ü848 ‚Œˆ€–",;
+                "Œ®­¨â®à¨­£ á®áâ®ï­¨ï §¤®à®¢ìï ­ á¥«¥­¨ï (­¥á®¡«î¤¥­¨¥ §¤®à®¢®£® ®¡à §  ¦¨§­¨)",;
                 "®¤áçñâ áâ æ¨®­ à­ëå á«ãç ¥¢ ¯® ¯à®ä¨«ï¬ (¯® ¤¨ £­®§ ¬, Š‘ƒ ¨ ®¯¥à æ¨ï¬)",;
                 "‘â®¬ â®«®£¨ç¥áª ï ä®à¬  39 ¯® å¨àãà£¨ç¥áª¨¬ ¯à¨ñ¬ ¬",;
                 "‘â®¬ â®«®£¨ç¥áª ï ä®à¬  39 ¯® â¥à ¯¥¢â¨ç¥áª¨¬ ¯à¨ñ¬ ¬",;
@@ -1360,7 +1362,8 @@ do case
                 "e_statist(183)",;
                 "e_statist(184)",;
                 "e_statist(185)",;
-                "e_statist(186)"}
+                "e_statist(186)",;
+                "e_statist(187)"}
     if glob_mo[_MO_KOD_TFOMS] == '103001' // ®­ª®¤¨á¯ ­á¥à
       aadd(mas_pmt, 'âçñâ ¤«ï ”ƒ“ "Œˆ– ®­ª®«®£¨¨ ¨¬...¥âà®¢ "')
       aadd(mas_msg, 'âçñâ ¤«ï ”ƒ“ "Œˆ– ®­ª®«®£¨¨ ¨¬...¥âà®¢ "')
@@ -1372,12 +1375,14 @@ do case
   case k == 182
     prikaz_848_miac()
   case k == 183
-    i_stac_sl_profil()
+    monitoring_zog()
   case k == 184
-    f_stom_39_hirur()
+    i_stac_sl_profil()
   case k == 185
-    f_stom_39_terap()
+    f_stom_39_hirur()
   case k == 186
+    f_stom_39_terap()
+  case k == 187
     f_otchet_spravka_OMS()
   case between(k,21,29)
     pds := 2
@@ -5238,3 +5243,191 @@ fill_in_Excel_Book(dir_exe+"mo_pr6_62"+sxls,;
                    ar_pr6,;
                    "¯à¨á« ­­ë© ¨§ ’”Œ‘")
 return NIL
+
+***** 07.07.20 Œ®­¨â®à¨­£ á®áâ®ï­¨ï §¤®à®¢ìï ­ á¥«¥­¨ï ¢ ç áâ¨ § ¡®«¥¢ ­¨©, á®áâ®ï­¨©, ä ªâ®à®¢ à¨áª ,
+***** á¢ï§ ­­ëå á ­¥á®¡«î¤¥­¨¥¬ §¤®à®¢®£® ®¡à §  ¦¨§­¨
+Function monitoring_zog()
+Static sad := {"R73.9","E10","E11","E12","E13","E14","R63.5","E66","K25","K26","K29","E78",;
+               "K70","K71","K72","K73","K74","K85","K86"}
+Static mas1pmt := {"~¢á¥ ®ª § ­­ë¥ á«ãç ¨",;
+                   "á«ãç ¨ ¢ ¢ëáâ ¢«¥­­ëå ~áç¥â å",;
+                   "á«ãç ¨ ¢ § ~à¥£¨áâà¨à®¢ ­­ëå áç¥â å"}
+Local sh := 80, HH := 80, n_file := "monitoring_zog"+stxt
+Local fl, par, arr_m, i, j, n, ad, arr, adiag_talon[16], lcount_uch := 1, buf := save_maxrow()
+Private mdate_r, M1VZROS_REB, is_disp_19, m1tip_mas := 0, m1glukozadn := 0, mglukoza := 0
+if !del_dbf_file("tmp"+sdbf)
+  return .f.
+endif
+if (par := popup_prompt(T_ROW,T_COL-5,1,mas1pmt)) > 0 .and. ;
+         (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := year_month(,,,5)) != NIL
+  mywait()
+  dbcreate(cur_dir+"tmp",{{"kod_k","N",7,0},;
+                          {"pens", "L",1,0},;
+                          {"diag", "C",5,0},;
+                          {"is_1", "L",1,0},;
+                          {"disp", "L",1,0}})
+  use (cur_dir+"tmp") new
+  index on str(kod_k,7)+diag to (cur_dir+"tmp")
+  R_Use(dir_server+"schet_",,"SCHET_")
+  R_Use(dir_server+"human_",,"HUMAN_")
+  R_Use(dir_server+"human",dir_server+"humand","HUMAN")
+  set relation to recno() into HUMAN_
+  dbseek(dtos(arr_m[5]),.t.)
+  do while human->k_data <= arr_m[6] .and. !eof()
+    @ maxrow(),1 say full_date(human->k_data) color cColorWait
+    fl := human_->usl_ok == 3 .and. human->cena_1 > 0 .and. human_->oplata != 9 .and. f_is_uch(st_a_uch,human->lpu)
+    if fl
+      mdate_r := human->date_r ; M1VZROS_REB := human->VZROS_REB
+      fv_date_r(human->n_data) // ¯¥à¥®¯à¥¤¥«¥­¨¥ M1VZROS_REB
+      fl := (M1VZROS_REB == 0)
+    endif
+    if fl .and. par > 1
+      fl := (human->schet > 0)
+      if fl .and. par == 3
+        fl := .f.
+        select SCHET_
+        goto (human->schet)
+        if !schet_->(eof()) .and. schet_->NREGISTR == 0 // â®«ìª® § à¥£¨áâà¨à®¢ ­­ë¥
+          fl := .t.
+        endif
+      endif
+    endif
+    if fl
+      for i := 1 to 16
+        adiag_talon[i] := int(val(substr(human_->DISPANS,i,1)))
+      next
+      arr := diag_to_array(,.f.,.f.,.f.,.f.,adiag_talon)
+      ad := {}
+      for i := 1 to len(sad)
+        n := len(sad[i])
+        for j := 1 to len(arr)
+          if left(arr[j],n) == sad[i]
+            aadd(ad,arr[j])
+          endif
+        next
+      next
+      if (is_disp := between(human->ishod,201,204))
+        is_disp_19 := !(human->k_data < d_01_05_2019)
+        read_arr_DVN(human->kod)
+        if m1glukozadn == 1 .or. mglukoza > 6.1
+          aadd(ad,"R73.9")
+        endif
+        if ascan(ad,{|x| left(x,3) == "E66"}) == 0 .and. m1tip_mas >= 3
+          ascan(ad,"R63.5")
+        endif
+      endif
+      if len(ad) > 0
+        is_pens := f_starshe_trudosp(human->POL,human->DATE_R,human->n_data)
+        for i := 1 to len(ad)
+          select TMP
+          find (str(human->kod_k,7)+padr(ad[i],5))
+          if !found()
+            append blank
+            tmp->kod_k := human->kod_k
+            tmp->pens := is_pens
+            tmp->diag := padr(ad[i],5)
+            tmp->is_1 := ("+" $ ad[i])
+            if tmp->is_1
+              tmp->disp := is_disp
+            endif
+            if lastrec() % 1000 == 0
+              commit
+            endif
+          endif
+        next
+      endif
+    endif
+    select HUMAN
+    skip
+  enddo
+  rest_box(buf)
+  fl := .t.
+  if tmp->(lastrec()) == 0
+    fl := func_error(4,"¥ ­ ©¤¥­® ¨­ä®à¬ æ¨¨ ¯® ¤ ­­®¬ã § ¯à®áã "+arr_m[4])
+  endif
+  close databases
+  if fl
+    mywait()
+    arr := {;
+      {"1.ƒ¨¯¥à£«¨ª¥¬¨ï ­¥ãâ®ç­¥­­ ï","R73.9",0,0,0,0,0,0},;
+      {"2.‘ å à­ë© ¤¨ ¡¥â","E10-E14",0,0,0,0,0,0,{"E10","E11","E12","E13","E14"}},;
+      {"3.€­®à¬ «ì­ ï ¯à¨¡ ¢ª  ¬ ááë â¥« ","R63.5",0,0,0,0,0,0},;
+      {"3.5.¦¨à¥­¨¥","E66",0,0,0,0,0,0},;
+      {"4.Ÿ§¢  ¦¥«ã¤ª ","K25",0,0,0,0,0,0},;
+      {"5.Ÿ§¢  ¤¢¥­ ¤æ â¨¯¥àáâ­®© ª¨èª¨","K26",0,0,0,0,0,0},;
+      {"6.ƒ áâà¨â ¨ ¤ã®¤¥­¨â","K29",0,0,0,0,0,0},;
+      {"7. àãè¥­¨¥ ®¡¬¥­  «¨¯®¯à®â¥¨¤®¢ ¨ ¤àã£¨¥ «¨¯¨¤¥¬¨¨","E78",0,0,0,0,0,0},;
+      {"8.®«¥§­¨ ¯¥ç¥­¨","K70-K74",0,0,0,0,0,0,{"K70","K71","K72","K73","K74"}},;
+      {"9.áâàë© ¯ ­ªà¥ â¨â, ¤àã£¨¥ ¡®«¥§­¨ ¯®¤¦¥«ã¤®ç­®© ¦¥«¥§ë","K85-K86",0,0,0,0,0,0,{"K85","K86"}}}
+    use TMP
+    go top
+    do while !eof()
+      n := 0
+      for i := 1 to len(arr)
+        if "-" $ arr[i,2]
+          for j := 1 to len(arr[i,9])
+            if f1monitoring_zog(arr[i,9,j])
+              n := i ; exit
+            endif
+          next
+        else
+          if f1monitoring_zog(arr[i,2])
+            n := i
+          endif
+        endif
+        if n > 0
+          arr[i,3] ++
+          if tmp->is_1
+            arr[i,4] ++
+          endif
+          if tmp->disp
+            arr[i,5] ++
+          endif
+          if tmp->pens
+            arr[i,6] ++
+            if tmp->is_1
+              arr[i,7] ++
+            endif
+            if tmp->disp
+              arr[i,8] ++
+            endif
+          endif
+          exit
+        endif
+      next
+      skip
+    enddo
+    Use
+    fp := fcreate(n_file) ; n_list := 1 ; tek_stroke := 0
+    add_string(glob_mo[_MO_SHORT_NAME])
+    add_string("")
+    add_string(center("Œ®­¨â®à¨­£ á®áâ®ï­¨ï §¤®à®¢ìï ­ á¥«¥­¨ï ¢ ç áâ¨ § ¡®«¥¢ ­¨©, á®áâ®ï­¨©,",sh))
+    add_string(center("ä ªâ®à®¢ à¨áª , á¢ï§ ­­ëå á ­¥á®¡«î¤¥­¨¥¬ §¤®à®¢®£® ®¡à §  ¦¨§­¨",sh))
+    add_string(center("[ "+charrem("~",mas1pmt[par])+" ]",sh))
+    add_string(center(arr_m[4],sh))
+    add_string(full_date(sys_date))
+    add_string("ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄ")
+    add_string(" ¨¬¥­®¢ ­¨¥ § ¡®«¥¢ ­¨© (ä ªâ®à®¢ à¨áª )          ³ ŒŠ-10³‡ ¡®«.³¢¯¥à¢ë³¤¨á¯ ­")
+    add_string("ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄ")
+    for i := 1 to len(arr)
+      add_string(padr(arr[i,1],51)+" "+padc(arr[i,2],7))
+      add_string(padl("¢§à®á«ë¥         ",52)+put_val(arr[i,3],13)+put_val(arr[i,4],7)+put_val(arr[i,5],7))
+      add_string(padl("¢ â.ç.¯¥­á¨®­¥àë ",52)+put_val(arr[i,6],13)+put_val(arr[i,7],7)+put_val(arr[i,8],7))
+    next
+    fclose(fp)
+    rest_box(buf)
+    close databases
+    viewtext(n_file,,,,.t.,,,2)
+  endif
+endif
+return NIL
+
+***** 07.07.20
+Function f1monitoring_zog(ldiag)
+Local fl := .f.
+if len(ldiag) == 3
+  fl := (left(tmp->diag,3) == ldiag)
+else
+  fl := (tmp->diag == ldiag)
+endif
+return fl
