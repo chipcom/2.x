@@ -86,11 +86,16 @@ do while len(s) > nlen
 enddo
 return val(s)
 
-***** определить лицо старше трудоспособного возраста
-Function f_starshe_trudosp(_pol,_date_r,_data)
-return count_years(_date_r,_data) >= iif(_pol=="М", 60, 55)
-
-*
+***** 12.07.20 определить лицо старше трудоспособного возраста
+Function f_starshe_trudosp(_pol,_date_r,_data,par)
+Local v
+DEFAULT par TO 1
+if par == 1
+  v := iif(_pol=="М", 60, 55) // для МИАЦ
+else
+  v := iif(_pol=="М", 65, 60) // для ТФОМС
+endif
+return count_years(_date_r,_data) >= v
 
 ***** 14.01.20
 Function arr_plan_zakaz(ly)
