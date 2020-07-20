@@ -3935,7 +3935,7 @@ for i := 1 to 2
 next
 return NIL
 
-***** 12.07.20 форма 14-МЕД (ОМС)
+***** 16.07.20 форма 14-МЕД (ОМС)
 Function forma14_med_oms()
 Static group_ini := "f14_med_oms"
 Local begin_date, end_date, buf := savescreen(), arr_m, i, j, k, k1, k2,;
@@ -4516,7 +4516,6 @@ my_debug(vid_vp < 0,print_array(au))
             arr_pril5[9,igs] += round(human->cena_1*koef,2) // "Всего расходов на амб.помощь"
             if is_kt // для КТ обнуляем количество
               tfoms_pz[ii,1] := tfoms_pz[ii,2] := tfoms_pz[ii,5] := tfoms_pz[ii,7] := tfoms_pz[ii,9] := 0
-              vid_vp := 0 // Посещение профилактическое
             elseif is_dializ // перит.диализ
               vid_vp := 2 // по поводу заболевания
               ds_spec := 1
@@ -4528,6 +4527,19 @@ my_debug(vid_vp < 0,print_array(au))
               arr_pril5[8,igs] += kol_2_6 // "Всего посещений"
             endif
             fl := eq_any(schet_->BUKVA,'A','K')
+            if schet_->BUKVA == 'K'
+              vid_vp := 2 // по поводу заболевания
+              sum_k += tfoms_pz[2,3]
+              if is_rebenok
+                sum_kd += tfoms_pz[2,3]
+              endif
+              if is_trudosp
+                sum_kt += tfoms_pz[2,3]
+              endif
+              if is_inogoro
+                sum_ki += tfoms_pz[2,3]
+              endif
+            endif
             if vid_vp == 1 // в неотложной форме
               fl_pol1[11] += tfoms_pz[2,2]
               arr_pril5[ 8,igs] += tfoms_pz[2,2] // "Всего посещений"
@@ -4661,18 +4673,7 @@ my_debug(vid_vp < 0,print_array(au))
                   endif
                 endif
               endif
-              if schet_->BUKVA == 'K'
-                sum_k += tfoms_pz[2,3]
-                if is_rebenok
-                  sum_kd += tfoms_pz[2,3]
-                endif
-                if is_trudosp
-                  sum_kt += tfoms_pz[2,3]
-                endif
-                if is_inogoro
-                  sum_ki += tfoms_pz[2,3]
-                endif
-              elseif eq_any(schet_->BUKVA,'G','J','D','O','R','F','V','I','U')
+              if eq_any(schet_->BUKVA,'G','J','D','O','R','F','V','I','U')
                 kol_d += tfoms_pz[2,2]
                 sum_d += tfoms_pz[2,3]
               endif
