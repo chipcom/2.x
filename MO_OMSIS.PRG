@@ -3935,7 +3935,7 @@ for i := 1 to 2
 next
 return NIL
 
-***** 16.07.20 форма 14-МЕД (ОМС)
+***** 23.07.20 форма 14-МЕД (ОМС)
 Function forma14_med_oms()
 Static group_ini := "f14_med_oms"
 Local begin_date, end_date, buf := savescreen(), arr_m, i, j, k, k1, k2,;
@@ -4235,21 +4235,21 @@ do while !eof()
               if found() .and. mounit->pz > 0
                 if (i16 := mounit->ii) > 0
                   j1 := glob_array_PZ_20[i16,1]
-                  if eq_any(j1,68,75,87)
-                    //vid_vp := 0 // Посещение профилактическое
+                  if eq_any(j1,68,75)
+                    vid_vp := 0 // Посещение профилактическое
                   elseif eq_any(j1,69,76)
-                    //vid_vp := 1 // в неотложной форме
+                    vid_vp := 1 // в неотложной форме
                   elseif eq_any(j1,70,77,91,92)
-                    //vid_vp := 2 // обращения с лечебной целью
+                    vid_vp := 2 // обращения с лечебной целью
                   elseif j1 == 71
                     is_centr_z := .t.
-                    //vid_vp := 0 // Посещение профилактическое Центра здоровья
+                    vid_vp := 0 // Посещение профилактическое Центра здоровья
                   elseif eq_any(j1,73,74,87,88,89,90)  // т.е. 261,262,318,319,320,321
                     vid_vp := 0 // комплексное посещение при диспансеризации
                     is_z_sl := .t.
                   elseif j1 == 64 .or. between(j1,79,86) .or. between(j1,93,98) // исследования
                     is_kt := .t. ; ds1_spec := 1
-                    vid_vp := 0 // Посещение профилактическое
+                    vid_vp := 2 // с лечебной целью
                   elseif eq_any(j1,63,65,67)
                     is_dializ := .t.
                   endif
@@ -4260,8 +4260,8 @@ do while !eof()
             if human_->USL_OK == 1 // стационар
               //
             elseif human_->USL_OK == 2  // дневной стационар
-              is_dializ := .t.
               if left(lshifr,5) == "60.3."
+                is_dializ := .t.
                 kol_dializ += hu->kol_1
               endif
               aadd(arr_usl,lshifr)
@@ -4455,7 +4455,7 @@ do while !eof()
           select HU
           skip
         enddo
-my_debug(vid_vp < 0,print_array(au))
+my_debug(vid_vp < 0,"vid_vp="+lstr(vid_vp)+print_array(au))
         if kol_dializ > 0
           tfoms_pz[ii,2] := kol_dializ // заменяем на кол-во диализных процедур
         endif
@@ -4529,6 +4529,7 @@ my_debug(vid_vp < 0,print_array(au))
             fl := eq_any(schet_->BUKVA,'A','K')
             if schet_->BUKVA == 'K'
               vid_vp := 2 // по поводу заболевания
+              ds1_spec := 1
               sum_k += tfoms_pz[2,3]
               if is_rebenok
                 sum_kd += tfoms_pz[2,3]
