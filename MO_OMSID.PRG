@@ -9971,7 +9971,7 @@ if (arr_m := year_month(,,,5)) != NIL
 endif
 return NIL
 
-***** 18.03.20 Создание файла обмена R11...
+***** 27.07.20 Создание файла обмена R11...
 Function f_create_R11()
 Local buf := save_maxrow(), i, j, ir, s := "", arr := {}, fl := .t., fl1 := .f., a_reestr := {}, ar
 Private sgod := 2020, SMONTH := 1, mdate := sys_date, mrec := 1
@@ -9983,7 +9983,7 @@ Private c_view := 0, c_found := 0, fl_exit := .f., pj, arr_rees := {},;
 mywait()
 fl := .t.
 fl_1 := .f.
-SMONTH := lm := 4
+SMONTH := lm := 8
 dbcreate(cur_dir+"tmp_00",{;
    {"reestr",     "N", 6,0},;
    {"kod",        "N", 7,0},; // код по картотеке
@@ -9994,7 +9994,7 @@ dbcreate(cur_dir+"tmp_00",{;
 R_Use(dir_server+"mo_xml",,"MO_XML")
 index on str(reestr,6) to (cur_dir+"tmp_xml") for tip_in == _XML_FILE_R12 .and. empty(TIP_OUT)
 R_Use(dir_server+"mo_dr01",,"REES")
-index on str(nn,3) to (cur_dir+"tmp_dr01") for NYEAR == sgod .and. eq_any(NMONTH,SMONTH-1,SMONTH) .and. tip == 1
+index on str(nn,3) to (cur_dir+"tmp_dr01") for NYEAR == sgod .and. eq_any(NMONTH,4,SMONTH) .and. tip == 1
 go top
 do while !eof()
   if rees->kol_err < 0
