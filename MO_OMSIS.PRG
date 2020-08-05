@@ -3935,7 +3935,7 @@ for i := 1 to 2
 next
 return NIL
 
-***** 23.07.20 форма 14-МЕД (ОМС)
+***** 29.07.20 форма 14-МЕД (ОМС)
 Function forma14_med_oms()
 Static group_ini := "f14_med_oms"
 Local begin_date, end_date, buf := savescreen(), arr_m, i, j, k, k1, k2,;
@@ -4258,7 +4258,9 @@ do while !eof()
               select HU
             endif
             if human_->USL_OK == 1 // стационар
-              //
+              if left(lshifr,5) == "1.11."
+                kol_dializ += hu->kol_1 // койко-день
+              endif
             elseif human_->USL_OK == 2  // дневной стационар
               if left(lshifr,5) == "60.3."
                 is_dializ := .t.
@@ -4470,6 +4472,7 @@ my_debug(vid_vp < 0,"vid_vp="+lstr(vid_vp)+print_array(au))
         do case
           // стационар
           case tfoms_pz[1,1] > 0
+            tfoms_pz[1,2] := kol_dializ
             if (i := ascan(arr_profil, {|x| x[1] == human_->PROFIL })) == 0
               aadd(arr_profil, {human_->PROFIL,0,0,0,0}) ; i := len(arr_profil)
             endif

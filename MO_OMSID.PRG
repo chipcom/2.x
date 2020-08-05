@@ -10263,11 +10263,14 @@ if !emptyany(kart->kod,kart->fio,kart->date_r) // данную запись в картотеке неда
 endif
 return {ltip,ltip1,lvoz}
 
-***** 29.01.20
+***** 30.07.20
 Function f1_create_R11(lm,fl_dr00)
 Local nsh := 3, smsg, lnn := 0
 if !f_Esc_Enter("создания файла R11",.t.)
   return NIL
+endif
+if CODE_LPU == '124528' .and. hb_fileExists(dir_server+"b18"+sdbf)
+  lnn := 100 // специально для 28-ой п-ки (после объединения с 18-ой б-цей)
 endif
 G_Use(dir_server+"mo_dr01m",,"RM")
 AddRecN()
