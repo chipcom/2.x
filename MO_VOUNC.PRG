@@ -2166,7 +2166,11 @@ do while !eof()
         endif
       next
       if need_reestr_c_zab(human_->USL_OK,mdiagnoz[1]) .or. is_oncology_smp > 0
-        mo_add_xml_stroke(oSL,"C_ZAB",'1') // Характер основного заболевания
+        if human_->USL_OK == 3 .and. human_->povod == 4 // если P_CEL=1.3
+          mo_add_xml_stroke(oSL,"C_ZAB",'2') // При диспансерном наблюдении характер заболевания не может быть <Острое>
+        else
+          mo_add_xml_stroke(oSL,"C_ZAB",'1') // Характер основного заболевания
+        endif
       endif
       if human_->USL_OK < 4
         i := 0

@@ -137,15 +137,15 @@ reconstruct(dir_server+"mo_dnab",mo_dnab,"index_base('mo_dnab')",,.t.)
 //index on str(KOD_K,7)+KOD_DIAG to (dir_server+"mo_dnab")
 return NIL
 
-***** 02.12.19 Диспансерное наблюдение
+***** 12.08.20 Диспансерное наблюдение
 Function disp_nabludenie(k)
 Static S_sem := "disp_nabludenie"
-Static si1 := 1, si2 := 1, si3 := 2, si4 := 1, si5 := 1
+Static si1 := 2, si2 := 1, si3 := 2, si4 := 1, si5 := 1
 Local mas_pmt, mas_msg, mas_fun, j, buf, fl_umer := .f.
 DEFAULT k TO 1
 do case
   case k == 1
-    R_Use(dir_server+"mo_d01e")
+    /*R_Use(dir_server+"mo_d01e")
     if fieldnum("MESTO") == 0
       fl_umer := .t.
     endif
@@ -367,18 +367,26 @@ do case
       close databases
       rest_box(buf)
       G_SUnLock(S_sem)
-    endif
+    endif*/
+    mas_pmt := {"~Работа с файлами обмена D01",;
+                "~Информация по дисп.наблюдению"}
+    mas_msg := {"Создание файла обмена D01... с ещё не отправленными пациентами (диагнозами)",;
+                "Просмотр информации по результатам диспансерного наблюдения"}
+    mas_fun := {"disp_nabludenie(11)",;
+                "disp_nabludenie(12)"}
+    popup_prompt(T_ROW,T_COL-5,si1,mas_pmt,mas_msg,mas_fun)
+  case k == 11
     mas_pmt := {"Первичный ~ввод",;
                 "~Информация",;
                 "~Обмен с ТФОМС"}
     mas_msg := {"Первичный ввод сведений о состоящих на диспансерном учёте в Вашей МО",;
                 "Информация по первичному вводу сведений о состоящих на диспансерном учёте",;
                 "Обмен с ТФОМС информацией по диспансерному наблюдению"}
-    mas_fun := {"disp_nabludenie(11)",;
-                "disp_nabludenie(12)",;
-                "disp_nabludenie(13)"}
-    popup_prompt(T_ROW,T_COL-5,si1,mas_pmt,mas_msg,mas_fun)
-  case k == 11
+    mas_fun := {"disp_nabludenie(21)",;
+                "disp_nabludenie(22)",;
+                "disp_nabludenie(23)"}
+    popup_prompt(T_ROW,T_COL-5,si2,mas_pmt,mas_msg,mas_fun)
+  case k == 21
     mas_pmt := {"Ввод с поиском по лечащему ~врачу",;
                 "Ввод с поиском по ~пациенту"}
     mas_msg := {"Первичный ввод сведений о состоящих на дисп.учёте с поиском по лечащему врачу",;
@@ -386,18 +394,18 @@ do case
     mas_fun := {"disp_nabludenie(51)",;
                 "disp_nabludenie(52)"}
     popup_prompt(T_ROW,T_COL-5,si5,mas_pmt,mas_msg,mas_fun)
-  case k == 12
+  case k == 22
     mas_pmt := {"Информация по ~первичному вводу",;
                 "Список обязательных ~диагнозов",; //"~Пациенты с диагнозами для диспансерного учёта"   "~Информация о выполнении",;
                 "Дополнительный поиск пациентов"}
     mas_msg := {"Информация по первичному вводу сведений о состоящих на диспансерном учёте",;
                 "Список диагнозов, обязательных для диспансерного наблюдения",; //"Список пациентов с диагнозами, обязательными для диспансерного учёта (за 2 года)"              "Информация о выполнении диспансерного наблюдения",;
                 "Дополнительный поиск пациентов (посетивших поликлинику с диагнозами ДН)"}
-    mas_fun := {"disp_nabludenie(21)",;
-                "disp_nabludenie(22)",;
-                "disp_nabludenie(23)"}
-    popup_prompt(T_ROW,T_COL-5,si2,mas_pmt,mas_msg,mas_fun)
-  case k == 13
+    mas_fun := {"disp_nabludenie(41)",;
+                "disp_nabludenie(42)",;
+                "disp_nabludenie(43)"}
+    popup_prompt(T_ROW,T_COL-5,si4,mas_pmt,mas_msg,mas_fun)
+  case k == 23
     mas_pmt := {"~Создание файла обмена D01",;
                 "~Просмотр файлов обмена D01"}
     mas_msg := {"Создание файла обмена D01... с ещё не отправленными пациентами (диагнозами)",;
@@ -405,11 +413,11 @@ do case
     mas_fun := {"disp_nabludenie(31)",;
                 "disp_nabludenie(32)"}
     popup_prompt(T_ROW,T_COL-5,si3,mas_pmt,mas_msg,mas_fun)
-  case k == 21
+  case k == 41
     inf_disp_nabl()
-  case k == 22
+  case k == 42
     spr_disp_nabl()
-  case k == 23
+  case k == 43
     f_inf_dop_disp_nabl()
     //pac_disp_nabl()
     /*mas_pmt := {"~Не было л/у с диспансерным наблюдением",;
@@ -421,21 +429,23 @@ do case
     mas_fun := {"disp_nabludenie(41)",;
                 "disp_nabludenie(42)",;
                 "disp_nabludenie(43)"}
-    popup_prompt(T_ROW,T_COL-5,si4,mas_pmt,mas_msg,mas_fun)*/
-  case k == 31
-    f_create_D01()
-  case k == 32
-    f_view_D01()
+    popup_prompt(T_ROW,T_COL-5,si4,mas_pmt,mas_msg,mas_fun)
   case k == 41
     f_inf_disp_nabl(1)
   case k == 42
     f_inf_disp_nabl(2)
   case k == 43
-    f_inf_disp_nabl(3)
+    f_inf_disp_nabl(3)*/
+  case k == 31
+    f_create_D01()
+  case k == 32
+    f_view_D01()
   case k == 51
     vvod_disp_nabl()
   case k == 52
     vvodP_disp_nabl()
+  case k == 12
+    ne_real()
 endcase
 if k > 10
   j := int(val(right(lstr(k),1)))
