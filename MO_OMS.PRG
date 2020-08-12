@@ -6156,7 +6156,7 @@ else
 endif
 return fl
 
-*****
+***** 11.08.20
 Function inp_dop_diag()
 Local arr, jt, mshifr, tmp_keys, tmp_gets, buf, tmp_color
 Private mvar := upper(readvar())
@@ -6182,8 +6182,8 @@ if !empty(mshifr) .and. (jt := ascan(arr,mvar)) > 0
   m2 := adiag_talon[jt*2  ]
   box_shadow(pr,2,pr+4,77,color0,'Диагноз "'+alltrim(mshifr)+'"',"W+/BG")
   tmp_color := setcolor("N/BG,W+/N,,,B/BG")
-  @ pr+1,5 say "Характер заболевания       " get m1 pict "9" valid {|g| v_i_d_diag(g,1) }
-  @ pr+2,5 say "Диспансерный учет          " get m2 pict "9" valid {|g| v_i_d_diag(g,2) }
+  @ pr+1,5 say "Характер заболевания (1,2) " get m1 pict "9" valid {|g| v_i_d_diag(g,1) }
+  @ pr+2,5 say "Диспансерный учет  (1,2,3) " get m2 pict "9" valid {|g| v_i_d_diag(g,2) }
   status_key("^<Esc>^ - выход;  ^<PgDn>^ - подтверждение ввода")
   myread()
   if lastkey() != K_ESC
