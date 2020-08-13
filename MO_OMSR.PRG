@@ -409,7 +409,7 @@ elseif lp == 64 // оториноларингологии
 endif
 return lp
 
-***** 12.08.20
+***** 13.08.20
 Function verify_1_sluch(fl_view)
 Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
       i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -614,15 +614,30 @@ if !empty(otd->short_name)
 endif
 s += date_8(human->n_data)+"-"+date_8(human->k_data)
 @ maxrow(),0 say padr(" "+s,50) color "G+/R"
+if human_->usl_ok == 3
+  s := "амбулаторной карты"
+elseif human_->usl_ok == 4
+  s := "карты вызова"
+else
+  s := "истории болезни"
+endif
 if empty(CHARREPL("0",human->uch_doc,space(10)))
-  if human_->usl_ok == 3
-    s := "амбулаторной карты"
-  elseif human_->usl_ok == 4
-    s := "карты вызова"
-  else
-    s := "истории болезни"
-  endif
-  aadd(ta,'Не заполнен номер '+s+': '+human->uch_doc)
+  aadd(ta,'не заполнен номер '+s+': '+human->uch_doc)
+else
+  for i := 1 to len(human->uch_doc)
+    c := substr(human->uch_doc,i,1)
+    if between(c,'0','9')
+      // цифры,
+    elseif ISLETTER(c)
+      // буквы русского и латинского алфавита,
+    elseif empty(c)
+      // пробел,
+    elseif eq_any(c,'.','/','\','-','|','_','+')
+      // точка,горизонтальные разделители, вертикальные и наклонные разделители,нижнее подчеркивание, знак "+"
+    else
+      aadd(ta,'недопустимый символ "'+c+'" в номере '+s+': '+human->uch_doc)
+    endif
+  next
 endif
 // проверка по датам
 if year(human->date_r) < 1900
@@ -1778,6 +1793,9 @@ if is_oncology == 2 // онкология
   endif
   if kkt > 0 .and. onksl->ds1_t != 5
     aadd(ta,'онкология: для отдельных диагностических услуг в поле "Повод обращения" должно быть проставлено "Диагностика"')
+  endif
+  if len(arr_povod) > 0 .and. arr_povod[1,1] == 4 .and. onksl->ds1_t != 4
+    aadd(ta,'онкология: в случае диспансерного наблюдения в поле "Повод обращения" должно быть проставлено "диспансерное наблюдение"')
   endif
   if onksl->ds1_t == 0 .and. human->vzros_reb == 0
     if empty(onksl->ONK_T)
@@ -4686,6 +4704,12 @@ if is_disp_DDS .or. is_disp_DVN .or. is_prof_PN
       aadd(ta,"пациент с группой здоровья большей 2 должен быть направлен на доп.обследование, к специалистам, на лечение или на реабилитацию")
     endif
   endif
+endif
+arr := {301,305,308,314,315,317,318,321,322,323,324,325,332,333,334,335,336,343,344,347,348,349,350,;
+        351,353,355,356,357,358,361,362,363,364,365,366,367,368,369,370,371,372,373,374}
+if human_->ISHOD_NEW == 306 .and. ascan(arr,human_->RSLT_NEW) == 0
+  aadd(ta,'для исхода заболевания "306/Осмотр" некорректный результат обращения "'+;
+          inieditspr(A__MENUVERT, glob_V009, human_->RSLT_NEW)+'"')
 endif
 //mpovod := iif(len(arr_povod) == 1, arr_povod[1,1], 0)
 //if (is_disp_DDS .or. is_disp_DVN .or. is_prof_PN .or. mpovod == 4) .and. d2 > 0d20200319
