@@ -973,7 +973,7 @@ Function f0pr_inog_inostr(ldate_r,_data)
 Local cy := count_years(ldate_r,_data)
 return iif(cy < 100, cy, 99)
 
-***** 06.11.18
+***** 26.08.20
 Function f1pr_inog_inostr(lkod,/*@*/lregion,/*@*/losnov,arr_m)
 Local rec
 select KART
@@ -997,20 +997,9 @@ if empty(lregion) .and. !eq_any(left(kart_->okatog,2),'  ','00','18')
     losnov := -1
   endif
   if !empty(lregion) // иногородний?
-    select HUMAN
-    rec := recno()
-    set order to 3
-    find (str(lkod,7))
-    do while human->kod_k == lkod .and. !eof()
-      if between(human->k_data,arr_m[5],arr_m[6]) .and. human->CENA_1 > 0 .and. human_->oplata < 9
-        if human->komu == 0 .and. val(human_->smo) > 34000 .and. val(human_->smo) < 35000 // полис Волгоградский
-          lregion := space(3) ; losnov := 0 ; exit                                        // не учитываем
-        endif
-      endif
-      skip
-    enddo
-    set order to 1
-    goto (rec)
+    if human->komu == 0 .and. val(human_->smo) > 34000 .and. val(human_->smo) < 35000 // полис Волгоградский
+      lregion := space(3) ; losnov := 0                                               // не учитываем
+    endif
   endif
 endif
 return !empty(lregion)
@@ -1025,7 +1014,7 @@ elseif eq_any(human->komu,1,3)
     list_fin := _what_if[2,i,3]
   endif
 endif
-// 1-пл.,2-ДМС,3-ОМС,4-бюджет
+// 1-пл.,2-ДМС,3-ОМС,4-бюджет,5-средства МО,6-средства субъекта РФ
 if list_fin == I_FIN_OMS
   _ist_fin := 3
 elseif list_fin == I_FIN_PLAT
@@ -1070,7 +1059,7 @@ R_Use(dir_server+"kartotek",,"KART")
 use (cur_dir+"tmp_kart") new
 if j == 1 .or. j == 2
   set relation to kod into KART
-  index on upper(kart->fio)+str(vid,1)+str(profil,3)+region+str(osnov,2)+str(ist_fin,1) to (cur_dir+"tmp_kart")
+  index on upper(kart->fio)+str(kart->kod,7)+str(vid,1)+str(profil,3)+region+str(osnov,2)+str(ist_fin,1) to (cur_dir+"tmp_kart")
 else
   index on region+str(osnov,2)+str(ist_fin,1)+str(vid,1)+str(profil,3) to (cur_dir+"tmp_kart")
 endif

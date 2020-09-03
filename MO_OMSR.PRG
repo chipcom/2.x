@@ -1189,7 +1189,7 @@ do while hu->kod == human->kod .and. !eof()
           ++kvp_2_78
           is_2_78 := .t.
           mIDSP := 17 // Законченный случай в поликлинике
-          if eq_any(alltrim_lshifr,"2.78.90","2.78.91")
+          if eq_any(alltrim_lshifr,"2.78.90","2.78.91") .and. len(mdiagnoz) > 0 .and. left(mdiagnoz[1],1) == "Z"
             mpovod := 11 // 3.1 обращение с проф.целью
           endif
         endif

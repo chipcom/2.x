@@ -3567,7 +3567,7 @@ Static Function f_131_u_da_net(k,sb1,sb2)
 if k > 1 ; k := 1 ; endif // если вместо "да" битовый ответ
 return f3_inf_DDS_karta({{"да - 1",1},{"нет - 2",0}},k,";  ",sb1,sb2,.f.)
 
-***** 29.06.20 Приложение к Приказу ГБУЗ "ВОМИАЦ" от 12.05.2017г. №1615
+***** 03.09.20 Приложение к Приказу ГБУЗ "ВОМИАЦ" от 12.05.2017г. №1615
 Function f21_inf_DVN(par) // свод
 Local arr_m, buf := save_maxrow(), s, as := {}, as1[14], i, j, k, n, ar, at, ii, g1, sh := 65, fl, mdvozrast, adbf
 if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
@@ -3636,37 +3636,39 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
   append blank
   tmp1->nn := 4 ;  tmp1->name := "из гр.2 в субботу"
   append blank
-  tmp1->nn := 5 ;  tmp1->name := "из гр.2 всего сельских жителей"
+  tmp1->nn := 5 ;  tmp1->name := "из гр.2 прошедшие все исследования в один день"
   append blank
-  tmp1->nn := 6 ;  tmp1->name := "из гр.5 сельских жителей после 18:00"
+  tmp1->nn := 6 ;  tmp1->name := "из гр.2 всего сельских жителей"
   append blank
-  tmp1->nn := 7 ;  tmp1->name := "из гр.5 сельских жителей в субботу"
+  tmp1->nn := 7 ;  tmp1->name := "из гр.6 сельских жителей после 18:00"
   append blank
-  tmp1->nn := 8 ;  tmp1->name := "ГРАЖДАН с впервые выявлен.неинф.заболеваниями"
+  tmp1->nn := 8 ;  tmp1->name := "из гр.6 сельских жителей в субботу"
   append blank
-  tmp1->nn := 9 ;  tmp1->name := "всего впервые выявлено неинф.заболеваний"
+  tmp1->nn := 9 ;  tmp1->name := "ГРАЖДАН с впервые выявлен.неинф.заболеваниями"
   append blank
-  tmp1->nn := 10 ; tmp1->name := "из гр.8 ГРАЖДАН болезни сист.кровообращения"
+  tmp1->nn := 10 ; tmp1->name := "всего впервые выявлено неинф.заболеваний"
   append blank
-  tmp1->nn := 11 ; tmp1->name := "из гр.8 ГРАЖДАН ЗНО"
+  tmp1->nn := 11 ; tmp1->name := "из гр.9 ГРАЖДАН болезни сист.кровообращения"
   append blank
-  tmp1->nn := 12 ; tmp1->name := "        из гр.11 в т.ч. в 1 и 2 стадиях"
+  tmp1->nn := 12 ; tmp1->name := "из гр.9 ГРАЖДАН ЗНО"
   append blank
-  tmp1->nn := 13 ; tmp1->name := "из гр.8 ГРАЖДАН сахарный диабет"
+  tmp1->nn := 13 ; tmp1->name := "        из гр.12 в т.ч. в 1 и 2 стадиях"
   append blank
-  tmp1->nn := 14 ; tmp1->name := "        в т.ч. сахарный диабет I типа"
+  tmp1->nn := 14 ; tmp1->name := "из гр.9 ГРАЖДАН сахарный диабет"
   append blank
-  tmp1->nn := 15 ; tmp1->name := "из гр.8 ГРАЖДАН глаукома"
+  tmp1->nn := 15 ; tmp1->name := "        в т.ч. сахарный диабет I типа"
   append blank
-  tmp1->nn := 16 ; tmp1->name := "из гр.8 ГРАЖДАН хрон.болезни органов дыхания"
+  tmp1->nn := 16 ; tmp1->name := "из гр.9 ГРАЖДАН глаукома"
   append blank
-  tmp1->nn := 17 ; tmp1->name := "из гр.8 ГРАЖДАН болезни органов пищеварения"
+  tmp1->nn := 17 ; tmp1->name := "из гр.9 ГРАЖДАН хрон.болезни органов дыхания"
   append blank
-  tmp1->nn := 18 ; tmp1->name := "из гр.8 ГРАЖДАН взяты на дисп.наблюдение"
+  tmp1->nn := 18 ; tmp1->name := "из гр.9 ГРАЖДАН болезни органов пищеварения"
   append blank
-  tmp1->nn := 19 ; tmp1->name := "из гр.8 ГРАЖДАН было начато лечение"
+  tmp1->nn := 19 ; tmp1->name := "из гр.9 ГРАЖДАН взяты на дисп.наблюдение"
   append blank
-  tmp1->nn := 20 ; tmp1->name := "   из гр.18 из них сельских жителей"
+  tmp1->nn := 20 ; tmp1->name := "из гр.9 ГРАЖДАН было начато лечение"
+  append blank
+  tmp1->nn := 21 ; tmp1->name := "   из гр.19 из них сельских жителей"
   dbcreate(cur_dir+"tmp11",adbf)
   use (cur_dir+"tmp11") new
   index on str(nn,2) to (cur_dir+"tmp11")
@@ -4014,9 +4016,9 @@ if !empty(tmp->kod2h) // диспансеризация II этап
 endif
 return NIL
 
-***** 29.06.20
+***** 03.09.20
 Function f2_f21_inf_DVN(par)
-Local is_selo, i, j, k, k1 := 5, fl2 := .f., ar[20], arr11[15], arr12[43], au := {}, fl_pens
+Local is_selo, i, j, k, k1 := 5, fl2 := .f., ar[21], arr11[15], arr12[43], au := {}, fl_pens
 Private arr_otklon := {}, arr_usl_otkaz := {},;
         M1RAB_NERAB := human->RAB_NERAB, m1veteran := 0, m1mobilbr := 0,;
         m1kurenie := 0, mad1 := 120, mad2 := 80, m1tip_mas := 0, mssr := 0,;
@@ -4043,13 +4045,16 @@ if par == 1
     k1 := 3
   endif
 endif
-if (is_selo := f_is_selo(kart_->gorod_selo,kart_->okatog))
+if human->n_data == human->k_data // за один день
   ar[5] := 1
+endif
+if (is_selo := f_is_selo(kart_->gorod_selo,kart_->okatog))
+  ar[6] := 1
 endif
 if dow(human->k_data) == 7 // суббота
   ar[4] := 1
   if is_selo
-    ar[7] := 1
+    ar[8] := 1
   endif
 endif
 fl_pens := f_starshe_trudosp(human->POL,human->DATE_R,human->n_data)
@@ -4163,19 +4168,19 @@ for i := 1 to 5
     arr11[1] := 1
   endif
   if !(left(&pole_diag,1) == "A" .or. left(&pole_diag,1) == "B") .and. &pole_1pervich == 1 // неинфекционные заболевания уст.впервые
-    ar[8] := 1
-    ar[9] ++
+    ar[9] := 1
+    ar[10] ++
     if left(&pole_diag,1) == "I" // болезни системы кровообращения
-      ar[10] := 1
+      ar[11] := 1
     elseif left(&pole_diag,1) == "J" // болезни органов дыхания
-      ar[16] := 1
-    elseif left(&pole_diag,1) == "K" // болезни органов пищеварения
       ar[17] := 1
+    elseif left(&pole_diag,1) == "K" // болезни органов пищеварения
+      ar[18] := 1
     endif
     if left(&pole_diag,1) == "C" .or. between(left(&pole_diag,3),"D00","D09") // ЗНО
-      ar[11] := 1
+      ar[12] := 1
       if &pole_1stadia < 3 // 1 и 2 стадия
-        ar[12] := 1
+        ar[13] := 1
       endif
       arr11[5] := 1
       if between(&pole_1stadia,1,4)
@@ -4221,22 +4226,22 @@ for i := 1 to 5
       endif
     endif
     if between(left(&pole_diag,3),"E10","E14") // сахарный диабет
-      ar[13] := 1
+      ar[14] := 1
       if left(&pole_diag,3) == "E10" // I стадия
-        ar[14] := 1
+        ar[15] := 1
       endif
     endif
     if eq_any(left(&pole_diag,3),"H40","H42") .or. left(&pole_diag,5) == "Q15.0" // глаукома
-      ar[15] := 1
+      ar[16] := 1
     endif
     if &pole_1dispans == 1
-      ar[18] := 1
+      ar[19] := 1
       if is_selo
-        ar[20] := 1
+        ar[21] := 1
       endif
     endif
     if .f. // 1-лечение назначено
-      ar[19] := 1 // ?? было начато лечение
+      ar[20] := 1 // ?? было начато лечение
     endif
   endif
 next
@@ -9971,7 +9976,7 @@ if (arr_m := year_month(,,,5)) != NIL
 endif
 return NIL
 
-***** 27.07.20 Создание файла обмена R11...
+***** 03.09.20 Создание файла обмена R11...
 Function f_create_R11()
 Local buf := save_maxrow(), i, j, ir, s := "", arr := {}, fl := .t., fl1 := .f., a_reestr := {}, ar
 Private sgod := 2020, SMONTH := 1, mdate := sys_date, mrec := 1
@@ -9983,7 +9988,7 @@ Private c_view := 0, c_found := 0, fl_exit := .f., pj, arr_rees := {},;
 mywait()
 fl := .t.
 fl_1 := .f.
-SMONTH := lm := 8
+SMONTH := lm := 9
 dbcreate(cur_dir+"tmp_00",{;
    {"reestr",     "N", 6,0},;
    {"kod",        "N", 7,0},; // код по картотеке
@@ -9994,7 +9999,7 @@ dbcreate(cur_dir+"tmp_00",{;
 R_Use(dir_server+"mo_xml",,"MO_XML")
 index on str(reestr,6) to (cur_dir+"tmp_xml") for tip_in == _XML_FILE_R12 .and. empty(TIP_OUT)
 R_Use(dir_server+"mo_dr01",,"REES")
-index on str(nn,3) to (cur_dir+"tmp_dr01") for NYEAR == sgod .and. eq_any(NMONTH,4,SMONTH) .and. tip == 1
+index on str(nn,3) to (cur_dir+"tmp_dr01") for NYEAR == sgod .and. eq_any(NMONTH,SMONTH-1,SMONTH) .and. tip == 1
 go top
 do while !eof()
   if rees->kol_err < 0
@@ -10263,14 +10268,15 @@ if !emptyany(kart->kod,kart->fio,kart->date_r) // данную запись в картотеке неда
 endif
 return {ltip,ltip1,lvoz}
 
-***** 30.07.20
+***** 03.09.20
 Function f1_create_R11(lm,fl_dr00)
 Local nsh := 3, smsg, lnn := 0
 if !f_Esc_Enter("создания файла R11",.t.)
   return NIL
 endif
-if CODE_LPU == '124528' .and. hb_fileExists(dir_server+"b18"+sdbf)
-  lnn := 100 // специально для 28-ой п-ки (после объединения с 18-ой б-цей)
+if eq_any(CODE_LPU,'124528','184603') .and. hb_fileExists(dir_server+"b18"+sdbf)
+  lnn := 100 // специально для 28-ой п-ки после объединения с 18-ой б-цей
+             // или для 3-ей п-ки после объединения с 12-ой п-кой
 endif
 G_Use(dir_server+"mo_dr01m",,"RM")
 AddRecN()
