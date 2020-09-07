@@ -120,12 +120,12 @@ else
 endif
 return update_get("mprer_b")
 
-***** 27.01.20
+***** 07.03.20
 Function ret_arr_shema(k)
 Static ashema := {{},{},{}}
 Local i
 if empty(ashema[1])
-  Private _data := 0d20200102
+  Private _data := 0d20200901
   R_Use(exe_dir+"_mo0shema",,"IT") // 2020 год
   aadd(ashema[1],{"-----     без схемы лекарственной терапии",padr("нет",10)})
   index on kod to (cur_dir+"tmp_schema") for left(kod,2) == "sh" .and. between_date(it->datebeg,it->dateend,_data)
@@ -142,7 +142,7 @@ if empty(ashema[1])
 endif
 return ashema[k]
 
-***** 06.04.20
+***** 07.09.20
 Function f_valid2ad_cr()
 Static mm_bartel := {;
   {"индекс Бартела 60 баллов и менее","60"},;
@@ -158,7 +158,7 @@ Static mm_rb := {;
   {"rb5 - оценка состояния пациента 5 баллов по ШРМ","rb5"},;
   {"rb6 - оценка состояния пациента 6 баллов по ШРМ","rb6"},;
   {"rbs - медицинская реабилитация детей с нарушениями слуха","rbs"}}
-Local i, j, arr_sop := {}, arr_osl := {}
+Local i, j, arr_sop := {}, arr_osl := {}, fl
 input_ad_cr := .f. ; mm_ad_cr := {}
 if m1usl_ok < 3 .and. m1vmp == 0
   if m1profil == 158 // реабилитация
@@ -194,15 +194,20 @@ if m1usl_ok < 3 .and. m1vmp == 0
           endif
         endif
         if !empty(arr_ad_cr_it20[i,3]) .and. !empty(arr_ad_cr_it20[i,4]) .and. empty(arr_ad_cr_it20[i,5]) // осн.+сопут.диагнозы
-          if !empty(arr_sop)
-            if ascan(arr_ad_cr_it20[i,3],padr(MKOD_DIAG,5)) > 0
-              for j := 1 to len(arr_sop)
-                if ascan(arr_ad_cr_it20[i,4],arr_sop[j]) > 0
-                  aadd(mm_ad_cr,{"",arr_ad_cr_it20[i,2]})
-                  exit
-                endif
-              next
-            endif
+          fl := .t.
+          if eq_any(left(arr_ad_cr_it20[i,2],2),"i3","i4") .and. mk_data >= 0d20200901
+            fl := .f.
+          endif
+          if eq_any(left(arr_ad_cr_it20[i,2],2),"cr") .and. mk_data < 0d20200901
+            fl := .f.
+          endif
+          if fl .and. !empty(arr_sop) .and. ascan(arr_ad_cr_it20[i,3],padr(MKOD_DIAG,5)) > 0
+            for j := 1 to len(arr_sop)
+              if ascan(arr_ad_cr_it20[i,4],arr_sop[j]) > 0
+                aadd(mm_ad_cr,{"",arr_ad_cr_it20[i,2]})
+                exit
+              endif
+            next
           endif
         endif
         if empty(arr_ad_cr_it20[i,3]) .and. empty(arr_ad_cr_it20[i,4]) .and. !empty(arr_ad_cr_it20[i,5]) // диагноз осложнения
@@ -230,9 +235,18 @@ if m1usl_ok < 3 .and. m1vmp == 0
     mm_ad_cr := mm_bartel
   endif
   if (input_ad_cr := !empty(mm_ad_cr)) .and. empty(mm_ad_cr[1,1])
+    asort(mm_ad_cr,,,{|x,y| x[2] < y[2] })
     // заполним из справочника схем
     for i := 1 to len(mm_ad_cr)
       do case
+        case mm_ad_cr[i,2] == "cr4"
+          mm_ad_cr[i,1] := "cr4-п.4 прил.12 Приказа 198н/пульсоксиметрия<95%, T>=38C, ЧДД>22"
+        case mm_ad_cr[i,2] == "cr5"
+          mm_ad_cr[i,1] := "cr5-п.5 прил.12 Приказа 198н/пульсоксиметрия<=93%, T>=39C, ЧДД>=30"
+        case mm_ad_cr[i,2] == "cr6"
+          mm_ad_cr[i,1] := "cr6-п.6 прил.12 Приказа 198н/пульсоксиметрия<92%, наруш.сознания, ЧДД>35"
+        case mm_ad_cr[i,2] == "cr8"
+          mm_ad_cr[i,1] := "cr8-пп.8-9 прил.12 Приказа 198н/пациенты, относящиеся к группе риска"
         case mm_ad_cr[i,2] == "it1"
           mm_ad_cr[i,1] := "it1-непрерывное проведение ИВЛ в течение 72 часов и более"
         case mm_ad_cr[i,2] == "it2"
@@ -286,16 +300,13 @@ R_Use(dir_server+"mo_uch",,"UCH")
 R_Use(dir_server+"mo_otd",,"OTD")
 if yes_many_uch .or. not_lpu
   select UCH
-  dbeval({|| iif(between_date(uch->dbegin,uch->dend,mdate), ;
-                 aadd(a_uch,uch->(recno())), nil) })
+  dbeval({|| iif(between_date(uch->dbegin,uch->dend,mdate), aadd(a_uch,uch->(recno())), nil) })
 else
   aadd(a_uch,mLPU)
 endif
 select OTD
-dbeval({|| iif(between_date(otd->dbegin,otd->dend,mdate), ;
-               aadd(pr_arr,{otd->(recno()),otd->name,otd->kod_lpu,""}), nil),;
-           iif(mem_otdusl == 2, ;
-               aadd(pr1arr_otd,{otd->(recno()),otd->name,otd->kod_lpu,""}), nil);
+dbeval({|| iif(between_date(otd->dbegin,otd->dend,mdate), aadd(pr_arr,{otd->(recno()),otd->name,otd->kod_lpu,""}), nil),;
+           iif(mem_otdusl == 2, aadd(pr1arr_otd,{otd->(recno()),otd->name,otd->kod_lpu,""}), nil);
        },;
        {|| iif(yes_many_uch .or. not_lpu, ascan(a_uch,otd->kod_lpu) > 0, otd->kod_lpu == mLPU) };
       )

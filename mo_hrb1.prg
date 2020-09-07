@@ -487,7 +487,7 @@ dbcreate(cur_dir+"tmp",{;
   {"vozr","N",2,0},;
   {"kol","N",6,0}})
 use (cur_dir+"tmp") new
-index on str(god,4)+str(kod_k,7) to tmp memory   
+index on str(god,4)+str(kod_k,7) to tmp memory
 use_base("lusl")
 R_Use(dir_server+"uslugi",,"USL")
 R_Use(dir_server+"human_u_",,"HU_")
@@ -529,11 +529,11 @@ do while !eof()
           tmp->kod_k := human->kod_k
           tmp->pol := human->pol
           k := lgod - year(human->date_r)
-          tmp->vozr := iif(k < 100, k, 99) 
+          tmp->vozr := iif(k < 100, k, 99)
         endif
         tmp->kol += lkol
       endif
-    endif  
+    endif
   endif
   select HUMAN
   if recno() % 5000 == 0
@@ -548,7 +548,7 @@ if !fl_exit .and. k > 0
   agod := {}
   use (cur_dir+"tmp") new
   index on god to tmp unique memory
-  dbeval({|| aadd(agod,tmp->god) }) 
+  dbeval({|| aadd(agod,tmp->god) })
   name_file := "del_zub"+stxt
   HH := 60
   arr_title := {;
@@ -567,7 +567,7 @@ if !fl_exit .and. k > 0
   arr := array(6,6)
   select TMP
   for ig := 1 to len(agod)
-    index on str(kod_k,7) to tmp for god == agod[ig] memory   
+    index on str(kod_k,7) to tmp for god == agod[ig] memory
     afillall(arr,0)
     go top
     do while !eof()
@@ -595,7 +595,7 @@ if !fl_exit .and. k > 0
       next ix
       select TMP
       skip
-    enddo 
+    enddo
     if verify_FF(HH-8,.t.,sh)
       aeval(arr_title, {|x| add_string(x) } )
     endif
@@ -637,7 +637,7 @@ R_Use(dir_server+"mo_raks",,"RAKS")
 set relation to akt into RAK
 R_Use(dir_server+"mo_raksh",,"RAKSH")
 set relation to kod_raks into RAKS
-index on str(kod_h,7) to (cur_dir+"tmp_raksh") 
+index on str(kod_h,7) to (cur_dir+"tmp_raksh")
 //
 R_Use(dir_server+"schet_",,"SCHET_")
 R_Use(dir_server+"schet",,"SCHET")
@@ -679,7 +679,7 @@ do while human->k_data <= arr_m[6] .and. !eof()
             endif
           endif
         endif
-      endif  
+      endif
       select HU
       skip
     enddo
@@ -738,7 +738,7 @@ do while human->k_data <= arr_m[6] .and. !eof()
           tmp->mm := m
         endif
         tmp->kol += mkol
-        tmp->dni += mdni 
+        tmp->dni += mdni
         tmp->sum += human->cena_1
         if !empty(akslp[2])
           tmp->kslp += (human->cena_1 - round_5(human->cena_1 / akslp[2], 1))
@@ -757,7 +757,7 @@ do while human->k_data <= arr_m[6] .and. !eof()
             tmp->mm := m
           endif
           tmp->kol += mkol
-          tmp->dni += mdni 
+          tmp->dni += mdni
           tmp->sum += msum
           if !empty(akslp[2])
             tmp->kslp += (msum - round_5(msum / akslp[2], 1))
@@ -775,49 +775,49 @@ if !fl_exit
     arr_title := {;
 "────────────────┬──────────┬────────────┬────────────┬────────────┬────────────┬────────────┬────────────┬─────────────",;
 "  Возраст       │ значение │   январь   │   февраль  │    март    │   апрель   │    май     │    июнь    │    ИТОГО    ",;
-"────────────────┴──────────┴────────────┴────────────┴────────────┴────────────┴────────────┴────────────┴─────────────"} 
+"────────────────┴──────────┴────────────┴────────────┴────────────┴────────────┴────────────┴────────────┴─────────────"}
     sh := len(arr_title[1])
     //
     nfile := "phone_15"+stxt
     fp := fcreate(nfile) ; n_list := 1 ; tek_stroke := 0
-    add_string(center("Статистика оказания стационарной медицинской помощи лицам пожилого возраста",sh)) 
-    add_string(center(arr_m[4],sh)) 
+    add_string(center("Статистика оказания стационарной медицинской помощи лицам пожилого возраста",sh))
+    add_string(center(arr_m[4],sh))
     select TMP
     for ifin := 0 to 1
       add_string("")
       add_string(center({"Всего пролечено","ОМС (зарегистрировано в ТФОМС)"}[ifin+1],sh))
       aeval(arr_title, {|x| add_string(x) } )
       for j := 1 to 3
-        s1 := {"мужчины","",""}[j] 
-        s2 := {" 60 лет и старше","60 лет и старше","75 лет и старше"}[j] 
-        s3 := {"женщины","",""}[j] 
-        s4 := {" 55 лет и старше","",""}[j] 
-        s1 := padr(s1,17) + "больных   " 
-        s2 := padr(s2,17) + "койко-дней" 
-        s3 := padr(s3,17) + "сумма     " 
+        s1 := {"мужчины","",""}[j]
+        s2 := {" 60 лет и старше","60 лет и старше","75 лет и старше"}[j]
+        s3 := {"женщины","",""}[j]
+        s4 := {" 55 лет и старше","",""}[j]
+        s1 := padr(s1,17) + "больных   "
+        s2 := padr(s2,17) + "койко-дней"
+        s3 := padr(s3,17) + "сумма     "
         s4 := padr(s4,17) + "надб(КСЛП)"
-        ss := {0,0,0,0} 
+        ss := {0,0,0,0}
         for m := 1 to 6
           find (str(ifin,1)+str(j,1)+str(m,2))
           if found()
-            s1 += put_val(tmp->kol,13) 
-            s2 += put_val(tmp->dni,13) 
-            s3 += str(tmp->sum,13,1) 
+            s1 += put_val(tmp->kol,13)
+            s2 += put_val(tmp->dni,13)
+            s3 += str(tmp->sum,13,1)
             s4 += str(tmp->kslp,13,1)
-            ss[1] += tmp->kol 
-            ss[2] += tmp->dni 
-            ss[3] += tmp->sum 
+            ss[1] += tmp->kol
+            ss[2] += tmp->dni
+            ss[3] += tmp->sum
             ss[4] += tmp->kslp
           else
-            s1 += space(13)  
-            s2 += space(13) 
-            s3 += space(13) 
+            s1 += space(13)
+            s2 += space(13)
+            s3 += space(13)
             s4 += space(13)
           endif
         next m
-        s1 += put_val(ss[1],14) 
-        s2 += put_val(ss[2],14) 
-        s3 += str(ss[3],14,1) 
+        s1 += put_val(ss[1],14)
+        s2 += put_val(ss[2],14)
+        s3 += str(ss[3],14,1)
         s4 += str(ss[4],14,1)
         add_string(s1)
         add_string(s2)
@@ -828,14 +828,14 @@ if !fl_exit
     next ifin
     fclose(fp)
     close databases
-    rest_box(buf)  
+    rest_box(buf)
     viewtext(nfile,,,,.t.,,,3)
-  else 
+  else
     func_error(4,"Нет информации по стационару за 2017 год!")
   endif
 endif
 close databases
-rest_box(buf)  
+rest_box(buf)
 return NIL
 
 ***** 21.07.17
@@ -887,21 +887,21 @@ WaitStatus(arr_m[4])
 dbcreate(cur_dir+"tmp",{;
   {"ID_PAC",  "N", 7,0},;
   {"ID_SL",   "N", 7,0},;
-  {"VID_MP",  "N", 1,0},; 
+  {"VID_MP",  "N", 1,0},;
   {"OSN_DIAG","C", 6,0},;
   {"SOP_DIAG","C",50,0},;
   {"OSL_DIAG","C",20,0},;
-  {"DNI",     "N", 3,0},; 
+  {"DNI",     "N", 3,0},;
   {"KOD_OTD", "C", 6,0},;
-  {"PROFIL",  "C",99,0},; 
-  {"POL_PAC", "N", 1,0},; 
+  {"PROFIL",  "C",99,0},;
+  {"POL_PAC", "N", 1,0},;
   {"DATE_ROG","C",10,0},;
   {"DATE_GOS","C",10,0},;
   {"VIDVMP",  "C",12,0},; // вид ВМП по справочнику V018
   {"METVMP",  "C", 4,0},; // метод ВМП по справочнику V019
-  {"REANIMAC","C", 3,0},; 
-  {"SEBESTO", "C",12,0},; 
-  {"USLUGI",  "C",99,0}}) 
+  {"REANIMAC","C", 3,0},;
+  {"SEBESTO", "C",12,0},;
+  {"USLUGI",  "C",99,0}})
 use (cur_dir+"tmp") new
 R_Use(dir_server+"mo_otd",,"OTD")
 R_Use(dir_server+"mo_su",,"MOSU")
@@ -932,7 +932,7 @@ do while human->k_data <= arr_m[6] .and. !eof()
       fl := (human->komu==3 .and. ascan(_arr_komit, {|x| x[2] == human->str_crb }) > 0)
   endcase
   if fl .and. human_->oplata < 9 .and. human_->usl_ok == musl_ok
-    is_dializ := .f. ; arr_sl := {} 
+    is_dializ := .f. ; arr_sl := {}
     select HU
     find (str(human->kod,7))
     do while hu->kod == human->kod .and. !eof()
@@ -941,8 +941,8 @@ do while human->k_data <= arr_m[6] .and. !eof()
         lshifr := alltrim(iif(empty(lshifr1), usl->shifr, lshifr1))
         if eq_any(left(lshifr,5),"1.11.","55.1.")
           lshifr1 := alltrim(usl->shifr)
-          i := len(arr_sl) 
-          if i > 0 .and. hu->otd==arr_sl[i,7] .and. hu_->profil==arr_sl[i,3] .and. lshifr1==arr_sl[i,2] 
+          i := len(arr_sl)
+          if i > 0 .and. hu->otd==arr_sl[i,7] .and. hu_->profil==arr_sl[i,3] .and. lshifr1==arr_sl[i,2]
             arr_sl[i,5] := hu_->date_u2
             arr_sl[i,6] += hu->kol_1
           else
@@ -952,9 +952,9 @@ do while human->k_data <= arr_m[6] .and. !eof()
                          hu->date_u,;          // 4
                          hu_->date_u2,;        // 5
                          hu->kol_1,;           // 6
-                         hu->otd,;             // 7  
+                         hu->otd,;             // 7
                          lshifr})              // 8 - услуги Минздрава
-          endif                
+          endif
         elseif !is_dializ
           is_dializ := (ascan(glob_KSG_dializ,lshifr) > 0) // КСГ с диализом
         endif
@@ -1003,7 +1003,7 @@ do while human->k_data <= arr_m[6] .and. !eof()
         tmp->ID_PAC   := human->kod_k
         tmp->ID_SL    := human->kod
         tmp->VID_MP   := iif(human_2->vmp > 0, 1, 0)
-        tmp->OSN_DIAG := mdiagnoz[1] 
+        tmp->OSN_DIAG := mdiagnoz[1]
         tmp->SOP_DIAG := mdiagnoz2
         tmp->OSL_DIAG := mdiagnoz3
         tmp->DNI      := arr_sl[i,6]
@@ -1013,15 +1013,15 @@ do while human->k_data <= arr_m[6] .and. !eof()
           tmp->KOD_OTD := arr_sl[i,2]
         endif
         tmp->PROFIL   := inieditspr(A__MENUVERT, glob_V002, arr_sl[i,3])
-        tmp->POL_PAC  := iif(iif(human_->NOVOR > 0, human_->pol2, human->pol) == "М", 1, 0) 
+        tmp->POL_PAC  := iif(iif(human_->NOVOR > 0, human_->pol2, human->pol) == "М", 1, 0)
         tmp->DATE_ROG := full_date(iif(human_->NOVOR > 0, human_->date_r2, human->date_r))
         tmp->DATE_GOS := full_date(c4tod(arr_sl[i,4]))
         tmp->VIDVMP   := iif(human_2->vmp > 0, human_2->VIDVMP, "")
         tmp->METVMP   := iif(human_2->vmp > 0, lstr(human_2->METVMP), "")
-        tmp->REANIMAC := iif(arr_sl[i,3] == 5, lstr(arr_sl[i,6]), "")  
-        tmp->USLUGI   := arr_sl[i,8] 
+        tmp->REANIMAC := iif(arr_sl[i,3] == 5, lstr(arr_sl[i,6]), "")
+        tmp->USLUGI   := arr_sl[i,8]
       next
-    endif     
+    endif
   endif
   select HUMAN
   skip
@@ -1035,7 +1035,7 @@ if !fl_exit
              "создан файл "+upper(n_file+sdbf),;
              "со сведениями о случаях лечения пациентов."},,;
              cColorStMsg,cColorStMsg,,,cColorSt2Msg)
-endif  
+endif
 return NIL
 
 ***** 22.06.17
@@ -1078,7 +1078,7 @@ R_Use(dir_server+"mo_raks",,"RAKS")
 set relation to akt into RAK
 R_Use(dir_server+"mo_raksh",,"RAKSH")
 set relation to kod_raks into RAKS
-index on str(kod_h,7) to (cur_dir+"tmp_raksh") 
+index on str(kod_h,7) to (cur_dir+"tmp_raksh")
 //
 R_Use(dir_server+"schet_",,"SCHET_")
 R_Use(dir_server+"schet",,"SCHET")
@@ -1131,13 +1131,13 @@ do while human->k_data <= arr_m[6] .and. !eof()
         ldate_r := human_->DATE_R2
       endif
       count_ymd(ldate_r,human->n_data,@y,@m,@d)
-      if y == 0 .or. (y == 1 .and. m == 0 .and. d == 0) 
+      if y == 0 .or. (y == 1 .and. m == 0 .and. d == 0)
         v := 1
       elseif y < 17
         v := 2
       elseif y < 60
         v := 3
-      else 
+      else
         v := 4
       endif
       polek := "tmp->kol"+lstr(v)
@@ -1196,7 +1196,7 @@ if !fl_exit
     //
     nfile := "pr_792"+stxt
     fp := fcreate(nfile) ; n_list := 1 ; tek_stroke := 0
-    add_string(center("Фактические показатели объёма и финансового обеспечения специализированной медицинской помощи, оказанной в",sh)) 
+    add_string(center("Фактические показатели объёма и финансового обеспечения специализированной медицинской помощи, оказанной в",sh))
     add_string(center("стационарных условиях, по отдельным профилям медицинской помощи за 2016 год (в тыс.руб.)",sh))
     for ifin := 1 to 2
       select TMP
@@ -1274,32 +1274,32 @@ if !fl_exit
     next ifin
     fclose(fp)
     close databases
-    rest_box(buf)  
+    rest_box(buf)
     viewtext(nfile,,,,.t.,,,6)
-  else 
+  else
     func_error(4,"Нет информации по стационару за 2016 год!")
   endif
 endif
 close databases
-rest_box(buf)  
+rest_box(buf)
 return NIL
 
 ***** 22.06.17
 Function f1forma_792_MIAC(mkod_diag)
 Local k := 0, c, s
-c := left(mkod_diag,1) 
+c := left(mkod_diag,1)
 s := left(mkod_diag,3)
 if c == "C"
   k := 2
 elseif c == "J"
   k := 4
 elseif c == "A" .or. c == "B"
-  k := 3    
+  k := 3
 elseif between(s,"E10","E14")
   k := 1
 elseif between(s,"P35","P39")
   k := 5
-endif 
+endif
 return k
 
 *
@@ -1346,7 +1346,7 @@ if f_edit_spr(A__APPEND,mm_tmp,"","e_use(cur_dir+'tmp_mon')",0,1,,,,{r1,0,r2,79,
   restscreen(buf)
   if year(pdate_lech[5]) < 2016
     return func_error(4,"Данный алгоритм работает с 2016 года")
-  endif            
+  endif
   mywait()
   use (tmp_file) new alias MN
   arr := {;

@@ -965,7 +965,7 @@ if empty(ret_arr)
 endif
 return ret_arr
 
-***** 06.04.20
+***** 07.09.20
 Function usl2TFOMS()
 Static sdate
 Local k, buf := save_maxrow(), name_file := "uslugi"+stxt, nu, ret_arr,;
@@ -1010,6 +1010,7 @@ if (k := popup_2array(usl9TFOMS(mdate),T_ROW,T_COL-5,su,1,@t_arr,"Выберите групп
     add_string('КСЛП: 1 - до 1 года(коэф=1.1), 2 - от 1 года до 3-х лет включит.(коэф=1.1)')
     add_string('      4 - 75 лет и старше(коэф=1.02), 5 - 60 лет и старше и астения(коэф=1.1)')
     add_string('      11 - проведение однотипных операций на парных органах(коэф=1.2)')
+    add_string('      18 - применение инвазивной ИВЛ (COVID-19/крайне тяжелое состояние)(коэф=1.2)')
    if t_arr[2] == 502
     if lyear < 2020
      add_string('      12 - ЭКО 1 этап(коэф=0.6), 13 - ЭКО полн с крио(коэф=1.1), 14 - ЭКО подсадка(коэф=0.19)')

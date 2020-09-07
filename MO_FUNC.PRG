@@ -3676,7 +3676,17 @@ if !empty(lksg)
     if lksg == 'st38.001' .and. lbartell == '61' // Старческая астения (это правило уже устарело и не применяется)
       lkslp := ""                                                       // т.к. у данной КСГ нет КСЛП
     endif
-    akslp := f_cena_kslp(@lcena,lksg,ldate_r,ln_data,lk_data,lkslp,amohu,lprofil_k,mdiagnoz,lpar_org)
+    akslp := f_cena_kslp(@lcena,;
+                         lksg,;
+                         ldate_r,;
+                         ln_data,;
+                         lk_data,;
+                         lkslp,;
+                         amohu,;
+                         lprofil_k,;
+                         mdiagnoz,;
+                         lpar_org,;
+                         lad_cr)
     if !empty(akslp)
       s += "  (КСЛП = "+str(akslp[2],4,2)
       if len(akslp) >= 4
@@ -4402,8 +4412,8 @@ rest_box(buf)
 fclose(fp)
 return NIL*/
 
-***** 06.06.19 определить коэф-т сложности лечения пациента и пересчитать цену
-Function f_cena_kslp(/*@*/_cena,_lshifr,_date_r,_n_data,_k_data,lkslp,arr_usl,lPROFIL_K,arr_diag,lpar_org)
+***** 07.09.20 определить коэф-т сложности лечения пациента и пересчитать цену
+Function f_cena_kslp(/*@*/_cena,_lshifr,_date_r,_n_data,_k_data,lkslp,arr_usl,lPROFIL_K,arr_diag,lpar_org,lad_cr)
 Static s_1_may := 0d20160430, s_18 := 0d20171231, s_19 := 0d20181231
 Static s_kslp17 := {;
   {1,1.1, 0,  3},;   // до 4 лет
@@ -4414,6 +4424,7 @@ Static s_kslp16 := {;
   {2,1.05,75,999};    // 75 лет и старше
  }
 Local i, j, vksg, y := 0, fl, ausl := {}, s_kslp, _akslp := {}, sop_diag
+DEFAULT lad_cr TO space(10)
 if _k_data > s_19  // с 2019 года
   if !empty(lkslp)
     _lshifr := alltrim(_lshifr)
@@ -4487,6 +4498,10 @@ if _k_data > s_19  // с 2019 года
       next
       if ascan(lkslp,11) > 0 .and. lpar_org > 1 // разрешена КСЛП=11 и введены парные органы
         aadd(_akslp,11)
+        aadd(_akslp,1.2)
+      endif
+      if ascan(lkslp,18) > 0 .and. "cr6" $ lad_cr // разрешена КСЛП=18 и для сложного COVID-19
+        aadd(_akslp,18)
         aadd(_akslp,1.2)
       endif
       if !empty(_akslp)
