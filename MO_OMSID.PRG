@@ -9976,7 +9976,7 @@ if (arr_m := year_month(,,,5)) != NIL
 endif
 return NIL
 
-***** 03.09.20 Создание файла обмена R11...
+***** 08.09.20 Создание файла обмена R11...
 Function f_create_R11()
 Local buf := save_maxrow(), i, j, ir, s := "", arr := {}, fl := .t., fl1 := .f., a_reestr := {}, ar
 Private sgod := 2020, SMONTH := 1, mdate := sys_date, mrec := 1
@@ -10143,7 +10143,7 @@ if fl_1 // не первый раз
         elseif j == 1
           index on kod to (cur_dir+"tmp_dr00") for tmp->tip == 1 .and. tmp->tip1 == 0 .and. tmp->n_q == 0 //DESCENDING
         else
-          index on kod to (cur_dir+"tmp_dr00") for tmp->tip1 == pj-2 .and. tmp->n_q == 0 //DESCENDING
+          index on kod to (cur_dir+"tmp_dr00") for eq_any(tmp->tip,1,2) .and. tmp->tip1 == pj-2 .and. tmp->n_q == 0 //DESCENDING
         endif
         go top
         do while !eof()
@@ -10168,7 +10168,7 @@ if fl_1 // не первый раз
         elseif j == 1
           index on kod to (cur_dir+"tmp_dr00") for tmp->tip == 1 .and. tmp->tip1 == 0 .and. tmp->n_m > 0
         else
-          index on kod to (cur_dir+"tmp_dr00") for tmp->tip1 == pj-2 .and. tmp->n_m > 0
+          index on kod to (cur_dir+"tmp_dr00") for eq_any(tmp->tip,1,2) .and. tmp->tip1 == pj-2 .and. tmp->n_m > 0
         endif
         go top
         do while !eof()

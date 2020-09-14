@@ -1556,6 +1556,8 @@ if is_oncology > 0 // онкология - направления
                onkna->(recno()) })
     if !between(onkna->NAPR_DATE,d1,d2)
       aadd(ta,"дата направления должна быть внутри сроков лечения (направление "+lstr(i)+')')
+    elseif !empty(s := verify_dend_mo(onkna->NAPR_MO,onkna->NAPR_DATE))
+      aadd(ta,'онконаправление в МО: '+s)
     endif
     if onkna->NAPR_V == 3
       if empty(onkna->MET_ISSL)
@@ -4716,6 +4718,9 @@ arr := {301,305,308,314,315,317,318,321,322,323,324,325,332,333,334,335,336,343,
 if human_->ISHOD_NEW == 306 .and. ascan(arr,human_->RSLT_NEW) == 0
   aadd(ta,'для исхода заболевания "306/Осмотр" некорректный результат обращения "'+;
           inieditspr(A__MENUVERT, glob_V009, human_->RSLT_NEW)+'"')
+endif
+if !emptyany(human_->NPR_MO,human_2->NPR_DATE) .and. !empty(s := verify_dend_mo(human_->NPR_MO,human_2->NPR_DATE,.t.))
+  aadd(ta,'направившая МО: '+s)
 endif
 //mpovod := iif(len(arr_povod) == 1, arr_povod[1,1], 0)
 if (is_disp_DDS .or. is_disp_DVN .or. is_prof_PN) .and. d1 < 0d20200907

@@ -124,7 +124,7 @@ if hb_FileExists(nfile)
     arr[_MO_SHORT_NAME] := crypt(arr1[i,4],gpasskod)
     arr[_MO_ADRES]      := crypt(arr1[i,5],gpasskod)
     arr[_MO_PROD]       := crypt(arr1[i,9],gpasskod)
-    arr[_MO_DOLG]       := crypt(arr1[i,10],gpasskod)
+    arr[_MO_DEND]       := ctod(crypt(arr1[i,10],gpasskod))
     arr[_MO_STANDART]   := arr1[i,11]
     arr[_MO_UROVEN]     := arr1[i,12]
     arr[_MO_IS_MAIN]    := (arr1[i,6]=='1')
@@ -134,6 +134,7 @@ if hb_FileExists(nfile)
       arr[_MO_UROVEN] := {}
     endif
     aadd(glob_arr_mo, aclone(arr))
+    //my_debug(,print_array({arr[_MO_KOD_FFOMS],arr[_MO_KOD_TFOMS],arr[_MO_DEND],arr[_MO_SHORT_NAME]}))
   next
   if hb_FileExists(dir_server+"organiz"+sdbf)
     R_Use(dir_server+"organiz",,"ORG")

@@ -1076,7 +1076,68 @@ if !empty(cCode)
 endif
 return arr
 
-***** 18.12.14 в GET-е вернуть {_MO_SHORT_NAME,_MO_KOD_TFOMS} и по пробелу - очистка поля
+***** 14.09.20 проверить направляющую МО по дате направления и дате окончания действия
+Function verify_dend_mo(cCode,ldate,is_record)
+Static a_mo := {;
+  {255315,{255416}},;
+  {115309,{425301}},;
+  {105301,{185301}},;
+  {155307,{595301}},;
+  {451001,{105903, 456001}},;
+  {121125,{101902}},;
+  {103001,{103002, 103003}},;
+  {251008,{255601}},;
+  {251002,{255802}},;
+  {126501,{256501, 456501, 396501}},;
+  {251003,{254504}},;
+  {165531,{165525}},;
+  {145516,{145526}},;
+  {115506,{115510}},;
+  {186002,{126406}},;
+  {125901,{158201}},;
+  {134505,{134510}},;
+  {131001,{136003}},;
+  {395301,{395302, 395303}},;
+  {175303,{175304}},;
+  {155307,{155306}},;
+  {111008,{171002}},;
+  {155601,{155502}},;
+  {175603,{175627}},;
+  {185515,{125505}},;
+  {171004,{171006}},;
+  {184603,{184512}},;
+  {114504,{114506}},;
+  {174601,{175709}},;
+  {124528,{121018}},;
+  {154602,{154620, 154608}},;
+  {101003,{184711, 181003}},;
+  {711001,{711005}};
+ }
+Local i, j, fl, s := ""
+DEFAULT is_record TO .f.
+cCode := ret_mo(cCode)[_MO_KOD_TFOMS]
+if (i := ascan(glob_arr_mo,{|x| x[_MO_KOD_TFOMS] == cCode })) > 0
+  if ldate > glob_arr_mo[i,_MO_DEND]
+    fl := .f.
+    if is_record
+      for j := 1 to len(a_mo)
+        if ascan(a_mo[j,2],int(val(cCode))) > 0
+          fl := .t. ; exit
+        endif
+      next
+    endif
+    if fl
+      human_->NPR_MO := lstr(a_mo[j,1]) // перезаписываем код направляющего МО в листе учёта ОМС
+    else
+      s := "<"+glob_arr_mo[i,_MO_SHORT_NAME]+"> закончила свою деятельность "+date_8(glob_arr_mo[i,_MO_DEND])+"г."
+    endif
+  endif
+else
+  s := "в справочнике медицинских организаций не найдена МО с кодом "+cCode
+endif
+return s
+
+***** 14.09.20 в GET-е вернуть {_MO_SHORT_NAME,_MO_KOD_TFOMS} и по пробелу - очистка поля
 Function f_get_mo(k,r,c,lusl)
 Static skodN := ""
 Local arr_mo3 := {}, ret, r1, r2, i, lcolor, tmp_select := select()
@@ -1121,7 +1182,7 @@ do while .t.
     lcolor := color5
     for i := 1 to len(glob_arr_mo)
       loc_arr_MO := glob_arr_mo[i]
-      if iif(muslovie == NIL, .t., &muslovie)
+      if iif(muslovie == NIL, .t., &muslovie) .and. year(sys_date) < year(glob_arr_mo[i,_MO_DEND])
         append blank
         rg->kodN := glob_arr_mo[i,_MO_KOD_TFOMS]
         rg->kodF := glob_arr_mo[i,_MO_KOD_FFOMS]
@@ -1134,7 +1195,7 @@ do while .t.
   else
     lcolor := "N/W*,GR+/R"
     for j := 1 to len(arr_mo3)
-      if (i := ascan(glob_arr_mo,{|x| x[_MO_KOD_TFOMS] == arr_mo3[j] })) > 0
+      if (i := ascan(glob_arr_mo,{|x| x[_MO_KOD_TFOMS]==arr_mo3[j] })) > 0 .and. year(sys_date) < year(glob_arr_mo[i,_MO_DEND])
         append blank
         rg->kodN := glob_arr_mo[i,_MO_KOD_TFOMS]
         rg->kodF := glob_arr_mo[i,_MO_KOD_FFOMS]

@@ -1577,7 +1577,7 @@ close databases
 rest_box(buf)
 return fl*/
 
-***** 18.12.19 Создание файла обмена R01...
+***** 08.09.20 Создание файла обмена R01...
 Function f_create_R01()
 Local buf := save_maxrow(), i, j, ir, s := "", arr := {}, fl := .t., fl1 := .f., a_reestr := {},;
       azip := {}, aerr := {}, full_zip, name_zip, cFile, cName, oXmlDoc, lgod_r
@@ -1763,7 +1763,7 @@ if (fl := verify_packet_R05(1,arr))
         elseif j == 1
           index on kod to (cur_dir+"tmp_dr00") for tmp->tip == 1 .and. tmp->tip1 == 0 .and. tmp->n_q == 0 DESCENDING
         else
-          index on kod to (cur_dir+"tmp_dr00") for tmp->tip1 == pj-2 .and. tmp->n_q == 0 DESCENDING
+          index on kod to (cur_dir+"tmp_dr00") for eq_any(tmp->tip,1,2) .and. tmp->tip1 == pj-2 .and. tmp->n_q == 0 DESCENDING
         endif
         go top
         do while !eof()
@@ -1794,7 +1794,7 @@ if (fl := verify_packet_R05(1,arr))
         elseif j == 1
           index on kod to (cur_dir+"tmp_dr00") for tmp->tip == 1 .and. tmp->tip1 == 0 .and. tmp->n_m > 0
         else
-          index on kod to (cur_dir+"tmp_dr00") for tmp->tip1 == pj-2 .and. tmp->n_m > 0
+          index on kod to (cur_dir+"tmp_dr00") for eq_any(tmp->tip,1,2) .and. tmp->tip1 == pj-2 .and. tmp->n_m > 0
         endif
         go top
         do while !eof()
