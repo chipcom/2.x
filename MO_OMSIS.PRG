@@ -4792,7 +4792,7 @@ my_debug(vid_vp < 0,"vid_vp="+lstr(vid_vp)+print_array(au))
                 if "31" $ lvidpoms
                   lvidpom := 31
                 endif
-              elseif eq_ascan(arr_usl,"55.1.2","55.1.3")
+              elseif eq_ascan(arr_usl,"55.1.2","55.1.3","2.76.6","2.76.7","2.81.67")
                 if eq_any(human_->PROFIL,57,68,97) //терапия,педиатр,врач общ.практики
                   if "12" $ lvidpoms
                     lvidpom := 12

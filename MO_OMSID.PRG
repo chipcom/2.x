@@ -9976,7 +9976,7 @@ if (arr_m := year_month(,,,5)) != NIL
 endif
 return NIL
 
-***** 08.09.20 Создание файла обмена R11...
+***** 22.09.20 Создание файла обмена R11...
 Function f_create_R11()
 Local buf := save_maxrow(), i, j, ir, s := "", arr := {}, fl := .t., fl1 := .f., a_reestr := {}, ar
 Private sgod := 2020, SMONTH := 1, mdate := sys_date, mrec := 1
@@ -9988,7 +9988,7 @@ Private c_view := 0, c_found := 0, fl_exit := .f., pj, arr_rees := {},;
 mywait()
 fl := .t.
 fl_1 := .f.
-SMONTH := lm := 9
+SMONTH := lm := 10
 dbcreate(cur_dir+"tmp_00",{;
    {"reestr",     "N", 6,0},;
    {"kod",        "N", 7,0},; // код по картотеке

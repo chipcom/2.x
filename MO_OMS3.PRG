@@ -671,7 +671,7 @@ if (fl := (human_->ST_VERIFY == 5))
 endif
 return fl
 
-***** 28.04.20 работаем по текущей записи
+***** 17.09.20 работаем по текущей записи
 Function f1_create2reestr19(_nyear,_nmonth)
 Local i, j, lst, s
 fl_DISABILITY := is_zak_sl := is_zak_sl_vr := .f.
@@ -831,7 +831,7 @@ if !empty(lvidpoms)
     if "31" $ lvidpoms
       lvidpom := 31
     endif
-  elseif eq_ascan(atmpusl,"55.1.2","55.1.3")
+  elseif eq_ascan(atmpusl,"55.1.2","55.1.3","2.76.6","2.76.7","2.81.67")
     if eq_any(human_->PROFIL,57,68,97) //терапия,педиатр,врач общ.практики
       if "12" $ lvidpoms
         lvidpom := 12
