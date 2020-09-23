@@ -47,23 +47,21 @@ if k > 10
 endif
 return NIL
 
-***** 06.04.20 Информация по диспансеризации детей-сирот
+***** 23.09.20 Информация по диспансеризации детей-сирот
 Function inf_DDS(k)
-Static si1 := 1, si2 := 1, sj := 1, sj1 := 1
+Static si1 := 1, si2 := 1, sj := 1, sj1 := 1, sj2 := 1
 Local mas_pmt, mas_msg, mas_fun, j, j1
 DEFAULT k TO 1
 do case
   case k == 1
     mas_pmt := {"~Карта диспансеризации",;
                 "~Список пациентов",;
-                "Свод для Обл~здрава (список)",;
-                "Свод для Обл~здрава (по возрастам)",;
+                "Своды для Обл~здрава",;
                 "Форма № 030-Д/с/~о-13",;
                 "XML-файл для ~портала МЗРФ"}
     mas_msg := {"Распечатка карты диспансеризации (учётная форма № 030-Д/с/у-13)",;
                 "Распечатка списка пациентов, которым проведена диспансеризация детей-сирот",;
-                "Распечатка свода для Облздрава Волг.обл. (приказ № 10-03/1-3113 от 12.04.13г.)",;
-                "Распечатка свода для Облздрава Волг.области (письмо № 14-05/50 от 07.02.20г.)",;
+                "Распечатка различных сводов для Облздрава Волгоградской области",;
                 "Сведения о диспансеризации несовершеннолетних (отчётная форма № 030-Д/с/о-13)",;
                 "Создание XML-файла для загрузки на портал Минздрава РФ"}
     mas_fun := {"inf_DDS(11)",;
@@ -88,21 +86,24 @@ do case
         endif
       case k == 13
         if (j1 := popup_prompt(T_ROW,T_COL-5,1,mas1pmt)) > 0
-          if (j := popup_prompt(T_ROW,T_COL-5,1,;
-              {"Вывод таблицы со списком детей-сирот",;
-               "Вывод итоговой строки в Excel для ОДКБ"})) > 0
-            inf_DDS_svod(2,j,j1)
+          if (j := popup_prompt(T_ROW,T_COL-5,sj2,;
+              {"Вывод таблицы со списком детей",;
+               "Вывод в Excel для ВОДКБ",;
+               "Вывод таблицы к письму №14-05/50",;
+               "Вывод таблицы 2510"})) > 0
+            sj2 := j
+            if j > 2
+              inf_DDS_svod2(j,j1)
+            else
+              inf_DDS_svod(2,j,j1)
+            endif
           endif
         endif
       case k == 14
         if (j1 := popup_prompt(T_ROW,T_COL-5,1,mas1pmt)) > 0
-          inf_DDS_svod2(j,j1)
-        endif
-      case k == 15
-        if (j1 := popup_prompt(T_ROW,T_COL-5,1,mas1pmt)) > 0
           inf_DDS_030dso(j1)
         endif
-      case k == 16
+      case k == 15
         if (j1 := popup_prompt(T_ROW,T_COL-5,1,mas1pmt)) > 0
           inf_DDS_XMLfile(j1)
         endif
@@ -1213,8 +1214,6 @@ close databases
 rest_box(buf)
 return NIL
 
-*
-
 ***** 04.05.16
 Function f2_inf_DDS_svod(Loc_kod,kod_kartotek) // сводная информация
 Local i := 0, c, s := "НЕТ акта", pole, arr, ddo := {}, dposle := {}
@@ -1333,7 +1332,7 @@ for i := 1 to len(arr)
 next
 return NIL
 
-***** 05.07.20
+***** 23.09.20 Приложение к письму КЗВО №14-05/50 от 07.02.2020г.
 Function inf_DDS_svod2(par2,is_schet)
 Local arr_m, i, buf := save_maxrow(), lkod_h, lkod_k, rec, sh := 91, HH := 60, n_file := "ddssvod2"+stxt
 if (arr_m := year_month(T_ROW,T_COL-5)) != NIL
@@ -1343,6 +1342,13 @@ if (arr_m := year_month(T_ROW,T_COL-5)) != NIL
       {"1","Всего",0,0,0,0,0,0,0,0,0,0,0,0,0},;
       {"1.1","0-14 лет",0,0,0,0,0,0,0,0,0,0,0,0,0},;
       {"1.2","15-17 лет",0,0,0,0,0,0,0,0,0,0,0,0,0};
+    }
+    Private arr_2510 := {;
+      {'001 дети 0-14 лет вкл.',0,0,0,0,0,0,0},;
+      {'002 из них дети до 1 г.',0,0,0,0,0,0,0},;
+      {'003 дети 15-17 лет вкл.',0,0,0,0,0,0,0},;
+      {'004 15-17 лет - юноши',0,0,0,0,0,0,0},;
+      {'005 школьники',0,0,0,0,0,0,0};
     }
     Private blk_open := {|| dbCloseAll(),;
                             R_Use(dir_server+"human_",,"HUMAN_"),;
@@ -1372,9 +1378,11 @@ if (arr_m := year_month(T_ROW,T_COL-5)) != NIL
     close databases
     fp := fcreate(n_file) ; n_list := 1 ; tek_stroke := 0
     add_string(glob_mo[_MO_SHORT_NAME])
+   if par2 == 3
     add_string(padl("Приложение",sh))
     add_string(padl("к письму КЗВО",sh))
     add_string(padl("№14-05/50 от 07.02.2020г.",sh))
+   endif
     add_string("")
     add_string(center("Сведения о диспансеризации несовершеннолетних,",sh))
     if p_tip_lu == TIP_LU_DDS
@@ -1388,6 +1396,7 @@ if (arr_m := year_month(T_ROW,T_COL-5)) != NIL
     add_string(center("[ "+charrem("~",mas1pmt[is_schet])+" ]",sh))
     add_string(center(arr_m[4],sh))
     add_string("")
+   if par2 == 3
     add_string("───┬─────────┬───────────┬───────────┬─────┬─────────────────────────────┬─────┬─────┬─────")
     add_string("№№ │ Контин- │ Осмотрено │из них село│неинф│           из них            │взято│из 7г│из 14")
     add_string("пп │ генты   ├─────┬─────┼─────┬─────┤забол├─────┬─────┬─────┬─────┬─────┤на ди│начат│село ")
@@ -1403,6 +1412,22 @@ if (arr_m := year_month(T_ROW,T_COL-5)) != NIL
       add_string(s)
       add_string(replicate("─",sh))
     next
+   else
+    add_string("─────────────────────────┬───────────┬─────────────────────────────")
+    add_string("                         │Число детей│     по группам здоровья     ")
+    add_string("     Дети - сироты       ├─────┬─────┼─────┬─────┬─────┬─────┬─────")
+    add_string("     таблица 2510        │всего│ село│  1  │  2  │  3  │  4  │  5  ")
+    add_string("─────────────────────────┼─────┼─────┼─────┼─────┼─────┼─────┼─────")
+    add_string("                         │  5  │  6  │  7  │  8  │  9  │  12 │  13 ")
+    add_string("─────────────────────────┴─────┴─────┴─────┴─────┴─────┴─────┴─────")
+    for i := 1 to len(arr_2510)
+      s := padr(arr_2510[i,1],25)
+      for j := 2 to len(arr_2510[i])
+        s += put_val(arr_2510[i,j],6)
+      next
+      add_string(s)
+    next
+   endif
     fclose(fp)
     viewtext(n_file,,,,.t.,,,2)
   endif
@@ -1411,14 +1436,15 @@ close databases
 rest_box(buf)
 return NIL
 
-***** 05.07.20
+***** 23.09.20
 Function f2_inf_DDS_svod2(Loc_kod,kod_kartotek)
-Local i, j, k, is_selo, ad := {}, ar := {1}
+Local i, j, k, is_selo, ad := {}, ar := {1}, ar1 := {}
 if mvozrast < 15
   aadd(ar,2)
 else
   aadd(ar,3)
 endif
+//
 for i := 1 to 5
   j := 0
   for k := 1 to 3
@@ -1445,6 +1471,20 @@ goto (kod_kartotek)
 R_Use(dir_server+"kartotek",,"KART")
 goto (kod_kartotek)
 is_selo := f_is_selo(kart_->gorod_selo,kart_->okatog)
+if mvozrast == 0
+  aadd(ar1,2)
+endif
+if mvozrast < 15
+  aadd(ar1,1)
+else
+  aadd(ar1,3)
+  if kart->pol == "М"
+    aadd(ar1,4)
+  endif
+endif
+if mvozrast > 6 // школьники ?
+  aadd(ar1,5)
+endif
 for j := 1 to 2
   k := ar[j]
   arr_deti[k,3] ++
@@ -1481,6 +1521,16 @@ for j := 1 to 2
       endif
     endif
   next
+next
+for j := 1 to len(ar1)
+  k := ar1[j]
+  arr_2510[k,2] ++
+  if is_selo
+    arr_2510[k,3] ++
+  endif
+  if between(mgruppa,1,5)
+    arr_2510[k,3+mgruppa] ++
+  endif
 next
 return NIL
 
@@ -6719,7 +6769,7 @@ do case
     mnog_poisk_DNL()
   case k == 14
     mas_pmt := {"~Сведения о профосмотрах детей по состоянию на ..."}
-    mas_msg := {"Приложение к Приказу ВОМИАЦ №1185 от 12.08.2013г."}
+    mas_msg := {"Приложение к Приказу ВОМИАЦ №1025 от 08.07.2019г."}
     mas_fun := {"inf_DNL(21)"}
     popup_prompt(T_ROW,T_COL-5,si2,mas_pmt,mas_msg,mas_fun)
   case k == 15
