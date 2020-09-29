@@ -2028,6 +2028,8 @@ do while !eof()
       do case
         case human_->USL_OK == 1 // стационар
           i := iif(left(human_->FORMA14,1)=='1', 1, 3)
+        case human_->USL_OK == 2 // дневной стационар
+          i := iif(left(human_->FORMA14,1)=='2', 2, 3)
         case human_->USL_OK == 4 // скорая помощь
           i := iif(left(human_->FORMA14,1)=='1', 1, 2)
         otherwise

@@ -1897,11 +1897,11 @@ do while !eof()
           select NAPR
           AddRec(7)
           napr->kod := mkod
-          napr->NAPR_DATE := tnapr->NAPR_DATE
-          napr->NAPR_MO := tnapr->NAPR_MO
-          napr->NAPR_V := tnapr->NAPR_V
-          napr->MET_ISSL := iif(tnapr->NAPR_V == 3, tnapr->MET_ISSL, 0)
-          napr->U_KOD := iif(tnapr->NAPR_V == 3, tnapr->U_KOD, 0)
+          napr->NAPR_DATE := na->NAPR_DATE
+          napr->NAPR_MO := na->NAPR_MO
+          napr->NAPR_V := na->NAPR_V
+          napr->MET_ISSL := iif(na->NAPR_V == 3, na->MET_ISSL, 0)
+          napr->U_KOD := iif(na->NAPR_V == 3, na->U_KOD, 0)
         endif
         select NA
         skip
