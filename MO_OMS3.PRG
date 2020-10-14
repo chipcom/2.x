@@ -671,7 +671,7 @@ if (fl := (human_->ST_VERIFY == 5))
 endif
 return fl
 
-***** 17.09.20 работаем по текущей записи
+***** 13.10.20 работаем по текущей записи
 Function f1_create2reestr19(_nyear,_nmonth)
 Local i, j, lst, s
 fl_DISABILITY := is_zak_sl := is_zak_sl_vr := .f.
@@ -692,6 +692,7 @@ m1napr_stac := 0 // {{"--- нет ---",0},{"в стационар",1},{"в дн. стац.",2}}, ;
 m1profil_stac := 0
 m1napr_reab := 0
 m1profil_kojki := 0
+pr_amb_reab := .f.
 fl_disp_nabl := .f.
 is_disp_DVN := .f.
 ldate_next := ctod("")
@@ -766,6 +767,8 @@ do while hu->kod == human->kod .and. !eof()
     if eq_any(left(lshifr,5),"1.11.","55.1.")
       kol_kd += hu->kol_1
       is_KSG := .t.
+    elseif left(lshifr,5) == "2.89."
+      pr_amb_reab := .t.
     elseif left(lshifr,5) == "60.9."
       is_mgi := .t.
     endif

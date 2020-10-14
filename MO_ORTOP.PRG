@@ -104,17 +104,28 @@ return flag
 Function vvod_tor_ysl()
 Local buf := save_row(maxrow()), fl := .f.
 Private rr := T_ROW, fl_found := .f., reg_klient := 1
-str_find := STR(big_kod,4)
+//if glob_mo[_MO_KOD_TFOMS] == '395301' // Š ¬ëè¨­ ‘’ŽŒ
+//  str_find := STR(big_kod,6)
+//else
+  str_find := STR(big_kod,4)
+//endif
 muslovie := "kod_tip==big_kod"
 arr_blk := {{|| FindFirst(str_find)},;
             {|| FindLast(str_find)},;
             {|n| SkipPointer(n, muslovie)},;
             str_find, muslovie;
            }
-R_Use(dir_server+"uslugi",{dir_server+"uslugi",;
+if glob_mo[_MO_KOD_TFOMS] == '395301' // Š ¬ëè¨­ ‘’ŽŒ
+  R_Use(dir_server+"mo_su",{dir_server+"mo_su",;
+                                   dir_server+"mo_sush"},"USL")
+  G_Use(dir_server+"ortoped2",dir_server+"ortoped2","ORTO2") //19.04
+  set relation to str(kod_usl,6) into USL
+else
+  R_Use(dir_server+"uslugi",{dir_server+"uslugi",;
                                    dir_server+"uslugish"},"USL")
-G_Use(dir_server+"ortoped2",dir_server+"ortoped2","ORTO2") //19.04
-set relation to str(kod_usl,4) into USL
+  G_Use(dir_server+"ortoped2",dir_server+"ortoped2","ORTO2") //19.04
+  set relation to str(kod_usl,4) into USL
+endif
 find (str_find)
 if !(fl_found := found())
   keyboard chr(K_INS)
@@ -155,7 +166,7 @@ do case
             mshifr := if(nKey == K_INS, space(10), usl->shifr),;
             mname_u := if(nKey == K_INS, space(65), usl->name)
     setcolor(cDataCGet)
-    @ 11,7 say "˜¨äà ãá«ã£¨ ¨§ Ž’Ž…„ˆˆ" get mshifr pict "@!" ;
+    @ 11,7 say "˜¨äà ãá«ã£¨ ¨§ Ž’Ž…„ˆˆ / ŽŒ‘" get mshifr pict "@!" ;
                when {|g| fore_o_kusl(g,1,2) } ;
                valid {|g| fore_o_kusl(g,2,2) }
     @ 12,7 say "“á«ã£ " get mname_u pict "@S55" when .f.
@@ -3413,6 +3424,444 @@ if !fl_exit
   viewtext(name_file,,,,(sh>80),,,6)
 endif
 return NIL
+
+*
+
+*****  13.11.16
+Function Ort_OMS_material()
+Local reg, reg1, mperso, musluga, mkod, buf := save_row(maxrow()),;
+      msl1usluga, msl2usluga, l_delen, mslusluga, arr, sh, HH := 76,;
+      s, s1, s2, s3, fl, begin_date, end_date, fl_exit := .f.,;
+      name_file := "orto_mt"+stxt, tip_tit, s4, arr_title := {;
+"ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄ",;
+"                            ¨¬¥­®¢ ­¨¥ ¬ â¥à¨ «                                ³     áå®¤    ",;
+"ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄ"}
+Private mm_orto_mat := {;
+  {"¥â ¯à¨¢ï§ª¨",0},;
+  {"ãå£ «â¥à¨ï",1},;
+  {"ãª®¢®¤áâ¢®",2};
+ }
+//if (pr_pl_bes := O_ret_pl_b()) == 0
+//  return NIL
+//endif
+if (arr := year_month()) == NIL
+  return NIL
+endif
+if (glob_mas_pr := inputNist_pr(T_ROW,T_COL-5)) == NIL
+  return NIL
+endif
+reg := 2 //â¥å­¨ª¨
+if (mperso := input_kperso()) == NIL  // ==> ¢¥áì ¯¥àá®­ «
+  mywait()
+  mperso := {}
+  R_Use(dir_server+"mo_pers",,"PERSO")
+  go top
+  do while !eof()
+    if perso->kod > 0
+      aadd(mperso, {perso->kod,""} )
+    endif
+    skip
+  enddo
+  perso->(dbCloseArea())
+endif
+begin_date := arr[5]
+end_date := arr[6]
+WaitStatus("<Esc> - ¯à¥à¢ âì ¯®¨áª") ; mark_keys({"<Esc>"})
+fp := fcreate(name_file) ; tek_stroke := 0 ; n_list := 1
+sh := len(arr_title[1])
+add_string("")
+add_string(center(" áå®¤ ¬ â¥à¨ «®¢",sh))
+add_string(center(arr[4],sh))
+add_string(center("[ ¯® ¤ â¥ ®ª®­ç ­¨ï «¥ç¥­¨ï ]",sh))
+add_string("")
+dbcreate(cur_dir+"tmp_it", {;
+   {"KOD",        "N",      4,      0},;  // ª®¤ (ãá«ã£¨)
+   {"KOL",        "N",     12,      3},;  // ª®«-¢® ãá«ã£
+   {"STOIM",      "N",     14,      2} ;  // áâ®¨¬®áâì «¥ç¥­¨ï
+  })
+
+dbcreate(cur_dir+"tmp", {;
+   {"KOD",        "N",      4,      0},;  // ª®¤ (ãá«ã£¨)
+   {"KOL",        "N",     10,      3},;  // ª®«-¢® ãá«ã£
+   {"STOIM",      "N",     14,      2} ;  // áâ®¨¬®áâì «¥ç¥­¨ï
+  })
+use (cur_dir+"tmp_it") new
+index on str(kod,4) to (cur_dir+"tmp_it")
+use (cur_dir+"tmp") new
+index on str(kod,4) to (cur_dir+"tmp")
+R_Use(dir_server+"tip_orto",,"ORT")
+R_Use(dir_server+"ortoped",,"OR")
+R_Use(dir_server+"ortoped1",,"OR1")
+R_Use(dir_server+"ortoped2",,"OR2")
+R_Use(dir_server+"mo_pers",,"PERSO")
+R_Use(dir_server+"mo_hu",dir_server+"mo_hu","HU")
+//
+R_Use(dir_server+"human",dir_server+"humand","HUMAN")
+//
+for prr := 1 to len(mm_orto_mat)
+//  prr := 2
+  if f_is_ist_pr(glob_mas_pr,prr)
+    add_string(padr("Ä",sh,"Ä"))
+    add_string(center(mm_orto_mat[prr,1],sh))
+    add_string(padr("Ä",sh,"Ä"))
+    add_string("")
+    for pr := 1 to len(mperso)
+      select TMP
+      zap
+      T_PERSO := mperso[pr,1]
+      select HUMAN
+      dbseek(dtos(begin_date),.t.)
+      do while human->k_data <= end_date .and. !eof()
+        UpdateStatus()
+        if inkey() == K_ESC
+          fl_exit := .t. ; exit
+        endif
+        select HU
+        find (str(human->(recno()),7))
+        do while hu->kod == human->(recno()) .and. !eof()
+          if hu->kod_as == t_perso
+            select TMP
+            find (str(hu->u_kod,4))
+            if !found()
+              append blank
+              tmp->kod := hu->u_kod
+            endif
+            tmp->kol += hu->kol_1
+          endif
+          select HU
+          skip
+        enddo
+        select HUMAN
+        skip
+      enddo
+      // ¯¥à¥áç¥â ¢ ¬ â¥à¨ «
+      j := tmp->(lastrec())
+      if j > 0
+        arr_mt := {}
+        select TMP
+        go top
+        do while !eof()
+          select OR2
+          go top
+          locate for or2->kod_usl == tmp->kod
+          if found()
+            t := or2->kod_tip
+            select ORT
+            goto t
+            if ort->tip == 0 //â¥å­¨ª¨
+              select OR1
+              go top
+              do while !eof()
+
+                if or1->kod_menu == t
+                  if (k := ascan(arr_mt, {|x| x[1] == or1->kod_ort } )) == 0
+                    aadd(arr_mt, {or1->kod_ort,0,0,"",0} ) ; k := len(arr_mt)
+                  endif
+                  arr_mt[k,2] += tmp->kol
+                  arr_mt[k,3] += or1->massa*tmp->kol
+                endif
+                select OR1
+                skip
+              enddo
+            endif
+          endif
+          select TMP
+          skip
+        enddo
+        // ¯à¨á¢ ¨¢ ¥¬ ­ ¨¬¥­®¢ ­¨¥
+        if len(arr_mt) > 0
+          select OR
+          for i := 1 to len(arr_mt)
+            goto (arr_mt[i,1])
+            arr_mt[i,4] := or->name
+            arr_mt[i,5] := or->kod
+          next
+          select perso
+          goto (mperso[pr,1])
+          xxx := 0
+          for i := 1 to len(arr_mt)
+            if verify_FF(HH,.t.,sh)
+              aeval(arr_title, {|x| add_string(x) } )
+            endif
+            if arr_mt[i,3] > 0 .and. arr_mt[i,5] == prr-1
+              if xxx == 0
+                add_string("   "+alltrim(perso->fio))
+                add_string("   ’…•ˆŠ")
+                aeval(arr_title, {|x| add_string(x) } )
+                ++xxx
+              endif
+              add_string(padr(arr_mt[i,4],80)+" "+umest_val(arr_mt[i,3],12,3))
+            endif
+          next
+          if xxx > 0
+            add_string("")
+            add_string("")
+          endif
+        endif
+      endif
+      //
+      select TMP
+      go top
+      do while !eof()
+        select TMP_IT
+        find (str(tmp->kod,4))
+        if !found()
+          append blank
+          tmp_it->kod := tmp->kod
+        endif
+        tmp_it->kol += tmp->kol
+        select TMP
+        skip
+      enddo
+    next
+    // ˆâ®£® ¯® â¥å­¨ª ¬
+    // ¯¥à¥áç¥â ¢ ¬ â¥à¨ «
+    j := tmp_it->(lastrec())
+    if j > 0
+      arr_mt := {}
+      select TMP_IT
+      go top
+      do while !eof()
+        select OR2
+        go top
+        locate for or2->kod_usl == tmp_it->kod
+        if found()
+          t := or2->kod_tip
+          select ORT
+          goto t
+          if ort->tip == 0 //â¥å­¨ª¨
+            select OR1
+            go top
+            do while !eof()
+
+              if or1->kod_menu == t
+                if (k := ascan(arr_mt, {|x| x[1] == or1->kod_ort } )) == 0
+                  aadd(arr_mt, {or1->kod_ort,0,0,"",0} ) ; k := len(arr_mt)
+                endif
+                arr_mt[k,2] += tmp_it->kol
+                arr_mt[k,3] += or1->massa*tmp_it->kol
+              endif
+              select OR1
+              skip
+            enddo
+          endif
+        endif
+        select TMP_IT
+        skip
+      enddo
+      // ¯à¨á¢ ¨¢ ¥¬ ­ ¨¬¥­®¢ ­¨¥
+      if len(arr_mt) > 0
+        select OR
+        for i := 1 to len(arr_mt)
+          goto (arr_mt[i,1])
+          arr_mt[i,4] := or->name
+          arr_mt[i,5] := or->kod
+        next
+        add_string("   ˆ’ŽƒŽ ¯® ’…•ˆŠ€Œ")
+        aeval(arr_title, {|x| add_string(x) } )
+        for i := 1 to len(arr_mt)
+          if verify_FF(HH,.t.,sh)
+            aeval(arr_title, {|x| add_string(x) } )
+          endif
+          if arr_mt[i,3] > 0 .and. arr_mt[i,5] == prr-1
+            add_string(padr(arr_mt[i,4],80)+" "+umest_val(arr_mt[i,3],12,3))
+          endif
+        next
+        add_string("")
+        add_string("")
+      endif
+    endif
+  endif
+  //
+  select TMP_IT
+  zap
+next
+//
+for prr := 1 to len(mm_orto_mat)
+//prr := 2
+  if f_is_ist_pr(glob_mas_pr,prr)
+    add_string(padr("Ä",sh,"Ä"))
+    add_string(center(mm_orto_mat[prr,1],sh))
+    add_string(padr("Ä",sh,"Ä"))
+    add_string("")
+    for pr := 1 to len(mperso)
+      select TMP
+      zap
+      T_PERSO := mperso[pr,1]
+      select HUMAN
+      dbseek(dtos(begin_date),.t.)
+      do while human->k_data <= end_date .and. !eof()
+        UpdateStatus()
+        if inkey() == K_ESC
+          fl_exit := .t. ; exit
+        endif
+        select HU
+        find (str(human->(recno()),7))
+        do while hu->kod == human->(recno()) .and. !eof()
+          if hu->kod_vr == t_perso
+            select TMP
+            find (str(hu->u_kod,4))
+            if !found()
+              append blank
+              tmp->kod := hu->u_kod
+            endif
+            tmp->kol += hu->kol_1
+          endif
+          select HU
+          skip
+        enddo
+        select HUMAN
+        skip
+      enddo
+      // ¯¥à¥áç¥â ¢ ¬ â¥à¨ «
+      j := tmp->(lastrec())
+      if j > 0
+        arr_mt := {}
+        select TMP
+        go top
+        do while !eof()
+          select OR2
+          go top
+          locate for or2->kod_usl == tmp->kod
+          if found()
+            t := or2->kod_tip
+            select ORT
+            goto t
+            if ort->tip == 1 //¢à ç¨
+              select OR1
+              go top
+              do while !eof()
+                if or1->kod_menu == t
+                  if (k := ascan(arr_mt, {|x| x[1] == or1->kod_ort } )) == 0
+                    aadd(arr_mt, {or1->kod_ort,0,0,"",0} ) ; k := len(arr_mt)
+                  endif
+                  arr_mt[k,2] += tmp->kol
+                  arr_mt[k,3] += or1->massa*tmp->kol
+                endif
+                select OR1
+                skip
+              enddo
+            endif
+          endif
+          select TMP
+          skip
+        enddo
+        // ¯à¨á¢ ¨¢ ¥¬ ­ ¨¬¥­®¢ ­¨¥
+        if len(arr_mt) > 0
+          select OR
+          for i := 1 to len(arr_mt)
+            goto (arr_mt[i,1])
+            arr_mt[i,4] := or->name
+            arr_mt[i,5] := or->kod
+          next
+          select perso
+          goto (mperso[pr,1])
+          xxx := 0
+          for i := 1 to len(arr_mt)
+            if verify_FF(HH,.t.,sh)
+              aeval(arr_title, {|x| add_string(x) } )
+            endif
+            if arr_mt[i,3] > 0 .and. arr_mt[i,5] == prr-1
+              if xxx == 0
+                add_string("   "+alltrim(perso->fio))
+                add_string("   ‚€—")
+                aeval(arr_title, {|x| add_string(x) } )
+                ++xxx
+              endif
+              add_string(padr(arr_mt[i,4],80)+" "+umest_val(arr_mt[i,3],12,3))
+            endif
+          next
+          if xxx > 0
+            add_string("")
+            add_string("")
+          endif
+        endif
+      endif
+      //
+      select TMP
+      go top
+      do while !eof()
+        select TMP_IT
+        find (str(tmp->kod,4))
+        if !found()
+          append blank
+          tmp_it->kod := tmp->kod
+        endif
+        tmp_it->kol += tmp->kol
+        select TMP
+        skip
+      enddo
+    next
+
+    // ¯¥à¥áç¥â ¢ ¬ â¥à¨ «
+    j := tmp_it->(lastrec())
+    if j > 0
+      arr_mt := {}
+      select TMP_IT
+      go top
+      do while !eof()
+        select OR2
+        go top
+        locate for or2->kod_usl == tmp_it->kod
+        if found()
+          t := or2->kod_tip
+          select ORT
+          goto t
+          if ort->tip == 1 //â¥å­¨ª¨
+            select OR1
+            go top
+            do while !eof()
+
+              if or1->kod_menu == t
+                if (k := ascan(arr_mt, {|x| x[1] == or1->kod_ort } )) == 0
+                  aadd(arr_mt, {or1->kod_ort,0,0,"",0} ) ; k := len(arr_mt)
+                endif
+                arr_mt[k,2] += tmp_it->kol
+                arr_mt[k,3] += or1->massa*tmp_it->kol
+              endif
+              select OR1
+              skip
+            enddo
+          endif
+        endif
+        select TMP_IT
+        skip
+      enddo
+      //
+      // ¯à¨á¢ ¨¢ ¥¬ ­ ¨¬¥­®¢ ­¨¥
+      if len(arr_mt) > 0
+        select OR
+        for i := 1 to len(arr_mt)
+          goto (arr_mt[i,1])
+          arr_mt[i,4] := or->name
+          arr_mt[i,5] := or->kod
+        next
+        add_string("   ˆ’ŽƒŽ ¯® ‚€—€Œ")
+        aeval(arr_title, {|x| add_string(x) } )
+        for i := 1 to len(arr_mt)
+          if verify_FF(HH,.t.,sh)
+            aeval(arr_title, {|x| add_string(x) } )
+          endif
+          if arr_mt[i,3] > 0 .and. arr_mt[i,5] == prr-1
+            add_string(padr(arr_mt[i,4],80)+" "+umest_val(arr_mt[i,3],12,3))
+          endif
+        next
+        add_string("")
+        add_string("")
+      endif
+    endif
+  endif
+  select TMP_IT
+  zap
+next
+close databases
+fclose(fp)
+rest_box(buf)
+if !fl_exit
+  viewtext(name_file,,,,(sh>80),,,6)
+endif
+return NIL
+
 
 ***** 13.11.16
 Function inputNist_pr(r,c,fl_max)

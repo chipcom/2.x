@@ -191,7 +191,11 @@ do case
                 "edit_ort(14)",;
                 "edit_ort(15)",;
                 "edit_ort(16)"}
-    popup_prompt(T_ROW,T_COL-5,si1,mas_pmt,mas_msg,mas_fun)
+    if glob_mo[_MO_KOD_TFOMS] == '395301' // Камышин СТОМ
+      popup_prompt(T_ROW,T_COL+5,si1,mas_pmt,mas_msg,mas_fun)
+    else
+      popup_prompt(T_ROW,T_COL-5,si1,mas_pmt,mas_msg,mas_fun)
+    endif
   case k == 12
     sin_ysl()
   case k == 13

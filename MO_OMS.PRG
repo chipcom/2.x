@@ -6376,7 +6376,7 @@ if !empty(m1okato)
 endif
 return len(mm_ismo) > 0
 
-***** 20.12.18 ввод услуг в случай (лист учёта)
+***** 13.10.20 ввод услуг в случай (лист учёта)
 Function oms_usl_sluch(mkod_human,mkod_kartotek,fl_edit)
 // mkod_human - код по БД human
 // mkod_kartotek - код по БД kartotek
@@ -6385,7 +6385,7 @@ Local adbf, buf := savescreen(), i, j := 0, tmp_color := setcolor(color1), rec_k
 DEFAULT fl_edit TO .t.
 //
 Private fl_edit_usl := fl_edit
-Private fl_found, last_date, mvu[3,2], pr1otd,;
+Private fl_found, last_date, mvu[3,2], pr1otd, pr_amb_reab := .f.,;
         pr_arr := {}, pr_arr_otd := {}, pr1arr_otd := {}, is_1_vvod,;
         kod_lech_vr := 0, is_open_u1 := .f., arr_uva := {}, arr_usl1year, u_other := {}
 afillall(mvu,0)
@@ -6513,8 +6513,12 @@ if found()
     if empty(lshifr := tmp->shifr1)
       lshifr := tmp->shifr_u
     endif
-    if human_->usl_ok == 3 .and. is_usluga_disp_nabl(lshifr)
-      tmp->DATE_NEXT := c4tod(human->DATE_OPL)
+    if human_->usl_ok == 3
+      if is_usluga_disp_nabl(lshifr)
+        tmp->DATE_NEXT := c4tod(human->DATE_OPL)
+      elseif left(lshifr,5) == "2.89."
+        pr_amb_reab := .t.
+      endif
     endif
     tmp->name_u  := usl->name
     tmp->U_KOD   := hu->u_kod
@@ -6767,7 +6771,7 @@ Function f3oms_usl_sluch()
 @ maxrow()-4,59 say padl("Итого: "+lstr(human->cena_1,11,2),20) color "W+/N"
 return NIL
 
-***** 20.01.20 ввод услуг в лист учёта
+***** 13.10.20 ввод услуг в лист учёта
 Function f2oms_usl_sluch(nKey,oBrow)
 Static skod_k := 0, skod_human := 0, SKOD_DIAG, SZF,;
        st_vzrosl, st_arr_dbf, skod_vr, skod_as, aksg := {}
@@ -7161,6 +7165,7 @@ do case
             mdate_next := iif(nKey == K_INS, ctod(""), tmp->DATE_NEXT), fl_date_next := .f.,;
             mvrach := massist := space(35), vr_uva := as_uva := .t., ;
             arr_zf, is_usluga_zf := iif(nKey == K_INS, 0, tmp->is_zf),;
+            m1NPR_MO := "", mNPR_MO := space(10),;
             pr_k_usl := {},;  // массив комплексных услуг
             tip_par_org := iif(nKey == K_INS, "", tmp->par_org),;
             tip_telemed := 0, tip_telemed2 := .f.,;
@@ -7187,6 +7192,17 @@ do case
       if left(mshifr1,5) == "60.8."
         mgist := inieditspr(A__MENUVERT, mm_gist, m1gist)
         is_gist := .t.
+      endif
+      if pr_amb_reab .and. left(mshifr1,2)=='4.'
+        m1NPR_MO := left(mzf,6)
+        if empty(m1NPR_MO)
+          m1NPR_MO := glob_mo[_MO_KOD_TFOMS]
+        endif
+        if m1NPR_MO = '999999'
+          mNPR_MO := '=== сторонняя МО (не в ОМС или не в Волгоградской области) ==='
+        else
+          mNPR_MO := ret_mo(m1NPR_MO)[_MO_SHORT_NAME]
+        endif
       endif
       select TMP
       in_array := get_field()
@@ -7280,12 +7296,17 @@ do case
                        when iif(empty(mshifr), .f., is_gist) ;
                        valid {|| mis_edit := m1gist, .t. }
           endif
-          if iif(empty(mshifr), .t., DomUslugaTFOMS(mshifr1)) .and. !is_gist
+          if iif(empty(mshifr), .t., DomUslugaTFOMS(mshifr1)) .and. !(is_gist .or. pr_amb_reab)
            @ row_dom,2 say "Где оказана услуга" get mdom ;
                        reader {|x|menu_reader(x,mm_dom,A__MENUVERT,,,.f.)} ;
                        when iif(empty(mshifr), .t., DomUslugaTFOMS(mshifr1))
           endif
-          if !is_gist
+          if iif(empty(mshifr), pr_amb_reab, pr_amb_reab.and.left(mshifr1,2)=='4.')
+           @ row_dom,2 say "Где оказана услуга" get mNPR_MO ;
+                       reader {|x|menu_reader(x,{{|k,r,c|f_get_mo(k,r,c,,2)}},A__FUNCTION,,,.f.)} ;
+                       when iif(empty(mshifr), pr_amb_reab, pr_amb_reab.and.left(mshifr1,2)=='4.')
+          endif
+          if !(is_gist .or. pr_amb_reab)
            @ row_dom,35 say "Дата след.явки для дисп.набл-ия" get mdate_next when fl_date_next
           endif
         endif
@@ -7351,7 +7372,8 @@ do case
         elseif len(pr_k_usl) == 0 .and. !mis_nul .and. empty(mstoim_1) .and. !NulUslugaTFOMS(iif(empty(mshifr1), mshifr, mshifr1))
           func_error(4,"Не введена цена услуги!")
           loop
-        elseif mis_edit >= 0 .and. empty(mkod_vr) .and. !is_gist .and. is_usluga_TFOMS(mshifr,mshifr1,human->k_data)
+        elseif mis_edit >= 0 .and. empty(mkod_vr) .and. !is_gist .and. is_usluga_TFOMS(mshifr,mshifr1,human->k_data) ;
+           .and. !(pr_amb_reab .and. left(mshifr1,2)=='4.' .and. (m1NPR_MO=='999999' .or. m1NPR_MO!=glob_mo[_MO_KOD_TFOMS]))
           func_error(4,"Не введен врач!")
           loop
         else
@@ -7462,6 +7484,9 @@ do case
             endif
             // одна услуга
             if mn_base == 0
+              if human_->usl_ok == 3 .and. left(mshifr1,5) == "2.89."
+                pr_amb_reab := .t.
+              endif
               select HU
               if nKey == K_INS
                 Add1Rec(7)
@@ -7507,6 +7532,9 @@ do case
               hu_->PROFIL   := m1PROFIL
               hu_->PRVS     := m1PRVS
               hu_->kod_diag := mkod_diag
+              if pr_amb_reab .and. left(mshifr1,2)=='4.'
+                hu_->zf := m1NPR_MO
+              endif
             else
               select MOHU
               if nKey == K_INS
@@ -7580,6 +7608,8 @@ do case
               tmp->ZF    := mzf
             elseif tip_telemed2
               tmp->ZF    := iif(m1nmic > 0, lstr(m1nmic)+":"+lstr(m1nmic1), "")
+            elseif pr_amb_reab .and. left(mshifr1,2)=='4.'
+              tmp->ZF    := m1NPR_MO
             else
               tmp->ZF    := m1par_org
             endif

@@ -1706,7 +1706,7 @@ do case
 endcase
 return k
 
-***** 28.04.20 создание XML-файлов реестра
+***** 13.10.20 создание XML-файлов реестра
 Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
 Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
 //
@@ -1927,7 +1927,7 @@ do while !eof()
   arr_mo_spec := {}
   m1napr_stac := 0 // {{"--- нет ---",0},{"в стационар",1},{"в дн. стац.",2}}, ;
   m1profil_stac := m1napr_reab := m1profil_kojki := 0
-  fl_disp_nabl := is_disp_DVN := .f.
+  pr_amb_reab := fl_disp_nabl := is_disp_DVN := .f.
   ldate_next := ctod("")
   ar_dn := {}
   is_oncology_smp := is_oncology := 0
@@ -2466,6 +2466,7 @@ do while !eof()
         oUSL := oSL:Add( HXMLNode():New( "USL" ) )
         mo_add_xml_stroke(oUSL,"IDSERV",lstr(hu_->REES_ZAP))
         mo_add_xml_stroke(oUSL,"ID_U",hu_->ID_U)
+        fl := .f.
         if eq_any(hu->is_edit,1,2) // гематологические исследования
           mo_add_xml_stroke(oUSL,"LPU",kod_LIS[hu->is_edit]) // иссл-ие проводится в КДП2 или РДЛ
         elseif lshifr == "4.20.2" .or. hu->is_edit == 3 // жидкостная цитология или приём в ВОКОД
@@ -2475,7 +2476,15 @@ do while !eof()
         elseif hu->is_edit == 5
           mo_add_xml_stroke(oUSL,"LPU",'99999') // т.е. иссл-ие проводится в пат.анат.бюро в другой области
         else
-          mo_add_xml_stroke(oUSL,"LPU",CODE_LPU)
+          if pr_amb_reab .and. left(lshifr,2)=='4.' .and. left(hu_->zf,6) == '999999'
+            fl := .t.
+            mo_add_xml_stroke(oUSL,"LPU",'999999')
+          elseif pr_amb_reab .and. left(lshifr,2)=='4.' .and. !empty(left(hu_->zf,6)) .and. left(hu_->zf,6)!=glob_mo[_MO_KOD_TFOMS]
+            fl := .t.
+            mo_add_xml_stroke(oUSL,"LPU",left(hu_->zf,6))
+          else
+            mo_add_xml_stroke(oUSL,"LPU",CODE_LPU)
+          endif
         endif
         if p_tip_reestr == 1
           if human_->USL_OK == 1 .and. is_otd_dep
@@ -2512,7 +2521,7 @@ do while !eof()
         mo_add_xml_stroke(oUSL,"SUMV_USL",lstr(hu->STOIM_1,10,2))
         mo_add_xml_stroke(oUSL,"PRVS",put_prvs_to_reestr(hu_->PRVS,_NYEAR))
         if c4tod(hu->DATE_U) < human->n_data ; // если сделано ранее
-              .or. eq_any(hu->is_edit,-1,1,2,3) .or. lshifr == "4.20.2" .or. left(lshifr,5) == "60.8."
+              .or. eq_any(hu->is_edit,-1,1,2,3) .or. lshifr == "4.20.2" .or. left(lshifr,5) == "60.8." .or. fl
           mo_add_xml_stroke(oUSL,"CODE_MD",'0') // не заполняется код врача
         else
           p2->(dbGoto(hu->kod_vr))

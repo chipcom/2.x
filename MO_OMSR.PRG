@@ -882,7 +882,8 @@ arr_lfk := {"3.1.5","3.1.19","3.4.31",;
 f_put_glob_podr(human_->USL_OK,d2,ta) // заполнить код подразделения
 musl_ok := 3  // п-ка по умолчанию 
 ldnej := 0
-if human_->USL_OK < 3
+pr_amb_reab := .f.
+if human_->USL_OK < 4
   select HU
   find (str(human->kod,7))
   do while hu->kod == human->kod .and. !eof()
@@ -891,6 +892,8 @@ if human_->USL_OK < 3
       lshifr := iif(empty(lshifr1), usl->shifr, lshifr1)
       if eq_any(left(lshifr,5),"1.11.","55.1.")
         ldnej += hu->kol_1
+      elseif left(lshifr,5) == "2.89."
+        pr_amb_reab := .t.
       endif
     endif
     select HU
@@ -948,6 +951,8 @@ do while hu->kod == human->kod .and. !eof()
       mprvs := hu_->PRVS := -13 // Клиническая лабораторная диагностика
     elseif empty(hu->kod_vr)
       if eq_any(alltrim(lshifr),"4.20.2")
+        // не заполняется код врача
+      elseif pr_amb_reab .and. left(lshifr,2)=='4.' .and. (left(hu_->zf,6)=='999999' .or. left(hu_->zf,6)!=glob_mo[_MO_KOD_TFOMS])
         // не заполняется код врача
       elseif hu->is_edit == -1
         if human_->USL_OK == 3

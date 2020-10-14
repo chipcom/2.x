@@ -1137,11 +1137,12 @@ else
 endif
 return s
 
-***** 14.09.20 в GET-е вернуть {_MO_SHORT_NAME,_MO_KOD_TFOMS} и по пробелу - очистка поля
-Function f_get_mo(k,r,c,lusl)
+***** 13.10.20 в GET-е вернуть {_MO_SHORT_NAME,_MO_KOD_TFOMS} и по пробелу - очистка поля
+Function f_get_mo(k,r,c,lusl,lpar)
 Static skodN := ""
 Local arr_mo3 := {}, ret, r1, r2, i, lcolor, tmp_select := select()
-Private muslovie, loc_arr_MO
+DEFAULT lpar TO 1
+Private muslovie, loc_arr_MO, ppar := lpar
 if lusl != NIL
   muslovie := lusl
 endif
@@ -1166,7 +1167,7 @@ if valtype(k) == "C" .and. !empty(k)
     lmo3 := 0
   endif
 endif
-if empty(arr_mo3)
+if empty(arr_mo3) .or. ppar == 2
   lmo3 := 0
 endif
 dbcreate(cur_dir+"tmp_mo",{;
@@ -1180,6 +1181,11 @@ do while .t.
   zap
   if lmo3 == 0
     lcolor := color5
+    if ppar == 2
+      append blank
+      rg->kodN := rg->kodF := '999999'
+      rg->name := '=== сторонняя МО (не в ОМС или не в Волгоградской области) ==='
+    endif
     for i := 1 to len(glob_arr_mo)
       loc_arr_MO := glob_arr_mo[i]
       if iif(muslovie == NIL, .t., &muslovie) .and. year(sys_date) < year(glob_arr_mo[i,_MO_DEND])
@@ -1234,18 +1240,20 @@ rg->(dbCloseArea())
 select (tmp_select)
 return ret
 
-***** 18.12.14
+***** 13.10.20
 Function f2get_mo(oBrow)
 Local n := 72
 oBrow:addColumn(TBColumnNew(center("Наименование МО",n), {|| padr(rg->name,n) }) )
-if lmo3 == 0
+if ppar == 2
+  status_key("^<Esc>^ - выход;  ^<Enter>^ - выбор МО")
+elseif lmo3 == 0
   status_key("^<Esc>^ - выход;  ^<Enter>^ - выбор МО;  ^<Пробел>^ - очистка"+iif(glob_task==X_263.or.muslovie!=NIL,"",";  ^<F3>^ - краткий список"))
 else
   status_key("^<Esc>^ - выход;  ^<Enter>^ - выбор МО;  ^<Пробел>^ - очистка"+iif(glob_task==X_263.or.muslovie!=NIL,"",";  ^<F3>^ - все МО"))
 endif
 return NIL
 
-***** 12.05.20
+***** 13.10.20
 Function f3get_mo(nkey,oBrow)
 Local ret := -1, cCode, rec
 if nKey == K_F2 .and. lmo3 == 0
@@ -1263,7 +1271,7 @@ if nKey == K_F2 .and. lmo3 == 0
     endif
     ret := 0
   endif
-elseif nKey == K_F3 .and. glob_task != X_263 .and. muslovie == NIL
+elseif nKey == K_F3 .and. glob_task != X_263 .and. muslovie == NIL .and. ppar == 1
   ret := 1
   p_mo := 1
   pkodN := rg->kodN

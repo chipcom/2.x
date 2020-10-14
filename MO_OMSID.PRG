@@ -1436,9 +1436,9 @@ close databases
 rest_box(buf)
 return NIL
 
-***** 23.09.20
+***** 05.10.20
 Function f2_inf_DDS_svod2(Loc_kod,kod_kartotek)
-Local i, j, k, is_selo, ad := {}, ar := {1}, ar1 := {}
+Local i, j, k, is_selo, ad := {}, ar := {1}, ar1 := {}, ar2 := array(len(arr_deti[1]))
 if mvozrast < 15
   aadd(ar,2)
 else
@@ -1485,6 +1485,32 @@ endif
 if mvozrast > 6 // школьники ?
   aadd(ar1,5)
 endif
+//
+afill(ar2,0)
+for i := 1 to len(ad) // цикл по диагнозам
+  if !(left(ad[i,1],1) == "A" .or. left(ad[i,1],1) == "B") .and. ad[i,2] == 1 // неинфекционные заболевания уст.впервые
+    ar2[7] := 1 //arr_deti[k,7] ++
+    if left(ad[i,1],1) == "I" // болезни системы кровообращения
+      ar2[8] := 1 //arr_deti[k,8] ++
+    elseif left(ad[i,1],1) == "J" // болезни органов дыхания
+      ar2[11] := 1 //arr_deti[k,11] ++
+    elseif left(ad[i,1],1) == "K" // болезни органов пищеварения
+      ar2[12] := 1 //arr_deti[k,12] ++
+    endif
+    if left(ad[i,1],1) == "C" .or. between(left(ad[i,1],3),"D00","D09") // ЗНО
+      ar2[9] := 1 //arr_deti[k,9] ++
+    endif
+    if ad[i,3] > 0
+      ar2[13] := 1 //arr_deti[k,13] ++  // взяты на диспасерное наблюдение
+    endif
+    if m1napr_stac > 0 // направлен на лечение
+      ar2[14] := 1 //arr_deti[k,14] ++ // считаем, что было начато лечение
+      if is_selo
+        ar2[15] := 1 //arr_deti[k,15] ++
+      endif
+    endif
+  endif
+next i
 for j := 1 to 2
   k := ar[j]
   arr_deti[k,3] ++
@@ -1497,29 +1523,8 @@ for j := 1 to 2
       arr_deti[k,6] ++
     endif
   endif
-  for i := 1 to len(ad) // цикл по диагнозам
-    if !(left(ad[i,1],1) == "A" .or. left(ad[i,1],1) == "B") .and. ad[i,2] == 1 // неинфекционные заболевания уст.впервые
-      arr_deti[k,7] ++
-      if left(ad[i,1],1) == "I" // болезни системы кровообращения
-        arr_deti[k,8] ++
-      elseif left(ad[i,1],1) == "J" // болезни органов дыхания
-        arr_deti[k,11] ++
-      elseif left(ad[i,1],1) == "K" // болезни органов пищеварения
-        arr_deti[k,12] ++
-      endif
-      if left(ad[i,1],1) == "C" .or. between(left(ad[i,1],3),"D00","D09") // ЗНО
-        arr_deti[k,9] ++
-      endif
-      if ad[i,3] > 0
-        arr_deti[k,13] ++  // взяты на диспасерное наблюдение
-      endif
-      if m1napr_stac > 0 // направлен на лечение
-        arr_deti[k,14] ++ // считаем, что было начато лечение
-        if is_selo
-          arr_deti[k,15] ++
-        endif
-      endif
-    endif
+  for i := 7 to len(ar2)
+    arr_deti[k,i] += ar2[i]
   next
 next
 for j := 1 to len(ar1)

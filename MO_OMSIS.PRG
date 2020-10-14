@@ -3935,7 +3935,7 @@ for i := 1 to 2
 next
 return NIL
 
-***** 29.07.20 форма 14-МЕД (ОМС)
+***** 11.10.20 форма 14-МЕД (ОМС)
 Function forma14_med_oms()
 Static group_ini := "f14_med_oms"
 Local begin_date, end_date, buf := savescreen(), arr_m, i, j, k, k1, k2,;
@@ -3996,7 +3996,7 @@ arr_pril5[26,1] := "Дн.стац. - руб."
 arr_pril5[27,1] := "Дн.стац.ЭКО - пациенто-дней"
 arr_pril5[28,1] := "Дн.стац.ЭКО - пациентов, чел."
 arr_pril5[29,1] := "Дн.стац.ЭКО - руб."
-arr_m := {2020,1,6,"за январь - июнь 2020 года",0d20200101,0d20200630}
+arr_m := {2020,1,9,"за январь - сентябрь 2020 года",0d20200101,0d20200930}
 lal := "lusl" ; lalf := "luslf"
 Private mk1, mk2, mk3, mk4, md1, md11, md12, md2, md21, md22, md3, md4
 ar := GetIniSect(tmp_ini,group_ini)
@@ -4097,7 +4097,7 @@ R_Use(dir_server+"human",dir_server+"humans","HUMAN")
 set relation to recno() into HUMAN_, to recno() into HUMAN_2, to kod_k into KART
 //
 *********************************************************************
-mdate_rak := arr_m[6]+9 // по какую дату РАК сумма к оплате 09.07.20
+mdate_rak := arr_m[6]+10 // по какую дату РАК сумма к оплате 09.07.20
 *********************************************************************
 R_Use(dir_server+"mo_xml",,"MO_XML")
 R_Use(dir_server+"mo_rak",,"RAK")
@@ -4123,7 +4123,7 @@ do while !eof()
     mdate1 := stod(strzero(schet_->nyear,4)+strzero(schet_->nmonth,2)+"15")
     //
     *** 2020 год
-    k := 7 // дата регистрации по 07.07.20
+    k := 10 // дата регистрации по 07.07.20
     ***
     fl := between(mdate,arr_m[5],arr_m[6]+k) .and. between(mdate1,arr_m[5],arr_m[6]) // !!отч.период 2020 год
   endif
