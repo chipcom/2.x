@@ -4728,7 +4728,8 @@ if !emptyany(human_->NPR_MO,human_2->NPR_DATE) .and. !empty(s := verify_dend_mo(
   aadd(ta,'направившая МО: '+s)
 endif
 //mpovod := iif(len(arr_povod) == 1, arr_povod[1,1], 0)
-if (is_disp_DDS .or. is_disp_DVN .or. is_prof_PN) .and. d1 < 0d20200907
+if (is_disp_DDS .or. is_disp_DVN .or. is_prof_PN) .and. ;
+   (between(d2,0d20200320,0d20200906) .or. between(d1,0d20200320,0d20200906))
   aadd(ta,"случай не может быть начат ранее 7 сентября")
 endif
 if len(ta) > 0
