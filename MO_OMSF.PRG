@@ -1176,12 +1176,14 @@ if left(_shifr,3) == "57."
 endif*/
 return luet
 
-***** 04.09.17 проверка на код лабораторной услуги, направляемой в ЦКДЛ
+***** 01.11.20 проверка на код лабораторной услуги, направляемой в ЦКДЛ
 Function is_lab_usluga(lshifr)
 Static sl := "4."
 Static arr := {"8.5","11.5","12.5","12.6","13.5","15.5","16.5","17.5"}
 Local fl := .f.
-if left(lshifr,2) == sl
+if alltrim(lshifr) == "4.27.2"
+  fl := .t.
+elseif left(lshifr,2) == sl
   lshifr := alltrim(lshifr)
   for i := 1 to len(arr)
     if like(sl+arr[i]+"??",lshifr)
@@ -2002,7 +2004,7 @@ if valtype(a) == "A"
 endif
 return {ret,rets}
 
-***** 20.01.20 функция для when и valid при вводе услуг в лист учёта
+***** 01.11.20 функция для when и valid при вводе услуг в лист учёта
 Function f5editkusl(get,when_valid,k)
 Local fl := .t., s, i, lu_cena, lshifr1, v, old_kod, amsg, fl1, fl2, ;
       msg1_err := "Код врача равен коду ассистента! Это недопустимо.",;
@@ -2064,9 +2066,12 @@ else  // valid
           endif
           m1profil := iif(left(mshifr,5) == "4.16.", 6, 34)
           select MOPROF
-          find (padr(mshifr,20)+str(iif(human->vzros_reb == 0, 0, 1),1))
-          if found()
-            m1profil := moprof->profil
+          find (padr(mshifr,20)+str(iif(human->vzros_reb == 0, 0, 1),1)+str(m1profil,3))
+          if !found()
+            find (padr(mshifr,20)+str(iif(human->vzros_reb == 0, 0, 1),1))
+            if found()
+              m1profil := moprof->profil
+            endif
           endif
           select USL
           set order to 1
