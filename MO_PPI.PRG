@@ -1863,7 +1863,7 @@ enddo
 restscreen(buf)
 return NIL
 
-***** 01.07.18 Просмотр/печать журнала регистрации стационарных больных по запросу
+***** 02.11.20 Просмотр/печать журнала регистрации стационарных больных по запросу
 Function z_gurnal_pp()
 Static mm_forma := {{"Полная форма",1},;
                     {"Сокращенная форма",2}}
@@ -1880,6 +1880,17 @@ Local buf := savescreen(), tmp_color := setcolor(cDataCGet), fl_exit := .f.,;
       sh, HH, i, j, k, tmp_file := "tmp_mn_p"+sdbf, arr_title, arr
 //
 Private arr_m, arr_mv, mm_company := {}, atime, atimev
+Private pr_arr := {}, pr_arr_otd := {}
+R_Use(dir_server+"mo_otd",,"OTD")
+dbeval({|| aadd(pr_arr,{otd->(recno()),otd->name,otd->kod_lpu,""}) },;
+       {|| /*f_is_uch(st_a_uch,otd->kod_lpu) .and.*/ between_date(otd->dbegin,otd->dend,sys_date)} )
+R_Use(dir_server+"mo_uch",,"UCH")
+aeval(pr_arr, {|x,i| dbGoto(x[3]), pr_arr[i,4] := uch->name } )
+//
+asort(pr_arr,,,{|x,y| iif(x[3] == y[3], upper(x[2]) < upper(y[2]), upper(x[4]) < upper(y[4])) } )
+aeval(pr_arr, {|x| aadd(pr_arr_otd,x[2]+" "+x[4]) } )
+close databases
+//
 aadd(mm_tmp, {"date_lech","N",4,0,NIL,;
               {|x|menu_reader(x,;
                  {{|k,r,c| k:=year_month(r+1,c,,,2,@atime),;
@@ -1887,6 +1898,10 @@ aadd(mm_tmp, {"date_lech","N",4,0,NIL,;
                       k }},A__FUNCTION)},;
               0,{|| space(10) },;
               'Дата поступления'})
+aadd(mm_tmp, {"otd","N",3,0,NIL,;
+              {|x|menu_reader(x,{ { |k,r,c| get_otd(k,r+1,c) }},A__FUNCTION)},;
+              0,{|| space(10) },;
+              "Отделение, в которое госпитализировали пациента" })
 aadd(mm_tmp, {"date_vyb","N",4,0,NIL,;
               {|x|menu_reader(x,;
                  {{|k,r,c| k:=year_month(r+1,c,,,2,@atimev),;
@@ -2030,6 +2045,9 @@ if k > 0
   if !empty(mn->date_lech)
     add_string(center("Дата поступления: "+arr_m[4],sh))
   endif
+  if mn->otd > 0
+    add_string("Отделение, в которое госпитализировали пациента: "+inieditspr(A__POPUPMENU, dir_server+"mo_otd", mn->otd))
+  endif
   if !empty(mn->date_vyb)
     add_string(center("Дата выбытия: "+arr_mv[4],sh))
   endif
@@ -2163,9 +2181,9 @@ if k > 0
     endif
     UpdateStatus()
     if spar == 1
-      @ 24,1 say full_date(hu->n_data)+" "+hu->n_time color "G+/R"
+      @ maxrow(),1 say full_date(hu->n_data)+" "+hu->n_time color "G+/R"
     else
-      @ 24,1 say padr(fam_i_o(kart->fio),25) color "G+/R"
+      @ maxrow(),1 say padr(fam_i_o(kart->fio),25) color "G+/R"
     endif
     fl := .t.
     if fl .and. !empty(mn->date_lech)
@@ -2364,9 +2382,12 @@ if k == 1
 endif
 return fl
 
-***** 01.07.18
+***** 02.11.20
 Static Function pp_mnog_poisk()
 Local i, j, fl := .t.
+if fl .and. mn->otd > 0
+  fl := (hu->otd == mn->otd)
+endif
 if fl .and. mn->rab_nerab > 0
   fl := .f.
   for i := 1 to len(mmpp_rab)

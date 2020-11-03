@@ -931,7 +931,9 @@ do while hu->kod == human->kod .and. !eof()
     otd->(dbGoto(hu->OTD))
     hu->(G_RLock(forever))
     hu_->(G_RLock(forever))
-    if hu->is_edit == 0 .and. is_lab_usluga(lshifr)
+    if hu->is_edit == -1 .and. alltrim(lshifr) == "4.27.2"
+      hu->is_edit := 0 // исправление начальной ошибки
+    elseif hu->is_edit == 0 .and. is_lab_usluga(lshifr)
       hu->is_edit := -1
       hu->kod_vr := hu->kod_as := 0
       lprofil := iif(left(lshifr,5) == "4.16.", 6, 34)
@@ -3091,7 +3093,7 @@ if is_2_78
         aadd(am,{month(au_lu[i,2]),0}) ; j := len(am)
       endif
       am[j,2] ++
-    elseif au_lu[i,10] >= 0
+    elseif au_lu[i,10] >= 0 .and. !(alltrim(au_lu[i,1]) == "4.27.2")
       ++oth_usl
     endif
   next

@@ -2472,9 +2472,9 @@ do while !eof()
         elseif lshifr == "4.20.2" .or. hu->is_edit == 3 // ¦¨¤ª®áâ­ ï æ¨â®«®£¨ï ¨«¨ ¯à¨ñ¬ ¢ ‚Š„
           mo_add_xml_stroke(oUSL,"LPU",'103001') // â.¥. ¨áá«-¨¥ ¯à®¢®¤¨âáï ¢ ®­ª®«®£¨¨
         elseif hu->is_edit == 4
-          mo_add_xml_stroke(oUSL,"LPU",'00000') // â.¥. ¨áá«-¨¥ ¯à®¢®¤¨âáï ¢ ­ è¥¬ ¯ â. ­ â.¡îà®
+          mo_add_xml_stroke(oUSL,"LPU",'000000') // â.¥. ¨áá«-¨¥ ¯à®¢®¤¨âáï ¢ ­ è¥¬ ¯ â. ­ â.¡îà®
         elseif hu->is_edit == 5
-          mo_add_xml_stroke(oUSL,"LPU",'99999') // â.¥. ¨áá«-¨¥ ¯à®¢®¤¨âáï ¢ ¯ â. ­ â.¡îà® ¢ ¤àã£®© ®¡« áâ¨
+          mo_add_xml_stroke(oUSL,"LPU",'999999') // â.¥. ¨áá«-¨¥ ¯à®¢®¤¨âáï ¢ ¯ â. ­ â.¡îà® ¢ ¤àã£®© ®¡« áâ¨
         else
           if pr_amb_reab .and. left(lshifr,2)=='4.' .and. left(hu_->zf,6) == '999999'
             fl := .t.

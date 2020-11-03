@@ -1176,14 +1176,12 @@ if left(_shifr,3) == "57."
 endif*/
 return luet
 
-***** 01.11.20 проверка на код лабораторной услуги, направляемой в ЦКДЛ
+***** 02.11.20 проверка на код лабораторной услуги, направляемой в ЦКДЛ
 Function is_lab_usluga(lshifr)
 Static sl := "4."
 Static arr := {"8.5","11.5","12.5","12.6","13.5","15.5","16.5","17.5"}
 Local fl := .f.
-if alltrim(lshifr) == "4.27.2"
-  fl := .t.
-elseif left(lshifr,2) == sl
+if left(lshifr,2) == sl
   lshifr := alltrim(lshifr)
   for i := 1 to len(arr)
     if like(sl+arr[i]+"??",lshifr)
