@@ -15,8 +15,8 @@
 #include "chip_mo.ch"
 
 Static _version := {2,11,12}
-Static char_version := "c"
-Static _date_version := "02.11.20г."
+Static char_version := "g"
+Static _date_version := "15.12.20г."
 Static __s_full_name := "ЧИП + Учёт работы Медицинской Организации"
 Static __s_version
 
@@ -736,7 +736,7 @@ do case
         "Диспансерное наблюдение";
       } )
     aadd(func_menu, {"dispanserizacia()",;
-                     "disp_nabludenie()"} )
+                     "disp_nabludenie()"} ) 
   case glob_task == X_263 //
     fl := begin_task_263()
     if is_napr_pol

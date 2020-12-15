@@ -1184,18 +1184,21 @@ do case
 endcase
 return ret
 
-***** 10.03.16
+***** 10.12.20
 Function ret_duration_t006(s,s1)
 Static sd := "день", sdr := "дня", sdm := "дней"
-Local arr := {"1-3 "+s1+sdr,;
-              "4 "+s1+sdr+" и более",;
-              "1-6 "+s1+sdm,;
-              "7 "+s1+sdm+" и более",;
-              "21 "+s1+sd+" и более",;
-              "1-20 "+s1+sdm,;
-              "1 "+s1+sd}
+Local arr := {"1-3 "+s1+sdr,;                     //  1
+              "4 "+s1+sdr+" и более",;            //  2
+              "1-6 "+s1+sdm,;                     //  3
+              "7 "+s1+sdm+" и более",;            //  4
+              "21 "+s1+sd+" и более",;            //  5
+              "1-20 "+s1+sdm,;                    //  6
+              "1 "+s1+sd,;                        //  7
+              "4-7 "+s1+sdm,;                     //  8
+              "8-10 "+s1+sdm,;                    //  9
+              "11 "+s1+sdm+" и более"}            // 10
 Local i := int(val(s))
-return "дл-ть "+iif(between(i,1,7), arr[i], "")
+return "дл-ть "+iif(between(i,1,10), arr[i], "")
 
 ***** 14.01.19
 Static Function f_ret_kz_ksg(lkz,lkslp,lkiro)

@@ -4990,9 +4990,10 @@ endif
 restscreen(buf)
 return fl
 
-*==============================================================================
 
-***** 17.06.20 создание первичной БД из реестров
+*
+
+***** 08.11.20 создание первичной БД из реестров
 Function create_main_base_from_reestrs()
 Local full_zip, name_zip, i, k, n, fl := .t., buf := save_maxrow(),;
       arr_r := {}, arr_rsptk := {}, arr_s := {}, a_reestr := {},;
@@ -5000,7 +5001,7 @@ Local full_zip, name_zip, i, k, n, fl := .t., buf := save_maxrow(),;
 R_Use(dir_server+"human")
 k := lastrec()
 use
-Private p_lpu := 1, p_otd := 1 // для больницы им.Фишера
+Private p_lpu := 1, p_otd := 1 // для КДГБ
 Private flag_is_lu := .t. // для пустой БД поставить .f.
 if flag_is_lu
   // уже есть (какие-то) листы учёта
@@ -5183,6 +5184,9 @@ if !empty(full_zip)
 endif
 return NIL
 
+*
+
+
 ***** 22.11.19
 Function f1_create_main_base_from_reestrs(a_reestr)
 Local aerr, oXmlDoc, oXmlNode, oNode1, oNode2, cFile, old_sys_date,;
@@ -5356,6 +5360,8 @@ for i := 1 to len(a_reestr)
 next
 close databases
 return fl
+
+*
 
 ***** 11.04.19
 Function f2_create_main_base_from_reestrs(mname_xml)
@@ -6035,6 +6041,8 @@ rees->KOL := pkol
 close databases
 return fl
 
+*
+
 ***** 11.04.19 перезаписать лист учёта, если таковой уже есть в БД
 Function f3_create_main_base_from_reestrs()
 Local i, j, k, arr_hu, ta, arr_ne, fl
@@ -6678,6 +6686,8 @@ for i := 1 to len(arr_ne)
 next
 return NIL
 
+*
+
 ***** 10.04.19 поискать врача по СНИЛС и, м.б., по специальности
 Function ret_perso_with_tab_nom(lsnils,lprvs)
 Static aprvs
@@ -6705,6 +6715,9 @@ if empty(lvrach)
   endif
 endif
 return lvrach
+
+*
+
 
 ***** 10.04.19 поискать отделение по типу л/у (и м.б.по профилю) (и м.б. по врачу)
 Static Function ret_otd_with_lu_prof(lpodr,lump,llu,lprof,lvrach)
@@ -6768,6 +6781,8 @@ if emptyany(uch_otd[1],uch_otd[2])
   uch_otd := aclone(such_otd)
 endif
 return uch_otd
+
+*
 
 ***** 23.10.19 Изменение цен на услуги в соответствии со справочником услуг ТФОМС
 Function Change_Cena_OMS()

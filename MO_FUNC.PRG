@@ -3257,9 +3257,15 @@ ars[3] := ' д.р.'+full_date(ldate_r)+'('+s+'), '+iif(lpol=='М','муж.','жен.')+;
           iif(empty(sop_diag), '', ', соп.диаг.'+charrem(' ',print_array(sop_diag)))+;
           iif(empty(osl_diag), '', ', диаг.осл.'+charrem(' ',print_array(osl_diag)))
 lsex := iif(lpol=='М','1','2')
-llos := ''
+llos := {} //''
 if ldnej < 4
-  llos += '1'
+  aadd(llos,'1') //llos += '1'
+elseif between(ldnej,4,7)
+  aadd(llos,'8')
+elseif between(ldnej,8,10)
+  aadd(llos,'9')
+else
+  aadd(llos,'10')
 endif
 /*
 0 - КИРО не применяется
@@ -3283,7 +3289,7 @@ endif
     к препарату при длительности случая 4 койко-дня (дня лечения) и более в сочетании с результатами обращения
     за медицинской помощью (Классификатор V009) 102, 105, 107, 110, 202, 205, 207
 */
-//aadd(ars,'   ║age='+lage+' sex='+lsex+' los='+llos)
+//aadd(ars,'   ║age='+lage+' sex='+lsex+' los='+print_array(llos))
 nfile := "_mo"+iif(lyear==2020,"0","9")+"k006"
 if select("K006") == 0
   R_Use(exe_dir+nfile,{cur_dir+nfile,cur_dir+nfile+"_"},"K006")
@@ -3357,7 +3363,7 @@ do while left(k006->shifr,2)==susl .and. k006->ds==padr(osn_diag,6) .and. !eof()
     if fl ; j ++ ; endif
   endif
   if fl .and. !empty(k006->los)
-    fl := (k006->los $ llos)
+    fl := ascan(llos,alltrim(k006->los)) > 0  // (k006->los $ llos)
     if fl ; j ++ ; endif
   endif
   if fl
@@ -3532,7 +3538,7 @@ for im := 1 to len(amohu)
         if fl ; j ++ ; endif
       endif
       if fl .and. !empty(k006->los)
-        fl := (k006->los $ llos)
+        fl := ascan(llos,alltrim(k006->los)) > 0  // (k006->los $ llos)
         if fl ; j ++ ; endif
       endif
       if fl .and. !empty(k006->ad_cr)  // в справочнике есть доп.критерий

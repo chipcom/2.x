@@ -142,7 +142,7 @@ if empty(ashema[1])
 endif
 return ashema[k]
 
-***** 07.09.20
+***** 07.09.20  //  XX.12.20
 Function f_valid2ad_cr()
 Static mm_bartel := {;
   {"индекс Бартела 60 баллов и менее","60"},;
@@ -201,6 +201,7 @@ if m1usl_ok < 3 .and. m1vmp == 0
           if eq_any(left(arr_ad_cr_it20[i,2],2),"cr") .and. mk_data < 0d20200901
             fl := .f.
           endif
+
           if fl .and. !empty(arr_sop) .and. ascan(arr_ad_cr_it20[i,3],padr(MKOD_DIAG,5)) > 0
             for j := 1 to len(arr_sop)
               if ascan(arr_ad_cr_it20[i,4],arr_sop[j]) > 0
@@ -267,6 +268,8 @@ if m1usl_ok < 3 .and. m1vmp == 0
           mm_ad_cr[i,1] := "ep2-МРТ 3Тс, видео ЭЭГ, сон не менее 4 час., противоэпилептическая терапия"
         case mm_ad_cr[i,2] == "ep3"
           mm_ad_cr[i,1] := "ep3-МРТ 3Тс, видео ЭЭГ, сон не менее 24 час., консультация врача-нейрохирурга"
+        case mm_ad_cr[i,2] == "dcl"
+          mm_ad_cr[i,1] := "dcl-долечивание пациентов с COVID-19 на койках для пациентов средней тяжести"
       endcase
     next
     Ins_Array(mm_ad_cr,1,mm_mgi[1])
