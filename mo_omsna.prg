@@ -416,7 +416,8 @@ Local mo_dnab := {; // диспансерное наблюдение
    {"NEXT_DATA","D", 8,0},; // дата следующей явки с целью диспансерного наблюдения
    {"FREQUENCY","N", 2,0},; // количество месяцев в течение которых предполагается одна явка пациента
    {"MESTO",    "N", 1,0},;  // место проведения диспансерного наблюдения: 0 - в МО или 1 - на дому
-   {"PEREHOD",  "N", 1,0};  // переход 2021
+   {"PEREHOD",  "N", 1,0},;  // переход 2021
+   {"PEREHOD1", "N", 1,0};  // переход заплатка 2021
   }
 Local mo_d01 := {; // отсылаемые файлы D01
    {"KOD",         "N", 6,0},; // код реестра (номер записи)
@@ -468,7 +469,7 @@ return NIL
 Function disp_nabludenie(k)
 Static S_sem := "disp_nabludenie"
 Static si1 := 2, si2 := 1, si3 := 2, si4 := 1, si5 := 1
-Local mas_pmt, mas_msg, mas_fun, j, buf, fl_umer := .f.
+Local mas_pmt, mas_msg, mas_fun, j, buf, fl_umer := .f., zaplatka_D01 := .F.
 DEFAULT k TO 1
 
 do case
@@ -480,6 +481,10 @@ do case
     endif
     use
     R_Use(dir_server+"mo_dnab")
+    if fieldnum("PEREHOD1") == 0
+      zaplatka_D01 := .T.
+    endif
+    //
     if fieldnum("PEREHOD") == 0
       close databases
       if !G_SLock(S_sem)
@@ -700,6 +705,38 @@ do case
       G_SUnLock(S_sem)
     endif
 
+    if zaplatka_D01
+      mywait()
+      //(dir_server+"mo_dnab",mo_dnab,"index_base('mo_dnab')",,.t.)
+     // G_Use(dir_server+"mo_dnab",dir_server+"mo_dnab","DN") 
+      G_Use(dir_server+"mo_d01k",,"REES_K")
+      G_Use(dir_server+"mo_d01",,"REES")
+      index on str(nn,3) to (cur_dir+"tmp_d01") for nyear == 2020 // ЮЮ
+      go top
+      do while !eof()
+        if proverka_spisok_D01(rees->NAME_XML)
+          G_RLock(forever)
+          rees->KOL_ERR := rees->KOL
+          NN_reestr := rees->kod
+          unlock
+          //
+          select REES_K
+          go top
+          do while !eof()
+            if rees_k->reestr == NN_reestr .and. rees_k->OPLATA == 1
+              G_RLock(forever)
+              rees_k->OPLATA := 3
+              unlock
+            endif
+            skip
+          enddo
+        endif
+        select REES
+        skip
+      enddo
+      close databases
+      f_init_d01() // инициализация всех файлов инф.сопровождения по диспансерному наблюдению
+    endif
     // временный конец
     mas_pmt := {"~Работа с файлами обмена D01",;
                 "~Информация по дисп.наблюдению"}
@@ -801,7 +838,7 @@ return NIL
 ***** 17.01.14 переопределение критерия "взрослый/ребёнок" по дате рождения и "_date"
 Function fvdn_date_r(_data,mdate_r)
 Local k,  cy, ldate_r := mdate_r
-DEFAULT _data TO sys_date 
+DEFAULT _data TO sys_date
 
 cy := count_years(ldate_r,_data)
 
@@ -1166,8 +1203,8 @@ do case
               fl := func_error(4,"Не введена дата следующей явки")
             elseif mN_DATA >= mNEXT_DATA
               fl := func_error(4,"Дата следующей явки меньше даты начала диспансерного наблюдения")
-            elseif mNEXT_DATA <= 0d20201201  // ЮЮ
-              fl := func_error(4,"Дата следующей явки должна быть не ранее 1 декабря")
+            elseif mNEXT_DATA <= 0d20210101  // ЮЮ
+              fl := func_error(4,"Дата следующей явки должна быть не ранее 1 января")
             endif
             if !fl
               loop
@@ -1565,8 +1602,8 @@ do case
               fl := func_error(4,"Не введена дата следующей явки")
             elseif mN_DATA >= mNEXT_DATA
               fl := func_error(4,"Дата следующей явки меньше даты начала диспансерного наблюдения")
-            elseif mNEXT_DATA <= 0d20201201  // ЮЮ
-              fl := func_error(4,"Дата следующей явки должна быть не ранее 1 декабря")
+            elseif mNEXT_DATA <= 0d20210101  // ЮЮ
+              fl := func_error(4,"Дата следующей явки должна быть не ранее 1 января")
             endif
             if !fl
               loop
@@ -3128,3 +3165,43 @@ if (i := popup_prompt(r1,10,1,mm_menu,,,color5)) > 0
 endif
 rest_box(buf)
 return 0
+
+*
+
+***** 18.12.20
+Function proverka_spisok_D01(reestr_D01)
+Local fl := .F., arr_d01 := {}, i := 0
+
+//if glob_mo[_MO_KOD_TFOMS] == '395301'
+arr_d01 := {;
+"D01T34M124530_2012001",;
+"D01T34M134505_2012001",;
+"D01T34M141016_2012001",;
+"D01T34M141022_2012001",;
+"D01T34M141023_2012001",;
+"D01T34M154602_2012001",;
+"D01T34M161007_2012001",;
+"D01T34M161015_2012001",;
+"D01T34M184603_2012001",;
+"D01T34M254505_2012002",;
+"D01T34M254505_2012001",;
+"D01T34M321001_2012001",;
+"D01T34M361001_2012001",;
+"D01T34M371001_2012001",;
+"D01T34M481001_2012001",;
+"D01T34M491001_2012001",;
+"D01T34M501001_2012001",;
+"D01T34M511001_2012001",;
+"D01T34M511001_2012002",;
+"D01T34M521001_2012001",;
+"D01T34M531001_2012001",;
+"D01T34M541001_2012001",;
+"D01T34M611001_2012001",;
+"D01T34M711001_2012001"}
+
+for i := 1 to 24
+  if arr_d01[i] == alltrim(reestr_D01)
+    fl := .T.
+  endif
+next
+return fl
