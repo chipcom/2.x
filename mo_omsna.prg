@@ -466,7 +466,7 @@ return NIL
 
 *
 
-***** 12.08.20 Диспансерное наблюдение
+***** 22.12.20 Диспансерное наблюдение
 Function disp_nabludenie(k)
 Static S_sem := "disp_nabludenie"
 Static si1 := 2, si2 := 1, si3 := 2, si4 := 1, si5 := 1
@@ -781,14 +781,6 @@ do case
           mdiagnoz := diag_for_xml(,.t.,,,.t.)
           ar_dn := {}
           if iif(empty(human->ishod),human_->ishod_new==303,human->between(human->ishod,201,205))
-
-/*            if human->kod_k == 33317
-              @  9,10 say "11111111111111"
-              @ 10,10 say human->kod
-              inkey(0)
-            endif
-
- */
             adiag_talon := array(16)
             afill(adiag_talon,0)
             for i := 1 to 16
@@ -808,20 +800,8 @@ do case
                     s := 2 // взят на диспансерное наблюдение
                   endif
                 endif
-   /*         if human->kod_k == 33317
-              @ 11,10 say 3
-              inkey(0)
-            endif*/
-
                 if eq_any(s,1,2) // взят или состоит на диспансерное наблюдение
                   aadd(ar_dn, alltrim(mdiagnoz[i]))
-            /*if human->kod_k == 33317
-              @ 12,10 say alltrim(mdiagnoz[i])
-              inkey(0)
-            endif */
-
-
-
                 endif
               endif
             next
@@ -877,12 +857,6 @@ do case
                 aadd(ar_dn, padr(mdiagnoz[i],5))
               endif
             next
-/*            if human->kod_k == 33317
-              @  9,10 say "22222222221"
-              @ 10,10 say human->kod
-              inkey(0)
-            endif
-*/
             if !empty(ar_dn) // диагнозы из списка диспансерного наблюдения
               select HU
               find (str(human->kod,7))
@@ -2350,17 +2324,19 @@ else
     find (str(tmp->kod_k,7))
     do while dn->kod_k == tmp->kod_k .and. !eof()
       if f_is_diag_dn(dn->kod_diag) // только диагнозы из последнего списка от 21 ноября
-        lspec := ret_prvs_V021(iif(empty(perso->prvs_new), perso->prvs, -perso->prvs_new))
-        aadd(arr,{lspec,dn->kod_diag,dn->n_data,bom(dn->next_data),dn->FREQUENCY})
-        i := len(arr)
-        if empty(arr[i,4]) .or. !between(arr[i,4],0d20200101,0d20240101) // ЮЮ
-          arr[i,4] := 0d20210101  // ЮЮ
-        endif
-        if !between(arr[i,5],1,36)
-          arr[i,5] := 3
-        endif
-        if dn->mesto == 1
-          lmesto := 1
+        if dn->next_data < stod("20201231")   //22.12.2020
+          lspec := ret_prvs_V021(iif(empty(perso->prvs_new), perso->prvs, -perso->prvs_new))
+          aadd(arr,{lspec,dn->kod_diag,dn->n_data,bom(dn->next_data),dn->FREQUENCY})
+          i := len(arr)
+          if empty(arr[i,4]) .or. !between(arr[i,4],0d20200101,0d20240101) // ЮЮ
+            arr[i,4] := 0d20210101  // ЮЮ
+          endif
+          if !between(arr[i,5],1,36)
+            arr[i,5] := 3
+          endif
+          if dn->mesto == 1
+            lmesto := 1
+          endif
         endif
       endif
       select DN
