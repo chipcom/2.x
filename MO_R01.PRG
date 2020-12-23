@@ -4,7 +4,7 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 17.12.19 инициализация всех файлов инф.сопровождения по диспансеризации
+***** 23.12.20 инициализация всех файлов инф.сопровождения по диспансеризации
 Function f_init_r01()
 Local mo_dr00 := {; // пул пациентов, подлежащих диспансеризации/профосмотрам взрослого населения
    {"kod",        "N", 7,0},; // код по картотеке
@@ -177,7 +177,7 @@ reconstruct(dir_server+"mo_dr05e",mo_dr05e,,,.t.)
 reconstruct(dir_server+"mo_dr00", mo_dr00 ,,,.t.)
 //
 G_Use(dir_server+"mo_dr05p",,"R05p")
-Locate for n_y < 2020
+Locate for n_y < 2021  // ЮЮ
 fl := found()
 Use
 if fl
@@ -235,10 +235,10 @@ endif
 close databases
 return NIL*/
 
-***** 17.12.19 Создание файла обмена R05...
+***** 23.12.20 Создание файла обмена R05...
 Function f_create_R05()
 Local buf := save_maxrow(), i, fl
-Private sgod := 2020, mdate, mkol1 := 0, mkol2 := 0, mkol11 := 0, mkol12 := 0, mkol13 := 0,;
+Private sgod := 2021, mdate, mkol1 := 0, mkol2 := 0, mkol11 := 0, mkol12 := 0, mkol13 := 0,;
         mrec, CODE_LPU := glob_mo[_MO_KOD_TFOMS]
 //
 G_Use(dir_server+"mo_dr05p",,"R05p")
@@ -248,7 +248,7 @@ endif
 mrec := 1 // пока так
 goto (mrec)
 if empty(r05p->n_y)
-  mdate := r05p->D_KZ := 0d20191122
+  mdate := r05p->D_KZ := 0d20201218
   r05p->N_Y := sgod // год для диспансеризации
   r05p->TYPEOFREC := 0 // 0-первично представленная запись, 1-актуализированная запись
   r05p->KOL1 := 0 // количество пациентов для диспансеризации на год
@@ -263,6 +263,8 @@ else
   mdate := r05p->D_KZ
 endif
 use
+//
+//
 Private r05_nn := 0, write_reestr := .f., is_reestr := .f.
 verify_packet_R05(1,{},@r05_nn)
 close databases
@@ -289,7 +291,7 @@ Private skol1 := 0, skol2 := 0, skol11 := 0, skol12 := 0, skol13 := 0
 buf := box_shadow(r1,2,maxrow()-2,77,,"План-график на "+lstr(sgod)+" год",color8)
 do while .t.
   @ r1+1,54 say "| прикреплённое" color color14
-  @ r1+2,4 say "Приказ КЗ ВО №3352 от" get mdate when .f.
+  @ r1+2,4 say "Приказ КЗ ВО №3387 от" get mdate when .f.
    @ row(),col()+12 say "_план_|_количество___" color color14
   @ r1+3,4 say "Численность лиц для диспансеризации (всего)" get mkol1  pict "99999"
    @ row(),col()+1 say "|" color color14 get skol1 color color8 pict "99999" when .f.
