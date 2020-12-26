@@ -2204,7 +2204,7 @@ return NIL*/
 
 *
 
-***** 03.12.19 // 14.12.20 Обмен с ТФОМС информацией по диспансерному наблюдению
+***** 25.12.20 // 14.12.20 Обмен с ТФОМС информацией по диспансерному наблюдению
 Function f_create_D01()
 Local fl := .t., arr, id01 := 0, lspec, lmesto, buf := save_maxrow()
 mywait()
@@ -2213,6 +2213,7 @@ index on str(reestr,6) to (cur_dir+"tmp_xml") ;
       for DFILE > 0d20201202 .and. tip_in == _XML_FILE_D02 .and. empty(TIP_OUT) // ЮЮ
 R_Use(dir_server+"mo_d01",,"REES")
 index on str(nn,3) to (cur_dir+"tmp_d01") for nyear == 2020 // ЮЮ
+
 go top
 do while !eof()
   //aadd(a_reestr, rees->kod)
@@ -2239,6 +2240,7 @@ if !fl
   rest_box(buf)
   return NIL
 endif
+
 select REES
 set index to
 G_Use(dir_server+"mo_d01d",,"DD")
@@ -2265,6 +2267,8 @@ do while .t.
   endif
 enddo
 Commit
+
+
 dbcreate(cur_dir+"tmp",{{"KOD_K","N",7,0}})
 use (cur_dir+"tmp") new
 select DK
@@ -2306,6 +2310,8 @@ do while !eof()
   skip
 enddo
 kart2->(dbCloseArea())
+
+
 // подготовка завершена
 if tmp->(lastrec()) == 0
   func_error(4,"Не обнаружено пациентов, состоящих под дисп.наблюдением, ещё не отправленных в ТФОМС")
@@ -2324,7 +2330,7 @@ else
     find (str(tmp->kod_k,7))
     do while dn->kod_k == tmp->kod_k .and. !eof()
       if f_is_diag_dn(dn->kod_diag) // только диагнозы из последнего списка от 21 ноября
-        if dn->next_data < stod("20201231")   //22.12.2020
+        if dn->next_data > stod("20201231")   //22.12.2020
           lspec := ret_prvs_V021(iif(empty(perso->prvs_new), perso->prvs, -perso->prvs_new))
           aadd(arr,{lspec,dn->kod_diag,dn->n_data,bom(dn->next_data),dn->FREQUENCY})
           i := len(arr)
@@ -2383,6 +2389,7 @@ else
 endif
 close databases
 rest_box(buf)
+
 if id01 > 0 .and. f_Esc_Enter("создания D01 ("+lstr(id01)+" чел.)",.t.)
   mywait()
   inn := 0 ; nsh := 3

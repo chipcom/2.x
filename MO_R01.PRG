@@ -76,7 +76,7 @@ Local mo_dr05 := {; // отсылаемые файлы о будущих диспансеризациях взрослого нас
    {"KOD_XML",     "N", 6,0},; // ссылка на файл "mo_xml"
    {"DATE_OUT",    "D", 8,0},; // дата отправки в ТФОМС;;
    {"NUMB_OUT",    "N", 2,0},; // номер отправки в ТФОМС;сколько раз всего записывали файл на носитель;
-   {"KOL",         "N", 6,0};  // количество пациентов в реестре/файле
+   {"KOL",         "N", 6,0}; // количество пациентов в реестре/файле
   }
 Local mo_dr05k := {; // кол-во пациентов в реестрах будущих диспансеризаций
    {"REESTR",   "N", 6,0},; // код реестра по файлу "mo_dr05"
@@ -1579,15 +1579,15 @@ close databases
 rest_box(buf)
 return fl*/
 
-***** 08.09.20 Создание файла обмена R01...
+***** 23.12.20 Создание файла обмена R01...
 Function f_create_R01()
 Local buf := save_maxrow(), i, j, ir, s := "", arr := {}, fl := .t., fl1 := .f., a_reestr := {},;
       azip := {}, aerr := {}, full_zip, name_zip, cFile, cName, oXmlDoc, lgod_r
-Private sgod := 2020, SMONTH := 1, mdate := sys_date, mrec := 1
+Private sgod := 2021, SMONTH := 1, mdate := sys_date, mrec := 1
 Private c_view := 0, c_found := 0, fl_exit := .f., pj, arr_rees := {},;
         pkol := 0, CODE_LPU := glob_mo[_MO_KOD_TFOMS], CODE_MO := glob_mo[_MO_KOD_FFOMS],;
         mkol := {0,0,0,0,0}, skol[5], ames[12,5], ame[12], bm := SMONTH,; // начальный месяц минус один
-        _arr_vozrast_DVN := ret_arr_vozrast_DVN(0d20191201)
+        _arr_vozrast_DVN := ret_arr_vozrast_DVN(0d20201201)
 mywait()
 if (fl := verify_packet_R05(1,arr))
   R_Use(dir_server+"mo_dr05p",,"R05p")

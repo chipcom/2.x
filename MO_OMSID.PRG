@@ -2588,7 +2588,7 @@ return NIL
 
 *
 
-***** 26.01.20 Информация по диспансеризации и профилактике взрослого населения
+***** 23.12.20 Информация по диспансеризации и профилактике взрослого населения
 Function inf_DVN(k)
 Static si1 := 1, si2 := 1, si3 := 1, si4 := 1, si5 := 2, si6 := 2, si7 := 2, sj := 1, sj1 := 1
 Local mas_pmt, mas_msg, mas_fun, j
@@ -2675,8 +2675,6 @@ do case
                 "inf_DVN(52)"}
     popup_prompt(T_ROW,T_COL-5,si5,mas_pmt,mas_msg,mas_fun)
   case k == 42
-    ne_real()
-  /*
     mas_pmt := {"~Создание файлов обмена",;
                 "~Просмотр файлов обмена"}
     mas_msg := {"Создание файлов обмена R01... по всем кварталам",;
@@ -2689,7 +2687,6 @@ do case
       aadd(mas_fun, "delete_reestr_R01()")
     endif
     popup_prompt(T_ROW,T_COL-5,si6,mas_pmt,mas_msg,mas_fun)
-   */
   case k == 21
     if (j := popup_prompt(T_ROW,T_COL-5,1,mas1pmt)) > 0
       f21_inf_DVN(j)
