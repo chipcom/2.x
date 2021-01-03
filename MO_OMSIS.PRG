@@ -4080,6 +4080,7 @@ dbcreate(cur_dir+"tmpf14",{;
 use (cur_dir+"tmpf14") new alias TMPF14
 Use_base("lusl")
 Use_base("luslf")
+//R_Use(dir_exe+"_mo1unit",cur_dir+"_mo1unit","MOUNIT") //пока рано
 R_Use(dir_exe+"_mo0unit",cur_dir+"_mo0unit","MOUNIT")
 R_Use(dir_server+"mo_su",,"MOSU")
 R_Use(dir_server+"mo_hu",dir_server+"mo_hu","MOHU")
