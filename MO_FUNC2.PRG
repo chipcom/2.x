@@ -97,11 +97,21 @@ else
 endif
 return count_years(_date_r,_data) >= v
 
-***** 14.01.20
+***** 02.01.21
 Function arr_plan_zakaz(ly)
 Local i, apz := {}
-DEFAULT ly TO 2020
-if ly > 2019
+DEFAULT ly TO 2021
+if ly > 2020
+  for i := 1 to len(glob_array_PZ_21)
+    aadd(apz,{glob_array_PZ_21[i,3],;
+              glob_array_PZ_21[i,1],;
+              0,;
+              glob_array_PZ_21[i,6],;
+              glob_array_PZ_21[i,5],;
+              {};
+             } )
+  next
+elseif ly == 2020
   for i := 1 to len(glob_array_PZ_20)
     aadd(apz,{glob_array_PZ_20[i,3],;
               glob_array_PZ_20[i,1],;
@@ -134,8 +144,8 @@ else
 endif
 return apz
 
-***** 12.01.20 по шифру услуги вернуть номер элемента массива "arr_plan_zakaz" для 2020 года
-Function f_arr_plan_zakaz_20(lshifr)
+***** 02.01.21 по шифру услуги вернуть номер элемента массива "arr_plan_zakaz" для 2020 года
+Function f_arr_plan_zakaz_21(lshifr)
 Local i, j, c, k := 0, shb, i16 := 0
 if select("LUSL") == 0
   Use_base("lusl")
@@ -144,7 +154,7 @@ select LUSL
 find (padr(lshifr,10))
 if found() .and. !empty(lusl->unit_code)
   if select("MOUNIT") == 0
-    R_Use(dir_exe+"_mo0unit",cur_dir+"_mo0unit","MOUNIT")
+    R_Use(dir_exe+"_mo1unit",cur_dir+"_mo1unit","MOUNIT")
   endif
   select MOUNIT
   set order to 1
@@ -152,6 +162,31 @@ if found() .and. !empty(lusl->unit_code)
   if found() .and. mounit->pz > 0
     k := mounit->pz
     i16 := mounit->ii
+  endif
+endif
+if k > 0 .and. empty(i16)
+  i16 := ascan(glob_array_PZ_21, {|x| x[1] == k })
+endif
+return i16
+
+***** 02.01.21 по шифру услуги вернуть номер элемента массива "arr_plan_zakaz" для 2020 года
+Function f_arr_plan_zakaz_20(lshifr)
+Local i, j, c, k := 0, shb, i16 := 0
+if select("LUSL") == 0
+  Use_base("lusl")
+endif
+select LUSL
+find (padr(lshifr,10))
+if found() .and. !empty(lusl20->unit_code)
+  if select("MOUNIT20") == 0
+    R_Use(dir_exe+"_mo0unit",cur_dir+"_mo0unit","MOUNIT20")
+  endif
+  select MOUNIT20
+  set order to 1
+  find (str(lusl20->unit_code,3))
+  if found() .and. mounit20->pz > 0
+    k := mounit20->pz
+    i16 := mounit20->ii
   endif
 endif
 if k > 0 .and. empty(i16)
