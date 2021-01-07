@@ -120,14 +120,13 @@ else
 endif
 return update_get("mprer_b")
 
-***** 02.01.21
+***** 07.03.20
 Function ret_arr_shema(k)
 Static ashema := {{},{},{}}
 Local i
 if empty(ashema[1])
   Private _data := 0d20200901
-  //R_Use(exe_dir+"_mo0shema",,"IT") // 2020 год
-  R_Use(exe_dir+"_mo1shema",,"IT") // 2021 год
+  R_Use(exe_dir+"_mo0shema",,"IT") // 2020 год
   aadd(ashema[1],{"-----     без схемы лекарственной терапии",padr("нет",10)})
   index on kod to (cur_dir+"tmp_schema") for left(kod,2) == "sh" .and. between_date(it->datebeg,it->dateend,_data)
   dbeval({|| aadd(ashema[1],{it->kod+left(it->name,68),it->kod}) })
@@ -143,7 +142,7 @@ if empty(ashema[1])
 endif
 return ashema[k]
 
-***** 02.01.21  //  XX.12.20
+***** 07.09.20  //  XX.12.20
 Function f_valid2ad_cr()
 Static mm_bartel := {;
   {"индекс Бартела 60 баллов и менее","60"},;
@@ -187,36 +186,36 @@ if m1usl_ok < 3 .and. m1vmp == 0
     if !empty(MOSL1) ; aadd(arr_osl,padr(MOSL1,5)) ; endif
     if !empty(MOSL2) ; aadd(arr_osl,padr(MOSL2,5)) ; endif
     if !empty(MOSL3) ; aadd(arr_osl,padr(MOSL3,5)) ; endif
-    for i := 1 to len(arr_ad_cr_it21)
-      if m1usl_ok == arr_ad_cr_it21[i,1] .and. ascan(mm_ad_cr,{|x| x[2] == arr_ad_cr_it21[i,2] }) == 0
-        if !empty(arr_ad_cr_it21[i,3]) .and. empty(arr_ad_cr_it21[i,4]) .and. empty(arr_ad_cr_it21[i,5]) // осн.диагноз
-          if ascan(arr_ad_cr_it21[i,3],padr(MKOD_DIAG,5)) > 0
-            aadd(mm_ad_cr,{"",arr_ad_cr_it21[i,2]})
+    for i := 1 to len(arr_ad_cr_it20)
+      if m1usl_ok == arr_ad_cr_it20[i,1] .and. ascan(mm_ad_cr,{|x| x[2] == arr_ad_cr_it20[i,2] }) == 0
+        if !empty(arr_ad_cr_it20[i,3]) .and. empty(arr_ad_cr_it20[i,4]) .and. empty(arr_ad_cr_it20[i,5]) // осн.диагноз
+          if ascan(arr_ad_cr_it20[i,3],padr(MKOD_DIAG,5)) > 0
+            aadd(mm_ad_cr,{"",arr_ad_cr_it20[i,2]})
           endif
         endif
-        if !empty(arr_ad_cr_it21[i,3]) .and. !empty(arr_ad_cr_it21[i,4]) .and. empty(arr_ad_cr_it21[i,5]) // осн.+сопут.диагнозы
+        if !empty(arr_ad_cr_it20[i,3]) .and. !empty(arr_ad_cr_it20[i,4]) .and. empty(arr_ad_cr_it20[i,5]) // осн.+сопут.диагнозы
           fl := .t.
-          if eq_any(left(arr_ad_cr_it21[i,2],2),"i3","i4") .and. mk_data >= 0d20200901
+          if eq_any(left(arr_ad_cr_it20[i,2],2),"i3","i4") .and. mk_data >= 0d20200901
             fl := .f.
           endif
-          if eq_any(left(arr_ad_cr_it21[i,2],2),"cr") .and. mk_data < 0d20200901
+          if eq_any(left(arr_ad_cr_it20[i,2],2),"cr") .and. mk_data < 0d20200901
             fl := .f.
           endif
 
-          if fl .and. !empty(arr_sop) .and. ascan(arr_ad_cr_it21[i,3],padr(MKOD_DIAG,5)) > 0
+          if fl .and. !empty(arr_sop) .and. ascan(arr_ad_cr_it20[i,3],padr(MKOD_DIAG,5)) > 0
             for j := 1 to len(arr_sop)
-              if ascan(arr_ad_cr_it21[i,4],arr_sop[j]) > 0
-                aadd(mm_ad_cr,{"",arr_ad_cr_it21[i,2]})
+              if ascan(arr_ad_cr_it20[i,4],arr_sop[j]) > 0
+                aadd(mm_ad_cr,{"",arr_ad_cr_it20[i,2]})
                 exit
               endif
             next
           endif
         endif
-        if empty(arr_ad_cr_it21[i,3]) .and. empty(arr_ad_cr_it21[i,4]) .and. !empty(arr_ad_cr_it21[i,5]) // диагноз осложнения
+        if empty(arr_ad_cr_it20[i,3]) .and. empty(arr_ad_cr_it20[i,4]) .and. !empty(arr_ad_cr_it20[i,5]) // диагноз осложнения
           if !empty(arr_osl)
             for j := 1 to len(arr_osl)
-              if ascan(arr_ad_cr_it21[i,4],arr_osl[j]) > 0
-                aadd(mm_ad_cr,{"",arr_ad_cr_it21[i,2]})
+              if ascan(arr_ad_cr_it20[i,4],arr_osl[j]) > 0
+                aadd(mm_ad_cr,{"",arr_ad_cr_it20[i,2]})
                 exit
               endif
             next
@@ -225,9 +224,9 @@ if m1usl_ok < 3 .and. m1vmp == 0
       endif
     next
   elseif m1usl_ok == 2 .and. !empty(MKOD_DIAG)
-    for i := 1 to len(arr_ad_cr_it21)
-      if m1usl_ok == arr_ad_cr_it21[i,1] .and. ascan(arr_ad_cr_it21[i,3],padr(MKOD_DIAG,5)) > 0
-        aadd(mm_ad_cr,{"",arr_ad_cr_it21[i,2]})
+    for i := 1 to len(arr_ad_cr_it20)
+      if m1usl_ok == arr_ad_cr_it20[i,1] .and. ascan(arr_ad_cr_it20[i,3],padr(MKOD_DIAG,5)) > 0
+        aadd(mm_ad_cr,{"",arr_ad_cr_it20[i,2]})
       endif
     next
   elseif eq_any(pr_ds_it,1,2) .and. m1usl_ok == 1

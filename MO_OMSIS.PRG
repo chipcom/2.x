@@ -4080,7 +4080,6 @@ dbcreate(cur_dir+"tmpf14",{;
 use (cur_dir+"tmpf14") new alias TMPF14
 Use_base("lusl")
 Use_base("luslf")
-//R_Use(dir_exe+"_mo1unit",cur_dir+"_mo1unit","MOUNIT") //пока рано
 R_Use(dir_exe+"_mo0unit",cur_dir+"_mo0unit","MOUNIT")
 R_Use(dir_server+"mo_su",,"MOSU")
 R_Use(dir_server+"mo_hu",dir_server+"mo_hu","MOHU")
@@ -4458,7 +4457,7 @@ do while !eof()
           select HU
           skip
         enddo
-my_debug(vid_vp < 0,"vid_vp="+lstr(vid_vp)+print_array(au))
+//my_debug(vid_vp < 0,"vid_vp="+lstr(vid_vp)+print_array(au))
         if kol_dializ > 0
           tfoms_pz[ii,2] := kol_dializ // заменяем на кол-во диализных процедур
         endif

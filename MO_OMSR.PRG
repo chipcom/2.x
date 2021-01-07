@@ -36,6 +36,26 @@ for i := 1 to len(mo_licensia)
   endif
 next i
 return lvidpoms
+*
+
+***** 05.01.21 скорректировать вид помощи для дневного стационара (в стационаре) по лицензии
+Function ret_vidpom_st_dom_licensia(lusl_ok,lvidpoms,lprofil)
+Static mo_licensia := {;
+  {'591001',2,'31',68};   // ЦРБ Суровикино
+ }
+Local i, fl := .f.
+
+for i := 1 to len(mo_licensia)
+  if mo_licensia[i,1] == glob_mo[_MO_KOD_TFOMS] .and. mo_licensia[i,2] == lusl_ok
+    if mo_licensia[i,4] == 0 // все профили
+      lvidpoms := mo_licensia[i,3]
+    elseif mo_licensia[i,4] == lprofil // конкретный профиль
+      lvidpoms := mo_licensia[i,3]
+    endif
+  endif
+next i
+return lvidpoms
+
 
 *
 
@@ -435,7 +455,7 @@ return lp
 
 *
 
-***** 23.08.20
+***** 05.01.21
 Function verify_1_sluch(fl_view)
 Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
       i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -2779,6 +2799,10 @@ elseif human_->USL_OK == 2 .and. kol_ksg > 0 // дневной стационар
     if ascan(au_lu,{|x| alltrim(x[1]) == "55.1.2"}) > 0 .or. ;
        ascan(au_lu,{|x| alltrim(x[1]) == "55.1.3"}) > 0
        //
+       //
+      if ascan(au_lu,{|x| alltrim(x[1]) == "55.1.3"}) > 0
+        lvidpoms := ret_vidpom_st_dom_licensia(human_->USL_OK,lvidpoms,lprofil)
+      endif
     else // только для дн.стационара при стационаре смотрим лицензию
       lvidpoms := ret_vidpom_licensia(human_->USL_OK,lvidpoms)
     endif
@@ -2806,6 +2830,7 @@ elseif human_->USL_OK == 2 .and. kol_ksg > 0 // дневной стационар
     endif
   endif
 endif
+
 if len(a_period_stac) > 0 //.and. !is_s_dializ .and. !is_dializ .and. !is_perito
   select HU
   find (str(human->kod,7))
@@ -5796,13 +5821,15 @@ return k
 
 *
 
-***** 01.11.18 создание XML-файлов реестра
+***** 05.01.21 создание XML-файлов реестра
 Function create2reestr17(_recno,_nyear,_nmonth,reg_sort)
 Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, ;
       lst, lshifr1, code_reestr, mb, me, nsh, adiag_talon[16]
 //
 Private version_3_1 := (strzero(_nyear,4)+strzero(_nmonth,2) > "201808") // с сентября 2018 года
 //
+//  my_debug(," Cоздание XML")
+
 stat_msg("Составление реестра случаев")
 close databases
 nsh := f_mb_me_nsh(_nyear,@mb,@me)
@@ -6109,6 +6136,11 @@ do while !eof()
   if !empty(lvidpoms)
     if !eq_ascan(atmpusl,"55.1.2","55.1.3") .or. glob_mo[_MO_KOD_TFOMS] == '801935' // ЭКО-Москва
       lvidpoms := ret_vidpom_licensia(human_->USL_OK,lvidpoms) // только для дн.стационара при стационаре
+    else
+    /*  if eq_ascan(atmpusl,"55.1.3")
+        lvidpoms := ret_vidpom_st_dom_licensia(human_->USL_OK,lvidpoms)
+      endif
+    */
     endif
     if !empty(lvidpoms) .and. !("," $ lvidpoms)
       lvidpom := int(val(lvidpoms))
@@ -6227,6 +6259,7 @@ do while !eof()
     cSMOname := ret_inogSMO_name(2)
   endif
   mdiagnoz := diag_for_xml(,.t.,,,.t.)
+
   if p_tip_reestr == 1
     if glob_mo[_MO_IS_UCH] .and. ;                    // наше МО имеет прикреплённое население
        human_->USL_OK == 3 .and. ;                    // поликлиника
@@ -6255,6 +6288,7 @@ do while !eof()
   if !empty(human_2->OSL3)
     aadd(mdiagnoz3,human_2->OSL3)
   endif
+
   oZAP := oXmlDoc:aItems[1]:Add( HXMLNode():New( "ZAP" ) )
    mo_add_xml_stroke(oZAP,"N_ZAP" ,lstr(rhum->REES_ZAP))
    mo_add_xml_stroke(oZAP,"PR_NOV",iif(human_->SCHET_NUM > 0, '1', '0')) // если попал в счёт 2-й раз и т.д.

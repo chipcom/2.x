@@ -407,8 +407,7 @@ Local arr_usl, atf := {0,"",""}, i := 1, k, mas[2], sh := 80, HH := 60, j := 0, 
 if (arr_usl := input_usluga(atf)) != NIL
   mywait()
   fp := fcreate(n_file) ; n_list := 1 ; tek_stroke := 0
-  //R_Use(dir_exe+"_mo0dep",cur_dir+"_mo0dep","DEP")
-  R_Use(dir_exe+"_mo1dep",cur_dir+"_mo1dep","DEP")
+  R_Use(dir_exe+"_mo0dep",cur_dir+"_mo0dep","DEP")
   Use_base("lusl")
   Use_base("luslc")
   R_Use(dir_server+"uslugi",dir_server+"uslugi","USL")
@@ -622,7 +621,7 @@ return NIL
 
 *
 
-***** 02.01.21 даты смены цен
+***** 23.10.19 даты смены цен
 Function usl1TFOMS()
 Local k, buf := save_maxrow(), name_file := "uslugi"+stxt, sh := 80, HH := 60, ;
       i, s, fl, v1, v2, mdate, pole, nu, t_arr[BR_LEN], ret, ret_arr, scode, dy
@@ -654,32 +653,6 @@ do while !eof()
   endif
   tmp->iend := 1
   select LUSLC19
-  skip
-enddo
-//
-select LUSLC20
-index on datebeg to (cur_dir+"tmp_uslc20") for !empty(datebeg) .and. codemo == glob_mo[_MO_KOD_TFOMS] unique
-go top
-do while !eof()
-  select TMP
-  append blank
-  tmp->ibeg := 1
-  tmp->data := luslc20->datebeg
-  select LUSLC20
-  skip
-enddo
-select LUSLC20
-index on dateend to (cur_dir+"tmp_uslc20") for !empty(dateend) .and. codemo == glob_mo[_MO_KOD_TFOMS] unique
-go top
-do while !eof()
-  select TMP
-  find (dtos(luslc20->dateend))
-  if !found()
-    append blank
-    tmp->data := luslc20->dateend
-  endif
-  tmp->iend := 1
-  select LUSLC20
   skip
 enddo
 //
@@ -734,8 +707,7 @@ if ret != NIL
                            {"depart","N",3,0},;
                            {"cenav","N",10,2},;
                            {"cenad","N",10,2}})
- // R_Use(dir_exe+"_mo0dep",cur_dir+"_mo0dep","DEP")
-  R_Use(dir_exe+"_mo1dep",cur_dir+"_mo1dep","DEP")
+  R_Use(dir_exe+"_mo0dep",cur_dir+"_mo0dep","DEP")
   use (cur_dir+"tmp1") new
   index on shifr+str(depart,3) to (cur_dir+"tmp1")
   fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
@@ -770,30 +742,6 @@ if ret != NIL
         select LUSLC19
         skip
       enddo
-    elseif dy == 2020
-      select LUSLC20
-      set order to 2 // работаем с собственными ценами
-      find (scode)
-      do while luslc20->CODEMO == scode .and. !eof()
-        if luslc20->datebeg == mdate
-          select TMP1
-          find (luslc20->shifr+str(luslc20->depart,3))
-          if !found()
-            append blank
-            tmp1->shifr := luslc20->shifr
-            tmp1->depart := luslc20->depart
-          endif
-          if luslc20->VZROS_REB == 0
-            tmp1->flv := .t.
-            tmp1->cenav := luslc20->CENA
-          else
-            tmp1->fld := .t.
-            tmp1->cenad := luslc20->CENA
-          endif
-        endif
-        select LUSLC20
-        skip
-      enddo
     else
       select LUSLC
       go top
@@ -821,10 +769,7 @@ if ret != NIL
     use_base("lusl")
     lal := "lusl"
     select TMP1
-    if dy == 2020
-      set relation to shifr into LUSL20
-      lal += "20"
-    elseif dy == 2019
+    if dy == 2019
       set relation to shifr into LUSL19
       lal += "19"
     elseif dy < 2019
@@ -1020,7 +965,7 @@ if empty(ret_arr)
 endif
 return ret_arr
 
-***** 02.01.21
+***** 07.09.20
 Function usl2TFOMS()
 Static sdate
 Local k, buf := save_maxrow(), name_file := "uslugi"+stxt, nu, ret_arr,;
@@ -1079,10 +1024,8 @@ if (k := popup_2array(usl9TFOMS(mdate),T_ROW,T_COL-5,su,1,@t_arr,"Выберите групп
     add_string('      4 - более 3-х дней, хирург.лечение не проводилось, лечение прервано(коэф=0.9)')
     add_string('      5 - менее 4-х дней, несоблюдён режим введения лек.препарата(коэф=0.2)')
     add_string('      6 - более 3-х дней, несоблюдён режим введения лек.препарата, лечение прервано(коэф=0.9)')
-    if lyear == 2020
+    if lyear > 2019
       R_Use(exe_dir+"_mo0k006",,"K006")
-    elseif lyear == 2021
-      R_Use(exe_dir+"_mo1k006",,"K006")
     else
       R_Use(exe_dir+"_mo9k006",,"K006")
     endif
