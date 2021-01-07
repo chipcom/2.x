@@ -671,7 +671,7 @@ if (fl := (human_->ST_VERIFY == 5))
 endif
 return fl
 
-***** 13.10.20 работаем по текущей записи
+***** 05.01.21 работаем по текущей записи
 Function f1_create2reestr19(_nyear,_nmonth)
 Local i, j, lst, s
 fl_DISABILITY := is_zak_sl := is_zak_sl_vr := .f.
@@ -823,6 +823,10 @@ endif
 if !empty(lvidpoms)
   if !eq_ascan(atmpusl,"55.1.2","55.1.3") .or. glob_mo[_MO_KOD_TFOMS] == '801935' // ЭКО-Москва
     lvidpoms := ret_vidpom_licensia(human_->USL_OK,lvidpoms,human_->profil) // только для дн.стационара при стационаре
+  else
+    if eq_ascan(atmpusl,"55.1.3")
+      lvidpoms := ret_vidpom_st_dom_licensia(human_->USL_OK,lvidpoms,human_->profil)
+    endif
   endif
   if !empty(lvidpoms) .and. !("," $ lvidpoms)
     lvidpom := int(val(lvidpoms))

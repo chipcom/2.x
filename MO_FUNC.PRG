@@ -4,8 +4,6 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-*
-
 ***** 21.08.17
 Function run_my_hrb(name_hrb,name_func)
 Local x, handle, n_file := dir_exe+name_hrb+".hrb"
@@ -17,8 +15,6 @@ else
   func_error(4,"Не обнаружен файл "+n_file)
 endif
 Return Nil
-
-*
 
 ***** 28.10.18
 Function index_base(sBase)
@@ -255,15 +251,11 @@ if type("fl_open") == "L" .and. fl_open
 endif
 return NIL
 
-*
-
 ***** 31.01.17
 Function R_Use_base(sBase,lalias)
 return use_base(sBase,lalias,,.t.)
 
-*
-
-***** 02.01.21
+***** 28.10.18
 Function use_base(sBase,lalias,lExcluUse,lREADONLY)
 Local fl := .t., sind1, sind2
 sBase := lower(sBase)
@@ -427,29 +419,22 @@ do case
   case sBase == "lusl"
     fl := R_Use(exe_dir+"_mo8usl",cur_dir+"_mo8usl",sBase+"18") .and. ;
           R_Use(exe_dir+"_mo9usl",cur_dir+"_mo9usl",sBase+"19") .and. ;
-          R_Use(exe_dir+"_mo0usl",cur_dir+"_mo0usl",sBase+"20") .and. ;
-          R_Use(exe_dir+"_mo1usl",cur_dir+"_mo1usl",sBase)
+          R_Use(exe_dir+"_mo0usl",cur_dir+"_mo0usl",sBase)
   case sBase == "luslc"
     fl := R_Use(exe_dir+"_mo8uslc",{cur_dir+"_mo8uslc",cur_dir+"_mo8uslu"},sBase+"18") .and. ;
           R_Use(exe_dir+"_mo9uslc",{cur_dir+"_mo9uslc",cur_dir+"_mo9uslu"},sBase+"19") .and. ;
-          R_Use(exe_dir+"_mo0uslc",{cur_dir+"_mo0uslc",cur_dir+"_mo0uslu"},sBase+"20") .and. ;
-          R_Use(exe_dir+"_mo1uslc",{cur_dir+"_mo1uslc",cur_dir+"_mo1uslu"},sBase)
+          R_Use(exe_dir+"_mo0uslc",{cur_dir+"_mo0uslc",cur_dir+"_mo0uslu"},sBase)
   case sBase == "luslf"
     fl := R_Use(exe_dir+"_mo8uslf",cur_dir+"_mo8uslf",sBase+"18") .and. ;
           R_Use(exe_dir+"_mo9uslf",cur_dir+"_mo9uslf",sBase+"19") .and. ;
-          R_Use(exe_dir+"_mo0uslf",cur_dir+"_mo0uslf",sBase+"20") .and. ;
-          R_Use(exe_dir+"_mo1uslf",cur_dir+"_mo1uslf",sBase)
+          R_Use(exe_dir+"_mo0uslf",cur_dir+"_mo0uslf",sBase)
 endcase
 return fl
-
-*
 
 *****
 Function useUch_Usl()
 return G_Use(dir_server+"uch_usl",dir_server+"uch_usl","UU") .and. ;
        G_Use(dir_server+"uch_usl1",dir_server+"uch_usl1","UU1")
-
-*
 
 ***** записать объём работы операторов
 Function write_work_oper(_pt,_tp,_ae,_kk,_kp,_open)
@@ -501,8 +486,6 @@ for i := 1 to len(arr_char)
   endif
 next
 return fl
-
-*
 
 ***** проверить отдельно фамилию, имя и отчество в GET'ах
 Function valFamImOt(ltip,s,par,/*@*/msg)
@@ -558,8 +541,6 @@ if !empty(msg)
 endif
 return fl
 
-*
-
 ***** 02.09.15 вернуть отдельно фамилию, имя и отчество в массиве
 Function retFamImOt(ltip,fl_no,is_open_kfio)
 Static cDelimiter := " ."
@@ -612,8 +593,6 @@ if fl_no .and. empty(ret_arr[3])
 endif
 return ret_arr
 
-*
-
 ***** 26.10.14 проверка на правильность введённого ФИО
 Function val_fio(afio,aerr)
 Local i, k := 0, msg
@@ -648,8 +627,6 @@ if fl .and. fl_close
 endif
 select (tmp_select)
 return s
-
-*
 
 ***** 22.05.15 СМО на экран (печать)
 Function smo_to_screen(ltip)
@@ -690,8 +667,6 @@ else // par = 2 - GUID из чужой программы
   fl := !empty(s) // просто проверим на пустоту
 endif
 return fl
-
-*
 
 ***** составить GUID
 Function mo_guid(par1,par2)
@@ -739,8 +714,6 @@ me := mem_enn13rees
   mb := 100
 endif*/
 return iif(_nyear < 2017, 3, 5) // начиная с 2017 года - 5 символов
-
-*
 
 ***** 05.11.19 если это укрупнённый архив, распаковать и прочитать
 Function Is_Our_ZIP(cName,/*@*/tip_csv_file,/*@*/kod_csv_reestr)
@@ -884,8 +857,6 @@ else
 endif
 return fl
 
-*
-
 ***** 17.06.15 если это файл с расширениием CSV - прочитать
 Function Is_Our_CSV(cName,/*@*/tip_csv_file,/*@*/kod_csv_reestr)
 Local fl := .f., i, s := cName, s1
@@ -925,8 +896,6 @@ else
   fl := func_error(4,"Неизвестный файл")
 endif
 return fl
-
-*
 
 ***** 17.12.19 проверить, нам ли предназначен данный XML-файл
 Function Is_Our_XML(cName,ret_arr)
@@ -1448,8 +1417,6 @@ if oNode != NIL
 endif
 return ret
 
-*
-
 ***** 11.12.17 вернуть значение тэга
 Function mo_read_xml_tag(oNode,_aerr,_binding)
 // oNode - указатель на узел
@@ -1571,8 +1538,6 @@ for i := 1 to len(_glob_array)
 next
 return tmp_array
 
-*
-
 ***** создать (name_base).DBF из глобального массива (укороченную) (отсечь по дате действия)
 FUNCTION init_tmp_glob_array(name_base,_glob_array,_date,is_all)
 Local i, len1, len2, f2type, fl_is, tmp_select
@@ -1610,8 +1575,6 @@ index on upper(name) to (name_base)
 tmp_ga->(dbCloseArea())
 select (tmp_select)
 return .t.
-
-*
 
 ***** 04.05.13 в GET'е выбрать значение из TMP_GA.DBF (глобального массива) с поиском по подстроке
 Function fget_tmp_ga(k,r,c,name_base,browTitle,is_F2,sTitle)
@@ -1693,8 +1656,6 @@ tmp_ga->(dbCloseArea())
 select (tmp_select)
 return ret
 
-*
-
 ***** 23.01.17
 Function f1get_tmp_ga(nKey,oBrow,regim,arr)
 Static tmp := ""
@@ -1754,8 +1715,6 @@ if ret == -1
   goto rec1
 endif
 return ret
-
-*
 
 ***** 23.01.17 в GET'е выбрать значение из TMP_V015.DBF (глобального массива) с поиском по подстроке
 Function fget_tmp_V015(k,r,c,a_spec)
@@ -1850,15 +1809,11 @@ tmp_ga->(dbCloseArea())
 select (tmp_select)
 return ret
 
-*
-
 ***** 07.08.16
 Static Function f1get_tmp_V015()
 Local s := afteratnum(".",tmp_ga->name,1)
 s := space(2*tmp_ga->uroven)+s
 return s
-
-*
 
 *****
 Function is_up_usl(arr_usl,mkod)
@@ -1876,8 +1831,6 @@ if tmp_select > 0
   select(tmp_select)
 endif
 return ( ascan(arr_usl,usl->kod) > 0 )
-
-*
 
 ***** 03.01.19
 Function input_usluga(arr_tfoms)
@@ -1918,8 +1871,6 @@ if (musl := input_value(18,6,20,73,color1,;
 endif
 return arr_usl
 
-*
-
 *****
 Function ret_1st_otd(lkod_uch)
 Local k, tmp_select := select()
@@ -1935,8 +1886,6 @@ if tmp_select > 0
   select(tmp_select)
 endif
 return k
-
-*
 
 ***** вернуть процент выполнения плана
 Function ret_trudoem(lkod_vr,ltrudoem,kol_mes,arr_m,/*@*/plan)
@@ -1966,8 +1915,6 @@ if plan > 0
 endif
 select (tmp_select)
 return trd
-
-*
 
 ***** 13.02.14
 FUNCTION input_uch(r,c,date1,date2)
@@ -2020,13 +1967,9 @@ if ret != NIL
 endif
 return ret
 
-*
-
 *****
 Function inputE_otd(r1,c1,r2)
 return input_otd(r1,c1,sys_date)
-
-*
 
 ***** 13.02.14
 FUNCTION input_otd(r,c,date1,date2,nTask)
@@ -2084,8 +2027,6 @@ if ret != NIL
   SetIniVar(tmp_ini,{{"uch_otd","otd",glob_otd[1]}})
 endif
 return ret
-
-*
 
 ***** 29.10.18
 Function input_perso(r,c,is_null,is_rab)
@@ -2164,8 +2105,6 @@ close databases
 rest_box(buf)
 return fl1
 
-*
-
 ***** 29.10.18
 Function f1inp_perso(oBrow)
 Local oColumn
@@ -2178,8 +2117,6 @@ oBrow:addColumn(oColumn)
 oColumn := TBColumnNew(center("Специальность",21), {|| padr(ret_tmp_prvs(perso->prvs,perso->prvs_new),21) })
 oBrow:addColumn(oColumn)
 return NIL
-
-*
 
 ***** вернуть учреждение и отделение в GET'е
 FUNCTION ret_uch_otd(k,r,c,date1,date2,nTask)
@@ -2216,8 +2153,6 @@ do while .t.
 enddo
 return NIL
 
-*
-
 ***** удаление данных по зубной формуле в картотеке
 Function STdelKart(ltip,lrec)
 select KART_ST
@@ -2228,8 +2163,6 @@ do while .t.
   DeleteRec(.t.)
 enddo
 return NIL
-
-*
 
 ***** добавление данных по зубной формуле
 Function STappend(ltip,lrec,lkod_k,ldate_u,lu_kod,lkod_vr,_zf,_diag)
@@ -2265,18 +2198,16 @@ if len(arr_zf) > 0
 endif
 return NIL
 
-*
-
 ***** 17.12.18 добавление удалённого зуба
 Function STappendDelZ(lkod_k,_zf,ldate_u,lu_kod)
 Static arr_STdelzub
 Local i, arr_zf := STretArrZF(_zf)
 DEFAULT arr_STdelzub TO ret_arr_STdelzub()
-my_debug(,print_array(arr_zf))
-my_debug(,print_array(arr_STdelzub))
-my_debug(,print_array({lu_kod}))
+//my_debug(,print_array(arr_zf))
+//my_debug(,print_array(arr_STdelzub))
+//my_debug(,print_array({lu_kod}))
 if len(arr_zf) > 0 .and. ascan(arr_STdelzub,lu_kod) > 0 .and. select("KARTDELZ") > 0
-  my_debug(,'t')
+  //my_debug(,'t')
   select KARTDELZ
   for i := 1 to len(arr_zf)
     find (str(lkod_k,7)+str(arr_zf[i],2))
@@ -2297,8 +2228,6 @@ if len(arr_zf) > 0 .and. ascan(arr_STdelzub,lu_kod) > 0 .and. select("KARTDELZ")
 endif
 return NIL
 
-*
-
 ***** 17.12.18 удаление удалённого зуба
 Function STDelDelZ(lkod_k,_zf,lu_kod)
 Static arr_STdelzub
@@ -2314,8 +2243,6 @@ if len(arr_zf) > 0 .and. ascan(arr_STdelzub,lu_kod) > 0 .and. select("KARTDELZ")
   next
 endif
 return NIL
-
-*
 
 ***** 11.12.2018 вернуть массив с кодами услуг удаления зуба
 Function ret_arr_STdelzub()
@@ -2359,8 +2286,6 @@ Local i, s, lkod := 0
 endif*/
 return akod
 
-*
-
 ***** 17.12.18 проверка, не удалён ли зуб
 Function STverDelZub(lkod_k,arr_zf,ldate_u,ltip,lrec,/*@*/amsg)
 Static arr_STdelzub
@@ -2392,8 +2317,6 @@ endif
 endif*/
 return NIL
 
-*
-
 ***** 16.01.19 проверка правильности ввода зубной формулы
 Function STVerifyKolZf(arr_zf,mkol,/*@*/amsg,lshifr)
 if valtype(arr_zf) == "A" .and. valtype(mkol) == "N"
@@ -2405,8 +2328,6 @@ if valtype(arr_zf) == "A" .and. valtype(mkol) == "N"
   endif
 endif
 return !empty(amsg)
-
-*
 
 ***** 31.01.19 проверка правильности ввода зубной формулы
 Function STverifyZF(_zf,_date_r,_sys_date,/*@*/amsg,lshifr)
@@ -2433,8 +2354,6 @@ if len(arr_zf) > 0
   next
 endif
 return arr_zf
-
-*
 
 ***** 16.01.19 синтаксический анализ зубной формулы, возврат массива зубов
 Function STretArrZF(_zf,/*@*/amsg,lshifr)
@@ -2468,13 +2387,9 @@ for i := 1 to numtoken(s,",")
 next
 return arr_zf
 
-*
-
 ***** 16.01.19 является ли случай стоматологическим для ввода зубной формулы
 Function STisZF(_USL_OK,_PROFIL)
 return (_USL_OK == 3 .and. eq_any(_PROFIL,85,86,87,88,89,90,140,171))
-
-*
 
 ***** проверка на правильность серии удостоверения личности
 Function val_ud_ser(par,k,s,/*@*/msg)
@@ -2555,31 +2470,21 @@ if !empty(msg)
 endif
 return fl
 
-*
-
 ***** проверка: "в строке все символы цифры?"
 Static Function yes_number(s)
 return EMPTY(CHARREPL("0123456789", s, SPACE(10)))
-
-*
 
 ***** проверка: "в строке все символы русские буквы?"
 Static Function yes_rus_str(s)
 return EMPTY(CHARREPL("АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ", s, SPACE(33)))
 
-*
-
 ***** рисмкое число, записанное латинскими символами, записать русскими символами
 Static FUNCTION gniRIMTORUS(_s)
 RETURN CHARREPL("IVXLC", _s, "1УХЛС")
 
-*
-
 ***** рисмкое число, записанное русскими символами, записать латинскими символами
 Static FUNCTION gniRUSTORIM(_s)
 RETURN CHARREPL("1УХЛС", _s, "IVXLC")
-
-*
 
 ***** перевести арабское число в римское
 Static FUNCTION gniNOMTORIM(_s, _c1, _c2, _c3, _c4, _c5, _c6, _c7)
@@ -2593,8 +2498,6 @@ _ret += gniDIGTORIM(_n1, _c5, _c6, _c7)
 _ret += gniDIGTORIM(_n2, _c3, _c4, _c5)
 _ret += gniDIGTORIM(_n3, _c1, _c2, _c3)
 RETURN _ret
-
-*
 
 ***** перевести римское число в арабское
 Static FUNCTION gniRIMTONOM(_s, _c1, _c2, _c3, _c4, _c5, _c6, _c7)
@@ -2636,8 +2539,6 @@ FOR i := 1 TO _nl
   ENDIF
 NEXT
 RETURN _ret
-
-*
 
 ***** перевести арабскую цифру в римскую
 Static FUNCTION gniDIGTORIM(_s, _c1, _c2, _c3)
@@ -2727,8 +2628,6 @@ endif
 my_restkey(tmp_keys)
 return NIL
 
-*
-
 ***** выбор фразы для места работы
 Function input_s_mr()
 Local t_arr[BR_LEN], tmp_select := select(), buf := savescreen(), ret := ""
@@ -2751,8 +2650,6 @@ if tmp_select > 0
 endif
 restscreen(buf)
 return ret
-
-*
 
 *****
 Function f1_s_mr(nKey,oBrow,regim)
@@ -2849,8 +2746,6 @@ endif
 my_restkey(tmp_keys)
 return NIL
 
-*
-
 ***** выбор фразы для адреса
 Function input_s_adres()
 Local t_arr[BR_LEN], tmp_select := select(), buf := savescreen(), ret := ""
@@ -2926,8 +2821,6 @@ setcolor(tmp_color)
 restscreen(buf)
 return arr
 
-*
-
 *****
 Function f9_f_nastr(l_titul,a_strok)
 Local sh := 80, HH := 77, buf := save_maxrow(), n_file := "frm_nast"+stxt
@@ -2974,8 +2867,6 @@ my_restkey(tmp_keys)
 setcursor()
 return NIL
 
-*
-
 *****
 Function ret_f_nastr(a_usl,lshifr)
 Local i, shb, fl := .f.
@@ -3002,8 +2893,6 @@ if fl
   next
 endif
 return fl
-
-*
 
 *****
 Function _f_usl_danet(a_da,a_net)
@@ -3038,8 +2927,6 @@ if fl
   endif
 endif
 return fl
-
-*
 
 ***** 28.01.20 определение КСГ по остальным введённым полям ввода - 2019-20 год
 Function definition_KSG(par,k_data2)
@@ -3855,8 +3742,6 @@ endif
 return {ars,arerr,alltrim(lksg),lcena,akslp,akiro,s_dializ}
 //       1     2      3            4     5     6       7
 
-*
-
 ***** 12.01.19
 Function f_cena_kiro(/*@*/_cena,lkiro)
 Local _akiro := {0,1}
@@ -3876,8 +3761,6 @@ do case
 endcase
 _cena := round_5(_cena*_akiro[2],0)  // округление до рублей с 2019 года
 return _akiro
-
-*
 
 ***** 28.01.20 вывести строку в отладочный массив о КСГ
 Function f_put_debug_KSG(k,arr,ars)
@@ -3962,8 +3845,6 @@ else
 endif
 return v
 
-*
-
 ***** 20.01.19 определить КСГ для 1 пациента с открытием файлов
 Function f_1pac_definition_KSG(lkod,is_msg)
 Local arr, i, s, buf := save_maxrow(), lshifr, lrec, lu_kod, lcena, lyear, mrec_hu, not_ksg := .t., sdial, fl
@@ -4006,7 +3887,7 @@ if human_->USL_OK < 3
   if fl // не диализ 2018 года
     aeval(arr[1],{|x| my_debug(,x) })
     if !empty(arr[2])
-      my_debug(,"ОШИБКА:")
+      //my_debug(,"ОШИБКА:")
       aeval(arr[2],{|x| my_debug(,x) })
     endif
     lrec := lcena := 0
@@ -4143,8 +4024,6 @@ close databases
 rest_box(buf)
 return NIL
 
-*
-
 ***** 29.09.19 определить КСГ для 1 пациента из режима редактирования услуг
 Function f_usl_definition_KSG(lkod,k_data2)
 Local arr, buf := save_maxrow(), lshifr, lrec, lu_kod, lcena, not_ksg := .t.,;
@@ -4183,7 +4062,7 @@ if human_->USL_OK < 3
   if fl // не диализ 2018 года
     aeval(arr[1],{|x| my_debug(,x), aadd(ret,x) })
     if !empty(arr[2])
-      my_debug(,"ОШИБКА:")
+      //my_debug(,"ОШИБКА:")
       aeval(arr[2],{|x| my_debug(,x), aadd(ret,x) })
     endif
     lrec := lcena := 0
@@ -4398,8 +4277,6 @@ inkey(0)
 restscreen(buf)
 return NIL
 
-*
-
 ***** 26.01.18 тест определения КСГ
 Function test_definition_KSG()
 Local arr, buf := save_maxrow(), lshifr, lrec, lu_kod, lcena, lyear, mrec_hu, not_ksg := .t.
@@ -4540,8 +4417,6 @@ close databases
 rest_box(buf)
 fclose(fp)
 return NIL*/
-
-*
 
 ***** 07.09.20 определить коэф-т сложности лечения пациента и пересчитать цену
 Function f_cena_kslp(/*@*/_cena,_lshifr,_date_r,_n_data,_k_data,lkslp,arr_usl,lPROFIL_K,arr_diag,lpar_org,lad_cr)
@@ -4727,8 +4602,6 @@ elseif _k_data > s_1_may ;                 // с 1 мая 2016 года
 endif
 return _akslp
 
-*
-
 ***** 22.01.18 если надо, перезаписать значения КСЛП и КИРО в HUMAN_2
 Function put_str_kslp_kiro(arr,fl)
 Local lpc1 := "", lpc2 := ""
@@ -4755,8 +4628,6 @@ if !(padr(lpc1,20) == human_2->pc1 .and. padr(lpc2,10) == human_2->pc2)
 endif
 return NIL
 
-*
-
 ***** 23.01.19 вернуть итоговый КСЛП
 Function ret_koef_kslp(akslp)
 Local k := 1
@@ -4767,8 +4638,6 @@ if valtype(akslp) == "A" .and. len(akslp) >= 2
   endif
 endif
 return k
-
-*
 
 ***** 21.01.19 проверить, заблокирована ли запись, и, если нет, то заблокировать её
 Function my_Rec_Lock(n)

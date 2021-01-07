@@ -2392,13 +2392,8 @@ if !fl
 endif
 _su := su
 if between(par,2,3) .and. eq_any(su,1,2,5)
-  if arr_m[1] > 2020
-    R_Use(dir_exe+"_mo1unit",,"MOUNIT")
-    index on str(ii,3) to (cur_dir+"tmp_unitii")
-    set index to (cur_dir+"_mo1unit"),(cur_dir+"tmp_unitii")
-    is_2021 := .t.
-  elseif arr_m[1] == 2020
-    R_Use(dir_exe+"_mo0unit",,"MOUNIT20")
+  if arr_m[1] > 2019
+    R_Use(dir_exe+"_mo0unit",,"MOUNIT")
     index on str(ii,3) to (cur_dir+"tmp_unitii")
     set index to (cur_dir+"_mo0unit"),(cur_dir+"tmp_unitii")
     is_2020 := .t.
@@ -2663,7 +2658,7 @@ if eq_any(su,1,2,5)
   add_string("                                          ³¯« ­-§ ª §³«¨áâ®¢ ãç¥â ³    áã¬¬      ")
   add_string("ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄ")
   for i := 1 to len(luapz2016)
-my_debug(,print_array(luapz2016[i])+print_array(apz2016[i]))
+//my_debug(,print_array(luapz2016[i])+print_array(apz2016[i]))
     if luapz2016[i,3] > 0 .or. apz2016[i,3] > 0
       s := padl(luapz2016[i,1],42)
       if empty(apz2016[i,3]) .and. !empty(luapz2016[i,3])
