@@ -10179,9 +10179,9 @@ if fl_1 // не первый раз
   endif
   if fl
     mywait()
-    //my_debug(,print_array(skol))
-    //my_debug(,print_array(mkol))
-    //my_debug(,print_array(ames))
+    my_debug(,print_array(skol))
+    my_debug(,print_array(mkol))
+    my_debug(,print_array(ames))
     for v := 1 to 5
       j := {2,4,5,3,1}[v]
       // порядок: 2-профосмотр, 4-65 лет, 5-66 и старше, 3-пенсионеры, 1-остальная дисп-ия
@@ -10238,10 +10238,10 @@ if fl_1 // не первый раз
         enddo
       enddo
     next v
-    //my_debug(,print_array(skol))
-    //my_debug(,print_array(mkol))
-    //my_debug(,print_array(ames))
-    //my_debug(,print_array(ame))
+    my_debug(,print_array(skol))
+    my_debug(,print_array(mkol))
+    my_debug(,print_array(ames))
+    my_debug(,print_array(ame))
     Use (cur_dir+"tmp_00") new alias TMP1
     select TMP
     index on kod to (cur_dir+"tmp_dr00") for reestr == 0 .and. n_m > 0

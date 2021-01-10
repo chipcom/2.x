@@ -4457,7 +4457,7 @@ do while !eof()
           select HU
           skip
         enddo
-//my_debug(vid_vp < 0,"vid_vp="+lstr(vid_vp)+print_array(au))
+my_debug(vid_vp < 0,"vid_vp="+lstr(vid_vp)+print_array(au))
         if kol_dializ > 0
           tfoms_pz[ii,2] := kol_dializ // заменяем на кол-во диализных процедур
         endif
