@@ -1500,7 +1500,6 @@ restscreen(buf)
 return ret
 
 *===============================================================================
-*
 
 ***** 19.01.20
 Function create1reestr19(_recno,_nyear,_nmonth)
