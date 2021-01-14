@@ -94,11 +94,45 @@ function f010()
     aadd(_f010, {"Чукотский АО",82,4})
     aadd(_f010, {"Ямало-Ненецкий АО",83,6})
     aadd(_f010, {"г. Байконур",84,0})
+    aadd(_f010, {"Республика Крым",85,3})
+    aadd(_f010, {"г. Севастополь",86,3})
 
     return _f010
 
+* 14.01.21
+Function viewF003()
+    Local buf := savescreen()
+    local nTop, nLeft, nBottom, nRight
+    local l := 0, nChoice
+    Local ar
+    local ar_f010 := f010()
+
+    ar := {}
+    for i := 1 to len(ar_f010)
+      aadd(ar, ar_f010[i,1])
+      l := max(l,len(ar[i]))
+    next
+
+    nTop := 10
+    nLeft := 10
+    nBottom := 20
+    nRight := nLeft + l
+
+    nChoice := AChoice( 10, 10, 20, 10+l, ar )
+    IF nChoice == 0
+       ? "You did not choose an item"
+    ELSE
+       ? ;
+          "You chose element", hb_ntos( nChoice ), ;
+          "which has a value of", ar[ nChoice ]
+    ENDIF    
+    inkey(0)
+    restscreen(buf)
+    return NIL
+
+    
 * 25.12.20 выбор медицинского учреждения из списка
-function viewF003()
+function viewF003_old()
     Local buf := savescreen()
     Local r1 := T_ROW
     Private pr1 := r1, pc1 := 5, pc2 := 75, fl_found := .t.
