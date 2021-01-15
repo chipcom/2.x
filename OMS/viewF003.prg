@@ -1,7 +1,9 @@
 #include 'inkey.ch'
 #include '..\function.ch'
 #include 'common.ch'
-#include "..\edit_spr.ch"
+#include '..\edit_spr.ch'
+
+#include 'tbox.ch'
 
 static strCompanies := 'СПРАВОЧНИК МЕДИЦИНСКИХ УЧРЕЖДЕНИЙ'
 
@@ -101,10 +103,12 @@ function f010()
 
 * 14.01.21
 Function viewF003()
-    Local buf := savescreen()
     local nTop, nLeft, nBottom, nRight
     local l := 0, nChoice
     Local ar
+	local color_say := 'N/W', color_get := 'W/N*'
+    local oBox, oBoxRegion
+    local strRegion := "Выбор региона" 
     local ar_f010 := f010()
 
     ar := {}
@@ -113,21 +117,32 @@ Function viewF003()
       l := max(l,len(ar[i]))
     next
 
-    nTop := 10
-    nLeft := 10
-    nBottom := 20
-    nRight := nLeft + l
+    // главное окно
+    oBox := TBox():New( 2, 10, 22, 70, .t. )
+    oBox:Caption := 'Выбор направившей организации'
+	oBox:Color := color_say + ',' + color_get
+	oBox:Frame := BORDER_DOUBLE
+    oBox:MessageLine := '^<Esc>^ - отмена;  ^<Enter>^ - выбор'
+    oBox:Save := .t.
+	oBox:View()
 
-    nChoice := AChoice( 10, 10, 20, 10+l, ar )
+    nTop := 4
+    nLeft := 40 - l / 2
+    nBottom := 9
+    nRight := 40 + l / 2 + 1
+
+    // окно выбора региона
+    oBoxRegion := TBox():New( nTop, nLeft, nBottom, nRight, .f. )
+    oBoxRegion:Caption := 'Регион'
+	oBoxRegion:Frame := BORDER_SINGLE
+	oBoxRegion:View()
+    nChoice := AChoice( oBoxRegion:Top+1, oBoxRegion:Left+1, oBoxRegion:Bottom-1, oBoxRegion:Right-1, ar, , , 34 )
     IF nChoice == 0
-       ? "You did not choose an item"
+        @ 14, 12 SAY "Ваш выбор:" + hb_ntos(nChoice)
     ELSE
-       ? ;
-          "You chose element", hb_ntos( nChoice ), ;
-          "which has a value of", ar[ nChoice ]
+        @ 14, 12 SAY "Ваш выбор:" + hb_ntos(nChoice) + ", " + ar[ nChoice ]
     ENDIF    
     inkey(0)
-    restscreen(buf)
     return NIL
 
     
