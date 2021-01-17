@@ -5,8 +5,6 @@
 
 #include 'tbox.ch'
 
-static strCompanies := 'СПРАВОЧНИК МЕДИЦИНСКИХ УЧРЕЖДЕНИЙ'
-
 * 25.12.20 вернуть массив регионов по справочнику регионов ТФОМС F010.xml
 function f010()
     // F010.xml - Классификатор субъектов Российской Федерации
@@ -101,15 +99,20 @@ function f010()
 
     return _f010
 
-* 14.01.21
+* 17.01.21
 Function viewF003()
     local nTop, nLeft, nBottom, nRight
-    local l := 0, nChoice
-    Local ar
+    local l := 0, nRegion, fl
+    Local ar, aStruct, dbName := "F003", indexName := cur_dir + dbName
 	local color_say := 'N/W', color_get := 'W/N*'
     local oBox, oBoxRegion
     local strRegion := "Выбор региона" 
+    local lSelectedRegion := .f., lFileCreated := .f.
+    local retMCOD := ''
     local ar_f010 := f010()
+
+    private tmpName := cur_dir + "tmp_F003", tmpAlias := "tF003"
+    private oBoxCompany
 
     ar := {}
     for i := 1 to len(ar_f010)
@@ -117,73 +120,106 @@ Function viewF003()
       l := max(l,len(ar[i]))
     next
 
-    // главное окно
-    oBox := TBox():New( 2, 10, 22, 70, .t. )
-    oBox:Caption := 'Выбор направившей организации'
-	oBox:Color := color_say + ',' + color_get
-	oBox:Frame := BORDER_DOUBLE
-    oBox:MessageLine := '^<Esc>^ - отмена;  ^<Enter>^ - выбор'
-    oBox:Save := .t.
-	oBox:View()
-
     nTop := 4
     nLeft := 40 - l / 2
     nBottom := 9
     nRight := 40 + l / 2 + 1
 
     // окно выбора региона
-    oBoxRegion := TBox():New( nTop, nLeft, nBottom, nRight, .f. )
+    oBoxRegion := TBox():New( nTop, nLeft, nBottom, nRight )
     oBoxRegion:Caption := 'Регион'
-	oBoxRegion:Frame := BORDER_SINGLE
-	oBoxRegion:View()
-    nChoice := AChoice( oBoxRegion:Top+1, oBoxRegion:Left+1, oBoxRegion:Bottom-1, oBoxRegion:Right-1, ar, , , 34 )
-    IF nChoice == 0
-        @ 14, 12 SAY "Ваш выбор:" + hb_ntos(nChoice)
-    ELSE
-        @ 14, 12 SAY "Ваш выбор:" + hb_ntos(nChoice) + ", " + ar[ nChoice ]
-    ENDIF    
-    inkey(0)
-    return NIL
-
+    oBoxRegion:Frame := BORDER_SINGLE
     
-* 25.12.20 выбор медицинского учреждения из списка
-function viewF003_old()
-    Local buf := savescreen()
-    Local r1 := T_ROW
-    Private pr1 := r1, pc1 := 5, pc2 := 75, fl_found := .t.
-   
+    // окно полного наименования организации
+    oBoxCompany := TBox():New( 19, 11, 21, 69 )
+    oBoxCompany:Frame := BORDER_NONE
+    oBoxCompany:Color := color_say
 
-    // G_Use(dir_server+"f003",dir_server+"f003","F003")
-    // Подготовка файла БД
+    do while .t.
+        // главное окно
+        oBox := NIL // уничтожим окно
+        if lSelectedRegion
+            oBox := TBox():New( 2, 10, 22, 70 )
+        else
+            oBox := TBox():New( 2, 10, 11, 70 )
+        endif
+	    oBox:Color := color_say + ',' + color_get
+	    oBox:Frame := BORDER_DOUBLE
+        oBox:MessageLine := '^^ или нач.буква - просмотр;  ^<Esc>^ - выход;  ^<Enter>^ - выбор'
+        oBox:Save := .t.
 
-    G_Use(dir_server+"f003",,"F003")
-    index on substr(mcode,1,2) to (cur_dir+"tmp_f003")
-    
-    SET FILTER TO substr(F003->mcode,1,2) = "34"
-    dbGoTop()
-    Alpha_Browse(pr1,pc1,maxrow()-2,pc2,"f1_f003",color0,,,,,,,"f2_f003",,{,,,,.t.} )
-    close databases
-    
-    restscreen(buf)
+        if ! lSelectedRegion
+            oBox:Caption := 'Выберите регион'
+            oBox:View()
+            oBoxRegion:View()
+            nRegion := AChoice( oBoxRegion:Top+1, oBoxRegion:Left+1, oBoxRegion:Bottom-1, oBoxRegion:Right-1, ar, , , 34 )
+            if nRegion == 0
+                (dbName)->(dbCloseArea())
+                (tmpAlias)->(dbCloseArea())
+                return retMCOD
+            else
+                lSelectedRegion := .t.
+                if ! lFileCreated
+                    dbUseArea( .t.,, dir_server + dbName, dbName, .f., .f. )
+                    dbCreateIndex( indexName, "substr(MCOD,1,2)", , NIL )
+                    // создадим временный файл для отбора организаций выбранного региона
+                    aStruct := (dbName)->(dbStruct())
+                    dbCreate(tmpName, aStruct)
+        
+                    dbUseArea( .t.,, tmpName, tmpAlias, .t., .f. )
+        
+                    (dbName)->(dbGoTop())
+                    (dbName)->(dbSeek(str(nRegion,2)))
+                    do while substr((dbName)->MCOD,1,2) == str(nRegion,2)
+                        (tmpAlias)->(dbAppend())
+                        (tmpAlias)->MCOD := (dbName)->MCOD
+                        (tmpAlias)->NAMEMOK := (dbName)->NAMEMOK
+                        (tmpAlias)->NAMEMOP := (dbName)->NAMEMOP
+                        (tmpAlias)->YEAR := (dbName)->YEAR
+        
+                        (dbName)->(dbSkip())
+                    enddo
+                    lFileCreated := .t.
+                    (dbName)->(dbCloseArea())
+                endif
+                loop
+            endif
+        else
+            if lFileCreated
+                oBox:Caption := 'Выбор направившей организации'
+                oBox:View()
+                dbCreateIndex( tmpName, "NAMEMOK", , NIL )
+                (tmpAlias)->(dbGoTop())
+                if fl := Alpha_Browse(oBox:Top+1,oBox:Left+1,oBox:Bottom-5,oBox:Right-1,"ColumnF003",color0,,,,,,"ViewRecordF003",,,{"═","░","═","N/BG,W+/N,B/BG,BG+/B"} )
+                    retMCOD := (tmpAlias)->MCOD
+                endif
+                oBoxRegion := NIL
+                oBoxCompany := nil
+                oBox := nil
+                exit
+            endif
+        endif
+    enddo
+    (tmpAlias)->(dbCloseArea())
+    return retMCOD
+
+***** 16.01.21
+Function ColumnF003(oBrow)
+    Local oColumn
+    oColumn := TBColumnNew(center("Наименование",50), {|| left((tmpAlias)->NAMEMOK,50) })
+    oBrow:addColumn(oColumn)
     return nil
 
-* 29.12.20 ****
-Function f1_f003(oBrow)
-    Local oColumn
-    oColumn := TBColumnNew(center("Наименование организации",30), {|| F003->short_name })
-    oBrow:addColumn(oColumn)
-    status_key("^<Esc>^ выход; ^<Enter>^ выбор учреждения; ^F2^ отбор по региону")
-    return NIL
-            
+***** 17.01.21
+Function ViewRecordF003()
+    Local i, arr := {}
 
-* 29.12.20 ****
-Function f2_f003(nKey,oBrow)
-    Local buf, fl := .f., rec, rec1, k := -1, r := maxrow()-7, tmp_color
-    Local sh := 80, HH := 57
-    do case
-        case nKey == K_ESC
-        case nKey == K_ENTER
-        case nKey == K_F2
-    endcase
-    return k
-    
+    oBoxCompany:View()
+    // разобьем полное наменование на подстроки
+    perenos(arr,(tmpAlias)->NAMEMOP,50)
+    // oBoxCompany:Clear()
+    for i := 1 to len(arr)
+        @ oBoxCompany:Top+i-1,oBoxCompany:Left+1 say arr[i] color color1
+      next
+  
+    return nil

@@ -3678,7 +3678,8 @@ do case
       func_error(4,err_slock)
     endif
     case k == 6
-      viewF003()
+      @ 10, 2 SAY 'MCOD: ' + viewF003()
+      inkey(0)
   endcase
 if k > 0
   sk := k
