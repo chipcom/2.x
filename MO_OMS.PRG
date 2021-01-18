@@ -6544,6 +6544,8 @@ if found()
     else
       fl_oms := .f.
       // переопределение цены
+my_debug(," oms_usl_sluch")
+
       if (v := f1cena_oms(tmp->shifr_u,;
                           tmp->shifr1,;
                           (human->vzros_reb==0),;
@@ -6923,6 +6925,8 @@ do case
         last_date := max(tmp->date_u1,last_date)
         if st_arr_dbf[k,_HU_N_BASE] == 0
           // переопределение цены
+my_debug(," 1. f2oms_usl_sluch")
+
           if (v := f1cena_oms(tmp->shifr_u,;
                               tmp->shifr1,;
                               (human->vzros_reb==0),;
@@ -7090,6 +7094,8 @@ do case
           rec_tmp := tmp->(recno())
           if st_arr_dbf_s[k,_HU_N_BASE] == 0
             // переопределение цены
+my_debug(," 1. f2oms_usl_sluch")
+
             if (v := f1cena_oms(tmp->shifr_u,;
                                 tmp->shifr1,;
                                 (human->vzros_reb==0),;
