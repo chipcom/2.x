@@ -2510,7 +2510,7 @@ return nU
 
 *
 
-***** 12.01.20
+***** 18.01.21
 Function fcena_oms(sShifr,lVzReb,dDate,/*@*/fl_delete,/*@*/fl_yes,/*@*/_ifin)
 Local i, v, tmp_select := select(), lvr, nu, lal, s := glob_mo[_MO_KOD_TFOMS]
 sShifr := padr(sShifr,10)
@@ -2531,6 +2531,8 @@ for i := 1 to len(dDate)
     lal += "18"
   elseif year(dDate[i]) < 2020
     lal += "19"
+  elseif year(dDate[i]) < 2021
+    lal += "20"
   endif
   dbselectarea(lal)
   set order to 1

@@ -607,11 +607,17 @@ do while mohu->kod == mkod .and. !eof()
     Select MOSU
     goto (mohu->u_kod)
     lname := mosu->name
-    if year(human->k_data) > 2019
+    if year(human->k_data) > 2020
       select LUSLF
       find (padr(mosu->shifr1,20))
       if found()
         lname := luslf->name  // наименование услуги из справочника ТФОМС
+      endif
+    elseif year(human->k_data) > 2019
+      select LUSLF20
+      find (padr(mosu->shifr1,20))
+      if found()
+        lname := luslf20->name  // наименование услуги из справочника ТФОМС
       endif
     elseif year(human->k_data) > 2018
       select LUSLF19
@@ -5008,12 +5014,15 @@ myread()
 restscreen(buf)
 if lastkey() == K_ESC
   return nil
-elseif !between(arr_m[1],2019,2020)
-  return func_error(4,"Данный отчёт работает только с 2019-20 годами")
+elseif !between(arr_m[1],2019,2021)
+  return func_error(4,"Данный отчёт работает только с 2019-21 годами")
 endif
 lal := "lusl" ; lalf := "luslf"
 if arr_m[1] == 2019
   lal += "19" ; lalf += "19"
+endif
+if arr_m[1] == 2020
+  lal += "20" ; lalf += "20"
 endif
 WaitStatus(arr_m[4])
 @ maxrow(),0 say " ждите..." color "W/R"
