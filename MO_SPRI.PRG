@@ -880,7 +880,7 @@ if ret != NIL
     add_string(center(date_month(mdate,.t.),sh))
     add_string("")
     use_base("luslc")
-    if dy < 2020
+    if dy < 2019
       select LUSLC19
       set order to 2 // работаем с собственными ценами
       find (scode)
@@ -1020,7 +1020,7 @@ if empty(ret_arr)
 endif
 return ret_arr
 
-***** 02.01.21
+***** 18.01.21
 Function usl2TFOMS()
 Static sdate
 Local k, buf := save_maxrow(), name_file := "uslugi"+stxt, nu, ret_arr,;
@@ -1033,7 +1033,7 @@ mdate := input_value(20,5,22,73,color1,;
 if mdate == NIL
   return NIL
 endif
-if (lyear := year(mdate)) < 2019
+if (lyear := year(mdate)) < 2020
   return func_error(4,"Вы запрашиваете слишком старую информацию")
 endif
 sdate := mdate
@@ -1067,6 +1067,7 @@ if (k := popup_2array(usl9TFOMS(mdate),T_ROW,T_COL-5,su,1,@t_arr,"Выберите групп
     add_string('      11 - проведение однотипных операций на парных органах(коэф=1.2)')
     add_string('      18 - применение инвазивной ИВЛ (COVID-19/крайне тяжелое состояние)(коэф=1.2)')
    if t_arr[2] == 502
+    //!!! ВНИМАНИЕ 18.01
     if lyear < 2020
      add_string('      12 - ЭКО 1 этап(коэф=0.6), 13 - ЭКО полн с крио(коэф=1.1), 14 - ЭКО подсадка(коэф=0.19)')
     else
@@ -1096,6 +1097,9 @@ if (k := popup_2array(usl9TFOMS(mdate),T_ROW,T_COL-5,su,1,@t_arr,"Выберите групп
   if lyear == 2019
     lal += "19"
   endif
+  if lyear == 2020
+    lal += "20"
+  endif
   dbSelectArea(lal)
   if t_arr[2] > 500
     index on fsort_usl(shifr) to (cur_dir+"tmplu") for is_ksg(shifr,t_arr[2]-500) .and. datebeg >= boy(mdate)
@@ -1104,6 +1108,7 @@ if (k := popup_2array(usl9TFOMS(mdate),T_ROW,T_COL-5,su,1,@t_arr,"Выберите групп
   endif
   go top
   do while !eof()
+
     v1 := fcena_oms(&lal.->shifr,.t.,mdate,@fl1del,@fl1uslc)
     v2 := fcena_oms(&lal.->shifr,.f.,mdate,@fl2del,@fl2uslc)
     if !(fl1del .and. fl2del)
@@ -1268,7 +1273,7 @@ if !empty(lkiro)
 endif
 return s
 
-***** 03.01.19
+***** 18.01.21
 Function usl3TFOMS()
 Local i, k, buf := save_maxrow(), name_file := "uslugi"+stxt,;
       sh := 85, HH := 80, mas1[5], mas2[5], arr[5], k1, k2, t_arr, mdate, lyear
@@ -1278,7 +1283,7 @@ if (mdate := input_value(20,5,22,74,color1,;
                          sys_date)) == NIL
   return NIL
 endif
-if (lyear := year(mdate)) < 2019
+if (lyear := year(mdate)) < 2020
   return func_error(4,"Вы запрашиваете слишком старую информацию")
 endif
 if (k := popup_2array(usl9TFOMS(mdate),T_ROW,T_COL-5,su,1,@t_arr,"Выберите группу услуг","B/BG",color0)) > 0
@@ -1316,6 +1321,9 @@ if (k := popup_2array(usl9TFOMS(mdate),T_ROW,T_COL-5,su,1,@t_arr,"Выберите групп
   lal := "lusl"
   if lyear == 2019
     lal += "19"
+  endif
+  if lyear == 2020
+    lal += "20"
   endif
   dbSelectArea(lal)
   if t_arr[2] > 500
@@ -1371,7 +1379,7 @@ return NIL
 
 *
 
-***** 03.01.19
+***** 19.01.21
 Static Function usl9TFOMS(mdate)
 Static sdate, sarr1
 Local arr := {{" 1. Койко-дни по профилям",1},;
@@ -1399,6 +1407,9 @@ if empty(sdate) .or. sdate != mdate
   if (lyear := year(mdate)) == 2019
     lal += "19"
   endif
+  if (lyear := year(mdate)) == 2020
+    lal += "20"
+  endif
   Ins_Array(arr,1,{"КСГ в ДНЕВНОМ стационаре",502})
   Ins_Array(arr,1,{"КСГ в СТАЦИОНАРЕ",501})
   use_base("luslc")
@@ -1410,6 +1421,8 @@ if empty(sdate) .or. sdate != mdate
     endif
     ls := len(sShifr)
     dbselectArea(lal)
+  my_debug(,lal)
+
     set order to 1
     find (sShifr)
     do while sShifr == left(&lal.->shifr,ls) .and. !eof()
@@ -1418,6 +1431,8 @@ if empty(sdate) .or. sdate != mdate
         // поиск цены по дате окончания лечения
         if between_date(&lal.->datebeg,&lal.->dateend,mdate)
           fl_delete := .f. ; exit
+  my_debug(,lal)
+
         endif
       endif
       skip

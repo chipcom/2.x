@@ -3616,7 +3616,7 @@ restscreen(buf)
 if lastkey() == K_ESC
   return nil
 elseif !between(arr_m[1],2018,2020)
-  return func_error(4,"Данный отчёт работает только с 2018-20 годами")
+  return func_error(4,"Данный отчёт работает только с 2018-21 годами")
 else
   begin_date := dtoc4(arr_m[5])
   end_date := dtoc4(arr_m[6])
@@ -3628,6 +3628,9 @@ else
     kdr := 21 // по какую дату РАК сумма к оплате 21.01.20
   elseif arr_m[1] == 2018 .and. arr_m[3] == 12
     kds := 21
+    kdr := 22
+  elseif arr_m[1] == 2020 .and. arr_m[3] == 12
+    kds := 21    // !!! ВНИМАНИЕ
     kdr := 22
   endif
   *********************************************************************
@@ -3848,7 +3851,9 @@ else
     add_string(padr("Всего:",59)+put_val(sv+sd,7)+put_val(sv,7)+put_val(sd,7))
     arr_title[2] := padr("Наименование КСГ",59)+substr(arr_title[2],60)
     lal := "lusl"
-    if arr_m[1] == 2019
+    if arr_m[1] == 2020
+      lal += "20"
+    elseif arr_m[1] == 2019
       lal += "19"
     elseif arr_m[1] < 2019
       lal += "18"
@@ -3906,7 +3911,9 @@ else
     enddo
     arr_title[2] := padr(" Операция (хирургическая группа КСГ)",59)+substr(arr_title[2],60)
     lal := "luslf"
-    if arr_m[1] == 2019
+    if arr_m[1] == 2020
+      lal += "20"
+    elseif arr_m[1] == 2019
       lal += "19"
     elseif arr_m[1] < 2019
       lal += "18"
