@@ -14,9 +14,9 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-Static _version := {2,11,13}
-Static char_version := "d"
-Static _date_version := "10.01.21г."
+Static _version := {2,11,14}
+Static char_version := "пробная"
+Static _date_version := "17.01.21г."
 Static __s_full_name := "ЧИП + Учёт работы Медицинской Организации"
 Static __s_version
 

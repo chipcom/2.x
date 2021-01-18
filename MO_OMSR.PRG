@@ -10,6 +10,8 @@ Static Sreestr_sem := "Работа с реестрами"
 Static Sreestr_err := "В данный момент с реестрами работает другой пользователь."
 Static sadiag1 := {}
 
+*
+
 ***** 04.08.19 скорректировать вид помощи для дневного стационара (в стационаре) по лицензии
 Function ret_vidpom_licensia(lusl_ok,lvidpoms,lprofil)
 Static mo_licensia := {;
@@ -35,6 +37,34 @@ for i := 1 to len(mo_licensia)
 next i
 return lvidpoms
 
+*
+
+***** 05.01.21 скорректировать вид помощи для дневного стационара (в стационаре) по лицензии
+Function ret_vidpom_st_dom_licensia(lusl_ok,lvidpoms,lprofil)
+Static mo_licensia := {;
+  {'591001',2,'31',68};   // ЦРБ Суровикино
+ }
+Local i, fl := .f.
+  my_debug(,"1 "+lvidpoms)
+
+for i := 1 to len(mo_licensia)
+  if mo_licensia[i,1] == glob_mo[_MO_KOD_TFOMS] .and. mo_licensia[i,2] == lusl_ok
+    if mo_licensia[i,4] == 0 // все профили
+      lvidpoms := mo_licensia[i,3]
+    elseif mo_licensia[i,4] == lprofil // конкретный профиль
+      lvidpoms := mo_licensia[i,3]
+    endif
+  endif
+next i
+  my_debug(,"2 "+lvidpoms)
+//  my_debug(,str(lprofil))
+//  my_debug(,str(lusl_ok))
+
+return lvidpoms
+
+
+*
+
 ***** 20.09.15 если это коммерческая скорая
 Function is_komm_SMP()
 Static _is
@@ -45,6 +75,8 @@ if _is == NIL // т.е. определяется один раз за сеанс работы задачи
   _is := (ascan(a_komm_SMP,glob_mo[_MO_KOD_TFOMS]) > 0)
 endif
 return _is
+
+*
 
 ***** 14.02.14 является ли услуга "с неотложной целью"
 Function f_is_neotl_pom(lshifr)
@@ -68,6 +100,8 @@ return eq_any(left(lshifr,5),;
        "72.3.",; // Законченный случай предварительного осмотра несовершеннолетних
        "72.4.")  // Законченный случай периодического осмотра несовершеннолетних
 
+*
+
 ***** 13.02.14 является ли услуга первичным стоматологическим приёмом
 Function f_is_1_stom(lshifr,ret_arr)
 Static a_1_stom := {;
@@ -84,6 +118,8 @@ if valtype(ret_arr) == "A"
   next
 endif
 return ascan(a_1_stom,lshifr) > 0
+
+*
 
 ***** 16.10.16 является ли услуга стоматологической с нулевой ценой
 Function is_2_stomat(lshifr,/*@*/is_2_88,is_new)
@@ -113,6 +149,8 @@ for j := 1 to len(a_stom16_2)
   endif
 next
 return ret
+
+*
 
 ***** 12.03.18 пересечение в стоматологическом случае разных видов посещений
 Function f_vid_p_stom(arr_usl,ta,ret_arr,ret_tip_a,lk_data,/*@*/ret_tip,/*@*/ret_kol,/*@*/is_2_88,arrFusl)
@@ -304,9 +342,13 @@ if valtype(ret_arr) == "A"
 endif
 return (n == 1)
 
+*
+
 ***** 11.03.14 дневной стационар с 1 апреля 2013 года
 Function f_dn_stac_01_04(lshifr)
 return eq_any(left(lshifr,5),"55.5.","55.6.","55.7.","55.8.")
+
+*
 
 ***** 10.03.13
 Function func_valid_polis(_vpolis,_SPOLIS,_NPOLIS,is_volgograd)
@@ -316,6 +358,8 @@ if !empty(a_err)
   n_message(a_err,,"GR+/R","W+/R",,,"G+/R")
 endif
 return .t.
+
+*
 
 ***** 10.03.13
 Function Valid_SN_Polis(_vpolis,_SPOLIS,_NPOLIS,a_err,is_volgograd)
@@ -363,6 +407,8 @@ else
 endif
 return NIL
 
+*
+
 ***** 15.01.17 проверить контрольную сумму в ПОЛИСЕ единого образца
 Function f_checksum_polis(_NPOLIS)
 Local i, n, s := ""
@@ -396,9 +442,13 @@ endif
 // В результате получается искомая контрольная цифра.
 return lstr(i) == right(_NPOLIS,1)
 
+*
+
 ***** 21.02.14 проверка, не встречаются ли в строке нецифровые значения
 Function mo_nodigit(s)
 return !empty(CHARREPL("0123456789", s, SPACE(10)))
+
+*
 
 ***** 13.04.14
 Function correct_profil(lp)
@@ -409,7 +459,9 @@ elseif lp == 64 // оториноларингологии
 endif
 return lp
 
-***** 23.08.20
+*
+
+***** 05.01.21
 Function verify_1_sluch(fl_view)
 Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
       i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -448,6 +500,12 @@ if d2_year == 2019
   lal += "19"
   lalf += "19"
 endif
+// НЕ ЗНАЮ
+if d2_year == 2020
+  lal += "20"
+  lalf += "20"
+endif
+//
 cd1 := dtoc4(d1) ; cd2 := dtoc4(d2)
 gnot_disp := (human->ishod < 100)
 gkod_diag := human->kod_diag
@@ -2748,6 +2806,10 @@ elseif human_->USL_OK == 2 .and. kol_ksg > 0 // дневной стационар
     if ascan(au_lu,{|x| alltrim(x[1]) == "55.1.2"}) > 0 .or. ;
        ascan(au_lu,{|x| alltrim(x[1]) == "55.1.3"}) > 0
        //
+       //
+      if ascan(au_lu,{|x| alltrim(x[1]) == "55.1.3"}) > 0
+        lvidpoms := ret_vidpom_st_dom_licensia(human_->USL_OK,lvidpoms,lprofil)
+      endif
     else // только для дн.стационара при стационаре смотрим лицензию
       lvidpoms := ret_vidpom_licensia(human_->USL_OK,lvidpoms)
     endif
@@ -2775,6 +2837,8 @@ elseif human_->USL_OK == 2 .and. kol_ksg > 0 // дневной стационар
     endif
   endif
 endif
+ my_debug(,"2839  "+lvidpoms)
+
 if len(a_period_stac) > 0 //.and. !is_s_dializ .and. !is_dializ .and. !is_perito
   select HU
   find (str(human->kod,7))
@@ -4603,8 +4667,10 @@ if len(arr_unit) > 1
   if select("MOUNIT") == 0
     if d2_year == 2019
       R_Use(dir_exe+"_mo9unit",cur_dir+"_mo9unit","MOUNIT")
-    else
+    elseif d2_year == 2020
       R_Use(dir_exe+"_mo0unit",cur_dir+"_mo0unit","MOUNIT")
+    else
+      R_Use(dir_exe+"_mo1unit",cur_dir+"_mo1unit","MOUNIT")
     endif
   endif
   s := "совокупность услуг должна быть из одной учётной единицы объёма, а в данном случае: "
@@ -4780,8 +4846,10 @@ else
     if select("MOUNIT") == 0
       if d2_year == 2019
         R_Use(dir_exe+"_mo9unit",cur_dir+"_mo9unit","MOUNIT")
-      else
+      elseif d2_year == 2020
         R_Use(dir_exe+"_mo0unit",cur_dir+"_mo0unit","MOUNIT")
+      else
+        R_Use(dir_exe+"_mo1unit",cur_dir+"_mo1unit","MOUNIT")
       endif
     endif
     select MOUNIT
@@ -4806,6 +4874,8 @@ if fl_view
 endif
 return (_ocenka >= 5)
 
+*
+
 ***** 04.03.19
 Function f_create_diag_srok()
 dbcreate(cur_dir+"tmp_d_srok",{{"kod","N",7,0},;
@@ -4819,10 +4889,14 @@ dbcreate(cur_dir+"tmp_d_srok",{{"kod","N",7,0},;
 use (cur_dir+"tmp_d_srok") new alias D_SROK
 return NIL
 
+*
+
 ***** 24.06.20
 Function f_napr_mo_lis()
 human_->(dbGoto(human->(recno())))
 return human_->NPR_MO
+
+*
 
 ***** 24.06.20
 Function verify_OMS(arr_m,fl_view)
@@ -5200,6 +5274,8 @@ if fl_view
 endif
 return NIL
 
+*
+
 ***** 04.02.19
 Function create_reestr()
 Local buf := save_maxrow(), i, j, k := 0, k1 := 0, arr, bSaveHandler, fl, rec, pole, arr_m
@@ -5432,6 +5508,8 @@ endif
 close databases
 return NIL
 
+*
+
 *****
 Function f1create_reestr(oBrow)
 Local oColumn, n := 36, n1 := 20, blk
@@ -5453,6 +5531,8 @@ oColumn:colorBlock := blk
 oBrow:addColumn(oColumn)
 status_key('^<Esc>^ выход;  ^<Enter>^ составить реестр случаев;  ^<F9>^ печать списка пациентов')
 return NIL
+
+*
 
 *****
 Function f2create_reestr(nKey,oBrow)
@@ -5488,6 +5568,8 @@ do case
     viewtext(nfile,,,,,,,2)
 endcase
 return k
+
+*
 
 ***** 24.01.18
 Function create1reestr17(_recno,_nyear,_nmonth)
@@ -5545,6 +5627,8 @@ close databases
 restscreen(buf)
 return NIL
 
+*
+
 ***** 21.05.17
 Function f_blk_create1reestr17(_nyear)
 Local i, s, ta[2], sh := maxcol()+1
@@ -5564,6 +5648,8 @@ for i := 1 to 2
   @ i,0 say padc(alltrim(ta[i]),sh) color color1
 next
 return NIL
+
+*
 
 ***** 24.01.18
 Static Function f_p_z17(_pzkol,_pz,k)
@@ -5585,6 +5671,8 @@ else
   endif
 endif
 return iif(k == 1, s, s2)
+
+*
 
 ***** 29.03.16
 Function f1create1reestr17(oBrow)
@@ -5618,6 +5706,8 @@ tmp_color := setcolor("N/BG")
 mark_keys({"<Esc>","<Enter>","<Ins>","<+>","<->","<F9>"},"R/BG")
 setcolor(tmp_color)
 return NIL
+
+*
 
 ***** 24.01.18
 Function f2create1reestr17(nKey,oBrow)
@@ -5737,13 +5827,17 @@ do case
 endcase
 return k
 
-***** 01.11.18 создание XML-файлов реестра
+*
+
+***** 05.01.21 создание XML-файлов реестра
 Function create2reestr17(_recno,_nyear,_nmonth,reg_sort)
 Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, ;
       lst, lshifr1, code_reestr, mb, me, nsh, adiag_talon[16]
 //
 Private version_3_1 := (strzero(_nyear,4)+strzero(_nmonth,2) > "201808") // с сентября 2018 года
 //
+  my_debug(," Cоздание XML")
+
 stat_msg("Составление реестра случаев")
 close databases
 nsh := f_mb_me_nsh(_nyear,@mb,@me)
@@ -6050,6 +6144,11 @@ do while !eof()
   if !empty(lvidpoms)
     if !eq_ascan(atmpusl,"55.1.2","55.1.3") .or. glob_mo[_MO_KOD_TFOMS] == '801935' // ЭКО-Москва
       lvidpoms := ret_vidpom_licensia(human_->USL_OK,lvidpoms) // только для дн.стационара при стационаре
+    else
+    /*  if eq_ascan(atmpusl,"55.1.3")
+        lvidpoms := ret_vidpom_st_dom_licensia(human_->USL_OK,lvidpoms)
+      endif
+    */
     endif
     if !empty(lvidpoms) .and. !("," $ lvidpoms)
       lvidpom := int(val(lvidpoms))
@@ -6168,6 +6267,8 @@ do while !eof()
     cSMOname := ret_inogSMO_name(2)
   endif
   mdiagnoz := diag_for_xml(,.t.,,,.t.)
+    my_debug(,"6282  "+lvidpom)
+
   if p_tip_reestr == 1
     if glob_mo[_MO_IS_UCH] .and. ;                    // наше МО имеет прикреплённое население
        human_->USL_OK == 3 .and. ;                    // поликлиника
@@ -6196,6 +6297,8 @@ do while !eof()
   if !empty(human_2->OSL3)
     aadd(mdiagnoz3,human_2->OSL3)
   endif
+    my_debug(,"6302  "+str(vidpom))
+
   oZAP := oXmlDoc:aItems[1]:Add( HXMLNode():New( "ZAP" ) )
    mo_add_xml_stroke(oZAP,"N_ZAP" ,lstr(rhum->REES_ZAP))
    mo_add_xml_stroke(oZAP,"PR_NOV",iif(human_->SCHET_NUM > 0, '1', '0')) // если попал в счёт 2-й раз и т.д.
@@ -6255,6 +6358,10 @@ do while !eof()
     endif
     mo_add_xml_stroke(oSLUCH,"USL_OK"  ,lstr(human_->USL_OK))
     mo_add_xml_stroke(oSLUCH,"VIDPOM"  ,lstr(lvidpom))
+    my_debug(,"6363  "+lstr(lvidpom))
+    @ 10,10 say "HTTCNH________________HTTCNH"
+
+    inkey(0)
     do case
       case human_->USL_OK == 1 // стационар
         i := iif(left(human_->FORMA14,1)=='1', 1, 3)
@@ -6787,6 +6894,8 @@ if chip_create_zipXML(name_zip,arr_zip,.t.)
   keyboard chr(K_TAB)+chr(K_ENTER)
 endif
 return NIL
+
+*
 
 ***** 28.08.18 создать счета по результатам прочитанного реестра СП
 Function create_schet17_from_XML(arr_XML_info,aerr,fl_msg,arr_s,name_sp_tk)
@@ -7635,6 +7744,8 @@ chm_help_code := tmp_help
 restscreen(buf)
 return NIL
 
+*
+
 *****
 Function f1_view_list_reestr(oBrow)
 Local oColumn, ;
@@ -7671,6 +7782,8 @@ else
   status_key("^<Esc>^ - выход;  ^<Enter>^ - выбор реестра для возврата")
 endif
 return NIL
+
+*
 
 *****
 Static Function f11_view_list_reestr()
@@ -7921,6 +8034,8 @@ endif
 select REES
 return NIL
 
+*
+
 ***** 15.02.19
 Function f31_view_list_reestr(reg,s)
 Local fl := .t., buf := save_maxrow(), s1, lal, n_file := "reesspis"+stxt
@@ -7988,6 +8103,8 @@ rest_box(buf)
 viewtext(n_file,,,,.t.,,,2)
 return NIL
 
+*
+
 ***** вернуть ещё не записанный на дискету реестр
 Function vozvrat_reestr()
 Local i, k, buf := savescreen(), arr, tmp_help := chm_help_code, mkod_reestr
@@ -8036,6 +8153,8 @@ G_SUnLock(Sreestr_sem)
 chm_help_code := tmp_help
 restscreen(buf)
 return NIL
+
+*
 
 ***** 15.02.19
 Static Function f1vozvrat_reestr(mkod_reestr)
@@ -8221,6 +8340,8 @@ endif
 close databases
 restscreen(buf)
 return NIL
+
+*
 
 ***** 15.02.19 аннулировать чтение реестра СП и ТК по реестру с кодом mkod_reestr
 Function delete_reestr_sp_tk(mkod_reestr,mname_reestr)

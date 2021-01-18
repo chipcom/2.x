@@ -1492,7 +1492,8 @@ if (musl := input_value(18,6,20,73,color1,space(13)+"‚Ά¥¤¨β¥ θ¨δΰ γα«γ£¨",musl,"
   endif
   if fl
     s := iif(empty(usl->shifr), "", "("+alltrim(usl->shifr)+") ")
-    R_Use(exe_dir+"_mo0uslf",cur_dir+"_mo0uslf","luslf")
+    //R_Use(exe_dir+"_mo0uslf",cur_dir+"_mo0uslf","luslf")
+    R_Use(exe_dir+"_mo1uslf",cur_dir+"_mo1uslf","luslf")
     find (usl->shifr1)
     arr_usl := {usl->kod,alltrim(usl->shifr1)+". "+s+alltrim(luslf->name),usl->shifr1}
     luslf->(dbCloseArea())
