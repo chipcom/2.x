@@ -3683,7 +3683,6 @@ do case
     endif
     case k == 6
       @ 10, 2 SAY 'MCOD: ' + viewF003()
-      inkey(0)
   endcase
 if k > 0
   sk := k
