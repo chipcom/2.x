@@ -133,7 +133,7 @@ Function viewF003()
     // окно полного наименования организации
     oBoxCompany := TBox():New( 19, 11, 21, 69 )
     oBoxCompany:Frame := BORDER_NONE
-    oBoxCompany:Color := color_say
+    oBoxCompany:Color := color5 // cDataCSay //color_say
 
     do while .t.
         // главное окно
@@ -219,7 +219,7 @@ Function ViewRecordF003()
     perenos(arr,(tmpAlias)->NAMEMOP,50)
     // oBoxCompany:Clear()
     for i := 1 to len(arr)
-        @ oBoxCompany:Top+i-1,oBoxCompany:Left+1 say arr[i] color color1
+        @ oBoxCompany:Top+i-1,oBoxCompany:Left+1 say arr[i]// color color1
       next
   
     return nil
