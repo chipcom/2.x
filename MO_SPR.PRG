@@ -3682,7 +3682,7 @@ do case
       func_error(4,err_slock)
     endif
     case k == 6
-      result := viewF003()
+      result := viewF003("330335")
       @ 10, 2 SAY 'MCOD: ' + result[1] +  + result[2]
   endcase
 if k > 0

@@ -1227,6 +1227,9 @@ return s
 Function f_get_mo(k,r,c,lusl,lpar)
 Static skodN := ""
 Local arr_mo3 := {}, ret, r1, r2, i, lcolor, tmp_select := select()
+
+return viewF003( k, r, c, lusl, lpar )
+
 DEFAULT lpar TO 1
 Private muslovie, loc_arr_MO, ppar := lpar
 if lusl != NIL
