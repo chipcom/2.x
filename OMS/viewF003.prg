@@ -22,24 +22,52 @@ function getf010()
 
     return _f010
 
-* 19.01.21
-Function viewF003()
+* 20.01.21 {_MO_KOD_TFOMS,_MO_SHORT_NAME}
+Function viewF003( k, r, c, lusl, lpar )
+    static skodN := ""
+
     local nTop, nLeft, nBottom, nRight
+    local tmp_select := select()
     local l := 0, fl
-    Local ar, aStruct, dbName := "F003", indexName := cur_dir + dbName
+    Local ar, aStruct, dbName := 'F003', indexName := cur_dir + dbName
 	local color_say := 'N/W', color_get := 'W/N*'
     local oBox, oBoxRegion
-    local strRegion := "Выбор региона" 
+    local strRegion := 'Выбор региона' 
     local lFileCreated := .f.
-    local retMCOD := ''
+    local retMCOD := { '', space(10) }
     local ar_f010 := getf010()
     local selectedRegion := "34"
 
+    DEFAULT lpar TO 1
+
+    private nRegion := 34
     private tmpName := cur_dir + "tmp_F003", tmpAlias := "tF003"
     private oBoxCompany
     private fl_space := .f., fl_other_region := .f.
-    private nRegion := 34
+    private muslovie, ppar := lpar
 
+    if lusl != NIL
+      muslovie := lusl
+    endif
+    // if muslovie == NIL
+    //   if glob_task == X_PPOKOJ
+    //     arr_mo3 := Slist2arr(pp_KEM_NAPR)
+    //   elseif glob_task == X_OMS
+    //     arr_mo3 := Slist2arr(mem_KEM_NAPR)
+    //   elseif glob_task == X_263
+    //     arr_mo3 := p_arr_stac_VO
+    //   endif
+    // endif
+
+    // уже было выбрано МО
+    Private p_mo, pkodN := skodN    //, lmo3 := 1
+    if valtype(k) == "C" .and. !empty(k)
+      pkodN := k
+    //   if ascan(arr_mo3,k) == 0
+    //     lmo3 := 0
+    //   endif
+    endif
+        
     ar := {}
     for i := 1 to len(ar_f010)
       aadd(ar, ar_f010[i,1])
@@ -86,6 +114,7 @@ Function viewF003()
             if nRegion == 0
                 (dbName)->(dbCloseArea())
                 (tmpAlias)->(dbCloseArea())
+                select (tmp_select)
                 return retMCOD
             else
                 selectedRegion  := ar_f010[nRegion,2]
@@ -112,7 +141,14 @@ Function viewF003()
         dbCreateIndex( tmpName, "NAMEMOK", , NIL )
         (tmpAlias)->(dbGoTop())
         if fl := Alpha_Browse(oBox:Top+1,oBox:Left+1,oBox:Bottom-5,oBox:Right-1,"ColumnF003",color0,,,,,,"ViewRecordF003","drive_f003",,{"═","░","═","N/BG,W+/N,B/BG,BG+/B"} )
-            retMCOD := (tmpAlias)->MCOD
+            retMCOD := { (tmpAlias)->MCOD, AllTrim((tmpAlias)->NAMEMOK) }
+        endif
+        if fl_space
+            oBoxRegion := NIL
+            oBoxCompany := nil
+            oBox := nil
+            retMCOD := { '', space(10) }
+            exit
         endif
         if ! fl_other_region
             oBoxRegion := NIL
@@ -125,6 +161,7 @@ Function viewF003()
     enddo
     (tmpAlias)->(dbCloseArea())
     (dbName)->(dbCloseArea())
+    select (tmp_select)
     return retMCOD
 
 * 19.01.21
@@ -172,7 +209,7 @@ Function drive_f003(nkey,oBrow)
     //   endif
     elseif nKey == K_SPACE
         AlertX("Press space")
-        fl_space := .f.
+        fl_space := .t.
         ret := 1
     endif
     return ret
