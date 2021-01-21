@@ -267,7 +267,7 @@ Function getF003mo(mCode)
         arr[_MO_KOD_TFOMS]  := ''
         arr[_MO_FULL_NAME]  := AllTrim((dbName)->NAMEMOP)
         arr[_MO_SHORT_NAME] := AllTrim((dbName)->NAMEMOK)
-        arr[_MO_ADRES]      := ''
+        arr[_MO_ADRES]      := AllTrim((dbName)->ADDRESS)
         arr[_MO_PROD]       := ''
         arr[_MO_DEND]       := ctod('01-01-2021')
         arr[_MO_STANDART]   := 1
