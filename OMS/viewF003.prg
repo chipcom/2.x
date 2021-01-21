@@ -2,10 +2,11 @@
 #include '..\function.ch'
 #include 'common.ch'
 #include '..\edit_spr.ch'
+#include "..\chip_mo.ch"
 
 #include 'tbox.ch'
 
-* 19.01.21 вернуть массив регионов по справочнику регионов ТФОМС F010.xml
+* 21.01.21 вернуть массив регионов по справочнику регионов ТФОМС F010.xml
 function getf010()
     // F010.xml - Классификатор субъектов Российской Федерации
     //  1 - SUBNAME(C) 2 - KOD_TF(N)  3 - OKRUG(N)
@@ -19,12 +20,12 @@ function getf010()
         (dbName)->(dbSkip())
     enddo
     (dbName)->(dbCloseArea())
+    aadd(_f010, {'Федерального подчинения', '99', 0})
 
     return _f010
 
 * 20.01.21 {_MO_KOD_TFOMS,_MO_SHORT_NAME}
 Function viewF003( mkod, r, c, lusl, lpar )
-    static skodN := ""
 
     local nTop, nLeft, nBottom, nRight
     local tmp_select := select()
@@ -46,32 +47,13 @@ Function viewF003( mkod, r, c, lusl, lpar )
     private fl_space := .f., fl_other_region := .f.
     private muslovie, ppar := lpar
 
+    alertx(mkod)
+
+    // уже было выбрано МО
     if valtype(mkod) == 'C' .and. !empty(mkod)
         selectedRegion := substr(mkod, 1, 2)
         nRegion := val(selectedRegion)
     endif
-  
-    // if lusl != NIL
-    //   muslovie := lusl
-    // endif
-    // if muslovie == NIL
-    //   if glob_task == X_PPOKOJ
-    //     arr_mo3 := Slist2arr(pp_KEM_NAPR)
-    //   elseif glob_task == X_OMS
-    //     arr_mo3 := Slist2arr(mem_KEM_NAPR)
-    //   elseif glob_task == X_263
-    //     arr_mo3 := p_arr_stac_VO
-    //   endif
-    // endif
-
-    // уже было выбрано МО
-    Private p_mo, pkodN := skodN    //, lmo3 := 1
-    // if valtype(k) == "C" .and. !empty(k)
-    //   pkodN := k
-    // //   if ascan(arr_mo3,k) == 0
-    // //     lmo3 := 0
-    // //   endif
-    // endif
         
     ar := {}
     for i := 1 to len(ar_f010)
@@ -94,7 +76,7 @@ Function viewF003( mkod, r, c, lusl, lpar )
     oBoxRegion:Frame := BORDER_SINGLE
     
     // окно полного наименования организации
-    oBoxCompany := TBox():New( 19, 11, 21, 69 )
+    oBoxCompany := TBox():New( 19, 11, 21, 68 )
     oBoxCompany:Frame := BORDER_NONE
     oBoxCompany:Color := color5
 
@@ -170,6 +152,8 @@ Function viewF003( mkod, r, c, lusl, lpar )
             oBoxCompany := nil
             oBox := nil
             exit
+        else
+            retMCOD := { '', space(10) }
         endif
         selectedRegion := ''
         (tmpAlias)->(dbCloseArea())
@@ -234,24 +218,64 @@ Function ColumnF003(oBrow)
     oColumn := TBColumnNew(center("Наименование",50), {|| left((tmpAlias)->NAMEMOK,50) })
     oBrow:addColumn(oColumn)
     if nRegion == 34
-        status_key('^^ или нач.буква - просмотр; ^<Esc>^ - выход; ^<Enter>^ - выбор; ^<F3>^ - все МО')
+        status_key('^<Esc>^ - выход; ^<Enter>^ - выбор; ^<Пробел>^ - очистка поля; ^<F3>^ - все МО')
     else
-        status_key('^^ или нач.буква - просмотр; ^<Esc>^ - выход; ^<Enter>^ - выбор; ^<F3>^ - областные МО')
+        status_key('^<Esc>^ - выход; ^<Enter>^ - выбор; ^<Пробел>^ - очистка поля; ^<F3>^ - областные МО')
     endif
 return nil
 
-***** 17.01.21
+***** 21.01.21
 Function ViewRecordF003()
     Local i, arr := {}, count
-    local high := oBoxCompany:Bottom - oBoxCompany:Top
 
-    oBoxCompany:View()
+    if ! oBoxCompany:Visible
+        oBoxCompany:View()
+    else
+        oBoxCompany:Clear()
+    endif
     // разобьем полное наменование на подстроки
-    perenos(arr,(tmpAlias)->NAMEMOP,50)
-    // oBoxCompany:Clear()
-    count := iif(len(arr) > 3, 3, len(arr))
-    for i := 1 to count //len(arr)
-        @ oBoxCompany:Top+i-1,oBoxCompany:Left+1 say arr[i]// color color1
+    // perenos(arr,(tmpAlias)->NAMEMOP,50)
+    perenos(arr, (tmpAlias)->NAMEMOP, oBoxCompany:Width)
+    count := iif(len(arr) > oBoxCompany:Height, oBoxCompany:Height, len(arr))
+
+    for i := 1 to count
+        @ oBoxCompany:Top+i-1,oBoxCompany:Left+1 say arr[i]
     next
   
     return nil
+
+***** 21.01.21
+Function getF003mo(mCode)
+    // mCode - код МО по F003
+    Local arr, dbName := 'F003', indexName := cur_dir + dbName + 'cod'
+    local tmp_select := Select()
+
+    arr := array(_MO_LEN_ARR)
+
+    if empty(mCode) .or. (Len(mCode) != 6)
+        Select(tmp_select)
+        return arr
+    endif
+
+    dbUseArea( .t., "DBFNTX", dir_server + dbName, dbName, .t., .f. )
+    (dbName)->(dbCreateIndex( indexName, "MCOD", , NIL ))
+
+    (dbName)->(dbGoTop())
+    if (dbName)->(dbSeek(mCode))
+        arr[_MO_KOD_FFOMS]  := (dbName)->MCOD
+        arr[_MO_KOD_TFOMS]  := ''
+        arr[_MO_FULL_NAME]  := AllTrim((dbName)->NAMEMOP)
+        arr[_MO_SHORT_NAME] := AllTrim((dbName)->NAMEMOK)
+        arr[_MO_ADRES]      := ''
+        arr[_MO_PROD]       := ''
+        arr[_MO_DEND]       := ctod('01-01-2021')
+        arr[_MO_STANDART]   := 1
+        arr[_MO_UROVEN]     := 1
+        arr[_MO_IS_MAIN]    := .t.
+        arr[_MO_IS_UCH]     := .t.
+        arr[_MO_IS_SMP]     := .t.
+    endif
+    (dbName)->(dbCloseArea())
+    Select(tmp_select)
+    return arr
+
