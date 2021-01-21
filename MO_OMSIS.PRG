@@ -5454,6 +5454,8 @@ do while !eof()
       endif
     elseif arr_m[1] == 2019 .and. arr_m[3] == 12
       d2 := 17
+    elseif arr_m[1] == 2020 .and. arr_m[3] == 12
+      d2 := 18 // или 15
     endif
     msmo := int(val(schet_->smo))
     fl := between(mdate,boy(arr_m[5]),arr_m[6]+d2) ;// дата регистрации по 10 числа след.месяца
@@ -6015,7 +6017,7 @@ return NIL
 
 *
 
-***** 19.01.19
+***** 20.01.21
 Function f2forma1_ffoms(msmo,fl_month)
 Local tfoms_pz[6,3], mkol, ta, i, ii, j, k, lshifr, lvidpom := 1, lshifr1, j1, fl,;
       arr := {}, mkol_k := 0, mkol_1 := 0, mkol_2 := 0, mkol_55 := 0, lenp,;
@@ -6024,6 +6026,8 @@ if arr_m[1] == 2018
   lalf += "18"
 elseif arr_m[1] == 2019
   lalf += "19"
+elseif arr_m[1] == 2020
+  lalf += "20"
 endif
 select HU
 find (str(human->kod,7))

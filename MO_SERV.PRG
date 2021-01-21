@@ -6820,6 +6820,8 @@ if f_Esc_Enter("изменения цен",.t.) .and. mo_Lock_Task(X_OMS)
     use_base("luslf")
     Use_base("mo_su")
     set order to 0
+  //dbselectarea("luslc20")
+
     G_Use(dir_server+"uslugi",{dir_server+"uslugish",;
                                dir_server+"uslugi"},"USL")
     set order to 0
