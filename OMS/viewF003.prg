@@ -47,8 +47,6 @@ Function viewF003( mkod, r, c, lusl, lpar )
     private fl_space := .f., fl_other_region := .f.
     private muslovie, ppar := lpar
 
-    alertx(mkod)
-
     // уже было выбрано МО
     if valtype(mkod) == 'C' .and. !empty(mkod)
         selectedRegion := substr(mkod, 1, 2)
@@ -136,6 +134,9 @@ Function viewF003( mkod, r, c, lusl, lpar )
                 endif
                 (tmpAlias)->(dbSkip())
             enddo
+        endif
+        if valtype(mkod) == 'C' .and. !empty(mkod)
+            retMCOD := { (tmpAlias)->MCOD, AllTrim((tmpAlias)->NAMEMOK) }
         endif
         if fl := Alpha_Browse(oBox:Top+1,oBox:Left+1,oBox:Bottom-5,oBox:Right-1,"ColumnF003",color0,,,,,,"ViewRecordF003","controlF003",,{"═","░","═","N/BG,W+/N,B/BG,BG+/B"} )
             retMCOD := { (tmpAlias)->MCOD, AllTrim((tmpAlias)->NAMEMOK) }
