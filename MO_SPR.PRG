@@ -422,11 +422,17 @@ if is_full
   @ row(),col() SAY " (в т.ч. НДС" GET mpnds_d PICTURE pict_cena
   @ row(),col() SAY "); цена по ДМС" GET mdms_cena PICTURE pict_cena
 endif
-  @ ++r,1 SAY "Служба" get mslugba ;
+
+private mKSLP := space(15), m1KSLP := ""
+@ ++r,1 say "КСЛП" get mKSLP ;
+        reader {|x|menu_reader(x,{{|k,r,c|kslp(k,r,c)}},A__FUNCTION,,,.f.)}
+
+        @ ++r,1 SAY "Служба" get mslugba ;
           reader {|x|menu_reader(x,{{|k,r,c|fget_slugba(k,r,c)}},A__FUNCTION,,,.f.)} ;
           color "R/W"
   @ ++r,1 say "В каких отделениях разрешается ввод услуги" get motdel ;
           reader {|x|menu_reader(x,{{|k,r,c|inp_bit_otd(k,r,c)}},A__FUNCTION,,,.f.)}
+
   myread()
   if LASTKEY() != K_ESC
     fl := .t.
