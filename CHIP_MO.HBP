@@ -14,7 +14,8 @@
 chip_mo.rc
 cpru866m.c
 cpru1251m.c
-xmlparse.c
+# xmlparse.c
+xmlparse_bay.c
 hxmldoc.prg
 mo_adres.prg
 mo_kart.prg
