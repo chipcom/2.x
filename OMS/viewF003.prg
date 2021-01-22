@@ -13,7 +13,7 @@ function getf010()
     local dbName := "f010"
     local _f010 := {}
 
-    dbUseArea( .t.,, dir_server + dbName, dbName, .f., .f. )
+    dbUseArea( .t.,, exe_dir + dbName, dbName, .f., .f. )
     (dbName)->(dbGoTop())
     do while !(dbName)->(EOF())
         aadd(_f010, {(dbName)->SUBNAME,(dbName)->KOD_TF,Val((dbName)->OKRUG)})
@@ -59,7 +59,7 @@ Function viewF003( mkod, r, c, lusl, lpar )
       l := max(l,len(ar[i]))
     next
 
-    dbUseArea( .t., "DBFNTX", dir_server + dbName, dbName, .t., .f. )
+    dbUseArea( .t., "DBFNTX", exe_dir + dbName, dbName, .t., .f. )
     aStruct := (dbName)->(dbStruct())
     (dbName)->(dbCreateIndex( indexName, "substr(MCOD,1,2)", , NIL ))
 
@@ -127,7 +127,7 @@ Function viewF003( mkod, r, c, lusl, lpar )
         dbCreateIndex( tmpName, "NAMEMOK", , NIL )
 
         (tmpAlias)->(dbGoTop())
-        if valtype(mkod) == 'C' .and. !empty(mkod)
+        if valtype(mkod) == 'C' .and. !empty(mkod) .and. selectedRegion == SubStr(mcod,1,2)
             do while ! (tmpAlias)->(EOF())
                 if (tmpAlias)->MCOD == mkod
                     exit
@@ -250,33 +250,57 @@ Function getF003mo(mCode)
     // mCode - код МО по F003
     Local arr, dbName := 'F003', indexName := cur_dir + dbName + 'cod'
     local tmp_select := Select()
+    Local i // возьмём первое по порядку МО
 
-    arr := array(_MO_LEN_ARR)
+    if SubStr(mCode,1,2) != "34"
 
-    if empty(mCode) .or. (Len(mCode) != 6)
-        Select(tmp_select)
-        return arr
+        arr := aclone(glob_arr_mo[1])
+        if empty(mCode) .or. (Len(mCode) != 6)
+            for i := 1 to len(arr)
+                if valtype(arr[i]) == "C"
+                  arr[i] := space(6) // и очистим строковые элементы
+                endif
+            next
+            Select(tmp_select)
+            return arr
+        endif
+
+        arr := array(_MO_LEN_ARR)
+
+        dbUseArea( .t., "DBFNTX", exe_dir + dbName, dbName, .t., .f. )
+        (dbName)->(dbCreateIndex( indexName, "MCOD", , NIL ))
+
+        (dbName)->(dbGoTop())
+        if (dbName)->(dbSeek(mCode))
+            arr[_MO_KOD_FFOMS]  := (dbName)->MCOD
+            arr[_MO_KOD_TFOMS]  := ''
+            arr[_MO_FULL_NAME]  := AllTrim((dbName)->NAMEMOP)
+            arr[_MO_SHORT_NAME] := AllTrim((dbName)->NAMEMOK)
+            arr[_MO_ADRES]      := AllTrim((dbName)->ADDRESS)
+            arr[_MO_PROD]       := ''
+            arr[_MO_DEND]       := ctod('01-01-2021')
+            arr[_MO_STANDART]   := 1
+            arr[_MO_UROVEN]     := 1
+            arr[_MO_IS_MAIN]    := .t.
+            arr[_MO_IS_UCH]     := .t.
+            arr[_MO_IS_SMP]     := .t.
+        endif
+        (dbName)->(dbCloseArea())
+    else
+        arr := aclone(glob_arr_mo[1])
+        for i := 1 to len(arr)
+            if valtype(arr[i]) == "C"
+              arr[i] := space(6) // и очистим строковые элементы
+            endif
+        next
+        if !empty(mCode)
+            if (i := ascan(glob_arr_mo, {|x| x[_MO_KOD_TFOMS] == mCode })) > 0
+              arr := glob_arr_mo[i]
+            elseif (i := ascan(glob_arr_mo, {|x| x[_MO_KOD_FFOMS] == mCode })) > 0
+              arr := glob_arr_mo[i]
+            endif
+        endif
     endif
-
-    dbUseArea( .t., "DBFNTX", dir_server + dbName, dbName, .t., .f. )
-    (dbName)->(dbCreateIndex( indexName, "MCOD", , NIL ))
-
-    (dbName)->(dbGoTop())
-    if (dbName)->(dbSeek(mCode))
-        arr[_MO_KOD_FFOMS]  := (dbName)->MCOD
-        arr[_MO_KOD_TFOMS]  := ''
-        arr[_MO_FULL_NAME]  := AllTrim((dbName)->NAMEMOP)
-        arr[_MO_SHORT_NAME] := AllTrim((dbName)->NAMEMOK)
-        arr[_MO_ADRES]      := AllTrim((dbName)->ADDRESS)
-        arr[_MO_PROD]       := ''
-        arr[_MO_DEND]       := ctod('01-01-2021')
-        arr[_MO_STANDART]   := 1
-        arr[_MO_UROVEN]     := 1
-        arr[_MO_IS_MAIN]    := .t.
-        arr[_MO_IS_UCH]     := .t.
-        arr[_MO_IS_SMP]     := .t.
-    endif
-    (dbName)->(dbCloseArea())
     Select(tmp_select)
     return arr
 
