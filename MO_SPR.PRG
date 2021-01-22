@@ -3652,10 +3652,6 @@ do case
       aadd(mas_msg, "Привязка участковых врачей к участкам")
       aadd(mas_fun, "spr_struct_org(5)")
     endif
-    // Проверка справочника
-    aadd(mas_pmt, "~Другие МО")
-    aadd(mas_msg, "Другие медицинские учреждения входящие в систему ОМС")
-    aadd(mas_fun, "spr_struct_org(6)")
     popup_prompt(T_ROW, T_COL+5, sk, mas_pmt, mas_msg, mas_fun)
   case k == 1
     edit_pers()
@@ -3681,10 +3677,7 @@ do case
     else
       func_error(4,err_slock)
     endif
-    case k == 6
-      result := viewF003("330335")
-      @ 10, 2 SAY 'MCOD: ' + result[1] +  + result[2]
-  endcase
+endcase
 if k > 0
   sk := k
 endif

@@ -1140,13 +1140,10 @@ return NIL
 
 *
 
-***** вернуть массив по МО с кодом ТФОМС cCode 
+***** вернуть массив по МО с кодом ТФОМС cCode
 Function ret_mo(cCode)
 // cCode - код МО по ТФОМС
 Local i, arr := aclone(glob_arr_mo[1]) // возьмём первое по порядку МО
-
-return getF003mo(cCode)
-
 for i := 1 to len(arr)
   if valtype(arr[i]) == "C"
     arr[i] := space(6) // и очистим строковые элементы
@@ -1230,9 +1227,6 @@ return s
 Function f_get_mo(k,r,c,lusl,lpar)
 Static skodN := ""
 Local arr_mo3 := {}, ret, r1, r2, i, lcolor, tmp_select := select()
-
-return viewF003( k, r, c, lusl, lpar )
-
 DEFAULT lpar TO 1
 Private muslovie, loc_arr_MO, ppar := lpar
 if lusl != NIL

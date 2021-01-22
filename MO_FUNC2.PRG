@@ -293,7 +293,9 @@ Function f14tf_nastr(/*@*/lshifr,/*@*/lname,lyear)
 Static a_usl, a_zak_sl, syear
 Local ta := {}, i, j, k, i14 := 0, arr, shb, fl := .f., fl1 := .f., ret := {}
 if type("apz2016") == "A" .and. !empty(apz2016)
-  if type("is_2020") == "L" .and. is_2020
+  if type("is_2021") == "L" .and. is_2021
+    i14 := f_arr_plan_zakaz_21(lshifr)
+  elseif type("is_2020") == "L" .and. is_2020
     i14 := f_arr_plan_zakaz_20(lshifr)
   elseif type("is_2019") == "L" .and. is_2019
     i14 := f_arr_plan_zakaz_19(lshifr)
