@@ -1,5 +1,12 @@
+#для HwGUI
+-iC:\harbour\hwgui\include
+-LC:\harbour\hwgui\lib
+
 -L..\_mylib_hbt
 -lMyLib_HBT
+-lFunLib
+
+-lhbxpp
 -lhbct
 -lhbwin
 -lxhb
@@ -7,14 +14,18 @@
 -lminizip
 -gui
 -gtwvg
+
+-inc
 -mt
 -compr=yes
--workdir=C:\TEMP
+-workdir=D:\_MO\TEMP_MO
 -ochip_mo
+
 chip_mo.rc
 cpru866m.c
 cpru1251m.c
-xmlparse.c
+# xmlparse.c
+xmlparse_bay.c
 hxmldoc.prg
 mo_adres.prg
 mo_kart.prg
