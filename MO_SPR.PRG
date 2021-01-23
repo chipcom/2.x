@@ -423,9 +423,10 @@ if is_full
   @ row(),col() SAY "); цена по ДМС" GET mdms_cena PICTURE pict_cena
 endif
 
-private mKSLP := space(15), m1KSLP := ""
+// private mKSLP := space(15), m1KSLP := ""
+private mKSLP := '111100010', m1KSLP := "111100010"
 @ ++r,1 say "КСЛП" get mKSLP ;
-        reader {|x|menu_reader(x,{{|k,r,c|kslp(k,r,c)}},A__FUNCTION,,,.f.)}
+        reader {|x|menu_reader(x,{{|k,r,c|kslp(k,r,c,CToD('22/01/2020'),CToD('22/01/1946'))}},A__FUNCTION,,,.f.)}
 
         @ ++r,1 SAY "Служба" get mslugba ;
           reader {|x|menu_reader(x,{{|k,r,c|fget_slugba(k,r,c)}},A__FUNCTION,,,.f.)} ;

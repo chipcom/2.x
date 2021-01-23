@@ -7,107 +7,91 @@
 
 #include "tbox.ch"
 
-function kslp(k,r,c)
-    Local mlen, t_mas := {}, ret, ;
-          i, tmp_color := setcolor(),;
-          tmp_select := select(), r1, a_uch := {}
+function kslp(k,r,c,dateSl,DOB)
+  // k - значение m1.....
+  // r - строка экрана
+  // c - колонка экрана
+  // dateSl - дата случая
+  // DOB - дата рождения пациента
+  Local mlen, t_mas := {}, ret, ;
+    i, tmp_color := setcolor(),;
+    tmp_select := select(), a_uch := {}
+  Local r1 := 0 // счетчик записей в файле
+  Local strArr := '', age
 
-    Local m1var := '', s := "", countKSLP := 0
-    local oBox
-    // 1 ? Сложность лечения пациента, связанная с возрастом (лица 75 лет и старше) (в том числе, включая консультацию врача-гериатра);
-    // 3 - Предоставление спального места и питания законному представителю (дети до 4 лет, дети старше 4 лет при наличии медицинских показаний);
-    // 4 - Проведение первой иммунизации против респираторно-синцитиальной вирусной инфекции в период госпитализации по поводу лечения нарушений, возникающих в перинатальном периоде, являющихся показанием к иммунизации;
-    // 5 - Развертывание индивидуального поста;
-    // 6 - Проведение сочетанных хирургических вмешательств;
-    // 7 - Проведение однотипных операций на парных органах;
-    // 8 - Проведение антимикробной терапии инфекций, вызванных полирезистентными микроорганизмами;
-    // 9 - Наличие у пациента тяжелой сопутствующей патологии, осложнений заболеваний, сопутствующих заболеваний, влияющих на сложность лечения пациента (перечень указанных заболеваний и состояний;
-    // 10 - Сверхдлительные сроки госпитализации, обусловленные медицинскими показаниями
+  Local m1var := '', s := "", countKSLP := 0
+  Local dbName, dbAlias := 'KSLP_'
+  local oBox
 
-    aadd(t_mas, { '   ' + ' 1-связанная с возрастом (лица 75 лет и старше) (в том числе, включая консультацию врача-гериатра)', .f. })
-    aadd(t_mas, { '   ' + ' 3-Предоставление спального места и питания законному представителю (дети до 4 лет, дети старше 4 лет при наличии медицинских показаний)', .f. })
-    aadd(t_mas, { '   ' + ' 4-Проведение первой иммунизации против респираторно-синцитиальной вирусной инфекции в период госпитализации по поводу лечения нарушений, возникающих в перинатальном периоде, являющихся показанием к иммунизации', .t. })
-    aadd(t_mas, { '   ' + ' 5-Развертывание индивидуального поста', .t. })
-    aadd(t_mas, { '   ' + ' 6-Проведение сочетанных хирургических вмешательств', .t. })
-    aadd(t_mas, { '   ' + ' 7-Проведение однотипных операций на парных органах', .t. })
-    aadd(t_mas, { '   ' + ' 8-Проведение антимикробной терапии инфекций, вызванных полирезистентными микроорганизмами', .t. })
-    aadd(t_mas, { '   ' + ' 9-Наличие у пациента тяжелой сопутствующей патологии, осложнений заболеваний, сопутствующих заболеваний, влияющих на сложность лечения пациента (перечень указанных заболеваний и состояний', .t. })
-    aadd(t_mas, { '   ' + '10-Сверхдлительные сроки госпитализации, обусловленные медицинскими показаниями', .t. })
+  default DOB to sys_date
+  default dateSl to sys_date
 
-    status_key("^<Esc>^ - отказ; ^<Enter>^ - подтверждение; ^<Ins>^ - смена опции текущей альтернативы")
+  age := count_years(DOB, dateSl)
 
-    mlen := len(t_mas)
+  if year(dateSl) == 2021 // КСЛП на 2021 год
+    dbName := '_mo1kslp'
+    dbUseArea( .t., "DBFNTX", exe_dir + dbName, dbAlias , .t., .f. )
 
-    // oBox := TBox():New(4,18,16,63)
-    // oBox:View()
-
-    // используем popupN из библиотеки FunLib
-    // if (ret := popupN(5,19,15,62,t_mas,i,color0,.t.,"fmenu_reader",,;
-    if (ret := popupN(5,19,15,62,t_mas,i,color0,.t.,"fmenu_readerN",,;
-        "Отметьте КСЛП",col_tit_popup,,,{.f.,.f.,.f.,.t.,.t.,.f.,.t.,.f.,.f.})) > 0
-        for i := 1 to mlen
-            if "*" == substr(t_mas[i, 1],2,1)
-                // k := chr(int(val(right(t_mas[i],10))))
-                // m1var += k
-                m1var += '1'
-                countKSLP += 1
-            else
-              m1var += '0'
-            endif
-        next
-        // s := "= "+lstr(len(m1var))+"кслп. ="
-        alertx(countKSLP)
-        s := "= "+alltrim(str(countKSLP))+"кслп. ="
-    endif
-
-    Select(tmp_select)
-
-    @ 4, 10 say m1var picture '999999999999999'
-
-Return iif(ret==0, NIL, {m1var,s})
-
-Function inp_bit_otd__(k,r,c)
-    Local mlen, t_mas := {}, buf := savescreen(), ret, ;
-          i, tmp_color := setcolor(), m1var := "", s := "",;
-          tmp_select := select(), r1, a_uch := {}
-    mywait()
-    R_Use(dir_server+"mo_uch",,"LPU")
-    dbeval({|| iif(between_date(lpu->dbegin,lpu->dend,sys_date), ;
-                   aadd(a_uch,lpu->(recno())), nil) })
-    R_Use(dir_server+"mo_otd",,"OTD")
-    set relation to kod_lpu into LPU
-    dbeval({|| s := if(chr(recno()) $ k," * ","   ")+;
-                    padr(otd->name,30)+" "+padr(lpu->short_name,5)+str(recno(),10),;
-               aadd(t_mas,s);
-           },;
-           {|| between_date(otd->dbegin,otd->dend,sys_date) .and. ;
-               ascan(a_uch,otd->kod_lpu) > 0 };
-          )
-    otd->(dbCloseArea())
-    lpu->(dbCloseArea())
-    if tmp_select > 0
-      select(tmp_select)
-    endif
-    mlen := len(t_mas)
-    asort(t_mas,,,{|x,y| if(substr(x,35,5) == substr(y,35,5), ;
-                              (substr(x,4,30) < substr(y,4,30)), ;
-                              (substr(x,35,5) < substr(y,35,5))) } )
-    i := 1
-    status_key("^<Esc>^ - отказ; ^<Enter>^ - подтверждение; ^<Ins>^ - смена опции текущей альтернативы")
-    if (r1 := r-1-mlen-1) < 2
-      r1 := 2
-    endif
-    if (ret := popup(r1,19,r-1,62,t_mas,i,color0,.t.,"fmenu_reader",,;
-                     "В каких отделениях разрешается ввод услуги",col_tit_popup)) > 0
-      for i := 1 to mlen
-        if "*" == substr(t_mas[i],2,1)
-          k := chr(int(val(right(t_mas[i],10))))
-          m1var += k
+    (dbAlias)->(dbGoTop())
+    do while !(dbAlias)->(EOF())
+      r1++
+      if SubStr(k,r1,1) == '1'
+        strArr := ' * '
+      else
+        strArr := '   '
+      endif
+      if (dbAlias)->CODE == 1
+        if (age >= 75)
+          strArr := ' * '
+        else
+          strArr := '   '
         endif
-      next
-      s := "= "+lstr(len(m1var))+"отд. ="
-    endif
-    restscreen(buf)
-    setcolor(tmp_color)
-    Return iif(ret==0, NIL, {m1var,s})
-    
+        strArr += (dbAlias)->NAME
+        aadd(t_mas, { strArr, .f.})
+      elseif (dbAlias)->CODE == 3
+        if (age < 18)
+          strArr += (dbAlias)->NAME
+          aadd(t_mas, { strArr, .t.})
+        else
+          strArr := '   '
+          strArr += (dbAlias)->NAME
+          aadd(t_mas, { strArr, .f.})
+        endif
+      else
+        strArr += (dbAlias)->NAME
+        aadd(t_mas, { strArr, .t.})
+      endif
+      (dbAlias)->(dbSkip())
+    enddo
+    (dbAlias)->(dbCloseArea())
+  else
+    alertx('На указанную дату случая ' + DToC(dateSl) + ' КСЛП отсутствуют!')
+  endif
+
+  strStatus := '^<Esc>^ - отказ; ^<Enter>^ - подтверждение; ^<Ins>^ - отметить / снять отметку'
+
+  mlen := len(t_mas)
+
+  // используем popupN из библиотеки FunLib
+  if (ret := popupN(5,14,15,67,t_mas,i,color0,.t.,"fmenu_readerN",,;
+      "Отметьте КСЛП",col_tit_popup,,strStatus)) > 0
+    for i := 1 to mlen
+      if "*" == substr(t_mas[i, 1],2,1)
+        // k := chr(int(val(right(t_mas[i],10))))
+        // m1var += k
+        m1var += '1'
+        countKSLP += 1
+      else
+        m1var += '0'
+      endif
+    next
+    // s := "= "+lstr(len(m1var))+"кслп. ="
+    s := "= "+alltrim(str(countKSLP))+"кслп. ="
+  endif
+
+  Select(tmp_select)
+  // alertx(age)
+  // alertx(dateSl)
+  // alertx(m1var)
+
+  Return iif(ret==0, NIL, {m1var,s})
