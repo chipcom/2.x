@@ -3042,7 +3042,7 @@ return fl
 *
 
 ***** 28.01.20 определение КСГ по остальным введённым полям ввода - 2019-20 год
-Function definition_KSG(par,k_data2)
+Function definition_KSG__(par,k_data2)
 // файлы "human", "human_" и "human_2" открыты и стоят на нужной записи
 //       "human" открыт для записи суммы случая
 // выполнено use_base("human_u","HU") - для записи

@@ -14,7 +14,7 @@
 #-compr=yes
 #-workdir=C:\TEMP
 -inc
--workdir=..\TEMPF003
+-workdir=..\TEMP\TEMPF003
 
 -ochip_mo
 
@@ -78,5 +78,7 @@ mo_vounc.prg
 mo_263.prg
 mo_263p.prg
 mo_263s.prg
-.\oms\viewF003.prg
-.\kslp\kslp.prg
+.\ref\viewF003.prg
+.\oms\kslp.prg
+.\oms\oms_sluch.prg
+.\oms\definition_KSG.prg

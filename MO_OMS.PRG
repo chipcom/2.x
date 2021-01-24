@@ -3385,7 +3385,7 @@ endif
 return .t.
 
 ***** 28.04.20 добавление или редактирование случая (листа учета)
-Function oms_sluch(Loc_kod,kod_kartotek)
+Function oms_sluch__(Loc_kod,kod_kartotek)
 // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
 // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
 Static SKOD_DIAG := '     ', st_l_z := 1, st_N_DATA, st_K_DATA, st_rez_gist,;
@@ -6075,7 +6075,8 @@ endif
 return .t.
 
 ***** действия в ответ на выбор в меню "Госпитализация"
-Static Function f_valid_f14_ekst(get,old)
+Function f_valid_f14_ekst(get,old)
+// Static Function f_valid_f14_ekst(get,old)
 if M1F14_EKST != old .and. old != NIL
 endif
 return .t.
