@@ -2,7 +2,7 @@
 #include "..\..\_mylib_hbt\function.ch"
 #include "..\..\_mylib_hbt\edit_spr.ch"
 #include "..\chip_mo.ch"
-
+ 
 
 ***** 28.01.20 определение КСГ по остальным введённым полям ввода - 2019-20 год
 Function definition_KSG(par,k_data2)
@@ -63,7 +63,8 @@ Function definition_KSG(par,k_data2)
         osn_diag := space(6), sop_diag := {}, osl_diag := {}, tmp, lrslt, akslp, akiro,;
         lad_cr := "", lad_cr1 := "", lis_err := 0, akslp2, lpar_org := 0, lyear,;
         kol_ter := 0, kol_hir := 0, lkoef, fl_reabil, lkiro := 0, lkslp := "", lbartell := "",;
-        lusl, susl, s_dializ := 0, ahu := {}, amohu := {}, date_usl := stod("20200101")
+        lusl, susl, s_dializ := 0, ahu := {}, amohu := {},;
+        date_usl := stod("20210101") // stod("20200101")
   DEFAULT par TO 1, sp0 TO "", sp1 TO space(1), sp6 TO space(6), sp15 TO space(20)
   Private pole
   if par == 1
@@ -225,8 +226,8 @@ Function definition_KSG(par,k_data2)
     endif
     return {ars,arerr,alltrim(lksg),lcena,{},{}}
   endif
-  lal := "LUSL"+iif(lyear==2020,"","19")
-  lalf := "LUSLF"+iif(lyear==2020,"","19")
+  lal := "LUSL"+iif(lyear==2021,"","20")    // "LUSL"+iif(lyear==2020,"","19")
+  lalf := "LUSLF"+iif(lyear==2021,"","20")  // lalf := "LUSLF"+iif(lyear==2020,"","19")
   if select("LUSLF") == 0
     use_base("LUSLF")
   endif
@@ -366,7 +367,7 @@ Function definition_KSG(par,k_data2)
       за медицинской помощью (Классификатор V009) 102, 105, 107, 110, 202, 205, 207
   */
   //aadd(ars,'   ║age='+lage+' sex='+lsex+' los='+print_array(llos))
-  nfile := "_mo"+iif(lyear==2020,"0","9")+"k006"
+  nfile := "_mo"+iif(lyear==2021,"1","0")+"k006"  // nfile := "_mo"+iif(lyear==2020,"0","9")+"k006"
   if select("K006") == 0
     R_Use(exe_dir+nfile,{cur_dir+nfile,cur_dir+nfile+"_"},"K006")
     /*{"SHIFR",      "C",     10,      0},;
