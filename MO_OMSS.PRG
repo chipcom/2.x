@@ -1699,6 +1699,7 @@ if reg > 1
     skip
   enddo
   lusl->(dbCloseArea())
+  lusl20->(dbCloseArea())
   lusl19->(dbCloseArea())
   lusl18->(dbCloseArea())
   usl1->(dbCloseArea())
