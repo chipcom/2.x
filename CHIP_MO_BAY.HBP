@@ -17,7 +17,7 @@
 -inc
 -mt
 -compr=yes
--workdir=D:\_MO\TEMP_MO
+-workdir=D:\_MO\TEMP\TEMP_MO
 -ochip_mo
 
 chip_mo.rc

@@ -15,8 +15,8 @@
 #include "chip_mo.ch"
 
 Static _version := {2,11,14}
-Static char_version := "d"
-Static _date_version := "23.01.21г."
+Static char_version := "test"
+Static _date_version := "25.01.21г."
 Static __s_full_name := "ЧИП + Учёт работы Медицинской Организации"
 Static __s_version
 
