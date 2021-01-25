@@ -13,6 +13,7 @@ copy d:\_mo\_arc\*.dbf  d:\_mo\chip\exe
 copy d:\_mo\_arc\*.dbt  d:\_mo\chip\exe
 
 if exist d:\_mo\_build\chip_mo.rar del d:\_mo\_build\chip_mo.rar
-copy d:\_mo\_arc\readme.rtf d:\_mo\_build\readme.rtf
+copy d:\_mo\DOC\readme.rtf d:\_mo\_arc
+copy d:\_mo\DOC\readme.rtf d:\_mo\_build\readme.rtf
 C:\"Program Files"\WinRAR\Rar.exe a -ep d:\_mo\_build\chip_mo @d:\_mo\2.x\chip_mo_bay.lst
 copy d:\_mo\_build\chip_mo.rar d:\_mo\_build\KVD\chip_mo.rar
