@@ -10,13 +10,6 @@ d:\_mo\_arc\IST_BOL.FR3
 d:\_mo\_arc\LU_STAC.FR3
 d:\_mo\_arc\MO_*.FR3
 d:\_mo\_arc\MO_*.HRB
-d:\_mo\_arc\MO_14med.XLS
-d:\_mo\_arc\MO_131.XLS
-d:\_mo\_arc\MO_PR*.XLS
-d:\_mo\_arc\_MO_MO.DBB
-d:\_mo\_arc\_MO*.DBF
-d:\_mo\_arc\_MO*.DBT
-d:\_mo\_arc\_OKATO*.DBF
 d:\_mo\_arc\DISP_NAB.FRM
 d:\_mo\_arc\FORMA_12.FRM
 d:\_mo\_arc\FORMA_14.FRM
@@ -47,3 +40,10 @@ d:\_mo\_arc\SmartCard.PCSC.dll
 d:\_mo\_arc\SmartCard.PCSC.Native.dll
 d:\_mo\_arc\_MO_PROF.TXT
 d:\_mo\_arc\_MO_SPEC.TXT
+d:\_mo\_arc\MO_14med.XLS
+d:\_mo\_arc\MO_131.XLS
+d:\_mo\_arc\MO_PR*.XLS
+d:\_mo\_arc\_MO_MO.DBB
+d:\_mo\_arc\*.DBF
+d:\_mo\_arc\*.DBT
+d:\_mo\_arc\*.DBF
