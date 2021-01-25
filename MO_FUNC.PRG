@@ -4544,7 +4544,7 @@ return NIL*/
 *
 
 ***** 07.09.20 определить коэф-т сложности лечения пациента и пересчитать цену
-Function f_cena_kslp(/*@*/_cena,_lshifr,_date_r,_n_data,_k_data,lkslp,arr_usl,lPROFIL_K,arr_diag,lpar_org,lad_cr)
+Function f_cena_kslp__(/*@*/_cena,_lshifr,_date_r,_n_data,_k_data,lkslp,arr_usl,lPROFIL_K,arr_diag,lpar_org,lad_cr)
 Static s_1_may := 0d20160430, s_18 := 0d20171231, s_19 := 0d20181231
 Static s_kslp17 := {;
   {1,1.1, 0,  3},;   // до 4 лет
