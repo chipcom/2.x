@@ -2704,9 +2704,9 @@ do case
   case k == 62
     f_view_R01()
   case k == 43
-    ne_real()
+    //ne_real()
 
-  /*  mas_pmt := {"~Создание файлов обмена",;
+   mas_pmt := {"~Создание файлов обмена",;
                 "~Просмотр файлов обмена"}
     mas_msg := {"Создание файлов обмена R11... за конкретный месяц",;
                 "Просмотр файлов обмена R11... и результатов работы с ними"}
@@ -2720,7 +2720,7 @@ do case
     set key K_CTRL_F10 to delete_month_R11()
     popup_prompt(T_ROW,T_COL-5,si7,mas_pmt,mas_msg,mas_fun)
     set key K_CTRL_F10 to
-    */
+
   case k == 71
     f_create_R11()
   case k == 72
@@ -2983,10 +2983,11 @@ if regim == "edit" .and. nKey == K_ENTER
   mn_data := human->n_data
   mk_data := mk_data1 := human->k_data
   Private is_disp_19 := !(mk_data < d_01_05_2019)
+  Private is_disp_21 := !(mk_data < d_01_01_2021)
   mdate_r := full_date(human->date_r)
   read_arr_DVN(human->kod)
   ret_arr_vozrast_DVN(mk_data)
-  ret_arrays_disp(is_disp_19)
+  ret_arrays_disp(is_disp_19,is_disp_21)
   ret_tip_mas(mWEIGHT,mHEIGHT,@m1tip_mas)
   mvozrast := count_years(human->date_r,human->n_data)
   mdvozrast := year(human->n_data) - year(human->date_r)
@@ -4681,7 +4682,7 @@ if !empty(ar)
 endif
 return NIL
 
-***** 10.11.19 список пациентов
+***** 20.01.21 список пациентов
 Function f2_inf_DVN(is_schet,par)
 Local arr_m, buf := save_maxrow(), lkod_h, lkod_k, rec, s, as := {},;
       a, sh, HH := 53, n, n_file := "spis_dvn"+stxt, reg_print
@@ -4711,7 +4712,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
     ret_arrays_disp(.f.)
     Private count_dvn_arr_usl18 := len(dvn_arr_usl18)
     Private count_dvn_arr_umolch18 := len(dvn_arr_umolch18)
-    ret_arrays_disp(.t.)
+    ret_arrays_disp(.t.,.t.)
     for i := 1 to max(count_dvn_arr_usl18,count_dvn_arr_usl)
       aadd(adbf,{"d_"+lstr(i),"C",24,0})
     next
@@ -4990,9 +4991,10 @@ mpol    := human->pol
 mn_data := human->n_data
 mk_data := human->k_data
 is_2018 := p := (mk_data < d_01_05_2019)
+is_2021 := p := (mk_data < d_01_01_2021)
 is_2019 := !is_2018
 ret_arr_vozrast_DVN(mk_data)
-ret_arrays_disp(is_2019)
+ret_arrays_disp(is_2019,is_2021)
 if ppar == 1 // диспансеризация 1 этап
   m1GRUPPA := ret_gruppa_DVN(human_->RSLT_NEW,@fl2)
   if between(m1gruppa,0,4)
@@ -10037,16 +10039,16 @@ return NIL
 ***** 16.11.20 Создание файла обмена R11...
 Function f_create_R11()
 Local buf := save_maxrow(), i, j, ir, s := "", arr := {}, fl := .t., fl1 := .f., a_reestr := {}, ar
-Private sgod := 2020, SMONTH := 1, mdate := sys_date, mrec := 1
+Private sgod := 2021, SMONTH := 1, mdate := sys_date, mrec := 1
 Private c_view := 0, c_found := 0, fl_exit := .f., pj, arr_rees := {},;
         pkol := 0, CODE_LPU := glob_mo[_MO_KOD_TFOMS], CODE_MO := glob_mo[_MO_KOD_FFOMS],;
         mkol := {0,0,0,0,0}, skol[5], ames[12,5], ame[12], bm := SMONTH,; // начальный месяц минус один
-        _arr_vozrast_DVN := ret_arr_vozrast_DVN(0d20191201)
+        _arr_vozrast_DVN := ret_arr_vozrast_DVN(0d20201201)
 //
 mywait()
 fl := .t.
 fl_1 := .f.
-SMONTH := lm := 12
+SMONTH := lm := 2 //МЕСЯЦ
 dbcreate(cur_dir+"tmp_00",{;
    {"reestr",     "N", 6,0},;
    {"kod",        "N", 7,0},; // код по картотеке

@@ -3206,7 +3206,7 @@ return NIL
 ***** 16.11.20 проверить, есть ли не до конца обработанные операции с файлами R11...
 Function find_unfinished_R11()
 Local fl := .t., fl1, skol := 0, mkol := 0, arr := {}, rec, fl_date := .t.
-Private sgod := 2020, mrec := 1, smonth := 12
+Private sgod := 2021, mrec := 1, smonth := 2
 if glob_mo[_MO_IS_UCH]
   if (fl := verify_packet_R05(2,arr))
     R_Use(dir_server+"mo_dr05p",,"R05p")
