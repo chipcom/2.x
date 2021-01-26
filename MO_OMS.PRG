@@ -6378,7 +6378,7 @@ endif
 return len(mm_ismo) > 0
 
 ***** 13.10.20 ввод услуг в случай (лист учёта)
-Function oms_usl_sluch(mkod_human,mkod_kartotek,fl_edit)
+Function oms_usl_sluch__(mkod_human,mkod_kartotek,fl_edit)
 // mkod_human - код по БД human
 // mkod_kartotek - код по БД kartotek
 Local adbf, buf := savescreen(), i, j := 0, tmp_color := setcolor(color1), rec_ksg := 0,;
