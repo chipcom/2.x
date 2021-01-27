@@ -1913,6 +1913,7 @@ if (musl := input_value(18,6,20,73,color1,;
     lusl->(dbCloseArea())
     lusl18->(dbCloseArea())
     lusl19->(dbCloseArea())
+    lusl20->(dbCloseArea())
   endif
   rest_box(buf)
 endif

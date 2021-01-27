@@ -2306,9 +2306,11 @@ do while !eof()
   skip
 enddo
 luslc->(dbCloseArea())
+luslc20->(dbCloseArea())
 luslc19->(dbCloseArea())
 luslc18->(dbCloseArea())
 lusl->(dbCloseArea())
+lusl20->(dbCloseArea())
 lusl19->(dbCloseArea())
 lusl18->(dbCloseArea())
 usl->(dbCloseArea())
