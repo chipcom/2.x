@@ -4147,7 +4147,7 @@ return NIL
 *
 
 ***** 29.09.19 определить КСГ для 1 пациента из режима редактирования услуг
-Function f_usl_definition_KSG(lkod,k_data2)
+Function f_usl_definition_KSG__(lkod,k_data2)
 Local arr, buf := save_maxrow(), lshifr, lrec, lu_kod, lcena, not_ksg := .t.,;
       mrec_hu, tmp_rec := 0, tmp_select := select(), is_usl1 := .f.,;
       ret := {}, lyear := year(human->K_DATA), i, s, sdial, fl

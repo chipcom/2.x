@@ -74,6 +74,7 @@ Function f_cena_kslp(/*@*/_cena,_lshifr,_date_r,_n_data,_k_data,lkslp,arr_usl,lP
     if ascan(lkslp,1) > 0 .and. between(y,s_kslp[1,3],s_kslp[1,4])
       if (lprofil_k != 16 .and. ! (_lshifr == "st38.001"))
         // пациент лежит не на геронтологической койке 
+alertx("добавим КСЛП 1")
         aadd(_akslp,1)
         aadd(_akslp,1.02)
       endif
@@ -136,7 +137,7 @@ Function f_cena_kslp(/*@*/_cena,_lshifr,_date_r,_n_data,_k_data,lkslp,arr_usl,lP
     // КСЛП = 8 антимикробная терапия
     // НУЖЕН ЗАПРОС
     if ascan(lkslp,8) > 0
-// alertx("добавим КСЛП 8")
+alertx("добавим КСЛП 8")
       // пункт 3.1.5
       // В случаях лечения пациентов в стационарных условиях при заболеваниях и их 
       // осложнениях, вызванных микроорганизмами с антибиотикорезистентностью, а также 
@@ -159,6 +160,7 @@ Function f_cena_kslp(/*@*/_cena,_lshifr,_date_r,_n_data,_k_data,lkslp,arr_usl,lP
 
     // КСЛП=9 тяжелые сопутствующие патологии
     if ascan(lkslp,9) > 0 .and. conditionKSLP_9_21(arr_diag)
+alertx("добавим КСЛП 9")
       aadd(_akslp,9)
       aadd(_akslp,1.5)
     endif
