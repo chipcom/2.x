@@ -1020,12 +1020,14 @@ if empty(ret_arr)
 endif
 return ret_arr
 
-***** 18.01.21
+***** 27.01.21
 Function usl2TFOMS()
 Static sdate
 Local k, buf := save_maxrow(), name_file := "uslugi"+stxt, nu, ret_arr,;
       sh := 80, HH := 60, t_arr, i, s, fl, v1, v2, mdate, fl1uslc, fl2uslc,;
       ta[2], lyear, fl1del, fl2del, len_ksg := 10
+local arrKSLP, rowKSLP, tmpKSLP
+
 DEFAULT sdate TO sys1_date
 mdate := input_value(20,5,22,73,color1,;
                      "Дата, по состоянию на которую выводятся цены на услуги",;
@@ -1062,18 +1064,31 @@ if (k := popup_2array(usl9TFOMS(mdate),T_ROW,T_COL-5,su,1,@t_arr,"Выберите групп
   add_string(center("[ цены по состоянию на "+date_8(mdate)+"г. ]",sh))
   add_string("")
   if t_arr[2] > 500
-    add_string('КСЛП: 1 - до 1 года(коэф=1.1), 2 - от 1 года до 3-х лет включит.(коэф=1.1)')
-    add_string('      4 - 75 лет и старше(коэф=1.02), 5 - 60 лет и старше и астения(коэф=1.1)')
-    add_string('      11 - проведение однотипных операций на парных органах(коэф=1.2)')
-    add_string('      18 - применение инвазивной ИВЛ (COVID-19/крайне тяжелое состояние)(коэф=1.2)')
-   if t_arr[2] == 502
-    //!!! ВНИМАНИЕ 18.01
-    if lyear < 2020
-     add_string('      12 - ЭКО 1 этап(коэф=0.6), 13 - ЭКО полн с крио(коэф=1.1), 14 - ЭКО подсадка(коэф=0.19)')
-    else
-     add_string('      15 - ЭКО 1 этап(коэф=0.6), 16 - ЭКО полн с крио(коэф=1.1), 17 - ЭКО подсадка(коэф=0.19)')
-    endif
-   endif
+    arrKSLP := getKSLPtable( mdate )
+    add_string('КСЛП:')
+    for each rowKSLP in arrKSLP
+      k := perenos(ta, alltrim(rowKSLP[3]), 58)
+      for i := 1 to k
+        if i == 1
+          tmpKSLP := str(rowKSLP[1], 7) + ' - ' + ta[i] + ' (коеф=' + str(rowKSLP[4], 4, 2) + ')'
+        else
+          tmpKSLP := space(10) + ta[i]
+        endif
+        add_string(tmpKSLP)
+      next
+    next
+    // add_string('КСЛП: 1 - до 1 года(коэф=1.1), 2 - от 1 года до 3-х лет включит.(коэф=1.1)')
+    // add_string('      4 - 75 лет и старше(коэф=1.02), 5 - 60 лет и старше и астения(коэф=1.1)')
+    // add_string('      11 - проведение однотипных операций на парных органах(коэф=1.2)')
+    // add_string('      18 - применение инвазивной ИВЛ (COVID-19/крайне тяжелое состояние)(коэф=1.2)')
+    // if t_arr[2] == 502
+    //   //!!! ВНИМАНИЕ 18.01
+    //   if lyear < 2020
+    //     add_string('      12 - ЭКО 1 этап(коэф=0.6), 13 - ЭКО полн с крио(коэф=1.1), 14 - ЭКО подсадка(коэф=0.19)')
+    //   else
+    //     add_string('      15 - ЭКО 1 этап(коэф=0.6), 16 - ЭКО полн с крио(коэф=1.1), 17 - ЭКО подсадка(коэф=0.19)')
+    //   endif
+    // endif
     add_string('КИРО: 1 - менее 4-х дней, выполнено хирург.вмешательство(коэф=0.8)')
     add_string('      2 - менее 4-х дней, хирург.лечение не проводилось(коэф=0.2)')
     add_string('      3 - более 3-х дней, выполнено хирург.вмешательство, лечение прервано(коэф=0.9)')
