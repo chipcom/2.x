@@ -6775,7 +6775,7 @@ Function f3oms_usl_sluch()
 return NIL
 
 ***** 13.10.20 ввод услуг в лист учёта
-Function f2oms_usl_sluch(nKey,oBrow)
+Function f2oms_usl_sluch__(nKey,oBrow)
 Static skod_k := 0, skod_human := 0, SKOD_DIAG, SZF,;
        st_vzrosl, st_arr_dbf, skod_vr, skod_as, aksg := {}
 LOCAL flag := -1, buf := savescreen(), fl := .f., rec, max_date, new_date,;
