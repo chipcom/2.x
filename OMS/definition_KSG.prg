@@ -226,6 +226,7 @@ Function definition_KSG(par,k_data2)
     endif
     return {ars,arerr,alltrim(lksg),lcena,{},{}}
   endif
+alertx("1")
   lal := "LUSL"+iif(lyear==2021,"","20")    // "LUSL"+iif(lyear==2020,"","19")
   lalf := "LUSLF"+iif(lyear==2021,"","20")  // lalf := "LUSLF"+iif(lyear==2020,"","19")
   if select("LUSLF") == 0
@@ -253,6 +254,7 @@ Function definition_KSG(par,k_data2)
       select HU
       skip
     enddo
+alertx("2")
     if select("MOSU") == 0
       R_Use(dir_server+"mo_su",,"MOSU")
     endif
@@ -273,6 +275,7 @@ Function definition_KSG(par,k_data2)
       select MOHU
       skip
     enddo
+alertx("3")
   else
     select IHU
     find (str(ihuman->kod,10))
@@ -301,6 +304,7 @@ Function definition_KSG(par,k_data2)
       skip
     enddo
   endif
+alertx("4")
   if lvr == 0 //
     lage := '6'
     s := "взр."
@@ -383,7 +387,9 @@ Function definition_KSG(par,k_data2)
     index on substr(shifr,1,2)+ds+sy+age+sex+los to (cur_dir+sbase) // по диагнозу/операции
     index on substr(shifr,1,2)+sy+ds+age+sex+los to (cur_dir+sbase+"_") // по операции/диагнозу
     */
+alertx("4-1")
   else
+alertx("5")
     if ver_year == lyear // проверяем: если тот же год, что только что проверяли
       // ничего не меняем
     else // иначе переоткрываем данный файл с необходимым годом и тем же алиасом
@@ -490,6 +496,7 @@ Function definition_KSG(par,k_data2)
       if fl ; j ++ ; endif
     endif
     if fl
+alertx("6")
       if !empty(k006->sy) .and. (i := ascan(amohu,k006->sy)) > 0
         aadd(tmp,i)
       endif
@@ -560,6 +567,7 @@ Function definition_KSG(par,k_data2)
     next
     aTerKSG := aclone(ar)
     if len(aTerKSG) > 1
+alertx("7")
       asort(aTerKSG,,,{|x,y| iif(x[13]==y[13], x[3] > y[3], x[13] > y[13]) })
     endif
     /*aadd(ars,"   ║КСГ: "+print_array(aTerKSG[1]))
@@ -679,6 +687,7 @@ Function definition_KSG(par,k_data2)
     endif
   next
   if len(ar) > 0
+alertx("8")
     for i := 1 to len(ar)
       ar[i,2] := ret_cena_KSG(ar[i,1],lvr,date_usl)
       if ar[i,2] > 0
@@ -687,6 +696,7 @@ Function definition_KSG(par,k_data2)
     next
     aHirKSG := aclone(ar)
     if len(aHirKSG) > 1
+alertx("9")
       asort(aHirKSG,,,{|x,y| iif(x[3]==y[3], x[13] > y[13], x[3] > y[3]) })
     endif
     /*aadd(ars,"   ║КСГ: "+print_array(aHirKSG[1]))
@@ -698,6 +708,7 @@ Function definition_KSG(par,k_data2)
     endif
   endif
   if kol_ter > 0 .and. kol_hir > 0
+alertx("10")
     aTerKSG[1,1] := alltrim(aTerKSG[1,1])
     aHirKSG[1,1] := alltrim(aHirKSG[1,1])
     //i := int(val(substr(aTerKSG[1,1],2,3)))
@@ -731,12 +742,14 @@ Function definition_KSG(par,k_data2)
       endif
     endif
   elseif kol_ter > 0
+alertx("11")
     aTerKSG[1,1] := alltrim(aTerKSG[1,1])
     lksg  := aTerKSG[1,1]
     lcena := aTerKSG[1,2]
     lkiro := list2arr(aTerKSG[1,4])
     lkslp := aTerKSG[1,14]
   elseif kol_hir > 0
+alertx("12")
     aHirKSG[1,1] := alltrim(aHirKSG[1,1])
     lksg  := aHirKSG[1,1]
     lcena := aHirKSG[1,2]
