@@ -461,12 +461,12 @@ Function f2oms_usl_sluch(nKey,oBrow)
         goto (mkod_vr)
         mtabn_vr := perso->tab_nom
         m1prvs := -ret_new_spec(perso->prvs,perso->prvs_new)
-        mvrach := padr(fam_i_o(perso->fio)+" "+ret_tmp_prvs(m1prvs),57)
+        mvrach := alltrim(padr(fam_i_o(perso->fio)+" "+ret_tmp_prvs(m1prvs),57))
       endif
       if mkod_as > 0
         select PERSO
         goto (mkod_as)
-        massist := padr(perso->fio,35)
+        massist := alltrim(padr(perso->fio,35))
         mtabn_as := perso->tab_nom
       endif
       if empty(m1PROFIL)

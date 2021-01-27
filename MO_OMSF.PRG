@@ -2007,7 +2007,7 @@ endif
 return {ret,rets}
 
 ***** 01.11.20 функция для when и valid при вводе услуг в лист учёта
-Function f5editkusl(get,when_valid,k)
+Function f5editkusl__(get,when_valid,k)
 Local fl := .t., s, i, lu_cena, lshifr1, v, old_kod, amsg, fl1, fl2, ;
       msg1_err := "Код врача равен коду ассистента! Это недопустимо.",;
       msg2_err := "Сотрудника с таким кодом нет в базе данных персонала!",;
