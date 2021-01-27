@@ -4,7 +4,7 @@
 #include "..\chip_mo.ch"
  
 
-***** 28.01.20 определение КСГ по остальным введённым полям ввода - 2019-20 год
+***** 27.01.21 определение КСГ по остальным введённым полям ввода - 2019-20 год
 Function definition_KSG(par,k_data2)
   // файлы "human", "human_" и "human_2" открыты и стоят на нужной записи
   //       "human" открыт для записи суммы случая
@@ -226,7 +226,6 @@ Function definition_KSG(par,k_data2)
     endif
     return {ars,arerr,alltrim(lksg),lcena,{},{}}
   endif
-alertx("1")
   lal := "LUSL"+iif(lyear==2021,"","20")    // "LUSL"+iif(lyear==2020,"","19")
   lalf := "LUSLF"+iif(lyear==2021,"","20")  // lalf := "LUSLF"+iif(lyear==2020,"","19")
   if select("LUSLF") == 0
@@ -254,7 +253,6 @@ alertx("1")
       select HU
       skip
     enddo
-alertx("2")
     if select("MOSU") == 0
       R_Use(dir_server+"mo_su",,"MOSU")
     endif
@@ -275,7 +273,6 @@ alertx("2")
       select MOHU
       skip
     enddo
-alertx("3")
   else
     select IHU
     find (str(ihuman->kod,10))
@@ -304,7 +301,6 @@ alertx("3")
       skip
     enddo
   endif
-alertx("4")
   if lvr == 0 //
     lage := '6'
     s := "взр."
@@ -387,9 +383,7 @@ alertx("4")
     index on substr(shifr,1,2)+ds+sy+age+sex+los to (cur_dir+sbase) // по диагнозу/операции
     index on substr(shifr,1,2)+sy+ds+age+sex+los to (cur_dir+sbase+"_") // по операции/диагнозу
     */
-alertx("4-1")
   else
-alertx("5")
     if ver_year == lyear // проверяем: если тот же год, что только что проверяли
       // ничего не меняем
     else // иначе переоткрываем данный файл с необходимым годом и тем же алиасом
@@ -406,6 +400,8 @@ alertx("5")
   select K006
   set order to 1
   find (susl+padr(osn_diag,6))
+// alertx(osn_diag)
+// alertx(susl)
   do while left(k006->shifr,2)==susl .and. k006->ds==padr(osn_diag,6) .and. !eof()
     lkoef := k006->kz
     dbSelectArea(lal)
@@ -449,11 +445,13 @@ alertx("5")
       fl := ascan(llos,alltrim(k006->los)) > 0  // (k006->los $ llos)
       if fl ; j ++ ; endif
     endif
+// alertx("1:" + TRANSFORM(fl, "L"))
     if fl
       if empty(lad_cr) // в случае нет доп.критерия
         if !empty(k006->ad_cr) // а в справочнике есть доп.критерий
           fl := .f.
         endif
+// alertx("2:" + TRANSFORM(fl, "L"))
       else // в случае есть доп.критерий
         if empty(k006->ad_cr) // а в справочнике нет доп.критерия
           fl := .f.
@@ -461,8 +459,10 @@ alertx("5")
           fl := (lad_cr == alltrim(k006->ad_cr))
           if fl ; j ++ ; endif
         endif
+// alertx("3:" + TRANSFORM(fl, "L"))
       endif
     endif
+// alertx("4:" + TRANSFORM(fl, "L"))
     if fl
       if empty(lad_cr1) // в случае нет доп.критерия2
         if !empty(k006->ad_cr1) // а в справочнике есть доп.критерий2
@@ -496,7 +496,7 @@ alertx("5")
       if fl ; j ++ ; endif
     endif
     if fl
-alertx("6")
+// alertx("6")
       if !empty(k006->sy) .and. (i := ascan(amohu,k006->sy)) > 0
         aadd(tmp,i)
       endif
@@ -518,6 +518,7 @@ alertx("6")
     endif
     select K006
     skip
+// alertx("enddo")
   enddo
   ar1 := {}
   if lusl == 2 .and. !empty(lad_cr) .and. lad_cr == "mgi"
@@ -567,7 +568,7 @@ alertx("6")
     next
     aTerKSG := aclone(ar)
     if len(aTerKSG) > 1
-alertx("7")
+// alertx("7")
       asort(aTerKSG,,,{|x,y| iif(x[13]==y[13], x[3] > y[3], x[13] > y[13]) })
     endif
     /*aadd(ars,"   ║КСГ: "+print_array(aTerKSG[1]))
@@ -687,7 +688,7 @@ alertx("7")
     endif
   next
   if len(ar) > 0
-alertx("8")
+// alertx("8")
     for i := 1 to len(ar)
       ar[i,2] := ret_cena_KSG(ar[i,1],lvr,date_usl)
       if ar[i,2] > 0
@@ -696,7 +697,7 @@ alertx("8")
     next
     aHirKSG := aclone(ar)
     if len(aHirKSG) > 1
-alertx("9")
+// alertx("9")
       asort(aHirKSG,,,{|x,y| iif(x[3]==y[3], x[13] > y[13], x[3] > y[3]) })
     endif
     /*aadd(ars,"   ║КСГ: "+print_array(aHirKSG[1]))
@@ -708,7 +709,7 @@ alertx("9")
     endif
   endif
   if kol_ter > 0 .and. kol_hir > 0
-alertx("10")
+// alertx("10")
     aTerKSG[1,1] := alltrim(aTerKSG[1,1])
     aHirKSG[1,1] := alltrim(aHirKSG[1,1])
     //i := int(val(substr(aTerKSG[1,1],2,3)))
@@ -742,14 +743,14 @@ alertx("10")
       endif
     endif
   elseif kol_ter > 0
-alertx("11")
+// alertx("11")
     aTerKSG[1,1] := alltrim(aTerKSG[1,1])
     lksg  := aTerKSG[1,1]
     lcena := aTerKSG[1,2]
     lkiro := list2arr(aTerKSG[1,4])
     lkslp := aTerKSG[1,14]
   elseif kol_hir > 0
-alertx("12")
+// alertx("12")
     aHirKSG[1,1] := alltrim(aHirKSG[1,1])
     lksg  := aHirKSG[1,1]
     lcena := aHirKSG[1,2]

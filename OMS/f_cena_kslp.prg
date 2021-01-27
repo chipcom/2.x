@@ -4,7 +4,7 @@
 #include "..\chip_mo.ch"
 
 
-***** 26.01.21 определить коэф-т сложности лечения пациента и пересчитать цену
+***** 27.01.21 определить коэф-т сложности лечения пациента и пересчитать цену
 Function f_cena_kslp(/*@*/_cena,_lshifr,_date_r,_n_data,_k_data,lkslp,arr_usl,lPROFIL_K,arr_diag,lpar_org,lad_cr)
   Static s_1_may := 0d20160430, s_18 := 0d20171231, s_19 := 0d20181231
   static s_20 := 0d20201231
@@ -80,7 +80,9 @@ Function f_cena_kslp(/*@*/_cena,_lshifr,_date_r,_n_data,_k_data,lkslp,arr_usl,lP
     endif
 
     // КСЛП=3 спальное место законному представителю
+    // НУЖЕН ЗАПРОС
     if ascan(lkslp,3) > 0 .and. between(y,s_kslp[2,3],s_kslp[2,4])
+// alertx("добавим КСЛП 3")
       // пункт 3.1.1
       // Предоставление спального места и питания законному представителю, при возрасте 
       // ребенка старше 4 лет, осуществляется при наличии медицинских показаний и 
@@ -91,7 +93,9 @@ Function f_cena_kslp(/*@*/_cena,_lshifr,_date_r,_n_data,_k_data,lkslp,arr_usl,lP
     endif
 
     // КСЛП=4 иммунизация РСВ
+    // НУЖЕН ЗАПРОС
     if ascan(lkslp,4) > 0
+// alertx("добавим КСЛП 4")
       // пункт 3.1.2
       // КСЛП применяется в случаях если сроки проведения первой иммунизации против 
       // респираторно-синцитиальной вирусной (РСВ) инфекции совпадают по времени с 
@@ -102,7 +106,9 @@ Function f_cena_kslp(/*@*/_cena,_lshifr,_date_r,_n_data,_k_data,lkslp,arr_usl,lP
     endif
 
     // КСЛП=5 развертывание индивидуального поста
+    // НУЖЕН ЗАПРОС
     if ascan(lkslp,5) > 0
+// alertx("добавим КСЛП 5")
       aadd(_akslp,5)
       aadd(_akslp,1.2)
     endif
@@ -128,7 +134,9 @@ Function f_cena_kslp(/*@*/_cena,_lshifr,_date_r,_n_data,_k_data,lkslp,arr_usl,lP
     endif
 
     // КСЛП = 8 антимикробная терапия
+    // НУЖЕН ЗАПРОС
     if ascan(lkslp,8) > 0
+// alertx("добавим КСЛП 8")
       // пункт 3.1.5
       // В случаях лечения пациентов в стационарных условиях при заболеваниях и их 
       // осложнениях, вызванных микроорганизмами с антибиотикорезистентностью, а также 
@@ -161,13 +169,10 @@ Function f_cena_kslp(/*@*/_cena,_lshifr,_date_r,_n_data,_k_data,lkslp,arr_usl,lP
       aadd(_akslp,1.5)
     endif
 
-alertx("Считаем КСЛП")
-alertx(_cena)
     // установим цену с учетом КСЛП
     if !empty(_akslp)
       _cena := round_5(_cena*ret_koef_kslp_21(_akslp),0)  // с 2019 года цена округляется до рублей
     endif
-alertx(_cena)
 
   elseif _k_data > s_19  // с 2019 года
     if !empty(lkslp)
@@ -345,7 +350,7 @@ Function ret_koef_kslp_21(akslp)
   Local k := 1  // КСЛП равен 1
 
   if valtype(akslp) == "A" .and. len(akslp) >= 2
-    for i := 1 TO len(aklp) STEP 2
+    for i := 1 TO len(akslp) STEP 2
       if i == 1
         k := akslp[2]
       else
