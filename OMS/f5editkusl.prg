@@ -9,6 +9,7 @@ Function f5editkusl(get,when_valid,k)
         msg1_err := "Код врача равен коду ассистента! Это недопустимо.",;
         msg2_err := "Сотрудника с таким кодом нет в базе данных персонала!",;
         blk_sum := {|| mstoim_1 := round_5(mu_cena * mkol_1, 2) }
+
   if when_valid == 1    // when
     if k == 2     // Шифр услуги
       if !empty(mshifr)
@@ -40,7 +41,7 @@ Function f5editkusl(get,when_valid,k)
       endif
     elseif k == 2 // Шифр услуги
       if !empty(mshifr) .and. !(mshifr == get:original)
-        mshifr := transform_shifr(mshifr)
+                mshifr := transform_shifr(mshifr)
         // сначала проверим на код лаб.услуги, направляемой в ЦКДЛ
         if is_lab_usluga(mshifr) .and. !(type("is_oncology") == "N")
           fl := .f.

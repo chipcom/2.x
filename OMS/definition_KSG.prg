@@ -400,8 +400,6 @@ Function definition_KSG(par,k_data2)
   select K006
   set order to 1
   find (susl+padr(osn_diag,6))
-// alertx(osn_diag)
-// alertx(susl)
   do while left(k006->shifr,2)==susl .and. k006->ds==padr(osn_diag,6) .and. !eof()
     lkoef := k006->kz
     dbSelectArea(lal)
@@ -445,13 +443,13 @@ Function definition_KSG(par,k_data2)
       fl := ascan(llos,alltrim(k006->los)) > 0  // (k006->los $ llos)
       if fl ; j ++ ; endif
     endif
-// alertx("1:" + TRANSFORM(fl, "L"))
     if fl
       if empty(lad_cr) // в случае нет доп.критерия
+alertx(lad_cr,"lad_cr")
+alertx(k006->ad_cr,"AD_CR")
         if !empty(k006->ad_cr) // а в справочнике есть доп.критерий
-          fl := .f.
+          fl := .t. // было до 28/01/2021 .f.
         endif
-// alertx("2:" + TRANSFORM(fl, "L"))
       else // в случае есть доп.критерий
         if empty(k006->ad_cr) // а в справочнике нет доп.критерия
           fl := .f.
@@ -459,10 +457,9 @@ Function definition_KSG(par,k_data2)
           fl := (lad_cr == alltrim(k006->ad_cr))
           if fl ; j ++ ; endif
         endif
-// alertx("3:" + TRANSFORM(fl, "L"))
       endif
     endif
-// alertx("4:" + TRANSFORM(fl, "L"))
+alertx(fl,"Flag")
     if fl
       if empty(lad_cr1) // в случае нет доп.критерия2
         if !empty(k006->ad_cr1) // а в справочнике есть доп.критерий2
@@ -496,7 +493,6 @@ Function definition_KSG(par,k_data2)
       if fl ; j ++ ; endif
     endif
     if fl
-// alertx("6")
       if !empty(k006->sy) .and. (i := ascan(amohu,k006->sy)) > 0
         aadd(tmp,i)
       endif
@@ -568,7 +564,6 @@ Function definition_KSG(par,k_data2)
     next
     aTerKSG := aclone(ar)
     if len(aTerKSG) > 1
-// alertx("7")
       asort(aTerKSG,,,{|x,y| iif(x[13]==y[13], x[3] > y[3], x[13] > y[13]) })
     endif
     /*aadd(ars,"   ║КСГ: "+print_array(aTerKSG[1]))
@@ -688,7 +683,6 @@ Function definition_KSG(par,k_data2)
     endif
   next
   if len(ar) > 0
-// alertx("8")
     for i := 1 to len(ar)
       ar[i,2] := ret_cena_KSG(ar[i,1],lvr,date_usl)
       if ar[i,2] > 0
@@ -697,7 +691,6 @@ Function definition_KSG(par,k_data2)
     next
     aHirKSG := aclone(ar)
     if len(aHirKSG) > 1
-// alertx("9")
       asort(aHirKSG,,,{|x,y| iif(x[3]==y[3], x[13] > y[13], x[3] > y[3]) })
     endif
     /*aadd(ars,"   ║КСГ: "+print_array(aHirKSG[1]))
@@ -709,7 +702,6 @@ Function definition_KSG(par,k_data2)
     endif
   endif
   if kol_ter > 0 .and. kol_hir > 0
-// alertx("10")
     aTerKSG[1,1] := alltrim(aTerKSG[1,1])
     aHirKSG[1,1] := alltrim(aHirKSG[1,1])
     //i := int(val(substr(aTerKSG[1,1],2,3)))
@@ -743,14 +735,12 @@ Function definition_KSG(par,k_data2)
       endif
     endif
   elseif kol_ter > 0
-// alertx("11")
     aTerKSG[1,1] := alltrim(aTerKSG[1,1])
     lksg  := aTerKSG[1,1]
     lcena := aTerKSG[1,2]
     lkiro := list2arr(aTerKSG[1,4])
     lkslp := aTerKSG[1,14]
   elseif kol_hir > 0
-// alertx("12")
     aHirKSG[1,1] := alltrim(aHirKSG[1,1])
     lksg  := aHirKSG[1,1]
     lcena := aHirKSG[1,2]
@@ -830,6 +820,6 @@ Function definition_KSG(par,k_data2)
       aadd(arerr," РЕЗУЛЬТАТ: не получилось выбрать КСГ"+iif(fl_reabil,' для случая медицинской реабилитации',''))
     endif
   endif
-  return {ars,arerr,alltrim(lksg),lcena,akslp,akiro,s_dializ}
-  //       1     2      3            4     5     6       7
+  return { ars, arerr, alltrim(lksg), lcena, akslp, akiro, s_dializ }
+  //        1     2        3            4      5      6        7
   

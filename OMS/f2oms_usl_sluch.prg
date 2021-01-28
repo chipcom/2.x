@@ -506,7 +506,7 @@ Function f2oms_usl_sluch(nKey,oBrow)
           @ r1+ix,2 say "Зубная формула" get mzf pict pic_diag ;
                     valid {|g| f5editkusl(g,2,101) }
         endif
-        ++ix
+        ++ix 
         @ r1+ix,2 say "Шифр услуги" get mshifr pict "@!" ;
                   when {|g| f5editkusl(g,1,2) } ;
                   valid {|g| f5editkusl(g,2,2) }
@@ -586,7 +586,9 @@ Function f2oms_usl_sluch(nKey,oBrow)
         status_key("^<Esc>^ - выход без записи;  ^<PgDn>^ - подтверждение записи")
         set key K_F11 to clear_gets
         set key K_CTRL_F10 to clear_gets
+        // чтение введенной информации
         count_edit := myread(,,++k_read)
+
         SetKey( K_F2, NIL )
         SetKey( K_F3, NIL )
         SetKey( K_F5, NIL )
