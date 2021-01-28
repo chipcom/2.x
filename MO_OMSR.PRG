@@ -5289,9 +5289,9 @@ if (arr_m := year_month(T_ROW,T_COL+5,,3)) == NIL
   return NIL
 endif
 //!!! ВНИМАНИЕ
-if 2021 == arr_m[1]
-  return func_error(4,"Реестры за 2021 год пока недоступны")
-endif
+// if 2021 == arr_m[1]
+//   return func_error(4,"Реестры за 2021 год пока недоступны")
+// endif
 if !myFileDeleted(cur_dir+"tmpb"+sdbf)
   return NIL
 endif
