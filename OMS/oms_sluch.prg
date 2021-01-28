@@ -164,7 +164,8 @@ Function oms_sluch(Loc_kod,kod_kartotek)
     elseif mem_zav_l == 2  // нет
       m1_l_z := 0   // нет
     endif
-  Private mad_cr := space(10), m1ad_cr := space(10), mm_ad_cr := {}, pr_ds_it := 0, input_ad_cr := .f.
+  Private mad_cr := space(10), m1ad_cr := space(10), pr_ds_it := 0, input_ad_cr := .f.
+  Private mm_ad_cr := {}
   // онкология
   Private is_oncology := 0, old_oncology := .f.,;
           mDS_ONK, m1DS_ONK := 0,; // Признак подозрения на злокачественное новообразование
@@ -773,7 +774,7 @@ Function oms_sluch(Loc_kod,kod_kartotek)
       //     @ j,34 say "Статус стоматологического больного" get mstatus_st picture "@!" ;
       //           when diag_screen(2) ;
       //           valid {|g| f_valid_status_st(g) }
-      //endif
+      //endif 
       ++j; rdiag := j
             @ j,1 say "Основной диагноз" get mkod_diag picture pic_diag ;
                  reader {|o| MyGetReader(o,bg)} ;

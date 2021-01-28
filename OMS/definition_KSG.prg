@@ -445,10 +445,8 @@ Function definition_KSG(par,k_data2)
     endif
     if fl
       if empty(lad_cr) // в случае нет доп.критерия
-alertx(lad_cr,"lad_cr")
-alertx(k006->ad_cr,"AD_CR")
         if !empty(k006->ad_cr) // а в справочнике есть доп.критерий
-          fl := .t. // было до 28/01/2021 .f.
+          fl := .f.
         endif
       else // в случае есть доп.критерий
         if empty(k006->ad_cr) // а в справочнике нет доп.критерия
@@ -459,7 +457,6 @@ alertx(k006->ad_cr,"AD_CR")
         endif
       endif
     endif
-alertx(fl,"Flag")
     if fl
       if empty(lad_cr1) // в случае нет доп.критерия2
         if !empty(k006->ad_cr1) // а в справочнике есть доп.критерий2
@@ -514,7 +511,6 @@ alertx(fl,"Flag")
     endif
     select K006
     skip
-// alertx("enddo")
   enddo
   ar1 := {}
   if lusl == 2 .and. !empty(lad_cr) .and. lad_cr == "mgi"

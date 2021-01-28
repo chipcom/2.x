@@ -144,7 +144,7 @@ endif
 return ashema[k]
 
 ***** 02.01.21  //  XX.12.20
-Function f_valid2ad_cr()
+Function f_valid2ad_cr__()
 Static mm_bartel := {;
   {"индекс Бартела 60 баллов и менее","60"},;
   {"индекс Бартела более 60 баллов",  "61"}}

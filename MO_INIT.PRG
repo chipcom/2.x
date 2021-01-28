@@ -912,7 +912,8 @@ if hb_FileExists(exe_dir+sbase+sdbf)
         ar2[i] := padr(ar2[i],5)
       next
     endif
-    aadd(arr_ad_cr_it21,{it->USL_OK,padr(it->CODE,3),ar,ar1,ar2})
+    // aadd(arr_ad_cr_it21,{it->USL_OK,padr(it->CODE,3),ar,ar1,ar2})
+    aadd(arr_ad_cr_it21,{it->USL_OK,padr(it->CODE,6),ar,ar1,ar2})
     skip
   enddo
   use

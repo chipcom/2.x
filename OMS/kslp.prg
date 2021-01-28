@@ -90,10 +90,6 @@ function selectKSLP(k,r,c,dateSl,DOB)
   endif
 
   Select(tmp_select)
-  // alertx(age)
-  // alertx(dateSl)
-  // alertx(m1var)
-  // alertx(calcKSLP(m1var, dateSl))
 
   Return iif(ret==0, NIL, {m1var,s})
 
@@ -155,3 +151,4 @@ function getKSLPtable( dateSl )
     alertx('На указанную дату ' + DToC(dateSl) + ' КСЛП отсутствуют!')
   endif
   return tmpKSLP
+
