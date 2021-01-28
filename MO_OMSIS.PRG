@@ -3935,7 +3935,7 @@ for i := 1 to 2
 next
 return NIL
 
-***** 11.10.20 форма 14-МЕД (ОМС)
+***** 26.10.21 форма 14-МЕД (ОМС)
 Function forma14_med_oms()
 Static group_ini := "f14_med_oms"
 Local begin_date, end_date, buf := savescreen(), arr_m, i, j, k, k1, k2,;
@@ -3946,7 +3946,8 @@ Local begin_date, end_date, buf := savescreen(), arr_m, i, j, k, k1, k2,;
       cFileProtokol := "tmp"+stxt, arr_prof := {}, arr_usl, au, ii,;
       filetmp14 := "tmp14"+stxt, sum_k := 0, sum_ki := 0, sum_kd := 0, sum_kt := 0, kol_d := 0 , sum_d := 0
 Local arr_skor[81,2], arr_eko[2,2], arr_profil := {}, arr_dn_stac := {}, arrDdn_stac[4], fl_pol1[15],;
-      arr_pol[32], arr_pol1[15,5], arr_pril5[29,3], ifff := 0, kol_stom_pos := 0, lal, lalf
+      arr_pol[32], arr_pol1[15,5], arr_pril5[29,3], ifff := 0, kol_stom_pos := 0, lal, lalf,;
+      arr_pol3000[29,6]
 old5 := old2 := 0
 afillall(arr_skor,0)
 afillall(arr_eko,0)
@@ -3954,6 +3955,7 @@ afill(arrDdn_stac,0)
 afill(arr_pol,0)
 afillall(arr_pril5,0)
 afillall(arr_pol1,0)
+afillall(arr_pol3000,0)
 arr_pol1[ 1,1] := "Посещений - всего (02+11+13)"
 arr_pol1[ 2,1] := "Посещения с профилактическими и иными целями (03+06+09)"
 arr_pol1[ 3,1] := "посещения с профилактическими целями, всего"
@@ -3969,6 +3971,67 @@ arr_pol1[12,1] := "из строки 11 - посещения на дому"
 arr_pol1[13,1] := "Посещения, включенные в обращение в связи с заболеваниями"
 arr_pol1[14,1] := 'из строки 13 - посещения по специальности "стоматология"'
 arr_pol1[15,1] := "Из строки 01 - посещения к среднему медперсоналу"
+//
+arr_pol3000[ 1,1] := "Посещений - всего (02+21+25)" //1-1
+arr_pol3000[ 1,6] := 1
+arr_pol3000[ 2,1] := "Посещения с профилактическими и иными целями (03+06)" //
+arr_pol3000[ 2,6] := 2
+arr_pol3000[ 3,1] := "посещения с профилактическими целями, всего (04+05)"
+arr_pol3000[ 3,6] := 3
+arr_pol3000[ 4,1] := "из строки 03 - посещения, связанные с профосмотрами"
+arr_pol3000[ 4,6] := 4
+arr_pol3000[ 5,1] := 'из строки 03 - посещения, связанные с диспансеризацией'
+arr_pol3000[ 5,6] := 5
+arr_pol3000[ 6,1] := "посещения с иными целями, всего (07+08+12+14+15+16+19+20)"
+arr_pol3000[ 6,6] := 6
+arr_pol3000[ 7,1] := "из строки 06 посещения с целью диспансерного наблюдения"
+arr_pol3000[ 7,6] := 7
+arr_pol3000[ 8,1] := "из строки 06 посещения с целью диспансеризации"
+arr_pol3000[ 8,6] := 8
+arr_pol3000[ 9,1] := "из строки 06 разовые посещения в связи с заболеваниями"
+arr_pol3000[ 9,6] := 12
+arr_pol3000[ 10,1] := "из строки 12 - посещения на дому"
+arr_pol3000[ 10,6] := 13
+arr_pol3000[ 11,1] := "из строки 06 - посещения центров доровья"
+arr_pol3000[ 11,6] := 14
+arr_pol3000[ 12,1] := "из строки 06 - посещения работников, со средним м/о"
+arr_pol3000[ 12,6] := 15
+arr_pol3000[ 13,1] := "из строки 06 - посещения амбулаторных ОНКО центров"
+arr_pol3000[ 13,6] := 16
+arr_pol3000[ 14,1] := 'из строки 12 - посещения по специальности "онкология"'
+arr_pol3000[ 14,6] := 17
+arr_pol3000[ 15,1] := 'из строки 13 - посещения по специальности "стоматология"'
+arr_pol3000[ 15,6] := 18
+arr_pol3000[ 16,1] := "посещения с другими целями, всего"
+arr_pol3000[ 16,6] := 20
+arr_pol3000[ 17,1] := "Посещения при оказании помощи в неотложной форме, всего"
+arr_pol3000[ 17,6] := 21
+arr_pol3000[ 18,1] := "из строки 21 - посещения на дому"
+arr_pol3000[ 18,6] := 22
+arr_pol3000[ 19,1] := 'из строки 21 - посещения по специальности "стоматология"'
+arr_pol3000[ 19,6] := 24
+arr_pol3000[ 20,1] := "Посещения, включенные в обращение в связи с заболеваниями"
+arr_pol3000[ 20,6] := 25
+arr_pol3000[ 21,1] := 'из строки 25 - посещения по специальности "онкология"'
+arr_pol3000[ 21,6] := 26
+arr_pol3000[ 22,1] := 'из строки 25 - посещения по специальности "стоматология"'
+arr_pol3000[ 22,6] := 27
+arr_pol3000[ 23,1] := ' КТ'
+arr_pol3000[ 23,6] := 28
+arr_pol3000[ 24,1] := ' МРТ'
+arr_pol3000[ 24,6] := 29
+arr_pol3000[ 25,1] := ' УЗИ ССС'
+arr_pol3000[ 25,6] := 30
+arr_pol3000[ 26,1] := ' Эндоскопические диагностические исследования'
+arr_pol3000[ 26,6] := 31
+arr_pol3000[ 27,1] := ' Молекулярно-генетические исследования'
+arr_pol3000[ 27,6] := 32
+arr_pol3000[ 28,1] := ' Гистологические исследования'
+arr_pol3000[ 28,6] := 33
+arr_pol3000[ 29,1] := ' Тестирование на COVID-19'
+arr_pol3000[ 29,6] := 34
+
+
 //
 arr_pril5[ 1,1] := "Объёмы всего ,руб."
 arr_pril5[ 2,1] := "СМП - вызовов, ед."
@@ -3996,7 +4059,7 @@ arr_pril5[26,1] := "Дн.стац. - руб."
 arr_pril5[27,1] := "Дн.стац.ЭКО - пациенто-дней"
 arr_pril5[28,1] := "Дн.стац.ЭКО - пациентов, чел."
 arr_pril5[29,1] := "Дн.стац.ЭКО - руб."
-arr_m := {2020,1,9,"за январь - сентябрь 2020 года",0d20200101,0d20200930}
+arr_m := {2020,1,12,"за январь - декабрь 2020 года",0d20200101,0d20201231}
 lal := "lusl" ; lalf := "luslf"
 Private mk1, mk2, mk3, mk4, md1, md11, md12, md2, md21, md22, md3, md4
 ar := GetIniSect(tmp_ini,group_ini)
@@ -4124,7 +4187,7 @@ do while !eof()
     mdate1 := stod(strzero(schet_->nyear,4)+strzero(schet_->nmonth,2)+"15")
     //
     *** 2020 год
-    k := 10 // дата регистрации по 07.07.20
+    k := 15 // дата регистрации по 15.01.21
     ***
     fl := between(mdate,arr_m[5],arr_m[6]+k) .and. between(mdate1,arr_m[5],arr_m[6]) // !!отч.период 2020 год
   endif
@@ -4190,6 +4253,66 @@ do while !eof()
           if is_inogoro
             arr_pol1[6,5] += round(human->cena_1*koef,2)
           endif
+          // теперь делим по услугам
+          select HU
+          find (str(human->kod,7))
+          do while hu->kod == human->kod .and. !eof()
+            lshifr1 := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data)
+            if is_usluga_TFOMS(usl->shifr,lshifr1,human->k_data,,,,,@svp)
+               lshifr := iif(empty(lshifr1), usl->shifr, lshifr1)
+            endif
+            if padr(alltrim(lshifr),5) == "60.4."
+               // KT
+              arr_pol3000[ 23,4] += round(human->cena_1*koef,2)
+              arr_pol3000[ 23,2] += 1
+              if is_inogoro
+                arr_pol3000[ 23,5] += round(human->cena_1*koef,2)
+                arr_pol3000[ 23,3] += 1
+              endif
+            elseif padr(alltrim(lshifr),5) == "60.5."
+              // МРТ
+              arr_pol3000[ 24,4] += round(human->cena_1*koef,2)
+              arr_pol3000[ 24,2] += 1
+              if is_inogoro
+                arr_pol3000[ 24,5] += round(human->cena_1*koef,2)
+                arr_pol3000[ 24,3] += 1
+              endif
+            elseif padr(alltrim(lshifr),5) == "60.6."
+              // УЗИ ССС
+              arr_pol3000[ 25,4] += round(human->cena_1*koef,2)
+              arr_pol3000[ 25,2] += 1
+              if is_inogoro
+                arr_pol3000[ 25,5] += round(human->cena_1*koef,2)
+                arr_pol3000[ 25,3] += 1
+              endif
+            elseif padr(alltrim(lshifr),5) == "60.7."
+              // ' Эндоскопические диагностические исследования'
+              arr_pol3000[ 26,4] += round(human->cena_1*koef,2)
+              arr_pol3000[ 26,2] += 1
+              if is_inogoro
+                arr_pol3000[ 26,5] += round(human->cena_1*koef,2)
+                arr_pol3000[ 26,3] += 1
+              endif
+            elseif padr(alltrim(lshifr),5) == "60.9."
+              // ' Молекулярно-генетические исследования'
+              arr_pol3000[ 27,4] += round(human->cena_1*koef,2)
+              arr_pol3000[ 27,2] += 1
+              if is_inogoro
+                arr_pol3000[ 27,5] += round(human->cena_1*koef,2)
+                arr_pol3000[ 27,3] += 1
+              endif
+            elseif padr(alltrim(lshifr),5) == "60.8."
+              // ' Гистологические исследования'
+              arr_pol3000[ 28,4] += round(human->cena_1*koef,2)
+              arr_pol3000[ 28,2] += 1
+              if is_inogoro
+                arr_pol3000[ 28,5] += round(human->cena_1*koef,2)
+                arr_pol3000[ 28,3] += 1
+              endif
+            endif
+            skip
+          enddo
+          select HUMAN
         endif
         is_dializ := .f.
         is_z_sl := .f.
@@ -4344,6 +4467,14 @@ do while !eof()
                       endif
                     elseif left(lshifr,5) == "2.76." // центр здоровья
                       vid_vp := 0 // Посещение профилактическое
+      //!!!
+              arr_pol3000[ 11,4] := round(human->cena_1*koef,2)
+              arr_pol3000[ 11,2] := 1
+              if is_inogoro
+                arr_pol3000[ 11,5] := round(human->cena_1*koef,2)
+                arr_pol3000[ 11,3] := 1
+              endif
+
                     elseif left(lshifr,5) == "2.79." // посещение с профилактической целью
                       vid_vp := 0 // Посещение профилактическое
                       if !eq_any(human_->PROFIL,97,57,68,3,42,85,87)
@@ -4526,6 +4657,11 @@ my_debug(vid_vp < 0,"vid_vp="+lstr(vid_vp)+print_array(au))
             endif
             if kol_2_60 > 0 .and. ascan(arr_usl,"2.78.") > 0
               arr_pril5[8,igs] += kol_2_60 // "Всего посещений"
+              ////////////////////////////////////////////////
+
+
+
+
             endif
             if kol_2_6 > 0 .and. ascan(arr_usl,"2.89.") > 0
               arr_pril5[8,igs] += kol_2_6 // "Всего посещений"
@@ -4553,7 +4689,7 @@ my_debug(vid_vp < 0,"vid_vp="+lstr(vid_vp)+print_array(au))
               aadd(ta,{22,tfoms_pz[2,2],tfoms_pz[2,2],tfoms_pz[2,5],tfoms_pz[2,3],tfoms_pz[2,3],tfoms_pz[2,6]})
               aadd(ta,{23,tfoms_pz[2,7],tfoms_pz[2,7],tfoms_pz[2,9],tfoms_pz[2,8],tfoms_pz[2,8],tfoms_pz[2,10]})
               if fl
-                arr_pol[22] += tfoms_pz[2,3]
+                 arr_pol[22] += tfoms_pz[2,3]
                 arr_pol[23] += tfoms_pz[2,8]
               endif
               if is_rebenok
@@ -4772,6 +4908,36 @@ my_debug(vid_vp < 0,"vid_vp="+lstr(vid_vp)+print_array(au))
             tfoms_pz[3,1] := 1
             tfoms_pz[3,2] := ret_kol
             tfoms_pz[3,3] := round(human->cena_1*koef,2)
+            //из строки 06 разовые посещения в связи с заболеваниями
+            //из строки 12 - посещения по специальности "стоматология"
+            if is_2_88 .and. ret_tip == 2
+              arr_pol3000[ 15,4] := round(human->cena_1*koef,2)
+              arr_pol3000[ 15,2] := ret_kol
+              if is_inogoro
+                arr_pol3000[ 15,5] := round(human->cena_1*koef,2)
+                arr_pol3000[ 15,3] := ret_kol
+              endif
+            endif
+            // "Посещения при оказании помощи в неотложной форме, всего"
+            // 'из строки 21 - посещения по специальности "стоматология"'
+            if ret_tip == 3
+              arr_pol3000[ 19,4] := round(human->cena_1*koef,2)
+              arr_pol3000[ 19,2] := ret_kol
+              if is_inogoro
+                arr_pol3000[ 19,5] := round(human->cena_1*koef,2)
+                arr_pol3000[ 19,3] := ret_kol
+              endif
+            endif
+            // "Посещения, включенные в обращение в связи с заболеваниями"
+            // 'из строки 25 - посещения по специальности "стоматология"'
+            if ret_tip == 1
+              arr_pol3000[ 22,4] := round(human->cena_1*koef,2)
+              arr_pol3000[ 22,2] := ret_kol
+              if is_inogoro
+                arr_pol3000[ 22,5] := round(human->cena_1*koef,2)
+                arr_pol3000[ 22,3] := ret_kol
+              endif
+            endif
             func_f14_stom(tfoms_pz[3,3],ret_tip,ret_kol,is_2_88,is_rebenok,is_trudosp,is_inogoro,is_sred_stom)
             kol_stom := ret_kol
             kol_stom_pos += ret_kol
@@ -4968,6 +5134,48 @@ my_debug(vid_vp < 0,"vid_vp="+lstr(vid_vp)+print_array(au))
   select SCHET
   skip
 enddo
+// Переприсвоение
+// "Посещения при оказании помощи в неотложной форме, всего"
+for xx := 2 to 5
+  arr_pol3000[ 17,xx] := arr_pol1[11,xx]
+next
+//"из строки 21 - посещения на дому"
+for xx := 2 to 5
+  arr_pol3000[ 18,xx] := arr_pol1[12,xx]
+next
+//"Посещения, включенные в обращение в связи с заболеваниями"
+for xx := 2 to 5
+  arr_pol3000[ 20,xx] := arr_pol1[13,xx]
+next
+// 12 "из строки 06 разовые посещения в связи с заболеваниями"
+for xx := 2 to 5
+  arr_pol3000[ 9,xx] := arr_pol1[6,xx]
+next
+// 13 "из строки 12 - посещения на дому"
+for xx := 2 to 5
+  arr_pol3000[ 10,xx] := arr_pol1[7,xx]
+next
+//
+
+
+// 12   "из строки 06 разовые посещения в связи с заболеваниями"
+// 18 'из строки 12 - посещения по специальности "стоматология"'
+use (cur_dir+"TMP_STOM") new
+select TMP_STOM
+goto 5
+arr_pol3000[ 15,2] := tmp_stom->k3 // кол-во
+arr_pol3000[ 15,3] := tmp_stom->k4 // ко-во иногородних
+arr_pol3000[ 15,4] := tmp_stom->k12 // сумма
+arr_pol3000[ 15,5] := tmp_stom->k13 // сумма иногородих
+//
+// 21 "Посещения при оказании помощи в неотложной форме, всего"
+// 24 'из строки 21 - посещения по специальности "стоматология"'
+arr_pol3000[ 19,2] := tmp_stom->k3 // кол-во
+arr_pol3000[ 19,3] := tmp_stom->k4 // ко-во иногородних
+arr_pol3000[ 19,4] := tmp_stom->k12 // сумма
+arr_pol3000[ 19,5] := tmp_stom->k13 // сумма иногородих
+tmp_stom->(dbCloseArea())
+
 delete file (filetmp14)
 if !fl_exit .and. tmpf14->(lastrec()) > 0
   HH := 80
@@ -5266,6 +5474,7 @@ if fl
 "     лиц, при прохождении реабилитации             31"+put_kope(arr_pol[31],20)+hb_eol()+;
 "     лиц, застрахованных за пределами субъекта РФ  32"+put_kope(arr_pol[32],20)+hb_eol(),cFileProtokol,.t.)
 endif
+
 fl := .f.
 for i := 1 to 15
   if arr_pol1[i,2] > 0
@@ -5275,7 +5484,7 @@ next
 if fl
   fl_error := .t.
   strfile(hb_eol()+;
-          padc("3000 Фактические объёмы посещений и их финансирование",80)+hb_eol()+;
+          padc("3000 Фактические объёмы посещений и их финансирование (Старый вариант)",80)+hb_eol()+;
 "────────────────────────────────────┬───────────────┬───────────────────────────"+hb_eol()+;
 "                                    │   посещений   │          сумма            "+hb_eol()+;
 " Наименование показателя            ├───────┬───────┼─────────────┬─────────────"+hb_eol()+;
@@ -5293,6 +5502,73 @@ if fl
     strfile(padr(rtrim(t_arr[1]),34,".")+strzero(i,2)+;
             put_val(arr_pol1[i,2],8)+put_val(arr_pol1[i,3],8)+;
             put_kope(arr_pol1[i,4],14)+put_kope(arr_pol1[i,5],14)+hb_eol(),cFileProtokol,.t.)
+    for j := 2 to k
+      strfile(padl(alltrim(t_arr[j]),34)+hb_eol(),cFileProtokol,.t.)
+    next
+  next
+endif
+if !empty(sum_k)
+  fl_error := .t.
+  strfile(hb_eol()+"Сумма по счетам, имеющим параметр К = "+lstr(sum_k,12,2)+;
+                   " (в т.ч.дети "+lstr(sum_kd,12,2)+", трудоспос."+lstr(sum_kt,12,2)+;
+                   ", иногородние "+lstr(sum_ki,12,2)+")"+hb_eol(),cFileProtokol,.t.)
+endif
+if !empty(sum_d)
+  fl_error := .t.
+  strfile(hb_eol()+"По счетам, имеющим параметр G,J,D,O,R,F,V,I,U = "+lstr(kol_d)+" приёмов на сумму "+lstr(sum_d,12,2)+hb_eol(),cFileProtokol,.t.)
+endif
+if arr_eko[1,1] > 0
+  fl_error := .t.
+  strfile(hb_eol()+;
+    "Проведено выбывшими пациентами пациенто-дней при ЭКО  "+lstr(arr_eko[1,1])+" (в т.ч.ВМП "+lstr(arr_eko[1,2])+")"+hb_eol()+;
+    "  из них лиц, застрахованных за пределами субъекта РФ "+lstr(arr_eko[2,1])+" (в т.ч.ВМП "+lstr(arr_eko[2,2])+")"+hb_eol(),cFileProtokol,.t.)
+endif
+
+
+fl := .f.
+for i := 1 to 29
+  if arr_pol3000[i,2] > 0
+    fl := .t. ; exit
+  endif
+next
+if fl
+  fl_error := .t.
+  strfile(hb_eol()+;
+          padc("3000 Фактические объёмы посещений и их финансирование",80)+hb_eol()+;
+"────────────────────────────────────┬───────────────┬───────────────────────────"+hb_eol()+;
+"                                    │   посещений   │          сумма            "+hb_eol()+;
+" Наименование показателя            ├───────┬───────┼─────────────┬─────────────"+hb_eol()+;
+"                                    │ всего │иногор.│    всего    │в т.ч. иногор"+hb_eol()+;
+"────────────────────────────────────┴───────┴───────┴─────────────┴─────────────"+hb_eol(),cFileProtokol,.t.)
+  //
+  //"06 посещения с иными целями, всего (07+08+12+14+15+16+19+20)"
+  add_val_2_array(arr_pol3000,6,7,2,5)   // 7
+  add_val_2_array(arr_pol3000,6,8,2,5)   // 8
+  add_val_2_array(arr_pol3000,6,9,2,5)   // 12
+  add_val_2_array(arr_pol3000,6,11,2,5)  // 14
+  add_val_2_array(arr_pol3000,6,12,2,5)  // 15
+  add_val_2_array(arr_pol3000,6,13,2,5)  // 16
+  //add_val_2_array(arr_pol3000,6,,2,5)  // 19 нет в системе ОМС
+  add_val_2_array(arr_pol3000,6,16,2,5)  // 20
+  //"03 посещения с профилактическими целями, всего (04+05)"
+  add_val_2_array(arr_pol3000,3,4,2,5)
+  add_val_2_array(arr_pol3000,3,4,2,5)
+  //"02 Посещения с профилактическими и иными целями (03+06)"
+  add_val_2_array(arr_pol3000,2,3,2,5)
+  add_val_2_array(arr_pol3000,2,6,2,5)
+  // 01 Посещений - всего (02+21+25)
+  add_val_2_array(arr_pol3000,1,2,2,5)
+  add_val_2_array(arr_pol3000,1,17,2,5)
+  add_val_2_array(arr_pol3000,1,20,2,5)
+  //
+
+
+  //
+  for i := 1 to len(arr_pol3000)
+    k := perenos(t_arr,arr_pol3000[i,1],33)
+    strfile(padr(rtrim(t_arr[1]),34,".")+strzero(arr_pol3000[i,6],2)+; //strzero(arr_pol3000[i,1],2)+;
+            put_val(arr_pol3000[i,2],8)+put_val(arr_pol3000[i,3],8)+;
+            put_kope(arr_pol3000[i,4],14)+put_kope(arr_pol3000[i,5],14)+hb_eol(),cFileProtokol,.t.)
     for j := 2 to k
       strfile(padl(alltrim(t_arr[j]),34)+hb_eol(),cFileProtokol,.t.)
     next
