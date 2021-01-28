@@ -175,7 +175,7 @@ Local i, j, c, k := 0, shb, i16 := 0
 if select("LUSL") == 0
   Use_base("lusl")
 endif
-select LUSL
+select LUSL20
 find (padr(lshifr,10))
 if found() .and. !empty(lusl20->unit_code)
   if select("MOUNIT20") == 0
