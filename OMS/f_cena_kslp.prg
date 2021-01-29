@@ -18,7 +18,9 @@ Function f_cena_kslp(/*@*/_cena,_lshifr,_date_r,_n_data,_k_data,lkslp,arr_usl,lP
    }
   Local i, j, vksg, y := 0, fl, ausl := {}, s_kslp, _akslp := {}, sop_diag
   local countDays := _k_data - _n_data // кол-во дней лечения
-  
+
+  local savedKSLP
+
   DEFAULT lad_cr TO space(10)
 
   _lshifr := alltrim(_lshifr) // перенес
@@ -27,7 +29,7 @@ Function f_cena_kslp(/*@*/_cena,_lshifr,_date_r,_n_data,_k_data,lkslp,arr_usl,lP
     if empty(lkslp)
       return _akslp
     endif
-      // {code, Коэффициент, возрастНачало, возрастКонец}
+      // {code, Коэффициент, возрастНачало, возрастКонец} 
       s_kslp := {;
       { 1, 1.02, 75, 999},; // Сложность лечения пациента, связанная с возрастом (лица 75 лет и старше) (в том числе, включая консультацию врача-гериатра)
       { 3, 1.20,  0,  18},; // Предоставление спального места и питания законному представителю (дети до 4 лет, дети старше 4 лет при наличии медицинских показаний)
@@ -43,32 +45,9 @@ Function f_cena_kslp(/*@*/_cena,_lshifr,_date_r,_n_data,_k_data,lkslp,arr_usl,lP
     // п.3 инструкции
     // Возраст пациента определяется на момент поступления на стационарное лечение.
     // Все случаи применения КСЛП (за исключением КСЛП1) подвергаются экспертному контролю.
-
     count_ymd(_date_r,_n_data,@y)
-    lkslp := list2arr(lkslp)
-
-    // for j := 1 to len(lkslp)
-    //   if (i := ascan(s_kslp, {|x| x[1] == lkslp[j]})) > 0 // стоит данный КСЛП в выбранной КСГ
-    //     if between(y,s_kslp[i,3],s_kslp[i,4])
-    //       fl := .t.
-    //       if lkslp[j] == 1  // для людей старше 75 лет КСЛП = 1
-    //         fl := (lprofil_k != 16 ; // пациент лежит не на геронтологической койке
-    //                 .and. !(_lshifr == "st38.001"))
-    //       // elseif lkslp[j] == 5
-    //       //   sop_diag := aclone(arr_diag)
-    //       //   del_array(sop_diag,1)
-    //       //   fl := (lprofil_k == 16 .and. ; // пациент лежит на геронтологической койке
-    //       //           !(_lshifr == "st38.001") .and. ;//!(alltrim(arr_diag[1]) == "R54") .and. ; // с основным диагнозом не <R54-старость>
-    //       //           ascan(sop_diag, {|x| alltrim(x) == "R54"}) > 0 ) // в соп.диагнозах есть <R54-старость>
-    //       endif
-    //       if fl
-    //         aadd(_akslp,s_kslp[i,1])
-    //         aadd(_akslp,s_kslp[i,2])
-    //         exit
-    //       endif
-    //     endif
-    //   endif
-    // next
+    lkslp := list2arr(lkslp)  // преобразуем строку допустимых КСЛП в строку
+    savedKSLP := list2arr(HUMAN_2->PC1)  // преобразуем строку выбранных КСЛП в строку
 
     // КСЛП=1 пациенты старше 75 лет
     if ascan(lkslp,1) > 0 .and. between(y,s_kslp[1,3],s_kslp[1,4])
@@ -79,9 +58,8 @@ Function f_cena_kslp(/*@*/_cena,_lshifr,_date_r,_n_data,_k_data,lkslp,arr_usl,lP
       endif
     endif
 
-    // КСЛП=3 спальное место законному представителю
-    // НУЖЕН ЗАПРОС
-    if ascan(lkslp,3) > 0 .and. between(y,s_kslp[2,3],s_kslp[2,4])
+    // КСЛП=3 спальное место законному представителю, НУЖЕН ЗАПРОС
+    if ascan(lkslp,3) > 0 .and. between(y,s_kslp[2,3],s_kslp[2,4]) .and. ascan(savedKSLP,3) > 0
       // пункт 3.1.1
       // Предоставление спального места и питания законному представителю, при возрасте 
       // ребенка старше 4 лет, осуществляется при наличии медицинских показаний и 
@@ -91,9 +69,8 @@ Function f_cena_kslp(/*@*/_cena,_lshifr,_date_r,_n_data,_k_data,lkslp,arr_usl,lP
       aadd(_akslp,1.2)
     endif
 
-    // КСЛП=4 иммунизация РСВ
-    // НУЖЕН ЗАПРОС
-    if ascan(lkslp,4) > 0
+    // КСЛП=4 иммунизация РСВ, НУЖЕН ЗАПРОС
+    if ascan(lkslp,4) > 0 .and. ascan(savedKSLP,4) > 0
       // пункт 3.1.2
       // КСЛП применяется в случаях если сроки проведения первой иммунизации против 
       // респираторно-синцитиальной вирусной (РСВ) инфекции совпадают по времени с 
@@ -103,15 +80,14 @@ Function f_cena_kslp(/*@*/_cena,_lshifr,_date_r,_n_data,_k_data,lkslp,arr_usl,lP
       aadd(_akslp,1.2)
     endif
 
-    // КСЛП=5 развертывание индивидуального поста
-    // НУЖЕН ЗАПРОС
-    if ascan(lkslp,5) > 0
+    // КСЛП=5 развертывание индивидуального поста, НУЖЕН ЗАПРОС
+    if ascan(lkslp,5) > 0 .and. ascan(savedKSLP,5) > 0
       aadd(_akslp,5)
       aadd(_akslp,1.2)
     endif
 
     // КСЛП=6 сочетанные хирургические операции
-    if ascan(lkslp,6) > 0
+    if ascan(lkslp,6) > 0 .and. ascan(savedKSLP,6) > 0
       // пункт 3.1.3
       // Перечень сочетанных (симультанных) хирургических вмешательств, выполняемых во 
       // время одной госпитализации, представлен в таблице:        
@@ -130,9 +106,8 @@ Function f_cena_kslp(/*@*/_cena,_lshifr,_date_r,_n_data,_k_data,lkslp,arr_usl,lP
       aadd(_akslp,1.3)
     endif
 
-    // КСЛП = 8 антимикробная терапия
-    // НУЖЕН ЗАПРОС
-    if ascan(lkslp,8) > 0
+    // КСЛП = 8 антимикробная терапия, НУЖЕН ЗАПРОС
+    if ascan(lkslp,8) > 0 .and. ascan(savedKSLP,8) > 0
       // пункт 3.1.5
       // В случаях лечения пациентов в стационарных условиях при заболеваниях и их 
       // осложнениях, вызванных микроорганизмами с антибиотикорезистентностью, а также 

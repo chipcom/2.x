@@ -16,6 +16,8 @@ Function f2oms_usl_sluch(nKey,oBrow)
         k_read := 0, count_edit := 0, bg := {|o,k| get_MKB10(o,k,.t.) }
   Local mm_dom := {{"в поликлинике", 0},;
                    {"на дому      ",-1}}
+  local tmSel
+
   if mem_dom_aktiv == 1
        aadd(mm_dom,{"на дому-АКТИВ",-2})
   endif
@@ -179,7 +181,6 @@ Function f2oms_usl_sluch(nKey,oBrow)
         next
         if human_->USL_OK < 3 // стационар
           aksg := f_usl_definition_KSG(human->kod)
-// alertx(aksg, 'aksg 1')
         endif
         summa_usl()
         stat_msg("Услуги скопированы!") ; mybell(1,OK)
@@ -349,7 +350,6 @@ Function f2oms_usl_sluch(nKey,oBrow)
         next
         if human_->USL_OK < 3 // стационар
           aksg := f_usl_definition_KSG(human->kod)
-// alertx(aksg, 'aksg 2')
         endif
         summa_usl()
         restscreen(buf)
@@ -412,8 +412,8 @@ Function f2oms_usl_sluch(nKey,oBrow)
               row_dom, gl_area := {1,0,maxrow()-1,79,0}
 
     // переменные для КСЛП
-    private mKSLP := iif(nKey == K_INS, space(10), space(10) ),;  //tmp->shifr_u),;
-      m1KSLP := iif(nKey == K_INS, space(10), space(10) )  // tmp->shifr1),;
+    private mKSLP := iif(nKey == K_INS, space(10), alltrim(HUMAN_2->PC1) ),;  //tmp->shifr_u),;
+      m1KSLP := iif(nKey == K_INS, space(10), alltrim(HUMAN_2->PC1) )  // tmp->shifr1),;
       // mKSLP := iif(nKey == K_INS, space(10), tmp->shifr_u),;
       // mKSLP1 := iif(nKey == K_INS, space(10), tmp->shifr1)
 
@@ -520,11 +520,10 @@ Function f2oms_usl_sluch(nKey,oBrow)
                   when {|g| f5editkusl(g,1,2) } ;
                   valid {|g| f5editkusl(g,2,2) }
         // @ row(),40 say "Цена услуги" get mu_cena pict pict_cena ;
-        @ row(),36 say "Цена услуги" get mu_cena pict pict_cena ;
+        @ row(),35 say "Цена услуги" get mu_cena pict pict_cena ;
                    when .f. color color14
 
-        // @ row(),63 say "КСЛП" get mKSLP pict "@!"
-        @ row(), 63 say "КСЛП" get mKSLP ;
+        @ row(), 58 say "КСЛП" get mKSLP ;
             reader {|x|menu_reader(x,{{|k,r,c|selectKSLP( k, r, c, HUMAN->N_DATA, HUMAN->K_DATA, HUMAN->DATE_R)}},A__FUNCTION,,,.f.)}
 
         ++ix
@@ -612,6 +611,18 @@ Function f2oms_usl_sluch(nKey,oBrow)
         if eq_any(lastkey(),K_CTRL_F10,K_F11)
           hb_KeyPut(K_CTRL_F10) //keysend(KS_CTRL_F10)
         elseif lastkey() != K_ESC
+
+          if year(mdate_u1) == 2021
+            // запомним КСЛП
+            tmSel := select('HUMAN_2')
+            if (tmSel)->(dbRlock())
+              // G_RLock(forever)
+              HUMAN_2->PC1 := m1KSLP
+              (tmSel)->(dbRUnlock())
+            endif
+            select(tmSel)
+          endif
+
           mkol := mkol_1 ; mstoim := mstoim_1
           Private amsg := {}
           if empty(mdate_u1)
@@ -886,7 +897,6 @@ Function f2oms_usl_sluch(nKey,oBrow)
               last_date := tmp->date_u1
             endif
             aksg := f_usl_definition_KSG(human->kod)
-// alertx(aksg, 'aksg 3')
             summa_usl()
             if mem_pom_va == 2
               skod_vr := mkod_vr
@@ -928,12 +938,6 @@ Function f2oms_usl_sluch(nKey,oBrow)
       select TMP
       DeleteRec(.t.)  // с пометкой на удаление
       aksg := f_usl_definition_KSG(human->kod)
-// alertx(aksg[1], 'aksg 4-1')
-// alertx(aksg[2], 'aksg 4-2')
-// alertx(aksg[3], 'aksg 4-3')
-// alertx(aksg[4], 'aksg 4-4')
-// alertx(aksg[5], 'aksg 4-5')
-// alertx(aksg[6], 'aksg 4-6')
       summa_usl()
       vr_pr_1_den(1,,u_other)
       select TMP
