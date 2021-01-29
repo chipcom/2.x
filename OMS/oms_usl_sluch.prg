@@ -4,7 +4,7 @@
 #include "..\chip_mo.ch"
 
 
-***** 13.10.20 ввод услуг в случай (лист учёта)
+***** 29.01.21 ввод услуг в случай (лист учёта)
 Function oms_usl_sluch(mkod_human,mkod_kartotek,fl_edit)
   // mkod_human - код по БД human
   // mkod_kartotek - код по БД kartotek
@@ -172,8 +172,6 @@ Function oms_usl_sluch(mkod_human,mkod_kartotek,fl_edit)
       else
         fl_oms := .f.
         // переопределение цены
-  my_debug(," oms_usl_sluch")
-  
         if (v := f1cena_oms(tmp->shifr_u,;
                             tmp->shifr1,;
                             (human->vzros_reb==0),;

@@ -4,7 +4,7 @@
 #include "..\chip_mo.ch"
 
 
-***** 13.10.20 ввод услуг в лист учёта
+***** 29.01.21 ввод услуг в лист учёта
 Function f2oms_usl_sluch(nKey,oBrow)
   Static skod_k := 0, skod_human := 0, SKOD_DIAG, SZF,;
          st_vzrosl, st_arr_dbf, skod_vr, skod_as, aksg := {}

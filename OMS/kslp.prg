@@ -18,10 +18,11 @@
 //         reader {|x|menu_reader(x,{{|k,r,c|selectKSLP(k,r,c,sys_date,CToD('22/01/2014'))}},A__FUNCTION,,,.f.)}
 
 // функция выбора состава КСЛП, возвращает { маска,строка количества КСЛП }, или nil
-function selectKSLP(k,r,c,dateSl,DOB)
+function selectKSLP(k,r,c, naborKSLP,dateSl,DOB)
   // k - значение m1.....
   // r - строка экрана
   // c - колонка экрана
+  // naborKSLP - уже выбранные КСЛП
   // dateSl - дата окончания законченного случая
   // DOB - дата рождения пациента
   Local mlen, t_mas := {}, ret, ;
@@ -35,6 +36,7 @@ function selectKSLP(k,r,c,dateSl,DOB)
 
   default DOB to sys_date
   default dateSl to sys_date
+  default naborKSLP to space(10)
 
   age := count_years(DOB, dateSl)
   
