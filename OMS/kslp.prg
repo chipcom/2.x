@@ -18,13 +18,13 @@
 //         reader {|x|menu_reader(x,{{|k,r,c|selectKSLP(k,r,c,sys_date,CToD('22/01/2014'))}},A__FUNCTION,,,.f.)}
 
 // функция выбора состава КСЛП, возвращает { маска,строка количества КСЛП }, или nil
-function selectKSLP(k,r,c, naborKSLP,dateSl,DOB)
-  // k - значение m1.....
+function selectKSLP( k, r, c, dateSl, DOB )
+  // k - значение m1KSLP (выбранные КСЛП)
   // r - строка экрана
   // c - колонка экрана
-  // naborKSLP - уже выбранные КСЛП
   // dateSl - дата окончания законченного случая
   // DOB - дата рождения пациента
+
   Local mlen, t_mas := {}, ret, ;
     i, tmp_select := select()
   Local r1 := 0 // счетчик записей
@@ -33,20 +33,26 @@ function selectKSLP(k,r,c, naborKSLP,dateSl,DOB)
   Local m1var := '', s := "", countKSLP := 0
   local row, oBox
   local aKSLP := getKSLPtable( dateSl )
+  local aa := list2arr(k) // получим массив выбранных КСЛП
 
   default DOB to sys_date
   default dateSl to sys_date
-  default naborKSLP to space(10)
 
   age := count_years(DOB, dateSl)
   
   for each row in aKSLP
     r1++
-    if SubStr(k,r1,1) == '1'
+    if ascan(aa, {|x| x == row[ CODE_KSLP ] }) > 0
       strArr := ' * '
     else
       strArr := '   '
     endif
+
+    // if SubStr(k,r1,1) == '1'
+    //   strArr := ' * '
+    // else
+    //   strArr := '   '
+    // endif
     if row[ CODE_KSLP ] == 1
       if (age >= 75)
         strArr := ' * '
@@ -54,19 +60,19 @@ function selectKSLP(k,r,c, naborKSLP,dateSl,DOB)
         strArr := '   '
       endif
       strArr += row[ NAME_KSLP ]
-      aadd(t_mas, { strArr, .f.})
+      aadd(t_mas, { strArr, .f., row[ CODE_KSLP ] })
     elseif row[ CODE_KSLP ] == 3
       if (age < 18)
         strArr += row[ NAME_KSLP ]
-        aadd(t_mas, { strArr, .t.})
+        aadd(t_mas, { strArr, .t., row[ CODE_KSLP ] })
       else
         strArr := '   '
         strArr += row[ NAME_KSLP ]
-        aadd(t_mas, { strArr, .f.})
+        aadd(t_mas, { strArr, .f., row[ CODE_KSLP ] })
       endif
     else
       strArr += row[ NAME_KSLP ]
-      aadd(t_mas, { strArr, .t.})
+      aadd(t_mas, { strArr, .t., row[ CODE_KSLP ] })
     endif
   next
 
@@ -81,14 +87,17 @@ function selectKSLP(k,r,c, naborKSLP,dateSl,DOB)
       if "*" == substr(t_mas[i, 1],2,1)
         // k := chr(int(val(right(t_mas[i],10))))
         // m1var += k
-        m1var += '1'
+        // m1var += '1'
+alertx(t_mas[i, 3], "Code")
+        m1var += alltrim(str(t_mas[i, 3])) + ','
         countKSLP += 1
-      else
-        m1var += '0'
+      // else
+      //   m1var += '0'
       endif
     next
-    // s := "= "+lstr(len(m1var))+"кслп. ="
-    s := "= "+alltrim(str(countKSLP))+"кслп. ="
+    // // s := "= "+lstr(len(m1var))+"кслп. ="
+    // s := "= "+alltrim(str(countKSLP))+"кслп. ="
+    s := m1var
   endif
 
   Select(tmp_select)

@@ -917,7 +917,7 @@ Function oms_sluch(Loc_kod,kod_kartotek)
                        when input_ad_cr ;
                        color colget_menu
       @ p_nstr_ad_cr, 15 + len(mad_cr) say "äëãè" get mKSLP ;
-        reader {|x|menu_reader(x,{{|k,r,c|selectKSLP( k, r, c, mKSLP, MN_DATA, mdate_r)}},A__FUNCTION,,,.f.)}
+        reader {|x|menu_reader(x,{{|k,r,c|selectKSLP( k, r, c, MN_DATA, mdate_r)}},A__FUNCTION,,,.f.)}
       if !input_ad_cr
         @ j,1
       endif
