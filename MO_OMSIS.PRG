@@ -4254,6 +4254,7 @@ do while !eof()
             arr_pol1[6,5] += round(human->cena_1*koef,2)
           endif
           // теперь делим по услугам
+          svp := space(5)
           select HU
           find (str(human->kod,7))
           do while hu->kod == human->kod .and. !eof()
