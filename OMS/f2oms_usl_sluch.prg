@@ -179,6 +179,7 @@ Function f2oms_usl_sluch(nKey,oBrow)
         next
         if human_->USL_OK < 3 // стационар
           aksg := f_usl_definition_KSG(human->kod)
+// alertx(aksg, 'aksg 1')
         endif
         summa_usl()
         stat_msg("Услуги скопированы!") ; mybell(1,OK)
@@ -348,6 +349,7 @@ Function f2oms_usl_sluch(nKey,oBrow)
         next
         if human_->USL_OK < 3 // стационар
           aksg := f_usl_definition_KSG(human->kod)
+// alertx(aksg, 'aksg 2')
         endif
         summa_usl()
         restscreen(buf)
@@ -407,11 +409,13 @@ Function f2oms_usl_sluch(nKey,oBrow)
               tip_par_org := iif(nKey == K_INS, "", tmp->par_org),;
               tip_telemed := 0, tip_telemed2 := .f.,;
               mnmic := space(10), m1nmic := 0, mnmic1 := space(10), m1nmic1 := 0,;
-              row_dom, gl_area := {1,0,maxrow()-1,79,0},;
-              mKSLP := iif(nKey == K_INS, space(10), space(10) ),;  //tmp->shifr_u),;
-              mKSLP1 := iif(nKey == K_INS, space(10), space(10) )  // tmp->shifr1),;
-              // mKSLP := iif(nKey == K_INS, space(10), tmp->shifr_u),;
-              // mKSLP1 := iif(nKey == K_INS, space(10), tmp->shifr1)
+              row_dom, gl_area := {1,0,maxrow()-1,79,0}
+
+    // переменные для КСЛП
+    private mKSLP := iif(nKey == K_INS, space(10), space(10) ),;  //tmp->shifr_u),;
+      m1KSLP := iif(nKey == K_INS, space(10), space(10) )  // tmp->shifr1),;
+      // mKSLP := iif(nKey == K_INS, space(10), tmp->shifr_u),;
+      // mKSLP1 := iif(nKey == K_INS, space(10), tmp->shifr1)
 
       Private mm_gist := {{"в Волгоградском патал.анат.бюро",4},;
                           {"в нашей медицинской организации",0},;
@@ -519,7 +523,9 @@ Function f2oms_usl_sluch(nKey,oBrow)
         @ row(),36 say "Цена услуги" get mu_cena pict pict_cena ;
                    when .f. color color14
 
-        @ row(),63 say "КСЛП" get mKSLP pict "@!"
+        // @ row(),63 say "КСЛП" get mKSLP pict "@!"
+        @ row(), 63 say "КСЛП" get mKSLP ;
+            reader {|x|menu_reader(x,{{|k,r,c|selectKSLP( k, r, c, HUMAN->N_DATA, HUMAN->K_DATA, HUMAN->DATE_R)}},A__FUNCTION,,,.f.)}
 
         ++ix
         @ r1+ix,2 say "Услуга" get mname_u when .f. color color14
@@ -880,6 +886,7 @@ Function f2oms_usl_sluch(nKey,oBrow)
               last_date := tmp->date_u1
             endif
             aksg := f_usl_definition_KSG(human->kod)
+// alertx(aksg, 'aksg 3')
             summa_usl()
             if mem_pom_va == 2
               skod_vr := mkod_vr
@@ -921,6 +928,12 @@ Function f2oms_usl_sluch(nKey,oBrow)
       select TMP
       DeleteRec(.t.)  // с пометкой на удаление
       aksg := f_usl_definition_KSG(human->kod)
+// alertx(aksg[1], 'aksg 4-1')
+// alertx(aksg[2], 'aksg 4-2')
+// alertx(aksg[3], 'aksg 4-3')
+// alertx(aksg[4], 'aksg 4-4')
+// alertx(aksg[5], 'aksg 4-5')
+// alertx(aksg[6], 'aksg 4-6')
       summa_usl()
       vr_pr_1_den(1,,u_other)
       select TMP

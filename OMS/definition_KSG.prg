@@ -4,7 +4,7 @@
 #include "..\chip_mo.ch"
  
 
-***** 27.01.21 определение КСГ по остальным введённым полям ввода - 2019-20 год
+***** 29.01.21 определение КСГ по остальным введённым полям ввода - 2019-20 год
 Function definition_KSG(par,k_data2)
   // файлы "human", "human_" и "human_2" открыты и стоят на нужной записи
   //       "human" открыт для записи суммы случая
@@ -67,6 +67,7 @@ Function definition_KSG(par,k_data2)
         date_usl := stod("20210101") // stod("20200101")
   DEFAULT par TO 1, sp0 TO "", sp1 TO space(1), sp6 TO space(6), sp15 TO space(20)
   Private pole
+
   if par == 1
     uch->(dbGoto(human->LPU))
     otd->(dbGoto(human->OTD))
@@ -759,6 +760,7 @@ Function definition_KSG(par,k_data2)
       if lksg == 'st38.001' .and. lbartell == '61' // Старческая астения (это правило уже устарело и не применяется)
         lkslp := ""                                                       // т.к. у данной КСГ нет КСЛП
       endif
+      // lkslp - содержит список допустимых КСЛП
       akslp := f_cena_kslp(@lcena,;
                            lksg,;
                            ldate_r,;

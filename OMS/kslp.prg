@@ -18,11 +18,12 @@
 //         reader {|x|menu_reader(x,{{|k,r,c|selectKSLP(k,r,c,sys_date,CToD('22/01/2014'))}},A__FUNCTION,,,.f.)}
 
 // функция выбора состава КСЛП, возвращает { маска,строка количества КСЛП }, или nil
-function selectKSLP( k, r, c, dateSl, DOB )
+function selectKSLP( k, r, c, dateBegin, dateEnd, DOB )
   // k - значение m1KSLP (выбранные КСЛП)
   // r - строка экрана
   // c - колонка экрана
-  // dateSl - дата окончания законченного случая
+  // dateBegin - дата начала законченного случая
+  // dateEnd - дата окончания законченного случая
   // DOB - дата рождения пациента
 
   Local mlen, t_mas := {}, ret, ;
@@ -32,13 +33,15 @@ function selectKSLP( k, r, c, dateSl, DOB )
 
   Local m1var := '', s := "", countKSLP := 0
   local row, oBox
-  local aKSLP := getKSLPtable( dateSl )
+  local aKSLP := getKSLPtable( dateEnd )
   local aa := list2arr(k) // получим массив выбранных КСЛП
+  local nLast, srok := dateEnd - dateBegin
 
   default DOB to sys_date
-  default dateSl to sys_date
+  default dateBegin to sys_date
+  default dateEnd to sys_date
 
-  age := count_years(DOB, dateSl)
+  age := count_years(DOB, dateEnd)
   
   for each row in aKSLP
     r1++
@@ -62,7 +65,11 @@ function selectKSLP( k, r, c, dateSl, DOB )
       strArr += row[ NAME_KSLP ]
       aadd(t_mas, { strArr, .f., row[ CODE_KSLP ] })
     elseif row[ CODE_KSLP ] == 3
-      if (age < 18)
+      if (age < 4)
+        strArr := ' * '
+        strArr += row[ NAME_KSLP ]
+        aadd(t_mas, { strArr, .t., row[ CODE_KSLP ] })
+      elseif (age < 18)
         strArr += row[ NAME_KSLP ]
         aadd(t_mas, { strArr, .t., row[ CODE_KSLP ] })
       else
@@ -70,6 +77,14 @@ function selectKSLP( k, r, c, dateSl, DOB )
         strArr += row[ NAME_KSLP ]
         aadd(t_mas, { strArr, .f., row[ CODE_KSLP ] })
       endif
+    elseif row[ CODE_KSLP ] == 10 .and. srok > 70 // лечение свыше 70 дней согласно инструкции
+      strArr := ' * '
+      strArr += row[ NAME_KSLP ]
+      aadd(t_mas, { strArr, .t., row[ CODE_KSLP ] })
+    elseif row[ CODE_KSLP ] == 10 .and. srok <= 70 // лечение менее 70 дней согласно инструкции
+      strArr := '   '
+      strArr += row[ NAME_KSLP ]
+      aadd(t_mas, { strArr, .f., row[ CODE_KSLP ] })
     else
       strArr += row[ NAME_KSLP ]
       aadd(t_mas, { strArr, .t., row[ CODE_KSLP ] })
@@ -85,18 +100,13 @@ function selectKSLP( k, r, c, dateSl, DOB )
       "Отметьте КСЛП",col_tit_popup,,strStatus)) > 0
     for i := 1 to mlen
       if "*" == substr(t_mas[i, 1],2,1)
-        // k := chr(int(val(right(t_mas[i],10))))
-        // m1var += k
-        // m1var += '1'
-alertx(t_mas[i, 3], "Code")
         m1var += alltrim(str(t_mas[i, 3])) + ','
         countKSLP += 1
-      // else
-      //   m1var += '0'
       endif
     next
-    // // s := "= "+lstr(len(m1var))+"кслп. ="
-    // s := "= "+alltrim(str(countKSLP))+"кслп. ="
+    if (nLast := RAt(',', m1var)) > 0
+      m1var := substr(m1var, 1, nLast - 1)  // удалим последнюю не нужную ','
+    endif
     s := m1var
   endif
 

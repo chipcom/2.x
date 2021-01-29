@@ -4731,7 +4731,7 @@ return _akslp
 *
 
 ***** 22.01.18 если надо, перезаписать значения КСЛП и КИРО в HUMAN_2
-Function put_str_kslp_kiro(arr,fl)
+Function put_str_kslp_kiro__(arr,fl)
 Local lpc1 := "", lpc2 := ""
 if len(arr) > 4 .and. !empty(arr[5])
   lpc1 := lstr(arr[5,1])+","+lstr(arr[5,2],5,2)
