@@ -407,7 +407,12 @@ Function f2oms_usl_sluch(nKey,oBrow)
               tip_par_org := iif(nKey == K_INS, "", tmp->par_org),;
               tip_telemed := 0, tip_telemed2 := .f.,;
               mnmic := space(10), m1nmic := 0, mnmic1 := space(10), m1nmic1 := 0,;
-              row_dom, gl_area := {1,0,maxrow()-1,79,0}
+              row_dom, gl_area := {1,0,maxrow()-1,79,0},;
+              mKSLP := iif(nKey == K_INS, space(10), space(10) ),;  //tmp->shifr_u),;
+              mKSLP1 := iif(nKey == K_INS, space(10), space(10) )  // tmp->shifr1),;
+              // mKSLP := iif(nKey == K_INS, space(10), tmp->shifr_u),;
+              // mKSLP1 := iif(nKey == K_INS, space(10), tmp->shifr1)
+
       Private mm_gist := {{"в Волгоградском патал.анат.бюро",4},;
                           {"в нашей медицинской организации",0},;
                           {"в иногороднем патал.анат.бюро  ",5}}
@@ -510,8 +515,12 @@ Function f2oms_usl_sluch(nKey,oBrow)
         @ r1+ix,2 say "Шифр услуги" get mshifr pict "@!" ;
                   when {|g| f5editkusl(g,1,2) } ;
                   valid {|g| f5editkusl(g,2,2) }
-        @ row(),40 say "Цена услуги" get mu_cena pict pict_cena ;
+        // @ row(),40 say "Цена услуги" get mu_cena pict pict_cena ;
+        @ row(),36 say "Цена услуги" get mu_cena pict pict_cena ;
                    when .f. color color14
+
+        @ row(),63 say "КСЛП" get mKSLP pict "@!"
+
         ++ix
         @ r1+ix,2 say "Услуга" get mname_u when .f. color color14
         ++ix ; row_dom := r1+ix
