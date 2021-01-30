@@ -412,8 +412,8 @@ Function f2oms_usl_sluch(nKey,oBrow)
               row_dom, gl_area := {1,0,maxrow()-1,79,0}
 
     // ¯¥à¥¬¥­­ë¥ ¤«ï Š‘‹
-    private mKSLP := iif(nKey == K_INS, space(10), alltrim(HUMAN_2->PC1) ),;  //tmp->shifr_u),;
-      m1KSLP := iif(nKey == K_INS, space(10), alltrim(HUMAN_2->PC1) )  // tmp->shifr1),;
+    private mKSLP := iif(nKey == K_INS, space(10), iif(empty(HUMAN_2->PC1), space(10), alltrim(HUMAN_2->PC1)) ),;  //tmp->shifr_u),;
+      m1KSLP := iif(nKey == K_INS, space(10), iif(empty(HUMAN_2->PC1), space(10), alltrim(HUMAN_2->PC1)) )  // tmp->shifr1),;
       // mKSLP := iif(nKey == K_INS, space(10), tmp->shifr_u),;
       // mKSLP1 := iif(nKey == K_INS, space(10), tmp->shifr1)
 
@@ -523,8 +523,8 @@ Function f2oms_usl_sluch(nKey,oBrow)
         @ row(),35 say "–¥­  ãá«ã£¨" get mu_cena pict pict_cena ;
                    when .f. color color14
 
-        @ row(), 58 say "Š‘‹" get mKSLP ;
-            reader {|x|menu_reader(x,{{|k,r,c|selectKSLP( k, r, c, HUMAN->N_DATA, HUMAN->K_DATA, HUMAN->DATE_R)}},A__FUNCTION,,,.f.)}
+        @ row(), 58 say "Š‘‹" get mKSLP pict "@!";
+            reader {|x|menu_reader(x,{{|k,r,c|selectKSLP( k, r, c, HUMAN->N_DATA, HUMAN->K_DATA, HUMAN->DATE_R, mshifr)}},A__FUNCTION,,,.f.)}
 
         ++ix
         @ r1+ix,2 say "“á«ã£ " get mname_u when .f. color color14

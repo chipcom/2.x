@@ -13,12 +13,13 @@
 #include "tbox.ch"
 
 
-// private mKSLP := '111100010', m1KSLP := "111100010"
+// private mKSLP := '1,3,4,5', m1KSLP := "1,3,4,5"
 // @ ++r,1 say "КСЛП" get mKSLP ;
 //         reader {|x|menu_reader(x,{{|k,r,c|selectKSLP(k,r,c,sys_date,CToD('22/01/2014'))}},A__FUNCTION,,,.f.)}
 
+// 28.01.2021
 // функция выбора состава КСЛП, возвращает { маска,строка количества КСЛП }, или nil
-function selectKSLP( k, r, c, dateBegin, dateEnd, DOB )
+function selectKSLP( k, r, c, dateBegin, dateEnd, DOB, shifrUsl )
   // k - значение m1KSLP (выбранные КСЛП)
   // r - строка экрана
   // c - колонка экрана
@@ -36,35 +37,45 @@ function selectKSLP( k, r, c, dateBegin, dateEnd, DOB )
   local aKSLP := getKSLPtable( dateEnd )
   local aa := list2arr(k) // получим массив выбранных КСЛП
   local nLast, srok := dateEnd - dateBegin
+  local sh := lower(substr(shifrUsl,1,2))
+  local recN, permissibleKSLP := {}, isPermissible
 
   default DOB to sys_date
   default dateBegin to sys_date
   default dateEnd to sys_date
 
+  if sh != 'st' .and. sh != 'ds'
+    return nil
+  else
+    recN := ('lusl')->(RecNo())
+    ('lusl')->(dbGoTop())
+    if ('lusl')->(dbSeek(shifrUsl))
+      permissibleKSLP := list2arr(('lusl')->KSLPS)
+    endif
+  endif
+  
   age := count_years(DOB, dateEnd)
   
   for each row in aKSLP
     r1++
-    if ascan(aa, {|x| x == row[ CODE_KSLP ] }) > 0
+
+    isPermissible := ascan(permissibleKSLP, row[ CODE_KSLP ]) > 0
+
+    if (ascan(aa, {|x| x == row[ CODE_KSLP ] }) > 0) .and. isPermissible
       strArr := ' * '
     else
       strArr := '   '
     endif
 
-    // if SubStr(k,r1,1) == '1'
-    //   strArr := ' * '
-    // else
-    //   strArr := '   '
-    // endif
     if row[ CODE_KSLP ] == 1
-      if (age >= 75)
+      if (age >= 75) .and. isPermissible
         strArr := ' * '
       else
         strArr := '   '
       endif
       strArr += row[ NAME_KSLP ]
       aadd(t_mas, { strArr, .f., row[ CODE_KSLP ] })
-    elseif row[ CODE_KSLP ] == 3
+    elseif row[ CODE_KSLP ] == 3 .and. isPermissible
       if (age < 4)
         strArr := ' * '
         strArr += row[ NAME_KSLP ]
@@ -77,17 +88,27 @@ function selectKSLP( k, r, c, dateBegin, dateEnd, DOB )
         strArr += row[ NAME_KSLP ]
         aadd(t_mas, { strArr, .f., row[ CODE_KSLP ] })
       endif
-    elseif row[ CODE_KSLP ] == 10 .and. srok > 70 // лечение свыше 70 дней согласно инструкции
+    elseif row[ CODE_KSLP ] == 4 .and. isPermissible
+      if (age < 18)
+        strArr += row[ NAME_KSLP ]
+        aadd(t_mas, { strArr, .t., row[ CODE_KSLP ] })
+      else
+        strArr := '   '
+        strArr += row[ NAME_KSLP ]
+        aadd(t_mas, { strArr, .f., row[ CODE_KSLP ] })
+      endif
+    elseif (row[ CODE_KSLP ] == 10 .and. srok > 70) .and. isPermissible // лечение свыше 70 дней согласно инструкции
       strArr := ' * '
       strArr += row[ NAME_KSLP ]
       aadd(t_mas, { strArr, .t., row[ CODE_KSLP ] })
-    elseif row[ CODE_KSLP ] == 10 .and. srok <= 70 // лечение менее 70 дней согласно инструкции
+    elseif (row[ CODE_KSLP ] == 10 .and. srok <= 70) .and. isPermissible // лечение менее 70 дней согласно инструкции
       strArr := '   '
       strArr += row[ NAME_KSLP ]
       aadd(t_mas, { strArr, .f., row[ CODE_KSLP ] })
     else
       strArr += row[ NAME_KSLP ]
-      aadd(t_mas, { strArr, .t., row[ CODE_KSLP ] })
+      // aadd(t_mas, { strArr, .t., row[ CODE_KSLP ] })
+      aadd(t_mas, { strArr, (ascan(permissibleKSLP, row[ CODE_KSLP ])>0), row[ CODE_KSLP ] })
     endif
   next
 

@@ -25,10 +25,17 @@ Function put_str_kslp_kiro(arr,fl)
     if fl
       G_RLock(forever)
     endif
-    if year(human->k_data) != 2021  // added 29.01.2021
-      human_2->pc1 := lpc1
+
+    // запомним новое КСЛП
+    tmSel := select('HUMAN_2')
+    if (tmSel)->(dbRlock())
+      if year(human->k_data) != 2021  // added 29.01.2021
+        human_2->pc1 := lpc1
+      endif
+      human_2->pc2 := lpc2
+      (tmSel)->(dbRUnlock())
     endif
-    human_2->pc2 := lpc2
+    select(tmSel)
     if fl
       UnLock
     endif
