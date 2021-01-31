@@ -4310,7 +4310,16 @@ do while !eof()
                 arr_pol3000[ 28,5] += round(human->cena_1*koef,2)
                 arr_pol3000[ 28,3] += 1
               endif
-            endif
+            elseif padr(alltrim(lshifr),8) == "4.17.785" .or.;
+                   padr(alltrim(lshifr),8) == "4.17.786"
+              //' Тестирование на COVID-19'
+              arr_pol3000[ 29,4] += round(human->cena_1*koef,2)
+              arr_pol3000[ 29,2] += 1
+              if is_inogoro
+                arr_pol3000[ 29,5] += round(human->cena_1*koef,2)
+                arr_pol3000[ 29,3] += 1
+              endif
+             endif
             skip
           enddo
           select HUMAN
@@ -4355,7 +4364,7 @@ do while !eof()
             dbSelectArea(lal)
             find (padr(lshifr,10))
             if found() .and. !empty(&lal.->unit_code)
-              select MOUNIT
+              select MOUNIT    // !!! ВНИМАНИЕ
               find (str(&lal.->unit_code,3))
               if found() .and. mounit->pz > 0
                 if (i16 := mounit->ii) > 0
@@ -5545,24 +5554,24 @@ if fl
 "────────────────────────────────────┴───────┴───────┴─────────────┴─────────────"+hb_eol(),cFileProtokol,.t.)
   //
   //"06 посещения с иными целями, всего (07+08+12+14+15+16+19+20)"
-  add_val_2_array(arr_pol3000,6,7,2,5)   // 7
-  add_val_2_array(arr_pol3000,6,8,2,5)   // 8
-  add_val_2_array(arr_pol3000,6,9,2,5)   // 12
-  add_val_2_array(arr_pol3000,6,11,2,5)  // 14
-  add_val_2_array(arr_pol3000,6,12,2,5)  // 15
-  add_val_2_array(arr_pol3000,6,13,2,5)  // 16
+//  add_val_2_array(arr_pol3000,6,7,2,5)   // 7
+//  add_val_2_array(arr_pol3000,6,8,2,5)   // 8
+//  add_val_2_array(arr_pol3000,6,9,2,5)   // 12
+//  add_val_2_array(arr_pol3000,6,11,2,5)  // 14
+//  add_val_2_array(arr_pol3000,6,12,2,5)  // 15
+//  add_val_2_array(arr_pol3000,6,13,2,5)  // 16
   //add_val_2_array(arr_pol3000,6,,2,5)  // 19 нет в системе ОМС
-  add_val_2_array(arr_pol3000,6,16,2,5)  // 20
+//  add_val_2_array(arr_pol3000,6,16,2,5)  // 20
   //"03 посещения с профилактическими целями, всего (04+05)"
-  add_val_2_array(arr_pol3000,3,4,2,5)
-  add_val_2_array(arr_pol3000,3,4,2,5)
+//  add_val_2_array(arr_pol3000,3,4,2,5)
+//  add_val_2_array(arr_pol3000,3,4,2,5)
   //"02 Посещения с профилактическими и иными целями (03+06)"
-  add_val_2_array(arr_pol3000,2,3,2,5)
-  add_val_2_array(arr_pol3000,2,6,2,5)
+//  add_val_2_array(arr_pol3000,2,3,2,5)
+//  add_val_2_array(arr_pol3000,2,6,2,5)
   // 01 Посещений - всего (02+21+25)
-  add_val_2_array(arr_pol3000,1,2,2,5)
-  add_val_2_array(arr_pol3000,1,17,2,5)
-  add_val_2_array(arr_pol3000,1,20,2,5)
+//  add_val_2_array(arr_pol3000,1,2,2,5)
+//  add_val_2_array(arr_pol3000,1,17,2,5)
+//  add_val_2_array(arr_pol3000,1,20,2,5)
   //
 
 
