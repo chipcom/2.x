@@ -80,15 +80,11 @@ mo_263.prg
 mo_263p.prg
 mo_263s.prg
 .\ref\viewF003.prg
-.\oms\kslp.prg
 .\oms\definition_KSG.prg
-.\oms\f_cena_kslp.prg
 .\oms\oms_sluch.prg
 .\oms\oms_usl_sluch.prg
 .\oms\f2oms_usl_sluch.prg
 .\oms\f5editkusl.prg
 .\oms\f_usl_definition_KSG.prg
 .\oms\f_valid2ad_cr.prg
-.\oms\put_str_kslp_kiro.prg
-.\oms\f_cena_kiro.prg
-.\oms\kiro.prg
+.\oms\kiroANDkslp.prg
