@@ -102,14 +102,14 @@ function selectKSLP( k, r, c, dateBegin, dateEnd, DOB, shifrUsl )
         strArr := sBlank
       endif
       strArr += row[ NAME_KSLP ]
-      aadd(t_mas, { strArr, .f., row[ CODE_KSLP ] })
+      aadd(t_mas, { strArr, .t., row[ CODE_KSLP ] })
     elseif row[ CODE_KSLP ] == 10 .and. isPermissible // лечение свыше 70 дней согласно инструкции
       strArr := iif(srok > 70, sAsterisk, sBlank)
       strArr += row[ NAME_KSLP ]
       aadd(t_mas, { strArr, .f., row[ CODE_KSLP ] })
   else
       strArr += row[ NAME_KSLP ]
-      aadd(t_mas, { strArr, (ascan(permissibleKSLP, row[ CODE_KSLP ])>0), row[ CODE_KSLP ] })
+      aadd(t_mas, { strArr, isPermissible, row[ CODE_KSLP ] })
     endif
   next
 

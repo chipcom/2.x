@@ -803,7 +803,8 @@ Function definition_KSG(par,k_data2)
           endif
         endif
         if vkiro > 0
-          akiro := f_cena_kiro(@lcena,vkiro)
+          // akiro := f_cena_kiro(@lcena,vkiro)
+          akiro := f_cena_kiro(@lcena, vkiro, lk_data)
           s += "  (Šˆ = "+str(akiro[2],4,2)+", æ¥­  "+lstr(lcena,11,0)+"à.)"
         endif
       endif

@@ -1026,7 +1026,7 @@ Static sdate
 Local k, buf := save_maxrow(), name_file := "uslugi"+stxt, nu, ret_arr,;
       sh := 80, HH := 60, t_arr, i, s, fl, v1, v2, mdate, fl1uslc, fl2uslc,;
       ta[2], lyear, fl1del, fl2del, len_ksg := 10
-local arrKSLP, rowKSLP, tmpKSLP
+local arrKSLP, rowKSLP, tmpKSLP, arrKIRO, rowKIRO, tmpKIRO
 
 DEFAULT sdate TO sys1_date
 mdate := input_value(20,5,22,73,color1,;
@@ -1089,13 +1089,28 @@ if (k := popup_2array(usl9TFOMS(mdate),T_ROW,T_COL-5,su,1,@t_arr,"Выберите групп
     //     add_string('      15 - ЭКО 1 этап(коэф=0.6), 16 - ЭКО полн с крио(коэф=1.1), 17 - ЭКО подсадка(коэф=0.19)')
     //   endif
     // endif
-    add_string('КИРО: 1 - менее 4-х дней, выполнено хирург.вмешательство(коэф=0.8)')
-    add_string('      2 - менее 4-х дней, хирург.лечение не проводилось(коэф=0.2)')
-    add_string('      3 - более 3-х дней, выполнено хирург.вмешательство, лечение прервано(коэф=0.9)')
-    add_string('      4 - более 3-х дней, хирург.лечение не проводилось, лечение прервано(коэф=0.9)')
-    add_string('      5 - менее 4-х дней, несоблюдён режим введения лек.препарата(коэф=0.2)')
-    add_string('      6 - более 3-х дней, несоблюдён режим введения лек.препарата, лечение прервано(коэф=0.9)')
-    if lyear == 2020
+    // add_string('КИРО: 1 - менее 4-х дней, выполнено хирург.вмешательство(коэф=0.8)')
+    // add_string('      2 - менее 4-х дней, хирург.лечение не проводилось(коэф=0.2)')
+    // add_string('      3 - более 3-х дней, выполнено хирург.вмешательство, лечение прервано(коэф=0.9)')
+    // add_string('      4 - более 3-х дней, хирург.лечение не проводилось, лечение прервано(коэф=0.9)')
+    // add_string('      5 - менее 4-х дней, несоблюдён режим введения лек.препарата(коэф=0.2)')
+    // add_string('      6 - более 3-х дней, несоблюдён режим введения лек.препарата, лечение прервано(коэф=0.9)')
+    arrKIRO := getKIROtable( mdate )
+    add_string('КИРО:')
+    for each rowKIRO in arrKIRO
+      k := perenos(ta, alltrim(rowKIRO[3]), 58)
+      for i := 1 to k
+        if i == 1
+          tmpKIRO := str(rowKIRO[1], 7) + ' - ' + ta[i] + ' (коеф=' + str(rowKIRO[4], 4, 2) + ')'
+        else
+          tmpKIRO := space(10) + ta[i]
+        endif
+        add_string(tmpKIRO)
+      next
+    next
+    if lyear == 2021
+      R_Use(exe_dir+"_mo1k006",,"K006")
+    elseif lyear == 2020
       R_Use(exe_dir+"_mo0k006",,"K006")
     elseif lyear == 2021
       R_Use(exe_dir+"_mo1k006",,"K006")

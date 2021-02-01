@@ -522,9 +522,10 @@ Function f2oms_usl_sluch(nKey,oBrow)
         // @ row(),40 say "–¥­  γα«γ£¨" get mu_cena pict pict_cena ;
         @ row(),35 say "–¥­  γα«γ£¨" get mu_cena pict pict_cena ;
                    when .f. color color14
-
-        @ row(), 58 say "‘‹" get mKSLP pict "@!";
-            reader {|x|menu_reader(x,{{|k,r,c|selectKSLP( k, r, c, HUMAN->N_DATA, HUMAN->K_DATA, HUMAN->DATE_R, mshifr)}},A__FUNCTION,,,.f.)}
+        if human_->usl_ok < 3
+          @ row(), 58 say "‘‹" get mKSLP pict "@!";
+              reader {|x|menu_reader(x,{{|k,r,c|selectKSLP( k, r, c, HUMAN->N_DATA, HUMAN->K_DATA, HUMAN->DATE_R, mshifr)}},A__FUNCTION,,,.f.)}
+        endif
 
         ++ix
         @ r1+ix,2 say "“α«γ£ " get mname_u when .f. color color14

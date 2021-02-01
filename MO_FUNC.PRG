@@ -3838,7 +3838,8 @@ if !empty(lksg)
         endif
       endif
       if vkiro > 0
-        akiro := f_cena_kiro(@lcena,vkiro)
+        // akiro := f_cena_kiro(@lcena,vkiro)
+        akiro := f_cena_kiro(@lcena, vkiro, lk_data)
         s += "  (КИРО = "+str(akiro[2],4,2)+", цена "+lstr(lcena,11,0)+"р.)"
       endif
     endif
@@ -3858,8 +3859,8 @@ return {ars,arerr,alltrim(lksg),lcena,akslp,akiro,s_dializ}
 
 *
 
-***** 12.01.19
-Function f_cena_kiro(/*@*/_cena,lkiro)
+***** 12.01.19 
+Function f_cena_kiro__(/*@*/_cena,lkiro)
 Local _akiro := {0,1}
 do case
   case lkiro == 1 // менее 4-х дней, выполнено хирург.вмешательство
