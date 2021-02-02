@@ -46,6 +46,7 @@ FOR EACH s IN hb_AParams() // анализ входных параметров
   ENDCASE
 NEXT
 //
+public Err_version := fs_version(_version)+char_version+" от "+_date_version  // 02.02.2021
 Public kod_VOUNC := '101004'
 Public kod_LIS   := {'125901','805965'}
 //
