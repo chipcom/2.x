@@ -164,7 +164,7 @@ Function oms_sluch(Loc_kod,kod_kartotek)
     elseif mem_zav_l == 2  // нет
       m1_l_z := 0   // нет
     endif
-  Private mad_cr := space(10), m1ad_cr := space(10), pr_ds_it := 0, input_ad_cr := .f.
+  Private mad_cr := space(60), m1ad_cr := space(60), pr_ds_it := 0, input_ad_cr := .f.
 
   // private mKSLP := space(10), m1KSLP := space(10)
 

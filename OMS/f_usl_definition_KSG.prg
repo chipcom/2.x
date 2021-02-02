@@ -94,7 +94,14 @@ Function f_usl_definition_KSG(lkod,k_data2)
       if empty(arr[2])
         if empty(lcena)
           lu_kod := foundOurUsluga(arr[3],human->k_data,human_->profil,human->VZROS_REB,@lcena)
-          if lyear > 2018  // округление до рублей с 2019 года
+          if lyear == 2021  // 2021 год
+            if len(arr) > 4 .and. !empty(arr[5])
+              lcena := round_5(lcena*ret_koef_kslp_21(arr[5]),0)
+            endif
+            if len(arr) > 5 .and. !empty(arr[6])
+              lcena := round_5(lcena*arr[6,2],0)
+            endif
+          elseif lyear > 2018  // округление до рублей с 2019 года
             if len(arr) > 4 .and. !empty(arr[5])
               lcena := round_5(lcena*ret_koef_kslp(arr[5]),0)
             endif
