@@ -204,7 +204,7 @@ function selectKSLP( k, r, c, dateBegin, dateEnd, DOB, shifrUsl )
       endif
       aadd(t_mas, { strArr, (age < 18), row[ CODE_KSLP ] })
     elseif row[ CODE_KSLP ] == 9 // есть сопутствующие заболевания
-      if isPermissible .and. strArr == sAsterisk
+      if isPermissible  // .and. strArr == sAsterisk
         strArr := sAsterisk
       else
         strArr := sBlank

@@ -1145,7 +1145,7 @@ Function ret_mo(cCode)
 // cCode - ª®¤ ŒŽ ¯® ’”ŽŒ‘
 Local i, arr := aclone(glob_arr_mo[1]) // ¢®§ì¬ñ¬ ¯¥à¢®¥ ¯® ¯®àï¤ªã ŒŽ
 
-return getF003mo(cCode)
+// return getF003mo(cCode)
 
 for i := 1 to len(arr)
   if valtype(arr[i]) == "C"
@@ -1201,6 +1201,7 @@ Static a_mo := {;
   {711001,{711005}};
  }
 Local i, j, fl, s := ""
+
 DEFAULT is_record TO .f.
 cCode := ret_mo(cCode)[_MO_KOD_TFOMS]
 if (i := ascan(glob_arr_mo,{|x| x[_MO_KOD_TFOMS] == cCode })) > 0
