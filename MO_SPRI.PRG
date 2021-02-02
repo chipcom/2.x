@@ -1064,50 +1064,53 @@ if (k := popup_2array(usl9TFOMS(mdate),T_ROW,T_COL-5,su,1,@t_arr,"Выберите групп
   add_string(center("[ цены по состоянию на "+date_8(mdate)+"г. ]",sh))
   add_string("")
   if t_arr[2] > 500
-    arrKSLP := getKSLPtable( mdate )
-    add_string('КСЛП:')
-    for each rowKSLP in arrKSLP
-      k := perenos(ta, alltrim(rowKSLP[3]), 58)
-      for i := 1 to k
-        if i == 1
-          tmpKSLP := str(rowKSLP[1], 7) + ' - ' + ta[i] + ' (коеф=' + str(rowKSLP[4], 4, 2) + ')'
-        else
-          tmpKSLP := space(10) + ta[i]
-        endif
-        add_string(tmpKSLP)
+    if Year( mdate ) == 2021
+      arrKSLP := getKSLPtable( mdate )
+      add_string('КСЛП:')
+      for each rowKSLP in arrKSLP
+        k := perenos(ta, alltrim(rowKSLP[3]), 58)
+        for i := 1 to k
+          if i == 1
+            tmpKSLP := str(rowKSLP[1], 7) + ' - ' + ta[i] + ' (коеф=' + str(rowKSLP[4], 4, 2) + ')'
+          else
+            tmpKSLP := space(10) + ta[i]
+          endif
+          add_string(tmpKSLP)
+        next
       next
-    next
-    // add_string('КСЛП: 1 - до 1 года(коэф=1.1), 2 - от 1 года до 3-х лет включит.(коэф=1.1)')
-    // add_string('      4 - 75 лет и старше(коэф=1.02), 5 - 60 лет и старше и астения(коэф=1.1)')
-    // add_string('      11 - проведение однотипных операций на парных органах(коэф=1.2)')
-    // add_string('      18 - применение инвазивной ИВЛ (COVID-19/крайне тяжелое состояние)(коэф=1.2)')
-    // if t_arr[2] == 502
-    //   //!!! ВНИМАНИЕ 18.01
-    //   if lyear < 2020
-    //     add_string('      12 - ЭКО 1 этап(коэф=0.6), 13 - ЭКО полн с крио(коэф=1.1), 14 - ЭКО подсадка(коэф=0.19)')
-    //   else
-    //     add_string('      15 - ЭКО 1 этап(коэф=0.6), 16 - ЭКО полн с крио(коэф=1.1), 17 - ЭКО подсадка(коэф=0.19)')
-    //   endif
-    // endif
-    // add_string('КИРО: 1 - менее 4-х дней, выполнено хирург.вмешательство(коэф=0.8)')
-    // add_string('      2 - менее 4-х дней, хирург.лечение не проводилось(коэф=0.2)')
-    // add_string('      3 - более 3-х дней, выполнено хирург.вмешательство, лечение прервано(коэф=0.9)')
-    // add_string('      4 - более 3-х дней, хирург.лечение не проводилось, лечение прервано(коэф=0.9)')
-    // add_string('      5 - менее 4-х дней, несоблюдён режим введения лек.препарата(коэф=0.2)')
-    // add_string('      6 - более 3-х дней, несоблюдён режим введения лек.препарата, лечение прервано(коэф=0.9)')
-    arrKIRO := getKIROtable( mdate )
-    add_string('КИРО:')
-    for each rowKIRO in arrKIRO
-      k := perenos(ta, alltrim(rowKIRO[3]), 58)
-      for i := 1 to k
-        if i == 1
-          tmpKIRO := str(rowKIRO[1], 7) + ' - ' + ta[i] + ' (коеф=' + str(rowKIRO[4], 4, 2) + ')'
-        else
-          tmpKIRO := space(10) + ta[i]
-        endif
-        add_string(tmpKIRO)
+      arrKIRO := getKIROtable( mdate )
+      add_string('КИРО:')
+      for each rowKIRO in arrKIRO
+        k := perenos(ta, alltrim(rowKIRO[3]), 58)
+        for i := 1 to k
+          if i == 1
+            tmpKIRO := str(rowKIRO[1], 7) + ' - ' + ta[i] + ' (коеф=' + str(rowKIRO[4], 4, 2) + ')'
+          else
+            tmpKIRO := space(10) + ta[i]
+          endif
+          add_string(tmpKIRO)
+        next
       next
-    next
+    else
+      add_string('КСЛП: 1 - до 1 года(коэф=1.1), 2 - от 1 года до 3-х лет включит.(коэф=1.1)')
+      add_string('      4 - 75 лет и старше(коэф=1.02), 5 - 60 лет и старше и астения(коэф=1.1)')
+      add_string('      11 - проведение однотипных операций на парных органах(коэф=1.2)')
+      add_string('      18 - применение инвазивной ИВЛ (COVID-19/крайне тяжелое состояние)(коэф=1.2)')
+      if t_arr[2] == 502
+        //!!! ВНИМАНИЕ 18.01
+        if lyear < 2020
+          add_string('      12 - ЭКО 1 этап(коэф=0.6), 13 - ЭКО полн с крио(коэф=1.1), 14 - ЭКО подсадка(коэф=0.19)')
+        else
+          add_string('      15 - ЭКО 1 этап(коэф=0.6), 16 - ЭКО полн с крио(коэф=1.1), 17 - ЭКО подсадка(коэф=0.19)')
+        endif
+      endif
+      add_string('КИРО: 1 - менее 4-х дней, выполнено хирург.вмешательство(коэф=0.8)')
+      add_string('      2 - менее 4-х дней, хирург.лечение не проводилось(коэф=0.2)')
+      add_string('      3 - более 3-х дней, выполнено хирург.вмешательство, лечение прервано(коэф=0.9)')
+      add_string('      4 - более 3-х дней, хирург.лечение не проводилось, лечение прервано(коэф=0.9)')
+      add_string('      5 - менее 4-х дней, несоблюдён режим введения лек.препарата(коэф=0.2)')
+      add_string('      6 - более 3-х дней, несоблюдён режим введения лек.препарата, лечение прервано(коэф=0.9)')
+    endif
     if lyear == 2021
       R_Use(exe_dir+"_mo1k006",,"K006")
     elseif lyear == 2020
