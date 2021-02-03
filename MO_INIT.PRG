@@ -68,7 +68,7 @@ else
 endif
 return .t.
 
-***** 14.01.20 инициализация массива МО, запрос кода МО (при необходимости)
+***** 03.02.21 инициализация массива МО, запрос кода МО (при необходимости)
 Function init_mo()
 Local fl := .t., i, arr, arr1, cCode := "", buf := save_maxrow(), ;
       nfile := exe_dir+"_mo_mo.dbb"
@@ -884,6 +884,15 @@ else
   fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
 endif
 //
+sbase := "_mo1shema"
+if hb_FileExists(exe_dir+sbase+sdbf)
+  // добавлена индексация файла
+  R_Use(exe_dir+sbase)
+  index on KOD to (cur_dir+sbase) // по коду критерия
+  use
+else
+  fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
+endif
 Public arr_ad_cr_it21 := {}
 // T006 2021 год
 sbase := "_mo1it1"
@@ -918,9 +927,6 @@ if hb_FileExists(exe_dir+sbase+sdbf)
   enddo
   use
 else
-  fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
-endif
-if !hb_FileExists(exe_dir+"_mo1shema"+sdbf)
   fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
 endif
 sbase := "_mo1k006"
