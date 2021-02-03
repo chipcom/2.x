@@ -2284,14 +2284,14 @@ do while !eof()
         if year(human->K_DATA) == 2021     // 02.02.2021  ©ª¨­ 
           tKSLP := getKSLPtable(human->K_DATA)
           mo_add_xml_stroke(oKSG,"IT_SL",lstr(ret_koef_kslp_21_XML(akslp,tKSLP),7,5))
-          oSLk := oKSG:Add( HXMLNode():New( "SL_KOEF" ) )
-          for iAKSLP := 1 to len(akslp)   //  step 2
+          for iAKSLP := 1 to len(akslp)
             if (cKSLP := ascan(tKSLP, {|x| x[1] == akslp[ iAKSLP ] })) > 0
+              oSLk := oKSG:Add( HXMLNode():New( "SL_KOEF" ) )
               mo_add_xml_stroke( oSLk, "ID_SL", lstr(akslp[ iAKSLP ] ) )
               mo_add_xml_stroke( oSLk, "VAL_C", lstr( tKSLP[ cKSLP, 4 ], 7, 5 ) )
             endif
           next
-      else
+        else
           mo_add_xml_stroke(oKSG,"IT_SL",lstr(ret_koef_kslp(akslp),7,5))
           oSLk := oKSG:Add( HXMLNode():New( "SL_KOEF" ) )
           mo_add_xml_stroke(oSLk,"ID_SL",lstr(akslp[1]))
