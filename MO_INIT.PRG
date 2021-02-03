@@ -72,6 +72,8 @@ return .t.
 Function init_mo()
 Local fl := .t., i, arr, arr1, cCode := "", buf := save_maxrow(), ;
       nfile := exe_dir+"_mo_mo.dbb"
+
+local tmpSelect, lSchema := .f.
 mywait()
 Public oper_parol := 30  // пароль для фискального регистратора
 Public oper_frparol := 30 // пароль для фискального регистратора ОТЧЕТ
@@ -897,9 +899,11 @@ Public arr_ad_cr_it21 := {}
 // T006 2021 год
 sbase := "_mo1it1"
 if hb_FileExists(exe_dir+sbase+sdbf)
+  R_Use(exe_dir+"_mo1shema",cur_dir+"_mo1shema","SCHEMA")
+
   R_Use(exe_dir+sbase,,"IT")
-  go top
-  do while !eof()
+  ("IT")->(dbGoTop())  // go top
+  do while !("IT")->(eof())
     ar := {}
     ar1 := {}
     ar2 := {}
@@ -921,11 +925,23 @@ if hb_FileExists(exe_dir+sbase+sdbf)
         ar2[i] := padr(ar2[i],5)
       next
     endif
+
+    ("SCHEMA")->(dbGoTop())
+    if ("SCHEMA")->(dbSeek( padr(it->CODE,6) ))
+      lSchema := .t.
+    endif
+
     // aadd(arr_ad_cr_it21,{it->USL_OK,padr(it->CODE,3),ar,ar1,ar2})
-    aadd(arr_ad_cr_it21,{it->USL_OK,padr(it->CODE,6),ar,ar1,ar2})
-    skip
+    if lSchema
+      aadd(arr_ad_cr_it21,{it->USL_OK,padr(it->CODE,6),ar,ar1,ar2, alltrim(SCHEMA->NAME)})
+    else
+      aadd(arr_ad_cr_it21,{it->USL_OK,padr(it->CODE,6),ar,ar1,ar2, ''})
+    endif
+    ("IT")->(dbskip())
+    lSchema := .f.
   enddo
-  use
+  ("SCHEMA")->(dbCloseArea())
+  ("IT")->(dbCloseArea())   //use
 else
   fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
 endif

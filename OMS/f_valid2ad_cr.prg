@@ -53,7 +53,7 @@ Function f_valid2ad_cr()
           if !empty(arr_ad_cr_it21[i,3]) .and. empty(arr_ad_cr_it21[i,4]) .and. empty(arr_ad_cr_it21[i,5]) // осн.диагноз
             if ascan(arr_ad_cr_it21[i,3],padr(MKOD_DIAG,5)) > 0
               // aadd(mm_ad_cr,{"",arr_ad_cr_it21[i,2]})
-              aadd(mm_ad_cr,{arr_ad_cr_it21[i,2],arr_ad_cr_it21[i,2]})
+              aadd(mm_ad_cr,{alltrim(arr_ad_cr_it21[i,2])+' '+arr_ad_cr_it21[i,6],arr_ad_cr_it21[i,2]})
             endif
           endif
           if !empty(arr_ad_cr_it21[i,3]) .and. !empty(arr_ad_cr_it21[i,4]) .and. empty(arr_ad_cr_it21[i,5]) // осн.+сопут.диагнозы
@@ -69,7 +69,7 @@ Function f_valid2ad_cr()
               for j := 1 to len(arr_sop)
                 if ascan(arr_ad_cr_it21[i,4],arr_sop[j]) > 0
                   // aadd(mm_ad_cr,{"",arr_ad_cr_it21[i,2]})
-                  aadd(mm_ad_cr,{arr_ad_cr_it21[i,2],arr_ad_cr_it21[i,2]})
+                  aadd(mm_ad_cr,{alltrim(arr_ad_cr_it21[i,2])+' '+arr_ad_cr_it21[i,6],arr_ad_cr_it21[i,2]})
                   exit
                 endif
               next
@@ -80,7 +80,7 @@ Function f_valid2ad_cr()
               for j := 1 to len(arr_osl)
                 if ascan(arr_ad_cr_it21[i,4],arr_osl[j]) > 0
                   // aadd(mm_ad_cr,{"",arr_ad_cr_it21[i,2]})
-                  aadd(mm_ad_cr,{arr_ad_cr_it21[i,2],arr_ad_cr_it21[i,2]})
+                  aadd(mm_ad_cr,{alltrim(arr_ad_cr_it21[i,2])+' '+arr_ad_cr_it21[i,6],arr_ad_cr_it21[i,2]})
                   exit
                 endif
               next
