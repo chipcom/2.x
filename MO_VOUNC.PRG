@@ -1707,7 +1707,7 @@ do case
 endcase
 return k
 
-***** 02.02.21 создание XML-файлов реестра
+***** 03.02.21 создание XML-файлов реестра
 Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
 Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
 //
@@ -2281,15 +2281,14 @@ do while !eof()
       endif
       mo_add_xml_stroke(oKSG,"SL_K",iif(empty(akslp),'0','1'))
       if !empty(akslp)
-        if year(human->K_DATA) == 2021     // 02.02.2021 Байкин
-          mo_add_xml_stroke(oKSG,"IT_SL",lstr(ret_koef_kslp_21(akslp),7,5))
-          oSLk := oKSG:Add( HXMLNode():New( "SL_KOEF" ) )
+        if year(human->K_DATA) == 2021     // 02.02.2021 Байкин 
           tKSLP := getKSLPtable(human->K_DATA)
+          mo_add_xml_stroke(oKSG,"IT_SL",lstr(ret_koef_kslp_21_XML(akslp,tKSLP),7,5))
+          oSLk := oKSG:Add( HXMLNode():New( "SL_KOEF" ) )
           for iAKSLP := 1 to len(akslp)   //  step 2
             if (cKSLP := ascan(tKSLP, {|x| x[1] == akslp[ iAKSLP ] })) > 0
               mo_add_xml_stroke( oSLk, "ID_SL", lstr(akslp[ iAKSLP ] ) )
               mo_add_xml_stroke( oSLk, "VAL_C", lstr( tKSLP[ cKSLP, 4 ], 7, 5 ) )
-              // mo_add_xml_stroke( oSLk, "VAL_C", lstr(akslp[ iAKSLP + 1 ], 7, 5 ) )
             endif
           next
       else

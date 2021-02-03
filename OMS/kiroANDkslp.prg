@@ -555,6 +555,25 @@ Function ret_koef_kslp_21(akslp)
   endif
   return k
 
+***** 03.02.21 вернуть итоговый КСЛП для 2021 года
+Function ret_koef_kslp_21_XML(akslp, tKSLP)
+  Local k := 1  // КСЛП равен 1
+  local iAKSLP
+
+  if valtype(akslp) == "A"
+    for iAKSLP := 1 to len(akslp)
+      if (cKSLP := ascan(tKSLP, {|x| x[1] == akslp[ iAKSLP ] })) > 0
+        // mo_add_xml_stroke( oSLk, "ID_SL", lstr(akslp[ iAKSLP ] ) )
+        // mo_add_xml_stroke( oSLk, "VAL_C", lstr( tKSLP[ cKSLP, 4 ], 7, 5 ) )
+        k += (tKSLP[ cKSLP, 4 ] - 1)
+      endif
+    next
+  endif
+  if k > 1.8
+    k := 1.8  // согласно п.3 инструкции
+  endif
+  return k
+
 ***** 30.01.21 проверка услувия для применения КСЛП=1 для 2021 года
 function conditionKSLP_1_21(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration)
   local fl := .f., y
