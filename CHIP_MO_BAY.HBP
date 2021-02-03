@@ -1,9 +1,7 @@
-#для HwGUI
--iC:\harbour\hwgui\include
--LC:\harbour\hwgui\lib
-
--L..\_mylib_hbt
+#-L..\_mylib_hbt
+-L..\LIB
 -lMyLib_HBT
+-lFunLib
 
 -lhbxpp
 -lhbct
@@ -13,18 +11,18 @@
 -lminizip
 -gui
 -gtwvg
-
--inc
 -mt
--compr=yes
--workdir=D:\_MO\TEMP\TEMP_MO
+#-compr=yes
+-inc
+-workdir=..\TEMP\TEMP_MO
+
 -ochip_mo
 
 chip_mo.rc
 cpru866m.c
 cpru1251m.c
-# xmlparse.c
-xmlparse_bay.c
+#xmlparse.c
+..\_KVD\xmlparse_bay.c
 hxmldoc.prg
 mo_adres.prg
 mo_kart.prg
@@ -80,3 +78,14 @@ mo_vounc.prg
 mo_263.prg
 mo_263p.prg
 mo_263s.prg
+Errorsys.prg
+
+.\ref\viewF003.prg
+.\oms\definition_KSG.prg
+.\oms\oms_sluch.prg
+.\oms\oms_usl_sluch.prg
+.\oms\f2oms_usl_sluch.prg
+.\oms\f5editkusl.prg
+.\oms\f_usl_definition_KSG.prg
+.\oms\f_valid2ad_cr.prg
+.\oms\kiroANDkslp.prg
