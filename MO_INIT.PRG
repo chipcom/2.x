@@ -1251,6 +1251,16 @@ if hb_FileExists(exe_dir+sbase+sdbf)
 else
   fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
 endif
+
+// V018 - для ВМП
+if !hb_FileExists(exe_dir+"_mo_V018"+sdbf)
+  fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
+endif
+// V019 - для ВМП
+if !hb_FileExists(exe_dir+"_mo_V019"+sdbf)
+  fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
+endif
+
 // справочник ОКАТО
 if fl
   okato_index()
