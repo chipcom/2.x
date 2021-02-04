@@ -4,10 +4,8 @@ function getV018table()
   Local dbName, dbAlias := 'V018'
   local tmp_select := select()
   local tmpV018 := {}
-  local aV018
-
+  
   tmp_select := select()
-  aV018 := {}
   dbName := '_mo_V018'
   dbUseArea( .t., "DBFNTX", exe_dir + dbName, dbAlias , .t., .f. )
 
