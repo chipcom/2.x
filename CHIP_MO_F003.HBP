@@ -81,6 +81,8 @@ mo_263p.prg
 mo_263s.prg
 Errorsys.prg
 
+.\ref\dbV018.prg
+.\ref\dbV019.prg
 .\ref\viewF003.prg
 .\oms\definition_KSG.prg
 .\oms\oms_sluch.prg
@@ -90,3 +92,5 @@ Errorsys.prg
 .\oms\f_usl_definition_KSG.prg
 .\oms\f_valid2ad_cr.prg
 .\oms\kiroANDkslp.prg
+
+.\oms\getPrice.prg

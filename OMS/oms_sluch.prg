@@ -166,8 +166,6 @@ Function oms_sluch(Loc_kod,kod_kartotek)
     endif
   Private mad_cr := space(60), m1ad_cr := space(60), pr_ds_it := 0, input_ad_cr := .f.
 
-  // private mKSLP := space(10), m1KSLP := space(10)
-
   Private mm_ad_cr := {}
   // ®­ª®«®£¨ο
   Private is_oncology := 0, old_oncology := .f.,;
@@ -433,10 +431,6 @@ Function oms_sluch(Loc_kod,kod_kartotek)
     endif
     mcena_1 := human->CENA_1
     //
-    // if year(mk_data)  == 2021  // γη¥β ‘‹
-    //   mKSLP := alltrim(human_2->PC1) // α―¨α®ª ‘‹
-    //   m1KSLP := alltrim(human_2->PC1) // α―¨α®ª ‘‹
-    // endif
     m1ad_cr := human_2->PC3
     m1P_PER := human_2->P_PER
     MOSL1 := human_2->OSL1
@@ -920,8 +914,6 @@ Function oms_sluch(Loc_kod,kod_kartotek)
                        reader {|x| menu_reader(x,mm_ad_cr,A__MENUVERT_SPACE,,,.f.)} ;
                        when input_ad_cr ;
                        color colget_menu
-      // @ p_nstr_ad_cr, 15 + len(mad_cr) say "‘‹" get mKSLP ;
-      //   reader {|x|menu_reader(x,{{|k,r,c|selectKSLP( k, r, c, MN_DATA, mk_data, mdate_r)}},A__FUNCTION,,,.f.)}
       if !input_ad_cr
         @ j,1
       endif

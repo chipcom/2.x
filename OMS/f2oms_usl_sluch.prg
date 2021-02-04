@@ -411,11 +411,9 @@ Function f2oms_usl_sluch(nKey,oBrow)
               mnmic := space(10), m1nmic := 0, mnmic1 := space(10), m1nmic1 := 0,;
               row_dom, gl_area := {1,0,maxrow()-1,79,0}
 
-    // переменные для КСЛП
-    private mKSLP := iif(nKey == K_INS, space(10), iif(empty(HUMAN_2->PC1), space(10), alltrim(HUMAN_2->PC1)) ),;  //tmp->shifr_u),;
-      m1KSLP := iif(nKey == K_INS, space(10), iif(empty(HUMAN_2->PC1), space(10), alltrim(HUMAN_2->PC1)) )  // tmp->shifr1),;
-      // mKSLP := iif(nKey == K_INS, space(10), tmp->shifr_u),;
-      // mKSLP1 := iif(nKey == K_INS, space(10), tmp->shifr1)
+              // переменные для КСЛП
+              private mKSLP := iif(nKey == K_INS, space(10), iif(empty(HUMAN_2->PC1), space(10), alltrim(HUMAN_2->PC1)) ),;
+              m1KSLP := iif(nKey == K_INS, space(10), iif(empty(HUMAN_2->PC1), space(10), alltrim(HUMAN_2->PC1)) )
 
       Private mm_gist := {{"в Волгоградском патал.анат.бюро",4},;
                           {"в нашей медицинской организации",0},;
@@ -525,6 +523,7 @@ Function f2oms_usl_sluch(nKey,oBrow)
         if human_->usl_ok < 3
           @ row(), 58 say "КСЛП" get mKSLP pict "@!";
               reader {|x|menu_reader(x,{{|k,r,c|selectKSLP( k, r, c, HUMAN->N_DATA, HUMAN->K_DATA, HUMAN->DATE_R, mshifr)}},A__FUNCTION,,,.f.)}
+
         endif
 
         ++ix
@@ -618,7 +617,8 @@ Function f2oms_usl_sluch(nKey,oBrow)
             tmSel := select('HUMAN_2')
             if (tmSel)->(dbRlock())
               // G_RLock(forever)
-              HUMAN_2->PC1 := m1KSLP
+              // HUMAN_2->PC1 := m1KSLP
+              HUMAN_2->PC1 := mKSLP
               (tmSel)->(dbRUnlock())
             endif
             select(tmSel)

@@ -140,6 +140,8 @@ function selectKSLP( k, r, c, dateBegin, dateEnd, DOB, shifrUsl )
   Local r1 := 0 // счетчик записей
   Local strArr := '', age
 
+  local price
+
   Local m1var := '', s := "", countKSLP := 0
   local row, oBox
   local aKSLP := getKSLPtable( dateEnd )
@@ -148,6 +150,8 @@ function selectKSLP( k, r, c, dateBegin, dateEnd, DOB, shifrUsl )
   local sh := lower(substr(shifrUsl,1,2))
   local recN, permissibleKSLP := {}, isPermissible
   local sAsterisk := ' * ', sBlank := '   '
+
+  local blk_sum := {|| mstoim_1 := round_5(mu_cena * mkol_1, 2) }
 
   default DOB to sys_date
   default dateBegin to sys_date
@@ -204,13 +208,14 @@ function selectKSLP( k, r, c, dateBegin, dateEnd, DOB, shifrUsl )
       endif
       aadd(t_mas, { strArr, (age < 18), row[ CODE_KSLP ] })
     elseif row[ CODE_KSLP ] == 9 // есть сопутствующие заболевания
-      if isPermissible  // .and. strArr == sAsterisk
-        strArr := sAsterisk
-      else
-        strArr := sBlank
-      endif
+      // if isPermissible  // .and. strArr == sAsterisk
+      //   strArr := sAsterisk
+      // else
+      //   strArr := sBlank
+      // endif
       strArr += row[ NAME_KSLP ]
-      aadd(t_mas, { strArr, .t., row[ CODE_KSLP ] })
+      // aadd(t_mas, { strArr, isPermissible, row[ CODE_KSLP ] })
+      aadd(t_mas, { strArr, .f., row[ CODE_KSLP ] })
     elseif row[ CODE_KSLP ] == 10 .and. isPermissible // лечение свыше 70 дней согласно инструкции
       strArr := iif(srok > 70, sAsterisk, sBlank)
       strArr += row[ NAME_KSLP ]
@@ -238,30 +243,40 @@ function selectKSLP( k, r, c, dateBegin, dateEnd, DOB, shifrUsl )
       m1var := substr(m1var, 1, nLast - 1)  // удалим последнюю не нужную ','
     endif
     s := m1var
-  endif
+  endif 
+
+  price := round_5(gggPrice() * calcKSLP(s, dateEnd) * list2arr(HUMAN_2->PC2)[2], 0)
+  mu_cena := price
+
+  // tmp->U_CENA  := price
+  // tmp->STOIM_1 := round_5(mu_cena * mkol_1, 2)
+  // mohu->U_CENA  := price
+  // mohu->STOIM_1 := round_5(mu_cena * mkol_1, 2)
+
+  eval(blk_sum)
+  update_gets()
+
+  // local blk_sum := {|| mstoim_1 := round_5(mu_cena * mkol_1, 2) }
+  // update_get("mu_cena")
+  // update_get("mstoim_1")
 
   Select(tmp_select)
 
   Return iif(ret==0, NIL, {m1var,s})
 
+***** 04.02.2021
 // возвращает сумму итогового КСЛП по маске КСЛП и дате случая
 function calcKSLP(cKSLP, dateSl)
   // cKSLP - строка выбранных КСЛП
   // dateSl - дата законченного случая
-  local summ := 0, i
+  local summ := 1, i
   local fl := .f.
   local arrKSLP := getKSLPtable( dateSl )
   Local maxKSLP := 1.8  // по инструкции на 2021 год
+  local aSelected := Slist2arr(cKSLP)
 
-  for i := 1 to len(cKSLP)
-    if SubStr(cKSLP,i,1) == '1'
-      if ! fl
-        summ += arrKSLP[i, 4]
-        fl := .t.
-      else
-        summ += (arrKSLP[i, 4] - 1)
-      endif
-    endif
+  for i := 1 to len(aSelected)
+    summ += (arrKSLP[val(aSelected[i]), 4] - 1)
   next
   if summ > maxKSLP
     summ := maxKSLP
@@ -357,12 +372,13 @@ Function f_cena_kslp(/*@*/_cena,_lshifr,_date_r,_n_data,_k_data,lkslp,arr_usl,lP
     // установим цену с учетом КСЛП
     if !empty(_akslp)
       _cena := round_5(_cena*ret_koef_kslp_21(_akslp),0)  // с 2019 года цена округляется до рублей
-
       if year(_k_data) == 2021
         // запомним новое КСЛП
         tmSel := select('HUMAN_2')
         if (tmSel)->(dbRlock())
-          HUMAN_2->PC1 := newKSLP
+          if year(human->k_data) != 2021  // added 29.01.2021
+            human_2->pc1 := newKSLP
+          endif
           (tmSel)->(dbRUnlock())
         endif
         select(tmSel)
