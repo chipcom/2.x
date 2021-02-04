@@ -526,7 +526,7 @@ Function f2oms_usl_sluch(nKey,oBrow)
           @ row(), 58 say "Š‘‹" get mKSLP pict "@!";
               reader {|x|menu_reader(x,{{|k,r,c|selectKSLP( k, r, c, HUMAN->N_DATA, HUMAN->K_DATA, HUMAN->DATE_R, mshifr)}},A__FUNCTION,,,.f.)}
         endif
-
+// alertx(gggPrice(), 'price')
         ++ix
         @ r1+ix,2 say "“á«ã£ " get mname_u when .f. color color14
         ++ix ; row_dom := r1+ix
