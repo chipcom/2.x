@@ -377,7 +377,7 @@ Function definition_KSG(par,k_data2)
   //aadd(ars,'   ║age='+lage+' sex='+lsex+' los='+print_array(llos))
   nfile := "_mo"+iif(lyear==2021,"1","0")+"k006"  // nfile := "_mo"+iif(lyear==2020,"0","9")+"k006"
   if select("K006") == 0
-    R_Use(exe_dir+nfile,{cur_dir+nfile,cur_dir+nfile+"_"},"K006")
+    R_Use(exe_dir+nfile,{cur_dir+nfile,cur_dir+nfile+"_",cur_dir+nfile+"AD"},"K006")
     /*{"SHIFR",      "C",     10,      0},;
       {"DS",         "C",      6,      0},;
       {"DS1",        "M",     10,      0},;
@@ -396,130 +396,172 @@ Function definition_KSG(par,k_data2)
       // ничего не меняем
     else // иначе переоткрываем данный файл с необходимым годом и тем же алиасом
       k006->(dbCloseArea())
-      R_Use(exe_dir+nfile,{cur_dir+nfile,cur_dir+nfile+"_"},"K006")
+      R_Use(exe_dir+nfile,{cur_dir+nfile,cur_dir+nfile+"_",cur_dir+nfile+"AD"},"K006")
     endif
   endif
   ver_year := lyear
   fl_reabil := (ascan(ahu,"1.11.2") > 0 .or. ascan(ahu,"55.1.4") > 0)
   susl := iif(lusl == 1, "st", "ds")
+
   // собираем КСГ по осн.диагнозу (терапевтические и комбинированные)
   ar := {}
   tmp := {}
   select K006
-  set order to 1
-  find (susl+padr(osn_diag,6))
-  do while left(k006->shifr,2)==susl .and. k006->ds==padr(osn_diag,6) .and. !eof()
-    lkoef := k006->kz
-    dbSelectArea(lal)
-    find (padr(k006->shifr,10))
-    fl := lkoef > 0 .and. between_date(&lal.->DATEBEG,&lal.->DATEEND,date_usl)
-    if fl
-      fl := between_date(k006->DATEBEG,k006->DATEEND,date_usl)
-    endif
-    if fl
-      sds1 := iif(empty(k006->ds1), sp0, alltrim(k006->ds1)+sp6) // соп.диагноз
-      sds2 := iif(empty(k006->ds2), sp0, alltrim(k006->ds2)+sp6) // диагн.осложнения
-    endif
-    j := 0
-    if fl .and. !empty(k006->sy)
-      if (i := ascan(amohu,k006->sy)) > 0
-        j += 10
-      else
-        fl := .f.
+
+  if lprofil == 137   // ЭКО
+    set order to 3
+    K006->(dbGoTop())
+    K006->(dbseek(lower(lad_cr)))
+    do while lower(alltrim(K006->AD_CR)) == lower(alltrim(lad_cr)) .and. !('K006')->(Eof())
+
+      lkoef := k006->kz
+      dbSelectArea(lal)
+      find (padr(k006->shifr,10))
+      fl := lkoef > 0 .and. between_date(&lal.->DATEBEG,&lal.->DATEEND,date_usl)
+      if fl
+        fl := between_date(k006->DATEBEG,k006->DATEEND,date_usl)
       endif
-    endif
-    if fl .and. !empty(k006->age)
-      if (fl := (k006->age $ lage))
-        if k006->age == '1'
-          j += 5
-        elseif k006->age == '2'
-          j += 4
-        elseif k006->age == '3'
-          j += 3
-        elseif k006->age == '4'
-          j += 2
+      j := 0
+      j++
+      j++
+      if fl
+        aadd(ar,{k006->shifr,; //  1
+                 0,;           //  2
+                 lkoef,;       //  3
+                 &lal.->kiros,; //  4
+                 osn_diag,;    //  5
+                k006->sy,;    //  6
+                k006->age,;   //  7
+                k006->sex,;   //  8
+                k006->los,;   //  9
+                k006->ad_cr,; // 10
+                '',;        // 11
+                '',;        // 12
+                j,;           // 13
+                &lal.->kslps,; // 14
+                k006->ad_cr1}) // 15
+      endif
+
+      K006->(dbSkip())
+    enddo
+  else
+    set order to 1
+    find (susl+padr(osn_diag,6))
+    do while left(k006->shifr,2)==susl .and. k006->ds==padr(osn_diag,6) .and. !eof()
+      lkoef := k006->kz
+      dbSelectArea(lal)
+      find (padr(k006->shifr,10))
+      fl := lkoef > 0 .and. between_date(&lal.->DATEBEG,&lal.->DATEEND,date_usl)
+      if fl
+        fl := between_date(k006->DATEBEG,k006->DATEEND,date_usl)
+      endif
+      if fl
+        sds1 := iif(empty(k006->ds1), sp0, alltrim(k006->ds1)+sp6) // соп.диагноз
+        sds2 := iif(empty(k006->ds2), sp0, alltrim(k006->ds2)+sp6) // диагн.осложнения
+      endif
+      j := 0
+      if fl .and. !empty(k006->sy)
+        if (i := ascan(amohu,k006->sy)) > 0
+          j += 10
         else
-          j ++
-        endif
-      endif
-    endif
-    if fl .and. !empty(k006->sex)
-      fl := (k006->sex == lsex)
-      if fl ; j ++ ; endif
-    endif
-    if fl .and. !empty(k006->los)
-      fl := ascan(llos,alltrim(k006->los)) > 0  // (k006->los $ llos)
-      if fl ; j ++ ; endif
-    endif
-    if fl
-      if empty(lad_cr) // в случае нет доп.критерия
-        if !empty(k006->ad_cr) // а в справочнике есть доп.критерий
           fl := .f.
         endif
-      else // в случае есть доп.критерий
-        if empty(k006->ad_cr) // а в справочнике нет доп.критерия
-          fl := .f.
-        else                  // а в справочнике есть доп.критерий
-          fl := (lad_cr == alltrim(k006->ad_cr))
-          if fl ; j ++ ; endif
+      endif
+      if fl .and. !empty(k006->age)
+        if (fl := (k006->age $ lage))
+          if k006->age == '1'
+            j += 5
+          elseif k006->age == '2'
+            j += 4
+          elseif k006->age == '3'
+            j += 3
+          elseif k006->age == '4'
+            j += 2
+          else
+            j ++
+          endif
         endif
       endif
-    endif
-    if fl
-      if empty(lad_cr1) // в случае нет доп.критерия2
-        if !empty(k006->ad_cr1) // а в справочнике есть доп.критерий2
-          fl := .f.
-        endif
-      else // в случае есть доп.критерий2
-        if empty(k006->ad_cr1) // а в справочнике нет доп.критерия2
-          fl := .f.
-        else                  // а в справочнике есть доп.критерий2
-          fl := (lad_cr1 == alltrim(k006->ad_cr1))
-          if fl ; j ++ ; endif
+      if fl .and. !empty(k006->sex)
+        fl := (k006->sex == lsex)
+        if fl ; j ++ ; endif
+      endif
+      if fl .and. !empty(k006->los)
+        fl := ascan(llos,alltrim(k006->los)) > 0  // (k006->los $ llos)
+        if fl ; j ++ ; endif
+      endif
+      if fl
+        if empty(lad_cr) // в случае нет доп.критерия
+          if !empty(k006->ad_cr) // а в справочнике есть доп.критерий
+            fl := .f.
+          endif
+        else // в случае есть доп.критерий
+          if empty(k006->ad_cr) // а в справочнике нет доп.критерия
+            fl := .f.
+          else                  // а в справочнике есть доп.критерий
+            fl := (lad_cr == alltrim(k006->ad_cr))
+            if fl ; j ++ ; endif
+          endif
         endif
       endif
-    endif
-    if fl .and. !empty(sds1)
-      fl := .f.
-      for i := 1 to len(sop_diag)
-        if alltrim(sop_diag[i]) $ sds1
-          fl := .t. ; exit
+      if fl
+        if empty(lad_cr1) // в случае нет доп.критерия2
+          if !empty(k006->ad_cr1) // а в справочнике есть доп.критерий2
+            fl := .f.
+          endif
+        else // в случае есть доп.критерий2
+          if empty(k006->ad_cr1) // а в справочнике нет доп.критерия2
+            fl := .f.
+          else                  // а в справочнике есть доп.критерий2
+            fl := (lad_cr1 == alltrim(k006->ad_cr1))
+            if fl ; j ++ ; endif
+          endif
         endif
-      next
-      if fl ; j ++ ; endif
-    endif
-    if fl .and. !empty(sds2)
-      fl := .f.
-      for i := 1 to len(osl_diag)
-        if alltrim(osl_diag[i]) $ sds2
-          fl := .t. ; exit
-        endif
-      next
-      if fl ; j ++ ; endif
-    endif
-    if fl
-      if !empty(k006->sy) .and. (i := ascan(amohu,k006->sy)) > 0
-        aadd(tmp,i)
       endif
-      aadd(ar,{k006->shifr,; //  1
-               0,;           //  2
-               lkoef,;       //  3
-               &lal.->kiros,; //  4
-               osn_diag,;    //  5
-               k006->sy,;    //  6
-               k006->age,;   //  7
-               k006->sex,;   //  8
-               k006->los,;   //  9
-               k006->ad_cr,; // 10
-               sds1,;        // 11
-               sds2,;        // 12
-               j,;           // 13
-               &lal.->kslps,; // 14
-               k006->ad_cr1}) // 15
-    endif
-    select K006
-    skip
-  enddo
+      //
+      if fl .and. !empty(sds1)
+        fl := .f.
+        for i := 1 to len(sop_diag)
+          if alltrim(sop_diag[i]) $ sds1
+            fl := .t. ; exit
+          endif
+        next
+        if fl ; j ++ ; endif
+      endif
+      if fl .and. !empty(sds2)
+        fl := .f.
+        for i := 1 to len(osl_diag)
+          if alltrim(osl_diag[i]) $ sds2
+            fl := .t. ; exit
+          endif
+        next
+        if fl ; j ++ ; endif
+      endif
+      //
+      if fl
+        if !empty(k006->sy) .and. (i := ascan(amohu,k006->sy)) > 0
+          aadd(tmp,i)
+        endif
+        aadd(ar,{k006->shifr,; //  1
+                 0,;           //  2
+                 lkoef,;       //  3
+                 &lal.->kiros,; //  4
+                 osn_diag,;    //  5
+                k006->sy,;    //  6
+                k006->age,;   //  7
+                k006->sex,;   //  8
+                k006->los,;   //  9
+                k006->ad_cr,; // 10
+                sds1,;        // 11
+                sds2,;        // 12
+                j,;           // 13
+                &lal.->kslps,; // 14
+                k006->ad_cr1}) // 15
+      endif
+      select K006
+      skip
+    enddo
+  endif
   ar1 := {}
   if lusl == 2 .and. !empty(lad_cr) .and. lad_cr == "mgi"
     select K006

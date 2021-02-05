@@ -950,6 +950,7 @@ if hb_FileExists(exe_dir+sbase+sdbf)
   R_Use(exe_dir+sbase)
   index on substr(shifr,1,2)+ds+sy+age+sex+los to (cur_dir+sbase) // по диагнозу/операции
   index on substr(shifr,1,2)+sy+ds+age+sex+los to (cur_dir+sbase+"_") // по операции/диагнозу
+  index on ad_cr to (cur_dir+sbase+"AD") // по дополнительному критерию Байкин
   use
 else
   fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
