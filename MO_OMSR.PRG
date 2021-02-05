@@ -462,7 +462,7 @@ return lp
 *
 
 ***** 05.01.21
-Function verify_1_sluch(fl_view)
+Function verify_1_sluch__(fl_view)
 Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
       i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
       d1, d2, cd1, cd2, ym2, a_period_amb := {}, a_1_11, u_1_stom := "", lprofil, ;
