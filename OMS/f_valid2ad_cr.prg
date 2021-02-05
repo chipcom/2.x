@@ -21,6 +21,7 @@ Function f_valid2ad_cr()
     {"rb6 - оценка состояния пациента 6 баллов по ШРМ","rb6"},;
     {"rbs - медицинская реабилитация детей с нарушениями слуха","rbs"}}
   Local i, j, arr_sop := {}, arr_osl := {}, fl
+
   input_ad_cr := .f. ; mm_ad_cr := {}
   if m1usl_ok < 3 .and. m1vmp == 0
     if m1profil == 158 // реабилитация
@@ -48,7 +49,7 @@ Function f_valid2ad_cr()
       if !empty(MOSL1) ; aadd(arr_osl,padr(MOSL1,5)) ; endif
       if !empty(MOSL2) ; aadd(arr_osl,padr(MOSL2,5)) ; endif
       if !empty(MOSL3) ; aadd(arr_osl,padr(MOSL3,5)) ; endif
-      for i := 1 to len(arr_ad_cr_it21)
+      for i := 1 to len(arr_ad_cr_it21) 
         if m1usl_ok == arr_ad_cr_it21[i,1] .and. ascan(mm_ad_cr,{|x| x[2] == arr_ad_cr_it21[i,2] }) == 0
           if !empty(arr_ad_cr_it21[i,3]) .and. empty(arr_ad_cr_it21[i,4]) .and. empty(arr_ad_cr_it21[i,5]) // осн.диагноз
             if ascan(arr_ad_cr_it21[i,3],padr(MKOD_DIAG,5)) > 0
@@ -86,6 +87,12 @@ Function f_valid2ad_cr()
               next
             endif
           endif
+        endif
+      next
+    elseif m1usl_ok == 2 .and. m1profil == 137  // ЭКО дневной стационар
+      for i := 1 to len(arr_ad_cr_it21) 
+        if m1usl_ok == arr_ad_cr_it21[i,1] .and. lower(substr(arr_ad_cr_it21[i,2],1,3)) == 'ivf'
+          aadd(mm_ad_cr,{alltrim(arr_ad_cr_it21[i,2])+' '+arr_ad_cr_it21[i,6],arr_ad_cr_it21[i,2]})
         endif
       next
     elseif m1usl_ok == 2 .and. !empty(MKOD_DIAG)
