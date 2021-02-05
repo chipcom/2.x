@@ -4,7 +4,7 @@
 #include "..\chip_mo.ch"
  
 
-***** 29.01.21 определение КСГ по остальным введённым полям ввода - 2019-20 год
+***** 05.02.21 определение КСГ по остальным введённым полям ввода - 2019-20 год
 Function definition_KSG(par,k_data2)
   // файлы "human", "human_" и "human_2" открыты и стоят на нужной записи
   //       "human" открыт для записи суммы случая
@@ -56,6 +56,8 @@ Function definition_KSG(par,k_data2)
     {"ds37.011",""},;
     {"ds37.012",""};
    }
+  local iKSLP, newKSLP := '', tmSel
+
   Local mdiagnoz, aHirKSG := {}, aTerKSG := {}, fl_cena := .f., lvmp, lvidvmp := 0, lstentvmp := 0,;
         i, j, k, c, s, ar, ar1, fl, im, lshifr, ln_data, lk_data, lvr, ldni, ldate_r, lpol, lprofil_k,;
         lfio, cenaTer := 0, cenaHir := 0, ksgHir, ars := {}, arerr := {}, ;
@@ -179,6 +181,8 @@ Function definition_KSG(par,k_data2)
       aadd(osl_diag, padr(ihuman->DS3_3,6))
     endif
   endif
+
+  //
   lyear := year(lk_data)
   if eq_any(lad_cr,'60','61')
     lbartell := lad_cr
@@ -232,6 +236,7 @@ Function definition_KSG(par,k_data2)
   if select("LUSLF") == 0
     use_base("LUSLF")
   endif
+
   // составляем массив услуг и массив манипуляций
   if par == 1
     select HU
@@ -302,6 +307,8 @@ Function definition_KSG(par,k_data2)
       skip
     enddo
   endif
+
+  //
   if lvr == 0 //
     lage := '6'
     s := "взр."
@@ -760,6 +767,15 @@ Function definition_KSG(par,k_data2)
       if lksg == 'st38.001' .and. lbartell == '61' // Старческая астения (это правило уже устарело и не применяется)
         lkslp := ""                                                       // т.к. у данной КСГ нет КСЛП
       endif
+      // 05.02.2021
+
+      // if !empty(HUMAN_2->PC1)
+      //   lkslp := HUMAN_2->PC1
+      // endif
+      // Изощрение в порнографии
+      if ProcName(1) == Upper('f_1pac_definition_KSG')
+        lkslp := selectKSLPNew( lkslp, ln_data, lk_data, ldate_r)
+      endif
       // lkslp - содержит список допустимых КСЛП
       akslp := f_cena_kslp(@lcena,;
                            lksg,;
@@ -772,11 +788,36 @@ Function definition_KSG(par,k_data2)
                            mdiagnoz,;
                            lpar_org,;
                            lad_cr)
-      if !empty(akslp)
-        s += "  (КСЛП = "+str(akslp[2],4,2)
-        if len(akslp) >= 4
-          s += "+"+str(akslp[4],4,2)
+        if year(lk_data) == 2021  // added 29.01.2021
+          if !empty(akslp)
+            for iKSLP := 1 to len(akslp) step 2
+              if iKSLP != 1
+                newKSLP += ','
+              endif
+              newKSLP += str(akslp[iKSLP]) // построим новый КСЛП
+            next
+          else
+            newKSLP := ''
+          endif
+          tmSel := select('HUMAN_2')
+          if (tmSel)->(dbRlock())
+            human_2->pc1 := newKSLP
+          endif
+          (tmSel)->(dbRUnlock())
         endif
+        if !empty(akslp)
+        // 05.02.2021
+        s += "  (КСЛП = "
+        for iKSLP := 1 to len(akslp) step 2
+          if iKSLP != 1
+            s += '+'
+          endif
+          s += str(akslp[iKSLP+1],4,2)
+        next
+        // s += "  (КСЛП = "+str(akslp[2],4,2)
+        // if len(akslp) >= 4
+        //   s += "+"+str(akslp[4],4,2)
+        // endif
         s += ", цена "+lstr(lcena,11,0)+"р.)"
       endif
       if !empty(lkiro)

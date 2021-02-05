@@ -12,6 +12,117 @@
 
 #include "tbox.ch"
 
+// 31.01.2021
+// функция выбора состава КСЛП, возвращает { маска,строка количества КСЛП }, или nil
+function selectKSLPNew( lkslp, dateBegin, dateEnd, DOB )
+  // lkslp - значение КСЛП (выбранные КСЛП)
+  // dateBegin - дата начала законченного случая
+  // dateEnd - дата окончания законченного случая
+  // DOB - дата рождения пациента
+
+  Local mlen, t_mas := {}, ret, ;
+    i, tmp_select := select()
+  Local r1 := 0 // счетчик записей
+  Local strArr := '', age
+
+  local price
+
+  Local m1var := '', s := "", countKSLP := 0
+  local row, oBox
+  local aKSLP := getKSLPtable( dateEnd )
+  local aa := list2arr(lkslp) // получим массив выбранных КСЛП
+  local nLast, srok := dateEnd - dateBegin
+  local recN, permissibleKSLP := {}, isPermissible
+  local sAsterisk := ' * ', sBlank := '   '
+
+  default DOB to sys_date
+  default dateBegin to sys_date
+  default dateEnd to sys_date
+
+  permissibleKSLP := list2arr(lkslp)
+  
+  age := count_years(DOB, dateEnd)
+  
+  for each row in aKSLP
+    r1++
+
+    isPermissible := ascan(permissibleKSLP, row[ CODE_KSLP ]) > 0
+
+    if (ascan(aa, {|x| x == row[ CODE_KSLP ] }) > 0) .and. isPermissible
+      strArr := sAsterisk
+    else
+      strArr := sBlank
+    endif
+
+    if row[ CODE_KSLP ] == 1  // старше 75 лет
+      if (age >= 75) .and. isPermissible
+        strArr := sAsterisk
+      else
+        strArr := sBlank
+      endif
+      strArr += row[ NAME_KSLP ]
+      aadd(t_mas, { strArr, .f., row[ CODE_KSLP ] })
+    elseif row[ CODE_KSLP ] == 3 .and. isPermissible  // место законному представителю
+      if (age < 4)
+        strArr := sAsterisk
+        strArr += row[ NAME_KSLP ]
+      elseif (age < 18)
+        strArr += row[ NAME_KSLP ]
+      else
+        strArr := sBlank
+        strArr += row[ NAME_KSLP ]
+      endif
+      aadd(t_mas, { strArr, (age < 18), row[ CODE_KSLP ] })
+    elseif row[ CODE_KSLP ] == 4 .and. isPermissible  // иммунизация РСВ
+      if (age < 18)
+        strArr += row[ NAME_KSLP ]
+      else
+        strArr := sBlank
+        strArr += row[ NAME_KSLP ]
+      endif
+      aadd(t_mas, { strArr, (age < 18), row[ CODE_KSLP ] })
+    elseif row[ CODE_KSLP ] == 9 // есть сопутствующие заболевания
+      // if isPermissible  // .and. strArr == sAsterisk
+      //   strArr := sAsterisk
+      // else
+      //   strArr := sBlank
+      // endif
+      strArr += row[ NAME_KSLP ]
+      aadd(t_mas, { strArr, isPermissible, row[ CODE_KSLP ] })
+      // aadd(t_mas, { strArr, .t., row[ CODE_KSLP ] })
+    elseif row[ CODE_KSLP ] == 10 .and. isPermissible // лечение свыше 70 дней согласно инструкции
+      strArr := iif(srok > 70, sAsterisk, sBlank)
+      strArr += row[ NAME_KSLP ]
+      aadd(t_mas, { strArr, .f., row[ CODE_KSLP ] })
+  else
+      strArr += row[ NAME_KSLP ]
+      aadd(t_mas, { strArr, isPermissible, row[ CODE_KSLP ] })
+    endif
+  next
+
+  strStatus := '^<Esc>^ - отказ; ^<Enter>^ - подтверждение; ^<Ins>^ - отметить / снять отметку'
+
+  mlen := len(t_mas)
+
+  // используем popupN из библиотеки FunLib
+  if (ret := popupN(5,20,15,61,t_mas,i,color0,.t.,"fmenu_readerN",,;
+      "Отметьте КСЛП",col_tit_popup,,strStatus)) > 0
+    for i := 1 to mlen
+      if "*" == substr(t_mas[i, 1],2,1)
+        m1var += alltrim(str(t_mas[i, 3])) + ','
+        countKSLP += 1
+      endif
+    next
+    if (nLast := RAt(',', m1var)) > 0
+      m1var := substr(m1var, 1, nLast - 1)  // удалим последнюю не нужную ','
+    endif
+    s := m1var
+  endif 
+
+  Select(tmp_select)
+
+  Return s
+
 ***** 29.01.21 если надо, перезаписать значения КСЛП и КИРО в HUMAN_2
 Function put_str_kslp_kiro(arr,fl)
   Local lpc1 := "", lpc2 := ""
@@ -245,16 +356,16 @@ function selectKSLP( k, r, c, dateBegin, dateEnd, DOB, shifrUsl )
     s := m1var
   endif 
 
-  price := round_5(gggPrice() * calcKSLP(s, dateEnd) * list2arr(HUMAN_2->PC2)[2], 0)
-  mu_cena := price
+  // price := round_5(gggPrice() * calcKSLP(s, dateEnd) * list2arr(HUMAN_2->PC2)[2], 0)
+  // mu_cena := price
 
   // tmp->U_CENA  := price
   // tmp->STOIM_1 := round_5(mu_cena * mkol_1, 2)
   // mohu->U_CENA  := price
   // mohu->STOIM_1 := round_5(mu_cena * mkol_1, 2)
 
-  eval(blk_sum)
-  update_gets()
+  // eval(blk_sum)
+  // update_gets()
 
   // local blk_sum := {|| mstoim_1 := round_5(mu_cena * mkol_1, 2) }
   // update_get("mu_cena")
@@ -738,9 +849,14 @@ function conditionKSLP_9_21(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_di
     "B20", "B21", "B22", "B23", "B24", ;
     "Z20.6";
   }
-  local fl := .f., aDiagnozis
+  local fl := .f., aDiagnozis, y
 
   aDiagnozis := Slist2arr(arr_diag)  // преобразуем строку выбранных диагнозов в массив
+
+  count_ymd( ctod(DOB), ctod(n_date), @y )
+  if between(y, 0, 18) .and. (len(aDiagnozis) > 1)
+    return .t.
+  endif
 
   for each diag in aDiagnozis
     i++
