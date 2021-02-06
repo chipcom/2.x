@@ -691,7 +691,7 @@ return arr
 *
 
 ***** 04.03.15 определить, является ли данный день рабочим днём
-Function is_work_day(mdate)
+Function is_work_day__(mdate)
 Local iy, im, m, d, y, am, fl := .t.
 if type("p_arr_prazdnik") == "A"
   m := month(mdate)

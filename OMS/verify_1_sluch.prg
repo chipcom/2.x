@@ -3,6 +3,8 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "..\chip_mo.ch"
 
+Static sadiag1 := {}
+
 ***** 05.01.21
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
@@ -3563,7 +3565,7 @@ Function verify_1_sluch(fl_view)
     ret_arr_vozrast_DVN(d2)
     ret_arrays_disp(is_disp_19)
     m1g_cit := m1veteran := m1dispans := 0 ; is_prazdnik := f_is_prazdnik_DVN(d1)
-    if empty(sadiag1)
+    if empty(sadiag1) 
       Private file_form, diag1 := {}, len_diag := 0
       if (file_form := search_file("DISP_NAB"+sfrm)) == NIL
         aadd(ta,"Не обнаружен файл DISP_NAB"+sfrm)

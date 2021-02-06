@@ -8,7 +8,7 @@
 
 Static Sreestr_sem := "Работа с реестрами"
 Static Sreestr_err := "В данный момент с реестрами работает другой пользователь."
-Static sadiag1 := {}
+// Static sadiag1 := {}
 
 *
 
