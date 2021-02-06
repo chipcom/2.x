@@ -4,7 +4,7 @@
 #include "..\chip_mo.ch"
  
 
-***** 05.02.21 определение КСГ по остальным введённым полям ввода - 2019-20 год
+***** 06.02.21 определение КСГ по остальным введённым полям ввода - 2019-20 год
 Function definition_KSG(par,k_data2)
   // файлы "human", "human_" и "human_2" открыты и стоят на нужной записи
   //       "human" открыт для записи суммы случая
@@ -56,7 +56,6 @@ Function definition_KSG(par,k_data2)
     {"ds37.011",""},;
     {"ds37.012",""};
    }
-  local iKSLP, newKSLP := '', tmSel
 
   Local mdiagnoz, aHirKSG := {}, aTerKSG := {}, fl_cena := .f., lvmp, lvidvmp := 0, lstentvmp := 0,;
         i, j, k, c, s, ar, ar1, fl, im, lshifr, ln_data, lk_data, lvr, ldni, ldate_r, lpol, lprofil_k,;
@@ -68,7 +67,8 @@ Function definition_KSG(par,k_data2)
         lusl, susl, s_dializ := 0, ahu := {}, amohu := {},;
         date_usl := stod("20210101") // stod("20200101")
 
-  local humKSLP := ''
+    local iKSLP, newKSLP := '', tmSel
+    local humKSLP := ''
 
   DEFAULT par TO 1, sp0 TO "", sp1 TO space(1), sp6 TO space(6), sp15 TO space(20)
   Private pole
@@ -812,15 +812,27 @@ Function definition_KSG(par,k_data2)
       if lksg == 'st38.001' .and. lbartell == '61' // Старческая астения (это правило уже устарело и не применяется)
         lkslp := ""                                                       // т.к. у данной КСГ нет КСЛП
       endif
-      // 05.02.2021
 
-      if !empty(HUMAN_2->PC1)
-        humKSLP := HUMAN_2->PC1
+      // 06.02.2021
+      if year(lk_data) == 2021
+        if !empty(HUMAN_2->PC1)
+          humKSLP := HUMAN_2->PC1
+        endif
+        // Изощрение в порнографии
+        if ProcName(1) == Upper('f_1pac_definition_KSG') .and. ! empty(lkslp)
+          lkslp := selectKSLPNew( lkslp, humKSLP, ln_data, lk_data, ldate_r, mdiagnoz)
+          // запомним КСЛП
+          tmSel := select('HUMAN_2')
+          if (tmSel)->(dbRlock())
+            // G_RLock(forever)
+            // HUMAN_2->PC1 := m1KSLP
+            HUMAN_2->PC1 := lkslp
+            (tmSel)->(dbRUnlock())
+          endif
+          select(tmSel)
+        endif
       endif
-      // Изощрение в порнографии
-      if ProcName(1) == Upper('f_1pac_definition_KSG') .and. ! empty(lkslp)
-        lkslp := selectKSLPNew( lkslp, humKSLP, ln_data, lk_data, ldate_r)
-      endif
+
       // lkslp - содержит список допустимых КСЛП
       akslp := f_cena_kslp(@lcena,;
                            lksg,;

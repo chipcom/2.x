@@ -1,9 +1,9 @@
-#include "set.ch"
-#include "getexit.ch"
-#include "inkey.ch"
+// #include "set.ch"
+// #include "getexit.ch"
+// #include "inkey.ch"
 #include "..\_mylib_hbt\function.ch"
-#include "..\_mylib_hbt\edit_spr.ch"
-#include "..\chip_mo.ch"
+// #include "..\_mylib_hbt\edit_spr.ch"
+// #include "..\chip_mo.ch"
 
 #define CODE_KSLP   1
 #define NAME_KSLP   2
@@ -12,14 +12,15 @@
 
 #include "tbox.ch"
 
-// 31.01.2021
+// 06.02.2021
 // функция выбора состава КСЛП, возвращает { маска,строка количества КСЛП }, или nil
-function selectKSLPNew( lkslp, savedKSLP, dateBegin, dateEnd, DOB )
+function selectKSLPNew( lkslp, savedKSLP, dateBegin, dateEnd, DOB, mdiagnoz )
   // lkslp - значение КСЛП (выбранные КСЛП)
   // savedKSLP - сохраненное в HUMAN_2 КСЛП или пусто
   // dateBegin - дата начала законченного случая
   // dateEnd - дата окончания законченного случая
   // DOB - дата рождения пациента
+  // mdiagnoz - список выбранных диагнозов
 
   Local mlen, t_mas := {}, ret, ;
     i, tmp_select := select()
@@ -31,10 +32,12 @@ function selectKSLPNew( lkslp, savedKSLP, dateBegin, dateEnd, DOB )
   Local m1var := '', s := "", countKSLP := 0
   local row, oBox
   local aKSLP := getKSLPtable( dateEnd )
-  local aa := list2arr(lkslp) // получим массив выбранных КСЛП
   local nLast, srok := dateEnd - dateBegin
   local recN, permissibleKSLP := {}, isPermissible
   local sAsterisk := ' * ', sBlank := '   '
+  local fl := .f.
+
+  local aa := list2arr(savedKSLP) // получим массив выбранных КСЛП
 
   default DOB to sys_date
   default dateBegin to sys_date
@@ -83,19 +86,19 @@ function selectKSLPNew( lkslp, savedKSLP, dateBegin, dateEnd, DOB )
       endif
       aadd(t_mas, { strArr, (age < 18), row[ CODE_KSLP ] })
     elseif row[ CODE_KSLP ] == 9 // есть сопутствующие заболевания
-      // if isPermissible  // .and. strArr == sAsterisk
-      //   strArr := sAsterisk
-      // else
-      //   strArr := sBlank
-      // endif
+      fl := conditionKSLP_9_21(, DToC(DOB), DToC(dateBegin),,,, arr2SlistN(mdiagnoz),)
+      if fl
+        strArr := sAsterisk
+      else
+        strArr := sBlank
+      endif
       strArr += row[ NAME_KSLP ]
-      aadd(t_mas, { strArr, isPermissible, row[ CODE_KSLP ] })
-      // aadd(t_mas, { strArr, .t., row[ CODE_KSLP ] })
+      aadd(t_mas, { strArr, fl, row[ CODE_KSLP ] })
     elseif row[ CODE_KSLP ] == 10 .and. isPermissible // лечение свыше 70 дней согласно инструкции
       strArr := iif(srok > 70, sAsterisk, sBlank)
       strArr += row[ NAME_KSLP ]
       aadd(t_mas, { strArr, .f., row[ CODE_KSLP ] })
-  else
+    else
       strArr += row[ NAME_KSLP ]
       aadd(t_mas, { strArr, isPermissible, row[ CODE_KSLP ] })
     endif
@@ -121,7 +124,6 @@ function selectKSLPNew( lkslp, savedKSLP, dateBegin, dateEnd, DOB )
   endif 
 
   Select(tmp_select)
-
   Return s
 
 ***** 29.01.21 если надо, перезаписать значения КСЛП и КИРО в HUMAN_2
@@ -232,149 +234,6 @@ function getKSLPtable( dateSl )
     alertx('На указанную дату ' + DToC(dateSl) + ' КСЛП отсутствуют!')
   endif
   return tmpKSLP
-
-// private mKSLP := '1,3,4,5', m1KSLP := "1,3,4,5"
-// @ ++r,1 say "КСЛП" get mKSLP ;
-//         reader {|x|menu_reader(x,{{|k,r,c|selectKSLP(k,r,c,sys_date,CToD('22/01/2014'))}},A__FUNCTION,,,.f.)}
-
-// 31.01.2021
-// функция выбора состава КСЛП, возвращает { маска,строка количества КСЛП }, или nil
-function selectKSLP( k, r, c, dateBegin, dateEnd, DOB, shifrUsl )
-  // k - значение m1KSLP (выбранные КСЛП)
-  // r - строка экрана
-  // c - колонка экрана
-  // dateBegin - дата начала законченного случая
-  // dateEnd - дата окончания законченного случая
-  // DOB - дата рождения пациента
-
-  Local mlen, t_mas := {}, ret, ;
-    i, tmp_select := select()
-  Local r1 := 0 // счетчик записей
-  Local strArr := '', age
-
-  local price
-
-  Local m1var := '', s := "", countKSLP := 0
-  local row, oBox
-  local aKSLP := getKSLPtable( dateEnd )
-  local aa := list2arr(k) // получим массив выбранных КСЛП
-  local nLast, srok := dateEnd - dateBegin
-  local sh := lower(substr(shifrUsl,1,2))
-  local recN, permissibleKSLP := {}, isPermissible
-  local sAsterisk := ' * ', sBlank := '   '
-
-  local blk_sum := {|| mstoim_1 := round_5(mu_cena * mkol_1, 2) }
-
-  default DOB to sys_date
-  default dateBegin to sys_date
-  default dateEnd to sys_date
-
-  if sh != 'st' .and. sh != 'ds'
-    return nil
-  else
-    recN := ('lusl')->(RecNo())
-    ('lusl')->(dbGoTop())
-    if ('lusl')->(dbSeek(shifrUsl))
-      permissibleKSLP := list2arr(('lusl')->KSLPS)
-    endif
-  endif
-  
-  age := count_years(DOB, dateEnd)
-  
-  for each row in aKSLP
-    r1++
-
-    isPermissible := ascan(permissibleKSLP, row[ CODE_KSLP ]) > 0
-
-    if (ascan(aa, {|x| x == row[ CODE_KSLP ] }) > 0) .and. isPermissible
-      strArr := sAsterisk
-    else
-      strArr := sBlank
-    endif
-
-    if row[ CODE_KSLP ] == 1  // старше 75 лет
-      if (age >= 75) .and. isPermissible
-        strArr := sAsterisk
-      else
-        strArr := sBlank
-      endif
-      strArr += row[ NAME_KSLP ]
-      aadd(t_mas, { strArr, .f., row[ CODE_KSLP ] })
-    elseif row[ CODE_KSLP ] == 3 .and. isPermissible  // место законному представителю
-      if (age < 4)
-        strArr := sAsterisk
-        strArr += row[ NAME_KSLP ]
-      elseif (age < 18)
-        strArr += row[ NAME_KSLP ]
-      else
-        strArr := sBlank
-        strArr += row[ NAME_KSLP ]
-      endif
-      aadd(t_mas, { strArr, (age < 18), row[ CODE_KSLP ] })
-    elseif row[ CODE_KSLP ] == 4 .and. isPermissible  // иммунизация РСВ
-      if (age < 18)
-        strArr += row[ NAME_KSLP ]
-      else
-        strArr := sBlank
-        strArr += row[ NAME_KSLP ]
-      endif
-      aadd(t_mas, { strArr, (age < 18), row[ CODE_KSLP ] })
-    elseif row[ CODE_KSLP ] == 9 // есть сопутствующие заболевания
-      // if isPermissible  // .and. strArr == sAsterisk
-      //   strArr := sAsterisk
-      // else
-      //   strArr := sBlank
-      // endif
-      strArr += row[ NAME_KSLP ]
-      // aadd(t_mas, { strArr, isPermissible, row[ CODE_KSLP ] })
-      aadd(t_mas, { strArr, .f., row[ CODE_KSLP ] })
-    elseif row[ CODE_KSLP ] == 10 .and. isPermissible // лечение свыше 70 дней согласно инструкции
-      strArr := iif(srok > 70, sAsterisk, sBlank)
-      strArr += row[ NAME_KSLP ]
-      aadd(t_mas, { strArr, .f., row[ CODE_KSLP ] })
-  else
-      strArr += row[ NAME_KSLP ]
-      aadd(t_mas, { strArr, isPermissible, row[ CODE_KSLP ] })
-    endif
-  next
-
-  strStatus := '^<Esc>^ - отказ; ^<Enter>^ - подтверждение; ^<Ins>^ - отметить / снять отметку'
-
-  mlen := len(t_mas)
-
-  // используем popupN из библиотеки FunLib
-  if (ret := popupN(5,20,15,61,t_mas,i,color0,.t.,"fmenu_readerN",,;
-      "Отметьте КСЛП",col_tit_popup,,strStatus)) > 0
-    for i := 1 to mlen
-      if "*" == substr(t_mas[i, 1],2,1)
-        m1var += alltrim(str(t_mas[i, 3])) + ','
-        countKSLP += 1
-      endif
-    next
-    if (nLast := RAt(',', m1var)) > 0
-      m1var := substr(m1var, 1, nLast - 1)  // удалим последнюю не нужную ','
-    endif
-    s := m1var
-  endif 
-
-  // price := round_5(gggPrice() * calcKSLP(s, dateEnd) * list2arr(HUMAN_2->PC2)[2], 0)
-  // mu_cena := price
-
-  // tmp->U_CENA  := price
-  // tmp->STOIM_1 := round_5(mu_cena * mkol_1, 2)
-  // mohu->U_CENA  := price
-  // mohu->STOIM_1 := round_5(mu_cena * mkol_1, 2)
-
-  // eval(blk_sum)
-  // update_gets()
-
-  // local blk_sum := {|| mstoim_1 := round_5(mu_cena * mkol_1, 2) }
-  // update_get("mu_cena")
-  // update_get("mstoim_1")
-
-  Select(tmp_select)
-
-  Return iif(ret==0, NIL, {m1var,s})
 
 ***** 04.02.2021
 // возвращает сумму итогового КСЛП по маске КСЛП и дате случая
@@ -701,205 +560,3 @@ Function ret_koef_kslp_21_XML(akslp, tKSLP)
     k := 1.8  // согласно п.3 инструкции
   endif
   return k
-
-***** 30.01.21 проверка услувия для применения КСЛП=1 для 2021 года
-function conditionKSLP_1_21(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration)
-  local fl := .f., y
-
-  // КСЛП=1 пациенты старше 75 лет
-  count_ymd( ctod(DOB), ctod(n_date), @y )
-  if y > 75
-    if (profil != 16 .and. ! (lshifr == "st38.001"))
-      fl := .t.
-    endif
-  endif
-  return fl
-
-***** 30.01.21 проверка услувия для применения КСЛП=3 для 2021 года
-function conditionKSLP_3_21(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration)
-  local fl := .f., y
-
-  // КСЛП=3 спальное место законному представителю, НУЖЕН ЗАПРОС
-  count_ymd( ctod(DOB), ctod(n_date), @y )
-  aKSLP_ := list2arr(aKSLP)  // преобразуем строку выбранных КСЛП в массив
-  if between(y, 0, 18) .and. ascan(aKSLP_, 3) > 0
-    // пункт 3.1.1
-    // Предоставление спального места и питания законному представителю, при возрасте 
-    // ребенка старше 4 лет, осуществляется при наличии медицинских показаний и 
-    // оформляется протоколом врачебной комиссии с обязательным указанием в первичной 
-    // медицинской документации.
-    fl := .t.
-    endif
-  return fl
-
-***** 30.01.21 проверка услувия для применения КСЛП=4 для 2021 года
-function conditionKSLP_4_21(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration)
-  local fl := .f., y
-
-  // КСЛП=4 иммунизация РСВ, НУЖЕН ЗАПРОС
-  count_ymd( ctod(DOB), ctod(n_date), @y )
-  aKSLP_ := list2arr(aKSLP)  // преобразуем строку выбранных КСЛП в массив
-  if between(y, 0, 18) .and. ascan(aKSLP_, 4) > 0
-    // пункт 3.1.2
-    // КСЛП применяется в случаях если сроки проведения первой иммунизации против 
-    // респираторно-синцитиальной вирусной (РСВ) инфекции совпадают по времени с 
-    // госпитализацией по поводу лечения нарушений, возникающих в перинатальном 
-    // периоде, являющихся показанием к иммунизации.
-    fl := .t.
-  endif
-  return fl
-
-***** 30.01.21 проверка услувия для применения КСЛП=5 для 2021 года
-function conditionKSLP_5_21(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration)
-  local fl := .f.
-
-  aKSLP_ := list2arr(aKSLP)  // преобразуем строку выбранных КСЛП в массив
-  // КСЛП=5 развертывание индивидуального поста, НУЖЕН ЗАПРОС
-  if ascan(aKSLP_,5) > 0
-    fl := .t.
-  endif
-  return fl
-
-***** 30.01.21 проверка услувия для применения КСЛП=6 для 2021 года
-function conditionKSLP_6_21(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration)
-  local fl := .f.
-
-  aKSLP_ := list2arr(aKSLP)  // преобразуем строку выбранных КСЛП в массив
-  // КСЛП=6 сочетанные хирургические операции
-  if ascan(aKSLP_,6) > 0
-    // пункт 3.1.3
-    // Перечень сочетанных (симультанных) хирургических вмешательств, выполняемых во 
-    // время одной госпитализации, представлен в таблице:        
-    fl := .t.
-  endif
-  return fl
-
-***** 30.01.21 проверка услувия для применения КСЛП=7 для 2021 года
-function conditionKSLP_7_21(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration)
-  local fl := .f.
-
-  // КСЛП=7 парные органы и введены парные органы
-  if lpar_org > 1
-    // пункт 3.1.4
-    // К данным операциям целесообразно относить операции на парных органах/частях тела,
-    // при выполнении которых необходимы, в том числе дорогостоящие расходные материалы.
-    // Перечень хирургических вмешательств, при проведении которых одновременно на двух
-    // парных органах может быть применен КСЛП, представлен в таблице:
-    fl := .t.
-  endif
-  return fl
-
-***** 30.01.21 проверка услувия для применения КСЛП=8 для 2021 года
-function conditionKSLP_8_21(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration)
-  local fl := .f.
-
-  aKSLP_ := list2arr(aKSLP)  // преобразуем строку выбранных КСЛП в массив
-  // КСЛП = 8 антимикробная терапия, НУЖЕН ЗАПРОС
-  if ascan(aKSLP_,8) > 0
-      // пункт 3.1.5
-    // В случаях лечения пациентов в стационарных условиях при заболеваниях и их 
-    // осложнениях, вызванных микроорганизмами с антибиотикорезистентностью, а также 
-    // в случаях лечения по поводу инвазивных микозов применяется КСЛП в соответствии 
-    // со всеми перечисленными критериями:
-    //  1) наличие инфекционного диагноза с кодом МКБ 10, вынесенного в клинический 
-    //    диагноз (столбец Расшифровки групп ?Основной диагноз? или ?Диагноз осложнения?);
-    //  2) наличие результатов микробиологического исследования с определением 
-    //    чувствительности выделенных микроорганизмов к антибактериальным препаратам 
-    //    и/или детекции основных классов карбапенемаз (сериновые, металлобеталактамазы),
-    //    подтверждающих обоснованность назначения схемы антибактериальной терапии 
-    //    (предполагается наличие результатов на момент завершения случая госпитализации, 
-    //    в том числе прерванного);
-    //  3) применение как минимум одного лекарственного препарата в парентеральной форме 
-    //    из перечня МНН в составе схем антибактериальной и/или антимикотической терапии 
-    //    в течение не менее чем 5 суток:        
-    fl := .t.
-  endif
-  return fl
-
-
-***** 30.01.21 проверка услувия для применения КСЛП=9 для 2021 года
-function conditionKSLP_9_21(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration)
-    // arr_diag - массив диагнозов, 1 элемент - основной диагноз,
-  //   остальные сопутствующие и осложнения
-  //
-  // диагнозы влияющие на КСЛП 9
-  // пункт 3.1.6
-  //  К таким сопутствующим заболеваниям и осложнениям заболеваний относятся:
-  //    ? Сахарный диабет типа 1 и 2 (E10.0-E10.9; E11.0-E11.9);
-  //    ? Заболевания, включенные в Перечень редких (орфанных) заболеваний, 
-  //      размещенный на официальном сайте Министерства здравоохранения РФ1;
-  //    ? Рассеянный склероз (G35);
-  //    ? Хронический лимфоцитарный лейкоз (C91.1);
-  //    ? Состояния после трансплантации органов и (или) тканей 
-  //      (Z94.0; Z94.1; Z94.4; Z94.8);
-  //    ? Детский церебральный паралич (G80.0-G80.9);
-  //    ? ВИЧ/СПИД, стадии 4Б и 4В, взрослые (B20 ? B24);
-  //    ? Перинатальный контакт по ВИЧ-инфекции, дети (Z20.6).
-  // При применении КСЛП9 в обязательном порядке в первичной медицинской 
-  // документации отражаются мероприятия проводимые по вопросу лечения 
-  // вышеуказанной тяжелой сопутствующей патологии (например: дополнительные 
-  // лечебно-диагностические мероприятия, назначение лекарственных препаратов, 
-  // увеличение срока госпитализации и т.д.), которые отражают дополнительные 
-  // затраты медицинской организации на лечение данного пациента. 
-  local diag, i := 0, tmp
-  local inclDIAG := {;
-    "E10.0", "E10.1", "E10.2", "E10.3", "E10.4", "E10.5", "E10.6", "E10.7", "E10.8", "E10.9", ;
-    "E11.0", "E11.1", "E11.2", "E11.3", "E11.4", "E11.5", "E11.6", "E11.7", "E11.8", "E11.9", ;
-    "G35", "C91.1", "Z94.0", "Z94.1", "Z94.4", "Z94.8", ;
-    "G80.0", "G80.1", "G80.2", "G80.3", "G80.4", "G80.8", "G80.9", ;
-    "B20", "B21", "B22", "B23", "B24", ;
-    "Z20.6";
-  }
-  local fl := .f., aDiagnozis, y
-
-  aDiagnozis := Slist2arr(arr_diag)  // преобразуем строку выбранных диагнозов в массив
-
-  count_ymd( ctod(DOB), ctod(n_date), @y )
-  if between(y, 0, 18) .and. (len(aDiagnozis) > 1)
-    return .t.
-  endif
-
-  for each diag in aDiagnozis
-    i++
-    if i == 1
-      loop
-    endif
-    if upper(substr(diag,1,1)) == 'B' // что-то с ВИЧ
-      tmp := upper(substr(diag,1,3))
-    else
-      tmp := upper(diag)
-    endif
-    if ascan(inclDIAG, diag) > 0
-      fl := .t.
-      exit
-    endif
-  next
-  return fl
-
-***** 30.01.21 проверка услувия для применения КСЛП=10 для 2021 года
-// function conditionKSLP_10_21( par )
-function conditionKSLP_10_21(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration)
-  // duration - продолжительность лечения в днях
-  // lshifr - код услуги КСГ
-  //
-  // пункт 3.1.7
-  // Правила отнесения случаев к сверхдлительным не распространяются на КСГ, 
-  // объединяющие случаи проведения лучевой терапии, в том числе в сочетании 
-  // с лекарственной терапией (st19.075-st19.089, ds19.050-ds19.062), 
-  // т.е. указанные случаи не могут считаться сверхдлительными и оплачиваться 
-  // с применением КСЛП10.
-  //
-  // услуги КСГ исключений для КСЛП 10
-  local exclKSG := {"st19.075", "st19.076", "st19.077", "st19.078", "st19.079", ;
-    "st19.080", "st19.081", "st19.082", "st19.083", "st19.084", "st19.085", ;
-    "st19.086", "st19.087", "st19.088", "st19.089",; 
-    "ds19.050", "ds19.051", "ds19.052", "ds19.053", "ds19.054", "ds19.055", ;
-    "ds19.056", "ds19.057", "ds19.058", "ds19.059", "ds19.060", "ds19.061", ;
-    "ds19.062" }
-  local fl := .f.
-
-  // if ( par[8] > 70 ) .and. ( ascan(exclKSG, par[5]) == 0 )
-  if ( duration > 70 ) .and. ( ascan(exclKSG, lshifr) == 0 )
-    fl := .t.
-  endif
-  return fl

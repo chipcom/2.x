@@ -523,8 +523,6 @@ Function f2oms_usl_sluch(nKey,oBrow)
         if human_->usl_ok < 3
           @ row(), 58 say "Š‘‹" get mKSLP pict "@!" ;
               when .f.
-              // reader {|x|menu_reader(x,{{|k,r,c|selectKSLP( k, r, c, HUMAN->N_DATA, HUMAN->K_DATA, HUMAN->DATE_R, mshifr)}},A__FUNCTION,,,.f.)}
-
         endif
 
         ++ix
