@@ -3967,6 +3967,7 @@ return v
 *
 
 ***** 20.01.19 определить КСГ для 1 пациента с открытием файлов
+// ВНИМАНИЕ! Не менять название функции, используется в PROCNAME() другой функции
 Function f_1pac_definition_KSG(lkod,is_msg)
 Local arr, i, s, buf := save_maxrow(), lshifr, lrec, lu_kod, lcena, lyear, mrec_hu, not_ksg := .t., sdial, fl
 DEFAULT is_msg TO .t.

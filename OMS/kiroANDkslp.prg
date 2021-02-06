@@ -14,8 +14,9 @@
 
 // 31.01.2021
 // функция выбора состава КСЛП, возвращает { маска,строка количества КСЛП }, или nil
-function selectKSLPNew( lkslp, dateBegin, dateEnd, DOB )
+function selectKSLPNew( lkslp, savedKSLP, dateBegin, dateEnd, DOB )
   // lkslp - значение КСЛП (выбранные КСЛП)
+  // savedKSLP - сохраненное в HUMAN_2 КСЛП или пусто
   // dateBegin - дата начала законченного случая
   // dateEnd - дата окончания законченного случая
   // DOB - дата рождения пациента

@@ -67,6 +67,9 @@ Function definition_KSG(par,k_data2)
         kol_ter := 0, kol_hir := 0, lkoef, fl_reabil, lkiro := 0, lkslp := "", lbartell := "",;
         lusl, susl, s_dializ := 0, ahu := {}, amohu := {},;
         date_usl := stod("20210101") // stod("20200101")
+
+  local humKSLP := ''
+
   DEFAULT par TO 1, sp0 TO "", sp1 TO space(1), sp6 TO space(6), sp15 TO space(20)
   Private pole
 
@@ -811,12 +814,12 @@ Function definition_KSG(par,k_data2)
       endif
       // 05.02.2021
 
-      // if !empty(HUMAN_2->PC1)
-      //   lkslp := HUMAN_2->PC1
-      // endif
+      if !empty(HUMAN_2->PC1)
+        humKSLP := HUMAN_2->PC1
+      endif
       // Изощрение в порнографии
-      if ProcName(1) == Upper('f_1pac_definition_KSG')
-        lkslp := selectKSLPNew( lkslp, ln_data, lk_data, ldate_r)
+      if ProcName(1) == Upper('f_1pac_definition_KSG') .and. ! empty(lkslp)
+        lkslp := selectKSLPNew( lkslp, humKSLP, ln_data, lk_data, ldate_r)
       endif
       // lkslp - содержит список допустимых КСЛП
       akslp := f_cena_kslp(@lcena,;
