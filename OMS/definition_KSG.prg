@@ -820,7 +820,7 @@ Function definition_KSG(par,k_data2)
         endif
         // Изощрение в порнографии
         if ProcName(1) == Upper('f_1pac_definition_KSG') .and. ! empty(lkslp)
-          lkslp := selectKSLPNew( lkslp, humKSLP, ln_data, lk_data, ldate_r, mdiagnoz)
+          lkslp := selectKSLP( lkslp, humKSLP, ln_data, lk_data, ldate_r, mdiagnoz)
           // запомним КСЛП
           tmSel := select('HUMAN_2')
           if (tmSel)->(dbRlock())
@@ -830,6 +830,8 @@ Function definition_KSG(par,k_data2)
             (tmSel)->(dbRUnlock())
           endif
           select(tmSel)
+        else
+          lkslp := humKSLP
         endif
       endif
 

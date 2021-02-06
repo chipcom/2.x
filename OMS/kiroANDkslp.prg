@@ -1,9 +1,4 @@
-// #include "set.ch"
-// #include "getexit.ch"
-// #include "inkey.ch"
 #include "..\_mylib_hbt\function.ch"
-// #include "..\_mylib_hbt\edit_spr.ch"
-// #include "..\chip_mo.ch"
 
 #define CODE_KSLP   1
 #define NAME_KSLP   2
@@ -14,7 +9,7 @@
 
 // 06.02.2021
 // функция выбора состава КСЛП, возвращает { маска,строка количества КСЛП }, или nil
-function selectKSLPNew( lkslp, savedKSLP, dateBegin, dateEnd, DOB, mdiagnoz )
+function selectKSLP( lkslp, savedKSLP, dateBegin, dateEnd, DOB, mdiagnoz )
   // lkslp - значение КСЛП (выбранные КСЛП)
   // savedKSLP - сохраненное в HUMAN_2 КСЛП или пусто
   // dateBegin - дата начала законченного случая
@@ -31,12 +26,12 @@ function selectKSLPNew( lkslp, savedKSLP, dateBegin, dateEnd, DOB, mdiagnoz )
 
   Local m1var := '', s := "", countKSLP := 0
   local row, oBox
-  local aKSLP := getKSLPtable( dateEnd )
   local nLast, srok := dateEnd - dateBegin
   local recN, permissibleKSLP := {}, isPermissible
   local sAsterisk := ' * ', sBlank := '   '
   local fl := .f.
 
+  local aKSLP := getKSLPtable( dateEnd )  // список допустимых КСЛП для услуги
   local aa := list2arr(savedKSLP) // получим массив выбранных КСЛП
 
   default DOB to sys_date
@@ -87,10 +82,10 @@ function selectKSLPNew( lkslp, savedKSLP, dateBegin, dateEnd, DOB, mdiagnoz )
       aadd(t_mas, { strArr, (age < 18), row[ CODE_KSLP ] })
     elseif row[ CODE_KSLP ] == 9 // есть сопутствующие заболевания
       fl := conditionKSLP_9_21(, DToC(DOB), DToC(dateBegin),,,, arr2SlistN(mdiagnoz),)
-      if fl
-        strArr := sAsterisk
-      else
+      if !fl
         strArr := sBlank
+      else
+        // strArr := sAsterisk
       endif
       strArr += row[ NAME_KSLP ]
       aadd(t_mas, { strArr, fl, row[ CODE_KSLP ] })
@@ -326,7 +321,7 @@ Function f_cena_kslp(/*@*/_cena,_lshifr,_date_r,_n_data,_k_data,lkslp,arr_usl,lP
     lstr(lPROFIL_K) + ',' + "'" + _lshifr + "'," + lstr(lpar_org) + ',' + ;
     "'" + arr2SlistN(arr_diag) + "'," + lstr(countDays) + ')'
 
-  for each row in getKSLPtable( _k_data )
+    for each row in getKSLPtable( _k_data )
       nameFunc := 'conditionKSLP_' + alltrim(str(row[1],2)) + '_21'
       nameFunc := namefunc + argc
 
