@@ -2216,6 +2216,8 @@ return fl
 Function ret_arrays_disp(is_disp_19,tis_disp_21)
 Static sp := 0
 Local p := iif(is_disp_19, 2, 1), blk
+DEFAULT tis_disp_21 TO .t.
+
 if p != sp
   if (sp := p) == 1
     dvn_arr_usl := aclone(dvn_arr_usl18)
