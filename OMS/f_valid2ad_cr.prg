@@ -153,12 +153,13 @@ Function f_valid2ad_cr()
     endif
     if input_ad_cr
       if (i := ascan(mm_ad_cr,{|x| padr(x[2],10) == padr(m1ad_cr,10) })) > 0
-        // mad_cr := padr(mm_ad_cr[i,1],66)
-        mad_cr := padr(mm_ad_cr[i,1],10)
+        mad_cr := padr(mm_ad_cr[i,1],65)  // 66
+        // mad_cr := padr(mm_ad_cr[i,1],10)
       else
-        // mad_cr := space(66) ; m1ad_cr := space(10)
-        mad_cr := space(10)
+        mad_cr := space(65) // 66
         m1ad_cr := space(10)
+        // mad_cr := space(10)
+        // m1ad_cr := space(10)
       endif
       if type("p_nstr_ad_cr") == "N"
         @ p_nstr_ad_cr,1 say p_str_ad_cr
