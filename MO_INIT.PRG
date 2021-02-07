@@ -68,7 +68,7 @@ else
 endif
 return .t.
 
-***** 03.02.21 инициализация массива МО, запрос кода МО (при необходимости)
+***** 07.02.21 инициализация массива МО, запрос кода МО (при необходимости)
 Function init_mo()
 Local fl := .t., i, arr, arr1, cCode := "", buf := save_maxrow(), ;
       nfile := exe_dir+"_mo_mo.dbb"
@@ -225,8 +225,10 @@ sbase := "_mo1usl"
 if hb_FileExists(exe_dir+sbase+sdbf)
   R_Use(exe_dir+sbase,,"LUSL")
   index on shifr to (cur_dir+sbase)
-  find ("1.12.") // ВМП федеральное
-  do while left(lusl->shifr,5) == "1.12." .and. !eof()
+  find ("1.20.") // ВМП федеральное   // 07.02.21 замена услуг с 1.12 на 1.20 письмо 12-20-60 от 01.02.2021
+  do while left(lusl->shifr,5) == "1.20." .and. !eof()
+  // find ("1.12.") // ВМП федеральное
+  // do while left(lusl->shifr,5) == "1.12." .and. !eof()
     aadd(arr_12_VMP,int(val(substr(lusl->shifr,6))))
     skip
   enddo
@@ -265,11 +267,12 @@ sbase := "_mo0usl"
 if hb_FileExists(exe_dir+sbase+sdbf)
   R_Use(exe_dir+sbase,,"LUSL")
   index on shifr to (cur_dir+sbase)
-  find ("1.12.") // ВМП федеральное
-  do while left(lusl->shifr,5) == "1.12." .and. !eof()
-    aadd(arr_12_VMP,int(val(substr(lusl->shifr,6))))
-    skip
-  enddo
+  // 07.02.21 замена услуг с 1.12 на 1.20 письмо 12-20-60 от 01.02.2021
+  // find ("1.12.") // ВМП федеральное
+  // do while left(lusl->shifr,5) == "1.12." .and. !eof()
+  //   aadd(arr_12_VMP,int(val(substr(lusl->shifr,6))))
+  //   skip
+  // enddo
   use
 else
   fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
@@ -504,7 +507,8 @@ if hb_FileExists(exe_dir+sbase+sdbf) .and. valtype(glob_mo) == "A"
     glob_menu_mz_rf[1] := .t.
   endif
   //
-  find (glob_mo[_MO_KOD_TFOMS]+"1.12.") // ВМП
+  // find (glob_mo[_MO_KOD_TFOMS]+"1.12.") // ВМП // 07.02.2021
+  find (glob_mo[_MO_KOD_TFOMS]+"1.20.") // ВМП
   is_12_VMP := found()
   //
   find (glob_mo[_MO_KOD_TFOMS]+"ds") // дневной стационар
@@ -602,7 +606,8 @@ if hb_FileExists(exe_dir+sbase+sdbf) .and. valtype(glob_mo) == "A"
     glob_menu_mz_rf[1] := .t.
   endif
   //
-  find (glob_mo[_MO_KOD_TFOMS]+"1.12.") // ВМП
+  // find (glob_mo[_MO_KOD_TFOMS]+"1.12.") // ВМП // 07.02.2021
+  find (glob_mo[_MO_KOD_TFOMS]+"1.20.") // ВМП
   is_12_VMP := found()
   //
   find (glob_mo[_MO_KOD_TFOMS]+"ds") // дневной стационар
@@ -699,7 +704,8 @@ if hb_FileExists(exe_dir+sbase+sdbf) .and. valtype(glob_mo) == "A"
     glob_menu_mz_rf[1] := .t.
   endif
   //
-  find (glob_mo[_MO_KOD_TFOMS]+"1.12.") // ВМП
+  // find (glob_mo[_MO_KOD_TFOMS]+"1.12.") // ВМП // 07.02.2021
+  find (glob_mo[_MO_KOD_TFOMS]+"1.20.") // ВМП
   is_12_VMP := found()
   //
   find (glob_mo[_MO_KOD_TFOMS]+"ds") // дневной стационар

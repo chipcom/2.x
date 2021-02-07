@@ -4,7 +4,7 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 23.11.18
+***** 07.02.21
 Function verify_1_sluch_18(fl_view)
 Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
       i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -596,7 +596,8 @@ do while hu->kod == human->kod .and. !eof()
         if mdate+hu->kol_1 <= d2
           mdate_u2 := dtoc4(mdate+hu->kol_1)
         endif
-      elseif eq_any(left_lshifr_5,"1.12.","1.15.","1.16.","1.17.","1.18.") // ВМП
+      // elseif eq_any(left_lshifr_5,"1.12.","1.15.","1.16.","1.17.","1.18.") // ВМП  // 07.02.2021
+      elseif eq_any(left_lshifr_5,"1.20.","1.15.","1.16.","1.17.","1.18.") // ВМП
         midsp := 18 // Законченный случай в круглосуточном стационаре
         kkd_1_12 += hu->kol_1
         kol_ksg += hu->kol_1
@@ -6316,7 +6317,8 @@ if lvmp > 0
   elseif ascan(arr_12_VMP,lvidvmp) == 0
     aadd(arerr,' для метода ВМП '+lstr(lvidvmp)+' нет услуги ТФОМС')
   else
-    lksg := "1.12."+lstr(lvidvmp)
+    // lksg := "1.12."+lstr(lvidvmp)  // 07.02.2021
+    lksg := "1.20."+lstr(lvidvmp)
     aadd(ars," для "+lstr(lvidvmp)+" метода ВМП введена услуга "+lksg)
     lcena := ret_cena_KSG(lksg,lvr,date_usl)
     if lcena > 0

@@ -424,7 +424,7 @@ do case
     fl := G_Use(dir_server+"mo_kekez",dir_server+"mo_kekez",lalias,,lExcluUse,lREADONLY)
   case sBase == "lusld"
     fl := R_Use(exe_dir+"_mo_usld",cur_dir+"_mo_usld",sBase)
-  case sBase == "lusl"
+  case sBase == "lusl" 
     fl := R_Use(exe_dir+"_mo8usl",cur_dir+"_mo8usl",sBase+"18") .and. ;
           R_Use(exe_dir+"_mo9usl",cur_dir+"_mo9usl",sBase+"19") .and. ;
           R_Use(exe_dir+"_mo0usl",cur_dir+"_mo0usl",sBase+"20") .and. ;
@@ -3128,7 +3128,7 @@ return v
 
 *
 
-***** 20.01.19 определить КСГ для 1 пациента с открытием файлов
+***** 07.02.19 определить КСГ для 1 пациента с открытием файлов
 // ВНИМАНИЕ! Не менять название функции, используется в PROCNAME() другой функции
 Function f_1pac_definition_KSG(lkod,is_msg)
 Local arr, i, s, buf := save_maxrow(), lshifr, lrec, lu_kod, lcena, lyear, mrec_hu, not_ksg := .t., sdial, fl
@@ -3194,8 +3194,15 @@ if human_->USL_OK < 3
         endif
         exit
       endif
-      if lyear > 2019
+      if lyear > 2020 // add 07.02.2021
         select LUSL
+        find (lshifr) // длина lshifr 10 знаков
+        if found() .and. (eq_any(left(lshifr,5),"1.20.") .or. is_ksg(lusl->shifr)) // стоит другой КСГ
+          lrec := hu->(recno())
+          exit
+        endif
+      elseif lyear > 2019
+        select LUSL20
         find (lshifr) // длина lshifr 10 знаков
         if found() .and. (eq_any(left(lshifr,5),"1.12.") .or. is_ksg(lusl->shifr)) // стоит другой КСГ
           lrec := hu->(recno())

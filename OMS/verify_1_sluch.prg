@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-***** 05.01.21
+***** 07.02.21
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
         i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -672,7 +672,8 @@ Function verify_1_sluch(fl_view)
           if mdate+hu->kol_1 <= d2
             mdate_u2 := dtoc4(mdate+hu->kol_1)
           endif
-        elseif left_lshifr_5 == "1.12." // ВМП
+        elseif left_lshifr_5 == "1.20." // ВМП  // 07.02.2021
+        // elseif left_lshifr_5 == "1.12." // ВМП
           midsp := 18 // Законченный случай в круглосуточном стационаре
           kkd_1_12 += hu->kol_1
           kol_ksg += hu->kol_1

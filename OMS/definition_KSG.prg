@@ -4,7 +4,7 @@
 #include "..\chip_mo.ch"
  
 
-***** 06.02.21 определение КСГ по остальным введённым полям ввода - 2019-20 год
+***** 07.02.21 определение КСГ по остальным введённым полям ввода - 2019-20 год
 Function definition_KSG(par,k_data2)
   // файлы "human", "human_" и "human_2" открыты и стоят на нужной записи
   //       "human" открыт для записи суммы случая
@@ -223,7 +223,11 @@ Function definition_KSG(par,k_data2)
     elseif ascan(arr_12_VMP,lvidvmp) == 0
       aadd(arerr,' для метода ВМП '+lstr(lvidvmp)+' нет услуги ТФОМС')
     else
-      lksg := "1.12."+lstr(lvidvmp)
+      if lyear == 2021  // 07.02.2021
+        lksg := "1.20."+lstr(lvidvmp)
+      else
+        lksg := "1.12."+lstr(lvidvmp)
+      endif
       aadd(ars," для "+lstr(lvidvmp)+" метода ВМП введена услуга "+lksg)
       lcena := ret_cena_KSG(lksg,lvr,date_usl)
       if lcena > 0
