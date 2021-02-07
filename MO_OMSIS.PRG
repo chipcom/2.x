@@ -4161,7 +4161,7 @@ R_Use(dir_server+"human",dir_server+"humans","HUMAN")
 set relation to recno() into HUMAN_, to recno() into HUMAN_2, to kod_k into KART
 //
 *********************************************************************
-mdate_rak := arr_m[6]+10 // по какую дату РАК сумма к оплате 09.07.20
+mdate_rak := arr_m[6]+18 // по какую дату РАК сумма к оплате 18.01.21
 *********************************************************************
 R_Use(dir_server+"mo_xml",,"MO_XML")
 R_Use(dir_server+"mo_rak",,"RAK")
