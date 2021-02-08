@@ -672,13 +672,20 @@ Function verify_1_sluch(fl_view)
           if mdate+hu->kol_1 <= d2
             mdate_u2 := dtoc4(mdate+hu->kol_1)
           endif
-        elseif left_lshifr_5 == "1.20." // ВМП  // 07.02.2021
-        // elseif left_lshifr_5 == "1.12." // ВМП
+        elseif left_lshifr_5 == "1.12." // ВМП
           midsp := 18 // Законченный случай в круглосуточном стационаре
           kkd_1_12 += hu->kol_1
           kol_ksg += hu->kol_1
           hu_->PZKOL := d
           if !is_12_VMP
+            aadd(ta,'работа с услугой '+alltrim_lshifr+' запрещена в Вашей МО')
+          endif
+        elseif left_lshifr_5 == "1.20." // ВМП  // 07.02.2021
+          midsp := 18 // Законченный случай в круглосуточном стационаре
+          kkd_1_12 += hu->kol_1
+          kol_ksg += hu->kol_1
+          hu_->PZKOL := d
+          if !is_21_VMP
             aadd(ta,'работа с услугой '+alltrim_lshifr+' запрещена в Вашей МО')
           endif
         else
@@ -2104,7 +2111,8 @@ Function verify_1_sluch(fl_view)
       endif
     next
     if human_2->VMP == 1 // проверим ВМП
-      if is_12_VMP  // ВМП по-новому
+      if is_12_VMP .or. is_21_VMP  // ВМП по-новому 08.02.2021
+        // if is_12_VMP  // ВМП по-новому
         if !empty(ar_1_19_1)
           aadd(ta,'при оказании ВМП не может быть применена услуга 1.19.1')
         endif

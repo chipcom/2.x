@@ -299,6 +299,7 @@ Public is_napr_pol := .f.,; // работа с направлениями на госпитализацию в п-ке
        is_napr_stac := .f.,;  // работа с направлениями на госпитализацию в стационаре
        glob_klin_diagn := {} // работа со специальными лабораторными исследованиями
 Public is_ksg_VMP := .f., is_12_VMP := .f., is_14_VMP := .f., is_ds_VMP := .f.
+Public is_21_VMP := .f.
 // справочник цен на услуги ТФОМС
 /*sbase := "_mo_uslc"
 if hb_FileExists(exe_dir+sbase+sdbf)
@@ -509,7 +510,7 @@ if hb_FileExists(exe_dir+sbase+sdbf) .and. valtype(glob_mo) == "A"
   //
   // find (glob_mo[_MO_KOD_TFOMS]+"1.12.") // ВМП // 07.02.2021
   find (glob_mo[_MO_KOD_TFOMS]+"1.20.") // ВМП
-  is_12_VMP := found()
+  is_21_VMP := found()
   //
   find (glob_mo[_MO_KOD_TFOMS]+"ds") // дневной стационар
   if found()
@@ -764,7 +765,7 @@ if hb_FileExists(exe_dir+sbase+sdbf) .and. valtype(glob_mo) == "A"
 else
   fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
 endif
-Public is_MO_VMP := (is_ksg_VMP .or. is_12_VMP .or. is_14_VMP .or. is_ds_VMP)
+Public is_MO_VMP := (is_ksg_VMP .or. is_21_VMP .or. is_12_VMP .or. is_14_VMP .or. is_ds_VMP)
 // справочник доплат по законченным случаям (старый справочник)
 /*sbase := "_mo_usld"
 if hb_FileExists(exe_dir+sbase+sdbf)
@@ -11220,8 +11221,10 @@ return NIL
 
 ***** 07.02.21
 Function make_V018_V019(lk_data)
-Static sy := 0, sd2018 := 0d20180101, sd2019 := 0d20190101, sd2020 := 0d20200101, sd2021 := 0d20210101
+Static sy := 0, sd2018 := 0d20180101, sd2019 := 0d20190101, sd2020 := 0d20200101
+static sd2021 := 0d20210101
 Local i, y := year(lk_data)
+
 if sy != y
   sy := y
   glob_V018 := {}

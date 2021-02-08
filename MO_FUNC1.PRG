@@ -2410,9 +2410,11 @@ return s
 *
 
 ***** 03.01.21 в GET-е вернуть строку из glob_V018
-Function f_get_vidvmp(k,r,c)
+Function f_get_vidvmp(k,r,c) 
 Static sy := 0, arr, svidvmp := ""
 Local ret, ret_arr, y
+local sTmp := ''
+
 if (y := year(mk_data)) > 2020
   y := 2021
 elseif y == 2020
@@ -2426,7 +2428,9 @@ if sy != y  // при первом вызове или смене года
   make_V018_V019(mk_data)
   arr := {}
   for i := 1 to len(glob_V018)
-    aadd(arr,{padr(glob_V018[i,1]+"."+glob_V018[i,2],76),glob_V018[i,1]})
+    sTmp := padr(glob_V018[i,1]+".", 5)
+    // aadd(arr,{padr(glob_V018[i,1]+"."+glob_V018[i,2],76),glob_V018[i,1]})
+    aadd(arr,{padr(sTmp+glob_V018[i,2],76),glob_V018[i,1]})
   next
 endif
 if empty(k)

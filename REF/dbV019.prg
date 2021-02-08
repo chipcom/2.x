@@ -27,7 +27,7 @@ function getV019table()
 
     // aadd(tmpV019, { (dbAlias)->IDHM, (dbAlias)->HMNAME, (dbAlias)->DIAG, (dbAlias)->HVID, (dbAlias)->DATEBEG, (dbAlias)->DATEEND })
     tArr := alltrim((dbAlias)->DIAG)
-    aadd(tmpV019, { (dbAlias)->IDHM, (dbAlias)->HMNAME, aclone(hb_ATokens(tArr, ';')), (dbAlias)->HVID, (dbAlias)->DATEBEG, (dbAlias)->DATEEND })
+    aadd(tmpV019, { (dbAlias)->IDHM, alltrim((dbAlias)->HMNAME), aclone(hb_ATokens(tArr, ';')), alltrim((dbAlias)->HVID), (dbAlias)->DATEBEG, (dbAlias)->DATEEND })
     (dbAlias)->(dbSkip())
   enddo
   asort(tmpV019,,,{|x,y| x[1] < y[1] })

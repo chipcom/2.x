@@ -596,13 +596,21 @@ do while hu->kod == human->kod .and. !eof()
         if mdate+hu->kol_1 <= d2
           mdate_u2 := dtoc4(mdate+hu->kol_1)
         endif
-      // elseif eq_any(left_lshifr_5,"1.12.","1.15.","1.16.","1.17.","1.18.") // ВМП  // 07.02.2021
-      elseif eq_any(left_lshifr_5,"1.20.","1.15.","1.16.","1.17.","1.18.") // ВМП
+      elseif eq_any(left_lshifr_5,"1.12.","1.15.","1.16.","1.17.","1.18.")
+      // elseif eq_any(left_lshifr_5,"1.20.","1.15.","1.16.","1.17.","1.18.") // ВМП
         midsp := 18 // Законченный случай в круглосуточном стационаре
         kkd_1_12 += hu->kol_1
         kol_ksg += hu->kol_1
         hu_->PZKOL := d
         if !is_12_VMP
+          aadd(ta,'работа с услугой '+alltrim_lshifr+' запрещена в Вашей МО')
+        endif
+      elseif eq_any(left_lshifr_5,"1.20.","1.15.","1.16.","1.17.","1.18.") // ВМП
+        midsp := 18 // Законченный случай в круглосуточном стационаре
+        kkd_1_12 += hu->kol_1
+        kol_ksg += hu->kol_1
+        hu_->PZKOL := d
+        if !is_21_VMP
           aadd(ta,'работа с услугой '+alltrim_lshifr+' запрещена в Вашей МО')
         endif
       else
@@ -1655,7 +1663,8 @@ if human_->USL_OK == 1  // стационар
     endif
   endif
   if human_2->VMP == 1 // проверим ВМП
-    if is_12_VMP  // ВМП по-новому
+    if is_12_VMP .or. is_21_VMP // ВМП по-новому 08.02.2021
+      // if is_12_VMP  // ВМП по-новому
       make_V018_V019(d2)
       if empty(human_2->TAL_NUM)
         aadd(ta,'ВМП оказана, но не введен номер талона на ВМП')

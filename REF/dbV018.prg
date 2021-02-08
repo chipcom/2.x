@@ -12,7 +12,7 @@ function getV018table()
   //  1 - IDHVID(C)  2 - HVIDNAME(C)  3 - DATEBEG(D)  4 - DATEEND(D)
   (dbAlias)->(dbGoTop())
   do while !(dbAlias)->(EOF())
-    aadd(tmpV018, { (dbAlias)->IDHVID, (dbAlias)->HVIDNAME, (dbAlias)->DATEBEG, (dbAlias)->DATEEND })
+    aadd(tmpV018, { alltrim((dbAlias)->IDHVID), alltrim((dbAlias)->HVIDNAME), (dbAlias)->DATEBEG, (dbAlias)->DATEEND })
     (dbAlias)->(dbSkip())
   enddo
   asort(tmpV018,,,{|x,y| x[1] < y[1] })
