@@ -1008,6 +1008,7 @@ if hb_FileExists(exe_dir+sbase+sdbf)
   R_Use(exe_dir+sbase)
   index on substr(shifr,1,2)+ds+sy+age+sex+los to (cur_dir+sbase) // по диагнозу/операции
   index on substr(shifr,1,2)+sy+ds+age+sex+los to (cur_dir+sbase+"_") // по операции/диагнозу
+  index on ad_cr to (cur_dir+sbase+"AD") // по дополнительному критерию Байкин
   use
 else
   fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
@@ -1032,10 +1033,12 @@ endif
 sbase := "_mo9k006"
 if hb_FileExists(exe_dir+sbase+sdbf)
   if files_time(exe_dir+sbase+sdbf,cur_dir+sbase+sntx) .or. ;
-     files_time(exe_dir+sbase+sdbf,cur_dir+sbase+"_"+sntx)
+     files_time(exe_dir+sbase+sdbf,cur_dir+sbase+"_"+sntx) .or. ;
+     files_time(exe_dir+sbase+sdbf,cur_dir+sbase+"AD"+sntx)
     R_Use(exe_dir+sbase)
     index on substr(shifr,1,2)+ds+sy+age+sex+los to (cur_dir+sbase) // по диагнозу/операции
     index on substr(shifr,1,2)+sy+ds+age+sex+los to (cur_dir+sbase+"_") // по операции/диагнозу
+    index on ad_cr to (cur_dir+sbase+"AD") // по дополнительному критерию Байкин
     use
   endif
 else
@@ -1060,10 +1063,12 @@ endif*/
 sbase := "_mo8k006"
 if hb_FileExists(exe_dir+sbase+sdbf)
   if files_time(exe_dir+sbase+sdbf,cur_dir+sbase+sntx) .or. ;
-     files_time(exe_dir+sbase+sdbf,cur_dir+sbase+"_"+sntx)
+     files_time(exe_dir+sbase+sdbf,cur_dir+sbase+"_"+sntx) .or. ;
+     files_time(exe_dir+sbase+sdbf,cur_dir+sbase+"AD"+sntx)
     R_Use(exe_dir+sbase)
     index on substr(shifr,1,1)+ds+sy+age+sex+los to (cur_dir+sbase) // по диагнозу/операции
     index on substr(shifr,1,1)+sy+ds+age+sex+los to (cur_dir+sbase+"_") // по операции/диагнозу
+    index on ad_cr to (cur_dir+sbase+"AD") // по дополнительному критерию Байкин
     use
   endif
 else
