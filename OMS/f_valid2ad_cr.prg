@@ -76,10 +76,11 @@ Function f_valid2ad_cr()
               next
             endif
           endif
-          if empty(arr_ad_cr_it21[i,3]) .and. empty(arr_ad_cr_it21[i,4]) .and. !empty(arr_ad_cr_it21[i,5]) // диагноз осложнения
+          if !empty(arr_ad_cr_it21[i,3]) .and. empty(arr_ad_cr_it21[i,4]) .and. !empty(arr_ad_cr_it21[i,5]) // диагноз осложнения
             if !empty(arr_osl)
               for j := 1 to len(arr_osl)
-                if ascan(arr_ad_cr_it21[i,4],arr_osl[j]) > 0
+                if ascan(arr_ad_cr_it21[i,5],arr_osl[j]) > 0
+                  // if ascan(arr_ad_cr_it21[i,4],arr_osl[j]) > 0
                   // aadd(mm_ad_cr,{"",arr_ad_cr_it21[i,2]})
                   aadd(mm_ad_cr,{alltrim(arr_ad_cr_it21[i,2])+' '+arr_ad_cr_it21[i,6],arr_ad_cr_it21[i,2]})
                   exit
