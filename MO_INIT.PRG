@@ -606,8 +606,8 @@ if hb_FileExists(exe_dir+sbase+sdbf) .and. valtype(glob_mo) == "A"
     glob_menu_mz_rf[1] := .t.
   endif
   //
-  // find (glob_mo[_MO_KOD_TFOMS]+"1.12.") // ВМП // 07.02.2021
-  find (glob_mo[_MO_KOD_TFOMS]+"1.20.") // ВМП
+  find (glob_mo[_MO_KOD_TFOMS]+"1.12.") // ВМП // 07.02.2021
+  // find (glob_mo[_MO_KOD_TFOMS]+"1.20.") // ВМП
   is_12_VMP := found()
   //
   find (glob_mo[_MO_KOD_TFOMS]+"ds") // дневной стационар
@@ -704,8 +704,8 @@ if hb_FileExists(exe_dir+sbase+sdbf) .and. valtype(glob_mo) == "A"
     glob_menu_mz_rf[1] := .t.
   endif
   //
-  // find (glob_mo[_MO_KOD_TFOMS]+"1.12.") // ВМП // 07.02.2021
-  find (glob_mo[_MO_KOD_TFOMS]+"1.20.") // ВМП
+  find (glob_mo[_MO_KOD_TFOMS]+"1.12.") // ВМП // 07.02.2021
+  // find (glob_mo[_MO_KOD_TFOMS]+"1.20.") // ВМП
   is_12_VMP := found()
   //
   find (glob_mo[_MO_KOD_TFOMS]+"ds") // дневной стационар
