@@ -218,7 +218,6 @@ Function definition_KSG(par,k_data2)
     return {ars,arerr,lksg,lcena,{},{}}
   endif
   if lvmp > 0
-alertx(lvidvmp, 'lvidvmp')
     if lvidvmp == 0
       aadd(arerr,' не введён метод ВМП')
     elseif ascan(arr_12_VMP,lvidvmp) == 0

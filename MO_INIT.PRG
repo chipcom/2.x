@@ -220,6 +220,7 @@ if is_otd_dep
   endif
 endif
 Public arr_12_VMP := {}
+// private iiiVMP := 0
 // справочник услуг ТФОМС на 2021 год
 sbase := "_mo1usl"
 if hb_FileExists(exe_dir+sbase+sdbf)
@@ -261,7 +262,7 @@ if is_otd_dep
     fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
   endif
 endif
-Public arr_12_VMP := {}
+// Public arr_12_VMP := {}
 // справочник услуг ТФОМС на 2020 год
 sbase := "_mo0usl"
 if hb_FileExists(exe_dir+sbase+sdbf)
