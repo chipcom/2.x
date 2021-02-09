@@ -217,6 +217,7 @@ Function definition_KSG(par,k_data2)
   if f_put_glob_podr(lusl,date_usl,arerr) // если не заполнен код подразделения
     return {ars,arerr,lksg,lcena,{},{}}
   endif
+// alertx(lvidvmp, 'lvidvmp') // это метод
   if lvmp > 0
     if lvidvmp == 0
       aadd(arerr,' не введён метод ВМП')
