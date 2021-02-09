@@ -2265,7 +2265,7 @@ make_V018_V019(lk_data)
 if !emptyany(lMETVMP,lVIDVMP) ;
             .and. (i := ascan(glob_V019, {|x| x[1] == lMETVMP })) > 0 ;
             .and. glob_V019[i,4] == alltrim(lVIDVMP)
-  s := lstr(glob_V019[i,1])+"."+glob_V019[i,2]
+  s := alltrim(str(glob_V019[i,1], 6))+"."+glob_V019[i,2]
 endif
 return s
 
@@ -2288,7 +2288,7 @@ if sy != y  // при первом вызове или смене года
   make_V018_V019(mk_data)
   arr := {}
   for i := 1 to len(glob_V018)
-    sTmp := padl(glob_V018[i,1], 4) + "."
+    sTmp := padl(glob_V018[i,1], 5) + "."
     // aadd(arr,{padr(glob_V018[i,1]+"."+glob_V018[i,2],76),glob_V018[i,1]})
     aadd(arr,{padr(sTmp+glob_V018[i,2],76),glob_V018[i,1]})
   next
@@ -2314,7 +2314,7 @@ endif
 make_V018_V019(mk_data)
 for i := 1 to len(glob_V019)
   if glob_V019[i,4] == alltrim(lvidvmp)
-    aadd(arr, {padr(str(glob_V019[i,1],3)+"."+glob_V019[i,2],76),glob_V019[i,1]})
+    aadd(arr, {padr(str(glob_V019[i,1],4)+"."+glob_V019[i,2],76),glob_V019[i,1]})
   endif
 next
 if empty(arr)

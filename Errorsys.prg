@@ -155,7 +155,7 @@ function view_errors()
 	if !file( dir_server + err_file )
 		return func_error( 4, 'Не обнаружен файл ошибок!' )
 	endif
-	keyboard chr( K_END )
+	// keyboard chr( K_END )
 	viewtext( Devide_Into_Pages( dir_server + err_file, 80, 84 ), , , , .t., , , 5, , , .f. )
 	return nil
 
