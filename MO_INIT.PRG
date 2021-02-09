@@ -237,6 +237,21 @@ if hb_FileExists(exe_dir+sbase+sdbf)
 else
   fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
 endif
+// справочник услуг ТФОМС на 2021 год
+sbase := "_mo1vmp_usl"
+if hb_FileExists(exe_dir+sbase+sdbf)
+  // что-то сделать
+  // R_Use(exe_dir+sbase,,"LUSL")
+  // index on shifr to (cur_dir+sbase)
+  // find ("1.20.") // ВМП федеральное   // 07.02.21 замена услуг с 1.12 на 1.20 письмо 12-20-60 от 01.02.2021
+  // do while left(lusl->shifr,5) == "1.20." .and. !eof()
+  //   aadd(arr_12_VMP,int(val(substr(lusl->shifr,6))))
+  //   skip
+  // enddo
+  // use
+else
+  fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
+endif
 // справочник отделений на 2020 год
 sbase := "_mo0dep"
 Public is_otd_dep := .f., glob_otd_dep := 0, mm_otd_dep := {}
@@ -945,7 +960,7 @@ if hb_FileExists(exe_dir+sbase+sdbf)
     else
       aadd(arr_ad_cr_it21,{it->USL_OK,padr(it->CODE,6),ar,ar1,ar2, ''})
     endif
-    ("IT")->(dbskip())
+    ("IT")->(dbskip()) 
     lSchema := .f.
   enddo
   ("SCHEMA")->(dbCloseArea())
