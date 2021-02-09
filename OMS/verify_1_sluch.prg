@@ -3175,7 +3175,9 @@ Function verify_1_sluch(fl_view)
       aadd(ta,'для '+s+' специальность врача должна быть НЕФРОЛОГИЯ')
     endif
     human_->NPR_MO := glob_mo[_MO_KOD_TFOMS] // безусловно проставляем направившую МО
+    human_2->(G_RLock(forever))
     human_2->NPR_DATE := d1
+    human_2->(dbunlock())
     mpztip := 56 // 56,"случай диализа","случ.диал."},;
     mpzkol := kkt
     /*if human_->RSLT_NEW != 201
@@ -3202,7 +3204,9 @@ Function verify_1_sluch(fl_view)
       aadd(ta,s+'специальность врача должна быть НЕФРОЛОГИЯ')
     endif
     human_->NPR_MO := glob_mo[_MO_KOD_TFOMS] // безусловно проставляем направившую МО
+    human_2->(G_RLock(forever))
     human_2->NPR_DATE := d1
+    human_2->(dbunlock())
     mpztip := 56 // 56,"случай диализа","случ.диал."},;
     mpzkol := kkt
     /*if !eq_any(human_->RSLT_NEW,201,202,203,205)
@@ -3222,7 +3226,9 @@ Function verify_1_sluch(fl_view)
   if is_s_dializ
     s := "услуги диализа в стационаре"
     human_->NPR_MO := glob_mo[_MO_KOD_TFOMS] // безусловно проставляем направившую МО
+    human_2->(G_RLock(forever))
     human_2->NPR_DATE := d1
+    human_2->(dbunlock())
     mpztip := 54 // 54,"случай ЗПТ","случай ЗПТ"},;
     mpzkol := kkt
     for i := 1 to len(a_dializ)
