@@ -217,16 +217,14 @@ Function definition_KSG(par,k_data2)
   if f_put_glob_podr(lusl,date_usl,arerr) // если не заполнен код подразделения
     return {ars,arerr,lksg,lcena,{},{}}
   endif
-// alertx(m1vidvmp, 'vid_hmp 1') // это vid
-// alertx(m1metvmp, 'method_hmp 1') // это метод
   if lvmp > 0
     if lvidvmp == 0
       aadd(arerr,' не введён метод ВМП')
-    elseif ascan(arr_12_VMP,lvidvmp) == 0
+    elseif (ascan(arr_12_VMP,lvidvmp) == 0 .and. year(lk_data) != 2021)
       aadd(arerr,' для метода ВМП '+lstr(lvidvmp)+' нет услуги ТФОМС')
     else
-      if lyear == 2021  // 07.02.2021
-        lksg := "1.20."+lstr(lvidvmp)
+      if lyear == 2021  // 10.02.2021
+        lksg := getServiceForVMP(human_2->VIDVMP, human_2->METVMP)
       else
         lksg := "1.12."+lstr(lvidvmp)
       endif
@@ -820,7 +818,7 @@ Function definition_KSG(par,k_data2)
       endif
 
       // 06.02.2021
-      if year(lk_data) == 2021
+      if (year(lk_data) == 2021) .and. ( lower(substr(lksg,1,2)) == 'st' .or. lower(substr(lksg,1,2)) == 'ds' )
         if !empty(HUMAN_2->PC1)
           humKSLP := HUMAN_2->PC1
         endif
