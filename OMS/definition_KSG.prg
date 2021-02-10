@@ -223,8 +223,8 @@ Function definition_KSG(par,k_data2)
     elseif (ascan(arr_12_VMP,lvidvmp) == 0 .and. year(lk_data) != 2021)
       aadd(arerr,' ¤«ο ¬¥β®¤  ‚ '+lstr(lvidvmp)+' ­¥β γα«γ£¨ ’”‘')
     else
-      if lyear == 2021  // 10.02.2021
-        lksg := getServiceForVMP(human_2->VIDVMP, human_2->METVMP)
+      if lyear == 2021  // 10.02.2021 
+        lksg := getServiceForVMP(human_2->VIDVMP, human_2->METVMP, human->KOD_DIAG)
       else
         lksg := "1.12."+lstr(lvidvmp)
       endif
