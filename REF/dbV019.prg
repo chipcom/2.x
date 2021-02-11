@@ -10,8 +10,8 @@ function getV019table()
   dbName := '_mo_V019'
   dbUseArea( .t., "DBFNTX", exe_dir + dbName, dbAlias , .t., .f. )
 
-//  1 - IDHM(N)  2 - HMNAME(C)  3 - DIAG(C)  4 - HVID(C)  5 - DATEBEG(D)  6 - DATEEND(D)
-(dbAlias)->(dbGoTop())
+//  1 - IDHM(N)  2 - HMNAME(C)  3 - DIAG(C)  4 - HVID(C)  5 - DATEBEG(D)  6 - DATEEND(D)  7 - HGR(N)
+  (dbAlias)->(dbGoTop())
   do while !(dbAlias)->(EOF())
 
     // for j := 1 to len(_glob_V019)
@@ -27,7 +27,7 @@ function getV019table()
 
     // aadd(tmpV019, { (dbAlias)->IDHM, (dbAlias)->HMNAME, (dbAlias)->DIAG, (dbAlias)->HVID, (dbAlias)->DATEBEG, (dbAlias)->DATEEND })
     tArr := alltrim((dbAlias)->DIAG)
-    aadd(tmpV019, { (dbAlias)->IDHM, alltrim((dbAlias)->HMNAME), aclone(hb_ATokens(tArr, ';')), alltrim((dbAlias)->HVID), (dbAlias)->DATEBEG, (dbAlias)->DATEEND })
+    aadd(tmpV019, { (dbAlias)->IDHM, alltrim((dbAlias)->HMNAME), aclone(hb_ATokens(tArr, ';')), alltrim((dbAlias)->HVID), (dbAlias)->DATEBEG, (dbAlias)->DATEEND, (dbAlias)->HGR })
     (dbAlias)->(dbSkip())
   enddo
   asort(tmpV019,,,{|x,y| x[1] < y[1] })
