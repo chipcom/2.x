@@ -1,20 +1,19 @@
 ***** 11.02.2021
 // возвращает шифр услуги соответствующий виду и методу ВМП и диагнозу
-function getServiceForVMP(hVid, hMethod, model) // sDiag)
+function getServiceForVMP(hVid, hMethod, model, sDiag)
   // hVid - вид ВМП (строка)
   // hMethod - метод ВМП (целое)
   // model - модель пациента V022 (целое)
   // sDiag - основной диагноз
-  local ret := '', vid := alltrim(hVid) //, diag := alltrim(sDiag)
+  local ret := '', vid := alltrim(hVid), diag := alltrim(sDiag)
   local arrVMP_USL := getVMP_USL()
   local i := 0, row, arr := {}
 
   for each row in arrVMP_USL
-    // arr := hb_ATokens(row[4], ';')  // развернем массив разрешенных диагнозов для ВМП
-    if row[2] == vid .and. row[3] == hMethod .and. row[4] == model //(ascan(arr, diag) > 0)
-alertx(model,'model')
+    arr := hb_ATokens(row[5], ';')  // развернем массив разрешенных диагнозов для ВМП
+    if row[2] == vid .and. row[3] == hMethod .and. row[4] == model .and. (ascan(arr, diag) > 0)
       ret := row[1]
-      // exit
+      exit
     endif
   next
   return ret
@@ -32,10 +31,10 @@ function getVMP_USL( dateSl)
     tmp_select := select()
     dbUseArea( .t., "DBFNTX", exe_dir + dbName, dbAlias , .t., .f. )
   
-    //  1 - SHIFR(C)  2 - HVID(C)  3 - HMETHOD(N) 4 - MODEL(N) //  4 - DIAGNOZIS(C)
+    //  1 - SHIFR(C)  2 - HVID(C)  3 - HMETHOD(N) 4 - MODEL(N) 5 - DIAGNOZIS(C)
     (dbAlias)->(dbGoTop())
     do while !(dbAlias)->(EOF())
-      aadd(arrVMP_USL, { alltrim((dbAlias)->SHIFR), alltrim((dbAlias)->HVID), (dbAlias)->HMETHOD, (dbAlias)->MODEL })
+      aadd(arrVMP_USL, { alltrim((dbAlias)->SHIFR), alltrim((dbAlias)->HVID), (dbAlias)->HMETHOD, (dbAlias)->MODEL, alltrim((dbAlias)->DIAGNOZIS) })
       (dbAlias)->(dbSkip())
     enddo
   

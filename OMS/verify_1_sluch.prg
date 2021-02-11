@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-***** 07.02.21
+***** 11.02.21
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
         i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -13,6 +13,7 @@ Function verify_1_sluch(fl_view)
         lbukva, lst, lidsp, a_idsp := {}, a_bukva := {}, t_arr[2], ltip, lkol,;
         a_dializ := {}, is_2_88 := .f., a_rec_ffoms := {}, arr_povod := {}, mpovod := 0,; // 1.0
         lal, lalf
+        
   if empty(human->k_data)
     return .t.  // не проверять
   endif
@@ -2136,7 +2137,7 @@ Function verify_1_sluch(fl_view)
           aadd(ta,'Не найден вид ВМП "'+human_2->VIDVMP+'" в справочнике V018')
         elseif empty(human_2->METVMP)
           aadd(ta,'ВМП оказана, введён вид ВМП, но не введён метод ВМП')
-        elseif (i := ascan(glob_V019, {|x| x[1] == human_2->METVMP })) > 0
+        elseif (i := ascan(glob_V019, {|x| x[1] == human_2->METVMP .and. x[8] == human_2->PN5 })) > 0
           if glob_V019[i,4] == alltrim(human_2->VIDVMP)
             if !(len(mdiagnoz) == 0 .or. empty(mdiagnoz[1]))
               fl := .f. ; s := padr(mdiagnoz[1],6)
@@ -2152,7 +2153,7 @@ Function verify_1_sluch(fl_view)
               else
                 aadd(ta,'основной диагноз '+s+', а у метода ВМП "'+lstr(human_2->METVMP)+'.'+alltrim(glob_V019[i,2])+'"')
                 aadd(ta,'└─допустимые диагнозы: '+print_array(glob_V019[i,3]))
-              endif
+              endif 
             endif
           else
             aadd(ta,'метод ВМП '+lstr(human_2->METVMP)+' не соответствует виду ВМП '+human_2->VIDVMP)

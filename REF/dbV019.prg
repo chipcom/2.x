@@ -25,7 +25,6 @@ function getV019table()
     //   _glob_V019[j,3] := aclone(ar) // заменим строковое представление диагнозов массивом диагнозов
     // next
 
-    // aadd(tmpV019, { (dbAlias)->IDHM, (dbAlias)->HMNAME, (dbAlias)->DIAG, (dbAlias)->HVID, (dbAlias)->DATEBEG, (dbAlias)->DATEEND })
     tArr := alltrim((dbAlias)->DIAG)
     aadd(tmpV019, { (dbAlias)->IDHM, alltrim((dbAlias)->HMNAME), aclone(hb_ATokens(tArr, ';')), alltrim((dbAlias)->HVID), (dbAlias)->DATEBEG, (dbAlias)->DATEEND, (dbAlias)->HGR, (dbAlias)->IDMODP })
     (dbAlias)->(dbSkip())

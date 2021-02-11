@@ -939,7 +939,7 @@ Function oms_sluch(Loc_kod,kod_kartotek)
                when m1vmp == 1 ;
                valid {|g,o| f_valid_vidvmp(g,o) } ;
                color colget_menu
-        ++j; @ j,1 say " модель пациента" get mmodpac ;
+        ++j; @ j,1 say " модель" get mmodpac ;
                 reader {|x|menu_reader(x,{{|k,r,c|f_get_mmodpac(k,r,c,m1vidvmp, mkod_diag)}},A__FUNCTION,,,.f.)} ;
                 when m1vmp == 1 ;
                 color colget_menu
