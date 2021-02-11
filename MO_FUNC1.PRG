@@ -2305,29 +2305,36 @@ if valtype(ret_arr) == "A"
 endif
 return ret
 
-***** 17.01.14 в GET-е вернуть строку из glob_V019
-Function f_get_metvmp(k,r,c,lvidvmp)
-Local arr := {}, i, ret, ret_arr
-if empty(lvidvmp)
-  return NIL
-endif
-make_V018_V019(mk_data)
-for i := 1 to len(glob_V019)
-  if glob_V019[i,4] == alltrim(lvidvmp)
-    aadd(arr, {padr(str(glob_V019[i,1],4)+"."+glob_V019[i,2],76),glob_V019[i,1]})
+***** 11.02.21 в GET-е вернуть строку из glob_V019
+Function f_get_metvmp(k, r, c, lvidvmp, sDiag)
+  Local arr := {}, i, ret, ret_arr
+  local diag := alltrim(sDiag)
+
+  if empty(lvidvmp) .or. empty(diag)
+    return NIL
   endif
-next
-if empty(arr)
-  func_error(4,"В справочнике V019 не найдено методов для вида ВМП "+lvidvmp)
-  return NIL
-endif
-popup_2array(arr,-r,c,k,1,@ret_arr,"Выбор метода ВМП для "+lvidvmp,"GR+/RB*","N/RB*,W+/N")
-if valtype(ret_arr) == "A"
-  ret := array(2)
-  ret[1] := ret_arr[2]
-  ret[2] := ret_arr[1]
-endif
-return ret
+
+alertx(diag, 'diag')
+alertx(lvidvmp, 'vid vmp')
+  
+  make_V018_V019(mk_data)
+  for i := 1 to len(glob_V019)
+    if glob_V019[i,4] == alltrim(lvidvmp) .and. ( ascan(glob_V019[i,3],diag) > 0 )
+      aadd(arr, {padr(str(glob_V019[i,1],4)+"."+glob_V019[i,2],76),glob_V019[i,1]})
+alertx(glob_V019[i,1], 'V019')
+    endif
+  next
+  if empty(arr)
+    func_error(4,"В справочнике V019 не найдено методов для вида ВМП "+lvidvmp)
+    return NIL
+  endif
+  popup_2array(arr,-r,c,k,1,@ret_arr,"Выбор метода ВМП для "+lvidvmp,"GR+/RB*","N/RB*,W+/N")
+  if valtype(ret_arr) == "A"
+    ret := array(2)
+    ret[1] := ret_arr[2]
+    ret[2] := ret_arr[1]
+  endif
+  return ret
 
 ***** 23.12.15 в GET'е вернуть множественный выбор учреждений/отделений
 Function ret_Nuch_Notd(k,r,c)

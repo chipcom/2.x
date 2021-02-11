@@ -919,21 +919,24 @@ Function oms_sluch(Loc_kod,kod_kartotek)
       endif
       //
       if is_MO_VMP
-        ++j; @ j,1 say "ВМП оказана?" get MVMP ;
+        ++j; @ j,1 say "ВМП?" get MVMP ;
                reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
                when m1usl_ok==1 .or. (m1usl_ok==2 .and. is_ds_VMP) ;
                valid {|g,o| f_valid_vmp(g,o) } ;
                color colget_menu
-             @ j,col()+5 say "номер талона на ВМП" get mTAL_NUM when m1vmp == 1
-        ++j; @ j,1 say "дата выдачи талона на ВМП" get mTAL_D when m1vmp == 1
-             @ j,col()+1 say "дата планируемой госпитализации" get mTAL_P when m1vmp == 1
+        // @ j,col()+1 say "номер талона на ВМП" get mTAL_NUM when m1vmp == 1
+        @ j,col()+1 say "номер талона" get mTAL_NUM PICTURE '@S12' when m1vmp == 1
+        // ++j; @ j,1 say "дата выдачи талона на ВМП" get mTAL_D when m1vmp == 1
+        @ j,col()+1 say "выдан" get mTAL_D when m1vmp == 1
+        // @ j,col()+1 say "дата планируемой госпитализации" get mTAL_P when m1vmp == 1
+        @ j,col()+1 say "план. госп-ция" get mTAL_P when m1vmp == 1
         ++j; @ j,1 say " вид ВМП" get mvidvmp ;
                reader {|x|menu_reader(x,{{|k,r,c|f_get_vidvmp(k,r,c)}},A__FUNCTION,,,.f.)} ;
                when m1vmp == 1 ;
                valid {|g,o| f_valid_vidvmp(g,o) } ;
                color colget_menu
         ++j; @ j,1 say "  метод ВМП" get mmetvmp ;
-               reader {|x|menu_reader(x,{{|k,r,c|f_get_metvmp(k,r,c,m1vidvmp)}},A__FUNCTION,,,.f.)} ;
+               reader {|x|menu_reader(x,{{|k,r,c|f_get_metvmp(k,r,c,m1vidvmp, mkod_diag)}},A__FUNCTION,,,.f.)} ;
                when m1vmp == 1 .and. !empty(m1vidvmp) ;  //   valid {|| f_valid_metvmp(m1metvmp) } ;
                color colget_menu
         /*++j ; p_nstr_stent := j
