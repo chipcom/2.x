@@ -4,7 +4,7 @@
 #include "..\chip_mo.ch"
  
 
-***** 07.02.21 определение КСГ по остальным введённым полям ввода - 2019-20 год
+***** 11.02.21 определение КСГ по остальным введённым полям ввода - 2019-20 год
 Function definition_KSG(par,k_data2)
   // файлы "human", "human_" и "human_2" открыты и стоят на нужной записи
   //       "human" открыт для записи суммы случая
@@ -224,7 +224,7 @@ Function definition_KSG(par,k_data2)
       aadd(arerr,' для метода ВМП '+lstr(lvidvmp)+' нет услуги ТФОМС')
     else
       if lyear == 2021  // 10.02.2021 
-        lksg := getServiceForVMP(human_2->VIDVMP, human_2->METVMP, human->KOD_DIAG)
+        lksg := getServiceForVMP(human_2->VIDVMP, human_2->METVMP, human_2->PN5 ) //human->KOD_DIAG)
       else
         lksg := "1.12."+lstr(lvidvmp)
       endif

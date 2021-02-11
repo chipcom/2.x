@@ -133,6 +133,8 @@ Function oms_sluch(Loc_kod,kod_kartotek)
     MVMP, M1VMP := 0      ,; // 0-нет,1-да ВМП
     mtal_num := space(20),; // номер талона на ВМП
     MVIDVMP, M1VIDVMP := SPACE(12),; // вид ВМП по справочнику V018
+    mmodpac := space(12),; // модель пациента по справочнику V022
+    m1modpac := 0,; // модель пациента по справочнику V022
     MMETVMP, M1METVMP := 0,; // метод ВМП по справочнику V019 //  mstentvmp := " ",; // кол-во стентов для методов ВМП 498,499
     mTAL_D := ctod(""),; // Дата выдачи талона на ВМП
     mTAL_P := ctod(""),; // Дата планируемой госпитализации в соответствии с талоном на ВМП
@@ -439,6 +441,7 @@ Function oms_sluch(Loc_kod,kod_kartotek)
     M1VMP := human_2->VMP
     M1VIDVMP := human_2->VIDVMP
     M1METVMP := human_2->METVMP
+    m1modpac := human_2->PN5
     /*if between(M1METVMP,498,499) .and. year(mk_data)  == 2017
       mstentvmp := left(human_2->PC1,1) // кол-во стентов для методов ВМП 498,499
     endif*/
@@ -647,6 +650,7 @@ Function oms_sluch(Loc_kod,kod_kartotek)
   MVMP      := inieditspr(A__MENUVERT, mm_danet, M1VMP)
   MVIDVMP   := ret_V018(M1VIDVMP,mk_data)
   MMETVMP   := ret_V019(M1METVMP,M1VIDVMP,mk_data)
+  mmodpac   := ret_V022(m1modpac,mk_data)
   mreg_lech := inieditspr(A__MENUVERT, mm_reg_lech, m1reg_lech)
   MNOVOR    := inieditspr(A__MENUVERT, mm_danet, M1NOVOR)
   MF14_EKST := inieditspr(A__MENUVERT, mm_ekst , M1F14_EKST)
@@ -935,10 +939,16 @@ Function oms_sluch(Loc_kod,kod_kartotek)
                when m1vmp == 1 ;
                valid {|g,o| f_valid_vidvmp(g,o) } ;
                color colget_menu
-        ++j; @ j,1 say "  метод ВМП" get mmetvmp ;
-               reader {|x|menu_reader(x,{{|k,r,c|f_get_metvmp(k,r,c,m1vidvmp, mkod_diag)}},A__FUNCTION,,,.f.)} ;
+        ++j; @ j,1 say " модель пациента" get mmodpac ;
+                reader {|x|menu_reader(x,{{|k,r,c|f_get_mmodpac(k,r,c,m1vidvmp, mkod_diag)}},A__FUNCTION,,,.f.)} ;
+                when m1vmp == 1 ;
+                color colget_menu
+                // valid {|g,o| f_valid_mmodpac(g,o) } ;
+        ++j; @ j,1 say " метод ВМП" get mmetvmp ;
+               reader {|x|menu_reader(x,{{|k,r,c|f_get_metvmp(k,r,c,m1vidvmp,m1modpac)}},A__FUNCTION,,,.f.)} ;
                when m1vmp == 1 .and. !empty(m1vidvmp) ;  //   valid {|| f_valid_metvmp(m1metvmp) } ;
                color colget_menu
+              // reader {|x|menu_reader(x,{{|k,r,c|f_get_metvmp(k,r,c,m1vidvmp, mkod_diag)}},A__FUNCTION,,,.f.)} ;
         /*++j ; p_nstr_stent := j
         if year(mk_data) == 2017
           p_str_stent := "   число стентов, установленных в коронарные артерии"
@@ -1875,15 +1885,20 @@ Function oms_sluch(Loc_kod,kod_kartotek)
           elseif empty(M1METVMP)
             func_error(4,'Не заполнен метод ВМП')
             loop
+          elseif empty(m1modpac)
+            func_error(4,'Не заполнена модель пациента ВМП')
+            loop
           endif
         else
           M1VIDVMP := ""
           M1METVMP := 0
+          m1modpac := 0
         endif
       else
         M1VMP := 0
         M1VIDVMP := ""
         M1METVMP := 0
+        m1modpac := 0
       endif
       err_date_diap(mn_data,"Дата начала лечения")
       err_date_diap(mk_data,"Дата окончания лечения")
@@ -2044,6 +2059,7 @@ Function oms_sluch(Loc_kod,kod_kartotek)
       human_2->TAL_P  := mTAL_P
       human_2->VIDVMP := M1VIDVMP
       human_2->METVMP := M1METVMP
+      human_2->PN5    := m1modpac
       /*if year(mk_data) == 2017 .and. between(M1METVMP,498,499)
         human_2->PC1 := mstentvmp // кол-во стентов для методов ВМП 498,499
       endif*/

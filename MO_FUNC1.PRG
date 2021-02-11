@@ -2306,22 +2306,17 @@ endif
 return ret
 
 ***** 11.02.21 в GET-е вернуть строку из glob_V019
-Function f_get_metvmp(k, r, c, lvidvmp, sDiag)
+Function f_get_metvmp(k, r, c, lvidvmp, modpac)
   Local arr := {}, i, ret, ret_arr
-  local diag := alltrim(sDiag)
 
-  if empty(lvidvmp) .or. empty(diag)
+  if empty(lvidvmp) .or. empty(modpac)
     return NIL
   endif
 
-alertx(diag, 'diag')
-alertx(lvidvmp, 'vid vmp')
-  
   make_V018_V019(mk_data)
   for i := 1 to len(glob_V019)
-    if glob_V019[i,4] == alltrim(lvidvmp) .and. ( ascan(glob_V019[i,3],diag) > 0 )
+    if glob_V019[i,4] == alltrim(lvidvmp) .and. glob_V019[i,8] == modpac
       aadd(arr, {padr(str(glob_V019[i,1],4)+"."+glob_V019[i,2],76),glob_V019[i,1]})
-alertx(glob_V019[i,1], 'V019')
     endif
   next
   if empty(arr)
