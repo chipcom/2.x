@@ -1222,7 +1222,7 @@ return flag
 
 *
 
-***** 19.06.19
+***** 12.02.21
 Function vozvrat_orto()
 Local buf := savescreen(), sotgr, str_sem, s, ln_chek,;
       sum_bank, sum_nal, sum_itog, tip_banka,;
@@ -1237,7 +1237,7 @@ Private  summa_oplat := 0, summa_oplat_bn := 0, p_summa := 0
 
 
 if !empty(human->k_data) .and. tip_polzovat != 0
-  func_error(4,err_close)
+  func_error(4,"Пользователь не АДМИНИСТРАТОР, а наряд закрыт !")
 elseif ho->sum_voz > 0
   func_error(4,"По даной оплате уже производился возврат денег!")
 else
