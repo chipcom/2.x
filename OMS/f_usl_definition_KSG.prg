@@ -22,8 +22,12 @@ Function f_usl_definition_KSG(lkod,k_data2)
       tmp_rec := recno()
     endif
     set relation to
+
+// alertx(lyear,'lyear')
+// alertx(k_data2,'k_data2')
     if lyear > 2018
       arr := definition_KSG(1,k_data2)
+// alertx(arr[4],'arr')
     else
       arr := definition_KSG_18()
     endif
