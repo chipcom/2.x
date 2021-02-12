@@ -1944,7 +1944,7 @@ if !empty(full_zip)
 endif
 return NIL
 
-***** 22.11.19 вынуть реестр из XML-файлов и записать во временные DBF-файлы
+***** 12.02.21 вынуть реестр из XML-файлов и записать во временные DBF-файлы
 Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
 Local _table1 := {;
    {"KOD",      "N", 6,0},; // код
@@ -1981,7 +1981,7 @@ Local _table1 := {;
    {"VB_P"    , "C", 1,0},; //
    {"IDSP"    , "C", 2,0},; //
    {"SUMV"    , "C",10,0},; //
-   {"METOD_HMP","C", 3,0},; // N3
+   {"METOD_HMP","C", 4,0},; // N4 // 12.02.2021
    {"NPR_MO",   "C", 6,0},; //
    {"NPR_DATE", "C",10,0},; //
    {"EXTR",     "C", 1,0},; //
