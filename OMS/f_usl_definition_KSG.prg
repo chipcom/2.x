@@ -3,11 +3,12 @@
 #include "..\..\_mylib_hbt\edit_spr.ch"
 #include "..\chip_mo.ch"
 
-***** 07.02.21 определить КСГ для 1 пациента из режима редактирования услуг
+***** 14.02.21 определить КСГ для 1 пациента из режима редактирования услуг
 Function f_usl_definition_KSG(lkod,k_data2)
   Local arr, buf := save_maxrow(), lshifr, lrec, lu_kod, lcena, not_ksg := .t.,;
         mrec_hu, tmp_rec := 0, tmp_select := select(), is_usl1 := .f.,;
         ret := {}, lyear := year(human->K_DATA), i, s, sdial, fl
+
   if human_->USL_OK < 3
     mywait("Определение КСГ")
     usl->(dbCloseArea()) // переоткрыть справочник услуг
@@ -22,12 +23,8 @@ Function f_usl_definition_KSG(lkod,k_data2)
       tmp_rec := recno()
     endif
     set relation to
-
-// alertx(lyear,'lyear')
-// alertx(k_data2,'k_data2')
     if lyear > 2018
       arr := definition_KSG(1,k_data2)
-// alertx(arr[4],'arr')
     else
       arr := definition_KSG_18()
     endif
@@ -74,14 +71,13 @@ Function f_usl_definition_KSG(lkod,k_data2)
           select LUSL
           find (padr(lshifr,10)) // длина lshifr 10 знаков
           if found() .and. (eq_any(left(lshifr,5),"1.20.") .or. is_ksg(lusl->shifr)) // стоит другой КСГ
-            // if found() .and. (eq_any(left(lshifr,5),"1.12.") .or. is_ksg(lusl->shifr)) // стоит другой КСГ
             lrec := tmp->(recno())
             exit
           endif
         elseif lyear > 2019
           select LUSL20
           find (padr(lshifr,10)) // длина lshifr 10 знаков
-          if found() .and. (eq_any(left(lshifr,5),"1.12.") .or. is_ksg(lusl->shifr)) // стоит другой КСГ
+          if found() .and. (eq_any(left(lshifr,5),"1.12.") .or. is_ksg(lusl20->shifr)) // стоит другой КСГ
             lrec := tmp->(recno())
             exit
           endif

@@ -355,6 +355,7 @@ Local aksg, lcena, adbf := {;
   {"is_edit"  ,   "N",     2,     0},;
   {"number"   ,   "N",     3,     0},;
   {"rec_hu"   ,   "N",     8,     0}}
+
 use_base("lusl")
 use_base("luslc")
 use_base("luslf")
@@ -425,8 +426,6 @@ if found()
     else
       fl_oms := .f.
       // переопределение цены
-my_debug(," recount_double_s")
-
       if (v := f1cena_oms(tmp->shifr_u,;
                           tmp->shifr1,;
                           (human->vzros_reb==0),;
