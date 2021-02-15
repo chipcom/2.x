@@ -6,24 +6,6 @@
 
 #include 'tbox.ch'
 
-* 21.01.21 вернуть массив регионов по справочнику регионов ТФОМС F010.xml
-function getf010()
-    // F010.xml - Классификатор субъектов Российской Федерации
-    //  1 - SUBNAME(C) 2 - KOD_TF(N)  3 - OKRUG(N)
-    local dbName := "f010"
-    local _f010 := {}
-
-    dbUseArea( .t.,, exe_dir + dbName, dbName, .f., .f. )
-    (dbName)->(dbGoTop())
-    do while !(dbName)->(EOF())
-        aadd(_f010, {(dbName)->SUBNAME,(dbName)->KOD_TF,Val((dbName)->OKRUG)})
-        (dbName)->(dbSkip())
-    enddo
-    (dbName)->(dbCloseArea())
-    aadd(_f010, {'Федерального подчинения', '99', 0})
-
-    return _f010
-
 * 20.01.21 {_MO_KOD_TFOMS,_MO_SHORT_NAME}
 Function viewF003( mkod, r, c, lusl, lpar )
 
