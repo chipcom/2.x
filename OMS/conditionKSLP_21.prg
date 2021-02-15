@@ -4,11 +4,12 @@
 //
 ***** 30.01.21 проверка услувия для применения КСЛП=1 для 2021 года
 function conditionKSLP_1_21(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration)
-  local fl := .f., y
+  local fl := .f., age
 
   // КСЛП=1 пациенты старше 75 лет
-  count_ymd( ctod(DOB), ctod(n_date), @y )
-  if y > 75
+  count_ymd( ctod(DOB), ctod(n_date), @age )
+
+  if age >= 75
     if (profil != 16 .and. ! (lshifr == "st38.001"))
       fl := .t.
     endif

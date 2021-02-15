@@ -314,6 +314,7 @@ Function f_cena_kslp(/*@*/_cena,_lshifr,_date_r,_n_data,_k_data,lkslp,arr_usl,lP
     // Все случаи применения КСЛП (за исключением КСЛП1) подвергаются экспертному контролю.
     count_ymd( _date_r, _n_data, @y )
     lkslp := list2arr(lkslp)  // преобразуем строку допустимых КСЛП в массив
+
     savedKSLP := iif(empty(HUMAN_2->PC1), "'"+"'", "'" + alltrim(HUMAN_2->PC1) + "'")  // получим сохраненные КСЛП
 
     argc := '(' + savedKSLP + ',' + ;

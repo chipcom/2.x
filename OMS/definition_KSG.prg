@@ -851,7 +851,7 @@ Function definition_KSG(par,k_data2)
                            mdiagnoz,;
                            lpar_org,;
                            lad_cr)
-        if year(lk_data) == 2021  // added 29.01.2021
+      if year(lk_data) == 2021  // added 29.01.2021
           if !empty(akslp)
             for iKSLP := 1 to len(akslp) step 2
               if iKSLP != 1
