@@ -14,17 +14,6 @@ function getV019table()
   (dbAlias)->(dbGoTop())
   do while !(dbAlias)->(EOF())
 
-    // for j := 1 to len(_glob_V019)
-    //   ar := {}
-    //   for i := 1 to numtoken(_glob_V019[j,3],";")
-    //     s := alltrim(token(_glob_V019[j,3],";",i))
-    //     if !empty(s)
-    //       aadd(ar,s)
-    //     endif
-    //   next
-    //   _glob_V019[j,3] := aclone(ar) // заменим строковое представление диагнозов массивом диагнозов
-    // next
-
     tArr := alltrim((dbAlias)->DIAG)
     aadd(tmpV019, { (dbAlias)->IDHM, alltrim((dbAlias)->HMNAME), aclone(hb_ATokens(tArr, ';')), alltrim((dbAlias)->HVID), (dbAlias)->DATEBEG, (dbAlias)->DATEEND, (dbAlias)->HGR, (dbAlias)->IDMODP })
     (dbAlias)->(dbSkip())
