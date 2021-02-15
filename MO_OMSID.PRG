@@ -7867,7 +7867,7 @@ endif
       elseif left(ad[i,1],1) == "K" // болезни органов пищеварения
         arr[12] ++
       endif
-      if left(ad[i,1],1) == "C" .or. between(left(ad[i,1],3),"D00","D09") // ЗНО
+      if left(ad[i,1],1) == "C" .or. between(left(ad[i,1],3),"D00","D09") // ЗНО может быть добавить  .or. between(left(ad[i,1],3),"D45","D47")
         arr[9] ++
       endif
       if ad[i,3] == 2 // дисп.набл.установлено впервые

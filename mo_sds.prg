@@ -53,7 +53,7 @@ if k > 0
 endif
 return NIL
 
-***** 20.02.20
+***** 15.02.21
 Function read_file_XML_SDS(n_file)
 Static cDelimiter := " ,"
 Local _sluch := {;
@@ -1126,7 +1126,7 @@ do while !eof()
           if !eq_any(ihuman->ISHOD,304)
             ihuman->ISHOD := 304
           endif
-          if left(ihuman->ds1,1) == "C" .or. between(left(ihuman->ds1,3),"D00","D09")
+          if left(ihuman->ds1,1) == "C" .or. between(left(ihuman->ds1,3),"D00","D09") .or. between(left(ihuman->ds1,3),"D45","D47")
             // оставляем онкологический диагноз
           elseif padr(ihuman->ds1,5) == "Z03.1"
             if ihuman->DS_ONK != 1

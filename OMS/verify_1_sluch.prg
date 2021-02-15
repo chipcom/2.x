@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-***** 11.02.21
+***** 15.02.21
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
         i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -1079,7 +1079,7 @@ Function verify_1_sluch(fl_view)
             endif
           endif
         endif
-        if arr_povod[1,1] == 4  .and. (left(mdiagnoz[1],1) == "C" .or. between(left(mdiagnoz[1],3),"D00","D09"))
+        if arr_povod[1,1] == 4  .and. (left(mdiagnoz[1],1) == "C" .or. between(left(mdiagnoz[1],3),"D00","D09") .or. between(left(mdiagnoz[1],3),"D45","D47"))
           k := ret_prvs_V021(human_->PRVS)
           if !eq_any(k,19,41)
             aadd(ta,'диспансерное наблюдение при ЗНО осуществляют только врачи-онкологи (детские онкологи), а в листе учёта стоит специальность "'+inieditspr(A__MENUVERT, glob_V021, k)+'"')
@@ -1104,13 +1104,13 @@ Function verify_1_sluch(fl_view)
   //
   if human->OBRASHEN == '1'
     for i := 1 to len(mdiagnoz)
-      if left(mdiagnoz[i],1) == "C" .or. between(left(mdiagnoz[i],3),"D00","D09")
+      if left(mdiagnoz[i],1) == "C" .or. between(left(mdiagnoz[i],3),"D00","D09") .or. between(left(mdiagnoz[i],3),"D45","D47")
         aadd(ta,alltrim(mdiagnoz[i])+' основной (или сопутствующий) диагноз - онкология, поэтому в поле "подозрение на ЗНО" не должно стоять "да"')
         exit
       endif
     next
     for i := 1 to len(mdiagnoz3)
-      if left(mdiagnoz3[i],1) == "C" .or. between(left(mdiagnoz3[i],3),"D00","D09")
+      if left(mdiagnoz3[i],1) == "C" .or. between(left(mdiagnoz3[i],3),"D00","D09") .or. between(left(mdiagnoz3[i],3),"D45","D47")
         aadd(ta,alltrim(mdiagnoz3[i])+' диагноз осложнения - онкология, поэтому в поле "подозрение на ЗНО" не должно стоять "да"')
         exit
       endif
