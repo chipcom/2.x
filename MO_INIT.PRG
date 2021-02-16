@@ -295,9 +295,11 @@ else
 endif
 sbase := "_mo9usl"
 if hb_FileExists(exe_dir + sbase + sdbf)
-  R_Use(exe_dir + sbase ,,"LUSL")
-  index on shifr to (cur_dir+sbase)
-  use
+  if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
+    R_Use(exe_dir + sbase ,,"LUSL")
+    index on shifr to (cur_dir+sbase)
+    use
+  endif
 else
   fl := notExistsFileNSI( exe_dir + sbase + sdbf )
 endif
@@ -770,12 +772,14 @@ endif
 // цены на услуги на 2018 год
 sbase := "_mo8uslc"
 if hb_FileExists(exe_dir + sbase + sdbf) .and. valtype(glob_mo) == "A"
-  R_Use(exe_dir + sbase ,,"LUSLC")
-  index on shifr+str(vzros_reb,1)+str(depart,3)+dtos(datebeg) to (cur_dir+sbase) ;
+  if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
+    R_Use(exe_dir + sbase ,,"LUSLC")
+    index on shifr+str(vzros_reb,1)+str(depart,3)+dtos(datebeg) to (cur_dir+sbase) ;
         for codemo == glob_mo[_MO_KOD_TFOMS]
-  index on codemo+shifr+str(vzros_reb,1)+str(depart,3)+dtos(datebeg) to (cur_dir+"_mo8uslu") ;
+    index on codemo+shifr+str(vzros_reb,1)+str(depart,3)+dtos(datebeg) to (cur_dir+"_mo8uslu") ;
         for codemo == glob_mo[_MO_KOD_TFOMS] // для совместимости со старой версией справочника
-  close databases
+    close databases
+  endif
 else
   fl := notExistsFileNSI( exe_dir + sbase + sdbf )
 endif
