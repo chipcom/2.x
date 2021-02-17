@@ -1435,9 +1435,10 @@ else
 endif
 return NIL
 
+
 *
 
-***** 07.08.16 печать счета
+***** 17.02.21 печать счета
 Function print_schet_S(reg)
 Local adbf, j, s, ii := 0, fl_numeration := .f., buf := save_maxrow(),;
       lshifr1, ldate1, ldate2, hGauge
@@ -1454,6 +1455,7 @@ adbf := {{"name","C",130,0},;
          {"bik","C",10,0},;
          {"ruk","C",20,0},;
          {"bux","C",20,0},;
+         {"k_schet","C",45,0},;
          {"ispolnit","C",20,0},;
          {"plat","C",250,0},;
          {"nschet","C",20,0},;
@@ -1489,6 +1491,7 @@ frt->r_schet := org->r_schet
 frt->bik := org->smfo
 frt->ruk := org->ruk
 frt->bux := org->bux
+frt->k_schet := org->k_schet
 frt->ispolnit := org->ispolnit
 frt->date_podp := full_date(sys_date)+" г."
 s := ""
