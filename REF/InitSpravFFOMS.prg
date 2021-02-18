@@ -191,7 +191,7 @@ Function InitSpravFFOMS()
 
   // V012.xml - Классификатор исходов заболевания
   //  1 - IZNAME(C)  2 - IDIZ(N)  3 - DATEBEG(D)  4 - DATEEND(D)  5 - DL_USLOV(N)
-  Public glob_V012 := {}
+  Public glob_V012 := getV012()   // {}
 
   // V014.xml - Классификатор форм медицинской помощи
   //  1 - FRMMPNAME(C)  2 - IDFRMMP(N)  3 - DATEBEG(D)  4 - DATEEND(D)
