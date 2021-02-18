@@ -453,7 +453,7 @@ Function definition_KSG(par,k_data2)
     enddo
   else
     set order to 1
-alertx(susl+padr(osn_diag,6),'susl+padr(osn_diag,6)')
+// alertx(susl+padr(osn_diag,6),'susl+padr(osn_diag,6)')
     find (susl+padr(osn_diag,6))
     do while left(k006->shifr,2)==susl .and. k006->ds==padr(osn_diag,6) .and. !eof()
       lkoef := k006->kz
@@ -475,11 +475,11 @@ alertx(susl+padr(osn_diag,6),'susl+padr(osn_diag,6)')
           fl := .f.
         endif
       endif
-if substr(k006->shifr,1,7) == 'st13.00'
-  // alertx(lad_cr,'lad_cr')
-  alertx(padr(k006->shifr,8)+' '+alltrim(k006->ad_cr),'k006->shifr')
-  alertx(fl,'fl')
-endif
+// if substr(k006->shifr,1,7) == 'st13.00'
+//   // alertx(lad_cr,'lad_cr')
+//   alertx(padr(k006->shifr,8)+' '+alltrim(k006->ad_cr),'k006->shifr')
+//   alertx(fl,'fl')
+// endif
       if fl .and. !empty(k006->age)
         if (fl := (k006->age $ lage))
           if k006->age == '1'
@@ -512,7 +512,7 @@ endif
           if empty(k006->ad_cr) // а в справочнике нет доп.критерия
             fl := .f.
           else                  // а в справочнике есть доп.критерий
-alertx(lad_cr+':'+alltrim(k006->ad_cr),'lad_cr ad_cr')
+// alertx(lad_cr+':'+alltrim(k006->ad_cr),'lad_cr ad_cr')
             fl := (alltrim(lad_cr) == alltrim(k006->ad_cr))
             if fl ; j ++ ; endif
           endif
