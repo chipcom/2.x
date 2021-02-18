@@ -611,7 +611,8 @@ Function f2oms_usl_sluch(nKey,oBrow)
           hb_KeyPut(K_CTRL_F10) //keysend(KS_CTRL_F10)
         elseif lastkey() != K_ESC
 
-          if year(mdate_u1) == 2021
+          // запомним КСЛП для случая услуг круглосуточного и дневного стационара
+          if year(mdate_u1) == 2021 .and. (substr(lower(mshifr),1,2) == 'st' .or. substr(lower(mshifr),1,2) == 'ds')
             // запомним КСЛП
             tmSel := select('HUMAN_2')
             if (tmSel)->(dbRlock())
