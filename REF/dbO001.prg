@@ -1,35 +1,43 @@
 * 16.02.21 ¢¥à­ãâì ¬ áá¨¢ ””Œ‘ O001.xml
 function getO001()
-  local _O001 := {}
-  // local dbName := "O001"
+  static _O001 := {}
+  // Local dbName, dbAlias := 'O001'
+  // local tmp_select := select()
 
-  // dbUseArea( .t.,, exe_dir + dbName, dbName, .f., .f. )
-  // (dbName)->(dbGoTop())
-  // do while !(dbName)->(EOF())
-  //     aadd(_O001, { (dbName)->SUBNAME, (dbName)->KOD_TF, Val((dbName)->OKRUG), (dbName)->KOD_OKATO, (dbName)->DATEBEG, (dbName)->DATEEND })
-  //     (dbName)->(dbSkip())
-  // enddo
-  // (dbName)->(dbCloseArea())
-  
-  // O001.dbf - ¡é¥à®áá¨©áª¨© ª« áá¨ä¨ª â®à áâà ­ ¬¨à  (Š‘Œ)
-  //  1 - NAME11(C)  2 - KOD(C)  3 - DATEBEG(D)  4 - DATEEND(D)  5 - ALFA2(C)  6 - ALFA3(C)
 
-  aadd(_O001, {"€”ƒ€ˆ‘’€","004",stod(""),stod(""),"AF","AFG"})
-  aadd(_O001, {"€‹€ˆŸ","008",stod(""),stod(""),"AL","ALB"})
-  aadd(_O001, {"€’€Š’ˆ„€","010",stod(""),stod(""),"AQ","ATA"})
-  aadd(_O001, {"€‹†ˆ","012",stod(""),stod(""),"DZ","DZA"})
-  aadd(_O001, {"€Œ…ˆŠ€‘Š… ‘€Œ€","016",stod(""),stod(""),"AS","ASM"})
-  aadd(_O001, {"€„€","020",stod(""),stod(""),"AD","AND"})
-  aadd(_O001, {"€ƒ‹€","024",stod(""),stod(""),"AO","AGO"})
-  aadd(_O001, {"€’ˆƒ“€ ˆ €“„€","028",stod(""),stod(""),"AG","ATG"})
-  aadd(_O001, {"€‡…€‰„†€","031",stod(""),stod(""),"AZ","AZE"})
-  aadd(_O001, {"€ƒ…’ˆ€","032",stod(""),stod(""),"AR","ARG"})
-  aadd(_O001, {"€‚‘’€‹ˆŸ","036",stod(""),stod(""),"AU","AUS"})
-  aadd(_O001, {"€‚‘’ˆŸ","040",stod(""),stod(""),"AT","AUT"})
-  aadd(_O001, {"€ƒ€Œ›","044",stod(""),stod(""),"BS","BHS"})
-  aadd(_O001, {"€•…‰","048",stod(""),stod(""),"BH","BHR"})
-  aadd(_O001, {"€ƒ‹€„…˜","050",stod(""),stod(""),"BD","BGD"})
-  aadd(_O001, {"€Œ…ˆŸ","051",stod(""),stod(""),"AM","ARM"})
+    // O001.dbf - ¡é¥à®áá¨©áª¨© ª« áá¨ä¨ª â®à áâà ­ ¬¨à  (Š‘Œ)
+    //  1 - NAME11(C)  2 - KOD(C)  3 - DATEBEG(D)  4 - DATEEND(D)  5 - ALFA2(C)  6 - ALFA3(C)
+    if len(_O001) == 0
+      // dbName := '_moO001'
+      // tmp_select := select()
+      // dbUseArea( .t., "DBFNTX", exe_dir + dbName, dbAlias , .t., .f. )
+
+    // (dbAlias)->(dbGoTop())
+    // do while !(dbAlias)->(EOF())
+    // ¨á¯à ¢¨âì ¤ «¥¥
+    //     aadd(_O001, { (dbAlias)->SUBNAME, (dbAlias)->KOD_TF, Val((dbAlias)->OKRUG), (dbAlias)->KOD_OKATO, (dbAlias)->DATEBEG, (dbAlias)->DATEEND })
+    //     (dbAlias)->(dbSkip())
+    // enddo
+    // (dbAlias)->(dbCloseArea())
+    // Select(tmp_select)
+
+
+    aadd(_O001, {"€”ƒ€ˆ‘’€","004",stod(""),stod(""),"AF","AFG"})
+    aadd(_O001, {"€‹€ˆŸ","008",stod(""),stod(""),"AL","ALB"})
+    aadd(_O001, {"€’€Š’ˆ„€","010",stod(""),stod(""),"AQ","ATA"})
+    aadd(_O001, {"€‹†ˆ","012",stod(""),stod(""),"DZ","DZA"})
+    aadd(_O001, {"€Œ…ˆŠ€‘Š… ‘€Œ€","016",stod(""),stod(""),"AS","ASM"})
+    aadd(_O001, {"€„€","020",stod(""),stod(""),"AD","AND"})
+    aadd(_O001, {"€ƒ‹€","024",stod(""),stod(""),"AO","AGO"})
+    aadd(_O001, {"€’ˆƒ“€ ˆ €“„€","028",stod(""),stod(""),"AG","ATG"})
+    aadd(_O001, {"€‡…€‰„†€","031",stod(""),stod(""),"AZ","AZE"})
+    aadd(_O001, {"€ƒ…’ˆ€","032",stod(""),stod(""),"AR","ARG"})
+    aadd(_O001, {"€‚‘’€‹ˆŸ","036",stod(""),stod(""),"AU","AUS"})
+    aadd(_O001, {"€‚‘’ˆŸ","040",stod(""),stod(""),"AT","AUT"})
+    aadd(_O001, {"€ƒ€Œ›","044",stod(""),stod(""),"BS","BHS"})
+    aadd(_O001, {"€•…‰","048",stod(""),stod(""),"BH","BHR"})
+    aadd(_O001, {"€ƒ‹€„…˜","050",stod(""),stod(""),"BD","BGD"})
+    aadd(_O001, {"€Œ…ˆŸ","051",stod(""),stod(""),"AM","ARM"})
   aadd(_O001, {"€€„‘","052",stod(""),stod(""),"BB","BRB"})
   aadd(_O001, {"…‹œƒˆŸ","056",stod(""),stod(""),"BE","BEL"})
   aadd(_O001, {"…Œ“„›","060",stod(""),stod(""),"BM","BMU"})
@@ -265,5 +273,6 @@ function getO001()
   aadd(_O001, {"‡€ŒˆŸ","894",stod(""),stod(""),"ZM","ZMB"})
   aadd(_O001, {"€•€‡ˆŸ","895",stod(""),stod(""),"AB","ABH"})
   aadd(_O001, {"†€Ÿ ‘…’ˆŸ","896",stod(""),stod(""),"OS","OST"})
+  endif
 
   return _O001
