@@ -26,6 +26,9 @@ Function InitSpravFFOMS()
   // V019.xml - Классификатор методов ВМП
   Local i, j, s, ar
   
+alertx(len(getQ017()), 'length 1')
+alertx(len(getQ017()), 'length 2')
+
   /////////////////////////////////////////////////
   // F005.xml - Классификатор статусов оплаты медицинской помощи
   //  1 - STNAME(C)  2 - IDIDST(N)  3 - DATEBEG(D)  4 - DATEEND(D)
