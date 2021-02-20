@@ -14,10 +14,9 @@ function loadQ017()
   local tmp_select := select()
 
   // Q017.dbf - Перечень категорий проверок ФЛК и МЭК (TEST_K)
-  //  1 - ID_KTEST(4)  2 - NAM_KTEST(C) 3 - COMMENT(M)  4 - DATEBEG(D)  5 - DATEEND(D)  5 - ALFA2(C)  6 - ALFA3(C)
+  //  1 - ID_KTEST(4)  2 - NAM_KTEST(C) 3 - COMMENT(M)  4 - DATEBEG(D)  5 - DATEEND(D)
   if _Q017 == nil
     _Q017 := hb_hash()
-    hb_hSet( _Q017, 'Key', {'xValue',1} )      
     dbName := '_mo_Q017'
     tmp_select := select()
     dbUseArea( .t., "DBFNTX", exe_dir + dbName, dbAlias , .t., .f. )
@@ -39,12 +38,12 @@ function getCategoryCheckErrorByID_Q017(idCategory)
   // arr[2] - комментарий
   // arr[3] - дата начала действия категории проверки
   // arr[4] - дата окончания действия категории проверки
-  local arrCategory := loadQ017()
+  local arrCategories := loadQ017()
   local category := alltrim(upper(idCategory))
   local aRet := {}
 
-  if hb_hHaskey( arrCategory, category )
-    aRet := arrCategory[category]
+  if hb_hHaskey( arrCategories, category )
+    aRet := arrCategories[category]
   else
     AAdd(aRet, 'Неизвестная категория проверки с идентификатором: ' + category)
     AAdd(aRet, '')
