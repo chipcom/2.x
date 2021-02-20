@@ -142,7 +142,7 @@ function conditionKSLP_9_21(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_di
   // лечебно-диагностические мероприятия, назначение лекарственных препаратов, 
   // увеличение срока госпитализации и т.д.), которые отражают дополнительные 
   // затраты медицинской организации на лечение данного пациента. 
-  local diag, i := 0, tmp
+  local diag, i := 0
   local inclDIAG := {;
     "E10.0", "E10.1", "E10.2", "E10.3", "E10.4", "E10.5", "E10.6", "E10.7", "E10.8", "E10.9", ;
     "E11.0", "E11.1", "E11.2", "E11.3", "E11.4", "E11.5", "E11.6", "E11.7", "E11.8", "E11.9", ;
@@ -162,13 +162,13 @@ function conditionKSLP_9_21(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_di
 
   for each diag in aDiagnozis
     i++
-    if i == 1
+    if i == 1 // пропускаем основной диагноз, нжны только сопутствующие и осложнения
       loop
     endif
     if upper(substr(diag,1,1)) == 'B' // что-то с ВИЧ
-      tmp := upper(substr(diag,1,3))
+      diag := upper(substr(diag,1,3))
     else
-      tmp := upper(diag)
+      diag := upper(diag)
     endif
     if ascan(inclDIAG, diag) > 0
       fl := .t.
