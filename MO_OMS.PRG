@@ -4467,9 +4467,14 @@ if (arr_m := year_month(T_ROW,T_COL+5,,3)) != NIL
       elseif !empty(s1)
         select TMP_H
         append blank
-        replace kod with human->kod, REFREASON with -99, SREFREASON with s1
+        // replace kod with human->kod, REFREASON with -99, SREFREASON with s1
+        replace kod with human->kod, REFREASON with 10, SREFREASON with s1  // чтобы обмануть выбор пациентов 20/02/2021
         if (i := ascan(arr,{|x| x[2]==tmp_h->REFREASON})) == 0
-          s := s1+" новая причина отказа"
+          if len(aTokens := hb_ATokens( s1, '.' )) == 3 // ошибка по справочнику Q015
+            s := alltrim(s1) + ' ' + getCategoryCheckErrorByID_Q017(aTokens[1])[1]
+          else
+            s := s1 + ' новая причина отказа'
+          endif
           aadd(arr, {s,tmp_h->REFREASON})
         endif
       endif
