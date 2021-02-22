@@ -405,7 +405,7 @@ do while n_data <= arr_m[6] .and. !eof()
       else             // взрослый
         arr_vz_reb[1] ++
       endif
-      if empty(ini_strana(kart_->strana))
+      if empty(getCountry(kart_->strana))
         j := 0 ; k := 18 ; s := "Центральный"
         if !empty(kart_->okatog)
           if !(left(kart_->okatog,2)=='18')
@@ -2471,7 +2471,7 @@ return fl
 
 *****
 Function f_gur_inostr_pp(sh)
-Local i, s, arr[2], mSTRANA := ini_strana(kart_->strana)
+Local i, s, arr[2], mSTRANA := getCountry(kart_->strana)
 if !empty(mSTRANA)
   s := 'страна: "'+alltrim(mSTRANA)+'"' // страна
   if !empty(kis->ADRES_PRO)

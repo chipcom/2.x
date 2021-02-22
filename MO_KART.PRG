@@ -352,7 +352,7 @@ mokato := inieditspr(A__MENUVERT, glob_array_srf, m1okato)
 mismo := init_ismo(m1ismo)
 mvidpolis := inieditspr(A__MENUVERT, mm_vid_polis, m1vidpolis)
 mgorod_selo := inieditspr(A__MENUVERT, mm_gorod_selo, m1gorod_selo)
-m1gragd := iif(empty(mSTRANA := ini_strana(m1strana)), 1, 0)
+m1gragd := iif(empty(mSTRANA := getCountry(m1strana)), 1, 0)
 mgragd := inieditspr(A__MENUVERT, mm_danet, m1gragd)
 manonim := inieditspr(A__MENUVERT, mm_danet, m1anonim)
 mPENSIONER := inieditspr(A__MENUVERT, mm_danet, m1PENSIONER)
@@ -1205,167 +1205,171 @@ return .t.
 
 ***** 11.09.18
 Function get_oksm(r)
-Local c := 7, r1, r2, buf, tmp_help, tmp_list, tmp_color, tmp_cursor, tek_sost, tmp_keys
-if r < int(maxrow()/2)
-  r1 := r+1
-  r2 := r1+8
-else
-  r2 := r-1
-  r1 := r2-8
-endif
-buf := savescreen()
-//tmp_help := help_code
-SAVE GETS TO tmp_list
-//help_code := H_Inostr
-tmp_color := setcolor(color0+",,,B/BG")
-tmp_cursor := setcursor(0)
-//tek_sost := CSETALL()
-tmp_keys := my_savekey()
-change_attr()
-box_shadow(r1,c,r2,77,,"Ввод дополнительных сведений по иностранцу","GR+/BG")
-setcursor()
-@ r1+1,c+2 say "Страна" get mstrana ;  //reader {|x|menu_reader(x,glob_O001,A__MENUVERT,,,.f.)}
-           reader {|x|menu_reader(x,{{|k,r,c|f1get_oksm(k,r,c)}},A__FUNCTION,,,.f.)}
-@ r1+2,c+2 say "Основание пребывания в РФ" get mosn_preb ;
-           reader {|x|menu_reader(x,menu_osn_preb_RF,A__MENUVERT,,,.f.)}
-@ r1+3,c+2 say "Адрес проживания в Волгоградской области"
-@ r1+4,c+3 get MADRES_PRO
-@ r1+5,c+2 say "Миграционная карта" get MMIGR_KARTA
-@ r1+6,c+2 say "Дата пересечения границы" get MDATE_P_G
-@ r1+7,c+2 say "Дата регистрации в миграционной службе" get MDATE_R_M
-status_key("^<PgDn>^ - запись и переход в карточку пациента")
-myread()
-restscreen(buf)
-my_restkey(tmp_keys)
-setcolor(tmp_color)
-//help_code := tmp_help
-RESTORE GETS FROM tmp_list
-//CSETALL(tek_sost)
-if tmp_cursor != 0
-  setcursor()
-endif
-return .t.
+  Local c := 7, r1, r2, buf, tmp_help, tmp_list, tmp_color, tmp_cursor, tek_sost, tmp_keys
 
+  if r < int(maxrow()/2)
+    r1 := r+1
+    r2 := r1+8
+  else
+    r2 := r-1
+    r1 := r2-8
+  endif
+  buf := savescreen()
+  //tmp_help := help_code
+  SAVE GETS TO tmp_list
+  //help_code := H_Inostr
+  tmp_color := setcolor(color0+",,,B/BG")
+  tmp_cursor := setcursor(0)
+  //tek_sost := CSETALL()
+  tmp_keys := my_savekey()
+  change_attr()
+  box_shadow(r1,c,r2,77,,"Ввод дополнительных сведений по иностранцу","GR+/BG")
+  setcursor()
+  @ r1+1,c+2 say "Страна" get mstrana ;  //reader {|x|menu_reader(x,glob_O001,A__MENUVERT,,,.f.)}
+             reader {|x|menu_reader(x,{{|k,r,c|f1get_oksm(k,r,c)}},A__FUNCTION,,,.f.)}
+  @ r1+2,c+2 say "Основание пребывания в РФ" get mosn_preb ;
+             reader {|x|menu_reader(x,menu_osn_preb_RF,A__MENUVERT,,,.f.)}
+  @ r1+3,c+2 say "Адрес проживания в Волгоградской области"
+  @ r1+4,c+3 get MADRES_PRO
+  @ r1+5,c+2 say "Миграционная карта" get MMIGR_KARTA
+  @ r1+6,c+2 say "Дата пересечения границы" get MDATE_P_G
+  @ r1+7,c+2 say "Дата регистрации в миграционной службе" get MDATE_R_M
+  status_key("^<PgDn>^ - запись и переход в карточку пациента")
+  myread()
+  restscreen(buf)
+  my_restkey(tmp_keys)
+  setcolor(tmp_color)
+  //help_code := tmp_help
+  RESTORE GETS FROM tmp_list
+  //CSETALL(tek_sost)
+  if tmp_cursor != 0
+    setcursor()
+  endif
+  return .t.
+  
 ***** 01.08.18
 Function f1get_oksm(k,r,c)
-Static skodN := ""
-Static arr_sng := {;
-  "895",;//"АБХАЗИЯ"
-  "031",;//"АЗЕРБАЙДЖАН"
-  "051",;//"АРМЕНИЯ"
-  "112",;//"БЕЛАРУСЬ"
-  "268",;//"ГРУЗИЯ"
-  "398",;//"КАЗАХСТАН"
-  "417",;//"КИРГИЗИЯ"
-  "428",;//"ЛАТВИЯ"
-  "440",;//"ЛИТВА"
-  "498",;//"МОЛДОВА, РЕСПУБЛИКА"
-  "762",;//"ТАДЖИКИСТАН"
-  "795",;//"ТУРКМЕНИЯ"
-  "860",;//"УЗБЕКИСТАН"
-  "804",;//"УКРАИНА"
-  "233",;//"ЭСТОНИЯ"
-  "896" ;//"ЮЖНАЯ ОСЕТИЯ"
- }
-Local ret, r1, r2, i, lcolor, tmp_select := select()
-if (r1 := r+1) > int(maxrow()/2)
-  r2 := r-1 ; r1 := 2
-else
-  r2 := maxrow()-2
-endif
-Private p_oksm, lsng := 1, pkodN := skodN
-if valtype(k) == "C" .and. !empty(k)
-  pkodN := k
-  if ascan(arr_sng,k) == 0
-    lsng := 0
+  Static skodN := ""
+  Static arr_sng := {;
+    "895",;//"АБХАЗИЯ"
+    "031",;//"АЗЕРБАЙДЖАН"
+    "051",;//"АРМЕНИЯ"
+    "112",;//"БЕЛАРУСЬ"
+    "268",;//"ГРУЗИЯ"
+    "398",;//"КАЗАХСТАН"
+    "417",;//"КИРГИЗИЯ"
+    "428",;//"ЛАТВИЯ"
+    "440",;//"ЛИТВА"
+    "498",;//"МОЛДОВА, РЕСПУБЛИКА"
+    "762",;//"ТАДЖИКИСТАН"
+    "795",;//"ТУРКМЕНИЯ"
+    "860",;//"УЗБЕКИСТАН"
+    "804",;//"УКРАИНА"
+    "233",;//"ЭСТОНИЯ"
+    "896" ;//"ЮЖНАЯ ОСЕТИЯ"
+  }
+  Local ret, r1, r2, i, lcolor, tmp_select := select()
+
+  if (r1 := r+1) > int(maxrow()/2)
+    r2 := r-1 ; r1 := 2
+  else
+    r2 := maxrow()-2
   endif
-endif
-dbcreate(cur_dir+"tmp_oksm",{;
-  {"kodN","C", 3,0},;
-  {"kodA","C", 3,0},;
-  {"sng", "N", 1,0},;
-  {"name","C",60,0};
- })
-use (cur_dir+"tmp_oksm") new alias RG
-do while .t.
-  zap
-  if lsng == 0
-    lcolor := color5
-    for i := 1 to len(glob_O001)
-      if !(glob_O001[i,2] == "643") // не включать Россию
-        append blank
-        rg->kodN := glob_O001[i,2]
-        rg->kodA := glob_O001[i,6]
-        rg->name := glob_O001[i,1]
-        if ascan(arr_sng,rg->kodN) > 0
+  Private p_oksm, lsng := 1, pkodN := skodN
+  if valtype(k) == "C" .and. !empty(k)
+    pkodN := k
+    if ascan(arr_sng,k) == 0
+      lsng := 0
+    endif
+  endif
+  dbcreate(cur_dir+"tmp_oksm",{;
+    {"kodN","C", 3,0},;
+    {"kodA","C", 3,0},;
+    {"sng", "N", 1,0},;
+    {"name","C",60,0};
+  })
+  use (cur_dir+"tmp_oksm") new alias RG
+  do while .t.
+    zap
+    if lsng == 0
+      lcolor := color5
+      for i := 1 to len(glob_O001)
+        if !(glob_O001[i,2] == "643") // не включать Россию
+          append blank
+          rg->kodN := glob_O001[i,2]
+          rg->kodA := glob_O001[i,6]
+          rg->name := glob_O001[i,1]
+          if ascan(arr_sng,rg->kodN) > 0
+            rg->sng := 1
+          endif
+        endif
+      next
+    else
+      lcolor := "N/W*,GR+/R"
+      for j := 1 to len(arr_sng)
+        if (i := ascan(glob_O001,{|x| x[2] == arr_sng[j] })) > 0
+          append blank
+          rg->kodN := glob_O001[i,2]
+          rg->kodA := glob_O001[i,6]
+          rg->name := glob_O001[i,1]
           rg->sng := 1
         endif
-      endif
-    next
-  else
-    lcolor := "N/W*,GR+/R"
-    for j := 1 to len(arr_sng)
-      if (i := ascan(glob_O001,{|x| x[2] == arr_sng[j] })) > 0
-        append blank
-        rg->kodN := glob_O001[i,2]
-        rg->kodA := glob_O001[i,6]
-        rg->name := glob_O001[i,1]
-        rg->sng := 1
-      endif
-    next
-  endif
-  index on name to (cur_dir+"tmp_oksm")
-  go top
-  if !empty(pkodN)
-    Locate for kodN == pkodN
-    if !found()
-      go top
+      next
     endif
-  endif
-  p_oksm := 0
-  if Alpha_Browse(r1,2,r2,77,"f2get_oksm",lcolor,,,,,,,"f3get_oksm")
-    if p_oksm == 0
-      skodN := rg->kodN
-      ret := { rg->kodN, alltrim(rg->name) }
+    index on name to (cur_dir+"tmp_oksm")
+    go top
+    if !empty(pkodN)
+      Locate for kodN == pkodN
+      if !found()
+        go top
+      endif
+    endif
+    p_oksm := 0
+    if Alpha_Browse(r1,2,r2,77,"f2get_oksm",lcolor,,,,,,,"f3get_oksm")
+      if p_oksm == 0
+        skodN := rg->kodN
+        ret := { rg->kodN, alltrim(rg->name) }
+        exit
+      endif
+    elseif p_oksm == 0
       exit
     endif
-  elseif p_oksm == 0
-    exit
-  endif
-enddo
-rg->(dbCloseArea())
-select (tmp_select)
-return ret
+  enddo
+  rg->(dbCloseArea())
+  select (tmp_select)
+  return ret
 
 *****
 Function f2get_oksm(oBrow)
-Local n := 60
-oBrow:addColumn(TBColumnNew("Код", {|| rg->kodN }) )
-oBrow:addColumn(TBColumnNew("   ", {|| rg->kodA }) )
-if lsng == 0
-  oBrow:addColumn(TBColumnNew(center("Наименование страны",n), {|| padr(rg->name,n) }) )
-  status_key("^<Esc>^ - выход;  ^<Enter>^ - выбор страны;  ^<F3>^ - страны ближнего зарубежья")
-else
-  oBrow:addColumn(TBColumnNew(center("Страны ближнего зарубежья",n), {|| padr(rg->name,n) }) )
-  status_key("^<Esc>^ - выход;  ^<Enter>^ - выбор страны;  ^<F3>^ - все страны")
-endif
-return NIL
+  Local n := 60
+
+  oBrow:addColumn(TBColumnNew("Код", {|| rg->kodN }) )
+  oBrow:addColumn(TBColumnNew("   ", {|| rg->kodA }) )
+  if lsng == 0
+    oBrow:addColumn(TBColumnNew(center("Наименование страны",n), {|| padr(rg->name,n) }) )
+    status_key("^<Esc>^ - выход;  ^<Enter>^ - выбор страны;  ^<F3>^ - страны ближнего зарубежья")
+  else
+    oBrow:addColumn(TBColumnNew(center("Страны ближнего зарубежья",n), {|| padr(rg->name,n) }) )
+    status_key("^<Esc>^ - выход;  ^<Enter>^ - выбор страны;  ^<F3>^ - все страны")
+  endif
+  return NIL
 
 *****
 Function f3get_oksm(nkey)
-Local ret := -1
-if nKey == K_F3
-  ret := 1
-  p_oksm := 1
-  pkodN := rg->kodN
-  lsng := iif(lsng == 0, 1, 0)
-  if lsng == 1 .and. rg->sng != lsng
-    pkodN := ""
-  endif
-endif
-return ret
+  Local ret := -1
 
-*
+  if nKey == K_F3
+    ret := 1
+    p_oksm := 1
+    pkodN := rg->kodN
+    lsng := iif(lsng == 0, 1, 0)
+    if lsng == 1 .and. rg->sng != lsng
+      pkodN := ""
+    endif
+  endif
+  return ret
+
+  *
 
 ***** ввод представителей
 Function f_kart_valid_pred(r)
@@ -1554,16 +1558,6 @@ setkey(K_ESC, NIL)
 my_restkey(tmp_keys)
 restscreen(buf)
 return NIL
-
-***** вернуть страну
-Function ini_strana(lstrana)
-Static kod_RF := "643"
-Local s := space(10), i
-if !empty(lstrana) .and. lstrana != kod_RF ;
-       .and. (i := ascan(glob_O001, {|x| x[2] == lstrana })) > 0
-  s := glob_O001[i,1]
-endif
-return s
 
 *****
 Static Function val_st_kat(get)
