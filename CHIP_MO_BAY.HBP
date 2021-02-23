@@ -113,6 +113,7 @@ Errorsys.prg
 .\oms\f_usl_definition_KSG.prg
 .\oms\f_valid2ad_cr.prg
 .\oms\kiroANDkslp.prg
+.\oms\f_1pac_definition_KSG.prg
 
 .\oms\getPrice.prg
 .\oms\verify_1_sluch.prg

@@ -520,7 +520,19 @@ Function f_cena_kslp(/*@*/_cena,_lshifr,_date_r,_n_data,_k_data,lkslp,arr_usl,lP
   endif
   return _akslp
   
-***** 26.01.21 вернуть итоговый КСЛП для 2021 года
+***** 23.01.19 вернуть итоговый КСЛП
+Function ret_koef_kslp(akslp)
+  Local k := 1
+  if valtype(akslp) == "A" .and. len(akslp) >= 2
+    k := akslp[2]
+    if len(akslp) >= 4
+      k += akslp[4] - 1
+    endif
+  endif
+  return k
+  
+  
+  ***** 26.01.21 вернуть итоговый КСЛП для 2021 года
 Function ret_koef_kslp_21(akslp)
   Local k := 1  // КСЛП равен 1
 

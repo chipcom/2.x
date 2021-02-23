@@ -477,7 +477,7 @@ Function definition_KSG(par,k_data2)
         endif
       endif
       // конец что-то здесь не так
-
+      
       if fl .and. !empty(k006->age)
         if (fl := (k006->age $ lage))
           if k006->age == '1'
@@ -827,7 +827,7 @@ Function definition_KSG(par,k_data2)
           humKSLP := HUMAN_2->PC1
         endif
         // Изощрение в порнографии
-        if ProcName(1) == Upper('f_1pac_definition_KSG') .and. ! empty(lkslp)
+        if Upper(ProcName(1)) == Upper('f_1pac_definition_KSG') .and. ! empty(lkslp)
           lkslp := selectKSLP( lkslp, humKSLP, ln_data, lk_data, ldate_r, mdiagnoz)
           // запомним КСЛП
           tmSel := select('HUMAN_2')
