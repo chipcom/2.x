@@ -827,8 +827,11 @@ Function definition_KSG(par,k_data2)
           humKSLP := HUMAN_2->PC1
         endif
         // Изощрение в порнографии
-        if Upper(ProcName(1)) == Upper('f_1pac_definition_KSG') .and. ! empty(lkslp)
-          lkslp := selectKSLP( lkslp, humKSLP, ln_data, lk_data, ldate_r, mdiagnoz)
+        // if Upper(ProcName(1)) == Upper('f_1pac_definition_KSG') .and. ! empty(lkslp)
+        if Upper(ProcName(1)) == Upper('f_1pac_definition_KSG')
+          if ! empty(lkslp)   // 24.02.2021
+            lkslp := selectKSLP( lkslp, humKSLP, ln_data, lk_data, ldate_r, mdiagnoz)
+          endif
           // запомним КСЛП
           tmSel := select('HUMAN_2')
           if (tmSel)->(dbRlock())
