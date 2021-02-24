@@ -288,7 +288,7 @@ Static arr_name := {;
   "Услуги, не вошедшие в 14-ю форму"}
 return arr_name
 
-***** 17.02.21
+***** 24.02.21
 Function f14tf_nastr(/*@*/lshifr,/*@*/lname,lyear)
 Static a_usl, a_zak_sl, syear
 Local ta := {}, i, j, k, i14 := 0, arr, shb, fl := .f., fl1 := .f., ret := {}
@@ -353,11 +353,19 @@ find (padr(lshifr,10))
 if found()
   lname := lusl->name  // наименование услуги из справочника ТФОМС
 endif
-if is_ksg(lshifr,1) .or. left(lshifr,5) == "1.20."  // 07.02.21
-  // if is_ksg(lshifr,1) .or. left(lshifr,5) == "1.12."
-  return {{2,-1,i14}}
-elseif is_ksg(lshifr,2) // КСГ дневного стационара
-  return {{3,-1,i14}}
+//my_debug(,str(lyear))
+if lyear == 2021
+  if is_ksg(lshifr,1) .or. left(lshifr,5) == "1.20."  // 07.02.21
+    return {{2,-1,i14}}
+  elseif is_ksg(lshifr,2) // КСГ дневного стационара
+    return {{3,-1,i14}}
+  endif
+else
+  if is_ksg(lshifr,1) .or. left(lshifr,5) == "1.12."
+    return {{2,-1,i14}}
+  elseif is_ksg(lshifr,2) // КСГ дневного стационара
+    return {{3,-1,i14}}
+  endif
 endif
 // включаемые услуги
 for j := 1 to len(a_usl)

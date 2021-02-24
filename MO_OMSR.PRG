@@ -39,13 +39,13 @@ return lvidpoms
 
 *
 
-***** 05.01.21 скорректировать вид помощи для дневного стационара (в стационаре) по лицензии
+***** 24.02.21 скорректировать вид помощи для дневного стационара (в стационаре) по лицензии
 Function ret_vidpom_st_dom_licensia(lusl_ok,lvidpoms,lprofil)
 Static mo_licensia := {;
   {'591001',2,'31',68};   // ЦРБ Суровикино
  }
 Local i, fl := .f.
-  my_debug(,"1 "+lvidpoms)
+//  my_debug(,"1 "+lvidpoms)
 
 for i := 1 to len(mo_licensia)
   if mo_licensia[i,1] == glob_mo[_MO_KOD_TFOMS] .and. mo_licensia[i,2] == lusl_ok
@@ -56,7 +56,7 @@ for i := 1 to len(mo_licensia)
     endif
   endif
 next i
-  my_debug(,"2 "+lvidpoms)
+//  my_debug(,"2 "+lvidpoms)
 //  my_debug(,str(lprofil))
 //  my_debug(,str(lusl_ok))
 

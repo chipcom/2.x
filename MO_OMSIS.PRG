@@ -1470,7 +1470,7 @@ close databases
 viewtext(n_file,,,,(sh > 80),,,reg_print)
 return NIL
 
-***** 26.02.20 многовариантный поиск
+***** 24.02.21 многовариантный поиск
 Function s_mnog_poisk()
 Static mm_rak := {;
   {"все случаи",0},;
@@ -2190,8 +2190,9 @@ if k > 0
   //
   R_Use(dir_server+"human_3",{dir_server+"human_3",dir_server+"human_32"},"HUMAN_3")
   R_Use(dir_server+"human_",,"HUMAN_")
+  R_Use(dir_server+"human_2",,"HUMAN_2")
   R_Use(dir_server+"human",,"HUMAN")
-  set relation to recno() into HUMAN_
+  set relation to recno() into HUMAN_, to recno() into HUMAN_2
   //
   Private c_view := 0, c_found := 0
   do case
@@ -3935,7 +3936,7 @@ for i := 1 to 2
 next
 return NIL
 
-***** 26.10.21 форма 14-МЕД (ОМС)
+***** 24.02.21 форма 14-МЕД (ОМС)
 Function forma14_med_oms()
 Static group_ini := "f14_med_oms"
 Local begin_date, end_date, buf := savescreen(), arr_m, i, j, k, k1, k2,;
@@ -3947,7 +3948,7 @@ Local begin_date, end_date, buf := savescreen(), arr_m, i, j, k, k1, k2,;
       filetmp14 := "tmp14"+stxt, sum_k := 0, sum_ki := 0, sum_kd := 0, sum_kt := 0, kol_d := 0 , sum_d := 0
 Local arr_skor[81,2], arr_eko[2,2], arr_profil := {}, arr_dn_stac := {}, arrDdn_stac[4], fl_pol1[15],;
       arr_pol[32], arr_pol1[15,5], arr_pril5[29,3], ifff := 0, kol_stom_pos := 0, lal, lalf,;
-      arr_pol3000[29,6]
+      arr_pol3000[29,6], vr_rec := 0
 old5 := old2 := 0
 afillall(arr_skor,0)
 afillall(arr_eko,0)
@@ -4255,6 +4256,7 @@ do while !eof()
           endif
           // теперь делим по услугам
           svp := space(5)
+          vr_rec := hu->(recno())
           select HU
           find (str(human->kod,7))
           do while hu->kod == human->kod .and. !eof()
@@ -4322,6 +4324,8 @@ do while !eof()
              endif
             skip
           enddo
+          select HU
+          goto (vr_rec)
           select HUMAN
         endif
         is_dializ := .f.
@@ -4477,14 +4481,13 @@ do while !eof()
                       endif
                     elseif left(lshifr,5) == "2.76." // центр здоровья
                       vid_vp := 0 // Посещение профилактическое
-      //!!!
-              arr_pol3000[ 11,4] := round(human->cena_1*koef,2)
-              arr_pol3000[ 11,2] := 1
-              if is_inogoro
-                arr_pol3000[ 11,5] := round(human->cena_1*koef,2)
-                arr_pol3000[ 11,3] := 1
-              endif
-
+                      //!!!
+                      arr_pol3000[ 11,4] := round(human->cena_1*koef,2)
+                      arr_pol3000[ 11,2] := 1
+                      if is_inogoro
+                        arr_pol3000[ 11,5] := round(human->cena_1*koef,2)
+                        arr_pol3000[ 11,3] := 1
+                      endif
                     elseif left(lshifr,5) == "2.79." // посещение с профилактической целью
                       vid_vp := 0 // Посещение профилактическое
                       if !eq_any(human_->PROFIL,97,57,68,3,42,85,87)
@@ -4599,7 +4602,7 @@ do while !eof()
           select HU
           skip
         enddo
-my_debug(vid_vp < 0,"vid_vp="+lstr(vid_vp)+print_array(au))
+//my_debug(vid_vp < 0,"vid_vp="+lstr(vid_vp)+print_array(au))
         if kol_dializ > 0
           tfoms_pz[ii,2] := kol_dializ // заменяем на кол-во диализных процедур
         endif
@@ -5187,7 +5190,7 @@ if kol_stom_pos > 0
   arr_pol3000[ 19,5] := tmp_stom->k13 // сумма иногородих
   tmp_stom->(dbCloseArea())
 endif
-
+//quit
 delete file (filetmp14)
 if !fl_exit .and. tmpf14->(lastrec()) > 0
   HH := 80

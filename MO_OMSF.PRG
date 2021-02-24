@@ -994,52 +994,52 @@ Function is_usluga_TFOMS(lshifr,lshifr1,ldate_usl,;
 Local _shifr, tmp_select := select(), fl := .f., y := 2021, lal := "lusl"
 y := year(ldate_usl)
 if select("LUSL") == 0
-use_base("lusl")
+  use_base("lusl")
 endif
 if y < 2019
-lal += "18"
+  lal += "18"
 elseif y < 2020
-lal += "19"
+  lal += "19"
 elseif y < 2021
-lal += "20"
+  lal += "20"
 endif
 lst := 0 ; lvidpoms := "" ; lbukva := " "
 _shifr := iif(empty(lshifr1), lshifr, lshifr1)
 dbSelectArea(lal)
 find (padr(_shifr,10))
 if found() //.and. between_date(lusl->datebeg,lusl->dateend,ldate_usl)
-fl := .t.
-lbukva := alltrim(&lal.->bukva)
-if len(lbukva) != 1 // для 2018 года
-lbukva := " "
-endif
-lst := &lal.->st
-lidsp := int(val(&lal.->idsp))
-if &lal.->(fieldpos("idsps")) > 0 .and. "," $ &lal.->idsps
-lidsp := 0
-endif
-arr_uet := {&lal.->uetv,&lal.->uetd}
-lvidpoms := alltrim(&lal.->vmp_s)
+  fl := .t.
+  lbukva := alltrim(&lal.->bukva)
+  if len(lbukva) != 1 // для 2018 года
+    lbukva := " "
+  endif
+  lst := &lal.->st
+  lidsp := int(val(&lal.->idsp))
+  if &lal.->(fieldpos("idsps")) > 0 .and. "," $ &lal.->idsps
+    lidsp := 0
+  endif
+  arr_uet := {&lal.->uetv,&lal.->uetd}
+  lvidpoms := alltrim(&lal.->vmp_s)
 endif
 if !fl
-if select("LUSLF") == 0
-use_base("luslf")
-endif
-lal := "luslf"
-if y < 2019
-lal += "18"
-elseif y < 2020
-lal += "19"
-elseif y < 2021
-lal += "20"
-endif
-dbSelectArea(lal)
-find (padr(_shifr,20))
-if found() //.and. between_date(luslf->datebeg,luslf->dateend,ldate_usl)
-fl := .t.
-lbukva := " "
-arr_uet := {&lal.->uetv,&lal.->uetd}
-endif
+  if select("LUSLF") == 0
+    use_base("luslf")
+  endif
+  lal := "luslf"
+  if y < 2019
+    lal += "18"
+  elseif y < 2020
+    lal += "19"
+  elseif y < 2021
+    lal += "20"
+  endif
+  dbSelectArea(lal)
+  find (padr(_shifr,20))
+  if found() //.and. between_date(luslf->datebeg,luslf->dateend,ldate_usl)
+    fl := .t.
+    lbukva := " "
+    arr_uet := {&lal.->uetv,&lal.->uetd}
+  endif
 endif
 select (tmp_select)
 return fl // подтверждение, что услуга - ОМС
@@ -1961,7 +1961,7 @@ return v
 
 *
 
-***** 24.01.13
+***** 24.02.21
 Function f1cena_oms(sShifr,sShifr1,lVzReb,dDate,lis_nul,/*@*/fl_uslc,/*@*/fl_del)
 Local s, v, lu_cena
 DEFAULT lis_nul TO .f.
@@ -1972,9 +1972,9 @@ v := fcena_oms(s,;
                dDate,;
                @fl_del,;
                @fl_uslc)
-my_debug(,"13/01 f1cena_oms")
+//my_debug(,"13/01 f1cena_oms")
 if fl_uslc  // если нашли в справочнике ТФОМС
-my_debug(,"13/01 -----f1cena_oms")
+//my_debug(,"13/01 -----f1cena_oms")
 
   lu_cena := v
   if fl_del .and. !lis_nul
