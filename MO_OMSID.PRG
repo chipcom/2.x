@@ -10726,117 +10726,118 @@ rest_box(buf)
 close databases
 return NIL
 
-***** 06.02.20
+***** 25.02.21
 Function f32_view_R11(lm)
-Local fl := .t., buf := save_maxrow(), k := 0, skol[5,3], ames[12,5,3], mrec := 1, n_file := "r11_itog"+stxt,;
-      arr_rees := {}
-Private par := .f.
-afillall(skol,0)
-afillall(ames,0)
-mywait()
-R_Use(dir_server+"mo_dr05p",,"R05p")
-goto (mrec)
-skol[1,1] := r05p->KOL1
-skol[2,1] := r05p->KOL2
-skol[3,1] := r05p->KOL11
-skol[4,1] := r05p->KOL12
-skol[5,1] := r05p->KOL13
-if par
-  skol[1,1] -= skol[3,1]
-  skol[3,1] -= skol[4,1]
-  skol[3,1] -= skol[5,1]
-endif
-for i := 1 to 12
-  for j := 1 to 2
-    ames[i,j,1] := &("r05p->kol"+lstr(j)+"_"+strzero(i,2))
-  next
-  for j := 1 to 3
-    ames[i,j+2,1] := &("r05p->kol1"+lstr(j)+"_"+strzero(i,2))
-  next
+  Local fl := .t., buf := save_maxrow(), k := 0, skol[5,3], ames[12,5,3], mrec := 2, n_file := "r11_itog"+stxt,;
+        arr_rees := {}
+  Private par := .f.
+  afillall(skol,0)
+  afillall(ames,0)
+  mywait()
+  R_Use(dir_server+"mo_dr05p",,"R05p")
+  goto (mrec)
+  skol[1,1] := r05p->KOL1
+  skol[2,1] := r05p->KOL2
+  skol[3,1] := r05p->KOL11
+  skol[4,1] := r05p->KOL12
+  skol[5,1] := r05p->KOL13
   if par
-    ames[i,1,1] -= ames[i,3,1]
-    ames[i,3,1] -= ames[i,4,1]
-    ames[i,3,1] -= ames[i,5,1]
+    skol[1,1] -= skol[3,1]
+    skol[3,1] -= skol[4,1]
+    skol[3,1] -= skol[5,1]
   endif
-next
-r05p->(dbCloseArea())
-// только для нужного месяца
-for j := 1 to 5
-  skol[j] := ames[lm,j,1]
-next
-R_Use(dir_server+"mo_dr01k",,"RHUM")
-index on str(reestr,6)+str(rhum->R01_ZAP,6) to (cur_dir+"tmp_rhum")
-select REES
-go top
-do while !eof()
-  aadd(arr_rees,rees->kod)
-  skip
-enddo
-for k := len(arr_rees) to k step -1
-  mkod_reestr := arr_rees[k]
-  select RHUM
-  find (str(mkod_reestr,6))
-  do while rhum->reestr == mkod_reestr .and. !eof()
-    if rhum->OPLATA < 2
-      i := lm
-      j := rhum->tip
-      j1 := rhum->tip1
-      if between(j1,1,3)
-        ames[i,j1+2,2] ++
-      elseif between(j,1,2)
-        ames[i,j,2] ++
-      endif
-      if rhum->OPLATA == 1
-        if between(j1,1,3)
-          ames[i,j1+2,3] ++
-        elseif between(j,1,2)
-          ames[i,j,3] ++
-        endif
-      endif
+  for i := 1 to 12
+    for j := 1 to 2
+      ames[i,j,1] := &("r05p->kol"+lstr(j)+"_"+strzero(i,2))
+    next
+    for j := 1 to 3
+      ames[i,j+2,1] := &("r05p->kol1"+lstr(j)+"_"+strzero(i,2))
+    next
+    if par
+      ames[i,1,1] -= ames[i,3,1]
+      ames[i,3,1] -= ames[i,4,1]
+      ames[i,3,1] -= ames[i,5,1]
     endif
-    select RHUM
+  next
+  r05p->(dbCloseArea())
+  // только для нужного месяца
+  for j := 1 to 5
+    skol[j] := ames[lm,j,1]
+  next
+  R_Use(dir_server+"mo_dr01k",,"RHUM")
+  index on str(reestr,6)+str(rhum->R01_ZAP,6) to (cur_dir+"tmp_rhum")
+  select REES
+  go top
+  do while !eof()
+    aadd(arr_rees,rees->kod)
     skip
   enddo
-next k
-rhum->(dbCloseArea())
-if !par
-  for i := 1 to 12
-    for k := 2 to 3
-      ames[i,3,k] += ames[i,4,k]
-      ames[i,3,k] += ames[i,5,k]
-      ames[i,1,k] += ames[i,3,k]
+  for k := len(arr_rees) to k step -1
+    mkod_reestr := arr_rees[k]
+    select RHUM
+    find (str(mkod_reestr,6))
+    do while rhum->reestr == mkod_reestr .and. !eof()
+      if rhum->OPLATA < 2
+        i := lm
+        j := rhum->tip
+        j1 := rhum->tip1
+        if between(j1,1,3)
+          ames[i,j1+2,2] ++
+        elseif between(j,1,2)
+          ames[i,j,2] ++
+        endif
+        if rhum->OPLATA == 1
+          if between(j1,1,3)
+            ames[i,j1+2,3] ++
+          elseif between(j,1,2)
+            ames[i,j,3] ++
+          endif
+        endif
+      endif
+      select RHUM
+      skip
+    enddo
+  next k
+  rhum->(dbCloseArea())
+  if !par
+    for i := 1 to 12
+      for k := 2 to 3
+        ames[i,3,k] += ames[i,4,k]
+        ames[i,3,k] += ames[i,5,k]
+        ames[i,1,k] += ames[i,3,k]
+      next
+    next
+  endif
+  //
+  fp := fcreate(n_file) ; tek_stroke := 0 ; n_list := 1
+  add_string("")
+  add_string(center("Общая информация (R11)",80))
+  add_string("")
+  mmt := {"диспансеризация","профосмотр","дисп.пенсионеры","дисп.65 лет","дисп.66 и старше"}
+  for i := lm to lm
+  add_string("──────────────────────────┬─────────────┬─────────────┬────────────┬────────────")
+  add_string("     месяц                │  по плану   │  отправлено │  в ТФОМСе  │ расхождение")
+  add_string("──────────────────────────┴─────────────┴─────────────┴────────────┴────────────")
+    n := 26
+    add_string(padr(mm_month[i],n))
+    for j := 1 to 5
+      add_string(padl(mmt[j],n)+put_val(ames[i,j,1],11)+;
+                                put_val(ames[i,j,2],14)+;
+                                put_val(ames[i,j,3],13)+;
+                                put_val(ames[i,j,1]-ames[i,j,3],12))
+      skol[j,2] += ames[i,j,2]
+      skol[j,3] += ames[i,j,3]
     next
   next
-endif
-//
-fp := fcreate(n_file) ; tek_stroke := 0 ; n_list := 1
-add_string("")
-add_string(center("Общая информация (R11)",80))
-add_string("")
-mmt := {"диспансеризация","профосмотр","дисп.пенсионеры","дисп.65 лет","дисп.66 и старше"}
-for i := lm to lm
-add_string("──────────────────────────┬─────────────┬─────────────┬────────────┬────────────")
-add_string("     месяц                │  по плану   │  отправлено │  в ТФОМСе  │ расхождение")
-add_string("──────────────────────────┴─────────────┴─────────────┴────────────┴────────────")
-  n := 26
-  add_string(padr(mm_month[i],n))
+  add_string(padr("Итого:",n))
   for j := 1 to 5
-    add_string(padl(mmt[j],n)+put_val(ames[i,j,1],11)+;
-                              put_val(ames[i,j,2],14)+;
-                              put_val(ames[i,j,3],13)+;
-                              put_val(ames[i,j,1]-ames[i,j,3],12))
-    skol[j,2] += ames[i,j,2]
-    skol[j,3] += ames[i,j,3]
+    add_string(padl(mmt[j],n)+put_val(skol[j,1],11)+;
+                              put_val(skol[j,2],14)+;
+                              put_val(skol[j,3],13)+;
+                              put_val(skol[j,1]-skol[j,3],12))
   next
-next
-add_string(padr("Итого:",n))
-for j := 1 to 5
-  add_string(padl(mmt[j],n)+put_val(skol[j,1],11)+;
-                            put_val(skol[j,2],14)+;
-                            put_val(skol[j,3],13)+;
-                            put_val(skol[j,1]-skol[j,3],12))
-next
-fclose(fp)
-rest_box(buf)
-viewtext(n_file,,,,.t.,,,2)
-return NIL
+  fclose(fp)
+  rest_box(buf)
+  viewtext(n_file,,,,.t.,,,2)
+  return NIL
+  
