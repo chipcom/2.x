@@ -4446,8 +4446,11 @@ Function verify_1_sluch(fl_view)
   return (_ocenka >= 5)
   
 ****** 25.02.2021
-function checkRSLT_ISHOD(result, ishod, arr) 
 ****** Проверка соответствия результата случая исходу обращения
+function checkRSLT_ISHOD(result, ishod, arr) 
+* result - код результата обращения
+* ishod - код исхода заболевания
+* arr - массив для сбора ошибок соответствий
   local str1 := 'для указанного результата обращения'
   local str2 := 'исход заболевания не может быть'
   local str3 := 'исход заболевания должен быть'

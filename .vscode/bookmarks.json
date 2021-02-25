@@ -1,10 +1,10 @@
 {
 	"files": [
 		{
-			"path": "REF/InitSpravFFOMS.prg",
+			"path": "OMS/verify_1_sluch.prg",
 			"bookmarks": [
 				{
-					"line": 28,
+					"line": 4449,
 					"column": 0,
 					"label": ""
 				}
