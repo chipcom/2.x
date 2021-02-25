@@ -4391,8 +4391,8 @@ Function verify_1_sluch(fl_view)
     add_string(fio_plus_novor()+" "+alltrim(human->kod_diag)+" "+;
                date_8(human->n_data)+"-"+date_8(human->k_data)+;
                " ("+count_ymd(human->date_r,human->n_data)+")")
-    Ins_Array(ta,1,alltrim(uch->name)+'/'+alltrim(otd->name)+'/профиль по "'+;
-                   inieditspr(A__MENUVERT, glob_V002, human_->profil)+'"')
+    Ins_Array(ta, 1, alltrim(uch->name) + '/' + alltrim(otd->name) + '/профиль по "'+;
+                   alltrim(inieditspr(A__MENUVERT, glob_V002, human_->profil)) + '"')
     if human->cena_1 == 0 ; // если цена нулевая
         .and. eq_any(human->ishod,201,202) // диспансеризация взрослого населения
       asize(ta,1) // чтобы не выводить бессмысленные строки
