@@ -1,3 +1,13 @@
+* 25.05.21 вернуть исход заболевания по коду
+function getISHOD_V012( ishod )
+  local ret := NIL
+  local i
+
+  if (i := ascan(glob_V012, {|x| x[2] == ishod })) > 0
+    ret := glob_V012[i,1]
+  endif
+  return ret
+
 * 17.02.21 вернуть массив по справочнику ТФОМС V012.xml
 function getV012()
   // V012.xml - Классификатор исходов заболевания

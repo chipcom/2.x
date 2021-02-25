@@ -1,3 +1,15 @@
+
+* 25.05.21 вернуть результат обращения за медицинской помощью по коду
+function getRSLT_V009( result )
+  local ret := NIL
+  local i
+
+  if (i := ascan(glob_V009, {|x| x[2] == result })) > 0
+    ret := glob_V009[i,1]
+  endif
+  return ret
+
+
 * 17.02.21 вернуть массив по справочнику ТФОМС V009.xml
 function getV009()
   // V009.xml - Классификатор результатов обращения за медицинской помощью
