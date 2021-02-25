@@ -269,6 +269,10 @@ Function verify_1_sluch(fl_view)
       aadd(ta, "новорожденному более двух месяцев")
     endif
   endif
+
+  //
+  // ПРОВЕРЯЕМ ДИАГНОЗЫ
+  //
   mdiagnoz := diag_to_array(,,,,.t.)
   if len(mdiagnoz) == 0 .or. empty(mdiagnoz[1])
     aadd(ta,'не заполнено поле "ОСНОВНОЙ ДИАГНОЗ"')
@@ -349,6 +353,10 @@ Function verify_1_sluch(fl_view)
       next
     endif
   endif
+
+  //
+  // ПРОВЕРЯЕМ УДОСТОВЕРЕНИЕ ЛИЧНОСТИ
+  //
   if ascan(menu_vidud,{|x| x[2] == kart_->vid_ud }) == 0
     if human_->vpolis < 3
       aadd(ta,'не заполнено поле "ВИД удостоверения личности"')
@@ -1058,6 +1066,9 @@ Function verify_1_sluch(fl_view)
       aadd(ta,'в поле "Исход заболевания" должно быть "304 Без перемен"')
     endif
   endif
+
+  checkRSLT_ISHOD(human_->RSLT_NEW, human_->ISHOD_NEW, ta)
+
   if len(arr_povod) > 0
     if len(arr_povod) > 1
       aadd(ta,"смешивание целей посещения в случае "+print_array(arr_povod))
@@ -4434,3 +4445,96 @@ Function verify_1_sluch(fl_view)
   endif
   return (_ocenka >= 5)
   
+****** 25.02.2021
+function checkRSLT_ISHOD(result, ishod, arr)
+****** Проверка соответствия результата случая исходу обращения
+  local str1 := 'для указанного результата обращения'
+  local str2 := 'исход заболевания не может быть'
+  local str3 := 'исход заболевания должен быть'
+  local str := ''
+  local strResult := ''
+  local strIshod := ''
+  local i, j
+
+  if (i := ascan(glob_V009, {|x| x[2] == result })) > 0
+    strResult := glob_V009[i,1]
+  endif
+
+  // RSLT={102, 103, 104, 105, 106, 109, 107, 108, 110} -> ISHOD <> 101
+  // RSLT={105, 106} -> ISHOD=104
+  if eq_any(result, 102, 103, 104, 105, 106, 107, 108, 110) .and. ishod == 101
+    if (j := ascan(glob_V012, {|x| x[2] == 101 })) > 0
+      strIshod := glob_V012[j,1]
+    endif
+    str += str1 + ' (' + strResult + ') ' + str2 + ' (' + strIshod + ')'
+    // aadd(arr,'для указанного результата обращения исход заболевания не может быть 101')
+    aadd(arr, str)
+  endif
+  if eq_any(result, 105, 106) .and. ishod != 104
+    if (j := ascan(glob_V012, {|x| x[2] == 104 })) > 0
+      strIshod := glob_V012[j,1]
+    endif
+    str += str1 + ' (' + strResult + ') ' + str3 + ' (' + strIshod + ')'
+    // aadd(arr,'для указанного результата обращения исход заболевания должен быть 104')
+    aadd(arr, str)
+  endif
+
+  // RSLT={202, 203, 204, 205, 206, 207, 208} -> ISHOD <> 201
+  // RSLT={205, 206} -> ISHOD=204
+  if eq_any(result, 202, 203, 204, 205, 206, 207, 208) .and. ishod == 201
+    if (j := ascan(glob_V012, {|x| x[2] == 201 })) > 0
+      strIshod := glob_V012[j,1]
+    endif
+    str += str1 + ' (' + strResult + ') ' + str2 + ' (' + strIshod + ')'
+    // aadd(arr,'для указанного результата обращения исход заболевания не может быть 201')
+    aadd(arr, str)
+  endif
+  if eq_any(result, 205, 206) .and. ishod != 204
+    if (j := ascan(glob_V012, {|x| x[2] == 204 })) > 0
+      strIshod := glob_V012[j,1]
+    endif
+    str += str1 + ' (' + strResult + ') ' + str3 + ' (' + strIshod + ')'
+    // aadd(arr,'для указанного результата обращения исход заболевания должен быть 204')
+    aadd(arr, str)
+  endif
+
+  // ISHOD=306 -> RSLT = {301, 305, 308, 314, 315, 317, 318, 321, 322, 323, 324, 325, 332, 333, 334, 335, 336, 343, 344, 347, 348, 349, 350, 351, 353, 355, 356, 357, 358, 361, 362, 363, 364, 365, 366, 367, 368, 369, 370, 371, 372, 373, 374}
+  // ISHOD=306 -> RSLT = {305, 308, 314, 315, 301}
+  // RSLT={313} -> ISHOD=305
+  if eq_any(result, 301, 305, 308, 314, 315, 317, 318, 321, 322, 323, 324, 325, 332, 333, 334, 335, 336, 343, 344, 347, 348, 349, 350, 351, 353, 355, 356, 357, 358, 361, 362, 363, 364, 365, 366, 367, 368, 369, 370, 371, 372, 373, 374) .and. ishod != 306
+    if (j := ascan(glob_V012, {|x| x[2] == 306 })) > 0
+      strIshod := glob_V012[j,1]
+    endif
+    str += str1 + ' (' + strResult + ') ' + str3 + ' (' + strIshod + ')'
+    // aadd(arr,'для указанного результата обращения исход заболевания должен быть 306')
+    aadd(arr, str)
+  endif
+  if (result == 313) .and. (ishod != 305)
+    if (j := ascan(glob_V012, {|x| x[2] == 305 })) > 0
+      strIshod := glob_V012[j,1]
+    endif
+    str += str1 + ' (' + strResult + ') ' + str3 + ' (' + strIshod + ')'
+    // aadd(arr,'для указанного результата обращения исход заболевания должен быть 305')
+    aadd(arr, str)
+  endif
+
+  // RSLT = {407, 408, 409, 410, 411, 412, 413, 414} -> ISHOD=402
+  // RSLT={405, 406} -> ISHOD=403
+  if eq_any(result, 407, 408, 409, 410, 411, 412, 413, 414) .and. ishod != 402
+    if (j := ascan(glob_V012, {|x| x[2] == 402 })) > 0
+      strIshod := glob_V012[j,1]
+    endif
+    str += str1 + ' (' + strResult + ') ' + str3 + ' (' + strIshod + ')'
+    // aadd(arr,'для указанного результата обращения исход заболевания должен быть 402')
+    aadd(arr, str)
+  endif
+  if eq_any(result, 405, 406) .and. ishod != 403
+    if (j := ascan(glob_V012, {|x| x[2] == 403 })) > 0
+      strIshod := glob_V012[j,1]
+    endif
+    str += str1 + ' (' + strResult + ') ' + str3 + ' (' + strIshod + ')'
+    // aadd(arr,'для указанного результата обращения исход заболевания должен быть 403')
+    aadd(arr, str)
+  endif
+
+  return
