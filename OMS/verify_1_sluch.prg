@@ -2148,7 +2148,28 @@ Function verify_1_sluch(fl_view)
           aadd(ta,'Не найден вид ВМП "'+human_2->VIDVMP+'" в справочнике V018')
         elseif empty(human_2->METVMP)
           aadd(ta,'ВМП оказана, введён вид ВМП, но не введён метод ВМП')
-        elseif (i := ascan(glob_V019, {|x| x[1] == human_2->METVMP .and. x[8] == human_2->PN5 })) > 0
+        elseif ((i := ascan(glob_V019, {|x| x[1] == human_2->METVMP})) > 0) .and. (year(human->k_data)==2020)
+          if glob_V019[i,4] == alltrim(human_2->VIDVMP)
+            if !(len(mdiagnoz) == 0 .or. empty(mdiagnoz[1]))
+              fl := .f. ; s := padr(mdiagnoz[1],6)
+              for j := 1 to len(glob_V019[i,3])
+                if left(s,len(glob_V019[i,3,j])) == glob_V019[i,3,j]
+                  fl := .t. ; exit
+                endif
+              next
+              if fl
+                if empty(mpztip := ret_PZ_VMP(human_2->METVMP))
+                  mpztip := 1
+                endif
+              else
+                aadd(ta,'основной диагноз '+s+', а у метода ВМП "'+lstr(human_2->METVMP)+'.'+alltrim(glob_V019[i,2])+'"')
+                aadd(ta,'└─допустимые диагнозы: '+print_array(glob_V019[i,3]))
+              endif 
+            endif
+          else
+            aadd(ta,'метод ВМП '+lstr(human_2->METVMP)+' не соответствует виду ВМП '+human_2->VIDVMP)
+          endif
+        elseif ((i := ascan(glob_V019, {|x| x[1] == human_2->METVMP .and. x[8] == human_2->PN5 })) > 0) .and. (year(human->k_data)>=2021)
           if glob_V019[i,4] == alltrim(human_2->VIDVMP)
             if !(len(mdiagnoz) == 0 .or. empty(mdiagnoz[1]))
               fl := .f. ; s := padr(mdiagnoz[1],6)

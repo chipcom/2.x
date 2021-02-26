@@ -59,25 +59,25 @@ function selectKSLP( lkslp, savedKSLP, dateBegin, dateEnd, DOB, mdiagnoz )
       else
         strArr := sBlank
       endif
-      strArr += row[ NAME_KSLP ]
+      strArr += str(row[ CODE_KSLP ]) + '.' + row[ NAME_KSLP ]
       aadd(t_mas, { strArr, .f., row[ CODE_KSLP ] })
     elseif row[ CODE_KSLP ] == 3 .and. isPermissible  // место законному представителю
       if (age < 4)
         strArr := sAsterisk
-        strArr += row[ NAME_KSLP ]
+        strArr += str(row[ CODE_KSLP ]) + '.' + row[ NAME_KSLP ]
       elseif (age < 18)
-        strArr += row[ NAME_KSLP ]
+        strArr += str(row[ CODE_KSLP ]) + '.' + row[ NAME_KSLP ]
       else
         strArr := sBlank
-        strArr += row[ NAME_KSLP ]
+        strArr += str(row[ CODE_KSLP ]) + '.' + row[ NAME_KSLP ]
       endif
       aadd(t_mas, { strArr, (age < 18), row[ CODE_KSLP ] })
     elseif row[ CODE_KSLP ] == 4 .and. isPermissible  // иммунизация РСВ
       if (age < 18)
-        strArr += row[ NAME_KSLP ]
+        strArr += str(row[ CODE_KSLP ]) + '.' + row[ NAME_KSLP ]
       else
         strArr := sBlank
-        strArr += row[ NAME_KSLP ]
+        strArr += str(row[ CODE_KSLP ]) + '.' + row[ NAME_KSLP ]
       endif
       aadd(t_mas, { strArr, (age < 18), row[ CODE_KSLP ] })
     elseif row[ CODE_KSLP ] == 9 // есть сопутствующие заболевания
@@ -87,14 +87,14 @@ function selectKSLP( lkslp, savedKSLP, dateBegin, dateEnd, DOB, mdiagnoz )
       else
         // strArr := sAsterisk
       endif
-      strArr += row[ NAME_KSLP ]
+      strArr += str(row[ CODE_KSLP ]) + '.' + row[ NAME_KSLP ]
       aadd(t_mas, { strArr, fl, row[ CODE_KSLP ] })
     elseif row[ CODE_KSLP ] == 10 .and. isPermissible // лечение свыше 70 дней согласно инструкции
       strArr := iif(srok > 70, sAsterisk, sBlank)
-      strArr += row[ NAME_KSLP ]
+      strArr += str(row[ CODE_KSLP ]) + '.' + row[ NAME_KSLP ]
       aadd(t_mas, { strArr, .f., row[ CODE_KSLP ] })
     else
-      strArr += row[ NAME_KSLP ]
+      strArr += str(row[ CODE_KSLP ]) + '.' + row[ NAME_KSLP ]
       aadd(t_mas, { strArr, isPermissible, row[ CODE_KSLP ] })
     endif
   next

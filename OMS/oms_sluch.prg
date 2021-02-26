@@ -1885,7 +1885,7 @@ Function oms_sluch(Loc_kod,kod_kartotek)
           elseif empty(M1METVMP)
             func_error(4,'Не заполнен метод ВМП')
             loop
-          elseif empty(m1modpac)
+          elseif empty(m1modpac) .and. year(mk_data) >= 2021
             func_error(4,'Не заполнена модель пациента ВМП')
             loop
           endif
