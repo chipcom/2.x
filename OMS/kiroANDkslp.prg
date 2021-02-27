@@ -7,6 +7,15 @@
 
 #include "tbox.ch"
 
+// 27.02.2021
+//
+function buildStringKSLP(row)
+  // row - одномерный массив описывающий КСЛП
+  local ret
+
+  ret := str(row[ CODE_KSLP ]) + '.' + row[ NAME_KSLP ]
+  return ret
+
 // 06.02.2021
 // функция выбора состава КСЛП, возвращает { маска,строка количества КСЛП }, или nil
 function selectKSLP( lkslp, savedKSLP, dateBegin, dateEnd, DOB, mdiagnoz )
@@ -59,25 +68,25 @@ function selectKSLP( lkslp, savedKSLP, dateBegin, dateEnd, DOB, mdiagnoz )
       else
         strArr := sBlank
       endif
-      strArr += str(row[ CODE_KSLP ]) + '.' + row[ NAME_KSLP ]
+      strArr += buildStringKSLP(row)
       aadd(t_mas, { strArr, .f., row[ CODE_KSLP ] })
     elseif row[ CODE_KSLP ] == 3 .and. isPermissible  // место законному представителю
       if (age < 4)
         strArr := sAsterisk
-        strArr += str(row[ CODE_KSLP ]) + '.' + row[ NAME_KSLP ]
+        strArr += buildStringKSLP(row)
       elseif (age < 18)
-        strArr += str(row[ CODE_KSLP ]) + '.' + row[ NAME_KSLP ]
+        strArr += buildStringKSLP(row)
       else
         strArr := sBlank
-        strArr += str(row[ CODE_KSLP ]) + '.' + row[ NAME_KSLP ]
+        strArr += buildStringKSLP(row)
       endif
       aadd(t_mas, { strArr, (age < 18), row[ CODE_KSLP ] })
     elseif row[ CODE_KSLP ] == 4 .and. isPermissible  // иммунизация РСВ
       if (age < 18)
-        strArr += str(row[ CODE_KSLP ]) + '.' + row[ NAME_KSLP ]
+        strArr += buildStringKSLP(row)
       else
         strArr := sBlank
-        strArr += str(row[ CODE_KSLP ]) + '.' + row[ NAME_KSLP ]
+        strArr += buildStringKSLP(row)
       endif
       aadd(t_mas, { strArr, (age < 18), row[ CODE_KSLP ] })
     elseif row[ CODE_KSLP ] == 9 // есть сопутствующие заболевания
@@ -87,14 +96,14 @@ function selectKSLP( lkslp, savedKSLP, dateBegin, dateEnd, DOB, mdiagnoz )
       else
         // strArr := sAsterisk
       endif
-      strArr += str(row[ CODE_KSLP ]) + '.' + row[ NAME_KSLP ]
+      strArr += buildStringKSLP(row)
       aadd(t_mas, { strArr, fl, row[ CODE_KSLP ] })
     elseif row[ CODE_KSLP ] == 10 .and. isPermissible // лечение свыше 70 дней согласно инструкции
       strArr := iif(srok > 70, sAsterisk, sBlank)
-      strArr += str(row[ CODE_KSLP ]) + '.' + row[ NAME_KSLP ]
+      strArr += buildStringKSLP(row)
       aadd(t_mas, { strArr, .f., row[ CODE_KSLP ] })
     else
-      strArr += str(row[ CODE_KSLP ]) + '.' + row[ NAME_KSLP ]
+      strArr += buildStringKSLP(row)
       aadd(t_mas, { strArr, isPermissible, row[ CODE_KSLP ] })
     endif
   next
