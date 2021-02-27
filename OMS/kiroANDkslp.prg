@@ -16,7 +16,7 @@ function buildStringKSLP(row)
   ret := str(row[ CODE_KSLP ]) + '.' + row[ NAME_KSLP ]
   return ret
 
-// 06.02.2021
+// 27.02.2021
 // функция выбора состава КСЛП, возвращает { маска,строка количества КСЛП }, или nil
 function selectKSLP( lkslp, savedKSLP, dateBegin, dateEnd, DOB, mdiagnoz )
   // lkslp - значение КСЛП (выбранные КСЛП)
@@ -113,7 +113,7 @@ function selectKSLP( lkslp, savedKSLP, dateBegin, dateEnd, DOB, mdiagnoz )
   mlen := len(t_mas)
 
   // используем popupN из библиотеки FunLib
-  if (ret := popupN(5,20,15,61,t_mas,i,color0,.t.,"fmenu_readerN",,;
+  if (ret := popupN(5,10,15,71,t_mas,i,color0,.t.,"fmenu_readerN",,;
       "Отметьте КСЛП",col_tit_popup,,strStatus)) > 0
     for i := 1 to mlen
       if "*" == substr(t_mas[i, 1],2,1)
@@ -167,77 +167,6 @@ Function put_str_kslp_kiro(arr,fl)
     endif
   endif
   return NIL
-
-***** 01.02.2021
-// возвращает массив КИРО на указанную дату
-function getKIROtable( dateSl )
-  Local dbName, dbAlias := 'KIRO_'
-  local tmp_select := select()
-  local tmpKIRO := {}
-
-  static aKIRO, loadKIRO := .f.
-
-  if loadKIRO //если массив КИРО существует вернем его
-    if (iy := ascan(aKIRO, {|x| x[1] == Year(dateSl) })) > 0 // год
-      return aKIRO[ iy, 2 ]
-    endif
-  endif
-
-  if year(dateSl) == 2021 // КИРО на 2021 год
-    tmp_select := select()
-    aKIRO := {}
-    // tmpKIRO := {}
-    dbName := '_mo1kiro'
-    dbUseArea( .t., "DBFNTX", exe_dir + dbName, dbAlias , .t., .f. )
-
-    (dbAlias)->(dbGoTop())
-    do while !(dbAlias)->(EOF())
-      aadd(tmpKIRO, { (dbAlias)->CODE, (dbAlias)->NAME, (dbAlias)->NAME_F, (dbAlias)->COEFF, (dbAlias)->DATEBEG, (dbAlias)->DATEEND })
-      (dbAlias)->(dbSkip())
-    enddo
-    (dbAlias)->(dbCloseArea())
-    Select(tmp_select)
-    aadd(aKIRO, { Year(dateSl), tmpKIRO })
-    loadKIRO := .t.
-  else
-    alertx('На указанную дату ' + DToC(dateSl) + ' КИРО отсутствуют!')
-  endif
-  return tmpKIRO
-
-  // возвращает массив КСЛП на указанную дату
-function getKSLPtable( dateSl )
-  Local dbName, dbAlias := 'KSLP_'
-  local tmp_select := select()
-  local tmpKSLP := {}
-
-  static aKSLP, loadKSLP := .f.
-
-  if loadKSLP //если массив КСЛП существует вернем его
-    if (iy := ascan(aKSLP, {|x| x[1] == Year(dateSl) })) > 0 // год
-      return aKSLP[ iy, 2 ]
-    endif
-  endif
-
-  if year(dateSl) == 2021 // КСЛП на 2021 год
-    tmp_select := select()
-    aKSLP := {}
-    // tmpKSLP := {}
-    dbName := '_mo1kslp'
-    dbUseArea( .t., "DBFNTX", exe_dir + dbName, dbAlias , .t., .f. )
-
-    (dbAlias)->(dbGoTop())
-    do while !(dbAlias)->(EOF())
-      aadd(tmpKSLP, { (dbAlias)->CODE, (dbAlias)->NAME, (dbAlias)->NAME_F, (dbAlias)->COEFF, (dbAlias)->DATEBEG, (dbAlias)->DATEEND })
-      (dbAlias)->(dbSkip())
-    enddo
-    (dbAlias)->(dbCloseArea())
-    Select(tmp_select)
-    aadd(aKSLP, { Year(dateSl), tmpKSLP })
-    loadKSLP := .t.
-  else
-    alertx('На указанную дату ' + DToC(dateSl) + ' КСЛП отсутствуют!')
-  endif
-  return tmpKSLP
 
 ***** 04.02.2021
 // возвращает сумму итогового КСЛП по маске КСЛП и дате случая
