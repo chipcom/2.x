@@ -1,4 +1,4 @@
-***** 15.02.21 инициализация справочников ФФОМС
+***** 27.02.21 инициализация справочников ФФОМС
 Function InitSpravFFOMS()
   /////////////////////////////////////////////////
   // F005.xml - Классификатор статусов оплаты медицинской помощи
@@ -26,10 +26,6 @@ Function InitSpravFFOMS()
   // V019.xml - Классификатор методов ВМП
   Local i, j, s, ar
   
-// alertx(getCategoryCheckErrorByID_Q017('002K')[1], 'cat 1')
-// alertx(getCategoryCheckErrorByID_Q017('006f')[2], 'cat 2')
-// alertx(getCategoryCheckErrorByID_Q017('270h')[4], 'cat 3')
-
   /////////////////////////////////////////////////
   // F005.xml - Классификатор статусов оплаты медицинской помощи
   //  1 - STNAME(C)  2 - IDIDST(N)  3 - DATEBEG(D)  4 - DATEEND(D)
