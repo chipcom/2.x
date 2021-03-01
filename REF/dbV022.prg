@@ -3,23 +3,25 @@
 function getV022table()
   Local dbName, dbAlias := 'V022'
   local tmp_select := select()
-  local tmpV022 := {}
+  static _arr := {}
   
-  tmp_select := select()
-  dbName := '_mo_V022'
-  dbUseArea( .t., "DBFNTX", exe_dir + dbName, dbAlias , .t., .f. )
+  if len(_arr) == 0
+    tmp_select := select()
+    dbName := '_mo_V022'
+    dbUseArea( .t., "DBFNTX", exe_dir + dbName, dbAlias , .t., .f. )
 
-  //  1 - IDMPAC(N)  2 - MPACNAME(C)  3 - DATEBEG(D)  4 - DATEEND(D)
-  (dbAlias)->(dbGoTop())
-  do while !(dbAlias)->(EOF())
-    aadd(tmpV022, { (dbAlias)->IDMPAC, alltrim((dbAlias)->MPACNAME), (dbAlias)->DATEBEG, (dbAlias)->DATEEND })
-    (dbAlias)->(dbSkip())
-  enddo
-  asort(tmpV022,,,{|x,y| x[1] < y[1] })
+    // 1 - IDMPAC(N)  2 - MPACNAME(C)  3 - DATEBEG(D)  4 - DATEEND(D)
+    (dbAlias)->(dbGoTop())
+    do while !(dbAlias)->(EOF())
+      aadd(_arr, { (dbAlias)->IDMPAC, alltrim((dbAlias)->MPACNAME), (dbAlias)->DATEBEG, (dbAlias)->DATEEND })
+      (dbAlias)->(dbSkip())
+    enddo
+    asort(_arr,,,{|x,y| x[1] < y[1] })
 
-  (dbAlias)->(dbCloseArea())
-  Select(tmp_select)
-  return tmpV022
+    (dbAlias)->(dbCloseArea())
+    Select(tmp_select)
+  endif
+  return _arr
 
 ***** 11.02.21 в GET-е вернуть строку из glob_V022
 Function f_get_mmodpac(k, r, c, lvidvmp, sDiag)
