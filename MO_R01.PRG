@@ -597,11 +597,11 @@ select R05P
 for i := 3 to 12
   if flag
     goto (1)
-    t[1] := &("r05p->kol1_"+strzero(i,2)) 
-    t[2] := &("r05p->kol2_"+strzero(i,2)) 
-    t[3] := &("r05p->kol11_"+strzero(i,2)) 
-    t[4] := &("r05p->kol12_"+strzero(i,2)) 
-    t[5] := &("r05p->kol13_"+strzero(i,2)) 
+    t[1] := &("r05p->kol1_"+strzero(i,2))
+    t[2] := &("r05p->kol2_"+strzero(i,2))
+    t[3] := &("r05p->kol11_"+strzero(i,2))
+    t[4] := &("r05p->kol12_"+strzero(i,2))
+    t[5] := &("r05p->kol13_"+strzero(i,2))
     select TMP1
     goto (i)
     tt[1] := tmp1->kol1
@@ -1690,6 +1690,9 @@ Private c_view := 0, c_found := 0, fl_exit := .f., pj, arr_rees := {},;
         pkol := 0, CODE_LPU := glob_mo[_MO_KOD_TFOMS], CODE_MO := glob_mo[_MO_KOD_FFOMS],;
         mkol := {0,0,0,0,0}, skol[5], ames[12,5], ame[12], bm := SMONTH,; // начальный месяц минус один
         _arr_vozrast_DVN := ret_arr_vozrast_DVN(0d20201201)
+//
+//f00_create_R01()
+//
 mywait()
 if (fl := verify_packet_R05(1,arr))
   R_Use(dir_server+"mo_dr05p",,"R05p")
@@ -1713,7 +1716,6 @@ if (fl := verify_packet_R05(1,arr))
     ames[i,3,1] -= ames[i,4,1]
     ames[i,3,1] -= ames[i,5,1]
   next
-
   afill(ame,0)
   //
   select MO_XML
@@ -1744,7 +1746,7 @@ if (fl := verify_packet_R05(1,arr))
     select REES
     skip
   enddo
-//
+  //
   if fl
     if fl1 // не первый раз составляется реестр в отчётном году
       R_Use(dir_server+"mo_dr01k",,"R01k")
@@ -1766,6 +1768,7 @@ if (fl := verify_packet_R05(1,arr))
         skip
       enddo
       commit
+      //
       index on str(reestr,6) to (cur_dir+"tmp_dr00")
       for ir := 1 to len(arr_rees)
         select TMP
@@ -1794,21 +1797,21 @@ if (fl := verify_packet_R05(1,arr))
                 skol[j] --
               endif
             else
-              //tmp->oplata := r01k->oplata
+              //tp->oplata := r01k->oplata
             endif
           endif
           select TMP
           skip
         enddo
         if !fl ; exit ; endif
-      next ir
+    next ir
       if emptyall(skol[1],skol[2],skol[3],skol[4],skol[5])
         fl := func_error(4,"Более не требуется создания файлов обмена!")
       else
         for j := 1 to 5
           if mkol[j] < skol[j]
             s := {"диспансеризаций","профосмотров","дисп.пенсионеров","дисп.65 лет","дисп.66 лет и старше"}[j]
-            fl := func_error(4,"Не хватает "+lstr(skol[j]-mkol[j])+" чел. в картотеке для профосмотров")
+            fl := func_error(4,"Не хватает "+lstr(skol[j]-mkol[j])+" чел. в картотеке для "+s)
           endif
         next
       endif
@@ -1848,19 +1851,23 @@ if (fl := verify_packet_R05(1,arr))
   //
   if fl
     mywait()
-    my_debug(,print_array(skol))  // общий остаток - запас
-    my_debug(,print_array(mkol))  //  - запас
-    my_debug(,print_array(ames))  //
-    // ставим принудительную заплатку
+    // ставим принудительную заплатку на 3-й месяц
     for v := 1 to 5
       if ames[3,v,1] > ames[3,v,2]
         skol[v] -= (ames[3,v,1]-ames[3,v,2])
         ames[3,v,2] := ames[3,v,1]
       endif
     next
-    my_debug(,print_array(skol))  // общий остаток - запас
-    my_debug(,print_array(mkol))  // план
-    my_debug(,print_array(ames))  //
+    // ЗАПЛАТКА
+    if emptyall(skol[1],skol[2],skol[3],skol[4],skol[5])
+      for v := 4 to 12
+        skol[1] += (ames[v,1,1]-ames[v,1,2])
+        skol[2] += (ames[v,2,1]-ames[v,2,2])
+        skol[3] += (ames[v,3,1]-ames[v,3,2])
+        skol[4] += (ames[v,4,1]-ames[v,4,2])
+        skol[5] += (ames[v,5,1]-ames[v,5,2])
+      next
+    endif
     // конец
     for v := 1 to 5
       j := {2,4,5,3,1}[v]
@@ -1871,22 +1878,25 @@ if (fl := verify_packet_R05(1,arr))
       pj := j
       d := koef := int(mkol[j] / skol[j]) + 1 // через сколько записей прыгаем
       if d > 50
-        d := koef := 33
+        d := koef := 33 
       endif
       i := 0
       do while skol[j] > 0
         select TMP
-        if j == 2
+        if j == 2 // профосмотр
           index on kod to (cur_dir+"tmp_dr00") for tmp->tip == 2 .and. tmp->n_q == 0 DESCENDING
-        elseif j == 1
+        elseif j == 1 // работоспособного возраста
           index on kod to (cur_dir+"tmp_dr00") for tmp->tip == 1 .and. tmp->tip1 == 0 .and. tmp->n_q == 0 DESCENDING
-        else
+        else  // 4-65 лет, 5-66 и старше, 3-пенсионеры
+          // выборка 66 и старше
+          // затем 65 лет
+          // затем остатки песионеров
           index on kod to (cur_dir+"tmp_dr00") for eq_any(tmp->tip,1,2) .and. tmp->tip1 == pj-2 .and. tmp->n_q == 0 DESCENDING
         endif
         go top
         do while !eof()
           if d == koef
-            if i >= 12
+            if i >= 12  // месяцы
               i := 0
             endif
             do while i < 12
@@ -1906,6 +1916,7 @@ if (fl := verify_packet_R05(1,arr))
           endif
           skip
         enddo
+        //
         select TMP
         if j == 2
           index on kod to (cur_dir+"tmp_dr00") for tmp->tip == 2 .and. tmp->n_m > 0
@@ -1922,12 +1933,9 @@ if (fl := verify_packet_R05(1,arr))
           endif
           skip
         enddo
+        //
       enddo
     next v
-    my_debug(,print_array(skol))
-    my_debug(,print_array(mkol))
-    my_debug(,print_array(ames))
-    my_debug(,print_array(ame))
   endif
 else
   func_error(4,arr[1])
@@ -2052,6 +2060,80 @@ endif
 @ row(),col() say lstr(cf) color cColorStMsg
 return NIL
 
+
+***** 28.02.21
+Function f00_create_R01()
+Local fl := .f., v, t1, t2, lgod_r, sgod := 2021, ltip1, ltip, lvoz
+
+ Status_Key("^<Esc>^ - прервать поиск")
+ hGauge := GaugeNew(,,,"Проверка пациентов, подлежащих дисп-ии/профосмотрам",.t.)
+ GaugeDisplay( hGauge )
+ Use (dir_server+"mo_dr00") new alias TMP
+ R_Use(dir_server+"kartote2",,"KART2")
+ R_Use(dir_server+"kartote_",,"KART_")
+ R_Use(dir_server+"kartotek",,"KART")
+ set relation to recno() into KART_, recno() into KART2
+ select TMP
+ go top
+ do while !eof()
+    fl := .F.
+   GaugeUpdate( hGauge, recno()/lastrec() )
+   if inkey() == K_ESC
+     fl_exit := .t. ; exit
+   endif
+   if tmp->reestr == 0
+     t1 := tmp->kod
+     t2 := tmp->voz
+     t3 := tmp->tip
+     t4 := tmp->tip1
+     select KART
+     goto (t1)
+     // проверяем возраст
+     lgod_r := year(kart->date_r)
+     v := sgod - lgod_r
+     if (v > 17) // только взрослое население
+        lvoz := 4
+        ltip1 := 0
+        if ascan(_arr_vozrast_DVN,v) > 0
+          ltip := 1 // диспансеризация
+          // 1-65 лет, 2-66 лет и старше, 3-пенсионер, 4-прочие
+          if v >= iif(kart->POL == "М", 60, 55)
+            lvoz := 3
+            ltip1 := 1
+            if v == 65
+              lvoz := 1
+              ltip1 := 2
+            elseif v > 65
+              lvoz := 2
+              ltip1 := 3
+            endif
+          endif
+        else
+          ltip := 2 // профосмотры
+        endif
+        if t2 != lvoz .or. t3 != ltip .or. t4 != ltip1
+          fl := .T.
+         // my_debug(,"Возраст  "str(v)+"   "+str(t1))
+
+        endif
+     else
+       fl := .T.
+       //my_debug(,"Возраст  "str(v)+"   "+str(t1))
+     endif
+   endif
+   select TMP
+   if fl
+     G_RLock(forever)
+     tmp->reestr := 999999
+     UnLock
+   endif
+   skip
+ enddo
+ CloseGauge(hGauge)
+ close databases
+return NIL
+
+
 ***** 17.12.19
 Function f1_create_R01()
 Local SMONTH, nsh := 3, smsg, arr_nn[12]
@@ -2078,6 +2160,11 @@ for SMONTH := 1 to 12
     skip
   enddo
 next
+
+
+//my_debug(,print_array(arr_nn))
+//quit
+
 set index to
 G_Use(dir_server+"mo_xml",,"MO_XML")
 R_Use(dir_server+"kartote2",,"KART2")
@@ -2344,7 +2431,7 @@ do case
     if ptip_f == _XML_FILE_R01
       f32_view_R01()
     else
-      //f32_view_R11(rees->NMONTH)
+      f32_view_R11(rees->NMONTH)
     endif
     select REES
     goto (rec)
@@ -2555,7 +2642,7 @@ return NIL
 
 ***** 18.12.19
 Function f32_view_R01()
-Local fl := .t., buf := save_maxrow(), k := 0, skol[5,3], ames[12,5,3], mrec := 1, n_file := "r01_itog"+stxt
+Local fl := .t., buf := save_maxrow(), k := 0, skol[5,3], ames[12,5,3], mrec := 2, n_file := "r01_itog"+stxt
 Private par := .f.
 afillall(skol,0)
 afillall(ames,0)
@@ -2629,6 +2716,12 @@ if !par
       ames[i,3,k] += ames[i,5,k]
       ames[i,1,k] += ames[i,3,k]
     next
+    if i < 4
+      for j := 1 to 5
+        ames[i,j,2] := ames[i,j,1]
+        ames[i,j,3] := ames[i,j,1]
+      next
+    endif
   next
 endif
 //
@@ -3270,15 +3363,23 @@ if regim == "edit" .and. nKey == K_ENTER
 endif
 return ret
 
-***** 17.12.19 проверить, есть ли не до конца обработанные операции с файлами R01...
+***** 28.02.21 проверить, есть ли не до конца обработанные операции с файлами R01...
 Function find_unfinished_R01()
-Local fl := .t., fl1, skol := 0, mkol := 0, arr := {}, rec, fl_date := .t.
-Private sgod := 2020, mrec := 1
+Local fl := .t., fl1, skol := 0, mkol := 0, arr := {}, rec, fl_date := .t., vrem := 0
+Private sgod := 2021, mrec := 2
 if glob_mo[_MO_IS_UCH]
   if (fl := verify_packet_R05(2,arr))
     R_Use(dir_server+"mo_dr05p",,"R05p")
     goto (mrec)
-    skol := r05p->KOL1 + r05p->KOL2
+    //skol := r05p->KOL1 + r05p->KOL2
+    for i := 4 to 12
+      vrem := 0
+      for j := 1 to 2
+        vrem += &("r05p->kol"+lstr(j)+"_"+strzero(i,2))
+      next
+      skol += vrem
+//my_debug(,str(vrem)+"   "+str(skol))
+    next
     select MO_XML
     index on str(reestr,6) to (cur_dir+"tmp_xml") for tip_in == _XML_FILE_R02 .and. empty(TIP_OUT)
     R_Use(dir_server+"mo_dr01",,"REES")
@@ -3292,12 +3393,14 @@ if glob_mo[_MO_IS_UCH]
         fl := .f.
         aadd(arr,"Файл PR01 за "+lstr(rees->NMONTH)+"-й месяц "+lstr(sgod)+" года не был прочитан")
       else
-        mkol += (rees->KOL - rees->KOL_ERR)
-        select MO_XML
-        find (str(rees->kod,6))
-        if found() .and. empty(mo_xml->TWORK2)
-          fl := .f.
-          aadd(arr,"Прервано чтение файла "+alltrim(mo_xml->FNAME)+"! Аннулируйте (Ctrl+F12) и прочитайте снова")
+        if rees->NMONTH > 3
+          mkol += (rees->KOL - rees->KOL_ERR)
+          select MO_XML
+          find (str(rees->kod,6))
+          if found() .and. empty(mo_xml->TWORK2)
+            fl := .f.
+            aadd(arr,"Прервано чтение файла "+alltrim(mo_xml->FNAME)+"! Аннулируйте (Ctrl+F12) и прочитайте снова")
+          endif
         endif
       endif
       select REES
@@ -3305,8 +3408,8 @@ if glob_mo[_MO_IS_UCH]
     enddo
     if fl .and. skol != mkol
       fl := .f.
-      aadd(arr,"Количество, определённое в план-графике = "+lstr(skol))
-      aadd(arr,"Количество, отправленное в ТФОМС        = "+lstr(mkol))
+      aadd(arr,"Количество, определённое в план-графике 4-12 месяц = "+lstr(skol))
+      aadd(arr,"Количество, отправленное в ТФОМС        4-12 месяц = "+lstr(mkol))
     endif
   endif
   close databases
@@ -3319,10 +3422,10 @@ if glob_mo[_MO_IS_UCH]
 endif
 return NIL
 
-***** 16.11.20 проверить, есть ли не до конца обработанные операции с файлами R11...
+***** 26.02.21 проверить, есть ли не до конца обработанные операции с файлами R11...
 Function find_unfinished_R11()
 Local fl := .t., fl1, skol := 0, mkol := 0, arr := {}, rec, fl_date := .t.
-Private sgod := 2021, mrec := 1, smonth := 2
+Private sgod := 2021, mrec := 2, smonth := 3
 if glob_mo[_MO_IS_UCH]
   if (fl := verify_packet_R05(2,arr))
     R_Use(dir_server+"mo_dr05p",,"R05p")
@@ -3367,3 +3470,5 @@ if glob_mo[_MO_IS_UCH]
   endif
 endif
 return NIL
+
+

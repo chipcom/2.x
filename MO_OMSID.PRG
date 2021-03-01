@@ -2677,7 +2677,7 @@ do case
   case k == 42
     mas_pmt := {"~Создание файлов обмена",;
                 "~Просмотр файлов обмена"}
-    mas_msg := {"Создание файлов обмена R01... по всем кварталам",;
+    mas_msg := {"Создание файлов обмена R01... по всем месяцам",;
                 "Просмотр файлов обмена R01... и результатов работы с ними"}
     mas_fun := {"inf_DVN(61)",;
                 "inf_DVN(62)"}
@@ -2686,7 +2686,10 @@ do case
       aadd(mas_msg, "Аннулирование недописанного пакета файлов R01")
       aadd(mas_fun, "delete_reestr_R01()")
     endif
+    //set key K_CTRL_F10 to delete_month_R01()
     popup_prompt(T_ROW,T_COL-5,si6,mas_pmt,mas_msg,mas_fun)
+    //set key K_CTRL_F10 to
+
   case k == 21
     if (j := popup_prompt(T_ROW,T_COL-5,1,mas1pmt)) > 0
       f21_inf_DVN(j)
@@ -10116,8 +10119,8 @@ if fl_1 // не первый раз
   for j := 1 to 5
     skol[j] := ames[SMONTH,j,1]
   next
-  my_debug(,print_array(skol))  
-  my_debug(,print_array(ames))  
+  my_debug(,print_array(skol))
+  my_debug(,print_array(ames))
 
   afill(ame,0)
   //
@@ -10726,10 +10729,73 @@ rest_box(buf)
 close databases
 return NIL
 
+/*
+***** 28.02.21 удаление всех пакетов R01(PR01) за конкретный месяц
+Function delete_month_R01()
+Local pss := space(10), tmp_pss := my_parol()
+Local i, lm, mkod_reestr, ar_m := {}, buf
+if select("MO_XML") > 0
+  return NIL
+endif
+if (lm := input_value(18,6,20,73,color1,space(9)+"Введите удаляемый месяц (все файлы R01,PR01)",2,"99")) == NIL
+  return NIL
+elseif !between(lm,2,12)
+  return NIL
+else
+  pss := get_parol(,,,,,"N/W","W/N*")
+  if lastkey() == K_ENTER .and. ascan(tmp_pss,crypt(pss,gpasskod)) > 0 .and. f_Esc_Enter("удаления файлов R11",.t.)
+    //
+  else
+    return NIL
+  endif
+endif
+G_Use(dir_server+"mo_xml",,"MO_XML")
+index on str(reestr,6) to (cur_dir+"tmp_xml") for tip_in == _XML_FILE_R02 .and. TIP_OUT == 0
+G_Use(dir_server+"mo_dr01",,"REES")
+G_Use(dir_server+"mo_dr01m",,"R01m")
+go top
+do while !eof()
+  mkod_reestr := &("r01m->reestr"+strzero(lm,2))
+  if mkod_reestr > 0
+    select MO_XML
+    find (str(mkod_reestr,6))
+    select REES
+    goto (mkod_reestr)
+    if rees->tip == 0
+      aadd(ar_m,{r01m->(recno()),mkod_reestr,iif(rees->answer==1,mo_xml->kod,0)})
+    endif
+  endif
+  select R01m
+  skip
+enddo
+REES->(dbCloseArea())
+mo_xml->(dbCloseArea())
+buf := save_maxrow()
+if empty(ar_m)
+  func_error(10,"Не обнаружено реестров R01 за "+lstr(lm)+" месяц!")
+else
+  for i := len(ar_m) to 1 step -1
+    stat_msg("Удаляется "+lstr(i)+"-й реестр R01")
+    if ar_m[i,3] > 0
+      f2_delete_reestr_R02(ar_m[i,2],ar_m[i,3])
+    endif
+    close databases
+    G_Use(dir_server+"mo_dr01m",,"R01m")
+    f2_delete_reestr_R01(ar_m[i,1])
+  next
+  stat_msg("Успешно удалено реестров R01 - "+lstr(len(ar_m))+" (и, соответственно, ответов на них PR11)")
+  inkey(10)
+endif
+rest_box(buf)
+close databases
+return NIL
+
+*/
+
 ***** 25.02.21
 Function f32_view_R11(lm)
   Local fl := .t., buf := save_maxrow(), k := 0, skol[5,3], ames[12,5,3], mrec := 2, n_file := "r11_itog"+stxt,;
-        arr_rees := {}
+        arr_rees := {}, mkod_reestr := 0
   Private par := .f.
   afillall(skol,0)
   afillall(ames,0)
@@ -10772,7 +10838,13 @@ Function f32_view_R11(lm)
     aadd(arr_rees,rees->kod)
     skip
   enddo
-  for k := len(arr_rees) to k step -1
+my_debug(,"arr_rees "+print_array(arr_rees))
+
+  for k := len(arr_rees) to 1 step -1
+
+my_debug(,"k= "+str(k))
+my_debug(,"arr_rees[k]= "+str(arr_rees[k]))
+
     mkod_reestr := arr_rees[k]
     select RHUM
     find (str(mkod_reestr,6))
@@ -10825,19 +10897,20 @@ Function f32_view_R11(lm)
                                 put_val(ames[i,j,2],14)+;
                                 put_val(ames[i,j,3],13)+;
                                 put_val(ames[i,j,1]-ames[i,j,3],12))
-      skol[j,2] += ames[i,j,2]
-      skol[j,3] += ames[i,j,3]
+      //skol[j,2] += ames[i,j,2]
+      //skol[j,3] += ames[i,j,3]
     next
   next
   add_string(padr("Итого:",n))
-  for j := 1 to 5
+/*  for j := 1 to 5
     add_string(padl(mmt[j],n)+put_val(skol[j,1],11)+;
                               put_val(skol[j,2],14)+;
                               put_val(skol[j,3],13)+;
                               put_val(skol[j,1]-skol[j,3],12))
   next
+*/
   fclose(fp)
   rest_box(buf)
   viewtext(n_file,,,,.t.,,,2)
   return NIL
-  
+
