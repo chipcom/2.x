@@ -13,7 +13,7 @@ function buildStringKSLP(row)
   // row - одномерный массив описывающий КСЛП
   local ret
 
-  ret := str(row[ CODE_KSLP ]) + '.' + row[ NAME_KSLP ]
+  ret := str(row[ CODE_KSLP ], 2) + '.' + row[ NAME_KSLP ]
   return ret
 
 // 27.02.2021
