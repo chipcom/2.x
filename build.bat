@@ -1,4 +1,4 @@
-c:\Harbour\bin\hbmk2 chip_mo_bay.hbp
+c:\Harbour\bin\hbmk2 chip_mo.hbp
 copy chip_mo.exe d:\_mo\_arc
 copy *.shb  d:\_mo\_arc
 copy *.frm  d:\_mo\_arc

@@ -2169,11 +2169,10 @@ Function verify_1_sluch(fl_view)
           else
             aadd(ta,'метод ВМП '+lstr(human_2->METVMP)+' не соответствует виду ВМП '+human_2->VIDVMP)
           endif
-        elseif ((i := ascan(glob_V019, {|x| x[1] == human_2->METVMP .and. x[8] == human_2->PN5 })) > 0) .and. (year(human->k_data)>=2021)
-// alertx(i,'i')
-// alertx(glob_V019[i,4],'glob_V019[i,4]')
-// alertx(alltrim(human_2->VIDVMP),'alltrim(human_2->VIDVMP)')
-          if glob_V019[i,4] == alltrim(human_2->VIDVMP)
+        // elseif ((i := ascan(glob_V019, {|x| x[1] == human_2->METVMP .and. x[8] == human_2->PN5 })) > 0) .and. (year(human->k_data)>=2021)
+        elseif ((i := ascan(glob_V019, {|x| x[1] == human_2->METVMP .and. x[8] == human_2->PN5 .and. x[4] == alltrim(human_2->VIDVMP) })) > 0) .and. (year(human->k_data)>=2021)
+          if (glob_V019[i,4] == alltrim(human_2->VIDVMP)) //.or. (glob_V019[i,4] == '26' .and. alltrim(human_2->VIDVMP) == '27')
+
             if !(len(mdiagnoz) == 0 .or. empty(mdiagnoz[1]))
               fl := .f. ; s := padr(mdiagnoz[1],6)
               for j := 1 to len(glob_V019[i,3])

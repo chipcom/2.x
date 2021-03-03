@@ -13,8 +13,9 @@
 -gtwvg
 -mt
 #-compr=yes
+#-workdir=C:\TEMP
 -inc
--workdir=..\TEMP\TEMP_MO
+-workdir=..\TEMP\TEMPDEV
 
 -ochip_mo
 
@@ -80,6 +81,8 @@ mo_263p.prg
 mo_263s.prg
 Errorsys.prg
 
+.\init\init_mo.prg
+
 .\calendar\calendar.prg
 
 .\ref\initSpravFFOMS.prg
@@ -130,6 +133,7 @@ Errorsys.prg
 .\oms\f_valid2ad_cr.prg
 .\oms\kiroANDkslp.prg
 .\oms\f_1pac_definition_KSG.prg
+
 
 .\oms\getPrice.prg
 .\oms\verify_1_sluch.prg

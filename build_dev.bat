@@ -1,4 +1,4 @@
-c:\Harbour\bin\hbmk2 chip_mo_f003.hbp
+c:\Harbour\bin\hbmk2 chip_mo_dev.hbp
 copy chip_mo.exe d:\_mo\chip\exe
 
 @REM @echo off
