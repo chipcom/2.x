@@ -68,7 +68,7 @@ else
 endif
 return .t.
 
-***** 14.02.21 инициализация массива МО, запрос кода МО (при необходимости)
+***** 03.03.21 инициализация массива МО, запрос кода МО (при необходимости)
 Function init_mo()
 Local fl := .t., i, arr, arr1, cCode := "", buf := save_maxrow(), ;
       nfile := exe_dir+"_mo_mo.dbb"
@@ -1290,14 +1290,19 @@ else
   fl := notExistsFileNSI( exe_dir + sbase + sdbf )
 endif
 
+// F010 - регионы
+sbase := "_mo_f010"
+if ! hb_FileExists(exe_dir + sbase + sdbf)
+  fl := notExistsFileNSI( exe_dir + sbase + sdbf )
+endif
 // V018 - для ВМП
 sbase := '_mo_V018'
-if !hb_FileExists(exe_dir + sbase + sdbf)
+if ! hb_FileExists(exe_dir + sbase + sdbf)
   fl := notExistsFileNSI( exe_dir + sbase + sdbf )
 endif
 // V019 - для ВМП
 sbase := '_mo_V019'
-if !hb_FileExists(exe_dir + sbase + sdbf)
+if ! hb_FileExists(exe_dir + sbase + sdbf)
   fl := notExistsFileNSI( exe_dir + sbase + sdbf )
 endif
 

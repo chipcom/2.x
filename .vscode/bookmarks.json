@@ -4,8 +4,18 @@
 			"path": "OMS/verify_1_sluch.prg",
 			"bookmarks": [
 				{
-					"line": 4473,
+					"line": 4470,
 					"column": 0,
+					"label": ""
+				}
+			]
+		},
+		{
+			"path": "MO_INIT.PRG",
+			"bookmarks": [
+				{
+					"line": 1297,
+					"column": 4,
 					"label": ""
 				}
 			]
