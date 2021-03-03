@@ -5,7 +5,8 @@
 Function init_mo()
   Local fl := .t., i, arr, arr1, cCode := "", buf := save_maxrow(), ;
         nfile := exe_dir+"_mo_mo.dbb"
-  
+  local arrRefFFOMS := {}, row, row_flag := .t.
+
   local tmpSelect, lSchema := .f.
   mywait()
   Public oper_parol := 30  // пароль для фискального регистратора
@@ -1223,21 +1224,23 @@ Function init_mo()
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
   
-  // F010 - регионы
-  sbase := "_mo_f010"
-  if ! hb_FileExists(exe_dir + sbase + sdbf)
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
-  // V018 - для ВМП
-  sbase := '_mo_V018'
-  if ! hb_FileExists(exe_dir + sbase + sdbf)
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
-  // V019 - для ВМП
-  sbase := '_mo_V019'
-  if ! hb_FileExists(exe_dir + sbase + sdbf)
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
+  aadd(arrRefFFOMS, {'_mo_f010', 'F010 - регионы' } )
+  aadd(arrRefFFOMS, {'_mo_O001', 'O001 - Общероссийский классификатор стран мира (ОКСМ)' } )
+  aadd(arrRefFFOMS, {'_mo_Q015', 'Q015 - Перечень технологических правил реализации ФЛК в ИС ведения персонифицированного учета сведений об оказанной медицинской помощи (FLK_MPF)' } )
+  aadd(arrRefFFOMS, {'_mo_Q017', 'Q017 - Перечень категорий проверок ФЛК и МЭК (TEST_K)' } )
+  aadd(arrRefFFOMS, {'_mo_V002', 'V002 - Классификатор профилей оказанной медицинской помощи' } )
+  aadd(arrRefFFOMS, {'_mo_V018', 'V018 - для ВМП' } )
+  aadd(arrRefFFOMS, {'_mo_V019', 'V019 - для ВМП' } )
+  aadd(arrRefFFOMS, {'_mo_V022', 'V022 - для ВМП' } )
+
+  for each row in arrRefFFOMS
+    sbase := row[1]
+    if ! hb_FileExists(exe_dir + sbase + sdbf)
+      row_flag := .f.
+      notExistsFileNSI( exe_dir + sbase + sdbf )
+    endif
+  next
+  fl := row_flag
   
   // справочник ОКАТО
   if fl

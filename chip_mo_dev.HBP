@@ -82,11 +82,11 @@ mo_263s.prg
 Errorsys.prg
 
 .\init\init_mo.prg
+.\init\notExistsFileNSI.prg
 
 .\calendar\calendar.prg
 
 .\ref\initSpravFFOMS.prg
-.\ref\notExistsFileNSI.prg
 .\ref\dbO001.prg
 .\ref\dbF003.prg
 .\ref\dbF005.prg
