@@ -1224,20 +1224,27 @@ Function init_mo()
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
   
-  aadd(arrRefFFOMS, {'_mo_f010', 'F010 - регионы' } )
-  aadd(arrRefFFOMS, {'_mo_O001', 'O001 - Общероссийский классификатор стран мира (ОКСМ)' } )
-  aadd(arrRefFFOMS, {'_mo_Q015', 'Q015 - Перечень технологических правил реализации ФЛК в ИС ведения персонифицированного учета сведений об оказанной медицинской помощи (FLK_MPF)' } )
-  aadd(arrRefFFOMS, {'_mo_Q017', 'Q017 - Перечень категорий проверок ФЛК и МЭК (TEST_K)' } )
-  aadd(arrRefFFOMS, {'_mo_V002', 'V002 - Классификатор профилей оказанной медицинской помощи' } )
-  aadd(arrRefFFOMS, {'_mo_V018', 'V018 - для ВМП' } )
-  aadd(arrRefFFOMS, {'_mo_V019', 'V019 - для ВМП' } )
-  aadd(arrRefFFOMS, {'_mo_V022', 'V022 - для ВМП' } )
+  aadd(arrRefFFOMS, {'_mo_f006', .t., 'F006 - Классификатор видов контроля (VidExp)' } )
+  aadd(arrRefFFOMS, {'_mo_f010', .f., 'F010 - регионы' } )
+  aadd(arrRefFFOMS, {'_mo_O001', .f., 'O001 - Общероссийский классификатор стран мира (ОКСМ)' } )
+  aadd(arrRefFFOMS, {'_mo_Q015', .t., 'Q015 - Перечень технологических правил реализации ФЛК в ИС ведения персонифицированного учета сведений об оказанной медицинской помощи (FLK_MPF)' } )
+  aadd(arrRefFFOMS, {'_mo_Q017', .t., 'Q017 - Перечень категорий проверок ФЛК и МЭК (TEST_K)' } )
+  aadd(arrRefFFOMS, {'_mo_V002', .f., 'V002 - Классификатор профилей оказанной медицинской помощи' } )
+  aadd(arrRefFFOMS, {'_mo_V018', .f., 'V018 - для ВМП' } )
+  aadd(arrRefFFOMS, {'_mo_V019', .f., 'V019 - для ВМП' } )
+  aadd(arrRefFFOMS, {'_mo_V022', .f., 'V022 - для ВМП' } )
 
   for each row in arrRefFFOMS
     sbase := row[1]
     if ! hb_FileExists(exe_dir + sbase + sdbf)
       row_flag := .f.
       notExistsFileNSI( exe_dir + sbase + sdbf )
+    endif
+    if row[2]
+      if ! hb_FileExists(exe_dir + sbase + sdbt)
+        row_flag := .f.
+        notExistsFileNSI( exe_dir + sbase + sdbt )
+      endif
     endif
   next
   fl := row_flag
