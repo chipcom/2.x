@@ -10276,6 +10276,42 @@ else // первый раз
   enddo
   Use (cur_dir+"tmp_00") new alias TMP
   R_Use(dir_server+"kartotek",,"KART")
+  G_Use(dir_server+"mo_dr01k",,"RHUM",.T.,.T.)
+  index on str(REESTR,6) to (cur_dir+"tmp_rhum")
+  for i := 1 to len(arr_rees)
+    select RHUM
+    find (str(arr_rees[i],6))
+    do while rhum->REESTR == arr_rees[i] .and. !eof()
+      kart->(dbGoto(rhum->kod_k))
+      if rhum->oplata == 1
+        if rhum->tip == 2 // профосмотр
+          ar := f0_create_R11(sgod)
+          if rhum->tip == ar[1] .and. rhum->tip1 == ar[2] .and. rhum->voz == ar[3]
+            select TMP
+            append blank
+            tmp->kod  := rhum->KOD_K
+            tmp->tip  := rhum->tip
+            tmp->tip1 := rhum->tip1
+            tmp->voz  := rhum->voz
+          endif
+        else
+          rhum->oplata := 2 // все в ошибки
+        endif
+      endif
+      select RHUM
+      skip
+    enddo
+  next
+  //
+/*  select REES
+  index on str(NMONTH,2)+str(nn,3) to (cur_dir+"tmp_dr01") for NYEAR == sgod .and. tip == 0
+  find (str(lm,2))
+  do while lm == rees->NMONTH .and. !eof()
+    aadd(arr_rees,rees->kod) // список R01 за февраль
+    skip
+  enddo
+  Use (cur_dir+"tmp_00") new alias TMP
+  R_Use(dir_server+"kartotek",,"KART")
   G_Use(dir_server+"mo_dr01k",,"RHUM")
   index on str(REESTR,6) to (cur_dir+"tmp_rhum")
   for i := 1 to len(arr_rees)
@@ -10297,7 +10333,7 @@ else // первый раз
       select RHUM
       skip
     enddo
-  next
+  next*/
 endif
 close databases
 if fl
