@@ -1067,6 +1067,9 @@ Function verify_1_sluch(fl_view)
     endif
   endif
 
+  check_006F_00_0430(diag_to_array(,,,,.t.), ta)
+  check_006F_00_0440(diag_to_array(,,,,.t.), ta)
+
   checkRSLT_ISHOD(human_->RSLT_NEW, human_->ISHOD_NEW, ta)
 
   if len(arr_povod) > 0
@@ -4534,4 +4537,48 @@ function checkRSLT_ISHOD(result, ishod, arr)
     aadd(arr, str)
   endif
 
+  return
+
+*** 06.03.2021
+function check_006F_00_0430(mdiagnoz, arr)
+  local str := '', length_diag := len(mdiagnoz)
+  local strError := 'значение поля основного диагноза не должно быть равным значению сопутствующих диагнозов'
+  local ds1 := ''
+  local ds2 := ''
+  local ds3 := ''
+
+  if length_diag <= 1
+    return
+  elseif length_diag == 2
+    ds1 := alltrim(upper(mdiagnoz[1]))
+    ds2 := alltrim(upper(mdiagnoz[2]))
+    if ds1 == ds2
+      str += strError
+    endif
+  elseif length_diag == 3
+    ds1 := alltrim(upper(mdiagnoz[1]))
+    ds2 := alltrim(upper(mdiagnoz[2]))
+    ds3 := alltrim(upper(mdiagnoz[3]))
+    if eq_any( ds1_1, ds2_1, ds3_1 )
+      str += strError
+    endif
+  endif
+  aadd(arr, str)
+  return
+
+*** 06.03.2021
+function check_006F_00_0440(mdiagnoz, arr)
+  local str := '', length_diag := len(mdiagnoz)
+  local strError := 'значение полей сопутствующих диагнозов не должны совпадать'
+  local ds1 := ''
+  local ds2 := ''
+
+  if length_diag == 3
+    ds1 := alltrim(upper(mdiagnoz[2]))
+    ds2 := alltrim(upper(mdiagnoz[3]))
+    if eq_any( ds1_1, ds2_1 )
+      str += strError
+    endif
+  endif
+  aadd(arr, str)
   return
