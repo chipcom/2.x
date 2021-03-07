@@ -648,6 +648,11 @@ do case
     aadd(first_message[1],"Ввод и распечатка справки о стоимости оказанной медицинской помощи в сфере ОМС")
     aadd(func_menu[1],"f_spravka_OMS()")
     //
+    aadd(first_menu[1], 0)
+    aadd(first_menu[1],"Изменение ~цен ОМС")
+    aadd(first_message[1],"Изменение цен на услуги в соответствии со справочником услуг ТФОМС")
+    aadd(func_menu[1],"Change_Cena_OMS()")
+    //
     aadd(cmain_menu,cmain_next_pos(3))
     aadd(main_menu," ~Реестры ")
     aadd(main_message,"Ввод, печать и учет реестров случаев")

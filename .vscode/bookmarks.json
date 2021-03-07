@@ -9,6 +9,16 @@
 					"label": ""
 				}
 			]
+		},
+		{
+			"path": "MO_MAIN.PRG",
+			"bookmarks": [
+				{
+					"line": 1211,
+					"column": 27,
+					"label": ""
+				}
+			]
 		}
 	]
 }
