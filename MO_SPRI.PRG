@@ -2357,8 +2357,7 @@ if fl
 endif
 return fl
 
-*
-
+*** 07.03.2021
 ***** список персонала
 Function spr_personal()
 Local k, sh := 80, HH := 57, fl := .t., s
@@ -2385,10 +2384,10 @@ if R_Use(dir_server+"mo_pers",,"PERSO")
     endif
     fl := .f.
     s := put_val(perso->tab_nom,5)+;
-         iif(empty(perso->svod_nom), space(7), padl("("+lstr(perso->svod_nom)+")",7))+;
-         " "+alltrim(perso->fio)
+         iif(empty(perso->svod_nom), space(5), padl("("+lstr(perso->svod_nom)+")",5))+;
+         " "+padr(alltrim(perso->fio),45)
     if !emptyall(perso->prvs,perso->prvs_new)
-      s += " ("+ret_tmp_prvs(perso->prvs,perso->prvs_new)+")"
+      s += " "+ret_tmp_prvs(perso->prvs,perso->prvs_new)
     endif
     add_string(s)
     select PERSO
