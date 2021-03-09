@@ -1067,8 +1067,8 @@ Function verify_1_sluch(fl_view)
     endif
   endif
 
-  check_006F_00_0430(diag_to_array(,,,,.t.), ta)
-  check_006F_00_0440(diag_to_array(,,,,.t.), ta)
+  // check_006F_00_0430(diag_to_array(,,,,.t.), ta)
+  // check_006F_00_0440(diag_to_array(,,,,.t.), ta)
 
   checkRSLT_ISHOD(human_->RSLT_NEW, human_->ISHOD_NEW, ta)
 
@@ -4578,7 +4578,7 @@ function check_006F_00_0440(mdiagnoz, arr)
     ds2 := alltrim(upper(mdiagnoz[3]))
     if eq_any( ds1_1, ds2_1 )
       str += strError
+      aadd(arr, str)
     endif
   endif
-  aadd(arr, str)
   return
