@@ -4554,6 +4554,7 @@ function check_006F_00_0430(mdiagnoz, arr)
     ds2 := alltrim(upper(mdiagnoz[2]))
     if ds1 == ds2
       str += strError
+      aadd(arr, str)
     endif
   elseif length_diag == 3
     ds1 := alltrim(upper(mdiagnoz[1]))
@@ -4561,9 +4562,9 @@ function check_006F_00_0430(mdiagnoz, arr)
     ds3 := alltrim(upper(mdiagnoz[3]))
     if eq_any( ds1, ds2, ds3 )
       str += strError
+      aadd(arr, str)
     endif
   endif
-  aadd(arr, str)
   return
 
 *** 06.03.2021
