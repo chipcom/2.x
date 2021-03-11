@@ -70,7 +70,7 @@ Local human_3 := {;
 reconstruct(dir_server+"human_3",human_3,"index_base('human_3')","пролеченным больным3",.t.)
 return NIL
 
-***** 02.02.20 склеить два случая
+***** 11.03.21 склеить два случая
 Function create_double_sl()
 Local buf, str_sem, i, d, fl, lshifr, arr_m, mas_pmt, buf24, buf_scr, srec, old_yes_h_otd := yes_h_otd
 if !myFileDeleted(cur_dir+"tmp_h"+sdbf)
@@ -189,7 +189,7 @@ if (arr_m := year_month(T_ROW,T_COL+5,,3)) != NIL
         set relation to recno() into HUMAN_, to recno() into HUMAN_2
         dbseek(dtos(arr_m[5]),.t.)
         index on upper(fio) to (cur_dir+"tmp_h2") ;
-              while human->k_data <= arr_m[6] ;
+              while human->k_data <= AddMonth(arr_m[6], 2) ;  // 11.03.2021
               for kod_k==glob_kartotek .and. kod!=glob_perso .and. schet<1 .and. ;
                   tip_h==B_STANDART .and. human_->reestr==0 .and. human_->USL_OK==1 .and. ;
                   ishod==0 .and. human_->profil!=158 .and. human_2->vmp==0
