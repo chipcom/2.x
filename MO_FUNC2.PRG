@@ -701,23 +701,6 @@ return arr
 
 *
 
-***** 04.03.15 определить, является ли данный день рабочим днём
-Function is_work_day__(mdate)
-Local iy, im, m, d, y, am, fl := .t.
-if type("p_arr_prazdnik") == "A"
-  m := month(mdate)
-  d := day(mdate)
-  y := year(mdate)
-  if (iy := ascan(p_arr_prazdnik, {|x| x[1] == y })) > 0 // год
-    am := p_arr_prazdnik[iy,2]
-    if (im := ascan(am, {|x| x[1] == m })) > 0 // месяц
-      fl := ( ascan(am[im,2],d) == 0 ) // не в массиве выходных
-    endif
-  endif
-endif
-return fl
-
-*
 
 ***** 16.07.17 заполнить таблицу Excel'а
 Function fill_in_Excel_Book(inFile,outFile,fillArray,smsg)
