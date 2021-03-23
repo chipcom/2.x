@@ -139,5 +139,6 @@ Errorsys.prg
 .\oms\getPrice.prg
 .\oms\verify_1_sluch.prg
 .\oms\conditionKSLP_21.prg
+.\oms\diagnoze.prg
 
 .\onkologiya\onko.prg
