@@ -1878,7 +1878,7 @@ if (fl := verify_packet_R05(1,arr))
       pj := j
       d := koef := int(mkol[j] / skol[j]) + 1 // через сколько записей прыгаем
       if d > 50
-        d := koef := 33 
+        d := koef := 33
       endif
       i := 0
       do while skol[j] > 0
@@ -3365,6 +3365,7 @@ return ret
 
 ***** 28.02.21 проверить, есть ли не до конца обработанные операции с файлами R01...
 Function find_unfinished_R01()
+/*
 Local fl := .t., fl1, skol := 0, mkol := 0, arr := {}, rec, fl_date := .t., vrem := 0
 Private sgod := 2021, mrec := 2
 if glob_mo[_MO_IS_UCH]
@@ -3420,6 +3421,7 @@ if glob_mo[_MO_IS_UCH]
     n_message(arr,,"GR+/R","W+/R",,,"G+/R")
   endif
 endif
+*/
 return NIL
 
 ***** 26.02.21 проверить, есть ли не до конца обработанные операции с файлами R11...

@@ -5343,7 +5343,7 @@ return NIL
 
 *
 
-***** 02.04.19
+***** 28.03.21
 Function pl2_priemden(tip)
 //  2 - по кассовым аппаратам
 //  3 - по кассирам
@@ -5399,7 +5399,15 @@ dbcreate(cur_dir+"tmp", {{"kod",        "N",  4,  0},;
                          {"summa7",     "N", 12,  2},;
                          {"kol_vo7",    "N", 10,  0},;
                          {"summa8",     "N", 12,  2},;
-                         {"kol_vo8",    "N", 10,  0};
+                         {"kol_vo8",    "N", 10,  0},;
+                         {"summa9",     "N", 12,  2},;
+                         {"kol_vo9",    "N", 10,  0},;
+                         {"summa10",    "N", 12,  2},;
+                         {"kol_vo10",   "N", 10,  0},;
+                         {"summa11",    "N", 12,  2},;
+                         {"kol_vo11",   "N", 10,  0},;
+                         {"summa12",    "N", 12,  2},;
+                         {"kol_vo12",   "N", 10,  0};
                          })
 use (cur_dir+"tmp") new
 index on str(kod,4) to (cur_dir+"tmp_u")
