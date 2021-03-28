@@ -1,8 +1,8 @@
 #include 'inkey.ch'
-#include '..\function.ch'
+#include 'function.ch'
 #include 'common.ch'
-#include '..\edit_spr.ch'
-#include "..\chip_mo.ch"
+#include 'edit_spr.ch'
+#include "chip_mo.ch"
 
 #include 'tbox.ch'
 

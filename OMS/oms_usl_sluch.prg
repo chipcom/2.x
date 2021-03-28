@@ -1,7 +1,7 @@
 #include "inkey.ch"
-#include "..\..\_mylib_hbt\function.ch"
-#include "..\..\_mylib_hbt\edit_spr.ch"
-#include "..\chip_mo.ch"
+#include "function.ch"
+#include "edit_spr.ch"
+#include "chip_mo.ch"
 
 
 ***** 29.01.21 ввод услуг в случай (лист учёта)

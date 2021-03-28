@@ -1,7 +1,7 @@
 ***** mo_st39.prg - стоматологическая форма 39 и прочие функции
 #include "inkey.ch"
-#include "..\_mylib_hbt\function.ch"
-#include "..\_mylib_hbt\edit_spr.ch"
+#include "function.ch"
+#include "edit_spr.ch"
 #include "chip_mo.ch"
 
 Static f39h_nastr   := "f39hnast.ini"

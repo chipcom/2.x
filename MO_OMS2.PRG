@@ -1,7 +1,7 @@
 ***** режимы ввода данных для задачи ОМС (продолжение) - mo_oms2.prg
 #include "inkey.ch"
-#include "..\_mylib_hbt\function.ch"
-#include "..\_mylib_hbt\edit_spr.ch"
+#include "function.ch"
+#include "edit_spr.ch"
 #include "chip_mo.ch"
 
 ***** 15.04.19 ввод направлений при подозрении на ЗНО - профосмотры несовершеннолетних

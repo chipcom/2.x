@@ -1,4 +1,5 @@
-#-L..\_mylib_hbt
+-i..\include
+
 -L..\LIB
 -lMyLib_HBT
 -lFunLib

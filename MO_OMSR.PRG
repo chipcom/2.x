@@ -1,7 +1,7 @@
 ***** mo_omsr.prg - работа с реестром в задаче ОМС
 #include "inkey.ch"
-#include "..\_mylib_hbt\function.ch"
-#include "..\_mylib_hbt\edit_spr.ch"
+#include "function.ch"
+#include "edit_spr.ch"
 #include "chip_mo.ch"
 
 #define max_rec_reestr 9999

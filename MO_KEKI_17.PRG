@@ -1,7 +1,7 @@
 ***** mo_keki_17.prg - режимы информации для задачи "КЭК" с 2017 года
 #include "inkey.ch"
-#include "..\_mylib_hbt\function.ch"
-#include "..\_mylib_hbt\edit_spr.ch"
+#include "function.ch"
+#include "edit_spr.ch"
 #include "chip_mo.ch"
 
 ***** 11.07.18 Сводные результаты экспертной оценки качества по учреждению

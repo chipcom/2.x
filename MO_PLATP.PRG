@@ -1,8 +1,8 @@
 ***** mo_platp.prg - Информация ПЛАТНЫЕ
 #include "set.ch"
 #include "inkey.ch"
-#include "..\_mylib_hbt\function.ch"
-#include "..\_mylib_hbt\edit_spr.ch"
+#include "function.ch"
+#include "edit_spr.ch"
 #include "chip_mo.ch"
 
 ***** 02.05.18

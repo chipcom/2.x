@@ -1,7 +1,7 @@
 ***** mo_mzxml.prg создание XML-файлов для загрузки на портал МинЗдрава РФ
 #include "inkey.ch"
-#include "..\_mylib_hbt\function.ch"
-#include "..\_mylib_hbt\edit_spr.ch"
+#include "function.ch"
+#include "edit_spr.ch"
 #include "chip_mo.ch"
 
 ***** 25.05.20 создать XML-файл по несовершеннолетним

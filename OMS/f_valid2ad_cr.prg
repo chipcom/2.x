@@ -1,8 +1,8 @@
 
 #include "inkey.ch"
-#include "..\..\_mylib_hbt\function.ch"
-#include "..\..\_mylib_hbt\edit_spr.ch"
-#include "..\chip_mo.ch"
+#include "function.ch"
+#include "edit_spr.ch"
+#include "chip_mo.ch"
 
 ***** 28.01.21  //  XX.12.20
 Function f_valid2ad_cr()

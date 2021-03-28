@@ -2,8 +2,8 @@
 #include "set.ch"
 #include "inkey.ch"
 #include "dbstruct.ch"
-#include "..\_mylib_hbt\function.ch"
-#include "..\_mylib_hbt\edit_spr.ch"
+#include "function.ch"
+#include "edit_spr.ch"
 #include "chip_mo.ch"
 
 ***** вернуть строку с номером версии

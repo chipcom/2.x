@@ -1,4 +1,4 @@
-#include "..\_mylib_hbt\function.ch"
+#include "function.ch"
 
 #define CODE_KSLP   1
 #define NAME_KSLP   2

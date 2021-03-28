@@ -1,4 +1,4 @@
-#include "..\_mylib_hbt\function.ch"
+#include "function.ch"
 
 // функции проверки применимости КСЛП в 2021 году
 //

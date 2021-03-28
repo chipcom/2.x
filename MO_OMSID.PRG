@@ -1,8 +1,8 @@
 ***** mo_omsid.prg - информация по диспансеризации в ОМС
 #include "inkey.ch"
-#include "..\_mylib_hbt\fastreph.ch"
-#include "..\_mylib_hbt\function.ch"
-#include "..\_mylib_hbt\edit_spr.ch"
+#include "fastreph.ch"
+#include "function.ch"
+#include "edit_spr.ch"
 #include "chip_mo.ch"
 
 Static lcount_uch  := 1

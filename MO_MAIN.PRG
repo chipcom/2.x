@@ -10,8 +10,8 @@
 *******************************************************************************
 #include "set.ch"
 #include "inkey.ch"
-#include "..\_mylib_hbt\function.ch"
-#include "..\_mylib_hbt\edit_spr.ch"
+#include "function.ch"
+#include "edit_spr.ch"
 #include "chip_mo.ch"
 
 Static _version := {2,11,18}

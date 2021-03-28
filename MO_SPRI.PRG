@@ -1,7 +1,7 @@
 ***** распечатка различных справочников - mo_spri.prg
 #include "inkey.ch"
-#include "..\_mylib_hbt\function.ch"
-#include "..\_mylib_hbt\edit_spr.ch"
+#include "function.ch"
+#include "edit_spr.ch"
 #include "chip_mo.ch"
 
 ***** 16.09.18 просмотр/печать общих справочников

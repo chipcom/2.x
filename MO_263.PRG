@@ -1,7 +1,7 @@
 ***** mo_263.prg - общие режимы для задачи по приказу 263-ФФОМС
 #include "inkey.ch"
-#include "..\_mylib_hbt\function.ch"
-#include "..\_mylib_hbt\edit_spr.ch"
+#include "function.ch"
+#include "edit_spr.ch"
 #include "chip_mo.ch"
 
 ***** 11.02.19

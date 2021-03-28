@@ -1,7 +1,7 @@
 ***** mo_oms1.prg - режимы ввода данных для задачи ОМС (продолжение)
 #include "inkey.ch"
-#include "..\_mylib_hbt\function.ch"
-#include "..\_mylib_hbt\edit_spr.ch"
+#include "function.ch"
+#include "edit_spr.ch"
 #include "chip_mo.ch"
 
 ***** 01.02.20 ПН - добавление или редактирование случая (листа учета)

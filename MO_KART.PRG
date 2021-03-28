@@ -1,7 +1,7 @@
 ***** mo_kart.prg - режимы работы с картотекой
 #include "inkey.ch"
-#include "..\_mylib_hbt\function.ch"
-#include "..\_mylib_hbt\edit_spr.ch"
+#include "function.ch"
+#include "edit_spr.ch"
 #include "chip_mo.ch"
 
 ***** 10.03.13 Работа с картотекой в задаче ОМС

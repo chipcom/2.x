@@ -1,7 +1,7 @@
 ***** mo_kek.prg - режимы ввода данных для задачи "КЭК"
 #include "inkey.ch"
-#include "..\_mylib_hbt\function.ch"
-#include "..\_mylib_hbt\edit_spr.ch"
+#include "function.ch"
+#include "edit_spr.ch"
 #include "chip_mo.ch"
 
 ***** 26.06.13

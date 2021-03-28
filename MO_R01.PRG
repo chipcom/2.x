@@ -1,7 +1,7 @@
 ***** mo_r01.prg - функции для работы с информационным сопровождением по диспансеризации
 #include "inkey.ch"
-#include "..\_mylib_hbt\function.ch"
-#include "..\_mylib_hbt\edit_spr.ch"
+#include "function.ch"
+#include "edit_spr.ch"
 #include "chip_mo.ch"
 
 ***** 23.12.20 инициализация всех файлов инф.сопровождения по диспансеризации

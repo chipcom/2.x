@@ -1,7 +1,7 @@
 ***** реестры/счета 2019 года (и ВОУНЦ)
 #include "inkey.ch"
-#include "..\_mylib_hbt\function.ch"
-#include "..\_mylib_hbt\edit_spr.ch"
+#include "function.ch"
+#include "edit_spr.ch"
 #include "chip_mo.ch"
 
 Static sadiag1 := {}

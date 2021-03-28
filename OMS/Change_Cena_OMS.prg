@@ -1,5 +1,5 @@
-#include '..\..\_mylib_hbt\function.ch'
-#include '..\chip_mo.ch'
+#include 'function.ch'
+#include 'chip_mo.ch'
 
 ***** 23.10.19 Изменение цен на услуги в соответствии со справочником услуг ТФОМС
 Function Change_Cena_OMS()

@@ -1,7 +1,7 @@
 ***** mo_263s.prg - режимы стационара для задачи по приказу 263-ФФОМС
 #include "inkey.ch"
-#include "..\_mylib_hbt\function.ch"
-#include "..\_mylib_hbt\edit_spr.ch"
+#include "function.ch"
+#include "edit_spr.ch"
 #include "chip_mo.ch"
 
 ***** 01.08.14 Проверка того, что ещё не сделано в стационаре

@@ -1,7 +1,7 @@
 #include "inkey.ch"
-#include "..\..\_mylib_hbt\function.ch"
-#include "..\..\_mylib_hbt\edit_spr.ch"
-#include "..\chip_mo.ch"
+#include "function.ch"
+#include "edit_spr.ch"
+#include "chip_mo.ch"
 
 ***** 28.04.20 добавление или редактирование случая (листа учета)
 Function oms_sluch(Loc_kod,kod_kartotek)

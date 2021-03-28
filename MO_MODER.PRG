@@ -1,7 +1,7 @@
 ***** mo_moder.prg - информация по модернизации
 #include "inkey.ch"
-#include "..\_mylib_hbt\function.ch"
-#include "..\_mylib_hbt\edit_spr.ch"
+#include "function.ch"
+#include "edit_spr.ch"
 #include "chip_mo.ch"
 
 #define _MD_USL   1 // Шифр услуги законченного случая

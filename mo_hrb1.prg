@@ -1,7 +1,7 @@
 ***** mo_hrb1.prg - старые функции
 #include "inkey.ch"
-#include "..\_mylib_hbt\function.ch"
-#include "..\_mylib_hbt\edit_spr.ch"
+#include "function.ch"
+#include "edit_spr.ch"
 #include "chip_mo.ch"
 
 ***** 04.09.13 Журнал регистрации новых больных

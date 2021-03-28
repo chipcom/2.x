@@ -1,7 +1,7 @@
 #include "inkey.ch"
-#include "..\..\_mylib_hbt\function.ch"
-#include "..\..\_mylib_hbt\edit_spr.ch"
-#include "..\chip_mo.ch"
+#include "function.ch"
+#include "edit_spr.ch"
+#include "chip_mo.ch"
 
 ***** 01.11.20 функция для when и valid при вводе услуг в лист учёта
 Function f5editkusl(get,when_valid,k)

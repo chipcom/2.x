@@ -1,7 +1,7 @@
 ***** режимы ввода данных для задачи ОМС (продолжение) - mo_oms3.prg
 #include "inkey.ch"
-#include "..\_mylib_hbt\function.ch"
-#include "..\_mylib_hbt\edit_spr.ch"
+#include "function.ch"
+#include "edit_spr.ch"
 #include "chip_mo.ch"
 
 ***** 03.02.19 работа с двойными случаями

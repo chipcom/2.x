@@ -1,5 +1,5 @@
-#include "..\..\_mylib_hbt\function.ch"
-#include "..\chip_mo.ch"
+#include "function.ch"
+#include "chip_mo.ch"
 
 ***** 03.03.21 инициализация массива МО, запрос кода МО (при необходимости)
 Function init_mo()
