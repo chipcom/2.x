@@ -2482,7 +2482,7 @@ else
 endif
 return NIL
 
-***** 23.07.19
+***** 29.03.21
 Function f_export(k)
 Static si1 := 1, sds := 1, ssp := 1
 Local mas_pmt, mas_msg, mas_fun, j
@@ -2510,6 +2510,9 @@ do case
         aadd(mas_pmt, "Экспорт прикрепленного населения в ВОМИАЦ")
         aadd(mas_msg, 'Создание файла для передачи в ВОМИАЦ (письмо №14-10-1/328 от 07.11.18г.)')
         aadd(mas_fun, "f_export(14)")
+        aadd(mas_pmt, "Экспорт населения старше 60 лет в ВОМИАЦ")
+        aadd(mas_msg, 'Создание файла для передачи в ВОМИАЦ (письмо №647 от 23.03.21г.)')
+        aadd(mas_fun, "f_export(15)")
       endif
     endif
     popup_prompt(T_ROW,T_COL+5,si1,mas_pmt,mas_msg,mas_fun)
@@ -2553,6 +2556,18 @@ do case
       str_sem := "Создание файла отправки в ОБЛЗДРАВ"
       if G_SLock(str_sem)
         pripisnoe_naselenie_create_OBLSDRAV()
+        G_SUnLock(str_sem)
+      else
+        func_error(4,err_slock)
+      endif
+    else
+      func_error(4,err_admin)
+    endif
+  case k == 15
+    if tip_polzovat == TIP_ADM
+      str_sem := "Создание файла отправки в ВОМИАЦ"
+      if G_SLock(str_sem)
+        pripisnoe_naselenie_create_VOMIAC()
         G_SUnLock(str_sem)
       else
         func_error(4,err_slock)
@@ -3315,6 +3330,81 @@ endif
 delete file (zip_file)
 restscreen(buf)
 return NIL
+
+***** 29.03.21 создать файл приписного населения в Облздрав
+Function pripisnoe_naselenie_create_VOMIAC()
+Local buf := savescreen(),  arr_fio, pr_date, name_file, name_zip
+Local mo_bars :=  {;
+   {"NN",         "C",      4,      0},;
+   {"FAM",        "C",    120,      0},;
+   {"DATE_R",     "C",     10,      0},;
+   {"YEAR",       "C",      3,      0},;
+   {"UCHAST",     "C",      3,      0},;
+   {"org",        "C",    120,      0};
+  }
+if !f_Esc_Enter("создания файла для ВОМИАЦ",.t.)
+  return NIL
+endif
+ClrLine(maxrow(),color0)
+dbcreate(cur_dir+"tmpbars",mo_bars)
+use (cur_dir+"tmpbars") new alias BARS
+hGauge := GaugeNew(,,,"Составление файла для ВОМИАЦ",.t.)
+GaugeDisplay( hGauge )
+curr := 0
+R_Use_base("kartotek")
+set order to 0
+go top
+do while  !eof()
+  GaugeUpdate( hGauge, ++curr/lastrec() )
+  if kart->kod > 0 .and. kart2->mo_pr == glob_MO[_MO_KOD_TFOMS]
+    if f_starshe_60(kart->DATE_R,date())
+      select BARS
+      append blank
+      bars->NN           := lstr(recno())
+      bars->UCHAST       :=  lstr(kart->uchast)
+      arr_fio := retFamImOt(1,.f.,.F.)
+      bars->FAM          := arr_fio[1]+" "+arr_fio[2]+" "+arr_fio[3]
+      bars->DATE_R       := full_date(kart->DATE_R)
+      bars->YEAR         := lstr(count_years(kart->DATE_R,date()))
+      bars->org          := glob_mo[_MO_SHORT_NAME]
+      if bars->(recno()) % 100 == 0
+        @ maxrow(),1 say lstr(bars->(recno())) color color0
+        if bars->(recno()) % 2000 == 0
+          Commit
+        endif
+      endif
+    endif
+  endif
+  select KART
+  skip
+enddo
+close databases
+CloseGauge(hGauge)
+//
+name_file := alltrim("Старше60_") //+glob_MO[_MO_SHORT_NAME])
+//name_zip := name_file+szip
+copy file (cur_dir+"tmpbars"+sdbf) to (cur_dir+name_file+sdbf)
+//
+if hb_FileExists(name_file+sdbf)
+ // if chip_create_zipXML(name_zip,{name_file+sdbf},.t.)
+    //copy file (dir_server+dir_XML_MO+cslash+name_zip) to (cur_dir+name_zip)
+    n_message({"В каталоге "+cur_dir+" создан файл "+upper(name_file+sdbf),;
+               "c прикрепленным населением старше 60 лет",;
+               "для отправки в ВОМИАЦ."},,;
+               cColorSt2Msg,cColorStMsg,,,"G+/R")
+//    delete file (dir_server+dir_XML_MO+cslash+name_zip)
+ // endif
+else
+  func_error(4,"Ошибка создания файла "+name_file)
+endif
+return NIL
+
+***** 29.03.21 определить лицо старше трудоспособного возраста
+Function f_starshe_60(_date_r,_data)
+Local v
+  v := 60
+return count_years(_date_r,_data) >= v
+
 
 ***** 16.11.18 создать файл приписного населения в Облздрав
 Function pripisnoe_naselenie_create_OBLSDRAV()
