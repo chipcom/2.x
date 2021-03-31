@@ -40,9 +40,7 @@ d:\_mo\_arc\SmartCard.PCSC.dll
 d:\_mo\_arc\SmartCard.PCSC.Native.dll
 d:\_mo\_arc\_MO_PROF.TXT
 d:\_mo\_arc\_MO_SPEC.TXT
-d:\_mo\_arc\MO_14med.XLS
-d:\_mo\_arc\MO_131.XLS
-d:\_mo\_arc\MO_PR*.XLS
+d:\_mo\_arc\*.XLS
 d:\_mo\_arc\_MO_MO.DBB
 d:\_mo\_arc\*.DBF
 d:\_mo\_arc\*.DBT
