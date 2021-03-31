@@ -78,7 +78,7 @@ Function oms_sluch(Loc_kod,kod_kartotek)
   Private mm_rslt, mm_ishod, rslt_umolch := 0, ishod_umolch := 0
   //
   Private mkod := Loc_kod, mtip_h, is_talon := .f., ibrm := 0,;
-          mkod_k := kod_kartotek, fl_kartotek := (kod_kartotek == 0),;
+    mkod_k := kod_kartotek, fl_kartotek := (kod_kartotek == 0),;
     M1LPU := glob_uch[1], MLPU,;
     M1OTD := glob_otd[1], MOTD,;
     mfio := space(50), mpol, mdate_r, madres, mmr_dol,;
@@ -161,48 +161,51 @@ Function oms_sluch(Loc_kod,kod_kartotek)
                  {"Перевод из другой МО",3},;
                  {"Перевод внутри МО",4}}
   Private mm_prer_b := mm2prer_b
-    if mem_zav_l == 1  // да
-      m1_l_z := 1   // да
-    elseif mem_zav_l == 2  // нет
-      m1_l_z := 0   // нет
-    endif
+
+  if mem_zav_l == 1  // да
+    m1_l_z := 1   // да
+  elseif mem_zav_l == 2  // нет
+    m1_l_z := 0   // нет
+  endif
   Private mad_cr := space(60), m1ad_cr := space(60), pr_ds_it := 0, input_ad_cr := .f.
 
   Private mm_ad_cr := {}
   // онкология
   Private is_oncology := 0, old_oncology := .f.,;
-          mDS_ONK, m1DS_ONK := 0,; // Признак подозрения на злокачественное новообразование
-          mDS1_T, m1DS1_T := 0,; // Повод обращения:0 - первичное лечение;1 - рецидив;2 - прогрессирование
-          mPR_CONS, m1PR_CONS := 0,; // Сведения о проведении консилиума:1 - определена тактика обследования;2 - определена тактика лечения;3 - изменена тактика лечения.
-          mDT_CONS := ctod(""),; // Дата проведения консилиума    Обязательно к заполнению при заполненном PR_CONS
-          mSTAD, m1STAD := 0,; // Стадия заболевания      Заполняется в соответствии со справочником N002
-          mONK_T, m1ONK_T := 0,; // Значение Tumor        Заполняется в соответствии со справочником N003
-          mONK_N, m1ONK_N := 0,; // Значение Nodus        Заполняется в соответствии со справочником N004
-          mONK_M, m1ONK_M := 0,; // Значение Metastasis   Заполняется в соответствии со справочником N005
-          mMTSTZ, m1MTSTZ := 0,;   // Признак выявления отдалённых метастазов       Подлежит заполнению значением 1 при выявлении отдалённых метастазов только при DS1_T=1 или DS1_T=2
-          mB_DIAG, m1B_DIAG := 98,; // гистология:99-не надо,98-сделана,97-нет результата,0-отказ,7-не показано,8-противопоказано
-          mK_FR := space(2),; // кол-во фракций проведения лучевой терапии	Обязательно для заполнения при проведении лучевой или химиолучевой терапии (USL_TIP=3 или USL_TIP=4)м.б.=0
-          mCRIT, m1crit := space(10),; // код схемы лек.терапии V024 (sh..., mt...)
-          mCRIT2,; // доп.критерий (fr...)
-          mm_shema_err := {{"соблюдён",0},{"не соблюдён",1}},;
-          mm_shema_usl := {},;
-          mWEI := space(5),; // масса тела в кг	Обязательно для заполнения при проведении лекарственной или химиолучевой терапии (USL_TIP=2 или USL_TIP=4)
-          mHEI := space(3),; // рост в см	Обязательно для заполнения при проведении лекарственной или химиолучевой терапии (USL_TIP=2 или USL_TIP=4)
-          mBSA := space(4)   // площадь поверхности тела в кв.м.	Обязательно для заполнения при проведении лекарственной или химиолучевой терапии (USL_TIP=2 или USL_TIP=4)
+    mDS_ONK, m1DS_ONK := 0,; // Признак подозрения на злокачественное новообразование
+    mDS1_T, m1DS1_T := 0,; // Повод обращения:0 - первичное лечение;1 - рецидив;2 - прогрессирование
+    mPR_CONS, m1PR_CONS := 0,; // Сведения о проведении консилиума:1 - определена тактика обследования;2 - определена тактика лечения;3 - изменена тактика лечения.
+    mDT_CONS := ctod(""),; // Дата проведения консилиума    Обязательно к заполнению при заполненном PR_CONS
+    mSTAD, m1STAD := 0,; // Стадия заболевания      Заполняется в соответствии со справочником N002
+    mONK_T, m1ONK_T := 0,; // Значение Tumor        Заполняется в соответствии со справочником N003
+    mONK_N, m1ONK_N := 0,; // Значение Nodus        Заполняется в соответствии со справочником N004
+    mONK_M, m1ONK_M := 0,; // Значение Metastasis   Заполняется в соответствии со справочником N005
+    mMTSTZ, m1MTSTZ := 0,;   // Признак выявления отдалённых метастазов       Подлежит заполнению значением 1 при выявлении отдалённых метастазов только при DS1_T=1 или DS1_T=2
+    mB_DIAG, m1B_DIAG := 98,; // гистология:99-не надо,98-сделана,97-нет результата,0-отказ,7-не показано,8-противопоказано
+    mK_FR := space(2),; // кол-во фракций проведения лучевой терапии	Обязательно для заполнения при проведении лучевой или химиолучевой терапии (USL_TIP=3 или USL_TIP=4)м.б.=0
+    mCRIT, m1crit := space(10),; // код схемы лек.терапии V024 (sh..., mt...)
+    mCRIT2,; // доп.критерий (fr...)
+    mm_shema_err := {{"соблюдён",0},{"не соблюдён",1}},;
+    mm_shema_usl := {},;
+    mWEI := space(5),; // масса тела в кг	Обязательно для заполнения при проведении лекарственной или химиолучевой терапии (USL_TIP=2 или USL_TIP=4)
+    mHEI := space(3),; // рост в см	Обязательно для заполнения при проведении лекарственной или химиолучевой терапии (USL_TIP=2 или USL_TIP=4)
+    mBSA := space(4)   // площадь поверхности тела в кв.м.	Обязательно для заполнения при проведении лекарственной или химиолучевой терапии (USL_TIP=2 или USL_TIP=4)
+
   dbcreate(cur_dir+"tmp_onkna", {; // онконаправления
-     {"KOD"      ,   "N",     7,     0},; // код больного
-     {"NAPR_DATE",   "D",     8,     0},; // Дата направления
-     {"NAPR_MO",     "C",     6,     0},; // код другого МО, куда выписано направление
-     {"NAPR_V"  ,    "N",     1,     0},; // Вид направления:1-к онкологу,2-на биопсию,3-на дообследование,4-для опр.тактики лечения
-     {"MET_ISSL" ,   "N",     1,     0},; // Метод диагностического исследования(при NAPR_V=3):1-лаб.диагностика;2-инстр.диагностика;3-луч.диагностика;4-КТ, МРТ, ангиография
-     {"shifr"  ,     "C",    20,     0},;
-     {"shifr_u"  ,   "C",    20,     0},;
-     {"shifr1"   ,   "C",    20,     0},;
-     {"name_u"   ,   "C",    65,     0},;
-     {"U_KOD"    ,   "N",     6,     0};  // код услуги
-    })
+    {"KOD"      ,   "N",     7,     0},; // код больного
+    {"NAPR_DATE",   "D",     8,     0},; // Дата направления
+    {"NAPR_MO",     "C",     6,     0},; // код другого МО, куда выписано направление
+    {"NAPR_V"  ,    "N",     1,     0},; // Вид направления:1-к онкологу,2-на биопсию,3-на дообследование,4-для опр.тактики лечения
+    {"MET_ISSL" ,   "N",     1,     0},; // Метод диагностического исследования(при NAPR_V=3):1-лаб.диагностика;2-инстр.диагностика;3-луч.диагностика;4-КТ, МРТ, ангиография
+    {"shifr"  ,     "C",    20,     0},;
+    {"shifr_u"  ,   "C",    20,     0},;
+    {"shifr1"   ,   "C",    20,     0},;
+    {"name_u"   ,   "C",    65,     0},;
+    {"U_KOD"    ,   "N",     6,     0};  // код услуги
+  })
+
   Private m1NAPR_MO, mNAPR_MO, mNAPR_DATE, mNAPR_V, m1NAPR_V, mMET_ISSL, m1MET_ISSL, ;
-          mshifr, mshifr1, mname_u, mU_KOD, cur_napr := 0, count_napr := 0, tip_onko_napr := 0
+    mshifr, mshifr1, mname_u, mU_KOD, cur_napr := 0, count_napr := 0, tip_onko_napr := 0
   Private mm_napr_v := {{"нет",0},;
                         {"к онкологу",1},;
                         {"на биопсию",2},;
@@ -224,6 +227,7 @@ Function oms_sluch(Loc_kod,kod_kartotek)
                          {"определена тактика обследования",1},;
                          {"определена тактика лечения",2},;
                          {"изменена тактика лечения",3}}
+
   if empty(st_rez_gist) // для гистологии в поликлинике
     st_rez_gist := {}
     R_Use(exe_dir+"_mo_N008",cur_dir+"_mo_N008","N8")
@@ -243,63 +247,68 @@ Function oms_sluch(Loc_kod,kod_kartotek)
     n7->(dbCloseArea())
     n8->(dbCloseArea())
   endif
+
   Private mdiag_date := ctod(""), mgist1, mgist2, m1gist1 := 0, m1gist2 := 0, ;
-          mmark1, mmark2, mmark3, mmark4, mmark5, mgist[2], mmark[5],;
-          m1mark1 := 0, m1mark2 := 0, m1mark3 := 0, m1mark4 := 0, m1mark5 := 0,;
-          is_gisto := .f., mrez_gist, m1rez_gist := 0, arr_rez_gist := aclone(st_rez_gist)
+    mmark1, mmark2, mmark3, mmark4, mmark5, mgist[2], mmark[5],;
+    m1mark1 := 0, m1mark2 := 0, m1mark3 := 0, m1mark4 := 0, m1mark5 := 0,;
+    is_gisto := .f., mrez_gist, m1rez_gist := 0, arr_rez_gist := aclone(st_rez_gist)
+
   afill(mgist, 0)
   afill(mmark, 0)
   dbcreate(cur_dir+"tmp_onkco", {; // Сведения о проведении консилиума
-     {"KOD"      ,   "N",     7,     0},; // код больного
-     {"PR_CONS"  ,   "N",     1,     0},; // Сведения о проведении консилиума(N019):0-отсутствует необходимость;1-определена тактика обследования;2-определена тактика лечения;3-изменена тактика лечения
-     {"DT_CONS"  ,   "D",     8,     0};  // Дата проведения консилиума	Обязательно к заполнению при PR_CONS=1,2,3
-    })
+    {"KOD"      ,   "N",     7,     0},; // код больного
+    {"PR_CONS"  ,   "N",     1,     0},; // Сведения о проведении консилиума(N019):0-отсутствует необходимость;1-определена тактика обследования;2-определена тактика лечения;3-изменена тактика лечения
+    {"DT_CONS"  ,   "D",     8,     0};  // Дата проведения консилиума	Обязательно к заполнению при PR_CONS=1,2,3
+  })
   dbcreate(cur_dir+"tmp_onkdi", {; // Диагностический блок
-     {"KOD"      ,   "N",     7,     0},; // код больного
-     {"DIAG_DATE",   "D",     8,     0},; // Дата взятия материала для проведения диагностики
-     {"DIAG_TIP" ,   "N",     1,     0},; // Тип диагностического показателя: 1 - гистологический признак; 2 - маркёр (ИГХ)
-     {"DIAG_CODE",   "N",     3,     0},; // Код диагностического показателя При DIAG_TIP=1 в соответствии со справочником N007 При DIAG_TIP=2 в соответствии со справочником N010
-     {"DIAG_RSLT",   "N",     3,     0},; // Код результата диагностики При DIAG_TIP=1 в соответствии со справочником N008 При DIAG_TIP=2 в соответствии со справочником N011
-     {"REC_RSLT",    "N",     1,     0};  // признак получения результата диагностики 1 - получен
-    })
+    {"KOD"      ,   "N",     7,     0},; // код больного
+    {"DIAG_DATE",   "D",     8,     0},; // Дата взятия материала для проведения диагностики
+    {"DIAG_TIP" ,   "N",     1,     0},; // Тип диагностического показателя: 1 - гистологический признак; 2 - маркёр (ИГХ)
+    {"DIAG_CODE",   "N",     3,     0},; // Код диагностического показателя При DIAG_TIP=1 в соответствии со справочником N007 При DIAG_TIP=2 в соответствии со справочником N010
+    {"DIAG_RSLT",   "N",     3,     0},; // Код результата диагностики При DIAG_TIP=1 в соответствии со справочником N008 При DIAG_TIP=2 в соответствии со справочником N011
+    {"REC_RSLT",    "N",     1,     0};  // признак получения результата диагностики 1 - получен
+  })
   dbcreate(cur_dir+"tmp_onkpr", {; // Сведения об имеющихся противопоказаниях
-     {"KOD"      ,   "N",     7,     0},; // код больного
-     {"PROT"     ,   "N",     1,     0},; // Код противопоказания или отказа в соответствии со справочником N001
-     {"D_PROT"   ,   "D",     8,     0};  // Дата регистрации противопоказания или отказа
-    })
+    {"KOD"      ,   "N",     7,     0},; // код больного
+    {"PROT"     ,   "N",     1,     0},; // Код противопоказания или отказа в соответствии со справочником N001
+    {"D_PROT"   ,   "D",     8,     0};  // Дата регистрации противопоказания или отказа
+  })
+
   Private mprot1, mprot2, mprot, mprot4, mprot5, mprot6, ;
-          m1prot1, m1prot2, m1prot, m1prot4, m1prot5, m1prot6, ;
-          mdprot1, mdprot2, mdprot, mdprot4, mdprot5, mdprot6
+    m1prot1, m1prot2, m1prot, m1prot4, m1prot5, m1prot6, ;
+    mdprot1, mdprot2, mdprot, mdprot4, mdprot5, mdprot6
   //
   dbcreate(cur_dir+"tmp_onkus", {; // Сведения о проведённых лечениях
-     {"KOD"      ,   "N",     7,     0},; // код больного
-     {"USL_TIP"  ,   "N",     1,     0},; // Тип онкоуслуги в соответствии со справочником N013
-     {"HIR_TIP"  ,   "N",     1,     0},; // Тип хирургического лечения При USL_TIP=1 в соответствии со справочником N014
-     {"LEK_TIP_L",   "N",     1,     0},; // Линия лекарственной терапии При USL_TIP=2 в соответствии со справочником N015
-     {"LEK_TIP_V",   "N",     1,     0},; // Цикл лекарственной терапии   При USL_TIP=2 в соответствии со справочником N016
-     {"LUCH_TIP" ,   "N",     1,     0},; // Тип лучевой терапии  При USL_TIP=3,4 в соответствии со справочником N017
-     {"PPTR" ,       "N",     1,     0},; // Признак проведения профилактики тошноты и рвотного рефлекса - указывается "1" при USL_TIP=2,4
-     {"SOD"      ,   "N",     6,     2};  // SOD - Суммарная очаговая доза - При USL_TIP=3,4
-    })
+    {"KOD"      ,   "N",     7,     0},; // код больного
+    {"USL_TIP"  ,   "N",     1,     0},; // Тип онкоуслуги в соответствии со справочником N013
+    {"HIR_TIP"  ,   "N",     1,     0},; // Тип хирургического лечения При USL_TIP=1 в соответствии со справочником N014
+    {"LEK_TIP_L",   "N",     1,     0},; // Линия лекарственной терапии При USL_TIP=2 в соответствии со справочником N015
+    {"LEK_TIP_V",   "N",     1,     0},; // Цикл лекарственной терапии   При USL_TIP=2 в соответствии со справочником N016
+    {"LUCH_TIP" ,   "N",     1,     0},; // Тип лучевой терапии  При USL_TIP=3,4 в соответствии со справочником N017
+    {"PPTR" ,       "N",     1,     0},; // Признак проведения профилактики тошноты и рвотного рефлекса - указывается "1" при USL_TIP=2,4
+    {"SOD"      ,   "N",     6,     2};  // SOD - Суммарная очаговая доза - При USL_TIP=3,4
+  })
   dbcreate(cur_dir+"tmp_onkle", {; // Сведения о применённых лекарственных препаратах
-     {"KOD"      ,   "N",     7,     0},; // код больного
-     {"REGNUM",      "C",     6,     0},; // IDD лек.препарата N020
-     {"CODE_SH",     "C",    10,     0},; // код схемы лек.терапии V024
-     {"DATE_INJ",    "D",     8,     0};  // дата введения лек.препарата
-    })
+    {"KOD"      ,   "N",     7,     0},; // код больного
+    {"REGNUM",      "C",     6,     0},; // IDD лек.препарата N020
+    {"CODE_SH",     "C",    10,     0},; // код схемы лек.терапии V024
+    {"DATE_INJ",    "D",     8,     0};  // дата введения лек.препарата
+  })
+
   Private musl_tip, m1usl_tip, musl_tip1, m1usl_tip1, musl_tip2, m1usl_tip2, msod, ;
-          musl_vmp, m1usl_vmp, musl_vmp1, m1usl_vmp1, musl_vmp2, m1usl_vmp2, msod_vmp, ;
-          mpptr, m1pptr := 0, mpptr_vmp, m1pptr_vmp := 0,;
-          mIS_ERR, m1is_err := 0,; // Признак несоблюдения схемы лекарственной терапии: 0-нормально, 1-не соблюдена
-          mIS_ERR_vmp, m1is_err_vmp := 0,;
-          _arr_sh := ret_arr_shema(1), _arr_mt := ret_arr_shema(2), _arr_fr := ret_arr_shema(3),;
-          mm_usl_tip := {{"не проводилось",0},; // N013
-                         {"Хирургическое лечение",1},;
-                         {"Лекарственная противоопухолевая терапия",2},;
-                         {"Лучевая терапия",3},;
-                         {"Химиолучевая терапия",4},;
-                         {"Неспецифическое лечение (катетер, прочее)",5},;
-                         {"Диагностика",6}}
+    musl_vmp, m1usl_vmp, musl_vmp1, m1usl_vmp1, musl_vmp2, m1usl_vmp2, msod_vmp, ;
+    mpptr, m1pptr := 0, mpptr_vmp, m1pptr_vmp := 0,;
+    mIS_ERR, m1is_err := 0,; // Признак несоблюдения схемы лекарственной терапии: 0-нормально, 1-не соблюдена
+    mIS_ERR_vmp, m1is_err_vmp := 0,;
+    _arr_sh := ret_arr_shema(1), _arr_mt := ret_arr_shema(2), _arr_fr := ret_arr_shema(3),;
+    mm_usl_tip := {{"не проводилось",0},; // N013
+                    {"Хирургическое лечение",1},;
+                    {"Лекарственная противоопухолевая терапия",2},;
+                    {"Лучевая терапия",3},;
+                    {"Химиолучевая терапия",4},;
+                    {"Неспецифическое лечение (катетер, прочее)",5},;
+                    {"Диагностика",6}}
+
   mm_USL_TIP_all := aclone(mm_USL_TIP)
   asize(mm_USL_TIP,6) // без диагностики
   //
@@ -349,7 +358,7 @@ Function oms_sluch(Loc_kod,kod_kartotek)
       if recno() != Loc_kod .and. is_death(human_->RSLT_NEW) .and. ;
                                    human_->oplata != 9 .and. human_->NOVOR == 0
         a_smert := {"Данный больной умер!",;
-                    "Лечение с "+full_date(human->N_DATA)+" по "+full_date(human->K_DATA)}
+          "Лечение с "+full_date(human->N_DATA)+" по "+full_date(human->K_DATA)}
         exit
       endif
       skip
@@ -707,13 +716,17 @@ Function oms_sluch(Loc_kod,kod_kartotek)
   pr_1_str(str_1)
   setcolor(color8)
   myclear(1)
+
   Private gl_area := {1,0,maxrow()-1,maxcol(),0}, ;
-          p_nstr_vnr, p_str_vnr, p_str_vnrm, p_nstr_ad_cr, p_str_ad_cr //p_nstr_stent, p_str_stent
+    p_nstr_vnr, p_str_vnr, p_str_vnrm, p_nstr_ad_cr, p_str_ad_cr //p_nstr_stent, p_str_stent
+
   setcolor(cDataCGet)
   make_diagP(1)  // сделать "шестизначные" диагнозы
   f_valid_usl_ok(,-1)
   f_valid2ad_cr()
+
   Private rdiag := 1, rpp := 1, num_screen := 1, is_onko_VMP := .f.
+
   do while .t.
     if num_screen == 1 //
       SetMode(kscr1,80)
@@ -726,179 +739,201 @@ Function oms_sluch(Loc_kod,kod_kartotek)
       diag_screen(0)
       pos_read := 0
       put_dop_diag(0)
-      ++j; @ j,1 say "Учреждение" get mlpu when .f. color cDataCSay
-           @ row(),col()+2 say "Отделение" get motd when .f. color cDataCSay
+      ++j
+      @ j,1 say "Учреждение" get mlpu when .f. color cDataCSay
+      @ row(),col()+2 say "Отделение" get motd when .f. color cDataCSay
       //
-      ++j; @ j,1 say "ФИО" get mfio_kart ;
-           reader {|x| menu_reader(x,{{|k,r,c| get_fio_kart(k,r,c)}},A__FUNCTION,,,.f.)} ;
-           valid {|g,o| update_get("mkomu"),update_get("mcompany"),;
-                        update_get("mspolis"),update_get("mnpolis"),;
-                        update_get("mvidpolis") }
+      ++j
+      @ j,1 say "ФИО" get mfio_kart ;
+          reader {|x| menu_reader(x,{{|k,r,c| get_fio_kart(k,r,c)}},A__FUNCTION,,,.f.)} ;
+          valid {|g,o| update_get("mkomu"),update_get("mcompany"),;
+            update_get("mspolis"),update_get("mnpolis"),;
+            update_get("mvidpolis") }
       //
-      ++j; @ j,1 say "Направление: дата" get mNPR_DATE
-           @ j,col()+1 say "из МО" get mNPR_MO ;
-                reader {|x|menu_reader(x,{{|k,r,c|f_get_mo(k,r,c)}},A__FUNCTION,,,.f.)} ;
-                color colget_menu
+      ++j
+      @ j,1 say "Направление: дата" get mNPR_DATE
+      @ j,col()+1 say "из МО" get mNPR_MO ;
+          reader {|x|menu_reader(x,{{|k,r,c|f_get_mo(k,r,c)}},A__FUNCTION,,,.f.)} ;
+          color colget_menu
       //
-      ++j; @ j,1 say "Новорожденный?" get mnovor ;
-                 reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
-                 valid {|g,o| f_valid_novor(g,o) } ;
-                 color colget_menu
-           @ row(),col()+3 say "№/пп ребёнка" get mcount_reb pict "99" range 1,99 ;
-                 when (m1novor == 1)
-           @ row(),col()+3 say "Д.р. ребёнка" get mdate_r2 when (m1novor == 1)
+      ++j
+      @ j,1 say "Новорожденный?" get mnovor ;
+          reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
+          valid {|g,o| f_valid_novor(g,o) } ;
+          color colget_menu
+      @ row(),col()+3 say "№/пп ребёнка" get mcount_reb pict "99" range 1,99 ;
+          when (m1novor == 1)
+      @ row(),col()+3 say "Д.р. ребёнка" get mdate_r2 when (m1novor == 1)
       if mem_pol == 1
-           @ row(),col()+3 say "Пол ребёнка" get mpol2 ;
-               reader {|x|menu_reader(x,menupol,A__MENUVERT,,,.f.)} ;
-               when (m1novor == 1)
+        @ row(),col()+3 say "Пол ребёнка" get mpol2 ;
+            reader {|x|menu_reader(x,menupol,A__MENUVERT,,,.f.)} ;
+            when (m1novor == 1)
       else
-           @ row(),col()+3 say "Пол ребёнка" get mpol2 pict "@!" ;
-               valid {|g| mpol2 $ "МЖ" } ;
-               when (m1novor == 1)
+        @ row(),col()+3 say "Пол ребёнка" get mpol2 pict "@!" ;
+            valid {|g| mpol2 $ "МЖ" } ;
+            when (m1novor == 1)
       endif
       //
-      ++j; @ j,1 say "Сроки лечения" get mn_data valid {|g|f_k_data(g,1)}
-           @ row(),col()+1 say "-"   get mk_data valid {|g|f_k_data(g,2)}
-           @ row(),col()+3 get mvzros_reb when .f. color cDataCSay
+      ++j
+      @ j,1 say "Сроки лечения" get mn_data valid {|g|f_k_data(g,1)}
+      @ row(),col()+1 say "-"   get mk_data valid {|g|f_k_data(g,2)}
+      @ row(),col()+3 get mvzros_reb when .f. color cDataCSay
       if yes_vypisan == B_END
-           @ row(),col()+5 say " Лечение завершено?" color "G+/B"
-           @ row(),col()+1 get m_l_z ;
-                reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
-                color "GR+/B"
+        @ row(),col()+5 say " Лечение завершено?" color "G+/B"
+        @ row(),col()+1 get m_l_z ;
+            reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
+            color "GR+/B"
       endif
       //
-      ++j; @ j,1 say "№ амб.карты (истории)" get much_doc picture "@!" ;
-                 when when_uch_doc
-           @ row(),col()+1 say "Врач" get MTAB_NOM pict "99999" ;
-                 valid {|g| v_kart_vrach(g,.t.) } when diag_screen(2)
-           @ row(),col()+1 get mvrach when .f. color color14
+      ++j
+      @ j,1 say "№ амб.карты (истории)" get much_doc picture "@!" ;
+          when when_uch_doc
+      @ row(),col()+1 say "Врач" get MTAB_NOM pict "99999" ;
+          valid {|g| v_kart_vrach(g,.t.) } when diag_screen(2)
+      @ row(),col()+1 get mvrach when .f. color color14
       //
-      ++j; @ j,1 say "Первичный диагноз" get mkod_diag0 picture pic_diag reader {|o| MyGetReader(o,bg)} valid val1_10diag(.t.,.f.,.t.,mk_data,iif(m1novor==0,mpol,mpol2)) ;
-                 when diag_screen(2) .and. when_diag()
+      ++j
+      @ j,1 say "Первичный диагноз" get mkod_diag0 picture pic_diag reader {|o| MyGetReader(o,bg)} valid val1_10diag(.t.,.f.,.t.,mk_data,iif(m1novor==0,mpol,mpol2)) ;
+          when diag_screen(2) .and. when_diag()
       //if yes_bukva // если в настройке для отделения - работа со статусом стом.больного
       //     @ j,34 say "Статус стоматологического больного" get mstatus_st picture "@!" ;
       //           when diag_screen(2) ;
       //           valid {|g| f_valid_status_st(g) }
       //endif 
-      ++j; rdiag := j
+      ++j
+      rdiag := j
       @ j,1 say "Основной диагноз" get mkod_diag picture pic_diag ;
           reader {|o| MyGetReader(o,bg)} ;
           when when_diag() ;
           valid {|| val1_10diag(.t.,.t.,.t.,mk_data,iif(m1novor==0,mpol,mpol2)), f_valid_beremenn(mkod_diag) }
       if (ibrm := f_oms_beremenn(mkod_diag)) == 1
-           @ j,26 say "прерывание беременности"
+        @ j,26 say "прерывание беременности"
       elseif ibrm == 2
-           @ j,26 say "дисп.набл.за беременной"
+        @ j,26 say "дисп.набл.за беременной"
       elseif ibrm == 3
-           @ j,26 say "     боли при онкологии"
+        @ j,26 say "     боли при онкологии"
       endif
-           @ j,51 get mprer_b ;
-                  reader {|x| menu_reader(x,mm_prer_b,A__MENUVERT,,,.f.)} ;
-                  when {|| ibrm := f_oms_beremenn(mkod_diag),;
-                           mm_prer_b := iif(ibrm == 1, mm1prer_b, iif(ibrm == 2, mm2prer_b, mm3prer_b)),;
-                           (ibrm > 0) }
+        @ j,51 get mprer_b ;
+            reader {|x| menu_reader(x,mm_prer_b,A__MENUVERT,,,.f.)} ;
+            when {|| ibrm := f_oms_beremenn(mkod_diag),;
+              mm_prer_b := iif(ibrm == 1, mm1prer_b, iif(ibrm == 2, mm2prer_b, mm3prer_b)),;
+              (ibrm > 0) }
       //
-      ++j; @ j,1 say "Сопутствующие диагнозы " get mkod_diag2 picture pic_diag reader {|o|MyGetReader(o,bg)} when when_diag() valid val1_10diag(.t.,.t.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
-           @ row(),col() say ","               get mkod_diag3 picture pic_diag reader {|o|MyGetReader(o,bg)} when when_diag() valid val1_10diag(.t.,.t.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
-           @ row(),col() say ","               get mkod_diag4 picture pic_diag reader {|o|MyGetReader(o,bg)} when when_diag() valid val1_10diag(.t.,.t.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
-           @ row(),col() say ","               get msoput_b1  picture pic_diag reader {|o|MyGetReader(o,bg)} when when_diag() valid val1_10diag(.t.,.t.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
-           @ row(),col() say ","               get msoput_b2  picture pic_diag reader {|o|MyGetReader(o,bg)} when when_diag() valid val1_10diag(.t.,.t.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
-           @ row(),col() say ","               get msoput_b3  picture pic_diag reader {|o|MyGetReader(o,bg)} when when_diag() valid val1_10diag(.t.,.t.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
-           @ row(),col() say ","               get msoput_b4  picture pic_diag reader {|o|MyGetReader(o,bg)} when when_diag() valid val1_10diag(.t.,.t.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
-      ++j; @ j,1 say "Диагнозы осложнения    " get mosl1 picture pic_diag reader {|o|MyGetReader(o,bg)} when when_diag() valid val1_10diag(.t.,.f.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
-           @ row(),col() say ","               get mosl2 picture pic_diag reader {|o|MyGetReader(o,bg)} when when_diag() valid val1_10diag(.t.,.f.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
-           @ row(),col() say ","               get mosl3 picture pic_diag reader {|o|MyGetReader(o,bg)} when when_diag() valid val1_10diag(.t.,.f.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
+      ++j
+      @ j,1 say "Сопутствующие диагнозы " get mkod_diag2 picture pic_diag reader {|o|MyGetReader(o,bg)} when when_diag() valid val1_10diag(.t.,.t.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
+      @ row(),col() say ","               get mkod_diag3 picture pic_diag reader {|o|MyGetReader(o,bg)} when when_diag() valid val1_10diag(.t.,.t.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
+      @ row(),col() say ","               get mkod_diag4 picture pic_diag reader {|o|MyGetReader(o,bg)} when when_diag() valid val1_10diag(.t.,.t.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
+      @ row(),col() say ","               get msoput_b1  picture pic_diag reader {|o|MyGetReader(o,bg)} when when_diag() valid val1_10diag(.t.,.t.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
+      @ row(),col() say ","               get msoput_b2  picture pic_diag reader {|o|MyGetReader(o,bg)} when when_diag() valid val1_10diag(.t.,.t.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
+      @ row(),col() say ","               get msoput_b3  picture pic_diag reader {|o|MyGetReader(o,bg)} when when_diag() valid val1_10diag(.t.,.t.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
+      @ row(),col() say ","               get msoput_b4  picture pic_diag reader {|o|MyGetReader(o,bg)} when when_diag() valid val1_10diag(.t.,.t.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
+      ++j
+      @ j,1 say "Диагнозы осложнения    " get mosl1 picture pic_diag reader {|o|MyGetReader(o,bg)} when when_diag() valid val1_10diag(.t.,.f.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
+      @ row(),col() say ","               get mosl2 picture pic_diag reader {|o|MyGetReader(o,bg)} when when_diag() valid val1_10diag(.t.,.f.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
+      @ row(),col() say ","               get mosl3 picture pic_diag reader {|o|MyGetReader(o,bg)} when when_diag() valid val1_10diag(.t.,.f.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
       //
-      ++j; @ j,1 say "Принадлежность счёта" get mkomu ;
-                 reader {|x|menu_reader(x,mm_komu,A__MENUVERT,,,.f.)} ;
-                 valid {|g,o| f_valid_komu(g,o) } ;
-                 color colget_menu
-           @ row(),col()+1 say "==>" get mcompany ;
-               reader {|x|menu_reader(x,mm_company,A__MENUVERT,,,.f.)} ;
-               when diag_screen(2) .and. m1komu < 5 ;
-               valid {|g| func_valid_ismo(g,m1komu,38) }
+      ++j
+      @ j,1 say "Принадлежность счёта" get mkomu ;
+          reader {|x|menu_reader(x,mm_komu,A__MENUVERT,,,.f.)} ;
+          valid {|g,o| f_valid_komu(g,o) } ;
+          color colget_menu
+      @ row(),col()+1 say "==>" get mcompany ;
+          reader {|x|menu_reader(x,mm_company,A__MENUVERT,,,.f.)} ;
+          when diag_screen(2) .and. m1komu < 5 ;
+          valid {|g| func_valid_ismo(g,m1komu,38) }
       //
-      ++j; @ j,1 say "Полис ОМС: серия" get mspolis when m1komu == 0
-           @ row(),col()+3 say "номер"  get mnpolis when m1komu == 0
-           @ row(),col()+3 say "вид"    get mvidpolis ;
-                        reader {|x|menu_reader(x,mm_vid_polis,A__MENUVERT,,,.f.)} ;
-                        when m1komu == 0 ;
-                        valid func_valid_polis(m1vidpolis,mspolis,mnpolis)
+      ++j
+      @ j,1 say "Полис ОМС: серия" get mspolis when m1komu == 0
+      @ row(),col()+3 say "номер"  get mnpolis when m1komu == 0
+      @ row(),col()+3 say "вид"    get mvidpolis ;
+          reader {|x|menu_reader(x,mm_vid_polis,A__MENUVERT,,,.f.)} ;
+          when m1komu == 0 ;
+          valid func_valid_polis(m1vidpolis,mspolis,mnpolis)
       //
-      ++j; rpp := j
-           @ j,1 say "Мед.помощь: условия оказания" get MUSL_OK ;
-               reader {|x|menu_reader(x,tmp_V006,A__MENUVERT,,,.f.)} ;
-               when diag_screen(2) ;
-               valid {|g,o| iif(eq_any(m1usl_ok,1,2),;
-                               (SetPos(rpp,40), DispOut("признак",cDataCGet)),;
-                               (mp_per:=space(25),m1p_per:=0)),;
-                            update_get("mp_per"), f_valid_usl_ok(g,o)  }
+      ++j
+      rpp := j
+      @ j,1 say "Мед.помощь: условия оказания" get MUSL_OK ;
+          reader {|x|menu_reader(x,tmp_V006,A__MENUVERT,,,.f.)} ;
+          when diag_screen(2) ;
+          valid {|g,o| iif(eq_any(m1usl_ok,1,2),;
+            (SetPos(rpp,40), DispOut("признак",cDataCGet)),;
+            (mp_per:=space(25),m1p_per:=0)),;
+            update_get("mp_per"), f_valid_usl_ok(g,o)  }
       if eq_any(m1usl_ok,1,2)
-           @ j,40 say "признак"
+        @ j,40 say "признак"
       endif
-           @ j,48 get mp_per ;
-                  reader {|x| menu_reader(x,mm_p_per,A__MENUVERT,,,.f.)} ;
-                  when eq_any(m1usl_ok,1,2)
+      @ j,48 get mp_per ;
+          reader {|x| menu_reader(x,mm_p_per,A__MENUVERT,,,.f.)} ;
+          when eq_any(m1usl_ok,1,2)
       if is_dop_ob_em
-        ++j; @ j,3 say "вид объёмов специализированной медицинской помощи" get mreg_lech ;
-                   reader {|x|menu_reader(x,mm_reg_lech,A__MENUVERT,,,.f.)} ;
-                   when eq_any(m1usl_ok,1,2)
+        ++j
+        @ j,3 say "вид объёмов специализированной медицинской помощи" get mreg_lech ;
+            reader {|x|menu_reader(x,mm_reg_lech,A__MENUVERT,,,.f.)} ;
+            when eq_any(m1usl_ok,1,2)
       endif
-      ++j; @ j,3 say "профиль мед.помощи" get MPROFIL ;
-                 reader {|x|menu_reader(x,tmp_V002,A__MENUVERT,,,.f.)} ;
-                 valid f_valid2ad_cr()
-      ++j; @ j,3 say "профиль койки" get MPROFIL_K ;
-                 reader {|x|menu_reader(x,tmp_V020,A__MENUVERT,,,.f.)} ;
-                 when eq_any(m1usl_ok,1,2)
+      ++j
+      @ j,3 say "профиль мед.помощи" get MPROFIL ;
+          reader {|x|menu_reader(x,tmp_V002,A__MENUVERT,,,.f.)} ;
+          valid f_valid2ad_cr()
+      ++j
+      @ j,3 say "профиль койки" get MPROFIL_K ;
+          reader {|x|menu_reader(x,tmp_V020,A__MENUVERT,,,.f.)} ;
+          when eq_any(m1usl_ok,1,2)
       if is_reabil_slux
-        ++j; @ j,3 say "вид мед.реабилитации" get mvid_reab ;
-                 reader {|x|menu_reader(x,mm_vid_reab,A__MENUVERT,,,.f.)} ;
-                 when eq_any(m1usl_ok,1,2) .and. m1profil == 158
+        ++j
+        @ j,3 say "вид мед.реабилитации" get mvid_reab ;
+            reader {|x|menu_reader(x,mm_vid_reab,A__MENUVERT,,,.f.)} ;
+            when eq_any(m1usl_ok,1,2) .and. m1profil == 158
       endif
       //
-      ++j; @ j,1 say "Результат обращения" get mrslt ;
-               reader {|x|menu_reader(x,mm_rslt,A__MENUVERT,,,.f.)} ;
-               valid {|g,o| f_valid_rslt(g,o) }
+      ++j
+      @ j,1 say "Результат обращения" get mrslt ;
+          reader {|x|menu_reader(x,mm_rslt,A__MENUVERT,,,.f.)} ;
+          valid {|g,o| f_valid_rslt(g,o) }
       //
-      ++j; @ j,1 say "Исход заболевания" get mishod ;
-               reader {|x|menu_reader(x,mm_ishod,A__MENUVERT,,,.f.)}
+      ++j
+      @ j,1 say "Исход заболевания" get mishod ;
+          reader {|x|menu_reader(x,mm_ishod,A__MENUVERT,,,.f.)}
       //
-      ++j; @ j,1 say "Госпитализирован" get MF14_EKST ;
-                reader {|x|menu_reader(x,mm_ekst,A__MENUVERT,,,.f.)} ;
-                valid {|g,o| f_valid_f14_ekst(g,o) }
-           @ row(),col()+3 say "Доставлен скорой помощью" get MF14_SKOR ;
-                reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
-                when M1F14_EKST == 1
-      ++j; @ j,3 say "вскрытие" get MF14_VSKR ;
-                reader {|x|menu_reader(x,mm_vskrytie,A__MENUVERT,,,.f.)} ;
-                when is_death(m1RSLT)
-        @ row(),col()+3 say "установлено расхождение диагнозов" get MF14_RASH ;
-                reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
-                when M1F14_VSKR > 0
+      ++j
+      @ j,1 say "Госпитализирован" get MF14_EKST ;
+          reader {|x|menu_reader(x,mm_ekst,A__MENUVERT,,,.f.)} ;
+          valid {|g,o| f_valid_f14_ekst(g,o) }
+      @ row(),col()+3 say "Доставлен скорой помощью" get MF14_SKOR ;
+          reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
+          when M1F14_EKST == 1
+      ++j
+      @ j,3 say "вскрытие" get MF14_VSKR ;
+          reader {|x|menu_reader(x,mm_vskrytie,A__MENUVERT,,,.f.)} ;
+          when is_death(m1RSLT)
+      @ row(),col()+3 say "установлено расхождение диагнозов" get MF14_RASH ;
+          reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
+          when M1F14_VSKR > 0
       /*++j
       if is_talon
         if mem_st_pov == 1
           @ j,1 say "Повод обращения" get mpovod ;
-                 reader {|x|menu_reader(x,stm_povod,A__MENUVERT,,,.f.)} ;
-                 color colget_menu
+              reader {|x|menu_reader(x,stm_povod,A__MENUVERT,,,.f.)} ;
+              color colget_menu
         else
           @ j,1 say "Повод обращения" get m1povod pict "9" ;
-                 valid {|g| val_st_pov(g) }
+              valid {|g| val_st_pov(g) }
           @ row(),col()+1 get mpovod color color14 when .f.
         endif
         if .t.//is_travma // если в настройке для отделения - работа с травмой
           if mem_st_trav == 1
             @ j,43 say "Вид травмы" get mtravma ;
-                    reader {|x|menu_reader(x,stm_travma,A__MENUVERT,,,.f.)} ;
-                    color colget_menu
+                reader {|x|menu_reader(x,stm_travma,A__MENUVERT,,,.f.)} ;
+                color colget_menu
           else
             @ j,43 say "Вид травмы" get m1travma pict "99" ;
-                    valid {|g| val_st_trav(g) }
+                valid {|g| val_st_trav(g) }
             @ row(),col()+1 get mtravma color color14 when .f.
           endif
         endif
       endif*/
-      ++j ; p_nstr_vnr := j
+      ++j
+      p_nstr_vnr := j
       p_str_vnr := "Вес ребёнка в граммах (малая масса тела/недоношенный)   "
       @ j,1 say p_str_vnr get MVNR pict "9999" when input_vnr
       if empty(MVNR)
@@ -906,49 +941,51 @@ Function oms_sluch(Loc_kod,kod_kartotek)
       endif
       p_str_vnrm := "Вес родившихся детей в граммах (малая масса/недоношенный)   "
       @ j,1 say p_str_vnrm get MVNR1 pict "9999" when input_vnrm
-           @ row(),col()+1 get MVNR2 pict "9999" when input_vnrm
-           @ row(),col()+1 get MVNR3 pict "9999" when input_vnrm
+      @ row(),col()+1 get MVNR2 pict "9999" when input_vnrm
+      @ row(),col()+1 get MVNR3 pict "9999" when input_vnrm
       if emptyall(MVNR1,MVNR2,MVNR3)
         @ j,1
       endif
       //
-      ++j ; p_nstr_ad_cr := j
+      ++j
+      p_nstr_ad_cr := j
       p_str_ad_cr := "Доп.критерий"
       @ p_nstr_ad_cr,1 say p_str_ad_cr get MAD_CR ;
-                       reader {|x| menu_reader(x,mm_ad_cr,A__MENUVERT_SPACE,,,.f.)} ;
-                       when input_ad_cr ;
-                       color colget_menu
+          reader {|x| menu_reader(x,mm_ad_cr,A__MENUVERT_SPACE,,,.f.)} ;
+          when input_ad_cr ;
+          color colget_menu
       if !input_ad_cr
         @ j,1
       endif
       //
       if is_MO_VMP
-        ++j; @ j,1 say "ВМП?" get MVMP ;
-               reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
-               when m1usl_ok==1 .or. (m1usl_ok==2 .and. is_ds_VMP) ;
-               valid {|g,o| f_valid_vmp(g,o) } ;
-               color colget_menu
-        // @ j,col()+1 say "номер талона на ВМП" get mTAL_NUM when m1vmp == 1
+        ++j
+        @ j,1 say "ВМП?" get MVMP ;
+            reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
+            when m1usl_ok==1 .or. (m1usl_ok==2 .and. is_ds_VMP) ;
+            valid {|g,o| f_valid_vmp(g,o) } ;
+            color colget_menu
         @ j,col()+1 say "номер талона" get mTAL_NUM PICTURE '@S12' when m1vmp == 1
-        // ++j; @ j,1 say "дата выдачи талона на ВМП" get mTAL_D when m1vmp == 1
         @ j,col()+1 say "выдан" get mTAL_D when m1vmp == 1
-        // @ j,col()+1 say "дата планируемой госпитализации" get mTAL_P when m1vmp == 1
         @ j,col()+1 say "план. госп-ция" get mTAL_P when m1vmp == 1
-        ++j; @ j,1 say " вид ВМП" get mvidvmp ;
-               reader {|x|menu_reader(x,{{|k,r,c|f_get_vidvmp(k,r,c)}},A__FUNCTION,,,.f.)} ;
-               when m1vmp == 1 ;
-               valid {|g,o| f_valid_vidvmp(g,o) } ;
-               color colget_menu
-        ++j; @ j,1 say " модель" get mmodpac ;
-                reader {|x|menu_reader(x,{{|k,r,c|f_get_mmodpac(k,r,c,m1vidvmp, mkod_diag)}},A__FUNCTION,,,.f.)} ;
-                when m1vmp == 1 ;
-                color colget_menu
-                // valid {|g,o| f_valid_mmodpac(g,o) } ;
-        ++j; @ j,1 say " метод ВМП" get mmetvmp ;
-               reader {|x|menu_reader(x,{{|k,r,c|f_get_metvmp(k,r,c,m1vidvmp,m1modpac)}},A__FUNCTION,,,.f.)} ;
-               when m1vmp == 1 .and. !empty(m1vidvmp) ;  //   valid {|| f_valid_metvmp(m1metvmp) } ;
-               color colget_menu
-              // reader {|x|menu_reader(x,{{|k,r,c|f_get_metvmp(k,r,c,m1vidvmp, mkod_diag)}},A__FUNCTION,,,.f.)} ;
+        ++j
+        @ j,1 say " вид ВМП" get mvidvmp ;
+            reader {|x|menu_reader(x,{{|k,r,c|f_get_vidvmp(k,r,c)}},A__FUNCTION,,,.f.)} ;
+            when m1vmp == 1 ;
+            valid {|g,o| f_valid_vidvmp(g,o) } ;
+            color colget_menu
+        ++j
+        @ j,1 say " модель" get mmodpac ;
+            reader {|x|menu_reader(x,{{|k,r,c|f_get_mmodpac(k,r,c,m1vidvmp, mkod_diag)}},A__FUNCTION,,,.f.)} ;
+            when m1vmp == 1 ;
+            color colget_menu
+            // valid {|g,o| f_valid_mmodpac(g,o) } ;
+        ++j
+        @ j,1 say " метод ВМП" get mmetvmp ;
+            reader {|x|menu_reader(x,{{|k,r,c|f_get_metvmp(k,r,c,m1vidvmp,m1modpac)}},A__FUNCTION,,,.f.)} ;
+            when m1vmp == 1 .and. !empty(m1vidvmp) ;  //   valid {|| f_valid_metvmp(m1metvmp) } ;
+            color colget_menu
+            // reader {|x|menu_reader(x,{{|k,r,c|f_get_metvmp(k,r,c,m1vidvmp, mkod_diag)}},A__FUNCTION,,,.f.)} ;
         /*++j ; p_nstr_stent := j
         if year(mk_data) == 2017
           p_str_stent := "   число стентов, установленных в коронарные артерии"
@@ -959,26 +996,27 @@ Function oms_sluch(Loc_kod,kod_kartotek)
         endif*/
       endif
       //
-      ++j; @ j,1 say "Больничный" get mbolnich ;
-              reader {|x|menu_reader(x,menu_bolnich,A__MENUVERT,,,.f.)} ;
-              color colget_menu ;
-              valid {|g,o| f_valid_bolnich(g,o) }
-           @ row(),col()+1 say "==> с" get mdate_b_1 when m1bolnich > 0
-           @ row(),col()+1 say "по" get mdate_b_2 when m1bolnich > 0
-           @ row(),col()+1 say "Д.р.родителя" get mrodit_dr when m1bolnich == 2
+      ++j
+      @ j,1 say "Больничный" get mbolnich ;
+          reader {|x|menu_reader(x,menu_bolnich,A__MENUVERT,,,.f.)} ;
+          color colget_menu ;
+          valid {|g,o| f_valid_bolnich(g,o) }
+      @ row(),col()+1 say "==> с" get mdate_b_1 when m1bolnich > 0
+      @ row(),col()+1 say "по" get mdate_b_2 when m1bolnich > 0
+      @ row(),col()+1 say "Д.р.родителя" get mrodit_dr when m1bolnich == 2
       if mem_pol == 1
-           @ row(),col()+1 say "Пол" get mrodit_pol ;
-                  reader {|x|menu_reader(x,menupol,A__MENUVERT,,,.f.)} ;
-                  when m1bolnich == 2
+        @ row(),col()+1 say "Пол" get mrodit_pol ;
+            reader {|x|menu_reader(x,menupol,A__MENUVERT,,,.f.)} ;
+            when m1bolnich == 2
       else
-           @ row(),col()+1 say "Пол" get mrodit_pol pict "@!" ;
-                  valid {|g| mrodit_pol $ "МЖ" } ;
-                  when m1bolnich == 2
+        @ row(),col()+1 say "Пол" get mrodit_pol pict "@!" ;
+            valid {|g| mrodit_pol $ "МЖ" } ;
+            when m1bolnich == 2
       endif
       @ maxrow()-1,1 say "Признак подозрения на ЗНО" get mDS_ONK ;
-               reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
-               when {|| when_ds_onk() } ;
-               color colget_menu
+          reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
+          when {|| when_ds_onk() } ;
+          color colget_menu
       @ maxrow()-1,55 say "Сумма лечения" color color1
       @ row(),col()+1 say lput_kop(mcena_1) color color8
       if is_talon
