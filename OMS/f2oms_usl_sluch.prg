@@ -4,7 +4,7 @@
 #include "chip_mo.ch"
 
 
-***** 29.01.21 ввод услуг в лист учёта
+***** 31.03.21 ввод услуг в лист учёта
 Function f2oms_usl_sluch(nKey,oBrow)
   Static skod_k := 0, skod_human := 0, SKOD_DIAG, SZF,;
          st_vzrosl, st_arr_dbf, skod_vr, skod_as, aksg := {}
@@ -158,8 +158,6 @@ Function f2oms_usl_sluch(nKey,oBrow)
           last_date := max(tmp->date_u1,last_date)
           if st_arr_dbf[k,_HU_N_BASE] == 0
             // переопределение цены
-  my_debug(," 1. f2oms_usl_sluch")
-  
             if (v := f1cena_oms(tmp->shifr_u,;
                                 tmp->shifr1,;
                                 (human->vzros_reb==0),;
@@ -327,8 +325,6 @@ Function f2oms_usl_sluch(nKey,oBrow)
             rec_tmp := tmp->(recno())
             if st_arr_dbf_s[k,_HU_N_BASE] == 0
               // переопределение цены
-  my_debug(," 1. f2oms_usl_sluch")
-  
               if (v := f1cena_oms(tmp->shifr_u,;
                                   tmp->shifr1,;
                                   (human->vzros_reb==0),;
@@ -505,9 +501,10 @@ Function f2oms_usl_sluch(nKey,oBrow)
                   valid {|g| f5editkusl(g,2,1) }
         ++ix
         @ r1+ix,2 say "Диагноз по МКБ-10" get mkod_diag picture pic_diag ;
-                  reader {|o|MyGetReader(o,bg)} ;
-                  when when_diag() ;
-                  valid val1_10diag(.t.,.f.,.f.,human->n_data,iif(human_->novor==0,human->pol,human_->pol2))
+            reader {|o|MyGetReader(o,bg)} ;
+            when when_diag() ;
+            valid val1_10diag(.t.,.f.,.f.,human->k_data,iif(human_->novor==0,human->pol,human_->pol2))  // изменил после разговора с Антоновой 31.03.2021
+            // valid val1_10diag(.t.,.f.,.f.,human->n_data,iif(human_->novor==0,human->pol,human_->pol2))
         if is_zf_stomat == 1
           ++ix
           @ r1+ix,2 say "Зубная формула" get mzf pict pic_diag ;
@@ -515,87 +512,85 @@ Function f2oms_usl_sluch(nKey,oBrow)
         endif
         ++ix 
         @ r1+ix,2 say "Шифр услуги" get mshifr pict "@!" ;
-                  when {|g| f5editkusl(g,1,2) } ;
-                  valid {|g| f5editkusl(g,2,2) }
+            when {|g| f5editkusl(g,1,2) } ;
+            valid {|g| f5editkusl(g,2,2) }
         // @ row(),40 say "Цена услуги" get mu_cena pict pict_cena ;
         @ row(),35 say "Цена услуги" get mu_cena pict pict_cena ;
-                   when .f. color color14
+            when .f. color color14
         if human_->usl_ok < 3
-          @ row(), 58 say "КСЛП" get mKSLP pict "@!" ;
-              when .f.
+          @ row(), 58 say "КСЛП" get mKSLP pict "@!" when .f.
         endif
 
         ++ix
         @ r1+ix,2 say "Услуга" get mname_u when .f. color color14
         ++ix ; row_dom := r1+ix
         @ row_dom,2 say "Где оказана услуга" get mnmic ;
-                    reader {|x|menu_reader(x,glob_nmic,A__MENUVERT,,,.f.)} ;
-                    when tip_telemed2 ;
-                    valid {|| iif(m1nmic == 0, (mnmic1 := space(10), m1nmic1 := 0), ), update_get("mnmic1") }
+            reader {|x|menu_reader(x,glob_nmic,A__MENUVERT,,,.f.)} ;
+            when tip_telemed2 ;
+            valid {|| iif(m1nmic == 0, (mnmic1 := space(10), m1nmic1 := 0), ), update_get("mnmic1") }
         ++ix
         @ row_dom+1,2 say " Получены ли результаты на дату окончания лечения" get mnmic1 ;
-                      reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
-                      when m1nmic > 0
+            reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
+            when m1nmic > 0
         if !tip_telemed2
           @ row_dom  ,1 say space(78) color color1
           @ row_dom+1,1 say space(78) color color1
           if human_->usl_ok == 3
             if iif(empty(mshifr), .t., is_gist)
-             @ row_dom,2 say " Где проведено это исследование" get mgist ;
-                         reader {|x|menu_reader(x,mm_gist,A__MENUVERT,,,.f.)} ;
-                         when iif(empty(mshifr), .f., is_gist) ;
-                         valid {|| mis_edit := m1gist, .t. }
+              @ row_dom,2 say " Где проведено это исследование" get mgist ;
+                  reader {|x|menu_reader(x,mm_gist,A__MENUVERT,,,.f.)} ;
+                  when iif(empty(mshifr), .f., is_gist) ;
+                  valid {|| mis_edit := m1gist, .t. }
             endif
             if iif(empty(mshifr), .t., DomUslugaTFOMS(mshifr1)) .and. !(is_gist .or. pr_amb_reab)
-             @ row_dom,2 say "Где оказана услуга" get mdom ;
-                         reader {|x|menu_reader(x,mm_dom,A__MENUVERT,,,.f.)} ;
-                         when iif(empty(mshifr), .t., DomUslugaTFOMS(mshifr1))
+              @ row_dom,2 say "Где оказана услуга" get mdom ;
+                  reader {|x|menu_reader(x,mm_dom,A__MENUVERT,,,.f.)} ;
+                  when iif(empty(mshifr), .t., DomUslugaTFOMS(mshifr1))
             endif
             if iif(empty(mshifr), pr_amb_reab, pr_amb_reab.and.left(mshifr1,2)=='4.')
-             @ row_dom,2 say "Где оказана услуга" get mNPR_MO ;
-                         reader {|x|menu_reader(x,{{|k,r,c|f_get_mo(k,r,c,,2)}},A__FUNCTION,,,.f.)} ;
-                         when iif(empty(mshifr), pr_amb_reab, pr_amb_reab.and.left(mshifr1,2)=='4.')
+              @ row_dom,2 say "Где оказана услуга" get mNPR_MO ;
+                  reader {|x|menu_reader(x,{{|k,r,c|f_get_mo(k,r,c,,2)}},A__FUNCTION,,,.f.)} ;
+                  when iif(empty(mshifr), pr_amb_reab, pr_amb_reab.and.left(mshifr1,2)=='4.')
             endif
             if !(is_gist .or. pr_amb_reab)
-             @ row_dom,35 say "Дата след.явки для дисп.набл-ия" get mdate_next when fl_date_next
+              @ row_dom,35 say "Дата след.явки для дисп.набл-ия" get mdate_next when fl_date_next
             endif
           endif
           if human_->usl_ok < 3
             @ row_dom+1,2 say "Органы/части тела" get mpar_org ;
-                        reader {|x|menu_reader(x,{{|k,r,c|get_par_org(r,c,k,tip_par_org)}},A__FUNCTION,,,.f.)} ;
-                        when !empty(tip_par_org)
+                reader {|x|menu_reader(x,{{|k,r,c|get_par_org(r,c,k,tip_par_org)}},A__FUNCTION,,,.f.)} ;
+                when !empty(tip_par_org)
           endif
         endif
         ++ix
         @ r1+ix,2 say "Профиль" get MPROFIL ;
-                  reader {|x|menu_reader(x,tmp_V002,A__MENUVERT,,,.f.)} ;
-                  when mis_edit == 0 ;
-                  valid {|| mprofil := padr(mprofil,69), .t. }
+            reader {|x|menu_reader(x,tmp_V002,A__MENUVERT,,,.f.)} ;
+            when mis_edit == 0 ;
+            valid {|| mprofil := padr(mprofil,69), .t. }
         for x := 1 to 3
           if mem_por_vr == x
             ++ix
             @ r1+ix,2 say "Врач(сред.медперсонал)" get mtabn_vr pict "99999" ;
-                      when {|g| mis_edit == 0 .and. f5editkusl(g,1,3) } ;
-                      valid {|g| f5editkusl(g,2,3) }
+                when {|g| mis_edit == 0 .and. f5editkusl(g,1,3) } ;
+                valid {|g| f5editkusl(g,2,3) }
             @ row(),col()+3 get mvrach when .f. color color14
           endif
           if mem_por_ass == x
             ++ix
             @ r1+ix,2 say "Таб.№ ассистента" get mtabn_as pict "99999" ;
-                      when {|g| mis_edit == 0 .and. f5editkusl(g,1,4) } ;
-                      valid {|g| f5editkusl(g,2,4) }
+                when {|g| mis_edit == 0 .and. f5editkusl(g,1,4) } ;
+                valid {|g| f5editkusl(g,2,4) }
             @ row(),col()+3 get massist when .f. color color14
           endif
           if mem_por_kol == x
             ++ix
             @ r1+ix,2 say "Количество услуг" get mkol_1 pict "999" ;
-                      when {|g| f5editkusl(g,1,5) } ;
-                      valid {|g| f5editkusl(g,2,5) }
+                when {|g| f5editkusl(g,1,5) } ;
+                valid {|g| f5editkusl(g,2,5) }
           endif
         next
         ++ix
-        @ r1+ix,2 say "Стоимость услуги" get mstoim_1 pict pict_cena ;
-                  when .f.
+        @ r1+ix,2 say "Стоимость услуги" get mstoim_1 pict pict_cena when .f.
         status_key("^<Esc>^ - выход без записи;  ^<PgDn>^ - подтверждение записи")
         set key K_F11 to clear_gets
         set key K_CTRL_F10 to clear_gets

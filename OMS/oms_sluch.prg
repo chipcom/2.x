@@ -781,10 +781,10 @@ Function oms_sluch(Loc_kod,kod_kartotek)
       //           valid {|g| f_valid_status_st(g) }
       //endif 
       ++j; rdiag := j
-            @ j,1 say "Основной диагноз" get mkod_diag picture pic_diag ;
-                 reader {|o| MyGetReader(o,bg)} ;
-                 when when_diag() ;
-                 valid {|| val1_10diag(.t.,.t.,.t.,mk_data,iif(m1novor==0,mpol,mpol2)), f_valid_beremenn(mkod_diag) }
+      @ j,1 say "Основной диагноз" get mkod_diag picture pic_diag ;
+          reader {|o| MyGetReader(o,bg)} ;
+          when when_diag() ;
+          valid {|| val1_10diag(.t.,.t.,.t.,mk_data,iif(m1novor==0,mpol,mpol2)), f_valid_beremenn(mkod_diag) }
       if (ibrm := f_oms_beremenn(mkod_diag)) == 1
            @ j,26 say "прерывание беременности"
       elseif ibrm == 2
