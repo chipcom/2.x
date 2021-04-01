@@ -3,6 +3,7 @@
 -L..\LIB
 -lMyLib_HBT
 -lFunLib
+-lhblibxlsxwriter
 
 -lhbxpp
 -lhbct
@@ -141,3 +142,5 @@ Errorsys.prg
 .\oms\diagnoze.prg
 
 .\onkologiya\onko.prg
+
+.\report\createXLS.prg

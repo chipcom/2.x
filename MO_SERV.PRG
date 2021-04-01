@@ -3342,9 +3342,26 @@ Local mo_bars :=  {;
    {"UCHAST",     "C",      3,      0},;
    {"org",        "C",    120,      0};
   }
+
 if !f_Esc_Enter("создания файла для ВОМИАЦ",.t.)
   return NIL
 endif
+name_file := 'Пациенты старше 60 лет'
+dCreate := date()
+
+WriteXLSXGreater60(hb_OemToAnsi(name_file + '.xlsx'), dCreate)
+
+if hb_FileExists(name_file+'.xlsx')
+  n_message({'В каталоге '+cur_dir+' создан файл "'+upper(name_file+'.xlsx'),;
+      '"c прикрепленным населением старше 60 лет',;
+      'для отправки в ВОМИАЦ.'},,;
+      cColorSt2Msg,cColorStMsg,,,"G+/R")
+else
+  func_error(4,"Ошибка создания файла "+name_file)
+endif
+ 
+return nil  // удалить
+
 ClrLine(maxrow(),color0)
 dbcreate(cur_dir+"tmpbars",mo_bars)
 use (cur_dir+"tmpbars") new alias BARS
