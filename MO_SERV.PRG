@@ -3333,34 +3333,51 @@ return NIL
 
 ***** 29.03.21 создать файл приписного населения в Облздрав
 Function pripisnoe_naselenie_create_VOMIAC()
-Local buf := savescreen(),  arr_fio, pr_date, name_file, name_zip
-Local mo_bars :=  {;
-   {"NN",         "C",      4,      0},;
-   {"FAM",        "C",    120,      0},;
-   {"DATE_R",     "C",     10,      0},;
-   {"YEAR",       "C",      3,      0},;
-   {"UCHAST",     "C",      3,      0},;
-   {"org",        "C",    120,      0};
+  local s
+  Local buf := savescreen(),  arr_fio, pr_date, name_file, name_zip
+  Local mo_bars :=  {;
+    {"NN",         "C",      4,      0},;
+    {"FAM",        "C",    120,      0},;
+    {"DATE_R",     "C",     10,      0},;
+    {"YEAR",       "C",      3,      0},;
+    {"UCHAST",     "C",      3,      0},;
+    {"org",        "C",    120,      0};
   }
 
-if !f_Esc_Enter("создания файла для ВОМИАЦ",.t.)
-  return NIL
-endif
-name_file := 'Пациенты старше 60 лет'
-dCreate := date()
+  if !f_Esc_Enter("создания файла для ВОМИАЦ",.t.)
+    return NIL
+  endif
+  name_file := 'Пациенты старше 60 лет'
+  name_file_full := name_file + '.xlsx'
+  dCreate := date()
 
-WriteXLSXGreater60(hb_OemToAnsi(name_file + '.xlsx'), dCreate)
+  WriteXLSXGreater60(hb_OemToAnsi(name_file_full), dCreate)
 
-if hb_FileExists(name_file+'.xlsx')
-  n_message({'В каталоге '+cur_dir+' создан файл "'+upper(name_file+'.xlsx'),;
-      '"c прикрепленным населением старше 60 лет',;
-      'для отправки в ВОМИАЦ.'},,;
-      cColorSt2Msg,cColorStMsg,,,"G+/R")
-else
-  func_error(4,"Ошибка создания файла "+name_file)
-endif
+  s := manager(5,T_COL+5,maxrow()-2,,.t.,2,.f.,,,) // "norton" для выбора каталога
+  if !empty( s )
+    if upper( s ) == upper( cur_dir )
+      func_error(4, 'Выбран каталог, в котором уже записан целевой файл! Это недопустимо.')
+    else
+      if hb_FileExists(cur_dir + name_file_full)
+        mywait('Копирование "' + name_file_full + '" в каталог "' + s + '"' )
+        // copy file (cur_dir + name_file_full) to ( s + name_file_full )
+        if hb_FileExists(s + name_file_full)
+          hb_FileDelete(s + name_file_full)
+        endif
+        nResult := FRename( (cur_dir + name_file_full), ( s + name_file_full ) )
+        if nResult != 0
+          func_error(4,"Ошибка создания файла "+name_file_full)
+        else
+          n_message({'В каталоге '+ s +' создан файл "' + upper(name_file_full),;
+            '"c прикрепленным населением старше 60 лет',;
+            'для отправки в ВОМИАЦ.'},,;
+            cColorSt2Msg,cColorStMsg,,,"G+/R")
+        endif
+      endif
+    endif
+  endif
  
-return nil  // удалить
+  return nil  // удалить
 
 ClrLine(maxrow(),color0)
 dbcreate(cur_dir+"tmpbars",mo_bars)

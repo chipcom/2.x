@@ -101,13 +101,13 @@ function WriteXLSXGreater60(fName, dCreate)
   set order to 0
   go top
   do while  !eof()
-    GaugeUpdate( hGauge, ++curr/lastrec() )
+    GaugeUpdate( hGauge, ++curr / lastrec() )
     if kart->kod > 0 .and. kart2->mo_pr == glob_MO[_MO_KOD_TFOMS]
       if f_starshe_60(kart->DATE_R,dCreate)
         lxw_worksheet_write_number(worksheet, row, 0, row - 2, cell_format_num)
         arr_fio := retFamImOt(1,.f.,.F.)
         lxw_worksheet_write_string(worksheet, row, 1, hb_StrToUtf8( arr_fio[1]+" "+arr_fio[2]+" "+arr_fio[3] ), cell_format_string)
-        lxw_worksheet_write_datetime(worksheet, row, 2, HB_STOT(DToS(kart->DATE_R) + '000000000'), formatDate)
+        lxw_worksheet_write_datetime(worksheet, row, 2, HB_STOT(DToS(kart->DATE_R)), formatDate)
         lxw_worksheet_write_number(worksheet, row, 3, count_years(kart->DATE_R,date()), cell_format_num)
         lxw_worksheet_write_number(worksheet, row, 4, kart->uchast, cell_format_num)
         lxw_worksheet_write_string(worksheet, row, 5, strMO, cell_format_string)
