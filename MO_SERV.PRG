@@ -3333,105 +3333,20 @@ return NIL
 
 ***** 29.03.21 создать файл приписного населения в Облздрав
 Function pripisnoe_naselenie_create_VOMIAC()
-  local s
-  Local buf := savescreen(),  arr_fio, pr_date, name_file, name_zip
-  Local mo_bars :=  {;
-    {"NN",         "C",      4,      0},;
-    {"FAM",        "C",    120,      0},;
-    {"DATE_R",     "C",     10,      0},;
-    {"YEAR",       "C",      3,      0},;
-    {"UCHAST",     "C",      3,      0},;
-    {"org",        "C",    120,      0};
-  }
+  local name_file := 'Пациенты старше 60 лет'
+  local name_file_full := name_file + '.xlsx'
 
   if !f_Esc_Enter("создания файла для ВОМИАЦ",.t.)
     return NIL
   endif
-  name_file := 'Пациенты старше 60 лет'
-  name_file_full := name_file + '.xlsx'
-  dCreate := date()
+
+  dCreate := date() // дата на которую выбираются пациенты старше 60 лет
 
   WriteXLSXGreater60(hb_OemToAnsi(name_file_full), dCreate)
 
-  s := manager(5,T_COL+5,maxrow()-2,,.t.,2,.f.,,,) // "norton" для выбора каталога
-  if !empty( s )
-    if upper( s ) == upper( cur_dir )
-      func_error(4, 'Выбран каталог, в котором уже записан целевой файл! Это недопустимо.')
-    else
-      if hb_FileExists(cur_dir + name_file_full)
-        mywait('Копирование "' + name_file_full + '" в каталог "' + s + '"' )
-        // copy file (cur_dir + name_file_full) to ( s + name_file_full )
-        if hb_FileExists(s + name_file_full)
-          hb_FileDelete(s + name_file_full)
-        endif
-        nResult := FRename( (cur_dir + name_file_full), ( s + name_file_full ) )
-        if nResult != 0
-          func_error(4,"Ошибка создания файла "+name_file_full)
-        else
-          n_message({'В каталоге '+ s +' создан файл "' + upper(name_file_full),;
-            '"c прикрепленным населением старше 60 лет',;
-            'для отправки в ВОМИАЦ.'},,;
-            cColorSt2Msg,cColorStMsg,,,"G+/R")
-        endif
-      endif
-    endif
-  endif
+  SaveTo(cur_dir + name_file_full)
  
-  return nil  // удалить
-
-ClrLine(maxrow(),color0)
-dbcreate(cur_dir+"tmpbars",mo_bars)
-use (cur_dir+"tmpbars") new alias BARS
-hGauge := GaugeNew(,,,"Составление файла для ВОМИАЦ",.t.)
-GaugeDisplay( hGauge )
-curr := 0
-R_Use_base("kartotek")
-set order to 0
-go top
-do while  !eof()
-  GaugeUpdate( hGauge, ++curr/lastrec() )
-  if kart->kod > 0 .and. kart2->mo_pr == glob_MO[_MO_KOD_TFOMS]
-    if f_starshe_60(kart->DATE_R,date())
-      select BARS
-      append blank
-      bars->NN           := lstr(recno())
-      bars->UCHAST       :=  lstr(kart->uchast)
-      arr_fio := retFamImOt(1,.f.,.F.)
-      bars->FAM          := arr_fio[1]+" "+arr_fio[2]+" "+arr_fio[3]
-      bars->DATE_R       := full_date(kart->DATE_R)
-      bars->YEAR         := lstr(count_years(kart->DATE_R,date()))
-      bars->org          := glob_mo[_MO_SHORT_NAME]
-      if bars->(recno()) % 100 == 0
-        @ maxrow(),1 say lstr(bars->(recno())) color color0
-        if bars->(recno()) % 2000 == 0
-          Commit
-        endif
-      endif
-    endif
-  endif
-  select KART
-  skip
-enddo
-close databases
-CloseGauge(hGauge)
-//
-name_file := alltrim("Старше60_") //+glob_MO[_MO_SHORT_NAME])
-//name_zip := name_file+szip
-copy file (cur_dir+"tmpbars"+sdbf) to (cur_dir+name_file+sdbf)
-//
-if hb_FileExists(name_file+sdbf)
- // if chip_create_zipXML(name_zip,{name_file+sdbf},.t.)
-    //copy file (dir_server+dir_XML_MO+cslash+name_zip) to (cur_dir+name_zip)
-    n_message({"В каталоге "+cur_dir+" создан файл "+upper(name_file+sdbf),;
-               "c прикрепленным населением старше 60 лет",;
-               "для отправки в ВОМИАЦ."},,;
-               cColorSt2Msg,cColorStMsg,,,"G+/R")
-//    delete file (dir_server+dir_XML_MO+cslash+name_zip)
- // endif
-else
-  func_error(4,"Ошибка создания файла "+name_file)
-endif
-return NIL
+  return nil
 
 ***** 29.03.21 определить лицо старше трудоспособного возраста
 Function f_starshe_60(_date_r,_data)
