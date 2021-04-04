@@ -3336,16 +3336,18 @@ Function pripisnoe_naselenie_create_VOMIAC()
   local name_file := 'Пациенты старше 60 лет'
   local name_file_full := name_file + '.xlsx'
 
-  if !f_Esc_Enter("создания файла для ВОМИАЦ",.t.)
-    return NIL
+  // if !f_Esc_Enter("создания файла для ВОМИАЦ",.t.)
+  //   return NIL
+  // endif
+
+  if (dCreate := input_value( 20, 9, 22, 70, color1, ;
+      'Дата, на которую необходимо получить информацию', ;
+      sys_date)) != nil
+
+    WriteXLSXGreater60(hb_OemToAnsi(name_file_full), dCreate)
+    SaveTo(cur_dir + name_file_full)
   endif
-
-  dCreate := date() // дата на которую выбираются пациенты старше 60 лет
-
-  WriteXLSXGreater60(hb_OemToAnsi(name_file_full), dCreate)
-
-  SaveTo(cur_dir + name_file_full)
- 
+  
   return nil
 
 ***** 29.03.21 определить лицо старше трудоспособного возраста
