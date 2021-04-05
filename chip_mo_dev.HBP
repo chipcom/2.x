@@ -137,14 +137,14 @@ Errorsys.prg
 .\oms\kiroANDkslp.prg
 .\oms\f_1pac_definition_KSG.prg
 .\oms\Change_Cena_OMS.prg
-
-
-.\oms\getPrice.prg
 .\oms\verify_1_sluch.prg
 .\oms\conditionKSLP_21.prg
 .\oms\diagnoze.prg
+.\oms\mo_oms131.prg
 .\oms\errorFromTFOMS.prg
 
 .\onkologiya\onko.prg
 
 .\reports\createXLS.prg
+
+# .\oms\getPrice.prg
