@@ -1179,6 +1179,11 @@ width := arr[1]
 regim := arr[3]
 n_file := StripPath(beforatnum(".",lsh)) + stxt
 Private yes_albom := arr[5]
+if glob_mo[_MO_KOD_TFOMS] == '175303' //ксп-3
+  if regim == 6
+    regim := 8
+  endif
+endif
 viewtext(n_file,,,,(width > 80),,,regim,,,,(mem_ff_lu==1))
 return NIL
 
