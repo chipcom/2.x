@@ -835,16 +835,6 @@ Function init_mo()
   else
     // fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
-  // T005
-  sbase := "_mo_t005"
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    R_Use(exe_dir + sbase )
-    index on str(kod,3) to (cur_dir+sbase)
-    use
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
-  //
   sbase := "_mo1shema"
   if hb_FileExists(exe_dir + sbase + sdbf)
     // добавлена индексация файла
@@ -1234,6 +1224,7 @@ Function init_mo()
   aadd(arrRefFFOMS, {'_mo_V018', .f., 'V018 - Классификатор видов высокотехнологичной медицинской помощи (HVid)' } )
   aadd(arrRefFFOMS, {'_mo_V019', .f., 'V019 - Классификатор методов высокотехнологичной медицинской помощи (HMet)' } )
   aadd(arrRefFFOMS, {'_mo_V022', .f., 'V022 - Классификатор моделей пациента при оказании высокотехнологичной медицинской помощи (ModPac)' } )
+  aadd(arrRefFFOMS, {'_mo_t005', .t., 'T005 - Справочник ошибок при проведении технологического контроля Реестров сведений и Реестров счетов' } )
 
   for each row in arrRefFFOMS
     sbase := row[1]

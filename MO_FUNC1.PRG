@@ -1954,18 +1954,6 @@ for i := 1 to len(au) // цикл по кодам услуг, по которым стоит нужный шифр ТФОМС
 next
 return ret_u
 
-***** 02.02.17 вернуть строку для кода дефекта
-// Function ret_t005_1(lkod)
-// Local s := "", tmp_select := select()
-// R_Use(exe_dir+"_mo_t005",cur_dir+"_mo_t005","T005")
-// find (str(lkod,3))
-// if found()
-//   s := alltrim(t005->name)
-// endif
-// t005->(dbCloseArea())
-// select (tmp_select)
-// return s 
-
 ***** 07.02.16 вернуть строку вида ВМП
 Function ret_V018(lVIDVMP,lk_data)
 Local i, s := space(10)
