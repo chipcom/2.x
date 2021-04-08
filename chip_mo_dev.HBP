@@ -142,9 +142,9 @@ Errorsys.prg
 .\oms\diagnoze.prg
 .\oms\mo_oms131.prg
 .\oms\errorFromTFOMS.prg
+.\oms\TFOMS_hodatajstvo.prg
 
 .\onkologiya\onko.prg
 
 .\reports\createXLS.prg
-
-# .\oms\getPrice.prg
+.\reports\hodot.prg
