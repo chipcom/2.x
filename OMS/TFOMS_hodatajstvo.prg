@@ -178,7 +178,7 @@ Function TFOMS_hodatajstvo(arr_m,iRefr,par)
   close databases
   return NIL
 
-  *****
+*****
 Function f1tfoms_hodatajstvo(nKey,oBrow,regim)
   Local k := -1, rec, fl
   if regim == "edit"
@@ -207,8 +207,8 @@ Function f1tfoms_hodatajstvo(nKey,oBrow,regim)
   endif
   return k
   
-  *****
-  Function f2tfoms_hodatajstvo(nKey,oBrow,regim)
+*****
+Function f2tfoms_hodatajstvo(nKey,oBrow,regim)
   Local k := -1, rec, fl, buf := savescreen()
   if regim == "edit"
     do case
@@ -277,8 +277,6 @@ Function f1tfoms_hodatajstvo(nKey,oBrow,regim)
     endcase
   endif
   return k
-  
-  *
   
 ***** 08.04.21 создание файла ХОДАТАЙСТВА для отсылки в ТФОМС
 Function create_file_hodatajstvo(arr_m)
@@ -544,9 +542,10 @@ Function create_file_hodatajstvo(arr_m)
   endif
   return NIL
   
-  ***** 04.02.13
-  Function view_list_hodatajstvo()
+***** 04.02.13
+Function view_list_hodatajstvo()
   Local buf := savescreen()
+
   if !G_SLock(Shodata_sem)
     return func_error(4,Shodata_err)
   endif
@@ -598,9 +597,10 @@ Function create_file_hodatajstvo(arr_m)
   status_key("^<Esc>^ выход ^<Enter>^ просмотр ^<F5>^ запись ^<Del>^ удалить ещё не записанный файл")
   return NIL
   
-  *****
-  Static Function f11_view_list_hodatajstvo()
+*****
+Static Function f11_view_list_hodatajstvo()
   Local s := ""
+
   if !hb_fileExists(goal_dir+alltrim(hod->FNAME)+szip)
     s := "нет файла"
   elseif empty(hod->date_out)
@@ -610,12 +610,11 @@ Function create_file_hodatajstvo(arr_m)
   endif
   return padr(s,10)
   
-  *
-  
-  ***** 24.02.17
-  Function f2_view_list_hodatajstvo(nKey,oBrow)
+***** 24.02.17
+Function f2_view_list_hodatajstvo(nKey,oBrow)
   Local ret := -1, tmp_color := setcolor(), r, r1, r2, arr_f,;
         s, buf := savescreen(), arr, i, k, mdate, t_arr[2], arr_pmt := {}
+
   do case
     case nKey == K_ENTER
       if (arr_f := Extract_Zip_XML(goal_dir,alltrim(hod->FNAME)+szip)) != NIL
