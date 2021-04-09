@@ -1,3 +1,4 @@
+#include 'function.ch'
 
 #define SW_SHOWNORMAL 1
 
