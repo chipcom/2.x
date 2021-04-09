@@ -148,3 +148,5 @@ Errorsys.prg
 
 .\reports\createXLS.prg
 .\reports\hodotajstvoXLS.prg
+
+.\util\workWithZIP.prg

@@ -278,11 +278,12 @@ Function f2tfoms_hodatajstvo(nKey,oBrow,regim)
   endif
   return k
   
-***** 08.04.21 á®§¤ ­¨¥ ä ©«  •Ž„€’€‰‘’‚€ ¤«ï ®âáë«ª¨ ¢ ’”ŽŒ‘
+***** 09.04.21 á®§¤ ­¨¥ ä ©«  •Ž„€’€‰‘’‚€ ¤«ï ®âáë«ª¨ ¢ ’”ŽŒ‘
 Function create_file_hodatajstvo(arr_m)
   // arr_m - ¢à¥¬¥­­®© ¬ áá¨¢
   Local i, k := 0, as, fl := .f., mnn, mb, me, mfilial,;
         buf := save_maxrow()
+  local error
 
   R_Use(dir_server+"organiz",,"ORG")
   if empty(mfilial := org->filial_h)
@@ -397,7 +398,8 @@ Function create_file_hodatajstvo(arr_m)
     n_file := 'HD_' + lstr(mfilial) + '_M' + glob_mo[_MO_KOD_TFOMS] + '_' + lstr(mnn)
     for i := 1 to 3
       if as[i,1] > 0
-        as[i,3] := n_file+"_"+as[i,2]+".xls"
+        // as[i,3] := n_file+"_"+as[i,2]+".xls"
+        as[i,3] := n_file+"_"+as[i,2]+".xlsx"
         delete file (as[i,3])
         delFRfiles()
         adbf := {{"name_f","C",30,0},;
@@ -493,52 +495,55 @@ Function create_file_hodatajstvo(arr_m)
         enddo
         close databases
 
-        hodotajstvoXLS( n_file + '_' + as[i, 2] )
+        error := hodotajstvoXLS( n_file + '_' + as[i, 2] )
+        if ! empty(error)
+          return func_error(4, 'Žè¨¡ª  á®§¤ ­¨ï ä ©«  å®¤ â ©áâ¢ .')
+        endif
         // call_fr("mo_hodex",3,as[i,3],,.f.)
       endif
     next
-    //
-    // G_Use(dir_server+"mo_hod",,"HOD")
-    // AddRecN()
-    // hod->KOD := recno()
-    // hod->NYEAR := arr_m[1]
-    // hod->NMONTH := arr_m[2]
-    // hod->NN := mnn
-    // hod->KOL1 := 0
-    // hod->KOL2 := 0
-    // hod->KOL3 := 0
-    // hod->FNAME := n_file
-    // hod->DFILE := sys_date
-    // hod->TFILE := hour_min(seconds())
-    // hod->DATE_OUT := ctod("")
-    // hod->NUMB_OUT := 0
-    // G_Use(dir_server+"mo_hod_k",,"HODK")
-    // index on str(kod,6) to (cur_dir+"tmp_hodk")
-    // use (cur_dir+"tmp_k1") new
-    // arr_zip := {}
-    // for i := 1 to 3
-    //   if as[i,1] > 0
-    //     aadd(arr_zip, as[i,3])
-    //     select TMP_K1
-    //     go top
-    //     do while !eof()
-    //       if tmp_k1->ntable == i
-    //         select HODK
-    //         AddRec(6)
-    //         hodk->KOD := hod->KOD
-    //         hodk->KOD_K := tmp_k1->kod
-    //         pole := "hod->KOL"+lstr(i)
-    //         &pole := &pole + 1
-    //       endif
-    //       select TMP_K1
-    //       skip
-    //     enddo
-    //   endif
-    // next
+    
+    G_Use(dir_server+"mo_hod",,"HOD")
+    AddRecN()
+    hod->KOD := recno()
+    hod->NYEAR := arr_m[1]
+    hod->NMONTH := arr_m[2]
+    hod->NN := mnn
+    hod->KOL1 := 0
+    hod->KOL2 := 0
+    hod->KOL3 := 0
+    hod->FNAME := n_file
+    hod->DFILE := sys_date
+    hod->TFILE := hour_min(seconds())
+    hod->DATE_OUT := ctod("")
+    hod->NUMB_OUT := 0
+    G_Use(dir_server+"mo_hod_k",,"HODK")
+    index on str(kod,6) to (cur_dir+"tmp_hodk")
+    use (cur_dir+"tmp_k1") new
+    arr_zip := {}
+    for i := 1 to 3
+      if as[i,1] > 0
+        aadd(arr_zip, as[i,3])
+        select TMP_K1
+        go top
+        do while !eof()
+          if tmp_k1->ntable == i
+            select HODK
+            AddRec(6)
+            hodk->KOD := hod->KOD
+            hodk->KOD_K := tmp_k1->kod
+            pole := "hod->KOL"+lstr(i)
+            &pole := &pole + 1
+          endif
+          select TMP_K1
+          skip
+        enddo
+      endif
+    next
     close databases
-    // if chip_create_zipXML(n_file+szip,arr_zip,.t.)
-    //   view_list_hodatajstvo()
-    // endif
+    if chip_create_zipXML(n_file+szip,arr_zip,.t.)
+      view_list_hodatajstvo()
+    endif
   endif
   return NIL
   

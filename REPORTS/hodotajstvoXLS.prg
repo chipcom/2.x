@@ -1,5 +1,5 @@
- #include "function.ch"
- #include "chip_mo.ch"
+#include "function.ch"
+#include "chip_mo.ch"
  
 #include "hblibxlsxwriter.ch"
 
@@ -170,9 +170,9 @@ function hodotajstvoXLS(name)
     error = lxw_workbook_close(workbook)
 
     /* Проверить наличие ошибки при создании xlsx файла. */
-    if !EMPTY(error)
-        alertx(hb_Utf8ToStr(sprintf('Ошибка в workbook_close().\n' + ;
-               'Ошибка %d = %s\n', error, HB_NTOS(error)),'RU866'),'error')
-    endif
+    // if !EMPTY(error)
+    //     alertx(hb_Utf8ToStr(sprintf('Ошибка в workbook_close().\n' + ;
+    //            'Ошибка %d = %s\n', error, HB_NTOS(error)),'RU866'),'error')
+    // endif
 
     return error
