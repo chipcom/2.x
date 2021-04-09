@@ -149,3 +149,4 @@ Errorsys.prg
 .\reports\hodotajstvoXLS.prg
 
 .\util\workWithZIP.prg
+.\util\runExternalProgram.prg

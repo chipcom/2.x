@@ -283,7 +283,6 @@ Function create_file_hodatajstvo(arr_m)
   // arr_m - временной массив
   Local i, k := 0, as, fl := .f., mnn, mb, me, mfilial,;
         buf := save_maxrow()
-  local error
 
   R_Use(dir_server+"organiz",,"ORG")
   if empty(mfilial := org->filial_h)
@@ -619,6 +618,8 @@ Static Function f11_view_list_hodatajstvo()
 Function f2_view_list_hodatajstvo(nKey,oBrow)
   Local ret := -1, tmp_color := setcolor(), r, r1, r2, arr_f,;
         s, buf := savescreen(), arr, i, k, mdate, t_arr[2], arr_pmt := {}
+  local error
+
 
   do case
     case nKey == K_ENTER
@@ -630,7 +631,8 @@ Function f2_view_list_hodatajstvo(nKey,oBrow)
         endif
         mybell(2,OK)
         for i := 1 to k
-          ShellExecute(GetDeskTopWindow(),'open','Excel.exe',_tmp_dir1+arr_f[i],,1)
+          // ShellExecute(GetDeskTopWindow(),'open','Excel.exe',_tmp_dir1+arr_f[i],,1)
+          openExcel(_tmp_dir1+arr_f[i])
         next
       endif
     case nKey == K_F5

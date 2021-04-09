@@ -144,31 +144,31 @@ f_main(r,a_parol)
 f_end()
 return
 
-#define SW_SHOWNORMAL 1
+// #define SW_SHOWNORMAL 1
 
-*****
-Function f_help()
-Local spar := ""
-if chm_help_code >= 0
-  spar := '-mapid '+lstr(chm_help_code)+' '
-endif
-ShellExecute(GetDeskTopWindow(),;
-             'open',;
-             'hh.exe',;
-             spar+exe_dir+cslash+'CHIP_MO.CHM',;
-             ,;
-             SW_SHOWNORMAL)
-return NIL
+// *****
+// Function f_help()
+// Local spar := ""
+// if chm_help_code >= 0
+//   spar := '-mapid '+lstr(chm_help_code)+' '
+// endif
+// ShellExecute(GetDeskTopWindow(),;
+//              'open',;
+//              'hh.exe',;
+//              spar+exe_dir+cslash+'CHIP_MO.CHM',;
+//              ,;
+//              SW_SHOWNORMAL)
+// return NIL
 
-*****
-Function file_AdobeReader(cFile)
-ShellExecute(GetDeskTopWindow(),;
-             'open',;
-             'AcroRd32.exe',;
-             cFile,;
-             ,;
-             SW_SHOWNORMAL)
-return NIL
+// *****
+// Function file_AdobeReader(cFile)
+// ShellExecute(GetDeskTopWindow(),;
+//              'open',;
+//              'AcroRd32.exe',;
+//              cFile,;
+//              ,;
+//              SW_SHOWNORMAL)
+// return NIL
 
 *
 
@@ -1259,16 +1259,16 @@ Static Function cmain_next_pos(n)
 DEFAULT n TO 5
 return atail(cmain_menu)+len(atail(main_menu))+n
 
-***** 18.08.18
-Function readme2wordpad(rtf_file)
-DEFAULT rtf_file TO exe_dir+cslash+'README.RTF'
-ShellExecute(GetDeskTopWindow(),;
-             'open',;
-             'wordpad.exe',;
-             rtf_file,;
-             ,;
-             SW_SHOWNORMAL)
-return NIL
+// ***** 18.08.18
+// Function readme2wordpad(rtf_file)
+// DEFAULT rtf_file TO exe_dir+cslash+'README.RTF'
+// ShellExecute(GetDeskTopWindow(),;
+//              'open',;
+//              'wordpad.exe',;
+//              rtf_file,;
+//              ,;
+//              SW_SHOWNORMAL)
+// return NIL
 
 *
 
