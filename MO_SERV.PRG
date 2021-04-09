@@ -157,7 +157,8 @@ if fl .and. f_Esc_Enter("чтения файла из ЛИС")
                                dir_server+"kartotes"},"KART")
   Private such := 1, sotd := 1,; // код отделения "Лаборатория-ЛИС на Ангарском"
           sotd2 := 3 // код отделения "ЛИС в Краснооктябрьском р-не"
-  Private _arr_otd := {{"MIH",1},{"ANG",2},{"MET",3}}
+          //sotd4 := 4   // код отделения "ЛИС на Елецкой"
+  Private _arr_otd := {{"MIH",1},{"ANG",2},{"MET",3},{"ELE",4}}
   for i := 1 to len(_arr_otd)
     if _arr_otd[i,1] $ upper(name_file)
       sotd2 := i
@@ -3347,7 +3348,7 @@ Function pripisnoe_naselenie_create_VOMIAC()
     WriteXLSXGreater60(hb_OemToAnsi(name_file_full), dCreate)
     SaveTo(cur_dir + name_file_full)
   endif
-  
+
   return nil
 
 ***** 29.03.21 определить лицо старше трудоспособного возраста
