@@ -14,12 +14,16 @@ Function val1_10diag(fl_search,fl_plus,fl_screen,ldate,lpol)
   // lpol      - пол для проверки допустимости ввода диагноза по полу
   Local fl := .t., mshifr, tmp_select := select(), c_plus := " ", i, arr,;
         lis_talon := .f., jt, m1, s, mshifr6, fl_4
+  local isGeneralDiagnoze
         
   DEFAULT fl_search TO .t., fl_plus TO .f., fl_screen TO .f., ldate TO sys_date
   if type("is_talon") == "L" .and. is_talon
     lis_talon := .t.
   endif
   Private mvar := upper(readvar())
+
+  isGeneralDiagnoze := (mvar == 'MKOD_DIAG')  // установим является ли проверяемое поле основным диагнозом
+  
   mshifr := alltrim(&mvar)
   if lis_talon
     arr := {"MKOD_DIAG" ,;
@@ -51,7 +55,7 @@ Function val1_10diag(fl_search,fl_plus,fl_screen,ldate,lpol)
     find (mshifr)
     if found()
       fl_4 := .f.
-      if !empty(ldate) .and. !between_date(diag->dbegin,diag->dend,ldate)
+      if !empty(ldate) .and. !between_date(diag->dbegin,diag->dend,ldate, , isGeneralDiagnoze)
         fl_4 := .t.  // Диагноз не входит в ОМС
       endif
       if fl_4 .and. mem_diag4 == 2 .and. !("." $ mshifr) // если шифр трехзначный
@@ -82,7 +86,7 @@ Function val1_10diag(fl_search,fl_plus,fl_screen,ldate,lpol)
         enddo
         s := ""
         find (mshifr)
-        if !empty(ldate) .and. !between_date(diag->dbegin,diag->dend,ldate)
+        if !empty(ldate) .and. !between_date(diag->dbegin,diag->dend,ldate, , isGeneralDiagnoze)
           s := "Диагноз не входит в ОМС"
         endif
         if !empty(lpol) .and. !empty(diag->pol) .and. !(diag->pol == lpol)
