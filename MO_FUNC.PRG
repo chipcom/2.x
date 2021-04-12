@@ -1347,62 +1347,6 @@ if !fl
 endif
 return fl
 
-*
-
-// ***** 02.07.14 создать ZIP-архив из массива XML-файлов
-// Function chip_create_zipXML(zip_file,arr_f,is_delete_files,type_dir)
-// // zip_file - имя архива с расширением
-// // arr_f - массив файлов
-// // is_delete_files - удалять ли файлы после создания архива (по-умолчанию - нет)
-// Local hZip, i, cPassword, fl := .t., hGauge, s
-// DEFAULT is_delete_files TO .f., type_dir TO 1
-// delete file (zip_file)
-// if !empty(hZip := HB_ZIPOPEN(zip_file))
-//   for i := 1 To Len(arr_f)
-//     HB_ZipStoreFile( hZip, arr_f[i], arr_f[i])
-//   next
-//   HB_ZIPCLOSE( hZip )
-// else
-//   fl := func_error(4,"Возникла ошибка при создании "+zip_file)
-// endif
-// if fl .and. is_delete_files
-//   for i := 1 To Len(arr_f)
-//     delete file (arr_f[i])
-//   next
-// endif
-// if fl
-//   fl := chip_copy_zipXML(zip_file,dir_server+iif(type_dir==1,dir_XML_MO,dir_NAPR_MO),.t.)
-// endif
-// return fl
-
-*
-
-// ***** переписать ZIP-архив (с XML-файлами) в целевой каталог
-// Function chip_copy_zipXML(zip_file,goal_dir,is_delete_files)
-// // zip_file - имя архива с расширением (и м.б. с путём)
-// // goal_dir - имя каталога, куда надо переписать архив
-// // is_delete_files - удалять ли архив после переписывания (по-умолчанию - нет)
-// Local fl := .f., zip_file2
-// DEFAULT is_delete_files TO .f.
-// if !empty(goal_dir)
-//   dirmake(goal_dir)
-//   goal_dir += cslash
-//   zip_file2 := StripPath(zip_file) // если в имени присутствует путь - убрать
-//   delete file (goal_dir+zip_file2)
-//   copy file (zip_file) to (goal_dir+zip_file2)
-//   if hb_FileExists(goal_dir+zip_file2)
-//     fl := .t.
-//   else
-//     func_error(4,"Ошибка записи файла "+goal_dir+zip_file2)
-//   endif
-// endif
-// if fl .and. is_delete_files
-//   delete file (zip_file)
-// endif
-// return fl
-
-*
-
 ***** строка даты для XML-файла
 Function date2xml(mdate)
 return strzero(year(mdate),4)+'-'+;
