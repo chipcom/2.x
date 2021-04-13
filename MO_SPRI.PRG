@@ -2566,11 +2566,11 @@ close databases
 restscreen(buf)
 return NIL
 
-*****
+***** 13.04.2021
 Function f1_10diag(oBrow)
 Local oColumn, blk, n := 65
 if pregim == 1
-  blk := {|| iif(!between_date(diag->dbegin,diag->dend), {3,4}, iif(!empty(diag->pol), {5,6}, {1,2})) }
+  blk := {|| iif(!between_date(diag->dbegin,diag->dend,,,.t.), {3,4}, iif(!empty(diag->pol), {5,6}, {1,2})) }
   oColumn := TBColumnNew("Ш®да",{|| padr(if(ks==0,shifr+diag->pol,""),7) })
   oColumn:colorBlock := blk
   oBrow:addColumn(oColumn)
