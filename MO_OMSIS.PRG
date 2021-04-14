@@ -4060,7 +4060,7 @@ arr_pril5[26,1] := "Дн.стац. - руб."
 arr_pril5[27,1] := "Дн.стац.ЭКО - пациенто-дней"
 arr_pril5[28,1] := "Дн.стац.ЭКО - пациентов, чел."
 arr_pril5[29,1] := "Дн.стац.ЭКО - руб."
-arr_m := {2020,1,12,"за январь - декабрь 2020 года",0d20200101,0d20201231}
+arr_m := {2020,1,12,"за январь - март 2021 года",0d20210101,0d20210331}
 lal := "lusl" ; lalf := "luslf"
 Private mk1, mk2, mk3, mk4, md1, md11, md12, md2, md21, md22, md3, md4
 ar := GetIniSect(tmp_ini,group_ini)
@@ -4162,7 +4162,7 @@ R_Use(dir_server+"human",dir_server+"humans","HUMAN")
 set relation to recno() into HUMAN_, to recno() into HUMAN_2, to kod_k into KART
 //
 *********************************************************************
-mdate_rak := arr_m[6]+18 // по какую дату РАК сумма к оплате 18.01.21
+mdate_rak := arr_m[6]+10 // по какую дату РАК сумма к оплате 18.01.21
 *********************************************************************
 R_Use(dir_server+"mo_xml",,"MO_XML")
 R_Use(dir_server+"mo_rak",,"RAK")

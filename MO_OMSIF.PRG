@@ -3077,7 +3077,7 @@ elseif left(lshifr,2) == "1."  // остальные койко-дни
 endif
 return mkol
 
-***** 10.03.19
+***** 14.04.21
 Function f1_f14(jh,jh1,is_diag)
 Local arr := {}, arr_d := {}, i, j, k, n, lkd := 0, lum, _kd, arr_tip,;
       M1F14_EKST := 0, M1F14_SKOR := 0, M1F14_VSKR := 0, M1F14_RASH := 0,;
@@ -3092,8 +3092,8 @@ if mvozrast < 18
   arr_tip := {3}
 else
   arr_tip := {1}
-  if (human->pol == "Ж" .and. mvozrast >= 60) .or. ;
-     (human->pol == "М" .and. mvozrast >= 55)
+  if (human->pol == "Ж" .and. mvozrast >= 56) .or. ;
+     (human->pol == "М" .and. mvozrast >= 61)
     fl_pensioner := .t.
     aadd(arr_tip,2)
   endif
