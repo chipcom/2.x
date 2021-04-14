@@ -38,6 +38,65 @@ procedure main()
 
   return
 
+function createF131SH1000( workbook )
+  local sh1000
+    
+  sh1000 := lxw_workbook_add_worksheet(workbook, '1000, 1001' )
+  lxw_worksheet_set_tab_color(sh1000, 0xFFFFCC)
+
+  lxw_worksheet_merge_range(sh1000, 1, 1, 1, 13, 'Сведения о проведении профилактического медицинского осмотра (ПМО) и диспансеризации определенных групп взрослого населения (ДОГВН)', nil)
+  lxw_worksheet_write_string(sh1000, 2, 12, 'Код по ОКЕИ: человек - 792', nil)
+  lxw_worksheet_write_string(sh1000, 3, 1, '(1000)', nil)
+  lxw_worksheet_merge_range(sh1000, 4, 1, 7, 1, 'Возраст', nil)
+  lxw_worksheet_merge_range(sh1000, 4, 2, 7, 2, '№ строки', nil)
+  lxw_worksheet_merge_range(sh1000, 4, 3, 5, 6, 'Все взрослое население', nil)
+  lxw_worksheet_merge_range(sh1000, 4, 7, 4, 14, 'в том числе', nil)
+  lxw_worksheet_merge_range(sh1000, 5, 7, 5, 10, 'Мужчины', nil)
+  lxw_worksheet_merge_range(sh1000, 5, 11, 5, 14, 'Женщины', nil)
+  lxw_worksheet_merge_range(sh1000, 6, 3, 7, 3, 'Численность прикрепленного взрослого населения на 01.01 текущего года', nil)
+  lxw_worksheet_merge_range(sh1000, 6, 4, 7, 4, 'Из них по плану подлежат: ПМО и ДОГВН (чел.)', nil)
+
+  lxw_worksheet_merge_range(sh1000, 6, 5, 6, 6, 'Из них прошли:', nil)
+  lxw_worksheet_write_string(sh1000, 7, 5, 'ПМО (чел.)', nil)
+  lxw_worksheet_write_string(sh1000, 7, 6, 'ДОГВН (чел.)', nil)
+
+  lxw_worksheet_merge_range(sh1000, 6, 7, 7, 7, 'Численность прикрепленного взрослого населения на 01.01 текущего года', nil)
+  lxw_worksheet_merge_range(sh1000, 6, 8, 7, 8, 'Из них по плану подлежат: ПМО и ДОГВН (чел.)', nil)
+
+  lxw_worksheet_merge_range(sh1000, 6, 9, 6, 10, 'Из них прошли:', nil)
+  lxw_worksheet_write_string(sh1000, 7, 9, 'ПМО (чел.)', nil)
+  lxw_worksheet_write_string(sh1000, 7, 10, 'ДОГВН (чел.)', nil)
+
+  lxw_worksheet_merge_range(sh1000, 6, 11, 7, 11, 'Численность прикрепленного взрослого населения на 01.01 текущего года', nil)
+  lxw_worksheet_merge_range(sh1000, 6, 12, 7, 12, 'Из них по плану подлежат: ПМО и ДОГВН (чел.)', nil)
+
+  lxw_worksheet_merge_range(sh1000, 6, 13, 6, 14, 'Из них прошли:', nil)
+  lxw_worksheet_write_string(sh1000, 7, 13, 'ПМО (чел.)', nil)
+  lxw_worksheet_write_string(sh1000, 7, 14, 'ДОГВН (чел.)', nil)
+
+  for col := 1 to 14
+    lxw_worksheet_write_string(sh1000, 8, col, str(col), nil)
+  next
+  lxw_worksheet_write_string(sh1000, 9, 1, '18-34', nil)
+  lxw_worksheet_write_string(sh1000, 10, 1, '35-39', nil)
+  lxw_worksheet_write_string(sh1000, 11, 1, '40-54', nil)
+  lxw_worksheet_write_string(sh1000, 12, 1, '55-59', nil)
+  lxw_worksheet_write_string(sh1000, 13, 1, '60-64', nil)
+  lxw_worksheet_write_string(sh1000, 14, 1, '65-74', nil)
+  lxw_worksheet_write_string(sh1000, 15, 1, '75 и старше', nil)
+  lxw_worksheet_write_string(sh1000, 16, 1, 'Всего', nil)
+  for row := 1 to 8
+    lxw_worksheet_write_string(sh1000, row + 8, 2, str(row), nil)
+  next
+
+  lxw_worksheet_write_string(sh1000, 18, 1, '(1001)', nil)
+  lxw_worksheet_write_string(sh1000, 18, 5, 'Код по ОКЕИ: человек - 792', nil)
+
+  lxw_worksheet_merge_range(sh1000, 19, 1, 19, 7, 'Число лиц в трудоспособном возрасте прошло:', nil)
+  lxw_worksheet_merge_range(sh1000, 20, 1, 20, 5, 'диспансеризацию определенных групп взрослого населения всего 1', nil)
+  
+  return sh1000
+    
 function createF131SH5000( workbook )
   local sh5000
               
@@ -86,14 +145,6 @@ function createF131SH2000( workbook )
     
   return sh2000
     
-function createF131SH1000( workbook )
-  local sh1000
-  
-  sh1000 := lxw_workbook_add_worksheet(workbook, '1000, 1001' )
-  lxw_worksheet_set_tab_color(sh1000, 0xFFFFCC)
-  
-  return sh1000
-  
 function createF131SH4000( workbook )
   local sh4000
 
