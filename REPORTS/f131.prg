@@ -39,61 +39,201 @@ procedure main()
   return
 
 function createF131SH1000( workbook )
-  local sh1000
+  local sh1000, col, row, i
+  local fmt1
+
     
   sh1000 := lxw_workbook_add_worksheet(workbook, '1000, 1001' )
   lxw_worksheet_set_tab_color(sh1000, 0xFFFFCC)
 
-  lxw_worksheet_merge_range(sh1000, 1, 1, 1, 13, 'Сведения о проведении профилактического медицинского осмотра (ПМО) и диспансеризации определенных групп взрослого населения (ДОГВН)', nil)
+  lxw_worksheet_set_column(sh1000, 0, 0, 8.4)
+  lxw_worksheet_set_column(sh1000, 1, 1, 20.0)
+  lxw_worksheet_set_column(sh1000, 2, 2, 7.2)
+  lxw_worksheet_set_column(sh1000, 3, 12, 13.0)
+
+  lxw_worksheet_set_row(sh1000, 0, 16)
+  lxw_worksheet_set_row(sh1000, 1, 30)
+  lxw_worksheet_set_row(sh1000, 2, 16)
+  lxw_worksheet_set_row(sh1000, 3, 16)
+  lxw_worksheet_set_row(sh1000, 4, 25)
+  lxw_worksheet_set_row(sh1000, 5, 16)
+  lxw_worksheet_set_row(sh1000, 6, 25)
+  lxw_worksheet_set_row(sh1000, 7, 110)
+  lxw_worksheet_set_row(sh1000, 8, 16)
+
+  fmt := lxw_workbook_add_format(workbook)
+  lxw_format_set_align(fmt, LXW_ALIGN_CENTER)
+  lxw_format_set_align(fmt, LXW_ALIGN_VERTICAL_CENTER)
+  lxw_format_set_text_wrap(fmt)
+  lxw_format_set_font_name(fmt, 'Times New Roman')
+  lxw_format_set_font_size(fmt, 14)
+  lxw_format_set_border(fmt, LXW_BORDER_MEDIUM)
+
+  fmt1 := lxw_workbook_add_format(workbook)
+  lxw_format_set_align(fmt1, LXW_ALIGN_RIGHT)
+  lxw_format_set_font_name(fmt1, 'Times New Roman')
+  lxw_format_set_bold(fmt1)
+  lxw_format_set_font_size(fmt1, 12)
+
+  fmt3 := lxw_workbook_add_format(workbook)
+  lxw_format_set_align(fmt3, LXW_ALIGN_CENTER)
+  lxw_format_set_align(fmt3, LXW_ALIGN_VERTICAL_CENTER)
+  lxw_format_set_text_wrap(fmt3)
+  lxw_format_set_font_name(fmt3, 'Times New Roman')
+  lxw_format_set_font_size(fmt3, 12)
+  lxw_format_set_border(fmt3, LXW_BORDER_MEDIUM)
+
+  fmt4 := lxw_workbook_add_format(workbook)
+  lxw_format_set_align(fmt4, LXW_ALIGN_CENTER)
+  lxw_format_set_align(fmt4, LXW_ALIGN_VERTICAL_CENTER)
+  lxw_format_set_text_wrap(fmt4)
+  lxw_format_set_font_name(fmt4, 'Times New Roman')
+  lxw_format_set_font_size(fmt4, 12)
+  lxw_format_set_border(fmt4, LXW_BORDER_THIN)
+
+  fmt5 := lxw_workbook_add_format(workbook)
+  lxw_format_set_align(fmt5, LXW_ALIGN_CENTER)
+  lxw_format_set_align(fmt5, LXW_ALIGN_VERTICAL_CENTER)
+  lxw_format_set_bg_color(fmt5, LXW_COLOR_GRAY)
+  lxw_format_set_font_name(fmt5, 'Times New Roman')
+  lxw_format_set_font_size(fmt5, 12)
+  lxw_format_set_border(fmt5, LXW_BORDER_THIN)
+
+  fmt6 := lxw_workbook_add_format(workbook)
+  lxw_format_set_align(fmt6, LXW_ALIGN_RIGHT)
+  lxw_format_set_align(fmt6, LXW_ALIGN_VERTICAL_CENTER)
+  lxw_format_set_bg_color(fmt6, LXW_COLOR_GRAY)
+  lxw_format_set_font_name(fmt6, 'Times New Roman')
+  lxw_format_set_font_size(fmt6, 12)
+  lxw_format_set_border(fmt6, LXW_BORDER_MEDIUM)
+
+  fmt7 := lxw_workbook_add_format(workbook)
+  lxw_format_set_align(fmt7, LXW_ALIGN_RIGHT)
+  lxw_format_set_align(fmt7, LXW_ALIGN_VERTICAL_CENTER)
+  lxw_format_set_bg_color(fmt7, 0xFFFFCC)
+  lxw_format_set_font_name(fmt7, 'Times New Roman')
+  lxw_format_set_font_size(fmt7, 12)
+  lxw_format_set_border(fmt7, LXW_BORDER_MEDIUM)
+
+  fmt8 := lxw_workbook_add_format(workbook)
+  lxw_format_set_align(fmt8, LXW_ALIGN_RIGHT)
+  lxw_format_set_align(fmt8, LXW_ALIGN_VERTICAL_CENTER)
+  lxw_format_set_bg_color(fmt8, 0xFFFFCC)
+  lxw_format_set_font_name(fmt8, 'Times New Roman')
+  lxw_format_set_font_size(fmt8, 12)
+  lxw_format_set_border(fmt8, LXW_BORDER_THIN)
+
+  fmt9 := lxw_workbook_add_format(workbook)
+  lxw_format_set_align(fmt9, LXW_ALIGN_LEFT)
+  lxw_format_set_align(fmt9, LXW_ALIGN_VERTICAL_CENTER)
+  lxw_format_set_bold(fmt9)
+  lxw_format_set_font_name(fmt9, 'Calibri')
+  lxw_format_set_font_size(fmt9, 11)
+
+  fmt10 := lxw_workbook_add_format(workbook)
+  lxw_format_set_align(fmt10, LXW_ALIGN_LEFT)
+  lxw_format_set_align(fmt10, LXW_ALIGN_VERTICAL_CENTER)
+  lxw_format_set_font_name(fmt10, 'Calibri')
+  lxw_format_set_font_size(fmt10, 11)
+
+  lxw_worksheet_merge_range(sh1000, 1, 1, 1, 13, 'Сведения о проведении профилактического медицинского осмотра (ПМО) и диспансеризации определенных групп взрослого населения (ДОГВН)', fmt)
   lxw_worksheet_write_string(sh1000, 2, 12, 'Код по ОКЕИ: человек - 792', nil)
-  lxw_worksheet_write_string(sh1000, 3, 1, '(1000)', nil)
-  lxw_worksheet_merge_range(sh1000, 4, 1, 7, 1, 'Возраст', nil)
-  lxw_worksheet_merge_range(sh1000, 4, 2, 7, 2, '№ строки', nil)
-  lxw_worksheet_merge_range(sh1000, 4, 3, 5, 6, 'Все взрослое население', nil)
-  lxw_worksheet_merge_range(sh1000, 4, 7, 4, 14, 'в том числе', nil)
-  lxw_worksheet_merge_range(sh1000, 5, 7, 5, 10, 'Мужчины', nil)
-  lxw_worksheet_merge_range(sh1000, 5, 11, 5, 14, 'Женщины', nil)
-  lxw_worksheet_merge_range(sh1000, 6, 3, 7, 3, 'Численность прикрепленного взрослого населения на 01.01 текущего года', nil)
-  lxw_worksheet_merge_range(sh1000, 6, 4, 7, 4, 'Из них по плану подлежат: ПМО и ДОГВН (чел.)', nil)
+  lxw_worksheet_write_string(sh1000, 3, 1, '(1000)', fmt1)
+  lxw_worksheet_merge_range(sh1000, 4, 1, 7, 1, 'Возраст', fmt3)
+  lxw_worksheet_merge_range(sh1000, 4, 2, 7, 2, '№ строки', fmt3)
+  lxw_worksheet_merge_range(sh1000, 4, 3, 5, 6, 'Все взрослое население', fmt3)
+  lxw_worksheet_merge_range(sh1000, 4, 7, 4, 14, 'в том числе', fmt3)
+  lxw_worksheet_merge_range(sh1000, 5, 7, 5, 10, 'Мужчины', fmt3)
+  lxw_worksheet_merge_range(sh1000, 5, 11, 5, 14, 'Женщины', fmt3)
+  lxw_worksheet_merge_range(sh1000, 6, 3, 7, 3, 'Численность прикрепленного взрослого населения на 01.01 текущего года', fmt3)
+  lxw_worksheet_merge_range(sh1000, 6, 4, 7, 4, 'Из них по плану подлежат: ПМО и ДОГВН (чел.)', fmt3)
 
-  lxw_worksheet_merge_range(sh1000, 6, 5, 6, 6, 'Из них прошли:', nil)
-  lxw_worksheet_write_string(sh1000, 7, 5, 'ПМО (чел.)', nil)
-  lxw_worksheet_write_string(sh1000, 7, 6, 'ДОГВН (чел.)', nil)
+  lxw_worksheet_merge_range(sh1000, 6, 5, 6, 6, 'Из них прошли:', fmt3)
+  lxw_worksheet_write_string(sh1000, 7, 5, 'ПМО (чел.)', fmt3)
+  lxw_worksheet_write_string(sh1000, 7, 6, 'ДОГВН (чел.)', fmt3)
 
-  lxw_worksheet_merge_range(sh1000, 6, 7, 7, 7, 'Численность прикрепленного взрослого населения на 01.01 текущего года', nil)
-  lxw_worksheet_merge_range(sh1000, 6, 8, 7, 8, 'Из них по плану подлежат: ПМО и ДОГВН (чел.)', nil)
+  lxw_worksheet_merge_range(sh1000, 6, 7, 7, 7, 'Численность прикрепленного взрослого населения на 01.01 текущего года', fmt3)
+  lxw_worksheet_merge_range(sh1000, 6, 8, 7, 8, 'Из них по плану подлежат: ПМО и ДОГВН (чел.)', fmt3)
 
-  lxw_worksheet_merge_range(sh1000, 6, 9, 6, 10, 'Из них прошли:', nil)
-  lxw_worksheet_write_string(sh1000, 7, 9, 'ПМО (чел.)', nil)
-  lxw_worksheet_write_string(sh1000, 7, 10, 'ДОГВН (чел.)', nil)
+  lxw_worksheet_merge_range(sh1000, 6, 9, 6, 10, 'Из них прошли:', fmt3)
+  lxw_worksheet_write_string(sh1000, 7, 9, 'ПМО (чел.)', fmt3)
+  lxw_worksheet_write_string(sh1000, 7, 10, 'ДОГВН (чел.)', fmt3)
 
-  lxw_worksheet_merge_range(sh1000, 6, 11, 7, 11, 'Численность прикрепленного взрослого населения на 01.01 текущего года', nil)
-  lxw_worksheet_merge_range(sh1000, 6, 12, 7, 12, 'Из них по плану подлежат: ПМО и ДОГВН (чел.)', nil)
+  lxw_worksheet_merge_range(sh1000, 6, 11, 7, 11, 'Численность прикрепленного взрослого населения на 01.01 текущего года', fmt3)
+  lxw_worksheet_merge_range(sh1000, 6, 12, 7, 12, 'Из них по плану подлежат: ПМО и ДОГВН (чел.)', fmt3)
 
-  lxw_worksheet_merge_range(sh1000, 6, 13, 6, 14, 'Из них прошли:', nil)
-  lxw_worksheet_write_string(sh1000, 7, 13, 'ПМО (чел.)', nil)
-  lxw_worksheet_write_string(sh1000, 7, 14, 'ДОГВН (чел.)', nil)
+  lxw_worksheet_merge_range(sh1000, 6, 13, 6, 14, 'Из них прошли:', fmt3)
+  lxw_worksheet_write_string(sh1000, 7, 13, 'ПМО (чел.)', fmt3)
+  lxw_worksheet_write_string(sh1000, 7, 14, 'ДОГВН (чел.)', fmt3)
 
   for col := 1 to 14
-    lxw_worksheet_write_string(sh1000, 8, col, str(col), nil)
+    lxw_worksheet_write_string(sh1000, 8, col, alltrim(str(col)), fmt4)
   next
-  lxw_worksheet_write_string(sh1000, 9, 1, '18-34', nil)
-  lxw_worksheet_write_string(sh1000, 10, 1, '35-39', nil)
-  lxw_worksheet_write_string(sh1000, 11, 1, '40-54', nil)
-  lxw_worksheet_write_string(sh1000, 12, 1, '55-59', nil)
-  lxw_worksheet_write_string(sh1000, 13, 1, '60-64', nil)
-  lxw_worksheet_write_string(sh1000, 14, 1, '65-74', nil)
-  lxw_worksheet_write_string(sh1000, 15, 1, '75 и старше', nil)
-  lxw_worksheet_write_string(sh1000, 16, 1, 'Всего', nil)
-  for row := 1 to 8
-    lxw_worksheet_write_string(sh1000, row + 8, 2, str(row), nil)
+  lxw_worksheet_write_string(sh1000, 9, 1, '18-34', fmt4)
+  lxw_worksheet_write_string(sh1000, 10, 1, '35-39', fmt4)
+  lxw_worksheet_write_string(sh1000, 11, 1, '40-54', fmt4)
+  lxw_worksheet_write_string(sh1000, 12, 1, '55-59', fmt4)
+  lxw_worksheet_write_string(sh1000, 13, 1, '60-64', fmt4)
+  lxw_worksheet_write_string(sh1000, 14, 1, '65-74', fmt4)
+  lxw_worksheet_write_string(sh1000, 15, 1, '75 и старше', fmt4)
+  lxw_worksheet_write_string(sh1000, 16, 1, 'Всего', fmt5)
+  for row := 1 to 7
+    lxw_worksheet_write_string(sh1000, row + 8, 2, alltrim(str(row)), fmt4)
+  next
+  lxw_worksheet_write_string(sh1000, 16, 2, '8', fmt5)
+
+  // временно
+  for col := 7 to 14
+    for row := 9 to 15
+      lxw_worksheet_write_string(sh1000, row, col, '', fmt8)
+    next
   next
 
-  lxw_worksheet_write_string(sh1000, 18, 1, '(1001)', nil)
+  for i := 1 to 7
+    lxw_worksheet_set_row(sh1000, i+8, 18.5)
+    arg := 'H' + alltrim(str(i+9)) + '+L' + alltrim(str(i+9))
+    lxw_worksheet_write_formula(sh1000, i+8, 3, arg, fmt5)
+    arg := 'I' + alltrim(str(i+9)) + '+M' + alltrim(str(i+9))
+    lxw_worksheet_write_formula(sh1000, i+8, 4, arg, fmt5)
+    arg := 'J' + alltrim(str(i+9)) + '+N' + alltrim(str(i+9))
+    lxw_worksheet_write_formula(sh1000, i+8, 5, arg, fmt5)
+    arg := 'K' + alltrim(str(i+9)) + '+O' + alltrim(str(i+9))
+    lxw_worksheet_write_formula(sh1000, i+8, 6, arg, fmt5)
+  next
+  lxw_worksheet_set_row(sh1000, 16, 18.5)
+  lxw_worksheet_write_formula(sh1000, 16, 3, '=SUM(D10:D16)', fmt5)
+  lxw_worksheet_write_formula(sh1000, 16, 4, '=SUM(E10:E16)', fmt5)
+  lxw_worksheet_write_formula(sh1000, 16, 5, '=SUM(F10:F16)', fmt5)
+  lxw_worksheet_write_formula(sh1000, 16, 6, '=SUM(G10:G16)', fmt5)
+
+  lxw_worksheet_write_formula(sh1000, 16, 7, '=SUM(H10:H16)', fmt5)
+  lxw_worksheet_write_formula(sh1000, 16, 8, '=SUM(I10:I16)', fmt5)
+  lxw_worksheet_write_formula(sh1000, 16, 9, '=SUM(J10:J16)', fmt5)
+  lxw_worksheet_write_formula(sh1000, 16, 10, '=SUM(K10:K16)', fmt5)
+  lxw_worksheet_write_formula(sh1000, 16, 11, '=SUM(L10:L16)', fmt5)
+  lxw_worksheet_write_formula(sh1000, 16, 12, '=SUM(M10:M16)', fmt5)
+  lxw_worksheet_write_formula(sh1000, 16, 13, '=SUM(N10:N16)', fmt5)
+  lxw_worksheet_write_formula(sh1000, 16, 14, '=SUM(O10:O16)', fmt5)
+
+  lxw_worksheet_write_string(sh1000, 18, 1, '(1001)', fmt1)
   lxw_worksheet_write_string(sh1000, 18, 5, 'Код по ОКЕИ: человек - 792', nil)
 
-  lxw_worksheet_merge_range(sh1000, 19, 1, 19, 7, 'Число лиц в трудоспособном возрасте прошло:', nil)
-  lxw_worksheet_merge_range(sh1000, 20, 1, 20, 5, 'диспансеризацию определенных групп взрослого населения всего 1', nil)
+  lxw_worksheet_merge_range(sh1000, 19, 1, 19, 7, 'Число лиц в трудоспособном возрасте прошло:', fmt9)
+  lxw_worksheet_merge_range(sh1000, 20, 1, 20, 5, 'диспансеризацию определенных групп взрослого населения всего        1', fmt9)
+  lxw_worksheet_write_formula(sh1000, 20, 6, '=SUM(D22:D23)', fmt6)
+
+  lxw_worksheet_merge_range(sh1000, 21, 1, 21, 2, 'в том числе: женщин              2', fmt10)
+  lxw_worksheet_write_string(sh1000, 21, 3, '',fmt7)
+  lxw_worksheet_merge_range(sh1000, 22, 1, 22, 2, '  мужчин                         3', fmt10)
+  lxw_worksheet_write_string(sh1000, 22, 3, '',fmt7)
+
+  lxw_worksheet_merge_range(sh1000, 24, 1, 24, 5, 'профилактический медицинский осмотр всего                                             4 ', fmt9)
+  lxw_worksheet_write_formula(sh1000, 24, 6, '=SUM(D26:D27)', fmt6)
+
+  lxw_worksheet_merge_range(sh1000, 25, 1, 25, 2, 'в том числе: женщин              5', fmt10)
+  lxw_worksheet_write_string(sh1000, 25, 3, '',fmt7)
+  lxw_worksheet_merge_range(sh1000, 26, 1, 26, 2, '  мужчин                         6', fmt10)
+  lxw_worksheet_write_string(sh1000, 26, 3, '',fmt7)
   
   return sh1000
     
@@ -286,6 +426,15 @@ function createF131Titul( workbook )
   // lxw_format_set_text_wrap(shTitulSign3)
   // lxw_format_set_border(shTitulFmt4, LXW_BORDER_THIN)
 
+  url_format   = lxw_workbook_add_format(workbook)
+  lxw_format_set_align(url_format, LXW_ALIGN_CENTER)
+  lxw_format_set_align(url_format, LXW_ALIGN_VERTICAL_CENTER)
+  lxw_format_set_font_size(url_format, 12)
+  lxw_format_set_underline (url_format, LXW_UNDERLINE_SINGLE)
+  lxw_format_set_font_color(url_format, LXW_COLOR_BLUE)
+  lxw_format_set_text_wrap(url_format)
+  lxw_format_set_border(url_format, LXW_BORDER_THIN)
+
   lxw_worksheet_set_column(shTitul, 0, 0, 8.2)
   lxw_worksheet_set_column(shTitul, 1, 1, 95.0)
   lxw_worksheet_set_column(shTitul, 2, 2, 18.0)
@@ -332,9 +481,13 @@ function createF131Titul( workbook )
 
   lxw_worksheet_set_row(shTitul, 23, 60.0)
   lxw_worksheet_write_string(shTitul,23, 1, 'Код медицинской организации по ОКПО', shTitulFmt4)
-  lxw_worksheet_write_string(shTitul,23, 2, 'Код вида деятельности по ОКВЭД', shTitulFmt1)
+
+  lxw_worksheet_write_url(shTitul, 23, 2, 'http://ivo.garant.ru/#/document/70650726/paragraph/11371:0', url_format)
+  lxw_worksheet_write_string(shTitul,23, 2, 'Код вида деятельности по ОКВЭД', url_format)
   lxw_worksheet_write_string(shTitul,23, 3, 'Код отрасли по ОКОНХ', shTitulFmt1)
-  lxw_worksheet_write_string(shTitul,23, 4, 'Код территории по ОКАТО', shTitulFmt1)
+  lxw_worksheet_write_url(shTitul, 23, 4, 'http://ivo.garant.ru/#/document/179064/entry/0', url_format)
+  lxw_worksheet_write_string(shTitul,23, 4, 'Код территории по ОКАТО', url_format)
+  
   lxw_worksheet_merge_range(shTitul, 23, 5, 23, 6, 'Код органа исполнительной власти субъекта Российской федерации в сфере охраны здоровья по ОКУД', shTitulFmt1)
   lxw_worksheet_write_string(shTitul,24, 1, '1', shTitulFmt1)
   lxw_worksheet_write_string(shTitul,24, 2, '2', shTitulFmt1)
