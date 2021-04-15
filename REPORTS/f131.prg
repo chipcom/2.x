@@ -1,5 +1,7 @@
 #include 'hblibxlsxwriter.ch'
 
+static strOKEI := 'Код по ОКЕИ: человек - 792'
+
 procedure main()
   local workbook
   local shTitul, sh1000, sh2000, sh3000, sh3001, sh4000, sh5000DVN, sh5000PO
@@ -37,6 +39,101 @@ procedure main()
   endif
 
   return
+
+function createF131SH2000( workbook )
+  local sh2000, col, row
+  local fmt, fmt1, fmt2
+      
+  sh2000 := lxw_workbook_add_worksheet(workbook, '2000' )
+  lxw_worksheet_set_tab_color(sh2000, LXW_COLOR_LIME)
+
+  lxw_worksheet_set_column(sh2000, 0, 0, 20.0)
+  lxw_worksheet_set_column(sh2000, 1, 1, 90.0)
+  lxw_worksheet_set_column(sh2000, 2, 2, 10.2)
+  lxw_worksheet_set_column(sh2000, 3, 6, 13.0)
+
+  lxw_worksheet_set_row(sh2000, 0, 16)
+  // lxw_worksheet_set_row(sh2000, 1, 30)
+  // lxw_worksheet_set_row(sh2000, 2, 16)
+  lxw_worksheet_set_row(sh2000, 1, 50)
+  lxw_worksheet_set_row(sh2000, 3, 80)
+  lxw_worksheet_set_row(sh2000, 6, 30)
+  lxw_worksheet_set_row(sh2000, 15, 32)
+  lxw_worksheet_set_row(sh2000, 16, 40)
+  lxw_worksheet_set_row(sh2000, 23, 50)
+  lxw_worksheet_set_row(sh2000, 24, 40)
+  lxw_worksheet_set_row(sh2000, 25, 40)
+  lxw_worksheet_set_row(sh2000, 26, 40)
+
+  fmt := lxw_workbook_add_format(workbook)
+  lxw_format_set_align(fmt, LXW_ALIGN_CENTER)
+  lxw_format_set_align(fmt, LXW_ALIGN_VERTICAL_CENTER)
+  lxw_format_set_text_wrap(fmt)
+  lxw_format_set_font_name(fmt, 'Times New Roman')
+  lxw_format_set_font_size(fmt, 14)
+  // lxw_format_set_border(fmt, LXW_BORDER_MEDIUM)
+
+  fmt1 := lxw_workbook_add_format(workbook)
+  lxw_format_set_align(fmt1, LXW_ALIGN_LEFT)
+  lxw_format_set_align(fmt1, LXW_ALIGN_VERTICAL_CENTER)
+  lxw_format_set_text_wrap(fmt1)
+  lxw_format_set_font_name(fmt1, 'Times New Roman')
+  lxw_format_set_font_size(fmt1, 12)
+  lxw_format_set_border(fmt1, LXW_BORDER_THIN)
+
+  fmt2 := lxw_workbook_add_format(workbook)
+  lxw_format_set_align(fmt2, LXW_ALIGN_CENTER)
+  lxw_format_set_align(fmt2, LXW_ALIGN_VERTICAL_CENTER)
+  lxw_format_set_text_wrap(fmt2)
+  lxw_format_set_font_name(fmt2, 'Times New Roman')
+  lxw_format_set_font_size(fmt2, 12)
+  lxw_format_set_border(fmt2, LXW_BORDER_THIN)
+
+  lxw_worksheet_merge_range(sh2000, 1, 1, 1, 6, 'Сведения о приёмах (осмотрах), консультациях, исследованиях и иных медицинских вмешательствах, входящих в объем профилактического медицинского осмотра и первого этапа диспансеризации', fmt)
+  lxw_worksheet_write_string(sh2000, 2, 0, '(2000)', nil)
+  lxw_worksheet_write_string(sh2000, 2, 5, strOKEI, nil)
+  lxw_worksheet_write_string(sh2000, 3, 1, 'Приём (осмотр), консультация, исследование и иное медицинское вмешательство (далее - медицинское мероприятие), входящее в объем профилактического медицинского осмотра/первого этапа диспансеризации', fmt1)
+  lxw_worksheet_write_string(sh2000, 3, 2, 'N  строки', fmt2)
+  lxw_worksheet_write_string(sh2000, 3, 3, 'Проведено медицинских мероприятий', fmt2)
+  lxw_worksheet_write_string(sh2000, 3, 4, 'Учтено из числа выполненных ранее (в предшествующие 12 мес.)', fmt2)
+  lxw_worksheet_write_string(sh2000, 3, 5, 'Число отказов', fmt2)
+  lxw_worksheet_write_string(sh2000, 3, 6, 'Выявлены патологические состояния', fmt2)
+  lxw_worksheet_merge_range(sh2000, 5, 0, 26, 0, '', fmt2)
+
+  for col := 1 to 6
+    lxw_worksheet_write_string(sh2000, 4, col, alltrim(str(col)), fmt2)
+  next
+  lxw_worksheet_write_string(sh2000, 5, 1, 'Опрос (анкетирование)', fmt1)
+  lxw_worksheet_write_string(sh2000, 6, 1, 'Расчет на основании антропометрии (измерение роста, массы тела, окружности талии) индекса массы тела', fmt1)
+  lxw_worksheet_write_string(sh2000, 7, 1, 'Измерение артериального давления на периферических артериях', fmt1)
+  lxw_worksheet_write_string(sh2000, 8, 1, 'Определение уровня общего холестерина в крови', fmt1)
+  lxw_worksheet_write_string(sh2000, 9, 1, 'Определение уровня глюкозы в крови натощак', fmt1)
+  lxw_worksheet_write_string(sh2000, 10, 1, 'Определение относительного сердечно-сосудистого риска', fmt1)
+  lxw_worksheet_write_string(sh2000, 11, 1, 'Определение абсолютного сердечно-сосудистого риска', fmt1)
+  lxw_worksheet_write_string(sh2000, 12, 1, 'Флюорография легких или рентгенография легких', fmt1)
+  lxw_worksheet_write_string(sh2000, 13, 1, 'Электрокардиография в покое', fmt1)
+  lxw_worksheet_write_string(sh2000, 14, 1, 'Измерение внутриглазного давления', fmt1)
+  lxw_worksheet_write_string(sh2000, 15, 1, 'Осмотр фельдшером (акушеркой) или врачом акушером-гинекологом', fmt1)
+  lxw_worksheet_write_string(sh2000, 16, 1, 'Взятие с использованием щетки цитологической цервикальной мазка (соскоба) с поверхности шейки матки (наружного маточного зева) и цервикального канала на цитологическое исследование, цитологическое исследование мазка с шейки матки', fmt1)
+  lxw_worksheet_write_string(sh2000, 17, 1, 'Маммография обеих молочных желез в двух проекциях', fmt1)
+  lxw_worksheet_write_string(sh2000, 18, 1, 'Исследование кала на скрытую кровь иммунохимическим методом', fmt1)
+  lxw_worksheet_write_string(sh2000, 19, 1, 'Определение простат-специфического антигена в крови', fmt1)
+  lxw_worksheet_write_string(sh2000, 20, 1, 'Эзофагогастродуоденоскопия', fmt1)
+  lxw_worksheet_write_string(sh2000, 21, 1, 'Общий анализ крови', fmt1)
+  lxw_worksheet_write_string(sh2000, 22, 1, 'Краткое индивидуальное профилактическое консультирование', fmt1)
+  lxw_worksheet_write_string(sh2000, 23, 1, 'Прием (осмотр) по результатам профилактического медицинского осмотра фельдшером фельдшерского здравпункта или фельдшерско-акушерского пункта, врачом-терапевтом или врачом по медицинской профилактике отделения (кабинета) медицинской профилактики или центра здоровья граждан в возрасте 18 лет и старше, 1 раз в год', fmt1)
+  lxw_worksheet_write_string(sh2000, 24, 1, 'Прием (осмотр) врачом-терапевтом по результатам первого этапа диспансеризации:                                                                                                                                           а) граждан в возрасте от 18 лет до 39 лет 1 раз в 3 года', fmt1)
+  lxw_worksheet_write_string(sh2000, 25, 1, 'б) граждан в возрасте 40 лет и старше 1 раз в год', fmt1)
+  lxw_worksheet_write_string(sh2000, 26, 1, 'Осмотр на выявление визуальных и иных локализаций онкологических заболеваний, включающий осмотр кожных покровов, слизистых губ и ротовой полости, пальпацию щитовидной железы, лимфатических узлов', fmt1)
+  for row := 5 to 23
+    lxw_worksheet_write_string(sh2000, row, 2, alltrim(str(row-4)), fmt2)
+  next
+  lxw_worksheet_write_string(sh2000, 24, 2, '19.1', fmt2)
+  lxw_worksheet_write_string(sh2000, 25, 2, '19.2', fmt2)
+  lxw_worksheet_write_string(sh2000, 26, 2, '20', fmt2)
+  // lxw_worksheet_write_string(sh2000, 27, 2, '', nil)
+
+  return sh2000
 
 function createF131SH1000( workbook )
   local sh1000, col, row, i
@@ -137,7 +234,7 @@ function createF131SH1000( workbook )
   lxw_format_set_font_size(fmt10, 11)
 
   lxw_worksheet_merge_range(sh1000, 1, 1, 1, 13, 'Сведения о проведении профилактического медицинского осмотра (ПМО) и диспансеризации определенных групп взрослого населения (ДОГВН)', fmt)
-  lxw_worksheet_write_string(sh1000, 2, 12, 'Код по ОКЕИ: человек - 792', nil)
+  lxw_worksheet_write_string(sh1000, 2, 12, strOKEI, nil)
   lxw_worksheet_write_string(sh1000, 3, 1, '(1000)', fmt1)
   lxw_worksheet_merge_range(sh1000, 4, 1, 7, 1, 'Возраст', fmt3)
   lxw_worksheet_merge_range(sh1000, 4, 2, 7, 2, '№ строки', fmt3)
@@ -277,14 +374,6 @@ function createF131SH3000( workbook )
       
   return sh3000
   
-function createF131SH2000( workbook )
-  local sh2000
-    
-  sh2000 := lxw_workbook_add_worksheet(workbook, '2000' )
-  lxw_worksheet_set_tab_color(sh2000, LXW_COLOR_LIME)
-    
-  return sh2000
-    
 function createF131SH4000( workbook )
   local sh4000
 
@@ -296,7 +385,6 @@ function createF131SH4000( workbook )
 
 function createF131SH3001( workbook )
   local sh3001, fmt1, fmt2, fmt3, fmt4
-  local strOKEI := 'Код по ОКЕИ: человек - 792'
             
   sh3001 := lxw_workbook_add_worksheet(workbook, '3001, 3002, 3003' )
   lxw_worksheet_set_tab_color(sh3001, 0xFFFFCC)
