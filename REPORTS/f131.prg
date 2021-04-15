@@ -1,6 +1,7 @@
 #include 'hblibxlsxwriter.ch'
 
 static strOKEI := 'Код по ОКЕИ: человек - 792'
+static strOKEIed := 'Код по ОКЕИ: единица - 642'
 
 procedure main()
   local workbook
@@ -40,12 +41,20 @@ procedure main()
 
   return
 
+function createF131SH3000( workbook )
+  local sh3000
+        
+  sh3000 := lxw_workbook_add_worksheet(workbook, '2001, 3000' )
+  lxw_worksheet_set_tab_color(sh3000, 0xfcdeb6)
+        
+  return sh3000
+    
 function createF131SH2000( workbook )
   local sh2000, col, row
-  local fmt, fmt1, fmt2
+  local fmt, fmt1, fmt2, fmt3
       
   sh2000 := lxw_workbook_add_worksheet(workbook, '2000' )
-  lxw_worksheet_set_tab_color(sh2000, LXW_COLOR_LIME)
+  lxw_worksheet_set_tab_color(sh2000, 0xB0E88B)
 
   lxw_worksheet_set_column(sh2000, 0, 0, 20.0)
   lxw_worksheet_set_column(sh2000, 1, 1, 90.0)
@@ -53,17 +62,15 @@ function createF131SH2000( workbook )
   lxw_worksheet_set_column(sh2000, 3, 6, 13.0)
 
   lxw_worksheet_set_row(sh2000, 0, 16)
-  // lxw_worksheet_set_row(sh2000, 1, 30)
-  // lxw_worksheet_set_row(sh2000, 2, 16)
   lxw_worksheet_set_row(sh2000, 1, 50)
-  lxw_worksheet_set_row(sh2000, 3, 80)
+  lxw_worksheet_set_row(sh2000, 3, 90)
   lxw_worksheet_set_row(sh2000, 6, 30)
   lxw_worksheet_set_row(sh2000, 15, 32)
-  lxw_worksheet_set_row(sh2000, 16, 40)
-  lxw_worksheet_set_row(sh2000, 23, 50)
+  lxw_worksheet_set_row(sh2000, 16, 60)
+  lxw_worksheet_set_row(sh2000, 23, 75)
   lxw_worksheet_set_row(sh2000, 24, 40)
   lxw_worksheet_set_row(sh2000, 25, 40)
-  lxw_worksheet_set_row(sh2000, 26, 40)
+  lxw_worksheet_set_row(sh2000, 26, 60)
 
   fmt := lxw_workbook_add_format(workbook)
   lxw_format_set_align(fmt, LXW_ALIGN_CENTER)
@@ -71,7 +78,6 @@ function createF131SH2000( workbook )
   lxw_format_set_text_wrap(fmt)
   lxw_format_set_font_name(fmt, 'Times New Roman')
   lxw_format_set_font_size(fmt, 14)
-  // lxw_format_set_border(fmt, LXW_BORDER_MEDIUM)
 
   fmt1 := lxw_workbook_add_format(workbook)
   lxw_format_set_align(fmt1, LXW_ALIGN_LEFT)
@@ -89,9 +95,29 @@ function createF131SH2000( workbook )
   lxw_format_set_font_size(fmt2, 12)
   lxw_format_set_border(fmt2, LXW_BORDER_THIN)
 
+  fmt3 := lxw_workbook_add_format(workbook)
+  lxw_format_set_align(fmt3, LXW_ALIGN_RIGHT)
+  lxw_format_set_align(fmt3, LXW_ALIGN_VERTICAL_CENTER)
+  lxw_format_set_bg_color(fmt3, 0xFFFFCC)
+  lxw_format_set_font_name(fmt3, 'Times New Roman')
+  lxw_format_set_font_size(fmt3, 12)
+  lxw_format_set_border(fmt3, LXW_BORDER_THIN)
+
+  fmt4 := lxw_workbook_add_format(workbook)
+  lxw_format_set_align(fmt4, LXW_ALIGN_RIGHT)
+  lxw_format_set_align(fmt4, LXW_ALIGN_VERTICAL_CENTER)
+  lxw_format_set_font_name(fmt4, 'Times New Roman')
+  lxw_format_set_font_size(fmt4, 13)
+
+  fmt5 := lxw_workbook_add_format(workbook)
+  lxw_format_set_align(fmt5, LXW_ALIGN_LEFT)
+  lxw_format_set_align(fmt5, LXW_ALIGN_VERTICAL_CENTER)
+  lxw_format_set_font_name(fmt5, 'Times New Roman')
+  lxw_format_set_font_size(fmt5, 13)
+
   lxw_worksheet_merge_range(sh2000, 1, 1, 1, 6, 'Сведения о приёмах (осмотрах), консультациях, исследованиях и иных медицинских вмешательствах, входящих в объем профилактического медицинского осмотра и первого этапа диспансеризации', fmt)
-  lxw_worksheet_write_string(sh2000, 2, 0, '(2000)', nil)
-  lxw_worksheet_write_string(sh2000, 2, 5, strOKEI, nil)
+  lxw_worksheet_write_string(sh2000, 2, 0, '(2000)', fmt4)
+  lxw_worksheet_write_string(sh2000, 2, 5, strOKEIed, fmt5)
   lxw_worksheet_write_string(sh2000, 3, 1, 'Приём (осмотр), консультация, исследование и иное медицинское вмешательство (далее - медицинское мероприятие), входящее в объем профилактического медицинского осмотра/первого этапа диспансеризации', fmt1)
   lxw_worksheet_write_string(sh2000, 3, 2, 'N  строки', fmt2)
   lxw_worksheet_write_string(sh2000, 3, 3, 'Проведено медицинских мероприятий', fmt2)
@@ -131,7 +157,18 @@ function createF131SH2000( workbook )
   lxw_worksheet_write_string(sh2000, 24, 2, '19.1', fmt2)
   lxw_worksheet_write_string(sh2000, 25, 2, '19.2', fmt2)
   lxw_worksheet_write_string(sh2000, 26, 2, '20', fmt2)
-  // lxw_worksheet_write_string(sh2000, 27, 2, '', nil)
+
+  for row := 5 to 26
+    for col := 3 to 6
+      lxw_worksheet_write_string(sh2000, row, col, '', fmt3)
+    next
+  next
+
+  lxw_worksheet_write_string(sh2000, 5, 4, 'X', fmt2)
+  lxw_worksheet_write_string(sh2000, 23, 4, 'X', fmt2)
+  lxw_worksheet_write_string(sh2000, 24, 4, 'X', fmt2)
+  lxw_worksheet_write_string(sh2000, 25, 4, 'X', fmt2)
+  lxw_worksheet_write_string(sh2000, 26, 4, 'X', fmt2)
 
   return sh2000
 
@@ -365,14 +402,6 @@ function createF131SH5000DVN( workbook )
   lxw_worksheet_set_tab_color(sh5000DVN, LXW_COLOR_PINK)
           
   return sh5000DVN
-  
-function createF131SH3000( workbook )
-  local sh3000
-      
-  sh3000 := lxw_workbook_add_worksheet(workbook, '2001, 3000' )
-  lxw_worksheet_set_tab_color(sh3000, LXW_COLOR_YELLOW)
-      
-  return sh3000
   
 function createF131SH4000( workbook )
   local sh4000
