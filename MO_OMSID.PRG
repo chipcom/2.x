@@ -8596,7 +8596,7 @@ Private c_view := 0, c_found := 0, fl_exit := .f., pj, arr_rees := {},;
 mywait()
 fl := .t.
 fl_1 := .f.
-SMONTH := lm := 3 //Œ…‘Ÿ–
+SMONTH := lm := 5 //Œ…‘Ÿ–
 dbcreate(cur_dir+"tmp_00",{;
    {"reestr",     "N", 6,0},;
    {"kod",        "N", 7,0},; // ª®¤ ¯® ª àâ®â¥ª¥
