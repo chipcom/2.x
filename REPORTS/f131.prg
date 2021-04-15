@@ -42,16 +42,76 @@ procedure main()
   return
 
 function createF131SH3000( workbook )
-  local sh3000
+  local sh3000, row, col
+  local fmt, fmt1
         
   sh3000 := lxw_workbook_add_worksheet(workbook, '2001, 3000' )
   lxw_worksheet_set_tab_color(sh3000, 0xfcdeb6)
-        
+
+  lxw_worksheet_set_column(sh3000, 0, 0, 10.0)
+  lxw_worksheet_set_column(sh3000, 1, 1, 60.0)
+  lxw_worksheet_set_column(sh3000, 2, 2, 8)
+  lxw_worksheet_set_column(sh3000, 3, 8, 20.0)
+
+  fmt := lxw_workbook_add_format(workbook)
+  lxw_format_set_align(fmt, LXW_ALIGN_CENTER)
+  lxw_format_set_align(fmt, LXW_ALIGN_VERTICAL_CENTER)
+  lxw_format_set_text_wrap(fmt)
+  lxw_format_set_font_name(fmt, 'Times New Roman')
+  lxw_format_set_font_size(fmt, 12)
+  lxw_format_set_border(fmt, LXW_BORDER_THIN)
+
+  fmt1 := lxw_workbook_add_format(workbook)
+  lxw_format_set_align(fmt1, LXW_ALIGN_RIGHT)
+  lxw_format_set_align(fmt1, LXW_ALIGN_VERTICAL_CENTER)
+  lxw_format_set_bg_color(fmt1, 0xFFFFCC)
+  lxw_format_set_font_name(fmt1, 'Times New Roman')
+  lxw_format_set_font_size(fmt1, 12)
+  lxw_format_set_border(fmt1, LXW_BORDER_THIN)
+
+  lxw_worksheet_write_string(sh3000, 1, 1, '(2001)', nil)
+  lxw_worksheet_merge_range(sh3000, 3, 1, 3, 3, 'Число лиц, которые по результатам первого этапа диспансеризации направлены на второй этап', nil)
+  lxw_worksheet_write_string(sh3000, 3, 4, '', fmt1)
+
+  lxw_worksheet_write_string(sh3000, 6, 1, '(3000)', nil)
+  lxw_worksheet_write_string(sh3000, 6, 5, strOKEIed, nil)
+  lxw_worksheet_merge_range(sh3000, 7, 1, 8, 1, 'Медицинское вмешательство, входящее в объем второго этапа диспансеризации', fmt)
+  lxw_worksheet_merge_range(sh3000, 7, 2, 8, 2, '№ строки', fmt)
+  lxw_worksheet_merge_range(sh3000, 7, 3, 8, 3, 'Число лиц с выявленными медицинскими показаниями в рамках первого этапа диспансеризации', fmt)
+  lxw_worksheet_merge_range(sh3000, 7, 4, 7, 5, 'Число выполненных медицинских мероприятий', fmt)
+  lxw_worksheet_write_string(sh3000, 8, 4, 'в рамках диспансеризации', fmt)
+  lxw_worksheet_write_string(sh3000, 8, 5, 'проведено ранее ( в предшествующие 12 мес.)', fmt)
+  lxw_worksheet_merge_range(sh3000, 7, 6, 8, 6, 'Число отказов', fmt)
+  lxw_worksheet_merge_range(sh3000, 7, 7, 8, 7, 'Впервые выявлено заболевание или патологическое состояние', fmt)
+  for col := 1 to 7
+    lxw_worksheet_write_string(sh3000, 9, col, alltrim(str(col)), fmt)
+  next
+  for row := 10 to 22
+    lxw_worksheet_write_string(sh3000, row, 2, alltrim(str(row-9)), fmt)
+  next
+  lxw_worksheet_write_string(sh3000, 23, 2, '13.1', fmt)
+  lxw_worksheet_write_string(sh3000, 24, 2, '13.2', fmt)
+  lxw_worksheet_write_string(sh3000, 25, 2, '13.3', fmt)
+  lxw_worksheet_write_string(sh3000, 26, 2, '13.4', fmt)
+  lxw_worksheet_write_string(sh3000, 27, 2, '14', fmt)
+  lxw_worksheet_write_string(sh3000, 28, 2, '15', fmt)
+
+  // временно
+  for row := 10 to 28
+    for col := 3 to 7
+      lxw_worksheet_write_string(sh3000, row, col, '', fmt1)
+    next
+  next
+
+  for row := 22 to 26
+    lxw_worksheet_write_string(sh3000, row, 7, 'X', fmt)
+  next
+  
   return sh3000
     
 function createF131SH2000( workbook )
   local sh2000, col, row
-  local fmt, fmt1, fmt2, fmt3
+  local fmt, fmt1, fmt2, fmt3, fmt4, fmt5
       
   sh2000 := lxw_workbook_add_worksheet(workbook, '2000' )
   lxw_worksheet_set_tab_color(sh2000, 0xB0E88B)
