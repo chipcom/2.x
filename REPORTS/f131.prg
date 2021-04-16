@@ -42,8 +42,8 @@ procedure main()
   return
 
 function createF131SH3000( workbook )
-  local sh3000, row, col
-  local fmt, fmt1
+  local sh3000, row, col, i
+  local fmt, fmt1, fmt2, fmt3, fmt4
         
   sh3000 := lxw_workbook_add_worksheet(workbook, '2001, 3000' )
   lxw_worksheet_set_tab_color(sh3000, 0xfcdeb6)
@@ -69,11 +69,41 @@ function createF131SH3000( workbook )
   lxw_format_set_font_size(fmt1, 12)
   lxw_format_set_border(fmt1, LXW_BORDER_THIN)
 
-  lxw_worksheet_write_string(sh3000, 1, 1, '(2001)', nil)
-  lxw_worksheet_merge_range(sh3000, 3, 1, 3, 3, 'Число лиц, которые по результатам первого этапа диспансеризации направлены на второй этап', nil)
-  lxw_worksheet_write_string(sh3000, 3, 4, '', fmt1)
+  fmt2 := lxw_workbook_add_format(workbook)
+  lxw_format_set_align(fmt2, LXW_ALIGN_LEFT)
+  lxw_format_set_align(fmt2, LXW_ALIGN_VERTICAL_CENTER)
+  lxw_format_set_text_wrap(fmt2)
+  lxw_format_set_font_name(fmt2, 'Times New Roman')
+  lxw_format_set_font_size(fmt2, 12)
+  lxw_format_set_border(fmt2, LXW_BORDER_THIN)
 
-  lxw_worksheet_write_string(sh3000, 6, 1, '(3000)', nil)
+  fmt3 := lxw_workbook_add_format(workbook)
+  lxw_format_set_align(fmt3, LXW_ALIGN_RIGHT)
+  lxw_format_set_align(fmt3, LXW_ALIGN_VERTICAL_CENTER)
+  lxw_format_set_font_name(fmt3, 'Times New Roman')
+  lxw_format_set_bold(fmt3)
+  lxw_format_set_font_size(fmt3, 14)
+
+  fmt4 := lxw_workbook_add_format(workbook)
+  lxw_format_set_align(fmt4, LXW_ALIGN_LEFT)
+  lxw_format_set_align(fmt4, LXW_ALIGN_VERTICAL_CENTER)
+  lxw_format_set_font_name(fmt4, 'Times New Roman')
+  lxw_format_set_bold(fmt4)
+  lxw_format_set_font_size(fmt4, 14)
+
+  fmt5 := lxw_workbook_add_format(workbook)
+  lxw_format_set_align(fmt5, LXW_ALIGN_LEFT)
+  lxw_format_set_align(fmt5, LXW_ALIGN_VERTICAL_CENTER)
+  lxw_format_set_font_name(fmt5, 'Times New Roman')
+  lxw_format_set_font_size(fmt5, 11)
+
+  lxw_worksheet_write_string(sh3000, 1, 1, '(2001)', fmt3)
+  lxw_worksheet_merge_range(sh3000, 2, 1, 2, 3, 'Число лиц, которые по результатам первого этапа диспансеризации направлены на второй этап', fmt5)
+  lxw_worksheet_write_string(sh3000, 2, 4, '', fmt1)
+
+  lxw_worksheet_write_string(sh3000, 4, 1, 'Сведения о приёмах (осмотрах), медицинских исследованиях и иных медицинских вмешательствах второго этапа диспансеризации', fmt4)
+
+  lxw_worksheet_write_string(sh3000, 6, 1, '(3000)', fmt3)
   lxw_worksheet_write_string(sh3000, 6, 5, strOKEIed, nil)
   lxw_worksheet_merge_range(sh3000, 7, 1, 8, 1, 'Медицинское вмешательство, входящее в объем второго этапа диспансеризации', fmt)
   lxw_worksheet_merge_range(sh3000, 7, 2, 8, 2, '№ строки', fmt)
@@ -95,6 +125,40 @@ function createF131SH3000( workbook )
   lxw_worksheet_write_string(sh3000, 26, 2, '13.4', fmt)
   lxw_worksheet_write_string(sh3000, 27, 2, '14', fmt)
   lxw_worksheet_write_string(sh3000, 28, 2, '15', fmt)
+
+  for i := 1 to 6
+    lxw_worksheet_set_row(sh3000, i, 20)
+  next
+  lxw_worksheet_set_row(sh3000, 7, 50)
+  lxw_worksheet_set_row(sh3000, 8, 50)
+  for i := 10 to 28
+    if i >= 22 .or. i == 12 .or. i == 13
+      lxw_worksheet_set_row(sh3000, i, 70)
+    else
+      lxw_worksheet_set_row(sh3000, i, 20)
+    end
+  next
+  lxw_worksheet_set_row(sh3000, 26, 110) // исключение
+
+  lxw_worksheet_write_string(sh3000, 10, 1, 'Осмотр (консультация) врачом-неврологом', fmt2)
+  lxw_worksheet_write_string(sh3000, 11, 1, 'Дуплексное сканирование брахиоцефальных артерий', fmt2)
+  lxw_worksheet_write_string(sh3000, 12, 1, 'Осмотр (консультация) врачом-хирургом или врачом-урологом', fmt2)
+  lxw_worksheet_write_string(sh3000, 13, 1, 'Осмотр (консультация) врачом-хирургом или врачом-колопроктологом, включая проведение ректороманоскопии', fmt2)
+  lxw_worksheet_write_string(sh3000, 14, 1, 'Колоноскопия', fmt2)
+  lxw_worksheet_write_string(sh3000, 15, 1, 'Эзофагогастродуоденоскопия', fmt2)
+  lxw_worksheet_write_string(sh3000, 16, 1, 'Рентгенография легких', fmt2)
+  lxw_worksheet_write_string(sh3000, 17, 1, 'Компьютерная томография легких', fmt2)
+  lxw_worksheet_write_string(sh3000, 18, 1, 'Спирометрия', fmt2)
+  lxw_worksheet_write_string(sh3000, 19, 1, 'Осмотр (консультация) врачом акушером-гинекологом', fmt2)
+  lxw_worksheet_write_string(sh3000, 20, 1, 'Осмотр (консультация) врачом-оториноларингологом', fmt2)
+  lxw_worksheet_write_string(sh3000, 21, 1, 'Осмотр (консультация) врачом-офтальмологом', fmt2)
+  lxw_worksheet_write_string(sh3000, 22, 1, 'Индивидуальное или групповое (школа для пациентов) углубленное профилактическое консультирование для граждан:', fmt2)
+  lxw_worksheet_write_string(sh3000, 23, 1, 'с выявленными ишемической болезнью сердца, цереброваскулярными заболеваниями, хронической ишемией нижних конечностей атеросклеротического генеза или болезнями, характеризующимися повышенным кровяным давлением', fmt2)
+  lxw_worksheet_write_string(sh3000, 24, 1, 'с выявленным по результатам анкетирования риском пагубного потребления алкоголя и (или) потребления наркотических средств и психотропных веществ без назначения врача', fmt2)
+  lxw_worksheet_write_string(sh3000, 25, 1, 'в возрасте 65 лет и старше в целях коррекции выявленных факторов риска и (или) профилактики старческой астении', fmt2)
+  lxw_worksheet_write_string(sh3000, 26, 1, 'при выявлении высокого относительного, высокого и очень высокого абсолютного сердечно-сосудистого риска, и (или) ожирения, и (или) гиперхолестеринемии с уровнем общего холестерина 8 ммоль/л и более, а также установленном по результатам анкетирования курении более 20 сигарет в день, риске пагубного потребления алкоголя и (или) риске немедицинского потребления наркотических средств и психотропных веществ', fmt2)
+  lxw_worksheet_write_string(sh3000, 27, 1, 'Прием (осмотр) врачом-терапевтом по результатам второго этапа диспансеризации', fmt2)
+  lxw_worksheet_write_string(sh3000, 28, 1, 'Направление на осмотр (консультацию) врачом-онкологом при подозрении на онкологические заболевания', fmt2)
 
   // временно
   for row := 10 to 28
