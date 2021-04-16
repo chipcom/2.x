@@ -41,6 +41,166 @@ procedure main()
 
   return
 
+function createF131SH4000( workbook )
+  local sh4000, col, row , i
+  local fmt, fmt1, fmt2, fmt3, fmt4, fmt5
+  
+  sh4000 := lxw_workbook_add_worksheet(workbook, '4000, 4001' )
+  lxw_worksheet_set_tab_color(sh4000, LXW_COLOR_BLUE)
+
+  fmt := lxw_workbook_add_format(workbook)
+  lxw_format_set_align(fmt, LXW_ALIGN_CENTER)
+  lxw_format_set_align(fmt, LXW_ALIGN_VERTICAL_CENTER)
+  lxw_format_set_text_wrap(fmt)
+  lxw_format_set_font_name(fmt, 'Times New Roman')
+  lxw_format_set_bold(fmt)
+  lxw_format_set_font_size(fmt, 12)
+  // lxw_format_set_border(fmt, LXW_BORDER_THIN)
+
+  fmt1 := lxw_workbook_add_format(workbook)
+  lxw_format_set_align(fmt1, LXW_ALIGN_CENTER)
+  lxw_format_set_align(fmt1, LXW_ALIGN_VERTICAL_CENTER)
+  lxw_format_set_text_wrap(fmt1)
+  lxw_format_set_font_name(fmt1, 'Times New Roman')
+  lxw_format_set_font_size(fmt1, 12)
+  lxw_format_set_border(fmt1, LXW_BORDER_THIN)
+
+  fmt2 := lxw_workbook_add_format(workbook)
+  lxw_format_set_align(fmt2, LXW_ALIGN_LEFT)
+  lxw_format_set_align(fmt2, LXW_ALIGN_VERTICAL_CENTER)
+  lxw_format_set_text_wrap(fmt2)
+  lxw_format_set_font_name(fmt2, 'Times New Roman')
+  lxw_format_set_font_size(fmt2, 12)
+  lxw_format_set_border(fmt2, LXW_BORDER_THIN)
+
+  fmt3 := lxw_workbook_add_format(workbook)
+  lxw_format_set_align(fmt3, LXW_ALIGN_RIGHT)
+  lxw_format_set_align(fmt3, LXW_ALIGN_VERTICAL_CENTER)
+  lxw_format_set_font_name(fmt3, 'Times New Roman')
+  lxw_format_set_bold(fmt3)
+  lxw_format_set_font_size(fmt3, 14)
+
+  fmt4 := lxw_workbook_add_format(workbook)
+  lxw_format_set_align(fmt4, LXW_ALIGN_RIGHT)
+  lxw_format_set_align(fmt4, LXW_ALIGN_VERTICAL_CENTER)
+  lxw_format_set_bg_color(fmt4, 0xFFFFCC)
+  lxw_format_set_font_name(fmt4, 'Times New Roman')
+  lxw_format_set_font_size(fmt4, 12)
+  lxw_format_set_border(fmt4, LXW_BORDER_THIN)
+
+  fmt5 := lxw_workbook_add_format(workbook)
+  lxw_format_set_align(fmt5, LXW_ALIGN_CENTER)
+  lxw_format_set_align(fmt5, LXW_ALIGN_VERTICAL_CENTER)
+  lxw_format_set_bg_color(fmt5, LXW_COLOR_GRAY)
+  lxw_format_set_font_name(fmt5, 'Times New Roman')
+  lxw_format_set_font_size(fmt5, 12)
+  lxw_format_set_border(fmt5, LXW_BORDER_THIN)
+
+  lxw_worksheet_set_column(sh4000, 0, 0, 8.0)
+  lxw_worksheet_set_column(sh4000, 1, 1, 60.0)
+  lxw_worksheet_set_column(sh4000, 2, 2, 8)
+  lxw_worksheet_set_column(sh4000, 3, 3, 8.0)
+  lxw_worksheet_set_column(sh4000, 4, 12, 12.0)
+
+  lxw_worksheet_merge_range(sh4000, 3, 0, 23, 0, '', fmt1)
+  lxw_worksheet_merge_range(sh4000, 1, 1, 1, 12, 'Сведения о выявленных при проведении профилактического медицинского осмотра (диспансеризации) факторах риска и других патологических состояниях и заболеваниях, повышающих вероятность развития хронических неинфекционных заболеваний (далее - факторы риска)', fmt)
+  lxw_worksheet_write_string(sh4000, 2, 1, '(4000)', fmt3)
+  lxw_worksheet_write_string(sh4000, 2, 9, strOKEI, nil)
+
+  lxw_worksheet_merge_range(sh4000, 3, 1, 4, 1, 'Наименование факторов риска и других патологических состояний и заболеваний', fmt1)
+  lxw_worksheet_merge_range(sh4000, 3, 2, 4, 2, 'Код МКБ-10', fmt1)
+  lxw_worksheet_merge_range(sh4000, 3, 3, 4, 3, 'N строки', fmt1)
+  lxw_worksheet_merge_range(sh4000, 3, 4, 3, 6, 'Все взрослое население  в том числе:', fmt1)
+  lxw_worksheet_merge_range(sh4000, 3, 7, 3, 9, 'Мужчины в том числе:', fmt1)
+  lxw_worksheet_merge_range(sh4000, 3, 10, 3, 12, 'Женщины в том числе:', fmt1)
+  lxw_worksheet_write_string(sh4000, 4, 4, 'Всего', fmt1)
+  lxw_worksheet_write_string(sh4000, 4, 5, 'в трудоспособном возрасте', fmt1)
+  lxw_worksheet_write_string(sh4000, 4, 6, 'в возрасте старше трудоспособного', fmt1)
+  lxw_worksheet_write_string(sh4000, 4, 7, 'Всего', fmt1)
+  lxw_worksheet_write_string(sh4000, 4, 8, 'в трудоспособном возрасте', fmt1)
+  lxw_worksheet_write_string(sh4000, 4, 9, 'в возрасте старше трудоспособного', fmt1)
+  lxw_worksheet_write_string(sh4000, 4, 10, 'Всего', fmt1)
+  lxw_worksheet_write_string(sh4000, 4, 11, 'в трудоспособном возрасте', fmt1)
+  lxw_worksheet_write_string(sh4000, 4, 12, 'в возрасте старше трудоспособного', fmt1)
+
+  for col := 1 to 12
+    lxw_worksheet_write_string(sh4000, 5, col, alltrim(str(col)), fmt1)
+  next
+
+  lxw_worksheet_write_string(sh4000, 6, 1, 'Гиперхолестеринемия', fmt2)
+  lxw_worksheet_write_string(sh4000, 7, 1, 'Гипергликемия', fmt2)
+  lxw_worksheet_write_string(sh4000, 8, 1, 'Курение табака', fmt2)
+  lxw_worksheet_write_string(sh4000, 9, 1, 'Нерациональное питание', fmt2)
+  lxw_worksheet_write_string(sh4000, 10, 1, 'Избыточная масса тела', fmt2)
+  lxw_worksheet_write_string(sh4000, 11, 1, 'Ожирение', fmt2)
+  lxw_worksheet_write_string(sh4000, 12, 1, 'Низкая физическая активность', fmt2)
+  lxw_worksheet_write_string(sh4000, 13, 1, 'Риск пагубного потребления алкоголя', fmt2)
+  lxw_worksheet_write_string(sh4000, 14, 1, 'Риск потребления наркотических средств и психотропных веществ без назначения врача', fmt2)
+  lxw_worksheet_write_string(sh4000, 15, 1, 'Отягощенная наследственность по инфаркту  миокарда', fmt2)
+  lxw_worksheet_write_string(sh4000, 16, 1, 'Отягощенная наследственность по мозговому  инсульту', fmt2)
+  lxw_worksheet_write_string(sh4000, 17, 1, 'Отягощенная наследственность по ЗНО колоректальной области', fmt2)
+  lxw_worksheet_write_string(sh4000, 18, 1, 'Отягощенная наследственность по ЗНО по другим локализациям', fmt2)
+  lxw_worksheet_write_string(sh4000, 19, 1, 'Отягощенная наследственность по хроническим болезням нижних дыхательных путей', fmt2)
+  lxw_worksheet_write_string(sh4000, 20, 1, 'Отягощенная наследственность по сахарному диабету', fmt2)
+  lxw_worksheet_write_string(sh4000, 21, 1, 'Высокий (5% и более) или очень высокий (10% и более) абсолютный сердечно-сосудистый риск', fmt2)
+  lxw_worksheet_write_string(sh4000, 22, 1, 'Высокий (более 1 ед.) относительный сердечно-сосудистый риск', fmt2)
+  lxw_worksheet_write_string(sh4000, 23, 1, 'Старческая астения', fmt2)
+
+  lxw_worksheet_write_string(sh4000, 6, 2, 'Е78', fmt1)
+  lxw_worksheet_write_string(sh4000, 7, 2, 'R73.9', fmt1)
+  lxw_worksheet_write_string(sh4000, 8, 2, 'Z72.0', fmt1)
+  lxw_worksheet_write_string(sh4000, 9, 2, 'Z72.4', fmt1)
+  lxw_worksheet_write_string(sh4000, 10, 2, 'R63.5', fmt1)
+  lxw_worksheet_write_string(sh4000, 11, 2, 'Е66', fmt1)
+  lxw_worksheet_write_string(sh4000, 12, 2, 'Z72.3', fmt1)
+  lxw_worksheet_write_string(sh4000, 13, 2, 'Z72.1', fmt1)
+  lxw_worksheet_write_string(sh4000, 14, 2, 'Z72.2', fmt1)
+  lxw_worksheet_write_string(sh4000, 15, 2, 'Z82.4', fmt1)
+  lxw_worksheet_write_string(sh4000, 16, 2, 'Z82.3', fmt1)
+  lxw_worksheet_write_string(sh4000, 17, 2, 'Z80.0', fmt1)
+  lxw_worksheet_write_string(sh4000, 18, 2, 'Z80.9', fmt1)
+  lxw_worksheet_write_string(sh4000, 19, 2, 'Z82.5', fmt1)
+  lxw_worksheet_write_string(sh4000, 20, 2, 'Z83.3', fmt1)
+  lxw_worksheet_write_string(sh4000, 21, 2, '-', fmt1)
+  lxw_worksheet_write_string(sh4000, 22, 2, '-', fmt1)
+  lxw_worksheet_write_string(sh4000, 23, 2, 'R54', fmt1)
+
+  for row := 6 to 23
+    lxw_worksheet_write_string(sh4000, row, 3, alltrim(str(row)), fmt1)
+  next
+  
+  lxw_worksheet_set_row(sh4000, 1, 40)
+  lxw_worksheet_set_row(sh4000, 3, 40)
+  lxw_worksheet_set_row(sh4000, 4, 60)
+  for i := 6 to 23
+    if i == 14 .or. i == 17 .or. i == 18 .or. i == 19 .or. i == 21 .or. i == 22
+      lxw_worksheet_set_row(sh4000, i, 40)
+    else
+      lxw_worksheet_set_row(sh4000, i, 20)
+    end
+  next
+
+  // временно
+  for row := 6 to 23
+    for col := 7 to 12
+      lxw_worksheet_write_string(sh4000, row, col, '', fmt4)
+    next
+  next
+  for i := 1 to 18
+    arg := 'SUM(H' + alltrim(str(i+6)) + '+K' + alltrim(str(i+6)) + ')'
+    lxw_worksheet_write_formula(sh4000, i+5, 4, arg, fmt5)
+    arg := 'SUM(I' + alltrim(str(i+6)) + '+L' + alltrim(str(i+6)) + ')'
+    lxw_worksheet_write_formula(sh4000, i+5, 5, arg, fmt5)
+    arg := 'SUM(J' + alltrim(str(i+6)) + '+M' + alltrim(str(i+6)) + ')'
+    lxw_worksheet_write_formula(sh4000, i+5, 6, arg, fmt5)
+  next
+
+  lxw_worksheet_write_string(sh4000, 25, 1, '(4001)', fmt3)
+  lxw_worksheet_write_string(sh4000, 26, 1, 'Число лиц, у которых по строкам 03, 04, 07, 08, 09 отсутствуют факторы риска ', nil)
+  lxw_worksheet_write_string(sh4000, 26, 8, '', fmt4)
+  
+  return sh4000
+  
 function createF131SH3000( workbook )
   local sh3000, row, col, i
   local fmt, fmt1, fmt2, fmt3, fmt4
@@ -527,14 +687,6 @@ function createF131SH5000DVN( workbook )
           
   return sh5000DVN
   
-function createF131SH4000( workbook )
-  local sh4000
-
-  sh4000 := lxw_workbook_add_worksheet(workbook, '4000, 4001' )
-  lxw_worksheet_set_tab_color(sh4000, LXW_COLOR_BLUE)
-
-  return sh4000
-
 
 function createF131SH3001( workbook )
   local sh3001, fmt1, fmt2, fmt3, fmt4
