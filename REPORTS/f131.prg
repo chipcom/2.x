@@ -41,6 +41,174 @@ procedure main()
 
   return
 
+function format_HorCenter_VertCenter(workbook)
+  local fmt := lxw_workbook_add_format(workbook)
+  
+  lxw_format_set_align(fmt, LXW_ALIGN_CENTER)
+  lxw_format_set_align(fmt, LXW_ALIGN_VERTICAL_CENTER)
+
+return fmt
+
+function format_HorLeft_VertCenter(workbook)
+  local fmt := lxw_workbook_add_format(workbook)
+  
+  lxw_format_set_align(fmt, LXW_ALIGN_LEFT)
+  lxw_format_set_align(fmt, LXW_ALIGN_VERTICAL_CENTER)
+
+return fmt
+
+function format_HorRight_VertCenter(workbook)
+  local fmt := lxw_workbook_add_format(workbook)
+  
+  lxw_format_set_align(fmt, LXW_ALIGN_RIGHT)
+  lxw_format_set_align(fmt, LXW_ALIGN_VERTICAL_CENTER)
+
+return fmt
+
+function createF131SH5000DVN( workbook )
+  local sh5000DVN, col, row , i
+  local fmt, fmt1, fmt2, fmt3, fmt4, fmt5, fmt6
+          
+  sh5000DVN := lxw_workbook_add_worksheet(workbook, '5000 и 5001 ДВН' )
+  lxw_worksheet_set_tab_color(sh5000DVN, LXW_COLOR_PINK)
+
+  fmt := format_HorCenter_VertCenter(workbook)
+  lxw_format_set_text_wrap(fmt)
+  lxw_format_set_font_name(fmt, 'Times New Roman')
+  lxw_format_set_bold(fmt)
+  lxw_format_set_font_size(fmt, 14)
+
+  fmt1 := format_HorCenter_VertCenter(workbook)
+  lxw_format_set_text_wrap(fmt1)
+  lxw_format_set_font_name(fmt1, 'Times New Roman')
+  lxw_format_set_font_size(fmt1, 12)
+  lxw_format_set_border(fmt1, LXW_BORDER_THIN)
+
+  fmt2 := format_HorLeft_VertCenter(workbook)
+  lxw_format_set_text_wrap(fmt2)
+  lxw_format_set_font_name(fmt2, 'Times New Roman')
+  lxw_format_set_font_size(fmt2, 12)
+  lxw_format_set_bold(fmt2)
+  lxw_format_set_border(fmt2, LXW_BORDER_THIN)
+
+  fmt3 := format_HorRight_VertCenter(workbook)
+  lxw_format_set_font_name(fmt3, 'Times New Roman')
+  lxw_format_set_bold(fmt3)
+  lxw_format_set_font_size(fmt3, 12)
+
+  fmt4 := format_HorRight_VertCenter(workbook)
+  lxw_format_set_bg_color(fmt4, 0xFFFFCC)
+  lxw_format_set_font_name(fmt4, 'Calibri')
+  lxw_format_set_font_size(fmt4, 11)
+  lxw_format_set_border(fmt4, LXW_BORDER_THIN)
+
+  fmt5 := format_HorCenter_VertCenter(workbook)
+  lxw_format_set_bg_color(fmt5, LXW_COLOR_GRAY)
+  lxw_format_set_font_name(fmt5, 'Calibri')
+  lxw_format_set_font_size(fmt5, 11)
+  lxw_format_set_border(fmt5, LXW_BORDER_THIN)
+
+  fmt6 := format_HorLeft_VertCenter(workbook)
+  lxw_format_set_text_wrap(fmt6)
+  lxw_format_set_font_name(fmt6, 'Times New Roman')
+  lxw_format_set_font_size(fmt6, 12)
+
+  url_format   = format_HorCenter_VertCenter(workbook)
+  lxw_format_set_font_size(url_format, 12)
+  lxw_format_set_underline (url_format, LXW_UNDERLINE_SINGLE)
+  lxw_format_set_font_color(url_format, LXW_COLOR_BLUE)
+  lxw_format_set_text_wrap(url_format)
+  lxw_format_set_border(url_format, LXW_BORDER_THIN)
+
+  lxw_worksheet_set_column(sh5000DVN, 0, 0, 8.0)
+  lxw_worksheet_set_column(sh5000DVN, 1, 1, 40.0)
+  lxw_worksheet_set_column(sh5000DVN, 2, 2, 8)
+  lxw_worksheet_set_column(sh5000DVN, 3, 3, 9.0)
+  lxw_worksheet_set_column(sh5000DVN, 4, 12, 8.0)
+
+  lxw_worksheet_merge_range(sh5000DVN, 0, 1, 0, 13, 'Заболевания, выявленные при проведении профилактического медицинского осмотра (диспансеризации), установление диспансерного наблюдения', fmt)
+  lxw_worksheet_write_string(sh5000DVN, 1, 1, '(5000)', fmt3)
+  lxw_worksheet_write_string(sh5000DVN, 1, 10, strOKEI, nil)
+
+  lxw_worksheet_merge_range(sh5000DVN, 2, 1, 4, 1, 'Наименование классов и отдельных заболеваний', fmt1)
+  lxw_worksheet_merge_range(sh5000DVN, 2, 2, 4, 2, 'N строки', fmt1)
+  lxw_worksheet_write_url(sh5000DVN, 2, 3, 'http://ivo.garant.ru/#/document/4100000/paragraph/41209:0', url_format)
+  lxw_worksheet_merge_range(sh5000DVN, 2, 3, 4, 3, 'Код МКБ-10', url_format)
+  lxw_worksheet_merge_range(sh5000DVN, 2, 4, 2, 7, 'Выявлено заболеваний', fmt1)
+  lxw_worksheet_merge_range(sh5000DVN, 2, 8, 2, 13, 'из них: впервые в жизни с установленным диагнозом', fmt1)
+  lxw_worksheet_merge_range(sh5000DVN, 3, 4, 3, 5, 'всего', fmt1)
+  lxw_worksheet_merge_range(sh5000DVN, 3, 6, 3, 7, 'в том числе', fmt1)
+  lxw_worksheet_merge_range(sh5000DVN, 3, 8, 3, 9, 'всего', fmt1)
+  lxw_worksheet_merge_range(sh5000DVN, 3, 10, 3, 11, 'в трудоспособном возрасте', fmt1)
+  lxw_worksheet_merge_range(sh5000DVN, 3, 12, 3, 13, 'в возрасте старше трудоспособного', fmt1)
+  lxw_worksheet_write_string(sh5000DVN, 4, 4, 'всего', fmt1)
+  lxw_worksheet_write_string(sh5000DVN, 4, 5, 'из них: установлено диспансерное наблюдение', fmt1)
+  lxw_worksheet_write_string(sh5000DVN, 4, 6, 'в трудоспособном возрасте', fmt1)
+  lxw_worksheet_write_string(sh5000DVN, 4, 7, 'в возрасте старше трудоспособного', fmt1)
+  lxw_worksheet_write_string(sh5000DVN, 4, 8, 'всего', fmt1)
+  lxw_worksheet_write_string(sh5000DVN, 4, 9, 'из них: установлено диспансерное наблюдение', fmt1)
+  lxw_worksheet_write_string(sh5000DVN, 4, 10, 'всего', fmt1)
+  lxw_worksheet_write_string(sh5000DVN, 4, 11, 'из них: установлено диспансерное наблюдение', fmt1)
+  lxw_worksheet_write_string(sh5000DVN, 4, 12, 'всего', fmt1)
+  lxw_worksheet_write_string(sh5000DVN, 4, 13, 'из них: установлено диспансерное наблюдение', fmt1)
+  for col := 1 to 13
+    lxw_worksheet_write_string(sh5000DVN, 5, col, alltrim(str(col)), fmt1)
+  next
+  // временно
+  for row := 6 to 76
+    for col := 5 to 7
+      lxw_worksheet_write_string(sh5000DVN, row, col, '', fmt4)
+    next
+    for col := 10 to 13
+      lxw_worksheet_write_string(sh5000DVN, row, col, '', fmt4)
+    next
+  next
+
+  for row := 6 to 76
+    arg := 'G' + alltrim(str(row+1)) + '+H' + alltrim(str(row+1))
+    lxw_worksheet_write_formula(sh5000DVN, row, 4, arg, fmt5)
+    arg := 'K' + alltrim(str(row+1)) + '+M' + alltrim(str(row+1))
+    lxw_worksheet_write_formula(sh5000DVN, row, 8, arg, fmt5)
+    arg := 'L' + alltrim(str(row+1)) + '+N' + alltrim(str(row+1))
+    lxw_worksheet_write_formula(sh5000DVN, row, 9, arg, fmt5)
+  next
+  // Итговые данные
+  lxw_worksheet_write_string(sh5000DVN, 68, 1, 'Прочие заболевания', fmt2)
+  lxw_worksheet_write_string(sh5000DVN, 68, 2, '11', fmt1)
+  lxw_worksheet_write_formula(sh5000DVN, 68, 4, 'E70+E74+E76+E77', fmt5)
+  lxw_worksheet_write_formula(sh5000DVN, 68, 5, 'F70+F74+F76+F77', fmt5)
+  lxw_worksheet_write_formula(sh5000DVN, 68, 6, 'G70+G74+G76+G77', fmt5)
+  lxw_worksheet_write_formula(sh5000DVN, 68, 7, 'H70+H74+H76+H77', fmt5)
+  lxw_worksheet_write_formula(sh5000DVN, 68, 8, 'K69+M69', fmt5)
+  lxw_worksheet_write_formula(sh5000DVN, 68, 9, 'L69+N69', fmt5)
+  lxw_worksheet_write_formula(sh5000DVN, 68, 10, 'K70+K74+K76+K77', fmt5)
+  lxw_worksheet_write_formula(sh5000DVN, 68, 11, 'L70+L74+L76+L77', fmt5)
+  lxw_worksheet_write_formula(sh5000DVN, 68, 12, 'M70+M74+M76+M77', fmt5)
+  lxw_worksheet_write_formula(sh5000DVN, 68, 13, 'N70+N74+N76+N77', fmt5)
+
+  lxw_worksheet_write_string(sh5000DVN, 77, 1, 'ИТОГО заболеваний', fmt2)
+  lxw_worksheet_write_string(sh5000DVN, 77, 2, '12', fmt1)
+  lxw_worksheet_write_string(sh5000DVN, 77, 3, 'A00-T98', fmt1)
+  lxw_worksheet_write_formula(sh5000DVN, 77, 4, 'E7+E9+E35+E37+E42+E44+E48+E60+E64+E70+E69', fmt5)
+  lxw_worksheet_write_formula(sh5000DVN, 77, 5, 'F7+F9+F35+F37+F42+F44+F48+F60+F64+F70+F69', fmt5)
+  lxw_worksheet_write_formula(sh5000DVN, 77, 6, 'G7+G9+G35+G37+G42+G44+G48+G60+G64+G70+G69', fmt5)
+  lxw_worksheet_write_formula(sh5000DVN, 77, 7, 'H7+H9+H35+H37+H42+H44+H48+H60+H64+H70+H69', fmt5)
+  lxw_worksheet_write_formula(sh5000DVN, 77, 8, 'I7+I9+I35+I37+I42+I44+I48+I60+I64+I70+I69', fmt5)
+  lxw_worksheet_write_formula(sh5000DVN, 77, 9, 'J7+J9+J35+J37+J42+J44+J48+J60+J64+J70+J69', fmt5)
+  lxw_worksheet_write_formula(sh5000DVN, 77, 10, 'K7+K9+K35+K37+K42+K44+K48+K60+K64+K70+K69', fmt5)
+  lxw_worksheet_write_formula(sh5000DVN, 77, 11, 'L7+L9+L35+L37+L42+L44+L48+L60+L64+L70+L69', fmt5)
+  lxw_worksheet_write_formula(sh5000DVN, 77, 12, 'M7+M9+M35+M37+M42+M44+M48+M60+M64+M70+M69', fmt5)
+  lxw_worksheet_write_formula(sh5000DVN, 77, 13, 'N7+N9+N35+N37+N42+N44+N48+N60+N64+N70+N69', fmt5)
+
+  lxw_worksheet_write_string(sh5000DVN, 79, 1, '(5001)', fmt3)
+  lxw_worksheet_write_string(sh5000DVN, 79, 10, strOKEI, nil)
+  lxw_worksheet_merge_range(sh5000DVN, 80, 1, 80, 11, 'Число лиц с артериальным давлением ниже 140/90 мм рт. ст. на фоне приема гипотензивных лекарственных препаратов, при наличии болезней, характеризующихся повышенным кровяным давлением (I10-I15 по МКБ-10)', fmt6)
+
+  // временно
+  lxw_worksheet_write_string(sh5000DVN, 80, 12, '', fmt4)
+  
+  return sh5000DVN
+  
 function createF131SH4000( workbook )
   local sh4000, col, row , i
   local fmt, fmt1, fmt2, fmt3, fmt4, fmt5
@@ -48,49 +216,36 @@ function createF131SH4000( workbook )
   sh4000 := lxw_workbook_add_worksheet(workbook, '4000, 4001' )
   lxw_worksheet_set_tab_color(sh4000, LXW_COLOR_BLUE)
 
-  fmt := lxw_workbook_add_format(workbook)
-  lxw_format_set_align(fmt, LXW_ALIGN_CENTER)
-  lxw_format_set_align(fmt, LXW_ALIGN_VERTICAL_CENTER)
+  fmt := format_HorCenter_VertCenter(workbook)
   lxw_format_set_text_wrap(fmt)
   lxw_format_set_font_name(fmt, 'Times New Roman')
   lxw_format_set_bold(fmt)
   lxw_format_set_font_size(fmt, 12)
-  // lxw_format_set_border(fmt, LXW_BORDER_THIN)
 
-  fmt1 := lxw_workbook_add_format(workbook)
-  lxw_format_set_align(fmt1, LXW_ALIGN_CENTER)
-  lxw_format_set_align(fmt1, LXW_ALIGN_VERTICAL_CENTER)
+  fmt1 := format_HorCenter_VertCenter(workbook)
   lxw_format_set_text_wrap(fmt1)
   lxw_format_set_font_name(fmt1, 'Times New Roman')
   lxw_format_set_font_size(fmt1, 12)
   lxw_format_set_border(fmt1, LXW_BORDER_THIN)
 
-  fmt2 := lxw_workbook_add_format(workbook)
-  lxw_format_set_align(fmt2, LXW_ALIGN_LEFT)
-  lxw_format_set_align(fmt2, LXW_ALIGN_VERTICAL_CENTER)
+  fmt2 := format_HorLeft_VertCenter(workbook)
   lxw_format_set_text_wrap(fmt2)
   lxw_format_set_font_name(fmt2, 'Times New Roman')
   lxw_format_set_font_size(fmt2, 12)
   lxw_format_set_border(fmt2, LXW_BORDER_THIN)
 
-  fmt3 := lxw_workbook_add_format(workbook)
-  lxw_format_set_align(fmt3, LXW_ALIGN_RIGHT)
-  lxw_format_set_align(fmt3, LXW_ALIGN_VERTICAL_CENTER)
+  fmt3 := format_HorRight_VertCenter(workbook)
   lxw_format_set_font_name(fmt3, 'Times New Roman')
   lxw_format_set_bold(fmt3)
   lxw_format_set_font_size(fmt3, 14)
 
-  fmt4 := lxw_workbook_add_format(workbook)
-  lxw_format_set_align(fmt4, LXW_ALIGN_RIGHT)
-  lxw_format_set_align(fmt4, LXW_ALIGN_VERTICAL_CENTER)
+  fmt4 := format_HorRight_VertCenter(workbook)
   lxw_format_set_bg_color(fmt4, 0xFFFFCC)
   lxw_format_set_font_name(fmt4, 'Times New Roman')
   lxw_format_set_font_size(fmt4, 12)
   lxw_format_set_border(fmt4, LXW_BORDER_THIN)
 
-  fmt5 := lxw_workbook_add_format(workbook)
-  lxw_format_set_align(fmt5, LXW_ALIGN_CENTER)
-  lxw_format_set_align(fmt5, LXW_ALIGN_VERTICAL_CENTER)
+  fmt5 := format_HorCenter_VertCenter(workbook)
   lxw_format_set_bg_color(fmt5, LXW_COLOR_GRAY)
   lxw_format_set_font_name(fmt5, 'Times New Roman')
   lxw_format_set_font_size(fmt5, 12)
@@ -679,14 +834,6 @@ function createF131SH5000PO( workbook )
   return sh5000PO
   
 
-function createF131SH5000DVN( workbook )
-  local sh5000DVN
-          
-  sh5000DVN := lxw_workbook_add_worksheet(workbook, '5000 и 5001 ДВН' )
-  lxw_worksheet_set_tab_color(sh5000DVN, LXW_COLOR_PINK)
-          
-  return sh5000DVN
-  
 
 function createF131SH3001( workbook )
   local sh3001, fmt1, fmt2, fmt3, fmt4
