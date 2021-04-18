@@ -65,6 +65,132 @@ function format_HorRight_VertCenter(workbook)
 
 return fmt
 
+function format_URL(workbook)
+  local fURL := format_HorCenter_VertCenter(workbook)
+
+  lxw_format_set_underline (fURL, LXW_UNDERLINE_SINGLE)
+  lxw_format_set_font_color(fURL, LXW_COLOR_BLUE)
+  lxw_format_set_text_wrap(fURL)
+return fURL
+
+
+function createF131SH6000( workbook )
+  local sh6000, col, row , i
+  local fmt, fmt1, fmt2, fmt3, fmt4, fmt5, fmt6
+  local fontName := 'Times New Roman'
+            
+  sh6000 := lxw_workbook_add_worksheet(workbook, '6000-6010' )
+  lxw_worksheet_set_tab_color(sh6000, LXW_COLOR_GRAY)
+
+  fmt := format_HorCenter_VertCenter(workbook)
+  lxw_format_set_text_wrap(fmt)
+  lxw_format_set_font_name(fmt, fontName)
+  lxw_format_set_bold(fmt)
+  lxw_format_set_font_size(fmt, 14)
+
+  fmt1 := format_HorCenter_VertCenter(workbook)
+  lxw_format_set_text_wrap(fmt1)
+  lxw_format_set_font_name(fmt1, fontName)
+  lxw_format_set_font_size(fmt1, 14)
+  lxw_format_set_border(fmt1, LXW_BORDER_THIN)
+
+  fmt2 := format_HorLeft_VertCenter(workbook)
+  lxw_format_set_text_wrap(fmt2)
+  lxw_format_set_font_name(fmt2, fontName)
+  lxw_format_set_font_size(fmt2, 14)
+  lxw_format_set_border(fmt2, LXW_BORDER_THIN)
+
+  fmt3 := format_HorRight_VertCenter(workbook)
+  lxw_format_set_font_name(fmt3, fontName)
+  lxw_format_set_bold(fmt3)
+  lxw_format_set_font_size(fmt3, 14)
+
+  fmt4 := format_HorRight_VertCenter(workbook)
+  lxw_format_set_bg_color(fmt4, 0xFFFFCC)
+  lxw_format_set_font_name(fmt4, fontName)
+  lxw_format_set_font_size(fmt4, 14)
+  lxw_format_set_border(fmt4, LXW_BORDER_THIN)
+
+  fmt5 := format_HorCenter_VertCenter(workbook)
+  lxw_format_set_bg_color(fmt5, LXW_COLOR_GRAY)
+  lxw_format_set_font_name(fmt5, fontName)
+  lxw_format_set_font_size(fmt5, 14)
+  lxw_format_set_border(fmt5, LXW_BORDER_THIN)
+
+  lxw_worksheet_set_column(sh6000, 0, 0, 6.0)
+  lxw_worksheet_set_column(sh6000, 1, 1, 110.0)
+  lxw_worksheet_set_column(sh6000, 2, 2, 8)
+  lxw_worksheet_set_column(sh6000, 3, 12, 12.0)
+
+  lxw_worksheet_merge_range(sh6000, 1, 1, 1, 6, 'Общие результаты профилактического медицинского осмотра, диспансеризации', fmt)
+  lxw_worksheet_write_string(sh6000, 2, 1, '(6000)', fmt3)
+  lxw_worksheet_write_string(sh6000, 2, 3, strOKEI, nil)
+
+  lxw_worksheet_merge_range(sh6000, 3, 1, 5, 1, 'Общие результаты', fmt1)
+  lxw_worksheet_merge_range(sh6000, 3, 2, 5, 2, '№ строки', fmt1)
+  lxw_worksheet_merge_range(sh6000, 3, 3, 3, 5, 'Число лиц взрослого населения:', fmt1)
+  lxw_worksheet_merge_range(sh6000, 4, 3, 5, 3, 'Всего:', fmt1)
+  lxw_worksheet_merge_range(sh6000, 4, 4, 4, 5, 'в том числе:', fmt1)
+  lxw_worksheet_write_string(sh6000, 5, 4, 'в трудоспособном возрасте', fmt1)
+  lxw_worksheet_write_string(sh6000, 5, 5, 'в возрасте старше трудоспособного', fmt1)
+
+  for col := 1 to 5
+    lxw_worksheet_write_string(sh6000, 6, col, alltrim(str(col)), fmt1)
+  next
+
+  // временно
+  for row := 7 to 18
+    for col := 4 to 5
+      lxw_worksheet_write_string(sh6000, row, col, '', fmt4)
+    next
+  next
+
+  for row := 7 to 11
+    lxw_worksheet_write_string(sh6000, row, 2, alltrim(str(row-6)), fmt1)
+  next
+  lxw_worksheet_write_string(sh6000, 7, 1, 'Определена I группа здоровья', fmt2)
+  lxw_worksheet_write_string(sh6000, 8, 1, 'Определена II группа здоровья', fmt2)
+  lxw_worksheet_write_string(sh6000, 9, 1, 'Определена IIIА группа здоровья', fmt2)
+  lxw_worksheet_write_string(sh6000, 10, 1, 'Определена IIIБ группа здоровья', fmt2)
+  lxw_worksheet_write_string(sh6000, 11, 1, 'Направлены при наличии медицинских показаний на дополнительное обследование, не входящее в объем в объем диспансеризации, в том числе направлены на осмотр (консультацию) врачом-онкологом при подозрении на оекологическое заболевание', fmt2)
+  lxw_worksheet_write_string(sh6000, 12, 1, 'Установлено диспансерное наблюдение, всего', fmt2)
+  lxw_worksheet_write_string(sh6000, 12, 2, '6', fmt1)
+  lxw_worksheet_write_string(sh6000, 13, 1, 'врачом (фельдшером) отделения (кабинета) медицинской профилактики или центра здоровья', fmt2)
+  lxw_worksheet_write_string(sh6000, 13, 2, '6.1', fmt1)
+  lxw_worksheet_write_string(sh6000, 14, 1, 'врачом-терапевтом', fmt2)
+  lxw_worksheet_write_string(sh6000, 14, 2, '6.2', fmt1)
+  lxw_worksheet_write_string(sh6000, 15, 1, 'врачом-специалистом', fmt2)
+  lxw_worksheet_write_string(sh6000, 15, 2, '6.3', fmt1)
+  lxw_worksheet_write_string(sh6000, 16, 1, 'фельдшеромом фельдшерского здравпункта или фельдшерско-акушерского пункта', fmt2)
+  lxw_worksheet_write_string(sh6000, 16, 2, '6.4', fmt1)
+  lxw_worksheet_write_string(sh6000, 17, 1, 'Направлены для получения специализированной, в том числе высокотехнологичной, медицинской помощи', fmt2)
+  lxw_worksheet_write_string(sh6000, 17, 2, '7', fmt1)
+  lxw_worksheet_write_string(sh6000, 18, 1, 'Направлены на санаторно-курортное лечение', fmt2)
+  lxw_worksheet_write_string(sh6000, 18, 2, '8', fmt1)
+
+  lxw_worksheet_write_string(sh6000, 21, 1, '(6001) Общее число работающих лиц, прошедших профилактический медицинский осмотр, диспансеризацию', fmt2)
+  lxw_worksheet_write_string(sh6000, 22, 1, '(6002) Общее число неработающих лиц, прошедших профилактический медицинский осмотр, диспансеризацию', fmt2)
+  lxw_worksheet_write_string(sh6000, 23, 1, '(6003) Общее число лиц, обучающихся в образовательных организациях по очной форме, прошедших профилактический медицинский осмотр, диспансеризацию', fmt2)
+  lxw_worksheet_write_string(sh6000, 24, 1, '(6004) Общее число лиц, имеющих право на получение государственной социальной помощи в виде набора социальных услуг, прошедших профилактический медицинский осмотр, диспансеризацию', fmt2)
+  lxw_worksheet_write_string(sh6000, 25, 1, '(6005) Общее число лиц, принадлежащих к коренным малочисленным народам Севера, Сибири и Дальнего Востока Российской Федерации, прошедших профилактический медицинский осмотр, диспансеризацию', fmt2)
+  lxw_worksheet_write_string(sh6000, 26, 1, '(6006) Общее число мобильных медицинских бригад, принимавщих участие в проведении профилактического медицинского осмотра, диспансеризации', fmt2)
+  lxw_worksheet_write_string(sh6000, 27, 1, '(6007) Общее число лиц, профилактический медицинский осмотр или первый этап диспансеризации которых были проведены мобильными медицинскими бригадами', fmt2)
+  lxw_worksheet_write_string(sh6000, 28, 1, '(6008) Число лиц с отказами от прохождения отдельных медицинских мероприятий в рамках профилактического медицинского осмотра, диспансеризации', fmt2)
+  lxw_worksheet_write_string(sh6000, 29, 1, '(6009) Число лиц с отказами от прохождения профилактического медицинского осмотра в целом, диспансеризации в целом', fmt2)
+  lxw_worksheet_write_string(sh6000, 30, 1, '(6010) Число лиц, проживающих в сельской местности, прошедших профилактический медицинский осмотр, диспансеризацию', fmt2)
+  for i := 7 to 18
+    arg := 'SUM(E' + alltrim(str(i+1)) + ':F' + alltrim(str(i+1)) + ')'
+    lxw_worksheet_write_formula(sh6000, i, 3, arg, fmt5)
+  next
+
+  // временно
+  for row := 21 to 30
+    lxw_worksheet_write_string(sh6000, row, 2, '', fmt4)
+    lxw_worksheet_write_string(sh6000, row, 3, 'человек.', fmt2)
+  next
+
+  return sh6000
+
 function createF131SH5000DVN( workbook )
   local sh5000DVN, col, row , i
   local fmt, fmt1, fmt2, fmt3, fmt4, fmt5, fmt6
@@ -113,11 +239,8 @@ function createF131SH5000DVN( workbook )
   lxw_format_set_font_name(fmt6, 'Times New Roman')
   lxw_format_set_font_size(fmt6, 12)
 
-  url_format   = format_HorCenter_VertCenter(workbook)
+  url_format   = format_URL(workbook)
   lxw_format_set_font_size(url_format, 12)
-  lxw_format_set_underline (url_format, LXW_UNDERLINE_SINGLE)
-  lxw_format_set_font_color(url_format, LXW_COLOR_BLUE)
-  lxw_format_set_text_wrap(url_format)
   lxw_format_set_border(url_format, LXW_BORDER_THIN)
 
   lxw_worksheet_set_column(sh5000DVN, 0, 0, 8.0)
@@ -817,14 +940,6 @@ function createF131SH5000( workbook )
               
   return sh5000
 
-function createF131SH6000( workbook )
-    local sh6000
-              
-  sh6000 := lxw_workbook_add_worksheet(workbook, '6000-6010' )
-  lxw_worksheet_set_tab_color(sh6000, LXW_COLOR_GRAY)
-              
-  return sh6000
-  
 function createF131SH5000PO( workbook )
   local sh5000PO
             
@@ -963,16 +1078,11 @@ function createF131Titul( workbook )
   lxw_format_set_align(shTitulSign3, LXW_ALIGN_LEFT)
   lxw_format_set_align(shTitulSign3, LXW_ALIGN_VERTICAL_CENTER)
   lxw_format_set_font_size(shTitulSign3, 14)
-  // lxw_format_set_text_wrap(shTitulSign3)
-  // lxw_format_set_border(shTitulFmt4, LXW_BORDER_THIN)
 
-  url_format   = lxw_workbook_add_format(workbook)
+  url_format   = format_URL(workbook)
   lxw_format_set_align(url_format, LXW_ALIGN_CENTER)
   lxw_format_set_align(url_format, LXW_ALIGN_VERTICAL_CENTER)
   lxw_format_set_font_size(url_format, 12)
-  lxw_format_set_underline (url_format, LXW_UNDERLINE_SINGLE)
-  lxw_format_set_font_color(url_format, LXW_COLOR_BLUE)
-  lxw_format_set_text_wrap(url_format)
   lxw_format_set_border(url_format, LXW_BORDER_THIN)
 
   lxw_worksheet_set_column(shTitul, 0, 0, 8.2)
