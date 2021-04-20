@@ -5,19 +5,12 @@ function WriteXLSXGreater60(fName, dCreate)
   local workbook, header
   local worksheet
   local worksheetRemoved
-  local nfile := 'Great60.xlsx'
-  // local sCode := 'МКБ-10', sName := 'Наименование диагноза'
   local merge_format, merge_cell_name_format
   local cell_code_format
   local strMO := hb_StrToUtf8( glob_mo[_MO_SHORT_NAME] )
 
   lxw_init() 
 
-  if hb_FileExists(nfile)  
-    filedelete(nfile)
-  endif
-
-  // workbook  := lxw_workbook_new(nfile)
   workbook  := lxw_workbook_new(fName)
   worksheet := lxw_workbook_add_worksheet(workbook, 'Sheet1' )
 

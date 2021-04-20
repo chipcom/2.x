@@ -1919,6 +1919,10 @@ do case
     aadd(mas_pmt, "Информация по ~инвалидам")
     aadd(mas_msg, "Просмотр сводной информации по инвалидам")
     aadd(mas_fun, "prn_kartoteka(14)")
+    // выгрузка в Excel
+    aadd(mas_pmt, "Выгрузка в Excel")
+    aadd(mas_msg, "Выгрузка картотеки в Excel")
+    aadd(mas_fun, "prn_kartoteka(41)")
     if T_ROW > 8
       r := T_ROW-len(mas_pmt)-3
     else
@@ -1982,6 +1986,7 @@ do case
   case k == 33
     kol_uch_pripisnoe_naselenie()
   case k == 41
+    kartotekToExcel()
   case k == 42
   case k == 43
   case k == 44

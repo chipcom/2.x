@@ -145,8 +145,10 @@ Errorsys.prg
 
 .\onkologiya\onko.prg
 
+.\reports\reports.prg
 .\reports\createXLS.prg
 .\reports\hodotajstvoXLS.prg
+.\reports\exportKartExcel.prg
 
 .\util\workWithZIP.prg
 .\util\runExternalProgram.prg
