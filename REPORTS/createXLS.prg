@@ -103,7 +103,7 @@ function WriteXLSXGreater60(fName, dCreate)
   do while  !eof()
     GaugeUpdate( hGauge, ++curr / lastrec() )
     if kart->kod > 0 .and. kart2->mo_pr == glob_MO[_MO_KOD_TFOMS]
-      if f_starshe_60(kart->DATE_R,dCreate)
+      if ageIsMoreThan(60, kart->DATE_R, dCreate)
         lxw_worksheet_write_number(worksheet, row, 0, row - 2, cell_format_num)
         arr_fio := retFamImOt(1,.f.,.F.)
         lxw_worksheet_write_string(worksheet, row, 1, hb_StrToUtf8( arr_fio[1]+" "+arr_fio[2]+" "+arr_fio[3] ), cell_format_string)

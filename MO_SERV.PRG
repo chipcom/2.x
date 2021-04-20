@@ -3351,13 +3351,6 @@ Function pripisnoe_naselenie_create_VOMIAC()
 
   return nil
 
-***** 29.03.21 определить лицо старше трудоспособного возраста
-Function f_starshe_60(_date_r,_data)
-Local v
-  v := 60
-return count_years(_date_r,_data) >= v
-
-
 ***** 16.11.18 создать файл приписного населения в Облздрав
 Function pripisnoe_naselenie_create_OBLSDRAV()
 Local buf := savescreen(),  arr_fio, pr_date, name_file, name_zip
