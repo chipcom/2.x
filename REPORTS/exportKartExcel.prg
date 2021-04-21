@@ -19,7 +19,7 @@ function exportKartExcel(fName)
   endif
 
   workbook  := lxw_workbook_new(fName)
-  worksheet := lxw_workbook_add_worksheet(workbook, 'Sheet1' )
+  worksheet := lxw_workbook_add_worksheet(workbook, 'Пациенты' )
 
   formatDate := lxw_workbook_add_format(workbook)
   lxw_format_set_num_format(formatDate, 'dd/mm/yyyy')
@@ -61,9 +61,9 @@ function exportKartExcel(fName)
   lxw_format_set_border(fmtCellString, LXW_BORDER_THIN)
 
   fmtCellStringCenter := lxw_workbook_add_format(workbook)
-  lxw_format_set_align(fmtCellString, LXW_ALIGN_CENTER)
-  lxw_format_set_align(fmtCellString, LXW_ALIGN_VERTICAL_CENTER)
-  lxw_format_set_border(fmtCellString, LXW_BORDER_THIN)
+  lxw_format_set_align(fmtCellStringCenter, LXW_ALIGN_CENTER)
+  lxw_format_set_align(fmtCellStringCenter, LXW_ALIGN_VERTICAL_CENTER)
+  lxw_format_set_border(fmtCellStringCenter, LXW_BORDER_THIN)
 
   // шапка
   lxw_worksheet_write_string(worksheet, 2, 0, 'п/н', header)
@@ -91,25 +91,39 @@ function exportKartExcel(fName)
   GaugeDisplay( hGauge )
   row := 3
   curr := 0
-  R_Use_base("kartotek")
-  set order to 0
-  go top
-  do while  !eof()
-    GaugeUpdate( hGauge, ++curr / lastrec() )
 
-    lxw_worksheet_write_number(worksheet, row, 0, row - 2, fmtCellNumber)
-    arr_fio := retFamImOt(1,.f.,.F.)
-    lxw_worksheet_write_string(worksheet, row, 1, hb_StrToUtf8( arr_fio[1]+" "+arr_fio[2]+" "+arr_fio[3] ), fmtCellString)
-    lxw_worksheet_write_datetime(worksheet, row, 2, HB_STOT(DToS(kart->DATE_R)), formatDate)
-    lxw_worksheet_write_number(worksheet, row, 3, count_years(kart->DATE_R,date()), fmtCellNumber)
-    lxw_worksheet_write_string(worksheet, row, 4, hb_StrToUtf8( kart->POL ), fmtCellStringCenter)
-    // lxw_worksheet_write_number(worksheet, row, 4, kart->uchast, fmtCellNumber)
-    // lxw_worksheet_write_string(worksheet, row, 5, strMO, fmtCellString)
+  R_Use(dir_server + 'kartote2', , 'KART2')
+  R_Use(dir_server + 'kartote_', , 'KART_')
+  R_Use(dir_server + 'kartotek', , 'KART')
+  set relation to recno() into KART_, to recno() into KART2
+
+
+  // R_Use_base("kartotek")
+  // set order to 0
+  KART->(dbGoTop()) // go top
+  do while  ! KART->(eof())   // eof()
+    GaugeUpdate( hGauge, ++curr / KART->(lastrec()) )
+
+    if ! (left(kart2->PC2,1) == '1')  // выбираем только живых
+      lxw_worksheet_write_number(worksheet, row, 0, row - 2, fmtCellNumber)
+      arr_fio := retFamImOt( 1, .f., .f. )
+      lxw_worksheet_write_string(worksheet, row, 1, hb_StrToUtf8( arr_fio[1] + ' ' + arr_fio[2] + ' ' + arr_fio[3] ), fmtCellString)
+      lxw_worksheet_write_datetime(worksheet, row, 2, HB_STOT(DToS(KART->DATE_R)), formatDate)
+      lxw_worksheet_write_number(worksheet, row, 3, count_years(KART->DATE_R, date()), fmtCellNumber)
+      lxw_worksheet_write_string(worksheet, row, 4, hb_StrToUtf8( KART->POL ), fmtCellStringCenter)
+      // lxw_worksheet_write_number(worksheet, row, 4, kart->uchast, fmtCellNumber)
+      // lxw_worksheet_write_string(worksheet, row, 5, strMO, fmtCellString)
+      ++row
+    endif
     
-    ++row
     KART->(dbSkip())
   enddo
   KART->(dbCloseAll())
+
+  lxw_worksheet_autofilter(worksheet, 2, 0, row - 1, 4)
+
+  lxw_workbook_close(workbook)
+
   CloseGauge(hGauge)
 
-  return lxw_workbook_close(workbook)
+  return nil
