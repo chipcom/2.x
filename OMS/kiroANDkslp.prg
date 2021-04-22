@@ -31,8 +31,6 @@ function selectKSLP( lkslp, savedKSLP, dateBegin, dateEnd, DOB, mdiagnoz )
   Local r1 := 0 // счетчик записей
   Local strArr := '', age
 
-  local price
-
   Local m1var := '', s := "", countKSLP := 0
   local row, oBox
   local nLast, srok := dateEnd - dateBegin

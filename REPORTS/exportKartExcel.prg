@@ -1,16 +1,16 @@
+#include 'inkey.ch'
 #include 'chip_mo.ch'
+#include 'function.ch'
 #include 'hblibxlsxwriter.ch'
 
-function exportKartExcel(fName)
+***** 22.04.21 создать файл Excel
+function exportKartExcel(fName, aCondition)
   local workbook
   local header
   local worksheet
   local formatDate
-  // local merge_format, merge_cell_name_format
   local fmtCellNumber, fmtCellString, fmtCellStringCenter
-  // local cell_code_format
-  // local strMO := hb_StrToUtf8( glob_mo[_MO_SHORT_NAME] )
-  local arr_fio, row, curr
+  local arr_fio, row, curr, i, j, fl_exit := .f.
 
   lxw_init() 
 
@@ -23,7 +23,8 @@ function exportKartExcel(fName)
 
   formatDate := lxw_workbook_add_format(workbook)
   lxw_format_set_num_format(formatDate, 'dd/mm/yyyy')
-  lxw_format_set_align(formatDate, LXW_ALIGN_LEFT)
+  lxw_format_set_align(formatDate, LXW_ALIGN_CENTER)
+  lxw_format_set_align(formatDate, LXW_ALIGN_VERTICAL_CENTER)
   lxw_format_set_border(formatDate, LXW_BORDER_THIN)
 
   header = lxw_workbook_add_format(workbook)
@@ -41,15 +42,6 @@ function exportKartExcel(fName)
   lxw_format_set_border(header_wrap, LXW_BORDER_THIN)
   lxw_format_set_text_wrap(header_wrap)
 
-  // merge_format := lxw_workbook_add_format(workbook)
-  // /* Конфигурируем формат для объединенных ячеек. */
-  // lxw_format_set_align(merge_format, LXW_ALIGN_CENTER)
-  // lxw_format_set_align(merge_format, LXW_ALIGN_VERTICAL_CENTER)
-  // lxw_format_set_bold(merge_format)
-  // lxw_format_set_font_size(merge_format, 14)
-  // lxw_format_set_bg_color(merge_format, LXW_COLOR_YELLOW)
-  // lxw_format_set_border(merge_format, LXW_BORDER_THIN)
-
   fmtCellNumber := lxw_workbook_add_format(workbook)
   lxw_format_set_align(fmtCellNumber, LXW_ALIGN_CENTER)
   lxw_format_set_align(fmtCellNumber, LXW_ALIGN_VERTICAL_CENTER)
@@ -58,61 +50,108 @@ function exportKartExcel(fName)
   fmtCellString := lxw_workbook_add_format(workbook)
   lxw_format_set_align(fmtCellString, LXW_ALIGN_LEFT)
   lxw_format_set_align(fmtCellString, LXW_ALIGN_VERTICAL_CENTER)
+  lxw_format_set_text_wrap(fmtCellString)
   lxw_format_set_border(fmtCellString, LXW_BORDER_THIN)
 
   fmtCellStringCenter := lxw_workbook_add_format(workbook)
   lxw_format_set_align(fmtCellStringCenter, LXW_ALIGN_CENTER)
   lxw_format_set_align(fmtCellStringCenter, LXW_ALIGN_VERTICAL_CENTER)
+  lxw_format_set_text_wrap(fmtCellStringCenter)
   lxw_format_set_border(fmtCellStringCenter, LXW_BORDER_THIN)
 
   // шапка
-  lxw_worksheet_write_string(worksheet, 2, 0, 'п/н', header)
-  lxw_worksheet_write_string(worksheet, 2, 1, 'ФИО', header)
-  lxw_worksheet_write_string(worksheet, 2, 2, 'Дата рождения', header_wrap)
-  lxw_worksheet_write_string(worksheet, 2, 3, 'Возраст', header)
-  lxw_worksheet_write_string(worksheet, 2, 4, 'Пол', header_wrap)
-
   /* Установить высоту строки */
   lxw_worksheet_set_row(worksheet, 0, 35.0)
   lxw_worksheet_set_row(worksheet, 2, 35.0)
-
-  /* Установить ширину колонок */
-  lxw_worksheet_set_column(worksheet, 0, 0, 8.0)
-  lxw_worksheet_set_column(worksheet, 1, 1, 50.0)
-  lxw_worksheet_set_column(worksheet, 2, 2, 10.0)
-  lxw_worksheet_set_column(worksheet, 3, 3, 10.0)
-  lxw_worksheet_set_column(worksheet, 4, 4, 12.0)
-  // lxw_worksheet_set_column(worksheet, 5, 5, 50.0)
-
   /* Заморозим 3-е верхние строки на закладке. */
   lxw_worksheet_freeze_panes(worksheet, 3, 0)
 
-  hGauge := GaugeNew(,,,hb_Utf8ToStr('Экспорт картотеки в Excel','RU866'),.t.)
-  GaugeDisplay( hGauge )
-  row := 3
-  curr := 0
+  j := 0
+  for i := 1 to len(aCondition)
+    if aCondition[i, 3]
+      lxw_worksheet_set_column(worksheet, j, j, aCondition[i, 5])
+      lxw_worksheet_write_string(worksheet, 2, j, hb_StrToUtf8( aCondition[i, 1] ), header_wrap)
+      j++
+    endif
+  next
 
   R_Use(dir_server + 'kartote2', , 'KART2')
   R_Use(dir_server + 'kartote_', , 'KART_')
   R_Use(dir_server + 'kartotek', , 'KART')
   set relation to recno() into KART_, to recno() into KART2
 
+  hGauge := GaugeNew(,,,hb_Utf8ToStr('Экспорт картотеки в Excel','RU866'),.t.)
+  GaugeDisplay( hGauge )
+  row := 3
+  curr := 0
 
-  // R_Use_base("kartotek")
-  // set order to 0
-  KART->(dbGoTop()) // go top
-  do while  ! KART->(eof())   // eof()
+  KART->(dbGoTop())
+  do while  ! KART->(eof())
     GaugeUpdate( hGauge, ++curr / KART->(lastrec()) )
+    if inkey() == K_ESC
+      fl_exit := .t. ; exit
+    endif
 
     if ! (left(kart2->PC2,1) == '1')  // выбираем только живых
-      lxw_worksheet_write_number(worksheet, row, 0, row - 2, fmtCellNumber)
-      arr_fio := retFamImOt( 1, .f., .f. )
-      lxw_worksheet_write_string(worksheet, row, 1, hb_StrToUtf8( arr_fio[1] + ' ' + arr_fio[2] + ' ' + arr_fio[3] ), fmtCellString)
-      lxw_worksheet_write_datetime(worksheet, row, 2, HB_STOT(DToS(KART->DATE_R)), formatDate)
-      lxw_worksheet_write_number(worksheet, row, 3, count_years(KART->DATE_R, date()), fmtCellNumber)
-      lxw_worksheet_write_string(worksheet, row, 4, hb_StrToUtf8( KART->POL ), fmtCellStringCenter)
-      // lxw_worksheet_write_number(worksheet, row, 4, kart->uchast, fmtCellNumber)
-      // lxw_worksheet_write_string(worksheet, row, 5, strMO, fmtCellString)
+      j := 0
+      for i := 1 to len(aCondition)
+        if i == 1
+          lxw_worksheet_write_number(worksheet, row, j, row - 2, fmtCellNumber)
+          j++
+        endif
+        if i == 2 .and. aCondition[i,3]
+          lxw_worksheet_write_string(worksheet, row, j, hb_StrToUtf8( iif(!empty(kart->uchast), lstr(kart->uchast), '') ), fmtCellStringCenter)
+          j++
+        endif
+        if i == 3
+          arr_fio := retFamImOt( 1, .f., .f. )
+          lxw_worksheet_write_string(worksheet, row, j, hb_StrToUtf8( arr_fio[1] + ' ' + arr_fio[2] + ' ' + arr_fio[3] ), fmtCellString)
+          j++
+        endif
+        if i == 4
+          lxw_worksheet_write_datetime(worksheet, row, j, HB_STOT(DToS(KART->DATE_R)), formatDate)
+          j++
+        endif
+        if i == 5
+          lxw_worksheet_write_string(worksheet, row, j, hb_StrToUtf8( KART->POL ), fmtCellStringCenter)
+          j++
+        endif
+        if i == 6 .and. aCondition[i,3]
+          lxw_worksheet_write_number(worksheet, row, j, count_years(KART->DATE_R, date()), fmtCellNumber)
+          j++
+        endif
+        if i == 7 .and. aCondition[i,3]
+          lxw_worksheet_write_string(worksheet, row, j, iif(empty(KART->SNILS), '', transform(KART->SNILS, picture_pf)), fmtCellStringCenter)
+          j++
+        endif
+        if i == 8 .and. aCondition[i,3]
+          lxw_worksheet_write_string(worksheet, row, j, hb_StrToUtf8( ret_okato_ulica(KART->adres, KART_->okatog) ), fmtCellString)
+          j++
+        endif
+        if i == 9 .and. aCondition[i,3]
+          lxw_worksheet_write_string(worksheet, row, j, hb_StrToUtf8( smo_to_screen(1) ), fmtCellString)
+          j++
+        endif
+        if i == 10 .and. aCondition[i,3]
+          lxw_worksheet_write_string(worksheet, row, j, hb_StrToUtf8( ltrim(KART_->NPOLIS) ), fmtCellString)
+          j++
+        endif
+        if i == 11 .and. aCondition[i,3]
+          s := ''
+          if !empty(kart_->PHONE_H)
+            s += 'д.' + alltrim(kart_->PHONE_H) + ' '
+          endif
+          if !empty(kart_->PHONE_M)
+            s += 'м.' + alltrim(kart_->PHONE_M) + ' '
+          endif
+          if !empty(kart_->PHONE_W)
+            s += 'р.' + alltrim(kart_->PHONE_W)
+          endif
+          lxw_worksheet_write_string(worksheet, row, j, s, fmtCellString)
+          j++
+        endif
+      next
+
       ++row
     endif
     
@@ -120,7 +159,22 @@ function exportKartExcel(fName)
   enddo
   KART->(dbCloseAll())
 
-  lxw_worksheet_autofilter(worksheet, 2, 0, row - 1, 4)
+  // lxw_worksheet_autofilter(worksheet, 2, 3, row - 1, 4)
+  // 1 - название столбца, 2 - выбор, 3 - отметка, что нужен, 4 - автофильтр,  5 - ширина столбца, 6 - гор. расположение
+  // j := 0
+  // for i := 1 to len(aCondition)
+  //   if aCondition[i, 3]
+  //     if aCondition[i, 4] // включить автофильтр
+  //       lxw_worksheet_autofilter(worksheet, 2, j, row - 1, j)
+  //     endif
+  //     j++
+  //   endif
+  // next
+
+  if fl_exit
+    func_error(4, hb_Utf8ToStr('Операция прервана!','RU866'))
+  endif
+  
 
   lxw_workbook_close(workbook)
 
