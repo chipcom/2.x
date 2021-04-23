@@ -10,7 +10,7 @@ function exportKartExcel(fName, aCondition)
   local worksheet
   local formatDate
   local fmtCellNumber, fmtCellString, fmtCellStringCenter
-  local arr_fio, row, curr, i, j, fl_exit := .f.
+  local arr_fio, row, curr, i, j, fl_exit := .f., s
 
   lxw_init() 
 
@@ -125,18 +125,39 @@ function exportKartExcel(fName, aCondition)
           j++
         endif
         if i == 8 .and. aCondition[i,3]
-          lxw_worksheet_write_string(worksheet, row, j, hb_StrToUtf8( ret_okato_ulica(KART->adres, KART_->okatog) ), fmtCellString)
-          j++
-        endif
-        if i == 9 .and. aCondition[i,3]
           lxw_worksheet_write_string(worksheet, row, j, hb_StrToUtf8( smo_to_screen(1) ), fmtCellString)
           j++
         endif
-        if i == 10 .and. aCondition[i,3]
+        if i == 9 .and. aCondition[i,3]
           lxw_worksheet_write_string(worksheet, row, j, hb_StrToUtf8( ltrim(KART_->NPOLIS) ), fmtCellString)
           j++
         endif
-        if i == 11 .and. aCondition[i,3]
+        if i == 10 .and. aCondition[i,3]
+          if empty(KART2->MO_PR)
+            s := '?'
+          elseif kart2->MO_PR == glob_mo[_MO_KOD_TFOMS]
+            s := 'X'
+          else
+            s := '-'
+          endif
+          lxw_worksheet_write_string(worksheet, row, j, s, fmtCellStringCenter)
+          j++
+        endif
+        if i == 11 .and. aCondition[i,3]  // адрес регистрации
+          lxw_worksheet_write_string(worksheet, row, j, hb_StrToUtf8( ret_okato_ulica(KART->adres, KART_->okatog) ), fmtCellString)
+          j++
+        endif
+        if i == 12 .and. aCondition[i,3]  // адрес пребывания
+          if empty(KART_->adresp) .and. aCondition[11, 3]
+            lxw_worksheet_write_string(worksheet, row, j, 'тот же', fmtCellString)
+          elseif empty(KART_->adresp) .and. ! aCondition[11, 3]
+            lxw_worksheet_write_string(worksheet, row, j, hb_StrToUtf8( ret_okato_ulica(KART->adres, KART_->okatog) ), fmtCellString)
+          elseif ! empty(KART_->adresp)
+            lxw_worksheet_write_string(worksheet, row, j, hb_StrToUtf8( ret_okato_ulica(KART_->adresp, KART_->okatop) ), fmtCellString)
+          endif
+          j++
+        endif
+        if i == 13 .and. aCondition[i,3]
           s := ''
           if !empty(kart_->PHONE_H)
             s += 'д.' + alltrim(kart_->PHONE_H) + ' '
@@ -151,7 +172,6 @@ function exportKartExcel(fName, aCondition)
           j++
         endif
       next
-
       ++row
     endif
     
