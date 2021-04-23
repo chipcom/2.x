@@ -3,7 +3,7 @@
 #include 'function.ch'
 #include 'hblibxlsxwriter.ch'
 
-***** 22.04.21 создать файл Excel
+***** 23.04.21 создать файл Excel
 function exportKartExcel(fName, aCondition)
   local workbook
   local header
@@ -148,7 +148,7 @@ function exportKartExcel(fName, aCondition)
           j++
         endif
         if i == 12 .and. aCondition[i,3]  // адрес пребывания
-          if empty(KART_->adresp) .and. aCondition[11, 3]
+          if empty(KART_->adresp) .and. aCondition[11,3]
             lxw_worksheet_write_string(worksheet, row, j, 'тот же', fmtCellString)
           elseif empty(KART_->adresp) .and. ! aCondition[11, 3]
             lxw_worksheet_write_string(worksheet, row, j, hb_StrToUtf8( ret_okato_ulica(KART->adres, KART_->okatog) ), fmtCellString)

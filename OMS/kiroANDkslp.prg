@@ -185,21 +185,23 @@ function calcKSLP(cKSLP, dateSl)
   endif
   return summ
 
-  ***** 01.02.21 
+***** 23.04.21 
 Function f_cena_kiro(/*@*/_cena, lkiro, dateSl )
   // _cena - изменяемая цена
   // lkiro - уровень КИРО
   // dateSl - дата случая
   Local _akiro := {0,1}
-  local aKIRO, i
+  local aKIRO, i, rowKIRO
 
   if year(dateSl) == 2021
     aKIRO := getKIROtable( dateSl )
-    if (i := ascan(aKIRO, {|x| x[1] == lkiro })) > 0
-      if between_date(aKIRO[i, 5], aKIRO[i, 6], dateSl)
-        _akiro := { lkiro, aKIRO[i, 4] }
+    for each rowKIRO in aKIRO
+      if rowKIRO[1] == lkiro
+        if between_date(rowKIRO[5], rowKIRO[6], dateSl)
+          _akiro := { lkiro, rowKIRO[4] }
+        endif
       endif
-    endif
+    next
   else
     do case
       case lkiro == 1 // менее 4-х дней, выполнено хирург.вмешательство

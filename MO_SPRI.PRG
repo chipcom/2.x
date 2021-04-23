@@ -1020,7 +1020,7 @@ if empty(ret_arr)
 endif
 return ret_arr
 
-***** 27.01.21
+***** 23.04.21
 Function usl2TFOMS()
 Static sdate
 Local k, buf := save_maxrow(), name_file := "uslugi"+stxt, nu, ret_arr,;
@@ -1081,15 +1081,17 @@ if (k := popup_2array(usl9TFOMS(mdate),T_ROW,T_COL-5,su,1,@t_arr,"‚λ΅¥ΰ¨β¥ £ΰγ――
       arrKIRO := getKIROtable( mdate )
       add_string(':')
       for each rowKIRO in arrKIRO
-        k := perenos(ta, alltrim(rowKIRO[3]), 58)
-        for i := 1 to k
-          if i == 1
-            tmpKIRO := str(rowKIRO[1], 7) + ' - ' + ta[i] + ' (ª®¥δ=' + str(rowKIRO[4], 4, 2) + ')'
-          else
-            tmpKIRO := space(10) + ta[i]
-          endif
-          add_string(tmpKIRO)
-        next
+        if between_date(rowKIRO[5], rowKIRO[6], mdate)
+          k := perenos(ta, alltrim(rowKIRO[3]), 58)
+          for i := 1 to k
+            if i == 1
+              tmpKIRO := str(rowKIRO[1], 7) + ' - ' + ta[i] + ' (ª®¥δ=' + str(rowKIRO[4], 4, 2) + ')'
+            else
+              tmpKIRO := space(10) + ta[i]
+            endif
+            add_string(tmpKIRO)
+          next
+        endif
       next
     else
       add_string('‘‹: 1 - ¤® 1 £®¤ (ª®νδ=1.1), 2 - ®β 1 £®¤  ¤® 3-ε «¥β Άª«ξη¨β.(ª®νδ=1.1)')
