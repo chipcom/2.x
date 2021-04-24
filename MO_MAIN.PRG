@@ -5,7 +5,6 @@
 * my_mo_f_main()
 * my_mo_f1main()
 * my_mo_begin_task()
-* my_mo_Reconstruct_BD()
 * my_mo_init_array_files_DB()
 *******************************************************************************
 #include "set.ch"
@@ -115,7 +114,7 @@ if ControlBases(1,_version) // если необходимо
     buf := savescreen()
     f_message({"Переход на новую версию программы "+fs_version(_version)+' от '+_date_version},,,,8)
     // провести реконструкцию БД
-    Reconstruct_BD(is_cur_dir,is_create)
+    Reconstruct_DB(is_cur_dir,is_create)
     // провести реконструкцию БД учёта направлений на госпитализацию
     _263_init()
     // для начала работы _first_run() (убрал в NOT_USED)
@@ -1769,13 +1768,6 @@ if glob_mo[_MO_KOD_TFOMS] == kod_VOUNC
   fl := vounc_begin_task()
 endif
 return fl
-
-*****
-Function my_mo_Reconstruct_BD()
-if glob_mo[_MO_KOD_TFOMS] == kod_VOUNC
-  vounc_Reconstruct_BD()
-endif
-return NIL
 
 ***** 05.11.15
 Function my_mo_f1main()

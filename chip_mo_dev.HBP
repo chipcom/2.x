@@ -84,6 +84,7 @@ mo_263s.prg
 Errorsys.prg
 
 .\init\init_mo.prg
+.\init\reconstruct_DB.prg
 .\init\notExistsFileNSI.prg
 
 .\calendar\calendar.prg

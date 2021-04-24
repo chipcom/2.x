@@ -29,61 +29,10 @@ else
 endif
 return fl
 
-*
-
-*****
-Function vounc_Reconstruct_BD()
-Local vouncmnn := {;
-   {"NAME",       "C",60,0},;
-   {"NAME_LAT",   "C",60,0},;
-   {"TIP_MNN",    "N", 1,0};  // тип МНН
-  }
-Local vounctrn := {;
-   {"NAME",       "C",60,0},;
-   {"NAME_LAT",   "C",60,0},;
-   {"doza",       "N", 6,1},; // дозировка
-   {"C_LF",       "N", 1,0},; // 0-мг,1-мг/мл
-   {"N_LF",       "N", 4,0},; // количество в упаковке
-   {"MNN",        "N", 5,0};
-  }
-Local vouncnaz := {;
-   {"KOD_K",   "N",   7, 0},; // код по картотеке
-   {"DATE_NAZ","D",   8, 0},; // Дата назначения
-   {"KOD_DIAG","C",   5, 0},; // Код заболевания (по МКБ-10)
-   {"TOVAR",   "N",   5, 0},; // код ТРН
-   {"KOL_NAZ", "N",   6, 1},; // количество назначенного препарата в сутки
-   {"KOL_UP",  "N",   2, 0},; // количество упаковок
-   {"DATE_E" , "C",   4, 0},; // дата добавления
-   {"KOD_P"  , "C",   1, 0};  // код пользователя, добавившего
-  }
-Local vouncrec := {;
-   {"KOD_K",   "N",   7, 0},; // код по картотеке
-   {"KOD_DIAG","C",   5, 0},; // Код заболевания (по МКБ-10)
-   {"NUMBER_R","N",   6, 0},; // номер рецепта
-   {"DATE_R",  "D",   8, 0},; // Дата выписки рецепта
-   {"TOVAR",   "N",   5, 0},; // код ТРН
-   {"VRACH",   "N",   4, 0},; // код врача по "mo_pers"
-   {"KOL_NAZ", "N",   6, 1},; // количество назначенного препарата в сутки
-   {"KOL_UP",  "N",   2, 0},; // количество упаковок
-   {"ANNUL",   "N",   1, 0},; // 1-аннулирован, 0-обычный
-   {"D_ANNUL", "D",   8, 0},; // Дата аннулирования рецепта
-   {"DATE_E" , "C",   4, 0},; // дата добавления
-   {"KOD_P"  , "C",   1, 0},; // код пользователя, добавившего
-   {"DATE_E2", "C",   4, 0},; // дата редактирования
-   {"KOD_P2" , "C",   1, 0};  // код пользователя, исправившего
-  }
-reconstruct(dir_server+"vouncmnn",vouncmnn,,,.t.)
-reconstruct(dir_server+"vounctrn",vounctrn,,,.t.)
-reconstruct(dir_server+"vouncnaz",vouncnaz,,,.t.)
-reconstruct(dir_server+"vouncrec",vouncrec,,,.t.)
-return NIL
-
 *****
 Function vounc_init_array_files_DB()
 Static arr_f := {"vouncmnn","vounctrn","vouncnaz","vouncrec"}
 return arr_f
-
-*
 
 *****
 Function vounc_f1main()
