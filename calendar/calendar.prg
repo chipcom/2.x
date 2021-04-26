@@ -275,3 +275,11 @@ Function correct_count_ym(_mdate,_sys_date,y_m)
     fl := .t.
   endif
   return fl
+
+***** 28.07.16 обновить системную дату (для работающих по ночам травмпунктов)
+Function change_sys_date()
+  sys_date := DATE()
+  sys1_date := sys_date
+  c4sys_date := dtoc4(sys1_date)
+  return NIL
+  

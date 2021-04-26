@@ -1786,10 +1786,3 @@ if glob_mo[_MO_KOD_TFOMS] == kod_VOUNC
   arr := vounc_init_array_files_DB()
 endif
 return arr
-
-***** 28.07.16 обновить системную дату (для работающих по ночам травмпунктов)
-Function change_sys_date()
-sys_date := DATE()
-sys1_date := sys_date
-c4sys_date := dtoc4(sys1_date)
-return NIL
