@@ -1,3 +1,5 @@
+#include 'chip_mo.ch'
+
 ***** 24.04.21 реконстукция баз данных
 Function Reconstruct_DB(is_cur_dir,is_create)
   Local base1 := {;
