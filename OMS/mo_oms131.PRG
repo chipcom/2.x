@@ -28,10 +28,11 @@ afillall(arr,0)
   go top
   do while !eof()
     fl := .f.
-    if r01->n_m < 4
-      if r01->n_m != 3 .and. rr->tip == 0
+//    if r01->n_m < 6
+      if (r01->n_m != 3.and.r01->n_m != 4 .and.r01->n_m != 5 ) ;
+         .and. rr->tip == 0
         fl := .t.
-      elseif r01->n_m == 3 .and. rr->tip == 1
+      elseif (r01->n_m >= 3 .and. r01->n_m <= 5 ).and. rr->tip == 1
         fl := .t.
       endif
       if fl
@@ -39,7 +40,7 @@ afillall(arr,0)
         goto (r01->kod_k)
         v := sgod - year(kart->date_r)
         i := iif(kart->pol == "Œ", 1, 2)
-        if v < 34
+        if v <= 34
            j := 1
         elseif v <= 39
            j := 2
@@ -56,7 +57,7 @@ afillall(arr,0)
         endif
         arr[i,j] ++
       endif
-    endif
+//    endif
     select R01
     skip
   enddo
@@ -494,7 +495,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
                             put_val(tmp->vm1,6)+put_val(tmp->vm2,6)+;
                             put_val(tmp->vm_1,7)+put_val(tmp->vm_2,8)+;
                             put_val(tmp->vg1,6)+put_val(tmp->vg2,6)+;
-                            put_val(tmp->vg1,7)+put_val(tmp->vg2,8))
+                            put_val(tmp->vg_1,7)+put_val(tmp->vg_2,8))
       sm1 += tmp->vm1
       sg1 += tmp->vg1
       sm2 += tmp->vm2
@@ -509,12 +510,12 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
     add_string(padl("ˆ’ŽƒŽ:",17)+put_val(sm1+sg1,6)+put_val(sm2+sg2,6)+;
                                  put_val(sm_1+sg_1,7)+put_val(sm_2+sg_2,8)+;
                                  put_val(sm1,6)+put_val(sm2,6)+;
-                                 put_val(sm1,7)+put_val(sm2,8)+;
+                                 put_val(sm_1,7)+put_val(sm_2,8)+;
                                  put_val(sg1,6)+put_val(sg2,6)+;
-                                 put_val(sg1,7)+put_val(sg2,8))
+                                 put_val(sg_1,7)+put_val(sg_2,8))
     //
     add_string("")
-    add_string("’ ¡«¨æ  1000 ¯« ­ §  3 ¬¥áïæ ")
+    add_string("’ ¡«¨æ  1000 ¯« ­ ")
     add_string("ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄ")
     add_string("                 ³ ‚á¥£® ³Œã¦ç¨­ë³†¥­é¨­ë")
     add_string("‚®§à áâ­ ï £àã¯¯ ÃÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄ")
@@ -1029,17 +1030,17 @@ dvn_prof := ret_PF_DVN(human_->RSLT_NEW)
 if m1veteran == 1
   mdvozrast := ret_vozr_DVN_veteran(mdvozrast,human->k_data)
 endif
-if mdvozrast < 34
+if mvozrast <= 34
   ivozrast := 1
-elseif mdvozrast <= 39
+elseif mvozrast <= 39
   ivozrast := 2
-elseif mdvozrast <= 54
+elseif mvozrast <= 54
   ivozrast := 3
-elseif mdvozrast <= 59
+elseif mvozrast <= 59
   ivozrast := 4
-elseif mdvozrast <= 64
+elseif mvozrast <= 64
   ivozrast := 5
-elseif mdvozrast <= 74
+elseif mvozrast <= 74
   ivozrast := 6
 else
   ivozrast := 7
@@ -1059,14 +1060,14 @@ else
  endif
 endif
 //
-if mpol == "Œ"
-  tmp1000->vm_1 ++
-else
-  tmp1000->vg_1 ++
-endif
-//
 select TMP1000
 goto (ivozrast)
+if mpol == "Œ"
+  tmp1000->vm_1 ++   // 1© íâ ¯
+else
+  tmp1000->vg_1 ++   // 1© íâ ¯
+endif
+//
 // à §®¡à âì Ž”/„ˆ‘
 // !!! ‚ˆŒ€ˆ…
 if fl2 // ­ ¯à ¢«¥­ ­  2 íâ ¯
@@ -1079,7 +1080,7 @@ elseif !empty(tmp->kod2h)
     arr_7001[22,2] ++
     arr_7001[23,2] ++
     if mpol == "Œ"
-      tmp1000->vm2 ++
+      tmp1000->vm2 ++   // â®ç­® ¯à®è«¨ „ 
     else
       tmp1000->vg2 ++
     endif
@@ -1459,7 +1460,7 @@ mdvozrast := year(human->n_data) - year(human->date_r)
 if m1veteran == 1
   mdvozrast := ret_vozr_DVN_veteran(mdvozrast,human->k_data)
 endif
-if mdvozrast < 34
+if mdvozrast <= 34
   ivozrast := 1
 elseif mdvozrast <= 39
   ivozrast := 2
