@@ -59,8 +59,8 @@ function readVersion()
     ? "File cannot be opened"
     return .f.
   endif  
-  cStr := FReadStr( nHandle, 100 )
-  ? cStr
+  cStr := hb_ATokens( FReadStr( nHandle, 100 ), '.' )
+  ? hb_ValToExp( cStr )
 
   FClose( nHandle )  
   return .t.
