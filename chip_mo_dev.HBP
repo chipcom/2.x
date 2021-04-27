@@ -47,7 +47,6 @@ mo_mzxml.prg
 mo_oms.prg
 mo_oms1.prg
 mo_oms2.prg
-mo_oms3.prg
 mo_omsi.prg
 mo_omsid.prg
 mo_omsio.prg
@@ -128,6 +127,7 @@ Errorsys.prg
 .\ref\dbKSLP.prg
 .\ref\dbKIRO.prg
 
+.\oms\oms_double.prg
 .\oms\definition_KSG.prg
 .\oms\oms_sluch.prg
 .\oms\oms_usl_sluch.prg

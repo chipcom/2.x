@@ -1,48 +1,66 @@
 /* Download a file from an FTP server */
-
 #require "hbtip"
 
-PROCEDURE Main( cURL, ... )
+#include "fileio.ch"
 
-   LOCAL lRetVal := .T.
+function Main()  // cURL, ... )
 
-   LOCAL aFiles, cFile
-   LOCAL oFTP, oURL
+  local lRetVal := .T.
 
-   /* fetch files to transfer */
-   IF ! Empty( aFiles := { 'version.txt' } )
-//   IF ! Empty( aFiles := { ... } )
+	local cServer   := 'ftp.chipplus.nichost.ru'
+	local cUser     := 'chipplus_mo' 
+	local cPassword := 'p-qpkGfzOV'
+	local cUrl      := 'ftp://' + cUser + ':' + cPassword + '@' + cServer
+  local fileName  := 'version.txt'
 
-      hb_default( @cURL, "ftp://chipplus_mo:p-qpkGfzOV@ftp.chipplus.nichost.ru" )
+  local oFTP, oURL
 
-      oURL := TUrl():New( cURL )
+  /* fetch files to transfer */
+  oURL := TUrl():New( cURL )
 
-      oFTP := TIPClientFTP():New( oURL, .T. )
-      oFTP:nConnTimeout := 20000
-      oFTP:bUsePasv := .T.
+  oFTP := TIPClientFTP():New( oURL, .f. )
+  oFTP:nConnTimeout := 20000
+  oFTP:bUsePasv := .T.
 
-      IF oFTP:Open( cURL )
-         FOR EACH cFile IN aFiles
-            ? "Filename:", cFile
-            IF ! oFtp:DownloadFile( cFile )
-               lRetVal := .F.
-               EXIT
-            ENDIF
-         NEXT
-         oFTP:Close()
-      ELSE
-         ? "Could not connect to FTP server", oURL:cServer
-         IF oFTP:SocketCon == NIL
-            ? "Connection not initialized"
-         ELSEIF hb_inetErrorCode( oFTP:SocketCon ) == 0
-            ? "Server response:", oFTP:cReply
-         ELSE
-            ? "Error in connection:", hb_inetErrorDesc( oFTP:SocketCon )
-         ENDIF
-         lRetVal := .F.
-      ENDIF
-   ENDIF
+  if oFTP:Open( cURL )
+    if ! oFtp:DownloadFile( fileName )
+      lRetVal := .F.
+    endif
+      oFTP:Close()
+  else
+    ? "Could not connect to FTP server", oURL:cServer
+    if oFTP:SocketCon == nil
+      ? "Connection not initialized"
+    elseif hb_inetErrorCode( oFTP:SocketCon ) == 0
+      ? "Server response:", oFTP:cReply
+    else
+      ? "Error in connection:", hb_inetErrorDesc( oFTP:SocketCon )
+    endif
+    lRetVal := .F.
+  endif
 
-   ErrorLevel( iif( lRetVal, 0, 1 ) )
+  if lRetVal
+    readVersion()
+    if FErase( fileName ) != F_ERROR
+      ? "File successfully erased"
+    else
+      ? "File cannot be deleted"
+    endif    
+  endif
+  //  ErrorLevel( iif( lRetVal, 0, 1 ) )
 
-   RETURN
+  return lRetVal
+
+function readVersion()
+  local nHandle
+  local cStr
+
+  if ( nHandle := FOpen( 'version.txt', FO_READ ) ) == F_ERROR
+    ? "File cannot be opened"
+    return .f.
+  endif  
+  cStr := FReadStr( nHandle, 100 )
+  ? cStr
+
+  FClose( nHandle )  
+  return .t.
