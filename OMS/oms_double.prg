@@ -50,7 +50,7 @@ if (arr_m := year_month(T_ROW,T_COL+5,,3)) != NIL
   R_Use(dir_server+"human_",,"HUMAN_")
   R_Use(dir_server+"human",dir_server+"humand","HUMAN")
   set relation to recno() into HUMAN_, to recno() into HUMAN_2
-  d := addmonth(arr_m[5],-1)  // ãç¥áâì ¯à¥¤ë¤ãé¨© ¬¥áïæ
+  d := addmonth(arr_m[5],-2)  // ãç¥áâì ¯à¥¤ë¤ãé¨© ¬¥áïæ
   dbseek(dtos(d),.t.)
   index on upper(fio) to (cur_dir+"tmp_h2") ;
         while human->k_data <= arr_m[6] ;
