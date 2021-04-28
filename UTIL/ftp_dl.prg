@@ -14,6 +14,7 @@ function Main()  // cURL, ... )
   local fileName  := 'version.txt'
 
   local oFTP, oURL
+  local aVersion
 
   /* fetch files to transfer */
   oURL := TUrl():New( cURL )
@@ -40,7 +41,9 @@ function Main()  // cURL, ... )
   endif
 
   if lRetVal
-    readVersion()
+    if (aVersion := readVersion()) != nil
+      ? hb_ValToExp( aVersion )
+    endif
     if FErase( fileName ) != F_ERROR
       ? "File successfully erased"
     else
@@ -52,15 +55,35 @@ function Main()  // cURL, ... )
   return lRetVal
 
 function readVersion()
-  local nHandle
-  local cStr
+  local nHandle, i, j, tStr, cNum := '', cAlpha := ''
+  local aStr, aVer := {}
 
   if ( nHandle := FOpen( 'version.txt', FO_READ ) ) == F_ERROR
-    ? "File cannot be opened"
-    return .f.
-  endif  
-  cStr := hb_ATokens( FReadStr( nHandle, 100 ), '.' )
-  ? hb_ValToExp( cStr )
+    // ? "File cannot be opened"
+    return nil
+  endif
+  aStr := hb_ATokens( FReadStr( nHandle, 100 ), '.' )
+  // ? hb_ValToExp( aStr )
+  if len(aStr) == 3
+    for i := 1 to 3
+      if i < 3
+        AAdd(aVer, val(aStr[i]))
+      else
+        tStr := aStr[i]
+        for j := 1 to len(tStr)
+          if IsDigit( SubStr(tStr, j, 1) )
+            cNum += SubStr(tStr, j, 1)
+          else
+            cAlpha += SubStr(tStr, j, 1)
+          endif
+        next
+        AAdd(aVer, val(cNum))
+      endif
+    next
+  endif
+  AAdd(aVer, cAlpha)
+  // ? hb_ValToExp( aVer )
+  // ? hb_ValToExp( cAlpha )
 
   FClose( nHandle )  
-  return .t.
+  return aVer
