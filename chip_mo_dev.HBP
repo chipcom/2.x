@@ -13,6 +13,9 @@
 -lminizip
 -gui
 -gtwvg
+
+hbtip.hbc
+
 -mt
 #-compr=yes
 #-workdir=C:\TEMP
@@ -154,3 +157,4 @@ Errorsys.prg
 
 .\util\workWithZIP.prg
 .\util\runExternalProgram.prg
+.\util\checkVersionInternet.prg

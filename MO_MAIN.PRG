@@ -45,6 +45,7 @@ FOR EACH s IN hb_AParams() // анализ входных параметров
   ENDCASE
 NEXT
 //
+public charVersion := char_version
 public Err_version := fs_version(_version)+char_version+" от "+_date_version  // 02.02.2021
 Public kod_VOUNC := '101004'
 Public kod_LIS   := {'125901','805965'}
@@ -107,6 +108,9 @@ if !G_SOpen(sem_task,sem_vagno,fio_polzovat,p_name_comp)
   f_end()
 endif
 //
+
+checkVersionInternet( r, _version )
+
 Public chm_help_code := 0
 Init_first() // начальная инициализация программы (переменных, массивов,...)
 if ControlBases(1,_version) // если необходимо

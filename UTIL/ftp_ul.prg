@@ -3,29 +3,30 @@
 #require "hbtip"
 
 #include "fileio.ch"
+#include 'versionFTP.ch'
 
 PROCEDURE Main()
 
   local lRetVal := .T.
 
 	local cServer   := 'ftp.chipplus.nichost.ru'
-	local cUser     := 'chipplus_mo' 
-	local cPassword := 'p-qpkGfzOV'
+	local cUser     := VERSION_US
+	local cPassword := VERSION_PASS
 	local cURL      := 'ftp://' + cUser + ':' + cPassword + '@' + cServer
-  local fileName  := 'version.txt'
+  local fileVersion  := 'version.txt'
 
   LOCAL oFTP, oURL
 
   /* fetch files to transfer */
   oURL := TUrl():New( cURL )
 
-  oFTP := TIPClientFTP():New( oURL, .T. )
+  oFTP := TIPClientFTP():New( oURL, .f. )
   oFTP:nConnTimeout := 20000
   oFTP:bUsePasv := .T.
 
   IF oFTP:Open( cURL )
-    if crFile( fileName )
-      IF ! oFtp:UploadFile( fileName )
+    if crFile( fileVersion )
+      IF ! oFtp:UploadFile( fileVersion )
         lRetVal := .F.
       ENDIF
     endif
@@ -42,6 +43,8 @@ PROCEDURE Main()
     lRetVal := .F.
   ENDIF
 
+  FErase( fileVersion )
+
   ErrorLevel( iif( lRetVal, 0, 1 ) )
 
   RETURN
@@ -53,7 +56,7 @@ function crFile( cFile )
     return .f.
   ENDIF  
 
-  FWrite( nHandle, '2.11.20d' )
+  FWrite( nHandle, '2.11.20g' )
   FClose( nHandle )  
 
   return .t.
