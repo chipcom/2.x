@@ -7,8 +7,6 @@
 function checkVersionInternet( row, oldVersion )
 
 	local cServer   := 'ftp.chipplus.nichost.ru'
-	// local cUser     := 'chipplus_mo' 
-	// local cPassword := 'p-qpkGfzOV'
 	local cUser     := VERSION_US
 	local cPassword := VERSION_PASS
 	local cUrl      := 'ftp://' + cUser + ':' + cPassword + '@' + cServer
@@ -33,10 +31,10 @@ function checkVersionInternet( row, oldVersion )
   endif
 
   if (aVersion := readVersion( fileVersion )) != nil
-    if ControlVersion( aVersion )
+    if ControlVersion( aVersion, oldVersion )
       AAdd(arr, 'Доступна новая версия программы:')
-      AAdd(arr, 'текущая версия: ' + fs_version( oldVersion ) + charVersion)
-      AAdd(arr, 'новая версия: ' + fs_version( aVersion ) + aVersion[4])
+      AAdd(arr, 'текущая версия: ' + fs_version( oldVersion ) )// + charVersion)
+      AAdd(arr, 'новая версия: ' + fs_version( aVersion ) )// + aVersion[4])
       n_message( arr, , 'W/W', 'N/W', row + 3, , 'N+/W' )
     endif
   endif
@@ -75,13 +73,11 @@ function readVersion( fileVersion )
 
 
 ***** контроль версии базы данных
-Function ControlVersion(aVersion)
+Function ControlVersion(aVersion, oldVersion)
   // aVersion - проверяемая версия
   local nfile := "ver_base"
   local ver__base
   local snversion := int(aVersion[1]*10000 + aVersion[2]*100 + aVersion[3])
-  local lengthVerOld := len(charVersion)
-  local lengthVerNew := len( aVersion[4] )
 
   if hb_FileExists(dir_server+nfile+sdbf)
     R_Use(dir_server+nfile)
@@ -90,7 +86,8 @@ Function ControlVersion(aVersion)
     if snversion > ver__base
       return .t.
     elseif snversion == ver__base
-      if asc(substr( charVersion, 1, 1) ) < asc( aVersion[4] )
+      if asc(substr( oldVersion[4], 1, 1) ) < asc( aVersion[4] )
+        // if asc(substr( charVersion, 1, 1) ) < asc( aVersion[4] )
         return .t.
       endif
     endif

@@ -13,10 +13,10 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-Static _version := {2,11,20}
-Static char_version := "e+"
-Static _date_version := "27.04.21г."
-Static __s_full_name := "ЧИП + Учёт работы Медицинской Организации"
+Static _version := {2, 11, 20, 'e+'}
+// Static char_version := "e+"
+Static _date_version := '27.04.21г.'
+Static __s_full_name := 'ЧИП + Учёт работы Медицинской Организации'
 Static __s_version
 
 external ust_printer, ErrorSys, ReadModal, like, flstr, prover_dbf, net_monitor, pr_view, ne_real
@@ -45,8 +45,9 @@ FOR EACH s IN hb_AParams() // анализ входных параметров
   ENDCASE
 NEXT
 //
-public charVersion := char_version
-public Err_version := fs_version(_version)+char_version+" от "+_date_version  // 02.02.2021
+// public charVersion := char_version
+// public Err_version := fs_version(_version)+char_version+" от "+_date_version  // 02.02.2021
+public Err_version := fs_version(_version)+" от "+_date_version  // 30.04.2021
 Public kod_VOUNC := '101004'
 Public kod_LIS   := {'125901','805965'}
 //
@@ -83,7 +84,8 @@ Public d_01_05_2019 := 0d20190501
 Public d_01_11_2019 := 0d20191101
 Public d_01_01_2021 := 0d20210101
 //
-__s_version := "  в. "+fs_version(_version)+char_version+" от "+_date_version+" тел.(8442)23-69-56"
+// __s_version := "  в. "+fs_version(_version)+char_version+" от "+_date_version+" тел.(8442)23-69-56"
+__s_version := "  в. "+fs_version(_version)+" от "+_date_version+" тел.(8442)23-69-56"
 SET(_SET_DELETED, .T.)
 SETCLEARB(" ")
 is_cur_dir := f_first(is_create)
