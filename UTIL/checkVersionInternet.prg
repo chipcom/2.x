@@ -6,7 +6,7 @@
 
 function checkVersionInternet( row, oldVersion )
 
-	local cServer   := 'ftp.chipplus.nichost.ru'
+	local cServer   := VERSION_FTP
 	local cUser     := VERSION_US
 	local cPassword := VERSION_PASS
 	local cUrl      := 'ftp://' + cUser + ':' + cPassword + '@' + cServer

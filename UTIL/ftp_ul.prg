@@ -3,13 +3,13 @@
 #require "hbtip"
 
 #include "fileio.ch"
-#include 'versionFTP.ch'
+#include '../../INCLUDE/versionFTP.ch'
 
 PROCEDURE Main()
 
   local lRetVal := .T.
 
-	local cServer   := 'ftp.chipplus.nichost.ru'
+	local cServer   := VERSION_FTP
 	local cUser     := VERSION_US
 	local cPassword := VERSION_PASS
 	local cURL      := 'ftp://' + cUser + ':' + cPassword + '@' + cServer
