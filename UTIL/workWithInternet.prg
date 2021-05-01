@@ -6,29 +6,10 @@
 
 function checkVersionInternet( row, oldVersion )
 
-	local cServer   := VERSION_FTP
-	local cUser     := VERSION_US
-	local cPassword := VERSION_PASS
-	local cUrl      := 'ftp://' + cUser + ':' + cPassword + '@' + cServer
   local fileVersion  := 'version.txt'
-
-  local oFTP, oURL
   local aVersion, arr := {}
 
-  oURL := TUrl():New( cURL )
-
-  oFTP := TIPClientFTP():New( oURL, .f. )
-  oFTP:nConnTimeout := 20000
-  oFTP:bUsePasv := .T.
-
-  if oFTP:Open( cURL )
-    if ! oFtp:DownloadFile( fileVersion )
-      return nil
-    endif
-      oFTP:Close()
-  else
-    return nil
-  endif
+  fileFromFTP( fileVersion )
 
   if (aVersion := readVersion( fileVersion )) != nil
     if ControlVersion( aVersion, oldVersion )
@@ -42,7 +23,51 @@ function checkVersionInternet( row, oldVersion )
 
   return nil
 
-function readVersion( fileVersion )
+function fileFromFTP( fileName )
+  local cServer   := VERSION_FTP
+  local cUser     := VERSION_US
+  local cPassword := VERSION_PASS
+  local cUrl      := 'ftp://' + cUser + ':' + cPassword + '@' + cServer
+  local oFTP, oURL
+  
+  oURL := TUrl():New( cURL )
+  
+  oFTP := TIPClientFTP():New( oURL, .f. )
+  oFTP:nConnTimeout := 20000
+  oFTP:bUsePasv := .T.
+  
+  if oFTP:Open( cURL )
+    if ! oFtp:DownloadFile( fileName )
+      return nil
+    endif
+    oFTP:Close()
+  endif
+  return nil
+  
+  function fileToFTP( fileName )
+    local cServer   := VERSION_FTP
+    local cUser     := VERSION_US
+    local cPassword := VERSION_PASS
+    local cUrl      := 'ftp://' + cUser + ':' + cPassword + '@' + cServer
+    local oFTP, oURL
+    
+    oURL := TUrl():New( cURL )
+    
+    oFTP := TIPClientFTP():New( oURL, .f. )
+    oFTP:nConnTimeout := 20000
+    oFTP:bUsePasv := .T.
+    
+    if oFTP:Open( cURL )
+      if ! oFtp:UploadFile( fileName )
+        return .f.
+      endif
+      oFTP:Close()
+    else
+      return .f.
+    endif
+    return .t.
+    
+  function readVersion( fileVersion )
   local nHandle, i, j, tStr, cNum := '', cAlpha := ''
   local aStr, aVer := {}
 
@@ -71,7 +96,6 @@ function readVersion( fileVersion )
   FClose( nHandle )  
   return aVer
 
-
 ***** контроль версии базы данных
 Function ControlVersion(aVersion, oldVersion)
   // aVersion - проверяемая версия
@@ -93,4 +117,3 @@ Function ControlVersion(aVersion, oldVersion)
     endif
   endif
   return .f.
-  
