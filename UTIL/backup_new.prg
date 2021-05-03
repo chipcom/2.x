@@ -5,9 +5,11 @@
 
 ***** запуск режима резервного копирования из меню
 Function m_copy_DB(par)
+  // par - 1 - резервная копия на диск
+  //       2 - резервная копия на FTP-сервер
   if G_SLock1Task(sem_task,sem_vagno)  // запрет доступа всем
     if f_Esc_Enter("резервного копирования")
-      fm_copy_DB("")
+      fm_copy_DB("", par)
     endif
     // разрешение доступа всем
     G_SUnLock(sem_vagno)
@@ -72,13 +74,14 @@ Function m_copy_DB_from_end(del_last,spath)
     next
   endif
   if fl
-    fl := fm_copy_DB(dir_archiv)
+    fl := fm_copy_DB(dir_archiv, 1)
   endif
   return fl
   
-  ***** 26.05.20
-  Function f_aadd_copy_DB(arr_f,x)
+***** 26.05.20
+Function f_aadd_copy_DB(arr_f,x)
   Local fl := .t., s, y
+
   x := upper(x)
   if eq_any(right(x,4),szip,stxt)
     s := StripPath(x)
@@ -97,11 +100,15 @@ Function m_copy_DB_from_end(del_last,spath)
   endif
   return NIL
   
-  ***** 06.03.17 внутренняя функция резервного копирования
-  Function fm_copy_DB(dir_archiv)
+***** 06.03.17 внутренняя функция резервного копирования
+Function fm_copy_DB(dir_archiv, par)
+  // par - 1 - резервная копия на диск
+  //       2 - резервная копия на FTP-сервер
+
   Static sast := "*", sfile_begin := "_begin.txt", sfile_end := "_end.txt"
   Local arr_f, blk := {| x | f_aadd_copy_DB(arr_f,x) }
   Local ar, hZip, i, cPassword, fl := .t., hGauge, s, y, cFile, buf := savescreen()
+
   f_message({"Ждите! Создаётся архив базы данных.",;
              "",;
              "Ни в коем случае не прерывайте процесс",;
@@ -268,18 +275,28 @@ Function m_copy_DB_from_end(del_last,spath)
   restscreen(buf)
   if fl .and. empty(dir_archiv)
     Private p_var_manager := "m_copy_DB"
-    s := manager(T_ROW,T_COL+5,maxrow()-2,,.f.,2) // "norton" для выбора каталога
-    if !empty(s)
-      mywait('Копирование "'+zip_file+'" в каталог "'+s+'"')
-      //delete file (hb_OemToAnsi(s)+zip_file)
-      delete file (s+zip_file)
-      //copy file (zip_file) to (hb_OemToAnsi(s)+zip_file)
-      copy file (zip_file) to (s+zip_file)
-      //if hb_fileExists(hb_OemToAnsi(s)+zip_file)
-      if hb_fileExists(s+zip_file)
-        stat_msg("Файл "+s+zip_file+" успешно записан!")
+    if par == 1
+      s := manager(T_ROW,T_COL+5,maxrow()-2,,.f.,2) // "norton" для выбора каталога
+      if !empty(s)
+        mywait('Копирование "'+zip_file+'" в каталог "'+s+'"')
+        //delete file (hb_OemToAnsi(s)+zip_file)
+        delete file (s+zip_file)
+        //copy file (zip_file) to (hb_OemToAnsi(s)+zip_file)
+        copy file (zip_file) to (s+zip_file)
+        //if hb_fileExists(hb_OemToAnsi(s)+zip_file)
+        if hb_fileExists(s+zip_file)
+          stat_msg("Файл "+s+zip_file+" успешно записан!")
+        else
+          stat_msg("Ошибка записи файла "+s+zip_file+"!")
+        endif
+        mybell(2,OK)
+      endif
+    else
+      mywait('Отправка "' + zip_file + '" на FTP-сервер службы поддержки')
+      if fileToFTP( zip_file )
+        stat_msg('Файл ' + zip_file + ' успешно отправлен на сервер!')
       else
-        stat_msg("Ошибка записи файла "+s+zip_file+"!")
+        stat_msg('Ошибка отпрвки файла ' + zip_file + ' на сервер!')
       endif
       mybell(2,OK)
     endif

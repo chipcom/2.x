@@ -1180,11 +1180,18 @@ do case
     aadd(cmain_menu,1)
     aadd(main_menu," ~Резервное копирование ")
     aadd(main_message,"Резервное копирование базы данных")
-    aadd(first_menu, {"Копирование ~базы данных"})
+    aadd(first_menu, {;
+        'Копирование ~базы данных',;
+        'Отправка базы ~данных';
+        })
     aadd(first_message, { ;
-        "Резервное копирование базы данных";
+        'Резервное копирование базы данных',;
+        'Резервное копирование базы данных и отправка копии службу поддержки';
       } )
-    aadd(func_menu, {"m_copy_DB()"})
+    aadd(func_menu, {;
+        'm_copy_DB(1)',;
+        'm_copy_DB(2)';
+      })
   case glob_task == X_INDEX //
     aadd(cmain_menu,1)
     aadd(main_menu," ~Переиндексирование ")
