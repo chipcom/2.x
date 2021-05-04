@@ -24,7 +24,7 @@ function checkVersionInternet( row, oldVersion )
   return nil
 
 function fileFromFTP( fileName )
-  local cServer   := VERSION_FTP
+  local cServer   := CUSTOM_FTP
   local cUser     := VERSION_US
   local cPassword := VERSION_PASS
   local cUrl      := 'ftp://' + cUser + ':' + cPassword + '@' + cServer
@@ -45,9 +45,9 @@ function fileFromFTP( fileName )
   return nil
   
   function fileToFTP( fileName )
-    local cServer   := VERSION_FTP
-    local cUser     := VERSION_US
-    local cPassword := VERSION_PASS
+    local cServer   := CUSTOM_FTP
+    local cUser     := UPLOAD_USER
+    local cPassword := UPLOAD_PASS
     local cUrl      := 'ftp://' + cUser + ':' + cPassword + '@' + cServer
     local oFTP, oURL
     
