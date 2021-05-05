@@ -3,7 +3,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** запуск режима резервного копирования из меню
+***** 05.05.21 запуск режима резервного копирования из меню
 Function m_copy_DB(par)
   // par - 1 - резервная копия на диск
   //       2 - резервная копия на FTP-сервер
@@ -29,7 +29,7 @@ Function m_copy_DB(par)
 
   return NIL
 
-***** 11.03.15 запуск режима резервного копирования из f_end()
+***** 05.05.21 запуск режима резервного копирования из f_end()
 function m_copy_DB_from_end( del_last, spath )
   local hCurrent, hFile, nSize, fl := .t., ta, zip_file, ;
         i, k, arr_f, dir_archiv := cur_dir + 'OwnChipArchiv'
@@ -65,20 +65,20 @@ function m_copy_DB_from_end( del_last, spath )
       hFile := int( val( arr_f[ k, 4 ] ) )
       fl := ( del_last .or. ( hCurrent - hFile ) > 1 ) // прошло заведомо более 1 часа
       if fl
-        delete file ( dir_archiv + arr_f[ k, 1 ] ) // удалим сегодняшний архив
+        hb_vfErase( dir_archiv + arr_f[ k, 1 ] ) // удалим сегодняшний архив
         --k
       endif
     endif
   endif
   if fl .and. k > 4 // оставляем только 4 последних архива
     for i := 1 to k - 4
-      delete file ( dir_archiv + arr_f[ i, 1 ] ) // удалим лишний архив
+      hb_vfErase( dir_archiv + arr_f[ i, 1 ] ) // удалим лишний архив
     next
   endif
   if fl .and. k > 0 .and. diskspace() < nSize // недостаточно места для архивирования
     for i := 1 to k
-      if hb_fileExists( dir_archiv + arr_f[ i, 1 ] )
-        delete file ( dir_archiv + arr_f[ i, 1 ] ) // удалим лишний архив
+      if hb_vfExists( dir_archiv + arr_f[ i, 1 ] )
+        hb_vfErase( dir_archiv + arr_f[ i, 1 ] ) // удалим лишний архив
         if diskspace() > nSize // уже достаточно места?
           exit  // выход из цикла
         endif
@@ -86,20 +86,18 @@ function m_copy_DB_from_end( del_last, spath )
     next
   endif
   if fl
-    // fl := fm_copy_DB(dir_archiv, 1)
     zip_file := create_ZIP( 3, dir_archiv )
-    // dir_archiv
   endif
   return fl
 
-***** 04.05.2021
+***** 05.05.2021
 function fillZIP( arr_f, sFileName )
   local hZip, hGauge, cFile, i
 
   if empty( arr_f )
     sFileName := ''
   else
-    delete file ( sFileName )
+    hb_vfErase( sFileName )
     if !empty( hZip := HB_ZIPOPEN( sFileName ) )
       hGauge := GaugeNew( , , { 'R/BG*', 'R/BG*', 'R/BG*' }, 'Создание архива ' + sFileName, .t. )
       GaugeDisplay( hGauge )
@@ -149,7 +147,7 @@ function create_ZIP( par, dir_archiv )
     zip_napr_mo := dir_NAPR_MO + szip
     zip_napr_tf := dir_NAPR_TF + szip
 
-    delete file (sfile_begin)
+    hb_vfErase( sfile_begin )
     hb_memowrit( sfile_begin, full_date( sys_date ) + ' ' + hour_min(seconds()) + ' ' + hb_OemToAnsi(fio_polzovat) )
 
     //
@@ -181,7 +179,7 @@ function create_ZIP( par, dir_archiv )
 
     zip_napr_tf := fillZIP( arr_f, zip_napr_tf )
 
-    delete file ( dir_archiv + zip_file )
+    hb_vfErase( dir_archiv + zip_file )
     if !empty( hZip := HB_ZIPOPEN( dir_archiv + zip_file ) )
       // сначала прочие файлы
       ar := { sfile_begin, ;
@@ -203,7 +201,8 @@ function create_ZIP( par, dir_archiv )
         aadd( ar, cur_dir + zip_napr_tf )
       endif
       for i := 1 To Len( ar )
-        if hb_fileExists( ar[ i ] )
+        
+        if hb_vfExists( ar[ i ] )
           stat_msg('Добавление в архив файла ' + ar[ i ] )
           HB_ZipStoreFile( hZip, ar[ i ], StripPath( ar[ i ] ) )  //, cPassword )
         endif
@@ -214,14 +213,14 @@ function create_ZIP( par, dir_archiv )
       for i := 1 To Len( array_files_DB )
         cFile := upper( array_files_DB[ i ] ) + sdbf
         GaugeUpdate( hGauge, i / Len( array_files_DB ) )
-        if hb_fileExists( dir_server + cFile )
+        if hb_vfExists( dir_server + cFile )
           stat_msg( 'Добавление в архив файла ' + cFile )
           HB_ZipStoreFile( hZip, dir_server + cFile, cFile )  //, cPassword )
         endif
       next
-      delete file ( sfile_end )
+      hb_vfErase( sfile_end )
       hb_memowrit( sfile_end, full_date( sys_date ) + ' ' + hour_min(seconds()) + ' ' + hb_OemToAnsi(fio_polzovat))
-      if hb_fileExists( sfile_end )
+      if hb_vfExists( sfile_end )
         HB_ZipStoreFile( hZip, sfile_end, sfile_end ) //, cPassword )
       endif
       // а теперь файлы WQ...
@@ -244,16 +243,16 @@ function create_ZIP( par, dir_archiv )
 
   // удаляем ненужные архивы
   if ! empty( zip_xml_mo )
-    delete file ( zip_xml_mo )
+    hb_vfErase( zip_xml_mo )
   endif
   if ! empty( zip_xml_tf )
-    delete file ( zip_xml_tf )
+    hb_vfErase( zip_xml_tf )
   endif
   if !empty( zip_napr_mo )
-    delete file ( zip_napr_mo )
+    hb_vfErase( zip_napr_mo )
   endif
   if !empty( zip_napr_tf )
-    delete file ( zip_napr_tf )
+    hb_vfErase( zip_napr_tf )
   endif
 
   // разрешение доступа всем
@@ -287,4 +286,3 @@ Function f_aadd_copy_DB( arr_f, x )
     aadd( arr_f, x )
   endif
   return nil
-  
