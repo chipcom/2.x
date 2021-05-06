@@ -90,28 +90,26 @@ function m_copy_DB_from_end( del_last, spath )
   endif
   return fl
 
-***** 05.05.2021
+***** 06.05.2021
 function fillZIP( arr_f, sFileName )
-  local hZip, hGauge, cFile, i
+  local hZip, aGauge, cFile
+  local lCompress
 
   if empty( arr_f )
     sFileName := ''
   else
     hb_vfErase( sFileName )
-    if !empty( hZip := HB_ZIPOPEN( sFileName ) )
-      hGauge := GaugeNew( , , { 'R/BG*', 'R/BG*', 'R/BG*' }, 'Создание архива ' + sFileName, .t. )
-      GaugeDisplay( hGauge )
-      for i := 1 To Len( arr_f )
-        cFile := StripPath( arr_f[ i ])  // имя файла без пути
-        GaugeUpdate( hGauge, i / Len( arr_f ) )
-        stat_msg( 'Добавление в архив файла ' + cFile )
-        HB_ZipStoreFile( hZip, arr_f[ i ], cFile )//, cPassword )
-      next
-      CloseGauge( hGauge ) // Закроем окно отображения
-      HB_ZIPCLOSE( hZip )
-    else
+
+    // nLen   := Len( arr_f )
+    aGauge := GaugeNew( , , { 'R/BG*', 'R/BG*', 'R/BG*' }, 'Создание архива ' + hb_FNameNameExt( sFileName ), .t. )
+    GaugeDisplay( aGauge )
+
+    lCompress := hb_ZipFile( sFileName, arr_f, 9, {| cFile, nPos | stat_msg( 'Добавление в архив файла ' + hb_FNameNameExt( cFile ) ) }, ;
+      .t., , .f., , { | nPos, nLen | GaugeUpdate( aGauge, nPos / nLen ) } )
+    if ! lCompress
       sFileName := ''
     endif
+    CloseGauge( aGauge ) // Закроем окно отображения бегунка
   endif
 
   return sFileName
@@ -120,7 +118,7 @@ function create_ZIP( par, dir_archiv )
   static sast := '*', sfile_begin := '_begin.txt', sfile_end := '_end.txt'
   local arr_f, ar
   local blk := { | x | f_aadd_copy_DB( arr_f, x ) }
-  local hZip, i, cPassword, fl := .t., hGauge, s, y
+  local hZip, i, cPassword, fl := .t., aGauge, s, y
   local cFile
   local zip_file
   local buf := savescreen()
@@ -180,7 +178,7 @@ function create_ZIP( par, dir_archiv )
     zip_napr_tf := fillZIP( arr_f, zip_napr_tf )
 
     hb_vfErase( dir_archiv + zip_file )
-    if !empty( hZip := HB_ZIPOPEN( dir_archiv + zip_file ) )
+
       // сначала прочие файлы
       ar := { sfile_begin, ;
             tools_ini, ;
@@ -200,41 +198,38 @@ function create_ZIP( par, dir_archiv )
       if ! empty( zip_napr_tf )
         aadd( ar, cur_dir + zip_napr_tf )
       endif
-      for i := 1 To Len( ar )
-        
-        if hb_vfExists( ar[ i ] )
-          stat_msg('Добавление в архив файла ' + ar[ i ] )
-          HB_ZipStoreFile( hZip, ar[ i ], StripPath( ar[ i ] ) )  //, cPassword )
-        endif
-      next
-      hGauge := GaugeNew( , , { 'N/BG*', 'N/BG*', 'N/BG*' }, 'Создание архива ' + zip_file, .t. )
-      GaugeDisplay( hGauge )
-      // а теперь база данных
+
       for i := 1 To Len( array_files_DB )
         cFile := upper( array_files_DB[ i ] ) + sdbf
-        GaugeUpdate( hGauge, i / Len( array_files_DB ) )
         if hb_vfExists( dir_server + cFile )
-          stat_msg( 'Добавление в архив файла ' + cFile )
-          HB_ZipStoreFile( hZip, dir_server + cFile, cFile )  //, cPassword )
+          aadd( ar, dir_server + cFile )
         endif
       next
+
       hb_vfErase( sfile_end )
       hb_memowrit( sfile_end, full_date( sys_date ) + ' ' + hour_min(seconds()) + ' ' + hb_OemToAnsi(fio_polzovat))
       if hb_vfExists( sfile_end )
-        HB_ZipStoreFile( hZip, sfile_end, sfile_end ) //, cPassword )
+        aadd( ar, sfile_end )
       endif
+
       // а теперь файлы WQ...
       arr_f := {}
       y := year( sys_date )
       // только текущий год
       scandirfiles( dir_server, 'mo_wq' + substr( str( y, 4 ), 3 ) + '*' + sdbf, { | x | aadd( arr_f, x ) } )
       for i := 1 To Len( arr_f )
-        cFile := StripPath( arr_f[ i ] )  // имя файла без пути
-        HB_ZipStoreFile( hZip, arr_f[ i ], cFile )  //, cPassword )
+        aadd( ar, arr_f[ i ] )
       next
-      CloseGauge( hGauge ) // Закроем окно отображения
-      HB_ZIPCLOSE( hZip )
-    else
+
+    // nLen   := Len( ar )
+    aGauge := GaugeNew( , , { 'R/BG*', 'R/BG*', 'R/BG*' }, 'Создание архива ' + zip_file, .t. )
+    GaugeDisplay( aGauge )
+  
+    lCompress := hb_ZipFile( dir_archiv + zip_file, ar, 9, {| cFile, nPos | stat_msg( 'Добавление в архив файла ' + hb_FNameNameExt( cFile ) ) }, ;
+      .t., , .f., , { | nPos, nLen | GaugeUpdate( aGauge, nPos / nLen ) } )
+    CloseGauge( aGauge ) // Закроем окно отображения бегунка
+  
+    if ! lCompress
       fl := func_error( 4, 'Возникла ошибка при архивировании базы данных.' )
     endif
 
