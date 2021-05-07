@@ -13,6 +13,10 @@
 -lminizip
 -gui
 -gtwvg
+
+hbtip.hbc
+hbziparc.hbc
+
 -mt
 #-compr=yes
 -inc
