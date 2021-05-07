@@ -93,17 +93,18 @@ function m_copy_DB_from_end( del_last, spath )
 ***** 07.05.2021
 function fillZIP( arr_f, sFileName )
   local hZip, aGauge, cFile
-  local lCompress
+  local lCompress, nLen
 
   if empty( arr_f )
     sFileName := ''
   else
     hb_vfErase( sFileName )
 
+    nLen := len(arr_f)
     aGauge := GaugeNew( , , { 'R/BG*', 'R/BG*', 'R/BG*' }, 'Создание архива ' + hb_FNameNameExt( sFileName ), .t. )
 
     lCompress := hb_ZipFile( sFileName, arr_f, 9, ;
-        {| cFile, nPos | GaugeDisplay( aGauge ), stat_msg( 'Добавление в архив файла ' + hb_FNameNameExt( cFile ) ) }, ;
+        {| cFile, nPos | GaugeDisplay( aGauge ), stat_msg( 'Добавление в архив файла ' + hb_FNameNameExt( cFile ) + ' ( ' + alltrim(lstr(nPos)) + ' из ' + alltrim(lstr(nLen)) + ' )' ) }, ;
         .t., , .f., , { | nPos, nLen | GaugeUpdate( aGauge, nPos / nLen ) } )
     if ! lCompress
       sFileName := ''
@@ -119,7 +120,7 @@ function create_ZIP( par, dir_archiv )
   local arr_f, ar
   local blk := { | x | f_aadd_copy_DB( arr_f, x ) }
   local hZip, i, cPassword, fl := .t., aGauge, s, y
-  local cFile
+  local cFile, nLen
   local zip_file
   local buf := savescreen()
 
@@ -221,10 +222,11 @@ function create_ZIP( par, dir_archiv )
       aadd( ar, arr_f[ i ] )
     next
 
+    nLen := len(ar)
     aGauge := GaugeNew( , , { 'R/BG*', 'R/BG*', 'R/BG*' }, 'Создание архива ' + zip_file, .t. )
   
     lCompress := hb_ZipFile( dir_archiv + zip_file, ar, 9, ;
-        {| cFile, nPos | GaugeDisplay( aGauge ), stat_msg( 'Добавление в архив файла ' + hb_FNameNameExt( cFile ) ) }, ;
+        {| cFile, nPos | GaugeDisplay( aGauge ), stat_msg( 'Добавление в архив файла ' + hb_FNameNameExt( cFile ) + ' ( ' + alltrim(lstr(nPos)) + ' из ' + alltrim(lstr(nLen)) + ' )' ) }, ;
         .t., , .f., , { | nPos, nLen | GaugeUpdate( aGauge, nPos / nLen ) } )
     CloseGauge( aGauge ) // Закроем окно отображения бегунка
   
