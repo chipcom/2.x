@@ -90,7 +90,7 @@ function m_copy_DB_from_end( del_last, spath )
   endif
   return fl
 
-***** 06.05.2021
+***** 07.05.2021
 function fillZIP( arr_f, sFileName )
   local hZip, aGauge, cFile
   local lCompress
@@ -100,12 +100,11 @@ function fillZIP( arr_f, sFileName )
   else
     hb_vfErase( sFileName )
 
-    // nLen   := Len( arr_f )
     aGauge := GaugeNew( , , { 'R/BG*', 'R/BG*', 'R/BG*' }, 'Создание архива ' + hb_FNameNameExt( sFileName ), .t. )
-    GaugeDisplay( aGauge )
 
-    lCompress := hb_ZipFile( sFileName, arr_f, 9, {| cFile, nPos | stat_msg( 'Добавление в архив файла ' + hb_FNameNameExt( cFile ) ) }, ;
-      .t., , .f., , { | nPos, nLen | GaugeUpdate( aGauge, nPos / nLen ) } )
+    lCompress := hb_ZipFile( sFileName, arr_f, 9, ;
+        {| cFile, nPos | GaugeDisplay( aGauge ), stat_msg( 'Добавление в архив файла ' + hb_FNameNameExt( cFile ) ) }, ;
+        .t., , .f., , { | nPos, nLen | GaugeUpdate( aGauge, nPos / nLen ) } )
     if ! lCompress
       sFileName := ''
     endif
@@ -114,6 +113,7 @@ function fillZIP( arr_f, sFileName )
 
   return sFileName
 
+****** 07.05.21
 function create_ZIP( par, dir_archiv )
   static sast := '*', sfile_begin := '_begin.txt', sfile_end := '_end.txt'
   local arr_f, ar
@@ -123,7 +123,7 @@ function create_ZIP( par, dir_archiv )
   local zip_file
   local buf := savescreen()
 
-  if par != 3
+  if par == 1
     if ! G_SLock1Task( sem_task, sem_vagno )  // запрет доступа всем
       func_error( 4, 'В данный момент работают другие задачи. Копирование запрещено!' )
       return nil
@@ -179,54 +179,53 @@ function create_ZIP( par, dir_archiv )
 
     hb_vfErase( dir_archiv + zip_file )
 
-      // сначала прочие файлы
-      ar := { sfile_begin, ;
-            tools_ini, ;
-            f_stat_lpu, ;
-            dir_server + 'f39_nast' + sini, ;
-            dir_server + 'usl1year' + smem, ;
-            dir_server + 'error' + stxt }
-      if ! empty( zip_xml_mo )
-        aadd( ar, cur_dir + zip_xml_mo )
-      endif
-      if ! empty( zip_xml_tf )
-        aadd( ar, cur_dir + zip_xml_tf )
-      endif
-      if ! empty( zip_napr_mo )
-        aadd( ar, cur_dir + zip_napr_mo )
-      endif
-      if ! empty( zip_napr_tf )
-        aadd( ar, cur_dir + zip_napr_tf )
-      endif
+    // сначала прочие файлы
+    ar := { sfile_begin, ;
+          tools_ini, ;
+          f_stat_lpu, ;
+          dir_server + 'f39_nast' + sini, ;
+          dir_server + 'usl1year' + smem, ;
+          dir_server + 'error' + stxt }
+    if ! empty( zip_xml_mo )
+      aadd( ar, cur_dir + zip_xml_mo )
+    endif
+    if ! empty( zip_xml_tf )
+      aadd( ar, cur_dir + zip_xml_tf )
+    endif
+    if ! empty( zip_napr_mo )
+      aadd( ar, cur_dir + zip_napr_mo )
+    endif
+    if ! empty( zip_napr_tf )
+      aadd( ar, cur_dir + zip_napr_tf )
+    endif
 
-      for i := 1 To Len( array_files_DB )
-        cFile := upper( array_files_DB[ i ] ) + sdbf
-        if hb_vfExists( dir_server + cFile )
-          aadd( ar, dir_server + cFile )
-        endif
-      next
-
-      hb_vfErase( sfile_end )
-      hb_memowrit( sfile_end, full_date( sys_date ) + ' ' + hour_min(seconds()) + ' ' + hb_OemToAnsi(fio_polzovat))
-      if hb_vfExists( sfile_end )
-        aadd( ar, sfile_end )
+    for i := 1 To Len( array_files_DB )
+      cFile := upper( array_files_DB[ i ] ) + sdbf
+      if hb_vfExists( dir_server + cFile )
+        aadd( ar, dir_server + cFile )
       endif
+    next
 
-      // а теперь файлы WQ...
-      arr_f := {}
-      y := year( sys_date )
-      // только текущий год
-      scandirfiles( dir_server, 'mo_wq' + substr( str( y, 4 ), 3 ) + '*' + sdbf, { | x | aadd( arr_f, x ) } )
-      for i := 1 To Len( arr_f )
-        aadd( ar, arr_f[ i ] )
-      next
+    hb_vfErase( sfile_end )
+    hb_memowrit( sfile_end, full_date( sys_date ) + ' ' + hour_min(seconds()) + ' ' + hb_OemToAnsi(fio_polzovat))
+    if hb_vfExists( sfile_end )
+      aadd( ar, sfile_end )
+    endif
 
-    // nLen   := Len( ar )
+    // а теперь файлы WQ...
+    arr_f := {}
+    y := year( sys_date )
+    // только текущий год
+    scandirfiles( dir_server, 'mo_wq' + substr( str( y, 4 ), 3 ) + '*' + sdbf, { | x | aadd( arr_f, x ) } )
+    for i := 1 To Len( arr_f )
+      aadd( ar, arr_f[ i ] )
+    next
+
     aGauge := GaugeNew( , , { 'R/BG*', 'R/BG*', 'R/BG*' }, 'Создание архива ' + zip_file, .t. )
-    GaugeDisplay( aGauge )
   
-    lCompress := hb_ZipFile( dir_archiv + zip_file, ar, 9, {| cFile, nPos | stat_msg( 'Добавление в архив файла ' + hb_FNameNameExt( cFile ) ) }, ;
-      .t., , .f., , { | nPos, nLen | GaugeUpdate( aGauge, nPos / nLen ) } )
+    lCompress := hb_ZipFile( dir_archiv + zip_file, ar, 9, ;
+        {| cFile, nPos | GaugeDisplay( aGauge ), stat_msg( 'Добавление в архив файла ' + hb_FNameNameExt( cFile ) ) }, ;
+        .t., , .f., , { | nPos, nLen | GaugeUpdate( aGauge, nPos / nLen ) } )
     CloseGauge( aGauge ) // Закроем окно отображения бегунка
   
     if ! lCompress
@@ -251,7 +250,7 @@ function create_ZIP( par, dir_archiv )
   endif
 
   // разрешение доступа всем
-  if par != 3
+  if par == 1
     G_SUnLock(sem_vagno)
   endif
   keyboard ''
