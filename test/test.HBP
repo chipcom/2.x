@@ -19,6 +19,6 @@
 #-inc
 #-workdir=..\TEMP\TEMPDEV
 
--otest
+# -otest
 
-test.prg
+# test.prg
