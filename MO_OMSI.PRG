@@ -2716,7 +2716,6 @@ if eq_any(su,1,2,5)
   add_string("                                          ³¯« ­-§ ª §³«¨áâ®¢ ãç¥â ³    áã¬¬      ")
   add_string("ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄ")
   for i := 1 to len(luapz2016)
-my_debug(,print_array(luapz2016[i])+print_array(apz2016[i]))
     if luapz2016[i,3] > 0 .or. apz2016[i,3] > 0
       s := padl(luapz2016[i,1],42)
       if empty(apz2016[i,3]) .and. !empty(luapz2016[i,3])
@@ -3055,9 +3054,6 @@ elseif su == 4
 endif
 fclose(fp)
 close databases
-/*for i := 1 to len(apf)
-  my_debug(,padr(apf[i,1],10) + lstr(apf[i,2]))
-next*/
 restscreen(buf)
 viewtext(name_file,,,,(sh>80),,,reg_print)
 return NIL

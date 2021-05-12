@@ -935,9 +935,6 @@ do while kart->kod > 0 .and. !eof()
         fl := .t.
       endif
       if fl
-        /*my_debug(,str(kart->kod,7)+" "+rtrim(kart->fio)+" "+full_date(kart->date_r)+"/"+date_8(human->k_data))
-        my_debug(,space(7)+lstr(kart_->VPOLIS)+"/"+alltrim(kart_->SPOLIS)+"/"+alltrim(kart_->NPOLIS)+;
-                 " => "+lstr(human_->VPOLIS)+"/"+alltrim(human_->SPOLIS)+"/"+alltrim(human_->NPOLIS))*/
         kart->POLIS   := make_polis(human_->spolis,human_->npolis)
         kart_->VPOLIS := human_->VPOLIS
         kart_->SPOLIS := human_->SPOLIS

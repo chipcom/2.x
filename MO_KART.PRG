@@ -380,13 +380,10 @@ if m1namesmo == 34
   endif
 endif
 f_valid_komu(,-1)
-//my_debug(,lstr(m1company)+" "+mcompany)
 if eq_any(m1komu,1,3)
   m1company := m1str_crb
 endif
-//my_debug(,lstr(m1company)+" "+mcompany)
 mcompany := inieditspr(A__MENUVERT, mm_company, m1company)
-//my_debug(,lstr(m1company)+" "+mcompany)
 chm_help_code := 3001
 // подсчет кол-ва строк
 if eq_any(glob_task,X_PLATN,X_KASSA) .and. mem_anonim == 1
@@ -4296,7 +4293,6 @@ for i := 1 to len(arr)
     arr[i,6] += ", "
   next
   arr[i,6] := left(arr[i,6],len(arr[i,6])-2)
-  //my_debug(,print_array(arr[i]))
 next
 return arr
 

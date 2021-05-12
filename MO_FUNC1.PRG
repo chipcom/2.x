@@ -30,13 +30,11 @@ DEFAULT _gorod_selo TO kart_->gorod_selo, _okatog TO kart_->okatog
 if _gorod_selo == 2 // из картотеки
   fl := .t.  // нашли
   ret := .t.   // село
-  //my_debug(,"село  KART_")
 endif
 if !fl .and. !empty(okato_rajon(_okatog,@arr))
   if arr[5] == 1 // город
     fl := .t.  // нашли
     ret := .f.   // город
-    //my_debug(,"город "+arr[4]+" "+arr[1])
   endif
 endif
 if !fl
@@ -46,7 +44,6 @@ if !fl
   if found()
     fl := .t.  // нашли
     ret := (selo->selo == 0)
-    //my_debug(,iif(ret,"село  ","город ")+_okatog+" "+rtrim(selo->name))
   endif
   use
   if !fl
@@ -55,14 +52,12 @@ if !fl
     if found()
       fl := .t.  // нашли
       ret := (oblast->selo == 0)
-      //my_debug(,iif(ret,"село  ","город ")+_okatog+"+"+rtrim(oblast->name))
     endif
     use
   endif
   select (tmp_select)
 endif
 if !fl
-  //my_debug(,"город "+_okatog)
 endif
 return ret
 

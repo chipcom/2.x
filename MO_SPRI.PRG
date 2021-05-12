@@ -1456,7 +1456,6 @@ if empty(sdate) .or. sdate != mdate
     endif
     ls := len(sShifr)
     dbselectArea(lal)
-  my_debug(,lal)
 
     set order to 1
     find (sShifr)
@@ -1466,7 +1465,6 @@ if empty(sdate) .or. sdate != mdate
         // поиск цены по дате окончания лечения
         if between_date(&lal.->datebeg,&lal.->dateend,mdate)
           fl_delete := .f. ; exit
-  my_debug(,lal)
 
         endif
       endif

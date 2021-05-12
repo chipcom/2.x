@@ -193,7 +193,6 @@ Function count_ymd(_mdate, _sys_date, /*@*/y, /*@*/m, /*@*/d)
     enddo
     if y > 0 .and. correct_count_ym(_mdate,_sys_date)
       --y
-      //my_debug(,"исправление года")
     endif
     md := addmonth(_mdate,12*y)
     do while (md := addmonth(md,1)) <= _sys_date
@@ -201,7 +200,6 @@ Function count_ymd(_mdate, _sys_date, /*@*/y, /*@*/m, /*@*/d)
     enddo
     if m > 0 .and. correct_count_ym(_mdate,_sys_date,2)
       --m
-      //my_debug(,"исправление месяца")
     endif
     md := addmonth(_mdate,12*y+m)
     do while (md := md+1) <= _sys_date
@@ -209,7 +207,6 @@ Function count_ymd(_mdate, _sys_date, /*@*/y, /*@*/m, /*@*/d)
     enddo
     if !emptyall(y,m) .and. d > 0 // только не для новорожденного
       --d
-      //my_debug(,"исправление дня")
     endif
   endif
   if y > 0

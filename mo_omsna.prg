@@ -394,7 +394,6 @@ go top
 do while !eof()
   if mkb_10->ks == 0 .and. between_date(mkb_10->dbegin,mkb_10->dend,sys_date)
     if f_is_diag_dn(mkb_10->shifr)
-      my_debug(,mkb_10->shifr)
     endif
   endif
   skip

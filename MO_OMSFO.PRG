@@ -1018,7 +1018,6 @@ if !eof() .and. !empty(usl->shifr1)
     mtrud[2] := 0
     mtrud[3] := mtrud[1]
   endif
-//my_debug(,usl->shifr1+"mtrud:"+print_array(mtrud))
 endif
 return mtrud
 

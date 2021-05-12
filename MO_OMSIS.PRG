@@ -4602,7 +4602,6 @@ do while !eof()
           select HU
           skip
         enddo
-//my_debug(vid_vp < 0,"vid_vp="+lstr(vid_vp)+print_array(au))
         if kol_dializ > 0
           tfoms_pz[ii,2] := kol_dializ // заменяем на кол-во диализных процедур
         endif
@@ -5699,11 +5698,9 @@ index on str(smo,5)+str(vid,1)+str(pz,1)+enp to (cur_dir+"tmp3")
 tmp := aclone(arr_m)
 tmp[5] := 1 // январь
 ret_days_for_akt_sverki(tmp,@b1_1,,@a1_1,)
-//my_debug(,print_array({tmp,b1_1,,a1_1,}))
 //
 d1 := d2 := 10
 ret_days_for_akt_sverki(arr_m,@b1,@b2,@a1,@a2)
-//my_debug(,print_array({arr_m,b1,b2,a1,a2}))
 Use_base("lusl")
 Use_base("luslf")
 R_Use(dir_server+"mo_su",,"MOSU")

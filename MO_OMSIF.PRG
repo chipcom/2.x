@@ -1138,13 +1138,9 @@ elseif mvozrast < 10
   spec_vozrast := 3
 endif
 
-    my_debug(,"111"+human->fio)
-
 v := ret_v_f12(mpol,mvozrast,@v4)
-    my_debug(,"222"+human->fio)
 
 if eq_any(human->ishod,101,102,201,202,203,204,205,301,302)
-    my_debug(,"333"+human->fio)
 
   if eq_any(human->ishod,101,102)
     arr := ret_f12_PN(human->kod,1)
@@ -1189,8 +1185,6 @@ if eq_any(human->ishod,101,102,201,202,203,204,205,301,302)
     endif
   next
 else
-    my_debug(,"444"+human->fio)
-
   afill(adiag_talon,0)
   for i := 1 to 16
     adiag_talon[i] := int(val(substr(human_->DISPANS,i,1)))
@@ -8068,7 +8062,6 @@ do while !eof()
     tmp->table  := frm->table
     s2 := iif(frm->bold==1,"<b>","")+s2+iif(frm->bold==1,"</b>","")     // диагноз
     aadd(diag1[x], {s1,1,diapazon,frm->table,s2,s4})
-    //my_debug(x == 1,print_array(atail(diag1[x])))
   endif
   select FRM
   skip

@@ -4065,7 +4065,6 @@ if !empty(tmp->kod2h) // диспансеризация II этап
   if between(m1gruppa,1,4)
     tmp2->rslt2 := human_->RSLT_NEW
     if empty(tmp2->rslt1)
-      //my_debug(,"II этап - нет первого "+lstr(human->kod)+" "+lstr(tmp->kod_k)+" "+human->fio)
     else
       arr_21[13] ++
       if !fl2  // не был направлен, но всё равно прошёл
@@ -8610,8 +8609,6 @@ R_Use(dir_server+"mo_dr01",,"REES")
 index on str(nn,3) to (cur_dir+"tmp_dr01") for NYEAR == sgod .and. eq_any(NMONTH,SMONTH-1,SMONTH) .and. tip == 1
 go top
 do while !eof()
-  my_debug(,"1 mo_dr01 == "+str(REES->kod))
-
   if rees->kol_err < 0
     //fl := func_error(4,"В файле R12 за "+lstr(rees->NMONTH)+"-й месяц "+;
     //                   lstr(sgod)+"г. ошибки на уровне файла! Операция запрещена")
@@ -8619,19 +8616,13 @@ do while !eof()
     fl := func_error(4,"Файл PR11 за "+lstr(rees->NMONTH)+"-й месяц "+;
                        lstr(sgod)+" года не был прочитан! Операция запрещена")
   else
-  my_debug(,"2 mo_dr01 == "+str(REES->kod))
-
     select MO_XML
     find (str(rees->kod,6))
     if found()
-  my_debug(,"3 mo_dr01 == "+str(REES->kod))
-
       if empty(mo_xml->TWORK2)
         fl := func_error(4,"Прервано чтение файла "+alltrim(mo_xml->FNAME)+;
                            "! Аннулируйте (Ctrl+F12) и прочитайте снова")
       elseif rees->NMONTH == SMONTH
-  my_debug(,"4 mo_dr01 == "+str(REES->kod))
-
         aadd(arr_rees,rees->kod)
       endif
     endif
@@ -8672,8 +8663,6 @@ if fl_1 // не первый раз
   for j := 1 to 5
     skol[j] := ames[SMONTH,j,1]
   next
-  my_debug(,"10122 SKOL == "+print_array(skol))
-  my_debug(,"10123 AMES == "+print_array(ames))
 
   afill(ame,0)
   //
@@ -8704,12 +8693,8 @@ if fl_1 // не первый раз
     enddo
     commit
 
-  my_debug(," arr_rees == "+print_array(arr_rees))
-
     index on str(reestr,6) to (cur_dir+"tmp_dr00")
     for ir := 1 to len(arr_rees)
-      my_debug(,"10155 arr_rees == "+str(arr_rees[ir],6))
-
       select R01k
       find (str(arr_rees[ir],6))
       do while r01k->reestr == arr_rees[ir] .and. !eof()
@@ -8746,9 +8731,6 @@ if fl_1 // не первый раз
   endif
   if fl
     mywait()
-    my_debug(,"10193 SKOL == "+print_array(skol))
-    my_debug(,"10194 MKOL == "+print_array(mkol))
-    my_debug(,"10195 AMES == "+print_array(ames))
     for v := 1 to 5
       j := {2,4,5,3,1}[v]
       // порядок: 2-профосмотр, 4-65 лет, 5-66 и старше, 3-пенсионеры, 1-остальная дисп-ия
@@ -8805,10 +8787,6 @@ if fl_1 // не первый раз
         enddo
       enddo
     next v
-    my_debug(,print_array(skol))
-    my_debug(,print_array(mkol))
-    my_debug(,print_array(ames))
-    my_debug(,print_array(ame))
     Use (cur_dir+"tmp_00") new alias TMP1
     select TMP
     index on kod to (cur_dir+"tmp_dr00") for reestr == 0 .and. n_m > 0
@@ -9432,12 +9410,8 @@ Function f32_view_R11(lm)
     aadd(arr_rees,rees->kod)
     skip
   enddo
-my_debug(,"arr_rees "+print_array(arr_rees))
 
   for k := len(arr_rees) to 1 step -1
-
-my_debug(,"k= "+str(k))
-my_debug(,"arr_rees[k]= "+str(arr_rees[k]))
 
     mkod_reestr := arr_rees[k]
     select RHUM

@@ -859,14 +859,10 @@ if fl
       k += auch[i,2]
     endif
   next
-//  for i := 1 to len(auch)
-//    my_debug(,print_array(auch[i]))
-//  next
 // !!! ВНИМАНИЕ
   for i := 3 to 12
     for j := 1 to 5
       aumes[i,j] := f1_f3_create_R05(ames[i,j],k)
-//      my_debug(,print_array({i,j,ames[i,j],aumes[i,j]}))
     next
   next
   rest_box(buf)
@@ -1000,8 +996,6 @@ return NIL
 Function f1_f3_create_R05(v,su)
 Local i, d, k := 0, l := len(auch)
 Local arr := array(l,2)
-//my_debug(,print_array(auch))
-//my_debug(,lstr(v)+str(su,10))
 for i := 1 to l
   arr[i,1] := auch[i,1]
   arr[i,2] := int(v*auch[i,2]/su)
@@ -1009,26 +1003,18 @@ for i := 1 to l
     arr[i,2] := 0
   endif
   k += arr[i,2]
-  //my_debug(,print_array(arr[i]))
 next
-//my_debug(,lstr(k))
 d := v - k
 if d > 0
   asort(arr,,,{|x,y| x[2] < y[2] })
   do while d > 0
     for i := 1 to l
       arr[i,2] ++
-      //my_debug(,print_array(arr[i]))
       if --d == 0 ; exit ; endif
     next
   enddo
   asort(arr,,,{|x,y| x[1] < y[1] })
 endif
-/*k := 0
-for i := 1 to l
-  k += arr[i,2]
-next
-my_debug(,lstr(v)+str(su,10)+str(k,10))*/
 return aclone(arr)
 
 ***** 12.12.19 зачитать R05 во временные файлы
@@ -2113,12 +2099,9 @@ Local fl := .f., v, t1, t2, lgod_r, sgod := 2021, ltip1, ltip, lvoz
         endif
         if t2 != lvoz .or. t3 != ltip .or. t4 != ltip1
           fl := .T.
-         // my_debug(,"Возраст  "str(v)+"   "+str(t1))
-
         endif
      else
        fl := .T.
-       //my_debug(,"Возраст  "str(v)+"   "+str(t1))
      endif
    endif
    select TMP
@@ -2161,9 +2144,6 @@ for SMONTH := 1 to 12
   enddo
 next
 
-
-//my_debug(,print_array(arr_nn))
-//quit
 
 set index to
 G_Use(dir_server+"mo_xml",,"MO_XML")
@@ -3379,7 +3359,6 @@ if glob_mo[_MO_IS_UCH]
         vrem += &("r05p->kol"+lstr(j)+"_"+strzero(i,2))
       next
       skol += vrem
-//my_debug(,str(vrem)+"   "+str(skol))
     next
     select MO_XML
     index on str(reestr,6) to (cur_dir+"tmp_xml") for tip_in == _XML_FILE_R02 .and. empty(TIP_OUT)

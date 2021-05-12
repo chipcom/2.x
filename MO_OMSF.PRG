@@ -1972,10 +1972,7 @@ v := fcena_oms(s,;
                dDate,;
                @fl_del,;
                @fl_uslc)
-//my_debug(,"13/01 f1cena_oms")
 if fl_uslc  // если нашли в справочнике ТФОМС
-//my_debug(,"13/01 -----f1cena_oms")
-
   lu_cena := v
   if fl_del .and. !lis_nul
     func_error(4,"В справочнике ТФОМС услуга "+alltrim(s)+" удалена (на "+full_date(dDate)+")")

@@ -45,7 +45,6 @@ Static mo_licensia := {;
   {'591001',2,'31',68};   // ЦРБ Суровикино
  }
 Local i, fl := .f.
-//  my_debug(,"1 "+lvidpoms)
 
 for i := 1 to len(mo_licensia)
   if mo_licensia[i,1] == glob_mo[_MO_KOD_TFOMS] .and. mo_licensia[i,2] == lusl_ok
@@ -56,9 +55,6 @@ for i := 1 to len(mo_licensia)
     endif
   endif
 next i
-//  my_debug(,"2 "+lvidpoms)
-//  my_debug(,str(lprofil))
-//  my_debug(,str(lusl_ok))
 
 return lvidpoms
 
@@ -1425,7 +1421,6 @@ Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, ;
 //
 Private version_3_1 := (strzero(_nyear,4)+strzero(_nmonth,2) > "201808") // с сентября 2018 года
 //
-  my_debug(," Cоздание XML")
 
 stat_msg("Составление реестра случаев")
 close databases
@@ -1856,7 +1851,6 @@ do while !eof()
     cSMOname := ret_inogSMO_name(2)
   endif
   mdiagnoz := diag_for_xml(,.t.,,,.t.)
-    my_debug(,"6282  "+lvidpom)
 
   if p_tip_reestr == 1
     if glob_mo[_MO_IS_UCH] .and. ;                    // наше МО имеет прикреплённое население
@@ -1886,7 +1880,6 @@ do while !eof()
   if !empty(human_2->OSL3)
     aadd(mdiagnoz3,human_2->OSL3)
   endif
-    my_debug(,"6302  "+str(vidpom))
 
   oZAP := oXmlDoc:aItems[1]:Add( HXMLNode():New( "ZAP" ) )
    mo_add_xml_stroke(oZAP,"N_ZAP" ,lstr(rhum->REES_ZAP))
@@ -1947,7 +1940,6 @@ do while !eof()
     endif
     mo_add_xml_stroke(oSLUCH,"USL_OK"  ,lstr(human_->USL_OK))
     mo_add_xml_stroke(oSLUCH,"VIDPOM"  ,lstr(lvidpom))
-    my_debug(,"6363  "+lstr(lvidpom))
     @ 10,10 say "HTTCNH________________HTTCNH"
 
     inkey(0)
@@ -2582,7 +2574,6 @@ if type("pr_array_schet") == "A"
       arr_schet[ii,10] := i
     endif
     if arr_schet[ii,10] == 0
-      my_debug(,lstr(tmp1->_year)+"/"+strzero(tmp1->_month,2)+" не найден счёт "+mn_schet)
     else
       i := arr_schet[ii,10]
       s := lstr(tmp1->_year)+"/"+strzero(tmp1->_month,2)+" "+padr(mn_schet,15)
@@ -2614,7 +2605,6 @@ if type("pr_array_schet") == "A"
         fl := .t.
       endif
       s += lstr(arr_schet[ii,4],13,2)
-      my_debug(,s1+s)
     endif
     if arr_schet[ii,10] > 0 // счёт найден в "pr_array_schet"
       i := arr_schet[ii,10]
@@ -2634,8 +2624,6 @@ if type("pr_array_schet") == "A"
           arr_schet[ii,3] ++
           arr_schet[ii,4] += human->cena_1
         else
-          my_debug(,"в счёте не найден пациент с GUID "+ts->ID_C)
-          my_debug(,"└─>"+print_array(pr_array_schet[i]))
         endif
         select TS
         skip
@@ -2644,11 +2632,6 @@ if type("pr_array_schet") == "A"
       if fl .or. !(pr_array_schet[i,8] == arr_schet[ii,3] .and. ;
                    pr_array_schet[i,7] == arr_schet[ii,3] .and. ;
                    round(pr_array_schet[i,5],2) == round(arr_schet[ii,4],2))
-        if fl
-          my_debug(,"после исправления:")
-        else
-          my_debug(,"что-то случилось:")
-        endif
         s := lstr(tmp1->_year)+"/"+strzero(tmp1->_month,2)+" "+padr(mn_schet,15)
         s += "max: "+lstr(pr_array_schet[i,8])
         if pr_array_schet[i,8] == arr_schet[ii,3]
@@ -2675,7 +2658,6 @@ if type("pr_array_schet") == "A"
           s1 += "-"
         endif
         s += lstr(arr_schet[ii,4],13,2)
-        my_debug(,s1+s)
       endif
     endif
   next

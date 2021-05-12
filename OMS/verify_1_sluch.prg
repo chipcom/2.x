@@ -2428,7 +2428,6 @@ Function verify_1_sluch(fl_view)
       endif
     endif
   endif
-   my_debug(,"2839  "+lvidpoms)
   
   if len(a_period_stac) > 0 //.and. !is_s_dializ .and. !is_dializ .and. !is_perito
     select HU
@@ -3925,11 +3924,9 @@ Function verify_1_sluch(fl_view)
       aadd(ta,'некорректно записан случай профоосмотра в год диспансеризации - отредактируйте')
     endif
     if !eq_any(metap,2,5) // проверим, выполнены обязательные услуги (и наоборот)
-  //my_debug(,print_array(a_4_20_1))
       for i := 1 to count_dvn_arr_usl
         s := '"'+iif(valtype(dvn_arr_usl[i,2]) == "C", dvn_arr_usl[i,2]+' ', '')
         s += dvn_arr_usl[i,1]+'"'
-  //my_debug(,s+print_array(arr1[i]))
         if arr1[i,2] == 0 // не надо выполнять
           if arr1[i,1] > 1
             aadd(ta,'не надо выполнять, а выполнили '+s)
@@ -4085,9 +4082,6 @@ Function verify_1_sluch(fl_view)
         elseif emptyall(zs,k700) .and. !is_disp_19
           aadd(ta,'в листе нет услуг с ценой')
         endif
-  //my_debug(,"kol_d_usl ="+lstr(kol_d_usl))
-  //my_debug(,"kol_d_otkaz ="+lstr(kol_d_otkaz))
-  //my_debug(,"kol_n_date="+lstr(kol_n_date))
         if (i := ascan(dvn_85, {|x| x[1] == kol_d_usl })) > 0
           if is_disp_19
             k := dvn_85[i,1] - dvn_85[i,2]

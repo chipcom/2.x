@@ -70,7 +70,6 @@ Function init_mo()
         arr[_MO_UROVEN] := {}
       endif
       aadd(glob_arr_mo, aclone(arr))
-      //my_debug(,print_array({arr[_MO_KOD_FFOMS],arr[_MO_KOD_TFOMS],arr[_MO_DEND],arr[_MO_SHORT_NAME]}))
     next
     if hb_FileExists(dir_server+"organiz"+sdbf)
       R_Use(dir_server+"organiz",,"ORG")

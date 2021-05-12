@@ -1878,14 +1878,10 @@ if mkod_vr > 0 .or. mkod_as > 0
       else
         aeval(mk, {|x,i| mk[i] := x / 100 } )
       endif
-      //my_debug(.t.,usl->shifr)
-      //my_debug(.t.,"=ª®íä-âë="+str(mk[2],9,4)+str(mk[3],9,4))
-      //my_debug(.t.,"====================")
     endif
   endif
 endif
 select (tmp_select)
-//my_debug(.t.,"mk:"+print_array(mk))
 return mk
 
 *
@@ -1920,10 +1916,8 @@ return NIL
 *****
 Function ret_opl_5(lshifr,i,lrazryad,lotdal)
 Local musl_1, musl_2, lprocent := 0, lprocent2 := 0, fl1 := .f., fl2 := .f.
-//my_debug(.t.,lshifr+str(i,2)+str(lrazryad,7,0)+str(lotdal,7,0))
 select U5
 dbseek(str(i,2)+lshifr,.t.)
-//my_debug(.t.,"fl0 "+usl_1+" "+usl_2+" "+str(u5->razryad,2)+str(u5->procent,7,2)+str(u5->procent2,7,2))
 do while u5->tip == i .and. !eof()
   musl_1 := musl_2 := fsort_usl(u5->usl_1)
   if !empty(u5->usl_2)
@@ -1931,20 +1925,17 @@ do while u5->tip == i .and. !eof()
   endif
   if between(lshifr,musl_1,musl_2)
     if u5->razryad == 0 .and. !fl1 .and. !fl2
-      //my_debug(.t.,"fl1 "+usl_1+" "+usl_2+" "+str(u5->razryad,2)+str(u5->procent,7,2)+str(u5->procent2,7,2))
       fl1 := .t.
       lprocent := u5->procent
       lprocent2 := u5->procent2
     endif
     if lrazryad > 0 .and. lrazryad == u5->razryad .and. u5->otdal == 0 .and. !fl2
-      //my_debug(.t.,"fl2 "+usl_1+" "+usl_2+" "+str(u5->razryad,2)+str(u5->procent,7,2)+str(u5->procent2,7,2))
       fl2 := .t.
       lprocent := u5->procent
       lprocent2 := u5->procent2
     endif
     if lotdal > 0 .and. lrazryad > 0 .and. ;
              lrazryad == u5->razryad .and. lotdal == u5->otdal
-      //my_debug(.t.,"fl3 "+usl_1+" "+usl_2+" "+str(u5->razryad,2)+str(u5->procent,7,2)+str(u5->procent2,7,2))
       lprocent := u5->procent
       lprocent2 := u5->procent2
       exit
@@ -1955,8 +1946,6 @@ do while u5->tip == i .and. !eof()
   select U5
   skip
 enddo
-//my_debug(.t.,"=¯à®æ¥­âë="+str(lprocent,7,2)+str(lprocent2,7,2))
-//my_debug(.t.,"-----------------")
 return {lprocent,lprocent2}
 
 *
@@ -1990,7 +1979,6 @@ return luet
 Function _f_koef_z(lstoim,lkol,lkoef,k)
 Local vv := 0, va := 0, v := 0, fl := .f.
 DEFAULT k TO 1
-//my_debug(,usl->shifr+" k="+lstr(k)+","+print_array(lkoef))
 if psz == 2 .and. is_oplata == 7 .and. emptyany(lstoim,lkoef[1])
   if k == 1 .or. k == 2
     vv := lkoef[4] * lkoef[6]
@@ -2026,7 +2014,6 @@ elseif lkod_vr == 0 .and. lkod_as > 0
   mtrud[2] := 0
   mtrud[3] := mtrud[1]
 endif
-//my_debug(,"mtrud:"+print_array(mtrud))
 return mtrud
 
 *

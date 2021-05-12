@@ -2190,11 +2190,7 @@ Function STappendDelZ(lkod_k,_zf,ldate_u,lu_kod)
 Static arr_STdelzub
 Local i, arr_zf := STretArrZF(_zf)
 DEFAULT arr_STdelzub TO ret_arr_STdelzub()
-my_debug(,print_array(arr_zf))
-my_debug(,print_array(arr_STdelzub))
-my_debug(,print_array({lu_kod}))
 if len(arr_zf) > 0 .and. ascan(arr_STdelzub,lu_kod) > 0 .and. select("KARTDELZ") > 0
-  my_debug(,'t')
   select KARTDELZ
   for i := 1 to len(arr_zf)
     find (str(lkod_k,7)+str(arr_zf[i],2))

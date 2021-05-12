@@ -1255,7 +1255,6 @@ if (arr_m := year_month(,,,3)) == NIL
 endif
 mywait()
 ret_days_for_akt_sverki(arr_m,@b1,@b2,@a1,@a2)
-//my_debug(,print_array({arr_m,b1,b2,a1,a2}))
 adbf := {{"tip","N",1,0},;
          {"nomer","N",1,0},;
          {"ndoc","C",25,0},;

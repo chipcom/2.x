@@ -1316,7 +1316,6 @@ do while .t.
           endif
         else
           ++kol_d_usl
-//my_debug(,"1:"+print_array(ar))
         endif
         if i_otkaz == 2 .and. &mvaro == 2 // если исследование невозможно
           select P2
@@ -1652,7 +1651,6 @@ do while .t.
     for i := 1 to count_dvn_arr_umolch
       if f_is_umolch_sluch_DVN(i,metap,iif(metap==3.and.!is_disp_19,mvozrast,mdvozrast),mpol)
         ++kol_d_usl
-//my_debug(,"1:"+print_array(dvn_arr_umolch[i]))
         aadd(arr_osm1,array(11)) ; j := len(arr_osm1)
         arr_osm1[j,1] := m1vrach
         arr_osm1[j,2] := m1prvs
@@ -1673,7 +1671,6 @@ do while .t.
         endif
         if valtype(arr_osm1[i,5]) == "C" .and. !eq_any(arr_osm1[i,5],"4.20.1","4.20.2")
           ++kol // кол-во реально введённых услуг
-//my_debug(,"2:"+print_array(arr_osm1[i]))
           if eq_any(arr_osm1[i,10],0,3)
             if is_disp_19
               if arr_osm1[i,9] < mn_data .and. year(arr_osm1[i,9]) < year(mn_data) // кол-во услуг без отказа выполнены ранее
@@ -1698,14 +1695,9 @@ do while .t.
             endif
           else//if arr_osm1[i,10] == 2 если невозможность проведения - просто вычитаем общее кол-во
             --kol
-//my_debug(,"2-:"+print_array(arr_osm1[i]))
           endif
         endif
       next
-//my_debug(,"kol_d_usl ="+lstr(kol_d_usl))
-//my_debug(,"kol       ="+lstr(kol))
-//my_debug(,"kol_otkaz ="+lstr(kol_otkaz))
-//my_debug(,"kol_n_date="+lstr(kol_n_date))
       // kol_d_usl = 100% (должно равняться "kol")
       if kol_d_usl != kol
         //func_error(4,"kol_d_usl ("+lstr(kol_d_usl)+") != kol "+lstr(kol))
@@ -2503,10 +2495,6 @@ if p != sp
   endif
   count_dvn_arr_usl := len(dvn_arr_usl)
   count_dvn_arr_umolch := len(dvn_arr_umolch)
-  //aeval(dvn_arr_usl,{|x| my_debug(,print_array(x)) })
-  //my_debug(,lstr(count_dvn_arr_usl))
-  //aeval(dvn_arr_umolch,{|x| my_debug(,print_array(x)) })
-  //my_debug(,lstr(count_dvn_arr_umolch))
 endif
 return NIL
 
@@ -2545,7 +2533,6 @@ if p != sp
     for i := 40 to 99
       aadd(arr,i) // добавим в конец подряд с 40 по 99 лет
     next
-    //my_debug(,print_array(arr))
   endif
 endif
 return arr

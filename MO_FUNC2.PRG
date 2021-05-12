@@ -353,7 +353,6 @@ find (padr(lshifr,10))
 if found()
   lname := lusl->name  // наименование услуги из справочника ТФОМС
 endif
-//my_debug(,str(lyear))
 if lyear == 2021
   if is_ksg(lshifr,1) .or. left(lshifr,5) == "1.20."  // 07.02.21
     return {{2,-1,i14}}
@@ -738,7 +737,6 @@ if Start_Excel(@oExcel,@is_open_or_create)
         elseif v == "D"
           s := full_date(a[jC,3])
         endif
-//my_debug(,print_array({oSheet:Name,a[jC,1],a[jC,2],s}))
         oSheet:Cells(a[jC,1],a[jC,2]):Value := s
       next
     endif

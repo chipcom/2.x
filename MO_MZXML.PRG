@@ -482,8 +482,6 @@ elseif _regim == 2
            endif
            ++kol_DiagnosisAfter
            if (k := ascan(arr_before, {|x| x[1] == alltrim(arr[1]) })) > 0 // был такой диагноз до осмотра
-//my_debug(,print_array(arr_before[k]))
-//my_debug(,print_array(arr))
              arr[2] := 0 // выявлен впервые - безусловно поставить "нет"
              if arr_before[k,2] == 1 // Диспансерное наблюдение 1 - было установлено ранее
                arr[3] := 1 // сейчас безусловно установлено ранее
@@ -494,7 +492,6 @@ elseif _regim == 2
                  arr[3] := 2 // меняем на установлено впервые
                endif
              endif
-//my_debug(,print_array(arr))
            endif
            oDiagnosis := oDiagnosisAfter:Add( HXMLNode():New( "diagnosis" ) )
             mo_add_xml_stroke(oDiagnosis,"mkb",arr[1])
