@@ -37,7 +37,7 @@ mo_fr.prg
 mo_func.prg
 mo_func1.prg
 mo_func2.prg
-mo_index.prg
+# mo_index.prg
 mo_init.prg
 mo_kassa.prg
 mo_kas_p.prg
@@ -89,6 +89,9 @@ Errorsys.prg
 .\init\init_mo.prg
 .\init\reconstruct_DB.prg
 .\init\notExistsFileNSI.prg
+.\init\index.prg
+.\init\initArrayFilesDB.prg
+
 
 .\calendar\calendar.prg
 

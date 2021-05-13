@@ -73,7 +73,7 @@ Function Init_first()
 Local buf := save_maxrow()
 mywait()
 // инициализировать массив DBF-файлов базы данных
-init_array_files_DB()
+init_Array_Files_DB()
 // инициализировать все mem (public) - переменные
 Public stm_kategor2 := {}
 init_all_mem_public()

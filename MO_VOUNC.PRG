@@ -30,11 +30,6 @@ endif
 return fl
 
 *****
-Function vounc_init_array_files_DB()
-Static arr_f := {"vouncmnn","vounctrn","vouncnaz","vouncrec"}
-return arr_f
-
-*****
 Function vounc_f1main()
 aadd(cmain_menu,1)
 aadd(main_menu," ~Ввод данных ")

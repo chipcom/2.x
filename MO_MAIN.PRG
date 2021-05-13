@@ -5,7 +5,6 @@
 * my_mo_f_main()
 * my_mo_f1main()
 * my_mo_begin_task()
-* my_mo_init_array_files_DB()
 *******************************************************************************
 #include "set.ch"
 #include "inkey.ch"
@@ -1791,11 +1790,3 @@ if glob_mo[_MO_KOD_TFOMS] == kod_VOUNC
   is_uchastok := old
 endif
 return NIL
-
-*****
-Function my_mo_init_array_files_DB()
-Local arr := {}
-if glob_mo[_MO_KOD_TFOMS] == kod_VOUNC
-  arr := vounc_init_array_files_DB()
-endif
-return arr
