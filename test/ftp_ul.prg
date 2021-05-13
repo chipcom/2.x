@@ -9,7 +9,8 @@ PROCEDURE Main()
 
   local lRetVal := .T.
 
-	local cServer   := VERSION_FTP
+	// local cServer   := VERSION_FTP
+	local cServer   := CUSTOM_FTP
 	local cUser     := VERSION_US
 	local cPassword := VERSION_PASS
 	local cURL      := 'ftp://' + cUser + ':' + cPassword + '@' + cServer
@@ -56,7 +57,7 @@ function crFile( cFile )
     return .f.
   ENDIF  
 
-  FWrite( nHandle, '2.11.20g' )
+  FWrite( nHandle, '2.11.21' )
   FClose( nHandle )  
 
   return .t.
