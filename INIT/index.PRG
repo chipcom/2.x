@@ -335,16 +335,16 @@ Function pereindex_KEK()
   CloseGauge(hGauge)
   return NIL
 
-***** 23.08.17 функция переиндексирования для одной задачи
+***** 14.05.21 функция переиндексирования для одной задачи
 Function pereindex_task(n_task)
   Local buf := savescreen()
 
   DEFAULT n_Task TO glob_task
   if mo_Lock_Task(n_Task) .and. f_Esc_Enter("переиндексирования")
-    f_message({"Ждите! Пpоизводится пеpеиндексирование сегмента базы данных",;
+    f_message({'Внимание! Пpоизводится пеpеиндексирование сегмента базы данных',;
              'для подзадачи "'+array_tasks[ind_task(n_Task),1]+'"',;
-             "Ни в коем случае не прерывайте процесс",;
-             "во избежание нежелательных последствий!"},,"GR+/R","W+/R",13)
+             '',;
+             'Во избежание разрушения данных не прерывайте процесс!'},,'GR+/R','W+/R',13)
     Private fl_open := .t.
     if !emptyany(array_task_DB[n_Task,1],array_task_DB[n_Task,2])
       for i := array_task_DB[n_Task,1] to array_task_DB[n_Task,2]

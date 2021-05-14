@@ -169,24 +169,36 @@ Function init_Array_Files_DB()
   aadd(array_files_DB,"mo_n7in")
   aadd(array_files_DB,"mo_n7out"); array_task_DB[X_263,2] := len(array_files_DB)
   //
-  arr := my_mo_init_array_files_DB()
-  for i := 1 to len(arr)
-    aadd(array_files_DB,arr[i])
-  next
+
+  if glob_mo[_MO_KOD_TFOMS] == '102604' // §´Ô ÇéääÇÑ
+    aadd(array_files_DB,"Roles")
+  endif
+
+  if glob_mo[_MO_KOD_TFOMS] == kod_VOUNC  // §´Ô Çéìçñ
+    arr := { 'vouncmnn', 'vounctrn', 'vouncnaz', 'vouncrec' }
+    for i := 1 to len( arr )
+      aadd( array_files_DB, arr[ i ] )
+    next
+  endif
+
+  // arr := my_mo_init_array_files_DB()
+  // for i := 1 to len(arr)
+  //   aadd(array_files_DB,arr[i])
+  // next
   return NIL
   
 *****
-function vounc_init_array_files_DB()
-  Static arr_f := { 'vouncmnn', 'vounctrn', 'vouncnaz', 'vouncrec' }
+// function vounc_init_array_files_DB()
+//   Static arr_f := { 'vouncmnn', 'vounctrn', 'vouncnaz', 'vouncrec' }
 
-  return arr_f
+//   return arr_f
   
 *****
-function my_mo_init_array_files_DB()
-  local arr := {}
+// function my_mo_init_array_files_DB()
+//   local arr := {}
 
-  if glob_mo[_MO_KOD_TFOMS] == kod_VOUNC
-    arr := vounc_init_array_files_DB()
-  endif
-  return arr
+//   if glob_mo[_MO_KOD_TFOMS] == kod_VOUNC
+//     vounc_init_array_files_DB()
+//   endif
+//   return arr
   
