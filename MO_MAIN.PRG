@@ -2,7 +2,7 @@
 *******************************************************************************
 * Функции для plug-in'ов
 *******************************************************************************
-* my_mo_f_main()
+* // my_mo_f_main()
 * my_mo_f1main()
 * my_mo_begin_task()
 *******************************************************************************
@@ -144,7 +144,7 @@ f_main(r,a_parol)
 f_end()
 return
 
-***** 04.10.16
+***** 17.05.21
 Function f_main(r0,a_parol)
 Static arr1 := {;
   {"Регистратура поликлиники"            ,X_REGIST,,.t.,"РЕГИСТРАТУРА"},;
@@ -169,10 +169,14 @@ for i := 1 to len(arr1)
   aadd(array_tasks,arr1[i])
   sem_vagno_task[arr1[i,2]] := 'Важный режим в задаче "'+arr1[i,5]+'"'
 next
-arr := my_mo_f_main() // "своя" задача
-for i := 1 to len(arr)
-  aadd(array_tasks,arr[i])
-next
+// arr := my_mo_f_main() // "своя" задача
+// for i := 1 to len(arr)
+//   aadd(array_tasks,arr[i])
+// next
+if glob_mo[_MO_KOD_TFOMS] == kod_VOUNC
+  aadd(array_tasks, {"ВОУНЦ - трансплантированные",X_MO,"TABLET_ICON",.T.})
+endif
+
 for i := 1 to len(arr2)
   aadd(array_tasks,arr2[i])
 next
@@ -1762,12 +1766,12 @@ viewtext(n_file,,,,.f.,,,2)
 return NIL
 
 *****
-Function my_mo_f_main()
-Local arr := {}
-if glob_mo[_MO_KOD_TFOMS] == kod_VOUNC
-  aadd(arr,{"ВОУНЦ - трансплантированные",X_MO,"TABLET_ICON",.T.})
-endif
-return arr
+// Function my_mo_f_main()
+// Local arr := {}
+// if glob_mo[_MO_KOD_TFOMS] == kod_VOUNC
+//   aadd(arr,{"ВОУНЦ - трансплантированные",X_MO,"TABLET_ICON",.T.})
+// endif
+// return arr
 
 *****
 Function my_mo_begin_task()
