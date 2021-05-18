@@ -16,12 +16,12 @@ function checkNTXFile( cSource, cDest )
     arrNTXFile := hb_vfDirectory( cur_dir + '*.ntx' )
   endif
 
-  HB_VFTIMEGET( cSource, @tsDateTime )
+  HB_VFTIMEGET( cSource, @tsDateTimeSource )
 
-  nPos := AScan( aDirectory, ;
+  nPos := AScan( arrNTXFile, ;
     {| aFile, nPos | HB_SYMBOL_UNUSED( nPos ), aFile[ F_NAME ] == cDest } )
   if nPos != 0
-    tsDateTimeDest := aDirectory[nPos, F_DATE]
+    tsDateTimeDest := arrNTXFile[nPos, F_DATE]
   else
     return .t.
   endif
