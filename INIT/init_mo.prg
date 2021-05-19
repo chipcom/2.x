@@ -6,8 +6,13 @@ Function init_mo()
   Local fl := .t., i, arr, arr1, cCode := "", buf := save_maxrow(), ;
         nfile := exe_dir+"_mo_mo.dbb"
   local arrRefFFOMS := {}, row, row_flag := .t.
-
   local tmpSelect, lSchema := .f.
+
+  local h
+
+  h := FCreate( 'profiler.txt' )
+  writeProfileStart( h, 'init_mo')
+
   mywait()
   Public oper_parol := 30  // пароль для фискального регистратора
   Public oper_frparol := 30 // пароль для фискального регистратора ОТЧЕТ
@@ -118,8 +123,10 @@ Function init_mo()
   else
     fl := func_error('Работа невозможна - не обнаружен файл "_MO_MO.DBB"')
   endif
+
   // справочник диагнозов
   sbase := "_mo_mkb"
+  writeProfileStart( h, sbase)
   if hb_FileExists(exe_dir + sbase + sdbf)
     R_Use(exe_dir + sbase )
     index on shifr+str(ks,1) to (cur_dir+sbase)
@@ -127,8 +134,12 @@ Function init_mo()
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
+
+  writeProfileStop( h, sbase)
+
   // справочник отделений на 2021 год
   sbase := "_mo1dep"
+  writeProfileStart( h, sbase)
   Public is_otd_dep := .f., glob_otd_dep := 0, mm_otd_dep := {}
   if hb_FileExists(exe_dir + sbase + sdbf)
     R_Use(exe_dir + sbase ,,"DEP")
@@ -152,10 +163,14 @@ Function init_mo()
       fl := notExistsFileNSI( exe_dir + sbase + sdbf )
     endif
   endif
+
+  writeProfileStop( h, sbase)
+
   Public arr_12_VMP := {}
   // private iiiVMP := 0
   // справочник услуг ТФОМС на 2021 год
   sbase := "_mo1usl"
+  writeProfileStart( h, sbase)
   if hb_FileExists(exe_dir + sbase + sdbf)
     R_Use(exe_dir + sbase ,,"LUSL")
     index on shifr to (cur_dir+sbase)
@@ -170,8 +185,11 @@ Function init_mo()
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
+  writeProfileStop( h, sbase)
+
   // справочник соответствия услуг ВМП услугам ТФОМС на 2021 год
   sbase := "_mo1vmp_usl"
+  writeProfileStart( h, sbase)
   if hb_FileExists(exe_dir + sbase + sdbf)
     // что-то сделать
     // R_Use(exe_dir + sbase ,,"LUSL")
@@ -185,8 +203,10 @@ Function init_mo()
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
+  writeProfileStop( h, sbase)
   // справочник отделений на 2020 год
   sbase := "_mo0dep"
+  writeProfileStart( h, sbase)
   Public is_otd_dep := .f., glob_otd_dep := 0, mm_otd_dep := {}
   if hb_FileExists(exe_dir + sbase + sdbf)
     R_Use(exe_dir + sbase ,,"DEP")
@@ -210,9 +230,11 @@ Function init_mo()
       fl := notExistsFileNSI( exe_dir + sbase + sdbf )
     endif
   endif
+  writeProfileStop( h, sbase)
   // Public arr_12_VMP := {}
   // справочник услуг ТФОМС на 2020 год
   sbase := "_mo0usl"
+  writeProfileStart( h, sbase)
   if hb_FileExists(exe_dir + sbase + sdbf)
     R_Use(exe_dir + sbase ,,"LUSL")
     index on shifr to (cur_dir+sbase)
@@ -226,7 +248,10 @@ Function init_mo()
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
+  writeProfileStop( h, sbase)
+
   sbase := "_mo9usl"
+  writeProfileStart( h, sbase)
   if hb_FileExists(exe_dir + sbase + sdbf)
     if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
       R_Use(exe_dir + sbase ,,"LUSL")
@@ -236,7 +261,10 @@ Function init_mo()
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
+  writeProfileStop( h, sbase)
+
   sbase := "_mo8usl"
+  writeProfileStart( h, sbase)
   if hb_FileExists(exe_dir + sbase + sdbf)
     if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
       R_Use(exe_dir + sbase ,,"LUSL")
@@ -246,6 +274,8 @@ Function init_mo()
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
+  writeProfileStop( h, sbase)
+
   Public is_napr_pol := .f.,; // работа с направлениями на госпитализацию в п-ке
          is_napr_stac := .f.,;  // работа с направлениями на госпитализацию в стационаре
          glob_klin_diagn := {} // работа со специальными лабораторными исследованиями
@@ -411,6 +441,7 @@ Function init_mo()
   // цены на услуги на 2021 год
   Public is_alldializ := .f.
   sbase := "_mo1uslc"
+  writeProfileStart( h, sbase)
   if hb_FileExists(exe_dir + sbase + sdbf) .and. valtype(glob_mo) == "A"
     R_Use(exe_dir + sbase ,,"LUSLC")
     index on shifr+str(vzros_reb,1)+str(depart,3)+dtos(datebeg) to (cur_dir+sbase) ;
@@ -506,9 +537,12 @@ Function init_mo()
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
+  writeProfileStop( h, sbase)
+
   // цены на услуги на 2020 год
   Public is_alldializ := .f.
   sbase := "_mo0uslc"
+  writeProfileStart( h, sbase)
   if hb_FileExists(exe_dir + sbase + sdbf) .and. valtype(glob_mo) == "A"
     R_Use(exe_dir + sbase ,,"LUSLC")
     index on shifr+str(vzros_reb,1)+str(depart,3)+dtos(datebeg) to (cur_dir+sbase) ;
@@ -604,8 +638,11 @@ Function init_mo()
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
+  writeProfileStop( h, sbase)
+
   // цены на услуги на 2019 год
   sbase := "_mo9uslc"
+  writeProfileStart( h, sbase)
   if hb_FileExists(exe_dir + sbase + sdbf) .and. valtype(glob_mo) == "A"
     R_Use(exe_dir + sbase ,,"LUSLC")
     index on shifr+str(vzros_reb,1)+str(depart,3)+dtos(datebeg) to (cur_dir+sbase) ;
@@ -702,8 +739,11 @@ Function init_mo()
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
+  writeProfileStop( h, sbase)
+
   // цены на услуги на 2018 год
   sbase := "_mo8uslc"
+  writeProfileStart( h, sbase)
   if hb_FileExists(exe_dir + sbase + sdbf) .and. valtype(glob_mo) == "A"
     if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
       R_Use(exe_dir + sbase ,,"LUSLC")
@@ -716,6 +756,8 @@ Function init_mo()
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
+  writeProfileStop( h, sbase)
+
   Public is_MO_VMP := (is_ksg_VMP .or. is_21_VMP .or. is_12_VMP .or. is_14_VMP .or. is_ds_VMP)
   // справочник доплат по законченным случаям (старый справочник)
   /*sbase := "_mo_usld"
@@ -741,6 +783,7 @@ Function init_mo()
   endif*/
   // справочник услуг ФФОМС 2021
   sbase := "_mo1uslf"
+  writeProfileStart( h, sbase)
   if hb_FileExists(exe_dir + sbase + sdbf)
     R_Use(exe_dir + sbase ,,"LUSLF")
     index on shifr to (cur_dir+sbase)
@@ -748,8 +791,11 @@ Function init_mo()
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
+  writeProfileStop( h, sbase)
+
   // справочник услуг ФФОМС 2020
   sbase := "_mo0uslf"
+  writeProfileStart( h, sbase)
   if hb_FileExists(exe_dir + sbase + sdbf)
     R_Use(exe_dir + sbase ,,"LUSLF")
     index on shifr to (cur_dir+sbase)
@@ -757,8 +803,10 @@ Function init_mo()
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
+  writeProfileStop( h, sbase)
   // справочник услуг ФФОМС 2019
   sbase := "_mo9uslf"
+  writeProfileStart( h, sbase)
   if hb_FileExists(exe_dir + sbase + sdbf)
     if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
       R_Use(exe_dir + sbase ,,"LUSLF")
@@ -768,8 +816,10 @@ Function init_mo()
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
+  writeProfileStop( h, sbase)
   // справочник услуг ФФОМС 2018
   sbase := "_mo8uslf"
+  writeProfileStart( h, sbase)
   if hb_FileExists(exe_dir + sbase + sdbf)
     if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
       R_Use(exe_dir + sbase ,,"LUSLF")
@@ -779,8 +829,10 @@ Function init_mo()
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
+  writeProfileStop( h, sbase)
   // услуги <-> профили
   sbase := "_mo_prof"
+  writeProfileStart( h, sbase)
   if hb_FileExists(exe_dir + sbase + sdbf)
     R_Use(exe_dir + sbase )
     index on shifr+str(vzros_reb,1)+str(profil,3) to (cur_dir+sbase)
@@ -788,8 +840,10 @@ Function init_mo()
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
+  writeProfileStop( h, sbase)
   // услуги <-> специальности
   sbase := "_mo_spec"
+  writeProfileStart( h, sbase)
   if hb_FileExists(exe_dir + sbase + sdbf)
     R_Use(exe_dir + sbase )
     index on shifr+str(vzros_reb,1)+str(prvs_new,6) to (cur_dir+sbase)
@@ -797,8 +851,10 @@ Function init_mo()
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
+  writeProfileStop( h, sbase)
   // план-заказ
   sbase := "_mo1unit"
+  writeProfileStart( h, sbase)
   if hb_FileExists(exe_dir + sbase + sdbf)
     R_Use(exe_dir + sbase )
     index on str(code,3) to (cur_dir+sbase)
@@ -806,7 +862,9 @@ Function init_mo()
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
+  writeProfileStop( h, sbase)
   sbase := "_mo0unit"
+  writeProfileStart( h, sbase)
   if hb_FileExists(exe_dir + sbase + sdbf)
     R_Use(exe_dir + sbase )
     index on str(code,3) to (cur_dir+sbase)
@@ -814,7 +872,9 @@ Function init_mo()
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
+  writeProfileStop( h, sbase)
   sbase := "_mo9unit"
+  writeProfileStart( h, sbase)
   if hb_FileExists(exe_dir + sbase + sdbf)
     if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
       R_Use(exe_dir + sbase )
@@ -824,7 +884,9 @@ Function init_mo()
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
+  writeProfileStop( h, sbase)
   sbase := "_mo8unit"
+  writeProfileStart( h, sbase)
   if hb_FileExists(exe_dir + sbase + sdbf)
     if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
       R_Use(exe_dir + sbase )
@@ -834,7 +896,9 @@ Function init_mo()
   else
     // fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
+  writeProfileStop( h, sbase)
   sbase := "_mo1shema"
+  writeProfileStart( h, sbase)
   if hb_FileExists(exe_dir + sbase + sdbf)
     // добавлена индексация файла
     R_Use(exe_dir + sbase )
@@ -843,9 +907,11 @@ Function init_mo()
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
+  writeProfileStop( h, sbase)
   Public arr_ad_cr_it21 := {}
   // T006 2021 год
   sbase := "_mo1it1"
+  writeProfileStart( h, sbase)
   if hb_FileExists(exe_dir + sbase + sdbf)
     R_Use(exe_dir+"_mo1shema",cur_dir+"_mo1shema","SCHEMA")
   
@@ -893,24 +959,30 @@ Function init_mo()
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
+  writeProfileStop( h, sbase)
   sbase := "_mo1k006"
+  writeProfileStart( h, sbase)
   if hb_FileExists(exe_dir + sbase + sdbf)
     if hb_FileExists(exe_dir + sbase +".dbt")
-      R_Use(exe_dir + sbase )
-      index on substr(shifr,1,2)+ds+sy+age+sex+los to (cur_dir+sbase) // по диагнозу/операции
-      index on substr(shifr,1,2)+sy+ds+age+sex+los to (cur_dir+sbase+"_") // по операции/диагнозу
-      index on ad_cr to (cur_dir+sbase+"AD") // по дополнительному критерию Байкин
-      use
+      if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
+        R_Use(exe_dir + sbase )
+        index on substr(shifr,1,2)+ds+sy+age+sex+los to (cur_dir+sbase) // по диагнозу/операции
+        index on substr(shifr,1,2)+sy+ds+age+sex+los to (cur_dir+sbase+"_") // по операции/диагнозу
+        index on ad_cr to (cur_dir+sbase+"AD") // по дополнительному критерию Байкин
+        use
+      endif
     else
       fl := notExistsFileNSI( exe_dir + sbase + '.dbt' )
     endif
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
+  writeProfileStop( h, sbase)
   //
   Public arr_ad_cr_it20 := {}
   // T006 2020 год
   sbase := "_mo0it1"
+  writeProfileStart( h, sbase)
   if hb_FileExists(exe_dir + sbase + sdbf)
     R_Use(exe_dir + sbase ,,"IT")
     go top
@@ -943,11 +1015,13 @@ Function init_mo()
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
+  writeProfileStop( h, sbase)
   sbase := '_mo0shema'
   if !hb_FileExists(exe_dir + sbase + sdbf)
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
   sbase := "_mo0k006"
+  writeProfileStart( h, sbase)
   if hb_FileExists(exe_dir + sbase + sdbf)
     if hb_FileExists(exe_dir + sbase +".dbt")
       R_Use(exe_dir + sbase )
@@ -961,9 +1035,11 @@ Function init_mo()
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
+  writeProfileStop( h, sbase)
   // T006 2019 год
   Public arr_ad_cr_it19 := {}
   sbase := "_mo9it"
+  writeProfileStart( h, sbase)
   if hb_FileExists(exe_dir + sbase + sdbf)
     R_Use(exe_dir + sbase ,,"IT")
     index on ds to tmpit memory
@@ -972,11 +1048,13 @@ Function init_mo()
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
+  writeProfileStop( h, sbase)
   sbase := '_mo9shema'
   if !hb_FileExists(exe_dir + sbase + sdbf)
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
   sbase := "_mo9k006"
+  writeProfileStart( h, sbase)
   if hb_FileExists(exe_dir + sbase + sdbf)
     if hb_FileExists(exe_dir + sbase +".dbt")
       if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx) .or. ;
@@ -994,6 +1072,7 @@ Function init_mo()
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
+  writeProfileStop( h, sbase)
   // T006 2018 год
   /*sbase := "_mo8it"
   if hb_FileExists(exe_dir + sbase + sdbf)
@@ -1009,6 +1088,7 @@ Function init_mo()
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif*/
   sbase := "_mo8k006"
+  writeProfileStart( h, sbase)
   if hb_FileExists(exe_dir + sbase + sdbf)
     if hb_FileExists(exe_dir + sbase +".dbt")
       if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx) .or. ;
@@ -1026,8 +1106,10 @@ Function init_mo()
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
+  writeProfileStop( h, sbase)
   //
   sbase := "_mo_t007"
+  writeProfileStart( h, sbase)
   Public arr_t007 := {}
   if hb_FileExists(exe_dir + sbase + sdbf)
     R_Use(exe_dir + sbase ,,"T7")
@@ -1039,8 +1121,10 @@ Function init_mo()
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
+  writeProfileStop( h, sbase)
   // справочник страховых компаний РФ
   sbase := "_mo_smo"
+  writeProfileStart( h, sbase)
   if hb_FileExists(exe_dir + sbase + sdbf)
     Public glob_array_srf := {}
     R_Use(exe_dir + sbase )
@@ -1053,8 +1137,10 @@ Function init_mo()
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
+  writeProfileStop( h, sbase)
   // onkko_vmp
   sbase := "_mo_ovmp"
+  writeProfileStart( h, sbase)
   if hb_FileExists(exe_dir + sbase + sdbf)
     if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
       R_Use(exe_dir + sbase )
@@ -1064,8 +1150,10 @@ Function init_mo()
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
+  writeProfileStop( h, sbase)
   // N002
   sbase := "_mo_N002"
+  writeProfileStart( h, sbase)
   if hb_FileExists(exe_dir + sbase + sdbf)
     if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
       R_Use(exe_dir + sbase )
@@ -1190,8 +1278,10 @@ Function init_mo()
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
+  writeProfileStop( h, sbase)
   // справочник подразделений из паспорта ЛПУ
   sbase := "_mo_podr"
+  writeProfileStart( h, sbase)
   if hb_FileExists(exe_dir + sbase + sdbf)
     if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
       R_Use(exe_dir + sbase )
@@ -1201,8 +1291,10 @@ Function init_mo()
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
+  writeProfileStop( h, sbase)
   // справочник соответствия профиля мед.помощи с профилем койки
   sbase := "_mo_prprk"
+  writeProfileStart( h, sbase)
   if hb_FileExists(exe_dir + sbase + sdbf)
     if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
       R_Use(exe_dir + sbase )
@@ -1212,6 +1304,7 @@ Function init_mo()
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
+  writeProfileStop( h, sbase)
   
   aadd(arrRefFFOMS, {'_mo_f006', .t., 'F006 - Классификатор видов контроля (VidExp)' } )
   aadd(arrRefFFOMS, {'_mo_f010', .f., 'F010 - Классификатор субъектов Российской Федерации (Subekti)' } )
@@ -1242,7 +1335,9 @@ Function init_mo()
   
   // справочник ОКАТО
   if fl
+    writeProfileStart( h, 'okato')
     okato_index()
+    writeProfileStart( h,'okato')
     //
     dbcreate(cur_dir+"tmp_srf",{{"okato","C",5,0},{"name","C",80,0}})
     use (cur_dir+"tmp_srf") new alias TMP
@@ -1273,6 +1368,18 @@ Function init_mo()
     QUIT
   endif
   rest_box(buf)
+
+  writeProfileStop( h, 'init_mo')
+  FClose( h )
+  
   return main_up_screen()
   
-  
+function writeProfileStart( h, str)
+
+  FWrite( h, 'start ' + str + ': ' + time() + hb_eol() )
+  return nil
+
+  function writeProfileStop( h, str)
+
+    FWrite( h, 'stop ' + str + ': ' + time() + hb_eol() )
+    return nil
