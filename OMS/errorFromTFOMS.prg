@@ -73,7 +73,7 @@ Function f3oms_edit()
 
     if empty(arr)
       func_error(4,"Нет пациентов с ошибками из ТФОМС "+arr_m[4])
-    elseif (iRefr := popup_2array(arr,T_ROW,T_COL+5,,,@ret_arr,"Выбор вида ошибки","B/BG",color0)) > 0
+    elseif (iRefr := popup_2array(arr,T_ROW,T_COL+5,,,@ret_arr,"Выбор вида ошибки","B/BG",color0, 'errorOMSkey' )) > 0
       // в случае выбора ошибки 57 (ошибки в персональных данных) или 599 (неверный пол или дата рождения)
       if eq_any(iRefr,57,599) .and. (i := popup_prompt(T_ROW,T_COL+5,1,;
                        {"Редактирование листов учёта",;
@@ -169,4 +169,20 @@ Function f3oms_edit()
     close databases
   endif
   return NIL
+  
+***** 20.05.21
+Function errorOMSkey(nkey, ind)
+  Local ret := -1
+
+  // if nKey == K_F2
+  //   alertx(len(parr), 'F2')
+  //   ret := 0
+  // elseif nKey == K_F3
+  //   alertx(parr[ind], 'F3')
+  //   ret := 0
+  // elseif nKey == K_SPACE
+  //   alertx(parr[ind], 'SPACE')
+  //   ret := 1
+  // endif
+  return ret
   
