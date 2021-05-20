@@ -81,6 +81,7 @@ procedure main( ... )
   Public d_01_11_2019 := 0d20191101
   Public d_01_01_2021 := 0d20210101
   //
+
   __s_version := "  в. "+fs_version(_version)+" от "+_date_version+" тел.(8442)23-69-56"
   SET(_SET_DELETED, .T.)
   SETCLEARB(" ")
@@ -96,6 +97,7 @@ procedure main( ... )
   r := init_mo() // инициализация массива МО, запрос кода МО (при необходимости)
 
   a_parol := inp_password(is_cur_dir,is_create)
+  
   if tip_polzovat != TIP_ADM
     Private verify_fio_polzovat := .f.
   endif
@@ -112,7 +114,9 @@ procedure main( ... )
   checkVersionInternet( r, _version )
 
   Public chm_help_code := 0
+
   Init_first() // начальная инициализация программы (переменных, массивов,...)
+
   if ControlBases(1,_version) // если необходимо
     if G_SLock1Task(sem_task,sem_vagno)  // запрет доступа всем
       buf := savescreen()
@@ -142,9 +146,13 @@ procedure main( ... )
       f_end(.f.)
     endif
   endif
+
   Init_Program() // инициализация программы (переменных, массивов,...)
+
   f_main(r,a_parol)
+
   f_end()
+
   return
 
 ***** 17.05.21
@@ -1735,42 +1743,43 @@ return NIL
 
 *****
 Function f1find_time_limit_human_reestr_sp_tk(i,arr)
-Local n_file := "time_lim"+stxt, sh := 80, HH := 60
-fp := fcreate(n_file) ; n_list := 1 ; tek_stroke := 0
-add_string("")
-add_string(center("Список случаев, вернувшихся с ошибкой и ещё не отосланных в ТФОМС",sh))
-if i == 10
-  add_string(center("(просрочено более "+lstr(arr[9,1])+" дн.)",sh))
-else
-  add_string(center("(просрочено "+lstr(arr[i,1])+" дн.)",sh))
-endif
-add_string(center("по состоянию на "+full_date(sys_date)+" "+hour_min(seconds()),sh))
-add_string("")
-R_Use(dir_server+"mo_otd",,"OTD")
-R_Use(dir_server+"human_",,"HUMAN_")
-R_Use(dir_server+"human",,"HUMAN")
-set relation to recno() into HUMAN_, to otd into OTD
-use (cur_dir+"tmp_tl") new
-set relation to kod_h into HUMAN
-if i == 10
-  index on upper(human->fio) to (cur_dir+"tmp_tl") for dni > arr[9,1]
-else
-  index on upper(human->fio) to (cur_dir+"tmp_tl") for dni == arr[i,1]
-endif
-i := 0
-go top
-do while !eof()
-  verify_FF(HH, .t., sh)
-  add_string(lstr(++i)+". "+alltrim(human->fio)+", "+full_date(human->date_r)+;
+  Local n_file := "time_lim"+stxt, sh := 80, HH := 60
+
+  fp := fcreate(n_file) ; n_list := 1 ; tek_stroke := 0
+  add_string("")
+  add_string(center("Список случаев, вернувшихся с ошибкой и ещё не отосланных в ТФОМС",sh))
+  if i == 10
+    add_string(center("(просрочено более "+lstr(arr[9,1])+" дн.)",sh))
+  else
+    add_string(center("(просрочено "+lstr(arr[i,1])+" дн.)",sh))
+  endif
+  add_string(center("по состоянию на "+full_date(sys_date)+" "+hour_min(seconds()),sh))
+  add_string("")
+  R_Use(dir_server+"mo_otd",,"OTD")
+  R_Use(dir_server+"human_",,"HUMAN_")
+  R_Use(dir_server+"human",,"HUMAN")
+  set relation to recno() into HUMAN_, to otd into OTD
+  use (cur_dir+"tmp_tl") new
+  set relation to kod_h into HUMAN
+  if i == 10
+    index on upper(human->fio) to (cur_dir+"tmp_tl") for dni > arr[9,1]
+  else
+    index on upper(human->fio) to (cur_dir+"tmp_tl") for dni == arr[i,1]
+  endif
+  i := 0
+  go top
+  do while !eof()
+    verify_FF(HH, .t., sh)
+    add_string(lstr(++i)+". "+alltrim(human->fio)+", "+full_date(human->date_r)+;
              iif(empty(otd->SHORT_NAME), "", " ["+alltrim(otd->SHORT_NAME)+"]")+;
              " "+date_8(human->n_data)+"-"+date_8(human->k_data))
-  select TMP_TL
-  skip
-enddo
-close databases
-fclose(fp)
-viewtext(n_file,,,,.f.,,,2)
-return NIL
+    select TMP_TL
+    skip
+  enddo
+  close databases
+  fclose(fp)
+  viewtext(n_file,,,,.f.,,,2)
+  return NIL
 
 *****
 // Function my_mo_f_main()
@@ -1782,18 +1791,20 @@ return NIL
 
 *****
 Function my_mo_begin_task()
-Local fl := .t.
-if glob_mo[_MO_KOD_TFOMS] == kod_VOUNC
-  fl := vounc_begin_task()
-endif
-return fl
+  Local fl := .t.
+
+  if glob_mo[_MO_KOD_TFOMS] == kod_VOUNC
+    fl := vounc_begin_task()
+  endif
+  return fl
 
 ***** 05.11.15
 Function my_mo_f1main()
-Local old := is_uchastok
-if glob_mo[_MO_KOD_TFOMS] == kod_VOUNC
-  is_uchastok := 1 // буква + № участка + № в участке "У25/123"
-  vounc_f1main()
-  is_uchastok := old
-endif
-return NIL
+  Local old := is_uchastok
+
+  if glob_mo[_MO_KOD_TFOMS] == kod_VOUNC
+    is_uchastok := 1 // буква + № участка + № в участке "У25/123"
+    vounc_f1main()
+    is_uchastok := old
+  endif
+  return NIL
