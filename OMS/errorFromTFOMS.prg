@@ -172,7 +172,7 @@ Function f3oms_edit()
   endif
   return NIL
   
-***** 20.05.21
+***** 21.05.21
 Function errorOMSkey(nkey, ind)
   Local ret := -1, oBox
 	local color_say := 'N/W', color_get := 'W/N*'
@@ -181,9 +181,9 @@ Function errorOMSkey(nkey, ind)
   local begin_row := 2
 
   error_code := arr[1]
-  if len(error_code) < 12
+  if len(error_code) < 4
     perenos( opis, retArr_t005(val(error_code))[3], 56 )
-  elseif substr(error_code, 4, 1) == 'F' .and. substr(error_code, 6, 2) == '00'
+  elseif len(error_code) == 12 .and. substr(error_code, 4, 1) == 'F' .and. substr(error_code, 6, 2) == '00'
     arr_error := getRuleCheckErrorByID_Q015(error_code)
     perenos( opis, arr_error[6], 56 )
     if ! empty(arr_error[4])
@@ -191,10 +191,20 @@ Function errorOMSkey(nkey, ind)
       cond := .t.
     endif
     if ! empty(arr_error[5])
-        hb_AIns( opis, iif(cond, 2, 1), 'должно быть: ' + arr_error[5], .t.)
+        hb_AIns( opis, iif(cond, 2, 1), 'Должно быть: ' + arr_error[5], .t.)
     endif
-  elseif substr(error_code, 4, 1) == 'K' .and. substr(error_code, 6, 2) == '00'
-
+  elseif len(error_code) == 12 .and. substr(error_code, 4, 1) == 'K' .and. substr(error_code, 6, 2) == '00'
+    arr_error := getRuleCheckErrorByID_Q016(error_code)
+    perenos( opis, arr_error[6], 56 )
+    if ! empty(arr_error[4])
+      hb_AIns( opis, 1, 'Для: ' + arr_error[4], .t.)
+      cond := .t.
+    endif
+    if ! empty(arr_error[5])
+        hb_AIns( opis, iif(cond, 2, 1), 'Должно быть: ' + arr_error[5], .t.)
+    endif
+  else
+  return ret    // дополнительной информации нет
   endif
   if nKey == K_F2
     oBox := NIL // уничтожим окно
