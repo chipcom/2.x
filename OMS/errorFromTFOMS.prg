@@ -2,6 +2,7 @@
 #include "function.ch"
 #include "edit_spr.ch"
 #include "chip_mo.ch"
+#include 'tbox.ch'
 
 ***** 11.05.20 Редактирование случая с выбором по конкретной ошибке из ТФОМС
 Function f3oms_edit()
@@ -73,7 +74,8 @@ Function f3oms_edit()
 
     if empty(arr)
       func_error(4,"Нет пациентов с ошибками из ТФОМС "+arr_m[4])
-    elseif (iRefr := popup_2array(arr,T_ROW,T_COL+5,,,@ret_arr,"Выбор вида ошибки","B/BG",color0, 'errorOMSkey' )) > 0
+    elseif (iRefr := popup_2array(arr,T_ROW,T_COL+5,,,@ret_arr,"Выбор вида ошибки","B/BG",color0, 'errorOMSkey', ;
+        '^<Esc>^ - отказ;  ^<Enter>^ - выбор; ^F2^ - дополнительное описание' )) > 0
       // в случае выбора ошибки 57 (ошибки в персональных данных) или 599 (неверный пол или дата рождения)
       if eq_any(iRefr,57,599) .and. (i := popup_prompt(T_ROW,T_COL+5,1,;
                        {"Редактирование листов учёта",;
@@ -172,17 +174,48 @@ Function f3oms_edit()
   
 ***** 20.05.21
 Function errorOMSkey(nkey, ind)
-  Local ret := -1
+  Local ret := -1, oBox
+	local color_say := 'N/W', color_get := 'W/N*'
+  local arr := split(parr[ind])
+  local error_code, opis := {}, arr_error, cond := .f.
+  local begin_row := 2
 
-  // if nKey == K_F2
-  //   alertx(len(parr), 'F2')
+  error_code := arr[1]
+  if len(error_code) < 12
+    perenos( opis, retArr_t005(val(error_code))[3], 56 )
+  elseif substr(error_code, 4, 1) == 'F' .and. substr(error_code, 6, 2) == '00'
+    arr_error := getRuleCheckErrorByID_Q015(error_code)
+    perenos( opis, arr_error[6], 56 )
+    if ! empty(arr_error[4])
+      hb_AIns( opis, 1, 'Для: ' + arr_error[4], .t.)
+      cond := .t.
+    endif
+    if ! empty(arr_error[5])
+        hb_AIns( opis, iif(cond, 2, 1), 'должно быть: ' + arr_error[5], .t.)
+    endif
+  elseif substr(error_code, 4, 1) == 'K' .and. substr(error_code, 6, 2) == '00'
+
+  endif
+  if nKey == K_F2
+    oBox := NIL // уничтожим окно
+    oBox := TBox():New( begin_row, 10, 3 + len(opis), 70 )
+    oBox:Color := color_say + ',' + color_get
+    oBox:Frame := BORDER_DOUBLE
+    oBox:MessageLine := '^<любая клавиша>^ - выход'
+    oBox:Save := .t.
+
+    oBox:Caption := 'Описание ошибки - ' + error_code
+    oBox:View()
+    for i := 1 to len(opis)
+      @ begin_row + i, 12 say opis[i]
+    next
+    inkey(0)
+
   //   ret := 0
-  // elseif nKey == K_F3
-  //   alertx(parr[ind], 'F3')
+  elseif nKey == K_F3
   //   ret := 0
-  // elseif nKey == K_SPACE
-  //   alertx(parr[ind], 'SPACE')
+  elseif nKey == K_SPACE
   //   ret := 1
-  // endif
-  return ret
+    endif
+    return ret
   
