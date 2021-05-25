@@ -3285,9 +3285,10 @@ if G_SLock1Task(sem_task,sem_vagno) // запрет доступа всем
               endif
             else
               s := "код ошибки = "+tmp3->SREFREASON+" "
-              if (i := ascan(glob_Q017,{|x| x[1] == left(tmp3->SREFREASON,4)})) > 0
-                s += '"'+glob_Q017[i,2]+'" '
-              endif
+              // if (i := ascan(glob_Q017,{|x| x[1] == left(tmp3->SREFREASON,4)})) > 0
+              //   s += '"'+glob_Q017[i,2]+'" '
+              // endif
+              s += '"' + getCategoryCheckErrorByID_Q017(left(tmp3->SREFREASON,4))[2] + '" '
               s += alltrim(inieditspr(A__POPUPMENU, dir_exe+"_mo_Q015", tmp3->SREFREASON))
             endif
             k := perenos(t_arr,s,75)
