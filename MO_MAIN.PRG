@@ -1453,16 +1453,26 @@ END
 ERRORBLOCK(bSaveHandler)
 //
 hard_err("delete")
-filedelete(cur_dir+"tmp*.dbf")
-filedelete(cur_dir+"tmp*.ntx")
-filedelete(_tmp_dir1+"*.*")
-if hb_DirExists(cur_dir+_tmp_dir) .and. hb_DirDelete(cur_dir+_tmp_dir) != 0
-  //func_error(4,"Не могу удалить каталог "+cur_dir+_tmp_dir)
-ENDIF
-filedelete(_tmp2dir1+"*.*")
-if hb_DirExists(cur_dir+_tmp2dir) .and. hb_DirDelete(cur_dir+_tmp2dir) != 0
-  //func_error(4,"Не могу удалить каталог "+cur_dir+_tmp2dir)
-ENDIF
+if __mvExist( 'cur_dir' )
+	filedelete(cur_dir+"tmp*.dbf")
+	filedelete(cur_dir+"tmp*.ntx")
+	filedelete(_tmp_dir1+"*.*")
+	if hb_DirExists(cur_dir+_tmp_dir) .and. hb_DirDelete(cur_dir+_tmp_dir) != 0
+		//func_error(4,"Не могу удалить каталог "+cur_dir+_tmp_dir)
+	endif
+	filedelete(_tmp2dir1+"*.*")
+	if hb_DirExists(cur_dir+_tmp2dir) .and. hb_DirDelete(cur_dir+_tmp2dir) != 0
+		//func_error(4,"Не могу удалить каталог "+cur_dir+_tmp2dir)
+	endif
+endif
+// удалим файлы отчетов в формате '*.HTML' из временной директории
+filedelete( HB_DirTemp() + "*.HTML")
+// закроем если нужно доплнительный поток для сообщений
+// if __mvExist( 'hb_user_curUser' )
+//	if hb_user_curUser != nil
+//		udpSendMessage( 'KIL', 'ALL', hb_user_curUser:Name1251, '' )
+//	endif
+// endif
 SET KEY K_ALT_F3 TO
 SET KEY K_ALT_F2 TO
 SET KEY K_ALT_X  TO
