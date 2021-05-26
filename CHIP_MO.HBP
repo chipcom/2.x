@@ -41,9 +41,9 @@ mo_init.prg
 mo_kassa.prg
 mo_kas_p.prg
 mo_kas_o.prg
-mo_kek.prg
-mo_keki.prg
-mo_keki_17.prg
+.\KEK\mo_kek.prg
+.\KEK\mo_keki.prg
+.\KEK\mo_keki_17.prg
 mo_main.prg
 mo_moder.prg
 mo_mzxml.prg
@@ -80,9 +80,9 @@ mo_spr.prg
 mo_spri.prg
 mo_st39.prg
 mo_vounc.prg
-mo_263.prg
-mo_263p.prg
-mo_263s.prg
+.\263\mo_263.prg
+.\263\mo_263p.prg
+.\263\mo_263s.prg
 Errorsys.prg
 
 .\init\init_mo.prg
