@@ -532,54 +532,6 @@ if k > 10
 endif
 return NIL
 
-*
-
-***** 29.06.17
-Function kek_info2016(k)
-Static si1 := 1
-Local mas_pmt, mas_msg, mas_fun, j
-DEFAULT k TO 1
-do case
-  case k == 1
-    mas_pmt := {"Приложение №~7",;
-                "Приложение №~14",;
-                "По ~экспертам",;
-                "~Повод экспертизы",;
-                "для ~Облздрава",;
-                "Качество и ~безопасность"}
-    mas_msg := {"Распечатка таблиц из приложения №7",;
-                "Распечатка таблицы из приложения №14",;
-                "Получение информации по экспертам",;
-                "Получение информации по поводу экспертизы",;
-                "Распечатка таблиц для Облздрава",;
-                "Распечатка отчётов по контролю качества и безопасности медицинской деятельности"}
-    mas_fun := {"kek_info2016(11)",;
-                "kek_info2016(12)",;
-                "kek_info2016(13)",;
-                "kek_info2016(14)",;
-                "kek_info2016(15)",;
-                "kek_info2016(16)"}
-    popup_prompt(T_ROW,T_COL-5,si1,mas_pmt,mas_msg,mas_fun)
-  case k == 11
-    kek_prn_pril7()
-  case k == 12
-    kek_prn_pril14()
-  case k == 13
-    kek_inf_eks()
-  case k == 14
-    kek_inf_povod()
-  case k == 15
-    kek_oblzdrav()
-  case k == 16
-    kek_k_and_b()
-endcase
-if k > 10
-  j := int(val(right(lstr(k),1)))
-  if between(k,11,19)
-    si1 := j
-  endif
-endif
-return NIL
 
 ***** 26.06.13
 Function kek_prn_pril7(k)
