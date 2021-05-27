@@ -14,8 +14,8 @@ function checkVersionInternet( row, oldVersion )
   if (aVersion := readVersion( fileVersion )) != nil
     if ControlVersion( aVersion, oldVersion )
       AAdd(arr, 'Доступна новая версия программы:')
-      AAdd(arr, 'текущая версия: ' + fs_version( oldVersion ) )// + charVersion)
-      AAdd(arr, 'новая версия: ' + fs_version( aVersion ) )// + aVersion[4])
+      AAdd(arr, 'текущая версия: ' + fs_version( oldVersion ) )
+      AAdd(arr, 'новая версия: ' + fs_version( aVersion ) )
       n_message( arr, , 'W/W', 'N/W', row + 3, , 'N+/W' )
     endif
   endif
@@ -111,7 +111,6 @@ Function ControlVersion(aVersion, oldVersion)
       return .t.
     elseif snversion == ver__base
       if asc(substr( oldVersion[4], 1, 1) ) < asc( aVersion[4] )
-        // if asc(substr( charVersion, 1, 1) ) < asc( aVersion[4] )
         return .t.
       endif
     endif

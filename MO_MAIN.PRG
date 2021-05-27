@@ -15,7 +15,6 @@
 Static _version := {2, 11, 21, 'c'}
 Static _date_version := '25.05.21г.'
 Static __s_full_name := 'ЧИП + Учёт работы Медицинской Организации'
-Static __s_version
 
 external ust_printer, ErrorSys, ReadModal, like, flstr, prover_dbf, net_monitor, pr_view, ne_real
 // старые (редко используемые) отчёты запускаем из hrb-файлов (для уменьшения задачи)
@@ -26,6 +25,9 @@ DYNAMIC forma_792_MIAC
 DYNAMIC f1forma_792_MIAC
 DYNAMIC monitoring_vid_pom
 DYNAMIC b_25_perinat_2
+
+function __s_version()
+  return '  в. ' + fs_version(_version) + ' от ' + _date_version + ' тел.(8442)23-69-56'
 
 *****
 procedure main( ... )
@@ -82,11 +84,10 @@ procedure main( ... )
   Public d_01_01_2021 := 0d20210101
   //
 
-  __s_version := "  в. "+fs_version(_version)+" от "+_date_version+" тел.(8442)23-69-56"
   SET(_SET_DELETED, .T.)
   SETCLEARB(" ")
   is_cur_dir := f_first(is_create)
-  put_icon(__s_full_name+__s_version,"MAIN_ICON")
+  put_icon(__s_full_name + __s_version(), 'MAIN_ICON')
   set key K_F1 to f_help()
   hard_err("create")
   FillScreen(p_char_screen,p_color_screen) //FillScreen("█","N+/N")
@@ -249,7 +250,7 @@ Function f_main(r0,a_parol)
         main_center_screen(r0)
       endif
       change_sys_date() // перечитать системную дату
-      put_icon(__s_full_name+__s_version,"MAIN_ICON") // перевывести заголовок окна
+      put_icon(__s_full_name + __s_version(), 'MAIN_ICON') // перевывести заголовок окна
       @ r0,0 say full_date(sys_date) color "W+/N" // перевывести дату
       @ r0,maxcol()-4 say hour_min(seconds()) color "W+/N" // перевывести время
     enddo
@@ -361,7 +362,7 @@ first_menu := {}
 first_message := {}
 func_menu := {}
 cmain_menu := {}
-put_icon(array_tasks[it,1]+" [ЧИП + Учёт работы МО]"+__s_version,cNameIcon)
+put_icon(array_tasks[it,1] + ' [ЧИП + Учёт работы МО]' + __s_version(), cNameIcon)
 SETCOLOR(color1)
 FillScreen(p_char_screen,p_color_screen)
 do case
