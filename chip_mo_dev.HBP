@@ -37,7 +37,6 @@ mo_fr.prg
 mo_func.prg
 mo_func1.prg
 mo_func2.prg
-# mo_index.prg
 mo_init.prg
 mo_kassa.prg
 mo_kas_p.prg
@@ -164,3 +163,5 @@ Errorsys.prg
 .\util\runExternalProgram.prg
 .\util\workWithInternet.prg
 .\util\backup.prg
+
+.\menu\f1main.prg
