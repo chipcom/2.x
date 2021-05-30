@@ -10,8 +10,8 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-Static _version := {2, 11, 21, 'c'}
-Static _date_version := '25.05.21г.'
+Static _version := {2, 11, 21, 'd'}
+Static _date_version := '30.05.21г.'
 Static __s_full_name := 'ЧИП + Учёт работы Медицинской Организации'
 
 external ust_printer, ErrorSys, ReadModal, like, flstr, prover_dbf, net_monitor, pr_view, ne_real

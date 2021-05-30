@@ -12,59 +12,59 @@ Static mas1pmt := {"~все оказанные случаи",;
 
 
 
-***** 08.03.21 вернуть план диспансеризации на год из R01 для фрмы 131
+***** 08.03.21 вернуть план диспансеризации на год из R01 для формы 131
 Function ret_plan_disp_131_N(d)
 Local arr[2,7], ar, s, s1, fl, sgod := year(d), v, i, j, group_ini := "DISP_PLAN_131"
 afillall(arr,0)
-  R_Use(dir_server+"kartotek",,"KART")
-  R_Use(dir_server+"mo_dr01",,"RR")
-  R_Use(dir_server+"mo_dr01k",,"R01")
-  set relation to reestr into RR
-  index on str(kod_k,7) to (cur_dir+"tmp_r01") ;
-        for kod_k > 0 .and. oplata == 1 .and. tip == 1
-  // oplata == 1  - принято
-  // tip == 1 - диспанчеризация  2 - проф
-  // rr->tip == 0 - 0-R01
-  go top
-  do while !eof()
-    fl := .f.
-//    if r01->n_m < 6
-      if (r01->n_m != 3.and.r01->n_m != 4 .and.r01->n_m != 5 ) ;
-         .and. rr->tip == 0
-        fl := .t.
-      elseif (r01->n_m >= 3 .and. r01->n_m <= 5 ).and. rr->tip == 1
-        fl := .t.
+R_Use(dir_server+"kartotek",,"KART")
+R_Use(dir_server+"mo_dr01",,"RR")
+R_Use(dir_server+"mo_dr01k",,"R01")
+set relation to reestr into RR
+index on str(kod_k,7) to (cur_dir+"tmp_r01") ;
+      for kod_k > 0 .and. oplata == 1 .and. tip == 1
+// oplata == 1  - принято
+// tip == 1 - диспансеризация  2 - проф
+// rr->tip == 0 - 0-R01
+go top
+do while !eof()
+  fl := .f.
+  //if r01->n_m < 4
+    if r01->n_m != 3 .and. rr->tip == 0
+      fl := .t.
+    //elseif r01->n_m == 3 .and. rr->tip == 1
+    //  fl := .t.
+
+    endif
+    if fl
+      select KART
+      goto (r01->kod_k)
+      v := sgod - year(kart->date_r)
+      i := iif(kart->pol == "М", 1, 2)
+      if v < 34
+         j := 1
+      elseif v <= 39
+         j := 2
+      elseif v <= 54
+         j := 3
+      elseif v <= 59
+         j := 4
+      elseif v <= 64
+         j := 5
+      elseif v <= 74
+         j := 6
+      else
+         j := 7
       endif
-      if fl
-        select KART
-        goto (r01->kod_k)
-        v := sgod - year(kart->date_r)
-        i := iif(kart->pol == "М", 1, 2)
-        if v <= 34
-           j := 1
-        elseif v <= 39
-           j := 2
-        elseif v <= 54
-           j := 3
-        elseif v <= 59
-           j := 4
-        elseif v <= 64
-           j := 5
-        elseif v <= 74
-           j := 6
-        else
-           j := 7
-        endif
-        arr[i,j] ++
-      endif
-//    endif
-    select R01
-    skip
-  enddo
-  close databases
+      arr[i,j] ++
+    endif
+  //endif
+  select R01
+  skip
+enddo
+close databases
 return arr
 
-***** 11.03.21 форма 131
+***** 30.05.21 форма 131
 Function forma_131(par)
 Static arr_v := {"18-34","35-39","40-54","55-59","60-64",;
                  "65-74","75 и старше"}
@@ -112,11 +112,11 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
       {  15,"Определение простат-специфического антигена в крови","4.14.66"},;
       {  16,"Эзофагогастродоуденоскопия","10.3.713"},;
       {  17,"Общий анализ крови",{"4.11.137","4.11.136"}},;
-      {  18,"Кратное индивидуального профилактическое консультирование","99.99.99"},;
-      {  19,"Прием (осмотр) врача-терапевта","99.99.99"},;
-      {191,"Прием (осмотр) врача-терапевта по результатам 1го этапа 18-39 лет","99.99.99"},;
-      {192,"Прием (осмотр) врача-терапевта по результатам 1го этапа 40 и старше","99.99.99"},;
-      {  20,"Осмотр на выявление визуальных и иных локализаций онко.заболеваний ","99.99.99"};
+      {  18,"Кратное индивидуального профилактическое консультирование","56.1.14"},;
+      {  19,"Прием(осмотр) врача-терапевта",{{"2.3.1",97},{"2.3.1",57},{"2.3.2",97},{"2.3.2",57},{"2.3.3",42},{"2.3.5",57},{"2.3.5",97},{"2.3.7",97},{"2.3.7",57}}},;
+      { 191,"Прием(осмотр) врача-терапевта по рез.1го этапа 18-39 лет","2.3.7","mdvozrast < 40"},;
+      { 192,"Прием(осмотр) врача-терапевта по рез.1го этапа > 40 лет","2.3.7","39 < mdvozrast"},;
+      {  20,"Осмотр на выявление визуальных и иных локализаций онко.заболеваний ",{"2.3.1","2.3.2","2.3.3","2.3.5","2.3.7"}};
      }
 //  {  19,"Прием (осмотр) врача-терапевта",{{"2.3.1",97},{"2.3.1",57},{"2.3.2",97},{"2.3.2",57},{"2.3.3",42},{"2.3.5",57},{"2.3.5",97},{"2.3.6",57},{"2.3.6",97}}},;
 
@@ -132,7 +132,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
       tmp->name := arr_2000[n,2]
       tmp->ns := arr_2000[n,1]
     next
-    index on str(ns,2) to (cur_dir+"tmp2000")
+    index on str(ns,3) to (cur_dir+"tmp2000")
     use
     //
     Private v3001 := 0, arr_3000 := {;
@@ -148,12 +148,13 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
       { 10,"Осмотр врачем акушером-гинекологом","2.84.5"},;
       { 11,"Осмотр врачем-оториноларингологом","2.84.8"},;
       { 12,"Осмотр врача-офтальмолога","2.84.3"},;
-      { 13,"Индивидуальное профилактическое консультирование",{"56.1.15","56.1.20","56.1.21","56.1.721","56.1.723"}},;
-      {131,"с выявленными ишемической болезнью ...","99.99.99"},;
-      {132,"в возрасте 65 лет и старше в целях ...","99.99.99"},;
-      {133,"при выявлении высокого относительного, ...","99.99.99"},;
-      { 14,"Прием (осмотр) врача-терапевта по результатам 2-го этапа","2.84.11"},;
-      { 15,"Направление на осмотр врачем-онкологом","99.99.99"};
+      { 13,"Индивидуальное или групповое профилактическое консультирование",{"56.1.20","56.1.23"}},;  //+
+      {131,"с выявленными ишемической болезнью ...",{"56.1.20","56.1.23"}},;
+      {132,"при выявлении риском алкоголя и наркотиков ...",{"56.1.20","56.1.23"}},;                  //+
+      {133,"в возрасте 65 лет и старше в целях ...",{"56.1.20","56.1.23"},"64 < mdvozrast"},;         //+
+      {134,"при выявлении высокого относительного, ...",{"56.1.20","56.1.23"}},;                      //+
+      { 14,"Прием (осмотр) врача-терапевта по результатам 2-го этапа","2.84.11"},;                    //+
+      { 15,"Направление на осмотр врачем-онкологом","99.99.99"};                                      //+
      }
     dbcreate(cur_dir+"tmp3000",{{"name","C",100,0},;
                                 {"ns","N",4,0},;
@@ -280,8 +281,8 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
       {72,"11.1","Боллезни уха и сосцовидного отростка","H60-H95"},;
       {72,"8","кондуктивная и нейросенсорная потеря слуха","H90"},;
       {72,"11.2","Болезни кожи и подкожной клетчатки","L00-L98"},;
-      {72,"11.3","Болезни костно-мышечной системы","М00-М99"},;
-      { 0,"12","ИТОГО",""};
+      {72,"11.3","Болезни костно-мышечной системы","M00-M99"},;
+      { 0,"  ","ИТОГО",""};
      }
     Private len5000 := len(arr_5000)
     Private diag5000 := array(len5000)
@@ -417,6 +418,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
     use (cur_dir+"tmp5000") index (cur_dir+"tmp5000") new
     use (cur_dir+"tmp5001") index (cur_dir+"tmp5001") new
     use (cur_dir+"tmp7000") index (cur_dir+"tmp7000") new
+    R_Use(dir_server+"mo_onkna",dir_server+"mo_onkna","NAPR")
     R_Use(dir_server+"schet_",,"SCHET_")
     R_Use(dir_server+"uslugi",,"USL")
     R_Use(dir_server+"human_u_",,"HU_")
@@ -435,14 +437,17 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
     mywait(" ")
     go top
     do while !eof()
-      @ maxrow(),0 say padr(str(++ii/tmp->(lastrec())*100,6,2)+"%  "+alltrim(kart->fio)+"  "+full_date(kart->date_r),80) color cColorWait
+  //    @ maxrow(),0 say padr(str(++ii/tmp->(lastrec())*100,6,2)+"%  "+alltrim(kart->fio)+"  "+full_date(kart->date_r),80) color cColorWait
       if empty(tmp->kod4h) .and. !empty(tmp->kod1h) // есть диспансеризация первый этап
+        @ maxrow(),0 say "ДИСП "+padr(str(++ii/tmp->(lastrec())*100,6,2)+"%  "+alltrim(kart->fio)+"  "+full_date(kart->date_r),80) color cColorWait
         human->(dbGoto(tmp->kod1h))
         f1_forma_131()
       elseif !empty(tmp->kod3h)
+        @ maxrow(),0 say "ПРОФ "+padr(str(++ii/tmp->(lastrec())*100,6,2)+"%  "+alltrim(kart->fio)+"  "+full_date(kart->date_r),80) color cColorWait
         human->(dbGoto(tmp->kod3h))
         f11_forma_131()
       endif
+  //    inkey(0)
       f_error_DVN(2)
       select TMP
       skip
@@ -510,12 +515,12 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
     add_string(padl("ИТОГО:",17)+put_val(sm1+sg1,6)+put_val(sm2+sg2,6)+;
                                  put_val(sm_1+sg_1,7)+put_val(sm_2+sg_2,8)+;
                                  put_val(sm1,6)+put_val(sm2,6)+;
-                                 put_val(sm_1,7)+put_val(sm_2,8)+;
+                                 put_val(sm1,7)+put_val(sm2,8)+;
                                  put_val(sg1,6)+put_val(sg2,6)+;
-                                 put_val(sg_1,7)+put_val(sg_2,8))
+                                 put_val(sg1,7)+put_val(sg2,8))
     //
     add_string("")
-    add_string("Таблица 1000 план ")
+    add_string("Таблица 1000 план")
     add_string("─────────────────┬───────┬───────┬───────")
     add_string("                 │ Всего │Мужчины│Женщины")
     add_string("Возрастная группа├───────┼───────┼───────")
@@ -549,9 +554,9 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
     add_string(center("и первого этапа диспансеризации",sh))
     add_string("")
     add_string("Таблица 2000")
-    add_string("───────────────────────────────────────────────────┬──┬──────┬──────┬──────┬──────")
-    add_string("Прием (Осмотр) (консультация), исследование        │№с│провед│ ранее│отказы│отклон")
-    add_string("───────────────────────────────────────────────────┴──┴──────┴──────┴──────┴──────")
+    add_string("─────────────────────────────────────────────────────────────┬──┬──────┬──────┬──────┬──────")
+    add_string("Прием (Осмотр) (консультация), исследование                  │№с│провед│ ранее│отказы│отклон")
+    add_string("─────────────────────────────────────────────────────────────┴──┴──────┴──────┴──────┴──────")
     ar := {} ; i := 0
     use (cur_dir+"tmp2000") new alias TMP
     go top
@@ -569,14 +574,14 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
       if !empty(tmp->vd)
         aadd(ar, {5+i,7,tmp->vd})
       endif
-      add_string(padr(tmp->name,51)+str(tmp->ns,3)+put_val(tmp->vv,7)+;
+      add_string(padr(tmp->name,61)+str(tmp->ns,3)+put_val(tmp->vv,7)+;
                  put_val(tmp->vr,7)+put_val(tmp->vo,7)+put_val(tmp->vd,7))
       skip
     enddo
     use
     //aadd(ar, {30,2,arr_7001[20,2]}) // число лиц, оформивших письменные отказы
     //
-    aadd(arr_excel, {"2000",aclone(ar)})
+    //aadd(arr_excel, {"2000",aclone(ar)})
     //
     verify_FF(HH-40, .t., sh)
     add_string(center("Сведения о приемах (осмотрах), медицинских исследованиях и иных медицинских",sh))
@@ -616,9 +621,9 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
     //aadd(ar, {25,6,v3001}) // направлено к сердечно-сосудистому хирургу
     //aadd(ar, {27,2,0}) // число лиц, оформивших письменные отказы
     add_string(replicate("─",85))
-    add_string(padr("ИТОГО:",47)+str(17,3)+put_val(sv,7)+put_val(sv,7)+put_val(sd,21))
+    //d_string(padr("ИТОГО:",47)+str(17,3)+put_val(sv,7)+put_val(sv,7)+put_val(sd,21))
     //
-    aadd(arr_excel, {"2001, 3000",aclone(ar)})
+    //aadd(arr_excel, {"2001, 3000",aclone(ar)})
     //
     add_string("")
     add_string("")
@@ -986,7 +991,7 @@ elseif len(arr) > 1
 endif
 return (len(arr) > 0)
 
-***** 08.03.21
+***** 30.05.21
 Function f1_forma_131(Loc_kod,kod_kartotek) // 131
 Local i, j, k, fl, lshifr, au := {}, a7[12], ar, metap, m1gruppa, m1gruppa2 := 0,;
       mpol, fl2 := .f., fl_dispans := .f., ivozrast
@@ -1011,7 +1016,7 @@ Private arr_otklon := {}, arr_usl_otkaz := {}, mvozrast, mdvozrast,;
         m1dispans := 0, m1nazn_l  := 0, m1dopo_na := 0, m1ssh_na  := 0,;
         m1spec_na := 0, m1sank_na := 0,;
         pole_diag, pole_1pervich, pole_1stadia, pole_1dispans,;
-        mWEIGHT := 0, mHEIGHT := 0, iivozrast := 0
+        mWEIGHT := 0, mHEIGHT := 0, iivozrast := 0, tmp_select
 for i := 1 to 5
   pole_diag := "mdiag"+lstr(i)
   pole_1pervich := "m1pervich"+lstr(i)
@@ -1030,17 +1035,17 @@ dvn_prof := ret_PF_DVN(human_->RSLT_NEW)
 if m1veteran == 1
   mdvozrast := ret_vozr_DVN_veteran(mdvozrast,human->k_data)
 endif
-if mvozrast <= 34
+if mdvozrast <= 34
   ivozrast := 1
-elseif mvozrast <= 39
+elseif mdvozrast <= 39
   ivozrast := 2
-elseif mvozrast <= 54
+elseif mdvozrast <= 54
   ivozrast := 3
-elseif mvozrast <= 59
+elseif mdvozrast <= 59
   ivozrast := 4
-elseif mvozrast <= 64
+elseif mdvozrast <= 64
   ivozrast := 5
-elseif mvozrast <= 74
+elseif mdvozrast <= 74
   ivozrast := 6
 else
   ivozrast := 7
@@ -1060,14 +1065,14 @@ else
  endif
 endif
 //
-select TMP1000
-goto (ivozrast)
 if mpol == "М"
-  tmp1000->vm_1 ++   // 1й этап
+  tmp1000->vm_1 ++
 else
-  tmp1000->vg_1 ++   // 1й этап
+  tmp1000->vg_1 ++
 endif
 //
+select TMP1000
+goto (ivozrast)
 // разобрать ПРОФ/ДИСП
 // !!! ВНИМАНИЕ
 if fl2 // направлен на 2 этап
@@ -1080,7 +1085,7 @@ elseif !empty(tmp->kod2h)
     arr_7001[22,2] ++
     arr_7001[23,2] ++
     if mpol == "М"
-      tmp1000->vm2 ++   // точно прошли Д 
+      tmp1000->vm2 ++
     else
       tmp1000->vg2 ++
     endif
@@ -1092,7 +1097,6 @@ else
     else
       tmp1000->vg2 ++
     endif
-
 endif
 
 select HU
@@ -1167,6 +1171,7 @@ for i := 1 to len(arr_2000)
       next
     else
       for j := 1 to len(arr_2000[i,3])
+//    My_DEBUG(,print_array(arr_2000[i,3]))
         if (k := ascan(au, {|x| x[1]==arr_2000[i,3,j,1] .and. x[2]==arr_2000[i,3,j,2]})) > 0
           fl := .t. ; exit
         endif
@@ -1177,7 +1182,7 @@ for i := 1 to len(arr_2000)
     fl := &(arr_2000[i,4])
   endif
   if fl
-    find (str(arr_2000[i,1],2))
+    find (str(arr_2000[i,1],3))
     if found()
       if fl_otkaz
         tmp2000->vo ++
@@ -1299,6 +1304,16 @@ if !empty(tmp->kod2h)
         au[k,3] := "1" // отклонения в исследовании
       endif
     next
+    // Проверяем на наличие Направлений при подозрении на ЗНО
+    //R_Use(dir_server+"mo_onkna",dir_server+"mo_onkna","NAPR")
+    select NAPR
+    find(str(tmp->kod2h,7))
+    if found()
+      select TMP3000
+      goto 19
+      tmp3000->vv ++
+    endif
+    //
     select TMP3000
     for k := 1 to len(au)
       fl := .f.
@@ -1313,9 +1328,36 @@ if !empty(tmp->kod2h)
       if fl
         find (str(arr_3000[i,1],2))
         if found()
-          tmp3000->vv ++
-          if !empty(au[k,3]) // добавить отклонения для исследований
-            tmp3000->vd ++
+          if 17 == tmp3000->(recno())
+            if mssr > 4
+              tmp3000->vv ++
+            endif
+          elseif 16 == tmp3000->(recno())
+            // проверяем на диагноз R54
+            for i := 1 to 5
+              pole_diag := "mdiag"+lstr(i)
+              if !empty(&pole_diag)
+                d := diag_to_num(&pole_diag,1)
+                if padr(str(d),4) == "8254"
+                  tmp3000->vv ++
+                endif
+              endif
+            next
+          elseif 15 == tmp3000->(recno())
+            if m1riskalk == 1 .or. m1pod_alk == 1
+              tmp3000->vv ++
+            endif
+          elseif 14 == tmp3000->(recno())
+            if padr(str(d),4) == "7325" .or. ;
+               padr(str(d),4) == "7363" .or. ;
+               padr(str(d),5) == "73702"
+              tmp3000->vv ++
+            endif
+          else
+            tmp3000->vv ++
+            if !empty(au[k,3]) // добавить отклонения для исследований
+              tmp3000->vd ++
+            endif
           endif
         endif
       endif
@@ -1424,7 +1466,7 @@ for i := 1 to 12
 next
 return NIL
 
-***** 01.04.21
+***** 30.05.21
 Function f11_forma_131(Loc_kod,kod_kartotek) // 131
 Local i, j, k, fl, lshifr, au := {}, a7[12], ar, metap, m1gruppa, m1gruppa2 := 0,;
       mpol, fl2 := .f., fl_dispans := .f., ivozrast
@@ -1487,8 +1529,8 @@ endif
 //
 
 select HU
-find (str(tmp->kod1h,7))
-do while hu->kod == tmp->kod1h .and. !eof()
+find (str(tmp->kod3h,7))  // tmp->kod1h
+do while hu->kod == tmp->kod3h .and. !eof()
   usl->(dbGoto(hu->u_kod))
   if empty(lshifr := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data))
     lshifr := usl->shifr
@@ -1515,6 +1557,8 @@ for k := 1 to len(au)
 next
 select TMP2000
 for i := 1 to len(arr_2000)
+    //my_debug(,"0=  "+str(arr_2000[i,1],3))
+
   fl := fl_otkaz := .f.
   if valtype(arr_usl_otkaz) == "A"
     for k1 := 1 to len(arr_usl_otkaz)
@@ -1568,7 +1612,7 @@ for i := 1 to len(arr_2000)
     fl := &(arr_2000[i,4])
   endif
   if fl
-    find (str(arr_2000[i,1],2))
+    find (str(arr_2000[i,1],3))
     if found()
       if fl_otkaz
         tmp2000->vo ++
@@ -1871,8 +1915,7 @@ return _gruppa
 ***** 30.03.21 вернуть группу здоровья для ДВН
 Function ret_PF_DVN(_rslt)
 Local _gruppa := 0
-my_debug(,str(_rslt))
-
+//my_debug(,str(_rslt))
 do case
   case _rslt == 373
     _gruppa := 1
