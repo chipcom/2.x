@@ -887,7 +887,7 @@ aadd(first_message, { ;
    "Установка кодов принтера",;
    "Режим просмотра - кто находится в задаче и в каком режиме",;
    "Просмотр файла ошибок"})
-aadd(func_menu, {"readme2wordpad()",;
+aadd(func_menu, {"file_Wordpad(exe_dir + cslash + 'README.RTF')",;
                  "m_help()",;
                  "ust_printer(T_ROW)",;
                  "net_monitor(T_ROW,T_COL-7,(tip_polzovat==0))",;

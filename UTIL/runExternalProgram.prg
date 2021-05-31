@@ -40,15 +40,17 @@ function openExcel(nameFile)
                SW_SHOWNORMAL)
   return NIL
 
-***** 18.08.18
-Function readme2wordpad(rtf_file)
-  DEFAULT rtf_file TO exe_dir+cslash+'README.RTF'
-  ShellExecute(GetDeskTopWindow(),;
+***** 31.05.21
+Function file_Wordpad(rtf_file)
+
+  if hb_FileExists( rtf_file )
+    ShellExecute(GetDeskTopWindow(),;
                'open',;
                'wordpad.exe',;
                rtf_file,;
                ,;
                SW_SHOWNORMAL)
+  endif
   return NIL
   
   
