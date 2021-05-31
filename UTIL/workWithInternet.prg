@@ -1,13 +1,18 @@
 /* Download a file from an FTP server */
 #require 'hbtip'
 
+#include 'inkey.ch'
 #include 'fileio.ch'
 #include 'versionFTP.ch'
+#include 'tbox.ch'
 
 function checkVersionInternet( row, oldVersion )
 
   local fileVersion  := 'version.txt'
+  local readMe := 'readme.rtf'
   local aVersion, arr := {}
+  local oBox := nil, max := 0
+  local nLeft, nRight, key
 
   fileFromFTP( fileVersion )
 
@@ -16,7 +21,26 @@ function checkVersionInternet( row, oldVersion )
       AAdd(arr, 'Доступна новая версия программы:')
       AAdd(arr, 'текущая версия: ' + fs_version( oldVersion ) )
       AAdd(arr, 'новая версия: ' + fs_version( aVersion ) )
-      n_message( arr, , 'W/W', 'N/W', row + 3, , 'N+/W' )
+      // n_message( arr, , 'W/W', 'N/W', row + 3, , 'N+/W' )
+
+      max := maxLenStringInArray(arr)
+      nLeft := 40 - (max / 2) - 2
+      nRight := 40 + (max / 2) + 2
+      oBox := TBox():New( row, nLeft, row + len(arr) + 3, nRight )
+      oBox:Color := 'N/W' + ',' + 'N+/W'
+      oBox:Frame := BORDER_DOUBLE
+      oBox:MessageLine := '^<любая клавиша>^ - выход; ^F2^ - новое в програме'
+      oBox:Save := .t.
+  
+      oBox:View()
+      for i := 1 to len(arr)
+        @ row + i + 1, nLeft + 2 say arr[i]
+      next
+      key := inkey(0)
+      if key == K_F2
+        fileFromFTP( readMe )
+        file_Wordpad( readMe )
+      endif
     endif
   endif
   FErase( fileVersion )
