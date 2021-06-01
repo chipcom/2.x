@@ -103,7 +103,7 @@ do while human->kod_k == glob_kartotek .and. !eof()
         lshifr1 := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data)
         if is_usluga_TFOMS(usl->shifr,lshifr1,human->k_data)
           lshifr := alltrim(iif(empty(lshifr1), usl->shifr, lshifr1))
-          if left(lshifr,5) == "60.3." // диализ
+          if left(lshifr,5) == "60.3." .or. left(lshifr,6) == "60.10." // диализ
             if human_->USL_OK == 2 // диализ в дневном стационаре
               fl3 := .f.
               if fl1
@@ -653,7 +653,7 @@ do while hu->kod == human->kod .and. !eof()
       elseif alltrim_lshifr == "4.15.746"
         is_pr_skr := .t.
       endif
-    elseif left_lshifr_5 == "60.3." // диализ
+    elseif left_lshifr_5 == "60.3." .or. left_lshifr_5 == "60.10"// диализ
       mIDSP := 4 // лечебно-диагностическая процедура
       kkt += hu->kol_1
       hu_->PZTIP := 5
@@ -1963,7 +1963,8 @@ if len(a_period_stac) > 0 .and. !is_s_dializ .and. !is_dializ .and. !is_perito
         if (k := ascan(a_period_stac, {|x| x[1] < mdate .and. mdate < x[2]})) > 0
           lshifr := alltrim(iif(empty(lshifr1), usl->shifr, lshifr1))
           if (left(lshifr,2)=="2." .or. eq_any(left(lshifr,3),"60.","70.","71.","72.")) ;
-                          .and. !(left(lshifr,5)=="60.3.") .and. is_2_stomat(lshifr,,.t.) == 0 // не стоматология
+                          .and. !(left(lshifr,5)=="60.3.".or.left(lshifr,6)=="60.10.");
+                          .and. is_2_stomat(lshifr,,.t.) == 0 // не стоматология
             otd->(dbGoto(u_other[i,8]))
             aadd(ta,'услуга '+alltrim(usl->shifr)+' от '+date_8(mdate)+' в случае '+;
                  date_8(u_other[i,6])+"-"+date_8(u_other[i,7])+;
@@ -6372,7 +6373,7 @@ if par == 1
       lshifr := usl->shifr
     endif
     lshifr := alltrim(lshifr)
-    if left(lshifr,5) == "60.3."
+    if left(lshifr,5) == "60.3." .or. left(lshifr,6) == "60.10."
       is_dializ := .t.
       exit
     endif
@@ -6412,7 +6413,7 @@ else
       if ascan(ahu,alltrim(ihu->CODE_USL)) == 0
         aadd(ahu,alltrim(ihu->CODE_USL))
       endif
-      if left(ihu->CODE_USL,5) == "60.3."
+      if left(ihu->CODE_USL,5) == "60.3." .or. left(ihu->CODE_USL,6) == "60.10."
         is_dializ := .t.
         exit
       endif
