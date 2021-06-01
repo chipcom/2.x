@@ -185,8 +185,8 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
       {13,"Отягощенная наследственность по ЗНО по другим локализациям","m1ot_nasl1==1"},;
       {14,"Отягощенная наследственность по ХБ нижних дыхательных путей","m1ot_nasl3==1"},;
       {15,"Отягощенная наследственность по сахарному диабету","m1ot_nasl4==1"},;
-      {16,"Высокий или очень высокий абс.суммарный сердечно-сосудистый риск","39<mdvozrast.and.mdvozrast<66.and.5<=mssr.and.10<=mssr"},;
-      {16,"Высокий (более 1 ед.) относительный сердечно-сосудистый риск","39<mdvozrast.and.mdvozrast<66.and.5<=mssr.and.10<=mssr"},;
+      {16,"Высокий или очень высокий абс.суммарный сердечно-сосудистый риск","10<=mssr"},;
+      {17,"Высокий (более 1 ед.) относительный сердечно-сосудистый риск","1<=mssr .and. mssr<10"},;
       {18,"Старческая астения","m1fiz_akt==100"};
      }
      // { 1,"Повышенный уровень артериального давления","mad1>140.and.mad2>90"},;
@@ -662,9 +662,9 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
         aadd(ar, {5+i,10,tmp->gvv})
       endif
       add_string(padr(tmp->name,40)+str(tmp->ns,3)+;
-                 put_val(tmp->m36,6)+put_val(tmp->m39,6)+put_val(tmp->mvv,6)+;
-                 put_val(tmp->g36,6)+put_val(tmp->g39,6)+put_val(tmp->gvv,6)+;
-                 put_val(tmp->v36,6)+put_val(tmp->v39,6)+put_val(tmp->vvv,6))
+                 put_val(tmp->mvv,6)+put_val(tmp->m36,6)+put_val(tmp->m39,6)+;
+                 put_val(tmp->gvv,6)+put_val(tmp->g36,6)+put_val(tmp->g39,6)+;
+                 put_val(tmp->vvv,6)+put_val(tmp->v36,6)+put_val(tmp->v39,6))
       skip
     enddo
     use
@@ -991,7 +991,7 @@ elseif len(arr) > 1
 endif
 return (len(arr) > 0)
 
-***** 30.05.21
+***** 01.06.21
 Function f1_forma_131(Loc_kod,kod_kartotek) // 131
 Local i, j, k, fl, lshifr, au := {}, a7[12], ar, metap, m1gruppa, m1gruppa2 := 0,;
       mpol, fl2 := .f., fl_dispans := .f., ivozrast
@@ -1202,33 +1202,32 @@ next
 select TMP4000
 for i := 1 to len(arr_4000)
   //my_debug(,arr_4000[i,3]+"  "+str(i))
+  //my_debug(,str(arr_4000[i,1],2)+"  "+str(i))
+
   if &(arr_4000[i,3])
     find (str(arr_4000[i,1],2))
     if found()
       if mpol == "М"
-        if ivozrast == 1
+        if iivozrast == 1
           tmp4000->m36 ++
-        elseif ivozrast == 2
+        elseif iivozrast == 2
           tmp4000->m39 ++
-        else
-          tmp4000->mvv ++
         endif
+        tmp4000->mvv ++
       else
-        if ivozrast == 1
+        if iivozrast == 1
           tmp4000->g36 ++
-        elseif ivozrast == 2
+        elseif iivozrast == 2
           tmp4000->g39 ++
-        else
-          tmp4000->gvv ++
         endif
+        tmp4000->gvv ++
       endif
-      if ivozrast == 1
+      if iivozrast == 1
         tmp4000->v36 ++
-      elseif ivozrast == 2
+      elseif iivozrast == 2
         tmp4000->v39 ++
-      else
-        tmp4000->vvv ++
       endif
+      tmp4000->vvv ++
     endif
   endif
 next
@@ -1518,6 +1517,20 @@ else
   ivozrast := 7
 endif
 //
+if mpol == "М"
+ if mdvozrast < 62
+   iivozrast := 1
+ else
+   iivozrast := 2
+ endif
+else
+ if mdvozrast < 57
+   iivozrast := 1
+ else
+   iivozrast := 2
+ endif
+endif
+//
 select TMP1000
 goto (ivozrast)
   // профы
@@ -1636,29 +1649,26 @@ for i := 1 to len(arr_4000)
     find (str(arr_4000[i,1],2))
     if found()
       if mpol == "М"
-        if ivozrast == 1
+        if iivozrast == 1
           tmp4000->m36 ++
-        elseif ivozrast == 2
+        elseif iivozrast == 2
           tmp4000->m39 ++
-        else
-          tmp4000->mvv ++
         endif
+        tmp4000->mvv ++
       else
-        if ivozrast == 1
+        if iivozrast == 1
           tmp4000->g36 ++
-        elseif ivozrast == 2
+        elseif iivozrast == 2
           tmp4000->g39 ++
-        else
-          tmp4000->gvv ++
         endif
+        tmp4000->gvv ++
       endif
-      if ivozrast == 1
+      if iivozrast == 1
         tmp4000->v36 ++
-      elseif ivozrast == 2
+      elseif iivozrast == 2
         tmp4000->v39 ++
-      else
-        tmp4000->vvv ++
       endif
+      tmp4000->vvv ++
     endif
   endif
 next
