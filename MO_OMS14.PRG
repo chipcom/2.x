@@ -4,7 +4,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 07.02.21
+***** 01.06.21
 Function verify_1_sluch_18(fl_view)
 Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
       i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -2622,8 +2622,15 @@ if is_dializ
   if !eq_any(ret_old_prvs(human_->PRVS),112207,113412) // НЕФРОЛОГИЯ
     aadd(ta,'для '+s+' специальность врача должна быть НЕФРОЛОГИЯ')
   endif
-  human_->NPR_MO := glob_mo[_MO_KOD_TFOMS] // безусловно проставляем направившую МО
-  human_2->NPR_DATE := d1
+  if glob_mo[_MO_KOD_TFOMS] == '101004' // УНЦ
+    if empty(alltrim(human_->NPR_MO))
+      human_->NPR_MO := glob_mo[_MO_KOD_TFOMS] // безусловно проставляем направившую МО
+      human_2->NPR_DATE := d1
+    endif
+  else
+    human_->NPR_MO := glob_mo[_MO_KOD_TFOMS] // безусловно проставляем направившую МО
+    human_2->NPR_DATE := d1
+  endif
   mpztip := 56 // 56,"случай диализа","случ.диал."},;
   mpzkol := kkt
   /*if human_->RSLT_NEW != 201
@@ -2652,8 +2659,18 @@ if is_perito
   if !eq_any(ret_old_prvs(human_->PRVS),112207,113412) // НЕФРОЛОГИЯ
     aadd(ta,s+'специальность врача должна быть НЕФРОЛОГИЯ')
   endif
-  human_->NPR_MO := glob_mo[_MO_KOD_TFOMS] // безусловно проставляем направившую МО
-  human_2->NPR_DATE := d1
+  //
+  //пока для УНЦ
+  if glob_mo[_MO_KOD_TFOMS] == '101004' // УНЦ
+    if empty(alltrim(human_->NPR_MO))
+      human_->NPR_MO := glob_mo[_MO_KOD_TFOMS] // безусловно проставляем направившую МО
+      human_2->NPR_DATE := d1
+    endif
+  else
+    human_->NPR_MO := glob_mo[_MO_KOD_TFOMS] // безусловно проставляем направившую МО
+    human_2->NPR_DATE := d1
+  endif
+  //
   mpztip := 56 // 56,"случай диализа","случ.диал."},;
   mpzkol := kkt
   /*if !eq_any(human_->RSLT_NEW,201,202,203,205)
@@ -2679,8 +2696,15 @@ if is_s_dializ
   if kkd > 0
     aadd(ta,'для '+s+' не вводится койко-день')
   endif
-  human_->NPR_MO := glob_mo[_MO_KOD_TFOMS] // безусловно проставляем направившую МО
-  human_2->NPR_DATE := d1
+  if glob_mo[_MO_KOD_TFOMS] == '101004' // УНЦ
+    if empty(alltrim(human_->NPR_MO))
+      human_->NPR_MO := glob_mo[_MO_KOD_TFOMS] // безусловно проставляем направившую МО
+      human_2->NPR_DATE := d1
+    endif
+  else
+    human_->NPR_MO := glob_mo[_MO_KOD_TFOMS] // безусловно проставляем направившую МО
+    human_2->NPR_DATE := d1
+  endif
   mpztip := 54 // 54,"случай ЗПТ","случай ЗПТ"},;
   mpzkol := kkt
   for i := 1 to len(a_dializ)
