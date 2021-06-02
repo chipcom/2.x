@@ -106,6 +106,9 @@ function fillZIP( arr_f, sFileName )
     lCompress := hb_ZipFile( sFileName, arr_f, 9, ;
         {| cFile, nPos | GaugeDisplay( aGauge ), stat_msg( 'Добавление в архив файла ' + hb_FNameNameExt( cFile ) + ' ( ' + alltrim(lstr(nPos)) + ' из ' + alltrim(lstr(nLen)) + ' )' ) }, ;
         .t., , .f., , { | nPos, nLen | GaugeUpdate( aGauge, nPos / nLen ) } )
+    // lCompress := hb_ZipFile( sFileName, arr_f, 9, ;
+    //     , ;
+    //     .t., , .f., ,  )
     if ! lCompress
       sFileName := ''
     endif
@@ -147,7 +150,7 @@ function create_ZIP( par, dir_archiv )
     zip_napr_tf := dir_NAPR_TF + szip
 
     hb_vfErase( sfile_begin )
-    hb_memowrit( sfile_begin, full_date( sys_date ) + ' ' + hour_min(seconds()) + ' ' + hb_OemToAnsi(fio_polzovat) )
+    hb_memowrit( sfile_begin, full_date( sys_date ) + ' ' + time() + ' ' + hb_OemToAnsi(fio_polzovat) )
 
     //
     arr_f := {}
@@ -207,12 +210,6 @@ function create_ZIP( par, dir_archiv )
       endif
     next
 
-    hb_vfErase( sfile_end )
-    hb_memowrit( sfile_end, full_date( sys_date ) + ' ' + hour_min(seconds()) + ' ' + hb_OemToAnsi(fio_polzovat))
-    if hb_vfExists( sfile_end )
-      aadd( ar, sfile_end )
-    endif
-
     // а теперь файлы WQ...
     arr_f := {}
     y := year( sys_date )
@@ -233,6 +230,9 @@ function create_ZIP( par, dir_archiv )
     if ! lCompress
       fl := func_error( 4, 'Возникла ошибка при архивировании базы данных.' )
     endif
+
+    hb_vfErase( sfile_end )
+    hb_memowrit( sfile_end, full_date( sys_date ) + ' ' + time() + ' ' + hb_OemToAnsi(fio_polzovat))
 
     restscreen( buf )
   endif
