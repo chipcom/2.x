@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-***** 25.02.21
+***** 01.06.21
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
         i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -13,7 +13,7 @@ Function verify_1_sluch(fl_view)
         lbukva, lst, lidsp, a_idsp := {}, a_bukva := {}, t_arr[2], ltip, lkol,;
         a_dializ := {}, is_2_88 := .f., a_rec_ffoms := {}, arr_povod := {}, mpovod := 0,; // 1.0
         lal, lalf
-        
+
   if empty(human->k_data)
     return .t.  // не проверять
   endif
@@ -113,7 +113,7 @@ Function verify_1_sluch(fl_view)
           lshifr1 := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data)
           if is_usluga_TFOMS(usl->shifr,lshifr1,human->k_data)
             lshifr := alltrim(iif(empty(lshifr1), usl->shifr, lshifr1))
-            if left(lshifr,5) == "60.3." // диализ
+            if left(lshifr,5) == "60.3." .or. left(lshifr,6) == "60.10." // диализ
               if human_->USL_OK == 2 // диализ в дневном стационаре
                 fl3 := .f.
                 if fl1
@@ -747,7 +747,7 @@ Function verify_1_sluch(fl_view)
         elseif alltrim_lshifr == "4.15.746"
           is_pr_skr := .t.
         endif
-      elseif left_lshifr_5 == "60.3." // диализ
+      elseif left_lshifr_5 == "60.3." .or. left_lshifr_5 == "60.10"// диализ
         mIDSP := 4 // лечебно-диагностическая процедура
         kkt += hu->kol_1
         hu_->PZTIP := 5
@@ -2167,7 +2167,7 @@ Function verify_1_sluch(fl_view)
               else
                 aadd(ta,'основной диагноз '+s+', а у метода ВМП "'+lstr(human_2->METVMP)+'.'+alltrim(glob_V019[i,2])+'"')
                 aadd(ta,'└─допустимые диагнозы: '+print_array(glob_V019[i,3]))
-              endif 
+              endif
             endif
           else
             aadd(ta,'метод ВМП '+lstr(human_2->METVMP)+' не соответствует виду ВМП '+human_2->VIDVMP)
@@ -2190,7 +2190,7 @@ Function verify_1_sluch(fl_view)
               else
                 aadd(ta,'основной диагноз '+s+', а у метода ВМП "'+lstr(human_2->METVMP)+'.'+alltrim(glob_V019[i,2])+'"')
                 aadd(ta,'└─допустимые диагнозы: '+print_array(glob_V019[i,3]))
-              endif 
+              endif
             endif
           else
             aadd(ta,'метод ВМП '+lstr(human_2->METVMP)+' не соответствует виду ВМП '+human_2->VIDVMP)
@@ -2428,7 +2428,7 @@ Function verify_1_sluch(fl_view)
       endif
     endif
   endif
-  
+
   if len(a_period_stac) > 0 //.and. !is_s_dializ .and. !is_dializ .and. !is_perito
     select HU
     find (str(human->kod,7))
@@ -2448,13 +2448,15 @@ Function verify_1_sluch(fl_view)
           if (k := ascan(a_period_stac, {|x| x[1] < mdate .and. mdate < x[2]})) > 0
             lshifr := alltrim(iif(empty(lshifr1), usl->shifr, lshifr1))
             if (left(lshifr,2)=="2." .or. eq_any(left(lshifr,3),"60.","70.","71.","72.")) ;
-                            .and. !(left(lshifr,5)=="60.3.") .and. is_2_stomat(lshifr,,.t.) == 0 // не стоматология
+                            .and. !(left(lshifr,5)=="60.3.") ;
+                            .and. !(left(lshifr,6)=="60.10.") ;
+                            .and. is_2_stomat(lshifr,,.t.) == 0 // не стоматология
               otd->(dbGoto(u_other[i,8]))
               aadd(ta,'услуга '+alltrim(usl->shifr)+' от '+date_8(mdate)+' в случае '+;
                    date_8(u_other[i,6])+"-"+date_8(u_other[i,7])+;
                    iif(empty(otd->short_name), "", " ["+alltrim(otd->short_name)+"]"))
               otd->(dbGoto(a_period_stac[k,4]))
-              aadd(ta,'└>пересекается со случаем стац.лечения '+;
+              aadd(ta,'└>пересекается 222 со случаем стац.лечения '+;
                    date_8(a_period_stac[k,1])+"-"+date_8(a_period_stac[k,2])+;
                    iif(empty(otd->short_name), "", " ["+alltrim(otd->short_name)+"]"))
             endif
@@ -3211,10 +3213,23 @@ Function verify_1_sluch(fl_view)
     if !eq_any(ret_old_prvs(human_->PRVS),112207,113412) // НЕФРОЛОГИЯ
       aadd(ta,'для '+s+' специальность врача должна быть НЕФРОЛОГИЯ')
     endif
-    human_->NPR_MO := glob_mo[_MO_KOD_TFOMS] // безусловно проставляем направившую МО
-    human_2->(G_RLock(forever))
-    human_2->NPR_DATE := d1
-    human_2->(dbunlock())
+    if glob_mo[_MO_KOD_TFOMS] == '101004' // УНЦ
+      if empty(alltrim(human_->NPR_MO))
+        human_->NPR_MO := glob_mo[_MO_KOD_TFOMS] // безусловно проставляем направившую МО
+        human_2->(G_RLock(forever))
+        human_2->NPR_DATE := d1
+        human_2->(dbunlock())
+      endif
+    else
+      human_->NPR_MO := glob_mo[_MO_KOD_TFOMS] // безусловно проставляем направившую МО
+      human_2->(G_RLock(forever))
+      human_2->NPR_DATE := d1
+      human_2->(dbunlock())
+    endif
+    //human_->NPR_MO := glob_mo[_MO_KOD_TFOMS] // безусловно проставляем направившую МО
+    //human_2->(G_RLock(forever))
+    //human_2->NPR_DATE := d1
+    //human_2->(dbunlock())
     mpztip := 56 // 56,"случай диализа","случ.диал."},;
     mpzkol := kkt
     /*if human_->RSLT_NEW != 201
@@ -3240,10 +3255,23 @@ Function verify_1_sluch(fl_view)
     if !eq_any(ret_old_prvs(human_->PRVS),112207,113412) // НЕФРОЛОГИЯ
       aadd(ta,s+'специальность врача должна быть НЕФРОЛОГИЯ')
     endif
-    human_->NPR_MO := glob_mo[_MO_KOD_TFOMS] // безусловно проставляем направившую МО
-    human_2->(G_RLock(forever))
-    human_2->NPR_DATE := d1
-    human_2->(dbunlock())
+    if glob_mo[_MO_KOD_TFOMS] == '101004' // УНЦ
+      if empty(alltrim(human_->NPR_MO))
+        human_->NPR_MO := glob_mo[_MO_KOD_TFOMS] // безусловно проставляем направившую МО
+        human_2->(G_RLock(forever))
+        human_2->NPR_DATE := d1
+        human_2->(dbunlock())
+      endif
+    else
+      human_->NPR_MO := glob_mo[_MO_KOD_TFOMS] // безусловно проставляем направившую МО
+      human_2->(G_RLock(forever))
+      human_2->NPR_DATE := d1
+      human_2->(dbunlock())
+    endif
+    //human_->NPR_MO := glob_mo[_MO_KOD_TFOMS] // безусловно проставляем направившую МО
+    //human_2->(G_RLock(forever))
+    //human_2->NPR_DATE := d1
+    //human_2->(dbunlock())
     mpztip := 56 // 56,"случай диализа","случ.диал."},;
     mpzkol := kkt
     /*if !eq_any(human_->RSLT_NEW,201,202,203,205)
@@ -3262,10 +3290,23 @@ Function verify_1_sluch(fl_view)
   endif
   if is_s_dializ
     s := "услуги диализа в стационаре"
-    human_->NPR_MO := glob_mo[_MO_KOD_TFOMS] // безусловно проставляем направившую МО
-    human_2->(G_RLock(forever))
-    human_2->NPR_DATE := d1
-    human_2->(dbunlock())
+    if glob_mo[_MO_KOD_TFOMS] == '101004' // УНЦ
+      if empty(alltrim(human_->NPR_MO))
+        human_->NPR_MO := glob_mo[_MO_KOD_TFOMS] // безусловно проставляем направившую МО
+        human_2->(G_RLock(forever))
+        human_2->NPR_DATE := d1
+        human_2->(dbunlock())
+      endif
+    else
+      human_->NPR_MO := glob_mo[_MO_KOD_TFOMS] // безусловно проставляем направившую МО
+      human_2->(G_RLock(forever))
+      human_2->NPR_DATE := d1
+      human_2->(dbunlock())
+    endif
+    //human_->NPR_MO := glob_mo[_MO_KOD_TFOMS] // безусловно проставляем направившую МО
+    //human_2->(G_RLock(forever))
+    //human_2->NPR_DATE := d1
+    //human_2->(dbunlock())
     mpztip := 54 // 54,"случай ЗПТ","случай ЗПТ"},;
     mpzkol := kkt
     for i := 1 to len(a_dializ)
@@ -3617,7 +3658,7 @@ Function verify_1_sluch(fl_view)
     ret_arr_vozrast_DVN(d2)
     ret_arrays_disp(is_disp_19)
     m1g_cit := m1veteran := m1dispans := 0 ; is_prazdnik := f_is_prazdnik_DVN(d1)
-    if empty(sadiag1) 
+    if empty(sadiag1)
       Private file_form, diag1 := {}, len_diag := 0
       if (file_form := search_file("DISP_NAB"+sfrm)) == NIL
         aadd(ta,"Не обнаружен файл DISP_NAB"+sfrm)
@@ -4464,10 +4505,10 @@ Function verify_1_sluch(fl_view)
     //dbUnLockAll()
   endif
   return (_ocenka >= 5)
-  
+
 ****** 25.02.2021
 ****** Проверка соответствия результата случая исходу обращения
-function checkRSLT_ISHOD(result, ishod, arr) 
+function checkRSLT_ISHOD(result, ishod, arr)
 * result - код результата обращения
 * ishod - код исхода заболевания
 * arr - массив для сбора ошибок соответствий
