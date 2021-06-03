@@ -9,26 +9,28 @@ procedure main()
   local nfile := '_mo_mo.dbb'
   local glob_arr_mo := {}, glob_mo, glob_podr := '', glob_podr_2 := ''
   local gpasskod := ret_gpasskod()
+  local arr_mo
   
   REQUEST HB_CODEPAGE_RU866
   HB_CDPSELECT("RU866")
   REQUEST HB_LANG_RU866
   HB_LANGSELECT("RU866")
 
-  // REQUEST DBFNTX
-  // RDDSETDEFAULT("DBFNTX")
+  REQUEST DBFNTX
+  RDDSETDEFAULT("DBFNTX")
 
-  // //SET(_SET_EVENTMASK,INKEY_KEYBOARD)
-  // SET SCOREBOARD OFF
-  // SET EXACT ON
+  //SET(_SET_EVENTMASK,INKEY_KEYBOARD)
+  SET SCOREBOARD OFF
+  SET EXACT ON
   SET DATE GERMAN
-  // SET WRAP ON
+  SET WRAP ON
   SET CENTURY ON
-  // SET EXCLUSIVE ON
-  // SET DELETED ON
+  SET EXCLUSIVE ON
+  SET DELETED ON
 
 
   if hb_FileExists(nfile)
+    arr_mo := getMo_mo()
     // так в массиве зашифрованы поля справочника МО
     //{"MCOD",       "C",      6,      0},;  1
     //{"CODEM",      "C",      6,      0},;  2
@@ -66,7 +68,18 @@ procedure main()
       endif
       aadd(glob_arr_mo, aclone(arr))
     next
-    // altd()
+
+    alertx(len(arr_mo), 'arr_MO')
+    alertx(len(glob_arr_mo), 'glob_arr_MO')
+    
+    alertx(arr_mo[2,1], 'MO-1')
+    alertx(arr_mo[2,2], 'MO-2')
+    alertx(arr_mo[2,3], 'MO-3')
+    alertx(arr_mo[2,4], 'MO-4')
+    alertx(arr_mo[2,5], 'MO-5')
+    alertx(arr_mo[2,6], 'MO-6')
+    alertx(arr_mo[2,_MO_ADRES], 'MO-ADRES')
+
     // if hb_FileExists(dir_server+"organiz"+sdbf)
     //   R_Use(dir_server+"organiz",,"ORG")
     //   if lastrec() > 0
@@ -116,3 +129,44 @@ procedure main()
   endif
 
   return
+
+  // #define _MO_SHORT_NAME 1
+  // #define _MO_KOD_TFOMS  2
+  // #define _MO_PROD       3
+  // #define _MO_DEND       4
+  // #define _MO_KOD_FFOMS  5
+  // #define _MO_FULL_NAME  6
+  // #define _MO_UROVEN     7
+  // #define _MO_STANDART   8
+  // #define _MO_IS_MAIN    9
+  // #define _MO_IS_UCH    10
+  // #define _MO_IS_SMP    11
+  // #define _MO_ADRES     12
+  // #define _MO_LEN_ARR   12
+  
+* 03.06.21 вернуть массив mo_mo.dbf
+function getMo_mo()
+  // mo_mo.xml - справочник медучреждений
+  //  1 - MCOD(C)  2 - CODEM(C)  3 - NAMEF(C)  4 - NAMES(C)  5 - ADRES(C)  6 - MAIN(C)
+  //  7 - PFA(C)  8 - PFS(C)  9 - PROD(C)  10 - DOLG(C)  11 - DEND(D)  12 - STANDART(C)  13 - UROVEN(C)
+  static _arr := {}
+  local dbName := '_mo_mo'
+  local dCurDate := date()
+
+  if len(_arr) == 0
+    // dbUseArea( .t.,, exe_dir + dbName, dbName, .f., .f. )
+    dbUseArea( .t., , dbName, dbName, .f., .f. )
+    (dbName)->(dbGoTop())
+    do while !(dbName)->(EOF())
+      aadd(_arr, { alltrim((dbName)->NAMES), alltrim((dbName)->CODEM), ;
+            alltrim((dbName)->PROD), (dbName)->DEND, alltrim((dbName)->MCOD), ;
+            alltrim((dbName)->NAMEF), ;
+            alltrim((dbName)->UROVEN), alltrim((dbName)->STANDART), ;
+            alltrim((dbName)->MAIN), alltrim((dbName)->PFA), ;
+            alltrim((dbName)->PFS), alltrim((dbName)->ADRES) })
+      (dbName)->(dbSkip())
+    enddo
+    (dbName)->(dbCloseArea())
+  endif
+
+  return _arr
