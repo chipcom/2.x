@@ -72,13 +72,9 @@ procedure main()
     alertx(len(arr_mo), 'arr_MO')
     alertx(len(glob_arr_mo), 'glob_arr_MO')
     
-    alertx(arr_mo[2,1], 'MO-1')
-    alertx(arr_mo[2,2], 'MO-2')
-    alertx(arr_mo[2,3], 'MO-3')
-    alertx(arr_mo[2,4], 'MO-4')
-    alertx(arr_mo[2,5], 'MO-5')
-    alertx(arr_mo[2,6], 'MO-6')
-    alertx(arr_mo[2,_MO_ADRES], 'MO-ADRES')
+    for i := 1 to len(arr_mo[32])
+      alertx(arr_mo[32,i], 'MO-' + alltrim(str(i)))
+    next
 
     // if hb_FileExists(dir_server+"organiz"+sdbf)
     //   R_Use(dir_server+"organiz",,"ORG")
@@ -145,25 +141,40 @@ procedure main()
   // #define _MO_LEN_ARR   12
   
 * 03.06.21 вернуть массив mo_mo.dbf
-function getMo_mo()
-  // mo_mo.xml - справочник медучреждений
+function getMo_mo(reload)
+// reload - флаг указывающий на перезагрузку справочника, .T. - перезагрузить, .F. - нет
+
+  // mo_mo.dbf - справочник медучреждений
   //  1 - MCOD(C)  2 - CODEM(C)  3 - NAMEF(C)  4 - NAMES(C)  5 - ADRES(C)  6 - MAIN(C)
   //  7 - PFA(C)  8 - PFS(C)  9 - PROD(C)  10 - DOLG(C)  11 - DEND(D)  12 - STANDART(C)  13 - UROVEN(C)
   static _arr := {}
   local dbName := '_mo_mo'
   local dCurDate := date()
 
+  DEFAULT reload TO .f.
+
+  if reload
+    // очистим массив для новой загрузки справочника
+    _arr := {}
+  endif
+
   if len(_arr) == 0
     // dbUseArea( .t.,, exe_dir + dbName, dbName, .f., .f. )
     dbUseArea( .t., , dbName, dbName, .f., .f. )
     (dbName)->(dbGoTop())
     do while !(dbName)->(EOF())
-      aadd(_arr, { alltrim((dbName)->NAMES), alltrim((dbName)->CODEM), ;
-            alltrim((dbName)->PROD), (dbName)->DEND, alltrim((dbName)->MCOD), ;
+      aadd(_arr, { alltrim((dbName)->NAMES), ;
+            alltrim((dbName)->CODEM), ;
+            (dbName)->PROD, ;
+            (dbName)->DEND, ;
+            alltrim((dbName)->MCOD), ;
             alltrim((dbName)->NAMEF), ;
-            alltrim((dbName)->UROVEN), alltrim((dbName)->STANDART), ;
-            alltrim((dbName)->MAIN), alltrim((dbName)->PFA), ;
-            alltrim((dbName)->PFS), alltrim((dbName)->ADRES) })
+            4, ; // уровень оплаты, с 2013 года 4 - индивидуальные тарифы
+            alltrim((dbName)->STANDART), ;
+            iif((dbName)->MAIN == '1', .t., .f.), ;
+            iif((dbName)->PFA == '1', .t., .f.), ;
+            iif((dbName)->PFS == '1', .t., .f.), ;
+            alltrim((dbName)->ADRES) })
       (dbName)->(dbSkip())
     enddo
     (dbName)->(dbCloseArea())
