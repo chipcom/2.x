@@ -30,7 +30,7 @@ procedure main()
 
 
   if hb_FileExists(nfile)
-    arr_mo := getMo_mo()
+    arr_mo := getMo_mo_new()
     // так в массиве зашифрованы поля справочника МО
     //{"MCOD",       "C",      6,      0},;  1
     //{"CODEM",      "C",      6,      0},;  2
@@ -71,9 +71,13 @@ procedure main()
 
     alertx(len(arr_mo), 'arr_MO')
     alertx(len(glob_arr_mo), 'glob_arr_MO')
+
+    for i := 1 to len(glob_arr_mo[32])
+      alertx(glob_arr_mo[32,i], 'MO-' + alltrim(str(i)))
+    next
     
     for i := 1 to len(arr_mo[32])
-      alertx(arr_mo[32,i], 'MO-' + alltrim(str(i)))
+      alertx(arr_mo[32,i], 'MO 1-' + alltrim(str(i)))
     next
 
     // if hb_FileExists(dir_server+"organiz"+sdbf)
@@ -181,3 +185,57 @@ function getMo_mo(reload)
   endif
 
   return _arr
+
+* 05.06.21 вернуть массив _mo_dbb.dbf
+function getMo_mo_new(reload)
+  // reload - флаг указывающий на перезагрузку справочника, .T. - перезагрузить, .F. - нет
+  
+    // _mo_mo.dbf - справочник медучреждений
+    //  1 - MCOD(C)  2 - CODEM(C)  3 - NAMEF(C)  4 - NAMES(C)
+    //  5 - PROD(C)  6 - DEND(D)  7 - STANDART(C)  8 - UROVEN(C)
+    static _arr := {}
+    local dbName := '_mo_dbb'
+  
+    DEFAULT reload TO .f.
+  
+    if reload
+      // очистим массив для новой загрузки справочника
+      _arr := {}
+    endif
+  
+    if len(_arr) == 0
+      // dbUseArea( .t.,, exe_dir + dbName, dbName, .f., .f. )
+      dbUseArea( .t., , dbName, dbName, .f., .f. )
+      (dbName)->(dbGoTop())
+      do while !(dbName)->(EOF())
+  // #define _MO_SHORT_NAME 1
+  // #define _MO_KOD_TFOMS  2
+  // #define _MO_PROD       3
+  // #define _MO_DEND       4
+  // #define _MO_KOD_FFOMS  5
+  // #define _MO_FULL_NAME  6
+  // #define _MO_UROVEN     7
+  // #define _MO_STANDART   8
+  // #define _MO_IS_MAIN    9
+  // #define _MO_IS_UCH    10
+  // #define _MO_IS_SMP    11
+  // #define _MO_ADRES     12
+  // #define _MO_LEN_ARR   12
+        aadd(_arr, { alltrim((dbName)->NAMES), ;
+              alltrim((dbName)->CODEM), ;
+              (dbName)->PROD, ;
+              (dbName)->DEND, ;
+              alltrim((dbName)->MCOD), ;
+              alltrim((dbName)->NAMEF), ;
+              (dbName)->UROVEN, ; // уровень оплаты, с 2013 года 4 - индивидуальные тарифы
+              alltrim((dbName)->STANDART) } )
+        (dbName)->(dbSkip())
+        // iif((dbName)->MAIN == '1', .t., .f.), ;
+        // iif((dbName)->PFA == '1', .t., .f.), ;
+        // iif((dbName)->PFS == '1', .t., .f.), ;
+        // alltrim((dbName)->ADRES) })
+      enddo
+      (dbName)->(dbCloseArea())
+    endif
+  
+    return _arr
