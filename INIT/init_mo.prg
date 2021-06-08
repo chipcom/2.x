@@ -918,13 +918,13 @@ Function init_mo()
   sbase := "_mo1k006"
   if hb_FileExists(exe_dir + sbase + sdbf)
     if hb_FileExists(exe_dir + sbase +".dbt")
-      if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
+      // if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
         R_Use(exe_dir + sbase )
         index on substr(shifr,1,2)+ds+sy+age+sex+los to (cur_dir+sbase) // по диагнозу/операции
         index on substr(shifr,1,2)+sy+ds+age+sex+los to (cur_dir+sbase+"_") // по операции/диагнозу
         index on ad_cr to (cur_dir+sbase+"AD") // по дополнительному критерию Байкин
         use
-      endif
+      // endif
     else
       fl := notExistsFileNSI( exe_dir + sbase + '.dbt' )
     endif
@@ -1092,11 +1092,11 @@ Function init_mo()
   // onkko_vmp
   sbase := "_mo_ovmp"
   if hb_FileExists(exe_dir + sbase + sdbf)
-    if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
+    // if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
       R_Use(exe_dir + sbase )
       index on str(metod,3) to (cur_dir+sbase)
       use
-    endif
+    // endif
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
@@ -1104,12 +1104,12 @@ Function init_mo()
   // N002
   sbase := "_mo_N002"
   if hb_FileExists(exe_dir + sbase + sdbf)
-    if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
+    // if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
       R_Use(exe_dir + sbase )
       index on str(id_st,6) to (cur_dir+sbase)
       index on ds_st+kod_st to (cur_dir+sbase+"d")
       use
-    endif
+    // endif
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
@@ -1117,12 +1117,12 @@ Function init_mo()
   // N003
   sbase := "_mo_N003"
   if hb_FileExists(exe_dir + sbase + sdbf)
-    if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
+    // if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
       R_Use(exe_dir + sbase )
       index on str(id_t,6) to (cur_dir+sbase)
       index on ds_t+kod_t to (cur_dir+sbase+"d")
       use
-    endif
+    // endif
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
@@ -1130,12 +1130,12 @@ Function init_mo()
   // N004
   sbase := "_mo_N004"
   if hb_FileExists(exe_dir + sbase + sdbf)
-    if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
+    // if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
       R_Use(exe_dir + sbase )
       index on str(id_n,6) to (cur_dir+sbase)
       index on ds_n+kod_n to (cur_dir+sbase+"d")
       use
-    endif
+    // endif
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
@@ -1143,12 +1143,12 @@ Function init_mo()
   // N005
   sbase := "_mo_N005"
   if hb_FileExists(exe_dir + sbase + sdbf)
-    if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
+    // if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
       R_Use(exe_dir + sbase )
       index on str(id_m,6) to (cur_dir+sbase)
       index on ds_m+kod_m to (cur_dir+sbase+"d")
       use
-    endif
+    // endif
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
@@ -1156,11 +1156,11 @@ Function init_mo()
   // N006 - в 2019 году пустой
   sbase := "_mo_N006"
   if hb_FileExists(exe_dir + sbase + sdbf)
-    if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
+    // if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
       R_Use(exe_dir + sbase )
       index on ds_gr+str(id_t,6)+str(id_n,6)+str(id_m,6) to (cur_dir+sbase)
       use
-    endif
+    // endif
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
@@ -1168,11 +1168,11 @@ Function init_mo()
   // N007
   sbase := "_mo_N007"
   if hb_FileExists(exe_dir + sbase + sdbf)
-    if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
+    // if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
       R_Use(exe_dir + sbase )
       index on str(id_mrf,6) to (cur_dir+sbase)
       use
-    endif
+    // endif
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
@@ -1192,11 +1192,11 @@ Function init_mo()
   // N010
   sbase := "_mo_N010"
   if hb_FileExists(exe_dir + sbase + sdbf)
-    if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
+    // if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
       R_Use(exe_dir + sbase )
       index on str(id_igh,6) to (cur_dir+sbase)
       use
-    endif
+    // endif
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
@@ -1204,11 +1204,11 @@ Function init_mo()
   // N011
   sbase := "_mo_N011"
   if hb_FileExists(exe_dir + sbase + sdbf)
-    if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
+    // if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
       R_Use(exe_dir + sbase )
       index on str(id_igh,6) to (cur_dir+sbase)
       use
-    endif
+    // endif
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
@@ -1216,12 +1216,12 @@ Function init_mo()
   // N020
   sbase := "_mo_N020"
   if hb_FileExists(exe_dir + sbase + sdbf)
-    if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
+    // if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
       R_Use(exe_dir + sbase )
       index on id_lekp to (cur_dir+sbase)
       index on upper(mnn) to (cur_dir+sbase+"n")
       use
-    endif
+    // endif
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
@@ -1229,11 +1229,11 @@ Function init_mo()
   // N021
   sbase := "_mo_N021"
   if hb_FileExists(exe_dir + sbase + sdbf)
-    if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
+    // if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
       R_Use(exe_dir + sbase )
       index on code_sh+id_lekp to (cur_dir+sbase)
       use
-    endif
+    // endif
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
@@ -1241,11 +1241,11 @@ Function init_mo()
   // справочник подразделений из паспорта ЛПУ
   sbase := "_mo_podr"
   if hb_FileExists(exe_dir + sbase + sdbf)
-    if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
+    // if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
       R_Use(exe_dir + sbase )
       index on codemo+padr(upper(kodotd),25) to (cur_dir+sbase)
       use
-    endif
+    // endif
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
@@ -1253,11 +1253,11 @@ Function init_mo()
   // справочник соответствия профиля мед.помощи с профилем койки
   sbase := "_mo_prprk"
   if hb_FileExists(exe_dir + sbase + sdbf)
-    if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
+    // if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
       R_Use(exe_dir + sbase )
       index on str(profil,3)+str(profil_k,3) to (cur_dir+sbase)
       use
-    endif
+    // endif
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
