@@ -3,6 +3,7 @@
 
 #include 'inkey.ch'
 #include 'fileio.ch'
+#include 'function.ch'
 #include 'versionFTP.ch'
 #include 'tbox.ch'
 
@@ -13,15 +14,18 @@ function checkVersionInternet( row, oldVersion )
   local aVersion, arr := {}
   local oBox := nil, max := 0
   local nLeft, nRight, key
+  local buf := save_maxrow()
+
+  mywait('Подождите, идет проверка наличия новой версии программы...')
 
   fileFromFTP( fileVersion )
+  rest_box(buf)
 
   if (aVersion := readVersion( fileVersion )) != nil
     if ControlVersion( aVersion, oldVersion )
       AAdd(arr, 'Доступна новая версия программы:')
       AAdd(arr, 'текущая версия: ' + fs_version( oldVersion ) )
       AAdd(arr, 'новая версия: ' + fs_version( aVersion ) )
-      // n_message( arr, , 'W/W', 'N/W', row + 3, , 'N+/W' )
 
       max := maxLenStringInArray(arr)
       nLeft := 40 - (max / 2) - 2
@@ -57,7 +61,7 @@ function fileFromFTP( fileName )
   oURL := TUrl():New( cURL )
   
   oFTP := TIPClientFTP():New( oURL, .f. )
-  oFTP:nConnTimeout := 20000
+  oFTP:nConnTimeout := 2000
   oFTP:bUsePasv := .T.
   
   if oFTP:Open( cURL )
@@ -68,30 +72,30 @@ function fileFromFTP( fileName )
   endif
   return nil
   
-  function fileToFTP( fileName )
-    local cServer   := CUSTOM_FTP
-    local cUser     := UPLOAD_USER
-    local cPassword := UPLOAD_PASS
-    local cUrl      := 'ftp://' + cUser + ':' + cPassword + '@' + cServer
-    local oFTP, oURL
+function fileToFTP( fileName )
+  local cServer   := CUSTOM_FTP
+  local cUser     := UPLOAD_USER
+  local cPassword := UPLOAD_PASS
+  local cUrl      := 'ftp://' + cUser + ':' + cPassword + '@' + cServer
+  local oFTP, oURL
     
-    oURL := TUrl():New( cURL )
+  oURL := TUrl():New( cURL )
     
-    oFTP := TIPClientFTP():New( oURL, .f. )
-    oFTP:nConnTimeout := 20000
-    oFTP:bUsePasv := .T.
+  oFTP := TIPClientFTP():New( oURL, .f. )
+  oFTP:nConnTimeout := 20000
+  oFTP:bUsePasv := .T.
     
-    if oFTP:Open( cURL )
-      if ! oFtp:UploadFile( fileName )
-        return .f.
-      endif
-      oFTP:Close()
-    else
+  if oFTP:Open( cURL )
+    if ! oFtp:UploadFile( fileName )
       return .f.
     endif
-    return .t.
+    oFTP:Close()
+  else
+    return .f.
+  endif
+  return .t.
     
-  function readVersion( fileVersion )
+function readVersion( fileVersion )
   local nHandle, i, j, tStr, cNum := '', cAlpha := ''
   local aStr, aVer := {}
 

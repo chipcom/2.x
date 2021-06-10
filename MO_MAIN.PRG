@@ -93,9 +93,12 @@ procedure main( ... )
   new_dir = ""
   SETCOLOR(color1)
 
-  r := init_mo() // инициализация массива МО, запрос кода МО (при необходимости)
+  // инициализация массива МО, запрос кода МО (при необходимости)
+  r := init_mo()
 
   a_parol := inp_password(is_cur_dir,is_create)
+
+  checkFilesTFOMS()
   
   if tip_polzovat != TIP_ADM
     Private verify_fio_polzovat := .f.
@@ -173,6 +176,7 @@ Function f_main(r0,a_parol)
     {"Переиндексирование базы данных"      ,X_INDEX ,,.t.};
   }
   Local i, lens := 0, r, c, oldTfoms, arr, ar, k, fl_exit := .t.
+  local buf
 
   PUBLIC array_tasks := {}, sem_vagno_task[24]
   afill(sem_vagno_task,"")
@@ -636,63 +640,15 @@ Function ind_task(n_Task)
   endif
   return it
 
-***** 22.02.19 запрос "хитрого" пароля для доступа к операции аннулирования
-Function involved_password(par,_n_reestr,smsg)
-  Local fl := .f., c, c1, n := 0, n1, s, i, i_p := 0, n_reestr
-
-  DEFAULT smsg TO ""
-  smsg := "Введите пароль для "+smsg
-  if (n := len(smsg)) > 61
-    smsg := padr(smsg,61)
-  elseif n < 59
-    smsg := space((61-n)/2)+smsg
-  endif
-  c1 := int((maxcol()-75)/2)
-  n := 0
-  do while i_p < 3  // до 3х попыток
-    ++i_p
-    n_reestr := _n_reestr
-    if (n := input_value(maxrow()-6,c1,maxrow()-4,maxcol()-c1,color1,smsg,n,"9999999999")) != NIL
-      if par == 1 // реестр
-        s := lstr(n_reestr)
-      elseif par == 2 // РАК или РПД
-        s := substr(n_reestr,3)
-        s := right(beforatnum("M",s),1)+left(afteratnum("_",s),7)
-      elseif eq_any(par,3,4) // счёт
-        s := iif(par == 3, "", "1")
-        n_reestr := substr(alltrim(upper(n_reestr)),3)
-        for i := 1 to len(n_reestr)
-          c := substr(n_reestr,i,1)
-          if between(c,'0','9')
-            s += c
-          elseif between(c,'A','Z')
-            s += lstr(asc(c))
-          endif
-        next
-      endif
-      s := charrem("0",s)+lstr(_version[1])+lstr(_version[2])+lstr(_version[3]*7,10,0)
-      do while len(s) > 7
-        s := left(s,len(s)-1)
-      enddo
-      n1 := int(val(ntoc(s,8)))
-      if n == n1
-        fl := .t. ; exit
-      else
-        func_error(4,"Пароль неверен. Нет доступа к данному режиму!")
-      endif
-    else
-      exit
-    endif
-  enddo
-  return fl
-
-***** 04.07.18
+***** 14.06.21
 Function find_unfinished_reestr_sp_tk(is_oper,is_count)
   Static max_rec := 9900000 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   Local fl := .t., s, buf := save_maxrow(), arr, rech := 0, af := {}, bSaveHandler
 
   DEFAULT is_oper TO .t., is_count TO .t.
-  mywait()
+
+  mywait('Подождите, проверяем завершенность информационного обмена реестрами СП и ТК с ТФОМС...')
+
   bSaveHandler := ERRORBLOCK( {|x| BREAK(x)} )
   BEGIN SEQUENCE
     if is_count
@@ -738,12 +694,12 @@ Function find_unfinished_reestr_sp_tk(is_oper,is_count)
   ERRORBLOCK(bSaveHandler)
   return fl
 
-***** 28.09.17 проверить, есть ли неотосланные просроченные листы учёта
+***** 10.06.21 проверить, есть ли неотосланные просроченные листы учёта
 Function find_time_limit_human_reestr_sp_tk()
   Local buf := savescreen(), arr[10,2], i, mas_pmt, r, c, n, d := sys_date-23
   Local fl := .f., bSaveHandler := ERRORBLOCK( {|x| BREAK(x)} )
 
-  mywait()
+  mywait('Подождите, проверяем просроченные случаи (неотправленные в ТФОМС)...')
   BEGIN SEQUENCE
     dbcreate(cur_dir+"tmp_tl",{{"kod_h","N",8,0},;
                              {"kod_xml","N",6,0},;
@@ -888,14 +844,6 @@ Function f1find_time_limit_human_reestr_sp_tk(i,arr)
   fclose(fp)
   viewtext(n_file,,,,.f.,,,2)
   return NIL
-
-*****
-// Function my_mo_f_main()
-// Local arr := {}
-// if glob_mo[_MO_KOD_TFOMS] == kod_VOUNC
-//   aadd(arr,{"ВОУНЦ - трансплантированные",X_MO,"TABLET_ICON",.T.})
-// endif
-// return arr
 
 *****
 Function my_mo_begin_task()

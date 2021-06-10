@@ -161,5 +161,6 @@ Errorsys.prg
 .\util\runExternalProgram.prg
 .\util\workWithInternet.prg
 .\util\backup.prg
+.\util\security.prg
 
 .\menu\f1main.prg

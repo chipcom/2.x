@@ -1,12 +1,10 @@
 #include "function.ch"
 #include "chip_mo.ch"
 
-***** 03.03.21 инициализация массива МО, запрос кода МО (при необходимости)
+***** 10.06.21 инициализация массива МО, запрос кода МО (при необходимости)
 Function init_mo()
-  Local fl := .t., i, arr, arr1, cCode := "", buf := save_maxrow(), ;
-        nfile := exe_dir+"_mo_mo.dbb"
-  local arrRefFFOMS := {}, row, row_flag := .t.
-  local tmpSelect, lSchema := .f.
+  Local fl := .t., i, arr, arr1, cCode := '', buf := save_maxrow(), ;
+        nfile := exe_dir+'_mo_mo.dbb'
 
   mywait()
   Public oper_parol := 30  // пароль для фискального регистратора
@@ -118,6 +116,23 @@ Function init_mo()
   else
     fl := func_error('Работа невозможна - не обнаружен файл "_MO_MO.DBB"')
   endif
+
+  rest_box(buf)
+
+  if ! fl
+    hard_err("delete")
+    QUIT
+  endif
+
+  return main_up_screen()
+
+***** 10.06.21 проверка и переиндексирование справочников ТФОМС
+Function checkFilesTFOMS()
+  Local fl := .t., i, arr, buf := save_maxrow()
+  local arrRefFFOMS := {}, row, row_flag := .t.
+  local lSchema := .f.
+
+  mywait('Подождите, идет проверка служебных данных в рабочем каталоге...')
 
   // справочник диагнозов
   sbase := "_mo_mkb"
@@ -1324,29 +1339,5 @@ Function init_mo()
   endif
   rest_box(buf)
 
-  return main_up_screen()
-
-
-  // local h
-
-  // h := FCreate( 'profiler.txt' )
-  // // writeProfile( h, 'init_mo')
-
-  // FClose( h )
-  
-function writeProfile( h, str)
-  static st := .f.
-  static s_cStartTime
-
-  if st == .f.
-    // s_cStartTime := time()
-    s_cStartTime := seconds()
-    st := .t.
-    return nil
-  else
-    // FWrite( h, 'длительность ' + str + ': ' + ElapTime( s_cStartTime, Time() ) + hb_eol() )
-    FWrite( h, 'длительность ' + str + ': ' + str( seconds() - s_cStartTime ) + ' сек.' + hb_eol() )
-    st := .f.
-  endif
-
+  // return main_up_screen()
   return nil
