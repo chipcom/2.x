@@ -69,6 +69,9 @@ Function init_mo()
       endif
       aadd(glob_arr_mo, aclone(arr))
     next
+
+    // glob_arr_mo := getMo_mo(nfile)
+
     if hb_FileExists(dir_server+"organiz"+sdbf)
       R_Use(dir_server+"organiz",,"ORG")
       if lastrec() > 0

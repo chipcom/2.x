@@ -30,7 +30,7 @@ procedure main()
 
 
   if hb_FileExists(nfile)
-    arr_mo := getMo_mo_new()
+    arr_mo := getMo_mo()
     // так в массиве зашифрованы поля справочника МО
     //{"MCOD",       "C",      6,      0},;  1
     //{"CODEM",      "C",      6,      0},;  2
@@ -69,17 +69,18 @@ procedure main()
       aadd(glob_arr_mo, aclone(arr))
     next
 
-    alertx(len(arr_mo), 'arr_MO')
-    alertx(len(glob_arr_mo), 'glob_arr_MO')
+    // alertx(len(arr_mo), 'arr_MO')
+    // alertx(len(glob_arr_mo), 'glob_arr_MO')
 
-    // for i := 1 to len(glob_arr_mo[67])
-    //   alertx(hb_valToExp(glob_arr_mo[67,i]), 'MO-' + alltrim(str(i)))
-    // next
+    // // for i := 1 to len(glob_arr_mo[67])
+    // //   alertx(hb_valToExp(glob_arr_mo[67,i]), 'MO-' + alltrim(str(i)))
+    // // next
     
-    for i := 1 to len(arr_mo[67])
-      alertx(hb_valToExp(arr_mo[67,i]), 'MO 1-' + alltrim(str(i)))
-    next
+    // for i := 1 to len(arr_mo[67])
+    //   alertx(hb_valToExp(arr_mo[67,i]), 'MO 1-' + alltrim(str(i)))
+    // next
 
+    checkArray(glob_arr_mo, arr_mo)
     // if hb_FileExists(dir_server+"organiz"+sdbf)
     //   R_Use(dir_server+"organiz",,"ORG")
     //   if lastrec() > 0
@@ -128,15 +129,17 @@ procedure main()
     fl := func_error('Работа невозможна - не обнаружен файл "_MO_MO.DBB"')
   endif
 
+  Inkey(0)
   return
 
 * 05.06.21 вернуть массив _mo_dbb.dbf
-function getMo_mo_new(reload)
+function getMo_mo(reload)
   // reload - флаг указывающий на перезагрузку справочника, .T. - перезагрузить, .F. - нет
   
     // _mo_mo.dbf - справочник медучреждений
-    //  1 - MCOD(C)  2 - CODEM(C)  3 - NAMEF(C)  4 - NAMES(C)
-    //  5 - PROD(C)  6 - DEND(D)  7 - STANDART(C)  8 - UROVEN(C)
+    //  1 - MCOD(C)  2 - CODEM(C)  3 - NAMEF(C)  4 - NAMES(C) 5 - ADRES(C) 6 - MAIN(C)
+    //  7 - PFA(C) 8 - PFS(C) 9 - PROD(C) 10 - DOLG(C) 
+    //  11 - DEND(D)  12 - STANDART(C)  13 - UROVEN(C)
     static _arr := {}
     local dbName := '_mo_mo'
     local standart, uroven
@@ -161,8 +164,10 @@ function getMo_mo_new(reload)
         hb_jsonDecode( (dbName)->UROVEN, @uroven )
 
         for each row in standart
-          tmp :=  substr(row[1],7,2) + '.' + substr(row[1],5,2) + '.' + substr(row[1],1,4)
-          row[1] := ctod(tmp)
+          row[1] := hb_SToD(row[1])
+        next
+        for each row in uroven
+          row[1] := hb_SToD(row[1])
         next
 
         aadd(_arr, { ;
@@ -186,3 +191,54 @@ function getMo_mo_new(reload)
     endif
   
     return _arr
+
+function checkArray(arr1, arr2)
+  local i, j
+
+  if len(arr1) != len(arr2)
+    ? 'Разная длина массивов'
+  endif
+
+  for i := 1 to len(arr1)
+    for j := 1 to len(arr1[i])
+      if j == 7 .or. j == 8
+        if ! checkA(arr1[i,j],arr2[i,j])
+          ? 'Отличие в массиве:' + alltrim(str(i)) + ':' + alltrim(str(j))
+        endif
+      else
+        if ( arr1[i, j] == arr2[i, j] )
+        else
+          ? 'Отличие в :' + alltrim(str(i)) + ':' + alltrim(str(j))
+          ? arr1[i,j]
+          ? arr2[i,j]
+        endif
+      endif
+    next
+  next
+  return nil
+
+function checkA( a1, a2)
+  local ret := .t., i, j
+
+  if len(a1) != len(a2)
+    return .f.
+  endif
+
+  for i := 1 to len(a1)
+    if (valtype(a1[i]) != 'A') .and. (valtype(a2[i]) != 'A')
+      if (valtype(a1[i]) == valtype(a2[i]))
+        if a1[i] != a2[i]
+          return .f.
+        endif
+      else
+        ? a1[i]
+        ? a2[i]
+        return .f.
+      endif
+    else
+      if ! checkA(a1[i], a2[i])
+        return .f.
+      endif
+    endif
+  next
+  return ret
