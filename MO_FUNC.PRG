@@ -41,6 +41,8 @@ if type("fl_open") == "L" .and. fl_open
 endif
 sBase := lower(sBase)
 do case
+  case sBase == "mo_add"
+    index on codem to (dir_server+sBase)
   case sBase == "s_adres"
     index on upper(name) to (dir_server+sBase)
   case sBase == "s_kemvyd"

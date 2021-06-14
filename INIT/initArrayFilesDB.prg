@@ -13,6 +13,7 @@ Function init_Array_Files_DB()
   // общие справочники
   aadd(array_files_DB,"base1")
   aadd(array_files_DB,"ver_base")
+  aadd(array_files_DB,"mo_add")
   aadd(array_files_DB,"organiz")
   aadd(array_files_DB,"mo_oper")
   aadd(array_files_DB,"mo_opern")
