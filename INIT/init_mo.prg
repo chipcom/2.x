@@ -73,7 +73,7 @@ Function init_mo()
     glob_arr_mo := getMo_mo(nfile)
 
     // create_mo_add()
-    // glob_arr_mo := getMo_mo(nfile)
+    // glob_arr_mo := getMo_mo_New('_mo_mo')
 
     if hb_FileExists(dir_server+"organiz"+sdbf)
       R_Use(dir_server+"organiz",,"ORG")
