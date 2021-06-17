@@ -7,7 +7,8 @@
 #include 'tbox.ch'
 
 * 20.01.21 {_MO_KOD_TFOMS,_MO_SHORT_NAME}
-Function viewF003( mkod, r, c, lusl, lpar )
+Function viewF003()
+    // Function viewF003( mkod, r, c, lusl, lpar )
 
     local nTop, nLeft, nBottom, nRight
     local tmp_select := select()
@@ -21,19 +22,19 @@ Function viewF003( mkod, r, c, lusl, lpar )
     local ar_f010 := getf010()
     local selectedRegion := "34"
 
-    DEFAULT lpar TO 1
+    // DEFAULT lpar TO 1
 
     private nRegion := 34
     private tmpName := cur_dir + 'tmp_F003', tmpAlias := 'tF003'
     private oBoxCompany
     private fl_space := .f., fl_other_region := .f.
-    private muslovie, ppar := lpar
+    // private muslovie, ppar := lpar
 
     // уже было выбрано МО
-    if valtype(mkod) == 'C' .and. !empty(mkod)
-        selectedRegion := substr(mkod, 1, 2)
-        nRegion := val(selectedRegion)
-    endif
+    // if valtype(mkod) == 'C' .and. !empty(mkod)
+    //     selectedRegion := substr(mkod, 1, 2)
+    //     nRegion := val(selectedRegion)
+    // endif
         
     ar := {}
     for i := 1 to len(ar_f010)
@@ -63,17 +64,17 @@ Function viewF003( mkod, r, c, lusl, lpar )
     do while .t.
         // главное окно
         oBox := NIL // уничтожим окно
-        if fl_other_region .and. selectedRegion != ''
-            oBox := TBox():New( 2, 10, 11, 70 )
-        else
+        // if fl_other_region .and. selectedRegion != ''
+        //     oBox := TBox():New( 2, 10, 11, 70 )
+        // else
             oBox := TBox():New( 2, 10, 22, 70 )
-        endif
+        // endif
 	    oBox:Color := color_say + ',' + color_get
 	    oBox:Frame := BORDER_DOUBLE
         oBox:MessageLine := '^^ или нач.буква - просмотр;  ^<Esc>^ - выход;  ^<Enter>^ - выбор'
         oBox:Save := .t.
 
-        if fl_other_region
+        // if fl_other_region
             oBox:Caption := 'Выберите регион'
             oBox:View()
             oBoxRegion:View()
@@ -87,7 +88,7 @@ Function viewF003( mkod, r, c, lusl, lpar )
                 selectedRegion  := ar_f010[nRegion,2]
             endif
             fl_other_region := .f.
-        endif
+        // endif
         // создадим временный файл для отбора организаций выбранного региона
         dbCreate(tmpName, aStruct)
         dbUseArea( .t.,, tmpName, tmpAlias, .t., .f. )
@@ -149,46 +150,9 @@ Function viewF003( mkod, r, c, lusl, lpar )
 * 19.01.21
 Function controlF003(nkey,oBrow)
     Local ret := -1, cCode, rec
-    // if nKey == K_F2 .and. lmo3 == 0
-    //   if (cCode := input_value(18,2,20,77,color1,;
-    //                            "Введите код МО или обособленного подразделения, присвоенный ТФОМС",;
-    //                            space(6),"999999")) != NIL .and. !empty(cCode)
-    //     rec := rg->(recno())
-    //     go top
-    //     oBrow:gotop()
-    //     Locate for rg->kodN == cCode .or. rg->kodF == cCode
-    //     if !found()
-    //       go top
-    //       oBrow:gotop()
-    //       goto (rec)
-    //     endif
-    //     ret := 0
-    //   endif
-    // if nKey == K_F2 .and. lmo3 == 0
-    //   if (cCode := input_value(18,2,20,77,color1,;
-    //                            "Введите код МО или обособленного подразделения, присвоенный ТФОМС",;
-    //                            space(6),"999999")) != NIL .and. !empty(cCode)
-    //     rec := rg->(recno())
-    //     go top
-    //     oBrow:gotop()
-    //     Locate for rg->kodN == cCode .or. rg->kodF == cCode
-    //     if !found()
-    //       go top
-    //       oBrow:gotop()
-    //       goto (rec)
-    //     endif
-    //     ret := 0
-    //   endif
-    // elseif nKey == K_F3 .and. glob_task != X_263 .and. muslovie == NIL .and. ppar == 1
     if nKey == K_F3
       ret := 1
       fl_other_region := .t.
-    //   p_mo := 1
-    //   pkodN := rg->kodN
-    //   lmo3 := iif(lmo3 == 0, 1, 0)
-    //   if lmo3 == 1 .and. rg->mo3 != lmo3
-    //     pkodN := ""
-    //   endif
     elseif nKey == K_SPACE
         fl_space := .t.
         ret := 1

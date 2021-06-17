@@ -165,3 +165,5 @@ Errorsys.prg
 .\util\security.prg
 
 .\menu\f1main.prg
+
+.\mo\external_mo.prg
