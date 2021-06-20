@@ -1332,16 +1332,16 @@ for i := 1 to len(arr)
 next
 return NIL
 
-***** 23.09.20 Приложение к письму КЗВО №14-05/50 от 07.02.2020г.
+***** 20.06.21 Приложение к письму КЗВО №14-05/50 от 07.02.2020г.
 Function inf_DDS_svod2(par2,is_schet)
 Local arr_m, i, buf := save_maxrow(), lkod_h, lkod_k, rec, sh := 91, HH := 60, n_file := "ddssvod2"+stxt
 if (arr_m := year_month(T_ROW,T_COL-5)) != NIL
   mywait()
   if f0_inf_DDS(arr_m,is_schet > 1,is_schet == 3)
     Private arr_deti := {;
-      {"1","Всего",0,0,0,0,0,0,0,0,0,0,0,0,0},;
-      {"1.1","0-14 лет",0,0,0,0,0,0,0,0,0,0,0,0,0},;
-      {"1.2","15-17 лет",0,0,0,0,0,0,0,0,0,0,0,0,0};
+      {"1","Всего"      ,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},;
+      {"1.1","0-14 лет" ,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},;
+      {"1.2","15-17 лет",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
     }
     Private arr_2510 := {;
       {'001 дети 0-14 лет вкл.',0,0,0,0,0,0,0},;
@@ -1357,7 +1357,9 @@ if (arr_m := year_month(T_ROW,T_COL-5)) != NIL
                             R_Use(cur_dir+"tmp"),;
                             dbSetRelation( "HUMAN", {|| kod }, "kod" );
                         }
+
     do while .t.
+ //     R_Use_base("human_u")
       eval(blk_open)
       if rec == NIL
         go top
@@ -1397,18 +1399,39 @@ if (arr_m := year_month(T_ROW,T_COL-5)) != NIL
     add_string(center(arr_m[4],sh))
     add_string("")
    if par2 == 3
-    add_string("───┬─────────┬───────────┬───────────┬─────┬─────────────────────────────┬─────┬─────┬─────")
-    add_string("№№ │ Контин- │ Осмотрено │из них село│неинф│           из них            │взято│из 7г│из 14")
-    add_string("пп │ генты   ├─────┬─────┼─────┬─────┤забол├─────┬─────┬─────┬─────┬─────┤на ди│начат│село ")
-    add_string("   │         │всего│в суб│всего│в суб│вперв│крово│ ЗНО │1и2ст│дыхан│пищев│спанс│лечен│     ")
-    add_string("───┼─────────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────")
-    add_string(" 1 │    2    │  3  │  4  │  5  │  6  │  7  │  8  │  9  │  10 │  11 │  12 │  13 │  14 │  15 ")
-    add_string("───┴─────────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────")
+    //add_string("───┬─────────┬───────────┬───────────┬─────┬─────────────────────────────┬─────┬─────┬─────")
+    //add_string("№№ │ Контин- │ Осмотрено │из них село│неинф│           из них            │взято│из 7г│из 14")
+    //add_string("пп │ генты   ├─────┬─────┼─────┬─────┤забол├─────┬─────┬─────┬─────┬─────┤на ди│начат│село ")
+    //add_string("   │         │всего│в суб│всего│в суб│вперв│крово│ ЗНО │1и2ст│дыхан│пищев│спанс│лечен│     ")
+    //add_string("───┼─────────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────")
+    //add_string(" 1 │    2    │  3  │  4  │  5  │  6  │  7  │  8  │  9  │  10 │  11 │  12 │  13 │  14 │  15 ")
+    //add_string("───┴─────────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────")
+    add_string("───┬──────────┬─────────────────┬─────┬───────────────────────────────────┬─────┬─────┬─────")
+    add_string("№№ │          │     Осмотрено   │неинф│           из них                  │Факто│взято│из 6г")
+    add_string("пп │Показатель├─────┬─────┬─────┤забол├─────┬─────┬─────┬─────┬─────┬─────┤ры   ┤на ди│начат")
+    add_string("   │          │всего│андро│гинек│вперв│крово│ ЗНО │ко_мы│ глаз│эндок│пищев│риска│спанс│лечен")
+    add_string("───┼──────────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────┼─────")
+    add_string(" 1 │    2     │  3  │  4  │  5  │  6  │  7  │  8  │  9  │  10 │  11 │  12 │  13 │  14 │  15 ")
+    add_string("───┴──────────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────┴─────")
     for i := 1 to 3
       s := padr(arr_deti[i,1],4)+padr(arr_deti[i,2],9)
-      for j := 3 to 15
-        s += put_val(arr_deti[i,j],6)
-      next
+      s += put_val(arr_deti[i,3],6)
+      s += put_val(arr_deti[i,16],6) // андролог
+      s += put_val(arr_deti[i,17],6) // гинеколог
+      s += put_val(arr_deti[i,7],6)
+      s += put_val(arr_deti[i,8],6)
+      s += put_val(arr_deti[i,9],6)
+      s += put_val(arr_deti[i,21],6) // кости- связки
+      s += put_val(arr_deti[i,18],6) // глаза
+      s += put_val(arr_deti[i,19],6) // эндокринка
+      //s += put_val(arr_deti[i,11],6)
+      s += put_val(arr_deti[i,12],6)
+      s += put_val(arr_deti[i,20],6) // факторы риска
+      s += put_val(arr_deti[i,13],6)
+      s += put_val(arr_deti[i,14],6)
+      //for j := 3 to 15
+      //  s += put_val(arr_deti[i,j],6)
+      //next
       add_string(s)
       add_string(replicate("─",sh))
     next
@@ -1436,9 +1459,11 @@ close databases
 rest_box(buf)
 return NIL
 
-***** 05.10.20
+
+***** 20.06.21
 Function f2_inf_DDS_svod2(Loc_kod,kod_kartotek)
-Local i, j, k, is_selo, ad := {}, ar := {1}, ar1 := {}, ar2 := array(len(arr_deti[1]))
+Local i, j, k, is_selo, ad := {}, ar := {1}, ar1 := {},;
+      ar2 := array(len(arr_deti[1])) 
 if mvozrast < 15
   aadd(ar,2)
 else
@@ -1464,10 +1489,24 @@ for i := 1 to 5
     endif
   next
 next
+
+
 R_Use(dir_server+"kartote2",,"KART2")
 goto (kod_kartotek)
 R_Use(dir_server+"kartote_",,"KART_")
 goto (kod_kartotek)
+
+R_Use(dir_server+"uslugi",,"USL")
+R_Use_base("human_u")
+//R_Use(dir_server+"human_",,"HUMAN_")
+R_Use(dir_server+"human",,"HUMAN")
+//set relation to recno() into HUMAN_, to kod_k into KART_
+//use (cur_dir+"tmp") new
+//set relation to kod into HUMAN
+//go top
+
+
+
 R_Use(dir_server+"kartotek",,"KART")
 goto (kod_kartotek)
 is_selo := f_is_selo(kart_->gorod_selo,kart_->okatog)
@@ -1489,28 +1528,70 @@ endif
 afill(ar2,0)
 for i := 1 to len(ad) // цикл по диагнозам
   if !(left(ad[i,1],1) == "A" .or. left(ad[i,1],1) == "B") .and. ad[i,2] == 1 // неинфекционные заболевания уст.впервые
-    ar2[7] := 1 //arr_deti[k,7] ++
+    //arr_deti[k,7] ++
+    ar2[7] := 1
     if left(ad[i,1],1) == "I" // болезни системы кровообращения
-      ar2[8] := 1 //arr_deti[k,8] ++
-    elseif left(ad[i,1],1) == "J" // болезни органов дыхания
-      ar2[11] := 1 //arr_deti[k,11] ++
-    elseif left(ad[i,1],1) == "K" // болезни органов пищеварения
-      ar2[12] := 1 //arr_deti[k,12] ++
+      ar2[8] := 1     //arr_deti[k,8] ++
     endif
+    if left(ad[i,1],1) == "J" // болезни органов дыхания
+      ar2[11] := 1      // arr_deti[k,11] ++
+    endif
+    if left(ad[i,1],1) == "K" // болезни органов пищеварения
+      ar2[12] := 1     //   arr_deti[k,12] ++
+    endif
+    if left(ad[i,1],1) == "H" // болезни глаз
+      ar2[18] := 1    // arr_deti[k,18] ++
+    endif
+    if left(ad[i,1],1) == "E" // болезни эндокринология
+      ar2[19] := 1  //   arr_deti[k,19] ++
+    endif
+    if left(ad[i,1],1) == "M" // болезни костно-мышечной системы
+      ar2[21] := 1  //  arr_deti[k,21] ++
+    endif
+    //
+    if left(ad[i,1],3) == "E78"
+      ar2[20] := 1
+    elseif left(ad[i,1],5) == "R73.9"
+      ar2[20] := 1
+    elseif left(ad[i,1],5) == "Z72.0"
+      ar2[20] := 1
+    elseif left(ad[i,1],5) == "Z72.4"
+      ar2[20] := 1
+    elseif left(ad[i,1],5) == "R63.5"
+      ar2[20] := 1
+    elseif left(ad[i,1],5) == "Z72.3"
+      ar2[20] := 1
+    elseif left(ad[i,1],5) == "Z72.1"
+      ar2[20] := 1
+    elseif left(ad[i,1],5) == "Z72.2"
+      ar2[20] := 1
+    endif
+    //
+    //my_debug(,left(ad[i,1],5))
+    //my_debug(,str(ar2[19])+"    "+str(ar2[20]))
+    //
     if left(ad[i,1],1) == "C" .or. between(left(ad[i,1],3),"D00","D09") // ЗНО
-      ar2[9] := 1 //arr_deti[k,9] ++
+      ar2[9] := 1  //  arr_deti[k,9] ++
     endif
     if ad[i,3] > 0
-      ar2[13] := 1 //arr_deti[k,13] ++  // взяты на диспасерное наблюдение
+      ar2[13] := 1  //  arr_deti[k,13] ++  // взяты на диспасерное наблюдение
     endif
     if m1napr_stac > 0 // направлен на лечение
-      ar2[14] := 1 //arr_deti[k,14] ++ // считаем, что было начато лечение
+      ar2[14] := 1 //       arr_deti[k,14] ++ // считаем, что было начато лечение
       if is_selo
-        ar2[15] := 1 //arr_deti[k,15] ++
+        ar2[15] := 1   //  arr_deti[k,15] ++
       endif
     endif
   endif
 next i
+// надо деффицит массы тела
+//    my_debug(,kart->fio)
+//    my_debug(,str(m1fiz_razv1)+"   "+mfiz_razv1)
+if m1fiz_razv1 == 1
+   ar2[20] := 1
+endif
+//    my_debug(,str(ar2[20]))
+
 for j := 1 to 2
   k := ar[j]
   arr_deti[k,3] ++
@@ -1523,10 +1604,40 @@ for j := 1 to 2
       arr_deti[k,6] ++
     endif
   endif
+  //
   for i := 7 to len(ar2)
     arr_deti[k,i] += ar2[i]
   next
 next
+//
+fl := .f.
+//
+
+//
+select HU
+find (str(Loc_kod,7))
+do while hu->kod == Loc_kod .and. !eof()
+  if eq_any(hu_->PROFIL,19,136)
+    fl := .t.
+  endif
+  usl->(dbGoto(hu->u_kod))
+  if empty(lshifr := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data))
+    lshifr := usl->shifr
+  endif
+  if left(lshifr,2) == "2."  // врачебный приём
+    if hu_->PROFIL == 19
+      //ar2[16] := 1
+       arr_deti[k,16] ++
+    endif
+    if hu_->PROFIL == 136
+      //ar2[17] := 1
+        arr_deti[k,17] ++
+    endif
+  endif
+  select HU
+  skip
+enddo
+//
 for j := 1 to len(ar1)
   k := ar1[j]
   arr_2510[k,2] ++
@@ -6340,11 +6451,12 @@ close databases
 rest_box(buf)
 return NIL
 
-***** 09.06.20
+***** 20.06.20
 Function f1_f21_inf_DNL(Loc_kod,kod_kartotek) // сводная информация
-Local ii, im, i, j, k, s, sumr := 0, ar := {0}, ltip_school := -1, ar15[22], is_2 := .f., ad := {}, arr, a3 := {}
+Local ii, im, i, j, k, s, sumr := 0, ar := {0}, ltip_school := -1, ar15[22],;
+      is_2 := .f., ad := {}, arr, a3 := {}, fl_ves := .T.
 Private m1tip_school := -1, m1school := 0, mvozrast, mdvozrast, mgruppa := 0, m1GR_FIZ := 1, m1invalid1 := 0
-Private mvar, m1var
+Private mvar, m1var, m1FIZ_RAZV1
 afill(ar15,0)
 mvozrast := count_years(human->date_r,human->n_data)
 mdvozrast := year(human->n_data) - year(human->date_r)
@@ -6364,6 +6476,7 @@ next
 ii := 1
 is_2 := (human->ishod == 302) // это второй этап
 read_arr_PN(Loc_kod)
+//
 mGRUPPA := human_->RSLT_NEW - 331//L_BEGIN_RSLT
 if mvozrast == 0
   aadd(ar,2)
@@ -6432,22 +6545,30 @@ endif
       elseif left(ad[i,1],1) == "E" // болезни эндокринология
         arr[21] ++
       endif
-      if left(ad[i,1],3) == "E78" 
+      if left(ad[i,1],3) == "E78"
         arr[22] ++
-      elseif left(ad[i,1],5) == "R73.9" 
+        fl_ves := .F.
+      elseif left(ad[i,1],5) == "R73.9"
         arr[22] ++
-      elseif left(ad[i,1],5) == "Z72.0" 
+        fl_ves := .F.
+      elseif left(ad[i,1],5) == "Z72.0"
         arr[22] ++
-      elseif left(ad[i,1],5) == "Z72.4" 
+        fl_ves := .F.
+      elseif left(ad[i,1],5) == "Z72.4"
         arr[22] ++
-      elseif left(ad[i,1],5) == "R63.5" 
+        fl_ves := .F.
+      elseif left(ad[i,1],5) == "R63.5"
         arr[22] ++
-      elseif left(ad[i,1],5) == "Z72.3" 
+        fl_ves := .F.
+      elseif left(ad[i,1],5) == "Z72.3"
         arr[22] ++
-      elseif left(ad[i,1],5) == "Z72.1" 
+        fl_ves := .F.
+      elseif left(ad[i,1],5) == "Z72.1"
         arr[22] ++
-      elseif left(ad[i,1],5) == "Z72.2" 
+        fl_ves := .F.
+      elseif left(ad[i,1],5) == "Z72.2"
         arr[22] ++
+        fl_ves := .F.
       endif
       // надо деффицит массы тела
       if left(ad[i,1],1) == "C" .or. between(left(ad[i,1],3),"D00","D09") // ЗНО может быть добавить  .or. between(left(ad[i,1],3),"D45","D47")
@@ -6534,6 +6655,15 @@ endif
     arr[16] := 1
   endif
   aadd(a3,aclone(arr))
+//
+//aadd(arr,{"12.4.1",m1FIZ_RAZV1})  // "N",физическое развитие 0-нормальное, с отклонениями: 1-дефицит массы тела, 2-избыток массы тела, 3-низкий рост, 4-высокий рост
+if m1fiz_razv1 == 1
+  if fl_ves 
+    arr[22] ++
+  endif
+endif
+
+
 //
 for j := 1 to len(a3)
   select TMP2
