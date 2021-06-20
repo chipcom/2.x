@@ -21,6 +21,8 @@ Function viewF003()
     local retMCOD := { '', space(10) }
     local ar_f010 := getf010()
     local selectedRegion := "34"
+    local sbase := 'mo_add'
+    local prev_codem := 0, cur_codem := 0
 
     // DEFAULT lpar TO 1
 
@@ -46,14 +48,18 @@ Function viewF003()
     aStruct := (dbName)->(dbStruct())
     (dbName)->(dbCreateIndex( indexName, "substr(MCOD,1,2)", , NIL ))
 
+    // nTop := 4
+    // nLeft := 40 - l / 2
+    // nBottom := 9
+    // nRight := 40 + l / 2 + 1
     nTop := 4
-    nLeft := 40 - l / 2
-    nBottom := 9
-    nRight := 40 + l / 2 + 1
+    nLeft := 3
+    nBottom := 20
+    nRight := 77
 
     // окно выбора региона
     oBoxRegion := TBox():New( nTop, nLeft, nBottom, nRight )
-    oBoxRegion:Caption := 'Регион'
+    oBoxRegion:Caption := 'Выберите регион'
     oBoxRegion:Frame := BORDER_SINGLE
     
     // окно полного наименования организации
@@ -61,87 +67,79 @@ Function viewF003()
     oBoxCompany:Frame := BORDER_NONE
     oBoxCompany:Color := color5
 
-    do while .t.
-        // главное окно
-        oBox := NIL // уничтожим окно
-        // if fl_other_region .and. selectedRegion != ''
-        //     oBox := TBox():New( 2, 10, 11, 70 )
-        // else
-            oBox := TBox():New( 2, 10, 22, 70 )
-        // endif
-	    oBox:Color := color_say + ',' + color_get
-	    oBox:Frame := BORDER_DOUBLE
-        oBox:MessageLine := '^^ или нач.буква - просмотр;  ^<Esc>^ - выход;  ^<Enter>^ - выбор'
-        oBox:Save := .t.
+    // главное окно
+    oBox := NIL // уничтожим окно
+    oBox := TBox():New( 2, 10, 22, 70 )
+	oBox:Color := color_say + ',' + color_get
+	oBox:Frame := BORDER_DOUBLE
+    oBox:MessageLine := '^^ или нач.буква - просмотр;  ^<Esc>^ - выход;  ^<Enter>^ - выбор'
+    oBox:Save := .t.
 
-        // if fl_other_region
-            oBox:Caption := 'Выберите регион'
-            oBox:View()
-            oBoxRegion:View()
-            nRegion := AChoice( oBoxRegion:Top+1, oBoxRegion:Left+1, oBoxRegion:Bottom-1, oBoxRegion:Right-1, ar, , , 34 )
-            if nRegion == 0
-                (dbName)->(dbCloseArea())
-                (tmpAlias)->(dbCloseArea())
-                select (tmp_select)
-                return retMCOD
-            else
-                selectedRegion  := ar_f010[nRegion,2]
-            endif
-            fl_other_region := .f.
-        // endif
-        // создадим временный файл для отбора организаций выбранного региона
-        dbCreate(tmpName, aStruct)
-        dbUseArea( .t.,, tmpName, tmpAlias, .t., .f. )
-        
-        (dbName)->(dbGoTop())
-        (dbName)->(dbSeek(selectedRegion))
-        do while substr((dbName)->MCOD,1,2) == selectedRegion
-            (tmpAlias)->(dbAppend())
-            (tmpAlias)->MCOD := (dbName)->MCOD
-            (tmpAlias)->NAMEMOK := (dbName)->NAMEMOK
-            (tmpAlias)->NAMEMOP := (dbName)->NAMEMOP
-            (tmpAlias)->YEAR := (dbName)->YEAR
-        
-            (dbName)->(dbSkip())
-        enddo
-                
-        oBox:Caption := 'Выбор направившей организации'
-        oBox:View()
-        dbCreateIndex( tmpName, "NAMEMOK", , NIL )
-
-        (tmpAlias)->(dbGoTop())
-        if valtype(mkod) == 'C' .and. !empty(mkod) .and. selectedRegion == SubStr(mcod,1,2)
-            do while ! (tmpAlias)->(EOF())
-                if (tmpAlias)->MCOD == mkod
-                    exit
-                endif
-                (tmpAlias)->(dbSkip())
-            enddo
-        endif
-        if valtype(mkod) == 'C' .and. !empty(mkod)
-            retMCOD := { (tmpAlias)->MCOD, AllTrim((tmpAlias)->NAMEMOK) }
-        endif
-        if fl := Alpha_Browse(oBox:Top+1,oBox:Left+1,oBox:Bottom-5,oBox:Right-1,"ColumnF003",color0,,,,,,"ViewRecordF003","controlF003",,{"═","░","═","N/BG,W+/N,B/BG,BG+/B"} )
-            retMCOD := { (tmpAlias)->MCOD, AllTrim((tmpAlias)->NAMEMOK) }
-        endif
-        if fl_space
-            oBoxRegion := NIL
-            oBoxCompany := nil
-            oBox := nil
-            retMCOD := { '', space(10) }
-            exit
-        endif
-        if ! fl_other_region
-            oBoxRegion := NIL
-            oBoxCompany := nil
-            oBox := nil
-            exit
-        else
-            retMCOD := { '', space(10) }
-        endif
-        selectedRegion := ''
+    oBoxRegion:MessageLine := '^^ или нач.буква - просмотр;  ^<Esc>^ - выход;  ^<Enter>^ - выбор'
+    oBoxRegion:Save := .t.
+    oBoxRegion:View()
+    nRegion := AChoice( oBoxRegion:Top+1, oBoxRegion:Left+1, oBoxRegion:Bottom-1, oBoxRegion:Right-1, ar, , , 34 )
+    if nRegion == 0
+        (dbName)->(dbCloseArea())
         (tmpAlias)->(dbCloseArea())
+        select (tmp_select)
+        return retMCOD
+    else
+        selectedRegion  := ar_f010[nRegion,2]
+    endif
+    fl_other_region := .f.
+
+    // создадим временный файл для отбора организаций выбранного региона
+    dbCreate(tmpName, aStruct)
+    dbUseArea( .t.,, tmpName, tmpAlias, .t., .f. )
+        
+    (dbName)->(dbGoTop())
+    (dbName)->(dbSeek(selectedRegion))
+    do while substr((dbName)->MCOD,1,2) == selectedRegion
+        (tmpAlias)->(dbAppend())
+        (tmpAlias)->MCOD := (dbName)->MCOD
+        (tmpAlias)->NAMEMOK := (dbName)->NAMEMOK
+        (tmpAlias)->NAMEMOP := (dbName)->NAMEMOP
+        (tmpAlias)->ADDRESS := (dbName)->ADDRESS
+        (tmpAlias)->YEAR := (dbName)->YEAR
+        
+        (dbName)->(dbSkip())
     enddo
+                
+    oBox:Caption := 'Выбор направившей организации'
+    oBox:View()
+    dbCreateIndex( tmpName, "NAMEMOK", , NIL )
+
+    (tmpAlias)->(dbGoTop())
+    if fl := Alpha_Browse(oBox:Top+1,oBox:Left+1,oBox:Bottom-5,oBox:Right-1,"ColumnF003",color0,,,,,,"ViewRecordF003","controlF003",,{"═","░","═","N/BG,W+/N,B/BG,BG+/B"} )
+      // TODO: сделать проверку уже выбранного
+      if G_Use(dir_server + sbase, dir_server + sbase, sbase, , .t.,)
+        (sbase)->(dbGoTop())
+        do while ! (sbase)->(Eof())
+          prev_codem := (sbase)->CODEM
+          (sbase)->(dbSkip())
+          cur_codem := (sbase)->CODEM
+          if (val(cur_codem) - val(prev_codem)) != 1
+            (sbase)->(dbappend())
+            (sbase)->MCOD := (tmpAlias)->MCOD
+            (sbase)->CODEM := str(val(prev_codem) + 1, 6)
+            (sbase)->NAMEF := (tmpAlias)->NAMEMOK
+            (sbase)->NAMES := (tmpAlias)->NAMEMOP
+            (sbase)->ADRES := (tmpAlias)->ADDRESS
+            (sbase)->DEND := hb_SToD('20251231')
+            exit
+          endif
+        enddo
+        (sbase)->(dbCloseArea())
+      endif
+        
+      retMCOD := { (tmpAlias)->MCOD, AllTrim((tmpAlias)->NAMEMOK) }
+    endif
+    selectedRegion := ''
+
+    oBoxRegion := NIL
+    oBoxCompany := nil
+    oBox := nil
     (tmpAlias)->(dbCloseArea())
     (dbName)->(dbCloseArea())
     select (tmp_select)
@@ -150,25 +148,26 @@ Function viewF003()
 * 19.01.21
 Function controlF003(nkey,oBrow)
     Local ret := -1, cCode, rec
-    if nKey == K_F3
-      ret := 1
-      fl_other_region := .t.
-    elseif nKey == K_SPACE
-        fl_space := .t.
-        ret := 1
-    endif
+    // if nKey == K_F3
+    //   ret := 1
+    //   fl_other_region := .t.
+    // elseif nKey == K_SPACE
+    //     fl_space := .t.
+    //     ret := 1
+    // endif
     return ret
     
-***** 16.01.21
+***** 18.06.21
 Function ColumnF003(oBrow)
     Local oColumn
     oColumn := TBColumnNew(center("Наименование",50), {|| left((tmpAlias)->NAMEMOK,50) })
     oBrow:addColumn(oColumn)
-    if nRegion == 34
-        status_key('^<Esc>^ - выход; ^<Enter>^ - выбор; ^<Пробел>^ - очистка поля; ^<F3>^ - все МО')
-    else
-        status_key('^<Esc>^ - выход; ^<Enter>^ - выбор; ^<Пробел>^ - очистка поля; ^<F3>^ - областные МО')
-    endif
+    // if nRegion == 34
+    //     status_key('^<Esc>^ - выход; ^<Enter>^ - выбор; ^<Пробел>^ - очистка поля; ^<F3>^ - все МО')
+    // else
+    //     status_key('^<Esc>^ - выход; ^<Enter>^ - выбор; ^<Пробел>^ - очистка поля; ^<F3>^ - областные МО')
+    // endif
+    status_key('^<Esc>^ - выход; ^<Enter>^ - выбор')
 return nil
 
 ***** 21.01.21
@@ -249,4 +248,3 @@ Function getF003mo(mCode)
     endif
     Select(tmp_select)
     return arr
-

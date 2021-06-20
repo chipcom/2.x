@@ -149,7 +149,8 @@ Function f3get_mo(nkey,oBrow)
     endif
   elseif nKey == K_F3 .and. glob_task != X_263 .and. muslovie == NIL .and. ppar == 1
 
-    // viewF003()
+//     rrr := viewF003()
+// alert(rrr[2],'rrr[2]')
 
     ret := 1
     p_mo := 1
