@@ -1463,7 +1463,7 @@ return NIL
 ***** 20.06.21
 Function f2_inf_DDS_svod2(Loc_kod,kod_kartotek)
 Local i, j, k, is_selo, ad := {}, ar := {1}, ar1 := {},;
-      ar2 := array(len(arr_deti[1])) 
+      ar2 := array(len(arr_deti[1]))
 if mvozrast < 15
   aadd(ar,2)
 else
@@ -6658,7 +6658,7 @@ endif
 //
 //aadd(arr,{"12.4.1",m1FIZ_RAZV1})  // "N",физическое развитие 0-нормальное, с отклонениями: 1-дефицит массы тела, 2-избыток массы тела, 3-низкий рост, 4-высокий рост
 if m1fiz_razv1 == 1
-  if fl_ves 
+  if fl_ves
     arr[22] ++
   endif
 endif
@@ -8774,7 +8774,7 @@ Private c_view := 0, c_found := 0, fl_exit := .f., pj, arr_rees := {},;
 mywait()
 fl := .t.
 fl_1 := .f.
-SMONTH := lm := 6 //МЕСЯЦ
+SMONTH := lm := 7 //МЕСЯЦ
 dbcreate(cur_dir+"tmp_00",{;
    {"reestr",     "N", 6,0},;
    {"kod",        "N", 7,0},; // код по картотеке
@@ -8984,7 +8984,7 @@ if fl_1 // не первый раз
     enddo
   endif
 else // первый раз
-  select REES
+/*  select REES
   index on str(NMONTH,2)+str(nn,3) to (cur_dir+"tmp_dr01") for NYEAR == sgod .and. tip == 0
   find (str(lm,2))
   do while lm == rees->NMONTH .and. !eof()
@@ -9018,9 +9018,10 @@ else // первый раз
       select RHUM
       skip
     enddo
-  next
+  next */
+
   //
-/*  select REES
+  select REES
   index on str(NMONTH,2)+str(nn,3) to (cur_dir+"tmp_dr01") for NYEAR == sgod .and. tip == 0
   find (str(lm,2))
   do while lm == rees->NMONTH .and. !eof()
@@ -9050,8 +9051,9 @@ else // первый раз
       select RHUM
       skip
     enddo
-  next*/
+  next
 endif
+
 close databases
 if fl
   f1_create_R11(lm,fl_1)
@@ -9088,9 +9090,9 @@ if !emptyany(kart->kod,kart->fio,kart->date_r) // данную запись в картотеке неда
 endif
 return {ltip,ltip1,lvoz}
 
-***** 03.09.20
+***** 20.06.21
 Function f1_create_R11(lm,fl_dr00)
-Local nsh := 3, smsg, lnn := 0
+Local nsh := 3, smsg, lnn := 0 ,buf := save_maxrow()
 if !f_Esc_Enter("создания файла R11",.t.)
   return NIL
 endif
