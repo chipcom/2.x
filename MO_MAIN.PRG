@@ -10,9 +10,9 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-Static _version := {2, 11, 22, 'd'}
-Static _date_version := '21.06.21г.'
-Static __s_full_name := 'ЧИП + Учёт работы Медицинской Организации'
+// Static _version := {2, 11, 22, 'd'}
+// Static _date_version := '21.06.21г.'
+// Static __s_full_name := 'ЧИП + Учёт работы Медицинской Организации'
 
 external ust_printer, ErrorSys, ReadModal, like, flstr, prover_dbf, net_monitor, pr_view, ne_real
 // старые (редко используемые) отчёты запускаем из hrb-файлов (для уменьшения задачи)
@@ -32,6 +32,10 @@ procedure main( ... )
   Local r, s, is_create := .f., is_copy := .f., is_index := .f.
   Local a_parol, buf, is_cur_dir
 
+  public _version := {2, 11, 22, 'd'}
+  public _date_version := '21.06.21г.'
+  public __s_full_name := 'ЧИП + Учёт работы Медицинской Организации'
+  
   FOR EACH s IN hb_AParams() // анализ входных параметров
     s := lower(s)
     DO CASE
