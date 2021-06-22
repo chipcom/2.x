@@ -113,6 +113,11 @@ Function viewF003()
     (tmpAlias)->(dbGoTop())
     if fl := Alpha_Browse(oBox:Top+1,oBox:Left+1,oBox:Bottom-5,oBox:Right-1,"ColumnF003",color0,,,,,,"ViewRecordF003","controlF003",,{"═","░","═","N/BG,W+/N,B/BG,BG+/B"} )
       // TODO: сделать проверку уже выбранного
+      // alert((tmpAlias)->MCOD,'(tmpAlias)->MCOD')
+      // ifi := hb_ascan(glob_arr_mo,{|x| alltrim(x[1]) == alltrim((tmpAlias)->MCOD) },,,.t.) //> 0
+      // alertx(ifi,'ifi')
+    //   endif
+
       if G_Use(dir_server + sbase, dir_server + sbase, sbase, , .t.,)
         (sbase)->(dbGoTop())
         do while ! (sbase)->(Eof())
