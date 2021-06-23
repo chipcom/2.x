@@ -38,7 +38,7 @@ Function involved_password(par,_n_reestr,smsg)
           endif
         next
       endif
-      s := charrem("0",s)+lstr(_version[1])+lstr(_version[2])+lstr(_version[3]*7,10,0)
+      s := charrem("0",s)+lstr(_version()[1])+lstr(_version()[2])+lstr(_version()[3]*7,10,0)
       do while len(s) > 7
         s := left(s,len(s)-1)
       enddo

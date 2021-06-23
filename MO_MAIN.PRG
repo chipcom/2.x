@@ -10,7 +10,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-// Static _version := {2, 11, 22, 'd'}
+// Static _version := {2, 11, 22, 'd+'}
 // Static _date_version := '21.06.21г.'
 // Static __s_full_name := 'ЧИП + Учёт работы Медицинской Организации'
 
@@ -24,17 +24,17 @@ DYNAMIC f1forma_792_MIAC
 DYNAMIC monitoring_vid_pom
 DYNAMIC b_25_perinat_2
 
-function __s_version()
-  return '  в. ' + fs_version(_version) + ' от ' + _date_version + ' тел.(8442)23-69-56'
+// function __s_version()
+//   return '  в. ' + fs_version(_version) + ' от ' + _date_version + ' тел.(8442)23-69-56'
 
 *****
 procedure main( ... )
   Local r, s, is_create := .f., is_copy := .f., is_index := .f.
   Local a_parol, buf, is_cur_dir
 
-  public _version := {2, 11, 22, 'd'}
-  public _date_version := '21.06.21г.'
-  public __s_full_name := 'ЧИП + Учёт работы Медицинской Организации'
+  // public _version := {2, 11, 22, 'd+'}
+  // public _date_version := '21.06.21г.'
+  // public __s_full_name := 'ЧИП + Учёт работы Медицинской Организации'
   
   FOR EACH s IN hb_AParams() // анализ входных параметров
     s := lower(s)
@@ -48,7 +48,7 @@ procedure main( ... )
     ENDCASE
   NEXT
   //
-  public Err_version := fs_version(_version)+" от "+_date_version  // 30.04.2021
+  public Err_version := fs_version(_version())+" от "+_date_version()  // 30.04.2021
   Public kod_VOUNC := '101004'
   Public kod_LIS   := {'125901','805965'}
   //
@@ -89,7 +89,7 @@ procedure main( ... )
   SET(_SET_DELETED, .T.)
   SETCLEARB(" ")
   is_cur_dir := f_first(is_create)
-  put_icon(__s_full_name + __s_version(), 'MAIN_ICON')
+  put_icon(__s_full_name() + __s_version(), 'MAIN_ICON')
   set key K_F1 to f_help()
   hard_err("create")
   FillScreen(p_char_screen,p_color_screen) //FillScreen("█","N+/N")
@@ -117,16 +117,16 @@ procedure main( ... )
   endif
   //
 
-  checkVersionInternet( r, _version )
+  checkVersionInternet( r, _version() )
 
   Public chm_help_code := 0
 
   Init_first() // начальная инициализация программы (переменных, массивов,...)
 
-  if ControlBases(1,_version) // если необходимо
+  if ControlBases(1, _version()) // если необходимо
     if G_SLock1Task(sem_task,sem_vagno)  // запрет доступа всем
       buf := savescreen()
-      f_message({"Переход на новую версию программы "+fs_version(_version)+' от '+_date_version},,,,8)
+      f_message({"Переход на новую версию программы "+fs_version(_version())+' от '+_date_version()},,,,8)
       // провести реконструкцию БД
       Reconstruct_DB(is_cur_dir,is_create)
       // провести реконструкцию БД учёта направлений на госпитализацию
@@ -143,7 +143,7 @@ procedure main( ... )
       G_SUnLock(sem_vagno)
       restscreen(buf)
     else
-      n_message({'Вы запустили новую версию задачи '+fs_version(_version)+' от '+_date_version,;
+      n_message({'Вы запустили новую версию задачи '+fs_version(_version())+' от '+_date_version(),;
                'Требуется реконструкция (и переиндексирование) базы данных.',;
                'Но в данный момент работают другие задачи.',;
                'Необходимо, чтобы все пользователи вышли из задач.'},;
@@ -256,7 +256,7 @@ Function f_main(r0,a_parol)
         main_center_screen(r0)
       endif
       change_sys_date() // перечитать системную дату
-      put_icon(__s_full_name + __s_version(), 'MAIN_ICON') // перевывести заголовок окна
+      put_icon(__s_full_name() + __s_version(), 'MAIN_ICON') // перевывести заголовок окна
       @ r0,0 say full_date(sys_date) color "W+/N" // перевывести дату
       @ r0,maxcol()-4 say hour_min(seconds()) color "W+/N" // перевывести время
     enddo

@@ -83,6 +83,7 @@ mo_vounc.prg
 .\263\mo_263p.prg
 .\263\mo_263s.prg
 Errorsys.prg
+mo_version.prg
 
 .\init\init_mo.prg
 .\init\reconstruct_DB.prg
