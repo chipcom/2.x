@@ -112,30 +112,30 @@ Function viewF003()
 
     (tmpAlias)->(dbGoTop())
     if fl := Alpha_Browse(oBox:Top+1,oBox:Left+1,oBox:Bottom-5,oBox:Right-1,"ColumnF003",color0,,,,,,"ViewRecordF003","controlF003",,{"═","░","═","N/BG,W+/N,B/BG,BG+/B"} )
-      // TODO: сделать проверку уже выбранного
-      // alert((tmpAlias)->MCOD,'(tmpAlias)->MCOD')
-      // ifi := hb_ascan(glob_arr_mo,{|x| alltrim(x[1]) == alltrim((tmpAlias)->MCOD) },,,.t.) //> 0
-      // alertx(ifi,'ifi')
-    //   endif
-
-      if G_Use(dir_server + sbase, dir_server + sbase, sbase, , .t.,)
-        (sbase)->(dbGoTop())
-        do while ! (sbase)->(Eof())
-          prev_codem := (sbase)->CODEM
-          (sbase)->(dbSkip())
-          cur_codem := (sbase)->CODEM
-          if (val(cur_codem) - val(prev_codem)) != 1
-            (sbase)->(dbappend())
-            (sbase)->MCOD := (tmpAlias)->MCOD
-            (sbase)->CODEM := str(val(prev_codem) + 1, 6)
-            (sbase)->NAMEF := (tmpAlias)->NAMEMOK
-            (sbase)->NAMES := (tmpAlias)->NAMEMOP
-            (sbase)->ADRES := (tmpAlias)->ADDRESS
-            (sbase)->DEND := hb_SToD('20251231')
-            exit
-          endif
-        enddo
-        (sbase)->(dbCloseArea())
+      // проверяем выбор
+      if (ifi := hb_ascan(glob_arr_mo,{|x| x[_MO_KOD_FFOMS] == (tmpAlias)->MCOD },,,.t.) ) > 0
+        // нашли в файле
+        alert('Медицинское учреждение уже добавлено в справочник!')
+      else
+        if G_Use(dir_server + sbase, dir_server + sbase, sbase, , .t.,)
+          (sbase)->(dbGoTop())
+          do while ! (sbase)->(Eof())
+            prev_codem := (sbase)->CODEM
+            (sbase)->(dbSkip())
+            cur_codem := (sbase)->CODEM
+            if (val(cur_codem) - val(prev_codem)) != 1
+              (sbase)->(dbappend())
+              (sbase)->MCOD := (tmpAlias)->MCOD
+              (sbase)->CODEM := str(val(prev_codem) + 1, 6)
+              (sbase)->NAMEF := (tmpAlias)->NAMEMOK
+              (sbase)->NAMES := (tmpAlias)->NAMEMOP
+              (sbase)->ADRES := (tmpAlias)->ADDRESS
+              (sbase)->DEND := hb_SToD('20251231')
+              exit
+            endif
+          enddo
+          (sbase)->(dbCloseArea())
+        endif
       endif
         
       retMCOD := { (tmpAlias)->MCOD, AllTrim((tmpAlias)->NAMEMOK) }
