@@ -24,18 +24,11 @@ DYNAMIC f1forma_792_MIAC
 DYNAMIC monitoring_vid_pom
 DYNAMIC b_25_perinat_2
 
-// function __s_version()
-//   return '  в. ' + fs_version(_version) + ' от ' + _date_version + ' тел.(8442)23-69-56'
-
 *****
 procedure main( ... )
   Local r, s, is_create := .f., is_copy := .f., is_index := .f.
   Local a_parol, buf, is_cur_dir
 
-  // public _version := {2, 11, 22, 'd+'}
-  // public _date_version := '21.06.21г.'
-  // public __s_full_name := 'ЧИП + Учёт работы Медицинской Организации'
-  
   FOR EACH s IN hb_AParams() // анализ входных параметров
     s := lower(s)
     DO CASE
@@ -48,7 +41,7 @@ procedure main( ... )
     ENDCASE
   NEXT
   //
-  public Err_version := fs_version(_version())+" от "+_date_version()  // 30.04.2021
+  public Err_version := fs_version(_version())+" от "+_date_version()
   Public kod_VOUNC := '101004'
   Public kod_LIS   := {'125901','805965'}
   //
