@@ -48,13 +48,9 @@ Function viewF003()
     aStruct := (dbName)->(dbStruct())
     (dbName)->(dbCreateIndex( indexName, "substr(MCOD,1,2)", , NIL ))
 
-    // nTop := 4
-    // nLeft := 40 - l / 2
-    // nBottom := 9
-    // nRight := 40 + l / 2 + 1
     nTop := 4
     nLeft := 3
-    nBottom := 20
+    nBottom := 23
     nRight := 77
 
     // окно выбора региона
@@ -138,7 +134,8 @@ Function viewF003()
         endif
       endif
         
-      retMCOD := { (tmpAlias)->MCOD, AllTrim((tmpAlias)->NAMEMOK) }
+      // retMCOD := { (tmpAlias)->MCOD, AllTrim((tmpAlias)->NAMEMOK) }
+      retMCOD := { str(val(prev_codem) + 1, 6), AllTrim((tmpAlias)->NAMEMOK) }
     endif
     selectedRegion := ''
 

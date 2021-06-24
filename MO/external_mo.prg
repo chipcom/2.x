@@ -33,7 +33,7 @@ Function f_get_mo(k,r,c,lusl,lpar)
   else
     r2 := maxrow()-2
   endif
-  Private p_mo, lmo3 := 1, pkodN := skodN, _fl_space
+  Private p_mo, lmo3 := 1, pkodN := skodN, _fl_space, _fl_add_mo
   if valtype(k) == "C" .and. !empty(k)
     pkodN := k
     if ascan(arr_mo3,k) == 0
@@ -97,11 +97,16 @@ Function f_get_mo(k,r,c,lusl,lpar)
     endif
 
     p_mo := 0
-    _fl_space = .f.
+    _fl_space := .f.
+    _fl_add_mo := .f.
     if Alpha_Browse(r1,2,r2,77,"f2get_mo",lcolor,,,,,,,"f3get_mo")
       if _fl_space
         skodN := rg->kodN
         ret := { "", space(10) }
+        exit
+      elseif _fl_add_mo
+        skodN := rg->kodN
+        ret := { rg->kodN, alltrim(rg->name) }
         exit
       elseif p_mo == 0
         skodN := rg->kodN
@@ -132,6 +137,8 @@ Function f2get_mo(oBrow)
 ***** 13.10.20
 Function f3get_mo(nkey,oBrow)
   Local ret := -1, cCode, rec
+  local aRet
+
   if nKey == K_F2 .and. lmo3 == 0
     if (cCode := input_value(18,2,20,77,color1,;
                              "Введите код МО или обособленного подразделения, присвоенный ТФОМС",;
@@ -149,8 +156,15 @@ Function f3get_mo(nkey,oBrow)
     endif
   elseif nKey == K_F3 .and. glob_task != X_263 .and. muslovie == NIL .and. ppar == 1
 
-    // rrr := viewF003()
-    // alert(rrr[2],'rrr[2]')
+    // aRet := viewF003()
+    // if ! empty(aRet[1])
+    //   _fl_add_mo := .t.
+    //   RG->(dbAppend())  // blank
+    //   rg->kodN := aRet[1]
+    //   rg->name := aRet[2]
+    //   rg->mo3 := 0
+    //   glob_arr_mo := getMo_mo_New('_mo_mo', .t.)
+    // endif
 
     ret := 1
     p_mo := 1
