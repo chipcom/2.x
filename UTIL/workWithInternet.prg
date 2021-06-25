@@ -25,7 +25,7 @@ function checkVersionInternet( row, oldVersion )
     if ControlVersion( aVersion, oldVersion )
       AAdd(arr, 'Доступна новая версия программы:')
       AAdd(arr, 'текущая версия: ' + fs_version( oldVersion ) )
-      AAdd(arr, 'новая версия: ' + fs_version( aVersion ) )
+      AAdd(arr, 'новая версия:   ' + fs_version( aVersion ) )
 
       max := maxLenStringInArray(arr)
       nLeft := 40 - (max / 2) - 2

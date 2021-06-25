@@ -110,7 +110,7 @@ procedure main( ... )
   endif
   //
 
-  checkVersionInternet( r, _version() )
+  checkVersionInternet( r + 3, _version() )
 
   Public chm_help_code := 0
 
