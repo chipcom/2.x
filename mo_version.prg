@@ -1,9 +1,10 @@
+#include 'ver_date.ch'
 #include 'set.ch'
 #include 'function.ch'
 #include 'chip_mo.ch'
 
 static st_version := {2, 11, 22, 'e'}
-static st_date_version := '24.06.21г.'
+static st_date_version := _DATA_VER   // '24.06.21г.'
 static st__s_full_name := 'ЧИП + Учёт работы Медицинской Организации'
 
 ***** 24.06.21 возврат номера версии

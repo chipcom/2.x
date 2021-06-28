@@ -1,0 +1,1 @@
+#DEFINE _DATA_VER + "24.06.2021" 
