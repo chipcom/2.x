@@ -12,28 +12,48 @@ Static mas1pmt := {"~все оказанные случаи",;
 
 
 
-***** 08.03.21 вернуть план диспансеризации на год из R01 для формы 131
+***** 28.06.21 вернуть план диспансеризации на год из R01 для формы 131
 Function ret_plan_disp_131_N(d)
-Local arr[2,7], ar, s, s1, fl, sgod := year(d), v, i, j, group_ini := "DISP_PLAN_131"
+Local arr[4,7], ar, s, s1, fl, sgod := year(d), v, i, j, group_ini := "DISP_PLAN_131",;
+      max_mes_R11 := 4, kol_DISP := 0, kol_PROF :=0, kol_1DISP := 0, kol_1PROF := 0
 afillall(arr,0)
+R_Use(dir_server+"mo_dr05p",,"R05")
+go bottom
+kol_DISP := r05->kol1
+kol_PROF := r05->kol2
+//
 R_Use(dir_server+"kartotek",,"KART")
 R_Use(dir_server+"mo_dr01",,"RR")
 R_Use(dir_server+"mo_dr01k",,"R01")
 set relation to reestr into RR
 index on str(kod_k,7) to (cur_dir+"tmp_r01") ;
-      for kod_k > 0 .and. oplata == 1 .and. tip == 1
+      for kod_k > 0 .and. oplata == 1 //.and. tip == 1
 // oplata == 1  - принято
 // tip == 1 - диспансеризация  2 - проф
-// rr->tip == 0 - 0-R01
+// rr->tip == 0 - 0-R01   1-R11   //
+// выясняем - максимальный месяц по пакетам R11
+select RR
+go top
+do while !eof()
+  if (max_mes_R11 < rr->Nmonth .and. rr->tip == 1)
+    max_mes_R11 := rr->Nmonth
+  endif
+  skip
+enddo
+// выбираем диспансеризацию
+select R01
 go top
 do while !eof()
   fl := .f.
-  //if r01->n_m < 4
-    if r01->n_m != 3 .and. rr->tip == 0
+  if R01->tip == 1 // диспансеризация
+    if r01->n_m == 3 .and. rr->tip == 1
       fl := .t.
-    //elseif r01->n_m == 3 .and. rr->tip == 1
-    //  fl := .t.
-
+    elseif r01->n_m == 1 .and. rr->tip == 0
+      fl := .t.
+    elseif r01->n_m > max_mes_R11 .and. rr->tip == 0
+      fl := .t.
+    elseif r01->n_m <= max_mes_R11 .and. rr->tip == 1
+      fl := .t.
     endif
     if fl
       select KART
@@ -56,15 +76,53 @@ do while !eof()
          j := 7
       endif
       arr[i,j] ++
+      kol_1DISP ++
     endif
-  //endif
+  endif
   select R01
   skip
 enddo
+// фигня
+if kol_DISP > kol_1DISP
+  t_vrem := kol_DISP - kol_1DISP
+  arr[2,3] += t_vrem
+endif
+//выбираем профосмотр
+go top
+do while !eof()
+  fl := .f.
+  if R01->tip == 2 // проф
+    if r01->n_m != 3 .and. rr->tip == 0
+      fl := .t.
+    elseif r01->n_m == 3 .and. rr->tip == 1
+      fl := .t.
+    endif
+    if fl
+      select KART
+      goto (r01->kod_k)
+      v := sgod - year(kart->date_r)
+      i := iif(kart->pol == "М", 3, 4)
+      if v < 34
+         j := 1
+      elseif v <= 39
+         j := 2
+      endif
+      arr[i,j] ++
+      kol_1PROF ++
+    endif
+  endif
+  select R01
+  skip
+enddo
+// фигня
+if kol_PROF > kol_1PROF
+  t_vrem := kol_PROF - kol_1PROF
+  arr[4,2] += t_vrem
+endif
 close databases
 return arr
 
-***** 30.05.21 форма 131
+***** 28.06.21 форма 131
 Function forma_131(par)
 Static arr_v := {"18-34","35-39","40-54","55-59","60-64",;
                  "65-74","75 и старше"}
@@ -185,8 +243,8 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
       {13,"Отягощенная наследственность по ЗНО по другим локализациям","m1ot_nasl1==1"},;
       {14,"Отягощенная наследственность по ХБ нижних дыхательных путей","m1ot_nasl3==1"},;
       {15,"Отягощенная наследственность по сахарному диабету","m1ot_nasl4==1"},;
-      {16,"Высокий или очень высокий абс.суммарный сердечно-сосудистый риск","10<=mssr"},;
-      {17,"Высокий (более 1 ед.) относительный сердечно-сосудистый риск","1<=mssr .and. mssr<10"},;
+      {16,"Высокий или очень высокий абс.суммарный сердечно-сосудистый риск","5<=mssr .and. 40 <= mdvozrast .and. mdvozrast <= 64"},;
+      {17,"Высокий (более 1 ед.) относительный сердечно-сосудистый риск","1<=mssr .and. mdvozrast <= 39"},;
       {18,"Старческая астения","m1fiz_akt==100"};
      }
      // { 1,"Повышенный уровень артериального давления","mad1>140.and.mad2>90"},;
@@ -202,6 +260,14 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
                                 {"v36","N",8,0},;
                                 {"v39","N",8,0},;
                                 {"vvv","N",8,0}})
+    dbcreate(cur_dir+"tmp4001",{{"m36","N",8,0},;
+                                {"m39","N",8,0},;
+                                {"g36","N",8,0},;
+                                {"g39","N",8,0}})
+    use (cur_dir+"tmp4001") new alias TMP
+    append blank
+    append blank
+    use
     use (cur_dir+"tmp4000") new alias TMP
     for n := 1 to len(arr_4000)
       append blank
@@ -215,73 +281,74 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
       { 7,"1","Некоторые инфекционные и паразитарные болезни","A00-B99"},;
       { 8,"1.1","в т.ч. туберкулез","A15-A19"},;
       { 9,"2","Новообразования","C00-D48"},;
-      {10,"2","злокачественные новообразования","C00-C97"},;
-      {11,"2.1","Из них губы, полости рта и глотки","C00-C14"},;
-      {12,"2.2"," из них в 1-2 стадии","C00-C14","1"},;
-      {11,"2.3","в т.ч. пищевода","C15"},;
-      {12,"2.4"," из них в 1-2 стадии","C15","1"},;
-      {13,"2.5","желудка","C16"},;
-      {14,"2.6"," из них в 1-2 стадии","C16","1"},;
-      {15,"2.7","тонкого кишечника","C17"},;
-      {16,"2.8"," из них в 1-2 стадии","C17","1"},;
-      {15,"2.9","ободочной кишки","C18"},;
-      {16,"2.10"," из них в 1-2 стадии","C18","1"},;
-      {17,"2.11","ректосигмоидного соединения.","C19-C21"},;
-      {18,"2.12"," из них в 1-2 стадии","C19-C21","1"},;
-      {21,"2.13","трахеи, бронхов и легкого","C33,C34"},;
-      {22,"2.14"," из них в 1-2 стадии","C33,C34","1"},;
-      {21,"2.15","кожи","C43,C44"},;
-      {22,"2.16"," из них в 1-2 стадии","C43,C44","1"},;
-      {23,"2.17","молочной железы","C50"},;
-      {24,"2.18"," из них в 0-1 стадии","C50","1"},;
-      {24,"2.19"," из них в 2 стадии","C50","2"},;
-      {25,"2.20","шейки матки","C53"},;
-      {26,"2.21"," из них в 0-1 стадии","C53","1"},;
-      {26,"2.21"," из них в 2 стадии","C53","2"},;
-      {31,"2.23","предстательной железы","C61"},;
-      {32,"2.24"," из них в 1-2 стадии","C61","1"},;
-      {35,"3","Болезни крови, кроветворных...","D50-D89"},;
-      {36,"3.1","в т.ч. анемии","D50-D64"},;
-      {37,"4","Болезни эндокринной системы...","E00-E90"},;
-      {38,"4","в т.ч. сахарный диабет","E10-E14"},;
-      {39,"4.1","инсулинозависимый сахарный диабет","E11"},;
-      {39,"4.2","ожирение","E66"},;
-      {40,"4.3","липидемии","E78"},;
-      {41,"5","Болезни нервной системы","G00-G99"},;
-      {42,"5.1","в т.ч. преходящие транзиторные","G45"},;
-      {43,"6","Болезни глаза и его придаточного аппарата","H00-H59"},;
-      {44,"6.1","в т.ч. катаракта","H25,H26"},;
-      {45,"6.2","глаукома","H40"},;
-      {46,"6.3","слепота и пониженное зрение","H54"},;
-      {47,"7","Болезни системы кровообращения","I00-I99"},;
-      {48,"7.1","в т.ч. болезни, характ","I10-I13"},;
-      {49,"7.2","ишемическая болезнь сердца","I20-I25"},;
-      {50,"7.2.1","в т.ч. стенокардия","I20"},;
-      {51,"7.2.2","в т.ч. нестабильная стенокардия","I20.0"},;
-      {52,"7.2.3","хроническая ишемическая болезнь сердца","I25"},;
-      {53,"7.2.4","в т.ч. инфаркт миокарда","I25.2"},;
-      {54,"7.3","другие болезни сердца","I30-I52"},;
-      {55,"7.4","цереброваскулярные болезни","I60-I69"},;
-      {56,"7.4.1","в т.ч. закупорка и стеноз","I65,I66"},;
-      {57,"7.4.2","другие цереброваскулярные болезни","I67"},;
-      {59,"7.4.4","аневризма брюшной аорты","I71.3-I71.4"},;
-      {60,"8","Болезни органов дыхания","J00-J98"},;
-      {61,"8.1","в т.ч. пневмония","J12-J18"},;
-      {62,"8.2","бронхит хронический и неуточненный, эмфизема","J40-J43"},;
-      {63,"8.3","другая хроническая обструктивная легочная болезнь","J44-J47"},;
-      {64,"9","Болезни органов пищеварения","K00-K93"},;
-      {65,"9.1","в т.ч. язва желудка, двен","K25,K26"},;
-      {66,"9.2","гастрит и дуоденит","K29"},;
-      {67,"9.3","неинфекционный энтерит и колит","K50-K52"},;
-      {68,"9.4","другие болезни кишечника","K55-K63"},;
-      {69,"10","Болезни мочеполовой системы","N00-N99"},;
-      {70,"10.1","в т.ч. болезни предстательной железы","N40-N42"},;
-      {71,"10.2","доброкачественная дисплазия молочной железы","N60"},;
-      {72,"10.3","воспалительные болезни женских тазовых органов","N70-N77"},;
-      {72,"11.1","Боллезни уха и сосцовидного отростка","H60-H95"},;
-      {72,"8","кондуктивная и нейросенсорная потеря слуха","H90"},;
-      {72,"11.2","Болезни кожи и подкожной клетчатки","L00-L98"},;
-      {72,"11.3","Болезни костно-мышечной системы","M00-M99"},;
+      {10,"2.1","злокачественные новообразования","C00-C97"},;
+      {11,"2.2","Из них губы, полости рта и глотки","C00-C14"},;
+      {12,"2.3"," из них в 1-2 стадии","C00-C14","1"},;
+      {13,"2.4","в т.ч. пищевода","C15"},;
+      {14,"2.5"," из них в 1-2 стадии","C15","1"},;
+      {15,"2.6","желудка","C16"},;
+      {16,"2.7"," из них в 1-2 стадии","C16","1"},;
+      {17,"2.8","тонкого кишечника","C17"},;
+      {18,"2.9"," из них в 1-2 стадии","C17","1"},;
+      {19,"2.10","ободочной кишки","C18"},;
+      {21,"2.11"," из них в 1-2 стадии","C18","1"},;
+      {22,"2.12","ректосигмоидного соединения.","C19-C21"},;
+      {23,"2.13"," из них в 1-2 стадии","C19-C21","1"},;
+      {24,"2.14","трахеи, бронхов и легкого","C33,C34"},;
+      {25,"2.15"," из них в 1-2 стадии","C33,C34","1"},;
+      {26,"2.16","кожи","C43,C44"},;
+      {27,"2.17"," из них в 1-2 стадии","C43,C44","1"},;
+      {28,"2.18","молочной железы","C50"},;
+      {29,"2.19"," из них в 0-1 стадии","C50","1"},;
+      {30,"2.20"," из них в 2 стадии","C50","2"},;
+      {31,"2.21","шейки матки","C53"},;
+      {32,"2.22"," из них в 0-1 стадии","C53","1"},;
+      {33,"2.23"," из них в 2 стадии","C53","2"},;
+      {34,"2.24","предстательной железы","C61"},;
+      {35,"2.25"," из них в 1-2 стадии","C61","1"},;
+      {36,"3","Болезни крови, кроветворных...","D50-D89"},;
+      {37,"3.1","в т.ч. анемии","D50-D64"},;
+      {38,"4","Болезни эндокринной системы...","E00-E90"},;
+      {39,"4.1","в т.ч. сахарный диабет","E10-E14"},;
+      {40,"4.2","инсулинозависимый сахарный диабет","E11"},;
+      {41,"4.3","ожирение","E66"},;
+      {42,"4.4","липидемии","E78"},;
+      {43,"5","Болезни нервной системы","G00-G99"},;
+      {44,"5.1","в т.ч. преходящие транзиторные","G45"},;
+      {45,"6","Болезни глаза и его придаточного аппарата","H00-H59"},;
+      {46,"6.1","в т.ч. катаракта","H25,H26"},;
+      {47,"6.2","глаукома","H40"},;
+      {48,"6.3","слепота и пониженное зрение","H54"},;
+      {49,"7","Болезни системы кровообращения","I00-I99"},;
+      {50,"7.1","в т.ч. болезни, характ","I10-I13"},;
+      {51,"7.2","ишемическая болезнь сердца","I20-I25"},;
+      {52,"7.2.1","в т.ч. стенокардия","I20"},;
+      {53,"7.2.2","в т.ч. нестабильная стенокардия","I20.0"},;
+      {54,"7.3","хроническая ишемическая болезнь сердца","I25"},;
+      {55,"7.3.1","в т.ч. инфаркт миокарда","I25.2"},;
+      {56,"7.4","другие болезни сердца","I30-I52"},;
+      {57,"7.5","цереброваскулярные болезни","I60-I69"},;
+      {58,"7.5.1","в т.ч. закупорка и стеноз","I65,I66"},;
+      {59,"7.5.2","другие цереброваскулярные болезни","I67"},;
+      {60,"7.6","аневризма брюшной аорты","I71.3-I71.4"},;
+      {61,"8","Болезни органов дыхания","J00-J98"},;
+      {62,"8.1","в т.ч. пневмония","J12-J18"},;
+      {63,"8.2","бронхит хронический и неуточненный, эмфизема","J40-J43"},;
+      {64,"8.3","другая хроническая обструктивная легочная болезнь","J44-J47"},;
+      {65,"9","Болезни органов пищеварения","K00-K93"},;
+      {66,"9.1","в т.ч. язва желудка, двен","K25,K26"},;
+      {67,"9.2","гастрит и дуоденит","K29"},;
+      {68,"9.3","неинфекционный энтерит и колит","K50-K52"},;
+      {69,"9.4","другие болезни кишечника","K55-K63"},;
+      {70,"10","Прочие заболевания",""},;
+      {71,"10.1","Болезни мочеполовой системы","N00-N99"},;
+      {72,"10.1.1","в т.ч. болезни предстательной железы","N40-N42"},;
+      {73,"10.1.2","доброкачественная дисплазия молочной железы","N60"},;
+      {74,"10.1.3","воспалительные болезни женских тазовых органов","N70-N77"},;
+      {75,"11","Боллезни уха и сосцовидного отростка","H60-H95"},;
+      {76,"11.1","кондуктивная и нейросенсорная потеря слуха","H90"},;
+      {77,"12","Болезни кожи и подкожной клетчатки","L00-L98"},;
+      {78,"13","Болезни костно-мышечной системы","M00-M99"},;
       { 0,"  ","ИТОГО",""};
      }
     Private len5000 := len(arr_5000)
@@ -415,6 +482,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
     use (cur_dir+"tmp2000") index (cur_dir+"tmp2000") new
     use (cur_dir+"tmp3000") index (cur_dir+"tmp3000") new
     use (cur_dir+"tmp4000") index (cur_dir+"tmp4000") new
+    use (cur_dir+"tmp4001") new
     use (cur_dir+"tmp5000") index (cur_dir+"tmp5000") new
     use (cur_dir+"tmp5001") index (cur_dir+"tmp5001") new
     use (cur_dir+"tmp7000") index (cur_dir+"tmp7000") new
@@ -495,12 +563,18 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
       aadd(ar, {9+i,14,tmp->vg1})
       aadd(ar, {9+i,15,tmp->vg2})
       s := arr_v[i]
-      add_string(padr(s,17)+put_val(tmp->vm1+tmp->vg1,6)+put_val(tmp->vm2+tmp->vg2,6)+;
-                            put_val(tmp->vm_1+tmp->vg_1,7)+put_val(tmp->vm_2+tmp->vg_2,8)+;
-                            put_val(tmp->vm1,6)+put_val(tmp->vm2,6)+;
-                            put_val(tmp->vm_1,7)+put_val(tmp->vm_2,8)+;
-                            put_val(tmp->vg1,6)+put_val(tmp->vg2,6)+;
-                            put_val(tmp->vg_1,7)+put_val(tmp->vg_2,8))
+      add_string(padr(s,17)+put_val(tmp->vm1+tmp->vg1,6)+;    //ВСЕГО ПМО
+                            put_val(tmp->vm2+tmp->vg2,6)+;    //ВСЕГО ДОГВН
+                            put_val(tmp->vm_1+tmp->vg_1,7)+;  //ВСЕГО 1
+                            put_val(tmp->vm_2+tmp->vg_2,8)+;  //ВСЕГО 2
+                            put_val(tmp->vm1,6)+;             //М  ПМО
+                            put_val(tmp->vm2,6)+;             //М  ДОГВН
+                            put_val(tmp->vm_1,7)+;            //М  1
+                            put_val(tmp->vm_2,8)+;            //М  2
+                            put_val(tmp->vg1,6)+;             //Ж  ПМО
+                            put_val(tmp->vg2,6)+;             //Ж  ДОГВН
+                            put_val(tmp->vg_1,7)+;            //Ж  1
+                            put_val(tmp->vg_2,8))             //Ж  2
       sm1 += tmp->vm1
       sg1 += tmp->vg1
       sm2 += tmp->vm2
@@ -515,35 +589,44 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
     add_string(padl("ИТОГО:",17)+put_val(sm1+sg1,6)+put_val(sm2+sg2,6)+;
                                  put_val(sm_1+sg_1,7)+put_val(sm_2+sg_2,8)+;
                                  put_val(sm1,6)+put_val(sm2,6)+;
-                                 put_val(sm1,7)+put_val(sm2,8)+;
+                                 put_val(sm_1,7)+put_val(sm_2,8)+;
                                  put_val(sg1,6)+put_val(sg2,6)+;
-                                 put_val(sg1,7)+put_val(sg2,8))
+                                 put_val(sg_1,7)+put_val(sg_2,8))
     //
     add_string("")
     add_string("Таблица 1000 план")
-    add_string("─────────────────┬───────┬───────┬───────")
-    add_string("                 │ Всего │Мужчины│Женщины")
-    add_string("Возрастная группа├───────┼───────┼───────")
-    add_string("                 │ ПЛАН  │ ПЛАН  │ ПЛАН  ")
-    add_string("─────────────────┴───────┴───────┴───────")
-    sm_1 := sg_1 := 0
-
+    add_string("─────────────────┬───────────────────────┬───────────────────────")
+    add_string("                 │   Диспансеризация     │      Профосмотры      ")
+    add_string("                 ├───────┬───────┬───────┼───────┬───────┬───────")
+    add_string("Возрастная группа│ Всего │Мужчины│Женщины│ Всего │Мужчины│Женщины")
+    add_string("                 ├───────┼───────┼───────┼───────┼───────┼───────")
+    add_string("                 │ ПЛАН  │ ПЛАН  │ ПЛАН  │ ПЛАН  │ ПЛАН  │ ПЛАН  ")
+    add_string("─────────────────┴───────┴───────┴───────┴───────┴───────┴───────")
+    sm_1 := sg_1 := sm_2 := sg_2 :=0
     go top
     do while !eof()
       i := recno()
       s := arr_v[i]
       add_string(padr(s,17)+put_val(arr_plan_god[1,i]+arr_plan_god[2,i],8)+;
                             put_val(arr_plan_god[1,i],8)+;
-                            put_val(arr_plan_god[2,i],8))
+                            put_val(arr_plan_god[2,i],8)+;
+                            put_val(arr_plan_god[3,i]+arr_plan_god[4,i],8)+;
+                            put_val(arr_plan_god[3,i],8)+;
+                            put_val(arr_plan_god[4,i],8))
       sm_1 += arr_plan_god[1,i]
       sg_1 += arr_plan_god[2,i]
+      sm_2 += arr_plan_god[3,i]
+      sg_2 += arr_plan_god[4,i]
       skip
     enddo
     use
-    add_string(replicate("─",40))
+    add_string(replicate("─",64))
     add_string(padl("ИТОГО:",17)+put_val(sm_1+sg_1,8)+;
                                  put_val(sm_1,8)+;
-                                 put_val(sg_1,8))
+                                 put_val(sg_1,8)+;
+                                 put_val(sm_2+sg_2,8)+;
+                                 put_val(sm_2,8)+;
+                                 put_val(sg_2,8))
     //
     aadd(arr_excel, {"1000, 1001",aclone(ar)})
     //
@@ -668,6 +751,31 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
       skip
     enddo
     use
+    use (cur_dir+"tmp4001") new alias TMP
+    add_string(replicate("─",95))
+    go top
+    add_string(padr("Диспансеризация Жители",40)+space(3)+;
+                 put_val(tmp->m36+tmp->m39,6)+;
+                 put_val(tmp->m36,6)+;
+                 put_val(tmp->m39,6)+;
+                 put_val(tmp->g36+tmp->g39,6)+;
+                 put_val(tmp->g36,6)+;
+                 put_val(tmp->g39,6)+;
+                 put_val(tmp->m36+tmp->m39+tmp->g36+tmp->g39,6)+;
+                 put_val(tmp->m36+tmp->g36,6)+;
+                 put_val(tmp->m39+tmp->g39,6))
+    skip
+    add_string(padr("Профосмотры Жители",40)+space(3)+;
+                 put_val(tmp->m36+tmp->m39,6)+;
+                 put_val(tmp->m36,6)+;
+                 put_val(tmp->m39,6)+;
+                 put_val(tmp->g36+tmp->g39,6)+;
+                 put_val(tmp->g36,6)+;
+                 put_val(tmp->g39,6)+;
+                 put_val(tmp->m36+tmp->m39+tmp->g36+tmp->g39,6)+;
+                 put_val(tmp->m36+tmp->g36,6)+;
+                 put_val(tmp->m39+tmp->g39,6))
+    use
    // aadd(ar, {20, 9,v4001_1}) // уст.дисп.набл.врачом кабинета мед.профилактики
    // aadd(ar, {21, 9,v4001_2}) // уст.дисп.набл.врачом центра здоровья
    // aadd(ar, {22,14,v4002_1}) // направлено к писихиатру (алкоголь)
@@ -676,7 +784,6 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
     verify_FF(HH-40, .t., sh)
     add_string(center("Заболевания, выявленные при проведении профилактического медицинского осмотра ",sh))
     add_string(center("(диспансеризации), установление диспансерного наблюдения ",sh))
-    add_string("")
     add_string("Таблица 5000 ДВН")
     add_string("───────────────────────┬──────┬───────┬───────────────────────┬───────────────────────────────────")
     add_string("                       │  №№  │ Код по│  Выявлено заболеваний │       Впервые в жизни             ")
@@ -714,14 +821,17 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
         endif
         */
       else
-        add_string(replicate("─",80))
+        add_string(replicate("─",98))
       endif
-      add_string(padr(tmp->name,23)+padc(tmp->stroke,8)+padc(alltrim(tmp->diagnoz),7)+;
+      verify_FF(HH-1, .t., sh)
+      add_string(padr(tmp->name,23)+padc(tmp->stroke,8)+;
+                 padc(alltrim(tmp->diagnoz),7)+;
+                 put_val((tmp->vtr+tmp->vsttr),6)+;
                  put_val((tmp->dispans0+tmp->vg11+tmp->vg13),6)+;
-                 put_val(tmp->dispans0,6)+;
                  put_val(tmp->vtr,6)+;
                  put_val(tmp->vsttr,6)+;
                  put_val((tmp->vg10+tmp->vg12),6)+;
+                 put_val((tmp->vg11+tmp->vg13),6)+;
                  put_val(tmp->vg10,6)+;
                  put_val(tmp->vg11,6)+;
                  put_val(tmp->vg12,6)+;
@@ -735,7 +845,6 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
     verify_FF(HH-40, .t., sh)
     add_string(center("Заболевания, выявленные при проведении профилактического медицинского осмотра ",sh))
     add_string(center("(диспансеризации), установление диспансерного наблюдения ",sh))
-    add_string("")
     add_string("Таблица 5000 ПО")
     add_string("───────────────────────┬──────┬───────┬───────────────────────┬───────────────────────────────────")
     add_string("                       │  №№  │ Код по│  Выявлено заболеваний │       Впервые в жизни             ")
@@ -775,14 +884,16 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
         endif
         */
       else
-        add_string(replicate("─",80))
+        add_string(replicate("─",98))
       endif
+      verify_FF(HH-1, .t., sh)
       add_string(padr(tmp->name,23)+padc(tmp->stroke,8)+padc(alltrim(tmp->diagnoz),7)+;
+                 put_val((tmp->vtr+tmp->vsttr),6)+;
                  put_val((tmp->dispans0+tmp->vg11+tmp->vg13),6)+;
-                 put_val(tmp->dispans0,6)+;
                  put_val(tmp->vtr,6)+;
                  put_val(tmp->vsttr,6)+;
                  put_val((tmp->vg10+tmp->vg12),6)+;
+                 put_val((tmp->vg11+tmp->vg13),6)+;
                  put_val(tmp->vg10,6)+;
                  put_val(tmp->vg11,6)+;
                  put_val(tmp->vg12,6)+;
@@ -790,6 +901,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
       skip
     enddo
     use
+ //   quit
  /*   verify_FF(HH-40, .t., sh)
     add_string(center("Сведения об установленных предварительных диагнозах (случаев)",sh))
     add_string("")
@@ -991,10 +1103,11 @@ elseif len(arr) > 1
 endif
 return (len(arr) > 0)
 
-***** 01.06.21
+***** 28.06.21
 Function f1_forma_131(Loc_kod,kod_kartotek) // 131
 Local i, j, k, fl, lshifr, au := {}, a7[12], ar, metap, m1gruppa, m1gruppa2 := 0,;
-      mpol, fl2 := .f., fl_dispans := .f., ivozrast
+      mpol, fl2 := .f., fl_dispans := .f., ivozrast ,;
+      FL_4001m1 := .F., FL_4001m2 := .F., FL_4001G1 := .F., FL_4001G2 := .F.
 // диспансеризация I этап
 human->(dbGoto(tmp->kod1h))
 mpol := human->pol
@@ -1050,7 +1163,7 @@ elseif mdvozrast <= 74
 else
   ivozrast := 7
 endif
-
+//
 if mpol == "М"
  if mdvozrast < 62
    iivozrast := 1
@@ -1065,10 +1178,10 @@ else
  endif
 endif
 //
-if mpol == "М"
-  tmp1000->vm_1 ++
+if mpol == "М"        // первый этап диспансеризации
+  tmp1000->vm_1 ++   //М  1
 else
-  tmp1000->vg_1 ++
+  tmp1000->vg_1 ++   //Ж  1
 endif
 //
 select TMP1000
@@ -1085,17 +1198,17 @@ elseif !empty(tmp->kod2h)
     arr_7001[22,2] ++
     arr_7001[23,2] ++
     if mpol == "М"
-      tmp1000->vm2 ++
+      tmp1000->vm2 ++ //М  ДОГВН
     else
-      tmp1000->vg2 ++
+      tmp1000->vg2 ++ //Ж  ДОГВН
     endif
   endif
   human->(dbGoto(tmp->kod1h)) // вернуться на л/у первого этапа
-else
+else //   х-з
     if mpol == "М"
-      tmp1000->vm2 ++
+      tmp1000->vm2 ++  //М  ДОГВН
     else
-      tmp1000->vg2 ++
+      tmp1000->vg2 ++  //Ж  ДОГВН
     endif
 endif
 
@@ -1210,15 +1323,20 @@ for i := 1 to len(arr_4000)
       if mpol == "М"
         if iivozrast == 1
           tmp4000->m36 ++
+          FL_4001M1 := .T.
+
         elseif iivozrast == 2
           tmp4000->m39 ++
+          FL_4001M2 := .T.
         endif
         tmp4000->mvv ++
       else
         if iivozrast == 1
           tmp4000->g36 ++
+          FL_4001G1 := .T.
         elseif iivozrast == 2
           tmp4000->g39 ++
+          FL_4001G2 := .T.
         endif
         tmp4000->gvv ++
       endif
@@ -1231,6 +1349,19 @@ for i := 1 to len(arr_4000)
     endif
   endif
 next
+//
+select tmp4001
+go top
+IF FL_4001M1
+  tmp4001->m36 ++
+elseif FL_4001M2
+  tmp4001->m39 ++
+elseif FL_4001g1
+  tmp4001->g36 ++
+elseif FL_4001g2
+  tmp4001->g39 ++
+endif
+//
 if m1ssh_na == 1
   v3001 ++ // направлен к сердечно-сосудистому хирургу
 endif
@@ -1275,13 +1406,12 @@ if !empty(tmp->kod2h)
     m1GRUPPA := m1GRUPPA2 // переприсвоить группу
     read_arr_DVN(human->kod) // перечитать диагнозы и т.п.
     if mpol == "М"
-      tmp1000->vm2 ++
-      tmp1000->vm_2 ++
+  //    tmp1000->vm2 ++   //М  ДОГВН
+      tmp1000->vm_2 ++  //М  2
     else
-      tmp1000->vg2 ++
-      tmp1000->vg_2 ++
+   //   tmp1000->vg2 ++   //Ж  ДОГВН
+      tmp1000->vg_2 ++  //Ж  2
     endif
-
     arr_7001[22,2] --
     arr_7001[24,2] ++
     select HU
@@ -1394,23 +1524,45 @@ for i := 1 to 5
         endif
       next
     next
-/*    if empty(au) // заносим в прочие заболевания
-      aadd(au,len5000-1)
+    if empty(au) // заносим в прочие заболевания
+      aadd(au,len5000-9)
+      select TMP5000
+      goto (len5000-9)
       if &pole_1pervich == 1 // впервые
-        for n := 1 to len5001
-          my_debug(,str())
-
-          r := diag5001[n]
-          my_debug(,)
-          for j := 1 to len(r)
-            if between(d,r[j,1],r[j,2])
-              aadd(au1,n)
+        if &pole_1pervich == 0 // ранее выявленный
+          if iivozrast == 1 // работающие
+            tmp5000->vtr ++
+          else
+            tmp5000->vsttr ++
+          endif
+          if &pole_1dispans == 1
+            tmp5000->dispans0 ++
+          endif
+        elseif &pole_1pervich == 1 // впервые
+          if iivozrast == 1 // работающие
+            tmp5000->vg10 ++
+            if &pole_1dispans == 1
+              tmp5000->vg11 ++
             endif
-          next
-        next
+          else
+            tmp5000->vg12 ++
+            if &pole_1dispans == 1
+              tmp5000->vg13 ++
+            endif
+          endif
+        endif
+
+      //  for n := 1 to len5001
+      //    r := diag5001[n]
+      //    for j := 1 to len(r)
+      //      if between(d,r[j,1],r[j,2])
+      //        aadd(au1,n)
+      //      endif
+      //   next
+      //  next
       endif
     endif
-*/
+
     aadd(au,len5000) // всегда заносим в ИТОГО
     select TMP5000
     for j := 1 to len(au)
@@ -1465,10 +1617,12 @@ for i := 1 to 12
 next
 return NIL
 
-***** 30.05.21
+***** 28.06.21
 Function f11_forma_131(Loc_kod,kod_kartotek) // 131
 Local i, j, k, fl, lshifr, au := {}, a7[12], ar, metap, m1gruppa, m1gruppa2 := 0,;
-      mpol, fl2 := .f., fl_dispans := .f., ivozrast
+      mpol, fl2 := .f., fl_dispans := .f., ivozrast,;
+      FL_4001m1 := .F., FL_4001m2 := .F., FL_4001G1 := .F., FL_4001G2 := .F.
+
 // диспансеризация I этап
 human->(dbGoto(tmp->kod3h))
 mpol := human->pol
@@ -1501,6 +1655,7 @@ mdvozrast := year(human->n_data) - year(human->date_r)
 if m1veteran == 1
   mdvozrast := ret_vozr_DVN_veteran(mdvozrast,human->k_data)
 endif
+//
 if mdvozrast <= 34
   ivozrast := 1
 elseif mdvozrast <= 39
@@ -1651,15 +1806,19 @@ for i := 1 to len(arr_4000)
       if mpol == "М"
         if iivozrast == 1
           tmp4000->m36 ++
+          FL_4001M1 := .T.
         elseif iivozrast == 2
           tmp4000->m39 ++
+          FL_4001M2 := .T.
         endif
         tmp4000->mvv ++
       else
         if iivozrast == 1
           tmp4000->g36 ++
+          FL_4001g1 := .T.
         elseif iivozrast == 2
           tmp4000->g39 ++
+          FL_4001g2 := .T.
         endif
         tmp4000->gvv ++
       endif
@@ -1672,6 +1831,20 @@ for i := 1 to len(arr_4000)
     endif
   endif
 next
+//
+select TMP4001
+go bottom
+IF FL_4001M1
+  tmp4001->m36 ++
+elseif FL_4001M2
+  tmp4001->m39 ++
+elseif FL_4001g1
+  tmp4001->g36 ++
+elseif FL_4001g2
+  tmp4001->g39 ++
+endif
+
+
 
  /*
 if f_is_selo()
@@ -1809,10 +1982,44 @@ for i := 1 to 5
       endif
     endif
 */
+    if empty(au) // заносим в прочие заболевания
+      aadd(au,len5001-9)
+      select TMP5001
+      goto (len5001-9)
+      if &pole_1pervich == 1 // впервые
+        if &pole_1pervich == 0 // ранее выявленный
+          if iivozrast == 1 // работающие
+            tmp5001->vtr ++
+          else
+            tmp5001->vsttr ++
+          endif
+          if &pole_1dispans == 1
+            tmp5001->dispans0 ++
+          endif
+        elseif &pole_1pervich == 1 // впервые
+          if iivozrast == 1 // работающие
+  //  my_debug(,"1 "+&pole_diag)
+            tmp5001->vg10 ++
+            if &pole_1dispans == 1
+              tmp5001->vg11 ++
+            endif
+          else
+            tmp5001->vg12 ++
+            if &pole_1dispans == 1
+              tmp5001->vg13 ++
+            endif
+          endif
+        endif
+      endif
+    endif
     aadd(au,len5001) // всегда заносим в ИТОГО
+    //my_debug(,print_array(au))
+    //my_debug(,str(len5001))
+
     select TMP5001
     for j := 1 to len(au)
       find (str(au[j],2))
+    //my_debug(,str(j)+"    "+str(au[j],2))
       if found()
         if &pole_1pervich == 0 // ранее выявленный
           if iivozrast == 1 // работающие
@@ -1825,6 +2032,7 @@ for i := 1 to 5
           endif
         elseif &pole_1pervich == 1 // впервые
           if iivozrast == 1 // работающие
+    //my_debug(,"2 "+&pole_diag)
             tmp5001->vg10 ++
             if &pole_1dispans == 1
               tmp5001->vg11 ++
