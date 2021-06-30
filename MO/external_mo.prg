@@ -10,8 +10,6 @@ Function f_get_mo(k,r,c,lusl,lpar)
   Static skodN := ""
   Local arr_mo3 := {}, ret, r1, r2, i, lcolor, tmp_select := select()
     
-  // return viewF003( k, r, c, lusl, lpar )
-    
   DEFAULT lpar TO 1
   Private muslovie, loc_arr_MO, ppar := lpar
 
@@ -156,23 +154,23 @@ Function f3get_mo(nkey,oBrow)
     endif
   elseif nKey == K_F3 .and. glob_task != X_263 .and. muslovie == NIL .and. ppar == 1
 
-    // aRet := viewF003()
-    // if ! empty(aRet[1])
-    //   _fl_add_mo := .t.
-    //   RG->(dbAppend())  // blank
-    //   rg->kodN := aRet[1]
-    //   rg->name := aRet[2]
-    //   rg->mo3 := 0
-    //   glob_arr_mo := getMo_mo_New('_mo_mo', .t.)
-    // endif
+    aRet := viewF003()
+    if ! empty(aRet[1])
+      _fl_add_mo := .t.
+      RG->(dbAppend())  // blank
+      rg->kodN := aRet[1]
+      rg->name := aRet[2]
+      rg->mo3 := 0
+      glob_arr_mo := getMo_mo_New('_mo_mo', .t.)
+    endif
 
     ret := 1
-    p_mo := 1
-    pkodN := rg->kodN
-    lmo3 := iif(lmo3 == 0, 1, 0)
-    if lmo3 == 1 .and. rg->mo3 != lmo3
-      pkodN := ""
-    endif
+    // p_mo := 1
+    // pkodN := rg->kodN
+    // lmo3 := iif(lmo3 == 0, 1, 0)
+    // if lmo3 == 1 .and. rg->mo3 != lmo3
+    //   pkodN := ""
+    // endif
   elseif nKey == K_SPACE
     _fl_space := .t.
     ret := 1
@@ -183,8 +181,6 @@ Function f3get_mo(nkey,oBrow)
 Function ret_mo(cCode)
   // cCode - код МО по ТФОМС
   Local i, arr := aclone(glob_arr_mo[1]) // возьмём первое по порядку МО
-  
-  // return getF003mo(cCode)
   
   for i := 1 to len(arr)
     if valtype(arr[i]) == "C"

@@ -8,7 +8,6 @@
 
 * 20.01.21 {_MO_KOD_TFOMS,_MO_SHORT_NAME}
 Function viewF003()
-    // Function viewF003( mkod, r, c, lusl, lpar )
 
     local nTop, nLeft, nBottom, nRight
     local tmp_select := select()

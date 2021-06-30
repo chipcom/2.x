@@ -111,8 +111,9 @@ function selectKSLP( lkslp, savedKSLP, dateBegin, dateEnd, DOB, mdiagnoz )
   mlen := len(t_mas)
 
   // используем popupN из библиотеки FunLib
-  if (ret := popupN(5,10,15,71,t_mas,i,color0,.t.,"fmenu_readerN",,;
-      "Отметьте КСЛП",col_tit_popup,,strStatus)) > 0
+    // if (ret := popupN(5,10,15,71,t_mas,i,color0,.t.,"fmenu_readerN",,;
+  if (ret := popupN(5, 10, 5 + mlen + 1, 71, t_mas, i, color0, .t., 'fmenu_readerN',,;
+      'Отметьте КСЛП', col_tit_popup,, strStatus)) > 0
     for i := 1 to mlen
       if "*" == substr(t_mas[i, 1],2,1)
         m1var += alltrim(str(t_mas[i, 3])) + ','
