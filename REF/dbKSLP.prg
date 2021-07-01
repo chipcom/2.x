@@ -21,7 +21,7 @@ function getKSLPtable( dateSl )
   
     (dbAlias)->(dbGoTop())
     do while !(dbAlias)->(EOF())
-      if dateSl < (dbAlias)->DATEEND
+      if (dateSl >= (dbAlias)->DATEBEG) .and. (dateSl <= (dbAlias)->DATEEND)
         aadd(tmpKSLP, { (dbAlias)->CODE, alltrim((dbAlias)->NAME), alltrim((dbAlias)->NAME_F), (dbAlias)->COEFF, (dbAlias)->DATEBEG, (dbAlias)->DATEEND })
       endif
       (dbAlias)->(dbSkip())
