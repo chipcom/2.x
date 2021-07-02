@@ -2074,6 +2074,8 @@ Local _table1 := {;
    {"koef_kslp","C", 6,0},;  //
    {"kod_kslp2", "C", 5,0},; //
    {"koef_kslp2","C", 6,0},;  //
+   {"kod_kslp3", "C", 5,0},; //
+   {"koef_kslp3","C", 6,0},;  //
    {"CODE_KIRO","C", 1,0},; //
    {"VAL_K"   , "C", 5,0},; //
    {"NEXT_VISIT","C",10,0},; //
@@ -2447,13 +2449,16 @@ if (arr_f := Extract_Zip_XML(goal_dir,name_zip)) != NIL
                     &lal.->SL_K  := mo_read_xml_stroke(oNode3,"SL_K",,.f.)
                     &lal.->IT_SL := mo_read_xml_stroke(oNode3,"IT_SL",,.f.)
                     jkslp := 0
-                    for j1 := 1 to len(oNode3:aitems) // последовательный просмотр
+                    for j1 := 1 to len(oNode3:aitems) // последовательный просмотр 
                       oNode2 := oNode3:aItems[j1]     // т.к. КСЛП м.б. несколько
                       if valtype(oNode2) != "C" .AND. oNode2:title == "SL_KOEF"
                         ++jkslp
                         if jkslp == 1
                           &lal.->kod_kslp  := mo_read_xml_stroke(oNode2,"ID_SL")
                           &lal.->koef_kslp := mo_read_xml_stroke(oNode2,"VAL_C")
+                        elseif  jkslp == 3
+                          &lal.->kod_kslp3 := mo_read_xml_stroke(oNode2,"ID_SL")
+                          &lal.->koef_kslp3:= mo_read_xml_stroke(oNode2,"VAL_C")
                         else
                           &lal.->kod_kslp2 := mo_read_xml_stroke(oNode2,"ID_SL")
                           &lal.->koef_kslp2:= mo_read_xml_stroke(oNode2,"VAL_C")
