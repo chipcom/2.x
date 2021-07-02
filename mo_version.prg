@@ -4,7 +4,7 @@
 #include 'chip_mo.ch'
 
 static st_version := {2, 11, 23, 'a'}
-static st_date_version := _DATA_VER   // '24.06.21г.'
+static st_date_version := _DATA_VER
 static st__s_full_name := 'ЧИП + Учёт работы Медицинской Организации'
 
 ***** 24.06.21 возврат номера версии
