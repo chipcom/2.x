@@ -169,4 +169,6 @@ mo_version.prg
 
 .\menu\f1main.prg
 
-.\mo\external_mo.prg
+.\mo\external_mo.
+
+.\EXCHANGE\reestrOMS_XML.prg
