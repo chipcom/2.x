@@ -5,6 +5,7 @@ function loadT005()
   static _T005 := {}
   Local dbName, dbAlias := 'T005'
   local tmp_select := select()
+  local row
 
   // T005.dbf - Перечень ошибок ТФОМС
   //  1 - KOD(3)  2 - NAME(C) 3 - OPIS(M)
@@ -22,6 +23,13 @@ function loadT005()
     (dbAlias)->(dbCloseArea())
     Select(tmp_select)
   endif
+
+  for each row in getF014()
+    if (j := ascan(_T005, {|x| x[1] == row[1] })) == 0
+      AAdd(_T005, {row[1], row[2], row[3]} )
+    endif
+  next
+
   return _T005
 
 * 06.04.21 вернуть строку для кода дефекта с описанием ошибки ТФОМС из справочника T005.dbf
