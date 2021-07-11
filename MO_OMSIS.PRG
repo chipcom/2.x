@@ -3948,7 +3948,7 @@ Local begin_date, end_date, buf := savescreen(), arr_m, i, j, k, k1, k2,;
       filetmp14 := "tmp14"+stxt, sum_k := 0, sum_ki := 0, sum_kd := 0, sum_kt := 0, kol_d := 0 , sum_d := 0
 Local arr_skor[81,2], arr_eko[2,2], arr_profil := {}, arr_dn_stac := {}, arrDdn_stac[4], fl_pol1[15],;
       arr_pol[32], arr_pol1[15,5], arr_pril5[29,3], ifff := 0, kol_stom_pos := 0, lal, lalf,;
-      arr_pol3000[29,6], vr_rec := 0
+      arr_pol3000[29,6], vr_rec := 0, arr_full_usl
 old5 := old2 := 0
 afillall(arr_skor,0)
 afillall(arr_eko,0)
@@ -4060,7 +4060,12 @@ arr_pril5[26,1] := "Дн.стац. - руб."
 arr_pril5[27,1] := "Дн.стац.ЭКО - пациенто-дней"
 arr_pril5[28,1] := "Дн.стац.ЭКО - пациентов, чел."
 arr_pril5[29,1] := "Дн.стац.ЭКО - руб."
-arr_m := {2020,1,12,"за январь - март 2021 года",0d20210101,0d20210331}
+
+*********************************************************************
+//arr_m := {2020,1,12,"за январь - декабрь 2020 года",0d20200101,0d20201231}
+arr_m := {2021,1,6,"за январь - июнь 2021 года",0d20210101,0d20210630}
+*********************************************************************
+
 lal := "lusl" ; lalf := "luslf"
 Private mk1, mk2, mk3, mk4, md1, md11, md12, md2, md21, md22, md3, md4
 ar := GetIniSect(tmp_ini,group_ini)
@@ -4162,7 +4167,8 @@ R_Use(dir_server+"human",dir_server+"humans","HUMAN")
 set relation to recno() into HUMAN_, to recno() into HUMAN_2, to kod_k into KART
 //
 *********************************************************************
-mdate_rak := arr_m[6]+10 // по какую дату РАК сумма к оплате 18.01.21
+mdate_rak := arr_m[6]+9 // по какую дату РАК сумма к оплате 09.07.21
+//mdate_rak := arr_m[6]+18 // по какую дату РАК сумма к оплате 18.01.21
 *********************************************************************
 R_Use(dir_server+"mo_xml",,"MO_XML")
 R_Use(dir_server+"mo_rak",,"RAK")
@@ -4187,8 +4193,9 @@ do while !eof()
     // дата отчетного периода
     mdate1 := stod(strzero(schet_->nyear,4)+strzero(schet_->nmonth,2)+"15")
     //
-    *** 2020 год
-    k := 15 // дата регистрации по 15.01.21
+    *** 2021 год
+    //k := 15 // дата регистрации по 15.01.21
+    k := 7 // дата регистрации по 07.07.21
     ***
     fl := between(mdate,arr_m[5],arr_m[6]+k) .and. between(mdate1,arr_m[5],arr_m[6]) // !!отч.период 2020 год
   endif
@@ -4321,13 +4328,114 @@ do while !eof()
                 arr_pol3000[ 29,5] += round(human->cena_1*koef,2)
                 arr_pol3000[ 29,3] += 1
               endif
-             endif
+            endif
             skip
           enddo
           select HU
           goto (vr_rec)
           select HUMAN
         endif
+        //
+        if schet_->BUKVA != "K" // отдельные медицинские услуги учитываем только суммой
+          arr_pol1[6,4] += round(human->cena_1*koef,2)
+          if is_inogoro
+            arr_pol1[6,5] += round(human->cena_1*koef,2)
+          endif
+          // теперь делим по услугам
+          svp := space(5)
+          vr_rec := hu->(recno())
+          select HU
+          find (str(human->kod,7))
+          do while hu->kod == human->kod .and. !eof()
+            lshifr1 := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data)
+            if is_usluga_TFOMS(usl->shifr,lshifr1,human->k_data,,,,,@svp)
+               lshifr := iif(empty(lshifr1), usl->shifr, lshifr1)
+            endif
+            if eq_any(padr(alltrim(lshifr),8),;
+                          "2.79.34 ","2.79.37 ","2.79.38 ",;
+                          "2.79.49 ","2.79.50 ","2.79.63 ",;
+                          "2.79.64 ","2.88.35 ","2.88.36 ",;
+                          "2.79.37 ","2.88.50 ","2.88.54 ",;
+                          "2.88.116","2.88.117","2.88.118")
+              //"из строки 06 - посещения работников, со средним м/о"
+              arr_pol3000[ 12,4] += round(human->cena_1*koef,2)
+              arr_pol3000[ 12,2] += 1
+              if is_inogoro
+                arr_pol3000[ 12,5] += round(human->cena_1*koef,2)
+                arr_pol3000[ 12,3] += 1
+              endif
+            elseif padr(alltrim(lshifr),8) == "2.88.107"
+              //"из строки 06 - посещения амбулаторных ОНКО центров"
+              arr_pol3000[ 13,4] += round(human->cena_1*koef,2)
+              arr_pol3000[ 13,2] += 1
+              if is_inogoro
+                arr_pol3000[ 13,5] += round(human->cena_1*koef,2)
+                arr_pol3000[ 13,3] += 1
+              endif
+            elseif eq_any(padr(alltrim(lshifr),8),;
+                          "2.88.24 ","2.88.25 ","2.88.104",;
+                          "2.81.24 ","2.81.25 ","2.81.26 ",;
+                          "2.81.27 ","2.81.28 ","2.81.29 ",;
+                          "2.81.30 ","2.81.31 ","2.81.32 ",;
+                          "2.81.33 ","2.81.45 ","2.88.104")
+              //'из строки 12 - посещения по специальности "онкология"'
+              arr_pol3000[ 14,4] += round(human->cena_1*koef,2)
+              arr_pol3000[ 14,2] += 1
+              if is_inogoro
+                arr_pol3000[ 14,5] += round(human->cena_1*koef,2)
+                arr_pol3000[ 14,3] += 1
+              endif
+            elseif eq_any(padr(alltrim(lshifr),8),;
+                          "2.88.46 ","2.88.47 ","2.88.48 ",;
+                          "2.88.49 ","2.88.50 ","2.79.59 ",;
+                          "2.79.60 ","2.79.61 ","2.79.62 ")
+              // 'из строки 13 - посещения по специальности "стоматология"'
+              arr_pol3000[ 15,4] += round(human->cena_1*koef,2)
+              arr_pol3000[ 15,2] += 1
+              if is_inogoro
+                arr_pol3000[ 15,5] += round(human->cena_1*koef,2)
+                arr_pol3000[ 15,3] += 1
+              endif
+            elseif eq_any(left(lshifr,5),"2.79.","2.76.")
+              // "посещения с другими целями, всего"
+               if eq_any(padr(alltrim(lshifr),7),;
+                          "2.79.34","2.79.37","2.79.38",;
+                          "2.79.49","2.79.50","2.79.59",;
+                          "2.79.60","2.79.61","2.79.62",;
+                          "2.79.63","2.79.64")
+               else
+                 arr_pol3000[ 16,4] += round(human->cena_1*koef,2)
+                 arr_pol3000[ 16,2] += 1
+                 if is_inogoro
+                   arr_pol3000[ 16,5] += round(human->cena_1*koef,2)
+                   arr_pol3000[ 16,3] += 1
+                 endif
+               endif
+            elseif eq_any(padr(alltrim(lshifr),8),;
+                          "2.88.52 ","2.88.53 ","2.88.55 ",;
+                          "2.88.56 ","2.88.57 ","2.88.58 ",;
+                          "2.88.59 ","2.88.60 ","2.88.61 ",;
+                          "2.88.62 ","2.88.63 ","2.88.64 ",;
+                          "2.88.65 ","2.88.66 ","2.88.67 ",;
+                          "2.88.68 ","2.88.69 ","2.88.70 ",;
+                          "2.88.71 ","2.88.72 ","2.88.73 ",;
+                          "2.88.74 ","2.88.75 ","2.88.76 ",;
+                          "2.88.77 ","2.88.106","2.88.110")
+               //"из строки 06 посещения с целью диспансерного наблюдения"
+                arr_pol3000[ 7,4] += round(human->cena_1*koef,2)
+                arr_pol3000[ 7,2] += 1
+                if is_inogoro
+                  arr_pol3000[ 7,5] += round(human->cena_1*koef,2)
+                  arr_pol3000[ 7,3] += 1
+                endif
+            endif
+            skip
+          enddo
+          select HU
+          goto (vr_rec)
+          select HUMAN
+        endif
+        //
         is_dializ := .f.
         is_z_sl := .f.
         is_ekstra := .f.
@@ -4354,6 +4462,7 @@ do while !eof()
         afillall(tfoms_pz,0)
         ap := {}
         arr_usl := {} ; au := {}
+        arr_full_usl := {}
         lvidpom := 1 ; lvidpoms := "" ; svp := space(5)
         select HU
         find (str(human->kod,7))
@@ -4361,6 +4470,7 @@ do while !eof()
           lshifr1 := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data)
           if is_usluga_TFOMS(usl->shifr,lshifr1,human->k_data,,,,,@svp)
             lshifr := iif(empty(lshifr1), usl->shifr, lshifr1)
+            aadd(arr_full_usl,lshifr)
             ta := f14tf_nastr(@lshifr,,d2_year)
             lshifr := alltrim(lshifr)
             aadd(au,{lshifr,hu->kol_1,round(hu->stoim_1*koef,2),0,0,hu->kol_1})
@@ -4405,6 +4515,7 @@ do while !eof()
                 kol_dializ += hu->kol_1
               endif
               aadd(arr_usl,lshifr)
+              //aadd(arr_full_usl,lshifr)
               if !empty(svp) .and. "," $ svp
                 lvidpoms := svp
               endif
@@ -4424,6 +4535,10 @@ do while !eof()
               elseif !eq_any(human_->PROFIL,97,57,68,3,42,85,87)
                 ds_spec := 1
               endif
+              // признак онкологии
+              //if eq_any(lshifr,"2.78.19","2.78.45","2.78.87","2.78.90","2.78.91")
+              //
+              //endif
             endif
             if f_is_zak_sl_vr(lshifr)
               is_z_sl := .t.
@@ -4432,6 +4547,11 @@ do while !eof()
             if eq_any(left(lshifr,4),"2.6.","2.60")
               kol_stom += hu->kol_1
             endif
+            // онкология
+            //if eq_any(left(lshifr,4),"2.6.","2.60")
+            //  kol_stom += hu->kol_1
+            //endif
+
             if eq_any(lshifr,"2.3.3","2.3.4","2.60.3","2.60.4") // фельдшерские приёмы
               fl_pol1[15] := -1
             endif
@@ -4670,11 +4790,39 @@ do while !eof()
             if kol_2_60 > 0 .and. ascan(arr_usl,"2.78.") > 0
               arr_pril5[8,igs] += kol_2_60 // "Всего посещений"
               ////////////////////////////////////////////////
-
-
-
-
             endif
+            if kol_2_60 > 0 .and. ascan(arr_usl,"2.78.") > 0
+              arr_pril5[8,igs] += kol_2_60 // "Всего посещений"
+              ////////////////////////////////////////////////
+            endif
+            // онкология в т.3000
+            if kol_2_60 > 0 //.and. ;
+              if eq_ascan(arr_full_usl,"2.78.19","2.78.45","2.78.87","2.78.90","2.78.91")
+                arr_pol3000[ 21,4] += round(human->cena_1*koef,2)
+                arr_pol3000[ 21,2] += 1
+                if is_inogoro
+                  arr_pol3000[ 21,5] += round(human->cena_1*koef,2)
+                  arr_pol3000[ 21,3] += 1
+                endif
+              endif
+            endif
+            if schet_->BUKVA == 'O'  // диспансеризация 2-й этап
+              //my_debug(,schet_->BUKVA)
+              //my_debug(,print_array(arr_usl))
+              //my_debug(,print_array(arr_full_usl))
+
+              if ascan(arr_usl,"2.84.") > 0 .or. ascan(arr_full_usl,"56.1.723") > 0
+              //my_debug(,str(human->kod))
+              //my_debug(,print_array(arr_full_usl))
+                arr_pol3000[ 8,4] += round(human->cena_1*koef,2)
+                arr_pol3000[ 8,2] += 1
+                if is_inogoro
+                  arr_pol3000[ 8,5] += round(human->cena_1*koef,2)
+                  arr_pol3000[ 8,3] += 1
+                endif
+              endif
+            endif
+            //
             if kol_2_6 > 0 .and. ascan(arr_usl,"2.89.") > 0
               arr_pril5[8,igs] += kol_2_6 // "Всего посещений"
             endif
@@ -4775,6 +4923,7 @@ do while !eof()
                 // терапевт, педиатр, врач общей практики, фельдшер при диспансеризации
                 fl_pol1[3] += lkol
                 fl_pol1[4] += lkol
+
               else
                 for i := 1 to len(ap)
                   lshifr := ap[i,1] ; lkol := ap[i,2]
@@ -5556,14 +5705,14 @@ if fl
 "────────────────────────────────────┴───────┴───────┴─────────────┴─────────────"+hb_eol(),cFileProtokol,.t.)
   //
   //"06 посещения с иными целями, всего (07+08+12+14+15+16+19+20)"
-//  add_val_2_array(arr_pol3000,6,7,2,5)   // 7
-//  add_val_2_array(arr_pol3000,6,8,2,5)   // 8
-//  add_val_2_array(arr_pol3000,6,9,2,5)   // 12
-//  add_val_2_array(arr_pol3000,6,11,2,5)  // 14
-//  add_val_2_array(arr_pol3000,6,12,2,5)  // 15
-//  add_val_2_array(arr_pol3000,6,13,2,5)  // 16
+  add_val_2_array(arr_pol3000,6,7,2,5)   // 7
+  add_val_2_array(arr_pol3000,6,8,2,5)   // 8
+  add_val_2_array(arr_pol3000,6,9,2,5)   // 12
+  add_val_2_array(arr_pol3000,6,11,2,5)  // 14
+  add_val_2_array(arr_pol3000,6,12,2,5)  // 15
+  add_val_2_array(arr_pol3000,6,13,2,5)  // 16
   //add_val_2_array(arr_pol3000,6,,2,5)  // 19 нет в системе ОМС
-//  add_val_2_array(arr_pol3000,6,16,2,5)  // 20
+  add_val_2_array(arr_pol3000,6,16,2,5)  // 20
   //"03 посещения с профилактическими целями, всего (04+05)"
 //  add_val_2_array(arr_pol3000,3,4,2,5)
 //  add_val_2_array(arr_pol3000,3,4,2,5)
@@ -5575,6 +5724,30 @@ if fl
 //  add_val_2_array(arr_pol3000,1,17,2,5)
 //  add_val_2_array(arr_pol3000,1,20,2,5)
   //
+    for xx := 2 to 5
+      arr_pol3000[ 1,xx] := arr_pol1[1,xx]
+    next
+    //
+    for xx := 2 to 5
+      arr_pol3000[ 2,xx] := arr_pol1[2,xx]
+    next
+    //
+    for xx := 2 to 5
+      arr_pol3000[ 3,xx] := arr_pol1[3,xx]
+    next
+    //
+    for xx := 2 to 5
+      arr_pol3000[ 6,xx] := arr_pol1[2,xx] - arr_pol1[3,xx]
+    next
+    //
+    for xx := 2 to 5
+      arr_pol3000[ 5,xx] := arr_pol1[4,xx]
+    next
+    //
+    for xx := 2 to 5
+      arr_pol3000[ 4,xx] := arr_pol1[3,xx] - arr_pol1[4,xx]
+    next
+    //
 
 
   //
