@@ -38,6 +38,8 @@ Function oms_sluch(Loc_kod,kod_kartotek)
       return oms_sluch_PrenD(Loc_kod,kod_kartotek)
     elseif glob_otd[4] == TIP_LU_G_CIT // жидкостная цитология рака шейки матки
       return oms_sluch_g_cit(Loc_kod,kod_kartotek)
+    elseif glob_otd[4] == TIP_LU_DVN_COVID // диспансеризация COVID
+      return oms_sluch_DVN_COVID(Loc_kod,kod_kartotek)
     endif
   endif
   
