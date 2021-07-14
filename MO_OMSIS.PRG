@@ -3948,7 +3948,9 @@ Local begin_date, end_date, buf := savescreen(), arr_m, i, j, k, k1, k2,;
       filetmp14 := "tmp14"+stxt, sum_k := 0, sum_ki := 0, sum_kd := 0, sum_kt := 0, kol_d := 0 , sum_d := 0
 Local arr_skor[81,2], arr_eko[2,2], arr_profil := {}, arr_dn_stac := {}, arrDdn_stac[4], fl_pol1[15],;
       arr_pol[32], arr_pol1[15,5], arr_pril5[29,3], ifff := 0, kol_stom_pos := 0, lal, lalf,;
-      arr_pol3000[29,6], vr_rec := 0, arr_full_usl
+      arr_pol3000[29,6], vr_rec := 0, arr_full_usl,;
+      fl_pol3000_PROF, fl_pol3000_DVN2 := .T.
+
 old5 := old2 := 0
 afillall(arr_skor,0)
 afillall(arr_eko,0)
@@ -4149,8 +4151,8 @@ dbcreate(cur_dir+"tmpf14",{;
 use (cur_dir+"tmpf14") new alias TMPF14
 Use_base("lusl")
 Use_base("luslf")
-//R_Use(dir_exe+"_mo1unit",cur_dir+"_mo1unit","MOUNIT") //пока рано
-R_Use(dir_exe+"_mo0unit",cur_dir+"_mo0unit","MOUNIT")
+R_Use(dir_exe+"_mo1unit",cur_dir+"_mo1unit","MOUNIT") //пока рано
+//R_Use(dir_exe+"_mo0unit",cur_dir+"_mo0unit","MOUNIT")
 R_Use(dir_server+"mo_su",,"MOSU")
 R_Use(dir_server+"mo_hu",dir_server+"mo_hu","MOHU")
 set relation to u_kod into MOSU
@@ -4385,17 +4387,6 @@ do while !eof()
                 arr_pol3000[ 14,5] += round(human->cena_1*koef,2)
                 arr_pol3000[ 14,3] += 1
               endif
-            elseif eq_any(padr(alltrim(lshifr),8),;
-                          "2.88.46 ","2.88.47 ","2.88.48 ",;
-                          "2.88.49 ","2.88.50 ","2.79.59 ",;
-                          "2.79.60 ","2.79.61 ","2.79.62 ")
-              // 'из строки 13 - посещения по специальности "стоматология"'
-              arr_pol3000[ 15,4] += round(human->cena_1*koef,2)
-              arr_pol3000[ 15,2] += 1
-              if is_inogoro
-                arr_pol3000[ 15,5] += round(human->cena_1*koef,2)
-                arr_pol3000[ 15,3] += 1
-              endif
             elseif eq_any(left(lshifr,5),"2.79.","2.76.")
               // "посещения с другими целями, всего"
                if eq_any(padr(alltrim(lshifr),7),;
@@ -4482,7 +4473,7 @@ do while !eof()
               find (str(&lal.->unit_code,3))
               if found() .and. mounit->pz > 0
                 if (i16 := mounit->ii) > 0
-                  j1 := glob_array_PZ_20[i16,1]
+                  j1 := glob_array_PZ_21[i16,1]
                   if eq_any(j1,68,75)
                     vid_vp := 0 // Посещение профилактическое
                   elseif eq_any(j1,69,76)
@@ -4495,6 +4486,14 @@ do while !eof()
                   elseif eq_any(j1,73,74,87,88,89,90)  // т.е. 261,262,318,319,320,321
                     vid_vp := 0 // комплексное посещение при диспансеризации
                     is_z_sl := .t.
+                    fl_pol3000_DVN2 := .F.
+                    // вставить деление на ПРОФОСМОТР
+                    fl_pol3000_DVN2 := .T.
+                    if j1 == 74 // ДВН - 2 этап
+                       fl_pol3000_DVN2 := .F.
+        //my_debug(,str(human->kod)+"  fl_pol3000_DVN2")
+                    endif
+                    //
                   elseif j1 == 64 .or. between(j1,79,86) .or. between(j1,93,98) // исследования
                     is_kt := .t. ; ds1_spec := 1
                     vid_vp := 2 // с лечебной целью
@@ -4807,13 +4806,7 @@ do while !eof()
               endif
             endif
             if schet_->BUKVA == 'O'  // диспансеризация 2-й этап
-              //my_debug(,schet_->BUKVA)
-              //my_debug(,print_array(arr_usl))
-              //my_debug(,print_array(arr_full_usl))
-
               if ascan(arr_usl,"2.84.") > 0 .or. ascan(arr_full_usl,"56.1.723") > 0
-              //my_debug(,str(human->kod))
-              //my_debug(,print_array(arr_full_usl))
                 arr_pol3000[ 8,4] += round(human->cena_1*koef,2)
                 arr_pol3000[ 8,2] += 1
                 if is_inogoro
@@ -4923,7 +4916,14 @@ do while !eof()
                 // терапевт, педиатр, врач общей практики, фельдшер при диспансеризации
                 fl_pol1[3] += lkol
                 fl_pol1[4] += lkol
-
+                fl_pol3000_PROF := .F.
+                if eq_any(schet_->BUKVA,'F','R') // диспансеризация и профосмотры
+                  fl_pol3000_PROF := .T.
+       // my_debug(,str(human->kod)+"  fl_pol3000_PROF := .T.")
+                else
+                  fl_pol3000_PROF := .F.
+       // my_debug(,str(human->kod)+"  fl_pol3000_PROF := .F.")
+                endif
               else
                 for i := 1 to len(ap)
                   lshifr := ap[i,1] ; lkol := ap[i,2]
@@ -5071,32 +5071,25 @@ do while !eof()
             tfoms_pz[3,3] := round(human->cena_1*koef,2)
             //из строки 06 разовые посещения в связи с заболеваниями
             //из строки 12 - посещения по специальности "стоматология"
-            if is_2_88 .and. ret_tip == 2
-              arr_pol3000[ 15,4] := round(human->cena_1*koef,2)
-              arr_pol3000[ 15,2] := ret_kol
-              if is_inogoro
-                arr_pol3000[ 15,5] := round(human->cena_1*koef,2)
-                arr_pol3000[ 15,3] := ret_kol
-              endif
-            endif
+            // СТАВИМ НОООЛЬ
             // "Посещения при оказании помощи в неотложной форме, всего"
             // 'из строки 21 - посещения по специальности "стоматология"'
-            if ret_tip == 3
-              arr_pol3000[ 19,4] := round(human->cena_1*koef,2)
-              arr_pol3000[ 19,2] := ret_kol
-              if is_inogoro
-                arr_pol3000[ 19,5] := round(human->cena_1*koef,2)
-                arr_pol3000[ 19,3] := ret_kol
-              endif
-            endif
+          //  if ret_tip == 3
+          //    arr_pol3000[ 19,4] := round(human->cena_1*koef,2)
+          //    arr_pol3000[ 19,2] := ret_kol
+          //    if is_inogoro
+          //      arr_pol3000[ 19,5] := round(human->cena_1*koef,2)
+          //      arr_pol3000[ 19,3] := ret_kol
+          //    endif
+          //  endif
             // "Посещения, включенные в обращение в связи с заболеваниями"
             // 'из строки 25 - посещения по специальности "стоматология"'
             if ret_tip == 1
-              arr_pol3000[ 22,4] := round(human->cena_1*koef,2)
-              arr_pol3000[ 22,2] := ret_kol
+              arr_pol3000[ 22,4] += round(human->cena_1*koef,2)
+              arr_pol3000[ 22,2] += ret_kol
               if is_inogoro
-                arr_pol3000[ 22,5] := round(human->cena_1*koef,2)
-                arr_pol3000[ 22,3] := ret_kol
+                arr_pol3000[ 22,5] += round(human->cena_1*koef,2)
+                arr_pol3000[ 22,3] += ret_kol
               endif
             endif
             func_f14_stom(tfoms_pz[3,3],ret_tip,ret_kol,is_2_88,is_rebenok,is_trudosp,is_inogoro,is_sred_stom)
@@ -5270,6 +5263,9 @@ do while !eof()
           endif
         next
         for i := 1 to len(arr_pol1)
+         // my_debug(,str(i))
+          //my_debug(,str(fl_pol1[i]))
+
           if fl_pol1[i] > 0
             arr_pol1[i,2] += fl_pol1[i]
             arr_pol1[i,4] += round(human->cena_1*koef,2)
@@ -5277,12 +5273,34 @@ do while !eof()
               arr_pol1[i,3] += fl_pol1[i]
               arr_pol1[i,5] += round(human->cena_1*koef,2)
             endif
+            if i == 4
+              if fl_pol3000_PROF   //профосмотры
+                arr_pol3000[ 4,2] += fl_pol1[i]
+                arr_pol3000[ 4,4] += round(human->cena_1*koef,2)
+              else
+                if fl_pol3000_DVN2 
+                  arr_pol3000[ 5,2] += fl_pol1[i]
+                  arr_pol3000[ 5,4] += round(human->cena_1*koef,2)
+                endif
+              endif
+            endif
           elseif fl_pol1[i] < 0
             arr_pol1[i,2] += kol_stom
             arr_pol1[i,4] += round(human->cena_1*koef,2)
             if is_inogoro
               arr_pol1[i,3] += kol_stom
               arr_pol1[i,5] += round(human->cena_1*koef,2)
+            endif
+            if i == 4
+              if fl_pol3000_PROF   //профосмотры
+                arr_pol3000[ 4,2] += fl_pol1[i]
+                arr_pol3000[ 4,4] += round(human->cena_1*koef,2)
+              else
+                if fl_pol3000_DVN2 
+                  arr_pol3000[ 5,2] += fl_pol1[i]
+                  arr_pol3000[ 5,4] += round(human->cena_1*koef,2)
+                endif
+              endif
             endif
           endif
         next
@@ -5295,49 +5313,6 @@ do while !eof()
   select SCHET
   skip
 enddo
-// Переприсвоение
-// "Посещения при оказании помощи в неотложной форме, всего"
-for xx := 2 to 5
-  arr_pol3000[ 17,xx] := arr_pol1[11,xx]
-next
-//"из строки 21 - посещения на дому"
-for xx := 2 to 5
-  arr_pol3000[ 18,xx] := arr_pol1[12,xx]
-next
-//"Посещения, включенные в обращение в связи с заболеваниями"
-for xx := 2 to 5
-  arr_pol3000[ 20,xx] := arr_pol1[13,xx]
-next
-// 12 "из строки 06 разовые посещения в связи с заболеваниями"
-for xx := 2 to 5
-  arr_pol3000[ 9,xx] := arr_pol1[6,xx]
-next
-// 13 "из строки 12 - посещения на дому"
-for xx := 2 to 5
-  arr_pol3000[ 10,xx] := arr_pol1[7,xx]
-next
-//
-
-
-// 12   "из строки 06 разовые посещения в связи с заболеваниями"
-// 18 'из строки 12 - посещения по специальности "стоматология"'
-if kol_stom_pos > 0
-  use (cur_dir+"TMP_STOM") new
-  select TMP_STOM
-  goto 5
-  arr_pol3000[ 15,2] := tmp_stom->k3 // кол-во
-  arr_pol3000[ 15,3] := tmp_stom->k4 // ко-во иногородних
-  arr_pol3000[ 15,4] := tmp_stom->k12 // сумма
-  arr_pol3000[ 15,5] := tmp_stom->k13 // сумма иногородих
-  //
-  // 21 "Посещения при оказании помощи в неотложной форме, всего"
-  // 24 'из строки 21 - посещения по специальности "стоматология"'
-  arr_pol3000[ 19,2] := tmp_stom->k3 // кол-во
-  arr_pol3000[ 19,3] := tmp_stom->k4 // ко-во иногородних
-  arr_pol3000[ 19,4] := tmp_stom->k12 // сумма
-  arr_pol3000[ 19,5] := tmp_stom->k13 // сумма иногородих
-  tmp_stom->(dbCloseArea())
-endif
 //quit
 delete file (filetmp14)
 if !fl_exit .and. tmpf14->(lastrec()) > 0
@@ -5713,9 +5688,6 @@ if fl
   add_val_2_array(arr_pol3000,6,13,2,5)  // 16
   //add_val_2_array(arr_pol3000,6,,2,5)  // 19 нет в системе ОМС
   add_val_2_array(arr_pol3000,6,16,2,5)  // 20
-  //"03 посещения с профилактическими целями, всего (04+05)"
-//  add_val_2_array(arr_pol3000,3,4,2,5)
-//  add_val_2_array(arr_pol3000,3,4,2,5)
   //"02 Посещения с профилактическими и иными целями (03+06)"
 //  add_val_2_array(arr_pol3000,2,3,2,5)
 //  add_val_2_array(arr_pol3000,2,6,2,5)
@@ -5724,32 +5696,53 @@ if fl
 //  add_val_2_array(arr_pol3000,1,17,2,5)
 //  add_val_2_array(arr_pol3000,1,20,2,5)
   //
-    for xx := 2 to 5
-      arr_pol3000[ 1,xx] := arr_pol1[1,xx]
-    next
-    //
-    for xx := 2 to 5
-      arr_pol3000[ 2,xx] := arr_pol1[2,xx]
-    next
-    //
-    for xx := 2 to 5
-      arr_pol3000[ 3,xx] := arr_pol1[3,xx]
-    next
-    //
-    for xx := 2 to 5
-      arr_pol3000[ 6,xx] := arr_pol1[2,xx] - arr_pol1[3,xx]
-    next
-    //
-    for xx := 2 to 5
-      arr_pol3000[ 5,xx] := arr_pol1[4,xx]
-    next
-    //
-    for xx := 2 to 5
-      arr_pol3000[ 4,xx] := arr_pol1[3,xx] - arr_pol1[4,xx]
-    next
-    //
-
-
+// Переприсвоение
+  for xx := 2 to 5
+    arr_pol3000[ 1,xx] := arr_pol1[1,xx]
+  next
+  //
+  for xx := 2 to 5
+    arr_pol3000[ 2,xx] := arr_pol1[2,xx]
+  next
+  //
+// 12 "из строки 06 разовые посещения в связи с заболеваниями"
+  for xx := 2 to 5
+    arr_pol3000[ 9,xx] := arr_pol1[6,xx]
+  next
+// 13 "из строки 12 - посещения на дому"
+  for xx := 2 to 5
+    arr_pol3000[ 10,xx] := arr_pol1[7,xx]
+  next
+// "Посещения при оказании помощи в неотложной форме, всего"
+  for xx := 2 to 5
+    arr_pol3000[ 17,xx] := arr_pol1[11,xx]
+  next
+//"из строки 21 - посещения на дому"
+  for xx := 2 to 5
+    arr_pol3000[ 18,xx] := arr_pol1[12,xx]
+  next
+//"Посещения, включенные в обращение в связи с заболеваниями"
+  for xx := 2 to 5
+    arr_pol3000[ 20,xx] := arr_pol1[13,xx]
+  next
+//
+  use (cur_dir+"TMP_STOM") new
+  select TMP_STOM
+  // 21 "Посещения при оказании помощи в неотложной форме, всего"
+  // 24 'из строки 21 - посещения по специальности "стоматология"'
+  goto 7
+  arr_pol3000[ 19,2] := tmp_stom->k3 // кол-во
+  arr_pol3000[ 19,3] := tmp_stom->k4 // ко-во иногородних
+  arr_pol3000[ 19,4] := tmp_stom->k12 // сумма
+  arr_pol3000[ 19,5] := tmp_stom->k13 // сумма иногородих
+  tmp_stom->(dbCloseArea())
+  //"03 посещения с профилактическими целями, всего (04+05)"
+  add_val_2_array(arr_pol3000,3,4,2,5)
+  add_val_2_array(arr_pol3000,3,5,2,5)
+  //
+  for xx := 2 to 5
+    arr_pol3000[ 6,xx] := arr_pol3000[2,xx] - arr_pol3000[ 3,xx]
+  next
   //
   for i := 1 to len(arr_pol3000)
     k := perenos(t_arr,arr_pol3000[i,1],33)
