@@ -5,7 +5,7 @@
 
 
 ***** 07.07.21 ДВН - добавление или редактирование случая (листа учета)
-Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
+Function oms_sluch_DVN_COVID_1(Loc_kod,kod_kartotek,f_print)
 // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
 // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
 // f_print - наименование функции для печати
@@ -23,6 +23,7 @@ Default Loc_kod TO 0, kod_kartotek TO 0
 //
 Private oms_sluch_DVN := .t., ps1dispans := s1dispans, is_prazdnik
 
+alertx(.t.,'ЭТАП 1')
 if kod_kartotek == 0 // добавление в картотеку
   if (kod_kartotek := edit_kartotek(0,,,.t.)) == 0
     return NIL
@@ -596,7 +597,7 @@ if Loc_kod > 0
     endif
   endif
   for i := 1 to 5
-    f_valid_diag_oms_sluch_DVN_COVID(,i)
+    f_valid_diag_oms_sluch_DVN_COVID_1(,i)
   next i
 endif
 if !(left(msmo,2) == '34') // не Волгоградская область
@@ -1959,7 +1960,7 @@ return NIL
 *
 
 ***** 23.01.17
-Function f_valid_diag_oms_sluch_DVN_COVID(get,k)
+Function f_valid_diag_oms_sluch_DVN_COVID_1(get,k)
 Local sk := lstr(k)
 Private pole_diag := "mdiag"+sk,;
         pole_d_diag := "mddiag"+sk,;
@@ -1998,7 +1999,7 @@ update_get("mdispans")
 return .t.
 
 ***** 19.06.19 рабочая ли услуга ДВН в зависимости от этапа, возраста и пола
-Function f_is_usl_oms_sluch_DVN_COVID(i,_etap,_vozrast,_pol,/*@*/_diag,/*@*/_otkaz,/*@*/_ekg)
+Function f_is_usl_oms_sluch_DVN_COVID_1(i,_etap,_vozrast,_pol,/*@*/_diag,/*@*/_otkaz,/*@*/_ekg)
 Local fl := .f., ars := {}, ar := dvn_arr_usl[i]
 if valtype(ar[3]) == "N"
   fl := (ar[3] == _etap)
@@ -2052,7 +2053,7 @@ endif
 return fl
 
 ***** 16.06.19 рабочая ли услуга (умолчание) ДВН в зависимости от этапа, возраста и пола
-Function f_is_umolch_sluch_DVN_COVID(i,_etap,_vozrast,_pol)
+Function f_is_umolch_sluch_DVN_COVID_1(i,_etap,_vozrast,_pol)
 Local fl := .f., j, ta, ar := dvn_arr_umolch[i]
 if _etap > 3
   return fl
@@ -2092,7 +2093,7 @@ return fl
 *
 
 ***** 04.02.21 скорректировать массивы по диспансеризации
-Function ret_arrays_disp_COVID(is_disp_19,tis_disp_21)
+Function ret_arrays_disp_COVID_1(is_disp_19,tis_disp_21)
 Static sp := 0
 Local p := iif(is_disp_19, 2, 1), blk
 DEFAULT tis_disp_21 TO .t.
@@ -2410,7 +2411,7 @@ return _dvozrast
 */
 
 ***** 15.06.19 вернуть массив возрастов дисп-ии для старого или нового Приказов МЗ РФ
-Function ret_arr_vozrast_DVN_COVID(_data)
+Function ret_arr_vozrast_DVN_COVID_1(_data)
 Static sp := 0, arr := {}
 Local i, p := iif(_data < d_01_05_2019, 1, 2)
 if p != sp
@@ -2427,7 +2428,7 @@ return arr
 
 
 ***** 02.07.19
-Function ret_ndisp_COVID(lkod_h,lkod_k,/*@*/new_etap,/*@*/msg)
+Function ret_ndisp_COVID_1(lkod_h,lkod_k,/*@*/new_etap,/*@*/msg)
 Local i, i1, i2, i3, i4, i5, s, s1, is_disp, ar, fl := .t.
 is_disp_19 := !(mk_data < d_01_05_2019)
 is_disp_21 := !(mk_data < d_01_01_2021)
@@ -2465,7 +2466,7 @@ else
     new_etap := 3
   endif
 endif
-ar := ret_etap_DVN_COVID(lkod_h,lkod_k)
+ar := ret_etap_DVN_COVID_1(lkod_h,lkod_k)
 if new_etap != 3
   if empty(ar[1]) // в этом году ещё ничего не делали
     // оставляем 1
@@ -2565,7 +2566,7 @@ endif
 return fl
 
 ***** 15.06.19
-Function ret_etap_DVN_COVID(lkod_h,lkod_k)
+Function ret_etap_DVN_COVID_1(lkod_h,lkod_k)
 Local ae := {{},{}}, fl, i, k, d1 := year(mn_data)
 R_Use(dir_server+"human_",,"HUMAN_")
 R_Use(dir_server+"human",dir_server+"humankk","HUMAN")
@@ -2590,7 +2591,7 @@ close databases
 return ae
 
 ***** 08.08.13 вернуть тип массы в строке
-Function ret_tip_mas_COVID(_WEIGHT,_HEIGHT,/*@*/ret)
+Function ret_tip_mas_COVID_1(_WEIGHT,_HEIGHT,/*@*/ret)
 Static mm_tip_mas := {{"Дефицит массы тела",0,18.4},;
                       {"Нормальная масса тела",18.5,24.9},;
                       {"Избыточная масса тела",25.0,29.9},;
@@ -2610,7 +2611,7 @@ endif
 return padr(s,21)
 
 ***** 16.02.2020 является ли выходным (праздничным) днём проведения диспансеризации
-Function f_is_prazdnik_DVN_COVID(_n_data)
+Function f_is_prazdnik_DVN_COVID_1(_n_data)
 return !is_work_day(_n_data)
 
 /*
@@ -2647,7 +2648,7 @@ return !is_work_day(_n_data)
 70.7.31	Законченный случай диспансеризации взрослых 1 этап (79,81,85,87,91,93,97,99)
 */
 ***** 16.02.20 вернуть шифр услуги законченного случая для ДВН
-Function ret_shifr_zs_DVN_COVID(_etap,_vozrast,_pol,_date)
+Function ret_shifr_zs_DVN_COVID_1(_etap,_vozrast,_pol,_date)
 Local lshifr := "", fl, is_disp, n := 1
 if _date >= 0d20190501 // с 1 мая
   if _etap == 1
@@ -3043,7 +3044,7 @@ return lshifr
 
 
 ***** 06.05.15 вернуть "правильный" профиль для диспансеризации/профилактики
-Function ret_profil_dispans_COVID(lprofil,lprvs)
+Function ret_profil_dispans_COVID_1(lprofil,lprvs)
 if lprofil == 34 // если профиль по "клинической лабораторной диагностике"
   if ret_old_prvs(lprvs) == 2013 // и спец-ть "Лабораторное дело"
     lprofil := 37 // сменим на профиль по "лабораторному делу"
@@ -3054,7 +3055,7 @@ endif
 return lprofil
 
 ***** 01.02.20
-Function fget_spec_deti_COVID(k,r,c,a_spec)
+Function fget_spec_deti_COVID_1(k,r,c,a_spec)
 Local tmp_select := select(), i, j, as := {}, s, blk, t_arr[BR_LEN], n_file := cur_dir+"tmpspecdeti"
 if !hb_fileExists(n_file+sdbf)
   if select("MOSPEC") == 0
@@ -3160,7 +3161,7 @@ select (tmp_select)
 return {1,s}
 
 ***** 01.02.17
-Function fget_spec_DVN_COVID(k,r,c,a_spec)
+Function fget_spec_DVN_COVID_1(k,r,c,a_spec)
 Static as := {;
   {8,2},;
   {255,1},;
@@ -3295,7 +3296,7 @@ select (tmp_select)
 return {1,s}
 
 ***** 11.11.17
-Function f1get_spec_DVN_COVID(nKey,oBrow,regim)
+Function f1get_spec_DVN_COVID_1(nKey,oBrow,regim)
 if regim == "edit" .and. nkey == K_INS
   tmp_ga->is := !tmp_ga->is
   keyboard chr(K_TAB)
