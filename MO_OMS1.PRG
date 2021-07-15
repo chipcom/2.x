@@ -5647,9 +5647,13 @@ elseif between(human->ishod,303,304)
 elseif human->ishod == 305
   k := TIP_LU_PERN
   stip := "ОПН"
-elseif human->ishod == 306  // при углубленной диспансеризации после COVID
+elseif between(human->ishod,401,402)  // при углубленной диспансеризации после COVID
   k := TIP_LU_DVN_COVID
-  stip := "УД1"             // еще надо добавить УД2 для 2-го этапа
+  if human->ishod == 401
+    stip := "УД1"             // для 1-го этапа
+  else // 402
+    stip := "УД2"              // для 2-го этапа
+  endif
 elseif human->ishod == 98
   k := TIP_LU_G_CIT
 elseif human->ishod == 99
