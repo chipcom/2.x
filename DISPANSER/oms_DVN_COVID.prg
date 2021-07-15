@@ -23,7 +23,6 @@ Default Loc_kod TO 0, kod_kartotek TO 0
 //
 Private oms_sluch_DVN := .t., ps1dispans := s1dispans, is_prazdnik
 
-alertx(.t.,'ЭТАП 1')
 if kod_kartotek == 0 // добавление в картотеку
   if (kod_kartotek := edit_kartotek(0,,,.t.)) == 0
     return NIL
@@ -110,8 +109,8 @@ Private mdispans, m1dispans := 0, mnazn_l , m1nazn_l  := 0,;
         mdopo_na, m1dopo_na := 0, mssh_na , m1ssh_na  := 0,;
         mspec_na, m1spec_na := 0, msank_na, m1sank_na := 0
 Private mvar, m1var
-Private mm_ndisp := {{"Диспансеризация I  этап",1},;
-                     {"Диспансеризация II этап",2}}
+Private mm_ndisp := {{"Углубленная диспансеризация I  этап",1},;
+                     {"Углубленная диспансеризация II этап",2}}
 Private mm_gruppa, mm_ndisp1, is_disp_19 := .t.,;
         is_disp_21 := .t., is_disp_nabl := .f.
 mm_ndisp1 := aclone(mm_ndisp)

@@ -42,182 +42,56 @@ Function f_valid_diag_oms_sluch_DVN_COVID(get,k)
   update_get("mdispans")
   return .t.
   
-  ***** 19.06.19 рабочая ли услуга ДВН в зависимости от этапа, возраста и пола
-  Function f_is_usl_oms_sluch_DVN_COVID(i,_etap,_vozrast,_pol,/*@*/_diag,/*@*/_otkaz,/*@*/_ekg)
-  Local fl := .f., ars := {}, ar := dvn_arr_usl[i]
+  
+***** 15.07.21 рабочая ли услуга (умолчание) ДВН в зависимости от этапа, возраста и пола
+Function f_is_umolch_sluch_DVN_COVID(i, _etap, _vozrast, _pol)
+  Local fl := .f.
+  // local j, ta, ar := dvn_arr_umolch[i]
+  
+  // if _etap > 3
+  //   return fl
+  // endif
   if valtype(ar[3]) == "N"
     fl := (ar[3] == _etap)
   else
     fl := ascan(ar[3],_etap) > 0
   endif
-  _diag := (ar[4] == 1)
-  _otkaz := 0
-  _ekg := .f.
-  if valtype(ar[2]) == "C"
-    aadd(ars,ar[2])
-  else
-    ars := aclone(ar[2])
-  endif
-  if eq_any(_etap,1,3) .and. ar[5] == 1 .and. ascan(ars,"4.20.1") == 0
-    _otkaz := 1 // можно ввести отказ
-    if valtype(ar[2]) == "C" .and. eq_ascan(ars,"7.57.3","7.61.3","4.1.12")
-      _otkaz := 2 // можно ввести невозможность
-      if ascan(ars,"4.1.12") > 0 // взятие мазка
-        _otkaz := 3 // заменить на приём фельдшера-акушера
-      endif
-    endif
-  endif
-  if fl .and. eq_any(_etap,1,4,5)
-    if _etap == 1
-      i := iif(_pol == "М", 6, 7)
-    elseif len(ar) < 14
-      return .f.
-    else
-      i := iif(_pol == "М", 13, 14)
-    endif
-    if valtype(ar[i]) == "N" // специально для услуги "Электрокардиография","13.1.1" ранее 2018 года
-      fl := (ar[i] != 0)
-      if ar[i] < 0  // ЭКГ
-        _ekg := (_vozrast < abs(ar[i])) // необязательный возраст
-      endif
-    else // для 1,4,5 этапа возраст указан массивом
-      fl := ascan(ar[i],_vozrast) > 0
-    endif
-  endif
-  if fl .and. eq_any(_etap,2,3)
-    i := iif(_pol=="М", 8, 9)
-    if valtype(ar[i]) == "N"
-      fl := (ar[i] != 0)
-    elseif type("is_disp_19") == "L" .and. is_disp_19
-      fl := ascan(ar[i],_vozrast) > 0
-    else // для 2 этапа и профилактики возраст указан диапазоном
-      fl := between(_vozrast,ar[i,1],ar[i,2])
-    endif
-  endif
+  // if fl
+  //   if _etap == 1
+  //     i := iif(_pol=="М", 4, 5)
+  //   else//if _etap == 3
+  //     i := iif(_pol=="М", 6, 7)
+  //   endif
+  //   if valtype(ar[i]) == "N"
+  //     fl := (ar[i] != 0)
+  //   elseif valtype(ar[i]) == "C"
+  //     // "18,65" - для краткого инд.проф.консультирования
+  //     ta := list2arr(ar[i])
+  //     for i := len(ta) to 1 step -1
+  //       if _vozrast >= ta[i]
+  //         for j := 0 to 99
+  //           if _vozrast == int(ta[i]+j*3)
+  //             fl := .t.
+  //             exit
+  //           endif
+  //         next
+  //         if fl
+  //           exit
+  //         endif
+  //       endif
+  //     next
+  //   else
+  //     fl := between(_vozrast,ar[i,1],ar[i,2])
+  //   endif
+  // endif
   return fl
   
-  ***** 16.06.19 рабочая ли услуга (умолчание) ДВН в зависимости от этапа, возраста и пола
-  Function f_is_umolch_sluch_DVN_COVID(i,_etap,_vozrast,_pol)
-  Local fl := .f., j, ta, ar := dvn_arr_umolch[i]
-  if _etap > 3
-    return fl
-  endif
-  if valtype(ar[3]) == "N"
-    fl := (ar[3] == _etap)
-  else
-    fl := ascan(ar[3],_etap) > 0
-  endif
-  if fl
-    if _etap == 1
-      i := iif(_pol=="М", 4, 5)
-    else//if _etap == 3
-      i := iif(_pol=="М", 6, 7)
-    endif
-    if valtype(ar[i]) == "N"
-      fl := (ar[i] != 0)
-    elseif valtype(ar[i]) == "C"
-      // "18,65" - для краткого инд.проф.консультирования
-      ta := list2arr(ar[i])
-      for i := len(ta) to 1 step -1
-        if _vozrast >= ta[i]
-          for j := 0 to 99
-            if _vozrast == int(ta[i]+j*3)
-              fl := .t. ; exit
-            endif
-          next
-          if fl ; exit ; endif
-        endif
-      next
-    else
-      fl := between(_vozrast,ar[i,1],ar[i,2])
-    endif
-  endif
-  return fl
   
-  *
-  
-***** 04.02.21 скорректировать массивы по диспансеризации
-Function ret_arrays_disp_COVID(is_disp_19,tis_disp_21)
-  Static sp := 0
-  Local p := iif(is_disp_19, 2, 1), blk
-  DEFAULT tis_disp_21 TO .t.
-  
-  if p != sp
-    if (sp := p) == 1
-      dvn_arr_usl := aclone(dvn_arr_usl18)
-      dvn_arr_umolch := aclone(dvn_arr_umolch18)
-    else
-      blk := {|d1,d2,d|
-                        Local i, arr := {}
-                        DEFAULT d TO 1
-                        for i := d1 to d2 step d
-                          aadd(arr,i)
-                        next
-                        return arr
-             }
-      // 1- наименование меню
-      // 2- шифр услуги
-      // 3- этап (1,2,3,4,5)
-      // 4- что-то связано с диагнозом
-  
-  
-  
-      //  10- V002 - Классификатор прифилей оказанной медицинской помощи
-      //  11- V004 - Классификатор медицинских специальностей
-  //   if tis_disp_21
-       dvn_arr_usl := {; // Услуги на экран для ввода
-        {"Пульсооксиметрия","A12.09.005",{1,3},0,1,;
-          1,1,1,1,34,{};
-         },;
-        {"Исследование неспровацированных дыхательных объемов и патоков","A12.09.001",2,0,1,; // "2.84.11"
-          1,1,1,1,111,{110103,110303,110906,111006,111905,112212,112611,113418,113509,180202,2021};
-         },;
-        {"Общий (клинический) анализ крови развернутый","B03.016.003",1,0,1,;
-          eval(blk,40,99),;
-          eval(blk,40,99),;
-          1,1,34,{1107,1301,1402,1702,1801,2011,2013};
-         },;
-        {"Анализ крови биохимический общетерапевтический","B03.016.004",{1,3},0,1,;
-          1,1,1,1,34,{1107,1301,1402,1702,1801,2011,2013};
-         },;
-        {"Рентгенография легких","A06.09.007",{1,3},0,1,;
-          eval(blk,18,99,2),;
-          eval(blk,18,99,2),;
-          eval(blk,18,99,2),;
-          eval(blk,18,99,2),;
-          78,{1118,1802,2020};
-         },;
-        {"Дуплексное сканир-ие вен нижних конечностей","70.8.52",2,0,1,; // "2.84.1"
-          1,1,1,1,106,{110101,111004,111802,111903,112211,112610,113416,113508,180203};
-         },;
-        {"Проведение теста с 6 минутной ходьбой","70.8.2",2,0,1,;
-          1,1,1,1,78,{1118,1802};
-         },;
-        {"Определение концентрации Д-димера в крови","70.8.3",2,0,1,;
-          1,1,1,1,78,{1118,1802};
-         },;
-        {"Проведение КТ легких","70.8.51",2,0,1,;
-          1,1,1,1,78,{1118,1802};
-         },;
-        {"Проведение Эхокардиографии","70.8.50",2,0,1,;
-          1,1,1,1,78,{1118,1802};
-         },;
-        {"Приём врача терапевта",{"70.8.1","2.84.11","2.3.2"},{1,2,3},1,0,;
-          1,1,1,1,{97,57,42},{1122,1110,2002},;
-          {57,97,42},1,1;
-         };
-       }
-    endif
-    count_dvn_arr_usl := len(dvn_arr_usl)
-    count_dvn_arr_umolch := len(dvn_arr_umolch)
-  endif
-  return NIL
-  
-  
-  ***** 15.06.19 вернуть массив возрастов дисп-ии для старого или нового Приказов МЗ РФ
-  Function ret_arr_vozrast_DVN_COVID(_data)
+***** 15.06.19 вернуть массив возрастов дисп-ии для старого или нового Приказов МЗ РФ
+Function ret_arr_vozrast_DVN_COVID(_data)
   Static sp := 0, arr := {}
   Local i, p := iif(_data < d_01_05_2019, 1, 2)
+
   if p != sp
     arr := aclone(arr_vozrast_DVN) // по старому Приказу МЗ РФ
     if (sp := p) == 2 // по новому Приказу МЗ РФ
@@ -231,9 +105,10 @@ Function ret_arrays_disp_COVID(is_disp_19,tis_disp_21)
   return arr
   
   
-  ***** 15.06.19
-  Function ret_etap_DVN_COVID(lkod_h,lkod_k)
+***** 15.06.19
+Function ret_etap_DVN_COVID(lkod_h,lkod_k)
   Local ae := {{},{}}, fl, i, k, d1 := year(mn_data)
+  
   R_Use(dir_server+"human_",,"HUMAN_")
   R_Use(dir_server+"human",dir_server+"humankk","HUMAN")
   set relation to recno() into HUMAN_
@@ -246,7 +121,7 @@ Function ret_arrays_disp_COVID(is_disp_19,tis_disp_21)
     if fl .and. between(human->ishod,401,402) // ???
       i := human->ishod-400
       if year(human->n_data) == d1 // текущий год
-        aadd(ae[1],{i,human->k_data,human_->RSLT_NEW})
+        aadd( ae[1], { i, human->k_data, human_->RSLT_NEW } )
       endif
     endif
     skip
@@ -801,141 +676,267 @@ Function ret_arrays_disp_COVID(is_disp_19,tis_disp_21)
     save_arr_DISPANS(lkod,arr)
     return NIL
     
-  ***** 15.07.21
-  Function ret_ndisp_COVID(lkod_h,lkod_k,/*@*/new_etap,/*@*/msg)
-    Local i, i1, i2, i3, i4, i5, s, s1, is_disp, ar, fl := .t.
-    is_disp_19 := !(mk_data < d_01_05_2019)
-    is_disp_21 := !(mk_data < d_01_01_2021)
-    ret_arrays_disp(is_disp_19,is_disp_21)
-    msg := " "
-    new_etap := metap
-    is_dostup_2_year := .f.
-    if m1veteran == 1
-      mdvozrast := ret_vozr_DVN_veteran(mdvozrast,mk_data)
-    endif
-    if !(is_disp := ascan(ret_arr_vozrast_DVN(mk_data),mdvozrast) > 0)
-      if !is_disp_19 // по старому приказу МЗ РФ
-        is_dostup_2_year := ascan(arr2m_vozrast_DVN,mdvozrast) > 0
-        if !is_dostup_2_year .and. mpol == "Ж"
-          is_dostup_2_year := ascan(arr2g_vozrast_DVN,mdvozrast) > 0
-        endif
-      endif
-    endif
-    if metap == 0
-      if is_disp
-        new_etap := 1
-      else
-        new_etap := 3
-      endif
-    elseif metap == 3
-      if is_disp
-        new_etap := 1
-      else
-        // остаётся = 3
-      endif
-    else
-      if is_disp
-        // остаётся = 1 или 2
-      elseif new_etap < 4
-        new_etap := 3
-      endif
-    endif
-    ar := ret_etap_DVN(lkod_h,lkod_k)
-    if new_etap != 3
-      if empty(ar[1]) // в этом году ещё ничего не делали
-        // оставляем 1
-      else
-        i1 := i2 := i3 := i4 := i5 := 0
-        for i := 1 to len(ar[1])
-          do case
-            case ar[1,i,1] == 1 // дисп-ия 1 этап
-              i1 := i
-            case ar[1,i,1] == 2 // дисп-ия 2 этап
-              i2 := i
-            case ar[1,i,1] == 3 // профилактика
-              i3 := i
-              msg := date_8(ar[1,i,2])+"г. уже проведён профилактический медосмотр!"
-            case ar[1,i,1] == 4 // дисп-ия 1 этап 1 раз в 2 года
-              i4 := i
-              msg := "В "+lstr(year(mn_data))+" году уже проведена диспансеризации 1 раз в 2 года"
-            case ar[1,i,1] == 5 // дисп-ия 2 этап 1 раз в 2 года
-              i5 := i
-              msg := "В "+lstr(year(mn_data))+" году уже проведена диспансеризации 1 раз в 2 года"
-          endcase
-        next
-        if eq_any(new_etap,1,2) .and. new_etap != metap
-          if i1 == 0
-            new_etap := 1 // делаем 1 этап
-          elseif i2 == 0
-            new_etap := 2 // делаем 2 этап
-          endif
-        endif
-        if i1 > 0 .and. i2 > 0
-          msg := "В "+lstr(year(mn_data))+" году уже проведены оба этапа диспансеризации!"
-        elseif i1 > 0 .and. !empty(ar[1,i1,2]) .and. ar[1,i1,2] > mn_data
-          msg := "Диспансеризация I этапа закончилась "+date_8(ar[1,i1,2])+"г.!"
-        endif
-        if eq_any(new_etap,4,5) .and. new_etap != metap
-          if i4 == 0
-            new_etap := 4 // делаем 1 этап
-          elseif i5 == 0
-            new_etap := 5 // делаем 2 этап
-          endif
-        endif
-        if i4 > 0 .and. i5 > 0
-          msg := "В "+lstr(year(mn_data))+" году уже проведены оба этапа диспансеризации (раз в 2 года)!"
-        elseif i4 > 0 .and. !empty(ar[1,i4,2]) .and. ar[1,i4,2] > mn_data
-          msg := "Диспансеризация I этапа (раз в 2 года) закончилась "+date_8(ar[1,i4,2])+"г.!"
-        endif
-      endif
-    else //if new_etap == 3
-      if empty(ar[1]) // в этом году ещё ничего не делали
-        if empty(ar[2]) // посмотрим прошлый год
-          // оставляем 3
-        elseif ascan(ar[2],{|x| x[1] == 3 }) > 0 // профилактика была в прошлом году
-          if is_dostup_2_year
-            new_etap := 4 // сразу разрешаем дисп-ию 1 раз в 2 года, т.к. в прошлом
-          else
-            msg := "Профилактика проводится 1 раз в 2 года ("+date_8(ar[2,1,2])+"г. уже проведена)"
-          endif
-        endif
-      else
-        i1 := i2 := i3 := i4 := i5 := 0
-        for i := 1 to len(ar[1])
-          do case
-            case ar[1,i,1] == 1 // дисп-ия 1 этап
-              i1 := i
-              msg := date_8(ar[1,i,2])+"г. уже проведена диспансеризация I этапа!"
-            case ar[1,i,1] == 2 // дисп-ия 2 этап
-              i2 := i
-              msg := date_8(ar[1,i,2])+"г. уже проведена диспансеризация II этапа!"
-            case ar[1,i,1] == 3 // профилактика
-              i3 := i
-              msg := date_8(ar[1,i,2])+"г. уже проведён профилактический медосмотр!"
-            case ar[1,i,1] == 4 // дисп-ия 1 этап раз в 2 года
-              i4 := i
-            case ar[1,i,1] == 5 // дисп-ия 2 этап раз в 2 года
-              i5 := i
-          endcase
-        next
-        if i4 > 0
-          if i5 > 0
-            msg := "В "+lstr(year(mn_data))+" году уже проведены оба этапа диспансеризации (раз в 2 года)!"
-          elseif !empty(ar[1,i4,2]) .and. ar[1,i4,2] > mn_data
-            msg := "Диспансеризация I этапа (раз в 2 года) закончилась "+date_8(ar[1,i4,2])+"г.!"
-          else
-            new_etap := 5 // делаем 2 этап
-          endif
-        endif
-      endif
-    endif
-    if empty(msg)
-      metap := new_etap
-      mndisp := inieditspr(A__MENUVERT, mm_ndisp, metap)
-    else
-      metap := 0
-      mndisp := space(23)
-      func_error(4,fam_i_o(mfio)+" "+msg)
-    endif
-    return fl
-    
+***** 15.07.21
+Function ret_ndisp_COVID(lkod_h,lkod_k,/*@*/new_etap,/*@*/msg)
+  Local i, i1, i2, i3, i4, i5, s, s1, is_disp, ar, fl := .t.
+
+  ret_arrays_disp_COVID()
+  msg := ' '
+  new_etap := metap
+  // is_dostup_2_year := .f.
+  // if m1veteran == 1
+  //   mdvozrast := ret_vozr_DVN_veteran(mdvozrast,mk_data)
+  // endif
+  // if !(is_disp := ascan(ret_arr_vozrast_DVN(mk_data),mdvozrast) > 0)
+  //   if !is_disp_19 // по старому приказу МЗ РФ
+  //     is_dostup_2_year := ascan(arr2m_vozrast_DVN,mdvozrast) > 0
+  //     if !is_dostup_2_year .and. mpol == "Ж"
+  //       is_dostup_2_year := ascan(arr2g_vozrast_DVN,mdvozrast) > 0
+  //     endif
+  //   endif
+  // endif
+  if metap == 0
+    // if is_disp
+      new_etap := 1
+    // else
+    //   new_etap := 3
+    // endif
+  elseif metap == 1
+    new_etap := 2
+  // elseif metap == 3
+  //   if is_disp
+  //     new_etap := 1
+  //   else
+  //     // остаётся = 3
+  //   endif
+  // else
+  //   if is_disp
+  //     // остаётся = 1 или 2
+  //   elseif new_etap < 4
+  //     new_etap := 3
+  //   endif
+  endif
+  // ar := ret_etap_DVN_COVID(lkod_h,lkod_k)
+  // if new_etap != 3
+  //   if empty(ar[1]) // в этом году ещё ничего не делали
+  //     // оставляем 1
+  //   else
+  //     i1 := i2 := i3 := i4 := i5 := 0
+  //     for i := 1 to len(ar[1])
+  //       do case
+  //         case ar[1,i,1] == 1 // дисп-ия 1 этап
+  //           i1 := i
+  //         case ar[1,i,1] == 2 // дисп-ия 2 этап
+  //           i2 := i
+  //         // case ar[1,i,1] == 3 // профилактика
+  //         //   i3 := i
+  //         //   msg := date_8(ar[1,i,2])+"г. уже проведён профилактический медосмотр!"
+  //         // case ar[1,i,1] == 4 // дисп-ия 1 этап 1 раз в 2 года
+  //         //   i4 := i
+  //         //   msg := "В "+lstr(year(mn_data))+" году уже проведена диспансеризации 1 раз в 2 года"
+  //         // case ar[1,i,1] == 5 // дисп-ия 2 этап 1 раз в 2 года
+  //         //   i5 := i
+  //         //   msg := "В "+lstr(year(mn_data))+" году уже проведена диспансеризации 1 раз в 2 года"
+  //       endcase
+  //     next
+  //     if eq_any(new_etap, 1, 2 ) .and. new_etap != metap
+  //       if i1 == 0
+  //         new_etap := 1 // делаем 1 этап
+  //       elseif i2 == 0
+  //         new_etap := 2 // делаем 2 этап
+  //       endif
+  //     endif
+  //     if i1 > 0 .and. i2 > 0
+  //       msg := "В "+lstr(year(mn_data))+" году уже проведены оба этапа углубленной диспансеризации!"
+  //     elseif i1 > 0 .and. !empty(ar[1,i1,2]) .and. ar[1,i1,2] > mn_data
+  //       msg := "Углубленная диспансеризация I этапа закончилась " + date_8(ar[1,i1,2]) + "г.!"
+  //     endif
+  //     // if eq_any(new_etap,4,5) .and. new_etap != metap
+  //     //   if i4 == 0
+  //     //     new_etap := 4 // делаем 1 этап
+  //     //   elseif i5 == 0
+  //     //     new_etap := 5 // делаем 2 этап
+  //     //   endif
+  //     // endif
+  //     // if i4 > 0 .and. i5 > 0
+  //     //   msg := "В "+lstr(year(mn_data))+" году уже проведены оба этапа диспансеризации (раз в 2 года)!"
+  //     // elseif i4 > 0 .and. !empty(ar[1,i4,2]) .and. ar[1,i4,2] > mn_data
+  //     //   msg := "Диспансеризация I этапа (раз в 2 года) закончилась "+date_8(ar[1,i4,2])+"г.!"
+  //     // endif
+  //   endif
+  // else //if new_etap == 3
+  //   if empty(ar[1]) // в этом году ещё ничего не делали
+  //     if empty(ar[2]) // посмотрим прошлый год
+  //       // оставляем 3
+  //     // elseif ascan(ar[2],{|x| x[1] == 3 }) > 0 // профилактика была в прошлом году
+  //       // if is_dostup_2_year
+  //       //   new_etap := 4 // сразу разрешаем дисп-ию 1 раз в 2 года, т.к. в прошлом
+  //       // else
+  //       //   msg := "Профилактика проводится 1 раз в 2 года ("+date_8(ar[2,1,2])+"г. уже проведена)"
+  //       // endif
+  //     endif
+  //   else
+  //     i1 := i2 := i3 := i4 := i5 := 0
+  //     for i := 1 to len(ar[1])
+  //       do case
+  //         case ar[1,i,1] == 1 // дисп-ия 1 этап
+  //           i1 := i
+  //           msg := date_8(ar[1,i,2])+"г. уже проведена углубленная диспансеризация I этапа!"
+  //         case ar[1,i,1] == 2 // дисп-ия 2 этап
+  //           i2 := i
+  //           msg := date_8(ar[1,i,2])+"г. уже проведена углубленная диспансеризация II этапа!"
+  //         // case ar[1,i,1] == 3 // профилактика
+  //         //   i3 := i
+  //         //   msg := date_8(ar[1,i,2])+"г. уже проведён профилактический медосмотр!"
+  //         // case ar[1,i,1] == 4 // дисп-ия 1 этап раз в 2 года
+  //         //   i4 := i
+  //         // case ar[1,i,1] == 5 // дисп-ия 2 этап раз в 2 года
+  //         //   i5 := i
+  //       endcase
+  //     next
+  //     // if i4 > 0
+  //       // if i5 > 0
+  //       //   msg := "В "+lstr(year(mn_data))+" году уже проведены оба этапа диспансеризации (раз в 2 года)!"
+  //       // elseif !empty(ar[1,i4,2]) .and. ar[1,i4,2] > mn_data
+  //       //   msg := "Диспансеризация I этапа (раз в 2 года) закончилась "+date_8(ar[1,i4,2])+"г.!"
+  //       // else
+  //       //   new_etap := 5 // делаем 2 этап
+  //       // endif
+  //     // endif
+  //   endif
+  // endif
+  if empty(msg)
+    metap := new_etap
+    mndisp := inieditspr(A__MENUVERT, mm_ndisp, metap)
+  else
+    metap := 0
+    mndisp := space(23)
+    func_error(4, fam_i_o(mfio) + " " + msg)
+  endif
+  return fl
+
+***** 15.07.21 скорректировать массивы по углубленной диспансеризации COVID
+Function ret_arrays_disp_COVID()
+  Local blk
+
+  blk := {|d1,d2,d|
+            Local i, arr := {}
+            DEFAULT d TO 1
+            for i := d1 to d2 step d
+              aadd(arr,i)
+            next
+            return arr
+          }
+
+  // 1- наименование меню
+  // 2- шифр услуги
+  // 3- этап или список допустимых этапов, пример: {1,2}
+  // 4 - диагноз (0 или 1) может быть?
+  // 5- возможен отказ пациента (0 - нет, 1 - да)
+  // 6 -
+  // 7 -
+  
+  //  10- V002 - Классификатор прифилей оказанной медицинской помощи
+  //  11- V004 - Классификатор медицинских специальностей
+  dvn_arr_usl := {; // Услуги на экран для ввода
+      { "Пульсооксиметрия", "A12.09.005", 1, 0, 1,;
+        1,1,1,1,34,{};
+      },;
+      { "Исследование неспровацированных дыхательных объемов и потоков","A12.09.001",1,0,1,; // "2.84.11"
+        1,1,1,1,111,{110103,110303,110906,111006,111905,112212,112611,113418,113509,180202,2021};
+      },;
+      { "Общий (клинический) анализ крови развернутый","B03.016.003",1,0,1,;
+        eval(blk,40,99),;
+        eval(blk,40,99),;
+        1,1,34,{1107,1301,1402,1702,1801,2011,2013};
+      },;
+      { "Анализ крови биохимический общетерапевтический","B03.016.004",1,0,1,;
+        1,1,1,1,34,{1107,1301,1402,1702,1801,2011,2013};
+      },;
+      { "Рентгенография легких","A06.09.007",1,0,1,;
+        eval(blk,18,99,2),;
+        eval(blk,18,99,2),;
+        eval(blk,18,99,2),;
+        eval(blk,18,99,2),;
+        78,{1118,1802,2020};
+      },;
+      { "Проведение теста с 6 минутной ходьбой","70.8.2",1,0,1,;
+        1,1,1,1,78,{1118,1802};
+      },;
+      { "Определение концентрации Д-димера в крови","70.8.3",1,0,1,;
+        1,1,1,1,78,{1118,1802};
+      },;
+      { "Проведение Эхокардиографии","70.8.50",2,0,1,;
+        1,1,1,1,78,{1118,1802};
+      },;
+      { "Проведение КТ легких","70.8.51",2,0,1,;
+        1,1,1,1,78,{1118,1802};
+      },;
+      { "Дуплексное сканир-ие вен нижних конечностей","70.8.52",2,0,1,;
+        1,1,1,1,106,{110101,111004,111802,111903,112211,112610,113416,113508,180203};
+      },;
+      { "Приём врача терапевта",{"70.8.1","2.84.11","2.3.2"},{1,2},1,0,;
+        1,1,1,1,{97,57,42},{1122,1110,2002},;
+        {57,97,42},1,1;
+      };
+    }
+    count_dvn_arr_usl := len(dvn_arr_usl)
+    // count_dvn_arr_umolch := len(dvn_arr_umolch)
+  return NIL
+
+***** 15.07.21 рабочая ли услуга ДВН в зависимости от этапа, возраста и пола
+Function f_is_usl_oms_sluch_DVN_COVID(i,_etap,_vozrast,_pol,/*@*/_diag,/*@*/_otkaz,/*@*/_ekg)
+  Local fl := .f.
+  local ars := {}
+  local ar := dvn_arr_usl[i]
+
+  if valtype(ar[3]) == "N"
+    fl := (ar[3] == _etap)
+  else
+    fl := ascan(ar[3],_etap) > 0
+  endif
+  _diag := (ar[4] == 1)
+  _otkaz := 0
+  _ekg := .f.
+  if valtype(ar[2]) == "C"
+    aadd(ars,ar[2])
+  else
+    ars := aclone(ar[2])
+  endif
+  if eq_any(_etap,1,2) .and. ar[5] == 1   // .and. ascan(ars,"4.20.1") == 0
+    _otkaz := 1 // можно ввести отказ
+    // if valtype(ar[2]) == "C" .and. eq_ascan(ars,"7.57.3","7.61.3","4.1.12")
+    //   _otkaz := 2 // можно ввести невозможность
+    //   if ascan(ars,"4.1.12") > 0 // взятие мазка
+    //     _otkaz := 3 // заменить на приём фельдшера-акушера
+    //   endif
+    // endif
+  endif
+  // if fl .and. eq_any(_etap,1,4,5)
+  //   if _etap == 1
+  //     i := iif(_pol == "М", 6, 7)
+  //   elseif len(ar) < 14
+  //     return .f.
+  //   else
+  //     i := iif(_pol == "М", 13, 14)
+  //   endif
+  //   if valtype(ar[i]) == "N" // специально для услуги "Электрокардиография","13.1.1" ранее 2018 года
+  //     fl := (ar[i] != 0)
+  //     if ar[i] < 0  // ЭКГ
+  //       _ekg := (_vozrast < abs(ar[i])) // необязательный возраст
+  //     endif
+  //   else // для 1,4,5 этапа возраст указан массивом
+  //     fl := ascan(ar[i],_vozrast) > 0
+  //   endif
+  // endif
+  // if fl .and. eq_any(_etap,2,3)
+  //   i := iif(_pol=="М", 8, 9)
+  //   if valtype(ar[i]) == "N"
+  //     fl := (ar[i] != 0)
+  //   elseif type("is_disp_19") == "L" .and. is_disp_19
+  //     fl := ascan(ar[i],_vozrast) > 0
+  //   else // для 2 этапа и профилактики возраст указан диапазоном
+  //     fl := between(_vozrast,ar[i,1],ar[i,2])
+  //   endif
+  // endif
+  return fl
