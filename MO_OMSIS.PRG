@@ -5278,7 +5278,7 @@ do while !eof()
                 arr_pol3000[ 4,2] += fl_pol1[i]
                 arr_pol3000[ 4,4] += round(human->cena_1*koef,2)
               else
-                if fl_pol3000_DVN2 
+                if fl_pol3000_DVN2
                   arr_pol3000[ 5,2] += fl_pol1[i]
                   arr_pol3000[ 5,4] += round(human->cena_1*koef,2)
                 endif
@@ -5296,7 +5296,7 @@ do while !eof()
                 arr_pol3000[ 4,2] += fl_pol1[i]
                 arr_pol3000[ 4,4] += round(human->cena_1*koef,2)
               else
-                if fl_pol3000_DVN2 
+                if fl_pol3000_DVN2
                   arr_pol3000[ 5,2] += fl_pol1[i]
                   arr_pol3000[ 5,4] += round(human->cena_1*koef,2)
                 endif
@@ -5491,6 +5491,13 @@ if kol_stom_pos > 0
                            str(tmp_stom->k8,6)+str(tmp_stom->k9,6)+str(tmp_stom->k10,12,2)+;
                            str(tmp_stom->k11,6)+str(tmp_stom->k12,6)+str(tmp_stom->k13,12,2)+hb_eol(),cFileProtokol,.t.)
   next
+  // 21 "Посещения при оказании помощи в неотложной форме, всего"
+  // 24 'из строки 21 - посещения по специальности "стоматология"'
+  goto 7
+  arr_pol3000[ 19,2] := tmp_stom->k3 // кол-во
+  arr_pol3000[ 19,3] := tmp_stom->k4 // ко-во иногородних
+  arr_pol3000[ 19,4] := tmp_stom->k12 // сумма
+  arr_pol3000[ 19,5] := tmp_stom->k13 // сумма иногородих
   use
 endif
 fl := .f.
@@ -5704,7 +5711,6 @@ if fl
   for xx := 2 to 5
     arr_pol3000[ 2,xx] := arr_pol1[2,xx]
   next
-  //
 // 12 "из строки 06 разовые посещения в связи с заболеваниями"
   for xx := 2 to 5
     arr_pol3000[ 9,xx] := arr_pol1[6,xx]
@@ -5725,17 +5731,6 @@ if fl
   for xx := 2 to 5
     arr_pol3000[ 20,xx] := arr_pol1[13,xx]
   next
-//
-  use (cur_dir+"TMP_STOM") new
-  select TMP_STOM
-  // 21 "Посещения при оказании помощи в неотложной форме, всего"
-  // 24 'из строки 21 - посещения по специальности "стоматология"'
-  goto 7
-  arr_pol3000[ 19,2] := tmp_stom->k3 // кол-во
-  arr_pol3000[ 19,3] := tmp_stom->k4 // ко-во иногородних
-  arr_pol3000[ 19,4] := tmp_stom->k12 // сумма
-  arr_pol3000[ 19,5] := tmp_stom->k13 // сумма иногородих
-  tmp_stom->(dbCloseArea())
   //"03 посещения с профилактическими целями, всего (04+05)"
   add_val_2_array(arr_pol3000,3,4,2,5)
   add_val_2_array(arr_pol3000,3,5,2,5)
