@@ -4251,9 +4251,9 @@ return padl(if(empty(s).or.!fl_plus,"","+")+alltrim(s),l)
 
 *
 
-***** 05.07.19 печать бланков
+***** 17.07.21 печать бланков
 Function prn_blank(k)
-Static si1 := 1, si2 := 1, si3 := 1, si4 := 1, si5 := 1, si6 := 1
+Static si1 := 1, si2 := 1, si3 := 1, si4 := 1, si5 := 1, si6 := 1, si7 := 1
 Local mas_pmt, mas_msg, mas_fun, j
 DEFAULT k TO 1
 do case
@@ -4262,17 +4262,20 @@ do case
                 "Скорая ~помощь",;
                 "Диспансеризация детей-~сирот",;
                 "Диспансеризация ~взрослых",;
-                "Медосмотры ~несовершеннолетних"}
+                "Медосмотры ~несовершеннолетних",;
+                "Углубленная диспансеризация"}
     mas_msg := {"Распечатка бланков и справочников для онкологических листов учёта",;
                 "Распечатка бланков для скорой помощи",;
                 "Распечатка бланков по диспансеризации детей-сирот",;
                 "Распечатка бланков по диспансеризации и профилактике взрослого населения",;
-                "Распечатка бланков по медицинским осмотрам несовершеннолетних"}
+                "Распечатка бланков по медицинским осмотрам несовершеннолетних",;
+                "Распечатка бланков по углубленной диспансеризации взрослого населения"}
     mas_fun := {"prn_blank(11)",;
                 "prn_blank(12)",;
                 "prn_blank(13)",;
                 "prn_blank(14)",;
-                "prn_blank(15)"}
+                "prn_blank(15)",;
+                "prn_blank(16)"}
     popup_prompt(T_ROW,T_COL-5,si1,mas_pmt,mas_msg,mas_fun)
   case k == 11
     mas_pmt := {"~Контрольный лист учёта ЗНО",;
@@ -4326,6 +4329,14 @@ do case
                 //"prn_blank(53)",;
                 //"prn_blank(54)"}
     popup_prompt(T_ROW,T_COL-5,si5,mas_pmt,mas_msg,mas_fun)
+  case k == 16
+    mas_pmt := {"Углубленная ~диспансеризация I этап",;
+                "Углубленная диспансеризация II ~этап"}
+    mas_msg := {"Распечатка бланка листа учёта для углубленной диспансеризации I этап",;
+                "Распечатка бланка листа учёта для углубленной диспансеризации II этап"}
+    mas_fun := {"prn_blank(71)",;
+                "prn_blank(72)"}
+    popup_prompt(T_ROW,T_COL-5,si4,mas_pmt,mas_msg,mas_fun)
   case k == 21
     call_fr("smp_2")
   case k == 22
@@ -4354,6 +4365,10 @@ do case
     call_fr("mo_onko_KL")
   case k == 62 // Правила заполнения контрольного листа учёта ЗНО
     file_Wordpad(exe_dir + cslash + 'RULE_KL.RTF')
+  case k == 71
+    call_fr("mo_y1dvn")
+  case k == 72
+    call_fr("mo_y2dvn")
 endcase
 if k > 10
   j := int(val(right(lstr(k),1)))
@@ -4369,6 +4384,8 @@ if k > 10
     si5 := j
   elseif between(k,61,69)
     si6 := j
+  elseif between(k,71,69)
+    si7 := j
   endif
 endif
 return NIL
