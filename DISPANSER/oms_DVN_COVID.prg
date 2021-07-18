@@ -545,8 +545,6 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
         if valtype(ar) == "A" .and. len(ar) >= 5 .and. valtype(ar[5]) == "C"
           lshifr := alltrim(ar[5])
           for i := 1 to count_dvn_COVID_arr_usl
-// alertx(lshifr, 'lshifr')
-// alertx(dvn_COVID_arr_usl[i,12], 'dvn_COVID_arr_usl[i,12]')
             // if (valtype(dvn_COVID_arr_usl[i,2]) == "C") .and. ;
             //       (dvn_COVID_arr_usl[i,2] == lshifr .or. (len(dvn_COVID_arr_usl[i]) > 11 .and. valtype(dvn_COVID_arr_usl[i,12]) == "A") ;
             //       .and. (ascan(dvn_COVID_arr_usl[i,12],{|x| x[1] == lshifr}) > 0))
@@ -664,7 +662,9 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
   // msank_na  := inieditspr(A__MENUVERT, mm_danet, m1sank_na)
   // mtip_mas := ret_tip_mas(mWEIGHT,mHEIGHT,@m1tip_mas)
 
-  ret_ndisp_COVID(Loc_kod,kod_kartotek)
+  if ! ret_ndisp_COVID(Loc_kod,kod_kartotek)
+    return NIL
+  endif
   //
   if !empty(f_print)
     return &(f_print+"("+lstr(Loc_kod)+","+lstr(kod_kartotek)+")")
@@ -693,13 +693,13 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
   do while .t.
     close databases
     DispBegin()
-    if metap == 2 .and. num_screen == 2
-      hS := 30 ; wS := 80
-    elseif num_screen == 3
-      hS := 26 ; wS := 85
-    else
+    // if metap == 2 .and. num_screen == 2
+    //   hS := 30 ; wS := 80
+    // elseif num_screen == 3
+    //   hS := 26 ; wS := 85
+    // else
       hS := 25 ; wS := 80
-    endif
+    // endif
     SetMode(hS,wS)
     @ 0, 0 say padc(str_1,wS) color "B/BG*"
     gl_area := {1,0,maxrow()-1,maxcol(),0}
@@ -1486,7 +1486,8 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       for i := 1 to count_dvn_COVID_arr_umolch
         if f_is_umolch_sluch_DVN_COVID(i,metap,mvozrast,mpol)
           ++kol_d_usl
-          aadd(arr_osm1,array(11)) ; j := len(arr_osm1)
+          aadd(arr_osm1,array(11))
+          j := len(arr_osm1)
           arr_osm1[j,1] := m1vrach
           arr_osm1[j,2] := m1prvs
           arr_osm1[j,3] := m1assis
@@ -1621,7 +1622,8 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       arr_usl_dop := {}
       arr_usl_otkaz := {}
       arr_otklon := {}
-      glob_podr := "" ; glob_otd_dep := 0
+      glob_podr := ""
+      glob_otd_dep := 0
       for i := 1 to len(arr_osm1)
         if valtype(arr_osm1[i,5]) == "C"
           arr_osm1[i,7] := foundOurUsluga(arr_osm1[i,5],mk_data,arr_osm1[i,4],M1VZROS_REB,@mu_cena)
@@ -1794,9 +1796,6 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
           G_RLock(forever)
         endif
         mrec_hu := hu->(recno())
-// alertx(mrec_hu,'mrec_hu')
-// alertx(i,'i')
-// alertx(hb_ValToExp(arr_usl_dop[i]),'arr_usl_dop[i]')
         hu->kod_vr  := arr_usl_dop[i,1]
         hu->kod_as  := arr_usl_dop[i,3]
         hu->u_koef  := 1

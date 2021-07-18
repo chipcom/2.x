@@ -685,33 +685,33 @@ Function f1get_spec_DVN_COVID(nKey,oBrow,regim)
 ***** 15.07.21
 Function ret_ndisp_COVID( lkod_h, lkod_k )   //,/*@*/new_etap,/*@*/msg)
   // Local i, i1, i2, i3, i4, i5, s, s1, is_disp, ar
-  local fl := .t.
+  local fl := .t., msg
   // local dvn_COVID_arr_usl
 
   // dvn_COVID_arr_usl := ret_arrays_disp_COVID()
-  // msg := ' '
+  msg := ' '
   // new_etap := metap
 
   // if metap == 0
-  //   // if is_disp
+  //   if is_disp
   //     new_etap := 1
-  //   // else
-  //   //   new_etap := 3
-  //   // endif
+  //   else
+  //     new_etap := 3
+  //   endif
   // elseif metap == 1
   //   new_etap := 2
-  // // elseif metap == 3
-  // //   if is_disp
-  // //     new_etap := 1
-  // //   else
-  // //     // остаётся = 3
-  // //   endif
+  // elseif metap == 3
+  //   if is_disp
+  //     new_etap := 1
+  //   else
+  //     // остаётся = 3
+  //   endif
   // else
-  // //   if is_disp
-  // //     // остаётся = 1 или 2
-  // //   elseif new_etap < 4
+  //   if is_disp
+  //     // остаётся = 1 или 2
+  //   elseif new_etap < 4
   //     new_etap := 3
-  // //   endif
+  //   endif
   // endif
 
   ar := ret_etap_DVN_COVID(lkod_h,lkod_k)
@@ -806,6 +806,11 @@ Function ret_ndisp_COVID( lkod_h, lkod_k )   //,/*@*/new_etap,/*@*/msg)
   if (len(ar[1]) == 0) .and. (lkod_h == 0)
     metap := 1
   elseif  (len(ar[1]) == 1) .and. (lkod_h == 0)
+    if ! eq_any(ar[1,1,3], 352, 353, 357, 358)
+      msg := 'В ' + lstr(year(mn_data)) + ' году проведен I этап углубленной диспансеризации без направления на II этап!'
+      hb_Alert(msg)
+      fl := .f.
+    endif
     metap := 2
   endif
   // if empty(msg)
@@ -861,10 +866,10 @@ Function ret_arrays_disp_COVID()
         78,{1118,1802,2020};
       },;
       { "Проведение теста с 6 минутной ходьбой","70.8.2",1,0,1,1,1,;
-        1,1,111,{2021,110103,110303,110906,111006,111905,112212,112611,113418,113509,180202};
+        1,1,{42,151},{2021,110103,110303,110906,111006,111905,112212,112611,113418,113509,180202};
       },;
       { "Определение концентрации Д-димера в крови","70.8.3",1,0,1,1,1,;
-        1,1,34,{1118,1802};
+        1,1,{34,37,38},{1118,1802};
       },;
       { "Проведение Эхокардиографии","70.8.50",2,0,1,1,1,;
         1,1,106,{110101,111004,111802,111903,112211,112610,113416,113508,180203};
@@ -876,7 +881,7 @@ Function ret_arrays_disp_COVID()
         1,1,106,{110101,111004,111802,111903,112211,112610,113416,113508,180203};
       },;
       { "Приём врача терапевта","70.8.1",{1,2},1,0,1,1,;
-        1,1,{97,57,42},{1122,1110,2002},;
+        1,1,{42,151},{1122,1110,2002},;
         {57,97,42},1,1;
       };
     }
