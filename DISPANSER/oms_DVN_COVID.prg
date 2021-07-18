@@ -3,7 +3,6 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-
 ***** 15.07.21 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -91,8 +90,8 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
     m1VIDPOM :=  1,; // первичная
     m1PROFIL := 97,; // 97-терапия,57-общая врач.практика (семейн.мед-а),42-лечебное дело
     m1IDSP   := 11,; // доп.диспансеризация
+    mmobilbr, m1mobilbr := 0,;  // мобильная бригада
     mcena_1 := 0
-    // mmobilbr, m1mobilbr := 0,;
     // mtip_h,;
     // mveteran, m1veteran := 0,;  // пока оставил для совместимости
   //
@@ -100,6 +99,8 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
   Private metap := 0,;  // 1-первый этап, 2-второй этап
     m1ndisp := 1, mndisp,;  // m1ndisp := 3
     mnapr_onk := space(10), m1napr_onk := 0,;
+    mOKSI := 0,;  // данные оксиметра %
+    mDateCOVID := sys_date,;  // дата окончания лечения COVID
     mgruppa, m1gruppa := 9      // группа здоровья
     // , is_dostup_2_year := .f.,;
     // mWEIGHT := 0,;   // вес в кг
@@ -258,10 +259,10 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
     Private &mvar := mm_otkaz[1,1]
     mvar := "M1OTKAZ"+lstr(i)
     Private &mvar := mm_otkaz[1,2]
-    m1var := "M1LIS"+lstr(i)
-    Private &m1var := 0
-    mvar := "MLIS"+lstr(i)
-    Private &mvar := inieditspr(A__MENUVERT, mm_kdp2, &m1var)
+    // m1var := "M1LIS"+lstr(i)
+    // Private &m1var := 0
+    // mvar := "MLIS"+lstr(i)
+    // Private &mvar := inieditspr(A__MENUVERT, mm_kdp2, &m1var)
   next
   //
   afill(adiag_talon,0)
@@ -336,7 +337,10 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       read_arr_DVN_COVID(human->kod,.f.)  // читаем сохраненные данные по углубленной диспансеризации
     endif
   endif
-
+  if empty(mOKSI)
+    mOKSI := 95   // оксиметрия в %
+  endif
+  
   if Loc_kod > 0
     select HUMAN
     goto (Loc_kod)
@@ -404,7 +408,7 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       endif
     endif
     //
-    fl_4_1_12 := .f.
+    // fl_4_1_12 := .f.
     larr := array(2,count_dvn_COVID_arr_usl)
     afillall(larr,0)
     R_Use(dir_server+"uslugi",,"USL")
@@ -420,20 +424,22 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
         mshifr_zs := lshifr
       else
         fl := .t.
-        if is_disp_19
-          //
-        else
-          if lshifr == "2.3.3" .and. hu_->PROFIL == 3  ; // акушерскому делу
-                             .and. (i := ascan(dvn_COVID_arr_usl, {|x| valtype(x[2])=="C" .and. x[2]=="4.1.12"})) > 0
-            fl_4_1_12 := .t.
-            fl := .f.
-            larr[1,i] := hu->(recno())
-          endif
-        endif
+      //   if is_disp_19
+      //     //
+      //   else
+      //     if lshifr == "2.3.3" .and. hu_->PROFIL == 3  ; // акушерскому делу
+      //                        .and. (i := ascan(dvn_COVID_arr_usl, {|x| valtype(x[2])=="C" .and. x[2]=="4.1.12"})) > 0
+      //       fl_4_1_12 := .t.
+      //       fl := .f.
+      //       larr[1,i] := hu->(recno())
+      //     endif
+      //   endif
         if fl
           for i := 1 to count_dvn_COVID_arr_umolch
             if empty(larr[2,i]) .and. dvn_COVID_arr_umolch[i,2] == lshifr
-              fl := .f. ; larr[2,i] := hu->(recno()) ; exit
+              fl := .f.
+              larr[2,i] := hu->(recno())
+              exit
             endif
           next
         endif
@@ -441,46 +447,47 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
           for i := 1 to count_dvn_COVID_arr_usl
             if empty(larr[1,i])
               if valtype(dvn_COVID_arr_usl[i,2]) == "C"
-                if dvn_COVID_arr_usl[i,2] == "4.20.1"
-                  if lshifr == "4.20.1"
-                    m1g_cit := 1
-                  elseif lshifr == "4.20.2"
-                    m1g_cit := 2 ; fl := .f.
-                  endif
-                endif
+      //           // if dvn_COVID_arr_usl[i,2] == "4.20.1"
+      //           //   if lshifr == "4.20.1"
+      //           //     m1g_cit := 1
+      //           //   elseif lshifr == "4.20.2"
+      //           //     m1g_cit := 2 ; fl := .f.
+      //           //   endif
+      //           // endif
                 if dvn_COVID_arr_usl[i,2] == lshifr
                   fl := .f.
-                  m1var := "m1lis"+lstr(i)
-                  if is_disp_19
-                    &m1var := 0
-                  elseif glob_yes_kdp2[TIP_LU_DVN] .and. ascan(glob_arr_usl_LIS,dvn_COVID_arr_usl[i,2]) > 0 .and. hu->is_edit > 0
-                    &m1var := hu->is_edit
-                  endif
-                  mvar := "mlis"+lstr(i)
-                  &mvar := inieditspr(A__MENUVERT, mm_kdp2, &m1var)
+      //             // m1var := "m1lis"+lstr(i)
+      //             // if is_disp_19
+      //             //   &m1var := 0
+      //             // elseif glob_yes_kdp2[TIP_LU_DVN] .and. ascan(glob_arr_usl_LIS,dvn_COVID_arr_usl[i,2]) > 0 .and. hu->is_edit > 0
+      //             //   &m1var := hu->is_edit
+      //             // endif
+      //             // mvar := "mlis"+lstr(i)
+      //             // &mvar := inieditspr(A__MENUVERT, mm_kdp2, &m1var)
                 endif
               endif
-              if fl .and. len(dvn_COVID_arr_usl[i]) > 11 .and. valtype(dvn_COVID_arr_usl[i,12]) == "A"
-                if ascan(dvn_COVID_arr_usl[i,12],{|x| x[1] == lshifr .and. x[2] == hu_->PROFIL}) > 0
-                  fl := .f.
-                endif
-              endif
+      //         if fl .and. len(dvn_COVID_arr_usl[i]) > 11 .and. valtype(dvn_COVID_arr_usl[i,12]) == "A"
+      //           if ascan(dvn_COVID_arr_usl[i,12],{|x| x[1] == lshifr .and. x[2] == hu_->PROFIL}) > 0
+      //             fl := .f.
+      //           endif
+      //         endif
               if !fl
-                larr[1,i] := hu->(recno()) ; exit
+                larr[1,i] := hu->(recno())
+                exit
               endif
             endif
           next
         endif
-        if fl .and. ascan(dvn_700,{|x| x[2] == lshifr}) > 0
-          fl := .f. // к нулевой услуге добавлена услуга с ценой на "700"
-        endif
-        if fl
-          n_message({"Некорректная настройка в справочнике услуг:",;
-                   alltrim(usl->name),;
-                   "шифр услуги в справочнике "+usl->shifr,;
-                   "шифр ТФОМС - "+opr_shifr_TFOMS(usl->shifr1,usl->kod,mk_data)},,;
-                  "GR+/R","W+/R",,,"G+/R")
-        endif
+      //   if fl .and. ascan(dvn_700,{|x| x[2] == lshifr}) > 0
+      //     fl := .f. // к нулевой услуге добавлена услуга с ценой на "700"
+      //   endif
+      //   if fl
+      //     n_message({"Некорректная настройка в справочнике услуг:",;
+      //              alltrim(usl->name),;
+      //              "шифр услуги в справочнике "+usl->shifr,;
+      //              "шифр ТФОМС - "+opr_shifr_TFOMS(usl->shifr1,usl->kod,mk_data)},,;
+      //             "GR+/R","W+/R",,,"G+/R")
+      //   endif
       endif
       aadd(arr_usl,hu->(recno()))
       select HU
@@ -517,12 +524,12 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
         if valtype(dvn_COVID_arr_usl[i,2]) == "C"
           if ascan(arr_otklon,dvn_COVID_arr_usl[i,2]) > 0
             &m1var := 3 // выполнено, обнаружены отклонения
-          elseif dvn_COVID_arr_usl[i,2] == "2.3.1" .and. ascan(arr_otklon,"2.3.3") > 0
-            &m1var := 3 // выполнено, обнаружены отклонения
-          elseif dvn_COVID_arr_usl[i,2] == "4.20.1" .and. m1g_cit == 2 .and. ascan(arr_otklon,"4.20.2") > 0
-            &m1var := 3 // выполнено, обнаружены отклонения
-          elseif fl_4_1_12 .and. dvn_COVID_arr_usl[i,2] == "4.1.12"
-            &m1var := 2 // НЕВОЗМОЖНОсть
+          // elseif dvn_COVID_arr_usl[i,2] == "2.3.1" .and. ascan(arr_otklon,"2.3.3") > 0
+          //   &m1var := 3 // выполнено, обнаружены отклонения
+          // elseif dvn_COVID_arr_usl[i,2] == "4.20.1" .and. m1g_cit == 2 .and. ascan(arr_otklon,"4.20.2") > 0
+          //   &m1var := 3 // выполнено, обнаружены отклонения
+          // elseif fl_4_1_12 .and. dvn_COVID_arr_usl[i,2] == "4.1.12"
+          //   &m1var := 2 // НЕВОЗМОЖНОсть
           endif
         endif
         mvar := "MOTKAZ"+lstr(i)
@@ -538,9 +545,13 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
         if valtype(ar) == "A" .and. len(ar) >= 5 .and. valtype(ar[5]) == "C"
           lshifr := alltrim(ar[5])
           for i := 1 to count_dvn_COVID_arr_usl
+// alertx(lshifr, 'lshifr')
+// alertx(dvn_COVID_arr_usl[i,12], 'dvn_COVID_arr_usl[i,12]')
+            // if (valtype(dvn_COVID_arr_usl[i,2]) == "C") .and. ;
+            //       (dvn_COVID_arr_usl[i,2] == lshifr .or. (len(dvn_COVID_arr_usl[i]) > 11 .and. valtype(dvn_COVID_arr_usl[i,12]) == "A") ;
+            //       .and. (ascan(dvn_COVID_arr_usl[i,12],{|x| x[1] == lshifr}) > 0))
             if valtype(dvn_COVID_arr_usl[i,2]) == "C" .and. ;
-                (dvn_COVID_arr_usl[i,2] == lshifr .or. (len(dvn_COVID_arr_usl[i]) > 11 .and. valtype(dvn_COVID_arr_usl[i,12]) == "A" ;
-                                                               .and. ascan(dvn_COVID_arr_usl[i,12],{|x| x[1] == lshifr}) > 0))
+                  (dvn_COVID_arr_usl[i,2] == lshifr)
               if valtype(ar[1]) == "N" .and. ar[1] > 0
                 p2->(dbGoto(ar[1]))
                 mvar := "MTAB_NOMv"+lstr(i)
@@ -632,7 +643,7 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       mcompany := padr(mnameismo,38)
     endif
   endif
-  // mmobilbr := inieditspr(A__MENUVERT, mm_danet, m1mobilbr)
+  mmobilbr := inieditspr(A__MENUVERT, mm_danet, m1mobilbr)
   // mholestdn := inieditspr(A__MENUVERT, mm_danet, m1holestdn)
   // mglukozadn := inieditspr(A__MENUVERT, mm_danet, m1glukozadn)
   mdispans  := inieditspr(A__MENUVERT, mm_dispans, m1dispans)
@@ -690,7 +701,7 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       hS := 25 ; wS := 80
     endif
     SetMode(hS,wS)
-    @ 0,0 say padc(str_1,wS) color "B/BG*"
+    @ 0, 0 say padc(str_1,wS) color "B/BG*"
     gl_area := {1,0,maxrow()-1,maxcol(),0}
 
     j := 1
@@ -699,48 +710,44 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
     // if yes_num_lu == 1 .and. Loc_kod > 0
     //   @ j,(wS-30) say padl("Лист учета № "+lstr(Loc_kod),29) color color14
     // endif
-    @ j,0 say "Экран "+lstr(num_screen) color color8
+    @ j, 0 say "Экран "+lstr(num_screen) color color8
     if num_screen > 1
       s := alltrim(mfio)+" ("+lstr(mvozrast)+" "+s_let(mvozrast)+")"
-      @ j,wS-len(s) say s color color14
+      @ j, wS - len(s) say s color color14
     endif
     if num_screen == 1 //
-      // ++j; 
-      @ ++j,1 say "ФИО" get mfio_kart ;
+      @ ++j, 1 say "ФИО" get mfio_kart ;
           reader {|x| menu_reader(x,{{|k,r,c| get_fio_kart(k,r,c)}},A__FUNCTION,,,.f.)} ;
           valid {|g,o| update_get("mdate_r"),;
                       update_get("mkomu"),update_get("mcompany") }
-      @ row(),col()+5 say "Д.р." get mdate_r when .f. color color14
+      @ row(), col()+5 say "Д.р." get mdate_r when .f. color color14
 
       // ++j
       // @ ++j,1 say " Работающий?" get mrab_nerab ;
       //     reader {|x|menu_reader(x,menu_rab,A__MENUVERT,,,.f.)}
       // @ j,40 say "Ветеран ВОВ (блокадник)?" get mveteran ;
       //     reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
-      // ++j
-      @ ++j,1 say " Принадлежность счёта" get mkomu ;
+      @ ++j, 1 say " Принадлежность счёта" get mkomu ;
           reader {|x|menu_reader(x,mm_komu,A__MENUVERT,,,.f.)} ;
           valid {|g,o| f_valid_komu(g,o) } ;
           color colget_menu
-      @ row(),col()+1 say "==>" get mcompany ;
+      @ row(), col()+1 say "==>" get mcompany ;
           reader {|x|menu_reader(x,mm_company,A__MENUVERT,,,.f.)} ;
           when m1komu < 5 ;
           valid {|g| func_valid_ismo(g,m1komu,38) }
-      // ++j
-      @ ++j,1 say " Полис ОМС: серия" get mspolis when m1komu == 0
-      @ row(),col()+3 say "номер"  get mnpolis when m1komu == 0
-      @ row(),col()+3 say "вид"    get mvidpolis ;
+      @ ++j, 1 say " Полис ОМС: серия" get mspolis when m1komu == 0
+      @ row(), col()+3 say "номер"  get mnpolis when m1komu == 0
+      @ row(), col()+3 say "вид"    get mvidpolis ;
           reader {|x|menu_reader(x,mm_vid_polis,A__MENUVERT,,,.f.)} ;
           when m1komu == 0 ;
           valid func_valid_polis(m1vidpolis,mspolis,mnpolis)
       //
-      // ++j
-      @ ++j,1 say "Сроки" get mn_data ;
+      @ ++j, 1 say "Сроки" get mn_data ;
           valid {|g| f_k_data(g,1),;
               iif(mvozrast < 18, func_error(4,"Это не взрослый пациент!"), nil),;
                 ret_ndisp_COVID(Loc_kod,kod_kartotek) ;
           }
-      @ row(),col()+1 say "-" get mk_data ;
+      @ row(), col()+1 say "-" get mk_data ;
           valid {|g| f_k_data(g,2),;
                 ret_ndisp_COVID(Loc_kod,kod_kartotek) ;
           }
@@ -752,7 +759,7 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       // endif
 
       // ++j
-      @ j,col() + 5 say "№ амбулаторной карты" get much_doc picture "@!" ;
+      @ j, col() + 5 say "№ амбулаторной карты" get much_doc picture "@!" ;
           when !(is_uchastok == 1 .and. is_task(X_REGIST)) .or. mem_edit_ist==2
       // @ j,col()+5 say "Мобильная бригада?" get mmobilbr ;
       //       reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
@@ -774,22 +781,25 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
     
       ret_ndisp_COVID(Loc_kod,kod_kartotek)
 
-      // ++j
-      @ ++j,8 get mndisp when .f. color color14
+      @ ++j, 8 get mndisp when .f. color color14
       if mvozrast != mdvozrast
         // if m1veteran == 1
         //   s := "(для ветерана проводится по возрасту "+lstr(mdvozrast)+" "+s_let(mdvozrast)+")"
         // else
         s := "(в "+lstr(year(mn_data))+" году исполняется "+lstr(mdvozrast)+" "+s_let(mdvozrast)+")"
         // endif
-        @ j,80-len(s) say s color color14
+        @ j, 80-len(s) say s color color14
       endif
-      // ++j; 
-      @ ++j,1 say "────────────────────────────────────────────┬─────┬─────┬──────────┬──────────" color color8
-      // ++j; 
-      @ ++j,1 say "Наименования исследований                   │врач │ассис│дата услуг│выполнение " color color8
-      // ++j; 
-      @ ++j,1 say "────────────────────────────────────────────┴─────┴─────┴──────────┴──────────" color color8
+
+      @ ++j, 1 say "Дата окончания лечения COVID" get mDateCOVID ;
+          valid { |g| f_k_data(g,2) }
+      @ row(), col() + 5 say "Пульсооксиметрия" get mOKSI pict "999" ;
+          valid {|| iif(between(mOKSI,70,100),,func_error(4,"Неразумные показания пульсооксиметрии")), .t.}
+      @ row(), col()+1 say "%"
+
+      @ ++j, 1 say "────────────────────────────────────────────┬─────┬─────┬──────────┬──────────" color color8
+      @ ++j, 1 say "Наименования исследований                   │врач │ассис│дата услуг│выполнение " color color8
+      @ ++j, 1 say "────────────────────────────────────────────┴─────┴─────┴──────────┴──────────" color color8
       //++j; @ j,0 say replicate("─",80) color color8
       //++j; @ j,0 say "_Наименования исследований____________________врач__ассис_дата услуг_выполнение_" color color8
       if mem_por_ass == 0
@@ -802,33 +812,30 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
         // if f_is_usl_oms_sluch_DVN_COVID(i,metap,iif(metap==3.and.!is_disp_19,mvozrast,mdvozrast),mpol,@fl_diag,@i_otkaz)
         if f_is_usl_oms_sluch_DVN_COVID(i,metap,mvozrast,mpol,@fl_diag,@i_otkaz)
           if fl_diag .and. fl_vrach
-            // ++j; 
-            @ ++j,1 say "────────────────────────────────────────────┬─────┬─────┬───────────" color color8
-            // ++j; 
-            @ ++j,1 say "Наименования осмотров                       │врач │ассис│дата услуги" color color8
-            // ++j; 
-            @ ++j,1 say "────────────────────────────────────────────┴─────┴─────┴───────────" color color8
+            @ ++j, 1 say "────────────────────────────────────────────┬─────┬─────┬───────────" color color8
+            @ ++j, 1 say "Наименования осмотров                       │врач │ассис│дата услуги" color color8
+            @ ++j, 1 say "────────────────────────────────────────────┴─────┴─────┴───────────" color color8
             //++j; @ j,0 say replicate("─",80) color color8
             //++j; @ j,0 say "_Наименования осмотров________________________врач__ассис_дата услуг_диагноз____" color color8
             if mem_por_ass == 0
-              @ j-1,52 say space(5)
+              @ j-1, 52 say space(5)
             endif
             fl_vrach := .f.
           endif
           fl_g_cit := fl_kdp2 := .f.
           if valtype(dvn_COVID_arr_usl[i,2]) == "C"
-            if (fl_g_cit := (dvn_COVID_arr_usl[i,2] == "4.20.1"))
-              if m1g_cit == 0
-                m1g_cit := 1 // начальное присвоение
-              endif
-              mg_cit := inieditspr(A__MENUVERT, mm_g_cit, m1g_cit)
-              if mk_data > 0d20190831
-                fl_g_cit := .f.
-                m1g_cit := 1 // в МО
-              endif
-            elseif !is_disp_19 .and. glob_yes_kdp2[TIP_LU_DVN] .and. ascan(glob_arr_usl_LIS,dvn_COVID_arr_usl[i,2]) > 0
-              fl_kdp2 := .t.
-            endif
+            // if (fl_g_cit := (dvn_COVID_arr_usl[i,2] == "4.20.1"))
+            //   if m1g_cit == 0
+            //     m1g_cit := 1 // начальное присвоение
+            //   endif
+            //   mg_cit := inieditspr(A__MENUVERT, mm_g_cit, m1g_cit)
+            //   if mk_data > 0d20190831
+            //     fl_g_cit := .f.
+            //     m1g_cit := 1 // в МО
+            //   endif
+            // elseif !is_disp_19 .and. glob_yes_kdp2[TIP_LU_DVN] .and. ascan(glob_arr_usl_LIS,dvn_COVID_arr_usl[i,2]) > 0
+            //   fl_kdp2 := .t.
+            // endif
           endif
           mvarv := "MTAB_NOMv"+lstr(i)
           mvara := "MTAB_NOMa"+lstr(i)
@@ -838,147 +845,140 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
           endif
           mvarz := "MKOD_DIAG"+lstr(i)
           mvaro := "MOTKAZ"+lstr(i)
-          mvarlis := "MLIS"+lstr(i)
-          // ++j
-          if fl_g_cit
-            @ ++j,1 get mg_cit reader {|x|menu_reader(x,mm_g_cit,A__MENUVERT,,,.f.)}
-          else
-            @ ++j,1 say dvn_COVID_arr_usl[i,1]
-          endif
-          if fl_kdp2
-            @ j,41 get &mvarlis reader {|x|menu_reader(x,mm_kdp2,A__MENUVERT,,,.f.)}
-          endif
-          @ j,46 get &mvarv pict "99999" valid {|g| v_kart_vrach(g) }
+          // mvarlis := "MLIS"+lstr(i)
+
+          // if fl_g_cit
+          //   @ ++j, 1 get mg_cit reader {|x|menu_reader(x,mm_g_cit,A__MENUVERT,,,.f.)}
+          // else
+            @ ++j, 1 say dvn_COVID_arr_usl[i,1]
+          // endif
+          // if fl_kdp2
+          //   @ j, 41 get &mvarlis reader {|x|menu_reader(x,mm_kdp2,A__MENUVERT,,,.f.)}
+          // endif
+          @ j, 46 get &mvarv pict "99999" valid {|g| v_kart_vrach(g) }
           if mem_por_ass > 0
-            @ j,52 get &mvara pict "99999" valid {|g| v_kart_vrach(g) }
+            @ j, 52 get &mvara pict "99999" valid {|g| v_kart_vrach(g) }
           endif
-          @ j,58 get &mvard
+          @ j, 58 get &mvard
           if fl_diag
-            //@ j,69 get &mvarz picture pic_diag ;
-            //       reader {|o|MyGetReader(o,bg)} valid val1_10diag(.t.,.f.,.f.,mn_data,mpol)
+            @ j, 69 get &mvarz picture pic_diag ;
+                  reader {|o|MyGetReader(o,bg)} valid val1_10diag(.t.,.f.,.f.,mn_data,mpol)
           elseif i_otkaz == 0
-            @ j,69 get &mvaro ;
+            @ j, 69 get &mvaro ;
                  reader {|x|menu_reader(x,mm_otkaz0,A__MENUVERT,,,.f.)}
           elseif i_otkaz == 1
-            @ j,69 get &mvaro ;
+            @ j, 69 get &mvaro ;
                  reader {|x|menu_reader(x,mm_otkaz1,A__MENUVERT,,,.f.)}
           elseif eq_any(i_otkaz,2,3)
-            @ j,69 get &mvaro ;
+            @ j, 69 get &mvaro ;
                  reader {|x|menu_reader(x,mm_otkaz,A__MENUVERT,,,.f.)}
           endif
         endif
       next
-      // ++j; 
-      @ ++j,1 say replicate("─",68) color color8
-      status_key("^<Esc>^ выход без записи ^<PgUp>^ на 1-ю страницу ^<PgDn>^ на 2-ю страницу")
+      @ ++j, 1 say replicate("─",68) color color8
+      status_key("^<Esc>^ выход без записи ^<PgDn>^ на 2-ю страницу")
     elseif num_screen == 2 //
       // mm_gruppa := mm_gruppaP_new
-alertx(hb_ValToExp(mm_gruppa),'mm_gruppa')
+
+      mm_gruppa := {mm_gruppaD1,mm_gruppaD2}[metap]
       mgruppa := inieditspr(A__MENUVERT, mm_gruppa, m1gruppa)
+      if (i := ascan(mm_gruppa, {|x| x[3] == m1rslt })) > 0
+        m1GRUPPA := mm_gruppa[i,2]
+      endif
+
       ret_ndisp_COVID(Loc_kod,kod_kartotek)
-      // ++j; 
-      @ ++j,8 get mndisp when .f. color color14
-      // ++j; 
-      @ ++j,1  say "───────┬────────────┬──────────┬──────┬───────────────────────────────────────"
-      // ++j; 
-      @ ++j,1  say "       │  выявлено  │   дата   │стадия│установлено диспансерное Дата следующего"
-      // ++j; 
-      @ ++j,1  say "диагноз│заболевание │выявления │забол.│наблюдение     (когда)     визита"
-      // ++j; 
-      @ ++j,1  say "───────┴────────────┴──────────┴──────┴───────────────────────────────────────"
+      @ ++j, 8 get mndisp when .f. color color14
+      @ ++j, 1  say "───────┬────────────┬──────────┬──────┬───────────────────────────────────────"
+      @ ++j, 1  say "       │  выявлено  │   дата   │стадия│установлено диспансерное Дата следующего"
+      @ ++j, 1  say "диагноз│заболевание │выявления │забол.│наблюдение     (когда)     визита"
+      @ ++j, 1  say "───────┴────────────┴──────────┴──────┴───────────────────────────────────────"
       //                2      9            22           35       44        54
-      // ++j; 
-      @ ++j,2  get mdiag1 picture pic_diag ;
+      @ ++j, 2  get mdiag1 picture pic_diag ;
           reader {|o| MyGetReader(o,bg)} ;
           valid  {|g| iif(val1_10diag(.t.,.f.,.f.,mn_data,mpol),;
                   f_valid_diag_oms_sluch_DVN_COVID(g,1),;
                   .f.) }
-      @ j,9  get mpervich1 ;
+      @ j, 9  get mpervich1 ;
           reader {|x|menu_reader(x,mm_pervich,A__MENUVERT,,,.f.)} ;
           when !empty(mdiag1)
-      @ j,22 get mddiag1 when !empty(mdiag1)
-      @ j,35 get m1stadia1 pict "9" range 1,4 ;
+      @ j, 22 get mddiag1 when !empty(mdiag1)
+      @ j, 35 get m1stadia1 pict "9" range 1,4 ;
           when !empty(mdiag1)
-      @ j,44 get mdispans1 ;
+      @ j, 44 get mdispans1 ;
           reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
           when !empty(mdiag1)
-      @ j,54 get mddispans1 when m1dispans1==1
-      @ j,67 get mdndispans1 when m1dispans1==1
+      @ j, 54 get mddispans1 when m1dispans1==1
+      @ j, 67 get mdndispans1 when m1dispans1==1
       //
-      // ++j; 
-      @ ++j,2  get mdiag2 picture pic_diag ;
+      @ ++j, 2  get mdiag2 picture pic_diag ;
           reader {|o| MyGetReader(o,bg)} ;
           valid  {|g| iif(val1_10diag(.t.,.f.,.f.,mn_data,mpol),;
                   f_valid_diag_oms_sluch_DVN_COVID(g,2),;
                   .f.) }
-      @ j,9  get mpervich2 ;
+      @ j, 9  get mpervich2 ;
           reader {|x|menu_reader(x,mm_pervich,A__MENUVERT,,,.f.)} ;
           when !empty(mdiag2)
-      @ j,22 get mddiag2 when !empty(mdiag2)
-      @ j,35 get m1stadia2 pict "9" range 1,4 ;
+      @ j, 22 get mddiag2 when !empty(mdiag2)
+      @ j, 35 get m1stadia2 pict "9" range 1,4 ;
           when !empty(mdiag2)
-      @ j,44 get mdispans2 ;
+      @ j, 44 get mdispans2 ;
           reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
           when !empty(mdiag2)
-      @ j,54 get mddispans2 when m1dispans2==1
-      @ j,67 get mdndispans2 when m1dispans2==1
+      @ j, 54 get mddispans2 when m1dispans2==1
+      @ j, 67 get mdndispans2 when m1dispans2==1
       //
-      // ++j; 
-      @ ++j,2  get mdiag3 picture pic_diag ;
+      @ ++j, 2  get mdiag3 picture pic_diag ;
           reader {|o| MyGetReader(o,bg)} ;
           valid  {|g| iif(val1_10diag(.t.,.f.,.f.,mn_data,mpol),;
                   f_valid_diag_oms_sluch_DVN_COVID(g,3),;
                   .f.) }
-      @ j,9  get mpervich3 ;
+      @ j, 9  get mpervich3 ;
           reader {|x|menu_reader(x,mm_pervich,A__MENUVERT,,,.f.)} ;
           when !empty(mdiag3)
-      @ j,22 get mddiag3 when !empty(mdiag3)
-      @ j,35 get m1stadia3 pict "9" range 1,4 ;
+      @ j, 22 get mddiag3 when !empty(mdiag3)
+      @ j, 35 get m1stadia3 pict "9" range 1,4 ;
           when !empty(mdiag3)
-      @ j,44 get mdispans3 ;
+      @ j, 44 get mdispans3 ;
           reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
           when !empty(mdiag3)
-      @ j,54 get mddispans3 when m1dispans3==1
-      @ j,67 get mdndispans3 when m1dispans3==1
+      @ j, 54 get mddispans3 when m1dispans3==1
+      @ j, 67 get mdndispans3 when m1dispans3==1
       //
-      // ++j; 
-      @ ++j,2  get mdiag4 picture pic_diag ;
+      @ ++j, 2  get mdiag4 picture pic_diag ;
           reader {|o| MyGetReader(o,bg)} ;
           valid  {|g| iif(val1_10diag(.t.,.f.,.f.,mn_data,mpol),;
                   f_valid_diag_oms_sluch_DVN_COVID(g,4),;
                   .f.) }
-      @ j,9  get mpervich4 ;
+      @ j, 9  get mpervich4 ;
           reader {|x|menu_reader(x,mm_pervich,A__MENUVERT,,,.f.)} ;
           when !empty(mdiag4)
-      @ j,22 get mddiag4 when !empty(mdiag4)
-      @ j,35 get m1stadia4 pict "9" range 1,4 ;
+      @ j, 22 get mddiag4 when !empty(mdiag4)
+      @ j, 35 get m1stadia4 pict "9" range 1,4 ;
           when !empty(mdiag4)
-      @ j,44 get mdispans4 ;
+      @ j, 44 get mdispans4 ;
           reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
           when !empty(mdiag4)
-      @ j,54 get mddispans4 when m1dispans4==1
-      @ j,67 get mdndispans4 when m1dispans4==1
+      @ j, 54 get mddispans4 when m1dispans4==1
+      @ j, 67 get mdndispans4 when m1dispans4==1
       //
-      // ++j; 
-      @ ++j,2  get mdiag5 picture pic_diag ;
+      @ ++j, 2  get mdiag5 picture pic_diag ;
           reader {|o| MyGetReader(o,bg)} ;
           valid  {|g| iif(val1_10diag(.t.,.f.,.f.,mn_data,mpol),;
                   f_valid_diag_oms_sluch_DVN_COVID(g,5),;
                   .f.) }
-      @ j,9  get mpervich5 ;
+      @ j, 9  get mpervich5 ;
           reader {|x|menu_reader(x,mm_pervich,A__MENUVERT,,,.f.)} ;
           when !empty(mdiag5)
-      @ j,22 get mddiag5 when !empty(mdiag5)
-      @ j,35 get m1stadia5 pict "9" range 1,4 ;
+      @ j, 22 get mddiag5 when !empty(mdiag5)
+      @ j, 35 get m1stadia5 pict "9" range 1,4 ;
           when !empty(mdiag5)
-      @ j,44 get mdispans5 ;
+      @ j, 44 get mdispans5 ;
           reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
           when !empty(mdiag5)
-      @ j,54 get mddispans5 when m1dispans5==1
-      @ j,67 get mdndispans5 when m1dispans5==1
+      @ j, 54 get mddispans5 when m1dispans5==1
+      @ j, 67 get mdndispans5 when m1dispans5==1
       //
-      // ++j; 
-      @ ++j,1 say replicate("─",78) color color1
+      @ ++j, 1 say replicate("─",78) color color1
       ++j
       // @ j,1 say "Диспансерное наблюдение установлено" get mdispans ;
       //            reader {|x|menu_reader(x,mm_dispans,A__MENUVERT,,,.f.)} ;
@@ -995,8 +995,8 @@ alertx(hb_ValToExp(mm_gruppa),'mm_gruppa')
       //   ++j
       // endif
       // ++j; 
-      @ ++j,1 say "ГРУППА состояния ЗДОРОВЬЯ"
-      @ j,col()+1 get mGRUPPA ;
+      @ ++j, 1 say "ГРУППА состояния ЗДОРОВЬЯ"
+      @ j, col()+1 get mGRUPPA ;
           reader {|x|menu_reader(x,mm_gruppa,A__MENUVERT,,,.f.)}
       status_key("^<Esc>^ выход без записи ^<PgUp>^ на 1-ю страницу ^<PgDn>^ ЗАПИСЬ")
     endif
@@ -1039,839 +1039,877 @@ alertx(hb_ValToExp(mm_gruppa),'mm_gruppa')
       endif
     endif
 
-  SetMode(25,80)
-  if k == 3
-    loop
-  elseif k == 2
-    num_screen := 1
-    if m1komu < 5 .and. empty(m1company)
-      if m1komu == 0     ; s := "СМО"
-      elseif m1komu == 1 ; s := "компании"
-      else               ; s := "комитета/МО"
-      endif
-      func_error(4,'Не заполнено наименование '+s)
+    SetMode(25,80)
+    if k == 3
       loop
-    endif
-    if m1komu == 0 .and. empty(mnpolis)
-      func_error(4,'Не заполнен номер полиса')
-      loop
-    endif
-    if empty(mn_data)
-      func_error(4,"Не введена дата начала диспансеризации.")
-      loop
-    endif
-    if mvozrast < 18
-      func_error(4,"Диспансеризация оказана НЕ взрослому пациенту!")
-      loop
-    endif
-    if empty(mk_data)
-      func_error(4,"Не введена дата окончания диспансеризации.")
-      loop
-    endif
-    if empty(CHARREPL("0",much_doc,space(10)))
-      func_error(4,'Не заполнен номер амбулаторной карты')
-      loop
-    endif
-    //
-    mdef_diagnoz := iif(metap==2, "Z01.8 ", "Z00.8 ")
-    R_Use(dir_exe+"_mo_mkb",cur_dir+"_mo_mkb","MKB_10")
-    R_Use(dir_server+"mo_pers",dir_server+"mo_pers","P2")
-    num_screen := 2
-    max_date1 := mn_data
-    fl := .t.
-    not_4_20_1 := .f.
-    date_4_1_12 := ctod("")
-    k := ku := kol_d_usl := 0
-    arr_osm1 := array(count_dvn_COVID_arr_usl,11) ; afillall(arr_osm1,0)
-    for i := 1 to count_dvn_COVID_arr_usl
-      fl_diag := fl_ekg := .f.
-      i_otkaz := 0
-      if f_is_usl_oms_sluch_DVN(i,metap,iif(metap==3.and.!is_disp_19,mvozrast,mdvozrast),mpol,@fl_diag,@i_otkaz,@fl_ekg)
-        mvart := "MTAB_NOMv"+lstr(i)
-        if empty(&mvart) .and. (eq_any(metap,2,5) .or. fl_ekg) // ЭКГ, не введён врач
-          loop                                                 // и необязательный возраст
-        endif
-        ar := dvn_COVID_arr_usl[i]
-        mvara := "MTAB_NOMa"+lstr(i)
-        mvard := "MDATE"+lstr(i)
-        mvarz := "MKOD_DIAG"+lstr(i)
-        mvaro := "M1OTKAZ"+lstr(i)
-        if &mvard == mn_data
-          k := i
-        endif
-        if valtype(ar[2]) == "C" .and. ar[2] == "4.20.1"
-          if not_4_20_1 // не включать услугу
-            loop
-          endif
-          if m1g_cit == 2
-            if empty(&mvard)
-              fl := func_error(4,'Не введена дата услуги "'+mg_cit+'"')
-            endif
-            arr_osm1[i,1]  := 0        // врач
-            arr_osm1[i,2]  := -13 //1107     // специальность
-            arr_osm1[i,3]  := 0        // ассистент
-            arr_osm1[i,4]  := 34       // профиль
-            arr_osm1[i,5]  := "4.20.2" // шифр услуги
-            arr_osm1[i,6]  := mdef_diagnoz
-            arr_osm1[i,9]  := &mvard
-            arr_osm1[i,10] := &mvaro
-            //if date_4_1_12 < mn_data ; // если 4.1.12 оказано раньше дисп-ии
-            //      .or. arr_osm1[i,9] < date_4_1_12 // или 4.20.1 раньше 4.1.12
-            //  arr_osm1[i,9] := date_4_1_12 // приравняем даты
-            //endif
-            max_date1 := max(max_date1,arr_osm1[i,9])
-            ++ku
-            loop
-          endif
+    elseif k == 2
+      num_screen := 1
+      if m1komu < 5 .and. empty(m1company)
+        if m1komu == 0
+          s := "СМО"
+        elseif m1komu == 1
+          s := "компании"
         else
-          ++kol_d_usl
+          s := "комитета/МО"
         endif
-        if i_otkaz == 2 .and. &mvaro == 2 // если исследование невозможно
-          select P2
-          find (str(&mvart,5))
-          if found()
-            arr_osm1[i,1] := p2->kod
-          endif
-          if valtype(ar[11]) == "A" // специальность
-            arr_osm1[i,2] := ar[11,1]
-          endif
-          if valtype(ar[10]) == "N" // профиль
-            arr_osm1[i,4] := ar[10]
-          endif
-          arr_osm1[i,5] := ar[2] // шифр услуги
-          arr_osm1[i,9] := iif(empty(&mvard), mn_data, &mvard)
-          arr_osm1[i,10] := &mvaro
-          --kol_d_usl
-        elseif empty(&mvard)
-          fl := func_error(4,'Не введена дата услуги "'+ltrim(ar[1])+'"')
-        elseif empty(&mvart)
-          fl := func_error(4,'Не введен врач в услуге "'+ltrim(ar[1])+'"')
-        else
-          select P2
-          find (str(&mvart,5))
-          if found()
-            arr_osm1[i,1] := p2->kod
-            arr_osm1[i,2] := -ret_new_spec(p2->prvs,p2->prvs_new)
-          endif
-          if !empty(&mvara)
-            select P2
-            find (str(&mvara,5))
-            if found()
-              arr_osm1[i,3] := p2->kod
-            endif
-          endif
-          if valtype(ar[10]) == "N" // профиль
-            arr_osm1[i,4] := ret_profil_dispans(ar[10],arr_osm1[i,2])
-          else
-            if len(ar[10]) == len(ar[11]) ; // кол-во профилей = кол-ву спец-тей
-                       .and. arr_osm1[i,2] < 0 ; // и нашли специальность по V015
-                       .and. (j := ascan(ar[11],ret_old_prvs(arr_osm1[i,2]))) > 0
-              // берём профиль, соответствующий специальности
-            else
-              j := 1 // если нет, берём первый профиль из списка
-            endif
-            arr_osm1[i,4] := ar[10,j] // профиль
-          endif
-          ++ku
-          if valtype(ar[2]) == "C"
-            arr_osm1[i,5] := ar[2] // шифр услуги
-            m1var := "m1lis"+lstr(i)
-            if !is_disp_19 .and. glob_yes_kdp2[TIP_LU_DVN] .and. &m1var > 0
-              arr_osm1[i,11] := &m1var // кровь проверяют в КДП2
-            endif
-            if ar[2] == "2.3.1"
-              if eq_any(arr_osm1[i,2],2002,-206) // специальность-фельдшер
-                arr_osm1[i,5] := "2.3.3" // шифр услуги
-                arr_osm1[i,4] := 42 // профиль - лечебному делу
-              endif
-            endif
-          else
-            if len(ar[2]) >= metap
-              j := metap
-            else
-              j := 1
-            endif
-            arr_osm1[i,5] := ar[2,j] // шифр услуги
-            if i == count_dvn_COVID_arr_usl // последняя услуга из массива - терапевт
-              if eq_any(metap,2,5)
-                if eq_any(arr_osm1[i,2],2002,-206) // специальность-фельдшер
-                  fl := func_error(4,"Фельдшер не может заменить терапевта на II этапе диспансеризации")
-                endif
-              else // 1 и 3 этап
-                if eq_any(arr_osm1[i,2],2002,-206) // специальность-фельдшер
-                  arr_osm1[i,5] := iif(is_disp_19,"2.3.4","2.3.3") // шифр услуги
-                  arr_osm1[i,4] := 42 // профиль - лечебному делу
-                endif
-              endif
-            endif
-          endif
-          if !fl_diag .or. empty(&mvarz) .or. left(&mvarz,1) == "Z"
-            arr_osm1[i,6] := mdef_diagnoz
-          else
-            arr_osm1[i,6] := &mvarz
-            select MKB_10
-            find (padr(arr_osm1[i,6],6))
-            if found() .and. !empty(mkb_10->pol) .and. !(mkb_10->pol == mpol)
-              fl := func_error(4,"Несовместимость диагноза по полу "+arr_osm1[i,6])
-            endif
-          endif
-          if (arr_osm1[i,10] := &mvaro) == 1 // отказ
-            if arr_osm1[i,5] == "4.1.12" // Осмотр акушеркой, взятие мазка (соскоба)
-              not_4_20_1 := .t. // не включать услугу
-            endif
-          endif
-          if i_otkaz == 3 .and. &mvaro == 2 // НЕВОЗМОЖНОСТЬ для услуги 4.1.12
-            if is_disp_19
-              not_4_20_1 := .t. // не включать услугу
-            else
-              if arr_osm1[i,2] == 1101 // если указана спец-ть врача
-                arr_osm1[i,5] := "2.3.1" // приём врача акушера-гинеколога
-                arr_osm1[i,4] := 136 // профиль - акушерству и гинекологии (за исключением использования вспомогательных репродуктивных технологий)
-              else
-                arr_osm1[i,5] := "2.3.3" // приём фельдшера-акушера
-                arr_osm1[i,4] := 3 // профиль - акушерскому делу
-              endif
-              arr_osm1[i,10] := 0 // нет отказа (? может поставить 3-отклонение?)
-              not_4_20_1 := .t. // не включать услугу
-            endif
-          endif
-          arr_osm1[i,9] := &mvard
-          // перепишем дату по "связанным" услугам
-          do case
-            case arr_osm1[i,5] == "4.1.12" // взятие мазка (соскоба)
-              date_4_1_12 := arr_osm1[i,9]
-            case arr_osm1[i,5] == "4.20.1" // Иссл-е взятого цитологического материала
-              //if date_4_1_12 < mn_data ; // если 4.1.12 оказано раньше дисп-ии
-              //      .or. arr_osm1[i,9] < date_4_1_12 // или 4.20.1 раньше 4.1.12
-              //  arr_osm1[i,9] := date_4_1_12 // приравняем даты
-              //endif
-          endcase
-          max_date1 := max(max_date1,arr_osm1[i,9])
-        endif
-      endif
-      if !fl ; exit ; endif
-    next
-    if !fl
-      loop
-    endif
-    i_56_1_723 := 0
-    if eq_any(metap,2,5)
-      if ku < 2
-        if !is_disp_19 .and. (i_56_1_723 := ascan(arr_osm1,{|x| valtype(x[5]) == "C" .and. x[5] == "56.1.723"})) > 0
-          // одно индивидуальное или групповое углубленное профилактическое консультирование - "56.1.723"
-        else
-          func_error(4,"На II этапе обязателен осмотр терапевта и ещё какие-либо услуги.")
-          loop
-        endif
-      endif
-      if k == 0
-        func_error(4,"Дата первого осмотра (исследования) должна равняться дате начала лечения.")
+        func_error(4,'Не заполнено наименование '+s)
         loop
       endif
-    endif
-    fl := .t.
-    if emptyany(arr_osm1[count_dvn_COVID_arr_usl,1],arr_osm1[count_dvn_COVID_arr_usl,9])
-      if metap == 2 .and. i_56_1_723 > 0
-        if !(arr_osm1[i_56_1_723,9] == mn_data .and. arr_osm1[i_56_1_723,9] == mk_data)
-          fl := func_error(4,'Начало и окончание должно равняться дате углубленного профилактич.консультирования')
-        elseif lrslt_1_etap == 353 // Направлен на 2 этап, предварительно присвоена II группа здоровья
-          if m1gruppa != 2
-            fl := func_error(4,'Результатом 2-го этапа должна быть II группа здоровья (как и на 1-ом этапе)')
-            num_screen := 3
-          endif
-        else // другой результат
-          fl := func_error(4,'Результатом 1-го этапа должна быть II группа (и направлен на 2-ой этап)')
-          num_screen := 3
-        endif
-      else
-        fl := func_error(4,'Не введён приём терапевта (врача общей практики)')
+      if m1komu == 0 .and. empty(mnpolis)
+        func_error(4,'Не заполнен номер полиса')
+        loop
       endif
-    elseif arr_osm1[count_dvn_COVID_arr_usl,9] < mk_data
-      fl := func_error(4,'Терапевт (врач общей практики) должен проводить осмотр последним!')
-    endif
-    if !fl
-      loop
-    endif
-    num_screen := 3
-    arr_diag := {}
-    for i := 1 to 5
-      sk := lstr(i)
-      pole_diag := "mdiag"+sk
-      pole_d_diag := "mddiag"+sk
-      pole_1pervich := "m1pervich"+sk
-      pole_1dispans := "m1dispans"+sk
-      pole_d_dispans := "mddispans"+sk
-      pole_dn_dispans := "mdndispans"+sk
-      if !empty(&pole_diag)
-        if left(&pole_diag,1) == "Z"
-          fl := func_error(4,'Диагноз '+rtrim(&pole_diag)+'(первый символ "Z") не вводится. Это не заболевание!')
-        elseif &pole_1pervich == 0
-          if empty(&pole_d_diag)
-            fl := func_error(4,"Не введена дата выявления диагноза "+&pole_diag)
-          elseif &pole_1dispans == 1 .and. empty(&pole_d_dispans)
-            fl := func_error(4,"Не введена дата установления диспансерного наблюдения для диагноза "+&pole_diag)
-          endif
-        endif
-        if fl .and. between(&pole_1pervich,0,1) // предварительные диагнозы не берём
-          aadd(arr_diag, {&pole_diag,&pole_1pervich,&pole_1dispans,&pole_dn_dispans})
-        endif
+      if empty(mn_data)
+        func_error(4,"Не введена дата начала углубленной диспансеризации после COVID.")
+        loop
       endif
-      if !fl ; exit ; endif
-    next
-    if !fl
-      loop
-    endif
-    // is_disp_nabl := .f.
-    afill(adiag_talon,0)
-    if empty(arr_diag) // диагнозы не вводили
-      aadd(arr_diag, {mdef_diagnoz,0,0,ctod("")}) // диагноз по умолчанию
-      MKOD_DIAG := mdef_diagnoz
-    else
-      for i := 1 to len(arr_diag)
-        if arr_diag[i,2] == 0 // "ранее выявлено"
-          arr_diag[i,2] := 2  // заменяем, как в листе учёта ОМС
-        endif
-        if arr_diag[i,3] > 0 // "дисп.наблюдение установлено" и "ранее выявлено"
-          if arr_diag[i,2] == 2 // "ранее выявлено"
-            arr_diag[i,3] := 1 // то "Состоит"
-          else
-            arr_diag[i,3] := 2 // то "Взят"
+      if mvozrast < 18
+        func_error(4,"Диспансеризация оказана НЕ взрослому пациенту!")
+        loop
+      endif
+      if empty(mk_data)
+        func_error(4,"Не введена дата окончания углубленной диспансеризации после COVID.")
+        loop
+      endif
+      if empty(CHARREPL("0",much_doc,space(10)))
+        func_error(4,'Не заполнен номер амбулаторной карты')
+        loop
+      endif
+      //
+//////////////////////////////////////////////////////////////
+      // mdef_diagnoz := iif(metap==2, "Z01.8 ", "Z00.8 ")
+      mdef_diagnoz := 'U09.9 '
+      R_Use(dir_exe+"_mo_mkb",cur_dir+"_mo_mkb","MKB_10")
+      R_Use(dir_server+"mo_pers",dir_server+"mo_pers","P2")
+      num_screen := 2
+      max_date1 := mn_data
+      fl := .t.
+      // not_4_20_1 := .f.
+      // date_4_1_12 := ctod("")
+      k := ku := kol_d_usl := 0
+      arr_osm1 := array(count_dvn_COVID_arr_usl, 11)
+      afillall(arr_osm1,0)
+
+      // ВСЕ ЗАПИСЫВАЕМ
+      for i := 1 to count_dvn_COVID_arr_usl
+        fl_diag := .f.
+        // fl_ekg := .f.
+        i_otkaz := 0
+        // if f_is_usl_oms_sluch_DVN(i,metap,iif(metap==3.and.!is_disp_19,mvozrast,mdvozrast),mpol,@fl_diag,@i_otkaz,@fl_ekg)
+        if f_is_usl_oms_sluch_DVN_COVID(i,metap,mvozrast,mpol,@fl_diag,@i_otkaz)
+          mvart := "MTAB_NOMv"+lstr(i)
+          // if empty(&mvart) .and. (eq_any(metap,2,5) .or. fl_ekg) // ЭКГ, не введён врач
+          //   loop                                                 // и необязательный возраст
+          // endif
+          ar := dvn_COVID_arr_usl[i]
+          mvara := "MTAB_NOMa"+lstr(i)
+          mvard := "MDATE"+lstr(i)
+          mvarz := "MKOD_DIAG"+lstr(i)
+          mvaro := "M1OTKAZ"+lstr(i)
+          if &mvard == mn_data
+            k := i
           endif
+
+          // if valtype(ar[2]) == "C" .and. ar[2] == "4.20.1"
+          //   if not_4_20_1 // не включать услугу
+          //     loop
+          //   endif
+          //   if m1g_cit == 2
+          //     if empty(&mvard)
+          //       fl := func_error(4,'Не введена дата услуги "'+mg_cit+'"')
+          //     endif
+          //     arr_osm1[i,1]  := 0        // врач
+          //     arr_osm1[i,2]  := -13 //1107     // специальность
+          //     arr_osm1[i,3]  := 0        // ассистент
+          //     arr_osm1[i,4]  := 34       // профиль
+          //     arr_osm1[i,5]  := "4.20.2" // шифр услуги
+          //     arr_osm1[i,6]  := mdef_diagnoz
+          //     arr_osm1[i,9]  := &mvard
+          //     arr_osm1[i,10] := &mvaro
+          //     if date_4_1_12 < mn_data ; // если 4.1.12 оказано раньше дисп-ии
+          //          .or. arr_osm1[i,9] < date_4_1_12 // или 4.20.1 раньше 4.1.12
+          //      arr_osm1[i,9] := date_4_1_12 // приравняем даты
+          //     endif
+          //     max_date1 := max(max_date1,arr_osm1[i,9])
+          //     ++ku
+          //     loop
+          //   endif
+          // else
+            ++kol_d_usl
+          // endif
+          if i_otkaz == 2 .and. &mvaro == 2 // если исследование невозможно
+            select P2
+            find (str(&mvart,5))
+            if found()
+              arr_osm1[i,1] := p2->kod
+            endif
+            if valtype(ar[11]) == "A" // специальность
+              arr_osm1[i,2] := ar[11,1]
+            endif
+            if valtype(ar[10]) == "N" // профиль
+              arr_osm1[i,4] := ar[10]
+            endif
+            arr_osm1[i,5] := ar[2] // шифр услуги
+            arr_osm1[i,9] := iif(empty(&mvard), mn_data, &mvard)
+            arr_osm1[i,10] := &mvaro
+            --kol_d_usl
+          elseif empty(&mvard)
+            fl := func_error(4,'Не введена дата услуги "'+ltrim(ar[1])+'"')
+          elseif empty(&mvart)
+            fl := func_error(4,'Не введен врач в услуге "'+ltrim(ar[1])+'"')
+          else  // табельный номер врача и его специальность
+            select P2
+            find (str(&mvart,5))
+            if found()
+              arr_osm1[i,1] := p2->kod
+              arr_osm1[i,2] := -ret_new_spec(p2->prvs,p2->prvs_new)
+            endif
+            if !empty(&mvara) // табельный номер ассистента
+              select P2
+              find (str(&mvara,5))
+              if found()
+                arr_osm1[i,3] := p2->kod
+              endif
+            endif
+            if valtype(ar[10]) == "N" // профиль
+              arr_osm1[i,4] := ret_profil_dispans_COVID(ar[10],arr_osm1[i,2])
+            else
+              if len(ar[10]) == len(ar[11]) ; // кол-во профилей = кол-ву спец-тей
+                    .and. arr_osm1[i,2] < 0 ; // и нашли специальность по V015
+                    .and. (j := ascan(ar[11],ret_old_prvs(arr_osm1[i,2]))) > 0
+                // берём профиль, соответствующий специальности
+              else
+                j := 1 // если нет, берём первый профиль из списка
+              endif
+              arr_osm1[i,4] := ar[10,j] // профиль
+            endif
+            ++ku
+            if valtype(ar[2]) == "C"  // шифр услуги
+              arr_osm1[i,5] := ar[2] // шифр услуги
+              // m1var := "m1lis"+lstr(i)
+              // if !is_disp_19 .and. glob_yes_kdp2[TIP_LU_DVN] .and. &m1var > 0
+              //   arr_osm1[i,11] := &m1var // кровь проверяют в КДП2
+              // endif
+              // if ar[2] == "2.3.1"
+              //   if eq_any(arr_osm1[i,2],2002,-206) // специальность-фельдшер
+              //     arr_osm1[i,5] := "2.3.3" // шифр услуги
+              //     arr_osm1[i,4] := 42 // профиль - лечебному делу
+              //   endif
+              // endif
+            else
+              if len(ar[2]) >= metap
+                j := metap
+              else
+                j := 1
+              endif
+              arr_osm1[i,5] := ar[2,j] // шифр услуги
+              if i == count_dvn_COVID_arr_usl // последняя услуга из массива - терапевт
+                if metap == 2
+                  // if eq_any(arr_osm1[i,2],2002,-206) // специальность-фельдшер
+                  //   fl := func_error(4,"Фельдшер не может заменить терапевта на II этапе диспансеризации")
+                  // endif
+                else // 1 этап
+                  // if eq_any(arr_osm1[i,2],2002,-206) // специальность-фельдшер
+                  //   arr_osm1[i,5] := iif(is_disp_19,"2.3.4","2.3.3") // шифр услуги
+                  //   arr_osm1[i,4] := 42 // профиль - лечебному делу
+                  // endif
+                endif
+              endif
+            endif
+
+            // if !fl_diag .or. empty(&mvarz) .or. left(&mvarz,1) == "Z"
+            if !fl_diag .or. empty(&mvarz) .or. left(&mvarz,1) == 'U'
+              arr_osm1[i,6] := mdef_diagnoz
+            else
+              arr_osm1[i,6] := &mvarz
+              select MKB_10
+              find (padr(arr_osm1[i,6],6))
+              if found() .and. !empty(mkb_10->pol) .and. !(mkb_10->pol == mpol)
+                fl := func_error(4,"Несовместимость диагноза по полу "+arr_osm1[i,6])
+              endif
+            endif
+            arr_osm1[i,10] := &mvaro
+            // if (arr_osm1[i,10] := &mvaro) == 1 // отказ
+            //   if arr_osm1[i,5] == "4.1.12" // Осмотр акушеркой, взятие мазка (соскоба)
+            //     not_4_20_1 := .t. // не включать услугу
+            //   endif
+            // endif
+            // if i_otkaz == 3 .and. &mvaro == 2 // НЕВОЗМОЖНОСТЬ для услуги 4.1.12
+            //   if is_disp_19
+            //     not_4_20_1 := .t. // не включать услугу
+            //   else
+            //     if arr_osm1[i,2] == 1101 // если указана спец-ть врача
+            //       arr_osm1[i,5] := "2.3.1" // приём врача акушера-гинеколога
+            //       arr_osm1[i,4] := 136 // профиль - акушерству и гинекологии (за исключением использования вспомогательных репродуктивных технологий)
+            //     else
+            //       arr_osm1[i,5] := "2.3.3" // приём фельдшера-акушера
+            //       arr_osm1[i,4] := 3 // профиль - акушерскому делу
+            //     endif
+            //     arr_osm1[i,10] := 0 // нет отказа (? может поставить 3-отклонение?)
+            //     not_4_20_1 := .t. // не включать услугу
+            //   endif
+            // endif
+            arr_osm1[i,9] := &mvard
+            // перепишем дату по "связанным" услугам
+            // do case
+            //   case arr_osm1[i,5] == "4.1.12" // взятие мазка (соскоба)
+            //     date_4_1_12 := arr_osm1[i,9]
+            //   case arr_osm1[i,5] == "4.20.1" // Иссл-е взятого цитологического материала
+            //     //if date_4_1_12 < mn_data ; // если 4.1.12 оказано раньше дисп-ии
+            //     //      .or. arr_osm1[i,9] < date_4_1_12 // или 4.20.1 раньше 4.1.12
+            //     //  arr_osm1[i,9] := date_4_1_12 // приравняем даты
+            //     //endif
+            // endcase
+            max_date1 := max(max_date1,arr_osm1[i,9])
+          endif
+        endif
+        if !fl
+          exit
         endif
       next
-      for i := 1 to len(arr_diag)
-        if ascan(sadiag1,alltrim(arr_diag[i,1])) > 0 .and. ;
-                                  arr_diag[i,3] == 1 .and. !empty(arr_diag[i,4]) .and. arr_diag[i,4] > mk_data
-          // is_disp_nabl := .t.
-        endif
-        adiag_talon[i*2-1] := arr_diag[i,2]
-        adiag_talon[i*2  ] := arr_diag[i,3]
-        if i == 1
-          MKOD_DIAG := arr_diag[i,1]
-        elseif i == 2
-          MKOD_DIAG2 := arr_diag[i,1]
-        elseif i == 3
-          MKOD_DIAG3 := arr_diag[i,1]
-        elseif i == 4
-          MKOD_DIAG4 := arr_diag[i,1]
-        elseif i == 5
-          MSOPUT_B1 := arr_diag[i,1]
-        endif
-        select MKB_10
-        find (padr(arr_diag[i,1],6))
-        if found()
-          if !empty(mkb_10->pol) .and. !(mkb_10->pol == mpol)
-            fl := func_error(4,"несовместимость диагноза по полу "+alltrim(arr_diag[i,1]))
+
+      if !fl
+        loop
+      endif
+      // i_56_1_723 := 0
+      // if eq_any(metap,2,5)
+      //   if ku < 2
+      //     if !is_disp_19 .and. (i_56_1_723 := ascan(arr_osm1,{|x| valtype(x[5]) == "C" .and. x[5] == "56.1.723"})) > 0
+      //       // одно индивидуальное или групповое углубленное профилактическое консультирование - "56.1.723"
+      //     else
+      //       func_error(4,"На II этапе обязателен осмотр терапевта и ещё какие-либо услуги.")
+      //       loop
+      //     endif
+      //   endif
+      //   if k == 0
+      //     func_error(4,"Дата первого осмотра (исследования) должна равняться дате начала лечения.")
+      //     loop
+      //   endif
+      // endif
+
+      // fl := .t.
+      // if emptyany(arr_osm1[count_dvn_COVID_arr_usl,1],arr_osm1[count_dvn_COVID_arr_usl,9])
+      //   if metap == 2 .and. i_56_1_723 > 0
+      //     if !(arr_osm1[i_56_1_723,9] == mn_data .and. arr_osm1[i_56_1_723,9] == mk_data)
+      //       fl := func_error(4,'Начало и окончание должно равняться дате углубленного профилактич.консультирования')
+      //     elseif lrslt_1_etap == 353 // Направлен на 2 этап, предварительно присвоена II группа здоровья
+      //       if m1gruppa != 2
+      //         fl := func_error(4,'Результатом 2-го этапа должна быть II группа здоровья (как и на 1-ом этапе)')
+      //         num_screen := 3
+      //       endif
+      //     else // другой результат
+      //       fl := func_error(4,'Результатом 1-го этапа должна быть II группа (и направлен на 2-ой этап)')
+      //       num_screen := 3
+      //     endif
+      //   else
+      //     fl := func_error(4,'Не введён приём терапевта (врача общей практики)')
+      //   endif
+      // elseif arr_osm1[count_dvn_COVID_arr_usl,9] < mk_data
+      //   fl := func_error(4,'Терапевт (врач общей практики) должен проводить осмотр последним!')
+      // endif
+      // if !fl
+      //   loop
+      // endif
+
+      // num_screen := 3
+      num_screen := 2
+      arr_diag := {}
+      for i := 1 to 5
+        sk := lstr(i)
+        pole_diag := "mdiag"+sk
+        pole_d_diag := "mddiag"+sk
+        pole_1pervich := "m1pervich"+sk
+        pole_1dispans := "m1dispans"+sk
+        pole_d_dispans := "mddispans"+sk
+        pole_dn_dispans := "mdndispans"+sk
+        if !empty(&pole_diag)
+          if left(&pole_diag,1) == "U"
+            fl := func_error(4,'Диагноз '+rtrim(&pole_diag)+'(первый символ "U") не вводится. Это не заболевание!')
+          elseif &pole_1pervich == 0
+            if empty(&pole_d_diag)
+              fl := func_error(4,"Не введена дата выявления диагноза "+&pole_diag)
+            elseif &pole_1dispans == 1 .and. empty(&pole_d_dispans)
+              fl := func_error(4,"Не введена дата установления диспансерного наблюдения для диагноза "+&pole_diag)
+            endif
           endif
-        else
-          fl := func_error(4,"не найден диагноз "+alltrim(arr_diag[i,1])+" в справочнике МКБ-10")
+          if fl .and. between(&pole_1pervich,0,1) // предварительные диагнозы не берём
+            aadd(arr_diag, {&pole_diag,&pole_1pervich,&pole_1dispans,&pole_dn_dispans})
+          endif
         endif
-        if !fl ; exit ; endif
+        if !fl
+          exit
+        endif
       next
       if !fl
         loop
       endif
-    endif
-    // mm_gruppa := {mm_gruppaD1,mm_gruppaD2,mm_gruppaP,mm_gruppaD4,mm_gruppaD2}[metap]
-    mm_gruppa := {mm_gruppaD1,mm_gruppaD2}[metap]
-    // if metap == 3
-    //   if mk_data < d_01_11_2019
-    //     mm_gruppa := mm_gruppaP_old
-    //   else
-    //     mm_gruppa := mm_gruppaP_new
-    //   endif
-    // endif
-    m1p_otk := 0
-    if (i := ascan(mm_gruppa,{|x| x[2] == m1GRUPPA })) > 0
-      if (m1rslt := mm_gruppa[i,3]) == 352
-        m1rslt := 353 // по письму ТФОМС от 06.07.2018 №09-30-96
-      endif
-      if eq_any(m1GRUPPA,11,21)
-        m1GRUPPA++  // по письму ТФОМС от 06.07.2018 №09-30-96
-      endif
-      if m1GRUPPA > 20
-        m1p_otk := 1 // отказ от прихода на 2-й этап
-      endif
-    else
-      func_error(4,"Не введена ГРУППА состояния ЗДОРОВЬЯ")
-      loop
-    endif
-    // m1ssh_na := m1psih_na := m1spec_na := 0
-    // if m1napr_v_mo > 0
-    //   if eq_ascan(arr_mo_spec,45,141) // Направлен к врачу-сердечно-сосудистому хирургу
-    //     m1ssh_na := 1
-    //   endif
-    //   if eq_ascan(arr_mo_spec,23,97) // Направлен к врачу-психиатру (врачу-психиатру-наркологу)
-    //     m1psih_na := 1
-    //   endif
-    // endif
-    // if m1napr_stac > 0 .and. m1profil_stac > 0
-    //   m1spec_na := 1 // Направлен для получения специализированной медицинской помощи (в т.ч. ВМП)
-    // endif
-    //
-    err_date_diap(mn_data,"Дата начала углубленной диспансеризации после COVID")
-    err_date_diap(mk_data,"Дата окончания углубленной диспансеризации после COVID")
-    //
-    if mem_op_out == 2 .and. yes_parol
-      box_shadow(19,10,22,69,cColorStMsg)
-      str_center(20,'Оператор "'+fio_polzovat+'".',cColorSt2Msg)
-      str_center(21,'Ввод данных за '+date_month(sys_date),cColorStMsg)
-    endif
-    mywait()
-    //
-    m1lis := 0
-    for i := 1 to count_dvn_COVID_arr_usl
-      if valtype(arr_osm1[i,9]) == "D"
-        if arr_osm1[i,5] == "4.20.2" .and. arr_osm1[i,9] < mn_data // не в рамках диспансеризации
-          m1g_cit := 1 // если и было =2, убираем
-        elseif !is_disp_19 .and. glob_yes_kdp2[TIP_LU_DVN] .and. arr_osm1[i,9] >= mn_data .and. len(arr_osm1[i]) > 10 ;
-                                                           .and. valtype(arr_osm1[i,11]) == "N" .and. arr_osm1[i,11] > 0
-          m1lis := arr_osm1[i,11] // в рамках диспансеризации
-        endif
-      endif
-    next
-    is_prazdnik := f_is_prazdnik_DVN(mn_data)
-    if eq_any(metap,2,5)
-      i := count_dvn_COVID_arr_usl
-      m1vrach  := arr_osm1[i,1]
-      m1prvs   := arr_osm1[i,2]
-      m1assis  := arr_osm1[i,3]
-      m1PROFIL := arr_osm1[i,4]
-      //MKOD_DIAG := padr(arr_osm1[i,6],6)
-    else  // metap := 1
-      i := len(arr_osm1)
-      m1vrach  := arr_osm1[i,1]
-      m1prvs   := arr_osm1[i,2]
-      m1assis  := arr_osm1[i,3]
-      m1PROFIL := arr_osm1[i,4]
-      //MKOD_DIAG := padr(arr_osm1[i,6],6)
-      aadd(arr_osm1,array(11)) ; i := i_zs := len(arr_osm1)
-      arr_osm1[i,1] := arr_osm1[i-1,1]
-      arr_osm1[i,2] := arr_osm1[i-1,2]
-      arr_osm1[i,3] := arr_osm1[i-1,3]
-      arr_osm1[i,4] := 151 // для кода ЗС - мед.осмотрам профилактическим
-      arr_osm1[i,5] := ret_shifr_zs_DVN(metap,iif(metap==3.and.!is_disp_19,mvozrast,mdvozrast),mpol,mk_data)
-      arr_osm1[i,6] := arr_osm1[i-1,6]
-      arr_osm1[i,9] := mn_data
-      arr_osm1[i,10] := 0
-    endif
-    for i := 1 to count_dvn_COVID_arr_umolch
-      if f_is_umolch_sluch_DVN_COVID(i,metap,iif(metap==3.and.!is_disp_19,mvozrast,mdvozrast),mpol)
-        ++kol_d_usl
-        aadd(arr_osm1,array(11)) ; j := len(arr_osm1)
-        arr_osm1[j,1] := m1vrach
-        arr_osm1[j,2] := m1prvs
-        arr_osm1[j,3] := m1assis
-        arr_osm1[j,4] := m1PROFIL
-        arr_osm1[j,5] := dvn_COVID_arr_umolch[i,2]
-        arr_osm1[j,6] := mdef_diagnoz
-        arr_osm1[j,9] := iif(dvn_COVID_arr_umolch[i,8]==0, mn_data, mk_data)
-        arr_osm1[j,10] := 0
-      endif
-    next
-    if eq_any(metap,1,3,4) // если первый этап, проверим на 85%
-      not_zs := .f.
-      kol := kol_otkaz := kol_n_date := kol_ob_otkaz := 0
-      for i := 1 to len(arr_osm1)
-        if i == i_zs
-          loop // пропустим код законченного случая
-        endif
-        if valtype(arr_osm1[i,5]) == "C" .and. !eq_any(arr_osm1[i,5],"4.20.1","4.20.2")
-          ++kol // кол-во реально введённых услуг
-          if eq_any(arr_osm1[i,10],0,3)
-            if is_disp_19
-              if arr_osm1[i,9] < mn_data .and. year(arr_osm1[i,9]) < year(mn_data) // кол-во услуг без отказа выполнены ранее
-                ++kol_n_date                 // начала проведения диспансеризации и не принадлежат текущему календарному году
-              endif
+
+      // is_disp_nabl := .f.
+      afill(adiag_talon,0)
+      if empty(arr_diag) // диагнозы не вводили
+        aadd(arr_diag, {mdef_diagnoz,0,0,ctod("")}) // диагноз по умолчанию
+        MKOD_DIAG := mdef_diagnoz
+      else
+        for i := 1 to len(arr_diag)
+          if arr_diag[i,2] == 0 // "ранее выявлено"
+            arr_diag[i,2] := 2  // заменяем, как в листе учёта ОМС
+          endif
+          if arr_diag[i,3] > 0 // "дисп.наблюдение установлено" и "ранее выявлено"
+            if arr_diag[i,2] == 2 // "ранее выявлено"
+              arr_diag[i,3] := 1 // то "Состоит"
             else
-              if arr_osm1[i,9] < mn_data
-                ++kol_n_date // кол-во услуг без отказа до периода диспансеризации
-              endif
+              arr_diag[i,3] := 2 // то "Взят"
             endif
-          elseif arr_osm1[i,10] == 1
-            ++kol_otkaz // кол-во отказов
-/* При проведении диспансеризации обязательным для всех граждан является:
-- "7.57.3" проведение маммографии,
-- "4.8.4" исследование кала на скрытую кровь иммунохимическим качественным или количественным методом,
-- "2.3.1","2.3.3" осмотр фельдшером (акушеркой) или врачом акушером-гинекологом,
-- "4.1.12" взятие мазка с шейки матки,
-- "4.20.1","4.20.2" цитологическое исследование мазка с шейки матки,
-- "4.14.66" определение простат-специфического антигена в крови */
-            if is_disp_19 .and. eq_any(arr_osm1[i,5],"4.8.4","4.14.66","7.57.3","2.3.1","2.3.3","4.1.12","4.20.1","4.20.2")
-              ++kol_ob_otkaz // кол-во отказов от обязательных услуг
+          endif
+        next
+        for i := 1 to len(arr_diag)
+          if ascan(sadiag1,alltrim(arr_diag[i,1])) > 0 .and. ;
+                                  arr_diag[i,3] == 1 .and. !empty(arr_diag[i,4]) .and. arr_diag[i,4] > mk_data
+            // is_disp_nabl := .t.
+          endif
+          adiag_talon[i*2-1] := arr_diag[i,2]
+          adiag_talon[i*2  ] := arr_diag[i,3]
+          if i == 1
+            MKOD_DIAG := arr_diag[i,1]
+          elseif i == 2
+            MKOD_DIAG2 := arr_diag[i,1]
+          elseif i == 3
+            MKOD_DIAG3 := arr_diag[i,1]
+          elseif i == 4
+            MKOD_DIAG4 := arr_diag[i,1]
+          elseif i == 5
+            MSOPUT_B1 := arr_diag[i,1]
+          endif
+          select MKB_10
+          find (padr(arr_diag[i,1],6))
+          if found()
+            if !empty(mkb_10->pol) .and. !(mkb_10->pol == mpol)
+              fl := func_error(4,"несовместимость диагноза по полу "+alltrim(arr_diag[i,1]))
             endif
-          else//if arr_osm1[i,10] == 2 если невозможность проведения - просто вычитаем общее кол-во
-            --kol
+          else
+            fl := func_error(4,"не найден диагноз "+alltrim(arr_diag[i,1])+" в справочнике МКБ-10")
+          endif
+          if !fl
+            exit
+          endif
+        next
+        if !fl
+          loop
+        endif
+      endif
+      // mm_gruppa := {mm_gruppaD1,mm_gruppaD2,mm_gruppaP,mm_gruppaD4,mm_gruppaD2}[metap]
+      // if metap == 3
+      //   if mk_data < d_01_11_2019
+      //     mm_gruppa := mm_gruppaP_old
+      //   else
+      //     mm_gruppa := mm_gruppaP_new
+      //   endif
+      // endif
+      mm_gruppa := {mm_gruppaD1,mm_gruppaD2}[metap]
+
+      m1p_otk := 0
+      if (i := ascan(mm_gruppa,{|x| x[2] == m1GRUPPA })) > 0
+        if (m1rslt := mm_gruppa[i,3]) == 352
+          m1rslt := 353 // по письму ТФОМС от 06.07.2018 №09-30-96
+        endif
+        if eq_any(m1GRUPPA,11,21)
+          m1GRUPPA++  // по письму ТФОМС от 06.07.2018 №09-30-96
+        endif
+        if m1GRUPPA > 20
+          m1p_otk := 1 // отказ от прихода на 2-й этап
+        endif
+      else
+        func_error(4,"Не введена ГРУППА состояния ЗДОРОВЬЯ")
+        loop
+      endif
+
+      // m1ssh_na := m1psih_na := m1spec_na := 0
+      // if m1napr_v_mo > 0
+      //   if eq_ascan(arr_mo_spec,45,141) // Направлен к врачу-сердечно-сосудистому хирургу
+      //     m1ssh_na := 1
+      //   endif
+      //   if eq_ascan(arr_mo_spec,23,97) // Направлен к врачу-психиатру (врачу-психиатру-наркологу)
+      //     m1psih_na := 1
+      //   endif
+      // endif
+      // if m1napr_stac > 0 .and. m1profil_stac > 0
+      //   m1spec_na := 1 // Направлен для получения специализированной медицинской помощи (в т.ч. ВМП)
+      // endif
+      //
+      err_date_diap(mn_data,"Дата начала углубленной диспансеризации после COVID")
+      err_date_diap(mk_data,"Дата окончания углубленной диспансеризации после COVID")
+      //
+      if mem_op_out == 2 .and. yes_parol
+        box_shadow(19,10,22,69,cColorStMsg)
+        str_center(20,'Оператор "'+fio_polzovat+'".',cColorSt2Msg)
+        str_center(21,'Ввод данных за '+date_month(sys_date),cColorStMsg)
+      endif
+      mywait()
+      //
+      // m1lis := 0
+      for i := 1 to count_dvn_COVID_arr_usl
+        if valtype(arr_osm1[i,9]) == "D"
+          // if arr_osm1[i,5] == "4.20.2" .and. arr_osm1[i,9] < mn_data // не в рамках диспансеризации
+          //   // m1g_cit := 1 // если и было =2, убираем
+          // elseif !is_disp_19 .and. glob_yes_kdp2[TIP_LU_DVN] .and. arr_osm1[i,9] >= mn_data .and. len(arr_osm1[i]) > 10 ;
+          //                                                    .and. valtype(arr_osm1[i,11]) == "N" .and. arr_osm1[i,11] > 0
+          //   m1lis := arr_osm1[i,11] // в рамках диспансеризации
+          // endif
+        endif
+      next
+      is_prazdnik := f_is_prazdnik_DVN_COVID(mn_data)
+      if metap == 2
+        i := count_dvn_COVID_arr_usl
+        m1vrach  := arr_osm1[i,1]
+        m1prvs   := arr_osm1[i,2]
+        m1assis  := arr_osm1[i,3]
+        m1PROFIL := arr_osm1[i,4]
+        //MKOD_DIAG := padr(arr_osm1[i,6],6)
+      else  // metap := 1
+        i := len(arr_osm1)
+        m1vrach  := arr_osm1[i,1]
+        m1prvs   := arr_osm1[i,2]
+        m1assis  := arr_osm1[i,3]
+        m1PROFIL := arr_osm1[i,4]
+        //MKOD_DIAG := padr(arr_osm1[i,6],6)
+        aadd(arr_osm1,array(11))
+        i := i_zs := len(arr_osm1)
+        arr_osm1[i,1] := arr_osm1[i-1,1]
+        arr_osm1[i,2] := arr_osm1[i-1,2]
+        arr_osm1[i,3] := arr_osm1[i-1,3]
+        arr_osm1[i,4] := 151 // для кода ЗС - мед.осмотрам профилактическим
+        arr_osm1[i,5] := ret_shifr_zs_DVN_COVID(metap,mvozrast,mpol,mk_data)
+        arr_osm1[i,6] := arr_osm1[i-1,6]
+        arr_osm1[i,9] := mn_data
+        arr_osm1[i,10] := 0
+      endif
+      for i := 1 to count_dvn_COVID_arr_umolch
+        if f_is_umolch_sluch_DVN_COVID(i,metap,mvozrast,mpol)
+          ++kol_d_usl
+          aadd(arr_osm1,array(11)) ; j := len(arr_osm1)
+          arr_osm1[j,1] := m1vrach
+          arr_osm1[j,2] := m1prvs
+          arr_osm1[j,3] := m1assis
+          arr_osm1[j,4] := m1PROFIL
+          arr_osm1[j,5] := dvn_COVID_arr_umolch[i,2]
+          arr_osm1[j,6] := mdef_diagnoz
+          arr_osm1[j,9] := iif(dvn_COVID_arr_umolch[i,8]==0, mn_data, mk_data)
+          arr_osm1[j,10] := 0
+        endif
+      next
+//       if eq_any(metap,1,3,4) // если первый этап, проверим на 85%
+//         not_zs := .f.
+//         kol := kol_otkaz := kol_n_date := kol_ob_otkaz := 0
+//         for i := 1 to len(arr_osm1)
+//           if i == i_zs
+//             loop // пропустим код законченного случая
+//           endif
+//           if valtype(arr_osm1[i,5]) == "C" .and. !eq_any(arr_osm1[i,5],"4.20.1","4.20.2")
+//             ++kol // кол-во реально введённых услуг
+//             if eq_any(arr_osm1[i,10],0,3)
+//               if is_disp_19
+//                 if arr_osm1[i,9] < mn_data .and. year(arr_osm1[i,9]) < year(mn_data) // кол-во услуг без отказа выполнены ранее
+//                   ++kol_n_date                 // начала проведения диспансеризации и не принадлежат текущему календарному году
+//                 endif
+//               else
+//                 if arr_osm1[i,9] < mn_data
+//                   ++kol_n_date // кол-во услуг без отказа до периода диспансеризации
+//                 endif
+//               endif
+//             elseif arr_osm1[i,10] == 1
+//               ++kol_otkaz // кол-во отказов
+// /* При проведении диспансеризации обязательным для всех граждан является:
+// - "7.57.3" проведение маммографии,
+// - "4.8.4" исследование кала на скрытую кровь иммунохимическим качественным или количественным методом,
+// - "2.3.1","2.3.3" осмотр фельдшером (акушеркой) или врачом акушером-гинекологом,
+// - "4.1.12" взятие мазка с шейки матки,
+// - "4.20.1","4.20.2" цитологическое исследование мазка с шейки матки,
+// - "4.14.66" определение простат-специфического антигена в крови */
+//               if is_disp_19 .and. eq_any(arr_osm1[i,5],"4.8.4","4.14.66","7.57.3","2.3.1","2.3.3","4.1.12","4.20.1","4.20.2")
+//                 ++kol_ob_otkaz // кол-во отказов от обязательных услуг
+//               endif
+//             else//if arr_osm1[i,10] == 2 если невозможность проведения - просто вычитаем общее кол-во
+//               --kol
+//             endif
+//           endif
+//         next
+//         // kol_d_usl = 100% (должно равняться "kol")
+//         if kol_d_usl != kol
+//           //func_error(4,"kol_d_usl ("+lstr(kol_d_usl)+") != kol "+lstr(kol))
+//         endif
+
+//         if metap == 4
+//           if kol_n_date == 1
+//             not_zs := .t. // выставляем по отдельным тарифам
+//           endif
+//         elseif (i := ascan(dvn_85, {|x| x[1] == kol })) > 0 // определить 85%
+//           k := dvn_85[i,1] - dvn_85[i,2] // 15%
+//           if is_disp_19
+//             if kol_n_date+kol_otkaz <= k // отказы + ранее оказано менее 15%
+//               // выставляем по законченному случаю
+//               if kol_ob_otkaz > 0 .and. metap == 1 // надо переделать в профосмотр !!!!!
+//                 if (i := ascan(arr_osm1, {|x| valtype(x[5]) == "C" .and. x[5] == "2.3.7" })) > 0
+//                   arr_osm1[i,5] := "2.3.2" // шифр услуги приёма терапевта для профосмотра
+//                 endif
+//                 metap := 3
+//                 if eq_any(m1rslt,355,356,357,358) .and. mk_data < d_01_11_2019 // III группа
+//                   m1rslt := 345
+//                   m1gruppa := 3
+//                 elseif eq_any(m1rslt,355,357) // IIIа группа
+//                   m1rslt := 373
+//                   m1gruppa := 3
+//                 elseif eq_any(m1rslt,356,358) // IIIб группа
+//                   m1rslt := 374
+//                   m1gruppa := 4
+//                 elseif eq_any(m1rslt,318,353)
+//                   m1rslt := 344
+//                   m1gruppa := 2
+//                 else
+//                   m1rslt := 343
+//                   m1gruppa := 1
+//                 endif
+//                 arr_osm1[i_zs,5] := ret_shifr_zs_DVN(metap,mdvozrast,mpol,mk_data)
+//                 func_error(4,"Отказ от обязательного исследования - оформляем профилактический осмотр "+arr_osm1[i_zs,5])
+//               endif
+//             else
+//               // если < 85%, отсечём в проверке
+//             endif
+//           else
+//             if kol_otkaz <= k // оказано 85% и более
+//               if kol_n_date+kol_otkaz <= k // отказы + ранее оказано менее 15%
+//                 // выставляем по законченному случаю
+//               else
+//                 not_zs := .t. // выставляем по отдельным тарифам
+//               endif
+//             else
+//               // если "kol - kol_otkaz" < 85%, отсечём в проверке
+//             endif
+//           endif
+//         else
+//           // если такого кол-ва услуг нет в массиве "dvn_85", отсечём в проверке
+//         endif
+//         if not_zs // выставляем по отдельным тарифам
+//           Del_Array(arr_osm1,i_zs) // удаляем законченный случай
+//           larr := {}
+//           for i := 1 to len(arr_osm1)
+//             if valtype(arr_osm1[i,5]) == "C" ;
+//                   .and. !(len(arr_osm1[i]) > 10 .and. valtype(arr_osm1[i,11]) == "N" .and. arr_osm1[i,11] > 0) ; // не в КДП2
+//                   .and. eq_any(arr_osm1[i,10],0,3) ; // не отказ
+//                   .and. arr_osm1[i,9] >= mn_data ; // оказано во время дисп-ии
+//                   .and. (k := ascan(dvn_700, {|x| x[1] == arr_osm1[i,5] })) > 0
+//               aadd(larr,aclone(arr_osm1[i])) ; j := len(larr)
+//               larr[j,5] := dvn_700[k,2]
+//             endif
+//           next
+//           for i := 1 to len(larr)
+//             aadd(arr_osm1,aclone(larr[i])) // добавим в массив услуги на "700"
+//           next
+//         endif
+//       endif
+      
+      make_diagP(2)  // сделать "пятизначные" диагнозы
+      if m1dispans > 0
+        s1dispans := m1dispans
+      endif
+      //
+      Use_base("lusl")
+      Use_base("luslc")
+      Use_base("uslugi")
+      R_Use(dir_server+"uslugi1",{dir_server+"uslugi1",;
+                                dir_server+"uslugi1s"},"USL1")
+      mcena_1 := mu_cena := 0
+      arr_usl_dop := {}
+      arr_usl_otkaz := {}
+      arr_otklon := {}
+      glob_podr := "" ; glob_otd_dep := 0
+      for i := 1 to len(arr_osm1)
+        if valtype(arr_osm1[i,5]) == "C"
+          arr_osm1[i,7] := foundOurUsluga(arr_osm1[i,5],mk_data,arr_osm1[i,4],M1VZROS_REB,@mu_cena)
+          arr_osm1[i,8] := mu_cena
+          mcena_1 += mu_cena
+          if eq_any(arr_osm1[i,10],0,3) // выполнено
+            aadd(arr_usl_dop,arr_osm1[i])
+            if arr_osm1[i,10] == 3 // обнаружены отклонения
+              aadd(arr_otklon,arr_osm1[i,5])
+            endif
+          else // отказ и невозможность
+            aadd(arr_usl_otkaz,arr_osm1[i])
           endif
         endif
       next
-      // kol_d_usl = 100% (должно равняться "kol")
-      if kol_d_usl != kol
-        //func_error(4,"kol_d_usl ("+lstr(kol_d_usl)+") != kol "+lstr(kol))
-      endif
-      if metap == 4
-        if kol_n_date == 1
-          not_zs := .t. // выставляем по отдельным тарифам
-        endif
-      elseif (i := ascan(dvn_85, {|x| x[1] == kol })) > 0 // определить 85%
-        k := dvn_85[i,1] - dvn_85[i,2] // 15%
-        if is_disp_19
-          if kol_n_date+kol_otkaz <= k // отказы + ранее оказано менее 15%
-            // выставляем по законченному случаю
-            if kol_ob_otkaz > 0 .and. metap == 1 // надо переделать в профосмотр !!!!!
-              if (i := ascan(arr_osm1, {|x| valtype(x[5]) == "C" .and. x[5] == "2.3.7" })) > 0
-                arr_osm1[i,5] := "2.3.2" // шифр услуги приёма терапевта для профосмотра
-              endif
-              metap := 3
-              if eq_any(m1rslt,355,356,357,358) .and. mk_data < d_01_11_2019 // III группа
-                m1rslt := 345
-                m1gruppa := 3
-              elseif eq_any(m1rslt,355,357) // IIIа группа
-                m1rslt := 373
-                m1gruppa := 3
-              elseif eq_any(m1rslt,356,358) // IIIб группа
-                m1rslt := 374
-                m1gruppa := 4
-              elseif eq_any(m1rslt,318,353)
-                m1rslt := 344
-                m1gruppa := 2
-              else
-                m1rslt := 343
-                m1gruppa := 1
-              endif
-              arr_osm1[i_zs,5] := ret_shifr_zs_DVN(metap,mdvozrast,mpol,mk_data)
-              func_error(4,"Отказ от обязательного исследования - оформляем профилактический осмотр "+arr_osm1[i_zs,5])
-            endif
-          else
-            // если < 85%, отсечём в проверке
-          endif
-        else
-          if kol_otkaz <= k // оказано 85% и более
-            if kol_n_date+kol_otkaz <= k // отказы + ранее оказано менее 15%
-              // выставляем по законченному случаю
-            else
-              not_zs := .t. // выставляем по отдельным тарифам
-            endif
-          else
-            // если "kol - kol_otkaz" < 85%, отсечём в проверке
-          endif
-        endif
-      else
-        // если такого кол-ва услуг нет в массиве "dvn_85", отсечём в проверке
-      endif
-      if not_zs // выставляем по отдельным тарифам
-        Del_Array(arr_osm1,i_zs) // удаляем законченный случай
-        larr := {}
-        for i := 1 to len(arr_osm1)
-          if valtype(arr_osm1[i,5]) == "C" ;
-                 .and. !(len(arr_osm1[i]) > 10 .and. valtype(arr_osm1[i,11]) == "N" .and. arr_osm1[i,11] > 0) ; // не в КДП2
-                 .and. eq_any(arr_osm1[i,10],0,3) ; // не отказ
-                 .and. arr_osm1[i,9] >= mn_data ; // оказано во время дисп-ии
-                 .and. (k := ascan(dvn_700, {|x| x[1] == arr_osm1[i,5] })) > 0
-            aadd(larr,aclone(arr_osm1[i])) ; j := len(larr)
-            larr[j,5] := dvn_700[k,2]
-          endif
-        next
-        for i := 1 to len(larr)
-          aadd(arr_osm1,aclone(larr[i])) // добавим в массив услуги на "700"
-        next
-      endif
-    endif
-    make_diagP(2)  // сделать "пятизначные" диагнозы
-    if m1dispans > 0
-      s1dispans := m1dispans
-    endif
-    //
-    Use_base("lusl")
-    Use_base("luslc")
-    Use_base("uslugi")
-    R_Use(dir_server+"uslugi1",{dir_server+"uslugi1",;
-                                dir_server+"uslugi1s"},"USL1")
-    mcena_1 := mu_cena := 0
-    arr_usl_dop := {}
-    arr_usl_otkaz := {}
-    arr_otklon := {}
-    glob_podr := "" ; glob_otd_dep := 0
-    for i := 1 to len(arr_osm1)
-      if valtype(arr_osm1[i,5]) == "C"
-        arr_osm1[i,7] := foundOurUsluga(arr_osm1[i,5],mk_data,arr_osm1[i,4],M1VZROS_REB,@mu_cena)
-        arr_osm1[i,8] := mu_cena
-        mcena_1 += mu_cena
-        if eq_any(arr_osm1[i,10],0,3) // выполнено
-          aadd(arr_usl_dop,arr_osm1[i])
-          if arr_osm1[i,10] == 3 // обнаружены отклонения
-            aadd(arr_otklon,arr_osm1[i,5])
-          endif
-        else // отказ и невозможность
-          aadd(arr_usl_otkaz,arr_osm1[i])
-        endif
-      endif
-    next
-    //
-    Use_base("human")
-    if Loc_kod > 0
-      find (str(Loc_kod,7))
-      mkod := Loc_kod
-      G_RLock(forever)
-    else
-      Add1Rec(7)
-      mkod := recno()
-      replace human->kod with mkod
-    endif
-    select HUMAN_
-    do while human_->(lastrec()) < mkod
-      APPEND BLANK
-    enddo
-    goto (mkod)
-    G_RLock(forever)
-    //
-    select HUMAN_2
-    do while human_2->(lastrec()) < mkod
-      APPEND BLANK
-    enddo
-    goto (mkod)
-    G_RLock(forever)
-    //
-    st_N_DATA := MN_DATA
-    glob_perso := mkod
-    if m1komu == 0
-      msmo := lstr(m1company)
-      m1str_crb := 0
-    else
-      msmo := ""
-      m1str_crb := m1company
-    endif
-    //
-    human->kod_k      := glob_kartotek
-    human->TIP_H      := B_STANDART // 3-лечение завершено
-    human->FIO        := MFIO          // Ф.И.О. больного
-    human->POL        := MPOL          // пол
-    human->DATE_R     := MDATE_R       // дата рождения больного
-    human->VZROS_REB  := M1VZROS_REB   // 0-взрослый, 1-ребенок, 2-подросток
-    human->ADRES      := MADRES        // адрес больного
-    human->MR_DOL     := MMR_DOL       // место работы или причина безработности
-    human->RAB_NERAB  := M1RAB_NERAB   // 0-работающий, 1-неработающий, 2-студент
-    human->KOD_DIAG   := MKOD_DIAG     // шифр 1-ой осн.болезни
-    human->KOD_DIAG2  := MKOD_DIAG2    // шифр 2-ой осн.болезни
-    human->KOD_DIAG3  := MKOD_DIAG3    // шифр 3-ой осн.болезни
-    human->KOD_DIAG4  := MKOD_DIAG4    // шифр 4-ой осн.болезни
-    human->SOPUT_B1   := MSOPUT_B1     // шифр 1-ой сопутствующей болезни
-    human->SOPUT_B2   := MSOPUT_B2     // шифр 2-ой сопутствующей болезни
-    human->SOPUT_B3   := MSOPUT_B3     // шифр 3-ой сопутствующей болезни
-    human->SOPUT_B4   := MSOPUT_B4     // шифр 4-ой сопутствующей болезни
-    human->diag_plus  := mdiag_plus    //
-    human->KOMU       := M1KOMU        // от 0 до 5
-    human_->SMO       := msmo
-    human->STR_CRB    := m1str_crb
-    human->POLIS      := make_polis(mspolis,mnpolis) // серия и номер страхового полиса
-    human->LPU        := M1LPU         // код учреждения
-    human->OTD        := M1OTD         // код отделения
-    human->UCH_DOC    := MUCH_DOC      // вид и номер учетного документа
-    human->N_DATA     := MN_DATA       // дата начала лечения
-    human->K_DATA     := MK_DATA       // дата окончания лечения
-    human->CENA := human->CENA_1 := MCENA_1 // стоимость лечения
-    human->ishod      := 400+metap
-    // human->OBRASHEN   := iif(m1DS_ONK == 1, '1', " ")
-    human->bolnich    := 0
-    human->date_b_1   := ""
-    human->date_b_2   := ""
-    human_->RODIT_DR  := ctod("")
-    human_->RODIT_POL := ""
-    s := "" ; aeval(adiag_talon, {|x| s += str(x,1) })
-    human_->DISPANS   := s
-    human_->STATUS_ST := ""
-    human_->POVOD     := iif(metap == 3, 5, 6)
-    //human_->TRAVMA    := m1travma
-    human_->VPOLIS    := m1vidpolis
-    human_->SPOLIS    := ltrim(mspolis)
-    human_->NPOLIS    := ltrim(mnpolis)
-    human_->OKATO     := "" // это поле вернётся из ТФОМС в случае иногороднего
-    human_->NOVOR     := 0
-    human_->DATE_R2   := ctod("")
-    human_->POL2      := ""
-    human_->USL_OK    := m1USL_OK
-    human_->VIDPOM    := m1VIDPOM
-    human_->PROFIL    := m1PROFIL
-    human_->IDSP      := iif(metap == 3, 17, 11)
-    human_->NPR_MO    := ''
-    human_->FORMA14   := '0000'
-    human_->KOD_DIAG0 := ''
-    human_->RSLT_NEW  := m1rslt
-    human_->ISHOD_NEW := m1ishod
-    human_->VRACH     := m1vrach
-    human_->PRVS      := m1prvs
-    human_->OPLATA    := 0 // уберём "2", если отредактировали запись из реестра СП и ТК
-    human_->ST_VERIFY := 0 // снова ещё не проверен
-    if Loc_kod == 0  // при добавлении
-      human_->ID_PAC    := mo_guid(1,human_->(recno()))
-      human_->ID_C      := mo_guid(2,human_->(recno()))
-      human_->SUMP      := 0
-      human_->SANK_MEK  := 0
-      human_->SANK_MEE  := 0
-      human_->SANK_EKMP := 0
-      human_->REESTR    := 0
-      human_->REES_ZAP  := 0
-      human->schet      := 0
-      human_->SCHET_ZAP := 0
-      human->kod_p   := kod_polzovat    // код оператора
-      human->date_e  := c4sys_date
-    else // при редактированиии
-      human_->kod_p2  := kod_polzovat    // код оператора
-      human_->date_e2 := c4sys_date
-    endif
-    put_0_human_2()
-    Private fl_nameismo := .f.
-    if m1komu == 0 .and. m1company == 34
-      human_->OKATO := m1okato // ОКАТО субъекта РФ территории страхования
-      if empty(m1ismo)
-        if !empty(mnameismo)
-          fl_nameismo := .t.
-        endif
-      else
-        human_->SMO := m1ismo  // заменяем "34" на код иногородней СМО
-      endif
-    endif
-    if fl_nameismo .or. rec_inogSMO > 0
-      G_Use(dir_server+"mo_hismo",,"SN")
-      index on str(kod,7) to (cur_dir+"tmp_ismo")
-      find (str(mkod,7))
-      if found()
-        if fl_nameismo
-          G_RLock(forever)
-          sn->smo_name := mnameismo
-        else
-          DeleteRec(.t.)
-        endif
-      else
-        if fl_nameismo
-          AddRec(7)
-          sn->kod := mkod
-          sn->smo_name := mnameismo
-        endif
-      endif
-    endif
-    i1 := len(arr_usl)
-    i2 := len(arr_usl_dop)
-    Use_base("human_u")
-    for i := 1 to i2
-      select HU
-      if i > i1
-        Add1Rec(7)
-        hu->kod := human->kod
-      else
-        goto (arr_usl[i])
+      //
+      Use_base("human")
+      if Loc_kod > 0
+        find (str(Loc_kod,7))
+        mkod := Loc_kod
         G_RLock(forever)
+      else
+        Add1Rec(7)
+        mkod := recno()
+        replace human->kod with mkod
       endif
-      mrec_hu := hu->(recno())
-      hu->kod_vr  := arr_usl_dop[i,1]
-      hu->kod_as  := arr_usl_dop[i,3]
-      hu->u_koef  := 1
-      hu->u_kod   := arr_usl_dop[i,7]
-      hu->u_cena  := arr_usl_dop[i,8]
-      hu->is_edit := iif(len(arr_usl_dop[i]) > 10 .and. valtype(arr_usl_dop[i,11]) == "N", arr_usl_dop[i,11], 0)
-      hu->date_u  := dtoc4(arr_usl_dop[i,9])
-      hu->otd     := m1otd
-      hu->kol := hu->kol_1 := 1
-      hu->stoim := hu->stoim_1 := arr_usl_dop[i,8]
-      hu->KOL_RCP := 0
-      select HU_
-      do while hu_->(lastrec()) < mrec_hu
+      select HUMAN_
+      do while human_->(lastrec()) < mkod
         APPEND BLANK
       enddo
-      goto (mrec_hu)
+      goto (mkod)
       G_RLock(forever)
-      if i > i1 .or. !valid_GUID(hu_->ID_U)
-        hu_->ID_U := mo_guid(3,hu_->(recno()))
-      endif
-      hu_->PROFIL := arr_usl_dop[i,4]
-      hu_->PRVS   := arr_usl_dop[i,2]
-      hu_->kod_diag := iif(empty(arr_usl_dop[i,6]), MKOD_DIAG, arr_usl_dop[i,6])
-      hu_->zf := ""
-      UNLOCK
-    next
-    if i2 < i1
-      for i := i2+1 to i1
-        select HU
-        goto (arr_usl[i])
-        DeleteRec(.t.,.f.)  // очистка записи без пометки на удаление
-      next
-    endif
-    save_arr_DVN_COVID(mkod)
-    // направления при подозрении на ЗНО
-    cur_napr := 0
-    arr := {}
-    G_Use(dir_server+"mo_onkna",dir_server+"mo_onkna","NAPR") // онконаправления
-    find (str(mkod,7))
-    do while napr->kod == mkod .and. !eof()
-      aadd(arr,recno())
-      skip
-    enddo
-    if m1ds_onk == 1 // подозрение на злокачественное новообразование
-      Use_base("mo_su")
-      use (cur_dir+"tmp_onkna") new alias TNAPR
-      select TNAPR
-      go top
-      do while !eof()
-        if !emptyany(tnapr->NAPR_DATE,tnapr->NAPR_V)
-          if tnapr->U_KOD == 0 // добавляем в свой справочник федеральную услугу
-            select MOSU
-            set order to 3
-            find (tnapr->shifr1)
-            if found()  // наверное, добавили только что
-              tnapr->U_KOD := mosu->kod
-            else
-              set order to 1
-              FIND (STR(-1,6))
-              if found()
-                G_RLock(forever)
-              else
-                AddRec(6)
-              endif
-              tnapr->U_KOD := mosu->kod := recno()
-              mosu->name   := tnapr->name_u
-              mosu->shifr1 := tnapr->shifr1
-            endif
-          endif
-          select NAPR
-          if ++cur_napr > len(arr)
-            AddRec(7)
-            napr->kod := mkod
-          else
-            goto (arr[cur_napr])
-            G_RLock(forever)
-          endif
-          napr->NAPR_DATE := tnapr->NAPR_DATE
-          napr->NAPR_MO := tnapr->NAPR_MO
-          napr->NAPR_V := tnapr->NAPR_V
-          napr->MET_ISSL := iif(tnapr->NAPR_V == 3, tnapr->MET_ISSL, 0)
-          napr->U_KOD := iif(tnapr->NAPR_V == 3, tnapr->U_KOD, 0)
-        endif
-        select TNAPR
-        skip
+      //
+      select HUMAN_2
+      do while human_2->(lastrec()) < mkod
+        APPEND BLANK
       enddo
+      goto (mkod)
+      G_RLock(forever)
+      //
+      st_N_DATA := MN_DATA
+      glob_perso := mkod
+      if m1komu == 0
+        msmo := lstr(m1company)
+        m1str_crb := 0
+      else
+        msmo := ""
+        m1str_crb := m1company
+      endif
+      //
+      human->kod_k      := glob_kartotek
+      human->TIP_H      := B_STANDART // 3-лечение завершено
+      human->FIO        := MFIO          // Ф.И.О. больного
+      human->POL        := MPOL          // пол
+      human->DATE_R     := MDATE_R       // дата рождения больного
+      human->VZROS_REB  := M1VZROS_REB   // 0-взрослый, 1-ребенок, 2-подросток
+      human->ADRES      := MADRES        // адрес больного
+      human->MR_DOL     := MMR_DOL       // место работы или причина безработности
+      human->RAB_NERAB  := M1RAB_NERAB   // 0-работающий, 1-неработающий, 2-студент
+      human->KOD_DIAG   := MKOD_DIAG     // шифр 1-ой осн.болезни
+      human->KOD_DIAG2  := MKOD_DIAG2    // шифр 2-ой осн.болезни
+      human->KOD_DIAG3  := MKOD_DIAG3    // шифр 3-ой осн.болезни
+      human->KOD_DIAG4  := MKOD_DIAG4    // шифр 4-ой осн.болезни
+      human->SOPUT_B1   := MSOPUT_B1     // шифр 1-ой сопутствующей болезни
+      human->SOPUT_B2   := MSOPUT_B2     // шифр 2-ой сопутствующей болезни
+      human->SOPUT_B3   := MSOPUT_B3     // шифр 3-ой сопутствующей болезни
+      human->SOPUT_B4   := MSOPUT_B4     // шифр 4-ой сопутствующей болезни
+      human->diag_plus  := mdiag_plus    //
+      human->KOMU       := M1KOMU        // от 0 до 5
+      human_->SMO       := msmo
+      human->STR_CRB    := m1str_crb
+      human->POLIS      := make_polis(mspolis,mnpolis) // серия и номер страхового полиса
+      human->LPU        := M1LPU         // код учреждения
+      human->OTD        := M1OTD         // код отделения
+      human->UCH_DOC    := MUCH_DOC      // вид и номер учетного документа
+      human->N_DATA     := MN_DATA       // дата начала лечения
+      human->K_DATA     := MK_DATA       // дата окончания лечения
+      human->CENA := human->CENA_1 := MCENA_1 // стоимость лечения
+      human->ishod      := 400 + metap
+      // human->OBRASHEN   := iif(m1DS_ONK == 1, '1', " ")
+      human->bolnich    := 0
+      human->date_b_1   := ""
+      human->date_b_2   := ""
+      human_->RODIT_DR  := ctod("")
+      human_->RODIT_POL := ""
+      s := ""
+      aeval(adiag_talon, {|x| s += str(x,1) })
+      human_->DISPANS   := s
+      human_->STATUS_ST := ""
+      human_->POVOD     := iif(metap == 3, 5, 6)
+      //human_->TRAVMA    := m1travma
+      human_->VPOLIS    := m1vidpolis
+      human_->SPOLIS    := ltrim(mspolis)
+      human_->NPOLIS    := ltrim(mnpolis)
+      human_->OKATO     := "" // это поле вернётся из ТФОМС в случае иногороднего
+      human_->NOVOR     := 0
+      human_->DATE_R2   := ctod("")
+      human_->POL2      := ""
+      human_->USL_OK    := m1USL_OK
+      human_->VIDPOM    := m1VIDPOM
+      human_->PROFIL    := m1PROFIL
+      human_->IDSP      := iif(metap == 3, 17, 11)
+      human_->NPR_MO    := ''
+      human_->FORMA14   := '0000'
+      human_->KOD_DIAG0 := ''
+      human_->RSLT_NEW  := m1rslt
+      human_->ISHOD_NEW := m1ishod
+      human_->VRACH     := m1vrach
+      human_->PRVS      := m1prvs
+      human_->OPLATA    := 0 // уберём "2", если отредактировали запись из реестра СП и ТК
+      human_->ST_VERIFY := 0 // снова ещё не проверен
+      if Loc_kod == 0  // при добавлении
+        human_->ID_PAC    := mo_guid(1,human_->(recno()))
+        human_->ID_C      := mo_guid(2,human_->(recno()))
+        human_->SUMP      := 0
+        human_->SANK_MEK  := 0
+        human_->SANK_MEE  := 0
+        human_->SANK_EKMP := 0
+        human_->REESTR    := 0
+        human_->REES_ZAP  := 0
+        human->schet      := 0
+        human_->SCHET_ZAP := 0
+        human->kod_p   := kod_polzovat    // код оператора
+        human->date_e  := c4sys_date
+      else // при редактированиии
+        human_->kod_p2  := kod_polzovat    // код оператора
+        human_->date_e2 := c4sys_date
+      endif
+      put_0_human_2()
+      Private fl_nameismo := .f.
+      if m1komu == 0 .and. m1company == 34
+        human_->OKATO := m1okato // ОКАТО субъекта РФ территории страхования
+        if empty(m1ismo)
+          if !empty(mnameismo)
+            fl_nameismo := .t.
+          endif
+        else
+          human_->SMO := m1ismo  // заменяем "34" на код иногородней СМО
+        endif
+      endif
+      if fl_nameismo .or. rec_inogSMO > 0
+        G_Use(dir_server+"mo_hismo",,"SN")
+        index on str(kod,7) to (cur_dir+"tmp_ismo")
+        find (str(mkod,7))
+        if found()
+          if fl_nameismo
+            G_RLock(forever)
+            sn->smo_name := mnameismo
+          else
+            DeleteRec(.t.)
+          endif
+        else
+          if fl_nameismo
+            AddRec(7)
+            sn->kod := mkod
+            sn->smo_name := mnameismo
+          endif
+        endif
+      endif
+      i1 := len(arr_usl)
+      i2 := len(arr_usl_dop)
+      Use_base("human_u")
+      for i := 1 to i2
+        select HU
+        if i > i1
+          Add1Rec(7)
+          hu->kod := human->kod
+        else
+          goto (arr_usl[i])
+          G_RLock(forever)
+        endif
+        mrec_hu := hu->(recno())
+// alertx(mrec_hu,'mrec_hu')
+// alertx(i,'i')
+// alertx(hb_ValToExp(arr_usl_dop[i]),'arr_usl_dop[i]')
+        hu->kod_vr  := arr_usl_dop[i,1]
+        hu->kod_as  := arr_usl_dop[i,3]
+        hu->u_koef  := 1
+        hu->u_kod   := arr_usl_dop[i,7]
+        hu->u_cena  := arr_usl_dop[i,8]
+        hu->is_edit := iif(len(arr_usl_dop[i]) > 10 .and. valtype(arr_usl_dop[i,11]) == "N", arr_usl_dop[i,11], 0)
+        hu->date_u  := dtoc4(arr_usl_dop[i,9])
+        hu->otd     := m1otd
+        hu->kol := hu->kol_1 := 1
+        hu->stoim := hu->stoim_1 := arr_usl_dop[i,8]
+        hu->KOL_RCP := 0
+        select HU_
+        do while hu_->(lastrec()) < mrec_hu
+          APPEND BLANK
+        enddo
+        goto (mrec_hu)
+        G_RLock(forever)
+        if i > i1 .or. !valid_GUID(hu_->ID_U)
+          hu_->ID_U := mo_guid(3,hu_->(recno()))
+        endif
+        hu_->PROFIL := arr_usl_dop[i,4]
+        hu_->PRVS   := arr_usl_dop[i,2]
+        hu_->kod_diag := iif(empty(arr_usl_dop[i,6]), MKOD_DIAG, arr_usl_dop[i,6])
+        hu_->zf := ""
+        UNLOCK
+      next
+      if i2 < i1
+        for i := i2+1 to i1
+          select HU
+          goto (arr_usl[i])
+          DeleteRec(.t.,.f.)  // очистка записи без пометки на удаление
+        next
+      endif
+      save_arr_DVN_COVID(mkod)
+
+      // // направления при подозрении на ЗНО
+      // cur_napr := 0
+      // arr := {}
+      // G_Use(dir_server+"mo_onkna",dir_server+"mo_onkna","NAPR") // онконаправления
+      // find (str(mkod,7))
+      // do while napr->kod == mkod .and. !eof()
+      //   aadd(arr,recno())
+      //   skip
+      // enddo
+      // if m1ds_onk == 1 // подозрение на злокачественное новообразование
+      //   Use_base("mo_su")
+      //   use (cur_dir+"tmp_onkna") new alias TNAPR
+      //   select TNAPR
+      //   go top
+      //   do while !eof()
+      //     if !emptyany(tnapr->NAPR_DATE,tnapr->NAPR_V)
+      //       if tnapr->U_KOD == 0 // добавляем в свой справочник федеральную услугу
+      //         select MOSU
+      //         set order to 3
+      //         find (tnapr->shifr1)
+      //         if found()  // наверное, добавили только что
+      //           tnapr->U_KOD := mosu->kod
+      //         else
+      //           set order to 1
+      //           FIND (STR(-1,6))
+      //           if found()
+      //             G_RLock(forever)
+      //           else
+      //             AddRec(6)
+      //           endif
+      //           tnapr->U_KOD := mosu->kod := recno()
+      //           mosu->name   := tnapr->name_u
+      //           mosu->shifr1 := tnapr->shifr1
+      //         endif
+      //       endif
+      //       select NAPR
+      //       if ++cur_napr > len(arr)
+      //         AddRec(7)
+      //         napr->kod := mkod
+      //       else
+      //         goto (arr[cur_napr])
+      //         G_RLock(forever)
+      //       endif
+      //       napr->NAPR_DATE := tnapr->NAPR_DATE
+      //       napr->NAPR_MO := tnapr->NAPR_MO
+      //       napr->NAPR_V := tnapr->NAPR_V
+      //       napr->MET_ISSL := iif(tnapr->NAPR_V == 3, tnapr->MET_ISSL, 0)
+      //       napr->U_KOD := iif(tnapr->NAPR_V == 3, tnapr->U_KOD, 0)
+      //     endif
+      //     select TNAPR
+      //     skip
+      //   enddo
+      // endif
+      // select NAPR
+      // do while ++cur_napr <= len(arr)
+      //   goto (arr[cur_napr])
+      //   DeleteRec(.t.)
+      // enddo
+
+
+      write_work_oper(glob_task,OPER_LIST,iif(Loc_kod==0,1,2),1,count_edit)
+      fl_write_sluch := .t.
+      close databases
+      stat_msg("Запись завершена!",.f.)
     endif
-    select NAPR
-    do while ++cur_napr <= len(arr)
-      goto (arr[cur_napr])
-      DeleteRec(.t.)
-    enddo
-    write_work_oper(glob_task,OPER_LIST,iif(Loc_kod==0,1,2),1,count_edit)
-    fl_write_sluch := .t.
-    close databases
-    stat_msg("Запись завершена!",.f.)
+    exit
+  enddo
+
+  close databases
+  setcolor(tmp_color)
+  restscreen(buf)
+  chm_help_code := tmp_help
+  if fl_write_sluch // если записали - запускаем проверку
+    if type("fl_edit_DVN") == "L"
+      fl_edit_DVN := .t.
+    endif
+    if !empty(val(msmo))
+      verify_OMS_sluch(glob_perso)
+    endif
   endif
-  exit
-enddo
-close databases
-setcolor(tmp_color)
-restscreen(buf)
-chm_help_code := tmp_help
-if fl_write_sluch // если записали - запускаем проверку
-  if type("fl_edit_DVN") == "L"
-    fl_edit_DVN := .t.
-  endif
-  if !empty(val(msmo))
-    verify_OMS_sluch(glob_perso)
-  endif
-endif
-return NIL
+  return NIL
