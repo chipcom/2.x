@@ -472,6 +472,7 @@ Function verify_1_sluch(fl_view)
   is_2_83 := is_2_84 := is_2_85 := is_2_86 := is_2_87 := is_2_88 := is_2_89 := .f.
   a_2_89 := array(15) ; afill(a_2_89,0)
   is_disp_DDS := is_disp_DVN := is_disp_DVN3 := is_prof_PN := is_neonat := is_pren_diagn := .f.
+  is_disp_DVN_COVID := .f.
   is_70_3 := is_70_5 := is_70_6 := is_72_2 := is_72_3 := is_72_4 := .f.
   lstkol := 0 ; lstshifr := shifr_ksg := "" ; cena_ksg := 0
   midsp := musl_ok := mRSLT_NEW := mprofil := mvrach := m1lis := 0
@@ -717,6 +718,8 @@ Function verify_1_sluch(fl_view)
         hu_->PZTIP := 2
       elseif alltrim_lshifr == "56.1.723" .and. human->ishod == 202 .and. !is_disp_19 // второй этап ДВН - одна услуга
         is_disp_DVN := .t.
+      elseif alltrim_lshifr == "70.8.1" .and. eq_any(human->ishod, 401, 402) // этап углубленной диспансеризации после COVID
+        is_disp_DVN_COVID := .t.
       elseif eq_any(left_lshifr_5,"60.4.","60.5.","60.6.","60.7.","60.8.","60.9.") .or. ;
              eq_any(alltrim_lshifr,"4.20.702","4.15.746") // ЛДП
         if alltrim_lshifr == "4.15.746" // пренатальный скрининг
@@ -864,6 +867,9 @@ Function verify_1_sluch(fl_view)
           mIDSP := 11 // диспансеризация
           is_disp_DVN := .t.
           is_2_84 := .t.
+        elseif left_lshifr_5 == "7.80."
+          mIDSP := 30 // углубленная диспансеризация после COVID
+          is_disp_DVN_COVID := .t.
         elseif left_lshifr_5 == "2.85." // профилактика несовершеннолетних
           is_prof_PN := .t.
           is_2_85 := .t.
@@ -926,6 +932,9 @@ Function verify_1_sluch(fl_view)
         elseif left_lshifr_5 == "2.90."
           mIDSP := 11 // диспансеризация
           is_disp_DVN := .t.
+        elseif left_lshifr_5 == "7.80."  // углубленная диспансеризация после COVID
+          mIDSP := 30 // "Код способа оплаты" "30 - за обращение (законченный случай)"
+          is_disp_DVN_COVID := .t.
         elseif left_lshifr_5 == "2.91."
           mIDSP := 29 // за посещение в поликлинике
           is_prof_PN := .t.
@@ -972,7 +981,7 @@ Function verify_1_sluch(fl_view)
         hu_->PZKOL := mPZKOL
       endif
       if musl_ok == 3
-        if is_disp_DDS .or. is_disp_DVN .or. is_prof_PN
+        if is_disp_DDS .or. is_disp_DVN .or. is_prof_PN .or.is_disp_DVN_COVID
           //
         elseif mpovod > 0 .and. ascan(arr_povod, {|x| x[1] == mpovod }) == 0
           aadd(arr_povod,{mpovod,alltrim_lshifr})
@@ -1079,7 +1088,7 @@ Function verify_1_sluch(fl_view)
       if is_dom .and. arr_povod[1,1] == 1
         arr_povod[1,1] := 3 // 1.2 - активное посещение, т.е. на дому
       endif
-      if is_disp_DDS .or. is_disp_DVN .or. is_prof_PN
+      if is_disp_DDS .or. is_disp_DVN .or. is_prof_PN .or. is_disp_DVN_COVID
         //
       elseif human_->usl_ok == 3 .and. len(mdiagnoz) > 0
         if len(a_idsp) == 1 .and. a_idsp[1,1] != 28 // т.е. idsp не равно "за медицинскую услугу в поликлинике"
@@ -2581,7 +2590,7 @@ Function verify_1_sluch(fl_view)
             a_bukva[1,1]+'-'+alltrim(a_bukva[1,2])+' и '+;
             a_bukva[2,1]+'-'+alltrim(a_bukva[2,2]))
   endif
-  if is_disp_DDS .or. is_disp_DVN .or. is_prof_PN
+  if is_disp_DDS .or. is_disp_DVN .or. is_prof_PN .or. is_disp_DVN_COVID
     //
   elseif len(mdiagnoz) > 0 .and. ascan(adiag,mdiagnoz[1]) == 0
     aadd(ta, "основной диагноз "+rtrim(mdiagnoz[1])+" не встречается ни в одной услуге")
@@ -2652,7 +2661,8 @@ Function verify_1_sluch(fl_view)
     endif
   endif
   if is_disp_DDS .or. is_disp_DVN .or. is_prof_PN .or. is_pren_diagn .or. kol_ksg > 0 ;
-                                                  .or. is_2_89 .or. is_reabil //.or. is_s_dializ
+                                                  .or. is_2_89 .or. is_reabil ;
+                                                  .or. is_disp_DVN_COVID  //.or. is_s_dializ
     if is_reabil  // проводим проверку на профиль при реабилитации
       if human_->profil != 158
         aadd(ta,'в случае надо использовать профиль по: '+inieditspr(A__MENUVERT, glob_V002, 158))
