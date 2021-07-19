@@ -792,7 +792,10 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       endif
 
       @ ++j, 1 say "Дата окончания лечения COVID" get mDateCOVID ;
-          valid { |g| f_k_data(g,2) }
+          valid {|| iif(((mn_data - mDateCOVID) < 60), func_error(4,"Прошло меньше 60 дней после заболевания!"), .t.);
+          }
+// alertx(MN_DATA-mDateCOVID, 'mn_data-mDateCOVID')
+
       @ row(), col() + 5 say "Пульсооксиметрия" get mOKSI pict "999" ;
           valid {|| iif(between(mOKSI,70,100),,func_error(4,"Неразумные показания пульсооксиметрии")), .t.}
       @ row(), col()+1 say "%"
