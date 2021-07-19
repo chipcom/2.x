@@ -14,6 +14,8 @@ Function verify_1_sluch(fl_view)
         a_dializ := {}, is_2_88 := .f., a_rec_ffoms := {}, arr_povod := {}, mpovod := 0,; // 1.0
         lal, lalf
 
+  local is_disp_DVN_COVID := .f.
+
   if empty(human->k_data)
     return .t.  // не проверять
   endif
@@ -472,7 +474,6 @@ Function verify_1_sluch(fl_view)
   is_2_83 := is_2_84 := is_2_85 := is_2_86 := is_2_87 := is_2_88 := is_2_89 := .f.
   a_2_89 := array(15) ; afill(a_2_89,0)
   is_disp_DDS := is_disp_DVN := is_disp_DVN3 := is_prof_PN := is_neonat := is_pren_diagn := .f.
-  is_disp_DVN_COVID := .f.
   is_70_3 := is_70_5 := is_70_6 := is_72_2 := is_72_3 := is_72_4 := .f.
   lstkol := 0 ; lstshifr := shifr_ksg := "" ; cena_ksg := 0
   midsp := musl_ok := mRSLT_NEW := mprofil := mvrach := m1lis := 0
@@ -512,7 +513,13 @@ Function verify_1_sluch(fl_view)
       skip
     enddo
   endif
+  // проверим не этап ли это углубленной диспансеризации после COVID
+  if eq_any(human->ishod, 401, 402)
+    is_disp_DVN_COVID := .t.
+  endif
+
   d_sroks := ""
+
   select HU
   find (str(human->kod,7))
   do while hu->kod == human->kod .and. !eof()
@@ -718,8 +725,8 @@ Function verify_1_sluch(fl_view)
         hu_->PZTIP := 2
       elseif alltrim_lshifr == "56.1.723" .and. human->ishod == 202 .and. !is_disp_19 // второй этап ДВН - одна услуга
         is_disp_DVN := .t.
-      elseif alltrim_lshifr == "70.8.1" .and. eq_any(human->ishod, 401, 402) // этап углубленной диспансеризации после COVID
-        is_disp_DVN_COVID := .t.
+      // elseif alltrim_lshifr == "70.8" .and. eq_any(human->ishod, 401, 402) // этап углубленной диспансеризации после COVID
+      //   is_disp_DVN_COVID := .t.
       elseif eq_any(left_lshifr_5,"60.4.","60.5.","60.6.","60.7.","60.8.","60.9.") .or. ;
              eq_any(alltrim_lshifr,"4.20.702","4.15.746") // ЛДП
         if alltrim_lshifr == "4.15.746" // пренатальный скрининг
@@ -981,7 +988,7 @@ Function verify_1_sluch(fl_view)
         hu_->PZKOL := mPZKOL
       endif
       if musl_ok == 3
-        if is_disp_DDS .or. is_disp_DVN .or. is_prof_PN .or.is_disp_DVN_COVID
+        if is_disp_DDS .or. is_disp_DVN .or. is_prof_PN .or. is_disp_DVN_COVID
           //
         elseif mpovod > 0 .and. ascan(arr_povod, {|x| x[1] == mpovod }) == 0
           aadd(arr_povod,{mpovod,alltrim_lshifr})
@@ -1022,6 +1029,8 @@ Function verify_1_sluch(fl_view)
                     lstr(hu->stoim_1)+' не равна произведению '+;
                     lstr(hu->u_cena)+" * "+lstr(hu->kol_1))
           endif
+        elseif is_disp_DVN_COVID .and. eq_any(alltrim(lshifr), "A12.09.005", "A12.09.001", "B03.016.003", "B03.016.004", ;
+                              "A06.09.007", "B01.026.002", "B01.047.002", "B01.047.006")
         else
           aadd(ta,'Не найдена услуга '+rtrim(lshifr)+iif(human->vzros_reb==0," для взрослых"," для детей")+' в справочнике ТФОМС')
         endif
@@ -4401,7 +4410,7 @@ Function verify_1_sluch(fl_view)
       d_srok->dni   := a_rec_ffoms[i,3]
     endif
   endif
-  if len(arr_unit) == 0
+  if len(arr_unit) == 0 .and. ! is_disp_DVN_COVID
     aadd(ta,"ни в одной из услуг не обнаружен код план-заказа")
   endif
   if is_disp_DDS .or. is_disp_DVN .or. is_prof_PN
