@@ -4275,60 +4275,74 @@ do while !eof()
             endif
             if padr(alltrim(lshifr),5) == "60.4."
                // KT
-              arr_pol3000[ 23,4] += round(human->cena_1*koef,2)
+              arr_pol3000[ 23,4] += round(hu->stoim_1*koef,2)
               arr_pol3000[ 23,2] += 1
+              arr_pol1[6,2] += 1
               if is_inogoro
-                arr_pol3000[ 23,5] += round(human->cena_1*koef,2)
+                arr_pol3000[ 23,5] += round(hu->stoim_1*koef,2)
                 arr_pol3000[ 23,3] += 1
+                arr_pol1[6,3] += 1
               endif
             elseif padr(alltrim(lshifr),5) == "60.5."
               // МРТ
-              arr_pol3000[ 24,4] += round(human->cena_1*koef,2)
+              arr_pol3000[ 24,4] += round(hu->stoim_1*koef,2)
               arr_pol3000[ 24,2] += 1
+              arr_pol1[6,2] += 1
               if is_inogoro
-                arr_pol3000[ 24,5] += round(human->cena_1*koef,2)
+                arr_pol3000[ 24,5] += round(hu->stoim_1*koef,2)
                 arr_pol3000[ 24,3] += 1
+                arr_pol1[6,3] += 1
               endif
             elseif padr(alltrim(lshifr),5) == "60.6."
               // УЗИ ССС
-              arr_pol3000[ 25,4] += round(human->cena_1*koef,2)
+              arr_pol3000[ 25,4] += round(hu->stoim_1*koef,2)
               arr_pol3000[ 25,2] += 1
+              arr_pol1[6,2] += 1
               if is_inogoro
-                arr_pol3000[ 25,5] += round(human->cena_1*koef,2)
+                arr_pol3000[ 25,5] += round(hu->stoim_1*koef,2)
                 arr_pol3000[ 25,3] += 1
+                arr_pol1[6,3] += 1
               endif
             elseif padr(alltrim(lshifr),5) == "60.7."
               // ' Эндоскопические диагностические исследования'
               arr_pol3000[ 26,4] += round(human->cena_1*koef,2)
               arr_pol3000[ 26,2] += 1
+              arr_pol1[6,2] += 1
               if is_inogoro
                 arr_pol3000[ 26,5] += round(human->cena_1*koef,2)
                 arr_pol3000[ 26,3] += 1
+                arr_pol1[6,3] += 1
               endif
             elseif padr(alltrim(lshifr),5) == "60.9."
               // ' Молекулярно-генетические исследования'
               arr_pol3000[ 27,4] += round(human->cena_1*koef,2)
               arr_pol3000[ 27,2] += 1
+              arr_pol1[6,2] += 1
               if is_inogoro
                 arr_pol3000[ 27,5] += round(human->cena_1*koef,2)
                 arr_pol3000[ 27,3] += 1
+                arr_pol1[6,3] += 1
               endif
             elseif padr(alltrim(lshifr),5) == "60.8."
               // ' Гистологические исследования'
               arr_pol3000[ 28,4] += round(human->cena_1*koef,2)
               arr_pol3000[ 28,2] += 1
+              arr_pol1[6,2] += 1
               if is_inogoro
                 arr_pol3000[ 28,5] += round(human->cena_1*koef,2)
                 arr_pol3000[ 28,3] += 1
+                arr_pol1[6,3] += 1
               endif
             elseif padr(alltrim(lshifr),8) == "4.17.785" .or.;
                    padr(alltrim(lshifr),8) == "4.17.786"
               //' Тестирование на COVID-19'
               arr_pol3000[ 29,4] += round(human->cena_1*koef,2)
               arr_pol3000[ 29,2] += 1
+              arr_pol1[6,2] += 1
               if is_inogoro
                 arr_pol3000[ 29,5] += round(human->cena_1*koef,2)
                 arr_pol3000[ 29,3] += 1
+                arr_pol1[6,3] += 1
               endif
             endif
             skip
@@ -4866,6 +4880,7 @@ do while !eof()
             elseif vid_vp == 2 // по поводу заболевания
               fl_pol1[13] := -1
               arr_pril5[10,igs] += tfoms_pz[2,1] // "Число обращений по поводу заболевания"
+           //my_debug(,print_array(tfoms_pz))
               aadd(ta,{27,tfoms_pz[2,1],tfoms_pz[2,1],iif(ds_spec==1,tfoms_pz[2,1],0),tfoms_pz[2,3],tfoms_pz[2,3],iif(ds_spec==1,tfoms_pz[2,3],0)})
               if fl
                 arr_pol[27] += tfoms_pz[2,3]
@@ -5247,8 +5262,16 @@ do while !eof()
             append blank
             tmp->nstr := ta[j,1]
           endif
+          // !!!!
           tmp->sum4 += ta[j,2]
           tmp->sum5 += ta[j,3]
+          //my_debug(,str(j))
+          //my_debug(,str(ta[j,1]))
+
+          //my_debug(,str(tmp->sum4)+" "+str(tmp->sum5))
+          //my_debug(,str(tmp->sum6)+" "+str(tmp->sum7))
+
+          // !!!!
           if len(ta[j]) > 3
             tmp->sum6 += ta[j,4]
           endif
@@ -5263,8 +5286,6 @@ do while !eof()
           endif
         next
         for i := 1 to len(arr_pol1)
-         // my_debug(,str(i))
-          //my_debug(,str(fl_pol1[i]))
 
           if fl_pol1[i] > 0
             arr_pol1[i,2] += fl_pol1[i]
@@ -5285,20 +5306,28 @@ do while !eof()
               endif
             endif
           elseif fl_pol1[i] < 0
-            arr_pol1[i,2] += kol_stom
-            arr_pol1[i,4] += round(human->cena_1*koef,2)
-            if is_inogoro
-              arr_pol1[i,3] += kol_stom
-              arr_pol1[i,5] += round(human->cena_1*koef,2)
-            endif
-            if i == 4
-              if fl_pol3000_PROF   //профосмотры
-                arr_pol3000[ 4,2] += fl_pol1[i]
-                arr_pol3000[ 4,4] += round(human->cena_1*koef,2)
-              else
-                if fl_pol3000_DVN2
-                  arr_pol3000[ 5,2] += fl_pol1[i]
-                  arr_pol3000[ 5,4] += round(human->cena_1*koef,2)
+            //my_debug(,str(i))
+            //my_debug(,str(fl_pol1[i]))
+            //my_debug(,str(kol_stom))
+            //my_debug(,str(round(human->cena_1*koef,2)))
+            if i == 13 .and. schet_->BUKVA == "K"
+             //
+            else
+              arr_pol1[i,2] += kol_stom
+              arr_pol1[i,4] += round(human->cena_1*koef,2)
+              if is_inogoro
+                arr_pol1[i,3] += kol_stom
+                arr_pol1[i,5] += round(human->cena_1*koef,2)
+              endif
+              if i == 4
+                if fl_pol3000_PROF   //профосмотры
+                  arr_pol3000[ 4,2] += fl_pol1[i]
+                  arr_pol3000[ 4,4] += round(human->cena_1*koef,2)
+                else
+                  if fl_pol3000_DVN2
+                    arr_pol3000[ 5,2] += fl_pol1[i]
+                    arr_pol3000[ 5,4] += round(human->cena_1*koef,2)
+                  endif
                 endif
               endif
             endif
@@ -5686,15 +5715,6 @@ if fl
 "                                    │ всего │иногор.│    всего    │в т.ч. иногор"+hb_eol()+;
 "────────────────────────────────────┴───────┴───────┴─────────────┴─────────────"+hb_eol(),cFileProtokol,.t.)
   //
-  //"06 посещения с иными целями, всего (07+08+12+14+15+16+19+20)"
-  add_val_2_array(arr_pol3000,6,7,2,5)   // 7
-  add_val_2_array(arr_pol3000,6,8,2,5)   // 8
-  add_val_2_array(arr_pol3000,6,9,2,5)   // 12
-  add_val_2_array(arr_pol3000,6,11,2,5)  // 14
-  add_val_2_array(arr_pol3000,6,12,2,5)  // 15
-  add_val_2_array(arr_pol3000,6,13,2,5)  // 16
-  //add_val_2_array(arr_pol3000,6,,2,5)  // 19 нет в системе ОМС
-  add_val_2_array(arr_pol3000,6,16,2,5)  // 20
   //"02 Посещения с профилактическими и иными целями (03+06)"
 //  add_val_2_array(arr_pol3000,2,3,2,5)
 //  add_val_2_array(arr_pol3000,2,6,2,5)
@@ -5731,6 +5751,16 @@ if fl
   for xx := 2 to 5
     arr_pol3000[ 20,xx] := arr_pol1[13,xx]
   next
+  //"06 посещения с иными целями, всего (07+08+12+14+15+16+19+20)"
+  //add_val_2_array(arr_pol3000,6,7,2,5)   // 7
+  //add_val_2_array(arr_pol3000,6,8,2,5)   // 8
+  //add_val_2_array(arr_pol3000,6,9,2,5)   // 12
+  //add_val_2_array(arr_pol3000,6,11,2,5)  // 14
+  //add_val_2_array(arr_pol3000,6,12,2,5)  // 15
+  //add_val_2_array(arr_pol3000,6,13,2,5)  // 16
+  ////add_val_2_array(arr_pol3000,6,,2,5)  // 19 нет в системе ОМС
+  //add_val_2_array(arr_pol3000,6,16,2,5)  // 20
+
   //"03 посещения с профилактическими целями, всего (04+05)"
   add_val_2_array(arr_pol3000,3,4,2,5)
   add_val_2_array(arr_pol3000,3,5,2,5)
