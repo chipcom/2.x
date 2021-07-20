@@ -1031,6 +1031,7 @@ Function verify_1_sluch(fl_view)
           endif
         elseif is_disp_DVN_COVID .and. eq_any(alltrim(lshifr), "A12.09.005", "A12.09.001", "B03.016.003", "B03.016.004", ;
                               "A06.09.007", "B01.026.002", "B01.047.002", "B01.047.006")
+          ////////
         else
           aadd(ta,'Не найдена услуга '+rtrim(lshifr)+iif(human->vzros_reb==0," для взрослых"," для детей")+' в справочнике ТФОМС')
         endif

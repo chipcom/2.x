@@ -322,19 +322,20 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
         lshifr := usl->shifr
       endif
       lshifr := alltrim(lshifr)
+alertx(lshifr, 'lhifr')
       if eq_any(left(lshifr,5),"70.3.","70.7.","72.1.","72.5.","72.6.","72.7.")
         mshifr_zs := lshifr
       else
         fl := .t.
-        if fl
-          for i := 1 to count_dvn_COVID_arr_umolch
-            if empty(larr[2,i]) .and. dvn_COVID_arr_umolch[i,2] == lshifr
-              fl := .f.
-              larr[2,i] := hu->(recno())
-              exit
-            endif
-          next
-        endif
+        // if fl
+        //   for i := 1 to count_dvn_COVID_arr_umolch
+        //     if empty(larr[2,i]) .and. dvn_COVID_arr_umolch[i,2] == lshifr
+        //       fl := .f.
+        //       larr[2,i] := hu->(recno())
+        //       exit
+        //     endif
+        //   next
+        // endif
         if fl
           for i := 1 to count_dvn_COVID_arr_usl
             if empty(larr[1,i])
@@ -577,7 +578,7 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       for i := 1 to count_dvn_COVID_arr_usl
         fl_diag := .f.
         i_otkaz := 0
-        if f_is_usl_oms_sluch_DVN_COVID(i,metap,@fl_diag,@i_otkaz)
+        if f_is_usl_oms_sluch_DVN_COVID(i, metap, .f., @fl_diag, @i_otkaz)
           if fl_diag .and. fl_vrach
             @ ++j, 1 say "────────────────────────────────────────────┬─────┬─────┬───────────" color color8
             @ ++j, 1 say "Наименования осмотров                       │врач │ассис│дата услуги" color color8
@@ -824,7 +825,7 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       for i := 1 to count_dvn_COVID_arr_usl
         fl_diag := .f.
         i_otkaz := 0
-        if f_is_usl_oms_sluch_DVN_COVID(i,metap,@fl_diag,@i_otkaz)
+        if f_is_usl_oms_sluch_DVN_COVID(i, metap, .t., @fl_diag, @i_otkaz)
           mvart := "MTAB_NOMv"+lstr(i)
           ar := dvn_COVID_arr_usl[i]
           mvara := "MTAB_NOMa"+lstr(i)
@@ -834,7 +835,16 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
           if &mvard == mn_data
             k := i
           endif
-
+          // для заполнения услуги 70.8.1
+          if valtype(ar[2]) == "C" .and. ar[2] == "B01.026.001"
+            tmpvr := &mvart
+          endif
+          if valtype(ar[2]) == "C" .and. ar[2] == "70.8.1" .and. metap == 1
+            &mvard := mn_data
+            &mvart := tmpvr
+          endif
+          //
+          
           ++kol_d_usl
           if i_otkaz == 2 .and. &mvaro == 2 // если исследование невозможно
             select P2
@@ -919,20 +929,19 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
             arr_osm1[i,10] := &mvaro
             arr_osm1[i,9] := &mvard
             max_date1 := max(max_date1,arr_osm1[i,9])
+
+            if valtype(arr_osm1[i,5]) == "C" .and. arr_osm1[i,5] == "B01.026.001"
+              t_arr_usl := aclone(arr_osm1[i])
+            endif
           endif
-        endif
-        if valtype(arr_osm1[i,5]) == "C" .and. arr_osm1[i,5] == "B01.026.001"
-          t_arr_usl := aclone(arr_osm1[i])
         endif
         if !fl
           exit
         endif
       next
-
       if !fl
         loop
       endif
-
 
       num_screen := 2
       arr_diag := {}
@@ -1050,46 +1059,46 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       //   endif
       // next
       is_prazdnik := f_is_prazdnik_DVN_COVID(mn_data)
-      if metap == 2
-        i := count_dvn_COVID_arr_usl
-        m1vrach  := arr_osm1[i,1]
-        m1prvs   := arr_osm1[i,2]
-        m1assis  := arr_osm1[i,3]
-        m1PROFIL := arr_osm1[i,4]
-        //MKOD_DIAG := padr(arr_osm1[i,6],6)
-      else  // metap := 1
-        i := len(arr_osm1)
-        m1vrach  := arr_osm1[i,1]
-        m1prvs   := arr_osm1[i,2]
-        m1assis  := arr_osm1[i,3]
-        m1PROFIL := arr_osm1[i,4]
-        //MKOD_DIAG := padr(arr_osm1[i,6],6)
-        aadd(arr_osm1,array(11))
-        i := i_zs := len(arr_osm1)
-        arr_osm1[i,1] := arr_osm1[i-1,1]
-        arr_osm1[i,2] := arr_osm1[i-1,2]
-        arr_osm1[i,3] := arr_osm1[i-1,3]
-        arr_osm1[i,4] := 151 // для кода ЗС - мед.осмотрам профилактическим
-        arr_osm1[i,5] := ret_shifr_zs_DVN_COVID(metap,mvozrast,mpol,mk_data)
-        arr_osm1[i,6] := arr_osm1[i-1,6]
-        arr_osm1[i,9] := mn_data
-        arr_osm1[i,10] := 0
-      endif
-      for i := 1 to count_dvn_COVID_arr_umolch
-        if f_is_umolch_sluch_DVN_COVID(i,metap,mvozrast,mpol)
-          ++kol_d_usl
-          aadd(arr_osm1,array(11))
-          j := len(arr_osm1)
-          arr_osm1[j,1] := m1vrach
-          arr_osm1[j,2] := m1prvs
-          arr_osm1[j,3] := m1assis
-          arr_osm1[j,4] := m1PROFIL
-          arr_osm1[j,5] := dvn_COVID_arr_umolch[i,2]
-          arr_osm1[j,6] := mdef_diagnoz
-          arr_osm1[j,9] := iif(dvn_COVID_arr_umolch[i,8]==0, mn_data, mk_data)
-          arr_osm1[j,10] := 0
-        endif
-      next
+      // if metap == 2
+      //   i := count_dvn_COVID_arr_usl
+      //   m1vrach  := arr_osm1[i,1]
+      //   m1prvs   := arr_osm1[i,2]
+      //   m1assis  := arr_osm1[i,3]
+      //   m1PROFIL := arr_osm1[i,4]
+      //   //MKOD_DIAG := padr(arr_osm1[i,6],6)
+      // else  // metap := 1
+      //   i := len(arr_osm1)
+      //   m1vrach  := arr_osm1[i,1]
+      //   m1prvs   := arr_osm1[i,2]
+      //   m1assis  := arr_osm1[i,3]
+      //   m1PROFIL := arr_osm1[i,4]
+      //   //MKOD_DIAG := padr(arr_osm1[i,6],6)
+      //   aadd(arr_osm1,array(11))
+      //   i := i_zs := len(arr_osm1)
+      //   arr_osm1[i,1] := arr_osm1[i-1,1]
+      //   arr_osm1[i,2] := arr_osm1[i-1,2]
+      //   arr_osm1[i,3] := arr_osm1[i-1,3]
+      //   arr_osm1[i,4] := 151 // для кода ЗС - мед.осмотрам профилактическим
+      //   arr_osm1[i,5] := ret_shifr_zs_DVN_COVID(metap,mvozrast,mpol,mk_data)
+      //   arr_osm1[i,6] := arr_osm1[i-1,6]
+      //   arr_osm1[i,9] := mn_data
+      //   arr_osm1[i,10] := 0
+      // endif
+      // for i := 1 to count_dvn_COVID_arr_umolch
+      //   if f_is_umolch_sluch_DVN_COVID(i,metap,mvozrast,mpol)
+      //     ++kol_d_usl
+      //     aadd(arr_osm1,array(11))
+      //     j := len(arr_osm1)
+      //     arr_osm1[j,1] := m1vrach
+      //     arr_osm1[j,2] := m1prvs
+      //     arr_osm1[j,3] := m1assis
+      //     arr_osm1[j,4] := m1PROFIL
+      //     arr_osm1[j,5] := dvn_COVID_arr_umolch[i,2]
+      //     arr_osm1[j,6] := mdef_diagnoz
+      //     arr_osm1[j,9] := iif(dvn_COVID_arr_umolch[i,8]==0, mn_data, mk_data)
+      //     arr_osm1[j,10] := 0
+      //   endif
+      // next
       
       make_diagP(2)  // сделать "пятизначные" диагнозы
       if m1dispans > 0
@@ -1107,8 +1116,17 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       arr_otklon := {}
       glob_podr := ""
       glob_otd_dep := 0
+      for i := len(arr_osm1) to 1 step -1
+        if (valtype(arr_osm1[i,5]) == "N") .and. (arr_osm1[i,5] == 0)
+          hb_ADel( arr_osm1, i, .t. )
+        endif
+      next
       for i := 1 to len(arr_osm1)
         if valtype(arr_osm1[i,5]) == "C"
+
+// alertx(arr_osm1[i])
+// alertx(foundOurUsluga(arr_osm1[i,5],mk_data,arr_osm1[i,4],M1VZROS_REB,@mu_cena),'find')
+
           arr_osm1[i,7] := foundOurUsluga(arr_osm1[i,5],mk_data,arr_osm1[i,4],M1VZROS_REB,@mu_cena)
           arr_osm1[i,8] := mu_cena
           mcena_1 += mu_cena
@@ -1122,6 +1140,22 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
           endif
         endif
       next
+
+// alertx(arr_usl_dop)
+      if metap == 1
+        for i := 1 to len(arr_usl_dop)
+          if valtype(arr_usl_dop[i,5]) == "C" .and. arr_usl_dop[i,5] == "70.8.1"
+            arr_usl_dop[i,1] := t_arr_usl[1]
+            arr_usl_dop[i,2] := t_arr_usl[2]
+            arr_usl_dop[i,3] := t_arr_usl[3]
+            arr_usl_dop[i,6] := t_arr_usl[6]
+            arr_usl_dop[i,9] := t_arr_usl[9]
+            arr_usl_dop[i,11] := t_arr_usl[11]
+          endif
+        next
+      endif
+// alertx(arr_usl_dop)
+
       //
       Use_base("human")
       if Loc_kod > 0
@@ -1207,8 +1241,8 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       human_->POL2      := ""
       human_->USL_OK    := m1USL_OK
       human_->VIDPOM    := m1VIDPOM
-      human_->PROFIL    := m1PROFIL
-      human_->IDSP      := iif(metap == 3, 17, 11)
+      human_->PROFIL    := 111    // m1PROFIL
+      human_->IDSP      := 30     // iif(metap == 3, 17, 11)
       human_->NPR_MO    := ''
       human_->FORMA14   := '0000'
       human_->KOD_DIAG0 := ''
@@ -1269,15 +1303,16 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       i1 := len(arr_usl)
       i2 := len(arr_usl_dop)
       // принудительно выставим параметры
-      for i := 1 to i2
-        if valtype(arr_usl_dop[i,5]) == "C" .and. arr_usl_dop[i,5] == "70.8.1" .and. metap == 1
-          arr_usl_dop[i,1] := t_arr_usl[1]
-          arr_usl_dop[i,2] := t_arr_usl[2]
-          arr_usl_dop[i,3] := t_arr_usl[3]
-          arr_usl_dop[i,6] := t_arr_usl[6]
-          arr_usl_dop[i,11] := t_arr_usl[11]
-        endif
-      next
+      // for i := 1 to i2
+      //   if valtype(arr_usl_dop[i,5]) == "C" .and. arr_usl_dop[i,5] == "70.8.1" .and. metap == 1
+      //     arr_usl_dop[i,1] := t_arr_usl[1]
+      //     arr_usl_dop[i,2] := t_arr_usl[2]
+      //     arr_usl_dop[i,3] := t_arr_usl[3]
+      //     arr_usl_dop[i,6] := t_arr_usl[6]
+      //     arr_usl_dop[i,9] := t_arr_usl[9]
+      //     arr_usl_dop[i,11] := t_arr_usl[11]
+      //   endif
+      // next
 
       Use_base("human_u")
       for i := 1 to i2

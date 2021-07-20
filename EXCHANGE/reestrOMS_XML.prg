@@ -536,6 +536,8 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
         endif
         mo_add_xml_stroke(oSLUCH,"USL_OK"  ,lstr(human_->USL_OK))
         mo_add_xml_stroke(oSLUCH,"VIDPOM"  ,lstr(lvidpom))
+alertx(lvidpom,'lvidpom')
+alertx(__mvScope( lvidpom ), 'scope')
         if p_tip_reestr == 1
           lal := iif(kol_sl == 2, "human_3", "human_")
           mo_add_xml_stroke(oSLUCH,"ISHOD"   ,lstr(&lal.->ISHOD_NEW))
