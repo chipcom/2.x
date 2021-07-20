@@ -604,7 +604,7 @@ do while !eof()
             tmpb->kod_tmp := 1
             tmpb->plus := .t.
             if arr_m[1] > 2016
-              if between(human->ishod,301,305) .or. between(human->ishod,201,205) .or. between(human->ishod,101,102)
+              if between(human->ishod,301,305) .or. between(human->ishod,201,205) .or. between(human->ishod,101,102) .or. between(human->ishod,401,402)
                 tmpb->tip := 2
                 kol_2r++
               else
@@ -1080,6 +1080,7 @@ else
           endif
           if tmp->nyear > 2018 // 2019 год
             create1reestr19(tmp->(recno()),tmp->nyear,tmp->nmonth)
+
           else
             create1reestr17(tmp->(recno()),tmp->nyear,tmp->nmonth)
           endif
