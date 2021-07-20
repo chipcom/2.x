@@ -23,8 +23,6 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
   local dvn_COVID_arr_umolch := ret_dvn_arr_COVID_umolch()  // получим список услуг по углубленной диспансеризации
   local count_dvn_COVID_arr_umolch := len(dvn_COVID_arr_umolch)
 
-  local t_arr_usl
-
   //
   Default st_N_DATA TO sys_date, st_K_DATA TO sys_date
   Default Loc_kod TO 0, kod_kartotek TO 0
@@ -94,6 +92,8 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
     m1IDSP   := 11,; // доп.диспансеризация
     mmobilbr, m1mobilbr := 0,;  // мобильная бригада
     mcena_1 := 0
+    // mtip_h,;
+    // mveteran, m1veteran := 0,;  // пока оставил для совместимости
   //
   Private arr_usl_dop := {}, arr_usl_otkaz := {}, arr_otklon := {}, m1p_otk := 0
   Private metap := 0,;  // 1-первый этап, 2-второй этап
@@ -102,6 +102,23 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
     mOKSI := 0,;  // данные оксиметра %
     mDateCOVID := sys_date,;  // дата окончания лечения COVID
     mgruppa, m1gruppa := 9      // группа здоровья
+    // , is_dostup_2_year := .f.,;
+    // mWEIGHT := 0,;   // вес в кг
+    // mHEIGHT := 0,;   // рост в см
+    // mOKR_TALII := 0,; // окружность талии в см
+    // mtip_mas, m1tip_mas := 0,;
+    // mkurenie, m1kurenie := 0,; //
+    // mriskalk, m1riskalk := 0,; //
+    // mpod_alk, m1pod_alk := 0,; //
+    // mpsih_na, m1psih_na := 0,; //
+    // mfiz_akt, m1fiz_akt := 0,; //
+    // mner_pit, m1ner_pit := 0,; //
+    // maddn, m1addn := 0, mad1 := 120, mad2 := 80,; // давление
+    // mholestdn, m1holestdn := 0, mholest := 0,; //"99.99"
+    // mglukozadn, m1glukozadn := 0, mglukoza := 0,; //"99.99"
+    // mssr := 0,; // "99"
+  // Private mot_nasl1, m1ot_nasl1 := 0, mot_nasl2, m1ot_nasl2 := 0,;
+  //   mot_nasl3, m1ot_nasl3 := 0, mot_nasl4, m1ot_nasl4 := 0
   Private mdispans, m1dispans := 0, mnazn_l , m1nazn_l  := 0,;
     mdopo_na, m1dopo_na := 0,;
     mspec_na, m1spec_na := 0,;
@@ -111,8 +128,13 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
   Private mm_ndisp := {{"Углубленная диспансеризация I  этап",1},;
                        {"Углубленная диспансеризация II этап",2}}
   Private mm_gruppa, mm_ndisp1, is_disp_19 := .t.
+    // ,is_disp_nabl := .f.
 
   mm_ndisp1 := aclone(mm_ndisp)
+  // оставляем 3-ий и 4-ый этапы
+  // asize(mm_ndisp1,4)
+  // hb_ADel(mm_ndisp1, 1, .t.)
+  // hb_ADel(mm_ndisp1, 1, .t.)
 
   Private mm_gruppaP := {{"Присвоена I группа здоровья"   ,1,343},;
       {"Присвоена II группа здоровья"  ,2,344},;
@@ -120,6 +142,10 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       {"Присвоена IIIа группа здоровья",3,373},;
       {"Присвоена IIIб группа здоровья",4,374};
     }
+  // Private mm_gruppaP_old := aclone(mm_gruppaP)
+  // asize(mm_gruppaP_old,3)
+  // Private mm_gruppaP_new := aclone(mm_gruppaP)
+  // hb_ADel(mm_gruppaP_new,3,.t.)
   Private mm_gruppaD1 := {;
       {"Проведена диспансеризация - присвоена I группа здоровья"   ,1,317},;
       {"Проведена диспансеризация - присвоена II группа здоровья"  ,2,318},;
@@ -128,10 +154,16 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       {"Направлен на 2 этап, предварительно присвоена I группа здоровья"   ,11,352},;
       {"Направлен на 2 этап, предварительно присвоена II группа здоровья"  ,12,353},;
       {"Направлен на 2 этап, предварительно присвоена IIIа группа здоровья",13,357},;
-      {"Направлен на 2 этап, предварительно присвоена IIIб группа здоровья",14,358};
-    }
+      {"Направлен на 2 этап, предварительно присвоена IIIб группа здоровья",14,358}}  //,;
+    //   {"Направлен на 2 этап и ОТКАЗАЛСЯ, присвоена I группа здоровья"   ,21,352},;
+    //   {"Направлен на 2 этап и ОТКАЗАЛСЯ, присвоена II группа здоровья"  ,22,353},;
+    //   {"Направлен на 2 этап и ОТКАЗАЛСЯ, присвоена IIIа группа здоровья",23,357},;
+    //   {"Направлен на 2 этап и ОТКАЗАЛСЯ, присвоена IIIб группа здоровья",24,358};
+    // }
   Private mm_gruppaD2 := aclone(mm_gruppaD1)
   asize(mm_gruppaD2,4)
+  // Private mm_gruppaD4 := aclone(mm_gruppaD1)
+  // asize(mm_gruppaD4,8)
   Private mm_otkaz := {{"_выполнено",0},;
                        {"отклонение",3},;
                        {"ОТКАЗ пац.",1},;
@@ -148,9 +180,47 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
                       {"участковым терапевтом      ",3},;
                       {"врачом отд.мед.профилактики",1},;
                       {"врачом центра здоровья     ",2}}
+  // Private mDS_ONK, m1DS_ONK := 0 // Признак подозрения на злокачественное новообразование
+  // Private mm_dopo_na := {{"лаб.диагностика",1},{"инстр.диагностика",2},{"лучевая диагностика",3},{"КТ, МРТ, ангиография",4}}
+  // Private gl_arr := {;  // для битовых полей
+  //   {"dopo_na","N",10,0,,,,{|x|inieditspr(A__MENUBIT,mm_dopo_na,x)} };
+  //   }
+  // Private mnapr_v_mo, m1napr_v_mo := 0, ;
+  //   mm_napr_v_mo := {{"-- нет --",0},{"в нашу МО",1},{"в иную МО",2}}, ;
+  //   arr_mo_spec := {}, ma_mo_spec, m1a_mo_spec := 1
+  // Private mnapr_stac, m1napr_stac := 0, ;
+  //   mm_napr_stac := {{"--- нет ---",0},{"в стационар",1},{"в дн. стац.",2}}, ;
+  //   mprofil_stac, m1profil_stac := 0
+  // Private mnapr_reab, m1napr_reab := 0, mprofil_kojki, m1profil_kojki := 0
+  //
+  // онкологию не смотрим
+  /*dbcreate(cur_dir+"tmp_onkna", {; // онконаправления
+    {"KOD"      ,   "N",     7,     0},; // код больного
+    {"NAPR_DATE",   "D",     8,     0},; // Дата направления
+    {"NAPR_MO",     "C",     6,     0},; // код другого МО, куда выписано направление
+    {"NAPR_V"  ,    "N",     1,     0},; // Вид направления:1-к онкологу,2-на биопсию,3-на дообследование,4-для опр.тактики лечения
+    {"MET_ISSL" ,   "N",     1,     0},; // Метод диагностического исследования(при NAPR_V=3):1-лаб.диагностика;2-инстр.диагностика;3-луч.диагностика;4-КТ, МРТ, ангиография
+    {"shifr"  ,     "C",    20,     0},;
+    {"shifr_u"  ,   "C",    20,     0},;
+    {"shifr1"   ,   "C",    20,     0},;
+    {"name_u"   ,   "C",    65,     0},;
+    {"U_KOD"    ,   "N",     6,     0};  // код услуги
+    })
+  */
   ////// РАЗОБРАТЬСЯ С НАПРАВЛЕНИЯМИ
-  Private mshifr, mshifr1, mname_u, mU_KOD, cur_napr := 0, count_napr := 0, tip_onko_napr := 0
+  Private m1NAPR_MO, mNAPR_MO, mNAPR_DATE, mNAPR_V, m1NAPR_V, mMET_ISSL, m1MET_ISSL, ;
+        mshifr, mshifr1, mname_u, mU_KOD, cur_napr := 0, count_napr := 0, tip_onko_napr := 0
 
+  //Private //mm_napr_v := {{"нет",0},;
+        //              {"к онкологу",1},;
+        //              {"на дообследование",3}}
+
+  // Private mm_met_issl := {{"нет",0},;
+  //                         {"лабораторная диагностика",1},;
+  //                         {"инструментальная диагностика",2},;
+  //                         {"методы лучевой диагностики (недорогостоящие)",3},;
+  //                         {"дорогостоящие методы лучевой диагностики",4}}
+  //
   Private pole_diag, pole_pervich, pole_1pervich, pole_d_diag, ;
     pole_stadia, pole_dispans, pole_1dispans, pole_d_dispans, pole_dn_dispans
 
@@ -189,6 +259,10 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
     Private &mvar := mm_otkaz[1,1]
     mvar := "M1OTKAZ"+lstr(i)
     Private &mvar := mm_otkaz[1,2]
+    // m1var := "M1LIS"+lstr(i)
+    // Private &m1var := 0
+    // mvar := "MLIS"+lstr(i)
+    // Private &mvar := inieditspr(A__MENUVERT, mm_kdp2, &m1var)
   next
   //
   afill(adiag_talon,0)
@@ -287,6 +361,9 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
     m1VIDPOLIS  := human_->VPOLIS
     mSPOLIS     := human_->SPOLIS
     mNPOLIS     := human_->NPOLIS
+    // if human->OBRASHEN == '1'
+    //   m1DS_ONK := 1
+    // endif
     if empty(val(msmo := human_->SMO))
       m1komu := human->KOMU
       m1str_crb := human->STR_CRB
@@ -300,17 +377,38 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
     m1rslt     := human_->RSLT_NEW
     //
     is_prazdnik := f_is_prazdnik_DVN_COVID(mn_data)
+    // ret_arrays_disp_COVID()
 
     metap := human->ishod-400   // получим сохраненный этап диспансеризации
 
-    mdvozrast := year(mn_data) - year(mdate_r)
+    // if is_disp_19
+      mdvozrast := year(mn_data) - year(mdate_r)
+      // если это профосмотр
+    //   if metap == 3 .and. ascan(ret_arr_vozrast_DVN(mk_data),mdvozrast) > 0 // а возраст диспансеризации
+    //     metap := 1 // превращаем в диспансеризацию
+    //     if mk_data < d_01_11_2019 .and. m1rslt == 345
+    //       m1rslt := 355
+    //     elseif mk_data >= d_01_11_2019 .and. m1rslt == 373
+    //       m1rslt := 355
+    //     elseif mk_data >= d_01_11_2019 .and. m1rslt == 374
+    //       m1rslt := 356
+    //     elseif m1rslt == 344
+    //       m1rslt := 318
+    //     else
+    //       m1rslt := 317
+    //     endif
+    //   endif
+    // endif
+    //
     if between(metap,1,2)
+      // mm_gruppa := {mm_gruppaD1,mm_gruppaD2,mm_gruppaP,mm_gruppaD4,mm_gruppaD2}[metap]
       mm_gruppa := {mm_gruppaD1,mm_gruppaD2}[metap]
       if (i := ascan(mm_gruppa, {|x| x[3] == m1rslt })) > 0
         m1GRUPPA := mm_gruppa[i,2]
       endif
     endif
     //
+    // fl_4_1_12 := .f.
     larr := array(2,count_dvn_COVID_arr_usl)
     afillall(larr,0)
     R_Use(dir_server+"uslugi",,"USL")
@@ -326,6 +424,16 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
         mshifr_zs := lshifr
       else
         fl := .t.
+      //   if is_disp_19
+      //     //
+      //   else
+      //     if lshifr == "2.3.3" .and. hu_->PROFIL == 3  ; // акушерскому делу
+      //                        .and. (i := ascan(dvn_COVID_arr_usl, {|x| valtype(x[2])=="C" .and. x[2]=="4.1.12"})) > 0
+      //       fl_4_1_12 := .t.
+      //       fl := .f.
+      //       larr[1,i] := hu->(recno())
+      //     endif
+      //   endif
         if fl
           for i := 1 to count_dvn_COVID_arr_umolch
             if empty(larr[2,i]) .and. dvn_COVID_arr_umolch[i,2] == lshifr
@@ -339,10 +447,30 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
           for i := 1 to count_dvn_COVID_arr_usl
             if empty(larr[1,i])
               if valtype(dvn_COVID_arr_usl[i,2]) == "C"
+      //           // if dvn_COVID_arr_usl[i,2] == "4.20.1"
+      //           //   if lshifr == "4.20.1"
+      //           //     m1g_cit := 1
+      //           //   elseif lshifr == "4.20.2"
+      //           //     m1g_cit := 2 ; fl := .f.
+      //           //   endif
+      //           // endif
                 if dvn_COVID_arr_usl[i,2] == lshifr
                   fl := .f.
+      //             // m1var := "m1lis"+lstr(i)
+      //             // if is_disp_19
+      //             //   &m1var := 0
+      //             // elseif glob_yes_kdp2[TIP_LU_DVN] .and. ascan(glob_arr_usl_LIS,dvn_COVID_arr_usl[i,2]) > 0 .and. hu->is_edit > 0
+      //             //   &m1var := hu->is_edit
+      //             // endif
+      //             // mvar := "mlis"+lstr(i)
+      //             // &mvar := inieditspr(A__MENUVERT, mm_kdp2, &m1var)
                 endif
               endif
+      //         if fl .and. len(dvn_COVID_arr_usl[i]) > 11 .and. valtype(dvn_COVID_arr_usl[i,12]) == "A"
+      //           if ascan(dvn_COVID_arr_usl[i,12],{|x| x[1] == lshifr .and. x[2] == hu_->PROFIL}) > 0
+      //             fl := .f.
+      //           endif
+      //         endif
               if !fl
                 larr[1,i] := hu->(recno())
                 exit
@@ -350,6 +478,16 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
             endif
           next
         endif
+      //   if fl .and. ascan(dvn_700,{|x| x[2] == lshifr}) > 0
+      //     fl := .f. // к нулевой услуге добавлена услуга с ценой на "700"
+      //   endif
+      //   if fl
+      //     n_message({"Некорректная настройка в справочнике услуг:",;
+      //              alltrim(usl->name),;
+      //              "шифр услуги в справочнике "+usl->shifr,;
+      //              "шифр ТФОМС - "+opr_shifr_TFOMS(usl->shifr1,usl->kod,mk_data)},,;
+      //             "GR+/R","W+/R",,,"G+/R")
+      //   endif
       endif
       aadd(arr_usl,hu->(recno()))
       select HU
@@ -386,6 +524,12 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
         if valtype(dvn_COVID_arr_usl[i,2]) == "C"
           if ascan(arr_otklon,dvn_COVID_arr_usl[i,2]) > 0
             &m1var := 3 // выполнено, обнаружены отклонения
+          // elseif dvn_COVID_arr_usl[i,2] == "2.3.1" .and. ascan(arr_otklon,"2.3.3") > 0
+          //   &m1var := 3 // выполнено, обнаружены отклонения
+          // elseif dvn_COVID_arr_usl[i,2] == "4.20.1" .and. m1g_cit == 2 .and. ascan(arr_otklon,"4.20.2") > 0
+          //   &m1var := 3 // выполнено, обнаружены отклонения
+          // elseif fl_4_1_12 .and. dvn_COVID_arr_usl[i,2] == "4.1.12"
+          //   &m1var := 2 // НЕВОЗМОЖНОсть
           endif
         endif
         mvar := "MOTKAZ"+lstr(i)
@@ -401,6 +545,9 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
         if valtype(ar) == "A" .and. len(ar) >= 5 .and. valtype(ar[5]) == "C"
           lshifr := alltrim(ar[5])
           for i := 1 to count_dvn_COVID_arr_usl
+            // if (valtype(dvn_COVID_arr_usl[i,2]) == "C") .and. ;
+            //       (dvn_COVID_arr_usl[i,2] == lshifr .or. (len(dvn_COVID_arr_usl[i]) > 11 .and. valtype(dvn_COVID_arr_usl[i,12]) == "A") ;
+            //       .and. (ascan(dvn_COVID_arr_usl[i,12],{|x| x[1] == lshifr}) > 0))
             if valtype(dvn_COVID_arr_usl[i,2]) == "C" .and. ;
                   (dvn_COVID_arr_usl[i,2] == lshifr)
               if valtype(ar[1]) == "N" .and. ar[1] > 0
@@ -430,6 +577,32 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
         endif
       next j
     endif
+/*  if .t.
+    use (cur_dir+"tmp_onkna") new alias TNAPR
+    R_Use(dir_server+"mo_su",,"MOSU")
+    R_Use(dir_server+"mo_onkna",dir_server+"mo_onkna","NAPR") // онконаправления
+    set relation to u_kod into MOSU
+    find (str(Loc_kod,7))
+    do while napr->kod == Loc_kod .and. !eof()
+      cur_napr := 1 // при ред-ии - сначала первое направление текущее
+      ++count_napr
+      select TNAPR
+      append blank
+      tnapr->NAPR_DATE := napr->NAPR_DATE
+      tnapr->NAPR_MO   := napr->NAPR_MO
+      tnapr->NAPR_V    := napr->NAPR_V
+      tnapr->MET_ISSL  := napr->MET_ISSL
+      tnapr->U_KOD     := napr->U_KOD
+      tnapr->shifr_u   := iif(empty(mosu->shifr),mosu->shifr1,mosu->shifr)
+      tnapr->shifr1    := mosu->shifr1
+      tnapr->name_u    := mosu->name
+      select NAPR
+      skip
+    enddo
+    if count_napr > 0
+      mnapr_onk := "Количество направлений - "+lstr(count_napr)
+    endif
+  endif */
     for i := 1 to 5
       f_valid_diag_oms_sluch_DVN_COVID(,i)
     next i
@@ -469,8 +642,25 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
     endif
   endif
   mmobilbr := inieditspr(A__MENUVERT, mm_danet, m1mobilbr)
+  // mholestdn := inieditspr(A__MENUVERT, mm_danet, m1holestdn)
+  // mglukozadn := inieditspr(A__MENUVERT, mm_danet, m1glukozadn)
   mdispans  := inieditspr(A__MENUVERT, mm_dispans, m1dispans)
   mnazn_l   := inieditspr(A__MENUVERT, mm_danet, m1nazn_l)
+  // mdopo_na  := inieditspr(A__MENUBIT, mm_dopo_na, m1dopo_na)
+  // if empty(arr_mo_spec)
+  //   ma_mo_spec := "---"
+  // else
+  //   ma_mo_spec := ""
+  //   for i := 1 to len(arr_mo_spec)
+  //     ma_mo_spec += lstr(arr_mo_spec[i])+","
+  //   next
+  //   ma_mo_spec := left(ma_mo_spec,len(ma_mo_spec)-1)
+  // endif
+
+  // mssh_na   := inieditspr(A__MENUVERT, mm_danet, m1ssh_na)
+  // mspec_na  := inieditspr(A__MENUVERT, mm_danet, m1spec_na)
+  // msank_na  := inieditspr(A__MENUVERT, mm_danet, m1sank_na)
+  // mtip_mas := ret_tip_mas(mWEIGHT,mHEIGHT,@m1tip_mas)
 
   if ! ret_ndisp_COVID(Loc_kod,kod_kartotek)
     return NIL
@@ -484,6 +674,7 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
   str_1 := " случая углубленной диспансеризации взрослого населения (COVID)"
   if Loc_kod == 0
     str_1 := "Добавление"+str_1
+    // mtip_h := yes_vypisan
   else
     str_1 := "Редактирование"+str_1
   endif
@@ -493,11 +684,22 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
   setcolor(cDataCGet)
   make_diagP(1)  // сделать "шестизначные" диагнозы
 
+  // mm_gruppa := {mm_gruppaD1,mm_gruppaD2}[metap]
+  // if (i := ascan(mm_gruppa, {|x| x[3] == m1rslt })) > 0
+  //   m1GRUPPA := mm_gruppa[i,2]
+  // endif
+
   Private num_screen := 1
   do while .t.
     close databases
     DispBegin()
-    hS := 25 ; wS := 80
+    // if metap == 2 .and. num_screen == 2
+    //   hS := 30 ; wS := 80
+    // elseif num_screen == 3
+    //   hS := 26 ; wS := 85
+    // else
+      hS := 25 ; wS := 80
+    // endif
     SetMode(hS,wS)
     @ 0, 0 say padc(str_1,wS) color "B/BG*"
     gl_area := {1,0,maxrow()-1,maxcol(),0}
@@ -505,6 +707,9 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
     j := 1
     myclear(j)
 
+    // if yes_num_lu == 1 .and. Loc_kod > 0
+    //   @ j,(wS-30) say padl("Лист учета № "+lstr(Loc_kod),29) color color14
+    // endif
     @ j, 0 say "Экран "+lstr(num_screen) color color8
     if num_screen > 1
       s := alltrim(mfio)+" ("+lstr(mvozrast)+" "+s_let(mvozrast)+")"
@@ -520,6 +725,8 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       // ++j
       // @ ++j,1 say " Работающий?" get mrab_nerab ;
       //     reader {|x|menu_reader(x,menu_rab,A__MENUVERT,,,.f.)}
+      // @ j,40 say "Ветеран ВОВ (блокадник)?" get mveteran ;
+      //     reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
       @ ++j, 1 say " Принадлежность счёта" get mkomu ;
           reader {|x|menu_reader(x,mm_komu,A__MENUVERT,,,.f.)} ;
           valid {|g,o| f_valid_komu(g,o) } ;
@@ -544,6 +751,12 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
           valid {|g| f_k_data(g,2),;
                 ret_ndisp_COVID(Loc_kod,kod_kartotek) ;
           }
+      // if eq_any(metap,3,4) .and. is_dostup_2_year
+      //      @ row(),col()+7 get mndisp /*color color14*/ reader {|x|menu_reader(x,mm_ndisp1,A__MENUVERT,,,.f.)} ;
+      //                      valid {|| metap := m1ndisp, .t. }
+      // else
+      // @ row(),col()+7 get mndisp when .f. color color14
+      // endif
 
       // ++j
       @ j, col() + 5 say "№ амбулаторной карты" get much_doc picture "@!" ;
@@ -551,12 +764,30 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       // @ j,col()+5 say "Мобильная бригада?" get mmobilbr ;
       //       reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
       ++j
+/*    ++j; @ j,1 say " Общий холестерин" get mholest pict "99.99" ;
+               valid {|| iif(empty(mholest) .or. between(mholest,3,8),,func_error(4,"Неразумное значение холестерина")), .t.}
+         @ row(),col()+1 say "ммоль/л     Гиполипидемическая терапия" get mholestdn ;
+               reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
+    ++j; @ j,1 say " Глюкоза" get mglukoza pict "99.99" ;
+               valid {|| iif(empty(mglukoza) .or. between(mglukoza,2.2,25),,func_error(4,"Критическое значение глюкозы")), .t.}
+         @ row(),col()+1 say "ммоль/л     Гипогликемическая терапия" get mglukozadn ;
+               reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
+*/
+//   status_key("^<Esc>^ выход без записи ^<PgDn>^ на 2-ю страницу")
+//    if !empty(a_smert)
+//      n_message(a_smert,,"GR+/R","W+/R",,,"G+/R")
+//    endif
+//  elseif num_screen == 2 //
     
       ret_ndisp_COVID(Loc_kod,kod_kartotek)
 
       @ ++j, 8 get mndisp when .f. color color14
       if mvozrast != mdvozrast
+        // if m1veteran == 1
+        //   s := "(для ветерана проводится по возрасту "+lstr(mdvozrast)+" "+s_let(mdvozrast)+")"
+        // else
         s := "(в "+lstr(year(mn_data))+" году исполняется "+lstr(mdvozrast)+" "+s_let(mdvozrast)+")"
+        // endif
         @ j, 80-len(s) say s color color14
       endif
 
@@ -570,6 +801,8 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       @ ++j, 1 say "────────────────────────────────────────────┬─────┬─────┬──────────┬──────────" color color8
       @ ++j, 1 say "Наименования исследований                   │врач │ассис│дата услуг│выполнение " color color8
       @ ++j, 1 say "────────────────────────────────────────────┴─────┴─────┴──────────┴──────────" color color8
+      //++j; @ j,0 say replicate("─",80) color color8
+      //++j; @ j,0 say "_Наименования исследований____________________врач__ассис_дата услуг_выполнение_" color color8
       if mem_por_ass == 0
         @ j-1,52 say space(5)
       endif
@@ -577,7 +810,8 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       for i := 1 to count_dvn_COVID_arr_usl
         fl_diag := .f.
         i_otkaz := 0
-        if f_is_usl_oms_sluch_DVN_COVID(i,metap,@fl_diag,@i_otkaz)
+        // if f_is_usl_oms_sluch_DVN_COVID(i,metap,iif(metap==3.and.!is_disp_19,mvozrast,mdvozrast),mpol,@fl_diag,@i_otkaz)
+        if f_is_usl_oms_sluch_DVN_COVID(i,metap,mvozrast,mpol,@fl_diag,@i_otkaz)
           if fl_diag .and. fl_vrach
             @ ++j, 1 say "────────────────────────────────────────────┬─────┬─────┬───────────" color color8
             @ ++j, 1 say "Наименования осмотров                       │врач │ассис│дата услуги" color color8
@@ -590,8 +824,20 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
             fl_vrach := .f.
           endif
           fl_g_cit := fl_kdp2 := .f.
-          // if valtype(dvn_COVID_arr_usl[i,2]) == "C"
-          // endif
+          if valtype(dvn_COVID_arr_usl[i,2]) == "C"
+            // if (fl_g_cit := (dvn_COVID_arr_usl[i,2] == "4.20.1"))
+            //   if m1g_cit == 0
+            //     m1g_cit := 1 // начальное присвоение
+            //   endif
+            //   mg_cit := inieditspr(A__MENUVERT, mm_g_cit, m1g_cit)
+            //   if mk_data > 0d20190831
+            //     fl_g_cit := .f.
+            //     m1g_cit := 1 // в МО
+            //   endif
+            // elseif !is_disp_19 .and. glob_yes_kdp2[TIP_LU_DVN] .and. ascan(glob_arr_usl_LIS,dvn_COVID_arr_usl[i,2]) > 0
+            //   fl_kdp2 := .t.
+            // endif
+          endif
           mvarv := "MTAB_NOMv"+lstr(i)
           mvara := "MTAB_NOMa"+lstr(i)
           mvard := "MDATE"+lstr(i)
@@ -600,8 +846,16 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
           endif
           mvarz := "MKOD_DIAG"+lstr(i)
           mvaro := "MOTKAZ"+lstr(i)
+          // mvarlis := "MLIS"+lstr(i)
 
-          @ ++j, 1 say dvn_COVID_arr_usl[i,1]
+          // if fl_g_cit
+          //   @ ++j, 1 get mg_cit reader {|x|menu_reader(x,mm_g_cit,A__MENUVERT,,,.f.)}
+          // else
+            @ ++j, 1 say dvn_COVID_arr_usl[i,1]
+          // endif
+          // if fl_kdp2
+          //   @ j, 41 get &mvarlis reader {|x|menu_reader(x,mm_kdp2,A__MENUVERT,,,.f.)}
+          // endif
           @ j, 46 get &mvarv pict "99999" valid {|g| v_kart_vrach(g) }
           if mem_por_ass > 0
             @ j, 52 get &mvara pict "99999" valid {|g| v_kart_vrach(g) }
@@ -625,6 +879,7 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       @ ++j, 1 say replicate("─",68) color color8
       status_key("^<Esc>^ выход без записи ^<PgDn>^ на 2-ю страницу")
     elseif num_screen == 2 //
+      // mm_gruppa := mm_gruppaP_new
 
       mm_gruppa := {mm_gruppaD1,mm_gruppaD2}[metap]
       mgruppa := inieditspr(A__MENUVERT, mm_gruppa, m1gruppa)
@@ -726,6 +981,20 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       //
       @ ++j, 1 say replicate("─",78) color color1
       ++j
+      // @ j,1 say "Диспансерное наблюдение установлено" get mdispans ;
+      //            reader {|x|menu_reader(x,mm_dispans,A__MENUVERT,,,.f.)} ;
+      //            when !emptyall(mdispans1,mdispans2,mdispans3,mdispans4,mdispans5)
+      // if metap == 1 .and. mdvozrast < 66
+      //   ++j; @ j,1 say iif(mdvozrast<40,"Относительный","Абсолютный")+" суммарный сердечно-сосудистый риск" get mssr pict "99" ;
+      //              valid {|| iif(between(mssr,0,47),,func_error(4,"Неразумное значение суммарного сердечно-сосудистого риска")), .t.}
+      //        @ row(),col() say "%"
+      // elseif metap == 3 .and. mvozrast < 66
+      //   ++j; @ j,1 say "Суммарный сердечно-сосудистый риск" get mssr pict "99" ;
+      //              valid {|| iif(between(mssr,0,47),,func_error(4,"Неразумное значение суммарного сердечно-сосудистого риска")), .t.}
+      //        @ row(),col() say "%"
+      // else
+      //   ++j
+      // endif
       // ++j; 
       @ ++j, 1 say "ГРУППА состояния ЗДОРОВЬЯ"
       @ j, col()+1 get mGRUPPA ;
@@ -809,23 +1078,30 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       endif
       //
 //////////////////////////////////////////////////////////////
+      // mdef_diagnoz := iif(metap==2, "Z01.8 ", "Z00.8 ")
       mdef_diagnoz := 'U09.9 '
       R_Use(dir_exe+"_mo_mkb",cur_dir+"_mo_mkb","MKB_10")
       R_Use(dir_server+"mo_pers",dir_server+"mo_pers","P2")
       num_screen := 2
       max_date1 := mn_data
       fl := .t.
+      // not_4_20_1 := .f.
+      // date_4_1_12 := ctod("")
       k := ku := kol_d_usl := 0
       arr_osm1 := array(count_dvn_COVID_arr_usl, 11)
       afillall(arr_osm1,0)
 
       // ВСЕ ЗАПИСЫВАЕМ
-      t_arr_usl := {}
       for i := 1 to count_dvn_COVID_arr_usl
         fl_diag := .f.
+        // fl_ekg := .f.
         i_otkaz := 0
-        if f_is_usl_oms_sluch_DVN_COVID(i,metap,@fl_diag,@i_otkaz)
+        // if f_is_usl_oms_sluch_DVN(i,metap,iif(metap==3.and.!is_disp_19,mvozrast,mdvozrast),mpol,@fl_diag,@i_otkaz,@fl_ekg)
+        if f_is_usl_oms_sluch_DVN_COVID(i,metap,mvozrast,mpol,@fl_diag,@i_otkaz)
           mvart := "MTAB_NOMv"+lstr(i)
+          // if empty(&mvart) .and. (eq_any(metap,2,5) .or. fl_ekg) // ЭКГ, не введён врач
+          //   loop                                                 // и необязательный возраст
+          // endif
           ar := dvn_COVID_arr_usl[i]
           mvara := "MTAB_NOMa"+lstr(i)
           mvard := "MDATE"+lstr(i)
@@ -835,7 +1111,33 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
             k := i
           endif
 
-          ++kol_d_usl
+          // if valtype(ar[2]) == "C" .and. ar[2] == "4.20.1"
+          //   if not_4_20_1 // не включать услугу
+          //     loop
+          //   endif
+          //   if m1g_cit == 2
+          //     if empty(&mvard)
+          //       fl := func_error(4,'Не введена дата услуги "'+mg_cit+'"')
+          //     endif
+          //     arr_osm1[i,1]  := 0        // врач
+          //     arr_osm1[i,2]  := -13 //1107     // специальность
+          //     arr_osm1[i,3]  := 0        // ассистент
+          //     arr_osm1[i,4]  := 34       // профиль
+          //     arr_osm1[i,5]  := "4.20.2" // шифр услуги
+          //     arr_osm1[i,6]  := mdef_diagnoz
+          //     arr_osm1[i,9]  := &mvard
+          //     arr_osm1[i,10] := &mvaro
+          //     if date_4_1_12 < mn_data ; // если 4.1.12 оказано раньше дисп-ии
+          //          .or. arr_osm1[i,9] < date_4_1_12 // или 4.20.1 раньше 4.1.12
+          //      arr_osm1[i,9] := date_4_1_12 // приравняем даты
+          //     endif
+          //     max_date1 := max(max_date1,arr_osm1[i,9])
+          //     ++ku
+          //     loop
+          //   endif
+          // else
+            ++kol_d_usl
+          // endif
           if i_otkaz == 2 .and. &mvaro == 2 // если исследование невозможно
             select P2
             find (str(&mvart,5))
@@ -885,6 +1187,16 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
             ++ku
             if valtype(ar[2]) == "C"  // шифр услуги
               arr_osm1[i,5] := ar[2] // шифр услуги
+              // m1var := "m1lis"+lstr(i)
+              // if !is_disp_19 .and. glob_yes_kdp2[TIP_LU_DVN] .and. &m1var > 0
+              //   arr_osm1[i,11] := &m1var // кровь проверяют в КДП2
+              // endif
+              // if ar[2] == "2.3.1"
+              //   if eq_any(arr_osm1[i,2],2002,-206) // специальность-фельдшер
+              //     arr_osm1[i,5] := "2.3.3" // шифр услуги
+              //     arr_osm1[i,4] := 42 // профиль - лечебному делу
+              //   endif
+              // endif
             else
               if len(ar[2]) >= metap
                 j := metap
@@ -906,6 +1218,7 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
               endif
             endif
 
+            // if !fl_diag .or. empty(&mvarz) .or. left(&mvarz,1) == "Z"
             if !fl_diag .or. empty(&mvarz) .or. left(&mvarz,1) == 'U'
               arr_osm1[i,6] := mdef_diagnoz
             else
@@ -917,12 +1230,39 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
               endif
             endif
             arr_osm1[i,10] := &mvaro
+            // if (arr_osm1[i,10] := &mvaro) == 1 // отказ
+            //   if arr_osm1[i,5] == "4.1.12" // Осмотр акушеркой, взятие мазка (соскоба)
+            //     not_4_20_1 := .t. // не включать услугу
+            //   endif
+            // endif
+            // if i_otkaz == 3 .and. &mvaro == 2 // НЕВОЗМОЖНОСТЬ для услуги 4.1.12
+            //   if is_disp_19
+            //     not_4_20_1 := .t. // не включать услугу
+            //   else
+            //     if arr_osm1[i,2] == 1101 // если указана спец-ть врача
+            //       arr_osm1[i,5] := "2.3.1" // приём врача акушера-гинеколога
+            //       arr_osm1[i,4] := 136 // профиль - акушерству и гинекологии (за исключением использования вспомогательных репродуктивных технологий)
+            //     else
+            //       arr_osm1[i,5] := "2.3.3" // приём фельдшера-акушера
+            //       arr_osm1[i,4] := 3 // профиль - акушерскому делу
+            //     endif
+            //     arr_osm1[i,10] := 0 // нет отказа (? может поставить 3-отклонение?)
+            //     not_4_20_1 := .t. // не включать услугу
+            //   endif
+            // endif
             arr_osm1[i,9] := &mvard
+            // перепишем дату по "связанным" услугам
+            // do case
+            //   case arr_osm1[i,5] == "4.1.12" // взятие мазка (соскоба)
+            //     date_4_1_12 := arr_osm1[i,9]
+            //   case arr_osm1[i,5] == "4.20.1" // Иссл-е взятого цитологического материала
+            //     //if date_4_1_12 < mn_data ; // если 4.1.12 оказано раньше дисп-ии
+            //     //      .or. arr_osm1[i,9] < date_4_1_12 // или 4.20.1 раньше 4.1.12
+            //     //  arr_osm1[i,9] := date_4_1_12 // приравняем даты
+            //     //endif
+            // endcase
             max_date1 := max(max_date1,arr_osm1[i,9])
           endif
-        endif
-        if valtype(arr_osm1[i,5]) == "C" .and. arr_osm1[i,5] == "B01.026.001"
-          t_arr_usl := aclone(arr_osm1[i])
         endif
         if !fl
           exit
@@ -932,8 +1272,47 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       if !fl
         loop
       endif
+      // i_56_1_723 := 0
+      // if eq_any(metap,2,5)
+      //   if ku < 2
+      //     if !is_disp_19 .and. (i_56_1_723 := ascan(arr_osm1,{|x| valtype(x[5]) == "C" .and. x[5] == "56.1.723"})) > 0
+      //       // одно индивидуальное или групповое углубленное профилактическое консультирование - "56.1.723"
+      //     else
+      //       func_error(4,"На II этапе обязателен осмотр терапевта и ещё какие-либо услуги.")
+      //       loop
+      //     endif
+      //   endif
+      //   if k == 0
+      //     func_error(4,"Дата первого осмотра (исследования) должна равняться дате начала лечения.")
+      //     loop
+      //   endif
+      // endif
 
+      // fl := .t.
+      // if emptyany(arr_osm1[count_dvn_COVID_arr_usl,1],arr_osm1[count_dvn_COVID_arr_usl,9])
+      //   if metap == 2 .and. i_56_1_723 > 0
+      //     if !(arr_osm1[i_56_1_723,9] == mn_data .and. arr_osm1[i_56_1_723,9] == mk_data)
+      //       fl := func_error(4,'Начало и окончание должно равняться дате углубленного профилактич.консультирования')
+      //     elseif lrslt_1_etap == 353 // Направлен на 2 этап, предварительно присвоена II группа здоровья
+      //       if m1gruppa != 2
+      //         fl := func_error(4,'Результатом 2-го этапа должна быть II группа здоровья (как и на 1-ом этапе)')
+      //         num_screen := 3
+      //       endif
+      //     else // другой результат
+      //       fl := func_error(4,'Результатом 1-го этапа должна быть II группа (и направлен на 2-ой этап)')
+      //       num_screen := 3
+      //     endif
+      //   else
+      //     fl := func_error(4,'Не введён приём терапевта (врача общей практики)')
+      //   endif
+      // elseif arr_osm1[count_dvn_COVID_arr_usl,9] < mk_data
+      //   fl := func_error(4,'Терапевт (врач общей практики) должен проводить осмотр последним!')
+      // endif
+      // if !fl
+      //   loop
+      // endif
 
+      // num_screen := 3
       num_screen := 2
       arr_diag := {}
       for i := 1 to 5
@@ -966,6 +1345,7 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
         loop
       endif
 
+      // is_disp_nabl := .f.
       afill(adiag_talon,0)
       if empty(arr_diag) // диагнозы не вводили
         aadd(arr_diag, {mdef_diagnoz,0,0,ctod("")}) // диагноз по умолчанию
@@ -984,9 +1364,10 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
           endif
         next
         for i := 1 to len(arr_diag)
-          // if ascan(sadiag1,alltrim(arr_diag[i,1])) > 0 .and. ;
-          //                         arr_diag[i,3] == 1 .and. !empty(arr_diag[i,4]) .and. arr_diag[i,4] > mk_data
-          // endif
+          if ascan(sadiag1,alltrim(arr_diag[i,1])) > 0 .and. ;
+                                  arr_diag[i,3] == 1 .and. !empty(arr_diag[i,4]) .and. arr_diag[i,4] > mk_data
+            // is_disp_nabl := .t.
+          endif
           adiag_talon[i*2-1] := arr_diag[i,2]
           adiag_talon[i*2  ] := arr_diag[i,3]
           if i == 1
@@ -1017,6 +1398,14 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
           loop
         endif
       endif
+      // mm_gruppa := {mm_gruppaD1,mm_gruppaD2,mm_gruppaP,mm_gruppaD4,mm_gruppaD2}[metap]
+      // if metap == 3
+      //   if mk_data < d_01_11_2019
+      //     mm_gruppa := mm_gruppaP_old
+      //   else
+      //     mm_gruppa := mm_gruppaP_new
+      //   endif
+      // endif
       mm_gruppa := {mm_gruppaD1,mm_gruppaD2}[metap]
 
       m1p_otk := 0
@@ -1035,6 +1424,19 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
         loop
       endif
 
+      // m1ssh_na := m1psih_na := m1spec_na := 0
+      // if m1napr_v_mo > 0
+      //   if eq_ascan(arr_mo_spec,45,141) // Направлен к врачу-сердечно-сосудистому хирургу
+      //     m1ssh_na := 1
+      //   endif
+      //   if eq_ascan(arr_mo_spec,23,97) // Направлен к врачу-психиатру (врачу-психиатру-наркологу)
+      //     m1psih_na := 1
+      //   endif
+      // endif
+      // if m1napr_stac > 0 .and. m1profil_stac > 0
+      //   m1spec_na := 1 // Направлен для получения специализированной медицинской помощи (в т.ч. ВМП)
+      // endif
+      //
       err_date_diap(mn_data,"Дата начала углубленной диспансеризации после COVID")
       err_date_diap(mk_data,"Дата окончания углубленной диспансеризации после COVID")
       //
@@ -1045,10 +1447,17 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       endif
       mywait()
       //
-      // for i := 1 to count_dvn_COVID_arr_usl
-      //   if valtype(arr_osm1[i,9]) == "D"
-      //   endif
-      // next
+      // m1lis := 0
+      for i := 1 to count_dvn_COVID_arr_usl
+        if valtype(arr_osm1[i,9]) == "D"
+          // if arr_osm1[i,5] == "4.20.2" .and. arr_osm1[i,9] < mn_data // не в рамках диспансеризации
+          //   // m1g_cit := 1 // если и было =2, убираем
+          // elseif !is_disp_19 .and. glob_yes_kdp2[TIP_LU_DVN] .and. arr_osm1[i,9] >= mn_data .and. len(arr_osm1[i]) > 10 ;
+          //                                                    .and. valtype(arr_osm1[i,11]) == "N" .and. arr_osm1[i,11] > 0
+          //   m1lis := arr_osm1[i,11] // в рамках диспансеризации
+          // endif
+        endif
+      next
       is_prazdnik := f_is_prazdnik_DVN_COVID(mn_data)
       if metap == 2
         i := count_dvn_COVID_arr_usl
@@ -1090,6 +1499,115 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
           arr_osm1[j,10] := 0
         endif
       next
+//       if eq_any(metap,1,3,4) // если первый этап, проверим на 85%
+//         not_zs := .f.
+//         kol := kol_otkaz := kol_n_date := kol_ob_otkaz := 0
+//         for i := 1 to len(arr_osm1)
+//           if i == i_zs
+//             loop // пропустим код законченного случая
+//           endif
+//           if valtype(arr_osm1[i,5]) == "C" .and. !eq_any(arr_osm1[i,5],"4.20.1","4.20.2")
+//             ++kol // кол-во реально введённых услуг
+//             if eq_any(arr_osm1[i,10],0,3)
+//               if is_disp_19
+//                 if arr_osm1[i,9] < mn_data .and. year(arr_osm1[i,9]) < year(mn_data) // кол-во услуг без отказа выполнены ранее
+//                   ++kol_n_date                 // начала проведения диспансеризации и не принадлежат текущему календарному году
+//                 endif
+//               else
+//                 if arr_osm1[i,9] < mn_data
+//                   ++kol_n_date // кол-во услуг без отказа до периода диспансеризации
+//                 endif
+//               endif
+//             elseif arr_osm1[i,10] == 1
+//               ++kol_otkaz // кол-во отказов
+// /* При проведении диспансеризации обязательным для всех граждан является:
+// - "7.57.3" проведение маммографии,
+// - "4.8.4" исследование кала на скрытую кровь иммунохимическим качественным или количественным методом,
+// - "2.3.1","2.3.3" осмотр фельдшером (акушеркой) или врачом акушером-гинекологом,
+// - "4.1.12" взятие мазка с шейки матки,
+// - "4.20.1","4.20.2" цитологическое исследование мазка с шейки матки,
+// - "4.14.66" определение простат-специфического антигена в крови */
+//               if is_disp_19 .and. eq_any(arr_osm1[i,5],"4.8.4","4.14.66","7.57.3","2.3.1","2.3.3","4.1.12","4.20.1","4.20.2")
+//                 ++kol_ob_otkaz // кол-во отказов от обязательных услуг
+//               endif
+//             else//if arr_osm1[i,10] == 2 если невозможность проведения - просто вычитаем общее кол-во
+//               --kol
+//             endif
+//           endif
+//         next
+//         // kol_d_usl = 100% (должно равняться "kol")
+//         if kol_d_usl != kol
+//           //func_error(4,"kol_d_usl ("+lstr(kol_d_usl)+") != kol "+lstr(kol))
+//         endif
+
+//         if metap == 4
+//           if kol_n_date == 1
+//             not_zs := .t. // выставляем по отдельным тарифам
+//           endif
+//         elseif (i := ascan(dvn_85, {|x| x[1] == kol })) > 0 // определить 85%
+//           k := dvn_85[i,1] - dvn_85[i,2] // 15%
+//           if is_disp_19
+//             if kol_n_date+kol_otkaz <= k // отказы + ранее оказано менее 15%
+//               // выставляем по законченному случаю
+//               if kol_ob_otkaz > 0 .and. metap == 1 // надо переделать в профосмотр !!!!!
+//                 if (i := ascan(arr_osm1, {|x| valtype(x[5]) == "C" .and. x[5] == "2.3.7" })) > 0
+//                   arr_osm1[i,5] := "2.3.2" // шифр услуги приёма терапевта для профосмотра
+//                 endif
+//                 metap := 3
+//                 if eq_any(m1rslt,355,356,357,358) .and. mk_data < d_01_11_2019 // III группа
+//                   m1rslt := 345
+//                   m1gruppa := 3
+//                 elseif eq_any(m1rslt,355,357) // IIIа группа
+//                   m1rslt := 373
+//                   m1gruppa := 3
+//                 elseif eq_any(m1rslt,356,358) // IIIб группа
+//                   m1rslt := 374
+//                   m1gruppa := 4
+//                 elseif eq_any(m1rslt,318,353)
+//                   m1rslt := 344
+//                   m1gruppa := 2
+//                 else
+//                   m1rslt := 343
+//                   m1gruppa := 1
+//                 endif
+//                 arr_osm1[i_zs,5] := ret_shifr_zs_DVN(metap,mdvozrast,mpol,mk_data)
+//                 func_error(4,"Отказ от обязательного исследования - оформляем профилактический осмотр "+arr_osm1[i_zs,5])
+//               endif
+//             else
+//               // если < 85%, отсечём в проверке
+//             endif
+//           else
+//             if kol_otkaz <= k // оказано 85% и более
+//               if kol_n_date+kol_otkaz <= k // отказы + ранее оказано менее 15%
+//                 // выставляем по законченному случаю
+//               else
+//                 not_zs := .t. // выставляем по отдельным тарифам
+//               endif
+//             else
+//               // если "kol - kol_otkaz" < 85%, отсечём в проверке
+//             endif
+//           endif
+//         else
+//           // если такого кол-ва услуг нет в массиве "dvn_85", отсечём в проверке
+//         endif
+//         if not_zs // выставляем по отдельным тарифам
+//           Del_Array(arr_osm1,i_zs) // удаляем законченный случай
+//           larr := {}
+//           for i := 1 to len(arr_osm1)
+//             if valtype(arr_osm1[i,5]) == "C" ;
+//                   .and. !(len(arr_osm1[i]) > 10 .and. valtype(arr_osm1[i,11]) == "N" .and. arr_osm1[i,11] > 0) ; // не в КДП2
+//                   .and. eq_any(arr_osm1[i,10],0,3) ; // не отказ
+//                   .and. arr_osm1[i,9] >= mn_data ; // оказано во время дисп-ии
+//                   .and. (k := ascan(dvn_700, {|x| x[1] == arr_osm1[i,5] })) > 0
+//               aadd(larr,aclone(arr_osm1[i])) ; j := len(larr)
+//               larr[j,5] := dvn_700[k,2]
+//             endif
+//           next
+//           for i := 1 to len(larr)
+//             aadd(arr_osm1,aclone(larr[i])) // добавим в массив услуги на "700"
+//           next
+//         endif
+//       endif
       
       make_diagP(2)  // сделать "пятизначные" диагнозы
       if m1dispans > 0
@@ -1268,17 +1786,6 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       endif
       i1 := len(arr_usl)
       i2 := len(arr_usl_dop)
-      // принудительно выставим параметры
-      for i := 1 to i2
-        if valtype(arr_usl_dop[i,5]) == "C" .and. arr_usl_dop[i,5] == "70.8.1" .and. metap == 1
-          arr_usl_dop[i,1] := t_arr_usl[1]
-          arr_usl_dop[i,2] := t_arr_usl[2]
-          arr_usl_dop[i,3] := t_arr_usl[3]
-          arr_usl_dop[i,6] := t_arr_usl[6]
-          arr_usl_dop[i,11] := t_arr_usl[11]
-        endif
-      next
-
       Use_base("human_u")
       for i := 1 to i2
         select HU
@@ -1324,6 +1831,66 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
         next
       endif
       save_arr_DVN_COVID(mkod)
+
+      // // направления при подозрении на ЗНО
+      // cur_napr := 0
+      // arr := {}
+      // G_Use(dir_server+"mo_onkna",dir_server+"mo_onkna","NAPR") // онконаправления
+      // find (str(mkod,7))
+      // do while napr->kod == mkod .and. !eof()
+      //   aadd(arr,recno())
+      //   skip
+      // enddo
+      // if m1ds_onk == 1 // подозрение на злокачественное новообразование
+      //   Use_base("mo_su")
+      //   use (cur_dir+"tmp_onkna") new alias TNAPR
+      //   select TNAPR
+      //   go top
+      //   do while !eof()
+      //     if !emptyany(tnapr->NAPR_DATE,tnapr->NAPR_V)
+      //       if tnapr->U_KOD == 0 // добавляем в свой справочник федеральную услугу
+      //         select MOSU
+      //         set order to 3
+      //         find (tnapr->shifr1)
+      //         if found()  // наверное, добавили только что
+      //           tnapr->U_KOD := mosu->kod
+      //         else
+      //           set order to 1
+      //           FIND (STR(-1,6))
+      //           if found()
+      //             G_RLock(forever)
+      //           else
+      //             AddRec(6)
+      //           endif
+      //           tnapr->U_KOD := mosu->kod := recno()
+      //           mosu->name   := tnapr->name_u
+      //           mosu->shifr1 := tnapr->shifr1
+      //         endif
+      //       endif
+      //       select NAPR
+      //       if ++cur_napr > len(arr)
+      //         AddRec(7)
+      //         napr->kod := mkod
+      //       else
+      //         goto (arr[cur_napr])
+      //         G_RLock(forever)
+      //       endif
+      //       napr->NAPR_DATE := tnapr->NAPR_DATE
+      //       napr->NAPR_MO := tnapr->NAPR_MO
+      //       napr->NAPR_V := tnapr->NAPR_V
+      //       napr->MET_ISSL := iif(tnapr->NAPR_V == 3, tnapr->MET_ISSL, 0)
+      //       napr->U_KOD := iif(tnapr->NAPR_V == 3, tnapr->U_KOD, 0)
+      //     endif
+      //     select TNAPR
+      //     skip
+      //   enddo
+      // endif
+      // select NAPR
+      // do while ++cur_napr <= len(arr)
+      //   goto (arr[cur_napr])
+      //   DeleteRec(.t.)
+      // enddo
+
 
       write_work_oper(glob_task,OPER_LIST,iif(Loc_kod==0,1,2),1,count_edit)
       fl_write_sluch := .t.

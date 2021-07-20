@@ -44,7 +44,7 @@ Function f_valid_diag_oms_sluch_DVN_COVID(get,k)
   return .t.
   
   
-***** 20.07.21 рабочая ли услуга (умолчание) ДВН в зависимости от этапа, возраста и пола
+***** 15.07.21 рабочая ли услуга (умолчание) ДВН в зависимости от этапа, возраста и пола
 Function f_is_umolch_sluch_DVN_COVID(i, _etap, _vozrast, _pol)
   Local fl := .f.
   local j, ta, ar   // := ret_dvn_arr_COVID_umolch()[i]
@@ -59,7 +59,53 @@ Function f_is_umolch_sluch_DVN_COVID(i, _etap, _vozrast, _pol)
   else
     fl := ascan(ar[3],_etap) > 0
   endif
+  // if fl
+  //   if _etap == 1
+  //     i := iif(_pol=="М", 4, 5)
+  //   else//if _etap == 3
+  //     i := iif(_pol=="М", 6, 7)
+  //   endif
+  //   if valtype(ar[i]) == "N"
+  //     fl := (ar[i] != 0)
+  //   elseif valtype(ar[i]) == "C"
+  //     // "18,65" - для краткого инд.проф.консультирования
+  //     ta := list2arr(ar[i])
+  //     for i := len(ta) to 1 step -1
+  //       if _vozrast >= ta[i]
+  //         for j := 0 to 99
+  //           if _vozrast == int(ta[i]+j*3)
+  //             fl := .t.
+  //             exit
+  //           endif
+  //         next
+  //         if fl
+  //           exit
+  //         endif
+  //       endif
+  //     next
+  //   else
+  //     fl := between(_vozrast,ar[i,1],ar[i,2])
+  //   endif
+  // endif
   return fl
+  
+  
+// ***** 15.06.19 вернуть массив возрастов дисп-ии для старого или нового Приказов МЗ РФ
+// Function ret_arr_vozrast_DVN_COVID(_data)
+//   Static sp := 0, arr := {}
+//   Local i, p := iif(_data < d_01_05_2019, 1, 2)
+
+//   if p != sp
+//     arr := aclone(arr_vozrast_DVN) // по старому Приказу МЗ РФ
+//     if (sp := p) == 2 // по новому Приказу МЗ РФ
+//       asize(arr,7) // уберём хвост после 39 лет {21,24,27,30,33,36,39,
+//       Ins_Array(arr,1,18) // вставим в начало =18 лет
+//       for i := 40 to 99
+//         aadd(arr,i) // добавим в конец подряд с 40 по 99 лет
+//       next
+//     endif
+//   endif
+//   return arr
   
 ***** 15.06.19
 Function ret_etap_DVN_COVID(lkod_h,lkod_k)
@@ -89,17 +135,32 @@ Function ret_etap_DVN_COVID(lkod_h,lkod_k)
 Function f_is_prazdnik_DVN_COVID(_n_data)
   return !is_work_day(_n_data)
   
-***** 20.07.21 вернуть шифр услуги законченного случая для ДВН углубленной COVID
+***** 17.07.21 вернуть шифр услуги законченного случая для ДВН углубленной COVID
 Function ret_shifr_zs_DVN_COVID(_etap,_vozrast,_pol,_date)
   Local lshifr := "", fl, is_disp, n := 1
     
   if _etap == 1
     n := 1
+    // if m1g_cit == 2
+    //   if m1mobilbr == 1
+    //     n += 600
+    //   else
+    //     n += 500
+    //   endif
+    // else
       if is_prazdnik
         n += 700
+      // elseif m1mobilbr == 1
+      //   n += 300
       endif
+    // endif
+    // lshifr := "70.7."+lstr(n)
     lshifr := '70.8.1'
   elseif _etap == 2
+    // нету
+    // else // если вместо диспансеризации оформляется профосмотр
+    //   //
+    // endif
   endif
   return lshifr
   
@@ -262,13 +323,127 @@ Function read_arr_DVN_COVID(lkod,is_all)
   next
   return NIL
     
-***** 20.07.21
+***** 15.07.21
 Function ret_ndisp_COVID( lkod_h, lkod_k )   //,/*@*/new_etap,/*@*/msg)
+  // Local i, i1, i2, i3, i4, i5, s, s1, is_disp, ar
   local fl := .t., msg
+  // local dvn_COVID_arr_usl
 
+  // dvn_COVID_arr_usl := ret_arrays_disp_COVID()
   msg := ' '
+  // new_etap := metap
+
+  // if metap == 0
+  //   if is_disp
+  //     new_etap := 1
+  //   else
+  //     new_etap := 3
+  //   endif
+  // elseif metap == 1
+  //   new_etap := 2
+  // elseif metap == 3
+  //   if is_disp
+  //     new_etap := 1
+  //   else
+  //     // остаётся = 3
+  //   endif
+  // else
+  //   if is_disp
+  //     // остаётся = 1 или 2
+  //   elseif new_etap < 4
+  //     new_etap := 3
+  //   endif
+  // endif
 
   ar := ret_etap_DVN_COVID(lkod_h,lkod_k)
+  // if new_etap != 3
+    // if empty(ar[1]) // в этом году ещё ничего не делали
+      // оставляем 1
+    // else
+  //     i1 := i2 := i3 := i4 := i5 := 0
+      // for i := 1 to len(ar[1])
+      //   do case
+      //     case ar[1,i,1] == 1 // дисп-ия 1 этап
+      //       i1 := i
+      //     case ar[1,i,1] == 2 // дисп-ия 2 этап
+      //       i2 := i
+      //     // case ar[1,i,1] == 3 // профилактика
+      //     //   i3 := i
+      //     //   msg := date_8(ar[1,i,2])+"г. уже проведён профилактический медосмотр!"
+      //     // case ar[1,i,1] == 4 // дисп-ия 1 этап 1 раз в 2 года
+      //     //   i4 := i
+      //     //   msg := "В "+lstr(year(mn_data))+" году уже проведена диспансеризации 1 раз в 2 года"
+      //     // case ar[1,i,1] == 5 // дисп-ия 2 этап 1 раз в 2 года
+      //     //   i5 := i
+      //     //   msg := "В "+lstr(year(mn_data))+" году уже проведена диспансеризации 1 раз в 2 года"
+      //   endcase
+      // next
+  //     if eq_any(new_etap, 1, 2 ) .and. new_etap != metap
+  //       if i1 == 0
+  //         new_etap := 1 // делаем 1 этап
+  //       elseif i2 == 0
+  //         new_etap := 2 // делаем 2 этап
+  //       endif
+  //     endif
+  //     if i1 > 0 .and. i2 > 0
+  //       msg := "В "+lstr(year(mn_data))+" году уже проведены оба этапа углубленной диспансеризации!"
+  //     elseif i1 > 0 .and. !empty(ar[1,i1,2]) .and. ar[1,i1,2] > mn_data
+  //       msg := "Углубленная диспансеризация I этапа закончилась " + date_8(ar[1,i1,2]) + "г.!"
+  //     endif
+  //     // if eq_any(new_etap,4,5) .and. new_etap != metap
+  //     //   if i4 == 0
+  //     //     new_etap := 4 // делаем 1 этап
+  //     //   elseif i5 == 0
+  //     //     new_etap := 5 // делаем 2 этап
+  //     //   endif
+  //     // endif
+  //     // if i4 > 0 .and. i5 > 0
+  //     //   msg := "В "+lstr(year(mn_data))+" году уже проведены оба этапа диспансеризации (раз в 2 года)!"
+  //     // elseif i4 > 0 .and. !empty(ar[1,i4,2]) .and. ar[1,i4,2] > mn_data
+  //     //   msg := "Диспансеризация I этапа (раз в 2 года) закончилась "+date_8(ar[1,i4,2])+"г.!"
+  //     // endif
+  //   endif
+  // else //if new_etap == 3
+  //   if empty(ar[1]) // в этом году ещё ничего не делали
+  //     if empty(ar[2]) // посмотрим прошлый год
+  //       // оставляем 3
+  //     // elseif ascan(ar[2],{|x| x[1] == 3 }) > 0 // профилактика была в прошлом году
+  //       // if is_dostup_2_year
+  //       //   new_etap := 4 // сразу разрешаем дисп-ию 1 раз в 2 года, т.к. в прошлом
+  //       // else
+  //       //   msg := "Профилактика проводится 1 раз в 2 года ("+date_8(ar[2,1,2])+"г. уже проведена)"
+  //       // endif
+  //     endif
+  //   else
+  //     i1 := i2 := i3 := i4 := i5 := 0
+  //     for i := 1 to len(ar[1])
+  //       do case
+  //         case ar[1,i,1] == 1 // дисп-ия 1 этап
+  //           i1 := i
+  //           msg := date_8(ar[1,i,2])+"г. уже проведена углубленная диспансеризация I этапа!"
+  //         case ar[1,i,1] == 2 // дисп-ия 2 этап
+  //           i2 := i
+  //           msg := date_8(ar[1,i,2])+"г. уже проведена углубленная диспансеризация II этапа!"
+  //         // case ar[1,i,1] == 3 // профилактика
+  //         //   i3 := i
+  //         //   msg := date_8(ar[1,i,2])+"г. уже проведён профилактический медосмотр!"
+  //         // case ar[1,i,1] == 4 // дисп-ия 1 этап раз в 2 года
+  //         //   i4 := i
+  //         // case ar[1,i,1] == 5 // дисп-ия 2 этап раз в 2 года
+  //         //   i5 := i
+  //       endcase
+  //     next
+  //     // if i4 > 0
+  //       // if i5 > 0
+  //       //   msg := "В "+lstr(year(mn_data))+" году уже проведены оба этапа диспансеризации (раз в 2 года)!"
+  //       // elseif !empty(ar[1,i4,2]) .and. ar[1,i4,2] > mn_data
+  //       //   msg := "Диспансеризация I этапа (раз в 2 года) закончилась "+date_8(ar[1,i4,2])+"г.!"
+  //       // else
+  //       //   new_etap := 5 // делаем 2 этап
+  //       // endif
+  //     // endif
+    // endif
+  // endif
   if (len(ar[1]) == 0) .and. (lkod_h == 0)
     metap := 1
   elseif  (len(ar[1]) == 1) .and. (lkod_h == 0)
@@ -279,13 +454,29 @@ Function ret_ndisp_COVID( lkod_h, lkod_k )   //,/*@*/new_etap,/*@*/msg)
     endif
     metap := 2
   endif
-
+  // if empty(msg)
+  //   metap := new_etap
   mndisp := inieditspr(A__MENUVERT, mm_ndisp, metap)
+  // else
+  //   metap := 0
+  //   mndisp := space(23)
+  //   func_error(4, fam_i_o(mfio) + " " + msg)
+  // endif
   return fl
 
-***** 20.07.21 скорректировать массивы по углубленной диспансеризации COVID
+***** 15.07.21 скорректировать массивы по углубленной диспансеризации COVID
 Function ret_arrays_disp_COVID()
+  Local blk
   local dvn_COVID_arr_usl
+
+  blk := {|d1,d2,d|
+            Local i, arr := {}
+            DEFAULT d TO 1
+            for i := d1 to d2 step d
+              aadd(arr,i)
+            next
+            return arr
+          }
 
   // 1- наименование меню
   // 2- шифр услуги
@@ -311,7 +502,9 @@ Function ret_arrays_disp_COVID()
         1,1,{34,37,38},{26,215,217};
       },;
       { "Рентгенография легких","A06.09.007",1,0,1,1,1,;
-        1,1,78,{1118,1802,2020};
+        eval(blk,18,99,2),;
+        eval(blk,18,99,2),;
+        78,{1118,1802,2020};
       },;
       { "Проведение теста с 6 минутной ходьбой","70.8.2",1,0,1,1,1,;
         1,1,{42,151},{39,76,206};
@@ -328,30 +521,23 @@ Function ret_arrays_disp_COVID()
       { "Дуплексное сканир-ие вен нижних конечностей","70.8.52",2,0,1,1,1,;
         1,1,106,81;
       },;
-      { "Приём (осмотр) врачом-терапевтом первичный","B01.026.001",1,1,0,1,1,;
-        1,1,{42,151},{39,76,206},;
-        {57,97,42},1,1;
-      },;
-      { "Приём (осмотр) врачом-терапевтом повторный","B01.026.002",2,1,0,1,1,;
-        1,1,{42,151},{39,76,206},;
-        {57,97,42},1,1;
-      },;
-      { "Комплексное посещение углубленная диспансеризация I этап","70.8.1",1,1,0,1,1,;
+      { "Приём(осмотр) врачом-терапевтом","PR_COV",{1,2},1,0,1,1,;
         1,1,{42,151},{39,76,206},;
         {57,97,42},1,1;
       };
     }
+    // { "Приём врача терапевта","70.8.1",{1,2},1,0,1,1,;
+    //   1,1,{42,151},{39,76,206},;
+    //   {57,97,42},1,1;
+    // };
 return dvn_COVID_arr_usl
 
-***** 20.07.21 рабочая ли услуга по углубленной диспансеризации COVID в зависимости от этапа
-Function f_is_usl_oms_sluch_DVN_COVID( i, _etap, /*@*/_diag, /*@*/_otkaz) //, /*@*/_ekg)
+***** 16.07.21 рабочая ли услуга ДВН в зависимости от этапа, возраста и пола
+Function f_is_usl_oms_sluch_DVN_COVID( i, _etap, _vozrast, _pol, /*@*/_diag, /*@*/_otkaz) //, /*@*/_ekg)
   Local fl := .f.
   local ars := {}
   local ar := ret_arrays_disp_COVID()[i]
 
-  if valtype(ar[2]) == "C" .and. _etap == 1 .and. alltrim(ar[2]) == "70.8.1"
-    return fl
-  endif
   if valtype(ar[3]) == "N"
     fl := (ar[3] == _etap)
   else
@@ -359,14 +545,48 @@ Function f_is_usl_oms_sluch_DVN_COVID( i, _etap, /*@*/_diag, /*@*/_otkaz) //, /*
   endif
   _diag := (ar[4] == 1)
   _otkaz := 0
+  // _ekg := .f.
   if valtype(ar[2]) == "C"
     aadd(ars,ar[2])
   else
     ars := aclone(ar[2])
   endif
-  if eq_any(_etap,1,2) .and. ar[5] == 1
+  if eq_any(_etap,1,2) .and. ar[5] == 1   // .and. ascan(ars,"4.20.1") == 0
     _otkaz := 1 // можно ввести отказ
+    // if valtype(ar[2]) == "C" .and. eq_ascan(ars,"7.57.3","7.61.3","4.1.12")
+    //   _otkaz := 2 // можно ввести невозможность
+    //   if ascan(ars,"4.1.12") > 0 // взятие мазка
+    //     _otkaz := 3 // заменить на приём фельдшера-акушера
+    //   endif
+    // endif
   endif
+  // if fl .and. eq_any(_etap,1,4,5)
+  //   if _etap == 1
+  //     i := iif(_pol == "М", 6, 7)
+  //   elseif len(ar) < 14
+  //     return .f.
+  //   else
+  //     i := iif(_pol == "М", 13, 14)
+  //   endif
+  //   if valtype(ar[i]) == "N" // специально для услуги "Электрокардиография","13.1.1" ранее 2018 года
+  //     fl := (ar[i] != 0)
+  //     if ar[i] < 0  // ЭКГ
+  //       _ekg := (_vozrast < abs(ar[i])) // необязательный возраст
+  //     endif
+  //   else // для 1,4,5 этапа возраст указан массивом
+  //     fl := ascan(ar[i],_vozrast) > 0
+  //   endif
+  // endif
+  // if fl .and. eq_any(_etap,2,3)
+  //   i := iif(_pol=="М", 8, 9)
+  //   if valtype(ar[i]) == "N"
+  //     fl := (ar[i] != 0)
+  //   elseif type("is_disp_19") == "L" .and. is_disp_19
+  //     fl := ascan(ar[i],_vozrast) > 0
+  //   else // для 2 этапа и профилактики возраст указан диапазоном
+  //     fl := between(_vozrast,ar[i,1],ar[i,2])
+  //   endif
+  // endif
   return fl
 
 ***** 16.07.21 массив услуг, записываемые всегда по умолчанию по углубленной диспансеризации COVID
