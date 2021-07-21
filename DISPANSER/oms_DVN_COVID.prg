@@ -314,6 +314,8 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
     larr := array(2,count_dvn_COVID_arr_usl)
     afillall(larr,0)
     R_Use(dir_server+"uslugi",,"USL")
+    R_Use(dir_server+"mo_su",,"MOSU")
+    use_base("mo_hu")
     use_base("human_u")
     find (str(Loc_kod,7))
     do while hu->kod == Loc_kod .and. !eof()
@@ -322,63 +324,99 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
         lshifr := usl->shifr
       endif
       lshifr := alltrim(lshifr)
-alertx(lshifr, 'lhifr')
-      if eq_any(left(lshifr,5),"70.3.","70.7.","72.1.","72.5.","72.6.","72.7.")
-        mshifr_zs := lshifr
-      else
-        fl := .t.
-        // if fl
-        //   for i := 1 to count_dvn_COVID_arr_umolch
-        //     if empty(larr[2,i]) .and. dvn_COVID_arr_umolch[i,2] == lshifr
-        //       fl := .f.
-        //       larr[2,i] := hu->(recno())
-        //       exit
-        //     endif
-        //   next
-        // endif
-        if fl
-          for i := 1 to count_dvn_COVID_arr_usl
-            if empty(larr[1,i])
-              if valtype(dvn_COVID_arr_usl[i,2]) == "C"
-                if dvn_COVID_arr_usl[i,2] == lshifr
-                  fl := .f.
-                endif
-              endif
-              if !fl
-                larr[1,i] := hu->(recno())
-                exit
-              endif
+      for i := 1 to count_dvn_COVID_arr_usl
+        if empty(larr[1,i])
+          if valtype(dvn_COVID_arr_usl[i,2]) == "C" .and. dvn_COVID_arr_usl[i,12] == 0  // услуга ТФОМС
+            if dvn_COVID_arr_usl[i,2] == lshifr
+              fl := .f.
+              larr[1,i] := hu->(recno())
             endif
-          next
+          endif
+              // if !fl
+              //   larr[1,i] := hu->(recno())
+              //   exit
+              // endif
         endif
-      endif
+      next
       aadd(arr_usl,hu->(recno()))
       select HU
       skip
     enddo
+    select MOHU
+    set relation to u_kod into MOSU 
+    find (str(Loc_kod,7))
+    do while MOHU->kod == Loc_kod .and. !eof()
+      MOSU->(dbGoto(MOHU->u_kod))
+      lshifr := alltrim(iif(empty(MOSU->shifr),MOSU->shifr1,MOSU->shifr))
+      for i := 1 to count_dvn_COVID_arr_usl
+        if empty(larr[1,i])
+          if valtype(dvn_COVID_arr_usl[i,2]) == "C" .and. dvn_COVID_arr_usl[i,12] == 1  // услуга ФФОМС
+            if dvn_COVID_arr_usl[i,2] == lshifr
+              fl := .f.
+              larr[1,i] := MOHU->(recno())
+            endif
+          endif
+              // if !fl
+              //   larr[1,i] := hu->(recno())
+              //   exit
+              // endif
+        endif
+      next
+      aadd(arr_usl,MOHU->(recno()))
+      select MOHU
+      skip
+    enddo
     //
-
     read_arr_DVN_COVID(Loc_kod)
     if metap == 1 .and. between(m1GRUPPA,11,14) .and. m1p_otk == 1
       m1GRUPPA += 10
     endif
     R_Use(dir_server+"mo_pers",,"P2")
     for i := 1 to count_dvn_COVID_arr_usl
-      if !empty(larr[1,i])
-        hu->(dbGoto(larr[1,i]))
-        if hu->kod_vr > 0
-          p2->(dbGoto(hu->kod_vr))
+      if dvn_COVID_arr_usl[i,12] == 0  // это услуга ТФОМС
+        if !empty(larr[1,i])
+          hu->(dbGoto(larr[1,i]))
+          if hu->kod_vr > 0
+            p2->(dbGoto(hu->kod_vr))
+            mvar := "MTAB_NOMv"+lstr(i)
+            &mvar := p2->tab_nom
+          endif
+          if hu->kod_as > 0
+            p2->(dbGoto(hu->kod_as))
+            mvar := "MTAB_NOMa"+lstr(i)
+            &mvar := p2->tab_nom
+          endif
+          mvar := "MDATE"+lstr(i)
+          &mvar := c4tod(hu->date_u)
+          if !empty(hu_->kod_diag) .and. !(left(hu_->kod_diag,1)=="U")
+            mvar := "MKOD_DIAG"+lstr(i)
+            &mvar := hu_->kod_diag
+          endif
+          m1var := "M1OTKAZ"+lstr(i)
+          &m1var := 0 // выполнено
+          if valtype(dvn_COVID_arr_usl[i,2]) == "C"
+            if ascan(arr_otklon,dvn_COVID_arr_usl[i,2]) > 0
+              &m1var := 3 // выполнено, обнаружены отклонения
+            endif
+          endif
+          mvar := "MOTKAZ"+lstr(i)
+          &mvar := inieditspr(A__MENUVERT, mm_otkaz, &m1var)
+        endif
+      else
+        MOHU->(dbGoto(larr[1,i]))
+        if MOHU->kod_vr > 0
+          p2->(dbGoto(MOHU->kod_vr))
           mvar := "MTAB_NOMv"+lstr(i)
           &mvar := p2->tab_nom
         endif
-        if hu->kod_as > 0
-          p2->(dbGoto(hu->kod_as))
+        if MOHU->kod_as > 0
+          p2->(dbGoto(MOHU->kod_as))
           mvar := "MTAB_NOMa"+lstr(i)
           &mvar := p2->tab_nom
         endif
         mvar := "MDATE"+lstr(i)
-        &mvar := c4tod(hu->date_u)
-        if !empty(hu_->kod_diag) .and. !(left(hu_->kod_diag,1)=="Z")
+        &mvar := c4tod(MOHU->date_u)
+        if !empty(MOHU->kod_diag) .and. !(left(MOHU->kod_diag,1)=="U")
           mvar := "MKOD_DIAG"+lstr(i)
           &mvar := hu_->kod_diag
         endif
@@ -817,7 +855,7 @@ alertx(lshifr, 'lhifr')
       max_date1 := mn_data
       fl := .t.
       k := ku := kol_d_usl := 0
-      arr_osm1 := array(count_dvn_COVID_arr_usl, 11)
+      arr_osm1 := array(count_dvn_COVID_arr_usl, 12)
       afillall(arr_osm1,0)
 
       // ВСЕ ЗАПИСЫВАЕМ
@@ -846,6 +884,7 @@ alertx(lshifr, 'lhifr')
           //
           
           ++kol_d_usl
+          arr_osm1[i,12] := dvn_COVID_arr_usl[i,12]
           if i_otkaz == 2 .and. &mvaro == 2 // если исследование невозможно
             select P2
             find (str(&mvart,5))
@@ -1313,7 +1352,8 @@ alertx(lshifr, 'lhifr')
       //     arr_usl_dop[i,11] := t_arr_usl[11]
       //   endif
       // next
-
+my_debug(,print_array(arr_usl_dop))
+      Use_base("mo_hu")
       Use_base("human_u")
       for i := 1 to i2
         select HU
