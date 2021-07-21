@@ -417,3 +417,44 @@ Function ret_dvn_arr_COVID_umolch()
     // count_dvn_arr_umolch := len(dvn_arr_umolch)
   return dvn_COVID_arr_umolch
 
+function foundFFOMSUsluga(lshifr)
+  local kod_uslf := 0
+  local tmp_select := select()
+
+  if select("luslf") == 0
+    use_base("luslf")
+  endif
+  if select("mosu") == 0
+    Use_base("mo_su")
+  endif
+  select MOSU
+  set order to 3 // ¯® è¨äàã ””ŽŒ‘
+  find (padr(lshifr,20))
+  if found()
+    kod_uslf := mosu->kod
+  else
+    select LUSLF
+    find (padr(lshifr,20))
+    if found()
+      select MOSU
+      set order to 1
+      FIND (STR(-1,6))
+      if found()
+        G_RLock(forever)
+      else
+        AddRec(6)
+      endif
+      kod_uslf := mosu->kod := recno()
+      mosu->name := luslf->name
+      mosu->shifr1 := lshifr
+      mosu->PROFIL := 0
+    endif
+  endif
+  select (tmp_select)
+  MOSU->(dbCloseArea())
+  luslf->(dbCloseArea())
+  luslf18->(dbCloseArea())
+  luslf19->(dbCloseArea())
+  luslf20->(dbCloseArea())
+
+  return kod_uslf

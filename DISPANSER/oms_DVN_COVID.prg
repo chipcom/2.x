@@ -10,7 +10,7 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
   // f_print - наименование функции для печати
   Static sadiag1 := {}
   Static st_N_DATA, st_K_DATA, s1dispans := 1
-  Local bg := {|o,k| get_MKB10(o,k,.t.) }, arr_del := {}, mrec_hu := 0,;
+  Local bg := {|o,k| get_MKB10(o,k,.t.) }, arr_del := {}, mrec_hu := 0, mrec_mohu := 0,;
       buf := savescreen(), tmp_color := setcolor(), a_smert := {},;
       p_uch_doc := "@!", pic_diag := "@K@!", arr_usl := {}, ah,;
       i, j, k, s, colget_menu := "R/W", colgetImenu := "R/BG",;
@@ -366,6 +366,8 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       select MOHU
       skip
     enddo
+my_debug(, print_array(larr))
+my_debug(, print_array(arr_usl))
     //
     read_arr_DVN_COVID(Loc_kod)
     if metap == 1 .and. between(m1GRUPPA,11,14) .and. m1p_otk == 1
@@ -1163,12 +1165,13 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       for i := 1 to len(arr_osm1)
         if valtype(arr_osm1[i,5]) == "C"
 
-// alertx(arr_osm1[i])
-// alertx(foundOurUsluga(arr_osm1[i,5],mk_data,arr_osm1[i,4],M1VZROS_REB,@mu_cena),'find')
-
-          arr_osm1[i,7] := foundOurUsluga(arr_osm1[i,5],mk_data,arr_osm1[i,4],M1VZROS_REB,@mu_cena)
-          arr_osm1[i,8] := mu_cena
-          mcena_1 += mu_cena
+          if arr_osm1[i,12] == 0
+            arr_osm1[i,7] := foundOurUsluga(arr_osm1[i,5],mk_data,arr_osm1[i,4],M1VZROS_REB,@mu_cena)
+            arr_osm1[i,8] := mu_cena
+            mcena_1 += mu_cena
+          else
+            arr_osm1[i,7] := foundFFOMSUsluga(arr_osm1[i,5])
+          endif
           if eq_any(arr_osm1[i,10],0,3) // выполнено
             aadd(arr_usl_dop,arr_osm1[i])
             if arr_osm1[i,10] == 3 // обнаружены отклонения
@@ -1180,7 +1183,6 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
         endif
       next
 
-// alertx(arr_usl_dop)
       if metap == 1
         for i := 1 to len(arr_usl_dop)
           if valtype(arr_usl_dop[i,5]) == "C" .and. arr_usl_dop[i,5] == "70.8.1"
@@ -1193,7 +1195,6 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
           endif
         next
       endif
-// alertx(arr_usl_dop)
 
       //
       Use_base("human")
@@ -1341,56 +1342,97 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       endif
       i1 := len(arr_usl)
       i2 := len(arr_usl_dop)
-      // принудительно выставим параметры
-      // for i := 1 to i2
-      //   if valtype(arr_usl_dop[i,5]) == "C" .and. arr_usl_dop[i,5] == "70.8.1" .and. metap == 1
-      //     arr_usl_dop[i,1] := t_arr_usl[1]
-      //     arr_usl_dop[i,2] := t_arr_usl[2]
-      //     arr_usl_dop[i,3] := t_arr_usl[3]
-      //     arr_usl_dop[i,6] := t_arr_usl[6]
-      //     arr_usl_dop[i,9] := t_arr_usl[9]
-      //     arr_usl_dop[i,11] := t_arr_usl[11]
-      //   endif
-      // next
-my_debug(,print_array(arr_usl_dop))
+
+// my_debug(,print_array(arr_usl))
+// my_debug(,print_array(arr_usl_dop))
       Use_base("mo_hu")
       Use_base("human_u")
       for i := 1 to i2
-        select HU
-        if i > i1
-          Add1Rec(7)
-          hu->kod := human->kod
-        else
-          goto (arr_usl[i])
+        if arr_usl_dop[i,12] == 0   // это услуга ТФОМС
+          select HU
+          if i > i1
+            Add1Rec(7)
+            hu->kod := human->kod
+          else
+            goto (arr_usl[i])
+            G_RLock(forever)
+          endif
+          mrec_hu := hu->(recno())
+          hu->kod_vr  := arr_usl_dop[i,1]
+          hu->kod_as  := arr_usl_dop[i,3]
+          hu->u_koef  := 1
+          hu->u_kod   := arr_usl_dop[i,7]
+          hu->u_cena  := arr_usl_dop[i,8]
+          hu->is_edit := iif(len(arr_usl_dop[i]) > 10 .and. valtype(arr_usl_dop[i,11]) == "N", arr_usl_dop[i,11], 0)
+          hu->date_u  := dtoc4(arr_usl_dop[i,9])
+          hu->otd     := m1otd
+          hu->kol := hu->kol_1 := 1
+          hu->stoim := hu->stoim_1 := arr_usl_dop[i,8]
+          hu->KOL_RCP := 0
+          select HU_
+          do while hu_->(lastrec()) < mrec_hu
+            APPEND BLANK
+          enddo
+          goto (mrec_hu)
           G_RLock(forever)
+          if i > i1 .or. !valid_GUID(hu_->ID_U)
+            hu_->ID_U := mo_guid(3,hu_->(recno()))
+          endif
+          hu_->PROFIL := arr_usl_dop[i,4]
+          hu_->PRVS   := arr_usl_dop[i,2]
+          hu_->kod_diag := iif(empty(arr_usl_dop[i,6]), MKOD_DIAG, arr_usl_dop[i,6])
+          hu_->zf := ""
+          UNLOCK
+        else  // 1 - это услуга ФФОМС
+          select MOHU
+          if i > i1
+            Add1Rec(7)
+            MOHU->kod := human->kod
+          else
+            goto (arr_usl[i])
+            G_RLock(forever)
+          endif
+
+
+          mrec_mohu := MOHU->(recno())
+          MOHU->kod_vr  := arr_usl_dop[i,1]
+          MOHU->kod_as  := arr_usl_dop[i,3]
+          // MOHU->u_koef  := 1
+          MOHU->u_kod   := arr_usl_dop[i,7]
+          MOHU->u_cena  := arr_usl_dop[i,8]
+          // MOHU->is_edit := iif(len(arr_usl_dop[i]) > 10 .and. valtype(arr_usl_dop[i,11]) == "N", arr_usl_dop[i,11], 0)
+          MOHU->date_u  := dtoc4(arr_usl_dop[i,9])
+          MOHU->otd     := m1otd
+          // MOHU->kol := 
+          MOHU->kol_1 := 1
+          // MOHU->stoim := 
+          MOHU->stoim_1 := arr_usl_dop[i,8]
+          // MOHU->KOL_RCP := 0
+          if i > i1 .or. !valid_GUID(MOHU->ID_U)
+            MOHU->ID_U := mo_guid(3,MOHU->(recno()))
+          endif
+          MOHU->PROFIL := arr_usl_dop[i,4]
+          MOHU->PRVS   := arr_usl_dop[i,2]
+          MOHU->kod_diag := iif(empty(arr_usl_dop[i,6]), MKOD_DIAG, arr_usl_dop[i,6])
+          // MOHU->zf := ""
+
+          // select HU_
+          // do while hu_->(lastrec()) < mrec_mohu
+          //   APPEND BLANK
+          // enddo
+          // goto (mrec_hu)
+          // G_RLock(forever)
+          // if i > i1 .or. !valid_GUID(hu_->ID_U)
+          //   hu_->ID_U := mo_guid(3,hu_->(recno()))
+          // endif
+          // hu_->PROFIL := arr_usl_dop[i,4]
+          // hu_->PRVS   := arr_usl_dop[i,2]
+          // hu_->kod_diag := iif(empty(arr_usl_dop[i,6]), MKOD_DIAG, arr_usl_dop[i,6])
+          // hu_->zf := ""
+          UNLOCK
         endif
-        mrec_hu := hu->(recno())
-        hu->kod_vr  := arr_usl_dop[i,1]
-        hu->kod_as  := arr_usl_dop[i,3]
-        hu->u_koef  := 1
-        hu->u_kod   := arr_usl_dop[i,7]
-        hu->u_cena  := arr_usl_dop[i,8]
-        hu->is_edit := iif(len(arr_usl_dop[i]) > 10 .and. valtype(arr_usl_dop[i,11]) == "N", arr_usl_dop[i,11], 0)
-        hu->date_u  := dtoc4(arr_usl_dop[i,9])
-        hu->otd     := m1otd
-        hu->kol := hu->kol_1 := 1
-        hu->stoim := hu->stoim_1 := arr_usl_dop[i,8]
-        hu->KOL_RCP := 0
-        select HU_
-        do while hu_->(lastrec()) < mrec_hu
-          APPEND BLANK
-        enddo
-        goto (mrec_hu)
-        G_RLock(forever)
-        if i > i1 .or. !valid_GUID(hu_->ID_U)
-          hu_->ID_U := mo_guid(3,hu_->(recno()))
-        endif
-        hu_->PROFIL := arr_usl_dop[i,4]
-        hu_->PRVS   := arr_usl_dop[i,2]
-        hu_->kod_diag := iif(empty(arr_usl_dop[i,6]), MKOD_DIAG, arr_usl_dop[i,6])
-        hu_->zf := ""
-        UNLOCK
       next
+      // ????????
       if i2 < i1
         for i := i2+1 to i1
           select HU
