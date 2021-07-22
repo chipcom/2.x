@@ -26,6 +26,8 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
 
   local t_arr_usl
 
+  local icount_usl  // счетчик для услуг
+
   //
   Default st_N_DATA TO sys_date, st_K_DATA TO sys_date
   Default Loc_kod TO 0, kod_kartotek TO 0
@@ -99,20 +101,23 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
   //
   Private arr_usl_dop := {}, arr_usl_otkaz := {}, arr_otklon := {}, m1p_otk := 0
   Private metap := 0,;  // 1-первый этап, 2-второй этап
-    m1ndisp := 1, mndisp,;  // m1ndisp := 3
     mnapr_onk := space(10), m1napr_onk := 0,;
     mOKSI := 0,;  // данные оксиметра %
     mDateCOVID := sys_date,;  // дата окончания лечения COVID
     mgruppa, m1gruppa := 9      // группа здоровья
-  Private mdispans, m1dispans := 0, mnazn_l , m1nazn_l  := 0,;
-    mdopo_na, m1dopo_na := 0,;
-    mspec_na, m1spec_na := 0,;
-    mssh_na , m1ssh_na  := 0,;
-    msank_na, m1sank_na := 0
-  Private mvar, m1var
+    // m1ndisp := 1, mndisp,;  // m1ndisp := 3
+  Private mdispans, m1dispans := 0, ;
+    mnazn_l , m1nazn_l  := 0
+    // ,;
+    // mdopo_na, m1dopo_na := 0,;
+    // mspec_na, m1spec_na := 0,;
+    // mssh_na , m1ssh_na  := 0,;
+    // msank_na, m1sank_na := 0
+  Private mvar, m1var // переменный для организации ввода ин-ции в табличной части
   Private mm_ndisp := {{"Углубленная диспансеризация I  этап",1},;
                        {"Углубленная диспансеризация II этап",2}}
-  Private mm_gruppa, mm_ndisp1, is_disp_19 := .t.
+  Private mm_gruppa, mm_ndisp1
+  // Private is_disp_19 := .t.
 
   mm_ndisp1 := aclone(mm_ndisp)
 
@@ -269,7 +274,7 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
     mOKSI := 95   // оксиметрия в %
   endif
   
-  if Loc_kod > 0
+  if Loc_kod > 0  // читаем информацию из HUMAN, HUMAN_U и MO_HU и заполним табличную часть
     select HUMAN
     goto (Loc_kod)
     M1LPU       := human->LPU
@@ -315,11 +320,15 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
     //
     // выбираем иформацию об услугах
     larr := array(2,count_dvn_COVID_arr_usl)
+    arr_usl := array(count_dvn_COVID_arr_usl)
     afillall(larr,0)
+    afillall(arr_usl,0)
     R_Use(dir_server+"uslugi",,"USL")
     R_Use(dir_server+"mo_su",,"MOSU")
     use_base("mo_hu")
     use_base("human_u")
+
+    lllll := 0
     // сначала выберем информацию из human_u по услугам ТФОМС
     find (str(Loc_kod,7))
     do while hu->kod == Loc_kod .and. !eof()
@@ -328,12 +337,16 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
         lshifr := usl->shifr
       endif
       lshifr := alltrim(lshifr)
+// my_debug(, 'human_u:'+str(++lllll)+': '+lshifr)
       for i := 1 to count_dvn_COVID_arr_usl
         if empty(larr[1,i])
           if valtype(dvn_COVID_arr_usl[i,2]) == "C" .and. dvn_COVID_arr_usl[i,12] == 0  // услуга ТФОМС
             if dvn_COVID_arr_usl[i,2] == lshifr
               fl := .f.
               larr[1,i] := hu->(recno())
+              larr[2,i] := lshifr
+              arr_usl[i] := hu->(recno())
+              // aadd(arr_usl,hu->(recno()))
             endif
           endif
               // if !fl
@@ -342,23 +355,29 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
               // endif
         endif
       next
-      aadd(arr_usl,hu->(recno()))
+      // aadd(arr_usl,hu->(recno()))
       select HU
       skip
     enddo
     // затем выберем информацию из mo_hu по услугам ФФОМС
+
+    lllll:= 0
     select MOHU
     set relation to u_kod into MOSU 
     find (str(Loc_kod,7))
     do while MOHU->kod == Loc_kod .and. !eof()
       MOSU->(dbGoto(MOHU->u_kod))
       lshifr := alltrim(iif(empty(MOSU->shifr),MOSU->shifr1,MOSU->shifr))
+// my_debug(, 'human_u:'+str(++lllll)+': '+lshifr)
       for i := 1 to count_dvn_COVID_arr_usl
         if empty(larr[1,i])
           if valtype(dvn_COVID_arr_usl[i,2]) == "C" .and. dvn_COVID_arr_usl[i,12] == 1  // услуга ФФОМС
             if dvn_COVID_arr_usl[i,2] == lshifr
               fl := .f.
               larr[1,i] := MOHU->(recno())
+              larr[2,i] := lshifr
+              arr_usl[i] := MOHU->(recno())
+              // aadd(arr_usl,MOHU->(recno()))
             endif
           endif
               // if !fl
@@ -367,49 +386,62 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
               // endif
         endif
       next
-      aadd(arr_usl,MOHU->(recno()))
+      // aadd(arr_usl,MOHU->(recno()))
       select MOHU
       skip
     enddo
-my_debug(, 'Read for Loc_kod: ' + str(Loc_kod))
+
+    for i := len(larr[1]) to 1 step -1  // синхронная очистка справочников
+      if (valtype(larr[1,i]) == "N") .and. (larr[1,i] == 0)
+        hb_ADel( larr[1], i, .t. )
+        hb_ADel( larr[2], i, .t. )
+
+        hb_ADel( arr_usl, i, .t. )
+      endif
+    next
+
+// my_debug(, 'Read for Loc_kod: ' + str(Loc_kod))
 my_debug(, 'larr: ' + print_array(larr))
-my_debug(, 'arr_usl: ' +print_array(arr_usl))
+// my_debug(, 'arr_usl: ' +print_array(arr_usl))
     //
     read_arr_DVN_COVID(Loc_kod)
     if metap == 1 .and. between(m1GRUPPA,11,14) .and. m1p_otk == 1
       m1GRUPPA += 10
     endif
     R_Use(dir_server+"mo_pers",,"P2")
-    for i := 1 to count_dvn_COVID_arr_usl
-      if dvn_COVID_arr_usl[i,12] == 0  // это услуга ТФОМС
-        // if !empty(larr[1,i])
-          hu->(dbGoto(larr[1,i]))
-          if hu->kod_vr > 0
-            p2->(dbGoto(hu->kod_vr))
-            mvar := "MTAB_NOMv"+lstr(i)
-            &mvar := p2->tab_nom
+    // for i := 1 to count_dvn_COVID_arr_usl
+      // if dvn_COVID_arr_usl[i,12] == 0  // это услуга ТФОМС
+    for i := 1 to len(larr[1])
+      if ! eq_any(SubStr(larr[2,i],1,1), 'A', 'B')  // это услуга ТФОМС, а не ФФОМС (первый код A,B)
+        if larr[2,i] == '70.8.1'  // пропустим эту услугу
+          loop
+        endif
+        hu->(dbGoto(larr[1,i]))
+        if hu->kod_vr > 0
+          p2->(dbGoto(hu->kod_vr))
+          mvar := "MTAB_NOMv"+lstr(i)
+          &mvar := p2->tab_nom
+        endif
+        if hu->kod_as > 0
+          p2->(dbGoto(hu->kod_as))
+          mvar := "MTAB_NOMa"+lstr(i)
+          &mvar := p2->tab_nom
+        endif
+        mvar := "MDATE"+lstr(i)
+        &mvar := c4tod(hu->date_u)
+        if !empty(hu_->kod_diag) .and. !(left(hu_->kod_diag,1)=="U")
+          mvar := "MKOD_DIAG"+lstr(i)
+          &mvar := hu_->kod_diag
+        endif
+        m1var := "M1OTKAZ"+lstr(i)
+        &m1var := 0 // выполнено
+        if valtype(dvn_COVID_arr_usl[i,2]) == "C"
+          if ascan(arr_otklon,dvn_COVID_arr_usl[i,2]) > 0
+            &m1var := 3 // выполнено, обнаружены отклонения
           endif
-          if hu->kod_as > 0
-            p2->(dbGoto(hu->kod_as))
-            mvar := "MTAB_NOMa"+lstr(i)
-            &mvar := p2->tab_nom
-          endif
-          mvar := "MDATE"+lstr(i)
-          &mvar := c4tod(hu->date_u)
-          if !empty(hu_->kod_diag) .and. !(left(hu_->kod_diag,1)=="U")
-            mvar := "MKOD_DIAG"+lstr(i)
-            &mvar := hu_->kod_diag
-          endif
-          m1var := "M1OTKAZ"+lstr(i)
-          &m1var := 0 // выполнено
-          if valtype(dvn_COVID_arr_usl[i,2]) == "C"
-            if ascan(arr_otklon,dvn_COVID_arr_usl[i,2]) > 0
-              &m1var := 3 // выполнено, обнаружены отклонения
-            endif
-          endif
-          mvar := "MOTKAZ"+lstr(i)
-          &mvar := inieditspr(A__MENUVERT, mm_otkaz, &m1var)
-        // endif
+        endif
+        mvar := "MOTKAZ"+lstr(i)
+        &mvar := inieditspr(A__MENUVERT, mm_otkaz, &m1var)
       else
         MOHU->(dbGoto(larr[1,i]))
         if MOHU->kod_vr > 0
@@ -620,6 +652,7 @@ my_debug(, 'arr_usl: ' +print_array(arr_usl))
       if mem_por_ass == 0
         @ j-1,52 say space(5)
       endif
+      icount_usl := 0
       fl_vrach := .t.
       for i := 1 to count_dvn_COVID_arr_usl
         fl_diag := .f.
@@ -636,17 +669,16 @@ my_debug(, 'arr_usl: ' +print_array(arr_usl))
             endif
             fl_vrach := .f.
           endif
-          fl_g_cit := fl_kdp2 := .f.
-          // if valtype(dvn_COVID_arr_usl[i,2]) == "C"
-          // endif
-          mvarv := "MTAB_NOMv"+lstr(i)
-          mvara := "MTAB_NOMa"+lstr(i)
-          mvard := "MDATE"+lstr(i)
+          ++icount_usl
+// my_debug(,'count: ' + lstr(icount_usl))
+          mvarv := "MTAB_NOMv"+lstr(icount_usl)
+          mvara := "MTAB_NOMa"+lstr(icount_usl)
+          mvard := "MDATE"+lstr(icount_usl)
           if empty(&mvard)
             &mvard := mn_data
           endif
-          mvarz := "MKOD_DIAG"+lstr(i)
-          mvaro := "MOTKAZ"+lstr(i)
+          mvarz := "MKOD_DIAG"+lstr(icount_usl)
+          mvaro := "MOTKAZ"+lstr(icount_usl)
 
           @ ++j, 1 say dvn_COVID_arr_usl[i,1]
           @ j, 46 get &mvarv pict "99999" valid {|g| v_kart_vrach(g) }
@@ -861,25 +893,29 @@ my_debug(, 'arr_usl: ' +print_array(arr_usl))
       R_Use(dir_server+"mo_pers",dir_server+"mo_pers","P2")
       num_screen := 2
       fl := .t.
-      k := ku := kol_d_usl := 0
+      k := 0
+      kol_d_usl := 0
       arr_osm1 := array(count_dvn_COVID_arr_usl, 12)
       afillall(arr_osm1,0)
 
       // ВСЕ ЗАПИСЫВАЕМ
       t_arr_usl := {}
+      icount_usl := 0
+      tmpvr := 0
       for i := 1 to count_dvn_COVID_arr_usl
         fl_diag := .f.
         i_otkaz := 0
         if f_is_usl_oms_sluch_DVN_COVID(i, metap, .t., @fl_diag, @i_otkaz)
-          mvart := "MTAB_NOMv"+lstr(i)
+          ++icount_usl
+          mvart := "MTAB_NOMv"+lstr(icount_usl)
+          mvara := "MTAB_NOMa"+lstr(icount_usl)
+          mvard := "MDATE"+lstr(icount_usl)
+          mvarz := "MKOD_DIAG"+lstr(icount_usl)
+          mvaro := "M1OTKAZ"+lstr(icount_usl)
           ar := dvn_COVID_arr_usl[i]
-          mvara := "MTAB_NOMa"+lstr(i)
-          mvard := "MDATE"+lstr(i)
-          mvarz := "MKOD_DIAG"+lstr(i)
-          mvaro := "M1OTKAZ"+lstr(i)
-          if &mvard == mn_data
-            k := i
-          endif
+          // if &mvard == mn_data
+          //   k := i
+          // endif
           // для заполнения услуги 70.8.1
           if valtype(ar[2]) == "C" .and. ar[2] == "B01.026.001"
             tmpvr := &mvart
@@ -889,9 +925,8 @@ my_debug(, 'arr_usl: ' +print_array(arr_usl))
             &mvart := tmpvr
           endif
           //
-          
           ++kol_d_usl
-          arr_osm1[i,12] := dvn_COVID_arr_usl[i,12]
+          arr_osm1[i,12] := dvn_COVID_arr_usl[i,12]   // признак услуги 0 - ТФОМС / 1 - ФФОМС
           if i_otkaz == 2 .and. &mvaro == 2 // если исследование невозможно
             select P2
             find (str(&mvart,5))
@@ -905,7 +940,8 @@ my_debug(, 'arr_usl: ' +print_array(arr_usl))
               arr_osm1[i,4] := ar[10]
             endif
             arr_osm1[i,5] := ar[2] // шифр услуги
-            arr_osm1[i,9] := iif(empty(&mvard), mn_data, &mvard)
+            // arr_osm1[i,9] := iif(empty(&mvard), mn_data, &mvard)
+            arr_osm1[i,9] := iif(empty(&mvard), mk_data, &mvard)
             arr_osm1[i,10] := &mvaro
             --kol_d_usl
           elseif empty(&mvard)
@@ -938,7 +974,6 @@ my_debug(, 'arr_usl: ' +print_array(arr_usl))
               endif
               arr_osm1[i,4] := ar[10,j] // профиль
             endif
-            ++ku
             if valtype(ar[2]) == "C"  // шифр услуги
               arr_osm1[i,5] := ar[2] // шифр услуги
             else
@@ -948,18 +983,6 @@ my_debug(, 'arr_usl: ' +print_array(arr_usl))
                 j := 1
               endif
               arr_osm1[i,5] := ar[2,j] // шифр услуги
-              if i == count_dvn_COVID_arr_usl // последняя услуга из массива - терапевт
-                // if metap == 2
-                //   if eq_any(arr_osm1[i,2],2002,-206) // специальность-фельдшер
-                //     fl := func_error(4,"Фельдшер не может заменить терапевта на II этапе диспансеризации")
-                //   endif
-                // else // 1 этап
-                //   if eq_any(arr_osm1[i,2],2002,-206) // специальность-фельдшер
-                //     arr_osm1[i,5] := iif(is_disp_19,"2.3.4","2.3.3") // шифр услуги
-                //     arr_osm1[i,4] := 42 // профиль - лечебному делу
-                //   endif
-                // endif
-              endif
             endif
 
             if !fl_diag .or. empty(&mvarz) .or. left(&mvarz,1) == 'U'
@@ -978,12 +1001,21 @@ my_debug(, 'arr_usl: ' +print_array(arr_usl))
             if valtype(arr_osm1[i,5]) == "C" .and. arr_osm1[i,5] == "B01.026.001"
               t_arr_usl := aclone(arr_osm1[i])
             endif
+            if valtype(arr_osm1[i,5]) == "C" .and. arr_osm1[i,5] == "70.80.1"
+              arr_osm1[i,1] := t_arr_usl[1]
+              arr_osm1[i,2] := t_arr_usl[2]
+              arr_osm1[i,3] := t_arr_usl[3]
+              arr_osm1[i,6] := t_arr_usl[6]
+              arr_osm1[i,9] := t_arr_usl[9]
+              arr_osm1[i,11] := t_arr_usl[11]
+              endif
           endif
         endif
         if !fl
           exit
         endif
       next
+my_debug(,'после заполнения: ' + print_array(arr_osm1))
       if !fl
         loop
       endif
@@ -1133,8 +1165,6 @@ my_debug(, 'arr_usl: ' +print_array(arr_usl))
             mcena_1 += mu_cena
           else
             arr_osm1[i,7] := foundFFOMSUsluga(arr_osm1[i,5])
-// alertx(i,'i')
-// alertx(arr_osm1[i,7],'arr_osm1[i,7]')
           endif
           if eq_any(arr_osm1[i,10],0,3) // выполнено
             aadd(arr_usl_dop,arr_osm1[i])
@@ -1307,7 +1337,7 @@ my_debug(, 'arr_usl: ' +print_array(arr_usl))
       i1 := len(arr_usl)
       i2 := len(arr_usl_dop)
 
-my_debug(,'before save arr_osm1: ' + print_array(arr_osm1))
+// my_debug(,'before save arr_osm1: ' + print_array(arr_osm1))
 my_debug(,'before save arr_usl_dop: ' + print_array(arr_usl_dop))
       Use_base("mo_hu")
       Use_base("human_u")
