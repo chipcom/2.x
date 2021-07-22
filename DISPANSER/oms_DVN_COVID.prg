@@ -313,12 +313,14 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       endif
     endif
     //
+    // выбираем иформацию об услугах
     larr := array(2,count_dvn_COVID_arr_usl)
     afillall(larr,0)
     R_Use(dir_server+"uslugi",,"USL")
     R_Use(dir_server+"mo_su",,"MOSU")
     use_base("mo_hu")
     use_base("human_u")
+    // сначала выберем информацию из human_u по услугам ТФОМС
     find (str(Loc_kod,7))
     do while hu->kod == Loc_kod .and. !eof()
       usl->(dbGoto(hu->u_kod))
@@ -344,6 +346,7 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       select HU
       skip
     enddo
+    // затем выберем информацию из mo_hu по услугам ФФОМС
     select MOHU
     set relation to u_kod into MOSU 
     find (str(Loc_kod,7))
@@ -368,8 +371,9 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       select MOHU
       skip
     enddo
-my_debug(, print_array(larr))
-my_debug(, print_array(arr_usl))
+my_debug(, 'Read for Loc_kod: ' + str(Loc_kod))
+my_debug(, 'larr: ' + print_array(larr))
+my_debug(, 'arr_usl: ' +print_array(arr_usl))
     //
     read_arr_DVN_COVID(Loc_kod)
     if metap == 1 .and. between(m1GRUPPA,11,14) .and. m1p_otk == 1
@@ -1018,7 +1022,7 @@ my_debug(, print_array(arr_usl))
 
       afill(adiag_talon,0)
       if empty(arr_diag) // диагнозы не вводили
-        aadd(arr_diag, {mdef_diagnoz,0,0,ctod("")}) // диагноз по умолчанию
+        // aadd(arr_diag, {mdef_diagnoz,0,0,ctod("")}) // диагноз по умолчанию
         MKOD_DIAG := mdef_diagnoz
       else
         for i := 1 to len(arr_diag)
@@ -1067,6 +1071,9 @@ my_debug(, print_array(arr_usl))
           loop
         endif
       endif
+
+      aadd(arr_diag, {mdef_diagnoz,0,0,ctod("")}) // всегда добавляем в лист учета
+
       mm_gruppa := {mm_gruppaD1,mm_gruppaD2}[metap]
 
       m1p_otk := 0
@@ -1300,8 +1307,8 @@ my_debug(, print_array(arr_usl))
       i1 := len(arr_usl)
       i2 := len(arr_usl_dop)
 
-// my_debug(,print_array(arr_usl))
-my_debug(,'before save' + print_array(arr_usl_dop))
+my_debug(,'before save arr_osm1: ' + print_array(arr_osm1))
+my_debug(,'before save arr_usl_dop: ' + print_array(arr_usl_dop))
       Use_base("mo_hu")
       Use_base("human_u")
       for i := 1 to i2
