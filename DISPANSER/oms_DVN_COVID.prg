@@ -10,6 +10,7 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
   // f_print - наименование функции для печати
   Static sadiag1 := {}
   Static st_N_DATA, st_K_DATA, s1dispans := 1
+  
   Local bg := {|o,k| get_MKB10(o,k,.t.) }, arr_del := {}, mrec_hu := 0, mrec_mohu := 0,;
       buf := savescreen(), tmp_color := setcolor(), a_smert := {},;
       p_uch_doc := "@!", pic_diag := "@K@!", arr_usl := {}, ah,;
@@ -1300,7 +1301,7 @@ my_debug(, print_array(arr_usl))
       i2 := len(arr_usl_dop)
 
 // my_debug(,print_array(arr_usl))
-my_debug(,print_array(arr_usl_dop))
+my_debug(,'before save' + print_array(arr_usl_dop))
       Use_base("mo_hu")
       Use_base("human_u")
       for i := 1 to i2

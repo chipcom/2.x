@@ -536,8 +536,6 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
         endif
         mo_add_xml_stroke(oSLUCH,"USL_OK"  ,lstr(human_->USL_OK))
         mo_add_xml_stroke(oSLUCH,"VIDPOM"  ,lstr(lvidpom))
-alertx(lvidpom,'lvidpom')
-alertx(__mvScope( lvidpom ), 'scope')
         if p_tip_reestr == 1
           lal := iif(kol_sl == 2, "human_3", "human_")
           mo_add_xml_stroke(oSLUCH,"ISHOD"   ,lstr(&lal.->ISHOD_NEW))
@@ -1103,7 +1101,8 @@ alertx(__mvScope( lvidpom ), 'scope')
           mo_add_xml_stroke(oUSL,"CODE_MD" ,'0') // отказ => 0
         next
       endif
-      if p_tip_reestr == 1 .and. len(a_fusl) > 0 // добавляем операции
+      // if p_tip_reestr == 1 .and. len(a_fusl) > 0 // добавляем операции
+      if len(a_fusl) > 0 // добавляем операции // исправил чтобы брала углубленную диспансеризацию COVID
         for j := 1 to len(a_fusl)
           select MOHU
           goto (a_fusl[j])

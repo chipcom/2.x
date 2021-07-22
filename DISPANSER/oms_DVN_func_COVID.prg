@@ -417,6 +417,7 @@ Function ret_dvn_arr_COVID_umolch()
     // count_dvn_arr_umolch := len(dvn_arr_umolch)
   return dvn_COVID_arr_umolch
 
+// 21.07.2021
 function foundFFOMSUsluga(lshifr)
   local kod_uslf := 0
   local tmp_select := select()
@@ -458,3 +459,23 @@ function foundFFOMSUsluga(lshifr)
   luslf20->(dbCloseArea())
 
   return kod_uslf
+
+// 22.07.2021
+function foundFFOMSUslugaById(id)
+  // id - код услуги
+  local tmp_select := select()
+  local retArray := {}
+
+  if select("mosu") == 0
+    Use_base("mo_su")
+  endif
+  select MOSU
+  set order to 1 // по коду
+  find (str(id,6))
+  if found()
+    retArray := {MOSU->KOD, MOSU->NAME, MOSU->SHIFR1, MOSU->PROFIL, MOSU->TIP, MOSU->SLUGBA, MOSU->ZF}
+  endif
+  select (tmp_select)
+  MOSU->(dbCloseArea())
+
+  return retArray
