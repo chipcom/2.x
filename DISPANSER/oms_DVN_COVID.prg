@@ -337,7 +337,6 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
         lshifr := usl->shifr
       endif
       lshifr := alltrim(lshifr)
-// my_debug(, 'human_u:'+str(++lllll)+': '+lshifr)
       for i := 1 to count_dvn_COVID_arr_usl
         if empty(larr[1,i])
           if valtype(dvn_COVID_arr_usl[i,2]) == "C" .and. dvn_COVID_arr_usl[i,12] == 0  // ãá«ã£  ’”ŽŒ‘
@@ -346,21 +345,15 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
               larr[1,i] := hu->(recno())
               larr[2,i] := lshifr
               arr_usl[i] := hu->(recno())
-              // aadd(arr_usl,hu->(recno()))
             endif
           endif
-              // if !fl
-              //   larr[1,i] := hu->(recno())
-              //   exit
-              // endif
         endif
       next
-      // aadd(arr_usl,hu->(recno()))
       select HU
       skip
     enddo
-    // § â¥¬ ¢ë¡¥à¥¬ ¨­ä®à¬ æ¨î ¨§ mo_hu ¯® ãá«ã£ ¬ ””ŽŒ‘
 
+    // § â¥¬ ¢ë¡¥à¥¬ ¨­ä®à¬ æ¨î ¨§ mo_hu ¯® ãá«ã£ ¬ ””ŽŒ‘
     lllll:= 0
     select MOHU
     set relation to u_kod into MOSU 
@@ -368,7 +361,6 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
     do while MOHU->kod == Loc_kod .and. !eof()
       MOSU->(dbGoto(MOHU->u_kod))
       lshifr := alltrim(iif(empty(MOSU->shifr),MOSU->shifr1,MOSU->shifr))
-// my_debug(, 'human_u:'+str(++lllll)+': '+lshifr)
       for i := 1 to count_dvn_COVID_arr_usl
         if empty(larr[1,i])
           if valtype(dvn_COVID_arr_usl[i,2]) == "C" .and. dvn_COVID_arr_usl[i,12] == 1  // ãá«ã£  ””ŽŒ‘
@@ -377,16 +369,10 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
               larr[1,i] := MOHU->(recno())
               larr[2,i] := lshifr
               arr_usl[i] := MOHU->(recno())
-              // aadd(arr_usl,MOHU->(recno()))
             endif
           endif
-              // if !fl
-              //   larr[1,i] := hu->(recno())
-              //   exit
-              // endif
         endif
       next
-      // aadd(arr_usl,MOHU->(recno()))
       select MOHU
       skip
     enddo
@@ -399,10 +385,6 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
         hb_ADel( arr_usl, i, .t. )
       endif
     next
-
-// my_debug(, 'Read for Loc_kod: ' + str(Loc_kod))
-my_debug(, 'larr: ' + print_array(larr))
-// my_debug(, 'arr_usl: ' +print_array(arr_usl))
     //
     read_arr_DVN_COVID(Loc_kod)
     if metap == 1 .and. between(m1GRUPPA,11,14) .and. m1p_otk == 1
@@ -634,10 +616,6 @@ my_debug(, 'larr: ' + print_array(larr))
       ret_ndisp_COVID(Loc_kod,kod_kartotek)
 
       @ ++j, 8 get mndisp when .f. color color14
-      // if mvozrast != mdvozrast
-      //   s := "(¢ "+lstr(year(mn_data))+" £®¤ã ¨á¯®«­ï¥âáï "+lstr(mdvozrast)+" "+s_let(mdvozrast)+")"
-      //   @ j, 80-len(s) say s color color14
-      // endif
 
       @ ++j, 1 say "„ â  ®ª®­ç ­¨ï «¥ç¥­¨ï COVID" get mDateCOVID ;
           valid {|| iif(((mn_data - mDateCOVID) < 60), func_error(4,"à®è«® ¬¥­ìè¥ 60 ¤­¥© ¯®á«¥ § ¡®«¥¢ ­¨ï!"), .t.);
@@ -662,15 +640,12 @@ my_debug(, 'larr: ' + print_array(larr))
             @ ++j, 1 say "ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄ" color color8
             @ ++j, 1 say " ¨¬¥­®¢ ­¨ï ®á¬®âà®¢                       ³¢à ç ³ áá¨á³¤ â  ãá«ã£¨" color color8
             @ ++j, 1 say "ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄ" color color8
-            //++j; @ j,0 say replicate("Ä",80) color color8
-            //++j; @ j,0 say "_ ¨¬¥­®¢ ­¨ï ®á¬®âà®¢________________________¢à ç__ áá¨á_¤ â  ãá«ã£_¤¨ £­®§____" color color8
             if mem_por_ass == 0
               @ j-1, 52 say space(5)
             endif
             fl_vrach := .f.
           endif
           ++icount_usl
-// my_debug(,'count: ' + lstr(icount_usl))
           mvarv := "MTAB_NOMv"+lstr(icount_usl)
           mvara := "MTAB_NOMa"+lstr(icount_usl)
           mvard := "MDATE"+lstr(icount_usl)
@@ -1015,7 +990,6 @@ my_debug(, 'larr: ' + print_array(larr))
           exit
         endif
       next
-my_debug(,'¯®á«¥ § ¯®«­¥­¨ï: ' + print_array(arr_osm1))
       if !fl
         loop
       endif
@@ -1265,7 +1239,6 @@ my_debug(,'¯®á«¥ § ¯®«­¥­¨ï: ' + print_array(arr_osm1))
       human_->DISPANS   := s
       human_->STATUS_ST := ""
       human_->POVOD     := iif(metap == 3, 5, 6)
-      //human_->TRAVMA    := m1travma
       human_->VPOLIS    := m1vidpolis
       human_->SPOLIS    := ltrim(mspolis)
       human_->NPOLIS    := ltrim(mnpolis)
@@ -1337,8 +1310,6 @@ my_debug(,'¯®á«¥ § ¯®«­¥­¨ï: ' + print_array(arr_osm1))
       i1 := len(arr_usl)
       i2 := len(arr_usl_dop)
 
-// my_debug(,'before save arr_osm1: ' + print_array(arr_osm1))
-my_debug(,'before save arr_usl_dop: ' + print_array(arr_usl_dop))
       Use_base("mo_hu")
       Use_base("human_u")
       for i := 1 to i2
@@ -1406,21 +1377,6 @@ my_debug(,'before save arr_usl_dop: ' + print_array(arr_usl_dop))
           MOHU->PROFIL := arr_usl_dop[i,4]
           MOHU->PRVS   := arr_usl_dop[i,2]
           MOHU->kod_diag := iif(empty(arr_usl_dop[i,6]), MKOD_DIAG, arr_usl_dop[i,6])
-          // MOHU->zf := ""
-
-          // select HU_
-          // do while hu_->(lastrec()) < mrec_mohu
-          //   APPEND BLANK
-          // enddo
-          // goto (mrec_hu)
-          // G_RLock(forever)
-          // if i > i1 .or. !valid_GUID(hu_->ID_U)
-          //   hu_->ID_U := mo_guid(3,hu_->(recno()))
-          // endif
-          // hu_->PROFIL := arr_usl_dop[i,4]
-          // hu_->PRVS   := arr_usl_dop[i,2]
-          // hu_->kod_diag := iif(empty(arr_usl_dop[i,6]), MKOD_DIAG, arr_usl_dop[i,6])
-          // hu_->zf := ""
           UNLOCK
         endif
       next
@@ -1447,8 +1403,8 @@ my_debug(,'before save arr_usl_dop: ' + print_array(arr_usl_dop))
   restscreen(buf)
   chm_help_code := tmp_help
   if fl_write_sluch // ¥á«¨ § ¯¨á «¨ - § ¯ãáª ¥¬ ¯à®¢¥àªã
-    if type("fl_edit_DVN") == "L"
-      fl_edit_DVN := .t.
+    if type("fl_edit_DVN_COVID") == "L"
+      fl_edit_DVN_COVID := .t.
     endif
     if !empty(val(msmo))
       verify_OMS_sluch(glob_perso)

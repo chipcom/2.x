@@ -4075,9 +4075,9 @@ change_sys_date() // перечитать системную дату (для травмпунктов, работающих ноч
 if input_uch(T_ROW-1,T_COL+5,sys_date) != NIL .and. input_otd(T_ROW-1,T_COL+5,sys_date) != NIL
   buf := box_shadow(0,41,2,77,color13)
   @ 1,42 say padc(glob_otd[2],35) color color14
-  Private fl_edit_oper, fl_edit_smp, fl_edit_DDS, fl_edit_DVN
+  Private fl_edit_oper, fl_edit_smp, fl_edit_DDS, fl_edit_DVN, fl_edit_DVN_COVID
   do while .t.
-    fl_edit_oper := fl_edit_smp := fl_edit_DDS := fl_edit_DVN := .f.
+    fl_edit_oper := fl_edit_smp := fl_edit_DDS := fl_edit_DVN := fl_edit_DVN_COVID := .f.
     polikl_kart(1)
     if fl_edit_oper
       str_sem := "Редактирование человека "+lstr(glob_perso)
@@ -4087,7 +4087,7 @@ if input_uch(T_ROW-1,T_COL+5,sys_date) != NIL .and. input_otd(T_ROW-1,T_COL+5,sy
       else
         func_error(4,"В данный момент с карточкой этого пациента работает другой пользователь.")
       endif
-    elseif fl_edit_smp .or. fl_edit_DDS .or. fl_edit_DVN
+    elseif fl_edit_smp .or. fl_edit_DDS .or. fl_edit_DVN .or. fl_edit_DVN_COVID
       // не выходим из цикла
     else
       exit

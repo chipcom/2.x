@@ -352,25 +352,42 @@ Function ret_arrays_disp_COVID()
         0;
       };
     }
-    // { "Общий (клинический) анализ крови развернутый","B03.016.003",1,0,1,1,1,;
-    // 1,1,{34,37,38},{26,215,217};
-    // },;
-    // { "Анализ крови биохимический общетерапевтический","B03.016.004",1,0,1,1,1,;
-    // 1,1,{34,37,38},{26,215,217};
-    // },;
-    // { "Приём (осмотр) врачом-терапевтом первичный","B01.026.001",1,1,0,1,1,;
-    // 1,1,{42,151},{39,76,206},;
-    // {57,97,42},1,1;
-    // },;
-    // { "Приём (осмотр) врачом-терапевтом повторный","B01.026.002",2,1,0,1,1,;
-    // 1,1,{42,151},{39,76,206},;
-    // {57,97,42},1,1;
-    // },;
-    // { "Комплексное посещение углубленная диспансеризация I этап","70.8.1",1,1,0,1,1,;
-    // 1,1,{42,151},{39,76,206},;
-    // {57,97,42},1,1;
-    // };
 return dvn_COVID_arr_usl
+
+***** 22.07.21 получить услуги этапа диспансеризации COVID
+function uslugiEtap_DVN_COVID(_etap)
+  // _etap - этап диспансеризации
+  local retArray := {}
+  local i
+  local usl := ret_arrays_disp_COVID()
+
+  for i := 1 to len(usl)
+    if valtype(usl[i, 3]) == "N"
+      fl := (usl[i, 3] == _etap)
+    else
+      fl := ascan(usl[i, 3], _etap) > 0
+    endif
+    if fl
+      aadd(retArray, usl[i])
+    endif
+  next
+  return retArray
+
+****** 22.07.21 получить индекс услуги на этапе диспансеризации COVID
+function indexUslugaEtap_DVN_COVID(_etap, lshifr)
+  // _etap - этап диспансеризации
+  // lshifr - шифр услуги
+  local index := 0
+  local i := 0
+  local usl := uslugiEtap_DVN_COVID(_etap)
+
+  for i := 1 to len(usl)
+    if alltrim(usl[i, 2]) == alltrim(lshifr)
+      index := i
+      exit
+    endif
+  next
+  return index
 
 ***** 20.07.21 рабочая ли услуга по углубленной диспансеризации COVID в зависимости от этапа
 Function f_is_usl_oms_sluch_DVN_COVID( i, _etap, allUsl, /*@*/_diag, /*@*/_otkaz) //, /*@*/_ekg)
