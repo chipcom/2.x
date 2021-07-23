@@ -173,5 +173,7 @@ mo_version.prg
 
 .\dispanser\oms_DVN_COVID.prg
 .\dispanser\oms_DVN_func_COVID.prg
+.\dispanser\oms_DVN.prg
+.\dispanser\oms_DVN_func.prg
 
 .\EXCHANGE\reestrOMS_XML.prg
