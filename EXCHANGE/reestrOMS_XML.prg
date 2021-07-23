@@ -1136,8 +1136,6 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
           if p_tip_reestr == 2
 // разобраться с отказами услугами ФФОМС
             mo_add_xml_stroke(oUSL,"P_OTK" ,'0')
-            mo_add_xml_stroke(oUSL,"TARIF"   ,'0')//lstr(mohu->U_CENA,10,2))
-            mo_add_xml_stroke(oUSL,"SUMV_USL",'0')//lstr(mohu->STOIM_1,10,2))
           endif
           mo_add_xml_stroke(oUSL,"CODE_USL",lshifr)
           mo_add_xml_stroke(oUSL,"KOL_USL" ,lstr(mohu->KOL_1,6,2))
