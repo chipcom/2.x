@@ -1150,7 +1150,7 @@ Function verify_1_sluch(fl_view)
     next
   endif
   fl := (ascan(mdiagnoz, {|x| padr(x,5) == "Z03.1" }) > 0)
-  if is_disp_DDS .or. is_disp_DVN .or. is_prof_PN
+  if is_disp_DDS .or. is_disp_DVN .or. is_prof_PN .or. is_disp_DVN_COVID
     if is_oncology == 2
       is_oncology := 1
     endif
@@ -1287,7 +1287,9 @@ Function verify_1_sluch(fl_view)
     endif
     mdate := c4tod(mohu->date_u)
     if !between(mdate,d1,d2)
-      if usl_found .and. &lalf.->telemed == 1 .and. left(lshifr,4) == "B01." .and. mdate < d1
+      if usl_found .and. &lalf.->telemed == 1 .and. mdate < d1
+        // разерешается оказывать раньше
+      elseif eq_any(left(lshifr,4),"A06.", "A12.", "B01.", "B03.")
         // разерешается оказывать раньше
       else
         aadd(ta,'услуга '+s+' ('+date_8(mdate)+') не попадает в диапазон лечения')
