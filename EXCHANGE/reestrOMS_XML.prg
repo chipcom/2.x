@@ -1124,22 +1124,30 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
             mo_add_xml_stroke(oUSL,"PODR" ,lstr(glob_otd_dep))
           endif
           mo_add_xml_stroke(oUSL,"PROFIL"  ,lstr(mohu->PROFIL))
-          if p_tip_reestr == 1          
+          if p_tip_reestr == 1
             mo_add_xml_stroke(oUSL,"VID_VME",lshifr)
             mo_add_xml_stroke(oUSL,"DET"     ,iif(human->VZROS_REB==0,'0','1'))
+          endif
+          mo_add_xml_stroke(oUSL,"DATE_IN" ,date2xml(c4tod(mohu->DATE_U)))
+          mo_add_xml_stroke(oUSL,"DATE_OUT",date2xml(c4tod(mohu->DATE_U2)))
+          if p_tip_reestr == 1
             mo_add_xml_stroke(oUSL,"DS"      ,mohu->kod_diag)
-            mo_add_xml_stroke(oUSL,"TARIF"   ,lstr(mohu->U_CENA,10,2))//lstr(mohu->U_CENA,10,2))
-            mo_add_xml_stroke(oUSL,"SUMV_USL",lstr(mohu->STOIM_1,10,2))//lstr(mohu->STOIM_1,10,2))
-          elseif p_tip_reestr == 2
+          endif
+          if p_tip_reestr == 2
 // разобраться с отказами услугами ФФОМС
             mo_add_xml_stroke(oUSL,"P_OTK" ,'0')
             mo_add_xml_stroke(oUSL,"TARIF"   ,'0')//lstr(mohu->U_CENA,10,2))
             mo_add_xml_stroke(oUSL,"SUMV_USL",'0')//lstr(mohu->STOIM_1,10,2))
           endif
-          mo_add_xml_stroke(oUSL,"DATE_IN" ,date2xml(c4tod(mohu->DATE_U)))
-          mo_add_xml_stroke(oUSL,"DATE_OUT",date2xml(c4tod(mohu->DATE_U2)))
           mo_add_xml_stroke(oUSL,"CODE_USL",lshifr)
           mo_add_xml_stroke(oUSL,"KOL_USL" ,lstr(mohu->KOL_1,6,2))
+          if p_tip_reestr == 1
+            mo_add_xml_stroke(oUSL,"TARIF"   ,lstr(mohu->U_CENA,10,2))//lstr(mohu->U_CENA,10,2))
+            mo_add_xml_stroke(oUSL,"SUMV_USL",lstr(mohu->STOIM_1,10,2))//lstr(mohu->STOIM_1,10,2))
+          elseif p_tip_reestr == 2
+            mo_add_xml_stroke(oUSL,"TARIF"   ,'0')//lstr(mohu->U_CENA,10,2))
+            mo_add_xml_stroke(oUSL,"SUMV_USL",'0')//lstr(mohu->STOIM_1,10,2))
+          endif
           mo_add_xml_stroke(oUSL,"PRVS",put_prvs_to_reestr(mohu->PRVS,_NYEAR))
           fl := .f.
           if is_telemedicina(lshifr,@fl) // не заполняется код врача
