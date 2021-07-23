@@ -18,14 +18,6 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       pos_read := 0, k_read := 0, count_edit := 0, ar, larr, lu_kod,;
       fl, tmp_help := chm_help_code, fl_write_sluch := .f., mu_cena, lrslt_1_etap := 0
 
-  local dvn_COVID_arr_usl := ret_arrays_disp_COVID()  // получим список услуг по углубленной диспансеризации
-  local count_dvn_COVID_arr_usl := len(dvn_COVID_arr_usl)
-
-  local dvn_COVID_arr_umolch := ret_dvn_arr_COVID_umolch()  // получим список услуг по углубленной диспансеризации
-  local count_dvn_COVID_arr_umolch := len(dvn_COVID_arr_umolch)
-
-  local icount_usl  // счетчик для услуг
-
   //
   Default st_N_DATA TO sys_date, st_K_DATA TO sys_date
   Default Loc_kod TO 0, kod_kartotek TO 0
@@ -98,7 +90,7 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
     mcena_1 := 0
   //
   Private arr_usl_dop := {}, arr_usl_otkaz := {}, arr_otklon := {}, m1p_otk := 0
-  Private metap := 0,;  // 1-первый этап, 2-второй этап
+  Private metap := 1,;  // 1-первый этап, 2-второй этап (по умолчанию 1 этап)
     mnapr_onk := space(10), m1napr_onk := 0,;
     mOKSI := 0,;  // данные оксиметра %
     mDateCOVID := sys_date,;  // дата окончания лечения COVID
@@ -181,7 +173,7 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
     Private &pole_dn_dispans := ctod("")
   next
 
-  for i := 1 to count_dvn_COVID_arr_usl
+  for i := 1 to len(ret_arrays_disp_COVID())  // создадим поля ввода для всех возможных услуг диспансеризации
     mvar := "MTAB_NOMv"+lstr(i)
     Private &mvar := 0
     mvar := "MTAB_NOMa"+lstr(i)
@@ -317,8 +309,6 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
     endif
     //
     // выбираем иформацию об услугах
-    // larr := array(2,count_dvn_COVID_arr_usl)
-    // arr_usl := array(count_dvn_COVID_arr_usl)
     larr := array(2, len(uslugiEtap_DVN_COVID(metap)))
     arr_usl := array(len(uslugiEtap_DVN_COVID(metap)))
     afillall(larr,0)
@@ -337,11 +327,8 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
         lshifr := usl->shifr
       endif
       lshifr := alltrim(lshifr)
-      // for i := 1 to count_dvn_COVID_arr_usl
       for i := 1 to len(uslugiEtap_DVN_COVID(metap))
         if empty(larr[1,i])
-          // if valtype(dvn_COVID_arr_usl[i,2]) == "C" .and. dvn_COVID_arr_usl[i,12] == 0  // услуга ТФОМС
-          //   if dvn_COVID_arr_usl[i,2] == lshifr
           if valtype(uslugiEtap_DVN_COVID(metap)[i,2]) == "C" .and. uslugiEtap_DVN_COVID(metap)[i,12] == 0  // услуга ТФОМС
             if uslugiEtap_DVN_COVID(metap)[i,2] == lshifr
               fl := .f.
@@ -364,11 +351,8 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
     do while MOHU->kod == Loc_kod .and. !eof()
       MOSU->(dbGoto(MOHU->u_kod))
       lshifr := alltrim(iif(empty(MOSU->shifr),MOSU->shifr1,MOSU->shifr))
-      // for i := 1 to count_dvn_COVID_arr_usl
       for i := 1 to len(uslugiEtap_DVN_COVID(metap))
         if empty(larr[1,i])
-          // if valtype(dvn_COVID_arr_usl[i,2]) == "C" .and. dvn_COVID_arr_usl[i,12] == 1  // услуга ФФОМС
-          //   if dvn_COVID_arr_usl[i,2] == lshifr
           if valtype(uslugiEtap_DVN_COVID(metap)[i,2]) == "C" .and. uslugiEtap_DVN_COVID(metap)[i,12] == 1  // услуга ФФОМС
             if uslugiEtap_DVN_COVID(metap)[i,2] == lshifr
               fl := .f.
@@ -397,8 +381,6 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       m1GRUPPA += 10
     endif
     R_Use(dir_server+"mo_pers",,"P2")
-    // for i := 1 to count_dvn_COVID_arr_usl
-      // if dvn_COVID_arr_usl[i,12] == 0  // это услуга ТФОМС
     for i := 1 to len(larr[1])
       if ! eq_any(SubStr(larr[2,i],1,1), 'A', 'B')  // это услуга ТФОМС, а не ФФОМС (первый код A,B)
         if larr[2,i] == '70.8.1'  // пропустим эту услугу
@@ -423,8 +405,6 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
         endif
         m1var := "M1OTKAZ"+lstr(i)
         &m1var := 0 // выполнено
-        // if valtype(dvn_COVID_arr_usl[i,2]) == "C"
-        //   if ascan(arr_otklon,dvn_COVID_arr_usl[i,2]) > 0
         if valtype(uslugiEtap_DVN_COVID(metap)[i,2]) == "C"
           if ascan(arr_otklon,uslugiEtap_DVN_COVID(metap)[i,2]) > 0
             &m1var := 3 // выполнено, обнаружены отклонения
@@ -452,8 +432,6 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
         endif
         m1var := "M1OTKAZ"+lstr(i)
         &m1var := 0 // выполнено
-        // if valtype(dvn_COVID_arr_usl[i,2]) == "C"
-        //   if ascan(arr_otklon,dvn_COVID_arr_usl[i,2]) > 0
         if valtype(uslugiEtap_DVN_COVID(metap)[i,2]) == "C"
           if ascan(arr_otklon,uslugiEtap_DVN_COVID(metap)[i,2]) > 0
             &m1var := 3 // выполнено, обнаружены отклонения
@@ -472,9 +450,6 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
         if valtype(ar) == "A" .and. len(ar) >= 5 .and. valtype(ar[5]) == "C"
           lshifr := alltrim(ar[5])
           
-          // for i := 1 to count_dvn_COVID_arr_usl
-          //   if valtype(dvn_COVID_arr_usl[i,2]) == "C" .and. ;
-          //       (dvn_COVID_arr_usl[i,2] == lshifr)
           for i := 1 to len(uslugiEtap_DVN_COVID(metap))
             if valtype(uslugiEtap_DVN_COVID(metap)[i,2]) == "C" .and. ;
                 (uslugiEtap_DVN_COVID(metap)[i,2] == lshifr)
@@ -644,9 +619,7 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       if mem_por_ass == 0
         @ j-1,52 say space(5)
       endif
-      icount_usl := 0
       fl_vrach := .t.
-      // for i := 1 to count_dvn_COVID_arr_usl
 
       for i := 1 to len(uslugiEtap_DVN_COVID(metap))
         fl_diag := .f.
@@ -661,7 +634,6 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
             endif
             fl_vrach := .f.
           endif
-          ++icount_usl
           mvarv := "MTAB_NOMv"+lstr(i)
           mvara := "MTAB_NOMa"+lstr(i)
           mvard := "MDATE"+lstr(i)
@@ -671,7 +643,6 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
           mvarz := "MKOD_DIAG"+lstr(i)
           mvaro := "MOTKAZ"+lstr(i)
 
-          // @ ++j, 1 say dvn_COVID_arr_usl[i,1]
           @ ++j, 1 say uslugiEtap_DVN_COVID(metap)[i,1]
           @ j, 46 get &mvarv pict "99999" valid {|g| v_kart_vrach(g) }
           if mem_por_ass > 0
@@ -887,26 +858,21 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       fl := .t.
       k := 0
       kol_d_usl := 0
-      // arr_osm1 := array(count_dvn_COVID_arr_usl, 12)
       arr_osm1 := array(len(uslugiEtap_DVN_COVID(metap)), 12)
       afillall(arr_osm1,0)
 
       // ВСЕ ЗАПИСЫВАЕМ
-      icount_usl := 0
       tmpvr := 0
-      // for i := 1 to count_dvn_COVID_arr_usl
       for i := 1 to len(uslugiEtap_DVN_COVID(metap))
         fl_diag := .f.
         i_otkaz := 0
         // if f_is_usl_oms_sluch_DVN_COVID(i, metap, .t., @fl_diag, @i_otkaz)
         f_is_usl_oms_sluch_DVN_COVID(i, metap, .t., @fl_diag, @i_otkaz)
-          ++icount_usl
           mvart := "MTAB_NOMv"+lstr(i)
           mvara := "MTAB_NOMa"+lstr(i)
           mvard := "MDATE"+lstr(i)
           mvarz := "MKOD_DIAG"+lstr(i)
           mvaro := "M1OTKAZ"+lstr(i)
-          // ar := dvn_COVID_arr_usl[i]
           ar := uslugiEtap_DVN_COVID(metap)[i]
           // для заполнения услуги 70.8.1
           if valtype(ar[2]) == "C" .and. ar[2] == "B01.026.001"
@@ -918,7 +884,6 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
           endif
           //
           ++kol_d_usl
-          // arr_osm1[i,12] := dvn_COVID_arr_usl[i,12]   // признак услуги 0 - ТФОМС / 1 - ФФОМС
           arr_osm1[i,12] := uslugiEtap_DVN_COVID(metap)[i, 12]   // признак услуги 0 - ТФОМС / 1 - ФФОМС
           if i_otkaz == 2 .and. &mvaro == 2 // если исследование невозможно
             select P2
