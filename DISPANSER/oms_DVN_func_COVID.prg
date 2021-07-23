@@ -393,7 +393,8 @@ function indexUslugaEtap_DVN_COVID(_etap, lshifr)
 Function f_is_usl_oms_sluch_DVN_COVID( i, _etap, allUsl, /*@*/_diag, /*@*/_otkaz) //, /*@*/_ekg)
   Local fl := .f.
   local ars := {}
-  local ar := ret_arrays_disp_COVID()[i]
+  // local ar := ret_arrays_disp_COVID()[i]
+  local ar := uslugiEtap_DVN_COVID(_etap)[i]
 
   if valtype(ar[2]) == "C" .and. _etap == 1 .and. alltrim(ar[2]) == "70.8.1" .and. ( ! allUsl )
     return fl
