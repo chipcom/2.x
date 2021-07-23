@@ -1728,11 +1728,11 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
           aadd(a_fusl,{mohu->(recno()),mohu->REES_ZAP})
           skip
         enddo
-       if isl == 1
-        oZAP := oXmlDoc:aItems[1]:Add( HXMLNode():New( "ZAP" ) )
-         mo_add_xml_stroke(oZAP,"N_ZAP" ,lstr(human_->schet_zap))
-         mo_add_xml_stroke(oZAP,"PR_NOV",t1->PR_NOV)
-         oPAC := oZAP:Add( HXMLNode():New( "PACIENT" ) )
+        if isl == 1
+          oZAP := oXmlDoc:aItems[1]:Add( HXMLNode():New( "ZAP" ) )
+          mo_add_xml_stroke(oZAP,"N_ZAP" ,lstr(human_->schet_zap))
+          mo_add_xml_stroke(oZAP,"PR_NOV",t1->PR_NOV)
+          oPAC := oZAP:Add( HXMLNode():New( "PACIENT" ) )
           mo_add_xml_stroke(oPAC,"ID_PAC",t1->ID_PAC)
           mo_add_xml_stroke(oPAC,"VPOLIS",t1->VPOLIS)
           if !empty(t1->SPOLIS)
@@ -1760,11 +1760,11 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
             mo_add_xml_stroke(oDISAB,"INV",t1->INV)
             mo_add_xml_stroke(oDISAB,"DATA_INV",t1->DATA_INV)
             mo_add_xml_stroke(oDISAB,"REASON_INV",t1->REASON_INV)
-           if !empty(t1->DS_INV)
-            mo_add_xml_stroke(oDISAB,"DS_INV",t1->DS_INV)
-           endif
+            if !empty(t1->DS_INV)
+              mo_add_xml_stroke(oDISAB,"DS_INV",t1->DS_INV)
+            endif
           endif
-         oSLUCH := oZAP:Add( HXMLNode():New( "Z_SL" ) )
+          oSLUCH := oZAP:Add( HXMLNode():New( "Z_SL" ) )
           mo_add_xml_stroke(oSLUCH,"IDCASE",lstr(human_->schet_zap))
           mo_add_xml_stroke(oSLUCH,"ID_C"  ,t1->ID_C)
           if !empty(t1->DISP)
@@ -1772,32 +1772,32 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
           endif
           mo_add_xml_stroke(oSLUCH,"USL_OK",t1->USL_OK)
           mo_add_xml_stroke(oSLUCH,"VIDPOM",t1->VIDPOM)
-         if p_tip_reestr == 1
-          mo_add_xml_stroke(oSLUCH,"ISHOD",t1->ISHOD)
-          if !empty(t1->VB_P)
-            mo_add_xml_stroke(oSLUCH,"VB_P",t1->VB_P) // Признак внутрибольничного перевода при оплате законченного случая как суммы стоимостей пребывания пациента в разных профильных отделениях, каждое из которых оплачивается по КСГ
+          if p_tip_reestr == 1
+            mo_add_xml_stroke(oSLUCH,"ISHOD",t1->ISHOD)
+            if !empty(t1->VB_P)
+              mo_add_xml_stroke(oSLUCH,"VB_P",t1->VB_P) // Признак внутрибольничного перевода при оплате законченного случая как суммы стоимостей пребывания пациента в разных профильных отделениях, каждое из которых оплачивается по КСГ
+            endif
+            mo_add_xml_stroke(oSLUCH,"IDSP",t1->IDSP)
+            mo_add_xml_stroke(oSLUCH,"SUMV",t1->sumv)
+            if !empty(t1->FOR_POM)
+              mo_add_xml_stroke(oSLUCH,"FOR_POM",t1->FOR_POM)
+            endif
+            if !empty(t1->NPR_MO)
+              mo_add_xml_stroke(oSLUCH,"NPR_MO",t1->NPR_MO)
+            endif
+            if !empty(t1->NPR_DATE)
+              mo_add_xml_stroke(oSLUCH,"NPR_DATE",t1->NPR_DATE)
+            endif
+            mo_add_xml_stroke(oSLUCH,"LPU",t1->LPU)
+          else
+            if !empty(t1->FOR_POM)
+              mo_add_xml_stroke(oSLUCH,"FOR_POM",t1->FOR_POM)
+            endif
+            mo_add_xml_stroke(oSLUCH,"LPU",t1->LPU)
+            mo_add_xml_stroke(oSLUCH,"VBR",t1->VBR)
+            mo_add_xml_stroke(oSLUCH,"P_CEL",t1->p_cel)
+            mo_add_xml_stroke(oSLUCH,"P_OTK",t1->p_otk) // Признак отказа
           endif
-          mo_add_xml_stroke(oSLUCH,"IDSP",t1->IDSP)
-          mo_add_xml_stroke(oSLUCH,"SUMV",t1->sumv)
-          if !empty(t1->FOR_POM)
-            mo_add_xml_stroke(oSLUCH,"FOR_POM",t1->FOR_POM)
-          endif
-          if !empty(t1->NPR_MO)
-            mo_add_xml_stroke(oSLUCH,"NPR_MO",t1->NPR_MO)
-          endif
-          if !empty(t1->NPR_DATE)
-            mo_add_xml_stroke(oSLUCH,"NPR_DATE",t1->NPR_DATE)
-          endif
-          mo_add_xml_stroke(oSLUCH,"LPU",t1->LPU)
-         else
-          if !empty(t1->FOR_POM)
-            mo_add_xml_stroke(oSLUCH,"FOR_POM",t1->FOR_POM)
-          endif
-          mo_add_xml_stroke(oSLUCH,"LPU",t1->LPU)
-          mo_add_xml_stroke(oSLUCH,"VBR",t1->VBR)
-          mo_add_xml_stroke(oSLUCH,"P_CEL",t1->p_cel)
-          mo_add_xml_stroke(oSLUCH,"P_OTK",t1->p_otk) // Признак отказа
-         endif
           mo_add_xml_stroke(oSLUCH,"DATE_Z_1",t1->DATE_Z_1)
           mo_add_xml_stroke(oSLUCH,"DATE_Z_2",t1->DATE_Z_2)
           if !empty(t1->kd_z)
@@ -1810,21 +1810,21 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
             endif
           next
           mo_add_xml_stroke(oSLUCH,"RSLT",t1->RSLT)
-         if p_tip_reestr == 1
-          if !empty(t1->MSE)
-            mo_add_xml_stroke(oSLUCH,"MSE",t1->MSE)
+          if p_tip_reestr == 1
+            if !empty(t1->MSE)
+              mo_add_xml_stroke(oSLUCH,"MSE",t1->MSE)
+            endif
+          else
+            mo_add_xml_stroke(oSLUCH,"ISHOD",t1->ISHOD)
+            mo_add_xml_stroke(oSLUCH,"IDSP",t1->IDSP)
+            mo_add_xml_stroke(oSLUCH,"SUMV",t1->sumv)
           endif
-         else
-          mo_add_xml_stroke(oSLUCH,"ISHOD",t1->ISHOD)
-          mo_add_xml_stroke(oSLUCH,"IDSP",t1->IDSP)
-          mo_add_xml_stroke(oSLUCH,"SUMV",t1->sumv)
-         endif
-         lal := "t1"
-       else
-         lal := "t11"
-         dbSelectArea(lal)
-         find (t1->IDCASE)
-       endif
+          lal := "t1"
+        else
+          lal := "t11"
+          dbSelectArea(lal)
+          find (t1->IDCASE)
+        endif
           oSL := oSLUCH:Add( HXMLNode():New( "SL" ) )
            mo_add_xml_stroke(oSL,"SL_ID",&lal.->SL_ID)
            if !empty(&lal.->VID_HMP)
