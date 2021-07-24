@@ -635,328 +635,328 @@ if (fl := (human_->ST_VERIFY == 5))
 endif
 return fl
 
-***** 05.01.21 работаем по текущей записи
-Function f1_create2reestr19(_nyear,_nmonth)
-Local i, j, lst, s
-fl_DISABILITY := is_zak_sl := is_zak_sl_vr := .f.
-lshifr_zak_sl := lvidpoms := ""
-a_usl := {} ; a_fusl := {} ; lvidpom := 1 ; lfor_pom := 3
-atmpusl := {} ; akslp := {} ; akiro := {} ; tarif_zak_sl := human->cena_1
-kol_kd := 0
-is_KSG := is_mgi := .f.
-v_reabil_slux := 0
-m1veteran := 0
-m1mobilbr := 0  // мобильная бригада
-m1mesto_prov := 0
-m1p_otk := 0    // признак отказа
-m1dopo_na := 0
-m1napr_v_mo := 0 // {{"-- нет --",0},{"в нашу МО",1},{"в иную МО",2}}, ;
-arr_mo_spec := {}
-m1napr_stac := 0 // {{"--- нет ---",0},{"в стационар",1},{"в дн. стац.",2}}, ;
-m1profil_stac := 0
-m1napr_reab := 0
-m1profil_kojki := 0
-pr_amb_reab := .f.
-fl_disp_nabl := .f.
-is_disp_DVN := .f.
-ldate_next := ctod("")
-ar_dn := {}
-//
-is_oncology_smp := 0
-is_oncology := f_is_oncology(1,@is_oncology_smp)
-if p_tip_reestr == 2
-  is_oncology := 0
-endif
-arr_onkna := {}
-select ONKNA
-find (str(human->kod,7))
-do while onkna->kod == human->kod .and. !eof()
-  mosu->(dbGoto(onkna->U_KOD))
-  aadd(arr_onkna, {onkna->NAPR_DATE,onkna->NAPR_V,onkna->MET_ISSL,mosu->shifr1,onkna->NAPR_MO})
-  skip
-enddo
-select ONKCO
-find (str(human->kod,7))
-//
-select ONKSL
-find (str(human->kod,7))
-//
-arr_onkdi := {}
-if eq_any(onksl->b_diag,98,99)
-  select ONKDI
-  find (str(human->kod,7))
-  do while onkdi->kod == human->kod .and. !eof()
-    aadd(arr_onkdi, {onkdi->DIAG_DATE,onkdi->DIAG_TIP,onkdi->DIAG_CODE,onkdi->DIAG_RSLT})
-    skip
-  enddo
-endif
-//
-arr_onkpr := {}
-if human_->USL_OK < 3 // противопоказания по лечению только в стационаре и дневном стационаре
-  select ONKPR
-  find (str(human->kod,7))
-  do while onkpr->kod == human->kod .and. !eof()
-    aadd(arr_onkpr, {onkpr->PROT,onkpr->D_PROT})
-    skip
-  enddo
-endif
-if eq_any(onksl->b_diag,0,7,8) .and. ascan(arr_onkpr,{|x| x[1] == onksl->b_diag }) == 0
-  // добавим отказ,не показано,противопоказано по гистологии
-  aadd(arr_onkpr, {onksl->b_diag,human->n_data})
-endif
-//
-arr_onk_usl := {}
-if iif(human_2->VMP == 1, .t., between(onksl->DS1_T,0,2))
-  select ONKUS
-  find (str(human->kod,7))
-  do while onkus->kod == human->kod .and. !eof()
-    if between(onkus->USL_TIP,1,5)
-      aadd(arr_onk_usl,onkus->USL_TIP)
-    endif
-    skip
-  enddo
-endif
-//
-select HU
-find (str(human->kod,7))
-do while hu->kod == human->kod .and. !eof()
-  lshifr1 := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data)
-  if is_usluga_TFOMS(usl->shifr,lshifr1,human->k_data,,,@lst,,@s)
-    lshifr := alltrim(iif(empty(lshifr1), usl->shifr, lshifr1))
-    if human_->USL_OK == 3 .and. is_usluga_disp_nabl(lshifr)
-      ldate_next := c4tod(human->DATE_OPL)
-      fl_disp_nabl := .t.
-    endif
-    aadd(atmpusl,lshifr)
-    if eq_any(left(lshifr,5),"1.11.","55.1.")
-      kol_kd += hu->kol_1
-      is_KSG := .t.
-    elseif left(lshifr,5) == "2.89."
-      pr_amb_reab := .t.
-    elseif left(lshifr,5) == "60.9."
-      is_mgi := .t.
-    endif
-    if !empty(s) .and. "," $ s
-      lvidpoms := s
-    endif
-    if (hu->stoim_1 > 0 .or. left(lshifr,3) == "71.") .and. (i := ret_vid_pom(1,lshifr,human->k_data)) > 0
-      lvidpom := i
-    endif
-    if human_->USL_OK == 3
-      if f_is_neotl_pom(lshifr)
-        lfor_pom := 2 // неотложная
-      elseif eq_any(left(lshifr,5),"60.4.","60.5.","60.6.","60.7.","60.8.")
-        select OTD
-        dbGoto(human->otd)
-        if fieldnum("TIP_OTD") > 0 .and. otd->TIP_OTD == 1  // отделение приёмного покоя стационара
-          lfor_pom := 2 // неотложная
-        endif
-      endif
-    endif
-    if lst == 1
-      lshifr_zak_sl := lshifr
-      if f_is_zak_sl_vr(lshifr) // зак.случай в п-ке
-        is_zak_sl_vr := .t.
-      else
-        is_zak_sl_vr := .t. // КСГ
-        if human_->USL_OK < 3 .and. p_tip_reestr == 1
-          tarif_zak_sl := hu->STOIM_1
-          if !empty(human_2->pc1)
-            akslp := List2Arr(human_2->pc1)
-          endif
-          if !empty(human_2->pc2)
-            akiro := List2Arr(human_2->pc2)
-          endif
-        endif
-        if !empty(akslp) .or. !empty(akiro)
-          otd->(dbGoto(human->OTD))
-          f_put_glob_podr(human_->USL_OK,human->K_DATA) // заполнить код подразделения
-          tarif_zak_sl := fcena_oms(lshifr,(human->vzros_reb==0),human->k_data)
-        endif
-      endif
-    else
-      aadd(a_usl,hu->(recno()))
-    endif
-  endif
-  select HU
-  skip
-enddo
-if human_->USL_OK == 1 .and. human_2->VMP == 1 .and. !emptyany(human_2->VIDVMP,human_2->METVMP) // ВМП
-  is_KSG := .f.
-endif
-if !empty(lvidpoms)
-  if !eq_ascan(atmpusl,"55.1.2","55.1.3") .or. glob_mo[_MO_KOD_TFOMS] == '801935' // ЭКО-Москва
-    lvidpoms := ret_vidpom_licensia(human_->USL_OK,lvidpoms,human_->profil) // только для дн.стационара при стационаре
-  else
-    if eq_ascan(atmpusl,"55.1.3")
-      lvidpoms := ret_vidpom_st_dom_licensia(human_->USL_OK,lvidpoms,human_->profil)
-    endif
-  endif
-  if !empty(lvidpoms) .and. !("," $ lvidpoms)
-    lvidpom := int(val(lvidpoms))
-    lvidpoms := ""
-  endif
-endif
-if !empty(lvidpoms)
-  if eq_ascan(atmpusl,"55.1.1","55.1.4")
-    if "31" $ lvidpoms
-      lvidpom := 31
-    endif
-  elseif eq_ascan(atmpusl,"55.1.2","55.1.3","2.76.6","2.76.7","2.81.67")
-    if eq_any(human_->PROFIL,57,68,97) //терапия,педиатр,врач общ.практики
-      if "12" $ lvidpoms
-        lvidpom := 12
-      endif
-    else
-      if "13" $ lvidpoms
-        lvidpom := 13
-      endif
-    endif
-  endif
-endif
-select MOHU
-find (str(human->kod,7))
-do while mohu->kod == human->kod .and. !eof()
-  aadd(a_fusl,mohu->(recno()))
-  skip
-enddo
-a_otkaz := {}
-arr_nazn := {}
-if eq_any(human->ishod,101,102) // дисп-ия детей-сирот
-  read_arr_DDS(human->kod)
-elseif eq_any(human->ishod,301,302) // профосмотры несовершеннолетних
-  arr_usl_otkaz := {}
-  read_arr_PN(human->kod)
-  if valtype(arr_usl_otkaz) == "A"
-    for j := 1 to len(arr_usl_otkaz)
-      ar := arr_usl_otkaz[j]
-      if valtype(ar) == "A" .and. len(ar) > 9 .and. valtype(ar[5]) == "C" .and. ;
-                                                    valtype(ar[10]) == "C" .and. ar[10] $ "io"
-        lshifr := alltrim(ar[5])
-        ldate := human->N_DATA // дата
-        if valtype(ar[9]) == "D"
-          ldate := ar[9]
-        endif
-        if ar[10] == "i" // исследования
-          if (i := ascan(np_arr_issled, {|x| valtype(x[1]) == "C" .and. x[1] == lshifr})) > 0
-            aadd(a_otkaz,{lshifr,;
-                          ar[6],; // диагноз
-                          ldate,; // дата
-                          correct_profil(ar[4]),; // профиль
-                          ar[2],; // специальность
-                          0,;     // цена
-                          1})     // 1-отказ,2-невозможность
-          endif
-        elseif (i := ascan(np_arr_osmotr, {|x| valtype(x[1]) == "C" .and. x[1] == lshifr})) > 0 // осмотры
-          if (i := ascan(np_arr_osmotr_KDP2, {|x| x[1] == lshifr })) > 0
-            lshifr := np_arr_osmotr_KDP2[i,3]  // замена врачебного приёма на 2.3.*
-          endif
-          aadd(a_otkaz,{lshifr,;
-                        ar[6],; // диагноз
-                        ldate,; // дата
-                        correct_profil(ar[4]),; // профиль
-                        ar[2],; // специальность
-                        0,;     // цена
-                        1})     // 1-отказ,2-невозможность
-        endif
-      endif
-    next j
-  endif
-elseif between(human->ishod,201,205) // дисп-ия I этап или профилактика
-  is_disp_DVN := .t.
-  arr_usl_otkaz := {}
-  for i := 1 to 5
-    sk := lstr(i)
-    pole_diag := "mdiag"+sk
-    pole_1dispans := "m1dispans"+sk
-    pole_dn_dispans := "mdndispans"+sk
-    &pole_diag := space(6)
-    &pole_1dispans := 0
-    &pole_dn_dispans := ctod("")
-  next
-  read_arr_DVN(human->kod)
-  if valtype(arr_usl_otkaz) == "A" .and. eq_any(human->ishod,201,203) // не II этап
-    for j := 1 to len(arr_usl_otkaz)
-      ar := arr_usl_otkaz[j]
-      if valtype(ar) == "A" .and. len(ar) >= 10 .and. valtype(ar[5]) == "C"
-        lshifr := alltrim(ar[5])
-        if (i := ascan(dvn_arr_usl, {|x| valtype(x[2])=="C" .and. x[2]==lshifr})) > 0
-          if valtype(ar[10]) == "N" .and. between(ar[10],1,2)
-            aadd(a_otkaz,{lshifr,;
-                          ar[6],; // диагноз
-                          human->N_DATA,; // дата
-                          correct_profil(ar[4]),; // профиль
-                          ar[2],; // специальность
-                          ar[8],; // цена
-                          ar[10]}) // 1-отказ,2-невозможность
-          endif
-        endif
-      endif
-    next j
-  endif
-endif
-if m1dopo_na > 0
-  for i := 1 to 4
-    if isbit(m1dopo_na,i)
-      aadd(arr_nazn,{3,i}) // теперь каждое назначение в отдельном PRESCRIPTIONS
-    endif
-  next
-  //aadd(arr_nazn,{3,{}}) ; j := len(arr_nazn)
-  //for i := 1 to 4
-    //if isbit(m1dopo_na,i)
-      //aadd(arr_nazn[j,2],i)
-    //endif
-  //next
-endif
-if between(m1napr_v_mo,1,2) .and. !empty(arr_mo_spec) // {{"-- нет --",0},{"в нашу МО",1},{"в иную МО",2}}, ;
-  for i := 1 to len(arr_mo_spec) // теперь каждая специальность в отдельном PRESCRIPTIONS
-    aadd(arr_nazn,{m1napr_v_mo,put_prvs_to_reestr(-arr_mo_spec[i],_NYEAR)}) // "-", т.к. спец-ть была в кодировке V015
-  next
-  //aadd(arr_nazn,{m1napr_v_mo,{}}) ; j := len(arr_nazn)
-  //for i := 1 to min(3,len(arr_mo_spec))
-  //  aadd(arr_nazn[j,2],put_prvs_to_reestr(-arr_mo_spec[i],_NYEAR)) // "-", т.к. спец-ть была в кодировке V015
-  //next
-endif
-if between(m1napr_stac,1,2) .and. m1profil_stac > 0 // {{"--- нет ---",0},{"в стационар",1},{"в дн. стац.",2}}, ;
-  aadd(arr_nazn,{iif(m1napr_stac==1,5,4),m1profil_stac})
-endif
-if m1napr_reab == 1 .and. m1profil_kojki > 0
-  aadd(arr_nazn,{6,m1profil_kojki})
-endif
-cSMOname := ""
-if alltrim(human_->smo) == '34'
-  cSMOname := ret_inogSMO_name(2)
-endif
-mdiagnoz := diag_for_xml(,.t.,,,.t.)
-if p_tip_reestr == 1
-  if glob_mo[_MO_IS_UCH] .and. ;                    // наше МО имеет прикреплённое население
-     human_->USL_OK == 3 .and. ;                    // поликлиника
-     kart2->MO_PR == glob_MO[_MO_KOD_TFOMS] .and. ; // прикреплён к нашему МО
-     between(kart_->INVALID,1,4)                    // инвалид
-    select INV
-    find (str(human->kod_k,7))
-    if found() .and. !emptyany(inv->DATE_INV,inv->PRICH_INV)
-      // дата начала лечения отстоит от даты первичного установления инвалидности не более чем на год
-      fl_DISABILITY := (inv->DATE_INV < human->n_data .and. human->n_data <= addmonth(inv->DATE_INV,12))
-    endif
-  endif
-else
-  if human->OBRASHEN == '1' .and. ascan(mdiagnoz, {|x| padr(x,5) == "Z03.1" }) == 0
-    aadd(mdiagnoz,"Z03.1")
-  endif
-  afill(adiag_talon,0)
-  for i := 1 to 16
-    adiag_talon[i] := int(val(substr(human_->DISPANS,i,1)))
-  next
-endif
-mdiagnoz3 := {}
-if !empty(human_2->OSL1)
-  aadd(mdiagnoz3,human_2->OSL1)
-endif
-if !empty(human_2->OSL2)
-  aadd(mdiagnoz3,human_2->OSL2)
-endif
-if !empty(human_2->OSL3)
-  aadd(mdiagnoz3,human_2->OSL3)
-endif
-return NIL
+// ***** 05.01.21 работаем по текущей записи
+// Function f1_create2reestr19(_nyear,_nmonth)
+// Local i, j, lst, s
+// fl_DISABILITY := is_zak_sl := is_zak_sl_vr := .f.
+// lshifr_zak_sl := lvidpoms := ""
+// a_usl := {} ; a_fusl := {} ; lvidpom := 1 ; lfor_pom := 3
+// atmpusl := {} ; akslp := {} ; akiro := {} ; tarif_zak_sl := human->cena_1
+// kol_kd := 0
+// is_KSG := is_mgi := .f.
+// v_reabil_slux := 0
+// m1veteran := 0
+// m1mobilbr := 0  // мобильная бригада
+// m1mesto_prov := 0
+// m1p_otk := 0    // признак отказа
+// m1dopo_na := 0
+// m1napr_v_mo := 0 // {{"-- нет --",0},{"в нашу МО",1},{"в иную МО",2}}, ;
+// arr_mo_spec := {}
+// m1napr_stac := 0 // {{"--- нет ---",0},{"в стационар",1},{"в дн. стац.",2}}, ;
+// m1profil_stac := 0
+// m1napr_reab := 0
+// m1profil_kojki := 0
+// pr_amb_reab := .f.
+// fl_disp_nabl := .f.
+// is_disp_DVN := .f.
+// ldate_next := ctod("")
+// ar_dn := {}
+// //
+// is_oncology_smp := 0
+// is_oncology := f_is_oncology(1,@is_oncology_smp)
+// if p_tip_reestr == 2
+//   is_oncology := 0
+// endif
+// arr_onkna := {}
+// select ONKNA
+// find (str(human->kod,7))
+// do while onkna->kod == human->kod .and. !eof()
+//   mosu->(dbGoto(onkna->U_KOD))
+//   aadd(arr_onkna, {onkna->NAPR_DATE,onkna->NAPR_V,onkna->MET_ISSL,mosu->shifr1,onkna->NAPR_MO})
+//   skip
+// enddo
+// select ONKCO
+// find (str(human->kod,7))
+// //
+// select ONKSL
+// find (str(human->kod,7))
+// //
+// arr_onkdi := {}
+// if eq_any(onksl->b_diag,98,99)
+//   select ONKDI
+//   find (str(human->kod,7))
+//   do while onkdi->kod == human->kod .and. !eof()
+//     aadd(arr_onkdi, {onkdi->DIAG_DATE,onkdi->DIAG_TIP,onkdi->DIAG_CODE,onkdi->DIAG_RSLT})
+//     skip
+//   enddo
+// endif
+// //
+// arr_onkpr := {}
+// if human_->USL_OK < 3 // противопоказания по лечению только в стационаре и дневном стационаре
+//   select ONKPR
+//   find (str(human->kod,7))
+//   do while onkpr->kod == human->kod .and. !eof()
+//     aadd(arr_onkpr, {onkpr->PROT,onkpr->D_PROT})
+//     skip
+//   enddo
+// endif
+// if eq_any(onksl->b_diag,0,7,8) .and. ascan(arr_onkpr,{|x| x[1] == onksl->b_diag }) == 0
+//   // добавим отказ,не показано,противопоказано по гистологии
+//   aadd(arr_onkpr, {onksl->b_diag,human->n_data})
+// endif
+// //
+// arr_onk_usl := {}
+// if iif(human_2->VMP == 1, .t., between(onksl->DS1_T,0,2))
+//   select ONKUS
+//   find (str(human->kod,7))
+//   do while onkus->kod == human->kod .and. !eof()
+//     if between(onkus->USL_TIP,1,5)
+//       aadd(arr_onk_usl,onkus->USL_TIP)
+//     endif
+//     skip
+//   enddo
+// endif
+// //
+// select HU
+// find (str(human->kod,7))
+// do while hu->kod == human->kod .and. !eof()
+//   lshifr1 := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data)
+//   if is_usluga_TFOMS(usl->shifr,lshifr1,human->k_data,,,@lst,,@s)
+//     lshifr := alltrim(iif(empty(lshifr1), usl->shifr, lshifr1))
+//     if human_->USL_OK == 3 .and. is_usluga_disp_nabl(lshifr)
+//       ldate_next := c4tod(human->DATE_OPL)
+//       fl_disp_nabl := .t.
+//     endif
+//     aadd(atmpusl,lshifr)
+//     if eq_any(left(lshifr,5),"1.11.","55.1.")
+//       kol_kd += hu->kol_1
+//       is_KSG := .t.
+//     elseif left(lshifr,5) == "2.89."
+//       pr_amb_reab := .t.
+//     elseif left(lshifr,5) == "60.9."
+//       is_mgi := .t.
+//     endif
+//     if !empty(s) .and. "," $ s
+//       lvidpoms := s
+//     endif
+//     if (hu->stoim_1 > 0 .or. left(lshifr,3) == "71.") .and. (i := ret_vid_pom(1,lshifr,human->k_data)) > 0
+//       lvidpom := i
+//     endif
+//     if human_->USL_OK == 3
+//       if f_is_neotl_pom(lshifr)
+//         lfor_pom := 2 // неотложная
+//       elseif eq_any(left(lshifr,5),"60.4.","60.5.","60.6.","60.7.","60.8.")
+//         select OTD
+//         dbGoto(human->otd)
+//         if fieldnum("TIP_OTD") > 0 .and. otd->TIP_OTD == 1  // отделение приёмного покоя стационара
+//           lfor_pom := 2 // неотложная
+//         endif
+//       endif
+//     endif
+//     if lst == 1
+//       lshifr_zak_sl := lshifr
+//       if f_is_zak_sl_vr(lshifr) // зак.случай в п-ке
+//         is_zak_sl_vr := .t.
+//       else
+//         is_zak_sl_vr := .t. // КСГ
+//         if human_->USL_OK < 3 .and. p_tip_reestr == 1
+//           tarif_zak_sl := hu->STOIM_1
+//           if !empty(human_2->pc1)
+//             akslp := List2Arr(human_2->pc1)
+//           endif
+//           if !empty(human_2->pc2)
+//             akiro := List2Arr(human_2->pc2)
+//           endif
+//         endif
+//         if !empty(akslp) .or. !empty(akiro)
+//           otd->(dbGoto(human->OTD))
+//           f_put_glob_podr(human_->USL_OK,human->K_DATA) // заполнить код подразделения
+//           tarif_zak_sl := fcena_oms(lshifr,(human->vzros_reb==0),human->k_data)
+//         endif
+//       endif
+//     else
+//       aadd(a_usl,hu->(recno()))
+//     endif
+//   endif
+//   select HU
+//   skip
+// enddo
+// if human_->USL_OK == 1 .and. human_2->VMP == 1 .and. !emptyany(human_2->VIDVMP,human_2->METVMP) // ВМП
+//   is_KSG := .f.
+// endif
+// if !empty(lvidpoms)
+//   if !eq_ascan(atmpusl,"55.1.2","55.1.3") .or. glob_mo[_MO_KOD_TFOMS] == '801935' // ЭКО-Москва
+//     lvidpoms := ret_vidpom_licensia(human_->USL_OK,lvidpoms,human_->profil) // только для дн.стационара при стационаре
+//   else
+//     if eq_ascan(atmpusl,"55.1.3")
+//       lvidpoms := ret_vidpom_st_dom_licensia(human_->USL_OK,lvidpoms,human_->profil)
+//     endif
+//   endif
+//   if !empty(lvidpoms) .and. !("," $ lvidpoms)
+//     lvidpom := int(val(lvidpoms))
+//     lvidpoms := ""
+//   endif
+// endif
+// if !empty(lvidpoms)
+//   if eq_ascan(atmpusl,"55.1.1","55.1.4")
+//     if "31" $ lvidpoms
+//       lvidpom := 31
+//     endif
+//   elseif eq_ascan(atmpusl,"55.1.2","55.1.3","2.76.6","2.76.7","2.81.67")
+//     if eq_any(human_->PROFIL,57,68,97) //терапия,педиатр,врач общ.практики
+//       if "12" $ lvidpoms
+//         lvidpom := 12
+//       endif
+//     else
+//       if "13" $ lvidpoms
+//         lvidpom := 13
+//       endif
+//     endif
+//   endif
+// endif
+// select MOHU
+// find (str(human->kod,7))
+// do while mohu->kod == human->kod .and. !eof()
+//   aadd(a_fusl,mohu->(recno()))
+//   skip
+// enddo
+// a_otkaz := {}
+// arr_nazn := {}
+// if eq_any(human->ishod,101,102) // дисп-ия детей-сирот
+//   read_arr_DDS(human->kod)
+// elseif eq_any(human->ishod,301,302) // профосмотры несовершеннолетних
+//   arr_usl_otkaz := {}
+//   read_arr_PN(human->kod)
+//   if valtype(arr_usl_otkaz) == "A"
+//     for j := 1 to len(arr_usl_otkaz)
+//       ar := arr_usl_otkaz[j]
+//       if valtype(ar) == "A" .and. len(ar) > 9 .and. valtype(ar[5]) == "C" .and. ;
+//                                                     valtype(ar[10]) == "C" .and. ar[10] $ "io"
+//         lshifr := alltrim(ar[5])
+//         ldate := human->N_DATA // дата
+//         if valtype(ar[9]) == "D"
+//           ldate := ar[9]
+//         endif
+//         if ar[10] == "i" // исследования
+//           if (i := ascan(np_arr_issled, {|x| valtype(x[1]) == "C" .and. x[1] == lshifr})) > 0
+//             aadd(a_otkaz,{lshifr,;
+//                           ar[6],; // диагноз
+//                           ldate,; // дата
+//                           correct_profil(ar[4]),; // профиль
+//                           ar[2],; // специальность
+//                           0,;     // цена
+//                           1})     // 1-отказ,2-невозможность
+//           endif
+//         elseif (i := ascan(np_arr_osmotr, {|x| valtype(x[1]) == "C" .and. x[1] == lshifr})) > 0 // осмотры
+//           if (i := ascan(np_arr_osmotr_KDP2, {|x| x[1] == lshifr })) > 0
+//             lshifr := np_arr_osmotr_KDP2[i,3]  // замена врачебного приёма на 2.3.*
+//           endif
+//           aadd(a_otkaz,{lshifr,;
+//                         ar[6],; // диагноз
+//                         ldate,; // дата
+//                         correct_profil(ar[4]),; // профиль
+//                         ar[2],; // специальность
+//                         0,;     // цена
+//                         1})     // 1-отказ,2-невозможность
+//         endif
+//       endif
+//     next j
+//   endif
+// elseif between(human->ishod,201,205) // дисп-ия I этап или профилактика
+//   is_disp_DVN := .t.
+//   arr_usl_otkaz := {}
+//   for i := 1 to 5
+//     sk := lstr(i)
+//     pole_diag := "mdiag"+sk
+//     pole_1dispans := "m1dispans"+sk
+//     pole_dn_dispans := "mdndispans"+sk
+//     &pole_diag := space(6)
+//     &pole_1dispans := 0
+//     &pole_dn_dispans := ctod("")
+//   next
+//   read_arr_DVN(human->kod)
+//   if valtype(arr_usl_otkaz) == "A" .and. eq_any(human->ishod,201,203) // не II этап
+//     for j := 1 to len(arr_usl_otkaz)
+//       ar := arr_usl_otkaz[j]
+//       if valtype(ar) == "A" .and. len(ar) >= 10 .and. valtype(ar[5]) == "C"
+//         lshifr := alltrim(ar[5])
+//         if (i := ascan(dvn_arr_usl, {|x| valtype(x[2])=="C" .and. x[2]==lshifr})) > 0
+//           if valtype(ar[10]) == "N" .and. between(ar[10],1,2)
+//             aadd(a_otkaz,{lshifr,;
+//                           ar[6],; // диагноз
+//                           human->N_DATA,; // дата
+//                           correct_profil(ar[4]),; // профиль
+//                           ar[2],; // специальность
+//                           ar[8],; // цена
+//                           ar[10]}) // 1-отказ,2-невозможность
+//           endif
+//         endif
+//       endif
+//     next j
+//   endif
+// endif
+// if m1dopo_na > 0
+//   for i := 1 to 4
+//     if isbit(m1dopo_na,i)
+//       aadd(arr_nazn,{3,i}) // теперь каждое назначение в отдельном PRESCRIPTIONS
+//     endif
+//   next
+//   //aadd(arr_nazn,{3,{}}) ; j := len(arr_nazn)
+//   //for i := 1 to 4
+//     //if isbit(m1dopo_na,i)
+//       //aadd(arr_nazn[j,2],i)
+//     //endif
+//   //next
+// endif
+// if between(m1napr_v_mo,1,2) .and. !empty(arr_mo_spec) // {{"-- нет --",0},{"в нашу МО",1},{"в иную МО",2}}, ;
+//   for i := 1 to len(arr_mo_spec) // теперь каждая специальность в отдельном PRESCRIPTIONS
+//     aadd(arr_nazn,{m1napr_v_mo,put_prvs_to_reestr(-arr_mo_spec[i],_NYEAR)}) // "-", т.к. спец-ть была в кодировке V015
+//   next
+//   //aadd(arr_nazn,{m1napr_v_mo,{}}) ; j := len(arr_nazn)
+//   //for i := 1 to min(3,len(arr_mo_spec))
+//   //  aadd(arr_nazn[j,2],put_prvs_to_reestr(-arr_mo_spec[i],_NYEAR)) // "-", т.к. спец-ть была в кодировке V015
+//   //next
+// endif
+// if between(m1napr_stac,1,2) .and. m1profil_stac > 0 // {{"--- нет ---",0},{"в стационар",1},{"в дн. стац.",2}}, ;
+//   aadd(arr_nazn,{iif(m1napr_stac==1,5,4),m1profil_stac})
+// endif
+// if m1napr_reab == 1 .and. m1profil_kojki > 0
+//   aadd(arr_nazn,{6,m1profil_kojki})
+// endif
+// cSMOname := ""
+// if alltrim(human_->smo) == '34'
+//   cSMOname := ret_inogSMO_name(2)
+// endif
+// mdiagnoz := diag_for_xml(,.t.,,,.t.)
+// if p_tip_reestr == 1
+//   if glob_mo[_MO_IS_UCH] .and. ;                    // наше МО имеет прикреплённое население
+//      human_->USL_OK == 3 .and. ;                    // поликлиника
+//      kart2->MO_PR == glob_MO[_MO_KOD_TFOMS] .and. ; // прикреплён к нашему МО
+//      between(kart_->INVALID,1,4)                    // инвалид
+//     select INV
+//     find (str(human->kod_k,7))
+//     if found() .and. !emptyany(inv->DATE_INV,inv->PRICH_INV)
+//       // дата начала лечения отстоит от даты первичного установления инвалидности не более чем на год
+//       fl_DISABILITY := (inv->DATE_INV < human->n_data .and. human->n_data <= addmonth(inv->DATE_INV,12))
+//     endif
+//   endif
+// else
+//   if human->OBRASHEN == '1' .and. ascan(mdiagnoz, {|x| padr(x,5) == "Z03.1" }) == 0
+//     aadd(mdiagnoz,"Z03.1")
+//   endif
+//   afill(adiag_talon,0)
+//   for i := 1 to 16
+//     adiag_talon[i] := int(val(substr(human_->DISPANS,i,1)))
+//   next
+// endif
+// mdiagnoz3 := {}
+// if !empty(human_2->OSL1)
+//   aadd(mdiagnoz3,human_2->OSL1)
+// endif
+// if !empty(human_2->OSL2)
+//   aadd(mdiagnoz3,human_2->OSL2)
+// endif
+// if !empty(human_2->OSL3)
+//   aadd(mdiagnoz3,human_2->OSL3)
+// endif
+// return NIL
