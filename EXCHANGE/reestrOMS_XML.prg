@@ -443,7 +443,7 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
     arr_mo_spec := {}
     m1napr_stac := 0 // {{"--- нет ---",0},{"в стационар",1},{"в дн. стац.",2}}, ;
     m1profil_stac := m1napr_reab := m1profil_kojki := 0
-    pr_amb_reab := fl_disp_nabl := is_disp_DVN := .f.
+    pr_amb_reab := fl_disp_nabl := is_disp_DVN := is_disp_DVN_COVID := .f.
     ldate_next := ctod("")
     ar_dn := {}
     is_oncology_smp := is_oncology := 0
@@ -675,7 +675,7 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
           endif
         endif
         mo_add_xml_stroke(oSL,"PR_D_N",lstr(s))
-        if is_disp_DVN .and. s == 2 // взят на диспансерное наблюдение
+        if (is_disp_DVN .or. is_disp_DVN_COVID) .and. s == 2 // взят на диспансерное наблюдение
           aadd(ar_dn, {'2',rtrim(mdiagnoz[1]),"",""})
         endif
       endif
@@ -740,7 +740,7 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
               endif
             endif
             mo_add_xml_stroke(oDiag,"PR_D",lstr(s))
-            if is_disp_DVN .and. s == 2 // взят на диспансерное наблюдение
+            if (is_disp_DVN .or. is_disp_DVN_COVID) .and. s == 2 // взят на диспансерное наблюдение
               aadd(ar_dn, {'2',rtrim(mdiagnoz[i]),"",""})
             endif
           endif
@@ -1170,7 +1170,7 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
         next j
       endif
       if p_tip_reestr == 2 .and. !empty(sCOMENTSL)   // для реестров по диспансеризации
-        if is_disp_DVN
+        if (is_disp_DVN .or. is_disp_DVN_COVID)
           sCOMENTSL += ":"
           if !empty(ar_dn) // взят на диспансерное наблюдение
             for i := 1 to 5
@@ -2324,6 +2324,7 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
 ***** 05.01.21 работаем по текущей записи
 Function f1_create2reestr19(_nyear,_nmonth)
   Local i, j, lst, s
+
   fl_DISABILITY := is_zak_sl := is_zak_sl_vr := .f.
   lshifr_zak_sl := lvidpoms := ""
   a_usl := {} ; a_fusl := {} ; lvidpom := 1 ; lfor_pom := 3
@@ -2345,6 +2346,7 @@ Function f1_create2reestr19(_nyear,_nmonth)
   pr_amb_reab := .f.
   fl_disp_nabl := .f.
   is_disp_DVN := .f.
+  is_disp_DVN_COVID := .f.
   ldate_next := ctod("")
   ar_dn := {}
   //
@@ -2567,6 +2569,38 @@ Function f1_create2reestr19(_nyear,_nmonth)
         if valtype(ar) == "A" .and. len(ar) >= 10 .and. valtype(ar[5]) == "C"
           lshifr := alltrim(ar[5])
           if (i := ascan(dvn_arr_usl, {|x| valtype(x[2])=="C" .and. x[2]==lshifr})) > 0
+            if valtype(ar[10]) == "N" .and. between(ar[10],1,2)
+              aadd(a_otkaz,{lshifr,;
+                            ar[6],; // диагноз
+                            human->N_DATA,; // дата
+                            correct_profil(ar[4]),; // профиль
+                            ar[2],; // специальность
+                            ar[8],; // цена
+                            ar[10]}) // 1-отказ,2-невозможность
+            endif
+          endif
+        endif
+      next j
+    endif
+  elseif between(human->ishod,401,402) // углубленная диспансеризация после COVID
+    is_disp_DVN_COVID := .t.
+    arr_usl_otkaz := {}
+    for i := 1 to 5
+      sk := lstr(i)
+      pole_diag := "mdiag"+sk
+      pole_1dispans := "m1dispans"+sk
+      pole_dn_dispans := "mdndispans"+sk
+      &pole_diag := space(6)
+      &pole_1dispans := 0
+      &pole_dn_dispans := ctod("")
+    next
+    read_arr_DVN_COVID(human->kod)
+    if valtype(arr_usl_otkaz) == "A"
+      for j := 1 to len(arr_usl_otkaz)
+        ar := arr_usl_otkaz[j]
+        if valtype(ar) == "A" .and. len(ar) >= 10 .and. valtype(ar[5]) == "C"
+          lshifr := alltrim(ar[5])
+          if (i := ascan(uslugiEtap_DVN_COVID(iif(human->ishod == 401, 1, 2)), {|x| valtype(x[2])=="C" .and. x[2]==lshifr})) > 0
             if valtype(ar[10]) == "N" .and. between(ar[10],1,2)
               aadd(a_otkaz,{lshifr,;
                             ar[6],; // диагноз
