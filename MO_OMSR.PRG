@@ -1413,7 +1413,7 @@ do case
 endcase
 return k
 
-*
+*
 
 ***** 05.01.21 создание XML-файлов реестра
 Function create2reestr17(_recno,_nyear,_nmonth,reg_sort)
