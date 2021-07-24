@@ -364,9 +364,6 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
     enddo
     //
     read_arr_DVN_COVID(Loc_kod)
-my_debug(, 'larr: ' + print_array(larr))
-my_debug(, 'arr_usl: ' + print_array(arr_usl))
-my_debug(, 'после чтения 2 arr_usl_otkaz: ' + print_array(arr_usl_otkaz))
 
     if metap == 1 .and. between(m1GRUPPA,11,14) .and. m1p_otk == 1
       m1GRUPPA += 10
@@ -1125,11 +1122,6 @@ my_debug(, 'после чтения 2 arr_usl_otkaz: ' + print_array(arr_usl_otkaz))
       for i := 1 to len(arr_usl_dop)
         mcena_1 += arr_usl_dop[i,8]
       next
-// my_debug(, 'arr_osm1: ' + print_array(arr_osm1))
-// my_debug(, 'arr_usl_dop: ' + print_array(arr_usl_dop))
-// my_debug(, 'arr_otklon: ' + print_array(arr_otklon))
-// my_debug(, 'arr_usl_otkaz: ' + print_array(arr_usl_otkaz))
-
       //
       Use_base("human")
       if Loc_kod > 0
@@ -1281,12 +1273,12 @@ my_debug(, 'после чтения 2 arr_usl_otkaz: ' + print_array(arr_usl_otkaz))
       for i := 1 to i2
         if arr_usl_dop[i,12] == 0   // это услуга ТФОМС
           select HU
-          if i > i1
+          goto (arr_usl[indexUslugaEtap_DVN_COVID(metap, arr_usl_dop[i,5])])
+          if !eof() .and. !bof()
+            G_RLock(forever)
+          else
             Add1Rec(7)
             hu->kod := human->kod
-          else
-            goto (arr_usl[i])
-            G_RLock(forever)
           endif
           mrec_hu := hu->(recno())
           hu->kod_vr  := arr_usl_dop[i,1]
@@ -1316,12 +1308,12 @@ my_debug(, 'после чтения 2 arr_usl_otkaz: ' + print_array(arr_usl_otkaz))
           UNLOCK
         else  // 1 - это услуга ФФОМС
           select MOHU
-          if i > i1
+          goto (arr_usl[indexUslugaEtap_DVN_COVID(metap, arr_usl_dop[i,5])])
+          if !eof() .and. !bof()
+            G_RLock(forever)
+          else
             Add1Rec(7)
             MOHU->kod := human->kod
-          else
-            goto (arr_usl[i])
-            G_RLock(forever)
           endif
           mrec_mohu := MOHU->(recno())
           MOHU->kod_vr  := arr_usl_dop[i,1]
@@ -1342,13 +1334,32 @@ my_debug(, 'после чтения 2 arr_usl_otkaz: ' + print_array(arr_usl_otkaz))
         endif
       next
       // ????????
-      if i2 < i1
-        for i := i2+1 to i1
-          select HU
-          goto (arr_usl[i])
-          DeleteRec(.t.,.f.)  // очистка записи без пометки на удаление
+
+      if ! empty(arr_usl_otkaz)
+        for iOtkaz := 1 to len(arr_usl_otkaz)
+          if arr_usl_otkaz[iOtkaz,12] == 0
+            select HU
+            goto (arr_usl[indexUslugaEtap_DVN_COVID(metap, arr_usl_otkaz[iOtkaz,5])])
+            if !eof() .and. !bof()
+              DeleteRec(.t.,.f.)  // очистка записи без пометки на удаление
+            endif
+          else
+            select MOHU
+            goto (arr_usl[indexUslugaEtap_DVN_COVID(metap, arr_usl_otkaz[iOtkaz,5])])
+            if !eof() .and. !bof()
+              DeleteRec(.t.,.f.)  // очистка записи без пометки на удаление
+            endif
+          endif
         next
       endif
+
+      // if i2 < i1
+      //   for i := i2+1 to i1
+      //     select HU
+      //     goto (arr_usl[i])
+      //     DeleteRec(.t.,.f.)  // очистка записи без пометки на удаление
+      //   next
+      // endif
       save_arr_DVN_COVID(mkod)
 
       write_work_oper(glob_task,OPER_LIST,iif(Loc_kod==0,1,2),1,count_edit)
