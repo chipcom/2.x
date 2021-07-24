@@ -1125,10 +1125,10 @@ my_debug(, 'после чтения 2 arr_usl_otkaz: ' + print_array(arr_usl_otkaz))
       for i := 1 to len(arr_usl_dop)
         mcena_1 += arr_usl_dop[i,8]
       next
-my_debug(, 'arr_osm1: ' + print_array(arr_osm1))
-my_debug(, 'arr_usl_dop: ' + print_array(arr_usl_dop))
+// my_debug(, 'arr_osm1: ' + print_array(arr_osm1))
+// my_debug(, 'arr_usl_dop: ' + print_array(arr_usl_dop))
 // my_debug(, 'arr_otklon: ' + print_array(arr_otklon))
-my_debug(, 'arr_usl_otkaz: ' + print_array(arr_usl_otkaz))
+// my_debug(, 'arr_usl_otkaz: ' + print_array(arr_usl_otkaz))
 
       //
       Use_base("human")
