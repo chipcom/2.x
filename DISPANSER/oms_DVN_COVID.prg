@@ -258,10 +258,8 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
         lrslt_1_etap := human_->RSLT_NEW
       endif
       read_arr_DVN_COVID(human->kod,.f.)  // читаем сохраненные данные по углубленной диспансеризации
+
     endif
-  endif
-  if empty(mOKSI)
-    mOKSI := 95   // оксиметрия в %
   endif
   
   if Loc_kod > 0  // читаем информацию из HUMAN, HUMAN_U и MO_HU и заполним табличную часть
@@ -318,7 +316,6 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
     use_base("mo_hu")
     use_base("human_u")
 
-    lllll := 0
     // сначала выберем информацию из human_u по услугам ТФОМС
     find (str(Loc_kod,7))
     do while hu->kod == Loc_kod .and. !eof()
@@ -344,7 +341,6 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
     enddo
 
     // затем выберем информацию из mo_hu по услугам ФФОМС
-    lllll:= 0
     select MOHU
     set relation to u_kod into MOSU 
     find (str(Loc_kod,7))
@@ -366,23 +362,18 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       select MOHU
       skip
     enddo
-
-    for i := len(larr[1]) to 1 step -1  // синхронная очистка справочников
-      if (valtype(larr[1,i]) == "N") .and. (larr[1,i] == 0)
-        hb_ADel( larr[1], i, .t. )
-        hb_ADel( larr[2], i, .t. )
-
-        hb_ADel( arr_usl, i, .t. )
-      endif
-    next
     //
     read_arr_DVN_COVID(Loc_kod)
+my_debug(, 'larr: ' + print_array(larr))
+my_debug(, 'arr_usl: ' + print_array(arr_usl))
+my_debug(, 'после чтения 2 arr_usl_otkaz: ' + print_array(arr_usl_otkaz))
+
     if metap == 1 .and. between(m1GRUPPA,11,14) .and. m1p_otk == 1
       m1GRUPPA += 10
     endif
     R_Use(dir_server+"mo_pers",,"P2")
     for i := 1 to len(larr[1])
-      if ! eq_any(SubStr(larr[2,i],1,1), 'A', 'B')  // это услуга ТФОМС, а не ФФОМС (первый код A,B)
+      if ( valtype(larr[2,i]) == "C" ) .and. ( ! eq_any(SubStr(larr[2,i],1,1), 'A', 'B') )  // это услуга ТФОМС, а не ФФОМС (первый символ не A,B)
         if larr[2,i] == '70.8.1'  // пропустим эту услугу
           loop
         endif
@@ -412,7 +403,7 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
         endif
         mvar := "MOTKAZ"+lstr(i)
         &mvar := inieditspr(A__MENUVERT, mm_otkaz, &m1var)
-      else
+      elseif ( valtype(larr[2,i]) == "C" ) .and. ( eq_any(SubStr(larr[2,i],1,1), 'A', 'B') )  // это услуга ФФОМС (первый символ A,B)
         MOHU->(dbGoto(larr[1,i]))
         if MOHU->kod_vr > 0
           p2->(dbGoto(MOHU->kod_vr))
@@ -485,6 +476,9 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
     next i
   endif
 
+  if empty(mOKSI)
+    mOKSI := 95   // оксиметрия в %
+  endif
   //
 
   if !(left(msmo,2) == '34') // не Волгоградская область
@@ -1107,16 +1101,11 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       arr_otklon := {}
       glob_podr := ""
       glob_otd_dep := 0
-      // for i := len(arr_osm1) to 1 step -1
-      //   if (valtype(arr_osm1[i,5]) == "N") .and. (arr_osm1[i,5] == 0)
-      //     hb_ADel( arr_osm1, i, .t. )
-      //   endif
-      // next
       for i := 1 to len(arr_osm1)
         if valtype(arr_osm1[i,5]) == "C"
           if arr_osm1[i,12] == 0
             arr_osm1[i,7] := foundOurUsluga(arr_osm1[i,5],mk_data,arr_osm1[i,4],M1VZROS_REB,@mu_cena)
-            arr_osm1[i,8] := mu_cena
+            arr_osm1[i,8] := iif(eq_any(arr_osm1[i,10],0,3), mu_cena, 0)
           else
             arr_osm1[i,7] := foundFFOMSUsluga(arr_osm1[i,5])
             arr_osm1[i,8] := 0  // для федеральных услуг цену дадим 0
@@ -1138,7 +1127,7 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       next
 my_debug(, 'arr_osm1: ' + print_array(arr_osm1))
 my_debug(, 'arr_usl_dop: ' + print_array(arr_usl_dop))
-my_debug(, 'arr_otklon: ' + print_array(arr_otklon))
+// my_debug(, 'arr_otklon: ' + print_array(arr_otklon))
 my_debug(, 'arr_usl_otkaz: ' + print_array(arr_usl_otkaz))
 
       //
