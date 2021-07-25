@@ -426,7 +426,7 @@ do case
     fl := G_Use(dir_server+"mo_kekez",dir_server+"mo_kekez",lalias,,lExcluUse,lREADONLY)
   case sBase == "lusld"
     fl := R_Use(exe_dir+"_mo_usld",cur_dir+"_mo_usld",sBase)
-  case sBase == "lusl" 
+  case sBase == "lusl"
     fl := R_Use(exe_dir+"_mo8usl",cur_dir+"_mo8usl",sBase+"18") .and. ;
           R_Use(exe_dir+"_mo9usl",cur_dir+"_mo9usl",sBase+"19") .and. ;
           R_Use(exe_dir+"_mo0usl",cur_dir+"_mo0usl",sBase+"20") .and. ;
@@ -768,13 +768,15 @@ elseif eq_any(left(s,8),"RHRT34_M","RFRT34_M") .and. substr(s,9,6) == glob_MO[_M
           aadd(arr,{2,s1,s,name_ext})
         case left(s,8) == "M"+c+"RT34_M" .and. name_ext == spdf
           aadd(arr,{3,"сведения о выполнении плана-задания "+s,s,name_ext})
+        case left(s,8) == "F"+c+"RT34_M" .and. name_ext == spdf
+          aadd(arr,{4,"сведения о выполнении обьемов ФО "+s,s,name_ext})
         case left(s,7) == c+"RT34_M" .and. name_ext == szip
           s1 := "реестр СП и ТК "+s
           // проверим, читали ли уже данный файл
           if Verify_Is_Already_XML(Name_Without_Ext(s),@_date,@_time)
             s1 += " [прочитан в "+_time+" "+date_8(_date)+"г.]"
           endif
-          aadd(arr,{4,s1,s,name_ext})
+          aadd(arr,{5,s1,s,name_ext})
       endcase
     next
     asort(arr,,,{|x,y| x[1] < y[1] })
