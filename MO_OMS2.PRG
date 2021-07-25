@@ -2110,59 +2110,59 @@ update_get(pole_d_dispans)
 update_get("mdispans")
 return .t.
 
-***** 19.06.19 рабочая ли услуга ДВН в зависимости от этапа, возраста и пола
-Function f_is_usl_oms_sluch_DVN(i,_etap,_vozrast,_pol,/*@*/_diag,/*@*/_otkaz,/*@*/_ekg)
-Local fl := .f., ars := {}, ar := dvn_arr_usl[i]
-if valtype(ar[3]) == "N"
-  fl := (ar[3] == _etap)
-else
-  fl := ascan(ar[3],_etap) > 0
-endif
-_diag := (ar[4] == 1)
-_otkaz := 0
-_ekg := .f.
-if valtype(ar[2]) == "C"
-  aadd(ars,ar[2])
-else
-  ars := aclone(ar[2])
-endif
-if eq_any(_etap,1,3) .and. ar[5] == 1 .and. ascan(ars,"4.20.1") == 0
-  _otkaz := 1 // можно ввести отказ
-  if valtype(ar[2]) == "C" .and. eq_ascan(ars,"7.57.3","7.61.3","4.1.12")
-    _otkaz := 2 // можно ввести невозможность
-    if ascan(ars,"4.1.12") > 0 // взятие мазка
-      _otkaz := 3 // заменить на приём фельдшера-акушера
-    endif
-  endif
-endif
-if fl .and. eq_any(_etap,1,4,5)
-  if _etap == 1
-    i := iif(_pol == "М", 6, 7)
-  elseif len(ar) < 14
-    return .f.
-  else
-    i := iif(_pol == "М", 13, 14)
-  endif
-  if valtype(ar[i]) == "N" // специально для услуги "Электрокардиография","13.1.1" ранее 2018 года
-    fl := (ar[i] != 0)
-    if ar[i] < 0  // ЭКГ
-      _ekg := (_vozrast < abs(ar[i])) // необязательный возраст
-    endif
-  else // для 1,4,5 этапа возраст указан массивом
-    fl := ascan(ar[i],_vozrast) > 0
-  endif
-endif
-if fl .and. eq_any(_etap,2,3)
-  i := iif(_pol=="М", 8, 9)
-  if valtype(ar[i]) == "N"
-    fl := (ar[i] != 0)
-  elseif type("is_disp_19") == "L" .and. is_disp_19
-    fl := ascan(ar[i],_vozrast) > 0
-  else // для 2 этапа и профилактики возраст указан диапазоном
-    fl := between(_vozrast,ar[i,1],ar[i,2])
-  endif
-endif
-return fl
+// ***** 19.06.19 рабочая ли услуга ДВН в зависимости от этапа, возраста и пола
+// Function f_is_usl_oms_sluch_DVN(i,_etap,_vozrast,_pol,/*@*/_diag,/*@*/_otkaz,/*@*/_ekg)
+// Local fl := .f., ars := {}, ar := dvn_arr_usl[i]
+// if valtype(ar[3]) == "N"
+//   fl := (ar[3] == _etap)
+// else
+//   fl := ascan(ar[3],_etap) > 0
+// endif
+// _diag := (ar[4] == 1)
+// _otkaz := 0
+// _ekg := .f.
+// if valtype(ar[2]) == "C"
+//   aadd(ars,ar[2])
+// else
+//   ars := aclone(ar[2])
+// endif
+// if eq_any(_etap,1,3) .and. ar[5] == 1 .and. ascan(ars,"4.20.1") == 0
+//   _otkaz := 1 // можно ввести отказ
+//   if valtype(ar[2]) == "C" .and. eq_ascan(ars,"7.57.3","7.61.3","4.1.12")
+//     _otkaz := 2 // можно ввести невозможность
+//     if ascan(ars,"4.1.12") > 0 // взятие мазка
+//       _otkaz := 3 // заменить на приём фельдшера-акушера
+//     endif
+//   endif
+// endif
+// if fl .and. eq_any(_etap,1,4,5)
+//   if _etap == 1
+//     i := iif(_pol == "М", 6, 7)
+//   elseif len(ar) < 14
+//     return .f.
+//   else
+//     i := iif(_pol == "М", 13, 14)
+//   endif
+//   if valtype(ar[i]) == "N" // специально для услуги "Электрокардиография","13.1.1" ранее 2018 года
+//     fl := (ar[i] != 0)
+//     if ar[i] < 0  // ЭКГ
+//       _ekg := (_vozrast < abs(ar[i])) // необязательный возраст
+//     endif
+//   else // для 1,4,5 этапа возраст указан массивом
+//     fl := ascan(ar[i],_vozrast) > 0
+//   endif
+// endif
+// if fl .and. eq_any(_etap,2,3)
+//   i := iif(_pol=="М", 8, 9)
+//   if valtype(ar[i]) == "N"
+//     fl := (ar[i] != 0)
+//   elseif type("is_disp_19") == "L" .and. is_disp_19
+//     fl := ascan(ar[i],_vozrast) > 0
+//   else // для 2 этапа и профилактики возраст указан диапазоном
+//     fl := between(_vozrast,ar[i,1],ar[i,2])
+//   endif
+// endif
+// return fl
 
 ***** 16.06.19 рабочая ли услуга (умолчание) ДВН в зависимости от этапа, возраста и пола
 Function f_is_umolch_sluch_DVN(i,_etap,_vozrast,_pol)

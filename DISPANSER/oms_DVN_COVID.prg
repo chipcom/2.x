@@ -669,8 +669,8 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
           endif
           @ j, 58 get &mvard
           if fl_diag
-            @ j, 69 get &mvarz picture pic_diag ;
-                  reader {|o|MyGetReader(o,bg)} valid val1_10diag(.t.,.f.,.f.,mn_data,mpol)
+            // @ j, 69 get &mvarz picture pic_diag ;
+            //       reader {|o|MyGetReader(o,bg)} valid val1_10diag(.t.,.f.,.f.,mn_data,mpol)
           elseif i_otkaz == 0
             @ j, 69 get &mvaro ;
                  reader {|x|menu_reader(x,mm_otkaz0,A__MENUVERT,,,.f.)}
@@ -956,7 +956,7 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
             --kol_d_usl
           elseif empty(&mvard)
             fl := func_error(4,'Не введена дата услуги "'+ltrim(ar[1])+'"')
-          elseif empty(&mvart)
+          elseif empty(&mvart) .and. metap == 1 // на втором этапе услуги могут быть не все
             fl := func_error(4,'Не введен врач в услуге "'+ltrim(ar[1])+'"')
           else  // табельный номер врача и его специальность
             select P2
@@ -1182,6 +1182,11 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
             arr_osm1[i,8] := 0  // для федеральных услуг цену дадим 0
             // mu_cena := 0
           endif
+
+          if arr_osm1[i,1] == 0    // если в услуге не назначен врач
+            loop
+          endif
+
           if eq_any(arr_osm1[i,10],0,3) // выполнено
             aadd(arr_usl_dop,arr_osm1[i])
             if arr_osm1[i,10] == 3 // обнаружены отклонения
@@ -1340,20 +1345,29 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
         endif
       endif
       i1 := len(arr_usl)
-      i2 := len(arr_usl_dop)
+      // i2 := len(arr_usl_dop)
 
       Use_base("mo_hu")
       Use_base("human_u")
-      for i := 1 to i2
+      for i := 1 to len(arr_usl_dop)  // i2
         if arr_usl_dop[i,12] == 0   // это услуга ТФОМС
           select HU
-          goto (arr_usl[indexUslugaEtap_DVN_COVID(metap, arr_usl_dop[i,5])])
-          if !eof() .and. !bof()
-            G_RLock(forever)
-          else
+          if i1 == 0
             Add1Rec(7)
             hu->kod := human->kod
+          else
+            goto (arr_usl[indexUslugaEtap_DVN_COVID(metap, arr_usl_dop[i,5])])
+            if !eof() .and. !bof()
+              G_RLock(forever)
+            endif
           endif
+          // goto (arr_usl[indexUslugaEtap_DVN_COVID(metap, arr_usl_dop[i,5])])
+          // if !eof() .and. !bof()
+          //   G_RLock(forever)
+          // else
+          //   Add1Rec(7)
+          //   hu->kod := human->kod
+          // endif
           mrec_hu := hu->(recno())
           hu->kod_vr  := arr_usl_dop[i,1]
           hu->kod_as  := arr_usl_dop[i,3]
@@ -1382,13 +1396,22 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
           UNLOCK
         else  // 1 - это услуга ФФОМС
           select MOHU
-          goto (arr_usl[indexUslugaEtap_DVN_COVID(metap, arr_usl_dop[i,5])])
-          if !eof() .and. !bof()
-            G_RLock(forever)
-          else
+          if i1 == 0
             Add1Rec(7)
             MOHU->kod := human->kod
+          else
+            goto (arr_usl[indexUslugaEtap_DVN_COVID(metap, arr_usl_dop[i,5])])
+            if !eof() .and. !bof()
+              G_RLock(forever)
+            endif
           endif
+          // goto (arr_usl[indexUslugaEtap_DVN_COVID(metap, arr_usl_dop[i,5])])
+          // if !eof() .and. !bof()
+          //   G_RLock(forever)
+          // else
+          //   Add1Rec(7)
+          //   MOHU->kod := human->kod
+          // endif
           mrec_mohu := MOHU->(recno())
           MOHU->kod_vr  := arr_usl_dop[i,1]
           MOHU->kod_as  := arr_usl_dop[i,3]
@@ -1409,19 +1432,38 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       next
       // ????????
 
-      if ! empty(arr_usl_otkaz)
-        for iOtkaz := 1 to len(arr_usl_otkaz)
-          if arr_usl_otkaz[iOtkaz,12] == 0
-            select HU
-            goto (arr_usl[indexUslugaEtap_DVN_COVID(metap, arr_usl_otkaz[iOtkaz,5])])
-            if !eof() .and. !bof()
-              DeleteRec(.t.,.f.)  // очистка записи без пометки на удаление
+      if ! (len(arr_usl) == 0)
+        if ! empty(arr_usl_otkaz)
+          for iOtkaz := 1 to len(arr_usl_otkaz)
+            if arr_usl_otkaz[iOtkaz,12] == 0
+              select HU
+              goto (arr_usl[indexUslugaEtap_DVN_COVID(metap, arr_usl_otkaz[iOtkaz,5])])
+              if !eof() .and. !bof()
+                DeleteRec(.t.,.f.)  // очистка записи без пометки на удаление
+              endif
+            else
+              select MOHU
+              goto (arr_usl[indexUslugaEtap_DVN_COVID(metap, arr_usl_otkaz[iOtkaz,5])])
+              if !eof() .and. !bof()
+                DeleteRec(.t.,.f.)  // очистка записи без пометки на удаление
+              endif
             endif
-          else
-            select MOHU
-            goto (arr_usl[indexUslugaEtap_DVN_COVID(metap, arr_usl_otkaz[iOtkaz,5])])
-            if !eof() .and. !bof()
-              DeleteRec(.t.,.f.)  // очистка записи без пометки на удаление
+          next
+        endif
+        for i := 1 to len(arr_osm1)
+          if arr_osm1[i, 1] == 0  // не заполнен врач
+            if arr_osm1[i,12] == 0
+              select HU
+              goto (arr_usl[indexUslugaEtap_DVN_COVID(metap, arr_osm1[i,5])])
+              if !eof() .and. !bof()
+                DeleteRec(.t.,.f.)  // очистка записи без пометки на удаление
+              endif
+            else
+              select MOHU
+              goto (arr_usl[indexUslugaEtap_DVN_COVID(metap, arr_osm1[i,5])])
+              if !eof() .and. !bof()
+                DeleteRec(.t.,.f.)  // очистка записи без пометки на удаление
+              endif
             endif
           endif
         next
