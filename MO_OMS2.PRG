@@ -3269,148 +3269,148 @@ tmp_ga->(dbCloseArea())
 select (tmp_select)
 return {1,s}
 
-***** 01.02.17
-Function fget_spec_DVN(k,r,c,a_spec)
-Static as := {;
-  {8,2},;
-  {255,1},;
-  {112,1},;
-  {58,1},;
-  {65,1},;
-  {113,1},;
-  {133,1},;
-  {257,1},;
-  {114,1},;
-  {258,1},;
-  {115,1},;
-  {66,1},;
-  {116,1},;
-  {10,1},;
-  {32,1},;
-  {260,1},;
-  {118,1},;
-  {139,2},;
-  {59,1},;
-  {67,1},;
-  {120,1},;
-  {134,1},;
-  {14,2},;
-  {140,1},;
-  {261,1},;
-  {123,1},;
-  {17,1},;
-  {19,2},;
-  {20,2},;
-  {23,1},;
-  {262,1},;
-  {125,1},;
-  {138,1},;
-  {263,1},;
-  {126,1},;
-  {141,1},;
-  {75,1},;
-  {28,1},;
-  {145,2},;
-  {29,1},;
-  {30,2},;
-  {31,1},;
-  {97,1};
-}
-Local tmp_select := select(), s, blk, t_arr[BR_LEN], n_file := cur_dir+"tmpspecdvn"
-if !hb_fileExists(n_file+sdbf)
-  dbcreate(n_file,{{"name","C",30,0},;
-                   {"kod","C",4,0},;
-                   {"kod_up","C",4,0},;
-                   {"name1","C",50,0},;
-                   {"isn","N",1,0},;
-                   {"is","L",1,0}})
-  use (n_file) new alias SDVN
-  use (cur_dir+"tmp_v015") index (cur_dir+"tmpkV015") new alias tmp_ga
-  go top
-  do while !eof()
-    if (i := ascan(as,{|x| lstr(x[1]) == rtrim(tmp_ga->kod)})) > 0
-      select SDVN
-      append blank
-      sdvn->name := afteratnum(".",tmp_ga->name,1)
-      sdvn->kod := tmp_ga->kod
-      sdvn->isn := as[i,2]
-      s := ""
-      select TMP_GA
-      rec := recno()
-      do while !empty(tmp_ga->kod_up)
-        find (tmp_ga->kod_up)
-        if found()
-          s += alltrim(afteratnum(".",tmp_ga->name,1))+"/"
-        else
-          exit
-        endif
-      enddo
-      goto (rec)
-      sdvn->name1 := s
-    endif
-    skip
-  enddo
-  sdvn->(dbCloseArea())
-  tmp_ga->(dbCloseArea())
-endif
-use (n_file) new alias tmp_ga
-do while !eof()
-  tmp_ga->is := (ascan(a_spec,int(val(tmp_ga->kod))) > 0)
-  skip
-enddo
-if metap == 3
-  index on upper(name)+kod to (n_file)
-else
-  index on upper(name)+kod to (n_file) for isn == 1
-endif
-if r <= maxrow()/2
-  t_arr[BR_TOP] := r+1
-  t_arr[BR_BOTTOM] := maxrow()-2
-else
-  t_arr[BR_BOTTOM] := r-1
-  t_arr[BR_TOP] := 2
-endif
-blk := {|| iif(tmp_ga->is, {1,2}, {3,4}) }
-t_arr[BR_LEFT] := 0
-t_arr[BR_RIGHT] := 79
-t_arr[BR_COLOR] := color0
-t_arr[BR_ARR_BROWSE] := {"═","░","═","N/BG,W+/N,B/BG,W+/B",.f.}
-t_arr[BR_COLUMN] := {;
-  { " ", {|| iif(tmp_ga->is,""," ") }, blk },;
-  { "Код", {|| left(tmp_ga->kod,3) },blk },;
-  { center("Медицинская специальность",26), {|| padr(tmp_ga->name,26) },blk },;
-  { center("подчинение",45), {|| left(tmp_ga->name1,45) },blk };
-}
-t_arr[BR_EDIT] := {|nk,ob| f1get_spec_DVN(nk,ob,"edit") }
-t_arr[BR_STAT_MSG] := {|| status_key("^<Esc>^ - выход;  ^<Ins>^ - отметить специальность/снять отметку со специальности") }
-go top
-edit_browse(t_arr)
-s := ""
-asize(a_spec,0)
-go top
-do while !eof()
-  if iif(metap == 3, .t., tmp_ga->isn==1) .and. tmp_ga->is
-    s += alltrim(tmp_ga->kod)+","
-    aadd(a_spec,int(val(tmp_ga->kod)))
-  endif
-  skip
-enddo
-if empty(s)
-  s := "---"
-else
-  s := left(s,len(s)-1)
-endif
-tmp_ga->(dbCloseArea())
-select (tmp_select)
-return {1,s}
+// ***** 01.02.17
+// Function fget_spec_DVN(k,r,c,a_spec)
+// Static as := {;
+//   {8,2},;
+//   {255,1},;
+//   {112,1},;
+//   {58,1},;
+//   {65,1},;
+//   {113,1},;
+//   {133,1},;
+//   {257,1},;
+//   {114,1},;
+//   {258,1},;
+//   {115,1},;
+//   {66,1},;
+//   {116,1},;
+//   {10,1},;
+//   {32,1},;
+//   {260,1},;
+//   {118,1},;
+//   {139,2},;
+//   {59,1},;
+//   {67,1},;
+//   {120,1},;
+//   {134,1},;
+//   {14,2},;
+//   {140,1},;
+//   {261,1},;
+//   {123,1},;
+//   {17,1},;
+//   {19,2},;
+//   {20,2},;
+//   {23,1},;
+//   {262,1},;
+//   {125,1},;
+//   {138,1},;
+//   {263,1},;
+//   {126,1},;
+//   {141,1},;
+//   {75,1},;
+//   {28,1},;
+//   {145,2},;
+//   {29,1},;
+//   {30,2},;
+//   {31,1},;
+//   {97,1};
+// }
+// Local tmp_select := select(), s, blk, t_arr[BR_LEN], n_file := cur_dir+"tmpspecdvn"
+// if !hb_fileExists(n_file+sdbf)
+//   dbcreate(n_file,{{"name","C",30,0},;
+//                    {"kod","C",4,0},;
+//                    {"kod_up","C",4,0},;
+//                    {"name1","C",50,0},;
+//                    {"isn","N",1,0},;
+//                    {"is","L",1,0}})
+//   use (n_file) new alias SDVN
+//   use (cur_dir+"tmp_v015") index (cur_dir+"tmpkV015") new alias tmp_ga
+//   go top
+//   do while !eof()
+//     if (i := ascan(as,{|x| lstr(x[1]) == rtrim(tmp_ga->kod)})) > 0
+//       select SDVN
+//       append blank
+//       sdvn->name := afteratnum(".",tmp_ga->name,1)
+//       sdvn->kod := tmp_ga->kod
+//       sdvn->isn := as[i,2]
+//       s := ""
+//       select TMP_GA
+//       rec := recno()
+//       do while !empty(tmp_ga->kod_up)
+//         find (tmp_ga->kod_up)
+//         if found()
+//           s += alltrim(afteratnum(".",tmp_ga->name,1))+"/"
+//         else
+//           exit
+//         endif
+//       enddo
+//       goto (rec)
+//       sdvn->name1 := s
+//     endif
+//     skip
+//   enddo
+//   sdvn->(dbCloseArea())
+//   tmp_ga->(dbCloseArea())
+// endif
+// use (n_file) new alias tmp_ga
+// do while !eof()
+//   tmp_ga->is := (ascan(a_spec,int(val(tmp_ga->kod))) > 0)
+//   skip
+// enddo
+// if metap == 3
+//   index on upper(name)+kod to (n_file)
+// else
+//   index on upper(name)+kod to (n_file) for isn == 1
+// endif
+// if r <= maxrow()/2
+//   t_arr[BR_TOP] := r+1
+//   t_arr[BR_BOTTOM] := maxrow()-2
+// else
+//   t_arr[BR_BOTTOM] := r-1
+//   t_arr[BR_TOP] := 2
+// endif
+// blk := {|| iif(tmp_ga->is, {1,2}, {3,4}) }
+// t_arr[BR_LEFT] := 0
+// t_arr[BR_RIGHT] := 79
+// t_arr[BR_COLOR] := color0
+// t_arr[BR_ARR_BROWSE] := {"═","░","═","N/BG,W+/N,B/BG,W+/B",.f.}
+// t_arr[BR_COLUMN] := {;
+//   { " ", {|| iif(tmp_ga->is,""," ") }, blk },;
+//   { "Код", {|| left(tmp_ga->kod,3) },blk },;
+//   { center("Медицинская специальность",26), {|| padr(tmp_ga->name,26) },blk },;
+//   { center("подчинение",45), {|| left(tmp_ga->name1,45) },blk };
+// }
+// t_arr[BR_EDIT] := {|nk,ob| f1get_spec_DVN(nk,ob,"edit") }
+// t_arr[BR_STAT_MSG] := {|| status_key("^<Esc>^ - выход;  ^<Ins>^ - отметить специальность/снять отметку со специальности") }
+// go top
+// edit_browse(t_arr)
+// s := ""
+// asize(a_spec,0)
+// go top
+// do while !eof()
+//   if iif(metap == 3, .t., tmp_ga->isn==1) .and. tmp_ga->is
+//     s += alltrim(tmp_ga->kod)+","
+//     aadd(a_spec,int(val(tmp_ga->kod)))
+//   endif
+//   skip
+// enddo
+// if empty(s)
+//   s := "---"
+// else
+//   s := left(s,len(s)-1)
+// endif
+// tmp_ga->(dbCloseArea())
+// select (tmp_select)
+// return {1,s}
 
-***** 11.11.17
-Function f1get_spec_DVN(nKey,oBrow,regim)
-if regim == "edit" .and. nkey == K_INS
-  tmp_ga->is := !tmp_ga->is
-  keyboard chr(K_TAB)
-endif
-return 0
+// ***** 11.11.17
+// Function f1get_spec_DVN(nKey,oBrow,regim)
+// if regim == "edit" .and. nkey == K_INS
+//   tmp_ga->is := !tmp_ga->is
+//   keyboard chr(K_TAB)
+// endif
+// return 0
 
 ***** 20.01.19 гемодиализ (1) и перитонеальный диализ (2)
 Function oms_sluch_dializ(par,Loc_kod,kod_kartotek)

@@ -174,14 +174,52 @@ Function save_arr_DVN_COVID(lkod)
   if !empty(arr_usl_otkaz)
     aadd(arr,{"19",arr_usl_otkaz}) // массив
   endif
-  aadd(arr,{"20",m1GRUPPA})    // "N1",группа здоровья после дисп-ии
-  // if type("m1ot_nasl1") == "N"
-    aadd(arr,{"30",arr_otklon}) // массив
-    aadd(arr,{"31",m1dispans})
-    aadd(arr,{"32",m1nazn_l})
+  // aadd(arr,{"20",m1GRUPPA})    // "N1",группа здоровья после дисп-ии
+  // // if type("m1ot_nasl1") == "N"
+  //   aadd(arr,{"30",arr_otklon}) // массив
+  //   aadd(arr,{"31",m1dispans})
+  //   aadd(arr,{"32",m1nazn_l})
+  // // endif
+  // if type("m1p_otk") == "N"
+  //   aadd(arr,{"33",m1p_otk})
   // endif
+  aadd(arr,{"30",m1GRUPPA})    // "N1",группа здоровья после дисп-ии
+  if type("m1prof_ko") == "N"
+    aadd(arr,{"31",m1prof_ko})    // "N1",вид проф.консультирования
+  endif
+  if type("m1ot_nasl1") == "N"
+    aadd(arr,{"40",arr_otklon}) // массив
+    aadd(arr,{"41",m1ot_nasl1})
+    aadd(arr,{"42",m1ot_nasl2})
+    aadd(arr,{"43",m1ot_nasl3})
+    aadd(arr,{"44",m1ot_nasl4})
+    aadd(arr,{"45",m1dispans})
+    aadd(arr,{"46",m1nazn_l})
+    aadd(arr,{"47",m1dopo_na})
+    aadd(arr,{"48",m1ssh_na})
+    aadd(arr,{"49",m1spec_na})
+    aadd(arr,{"50",m1sank_na})
+  endif
   if type("m1p_otk") == "N"
-    aadd(arr,{"33",m1p_otk})
+    aadd(arr,{"51",m1p_otk})
+  endif
+  if type("m1napr_v_mo") == "N"
+    aadd(arr,{"52",m1napr_v_mo})
+  endif
+  if type("arr_mo_spec") == "A" .and. !empty(arr_mo_spec)
+    aadd(arr,{"53",arr_mo_spec}) // массив
+  endif
+  if type("m1napr_stac") == "N"
+    aadd(arr,{"54",m1napr_stac})
+  endif
+  if type("m1profil_stac") == "N"
+    aadd(arr,{"55",m1profil_stac})
+  endif
+  if type("m1napr_reab") == "N"
+    aadd(arr,{"56",m1napr_reab})
+  endif
+  if type("m1profil_kojki") == "N"
+    aadd(arr,{"57",m1profil_kojki})
   endif
   save_arr_DISPANS(lkod,arr)
   return NIL
@@ -247,16 +285,57 @@ Function read_arr_DVN_COVID(lkod,is_all)
           endif
         case is_all .and. arr[i,1] == "19" .and. valtype(arr[i,2]) == "A"
             arr_usl_otkaz := arr[i,2]
-        case arr[i,1] == "20" .and. valtype(arr[i,2]) == "N"
+        // case arr[i,1] == "20" .and. valtype(arr[i,2]) == "N"
+        //   //m1GRUPPA := arr[i,2]
+        // case is_all .and. arr[i,1] == "30" .and. valtype(arr[i,2]) == "A"
+        //   arr_otklon := arr[i,2]
+        // case arr[i,1] == "31" .and. valtype(arr[i,2]) == "N"
+        //   m1dispans  := arr[i,2]
+        // case arr[i,1] == "32" .and. valtype(arr[i,2]) == "N"
+        //   m1nazn_l   := arr[i,2]
+        // case arr[i,1] == "33" .and. valtype(arr[i,2]) == "N"
+        //   m1p_otk  := arr[i,2]
+//
+        case arr[i,1] == "30" .and. valtype(arr[i,2]) == "N"
           //m1GRUPPA := arr[i,2]
-        case is_all .and. arr[i,1] == "30" .and. valtype(arr[i,2]) == "A"
-          arr_otklon := arr[i,2]
         case arr[i,1] == "31" .and. valtype(arr[i,2]) == "N"
+          m1prof_ko := arr[i,2]
+        case is_all .and. arr[i,1] == "40" .and. valtype(arr[i,2]) == "A"
+          arr_otklon := arr[i,2]
+        case arr[i,1] == "41" .and. valtype(arr[i,2]) == "N"
+          m1ot_nasl1 := arr[i,2]
+        case arr[i,1] == "42" .and. valtype(arr[i,2]) == "N"
+          m1ot_nasl2 := arr[i,2]
+        case arr[i,1] == "43" .and. valtype(arr[i,2]) == "N"
+          m1ot_nasl3 := arr[i,2]
+        case arr[i,1] == "44" .and. valtype(arr[i,2]) == "N"
+          m1ot_nasl4 := arr[i,2]
+        case arr[i,1] == "45" .and. valtype(arr[i,2]) == "N"
           m1dispans  := arr[i,2]
-        case arr[i,1] == "32" .and. valtype(arr[i,2]) == "N"
+        case arr[i,1] == "46" .and. valtype(arr[i,2]) == "N"
           m1nazn_l   := arr[i,2]
-        case arr[i,1] == "33" .and. valtype(arr[i,2]) == "N"
+        case arr[i,1] == "47" .and. valtype(arr[i,2]) == "N"
+          m1dopo_na  := arr[i,2]
+        case arr[i,1] == "48" .and. valtype(arr[i,2]) == "N"
+          m1ssh_na   := arr[i,2]
+        case arr[i,1] == "49" .and. valtype(arr[i,2]) == "N"
+          m1spec_na  := arr[i,2]
+        case arr[i,1] == "50" .and. valtype(arr[i,2]) == "N"
+          m1sank_na  := arr[i,2]
+        case arr[i,1] == "51" .and. valtype(arr[i,2]) == "N"
           m1p_otk  := arr[i,2]
+        case arr[i,1] == "52" .and. valtype(arr[i,2]) == "N"
+          m1napr_v_mo  := arr[i,2]
+        case arr[i,1] == "53" .and. valtype(arr[i,2]) == "A"
+          arr_mo_spec := arr[i,2]
+        case arr[i,1] == "54" .and. valtype(arr[i,2]) == "N"
+          m1napr_stac := arr[i,2]
+        case arr[i,1] == "55" .and. valtype(arr[i,2]) == "N"
+          m1profil_stac := arr[i,2]
+        case arr[i,1] == "56" .and. valtype(arr[i,2]) == "N"
+          m1napr_reab := arr[i,2]
+        case arr[i,1] == "57" .and. valtype(arr[i,2]) == "N"
+          m1profil_kojki := arr[i,2]
       endcase
     endif
   next

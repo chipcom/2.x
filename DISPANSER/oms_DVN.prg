@@ -1014,27 +1014,27 @@ Function oms_sluch_DVN(Loc_kod,kod_kartotek,f_print)
       ++j; @ j,1 say "Диспансерное наблюдение установлено" get mdispans ;
                  reader {|x|menu_reader(x,mm_dispans,A__MENUVERT,,,.f.)} ;
                  when !emptyall(mdispans1,mdispans2,mdispans3,mdispans4,mdispans5)
-    if is_disp_19
-      if eq_any(metap,1,3) .and. mdvozrast < 65
-        ++j; @ j,1 say iif(mdvozrast<40,"Относительный","Абсолютный")+" суммарный сердечно-сосудистый риск" get mssr pict "99" ;
+      if is_disp_19
+        if eq_any(metap,1,3) .and. mdvozrast < 65
+          ++j; @ j,1 say iif(mdvozrast<40,"Относительный","Абсолютный")+" суммарный сердечно-сосудистый риск" get mssr pict "99" ;
                    valid {|| iif(between(mssr,0,47),,func_error(4,"Неразумное значение суммарного сердечно-сосудистого риска")), .t.}
-             @ row(),col() say "%"
+          @ row(),col() say "%"
+        else
+          ++j
+        endif
       else
-        ++j
-      endif
-    else
-      if metap == 1 .and. mdvozrast < 66
-        ++j; @ j,1 say iif(mdvozrast<40,"Относительный","Абсолютный")+" суммарный сердечно-сосудистый риск" get mssr pict "99" ;
+        if metap == 1 .and. mdvozrast < 66
+          ++j; @ j,1 say iif(mdvozrast<40,"Относительный","Абсолютный")+" суммарный сердечно-сосудистый риск" get mssr pict "99" ;
                    valid {|| iif(between(mssr,0,47),,func_error(4,"Неразумное значение суммарного сердечно-сосудистого риска")), .t.}
-             @ row(),col() say "%"
-      elseif metap == 3 .and. mvozrast < 66
-        ++j; @ j,1 say "Суммарный сердечно-сосудистый риск" get mssr pict "99" ;
+          @ row(),col() say "%"
+        elseif metap == 3 .and. mvozrast < 66
+          ++j; @ j,1 say "Суммарный сердечно-сосудистый риск" get mssr pict "99" ;
                    valid {|| iif(between(mssr,0,47),,func_error(4,"Неразумное значение суммарного сердечно-сосудистого риска")), .t.}
-             @ row(),col() say "%"
-      else
-        ++j
+          @ row(),col() say "%"
+        else
+          ++j
+        endif
       endif
-    endif
       ++j; @ j,1 say "Признак подозрения на злокачественное новообразование" get mDS_ONK ;
                  reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
       ++j; @ j,1 say "Направления при подозрении на ЗНО" get mnapr_onk ;
@@ -1047,25 +1047,25 @@ Function oms_sluch_DVN(Loc_kod,kod_kartotek,f_print)
       ++j; @ j,1 say "Направлен" get mnapr_v_mo ;
                  reader {|x|menu_reader(x,mm_napr_v_mo,A__MENUVERT,,,.f.)} ;
                  valid {|| iif(m1napr_v_mo==0, (arr_mo_spec:={},ma_mo_spec:=padr("---",42)), ), update_get("ma_mo_spec")}
-           @ j,col()+1 say "к специалистам" get ma_mo_spec ;
+      @ j,col()+1 say "к специалистам" get ma_mo_spec ;
                  reader {|x|menu_reader(x,{{|k,r,c| fget_spec_DVN(k,r,c,arr_mo_spec)}},A__FUNCTION,,,.f.)} ;
                  when m1napr_v_mo > 0
       ++j; @ j,1 say "Направлен на лечение" get mnapr_stac ;
                  reader {|x|menu_reader(x,mm_napr_stac,A__MENUVERT,,,.f.)} ;
                  valid {|| iif(m1napr_stac==0, (m1profil_stac:=0,mprofil_stac:=space(32)), ), update_get("mprofil_stac")}
-           @ j,col()+1 say "по профилю" get mprofil_stac ;
+      @ j,col()+1 say "по профилю" get mprofil_stac ;
                  reader {|x|menu_reader(x,glob_V002,A__MENUVERT,,,.f.)} ;
                  when m1napr_stac > 0
       ++j; @ j,1 say "Направлен на реабилитацию" get mnapr_reab ;
                  reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
                  valid {|| iif(m1napr_reab==0, (m1profil_kojki:=0,mprofil_kojki:=space(30)), ), update_get("mprofil_kojki")}
-           @ j,col()+1 say ", профиль койки" get mprofil_kojki ;
+      @ j,col()+1 say ", профиль койки" get mprofil_kojki ;
                  reader {|x|menu_reader(x,glob_V020,A__MENUVERT,,,.f.)} ;
                  when m1napr_reab > 0
       ++j; @ j,1 say "Направлен на саноторно-курортное лечение" get msank_na ;
                  reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
       ++j; @ j,1 say "ГРУППА состояния ЗДОРОВЬЯ"
-           @ j,col()+1 get mGRUPPA ;
+      @ j,col()+1 get mGRUPPA ;
                   reader {|x|menu_reader(x,mm_gruppa,A__MENUVERT,,,.f.)}
       status_key("^<Esc>^ выход без записи ^<PgUp>^ на 2-ю страницу ^<PgDn>^ ЗАПИСЬ")
     endif

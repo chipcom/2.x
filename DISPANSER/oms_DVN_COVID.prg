@@ -96,13 +96,12 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
     mDateCOVID := sys_date,;  // дата окончания лечения COVID
     mgruppa, m1gruppa := 9      // группа здоровья
     // m1ndisp := 1, mndisp,;  // m1ndisp := 3
-  Private mdispans, m1dispans := 0, ;
-    mnazn_l , m1nazn_l  := 0
-    // ,;
-    // mdopo_na, m1dopo_na := 0,;
-    // mspec_na, m1spec_na := 0,;
-    // mssh_na , m1ssh_na  := 0,;
-    // msank_na, m1sank_na := 0
+  // Private mdispans, m1dispans := 0, mnazn_l , m1nazn_l  := 0;
+  //   mdopo_na, m1dopo_na := 0, mspec_na, m1spec_na := 0,;
+  //   msank_na, m1sank_na := 0, mssh_na , m1ssh_na  := 0
+  Private mdispans, m1dispans := 0, mnazn_l , m1nazn_l  := 0,;
+    mdopo_na, m1dopo_na := 0, mssh_na , m1ssh_na  := 0,;
+    mspec_na, m1spec_na := 0, msank_na, m1sank_na := 0
   Private mvar, m1var // переменный для организации ввода ин-ции в табличной части
   Private mm_ndisp := {{"Углубленная диспансеризация I  этап",1},;
                        {"Углубленная диспансеризация II этап",2}}
@@ -145,7 +144,18 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
                       {"участковым терапевтом      ",3},;
                       {"врачом отд.мед.профилактики",1},;
                       {"врачом центра здоровья     ",2}}
-  ////// РАЗОБРАТЬСЯ С НАПРАВЛЕНИЯМИ
+  Private mm_dopo_na := {{"лаб.диагностика",1},{"инстр.диагностика",2},{"лучевая диагностика",3},{"КТ, МРТ, ангиография",4}}
+  Private gl_arr := {;  // для битовых полей
+    {"dopo_na","N",10,0,,,,{|x|inieditspr(A__MENUBIT,mm_dopo_na,x)} };
+  }
+  Private mnapr_v_mo, m1napr_v_mo := 0, ;
+    mm_napr_v_mo := {{"-- нет --",0},{"в нашу МО",1},{"в иную МО",2}}, ;
+    arr_mo_spec := {}, ma_mo_spec, m1a_mo_spec := 1
+  Private mnapr_stac, m1napr_stac := 0, ;
+    mm_napr_stac := {{"--- нет ---",0},{"в стационар",1},{"в дн. стац.",2}}, ;
+    mprofil_stac, m1profil_stac := 0
+  Private mnapr_reab, m1napr_reab := 0, mprofil_kojki, m1profil_kojki := 0
+////// РАЗОБРАТЬСЯ С НАПРАВЛЕНИЯМИ
   Private mshifr, mshifr1, mname_u, mU_KOD, cur_napr := 0, count_napr := 0, tip_onko_napr := 0
 
   Private pole_diag, pole_pervich, pole_1pervich, pole_d_diag, ;
@@ -512,6 +522,24 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
   mmobilbr := inieditspr(A__MENUVERT, mm_danet, m1mobilbr)
   mdispans  := inieditspr(A__MENUVERT, mm_dispans, m1dispans)
   mnazn_l   := inieditspr(A__MENUVERT, mm_danet, m1nazn_l)
+  mdopo_na  := inieditspr(A__MENUBIT, mm_dopo_na, m1dopo_na)
+  mnapr_v_mo := inieditspr(A__MENUVERT, mm_napr_v_mo, m1napr_v_mo)
+  if empty(arr_mo_spec)
+    ma_mo_spec := "---"
+  else
+    ma_mo_spec := ""
+    for i := 1 to len(arr_mo_spec)
+      ma_mo_spec += lstr(arr_mo_spec[i])+","
+    next
+    ma_mo_spec := left(ma_mo_spec,len(ma_mo_spec)-1)
+  endif
+  mnapr_stac := inieditspr(A__MENUVERT, mm_napr_stac, m1napr_stac)
+  mprofil_stac := inieditspr(A__MENUVERT, glob_V002, m1profil_stac)
+  mnapr_reab := inieditspr(A__MENUVERT, mm_danet, m1napr_reab)
+  mprofil_kojki := inieditspr(A__MENUVERT, glob_V020, m1profil_kojki)
+  mssh_na   := inieditspr(A__MENUVERT, mm_danet, m1ssh_na)
+  mspec_na  := inieditspr(A__MENUVERT, mm_danet, m1spec_na)
+  msank_na  := inieditspr(A__MENUVERT, mm_danet, m1sank_na)
 
   if ! ret_ndisp_COVID(Loc_kod,kod_kartotek)
     return NIL
@@ -758,6 +786,39 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       @ j, 67 get mdndispans5 when m1dispans5==1
       //
       @ ++j, 1 say replicate("─",78) color color1
+      // подвал второго листа
+      @ ++j,1 say "Диспансерное наблюдение установлено" get mdispans ;
+                 reader {|x|menu_reader(x,mm_dispans,A__MENUVERT,,,.f.)} ;
+                 when !emptyall(mdispans1,mdispans2,mdispans3,mdispans4,mdispans5)
+      // @ ++j,1 say "Признак подозрения на злокачественное новообразование" get mDS_ONK ;
+      //            reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
+      // @ ++j,1 say "Направления при подозрении на ЗНО" get mnapr_onk ;
+      //            reader {|x|menu_reader(x,{{|k,r,c| fget_napr_PN(k,r,c)}},A__FUNCTION,,,.f.)} ;
+      //            when m1ds_onk == 1
+      @ ++j,1 say "Назначено лечение (для ф.131)" get mnazn_l ;
+                 reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
+      @ ++j,1 say "Направлен на дополнительное обследование" get mdopo_na ;
+                 reader {|x|menu_reader(x,mm_dopo_na,A__MENUBIT,,,.f.)}
+      @ ++j,1 say "Направлен" get mnapr_v_mo ;
+                 reader {|x|menu_reader(x,mm_napr_v_mo,A__MENUVERT,,,.f.)} ;
+                 valid {|| iif(m1napr_v_mo==0, (arr_mo_spec:={},ma_mo_spec:=padr("---",42)), ), update_get("ma_mo_spec")}
+      @ j,col()+1 say "к специалистам" get ma_mo_spec ;
+                 reader {|x|menu_reader(x,{{|k,r,c| fget_spec_DVN(k,r,c,arr_mo_spec)}},A__FUNCTION,,,.f.)} ;
+                 when m1napr_v_mo > 0
+      @ ++j,1 say "Направлен на лечение" get mnapr_stac ;
+                 reader {|x|menu_reader(x,mm_napr_stac,A__MENUVERT,,,.f.)} ;
+                 valid {|| iif(m1napr_stac==0, (m1profil_stac:=0,mprofil_stac:=space(32)), ), update_get("mprofil_stac")}
+      @ j,col()+1 say "по профилю" get mprofil_stac ;
+                 reader {|x|menu_reader(x,glob_V002,A__MENUVERT,,,.f.)} ;
+                 when m1napr_stac > 0
+      @ ++j,1 say "Направлен на реабилитацию" get mnapr_reab ;
+                 reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
+                 valid {|| iif(m1napr_reab==0, (m1profil_kojki:=0,mprofil_kojki:=space(30)), ), update_get("mprofil_kojki")}
+      @ j,col()+1 say ", профиль койки" get mprofil_kojki ;
+                 reader {|x|menu_reader(x,glob_V020,A__MENUVERT,,,.f.)} ;
+                 when m1napr_reab > 0
+      @ ++j,1 say "Направлен на саноторно-курортное лечение" get msank_na ;
+                 reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
       ++j
       // ++j; 
       @ ++j, 1 say "ГРУППА состояния ЗДОРОВЬЯ"
@@ -1070,7 +1131,20 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
         func_error(4,"Не введена ГРУППА состояния ЗДОРОВЬЯ")
         loop
       endif
-
+      //
+      m1ssh_na := m1psih_na := m1spec_na := 0
+      if m1napr_v_mo > 0
+        if eq_ascan(arr_mo_spec,45,141) // Направлен к врачу-сердечно-сосудистому хирургу
+          m1ssh_na := 1
+        endif
+        if eq_ascan(arr_mo_spec,23,97) // Направлен к врачу-психиатру (врачу-психиатру-наркологу)
+          m1psih_na := 1
+        endif
+      endif
+      if m1napr_stac > 0 .and. m1profil_stac > 0
+        m1spec_na := 1 // Направлен для получения специализированной медицинской помощи (в т.ч. ВМП)
+      endif
+      //
       err_date_diap(mn_data,"Дата начала углубленной диспансеризации после COVID")
       err_date_diap(mk_data,"Дата окончания углубленной диспансеризации после COVID")
       //
