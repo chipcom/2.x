@@ -211,7 +211,7 @@ Function create1reestr19(_recno,_nyear,_nmonth)
   endcase
   return k
   
-***** 14.07.21 создание XML-файлов реестра
+***** 25.07.21 создание XML-файлов реестра
 Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
   //
