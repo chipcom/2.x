@@ -1389,7 +1389,9 @@ Function verify_1_sluch(fl_view)
               arr_zf := STverifyZF(mohu->zf,human->date_r,d1,ta,s)
               STVerifyKolZf(arr_zf,mohu->kol_1,ta,s)
             endif
-          elseif &lalf.->telemed == 0 .and. ! eq_any(alltrim(&lalf.->shifr),"A12.09.005","A12.09.001","B03.016.003","B03.016.004","A06.09.007","B01.026.001","B01.026.002")
+          elseif &lalf.->telemed == 0 .and. ! eq_any(alltrim(&lalf.->shifr),;
+              "A12.09.005","A12.09.001","B03.016.003","B03.016.004","A06.09.007","B01.026.001","B01.026.002",;
+              'A23.30.023','A09.05.051.001','A04.10.002','A06.09.005','A04.12.006.002')
             aadd(ta,'услугу '+s+' нельзя вводить для амбулаторной помощи')
           endif
         case human_->usl_ok == 4

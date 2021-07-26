@@ -18,6 +18,8 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       pos_read := 0, k_read := 0, count_edit := 0, ar, larr, lu_kod,;
       fl, tmp_help := chm_help_code, fl_write_sluch := .f., mu_cena, lrslt_1_etap := 0
 
+  local iUslDop := iUslOtkaz := iUslOtklon := 0   // счетчики
+
   //
   Default st_N_DATA TO sys_date, st_K_DATA TO sys_date
   Default Loc_kod TO 0, kod_kartotek TO 0
@@ -264,7 +266,7 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       goto (atail(ah)[1])
       M1RAB_NERAB := human->RAB_NERAB // 0-работающий, 1-неработающий, 2-обучающ.ОЧНО
       letap := human->ishod - 400
-      if eq_any(letap,1,4)
+      if eq_any(letap,1,2)
         lrslt_1_etap := human_->RSLT_NEW
       endif
       read_arr_DVN_COVID(human->kod,.f.)  // читаем сохраненные данные по углубленной диспансеризации
@@ -318,9 +320,9 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
     //
     // выбираем иформацию об услугах
     larr := array(2, len(uslugiEtap_DVN_COVID(metap)))
-    arr_usl := array(len(uslugiEtap_DVN_COVID(metap)))
+    arr_usl := {} // array(len(uslugiEtap_DVN_COVID(metap)))
     afillall(larr,0)
-    afillall(arr_usl,0)
+    // afillall(arr_usl,0)
     R_Use(dir_server+"uslugi",,"USL")
     R_Use(dir_server+"mo_su",,"MOSU")
     use_base("mo_hu")
@@ -341,7 +343,39 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
               fl := .f.
               larr[1,i] := hu->(recno())
               larr[2,i] := lshifr
-              arr_usl[i] := hu->(recno())
+              // arr_usl[i] := hu->(recno())
+              aadd(arr_usl, hu->(recno()))
+
+my_debug(,'ТФОМС:'+lstr((hu->(recno()))))
+              if valtype(uslugiEtap_DVN_COVID(metap)[i,13]) == "C" .and. !empty(uslugiEtap_DVN_COVID(metap)[i,13])
+                select MOHU
+                set relation to u_kod into MOSU 
+                find (str(Loc_kod,7))
+                do while MOHU->kod == Loc_kod .and. !eof()
+                  MOSU->(dbGoto(MOHU->u_kod))
+                  lshifr := alltrim(iif(empty(MOSU->shifr),MOSU->shifr1,MOSU->shifr))
+                  if lshifr == uslugiEtap_DVN_COVID(metap)[i,13]
+                    aadd(arr_usl, MOHU->(recno()))
+my_debug(,'ТФОМС->ФФОМС:'+lstr((mohu->(recno()))))
+                  endif
+
+                  // for i := 1 to len(uslugiEtap_DVN_COVID(metap))
+                  //   if empty(larr[1,i])
+                  //     if valtype(uslugiEtap_DVN_COVID(metap)[i,2]) == "C" .and. uslugiEtap_DVN_COVID(metap)[i,12] == 1  // услуга ФФОМС
+                  //       if uslugiEtap_DVN_COVID(metap)[i,2] == lshifr
+                  //         fl := .f.
+                  //         larr[1,i] := MOHU->(recno())
+                  //         larr[2,i] := lshifr
+                  //         arr_usl[i] := MOHU->(recno())
+                  //       endif
+                  //     endif
+                  //   endif
+                  // next
+                  select MOHU
+                  skip
+                enddo
+                SELECT HU
+              endif
             endif
           endif
         endif
@@ -364,7 +398,9 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
               fl := .f.
               larr[1,i] := MOHU->(recno())
               larr[2,i] := lshifr
-              arr_usl[i] := MOHU->(recno())
+              // arr_usl[i] := MOHU->(recno())
+              aadd(arr_usl, MOHU->(recno()))
+my_debug(,'ФФОМС:'+lstr((mohu->(recno()))))
             endif
           endif
         endif
@@ -374,6 +410,7 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
     enddo
     //
     read_arr_DVN_COVID(Loc_kod)
+my_debug(,'вход: ' +print_array(arr_usl))
 
     if metap == 1 .and. between(m1GRUPPA,11,14) .and. m1p_otk == 1
       m1GRUPPA += 10
@@ -626,11 +663,13 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       @ ++j, 8 get mndisp when .f. color color14
 
       @ ++j, 1 say "Дата окончания лечения COVID" get mDateCOVID ;
-          valid {|| iif(((mn_data - mDateCOVID) < 60), func_error(4,"Прошло меньше 60 дней после заболевания!"), .t.);
-          }
-      @ row(), col() + 5 say "Пульсооксиметрия" get mOKSI pict "999" ;
-          valid {|| iif(between(mOKSI,70,100),,func_error(4,"Неразумные показания пульсооксиметрии")), .t.}
-      @ row(), col()+1 say "%"
+          valid {|| iif(((mn_data - mDateCOVID) < 60), func_error(4,"Прошло меньше 60 дней после заболевания!"), .t.)} ;
+          when (metap == 1)   // редактируем только на первом этапе
+      if metap == 1 // вводим только на первом этапе
+        @ row(), col() + 5 say "Пульсооксиметрия" get mOKSI pict "999" ;
+            valid {|| iif(between(mOKSI,70,100),,func_error(4,"Неразумные показания пульсооксиметрии")), .t.}
+        @ row(), col()+1 say "%"
+      endif
 
       @ ++j, 1 say "────────────────────────────────────────────┬─────┬─────┬──────────┬──────────" color color8
       @ ++j, 1 say "Наименования исследований                   │врач │ассис│дата услуг│выполнение " color color8
@@ -910,7 +949,7 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       fl := .t.
       k := 0
       kol_d_usl := 0
-      arr_osm1 := array(len(uslugiEtap_DVN_COVID(metap)), 12)
+      arr_osm1 := array(len(uslugiEtap_DVN_COVID(metap)), 13)
       afillall(arr_osm1,0)
 
       // ВСЕ ЗАПИСЫВАЕМ
@@ -937,6 +976,9 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
           //
           ++kol_d_usl
           arr_osm1[i,12] := uslugiEtap_DVN_COVID(metap)[i, 12]   // признак услуги 0 - ТФОМС / 1 - ФФОМС
+          if arr_osm1[i,12] == 0
+            arr_osm1[i,13] := uslugiEtap_DVN_COVID(metap)[i, 13]
+          endif
           if i_otkaz == 2 .and. &mvaro == 2 // если исследование невозможно
             select P2
             find (str(&mvart,5))
@@ -1172,6 +1214,9 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       arr_otklon := {}
       glob_podr := ""
       glob_otd_dep := 0
+      iUslDop := 0
+      iUslOtkaz := 0
+      iUslOtklon := 0
       for i := 1 to len(arr_osm1)
         if valtype(arr_osm1[i,5]) == "C"
           if arr_osm1[i,12] == 0
@@ -1188,19 +1233,43 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
           endif
 
           if eq_any(arr_osm1[i,10],0,3) // выполнено
-            aadd(arr_usl_dop,arr_osm1[i])
+            aadd(arr_usl_dop,aclone(arr_osm1[i]))
+            // iUslDop++
+            if arr_osm1[i,12] == 0 .and. !empty(arr_osm1[i,13])  // для услуги ТФОМС добавим услугу ФФОМС
+              aadd(arr_usl_dop,aclone(arr_osm1[i]))
+              iUslDop := len(arr_usl_dop) //++
+              arr_usl_dop[iUslDop,5] := arr_osm1[i,13]
+              arr_usl_dop[iUslDop,7] := foundFFOMSUsluga(arr_usl_dop[iUslDop,5])
+              arr_usl_dop[iUslDop,8] := 0  // для федеральных услуг цену дадим 0
+              arr_usl_dop[iUslDop,12] := 1  // установим флаг услуги ФФОМС
+              arr_usl_dop[iUslDop,13] := ''  // очистим федеральную услугу
+            endif
             if arr_osm1[i,10] == 3 // обнаружены отклонения
-              aadd(arr_otklon,arr_osm1[i,5])
+              aadd(arr_otklon,aclone(arr_osm1[i,5]))
+              iUslOtklon++
             endif
           else // отказ и невозможность
-            aadd(arr_usl_otkaz,arr_osm1[i])
+            aadd(arr_usl_otkaz,aclone(arr_osm1[i]))
+            // iUslOtkaz++
+            if arr_osm1[i,12] == 0 .and. !empty(arr_osm1[i,13])  // для услуги ТФОМС добавим услугу ФФОМС
+              aadd(arr_usl_dop,aclone(arr_osm1[i]))
+              iUslDop := len(arr_usl_dop) //++
+              arr_usl_dop[iUslDop,5] := arr_osm1[i,13]
+              arr_usl_dop[iUslDop,7] := foundFFOMSUsluga(arr_usl_dop[iUslDop,5])
+              arr_usl_dop[iUslDop,8] := 0  // для федеральных услуг цену дадим 0
+              arr_usl_dop[iUslDop,12] := 1  // установим флаг услуги ФФОМС
+              arr_usl_dop[iUslDop,13] := ''  // очистим федеральную услугу
+            endif
           endif
         endif
       next
+// my_debug(,'длина: ' +lstr(len(arr_usl_dop)))
+// my_debug(,'перед вычислением: ' +print_array(arr_usl_dop))
       // получим общую стоимость случая для принимаемых услуг
       for i := 1 to len(arr_usl_dop)
         mcena_1 += arr_usl_dop[i,8]
       next
+// my_debug(,'перед HUMAN: ' +print_array(arr_usl_dop))
       //
       Use_base("human")
       if Loc_kod > 0
@@ -1285,7 +1354,7 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       human_->POL2      := ""
       human_->USL_OK    := m1USL_OK
       human_->VIDPOM    := m1VIDPOM
-      human_->PROFIL    := 111    // m1PROFIL
+      human_->PROFIL    := 151    // m1PROFIL
       human_->IDSP      := 30     // iif(metap == 3, 17, 11)
       human_->NPR_MO    := ''
       human_->FORMA14   := '0000'
@@ -1347,8 +1416,11 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       i1 := len(arr_usl)
       // i2 := len(arr_usl_dop)
 
+      // R_Use(dir_server+"uslugi",,"USL")
+      R_Use(dir_server+"mo_su",,"MOSU")
       Use_base("mo_hu")
       Use_base("human_u")
+my_debug(,'перед записью: ' +print_array(arr_usl_dop))
       for i := 1 to len(arr_usl_dop)  // i2
         if arr_usl_dop[i,12] == 0   // это услуга ТФОМС
           select HU
@@ -1356,18 +1428,26 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
             Add1Rec(7)
             hu->kod := human->kod
           else
-            goto (arr_usl[indexUslugaEtap_DVN_COVID(metap, arr_usl_dop[i,5])])
-            if !eof() .and. !bof()
-              G_RLock(forever)
-            endif
+            // goto (arr_usl[indexUslugaEtap_DVN_COVID(metap, arr_usl_dop[i,5])])
+            // if !eof() .and. !bof()
+            //   G_RLock(forever)
+            // endif
+
+            // сначала выберем информацию из human_u по услугам ТФОМС
+            find (str(Loc_kod,7))
+            do while hu->kod == Loc_kod .and. !eof()
+              usl->(dbGoto(hu->u_kod))
+              if empty(lshifr := opr_shifr_TFOMS(usl->shifr1,usl->kod,mk_data))
+                lshifr := usl->shifr
+              endif
+              lshifr := alltrim(lshifr)
+              if alltrim(lshifr) == alltrim(arr_usl_dop[i,5])
+                G_RLock(forever)
+                exit
+              endif
+              skip
+            enddo
           endif
-          // goto (arr_usl[indexUslugaEtap_DVN_COVID(metap, arr_usl_dop[i,5])])
-          // if !eof() .and. !bof()
-          //   G_RLock(forever)
-          // else
-          //   Add1Rec(7)
-          //   hu->kod := human->kod
-          // endif
           mrec_hu := hu->(recno())
           hu->kod_vr  := arr_usl_dop[i,1]
           hu->kod_as  := arr_usl_dop[i,3]
@@ -1400,18 +1480,25 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
             Add1Rec(7)
             MOHU->kod := human->kod
           else
-            goto (arr_usl[indexUslugaEtap_DVN_COVID(metap, arr_usl_dop[i,5])])
-            if !eof() .and. !bof()
-              G_RLock(forever)
-            endif
+            // goto (arr_usl[indexUslugaEtap_DVN_COVID(metap, arr_usl_dop[i,5])])
+            // if !eof() .and. !bof()
+            //   G_RLock(forever)
+            // endif
+
+            // затем выберем информацию из mo_hu по услугам ФФОМС
+            set relation to u_kod into MOSU 
+            find (str(Loc_kod,7))
+            do while MOHU->kod == Loc_kod .and. !eof()
+              MOSU->(dbGoto(MOHU->u_kod))
+              select MOHU
+              lshifr := alltrim(iif(empty(MOSU->shifr),MOSU->shifr1,MOSU->shifr))
+              if alltrim(lshifr) == alltrim(arr_usl_dop[i,5])
+                G_RLock(forever)
+                exit
+              endif
+              skip
+            enddo
           endif
-          // goto (arr_usl[indexUslugaEtap_DVN_COVID(metap, arr_usl_dop[i,5])])
-          // if !eof() .and. !bof()
-          //   G_RLock(forever)
-          // else
-          //   Add1Rec(7)
-          //   MOHU->kod := human->kod
-          // endif
           mrec_mohu := MOHU->(recno())
           MOHU->kod_vr  := arr_usl_dop[i,1]
           MOHU->kod_as  := arr_usl_dop[i,3]
@@ -1437,16 +1524,46 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
           for iOtkaz := 1 to len(arr_usl_otkaz)
             if arr_usl_otkaz[iOtkaz,12] == 0
               select HU
-              goto (arr_usl[indexUslugaEtap_DVN_COVID(metap, arr_usl_otkaz[iOtkaz,5])])
-              if !eof() .and. !bof()
-                DeleteRec(.t.,.f.)  // очистка записи без пометки на удаление
-              endif
+              // goto (arr_usl[indexUslugaEtap_DVN_COVID(metap, arr_usl_otkaz[iOtkaz,5])])
+              // if !eof() .and. !bof()
+              //   DeleteRec(.t.,.f.)  // очистка записи без пометки на удаление
+              // endif
+
+              // сначала выберем информацию из human_u по услугам ТФОМС
+              find (str(Loc_kod,7))
+              do while hu->kod == Loc_kod .and. !eof()
+                usl->(dbGoto(hu->u_kod))
+                if empty(lshifr := opr_shifr_TFOMS(usl->shifr1,usl->kod,mk_data))
+                  lshifr := usl->shifr
+                endif
+                lshifr := alltrim(lshifr)
+                if alltrim(lshifr) == alltrim(arr_usl_dop[i,5])
+                  DeleteRec(.t.,.f.)  // очистка записи без пометки на удаление
+                  exit
+                endif
+                skip
+              enddo
+
             else
               select MOHU
-              goto (arr_usl[indexUslugaEtap_DVN_COVID(metap, arr_usl_otkaz[iOtkaz,5])])
-              if !eof() .and. !bof()
-                DeleteRec(.t.,.f.)  // очистка записи без пометки на удаление
-              endif
+              // goto (arr_usl[indexUslugaEtap_DVN_COVID(metap, arr_usl_otkaz[iOtkaz,5])])
+              // if !eof() .and. !bof()
+              //   DeleteRec(.t.,.f.)  // очистка записи без пометки на удаление
+              // endif
+
+              // затем выберем информацию из mo_hu по услугам ФФОМС
+              set relation to u_kod into MOSU 
+              find (str(Loc_kod,7))
+              do while MOHU->kod == Loc_kod .and. !eof()
+                MOSU->(dbGoto(MOHU->u_kod))
+                lshifr := alltrim(iif(empty(MOSU->shifr),MOSU->shifr1,MOSU->shifr))
+                select MOHU
+                if alltrim(lshifr) == alltrim(arr_usl_dop[i,5])
+                  DeleteRec(.t.,.f.)  // очистка записи без пометки на удаление
+                  exit
+                endif
+                skip
+              enddo
             endif
           next
         endif
