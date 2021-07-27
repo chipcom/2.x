@@ -354,7 +354,6 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
               // arr_usl[i] := hu->(recno())
               aadd(arr_usl, hu->(recno()))
 
-my_debug(,'ТФОМС:'+lstr((hu->(recno()))))
               if valtype(uslugiEtap_DVN_COVID(metap)[i,13]) == "C" .and. !empty(uslugiEtap_DVN_COVID(metap)[i,13])
                 select MOHU
                 set relation to u_kod into MOSU 
@@ -364,7 +363,6 @@ my_debug(,'ТФОМС:'+lstr((hu->(recno()))))
                   lshifr := alltrim(iif(empty(MOSU->shifr),MOSU->shifr1,MOSU->shifr))
                   if lshifr == uslugiEtap_DVN_COVID(metap)[i,13]
                     aadd(arr_usl, MOHU->(recno()))
-my_debug(,'ТФОМС->ФФОМС:'+lstr((mohu->(recno()))))
                   endif
 
                   // for i := 1 to len(uslugiEtap_DVN_COVID(metap))
@@ -408,7 +406,6 @@ my_debug(,'ТФОМС->ФФОМС:'+lstr((mohu->(recno()))))
               larr[2,i] := lshifr
               // arr_usl[i] := MOHU->(recno())
               aadd(arr_usl, MOHU->(recno()))
-my_debug(,'ФФОМС:'+lstr((mohu->(recno()))))
             endif
           endif
         endif
@@ -418,7 +415,6 @@ my_debug(,'ФФОМС:'+lstr((mohu->(recno()))))
     enddo
     //
     read_arr_DVN_COVID(Loc_kod)
-my_debug(,'вход: ' +print_array(arr_usl))
 
     if metap == 1 .and. between(m1GRUPPA,11,14) .and. m1p_otk == 1
       m1GRUPPA += 10
@@ -565,6 +561,8 @@ my_debug(,'вход: ' +print_array(arr_usl))
     endif
   endif
   mmobilbr := inieditspr(A__MENUVERT, mm_danet, m1mobilbr)
+  mstrong := inieditspr(A__MENUVERT, mm_strong, m1strong)
+  mdyspnea := inieditspr(A__MENUVERT, mm_danet, m1dyspnea)
   mdispans  := inieditspr(A__MENUVERT, mm_dispans, m1dispans)
   mnazn_l   := inieditspr(A__MENUVERT, mm_danet, m1nazn_l)
   mdopo_na  := inieditspr(A__MENUBIT, mm_dopo_na, m1dopo_na)
@@ -585,8 +583,6 @@ my_debug(,'вход: ' +print_array(arr_usl))
   mssh_na   := inieditspr(A__MENUVERT, mm_danet, m1ssh_na)
   mspec_na  := inieditspr(A__MENUVERT, mm_danet, m1spec_na)
   msank_na  := inieditspr(A__MENUVERT, mm_danet, m1sank_na)
-  mstrong := inieditspr(A__MENUVERT, mm_strong, m1strong)
-  mdyspnea := inieditspr(A__MENUVERT, mm_danet, m1dyspnea)
 
   if ! ret_ndisp_COVID(Loc_kod,kod_kartotek)
     return NIL
@@ -717,32 +713,32 @@ my_debug(,'вход: ' +print_array(arr_usl))
           endif
           mvarz := "MKOD_DIAG"+lstr(i)
           mvaro := "MOTKAZ"+lstr(i)
-
           @ ++j, 1 say uslugiEtap_DVN_COVID(metap)[i,1]
           if (metap == 1) .and. (i == 6) .and. (mOKSI >= 95 .and. m1dyspnea == 1)
-            flEdit := .f.
+            flEdit := 0 //.f.
           elseif (metap == 1) .and. (i == 7) .and. (m1strong >= 2)
-            flEdit := .f.
+            flEdit := 0 //.f.
           else
-            flEdit := .t.
+            flEdit := 1 //.t.
           endif
-          @ j, 46 get &mvarv pict "99999" valid {|g| v_kart_vrach(g) } when flEdit
+my_debug(,'Counter:'+lstr(i)+', flag: '+hb_ValToStr(flEdit)+' get:'+mvarv)
+          @ j, 46 get &mvarv pict "99999" valid {|g| v_kart_vrach(g) } when flEdit == 1
           if mem_por_ass > 0
-            @ j, 52 get &mvara pict "99999" valid {|g| v_kart_vrach(g) } when flEdit
+            @ j, 52 get &mvara pict "99999" valid {|g| v_kart_vrach(g) } when flEdit == 1
           endif
-          @ j, 58 get &mvard when flEdit
+          @ j, 58 get &mvard when flEdit == 1
           if fl_diag
             // @ j, 69 get &mvarz picture pic_diag ;
             //       reader {|o|MyGetReader(o,bg)} valid val1_10diag(.t.,.f.,.f.,mn_data,mpol)
           elseif i_otkaz == 0
             @ j, 69 get &mvaro ;
-                 reader {|x|menu_reader(x,mm_otkaz0,A__MENUVERT,,,.f.)} when flEdit
+                 reader {|x|menu_reader(x,mm_otkaz0,A__MENUVERT,,,.f.)} when flEdit == 1
           elseif i_otkaz == 1
             @ j, 69 get &mvaro ;
-                 reader {|x|menu_reader(x,mm_otkaz1,A__MENUVERT,,,.f.)} when flEdit
+                 reader {|x|menu_reader(x,mm_otkaz1,A__MENUVERT,,,.f.)} when flEdit == 1
           elseif eq_any(i_otkaz,2,3)
             @ j, 69 get &mvaro ;
-                 reader {|x|menu_reader(x,mm_otkaz,A__MENUVERT,,,.f.)} when flEdit
+                 reader {|x|menu_reader(x,mm_otkaz,A__MENUVERT,,,.f.)} when flEdit == 1
           endif
         endif
       next
@@ -1276,7 +1272,6 @@ my_debug(,'вход: ' +print_array(arr_usl))
             aadd(arr_usl_otkaz,aclone(arr_osm1[i]))
             // iUslOtkaz++
             if arr_osm1[i,12] == 0 .and. !empty(arr_osm1[i,13])  // для услуги ТФОМС добавим услугу ФФОМС
-my_debug(,'arr_oms1 otkaz'+print_array(arr_osm1[i]))
               aadd(arr_usl_otkaz,aclone(arr_osm1[i]))
               iUslOtkaz := len(arr_usl_otkaz) //++
               arr_usl_otkaz[iUslOtkaz,5] := arr_osm1[i,13]
@@ -1288,14 +1283,10 @@ my_debug(,'arr_oms1 otkaz'+print_array(arr_osm1[i]))
           endif
         endif
       next
-// my_debug(,'длина: ' +lstr(len(arr_usl_dop)))
-my_debug(,'arr_dop: ' +print_array(arr_usl_dop))
-my_debug(,'arr_otkaz: ' +print_array(arr_usl_otkaz))
       // получим общую стоимость случая для принимаемых услуг
       for i := 1 to len(arr_usl_dop)
         mcena_1 += arr_usl_dop[i,8]
       next
-// my_debug(,'перед HUMAN: ' +print_array(arr_usl_dop))
       //
       Use_base("human")
       if Loc_kod > 0
@@ -1551,7 +1542,6 @@ my_debug(,'arr_otkaz: ' +print_array(arr_usl_otkaz))
                 endif
                 lshifr := alltrim(lshifr)
                 if lshifr == alltrim(arr_usl_otkaz[iOtkaz,5])
-my_debug(,'hu'+lstr(iOtkaz) + ': ' +lshifr+' -- '+print_array(arr_usl_otkaz[iOtkaz]))
                   DeleteRec(.t.,.f.)  // очистка записи без пометки на удаление
                   exit
                 endif
@@ -1568,7 +1558,6 @@ my_debug(,'hu'+lstr(iOtkaz) + ': ' +lshifr+' -- '+print_array(arr_usl_otkaz[iOtk
                 lshifr := alltrim(iif(empty(MOSU->shifr),MOSU->shifr1,MOSU->shifr))
                 select MOHU
                 if alltrim(lshifr) == alltrim(arr_usl_otkaz[iOtkaz,5])
-my_debug(,'mohu'+lstr(iOtkaz) + ': ' +lshifr+' -- '+print_array(arr_usl_otkaz[iOtkaz]))
                   DeleteRec(.t.,.f.)  // очистка записи без пометки на удаление
                   exit
                 endif
@@ -1596,7 +1585,6 @@ my_debug(,'mohu'+lstr(iOtkaz) + ': ' +lshifr+' -- '+print_array(arr_usl_otkaz[iO
                 lshifr := alltrim(lshifr)
                 flFFOMS := valtype(arr_osm1[i,13]) == 'C' .and. !empty(arr_osm1[i,13])    // есть соответствующая услуга ФФОМС
                 if lshifr == alltrim(arr_osm1[i,5])
-my_debug(,'hu'+lstr(i) + ': ' +lshifr+' -- '+print_array(arr_osm1[i,5]))
                   DeleteRec(.t.,.f.)  // очистка записи без пометки на удаление
                   if flFFOMS
                     select MOHU
