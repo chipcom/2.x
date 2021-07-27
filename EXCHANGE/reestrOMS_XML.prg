@@ -626,7 +626,6 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
         mo_add_xml_stroke(oSL,"PODR" ,lstr(glob_otd_dep))
       endif
       mo_add_xml_stroke(oSL,"PROFIL",lstr(human_->PROFIL))
-      mo_add_xml_stroke(oSL,"NHISTORY",iif(empty(human->UCH_DOC),lstr(human->kod),human->UCH_DOC))
       if p_tip_reestr == 1
         if human_->USL_OK < 3
           mo_add_xml_stroke(oSL,"PROFIL_K",lstr(human_2->PROFIL_K))
@@ -645,6 +644,7 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
         mo_add_xml_stroke(oSL,"TAL_P" ,date2xml(human_2->TAL_P)) // Дата планируемой госпитализации в соответствии с талоном на ВМП
         mo_add_xml_stroke(oSL,"TAL_NUM",human_2->TAL_NUM) // номер талона на ВМП
       endif
+      mo_add_xml_stroke(oSL,"NHISTORY",iif(empty(human->UCH_DOC),lstr(human->kod),human->UCH_DOC))
       
       if !is_vmp .and. eq_any(human_->USL_OK,1,2)
         mo_add_xml_stroke(oSL,"P_PER",lstr(human_2->P_PER)) // Признак поступления/перевода
