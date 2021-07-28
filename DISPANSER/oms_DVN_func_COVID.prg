@@ -4,13 +4,22 @@
 #include "chip_mo.ch"
 
 ***** 28.07.21
-function f_valid_Ndata_DVN_COVID(get)
-  // local mvar
+function f_valid_Begdata_DVN_COVID(get)
+  local i
 
-my_debug(,'stage: '+lstr(metap))
-my_debug(,'date: '+hb_ValToStr(get:original)+' - '+valtype(get:original))
-  mvar := "MDATE1"    //+lstr(i)
-  &mvar := get:original
+  for i:= 1 to len(uslugiEtap_DVN_COVID(metap))-1
+    mvar := "MDATE"+lstr(i)
+    &mvar := get:buffer
+    update_get(mvar)
+  next
+
+  return .t.
+
+***** 28.07.21
+function f_valid_Enddata_DVN_COVID(get)
+
+  mvar := "MDATE"+lstr(len(uslugiEtap_DVN_COVID(metap)))
+  &mvar := get:buffer
   update_get(mvar)
 
   return .t.

@@ -650,20 +650,24 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
           when m1komu == 0 ;
           valid func_valid_polis(m1vidpolis,mspolis,mnpolis)
       //
-      // @ ++j, 1 say "Сроки" get mn_data ;
-      //     valid {|g| f_k_data(g,1), f_valid_Ndata_DVN_COVID(g),;
-      //         iif(mvozrast < 18, func_error(4,"Это не взрослый пациент!"), nil),;
-      //           ret_ndisp_COVID(Loc_kod,kod_kartotek);
-      //     }
       @ ++j, 1 say "Сроки" get mn_data ;
-          valid {|g| f_k_data(g,1),;
+          valid {|g| f_k_data(g,1), f_valid_Begdata_DVN_COVID(g),;
               iif(mvozrast < 18, func_error(4,"Это не взрослый пациент!"), nil),;
                 ret_ndisp_COVID(Loc_kod,kod_kartotek);
           }
+      // @ ++j, 1 say "Сроки" get mn_data ;
+      //     valid {|g| f_k_data(g,1),;
+      //         iif(mvozrast < 18, func_error(4,"Это не взрослый пациент!"), nil),;
+      //           ret_ndisp_COVID(Loc_kod,kod_kartotek);
+      //     }
       @ row(), col()+1 say "-" get mk_data ;
-          valid {|g| f_k_data(g,2),;
+          valid {|g| f_k_data(g,2), f_valid_Enddata_DVN_COVID(g),;
                 ret_ndisp_COVID(Loc_kod,kod_kartotek) ;
           }
+      // @ row(), col()+1 say "-" get mk_data ;
+      //     valid {|g| f_k_data(g,2),;
+      //           ret_ndisp_COVID(Loc_kod,kod_kartotek) ;
+      //     }
 
       // ++j
       @ j, col() + 5 say "№ амбулаторной карты" get much_doc picture "@!" ;
