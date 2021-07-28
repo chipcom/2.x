@@ -724,7 +724,6 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
           else
             flEdit := 1 //.t.
           endif
-my_debug(,'Counter:'+lstr(i)+', flag: '+hb_ValToStr(flEdit)+' get:'+mvarv)
           @ j, 46 get &mvarv pict "99999" valid {|g| v_kart_vrach(g) } when flEdit > 0
           if mem_por_ass > 0
             @ j, 52 get &mvara pict "99999" valid {|g| v_kart_vrach(g) } when flEdit > 0

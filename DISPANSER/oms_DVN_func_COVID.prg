@@ -34,7 +34,7 @@ Function f_valid_diag_oms_sluch_DVN_COVID(get,k)
   elseif m1dispans == 0
     m1dispans := ps1dispans
   endif
-  // mdispans := inieditspr(A__MENUVERT, mm_dispans, m1dispans)
+  mdispans := inieditspr(A__MENUVERT, mm_dispans, m1dispans)
   update_get(pole_pervich)
   update_get(pole_d_diag)
   update_get(pole_stadia)

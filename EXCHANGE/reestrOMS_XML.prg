@@ -1902,7 +1902,7 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
             mo_add_xml_stroke(oSL,"DN",&lal.->DN)
            endif
           else // диспансеризация
-           for j1 := 1 to 4
+           for j1 := 1 to 5
             pole := lal+"->DS2N"+iif(j1==1, "", "_"+lstr(j1))
             if !empty(&pole)
              oD := oSL:Add( HXMLNode():New( "DS2_N" ) )
@@ -2601,6 +2601,7 @@ Function f1_create2reestr19(_nyear,_nmonth)
         if valtype(ar) == "A" .and. len(ar) >= 10 .and. valtype(ar[5]) == "C"
           lshifr := alltrim(ar[5])
           if (i := ascan(uslugiEtap_DVN_COVID(iif(human->ishod == 401, 1, 2)), {|x| valtype(x[2])=="C" .and. x[2]==lshifr})) > 0
+          else   // записываем только федеральные услуги
             if valtype(ar[10]) == "N" .and. between(ar[10],1,2)
               aadd(a_otkaz,{lshifr,;
                             ar[6],; // диагноз
