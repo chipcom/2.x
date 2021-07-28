@@ -3,6 +3,18 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
+***** 28.07.21
+function f_valid_Ndata_DVN_COVID(get)
+  // local mvar
+
+my_debug(,'stage: '+lstr(metap))
+my_debug(,'date: '+hb_ValToStr(get:original)+' - '+valtype(get:original))
+  mvar := "MDATE1"    //+lstr(i)
+  &mvar := get:original
+  update_get(mvar)
+
+  return .t.
+
 ***** 23.01.17
 Function f_valid_diag_oms_sluch_DVN_COVID(get,k)
   Local sk := lstr(k)
@@ -212,20 +224,14 @@ Function save_arr_DVN_COVID(lkod)
   if type("m1napr_v_mo") == "N"
     aadd(arr,{"52",m1napr_v_mo})
   endif
-  if type("arr_mo_spec") == "A" .and. !empty(arr_mo_spec)
-    aadd(arr,{"53",arr_mo_spec}) // массив
+  if type("mtab_v_stac") == "N"
+    aadd(arr,{"53",mtab_v_stac})
   endif
-  if type("m1napr_stac") == "N"
-    aadd(arr,{"54",m1napr_stac})
+  if type("mtab_v_reab") == "N"
+    aadd(arr,{"54",mtab_v_reab})
   endif
-  if type("m1profil_stac") == "N"
-    aadd(arr,{"55",m1profil_stac})
-  endif
-  if type("m1napr_reab") == "N"
-    aadd(arr,{"56",m1napr_reab})
-  endif
-  if type("m1profil_kojki") == "N"
-    aadd(arr,{"57",m1profil_kojki})
+  if type("mtab_v_sanat") == "N"
+    aadd(arr,{"55",mtab_v_sanat})
   endif
   save_arr_DISPANS(lkod,arr)
   return NIL
@@ -345,15 +351,11 @@ Function read_arr_DVN_COVID(lkod,is_all)
         case arr[i,1] == "52" .and. valtype(arr[i,2]) == "N"
           m1napr_v_mo  := arr[i,2]
         case arr[i,1] == "53" .and. valtype(arr[i,2]) == "A"
-          arr_mo_spec := arr[i,2]
+          mtab_v_stac := arr[i,2]
         case arr[i,1] == "54" .and. valtype(arr[i,2]) == "N"
-          m1napr_stac := arr[i,2]
+          mtab_v_reab := arr[i,2]
         case arr[i,1] == "55" .and. valtype(arr[i,2]) == "N"
-          m1profil_stac := arr[i,2]
-        case arr[i,1] == "56" .and. valtype(arr[i,2]) == "N"
-          m1napr_reab := arr[i,2]
-        case arr[i,1] == "57" .and. valtype(arr[i,2]) == "N"
-          m1profil_kojki := arr[i,2]
+          mtab_v_sanat := arr[i,2]
       endcase
     endif
   next
