@@ -1902,7 +1902,7 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
             mo_add_xml_stroke(oSL,"DN",&lal.->DN)
            endif
           else // диспансеризация
-           for j1 := 1 to 5
+           for j1 := 1 to 4
             pole := lal+"->DS2N"+iif(j1==1, "", "_"+lstr(j1))
             if !empty(&pole)
              oD := oSL:Add( HXMLNode():New( "DS2_N" ) )

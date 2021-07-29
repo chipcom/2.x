@@ -7,20 +7,22 @@
 function f_valid_Begdata_DVN_COVID(get)
   local i
 
-  for i:= 1 to len(uslugiEtap_DVN_COVID(metap))-1
-    mvar := "MDATE"+lstr(i)
-    &mvar := get:buffer
-    update_get(mvar)
-  next
+//   for i:= 1 to len(uslugiEtap_DVN_COVID(metap))-1
+// my_debug(,'MDATE'+lstr(i)+ ': '+hb_ValToStr(get:buffer)+' -- '+valtype(get:buffer))
+//     mvar := "MDATE"+lstr(i)
+//     &mvar := ctod(get:buffer)
+//     update_get(mvar)
+//   next
 
   return .t.
 
 ***** 28.07.21
 function f_valid_Enddata_DVN_COVID(get)
 
-  mvar := "MDATE"+lstr(len(uslugiEtap_DVN_COVID(metap)))
-  &mvar := get:buffer
-  update_get(mvar)
+//   mvar := "MDATE"+lstr(len(uslugiEtap_DVN_COVID(metap)))
+// my_debug(,'MDATE'+': '+hb_ValToStr(get:buffer)+' -- '+valtype(get:buffer))
+//   &mvar := ctod(get:buffer)
+//   update_get(mvar)
 
   return .t.
 
