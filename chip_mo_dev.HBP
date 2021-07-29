@@ -63,7 +63,6 @@ mo_omso.prg
 mo_omsp.prg
 mo_omspr.prg
 mo_omsr.prg
-mo_omss.prg
 mo_oms14.prg
 mo_orto.prg
 mo_ortop.prg
@@ -179,6 +178,8 @@ mo_version.prg
 .\dispanser\oms_DDS_func.prg
 .\dispanser\oms_PN.prg
 .\dispanser\oms_PN_func.prg
-.\dispanser\extract_reestr.prg
+
 
 .\EXCHANGE\reestrOMS_XML.prg
+.\EXCHANGE\extract_reestr.prg
+.\EXCHANGE\mo_omss.prg

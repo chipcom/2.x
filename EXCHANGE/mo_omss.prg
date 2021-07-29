@@ -2656,79 +2656,6 @@ return NIL
 
 *
 
-// ***** 03.03.13 переписать архив во временный каталог и распаковать
-// Function Extract_Zip_XML(goal_dir,name_zip,regim,new_name)
-// Local arr_f := {}, fl := .f., n, hUnzip, nErr, cFile, cName, _dir, _dir1
-// DEFAULT regim TO 1, new_name TO name_zip
-// _dir  := iif(regim==1, _tmp_dir,  _tmp2dir)
-// _dir1 := iif(regim==1, _tmp_dir1, _tmp2dir1)
-// if right(goal_dir,1) != cslash
-//   goal_dir += cslash
-// endif
-// //if !hb_FileExists(hb_OemToAnsi(goal_dir)+name_zip)
-// if !hb_FileExists(goal_dir+name_zip)
-//   func_error(4,"Не найден архив "+goal_dir+name_zip)
-//   return NIL
-// endif
-// dirmake(_dir)
-// filedelete(_dir1+"*.*")
-// //copy file (hb_OemToAnsi(goal_dir)+name_zip) to (_dir1+new_name)
-// copy file (goal_dir+name_zip) to (_dir1+new_name)
-// if !hb_FileExists(_dir1+new_name)
-//   func_error(4,"Ошибка при копировании архива "+name_zip+" во временный каталог")
-// else
-//   n := 0
-//   if !empty(hUnzip := HB_UNZIPOPEN(_dir1+new_name))
-//     fl := .t.
-//     hb_UnzipGlobalInfo( hUnzip, @n, NIL )
-//     if n > 0
-//       nErr := HB_UNZIPFILEFIRST(hUnzip)
-//       DO WHILE nErr == 0
-//         HB_UnzipFileInfo( hUnzip, @cFile)//, @dDate, @cTime,,,, @nSize, @nCompSize, @lCrypted, @cComment )
-//         HB_UnzipExtractCurrentFile(hUnzip,_dir1+cFile)//, cPassword)
-//         aadd(arr_f,cFile)
-//         nErr := HB_UNZIPFILENEXT(hUnzip)
-//       ENDDO
-//     endif
-//     HB_UNZIPCLOSE(hUnzip)
-//   else
-//     func_error(4,"Возникла ошибка при разархивировании "+_dir1+name_zip)
-//   endif
-// endif
-// return iif(fl, arr_f, nil)
-
-// *
-
-// ***** 21.06.15 переписать архив во временный каталог и распаковать
-// Function Extract_RAR(goal_dir,name_zip,regim,new_name)
-// Local fl := .f., buf, _dir, _dir1
-// DEFAULT regim TO 1, new_name TO name_zip
-// _dir  := iif(regim==1, _tmp_dir,  _tmp2dir)
-// _dir1 := iif(regim==1, _tmp_dir1, _tmp2dir1)
-// if right(goal_dir,1) != cslash
-//   goal_dir += cslash
-// endif
-// //if !hb_FileExists(hb_OemToAnsi(goal_dir)+name_zip)
-// if !hb_FileExists(goal_dir+name_zip)
-//   func_error(4,"Не найден архив "+goal_dir+name_zip)
-//   return NIL
-// endif
-// dirmake(_dir)
-// filedelete(_dir1+"*.*")
-// //copy file (hb_OemToAnsi(goal_dir)+name_zip) to (_dir1+new_name)
-// copy file (goal_dir+name_zip) to (_dir1+new_name)
-// if !hb_FileExists(_dir1+new_name)
-//   func_error(4,"Ошибка при копировании архива "+name_zip+" во временный каталог")
-// else
-//   buf := savescreen()
-//   RUN (dir_exe+"unrar.exe e "+_dir1+new_name+" "+_dir1)
-//   restscreen(buf)
-//   fl := .t.
-// endif
-// return fl
-
-*
-
 ***** 02.11.19 зачитать протокол ФЛК во временные файлы
 Function protokol_flk_tmpfile(arr_f,aerr)
 Local adbf, ii, j, s, oXmlDoc, oXmlNode, is_err_FLK := .f.
