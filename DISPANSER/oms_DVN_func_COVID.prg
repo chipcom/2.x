@@ -7,22 +7,22 @@
 function f_valid_Begdata_DVN_COVID(get)
   local i
 
-//   for i:= 1 to len(uslugiEtap_DVN_COVID(metap))-1
-// my_debug(,'MDATE'+lstr(i)+ ': '+hb_ValToStr(get:buffer)+' -- '+valtype(get:buffer))
-//     mvar := "MDATE"+lstr(i)
-//     &mvar := ctod(get:buffer)
-//     update_get(mvar)
-//   next
+  for i:= 1 to len(uslugiEtap_DVN_COVID(metap))-iif(metap == 1,2,1)
+    // на 1-этапе одна услуга не отображается в списке (70.8.1)
+    mvar := "MDATE"+lstr(i)
+    &mvar := ctod(get:buffer)
+    update_get(mvar)
+  next
 
   return .t.
 
 ***** 29.07.21
 function f_valid_Enddata_DVN_COVID(get)
 
-//   mvar := "MDATE"+lstr(len(uslugiEtap_DVN_COVID(metap)))
-// my_debug(,'MDATE'+': '+hb_ValToStr(get:buffer)+' -- '+valtype(get:buffer))
-//   &mvar := ctod(get:buffer)
-//   update_get(mvar)
+  // на 1-этапе одна услуга не отображается в списке (70.8.1)
+  mvar := "MDATE"+lstr(len(uslugiEtap_DVN_COVID(metap))-iif(metap == 1,1,0))
+  &mvar := ctod(get:buffer)
+  update_get(mvar)
 
   return .t.
 
@@ -154,10 +154,11 @@ Function save_arr_DVN_COVID(lkod)
   aadd(arr,{ "2",mOKSI})     // "N",оксиметрия
   aadd(arr,{ "3",m1strong})     // "N",тяжесть течения болезни
   aadd(arr,{ "4",m1dyspnea})     // "N",одышка
-  aadd(arr,{ "5",mtab_v_mo})     // "N",табельный номер врача направившего в мед. учреждение
-  aadd(arr,{ "6",mtab_v_stac})     // "N",табельный номер врача направившего в стационар
-  aadd(arr,{ "7",mtab_v_reab})     // "N",табельный номер врача направившего на реабилитацию
-  aadd(arr,{ "8",mtab_v_sanat})     // "N",табельный номер врача направившего в санаторий
+  aadd(arr,{ "5",mtab_v_dopo_na})     // "N",табельный номер врача направившего на дополнительное обследование
+  aadd(arr,{ "6",mtab_v_mo})     // "N",табельный номер врача направившего в мед. учреждение
+  aadd(arr,{ "7",mtab_v_stac})     // "N",табельный номер врача направившего в стационар
+  aadd(arr,{ "8",mtab_v_reab})     // "N",табельный номер врача направившего на реабилитацию
+  aadd(arr,{ "9",mtab_v_sanat})     // "N",табельный номер врача направившего в санаторий
   for i := 1 to 5
     sk := lstr(i)
     pole_diag := "mdiag"+sk
@@ -207,33 +208,39 @@ Function save_arr_DVN_COVID(lkod)
   if type("m1prof_ko") == "N"
     aadd(arr,{"31",m1prof_ko})    // "N1",вид проф.консультирования
   endif
-  if type("m1ot_nasl1") == "N"
+  // if type("m1ot_nasl1") == "N"
     aadd(arr,{"40",arr_otklon}) // массив
-    aadd(arr,{"41",m1ot_nasl1})
-    aadd(arr,{"42",m1ot_nasl2})
-    aadd(arr,{"43",m1ot_nasl3})
-    aadd(arr,{"44",m1ot_nasl4})
+    // aadd(arr,{"41",m1ot_nasl1})
+    // aadd(arr,{"42",m1ot_nasl2})
+    // aadd(arr,{"43",m1ot_nasl3})
+    // aadd(arr,{"44",m1ot_nasl4})
     aadd(arr,{"45",m1dispans})
     aadd(arr,{"46",m1nazn_l})
     aadd(arr,{"47",m1dopo_na})
     aadd(arr,{"48",m1ssh_na})
     aadd(arr,{"49",m1spec_na})
     aadd(arr,{"50",m1sank_na})
-  endif
+  // endif
   if type("m1p_otk") == "N"
     aadd(arr,{"51",m1p_otk})
   endif
   if type("m1napr_v_mo") == "N"
     aadd(arr,{"52",m1napr_v_mo})
   endif
-  if type("mtab_v_stac") == "N"
-    aadd(arr,{"53",mtab_v_stac})
+  if type("arr_mo_spec") == "A" .and. !empty(arr_mo_spec)
+    aadd(arr,{"53",arr_mo_spec}) // массив
   endif
-  if type("mtab_v_reab") == "N"
-    aadd(arr,{"54",mtab_v_reab})
+  if type("m1napr_stac") == "N"
+    aadd(arr,{"54",m1napr_stac})
   endif
-  if type("mtab_v_sanat") == "N"
-    aadd(arr,{"55",mtab_v_sanat})
+  if type("m1profil_stac") == "N"
+    aadd(arr,{"55",m1profil_stac})
+  endif
+  if type("m1napr_reab") == "N"
+    aadd(arr,{"56",m1napr_reab})
+  endif
+  if type("m1profil_kojki") == "N"
+    aadd(arr,{"57",m1profil_kojki})
   endif
   save_arr_DISPANS(lkod,arr)
   return NIL
@@ -259,12 +266,14 @@ Function read_arr_DVN_COVID(lkod,is_all)
         case arr[i,1] == "4" .and. valtype(arr[i,2]) == "N"
           m1dyspnea := arr[i,2]
         case arr[i,1] == "5" .and. valtype(arr[i,2]) == "N"
-          mtab_v_mo := arr[i,2]
+          mtab_v_dopo_na := arr[i,2]
         case arr[i,1] == "6" .and. valtype(arr[i,2]) == "N"
-          mtab_v_stac := arr[i,2]
+          mtab_v_mo := arr[i,2]
         case arr[i,1] == "7" .and. valtype(arr[i,2]) == "N"
-          mtab_v_reab := arr[i,2]
+          mtab_v_stac := arr[i,2]
         case arr[i,1] == "8" .and. valtype(arr[i,2]) == "N"
+          mtab_v_reab := arr[i,2]
+        case arr[i,1] == "9" .and. valtype(arr[i,2]) == "N"
           mtab_v_sanat := arr[i,2]
         case is_all .and. eq_any(arr[i,1],"11","12","13","14","15") .and. ;
                     valtype(arr[i,2]) == "A" .and. len(arr[i,2]) >= 7
@@ -317,14 +326,14 @@ Function read_arr_DVN_COVID(lkod,is_all)
           m1prof_ko := arr[i,2]
         case is_all .and. arr[i,1] == "40" .and. valtype(arr[i,2]) == "A"
           arr_otklon := arr[i,2]
-        case arr[i,1] == "41" .and. valtype(arr[i,2]) == "N"
-          m1ot_nasl1 := arr[i,2]
-        case arr[i,1] == "42" .and. valtype(arr[i,2]) == "N"
-          m1ot_nasl2 := arr[i,2]
-        case arr[i,1] == "43" .and. valtype(arr[i,2]) == "N"
-          m1ot_nasl3 := arr[i,2]
-        case arr[i,1] == "44" .and. valtype(arr[i,2]) == "N"
-          m1ot_nasl4 := arr[i,2]
+        // case arr[i,1] == "41" .and. valtype(arr[i,2]) == "N"
+        //   m1ot_nasl1 := arr[i,2]
+        // case arr[i,1] == "42" .and. valtype(arr[i,2]) == "N"
+        //   m1ot_nasl2 := arr[i,2]
+        // case arr[i,1] == "43" .and. valtype(arr[i,2]) == "N"
+        //   m1ot_nasl3 := arr[i,2]
+        // case arr[i,1] == "44" .and. valtype(arr[i,2]) == "N"
+        //   m1ot_nasl4 := arr[i,2]
         case arr[i,1] == "45" .and. valtype(arr[i,2]) == "N"
           m1dispans  := arr[i,2]
         case arr[i,1] == "46" .and. valtype(arr[i,2]) == "N"
@@ -342,12 +351,16 @@ Function read_arr_DVN_COVID(lkod,is_all)
         case arr[i,1] == "52" .and. valtype(arr[i,2]) == "N"
           m1napr_v_mo  := arr[i,2]
         case arr[i,1] == "53" .and. valtype(arr[i,2]) == "A"
-          mtab_v_stac := arr[i,2]
+          arr_mo_spec := arr[i,2]
         case arr[i,1] == "54" .and. valtype(arr[i,2]) == "N"
-          mtab_v_reab := arr[i,2]
+          m1napr_stac := arr[i,2]
         case arr[i,1] == "55" .and. valtype(arr[i,2]) == "N"
-          mtab_v_sanat := arr[i,2]
-      endcase
+          m1profil_stac := arr[i,2]
+        case arr[i,1] == "56" .and. valtype(arr[i,2]) == "N"
+          m1napr_reab := arr[i,2]
+        case arr[i,1] == "57" .and. valtype(arr[i,2]) == "N"
+          m1profil_kojki := arr[i,2]
+        endcase
     endif
   next
   return NIL

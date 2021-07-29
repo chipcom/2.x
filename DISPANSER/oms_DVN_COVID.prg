@@ -99,10 +99,6 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
     mgruppa, m1gruppa := 9,;      // группа здоровья
     mdyspnea, m1dyspnea := 0 //
     // m1ndisp := 1, mndisp,;
-    // m1nstrong := 1
-  // Private mdispans, m1dispans := 0, mnazn_l , m1nazn_l  := 0;
-  //   mdopo_na, m1dopo_na := 0, mspec_na, m1spec_na := 0,;
-  //   msank_na, m1sank_na := 0, mssh_na , m1ssh_na  := 0
   Private mdispans, m1dispans := 0, mnazn_l , m1nazn_l  := 0,;
     mdopo_na, m1dopo_na := 0, mssh_na , m1ssh_na  := 0,;
     mspec_na, m1spec_na := 0, msank_na, m1sank_na := 0
@@ -166,7 +162,7 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
     mprofil_stac, m1profil_stac := 0
   Private mnapr_reab, m1napr_reab := 0, mprofil_kojki, m1profil_kojki := 0
 
-  private mtab_v_mo := mtab_v_stac := mtab_v_reab := mtab_v_sanat := 0
+  private mtab_v_dopo_na := mtab_v_mo := mtab_v_stac := mtab_v_reab := mtab_v_sanat := 0
 
 ////// РАЗОБРАТЬСЯ С НАПРАВЛЕНИЯМИ
   Private mshifr, mshifr1, mname_u, mU_KOD, cur_napr := 0, count_napr := 0, tip_onko_napr := 0
@@ -587,7 +583,7 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
   mspec_na  := inieditspr(A__MENUVERT, mm_danet, m1spec_na)
   msank_na  := inieditspr(A__MENUVERT, mm_danet, m1sank_na)
 
-  if ! ret_ndisp_COVID(Loc_kod,kod_kartotek)
+  if ! ret_ndisp_COVID(Loc_kod,kod_kartotek) 
     return NIL
   endif
   //
@@ -869,6 +865,7 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
                  reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
       @ ++j,1 say "Направлен на дополнительное обследование" get mdopo_na ;
                  reader {|x|menu_reader(x,mm_dopo_na,A__MENUBIT,,,.f.)}
+      // @ j,col()+5 say "Врач" get mtab_v_dopo_na pict "99999" valid {|g| v_kart_vrach(g) } when m1dopo_na > 0
       @ ++j,1 say "Направлен" get mnapr_v_mo ;
                  reader {|x|menu_reader(x,mm_napr_v_mo,A__MENUVERT,,,.f.)} ;
                  valid {|| iif(m1napr_v_mo==0, (arr_mo_spec:={},ma_mo_spec:=padr("---",42)), ), update_get("ma_mo_spec")}
@@ -891,8 +888,8 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
                  when m1napr_reab > 0
       // @ j,col()+5 say "Врач" get mtab_v_reab pict "99999" valid {|g| v_kart_vrach(g) } when m1napr_reab > 0
       @ ++j,1 say "Направлен на санаторно-курортное лечение" get msank_na ;
-                 reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
-                 valid {|| iif(m1sank_na==0, mtab_v_sanat := 0, ), update_get("mtab_v_sank")}
+                 reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}      //;
+                //  valid {|| iif(m1sank_na==0, mtab_v_sanat := 0, ), update_get("mtab_v_sank")}
       // @ j,col()+5 say "Врач" get mtab_v_sanat pict "99999" valid {|g| v_kart_vrach(g) } when (m1sank_na > 0)
       ++j
       // ++j; 
