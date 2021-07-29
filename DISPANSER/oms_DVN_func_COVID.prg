@@ -3,7 +3,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 28.07.21
+***** 29.07.21
 function f_valid_Begdata_DVN_COVID(get)
   local i
 
@@ -16,7 +16,7 @@ function f_valid_Begdata_DVN_COVID(get)
 
   return .t.
 
-***** 28.07.21
+***** 29.07.21
 function f_valid_Enddata_DVN_COVID(get)
 
 //   mvar := "MDATE"+lstr(len(uslugiEtap_DVN_COVID(metap)))
@@ -203,15 +203,6 @@ Function save_arr_DVN_COVID(lkod)
   if !empty(arr_usl_otkaz)
     aadd(arr,{"19",arr_usl_otkaz}) // массив
   endif
-  // aadd(arr,{"20",m1GRUPPA})    // "N1",группа здоровья после дисп-ии
-  // // if type("m1ot_nasl1") == "N"
-  //   aadd(arr,{"30",arr_otklon}) // массив
-  //   aadd(arr,{"31",m1dispans})
-  //   aadd(arr,{"32",m1nazn_l})
-  // // endif
-  // if type("m1p_otk") == "N"
-  //   aadd(arr,{"33",m1p_otk})
-  // endif
   aadd(arr,{"30",m1GRUPPA})    // "N1",группа здоровья после дисп-ии
   if type("m1prof_ko") == "N"
     aadd(arr,{"31",m1prof_ko})    // "N1",вид проф.консультирования
@@ -320,17 +311,6 @@ Function read_arr_DVN_COVID(lkod,is_all)
           endif
         case is_all .and. arr[i,1] == "19" .and. valtype(arr[i,2]) == "A"
             arr_usl_otkaz := arr[i,2]
-        // case arr[i,1] == "20" .and. valtype(arr[i,2]) == "N"
-        //   //m1GRUPPA := arr[i,2]
-        // case is_all .and. arr[i,1] == "30" .and. valtype(arr[i,2]) == "A"
-        //   arr_otklon := arr[i,2]
-        // case arr[i,1] == "31" .and. valtype(arr[i,2]) == "N"
-        //   m1dispans  := arr[i,2]
-        // case arr[i,1] == "32" .and. valtype(arr[i,2]) == "N"
-        //   m1nazn_l   := arr[i,2]
-        // case arr[i,1] == "33" .and. valtype(arr[i,2]) == "N"
-        //   m1p_otk  := arr[i,2]
-//
         case arr[i,1] == "30" .and. valtype(arr[i,2]) == "N"
           //m1GRUPPA := arr[i,2]
         case arr[i,1] == "31" .and. valtype(arr[i,2]) == "N"
