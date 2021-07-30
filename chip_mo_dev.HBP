@@ -179,7 +179,6 @@ mo_version.prg
 .\dispanser\oms_PN.prg
 .\dispanser\oms_PN_func.prg
 
-
 .\EXCHANGE\reestrOMS_XML.prg
 .\EXCHANGE\extract_reestr.prg
 .\EXCHANGE\mo_omss.prg
