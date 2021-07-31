@@ -3,7 +3,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 21.01.19
+***** 31.07.21
 Function read_arr_DVN(lkod,is_all)
   Local arr, i, sk
   Private mvar
@@ -135,12 +135,22 @@ Function read_arr_DVN(lkod,is_all)
           m1napr_reab := arr[i,2]
         case arr[i,1] == "57" .and. valtype(arr[i,2]) == "N"
           m1profil_kojki := arr[i,2]
+        case arr[i,1] == "58" .and. valtype(arr[i,2]) == "N"    // "N",табельный номер врача направившего на дополнительное обследование
+          mtab_v_dopo_na := arr[i,2]
+        case arr[i,1] == "59" .and. valtype(arr[i,2]) == "N"    // "N",табельный номер врача направившего в мед. учреждение
+          mtab_v_mo := arr[i,2]
+        case arr[i,1] == "60" .and. valtype(arr[i,2]) == "N"    // "N",табельный номер врача направившего в стационар
+          mtab_v_stac := arr[i,2]
+        case arr[i,1] == "61" .and. valtype(arr[i,2]) == "N"    // "N",табельный номер врача направившего на реабилитацию
+          mtab_v_reab := arr[i,2]
+        case arr[i,1] == "62" .and. valtype(arr[i,2]) == "N"    // "N",табельный номер врача направившего в санаторий
+          mtab_v_sanat := arr[i,2]
       endcase
     endif
   next
   return NIL
 
-***** 21.01.18
+***** 31.07.21
 Function save_arr_DVN(lkod)
   Local arr := {}, i, sk, ta
   if type("mfio") == "C"
@@ -235,7 +245,7 @@ Function save_arr_DVN(lkod)
   if type("m1napr_v_mo") == "N"
     aadd(arr,{"52",m1napr_v_mo})
   endif
-  if type("arr_mo_spec") == "A" .and. !empty(arr_mo_spec)
+  if type("arr_mo_spec") == "A"   // .and. !empty(arr_mo_spec)
     aadd(arr,{"53",arr_mo_spec}) // массив
   endif
   if type("m1napr_stac") == "N"
@@ -249,6 +259,21 @@ Function save_arr_DVN(lkod)
   endif
   if type("m1profil_kojki") == "N"
     aadd(arr,{"57",m1profil_kojki})
+  endif
+  if type("mtab_v_dopo_na") == "N"
+    aadd(arr,{ "58",mtab_v_dopo_na})     // "N",табельный номер врача направившего на дополнительное обследование
+  endif
+  if type("mtab_v_mo") == "N"
+    aadd(arr,{ "59",mtab_v_mo})     // "N",табельный номер врача направившего в мед. учреждение
+  endif
+  if type("mtab_v_stac") == "N"
+    aadd(arr,{ "60",mtab_v_stac})     // "N",табельный номер врача направившего в стационар
+  endif
+  if type("mtab_v_reab") == "N"
+    aadd(arr,{ "61",mtab_v_reab})     // "N",табельный номер врача направившего на реабилитацию
+  endif
+  if type("mtab_v_sanat") == "N"
+    aadd(arr,{ "62",mtab_v_sanat})     // "N",табельный номер врача направившего в санаторий
   endif
   save_arr_DISPANS(lkod,arr)
   return NIL

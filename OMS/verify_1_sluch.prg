@@ -4423,7 +4423,7 @@ Function verify_1_sluch(fl_view)
       if human->OBRASHEN == '1' // ¯®¤®§à¥­¨¥ ­  ‡
         aadd(ta,"¯¥à¢ ï £àã¯¯  ­¥ ¬®¦¥â ¡ëâì ¯à¨á¢®¥­  ¯ æ¨¥­âã á ¯®¤®§à¥­¨¥¬ ­  ‡")
       endif
-    elseif eq_any(human_->RSLT_NEW,323,324,325,334,335,336,349,350,351,355,356,373,374)
+    elseif eq_any(human_->RSLT_NEW,323,324,325,334,335,336,349,350,351,355,356,373,374,357,358)
       fl := !empty(arr_onkna)
       if !fl .and. m1dopo_na > 0
         fl := .t.

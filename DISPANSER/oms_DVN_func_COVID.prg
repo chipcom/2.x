@@ -139,7 +139,7 @@ Function ret_profil_dispans_COVID(lprofil,lprvs)
   endif
   return lprofil
   
-***** 19.07.21
+***** 30.07.21
 Function save_arr_DVN_COVID(lkod)
   Local arr := {}, i, sk, ta
 
@@ -228,7 +228,6 @@ Function save_arr_DVN_COVID(lkod)
     aadd(arr,{"52",m1napr_v_mo})
   endif
   if type("arr_mo_spec") == "A"   //.and. !empty(arr_mo_spec)
-my_debug(,'save: '+print_array(arr_mo_spec))
     aadd(arr,{"53",arr_mo_spec}) // массив
   endif
   if type("m1napr_stac") == "N"
@@ -246,7 +245,7 @@ my_debug(,'save: '+print_array(arr_mo_spec))
   save_arr_DISPANS(lkod,arr)
   return NIL
 
-***** 19.01.21
+***** 30.01.21
 Function read_arr_DVN_COVID(lkod,is_all)
   Local arr, i, sk
   
@@ -353,7 +352,6 @@ Function read_arr_DVN_COVID(lkod,is_all)
           m1napr_v_mo  := arr[i,2]
         case arr[i,1] == "53" .and. valtype(arr[i,2]) == "A"
           arr_mo_spec := arr[i,2]
-my_debug(,'read: '+print_array(arr_mo_spec))
         case arr[i,1] == "54" .and. valtype(arr[i,2]) == "N"
           m1napr_stac := arr[i,2]
         case arr[i,1] == "55" .and. valtype(arr[i,2]) == "N"
