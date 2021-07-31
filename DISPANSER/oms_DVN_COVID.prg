@@ -96,7 +96,7 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
     mnapr_onk := space(10), m1napr_onk := 0,;
     mOKSI := 0,;  // данные оксиметра %
     mDateCOVID := sys_date,;  // дата окончания лечения COVID
-    mgruppa, m1gruppa := 9,;      // группа здоровья
+    mgruppa, m1gruppa := 1,;      // группа здоровья
     mdyspnea, m1dyspnea := 0 //
     // m1ndisp := 1, mndisp,;
   Private mdispans, m1dispans := 0, mnazn_l , m1nazn_l  := 0,;
@@ -276,8 +276,7 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       if eq_any(letap,1,2)
         lrslt_1_etap := human_->RSLT_NEW
       endif
-      read_arr_DVN_COVID(human->kod,.f.)  // читаем сохраненные данные по углубленной диспансеризации
-
+      // read_arr_DVN_COVID(human->kod,.f.)  // читаем сохраненные данные по углубленной диспансеризации
     endif
   endif
   
@@ -413,7 +412,7 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       skip
     enddo
     //
-    read_arr_DVN_COVID(Loc_kod)
+    read_arr_DVN_COVID(Loc_kod)     // читаем сохраненные данные по углубленной диспансеризации
 
     if metap == 1 .and. between(m1GRUPPA,11,14) .and. m1p_otk == 1
       m1GRUPPA += 10
@@ -866,68 +865,73 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       @ ++j,1 say "Назначено лечение (для ф.131)" get mnazn_l ;
                  reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
 
-      if mk_data >= 0d20210801  // по новому ПУМП
-        @ j, 74 say "Врач"
-        @ ++j, 1 say replicate("─",78) color color1
-
-        mdopo_na := iif(len(mdopo_na)>0,substr(mdopo_na,1,20),'')
-        @ ++j,1 say "Направлен на дополнительное обследование" get mdopo_na ;
-          reader {|x|menu_reader(x,mm_dopo_na,A__MENUBIT,,,.f.)}
-        @ j,73 get mtab_v_dopo_na pict "99999" valid {|g| v_kart_vrach(g) } when m1dopo_na > 0
-
-        @ ++j,1 say "Направлен" get mnapr_v_mo ;
-            reader {|x|menu_reader(x,mm_napr_v_mo,A__MENUVERT,,,.f.)} ;
-            valid {|| iif(m1napr_v_mo==0, (arr_mo_spec:={},ma_mo_spec:=padr("---",42)), ), update_get("ma_mo_spec")}
-        ma_mo_spec := iif(len(ma_mo_spec)>0,substr(ma_mo_spec,1,20),'')
-        @ j,col()+1 say "к специалистам" get ma_mo_spec ;
-            reader {|x|menu_reader(x,{{|k,r,c| fget_spec_DVN(k,r,c,arr_mo_spec)}},A__FUNCTION,,,.f.)} ;
-            when m1napr_v_mo > 0
-        @ j,73 get mtab_v_mo pict "99999" valid {|g| v_kart_vrach(g) } when m1napr_v_mo > 0
-        @ ++j,1 say "Направлен на лечение" get mnapr_stac ;
-            reader {|x|menu_reader(x,mm_napr_stac,A__MENUVERT,,,.f.)} ;
-            valid {|| iif(m1napr_stac==0, (m1profil_stac:=0,mprofil_stac:=space(32)), ), update_get("mprofil_stac")}
-        mprofil_stac := iif(len(mprofil_stac)>0,substr(mprofil_stac,1,27),'')
-        @ j,col()+1 say "по профилю" get mprofil_stac PICTURE '@S27';
-            reader {|x|menu_reader(x,glob_V002,A__MENUVERT,,,.f.)} ;
-            when m1napr_stac > 0
-        @ j,73 get mtab_v_stac pict "99999" valid {|g| v_kart_vrach(g) } when m1napr_stac > 0
-        @ ++j,1 say "Направлен на реабилитацию" get mnapr_reab ;
-            reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
-            valid {|| iif(m1napr_reab==0, (m1profil_kojki:=0,mprofil_kojki:=space(30)), ), update_get("mprofil_kojki")}
-        mprofil_kojki := iif(len(mprofil_kojki)>0,substr(mprofil_kojki,1,25),'')
-        @ j,col()+1 say ", профиль койки" get mprofil_kojki ;
-            reader {|x|menu_reader(x,glob_V020,A__MENUVERT,,,.f.)} ;
-            when m1napr_reab > 0
-        @ j,73 get mtab_v_reab pict "99999" valid {|g| v_kart_vrach(g) } when m1napr_reab > 0
-        @ ++j,1 say "Направлен на санаторно-курортное лечение" get msank_na ;
-            reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}      //;
-            //  valid {|| iif(m1sank_na==0, mtab_v_sanat := 0, ), update_get("mtab_v_sank")}
-        @ j,73 get mtab_v_sanat pict "99999" valid {|g| v_kart_vrach(g) } when (m1sank_na > 0)
-      else
-        @ ++j,1 say "Направлен на дополнительное обследование" get mdopo_na ;
-            reader {|x|menu_reader(x,mm_dopo_na,A__MENUBIT,,,.f.)}
-        @ ++j,1 say "Направлен" get mnapr_v_mo ;
-            reader {|x|menu_reader(x,mm_napr_v_mo,A__MENUVERT,,,.f.)} ;
-            valid {|| iif(m1napr_v_mo==0, (arr_mo_spec:={},ma_mo_spec:=padr("---",42)), ), update_get("ma_mo_spec")}
-        @ j,col()+1 say "к специалистам" get ma_mo_spec ;
-            reader {|x|menu_reader(x,{{|k,r,c| fget_spec_DVN(k,r,c,arr_mo_spec)}},A__FUNCTION,,,.f.)} ;
-            when m1napr_v_mo > 0
-        @ ++j,1 say "Направлен на лечение" get mnapr_stac ;
-            reader {|x|menu_reader(x,mm_napr_stac,A__MENUVERT,,,.f.)} ;
-            valid {|| iif(m1napr_stac==0, (m1profil_stac:=0,mprofil_stac:=space(32)), ), update_get("mprofil_stac")}
-        @ j,col()+1 say "по профилю" get mprofil_stac ;
-            reader {|x|menu_reader(x,glob_V002,A__MENUVERT,,,.f.)} ;
-            when m1napr_stac > 0
-        @ ++j,1 say "Направлен на реабилитацию" get mnapr_reab ;
-            reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
-            valid {|| iif(m1napr_reab==0, (m1profil_kojki:=0,mprofil_kojki:=space(30)), ), update_get("mprofil_kojki")}
-        @ j,col()+1 say ", профиль койки" get mprofil_kojki ;
-            reader {|x|menu_reader(x,glob_V020,A__MENUVERT,,,.f.)} ;
-            when m1napr_reab > 0
-        @ ++j,1 say "Направлен на санаторно-курортное лечение" get msank_na ;
-            reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}      //;
-            //  valid {|| iif(m1sank_na==0, mtab_v_sanat := 0, ), update_get("mtab_v_sank")}
-      endif
+      dispans_napr(mk_data, @j, .t.)  // вызов заполнения блока направлений
+//       if mk_data >= 0d20210801  // по новому ПУМП
+//         @ j, 74 say "Врач"
+//         @ ++j, 1 say replicate("─",78) color color1
+// // направление на дополниельное обследование
+//         mdopo_na := iif(len(mdopo_na)>0,substr(mdopo_na,1,20),'')
+//         @ ++j,1 say "Направлен на дополнительное обследование" get mdopo_na ;
+//           reader {|x|menu_reader(x,mm_dopo_na,A__MENUBIT,,,.f.)} ;
+//           valid {|| iif(m1dopo_na==0, mtab_v_dopo_na := 0, ), update_get("mtab_v_dopo_na")}
+//           @ j,73 get mtab_v_dopo_na pict "99999" valid {|g| v_kart_vrach(g) } when m1dopo_na > 0
+// // направление в медицинскую организацию
+//         @ ++j,1 say "Направлен" get mnapr_v_mo ;
+//             reader {|x|menu_reader(x,mm_napr_v_mo,A__MENUVERT,,,.f.)} ;
+//             valid {|| iif(m1napr_v_mo==0, (arr_mo_spec:={},mtab_v_mo:=0,ma_mo_spec:=padr("---",42)), ), update_get("ma_mo_spec")}
+//         ma_mo_spec := iif(len(ma_mo_spec)>0,substr(ma_mo_spec,1,20),'')
+//         @ j,col()+1 say "к специалистам" get ma_mo_spec ;
+//             reader {|x|menu_reader(x,{{|k,r,c| fget_spec_DVN(k,r,c,arr_mo_spec)}},A__FUNCTION,,,.f.)} ;
+//             when m1napr_v_mo > 0
+//         @ j,73 get mtab_v_mo pict "99999" valid {|g| v_kart_vrach(g) } when m1napr_v_mo > 0
+// // направление в стационар
+//         @ ++j,1 say "Направлен на лечение" get mnapr_stac ;
+//             reader {|x|menu_reader(x,mm_napr_stac,A__MENUVERT,,,.f.)} ;
+//             valid {|| iif(m1napr_stac==0, (m1profil_stac:=0,mtab_v_stac:=0,mprofil_stac:=space(32)), ), update_get("mprofil_stac")}
+//         mprofil_stac := iif(len(mprofil_stac)>0,substr(mprofil_stac,1,27),'')
+//         @ j,col()+1 say "по профилю" get mprofil_stac PICTURE '@S27';
+//             reader {|x|menu_reader(x,glob_V002,A__MENUVERT,,,.f.)} ;
+//             when m1napr_stac > 0
+//         @ j,73 get mtab_v_stac pict "99999" valid {|g| v_kart_vrach(g) } when m1napr_stac > 0
+// // направлен на реабилитацию
+//         @ ++j,1 say "Направлен на реабилитацию" get mnapr_reab ;
+//             reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
+//             valid {|| iif(m1napr_reab==0, (m1profil_kojki:=0,mtab_v_reab:=0,mprofil_kojki:=space(30)), ), update_get("mprofil_kojki")}
+//         mprofil_kojki := iif(len(mprofil_kojki)>0,substr(mprofil_kojki,1,25),'')
+//         @ j,col()+1 say ", профиль койки" get mprofil_kojki ;
+//             reader {|x|menu_reader(x,glob_V020,A__MENUVERT,,,.f.)} ;
+//             when m1napr_reab > 0
+//         @ j,73 get mtab_v_reab pict "99999" valid {|g| v_kart_vrach(g) } when m1napr_reab > 0
+// // направлен на санаторно-курортное лечение
+//         @ ++j,1 say "Направлен на санаторно-курортное лечение" get msank_na ;
+//             reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
+//             valid {|| iif(m1sank_na==0, mtab_v_sanat := 0, ), update_get("mtab_v_sank")}
+//         @ j,73 get mtab_v_sanat pict "99999" valid {|g| v_kart_vrach(g) } when (m1sank_na > 0)
+//       else  // по старым правилам ПУМП
+//         @ ++j,1 say "Направлен на дополнительное обследование" get mdopo_na ;
+//             reader {|x|menu_reader(x,mm_dopo_na,A__MENUBIT,,,.f.)}
+//         @ ++j,1 say "Направлен" get mnapr_v_mo ;
+//             reader {|x|menu_reader(x,mm_napr_v_mo,A__MENUVERT,,,.f.)} ;
+//             valid {|| iif(m1napr_v_mo==0, (arr_mo_spec:={},ma_mo_spec:=padr("---",42)), ), update_get("ma_mo_spec")}
+//         @ j,col()+1 say "к специалистам" get ma_mo_spec ;
+//             reader {|x|menu_reader(x,{{|k,r,c| fget_spec_DVN(k,r,c,arr_mo_spec)}},A__FUNCTION,,,.f.)} ;
+//             when m1napr_v_mo > 0
+//         @ ++j,1 say "Направлен на лечение" get mnapr_stac ;
+//             reader {|x|menu_reader(x,mm_napr_stac,A__MENUVERT,,,.f.)} ;
+//             valid {|| iif(m1napr_stac==0, (m1profil_stac:=0,mprofil_stac:=space(32)), ), update_get("mprofil_stac")}
+//         @ j,col()+1 say "по профилю" get mprofil_stac ;
+//             reader {|x|menu_reader(x,glob_V002,A__MENUVERT,,,.f.)} ;
+//             when m1napr_stac > 0
+//         @ ++j,1 say "Направлен на реабилитацию" get mnapr_reab ;
+//             reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
+//             valid {|| iif(m1napr_reab==0, (m1profil_kojki:=0,mprofil_kojki:=space(30)), ), update_get("mprofil_kojki")}
+//         @ j,col()+1 say ", профиль койки" get mprofil_kojki ;
+//             reader {|x|menu_reader(x,glob_V020,A__MENUVERT,,,.f.)} ;
+//             when m1napr_reab > 0
+//         @ ++j,1 say "Направлен на санаторно-курортное лечение" get msank_na ;
+//             reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}      //;
+//             //  valid {|| iif(m1sank_na==0, mtab_v_sanat := 0, ), update_get("mtab_v_sank")}
+//       endif
 
       ++j
 
@@ -1011,6 +1015,13 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
         func_error(4,'Не заполнен номер амбулаторной карты')
         loop
       endif
+      if eq_any(m1gruppa, 3, 4, 13, 14) .and. (m1dopo_na == 0) .and. (m1napr_v_mo == 0) .and. (m1napr_stac == 0) .and. (m1napr_reab == 0)
+        func_error(4,"Для выбранной ГРУППЫ ЗДОРОВЬЯ выберите назначения (направления) для пациента!")
+        loop
+      endif
+      if ! testingTabNumberDoctor(mk_data)
+        loop
+      endif
       //
 //////////////////////////////////////////////////////////////
       mdef_diagnoz := 'U09.9 '
@@ -1028,101 +1039,99 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       for i := 1 to len(uslugiEtap_DVN_COVID(metap))
         fl_diag := .f.
         i_otkaz := 0
-        // if f_is_usl_oms_sluch_DVN_COVID(i, metap, .t., @fl_diag, @i_otkaz)
         f_is_usl_oms_sluch_DVN_COVID(i, metap, .t., @fl_diag, @i_otkaz)
-          mvart := "MTAB_NOMv"+lstr(i)
-          mvara := "MTAB_NOMa"+lstr(i)
-          mvard := "MDATE"+lstr(i)
-          mvarz := "MKOD_DIAG"+lstr(i)
-          mvaro := "M1OTKAZ"+lstr(i)
-          ar := uslugiEtap_DVN_COVID(metap)[i]
-          // для заполнения услуги 70.8.1
-          if valtype(ar[2]) == "C" .and. ar[2] == "B01.026.001"
-            tmpvr := &mvart
+        mvart := "MTAB_NOMv"+lstr(i)
+        mvara := "MTAB_NOMa"+lstr(i)
+        mvard := "MDATE"+lstr(i)
+        mvarz := "MKOD_DIAG"+lstr(i)
+        mvaro := "M1OTKAZ"+lstr(i)
+        ar := uslugiEtap_DVN_COVID(metap)[i]
+        // для заполнения услуги 70.8.1
+        if valtype(ar[2]) == "C" .and. ar[2] == "B01.026.001"
+          tmpvr := &mvart
+        endif
+        if valtype(ar[2]) == "C" .and. ar[2] == "70.8.1" .and. metap == 1
+          &mvard := mn_data
+          &mvart := tmpvr
+        endif
+        //
+        ++kol_d_usl
+        arr_osm1[i,12] := uslugiEtap_DVN_COVID(metap)[i, 12]   // признак услуги 0 - ТФОМС / 1 - ФФОМС
+        if arr_osm1[i,12] == 0
+          arr_osm1[i,13] := uslugiEtap_DVN_COVID(metap)[i, 13]
+        endif
+        if i_otkaz == 2 .and. &mvaro == 2 // если исследование невозможно
+          select P2
+          find (str(&mvart,5))
+          if found()
+            arr_osm1[i,1] := p2->kod
           endif
-          if valtype(ar[2]) == "C" .and. ar[2] == "70.8.1" .and. metap == 1
-            &mvard := mn_data
-            &mvart := tmpvr
+          if valtype(ar[11]) == "A" // специальность
+            arr_osm1[i,2] := ar[11,1]
           endif
-          //
-          ++kol_d_usl
-          arr_osm1[i,12] := uslugiEtap_DVN_COVID(metap)[i, 12]   // признак услуги 0 - ТФОМС / 1 - ФФОМС
-          if arr_osm1[i,12] == 0
-            arr_osm1[i,13] := uslugiEtap_DVN_COVID(metap)[i, 13]
+          if valtype(ar[10]) == "N" // профиль
+            arr_osm1[i,4] := ar[10]
           endif
-          if i_otkaz == 2 .and. &mvaro == 2 // если исследование невозможно
+          arr_osm1[i,5] := ar[2] // шифр услуги
+          // arr_osm1[i,9] := iif(empty(&mvard), mn_data, &mvard)
+          arr_osm1[i,9] := iif(empty(&mvard), mk_data, &mvard)
+          arr_osm1[i,10] := &mvaro
+          --kol_d_usl
+        elseif empty(&mvard)
+          fl := func_error(4,'Не введена дата услуги "'+ltrim(ar[1])+'"')
+        elseif empty(&mvart) .and. metap == 1 .and. !eq_any(ar[2], '70.8.2', '70.8.3')      // на втором этапе услуги могут быть не все
+          fl := func_error(4,'Не введен врач в услуге "'+ltrim(ar[1])+'"')
+        else  // табельный номер врача и его специальность
+          select P2
+          find (str(&mvart,5))
+          if found()
+            arr_osm1[i,1] := p2->kod
+            arr_osm1[i,2] := -ret_new_spec(p2->prvs,p2->prvs_new)
+          endif
+          if !empty(&mvara) // табельный номер ассистента
             select P2
-            find (str(&mvart,5))
+            find (str(&mvara,5))
             if found()
-              arr_osm1[i,1] := p2->kod
+              arr_osm1[i,3] := p2->kod
             endif
-            if valtype(ar[11]) == "A" // специальность
-              arr_osm1[i,2] := ar[11,1]
+          endif
+          if valtype(ar[10]) == "N" // профиль
+            arr_osm1[i,4] := ret_profil_dispans_COVID(ar[10],arr_osm1[i,2])
+          else
+            if len(ar[10]) == len(ar[11]) ; // кол-во профилей = кол-ву спец-тей
+                  .and. arr_osm1[i,2] < 0 ; // и нашли специальность по V015
+                  .and. (j := ascan(ar[11],ret_old_prvs(arr_osm1[i,2]))) > 0
+              // берём профиль, соответствующий специальности
+            else
+              j := 1 // если нет, берём первый профиль из списка
             endif
-            if valtype(ar[10]) == "N" // профиль
-              arr_osm1[i,4] := ar[10]
-            endif
+            arr_osm1[i,4] := ar[10,j] // профиль
+          endif
+          if valtype(ar[2]) == "C"  // шифр услуги
             arr_osm1[i,5] := ar[2] // шифр услуги
-            // arr_osm1[i,9] := iif(empty(&mvard), mn_data, &mvard)
-            arr_osm1[i,9] := iif(empty(&mvard), mk_data, &mvard)
-            arr_osm1[i,10] := &mvaro
-            --kol_d_usl
-          elseif empty(&mvard)
-            fl := func_error(4,'Не введена дата услуги "'+ltrim(ar[1])+'"')
-          elseif empty(&mvart) .and. metap == 1 .and. !eq_any(ar[2], '70.8.2', '70.8.3')      // на втором этапе услуги могут быть не все
-            fl := func_error(4,'Не введен врач в услуге "'+ltrim(ar[1])+'"')
-          else  // табельный номер врача и его специальность
-            select P2
-            find (str(&mvart,5))
-            if found()
-              arr_osm1[i,1] := p2->kod
-              arr_osm1[i,2] := -ret_new_spec(p2->prvs,p2->prvs_new)
-            endif
-            if !empty(&mvara) // табельный номер ассистента
-              select P2
-              find (str(&mvara,5))
-              if found()
-                arr_osm1[i,3] := p2->kod
-              endif
-            endif
-            if valtype(ar[10]) == "N" // профиль
-              arr_osm1[i,4] := ret_profil_dispans_COVID(ar[10],arr_osm1[i,2])
+          else
+            if len(ar[2]) >= metap
+              j := metap
             else
-              if len(ar[10]) == len(ar[11]) ; // кол-во профилей = кол-ву спец-тей
-                    .and. arr_osm1[i,2] < 0 ; // и нашли специальность по V015
-                    .and. (j := ascan(ar[11],ret_old_prvs(arr_osm1[i,2]))) > 0
-                // берём профиль, соответствующий специальности
-              else
-                j := 1 // если нет, берём первый профиль из списка
-              endif
-              arr_osm1[i,4] := ar[10,j] // профиль
+              j := 1
             endif
-            if valtype(ar[2]) == "C"  // шифр услуги
-              arr_osm1[i,5] := ar[2] // шифр услуги
-            else
-              if len(ar[2]) >= metap
-                j := metap
-              else
-                j := 1
-              endif
-              arr_osm1[i,5] := ar[2,j] // шифр услуги
-            endif
-
-            if !fl_diag .or. empty(&mvarz) .or. left(&mvarz,1) == 'U'
-              arr_osm1[i,6] := mdef_diagnoz
-            else
-              arr_osm1[i,6] := &mvarz
-              select MKB_10
-              find (padr(arr_osm1[i,6],6))
-              if found() .and. !empty(mkb_10->pol) .and. !(mkb_10->pol == mpol)
-                fl := func_error(4,"Несовместимость диагноза по полу "+arr_osm1[i,6])
-              endif
-            endif
-            arr_osm1[i,10] := &mvaro
-            arr_osm1[i,9] := &mvard
-
+            arr_osm1[i,5] := ar[2,j] // шифр услуги
           endif
-        // endif
+
+          if !fl_diag .or. empty(&mvarz) .or. left(&mvarz,1) == 'U'
+            arr_osm1[i,6] := mdef_diagnoz
+          else
+            arr_osm1[i,6] := &mvarz
+            select MKB_10
+            find (padr(arr_osm1[i,6],6))
+            if found() .and. !empty(mkb_10->pol) .and. !(mkb_10->pol == mpol)
+              fl := func_error(4,"Несовместимость диагноза по полу "+arr_osm1[i,6])
+            endif
+          endif
+          arr_osm1[i,10] := &mvaro
+          arr_osm1[i,9] := &mvard
+
+        endif
         if !fl
           exit
         endif

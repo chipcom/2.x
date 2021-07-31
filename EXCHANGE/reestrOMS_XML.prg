@@ -1099,6 +1099,7 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
             p2->(dbGoto(hu->kod_vr))
             mo_add_xml_stroke(oUSL,"CODE_MD",p2->snils)
           endif
+          
         next
       endif
       if p_tip_reestr == 2 .and. len(a_otkaz) > 0 // отказы (диспансеризация или профосмоты несовешеннолетних)

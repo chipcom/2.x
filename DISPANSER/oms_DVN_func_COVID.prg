@@ -227,7 +227,8 @@ Function save_arr_DVN_COVID(lkod)
   if type("m1napr_v_mo") == "N"
     aadd(arr,{"52",m1napr_v_mo})
   endif
-  if type("arr_mo_spec") == "A" .and. !empty(arr_mo_spec)
+  if type("arr_mo_spec") == "A"   //.and. !empty(arr_mo_spec)
+my_debug(,'save: '+print_array(arr_mo_spec))
     aadd(arr,{"53",arr_mo_spec}) // массив
   endif
   if type("m1napr_stac") == "N"
@@ -352,6 +353,7 @@ Function read_arr_DVN_COVID(lkod,is_all)
           m1napr_v_mo  := arr[i,2]
         case arr[i,1] == "53" .and. valtype(arr[i,2]) == "A"
           arr_mo_spec := arr[i,2]
+my_debug(,'read: '+print_array(arr_mo_spec))
         case arr[i,1] == "54" .and. valtype(arr[i,2]) == "N"
           m1napr_stac := arr[i,2]
         case arr[i,1] == "55" .and. valtype(arr[i,2]) == "N"

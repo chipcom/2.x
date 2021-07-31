@@ -176,6 +176,7 @@ mo_version.prg
 .\dispanser\oms_DDS_func.prg
 .\dispanser\oms_PN.prg
 .\dispanser\oms_PN_func.prg
+.\dispanser\oms_dispans_naprav.prg
 
 .\EXCHANGE\reestrOMS_XML.prg
 .\EXCHANGE\extract_reestr.prg
