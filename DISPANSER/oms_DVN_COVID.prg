@@ -888,7 +888,7 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
 //             when m1napr_reab > 0
 //         @ ++j,1 say "Направлен на санаторно-курортное лечение" get msank_na ;
 //             reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}      //;
-//             //  valid {|| iif(m1sank_na==0, mtab_v_sanat := 0, ), update_get("mtab_v_sank")}
+//             //  valid {|| iif(m1sank_na==0, mtab_v_sanat := 0, ), update_get("mtab_v_sanat")}
 
       ++j
 
@@ -1659,7 +1659,7 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       //     DeleteRec(.t.,.f.)  // очистка записи без пометки на удаление
       //   next
       // endif
-      save_arr_DVN_COVID(mkod)
+      save_arr_DVN_COVID(mkod, mk_data)
 
       write_work_oper(glob_task,OPER_LIST,iif(Loc_kod==0,1,2),1,count_edit)
       fl_write_sluch := .t.

@@ -17,7 +17,7 @@ function dispans_napr(mk_data, /*@*/j, lSanat)
     @ j, 74 say "Врач"
     @ ++j, 1 say replicate("─",78) color color1
 // направление на дополниельное обследование
-    mdopo_na := iif(len(mdopo_na)>0,substr(mdopo_na,1,20),'')
+    mdopo_na := iif(len(mdopo_na)>0,substr(mdopo_na,1,31),'')
     @ ++j,1 say "Направлен на дополнительное обследование" get mdopo_na ;
         reader {|x|menu_reader(x,mm_dopo_na,A__MENUBIT,,,.f.)} ;
         valid {|| iif(m1dopo_na==0, mtab_v_dopo_na := 0, ), update_get("mtab_v_dopo_na")}
