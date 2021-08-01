@@ -305,6 +305,7 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
   R_Use(dir_server+"mo_uch",,"UCH")
   R_Use(dir_server+"mo_otd",,"OTD")
   R_Use(dir_server+"mo_pers",,"P2")
+  R_Use(dir_server+"mo_pers",dir_server+"mo_pers","P2TABN")
   R_Use(dir_server+"uslugi",,"USL")
   G_Use(dir_server+"mo_rhum",,"RHUM")
   index on str(REESTR,6) to (cur_dir+"tmp_rhum")
@@ -453,6 +454,9 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
     arr_onk_usl := {}
     a_otkaz := {}
     arr_nazn := {}
+
+    mtab_v_dopo_na := mtab_v_mo := mtab_v_stac := mtab_v_reab := mtab_v_sanat := 0
+
     //
     select HUMAN
     goto (rhum->kod_hum)  // встали на 2-ой лист учёта
@@ -754,6 +758,11 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
             oPRESCRIPTIONS := oPRESCRIPTION:Add( HXMLNode():New( "PRESCRIPTIONS" ) )
             mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_N",lstr(j))
             mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_R",lstr(arr_nazn[j,1]))
+
+            if !empty(arr_nazn[j,3])   // по новому ПУМП с 01.08.2021
+              mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_IDDOKT",arr_nazn[j,3])
+            endif
+            
             if eq_any(arr_nazn[j,1],1,2) // {"в нашу МО",1},{"в иную МО",2}}
               // к какому специалисту направлен
               mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_SP",arr_nazn[j,2]) // результат ф-ии put_prvs_to_reestr(human_->PRVS,_NYEAR)
@@ -1068,37 +1077,36 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
           mo_add_xml_stroke(oUSL,"TARIF"   ,lstr(hu->U_CENA,10,2))
           mo_add_xml_stroke(oUSL,"SUMV_USL",lstr(hu->STOIM_1,10,2))
 
-//           if human->k_data >= 0d20210801 .and. p_tip_reestr == 2
-// // сюда добавить новые правила заполнения с 01.08.2021 письмо № 04-18-13 от 20.07.2021
-//             oMR_USL_N := oUSL:Add( HXMLNode():New( "MR_USL_N" ) )
-//             mo_add_xml_stroke(oMR_USL_N,"MR_N",lstr(1))   // уточнить
-//             mo_add_xml_stroke(oMR_USL_N,"PRVS",put_prvs_to_reestr(hu_->PRVS,_NYEAR))
-//             if c4tod(hu->DATE_U) < human->n_data ; // если сделано ранее
-//                 .or. eq_any(hu->is_edit,-1,1,2,3) .or. lshifr == "4.20.2" .or. left(lshifr,5) == "60.8." .or. fl
-//               mo_add_xml_stroke(oMR_USL_N,"CODE_MD",'0') // не заполняется код врача
-//             else
-//               p2->(dbGoto(hu->kod_vr))
-//               mo_add_xml_stroke(oMR_USL_N,"CODE_MD",p2->snils)
-//             endif
-//           elseif human->k_data < 0d20210801 .and. p_tip_reestr == 2
-//             mo_add_xml_stroke(oUSL,"PRVS",put_prvs_to_reestr(hu_->PRVS,_NYEAR))
-//             if c4tod(hu->DATE_U) < human->n_data ; // если сделано ранее
-//                 .or. eq_any(hu->is_edit,-1,1,2,3) .or. lshifr == "4.20.2" .or. left(lshifr,5) == "60.8." .or. fl
-//               mo_add_xml_stroke(oUSL,"CODE_MD",'0') // не заполняется код врача
-//             else
-//               p2->(dbGoto(hu->kod_vr))
-//               mo_add_xml_stroke(oUSL,"CODE_MD",p2->snils)
-//             endif
-//           endif
-
-          mo_add_xml_stroke(oUSL,"PRVS",put_prvs_to_reestr(hu_->PRVS,_NYEAR))
-          if c4tod(hu->DATE_U) < human->n_data ; // если сделано ранее
+          if human->k_data >= 0d20210801 .and. p_tip_reestr == 2  // новые правила заполнения с 01.08.2021 письмо № 04-18-13 от 20.07.2021
+            oMR_USL_N := oUSL:Add( HXMLNode():New( "MR_USL_N" ) )
+            mo_add_xml_stroke(oMR_USL_N,"MR_N",lstr(1))   // уточнить
+            mo_add_xml_stroke(oMR_USL_N,"PRVS",put_prvs_to_reestr(hu_->PRVS,_NYEAR))
+            if c4tod(hu->DATE_U) < human->n_data ; // если сделано ранее
                 .or. eq_any(hu->is_edit,-1,1,2,3) .or. lshifr == "4.20.2" .or. left(lshifr,5) == "60.8." .or. fl
-            mo_add_xml_stroke(oUSL,"CODE_MD",'0') // не заполняется код врача
-          else
-            p2->(dbGoto(hu->kod_vr))
-            mo_add_xml_stroke(oUSL,"CODE_MD",p2->snils)
+              mo_add_xml_stroke(oMR_USL_N,"CODE_MD",'0') // не заполняется код врача
+            else
+              p2->(dbGoto(hu->kod_vr))
+              mo_add_xml_stroke(oMR_USL_N,"CODE_MD",p2->snils)
+            endif
+          elseif human->k_data < 0d20210801 .and. p_tip_reestr == 2
+            mo_add_xml_stroke(oUSL,"PRVS",put_prvs_to_reestr(hu_->PRVS,_NYEAR))
+            if c4tod(hu->DATE_U) < human->n_data ; // если сделано ранее
+                .or. eq_any(hu->is_edit,-1,1,2,3) .or. lshifr == "4.20.2" .or. left(lshifr,5) == "60.8." .or. fl
+              mo_add_xml_stroke(oUSL,"CODE_MD",'0') // не заполняется код врача
+            else
+              p2->(dbGoto(hu->kod_vr))
+              mo_add_xml_stroke(oUSL,"CODE_MD",p2->snils)
+            endif
           endif
+
+          // mo_add_xml_stroke(oUSL,"PRVS",put_prvs_to_reestr(hu_->PRVS,_NYEAR))
+          // if c4tod(hu->DATE_U) < human->n_data ; // если сделано ранее
+          //       .or. eq_any(hu->is_edit,-1,1,2,3) .or. lshifr == "4.20.2" .or. left(lshifr,5) == "60.8." .or. fl
+          //   mo_add_xml_stroke(oUSL,"CODE_MD",'0') // не заполняется код врача
+          // else
+          //   p2->(dbGoto(hu->kod_vr))
+          //   mo_add_xml_stroke(oUSL,"CODE_MD",p2->snils)
+          // endif
           
         next
       endif
@@ -1176,8 +1184,16 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
           if is_telemedicina(lshifr,@fl) // не заполняется код врача
             mo_add_xml_stroke(oUSL,"CODE_MD",'0')
           else
-            p2->(dbGoto(mohu->kod_vr))
-            mo_add_xml_stroke(oUSL,"CODE_MD" ,p2->snils)
+            if human->k_data >= 0d20210801 .and. p_tip_reestr == 2  // новые правила заполнения с 01.08.2021 письмо № 04-18-13 от 20.07.2021
+              oMR_USL_N := oUSL:Add( HXMLNode():New( "MR_USL_N" ) )
+              mo_add_xml_stroke(oMR_USL_N,"MR_N",lstr(1))   // уточнить
+              mo_add_xml_stroke(oMR_USL_N,"PRVS",put_prvs_to_reestr(hu_->PRVS,_NYEAR))
+              p2->(dbGoto(mohu->kod_vr))
+              mo_add_xml_stroke(oMR_USL_N,"CODE_MD",p2->snils)
+            elseif human->k_data < 0d20210801 .and. p_tip_reestr == 2
+              p2->(dbGoto(mohu->kod_vr))
+              mo_add_xml_stroke(oUSL,"CODE_MD" ,p2->snils)
+            endif
           endif
           if !empty(mohu->zf)
             dbSelectArea(laluslf)
@@ -2644,7 +2660,16 @@ Function f1_create2reestr19(_nyear,_nmonth)
   if m1dopo_na > 0
     for i := 1 to 4
       if isbit(m1dopo_na,i)
-        aadd(arr_nazn,{3,i}) // теперь каждое назначение в отдельном PRESCRIPTIONS
+        if mtab_v_dopo_na != 0
+          if P2TABN->(dbSeek(str(mtab_v_dopo_na,5)))
+            aadd(arr_nazn,{3, i, P2TABN->snils}) // теперь каждое назначение в отдельном PRESCRIPTIONS
+          else
+            aadd(arr_nazn,{3, i, ''}) // теперь каждое назначение в отдельном PRESCRIPTIONS
+          endif
+        else
+          aadd(arr_nazn,{3, i, ''}) // теперь каждое назначение в отдельном PRESCRIPTIONS
+        endif
+        // aadd(arr_nazn,{3, i, mtab_v_dopo_na}) // теперь каждое назначение в отдельном PRESCRIPTIONS
       endif
     next
     //aadd(arr_nazn,{3,{}}) ; j := len(arr_nazn)
@@ -2656,7 +2681,16 @@ Function f1_create2reestr19(_nyear,_nmonth)
   endif
   if between(m1napr_v_mo,1,2) .and. !empty(arr_mo_spec) // {{"-- нет --",0},{"в нашу МО",1},{"в иную МО",2}}, ;
     for i := 1 to len(arr_mo_spec) // теперь каждая специальность в отдельном PRESCRIPTIONS
-      aadd(arr_nazn,{m1napr_v_mo,put_prvs_to_reestr(-arr_mo_spec[i],_NYEAR)}) // "-", т.к. спец-ть была в кодировке V015
+      if mtab_v_mo != 0
+        if P2TABN->(dbSeek(str(mtab_v_mo,5)))
+          aadd(arr_nazn,{m1napr_v_mo, put_prvs_to_reestr(-arr_mo_spec[i],_NYEAR), P2TABN->snils}) // "-", т.к. спец-ть была в кодировке V015
+        else
+          aadd(arr_nazn,{m1napr_v_mo, put_prvs_to_reestr(-arr_mo_spec[i],_NYEAR), ''}) // "-", т.к. спец-ть была в кодировке V015
+        endif
+      else
+        aadd(arr_nazn,{m1napr_v_mo, put_prvs_to_reestr(-arr_mo_spec[i],_NYEAR), ''}) // "-", т.к. спец-ть была в кодировке V015
+      endif
+      // aadd(arr_nazn,{m1napr_v_mo, put_prvs_to_reestr(-arr_mo_spec[i],_NYEAR), mtab_v_mo}) // "-", т.к. спец-ть была в кодировке V015
     next
     //aadd(arr_nazn,{m1napr_v_mo,{}}) ; j := len(arr_nazn)
     //for i := 1 to min(3,len(arr_mo_spec))
@@ -2664,10 +2698,28 @@ Function f1_create2reestr19(_nyear,_nmonth)
     //next
   endif
   if between(m1napr_stac,1,2) .and. m1profil_stac > 0 // {{"--- нет ---",0},{"в стационар",1},{"в дн. стац.",2}}, ;
-    aadd(arr_nazn,{iif(m1napr_stac==1,5,4),m1profil_stac})
+    if mtab_v_stac != 0
+      if P2TABN->(dbSeek(str(mtab_v_stac,5)))
+        aadd(arr_nazn,{iif(m1napr_stac==1,5,4), m1profil_stac, P2TABN->snils})
+      else
+        aadd(arr_nazn,{iif(m1napr_stac==1,5,4), m1profil_stac, ''})
+      endif
+    else
+      aadd(arr_nazn,{iif(m1napr_stac==1,5,4), m1profil_stac, ''})
+    endif
+    // aadd(arr_nazn,{iif(m1napr_stac==1,5,4), m1profil_stac, mtab_v_stac})
   endif
   if m1napr_reab == 1 .and. m1profil_kojki > 0
-    aadd(arr_nazn,{6,m1profil_kojki})
+    if mtab_v_reab != 0
+      if P2TABN->(dbSeek(str(mtab_v_reab,5)))
+        aadd(arr_nazn,{6, m1profil_kojki, P2TABN->snils})
+      else
+        aadd(arr_nazn,{6, m1profil_kojki, ''})
+      endif
+    else
+      aadd(arr_nazn,{6, m1profil_kojki, ''})
+    endif
+    // aadd(arr_nazn,{6, m1profil_kojki, mtab_v_reab})
   endif
   cSMOname := ""
   if alltrim(human_->smo) == '34'

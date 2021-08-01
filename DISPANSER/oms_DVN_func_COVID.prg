@@ -212,14 +212,32 @@ Function save_arr_DVN_COVID(lkod, mk_data)
     aadd(arr,{"45",m1dispans})
     aadd(arr,{"46",m1nazn_l})
     if mk_data >= 0d20210801
-      aadd(arr,{"47",{m1dopo_na, mtab_v_dopo_na}})
+      if mtab_v_dopo_na != 0
+        if p2->(dbSeek(str(mtab_v_dopo_na,5)))
+          aadd(arr,{"47",{m1dopo_na, p2->kod}})
+        else
+          aadd(arr,{"47",{m1dopo_na, 0}})
+        endif
+      else
+        aadd(arr,{"47",{m1dopo_na, 0}})
+      endif
+      // aadd(arr,{"47",{m1dopo_na, mtab_v_dopo_na}})
     else
       aadd(arr,{"47",m1dopo_na})
     endif
     aadd(arr,{"48",m1ssh_na})
     aadd(arr,{"49",m1spec_na})
     if mk_data >= 0d20210801
-      aadd(arr,{"50",{m1sank_na, mtab_v_sanat}})
+      if mtab_v_sanat != 0
+        if p2->(dbSeek(str(mtab_v_sanat,5)))
+          aadd(arr,{"50",{m1sank_na, p2->kod}})
+        else
+          aadd(arr,{"50",{m1sank_na, 0}})
+        endif
+      else
+        aadd(arr,{"50",{m1sank_na, 0}})
+      endif
+      // aadd(arr,{"50",{m1sank_na, mtab_v_sanat}})
     else
       aadd(arr,{"50",m1sank_na})
     endif
@@ -229,7 +247,16 @@ Function save_arr_DVN_COVID(lkod, mk_data)
   endif
   if mk_data >= 0d20210801
     if type("m1napr_v_mo") == "N"
-      aadd(arr,{"52",{m1napr_v_mo, mtab_v_mo}})
+      if mtab_v_mo != 0
+        if p2->(dbSeek(str(mtab_v_mo,5)))
+          aadd(arr,{"52",{m1napr_v_mo, p2->kod}})
+        else
+          aadd(arr,{"52",{m1napr_v_mo, 0}})
+        endif
+      else
+        aadd(arr,{"52",{m1napr_v_mo, 0}})
+      endif
+      // aadd(arr,{"52",{m1napr_v_mo, mtab_v_mo}})
     endif
   else
     if type("m1napr_v_mo") == "N"
@@ -241,7 +268,16 @@ Function save_arr_DVN_COVID(lkod, mk_data)
   endif
   if mk_data >= 0d20210801
     if type("m1napr_stac") == "N"
-      aadd(arr,{"54",{m1napr_stac, mtab_v_stac}})
+      if mtab_v_stac != 0
+        if p2->(dbSeek(str(mtab_v_stac,5)))
+          aadd(arr,{"54",{m1napr_stac, p2->kod}})
+        else
+          aadd(arr,{"54",{m1napr_stac, 0}})
+        endif
+      else
+        aadd(arr,{"54",{m1napr_stac, 0}})
+      endif
+      // aadd(arr,{"54",{m1napr_stac, mtab_v_stac}})
     endif
   else
     if type("m1napr_stac") == "N"
@@ -253,7 +289,16 @@ Function save_arr_DVN_COVID(lkod, mk_data)
   endif
   if mk_data >= 0d20210801
     if type("m1napr_reab") == "N"
-      aadd(arr,{"56",{m1napr_reab, mtab_v_reab}})
+      if mtab_v_reab != 0
+        if p2->(dbSeek(str(mtab_v_reab,5)))
+          aadd(arr,{"56",{m1napr_reab, p2->kod}})
+        else
+          aadd(arr,{"56",{m1napr_reab, 0}})
+        endif
+      else
+        aadd(arr,{"56",{m1napr_reab, p2->kod}})
+      endif
+      // aadd(arr,{"56",{m1napr_reab, mtab_v_reab}})
     endif
   else
     if type("m1napr_reab") == "N"
@@ -354,7 +399,11 @@ Function read_arr_DVN_COVID(lkod,is_all)
             m1dopo_na  := arr[i,2]
           elseif valtype(arr[i,2]) == "A"
             m1dopo_na  := arr[i,2][1]
-            mtab_v_dopo_na := arr[i,2][2]
+            if arr[i,2][2] > 0
+              p2->(dbGoto(arr[i,2][2]))
+              mtab_v_dopo_na := p2->tab_nom
+            endif
+            // mtab_v_dopo_na := arr[i,2][2]
           endif
         case arr[i,1] == "48" .and. valtype(arr[i,2]) == "N"
           m1ssh_na   := arr[i,2]
@@ -365,7 +414,11 @@ Function read_arr_DVN_COVID(lkod,is_all)
             m1sank_na  := arr[i,2]
           elseif valtype(arr[i,2]) == "A"
             m1sank_na  := arr[i,2][1]
-            mtab_v_sanat := arr[i,2][2]
+            if arr[i,2][2] > 0
+              p2->(dbGoto(arr[i,2][2]))
+              mtab_v_sanat := p2->tab_nom
+            endif
+            // mtab_v_sanat := arr[i,2][2]
           endif
         case arr[i,1] == "51" .and. valtype(arr[i,2]) == "N"
           m1p_otk  := arr[i,2]
@@ -374,7 +427,11 @@ Function read_arr_DVN_COVID(lkod,is_all)
             m1napr_v_mo  := arr[i,2]
           elseif valtype(arr[i,2]) == "A"
             m1napr_v_mo  := arr[i,2][1]
-            mtab_v_mo := arr[i,2][2]
+            if arr[i,2][2] > 0
+              p2->(dbGoto(arr[i,2][2]))
+              mtab_v_mo := p2->tab_nom
+            endif
+            // mtab_v_mo := arr[i,2][2]
           endif
         case arr[i,1] == "53" .and. valtype(arr[i,2]) == "A"
           arr_mo_spec := arr[i,2]
@@ -383,7 +440,11 @@ Function read_arr_DVN_COVID(lkod,is_all)
             m1napr_stac := arr[i,2]
           elseif valtype(arr[i,2]) == "A"
             m1napr_stac := arr[i,2][1]
-            mtab_v_stac := arr[i,2][2]
+            if arr[i,2][2] > 0
+              p2->(dbGoto(arr[i,2][2]))
+              mtab_v_stac := p2->tab_nom
+            endif
+            // mtab_v_stac := arr[i,2][2]
           endif
         case arr[i,1] == "55" .and. valtype(arr[i,2]) == "N"
           m1profil_stac := arr[i,2]
@@ -392,7 +453,11 @@ Function read_arr_DVN_COVID(lkod,is_all)
             m1napr_reab := arr[i,2]
           elseif valtype(arr[i,2]) == "A"
             m1napr_reab := arr[i,2][1]
-            mtab_v_reab := arr[i,2][2]
+            if arr[i,2][2] > 0
+              p2->(dbGoto(arr[i,2][2]))
+              mtab_v_reab := p2->tab_nom
+            endif
+            // mtab_v_reab := arr[i,2][2]
           endif
         case arr[i,1] == "57" .and. valtype(arr[i,2]) == "N"
           m1profil_kojki := arr[i,2]

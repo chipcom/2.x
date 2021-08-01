@@ -412,12 +412,13 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       skip
     enddo
     //
+    R_Use(dir_server+"mo_pers",,"P2")
     read_arr_DVN_COVID(Loc_kod)     // читаем сохраненные данные по углубленной диспансеризации
 
     if metap == 1 .and. between(m1GRUPPA,11,14) .and. m1p_otk == 1
       m1GRUPPA += 10
     endif
-    R_Use(dir_server+"mo_pers",,"P2")
+    // R_Use(dir_server+"mo_pers",,"P2")
     for i := 1 to len(larr[1])
       if ( valtype(larr[2,i]) == "C" ) .and. ( ! eq_any(SubStr(larr[2,i],1,1), 'A', 'B') )  // это услуга ТФОМС, а не ФФОМС (первый символ не A,B)
         if larr[2,i] == '70.8.1'  // пропустим эту услугу
