@@ -180,4 +180,5 @@ mo_version.prg
 
 .\EXCHANGE\reestrOMS_XML.prg
 .\EXCHANGE\extract_reestr.prg
+.\EXCHANGE\create_reestr.prg
 .\EXCHANGE\mo_omss.prg
