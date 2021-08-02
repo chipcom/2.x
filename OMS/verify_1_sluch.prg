@@ -3362,7 +3362,9 @@ Function verify_1_sluch(fl_view)
     endif
     if eq_any(human->ishod,101,102)
       metap := human->ishod-100
+      R_Use(dir_server+"mo_pers",,"P2")
       read_arr_DDS(human->kod)
+      P2->(dbCloseArea())
     else
       aadd(ta,'диспансеризацию детей-сирот надо вводить через специальный экран ввода')
     endif
@@ -3480,7 +3482,9 @@ Function verify_1_sluch(fl_view)
     mperiod := ret_period_PN(mdate_r,d1,d2)
     if between(mperiod,1,31)
       np_oftal_2_85_21(mperiod,d2) // добавить или удалить офтальмолога в массив для несовершеннолетних для 12 месяцев
+      R_Use(dir_server+"mo_pers",,"P2")
       read_arr_PN(human->kod)
+      P2->(dbCloseArea())
       kol_d_otkaz := 0
       if valtype(arr_usl_otkaz) == "A"
         for j := 1 to len(arr_usl_otkaz)
@@ -3710,7 +3714,9 @@ Function verify_1_sluch(fl_view)
     m1profil_kojki := 0
     is_disp_nabl := .f.
     arr_nazn := {}
+    R_Use(dir_server+"mo_pers",,"P2")
     read_arr_DVN(human->kod)
+    P2->(dbCloseArea())
     if m1dopo_na > 0
       aadd(arr_nazn,{3,{}}) ; j := len(arr_nazn)
       for i := 1 to 4
