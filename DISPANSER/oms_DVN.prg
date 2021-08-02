@@ -315,7 +315,7 @@ Function oms_sluch_DVN(Loc_kod,kod_kartotek,f_print)
       if eq_any(letap,1,4)
         lrslt_1_etap := human_->RSLT_NEW
       endif
-      read_arr_DVN(human->kod,.f.)
+      // read_arr_DVN(human->kod,.f.)
     endif
   endif
   if empty(mWEIGHT)
@@ -498,11 +498,12 @@ Function oms_sluch_DVN(Loc_kod,kod_kartotek,f_print)
       select HU
       skip
     enddo
+    R_Use(dir_server+"mo_pers",,"P2")
     read_arr_DVN(Loc_kod)
     if metap == 1 .and. between(m1GRUPPA,11,14) .and. m1p_otk == 1
       m1GRUPPA += 10
     endif
-    R_Use(dir_server+"mo_pers",,"P2")
+    // R_Use(dir_server+"mo_pers",,"P2")
     for i := 1 to count_dvn_arr_usl
       if !empty(larr[1,i])
         hu->(dbGoto(larr[1,i]))
@@ -1167,6 +1168,9 @@ Function oms_sluch_DVN(Loc_kod,kod_kartotek,f_print)
           func_error(4,"Профилактику взрослых не проводят ветеранам ВОВ (блокадникам)")
           loop
         endif
+      endif
+      if ! testingTabNumberDoctor(mk_data)
+        loop
       endif
       //
       mdef_diagnoz := iif(metap==2, "Z01.8 ", "Z00.8 ")

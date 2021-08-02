@@ -113,38 +113,73 @@ Function read_arr_DVN(lkod,is_all)
           m1dispans  := arr[i,2]
         case arr[i,1] == "46" .and. valtype(arr[i,2]) == "N"
           m1nazn_l   := arr[i,2]
-        case arr[i,1] == "47" .and. valtype(arr[i,2]) == "N"
-          m1dopo_na  := arr[i,2]
+        case arr[i,1] == "47"     // .and. valtype(arr[i,2]) == "N"
+          if valtype(arr[i,2]) == "N"
+            m1dopo_na  := arr[i,2]
+          elseif valtype(arr[i,2]) == "A"
+            m1dopo_na  := arr[i,2][1]
+            if arr[i,2][2] > 0
+              p2->(dbGoto(arr[i,2][2]))
+              mtab_v_dopo_na := p2->tab_nom
+            endif
+            // mtab_v_dopo_na := arr[i,2][2]
+          endif
         case arr[i,1] == "48" .and. valtype(arr[i,2]) == "N"
           m1ssh_na   := arr[i,2]
         case arr[i,1] == "49" .and. valtype(arr[i,2]) == "N"
           m1spec_na  := arr[i,2]
-        case arr[i,1] == "50" .and. valtype(arr[i,2]) == "N"
-          m1sank_na  := arr[i,2]
+        case arr[i,1] == "50"   // .and. valtype(arr[i,2]) == "N"
+          if valtype(arr[i,2]) == "N"
+            m1sank_na  := arr[i,2]
+          elseif valtype(arr[i,2]) == "A"
+            m1sank_na  := arr[i,2][1]
+            if arr[i,2][2] > 0
+              p2->(dbGoto(arr[i,2][2]))
+              mtab_v_sanat := p2->tab_nom
+            endif
+            // mtab_v_sanat := arr[i,2][2]
+          endif
         case arr[i,1] == "51" .and. valtype(arr[i,2]) == "N"
           m1p_otk  := arr[i,2]
-        case arr[i,1] == "52" .and. valtype(arr[i,2]) == "N"
-          m1napr_v_mo  := arr[i,2]
+        case arr[i,1] == "52"     // .and. valtype(arr[i,2]) == "N"
+          if valtype(arr[i,2]) == "N"
+            m1napr_v_mo  := arr[i,2]
+          elseif valtype(arr[i,2]) == "A"
+            m1napr_v_mo  := arr[i,2][1]
+            if arr[i,2][2] > 0
+              p2->(dbGoto(arr[i,2][2]))
+              mtab_v_mo := p2->tab_nom
+            endif
+            // mtab_v_mo := arr[i,2][2]
+          endif
         case arr[i,1] == "53" .and. valtype(arr[i,2]) == "A"
           arr_mo_spec := arr[i,2]
-        case arr[i,1] == "54" .and. valtype(arr[i,2]) == "N"
-          m1napr_stac := arr[i,2]
+        case arr[i,1] == "54"       // .and. valtype(arr[i,2]) == "N"
+          if valtype(arr[i,2]) == "N"
+            m1napr_stac := arr[i,2]
+          elseif valtype(arr[i,2]) == "A"
+            m1napr_stac := arr[i,2][1]
+            if arr[i,2][2] > 0
+              p2->(dbGoto(arr[i,2][2]))
+              mtab_v_stac := p2->tab_nom
+            endif
+            // mtab_v_stac := arr[i,2][2]
+          endif
         case arr[i,1] == "55" .and. valtype(arr[i,2]) == "N"
           m1profil_stac := arr[i,2]
-        case arr[i,1] == "56" .and. valtype(arr[i,2]) == "N"
-          m1napr_reab := arr[i,2]
+        case arr[i,1] == "56"       // .and. valtype(arr[i,2]) == "N"
+          if valtype(arr[i,2]) == "N"
+            m1napr_reab := arr[i,2]
+          elseif valtype(arr[i,2]) == "A"
+            m1napr_reab := arr[i,2][1]
+            if arr[i,2][2] > 0
+              p2->(dbGoto(arr[i,2][2]))
+              mtab_v_reab := p2->tab_nom
+            endif
+            // mtab_v_reab := arr[i,2][2]
+          endif
         case arr[i,1] == "57" .and. valtype(arr[i,2]) == "N"
           m1profil_kojki := arr[i,2]
-        case arr[i,1] == "58" .and. valtype(arr[i,2]) == "N"    // "N",табельный номер врача направившего на дополнительное обследование
-          mtab_v_dopo_na := arr[i,2]
-        case arr[i,1] == "59" .and. valtype(arr[i,2]) == "N"    // "N",табельный номер врача направившего в мед. учреждение
-          mtab_v_mo := arr[i,2]
-        case arr[i,1] == "60" .and. valtype(arr[i,2]) == "N"    // "N",табельный номер врача направившего в стационар
-          mtab_v_stac := arr[i,2]
-        case arr[i,1] == "61" .and. valtype(arr[i,2]) == "N"    // "N",табельный номер врача направившего на реабилитацию
-          mtab_v_reab := arr[i,2]
-        case arr[i,1] == "62" .and. valtype(arr[i,2]) == "N"    // "N",табельный номер врача направившего в санаторий
-          mtab_v_sanat := arr[i,2]
       endcase
     endif
   next
@@ -226,7 +261,7 @@ Function save_arr_DVN(lkod)
   if type("m1prof_ko") == "N"
     aadd(arr,{"31",m1prof_ko})    // "N1",вид проф.консультирования
   endif
-  if type("m1ot_nasl1") == "N"
+  // if type("m1ot_nasl1") == "N"
     aadd(arr,{"40",arr_otklon}) // массив
     aadd(arr,{"41",m1ot_nasl1})
     aadd(arr,{"42",m1ot_nasl2})
@@ -234,46 +269,102 @@ Function save_arr_DVN(lkod)
     aadd(arr,{"44",m1ot_nasl4})
     aadd(arr,{"45",m1dispans})
     aadd(arr,{"46",m1nazn_l})
-    aadd(arr,{"47",m1dopo_na})
+    if mk_data >= 0d20210801
+      if mtab_v_dopo_na != 0
+        if p2->(dbSeek(str(mtab_v_dopo_na,5)))
+          aadd(arr,{"47",{m1dopo_na, p2->kod}})
+        else
+          aadd(arr,{"47",{m1dopo_na, 0}})
+        endif
+      else
+        aadd(arr,{"47",{m1dopo_na, 0}})
+      endif
+      // aadd(arr,{"47",{m1dopo_na, mtab_v_dopo_na}})
+    else
+      aadd(arr,{"47",m1dopo_na})
+    endif
     aadd(arr,{"48",m1ssh_na})
     aadd(arr,{"49",m1spec_na})
-    aadd(arr,{"50",m1sank_na})
-  endif
+    if mk_data >= 0d20210801
+      if mtab_v_sanat != 0
+        if p2->(dbSeek(str(mtab_v_sanat,5)))
+          aadd(arr,{"50",{m1sank_na, p2->kod}})
+        else
+          aadd(arr,{"50",{m1sank_na, 0}})
+        endif
+      else
+        aadd(arr,{"50",{m1sank_na, 0}})
+      endif
+      // aadd(arr,{"50",{m1sank_na, mtab_v_sanat}})
+    else
+      aadd(arr,{"50",m1sank_na})
+    endif
+  // endif
   if type("m1p_otk") == "N"
     aadd(arr,{"51",m1p_otk})
   endif
-  if type("m1napr_v_mo") == "N"
-    aadd(arr,{"52",m1napr_v_mo})
+  if mk_data >= 0d20210801
+    if type("m1napr_v_mo") == "N"
+      if mtab_v_mo != 0
+        if p2->(dbSeek(str(mtab_v_mo,5)))
+          aadd(arr,{"52",{m1napr_v_mo, p2->kod}})
+        else
+          aadd(arr,{"52",{m1napr_v_mo, 0}})
+        endif
+      else
+        aadd(arr,{"52",{m1napr_v_mo, 0}})
+      endif
+      // aadd(arr,{"52",{m1napr_v_mo, mtab_v_mo}})
+    endif
+  else
+    if type("m1napr_v_mo") == "N"
+      aadd(arr,{"52",m1napr_v_mo})
+    endif
   endif
   if type("arr_mo_spec") == "A"   // .and. !empty(arr_mo_spec)
     aadd(arr,{"53",arr_mo_spec}) // массив
   endif
-  if type("m1napr_stac") == "N"
-    aadd(arr,{"54",m1napr_stac})
+  if mk_data >= 0d20210801
+    if type("m1napr_stac") == "N"
+      if mtab_v_stac != 0
+        if p2->(dbSeek(str(mtab_v_stac,5)))
+          aadd(arr,{"54",{m1napr_stac, p2->kod}})
+        else
+          aadd(arr,{"54",{m1napr_stac, 0}})
+        endif
+      else
+        aadd(arr,{"54",{m1napr_stac, 0}})
+      endif
+      // aadd(arr,{"54",{m1napr_stac, mtab_v_stac}})
+    endif
+  else
+    if type("m1napr_stac") == "N"
+      aadd(arr,{"54",m1napr_stac})
+    endif
   endif
   if type("m1profil_stac") == "N"
     aadd(arr,{"55",m1profil_stac})
   endif
-  if type("m1napr_reab") == "N"
-    aadd(arr,{"56",m1napr_reab})
+  if mk_data >= 0d20210801
+    if type("m1napr_reab") == "N"
+      if mtab_v_reab != 0
+        if p2->(dbSeek(str(mtab_v_reab,5)))
+          aadd(arr,{"56",{m1napr_reab, p2->kod}})
+        else
+          aadd(arr,{"56",{m1napr_reab, 0}})
+        endif
+      else
+        aadd(arr,{"56",{m1napr_reab, p2->kod}})
+      endif
+      // aadd(arr,{"56",{m1napr_reab, mtab_v_reab}})
+    endif
+  else
+    if type("m1napr_reab") == "N"
+      aadd(arr,{"56",m1napr_reab})
+    endif
   endif
   if type("m1profil_kojki") == "N"
     aadd(arr,{"57",m1profil_kojki})
-  endif
-  if type("mtab_v_dopo_na") == "N"
-    aadd(arr,{ "58",mtab_v_dopo_na})     // "N",табельный номер врача направившего на дополнительное обследование
-  endif
-  if type("mtab_v_mo") == "N"
-    aadd(arr,{ "59",mtab_v_mo})     // "N",табельный номер врача направившего в мед. учреждение
-  endif
-  if type("mtab_v_stac") == "N"
-    aadd(arr,{ "60",mtab_v_stac})     // "N",табельный номер врача направившего в стационар
-  endif
-  if type("mtab_v_reab") == "N"
-    aadd(arr,{ "61",mtab_v_reab})     // "N",табельный номер врача направившего на реабилитацию
-  endif
-  if type("mtab_v_sanat") == "N"
-    aadd(arr,{ "62",mtab_v_sanat})     // "N",табельный номер врача направившего в санаторий
   endif
   save_arr_DISPANS(lkod,arr)
   return NIL
