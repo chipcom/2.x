@@ -3,7 +3,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 01.02.20
+***** 03.08.21
 Function save_arr_PN(lkod)
   Local arr := {}, k, ta
   Private mvar
@@ -160,27 +160,95 @@ Function save_arr_PN(lkod)
   if !empty(arr_usl_otkaz)
     aadd(arr,{"29",arr_usl_otkaz}) // массив
   endif
-  if type("m1dopo_na") == "N"
+  if mk_data >= 0d20210801
+    if mtab_v_dopo_na != 0
+      if p2->(dbSeek(str(mtab_v_dopo_na,5)))
+        aadd(arr,{"47",{m1dopo_na, p2->kod}})
+      else
+        aadd(arr,{"47",{m1dopo_na, 0}})
+      endif
+    else
+      aadd(arr,{"47",{m1dopo_na, 0}})
+    endif
+    // aadd(arr,{"47",{m1dopo_na, mtab_v_dopo_na}})
+  else
     aadd(arr,{"47",m1dopo_na})
   endif
+  // if type("m1dopo_na") == "N"
+  //   aadd(arr,{"47",m1dopo_na})
+  // endif
   if type("m1p_otk") == "N"
     aadd(arr,{"51",m1p_otk})
   endif
-  if type("m1napr_v_mo") == "N"
-    aadd(arr,{"52",m1napr_v_mo})
+  if mk_data >= 0d20210801
+    if type("m1napr_v_mo") == "N"
+      if mtab_v_mo != 0
+        if p2->(dbSeek(str(mtab_v_mo,5)))
+          aadd(arr,{"52",{m1napr_v_mo, p2->kod}})
+        else
+          aadd(arr,{"52",{m1napr_v_mo, 0}})
+        endif
+      else
+        aadd(arr,{"52",{m1napr_v_mo, 0}})
+      endif
+      // aadd(arr,{"52",{m1napr_v_mo, mtab_v_mo}})
+    endif
+  else
+    if type("m1napr_v_mo") == "N"
+      aadd(arr,{"52",m1napr_v_mo})
+    endif
   endif
+  // if type("m1napr_v_mo") == "N"
+  //   aadd(arr,{"52",m1napr_v_mo})
+  // endif
   if type("arr_mo_spec") == "A" .and. !empty(arr_mo_spec)
     aadd(arr,{"53",arr_mo_spec}) // массив
   endif
-  if type("m1napr_stac") == "N"
-    aadd(arr,{"54",m1napr_stac})
+  if mk_data >= 0d20210801
+    if type("m1napr_stac") == "N"
+      if mtab_v_stac != 0
+        if p2->(dbSeek(str(mtab_v_stac,5)))
+          aadd(arr,{"54",{m1napr_stac, p2->kod}})
+        else
+          aadd(arr,{"54",{m1napr_stac, 0}})
+        endif
+      else
+        aadd(arr,{"54",{m1napr_stac, 0}})
+      endif
+      // aadd(arr,{"54",{m1napr_stac, mtab_v_stac}})
+    endif
+  else
+    if type("m1napr_stac") == "N"
+      aadd(arr,{"54",m1napr_stac})
+    endif
   endif
+  // if type("m1napr_stac") == "N"
+  //   aadd(arr,{"54",m1napr_stac})
+  // endif
   if type("m1profil_stac") == "N"
     aadd(arr,{"55",m1profil_stac})
   endif
-  if type("m1napr_reab") == "N"
-    aadd(arr,{"56",m1napr_reab})
+  if mk_data >= 0d20210801
+    if type("m1napr_reab") == "N"
+      if mtab_v_reab != 0
+        if p2->(dbSeek(str(mtab_v_reab,5)))
+          aadd(arr,{"56",{m1napr_reab, p2->kod}})
+        else
+          aadd(arr,{"56",{m1napr_reab, 0}})
+        endif
+      else
+        aadd(arr,{"56",{m1napr_reab, p2->kod}})
+      endif
+      // aadd(arr,{"56",{m1napr_reab, mtab_v_reab}})
+    endif
+  else
+    if type("m1napr_reab") == "N"
+      aadd(arr,{"56",m1napr_reab})
+    endif
   endif
+  // if type("m1napr_reab") == "N"
+  //   aadd(arr,{"56",m1napr_reab})
+  // endif
   if type("m1profil_kojki") == "N"
     aadd(arr,{"57",m1profil_kojki})
   endif
@@ -370,20 +438,64 @@ Function save_arr_PN(lkod)
             mrek_disp := padr(arr[i,2],255)
           case is_all .and. arr[i,1] == "29" .and. valtype(arr[i,2]) == "A"
             arr_usl_otkaz := arr[i,2]
-          case arr[i,1] == "47" .and. valtype(arr[i,2]) == "N"
-            m1dopo_na  := arr[i,2]
+          case arr[i,1] == "47"
+            if valtype(arr[i,2]) == "N"
+              m1dopo_na  := arr[i,2]
+            elseif valtype(arr[i,2]) == "A"
+              m1dopo_na  := arr[i,2][1]
+              if arr[i,2][2] > 0
+                p2->(dbGoto(arr[i,2][2]))
+                mtab_v_dopo_na := p2->tab_nom
+              endif
+              // mtab_v_dopo_na := arr[i,2][2]
+            endif
+          // case arr[i,1] == "47" .and. valtype(arr[i,2]) == "N"
+          //   m1dopo_na  := arr[i,2]
           case arr[i,1] == "51" .and. valtype(arr[i,2]) == "N"
             m1p_otk  := arr[i,2]
-          case arr[i,1] == "52" .and. valtype(arr[i,2]) == "N"
-            m1napr_v_mo  := arr[i,2]
+          case arr[i,1] == "52" 
+            if valtype(arr[i,2]) == "N"
+              m1napr_v_mo  := arr[i,2]
+            elseif valtype(arr[i,2]) == "A"
+              m1napr_v_mo  := arr[i,2][1]
+              if arr[i,2][2] > 0
+                p2->(dbGoto(arr[i,2][2]))
+                mtab_v_mo := p2->tab_nom
+              endif
+              // mtab_v_mo := arr[i,2][2]
+            endif
+          // case arr[i,1] == "52" .and. valtype(arr[i,2]) == "N"
+          //   m1napr_v_mo  := arr[i,2]
           case arr[i,1] == "53" .and. valtype(arr[i,2]) == "A"
             arr_mo_spec := arr[i,2]
-          case arr[i,1] == "54" .and. valtype(arr[i,2]) == "N"
-            m1napr_stac := arr[i,2]
+          case arr[i,1] == "54"
+            if valtype(arr[i,2]) == "N"
+              m1napr_stac := arr[i,2]
+            elseif valtype(arr[i,2]) == "A"
+              m1napr_stac := arr[i,2][1]
+              if arr[i,2][2] > 0
+                p2->(dbGoto(arr[i,2][2]))
+                mtab_v_stac := p2->tab_nom
+              endif
+              // mtab_v_stac := arr[i,2][2]
+            endif
+          // case arr[i,1] == "54" .and. valtype(arr[i,2]) == "N"
+          //   m1napr_stac := arr[i,2]
           case arr[i,1] == "55" .and. valtype(arr[i,2]) == "N"
             m1profil_stac := arr[i,2]
-          case arr[i,1] == "56" .and. valtype(arr[i,2]) == "N"
-            m1napr_reab := arr[i,2]
+          case arr[i,1] == "56"
+            if valtype(arr[i,2]) == "N"
+              m1napr_reab := arr[i,2]
+            elseif valtype(arr[i,2]) == "A"
+              m1napr_reab := arr[i,2][1]
+              if arr[i,2][2] > 0
+                p2->(dbGoto(arr[i,2][2]))
+                mtab_v_reab := p2->tab_nom
+              endif
+              // mtab_v_reab := arr[i,2][2]
+            endif
+          // case arr[i,1] == "56" .and. valtype(arr[i,2]) == "N"
+          //   m1napr_reab := arr[i,2]
           case arr[i,1] == "57" .and. valtype(arr[i,2]) == "N"
             m1profil_kojki := arr[i,2]
           otherwise
