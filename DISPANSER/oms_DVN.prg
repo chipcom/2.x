@@ -1148,7 +1148,7 @@ Function oms_sluch_DVN(Loc_kod,kod_kartotek,f_print)
         func_error(4,"Для выбранной ГРУППЫ ЗДОРОВЬЯ выберите назначения (направления) для пациента!")
         loop
       endif
-      if ! testingTabNumberDoctor(mk_data)
+      if ! testingTabNumberDoctor(mk_data, .t.)
         loop
       endif
       if empty(mWEIGHT)

@@ -1396,6 +1396,9 @@ Function oms_sluch_PN(Loc_kod,kod_kartotek,f_print)
         func_error(4,"Не введены отклонения массы тела или роста.")
         loop
       endif
+      if ! testingTabNumberDoctor(mk_data, .f.)
+        loop
+      endif
       if mvozrast < 1
         mdef_diagnoz := "Z00.1 "
       elseif mvozrast < 14

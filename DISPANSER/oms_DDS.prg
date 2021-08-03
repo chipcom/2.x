@@ -226,6 +226,9 @@ Function oms_sluch_DDS(tip_lu,Loc_kod,kod_kartotek,f_print)
           mm_napr_stac := {{"--- нет ---",0},{"в стационар",1},{"в дн. стац.",2}}, ;
           mprofil_stac, m1profil_stac := 0
   Private mnapr_reab, m1napr_reab := 0, mprofil_kojki, m1profil_kojki := 0
+
+  private mtab_v_dopo_na := mtab_v_mo := mtab_v_stac := mtab_v_reab := mtab_v_sanat := 0
+
   //
   for i := 1 to 5
     for k := 1 to 14
@@ -1317,26 +1320,29 @@ Function oms_sluch_DDS(tip_lu,Loc_kod,kod_kartotek,f_print)
       ++j; @ j,1 to j,78
       //++j; @ j,1 say "Признак подозрения на злокачественное новообразование" get mDS_ONK ;
       //           reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
-      ++j; @ j,1 say "Направлен на дополнительное обследование" get mdopo_na ;
-                 reader {|x|menu_reader(x,mm_dopo_na,A__MENUBIT,,,.f.)}
-      ++j; @ j,1 say "Направлен" get mnapr_v_mo ;
-                 reader {|x|menu_reader(x,mm_napr_v_mo,A__MENUVERT,,,.f.)} ;
-                 valid {|| iif(m1napr_v_mo==0, (arr_mo_spec:={},ma_mo_spec:=padr("---",42)), ), update_get("ma_mo_spec")}
-           @ j,col()+1 say "к специалистам" get ma_mo_spec ;
-                 reader {|x|menu_reader(x,{{|k,r,c| fget_spec_deti(k,r,c,arr_mo_spec)}},A__FUNCTION,,,.f.)} ;
-                 when m1napr_v_mo > 0
-      ++j; @ j,1 say "Направлен на лечение" get mnapr_stac ;
-                 reader {|x|menu_reader(x,mm_napr_stac,A__MENUVERT,,,.f.)} ;
-                 valid {|| iif(m1napr_stac==0, (m1profil_stac:=0,mprofil_stac:=space(32)), ), update_get("mprofil_stac")}
-           @ j,col()+1 say "по профилю" get mprofil_stac ;
-                 reader {|x|menu_reader(x,glob_V002,A__MENUVERT,,,.f.,,,.t.)} ;
-                 when m1napr_stac > 0
-      ++j; @ j,1 say "Направлен на реабилитацию" get mnapr_reab ;
-                 reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
-                 valid {|| iif(m1napr_reab==0, (m1profil_kojki:=0,mprofil_kojki:=space(30)), ), update_get("mprofil_kojki")}
-           @ j,col()+1 say ", профиль койки" get mprofil_kojki ;
-                 reader {|x|menu_reader(x,glob_V020,A__MENUVERT,,,.f.,,,.t.)} ;
-                 when m1napr_reab > 0
+
+      dispans_napr(mk_data, @j, .f.)  // вызов заполнения блока направлений
+
+      // ++j; @ j,1 say "Направлен на дополнительное обследование" get mdopo_na ;
+      //            reader {|x|menu_reader(x,mm_dopo_na,A__MENUBIT,,,.f.)}
+      // ++j; @ j,1 say "Направлен" get mnapr_v_mo ;
+      //            reader {|x|menu_reader(x,mm_napr_v_mo,A__MENUVERT,,,.f.)} ;
+      //            valid {|| iif(m1napr_v_mo==0, (arr_mo_spec:={},ma_mo_spec:=padr("---",42)), ), update_get("ma_mo_spec")}
+      //      @ j,col()+1 say "к специалистам" get ma_mo_spec ;
+      //            reader {|x|menu_reader(x,{{|k,r,c| fget_spec_deti(k,r,c,arr_mo_spec)}},A__FUNCTION,,,.f.)} ;
+      //            when m1napr_v_mo > 0
+      // ++j; @ j,1 say "Направлен на лечение" get mnapr_stac ;
+      //            reader {|x|menu_reader(x,mm_napr_stac,A__MENUVERT,,,.f.)} ;
+      //            valid {|| iif(m1napr_stac==0, (m1profil_stac:=0,mprofil_stac:=space(32)), ), update_get("mprofil_stac")}
+      //      @ j,col()+1 say "по профилю" get mprofil_stac ;
+      //            reader {|x|menu_reader(x,glob_V002,A__MENUVERT,,,.f.,,,.t.)} ;
+      //            when m1napr_stac > 0
+      // ++j; @ j,1 say "Направлен на реабилитацию" get mnapr_reab ;
+      //            reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
+      //            valid {|| iif(m1napr_reab==0, (m1profil_kojki:=0,mprofil_kojki:=space(30)), ), update_get("mprofil_kojki")}
+      //      @ j,col()+1 say ", профиль койки" get mprofil_kojki ;
+      //            reader {|x|menu_reader(x,glob_V020,A__MENUVERT,,,.f.,,,.t.)} ;
+      //            when m1napr_reab > 0
       ++j; @ j,1 to j,78
       ++j; @ j,1 say "Инвалидность" get minvalid1 ;
                  reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
@@ -1472,6 +1478,9 @@ Function oms_sluch_DDS(tip_lu,Loc_kod,kod_kartotek,f_print)
       endif
       if m1FIZ_RAZV == 1 .and. emptyall(m1fiz_razv1,m1fiz_razv2)
         func_error(4,"Не введены отклонения массы тела или роста.")
+        loop
+      endif
+      if ! testingTabNumberDoctor(mk_data, .f.)
         loop
       endif
       if mvozrast < 1

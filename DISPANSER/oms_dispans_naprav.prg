@@ -95,8 +95,10 @@ function dispans_napr(mk_data, /*@*/j, lSanat)
   return nil
 
 ****** 31.08.2021
-function testingTabNumberDoctor(mk_data)
+function testingTabNumberDoctor(mk_data, lSanat)
   local ret := .t.
+
+  Default lSanat TO .f.
 
   if mk_data >= 0d20210801
     if (m1dopo_na > 0) .and. (mtab_v_dopo_na == 0)
@@ -119,10 +121,10 @@ function testingTabNumberDoctor(mk_data)
       ret := .f.
       // loop
     endif
-    if (m1sank_na > 0) .and. (mtab_v_sanat == 0)
-      func_error(4,'Не заполнен табельный номер врача направившего на санаторно-курортное лечение')
-      ret := .f.
-      // loop
+    if lSanat .and. (m1sank_na > 0) .and. (mtab_v_sanat == 0)
+        func_error(4,'Не заполнен табельный номер врача направившего на санаторно-курортное лечение')
+        ret := .f.
+        // loop
     endif
   endif
   return ret
