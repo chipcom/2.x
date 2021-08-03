@@ -760,7 +760,11 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
             mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_R",lstr(arr_nazn[j,1]))
 
             if !empty(arr_nazn[j,3])   // по новому ПУМП с 01.08.2021
-              mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_IDDOKT",arr_nazn[j,3])
+              mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_IDDOKT", arr_nazn[j,3])
+            endif
+
+            if !empty(arr_nazn[j,4])   // по новому ПУМП с 01.08.2021
+              mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_SPDOCT", arr_nazn[j,4])
             endif
             
             if eq_any(arr_nazn[j,1],1,2) // {"в нашу МО",1},{"в иную МО",2}}
@@ -2662,12 +2666,12 @@ Function f1_create2reestr19(_nyear,_nmonth)
       if isbit(m1dopo_na,i)
         if mtab_v_dopo_na != 0
           if P2TABN->(dbSeek(str(mtab_v_dopo_na,5)))
-            aadd(arr_nazn,{3, i, P2TABN->snils}) // теперь каждое назначение в отдельном PRESCRIPTIONS
+            aadd(arr_nazn,{3, i, P2TABN->snils, put_prvs_to_reestr(P2TABN->PRVS,_NYEAR)}) // теперь каждое назначение в отдельном PRESCRIPTIONS
           else
-            aadd(arr_nazn,{3, i, ''}) // теперь каждое назначение в отдельном PRESCRIPTIONS
+            aadd(arr_nazn,{3, i, '', ''}) // теперь каждое назначение в отдельном PRESCRIPTIONS
           endif
         else
-          aadd(arr_nazn,{3, i, ''}) // теперь каждое назначение в отдельном PRESCRIPTIONS
+          aadd(arr_nazn,{3, i, '', ''}) // теперь каждое назначение в отдельном PRESCRIPTIONS
         endif
         // aadd(arr_nazn,{3, i, mtab_v_dopo_na}) // теперь каждое назначение в отдельном PRESCRIPTIONS
       endif
@@ -2683,12 +2687,12 @@ Function f1_create2reestr19(_nyear,_nmonth)
     for i := 1 to len(arr_mo_spec) // теперь каждая специальность в отдельном PRESCRIPTIONS
       if mtab_v_mo != 0
         if P2TABN->(dbSeek(str(mtab_v_mo,5)))
-          aadd(arr_nazn,{m1napr_v_mo, put_prvs_to_reestr(-arr_mo_spec[i],_NYEAR), P2TABN->snils}) // "-", т.к. спец-ть была в кодировке V015
+          aadd(arr_nazn,{m1napr_v_mo, put_prvs_to_reestr(-arr_mo_spec[i],_NYEAR), P2TABN->snils, , put_prvs_to_reestr(P2TABN->PRVS,_NYEAR)}) // "-", т.к. спец-ть была в кодировке V015
         else
-          aadd(arr_nazn,{m1napr_v_mo, put_prvs_to_reestr(-arr_mo_spec[i],_NYEAR), ''}) // "-", т.к. спец-ть была в кодировке V015
+          aadd(arr_nazn,{m1napr_v_mo, put_prvs_to_reestr(-arr_mo_spec[i],_NYEAR), '', ''}) // "-", т.к. спец-ть была в кодировке V015
         endif
       else
-        aadd(arr_nazn,{m1napr_v_mo, put_prvs_to_reestr(-arr_mo_spec[i],_NYEAR), ''}) // "-", т.к. спец-ть была в кодировке V015
+        aadd(arr_nazn,{m1napr_v_mo, put_prvs_to_reestr(-arr_mo_spec[i],_NYEAR), '', ''}) // "-", т.к. спец-ть была в кодировке V015
       endif
       // aadd(arr_nazn,{m1napr_v_mo, put_prvs_to_reestr(-arr_mo_spec[i],_NYEAR), mtab_v_mo}) // "-", т.к. спец-ть была в кодировке V015
     next
@@ -2700,24 +2704,24 @@ Function f1_create2reestr19(_nyear,_nmonth)
   if between(m1napr_stac,1,2) .and. m1profil_stac > 0 // {{"--- нет ---",0},{"в стационар",1},{"в дн. стац.",2}}, ;
     if mtab_v_stac != 0
       if P2TABN->(dbSeek(str(mtab_v_stac,5)))
-        aadd(arr_nazn,{iif(m1napr_stac==1,5,4), m1profil_stac, P2TABN->snils})
+        aadd(arr_nazn,{iif(m1napr_stac==1,5,4), m1profil_stac, P2TABN->snils, , put_prvs_to_reestr(P2TABN->PRVS,_NYEAR)})
       else
-        aadd(arr_nazn,{iif(m1napr_stac==1,5,4), m1profil_stac, ''})
+        aadd(arr_nazn,{iif(m1napr_stac==1,5,4), m1profil_stac, '', ''})
       endif
     else
-      aadd(arr_nazn,{iif(m1napr_stac==1,5,4), m1profil_stac, ''})
+      aadd(arr_nazn,{iif(m1napr_stac==1,5,4), m1profil_stac, '', ''})
     endif
     // aadd(arr_nazn,{iif(m1napr_stac==1,5,4), m1profil_stac, mtab_v_stac})
   endif
   if m1napr_reab == 1 .and. m1profil_kojki > 0
     if mtab_v_reab != 0
       if P2TABN->(dbSeek(str(mtab_v_reab,5)))
-        aadd(arr_nazn,{6, m1profil_kojki, P2TABN->snils})
+        aadd(arr_nazn,{6, m1profil_kojki, P2TABN->snils, , put_prvs_to_reestr(P2TABN->PRVS,_NYEAR)})
       else
-        aadd(arr_nazn,{6, m1profil_kojki, ''})
+        aadd(arr_nazn,{6, m1profil_kojki, '', ''})
       endif
     else
-      aadd(arr_nazn,{6, m1profil_kojki, ''})
+      aadd(arr_nazn,{6, m1profil_kojki, '', ''})
     endif
     // aadd(arr_nazn,{6, m1profil_kojki, mtab_v_reab})
   endif
