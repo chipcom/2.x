@@ -1040,11 +1040,13 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
         elseif empty(&mvart) .and. metap == 1 .and. !eq_any(ar[2], '70.8.2', '70.8.3')      // на втором этапе услуги могут быть не все
           fl := func_error(4,'Не введен врач в услуге "'+ltrim(ar[1])+'"')
         else  // табельный номер врача и его специальность
-          select P2
-          find (str(&mvart,5))
-          if found()
-            arr_osm1[i,1] := p2->kod
-            arr_osm1[i,2] := -ret_new_spec(p2->prvs,p2->prvs_new)
+          if !empty(&mvart) // табельный номер врача
+            select P2
+            find (str(&mvart,5))
+            if found()
+              arr_osm1[i,1] := p2->kod
+              arr_osm1[i,2] := -ret_new_spec(p2->prvs,p2->prvs_new)
+            endif
           endif
           if !empty(&mvara) // табельный номер ассистента
             select P2
@@ -1286,7 +1288,7 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
               arr_usl_dop[iUslDop,13] := ''  // очистим федеральную услугу
             endif
             if arr_osm1[i,10] == 3 // обнаружены отклонения
-              aadd(arr_otklon,aclone(arr_osm1[i,5]))
+              aadd(arr_otklon,arr_osm1[i,5])
               iUslOtklon++
             endif
           else // отказ и невозможность
