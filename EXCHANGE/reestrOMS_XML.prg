@@ -211,7 +211,7 @@ Function create1reestr19(_recno,_nyear,_nmonth)
   endcase
   return k
   
-***** 25.07.21 создание XML-файлов реестра
+***** 04.08.21 создание XML-файлов реестра
 Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
   //
@@ -1378,8 +1378,8 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
   endif
   return NIL
   
-  ***** 05.11.19 создать счета по результатам прочитанного реестра СП
-  Function create_schet19_from_XML(arr_XML_info,aerr,fl_msg,arr_s,name_sp_tk)
+***** 05.11.19 создать счета по результатам прочитанного реестра СП
+Function create_schet19_from_XML(arr_XML_info,aerr,fl_msg,arr_s,name_sp_tk)
   Local arr_schet := {}, c, len_stand, _arr_stand, lshifr, i, j, k, lbukva,;
         doplataF, doplataR, mnn, fl, name_zip, arr_zip := {}, lshifr1,;
         CODE_LPU := glob_mo[_MO_KOD_TFOMS], code_schet, mb, me, nsh,;
