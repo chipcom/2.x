@@ -1174,9 +1174,10 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
             mo_add_xml_stroke(oUSL,"TARIF"   ,'0')//lstr(mohu->U_CENA,10,2))
             mo_add_xml_stroke(oUSL,"SUMV_USL",'0')//lstr(mohu->STOIM_1,10,2))
           endif
-          mo_add_xml_stroke(oUSL,"PRVS",put_prvs_to_reestr(mohu->PRVS,_NYEAR))
+          // mo_add_xml_stroke(oUSL,"PRVS",put_prvs_to_reestr(mohu->PRVS,_NYEAR))  // закоментировал 04.08.21
           fl := .f.
           if is_telemedicina(lshifr,@fl) // не заполняется код врача
+            mo_add_xml_stroke(oUSL,"PRVS",put_prvs_to_reestr(mohu->PRVS,_NYEAR))  // добавил 04.08.21
             mo_add_xml_stroke(oUSL,"CODE_MD",'0')
           else
             if human->k_data >= 0d20210801 .and. p_tip_reestr == 2  // новые правила заполнения с 01.08.2021 письмо № 04-18-13 от 20.07.2021
@@ -1188,6 +1189,10 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
             elseif human->k_data < 0d20210801 .and. p_tip_reestr == 2
               p2->(dbGoto(mohu->kod_vr))
               mo_add_xml_stroke(oUSL,"CODE_MD" ,p2->snils)
+            elseif p_tip_reestr == 1
+              mo_add_xml_stroke(oUSL,"PRVS",put_prvs_to_reestr(mohu->PRVS,_NYEAR))  // добавил 04.08.21
+              p2->(dbGoto(mohu->kod_vr))                                            // добавил 04.08.21
+              mo_add_xml_stroke(oUSL,"CODE_MD" ,p2->snils)                          // добавил 04.08.21
             endif
           endif
           if !empty(mohu->zf)
