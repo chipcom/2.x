@@ -1,5 +1,7 @@
+#include "function.ch"
+#include "chip_mo.ch"
 
-* 09.07.21 вернуть массив ошибок ТФОМС T005.dbf
+* 04.08.21 вернуть массив ошибок ТФОМС T005.dbf
 function loadT005()
   // возвращает массив
   static _T005 := {}
@@ -26,21 +28,21 @@ function loadT005()
     // добавим из справочника _mo_f014.dbf
     for each row in getF014()
       if (j := ascan(_T005, {|x| x[1] == row[1] })) == 0
-        AAdd(_T005, {row[1], row[2], row[3]} )
+        AAdd(_T005, {row[1], alltrim(row[2]), alltrim(row[3])} )
       endif
     next
   endif
 
   return _T005
 
-* 06.04.21 вернуть строку для кода дефекта с описанием ошибки ТФОМС из справочника T005.dbf
+* 04.08.21 вернуть строку для кода дефекта с описанием ошибки ТФОМС из справочника T005.dbf
 Function ret_t005(lkod)
   local arrErrors := loadT005()
   local row := {}
 
   for each row in arrErrors
     if row[1] == lkod
-      return row[2]
+      return '(' + lstr(row[1]) + ') ' + row[2] + ', [' + row[3] + ']'
     endif
   next
 

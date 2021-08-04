@@ -182,3 +182,5 @@ mo_version.prg
 .\EXCHANGE\extract_reestr.prg
 .\EXCHANGE\create_reestr.prg
 .\EXCHANGE\mo_omss.prg
+
+.\SYSTEM\extension.prg
