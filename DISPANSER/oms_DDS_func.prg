@@ -69,9 +69,15 @@ Function ret_shifr_zs_DDS(tip_lu)
   endif
   return s
 
-***** 03.08.21
+***** 04.08.21
 Function save_arr_DDS(lkod)
   Local arr := {}, k, ta
+  local aliasIsUse := aliasIsAlreadyUse('P2')
+
+  if ! aliasIsUse
+    R_Use(dir_server+"mo_pers",,"P2") 
+  endif
+
   Private mvar
   if type("mfio") == "C"
     aadd(arr,{"mfio",alltrim(mfio)})
@@ -231,8 +237,8 @@ Function save_arr_DDS(lkod)
   next
   if mk_data >= 0d20210801
     if mtab_v_dopo_na != 0
-      if p2->(dbSeek(str(mtab_v_dopo_na,5)))
-        aadd(arr,{"47",{m1dopo_na, p2->kod}})
+      if P2->(dbSeek(str(mtab_v_dopo_na,5)))
+        aadd(arr,{"47",{m1dopo_na, P2->kod}})
       else
         aadd(arr,{"47",{m1dopo_na, 0}})
       endif
@@ -249,8 +255,8 @@ Function save_arr_DDS(lkod)
   if mk_data >= 0d20210801
     if type("m1napr_v_mo") == "N"
       if mtab_v_mo != 0
-        if p2->(dbSeek(str(mtab_v_mo,5)))
-          aadd(arr,{"52",{m1napr_v_mo, p2->kod}})
+        if P2->(dbSeek(str(mtab_v_mo,5)))
+          aadd(arr,{"52",{m1napr_v_mo, P2->kod}})
         else
           aadd(arr,{"52",{m1napr_v_mo, 0}})
         endif
@@ -273,8 +279,8 @@ Function save_arr_DDS(lkod)
   if mk_data >= 0d20210801
     if type("m1napr_stac") == "N"
       if mtab_v_stac != 0
-        if p2->(dbSeek(str(mtab_v_stac,5)))
-          aadd(arr,{"54",{m1napr_stac, p2->kod}})
+        if P2->(dbSeek(str(mtab_v_stac,5)))
+          aadd(arr,{"54",{m1napr_stac, P2->kod}})
         else
           aadd(arr,{"54",{m1napr_stac, 0}})
         endif
@@ -297,13 +303,13 @@ Function save_arr_DDS(lkod)
   if mk_data >= 0d20210801
     if type("m1napr_reab") == "N"
       if mtab_v_reab != 0
-        if p2->(dbSeek(str(mtab_v_reab,5)))
-          aadd(arr,{"56",{m1napr_reab, p2->kod}})
+        if P2->(dbSeek(str(mtab_v_reab,5)))
+          aadd(arr,{"56",{m1napr_reab, P2->kod}})
         else
           aadd(arr,{"56",{m1napr_reab, 0}})
         endif
       else
-        aadd(arr,{"56",{m1napr_reab, p2->kod}})
+        aadd(arr,{"56",{m1napr_reab, P2->kod}})
       endif
       // aadd(arr,{"56",{m1napr_reab, mtab_v_reab}})
     endif
@@ -318,13 +324,24 @@ Function save_arr_DDS(lkod)
   if type("m1profil_kojki") == "N"
     aadd(arr,{"57",m1profil_kojki})
   endif
+
+  if ! aliasIsUse
+    P2->(dbCloseArea())
+  endif
+
   save_arr_DISPANS(lkod,arr)
   return NIL
   
-  ***** 03.08.21
-  Function read_arr_DDS(lkod)
+***** 04.08.21
+Function read_arr_DDS(lkod)
   Local arr, i, k
+  local aliasIsUse := aliasIsAlreadyUse('P2')
   Private mvar
+
+  if ! aliasIsUse
+    R_Use(dir_server+"mo_pers",,"P2") 
+  endif
+
   arr := read_arr_DISPANS(lkod)
   for i := 1 to len(arr)
     if valtype(arr[i]) == "A" .and. valtype(arr[i,1]) == "C"
@@ -510,8 +527,8 @@ Function save_arr_DDS(lkod)
           elseif valtype(arr[i,2]) == "A"
             m1dopo_na  := arr[i,2][1]
             if arr[i,2][2] > 0
-              p2->(dbGoto(arr[i,2][2]))
-              mtab_v_dopo_na := p2->tab_nom
+              P2->(dbGoto(arr[i,2][2]))
+              mtab_v_dopo_na := P2->tab_nom
             endif
             // mtab_v_dopo_na := arr[i,2][2]
           endif
@@ -523,8 +540,8 @@ Function save_arr_DDS(lkod)
           elseif valtype(arr[i,2]) == "A"
             m1napr_v_mo  := arr[i,2][1]
             if arr[i,2][2] > 0
-              p2->(dbGoto(arr[i,2][2]))
-              mtab_v_mo := p2->tab_nom
+              P2->(dbGoto(arr[i,2][2]))
+              mtab_v_mo := P2->tab_nom
             endif
             // mtab_v_mo := arr[i,2][2]
           endif
@@ -538,8 +555,8 @@ Function save_arr_DDS(lkod)
           elseif valtype(arr[i,2]) == "A"
             m1napr_stac := arr[i,2][1]
             if arr[i,2][2] > 0
-              p2->(dbGoto(arr[i,2][2]))
-              mtab_v_stac := p2->tab_nom
+              P2->(dbGoto(arr[i,2][2]))
+              mtab_v_stac := P2->tab_nom
             endif
             // mtab_v_stac := arr[i,2][2]
           endif
@@ -553,8 +570,8 @@ Function save_arr_DDS(lkod)
           elseif valtype(arr[i,2]) == "A"
             m1napr_reab := arr[i,2][1]
             if arr[i,2][2] > 0
-              p2->(dbGoto(arr[i,2][2]))
-              mtab_v_reab := p2->tab_nom
+              P2->(dbGoto(arr[i,2][2]))
+              mtab_v_reab := P2->tab_nom
             endif
             // mtab_v_reab := arr[i,2][2]
           endif
@@ -570,5 +587,10 @@ Function save_arr_DDS(lkod)
       endcase
     endif
   next
+
+  if ! aliasIsUse
+    P2->(dbCloseArea())
+  endif
+
   return NIL
   
