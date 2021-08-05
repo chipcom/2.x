@@ -2535,15 +2535,14 @@ add_string(center("даты актов контроля - "+arr_m[4],sh))
 aeval(arr_title, {|x| add_string(x) } )
 R_Use(exe_dir+"_mo_t005",cur_dir+"_mo_t005","T5")
 select TMP
-go top
+go top 
 do while !eof()
   if tmp->REFREASON == 0
     tmp->srefr := "Итого"
   else
-    select T5
-    find (str(tmp->REFREASON,3))
-    if found()
-      s := alltrim(t5->name)
+    retT005 := retArr_t005(tmp->REFREASON, .t.)
+    if ! empty(retT005)
+      s := alltrim(retT005[2])
       s1 := ""
       for i := 1 to len(s)
         if ISLETTER(substr(s,i,1))
@@ -2553,6 +2552,19 @@ do while !eof()
       next
       tmp->srefr := s1
     endif
+    // select T5
+    // find (str(tmp->REFREASON,3))
+    // if found()
+    //   s := alltrim(t5->name)
+    //   s1 := ""
+    //   for i := 1 to len(s)
+    //     if ISLETTER(substr(s,i,1))
+    //       exit
+    //     endif
+    //     s1 += substr(s,i,1)
+    //   next
+    //   tmp->srefr := s1
+    // endif
   endif
   select TMP
   skip
@@ -2908,10 +2920,9 @@ do while !eof()
     add_string(padc(alltrim(tmp1->srak),sh,"_"))
   endif
   s1 := lstr(tmp1->REFREASON)
-  select T5
-  find (str(tmp1->REFREASON,3))
-  if found()
-    s1 := "" ; s2 := ltrim(t5->name)
+  retT005 := retArr_t005(tmp->REFREASON, .t.)
+  if ! empty(retT005)
+    s1 := "" ; s2 := ltrim(retT005[2])
     for i := 1 to len(s2)
       if ISLETTER(substr(s2,i,1))
         exit
@@ -2919,6 +2930,17 @@ do while !eof()
       s1 += substr(s2,i,1)
     next
   endif
+  // select T5
+  // find (str(tmp1->REFREASON,3))
+  // if found()
+  //   s1 := "" ; s2 := ltrim(t5->name)
+  //   for i := 1 to len(s2)
+  //     if ISLETTER(substr(s2,i,1))
+  //       exit
+  //     endif
+  //     s1 += substr(s2,i,1)
+  //   next
+  // endif
   if empty(tmp1->sakt)
     s := space(n)
   else
