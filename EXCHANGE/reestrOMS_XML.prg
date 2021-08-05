@@ -759,13 +759,13 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
             mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_N",lstr(j))
             mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_R",lstr(arr_nazn[j,1]))
 
-            // if !empty(arr_nazn[j,3])   // по новому ПУМП с 01.08.2021
-            //   mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_IDDOKT", arr_nazn[j,3])
-            // endif
+            if !empty(arr_nazn[j,3])   // по новому ПУМП с 01.08.2021
+              mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_IDDOKT", arr_nazn[j,3])
+            endif
 
-            // if !empty(arr_nazn[j,4])   // по новому ПУМП с 01.08.2021
-            //   mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_SPDOCT", arr_nazn[j,4])
-            // endif
+            if !empty(arr_nazn[j,4])   // по новому ПУМП с 01.08.2021
+              mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_SPDOCT", arr_nazn[j,4])
+            endif
             
             if eq_any(arr_nazn[j,1],1,2) // {"в нашу МО",1},{"в иную МО",2}}
               // к какому специалисту направлен
@@ -1081,18 +1081,18 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
           mo_add_xml_stroke(oUSL,"TARIF"   ,lstr(hu->U_CENA,10,2))
           mo_add_xml_stroke(oUSL,"SUMV_USL",lstr(hu->STOIM_1,10,2))
 
-          // if human->k_data >= 0d20210801 .and. p_tip_reestr == 2  // новые правила заполнения с 01.08.2021 письмо № 04-18-13 от 20.07.2021
-          //   oMR_USL_N := oUSL:Add( HXMLNode():New( "MR_USL_N" ) )
-          //   mo_add_xml_stroke(oMR_USL_N,"MR_N",lstr(1))   // уточнить
-          //   mo_add_xml_stroke(oMR_USL_N,"PRVS",put_prvs_to_reestr(hu_->PRVS,_NYEAR))
-          //   if c4tod(hu->DATE_U) < human->n_data ; // если сделано ранее
-          //       .or. eq_any(hu->is_edit,-1,1,2,3) .or. lshifr == "4.20.2" .or. left(lshifr,5) == "60.8." .or. fl
-          //     mo_add_xml_stroke(oMR_USL_N,"CODE_MD",'0') // не заполняется код врача
-          //   else
-          //     p2->(dbGoto(hu->kod_vr))
-          //     mo_add_xml_stroke(oMR_USL_N,"CODE_MD",p2->snils)
-          //   endif
-          // elseif human->k_data < 0d20210801 .and. p_tip_reestr == 2
+          if human->k_data >= 0d20210801 .and. p_tip_reestr == 2  // новые правила заполнения с 01.08.2021 письмо № 04-18-13 от 20.07.2021
+            oMR_USL_N := oUSL:Add( HXMLNode():New( "MR_USL_N" ) )
+            mo_add_xml_stroke(oMR_USL_N,"MR_N",lstr(1))   // уточнить
+            mo_add_xml_stroke(oMR_USL_N,"PRVS",put_prvs_to_reestr(hu_->PRVS,_NYEAR))
+            if c4tod(hu->DATE_U) < human->n_data ; // если сделано ранее
+                .or. eq_any(hu->is_edit,-1,1,2,3) .or. lshifr == "4.20.2" .or. left(lshifr,5) == "60.8." .or. fl
+              mo_add_xml_stroke(oMR_USL_N,"CODE_MD",'0') // не заполняется код врача
+            else
+              p2->(dbGoto(hu->kod_vr))
+              mo_add_xml_stroke(oMR_USL_N,"CODE_MD",p2->snils)
+            endif
+          elseif human->k_data < 0d20210801 .and. p_tip_reestr == 2
             mo_add_xml_stroke(oUSL,"PRVS",put_prvs_to_reestr(hu_->PRVS,_NYEAR))
             if c4tod(hu->DATE_U) < human->n_data ; // если сделано ранее
                 .or. eq_any(hu->is_edit,-1,1,2,3) .or. lshifr == "4.20.2" .or. left(lshifr,5) == "60.8." .or. fl
@@ -1101,7 +1101,7 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
               p2->(dbGoto(hu->kod_vr))
               mo_add_xml_stroke(oUSL,"CODE_MD",p2->snils)
             endif
-          // endif
+          endif
 
         next
       endif

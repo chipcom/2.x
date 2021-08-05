@@ -1243,6 +1243,13 @@ Function checkFilesTFOMS()
     endif
   next
   fl := row_flag
+  if fl
+    // справочник ошибок
+    sbase := "_mo_t005"
+    R_Use(exe_dir + sbase )
+    index on str(kod,3) to (cur_dir+sbase)
+    use
+  endif
   
   // справочник ОКАТО
   if fl
