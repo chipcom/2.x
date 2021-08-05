@@ -2662,14 +2662,14 @@ Function f1_create2reestr19(_nyear,_nmonth)
       if isbit(m1dopo_na,i)
         if mtab_v_dopo_na != 0
           if P2TABN->(dbSeek(str(mtab_v_dopo_na,5)))
-            aadd(arr_nazn,{3, i, P2TABN->snils, put_prvs_to_reestr(P2TABN->PRVS,_NYEAR)}) // теперь каждое назначение в отдельном PRESCRIPTIONS
+            aadd(arr_nazn,{3, i, P2TABN->snils, lstr(ret_prvs_V015toV021(P2TABN->PRVS_NEW))}) // теперь каждое назначение в отдельном PRESCRIPTIONS
+my_debug(,'napr na dop: ' + P2TABN->FIO +': ' + P2TABN->snils + ' - '+lstr(ret_prvs_V015toV021(P2TABN->PRVS_NEW)) + ' - '+lstr(P2TABN->PRVS_NEW))
           else
             aadd(arr_nazn,{3, i, '', ''}) // теперь каждое назначение в отдельном PRESCRIPTIONS
           endif
         else
           aadd(arr_nazn,{3, i, '', ''}) // теперь каждое назначение в отдельном PRESCRIPTIONS
         endif
-        // aadd(arr_nazn,{3, i, mtab_v_dopo_na}) // теперь каждое назначение в отдельном PRESCRIPTIONS
       endif
     next
     //aadd(arr_nazn,{3,{}}) ; j := len(arr_nazn)
@@ -2683,14 +2683,14 @@ Function f1_create2reestr19(_nyear,_nmonth)
     for i := 1 to len(arr_mo_spec) // теперь каждая специальность в отдельном PRESCRIPTIONS
       if mtab_v_mo != 0
         if P2TABN->(dbSeek(str(mtab_v_mo,5)))
-          aadd(arr_nazn,{m1napr_v_mo, put_prvs_to_reestr(-arr_mo_spec[i],_NYEAR), P2TABN->snils, , put_prvs_to_reestr(P2TABN->PRVS,_NYEAR)}) // "-", т.к. спец-ть была в кодировке V015
+          aadd(arr_nazn,{m1napr_v_mo, put_prvs_to_reestr(-arr_mo_spec[i],_NYEAR), P2TABN->snils, lstr(ret_prvs_V015toV021(P2TABN->PRVS_NEW))})  // "-", т.к. спец-ть была в кодировке V015
+my_debug(,'napr v mo: ' + P2TABN->FIO +': ' + P2TABN->snils + ' - '+lstr(ret_prvs_V015toV021(P2TABN->PRVS_NEW)) + ' - '+lstr(P2TABN->PRVS_NEW))
         else
           aadd(arr_nazn,{m1napr_v_mo, put_prvs_to_reestr(-arr_mo_spec[i],_NYEAR), '', ''}) // "-", т.к. спец-ть была в кодировке V015
         endif
       else
         aadd(arr_nazn,{m1napr_v_mo, put_prvs_to_reestr(-arr_mo_spec[i],_NYEAR), '', ''}) // "-", т.к. спец-ть была в кодировке V015
       endif
-      // aadd(arr_nazn,{m1napr_v_mo, put_prvs_to_reestr(-arr_mo_spec[i],_NYEAR), mtab_v_mo}) // "-", т.к. спец-ть была в кодировке V015
     next
     //aadd(arr_nazn,{m1napr_v_mo,{}}) ; j := len(arr_nazn)
     //for i := 1 to min(3,len(arr_mo_spec))
@@ -2700,26 +2700,26 @@ Function f1_create2reestr19(_nyear,_nmonth)
   if between(m1napr_stac,1,2) .and. m1profil_stac > 0 // {{"--- нет ---",0},{"в стационар",1},{"в дн. стац.",2}}, ;
     if mtab_v_stac != 0
       if P2TABN->(dbSeek(str(mtab_v_stac,5)))
-        aadd(arr_nazn,{iif(m1napr_stac==1,5,4), m1profil_stac, P2TABN->snils, , put_prvs_to_reestr(P2TABN->PRVS,_NYEAR)})
+        aadd(arr_nazn,{iif(m1napr_stac==1,5,4), m1profil_stac, P2TABN->snils, lstr(ret_prvs_V015toV021(P2TABN->PRVS_NEW))})
+my_debug(,'napr v stac: ' + P2TABN->FIO +': ' + P2TABN->snils + ' - '+lstr(ret_prvs_V015toV021(P2TABN->PRVS_NEW)) + ' - '+lstr(P2TABN->PRVS_NEW))
       else
         aadd(arr_nazn,{iif(m1napr_stac==1,5,4), m1profil_stac, '', ''})
       endif
     else
       aadd(arr_nazn,{iif(m1napr_stac==1,5,4), m1profil_stac, '', ''})
     endif
-    // aadd(arr_nazn,{iif(m1napr_stac==1,5,4), m1profil_stac, mtab_v_stac})
   endif
   if m1napr_reab == 1 .and. m1profil_kojki > 0
     if mtab_v_reab != 0
       if P2TABN->(dbSeek(str(mtab_v_reab,5)))
-        aadd(arr_nazn,{6, m1profil_kojki, P2TABN->snils, , put_prvs_to_reestr(P2TABN->PRVS,_NYEAR)})
+        aadd(arr_nazn,{6, m1profil_kojki, P2TABN->snils, lstr(ret_prvs_V015toV021(P2TABN->PRVS_NEW))})
+my_debug(,'napr reab: ' + P2TABN->FIO +': ' + P2TABN->snils + ' - '+lstr(ret_prvs_V015toV021(P2TABN->PRVS_NEW)) + ' - '+lstr(P2TABN->PRVS_NEW))
       else
         aadd(arr_nazn,{6, m1profil_kojki, '', ''})
       endif
     else
       aadd(arr_nazn,{6, m1profil_kojki, '', ''})
     endif
-    // aadd(arr_nazn,{6, m1profil_kojki, mtab_v_reab})
   endif
   cSMOname := ""
   if alltrim(human_->smo) == '34'
@@ -2758,4 +2758,14 @@ Function f1_create2reestr19(_nyear,_nmonth)
     aadd(mdiagnoz3,human_2->OSL3)
   endif
   return NIL
+  
+***** 05.08.21 вернуть значение специальности из кодировки справочника V015 в кодировке справочника V021
+Function ret_prvs_V015toV021(lkod)
+  Local i, new_kod := 76 // по умолчанию - терапия
+
+  if (i := ascan(glob_arr_V015_V021, {|x| x[1] == lkod })) > 0
+    new_kod := glob_arr_V015_V021[i,2]
+  endif
+  return new_kod
+  
   

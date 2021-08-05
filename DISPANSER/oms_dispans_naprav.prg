@@ -4,14 +4,14 @@
 #include "chip_mo.ch"
 
 ****** 31.07.21 блок направлений после диспансеризации
-function dispans_napr(mk_data, /*@*/j, lSanat)
+function dispans_napr(mk_data, /*@*/j, lAdult)
   // mk_data - дата окончания случая диспансеризации
   // j - счетчик строк на экране
-  // lSanat - возможно направление на санаторно-курортное лечение
+  // lAdult - возможно направление на санаторно-курортное лечение
   // используются PRIVATE-переменные
 
   local strNeedTabNumber := 'Необходимо указать табельный направившего врача'
-  Default lSanat TO .f.
+  Default lAdult TO .f.
 
   if mk_data >= 0d20210801  // по новому ПУМП
     @ j, 74 say "Врач"
@@ -29,9 +29,18 @@ function dispans_napr(mk_data, /*@*/j, lSanat)
         reader {|x|menu_reader(x,mm_napr_v_mo,A__MENUVERT,,,.f.)} ;
         valid {|| iif(m1napr_v_mo==0, (arr_mo_spec:={},ma_mo_spec:=padr("---",42),mtab_v_mo:=0), ), update_get("ma_mo_spec")}
     ma_mo_spec := iif(len(ma_mo_spec)>0,substr(ma_mo_spec,1,20),'')
-    @ j,col()+1 say "к специалистам" get ma_mo_spec ;
-        reader {|x|menu_reader(x,{{|k,r,c| fget_spec_DVN(k,r,c,arr_mo_spec)}},A__FUNCTION,,,.f.)} ;
-        when m1napr_v_mo > 0
+    // @ j,col()+1 say "к специалистам" get ma_mo_spec ;
+    //     reader {|x|menu_reader(x,{{|k,r,c| fget_spec_DVN(k,r,c,arr_mo_spec)}},A__FUNCTION,,,.f.)} ;
+    //     when m1napr_v_mo > 0
+    if lAdult
+      @ j,col()+1 say "к специалистам" get ma_mo_spec ;
+              reader {|x|menu_reader(x,{{|k,r,c| fget_spec_DVN(k,r,c,arr_mo_spec)}},A__FUNCTION,,,.f.)} ;
+              when m1napr_v_mo > 0
+    else
+      @ j,col()+1 say "к специалистам" get ma_mo_spec ;
+              reader {|x|menu_reader(x,{{|k,r,c| fget_spec_deti(k,r,c,arr_mo_spec)}},A__FUNCTION,,,.f.)} ;
+              when m1napr_v_mo > 0
+    endif
     @ j,73 get mtab_v_mo pict "99999" ;
         valid {|g| iif((mtab_v_mo == 0) .and. v_kart_vrach(g), func_error(4, strNeedTabNumber),.t.) } ;
         when m1napr_v_mo > 0
@@ -58,7 +67,7 @@ function dispans_napr(mk_data, /*@*/j, lSanat)
         valid {|g| iif((mtab_v_reab == 0) .and. v_kart_vrach(g), func_error(4, strNeedTabNumber),.t.) } ;
         when m1napr_reab > 0
 // направлен на санаторно-курортное лечение
-    if lSanat
+    if lAdult
       @ ++j,1 say "Направлен на санаторно-курортное лечение" get msank_na ;
           reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
           valid {|| iif(m1sank_na==0, mtab_v_sanat := 0, ), update_get("mtab_v_sank")}
@@ -72,9 +81,15 @@ function dispans_napr(mk_data, /*@*/j, lSanat)
     @ ++j,1 say "Направлен" get mnapr_v_mo ;
         reader {|x|menu_reader(x,mm_napr_v_mo,A__MENUVERT,,,.f.)} ;
         valid {|| iif(m1napr_v_mo==0, (arr_mo_spec:={},ma_mo_spec:=padr("---",42)), ), update_get("ma_mo_spec")}
-    @ j,col()+1 say "к специалистам" get ma_mo_spec ;
-        reader {|x|menu_reader(x,{{|k,r,c| fget_spec_DVN(k,r,c,arr_mo_spec)}},A__FUNCTION,,,.f.)} ;
-        when m1napr_v_mo > 0
+    if lAdult
+      @ j,col()+1 say "к специалистам" get ma_mo_spec ;
+          reader {|x|menu_reader(x,{{|k,r,c| fget_spec_DVN(k,r,c,arr_mo_spec)}},A__FUNCTION,,,.f.)} ;
+          when m1napr_v_mo > 0
+    else
+      @ j,col()+1 say "к специалистам" get ma_mo_spec ;
+          reader {|x|menu_reader(x,{{|k,r,c| fget_spec_deti(k,r,c,arr_mo_spec)}},A__FUNCTION,,,.f.)} ;
+          when m1napr_v_mo > 0
+    endif
     @ ++j,1 say "Направлен на лечение" get mnapr_stac ;
         reader {|x|menu_reader(x,mm_napr_stac,A__MENUVERT,,,.f.)} ;
         valid {|| iif(m1napr_stac==0, (m1profil_stac:=0,mprofil_stac:=space(32)), ), update_get("mprofil_stac")}
@@ -87,7 +102,7 @@ function dispans_napr(mk_data, /*@*/j, lSanat)
     @ j,col()+1 say ", профиль койки" get mprofil_kojki ;
         reader {|x|menu_reader(x,glob_V020,A__MENUVERT,,,.f.)} ;
         when m1napr_reab > 0
-    if lSanat
+    if lAdult
       @ ++j,1 say "Направлен на санаторно-курортное лечение" get msank_na ;
           reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
     endif
@@ -95,10 +110,10 @@ function dispans_napr(mk_data, /*@*/j, lSanat)
   return nil
 
 ****** 31.08.2021
-function testingTabNumberDoctor(mk_data, lSanat)
+function testingTabNumberDoctor(mk_data, lAdult)
   local ret := .t.
 
-  Default lSanat TO .f.
+  Default lAdult TO .f.
 
   if mk_data >= 0d20210801
     if (m1dopo_na > 0) .and. (mtab_v_dopo_na == 0)
@@ -121,7 +136,7 @@ function testingTabNumberDoctor(mk_data, lSanat)
       ret := .f.
       // loop
     endif
-    if lSanat .and. (m1sank_na > 0) .and. (mtab_v_sanat == 0)
+    if lAdult .and. (m1sank_na > 0) .and. (mtab_v_sanat == 0)
         func_error(4,'Не заполнен табельный номер врача направившего на санаторно-курортное лечение')
         ret := .f.
         // loop
