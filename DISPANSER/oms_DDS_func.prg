@@ -69,12 +69,14 @@ Function ret_shifr_zs_DDS(tip_lu)
   endif
   return s
 
-***** 04.08.21
+***** 05.08.21
 Function save_arr_DDS(lkod)
   Local arr := {}, k, ta
   local aliasIsUse := aliasIsAlreadyUse('P2')
+  local oldSelect
 
   if ! aliasIsUse
+    oldSelect := Select()
     R_Use(dir_server+"mo_pers",,"P2") 
   endif
 
@@ -327,18 +329,21 @@ Function save_arr_DDS(lkod)
 
   if ! aliasIsUse
     P2->(dbCloseArea())
+    Select(oldSelect)
   endif
 
   save_arr_DISPANS(lkod,arr)
   return NIL
   
-***** 04.08.21
+***** 05.08.21
 Function read_arr_DDS(lkod)
   Local arr, i, k
   local aliasIsUse := aliasIsAlreadyUse('P2')
+  local oldSelect
   Private mvar
 
   if ! aliasIsUse
+    oldSelect := Select()
     R_Use(dir_server+"mo_pers",,"P2") 
   endif
 
@@ -590,6 +595,7 @@ Function read_arr_DDS(lkod)
 
   if ! aliasIsUse
     P2->(dbCloseArea())
+    Select(oldSelect)
   endif
 
   return NIL

@@ -3,13 +3,16 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 04.08.21
+***** 05.08.21
 Function read_arr_DVN(lkod,is_all)
   Local arr, i, sk
   local aliasIsUse := aliasIsAlreadyUse('P2')
+  local oldSelect
+
   Private mvar
 
   if ! aliasIsUse
+    oldSelect := Select()
     R_Use(dir_server+"mo_pers",,"P2") 
   endif
 
@@ -192,16 +195,19 @@ Function read_arr_DVN(lkod,is_all)
 
   if ! aliasIsUse
     P2->(dbCloseArea())
+    Select(oldSelect)
   endif
 
   return NIL
 
-***** 04.08.21
+***** 05.08.21
 Function save_arr_DVN(lkod)
   Local arr := {}, i, sk, ta
   local aliasIsUse := aliasIsAlreadyUse('P2')
+  local oldSelect
 
   if ! aliasIsUse
+    oldSelect := Select()
     R_Use(dir_server+"mo_pers",,"P2") 
   endif
 
@@ -386,6 +392,7 @@ Function save_arr_DVN(lkod)
 
   if ! aliasIsUse
     P2->(dbCloseArea())
+    Select(oldSelect)
   endif
 
   save_arr_DISPANS(lkod,arr)
