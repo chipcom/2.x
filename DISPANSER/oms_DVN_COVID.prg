@@ -414,7 +414,7 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
     //
     R_Use(dir_server+"mo_pers",,"P2")
     read_arr_DVN_COVID(Loc_kod)     // читаем сохраненные данные по углубленной диспансеризации
-
+    
     if metap == 1 .and. between(m1GRUPPA,11,14) .and. m1p_otk == 1
       m1GRUPPA += 10
     endif
@@ -864,8 +864,8 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       //            reader {|x|menu_reader(x,{{|k,r,c| fget_napr_PN(k,r,c)}},A__FUNCTION,,,.f.)} ;
       //            when m1ds_onk == 1
       @ ++j,1 say "Назначено лечение (для ф.131)" get mnazn_l ;
-                 reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
-
+          reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
+                 
       dispans_napr(mk_data, @j, .t.)  // вызов заполнения блока направлений
 //         @ ++j,1 say "Направлен на дополнительное обследование" get mdopo_na ;
 //             reader {|x|menu_reader(x,mm_dopo_na,A__MENUBIT,,,.f.)}

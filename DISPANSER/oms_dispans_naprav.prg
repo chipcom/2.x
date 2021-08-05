@@ -9,8 +9,8 @@ function dispans_napr(mk_data, /*@*/j, lAdult)
   // j - счетчик строк на экране
   // lAdult - возможно направление на санаторно-курортное лечение
   // используются PRIVATE-переменные
-
   local strNeedTabNumber := 'Необходимо указать табельный направившего врача'
+  
   Default lAdult TO .f.
 
   if mk_data >= 0d20210801  // по новому ПУМП

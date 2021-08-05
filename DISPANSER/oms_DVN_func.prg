@@ -302,7 +302,6 @@ Function save_arr_DVN(lkod)
       else
         aadd(arr,{"47",{m1dopo_na, 0}})
       endif
-      // aadd(arr,{"47",{m1dopo_na, mtab_v_dopo_na}})
     else
       aadd(arr,{"47",m1dopo_na})
     endif
@@ -318,7 +317,6 @@ Function save_arr_DVN(lkod)
       else
         aadd(arr,{"50",{m1sank_na, 0}})
       endif
-      // aadd(arr,{"50",{m1sank_na, mtab_v_sanat}})
     else
       aadd(arr,{"50",m1sank_na})
     endif
@@ -337,7 +335,6 @@ Function save_arr_DVN(lkod)
       else
         aadd(arr,{"52",{m1napr_v_mo, 0}})
       endif
-      // aadd(arr,{"52",{m1napr_v_mo, mtab_v_mo}})
     endif
   else
     if type("m1napr_v_mo") == "N"
@@ -358,7 +355,6 @@ Function save_arr_DVN(lkod)
       else
         aadd(arr,{"54",{m1napr_stac, 0}})
       endif
-      // aadd(arr,{"54",{m1napr_stac, mtab_v_stac}})
     endif
   else
     if type("m1napr_stac") == "N"
@@ -377,9 +373,8 @@ Function save_arr_DVN(lkod)
           aadd(arr,{"56",{m1napr_reab, 0}})
         endif
       else
-        aadd(arr,{"56",{m1napr_reab, P2->kod}})
+        aadd(arr,{"56",{m1napr_reab, 0}})
       endif
-      // aadd(arr,{"56",{m1napr_reab, mtab_v_reab}})
     endif
   else
     if type("m1napr_reab") == "N"
