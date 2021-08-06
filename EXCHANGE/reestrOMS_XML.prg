@@ -1092,7 +1092,7 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
               p2->(dbGoto(hu->kod_vr))
               mo_add_xml_stroke(oMR_USL_N,"CODE_MD",p2->snils)
             endif
-          elseif human->k_data < 0d20210801 .and. p_tip_reestr == 2
+          else  //if human->k_data < 0d20210801 .and. p_tip_reestr == 2
             mo_add_xml_stroke(oUSL,"PRVS",put_prvs_to_reestr(hu_->PRVS,_NYEAR))
             if c4tod(hu->DATE_U) < human->n_data ; // если сделано ранее
                 .or. eq_any(hu->is_edit,-1,1,2,3) .or. lshifr == "4.20.2" .or. left(lshifr,5) == "60.8." .or. fl
