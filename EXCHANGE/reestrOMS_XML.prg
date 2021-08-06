@@ -1188,7 +1188,7 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
               p2->(dbGoto(mohu->kod_vr))
               mo_add_xml_stroke(oMR_USL_N,"CODE_MD",p2->snils)
             elseif human->k_data < 0d20210801 .and. p_tip_reestr == 2
-              mo_add_xml_stroke(oMR_USL_N,"PRVS",put_prvs_to_reestr(mohu->PRVS,_NYEAR))
+              mo_add_xml_stroke(oUSL,"PRVS",put_prvs_to_reestr(mohu->PRVS,_NYEAR))
               p2->(dbGoto(mohu->kod_vr))
               mo_add_xml_stroke(oUSL,"CODE_MD" ,p2->snils)
             elseif p_tip_reestr == 1
