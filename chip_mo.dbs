@@ -1,0 +1,643 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="chip_mo" id="Project_1afd" database="LogicalDesign" >
+	<schema name="chip_mo" >
+		<table name="BASE1" >
+			<comment><![CDATA[База пользователей системы (зашифрованная)]]></comment>
+			<column name="P1" type="char" length="20" jt="1" >
+				<comment><![CDATA[Ф.И.О.]]></comment>
+			</column>
+			<column name="P2" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[тип доступа]]></comment>
+			</column>
+			<column name="P3" type="char" length="10" jt="1" >
+				<comment><![CDATA[пароль]]></comment>
+			</column>
+			<column name="P4" type="char" length="1" jt="1" >
+				<comment><![CDATA[код отделения [ chr(kod) ]]]></comment>
+			</column>
+			<column name="P5" type="char" length="20" jt="1" >
+				<comment><![CDATA[должность]]></comment>
+			</column>
+			<column name="P6" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[Группа КЭК (1-3)]]></comment>
+			</column>
+			<column name="P7" type="char" length="10" jt="1" >
+				<comment><![CDATA[пароль1 для фискального регистратора]]></comment>
+			</column>
+			<column name="P8" type="char" length="10" jt="1" >
+				<comment><![CDATA[пароль2 для фискального регистратора]]></comment>
+			</column>
+			<column name="INN" type="char" length="12" jt="1" >
+				<comment><![CDATA[ИНН кассира]]></comment>
+			</column>
+			<column name="IDROLE" type="numeric" length="4" decimal="0" jt="2" >
+				<comment><![CDATA[ID группы пользователей]]></comment>
+			</column>
+		</table>
+		<table name="KARTOTE2" >
+			<column name="KOD_TF" type="numeric" length="10" decimal="0" jt="2" >
+				<comment><![CDATA[код по кодировке ТФОМС]]></comment>
+			</column>
+			<column name="KOD_MIS" type="char" length="20" jt="1" >
+				<comment><![CDATA[ЕНП - единый номер полиса ОМС]]></comment>
+			</column>
+			<column name="KOD_AK" type="char" length="10" jt="1" >
+				<comment><![CDATA[собственный номер амбулаторной карты (КМИС/ЛИС)]]></comment>
+			</column>
+			<column name="TIP_PR" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[тип/статус прикрепления 1-из WQ,2-из реестра СП и ТК,3-из файла прикрепления,4-открепление,5-сверка]]></comment>
+			</column>
+			<column name="MO_PR" type="char" length="6" jt="1" >
+				<comment><![CDATA[код МО прикрепления]]></comment>
+			</column>
+			<column name="DATE_PR" type="date" jt="91" >
+				<comment><![CDATA[дата прикрепления к врачу]]></comment>
+			</column>
+			<column name="SNILS_VR" type="char" length="11" jt="1" >
+				<comment><![CDATA[СНИЛС участкового врача]]></comment>
+			</column>
+			<column name="PC1" type="char" length="10" jt="1" >
+				<comment><![CDATA[при добавлении:kod_polzovat+c4sys_date+hour_min(seconds())]]></comment>
+			</column>
+			<column name="PC2" type="char" length="10" jt="1" >
+				<comment><![CDATA[0-нет,1-умер по результатам сверки]]></comment>
+			</column>
+			<column name="PC3" type="char" length="10" jt="1" />
+			<column name="PC4" type="char" length="10" jt="1" >
+				<comment><![CDATA[дата прикрепления к МО]]></comment>
+			</column>
+			<column name="PC5" type="char" length="10" jt="1" />
+			<column name="PN1" type="numeric" length="10" decimal="0" jt="2" />
+			<column name="PN2" type="numeric" length="10" decimal="0" jt="2" />
+			<column name="PN3" type="numeric" length="10" decimal="0" jt="2" />
+		</table>
+		<table name="KARTOTEK" spec="" >
+			<comment><![CDATA[таблица картотеки медицинского учреждения]]></comment>
+			<column name="KOD" type="numeric" length="7" decimal="0" jt="2" mandatory="y" />
+			<column name="FIO" type="char" length="50" jt="1" >
+				<comment><![CDATA[Ф.И.О. больного]]></comment>
+			</column>
+			<column name="POL" type="char" length="1" jt="1" >
+				<comment><![CDATA[пол]]></comment>
+			</column>
+			<column name="DATE_R" type="date" jt="91" >
+				<comment><![CDATA[дата рождения больного]]></comment>
+			</column>
+			<column name="VZROS_REB" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[0-взрослый, 1-ребенок, 2-подросток]]></comment>
+			</column>
+			<column name="ADRES" type="char" length="50" jt="1" >
+				<comment><![CDATA[адрес больного]]></comment>
+			</column>
+			<column name="MR_DOL" type="char" length="50" jt="1" >
+				<comment><![CDATA[место работы или причина безработности]]></comment>
+			</column>
+			<column name="RAB_NERAB" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[0-работающий, 1-неработающий]]></comment>
+			</column>
+			<column name="KOMU" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[от 1 до 5]]></comment>
+			</column>
+			<column name="STR_CRB" type="numeric" length="2" decimal="0" jt="2" >
+				<comment><![CDATA[код стр.компании, комитета и т.п.]]></comment>
+			</column>
+			<column name="ZA_SMO" type="numeric" length="2" decimal="0" jt="2" >
+				<comment><![CDATA[0-нет,"-8"-полис недействителен,"-9"-ошибки в реквизитах]]></comment>
+			</column>
+			<column name="POLIS" type="char" length="17" jt="1" >
+				<comment><![CDATA[серия и номер страхового полиса]]></comment>
+			</column>
+			<column name="SROK_POLIS" type="char" length="4" jt="1" >
+				<comment><![CDATA[срок действия полиса]]></comment>
+			</column>
+			<column name="MI_GIT" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[0-нет, 9-рабочее поле KOMU]]></comment>
+			</column>
+			<column name="RAJON_GIT" type="numeric" length="2" decimal="0" jt="2" >
+				<comment><![CDATA[код района места жительства]]></comment>
+			</column>
+			<column name="MEST_INOG" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[0-нет,9-отдельные ФИО]]></comment>
+			</column>
+			<column name="RAJON" type="numeric" length="2" decimal="0" jt="2" >
+				<comment><![CDATA[код района финансирования]]></comment>
+			</column>
+			<column name="BUKVA" type="char" length="1" jt="1" >
+				<comment><![CDATA[одна буква]]></comment>
+			</column>
+			<column name="UCHAST" type="numeric" length="2" decimal="0" jt="2" >
+				<comment><![CDATA[номер участка]]></comment>
+			</column>
+			<column name="KOD_VU" type="numeric" length="5" decimal="0" jt="2" >
+				<comment><![CDATA[код в участке]]></comment>
+			</column>
+			<column name="SNILS" type="char" length="11" jt="1" >
+				<comment><![CDATA[СНИЛС]]></comment>
+			</column>
+			<column name="DEATH" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[0-нет,1-умер по результатам сверки]]></comment>
+			</column>
+			<column name="KOD_TF" type="numeric" length="10" decimal="0" jt="2" >
+				<comment><![CDATA[код по кодировке ТФОМС]]></comment>
+			</column>
+			<column name="KOD_MIS" type="char" length="20" jt="1" >
+				<comment><![CDATA[ЕНП - единый номер полиса ОМС]]></comment>
+			</column>
+			<column name="KOD_AK" type="char" length="10" jt="1" >
+				<comment><![CDATA[собственный номер амбулаторной карты]]></comment>
+			</column>
+			<column name="TIP_PR" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[тип/статус прикрепления 1-из WQ,2-из реестра СП и ТК,3-из файла прикрепления,4-открепление,5-сверка]]></comment>
+			</column>
+			<column name="MO_PR" type="char" length="6" jt="1" >
+				<comment><![CDATA[код МО прикрепления]]></comment>
+			</column>
+			<column name="DATE_PR" type="date" jt="91" >
+				<comment><![CDATA[дата прикрепления]]></comment>
+			</column>
+			<column name="SNILS_VR" type="char" length="11" jt="1" >
+				<comment><![CDATA[СНИЛС участкового врача]]></comment>
+			</column>
+			<column name="PC1" type="char" length="10" jt="1" >
+				<comment><![CDATA[при добавлении:kod_polzovat+c4sys_date+hour_min(seconds())]]></comment>
+			</column>
+			<column name="PC2" type="char" length="10" jt="1" >
+				<comment><![CDATA[0-нет,1-умер по результатам сверки]]></comment>
+			</column>
+			<column name="PC3" type="char" length="10" jt="1" />
+			<column name="PN1" type="numeric" length="10" decimal="0" jt="2" />
+			<column name="PN2" type="numeric" length="10" decimal="0" jt="2" />
+			<column name="PN3" type="numeric" length="10" decimal="0" jt="2" />
+			<index name="Pk_KARTOTEK_KOD" unique="PRIMARY_KEY" >
+				<column name="KOD" />
+			</index>
+		</table>
+		<table name="KARTOTE_" spec="" >
+			<column name="VPOLIS" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[вид полиса (от 1 до 3);1-старый,2-врем.,3-новый;по умолчанию 1 - старый]]></comment>
+			</column>
+			<column name="SPOLIS" type="char" length="10" jt="1" >
+				<comment><![CDATA[серия полиса;;для наших - разделить по пробелу]]></comment>
+			</column>
+			<column name="NPOLIS" type="char" length="20" jt="1" >
+				<comment><![CDATA[номер полиса;;"для иногородних - вынуть из ""k_inog"" и разделить"]]></comment>
+			</column>
+			<column name="SMO" type="char" length="5" jt="1" >
+				<comment><![CDATA[реестровый номер СМО;;преобразовать из старых кодов в новые, иногродние = 34]]></comment>
+			</column>
+			<column name="BEG_POLIS" type="char" length="4" jt="1" >
+				<comment><![CDATA[дата начала действия полиса ;в формате dtoc4();"поле ""beg_polis"" из файла ""k_inog"" для иногородних"]]></comment>
+			</column>
+			<column name="STRANA" type="char" length="3" jt="1" >
+				<comment><![CDATA[гражданство пациента (страна);выбор из справочника стран;"поле ""strana"" из файла ""k_inog"" для иногородних, для остальных пусто = РФ"]]></comment>
+			</column>
+			<column name="GOROD_SELO" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[житель?;1-город, 2-село, 3-рабочий поселок;"поле ""gorod_selo"" из файла ""pp_human"""]]></comment>
+			</column>
+			<column name="VID_UD" type="numeric" length="2" decimal="0" jt="2" >
+				<comment><![CDATA[вид удостоверения личности;по кодировке ФФОМС;"PKRT_VID из ""APP_BASE"""]]></comment>
+			</column>
+			<column name="SER_UD" type="char" length="10" jt="1" >
+				<comment><![CDATA[серия удостоверения личности;;"PKRT_SER из ""APP_BASE"""]]></comment>
+			</column>
+			<column name="NOM_UD" type="char" length="20" jt="1" >
+				<comment><![CDATA[номер удостоверения личности;;"PKRT_NOM из ""APP_BASE"""]]></comment>
+			</column>
+			<column name="KEMVYD" type="numeric" length="6" decimal="0" jt="2" >
+				<comment><![CDATA[кем выдан документ;"справочник ""s_kemvyd""";"PKRT_KEM из ""APP_BASE"""]]></comment>
+			</column>
+			<column name="KOGDAVYD" type="date" jt="91" >
+				<comment><![CDATA[когда выдан документ;;"PKRT_KOGDA из ""APP_BASE"""]]></comment>
+			</column>
+			<column name="KATEGOR" type="numeric" length="3" decimal="0" jt="2" >
+				<comment><![CDATA[категория пациента;выбор из меню??;"PKRT_KATEG из ""APP_BASE"""]]></comment>
+			</column>
+			<column name="KATEGOR2" type="numeric" length="3" decimal="0" jt="2" >
+				<comment><![CDATA[категория пациента (собственная для МО);выбор из меню??;"PKRT_KATEG из ""APP_BASE"", если в lpu.ini есть свои категории"]]></comment>
+			</column>
+			<column name="MESTO_R" type="char" length="100" jt="1" >
+				<comment><![CDATA[место рождения;;]]></comment>
+			</column>
+			<column name="OKATOG" type="char" length="11" jt="1" >
+				<comment><![CDATA[код места жительства по ОКАТО;выбор из справочника ОКАТО;попытаться сформировать для нашей области по коду района]]></comment>
+			</column>
+			<column name="OKATOP" type="char" length="11" jt="1" >
+				<comment><![CDATA[код места пребывания по ОКАТО;;]]></comment>
+			</column>
+			<column name="ADRESP" type="char" length="50" jt="1" >
+				<comment><![CDATA[адрес места пребывания;сюда будем заносить остаток адреса места пребывания;]]></comment>
+			</column>
+			<column name="DMS_SMO" type="numeric" length="3" decimal="0" jt="2" >
+				<comment><![CDATA[код СМО ДМС;;]]></comment>
+			</column>
+			<column name="DMS_POLIS" type="char" length="17" jt="1" >
+				<comment><![CDATA[код полиса ДМС;;]]></comment>
+			</column>
+			<column name="KVARTAL" type="char" length="5" jt="1" >
+				<comment><![CDATA[квартал для Волжского;на будущее;]]></comment>
+			</column>
+			<column name="KVARTAL_D" type="char" length="5" jt="1" >
+				<comment><![CDATA[дом в квартале Волжского;на будущее;]]></comment>
+			</column>
+			<column name="PHONE_H" type="char" length="11" jt="1" >
+				<comment><![CDATA[телефон домашний;;]]></comment>
+			</column>
+			<column name="PHONE_M" type="char" length="11" jt="1" >
+				<comment><![CDATA[телефон мобильный;;]]></comment>
+			</column>
+			<column name="PHONE_W" type="char" length="11" jt="1" >
+				<comment><![CDATA[телефон рабочий;;]]></comment>
+			</column>
+			<column name="KOD_LGOT" type="char" length="3" jt="1" >
+				<comment><![CDATA[код льготы по ДЛО;;]]></comment>
+			</column>
+			<column name="IS_REGISTR" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[есть ли в регистре ДЛО;0-нет, 1-есть;]]></comment>
+			</column>
+			<column name="PENSIONER" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[является пенсионером?;0-нет, 1-да;]]></comment>
+			</column>
+			<column name="INVALID" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[инвалидность;0-нет,1,2,3-степень, 4-инвалид детства;]]></comment>
+			</column>
+			<column name="INVALID_ST" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[степень инвалидности;1 или 2;]]></comment>
+			</column>
+			<column name="BLOOD_G" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[группа крови;от 1 до 4;]]></comment>
+			</column>
+			<column name="BLOOD_R" type="char" length="1" jt="1" >
+				<comment><![CDATA[резус-фактор;"+" или "-";]]></comment>
+			</column>
+			<column name="WEIGHT" type="numeric" length="3" decimal="0" jt="2" >
+				<comment><![CDATA[вес в кг;;]]></comment>
+			</column>
+			<column name="HEIGHT" type="numeric" length="3" decimal="0" jt="2" >
+				<comment><![CDATA[рост в см;;]]></comment>
+			</column>
+			<column name="WHERE_KART" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[где амбулаторная карта;0-в регистратуре, 1-у врача, 2-на руках;]]></comment>
+			</column>
+			<column name="GR_RISK" type="numeric" length="3" decimal="0" jt="2" >
+				<comment><![CDATA[группа риска по стандарту горздрава;;если есть REGI_FL.DBF, то взять из него]]></comment>
+			</column>
+			<column name="DATE_FL" type="char" length="4" jt="1" >
+				<comment><![CDATA[дата последней флюорогрфии;;если есть REGI_FL.DBF, то взять из него]]></comment>
+			</column>
+			<column name="DATE_MR" type="char" length="4" jt="1" >
+				<comment><![CDATA[дата последнего муниципального рецепта;;]]></comment>
+			</column>
+			<column name="DATE_FR" type="char" length="4" jt="1" >
+				<comment><![CDATA[дата последнего федерального рецепта;;]]></comment>
+			</column>
+			<fk name="fk_kartote__kartotek" to_schema="chip_mo" to_table="KARTOTEK" type="OneToOne" />
+		</table>
+		<table name="KART_INV" spec="" >
+			<comment><![CDATA[таблица с инвалидами]]></comment>
+			<column name="KOD" type="numeric" length="7" decimal="0" jt="2" >
+				<comment><![CDATA[код (номер записи по БД kartotek)]]></comment>
+			</column>
+			<column name="DATE_INV" type="date" jt="91" >
+				<comment><![CDATA[дата первичного установления инвалидности]]></comment>
+			</column>
+			<column name="PRICH_INV" type="numeric" length="2" decimal="0" jt="2" >
+				<comment><![CDATA[причина первичного установления инвалидности]]></comment>
+			</column>
+			<column name="DIAG_INV" type="char" length="5" jt="1" >
+				<comment><![CDATA[диагноз по которому установлена инвалидность]]></comment>
+			</column>
+			<fk name="fk_kart_inv_kartotek" to_schema="chip_mo" to_table="KARTOTEK" type="Identifying" >
+				<fk_column name="KOD" pk="KOD" />
+			</fk>
+		</table>
+		<table name="MO_KINOS" >
+			<comment><![CDATA[справочник сведений об иностранце (при картотеке)]]></comment>
+			<column name="KOD" type="numeric" length="7" decimal="0" jt="2" >
+				<comment><![CDATA[код (номер записи по БД kartotek)]]></comment>
+			</column>
+			<column name="OSN_PREB" type="numeric" length="2" decimal="0" jt="2" >
+				<comment><![CDATA[основание пребывания в РФ]]></comment>
+			</column>
+			<column name="ADRES_PRO" type="char" length="60" jt="1" >
+				<comment><![CDATA[адрес проживания в Волг.обл.]]></comment>
+			</column>
+			<column name="MIGR_KARTA" type="char" length="20" jt="1" >
+				<comment><![CDATA[данные миграционной карты]]></comment>
+			</column>
+			<column name="DATE_P_G" type="date" jt="91" >
+				<comment><![CDATA[дата пересечения границы]]></comment>
+			</column>
+			<column name="DATE_R_M" type="date" jt="91" >
+				<comment><![CDATA[дата регистрации в миграционной службе]]></comment>
+			</column>
+			<fk name="fk_mo_kinos_kartotek" to_schema="chip_mo" to_table="KARTOTEK" type="OneToOne" >
+				<fk_column name="KOD" pk="KOD" />
+			</fk>
+		</table>
+		<table name="MO_OPER" >
+			<column name="PO" type="char" length="1" jt="1" >
+				<comment><![CDATA[код оператора asc(po)]]></comment>
+			</column>
+			<column name="PD" type="char" length="4" jt="1" >
+				<comment><![CDATA[дата ввода c4tod(pd)]]></comment>
+			</column>
+			<column name="V0" type="char" length="3" jt="1" >
+				<comment><![CDATA[добавление в регистратуре]]></comment>
+			</column>
+			<column name="VR" type="char" length="3" jt="1" >
+				<comment><![CDATA[полные реквизиты]]></comment>
+			</column>
+			<column name="VK" type="char" length="3" jt="1" >
+				<comment><![CDATA[реквизиты из картотеки => ft_unsqzn(V..., 6)]]></comment>
+			</column>
+			<column name="VU" type="char" length="3" jt="1" >
+				<comment><![CDATA[ввод услуг]]></comment>
+			</column>
+			<column name="TASK" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[код задачи]]></comment>
+			</column>
+			<column name="CS" type="char" length="4" jt="1" >
+				<comment><![CDATA[количество введённых символов]]></comment>
+			</column>
+			<column name="APP_EDIT" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[0 - добавление, 1 - редактирование]]></comment>
+			</column>
+		</table>
+		<table name="MO_OPERN" >
+			<column name="PD" type="char" length="4" jt="1" >
+				<comment><![CDATA[дата ввода c4tod(pd)]]></comment>
+			</column>
+			<column name="PO" type="char" length="1" jt="1" >
+				<comment><![CDATA[код оператора asc(po)]]></comment>
+			</column>
+			<column name="PT" type="char" length="1" jt="1" >
+				<comment><![CDATA[код задачи]]></comment>
+			</column>
+			<column name="TP" type="char" length="1" jt="1" >
+				<comment><![CDATA[тип (1-карточка, 2-л/у, 3-услуги)]]></comment>
+			</column>
+			<column name="AE" type="char" length="1" jt="1" >
+				<comment><![CDATA[1-добавление, 2-редактирование, 3-удаление]]></comment>
+			</column>
+			<column name="KK" type="char" length="3" jt="1" >
+				<comment><![CDATA[кол-во (карточек, л/у или услуг)]]></comment>
+			</column>
+			<column name="KP" type="char" length="3" jt="1" >
+				<comment><![CDATA[количество введённых полей]]></comment>
+			</column>
+		</table>
+		<table name="MO_OTD" spec="" >
+			<comment><![CDATA[Отделения "mo_otd"]]></comment>
+			<column name="KOD" type="numeric" length="3" decimal="0" jt="2" mandatory="y" >
+				<comment><![CDATA[код]]></comment>
+			</column>
+			<column name="NAME" type="char" length="30" jt="1" >
+				<comment><![CDATA[наименование]]></comment>
+			</column>
+			<column name="KOD_LPU" type="numeric" length="3" decimal="0" jt="2" >
+				<comment><![CDATA[код учреждения]]></comment>
+			</column>
+			<column name="SHORT_NAME" type="char" length="5" jt="1" >
+				<comment><![CDATA[сокращенное наименование]]></comment>
+			</column>
+			<column name="DBEGIN" type="date" jt="91" >
+				<comment><![CDATA[дата начала действия в задаче ОМС]]></comment>
+			</column>
+			<column name="DEND" type="date" jt="91" >
+				<comment><![CDATA[дата окончания действия в задаче ОМС]]></comment>
+			</column>
+			<column name="DBEGINP" type="date" jt="91" >
+				<comment><![CDATA[дата начала действия в задаче "Платные услуги"]]></comment>
+			</column>
+			<column name="DENDP" type="date" jt="91" >
+				<comment><![CDATA[дата окончания действия в задаче "Платные услуги"]]></comment>
+			</column>
+			<column name="DBEGINO" type="date" jt="91" >
+				<comment><![CDATA[дата начала действия в задаче "Ортопедия"]]></comment>
+			</column>
+			<column name="DENDO" type="date" jt="91" >
+				<comment><![CDATA[дата окончания действия в задаче "Ортопедия"]]></comment>
+			</column>
+			<column name="PLAN_VP" type="numeric" length="6" decimal="0" jt="2" >
+				<comment><![CDATA[план врачебных приемов]]></comment>
+			</column>
+			<column name="PLAN_PF" type="numeric" length="6" decimal="0" jt="2" >
+				<comment><![CDATA[план профилактик]]></comment>
+			</column>
+			<column name="PLAN_PD" type="numeric" length="6" decimal="0" jt="2" >
+				<comment><![CDATA[план приемов на дому]]></comment>
+			</column>
+			<column name="PROFIL" type="numeric" length="3" decimal="0" jt="2" >
+				<comment><![CDATA[профиль для данного отделения по справочнику V002, по умолчанию прописывать его в лист учета и в услугу]]></comment>
+			</column>
+			<column name="PROFIL_K" type="numeric" length="3" decimal="0" jt="2" >
+				<comment><![CDATA[профиль койки для данного отделения по справочнику V020, по умолчанию прописывать его в лист учета]]></comment>
+			</column>
+			<column name="IDSP" type="numeric" length="2" decimal="0" jt="2" >
+				<comment><![CDATA[код способа оплаты мед.помощи для данного отделения по справочнику V010]]></comment>
+			</column>
+			<column name="IDUMP" type="numeric" length="2" decimal="0" jt="2" >
+				<comment><![CDATA[код условий оказания медицинской помощи]]></comment>
+			</column>
+			<column name="IDVMP" type="numeric" length="2" decimal="0" jt="2" >
+				<comment><![CDATA[код видов медицинской помощи]]></comment>
+			</column>
+			<column name="TIP_OTD" type="numeric" length="2" decimal="0" jt="2" >
+				<comment><![CDATA[тип отд-ия: 1-приёмный покой]]></comment>
+			</column>
+			<column name="KOD_PODR" type="char" length="25" jt="1" >
+				<comment><![CDATA[код подразделения по паспорту ЛПУ]]></comment>
+			</column>
+			<column name="TIPLU" type="numeric" length="2" decimal="0" jt="2" >
+				<comment><![CDATA[тип листа учёта: 0-стандарт,1-СМП,2-ДДС,3-ДВН, и т.д.]]></comment>
+			</column>
+			<column name="CODE_DEP" type="numeric" length="3" decimal="0" jt="2" >
+				<comment><![CDATA[код отделения по кодировке ТФОМС из справочника SprDep - 2018 год]]></comment>
+			</column>
+			<column name="ADRES_PODR" type="numeric" length="2" decimal="0" jt="2" >
+				<comment><![CDATA[код удалённого подразделения по массиву glob_arr_podr - 2017 год]]></comment>
+			</column>
+			<column name="ADDRESS" type="char" length="150" jt="1" >
+				<comment><![CDATA[адрес нахождения учреждения]]></comment>
+			</column>
+			<column name="CODE_TFOMS" type="char" length="6" jt="1" >
+				<comment><![CDATA[код подразделения по кодировке ТФОМС - 2017 год]]></comment>
+			</column>
+			<column name="KOD_SOGL" type="numeric" length="10" decimal="0" jt="2" >
+				<comment><![CDATA[код согласования одного отделения с программой SDS]]></comment>
+			</column>
+			<column name="SOME_SOGL" type="char" length="255" jt="1" >
+				<comment><![CDATA[код согласования нескольких отделений с программой SDS]]></comment>
+			</column>
+			<index name="Pk_MO_OTD_KOD" unique="PRIMARY_KEY" >
+				<column name="KOD" />
+			</index>
+			<fk name="fk_mo_otd_mo_uch" to_schema="chip_mo" to_table="MO_UCH" type="OneToOne" >
+				<fk_column name="KOD_LPU" pk="KOD" />
+			</fk>
+		</table>
+		<table name="MO_PERS" >
+			<comment><![CDATA[Персонал "mo_pers"]]></comment>
+			<column name="KOD" type="numeric" length="4" decimal="0" jt="2" mandatory="y" >
+				<comment><![CDATA[код]]></comment>
+			</column>
+			<column name="UCH" type="numeric" length="3" decimal="0" jt="2" >
+				<comment><![CDATA[код учреждения]]></comment>
+			</column>
+			<column name="OTD" type="numeric" length="3" decimal="0" jt="2" >
+				<comment><![CDATA[код отделения]]></comment>
+			</column>
+			<column name="NAME_DOLJ" type="char" length="30" jt="1" >
+				<comment><![CDATA[наименование должности]]></comment>
+			</column>
+			<column name="KATEG" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[код категории]]></comment>
+			</column>
+			<column name="FIO" type="char" length="50" jt="1" >
+				<comment><![CDATA[ФИО]]></comment>
+			</column>
+			<column name="STAVKA" type="numeric" length="4" decimal="2" jt="2" >
+				<comment><![CDATA[ставка]]></comment>
+			</column>
+			<column name="VID" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[вид работы;0-основной, 1-совмещение]]></comment>
+			</column>
+			<column name="VR_KATEG" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[код врачебной категории "kateg"]]></comment>
+			</column>
+			<column name="DOLJKAT" type="char" length="15" jt="1" >
+				<comment><![CDATA[наименование должности по категории]]></comment>
+			</column>
+			<column name="D_KATEG" type="date" jt="91" >
+				<comment><![CDATA[дата подтверждения категории]]></comment>
+			</column>
+			<column name="SERTIF" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[наличие сертификата;0-нет, 1-да]]></comment>
+			</column>
+			<column name="D_SERTIF" type="date" jt="91" >
+				<comment><![CDATA[дата подтверждения сертификата]]></comment>
+			</column>
+			<column name="PRVS" type="numeric" length="9" decimal="0" jt="2" >
+				<comment><![CDATA[Специальность врача по справочнику V004]]></comment>
+			</column>
+			<column name="PRVS_NEW" type="numeric" length="4" decimal="0" jt="2" >
+				<comment><![CDATA[Специальность врача по справочнику V015]]></comment>
+			</column>
+			<column name="PROFIL" type="numeric" length="3" decimal="0" jt="2" >
+				<comment><![CDATA[профиль для данной специальности по справочнику V002]]></comment>
+			</column>
+			<column name="TAB_NOM" type="numeric" length="5" decimal="0" jt="2" >
+				<comment><![CDATA[табельный номер]]></comment>
+			</column>
+			<column name="SVOD_NOM" type="numeric" length="5" decimal="0" jt="2" >
+				<comment><![CDATA[сводный табельный номер (вводится, если у человека несколько таб.номеров, используется в сводной статистике по сотруднику)]]></comment>
+			</column>
+			<column name="KOD_DLO" type="numeric" length="5" decimal="0" jt="2" >
+				<comment><![CDATA[код врача для выписки рецептов по ДЛО]]></comment>
+			</column>
+			<column name="UROVEN" type="numeric" length="2" decimal="0" jt="2" >
+				<comment><![CDATA[уровень оплаты (от 1 до 99)]]></comment>
+			</column>
+			<column name="OTDAL" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[признак отдаленности;0-нет, 1-да]]></comment>
+			</column>
+			<column name="SNILS" type="char" length="11" jt="1" >
+				<comment><![CDATA[СНИЛС врача]]></comment>
+			</column>
+			<column name="DBEGIN" type="date" jt="91" >
+				<comment><![CDATA[дата начала действия]]></comment>
+			</column>
+			<column name="DEND" type="date" jt="91" >
+				<comment><![CDATA[дата окончания действия]]></comment>
+			</column>
+			<index name="Pk_MO_PERS_KOD" unique="PRIMARY_KEY" >
+				<column name="KOD" />
+			</index>
+			<fk name="fk_mo_pers_mo_uch" to_schema="chip_mo" to_table="MO_UCH" type="ManyToMany" >
+				<fk_column name="UCH" pk="KOD" />
+			</fk>
+			<fk name="fk_mo_pers_mo_otd" to_schema="chip_mo" to_table="MO_OTD" type="ManyToMany" >
+				<fk_column name="OTD" pk="KOD" />
+			</fk>
+		</table>
+		<table name="MO_UCH" prior="mo" >
+			<comment><![CDATA[Учреждения "mo_uch"]]></comment>
+			<column name="KOD" type="numeric" length="3" decimal="0" jt="2" mandatory="y" >
+				<comment><![CDATA[код;;из "l_ucher"]]></comment>
+			</column>
+			<column name="NAME" type="char" length="30" jt="1" >
+				<comment><![CDATA[наименование;сократили с 70 до 30;"из ""l_ucher"""]]></comment>
+			</column>
+			<column name="SHORT_NAME" type="char" length="5" jt="1" >
+				<comment><![CDATA[сокращенное наименование;;]]></comment>
+			</column>
+			<column name="IS_TALON" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[учреждение работает со статталоном?;0-нет, 1-да;оставить 0, или поставить 1 в зависимости от массива UCHER_TALON (см. c_allpub.prg строка 273)]]></comment>
+			</column>
+			<column name="IDCHIEF" type="numeric" length="4" decimal="0" jt="2" >
+				<comment><![CDATA[номер записи в файле mo_pers. Ссылка на руководителя учреждения]]></comment>
+			</column>
+			<column name="ADDRESS" type="char" length="150" jt="1" >
+				<comment><![CDATA[адрес нахождения учреждения]]></comment>
+			</column>
+			<column name="COMPET" type="char" length="40" jt="1" >
+				<comment><![CDATA[документ утверждения руководителя]]></comment>
+			</column>
+			<column name="DBEGIN" type="date" jt="91" >
+				<defo><![CDATA[01.01.1993]]></defo>
+				<comment><![CDATA[дата начала действия;;поставить 01.01.1993]]></comment>
+			</column>
+			<column name="DEND" type="date" jt="91" >
+				<comment><![CDATA[дата окончания действия;;поставить 31.12.2000, или оставить пустым в зависимости от массива UCHER_ARRAY (см. b_init.prg)]]></comment>
+			</column>
+			<index name="Pk_MO_UCH_KOD" unique="PRIMARY_KEY" >
+				<column name="KOD" />
+			</index>
+			<fk name="fk_mo_uch_mo_pers" to_schema="chip_mo" to_table="MO_PERS" type="OneToOne" >
+				<fk_column name="IDCHIEF" pk="KOD" />
+			</fk>
+		</table>
+		<table name="MO_UCHVR" >
+			<comment><![CDATA[привязка участковых врачей к участкам]]></comment>
+			<column name="UCH" type="numeric" length="2" decimal="0" jt="2" />
+			<column name="IS" type="numeric" length="2" decimal="0" jt="2" />
+			<column name="VRACH" type="numeric" length="4" decimal="0" jt="2" />
+			<column name="VRACHV" type="numeric" length="4" decimal="0" jt="2" />
+			<column name="VRACHD" type="numeric" length="4" decimal="0" jt="2" />
+		</table>
+	</schema>
+	<connector name="MyDb" database="MySql" host="localhost" port="3306" user="root" />
+	<layout name="Default Layout" id="Layout_1a8f" show_column_type="y" show_relation="columns" >
+		<comment><![CDATA[chip_mo]]></comment>
+		<entity schema="chip_mo" name="BASE1" color="C1D8EE" x="656" y="80" />
+		<entity schema="chip_mo" name="KARTOTE2" color="C1D8EE" x="48" y="944" />
+		<entity schema="chip_mo" name="KARTOTEK" color="C1D8EE" x="656" y="608" />
+		<entity schema="chip_mo" name="KARTOTE_" color="C1D8EE" x="880" y="608" />
+		<entity schema="chip_mo" name="KART_INV" color="C1D8EE" x="448" y="1136" />
+		<entity schema="chip_mo" name="MO_KINOS" color="C1D8EE" x="448" y="960" />
+		<entity schema="chip_mo" name="MO_OPER" color="C1D8EE" x="848" y="80" />
+		<entity schema="chip_mo" name="MO_OPERN" color="C1D8EE" x="656" y="336" />
+		<entity schema="chip_mo" name="MO_OTD" color="C1D8EE" x="160" y="368" />
+		<entity schema="chip_mo" name="MO_PERS" color="C1D8EE" x="400" y="80" />
+		<entity schema="chip_mo" name="MO_UCH" color="C1D8EE" x="160" y="80" />
+		<entity schema="chip_mo" name="MO_UCHVR" color="C1D8EE" x="400" y="560" />
+		<group name="Медицинская организация" color="C4E0F9" >
+			<entity schema="chip_mo" name="MO_OTD" />
+			<entity schema="chip_mo" name="MO_PERS" />
+			<entity schema="chip_mo" name="MO_UCH" />
+			<entity schema="chip_mo" name="MO_UCHVR" />
+		</group>
+		<group name="Системные таблицы" color="C4E0F9" >
+			<comment><![CDATA[Таблицы общие для системы]]></comment>
+			<entity schema="chip_mo" name="BASE1" />
+			<entity schema="chip_mo" name="MO_OPER" />
+			<entity schema="chip_mo" name="MO_OPERN" />
+		</group>
+		<group name="Картотека медицинского учреждения" color="C4E0F9" >
+			<entity schema="chip_mo" name="KARTOTEK" />
+			<entity schema="chip_mo" name="KARTOTE_" />
+			<entity schema="chip_mo" name="MO_KINOS" />
+			<entity schema="chip_mo" name="KART_INV" />
+		</group>
+	</layout>
+</project>
