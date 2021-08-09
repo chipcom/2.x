@@ -292,6 +292,46 @@
 			</column>
 			<fk name="fk_kartote__kartotek" to_schema="chip_mo" to_table="KARTOTEK" type="OneToOne" />
 		</table>
+		<table name="KART_ET" >
+			<column name="KOD_TF" type="numeric" length="10" decimal="0" jt="2" >
+				<comment><![CDATA[код по кодировке ТФОМС]]></comment>
+			</column>
+			<column name="KOD_MIS" type="char" length="16" jt="1" >
+				<comment><![CDATA[ЕНП - единый номер полиса ОМС]]></comment>
+			</column>
+			<column name="DATE_PR" type="date" jt="91" >
+				<comment><![CDATA[дата прикрепления]]></comment>
+			</column>
+			<column name="UCHAST" type="numeric" length="2" decimal="0" jt="2" >
+				<comment><![CDATA[номер участка]]></comment>
+			</column>
+			<column name="MO_PR" type="char" length="6" jt="1" >
+				<comment><![CDATA[МО прикрепления]]></comment>
+			</column>
+			<column name="SNILS_VR" type="char" length="11" jt="1" >
+				<comment><![CDATA[СНИЛС участкового врача]]></comment>
+			</column>
+			<column name="DEATH" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[0-нет,1-умер по результатам сверки]]></comment>
+			</column>
+			<column name="PC2" type="char" length="1" jt="1" >
+				<comment><![CDATA[0-нет,1-умер по результатам сверки]]></comment>
+			</column>
+			<column name="KOL" type="numeric" length="6" decimal="0" jt="2" >
+				<comment><![CDATA[кол-во записей в картотеке с данным PID]]></comment>
+			</column>
+		</table>
+		<table name="KART_ETK" prior="Entity" >
+			<column name="KOD_TF" type="numeric" length="10" decimal="0" jt="2" >
+				<comment><![CDATA[код по кодировке ТФОМС]]></comment>
+			</column>
+			<column name="KOD_K" type="numeric" length="7" decimal="0" jt="2" >
+				<comment><![CDATA[код по картотеке]]></comment>
+			</column>
+			<column name="PRIOR" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[1-из ответа на сверку, 2-из E2...]]></comment>
+			</column>
+		</table>
 		<table name="KART_INV" spec="" >
 			<comment><![CDATA[таблица с инвалидами]]></comment>
 			<column name="KOD" type="numeric" length="7" decimal="0" jt="2" >
@@ -308,6 +348,35 @@
 			</column>
 			<fk name="fk_kart_inv_kartotek" to_schema="chip_mo" to_table="KARTOTEK" type="Identifying" >
 				<fk_column name="KOD" pk="KOD" />
+			</fk>
+		</table>
+		<table name="K_PRIM1" prior="Entity" >
+			<column name="KOD" type="numeric" length="7" decimal="0" jt="2" />
+			<column name="STROKE" type="numeric" length="1" decimal="0" jt="2" />
+			<column name="NAME" type="char" length="60" jt="1" />
+		</table>
+		<table name="MO_KARTP" prior="MO_" >
+			<comment><![CDATA[список прикреплений по пациенту во времени]]></comment>
+			<column name="KOD_K" type="numeric" length="7" decimal="0" jt="2" >
+				<comment><![CDATA[код пациента по файлу "kartotek"]]></comment>
+			</column>
+			<column name="MO_PR" type="char" length="6" jt="1" >
+				<comment><![CDATA[код МО прикрепления]]></comment>
+			</column>
+			<column name="D_PRIK" type="date" jt="91" >
+				<comment><![CDATA[дата прикрепления]]></comment>
+			</column>
+			<column name="SNILS_VR" type="char" length="11" jt="1" >
+				<comment><![CDATA[СНИЛС участкового врача]]></comment>
+			</column>
+			<column name="TIP_PR" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[тип/статус прикрепления 3-из файла прикрепления,4-открепление,5-сверка]]></comment>
+			</column>
+			<column name="DFILE" type="date" jt="91" >
+				<comment><![CDATA[дата создания файла]]></comment>
+			</column>
+			<fk name="fk_mo_kartp_kartotek" to_schema="chip_mo" to_table="KARTOTEK" type="Identifying" >
+				<fk_column name="KOD_K" pk="KOD" />
 			</fk>
 		</table>
 		<table name="MO_KINOS" >
@@ -332,6 +401,183 @@
 			</column>
 			<fk name="fk_mo_kinos_kartotek" to_schema="chip_mo" to_table="KARTOTEK" type="OneToOne" >
 				<fk_column name="KOD" pk="KOD" />
+			</fk>
+		</table>
+		<table name="MO_KRTE" prior="Entity" spec="" >
+			<comment><![CDATA[список ошибок в реестрах на прикрепление]]></comment>
+			<column name="REESTR" type="numeric" length="6" decimal="0" jt="2" >
+				<comment><![CDATA[код реестра;по файлу "mo_krtr"]]></comment>
+			</column>
+			<column name="REES_ZAP" type="numeric" length="6" decimal="0" jt="2" >
+				<comment><![CDATA[номер строки в реестре]]></comment>
+			</column>
+			<column name="KOD_K" type="numeric" length="7" decimal="0" jt="2" >
+				<comment><![CDATA[код пациента по файлу "kartotek"]]></comment>
+			</column>
+			<column name="REFREASON" type="numeric" length="3" decimal="0" jt="2" >
+				<comment><![CDATA[код ошибки]]></comment>
+			</column>
+			<fk name="fk_mo_krte_mo_krtr" to_schema="chip_mo" to_table="MO_KRTR" type="Identifying" >
+				<fk_column name="REESTR" pk="KOD" />
+			</fk>
+			<fk name="fk_mo_krte_kartotek" to_schema="chip_mo" to_table="KARTOTEK" type="Identifying" >
+				<fk_column name="KOD_K" pk="KOD" />
+			</fk>
+		</table>
+		<table name="MO_KRTF" prior="Entity" spec="" >
+			<comment><![CDATA[Список отосланных и принятых CSV-файлов]]></comment>
+			<column name="KOD" type="numeric" length="6" decimal="0" jt="2" mandatory="y" >
+				<comment><![CDATA[код;номер записи]]></comment>
+			</column>
+			<column name="FNAME" type="char" length="26" jt="1" >
+				<comment><![CDATA[имя файла без расширения]]></comment>
+			</column>
+			<column name="DFILE" type="date" jt="91" >
+				<comment><![CDATA[дата создания файла]]></comment>
+			</column>
+			<column name="TFILE" type="char" length="5" jt="1" >
+				<comment><![CDATA[время создания файла]]></comment>
+			</column>
+			<column name="DREAD" type="date" jt="91" >
+				<comment><![CDATA[дата чтения/записи]]></comment>
+			</column>
+			<column name="TREAD" type="char" length="5" jt="1" >
+				<comment><![CDATA[время чтения/записи]]></comment>
+			</column>
+			<column name="TIP_IN" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[тип принимаемого файла;2-ответ,3-открепление,4,5]]></comment>
+			</column>
+			<column name="TIP_OUT" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[тип высылаемого файла;1-реестр]]></comment>
+			</column>
+			<column name="DWORK" type="date" jt="91" >
+				<comment><![CDATA[дата обработки файла;]]></comment>
+			</column>
+			<column name="TWORK1" type="char" length="5" jt="1" >
+				<comment><![CDATA[время начала обработки;]]></comment>
+			</column>
+			<column name="TWORK2" type="char" length="5" jt="1" >
+				<comment><![CDATA[время окончания обработки;]]></comment>
+			</column>
+			<column name="KOL" type="numeric" length="6" decimal="0" jt="2" >
+				<comment><![CDATA[количество пациентов в файле]]></comment>
+			</column>
+			<column name="REESTR" type="numeric" length="6" decimal="0" jt="2" >
+				<comment><![CDATA[код реестра (отсылаемого или обработанного ТФОМС) или 0 в случае открепления]]></comment>
+			</column>
+			<column name="MO_PR" type="char" length="6" jt="1" >
+				<comment><![CDATA[код МО прикрепления в случае открепления]]></comment>
+			</column>
+			<index name="Pk_MO_KRTF_KOD" unique="PRIMARY_KEY" >
+				<column name="KOD" />
+			</index>
+		</table>
+		<table name="MO_KRTO" prior="Entity" >
+			<comment><![CDATA[список карточек в файлах на открепление]]></comment>
+			<column name="KOD_KRTF" type="numeric" length="6" decimal="0" jt="2" >
+				<comment><![CDATA[код по файлу "mo_krtf"]]></comment>
+			</column>
+			<column name="KOD_TF" type="numeric" length="10" decimal="0" jt="2" >
+				<comment><![CDATA[код по кодировке ТФОМС (PID)]]></comment>
+			</column>
+			<column name="KOD_K" type="numeric" length="7" decimal="0" jt="2" >
+				<comment><![CDATA[код пациента по файлу "kartotek", если найден]]></comment>
+			</column>
+			<column name="MO_PR" type="char" length="6" jt="1" >
+				<comment><![CDATA[код МО прикрепления]]></comment>
+			</column>
+			<column name="D_PRIK" type="date" jt="91" >
+				<comment><![CDATA[дата прикрепления]]></comment>
+			</column>
+			<column name="FILE_ZAP" type="numeric" length="6" decimal="0" jt="2" >
+				<comment><![CDATA[номер строки в файле]]></comment>
+			</column>
+			<fk name="fk_mo_krto_mo_krtf" to_schema="chip_mo" to_table="MO_KRTF" type="Identifying" >
+				<fk_column name="KOD_KRTF" pk="KOD" />
+			</fk>
+			<fk name="fk_mo_krto_kartotek" to_schema="chip_mo" to_table="KARTOTEK" type="Identifying" >
+				<fk_column name="KOD_K" pk="KOD" />
+			</fk>
+		</table>
+		<table name="MO_KRTP" prior="MO_" spec="" >
+			<comment><![CDATA[список карточек в реестрах на прикрепление]]></comment>
+			<column name="REESTR" type="numeric" length="6" decimal="0" jt="2" >
+				<comment><![CDATA[код реестра;по файлу "mo_krtr"]]></comment>
+			</column>
+			<column name="KOD_K" type="numeric" length="7" decimal="0" jt="2" >
+				<comment><![CDATA[код пациента по файлу "kartotek"]]></comment>
+			</column>
+			<column name="D_PRIK" type="date" jt="91" >
+				<comment><![CDATA[дата прикрепления (заявления)]]></comment>
+			</column>
+			<column name="S_PRIK" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[способ прикрепления: 1-по месту регистрации, 2-по личному заявлению (без изменения м/ж), 3-по личному заявлению (в связи с изменением м/ж)]]></comment>
+			</column>
+			<column name="REES_ZAP" type="numeric" length="6" decimal="0" jt="2" >
+				<comment><![CDATA[номер строки в реестре]]></comment>
+			</column>
+			<column name="UCHAST" type="numeric" length="2" decimal="0" jt="2" >
+				<comment><![CDATA[номер участка]]></comment>
+			</column>
+			<column name="SNILS_VR" type="char" length="11" jt="1" >
+				<comment><![CDATA[СНИЛС участкового врача]]></comment>
+			</column>
+			<column name="KOD_PODR" type="char" length="25" jt="1" >
+				<comment><![CDATA[код подразделения по паспорту ЛПУ]]></comment>
+			</column>
+			<column name="VRACH" type="numeric" length="4" decimal="0" jt="2" >
+				<comment><![CDATA[код участкового врача]]></comment>
+			</column>
+			<column name="OPLATA" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[тип оплаты;сначала 0, 1-прикреплён, 2-ошибки]]></comment>
+			</column>
+			<column name="D_PRIK1" type="date" jt="91" >
+				<comment><![CDATA[дата прикрепления]]></comment>
+			</column>
+			<fk name="fk_mo_krtp_mo_krtr" to_schema="chip_mo" to_table="MO_KRTR" type="Identifying" >
+				<fk_column name="REESTR" pk="KOD" />
+			</fk>
+			<fk name="fk_mo_krtp_kartotek" to_schema="chip_mo" to_table="KARTOTEK" type="Identifying" >
+				<fk_column name="KOD_K" pk="KOD" />
+			</fk>
+		</table>
+		<table name="MO_KRTR" prior="Entity" spec="" >
+			<comment><![CDATA[Реестр сведений о прикреплении]]></comment>
+			<column name="KOD" type="numeric" length="6" decimal="0" jt="2" mandatory="y" >
+				<comment><![CDATA[код реестра;номер записи;]]></comment>
+			</column>
+			<column name="FNAME" type="char" length="26" jt="1" >
+				<comment><![CDATA[имя файла без расширения]]></comment>
+			</column>
+			<column name="DFILE" type="date" jt="91" >
+				<comment><![CDATA[дата создания файла]]></comment>
+			</column>
+			<column name="KOD_F" type="numeric" length="6" decimal="0" jt="2" >
+				<comment><![CDATA[ссылка на файл "mo_krtf"]]></comment>
+			</column>
+			<column name="DATE_OUT" type="date" jt="91" >
+				<comment><![CDATA[дата отправки в ТФОМС;;]]></comment>
+			</column>
+			<column name="NUMB_OUT" type="numeric" length="2" decimal="0" jt="2" >
+				<comment><![CDATA[номер отправки в ТФОМС;сколько раз всего записывали файл на носитель;]]></comment>
+			</column>
+			<column name="KOL" type="numeric" length="6" decimal="0" jt="2" >
+				<comment><![CDATA[количество пациентов в реестре]]></comment>
+			</column>
+			<column name="KOL_P" type="numeric" length="6" decimal="0" jt="2" >
+				<comment><![CDATA[количество прикреплённых пациентов]]></comment>
+			</column>
+			<column name="WQ" type="char" length="11" jt="1" >
+				<comment><![CDATA[конец имени файла WQ...]]></comment>
+			</column>
+			<column name="ANSWER" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[0-не было ответа, 1-был прочитан ответ]]></comment>
+			</column>
+			<index name="Pk_MO_KRTR_KOD" unique="PRIMARY_KEY" >
+				<column name="KOD" />
+			</index>
+			<fk name="fk_mo_krtr_mo_krtf" to_schema="chip_mo" to_table="MO_KRTF" type="Identifying" >
+				<fk_column name="KOD_F" pk="KOD" />
 			</fk>
 		</table>
 		<table name="MO_OPER" >
@@ -560,6 +806,30 @@
 				<fk_column name="OTD" pk="KOD" />
 			</fk>
 		</table>
+		<table name="MO_REGI" prior="Entity" >
+			<comment><![CDATA[регистрация посещения в регистратуре]]></comment>
+			<column name="KOD_K" type="numeric" length="7" decimal="0" jt="2" >
+				<comment><![CDATA[код по картотеке;;]]></comment>
+			</column>
+			<column name="TIP" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[тип операции;1-отделение, 2-прием, 3-врач;]]></comment>
+			</column>
+			<column name="OP" type="numeric" length="4" decimal="0" jt="2" >
+				<comment><![CDATA[код отделения/приема/врача;;]]></comment>
+			</column>
+			<column name="UCH" type="numeric" length="3" decimal="0" jt="2" >
+				<comment><![CDATA[код учреждения;;]]></comment>
+			</column>
+			<column name="PDATA" type="char" length="4" jt="1" >
+				<comment><![CDATA[дата листа учета;;]]></comment>
+			</column>
+			<column name="CTIME" type="char" length="5" jt="1" >
+				<comment><![CDATA[время листа учета;;]]></comment>
+			</column>
+			<column name="KOD_P" type="char" length="1" jt="1" >
+				<comment><![CDATA[код оператора;;]]></comment>
+			</column>
+		</table>
 		<table name="MO_UCH" prior="mo" >
 			<comment><![CDATA[Учреждения "mo_uch"]]></comment>
 			<column name="KOD" type="numeric" length="3" decimal="0" jt="2" mandatory="y" >
@@ -605,39 +875,84 @@
 			<column name="VRACHV" type="numeric" length="4" decimal="0" jt="2" />
 			<column name="VRACHD" type="numeric" length="4" decimal="0" jt="2" />
 		</table>
+		<table name="MSEK" prior="Entity" >
+			<column name="KOD_K" type="numeric" length="7" decimal="0" jt="2" >
+				<comment><![CDATA[код по картотеке]]></comment>
+			</column>
+			<column name="DATE_KOM" type="date" jt="91" >
+				<comment><![CDATA[дата комиссии]]></comment>
+			</column>
+			<column name="KOD_DIAG" type="char" length="5" jt="1" >
+				<comment><![CDATA[шифр заболевания]]></comment>
+			</column>
+			<column name="TRUD" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[трудоспособность: 0 - да, 1 - нет]]></comment>
+			</column>
+			<column name="CEL" type="numeric" length="2" decimal="0" jt="2" >
+				<comment><![CDATA[от 1 до 7]]></comment>
+			</column>
+			<column name="GRUP_DO" type="numeric" length="2" decimal="0" jt="2" >
+				<comment><![CDATA[группа (процент) до]]></comment>
+			</column>
+			<column name="GRUP_POSLE" type="numeric" length="2" decimal="0" jt="2" >
+				<comment><![CDATA[группа (процент) после]]></comment>
+			</column>
+		</table>
 	</schema>
 	<connector name="MyDb" database="MySql" host="localhost" port="3306" user="root" />
 	<layout name="Default Layout" id="Layout_1a8f" show_column_type="y" show_relation="columns" >
 		<comment><![CDATA[chip_mo]]></comment>
-		<entity schema="chip_mo" name="BASE1" color="C1D8EE" x="656" y="80" />
-		<entity schema="chip_mo" name="KARTOTE2" color="C1D8EE" x="48" y="944" />
-		<entity schema="chip_mo" name="KARTOTEK" color="C1D8EE" x="656" y="608" />
-		<entity schema="chip_mo" name="KARTOTE_" color="C1D8EE" x="880" y="608" />
-		<entity schema="chip_mo" name="KART_INV" color="C1D8EE" x="448" y="1136" />
-		<entity schema="chip_mo" name="MO_KINOS" color="C1D8EE" x="448" y="960" />
-		<entity schema="chip_mo" name="MO_OPER" color="C1D8EE" x="848" y="80" />
-		<entity schema="chip_mo" name="MO_OPERN" color="C1D8EE" x="656" y="336" />
-		<entity schema="chip_mo" name="MO_OTD" color="C1D8EE" x="160" y="368" />
-		<entity schema="chip_mo" name="MO_PERS" color="C1D8EE" x="400" y="80" />
-		<entity schema="chip_mo" name="MO_UCH" color="C1D8EE" x="160" y="80" />
-		<entity schema="chip_mo" name="MO_UCHVR" color="C1D8EE" x="400" y="560" />
+		<entity schema="chip_mo" name="BASE1" color="C1D8EE" x="816" y="80" />
+		<entity schema="chip_mo" name="KARTOTE2" color="C1D8EE" x="848" y="608" />
+		<entity schema="chip_mo" name="KARTOTEK" color="C1D8EE" x="1104" y="368" />
+		<entity schema="chip_mo" name="KARTOTE_" color="C1D8EE" x="1392" y="368" />
+		<entity schema="chip_mo" name="KART_ET" color="C1D8EE" x="48" y="1152" />
+		<entity schema="chip_mo" name="KART_ETK" color="C1D8EE" x="304" y="1152" />
+		<entity schema="chip_mo" name="KART_INV" color="C1D8EE" x="816" y="1072" />
+		<entity schema="chip_mo" name="K_PRIM1" color="C1D8EE" x="64" y="1616" />
+		<entity schema="chip_mo" name="MO_KARTP" color="C1D8EE" x="560" y="1152" />
+		<entity schema="chip_mo" name="MO_KINOS" color="C1D8EE" x="1104" y="1072" />
+		<entity schema="chip_mo" name="MO_KRTE" color="C1D8EE" x="304" y="1296" />
+		<entity schema="chip_mo" name="MO_KRTF" color="C1D8EE" x="560" y="1488" />
+		<entity schema="chip_mo" name="MO_KRTO" color="C1D8EE" x="560" y="1328" />
+		<entity schema="chip_mo" name="MO_KRTP" color="C1D8EE" x="48" y="1376" />
+		<entity schema="chip_mo" name="MO_KRTR" color="C1D8EE" x="304" y="1424" />
+		<entity schema="chip_mo" name="MO_OPER" color="C1D8EE" x="1072" y="80" />
+		<entity schema="chip_mo" name="MO_OPERN" color="C1D8EE" x="1344" y="80" />
+		<entity schema="chip_mo" name="MO_OTD" color="C1D8EE" x="320" y="608" />
+		<entity schema="chip_mo" name="MO_PERS" color="C1D8EE" x="48" y="80" />
+		<entity schema="chip_mo" name="MO_REGI" color="C1D8EE" x="1360" y="1296" />
+		<entity schema="chip_mo" name="MO_UCH" color="C1D8EE" x="320" y="80" />
+		<entity schema="chip_mo" name="MO_UCHVR" color="C1D8EE" x="592" y="80" />
+		<entity schema="chip_mo" name="MSEK" color="C1D8EE" x="1072" y="1296" />
 		<group name="Медицинская организация" color="C4E0F9" >
 			<entity schema="chip_mo" name="MO_OTD" />
 			<entity schema="chip_mo" name="MO_PERS" />
 			<entity schema="chip_mo" name="MO_UCH" />
 			<entity schema="chip_mo" name="MO_UCHVR" />
 		</group>
-		<group name="Системные таблицы" color="C4E0F9" >
+		<group name="Системные таблицы" color="E6CCFF" >
 			<comment><![CDATA[Таблицы общие для системы]]></comment>
 			<entity schema="chip_mo" name="BASE1" />
 			<entity schema="chip_mo" name="MO_OPER" />
 			<entity schema="chip_mo" name="MO_OPERN" />
 		</group>
-		<group name="Картотека медицинского учреждения" color="C4E0F9" >
+		<group name="Картотека медицинского учреждения" color="CCFFCC" >
 			<entity schema="chip_mo" name="KARTOTEK" />
 			<entity schema="chip_mo" name="KARTOTE_" />
 			<entity schema="chip_mo" name="MO_KINOS" />
 			<entity schema="chip_mo" name="KART_INV" />
+			<entity schema="chip_mo" name="KARTOTE2" />
+		</group>
+		<group name="Прикркпления" color="80B3B3" >
+			<entity schema="chip_mo" name="KART_ET" />
+			<entity schema="chip_mo" name="KART_ETK" />
+			<entity schema="chip_mo" name="MO_KARTP" />
+			<entity schema="chip_mo" name="MO_KRTE" />
+			<entity schema="chip_mo" name="MO_KRTF" />
+			<entity schema="chip_mo" name="MO_KRTO" />
+			<entity schema="chip_mo" name="MO_KRTP" />
+			<entity schema="chip_mo" name="MO_KRTR" />
 		</group>
 	</layout>
 </project>
