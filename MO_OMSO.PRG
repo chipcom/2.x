@@ -2920,7 +2920,7 @@ do while !eof()
     add_string(padc(alltrim(tmp1->srak),sh,"_"))
   endif
   s1 := lstr(tmp1->REFREASON)
-  retT005 := retArr_t005(tmp->REFREASON, .t.)
+  retT005 := retArr_t005(tmp1->REFREASON, .t.)
   if ! empty(retT005)
     s1 := "" ; s2 := ltrim(retT005[2])
     for i := 1 to len(s2)
