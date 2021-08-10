@@ -28,7 +28,7 @@ function loadT005()
     // добавим из справочника _mo_f014.dbf
     for each row in getF014()
       if (j := ascan(_T005, {|x| x[1] == row[1] })) == 0
-        AAdd(_T005, {row[1], alltrim(row[2]), alltrim(row[3])} )
+        AAdd(_T005, {row[1], lstr(row[1])+"  "+alltrim(row[2]), alltrim(row[3])} )
       endif
     next
   endif
@@ -52,9 +52,8 @@ Function ret_t005(lkod)
 Function retArr_t005(lkod, isEmpty)
   local arrErrors := loadT005()
   local row := {}
-
   default isEmpty to .f.
-  for each row in arrErrors
+   for each row in arrErrors
     if row[1] == lkod
       return row
     endif
