@@ -111,6 +111,11 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
                         {'Крайне тяжелое течение',4}}
   private mstrong, m1strong := 1
 
+  private mm_komorbid := {{'Иное', 0},;
+                          {'1 группа', 1},;
+                          {'2 группа', 2} }
+  private mkomorbid, m1komorbid := 0
+
   Private mm_gruppa, mm_ndisp1
   // Private is_disp_19 := .t.
 
@@ -564,6 +569,7 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
   mnazn_l   := inieditspr(A__MENUVERT, mm_danet, m1nazn_l)
   mdopo_na  := inieditspr(A__MENUBIT, mm_dopo_na, m1dopo_na)
   mnapr_v_mo := inieditspr(A__MENUVERT, mm_napr_v_mo, m1napr_v_mo)
+  mkomorbid := inieditspr(A__MENUVERT, mm_komorbid, m1komorbid)
   if empty(arr_mo_spec)
     ma_mo_spec := "---"
   else
@@ -606,7 +612,8 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
   do while .t.
     close databases
     DispBegin()
-    hS := 25 ; wS := 80
+    // hS := 25 ; wS := 80
+    hS := 26 ; wS := 80
     SetMode(hS,wS)
     @ 0, 0 say padc(str_1,wS) color "B/BG*"
     gl_area := {1,0,maxrow()-1,maxcol(),0}
@@ -678,8 +685,10 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
               reader {|x|menu_reader(x,mm_strong,A__MENUVERT,,,.f.)}
         @ j, col() + 5 say "Одышка/отеки" get mdyspnea ;
               reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
- 
-      endif
+        @ ++j, 1 say "Коморбидная форма"
+        @ j, col()+1 get mkomorbid ;
+              reader {|x|menu_reader(x,mm_komorbid,A__MENUVERT,,,.f.)}
+       endif
 
       @ ++j, 1 say "────────────────────────────────────────────┬─────┬─────┬──────────┬──────────" color color8
       @ ++j, 1 say "Наименования исследований                   │врач │ассис│дата услуг│выполнение " color color8

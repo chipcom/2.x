@@ -165,6 +165,7 @@ Function save_arr_DVN_COVID(lkod, mk_data)
   aadd(arr,{ "2",mOKSI})     // "N",оксиметрия
   aadd(arr,{ "3",m1strong})     // "N",тяжесть течения болезни
   aadd(arr,{ "4",m1dyspnea})     // "N",одышка
+  aadd(arr,{ "5",m1komorbid})     // "N",комарбидная форма
   for i := 1 to 5
     sk := lstr(i)
     pole_diag := "mdiag"+sk
@@ -350,6 +351,8 @@ Function read_arr_DVN_COVID(lkod,is_all)
           m1strong := arr[i,2]
         case arr[i,1] == "4" .and. valtype(arr[i,2]) == "N"
           m1dyspnea := arr[i,2]
+        case arr[i,1] == "5" .and. valtype(arr[i,2]) == "N"
+          m1komorbid := arr[i,2]
         case is_all .and. eq_any(arr[i,1],"11","12","13","14","15") .and. ;
                     valtype(arr[i,2]) == "A" .and. len(arr[i,2]) >= 7
           sk := right(arr[i,1],1)

@@ -315,7 +315,7 @@ Function oms_sluch_DVN(Loc_kod,kod_kartotek,f_print)
       if eq_any(letap,1,4)
         lrslt_1_etap := human_->RSLT_NEW
       endif
-      // read_arr_DVN(human->kod,.f.)
+      read_arr_DVN(human->kod,.f.)
     endif
   endif
   if empty(mWEIGHT)
