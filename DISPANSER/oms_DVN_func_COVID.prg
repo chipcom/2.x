@@ -3,26 +3,30 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 29.07.21
-function f_valid_Begdata_DVN_COVID(get)
+***** 11.08.21
+function f_valid_Begdata_DVN_COVID(get, loc_kod)
   local i
 
-  for i:= 1 to len(uslugiEtap_DVN_COVID(metap))-iif(metap == 1,2,1)
-    // на 1-этапе одна услуга не отображается в списке (70.8.1)
-    mvar := "MDATE"+lstr(i)
-    &mvar := ctod(get:buffer)
-    update_get(mvar)
-  next
+  if loc_kod == 0
+    for i:= 1 to len(uslugiEtap_DVN_COVID(metap))-iif(metap == 1,2,1)
+      // на 1-этапе одна услуга не отображается в списке (70.8.1)
+      mvar := "MDATE"+lstr(i)
+      &mvar := ctod(get:buffer)
+      update_get(mvar)
+    next
+  endif
 
   return .t.
 
-***** 29.07.21
-function f_valid_Enddata_DVN_COVID(get)
+***** 11.08.21
+function f_valid_Enddata_DVN_COVID(get, loc_kod)
 
-  // на 1-этапе одна услуга не отображается в списке (70.8.1)
-  mvar := "MDATE"+lstr(len(uslugiEtap_DVN_COVID(metap))-iif(metap == 1,1,0))
-  &mvar := ctod(get:buffer)
-  update_get(mvar)
+  if loc_kod == 0
+    // на 1-этапе одна услуга не отображается в списке (70.8.1)
+    mvar := "MDATE"+lstr(len(uslugiEtap_DVN_COVID(metap))-iif(metap == 1,1,0))
+    &mvar := ctod(get:buffer)
+    update_get(mvar)
+  endif
 
   return .t.
 

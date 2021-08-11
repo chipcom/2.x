@@ -3,7 +3,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 25.07.21 ДВН - добавление или редактирование случая (листа учета)
+***** 11.08.21 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -402,7 +402,6 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
               fl := .f.
               larr[1,i] := MOHU->(recno())
               larr[2,i] := lshifr
-              // arr_usl[i] := MOHU->(recno())
               aadd(arr_usl, MOHU->(recno()))
             endif
           endif
@@ -418,7 +417,6 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
     if metap == 1 .and. between(m1GRUPPA,11,14) .and. m1p_otk == 1
       m1GRUPPA += 10
     endif
-    // R_Use(dir_server+"mo_pers",,"P2")
     for i := 1 to len(larr[1])
       if ( valtype(larr[2,i]) == "C" ) .and. ( ! eq_any(SubStr(larr[2,i],1,1), 'A', 'B') )  // это услуга ТФОМС, а не ФФОМС (первый символ не A,B)
         if larr[2,i] == '70.8.1'  // пропустим эту услугу
@@ -582,8 +580,6 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
   mssh_na   := inieditspr(A__MENUVERT, mm_danet, m1ssh_na)
   mspec_na  := inieditspr(A__MENUVERT, mm_danet, m1spec_na)
   msank_na  := inieditspr(A__MENUVERT, mm_danet, m1sank_na)
-// alertx(valtype(mprofil_stac),'mprofil')
-// alertx(len(mprofil_stac),'mprofil')
   
   if ! ret_ndisp_COVID(Loc_kod,kod_kartotek) 
     return NIL
@@ -649,23 +645,14 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
           valid func_valid_polis(m1vidpolis,mspolis,mnpolis)
       //
       @ ++j, 1 say "Сроки" get mn_data ;
-          valid {|g| f_k_data(g,1), f_valid_Begdata_DVN_COVID(g),;
+          valid {|g| f_k_data(g,1), f_valid_Begdata_DVN_COVID(g, Loc_kod), ;
               iif(mvozrast < 18, func_error(4,"Это не взрослый пациент!"), nil),;
                 ret_ndisp_COVID(Loc_kod,kod_kartotek);
           }
-      // @ ++j, 1 say "Сроки" get mn_data ;
-      //     valid {|g| f_k_data(g,1),;
-      //         iif(mvozrast < 18, func_error(4,"Это не взрослый пациент!"), nil),;
-      //           ret_ndisp_COVID(Loc_kod,kod_kartotek);
-      //     }
       @ row(), col()+1 say "-" get mk_data ;
-          valid {|g| f_k_data(g,2), f_valid_Enddata_DVN_COVID(g),;
+          valid {|g| f_k_data(g,2), f_valid_Enddata_DVN_COVID(g, Loc_kod),;
                 ret_ndisp_COVID(Loc_kod,kod_kartotek) ;
           }
-      // @ row(), col()+1 say "-" get mk_data ;
-      //     valid {|g| f_k_data(g,2),;
-      //           ret_ndisp_COVID(Loc_kod,kod_kartotek) ;
-      //     }
 
       // ++j
       @ j, col() + 5 say "№ амбулаторной карты" get much_doc picture "@!" ;
@@ -858,11 +845,6 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       @ ++j,1 say "Диспансерное наблюдение установлено" get mdispans ;
                  reader {|x|menu_reader(x,mm_dispans,A__MENUVERT,,,.f.)} ;
                  when !emptyall(mdispans1,mdispans2,mdispans3,mdispans4,mdispans5)
-      // @ ++j,1 say "Признак подозрения на злокачественное новообразование" get mDS_ONK ;
-      //            reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
-      // @ ++j,1 say "Направления при подозрении на ЗНО" get mnapr_onk ;
-      //            reader {|x|menu_reader(x,{{|k,r,c| fget_napr_PN(k,r,c)}},A__FUNCTION,,,.f.)} ;
-      //            when m1ds_onk == 1
       @ ++j,1 say "Назначено лечение (для ф.131)" get mnazn_l ;
           reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
                  
