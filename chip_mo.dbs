@@ -175,6 +175,217 @@
 				<fk_column name="OTD" pk="KOD" />
 			</fk>
 		</table>
+		<table name="HUMAN_" prior="Entity" spec="" >
+			<comment><![CDATA[пролеченным больных 1]]></comment>
+			<column name="DISPANS" type="char" length="16" jt="1" >
+				<comment><![CDATA[то, что вводится по <F10>]]></comment>
+			</column>
+			<column name="STATUS_ST" type="char" length="10" jt="1" >
+				<comment><![CDATA[статус стоматологического пациента;проверка по собственному справочнику МО для стоматологии]]></comment>
+			</column>
+			<column name="POVOD" type="numeric" length="2" decimal="0" jt="2" >
+				<comment><![CDATA[повод обращения]]></comment>
+			</column>
+			<column name="TRAVMA" type="numeric" length="2" decimal="0" jt="2" >
+				<comment><![CDATA[вид травмы]]></comment>
+			</column>
+			<column name="ID_PAC" type="char" length="36" jt="1" >
+				<comment><![CDATA[код записи о пациенте;GUID пациента в листе учета;создается при добавлении записи]]></comment>
+			</column>
+			<column name="ID_C" type="char" length="36" jt="1" >
+				<comment><![CDATA[код случая оказания;GUID листа учета;создается при добавлении записи]]></comment>
+			</column>
+			<column name="VPOLIS" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[вид полиса (от 1 до 3);1-старый,2-врем.,3-новый;по умолчанию 1 - старый]]></comment>
+			</column>
+			<column name="SPOLIS" type="char" length="10" jt="1" >
+				<comment><![CDATA[серия полиса]]></comment>
+			</column>
+			<column name="NPOLIS" type="char" length="20" jt="1" >
+				<comment><![CDATA[номер полиса]]></comment>
+			</column>
+			<column name="SMO" type="char" length="5" jt="1" >
+				<comment><![CDATA[реестровый номер СМО возвращается с реестром из ТФОМС, иногродние = 34]]></comment>
+			</column>
+			<column name="OKATO" type="char" length="5" jt="1" >
+				<comment><![CDATA[ОКАТО территории страхования возвращается с реестром из ТФОМС для иногородних]]></comment>
+			</column>
+			<column name="NOVOR" type="numeric" length="2" decimal="0" jt="2" >
+				<comment><![CDATA[признак новорожденного 0-нет, 1,2,... - порядковый номер новорожденного ребенка]]></comment>
+			</column>
+			<column name="DATE_R2" type="date" jt="91" >
+				<comment><![CDATA[дата рождения ребенка для NOVOR > 0;]]></comment>
+			</column>
+			<column name="POL2" type="char" length="1" jt="1" >
+				<comment><![CDATA[пол ребенка для NOVOR > 0;]]></comment>
+			</column>
+			<column name="USL_OK" type="numeric" length="2" decimal="0" jt="2" >
+				<comment><![CDATA[условия оказания медицинской помощи по справочнику V006]]></comment>
+			</column>
+			<column name="VIDPOM" type="numeric" length="4" decimal="0" jt="2" >
+				<comment><![CDATA[вид помощи по справочнику V008]]></comment>
+			</column>
+			<column name="PROFIL" type="numeric" length="3" decimal="0" jt="2" >
+				<comment><![CDATA[профиль по справочнику V002]]></comment>
+			</column>
+			<column name="IDSP" type="numeric" length="2" decimal="0" jt="2" >
+				<comment><![CDATA[код способа оплаты мед.помощи по справочнику V010]]></comment>
+			</column>
+			<column name="NPR_MO" type="char" length="6" jt="1" >
+				<comment><![CDATA[код МО, направившего на лечение по справочнику T001]]></comment>
+			</column>
+			<column name="FORMA14" type="char" length="6" jt="1" >
+				<comment><![CDATA[для стат.формы 14 в первых 4 байтах: планово/экстренно, доставлен скорой помощью, проведено вскрытие, установлено расхождение]]></comment>
+			</column>
+			<column name="KOD_DIAG0" type="char" length="6" jt="1" >
+				<comment><![CDATA[диагноз первичный]]></comment>
+			</column>
+			<column name="RSLT_NEW" type="numeric" length="3" decimal="0" jt="2" >
+				<comment><![CDATA[результат обращения/госпитализации по справочнику V009]]></comment>
+			</column>
+			<column name="ISHOD_NEW" type="numeric" length="3" decimal="0" jt="2" >
+				<comment><![CDATA[исход заболевания по справочнику V012]]></comment>
+			</column>
+			<column name="VRACH" type="numeric" length="4" decimal="0" jt="2" >
+				<comment><![CDATA[лечащий врач (врач, закрывший талон)]]></comment>
+			</column>
+			<column name="PRVS" type="numeric" length="9" decimal="0" jt="2" >
+				<comment><![CDATA[Специальность врача по справочнику V004, с минусом - по справочнику V015]]></comment>
+			</column>
+			<column name="RODIT_DR" type="date" jt="91" >
+				<comment><![CDATA[дата рождения родителя (для human->bolnich=2)]]></comment>
+			</column>
+			<column name="RODIT_POL" type="char" length="1" jt="1" >
+				<comment><![CDATA[пол родителя (для human->bolnich=2)]]></comment>
+			</column>
+			<column name="DATE_E2" type="char" length="4" jt="1" >
+				<comment><![CDATA[дата редактирования листа учета]]></comment>
+			</column>
+			<column name="KOD_P2" type="char" length="1" jt="1" >
+				<comment><![CDATA[код пользователя, исправившего л/у]]></comment>
+			</column>
+			<column name="PZTIP" type="numeric" length="2" decimal="0" jt="2" >
+				<comment><![CDATA[тип план-заказа от 1 до 99]]></comment>
+			</column>
+			<column name="PZKOL" type="numeric" length="6" decimal="2" jt="2" >
+				<comment><![CDATA[кол-во выполненного план-заказа]]></comment>
+			</column>
+			<column name="ST_VERIFY" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[стадия проверки: 0-после редактирования; от 5 до 9-проверено]]></comment>
+			</column>
+			<column name="KOD_UP" type="numeric" length="7" decimal="0" jt="2" >
+				<comment><![CDATA[номер предыдущей записи (в случае повторного выставления в другом счёте)]]></comment>
+			</column>
+			<column name="OPLATA" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[тип оплаты;0,1 или 2, 1 - в счет, 2 - ред-ие; 9-счёт не оплачен и сделана копия л/у]]></comment>
+			</column>
+			<column name="SUMP" type="numeric" length="10" decimal="2" jt="2" >
+				<comment><![CDATA[сумма, принятая к оплате СМО (ТФОМС);всего;]]></comment>
+			</column>
+			<column name="SANK_MEK" type="numeric" length="10" decimal="2" jt="2" >
+				<comment><![CDATA[финансовые санкции (МЭК);суммарные;]]></comment>
+			</column>
+			<column name="SANK_MEE" type="numeric" length="10" decimal="2" jt="2" >
+				<comment><![CDATA[финансовые санкции (МЭЭ);суммарные;]]></comment>
+			</column>
+			<column name="SANK_EKMP" type="numeric" length="10" decimal="2" jt="2" >
+				<comment><![CDATA[финансовые санкции (ЭКМП);суммарные;]]></comment>
+			</column>
+			<column name="REESTR" type="numeric" length="6" decimal="0" jt="2" >
+				<comment><![CDATA[код (последнего) реестра;по файлу "mo_rees"]]></comment>
+			</column>
+			<column name="REES_NUM" type="numeric" length="2" decimal="0" jt="2" >
+				<comment><![CDATA[номер отправки реестра в ТФОМСа;в реестре первый раз отправили = 1, после исправления отправили второй раз = 2, и т.д.;]]></comment>
+			</column>
+			<column name="REES_ZAP" type="numeric" length="6" decimal="0" jt="2" >
+				<comment><![CDATA[номер позиции записи в реестре;поле "IDCASE" (и "ZAP") в реестре случаев]]></comment>
+			</column>
+			<column name="SCHET_NUM" type="numeric" length="2" decimal="0" jt="2" >
+				<comment><![CDATA[номер отправки счёта в ТФОМС;в счёте первый раз отправили = 0, после отказа в оплате и исправления отправили второй раз = 1, и т.д.;]]></comment>
+			</column>
+			<column name="SCHET_ZAP" type="numeric" length="6" decimal="0" jt="2" >
+				<comment><![CDATA[номер позиции записи в счете;поле "IDCASE" (и "ZAP") в реестре счетов;сформировать по индексу humans для schet > 0]]></comment>
+			</column>
+		</table>
+		<table name="HUMAN_2" prior="Entity" >
+			<comment><![CDATA[пролеченным больным2]]></comment>
+			<column name="OSL1" type="char" length="6" jt="1" >
+				<comment><![CDATA[шифр 1-ого диагноза осложнения заболевания]]></comment>
+			</column>
+			<column name="OSL2" type="char" length="6" jt="1" >
+				<comment><![CDATA[шифр 2-ого диагноза осложнения заболевания]]></comment>
+			</column>
+			<column name="OSL3" type="char" length="6" jt="1" >
+				<comment><![CDATA[шифр 3-ого диагноза осложнения заболевания]]></comment>
+			</column>
+			<column name="NPR_DATE" type="date" jt="91" >
+				<comment><![CDATA[Дата направления, выданного МО, указанной в NPR_MO]]></comment>
+			</column>
+			<column name="PROFIL_K" type="numeric" length="3" decimal="0" jt="2" >
+				<comment><![CDATA[профиль койки по справочнику V020 (стационар и дневной стационар)]]></comment>
+			</column>
+			<column name="VMP" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[0-нет,1-да ВМП]]></comment>
+			</column>
+			<column name="VIDVMP" type="char" length="12" jt="1" >
+				<comment><![CDATA[вид ВМП по справочнику V018]]></comment>
+			</column>
+			<column name="METVMP" type="numeric" length="4" decimal="0" jt="2" >
+				<comment><![CDATA[метод ВМП по справочнику V019]]></comment>
+			</column>
+			<column name="TAL_NUM" type="char" length="20" jt="1" >
+				<comment><![CDATA[Номер талона на ВМП]]></comment>
+			</column>
+			<column name="TAL_D" type="date" jt="91" >
+				<comment><![CDATA[Дата выдачи талона на ВМП]]></comment>
+			</column>
+			<column name="TAL_P" type="date" jt="91" >
+				<comment><![CDATA[Дата планируемой госпитализации в соответствии с талоном на ВМП]]></comment>
+			</column>
+			<column name="P_PER" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[Признак поступления/перевода 1-4]]></comment>
+			</column>
+			<column name="VNR" type="numeric" length="4" decimal="0" jt="2" >
+				<comment><![CDATA[вес недоношенного ребёнка (лечится ребёнок)]]></comment>
+			</column>
+			<column name="VNR1" type="numeric" length="4" decimal="0" jt="2" >
+				<comment><![CDATA[вес 1-го недоношенного ребёнка (лечится мать)]]></comment>
+			</column>
+			<column name="VNR2" type="numeric" length="4" decimal="0" jt="2" >
+				<comment><![CDATA[вес 2-го недоношенного ребёнка (лечится мать)]]></comment>
+			</column>
+			<column name="VNR3" type="numeric" length="4" decimal="0" jt="2" >
+				<comment><![CDATA[вес 3-го недоношенного ребёнка (лечится мать)]]></comment>
+			</column>
+			<column name="PC1" type="char" length="20" jt="1" >
+				<comment><![CDATA[КСЛП (в 2017 - в первом знаке 1-3 - кол-во стентов в коронарных сосудах)]]></comment>
+			</column>
+			<column name="PC2" type="char" length="10" jt="1" >
+				<comment><![CDATA[КИРО]]></comment>
+			</column>
+			<column name="PC3" type="char" length="10" jt="1" >
+				<comment><![CDATA[дополнительный критерий]]></comment>
+			</column>
+			<column name="PC4" type="char" length="10" jt="1" />
+			<column name="PC5" type="char" length="10" jt="1" />
+			<column name="PC6" type="char" length="10" jt="1" />
+			<column name="PN1" type="numeric" length="10" decimal="0" jt="2" >
+				<comment><![CDATA[для реабилитации пациентов после кохлеарной имплантации]]></comment>
+			</column>
+			<column name="PN2" type="numeric" length="10" decimal="0" jt="2" >
+				<comment><![CDATA[для абортов]]></comment>
+			</column>
+			<column name="PN3" type="numeric" length="10" decimal="0" jt="2" >
+				<comment><![CDATA[код согласования с программами SDS/ЛИС]]></comment>
+			</column>
+			<column name="PN4" type="numeric" length="10" decimal="0" jt="2" >
+				<comment><![CDATA[двойные л/у (1-ый л/у - ссылка на 2-ой лист, (2-ой л/у - ссылка на 1-ый лист)]]></comment>
+			</column>
+			<column name="PN5" type="numeric" length="10" decimal="0" jt="2" >
+				<comment><![CDATA[модель пациента ВМП]]></comment>
+			</column>
+			<column name="PN6" type="numeric" length="10" decimal="0" jt="2" />
+		</table>
 		<table name="KARTOTE2" >
 			<column name="KOD_TF" type="numeric" length="10" decimal="0" jt="2" >
 				<comment><![CDATA[код по кодировке ТФОМС]]></comment>
@@ -721,6 +932,42 @@
 				<fk_column name="KOD_F" pk="KOD" />
 			</fk>
 		</table>
+		<table name="MO_ONKLE" prior="Entity" >
+			<comment><![CDATA[Сведения о применённых лекарственных препаратах]]></comment>
+			<column name="KOD" type="numeric" length="7" decimal="0" jt="2" >
+				<comment><![CDATA[код больного]]></comment>
+			</column>
+			<column name="REGNUM" type="char" length="6" jt="1" >
+				<comment><![CDATA[IDD лек.препарата N020]]></comment>
+			</column>
+			<column name="CODE_SH" type="char" length="10" jt="1" >
+				<comment><![CDATA[код схемы лек.терапии V024]]></comment>
+			</column>
+			<column name="DATE_INJ" type="date" jt="91" >
+				<comment><![CDATA[дата введения лек.препарата]]></comment>
+			</column>
+		</table>
+		<table name="MO_ONKNA" prior="Entity" >
+			<comment><![CDATA[онконаправления]]></comment>
+			<column name="KOD" type="numeric" length="7" decimal="0" jt="2" >
+				<comment><![CDATA[код больного]]></comment>
+			</column>
+			<column name="NAPR_DATE" type="date" jt="91" >
+				<comment><![CDATA[Дата направления]]></comment>
+			</column>
+			<column name="NAPR_MO" type="char" length="6" jt="1" >
+				<comment><![CDATA[код другого МО, куда выписано направление]]></comment>
+			</column>
+			<column name="NAPR_V" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[Вид направления(V028):1-к онкологу,2-на биопсию,3-на дообследование,4-для опр.тактики лечения]]></comment>
+			</column>
+			<column name="MET_ISSL" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[Метод диагн.исследования(V029)(при NAPR_V=3):1-лаб.диагностика;2-инстр.диагностика;3-луч.диагностика;4-КТ, МРТ, ангиография]]></comment>
+			</column>
+			<column name="U_KOD" type="numeric" length="6" decimal="0" jt="2" >
+				<comment><![CDATA[код услуги(V001)]]></comment>
+			</column>
+		</table>
 		<table name="MO_OPER" >
 			<column name="PO" type="char" length="1" jt="1" >
 				<comment><![CDATA[код оператора asc(po)]]></comment>
@@ -1045,6 +1292,8 @@
 		<comment><![CDATA[chip_mo]]></comment>
 		<entity schema="chip_mo" name="BASE1" color="C1D8EE" x="816" y="80" />
 		<entity schema="chip_mo" name="HUMAN" color="C1D8EE" x="864" y="1520" />
+		<entity schema="chip_mo" name="HUMAN_" color="C1D8EE" x="1136" y="1520" />
+		<entity schema="chip_mo" name="HUMAN_2" color="C1D8EE" x="1440" y="1520" />
 		<entity schema="chip_mo" name="KARTOTE2" color="C1D8EE" x="848" y="608" />
 		<entity schema="chip_mo" name="KARTOTEK" color="C1D8EE" x="1104" y="368" />
 		<entity schema="chip_mo" name="KARTOTE_" color="C1D8EE" x="1392" y="368" />
@@ -1059,6 +1308,8 @@
 		<entity schema="chip_mo" name="MO_KRTO" color="C1D8EE" x="560" y="1328" />
 		<entity schema="chip_mo" name="MO_KRTP" color="C1D8EE" x="48" y="1376" />
 		<entity schema="chip_mo" name="MO_KRTR" color="C1D8EE" x="304" y="1424" />
+		<entity schema="chip_mo" name="MO_ONKLE" color="C1D8EE" x="48" y="1840" />
+		<entity schema="chip_mo" name="MO_ONKNA" color="C1D8EE" x="1440" y="2080" />
 		<entity schema="chip_mo" name="MO_OPER" color="C1D8EE" x="1072" y="80" />
 		<entity schema="chip_mo" name="MO_OPERN" color="C1D8EE" x="1344" y="80" />
 		<entity schema="chip_mo" name="MO_OTD" color="C1D8EE" x="320" y="608" />
@@ -1095,6 +1346,15 @@
 			<entity schema="chip_mo" name="MO_KRTO" />
 			<entity schema="chip_mo" name="MO_KRTP" />
 			<entity schema="chip_mo" name="MO_KRTR" />
+		</group>
+		<group name="Листы учета" color="C4E0F9" >
+			<entity schema="chip_mo" name="HUMAN" />
+			<entity schema="chip_mo" name="HUMAN_" />
+			<entity schema="chip_mo" name="HUMAN_2" />
+			<entity schema="chip_mo" name="MO_ONKNA" />
+		</group>
+		<group name="Лечение онкологическиз заболеваний" color="FF9999" >
+			<entity schema="chip_mo" name="MO_ONKLE" />
 		</group>
 	</layout>
 </project>
