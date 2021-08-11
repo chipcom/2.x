@@ -34,6 +34,147 @@
 				<comment><![CDATA[ID группы пользователей]]></comment>
 			</column>
 		</table>
+		<table name="HUMAN" prior="HU" >
+			<column name="KOD" type="numeric" length="7" decimal="0" jt="2" >
+				<comment><![CDATA[код (номер записи)]]></comment>
+			</column>
+			<column name="KOD_K" type="numeric" length="7" decimal="0" jt="2" >
+				<comment><![CDATA[код по картотеке]]></comment>
+			</column>
+			<column name="TIP_H" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[1-лечится,2-лечение не завершено,3-лечение не завершено,4-выписан счет,5-оплачен полностью,6-больной не оплачивается]]></comment>
+			</column>
+			<column name="FIO" type="char" length="50" jt="1" >
+				<comment><![CDATA[Ф.И.О. больного]]></comment>
+			</column>
+			<column name="POL" type="char" length="1" jt="1" >
+				<comment><![CDATA[пол]]></comment>
+			</column>
+			<column name="DATA_R" type="date" jt="91" >
+				<comment><![CDATA[дата рождения больного]]></comment>
+			</column>
+			<column name="VZROS_REB" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[0-взрослый, 1-ребенок, 2-подросток]]></comment>
+			</column>
+			<column name="ADRES" type="char" length="50" jt="1" >
+				<comment><![CDATA[адрес больного]]></comment>
+			</column>
+			<column name="MR_DOL" type="char" length="50" jt="1" >
+				<comment><![CDATA[место работы или причина безработности]]></comment>
+			</column>
+			<column name="RAB_NERAB" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[0-работающий, 1-неработающий]]></comment>
+			</column>
+			<column name="KOD_DIAG" type="char" length="5" jt="1" >
+				<comment><![CDATA[шифр 1-ой осн.болезни]]></comment>
+			</column>
+			<column name="KOD_DIAG2" type="char" length="5" jt="1" >
+				<comment><![CDATA[шифр 2-ой осн.болезни]]></comment>
+			</column>
+			<column name="KOD_DIAG3" type="char" length="5" jt="1" >
+				<comment><![CDATA[шифр 3-ой осн.болезни]]></comment>
+			</column>
+			<column name="KOD_DIAG4" type="char" length="5" jt="1" >
+				<comment><![CDATA[шифр 4-ой осн.болезни]]></comment>
+			</column>
+			<column name="SOPUT_B1" type="char" length="5" jt="1" >
+				<comment><![CDATA[шифр 1-ой сопутствующей болезни]]></comment>
+			</column>
+			<column name="SOPUT_B2" type="char" length="5" jt="1" >
+				<comment><![CDATA[шифр 2-ой сопутствующей болезни]]></comment>
+			</column>
+			<column name="SOPUT_B3" type="char" length="5" jt="1" >
+				<comment><![CDATA[шифр 3-ой сопутствующей болезни]]></comment>
+			</column>
+			<column name="SOPUT_B4" type="char" length="5" jt="1" >
+				<comment><![CDATA[шифр 4-ой сопутствующей болезни]]></comment>
+			</column>
+			<column name="DIAG_PLUS" type="char" length="8" jt="1" >
+				<comment><![CDATA[дополнение к диагнозам (+,-)]]></comment>
+			</column>
+			<column name="OBRASHEN" type="char" length="1" jt="1" >
+				<comment><![CDATA[пробел-ничего, '1'-подозрение на ЗНО, '2'-онкология???]]></comment>
+			</column>
+			<column name="KOMU" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[от 1 до 5]]></comment>
+			</column>
+			<column name="STR_CRB" type="numeric" length="2" decimal="0" jt="2" >
+				<comment><![CDATA[код стр.компании, комитета и т.п.]]></comment>
+			</column>
+			<column name="ZA_SMO" type="numeric" length="2" decimal="0" jt="2" >
+				<comment><![CDATA[ЗаСМО]]></comment>
+			</column>
+			<column name="POLIS" type="char" length="17" jt="1" >
+				<comment><![CDATA[серия и номер страхового полиса]]></comment>
+			</column>
+			<column name="LPU" type="numeric" length="3" decimal="0" jt="2" >
+				<comment><![CDATA[код учреждения]]></comment>
+			</column>
+			<column name="OTD" type="numeric" length="3" decimal="0" jt="2" >
+				<comment><![CDATA[код отделения]]></comment>
+			</column>
+			<column name="UCH_DOC" type="char" length="10" jt="1" >
+				<comment><![CDATA[вид и номер учетного документа]]></comment>
+			</column>
+			<column name="MI_GIT" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[-город, 1-область, 2-иногородний]]></comment>
+			</column>
+			<column name="RAJON_GIT" type="numeric" length="2" decimal="0" jt="2" >
+				<comment><![CDATA[код района места жительства]]></comment>
+			</column>
+			<column name="MEST_INOG" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[0-город, 1-область, 2-иногородний]]></comment>
+			</column>
+			<column name="RAJON" type="numeric" length="2" decimal="0" jt="2" >
+				<comment><![CDATA[код района финансирования]]></comment>
+			</column>
+			<column name="REG_LECH" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[0-основные, 9-дополнительные объёмы]]></comment>
+			</column>
+			<column name="N_DATA" type="date" jt="91" >
+				<comment><![CDATA[дата начала лечения]]></comment>
+			</column>
+			<column name="K_DATA" type="date" jt="91" >
+				<comment><![CDATA[дата окончания лечения]]></comment>
+			</column>
+			<column name="CENA" type="numeric" length="10" decimal="2" jt="2" >
+				<comment><![CDATA[стоимость лечения]]></comment>
+			</column>
+			<column name="CENA_1" type="numeric" length="10" decimal="2" jt="2" >
+				<comment><![CDATA[оплачиваемая сумма лечения]]></comment>
+			</column>
+			<column name="BOLNICH" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[больничный]]></comment>
+			</column>
+			<column name="DATE_B_1" type="char" length="4" jt="1" >
+				<comment><![CDATA[дата начала больничного]]></comment>
+			</column>
+			<column name="DATE_B_2" type="char" length="4" jt="1" >
+				<comment><![CDATA[дата окончания больничного]]></comment>
+			</column>
+			<column name="DATE_E" type="char" length="4" jt="1" >
+				<comment><![CDATA[дата добавления листа учета]]></comment>
+			</column>
+			<column name="KOD_P" type="char" length="1" jt="1" >
+				<comment><![CDATA[код пользователя, добавившего л/у]]></comment>
+			</column>
+			<column name="DATE_OPL" type="char" length="4" jt="1" >
+				<comment><![CDATA[дата след.визита для дисп.наблюдения]]></comment>
+			</column>
+			<column name="SCHET" type="numeric" length="6" decimal="0" jt="2" >
+				<comment><![CDATA[код счета]]></comment>
+			</column>
+			<column name="ISHOD" type="numeric" length="3" decimal="0" jt="2" />
+			<fk name="fk_human_kartotek" to_schema="chip_mo" to_table="KARTOTEK" type="ManyToMany" >
+				<fk_column name="KOD_K" pk="KOD" />
+			</fk>
+			<fk name="fk_human_mo_uch" to_schema="chip_mo" to_table="MO_UCH" type="Identifying" >
+				<fk_column name="LPU" pk="KOD" />
+			</fk>
+			<fk name="fk_human_mo_otd" to_schema="chip_mo" to_table="MO_OTD" type="Identifying" >
+				<fk_column name="OTD" pk="KOD" />
+			</fk>
+		</table>
 		<table name="KARTOTE2" >
 			<column name="KOD_TF" type="numeric" length="10" decimal="0" jt="2" >
 				<comment><![CDATA[код по кодировке ТФОМС]]></comment>
@@ -903,6 +1044,7 @@
 	<layout name="Default Layout" id="Layout_1a8f" show_column_type="y" show_relation="columns" >
 		<comment><![CDATA[chip_mo]]></comment>
 		<entity schema="chip_mo" name="BASE1" color="C1D8EE" x="816" y="80" />
+		<entity schema="chip_mo" name="HUMAN" color="C1D8EE" x="864" y="1520" />
 		<entity schema="chip_mo" name="KARTOTE2" color="C1D8EE" x="848" y="608" />
 		<entity schema="chip_mo" name="KARTOTEK" color="C1D8EE" x="1104" y="368" />
 		<entity schema="chip_mo" name="KARTOTE_" color="C1D8EE" x="1392" y="368" />
