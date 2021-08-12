@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-***** 01.06.21
+***** 12.08.21
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
         i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -14,7 +14,6 @@ Function verify_1_sluch(fl_view)
         a_dializ := {}, is_2_88 := .f., a_rec_ffoms := {}, arr_povod := {}, mpovod := 0,; // 1.0
         lal, lalf
 
-  local is_disp_DVN_COVID := .f.
 
   if empty(human->k_data)
     return .t.  // не проверять
@@ -466,6 +465,10 @@ Function verify_1_sluch(fl_view)
   au_lu := {} ; au_flu := {} ; au_lu_ne := {} ; arr_perso := {} ; arr_unit := {}
   arr_onkna := {} ; arr_mo_spec := {}
   m1dopo_na := m1napr_v_mo := m1napr_stac := m1profil_stac := m1napr_reab := m1profil_kojki := 0
+
+  m1sank_na := 0
+  mtab_v_dopo_na := mtab_v_mo := mtab_v_stac := mtab_v_reab := mtab_v_sanat := 0
+
   is_kt := is_mrt := is_uzi := is_endo := is_gisto := is_mgi := is_g_cit := is_pr_skr := is_covid := .f.
   is_71_1 := is_71_2 := is_71_3 := is_dom := .f.
   kvp_2_78 := kvp_2_79 := kvp_2_89 := kol_2_3 := kol_2_60 := kol_2_4 := kol_2_6 := kol_55_1 := 0
@@ -474,6 +477,9 @@ Function verify_1_sluch(fl_view)
   is_2_83 := is_2_84 := is_2_85 := is_2_86 := is_2_87 := is_2_88 := is_2_89 := .f.
   a_2_89 := array(15) ; afill(a_2_89,0)
   is_disp_DDS := is_disp_DVN := is_disp_DVN3 := is_prof_PN := is_neonat := is_pren_diagn := .f.
+
+  is_disp_DVN_COVID := .f.
+
   is_70_3 := is_70_5 := is_70_6 := is_72_2 := is_72_3 := is_72_4 := .f.
   lstkol := 0 ; lstshifr := shifr_ksg := "" ; cena_ksg := 0
   midsp := musl_ok := mRSLT_NEW := mprofil := mvrach := m1lis := 0
@@ -4251,6 +4257,29 @@ Function verify_1_sluch(fl_view)
       endcase
     endif
   endif
+
+  // проверим на наличие направивиших врачей
+  if is_disp_DDS .or. is_disp_DVN .or. is_prof_PN .or. is_disp_DVN_COVID
+    if human->k_data >= 0d20210801
+      if (m1dopo_na > 0) .and. (mtab_v_dopo_na == 0)
+        aadd(ta,'не заполнен табельный номер врача направившего на дополнительное обследование')
+      endif
+      if (m1napr_v_mo > 0) .and. (mtab_v_mo == 0)
+        aadd(ta,'не заполнен табельный номер врача направившего к специалистам')
+      endif
+      if (m1napr_stac > 0) .and. (mtab_v_stac == 0)
+        aadd(ta,'не заполнен табельный номер врача направившего на лечение')
+      endif
+      if (m1napr_reab > 0) .and. (mtab_v_reab == 0)
+        aadd(ta,'не заполнен табельный номер врача направившего на реабилитацию')
+      endif
+      if (human->VZROS_REB == 0) .and. (m1sank_na > 0) .and. (mtab_v_sanat == 0)
+        aadd(ta,'не заполнен табельный номер врача направившего на санаторно-курортное лечение')
+      endif
+    endif
+  endif
+  //
+
   if is_pren_diagn //
     human_->PROFIL := 106 // ультразвуковой диагностике
     if human->n_data != human->k_data

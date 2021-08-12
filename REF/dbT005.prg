@@ -28,7 +28,7 @@ function loadT005()
     // добавим из справочника _mo_f014.dbf
     for each row in getF014()
       if (j := ascan(_T005, {|x| x[1] == row[1] })) == 0
-        AAdd(_T005, {row[1], lstr(row[1])+"  "+alltrim(row[2]), alltrim(row[3])} )
+        AAdd(_T005, {row[1], alltrim(row[2]), alltrim(row[3])} )
       endif
     next
   endif
