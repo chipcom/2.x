@@ -165,6 +165,9 @@
 				<comment><![CDATA[код счета]]></comment>
 			</column>
 			<column name="ISHOD" type="numeric" length="3" decimal="0" jt="2" />
+			<index name="Unq_HUMAN_KOD" unique="UNIQUE_KEY" >
+				<column name="KOD" />
+			</index>
 			<fk name="fk_human_kartotek" to_schema="chip_mo" to_table="KARTOTEK" type="ManyToMany" >
 				<fk_column name="KOD_K" pk="KOD" />
 			</fk>
@@ -932,6 +935,39 @@
 				<fk_column name="KOD_F" pk="KOD" />
 			</fk>
 		</table>
+		<table name="MO_ONKCO" prior="Entity" spec="" >
+			<comment><![CDATA[Сведения о проведении консилиума]]></comment>
+			<column name="KOD" type="numeric" length="7" decimal="0" jt="2" >
+				<comment><![CDATA[код больного]]></comment>
+			</column>
+			<column name="PR_CONS" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[Сведения о проведении консилиума(N019):0-отсутствует необходимость;1-определена тактика обследования;2-определена тактика лечения;3-изменена тактика лечения]]></comment>
+			</column>
+			<column name="DT_CONS" type="date" jt="91" >
+				<comment><![CDATA[Дата проведения консилиума. Обязательно к заполнению при PR_CONS=1,2,3]]></comment>
+			</column>
+		</table>
+		<table name="MO_ONKDI" prior="Entity" spec="" >
+			<comment><![CDATA[Диагностический блок]]></comment>
+			<column name="KOD" type="numeric" length="7" decimal="0" jt="2" >
+				<comment><![CDATA[код больного]]></comment>
+			</column>
+			<column name="DIAG_DATE" type="date" jt="91" >
+				<comment><![CDATA[Дата взятия материала для проведения диагностики]]></comment>
+			</column>
+			<column name="DIAG_TIP" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[Тип диагностического показателя: 1 - гистологический признак; 2 - маркёр (ИГХ)]]></comment>
+			</column>
+			<column name="DIAG_CODE" type="numeric" length="3" decimal="0" jt="2" >
+				<comment><![CDATA[Код диагностического показателя При DIAG_TIP=1 в соответствии со справочником N007 При DIAG_TIP=2 в соответствии со справочником N010]]></comment>
+			</column>
+			<column name="DIAG_RSLT" type="numeric" length="3" decimal="0" jt="2" >
+				<comment><![CDATA[Код результата диагностики При DIAG_TIP=1 в соответствии со справочником N008 При DIAG_TIP=2 в соответствии со справочником N011]]></comment>
+			</column>
+			<column name="REC_RSLT" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[признак получения результата диагностики 1 - получен]]></comment>
+			</column>
+		</table>
 		<table name="MO_ONKLE" prior="Entity" >
 			<comment><![CDATA[Сведения о применённых лекарственных препаратах]]></comment>
 			<column name="KOD" type="numeric" length="7" decimal="0" jt="2" >
@@ -966,6 +1002,93 @@
 			</column>
 			<column name="U_KOD" type="numeric" length="6" decimal="0" jt="2" >
 				<comment><![CDATA[код услуги(V001)]]></comment>
+			</column>
+		</table>
+		<table name="MO_ONKPR" prior="Entity" spec="" >
+			<comment><![CDATA[Сведения об имеющихся противопоказаниях]]></comment>
+			<column name="KOD" type="numeric" length="7" decimal="0" jt="2" >
+				<comment><![CDATA[код больного]]></comment>
+			</column>
+			<column name="PROT" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[Код противопоказания или отказа в соответствии со справочником N001]]></comment>
+			</column>
+			<column name="D_PROT" type="date" jt="91" >
+				<comment><![CDATA[Дата регистрации противопоказания или отказа]]></comment>
+			</column>
+		</table>
+		<table name="MO_ONKSL" prior="MO_ONKS" spec="" >
+			<comment><![CDATA[Сведения о случае лечения онкологического заболевания]]></comment>
+			<column name="KOD" type="numeric" length="7" decimal="0" jt="2" >
+				<comment><![CDATA[код больного]]></comment>
+			</column>
+			<column name="DS1_T" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[Повод обращения(N018):0-первичное лечение;1-рецидив;2-прогрессирование;3-динам.наблюдение;4-диспанс.наблюдение;5-диагностика;6-симптоматическое лечение]]></comment>
+			</column>
+			<column name="STAD" type="numeric" length="3" decimal="0" jt="2" >
+				<comment><![CDATA[Стадия заболевания(N002)обязательно при DS1_T = от 0 до 4]]></comment>
+			</column>
+			<column name="ONK_T" type="numeric" length="3" decimal="0" jt="2" >
+				<comment><![CDATA[Значение Tumor(N003) обязательно для взрослых при при DS1_T=0]]></comment>
+			</column>
+			<column name="ONK_N" type="numeric" length="3" decimal="0" jt="2" >
+				<comment><![CDATA[Значение Nodus(N004) обязательно для взрослых при при DS1_T=0]]></comment>
+			</column>
+			<column name="ONK_M" type="numeric" length="3" decimal="0" jt="2" >
+				<comment><![CDATA[Значение Metastasis(N005) обязательно для взрослых при при DS1_T=0]]></comment>
+			</column>
+			<column name="MTSTZ" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[Признак выявления отдалённых метастазов	Подлежит заполнению значением 1 при выявлении отдалённых метастазов только при DS1_T=1,2]]></comment>
+			</column>
+			<column name="B_DIAG" type="numeric" length="2" decimal="0" jt="2" >
+				<comment><![CDATA[гистология:99-не надо,98-сделана(результат получен),97-сделана(результат не получен),0-отказ,7-не показано,8-противопоказано]]></comment>
+			</column>
+			<column name="SOD" type="numeric" length="6" decimal="2" jt="2" >
+				<comment><![CDATA[Суммарная очаговая доза	Обязательно для заполнения при проведении лучевой или химиолучевой терапии (USL_TIP=3 или USL_TIP=4)м.б.=0]]></comment>
+			</column>
+			<column name="K_FR" type="numeric" length="2" decimal="0" jt="2" >
+				<comment><![CDATA[кол-во фракций проведения лучевой терапии	Обязательно для заполнения при проведении лучевой или химиолучевой терапии (USL_TIP=3 или USL_TIP=4)м.б.=0]]></comment>
+			</column>
+			<column name="CRIT" type="char" length="10" jt="1" >
+				<comment><![CDATA[код схемы лек.терапии V024 (sh..., mt...)]]></comment>
+			</column>
+			<column name="CRIT2" type="char" length="10" jt="1" >
+				<comment><![CDATA[доп.критерий (fr...)]]></comment>
+			</column>
+			<column name="IS_ERR" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[Признак несоблюдения схемы лекарственной терапии: 0-нормально, 1-не соблюдена]]></comment>
+			</column>
+			<column name="WEI" type="numeric" length="5" decimal="1" jt="2" >
+				<comment><![CDATA[масса тела в кг	Обязательно для заполнения при проведении лекарственной или химиолучевой терапии (USL_TIP=2 или USL_TIP=4)]]></comment>
+			</column>
+			<column name="HEI" type="numeric" length="3" decimal="0" jt="2" >
+				<comment><![CDATA[рост в см	Обязательно для заполнения при проведении лекарственной или химиолучевой терапии (USL_TIP=2 или USL_TIP=4)]]></comment>
+			</column>
+			<column name="BSA" type="numeric" length="4" decimal="2" jt="2" >
+				<comment><![CDATA[площадь поверхности тела в кв.м. Обязательно для заполнения при проведении лекарственной или химиолучевой терапии (USL_TIP=2 или USL_TIP=4)]]></comment>
+			</column>
+		</table>
+		<table name="MO_ONKUS" prior="Entity" spec="" >
+			<comment><![CDATA[Сведения о проведённых лечениях]]></comment>
+			<column name="KOD" type="numeric" length="7" decimal="0" jt="2" >
+				<comment><![CDATA[код больного]]></comment>
+			</column>
+			<column name="USL_TIP" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[Тип онкоуслуги в соответствии со справочником N013]]></comment>
+			</column>
+			<column name="HIR_TIP" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[Тип хирургического лечения При USL_TIP=1 в соответствии со справочником N014]]></comment>
+			</column>
+			<column name="LEK_TIP_L" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[Линия лекарственной терапии При USL_TIP=2 в соответствии со справочником N015]]></comment>
+			</column>
+			<column name="LEK_TIP_V" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[Цикл лекарственной терапии	При USL_TIP=2 в соответствии со справочником N016]]></comment>
+			</column>
+			<column name="LUCH_TIP" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[Тип лучевой терапии	При USL_TIP=3,4 в соответствии со справочником N017]]></comment>
+			</column>
+			<column name="PPTR" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[Признак проведения профилактики тошноты и рвотного рефлекса - указывается "1" при USL_TIP=2,4]]></comment>
 			</column>
 		</table>
 		<table name="MO_OPER" >
@@ -1194,6 +1317,54 @@
 				<fk_column name="OTD" pk="KOD" />
 			</fk>
 		</table>
+		<table name="MO_REES" prior="Entity" spec="" >
+			<comment><![CDATA[Реестр сведений об оказанной медицинской помощи, направляемый в ТФОМС "mo_rees"]]></comment>
+			<column name="KOD" type="numeric" length="6" decimal="0" jt="2" mandatory="y" >
+				<comment><![CDATA[код реестра;номер записи;]]></comment>
+			</column>
+			<column name="CODE" type="numeric" length="8" decimal="0" jt="2" >
+				<comment><![CDATA[уникальный код;номер записи+mem_beg_rees]]></comment>
+			</column>
+			<column name="NSCHET" type="numeric" length="6" decimal="0" jt="2" >
+				<comment><![CDATA[номер реестра сведений;уникален для отчетных периодов, принадлежащих одному календарному году;]]></comment>
+			</column>
+			<column name="DSCHET" type="date" jt="91" >
+				<comment><![CDATA[дата реестра сведений;;]]></comment>
+			</column>
+			<column name="NYEAR" type="numeric" length="4" decimal="0" jt="2" >
+				<comment><![CDATA[отчетный год;;]]></comment>
+			</column>
+			<column name="NMONTH" type="numeric" length="2" decimal="0" jt="2" >
+				<comment><![CDATA[отчетный месяц;;]]></comment>
+			</column>
+			<column name="NN" type="numeric" length="5" decimal="0" jt="2" >
+				<comment><![CDATA[порядковый номер пакета;номер по порядку пакета в данном отчетном периоде (2 знака с лидирующим нулем);]]></comment>
+			</column>
+			<column name="NAME_XML" type="char" length="26" jt="1" >
+				<comment><![CDATA[имя XML-файла без расширения (и ZIP-архива)]]></comment>
+			</column>
+			<column name="KOD_XML" type="numeric" length="6" decimal="0" jt="2" >
+				<comment><![CDATA[ссылка на файл "mo_xml"]]></comment>
+			</column>
+			<column name="DATE_OUT" type="date" jt="91" >
+				<comment><![CDATA[дата отправки в ТФОМС;;]]></comment>
+			</column>
+			<column name="NUMB_OUT" type="numeric" length="2" decimal="0" jt="2" >
+				<comment><![CDATA[номер отправки в ТФОМС;сколько раз всего записывали файл на носитель;]]></comment>
+			</column>
+			<column name="KOL" type="numeric" length="6" decimal="0" jt="2" >
+				<comment><![CDATA[количество пациентов в реестре;;]]></comment>
+			</column>
+			<column name="SUMMA" type="numeric" length="15" decimal="2" jt="2" >
+				<comment><![CDATA[сумма случаев в реестре;;]]></comment>
+			</column>
+			<index name="Pk_MO_REES_KOD" unique="PRIMARY_KEY" >
+				<column name="KOD" />
+			</index>
+			<fk name="fk_mo_rees_mo_xml" to_schema="chip_mo" to_table="MO_XML" type="Identifying" >
+				<fk_column name="KOD_XML" pk="KOD" />
+			</fk>
+		</table>
 		<table name="MO_REGI" prior="Entity" >
 			<comment><![CDATA[регистрация посещения в регистратуре]]></comment>
 			<column name="KOD_K" type="numeric" length="7" decimal="0" jt="2" >
@@ -1217,6 +1388,27 @@
 			<column name="KOD_P" type="char" length="1" jt="1" >
 				<comment><![CDATA[код оператора;;]]></comment>
 			</column>
+		</table>
+		<table name="MO_RHUM" prior="Entity" spec="" >
+			<comment><![CDATA[список листов учёта в реестрах (т.к. можно попасть в несколько реестров)]]></comment>
+			<column name="REESTR" type="numeric" length="6" decimal="0" jt="2" >
+				<comment><![CDATA[код реестра;по файлу "mo_rees"]]></comment>
+			</column>
+			<column name="KOD_HUM" type="numeric" length="7" decimal="0" jt="2" >
+				<comment><![CDATA[код листа учёта по файлу "human"]]></comment>
+			</column>
+			<column name="REES_ZAP" type="numeric" length="6" decimal="0" jt="2" >
+				<comment><![CDATA[номер позиции записи в реестре;поле "IDCASE" (и "ZAP") в реестре случаев]]></comment>
+			</column>
+			<column name="OPLATA" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[тип оплаты;сначала 0, затем из ТФОМС 1 или 2, 1 - в счет, 2 - редактирование;]]></comment>
+			</column>
+			<fk name="fk_mo_rhum_mo_rees" to_schema="chip_mo" to_table="MO_REES" type="Identifying" >
+				<fk_column name="REESTR" pk="KOD" />
+			</fk>
+			<fk name="fk_mo_rhum_human" to_schema="chip_mo" to_table="HUMAN" type="Identifying" >
+				<fk_column name="KOD_HUM" pk="KOD" />
+			</fk>
 		</table>
 		<table name="MO_UCH" prior="mo" >
 			<comment><![CDATA[Учреждения "mo_uch"]]></comment>
@@ -1263,6 +1455,63 @@
 			<column name="VRACHV" type="numeric" length="4" decimal="0" jt="2" />
 			<column name="VRACHD" type="numeric" length="4" decimal="0" jt="2" />
 		</table>
+		<table name="MO_XML" prior="Entity" spec="" >
+			<comment><![CDATA[Список отосланных и принятых XML-файлов "mo_xml"]]></comment>
+			<column name="KOD" type="numeric" length="6" decimal="0" jt="2" mandatory="y" >
+				<comment><![CDATA[код;номер записи]]></comment>
+			</column>
+			<column name="FNAME" type="char" length="26" jt="1" >
+				<comment><![CDATA[имя файла без расширения (и ZIP-архива)]]></comment>
+			</column>
+			<column name="FNAME2" type="char" length="26" jt="1" >
+				<comment><![CDATA[имя второго файла без расширения]]></comment>
+			</column>
+			<column name="DFILE" type="date" jt="91" >
+				<comment><![CDATA[дата создания файла]]></comment>
+			</column>
+			<column name="TFILE" type="char" length="5" jt="1" >
+				<comment><![CDATA[время создания файла]]></comment>
+			</column>
+			<column name="DREAD" type="date" jt="91" >
+				<comment><![CDATA[дата чтения/записи]]></comment>
+			</column>
+			<column name="TREAD" type="char" length="5" jt="1" >
+				<comment><![CDATA[время чтения/записи]]></comment>
+			</column>
+			<column name="TIP_IN" type="numeric" length="2" decimal="0" jt="2" >
+				<comment><![CDATA[тип принимаемого файла;3-ФЛК,4-СП,5-РАК, пишем в каталог XML_TF]]></comment>
+			</column>
+			<column name="TIP_OUT" type="numeric" length="2" decimal="0" jt="2" >
+				<comment><![CDATA[тип высылаемого файла;1-реестр,2-счет, пишем в каталог XML_MO]]></comment>
+			</column>
+			<column name="DWORK" type="date" jt="91" >
+				<comment><![CDATA[дата обработки файла;]]></comment>
+			</column>
+			<column name="TWORK1" type="char" length="5" jt="1" >
+				<comment><![CDATA[время начала обработки;]]></comment>
+			</column>
+			<column name="TWORK2" type="char" length="5" jt="1" >
+				<comment><![CDATA[время окончания обработки;]]></comment>
+			</column>
+			<column name="KOL1" type="numeric" length="6" decimal="0" jt="2" >
+				<comment><![CDATA[количество пациентов (oplata=1)]]></comment>
+			</column>
+			<column name="KOL2" type="numeric" length="6" decimal="0" jt="2" >
+				<comment><![CDATA[количество пациентов (oplata=2)]]></comment>
+			</column>
+			<column name="ANSREESTR" type="char" length="1" jt="1" >
+				<comment><![CDATA[номер ответа на реестр (для реестра СП и ТК)]]></comment>
+			</column>
+			<column name="REESTR" type="numeric" length="6" decimal="0" jt="2" >
+				<comment><![CDATA[код реестра (отсылаемого или обработанного ТФОМС)]]></comment>
+			</column>
+			<column name="SCHET" type="numeric" length="6" decimal="0" jt="2" >
+				<comment><![CDATA[код счета (отсылаемого или обработанного СМО)]]></comment>
+			</column>
+			<index name="Pk_MO_XML_KOD" unique="PRIMARY_KEY" >
+				<column name="KOD" />
+			</index>
+		</table>
 		<table name="MSEK" prior="Entity" >
 			<column name="KOD_K" type="numeric" length="7" decimal="0" jt="2" >
 				<comment><![CDATA[код по картотеке]]></comment>
@@ -1308,15 +1557,23 @@
 		<entity schema="chip_mo" name="MO_KRTO" color="C1D8EE" x="560" y="1328" />
 		<entity schema="chip_mo" name="MO_KRTP" color="C1D8EE" x="48" y="1376" />
 		<entity schema="chip_mo" name="MO_KRTR" color="C1D8EE" x="304" y="1424" />
-		<entity schema="chip_mo" name="MO_ONKLE" color="C1D8EE" x="48" y="1840" />
+		<entity schema="chip_mo" name="MO_ONKCO" color="C1D8EE" x="624" y="1824" />
+		<entity schema="chip_mo" name="MO_ONKDI" color="C1D8EE" x="400" y="1824" />
+		<entity schema="chip_mo" name="MO_ONKLE" color="C1D8EE" x="48" y="1824" />
 		<entity schema="chip_mo" name="MO_ONKNA" color="C1D8EE" x="1440" y="2080" />
+		<entity schema="chip_mo" name="MO_ONKPR" color="C1D8EE" x="48" y="1968" />
+		<entity schema="chip_mo" name="MO_ONKSL" color="C1D8EE" x="208" y="1824" />
+		<entity schema="chip_mo" name="MO_ONKUS" color="C1D8EE" x="400" y="1984" />
 		<entity schema="chip_mo" name="MO_OPER" color="C1D8EE" x="1072" y="80" />
 		<entity schema="chip_mo" name="MO_OPERN" color="C1D8EE" x="1344" y="80" />
 		<entity schema="chip_mo" name="MO_OTD" color="C1D8EE" x="320" y="608" />
 		<entity schema="chip_mo" name="MO_PERS" color="C1D8EE" x="48" y="80" />
+		<entity schema="chip_mo" name="MO_REES" color="C1D8EE" x="304" y="2224" />
 		<entity schema="chip_mo" name="MO_REGI" color="C1D8EE" x="1360" y="1296" />
+		<entity schema="chip_mo" name="MO_RHUM" color="C1D8EE" x="64" y="2208" />
 		<entity schema="chip_mo" name="MO_UCH" color="C1D8EE" x="320" y="80" />
 		<entity schema="chip_mo" name="MO_UCHVR" color="C1D8EE" x="592" y="80" />
+		<entity schema="chip_mo" name="MO_XML" color="C1D8EE" x="560" y="2224" />
 		<entity schema="chip_mo" name="MSEK" color="C1D8EE" x="1072" y="1296" />
 		<group name="Медицинская организация" color="C4E0F9" >
 			<entity schema="chip_mo" name="MO_OTD" />
@@ -1355,6 +1612,11 @@
 		</group>
 		<group name="Лечение онкологическиз заболеваний" color="FF9999" >
 			<entity schema="chip_mo" name="MO_ONKLE" />
+			<entity schema="chip_mo" name="MO_ONKSL" />
+			<entity schema="chip_mo" name="MO_ONKCO" />
+			<entity schema="chip_mo" name="MO_ONKDI" />
+			<entity schema="chip_mo" name="MO_ONKPR" />
+			<entity schema="chip_mo" name="MO_ONKUS" />
 		</group>
 	</layout>
 </project>
