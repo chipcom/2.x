@@ -1317,6 +1317,132 @@
 				<fk_column name="OTD" pk="KOD" />
 			</fk>
 		</table>
+		<table name="MO_RAK" prior="Entity" spec="" >
+			<comment><![CDATA[реестр актов контроля счетов]]></comment>
+			<column name="AKT" type="numeric" length="6" decimal="0" jt="2" >
+				<comment><![CDATA[код акта(номер записи)]]></comment>
+			</column>
+			<column name="KOD_XML" type="numeric" length="6" decimal="0" jt="2" >
+				<comment><![CDATA[ссылка на файл "mo_xml", присланный из ТФ или СМО]]></comment>
+			</column>
+			<column name="CODEA" prior="CODE_A" type="numeric" length="16" decimal="0" jt="2" >
+				<comment><![CDATA[код записи акта]]></comment>
+			</column>
+			<column name="NAKT" type="char" length="30" jt="1" >
+				<comment><![CDATA[номер акта контроля]]></comment>
+			</column>
+			<column name="DAKT" type="date" jt="91" >
+				<comment><![CDATA[дата акта контроля]]></comment>
+			</column>
+			<column name="NSCHET" type="char" length="15" jt="1" >
+				<comment><![CDATA[номер счета (если он один в акте)]]></comment>
+			</column>
+			<column name="KOL_SCH" type="numeric" length="6" decimal="0" jt="2" >
+				<comment><![CDATA[кол-во счетов в акте]]></comment>
+			</column>
+			<column name="KOL_PAC" type="numeric" length="6" decimal="0" jt="2" >
+				<comment><![CDATA[кол-во пациентов в акте]]></comment>
+			</column>
+			<column name="KOL_ERR" type="numeric" length="6" decimal="0" jt="2" >
+				<comment><![CDATA[кол-во пациентов с ошибкой в акте]]></comment>
+			</column>
+			<column name="KONT" type="numeric" length="2" decimal="0" jt="2" >
+				<comment><![CDATA[1-МЭК, 2-МЭЭ, 3-ЭКМП и т.д. (из справочника F006)]]></comment>
+			</column>
+			<column name="TYPEK" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[1-первичный контроль, 2-повторный]]></comment>
+			</column>
+			<column name="SKONT" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[вид экспертизы: 0-МЭК, 1-плановая, 2-целевая]]></comment>
+			</column>
+		</table>
+		<table name="MO_RAKEXP" prior="Entity" spec="" >
+			<comment><![CDATA[реестр актов контроля счетов + эксперты]]></comment>
+			<column name="AKT" type="numeric" length="6" decimal="0" jt="2" >
+				<comment><![CDATA[код акта]]></comment>
+			</column>
+			<column name="CODE_EXP" type="char" length="8" jt="1" >
+				<comment><![CDATA[код эксперта качества мед.помощи по F004]]></comment>
+			</column>
+		</table>
+		<table name="MO_RAKS" prior="Entity" spec="" >
+			<comment><![CDATA[реестр актов контроля + счета]]></comment>
+			<column name="KOD_RAKS" type="numeric" length="6" decimal="0" jt="2" >
+				<comment><![CDATA[№ записи в файле (один счёт м.б. более 1 раза)]]></comment>
+			</column>
+			<column name="AKT" type="numeric" length="6" decimal="0" jt="2" >
+				<comment><![CDATA[код акта]]></comment>
+			</column>
+			<column name="SCHET" type="numeric" length="6" decimal="0" jt="2" >
+				<comment><![CDATA[код счета по БД schet.dbf]]></comment>
+			</column>
+			<column name="KOL_PAC" type="numeric" length="6" decimal="0" jt="2" >
+				<comment><![CDATA[кол-во пациентов в счете]]></comment>
+			</column>
+			<column name="KOL_ERR" type="numeric" length="6" decimal="0" jt="2" >
+				<comment><![CDATA[кол-во пациентов с ошибкой в счете]]></comment>
+			</column>
+			<column name="PLAT" type="char" length="5" jt="1" >
+				<comment><![CDATA[плательщик (СМО или ТФ) ?????????????]]></comment>
+			</column>
+			<column name="SUMMAV" type="numeric" length="15" decimal="2" jt="2" >
+				<comment><![CDATA[сумма МО, выставленная на оплату]]></comment>
+			</column>
+			<column name="SUMMAP" type="numeric" length="15" decimal="2" jt="2" >
+				<comment><![CDATA[сумма, принятая к оплате СМО или ТФ]]></comment>
+			</column>
+			<column name="SANK_MEK" type="numeric" length="15" decimal="2" jt="2" >
+				<comment><![CDATA[финансовые санкции МЭК (или SANK_SUM)]]></comment>
+			</column>
+			<column name="SANK_MEE" type="numeric" length="15" decimal="2" jt="2" >
+				<comment><![CDATA[финансовые санкции МЭЭ]]></comment>
+			</column>
+			<column name="SANK_EKMP" type="numeric" length="15" decimal="2" jt="2" >
+				<comment><![CDATA[финансовые санкции ЭКМП]]></comment>
+			</column>
+			<column name="PENALTY" type="numeric" length="15" decimal="2" jt="2" >
+				<comment><![CDATA[Сумма штрафов]]></comment>
+			</column>
+		</table>
+		<table name="MO_RAKSH" prior="MO_RAKSCH" spec="" >
+			<comment><![CDATA[реестр актов контроля + счета + листы учета]]></comment>
+			<column name="KOD_RAKS" type="numeric" length="6" decimal="0" jt="2" >
+				<comment><![CDATA[№ записи в файле RAKS]]></comment>
+			</column>
+			<column name="KOD_H" type="numeric" length="7" decimal="0" jt="2" >
+				<comment><![CDATA[код листа учета по БД "human"]]></comment>
+			</column>
+			<column name="OPLATA" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[тип оплаты;1-оплата,2-отказ,3-част.отказ,4-восстановление]]></comment>
+			</column>
+			<column name="SUMP" type="numeric" length="10" decimal="2" jt="2" >
+				<comment><![CDATA[сумма, принятая к оплате СМО (ТФОМС);;]]></comment>
+			</column>
+			<column name="REFREASON" type="numeric" length="3" decimal="0" jt="2" >
+				<comment><![CDATA[код причины отказа (по-старому - 2018 год)]]></comment>
+			</column>
+			<column name="SANK_MEK" type="numeric" length="10" decimal="2" jt="2" >
+				<comment><![CDATA[финансовые санкции (МЭК) (или SANK_IT)]]></comment>
+			</column>
+			<column name="SANK_MEE" type="numeric" length="10" decimal="2" jt="2" >
+				<comment><![CDATA[финансовые санкции (МЭЭ)]]></comment>
+			</column>
+			<column name="SANK_EKMP" type="numeric" length="10" decimal="2" jt="2" >
+				<comment><![CDATA[финансовые санкции (ЭКМП)]]></comment>
+			</column>
+			<column name="PENALTY" type="numeric" length="15" decimal="2" jt="2" >
+				<comment><![CDATA[Сумма штрафов]]></comment>
+			</column>
+			<column name="IS_REPEAT" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[0-нет, 1-повторное выставление листа учёта]]></comment>
+			</column>
+			<column name="DATE_REP" type="date" jt="91" >
+				<comment><![CDATA[дата оплаты (экспертизы)]]></comment>
+			</column>
+			<column name="NEXT_KOD" type="numeric" length="7" decimal="0" jt="2" >
+				<comment><![CDATA[ссылка на повторно выставленный лист учета]]></comment>
+			</column>
+		</table>
 		<table name="MO_REES" prior="Entity" spec="" >
 			<comment><![CDATA[Реестр сведений об оказанной медицинской помощи, направляемый в ТФОМС "mo_rees"]]></comment>
 			<column name="KOD" type="numeric" length="6" decimal="0" jt="2" mandatory="y" >
@@ -1364,6 +1490,28 @@
 			<fk name="fk_mo_rees_mo_xml" to_schema="chip_mo" to_table="MO_XML" type="Identifying" >
 				<fk_column name="KOD_XML" pk="KOD" />
 			</fk>
+		</table>
+		<table name="MO_REFR" prior="Entity" spec="" >
+			<comment><![CDATA[список отказов в реестрах и счетах по случаям и услугам]]></comment>
+			<column name="TIPD" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[тип документа 1-реестр,2-счёт]]></comment>
+			</column>
+			<column name="KODD" type="numeric" length="6" decimal="0" jt="2" >
+				<comment><![CDATA[код реестра по "mo_rees" или счёта по "schet"]]></comment>
+			</column>
+			<column name="TIPZ" type="numeric" length="1" decimal="0" jt="2" >
+				<comment><![CDATA[тип записи 1-по "human",2-по "human_u"]]></comment>
+			</column>
+			<column name="KODZ" type="numeric" length="8" decimal="0" jt="2" >
+				<comment><![CDATA[номер записи по "human" или "human_u"]]></comment>
+			</column>
+			<column name="IDENTITY" type="numeric" length="1" decimal="0" jt="2" />
+			<column name="REFREASON" type="numeric" length="3" decimal="0" jt="2" >
+				<comment><![CDATA[код причины отказа по справочнику T005]]></comment>
+			</column>
+			<column name="SREFREASON" type="char" length="12" jt="1" >
+				<comment><![CDATA[код причины отказа по справочнику Q015-Q016]]></comment>
+			</column>
 		</table>
 		<table name="MO_REGI" prior="Entity" >
 			<comment><![CDATA[регистрация посещения в регистратуре]]></comment>
@@ -1617,6 +1765,27 @@
 			<entity schema="chip_mo" name="MO_ONKDI" />
 			<entity schema="chip_mo" name="MO_ONKPR" />
 			<entity schema="chip_mo" name="MO_ONKUS" />
+		</group>
+	</layout>
+	<layout name="Реестры сведений" id="Layout_23c7" joined_routing="y" show_column_type="y" show_page_borders="y" show_relation="columns" >
+		<comment><![CDATA[Таблицы участвующие в формировании реестров сведений для обмена с ТФОМС]]></comment>
+		<entity schema="chip_mo" name="MO_RAK" color="C1D8EE" x="64" y="464" />
+		<entity schema="chip_mo" name="MO_RAKEXP" color="BED3F4" x="336" y="432" />
+		<entity schema="chip_mo" name="MO_RAKS" color="BED3F4" x="288" y="608" />
+		<entity schema="chip_mo" name="MO_RAKSH" color="BED3F4" x="576" y="944" />
+		<entity schema="chip_mo" name="MO_REES" color="BED3F4" x="336" y="80" />
+		<entity schema="chip_mo" name="MO_REFR" color="BED3F4" x="48" y="176" />
+		<entity schema="chip_mo" name="MO_RHUM" color="BED3F4" x="608" y="80" />
+		<entity schema="chip_mo" name="MO_XML" color="BED3F4" x="608" y="432" />
+		<group name="MO_REES" color="ECF0F7" >
+			<entity schema="chip_mo" name="MO_REES" />
+			<entity schema="chip_mo" name="MO_RHUM" />
+			<entity schema="chip_mo" name="MO_XML" />
+			<entity schema="chip_mo" name="MO_RAKEXP" />
+			<entity schema="chip_mo" name="MO_RAKS" />
+			<entity schema="chip_mo" name="MO_RAKSH" />
+			<entity schema="chip_mo" name="MO_REFR" />
+			<entity schema="chip_mo" name="MO_RAK" />
 		</group>
 	</layout>
 </project>
