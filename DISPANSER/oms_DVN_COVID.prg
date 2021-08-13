@@ -651,7 +651,7 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
           when m1komu == 0 ;
           valid func_valid_polis(m1vidpolis,mspolis,mnpolis)
       //
-      @ ++j, 1 say "Сроки" get mn_data ;
+      @ ++j, 1 say "Сроки" get mn_data ; 
           valid {|g| f_k_data(g,1), f_valid_Begdata_DVN_COVID(g, Loc_kod), ;
               iif(mvozrast < 18, func_error(4,"Это не взрослый пациент!"), nil),;
                 ret_ndisp_COVID(Loc_kod,kod_kartotek);

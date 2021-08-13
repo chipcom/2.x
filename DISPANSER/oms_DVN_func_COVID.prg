@@ -7,6 +7,14 @@
 function f_valid_Begdata_DVN_COVID(get, loc_kod)
   local i
 
+  if ctod(get:buffer) < 0d20210701
+    get:varPut( get:original )
+    // get:setFocus()
+    // update_get(mn_data)
+    func_error(4,"Углубленная диспансеризация после COVID началась с 01 июля 2021 году")
+    return .f.
+  endif
+
   if loc_kod == 0
     for i:= 1 to len(uslugiEtap_DVN_COVID(metap))-iif(metap == 1,2,1)
       // на 1-этапе одна услуга не отображается в списке (70.8.1)

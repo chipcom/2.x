@@ -4258,7 +4258,12 @@ Function verify_1_sluch(fl_view)
     endif
   endif
 
-  // проверим на наличие направивиших врачей
+  if is_disp_DVN_COVID
+    if (human->k_data < 0d20210701)
+      aadd(ta,'углубленная диспансеризация после COVID началась с 01 июля 2021 году')
+    endif
+  endif
+    // проверим на наличие направивиших врачей
   if is_disp_DDS .or. is_disp_DVN .or. is_prof_PN .or. is_disp_DVN_COVID
     if human->k_data >= 0d20210801
       if (m1dopo_na > 0) .and. (mtab_v_dopo_na == 0)
