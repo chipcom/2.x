@@ -3,15 +3,14 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 11.08.21
+***** 14.08.21
 function f_valid_Begdata_DVN_COVID(get, loc_kod)
   local i
 
   if ctod(get:buffer) < 0d20210701
     get:varPut( get:original )
-    // get:setFocus()
-    // update_get(mn_data)
     func_error(4,"Углубленная диспансеризация после COVID началась с 01 июля 2021 году")
+    KEYBOARD chr(K_UP)
     return .f.
   endif
 
