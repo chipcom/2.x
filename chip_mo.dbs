@@ -1716,12 +1716,9 @@
 		<entity schema="chip_mo" name="MO_OPERN" color="C1D8EE" x="1344" y="80" />
 		<entity schema="chip_mo" name="MO_OTD" color="C1D8EE" x="320" y="608" />
 		<entity schema="chip_mo" name="MO_PERS" color="C1D8EE" x="48" y="80" />
-		<entity schema="chip_mo" name="MO_REES" color="C1D8EE" x="304" y="2224" />
 		<entity schema="chip_mo" name="MO_REGI" color="C1D8EE" x="1360" y="1296" />
-		<entity schema="chip_mo" name="MO_RHUM" color="C1D8EE" x="64" y="2208" />
 		<entity schema="chip_mo" name="MO_UCH" color="C1D8EE" x="320" y="80" />
 		<entity schema="chip_mo" name="MO_UCHVR" color="C1D8EE" x="592" y="80" />
-		<entity schema="chip_mo" name="MO_XML" color="C1D8EE" x="560" y="2224" />
 		<entity schema="chip_mo" name="MSEK" color="C1D8EE" x="1072" y="1296" />
 		<group name="Медицинская организация" color="C4E0F9" >
 			<entity schema="chip_mo" name="MO_OTD" />
@@ -1769,7 +1766,7 @@
 	</layout>
 	<layout name="Реестры сведений" id="Layout_23c7" joined_routing="y" show_column_type="y" show_page_borders="y" show_relation="columns" >
 		<comment><![CDATA[Таблицы участвующие в формировании реестров сведений для обмена с ТФОМС]]></comment>
-		<entity schema="chip_mo" name="MO_RAK" color="C1D8EE" x="64" y="464" />
+		<entity schema="chip_mo" name="MO_RAK" color="C1D8EE" x="288" y="944" />
 		<entity schema="chip_mo" name="MO_RAKEXP" color="BED3F4" x="336" y="432" />
 		<entity schema="chip_mo" name="MO_RAKS" color="BED3F4" x="288" y="608" />
 		<entity schema="chip_mo" name="MO_RAKSH" color="BED3F4" x="576" y="944" />
