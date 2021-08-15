@@ -5118,9 +5118,10 @@ endif
 lal := "lusl" ; lalf := "luslf"
 if arr_m[1] == 2019
   lal += "19" ; lalf += "19"
-endif
-if arr_m[1] == 2020
+elseif arr_m[1] == 2020
   lal += "20" ; lalf += "20"
+elseif arr_m[1] == 2021
+  lal += "21" ; lalf += "21"
 endif
 WaitStatus(arr_m[4])
 @ maxrow(),0 say " ждите..." color "W/R"
@@ -5128,7 +5129,13 @@ begin_date := dtoc4(arr_m[5])
 end_date := dtoc4(arr_m[6])
 Use_base("lusl")
 Use_base("luslf")
-R_Use(dir_exe+"_mo9unit",cur_dir+"_mo9unit","MOUNIT")
+if arr_m[1] == 2019
+  R_Use(dir_exe+"_mo9unit",cur_dir+"_mo9unit","MOUNIT")
+elseif arr_m[1] == 2020
+  R_Use(dir_exe+"_mo0unit",cur_dir+"_mo0unit","MOUNIT")
+elseif arr_m[1] == 2021
+  R_Use(dir_exe+"_mo1unit",cur_dir+"_mo1unit","MOUNIT")
+endif
 R_Use(dir_server+"mo_su",,"MOSU")
 R_Use(dir_server+"mo_hu",dir_server+"mo_hu","MOHU")
 set relation to u_kod into MOSU
@@ -5149,6 +5156,10 @@ if arr_m[1] == 2019 .and. arr_m[3] == 12
   kds := 17 // дата регистрации по 17.01.20
   kdr := 21 // по какую дату РАК сумма к оплате 21.01.20
 endif
+if arr_m[1] == 2020 .and. arr_m[3] == 12 // проверить
+  kds := 15 // дата регистрации по 15.01.21
+  kdr := 18 // по какую дату РАК сумма к оплате 18.01.21
+endif
 *********************************************************************
 mdate_rak := arr_m[6]+kdr
 *********************************************************************
@@ -5160,7 +5171,7 @@ set relation to akt into RAK
 R_Use(dir_server+"mo_raksh",,"RAKSH")
 set relation to kod_raks into RAKS
 index on str(kod_h,7) to (cur_dir+"tmp_raksh") for mo_xml->DFILE <= mdate_rak
-//
+//         
 dbcreate(cur_dir+"tmp",{{"usl_ok","N",1,0},;
                         {"stroke","C",3,0},;
                         {"shifr","C",10,0},;
@@ -5250,11 +5261,11 @@ do while !eof()
         ssum := round(human->cena_1*koef,2)
         if !empty(kodKSG)
           select TMP
-          find (str(human_->USL_OK,1)+padr(kodKSG,10))
+          find (str(human_->USL_OK,1)+padr(kodKSG,8)) // НАДО 10
           if !found()
             append blank
             tmp->usl_ok := human_->USL_OK
-            tmp->shifr  := kodKSG
+            tmp->shifr  := padr(kodKSG,8)
           endif
           tmp->kols ++
           tmp->kold += mkol
