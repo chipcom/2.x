@@ -9,7 +9,7 @@ function f_valid_Begdata_DVN_COVID(get, loc_kod)
 
   if ctod(get:buffer) < 0d20210701
     get:varPut( get:original )
-    func_error(4,"Углубленная диспансеризация после COVID началась с 01 июля 2021 году")
+    func_error(4,"Углубленная диспансеризация после COVID началась с 01 июля 2021 года")
     KEYBOARD chr(K_UP)
     return .f.
   endif
