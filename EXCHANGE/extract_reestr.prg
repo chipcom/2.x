@@ -3,8 +3,9 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 12.02.21 вынуть реестр из XML-файлов и записать во временные DBF-файлы
+***** 17.08.21 вынуть реестр из XML-файлов и записать во временные DBF-файлы
 Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
+  local p_tip_reestr
   Local _table1 := {;
      {"KOD",      "N", 6,0},; // код
      {"N_ZAP",    "C",12,0},; // номер позиции записи в реестре;поле "IDCASE" (и "ZAP") в реестре случаев
@@ -204,6 +205,8 @@ Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
      {"NAZ_N"   , "C", 2,0},; // PRESCRIPTIONS - Номер по порядку
      {"NAZ_R"   , "C", 2,0},; // PRESCRIPTIONS - Код назначения
      {"NAZR"    , "C", 2,0},; // PRESCRIPTIONS - Код назначения
+     {"NAZ_IDDT", "C",25,0},; // СНИЛС врача
+     {"NAZ_SPDT", "C", 4,0},; // Код специальности врача V021
      {"NAZ_SP"  , "C", 5,0},; // специальность
      {"NAZ_V"   , "C", 1,0},; // назначение
      {"NAPR_DATE","C",10,0},; // Дата направления
@@ -263,6 +266,9 @@ Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
   DEFAULT flag_tmp1 TO .f., is_all TO .t., goal_dir TO dir_server+dir_XML_MO+cslash
   Private pole
   stat_msg("Распаковка/чтение/анализ "+iif(eq_any(left(mname_xml,3),"HRM","FRM"),"реестра ","счёта ")+mname_xml)
+
+  p_tip_reestr := iif(left(mname_xml,3) == "HRM", 1, 2)
+
   if (arr_f := Extract_Zip_XML(goal_dir,name_zip)) != NIL
     fl := .t.
     dbcreate(cur_dir+"tmp_r_t1",_table1)
@@ -472,6 +478,13 @@ Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
                           t5->IDCASE := &lal.->IDCASE // для связи со случаем
                           t5->NAZ_N  := mo_read_xml_stroke(oNode2,"NAZ_N",,.f.)
                           t5->NAZ_R  := mo_read_xml_stroke(oNode2,"NAZ_R",,.f.)
+
+                          // добавил по новому ПУМП от 02.08.2021
+                          if p_tip_reestr == 2 .and. (xml2date(t1->DATE_Z_2) >= 0d20210801)
+                            t5->NAZ_IDDT  := mo_read_xml_stroke(oNode2,"NAZ_IDDOKT",,.f.)
+                            t5->NAZ_SPDT  := mo_read_xml_stroke(oNode2,"NAZ_SPDOCT",,.f.)
+                          endif
+                                                    
                           t5->NAZ_SP := mo_read_xml_stroke(oNode2,"NAZ_SP",,.f.)
                           /*_ar := mo_read_xml_array(oNode2,"NAZ_SP") // М.Б.НЕСКОЛЬКО NAZ_SP
                           for j1 := 1 to min(3,len(_ar))
@@ -638,8 +651,19 @@ Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
                         t2->KOL_USL  := mo_read_xml_stroke(oNode2,"KOL_USL")
                         t2->TARIF    := mo_read_xml_stroke(oNode2,"TARIF")
                         t2->SUMV_USL := mo_read_xml_stroke(oNode2,"SUMV_USL")
-                        t2->PRVS     := mo_read_xml_stroke(oNode2,"PRVS")
-                        t2->CODE_MD  := mo_read_xml_stroke(oNode2,"CODE_MD",,.f.)
+
+                        // добавил по новому ПУМП от 02.08.2021
+                        if p_tip_reestr == 2 .and. (xml2date(t1->DATE_Z_2) >= 0d20210801)
+                          if (oNode100 := oNode2:Find("MR_USL_N")) != NIL
+                            // пока только 1 врач
+                            t2->PRVS  := mo_read_xml_stroke(oNode100,"PRVS")
+                            t2->CODE_MD  := mo_read_xml_stroke(oNode100,"CODE_MD",,.f.)
+                          endif
+                        else
+                          t2->PRVS     := mo_read_xml_stroke(oNode2,"PRVS")
+                          t2->CODE_MD  := mo_read_xml_stroke(oNode2,"CODE_MD",,.f.)
+                        endif
+
                         t2->COMENTU  := mo_read_xml_stroke(oNode2,"COMENTU",,.f.)
                       endif
                     next j1
