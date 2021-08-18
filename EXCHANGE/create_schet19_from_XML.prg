@@ -4,7 +4,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 17.08.21 создать счета по результатам прочитанного реестра СП
+***** 18.08.21 создать счета по результатам прочитанного реестра СП
 Function create_schet19_from_XML(arr_XML_info,aerr,fl_msg,arr_s,name_sp_tk)
   Local arr_schet := {}, c, len_stand, _arr_stand, lshifr, i, j, k, lbukva,;
         doplataF, doplataR, mnn, fl, name_zip, arr_zip := {}, lshifr1,;
@@ -880,10 +880,12 @@ Function create_schet19_from_XML(arr_XML_info,aerr,fl_msg,arr_s,name_sp_tk)
 
             // добавил по новому ПУМП от 02.08.2021
             if p_tip_reestr == 2 .and. (xml2date(t1->DATE_Z_2) >= 0d20210801)
-              oMR_USL_N := oUSL:Add( HXMLNode():New( "MR_USL_N" ) )
-              mo_add_xml_stroke(oMR_USL_N,"MR_N",lstr(1))
-              mo_add_xml_stroke(oMR_USL_N,"PRVS",t2->PRVS)
-              mo_add_xml_stroke(oMR_USL_N,"CODE_MD",t2->CODE_MD)
+              if !empty(t2->PRVS) .and. !empty(t2->CODE_MD) // после разговора с Л.Н.Антоновой 18.08.2021
+                oMR_USL_N := oUSL:Add( HXMLNode():New( "MR_USL_N" ) )
+                mo_add_xml_stroke(oMR_USL_N,"MR_N",lstr(1))
+                mo_add_xml_stroke(oMR_USL_N,"PRVS",t2->PRVS)
+                mo_add_xml_stroke(oMR_USL_N,"CODE_MD",t2->CODE_MD)
+              endif
             else
               mo_add_xml_stroke(oUSL,"PRVS"    ,t2->PRVS)
               mo_add_xml_stroke(oUSL,"CODE_MD",t2->CODE_MD)
