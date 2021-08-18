@@ -2964,7 +2964,7 @@ return NIL
 
 *
 
-*****  13.11.16
+*****  16.08.21
 Function Ort_material(Tip_data)
 Local reg, reg1, mperso, musluga, mkod, buf := save_row(maxrow()),;
       msl1usluga, msl2usluga, l_delen, mslusluga, arr, sh, HH := 76,;
@@ -3028,10 +3028,22 @@ dbcreate(cur_dir+"tmp", {;
    {"KOL",        "N",     10,      3},;  // кол-во услуг
    {"STOIM",      "N",     14,      2} ;  // стоимость лечения
   })
+
+dbcreate(cur_dir+"tmp_vah", {;
+   {"KOD",        "N",      4,      0},;  // код (услуги)
+   {"human",      "N",     10,      0},;  // код human
+   {"FIO",        "C",     50,      0},;  //
+   {"Narad",      "N",     10,      0},;  //
+   {"KOL",        "N",     10,      3},;  // кол-во услуг
+   {"STOIM",      "N",     14,      2} ;  // стоимость лечения
+  })
+use (cur_dir+"tmp_vah") new
+
 use (cur_dir+"tmp_it") new
 index on str(kod,4) to (cur_dir+"tmp_it")
 use (cur_dir+"tmp") new
 index on str(kod,4) to (cur_dir+"tmp")
+R_Use(dir_server+"kartotek",,"KART")
 R_Use(dir_server+"tip_orto",,"ORT")
 R_Use(dir_server+"ortoped",,"OR")
 R_Use(dir_server+"ortoped1",,"OR1")
@@ -3051,6 +3063,8 @@ for prr := 1 to len(mm_orto_mat)
     add_string("")
     for pr := 1 to len(mperso)
       select TMP
+      zap
+      select TMP_VAH
       zap
       T_PERSO := mperso[pr,1]
       select HUMAN
@@ -3080,6 +3094,16 @@ for prr := 1 to len(mm_orto_mat)
                 tmp->kod := hu->u_kod
               endif
               tmp->kol += hu->kol
+              //
+              select tmp_vah
+              append blank
+              tmp_vah->KOD   := hu->u_kod
+              tmp_vah->human := hu->kod
+              tmp_vah->kOL   := hu->kol
+              tmp_vah->Narad := human->nar_z
+              select KART
+              goto human->kod_k
+              tmp_vah->fio   := kart->fio
             endif
           endif
           select HU
@@ -3109,7 +3133,7 @@ for prr := 1 to len(mm_orto_mat)
 
                 if or1->kod_menu == t
                   if (k := ascan(arr_mt, {|x| x[1] == or1->kod_ort } )) == 0
-                    aadd(arr_mt, {or1->kod_ort,0,0,"",0} ) ; k := len(arr_mt)
+                    aadd(arr_mt, {or1->kod_ort,0,0,"",0,0} ) ; k := len(arr_mt)
                   endif
                   arr_mt[k,2] += tmp->kol
                   arr_mt[k,3] += or1->massa*tmp->kol
@@ -3122,14 +3146,52 @@ for prr := 1 to len(mm_orto_mat)
           select TMP
           skip
         enddo
-        // присваиваем наименование
+        // пересчет в материал 2-й раз
+        arr_mt_vah := {}
+        select TMP_VAH
+        go top
+        do while !eof()
+          select OR2
+          go top
+          locate for or2->kod_usl == tmp_vah->kod
+          if found()
+            t := or2->kod_tip
+            select ORT
+            goto t
+            if ort->tip == 0 //техники
+              select OR1
+              go top
+              do while !eof()
+
+                if or1->kod_menu == t
+                  if (k := ascan(arr_mt_vah, {|x| x[1] == or1->kod_ort .and.;
+                                          x[6] == tmp_vah->narad  } )) == 0
+                    aadd(arr_mt_vah, {or1->kod_ort,0,0,"",0,tmp_vah->narad,tmp_vah->fio} )
+                    k := len(arr_mt_vah)
+                  endif
+                  arr_mt_vah[k,2] += tmp_vah->kol
+                  arr_mt_vah[k,3] += or1->massa*tmp_vah->kol
+                endif
+                select OR1
+                skip
+              enddo
+            endif
+          endif
+          select TMP_VAH
+          skip
+        enddo
+ my_debug(,"arr_mt_vah  "+print_array(arr_mt_vah))
+        // присваиваем наименование и ключ важности
         if len(arr_mt) > 0
           select OR
           for i := 1 to len(arr_mt)
             goto (arr_mt[i,1])
             arr_mt[i,4] := or->name
             arr_mt[i,5] := or->kod
+            arr_mt[i,6] := or->kod1
           next
+ //my_debug(,"arr_mt  "+print_array(arr_mt))
+
           select perso
           goto (mperso[pr,1])
           xxx := 0
@@ -3145,6 +3207,19 @@ for prr := 1 to len(mm_orto_mat)
                 ++xxx
               endif
               add_string(padr(arr_mt[i,4],80)+" "+umest_val(arr_mt[i,3],12,3))
+              if arr_mt[i,6] > 0
+                // разворачиваем материал как важный
+                for jj := 1 to len(arr_mt_vah)
+                  if verify_FF(HH,.t.,sh)
+                    aeval(arr_title, {|x| add_string(x) } )
+                  endif
+                  //
+                  if arr_mt_vah[jj,1] == arr_mt[i,1] .and. arr_mt_vah[jj,3] > 0
+                    add_string(space(5)+padr(lstr(arr_mt_vah[jj,6]),5)+" "+;
+                                       padr(arr_mt_vah[jj,7],69)+" "+umest_val(arr_mt_vah[jj,3],12,3))
+                  endif
+                next
+              endif
             endif
           next
           if xxx > 0
@@ -3168,6 +3243,7 @@ for prr := 1 to len(mm_orto_mat)
         skip
       enddo
     next
+    //quit
     // Итого по техникам
     // пересчет в материал
     j := tmp_it->(lastrec())
@@ -3239,6 +3315,8 @@ for prr := 1 to len(mm_orto_mat)
     add_string("")
     for pr := 1 to len(mperso)
       select TMP
+      zap
+      select TMP_VAH
       zap
       T_PERSO := mperso[pr,1]
       select HUMAN

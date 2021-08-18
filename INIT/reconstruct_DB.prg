@@ -1522,7 +1522,8 @@ Function Reconstruct_DB(is_cur_dir,is_create)
   init_base(dir_server+"p_d_smo",,gmenu_pl_d_smo,0,,.t.)
   //
   reconstruct(dir_server+"ortoped",{{"NAME","C",80,0},;
-                                    {"kod" ,"N", 1,0}},,,.t.)
+                                    {"kod" ,"N", 1,0},;
+                                    {"kod1" ,"N", 1,0}},,,.t.)
   reconstruct(dir_server+"ortoped1",{{"kod_ort","N",4,0},;
                                      {"kod_menu","N",4,0},;
                                      {"massa","N",7,3}},,,.t.)
@@ -1564,7 +1565,7 @@ Function Reconstruct_DB(is_cur_dir,is_create)
     vounc_Reconstruct_DB()
   endif
   return NIL
-  
+
 *****
 Function vounc_Reconstruct_DB()
   Local vouncmnn := {;
@@ -1648,5 +1649,5 @@ Function reconstruct_double_sl()
     }
   reconstruct(dir_server+"human_3",human_3,"index_base('human_3')","пролеченным больным3",.t.)
   return NIL
-  
-  
+
+

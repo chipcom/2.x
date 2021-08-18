@@ -383,7 +383,7 @@ return k
 
 *
 
-***** 16.11.16
+***** 16.08.21
 Function spr_ort_mat()
 Local t_arr[BR_LEN], mtitle := "Редактирование справочника материалов ОРТОПЕДИЯ"
 Local str_sem, tip_gr
@@ -392,9 +392,14 @@ Private mm_orto_mat := {;
   {"Бухгалтерия",1},;
   {"Руководство",2};
  }
+Private mm_orto_vash := {;
+  {"Нет",0},;
+  {"Да" ,1};
+ }
+
 t_arr[BR_TOP] := T_ROW
 t_arr[BR_BOTTOM] := maxrow()-2
-t_arr[BR_LEFT] := 17
+t_arr[BR_LEFT] := 2
 t_arr[BR_RIGHT] := 75
 t_arr[BR_OPEN] := {|| f1_orto_mat(,,"open") }
 t_arr[BR_CLOSE] := {|| dbCloseAll() }
@@ -404,7 +409,9 @@ t_arr[BR_TITUL] := mtitle
 t_arr[BR_TITUL_COLOR] := "B/BG"
 t_arr[BR_ARR_BROWSE] := {,,,,.t.}
 t_arr[BR_COLUMN] := {{ center("Наименование материала",40), {|| padr(dbf1->name,40) } },;
-                     { padr("  Документ",12), {|| padr(inieditspr(A__MENUVERT,mm_orto_mat,dbf1->kod),12) } }}
+                     { padr("  Документ",12), {|| padr(inieditspr(A__MENUVERT,mm_orto_mat,dbf1->kod),12) } },;
+                     { padr("  Важность",12), {|| padr(inieditspr(A__MENUVERT,mm_orto_vash,dbf1->kod1),12) } } ;
+                     }
 t_arr[BR_EDIT] := {|nk,ob| f1_orto_mat(nk,ob,"edit") }
 edit_browse(t_arr)
 return NIL
@@ -412,7 +419,7 @@ return NIL
 ***** 16.11.16
 Function f1_orto_mat(nKey,oBrow,regim,lrec)
 Local ret := -1
-Local buf, fl := .f., rec, rec1, k := 17, tmp_color
+Local buf, fl := .f., rec, rec1, k := 16, tmp_color
 do case
   case regim == "open"
     G_Use(dir_server+"ortoped",,"DBF1")
@@ -430,11 +437,14 @@ do case
         if nkey == K_INS .and. !fl_found
           colorwin(pr1+3,pc1,pr1+3,pc2,"N/N","W+/N")
         endif
-        Private mshifr, mname, mcol_f39, m1col_f39, gl_area := {1,0,23,79,0}
+        Private mshifr, mname, mcol_f39, m1col_f39, gl_area := {1,0,23,79,0},;
+                m1vah_mat, mvah_mat
         mname := if(nKey == K_INS, space(80), dbf1->name)
         m1col_mat := if(nKey == K_INS, 0, dbf1->kod)
+        m1vah_mat := if(nKey == K_INS, 0, dbf1->kod1)
         tmp_color := setcolor(cDataCScr)
         mcol_mat := inieditspr(A__MENUVERT,mm_orto_mat,m1col_mat)
+        mvah_mat := inieditspr(A__MENUVERT,mm_orto_vash,m1vah_mat)
         box_shadow(k,pc1+1,20,pc2-1,,;
                        if(nKey == K_INS,"Добавление","Редактирование"),;
                        cDataPgDn)
@@ -442,6 +452,8 @@ do case
         @ k+1,pc1+3 say "Наименование" get mname pict "@S40"
         @ k+2,pc1+3 say "Отношение к отчёту" get mcol_mat ;
                     reader {|x|menu_reader(x,mm_orto_mat,A__MENUVERT,,,.f.)}
+        @ k+3,pc1+3 say "Важный материал" get mvah_mat ;
+                    reader {|x|menu_reader(x,mm_orto_vash,A__MENUVERT,,,.f.)}
         status_key("^<Esc>^ - выход без записи;  ^<Enter>^ - подтверждение ввода")
         myread()
         if lastkey() != K_ESC .and. !emptyany(mname) .and. f_Esc_Enter(1)
@@ -453,6 +465,7 @@ do case
           endif
           dbf1->name := mname
           dbf1->kod  := m1col_mat
+          dbf1->kod1  := m1vah_mat
           dbf1->(dbUNLOCK())
           dbCOMMITall()   //19.04
           oBrow:goTop()
