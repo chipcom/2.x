@@ -211,7 +211,7 @@ Function create1reestr19(_recno,_nyear,_nmonth)
   endcase
   return k
   
-***** 12.08.21 создание XML-файлов реестра
+***** 18.08.21 создание XML-файлов реестра
 Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
   //
@@ -1127,16 +1127,11 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
           mo_add_xml_stroke(oUSL,"SUMV_USL",lstr(a_otkaz[j,6],10,2))
 
           if human->k_data >= 0d20210801 .and. p_tip_reestr == 2  // новые правила заполнения с 01.08.2021 письмо № 04-18-13 от 20.07.2021
-            oMR_USL_N := oUSL:Add( HXMLNode():New( "MR_USL_N" ) )
-            mo_add_xml_stroke(oMR_USL_N,"MR_N",lstr(1))   // уточнить
-            mo_add_xml_stroke(oMR_USL_N,"PRVS",put_prvs_to_reestr(a_otkaz[j,5],_NYEAR))
-            // if c4tod(hu->DATE_U) < human->n_data ; // если сделано ранее
-            //     .or. eq_any(hu->is_edit,-1,1,2,3) .or. lshifr == "4.20.2" .or. left(lshifr,5) == "60.8." .or. fl
-            mo_add_xml_stroke(oMR_USL_N,"CODE_MD",'0') // не заполняется код врача
-            // else
-            //   p2->(dbGoto(hu->kod_vr))
-            //   mo_add_xml_stroke(oMR_USL_N,"CODE_MD",p2->snils)
-            // endif
+            // Закомментировал после разъяснения Л.А.Антоновой 18.08.2021
+            // oMR_USL_N := oUSL:Add( HXMLNode():New( "MR_USL_N" ) )
+            // mo_add_xml_stroke(oMR_USL_N,"MR_N",lstr(1))   // уточнить
+            // mo_add_xml_stroke(oMR_USL_N,"PRVS",put_prvs_to_reestr(a_otkaz[j,5],_NYEAR))
+            // mo_add_xml_stroke(oMR_USL_N,"CODE_MD",'0') // не заполняется код врача
           else  //if human->k_data < 0d20210801 .and. p_tip_reestr == 2
             mo_add_xml_stroke(oUSL,"PRVS",put_prvs_to_reestr(a_otkaz[j,5],_NYEAR))
             mo_add_xml_stroke(oUSL,"CODE_MD" ,'0') // отказ => 0
