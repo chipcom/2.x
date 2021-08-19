@@ -6,212 +6,8 @@
 
 Static sadiag1 := {}
 
-***** 19.01.20
-Function create1reestr19(_recno,_nyear,_nmonth)
-  Local buf := savescreen(), s, i, j, pole
-  Private mpz[100], oldpz[100], atip[100], p_array_PZ := iif(_nyear > 2019, glob_array_PZ_20, glob_array_PZ_19)
-  for j := 0 to 99
-    pole := "tmp->PZ"+lstr(j)
-    mpz[j+1] := oldpz[j+1] := &pole
-    atip[j+1] := "-"
-    if (i := ascan(p_array_PZ, {|x| x[1] == j })) > 0
-      atip[j+1] := p_array_PZ[i,4]
-    endif
-  next
-  Private pkol := tmp->kol, psumma := tmp->summa, pnyear := _nyear
-  Private old_kol := pkol, old_summa := psumma, p_blk := {|mkol,msum| f_blk_create1reestr19(_nyear) }
-  close databases
-  R_Use(dir_server+"human_3",{dir_server+"human_3",dir_server+"human_32"},"HUMAN_3")
-  set order to 2
-  R_Use(dir_server+"human_",,"HUMAN_")
-  R_Use(dir_server+"human",,"HUMAN")
-  set relation to recno() into HUMAN_
-  use (cur_dir+"tmpb") new alias TMP
-  set relation to kod_human into HUMAN
-  index on upper(human->fio)+dtos(tmp->k_data) to (cur_dir+"tmpb") for kod_tmp == _recno
-  go top
-  eval(p_blk)
-  if Alpha_Browse(3,0,maxrow()-4,79,"f1create1reestr19",color0,;
-                  "Составление реестра случаев за "+mm_month[_nmonth]+str(_nyear,5)+" года","BG+/GR",;
-                  .t.,.t.,,,"f2create1reestr19",,;
-                  {'═','░','═',"N/BG,W+/N,B/BG,W+/B",,300} )
-    if pkol > 0 .and. (j := f_alert({"",;
-                    "Каким образом сортировать реестр, отправляемый в ТФОМС",;
-                    ""},;
-                   {" по ~ФИО пациента "," по ~убыванию стоимости "},;
-                   1,"W/RB","G+/RB",maxrow()-6,,"BG+/RB,W+/R,W+/RB,GR+/R" )) > 0
-      f_message({"Системная дата: "+date_month(sys_date,.t.),;
-                 "Обращаем Ваше внимание, что",;
-                 "реестр будет создан с этой датой.",;
-                 "",;
-                 "Изменить её будет НЕВОЗМОЖНО!",;
-                 "",;
-                 "Сортировка реестра: "+{"по ФИО пациента","по убыванию стоимости лечения"}[j]},,;
-                 "GR+/R","W+/R")
-      if f_Esc_Enter("составления реестра")
-        restscreen(buf)
-        create2reestr19(_recno,_nyear,_nmonth,j)
-      endif
-    endif
-  endif
-  close databases
-  restscreen(buf)
-  return NIL
   
-  ***** 21.05.17
-  Function f_blk_create1reestr19(_nyear)
-  Local i, s, ta[2], sh := maxcol()+1
-  s := "Случаев - "+expand_value(pkol)+" на сумму "+expand_value(psumma,2)+" руб."
-  @ 0,0 say padc(s,sh) color color1
-  s := ""
-  for i := 1 to len(mpz)
-    if !empty(mpz[i])
-      s += alltrim(str_0(mpz[i],9,2))+" "+atip[i]+", "
-    endif
-  next
-  if !empty(s)
-    s := "(п/з: "+substr(s,1,len(s)-2)+")"
-  endif
-  perenos(ta,s,sh)
-  for i := 1 to 2
-    @ i,0 say padc(alltrim(ta[i]),sh) color color1
-  next
-  return NIL
-  
-  ***** 19.01.20
-  Static Function f_p_z19(_pzkol,_pz,k)
-  Local s, s2, i
-  s2 := alltrim(str_0(_pzkol,9,2))
-  s := atip[_PZ+1]
-  if (i := ascan(p_array_PZ, {|x| x[1] == _PZ })) > 0 .and. !empty(p_array_PZ[i,5])
-    s2 += p_array_PZ[i,5]
-  endif
-  return iif(k == 1, s, s2)
-  
-  ***** 06.02.19
-  Function f1create1reestr19(oBrow)
-  Local oColumn, tmp_color, blk_color := {|| if(tmp->plus, {1,2}, {3,4}) }, n := 32
-  oColumn := TBColumnNew(" ", {|| if(tmp->plus,""," ") })
-  oColumn:colorBlock := blk_color
-  oBrow:addColumn(oColumn)
-  oColumn := TBColumnNew(center("Ф.И.О. больного",n), {|| iif(tmp->ishod==89,padr(human->fio,n-4)+" 2сл",padr(human->fio,n)) })
-  oColumn:colorBlock := blk_color
-  oBrow:addColumn(oColumn)
-  oColumn := TBColumnNew("План-заказ", {|| padc(f_p_z19(tmp->pzkol,tmp->pz,1),10) })
-  oColumn:colorBlock := blk_color
-  oBrow:addColumn(oColumn)
-  oColumn := TBColumnNew("Кол-во", {|| padc(f_p_z19(tmp->pzkol,tmp->pz,2),6) })
-  oColumn:colorBlock := blk_color
-  oBrow:addColumn(oColumn)
-  oColumn := TBColumnNew("Нача-; ло", {|| left(dtoc(tmp->n_data),5) })
-  oColumn:colorBlock := blk_color
-  oBrow:addColumn(oColumn)
-  oColumn := TBColumnNew("Окончан.;лечения", {|| date_8(tmp->k_data) })
-  oColumn:colorBlock := blk_color
-  oBrow:addColumn(oColumn)
-  oColumn := TBColumnNew(" Стоимость; лечения", {|| put_kopE(tmp->cena_1,10) })
-  oColumn:colorBlock := blk_color
-  oBrow:addColumn(oColumn)
-  tmp_color := setcolor("N/BG")
-  @ maxrow()-3,0 say padr(" <Esc> - выход     <Enter> - подтверждение составления реестра",80)
-  @ maxrow()-2,0 say padr(" <Ins> - отметить одного пациента или снять отметку с одного пациента",80)
-  @ maxrow()-1,0 say padr(" <+> - отметить всех пациентов (или по одному виду ПЛАНА-ЗАКАЗА) ",80)
-  @ maxrow()-0,0 say padr(" <-> - снять со всех отметки (никто не попадает в реестр)",80)
-  mark_keys({"<Esc>","<Enter>","<Ins>","<+>","<->","<F9>"},"R/BG")
-  setcolor(tmp_color)
-  return NIL
-  
-  ***** 19.01.20
-  Function f2create1reestr19(nKey,oBrow)
-  Local buf, rec, k := -1, s, i, j, mas_pmt := {}, arr, r1, r2
-  do case
-    case nkey == K_INS
-      replace tmp->plus with !tmp->plus
-      j := tmp->pz + 1
-      i := ascan(p_array_PZ, {|x| x[1] == tmp->PZ })
-      if tmp->plus
-        psumma += tmp->cena_1 ; pkol++
-        if i > 0 .and. !empty(p_array_PZ[i,5])
-          mpz[j] ++
-        else
-          mpz[j] += tmp->PZKOL
-        endif
-      else
-        psumma -= tmp->cena_1 ; pkol--
-        if i > 0 .and. !empty(p_array_PZ[i,5])
-          mpz[j] --
-        else
-          mpz[j] -= tmp->PZKOL
-        endif
-      endif
-      eval(p_blk)
-      k := 0
-      keyboard chr(K_TAB)
-    case nkey == 43  // +
-      arr := {}
-      aadd(mas_pmt, "Отметить всех пациентов") ; aadd(arr,-1)
-      if !empty(oldpz[1])
-        aadd(mas_pmt, "Отметить неопределённых пациентов") ; aadd(arr,0)
-      endif
-      for j := 2 to len(oldpz)
-        if !empty(oldpz[j]) .and. (i := ascan(p_array_PZ, {|x| x[1] == j-1 })) > 0
-          aadd(mas_pmt, 'Отметить "'+p_array_PZ[i,3]+'"') ; aadd(arr,j-1)
-        endif
-      next
-      r1 := 12
-      r2 := r1 + len(mas_pmt) + 1
-      if r2 > maxrow()-2
-        r2 := maxrow()-2
-        r1 := r2 - len(mas_pmt) - 1
-        if r1 < 2
-          r1 := 2
-        endif
-      endif
-      if (j := popup_SCR(r1,12,r2,67,mas_pmt,1,color5,.t.)) > 0
-        j := arr[j]
-        rec := recno()
-        buf := save_maxrow()
-        mywait()
-        if j == -1
-          tmp->(dbeval({|| tmp->plus := .t. }))
-          psumma := old_summa ; pkol := old_kol
-          aeval(mpz, {|x,i| mpz[i] := oldpz[i] })
-        else
-          psumma := pkol := 0
-          afill(mpz,0)
-          mpz[j+1] := oldpz[j+1]
-          go top
-          do while !eof()
-            if tmp->pz == j
-              tmp->plus := .t.
-              psumma += tmp->cena_1
-              pkol++
-            else
-              tmp->plus := .f.
-            endif
-            skip
-          enddo
-        endif
-        goto (rec)
-        rest_box(buf)
-        eval(p_blk)
-        k := 0
-      endif
-    case nkey == 45  //  -
-      rec := recno()
-      buf := save_maxrow()
-      mywait()
-      tmp->(dbeval({|| tmp->plus := .f. }))
-      goto (rec)
-      rest_box(buf)
-      psumma := pkol := 0
-      afill(mpz,0)
-      eval(p_blk)
-      k := 0
-  endcase
-  return k
-  
-***** 18.08.21 создание XML-файлов реестра
+***** 19.08.21 создание XML-файлов реестра
 Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
   //
@@ -2780,4 +2576,208 @@ Function ret_prvs_V015toV021(lkod)
   endif
   return new_kod
   
+***** 19.01.20
+Function create1reestr19(_recno,_nyear,_nmonth)
+  Local buf := savescreen(), s, i, j, pole
+  Private mpz[100], oldpz[100], atip[100], p_array_PZ := iif(_nyear > 2019, glob_array_PZ_20, glob_array_PZ_19)
+  for j := 0 to 99
+    pole := "tmp->PZ"+lstr(j)
+    mpz[j+1] := oldpz[j+1] := &pole
+    atip[j+1] := "-"
+    if (i := ascan(p_array_PZ, {|x| x[1] == j })) > 0
+      atip[j+1] := p_array_PZ[i,4]
+    endif
+  next
+  Private pkol := tmp->kol, psumma := tmp->summa, pnyear := _nyear
+  Private old_kol := pkol, old_summa := psumma, p_blk := {|mkol,msum| f_blk_create1reestr19(_nyear) }
+  close databases
+  R_Use(dir_server+"human_3",{dir_server+"human_3",dir_server+"human_32"},"HUMAN_3")
+  set order to 2
+  R_Use(dir_server+"human_",,"HUMAN_")
+  R_Use(dir_server+"human",,"HUMAN")
+  set relation to recno() into HUMAN_
+  use (cur_dir+"tmpb") new alias TMP
+  set relation to kod_human into HUMAN
+  index on upper(human->fio)+dtos(tmp->k_data) to (cur_dir+"tmpb") for kod_tmp == _recno
+  go top
+  eval(p_blk)
+  if Alpha_Browse(3,0,maxrow()-4,79,"f1create1reestr19",color0,;
+                  "Составление реестра случаев за "+mm_month[_nmonth]+str(_nyear,5)+" года","BG+/GR",;
+                  .t.,.t.,,,"f2create1reestr19",,;
+                  {'═','░','═',"N/BG,W+/N,B/BG,W+/B",,300} )
+    if pkol > 0 .and. (j := f_alert({"",;
+                    "Каким образом сортировать реестр, отправляемый в ТФОМС",;
+                    ""},;
+                   {" по ~ФИО пациента "," по ~убыванию стоимости "},;
+                   1,"W/RB","G+/RB",maxrow()-6,,"BG+/RB,W+/R,W+/RB,GR+/R" )) > 0
+      f_message({"Системная дата: "+date_month(sys_date,.t.),;
+                 "Обращаем Ваше внимание, что",;
+                 "реестр будет создан с этой датой.",;
+                 "",;
+                 "Изменить её будет НЕВОЗМОЖНО!",;
+                 "",;
+                 "Сортировка реестра: "+{"по ФИО пациента","по убыванию стоимости лечения"}[j]},,;
+                 "GR+/R","W+/R")
+      if f_Esc_Enter("составления реестра")
+        restscreen(buf)
+        create2reestr19(_recno,_nyear,_nmonth,j)
+      endif
+    endif
+  endif
+  close databases
+  restscreen(buf)
+  return NIL
+  
+***** 21.05.17
+Function f_blk_create1reestr19(_nyear)
+  Local i, s, ta[2], sh := maxcol()+1
+  s := "Случаев - "+expand_value(pkol)+" на сумму "+expand_value(psumma,2)+" руб."
+  @ 0,0 say padc(s,sh) color color1
+  s := ""
+  for i := 1 to len(mpz)
+    if !empty(mpz[i])
+      s += alltrim(str_0(mpz[i],9,2))+" "+atip[i]+", "
+    endif
+  next
+  if !empty(s)
+    s := "(п/з: "+substr(s,1,len(s)-2)+")"
+  endif
+  perenos(ta,s,sh)
+  for i := 1 to 2
+    @ i,0 say padc(alltrim(ta[i]),sh) color color1
+  next
+  return NIL
+  
+***** 19.01.20
+Static Function f_p_z19(_pzkol,_pz,k)
+  Local s, s2, i
+  s2 := alltrim(str_0(_pzkol,9,2))
+  s := atip[_PZ+1]
+  if (i := ascan(p_array_PZ, {|x| x[1] == _PZ })) > 0 .and. !empty(p_array_PZ[i,5])
+    s2 += p_array_PZ[i,5]
+  endif
+  return iif(k == 1, s, s2)
+  
+***** 06.02.19
+Function f1create1reestr19(oBrow)
+  Local oColumn, tmp_color, blk_color := {|| if(tmp->plus, {1,2}, {3,4}) }, n := 32
+  oColumn := TBColumnNew(" ", {|| if(tmp->plus,""," ") })
+  oColumn:colorBlock := blk_color
+  oBrow:addColumn(oColumn)
+  oColumn := TBColumnNew(center("Ф.И.О. больного",n), {|| iif(tmp->ishod==89,padr(human->fio,n-4)+" 2сл",padr(human->fio,n)) })
+  oColumn:colorBlock := blk_color
+  oBrow:addColumn(oColumn)
+  oColumn := TBColumnNew("План-заказ", {|| padc(f_p_z19(tmp->pzkol,tmp->pz,1),10) })
+  oColumn:colorBlock := blk_color
+  oBrow:addColumn(oColumn)
+  oColumn := TBColumnNew("Кол-во", {|| padc(f_p_z19(tmp->pzkol,tmp->pz,2),6) })
+  oColumn:colorBlock := blk_color
+  oBrow:addColumn(oColumn)
+  oColumn := TBColumnNew("Нача-; ло", {|| left(dtoc(tmp->n_data),5) })
+  oColumn:colorBlock := blk_color
+  oBrow:addColumn(oColumn)
+  oColumn := TBColumnNew("Окончан.;лечения", {|| date_8(tmp->k_data) })
+  oColumn:colorBlock := blk_color
+  oBrow:addColumn(oColumn)
+  oColumn := TBColumnNew(" Стоимость; лечения", {|| put_kopE(tmp->cena_1,10) })
+  oColumn:colorBlock := blk_color
+  oBrow:addColumn(oColumn)
+  tmp_color := setcolor("N/BG")
+  @ maxrow()-3,0 say padr(" <Esc> - выход     <Enter> - подтверждение составления реестра",80)
+  @ maxrow()-2,0 say padr(" <Ins> - отметить одного пациента или снять отметку с одного пациента",80)
+  @ maxrow()-1,0 say padr(" <+> - отметить всех пациентов (или по одному виду ПЛАНА-ЗАКАЗА) ",80)
+  @ maxrow()-0,0 say padr(" <-> - снять со всех отметки (никто не попадает в реестр)",80)
+  mark_keys({"<Esc>","<Enter>","<Ins>","<+>","<->","<F9>"},"R/BG")
+  setcolor(tmp_color)
+  return NIL
+  
+***** 19.01.20
+Function f2create1reestr19(nKey,oBrow)
+  Local buf, rec, k := -1, s, i, j, mas_pmt := {}, arr, r1, r2
+  do case
+    case nkey == K_INS
+      replace tmp->plus with !tmp->plus
+      j := tmp->pz + 1
+      i := ascan(p_array_PZ, {|x| x[1] == tmp->PZ })
+      if tmp->plus
+        psumma += tmp->cena_1 ; pkol++
+        if i > 0 .and. !empty(p_array_PZ[i,5])
+          mpz[j] ++
+        else
+          mpz[j] += tmp->PZKOL
+        endif
+      else
+        psumma -= tmp->cena_1 ; pkol--
+        if i > 0 .and. !empty(p_array_PZ[i,5])
+          mpz[j] --
+        else
+          mpz[j] -= tmp->PZKOL
+        endif
+      endif
+      eval(p_blk)
+      k := 0
+      keyboard chr(K_TAB)
+    case nkey == 43  // +
+      arr := {}
+      aadd(mas_pmt, "Отметить всех пациентов") ; aadd(arr,-1)
+      if !empty(oldpz[1])
+        aadd(mas_pmt, "Отметить неопределённых пациентов") ; aadd(arr,0)
+      endif
+      for j := 2 to len(oldpz)
+        if !empty(oldpz[j]) .and. (i := ascan(p_array_PZ, {|x| x[1] == j-1 })) > 0
+          aadd(mas_pmt, 'Отметить "'+p_array_PZ[i,3]+'"') ; aadd(arr,j-1)
+        endif
+      next
+      r1 := 12
+      r2 := r1 + len(mas_pmt) + 1
+      if r2 > maxrow()-2
+        r2 := maxrow()-2
+        r1 := r2 - len(mas_pmt) - 1
+        if r1 < 2
+          r1 := 2
+        endif
+      endif
+      if (j := popup_SCR(r1,12,r2,67,mas_pmt,1,color5,.t.)) > 0
+        j := arr[j]
+        rec := recno()
+        buf := save_maxrow()
+        mywait()
+        if j == -1
+          tmp->(dbeval({|| tmp->plus := .t. }))
+          psumma := old_summa ; pkol := old_kol
+          aeval(mpz, {|x,i| mpz[i] := oldpz[i] })
+        else
+          psumma := pkol := 0
+          afill(mpz,0)
+          mpz[j+1] := oldpz[j+1]
+          go top
+          do while !eof()
+            if tmp->pz == j
+              tmp->plus := .t.
+              psumma += tmp->cena_1
+              pkol++
+            else
+              tmp->plus := .f.
+            endif
+            skip
+          enddo
+        endif
+        goto (rec)
+        rest_box(buf)
+        eval(p_blk)
+        k := 0
+      endif
+    case nkey == 45  //  -
+      rec := recno()
+      buf := save_maxrow()
+      mywait()
+      tmp->(dbeval({|| tmp->plus := .f. }))
+      goto (rec)
+      rest_box(buf)
+      psumma := pkol := 0
+      afill(mpz,0)
+      eval(p_blk)
+      k := 0
+  endcase
+  return k
   
