@@ -815,6 +815,9 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
         for j := 1 to len(a_usl)
           select HU
           goto (a_usl[j])
+          if hu->kod_vr == 0
+            loop
+          endif
           hu_->(G_RLock(forever))
           hu_->REES_ZAP := ++iusl
           lshifr1 := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data)
@@ -940,6 +943,9 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
         for j := 1 to len(a_fusl)
           select MOHU
           goto (a_fusl[j])
+          if mohu->kod_vr == 0
+            loop
+          endif
           mohu->(G_RLock(forever))
           mohu->REES_ZAP := ++iusl
           lshifr := alltrim(mosu->shifr1)

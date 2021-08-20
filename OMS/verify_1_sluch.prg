@@ -587,7 +587,7 @@ Function verify_1_sluch(fl_view)
           else
             aadd(ta,'лабораторная услуга "'+alltrim(usl->shifr)+'" может быть оказана только в поликлинике')
           endif
-        elseif hu->is_edit == 0
+        elseif hu->is_edit == 0 .and. (! is_disp_DVN_COVID) // исправлено для углубленной диспансеризации
           aadd(ta,'не заполнено поле "Врач, оказавший услугу '+alltrim(usl->shifr)+'"')
         endif
       else
@@ -596,7 +596,7 @@ Function verify_1_sluch(fl_view)
         endif
         pers->(dbGoto(hu->kod_vr))
         mprvs := -ret_new_spec(pers->prvs,pers->prvs_new)
-        if empty(mprvs)
+        if empty(mprvs) .and. (! is_disp_DVN_COVID) // исправлено для углубленной диспансеризации
           aadd(ta,'нет специальности в справочнике персонала у "'+alltrim(pers->fio)+'"')
         elseif hu_->PRVS != mprvs
           hu_->PRVS := mprvs
@@ -1303,7 +1303,7 @@ Function verify_1_sluch(fl_view)
     endif
     otd->(dbGoto(mohu->OTD))
     mohu->(G_RLock(forever))
-    if empty(mohu->kod_vr)
+    if empty(mohu->kod_vr) .and. (! is_disp_DVN_COVID) // исправлено для углубленной диспансеризации
       if usl_found .and. &lalf.->telemed == 1
         if !(mohu->PRVS == human_->PRVS)
           mohu->PRVS := human_->PRVS // для телемедицины специальность копируем из случая
@@ -1323,7 +1323,7 @@ Function verify_1_sluch(fl_view)
       endif
       pers->(dbGoto(mohu->kod_vr))
       mprvs := -ret_new_spec(pers->prvs,pers->prvs_new)
-      if empty(mprvs)
+      if empty(mprvs) .and. (! is_disp_DVN_COVID) // исправлено для углубленной диспансеризации
         aadd(ta,'нет специальности в справочнике персонала у "'+alltrim(pers->fio)+'"')
       elseif mohu->PRVS != mprvs
         mohu->PRVS := mprvs
@@ -1881,7 +1881,7 @@ Function verify_1_sluch(fl_view)
   else
     pers->(dbGoto(human_->VRACH))
     mprvs := -ret_new_spec(pers->prvs,pers->prvs_new)
-    if empty(mprvs)
+    if empty(mprvs) .and. (! is_disp_DVN_COVID) // исправлено для углубленной диспансеризации
       aadd(ta,'нет специальности в справочнике персонала у "'+alltrim(pers->fio)+'"')
     elseif human_->PRVS != mprvs
       human_->PRVS := mprvs
@@ -1896,7 +1896,7 @@ Function verify_1_sluch(fl_view)
   for i := 1 to len(arr_perso)
     pers->(dbGoto(arr_perso[i]))
     mvrach := fam_i_o(pers->fio)+" ["+lstr(pers->tab_nom)+"]"
-    if empty(pers->snils)
+    if empty(pers->snils) .and. (! is_disp_DVN_COVID) // исправлено для углубленной диспансеризации
       aadd(ta,"не введен СНИЛС у врача - "+mvrach)
     else
       s := space(80)
