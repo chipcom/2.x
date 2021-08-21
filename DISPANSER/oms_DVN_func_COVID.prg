@@ -3,6 +3,26 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
+***** 21.08.21
+function cond_when_uslugi( get, metap, mOKSI, m1dyspnea, m1strong )
+  local i := val(right(get:name, 1))
+  
+  if (i == 6)
+    if (metap == 1) .and. (mOKSI >= 95) .and. (m1dyspnea == 1)
+      return .t.
+    else
+      return .f.
+    endif
+  endif
+  if (i == 7)
+    if (metap == 1) .and. (m1strong >= 2)
+      return .t.
+    else
+      return .f.
+    endif
+  endif
+  return .t.
+
 ***** 14.08.21
 function f_valid_Begdata_DVN_COVID(get, loc_kod)
   local i
