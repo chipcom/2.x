@@ -720,23 +720,23 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
           mvarz := "MKOD_DIAG"+lstr(i)
           mvaro := "MOTKAZ"+lstr(i)
           @ ++j, 1 say uslugiEtap_DVN_COVID(metap)[i,1]
-          @ j, 46 get &mvarv pict "99999" valid {|g| v_kart_vrach(g) } when {|g|cond_when_uslugi( g, metap, mOKSI, m1dyspnea, m1strong )}
+          @ j, 46 get &mvarv pict "99999" valid {|g| v_kart_vrach(g) } when {|g|condition_when_uslugi_COVID( g, metap, mOKSI, m1dyspnea, m1strong )}
           if mem_por_ass > 0
-            @ j, 52 get &mvara pict "99999" valid {|g| v_kart_vrach(g) } when {|g|cond_when_uslugi( g, metap, mOKSI, m1dyspnea, m1strong )}
+            @ j, 52 get &mvara pict "99999" valid {|g| v_kart_vrach(g) } when {|g|condition_when_uslugi_COVID( g, metap, mOKSI, m1dyspnea, m1strong )}
           endif
-          @ j, 58 get &mvard when {|g|cond_when_uslugi( g, metap, mOKSI, m1dyspnea, m1strong )}
+          @ j, 58 get &mvard valid {|g| valid_date_uslugi_COVID(g, metap, mn_data, mk_data) } when {|g|condition_when_uslugi_COVID( g, metap, mOKSI, m1dyspnea, m1strong )}
           if fl_diag
             // @ j, 69 get &mvarz picture pic_diag ;
             //       reader {|o|MyGetReader(o,bg)} valid val1_10diag(.t.,.f.,.f.,mn_data,mpol)
           elseif i_otkaz == 0
             @ j, 69 get &mvaro ;
-                 reader {|x|menu_reader(x,mm_otkaz0,A__MENUVERT,,,.f.)} when {|g|cond_when_uslugi( g, metap, mOKSI, m1dyspnea, m1strong )}
+                 reader {|x|menu_reader(x,mm_otkaz0,A__MENUVERT,,,.f.)} when {|g|condition_when_uslugi_COVID( g, metap, mOKSI, m1dyspnea, m1strong )}
           elseif i_otkaz == 1
             @ j, 69 get &mvaro ;
-                 reader {|x|menu_reader(x,mm_otkaz1,A__MENUVERT,,,.f.)} when {|g|cond_when_uslugi( g, metap, mOKSI, m1dyspnea, m1strong )}
+                 reader {|x|menu_reader(x,mm_otkaz1,A__MENUVERT,,,.f.)} when {|g|condition_when_uslugi_COVID( g, metap, mOKSI, m1dyspnea, m1strong )}
           elseif eq_any(i_otkaz,2,3)
             @ j, 69 get &mvaro ;
-                 reader {|x|menu_reader(x,mm_otkaz,A__MENUVERT,,,.f.)} when {|g|cond_when_uslugi( g, metap, mOKSI, m1dyspnea, m1strong )}
+                 reader {|x|menu_reader(x,mm_otkaz,A__MENUVERT,,,.f.)} when {|g|condition_when_uslugi_COVID( g, metap, mOKSI, m1dyspnea, m1strong )}
           endif
         endif
       next

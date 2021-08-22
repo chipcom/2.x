@@ -3,8 +3,38 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
+#define TERM_X_RAY  365 // срок действительности рентгенографического исследования
+
+***** 22.08.21
+function valid_date_uslugi_COVID( get, metap, beginDate, endDate)
+
+  if ctod(get:buffer) > endDate
+    get:varPut( get:original )
+    func_error(4,"Дата проведения исследования больше даты окончания углубленной диспансеризации")
+    return .f.
+  endif
+
+  if metap == 1 .and. upper(get:name) == 'MDATE5'
+    if (beginDate - ctod(get:buffer)) > TERM_X_RAY
+      get:varPut( get:original )
+      func_error(4,"После рентгенографического исследования прошло больше " + lstr(TERM_X_RAY) + " дней")    
+      return .f.
+    else
+      return .t.
+    endif
+  endif
+
+  if ctod(get:buffer) < beginDate
+    get:varPut( get:original )
+    func_error(4,"Дата проведения исследования меньше даты начала углубленной диспансеризации")
+    return .f.
+  endif
+
+
+  return .t.
+
 ***** 21.08.21
-function cond_when_uslugi( get, metap, mOKSI, m1dyspnea, m1strong )
+function condition_when_uslugi_COVID( get, metap, mOKSI, m1dyspnea, m1strong )
   local i := val(right(get:name, 1))
   
   if (i == 6)
