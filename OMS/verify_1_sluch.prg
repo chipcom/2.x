@@ -1042,7 +1042,13 @@ Function verify_1_sluch(fl_view)
           aadd(ta,'Не найдена услуга '+rtrim(lshifr)+iif(human->vzros_reb==0," для взрослых"," для детей")+' в справочнике ТФОМС')
         endif
       endif
-      ssumma += hu->stoim_1
+      if is_disp_DVN_COVID
+        if hu->kod_vr != 0  // присутствует код врача
+          ssumma += hu->stoim_1
+        endif
+      else
+        ssumma += hu->stoim_1
+      endif
     else
       aadd(au_lu_ne,{usl->shifr,;        // 1
                      lshifr1,;           // 2

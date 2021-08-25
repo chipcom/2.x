@@ -1279,7 +1279,7 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       next
       // получим общую стоимость случая для принимаемых услуг
       for i := 1 to len(arr_usl_dop)
-        mcena_1 += arr_usl_dop[i,8]
+        mcena_1 += iif(arr_usl_dop[i,1] == 0, 0, arr_usl_dop[i,8])
       next
       //
       Use_base("human")
