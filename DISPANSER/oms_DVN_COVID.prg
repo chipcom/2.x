@@ -674,8 +674,9 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       // ++j
 
       @ ++j, 1 say "Дата окончания лечения COVID" get mDateCOVID ;
-          valid {|| iif(((mn_data - mDateCOVID) < 60), func_error(4,"Прошло меньше 60 дней после заболевания!"), .t.)} ;
-          when (metap == 1)   // редактируем только на первом этапе
+          valid {|| iif(((mn_data - mDateCOVID) < 60), func_error(4,"Прошло меньше 60 дней после заболевания!"), .t.)}
+          //  ;
+          // when (metap == 1)   // редактируем только на первом этапе
       if metap == 1 // вводим только на первом этапе
         @ row(), col() + 5 say "Пульсооксиметрия" get mOKSI pict "999" ;
             valid {|| iif(between(mOKSI,70,100),,func_error(4,"Неразумные показания пульсооксиметрии")), .t.}
