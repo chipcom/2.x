@@ -4,8 +4,6 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-*
-
 ***** вместо иногородней СМО подставить код ТФОМС
 Function cut_code_smo(_smo)
 Local s := space(5)
@@ -195,7 +193,7 @@ return k
 
 *
 
-***** 02.02.21
+***** 29.08.21
 Function print_l_uch(mkod, par, regim, lnomer)
 // mkod - код больного по БД human
 Local sh := 80, HH := 77, buf := save_maxrow(),;
@@ -436,7 +434,8 @@ if M1F14_EKST == 1
   add_string(s)
 endif
 s := ""
-if between(human->ishod,201,203,401,402 )  // дисп-ия (профосмотр) взрослого населения
+// if between(human->ishod,201,203 )  // дисп-ия (профосмотр) взрослого населения
+if eq_any(human->ishod,201,202,203,401,402 )  // дисп-ия (профосмотр) взрослого населения
   Private pole_diag, pole_1pervich
   for i := 1 to 5
     pole_diag := "mdiag"+lstr(i)
