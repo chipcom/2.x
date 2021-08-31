@@ -381,15 +381,17 @@ Function save_arr_DVN_COVID(lkod, mk_data)
   save_arr_DISPANS(lkod,arr)
   return NIL
 
-***** 29.08.21
+***** 31.08.21
 function readDateCOVID(lkod)
   local arr, i
+  local dRet := ctod('  /  /    ')
 
   arr := read_arr_DISPANS(lkod)
   for i := 1 to len(arr)
     if valtype(arr[i]) == "A" .and. valtype(arr[i,1]) == "C"
       if arr[i,1] == "1" .and. valtype(arr[i,2]) == "D"
         mDateCOVID := arr[i,2]
+        dRet := arr[i,2]
       endif
       // do case
       //   // case arr[i,1] == "0" .and. valtype(arr[i,2]) == "N"
@@ -399,7 +401,7 @@ function readDateCOVID(lkod)
       //   endcase
     endif
   next
-  return nil
+  return dRet
 
 ***** 05.08.21
 Function read_arr_DVN_COVID(lkod,is_all)
