@@ -479,6 +479,7 @@ Function verify_1_sluch(fl_view)
   is_disp_DDS := is_disp_DVN := is_disp_DVN3 := is_prof_PN := is_neonat := is_pren_diagn := .f.
 
   is_disp_DVN_COVID := .f.
+  is_exist_Napr := .f.  // имеется блок направлений для диспансеризаций
 
   is_70_3 := is_70_5 := is_70_6 := is_72_2 := is_72_3 := is_72_4 := .f.
   lstkol := 0 ; lstshifr := shifr_ksg := "" ; cena_ksg := 0
@@ -522,6 +523,7 @@ Function verify_1_sluch(fl_view)
   // проверим не этап ли это углубленной диспансеризации после COVID
   if eq_any(human->ishod, 401, 402)
     is_disp_DVN_COVID := .t.
+    is_exist_Napr := .t.
   endif
 
   d_sroks := ""
@@ -731,7 +733,8 @@ Function verify_1_sluch(fl_view)
         hu_->PZTIP := 2
       elseif alltrim_lshifr == "56.1.723" .and. human->ishod == 202 .and. !is_disp_19 // второй этап ДВН - одна услуга
         is_disp_DVN := .t.
-      // elseif alltrim_lshifr == "70.8" .and. eq_any(human->ishod, 401, 402) // этап углубленной диспансеризации после COVID
+        is_exist_Napr := .t.
+        // elseif alltrim_lshifr == "70.8" .and. eq_any(human->ishod, 401, 402) // этап углубленной диспансеризации после COVID
       //   is_disp_DVN_COVID := .t.
       elseif eq_any(left_lshifr_5,"60.4.","60.5.","60.6.","60.7.","60.8.","60.9.") .or. ;
              eq_any(alltrim_lshifr,"4.20.702","4.15.746") // ЛДП
@@ -876,19 +879,24 @@ Function verify_1_sluch(fl_view)
         elseif left_lshifr_5 == "2.83."
           is_disp_DDS := .t.
           is_2_83 := .t.
+          is_exist_Napr := .t.
         elseif left_lshifr_5 == "2.84."
           mIDSP := 11 // диспансеризация
           is_disp_DVN := .t.
           is_2_84 := .t.
+          is_exist_Napr := .t.
         elseif left_lshifr_5 == "7.80."
           mIDSP := 30 // углубленная диспансеризация после COVID
           is_disp_DVN_COVID := .t.
+          is_exist_Napr := .t.
         elseif left_lshifr_5 == "2.85." // профилактика несовершеннолетних
           is_prof_PN := .t.
           is_2_85 := .t.
+          is_exist_Napr := .t.
         elseif left_lshifr_5 == "2.87."
           is_disp_DDS := .t.
           is_2_87 := .t.
+          is_exist_Napr := .t.
         elseif left_lshifr_5 == "2.88."
           d_sroks := AfterAtNum(".",alltrim_lshifr)
           mpovod := 1 // 1.0
@@ -945,18 +953,23 @@ Function verify_1_sluch(fl_view)
         elseif left_lshifr_5 == "2.90."
           mIDSP := 11 // диспансеризация
           is_disp_DVN := .t.
+          is_exist_Napr := .t.
         elseif left_lshifr_5 == "7.80."  // углубленная диспансеризация после COVID
           mIDSP := 30 // "Код способа оплаты" "30 - за обращение (законченный случай)"
           is_disp_DVN_COVID := .t.
+          is_exist_Napr := .t.
         elseif left_lshifr_5 == "2.91."
           mIDSP := 29 // за посещение в поликлинике
           is_prof_PN := .t.
+          is_exist_Napr := .t.
         elseif eq_any(left_lshifr_5,"70.3.","70.7.","72.1.","72.5.","72.6.","72.7.") // диспансеризация взрослых
           is_disp_DVN := .t.
+          is_exist_Napr := .t.
           if eq_any(left_lshifr_5,"70.3.","70.7.")
             mIDSP := 11 // диспансеризация
           else
             is_disp_DVN3 := .t.
+            is_exist_Napr := .t.
             mIDSP := 17 // Законченный случай в поликлинике
           endif
           ++kvp_70_3
@@ -967,18 +980,21 @@ Function verify_1_sluch(fl_view)
           ++kvp_72_2
           is_72_2 := .t.
           mdate_u2 := dtoc4(human->k_data)
+          is_exist_Napr := .t.
         elseif left_lshifr_5 == "70.5." // диспансеризация детей-сирот
           is_disp_DDS := .t.
           mIDSP := 11 // диспансеризация
           ++kvp_70_5
           is_70_5 := .t.
           mdate_u2 := dtoc4(human->k_data)
+          is_exist_Napr := .t.
         elseif left_lshifr_5 == "70.6." // диспансеризация детей-сирот
           is_disp_DDS := .t.
           mIDSP := 11 // диспансеризация
           ++kvp_70_6
           is_70_6 := .t.
           mdate_u2 := dtoc4(human->k_data)
+          is_exist_Napr := .t.
         endif
         if is_usluga_disp_nabl(alltrim_lshifr)
           mpovod := 4 // 1.3-Диспансерное наблюдение
@@ -3364,7 +3380,7 @@ Function verify_1_sluch(fl_view)
       endif
     next
   endif
-  if is_disp_DDS //
+  if is_disp_DDS //
     metap := 1
     m1mobilbr := 0
     human->OBRASHEN := ''
@@ -3478,7 +3494,7 @@ Function verify_1_sluch(fl_view)
       aadd(ta,'срок ДДС I и II этапа должен составлять не более 45 рабочих дней (у Вас '+lstr(k)+')')
     endif
   endif
-  if is_prof_PN //
+  if is_prof_PN //
     human_->profil := 151  // медицинским осмотрам профилактическим
     metap := 1
     m1mobilbr := 0
@@ -3692,7 +3708,7 @@ Function verify_1_sluch(fl_view)
       aadd(ta,"не удалось определить возрастной период для профилактики несовершеннолетнего")
     endif
   endif
-  if is_disp_DVN //
+  if is_disp_DVN //
     m1mobilbr := 0
     human_->profil := 151  // медицинским осмотрам профилактическим
     ret_arr_vozrast_DVN(d2)
@@ -4268,30 +4284,88 @@ Function verify_1_sluch(fl_view)
     if (human->k_data < 0d20210701)
       aadd(ta,'углубленная диспансеризация после COVID началась с 01 июля 2021 года')
     endif
+    // m1mobilbr := 0
+    // human_->profil := 151  // медицинским осмотрам профилактическим
+    // ret_arr_vozrast_DVN(d2)
+    // ret_arrays_disp(is_disp_19)
+    // m1g_cit := m1veteran := m1dispans := 0 ; is_prazdnik := f_is_prazdnik_DVN(d1)
+    // if empty(sadiag1)
+    //   Private file_form, diag1 := {}, len_diag := 0
+    //   if (file_form := search_file("DISP_NAB"+sfrm)) == NIL
+    //     aadd(ta,"Не обнаружен файл DISP_NAB"+sfrm)
+    //   endif
+    //   f2_vvod_disp_nabl("A00")
+    //   sadiag1 := diag1
+    // endif
+    for i := 1 to 5
+      sk := lstr(i)
+      pole_diag := "mdiag"+sk
+      pole_1pervich := "m1pervich"+sk
+      pole_1dispans := "m1dispans"+sk
+      pole_dn_dispans := "mdndispans"+sk
+      Private &pole_diag := space(6)
+      Private &pole_1pervich := 0
+      Private &pole_1dispans := 0
+      Private &pole_dn_dispans := ctod("")
+    next
+    m1dopo_na := 0
+    m1napr_v_mo := 0 // {{"-- нет --",0},{"в нашу МО",1},{"в иную МО",2}}, ;
+    arr_mo_spec := {}
+    m1napr_stac := 0 // {{"--- нет ---",0},{"в стационар",1},{"в дн. стац.",2}}, ;
+    m1profil_stac := 0
+    m1napr_reab := 0
+    m1profil_kojki := 0
+    is_disp_nabl := .f.
+    arr_nazn := {}
+    R_Use(dir_server+"mo_pers",,"P2")
+    read_arr_DVN_COVID(human->kod)
+    P2->(dbCloseArea())
+    if m1dopo_na > 0
+      aadd(arr_nazn,{3,{}}) ; j := len(arr_nazn)
+      for i := 1 to 4
+        if isbit(m1dopo_na,i)
+          aadd(arr_nazn[j,2],i)
+        endif
+      next
+    endif
+    if between(m1napr_v_mo,1,2) .and. !empty(arr_mo_spec) // {{"-- нет --",0},{"в нашу МО",1},{"в иную МО",2}}, ;
+      aadd(arr_nazn,{m1napr_v_mo,{}}) ; j := len(arr_nazn)
+      for i := 1 to min(3,len(arr_mo_spec))
+        aadd(arr_nazn[j,2],arr_mo_spec[i])
+      next
+    endif
+    if between(m1napr_stac,1,2) .and. m1profil_stac > 0 // {{"--- нет ---",0},{"в стационар",1},{"в дн. стац.",2}}, ;
+      aadd(arr_nazn,{iif(m1napr_stac==1,5,4),m1profil_stac})
+    endif
+    if m1napr_reab == 1 .and. m1profil_kojki > 0
+      aadd(arr_nazn,{6,m1profil_kojki})
+    endif
+
   endif
     // проверим на наличие направивиших врачей
-  if is_disp_DDS .or. is_disp_DVN .or. is_prof_PN .or. is_disp_DVN_COVID
+  if is_exist_Napr  // is_disp_DDS .or. is_disp_DVN .or. is_prof_PN .or. is_disp_DVN_COVID
     if human->k_data >= 0d20210801
-      if (m1dopo_na > 0) .and. (mtab_v_dopo_na == 0)
-        aadd(ta,'не заполнен табельный номер врача направившего на дополнительное обследование')
-      endif
-      if (m1napr_v_mo > 0) .and. (mtab_v_mo == 0)
-        aadd(ta,'не заполнен табельный номер врача направившего к специалистам')
-      endif
-      if (m1napr_stac > 0) .and. (mtab_v_stac == 0)
-        aadd(ta,'не заполнен табельный номер врача направившего на лечение')
-      endif
-      if (m1napr_reab > 0) .and. (mtab_v_reab == 0)
-        aadd(ta,'не заполнен табельный номер врача направившего на реабилитацию')
-      endif
-      if (human->VZROS_REB == 0) .and. (m1sank_na > 0) .and. (mtab_v_sanat == 0)
-        aadd(ta,'не заполнен табельный номер врача направившего на санаторно-курортное лечение')
-      endif
+      checkRazdelNapr( ta )
+      // if (m1dopo_na > 0) .and. (mtab_v_dopo_na == 0)
+      //   aadd(ta,'не заполнен табельный номер врача направившего на дополнительное обследование')
+      // endif
+      // if (m1napr_v_mo > 0) .and. (mtab_v_mo == 0)
+      //   aadd(ta,'не заполнен табельный номер врача направившего к специалистам')
+      // endif
+      // if (m1napr_stac > 0) .and. (mtab_v_stac == 0)
+      //   aadd(ta,'не заполнен табельный номер врача направившего на лечение')
+      // endif
+      // if (m1napr_reab > 0) .and. (mtab_v_reab == 0)
+      //   aadd(ta,'не заполнен табельный номер врача направившего на реабилитацию')
+      // endif
+      // if (human->VZROS_REB == 0) .and. (m1sank_na > 0) .and. (mtab_v_sanat == 0)
+      //   aadd(ta,'не заполнен табельный номер врача направившего на санаторно-курортное лечение')
+      // endif
     endif
   endif
   //
 
-  if is_pren_diagn //
+  if is_pren_diagn //
     human_->PROFIL := 106 // ультразвуковой диагностике
     if human->n_data != human->k_data
       aadd(ta,'дата окончания лечения должна совпадать с датой начала лечения')
@@ -4461,7 +4535,7 @@ Function verify_1_sluch(fl_view)
       d_srok->dni   := a_rec_ffoms[i,3]
     endif
   endif
-  if len(arr_unit) == 0 .and. ! is_disp_DVN_COVID
+  if len(arr_unit) == 0 // .and. ! is_disp_DVN_COVID
     aadd(ta,"ни в одной из услуг не обнаружен код план-заказа")
   endif
   if is_disp_DDS .or. is_disp_DVN .or. is_prof_PN
@@ -4688,3 +4762,86 @@ function check_006F_00_0440(mdiagnoz, arr)
     endif
   endif
   return
+
+*** 03.09.2021
+function checkRazdelNapr( arr )
+  local lAdd := .f.
+
+  R_Use(dir_server+'mo_pers',dir_server+'mo_pers',"TPERS")
+
+  if (m1dopo_na > 0)
+    if (mtab_v_dopo_na == 0)
+      lAdd := errorFillNapr(lAdd, arr, 'не заполнен табельный номер врача направившего на дополнительное обследование')
+    else
+      lAdd := controlSNILS_Napr(lAdd, arr, 'TPERS', mtab_v_dopo_na)
+    endif
+  endif
+
+  if (m1napr_v_mo > 0)
+    if (mtab_v_mo == 0)
+      lAdd := errorFillNapr(lAdd, arr, 'не заполнен табельный номер врача направившего к специалистам')
+    else
+      lAdd := controlSNILS_Napr(lAdd, arr, 'TPERS', mtab_v_mo)
+      if empty(arr_mo_spec)
+        lAdd := errorFillNapr(lAdd, arr, 'в направлении пациента не выбраны специальности')
+      endif
+    endif
+    // if between(m1napr_v_mo,1,2) .and. !empty(arr_mo_spec) // {{"-- нет --",0},{"в нашу МО",1},{"в иную МО",2}}, ;
+    //   aadd(arr_nazn,{m1napr_v_mo,{}}) ; j := len(arr_nazn)
+    //   for i := 1 to min(3,len(arr_mo_spec))
+    //     aadd(arr_nazn[j,2],arr_mo_spec[i])
+    //   next
+    // endif
+  endif
+
+  if (m1napr_stac > 0)
+    if (mtab_v_stac == 0)
+      lAdd := errorFillNapr(lAdd, arr, 'не заполнен табельный номер врача направившего на лечение')
+    else
+      lAdd := controlSNILS_Napr(lAdd, arr, 'TPERS', mtab_v_stac)
+    endif
+  endif
+
+  if (m1napr_reab > 0)
+    if (mtab_v_reab == 0)
+      lAdd := errorFillNapr(lAdd, arr, 'не заполнен табельный номер врача направившего на реабилитацию')
+    else
+      lAdd := controlSNILS_Napr(lAdd, arr, 'TPERS', mtab_v_reab)
+    endif
+  endif
+
+  if (human->VZROS_REB == 0) .and. (m1sank_na > 0)
+    if (mtab_v_sanat == 0)
+      lAdd := errorFillNapr(lAdd, arr, 'не заполнен табельный номер врача направившего на санаторно-курортное лечение')
+    else
+      lAdd := controlSNILS_Napr(lAdd, arr, 'TPERS', mtab_v_sanat)
+    endif
+  endif
+  TPERS->(dbCloseArea())
+  return nil
+
+*** 03.09.2021
+function errorFillNapr(lAdd, arr, strError)
+  local strNapr := 'ПОДРАЗДЕЛ НАПРАВЛЕНИЙ:'
+  local fl := lAdd
+
+  default strError to 'ОШИБКА В ЗАПОЛНЕНИИ'
+  if !fl
+    aadd(arr,strNapr)
+    fl := .t.
+  endif
+  aadd(arr,strError)
+  return fl
+
+*** 03.09.21
+function controlSNILS_Napr(lAdd, arr, cAlias, nTabNumber)
+  local fl := lAdd
+
+  if (cAlias)->(dbSeek(str(nTabNumber,5)))
+    if empty((cAlias)->SNILS)
+      fl := errorFillNapr(fl, arr, 'у направившего врача '+ alltrim(TPERS->FIO) +' отсутствует СНИЛС')
+    endif
+  else
+    fl := errorFillNapr(fl, arr, 'не найден врач с табельным номером: ' + lstr(nTabNumber))
+  endif
+  return fl
