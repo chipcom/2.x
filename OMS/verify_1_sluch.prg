@@ -4765,7 +4765,9 @@ function check_006F_00_0440(mdiagnoz, arr)
 
 *** 03.09.2021
 function checkRazdelNapr( arr )
+  local i := 0
   local lAdd := .f.
+  local flDopObsledovanie := .f.
 
   R_Use(dir_server+'mo_pers',dir_server+'mo_pers',"TPERS")
 
@@ -4773,7 +4775,16 @@ function checkRazdelNapr( arr )
     if (mtab_v_dopo_na == 0)
       lAdd := errorFillNapr(lAdd, arr, 'не заполнен табельный номер врача направившего на дополнительное обследование')
     else
-      lAdd := controlSNILS_Napr(lAdd, arr, 'TPERS', mtab_v_dopo_na)
+      lAdd := controlSNILS_Napr(lAdd, arr, 'TPERS', mtab_v_dopo_na, 1)
+      for i := 1 to 4
+        if isbit(m1dopo_na,i)
+          flDopObsledovanie := .t.
+          exit
+        endif
+      next
+      if !flDopObsledovanie // не выбраны дополнительные исследования
+        lAdd := errorFillNapr(lAdd, arr, 'в направлении пациента не выбрано ни одного дополнительного обследования')
+      endif
     endif
   endif
 
@@ -4781,7 +4792,7 @@ function checkRazdelNapr( arr )
     if (mtab_v_mo == 0)
       lAdd := errorFillNapr(lAdd, arr, 'не заполнен табельный номер врача направившего к специалистам')
     else
-      lAdd := controlSNILS_Napr(lAdd, arr, 'TPERS', mtab_v_mo)
+      lAdd := controlSNILS_Napr(lAdd, arr, 'TPERS', mtab_v_mo, 2)
       if empty(arr_mo_spec)
         lAdd := errorFillNapr(lAdd, arr, 'в направлении пациента не выбраны специальности')
       endif
@@ -4798,7 +4809,7 @@ function checkRazdelNapr( arr )
     if (mtab_v_stac == 0)
       lAdd := errorFillNapr(lAdd, arr, 'не заполнен табельный номер врача направившего на лечение')
     else
-      lAdd := controlSNILS_Napr(lAdd, arr, 'TPERS', mtab_v_stac)
+      lAdd := controlSNILS_Napr(lAdd, arr, 'TPERS', mtab_v_stac, 3)
     endif
   endif
 
@@ -4806,7 +4817,7 @@ function checkRazdelNapr( arr )
     if (mtab_v_reab == 0)
       lAdd := errorFillNapr(lAdd, arr, 'не заполнен табельный номер врача направившего на реабилитацию')
     else
-      lAdd := controlSNILS_Napr(lAdd, arr, 'TPERS', mtab_v_reab)
+      lAdd := controlSNILS_Napr(lAdd, arr, 'TPERS', mtab_v_reab, 4)
     endif
   endif
 
@@ -4814,7 +4825,7 @@ function checkRazdelNapr( arr )
     if (mtab_v_sanat == 0)
       lAdd := errorFillNapr(lAdd, arr, 'не заполнен табельный номер врача направившего на санаторно-курортное лечение')
     else
-      lAdd := controlSNILS_Napr(lAdd, arr, 'TPERS', mtab_v_sanat)
+      lAdd := controlSNILS_Napr(lAdd, arr, 'TPERS', mtab_v_sanat, 5)
     endif
   endif
   TPERS->(dbCloseArea())
@@ -4834,9 +4845,17 @@ function errorFillNapr(lAdd, arr, strError)
   return fl
 
 *** 03.09.21
-function controlSNILS_Napr(lAdd, arr, cAlias, nTabNumber)
+function controlSNILS_Napr(lAdd, arr, cAlias, nTabNumber, type)
   local fl := lAdd
 
+  default type to 0
+  if type == 1
+  elseif type == 2
+  elseif type == 3
+  elseif type == 4
+  elseif type == 5
+  else
+  endif
   if (cAlias)->(dbSeek(str(nTabNumber,5)))
     if empty((cAlias)->SNILS)
       fl := errorFillNapr(fl, arr, 'у направившего врача '+ alltrim(TPERS->FIO) +' отсутствует СНИЛС')
