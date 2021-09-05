@@ -274,10 +274,6 @@ Function save_arr_DVN_COVID(lkod, mk_data)
   endif
   // if type("m1ot_nasl1") == "N"
     aadd(arr,{"40",arr_otklon}) // массив
-    // aadd(arr,{"41",m1ot_nasl1})
-    // aadd(arr,{"42",m1ot_nasl2})
-    // aadd(arr,{"43",m1ot_nasl3})
-    // aadd(arr,{"44",m1ot_nasl4})
     aadd(arr,{"45",m1dispans})
     aadd(arr,{"46",m1nazn_l})
     if mk_data >= 0d20210801
@@ -483,14 +479,6 @@ Function read_arr_DVN_COVID(lkod,is_all)
           m1prof_ko := arr[i,2]
         case is_all .and. arr[i,1] == "40" .and. valtype(arr[i,2]) == "A"
           arr_otklon := arr[i,2]
-        // case arr[i,1] == "41" .and. valtype(arr[i,2]) == "N"
-        //   m1ot_nasl1 := arr[i,2]
-        // case arr[i,1] == "42" .and. valtype(arr[i,2]) == "N"
-        //   m1ot_nasl2 := arr[i,2]
-        // case arr[i,1] == "43" .and. valtype(arr[i,2]) == "N"
-        //   m1ot_nasl3 := arr[i,2]
-        // case arr[i,1] == "44" .and. valtype(arr[i,2]) == "N"
-        //   m1ot_nasl4 := arr[i,2]
         case arr[i,1] == "45" .and. valtype(arr[i,2]) == "N"
           m1dispans  := arr[i,2]
         case arr[i,1] == "46" .and. valtype(arr[i,2]) == "N"
@@ -504,7 +492,6 @@ Function read_arr_DVN_COVID(lkod,is_all)
               TPERS->(dbGoto(arr[i,2][2]))
               mtab_v_dopo_na := TPERS->tab_nom
             endif
-            // mtab_v_dopo_na := arr[i,2][2]
           endif
         case arr[i,1] == "48" .and. valtype(arr[i,2]) == "N"
           m1ssh_na   := arr[i,2]
@@ -519,7 +506,6 @@ Function read_arr_DVN_COVID(lkod,is_all)
               TPERS->(dbGoto(arr[i,2][2]))
               mtab_v_sanat := TPERS->tab_nom
             endif
-            // mtab_v_sanat := arr[i,2][2]
           endif
         case arr[i,1] == "51" .and. valtype(arr[i,2]) == "N"
           m1p_otk  := arr[i,2]
@@ -532,7 +518,6 @@ Function read_arr_DVN_COVID(lkod,is_all)
               TPERS->(dbGoto(arr[i,2][2]))
               mtab_v_mo := TPERS->tab_nom
             endif
-            // mtab_v_mo := arr[i,2][2]
           endif
         case arr[i,1] == "53" .and. valtype(arr[i,2]) == "A"
           arr_mo_spec := arr[i,2]
@@ -545,7 +530,6 @@ Function read_arr_DVN_COVID(lkod,is_all)
               TPERS->(dbGoto(arr[i,2][2]))
               mtab_v_stac := TPERS->tab_nom
             endif
-            // mtab_v_stac := arr[i,2][2]
           endif
         case arr[i,1] == "55" .and. valtype(arr[i,2]) == "N"
           m1profil_stac := arr[i,2]
@@ -558,7 +542,6 @@ Function read_arr_DVN_COVID(lkod,is_all)
               TPERS->(dbGoto(arr[i,2][2]))
               mtab_v_reab := TPERS->tab_nom
             endif
-            // mtab_v_reab := arr[i,2][2]
           endif
         case arr[i,1] == "57" .and. valtype(arr[i,2]) == "N"
           m1profil_kojki := arr[i,2]

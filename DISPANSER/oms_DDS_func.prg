@@ -69,15 +69,15 @@ Function ret_shifr_zs_DDS(tip_lu)
   endif
   return s
 
-***** 05.08.21
+***** 05.09.21
 Function save_arr_DDS(lkod)
   Local arr := {}, k, ta
-  local aliasIsUse := aliasIsAlreadyUse('P2')
+  local aliasIsUse := aliasIsAlreadyUse('TPERS')
   local oldSelect
 
   if ! aliasIsUse
     oldSelect := Select()
-    R_Use(dir_server+"mo_pers",,"P2") 
+    R_Use(dir_server+"mo_pers",dir_server+"mo_pers","TPERS") 
   endif
 
   Private mvar
@@ -239,8 +239,8 @@ Function save_arr_DDS(lkod)
   next
   if mk_data >= 0d20210801
     if mtab_v_dopo_na != 0
-      if P2->(dbSeek(str(mtab_v_dopo_na,5)))
-        aadd(arr,{"47",{m1dopo_na, P2->kod}})
+      if TPERS->(dbSeek(str(mtab_v_dopo_na,5)))
+        aadd(arr,{"47",{m1dopo_na, TPERS->kod}})
       else
         aadd(arr,{"47",{m1dopo_na, 0}})
       endif
@@ -250,14 +250,11 @@ Function save_arr_DDS(lkod)
   else
     aadd(arr,{"47",m1dopo_na})
   endif
-  // if type("m1dopo_na") == "N"
-  //   aadd(arr,{"47",m1dopo_na})
-  // endif
   if mk_data >= 0d20210801
     if type("m1napr_v_mo") == "N"
       if mtab_v_mo != 0
-        if P2->(dbSeek(str(mtab_v_mo,5)))
-          aadd(arr,{"52",{m1napr_v_mo, P2->kod}})
+        if TPERS->(dbSeek(str(mtab_v_mo,5)))
+          aadd(arr,{"52",{m1napr_v_mo, TPERS->kod}})
         else
           aadd(arr,{"52",{m1napr_v_mo, 0}})
         endif
@@ -270,17 +267,14 @@ Function save_arr_DDS(lkod)
       aadd(arr,{"52",m1napr_v_mo})
     endif
   endif
-  // if type("m1napr_v_mo") == "N"
-  //   aadd(arr,{"52",m1napr_v_mo})
-  // endif
   if type("arr_mo_spec") == "A" .and. !empty(arr_mo_spec)
     aadd(arr,{"53",arr_mo_spec}) // массив
   endif
   if mk_data >= 0d20210801
     if type("m1napr_stac") == "N"
       if mtab_v_stac != 0
-        if P2->(dbSeek(str(mtab_v_stac,5)))
-          aadd(arr,{"54",{m1napr_stac, P2->kod}})
+        if TPERS->(dbSeek(str(mtab_v_stac,5)))
+          aadd(arr,{"54",{m1napr_stac, TPERS->kod}})
         else
           aadd(arr,{"54",{m1napr_stac, 0}})
         endif
@@ -293,17 +287,14 @@ Function save_arr_DDS(lkod)
       aadd(arr,{"54",m1napr_stac})
     endif
   endif
-  // if type("m1napr_stac") == "N"
-  //   aadd(arr,{"54",m1napr_stac})
-  // endif
   if type("m1profil_stac") == "N"
     aadd(arr,{"55",m1profil_stac})
   endif
   if mk_data >= 0d20210801
     if type("m1napr_reab") == "N"
       if mtab_v_reab != 0
-        if P2->(dbSeek(str(mtab_v_reab,5)))
-          aadd(arr,{"56",{m1napr_reab, P2->kod}})
+        if TPERS->(dbSeek(str(mtab_v_reab,5)))
+          aadd(arr,{"56",{m1napr_reab, TPERS->kod}})
         else
           aadd(arr,{"56",{m1napr_reab, 0}})
         endif
@@ -316,31 +307,28 @@ Function save_arr_DDS(lkod)
       aadd(arr,{"56",m1napr_reab})
     endif
   endif
-  // if type("m1napr_reab") == "N"
-  //   aadd(arr,{"56",m1napr_reab})
-  // endif
   if type("m1profil_kojki") == "N"
     aadd(arr,{"57",m1profil_kojki})
   endif
 
   if ! aliasIsUse
-    P2->(dbCloseArea())
+    TPERS->(dbCloseArea())
     Select(oldSelect)
   endif
 
   save_arr_DISPANS(lkod,arr)
   return NIL
   
-***** 05.08.21
+***** 05.09.21
 Function read_arr_DDS(lkod)
   Local arr, i, k
-  local aliasIsUse := aliasIsAlreadyUse('P2')
+  local aliasIsUse := aliasIsAlreadyUse('TPERS')
   local oldSelect
   Private mvar
 
   if ! aliasIsUse
     oldSelect := Select()
-    R_Use(dir_server+"mo_pers",,"P2") 
+    R_Use(dir_server+"mo_pers",,"TPERS") 
   endif
 
   arr := read_arr_DISPANS(lkod)
@@ -528,8 +516,8 @@ Function read_arr_DDS(lkod)
           elseif valtype(arr[i,2]) == "A"
             m1dopo_na  := arr[i,2][1]
             if arr[i,2][2] > 0
-              P2->(dbGoto(arr[i,2][2]))
-              mtab_v_dopo_na := P2->tab_nom
+              TPERS->(dbGoto(arr[i,2][2]))
+              mtab_v_dopo_na := TPERS->tab_nom
             endif
             // mtab_v_dopo_na := arr[i,2][2]
           endif
@@ -541,8 +529,8 @@ Function read_arr_DDS(lkod)
           elseif valtype(arr[i,2]) == "A"
             m1napr_v_mo  := arr[i,2][1]
             if arr[i,2][2] > 0
-              P2->(dbGoto(arr[i,2][2]))
-              mtab_v_mo := P2->tab_nom
+              TPERS->(dbGoto(arr[i,2][2]))
+              mtab_v_mo := TPERS->tab_nom
             endif
             // mtab_v_mo := arr[i,2][2]
           endif
@@ -556,8 +544,8 @@ Function read_arr_DDS(lkod)
           elseif valtype(arr[i,2]) == "A"
             m1napr_stac := arr[i,2][1]
             if arr[i,2][2] > 0
-              P2->(dbGoto(arr[i,2][2]))
-              mtab_v_stac := P2->tab_nom
+              TPERS->(dbGoto(arr[i,2][2]))
+              mtab_v_stac := TPERS->tab_nom
             endif
             // mtab_v_stac := arr[i,2][2]
           endif
@@ -571,8 +559,8 @@ Function read_arr_DDS(lkod)
           elseif valtype(arr[i,2]) == "A"
             m1napr_reab := arr[i,2][1]
             if arr[i,2][2] > 0
-              P2->(dbGoto(arr[i,2][2]))
-              mtab_v_reab := P2->tab_nom
+              TPERS->(dbGoto(arr[i,2][2]))
+              mtab_v_reab := TPERS->tab_nom
             endif
             // mtab_v_reab := arr[i,2][2]
           endif
@@ -590,7 +578,7 @@ Function read_arr_DDS(lkod)
   next
 
   if ! aliasIsUse
-    P2->(dbCloseArea())
+    TPERS->(dbCloseArea())
     Select(oldSelect)
   endif
 

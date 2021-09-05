@@ -3390,9 +3390,7 @@ Function verify_1_sluch(fl_view)
     endif
     if eq_any(human->ishod,101,102)
       metap := human->ishod-100
-      R_Use(dir_server+"mo_pers",,"P2")
       read_arr_DDS(human->kod)
-      P2->(dbCloseArea())
     else
       aadd(ta,'диспансеризацию детей-сирот надо вводить через специальный экран ввода')
     endif
@@ -3510,9 +3508,7 @@ Function verify_1_sluch(fl_view)
     mperiod := ret_period_PN(mdate_r,d1,d2)
     if between(mperiod,1,31)
       np_oftal_2_85_21(mperiod,d2) // добавить или удалить офтальмолога в массив для несовершеннолетних для 12 месяцев
-      R_Use(dir_server+"mo_pers",,"P2")
       read_arr_PN(human->kod)
-      P2->(dbCloseArea())
       kol_d_otkaz := 0
       if valtype(arr_usl_otkaz) == "A"
         for j := 1 to len(arr_usl_otkaz)
@@ -3742,9 +3738,7 @@ Function verify_1_sluch(fl_view)
     m1profil_kojki := 0
     is_disp_nabl := .f.
     arr_nazn := {}
-    R_Use(dir_server+"mo_pers",,"P2")
     read_arr_DVN(human->kod)
-    P2->(dbCloseArea())
     if m1dopo_na > 0
       aadd(arr_nazn,{3,{}}) ; j := len(arr_nazn)
       for i := 1 to 4
@@ -4284,30 +4278,6 @@ Function verify_1_sluch(fl_view)
     if (human->k_data < 0d20210701)
       aadd(ta,'углубленная диспансеризация после COVID началась с 01 июля 2021 года')
     endif
-    // m1mobilbr := 0
-    // human_->profil := 151  // медицинским осмотрам профилактическим
-    // ret_arr_vozrast_DVN(d2)
-    // ret_arrays_disp(is_disp_19)
-    // m1g_cit := m1veteran := m1dispans := 0 ; is_prazdnik := f_is_prazdnik_DVN(d1)
-    // if empty(sadiag1)
-    //   Private file_form, diag1 := {}, len_diag := 0
-    //   if (file_form := search_file("DISP_NAB"+sfrm)) == NIL
-    //     aadd(ta,"Не обнаружен файл DISP_NAB"+sfrm)
-    //   endif
-    //   f2_vvod_disp_nabl("A00")
-    //   sadiag1 := diag1
-    // endif
-    for i := 1 to 5
-      sk := lstr(i)
-      pole_diag := "mdiag"+sk
-      pole_1pervich := "m1pervich"+sk
-      pole_1dispans := "m1dispans"+sk
-      pole_dn_dispans := "mdndispans"+sk
-      Private &pole_diag := space(6)
-      Private &pole_1pervich := 0
-      Private &pole_1dispans := 0
-      Private &pole_dn_dispans := ctod("")
-    next
     m1dopo_na := 0
     m1napr_v_mo := 0 // {{"-- нет --",0},{"в нашу МО",1},{"в иную МО",2}}, ;
     arr_mo_spec := {}
@@ -4317,32 +4287,10 @@ Function verify_1_sluch(fl_view)
     m1profil_kojki := 0
     is_disp_nabl := .f.
     arr_nazn := {}
-    R_Use(dir_server+"mo_pers",,"P2")
     read_arr_DVN_COVID(human->kod)
-    P2->(dbCloseArea())
-    if m1dopo_na > 0
-      aadd(arr_nazn,{3,{}}) ; j := len(arr_nazn)
-      for i := 1 to 4
-        if isbit(m1dopo_na,i)
-          aadd(arr_nazn[j,2],i)
-        endif
-      next
-    endif
-    if between(m1napr_v_mo,1,2) .and. !empty(arr_mo_spec) // {{"-- нет --",0},{"в нашу МО",1},{"в иную МО",2}}, ;
-      aadd(arr_nazn,{m1napr_v_mo,{}}) ; j := len(arr_nazn)
-      for i := 1 to min(3,len(arr_mo_spec))
-        aadd(arr_nazn[j,2],arr_mo_spec[i])
-      next
-    endif
-    if between(m1napr_stac,1,2) .and. m1profil_stac > 0 // {{"--- нет ---",0},{"в стационар",1},{"в дн. стац.",2}}, ;
-      aadd(arr_nazn,{iif(m1napr_stac==1,5,4),m1profil_stac})
-    endif
-    if m1napr_reab == 1 .and. m1profil_kojki > 0
-      aadd(arr_nazn,{6,m1profil_kojki})
-    endif
-
   endif
-    // проверим на наличие направивиших врачей
+
+  // проверим на наличие направивиших врачей
   if is_exist_Prescription  // is_disp_DDS .or. is_disp_DVN .or. is_prof_PN .or. is_disp_DVN_COVID
     if human->k_data >= 0d20210801
       checkSectionPrescription( ta )
@@ -4833,27 +4781,24 @@ function errorFillPrescription(lAdd, arr, strError)
 function controlSNILS_Napr(lAdd, arr, cAlias, nTabNumber, type)
   local fl := lAdd
   local strError := ''
-  local endError := alltrim(TPERS->FIO) +' отсутствует СНИЛС'
+  local endError := ''
 
   default type to 0
-  if type == 1
-my_debug(,'type 1: ' +endError + ': '+ lstr(TPERS->TAB_NOM)+ ': '+ lstr(TPERS->KOD))
-    strError := 'у направившего на дополнительное обследование врача ' + endError
-  elseif type == 2
-my_debug(,'type 2: ' +endError + ': '+ lstr(TPERS->TAB_NOM)+ ': '+ lstr(TPERS->KOD))
-    strError := 'у направившего к специалистам врача ' + endError
-  elseif type == 3
-my_debug(,'type 3: ' +endError + ': '+ lstr(TPERS->TAB_NOM)+ ': '+ lstr(TPERS->KOD))
-    strError := 'у направившего на лечение врача ' + endError
-  elseif type == 4
-my_debug(,'type 4: ' +endError + ': '+ lstr(TPERS->TAB_NOM)+ ': '+ lstr(TPERS->KOD))
-    strError := 'у направившего на реабилитацию врача ' + endError
-  elseif type == 5
-my_debug(,'type 5: ' +endError + ': '+ lstr(TPERS->TAB_NOM)+ ': '+ lstr(TPERS->KOD))
-    strError := 'у направившего на санаторно-куротное лечение врача ' + endError
-  else
-  endif
   if (cAlias)->(dbSeek(str(nTabNumber,5)))
+    endError := alltrim((cAlias)->FIO) +' отсутствует СНИЛС'
+
+    if type == 1
+      strError := 'у направившего на дополнительное обследование врача ' + endError
+    elseif type == 2
+      strError := 'у направившего к специалистам врача ' + endError
+    elseif type == 3
+      strError := 'у направившего на лечение врача ' + endError
+    elseif type == 4
+      strError := 'у направившего на реабилитацию врача ' + endError
+    elseif type == 5
+      strError := 'у направившего на санаторно-куротное лечение врача ' + endError
+    endif
+
     if empty((cAlias)->SNILS)
       fl := errorFillPrescription(fl, arr, strError)
     endif
