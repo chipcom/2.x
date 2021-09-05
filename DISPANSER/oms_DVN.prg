@@ -185,7 +185,8 @@ Function oms_sluch_DVN(Loc_kod,kod_kartotek,f_print)
      {"shifr_u"  ,   "C",    20,     0},;
      {"shifr1"   ,   "C",    20,     0},;
      {"name_u"   ,   "C",    65,     0},;
-     {"U_KOD"    ,   "N",     6,     0};  // код услуги
+     {"U_KOD"    ,   "N",     6,     0},;  // код услуги
+     {"KOD_VR"   ,   "N",     5,     0};  // код врача (справочник mo_pers)
     })
   Private m1NAPR_MO, mNAPR_MO, mNAPR_DATE, mNAPR_V, m1NAPR_V, mMET_ISSL, m1MET_ISSL, ;
           mshifr, mshifr1, mname_u, mU_KOD, cur_napr := 0, count_napr := 0, tip_onko_napr := 0
