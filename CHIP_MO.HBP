@@ -48,7 +48,6 @@ mo_moder.prg
 mo_mzxml.prg
 mo_oms.prg
 mo_oms1.prg
-mo_oms2.prg
 mo_omsi.prg
 mo_omsid.prg
 mo_omsio.prg
@@ -168,6 +167,7 @@ mo_version.prg
 
 .\mo\external_mo.prg
 
+.\dispanser\mo_oms2.prg
 .\dispanser\oms_DVN_COVID.prg
 .\dispanser\oms_DVN_func_COVID.prg
 .\dispanser\oms_DVN.prg
