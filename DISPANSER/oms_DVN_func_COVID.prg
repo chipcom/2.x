@@ -411,7 +411,7 @@ Function read_arr_DVN_COVID(lkod,is_all)
 
   if ! aliasIsUse
     oldSelect := Select()
-    R_Use(dir_server+'mo_pers', dir_server+'mo_pers', 'TPERS') 
+    R_Use(dir_server+'mo_pers', , 'TPERS') 
   endif
           
   Private mvar
