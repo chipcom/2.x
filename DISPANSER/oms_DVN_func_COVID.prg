@@ -200,15 +200,15 @@ Function ret_profil_dispans_COVID(lprofil,lprvs)
   endif
   return lprofil
   
-***** 05.08.21
+***** 05.09.21
 Function save_arr_DVN_COVID(lkod, mk_data) 
   Local arr := {}, i, sk, ta
-  local aliasIsUse := aliasIsAlreadyUse('P2')
+  local aliasIsUse := aliasIsAlreadyUse('TPERS')
   local oldSelect
 
   if ! aliasIsUse
     oldSelect := Select()
-    R_Use(dir_server+"mo_pers",,"P2") 
+    R_Use(dir_server+'mo_pers', dir_server+'mo_pers', 'TPERS') 
   endif
   
   if type("mfio") == "C"
@@ -282,8 +282,8 @@ Function save_arr_DVN_COVID(lkod, mk_data)
     aadd(arr,{"46",m1nazn_l})
     if mk_data >= 0d20210801
       if mtab_v_dopo_na != 0
-        if P2->(dbSeek(str(mtab_v_dopo_na,5)))
-          aadd(arr,{"47",{m1dopo_na, P2->kod}})
+        if TPERS->(dbSeek(str(mtab_v_dopo_na,5)))
+          aadd(arr,{"47",{m1dopo_na, TPERS->kod}})
         else
           aadd(arr,{"47",{m1dopo_na, 0}})
         endif
@@ -297,8 +297,8 @@ Function save_arr_DVN_COVID(lkod, mk_data)
     aadd(arr,{"49",m1spec_na})
     if mk_data >= 0d20210801
       if mtab_v_sanat != 0
-        if P2->(dbSeek(str(mtab_v_sanat,5)))
-          aadd(arr,{"50",{m1sank_na, P2->kod}})
+        if TPERS->(dbSeek(str(mtab_v_sanat,5)))
+          aadd(arr,{"50",{m1sank_na, TPERS->kod}})
         else
           aadd(arr,{"50",{m1sank_na, 0}})
         endif
@@ -315,8 +315,8 @@ Function save_arr_DVN_COVID(lkod, mk_data)
   if mk_data >= 0d20210801
     if type("m1napr_v_mo") == "N"
       if mtab_v_mo != 0
-        if P2->(dbSeek(str(mtab_v_mo,5)))
-          aadd(arr,{"52",{m1napr_v_mo, P2->kod}})
+        if TPERS->(dbSeek(str(mtab_v_mo,5)))
+          aadd(arr,{"52",{m1napr_v_mo, TPERS->kod}})
         else
           aadd(arr,{"52",{m1napr_v_mo, 0}})
         endif
@@ -335,8 +335,8 @@ Function save_arr_DVN_COVID(lkod, mk_data)
   if mk_data >= 0d20210801
     if type("m1napr_stac") == "N"
       if mtab_v_stac != 0
-        if P2->(dbSeek(str(mtab_v_stac,5)))
-          aadd(arr,{"54",{m1napr_stac, P2->kod}})
+        if TPERS->(dbSeek(str(mtab_v_stac,5)))
+          aadd(arr,{"54",{m1napr_stac, TPERS->kod}})
         else
           aadd(arr,{"54",{m1napr_stac, 0}})
         endif
@@ -355,8 +355,8 @@ Function save_arr_DVN_COVID(lkod, mk_data)
   if mk_data >= 0d20210801
     if type("m1napr_reab") == "N"
       if mtab_v_reab != 0
-        if P2->(dbSeek(str(mtab_v_reab,5)))
-          aadd(arr,{"56",{m1napr_reab, P2->kod}})
+        if TPERS->(dbSeek(str(mtab_v_reab,5)))
+          aadd(arr,{"56",{m1napr_reab, TPERS->kod}})
         else
           aadd(arr,{"56",{m1napr_reab, 0}})
         endif
@@ -374,7 +374,7 @@ Function save_arr_DVN_COVID(lkod, mk_data)
   endif
 
   if ! aliasIsUse
-    P2->(dbCloseArea())
+    TPERS->(dbCloseArea())
     Select(oldSelect)
   endif
 
@@ -403,15 +403,15 @@ function readDateCOVID(lkod)
   next
   return dRet
 
-***** 05.08.21
+***** 05.09.21
 Function read_arr_DVN_COVID(lkod,is_all)
   Local arr, i, sk
-  local aliasIsUse := aliasIsAlreadyUse('P2')
+  local aliasIsUse := aliasIsAlreadyUse('TPERS')
   local oldSelect
 
   if ! aliasIsUse
     oldSelect := Select()
-    R_Use(dir_server+"mo_pers",,"P2") 
+    R_Use(dir_server+'mo_pers', dir_server+'mo_pers', 'TPERS') 
   endif
           
   Private mvar
@@ -501,8 +501,8 @@ Function read_arr_DVN_COVID(lkod,is_all)
           elseif valtype(arr[i,2]) == "A"
             m1dopo_na  := arr[i,2][1]
             if arr[i,2][2] > 0
-              P2->(dbGoto(arr[i,2][2]))
-              mtab_v_dopo_na := P2->tab_nom
+              TPERS->(dbGoto(arr[i,2][2]))
+              mtab_v_dopo_na := TPERS->tab_nom
             endif
             // mtab_v_dopo_na := arr[i,2][2]
           endif
@@ -516,8 +516,8 @@ Function read_arr_DVN_COVID(lkod,is_all)
           elseif valtype(arr[i,2]) == "A"
             m1sank_na  := arr[i,2][1]
             if arr[i,2][2] > 0
-              P2->(dbGoto(arr[i,2][2]))
-              mtab_v_sanat := P2->tab_nom
+              TPERS->(dbGoto(arr[i,2][2]))
+              mtab_v_sanat := TPERS->tab_nom
             endif
             // mtab_v_sanat := arr[i,2][2]
           endif
@@ -529,8 +529,8 @@ Function read_arr_DVN_COVID(lkod,is_all)
           elseif valtype(arr[i,2]) == "A"
             m1napr_v_mo  := arr[i,2][1]
             if arr[i,2][2] > 0
-              P2->(dbGoto(arr[i,2][2]))
-              mtab_v_mo := P2->tab_nom
+              TPERS->(dbGoto(arr[i,2][2]))
+              mtab_v_mo := TPERS->tab_nom
             endif
             // mtab_v_mo := arr[i,2][2]
           endif
@@ -542,8 +542,8 @@ Function read_arr_DVN_COVID(lkod,is_all)
           elseif valtype(arr[i,2]) == "A"
             m1napr_stac := arr[i,2][1]
             if arr[i,2][2] > 0
-              P2->(dbGoto(arr[i,2][2]))
-              mtab_v_stac := P2->tab_nom
+              TPERS->(dbGoto(arr[i,2][2]))
+              mtab_v_stac := TPERS->tab_nom
             endif
             // mtab_v_stac := arr[i,2][2]
           endif
@@ -555,8 +555,8 @@ Function read_arr_DVN_COVID(lkod,is_all)
           elseif valtype(arr[i,2]) == "A"
             m1napr_reab := arr[i,2][1]
             if arr[i,2][2] > 0
-              P2->(dbGoto(arr[i,2][2]))
-              mtab_v_reab := P2->tab_nom
+              TPERS->(dbGoto(arr[i,2][2]))
+              mtab_v_reab := TPERS->tab_nom
             endif
             // mtab_v_reab := arr[i,2][2]
           endif
@@ -567,7 +567,7 @@ Function read_arr_DVN_COVID(lkod,is_all)
   next
   
   if ! aliasIsUse
-    P2->(dbCloseArea())
+    TPERS->(dbCloseArea())
     Select(oldSelect)
   endif
 
