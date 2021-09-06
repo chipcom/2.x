@@ -1235,8 +1235,19 @@ Function f1_create2reestr19(_nyear,_nmonth)
   select ONKNA
   find (str(human->kod,7))
   do while onkna->kod == human->kod .and. !eof()
-    mosu->(dbGoto(onkna->U_KOD))
-    aadd(arr_onkna, {onkna->NAPR_DATE,onkna->NAPR_V,onkna->MET_ISSL,mosu->shifr1,onkna->NAPR_MO})
+
+    if P2TABN->(dbSeek(str(onkna->KOD_VR,5)))
+      // aadd(arr_nazn,{3, i, P2TABN->snils, lstr(ret_prvs_V015toV021(P2TABN->PRVS_NEW))}) // теперь каждое назначение в отдельном PRESCRIPTIONS
+      mosu->(dbGoto(onkna->U_KOD))
+      aadd(arr_onkna, {onkna->NAPR_DATE,onkna->NAPR_V,onkna->MET_ISSL,mosu->shifr1,onkna->NAPR_MO, P2TABN->snils, lstr(ret_prvs_V015toV021(P2TABN->PRVS_NEW))})
+    else
+      // aadd(arr_nazn,{3, i, '', ''}) // теперь каждое назначение в отдельном PRESCRIPTIONS
+      mosu->(dbGoto(onkna->U_KOD))
+      aadd(arr_onkna, {onkna->NAPR_DATE,onkna->NAPR_V,onkna->MET_ISSL,mosu->shifr1,onkna->NAPR_MO, '', ''})
+    endif
+
+    // mosu->(dbGoto(onkna->U_KOD))
+    // aadd(arr_onkna, {onkna->NAPR_DATE,onkna->NAPR_V,onkna->MET_ISSL,mosu->shifr1,onkna->NAPR_MO})
     skip
   enddo
   select ONKCO
@@ -1498,7 +1509,6 @@ Function f1_create2reestr19(_nyear,_nmonth)
         if mtab_v_dopo_na != 0
           if P2TABN->(dbSeek(str(mtab_v_dopo_na,5)))
             aadd(arr_nazn,{3, i, P2TABN->snils, lstr(ret_prvs_V015toV021(P2TABN->PRVS_NEW))}) // теперь каждое назначение в отдельном PRESCRIPTIONS
-my_debug(,'napr na dop: ' + P2TABN->FIO +': ' + P2TABN->snils + ' - '+lstr(ret_prvs_V015toV021(P2TABN->PRVS_NEW)) + ' - '+lstr(P2TABN->PRVS_NEW))
           else
             aadd(arr_nazn,{3, i, '', ''}) // теперь каждое назначение в отдельном PRESCRIPTIONS
           endif
@@ -1507,19 +1517,12 @@ my_debug(,'napr na dop: ' + P2TABN->FIO +': ' + P2TABN->snils + ' - '+lstr(ret_p
         endif
       endif
     next
-    //aadd(arr_nazn,{3,{}}) ; j := len(arr_nazn)
-    //for i := 1 to 4
-      //if isbit(m1dopo_na,i)
-        //aadd(arr_nazn[j,2],i)
-      //endif
-    //next
   endif
   if between(m1napr_v_mo,1,2) .and. !empty(arr_mo_spec) // {{"-- нет --",0},{"в нашу МО",1},{"в иную МО",2}}, ;
     for i := 1 to len(arr_mo_spec) // теперь каждая специальность в отдельном PRESCRIPTIONS
       if mtab_v_mo != 0
         if P2TABN->(dbSeek(str(mtab_v_mo,5)))
           aadd(arr_nazn,{m1napr_v_mo, put_prvs_to_reestr(-arr_mo_spec[i],_NYEAR), P2TABN->snils, lstr(ret_prvs_V015toV021(P2TABN->PRVS_NEW))})  // "-", т.к. спец-ть была в кодировке V015
-my_debug(,'napr v mo: ' + P2TABN->FIO +': ' + P2TABN->snils + ' - '+lstr(ret_prvs_V015toV021(P2TABN->PRVS_NEW)) + ' - '+lstr(P2TABN->PRVS_NEW))
         else
           aadd(arr_nazn,{m1napr_v_mo, put_prvs_to_reestr(-arr_mo_spec[i],_NYEAR), '', ''}) // "-", т.к. спец-ть была в кодировке V015
         endif
@@ -1527,16 +1530,11 @@ my_debug(,'napr v mo: ' + P2TABN->FIO +': ' + P2TABN->snils + ' - '+lstr(ret_prv
         aadd(arr_nazn,{m1napr_v_mo, put_prvs_to_reestr(-arr_mo_spec[i],_NYEAR), '', ''}) // "-", т.к. спец-ть была в кодировке V015
       endif
     next
-    //aadd(arr_nazn,{m1napr_v_mo,{}}) ; j := len(arr_nazn)
-    //for i := 1 to min(3,len(arr_mo_spec))
-    //  aadd(arr_nazn[j,2],put_prvs_to_reestr(-arr_mo_spec[i],_NYEAR)) // "-", т.к. спец-ть была в кодировке V015
-    //next
   endif
   if between(m1napr_stac,1,2) .and. m1profil_stac > 0 // {{"--- нет ---",0},{"в стационар",1},{"в дн. стац.",2}}, ;
     if mtab_v_stac != 0
       if P2TABN->(dbSeek(str(mtab_v_stac,5)))
         aadd(arr_nazn,{iif(m1napr_stac==1,5,4), m1profil_stac, P2TABN->snils, lstr(ret_prvs_V015toV021(P2TABN->PRVS_NEW))})
-my_debug(,'napr v stac: ' + P2TABN->FIO +': ' + P2TABN->snils + ' - '+lstr(ret_prvs_V015toV021(P2TABN->PRVS_NEW)) + ' - '+lstr(P2TABN->PRVS_NEW))
       else
         aadd(arr_nazn,{iif(m1napr_stac==1,5,4), m1profil_stac, '', ''})
       endif
@@ -1548,7 +1546,6 @@ my_debug(,'napr v stac: ' + P2TABN->FIO +': ' + P2TABN->snils + ' - '+lstr(ret_p
     if mtab_v_reab != 0
       if P2TABN->(dbSeek(str(mtab_v_reab,5)))
         aadd(arr_nazn,{6, m1profil_kojki, P2TABN->snils, lstr(ret_prvs_V015toV021(P2TABN->PRVS_NEW))})
-my_debug(,'napr reab: ' + P2TABN->FIO +': ' + P2TABN->snils + ' - '+lstr(ret_prvs_V015toV021(P2TABN->PRVS_NEW)) + ' - '+lstr(P2TABN->PRVS_NEW))
       else
         aadd(arr_nazn,{6, m1profil_kojki, '', ''})
       endif
