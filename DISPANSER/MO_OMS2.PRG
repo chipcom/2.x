@@ -4,14 +4,19 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 15.04.19 ввод направлений при подозрении на ЗНО - профосмотры несовершеннолетних
+***** 06.09.21 ввод направлений при подозрении на ЗНО - профосмотры несовершеннолетних
 Function fget_napr_PN(k,r,c)
-Local r1, r2, n := 4, buf, tmp_keys, tmp_list, tmp_color
+  Local r1, r2, n := 4, buf, tmp_keys, tmp_list, tmp_color
+  local strNeedTabNumber := 'Необходимо указать табельный направившего врача'
+  local recNumberDoctor := 0
+
   buf := savescreen()
   change_attr()
   tmp_keys := my_savekey()
   save gets to tmp_list
   //
+  // R_Use(dir_server + 'mo_pers', dir_server + 'mo_pers', 'TPERS')
+  use_base('mo_pers', 'TPERS')
   use_base("luslf")
   Use_base("mo_su")
   use (cur_dir+"tmp_onkna") new alias TNAPR
@@ -20,6 +25,14 @@ Local r1, r2, n := 4, buf, tmp_keys, tmp_list, tmp_color
   if cur_napr > 0 .and. cur_napr <= count_napr
     goto (cur_napr) // номер текущего направления
     mNAPR_DATE := tnapr->NAPR_DATE
+    select TPERS
+    TPERS->(dbGoto(tnapr->KOD_VR))
+    if !(TPERS->(eof())) .and. !(TPERS->(bof()))
+      mTab_Number := TPERS->TAB_NOM
+    else
+      mTab_Number := 0
+    endif
+    select TNAPR
     m1NAPR_MO := tnapr->NAPR_MO
     if empty(m1NAPR_MO)
       mNAPR_MO := space(60)
@@ -35,6 +48,7 @@ Local r1, r2, n := 4, buf, tmp_keys, tmp_list, tmp_color
   else
     cur_napr := 1
     mNAPR_DATE := ctod("")
+    mTab_Number := 0
     m1NAPR_MO := space(6)
     mNAPR_MO := space(60)
     m1NAPR_V := 0
@@ -48,24 +62,26 @@ Local r1, r2, n := 4, buf, tmp_keys, tmp_list, tmp_color
   mMET_ISSL := inieditspr(A__MENUVERT, mm_MET_ISSL, m1MET_ISSL)
   tip_onko_napr := 0
   j := r-9
-  box_shadow(j,0,j+8,maxcol()-2,color1,"Ввод направлений при подозрении на ЗНО",color8)
-  ++j; @ j,1 say "НАПРАВЛЕНИЕ №" get cur_napr pict "99" when .f.
-       @ j,col() say "(из" get count_napr pict "99" when .f.
-       @ j,col() say ")"
-       @j,29 say "(<F5> - добавление/редактирование направления №...)" color "G/B"
-  ++j; @ j,3 say "Дата направления" get mNAPR_DATE ;
-             valid {|| iif(empty(mNAPR_DATE) .or. between(mNAPR_DATE,mn_data,mk_data), .t., ;
-                           func_error(4,"Дата направления должна быть внутри сроков лечения")) }
-  ++j; @ j,3 say "В какую МО направлен" get mnapr_mo ;
-             reader {|x|menu_reader(x,{{|k,r,c|f_get_mo(k,r,c)}},A__FUNCTION,,,.f.)}
-  ++j; @ j,3 say "Вид направления" get mnapr_v ;
-             reader {|x|menu_reader(x,mm_napr_v,A__MENUVERT,,,.f.)} //; color colget_menu
-  ++j; @ j,5 say "Метод диагностического исследования" get mmet_issl ;
-             reader {|x|menu_reader(x,mm_met_issl,A__MENUVERT,,,.f.)} ;
-             when m1napr_v == 3 //; color colget_menu
-  ++j; @ j,5 say "Медицинская услуга" get mshifr pict "@!" ;
-             when {|g| m1napr_v == 3 .and. m1MET_ISSL > 0 } ;
-             valid {|g|
+  box_shadow(j,0,j+9,maxcol()-2,color1,"Ввод направлений при подозрении на ЗНО",color8)
+  @ ++j,1 say "НАПРАВЛЕНИЕ №" get cur_napr pict "99" when .f.
+  @ j,col() say "(из" get count_napr pict "99" when .f.
+  @ j,col() say ")"
+  @ j,29 say "(<F5> - добавление/редактирование направления №...)" color "G/B"
+  @ ++j,3 say "Дата направления" get mNAPR_DATE ;
+            valid {|| iif(empty(mNAPR_DATE) .or. between(mNAPR_DATE,mn_data,mk_data), .t., ;
+            func_error(4,"Дата направления должна быть внутри сроков лечения")) }
+  @ ++j,3 say "Табельный номер направившего врача" get mTab_Number pict "99999" ;
+            valid {|g| iif(!v_kart_vrach(g), func_error(4, strNeedTabNumber), .t.) }
+  @ ++j,3 say "В какую МО направлен" get mnapr_mo ;
+            reader {|x|menu_reader(x,{{|k,r,c|f_get_mo(k,r,c)}},A__FUNCTION,,,.f.)}
+  @ ++j,3 say "Вид направления" get mnapr_v ;
+            reader {|x|menu_reader(x,mm_napr_v,A__MENUVERT,,,.f.)} //; color colget_menu
+  @ ++j,5 say "Метод диагностического исследования" get mmet_issl ;
+            reader {|x|menu_reader(x,mm_met_issl,A__MENUVERT,,,.f.)} ;
+            when m1napr_v == 3 //; color colget_menu
+  @ ++j,5 say "Медицинская услуга" get mshifr pict "@!" ;
+            when {|g| m1napr_v == 3 .and. m1MET_ISSL > 0 } ;
+            valid {|g|
                         Local fl := f5editkusl(g,2,2)
                         if empty(mshifr)
                           mu_kod  := 0
@@ -76,11 +92,19 @@ Local r1, r2, n := 4, buf, tmp_keys, tmp_list, tmp_color
                         endif
                         return fl
                    }
-  ++j; @ j,7 say "Услуга" get mname_u when .f. color color14
+  @ ++j,7 say "Услуга" get mname_u when .f. color color14
   //
   set key K_F5 TO change_num_napr
   myread()
   set key K_F5
+
+  select TPERS
+  if TPERS->(dbSeek(str(mTab_Number,5)))
+    recNumberDoctor := TPERS->(recno())
+  else
+    recNumberDoctor := 0
+  endif
+
   close databases
   if !(emptyany(mNAPR_DATE,m1NAPR_V) .and. count_napr == 0)
     if cur_napr == 0
@@ -94,6 +118,7 @@ Local r1, r2, n := 4, buf, tmp_keys, tmp_list, tmp_color
       append blank
     endif
     tnapr->NAPR_DATE := mNAPR_DATE
+    tnapr->KOD_VR := recNumberDoctor
     tnapr->NAPR_MO := m1NAPR_MO
     tnapr->NAPR_V := m1NAPR_V
     tnapr->MET_ISSL := iif(m1NAPR_V == 3, m1MET_ISSL, 0)
@@ -109,7 +134,7 @@ Local r1, r2, n := 4, buf, tmp_keys, tmp_list, tmp_color
   restore gets from tmp_list
   my_restkey(tmp_keys)
   restscreen(buf)
-return {0,"Количество направлений - "+lstr(count_napr)}
+  return {0,"Количество направлений - "+lstr(count_napr)}
 
 ***** 23.01.17
 Function f_valid_diag_oms_sluch_DVN(get,k)
