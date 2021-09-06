@@ -1241,6 +1241,8 @@ Function verify_1_sluch(fl_view)
       if onkna->NAPR_V == 3
         if empty(onkna->MET_ISSL)
           aadd(ta,'не определён "Метод диагн.исследования" для направления '+lstr(i))
+        elseif empty(onkna->KOD_VR)
+          aadd(ta,'отсутствует табельный номер направившего врача для направления '+lstr(i))
         elseif empty(onkna->U_KOD)
           aadd(ta,'не определена "Медицинская услуга" для направления '+lstr(i))
         else

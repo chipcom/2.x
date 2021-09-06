@@ -15,7 +15,6 @@ Function fget_napr_PN(k,r,c)
   tmp_keys := my_savekey()
   save gets to tmp_list
   //
-  // R_Use(dir_server + 'mo_pers', dir_server + 'mo_pers', 'TPERS')
   use_base('mo_pers', 'TPERS')
   use_base("luslf")
   Use_base("mo_su")
@@ -136,6 +135,102 @@ Function fget_napr_PN(k,r,c)
   restscreen(buf)
   return {0,"Количество направлений - "+lstr(count_napr)}
 
+***** 06.09.2021 редактировать другое направление (№...)
+Function change_num_napr()
+  Local r, n, fl := .f., tmp_keys, tmp_gets, buf, tmp_color := setcolor()
+  local recNumberDoctor := 0
+
+  if emptyany(mNAPR_DATE,m1NAPR_V)
+    func_error(4,"Ещё не заполнено направление № "+lstr(cur_napr))
+    return .t.
+  endif
+  tmp_keys := my_savekey()
+  save gets to tmp_gets
+  buf := savescreen()
+  change_attr()
+  r := 4
+  if (n := input_value(r,33,r+2,77,color5,"Добавление/редактирование направления №",cur_napr,"99")) == NIL
+    // отказ
+  elseif eq_any(n,0,cur_napr)
+    // выбрали то же направление, что и редактируется
+  else
+    if cur_napr == 0
+      cur_napr := 1
+    endif
+    // select TPERS
+    // if TPERS->(dbSeek(str(mTab_Number,5)))
+    //   recNumberDoctor := TPERS->(recno())
+    // else
+      recNumberDoctor := 0
+    // endif
+
+    if select("TNAPR") == 0
+      use (cur_dir+"tmp_onkna") new alias TNAPR
+    else
+      select TNAPR
+    endif
+    count_napr := lastrec()
+    if cur_napr <= count_napr
+      goto (cur_napr) // номер текущего направления
+    else
+      append blank
+    endif
+    tnapr->NAPR_DATE := mNAPR_DATE
+    tnapr->KOD_VR := recNumberDoctor
+    tnapr->NAPR_MO := m1NAPR_MO
+    tnapr->NAPR_V := m1NAPR_V
+    tnapr->MET_ISSL := m1MET_ISSL
+    tnapr->U_KOD := mu_kod
+    tnapr->shifr_u := mshifr
+    tnapr->shifr1 := mshifr1
+    tnapr->name_u := mname_u
+    count_napr := lastrec()
+    //
+    if n <= count_napr
+      cur_napr := n
+      goto (cur_napr) // номер текущего направления
+      mNAPR_DATE := tnapr->NAPR_DATE
+
+      select TPERS
+      TPERS->(dbGoto(tnapr->KOD_VR))
+      if !(TPERS->(eof())) .and. !(TPERS->(bof()))
+        mTab_Number := TPERS->TAB_NOM
+      else
+        mTab_Number := 0
+      endif
+      select TNAPR
+
+      m1NAPR_MO := tnapr->NAPR_MO
+      m1NAPR_V := tnapr->NAPR_V
+      m1MET_ISSL := iif(m1napr_v == 3, tnapr->MET_ISSL, 0)
+      mu_kod := iif(m1napr_v == 3, tnapr->U_KOD, 0)
+      mshifr := iif(m1napr_v == 3, tnapr->shifr_u, space(20))
+      mshifr1 := iif(m1napr_v == 3, tnapr->shifr1, space(20))
+      mname_u := iif(m1napr_v == 3, tnapr->name_u, space(65))
+    else
+      cur_napr := count_napr+1
+      mNAPR_DATE := ctod("")
+      mTab_Number := 0
+      m1NAPR_MO := space(6)
+      mNAPR_MO := space(60)
+      m1NAPR_V := 0
+      m1MET_ISSL := 0
+      mu_kod := 0
+      mshifr := space(20)
+      mshifr1 := space(20)
+      mname_u := space(65)
+    endif
+    mNAPR_V := padr(inieditspr(A__MENUVERT, mm_napr_v, m1napr_v),30)
+    mMET_ISSL := padr(inieditspr(A__MENUVERT, mm_MET_ISSL, m1MET_ISSL),45)
+    tip_onko_napr := 0
+  endif
+  restscreen(buf)
+  restore gets from tmp_gets
+  my_restkey(tmp_keys)
+  setcolor(tmp_color)
+  setcursor()
+  return update_gets()
+  
 ***** 23.01.17
 Function f_valid_diag_oms_sluch_DVN(get,k)
 Local sk := lstr(k)

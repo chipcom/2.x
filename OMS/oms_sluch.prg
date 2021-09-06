@@ -42,7 +42,7 @@ Function oms_sluch(Loc_kod,kod_kartotek)
       return oms_sluch_DVN_COVID(Loc_kod,kod_kartotek)
     endif
   endif
-  
+
   Default st_N_DATA TO sys_date, st_K_DATA TO sys_date
   Default Loc_kod TO 0, kod_kartotek TO 0
   if kod_kartotek == 0 // добавление в картотеку

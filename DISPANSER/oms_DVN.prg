@@ -3,7 +3,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 19.01.21 ДВН - добавление или редактирование случая (листа учета)
+***** 06.09.21 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_DVN(Loc_kod,kod_kartotek,f_print)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -189,7 +189,9 @@ Function oms_sluch_DVN(Loc_kod,kod_kartotek,f_print)
      {"KOD_VR"   ,   "N",     5,     0};  // код врача (справочник mo_pers)
     })
   Private m1NAPR_MO, mNAPR_MO, mNAPR_DATE, mNAPR_V, m1NAPR_V, mMET_ISSL, m1MET_ISSL, ;
-          mshifr, mshifr1, mname_u, mU_KOD, cur_napr := 0, count_napr := 0, tip_onko_napr := 0
+          mshifr, mshifr1, mname_u, mU_KOD, cur_napr := 0, count_napr := 0, tip_onko_napr := 0, ;
+          mTab_Number := 0
+
   Private mm_napr_v := {{"нет",0},;
                         {"к онкологу",1},;
                         {"на дообследование",3}}
@@ -592,6 +594,7 @@ Function oms_sluch_DVN(Loc_kod,kod_kartotek,f_print)
         select TNAPR
         append blank
         tnapr->NAPR_DATE := napr->NAPR_DATE
+        tnapr->KOD_VR    := napr->KOD_VR
         tnapr->NAPR_MO   := napr->NAPR_MO
         tnapr->NAPR_V    := napr->NAPR_V
         tnapr->MET_ISSL  := napr->MET_ISSL
@@ -1922,6 +1925,7 @@ Function oms_sluch_DVN(Loc_kod,kod_kartotek,f_print)
               G_RLock(forever)
             endif
             napr->NAPR_DATE := tnapr->NAPR_DATE
+            napr->KOD_VR := tnapr->KOD_VR
             napr->NAPR_MO := tnapr->NAPR_MO
             napr->NAPR_V := tnapr->NAPR_V
             napr->MET_ISSL := iif(tnapr->NAPR_V == 3, tnapr->MET_ISSL, 0)
