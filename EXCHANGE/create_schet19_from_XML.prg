@@ -685,7 +685,16 @@ Function create_schet19_from_XML(arr_XML_info,aerr,fl_msg,arr_s,name_sp_tk)
           select T6
           find (t1->IDCASE+str(isl,6))
           do while t1->IDCASE == t6->IDCASE .and. isl == t6->sluch .and. !eof()
-           oNAPR := oSL:Add( HXMLNode():New( "NAPR" ) )
+            oNAPR := oSL:Add( HXMLNode():New( "NAPR" ) )
+
+            // добавил по новому ПУМП от 02.08.2021
+            if !empty(t5->NAZ_IDDT)
+              mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_IDDOKT",t6->NAZ_IDDT)
+            endif
+            if !empty(t5->NAZ_SPDT)
+              mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_SPDOCT",t6->NAZ_SPDT)
+            endif
+
             mo_add_xml_stroke(oNAPR,"NAPR_DATE",t6->NAPR_DATE)
             if !empty(t6->NAPR_MO)
               mo_add_xml_stroke(oNAPR,"NAPR_MO",t6->NAPR_MO)

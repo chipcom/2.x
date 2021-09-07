@@ -220,6 +220,8 @@ Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
      {"KOD",      "N", 6,0},; // код
      {"IDCASE",   "C",12,0},; // номер позиции записи в реестре;поле "IDCASE" (и "ZAP") в реестре случаев
      {"NAPR_DATE","C",10,0},; // Дата направления
+     {"NAZ_IDDT", "C",25,0},; // СНИЛС врача
+     {"NAZ_SPDT", "C", 4,0},; // Код специальности врача V021
      {"NAPR_MO",  "C", 6,0},; //
      {"NAPR_V"  , "C", 1,0},; // Вид направления:1-к онкологу,2-на биопсию,3-на дообследование,4-для опр.тактики лечения
      {"MET_ISSL" ,"C", 1,0},; // Метод диагностического исследования(при NAPR_V=3):1-лаб.диагностика;2-инстр.диагностика;3-луч.диагностика;4-КТ, МРТ, ангиография
@@ -545,6 +547,11 @@ Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
                         t6->KOD      := mkod
                         t6->IDCASE   := &lal.->IDCASE // для связи со случаем
                         t6->NAPR_DATE:= mo_read_xml_stroke(oNode2,"NAPR_DATE")
+                        // добавил по новому ПУМП от 02.08.2021
+                        if p_tip_reestr == 2 .and. (xml2date(t1->DATE_Z_2) >= 0d20210801)
+                          t6->NAZ_IDDT  := mo_read_xml_stroke(oNode2,"NAZ_IDDOKT",,.f.)
+                          t6->NAZ_SPDT  := mo_read_xml_stroke(oNode2,"NAZ_SPDOCT",,.f.)
+                        endif
                         t6->NAPR_MO  := mo_read_xml_stroke(oNode2,"NAPR_MO",,.f.)
                         t6->NAPR_V   := mo_read_xml_stroke(oNode2,"NAPR_V")
                         t6->MET_ISSL := mo_read_xml_stroke(oNode2,"MET_ISSL",,.f.)
