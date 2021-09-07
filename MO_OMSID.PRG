@@ -2699,7 +2699,7 @@ return NIL
 
 *
 
-***** 23.12.20 ˆ­ä®à¬ æ¨ï ¯® ¤¨á¯ ­á¥à¨§ æ¨¨ ¨ ¯à®ä¨« ªâ¨ª¥ ¢§à®á«®£® ­ á¥«¥­¨ï
+***** 06.09.21 ˆ­ä®à¬ æ¨ï ¯® ¤¨á¯ ­á¥à¨§ æ¨¨ ¨ ¯à®ä¨« ªâ¨ª¥ ¢§à®á«®£® ­ á¥«¥­¨ï
 Function inf_DVN(k)
 Static si1 := 1, si2 := 1, si3 := 1, si4 := 1, si5 := 2, si6 := 2, si7 := 2, sj := 1, sj1 := 1
 Local mas_pmt, mas_msg, mas_fun, j
@@ -2710,18 +2710,21 @@ do case
                 "~‘¯¨á®ª ¯ æ¨¥­â®¢",;
                 "Œ­®£®¢ à¨ ­â­ë© ~§ ¯à®á",;
                 "‘¢®¤ë ¤«ï ~Ž¡«§¤à ¢ ",;
+                "‘¢®¤ë ¯® “„ ¤«ï ~Ž¡«§¤à ¢ ",;
                 "Žâçñâ­ ï ä®à¬  ü~131",;
                 "Ž¡¬¥­ ~ä ©« ¬¨ R0... á ’”"}
     mas_msg := {" á¯¥ç âª  ª àâë ãçñâ  ¤¨á¯ ­á¥à¨§ æ¨¨ (¯à®ä¨« ªâ¨ç¥áª¨å ¬¥¤.®á¬®âà®¢) ü131/ã",;
                 " á¯¥ç âª  á¯¨áª  ¯ æ¨¥­â®¢, ¯à®è¥¤è¨å ¤¨á¯ ­á¥à¨§ æ¨î/¯à®ä¨« ªâ¨ªã",;
                 "Œ­®£®¢ à¨ ­â­ë© § ¯à®á ¯® ¤¨á¯ ­á¥à¨§ æ¨¨/¯à®ä¨« ªâ¨ª¥ ¢§à®á«®£® ­ á¥«¥­¨ï",;
                 " á¯¥ç âª  á¢®¤®¢ ¤«ï ‚®«£®£à ¤áª®£® ®¡« áâ­®£® Š®¬¨â¥â  §¤à ¢®®åà ­¥­¨ï",;
+                " á¯¥ç âª  á¢®¤®¢ ¯® ã£«ã¡«¥­­®© ¤¨á¯ ­á¥à¨§ æ¨¨ ¤«ï ‚®«£®£à ¤áª®£® ®¡«§¤à ¢ ",;
                 "‘¢¥¤¥­¨ï ® ¤¨á¯ ­á¥à¨§ æ¨¨ ®¯à¥¤¥«ñ­­ëå £àã¯¯ ¢§à®á«®£® ­ á¥«¥­¨ï",;
                 "ˆ­ä®à¬ æ¨®­­®¥ á®¯à®¢®¦¤¥­¨¥ ¯à¨ ®à£-æ¨¨ ¯à®å®¦¤¥­¨ï ¯à®ä¨« ªâ¨ç¥áª¨å ¬¥à®¯à¨ïâ¨©"}
     mas_fun := {"inf_DVN(11)",;
                 "inf_DVN(12)",;
                 "inf_DVN(13)",;
                 "inf_DVN(14)",;
+                "inf_DVN(17)",;
                 "inf_DVN(15)",;
                 "inf_DVN(16)"}
     popup_prompt(T_ROW,T_COL-5,si1,mas_pmt,mas_msg,mas_fun)
@@ -2777,6 +2780,8 @@ do case
     else
       func_error(4,"‚ ¤ ­­ë© ¬®¬¥­â á íâ¨¬ à¥¦¨¬®¬ à ¡®â ¥â ¤àã£®© ¯®«ì§®¢ â¥«ì.")
     endif
+  case k == 17
+    inf_YDVN()
   case k == 41
     mas_pmt := {"~‘®§¤ ­¨¥ ¯« ­ -£à ä¨ª ",;
                 "~à®á¬®âà ä ©«®¢ ®¡¬¥­ "}
@@ -4098,6 +4103,238 @@ endif
 close databases
 rest_box(buf)
 return NIL
+
+*
+
+
+***** 06.09.21
+Function inf_YDVN()
+
+Local i, ii, s, arr_m, buf := save_maxrow(), ar, arr_excel := {}, is_all
+Local sh, HH := 53,  n_file := "gor_YDVN"+stxt, reg_print, arr_itog[18] 
+
+local arr_title := {;
+"ÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄ",;
+"¯à®è«¨³   ¢    ³   ¢   ³¯à®è«¨ § ³      ³      ³      ³      ³      ³­ ¯à ¢-³¯à®è«¨³      ³      ³      ³      ³      ³¢¯¥à¢ë¥",;
+"1 íâ ¯³¢¥ç¥à­¥¥³áã¡¡®âã³  Ž„ˆ   ³   I  ³  II  ³  III ³ IIIa ³ IIIb ³«¥­® ­ ³2 íâ ¯³   I  ³  II  ³  III ³ IIIa ³ IIIb ³  ¢§ïâ®",;
+"      ³ ¢à¥¬ï  ³       ³  ¤¥­ì   ³£àã¯¯ ³£àã¯¯ ³£àã¯¯ ³£àã¯¯ ³£àã¯¯ ³ 2 íâ ¯³      ³£àã¯¯ ³£àã¯¯ ³£àã¯¯ ³£àã¯¯ ³£àã¯¯ ³ „ ãç¥â",;
+"ÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÅÄÄÄÄÄÄÅÄÄÄÄÄÄÅÄÄÄÄÄÄÅÄÄÄÄÄÄÅÄÄÄÄÄÄÄÅÄÄÄÄÄÄÅÄÄÄÄÄÄÅÄÄÄÄÄÄÅÄÄÄÄÄÄÅÄÄÄÄÄÄÅÄÄÄÄÄÄÅÄÄÄÄÄÄÄ",;
+"   2  ³   3    ³   4   ³    5    ³   6  ³   7  ³   8  ³   9  ³  10  ³   11  ³  12  ³  13  ³  14  ³  15  ³  16  ³  17  ³   18  ",;
+"ÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÁÄÄÄÄÄÄÄ"}
+
+
+Local title_zagol := {;
+"ˆ­ë¥ £à ¦¤ ­¥",;
+"­¥ ¡®«¥¥ ç¥¬ á ®¤­¨¬ á®¯ãâáâ¢ãîé¨¬ åà®­¨ç¥áª¨¬ ­¥¨­ä¥ªæ¨®­­ë¬ § ¡®«¥¢ ­¨¥¬ - 2 £àã¯¯ ",;
+"á ª®¬®à¡¨¤­ë¬ ä®­®¬ (­ «¨ç¨¥ ¤¢ãå ¨ ¡®«¥¥ åà®­¨ç¥áª¨å ­¥¨­ä¥ªæ¨®­­ëå § ¡®«¥¢ ­¨© - 1 £àã¯¯ ",;
+"ˆâ®£®"}
+
+
+Private  pole_pervich, pole_1pervich, pole_dispans, pole_1dispans
+
+for i := 1 to 5
+  sk := lstr(i)
+ // pole_pervich := "mpervich"+sk
+  pole_1pervich := "m1pervich"+sk
+ // pole_dispans := "mdispans"+sk
+  pole_1dispans := "m1dispans"+sk
+ // Private &pole_pervich := space(7)
+  Private &pole_1pervich := 0
+//  Private &pole_dispans := space(10)
+  Private &pole_1dispans := 0
+next
+
+
+if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
+                                   .and. (arr_m := year_month(,,,5)) != NIL
+mywait()
+dbcreate(cur_dir+"tmp",{{"gruppa_1","N",1,0},;// 1-£àã¯¯  2- £àã¯¯  3 - ¡¥§ £àã¯¯ 
+                        {"etap_1","N",1,0},;  // â ¯ 1-© 2-©
+                        {"sub_day","N",1,0},; // ‚ë¯®«­¥­¨¥ ¢ áã¡¡®âã 0-­¥â 1-¤ 
+                        {"one_day","N",1,0},; // ‚ë¯®«­¥­¨¥ ¢ 1 ¤¥­ì 0-­¥â 1-¤ 
+                        {"gruppa","N",3,0},;  // ƒàã¯¯  §¤®à®¢ìï 1,2.3a,3b
+                        {"napr2","N",1,0},;   //  ¯à ¢«¥­ ­  2-© íâ ¯ 0-­¥â 1-¤ 
+                        {"d_one","N",1,0}})   // ‚¯¥à¢ë¥ ¢§ïâ® ­  „-ãç¥â 0-­¥â 1-¤ 
+
+  R_Use(dir_server+"human_",,"HUMAN_")
+  R_Use(dir_server+"human",dir_server+"humand","HUMAN")
+  set relation to recno() into HUMAN_
+  use (cur_dir+"tmp") new
+  //
+  select HUMAN
+  dbseek(dtos(arr_m[5]),.t.)
+  do while human->k_data <= arr_m[6] .and. !eof()
+    if between(human->ishod,401,402)
+      // read_arr_DVN_COVID(human->kod)
+      select TMP
+      append blank
+      if dow(arr_m[5]) == 7
+        tmp->sub_day := 1
+      else
+        tmp->sub_day := 0
+      endif
+      if arr_m[5] == arr_m[6]
+        tmp->one_day := 1
+      else
+        tmp->one_day := 0
+      endif
+      if human->ishod == 401
+        tmp->etap_1 := 1
+      else
+        tmp->etap_1 := 2
+      endif
+      //
+      arr := read_arr_DISPANS(human->kod)
+      //
+      for i := 1 to len(arr)
+        if valtype(arr[i]) == "A" .and. valtype(arr[i,1]) == "C"
+          do case
+            case arr[i,1] == "5" .and. valtype(arr[i,2]) == "N"
+              tmp->gruppa_1 := arr[i,2]
+            case eq_any(arr[i,1],"11","12","13","14") 
+              sk := right(arr[i,1],1)
+              pole_1pervich := "m1pervich"+sk
+              pole_1dispans := "m1dispans"+sk
+              if valtype(arr[i,2,4]) == "N"
+                &pole_1dispans := arr[i,2,4]
+              endif
+              if valtype(arr[i,2,2]) == "N"
+                &pole_1pervich := arr[i,2,2]
+              endif
+              if &pole_1dispans == 1 .and. &pole_1pervich == 1
+                tmp->d_one := 1
+              endif
+           endcase
+        endif
+      next
+      if human_->RSLT_NEW == 317
+        tmp->gruppa := 1
+        tmp->napr2  := 0
+      elseif human_->RSLT_NEW == 318
+        tmp->gruppa := 2
+        tmp->napr2  := 0
+      elseif human_->RSLT_NEW == 355
+        tmp->gruppa := 3
+        tmp->napr2  := 0
+      elseif human_->RSLT_NEW == 356
+        tmp->gruppa := 4
+        tmp->napr2  := 0
+      elseif human_->RSLT_NEW == 352
+        tmp->gruppa := 1
+        tmp->napr2  := 1
+      elseif human_->RSLT_NEW == 353
+        tmp->gruppa := 2
+        tmp->napr2  := 1
+      elseif human_->RSLT_NEW == 357
+        tmp->gruppa := 3
+        tmp->napr2  := 1
+      else //if human_->RSLT_NEW == 358
+        tmp->gruppa := 4
+        tmp->napr2  := 1
+      endif
+    endif
+    select HUMAN
+    skip
+  enddo
+// á®§¤ ¥¬ ®âç¥â
+reg_print := f_reg_print(arr_title,@sh,2)
+fp := fcreate(n_file) ; tek_stroke := 0 ; n_list := 1
+add_string("")
+  //
+  for II := 0 to 3 
+    afill(arr_itog,0)
+    select TMP
+    go top
+    do while !eof()
+      if iif(II==3,.T.,tmp->Gruppa_1 == II)
+        if tmp->etap_1 == 1
+          arr_itog[2] ++
+          if tmp->sub_day == 1 
+            arr_itog[4] ++
+          endif
+          if tmp->one_day == 1 
+            arr_itog[5] ++
+          endif
+          if tmp->gruppa == 1 
+            arr_itog[6] ++
+          endif
+          if tmp->gruppa == 2 
+            arr_itog[7] ++
+          endif
+          if tmp->gruppa == 3 
+            arr_itog[8] ++
+            arr_itog[9] ++
+          endif
+          if tmp->gruppa == 4 
+            arr_itog[8] ++
+            arr_itog[10] ++
+          endif
+          if tmp->napr2 == 1 
+            arr_itog[11] ++
+          endif
+        else
+          arr_itog[12] ++
+          if tmp->gruppa == 1 
+            arr_itog[13] ++
+          endif
+          if tmp->gruppa == 2 
+            arr_itog[14] ++
+          endif
+          if tmp->gruppa == 3 
+            arr_itog[15] ++
+            arr_itog[16] ++
+          endif
+          if tmp->gruppa == 4 
+            arr_itog[15] ++
+            arr_itog[17] ++
+          endif
+        endif
+        if tmp->d_one == 1
+            arr_itog[18] ++
+        endif
+      endif
+      skip
+    enddo
+// ‚ë¢®¤¨¬
+    add_string(center("‹¨æ , ¯¥à¥­¥áè¨¥ COVID-19",sh))
+    if II==3
+      add_string(center("ˆ’ŽƒŽ",sh))
+    else
+      add_string(center(title_zagol[II+1],sh))
+    endif
+    add_string(center(arr_m[4],sh))
+    add_string("")
+    aeval(arr_title, {|x| add_string(x) } )
+    add_string(padl(lstr(arr_itog[2]),6)+;
+               padl("",8)+;
+               padl(lstr(arr_itog[4]),9)+;
+               padl(lstr(arr_itog[5]),10)+;
+               padl(lstr(arr_itog[6]),7)+;
+               padl(lstr(arr_itog[7]),7)+;
+               padl(lstr(arr_itog[8]),7)+;
+               padl(lstr(arr_itog[9]),7)+;
+               padl(lstr(arr_itog[10]),7)+;
+               padl(lstr(arr_itog[11]),8)+;
+               padl(lstr(arr_itog[12]),7)+;
+               padl(lstr(arr_itog[13]),7)+;
+               padl(lstr(arr_itog[14]),7)+;
+               padl(lstr(arr_itog[15]),7)+;
+               padl(lstr(arr_itog[16]),7)+;
+               padl(lstr(arr_itog[17]),7)+;
+               padl(lstr(arr_itog[18]),8))
+    add_string("")
+    add_string("")
+  next
+endif
+//
+//quit
+close databases
+fclose(fp)
+Private yes_albom := .t.
+viewtext(n_file,,,,(sh>80),,,reg_print)
+rest_box(buf)
+return NIL
+
 
 ***** 27.04.20
 Function f1_f21_inf_DVN()
