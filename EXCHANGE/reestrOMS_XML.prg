@@ -583,6 +583,15 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
             oPRESCRIPTIONS := oPRESCRIPTION:Add( HXMLNode():New( "PRESCRIPTIONS" ) )
             mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_N",lstr(j+len(arr_nazn)))
             mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_R",lstr(iif(arr_onkna[j,2]==1, 2, arr_onkna[j,2])))
+
+            if !empty(arr_onkna[j,6])   // по новому ПУМП с 01.08.2021
+              mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_IDDOKT", arr_onkna[j,6])
+            endif
+
+            if !empty(arr_onkna[j,7])   // по новому ПУМП с 01.08.2021
+              mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_SPDOCT", arr_onkna[j,7])
+            endif
+
             if arr_onkna[j,2] == 1 // направление к онкологу
               mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_SP",iif(human->VZROS_REB==0,'41','19')) // спец-ть онкология или детская онкология
             else // == 3 на дообследование
@@ -1235,8 +1244,9 @@ Function f1_create2reestr19(_nyear,_nmonth)
   select ONKNA
   find (str(human->kod,7))
   do while onkna->kod == human->kod .and. !eof()
-
-    if P2TABN->(dbSeek(str(onkna->KOD_VR,5)))
+altd()
+    P2TABN->(dbGoto(onkna->KOD_VR))
+    if !(P2TABN->(eof())) .and. !(P2TABN->(bof()))
       // aadd(arr_nazn,{3, i, P2TABN->snils, lstr(ret_prvs_V015toV021(P2TABN->PRVS_NEW))}) // теперь каждое назначение в отдельном PRESCRIPTIONS
       mosu->(dbGoto(onkna->U_KOD))
       aadd(arr_onkna, {onkna->NAPR_DATE,onkna->NAPR_V,onkna->MET_ISSL,mosu->shifr1,onkna->NAPR_MO, P2TABN->snils, lstr(ret_prvs_V015toV021(P2TABN->PRVS_NEW))})

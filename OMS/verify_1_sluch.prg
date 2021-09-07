@@ -1232,7 +1232,7 @@ Function verify_1_sluch(fl_view)
                  iif(onkna->NAPR_V == 3, onkna->MET_ISSL, 0),;
                  iif(onkna->NAPR_V == 3, onkna->U_KOD, 0),;
                  "",;
-                 onkna->(recno()),
+                 onkna->(recno()),;
                  onkna->KOD_VR })
       if !between(onkna->NAPR_DATE,d1,d2)
         aadd(ta,"дата направления должна быть внутри сроков лечения (направление "+lstr(i)+')')
