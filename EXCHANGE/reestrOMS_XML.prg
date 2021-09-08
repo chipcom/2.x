@@ -1244,7 +1244,6 @@ Function f1_create2reestr19(_nyear,_nmonth)
   select ONKNA
   find (str(human->kod,7))
   do while onkna->kod == human->kod .and. !eof()
-altd()
     P2TABN->(dbGoto(onkna->KOD_VR))
     if !(P2TABN->(eof())) .and. !(P2TABN->(bof()))
       // aadd(arr_nazn,{3, i, P2TABN->snils, lstr(ret_prvs_V015toV021(P2TABN->PRVS_NEW))}) // теперь каждое назначение в отдельном PRESCRIPTIONS
