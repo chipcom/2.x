@@ -4111,7 +4111,7 @@ return NIL
 Function inf_YDVN()
 
 Local i, ii, s, arr_m, buf := save_maxrow(), ar, arr_excel := {}, is_all
-Local sh, HH := 53,  n_file := "gor_YDVN"+stxt, reg_print, arr_itog[18] 
+Local sh, HH := 53,  n_file := "gor_YDVN"+stxt, reg_print, arr_itog[18]
 
 local arr_title := {;
 "ÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄ",;
@@ -4191,7 +4191,7 @@ dbcreate(cur_dir+"tmp",{{"gruppa_1","N",1,0},;// 1-£àã¯¯  2- £àã¯¯  3 - ¡¥§ £àã¯
           do case
             case arr[i,1] == "5" .and. valtype(arr[i,2]) == "N"
               tmp->gruppa_1 := arr[i,2]
-            case eq_any(arr[i,1],"11","12","13","14") 
+            case eq_any(arr[i,1],"11","12","13","14")
               sk := right(arr[i,1],1)
               pole_1pervich := "m1pervich"+sk
               pole_1dispans := "m1dispans"+sk
@@ -4241,7 +4241,7 @@ reg_print := f_reg_print(arr_title,@sh,2)
 fp := fcreate(n_file) ; tek_stroke := 0 ; n_list := 1
 add_string("")
   //
-  for II := 0 to 3 
+  for II := 0 to 3
     afill(arr_itog,0)
     select TMP
     go top
@@ -4249,42 +4249,42 @@ add_string("")
       if iif(II==3,.T.,tmp->Gruppa_1 == II)
         if tmp->etap_1 == 1
           arr_itog[2] ++
-          if tmp->sub_day == 1 
+          if tmp->sub_day == 1
             arr_itog[4] ++
           endif
-          if tmp->one_day == 1 
+          if tmp->one_day == 1
             arr_itog[5] ++
           endif
-          if tmp->gruppa == 1 
+          if tmp->gruppa == 1
             arr_itog[6] ++
           endif
-          if tmp->gruppa == 2 
+          if tmp->gruppa == 2
             arr_itog[7] ++
           endif
-          if tmp->gruppa == 3 
+          if tmp->gruppa == 3
             arr_itog[8] ++
             arr_itog[9] ++
           endif
-          if tmp->gruppa == 4 
+          if tmp->gruppa == 4
             arr_itog[8] ++
             arr_itog[10] ++
           endif
-          if tmp->napr2 == 1 
+          if tmp->napr2 == 1
             arr_itog[11] ++
           endif
         else
           arr_itog[12] ++
-          if tmp->gruppa == 1 
+          if tmp->gruppa == 1
             arr_itog[13] ++
           endif
-          if tmp->gruppa == 2 
+          if tmp->gruppa == 2
             arr_itog[14] ++
           endif
-          if tmp->gruppa == 3 
+          if tmp->gruppa == 3
             arr_itog[15] ++
             arr_itog[16] ++
           endif
-          if tmp->gruppa == 4 
+          if tmp->gruppa == 4
             arr_itog[15] ++
             arr_itog[17] ++
           endif
@@ -9011,7 +9011,7 @@ Private c_view := 0, c_found := 0, fl_exit := .f., pj, arr_rees := {},;
 mywait()
 fl := .t.
 fl_1 := .f.
-SMONTH := lm := 9 //Œ…‘Ÿ–
+SMONTH := lm := 10 //Œ…‘Ÿ–
 dbcreate(cur_dir+"tmp_00",{;
    {"reestr",     "N", 6,0},;
    {"kod",        "N", 7,0},; // ª®¤ ¯® ª àâ®â¥ª¥
