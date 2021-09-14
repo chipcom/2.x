@@ -5,6 +5,8 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
+#define MONTH_UPLOAD 10 //МЕСЯЦ для выгрузки R11
+
 Static lcount_uch  := 1
 Static mas1pmt := {"~все оказанные случаи",;
                    "случаи в выставленных ~счетах",;
@@ -9011,7 +9013,7 @@ Private c_view := 0, c_found := 0, fl_exit := .f., pj, arr_rees := {},;
 mywait()
 fl := .t.
 fl_1 := .f.
-SMONTH := lm := 10 //МЕСЯЦ
+SMONTH := lm := MONTH_UPLOAD //МЕСЯЦ
 dbcreate(cur_dir+"tmp_00",{;
    {"reestr",     "N", 6,0},;
    {"kod",        "N", 7,0},; // код по картотеке
