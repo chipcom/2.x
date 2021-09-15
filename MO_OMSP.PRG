@@ -1219,7 +1219,7 @@ do while .t.
 enddo
 return NIL
 
-***** 13.02.19 ¢¥à­ãâì ¢¨¤ íªá¯¥àâ¨§ë
+***** 14.09.21 ¢¥à­ãâì ¢¨¤ íªá¯¥àâ¨§ë
 Function ret_vid_eks()
 Local i
 if rak->TYPEK > 0
@@ -1230,7 +1230,11 @@ elseif rak->kont < 20
   i := 0 // ŒŠ
 elseif rak->kont < 30
   i := 1 // Œ
-else
+elseif rak->kont < 50
+  i := 2 // ŠŒ
+elseif rak->kont < 70  //c 25.05.2021 Œ
+  i := 1 // Œ
+else      //  c 25.05.2021  ¤® 86
   i := 2 // ŠŒ
 endif
 return i

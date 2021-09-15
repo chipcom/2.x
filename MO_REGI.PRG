@@ -2165,7 +2165,7 @@ return NIL
 
 *
 
-***** 26.02.15
+***** 14.09.21
 Function f0_prn_kartotek(par,nuch,nsmo)
 Static si1 := 2
 Local adbf := {;
@@ -2197,7 +2197,10 @@ Local adbf := {;
    {"PENSIONER", "C", 11,0},; // является пенсионером?;0-нет, 1-да;
    {"MO_PR",     "C",  6,0},; // код МО приписки
    {"MONAME_PR", "C", 60,0},; // наименование МО приписки
-   {"DATE_PR"  , "C", 10,0};  // дата приписки
+   {"DATE_PR"  , "C", 10,0},;  // дата приписки
+   {"PHONE_H",   "C", 11,0},; // телефон домашний;;
+   {"PHONE_M",   "C", 11,0},; // телефон мобильный;;
+   {"PHONE_W",   "C", 11,0}; // телефон рабочий;;
   }
 Local i := 0, hGauge, pr_uchast, n_file, fl_exit := .f.
 Private mdate_r, m1vzros_reb := 0
@@ -2276,6 +2279,9 @@ do case
         tmp->kemvyd     := skem->name
         tmp->kogdavyd   := full_date(kart_->kogdavyd)
         tmp->PENSIONER  := iif(kart_->PENSIONER==1,"пенсионер","")
+        tmp->PHONE_H    := kart_->PHONE_H // телефон домашний;;
+        tmp->PHONE_M    := kart_->PHONE_M // телефон мобильный;;
+        tmp->PHONE_W    := kart_->PHONE_W // телефон рабочий;;
         if !empty(tmp->mo_pr := kart2->mo_pr)
           tmp->MONAME_PR := ret_mo(kart2->mo_pr)[_MO_SHORT_NAME]
           if !empty(kart2->pc4)
@@ -2350,6 +2356,9 @@ do case
         tmp->kemvyd     := skem->name
         tmp->kogdavyd   := full_date(kart_->kogdavyd)
         tmp->PENSIONER  := iif(kart_->PENSIONER==1,"пенсионер","")
+        tmp->PHONE_H    := kart_->PHONE_H // телефон домашний;;
+        tmp->PHONE_M    := kart_->PHONE_M // телефон мобильный;;
+        tmp->PHONE_W    := kart_->PHONE_W // телефон рабочий;;
         if !empty(tmp->mo_pr := kart2->mo_pr)
           tmp->MONAME_PR := ret_mo(kart2->mo_pr)[_MO_SHORT_NAME]
           if !empty(kart2->pc4)
