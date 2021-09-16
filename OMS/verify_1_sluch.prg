@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-***** 05.09.21
+***** 16.09.21
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
         i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -1072,6 +1072,7 @@ Function verify_1_sluch(fl_view)
                      c4tod(hu->date_u),; // 4
                      hu->kol_1})         // 5
     endif
+    
     select HU
     skip
   enddo
@@ -1920,13 +1921,15 @@ Function verify_1_sluch(fl_view)
   endif
   for i := 1 to len(arr_perso)
     pers->(dbGoto(arr_perso[i]))
-    mvrach := fam_i_o(pers->fio)+" ["+lstr(pers->tab_nom)+"]"
-    if empty(pers->snils) .and. (! is_disp_DVN_COVID) // исправлено для углубленной диспансеризации
-      aadd(ta,"не введен СНИЛС у врача - "+mvrach)
-    else
-      s := space(80)
-      if !val_snils(pers->snils,2,@s)
-        aadd(ta,s+" у врача - "+mvrach)
+    if pers->tab_nom != 0 // добавлен для углубленной диспансеризации
+      mvrach := fam_i_o(pers->fio)+" ["+lstr(pers->tab_nom)+"]"
+      if empty(pers->snils)
+        aadd(ta,"не введен СНИЛС у врача - "+mvrach)
+      else
+        s := space(80)
+        if !val_snils(pers->snils,2,@s)
+          aadd(ta,s+" у врача - "+mvrach)
+        endif
       endif
     endif
   next
@@ -4294,7 +4297,7 @@ Function verify_1_sluch(fl_view)
   endif
 
   // проверим на наличие направивиших врачей
-  if is_exist_Prescription  // is_disp_DDS .or. is_disp_DVN .or. is_prof_PN .or. is_disp_DVN_COVID
+  if is_exist_Prescription
     if human->k_data >= 0d20210801
       checkSectionPrescription( ta )
     endif
