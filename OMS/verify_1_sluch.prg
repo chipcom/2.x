@@ -631,9 +631,13 @@ Function verify_1_sluch(fl_view)
         hu_->ID_U := mo_guid(3,hu_->(recno()))
       endif
       mdate := c4tod(hu->date_u)
-      if !empty(hu->kod_vr) .and. mdate >= human->n_data .and. ascan(arr_perso,hu->kod_vr) == 0
-        aadd(arr_perso,hu->kod_vr)
+      // if !empty(hu->kod_vr) .and. mdate >= human->n_data .and. ascan(arr_perso,hu->kod_vr) == 0
+      //   aadd(arr_perso,hu->kod_vr)
+      // endif
+      if !empty(hu->kod_vr) .and. mdate >= human->n_data
+        arr_perso := addKodDoctorToArray(arr_perso, hu->kod_vr)
       endif
+
       mdate_u1 := dtoc4(human->n_data)
       mdate_u2 := hu->date_u
       alltrim_lshifr := alltrim(lshifr)
@@ -1341,9 +1345,11 @@ Function verify_1_sluch(fl_view)
         aadd(ta,'не заполнено поле "Врач, оказавший услугу '+s+'"')
       endif
     else
-      if ascan(arr_perso,mohu->kod_vr) == 0
-        aadd(arr_perso,mohu->kod_vr)
-      endif
+      // if ascan(arr_perso,mohu->kod_vr) == 0
+      //   aadd(arr_perso,mohu->kod_vr)
+      // endif
+      arr_perso := addKodDoctorToArray(arr_perso, mohu->kod_vr)
+
       if empty(mvrach) .and. !(ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil,6,34))
         mvrach := mohu->kod_vr
       endif
@@ -1915,9 +1921,11 @@ Function verify_1_sluch(fl_view)
     if human_->PRVS > 0 .and. ret_V004_V015(human_->PRVS) == 0
       aadd(ta,'не найдено специальности в справочнике у "'+alltrim(pers->fio)+'"')
     endif
-    if ascan(arr_perso,human_->VRACH) == 0
-      aadd(arr_perso,human_->VRACH)
-    endif
+    // if ascan(arr_perso,human_->VRACH) == 0
+    //   aadd(arr_perso,human_->VRACH)
+    // endif
+    arr_perso := addKodDoctorToArray(arr_perso, human_->VRACH)
+
   endif
   for i := 1 to len(arr_perso)
     pers->(dbGoto(arr_perso[i]))
@@ -4702,7 +4710,7 @@ function check_006F_00_0440(mdiagnoz, arr)
   endif
   return
 
-*** 05.09.2021 проверка секции направлений пациента
+*** 17.09.2021 проверка секции направлений пациента
 function checkSectionPrescription( arr )
   local i := 0
   local lAdd := .f.
@@ -4722,7 +4730,7 @@ function checkSectionPrescription( arr )
         endif
       next
       if !flDopObsledovanie // не выбраны дополнительные исследования
-        lAdd := errorFillPrescription(lAdd, arr, 'в направлении пациента не выбрано ни одного дополнительного обследования')
+        lAdd := errorFillPrescription(lAdd, arr, 'в направлении не выбрано ни одного дополнительного обследования')
       endif
     endif
   endif
@@ -4733,7 +4741,7 @@ function checkSectionPrescription( arr )
     else
       lAdd := controlSNILS_Napr(lAdd, arr, 'TPERS', mtab_v_mo, 2)
       if empty(arr_mo_spec)
-        lAdd := errorFillPrescription(lAdd, arr, 'в направлении пациента не выбраны специальности')
+        lAdd := errorFillPrescription(lAdd, arr, 'в направлении к специалистам не выбраны специальности')
       endif
     endif
   endif
@@ -4744,7 +4752,7 @@ function checkSectionPrescription( arr )
     else
       lAdd := controlSNILS_Napr(lAdd, arr, 'TPERS', mtab_v_stac, 3)
       if !(m1profil_stac > 0)
-        lAdd := errorFillPrescription(lAdd, arr, 'в направлении пациента не выбран профиль лечения')
+        lAdd := errorFillPrescription(lAdd, arr, 'в направлении на лечение не выбран профиль')
       endif
     endif
   endif
@@ -4755,7 +4763,7 @@ function checkSectionPrescription( arr )
     else
       lAdd := controlSNILS_Napr(lAdd, arr, 'TPERS', mtab_v_reab, 4)
       if !(m1profil_kojki > 0)
-        lAdd := errorFillPrescription(lAdd, arr, 'в направлении пациента не выбран профиль реабилитации')
+        lAdd := errorFillPrescription(lAdd, arr, 'в направлении на реабилитацию не выбран профиль')
       endif
     endif
   endif
@@ -4783,7 +4791,7 @@ function errorFillPrescription(lAdd, arr, strError)
   aadd(arr,strError)
   return fl
 
-*** 04.09.21
+*** 17.09.21
 function controlSNILS_Napr(lAdd, arr, cAlias, nTabNumber, type)
   local fl := lAdd
   local strError := ''
@@ -4791,7 +4799,7 @@ function controlSNILS_Napr(lAdd, arr, cAlias, nTabNumber, type)
 
   default type to 0
   if (cAlias)->(dbSeek(str(nTabNumber,5)))
-    endError := alltrim((cAlias)->FIO) +' отсутствует СНИЛС'
+    endError := fam_i_o((cAlias)->FIO) + ' [' + lstr((cAlias)->tab_nom) + ']' + ' не введен СНИЛС'
 
     if type == 1
       strError := 'у направившего на дополнительное обследование врача ' + endError
@@ -4812,3 +4820,12 @@ function controlSNILS_Napr(lAdd, arr, cAlias, nTabNumber, type)
     fl := errorFillPrescription(fl, arr, 'не найден врач с табельным номером: ' + lstr(nTabNumber))
   endif
   return fl
+
+*** 17.09.21
+* добавляет код врача (номер записи в БД) в массив с проверкой, что еще отсутствует
+function addKodDoctorToArray(arr, nCode)
+
+  if ascan(arr,nCode) == 0
+    aadd(arr,nCode)
+  endif
+  return arr
