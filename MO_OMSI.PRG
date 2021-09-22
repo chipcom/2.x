@@ -193,7 +193,7 @@ return k
 
 *
 
-***** 29.08.21
+***** 22.09.21
 Function print_l_uch(mkod, par, regim, lnomer)
 // mkod - код больного по БД human
 Local sh := 80, HH := 77, buf := save_maxrow(),;
@@ -726,7 +726,13 @@ do while !eof()
     msumma += tmp1->summa
   endif
   s += put_kopE(tmp1->summa,9)
-  add_string(s)
+  //
+  if eq_any(human->ishod,401,402 ) .and. tmp1->kod_vr == 0 
+   // УГЛУБЛЕННАЯ дисп-ия взрослого населения
+  else
+    add_string(s)
+  endif
+  //
   s1 := ""
   if tmp1->summa > 0 .and. is_ksg(tmp1->shifr)
     if year(human->k_data) > 2017
@@ -756,15 +762,20 @@ do while !eof()
       endif
     endif
   endif
-  for i := 2 to k
-    add_string(space(21)+padl(rtrim(tmp[i]),w1))
-  next
-  if !empty(s1)
-    add_string(space(21)+s1)
+  if eq_any(human->ishod,401,402 ) .and. tmp1->kod_vr == 0 
+   // УГЛУБЛЕННАЯ дисп-ия взрослого населения
+  else
+    for i := 2 to k
+      add_string(space(21)+padl(rtrim(tmp[i]),w1))
+    next
+    if !empty(s1)
+      add_string(space(21)+s1)
+    endif
   endif
   select TMP1
   skip
 enddo
+//quit
 zap
 set order to 1
 add_string(replicate("-",sh))
