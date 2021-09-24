@@ -32,7 +32,7 @@ cpru1251m.c
 xmlparse_bay.c
 hxmldoc.prg
 mo_adres.prg
-mo_kart.prg
+.\KARTOTEK\mo_kart.prg
 .\KASSA\mo_fr.prg
 mo_func.prg
 mo_func1.prg
@@ -57,7 +57,7 @@ mo_omsit.prg
 mo_omsif.prg
 mo_omsf.prg
 mo_omsfo.prg
-mo_omsna.prg
+.\dispanser\mo_omsna.prg
 mo_omso.prg
 mo_omsp.prg
 mo_omspr.prg
@@ -70,8 +70,8 @@ mo_oms14.prg
 .\KASSA\mo_plat.prg
 .\KASSA\mo_platv.prg
 .\KASSA\mo_platp.prg
-mo_r01.prg
-mo_regi.prg
+.\dispanser\mo_r01.prg
+.\KARTOTEK\mo_regi.prg
 mo_sds.prg
 mo_serv.prg
 mo_spr.prg
