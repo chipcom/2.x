@@ -134,11 +134,11 @@ Function inp_password(is_cur_dir,is_create)
     aadd(ta,"Группа экспертизы (КЭК): "+lstr(grup_polzovat))
   endif
   return ta
-  
-***** 22.10.19
+
+***** 22.09.21
 Function edit_password()
   Local buf := save_maxrow()
-  Local mas11 := {}, mpic := {,,,{1,0}},;
+  Local mas11 := {}, mpic := {,,,{1,0}}, mas13 := {.F.,.F.,.T.},;
         mas12 := {{1,padr(" Ф.И.О.",20)},;
                   {2,padr(" Тип доступа",13)},;
                   {3,padr(" Должность",20)};
@@ -180,13 +180,18 @@ Function edit_password()
   if len(mas11) == 0
     aadd(mas11, {space(20),space(25),space(20),0,space(10),1,0,space(10),space(10),space(12)})
   endif
-  Arrn_Browse(T_ROW,c_1,maxrow()-2,c_2,mas11,mas12,1,,color5,,,,,mpic,blk,{.f.,.f.,.t.})
+  //
+  if len(mas11) > 254
+    mas13[3] := .F.
+  endif
+  //
+  Arrn_Browse(T_ROW,c_1,maxrow()-2,c_2,mas11,mas12,1,,color5,,,,,mpic,blk,mas13)
   close databases
   setcolor(color0)
   rest_box(buf)
   G_SUnlock("edit_pass")
   RETURN NIL
-  
+
 ***** 22.10.19
 Static Function f1editpass(b, ar, nDim, nElem, nKey)
   Local nRow := ROW(), nCol := COL(), tmp_color, buf := save_maxrow(), buf1, fl := .f., r1, r2, i,;
@@ -199,7 +204,7 @@ Static Function f1editpass(b, ar, nDim, nElem, nKey)
   if nKey == K_ENTER
     Private mfio, mdolj, mgruppa, m1gruppa := 0, mtip, m1tip, mpass, moper,;
     mfroper,minn, gl_area := {1,0,maxrow()-1,79,0}
-  
+
     if ar[nElem,7] == 0 .and. len(ar) > 1
       ar[nElem,6] := 1 // по умолчанию добавляется оператор
     endif
@@ -275,6 +280,7 @@ Static Function f1editpass(b, ar, nDim, nElem, nKey)
     close databases
     rest_box(buf1)
     @ nRow, nCol SAY ""
+
   endif
   return fl
-  
+
