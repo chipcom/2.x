@@ -87,6 +87,7 @@ mo_version.prg
 .\init\reconstruct_DB.prg
 .\init\notExistsFileNSI.prg
 .\init\index.prg
+.\init\index_base.prg
 .\init\initArrayFilesDB.prg
 
 
