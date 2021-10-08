@@ -15,7 +15,7 @@ Function fget_napr_PN(k,r,c)
   tmp_keys := my_savekey()
   save gets to tmp_list
   //
-  use_base('mo_pers', 'TPERS')
+  // use_base('mo_pers', 'TPERS')
   use_base("luslf")
   Use_base("mo_su")
   use (cur_dir+"tmp_onkna") new alias TNAPR
@@ -24,13 +24,14 @@ Function fget_napr_PN(k,r,c)
   if cur_napr > 0 .and. cur_napr <= count_napr
     goto (cur_napr) // номер текущего направления
     mNAPR_DATE := tnapr->NAPR_DATE
-    select TPERS
-    TPERS->(dbGoto(tnapr->KOD_VR))
-    if !(TPERS->(eof())) .and. !(TPERS->(bof()))
-      mTab_Number := TPERS->TAB_NOM
-    else
-      mTab_Number := 0
-    endif
+    // select TPERS
+    // TPERS->(dbGoto(tnapr->KOD_VR))
+    // if !(TPERS->(eof())) .and. !(TPERS->(bof()))
+    //   mTab_Number := TPERS->TAB_NOM
+    // else
+    //   mTab_Number := 0
+    // endif
+    mTab_Number := get_tabnom_vrach_by_kod(tnapr->KOD_VR)
     select TNAPR
     m1NAPR_MO := tnapr->NAPR_MO
     if empty(m1NAPR_MO)
@@ -97,12 +98,13 @@ Function fget_napr_PN(k,r,c)
   myread()
   set key K_F5
 
-  select TPERS
-  if TPERS->(dbSeek(str(mTab_Number,5)))
-    recNumberDoctor := TPERS->(recno())
-  else
-    recNumberDoctor := 0
-  endif
+  // select TPERS
+  // if TPERS->(dbSeek(str(mTab_Number,5)))
+  //   recNumberDoctor := TPERS->(recno())
+  // else
+  //   recNumberDoctor := 0
+  // endif
+  recNumberDoctor := get_kod_vrach_by_tabnom(mTab_Number)
 
   close databases
   if !(emptyany(mNAPR_DATE,m1NAPR_V) .and. count_napr == 0)
@@ -161,7 +163,7 @@ Function change_num_napr()
     // if TPERS->(dbSeek(str(mTab_Number,5)))
     //   recNumberDoctor := TPERS->(recno())
     // else
-      recNumberDoctor := 0
+      recNumberDoctor := get_kod_vrach_by_tabnom(MTAB_NOM_NAPR) //0
     // endif
 
     if select("TNAPR") == 0
@@ -176,7 +178,6 @@ Function change_num_napr()
       append blank
     endif
     tnapr->NAPR_DATE := mNAPR_DATE
-    tnapr->KOD_VR := recNumberDoctor
     tnapr->NAPR_MO := m1NAPR_MO
     tnapr->NAPR_V := m1NAPR_V
     tnapr->MET_ISSL := m1MET_ISSL
@@ -184,6 +185,7 @@ Function change_num_napr()
     tnapr->shifr_u := mshifr
     tnapr->shifr1 := mshifr1
     tnapr->name_u := mname_u
+    tnapr->KOD_VR := recNumberDoctor
     count_napr := lastrec()
     //
     if n <= count_napr
@@ -191,14 +193,15 @@ Function change_num_napr()
       goto (cur_napr) // номер текущего направления
       mNAPR_DATE := tnapr->NAPR_DATE
 
-      select TPERS
-      TPERS->(dbGoto(tnapr->KOD_VR))
-      if !(TPERS->(eof())) .and. !(TPERS->(bof()))
-        mTab_Number := TPERS->TAB_NOM
-      else
-        mTab_Number := 0
-      endif
-      select TNAPR
+      // select TPERS
+      // TPERS->(dbGoto(tnapr->KOD_VR))
+      // if !(TPERS->(eof())) .and. !(TPERS->(bof()))
+      //   mTab_Number := TPERS->TAB_NOM
+      // else
+      //   mTab_Number := 0
+      // endif
+      // select TNAPR
+      mTab_Number := get_tabnom_vrach_by_kod(tnapr->KOD_VR)
 
       m1NAPR_MO := tnapr->NAPR_MO
       m1NAPR_V := tnapr->NAPR_V

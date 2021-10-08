@@ -164,6 +164,8 @@ Function oms_sluch(Loc_kod,kod_kartotek)
                  {"Перевод внутри МО",4}}
   Private mm_prer_b := mm2prer_b
 
+  private MTAB_NOM_NAPR := 0
+
   if mem_zav_l == 1  // да
     m1_l_z := 1   // да
   elseif mem_zav_l == 2  // нет
@@ -193,18 +195,21 @@ Function oms_sluch(Loc_kod,kod_kartotek)
     mHEI := space(3),; // рост в см	Обязательно для заполнения при проведении лекарственной или химиолучевой терапии (USL_TIP=2 или USL_TIP=4)
     mBSA := space(4)   // площадь поверхности тела в кв.м.	Обязательно для заполнения при проведении лекарственной или химиолучевой терапии (USL_TIP=2 или USL_TIP=4)
 
-  dbcreate(cur_dir+"tmp_onkna", {; // онконаправления
-    {"KOD"      ,   "N",     7,     0},; // код больного
-    {"NAPR_DATE",   "D",     8,     0},; // Дата направления
-    {"NAPR_MO",     "C",     6,     0},; // код другого МО, куда выписано направление
-    {"NAPR_V"  ,    "N",     1,     0},; // Вид направления:1-к онкологу,2-на биопсию,3-на дообследование,4-для опр.тактики лечения
-    {"MET_ISSL" ,   "N",     1,     0},; // Метод диагностического исследования(при NAPR_V=3):1-лаб.диагностика;2-инстр.диагностика;3-луч.диагностика;4-КТ, МРТ, ангиография
-    {"shifr"  ,     "C",    20,     0},;
-    {"shifr_u"  ,   "C",    20,     0},;
-    {"shifr1"   ,   "C",    20,     0},;
-    {"name_u"   ,   "C",    65,     0},;
-    {"U_KOD"    ,   "N",     6,     0};  // код услуги
-  })
+  // dbcreate(cur_dir+"tmp_onkna", {; // онконаправления
+  //   {"KOD"      ,   "N",     7,     0},; // код больного
+  //   {"NAPR_DATE",   "D",     8,     0},; // Дата направления
+  //   {"NAPR_MO",     "C",     6,     0},; // код другого МО, куда выписано направление
+  //   {"NAPR_V"  ,    "N",     1,     0},; // Вид направления:1-к онкологу,2-на биопсию,3-на дообследование,4-для опр.тактики лечения
+  //   {"MET_ISSL" ,   "N",     1,     0},; // Метод диагностического исследования(при NAPR_V=3):1-лаб.диагностика;2-инстр.диагностика;3-луч.диагностика;4-КТ, МРТ, ангиография
+  //   {"shifr"  ,     "C",    20,     0},;
+  //   {"shifr_u"  ,   "C",    20,     0},;
+  //   {"shifr1"   ,   "C",    20,     0},;
+  //   {"name_u"   ,   "C",    65,     0},;
+  //   {"U_KOD"    ,   "N",     6,     0},;  // код услуги
+  //   {"KOD_VR"   ,   "N",     5,     0};  // код врача (справочник mo_pers)
+  //   })
+
+  dbcreate(cur_dir+"tmp_onkna", create_struct_temporary_onkna())
 
   Private m1NAPR_MO, mNAPR_MO, mNAPR_DATE, mNAPR_V, m1NAPR_V, mMET_ISSL, m1MET_ISSL, ;
     mshifr, mshifr1, mname_u, mU_KOD, cur_napr := 0, count_napr := 0, tip_onko_napr := 0
@@ -496,6 +501,7 @@ Function oms_sluch(Loc_kod,kod_kartotek)
         tnapr->NAPR_V    := napr->NAPR_V
         tnapr->MET_ISSL  := napr->MET_ISSL
         tnapr->U_KOD     := napr->U_KOD
+        tnapr->KOD_VR    := napr->KOD_VR
         tnapr->shifr_u   := iif(empty(mosu->shifr),mosu->shifr1,mosu->shifr)
         tnapr->shifr1    := mosu->shifr1
         tnapr->name_u    := mosu->name
@@ -1056,6 +1062,9 @@ Function oms_sluch(Loc_kod,kod_kartotek)
         goto (cur_napr) // номер текущего направления
         mNAPR_DATE := tnapr->NAPR_DATE
         m1NAPR_MO := tnapr->NAPR_MO
+
+        MTAB_NOM_NAPR := get_tabnom_vrach_by_kod(tnapr->KOD_VR)
+
         if empty(m1NAPR_MO)
           mNAPR_MO := space(60)
         else
@@ -1477,26 +1486,28 @@ Function oms_sluch(Loc_kod,kod_kartotek)
       if yes_num_lu == 1 .and. Loc_kod > 0
            @ j,50 say padl("Лист учета № "+lstr(Loc_kod),29) color color14
       endif
-      ++j; @ j,1 say "ФИО" get mfio_kart when .f.
-           @ j,57 get mn_data when .f.
-           @ row(),col()+1 say "-" get mk_data when .f.
-      ++j; @ j,1 say "НАПРАВЛЕНИЕ №" get cur_napr pict "99" when .f.
-           @ j,col() say "(из" get count_napr pict "99" when .f.
-           @ j,col() say ")"
-           @j,29 say "(<F5> - добавление/редактирование направления №...)" color "G/B"
-      ++j; @ j,3 say "Дата направления" get mNAPR_DATE ;
-                 valid {|| iif(empty(mNAPR_DATE) .or. between(mNAPR_DATE,mn_data,mk_data), .t., ;
+      @ ++j,1 say "ФИО" get mfio_kart when .f.
+      @ j,57 get mn_data when .f.
+      @ row(),col()+1 say "-" get mk_data when .f.
+
+      @ ++j,1 say "НАПРАВЛЕНИЕ №" get cur_napr pict "99" when .f.
+      @ j,col() say "(из" get count_napr pict "99" when .f.
+      @ j,col() say ")"
+      @j,29 say "(<F5> - добавление/редактирование направления №...)" color "G/B"
+
+      @ ++j,3 say "Дата направления" get mNAPR_DATE ;
+                valid {|| iif(empty(mNAPR_DATE) .or. between(mNAPR_DATE,mn_data,mk_data), .t., ;
                                func_error(4,"Дата направления должна быть внутри сроков лечения")) }
-      ++j; @ j,3 say "В какую МО направлен" get mnapr_mo ;
-                 reader {|x|menu_reader(x,{{|k,r,c|f_get_mo(k,r,c)}},A__FUNCTION,,,.f.)}
-      ++j; @ j,3 say "Вид направления" get mnapr_v ;
-                 reader {|x|menu_reader(x,mm_napr_v,A__MENUVERT,,,.f.)} //; color colget_menu
-      ++j; @ j,5 say "Метод диагностического исследования" get mmet_issl ;
-                 reader {|x|menu_reader(x,mm_met_issl,A__MENUVERT,,,.f.)} ;
-                 when m1napr_v == 3 //; color colget_menu
-      ++j; @ j,5 say "Медицинская услуга" get mshifr pict "@!" ;
-                 when {|g| m1napr_v == 3 .and. m1MET_ISSL > 0 } ;
-                 valid {|g|
+      @ ++j,3 say "В какую МО направлен" get mnapr_mo ;
+                reader {|x|menu_reader(x,{{|k,r,c|f_get_mo(k,r,c)}},A__FUNCTION,,,.f.)}
+      @ ++j,3 say "Вид направления" get mnapr_v ;
+                reader {|x|menu_reader(x,mm_napr_v,A__MENUVERT,,,.f.)} //; color colget_menu
+      @ ++j,5 say "Метод диагностического исследования" get mmet_issl ;
+                reader {|x|menu_reader(x,mm_met_issl,A__MENUVERT,,,.f.)} ;
+                when m1napr_v == 3 //; color colget_menu
+      @ ++j,5 say "Медицинская услуга" get mshifr pict "@!" ;
+                when {|g| m1napr_v == 3 .and. m1MET_ISSL > 0 } ;
+                valid {|g|
                             Local fl := f5editkusl(g,2,2)
                             if empty(mshifr)
                               mu_kod  := 0
@@ -1507,7 +1518,9 @@ Function oms_sluch(Loc_kod,kod_kartotek)
                             endif
                             return fl
                        }
-      ++j; @ j,7 say "Услуга" get mname_u when .f. color color14
+      @ ++j,7 say "Услуга" get mname_u when .f. color color14
+      @ ++j,3 say "Табельный номер направившего врача" get MTAB_NOM_NAPR pict "99999" ;
+          valid {|g| iif((MTAB_NOM_NAPR == 0) .and. v_kart_vrach(g), func_error(4, 'Необходимо указать табельный направившего врача'),.t.) }
     if is_oncology == 2
       ++j; @ j,1 say "СВЕДЕНИЯ О СЛУЧАЕ ЛЕЧЕНИЯ ОНКОЛОГИЧЕСКОГО ЗАБОЛЕВАНИЯ"
       ++j; @ j,3 say "Повод обращения" get mDS1_T ;
@@ -1744,6 +1757,9 @@ Function oms_sluch(Loc_kod,kod_kartotek)
         tnapr->shifr_u := iif(m1NAPR_V == 3, mshifr, "")
         tnapr->shifr1 := iif(m1NAPR_V == 3, mshifr1, "")
         tnapr->name_u := iif(m1NAPR_V == 3, mname_u, "")
+
+        tnapr->KOD_VR:= get_kod_vrach_by_tabnom(MTAB_NOM_NAPR)
+
         cur_napr := recno()
       endif
       if is_oncology == 2
@@ -2214,6 +2230,7 @@ Function oms_sluch(Loc_kod,kod_kartotek)
             napr->NAPR_V := tnapr->NAPR_V
             napr->MET_ISSL := iif(tnapr->NAPR_V == 3, tnapr->MET_ISSL, 0)
             napr->U_KOD := iif(tnapr->NAPR_V == 3, tnapr->U_KOD, 0)
+            napr->KOD_VR := tnapr->KOD_VR
           endif
           select TNAPR
           skip
