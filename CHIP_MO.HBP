@@ -92,6 +92,7 @@ mo_version.prg
 
 
 .\calendar\calendar.prg
+.\calendar\calendar_func.prg
 
 .\ref\initSpravFFOMS.prg
 .\ref\dbO001.prg
@@ -152,6 +153,7 @@ mo_version.prg
 .\oms\mo_oms131.prg
 .\oms\errorFromTFOMS.prg
 .\oms\TFOMS_hodatajstvo.prg
+.\oms\verifyOMS.prg
 
 .\onkologiya\onko.prg
 

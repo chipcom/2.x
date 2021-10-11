@@ -65,3 +65,57 @@ function get_tabnom_vrach_by_kod(kod)
   endif
   Select(oldSelect)
   return ret
+
+**** 11.10.21
+function exist_reserve_KSG(kod_pers, aliasHUMAN)
+  local aliasIsUseHU, aliasIsUseUSL
+  local oldSelect, ret := .f.
+  local lshifr
+
+  if kod_pers == 0
+    return ret
+  endif
+
+  aliasIsUseUSL := aliasIsAlreadyUse('__USL')
+  if ! aliasIsUseUSL
+    oldSelect := Select()
+    R_Use(dir_server+"uslugi",,"__USL")
+  endif
+
+  aliasIsUseHU := aliasIsAlreadyUse('__HU')
+  if ! aliasIsUseHU
+    // R_Use_base(dir_server+"human_u","__HU")
+    G_Use(dir_server+"human_u",{dir_server+"human_u",;
+        dir_server+"human_uk",;
+        dir_server+"human_ud",;
+        dir_server+"human_uv",;
+        dir_server+"human_ua"},"__HU",,.f.,.t.)
+  endif
+  set relation to u_kod into __USL
+  find (str(kod_pers,7))
+
+  do while __HU->kod == kod_pers .and. !eof()
+    if empty(lshifr := opr_shifr_TFOMS(__USL->shifr1, __USL->kod, (aliasHUMAN)->k_data))
+      lshifr := __USL->shifr
+    endif
+    * реинфузия аутокрови (КСГ st36.009, выбирается по услуге A16.20.078)
+    * баллонная внутриаортальная контрпульсация (КСГ st36.010, выбирается по услуге A16.12.030)
+    * экстракорпоральная мембранная оксигенация (КСГ st36.011, выбирается по услуге A16.10.021.001)
+    if is_ksg(lshifr) .and. ascan({"st36.009","st36.010","st36.011"},alltrim(lshifr)) > 0
+      ret := .t.
+      exit
+    endif
+    select __HU
+    skip
+  enddo
+
+  if ! aliasIsUseUSL
+    __USL->(dbCloseArea())
+  endif
+
+  if ! aliasIsUseHU
+    __HU->(dbCloseArea())
+  endif
+  Select(oldSelect)
+  return ret
+

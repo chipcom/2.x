@@ -3,9 +3,10 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 04.02.19
+***** 11.10.21
 Function create_reestr()
   Local buf := save_maxrow(), i, j, k := 0, k1 := 0, arr, bSaveHandler, fl, rec, pole, arr_m
+
   if tip_polzovat != 0
     return func_error(4,err_admin)
   endif
@@ -16,9 +17,9 @@ Function create_reestr()
     return NIL
   endif
   //!!! ВНИМАНИЕ
-  // if 2021 == arr_m[1]
-  //   return func_error(4,"Реестры за 2021 год пока недоступны")
-  // endif
+  if 2022 == arr_m[1]
+    return func_error(4,"Реестры за 2022 год недоступны")
+  endif
   if !myFileDeleted(cur_dir+"tmpb"+sdbf)
     return NIL
   endif
@@ -76,15 +77,17 @@ Function create_reestr()
       @ row(),col() say "/" color "W/R"
       @ row(),col() say lstr(k) color cColorStMsg
     endif
-    if human->tip_h == B_STANDART .and. emptyall(human_->reestr,human->schet) ;
+      if human->tip_h == B_STANDART .and. emptyall(human_->reestr,human->schet) ;
                                   .and. (human->cena_1 > 0 .or. human_->USL_OK == 4) ;
                                   .and. val(human_->smo) > 0 .and. human_->ST_VERIFY >= 5 // и проверили
-      if tmp->kol < 999999
-        ++k
-        tmp->kol++
-        tmp->summa += human->cena_1
-        tmp->min_date := min(tmp->min_date,human->k_data)
-      endif
+        if tmp->kol < 999999
+          ++k
+          if ! exist_reserve_KSG(human->kod, 'HUMAN')
+            tmp->kol++
+            tmp->min_date := min(tmp->min_date,human->k_data)
+          endif
+          tmp->summa += human->cena_1
+        endif
     endif
     select HUMAN
     skip
@@ -103,6 +106,7 @@ Function create_reestr()
                     "Невыписанные реестры случаев","R/BG",,,,,"f2create_reestr",,;
                     {'═','░','═',"N/BG,W+/N,B/BG,W+/B,R/BG",.f.,180} )
       rest_box(buf)
+      // if .f.
       if sys_date < stod(strzero(tmp->nyear,4)+strzero(tmp->nmonth,2)+"11")
         func_error(10,"Сегодня "+date_8(sys_date)+", а реестры разрешается отсылать с 11 числа")
       elseif mo_Lock_Task(X_OMS)

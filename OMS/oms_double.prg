@@ -37,6 +37,13 @@ Function oms_double(k)
 ***** 11.03.21 склеить два случая
 Function create_double_sl()
   Local buf, str_sem, i, d, fl, lshifr, arr_m, mas_pmt, buf24, buf_scr, srec, old_yes_h_otd := yes_h_otd
+  // local find_reserve_1 := find_reserve_2 := .f.  // если в случае присутствуют 
+  local fl_reserve_1, fl_reserve_2  // если в случае присутствуют 
+                            // {"st36.009 - A16.20.078",
+                            // "st36.010 - A16.12.030",
+                            // "st36.011 - A16.10.021.001"}
+
+  fl_reserve_1 := fl_reserve_2 := .f.
 
   if !myFileDeleted(cur_dir+"tmp_h"+sdbf)
     return NIL
@@ -110,24 +117,29 @@ Function create_double_sl()
           glob_uch[2] := inieditspr(A__POPUPMENU, dir_server+"mo_uch", human->LPU)
           fl := .f.
           use_base("lusl")
-          R_Use(dir_server+"uslugi",,"USL")
-          R_Use_base("human_u")
-          set relation to u_kod into USL
-          find (str(glob_perso,7))
-          do while hu->kod == glob_perso .and. !eof()
-            if empty(lshifr := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data))
-              lshifr := usl->shifr
-            endif
-            * реинфузия аутокрови (КСГ st36.009, выбирается по услуге A16.20.078)
-            * баллонная внутриаортальная контрпульсация (КСГ st36.010, выбирается по услуге A16.12.030)
-            * экстракорпоральная мембранная оксигенация (КСГ st36.011, выбирается по услуге A16.10.021.001)
-            if is_ksg(lshifr) .and. ascan({"st36.009","st36.010","st36.011"},alltrim(lshifr)) > 0
-              fl := .t. ; exit
-            endif
-            select HU
-            skip
-          enddo
-          if fl
+          // R_Use(dir_server+"uslugi",,"USL")
+          // R_Use_base("human_u")
+          // set relation to u_kod into USL
+          // find (str(glob_perso,7))
+          // do while hu->kod == glob_perso .and. !eof()
+          //   if empty(lshifr := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data))
+          //     lshifr := usl->shifr
+          //   endif
+          //   * реинфузия аутокрови (КСГ st36.009, выбирается по услуге A16.20.078)
+          //   * баллонная внутриаортальная контрпульсация (КСГ st36.010, выбирается по услуге A16.12.030)
+          //   * экстракорпоральная мембранная оксигенация (КСГ st36.011, выбирается по услуге A16.10.021.001)
+          //   if is_ksg(lshifr) .and. ascan({"st36.009","st36.010","st36.011"},alltrim(lshifr)) > 0
+          //     find_reserve_1 := .t.
+          //     fl := .t.
+          //     reserve_ln_data_1 := ln_data
+          //     reserve_lk_data_1 := lk_data
+          //     exit
+          //   endif
+          //   select HU
+          //   skip
+          // enddo
+          fl_reserve_1 := exist_reserve_KSG(glob_perso, 'HUMAN')
+          if ! fl_reserve_1
             if lk_data == ln_data
               func_error(4,"Дата начала не может равняться дате окончания лечения!")
               mkod := 0
@@ -188,22 +200,27 @@ Function create_double_sl()
                           {'═','░','═',"N/BG,W+/N,B/BG,BG+/B,R/BG,W+/R"} )
               if (glob_perso2 := tmp_h->kod) == 0
                 func_error(4,"Не найдено нужных записей!")
-              elseif lk_data != human->n_data
-                func_error(4,"Дата начала 2-го случая должна быть равна дате окончания 1-го случая!")
               elseif !(ldiag == human->kod_diag)
                 func_error(4,"Основной диагноз в обоих случаях должен совпадать!")
               elseif lprofil != human_->profil
                 func_error(4,"Профиль медицинской помощи в обоих случаях должен совпадать!")
+              // elseif (lk_data != human->n_data) .and. !find_reserve_1
+              //   func_error(4,"Дата начала 2-го случая должна быть равна дате окончания 1-го случая!")
               else
-                mkod := glob_perso2
-                ln_data2 := human->n_data
-                lk_data2 := human->k_data
-                lcena2 := human->cena_1
-                lrslt := human_->RSLT_NEW
-                lishod := human_->ISHOD_NEW
-                lvnr1 := human_2->VNR1
-                lvnr2 := human_2->VNR2
-                lvnr3 := human_2->VNR3
+                fl_reserve_2 := exist_reserve_KSG(glob_perso2, 'HUMAN')
+                if (lk_data != human->n_data) .and. ! fl_reserve_1 .and. ! fl_reserve_2
+                  func_error(4,"Дата начала 2-го случая должна быть равна дате окончания 1-го случая!")
+                else
+                  mkod := glob_perso2
+                  ln_data2 := human->n_data
+                  lk_data2 := human->k_data
+                  lcena2 := human->cena_1
+                  lrslt := human_->RSLT_NEW
+                  lishod := human_->ISHOD_NEW
+                  lvnr1 := human_2->VNR1
+                  lvnr2 := human_2->VNR2
+                  lvnr3 := human_2->VNR3
+                endif
               endif
             endif
             restscreen(buf_scr)
@@ -224,8 +241,16 @@ Function create_double_sl()
                   human_3->KOD       := glob_perso
                   human_3->KOD2      := glob_perso2
                   human_3->KOD_DIAG  := human->kod_diag
-                  human_3->N_DATA    := ln_data
-                  human_3->K_DATA    := lk_data2
+                  if fl_reserve_1
+                    human_3->N_DATA    := ln_data2
+                    human_3->K_DATA    := lk_data2
+                  elseif fl_reserve_2
+                    human_3->N_DATA    := ln_data
+                    human_3->K_DATA    := lk_data
+                  else
+                    human_3->N_DATA    := ln_data
+                    human_3->K_DATA    := lk_data2
+                  endif
                   human_3->USL_OK    := human_->USL_OK
                   human_3->VIDPOM    := human_->VIDPOM
                   human_3->RSLT_NEW  := lrslt

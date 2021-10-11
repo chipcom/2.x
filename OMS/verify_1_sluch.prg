@@ -133,7 +133,7 @@ Function verify_1_sluch(fl_view)
           aadd(a_dializ,{human->n_data,human->k_data,human_->USL_OK,human->OTD,k}) // диализы не в кругл.стационаре
         endif
       endif
-      if k < 2 .and. fl2 .and. fl3 .and. iif(is_alldializ, year(human->k_data) > 2018, .t.)
+      if k < 2 .and. fl2 .and. fl3 .and. iif(is_alldializ, year(human->k_data) > 2018, .t.) .and. ! eq_any(human->ISHOD,88,89)
         aadd(a_srok_lech,{human->n_data,human->k_data,human_->USL_OK,human->OTD,k})
       endif
     endif
