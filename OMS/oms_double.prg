@@ -276,6 +276,9 @@ Function create_double_sl()
                   human_3->SCHET     := 0
                   human_3->SCHET_NUM := 0
                   human_3->SCHET_ZAP := 0
+                  if fl_reserve_1 .or. fl_reserve_2
+                    human_3->ID_C := mo_guid(1,human_3->(recno()))
+                  endif
                   //
                   select HUMAN
                   goto (glob_perso)
