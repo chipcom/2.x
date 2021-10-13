@@ -7,11 +7,12 @@
 Static sadiag1 := {}
 
   
-***** 19.08.21 создание XML-файлов реестра
+***** 13.10.21 создание XML-файлов реестра
 Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
   //
   local iAKSLP, tKSLP, cKSLP // счетчик для цикла по КСЛП
+  local reserveKSG_ID_C := '' // GUID для вложенных двойных случаев
   //
   close databases
   if empty(sadiag1)
@@ -261,6 +262,7 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
       if isl == 1 .and. kol_sl == 2
         select HUMAN_3
         find (str(rhum->kod_hum,7))
+        reserveKSG_ID_C := human_3->ID_C
         select HUMAN
         goto (human_3->kod)  // встали на 1-й лист учёта
       endif
@@ -326,7 +328,14 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
         // заполним сведения о законченном случае оказания медицинской помощи для XML-документа
         oSLUCH := oZAP:Add( HXMLNode():New( "Z_SL" ) )
         mo_add_xml_stroke(oSLUCH,"IDCASE"  ,lstr(rhum->REES_ZAP))
-        mo_add_xml_stroke(oSLUCH,"ID_C"    ,human_->ID_C)
+
+        if ! empty(reserveKSG_ID_C) // проверим GUID для вложенного двойного случая
+          mo_add_xml_stroke(oSLUCH,"ID_C"    ,reserveKSG_ID_C)
+          reserveKSG_ID_C := ''
+        else
+          mo_add_xml_stroke(oSLUCH,"ID_C"    ,human_->ID_C)
+        endif
+        
         if p_tip_reestr == 2  // для реестров по диспансеризации
           s := space(3) 
           ret_tip_lu(@s)

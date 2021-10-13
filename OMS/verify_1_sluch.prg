@@ -14,6 +14,7 @@ Function verify_1_sluch(fl_view)
         a_dializ := {}, is_2_88 := .f., a_rec_ffoms := {}, arr_povod := {}, mpovod := 0,; // 1.0
         lal, lalf
 
+  local reserveKSG_1 := .f., reserveKSG_2 := .f.
 
   if empty(human->k_data)
     return .t.  // не проверять
@@ -39,6 +40,9 @@ Function verify_1_sluch(fl_view)
   //
   glob_kartotek := human->kod_k
   d1 := human->n_data ; d2 := human->k_data ; cuch_doc := human->uch_doc
+
+  reserveKSG_1 := exist_reserve_KSG(human->kod, 'HUMAN')
+
   ym2 := left(dtos(d2),6)
   d1_year := year(d1) ; d2_year := year(d2)
   lal := "lusl" ;  lalf := "luslf"
@@ -103,6 +107,9 @@ Function verify_1_sluch(fl_view)
     endif
     // если диапазон лечения перекрывается в стационаре и дневном стационаре
     if fl .and. eq_any(human_->USL_OK,1,2)
+
+      reserveKSG_2 := exist_reserve_KSG(human->kod, 'HUMAN')
+
       fl1 := (left(dtos(human->k_data),6) == ym2)   // один и тот же месяц окончания лечения
       fl2 := overlap_diapazon(human->n_data,human->k_data,d1,d2) // перекрывается диапазон лечения
       fl3 := .t.
@@ -133,7 +140,7 @@ Function verify_1_sluch(fl_view)
           aadd(a_dializ,{human->n_data,human->k_data,human_->USL_OK,human->OTD,k}) // диализы не в кругл.стационаре
         endif
       endif
-      if k < 2 .and. fl2 .and. fl3 .and. iif(is_alldializ, year(human->k_data) > 2018, .t.) .and. ! eq_any(human->ISHOD,88,89)
+      if k < 2 .and. fl2 .and. fl3 .and. iif(is_alldializ, year(human->k_data) > 2018, .t.) .and. ! (reserveKSG_1 .or. reserveKSG_2) // с учетом возможных вложенных двойных случаев
         aadd(a_srok_lech,{human->n_data,human->k_data,human_->USL_OK,human->OTD,k})
       endif
     endif
