@@ -499,10 +499,13 @@ if i > 0
 endif
 return NIL
 
-***** 11.05.20 прочитать и "разнести" по базам данных реестр СП и ТК
+***** 15.10.21 прочитать и "разнести" по базам данных реестр СП и ТК
 Function read_XML_FILE_SP(arr_XML_info,aerr,/*@*/current_i2)
-Local count_in_schet := 0, mnschet, bSaveHandler, ii1, ii2, i, k, t_arr[2],;
+  Local count_in_schet := 0, mnschet, bSaveHandler, ii1, ii2, i, k, t_arr[2],;
       ldate_sptk, s, fl_589, mANSREESTR
+
+  local reserveKSG_ID_C := '' // GUID для вложенных двойных случаев
+
 if !(type("p_ctrl_enter_sp_tk") == "L")
   Private p_ctrl_enter_sp_tk := .f.
 endif
@@ -573,6 +576,7 @@ if empty(aerr)
         set order to 2
         find (str(rhum->KOD_HUM,7))
         if found()
+          reserveKSG_ID_C = human_3->ID_C
           human_->(dbGoto(human_3->kod))   // встать на 1-ый случай
           human->(dbGoto(human_3->kod))    // т.к. GUID'ы в реестре из 1-го случая
         endif
@@ -591,13 +595,16 @@ if empty(aerr)
         if !(upper(tmp2->_ID_PAC) == upper(human_->ID_PAC))
           aadd(aerr,"Не равен параметр ID_PAC: "+tmp2->_ID_PAC+" != "+human_->ID_PAC)
         endif
-        if !(upper(tmp2->_ID_C) == upper(human_->ID_C))
+        if !(upper(tmp2->_ID_C) == upper(human_->ID_C)) .and. empty(reserveKSG_ID_C)
           aadd(aerr,"Не равен параметр ID_C: "+tmp2->_ID_C+" != "+human_->ID_C)
+        elseif !(upper(tmp2->_ID_C) == upper(reserveKSG_ID_C))
+          aadd(aerr,"Не равен параметр ID_C для вложенного двойного случая: "+tmp2->_ID_C+" != "+reserveKSG_ID_C)
         endif
       endif
     else
       aadd(aerr,"Не найден случай с N_ZAP="+lstr(tmp2->_N_ZAP)+", _ID_PAC="+tmp2->_ID_PAC)
     endif
+    reserveKSG_ID_C := ''
     select TMP2
     skip
   enddo
