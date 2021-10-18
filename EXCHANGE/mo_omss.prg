@@ -595,9 +595,9 @@ if empty(aerr)
         if !(upper(tmp2->_ID_PAC) == upper(human_->ID_PAC))
           aadd(aerr,"Не равен параметр ID_PAC: "+tmp2->_ID_PAC+" != "+human_->ID_PAC)
         endif
-        if !(upper(tmp2->_ID_C) == upper(human_->ID_C)) .and. empty(reserveKSG_ID_C)
+        if empty(reserveKSG_ID_C) .and. !(upper(tmp2->_ID_C) == upper(human_->ID_C))
           aadd(aerr,"Не равен параметр ID_C: "+tmp2->_ID_C+" != "+human_->ID_C)
-        elseif !(upper(tmp2->_ID_C) == upper(reserveKSG_ID_C))
+        elseif !empty(reserveKSG_ID_C) .and. !(upper(tmp2->_ID_C) == upper(reserveKSG_ID_C))
           aadd(aerr,"Не равен параметр ID_C для вложенного двойного случая: "+tmp2->_ID_C+" != "+reserveKSG_ID_C)
         endif
       endif
