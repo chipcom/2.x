@@ -3,6 +3,236 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
+***** 06.09.21 ввод направлений при подозрении на ЗНО - профосмотры несовершеннолетних
+Function fget_napr_PN(k,r,c)
+  Local r1, r2, n := 4, buf, tmp_keys, tmp_list, tmp_color
+  local strNeedTabNumber := 'Необходимо указать табельный направившего врача'
+  local recNumberDoctor := 0
+
+  buf := savescreen()
+  change_attr()
+  tmp_keys := my_savekey()
+  save gets to tmp_list
+  //
+  // use_base('mo_pers', 'TPERS')
+  use_base("luslf")
+  Use_base("mo_su")
+  use (cur_dir+"tmp_onkna") new alias TNAPR
+  count_napr := lastrec()
+  mNAPR_MO := space(6)
+  if cur_napr > 0 .and. cur_napr <= count_napr
+    goto (cur_napr) // номер текущего направления
+    mNAPR_DATE := tnapr->NAPR_DATE
+    // select TPERS
+    // TPERS->(dbGoto(tnapr->KOD_VR))
+    // if !(TPERS->(eof())) .and. !(TPERS->(bof()))
+    //   mTab_Number := TPERS->TAB_NOM
+    // else
+    //   mTab_Number := 0
+    // endif
+    mTab_Number := get_tabnom_vrach_by_kod(tnapr->KOD_VR)
+    select TNAPR
+    m1NAPR_MO := tnapr->NAPR_MO
+    if empty(m1NAPR_MO)
+      mNAPR_MO := space(60)
+    else
+      mNAPR_MO := ret_mo(m1NAPR_MO)[_MO_SHORT_NAME]
+    endif
+    m1NAPR_V := tnapr->NAPR_V
+    m1MET_ISSL := tnapr->MET_ISSL
+    mu_kod := iif(m1napr_v == 3, tnapr->U_KOD, 0)
+    mshifr := iif(m1napr_v == 3, tnapr->shifr_u, space(20))
+    mshifr1 := iif(m1napr_v == 3, tnapr->shifr1, space(20))
+    mname_u := iif(m1napr_v == 3, tnapr->name_u, space(65))
+  else
+    cur_napr := 1
+    mNAPR_DATE := ctod("")
+    mTab_Number := 0
+    m1NAPR_MO := space(6)
+    mNAPR_MO := space(60)
+    m1NAPR_V := 0
+    m1MET_ISSL := 0
+    mu_kod := 0
+    mshifr := space(20)
+    mshifr1 := space(20)
+    mname_u := space(65)
+  endif
+  mNAPR_V := inieditspr(A__MENUVERT, mm_napr_v, m1napr_v)
+  mMET_ISSL := inieditspr(A__MENUVERT, mm_MET_ISSL, m1MET_ISSL)
+  tip_onko_napr := 0
+  j := r-9
+  box_shadow(j,0,j+9,maxcol()-2,color1,"Ввод направлений при подозрении на ЗНО",color8)
+  @ ++j,1 say "НАПРАВЛЕНИЕ №" get cur_napr pict "99" when .f.
+  @ j,col() say "(из" get count_napr pict "99" when .f.
+  @ j,col() say ")"
+  @ j,29 say "(<F5> - добавление/редактирование направления №...)" color "G/B"
+  @ ++j,3 say "Дата направления" get mNAPR_DATE ;
+            valid {|| iif(empty(mNAPR_DATE) .or. between(mNAPR_DATE,mn_data,mk_data), .t., ;
+            func_error(4,"Дата направления должна быть внутри сроков лечения")) }
+  @ ++j,3 say "Табельный номер направившего врача" get mTab_Number pict "99999" ;
+            valid {|g| iif(!v_kart_vrach(g), func_error(4, strNeedTabNumber), .t.) }
+  @ ++j,3 say "В какую МО направлен" get mnapr_mo ;
+            reader {|x|menu_reader(x,{{|k,r,c|f_get_mo(k,r,c)}},A__FUNCTION,,,.f.)}
+  @ ++j,3 say "Вид направления" get mnapr_v ;
+            reader {|x|menu_reader(x,mm_napr_v,A__MENUVERT,,,.f.)} //; color colget_menu
+  @ ++j,5 say "Метод диагностического исследования" get mmet_issl ;
+            reader {|x|menu_reader(x,mm_met_issl,A__MENUVERT,,,.f.)} ;
+            when m1napr_v == 3 //; color colget_menu
+  @ ++j,5 say "Медицинская услуга" get mshifr pict "@!" ;
+            when {|g| m1napr_v == 3 .and. m1MET_ISSL > 0 } ;
+            valid {|g|
+                        Local fl := f5editkusl(g,2,2)
+                        if empty(mshifr)
+                          mu_kod  := 0
+                          mname_u := space(65)
+                          mshifr1 := mshifr
+                        elseif fl .and. tip_onko_napr > 0 .and. tip_onko_napr != m1MET_ISSL
+                          func_error(4,"Тип медуслуги не соответствует методу диагностического исследования")
+                        endif
+                        return fl
+                   }
+  @ ++j,7 say "Услуга" get mname_u when .f. color color14
+  //
+  set key K_F5 TO change_num_napr
+  myread()
+  set key K_F5
+
+  // select TPERS
+  // if TPERS->(dbSeek(str(mTab_Number,5)))
+  //   recNumberDoctor := TPERS->(recno())
+  // else
+  //   recNumberDoctor := 0
+  // endif
+  recNumberDoctor := get_kod_vrach_by_tabnom(mTab_Number)
+
+  close databases
+  if !(emptyany(mNAPR_DATE,m1NAPR_V) .and. count_napr == 0)
+    if cur_napr == 0
+      cur_napr := 1
+    endif
+    use (cur_dir+"tmp_onkna") new alias TNAPR
+    count_napr := lastrec()
+    if cur_napr <= count_napr
+      goto (cur_napr) // номер текущего направления
+    else
+      append blank
+    endif
+    tnapr->NAPR_DATE := mNAPR_DATE
+    tnapr->KOD_VR := recNumberDoctor
+    tnapr->NAPR_MO := m1NAPR_MO
+    tnapr->NAPR_V := m1NAPR_V
+    tnapr->MET_ISSL := iif(m1NAPR_V == 3, m1MET_ISSL, 0)
+    tnapr->U_KOD := iif(m1NAPR_V == 3, mu_kod, 0)
+    tnapr->shifr_u := iif(m1NAPR_V == 3, mshifr, "")
+    tnapr->shifr1 := iif(m1NAPR_V == 3, mshifr1, "")
+    tnapr->name_u := iif(m1NAPR_V == 3, mname_u, "")
+    cur_napr := recno()
+    count_napr := lastrec()
+    use
+  endif
+  setcolor(tmp_color)
+  restore gets from tmp_list
+  my_restkey(tmp_keys)
+  restscreen(buf)
+  return {0,"Количество направлений - "+lstr(count_napr)}
+
+***** 06.09.2021 редактировать другое направление (№...)
+Function change_num_napr()
+  Local r, n, fl := .f., tmp_keys, tmp_gets, buf, tmp_color := setcolor()
+  local recNumberDoctor := 0
+
+  if emptyany(mNAPR_DATE,m1NAPR_V)
+    func_error(4,"Ещё не заполнено направление № "+lstr(cur_napr))
+    return .t.
+  endif
+  tmp_keys := my_savekey()
+  save gets to tmp_gets
+  buf := savescreen()
+  change_attr()
+  r := 4
+  if (n := input_value(r,33,r+2,77,color5,"Добавление/редактирование направления №",cur_napr,"99")) == NIL
+    // отказ
+  elseif eq_any(n,0,cur_napr)
+    // выбрали то же направление, что и редактируется
+  else
+    if cur_napr == 0
+      cur_napr := 1
+    endif
+    // select TPERS
+    // if TPERS->(dbSeek(str(mTab_Number,5)))
+    //   recNumberDoctor := TPERS->(recno())
+    // else
+      recNumberDoctor := get_kod_vrach_by_tabnom(MTAB_NOM_NAPR) //0
+    // endif
+
+    if select("TNAPR") == 0
+      use (cur_dir+"tmp_onkna") new alias TNAPR
+    else
+      select TNAPR
+    endif
+    count_napr := lastrec()
+    if cur_napr <= count_napr
+      goto (cur_napr) // номер текущего направления
+    else
+      append blank
+    endif
+    tnapr->NAPR_DATE := mNAPR_DATE
+    tnapr->NAPR_MO := m1NAPR_MO
+    tnapr->NAPR_V := m1NAPR_V
+    tnapr->MET_ISSL := m1MET_ISSL
+    tnapr->U_KOD := mu_kod
+    tnapr->shifr_u := mshifr
+    tnapr->shifr1 := mshifr1
+    tnapr->name_u := mname_u
+    tnapr->KOD_VR := recNumberDoctor
+    count_napr := lastrec()
+    //
+    if n <= count_napr
+      cur_napr := n
+      goto (cur_napr) // номер текущего направления
+      mNAPR_DATE := tnapr->NAPR_DATE
+
+      // select TPERS
+      // TPERS->(dbGoto(tnapr->KOD_VR))
+      // if !(TPERS->(eof())) .and. !(TPERS->(bof()))
+      //   mTab_Number := TPERS->TAB_NOM
+      // else
+      //   mTab_Number := 0
+      // endif
+      // select TNAPR
+      mTab_Number := get_tabnom_vrach_by_kod(tnapr->KOD_VR)
+
+      m1NAPR_MO := tnapr->NAPR_MO
+      m1NAPR_V := tnapr->NAPR_V
+      m1MET_ISSL := iif(m1napr_v == 3, tnapr->MET_ISSL, 0)
+      mu_kod := iif(m1napr_v == 3, tnapr->U_KOD, 0)
+      mshifr := iif(m1napr_v == 3, tnapr->shifr_u, space(20))
+      mshifr1 := iif(m1napr_v == 3, tnapr->shifr1, space(20))
+      mname_u := iif(m1napr_v == 3, tnapr->name_u, space(65))
+    else
+      cur_napr := count_napr+1
+      mNAPR_DATE := ctod("")
+      mTab_Number := 0
+      m1NAPR_MO := space(6)
+      mNAPR_MO := space(60)
+      m1NAPR_V := 0
+      m1MET_ISSL := 0
+      mu_kod := 0
+      mshifr := space(20)
+      mshifr1 := space(20)
+      mname_u := space(65)
+    endif
+    mNAPR_V := padr(inieditspr(A__MENUVERT, mm_napr_v, m1napr_v),30)
+    mMET_ISSL := padr(inieditspr(A__MENUVERT, mm_MET_ISSL, m1MET_ISSL),45)
+    tip_onko_napr := 0
+  endif
+  restscreen(buf)
+  restore gets from tmp_gets
+  my_restkey(tmp_keys)
+  setcolor(tmp_color)
+  setcursor()
+  return update_gets()
+  
 ****** 31.07.21 блок направлений после диспансеризации
 function dispans_napr(mk_data, /*@*/j, lAdult)
   // mk_data - дата окончания случая диспансеризации
