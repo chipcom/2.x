@@ -9329,15 +9329,16 @@ if !emptyany(kart->kod,kart->fio,kart->date_r) // данную запись в картотеке неда
 endif
 return {ltip,ltip1,lvoz}
 
-***** 20.06.21
+***** 22.10.21
 Function f1_create_R11(lm,fl_dr00)
 Local nsh := 3, smsg, lnn := 0 ,buf := save_maxrow()
 if !f_Esc_Enter("создания файла R11",.t.)
   return NIL
 endif
-if eq_any(CODE_LPU,'124528','184603') .and. hb_fileExists(dir_server+"b18"+sdbf)
+if eq_any(CODE_LPU,'124528','184603','141016') .and. hb_fileExists(dir_server+"b18"+sdbf)
   lnn := 100 // специально для 28-ой п-ки после объединения с 18-ой б-цей
              // или для 3-ей п-ки после объединения с 12-ой п-кой
+             // или для Б16 после обьединения с Б24
 endif
 G_Use(dir_server+"mo_dr01m",,"RM")
 AddRecN()
