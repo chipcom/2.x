@@ -1905,10 +1905,10 @@ do case
                 "oms_edit(3)",;
                 "oms_edit(4)"}
     //set key K_CTRL_F11 to my_extract_reestr()
-    //set key K_CTRL_F12 to create_main_base_from_reestrs()
+    set key K_CTRL_F12 to create_main_base_from_reestrs()
 //test_definition_KSG()
     popup_prompt(T_ROW,T_COL+5,sk,mas_pmt,mas_msg,mas_fun)
-    //set key K_CTRL_F12 to
+    set key K_CTRL_F12 to
     //set key K_CTRL_F11 to
   case k == 1
     f1oms_edit()
@@ -3148,6 +3148,234 @@ if type("p_del_error") == "A" .and. p_del_error[2] > 0
     mybell(4,OK)
     restscreen(buf)
     return 0
+  elseif nkey == K_CTRL_F9
+    mywait()
+    fp := fcreate(n_file) ; tek_stroke := 0 ; n_list := 1
+    add_string("")
+    add_string(center("Сведения об отклоненных от оплаты случаях и стоимости медицинской помощи",sh))
+    add_string(center(p_del_error[1],sh))
+    add_string(center(arr_m[4],sh))
+    tmp_1 := select()
+    R_Use(dir_server+"uslugi",,"USL")
+    //R_Use(dir_server+"human_",,"HUMAN_")
+    R_Use(dir_server+"human_u_",,"HU_")
+    R_Use(dir_server+"human_u",dir_server+"human_u","HU")
+    set relation to recno() into HU_, to u_kod into USL
+    select (tmp_1)
+    //
+    Private mas_otch := {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},;
+                         {0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}}
+    //mas_otch := array(16,2)
+    //afill(mas_otch,0)
+    //arr_iss := array(1,9) ; afillall(arr_iss,0)
+    //
+    go top
+    do while !eof()
+      verify_FF(HH-3,.f.,sh)
+      //
+      flag_covid := .F.
+      if eq_any(human->kod_diag,"U07.1","U07.2")
+        flag_covid := .T.
+      endif
+      if !flag_covid
+        if eq_any(human->kod_diag2,"U07.1","U07.2")
+          flag_covid := .T.
+        endif
+      endif
+      if !flag_covid
+        if eq_any(human->kod_diag3,"U07.1","U07.2")
+          flag_covid := .T.
+        endif
+      endif
+      if !flag_covid
+        if eq_any(human->kod_diag4,"U07.1","U07.2")
+          flag_covid := .T.
+        endif
+      endif
+      //
+      //select HUMAN_
+      goto ((tmp_1)->(recno()))
+      //goto (human->(recno()))
+      //
+      select HU
+      find (str(human->kod,7))
+      do while human->kod == hu->kod .and. !eof()
+        // ныряем в услуги - если Диагностика - должно быть 60.*
+        lshifr := ""
+        svp := space(5)
+        lshifr1 := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data)
+        if is_usluga_TFOMS(usl->shifr,lshifr1,human->k_data,,,,,@svp)
+          lshifr := iif(empty(lshifr1), usl->shifr, lshifr1)
+        endif
+        //
+        if HUMAN_->Usl_ok == 1 //стационар
+          if padr(lshifr,2) == "st" // KSG
+            mas_otch[1,1] += 1
+            mas_otch[2,1] += hu->stoim
+            if eq_any(padr(alltrim(lshifr),8),"st12.015","st12.016",;
+                      "st12.017","st12.018","st12.019")
+              mas_otch[1,2] += 1
+              mas_otch[2,2] += hu->stoim
+            endif
+          endif
+        endif
+        //
+        if HUMAN_->Usl_ok == 2 // дневной стационар
+          if padr(lshifr,2) == "ds" // KSG -дневной стационар
+            mas_otch[3,1] += 1
+            mas_otch[4,1] += human->cena_1
+            if flag_covid
+              mas_otch[3,2] += 1
+              mas_otch[4,2] += human->cena_1
+            endif
+          endif
+        endif
+        //
+        if HUMAN_->Usl_ok == 3 // амбулаторная
+          if padr(lshifr,3) == "60." // Диагностика
+            if padr(lshifr,4) == "60.4" //КТ
+              mas_otch[13,1] += 1
+              mas_otch[14,1] += hu->stoim
+            endif
+            mas_otch[11,1] += 1
+            mas_otch[12,1] += hu->stoim
+            if flag_covid
+              mas_otch[11,2] += 1
+              mas_otch[12,2] += hu->stoim
+            endif
+          endif
+          //
+          if padr(alltrim(lshifr),8) == "4.17.785" .or.;
+             padr(alltrim(lshifr),8) == "4.17.786"       //COVID
+            //
+            mas_otch[15,1] += 1
+            mas_otch[16,1] += hu->stoim
+            //
+            mas_otch[11,1] += 1
+            mas_otch[12,1] += hu->stoim
+            if flag_covid
+              mas_otch[11,2] += 1
+              mas_otch[12,2] += hu->stoim
+            endif
+          endif
+          // профеля
+          if padr(lshifr,5) == "2.80." .or. ; // Неотложка
+             padr(lshifr,5) == "2.82."        //  ПРиемный покой
+            mas_otch[9,1]  += 1
+            mas_otch[10,1] += hu->stoim
+            if flag_covid
+              mas_otch[9,2]  += 1
+              mas_otch[10,2] += hu->stoim
+            endif
+          endif
+          //
+          if padr(lshifr,5) == "2.78." // Обращения
+            // нужен фильтр по профилям
+            // Акушерство и генология == 2,136,137
+            // Дерматовенерология  == 16
+            // Онкология == 60
+            // Травматология и ортопедия == 100
+            // Стоматологии 85,86,87,88,89,90,171,
+            // Медреабилитация 158
+            if eq_any(human_->profil,2,136,137,16,60,100,85,86,87,89,90,171,158)
+              mas_otch[7,1] += 1
+              mas_otch[8,1] += hu->stoim
+              if flag_covid
+                mas_otch[7,2] += 1
+                mas_otch[8,2] += hu->stoim
+              endif
+            endif
+          endif
+          //
+          if padr(lshifr,5) == "2.79." .or.; // Посещения профилактические
+             padr(lshifr,5) == "2.88."       //Диспансерное наблюдение
+            // нужен фильтр по профилям
+            if eq_any(human_->profil,2,136,137,16,60,100,85,86,87,89,90,171,158)
+              mas_otch[5,1] += 1
+              mas_otch[6,1] += hu->stoim
+              if flag_covid
+                mas_otch[5,2] += 1
+                mas_otch[6,2] += hu->stoim
+              endif
+            endif
+          endif
+        endif
+        select HU
+        skip
+      enddo
+      select (tmp_1)
+      skip
+    enddo
+    add_string("    Круглосуточный стационар")
+    //
+    add_string("Круглосуточный стационар случай: "+lstr(mas_otch[1,1])+;
+                          "  сумма:"+put_kop(mas_otch[2,1],10))
+    add_string("                   в т.ч. Covid: "+lstr(mas_otch[1,2])+;
+                          "  сумма:"+put_kop(mas_otch[2,2],10))
+    add_string("    Дневной стационар")
+    add_string("Дневной стационар случай       : "+lstr(mas_otch[3,1])+;
+                          "  сумма:"+put_kop(mas_otch[4,1],10))
+    add_string("                   в т.ч. Covid: "+lstr(mas_otch[3,2])+;
+                          "  сумма:"+put_kop(mas_otch[4,2],10))
+    add_string("    Амбулаторная помощь")
+    add_string("Посещения профилактические     : "+lstr(mas_otch[5,1])+;
+                          "  сумма:"+put_kop(mas_otch[6,1],10))
+    add_string("                   в т.ч. Covid: "+lstr(mas_otch[5,2])+;
+                          "  сумма:"+put_kop(mas_otch[6,2],10))
+    add_string("Обращения (не вход. в подушевое: "+lstr(mas_otch[7,1])+;
+                          "  сумма:"+put_kop(mas_otch[8,1],10))
+    add_string("                   в т.ч. Covid: "+lstr(mas_otch[7,2])+;
+                          "  сумма:"+put_kop(mas_otch[8,2],10))
+    add_string("Неотложная МП                  : "+lstr(mas_otch[9,1])+;
+                          "  сумма:"+put_kop(mas_otch[10,1],10))
+    add_string("                   в т.ч. Covid: "+lstr(mas_otch[9,2])+;
+                          "  сумма:"+put_kop(mas_otch[10,2],10))
+    add_string("Диагностические услуги         : "+lstr(mas_otch[11,1])+;
+                          "  сумма:"+put_kop(mas_otch[12,1],10))
+    add_string("                   в т.ч. Covid: "+lstr(mas_otch[11,2])+;
+                          "  сумма:"+put_kop(mas_otch[12,2],10))
+    add_string("Их них, КТ                     : "+lstr(mas_otch[13,1])+;
+                          "  сумма:"+put_kop(mas_otch[14,1],10))
+    add_string("Исследования COVID             : "+lstr(mas_otch[15,1])+;
+                          "  сумма:"+put_kop(mas_otch[16,1],10))
+    //
+    USL->(dbCloseArea())
+    HU_->(dbCloseArea())
+    HU->(dbCloseArea())
+    select (tmp_1)
+    goto rec1
+    add_string("")
+    fclose(fp)
+    restscreen(buf)
+    viewtext(n_file,,,,(sh>80),,,2)
+    return -1
+  // заплатка
+ /* elseif eq_any(nkey,K_F10,K_CTRL_F10) .and. tip_polzovat == TIP_ADM .and. f_Esc_Enter("смена услуги",.t.)
+    tmp_1 := select()
+    G_Use(dir_server+"human_u",dir_server+"human_u","HU")
+    select (tmp_1)
+    go top
+    do while !eof()
+      human_->(G_RLock(forever))
+      human_->OPLATA    := 0 // уберём "2", если отредактировали запись из реестра СП и ТК
+      human_->ST_VERIFY := 0 // снова ещё не проверен
+      //
+      select ("HU")
+      find (str(human->kod,7))
+      if(hu->u_kod == 611)
+        hu->(G_RLock(forever))
+        hu->u_kod := 614
+      endif
+      //
+      select (tmp_1)
+      skip
+    enddo
+    goto rec1
+    stat_msg('Услуга заменена у всех пациентов. Войдите в режим "Реестры/Проверка"')
+    mybell(4,OK)
+    restscreen(buf)
+    return 0
+ */
   endif
 endif
 if nkey != K_F2
