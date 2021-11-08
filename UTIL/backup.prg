@@ -117,7 +117,7 @@ function fillZIP( arr_f, sFileName )
 
   return sFileName
 
-****** 07.05.21
+****** 08.11.21
 function create_ZIP( par, dir_archiv )
   static sast := '*', sfile_begin := '_begin.txt', sfile_end := '_end.txt'
   local arr_f, ar
@@ -126,7 +126,9 @@ function create_ZIP( par, dir_archiv )
   local cFile, nLen
   local zip_file
   local buf := savescreen()
+  local zip_xml_mo, zip_xml_tf, zip_napr_mo, zip_napr_tf
 
+  zip_xml_mo := zip_xml_tf := zip_napr_mo:= zip_napr_tf := ''
   if par == 1
     if ! G_SLock1Task( sem_task, sem_vagno )  // запрет доступа всем
       func_error( 4, 'В данный момент работают другие задачи. Копирование запрещено!' )
