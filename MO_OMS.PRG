@@ -3350,7 +3350,7 @@ if type("p_del_error") == "A" .and. p_del_error[2] > 0
     viewtext(n_file,,,,(sh>80),,,2)
     return -1
   // заплатка
- /* elseif eq_any(nkey,K_F10,K_CTRL_F10) .and. tip_polzovat == TIP_ADM .and. f_Esc_Enter("смена услуги",.t.)
+  elseif eq_any(nkey,K_F10,K_CTRL_F10) .and. tip_polzovat == TIP_ADM .and. f_Esc_Enter("смена услуги",.t.)
     tmp_1 := select()
     G_Use(dir_server+"human_u",dir_server+"human_u","HU")
     select (tmp_1)
@@ -3362,9 +3362,9 @@ if type("p_del_error") == "A" .and. p_del_error[2] > 0
       //
       select ("HU")
       find (str(human->kod,7))
-      if(hu->u_kod == 611)
+      if(hu->u_kod == 217) //611
         hu->(G_RLock(forever))
-        hu->u_kod := 614
+        hu->u_kod := 219  //614
       endif
       //
       select (tmp_1)
@@ -3375,7 +3375,7 @@ if type("p_del_error") == "A" .and. p_del_error[2] > 0
     mybell(4,OK)
     restscreen(buf)
     return 0
- */
+
   endif
 endif
 if nkey != K_F2
