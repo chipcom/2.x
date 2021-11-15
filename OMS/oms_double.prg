@@ -144,7 +144,7 @@ Function create_double_sl()
               func_error(4,"Дата начала не может равняться дате окончания лечения!")
               mkod := 0
             endif
-          elseif left(ldiag,1) == "O" .and. lk_data - ln_data < 6
+          elseif left(ldiag,1) == "O" .and. (lk_data - ln_data < 6) .and. ! fl_reserve_1
             func_error(4,"Дородовая госпитализация должна быть не менее 6 дней!")
             mkod := 0
           endif
