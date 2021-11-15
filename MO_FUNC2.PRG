@@ -698,9 +698,6 @@ aadd(arr,{"57.1.49","Посещение стоматологом-хирургом на дому"})
 aadd(arr,{"57.1.50","Посещение зубным врачом на дому"})
 return arr
 
-*
-
-
 ***** 16.07.17 заполнить таблицу Excel'а
 Function fill_in_Excel_Book(inFile,outFile,fillArray,smsg)
 Local buf := save_maxrow(), bSaveHandler, msgArray := {}

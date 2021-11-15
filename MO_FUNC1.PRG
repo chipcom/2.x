@@ -336,12 +336,6 @@ if found()
 endif
 return vp
 
-***** вернуть в массиве запись базы данных
-Function get_field()
-Local arr := array(fcount())
-aeval(arr, {|x,i| arr[i] := fieldget(i) }  )
-return arr
-
 *****
 Function get_k_usluga(lshifr,lvzros_reb,lvr_as)
 Local i, buf := save_maxrow(), lu_cena, lis_nul, v, fl, arr_k_usl := {}, fl_oms
@@ -678,35 +672,6 @@ if between(nKey, 32, 255) .or. nKey == K_DEL
 ENDIF
 return NIL
 
-
-***** 04.04.18 блокировать запись, где поле KOD == 0 (иначе добавить запись)
-Function Add1Rec(n,lExcluUse)
-Local fl := .t., lOldDeleted := SET(_SET_DELETED, .F.)
-DEFAULT lExcluUse TO .f.
-find (str(0,n))
-if found()
-  do while kod == 0 .and. !eof()
-    if iif(lExcluUse, .t., RLock())
-      IF DELETED()
-        RECALL
-      ENDIF
-      fl := .f. ; exit
-    endif
-    skip
-  enddo
-endif
-if fl  // добавление записи
-  if lExcluUse
-    APPEND BLANK
-  else
-    DO WHILE .t.
-      APPEND BLANK
-      IF !NETERR() ; exit ; ENDIF
-    ENDDO
-  endif
-endif
-SET(_SET_DELETED, lOldDeleted)  // Восстановление среды
-return NIL
 
 ***** 09.02.14 функция сортировки номера счёта (для команды INDEX)
 Function fsort_schet(s1,s2)

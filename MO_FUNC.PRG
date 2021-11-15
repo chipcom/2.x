@@ -3,7 +3,7 @@
 #include "function.ch"
 #include "edit_spr.ch"
 #include "chip_mo.ch"
-
+ 
 ***** 21.08.17
 Function run_my_hrb(name_hrb,name_func)
 Local x, handle, n_file := dir_exe+name_hrb+".hrb"
@@ -15,198 +15,6 @@ else
   func_error(4,"Не обнаружен файл "+n_file)
 endif
 Return Nil
-
-***** 31.01.17
-Function R_Use_base(sBase,lalias)
-return use_base(sBase,lalias,,.t.)
-
-***** 02.01.21
-Function use_base(sBase,lalias,lExcluUse,lREADONLY)
-Local fl := .t., sind1, sind2
-sBase := lower(sBase)
-do case
-  case sBase == "organiz"
-    DEFAULT lalias TO "ORG"
-    fl := G_Use(dir_server+"organiz",,lalias,,lExcluUse,lREADONLY)
-  case sBase == "komitet"
-    if (fl := G_Use(dir_server+"komitet",,lalias,,lExcluUse,lREADONLY))
-      index on str(kod,2) to (cur_dir+"tmp_komi")
-    endif
-  case sBase == "str_komp"
-    if (fl := G_Use(dir_server+"str_komp",,lalias,,lExcluUse,lREADONLY))
-      index on str(kod,2) to (cur_dir+"tmp_strk")
-    endif
-  case sBase == "mo_pers"
-    DEFAULT lalias TO "P2"
-    fl := G_Use(dir_server+"mo_pers",dir_server+"mo_pers",lalias,,lExcluUse,lREADONLY)
-  case sBase == "mo_su"
-    DEFAULT lalias TO "MOSU"
-    fl := G_Use(dir_server+"mo_su",{dir_server+"mo_su",;
-                                    dir_server+"mo_sush",;
-                                    dir_server+"mo_sush1"},lalias,,lExcluUse,lREADONLY)
-  case sBase == "uslugi"
-    DEFAULT lalias TO "USL"
-    fl := G_Use(dir_server+"uslugi",{dir_server+"uslugi",;
-                                     dir_server+"uslugish",;
-                                     dir_server+"uslugis1",;
-                                     dir_server+"uslugisl"},lalias,,lExcluUse,lREADONLY)
-  case sBase == "kartotek"
-    fl := G_Use(dir_server+"kartote_",,"KART_",,lExcluUse,lREADONLY) .and. ;
-          G_Use(dir_server+"kartote2",,"KART2",,lExcluUse,lREADONLY) .and. ;
-          G_Use(dir_server+"kartotek",{dir_server+"kartotek",;
-                                       dir_server+"kartoten",;
-                                       dir_server+"kartotep",;
-                                       dir_server+"kartoteu",;
-                                       dir_server+"kartotes",;
-                                       dir_server+"kartotee"},"KART",,lExcluUse,lREADONLY)
-    if fl
-      set relation to recno() into KART_, to recno() into KART2
-    endif
-  case sBase == "human"
-    DEFAULT lalias TO "HUMAN"
-    fl := G_Use(dir_server+"human_",,"HUMAN_",,lExcluUse,lREADONLY) .and. ;
-          G_Use(dir_server+"human_2",,"HUMAN_2",,lExcluUse,lREADONLY) .and. ;
-          G_Use(dir_server+"human",{dir_server+"humank",;
-                                    dir_server+"humankk",;
-                                    dir_server+"humann",;
-                                    dir_server+"humand",;
-                                    dir_server+"humano",;
-                                    dir_server+"humans"},lalias,,lExcluUse,lREADONLY)
-    if fl
-      set relation to recno() into HUMAN_, to recno() into HUMAN_2
-    endif
-  case sBase == "human_u"
-    DEFAULT lalias TO "HU"
-    fl := G_Use(dir_server+"human_u_",,"HU_",,lExcluUse,lREADONLY) .and. ;
-          G_Use(dir_server+"human_u",{dir_server+"human_u",;
-                                      dir_server+"human_uk",;
-                                      dir_server+"human_ud",;
-                                      dir_server+"human_uv",;
-                                      dir_server+"human_ua"},lalias,,lExcluUse,lREADONLY)
-    if fl
-      set relation to recno() into HU_
-    endif
-  case sBase == "mo_hu"
-    DEFAULT lalias TO "MOHU"
-    fl := G_Use(dir_server+"mo_hu",{dir_server+"mo_hu",;
-                                    dir_server+"mo_huk",;
-                                    dir_server+"mo_hud",;
-                                    dir_server+"mo_huv",;
-                                    dir_server+"mo_hua"},lalias,,lExcluUse,lREADONLY)
-  case sBase == "mo_dnab"
-    DEFAULT lalias TO "DN"
-    fl := G_Use(dir_server+"mo_dnab",dir_server+"mo_dnab",lalias,,lExcluUse,lREADONLY)
-  case sBase == "mo_hdisp"
-    DEFAULT lalias TO "HDISP"
-    fl := G_Use(dir_server+"mo_hdisp",dir_server+"mo_hdisp",lalias,,lExcluUse,lREADONLY)
-  case sBase == "schet"
-    DEFAULT lalias TO "SCHET"
-    fl := G_Use(dir_server+"schet_",,"SCHET_",,lExcluUse,lREADONLY) .and. ;
-          G_Use(dir_server+"schet",{dir_server+"schetk",;
-                                    dir_server+"schetn",;
-                                    dir_server+"schetp",;
-                                    dir_server+"schetd"},lalias,,lExcluUse,lREADONLY)
-    if fl
-      set relation to recno() into SCHET_
-    endif
-  case sBase == "kartdelz"
-    fl := G_Use(dir_server+"kartdelz",dir_server+"kartdelz",,,lExcluUse,lREADONLY)
-  case sBase == "kart_st"
-    fl := G_Use(dir_server+"kart_st",{dir_server+"kart_st",;
-                                      dir_server+"kart_st1"},,,lExcluUse,lREADONLY)
-  case sBase == "humanst"
-    fl := G_Use(dir_server+"humanst",dir_server+"humanst",,,lExcluUse,lREADONLY)
-  case sBase == "mo_pp"
-    DEFAULT lalias TO "HU"
-    fl := G_Use(dir_server+"mo_pp",{dir_server+"mo_pp_k",;
-                                    dir_server+"mo_pp_d",;
-                                    dir_server+"mo_pp_r",;
-                                    dir_server+"mo_pp_i",;
-                                    dir_server+"mo_pp_h"},lalias,,lExcluUse,lREADONLY)
-  case sBase == "hum_p"
-    DEFAULT lalias TO "HU"
-    fl := G_Use(dir_server+"hum_p",{dir_server+"hum_pkk",;
-                                    dir_server+"hum_pn",;
-                                    dir_server+"hum_pd",;
-                                    dir_server+"hum_pv",;
-                                    dir_server+"hum_pc"},lalias,,lExcluUse,lREADONLY)
-  case sBase == "hum_p_u"
-    DEFAULT lalias TO "HU"
-    fl := G_Use(dir_server+"hum_p_u",{dir_server+"hum_p_u",;
-                                      dir_server+"hum_p_uk",;
-                                      dir_server+"hum_p_ud",;
-                                      dir_server+"hum_p_uv",;
-                                      dir_server+"hum_p_ua"},lalias,,lExcluUse,lREADONLY)
-  case sBase == "hum_ort"
-    fl := G_Use(dir_server+"hum_ort",{dir_server+"hum_ortk",;
-                                      dir_server+"hum_ortn",;
-                                      dir_server+"hum_ortd",;
-                                      dir_server+"hum_orto"},"HUMAN",,lExcluUse,lREADONLY)
-  case sBase == "hum_oru"
-    fl := G_Use(dir_server+"hum_oru",{dir_server+"hum_oru",;
-                                      dir_server+"hum_oruk",;
-                                      dir_server+"hum_orud",;
-                                      dir_server+"hum_oruv",;
-                                      dir_server+"hum_orua"},"HU",,lExcluUse,lREADONLY)
-  case sBase == "hum_oro"
-    fl := G_Use(dir_server+"hum_oro",{dir_server+"hum_oro",;
-                                      dir_server+"hum_orov",;
-                                      dir_server+"hum_orod"},"HO",,lExcluUse,lREADONLY)
-  case sBase == "kas_pl"
-    fl := G_Use(dir_server+"kas_pl",{dir_server+"kas_pl1",;
-                                     dir_server+"kas_pl2",;
-                                     dir_server+"kas_pl3"},lalias,,lExcluUse,lREADONLY)
-  case sBase == "kas_pl_u"
-    fl := G_Use(dir_server+"kas_pl_u",{dir_server+"kas_pl1u",;
-                                       dir_server+"kas_pl2u"},lalias,,lExcluUse,lREADONLY)
-  case sBase == "kas_ort"
-    fl := G_Use(dir_server+"kas_ort",{dir_server+"kas_ort1",;
-                                      dir_server+"kas_ort2",;
-                                      dir_server+"kas_ort3",;
-                                      dir_server+"kas_ort4",;
-                                      dir_server+"kas_ort5"},lalias,,lExcluUse,lREADONLY)
-  case sBase == "kas_ortu"
-    fl := G_Use(dir_server+"kas_ortu",{dir_server+"kas_or1u",;
-                                       dir_server+"kas_or2u"},lalias,,lExcluUse,lREADONLY)
-  case sBase == "mo_kekh"
-    DEFAULT lalias TO "HU"
-    fl := G_Use(dir_server+"mo_kekh",dir_server+"mo_kekh",lalias,,lExcluUse,lREADONLY)
-  case sBase == "mo_keke"
-    DEFAULT lalias TO "EKS"
-    fl := G_Use(dir_server+"mo_keke",{dir_server+"mo_keket",;
-                                      dir_server+"mo_kekee",;
-                                      dir_server+"mo_keked"},lalias,,lExcluUse,lREADONLY)
-  case sBase == "mo_kekez"
-    DEFAULT lalias TO "EKSZ"
-    fl := G_Use(dir_server+"mo_kekez",dir_server+"mo_kekez",lalias,,lExcluUse,lREADONLY)
-  case sBase == "lusld"
-    fl := R_Use(exe_dir+"_mo_usld",cur_dir+"_mo_usld",sBase)
-  case sBase == "lusl"
-    fl := R_Use(exe_dir+"_mo8usl",cur_dir+"_mo8usl",sBase+"18") .and. ;
-          R_Use(exe_dir+"_mo9usl",cur_dir+"_mo9usl",sBase+"19") .and. ;
-          R_Use(exe_dir+"_mo0usl",cur_dir+"_mo0usl",sBase+"20") .and. ;
-          R_Use(exe_dir+"_mo1usl",cur_dir+"_mo1usl",sBase)
-  case sBase == "luslc"
-    fl := R_Use(exe_dir+"_mo8uslc",{cur_dir+"_mo8uslc",cur_dir+"_mo8uslu"},sBase+"18") .and. ;
-          R_Use(exe_dir+"_mo9uslc",{cur_dir+"_mo9uslc",cur_dir+"_mo9uslu"},sBase+"19") .and. ;
-          R_Use(exe_dir+"_mo0uslc",{cur_dir+"_mo0uslc",cur_dir+"_mo0uslu"},sBase+"20") .and. ;
-          R_Use(exe_dir+"_mo1uslc",{cur_dir+"_mo1uslc",cur_dir+"_mo1uslu"},sBase)
-  case sBase == "luslf"
-    fl := R_Use(exe_dir+"_mo8uslf",cur_dir+"_mo8uslf",sBase+"18") .and. ;
-          R_Use(exe_dir+"_mo9uslf",cur_dir+"_mo9uslf",sBase+"19") .and. ;
-          R_Use(exe_dir+"_mo0uslf",cur_dir+"_mo0uslf",sBase+"20") .and. ;
-          R_Use(exe_dir+"_mo1uslf",cur_dir+"_mo1uslf",sBase)
-endcase
-return fl
-
-*
-
-*****
-Function useUch_Usl()
-return G_Use(dir_server+"uch_usl",dir_server+"uch_usl","UU") .and. ;
-       G_Use(dir_server+"uch_usl1",dir_server+"uch_usl1","UU1")
-
-*
 
 ***** записать объём работы операторов
 Function write_work_oper(_pt,_tp,_ae,_kk,_kp,_open)
@@ -245,8 +53,6 @@ if yes_parol .and. hb_FileExists(dir_server+"mo_opern"+sdbf) .and.;
 endif
 return NIL
 
-*
-
 ***** проверить, более одного ли слова отдельно в фамилии, имени и отчестве
 Function TwoWordFamImOt(s)
 Static arr_char := {" ","-",".","'",'"'}
@@ -258,8 +64,6 @@ for i := 1 to len(arr_char)
   endif
 next
 return fl
-
-*
 
 ***** проверить отдельно фамилию, имя и отчество в GET'ах
 Function valFamImOt(ltip,s,par,/*@*/msg)
@@ -315,8 +119,6 @@ if !empty(msg)
 endif
 return fl
 
-*
-
 ***** 02.09.15 вернуть отдельно фамилию, имя и отчество в массиве
 Function retFamImOt(ltip,fl_no,is_open_kfio)
 Static cDelimiter := " ."
@@ -369,8 +171,6 @@ if fl_no .and. empty(ret_arr[3])
 endif
 return ret_arr
 
-*
-
 ***** 26.10.14 проверка на правильность введённого ФИО
 Function val_fio(afio,aerr)
 Local i, k := 0, msg
@@ -382,8 +182,6 @@ for i := 1 to 3
   endif
 next
 return (k == 0)
-
-*
 
 ***** 26.08.14 вернуть иногороднюю СМО
 Function ret_inogSMO_name(ltip,/*@*/rec,fl_close)
@@ -406,8 +204,6 @@ endif
 select (tmp_select)
 return s
 
-*
-
 ***** 22.05.15 СМО на экран (печать)
 Function smo_to_screen(ltip)
 Local s := "", s1 := "", lsmo, nsmo, lokato
@@ -429,8 +225,6 @@ if empty(s) .or. nsmo == 34
 endif
 return s
 
-*
-
 ***** 15.10.14 проверка корректности GUID
 Function valid_GUID(s,par)
 // par = 1 - GUID из моей программы
@@ -447,8 +241,6 @@ else // par = 2 - GUID из чужой программы
   fl := !empty(s) // просто проверим на пустоту
 endif
 return fl
-
-*
 
 ***** составить GUID
 Function mo_guid(par1,par2)
@@ -478,8 +270,6 @@ For tmpCounter := 1 To tmpLength
 Next
 return tmpGUID
 
-*
-
 ***** 21.01.17 определить диапазоны номеров пакетов
 Function f_mb_me_nsh(_nyear,/*@*/mb,/*@*/me)
 if mem_bnn13rees <= 0 .or. mem_enn13rees <= 0
@@ -496,8 +286,6 @@ me := mem_enn13rees
   mb := 100
 endif*/
 return iif(_nyear < 2017, 3, 5) // начиная с 2017 года - 5 символов
-
-*
 
 ***** 05.11.19 если это укрупнённый архив, распаковать и прочитать
 Function Is_Our_ZIP(cName,/*@*/tip_csv_file,/*@*/kod_csv_reestr)
@@ -643,8 +431,6 @@ else
 endif
 return fl
 
-*
-
 ***** 17.06.15 если это файл с расширениием CSV - прочитать
 Function Is_Our_CSV(cName,/*@*/tip_csv_file,/*@*/kod_csv_reestr)
 Local fl := .f., i, s := cName, s1
@@ -684,8 +470,6 @@ else
   fl := func_error(4,"Неизвестный файл")
 endif
 return fl
-
-*
 
 ***** 17.12.19 проверить, нам ли предназначен данный XML-файл
 Function Is_Our_XML(cName,ret_arr)
@@ -1043,8 +827,6 @@ else
 endif
 return (len(arr_err) == 0)
 
-*
-
 ***** проверить, занесен ли данный файл в "mo_xml"
 Function Verify_Is_Already_XML(cName,/*@*/_date,/*@*/_time)
 Local l, fl, tmp_select := select()
@@ -1065,8 +847,6 @@ mx->(dbCloseArea())
 select (tmp_select)
 return fl
 
-*
-
 ***** 20.10.14 зачитать CSV-файл в двумерный массив
 Function read_CSV_to_array(cFile_csv)
 Local arr := {}, _ar, i, s, s1, lfp
@@ -1086,8 +866,6 @@ do while !feof(lfp)
 enddo
 fclose(lfp)
 return arr
-
-*
 
 ***** проверить, существует файл nfile, и попытаться удалить его
 Function myFileDeleted(nfile)
@@ -1116,8 +894,6 @@ return strzero(year(mdate),4)+'-'+;
 Function xml2date(s)
 return stod(charrem("-",s))
 
-*
-
 ***** 30.01.14 проверить наличие тэга(ов) и вернуть его(их) значение(я) в массиве
 Function mo_read_xml_array(_node,_title)
 Local j1, oNode2, arr := {}
@@ -1129,8 +905,6 @@ for j1 := 1 to len(_node:aitems)
   endif
 next
 return arr
-
-*
 
 ***** проверить наличие в узле _node XML-файла тэга _title и вернуть его значение
 Function mo_read_xml_stroke(_node,_title,_aerr,_binding)
@@ -1150,8 +924,6 @@ if oNode != NIL
   ret := mo_read_xml_tag(oNode,_aerr,_binding)
 endif
 return ret
-
-*
 
 ***** 11.12.17 вернуть значение тэга
 Function mo_read_xml_tag(oNode,_aerr,_binding)
@@ -1176,8 +948,6 @@ elseif yes_err
 endif
 return ret
 
-*
-
 ***** 22.11.13 записать в XML-файл строку (открыть тэг, записать значение, закрыть тэг)
 Function mo_add_xml_stroke(oNode,sTag,sValue)
 Local oXmlNode := oNode:Add( HXMLNode():New(sTag))
@@ -1190,8 +960,6 @@ endif
 oXmlNode:Add(sValue)
 return NIL
 
-*
-
 ***** 15.12.13 корректен ли период для информации "по отчётному периоду"
 Function is_otch_period(arr_m)
 Local fl := .t.
@@ -1199,8 +967,6 @@ if !(arr_m[5]==bom(arr_m[5]) .and. arr_m[6]==eom(arr_m[6]))
   fl := func_error(4,"Для отчётного периода необходимо выбирать кратный месяцу период!")
 endif
 return fl
-
-*
 
 ***** попадает ли отч.период (_YEAR,_MONTH) в диапазон с _begin_date по _end_date
 Function between_otch_period(_date,_YEAR,_MONTH,_begin_date,_end_date)
@@ -1235,8 +1001,6 @@ else
 endif
 return fl
 
-*
-
 ***** сделать из глобального массива укороченный (отсечь по дате действия)
 Function cut_glob_array(_glob_array,_date)
 Local i, tmp_array := {}
@@ -1246,8 +1010,6 @@ for i := 1 to len(_glob_array)
   endif
 next
 return tmp_array
-
-*
 
 ***** создать (name_base).DBF из глобального массива (укороченную) (отсечь по дате действия)
 FUNCTION init_tmp_glob_array(name_base,_glob_array,_date,is_all)
@@ -1286,8 +1048,6 @@ index on upper(name) to (name_base)
 tmp_ga->(dbCloseArea())
 select (tmp_select)
 return .t.
-
-*
 
 ***** 04.05.13 в GET'е выбрать значение из TMP_GA.DBF (глобального массива) с поиском по подстроке
 Function fget_tmp_ga(k,r,c,name_base,browTitle,is_F2,sTitle)
@@ -1369,8 +1129,6 @@ tmp_ga->(dbCloseArea())
 select (tmp_select)
 return ret
 
-*
-
 ***** 23.01.17
 Function f1get_tmp_ga(nKey,oBrow,regim,arr)
 Static tmp := ""
@@ -1430,8 +1188,6 @@ if ret == -1
   goto rec1
 endif
 return ret
-
-*
 
 ***** 23.01.17 в GET'е выбрать значение из TMP_V015.DBF (глобального массива) с поиском по подстроке
 Function fget_tmp_V015(k,r,c,a_spec)
@@ -1526,15 +1282,11 @@ tmp_ga->(dbCloseArea())
 select (tmp_select)
 return ret
 
-*
-
 ***** 07.08.16
 Static Function f1get_tmp_V015()
 Local s := afteratnum(".",tmp_ga->name,1)
 s := space(2*tmp_ga->uroven)+s
 return s
-
-*
 
 *****
 Function is_up_usl(arr_usl,mkod)
@@ -1552,8 +1304,6 @@ if tmp_select > 0
   select(tmp_select)
 endif
 return ( ascan(arr_usl,usl->kod) > 0 )
-
-*
 
 ***** 03.01.19
 Function input_usluga(arr_tfoms)
@@ -1595,8 +1345,6 @@ if (musl := input_value(18,6,20,73,color1,;
 endif
 return arr_usl
 
-*
-
 *****
 Function ret_1st_otd(lkod_uch)
 Local k, tmp_select := select()
@@ -1612,8 +1360,6 @@ if tmp_select > 0
   select(tmp_select)
 endif
 return k
-
-*
 
 ***** вернуть процент выполнения плана
 Function ret_trudoem(lkod_vr,ltrudoem,kol_mes,arr_m,/*@*/plan)
@@ -1643,8 +1389,6 @@ if plan > 0
 endif
 select (tmp_select)
 return trd
-
-*
 
 ***** 13.02.14
 FUNCTION input_uch(r,c,date1,date2)
@@ -1697,13 +1441,9 @@ if ret != NIL
 endif
 return ret
 
-*
-
 *****
 Function inputE_otd(r1,c1,r2)
 return input_otd(r1,c1,sys_date)
-
-*
 
 ***** 13.02.14
 FUNCTION input_otd(r,c,date1,date2,nTask)
@@ -1761,8 +1501,6 @@ if ret != NIL
   SetIniVar(tmp_ini,{{"uch_otd","otd",glob_otd[1]}})
 endif
 return ret
-
-*
 
 ***** 29.10.18
 Function input_perso(r,c,is_null,is_rab)
@@ -1841,8 +1579,6 @@ close databases
 rest_box(buf)
 return fl1
 
-*
-
 ***** 29.10.18
 Function f1inp_perso(oBrow)
 Local oColumn
@@ -1855,8 +1591,6 @@ oBrow:addColumn(oColumn)
 oColumn := TBColumnNew(center("Специальность",21), {|| padr(ret_tmp_prvs(perso->prvs,perso->prvs_new),21) })
 oBrow:addColumn(oColumn)
 return NIL
-
-*
 
 ***** вернуть учреждение и отделение в GET'е
 FUNCTION ret_uch_otd(k,r,c,date1,date2,nTask)
@@ -1881,8 +1615,6 @@ if input_uch(r,c,date1,date2) != NIL
 endif
 return ret
 
-*
-
 ***** удаление данных по зубной формуле в HUMANST (для платных услуг)
 Function STdelHuman(ltip,lrec)
 select HUMANST
@@ -1892,8 +1624,6 @@ do while .t.
   DeleteRec(.t.)
 enddo
 return NIL
-
-*
 
 ***** удаление данных по зубной формуле в картотеке
 Function STdelKart(ltip,lrec)
@@ -1905,8 +1635,6 @@ do while .t.
   DeleteRec(.t.)
 enddo
 return NIL
-
-*
 
 ***** добавление данных по зубной формуле
 Function STappend(ltip,lrec,lkod_k,ldate_u,lu_kod,lkod_vr,_zf,_diag)
@@ -1942,8 +1670,6 @@ if len(arr_zf) > 0
 endif
 return NIL
 
-*
-
 ***** 17.12.18 добавление удалённого зуба
 Function STappendDelZ(lkod_k,_zf,ldate_u,lu_kod)
 Static arr_STdelzub
@@ -1970,8 +1696,6 @@ if len(arr_zf) > 0 .and. ascan(arr_STdelzub,lu_kod) > 0 .and. select("KARTDELZ")
 endif
 return NIL
 
-*
-
 ***** 17.12.18 удаление удалённого зуба
 Function STDelDelZ(lkod_k,_zf,lu_kod)
 Static arr_STdelzub
@@ -1987,8 +1711,6 @@ if len(arr_zf) > 0 .and. ascan(arr_STdelzub,lu_kod) > 0 .and. select("KARTDELZ")
   next
 endif
 return NIL
-
-*
 
 ***** 11.12.2018 вернуть массив с кодами услуг удаления зуба
 Function ret_arr_STdelzub()
@@ -2032,8 +1754,6 @@ Local i, s, lkod := 0
 endif*/
 return akod
 
-*
-
 ***** 17.12.18 проверка, не удалён ли зуб
 Function STverDelZub(lkod_k,arr_zf,ldate_u,ltip,lrec,/*@*/amsg)
 Static arr_STdelzub
@@ -2065,8 +1785,6 @@ endif
 endif*/
 return NIL
 
-*
-
 ***** 16.01.19 проверка правильности ввода зубной формулы
 Function STVerifyKolZf(arr_zf,mkol,/*@*/amsg,lshifr)
 if valtype(arr_zf) == "A" .and. valtype(mkol) == "N"
@@ -2078,8 +1796,6 @@ if valtype(arr_zf) == "A" .and. valtype(mkol) == "N"
   endif
 endif
 return !empty(amsg)
-
-*
 
 ***** 31.01.19 проверка правильности ввода зубной формулы
 Function STverifyZF(_zf,_date_r,_sys_date,/*@*/amsg,lshifr)
@@ -2106,8 +1822,6 @@ if len(arr_zf) > 0
   next
 endif
 return arr_zf
-
-*
 
 ***** 16.01.19 синтаксический анализ зубной формулы, возврат массива зубов
 Function STretArrZF(_zf,/*@*/amsg,lshifr)
@@ -2141,13 +1855,9 @@ for i := 1 to numtoken(s,",")
 next
 return arr_zf
 
-*
-
 ***** 16.01.19 является ли случай стоматологическим для ввода зубной формулы
 Function STisZF(_USL_OK,_PROFIL)
 return (_USL_OK == 3 .and. eq_any(_PROFIL,85,86,87,88,89,90,140,171))
-
-*
 
 ***** проверка на правильность серии удостоверения личности
 Function val_ud_ser(par,k,s,/*@*/msg)
@@ -2189,8 +1899,6 @@ if !empty(msg)
 endif
 return fl
 
-*
-
 ***** проверка на правильность номера удостоверения личности
 Function val_ud_nom(par,k,s,/*@*/msg)
 Static arr_d := {;
@@ -2228,31 +1936,21 @@ if !empty(msg)
 endif
 return fl
 
-*
-
 ***** проверка: "в строке все символы цифры?"
 Static Function yes_number(s)
 return EMPTY(CHARREPL("0123456789", s, SPACE(10)))
-
-*
 
 ***** проверка: "в строке все символы русские буквы?"
 Static Function yes_rus_str(s)
 return EMPTY(CHARREPL("АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ", s, SPACE(33)))
 
-*
-
 ***** рисмкое число, записанное латинскими символами, записать русскими символами
 Static FUNCTION gniRIMTORUS(_s)
 RETURN CHARREPL("IVXLC", _s, "1УХЛС")
 
-*
-
 ***** рисмкое число, записанное русскими символами, записать латинскими символами
 Static FUNCTION gniRUSTORIM(_s)
 RETURN CHARREPL("1УХЛС", _s, "IVXLC")
-
-*
 
 ***** перевести арабское число в римское
 Static FUNCTION gniNOMTORIM(_s, _c1, _c2, _c3, _c4, _c5, _c6, _c7)
@@ -2266,8 +1964,6 @@ _ret += gniDIGTORIM(_n1, _c5, _c6, _c7)
 _ret += gniDIGTORIM(_n2, _c3, _c4, _c5)
 _ret += gniDIGTORIM(_n3, _c1, _c2, _c3)
 RETURN _ret
-
-*
 
 ***** перевести римское число в арабское
 Static FUNCTION gniRIMTONOM(_s, _c1, _c2, _c3, _c4, _c5, _c6, _c7)
@@ -2310,8 +2006,6 @@ FOR i := 1 TO _nl
 NEXT
 RETURN _ret
 
-*
-
 ***** перевести арабскую цифру в римскую
 Static FUNCTION gniDIGTORIM(_s, _c1, _c2, _c3)
 LOCAL _c := ""
@@ -2336,8 +2030,6 @@ DO CASE
     _c := _c1 + _c3
 ENDCASE
 RETURN _c
-
-*
 
 ***** проверка СНИЛС
 Function val_snils(s,par,/*@*/msg)
@@ -2377,8 +2069,6 @@ if !empty(msg)
 endif
 return fl
 
-*
-
 ***** ввод фразы для места работы из списка
 Function v_vvod_mr()
 Local k, nrow := row(), ncol := col(), fl := .f., tmp_keys, tmp_gets
@@ -2399,8 +2089,6 @@ if (get := get_pointer("MMR_DOL")) != NIL .and. get:hasFocus
 endif
 my_restkey(tmp_keys)
 return NIL
-
-*
 
 ***** выбор фразы для места работы
 Function input_s_mr()
@@ -2424,8 +2112,6 @@ if tmp_select > 0
 endif
 restscreen(buf)
 return ret
-
-*
 
 *****
 Function f1_s_mr(nKey,oBrow,regim)
@@ -2499,8 +2185,6 @@ do case
 endcase
 return ret
 
-*
-
 ***** 07.02.13 ввод фразы для адреса из списка
 Function v_vvod_adres()
 Local k, nrow := row(), ncol := col(), fl := .f., tmp_keys, tmp_gets
@@ -2521,8 +2205,6 @@ if (get := get_pointer("MULICADOM")) != NIL .and. get:hasFocus
 endif
 my_restkey(tmp_keys)
 return NIL
-
-*
 
 ***** выбор фразы для адреса
 Function input_s_adres()
@@ -2545,8 +2227,6 @@ if tmp_select > 0
 endif
 restscreen(buf)
 return ret
-
-*
 
 ***** форма настройки включаемых/исключаемых услуг
 Function forma_nastr(s_titul,arr_strok,nfile,arr,fl)
@@ -2599,8 +2279,6 @@ setcolor(tmp_color)
 restscreen(buf)
 return arr
 
-*
-
 *****
 Function f9_f_nastr(l_titul,a_strok)
 Local sh := 80, HH := 77, buf := save_maxrow(), n_file := "frm_nast"+stxt
@@ -2647,8 +2325,6 @@ my_restkey(tmp_keys)
 setcursor()
 return NIL
 
-*
-
 *****
 Function ret_f_nastr(a_usl,lshifr)
 Local i, shb, fl := .f.
@@ -2675,8 +2351,6 @@ if fl
   next
 endif
 return fl
-
-*
 
 *****
 Function _f_usl_danet(a_da,a_net)
@@ -2711,9 +2385,6 @@ if fl
   endif
 endif
 return fl
-
-*
-
 
 ***** 28.01.20 вывести строку в отладочный массив о КСГ
 Function f_put_debug_KSG(k,arr,ars)
@@ -2778,8 +2449,6 @@ endif
 aadd(ars,s)
 return len(arr1)
 
-*
-
 ***** 20.01.14 вернуть цену КСГ
 Function ret_cena_KSG(lshifr,lvr,ldate,ta)
 Local fl_del := .f., fl_uslc := .f., v := 0
@@ -2822,8 +2491,6 @@ AEVAL(cLine, { |cSayStr,i|;
 inkey(0)
 restscreen(buf)
 return NIL
-
-*
 
 // ***** 26.01.18 тест определения КСГ
 // Function test_definition_KSG()
@@ -2905,11 +2572,3 @@ return NIL
 // fclose(fp)
 // return NIL
 
-*
-
-***** 21.01.19 проверить, заблокирована ли запись, и, если нет, то заблокировать её
-Function my_Rec_Lock(n)
-if ascan(dbRLockList(),n) == 0
-  G_RLock(forever)
-endif
-return NIL
