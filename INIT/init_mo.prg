@@ -175,29 +175,23 @@ Function checkFilesTFOMS()
   endif
   // справочник отделений на 2020 год
   sbase := "_mo0dep"
-  Public is_otd_dep := .f., glob_otd_dep := 0, mm_otd_dep := {}
   if hb_FileExists(exe_dir + sbase + sdbf)
     R_Use(exe_dir + sbase ,,"DEP")
     index on str(code,3) to (cur_dir+sbase) for codem == glob_mo[_MO_KOD_TFOMS]
-    dbeval({|| aadd(mm_otd_dep, {alltrim(dep->name_short)+" ("+alltrim(dep->name)+")",dep->code,dep->place}) })
     use
-    if (is_otd_dep := (len(mm_otd_dep) > 0))
-      asort(mm_otd_dep,,,{|x,y| x[1] < y[1]})
-    endif
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
-  if is_otd_dep
-    // справочник отделения + профили
-    sbase := "_mo0deppr"
-    if hb_FileExists(exe_dir + sbase + sdbf)
-      R_Use(exe_dir + sbase ,,"DEP")
-      index on str(code,3)+str(pr_mp,3) to (cur_dir+sbase) for codem == glob_mo[_MO_KOD_TFOMS]
-      use
-    else
-      fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-    endif
+  // справочник отделения + профили
+  sbase := "_mo0deppr"
+  if hb_FileExists(exe_dir + sbase + sdbf)
+    R_Use(exe_dir + sbase ,,"DEP")
+    index on str(code,3)+str(pr_mp,3) to (cur_dir+sbase) for codem == glob_mo[_MO_KOD_TFOMS]
+    use
+  else
+    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
+
   // Public arr_12_VMP := {}
   // справочник услуг ТФОМС на 2020 год
   sbase := "_mo0usl"
