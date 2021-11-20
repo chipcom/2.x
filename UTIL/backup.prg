@@ -3,6 +3,8 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
+#define COMPRESSION 3
+
 ***** 05.05.21 запуск режима резервного копирования из меню
 Function m_copy_DB(par)
   // par - 1 - резервная копия на диск
@@ -90,7 +92,7 @@ function m_copy_DB_from_end( del_last, spath )
   endif
   return fl
 
-***** 07.05.2021
+***** 20.11.2021
 function fillZIP( arr_f, sFileName )
   local hZip, aGauge, cFile
   local lCompress, nLen
@@ -103,12 +105,12 @@ function fillZIP( arr_f, sFileName )
     nLen := len(arr_f)
     aGauge := GaugeNew( , , { 'R/BG*', 'R/BG*', 'R/BG*' }, 'Создание архива ' + hb_FNameNameExt( sFileName ), .t. )
 
-    lCompress := hb_ZipFile( sFileName, arr_f, 9, ;
-        {| cFile, nPos | GaugeDisplay( aGauge ), stat_msg( 'Добавление в архив файла ' + hb_FNameNameExt( cFile ) + ' ( ' + alltrim(lstr(nPos)) + ' из ' + alltrim(lstr(nLen)) + ' )' ) }, ;
-        .t., , .f., , { | nPos, nLen | GaugeUpdate( aGauge, nPos / nLen ) } )
-    // lCompress := hb_ZipFile( sFileName, arr_f, 9, ;
+    // lCompress := hb_ZipFile( sFileName, arr_f, COMPRESSION, ;
     //     , ;
     //     .t., , .f., ,  )
+    lCompress := hb_ZipFile( sFileName, arr_f, COMPRESSION, ;
+        {| cFile, nPos | GaugeDisplay( aGauge ), stat_msg( 'Добавление в архив файла ' + hb_FNameNameExt( cFile ) + ' ( ' + alltrim(lstr(nPos)) + ' из ' + alltrim(lstr(nLen)) + ' )' ) }, ;
+        .t., , .f., , { | nPos, nLen | GaugeUpdate( aGauge, nPos / nLen ) } )
     if ! lCompress
       sFileName := ''
     endif
@@ -117,7 +119,7 @@ function fillZIP( arr_f, sFileName )
 
   return sFileName
 
-****** 08.11.21
+****** 20.11.21
 function create_ZIP( par, dir_archiv )
   static sast := '*', sfile_begin := '_begin.txt', sfile_end := '_end.txt'
   local arr_f, ar
@@ -127,6 +129,9 @@ function create_ZIP( par, dir_archiv )
   local zip_file
   local buf := savescreen()
   local zip_xml_mo, zip_xml_tf, zip_napr_mo, zip_napr_tf
+  // Local time_zip := 0, t1
+
+  // t1 := seconds()
 
   zip_xml_mo := zip_xml_tf := zip_napr_mo:= zip_napr_tf := ''
   if par == 1
@@ -224,7 +229,10 @@ function create_ZIP( par, dir_archiv )
     nLen := len(ar)
     aGauge := GaugeNew( , , { 'R/BG*', 'R/BG*', 'R/BG*' }, 'Создание архива ' + zip_file, .t. )
   
-    lCompress := hb_ZipFile( dir_archiv + zip_file, ar, 9, ;
+    // lCompress := hb_ZipFile( dir_archiv + zip_file, ar, COMPRESSION, ;
+    //     , ;
+    //     .t., , .f., , )
+    lCompress := hb_ZipFile( dir_archiv + zip_file, ar, COMPRESSION, ;
         {| cFile, nPos | GaugeDisplay( aGauge ), stat_msg( 'Добавление в архив файла ' + hb_FNameNameExt( cFile ) + ' ( ' + alltrim(lstr(nPos)) + ' из ' + alltrim(lstr(nLen)) + ' )' ) }, ;
         .t., , .f., , { | nPos, nLen | GaugeUpdate( aGauge, nPos / nLen ) } )
     CloseGauge( aGauge ) // Закроем окно отображения бегунка
@@ -233,6 +241,13 @@ function create_ZIP( par, dir_archiv )
       fl := func_error( 4, 'Возникла ошибка при архивировании базы данных.' )
     endif
 
+    // time_zip := seconds() - t1
+
+    // if fl .and. time_zip > 0
+    //   n_message({'', 'Время создания резервной копии - ' + sectotime(time_zip)}, , ;
+    //           color1, cDataCSay, , , color8)
+    // endif
+  
     hb_vfErase( sfile_end )
     hb_memowrit( sfile_end, full_date( sys_date ) + ' ' + time() + ' ' + hb_OemToAnsi(fio_polzovat))
 
