@@ -240,4 +240,24 @@ Function Add1Rec(n, lExcluUse)
   endif
   SET(_SET_DELETED, lOldDeleted)  // Восстановление среды
   return NIL
-  
+
+***** 11.04.18 выравнивание вторичного файла базы данных до первичного
+Function dbf_equalization(lalias,lkod)
+  Local fl := .t.
+
+  dbSelectArea(lalias)
+  do while lastrec() < lkod
+    do while .t.
+      APPEND BLANK
+      fl := .f.
+      if !NETERR()
+        exit
+      endif
+    enddo
+  enddo
+  if fl  // т.е. нужная запись не заблокирована при добавлении
+    goto (lkod)
+    G_RLock(forever)
+  endif
+  return NIL
+

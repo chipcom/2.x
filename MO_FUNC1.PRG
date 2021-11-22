@@ -6,23 +6,6 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 11.04.18 выравнивание вторичного файла базы данных до первичного
-Function dbf_equalization(lalias,lkod)
-Local fl := .t.
-dbSelectArea(lalias)
-do while lastrec() < lkod
-  DO WHILE .t.
-    APPEND BLANK
-    fl := .f.
-    IF !NETERR() ; exit ; ENDIF
-  ENDDO
-enddo
-if fl  // т.е. нужная запись не заблокирована при добавлении
-  goto (lkod)
-  G_RLock(forever)
-endif
-return NIL
-
 ***** 18.03.13 признак села
 Function f_is_selo(_gorod_selo,_okatog)
 Local arr, ret := .f., fl := .f., tmp_select
