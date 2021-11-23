@@ -305,6 +305,8 @@ Function ret_vid_pom(k,mshifr,lk_data)
   // endif
   if y != WORK_YEAR .and. (WORK_YEAR - y) <= 3  // если рабочий год отличается от установленного в настройках
     lal += substr(str(y, 4), 3)
+  elseif y < 2018
+    lal += '18'
   endif
 
   dbSelectArea(lal)

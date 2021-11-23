@@ -991,58 +991,73 @@ return fl // подтверждение, что услуга - ОМС
 ***** 04.02.21 является ли данная услуга услугой ТФОМС
 Function is_usluga_TFOMS(lshifr,lshifr1,ldate_usl,;
   /*@*/arr_uet,/*@*/lbukva,/*@*/lst,/*@*/lidsp,/*@*/lvidpoms)
-Local _shifr, tmp_select := select(), fl := .f., y := 2021, lal := "lusl"
-y := year(ldate_usl)
-if select("LUSL") == 0
-  use_base("lusl")
-endif
-if y < 2019
-  lal += "18"
-elseif y < 2020
-  lal += "19"
-elseif y < 2021
-  lal += "20"
-endif
-lst := 0 ; lvidpoms := "" ; lbukva := " "
-_shifr := iif(empty(lshifr1), lshifr, lshifr1)
-dbSelectArea(lal)
-find (padr(_shifr,10))
-if found() //.and. between_date(lusl->datebeg,lusl->dateend,ldate_usl)
-  fl := .t.
-  lbukva := alltrim(&lal.->bukva)
-  if len(lbukva) != 1 // для 2018 года
-    lbukva := " "
+  Local _shifr, tmp_select := select(), fl := .f.
+  local lal := 'lusl', y := WORK_YEAR
+
+  y := year(ldate_usl)
+  if select('LUSL') == 0
+    use_base('lusl')
   endif
-  lst := &lal.->st
-  lidsp := int(val(&lal.->idsp))
-  if &lal.->(fieldpos("idsps")) > 0 .and. "," $ &lal.->idsps
-    lidsp := 0
+
+  // if y < 2019
+  //   lal += "18"
+  // elseif y < 2020
+  //   lal += "19"
+  // elseif y < 2021
+  //   lal += "20"
+  // endif
+  if y != WORK_YEAR .and. (WORK_YEAR - y) <= 3  // если рабочий год отличается от установленного в настройках
+    lal += substr(str(y, 4), 3)
+  elseif y < 2018
+    lal += '18'
   endif
-  arr_uet := {&lal.->uetv,&lal.->uetd}
-  lvidpoms := alltrim(&lal.->vmp_s)
-endif
-if !fl
-  if select("LUSLF") == 0
-    use_base("luslf")
-  endif
-  lal := "luslf"
-  if y < 2019
-    lal += "18"
-  elseif y < 2020
-    lal += "19"
-  elseif y < 2021
-    lal += "20"
-  endif
+
+  lst := 0 ; lvidpoms := '' ; lbukva := ' '
+  _shifr := iif(empty(lshifr1), lshifr, lshifr1)
   dbSelectArea(lal)
-  find (padr(_shifr,20))
-  if found() //.and. between_date(luslf->datebeg,luslf->dateend,ldate_usl)
+  find (padr(_shifr,10))
+  if found() //.and. between_date(lusl->datebeg,lusl->dateend,ldate_usl)
     fl := .t.
-    lbukva := " "
-    arr_uet := {&lal.->uetv,&lal.->uetd}
+    lbukva := alltrim(&lal.->bukva)
+    if len(lbukva) != 1 // для 2018 года
+      lbukva := ' '
+    endif
+    lst := &lal.->st
+    lidsp := int(val(&lal.->idsp))
+    if &lal.->(fieldpos('idsps')) > 0 .and. ',' $ &lal.->idsps
+      lidsp := 0
+    endif
+    arr_uet := {&lal.->uetv, &lal.->uetd}
+    lvidpoms := alltrim(&lal.->vmp_s)
   endif
-endif
-select (tmp_select)
-return fl // подтверждение, что услуга - ОМС
+  if !fl
+    if select('LUSLF') == 0
+      use_base('luslf')
+    endif
+    lal := 'luslf'
+    // if y < 2019
+    //   lal += "18"
+    // elseif y < 2020
+    //   lal += "19"
+    // elseif y < 2021
+    //   lal += "20"
+    // endif
+    if y != WORK_YEAR .and. (WORK_YEAR - y) <= 3  // если рабочий год отличается от установленного в настройках
+      lal += substr(str(y, 4), 3)
+    elseif y < 2018
+      lal += '18'
+    endif
+  
+    dbSelectArea(lal)
+    find (padr(_shifr, 20))
+    if found() //.and. between_date(luslf->datebeg,luslf->dateend,ldate_usl)
+      fl := .t.
+      lbukva := ' '
+      arr_uet := {&lal.->uetv, &lal.->uetd}
+    endif
+  endif
+  select (tmp_select)
+  return fl // подтверждение, что услуга - ОМС
 
 ***** 15.01.19
 Function ret_tfoms_uet(lshifr,lshifr1,lvzros_reb)
