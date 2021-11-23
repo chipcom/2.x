@@ -284,40 +284,47 @@ Function date_reg_schet()
 // если нет даты регистрации, берём дату счёта
 return iif(empty(schet_->dregistr), schet_->dschet, schet_->dregistr)
 
-***** 18.01.2021
+***** 23.11.2021
 Function ret_vid_pom(k,mshifr,lk_data)
-Local svp, vp := 0, lal := "lusl", y := 2021
-if valtype(lk_data) == "D"
-  y := year(lk_data)
-endif
-if select("LUSL") == 0
-  Use_base("lusl")
-endif
-if y == 2019
-  lal += "19"
-elseif y == 2020
-  lal += "20"
-elseif y < 2019
-  lal += "18"
-endif
-dbSelectArea(lal)
-find (padr(mshifr,10))
-if found()
-  svp := alltrim(&lal.->VMP_F)
-  if empty(svp)
-    vp := 0
-  elseif k == 1
-    vp := int(val(svp))
-  else
-    vp := 1
-    if svp == '2'
-      vp := 2
-    elseif "3" $ svp
-      vp := 3
+  local svp, vp := 0, lal := 'lusl'
+  local y := WORK_YEAR  // 2021
+
+  if valtype(lk_data) == 'D'
+    y := year(lk_data)
+  endif
+
+  if select('LUSL') == 0
+    Use_base('lusl')
+  endif
+  // if y == 2020
+  //   lal += '20'
+  // elseif y == 2019
+  //   lal += '19'
+  // elseif y < 2019
+  //   lal += '18'
+  // endif
+  if y != WORK_YEAR .and. (WORK_YEAR - y) <= 3  // если рабочий год отличается от установленного в настройках
+    lal += substr(str(y, 4), 3)
+  endif
+
+  dbSelectArea(lal)
+  find (padr(mshifr, 10))
+  if found()
+    svp := alltrim(&lal.->VMP_F)
+    if empty(svp)
+      vp := 0
+    elseif k == 1
+      vp := int(val(svp))
+    else
+      vp := 1
+      if svp == '2'
+        vp := 2
+      elseif '3' $ svp
+        vp := 3
+      endif
     endif
   endif
-endif
-return vp
+  return vp
 
 *****
 Function get_k_usluga(lshifr,lvzros_reb,lvr_as)
@@ -1314,41 +1321,46 @@ if !emptyany(lMETVMP,lVIDVMP) ;
 endif
 return s
 
-***** 03.01.21 в GET-е вернуть строку из glob_V018
+***** 23.11.21 в GET-е вернуть строку из glob_V018
 Function f_get_vidvmp(k,r,c) 
-Static sy := 0, arr, svidvmp := ""
-Local ret, ret_arr, y
-local sTmp := ''
+  Static sy := 0, arr, svidvmp := ""
+  Local ret, ret_arr
+  local sTmp := ''
+  local y := year(mk_data)
 
-if (y := year(mk_data)) > 2020
-  y := 2021
-elseif y == 2020
-  y := 2020
-elseif y == 2019
-  y := 2019
-else
-  y := 2018
-endif
-if sy != y  // при первом вызове или смене года
-  make_V018_V019(mk_data)
-  arr := {}
-  for i := 1 to len(glob_V018)
-    sTmp := padl(glob_V018[i,1], 5) + "."
-    // aadd(arr,{padr(glob_V018[i,1]+"."+glob_V018[i,2],76),glob_V018[i,1]})
-    aadd(arr,{padr(sTmp+glob_V018[i,2],76),glob_V018[i,1]})
-  next
-endif
-if empty(k)
-  k := svidvmp
-endif
-popup_2array(arr,-r,c,k,1,@ret_arr,"Выбор вида ВМП","GR+/RB","BG+/RB,N/BG")
-if valtype(ret_arr) == "A"
-  ret := array(2)
-  svidvmp := ret_arr[2]
-  ret[1] := ret_arr[2]
-  ret[2] := ret_arr[1]
-endif
-return ret
+  // if (y := year(mk_data)) > 2020
+  //   y := 2021
+  // elseif y == 2020
+  //   y := 2020
+  // elseif y == 2019
+  //   y := 2019
+  // else
+  //   y := 2018
+  // endif
+  if y < 2018
+    y := 2018
+  endif
+  if sy != y  // при первом вызове или смене года
+    make_V018_V019(mk_data)
+    arr := {}
+    for i := 1 to len(glob_V018)
+      sTmp := padl(glob_V018[i,1], 5) + "."
+        // aadd(arr,{padr(glob_V018[i,1]+"."+glob_V018[i,2],76),glob_V018[i,1]})
+      aadd(arr,{padr(sTmp+glob_V018[i,2],76),glob_V018[i,1]})
+    next
+    sy := y
+  endif
+  if empty(k)
+    k := svidvmp
+  endif
+  popup_2array(arr,-r,c,k,1,@ret_arr,"Выбор вида ВМП","GR+/RB","BG+/RB,N/BG")
+  if valtype(ret_arr) == "A"
+    ret := array(2)
+    svidvmp := ret_arr[2]
+    ret[1] := ret_arr[2]
+    ret[2] := ret_arr[1]
+  endif
+  return ret
 
 ***** 11.02.21 в GET-е вернуть строку из glob_V019
 Function f_get_metvmp(k, r, c, lvidvmp, modpac)
