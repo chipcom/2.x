@@ -3364,7 +3364,12 @@ if type("p_del_error") == "A" .and. p_del_error[2] > 0
       find (str(human->kod,7))
       if(hu->u_kod == 217) //611
         hu->(G_RLock(forever))
-        hu->u_kod := 219  //614
+        hu->u_kod := 220  //614
+      endif
+      //
+      if(hu->u_kod == 219) 
+        hu->(G_RLock(forever))
+        hu->u_kod := 220  
       endif
       //
       select (tmp_1)
