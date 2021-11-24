@@ -1006,11 +1006,7 @@ Function is_usluga_TFOMS(lshifr,lshifr1,ldate_usl,;
   // elseif y < 2021
   //   lal += "20"
   // endif
-  if y != WORK_YEAR .and. (WORK_YEAR - y) <= 3  // если рабочий год отличается от установленного в настройках
-    lal += substr(str(y, 4), 3)
-  elseif y < 2018
-    lal += '18'
-  endif
+  lal := create_name_alias(lal, y)
 
   lst := 0 ; lvidpoms := '' ; lbukva := ' '
   _shifr := iif(empty(lshifr1), lshifr, lshifr1)
@@ -1042,11 +1038,7 @@ Function is_usluga_TFOMS(lshifr,lshifr1,ldate_usl,;
     // elseif y < 2021
     //   lal += "20"
     // endif
-    if y != WORK_YEAR .and. (WORK_YEAR - y) <= 3  // если рабочий год отличается от установленного в настройках
-      lal += substr(str(y, 4), 3)
-    elseif y < 2018
-      lal += '18'
-    endif
+    lal := create_name_alias(lal, y)
   
     dbSelectArea(lal)
     find (padr(_shifr, 20))
