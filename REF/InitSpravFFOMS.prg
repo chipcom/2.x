@@ -1,4 +1,7 @@
-***** 06.03.21 ¨­¨æ¨ «¨§ æ¨ï á¯à ¢®ç­¨ª®¢ ””Œ‘
+#include 'function.ch'
+#include 'chip_mo.ch'
+
+***** 24.11.21 ¨­¨æ¨ «¨§ æ¨ï á¯à ¢®ç­¨ª®¢ ””Œ‘
 Function InitSpravFFOMS()
   /////////////////////////////////////////////////
   // F005.xml - Š« áá¨ä¨ª â®à áâ âãá®¢ ®¯« âë ¬¥¤¨æ¨­áª®© ¯®¬®é¨
@@ -25,6 +28,7 @@ Function InitSpravFFOMS()
   // V018.xml - Š« áá¨ä¨ª â®à ¢¨¤®¢ ‚Œ
   // V019.xml - Š« áá¨ä¨ª â®à ¬¥â®¤®¢ ‚Œ
   Local i, j, s, ar
+  local sbase, prefix
 
   /////////////////////////////////////////////////
   // F005.xml - Š« áá¨ä¨ª â®à áâ âãá®¢ ®¯« âë ¬¥¤¨æ¨­áª®© ¯®¬®é¨
@@ -1040,7 +1044,12 @@ Function InitSpravFFOMS()
   {98,329,"Œƒˆ","Œƒˆ","",""},;                               //  1
   {99,387,"¨áá«¥¤®¢ ­¨¥ ˆ•ƒ","¨áá«¥¤®¢ ­¨¥ ˆ•ƒ","",""};      //  1
   }
-  G_Use(exe_dir+"_mo1unit",cur_dir+"_mo1unit","UNIT")
+
+  prefix := prefixFileRefName(WORK_YEAR)
+  sbase :=  prefix + 'unit'  // á¯à ¢®ç­¨ª ­  ª®­ªà¥â­ë© £®¤
+  
+  // G_Use(exe_dir+"_mo1unit",cur_dir+"_mo1unit","UNIT")
+  G_Use(exe_dir + sbase, cur_dir + sbase, 'UNIT')
   for i := 1 to len(glob_array_PZ_21)
     find (str(glob_array_PZ_21[i,2],3))
     if found() .and. !(unit->pz == glob_array_PZ_21[i,1] .and. unit->ii == i)

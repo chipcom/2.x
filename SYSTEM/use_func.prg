@@ -8,19 +8,6 @@
 Function R_Use_base(sBase, lalias)
   return use_base(sBase, lalias, , .t.)
 
-***** 24.11.21
-Function create_name_alias(cVarAlias, in_date)
-  *** cVarAlias - строка с начальными символами алиаса
-  *** in_date - дата на которую необходимо сформировать алиас
-  local ret := cVarAlias
-
-  if in_date != WORK_YEAR .and. (WORK_YEAR - in_date) <= 3  // если рабочий год отличается от установленного в настройках
-    ret += substr(str(in_date, 4), 3)
-  elseif in_date < 2018
-    ret += '18'
-  endif
-  return ret
-
 ***** 02.01.21
 Function use_base(sBase, lalias, lExcluUse, lREADONLY)
   Local fl := .t., sind1, sind2
