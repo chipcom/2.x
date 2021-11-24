@@ -944,11 +944,13 @@ y := year(ldate_usl)
 if select("LUSL") == 0
   use_base("lusl")
 endif
-if y < 2019
-  lal += "18"
-elseif y < 2020
-  lal += "19"
-endif
+// if y < 2019
+//   lal += "18"
+// elseif y < 2020
+//   lal += "19"
+// endif
+lal := create_name_alias(lal, y)
+
 lst := 0 ; lvidpoms := "" ; lbukva := " "
 _shifr := iif(empty(lshifr1), lshifr, lshifr1)
 dbSelectArea(lal)
@@ -972,11 +974,13 @@ if !fl
     use_base("luslf")
   endif
   lal := "luslf"
-  if y < 2019
-    lal += "18"
-  elseif y < 2020
-    lal += "19"
-  endif
+  // if y < 2019
+  //   lal += "18"
+  // elseif y < 2020
+  //   lal += "19"
+  // endif
+  lal := create_name_alias(lal, y)
+
   dbSelectArea(lal)
   find (padr(_shifr,20))
   if found() //.and. between_date(luslf->datebeg,luslf->dateend,ldate_usl)
@@ -1689,19 +1693,21 @@ return fl
 
 ***** 12.01.20 вернуть разрешённые парные органы
 Function ret_par_org(lshifr,_k_data)
-Local s := "", lalf := "LUSLF", tmp_select := select()
-if year(_k_data) < 2020 // т.к. в 2020 году пополнился список операций на парных органах
-  lalf += "19"
-endif
-dbSelectArea(lalf)
-if fieldnum("par_org") > 0
-  find (padr(lshifr,20))
-  if found() .and. alltrim(lshifr) == alltrim(&lalf.->shifr)
-    s := alltrim(&lalf.->par_org)
+  Local s := '', lalf := 'LUSLF', tmp_select := select()
+  // if year(_k_data) < 2020 // т.к. в 2020 году пополнился список операций на парных органах
+  //   lalf += "19"
+  // endif
+  lalf := create_name_alias(lalf, _k_data)
+
+  dbSelectArea(lalf)
+  if fieldnum('par_org') > 0
+    find (padr(lshifr,20))
+    if found() .and. alltrim(lshifr) == alltrim(&lalf.->shifr)
+      s := alltrim(&lalf.->par_org)
+    endif
   endif
-endif
-select (tmp_select)
-return s
+  select (tmp_select)
+  return s
 
 ***** 22.01.19 обязательна ли зубная формула
 Function ret_is_zf(lshifr)
@@ -1836,46 +1842,37 @@ if nU < 4 .and. !(left(sShifr,2)=="1.")
 endif
 return nU
 
-*
-
-***** 18.01.21
+***** 24.11.21
 Function fcena_oms(sShifr,lVzReb,dDate,/*@*/fl_delete,/*@*/fl_yes,/*@*/_ifin)
-Local i, v, tmp_select := select(), lvr, nu, lal, s := glob_mo[_MO_KOD_TFOMS]
-sShifr := padr(sShifr,10)
-if valtype(dDate) == "D"
-  dDate := {dDate}
-endif
-if !empty(glob_podr) .and. year(dDate[1]) == 2017
-  s := padr(glob_podr,6) // заменяем на код адреса подразделения
-endif
-lvr := iif(lVzReb,0,1)
-for i := 1 to len(dDate)
-  v := 0
-  nu := get2uroven(sShifr,get_uroven(dDate[i]))
-  _ifin := 0
-  fl_delete := .t. ; fl_yes := .f.
-  lal := "luslc"
-  if year(dDate[i]) < 2019
-    lal += "18"
-  elseif year(dDate[i]) < 2020
-    lal += "19"
-  elseif year(dDate[i]) < 2021
-    lal += "20"
+  Local i, v, tmp_select := select(), lvr, nu, lal, s := glob_mo[_MO_KOD_TFOMS]
+
+  sShifr := padr(sShifr, 10)
+  if valtype(dDate) == "D"
+    dDate := {dDate}
   endif
-  dbselectarea(lal)
-  set order to 1
-  find (sShifr+str(lvr,1)+str(glob_otd_dep,3)) // сначала ищем цену для конкретного отделения
-  do while sShifr == &lal.->shifr .and. &lal.->VZROS_REB == lvr .and. &lal.->depart == glob_otd_dep .and. !eof()
-    fl_yes := .t.
-    if between_date(&lal.->datebeg,&lal.->dateend,dDate[i]) // поиск цены по дате окончания лечения
-      fl_delete := .f.
-      v := &lal.->CENA ; exit
-    endif
-    skip
-  enddo
-  if !fl_yes .and. fl_delete // если не нашли
-    find (sShifr+str(lvr,1)+str(0,3)) // то ищем цену для depart = 0
-    do while sShifr == &lal.->shifr .and. &lal.->VZROS_REB == lvr .and. &lal.->depart == 0 .and. !eof()
+  if !empty(glob_podr) .and. year(dDate[1]) == 2017
+    s := padr(glob_podr, 6) // заменяем на код адреса подразделения
+  endif
+  lvr := iif(lVzReb, 0, 1)
+  for i := 1 to len(dDate)
+    v := 0
+    nu := get2uroven(sShifr, get_uroven(dDate[i]))
+    _ifin := 0
+    fl_delete := .t. ; fl_yes := .f.
+    lal := "luslc"
+    // if year(dDate[i]) < 2019
+    //   lal += "18"
+    // elseif year(dDate[i]) < 2020
+    //   lal += "19"
+    // elseif year(dDate[i]) < 2021
+    //   lal += "20"
+    // endif
+    lal := create_name_alias(lal, dDate[i])
+
+    dbselectarea(lal)
+    set order to 1
+    find (sShifr+str(lvr,1)+str(glob_otd_dep,3)) // сначала ищем цену для конкретного отделения
+    do while sShifr == &lal.->shifr .and. &lal.->VZROS_REB == lvr .and. &lal.->depart == glob_otd_dep .and. !eof()
       fl_yes := .t.
       if between_date(&lal.->datebeg,&lal.->dateend,dDate[i]) // поиск цены по дате окончания лечения
         fl_delete := .f.
@@ -1883,15 +1880,23 @@ for i := 1 to len(dDate)
       endif
       skip
     enddo
-  endif
-  if empty(v)
-    exit
-  endif
-next
-select (tmp_select)
-return v
-
-*
+    if !fl_yes .and. fl_delete // если не нашли
+      find (sShifr+str(lvr,1)+str(0,3)) // то ищем цену для depart = 0
+      do while sShifr == &lal.->shifr .and. &lal.->VZROS_REB == lvr .and. &lal.->depart == 0 .and. !eof()
+        fl_yes := .t.
+        if between_date(&lal.->datebeg,&lal.->dateend,dDate[i]) // поиск цены по дате окончания лечения
+          fl_delete := .f.
+          v := &lal.->CENA ; exit
+        endif
+        skip
+      enddo
+    endif
+    if empty(v)
+      exit
+    endif
+  next
+  select (tmp_select)
+  return v
 
 ***** 24.02.21
 Function f1cena_oms(sShifr,sShifr1,lVzReb,dDate,lis_nul,/*@*/fl_uslc,/*@*/fl_del)

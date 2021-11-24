@@ -5087,9 +5087,7 @@ close databases
 restscreen(buf)
 return NIL
 
-*
-
-***** 18.02.20
+***** 24.11.21
 Function pril_5_6_62()
 Local begin_date, end_date, buf := savescreen(), i, j, k, k1, k2,;
       t_arr[10], t_arr1[10], name_file := "f14med"+stxt, tfoms_pz[5,11],;
@@ -5097,6 +5095,8 @@ Local begin_date, end_date, buf := savescreen(), i, j, k, k1, k2,;
       is_reabili, is_ekstra, lshifr1, koef, vid_vp, r1 := 9, fl_exit := .f.,;
       is_vmp, d2_year, ar, arr_excel := {}, fl_error := .f., is_z_sl,;
       arr_usl, au, ii, lal, lalf
+  local sbase
+
 if !hb_FileExists(dir_exe+"_mo_pr62"+sdbf)
   return func_error(4,"Не обнаружен файл _mo_pr62"+sdbf)
 endif
@@ -5126,26 +5126,33 @@ elseif !between(arr_m[1],2019,2021)
   return func_error(4,"Данный отчёт работает только с 2019-21 годами")
 endif
 lal := "lusl" ; lalf := "luslf"
-if arr_m[1] == 2019
-  lal += "19" ; lalf += "19"
-elseif arr_m[1] == 2020
-  lal += "20" ; lalf += "20"
-elseif arr_m[1] == 2021
-  lal += "21" ; lalf += "21"
-endif
+// if arr_m[1] == 2019
+//   lal += "19" ; lalf += "19"
+// elseif arr_m[1] == 2020
+//   lal += "20" ; lalf += "20"
+// elseif arr_m[1] == 2021
+//   lal += "21" ; lalf += "21"
+// endif
+lal := create_name_alias(lal, arr_m[1])
+lalf := create_name_alias(lalf, arr_m[1])
+
 WaitStatus(arr_m[4])
 @ maxrow(),0 say " ждите..." color "W/R"
 begin_date := dtoc4(arr_m[5])
 end_date := dtoc4(arr_m[6])
 Use_base("lusl")
 Use_base("luslf")
-if arr_m[1] == 2019
-  R_Use(dir_exe+"_mo9unit",cur_dir+"_mo9unit","MOUNIT")
-elseif arr_m[1] == 2020
-  R_Use(dir_exe+"_mo0unit",cur_dir+"_mo0unit","MOUNIT")
-elseif arr_m[1] == 2021
-  R_Use(dir_exe+"_mo1unit",cur_dir+"_mo1unit","MOUNIT")
-endif
+
+// if arr_m[1] == 2019
+//   R_Use(dir_exe+"_mo9unit",cur_dir+"_mo9unit","MOUNIT")
+// elseif arr_m[1] == 2020
+//   R_Use(dir_exe+"_mo0unit",cur_dir+"_mo0unit","MOUNIT")
+// elseif arr_m[1] == 2021
+//   R_Use(dir_exe+"_mo1unit",cur_dir+"_mo1unit","MOUNIT")
+// endif
+  sbase := prefixFileRefName(arr_m[1]) + 'unit'
+  R_Use(dir_exe + sbase, cur_dir + sbase, 'MOUNIT')
+
 R_Use(dir_server+"mo_su",,"MOSU")
 R_Use(dir_server+"mo_hu",dir_server+"mo_hu","MOHU")
 set relation to u_kod into MOSU

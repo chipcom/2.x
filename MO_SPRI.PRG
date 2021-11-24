@@ -1020,13 +1020,14 @@ if empty(ret_arr)
 endif
 return ret_arr
 
-***** 23.04.21
+***** 24.11.21
 Function usl2TFOMS()
 Static sdate
 Local k, buf := save_maxrow(), name_file := "uslugi"+stxt, nu, ret_arr,;
       sh := 80, HH := 60, t_arr, i, s, fl, v1, v2, mdate, fl1uslc, fl2uslc,;
       ta[2], lyear, fl1del, fl2del, len_ksg := 10
 local arrKSLP, rowKSLP, tmpKSLP, arrKIRO, rowKIRO, tmpKIRO
+local sbase
 
 DEFAULT sdate TO sys1_date
 mdate := input_value(20,5,22,73,color1,;
@@ -1113,15 +1114,18 @@ if (k := popup_2array(usl9TFOMS(mdate),T_ROW,T_COL-5,su,1,@t_arr,"Выберите групп
       add_string('      5 - менее 4-х дней, несоблюдён режим введения лек.препарата(коэф=0.2)')
       add_string('      6 - более 3-х дней, несоблюдён режим введения лек.препарата, лечение прервано(коэф=0.9)')
     endif
-    if lyear == 2021
-      R_Use(exe_dir+"_mo1k006",,"K006")
-    elseif lyear == 2020
-      R_Use(exe_dir+"_mo0k006",,"K006")
-    elseif lyear == 2021
-      R_Use(exe_dir+"_mo1k006",,"K006")
-    else
-      R_Use(exe_dir+"_mo9k006",,"K006")
-    endif
+    // if lyear == 2021
+    //   R_Use(exe_dir+"_mo1k006",,"K006")
+    // elseif lyear == 2020
+    //   R_Use(exe_dir+"_mo0k006",,"K006")
+    // elseif lyear == 2021
+    //   R_Use(exe_dir+"_mo1k006",,"K006")
+    // else
+    //   R_Use(exe_dir+"_mo9k006",,"K006")
+    // endif
+    sbase := prefixFileRefName(lyear) + 'k006'
+    R_Use(exe_dir + sbase, , 'K006')
+    
     index on SHIFR+str(ns,6) to (cur_dir+"tmp_k006") unique
     index on SHIFR+str(ns,6)+ds+sy to (cur_dir+"tmp_k006_")
     set index to (cur_dir+"tmp_k006"),(cur_dir+"tmp_k006_")
@@ -1129,12 +1133,14 @@ if (k := popup_2array(usl9TFOMS(mdate),T_ROW,T_COL-5,su,1,@t_arr,"Выберите групп
   use_base("luslc")
   use_base("lusl")
   lal := "lusl"
-  if lyear == 2019
-    lal += "19"
-  endif
-  if lyear == 2020
-    lal += "20"
-  endif
+  // if lyear == 2019
+  //   lal += "19"
+  // endif
+  // if lyear == 2020
+  //   lal += "20"
+  // endif
+  lal := create_name_alias(lal, lyear)
+
   dbSelectArea(lal)
   if t_arr[2] > 500
     index on fsort_usl(shifr) to (cur_dir+"tmplu") for is_ksg(shifr,t_arr[2]-500) .and. datebeg >= boy(mdate)
@@ -1308,7 +1314,7 @@ if !empty(lkiro)
 endif
 return s
 
-***** 18.01.21
+***** 24.11.21
 Function usl3TFOMS()
 Local i, k, buf := save_maxrow(), name_file := "uslugi"+stxt,;
       sh := 85, HH := 80, mas1[5], mas2[5], arr[5], k1, k2, t_arr, mdate, lyear
@@ -1354,12 +1360,14 @@ if (k := popup_2array(usl9TFOMS(mdate),T_ROW,T_COL-5,su,1,@t_arr,"Выберите групп
   index on shifr+fsort_usl(usl->shifr) to (cur_dir+"tmp")
   use_base("lusl")
   lal := "lusl"
-  if lyear == 2019
-    lal += "19"
-  endif
-  if lyear == 2020
-    lal += "20"
-  endif
+  // if lyear == 2019
+  //   lal += "19"
+  // endif
+  // if lyear == 2020
+  //   lal += "20"
+  // endif
+  lal := create_name_alias(lal, lyear)
+
   dbSelectArea(lal)
   if t_arr[2] > 500
     index on fsort_usl(shifr) to (cur_dir+"tmplu") for is_ksg(shifr,t_arr[2]-500) .and. datebeg >= boy(mdate)
@@ -1412,9 +1420,7 @@ if (k := popup_2array(usl9TFOMS(mdate),T_ROW,T_COL-5,su,1,@t_arr,"Выберите групп
 endif
 return NIL
 
-*
-
-***** 19.01.21
+***** 24.11.21
 Static Function usl9TFOMS(mdate)
 Static sdate, sarr1
 Local arr := {{" 1. Койко-дни по профилям",1},;
@@ -1439,12 +1445,14 @@ Local arr := {{" 1. Койко-дни по профилям",1},;
               {"72. Профилактические медицинские осмотры",72}}
 Local i, ls, sShifr, arr1 := {}, lyear, fl_delete := .t., fl_yes := .f., lal := "luslc"
 if empty(sdate) .or. sdate != mdate
-  if (lyear := year(mdate)) == 2019
-    lal += "19"
-  endif
-  if (lyear := year(mdate)) == 2020
-    lal += "20"
-  endif
+  // if (lyear := year(mdate)) == 2019
+  //   lal += "19"
+  // endif
+  // if (lyear := year(mdate)) == 2020
+  //   lal += "20"
+  // endif
+  lal := create_name_alias(lal, mdate)
+
   Ins_Array(arr,1,{"КСГ в ДНЕВНОМ стационаре",502})
   Ins_Array(arr,1,{"КСГ в СТАЦИОНАРЕ",501})
   use_base("luslc")

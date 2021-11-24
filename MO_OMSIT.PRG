@@ -3590,9 +3590,7 @@ rest_box(buf)
 viewtext(name_file,,,,.t.,,,reg_print)
 return NIL
 
-*
-
-***** 07.06.20 Подсчёт стационарных случаев по профилям (по диагнозам, КСГ и операциям)
+***** 24.11.21 Подсчёт стационарных случаев по профилям (по диагнозам, КСГ и операциям)
 Function i_stac_sl_profil()
 Local buf := savescreen(), sh := 80, HH := 80, n_file := "stac_pro"+stxt
 Private arr_m := {2019,1,12,"за январь - декабрь 2019 года",0d20190101,0d20191231},;
@@ -3851,13 +3849,15 @@ else
     add_string(padr("Всего:",59)+put_val(sv+sd,7)+put_val(sv,7)+put_val(sd,7))
     arr_title[2] := padr("Наименование КСГ",59)+substr(arr_title[2],60)
     lal := "lusl"
-    if arr_m[1] == 2020
-      lal += "20"
-    elseif arr_m[1] == 2019
-      lal += "19"
-    elseif arr_m[1] < 2019
-      lal += "18"
-    endif
+    // if arr_m[1] == 2020
+    //   lal += "20"
+    // elseif arr_m[1] == 2019
+    //   lal += "19"
+    // elseif arr_m[1] < 2019
+    //   lal += "18"
+    // endif
+    lal := create_name_alias(lal, arr_m[1])
+
     verify_FF(HH-6,.t.,sh)
     add_string("")
     aeval(arr_title, {|x| add_string(x) } )
@@ -3911,13 +3911,15 @@ else
     enddo
     arr_title[2] := padr(" Операция (хирургическая группа КСГ)",59)+substr(arr_title[2],60)
     lal := "luslf"
-    if arr_m[1] == 2020
-      lal += "20"
-    elseif arr_m[1] == 2019
-      lal += "19"
-    elseif arr_m[1] < 2019
-      lal += "18"
-    endif
+    // if arr_m[1] == 2020
+    //   lal += "20"
+    // elseif arr_m[1] == 2019
+    //   lal += "19"
+    // elseif arr_m[1] < 2019
+    //   lal += "18"
+    // endif
+    lal := create_name_alias(lal, arr_m[1])
+
     verify_FF(HH-6,.t.,sh)
     add_string("")
     aeval(arr_title, {|x| add_string(x) } )

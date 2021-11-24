@@ -6502,20 +6502,21 @@ if ns == 6+delta .and. fl_month
 endif
 return NIL
 
-*
-
-***** 20.01.21
+***** 24.11.21
 Function f2forma1_ffoms(msmo,fl_month)
 Local tfoms_pz[6,3], mkol, ta, i, ii, j, k, lshifr, lvidpom := 1, lshifr1, j1, fl,;
       arr := {}, mkol_k := 0, mkol_1 := 0, mkol_2 := 0, mkol_55 := 0, lenp,;
       fl_T := (schet_->bukva == "T"), fl_K := (schet_->bukva == "K"), lalf := "luslf"
-if arr_m[1] == 2018
-  lalf += "18"
-elseif arr_m[1] == 2019
-  lalf += "19"
-elseif arr_m[1] == 2020
-  lalf += "20"
-endif
+
+  // if arr_m[1] == 2018
+  //   lalf += "18"
+  // elseif arr_m[1] == 2019
+  //   lalf += "19"
+  // elseif arr_m[1] == 2020
+  //   lalf += "20"
+  // endif
+  lalf := create_name_alias(lalf, arr_m[1])
+
 select HU
 find (str(human->kod,7))
 do while hu->kod == human->kod .and. !eof()
