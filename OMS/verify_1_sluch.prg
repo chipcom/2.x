@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-***** 24.11.21
+***** 25.11.21
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
         i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -15,6 +15,7 @@ Function verify_1_sluch(fl_view)
         lal, lalf
 
   local reserveKSG_1 := .f., reserveKSG_2 := .f.
+  local sbase
 
   if empty(human->k_data)
     return .t.  // не проверять
@@ -4397,13 +4398,15 @@ Function verify_1_sluch(fl_view)
   endif
   if len(arr_unit) > 1
     if select("MOUNIT") == 0
-      if d2_year == 2019
-        R_Use(dir_exe+"_mo9unit",cur_dir+"_mo9unit","MOUNIT")
-      elseif d2_year == 2020
-        R_Use(dir_exe+"_mo0unit",cur_dir+"_mo0unit","MOUNIT")
-      else
-        R_Use(dir_exe+"_mo1unit",cur_dir+"_mo1unit","MOUNIT")
-      endif
+      // if d2_year == 2019
+      //   R_Use(dir_exe+"_mo9unit",cur_dir+"_mo9unit","MOUNIT")
+      // elseif d2_year == 2020
+      //   R_Use(dir_exe+"_mo0unit",cur_dir+"_mo0unit","MOUNIT")
+      // else
+      //   R_Use(dir_exe+"_mo1unit",cur_dir+"_mo1unit","MOUNIT")
+      // endif
+      sbase := prefixFileRefName(d2_year) + 'unit'
+      R_Use(dir_exe + sbase, cur_dir + sbase, 'MOUNIT')
     endif
     s := "совокупность услуг должна быть из одной учётной единицы объёма, а в данном случае: "
     select MOUNIT
@@ -4576,13 +4579,15 @@ Function verify_1_sluch(fl_view)
     endif
     if len(arr_unit) == 1
       if select("MOUNIT") == 0
-        if d2_year == 2019
-          R_Use(dir_exe+"_mo9unit",cur_dir+"_mo9unit","MOUNIT")
-        elseif d2_year == 2020
-          R_Use(dir_exe+"_mo0unit",cur_dir+"_mo0unit","MOUNIT")
-        else
-          R_Use(dir_exe+"_mo1unit",cur_dir+"_mo1unit","MOUNIT")
-        endif
+        // if d2_year == 2019
+        //   R_Use(dir_exe+"_mo9unit",cur_dir+"_mo9unit","MOUNIT")
+        // elseif d2_year == 2020
+        //   R_Use(dir_exe+"_mo0unit",cur_dir+"_mo0unit","MOUNIT")
+        // else
+        //   R_Use(dir_exe+"_mo1unit",cur_dir+"_mo1unit","MOUNIT")
+        // endif
+        sbase := prefixFileRefName(d2_year) + 'unit'
+        R_Use(dir_exe + sbase, cur_dir + sbase, 'MOUNIT')
       endif
       select MOUNIT
       find (str(arr_unit[1],3))
