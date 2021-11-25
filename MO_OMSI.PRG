@@ -201,6 +201,8 @@ Local sh := 80, HH := 77, buf := save_maxrow(),;
       mkomu, name_org, mlech_vr := "", mishod, mprodol, msumma := 0, mmi_git,;
       mud_lich := "", arr, n_file := "list_uch"+stxt, adiag_talon[16],;
       madres, i := 1, j, k, tmp[2], tmp1, w1 := 37, s, s1, mnum_lu, lshifr1
+local tmpAlias
+
 DEFAULT par TO 1, regim TO 1, lnomer TO 0
 mywait()
 fp := fcreate(n_file) ; tek_stroke := 0 ; n_list := 1
@@ -620,31 +622,38 @@ do while mohu->kod == mkod .and. !eof()
     Select MOSU
     goto (mohu->u_kod)
     lname := mosu->name
-    if year(human->k_data) > 2020
-      select LUSLF
-      find (padr(mosu->shifr1,20))
-      if found()
-        lname := luslf->name  // наименование услуги из справочника ТФОМС
-      endif
-    elseif year(human->k_data) > 2019
-      select LUSLF20
-      find (padr(mosu->shifr1,20))
-      if found()
-        lname := luslf20->name  // наименование услуги из справочника ТФОМС
-      endif
-    elseif year(human->k_data) > 2018
-      select LUSLF19
-      find (padr(mosu->shifr1,20))
-      if found()
-        lname := luslf19->name  // наименование услуги из справочника ТФОМС
-      endif
-    else
-      select LUSLF18
-      find (padr(mosu->shifr1,20))
-      if found()
-        lname := luslf18->name  // наименование услуги из справочника ТФОМС
-      endif
+    // if year(human->k_data) > 2020
+    //   select LUSLF
+    //   find (padr(mosu->shifr1,20))
+    //   if found()
+    //     lname := luslf->name  // наименование услуги из справочника ТФОМС
+    //   endif
+    // elseif year(human->k_data) > 2019
+    //   select LUSLF20
+    //   find (padr(mosu->shifr1,20))
+    //   if found()
+    //     lname := luslf20->name  // наименование услуги из справочника ТФОМС
+    //   endif
+    // elseif year(human->k_data) > 2018
+    //   select LUSLF19
+    //   find (padr(mosu->shifr1,20))
+    //   if found()
+    //     lname := luslf19->name  // наименование услуги из справочника ТФОМС
+    //   endif
+    // else
+    //   select LUSLF18
+    //   find (padr(mosu->shifr1,20))
+    //   if found()
+    //     lname := luslf18->name  // наименование услуги из справочника ТФОМС
+    //   endif
+    // endif
+    tmpAlias := create_name_alias('LUSLF', year(human->k_data))
+    select (tmpAlias)
+    find (padr(mosu->shifr1,20))
+    if found()
+      lname := (tmpAlias)->name  // наименование услуги из справочника ТФОМС
     endif
+
     select TMP1
     append blank
     tmp1->kod := mosu->kod
@@ -2372,13 +2381,15 @@ return NIL
 
 *
 
-***** 19.01.21
+***** 25.11.21
 Function pz1statist(par,par2)
 Static _su := 2
 Local buf := savescreen(), fl_exit := .f., fl := .t., a_otd := {},;
       name_file := "plan_z"+stxt, arr_m, ta[2], arr_title, ;
       sh := 80, HH := 60, reg_print := 2, arr_name := f14tf_array(),;
       mstr_crb, mismo, ltrud, lplan, lcount_uch, lcount_otd
+local sbase
+
 Private flag_uet := .t., as[10,3], s_stac, sdstac, s_amb, skt, ssmp, suet, sstoim, ;
         su, su1, arr_goi, arr_zn := {B_END,B_STANDART}, arr_rees_no := {1,2},;
         kol_sl_2 := {}, arr_lp := {}, fl_period := .f.
@@ -2455,26 +2466,38 @@ if !fl
 endif
 _su := su
 if between(par,2,3) .and. eq_any(su,1,2,5)
-  if arr_m[1] > 2020
-    R_Use(dir_exe+"_mo1unit",,"MOUNIT")
-    index on str(ii,3) to (cur_dir+"tmp_unitii")
-    set index to (cur_dir+"_mo1unit"),(cur_dir+"tmp_unitii")
+  // if arr_m[1] > 2020
+  //   R_Use(dir_exe+"_mo1unit",,"MOUNIT")
+  //   index on str(ii,3) to (cur_dir+"tmp_unitii")
+  //   set index to (cur_dir+"_mo1unit"),(cur_dir+"tmp_unitii")
+  //   is_2021 := .t.
+  // elseif arr_m[1] == 2020
+  //   R_Use(dir_exe+"_mo0unit",,"MOUNIT20")
+  //   index on str(ii,3) to (cur_dir+"tmp_unitii")
+  //   set index to (cur_dir+"_mo0unit"),(cur_dir+"tmp_unitii")
+  //   is_2020 := .t.
+  // elseif arr_m[1] > 2018
+  //   R_Use(dir_exe+"_mo9unit",,"MOUNIT19")
+  //   index on str(ii,3) to (cur_dir+"tmp_unitii")
+  //   set index to (cur_dir+"_mo9unit"),(cur_dir+"tmp_unitii")
+  //   is_2019 := .t.
+  // else
+  //   R_Use(dir_exe+"_mo8unit",,"MOUNIT18")
+  //   index on str(ii,3) to (cur_dir+"tmp_unitii")
+  //   set index to (cur_dir+"_mo8unit"),(cur_dir+"tmp_unitii")
+  // endif
+  sbase := prefixFileRefName(arr_m[1]) + 'unit'
+  R_Use(dir_exe + sbase, , "MOUNIT")
+  index on str(ii, 3) to (cur_dir + "tmp_unitii")
+  set index to (cur_dir + sbase), (cur_dir + "tmp_unitii")
+  if arr_m[1] == 2021
     is_2021 := .t.
   elseif arr_m[1] == 2020
-    R_Use(dir_exe+"_mo0unit",,"MOUNIT20")
-    index on str(ii,3) to (cur_dir+"tmp_unitii")
-    set index to (cur_dir+"_mo0unit"),(cur_dir+"tmp_unitii")
     is_2020 := .t.
-  elseif arr_m[1] > 2018
-    R_Use(dir_exe+"_mo9unit",,"MOUNIT19")
-    index on str(ii,3) to (cur_dir+"tmp_unitii")
-    set index to (cur_dir+"_mo9unit"),(cur_dir+"tmp_unitii")
+  elseif arr_m[1] == 2019
     is_2019 := .t.
-  else
-    R_Use(dir_exe+"_mo8unit",,"MOUNIT18")
-    index on str(ii,3) to (cur_dir+"tmp_unitii")
-    set index to (cur_dir+"_mo8unit"),(cur_dir+"tmp_unitii")
   endif
+
   apz2016 := arr_plan_zakaz(arr_m[1])
   luapz2016 := arr_plan_zakaz(arr_m[1])
   kol_sl_2 := array(len(apz2016))
