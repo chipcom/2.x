@@ -5145,8 +5145,8 @@ myread()
 restscreen(buf)
 if lastkey() == K_ESC
   return nil
-elseif !between(arr_m[1],2019,2021)
-  return func_error(4,"Данный отчёт работает только с 2019-21 годами")
+elseif !between(arr_m[1], 2019, WORK_YEAR)
+  return func_error(4,"Данный отчёт работает только с 2019 по " + str(WORK_YEAR,4) + " годами")
 endif
 lal := "lusl" ; lalf := "luslf"
 // if arr_m[1] == 2019

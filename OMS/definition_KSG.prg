@@ -238,8 +238,10 @@ Function definition_KSG(par,k_data2)
     endif
     return {ars,arerr,alltrim(lksg),lcena,{},{}}
   endif
-  lal := "LUSL"+iif(lyear==2021,"","20")    // "LUSL"+iif(lyear==2020,"","19")
-  lalf := "LUSLF"+iif(lyear==2021,"","20")  // lalf := "LUSLF"+iif(lyear==2020,"","19")
+  // lal := "LUSL"+iif(lyear==2021,"","20")    // "LUSL"+iif(lyear==2020,"","19")
+  lal := create_name_alias('LUSL', lyear)
+  // lalf := "LUSLF"+iif(lyear==2021,"","20")  // lalf := "LUSLF"+iif(lyear==2020,"","19")
+  lalf := create_name_alias('LUSLF', lyear)
   if select("LUSLF") == 0
     use_base("LUSLF")
   endif
