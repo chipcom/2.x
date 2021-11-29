@@ -43,7 +43,7 @@ function prefixFileRefName(in_date)
   // ¯à®¢¥à¨¬ ¢å®¤­ë¥ ¯ à ¬¥âàë
   if valtype(in_date) == 'D'
     valYear := year(in_date)
-  elseif valtype(in_date) == 'N' .and. in_date > 2018 .and. in_date <= WORK_YEAR
+  elseif valtype(in_date) == 'N' .and. in_date >= 2018 .and. in_date <= WORK_YEAR
     valYear := in_date
   else
     valYear := WORK_YEAR

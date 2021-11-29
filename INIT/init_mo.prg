@@ -454,9 +454,7 @@ Function checkFilesTFOMS()
 **** 29.11.21
 function vmp_usl_check(val_year)  // справочник соответствия услуг ВМП услугам ТФОМС на countYear год
   local fl := .t.
-  local sbase, prefix := prefixFileRefName(val_year)
-  
-  sbase :=  prefix + 'vmp_usl'  // справочник соответствия услуг ВМП услугам ТФОМС
+  local sbase := prefixFileRefName(val_year) + 'vmp_usl'  // справочник соответствия услуг ВМП услугам ТФОМС
     
   if val_year == 2021
     if ! hb_FileExists(exe_dir + sbase + sdbf)
@@ -468,9 +466,7 @@ function vmp_usl_check(val_year)  // справочник соответствия услуг ВМП услугам Т
 **** 29.11.21
 function dep_index_and_fill(val_year)
   local fl := .t.
-  local sbase, prefix := prefixFileRefName(val_year)
-    
-  sbase :=  prefix + 'dep'  // справочник отделений на конкретный год
+  local sbase := prefixFileRefName(val_year) + 'dep'  // справочник отделений на конкретный год
   
   // is_otd_dep, glob_otd_dep, mm_otd_dep - объявлены ранее как Public
   if hb_FileExists(exe_dir + sbase + sdbf)
@@ -501,9 +497,8 @@ function dep_index_and_fill(val_year)
 **** 29.11.21
 function usl_Index(val_year)
   local fl := .t.
-  local sbase, prefix := prefixFileRefName(val_year)
-    
-  sbase :=  prefix + 'usl'  // справочник услуг ТФОМС на конкретный год
+  local sbase := prefixFileRefName(val_year) + 'usl'  // справочник услуг ТФОМС на конкретный год
+
   if hb_FileExists(exe_dir + sbase + sdbf)
     R_Use(exe_dir + sbase, ,'LUSL')
     if (year(sys_date) - val_year) < NUMBER_YEAR .or. files_time(exe_dir + sbase + sdbf, cur_dir + sbase + sntx)
@@ -662,9 +657,8 @@ function uslc_Index(val_year)
 **** 29.11.21
 function uslf_Index(val_year)
   local fl := .t.
-  local sbase, prefix := prefixFileRefName(val_year)
-  
-  sbase :=  prefix + 'uslf'  // справочник услуг ФФОМС на конкретный год
+  local sbase := prefixFileRefName(val_year) + 'uslf'  // справочник услуг ФФОМС на конкретный год
+
   if hb_FileExists(exe_dir + sbase + sdbf)
     R_Use(exe_dir + sbase, ,'LUSLF')
     if (year(sys_date) - val_year) < NUMBER_YEAR .or. files_time(exe_dir + sbase + sdbf, cur_dir + sbase + sntx)
@@ -679,9 +673,7 @@ function uslf_Index(val_year)
 **** 29.11.21
 function unit_Index(val_year)
   local fl := .t.
-  local sbase, prefix := prefixFileRefName(val_year)
-    
-  sbase :=  prefix + 'unit'  // план-заказ на конкретный год
+  local sbase := prefixFileRefName(val_year) + 'unit'  // план-заказ на конкретный год
       
   if hb_FileExists(exe_dir + sbase + sdbf)
     R_Use(exe_dir + sbase )
@@ -697,9 +689,8 @@ function unit_Index(val_year)
 **** 29.11.21
 function shema_index(val_year)
   local fl := .t.
-  local sbase, prefix := prefixFileRefName(val_year)
-    
-  sbase :=  prefix + 'shema'  // 
+  local sbase := prefixFileRefName(val_year) + 'shema'  // 
+
   if hb_FileExists(exe_dir + sbase + sdbf)
     if val_year == WORK_YEAR
       // добавлена индексация файла
@@ -715,10 +706,8 @@ function shema_index(val_year)
 **** 29.11.21
 function it_Index(val_year)
   local fl := .t.
-  local sbase, prefix := prefixFileRefName(val_year)
   local ar, ar1, ar2, lSchema, i
-
-  sbase :=  prefix + 'it'  // 
+  local sbase := prefixFileRefName(val_year) + 'it'  // 
 
   if val_year == WORK_YEAR
     // T006 2021 год
@@ -831,9 +820,8 @@ function it_Index(val_year)
 **** 29.11.21
 function k006_index(val_year)
   local fl := .t.
-  local sbase, prefix := prefixFileRefName(val_year)
-      
-  sbase :=  prefix + 'k006'  // 
+  local sbase := prefixFileRefName(val_year) + 'k006'  // 
+
   if hb_FileExists(exe_dir + sbase + sdbf)
     if hb_FileExists(exe_dir + sbase + '.dbt')
       R_Use(exe_dir + sbase)
