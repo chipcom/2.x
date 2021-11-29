@@ -1,6 +1,8 @@
 #include "function.ch"
 #include "chip_mo.ch"
 
+#define NUMBER_YEAR 1 // 2 // число лет для переиндексации назад
+
 ***** 10.06.21 инициализация массива МО, запрос кода МО (при необходимости)
 Function init_mo()
   Local fl := .t., i, arr, arr1, cCode := '', buf := save_maxrow(), ;
@@ -100,6 +102,39 @@ Function checkFilesTFOMS()
   Local fl := .t., i, arr, buf := save_maxrow()
   local arrRefFFOMS := {}, row, row_flag := .t.
   local lSchema := .f.
+  local countYear
+
+  // local t1, t2
+  // t1 := seconds()
+
+  public is_otd_dep := .f., glob_otd_dep := 0, mm_otd_dep := {}
+
+  Public arr_ad_cr_it21 := {}
+  Public arr_ad_cr_it20 := {}
+  Public arr_ad_cr_it19 := {}
+  Public arr_ad_cr_it := {}
+
+  Public arr_12_VMP := {}
+  Public is_napr_pol := .f.,; // работа с направлениями на госпитализацию в п-ке
+         is_napr_stac := .f.,;  // работа с направлениями на госпитализацию в стационаре
+         glob_klin_diagn := {} // работа со специальными лабораторными исследованиями
+  Public is_ksg_VMP := .f., is_12_VMP := .f., is_14_VMP := .f., is_ds_VMP := .f.
+  Public is_21_VMP := .f.
+  
+  // справочник цен на услуги ТФОМС 2016-2017
+  Public glob_MU_dializ := {}//"A18.05.002.001","A18.05.002.002","A18.05.002.003",;
+                            //"A18.05.003","A18.05.003.001","A18.05.011","A18.30.001","A18.30.001.001"}
+  Public glob_KSG_dializ := {}//"10000901","10000902","10000903","10000905","10000906","10000907","10000913",;
+                             //"20000912","20000916","20000917","20000918","20000919","20000920"}
+                             //"1000901","1000902","1000903","1000905","1000906","1000907","1000913",;
+                             //"2000912","2000916","2000917","2000918","2000919","2000920"}
+  
+  Public is_vr_pr_pp := .f., is_hemodializ := .f., is_per_dializ := .f., is_reabil_slux := .f.,;
+         is_ksg_1300098 := .f., is_dop_ob_em := .f., glob_yes_kdp2[10], glob_menu_mz_rf := {.f.,.f.,.f.}
+
+  Public is_alldializ := .f.
+
+  afill(glob_yes_kdp2,.f.)
 
   mywait('Подождите, идет проверка служебных данных в рабочем каталоге...')
 
@@ -113,477 +148,38 @@ Function checkFilesTFOMS()
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
 
-  // справочник отделений на 2021 год
-  sbase := "_mo1dep"
-  Public is_otd_dep := .f., glob_otd_dep := 0, mm_otd_dep := {}
+  // услуги <-> специальности
+  sbase := "_mo_spec"
   if hb_FileExists(exe_dir + sbase + sdbf)
-    R_Use(exe_dir + sbase ,,"DEP")
-    index on str(code,3) to (cur_dir+sbase) for codem == glob_mo[_MO_KOD_TFOMS]
-    dbeval({|| aadd(mm_otd_dep, {alltrim(dep->name_short)+" ("+alltrim(dep->name)+")",dep->code,dep->place}) })
-    use
-    if (is_otd_dep := (len(mm_otd_dep) > 0))
-      asort(mm_otd_dep,,,{|x,y| x[1] < y[1]})
-    endif
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
-  if is_otd_dep
-    // справочник отделения + профили
-    sbase := "_mo1deppr"
-    if hb_FileExists(exe_dir + sbase + sdbf)
-      R_Use(exe_dir + sbase ,,"DEP")
-      index on str(code,3)+str(pr_mp,3) to (cur_dir+sbase) for codem == glob_mo[_MO_KOD_TFOMS]
-      use
-    else
-      fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-    endif
-  endif
-
-  Public arr_12_VMP := {}
-  // private iiiVMP := 0
-  // справочник услуг ТФОМС на 2021 год
-  sbase := "_mo1usl"
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    R_Use(exe_dir + sbase ,,"LUSL")
-    index on shifr to (cur_dir+sbase)
-    find ("1.20.") // ВМП федеральное   // 07.02.21 замена услуг с 1.12 на 1.20 письмо 12-20-60 от 01.02.2021
-    do while left(lusl->shifr,5) == "1.20." .and. !eof()
-    // find ("1.12.") // ВМП федеральное
-    // do while left(lusl->shifr,5) == "1.12." .and. !eof()
-      aadd(arr_12_VMP,int(val(substr(lusl->shifr,6))))
-      skip
-    enddo
+    R_Use(exe_dir + sbase )
+    index on shifr+str(vzros_reb,1)+str(prvs_new,6) to (cur_dir+sbase)
     use
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
 
-  // справочник соответствия услуг ВМП услугам ТФОМС на 2021 год
-  sbase := "_mo1vmp_usl"
+  // услуги <-> профили
+  sbase := "_mo_prof"
   if hb_FileExists(exe_dir + sbase + sdbf)
-    // что-то сделать
-    // R_Use(exe_dir + sbase ,,"LUSL")
-    // index on shifr to (cur_dir+sbase)
-    // find ("1.20.") // ВМП федеральное   // 07.02.21 замена услуг с 1.12 на 1.20 письмо 12-20-60 от 01.02.2021
-    // do while left(lusl->shifr,5) == "1.20." .and. !eof()
-    //   aadd(arr_12_VMP,int(val(substr(lusl->shifr,6))))
-    //   skip
-    // enddo
-    // use
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
-  // справочник отделений на 2020 год
-  sbase := "_mo0dep"
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    R_Use(exe_dir + sbase ,,"DEP")
-    index on str(code,3) to (cur_dir+sbase) for codem == glob_mo[_MO_KOD_TFOMS]
-    use
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
-  // справочник отделения + профили
-  sbase := "_mo0deppr"
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    R_Use(exe_dir + sbase ,,"DEP")
-    index on str(code,3)+str(pr_mp,3) to (cur_dir+sbase) for codem == glob_mo[_MO_KOD_TFOMS]
+    R_Use(exe_dir + sbase )
+    index on shifr+str(vzros_reb,1)+str(profil,3) to (cur_dir+sbase)
     use
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
 
-  // Public arr_12_VMP := {}
-  // справочник услуг ТФОМС на 2020 год
-  sbase := "_mo0usl"
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    R_Use(exe_dir + sbase ,,"LUSL")
-    index on shifr to (cur_dir+sbase)
-    // 07.02.21 замена услуг с 1.12 на 1.20 письмо 12-20-60 от 01.02.2021
-    // find ("1.12.") // ВМП федеральное
-    // do while left(lusl->shifr,5) == "1.12." .and. !eof()
-    //   aadd(arr_12_VMP,int(val(substr(lusl->shifr,6))))
-    //   skip
-    // enddo
-    use
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
+  for countYear = WORK_YEAR - 3 to WORK_YEAR
+    fl := vmp_usl_check(countYear)
+    fl := dep_index_and_fill(countYear)  // справочник отделений на countYear год
+    fl := usl_Index(countYear)    // справочник услуг ТФОМС на countYear год
+    fl := uslc_Index(countYear)   // цены на услуги на countYear год
+    fl := uslf_Index(countYear)   // справочник услуг ФФОМС countYear
+    fl := unit_Index(countYear)   // план-заказ
+    fl := shema_index(countYear)
+    fl := it_Index(countYear)
+    fl := k006_index(countYear)
+  next
 
-  sbase := "_mo9usl"
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
-      R_Use(exe_dir + sbase ,,"LUSL")
-      index on shifr to (cur_dir+sbase)
-      use
-    endif
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
-
-  sbase := "_mo8usl"
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
-      R_Use(exe_dir + sbase ,,"LUSL")
-      index on shifr to (cur_dir+sbase)
-      use
-    endif
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
-
-  Public is_napr_pol := .f.,; // работа с направлениями на госпитализацию в п-ке
-         is_napr_stac := .f.,;  // работа с направлениями на госпитализацию в стационаре
-         glob_klin_diagn := {} // работа со специальными лабораторными исследованиями
-  Public is_ksg_VMP := .f., is_12_VMP := .f., is_14_VMP := .f., is_ds_VMP := .f.
-  Public is_21_VMP := .f.
-  // справочник цен на услуги ТФОМС
-  /*sbase := "_mo_uslc"
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
-      R_Use(exe_dir + sbase )
-      index on shifr+str(uroven,1)+str(vzros_reb,1)+dtos(datebeg) to (cur_dir+sbase) ;
-            for empty(codemo)
-      index on codemo+shifr+str(vzros_reb,1)+dtos(datebeg) to (cur_dir+"_mo_uslu") ;
-            for codemo==glob_mo[_MO_KOD_TFOMS]//!empty(codemo)
-      if valtype(glob_mo) == "A"
-        find (glob_mo[_MO_KOD_TFOMS]+"2.") // врачебные приёмы
-        do while codemo==glob_mo[_MO_KOD_TFOMS] .and. left(shifr,2)=="2." .and. !eof()
-          if left(shifr,5) == "2.82."
-            // врачебный прием в приемном отделении стационара
-          else
-            is_napr_pol := .t. ; exit
-          endif
-          skip
-        enddo
-      endif
-      use
-    endif
-  else
-    //fl := func_error('Работа невозможна - не обнаружен файл "'+upper(sbase)+sdbf+'"')
-  endif*/
-  // справочник цен на услуги ТФОМС 2016-2017
-  Public glob_MU_dializ := {}//"A18.05.002.001","A18.05.002.002","A18.05.002.003",;
-                            //"A18.05.003","A18.05.003.001","A18.05.011","A18.30.001","A18.30.001.001"}
-  Public glob_KSG_dializ := {}//"10000901","10000902","10000903","10000905","10000906","10000907","10000913",;
-                             //"20000912","20000916","20000917","20000918","20000919","20000920"}
-                             //"1000901","1000902","1000903","1000905","1000906","1000907","1000913",;
-                             //"2000912","2000916","2000917","2000918","2000919","2000920"}
-  
-  Public is_vr_pr_pp := .f., is_hemodializ := .f., is_per_dializ := .f., is_reabil_slux := .f.,;
-         is_ksg_1300098 := .f., is_dop_ob_em := .f., glob_yes_kdp2[10], glob_menu_mz_rf := {.f.,.f.,.f.}
-  afill(glob_yes_kdp2,.f.)
-  
-  // цены на услуги на 2021 год
-  Public is_alldializ := .f.
-  sbase := "_mo1uslc"
-  if hb_FileExists(exe_dir + sbase + sdbf) .and. valtype(glob_mo) == "A"
-    R_Use(exe_dir + sbase ,,"LUSLC")
-    index on shifr+str(vzros_reb,1)+str(depart,3)+dtos(datebeg) to (cur_dir+sbase) ;
-          for codemo == glob_mo[_MO_KOD_TFOMS]
-    index on codemo+shifr+str(vzros_reb,1)+str(depart,3)+dtos(datebeg) to (cur_dir+"_mo1uslu") ;
-          for codemo == glob_mo[_MO_KOD_TFOMS] // для совместимости со старой версией справочника
-    // Медицинская реабилитация детей с нарушениями слуха без замены речевого процессора системы кохлеарной имплантации
-    find (glob_mo[_MO_KOD_TFOMS]+"st37.015")
-    if found()
-      is_reabil_slux := .t.
-    endif
-    find (glob_mo[_MO_KOD_TFOMS]+"2.") // врачебные приёмы
-    do while codemo==glob_mo[_MO_KOD_TFOMS] .and. left(shifr,2)=="2." .and. !eof()
-      if left(shifr,5) == "2.82."
-        is_vr_pr_pp := .t. // врачебный прием в приёмном отделении стационара
-        if is_napr_pol
-          exit
-        endif
-      else
-        is_napr_pol := .t.
-        if is_vr_pr_pp
-          exit
-        endif
-      endif
-      skip
-    enddo
-    find (glob_mo[_MO_KOD_TFOMS]+"60.3.")
-    if found()
-      is_alldializ := .t.
-    endif
-    find (glob_mo[_MO_KOD_TFOMS]+"60.3.1 ")
-    if found()
-      is_per_dializ := .t.
-    endif
-    find (glob_mo[_MO_KOD_TFOMS]+"60.3.9")
-    if found()
-      is_hemodializ := .t.
-    else
-      find (glob_mo[_MO_KOD_TFOMS]+"60.3.10")
-      if found()
-        is_hemodializ := .t.
-      endif
-    endif
-    find (glob_mo[_MO_KOD_TFOMS]+"st") // койко-дни
-    if (is_napr_stac := found())
-      glob_menu_mz_rf[1] := .t.
-    endif
-    //
-    find (glob_mo[_MO_KOD_TFOMS]+"1.20.") // ВМП 07.02.2021
-    is_21_VMP := found()
-    //
-    find (glob_mo[_MO_KOD_TFOMS]+"ds") // дневной стационар
-    if found()
-      if !is_napr_stac
-        is_napr_stac := .t.
-      endif
-      glob_menu_mz_rf[2] := found()
-    endif
-    //
-    tmp_stom := {"2.78.54","2.78.55","2.78.56","2.78.57","2.78.58","2.78.59","2.78.60"}
-    for i := 1 to len(tmp_stom)
-      find (glob_mo[_MO_KOD_TFOMS]+tmp_stom[i]) //
-      if found()
-        glob_menu_mz_rf[3] := .t. ; exit
-      endif
-    next
-    //
-    find (glob_mo[_MO_KOD_TFOMS]+"4.20.702") // жидкостной цитологии
-    if found()
-      aadd(glob_klin_diagn,1)
-    endif
-    find (glob_mo[_MO_KOD_TFOMS]+"4.15.746") // пренатального скрининга
-    if found()
-      aadd(glob_klin_diagn,2)
-    endif
-    find (glob_mo[_MO_KOD_TFOMS]+"70.5.15") // Законченный случай диспансеризации детей-сирот (0-11 месяцев), 1 этап без гематологических исследований
-    if found()
-      glob_yes_kdp2[TIP_LU_DDS] := .t.
-    endif
-    find (glob_mo[_MO_KOD_TFOMS]+"70.6.13") // Законченный случай диспансеризации детей-сирот (0-11 месяцев), 1 этап без гематологических исследований
-    if found()
-      glob_yes_kdp2[TIP_LU_DDSOP] := .t.
-    endif
-    find (glob_mo[_MO_KOD_TFOMS]+"70.3.123") // Законченный случай диспансеризации женщин (в возрасте 21,24,27 лет), 1 этап без гематологических исследований
-    if found()
-      glob_yes_kdp2[TIP_LU_DVN] := .t.
-    endif
-    find (glob_mo[_MO_KOD_TFOMS]+"72.2.41") // Законченный случай профилактического осмотра несовершеннолетних (2 мес.) 1 этап без гематологического исследования
-    if found()
-      glob_yes_kdp2[TIP_LU_PN] := .t.
-    endif
-    close databases
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
-
-  // цены на услуги на 2020 год
-  Public is_alldializ := .f.
-  sbase := "_mo0uslc"
-  if hb_FileExists(exe_dir + sbase + sdbf) .and. valtype(glob_mo) == "A"
-    R_Use(exe_dir + sbase ,,"LUSLC")
-    index on shifr+str(vzros_reb,1)+str(depart,3)+dtos(datebeg) to (cur_dir+sbase) ;
-          for codemo == glob_mo[_MO_KOD_TFOMS]
-    index on codemo+shifr+str(vzros_reb,1)+str(depart,3)+dtos(datebeg) to (cur_dir+"_mo0uslu") ;
-          for codemo == glob_mo[_MO_KOD_TFOMS] // для совместимости со старой версией справочника
-    // Медицинская реабилитация детей с нарушениями слуха без замены речевого процессора системы кохлеарной имплантации
-    find (glob_mo[_MO_KOD_TFOMS]+"st37.015")
-    if found()
-      is_reabil_slux := .t.
-    endif
-    find (glob_mo[_MO_KOD_TFOMS]+"2.") // врачебные приёмы
-    do while codemo==glob_mo[_MO_KOD_TFOMS] .and. left(shifr,2)=="2." .and. !eof()
-      if left(shifr,5) == "2.82."
-        is_vr_pr_pp := .t. // врачебный прием в приёмном отделении стационара
-        if is_napr_pol
-          exit
-        endif
-      else
-        is_napr_pol := .t.
-        if is_vr_pr_pp
-          exit
-        endif
-      endif
-      skip
-    enddo
-    find (glob_mo[_MO_KOD_TFOMS]+"60.3.")
-    if found()
-      is_alldializ := .t.
-    endif
-    find (glob_mo[_MO_KOD_TFOMS]+"60.3.1 ")
-    if found()
-      is_per_dializ := .t.
-    endif
-    find (glob_mo[_MO_KOD_TFOMS]+"60.3.9")
-    if found()
-      is_hemodializ := .t.
-    else
-      find (glob_mo[_MO_KOD_TFOMS]+"60.3.10")
-      if found()
-        is_hemodializ := .t.
-      endif
-    endif
-    find (glob_mo[_MO_KOD_TFOMS]+"st") // койко-дни
-    if (is_napr_stac := found())
-      glob_menu_mz_rf[1] := .t.
-    endif
-    //
-    find (glob_mo[_MO_KOD_TFOMS]+"1.12.") // ВМП // 07.02.2021
-    is_12_VMP := found()
-    //
-    find (glob_mo[_MO_KOD_TFOMS]+"ds") // дневной стационар
-    if found()
-      if !is_napr_stac
-        is_napr_stac := .t.
-      endif
-      glob_menu_mz_rf[2] := found()
-    endif
-    //
-    tmp_stom := {"2.78.54","2.78.55","2.78.56","2.78.57","2.78.58","2.78.59","2.78.60"}
-    for i := 1 to len(tmp_stom)
-      find (glob_mo[_MO_KOD_TFOMS]+tmp_stom[i]) //
-      if found()
-        glob_menu_mz_rf[3] := .t. ; exit
-      endif
-    next
-    //
-    find (glob_mo[_MO_KOD_TFOMS]+"4.20.702") // жидкостной цитологии
-    if found()
-      aadd(glob_klin_diagn,1)
-    endif
-    find (glob_mo[_MO_KOD_TFOMS]+"4.15.746") // пренатального скрининга
-    if found()
-      aadd(glob_klin_diagn,2)
-    endif
-    find (glob_mo[_MO_KOD_TFOMS]+"70.5.15") // Законченный случай диспансеризации детей-сирот (0-11 месяцев), 1 этап без гематологических исследований
-    if found()
-      glob_yes_kdp2[TIP_LU_DDS] := .t.
-    endif
-    find (glob_mo[_MO_KOD_TFOMS]+"70.6.13") // Законченный случай диспансеризации детей-сирот (0-11 месяцев), 1 этап без гематологических исследований
-    if found()
-      glob_yes_kdp2[TIP_LU_DDSOP] := .t.
-    endif
-    find (glob_mo[_MO_KOD_TFOMS]+"70.3.123") // Законченный случай диспансеризации женщин (в возрасте 21,24,27 лет), 1 этап без гематологических исследований
-    if found()
-      glob_yes_kdp2[TIP_LU_DVN] := .t.
-    endif
-    find (glob_mo[_MO_KOD_TFOMS]+"72.2.41") // Законченный случай профилактического осмотра несовершеннолетних (2 мес.) 1 этап без гематологического исследования
-    if found()
-      glob_yes_kdp2[TIP_LU_PN] := .t.
-    endif
-    close databases
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
-
-  // цены на услуги на 2019 год
-  sbase := "_mo9uslc"
-  if hb_FileExists(exe_dir + sbase + sdbf) .and. valtype(glob_mo) == "A"
-    R_Use(exe_dir + sbase ,,"LUSLC")
-    index on shifr+str(vzros_reb,1)+str(depart,3)+dtos(datebeg) to (cur_dir+sbase) ;
-          for codemo == glob_mo[_MO_KOD_TFOMS]
-    index on codemo+shifr+str(vzros_reb,1)+str(depart,3)+dtos(datebeg) to (cur_dir+"_mo9uslu") ;
-          for codemo == glob_mo[_MO_KOD_TFOMS] // для совместимости со старой версией справочника
-    // Медицинская реабилитация детей с нарушениями слуха без замены речевого процессора системы кохлеарной имплантации
-    find (glob_mo[_MO_KOD_TFOMS]+"st37.015")
-    if found()
-      is_reabil_slux := .t.
-    endif
-    find (glob_mo[_MO_KOD_TFOMS]+"2.") // врачебные приёмы
-    do while codemo==glob_mo[_MO_KOD_TFOMS] .and. left(shifr,2)=="2." .and. !eof()
-      if left(shifr,5) == "2.82."
-        is_vr_pr_pp := .t. // врачебный прием в приёмном отделении стационара
-        if is_napr_pol
-          exit
-        endif
-      else
-        is_napr_pol := .t.
-        if is_vr_pr_pp
-          exit
-        endif
-      endif
-      skip
-    enddo
-    find (glob_mo[_MO_KOD_TFOMS]+"60.3.")
-    if found()
-      is_alldializ := .t.
-    endif
-    find (glob_mo[_MO_KOD_TFOMS]+"60.3.1 ")
-    if found()
-      is_per_dializ := .t.
-    endif
-    find (glob_mo[_MO_KOD_TFOMS]+"60.3.9")
-    if found()
-      is_hemodializ := .t.
-    else
-      find (glob_mo[_MO_KOD_TFOMS]+"60.3.10")
-      if found()
-        is_hemodializ := .t.
-      endif
-    endif
-    find (glob_mo[_MO_KOD_TFOMS]+"st") // койко-дни
-    if (is_napr_stac := found())
-      glob_menu_mz_rf[1] := .t.
-    endif
-    //
-    find (glob_mo[_MO_KOD_TFOMS]+"1.12.") // ВМП // 07.02.2021
-    // find (glob_mo[_MO_KOD_TFOMS]+"1.20.") // ВМП
-    is_12_VMP := found()
-    //
-    find (glob_mo[_MO_KOD_TFOMS]+"ds") // дневной стационар
-    if found()
-      if !is_napr_stac
-        is_napr_stac := .t.
-      endif
-      glob_menu_mz_rf[2] := found()
-    endif
-    //
-    tmp_stom := {"2.78.54","2.78.55","2.78.56","2.78.57","2.78.58","2.78.59","2.78.60"}
-    for i := 1 to len(tmp_stom)
-      find (glob_mo[_MO_KOD_TFOMS]+tmp_stom[i]) //
-      if found()
-        glob_menu_mz_rf[3] := .t. ; exit
-      endif
-    next
-    //
-    find (glob_mo[_MO_KOD_TFOMS]+"4.20.702") // жидкостной цитологии
-    if found()
-      aadd(glob_klin_diagn,1)
-    endif
-    find (glob_mo[_MO_KOD_TFOMS]+"4.15.746") // пренатального скрининга
-    if found()
-      aadd(glob_klin_diagn,2)
-    endif
-    find (glob_mo[_MO_KOD_TFOMS]+"70.5.15") // Законченный случай диспансеризации детей-сирот (0-11 месяцев), 1 этап без гематологических исследований
-    if found()
-      glob_yes_kdp2[TIP_LU_DDS] := .t.
-    endif
-    find (glob_mo[_MO_KOD_TFOMS]+"70.6.13") // Законченный случай диспансеризации детей-сирот (0-11 месяцев), 1 этап без гематологических исследований
-    if found()
-      glob_yes_kdp2[TIP_LU_DDSOP] := .t.
-    endif
-    find (glob_mo[_MO_KOD_TFOMS]+"70.3.123") // Законченный случай диспансеризации женщин (в возрасте 21,24,27 лет), 1 этап без гематологических исследований
-    if found()
-      glob_yes_kdp2[TIP_LU_DVN] := .t.
-    endif
-    find (glob_mo[_MO_KOD_TFOMS]+"72.2.41") // Законченный случай профилактического осмотра несовершеннолетних (2 мес.) 1 этап без гематологического исследования
-    if found()
-      glob_yes_kdp2[TIP_LU_PN] := .t.
-    endif
-    close databases
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
-
-  // цены на услуги на 2018 год
-  sbase := "_mo8uslc"
-  if hb_FileExists(exe_dir + sbase + sdbf) .and. valtype(glob_mo) == "A"
-    if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
-      R_Use(exe_dir + sbase ,,"LUSLC")
-      index on shifr+str(vzros_reb,1)+str(depart,3)+dtos(datebeg) to (cur_dir+sbase) ;
-          for codemo == glob_mo[_MO_KOD_TFOMS]
-      index on codemo+shifr+str(vzros_reb,1)+str(depart,3)+dtos(datebeg) to (cur_dir+"_mo8uslu") ;
-          for codemo == glob_mo[_MO_KOD_TFOMS] // для совместимости со старой версией справочника
-      close databases
-    endif
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
 
   Public is_MO_VMP := (is_ksg_VMP .or. is_21_VMP .or. is_12_VMP .or. is_14_VMP .or. is_ds_VMP)
   // справочник доплат по законченным случаям (старый справочник)
@@ -608,314 +204,7 @@ Function checkFilesTFOMS()
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif*/
-  // справочник услуг ФФОМС 2021
-  sbase := "_mo1uslf"
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    R_Use(exe_dir + sbase ,,"LUSLF")
-    index on shifr to (cur_dir+sbase)
-    close databases
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
 
-  // справочник услуг ФФОМС 2020
-  sbase := "_mo0uslf"
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    R_Use(exe_dir + sbase ,,"LUSLF")
-    index on shifr to (cur_dir+sbase)
-    close databases
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
-  // справочник услуг ФФОМС 2019
-  sbase := "_mo9uslf"
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
-      R_Use(exe_dir + sbase ,,"LUSLF")
-      index on shifr to (cur_dir+sbase)
-      close databases
-    endif
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
-
-  // справочник услуг ФФОМС 2018
-  sbase := "_mo8uslf"
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
-      R_Use(exe_dir + sbase ,,"LUSLF")
-      index on shifr to (cur_dir+sbase)
-      close databases
-    endif
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
-
-  // услуги <-> профили
-  sbase := "_mo_prof"
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    R_Use(exe_dir + sbase )
-    index on shifr+str(vzros_reb,1)+str(profil,3) to (cur_dir+sbase)
-    use
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
-
-  // услуги <-> специальности
-  sbase := "_mo_spec"
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    R_Use(exe_dir + sbase )
-    index on shifr+str(vzros_reb,1)+str(prvs_new,6) to (cur_dir+sbase)
-    use
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
-
-  // план-заказ
-  sbase := "_mo1unit"
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    R_Use(exe_dir + sbase )
-    index on str(code,3) to (cur_dir+sbase)
-    use
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
-
-  sbase := "_mo0unit"
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    R_Use(exe_dir + sbase )
-    index on str(code,3) to (cur_dir+sbase)
-    use
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
-
-  sbase := "_mo9unit"
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
-      R_Use(exe_dir + sbase )
-      index on str(code,3) to (cur_dir+sbase)
-      use
-    endif
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
-
-  sbase := "_mo8unit"
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
-      R_Use(exe_dir + sbase )
-      index on str(code,3) to (cur_dir+sbase)
-      use
-    endif
-  else
-    // fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
-
-  sbase := "_mo1shema"
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    // добавлена индексация файла
-    R_Use(exe_dir + sbase )
-    index on KOD to (cur_dir+sbase) // по коду критерия
-    use
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
-
-  Public arr_ad_cr_it21 := {}
-  // T006 2021 год
-  sbase := "_mo1it1"
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    R_Use(exe_dir+"_mo1shema",cur_dir+"_mo1shema","SCHEMA")
-  
-    R_Use(exe_dir + sbase ,,"IT")
-    ("IT")->(dbGoTop())  // go top
-    do while !("IT")->(eof())
-      ar := {}
-      ar1 := {}
-      ar2 := {}
-      if !empty(it->ds)
-        ar := Slist2arr(it->ds)
-        for i := 1 to len(ar)
-          ar[i] := padr(ar[i],5)
-        next
-      endif
-      if !empty(it->ds1)
-        ar1 := Slist2arr(it->ds1)
-        for i := 1 to len(ar1)
-          ar1[i] := padr(ar1[i],5)
-        next
-      endif
-      if !empty(it->ds2)
-        ar2 := Slist2arr(it->ds2)
-        for i := 1 to len(ar2)
-          ar2[i] := padr(ar2[i],5)
-        next
-      endif
-  
-      ("SCHEMA")->(dbGoTop())
-      if ("SCHEMA")->(dbSeek( padr(it->CODE,6) ))
-        lSchema := .t.
-      endif
-  
-      // aadd(arr_ad_cr_it21,{it->USL_OK,padr(it->CODE,3),ar,ar1,ar2})
-      if lSchema
-        aadd(arr_ad_cr_it21,{it->USL_OK,padr(it->CODE,6),ar,ar1,ar2, alltrim(SCHEMA->NAME)})
-      else
-        aadd(arr_ad_cr_it21,{it->USL_OK,padr(it->CODE,6),ar,ar1,ar2, ''})
-      endif
-      ("IT")->(dbskip()) 
-      lSchema := .f.
-    enddo
-    ("SCHEMA")->(dbCloseArea())
-    ("IT")->(dbCloseArea())   //use
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
-
-  sbase := "_mo1k006"
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    if hb_FileExists(exe_dir + sbase +".dbt")
-        R_Use(exe_dir + sbase )
-        index on substr(shifr,1,2)+ds+sy+age+sex+los to (cur_dir+sbase) // по диагнозу/операции
-        index on substr(shifr,1,2)+sy+ds+age+sex+los to (cur_dir+sbase+"_") // по операции/диагнозу
-        index on ad_cr to (cur_dir+sbase+"AD") // по дополнительному критерию Байкин
-        use
-    else
-      fl := notExistsFileNSI( exe_dir + sbase + '.dbt' )
-    endif
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
-
-  //
-  Public arr_ad_cr_it20 := {}
-  // T006 2020 год
-  sbase := "_mo0it1"
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    R_Use(exe_dir + sbase ,,"IT")
-    go top
-    do while !eof()
-      ar := {}
-      ar1 := {}
-      ar2 := {}
-      if !empty(it->ds)
-        ar := Slist2arr(it->ds)
-        for i := 1 to len(ar)
-          ar[i] := padr(ar[i],5)
-        next
-      endif
-      if !empty(it->ds1)
-        ar1 := Slist2arr(it->ds1)
-        for i := 1 to len(ar1)
-          ar1[i] := padr(ar1[i],5)
-        next
-      endif
-      if !empty(it->ds2)
-        ar2 := Slist2arr(it->ds2)
-        for i := 1 to len(ar2)
-          ar2[i] := padr(ar2[i],5)
-        next
-      endif
-      aadd(arr_ad_cr_it20,{it->USL_OK,padr(it->CODE,3),ar,ar1,ar2})
-      skip
-    enddo
-    use
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
-
-  sbase := '_mo0shema'
-  if !hb_FileExists(exe_dir + sbase + sdbf)
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
-
-  sbase := "_mo0k006"
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    if hb_FileExists(exe_dir + sbase +".dbt")
-      if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
-        R_Use(exe_dir + sbase )
-        index on substr(shifr,1,2)+ds+sy+age+sex+los to (cur_dir+sbase) // по диагнозу/операции
-        index on substr(shifr,1,2)+sy+ds+age+sex+los to (cur_dir+sbase+"_") // по операции/диагнозу
-        index on ad_cr to (cur_dir+sbase+"AD") // по дополнительному критерию Байкин
-        use
-      endif
-    else
-      fl := notExistsFileNSI( exe_dir + sbase + '.dbt' )
-    endif
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
-
-  // T006 2019 год
-  Public arr_ad_cr_it19 := {}
-  sbase := "_mo9it"
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    R_Use(exe_dir + sbase ,,"IT")
-    index on ds to tmpit memory
-    dbeval({|| aadd(arr_ad_cr_it19,{it->ds,it->it}) })
-    use
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
-
-  sbase := '_mo9shema'
-  if !hb_FileExists(exe_dir + sbase + sdbf)
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
-
-  sbase := "_mo9k006"
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    if hb_FileExists(exe_dir + sbase +".dbt")
-      if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx) .or. ;
-        files_time(exe_dir + sbase + sdbf,cur_dir+sbase+"_"+sntx) .or. ;
-        files_time(exe_dir + sbase + sdbf,cur_dir+sbase+"AD"+sntx)
-          R_Use(exe_dir + sbase )
-          index on substr(shifr,1,2)+ds+sy+age+sex+los to (cur_dir+sbase) // по диагнозу/операции
-          index on substr(shifr,1,2)+sy+ds+age+sex+los to (cur_dir+sbase+"_") // по операции/диагнозу
-          index on ad_cr to (cur_dir+sbase+"AD") // по дополнительному критерию Байкин
-          use
-      endif
-    else
-      fl := notExistsFileNSI( exe_dir + sbase + '.dbt' )
-    endif
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
-
-  // T006 2018 год
-  /*sbase := "_mo8it"
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    R_Use(exe_dir + sbase ,,"IT")
-    index on ds to tmpit memory
-    dbeval({|| aadd(arr_ad_cr_it,{it->ds,it->it}) })
-    use
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
-  sbase := '_mo8shema'
-  if !hb_FileExists(exe_dir+"_mo8shema"+sdbf)
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif*/
-  sbase := "_mo8k006"
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    if hb_FileExists(exe_dir + sbase +".dbt")
-      if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx) .or. ;
-        files_time(exe_dir + sbase + sdbf,cur_dir+sbase+"_"+sntx) .or. ;
-        files_time(exe_dir + sbase + sdbf,cur_dir+sbase+"AD"+sntx)
-          R_Use(exe_dir + sbase )
-          index on substr(shifr,1,1)+ds+sy+age+sex+los to (cur_dir+sbase) // по диагнозу/операции
-          index on substr(shifr,1,1)+sy+ds+age+sex+los to (cur_dir+sbase+"_") // по операции/диагнозу
-          index on ad_cr to (cur_dir+sbase+"AD") // по дополнительному критерию Байкин
-          use
-      endif
-    else
-      fl := notExistsFileNSI( exe_dir + sbase + '.dbt' )
-    endif
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
-  //
 
   sbase := "_mo_t007"
   Public arr_t007 := {}
@@ -1161,3 +450,407 @@ Function checkFilesTFOMS()
 
   // return main_up_screen()
   return nil
+
+**** 29.11.21
+function vmp_usl_check(val_year)  // справочник соответствия услуг ВМП услугам ТФОМС на countYear год
+  local fl := .t.
+  local sbase, prefix := prefixFileRefName(val_year)
+  
+  sbase :=  prefix + 'vmp_usl'  // справочник соответствия услуг ВМП услугам ТФОМС
+    
+  if val_year == 2021
+    if ! hb_FileExists(exe_dir + sbase + sdbf)
+      fl := notExistsFileNSI( exe_dir + sbase + sdbf )
+    endif
+  endif
+  return fl
+
+**** 29.11.21
+function dep_index_and_fill(val_year)
+  local fl := .t.
+  local sbase, prefix := prefixFileRefName(val_year)
+    
+  sbase :=  prefix + 'dep'  // справочник отделений на конкретный год
+  
+  // is_otd_dep, glob_otd_dep, mm_otd_dep - объявлены ранее как Public
+  if hb_FileExists(exe_dir + sbase + sdbf)
+    R_Use(exe_dir + sbase, , 'DEP')
+    index on str(code, 3) to (cur_dir + sbase) for codem == glob_mo[_MO_KOD_TFOMS]
+    if val_year == WORK_YEAR
+      dbeval({|| aadd(mm_otd_dep, {alltrim(dep->name_short) + ' ("+alltrim(dep->name)+")', dep->code, dep->place}) })
+      if (is_otd_dep := (len(mm_otd_dep) > 0))
+        asort(mm_otd_dep, , , {|x, y| x[1] < y[1]})
+      endif
+    endif
+    use
+  else
+    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
+  endif
+  if is_otd_dep
+    sbase := prefix + 'deppr' // справочник отделения + профили  на конкретный год
+    if hb_FileExists(exe_dir + sbase + sdbf)
+      R_Use(exe_dir + sbase, , 'DEP')
+      index on str(code, 3) + str(pr_mp, 3) to (cur_dir+sbase) for codem == glob_mo[_MO_KOD_TFOMS]
+      use
+    else
+      fl := notExistsFileNSI( exe_dir + sbase + sdbf )
+    endif
+  endif
+  return fl
+
+**** 29.11.21
+function usl_Index(val_year)
+  local fl := .t.
+  local sbase, prefix := prefixFileRefName(val_year)
+    
+  sbase :=  prefix + 'usl'  // справочник услуг ТФОМС на конкретный год
+  if hb_FileExists(exe_dir + sbase + sdbf)
+    R_Use(exe_dir + sbase, ,'LUSL')
+    if (year(sys_date) - val_year) < NUMBER_YEAR .or. files_time(exe_dir + sbase + sdbf, cur_dir + sbase + sntx)
+      index on shifr to (cur_dir+sbase)
+      // сбор данных для ВМП
+      if val_year = WORK_YEAR
+        find ("1.20.") // ВМП федеральное   // 07.02.21 замена услуг с 1.12 на 1.20 письмо 12-20-60 от 01.02.2021
+        do while left(lusl->shifr,5) == "1.20." .and. !eof()
+          aadd(arr_12_VMP,int(val(substr(lusl->shifr,6))))
+          skip
+        enddo
+      endif
+    endif
+    close databases
+  else
+    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
+  endif
+  return fl
+  
+**** 29.11.21
+function uslc_Index(val_year)
+  local fl := .t.
+  local sbase, prefix := prefixFileRefName(val_year)
+  local index_usl_name
+  
+  sbase :=  prefix + 'uslc'  // цены на услуги на конкретный год
+  index_usl_name :=  prefix + 'uslu'  // 
+  if hb_FileExists(exe_dir + sbase + sdbf) .and. valtype(glob_mo) == 'A'
+    R_Use(exe_dir + sbase, , 'LUSLC')
+  
+    if (year(sys_date) - val_year) < NUMBER_YEAR .or. ;
+          files_time(exe_dir + sbase + sdbf, cur_dir + sbase + sntx) .or. ;
+          files_time(exe_dir + sbase + sdbf, cur_dir + index_usl_name + sntx)
+      index on shifr + str(vzros_reb, 1) + str(depart, 3) + dtos(datebeg) to (cur_dir + sbase) ;
+          for codemo == glob_mo[_MO_KOD_TFOMS]
+      index on codemo + shifr + str(vzros_reb, 1) + str(depart, 3) + dtos(datebeg) to (cur_dir + index_usl_name) ;
+          for codemo == glob_mo[_MO_KOD_TFOMS] // для совместимости со старой версией справочника
+    endif
+  
+    if val_year > 2020 // 2019 // 2018
+      // Медицинская реабилитация детей с нарушениями слуха без замены речевого процессора системы кохлеарной имплантации
+      find (glob_mo[_MO_KOD_TFOMS] + 'st37.015')
+      if found()
+        is_reabil_slux := found()
+      endif
+  
+  //
+      find (glob_mo[_MO_KOD_TFOMS] + '2.') // врачебные приёмы
+      do while codemo == glob_mo[_MO_KOD_TFOMS] .and. left(shifr, 2) == '2.' .and. !eof()
+        if left(shifr, 5) == '2.82.'
+          is_vr_pr_pp := .t. // врачебный прием в приёмном отделении стационара
+          if is_napr_pol
+            exit
+          endif
+        else
+          is_napr_pol := .t.
+          if is_vr_pr_pp
+            exit
+          endif
+        endif
+        skip
+      enddo
+    
+    //
+      find (glob_mo[_MO_KOD_TFOMS] + '60.3.')
+      if found()
+        is_alldializ := .t.
+      endif
+    //
+      find (glob_mo[_MO_KOD_TFOMS] + '60.3.1')
+      if found()
+        is_per_dializ := .t.
+      endif
+    //
+      find (glob_mo[_MO_KOD_TFOMS] + '60.3.9')
+      if found()
+        is_hemodializ := .t.
+      else
+        find (glob_mo[_MO_KOD_TFOMS] + '60.3.10')
+        if found()
+          is_hemodializ := .t.
+        endif
+      endif
+  
+    //
+      find (glob_mo[_MO_KOD_TFOMS] + 'st') // койко-дни
+      if (is_napr_stac := found())
+        glob_menu_mz_rf[1] := .t.
+      endif
+    //
+      if val_year == WORK_YEAR
+        find (glob_mo[_MO_KOD_TFOMS] + '1.20.') // ВМП 07.02.2021
+        is_21_VMP := found()
+      elseif val_year == 2020 .or. val_year == 2019
+        find (glob_mo[_MO_KOD_TFOMS] + '1.12.') // ВМП 2020 и 2019 года
+        is_12_VMP := found()
+      endif
+    //
+      find (glob_mo[_MO_KOD_TFOMS] + 'ds') // дневной стационар
+      if found()
+        if !is_napr_stac
+          is_napr_stac := .t.
+        endif
+        glob_menu_mz_rf[2] := found()
+      endif
+    
+    //
+      tmp_stom := {'2.78.54', '2.78.55', '2.78.56', '2.78.57', '2.78.58', '2.78.59', '2.78.60'}
+      for i := 1 to len(tmp_stom)
+        find (glob_mo[_MO_KOD_TFOMS] + tmp_stom[i]) //
+        if found()
+          glob_menu_mz_rf[3] := .t.
+          exit
+        endif
+      next
+    
+    //
+      find (glob_mo[_MO_KOD_TFOMS] + '4.20.702') // жидкостной цитологии
+      if found()
+        aadd(glob_klin_diagn, 1)
+      endif
+    //
+      find (glob_mo[_MO_KOD_TFOMS] + '4.15.746') // пренатального скрининга
+      if found()
+        aadd(glob_klin_diagn, 2)
+      endif
+    //
+      find (glob_mo[_MO_KOD_TFOMS] + '70.5.15') // Законченный случай диспансеризации детей-сирот (0-11 месяцев), 1 этап без гематологических исследований
+      if found()
+        glob_yes_kdp2[TIP_LU_DDS] := .t.
+      endif
+    //
+      find (glob_mo[_MO_KOD_TFOMS] + '70.6.13') // Законченный случай диспансеризации детей-сирот (0-11 месяцев), 1 этап без гематологических исследований
+      if found()
+        glob_yes_kdp2[TIP_LU_DDSOP] := .t.
+      endif
+    //
+      find (glob_mo[_MO_KOD_TFOMS] + '70.3.123') // Законченный случай диспансеризации женщин (в возрасте 21,24,27 лет), 1 этап без гематологических исследований
+      if found()
+        glob_yes_kdp2[TIP_LU_DVN] := .t.
+      endif
+    //
+      find (glob_mo[_MO_KOD_TFOMS] + '72.2.41') // Законченный случай профилактического осмотра несовершеннолетних (2 мес.) 1 этап без гематологического исследования
+      if found()
+        glob_yes_kdp2[TIP_LU_PN] := .t.
+      endif
+  
+    endif
+    close databases
+  else
+    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
+  endif
+  
+  return fl
+
+**** 29.11.21
+function uslf_Index(val_year)
+  local fl := .t.
+  local sbase, prefix := prefixFileRefName(val_year)
+  
+  sbase :=  prefix + 'uslf'  // справочник услуг ФФОМС на конкретный год
+  if hb_FileExists(exe_dir + sbase + sdbf)
+    R_Use(exe_dir + sbase, ,'LUSLF')
+    if (year(sys_date) - val_year) < NUMBER_YEAR .or. files_time(exe_dir + sbase + sdbf, cur_dir + sbase + sntx)
+      index on shifr to (cur_dir + sbase)
+    endif
+    close databases
+  else
+    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
+  endif
+  return fl
+
+**** 29.11.21
+function unit_Index(val_year)
+  local fl := .t.
+  local sbase, prefix := prefixFileRefName(val_year)
+    
+  sbase :=  prefix + 'unit'  // план-заказ на конкретный год
+      
+  if hb_FileExists(exe_dir + sbase + sdbf)
+    R_Use(exe_dir + sbase )
+    if (year(sys_date) - val_year) < NUMBER_YEAR .or. files_time(exe_dir + sbase + sdbf, cur_dir + sbase + sntx)
+        index on str(code, 3) to (cur_dir + sbase)
+    endif
+    close databases
+  else
+    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
+  endif
+  return fl
+
+**** 29.11.21
+function shema_index(val_year)
+  local fl := .t.
+  local sbase, prefix := prefixFileRefName(val_year)
+    
+  sbase :=  prefix + 'shema'  // 
+  if hb_FileExists(exe_dir + sbase + sdbf)
+    if val_year == WORK_YEAR
+      // добавлена индексация файла
+      R_Use(exe_dir + sbase )
+      index on KOD to (cur_dir + sbase) // по коду критерия
+      use
+    endif
+  else
+    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
+  endif
+  return fl
+
+**** 29.11.21
+function it_Index(val_year)
+  local fl := .t.
+  local sbase, prefix := prefixFileRefName(val_year)
+  local ar, ar1, ar2, lSchema, i
+
+  sbase :=  prefix + 'it'  // 
+
+  if val_year == WORK_YEAR
+    // T006 2021 год
+    sbase := '_mo1it1'
+    if hb_FileExists(exe_dir + sbase + sdbf)
+      R_Use(exe_dir + '_mo1shema', cur_dir + '_mo1shema', 'SCHEMA')
+  
+      R_Use(exe_dir + sbase, ,'IT')
+      ('IT')->(dbGoTop())  // go top
+      do while !('IT')->(eof())
+        ar := {}
+        ar1 := {}
+        ar2 := {}
+        if !empty(it->ds)
+          ar := Slist2arr(it->ds)
+          for i := 1 to len(ar)
+            ar[i] := padr(ar[i],5)
+          next
+        endif
+        if !empty(it->ds1)
+          ar1 := Slist2arr(it->ds1)
+          for i := 1 to len(ar1)
+            ar1[i] := padr(ar1[i],5)
+          next
+        endif
+        if !empty(it->ds2)
+          ar2 := Slist2arr(it->ds2)
+          for i := 1 to len(ar2)
+            ar2[i] := padr(ar2[i],5)
+          next
+        endif
+  
+        ('SCHEMA')->(dbGoTop())
+        if ('SCHEMA')->(dbSeek( padr(it->CODE,6) ))
+          lSchema := .t.
+        endif
+  
+        if lSchema
+          aadd(arr_ad_cr_it21,{it->USL_OK,padr(it->CODE,6),ar,ar1,ar2, alltrim(SCHEMA->NAME)})
+        else
+          aadd(arr_ad_cr_it21,{it->USL_OK,padr(it->CODE,6),ar,ar1,ar2, ''})
+        endif
+        ('IT')->(dbskip()) 
+        lSchema := .f.
+      enddo
+      ('SCHEMA')->(dbCloseArea())
+      ('IT')->(dbCloseArea())   //use
+    else
+      fl := notExistsFileNSI( exe_dir + sbase + sdbf )
+    endif
+  elseif val_year == 2020
+    // T006 2020 год
+    sbase := "_mo0it1"
+    if hb_FileExists(exe_dir + sbase + sdbf)
+      R_Use(exe_dir + sbase, , 'IT')
+      go top
+      do while !eof()
+        ar := {}
+        ar1 := {}
+        ar2 := {}
+        if !empty(it->ds)
+          ar := Slist2arr(it->ds)
+          for i := 1 to len(ar)
+            ar[i] := padr(ar[i],5)
+          next
+        endif
+        if !empty(it->ds1)
+          ar1 := Slist2arr(it->ds1)
+          for i := 1 to len(ar1)
+            ar1[i] := padr(ar1[i],5)
+          next
+        endif
+        if !empty(it->ds2)
+          ar2 := Slist2arr(it->ds2)
+          for i := 1 to len(ar2)
+            ar2[i] := padr(ar2[i],5)
+          next
+        endif
+        aadd(arr_ad_cr_it20,{it->USL_OK,padr(it->CODE,3),ar,ar1,ar2})
+        skip
+      enddo
+      use
+    else
+      fl := notExistsFileNSI( exe_dir + sbase + sdbf )
+    endif
+  elseif val_year == 2019
+    // T006 2019 год
+    sbase := "_mo9it"
+    if hb_FileExists(exe_dir + sbase + sdbf)
+      R_Use(exe_dir + sbase, ,'IT')
+      index on ds to tmpit memory
+      dbeval({|| aadd(arr_ad_cr_it19, {it->ds,it->it}) })
+      use
+    else
+      fl := notExistsFileNSI( exe_dir + sbase + sdbf )
+    endif
+  elseif val_year == 2018
+      // /*sbase := "_mo8it"
+      if hb_FileExists(exe_dir + sbase + sdbf)
+      R_Use(exe_dir + sbase, , 'IT')
+      index on ds to tmpit memory
+      dbeval({|| aadd(arr_ad_cr_it, {it->ds, it->it}) })
+      use
+    else
+      fl := notExistsFileNSI( exe_dir + sbase + sdbf )
+    endif
+  endif
+  return fl
+
+**** 29.11.21
+function k006_index(val_year)
+  local fl := .t.
+  local sbase, prefix := prefixFileRefName(val_year)
+      
+  sbase :=  prefix + 'k006'  // 
+  if hb_FileExists(exe_dir + sbase + sdbf)
+    if hb_FileExists(exe_dir + sbase + '.dbt')
+      R_Use(exe_dir + sbase)
+      if (year(sys_date) - val_year) < NUMBER_YEAR .or. ;
+            files_time(exe_dir + sbase + sdbf, cur_dir + sbase + sntx) .or. ;
+            files_time(exe_dir + sbase + sdbf, cur_dir + sbase + '_' + sntx) .or. ;
+            files_time(exe_dir + sbase + sdbf, cur_dir + sbase + 'AD' + sntx)
+        index on substr(shifr, 1, 2) + ds + sy + age + sex + los to (cur_dir + sbase) // по диагнозу/операции
+        index on substr(shifr, 1, 2) + sy + ds + age + sex + los to (cur_dir + sbase + '_') // по операции/диагнозу
+        index on ad_cr to (cur_dir + sbase + 'AD') // по дополнительному критерию Байкин
+      endif
+      use
+    else
+      fl := notExistsFileNSI( exe_dir + sbase + '.dbt' )
+    endif
+  else
+    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
+  endif
+  return fl
+  
