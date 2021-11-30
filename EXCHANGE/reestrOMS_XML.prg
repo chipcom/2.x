@@ -7,7 +7,7 @@
 Static sadiag1 := {}
 
   
-***** 13.10.21 создание XML-файлов реестра
+***** 30.11.21 создание XML-файлов реестра
 Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
   //
@@ -633,7 +633,7 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
         mo_add_xml_stroke(oKSG,"SL_K",iif(empty(akslp),'0','1'))
         if !empty(akslp)
           // заполним сведения о КСГ для XML-документа
-          if year(human->K_DATA) == 2021     // 02.02.2021 Байкин 
+          if year(human->K_DATA) >= 2021     // 02.02.2021 Байкин 
             tKSLP := getKSLPtable(human->K_DATA)
             mo_add_xml_stroke(oKSG,"IT_SL",lstr(ret_koef_kslp_21_XML(akslp,tKSLP),7,5))
             for iAKSLP := 1 to len(akslp)
