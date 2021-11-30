@@ -186,40 +186,24 @@ function calcKSLP(cKSLP, dateSl)
   endif
   return summ
 
-***** 23.04.21 
+***** 30.11.21 
 Function f_cena_kiro(/*@*/_cena, lkiro, dateSl )
   // _cena - изменяемая цена
   // lkiro - уровень КИРО
   // dateSl - дата случая
-  Local _akiro := {0,1}
-  local aKIRO, i, rowKIRO
+  Local _akiro := {0, 1}
+  local aKIRO, rowKIRO
 
-  if year(dateSl) == 2021
-    aKIRO := getKIROtable( dateSl )
-    for each rowKIRO in aKIRO
-      if rowKIRO[1] == lkiro
-        if between_date(rowKIRO[5], rowKIRO[6], dateSl)
-          _akiro := { lkiro, rowKIRO[4] }
-        endif
+  aKIRO := getKIROtable( dateSl )
+  for each rowKIRO in aKIRO
+    if rowKIRO[1] == lkiro
+      if between_date(rowKIRO[5], rowKIRO[6], dateSl)
+        _akiro := { lkiro, rowKIRO[4] }
       endif
-    next
-  else
-    do case
-      case lkiro == 1 // менее 4-х дней, выполнено хирург.вмешательство
-        _akiro := {lkiro,0.8}
-      case lkiro == 2 // менее 4-х дней, хирург.лечение не проводилось
-        _akiro := {lkiro,0.2}
-      case lkiro == 3 // более 3-х дней, выполнено хирург.вмешательство, лечение прервано
-        _akiro := {lkiro,0.9}
-      case lkiro == 4 // более 3-х дней, хирург.лечение не проводилось, лечение прервано
-        _akiro := {lkiro,0.9}
-      case lkiro == 5 // менее 4-х дней, несоблюдение инструкции по приёму препарата
-        _akiro := {lkiro,0.2}
-      case lkiro == 6 // более 3-х дней, несоблюдение инструкции по приёму препарата, лечение прервано
-        _akiro := {lkiro,0.9}
-    endcase
-  endif
-  _cena := round_5(_cena*_akiro[2],0)  // округление до рублей с 2019 года
+    endif
+  next
+
+  _cena := round_5(_cena * _akiro[2], 0)  // округление до рублей с 2019 года
   return _akiro
 
 ***** 30.01.21 определить коэф-т сложности лечения пациента и пересчитать цену

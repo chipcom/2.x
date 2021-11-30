@@ -463,7 +463,7 @@ function vmp_usl_check(val_year)  // справочник соответствия услуг ВМП услугам Т
   endif
   return fl
 
-**** 29.11.21
+**** 30.11.21
 function dep_index_and_fill(val_year)
   local fl := .t.
   local sbase := prefixFileRefName(val_year) + 'dep'  // справочник отделений на конкретный год
@@ -473,7 +473,7 @@ function dep_index_and_fill(val_year)
     R_Use(exe_dir + sbase, , 'DEP')
     index on str(code, 3) to (cur_dir + sbase) for codem == glob_mo[_MO_KOD_TFOMS]
     if val_year == WORK_YEAR
-      dbeval({|| aadd(mm_otd_dep, {alltrim(dep->name_short) + ' ("+alltrim(dep->name)+")', dep->code, dep->place}) })
+      dbeval({|| aadd(mm_otd_dep, {alltrim(dep->name_short) + ' (' + alltrim(dep->name) + ')', dep->code, dep->place}) })
       if (is_otd_dep := (len(mm_otd_dep) > 0))
         asort(mm_otd_dep, , , {|x, y| x[1] < y[1]})
       endif
@@ -483,7 +483,7 @@ function dep_index_and_fill(val_year)
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
   if is_otd_dep
-    sbase := prefix + 'deppr' // справочник отделения + профили  на конкретный год
+    sbase := prefixFileRefName(val_year) + 'deppr' // справочник отделения + профили  на конкретный год
     if hb_FileExists(exe_dir + sbase + sdbf)
       R_Use(exe_dir + sbase, , 'DEP')
       index on str(code, 3) + str(pr_mp, 3) to (cur_dir+sbase) for codem == glob_mo[_MO_KOD_TFOMS]
