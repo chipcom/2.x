@@ -34,7 +34,9 @@ function getVMP_USL( dateSl)
   local tmp_select := select()
   
   if len(arrVMP_USL) == 0
-    dbName := prefixFileRefName(dateSl) + 'vmp_usl'
+    // dbName := prefixFileRefName(dateSl) + 'vmp_usl'
+    dbName := '_mo1vmp_usl'
+
     tmp_select := select()
     dbUseArea( .t., "DBFNTX", exe_dir + dbName, dbAlias , .t., .f. )
   
