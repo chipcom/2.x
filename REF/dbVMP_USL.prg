@@ -1,15 +1,22 @@
-***** 11.02.2021
+#include "function.ch"
+#include "chip_mo.ch"
+
+***** 01.12.21
 // возвращает шифр услуги соответствующий виду и методу ВМП и диагнозу
-function getServiceForVMP(hVid, hMethod, model, sDiag)
+function getServiceForVMP(lvidvmp, dateSl, hVid, hMethod, model, sDiag)
   // hVid - вид ВМП (строка)
   // hMethod - метод ВМП (целое)
   // model - модель пациента V022 (целое)
   // sDiag - основной диагноз
   local ret := '', vid := alltrim(hVid), diag := alltrim(sDiag)
-  local arrVMP_USL := getVMP_USL()
+  // local arrVMP_USL := getVMP_USL(dateSl)
   local i := 0, row, arr := {}
 
-  for each row in arrVMP_USL
+  if year(dateSl) < 2021
+    return '1.12.' + lstr(lvidvmp)
+  endif
+
+  for each row in getVMP_USL(dateSl)
     arr := hb_ATokens(row[5], ';')  // развернем массив разрешенных диагнозов для ВМП
     if row[2] == vid .and. row[3] == hMethod .and. row[4] == model .and. (ascan(arr, diag) > 0)
       ret := row[1]
@@ -18,7 +25,7 @@ function getServiceForVMP(hVid, hMethod, model, sDiag)
   next
   return ret
 
-***** 11.02.2021
+***** 01.12.21
 // возвращает массив соответствия видов и методов ВМП услугам ФФОС
 function getVMP_USL( dateSl)
   static arrVMP_USL := {}
@@ -27,7 +34,7 @@ function getVMP_USL( dateSl)
   local tmp_select := select()
   
   if len(arrVMP_USL) == 0
-    dbName := '_mo1vmp_usl'
+    dbName := prefixFileRefName(dateSl) + 'vmp_usl'
     tmp_select := select()
     dbUseArea( .t., "DBFNTX", exe_dir + dbName, dbAlias , .t., .f. )
   

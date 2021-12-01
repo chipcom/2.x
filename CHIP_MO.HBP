@@ -130,8 +130,7 @@ mo_version.prg
 .\ref\dbT012.prg
 .\ref\dbVMP_USL.prg
 .\ref\make_V018_V019.prg
-.\ref\dbKSLP.prg
-.\ref\dbKIRO.prg
+.\ref\dbKSLPandKIRO.prg
 .\ref\dbMo_Mo.prg
 
 .\oms\oms_func.prg

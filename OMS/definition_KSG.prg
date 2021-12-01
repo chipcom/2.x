@@ -220,14 +220,14 @@ Function definition_KSG(par,k_data2)
   if lvmp > 0
     if lvidvmp == 0
       aadd(arerr,' не введён метод ВМП')
-    elseif (ascan(arr_12_VMP,lvidvmp) == 0 .and. year(lk_data) != 2021)
+    elseif (ascan(arr_12_VMP,lvidvmp) == 0 .and. year(lk_data) < 2021)
       aadd(arerr,' для метода ВМП '+lstr(lvidvmp)+' нет услуги ТФОМС')
     else
-      if lyear == 2021  // 10.02.2021 
-        lksg := getServiceForVMP(human_2->VIDVMP, human_2->METVMP, human_2->PN5, human->KOD_DIAG)
-      else
-        lksg := "1.12."+lstr(lvidvmp)
-      endif
+      // if lyear >= 2021  // 10.02.2021 
+      lksg := getServiceForVMP(lvidvmp, lk_data, human_2->VIDVMP, human_2->METVMP, human_2->PN5, human->KOD_DIAG)
+      // else
+        // lksg := "1.12."+lstr(lvidvmp)
+      // endif
       aadd(ars," для "+lstr(lvidvmp)+" метода ВМП введена услуга "+lksg)
       lcena := ret_cena_KSG(lksg,lvr,date_usl)
       if lcena > 0
