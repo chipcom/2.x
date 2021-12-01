@@ -2733,11 +2733,13 @@ Function verify_1_sluch(fl_view)
       if human_->profil != 158
         aadd(ta,'в случае надо использовать профиль по: '+inieditspr(A__MENUVERT, glob_V002, 158))
       endif
+
       for i := 1 to len(au_lu)
         if au_lu[i,3] == 158 .and. alltrim(au_lu[i,1]) != shifr_ksg
-          aadd(ta,'нельзя в услуге '+alltrim(au_lu[i,1])+'использовать профиль по: '+inieditspr(A__MENUVERT, glob_V002, au_lu[i,3]))
+          aadd(ta, 'нельзя в услуге ' + alltrim(au_lu[i,1]) + ' использовать профиль по: ' + inieditspr(A__MENUVERT, glob_V002, au_lu[i,3]))
         endif
       next
+
       if is_reabil_slux
         t_arr := {"1331.0","1332.0","1333.0","1335.0","2127.0","2128.0","2130.0"}
         for i := 1 to len(t_arr)

@@ -19,6 +19,10 @@ Function f_valid2ad_cr()
     {"rb4 - оценка состояния пациента 4 балла по ШРМ", "rb4"},;
     {"rb5 - оценка состояния пациента 5 баллов по ШРМ","rb5"},;
     {"rb6 - оценка состояния пациента 6 баллов по ШРМ","rb6"},;
+    {"rb2cov - оценка состояния пациента после COVID-19 2 балла по ШРМ", "rb2cov"},;
+    {"rb3cov - оценка состояния пациента после COVID-19 3 балла по ШРМ", "rb3cov"},;
+    {"rb4cov - оценка состояния пациента после COVID-19 4 балла по ШРМ", "rb4cov"},;
+    {"rb5cov - оценка состояния пациента после COVID-19 5 балла по ШРМ", "rb5cov"},;
     {"rbs - медицинская реабилитация детей с нарушениями слуха","rbs"}}
   Local i, j, arr_sop := {}, arr_osl := {}, fl
 
@@ -32,11 +36,15 @@ Function f_valid2ad_cr()
         aadd(mm_ad_cr,mm_rb[4])
         aadd(mm_ad_cr,mm_rb[5])
         aadd(mm_ad_cr,mm_rb[6])
-        aadd(mm_ad_cr,mm_rb[7])
+        aadd(mm_ad_cr,mm_rb[8])
+        aadd(mm_ad_cr,mm_rb[9])
+        aadd(mm_ad_cr,mm_rb[10])
+        aadd(mm_ad_cr,mm_rb[11])
       else
         aadd(mm_ad_cr,mm_rb[2])
         aadd(mm_ad_cr,mm_rb[3])
         aadd(mm_ad_cr,mm_rb[7])
+        aadd(mm_ad_cr,mm_rb[11])
       endif
     elseif m1usl_ok == 1 .and. !empty(MKOD_DIAG)
       if !empty(MKOD_DIAG2) ; aadd(arr_sop,padr(MKOD_DIAG2,5)) ; endif
