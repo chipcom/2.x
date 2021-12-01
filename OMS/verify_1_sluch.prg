@@ -790,7 +790,7 @@ Function verify_1_sluch(fl_view)
           mpovod := 10 // 3.0
           musl_ok := 3  // п-ка
           is_perito := .t.
-        elseif eq_any(alltrim_lshifr,"60.3.9","60.3.10")
+        elseif eq_any(alltrim_lshifr,"60.3.9","60.3.10","60.3.11") //01.12.21
           musl_ok := 2  // дневной стационар
           is_dializ := .t.
         else
