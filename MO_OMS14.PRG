@@ -3946,20 +3946,9 @@ llos := ''
 if ldnej < 4
   llos += '1'
 endif
-//aadd(ars,'   ║age='+lage+' sex='+lsex+' los='+llos)
+
 if select("K006") == 0
   R_Use(exe_dir+"_mo8k006",{cur_dir+"_mo8k006",cur_dir+"_mo8k006_"},"K006")
-  /*{"SHIFR",      "C",     10,      0},;
-    {"DS",         "C",      6,      0},;
-    {"DS1",        "M",     10,      0},;
-    {"DS2",        "M",     10,      0},;
-    {"SY",         "C",     20,      0},;
-    {"AGE",        "C",      1,      0},;
-    {"SEX",        "C",      1,      0},;
-    {"LOS",        "C",      1,      0},;
-    {"AD_CR",      "C",     10,      0},;*/
-  //index on substr(shifr,1,1)+ds+sy to (sbase)      // по диагнозу/операции
-  //index on substr(shifr,1,1)+sy+ds to (sbase+"_")  // по операции/диагнозу
 endif
 fl_reabil := (ascan(ahu,"1.11.2") > 0 .or. ascan(ahu,"55.1.4") > 0)
 // собираем КСГ по осн.диагнозу (терапевтические и комбинированные)
