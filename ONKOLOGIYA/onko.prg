@@ -4,14 +4,17 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 13.02.21
+***** 02.12.21
 Function ret_arr_shema(k) 
   // возвращает схемы лекарственных терапий для онкологии на текущий рабочий год
   Static ashema := {{},{},{}}
   Local i
+  local _data := BoY(WORK_YEAR)
+
   if empty(ashema[1])
-    Private _data := 0d20210101 // 2021 год
-    R_Use(exe_dir+"_mo1shema",,"IT")
+    // Private _data := 0d20210101 // 2021 год
+    // R_Use(exe_dir+"_mo1shema",,"IT")
+    R_Use(exe_dir + prefixFileRefName(WORK_YEAR) + 'shema', , 'IT')
     aadd(ashema[1],{"-----     без схемы лекарственной терапии",padr("нет",10)})
     index on kod to (cur_dir+"tmp_schema") for left(kod,2) == "sh" .and. between_date(it->datebeg,it->dateend,_data)
     dbeval({|| aadd(ashema[1],{it->kod+left(it->name,68),it->kod}) })

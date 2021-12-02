@@ -1048,7 +1048,6 @@ Function InitSpravFFOMS()
   prefix := prefixFileRefName(WORK_YEAR)
   sbase :=  prefix + 'unit'  // справочник на конкретный год
   
-  // G_Use(exe_dir+"_mo1unit",cur_dir+"_mo1unit","UNIT")
   G_Use(exe_dir + sbase, cur_dir + sbase, 'UNIT')
   for i := 1 to len(glob_array_PZ_21)
     find (str(glob_array_PZ_21[i,2],3))

@@ -112,7 +112,8 @@ Function definition_KSG(par,k_data2)
     if !empty(human_2->OSL3)
       aadd(osl_diag,human_2->OSL3)
     endif
-    if lusl < 3 .and. lVMP == 0 .and. f_is_oncology(1) == 2
+
+    if lusl < 3 .and. lVMP == 0 .and. f_is_oncology(1) == 2 .and. empty(lad_cr)
       if select("ONKSL") == 0
         G_Use(dir_server+"mo_onksl",dir_server+"mo_onksl","ONKSL") // Сведения о случае лечения онкологического заболевания
       endif
@@ -238,9 +239,7 @@ Function definition_KSG(par,k_data2)
     endif
     return {ars,arerr,alltrim(lksg),lcena,{},{}}
   endif
-  // lal := "LUSL"+iif(lyear==2021,"","20")    // "LUSL"+iif(lyear==2020,"","19")
   lal := create_name_alias('LUSL', lyear)
-  // lalf := "LUSLF"+iif(lyear==2021,"","20")  // lalf := "LUSLF"+iif(lyear==2020,"","19")
   lalf := create_name_alias('LUSLF', lyear)
   if select("LUSLF") == 0
     use_base("LUSLF")
@@ -351,15 +350,21 @@ Function definition_KSG(par,k_data2)
             iif(empty(sop_diag), '', ', соп.диаг.'+charrem(' ',print_array(sop_diag)))+;
             iif(empty(osl_diag), '', ', диаг.осл.'+charrem(' ',print_array(osl_diag)))
   lsex := iif(lpol=='М','1','2')
+
   llos := {} //''
   if ldnej < 4
     aadd(llos,'1') //llos += '1'
-  elseif between(ldnej,4,7)
-    aadd(llos,'8')
-  elseif between(ldnej,8,10)
-    aadd(llos,'9')
   else
-    aadd(llos,'10')
+    aadd(llos,str(ldnej,2,0))
+
+  // elseif between(ldnej,4,7)
+  //   aadd(llos,'8')
+  // elseif between(ldnej,8,10)
+  //   aadd(llos,'9')
+  // elseif ldnej > 10
+    // aadd(llos, str(ldnej,2,0))
+  // else
+  //   aadd(llos,'10')
   endif
   /*
   0 - КИРО не применяется
@@ -384,7 +389,9 @@ Function definition_KSG(par,k_data2)
       за медицинской помощью (Классификатор V009) 102, 105, 107, 110, 202, 205, 207
   */
   //aadd(ars,'   ║age='+lage+' sex='+lsex+' los='+print_array(llos))
-  nfile := "_mo"+iif(lyear==2021,"1","0")+"k006"  // nfile := "_mo"+iif(lyear==2020,"0","9")+"k006"
+
+  // nfile := "_mo"+iif(lyear==2021,"1","0")+"k006"  // nfile := "_mo"+iif(lyear==2020,"0","9")+"k006"
+  nfile := prefixFileRefName(lyear) + 'k006'
   if select("K006") == 0
     R_Use(exe_dir+nfile,{cur_dir+nfile,cur_dir+nfile+"_",cur_dir+nfile+"AD"},"K006")
     /*{"SHIFR",      "C",     10,      0},;
@@ -497,12 +504,17 @@ Function definition_KSG(par,k_data2)
       endif
       if fl .and. !empty(k006->sex)
         fl := (k006->sex == lsex)
-        if fl ; j ++ ; endif
+        if fl
+          j ++
+        endif
       endif
       if fl .and. !empty(k006->los)
         fl := ascan(llos,alltrim(k006->los)) > 0  // (k006->los $ llos)
-        if fl ; j ++ ; endif
+        if fl
+          j ++
+        endif
       endif
+
       if fl
         if empty(lad_cr) // в случае нет доп.критерия
           if !empty(k006->ad_cr) // а в справочнике есть доп.критерий
