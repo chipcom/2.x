@@ -106,8 +106,10 @@ Function f_valid2ad_cr()
       next
     elseif m1usl_ok == 2 .and. !empty(MKOD_DIAG)
       for i := 1 to len(arr_ad_cr_it21)
+        
         if m1usl_ok == arr_ad_cr_it21[i,1] .and. ascan(arr_ad_cr_it21[i,3],padr(MKOD_DIAG,5)) > 0
-          aadd(mm_ad_cr,{"",arr_ad_cr_it21[i,2]})
+          // aadd(mm_ad_cr,{"",arr_ad_cr_it21[i,2]})
+          aadd(mm_ad_cr,{alltrim(arr_ad_cr_it21[i,2])+' '+arr_ad_cr_it21[i,6],arr_ad_cr_it21[i,2]})
         endif
       next
     elseif eq_any(pr_ds_it,1,2) .and. m1usl_ok == 1
