@@ -2379,9 +2379,7 @@ if k > 10
 endif
 return NIL
 
-*
-
-***** 25.11.21
+***** 02.12.21
 Function pz1statist(par,par2)
 Static _su := 2
 Local buf := savescreen(), fl_exit := .f., fl := .t., a_otd := {},;
@@ -2466,26 +2464,6 @@ if !fl
 endif
 _su := su
 if between(par,2,3) .and. eq_any(su,1,2,5)
-  // if arr_m[1] > 2020
-  //   R_Use(dir_exe+"_mo1unit",,"MOUNIT")
-  //   index on str(ii,3) to (cur_dir+"tmp_unitii")
-  //   set index to (cur_dir+"_mo1unit"),(cur_dir+"tmp_unitii")
-  //   is_2021 := .t.
-  // elseif arr_m[1] == 2020
-  //   R_Use(dir_exe+"_mo0unit",,"MOUNIT20")
-  //   index on str(ii,3) to (cur_dir+"tmp_unitii")
-  //   set index to (cur_dir+"_mo0unit"),(cur_dir+"tmp_unitii")
-  //   is_2020 := .t.
-  // elseif arr_m[1] > 2018
-  //   R_Use(dir_exe+"_mo9unit",,"MOUNIT19")
-  //   index on str(ii,3) to (cur_dir+"tmp_unitii")
-  //   set index to (cur_dir+"_mo9unit"),(cur_dir+"tmp_unitii")
-  //   is_2019 := .t.
-  // else
-  //   R_Use(dir_exe+"_mo8unit",,"MOUNIT18")
-  //   index on str(ii,3) to (cur_dir+"tmp_unitii")
-  //   set index to (cur_dir+"_mo8unit"),(cur_dir+"tmp_unitii")
-  // endif
   sbase := prefixFileRefName(arr_m[1]) + 'unit'
   R_Use(dir_exe + sbase, , "MOUNIT")
   index on str(ii, 3) to (cur_dir + "tmp_unitii")
@@ -5166,13 +5144,6 @@ end_date := dtoc4(arr_m[6])
 Use_base("lusl")
 Use_base("luslf")
 
-// if arr_m[1] == 2019
-//   R_Use(dir_exe+"_mo9unit",cur_dir+"_mo9unit","MOUNIT")
-// elseif arr_m[1] == 2020
-//   R_Use(dir_exe+"_mo0unit",cur_dir+"_mo0unit","MOUNIT")
-// elseif arr_m[1] == 2021
-//   R_Use(dir_exe+"_mo1unit",cur_dir+"_mo1unit","MOUNIT")
-// endif
   sbase := prefixFileRefName(arr_m[1]) + 'unit'
   R_Use(dir_exe + sbase, cur_dir + sbase, 'MOUNIT')
 

@@ -4400,13 +4400,6 @@ Function verify_1_sluch(fl_view)
   endif
   if len(arr_unit) > 1
     if select("MOUNIT") == 0
-      // if d2_year == 2019
-      //   R_Use(dir_exe+"_mo9unit",cur_dir+"_mo9unit","MOUNIT")
-      // elseif d2_year == 2020
-      //   R_Use(dir_exe+"_mo0unit",cur_dir+"_mo0unit","MOUNIT")
-      // else
-      //   R_Use(dir_exe+"_mo1unit",cur_dir+"_mo1unit","MOUNIT")
-      // endif
       sbase := prefixFileRefName(d2_year) + 'unit'
       R_Use(dir_exe + sbase, cur_dir + sbase, 'MOUNIT')
     endif
@@ -4581,13 +4574,6 @@ Function verify_1_sluch(fl_view)
     endif
     if len(arr_unit) == 1
       if select("MOUNIT") == 0
-        // if d2_year == 2019
-        //   R_Use(dir_exe+"_mo9unit",cur_dir+"_mo9unit","MOUNIT")
-        // elseif d2_year == 2020
-        //   R_Use(dir_exe+"_mo0unit",cur_dir+"_mo0unit","MOUNIT")
-        // else
-        //   R_Use(dir_exe+"_mo1unit",cur_dir+"_mo1unit","MOUNIT")
-        // endif
         sbase := prefixFileRefName(d2_year) + 'unit'
         R_Use(dir_exe + sbase, cur_dir + sbase, 'MOUNIT')
       endif

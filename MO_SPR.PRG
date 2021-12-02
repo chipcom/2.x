@@ -20,7 +20,6 @@ else
 endif
 return fl
 
-*
 
 ***** Редактирование справочника услуг
 Function edit_spr_uslugi(k)
@@ -84,77 +83,85 @@ if k > 0
 endif
 return NIL
 
-*
 
-***** 15.01.19
+***** 02.12.21
 FUNCTION f1_uslugi()
 Local arr_block, buf := savescreen(), str_sem := "Редактирование услуг"
-if !G_SLock(str_sem)
-  return func_error(4,err_slock)
-endif
-if !Use_base("lusl") .or. !Use_base("luslc") .or. ;
-   !G_Use(dir_server+"uslugi1",{dir_server+"uslugi1",;
+local tmpAlias, i
+
+  if !G_SLock(str_sem)
+    return func_error(4,err_slock)
+  endif
+  if !Use_base("lusl") .or. !Use_base("luslc") .or. ;
+      !G_Use(dir_server+"uslugi1",{dir_server+"uslugi1",;
                                 dir_server+"uslugi1s"},"USL1") .or. ;
-   !G_Use(dir_server+"uslugi",,"USL") .or. ;
-   !G_Use(dir_server+"usl_otd",dir_server+"usl_otd","UO") .or. ;
-   !R_Use(dir_server+"slugba",dir_server+"slugba","SL")
-  close databases
-  return NIL
-endif
-mywait()
-if is_otd_dep .and. glob_otd_dep == 0 .and. len(mm_otd_dep) > 0
-  glob_otd_dep := mm_otd_dep[1,2] // просто берём первое отделение
-endif
-if !(type("arr_date_usl") == "A")
-  Public arr_date_usl := {}
-  select LUSLC19
-  index on dtos(datebeg) to (cur_dir+"tmp1") unique
-  dbeval({|| aadd(arr_date_usl,luslc19->datebeg) })
-  set index to (cur_dir+"_mo9uslc"),(cur_dir+"_mo9uslu")
-  select LUSLC20
-  index on dtos(datebeg) to (cur_dir+"tmp1") unique
-  dbeval({|| aadd(arr_date_usl,luslc20->datebeg) })
-  set index to (cur_dir+"_mo0uslc"),(cur_dir+"_mo0uslu")
-  select LUSLC
-  index on dtos(datebeg) to (cur_dir+"tmp1") unique
-  dbeval({|| aadd(arr_date_usl,luslc->datebeg) })
-  set index to (cur_dir+"_mo1uslc"),(cur_dir+"_mo1uslu")
-endif
-Private tmp_V002 := create_classif_FFOMS(0,"V002") // PROFIL
-dbcreate(cur_dir+"tmp_usl1",{{"shifr1",  "C",10,0},;
+      !G_Use(dir_server+"uslugi",,"USL") .or. ;
+      !G_Use(dir_server+"usl_otd",dir_server+"usl_otd","UO") .or. ;
+      !R_Use(dir_server+"slugba",dir_server+"slugba","SL")
+    close databases
+    return NIL
+  endif
+  mywait()
+  if is_otd_dep .and. glob_otd_dep == 0 .and. len(mm_otd_dep) > 0
+    glob_otd_dep := mm_otd_dep[1,2] // просто берём первое отделение
+  endif
+  if !(type("arr_date_usl") == "A")
+    Public arr_date_usl := {}
+    for i := 2018 to WORK_YEAR
+      tmpAlias := create_name_alias('LUSLC', i)
+      select (tmpAlias)
+      index on dtos(datebeg) to (cur_dir + "tmp1") unique
+      dbeval({|| aadd(arr_date_usl, (tmpAlias)->datebeg) })
+      set index to (cur_dir + prefixFileRefName(i) + "uslc"), (cur_dir + prefixFileRefName(i) + "uslu")
+    next
+    // select LUSLC19
+    // index on dtos(datebeg) to (cur_dir+"tmp1") unique
+    // dbeval({|| aadd(arr_date_usl,luslc19->datebeg) })
+    // set index to (cur_dir+"_mo9uslc"),(cur_dir+"_mo9uslu")
+    // select LUSLC20
+    // index on dtos(datebeg) to (cur_dir+"tmp1") unique
+    // dbeval({|| aadd(arr_date_usl,luslc20->datebeg) })
+    // set index to (cur_dir+"_mo0uslc"),(cur_dir+"_mo0uslu")
+    // select LUSLC
+    // index on dtos(datebeg) to (cur_dir+"tmp1") unique
+    // dbeval({|| aadd(arr_date_usl,luslc->datebeg) })
+    // set index to (cur_dir+"_mo1uslc"),(cur_dir+"_mo1uslu")
+  endif
+  Private tmp_V002 := create_classif_FFOMS(0,"V002") // PROFIL
+  dbcreate(cur_dir+"tmp_usl1",{{"shifr1",  "C",10,0},;
                              {"name",    "C",77,0},;
                              {"date_b",  "D", 8,0}})
-use (cur_dir+"tmp_usl1") new
-index on dtos(date_b) to (cur_dir+"tmp_usl1")
-select USL
-index on iif(kod>0,"1","0")+fsort_usl(shifr) to (cur_dir+"tmp_usl")
-set index to (cur_dir+"tmp_usl"),;
+  use (cur_dir+"tmp_usl1") new
+  index on dtos(date_b) to (cur_dir+"tmp_usl1")
+  select USL
+  index on iif(kod>0,"1","0")+fsort_usl(shifr) to (cur_dir+"tmp_usl")
+  set index to (cur_dir+"tmp_usl"),;
              (dir_server+"uslugi"),;
              (dir_server+"uslugish"),;
              (dir_server+"uslugis1"),;
              (dir_server+"uslugisl")
-Private str_find := "1", muslovie := "usl->kod > 0"
-arr_block := {{|| FindFirst(str_find)},;
+  Private str_find := "1", muslovie := "usl->kod > 0"
+  arr_block := {{|| FindFirst(str_find)},;
               {|| FindLast(str_find)},;
               {|n| SkipPointer(n, muslovie)},;
               str_find,muslovie;
              }
-find ("1")
-Private fl_found := found()
-if fl_found
-  do while empty(shifr) .and. !eof()
-    skip
-  enddo
-else
-  keyboard chr(K_INS)
-endif
-Alpha_Browse(2,0,maxrow()-1,79,"f1_es_uslugi",color0,"Редактирование услуг","B/BG",;
+  find ("1")
+  Private fl_found := found()
+  if fl_found
+    do while empty(shifr) .and. !eof()
+      skip
+    enddo
+  else
+    keyboard chr(K_INS)
+  endif
+  Alpha_Browse(2,0,maxrow()-1,79,"f1_es_uslugi",color0,"Редактирование услуг","B/BG",;
              .f.,,arr_block,,"f2_es_uslugi",,;
              {"═","░","═","N/BG,W+/N,B/BG,BG+/B,R/BG,W+/R,N+/BG,W/N,RB/BG,W+/RB",.t.,180} )
-close databases
-G_SUnLock(str_sem)
-restscreen(buf)
-return NIL
+  close databases
+  G_SUnLock(str_sem)
+  restscreen(buf)
+  return NIL
 
 ***** 15.01.19
 Function f0_es_uslugi()
