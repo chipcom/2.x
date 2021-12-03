@@ -41,7 +41,7 @@ Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
      {"VB_P"    , "C", 1,0},; //
      {"IDSP"    , "C", 2,0},; //
      {"SUMV"    , "C",10,0},; //
-     {"METOD_HMP","C", 4,0},; // N4 // 12.02.2021
+     {"METOD_HMP","C", 4,0},; // N4 // 12.02.21
      {"NPR_MO",   "C", 6,0},; //
      {"NPR_DATE", "C",10,0},; //
      {"EXTR",     "C", 1,0},; //
@@ -481,7 +481,7 @@ Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
                           t5->NAZ_N  := mo_read_xml_stroke(oNode2,"NAZ_N",,.f.)
                           t5->NAZ_R  := mo_read_xml_stroke(oNode2,"NAZ_R",,.f.)
 
-                          // добавил по новому ПУМП от 02.08.2021
+                          // добавил по новому ПУМП от 02.08.21
                           if p_tip_reestr == 2 .and. (xml2date(t1->DATE_Z_2) >= 0d20210801)
                             t5->NAZ_IDDT  := mo_read_xml_stroke(oNode2,"NAZ_IDDOKT",,.f.)
                             t5->NAZ_SPDT  := mo_read_xml_stroke(oNode2,"NAZ_SPDOCT",,.f.)
@@ -547,7 +547,7 @@ Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
                         t6->KOD      := mkod
                         t6->IDCASE   := &lal.->IDCASE // для связи со случаем
                         t6->NAPR_DATE:= mo_read_xml_stroke(oNode2,"NAPR_DATE")
-                        // добавил по новому ПУМП от 02.08.2021
+                        // добавил по новому ПУМП от 02.08.21
                         if p_tip_reestr == 2 .and. (xml2date(t1->DATE_Z_2) >= 0d20210801)
                           t6->NAZ_IDDT  := mo_read_xml_stroke(oNode2,"NAZ_IDDOKT",,.f.)
                           t6->NAZ_SPDT  := mo_read_xml_stroke(oNode2,"NAZ_SPDOCT",,.f.)
@@ -659,7 +659,7 @@ Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
                         t2->TARIF    := mo_read_xml_stroke(oNode2,"TARIF")
                         t2->SUMV_USL := mo_read_xml_stroke(oNode2,"SUMV_USL")
 
-                        // добавил по новому ПУМП от 02.08.2021
+                        // добавил по новому ПУМП от 02.08.21
                         if p_tip_reestr == 2 .and. (xml2date(t1->DATE_Z_2) >= 0d20210801)
                           if (oNode100 := oNode2:Find("MR_USL_N")) != NIL
                             // пока только 1 врач

@@ -9010,11 +9010,13 @@ return NIL
 ***** 19.02.21 Создание файла обмена R11...
 Function f_create_R11()
 Local buf := save_maxrow(), i, j, ir, s := "", arr := {}, fl := .t., fl1 := .f., a_reestr := {}, ar
-Private sgod := 2021, SMONTH := 1, mdate := sys_date, mrec := 2
+Private SMONTH := 1, mdate := sys_date, mrec := 2
 Private c_view := 0, c_found := 0, fl_exit := .f., pj, arr_rees := {},;
         pkol := 0, CODE_LPU := glob_mo[_MO_KOD_TFOMS], CODE_MO := glob_mo[_MO_KOD_FFOMS],;
         mkol := {0,0,0,0,0}, skol[5], ames[12,5], ame[12], bm := SMONTH,; // начальный месяц минус один
         _arr_vozrast_DVN := ret_arr_vozrast_DVN(0d20201201)
+
+Private sgod := 2021
 //
 mywait()
 fl := .t.

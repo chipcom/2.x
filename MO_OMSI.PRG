@@ -748,7 +748,7 @@ do while !eof()
       if !empty(human_2->pc1)
         akslp := List2Arr(human_2->pc1)
         if len(akslp) > 1
-          if year(human->k_data) == 2021
+          if year(human->k_data) >= 2021
             s1 += "(α γηρβ®¬ ‘‹="+str(ret_koef_kslp_21(akslp),4,2)+") "
           else
             s1 += "(α γηρβ®¬ ‘‹="+str(ret_koef_kslp(akslp),4,2)+") "

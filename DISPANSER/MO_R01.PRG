@@ -235,11 +235,13 @@ endif
 close databases
 return NIL*/
 
-***** 18.02.21 Создание файла обмена R05...
+***** 03.12.21 Создание файла обмена R05...
 Function f_create_R05()
 Local buf := save_maxrow(), i, fl
-Private sgod := 2021, mdate, mkol1 := 0, mkol2 := 0, mkol11 := 0, mkol12 := 0, mkol13 := 0,;
+Private mdate, mkol1 := 0, mkol2 := 0, mkol11 := 0, mkol12 := 0, mkol13 := 0,;
         mrec, CODE_LPU := glob_mo[_MO_KOD_TFOMS]
+Private sgod := 2021
+
 //
 G_Use(dir_server+"mo_dr05p",,"R05p")
 if lastrec() == 0 .or. lastrec() == 1
@@ -1666,16 +1668,18 @@ close databases
 rest_box(buf)
 return fl*/
 
-***** 19.02.21 Создание файла обмена R01...
+***** 03.12.21 Создание файла обмена R01...
 Function f_create_R01()
 Local buf := save_maxrow(), i, j, ir, s := "", arr := {}, fl := .t., fl1 := .f., a_reestr := {},;
       azip := {}, aerr := {}, full_zip, name_zip, cFile, cName, oXmlDoc, lgod_r
-Private sgod := 2021, SMONTH := 3, mdate := sys_date, mrec := 2
+Private SMONTH := 3, mdate := sys_date, mrec := 2
 // !!! ВНИМАНИЕ
 Private c_view := 0, c_found := 0, fl_exit := .f., pj, arr_rees := {},;
         pkol := 0, CODE_LPU := glob_mo[_MO_KOD_TFOMS], CODE_MO := glob_mo[_MO_KOD_FFOMS],;
         mkol := {0,0,0,0,0}, skol[5], ames[12,5], ame[12], bm := SMONTH,; // начальный месяц минус один
         _arr_vozrast_DVN := ret_arr_vozrast_DVN(0d20201201)
+Private sgod := 2021
+
 //
 //f00_create_R01()
 //
@@ -2047,9 +2051,10 @@ endif
 return NIL
 
 
-***** 28.02.21
+***** 03.12.21
 Function f00_create_R01()
-Local fl := .f., v, t1, t2, lgod_r, sgod := 2021, ltip1, ltip, lvoz
+Local fl := .f., v, t1, t2, lgod_r, ltip1, ltip, lvoz
+local sgod := 2021
 
  Status_Key("^<Esc>^ - прервать поиск")
  hGauge := GaugeNew(,,,"Проверка пациентов, подлежащих дисп-ии/профосмотрам",.t.)
@@ -3403,10 +3408,12 @@ endif
 */
 return NIL
 
-***** 26.02.21 проверить, есть ли не до конца обработанные операции с файлами R11...
+***** 03.12.21 проверить, есть ли не до конца обработанные операции с файлами R11...
 Function find_unfinished_R11()
 Local fl := .t., fl1, skol := 0, mkol := 0, arr := {}, rec, fl_date := .t.
-Private sgod := 2021, mrec := 2, smonth := 3
+Private mrec := 2, smonth := 3
+Private sgod := 2021
+
 if glob_mo[_MO_IS_UCH]
   if (fl := verify_packet_R05(2,arr))
     R_Use(dir_server+"mo_dr05p",,"R05p")

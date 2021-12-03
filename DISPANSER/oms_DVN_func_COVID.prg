@@ -731,7 +731,7 @@ Function ret_dvn_arr_COVID_umolch()
     // count_dvn_arr_umolch := len(dvn_arr_umolch)
   return dvn_COVID_arr_umolch
 
-// 21.07.2021
+// 21.07.21
 function foundFFOMSUsluga(lshifr)
   local kod_uslf := 0
   local tmp_select := select()
@@ -774,7 +774,7 @@ function foundFFOMSUsluga(lshifr)
 
   return kod_uslf
 
-// 22.07.2021
+// 22.07.21
 function foundFFOMSUslugaById(id)
   // id - код услуги
   local tmp_select := select()

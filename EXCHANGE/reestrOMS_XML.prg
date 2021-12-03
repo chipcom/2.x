@@ -565,11 +565,11 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
             mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_N",lstr(j))
             mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_R",lstr(arr_nazn[j,1]))
 
-            if !empty(arr_nazn[j,3])   // по новому ПУМП с 01.08.2021
+            if !empty(arr_nazn[j,3])   // по новому ПУМП с 01.08.21
               mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_IDDOKT", arr_nazn[j,3])
             endif
 
-            if !empty(arr_nazn[j,4])   // по новому ПУМП с 01.08.2021
+            if !empty(arr_nazn[j,4])   // по новому ПУМП с 01.08.21
               mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_SPDOCT", arr_nazn[j,4])
             endif
             
@@ -594,11 +594,11 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
             mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_N",lstr(j+len(arr_nazn)))
             mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_R",lstr(iif(arr_onkna[j,2]==1, 2, arr_onkna[j,2])))
 
-            if !empty(arr_onkna[j,6])   // по новому ПУМП с 01.08.2021
+            if !empty(arr_onkna[j,6])   // по новому ПУМП с 01.08.21
               mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_IDDOKT", arr_onkna[j,6])
             endif
 
-            if !empty(arr_onkna[j,7])   // по новому ПУМП с 01.08.2021
+            if !empty(arr_onkna[j,7])   // по новому ПУМП с 01.08.21
               mo_add_xml_stroke(oPRESCRIPTIONS,"NAZ_SPDOCT", arr_onkna[j,7])
             endif
 
@@ -633,7 +633,7 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
         mo_add_xml_stroke(oKSG,"SL_K",iif(empty(akslp),'0','1'))
         if !empty(akslp)
           // заполним сведения о КСГ для XML-документа
-          if year(human->K_DATA) >= 2021     // 02.02.2021 Байкин 
+          if year(human->K_DATA) >= 2021     // 02.02.21 Байкин 
             tKSLP := getKSLPtable(human->K_DATA)
             mo_add_xml_stroke(oKSG,"IT_SL",lstr(ret_koef_kslp_21_XML(akslp,tKSLP),7,5))
             for iAKSLP := 1 to len(akslp)
@@ -899,7 +899,7 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
           mo_add_xml_stroke(oUSL,"TARIF"   ,lstr(hu->U_CENA,10,2))
           mo_add_xml_stroke(oUSL,"SUMV_USL",lstr(hu->STOIM_1,10,2))
 
-          if human->k_data >= 0d20210801 .and. p_tip_reestr == 2  // новые правила заполнения с 01.08.2021 письмо № 04-18-13 от 20.07.2021
+          if human->k_data >= 0d20210801 .and. p_tip_reestr == 2  // новые правила заполнения с 01.08.21 письмо № 04-18-13 от 20.07.21
             if between_date(human->n_data, human->k_data, c4tod(hu->DATE_U))
               oMR_USL_N := oUSL:Add( HXMLNode():New( "MR_USL_N" ) )
               mo_add_xml_stroke(oMR_USL_N,"MR_N",lstr(1))   // уточнить
@@ -946,8 +946,8 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
           mo_add_xml_stroke(oUSL,"TARIF"   ,lstr(a_otkaz[j,6],10,2))
           mo_add_xml_stroke(oUSL,"SUMV_USL",lstr(a_otkaz[j,6],10,2))
 
-          if human->k_data >= 0d20210801 .and. p_tip_reestr == 2  // новые правила заполнения с 01.08.2021 письмо № 04-18-13 от 20.07.2021
-            // Закомментировал после разъяснения Л.А.Антоновой 18.08.2021
+          if human->k_data >= 0d20210801 .and. p_tip_reestr == 2  // новые правила заполнения с 01.08.21 письмо № 04-18-13 от 20.07.21
+            // Закомментировал после разъяснения Л.А.Антоновой 18.08.21
             // oMR_USL_N := oUSL:Add( HXMLNode():New( "MR_USL_N" ) )
             // mo_add_xml_stroke(oMR_USL_N,"MR_N",lstr(1))   // уточнить
             // mo_add_xml_stroke(oMR_USL_N,"PRVS",put_prvs_to_reestr(a_otkaz[j,5],_NYEAR))
@@ -1013,7 +1013,7 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
             mo_add_xml_stroke(oUSL,"PRVS",put_prvs_to_reestr(mohu->PRVS,_NYEAR))  // добавил 04.08.21
             mo_add_xml_stroke(oUSL,"CODE_MD",'0')
           else
-            if human->k_data >= 0d20210801 .and. p_tip_reestr == 2  // новые правила заполнения с 01.08.2021 письмо № 04-18-13 от 20.07.2021
+            if human->k_data >= 0d20210801 .and. p_tip_reestr == 2  // новые правила заполнения с 01.08.21 письмо № 04-18-13 от 20.07.21
               if between_date(human->n_data, human->k_data, c4tod(mohu->DATE_U))
                 oMR_USL_N := oUSL:Add( HXMLNode():New( "MR_USL_N" ) )
                 mo_add_xml_stroke(oMR_USL_N,"MR_N",lstr(1))   // уточнить

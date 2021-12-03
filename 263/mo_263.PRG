@@ -987,14 +987,13 @@ close databases
 rest_box(buf)
 return len(arr_error) == 0
 
-***** 26.12.20 проверить год, если вдруг "сбита" системная дата в компьютере
+***** 03.12.21 проверить год, если вдруг "сбита" системная дата в компьютере
 Static Function _263_verify_year(mdate,arr)
-if !between(year(mdate),2019,2021)
-  aadd(arr,"в отчётной дате "+full_date(mdate)+" НЕКОРРЕКТНЫЙ год")
-endif
-return .f.
+  if !between(year(mdate),2019,WORK_YEAR)
+    aadd(arr,"в отчётной дате "+full_date(mdate)+" НЕКОРРЕКТНЫЙ год")
+  endif
+  return .f.
 
-*
 
 ***** 14.09.15 проверка на правильность номера телефона
 Function _263_valid_phone(k,s,ta)

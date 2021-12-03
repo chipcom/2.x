@@ -1003,13 +1003,6 @@ Function is_usluga_TFOMS(lshifr,lshifr1,ldate_usl,;
     use_base('lusl')
   endif
 
-  // if y < 2019
-  //   lal += "18"
-  // elseif y < 2020
-  //   lal += "19"
-  // elseif y < 2021
-  //   lal += "20"
-  // endif
   lal := create_name_alias(lal, y)
 
   lst := 0 ; lvidpoms := '' ; lbukva := ' '
@@ -1035,13 +1028,6 @@ Function is_usluga_TFOMS(lshifr,lshifr1,ldate_usl,;
       use_base('luslf')
     endif
     lal := 'luslf'
-    // if y < 2019
-    //   lal += "18"
-    // elseif y < 2020
-    //   lal += "19"
-    // elseif y < 2021
-    //   lal += "20"
-    // endif
     lal := create_name_alias(lal, y)
   
     dbSelectArea(lal)
@@ -1860,13 +1846,6 @@ Function fcena_oms(sShifr,lVzReb,dDate,/*@*/fl_delete,/*@*/fl_yes,/*@*/_ifin)
     _ifin := 0
     fl_delete := .t. ; fl_yes := .f.
     lal := "luslc"
-    // if year(dDate[i]) < 2019
-    //   lal += "18"
-    // elseif year(dDate[i]) < 2020
-    //   lal += "19"
-    // elseif year(dDate[i]) < 2021
-    //   lal += "20"
-    // endif
     lal := create_name_alias(lal, dDate[i])
 
     dbselectarea(lal)

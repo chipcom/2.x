@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-***** 25.11.21
+***** 03.12.21
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
         i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -1756,7 +1756,7 @@ Function verify_1_sluch(fl_view)
         skip
       enddo
       if empty(arr_onk_usl)
-        if iif(human_2->VMP == 1, .t., between(onksl->ds1_t,0,2))
+        if iif(human_2->VMP == 1, .t., between(onksl->ds1_t,0,2)) .and. empty(alltrim(human_2->PC3))
           aadd(ta,'не введено онкологическое лечение')
         endif
       elseif eq_ascan(arr_onk_usl,2,4)

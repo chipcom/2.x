@@ -284,10 +284,10 @@ Function date_reg_schet()
 // если нет даты регистрации, берём дату счёта
 return iif(empty(schet_->dregistr), schet_->dschet, schet_->dregistr)
 
-***** 23.11.2021
+***** 23.11.21
 Function ret_vid_pom(k,mshifr,lk_data)
   local svp, vp := 0, lal := 'lusl'
-  local y := WORK_YEAR  // 2021
+  local y := WORK_YEAR
 
   if valtype(lk_data) == 'D'
     y := year(lk_data)
@@ -296,13 +296,6 @@ Function ret_vid_pom(k,mshifr,lk_data)
   if select('LUSL') == 0
     Use_base('lusl')
   endif
-  // if y == 2020
-  //   lal += '20'
-  // elseif y == 2019
-  //   lal += '19'
-  // elseif y < 2019
-  //   lal += '18'
-  // endif
   lal := create_name_alias(lal, y)
 
   dbSelectArea(lal)
@@ -1326,15 +1319,6 @@ Function f_get_vidvmp(k,r,c)
   local sTmp := ''
   local y := year(mk_data)
 
-  // if (y := year(mk_data)) > 2020
-  //   y := 2021
-  // elseif y == 2020
-  //   y := 2020
-  // elseif y == 2019
-  //   y := 2019
-  // else
-  //   y := 2018
-  // endif
   if y < 2018
     y := 2018
   endif

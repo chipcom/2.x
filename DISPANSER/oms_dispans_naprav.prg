@@ -136,7 +136,7 @@ Function fget_napr_PN(k,r,c)
   restscreen(buf)
   return {0,"Количество направлений - "+lstr(count_napr)}
 
-***** 06.09.2021 редактировать другое направление (№...)
+***** 06.09.21 редактировать другое направление (№...)
 Function change_num_napr()
   Local r, n, fl := .f., tmp_keys, tmp_gets, buf, tmp_color := setcolor()
   local recNumberDoctor := 0
@@ -339,7 +339,7 @@ function dispans_napr(mk_data, /*@*/j, lAdult)
   endif
   return nil
 
-****** 31.08.2021
+****** 31.08.21
 function testingTabNumberDoctor(mk_data, lAdult)
   local ret := .t.
 

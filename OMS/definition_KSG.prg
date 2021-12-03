@@ -354,17 +354,12 @@ Function definition_KSG(par,k_data2)
   llos := {} //''
   if ldnej < 4
     aadd(llos,'1') //llos += '1'
-  else
-    aadd(llos,str(ldnej,2,0))
-
-  // elseif between(ldnej,4,7)
-  //   aadd(llos,'8')
-  // elseif between(ldnej,8,10)
-  //   aadd(llos,'9')
-  // elseif ldnej > 10
-    // aadd(llos, str(ldnej,2,0))
-  // else
-  //   aadd(llos,'10')
+  elseif between(ldnej,4,10)
+    aadd(llos,'11')
+  elseif between(ldnej,11,20)
+    aadd(llos,'12')
+  elseif between(ldnej,21,30)
+    aadd(llos,'13')
   endif
   /*
   0 - КИРО не применяется

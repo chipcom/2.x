@@ -100,7 +100,7 @@ return count_years(_date_r,_data) >= v
 ***** 02.01.21
 Function arr_plan_zakaz(ly)
 Local i, apz := {}
-DEFAULT ly TO 2021
+DEFAULT ly TO WORK_YEAR
 if ly > 2020
   for i := 1 to len(glob_array_PZ_21)
     aadd(apz,{glob_array_PZ_21[i,3],;
