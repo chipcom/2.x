@@ -9,7 +9,7 @@ Function ret_arr_shema(k)
   // возвращает схемы лекарственных терапий для онкологии на текущий рабочий год
   Static ashema := {{},{},{}}
   Local i
-  local _data := BoY(WORK_YEAR)
+  local _data := 0d20210101 // 2021 год
 
   if empty(ashema[1])
     // Private _data := 0d20210101 // 2021 год
