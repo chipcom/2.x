@@ -35,7 +35,6 @@ mo_adres.prg
 mo_func.prg
 mo_func1.prg
 mo_func2.prg
-mo_init.prg
 .\KASSA\mo_fr.prg
 .\KASSA\mo_kassa.prg
 .\KASSA\mo_kas_p.prg
@@ -84,6 +83,7 @@ mo_vounc.prg
 Errorsys.prg
 mo_version.prg
 
+.\init\mo_init.prg
 .\init\init_mo.prg
 .\init\reconstruct_DB.prg
 .\init\index.prg
@@ -123,6 +123,7 @@ mo_version.prg
 .\ref\dbV020.prg
 .\ref\dbV021.prg
 .\ref\dbV022.prg
+.\ref\dbV025.prg
 .\ref\dbQ015.prg
 .\ref\dbQ016.prg
 .\ref\dbQ017.prg

@@ -795,7 +795,7 @@ return k
 
 *
 
-***** 05.01.21 создание XML-файлов реестра
+***** 04.12.21 создание XML-файлов реестра
 Function create2reestr17(_recno,_nyear,_nmonth,reg_sort)
 Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, ;
       lst, lshifr1, code_reestr, mb, me, nsh, adiag_talon[16]
@@ -1371,9 +1371,12 @@ do while !eof()
       endif
       mo_add_xml_stroke(oSLUCH,"DET"   ,iif(human->VZROS_REB==0,'0','1'))
       if human_->USL_OK == 3 .and. fl_2_14
-        s := "2.6"
-        if (i := ascan(glob_V025, {|x| x[2] == human_->povod})) > 0
-          s := glob_V025[i,3]
+        // s := "2.6"
+        // if (i := ascan(glob_V025, {|x| x[2] == human_->povod})) > 0
+        //   s := glob_V025[i,3]
+        // endif
+        if (s := get_IDPC_from_V025_by_number(human_->povod)) == ''
+          s := '2.6'
         endif
         mo_add_xml_stroke(oSLUCH,"P_CEL",s)
       endif
