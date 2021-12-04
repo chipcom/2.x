@@ -3,7 +3,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 11.08.21 ДВН - добавление или редактирование случая (листа учета)
+***** 04.12.21 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -58,7 +58,6 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
     msmo := "34007", rec_inogSMO := 0,;
     mokato, m1okato := "", mismo, m1ismo := "", mnameismo := space(100),;
     mvidpolis, m1vidpolis := 1, mspolis := space(10), mnpolis := space(20)
-    // mdvozrast,
   Private mkod := Loc_kod, is_talon := .f., mshifr_zs := "",;
     mkod_k := kod_kartotek, fl_kartotek := (kod_kartotek == 0),;
     M1LPU := glob_uch[1], MLPU,;
@@ -108,7 +107,8 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
   private mm_strong := {{'Легкое течение болезни',1},;
                         {'Среднее течение болезни',2},;
                         {'Тяжелое течение болезни',3},;
-                        {'Крайне тяжелое течение',4}}
+                        {'Крайне тяжелое течение',4},;
+                        {'Отсутствуют сведения о болезни',5}} // Письмо ТФОМС 09-30-370 от 03.12.21
   private mstrong, m1strong := 1
 
   private mm_komorbid := {{'Иное', 0},;
@@ -321,7 +321,6 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
 
     metap := human->ishod-400   // получим сохраненный этап диспансеризации
 
-    // mdvozrast := year(mn_data) - year(mdate_r)
     if between(metap,1,2)
       mm_gruppa := {mm_gruppaD1,mm_gruppaD2}[metap]
       if (i := ascan(mm_gruppa, {|x| x[3] == m1rslt })) > 0
@@ -633,9 +632,6 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
                       update_get("mkomu"),update_get("mcompany") }
       @ row(), col()+5 say "Д.р." get mdate_r when .f. color color14
 
-      // ++j
-      // @ ++j,1 say " Работающий?" get mrab_nerab ;
-      //     reader {|x|menu_reader(x,menu_rab,A__MENUVERT,,,.f.)}
       @ ++j, 1 say " Принадлежность счёта" get mkomu ;
           reader {|x|menu_reader(x,mm_komu,A__MENUVERT,,,.f.)} ;
           valid {|g,o| f_valid_komu(g,o) } ;
@@ -664,32 +660,30 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       // ++j
       @ j, col() + 5 say "№ амбулаторной карты" get much_doc picture "@!" ;
           when !(is_uchastok == 1 .and. is_task(X_REGIST)) .or. mem_edit_ist==2
-      // @ j,col()+5 say "Мобильная бригада?" get mmobilbr ;
-      //       reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
-      // ++j
     
       ret_ndisp_COVID(Loc_kod,kod_kartotek)
 
       @ ++j, 8 get mndisp when .f. color color14
       // ++j
 
+      @ ++j, 1 say "Степень тяжести болезни"
+      @ j, col()+1 get mstrong ;
+            reader {|x|menu_reader(x,mm_strong,A__MENUVERT,,,.f.)};
+            valid {|g| valid_strong_date(g) }
+
       @ ++j, 1 say "Дата окончания лечения COVID" get mDateCOVID ;
-          valid {|| iif(((mn_data - mDateCOVID) < 60), func_error(4,"Прошло меньше 60 дней после заболевания!"), .t.)}
-          //  ;
-          // when (metap == 1)   // редактируем только на первом этапе
+          valid {|| iif(((mn_data - mDateCOVID) < 60), func_error(4,"Прошло меньше 60 дней после заболевания!"), .t.)} ;
+          when (m1strong != 5)   // редактируем только на первом этапе  // Письмо ТФОМС 09-30-370 от 03.12.21
       if metap == 1 // вводим только на первом этапе
-        @ row(), col() + 5 say "Пульсооксиметрия" get mOKSI pict "999" ;
+        @ ++j, 1 say "Пульсооксиметрия" get mOKSI pict "999" ;
             valid {|| iif(between(mOKSI,70,100),,func_error(4,"Неразумные показания пульсооксиметрии")), .t.}
         @ row(), col()+1 say "%"
-        @ ++j, 1 say "Степень тяжести болезни"
-        @ j, col()+1 get mstrong ;
-              reader {|x|menu_reader(x,mm_strong,A__MENUVERT,,,.f.)}
         @ j, col() + 5 say "Одышка/отеки" get mdyspnea ;
               reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
-        @ ++j, 1 say "Коморбидная форма"
+        @ j, col()+5 say "Коморбидная форма"
         @ j, col()+1 get mkomorbid ;
               reader {|x|menu_reader(x,mm_komorbid,A__MENUVERT,,,.f.)}
-       endif
+      endif
 
       @ ++j, 1 say "────────────────────────────────────────────┬─────┬─────┬──────────┬──────────" color color8
       @ ++j, 1 say "Наименования исследований                   │врач │ассис│дата услуг│выполнение " color color8
@@ -1052,7 +1046,9 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
           endif
 
           if !fl_diag .or. empty(&mvarz) .or. left(&mvarz,1) == 'U'
-            arr_osm1[i,6] := mdef_diagnoz
+            if m1strong != 5   // Письмо ТФОМС 09-30-370 от 03.12.21
+              arr_osm1[i,6] := mdef_diagnoz
+            endif
           else
             arr_osm1[i,6] := &mvarz
             select MKB_10
@@ -1110,7 +1106,7 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
           exit
         endif
       next
-      if len(arr_diag) > 0
+      if len(arr_diag) > 0 .and. m1strong != 5   // Письмо ТФОМС 09-30-370 от 03.12.21
         aadd(arr_diag, {mdef_diagnoz,0,0,ctod("")})
       endif
       if !fl
@@ -1118,8 +1114,7 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       endif
 
       afill(adiag_talon,0)
-      if empty(arr_diag) // диагнозы не вводили
-        // aadd(arr_diag, {mdef_diagnoz,0,0,ctod("")}) // диагноз по умолчанию
+      if empty(arr_diag) .and. m1strong != 5 // диагнозы не вводили  // Письмо ТФОМС 09-30-370 от 03.12.21
         MKOD_DIAG := mdef_diagnoz
       else
         for i := 1 to len(arr_diag)
@@ -1169,7 +1164,9 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
         endif
       endif
 
-      aadd(arr_diag, {mdef_diagnoz,0,0,ctod("")}) // всегда добавляем в лист учета
+      if  m1strong != 5  // Письмо ТФОМС 09-30-370 от 03.12.21
+        aadd(arr_diag, {mdef_diagnoz,0,0,ctod("")}) // всегда добавляем в лист учета
+      endif
 
       mm_gruppa := {mm_gruppaD1,mm_gruppaD2}[metap]
 

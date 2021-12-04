@@ -5,6 +5,15 @@
 
 #define TERM_X_RAY  365 // срок действительности рентгенографического исследования
 
+***** 04.12.21
+function valid_strong_date(get)
+  if m1strong == 5
+    mDateCOVID := SToD('  /  /    ')
+  elseif m1strong == 5 .and. !empty(mDateCOVID)
+    mDateCOVID := sys_date
+  endif
+  return .t.
+
 ***** 22.08.21
 function valid_date_uslugi_COVID( get, metap, beginDate, endDate)
 
