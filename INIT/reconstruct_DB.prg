@@ -14,6 +14,11 @@ Function Reconstruct_DB(is_cur_dir,is_create)
      {"INN",     "C",  12,   0},; // ИНН кассира
      {"IDROLE",  "N",   4,   0};  // ID группы пользователей
     }
+  Local roles := {;
+    { 'NAME',    'C',  30,   0 }, ; // название роли
+    { 'ACL_TASK','C',  255,   0 }, ; // доступ к задачам
+    { 'ACL_DEP', 'C',  255,   0 } ; // доступ к учреждениям
+    }
   Local mo_oper := {;
      {"PO",      "C",   1,   0},; // код оператора asc(po)
      {"PD",      "C",   4,   0},; // дата ввода c4tod(pd)
@@ -1414,6 +1419,7 @@ Function Reconstruct_DB(is_cur_dir,is_create)
     reconstruct(dir_server+"mo_oper",mo_oper,"index_base('mo_oper')",,.t.)
     reconstruct(dir_server+"mo_opern",mo_opern,"index_base('mo_opern')",,.t.)
   endif
+  reconstruct(dir_server + "roles", roles, , , .t.)
   // простые справочники
   reconstruct(dir_server+"s_adres",{{"name","C",40,0}},"index_base('s_adres')",,.t.)
   reconstruct(dir_server+"s_kemvyd",{{"name","C",150,0}},"index_base('s_kemvyd')",,.t.)
