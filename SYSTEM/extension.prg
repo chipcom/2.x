@@ -51,12 +51,12 @@ function prefixFileRefName(in_date)
 
   return '_mo' + substr(str(valYear, 4, 0), 4, 1)
 
-***** 14.02.2021
+***** 14.02.21
 function notExistsFileNSI(nameFile)
   // nameFile - полное имя файла НСИ
   return func_error('Работа невозможна - файл "' + upper(nameFile) + '" отсутствует.')
 
-***** 17.05.2021
+***** 17.05.21
 function checkNTXFile( cSource, cDest )
   static arrNTXFile := {}
   local fl := .f.

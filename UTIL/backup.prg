@@ -92,7 +92,7 @@ function m_copy_DB_from_end( del_last, spath )
   endif
   return fl
 
-***** 20.11.2021
+***** 20.11.21
 function fillZIP( arr_f, sFileName )
   local hZip, aGauge, cFile
   local lCompress, nLen

@@ -719,7 +719,7 @@ Function verify_1_sluch(fl_view)
           if !is_12_VMP
             aadd(ta,'работа с услугой '+alltrim_lshifr+' запрещена в Вашей МО')
           endif
-        elseif left_lshifr_5 == "1.20." // ВМП  // 07.02.2021
+        elseif left_lshifr_5 == "1.20." // ВМП  // 07.02.21
           midsp := 18 // Законченный случай в круглосуточном стационаре
           kkd_1_12 += hu->kol_1
           kol_ksg += hu->kol_1
@@ -2188,7 +2188,7 @@ Function verify_1_sluch(fl_view)
       endif
     next
     if human_2->VMP == 1 // проверим ВМП
-      if is_12_VMP .or. is_21_VMP  // ВМП по-новому 08.02.2021
+      if is_12_VMP .or. is_21_VMP  // ВМП по-новому 08.02.21
         // if is_12_VMP  // ВМП по-новому
         if !empty(ar_1_19_1)
           aadd(ta,'при оказании ВМП не может быть применена услуга 1.19.1')
@@ -4586,7 +4586,7 @@ Function verify_1_sluch(fl_view)
   endif
   return (_ocenka >= 5)
 
-****** 25.02.2021
+****** 25.02.21
 ****** Проверка соответствия результата случая исходу обращения
 function checkRSLT_ISHOD(result, ishod, arr)
 * result - код результата обращения
@@ -4654,7 +4654,7 @@ function checkRSLT_ISHOD(result, ishod, arr)
 
   return
 
-*** 06.03.2021
+*** 06.03.21
 function check_006F_00_0430(mdiagnoz, arr)
   local str := '', length_diag := len(mdiagnoz)
   local strError := 'значение поля основного диагноза не должно быть равным значению сопутствующих диагнозов'
@@ -4682,7 +4682,7 @@ function check_006F_00_0430(mdiagnoz, arr)
   endif
   return
 
-*** 06.03.2021
+*** 06.03.21
 function check_006F_00_0440(mdiagnoz, arr)
   local str := '', length_diag := len(mdiagnoz)
   local strError := 'значение полей сопутствующих диагнозов не должны совпадать'
@@ -4699,7 +4699,7 @@ function check_006F_00_0440(mdiagnoz, arr)
   endif
   return
 
-*** 17.09.2021 проверка секции направлений пациента
+*** 17.09.21 проверка секции направлений пациента
 function checkSectionPrescription( arr )
   local i := 0
   local lAdd := .f.
@@ -4767,7 +4767,7 @@ function checkSectionPrescription( arr )
   TPERS->(dbCloseArea())
   return nil
 
-*** 03.09.2021
+*** 03.09.21
 function errorFillPrescription(lAdd, arr, strError)
   local strNapr := 'ПОДРАЗДЕЛ НАПРАВЛЕНИЙ:'
   local fl := lAdd

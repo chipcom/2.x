@@ -55,7 +55,7 @@ Function f3oms_edit()
           select TMP_H
           append blank
           // replace kod with human->kod, REFREASON with -99, SREFREASON with s1
-          replace kod with human->kod, REFREASON with 10, SREFREASON with s1  // чтобы обмануть выбор пациентов 20/02/2021
+          replace kod with human->kod, REFREASON with 10, SREFREASON with s1  // чтобы обмануть выбор пациентов 20/02/21
           if (i := ascan(arr,{|x| x[2]==tmp_h->REFREASON})) == 0
             if len(aTokens := hb_ATokens( s1, '.' )) == 3 // ошибка по справочнику Q015
               s := alltrim(s1) + ' ' + getCategoryCheckErrorByID_Q017(aTokens[1])[1]

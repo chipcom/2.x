@@ -506,7 +506,7 @@ function usl_Index(val_year)
       index on shifr to (cur_dir+sbase)
       // сбор данных для ВМП
       if val_year = WORK_YEAR
-        find ("1.20.") // ВМП федеральное   // 07.02.21 замена услуг с 1.12 на 1.20 письмо 12-20-60 от 01.02.2021
+        find ("1.20.") // ВМП федеральное   // 07.02.21 замена услуг с 1.12 на 1.20 письмо 12-20-60 от 01.02.21
         do while left(lusl->shifr,5) == "1.20." .and. !eof()
           aadd(arr_12_VMP,int(val(substr(lusl->shifr,6))))
           skip
@@ -591,7 +591,7 @@ function uslc_Index(val_year)
       endif
     //
       if val_year == WORK_YEAR
-        find (glob_mo[_MO_KOD_TFOMS] + '1.20.') // ВМП 07.02.2021
+        find (glob_mo[_MO_KOD_TFOMS] + '1.20.') // ВМП 07.02.21
         is_21_VMP := found()
       elseif val_year == 2020 .or. val_year == 2019
         find (glob_mo[_MO_KOD_TFOMS] + '1.12.') // ВМП 2020 и 2019 года
@@ -711,7 +711,7 @@ function it_Index(val_year)
   local sbase := prefixFileRefName(val_year) + 'it'  // 
 
   if val_year == WORK_YEAR
-    // T006 2021 год
+    // T006 21 год
     sbase := '_mo1it1'
     if hb_FileExists(exe_dir + sbase + sdbf)
       R_Use(exe_dir + '_mo1shema', cur_dir + '_mo1shema', 'SCHEMA')

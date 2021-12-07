@@ -503,7 +503,7 @@ Function f2oms_usl_sluch(nKey,oBrow)
         @ r1+ix,2 say "Диагноз по МКБ-10" get mkod_diag picture pic_diag ;
             reader {|o|MyGetReader(o,bg)} ;
             when when_diag() ;
-            valid val1_10diag(.t.,.f.,.f.,human->k_data,iif(human_->novor==0,human->pol,human_->pol2))  // изменил после разговора с Антоновой 31.03.2021
+            valid val1_10diag(.t.,.f.,.f.,human->k_data,iif(human_->novor==0,human->pol,human_->pol2))  // изменил после разговора с Антоновой 31.03.21
             // valid val1_10diag(.t.,.f.,.f.,human->n_data,iif(human_->novor==0,human->pol,human_->pol2))
         if is_zf_stomat == 1
           ++ix

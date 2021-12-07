@@ -67,7 +67,7 @@ Function f_1pac_definition_KSG(lkod,is_msg)
           endif
           exit
         endif
-        if lyear > 2020 // add 07.02.2021
+        if lyear > 2020 // add 07.02.21
           select LUSL
           find (lshifr) // длина lshifr 10 знаков
           if found() .and. (eq_any(left(lshifr,5),"1.20.") .or. is_ksg(lusl->shifr)) // стоит другой КСГ

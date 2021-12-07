@@ -9,7 +9,7 @@ Function ret_arr_shema(k)
   // возвращает схемы лекарственных терапий для онкологии на текущий рабочий год
   Static ashema := {{},{},{}}
   Local i
-  local _data := 0d20210101 // 2021 год
+  local _data := 0d20210101 // 21 год
 
   if empty(ashema[1])
     // Private _data := 0d20210101 // 2021 год
@@ -54,7 +54,7 @@ Function f_is_oncology(r,/*@*/_onk_smp)
     aadd(mdiagnoz,space(6))
   endif
   k := lzno
-  if lyear >= 2021 .and. (left(mdiagnoz[1],1) == "C" .or. between(left(mdiagnoz[1],3),"D00","D09") .or. between(left(mdiagnoz[1],3),"D45","D47")) // согласно письму 04-18-05 от 12.02.2021
+  if lyear >= 2021 .and. (left(mdiagnoz[1],1) == "C" .or. between(left(mdiagnoz[1],3),"D00","D09") .or. between(left(mdiagnoz[1],3),"D45","D47")) // согласно письму 04-18-05 от 12.02.21
     k := 2
   elseif lyear >= 2019 .and. (left(mdiagnoz[1],1) == "C" .or. between(left(mdiagnoz[1],3),"D00","D09"))
     k := 2

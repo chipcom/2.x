@@ -830,7 +830,7 @@ Function definition_KSG(par,k_data2)
         lkslp := ""                                                       // т.к. у данной КСГ нет КСЛП
       endif
 
-      // 06.02.2021
+      // 06.02.21
       if (year(lk_data) == 2021) .and. ( lower(substr(lksg,1,2)) == 'st' .or. lower(substr(lksg,1,2)) == 'ds' )
         if !empty(HUMAN_2->PC1)
           humKSLP := HUMAN_2->PC1
@@ -838,7 +838,7 @@ Function definition_KSG(par,k_data2)
         // Изощрение в порнографии
         // if Upper(ProcName(1)) == Upper('f_1pac_definition_KSG') .and. ! empty(lkslp)
         if Upper(ProcName(1)) == Upper('f_1pac_definition_KSG')
-          if ! empty(lkslp)   // 24.02.2021
+          if ! empty(lkslp)   // 24.02.21
             lkslp := selectKSLP( lkslp, humKSLP, ln_data, lk_data, ldate_r, mdiagnoz)
           endif
           // запомним КСЛП
@@ -867,7 +867,7 @@ Function definition_KSG(par,k_data2)
                            mdiagnoz,;
                            lpar_org,;
                            lad_cr)
-      if year(lk_data) == 2021  // added 29.01.2021
+      if year(lk_data) == 2021  // added 29.01.21
           if !empty(akslp)
             for iKSLP := 1 to len(akslp) step 2
               if iKSLP != 1
@@ -885,7 +885,7 @@ Function definition_KSG(par,k_data2)
           (tmSel)->(dbRUnlock())
         endif
         if !empty(akslp)
-        // 05.02.2021
+        // 05.02.21
         s += "  (КСЛП = "
         for iKSLP := 1 to len(akslp) step 2
           if iKSLP != 1

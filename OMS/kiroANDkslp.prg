@@ -7,7 +7,7 @@
 
 #include "tbox.ch"
 
-// 27.02.2021
+// 27.02.21
 //
 function buildStringKSLP(row)
   // row - одномерный массив описывающий КСЛП
@@ -16,7 +16,7 @@ function buildStringKSLP(row)
   ret := str(row[ CODE_KSLP ], 2) + '.' + row[ NAME_KSLP ]
   return ret
 
-// 27.02.2021
+// 27.02.21
 // функция выбора состава КСЛП, возвращает { маска,строка количества КСЛП }, или nil
 function selectKSLP( lkslp, savedKSLP, dateBegin, dateEnd, DOB, mdiagnoz )
   // lkslp - значение КСЛП (выбранные КСЛП)
@@ -134,7 +134,7 @@ Function put_str_kslp_kiro(arr,fl)
   Local lpc1 := "", lpc2 := ""
 
   if len(arr) > 4 .and. !empty(arr[5])
-    if year(human->k_data) != 2021  // added 29.01.2021
+    if year(human->k_data) != 2021  // added 29.01.21
       lpc1 := lstr(arr[5,1])+","+lstr(arr[5,2],5,2)
       if len(arr[5]) >= 4
         lpc1 += ","+lstr(arr[5,3])+","+lstr(arr[5,4],5,2)
@@ -154,7 +154,7 @@ Function put_str_kslp_kiro(arr,fl)
     // запомним новое КСЛП
     tmSel := select('HUMAN_2')
     if (tmSel)->(dbRlock())
-      if year(human->k_data) != 2021  // added 29.01.2021
+      if year(human->k_data) != 2021  // added 29.01.21
         human_2->pc1 := lpc1
       endif
       human_2->pc2 := lpc2
@@ -167,7 +167,7 @@ Function put_str_kslp_kiro(arr,fl)
   endif
   return NIL
 
-***** 04.02.2021
+***** 04.02.21
 // возвращает сумму итогового КСЛП по маске КСЛП и дате случая
 function calcKSLP(cKSLP, dateSl)
   // cKSLP - строка выбранных КСЛП
@@ -175,7 +175,7 @@ function calcKSLP(cKSLP, dateSl)
   local summ := 1, i
   local fl := .f.
   local arrKSLP := getKSLPtable( dateSl )
-  Local maxKSLP := 1.8  // по инструкции на 2021 год
+  Local maxKSLP := 1.8  // по инструкции на 21 год
   local aSelected := Slist2arr(cKSLP)
 
   for i := 1 to len(aSelected)
@@ -266,7 +266,7 @@ Function f_cena_kslp(/*@*/_cena,_lshifr,_date_r,_n_data,_k_data,lkslp,arr_usl,lP
         // запомним новое КСЛП
         tmSel := select('HUMAN_2')
         if (tmSel)->(dbRlock())
-          if year(human->k_data) != 2021  // added 29.01.2021
+          if year(human->k_data) != 2021  // added 29.01.21
             human_2->pc1 := newKSLP
           endif
           (tmSel)->(dbRUnlock())
@@ -455,7 +455,7 @@ Function ret_koef_kslp(akslp)
   return k
   
   
-  ***** 26.01.21 вернуть итоговый КСЛП для 2021 года
+  ***** 26.01.21 вернуть итоговый КСЛП для 21 года
 Function ret_koef_kslp_21(akslp)
   Local k := 1  // КСЛП равен 1
 
@@ -473,7 +473,7 @@ Function ret_koef_kslp_21(akslp)
   endif
   return k
 
-***** 03.02.21 вернуть итоговый КСЛП для 2021 года
+***** 03.02.21 вернуть итоговый КСЛП для 21 года
 Function ret_koef_kslp_21_XML(akslp, tKSLP)
   Local k := 1  // КСЛП равен 1
   local iAKSLP

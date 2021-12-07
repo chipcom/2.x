@@ -2,7 +2,7 @@
 
 #define SW_SHOWNORMAL 1
 
-// 09.04.2021
+// 09.04.21
 function openExcel(nameFile)
   local error
 

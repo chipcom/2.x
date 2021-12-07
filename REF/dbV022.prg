@@ -1,4 +1,4 @@
-***** 11.02.2021
+***** 11.02.21
 // возвращает массив V022
 function getV022table()
   Local dbName, dbAlias := 'V022'

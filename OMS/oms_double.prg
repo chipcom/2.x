@@ -166,7 +166,7 @@ Function create_double_sl()
           set relation to recno() into HUMAN_, to recno() into HUMAN_2
           dbseek(dtos(arr_m[5]),.t.)
           index on upper(fio) to (cur_dir+"tmp_h2") ;
-              while human->k_data <= AddMonth(arr_m[6], 2) ;  // 11.03.2021
+              while human->k_data <= AddMonth(arr_m[6], 2) ;  // 11.03.21
               for kod_k==glob_kartotek .and. kod!=glob_perso .and. schet<1 .and. ;
                   tip_h==B_STANDART .and. human_->reestr==0 .and. human_->USL_OK==1 .and. ;
                   ishod==0 .and. human_->profil!=158 .and. human_2->vmp==0

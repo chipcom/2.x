@@ -72,7 +72,7 @@ Function fill_mo_add(sbase)
 
   return nil
 
-****** 13.06.2021  вернуть массив _mo_dbb.dbb
+****** 13.06.21  вернуть массив _mo_dbb.dbb
 function getMo_mo(nfile)
   local i, arr, arr1
   local ret_arr := {}
