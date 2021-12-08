@@ -898,7 +898,7 @@ if empty(ret_arr)
 endif
 return ret_arr
 
-***** 01.12.21
+***** 08.12.21
 Function usl2TFOMS()
   Static sdate
   Local k, buf := save_maxrow(), name_file := "uslugi"+stxt, nu, ret_arr,;
@@ -1047,13 +1047,13 @@ Function usl2TFOMS()
                     s += "УСЛУГА "+alltrim(k006->sy)+"; "
                   endif
                   if !empty(k006->AGE)
-                    s += "ВОЗРАСТ "+ret_vozrast_t006(k006->AGE)+"; "
+                    s += "ВОЗРАСТ "+ret_vozrast_k006(k006->AGE)+"; "
                   endif
                   if !empty(k006->SEX)
                     s += "ПОЛ "+iif(k006->SEX=='1',"мужской","женский")+"; "
                   endif
                   if !empty(k006->LOS)
-                    s += ret_duration_t006(k006->LOS,iif(left(&lal.->shifr,1)=='1',"койко","пациенто")+"-")+"; "
+                    s += ret_duration_k006(k006->LOS,iif(left(&lal.->shifr,1)=='1',"койко","пациенто")+"-")+"; "
                   endif
                   if k006->(fieldpos("RSLT")) > 0 .and. !empty(k006->RSLT)
                     s += "РЕЗУЛЬТАТ "+alltrim(k006->RSLT)+"; "
@@ -1095,59 +1095,42 @@ Function usl2TFOMS()
   endif
   return NIL
 
-***** 12.01.19
-Function ret_vozrast_t006(s)
-Local ret := ""
-do case
-  case s == '1'
-    ret := "0-28 дней"
-  case s == '2'
-    ret := "29-90 дней"
-  case s == '3'
-    ret := "от 91 дня до 1 года"
-  case s == '4'
-    ret := "до 2 лет включительно"
-  case s == '5'
-    ret := "ребёнок"
-  case s == '6'
-    ret := "взрослый"
-endcase
-return ret
+***** 08.12.21
+Function ret_vozrast_k006(s)
+  Local ret := ""
 
-***** 28.01.17
-Function ret_vozrast_t006_18(s)
-Local ret := ""
-do case
-  case s == '1'
-    ret := "0-28 дней"
-  case s == '2'
-    ret := "29-90 дней"
-  case s == '3'
-    ret := "от 91 дня до 1 года"
-  case s == '4'
-    ret := "ребёнок"
-  case s == '5'
-    ret := "взрослый"
-  case eq_any(s,'6','7')
-    ret := "до 2 лет"
-endcase
-return ret
+  do case
+    case s == '1'
+      ret := "0-28 дней"
+    case s == '2'
+      ret := "29-90 дней"
+    case s == '3'
+      ret := "от 91 дня до 1 года"
+    case s == '4'
+      ret := "до 2 лет включительно"
+    case s == '5'
+      ret := "ребёнок"
+    case s == '6'
+      ret := "взрослый"
+  endcase
+  return ret
 
-***** 10.12.20
-Function ret_duration_t006(s,s1)
-Static sd := "день", sdr := "дня", sdm := "дней"
-Local arr := {"1-3 "+s1+sdr,;                     //  1
-              "4 "+s1+sdr+" и более",;            //  2
-              "1-6 "+s1+sdm,;                     //  3
-              "7 "+s1+sdm+" и более",;            //  4
-              "21 "+s1+sd+" и более",;            //  5
-              "1-20 "+s1+sdm,;                    //  6
-              "1 "+s1+sd,;                        //  7
-              "4-7 "+s1+sdm,;                     //  8
-              "8-10 "+s1+sdm,;                    //  9
-              "11 "+s1+sdm+" и более"}            // 10
-Local i := int(val(s))
-return "дл-ть "+iif(between(i,1,10), arr[i], "")
+***** 08.12.21
+Function ret_duration_k006(s,s1)
+  Static sd := "день", sdr := "дня", sdm := "дней"
+  Local arr := {"1-3 " + s1 + sdr,;                   //  1
+              "4 " + s1 + sdr + " и более",;          //  2
+              "1-6 " + s1 + sdm,;                     //  3
+              "7 " + s1 + sdm + " и более",;          //  4
+              "21 " + s1 + sd + " и более",;          //  5
+              "1-20 " + s1 + sdm,;                    //  6
+              "1 " + s1 + sd,;                        //  7
+              "4-7 " + s1 + sdm,;                     //  8
+              "8-10 " + s1 + sdm,;                    //  9
+              "11 " + s1 + sdm + " и более"}          // 10
+  Local i := int(val(s))
+
+  return "дл-ть " + iif(between(i, 1, 10), arr[i], "")
 
 ***** 14.01.19
 Static Function f_ret_kz_ksg(lkz,lkslp,lkiro)

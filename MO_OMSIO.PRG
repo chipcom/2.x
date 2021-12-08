@@ -2464,7 +2464,7 @@ close databases
 restscreen(buf) ; setcolor(tmp_color)
 return NIL
 
-***** 15.06.18
+***** 08.12.21
 Function f1proch_proverka(jt)
 Local i, j, k, k1, ju, fl_tmp, fl_next, arr_usl := {}, srok_l, mvid_ud, ;
       arr, s, arr_date, bd1, bd2, y, lshifr, u_1_stom := "", not_ksg := .t.
@@ -2480,9 +2480,6 @@ if human_->oplata < 9 .and. f_is_uch(st_a_uch,human->lpu)
     endif
     if select("K006") > 0
       k006->(dbCloseArea())
-    endif
-    if select("T006") > 0
-      t006->(dbCloseArea())
     endif
     if len(arr) == 7 // диализ
       //

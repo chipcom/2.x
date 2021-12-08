@@ -711,7 +711,7 @@ function it_Index(val_year)
   local sbase := prefixFileRefName(val_year) + 'it'  // 
 
   if val_year == WORK_YEAR
-    // T006 21 год
+    // исходный файл T006 21 года
     sbase := '_mo1it1'
     if hb_FileExists(exe_dir + sbase + sdbf)
       R_Use(exe_dir + '_mo1shema', cur_dir + '_mo1shema', 'SCHEMA')
@@ -760,7 +760,7 @@ function it_Index(val_year)
       fl := notExistsFileNSI( exe_dir + sbase + sdbf )
     endif
   elseif val_year == 2020
-    // T006 2020 год
+    // исходный файл  T006 2020 года
     sbase := "_mo0it1"
     if hb_FileExists(exe_dir + sbase + sdbf)
       R_Use(exe_dir + sbase, , 'IT')
@@ -795,7 +795,7 @@ function it_Index(val_year)
       fl := notExistsFileNSI( exe_dir + sbase + sdbf )
     endif
   elseif val_year == 2019
-    // T006 2019 год
+    // исходный файл  T006 2019 год
     sbase := "_mo9it"
     if hb_FileExists(exe_dir + sbase + sdbf)
       R_Use(exe_dir + sbase, ,'IT')
