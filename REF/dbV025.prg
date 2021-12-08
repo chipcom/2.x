@@ -1,5 +1,5 @@
 ***** 04.12.21
-// возвращает массив V025
+// вернуть массив по справочнику ФФОМС V025 Классификатор целей посещения (KPC)
 function getV025table()
   Local dbName, dbAlias := 'V025'
   local tmp_select := select()

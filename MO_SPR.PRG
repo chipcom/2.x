@@ -4610,7 +4610,7 @@ arr[US_EDIT_SPR ] := {{"name","C",30,0,,,space(30),,"Наименование отделения"},;
                        "Профиль мед.помощи"},;
                       {"PROFIL_K","N",3,0,,;
                        {|x|menu_reader(x,tmp_V020,A__MENUVERT_SPACE,,,.f.)},;
-                       0,{|x|inieditspr(A__MENUVERT,glob_V020,x)},;
+                       0,{|x|inieditspr(A__MENUVERT, getV020(), x)},;
                        "Профиль койки"},;
                       {"IDUMP","N",2,0,,;
                        {|x|menu_reader(x,tmp_V006,A__MENUVERT,,,.f.)},;

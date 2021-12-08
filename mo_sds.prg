@@ -980,7 +980,7 @@ do while !eof()
         select PRPRK
         find (str(ihuman->profil,3))
         do while prprk->profil == ihuman->profil .and. !eof()
-          s += '"'+lstr(prprk->profil_k)+'-'+inieditspr(A__MENUVERT, glob_V020, prprk->profil_k)+'" '
+          s += '"'+lstr(prprk->profil_k)+'-'+inieditspr(A__MENUVERT, getV020(), prprk->profil_k)+'" '
           skip
         enddo
         if empty(s)

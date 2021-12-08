@@ -495,7 +495,7 @@ if human_->PROFIL > 0
   next
 endif
 if human_2->PROFIL_K > 0 .and. human_->USL_OK < 3
-  k := perenos(tmp,"профиль койки: "+inieditspr(A__MENUVERT, glob_V020, human_2->PROFIL_K),sh-4)
+  k := perenos(tmp,"профиль койки: "+inieditspr(A__MENUVERT, getV020(), human_2->PROFIL_K),sh-4)
   add_string(space(4)+tmp[1])
   for i := 2 to k
     add_string(padl(alltrim(tmp[i]),sh))

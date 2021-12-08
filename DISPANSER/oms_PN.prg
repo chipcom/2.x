@@ -733,7 +733,7 @@ Function oms_sluch_PN(Loc_kod,kod_kartotek,f_print)
   mnapr_stac := inieditspr(A__MENUVERT, mm_napr_stac, m1napr_stac)
   mprofil_stac := inieditspr(A__MENUVERT, glob_V002, m1profil_stac)
   mnapr_reab := inieditspr(A__MENUVERT, mm_danet, m1napr_reab)
-  mprofil_kojki := inieditspr(A__MENUVERT, glob_V020, m1profil_kojki)
+  mprofil_kojki := inieditspr(A__MENUVERT, getV020(), m1profil_kojki)
   //
   if !empty(f_print)
     return &(f_print+"("+lstr(Loc_kod)+","+lstr(kod_kartotek)+","+lstr(mdvozrast)+")")

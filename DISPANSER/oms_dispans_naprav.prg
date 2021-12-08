@@ -291,7 +291,7 @@ function dispans_napr(mk_data, /*@*/j, lAdult)
         valid {|| iif(m1napr_reab==0, (m1profil_kojki:=0,mtab_v_reab:=0,mprofil_kojki:=space(30)), ), update_get("mprofil_kojki")}
     mprofil_kojki := iif(len(mprofil_kojki)>0,substr(mprofil_kojki,1,25),'')
     @ j,col()+1 say ", профиль койки" get mprofil_kojki ;
-        reader {|x|menu_reader(x,glob_V020,A__MENUVERT,,,.f.)} ;
+        reader {|x|menu_reader(x, getV020(), A__MENUVERT, , , .f.)} ;
         when m1napr_reab > 0
     @ j,73 get mtab_v_reab pict "99999" ;
         valid {|g| iif((mtab_v_reab == 0) .and. v_kart_vrach(g), func_error(4, strNeedTabNumber),.t.) } ;
@@ -330,7 +330,7 @@ function dispans_napr(mk_data, /*@*/j, lAdult)
         reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
         valid {|| iif(m1napr_reab==0, (m1profil_kojki:=0,mprofil_kojki:=space(30)), ), update_get("mprofil_kojki")}
     @ j,col()+1 say ", профиль койки" get mprofil_kojki ;
-        reader {|x|menu_reader(x,glob_V020,A__MENUVERT,,,.f.)} ;
+        reader {|x|menu_reader(x, getV020(), A__MENUVERT, , , .f.)} ;
         when m1napr_reab > 0
     if lAdult
       @ ++j,1 say "Направлен на санаторно-курортное лечение" get msank_na ;

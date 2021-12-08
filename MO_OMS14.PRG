@@ -2111,7 +2111,7 @@ elseif eq_any(human_->USL_OK,1,2)
       select PRPRK
       find (str(human_->profil,3))
       do while prprk->profil == human_->profil .and. !eof()
-        s += '"'+inieditspr(A__MENUVERT, glob_V020, prprk->profil_k)+'" '
+        s += '"'+inieditspr(A__MENUVERT, getV020(), prprk->profil_k)+'" '
         skip
       enddo
       if empty(s)
