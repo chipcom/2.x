@@ -4173,6 +4173,12 @@ dbcreate(cur_dir+"tmp",{{"gruppa_1","N",1,0},;// 1-группа 2- группа 3 - без груп
   do while human->k_data <= arr_m[6] .and. !eof()
     if between(human->ishod,401,402)
       // read_arr_DVN_COVID(human->kod)
+      //is_selo := f_is_selo(kart_->gorod_selo,kart_->okatog)  // признак села
+      select KART_
+      goto (HUMAN->kod_k)
+      select KART
+      goto (HUMAN->kod_k)
+      select HUMAN
       is_selo := f_is_selo(kart_->gorod_selo,kart_->okatog)  // признак села
       select TMP
       append blank
