@@ -121,10 +121,10 @@ Function viewF003()
           endif
         enddo
         (sbase)->(dbCloseArea())
+        retMCOD := { str(val(prev_codem) + 1, 6), AllTrim((tmpAlias)->NAMEMOK) }
       endif
     endif
         
-    retMCOD := { str(val(prev_codem) + 1, 6), AllTrim((tmpAlias)->NAMEMOK) }
   endif
   selectedRegion := ''
 

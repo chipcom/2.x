@@ -114,7 +114,7 @@ Function InitSpravFFOMS()
   endif
 
   // V020.xml - Классификатор профилей койки
-  // Public glob_V020 := getV020()
+  Public glob_V020 := getV020()
 
   // T008.xml - Коды ошибок в протоколах обработки инф.пакетов
   Public glob_T008 := getT008()
