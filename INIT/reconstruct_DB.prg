@@ -1413,7 +1413,7 @@ Function Reconstruct_DB(is_cur_dir,is_create)
      {"NAME"     ,   "C",    78,     0}}  // содержание строки
   //
   f_init_r01() // инициализация всех файлов инф.сопровождения по диспансеризации
-  f_init_d01() // инициализация всех файлов инф.сопровождения по диспансерному наблюдению
+  // f_init_d01() // инициализация всех файлов инф.сопровождения по диспансерному наблюдению
   if !is_cur_dir .or. hb_FileExists(dir_server+"base1"+sdbf)
     reconstruct(dir_server+"base1",base1,,,.t.)
     reconstruct(dir_server+"mo_oper",mo_oper,"index_base('mo_oper')",,.t.)

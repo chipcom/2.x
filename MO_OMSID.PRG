@@ -2776,7 +2776,7 @@ do case
                 "inf_DVN(43)"}
     str_sem := "ИСОМП"
     if G_SLock(str_sem)
-//fff_init_r01()
+      ///fff_init_r01()
       popup_prompt(T_ROW-len(mas_pmt)-3,T_COL-5,si4,mas_pmt,mas_msg,mas_fun)
       G_SUnLock(str_sem)
     else
@@ -2825,8 +2825,8 @@ do case
   case k == 62
     f_view_R01()
   case k == 43
-    //ne_real()
-
+    ne_real()
+   /*
    mas_pmt := {"~Создание файлов обмена",;
                 "~Просмотр файлов обмена"}
     mas_msg := {"Создание файлов обмена R11... за конкретный месяц",;
@@ -2841,7 +2841,7 @@ do case
     set key K_CTRL_F10 to delete_month_R11()
     popup_prompt(T_ROW,T_COL-5,si7,mas_pmt,mas_msg,mas_fun)
     set key K_CTRL_F10 to
-
+  */
   case k == 71
     f_create_R11()
   case k == 72

@@ -177,7 +177,7 @@ reconstruct(dir_server+"mo_dr05e",mo_dr05e,,,.t.)
 reconstruct(dir_server+"mo_dr00", mo_dr00 ,,,.t.)
 //
 G_Use(dir_server+"mo_dr05p",,"R05p")
-Locate for n_y < 2021  // ЮЮ
+Locate for n_y < 2022  // ЮЮ 08.12.21
 fl := found()
 Use
 if fl
@@ -185,7 +185,7 @@ if fl
 endif
 return NIL
 
-***** 14.12.18 очистить файлы - удалить 2019 год
+***** 14.12.18 очистить файлы - удалить 2021 год
 Function f_zap_all_mo_dr()
 Local i, arrx := {}
 use (dir_server+"mo_dr01") new
@@ -222,7 +222,7 @@ zap
 close databases
 return NIL
 
-/*Function fff_init_r01()
+Function fff_init_r01()
 Local buf := save_maxrow()
 R_Use(dir_server+"mo_dr05p",,"R05p")
 if fieldnum("KOL11") == 0
@@ -233,26 +233,26 @@ if fieldnum("KOL11") == 0
   rest_box(buf)
 endif
 close databases
-return NIL*/
+return NIL
 
 ***** 03.12.21 Создание файла обмена R05...
 Function f_create_R05()
 Local buf := save_maxrow(), i, fl
 Private mdate, mkol1 := 0, mkol2 := 0, mkol11 := 0, mkol12 := 0, mkol13 := 0,;
         mrec, CODE_LPU := glob_mo[_MO_KOD_TFOMS]
-Private sgod := 2021
+Private sgod := 2022
 
 //
 G_Use(dir_server+"mo_dr05p",,"R05p")
-if lastrec() == 0 .or. lastrec() == 1
+if lastrec() == 0
   G_RLock(.t.,forever) // добавить 2-ую запись
 endif
-mrec := 2 // пока так
+mrec := 1 // пока так
 goto (mrec)
 if empty(r05p->n_y)
-  mdate := r05p->D_KZ := 0d20210215
+  mdate := r05p->D_KZ := 0d20211202
   r05p->N_Y := sgod // год для диспансеризации
-  r05p->TYPEOFREC := 1 // 0-первично представленная запись, 1-актуализированная запись
+  r05p->TYPEOFREC := 0 // 0-первично представленная запись, 1-актуализированная запись
   r05p->KOL1 := 0 // количество пациентов для диспансеризации на год
   r05p->KOL2 := 0 // количество пациентов для профосмотров на год
 else
@@ -293,7 +293,7 @@ Private skol1 := 0, skol2 := 0, skol11 := 0, skol12 := 0, skol13 := 0
 buf := box_shadow(r1,2,maxrow()-2,77,,"План-график на "+lstr(sgod)+" год",color8)
 do while .t.
   @ r1+1,54 say "| прикреплённое" color color14
-  @ r1+2,4 say "Приказ КЗ ВО №09-30/36 от" get mdate when .f.
+  @ r1+2,4 say "Приказ КЗ ВО №3648 от" get mdate when .f.
    @ row(),col()+12 say "_план_|_количество___" color color14
   @ r1+3,4 say "Численность лиц для диспансеризации (всего)" get mkol1  pict "99999"
    @ row(),col()+1 say "|" color color14 get skol1 color color8 pict "99999" when .f.
@@ -364,7 +364,7 @@ return NIL
 ***** 12.12.19 Ввод/редактирование плана-графика с разбивкой по месяцам
 Function f_pereschet_R05
 Local buf := save_maxrow(), nrow := row(), ncol := col(), icurs := setcursor(0), s,;
-      _arr_vozrast_DVN := ret_arr_vozrast_DVN(0d20191201)
+      _arr_vozrast_DVN := ret_arr_vozrast_DVN(0d20211201)
 mywait("Ждите! Производится подсчёт прикреплённого взрослого населения.")
 skol1 := skol2 := skol11 := skol12 := skol13 := 0
 R_Use(dir_server+"kartote2",,"KART2")
@@ -412,7 +412,7 @@ Function f2_create_R05()
 Local buf := savescreen(), tmp_color, t_arr[BR_LEN], blk, blk1, i, d, tekol[5]
 Private skol[5], ekol[5]
 afill(ekol,0)
-afill(tekol,0)
+//afill(tekol,0)
 tmp_color := setcolor(color5)
 R_Use(dir_server+"mo_dr05p",,"R05p")
 goto (mrec)
@@ -441,14 +441,14 @@ for i := 1 to 12
   ekol[3] += tmp1->kol11
   ekol[4] += tmp1->kol12
   ekol[5] += tmp1->kol13
-  tekol[1] += tmp1->kol1
-  tekol[2] += tmp1->kol2
-  tekol[3] += tmp1->kol11
-  tekol[4] += tmp1->kol12
-  tekol[5] += tmp1->kol13
+//  tekol[1] += tmp1->kol1
+//  tekol[2] += tmp1->kol2
+//  tekol[3] += tmp1->kol11
+//  tekol[4] += tmp1->kol12
+//  tekol[5] += tmp1->kol13
 next
 //
-if emptyall(ekol[1],ekol[2])
+/*if emptyall(ekol[1],ekol[2])
 // записываем в запись 2 из записи 1 два месяца
 // первичное заполнение
   select R05P
@@ -503,6 +503,47 @@ if emptyall(ekol[1],ekol[2])
     ekol[5] += tmp1->kol13
   next
 */
+ /* d := skol[1] - ekol[1]
+  if d != 0
+    tmp1->kol1 += d
+    ekol[1] += d
+  endif
+  d := skol[2] - ekol[2]
+  if d != 0
+    tmp1->kol2 += d
+    ekol[2] += d
+  endif
+  d := skol[3] - ekol[3]
+  if d != 0
+    tmp1->kol11 += d
+    ekol[3] += d
+  endif
+  d := skol[4] - ekol[4]
+  if d != 0
+    tmp1->kol12 += d
+    ekol[4] += d
+  endif
+  d := skol[5] - ekol[5]
+  if d != 0
+    tmp1->kol13 += d
+    ekol[5] += d
+  endif
+endif
+*/
+if emptyall(ekol[1],ekol[2])
+  for i := 1 to 12
+    goto (i)
+    tmp1->kol1 := round(skol[1]/12,0)
+    ekol[1] += tmp1->kol1
+    tmp1->kol2 := round(skol[2]/12,0)
+    ekol[2] += tmp1->kol2
+    tmp1->kol11 := round(skol[3]/12,0)
+    ekol[3] += tmp1->kol11
+    tmp1->kol12 := round(skol[4]/12,0)
+    ekol[4] += tmp1->kol12
+    tmp1->kol13 := round(skol[5]/12,0)
+    ekol[5] += tmp1->kol13
+  next
   d := skol[1] - ekol[1]
   if d != 0
     tmp1->kol1 += d
@@ -567,9 +608,9 @@ keyboard chr(K_RIGHT)
 edit_browse(t_arr)
 restscreen(buf)
 // проверка
-if !(ver_f3_create_R05())
-  return NIL
-endif
+//if !(ver_f3_create_R05())
+//  return NIL
+//endif
 //
 if !is_reestr .and. f_Esc_Enter(1)
   G_Use(dir_server+"mo_dr05p",,"R05p")
@@ -589,8 +630,8 @@ close databases
 setcolor(tmp_color)
 return NIL
 
-***** 20.02.21
-Function ver_f3_create_R05()
+***** 20.02.21 //в 2022 пока не используем
+/*Function ver_f3_create_R05()
 Local flag := .T., i, t[5], tt[5], j, order_t, err_mes
 
 order_t := (select())
@@ -625,7 +666,7 @@ if !flag
   func_error(4,"Превышение текущего плана над предыдущем. Месяц "+alltrim(str(err_mes)))
 endif
 return flag
-
+*/
 
 ***** 23.12.19
 Function ver_f2_create_R05(lmes)
@@ -672,11 +713,11 @@ if regim == "edit" .and. nKey == K_ENTER .and. eq_any(oBrow:colPos,2,3,4,5,7) .a
     ncol := 63
     mkol := tmp1->kol2
   endif
-  if rr == 5 .or. rr == 6
-    @ rr,ncol get mkol color "GR+/R" pict "999999" WHEN .F.
-  else
+  //if rr == 5 .or. rr == 6
+  //  @ rr,ncol get mkol color "GR+/R" pict "999999" WHEN .F.
+  //else
     @ rr,ncol get mkol color "GR+/R" pict "999999"
-  endif
+  //endif
   myread()
   if lastkey() != K_ESC
     if oBrow:colPos == 2
@@ -801,7 +842,7 @@ endif
 if fl
   // !!! ВНИМАНИЕ
 
-  for i := 3 to 12
+  for i := 1 to 12 //3
     if ames[i,1] >= ames[i,3]
       if ames[i,3] >= ames[i,4]
         if ames[i,3] >= ames[i,5]
@@ -862,7 +903,7 @@ if fl
     endif
   next
 // !!! ВНИМАНИЕ
-  for i := 3 to 12
+  for i := 1 to 12  //3
     for j := 1 to 5
       aumes[i,j] := f1_f3_create_R05(ames[i,j],k)
     next
@@ -871,7 +912,7 @@ if fl
 
   if f_Esc_Enter("создания файла R05")
 // !!! ВНИМАНИЕ
-    mmes := 3  // менял
+    mmes := 1  // менял 3
     nsh := 3
     R_Use(dir_server+"mo_dr05p",,"R05p")
     goto (mrec)
@@ -1575,7 +1616,7 @@ return NIL
 Function verify_packet_R05(par,arr,/*@*/ret_nn)
 Local fl := .t.
 is_reestr := .f.
-ret_nn := 4 // !!! ВНИМАНИЕ
+ret_nn := 0 // !!! ВНИМАНИЕ  0
 R_Use(dir_server+"mo_dr05e",,"REFR")
 R_Use(dir_server+"mo_xml",,"MO_XML")
 index on str(reestr,6) to (cur_dir+"tmp_xml") for tip_in == _XML_FILE_R06 .and. empty(TIP_OUT)
@@ -1672,13 +1713,13 @@ return fl*/
 Function f_create_R01()
 Local buf := save_maxrow(), i, j, ir, s := "", arr := {}, fl := .t., fl1 := .f., a_reestr := {},;
       azip := {}, aerr := {}, full_zip, name_zip, cFile, cName, oXmlDoc, lgod_r
-Private SMONTH := 3, mdate := sys_date, mrec := 2
+Private SMONTH := 1, mdate := sys_date, mrec := 1
 // !!! ВНИМАНИЕ
 Private c_view := 0, c_found := 0, fl_exit := .f., pj, arr_rees := {},;
         pkol := 0, CODE_LPU := glob_mo[_MO_KOD_TFOMS], CODE_MO := glob_mo[_MO_KOD_FFOMS],;
         mkol := {0,0,0,0,0}, skol[5], ames[12,5], ame[12], bm := SMONTH,; // начальный месяц минус один
         _arr_vozrast_DVN := ret_arr_vozrast_DVN(0d20201201)
-Private sgod := 2021
+Private sgod := 2022
 
 //
 //f00_create_R01()
@@ -1842,14 +1883,14 @@ if (fl := verify_packet_R05(1,arr))
   if fl
     mywait()
     // ставим принудительную заплатку на 3-й месяц
-    for v := 1 to 5
+/*    for v := 1 to 5
       if ames[3,v,1] > ames[3,v,2]
         skol[v] -= (ames[3,v,1]-ames[3,v,2])
         ames[3,v,2] := ames[3,v,1]
       endif
-    next
+    next*/
     // ЗАПЛАТКА
-    if emptyall(skol[1],skol[2],skol[3],skol[4],skol[5])
+ /*   if emptyall(skol[1],skol[2],skol[3],skol[4],skol[5])
       for v := 4 to 12
         skol[1] += (ames[v,1,1]-ames[v,1,2])
         skol[2] += (ames[v,2,1]-ames[v,2,2])
@@ -1857,7 +1898,7 @@ if (fl := verify_packet_R05(1,arr))
         skol[4] += (ames[v,4,1]-ames[v,4,2])
         skol[5] += (ames[v,5,1]-ames[v,5,2])
       next
-    endif
+    endif */
     // конец
     for v := 1 to 5
       j := {2,4,5,3,1}[v]
@@ -2148,8 +2189,6 @@ for SMONTH := 1 to 12
     skip
   enddo
 next
-
-
 set index to
 G_Use(dir_server+"mo_xml",,"MO_XML")
 R_Use(dir_server+"kartote2",,"KART2")
@@ -2315,7 +2354,7 @@ rm->(G_RLock(forever))
 rm->TWORK2 := hour_min(seconds())
 close databases
 keyboard chr(K_TAB)+chr(K_ENTER)
-rest_box(buf)
+//rest_box(buf)
 return NIL
 
 /***** 13.12.17

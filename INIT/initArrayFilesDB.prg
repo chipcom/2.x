@@ -3,7 +3,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 13.05.21 инициализировать массив DBF-файлов базы данных
+***** 10.12.21 инициализировать массив DBF-файлов базы данных
 Function init_Array_Files_DB()
   local i, arr
 
@@ -12,6 +12,7 @@ Function init_Array_Files_DB()
   afillall(array_task_DB,0)
   // общие справочники
   aadd(array_files_DB,"base1")
+  aadd(array_files_DB,"roles")
   aadd(array_files_DB,"ver_base")
   aadd(array_files_DB,"mo_add")
   aadd(array_files_DB,"organiz")
@@ -171,9 +172,6 @@ Function init_Array_Files_DB()
   aadd(array_files_DB,"mo_n7out"); array_task_DB[X_263,2] := len(array_files_DB)
   //
 
-  if glob_mo[_MO_KOD_TFOMS] == '102604' // для ВОККВД
-    aadd(array_files_DB,"Roles")
-  endif
 
   if glob_mo[_MO_KOD_TFOMS] == kod_VOUNC  // для ВОУНЦ
     arr := { 'vouncmnn', 'vounctrn', 'vouncnaz', 'vouncrec' }
