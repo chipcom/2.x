@@ -41,3 +41,19 @@ function getV016()
   endif
 
   return _arr
+
+**** 13.12.21 вернуть описатель типа диспнсеризации по коду
+function get_type_DispT(mdate, codeDispT)
+  local dispT := Upper(alltrim(codeDispT))
+  local _arr := {}, i
+  local tmpArr := getV016()
+  local lengthArr := len(tmpArr)
+
+  for i := 1 to lengthArr
+    if dispT == tmpArr[i, 1] .and. between_date(tmpArr[i, 4], tmpArr[i, 5], mdate)
+      aadd(_arr, tmpArr[i, 1])
+      aadd(_arr, tmpArr[i, 2])
+      aadd(_arr, tmpArr[i, 3])
+    endif
+  next
+  return _arr

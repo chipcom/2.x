@@ -22,3 +22,21 @@ function getV017()
   endif
 
   return _arr
+
+***** 13.12.21 вернуть список результатов диспансеризации на дату в соответствии со списком кодов
+function get_list_DispR(mdate, arrDR)
+  local _arr := {}, code, i
+  local tmpArr := getV017()
+  local lenArr := len(tmpArr)
+
+  for each code in arrDR
+    for i := 1 to lenArr
+      if code == tmpArr[i, 1] .and. between_date(tmpArr[i, 3], tmpArr[i, 4], mdate)
+        aadd(_arr, tmpArr[i, 2])
+      endif
+    next
+  next
+
+  return _arr
+
+  // ssssss := get_list_DispR(sys_date, get_type_DispT(sys_date, 'ОПВ')[3])
