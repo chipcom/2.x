@@ -987,9 +987,9 @@ close databases
 rest_box(buf)
 return len(arr_error) == 0
 
-***** 03.12.21 проверить год, если вдруг "сбита" системная дата в компьютере
+***** 13.12.21 проверить год, если вдруг "сбита" системная дата в компьютере
 Static Function _263_verify_year(mdate,arr)
-  if !between(year(mdate),2019,WORK_YEAR)
+  if !between(year(mdate),2019,WORK_YEAR_263)
     aadd(arr,"в отчётной дате "+full_date(mdate)+" НЕКОРРЕКТНЫЙ год")
   endif
   return .f.
