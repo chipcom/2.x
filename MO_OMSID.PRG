@@ -4110,7 +4110,7 @@ return NIL
 
 
 
-***** 06.12.21
+***** 13.12.21
 Function inf_YDVN()
 
 Local i, ii, s, arr_m, buf := save_maxrow(), ar, arr_excel := {}, is_all
@@ -4185,12 +4185,12 @@ dbcreate(cur_dir+"tmp",{{"gruppa_1","N",1,0},;// 1-группа 2- группа 3 - без груп
       if is_selo
         tmp->selo := 1
       endif
-      if dow(arr_m[5]) == 7
+      if dow(human->n_data) == 7
         tmp->sub_day := 1
       else
         tmp->sub_day := 0
       endif
-      if arr_m[5] == arr_m[6]
+      if human->k_data == human->n_data
         tmp->one_day := 1
       else
         tmp->one_day := 0
