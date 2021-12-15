@@ -1370,6 +1370,9 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       human_->KOD_DIAG0 := ''
       human_->RSLT_NEW  := m1rslt
       human_->ISHOD_NEW := m1ishod
+
+      m1vrach := arr_osm1[len(arr_osm1),1]  // возьмем врача оказавшего последнюю услугу
+
       human_->VRACH     := m1vrach
       human_->PRVS      := m1prvs
       human_->OPLATA    := 0 // уберём "2", если отредактировали запись из реестра СП и ТК
