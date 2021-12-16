@@ -4110,11 +4110,12 @@ return NIL
 
 
 
-***** 13.12.21
+***** 16.12.21
 Function inf_YDVN()
 
 Local i, ii, s, arr_m, buf := save_maxrow(), ar, arr_excel := {}, is_all
 Local sh, HH := 53,  n_file := "gor_YDVN"+stxt, reg_print, arr_itog[19]
+local t_rec, t_poisk, t_rezult 
 
 local arr_title := {;
 "ÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄ",;
@@ -4161,8 +4162,8 @@ dbcreate(cur_dir+"tmp",{{"gruppa_1","N",1,0},;// 1-£àã¯¯  2- £àã¯¯  3 - ¡¥§ £àã¯
                         {"gruppa","N",3,0},;  // ƒàã¯¯  §¤®à®¢ìï 1,2.3a,3b
                         {"napr2","N",1,0},;   //  ¯à ¢«¥­ ­  2-© íâ ¯ 0-­¥â 1-¤ 
                         {"selo","N",1,0},;    // ‘¥«® 0-­¥â 1-¤ 
-                        {"d_one","N",1,0}})   // ‚¯¥à¢ë¥ ¢§ïâ® ­  „-ãç¥â 0-­¥â 1-¤ 
-
+                        {"d_one","N",1,0},;   // ‚¯¥à¢ë¥ ¢§ïâ® ­  „-ãç¥â 0-­¥â 1-¤ 
+                        {"kod_k","N",7,0}})   
   R_Use(dir_server+"human_",,"HUMAN_")
   R_Use(dir_server+"human",dir_server+"humand","HUMAN")
   set relation to recno() into HUMAN_
@@ -4182,6 +4183,7 @@ dbcreate(cur_dir+"tmp",{{"gruppa_1","N",1,0},;// 1-£àã¯¯  2- £àã¯¯  3 - ¡¥§ £àã¯
       is_selo := f_is_selo(kart_->gorod_selo,kart_->okatog)  // ¯à¨§­ ª á¥« 
       select TMP
       append blank
+      tmp->kod_k := HUMAN->kod_k
       if is_selo
         tmp->selo := 1
       endif
@@ -4252,6 +4254,27 @@ dbcreate(cur_dir+"tmp",{{"gruppa_1","N",1,0},;// 1-£àã¯¯  2- £àã¯¯  3 - ¡¥§ £àã¯
       endif
     endif
     select HUMAN
+    skip
+  enddo
+  select TMP
+  index on str(kod_k,7)+str(etap_1,1)  to tmp_kk
+  //
+  go top
+  do while !eof()
+    if etap_1 == 2
+      t_rec := tmp->(recno())
+      t_poisk := str(tmp->kod_k,7)+str(1,1)
+      t_rezult := 0 // ¯® ã¬®«ç ­¨î ˆ›…
+      find(t_poisk)
+      if found()
+        t_rezult := tmp->gruppa_1 
+      endif
+      goto t_rec
+      G_RLock(forever)
+      tmp->gruppa_1  := t_rezult 
+      unlock
+    endif
+    select TMP
     skip
   enddo
 // á®§¤ ¥¬ ®âç¥â
@@ -4349,12 +4372,12 @@ add_string("")
   next
 endif
 //
-//quit
 close databases
 fclose(fp)
 Private yes_albom := .t.
 viewtext(n_file,,,,(sh>80),,,reg_print)
 rest_box(buf)
+//quit
 return NIL
 
 

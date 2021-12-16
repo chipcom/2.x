@@ -89,6 +89,7 @@ mo_version.prg
 .\init\index.prg
 .\init\index_base.prg
 .\init\initArrayFilesDB.prg
+.\init\correct_DVN_COVID.prg
 
 
 .\calendar\calendar.prg
