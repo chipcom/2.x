@@ -18,10 +18,12 @@ for i := 2 to k
 next
 return NIL
 
-***** 14.05.20 прочитать и "разнести" по базам данных РАК
+***** 17.12.21 прочитать и "разнести" по базам данных РАК
 Function read_XML_FILE_RAK(arr_XML_info,aerr)
-Local fl_akt, fl_schet, blk_akt, blk_schet, i, k, s, s1, arr_s := {}, t_arr[2],;
+  Local fl_akt, fl_schet, blk_akt, blk_schet, i, k, s, s1, arr_s := {}, t_arr[2],;
       ia, is, ih, arr, aakt := {}, no_write := .t., fl_2019
+  local tmp_alias, fl_IDC := .f.   // для двойного случая
+
 blk_akt := {|| aadd(aerr,"АКТ № "+alltrim(tmp2->_nakt)+" от "+date_8(tmp2->_dakt)) }
 blk_schet := {|| aadd(aerr," СЧЁТ № "+alltrim(tmp3->_nschet)+" от "+date_8(tmp3->_dschet)) }
 use (cur_dir+"tmp1file") new alias TMP1
@@ -93,7 +95,18 @@ do while !eof()
         find (str(tmp4->_IDCASE,6))
         if found()
           tmp4->KOD_H := human->kod
-          if !(upper(tmp4->_ID_C) == upper(human_->ID_C))
+          fl_IDC := (upper(tmp4->_ID_C) == upper(human_->ID_C))
+          if !fl_IDC
+            tmp_alias := select()
+            R_Use(dir_server + "human_3", dir_server + "human_3", "HUMAN_3")
+            if human_3->(dbseek(str(human_->(recno()), 7)))
+              fl_IDC := (upper(tmp4->_ID_C) == upper(human_3->ID_C))
+            endif
+            human_3->(dbCloseArea())
+            select(tmp_alias)
+          endif
+
+          if !fl_IDC
             if fl_akt
               eval(blk_akt) ; fl_akt := .f.
             endif

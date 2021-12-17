@@ -91,7 +91,7 @@ procedure main( ... )
 
   a_parol := inp_password(is_cur_dir,is_create)
 
-  correct_DVN_COVID()
+  // correct_DVN_COVID()
 
   checkFilesTFOMS()
 
