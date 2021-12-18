@@ -11,53 +11,111 @@ Function fs_version(aVersion)
 // aVersion - 4-мерный массив
 return lstr(aVersion[1])+'.'+lstr(aVersion[2])+'.'+lstr(aVersion[3]) + iif(len(aVersion) == 4, aVersion[4], '')
 
-***** контроль версии базы данных
+***** 17.12.21 контроль версии базы данных
 Function ControlBases(tip_oper,aVersion)
-// tip_oper  - тип операции
-//    1 - после запуска программы считать версию БД из файла
-//    2 - подтвердить разрешение на реконструкцию (из reconstruct)
-//    3 - записать код новой версии БД (после инициализации)
-// aVersion - версия БД, соответствующая данной сборке программы
-//            обязательна для первого вызова (массив из трёх элементов)
-Static sl_reconstr, snversion, sl_smena, nfile := "ver_base"
-Local ret_value, ver__base
-DEFAULT sl_reconstr TO .t., sl_smena TO .f.
-do case
-  case tip_oper == 1
-    DEFAULT snversion TO int(aVersion[1]*10000 + aVersion[2]*100 + aVersion[3])
-    if hb_FileExists(dir_server+nfile+sdbf)
-      R_Use(dir_server+nfile)
-      ret_value := ver__base := FIELD->version
-      Use
-      if snversion < ver__base
+  // tip_oper  - тип операции
+  //    1 - после запуска программы считать версию БД из файла
+  //    2 - подтвердить разрешение на реконструкцию (из reconstruct)
+  //    3 - записать код новой версии БД (после инициализации)
+  // aVersion - версия БД, соответствующая данной сборке программы
+  //            обязательна для первого вызова (массив из трёх элементов)
+  Static sl_reconstr, snversion, sl_smena, nfile := "ver_base"
+  Local ret_value, ver__base
+
+  DEFAULT sl_reconstr TO .t., sl_smena TO .f.
+  do case
+    case tip_oper == 1
+      DEFAULT snversion TO int(aVersion[1]*10000 + aVersion[2]*100 + aVersion[3])
+      if (ver__base := get_version_DB()) != 0
+        if snversion < ver__base
+          func_error("Вы запустили старую версию программы. Работа запрещена!")
+          f_end()
+        else
+          sl_smena := (snversion != ver__base)
+          sl_reconstr := .T.
+        endif
+      else
+        sl_smena := .t.
+      endif
+      ret_value := sl_smena
+      // if hb_FileExists(dir_server+nfile+sdbf)
+      //   R_Use(dir_server+nfile)
+      //   ret_value := ver__base := FIELD->version
+      //   Use
+      //   if snversion < ver__base
+      //     func_error("Вы запустили старую версию программы. Работа запрещена!")
+      //     f_end()
+      //   else
+      //     sl_smena := (snversion != ver__base)
+      //     sl_reconstr := .T.
+      //   endif
+      // else
+      //   sl_smena := .t.
+      // endif
+      // ret_value := sl_smena
+    case tip_oper == 2
+      if !sl_reconstr
         func_error("Вы запустили старую версию программы. Работа запрещена!")
         f_end()
-      else
-        sl_smena := (snversion != ver__base)
-        sl_reconstr := .T.
       endif
-    else
-      sl_smena := .t.
+      ret_value := sl_reconstr
+    case tip_oper == 3 .and. sl_smena
+      save_version_DB(snversion)
+      // reconstruct(dir_server+nfile,{{"version","N",10,0}},,,.t.)
+      // G_Use(dir_server+nfile)
+      // if lastrec() == 0
+      //   AddRecN()
+      // else
+      //   G_RLock(forever)
+      // endif
+      // replace version with snversion
+      // Use
+  endcase
+  return ret_value
+
+***** 17.12.21 контроль версии базы данных
+Function ControlVersion(aVersion, oldVersion)
+  // aVersion - проверяемая версия
+  local ver__base
+  local snversion := int(aVersion[1]*10000 + aVersion[2]*100 + aVersion[3])
+
+  if (ver__base := get_version_DB()) != 0
+    if snversion > ver__base
+      return .t.
+    elseif snversion == ver__base
+      if asc(substr( oldVersion[4], 1, 1) ) < asc( aVersion[4] )
+        return .t.
+      endif
     endif
-    ret_value := sl_smena
-  case tip_oper == 2
-    if !sl_reconstr
-      func_error("Вы запустили старую версию программы. Работа запрещена!")
-      f_end()
-    endif
-    ret_value := sl_reconstr
-  case tip_oper == 3 .and. sl_smena
-    reconstruct(dir_server+nfile,{{"version","N",10,0}},,,.t.)
-    G_Use(dir_server+nfile)
-    if lastrec() == 0
-      AddRecN()
-    else
-      G_RLock(forever)
-    endif
-    replace version with snversion
-    Use
-endcase
-return ret_value
+  endif
+  return .f.
+
+****** 17.12.21 получить числовое значение версии БД задачи
+function get_version_DB()
+  local nfile := "ver_base"
+  local ver__base := 0
+
+  if hb_FileExists(dir_server + nfile + sdbf)
+    R_Use(dir_server + nfile, , 'ver' )
+    ver__base := ver->version
+    ver->(dbCloseArea())
+  endif
+  return ver__base
+
+****** 17.12.21 сохранить новое числовое значение версии БД задачи
+function save_version_DB(nVersion)
+  local nfile := "ver_base"
+
+  reconstruct(dir_server + nfile, {{"version", "N", 10, 0}}, , , .t.)
+  G_Use(dir_server + nfile, , 'ver')
+  if lastrec() == 0
+    AddRecN()
+  else
+    G_RLock(forever)
+  endif
+  replace version with nVersion
+  ver->(dbCloseArea())
+  return .t.
 
 ***** 06.08.17 условное индексирование цен на услуги в 2017 году
 Function f_index_uslc()
@@ -68,7 +126,7 @@ Function f_index_uslc()
   endif
   return .t.
 
-***** 26.04.20 начальная инициализация программы (до входа в Reconstruct_BD)
+***** 17.12.21 начальная инициализация программы (до входа в Reconstruct_BD)
 Function Init_first()
 Local buf := save_maxrow()
 mywait()
@@ -97,17 +155,17 @@ Public glob_d_smo := {0,""}
 Public glob_priem := {0,""}
 Public glob_r_mu := {0,"",""}
 Public st_a_otd, st_a_uch, st_a_uchast
-Public glob_Q017 := {;
-  {"001F","Нарушение ссылочной целостности"},;
-  {"001K","Нарушение обязательности заполнения элемента (элемент не заполнен или отсутствует)"},;
-  {"002F","Нарушение доменной целостности"},;
-  {"002K","Нарушение семантической целостности"},;
-  {"003F","Нарушение условий заполнения элемента"},;
-  {"003K","Нарушения, связанные с оформлением и предъявлением на оплату счетов и реестров счетов"},;
-  {"004F","Нарушение формата заполнения элемента"},;
-  {"005F","Нарушение ссылочной целостности (проверка регионального уровня)"},;
-  {"006F","Нарушение семантической целостности"};
-}
+// Public glob_Q017 := {;
+//   {"001F","Нарушение ссылочной целостности"},;
+//   {"001K","Нарушение обязательности заполнения элемента (элемент не заполнен или отсутствует)"},;
+//   {"002F","Нарушение доменной целостности"},;
+//   {"002K","Нарушение семантической целостности"},;
+//   {"003F","Нарушение условий заполнения элемента"},;
+//   {"003K","Нарушения, связанные с оформлением и предъявлением на оплату счетов и реестров счетов"},;
+//   {"004F","Нарушение формата заполнения элемента"},;
+//   {"005F","Нарушение ссылочной целостности (проверка регионального уровня)"},;
+//   {"006F","Нарушение семантической целостности"};
+// }
 Public glob_MGI := {;
   {"60.9.1", 12,26,25},; // Молекулярно-генетическое исследование мутаций в генах BRCA1 и BRCA2 в крови
   {"60.9.13", 5,12,11},; // Молекулярно-генетическое исследование мутаций в гене EGFR в биопсийном (операционном) материале

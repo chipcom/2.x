@@ -1,15 +1,14 @@
 #include "function.ch"
 #include "chip_mo.ch"
 
-***** 16.12.21
+***** 17.12.21
 function correct_DVN_COVID()
-  local i := 0, j := 0
   local is_DVN_COVID := .f.
   local mkod
-  Local t1 := 0, t2 := 0
   local begin_DVN_COVID := 0d20210701   // дата начала углубленной диспансеризации
+  local i := 0, j := 0
   local lshifr := ''
-
+  // Local t1 := 0, t2 := 0
 
   R_Use(dir_server + 'mo_otd', , 'otd')
   OTD->(dbGoTop())
@@ -23,7 +22,7 @@ function correct_DVN_COVID()
   end do
   otd->(dbCloseArea())
 
-  t1 := seconds()
+  // t1 := seconds()
 
   if is_DVN_COVID
 
@@ -35,7 +34,8 @@ function correct_DVN_COVID()
     use_base("mo_hu")
     use_base('human_u') // откроем файл human_u и сопутствующие файлы
 
-    R_Use(dir_server + 'human', , 'human')
+    // R_Use(dir_server + 'human', , 'human')
+    use_base('human') // откроем файл human_u и сопутствующие файлы
 
     human->(dbSelectArea())
     human->(dbGoTop())
@@ -53,15 +53,40 @@ function correct_DVN_COVID()
             endif
             lshifr := alltrim(lshifr)
       
-            if lshifr == '70.8.1'
+            if lshifr == '70.8.1' .and. human_->VRACH != hu->KOD_VR
               i++
               @ maxrow(),1 say human->fio color cColorStMsg
+              human_->(dbSelectArea())
+              if human_->(dbRLock())
+                human_->VRACH := hu->KOD_VR
+              endif
+              human_->(dbRUnlock())
+              hu->(dbSelectArea())
             endif
             hu->(dbSkip())
           end do
 
         elseif human->ishod == 402
-          j++
+          select MOHU
+          set relation to u_kod into MOSU 
+          find (str(Loc_kod,7))
+          mohu->(dbseek(str(mkod,7)))
+          do while MOHU->kod == mkod .and. !eof()
+            MOSU->(dbGoto(MOHU->u_kod))
+            lshifr := alltrim(iif(empty(MOSU->shifr),MOSU->shifr1,MOSU->shifr))
+      
+            if (lshifr == 'B01.026.002' .or. lshifr == 'B01.047.002' .or. lshifr == 'B01.047.006') .and. human_->VRACH != mohu->KOD_VR
+              j++
+              @ maxrow(),1 say human->fio color cColorStMsg
+              human_->(dbSelectArea())
+              if human_->(dbRLock())
+                human_->VRACH := mohu->KOD_VR
+              endif
+              human_->(dbRUnlock())
+              mohu->(dbSelectArea())
+            endif
+            mohu->(dbSkip())
+          enddo
         endif
       endif
       human->(dbSelectArea())
@@ -70,14 +95,14 @@ function correct_DVN_COVID()
 
     dbCloseAll()        // закроем все
 
-    t2 := seconds() - t1
+    // t2 := seconds() - t1
 
-    if t2 > 0
-      n_message({"","Время обхода БД - "+sectotime(t2)},,;
-            color1,cDataCSay,,,color8)
-    endif
+    // if t2 > 0
+    //   n_message({"","Время обхода БД - "+sectotime(t2)},,;
+    //         color1,cDataCSay,,,color8)
+    // endif
   endif
-  alertx(i, 'Количество листов обхода БД этап 1')
-  alertx(j, 'Количество листов обхода БД этап 2')
+  // alertx(i, 'Количество листов обхода БД этап 1')
+  // alertx(j, 'Количество листов обхода БД этап 2')
 
   return nil

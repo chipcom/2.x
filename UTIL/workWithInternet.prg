@@ -7,6 +7,7 @@
 #include 'versionFTP.ch'
 #include 'tbox.ch'
 
+*********
 function checkVersionInternet( row, oldVersion )
 
   local fileVersion  := 'version.txt'
@@ -48,9 +49,9 @@ function checkVersionInternet( row, oldVersion )
     endif
   endif
   FErase( fileVersion )
-
   return nil
 
+*********
 function fileFromFTP( fileName )
   local cServer   := CUSTOM_FTP
   local cUser     := VERSION_US
@@ -72,6 +73,7 @@ function fileFromFTP( fileName )
   endif
   return nil
   
+*********
 function fileToFTP( fileName )
   local cServer   := CUSTOM_FTP
   local cUser     := UPLOAD_USER
@@ -95,6 +97,7 @@ function fileToFTP( fileName )
   endif
   return .t.
     
+*********
 function readVersion( fileVersion )
   local nHandle, i, j, tStr, cNum := '', cAlpha := ''
   local aStr, aVer := {}
@@ -123,24 +126,3 @@ function readVersion( fileVersion )
   AAdd(aVer, cAlpha)
   FClose( nHandle )  
   return aVer
-
-***** контроль версии базы данных
-Function ControlVersion(aVersion, oldVersion)
-  // aVersion - проверяемая версия
-  local nfile := "ver_base"
-  local ver__base
-  local snversion := int(aVersion[1]*10000 + aVersion[2]*100 + aVersion[3])
-
-  if hb_FileExists(dir_server+nfile+sdbf)
-    R_Use(dir_server+nfile)
-    ver__base := FIELD->version
-    Use
-    if snversion > ver__base
-      return .t.
-    elseif snversion == ver__base
-      if asc(substr( oldVersion[4], 1, 1) ) < asc( aVersion[4] )
-        return .t.
-      endif
-    endif
-  endif
-  return .f.

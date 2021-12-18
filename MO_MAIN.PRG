@@ -91,8 +91,6 @@ procedure main( ... )
 
   a_parol := inp_password(is_cur_dir,is_create)
 
-  // correct_DVN_COVID()
-
   checkFilesTFOMS()
 
   
@@ -125,6 +123,7 @@ procedure main( ... )
       _263_init()
       // для начала работы _first_run() (убрал в NOT_USED)
       pereindex() // обязательно
+      update_data_DB(_version())    // провести изменения в базе если необходимо
       // записать новый номер версии
       ControlBases(3)
       if glob_mo[_MO_IS_UCH]
