@@ -69,7 +69,6 @@ function correct_DVN_COVID()
         elseif human->ishod == 402
           select MOHU
           set relation to u_kod into MOSU 
-          find (str(Loc_kod,7))
           mohu->(dbseek(str(mkod,7)))
           do while MOHU->kod == mkod .and. !eof()
             MOSU->(dbGoto(MOHU->u_kod))
