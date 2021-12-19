@@ -82,6 +82,24 @@ mo_vounc.prg
 Errorsys.prg
 mo_version.prg
 
+.\DAL\TBaseObjectDB.prg
+.\DAL\TDataAccessDB.prg
+.\DAL\TDescriptorDBF.prg
+.\DAL\TStructFiles.prg
+.\DAL\TDBFile.prg
+
+.\DAL\Security\TUserDB.prg
+.\DAL\Security\TRoleUserDB.prg
+.\DAL\ORGANIZATION\TDepartmentDB.prg
+.\DAL\EMPLOYEES\TEmployeeDB.prg
+
+.\BLL\TBaseObjectBLL.prg
+
+.\BLL\SECURITY\TUser.prg
+.\BLL\SECURITY\TRoleUser.prg
+.\BLL\ORGANIZATION\TDepartment.prg
+.\BLL\EMPLOYEES\TEmployee.prg
+
 .\init\mo_init.prg
 .\init\init_mo.prg
 .\init\reconstruct_DB.prg
@@ -91,6 +109,9 @@ mo_version.prg
 .\init\correct_DVN_COVID.prg
 .\init\update_data_DB.prg
 
+.\security\Users.prg
+.\security\Roles.prg
+.\security\security.prg
 
 .\calendar\calendar.prg
 .\calendar\calendar_func.prg
@@ -168,7 +189,9 @@ mo_version.prg
 .\util\runExternalProgram.prg
 .\util\workWithInternet.prg
 .\util\backup.prg
-.\util\security.prg
+.\util\BrowseListObjects.prg
+.\util\inp_bit_task_bay
+.\util\HasNumberInString.prg
 
 .\menu\f1main.prg
 

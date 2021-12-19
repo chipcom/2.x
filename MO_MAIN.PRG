@@ -74,6 +74,8 @@ procedure main( ... )
   Public d_01_11_2019 := 0d20191101
   Public d_01_01_2021 := 0d20210101
   //
+	// объект пользователя зарегистрировавшегося в системе
+	public hb_user_curUser := nil
 
   SET(_SET_DELETED, .T.)
   SETCLEARB(" ")
@@ -89,7 +91,8 @@ procedure main( ... )
   // инициализация массива МО, запрос кода МО (при необходимости)
   r := init_mo()
 
-  a_parol := inp_password(is_cur_dir,is_create)
+  // a_parol := inp_password(is_cur_dir,is_create)
+  a_parol := inp_password_bay(is_cur_dir,is_create)
 
   checkFilesTFOMS()
 
@@ -101,9 +104,17 @@ procedure main( ... )
     if type("verify_fio_polzovat") == "L" .and. verify_fio_polzovat
       func_error('В данный момент работает другой оператор под фамилией "'+fio_polzovat+'"')
     else
-      func_error('Доступ запрещен! В данный момент другой задачей выполняется ответственный режим.')
+      // func_error('Доступ запрещен! В данный момент другой задачей выполняется ответственный режим.')
+      if !hb_user_curUser:IsAdmin()
+        hb_Alert("В данный момент другой задачей выполняется ответственный режим. Проверьте системный монитор")
+      else
+        func_error('Доступ запрещен! В данный момент другой задачей выполняется ответственный режим.')
+      endif
     endif
-    f_end()
+    // f_end()
+    if !hb_user_curUser:IsAdmin()
+      f_end()
+    endif
   endif
   //
 
@@ -204,7 +215,11 @@ Function f_main(r0,a_parol)
       array_tasks[i,4] := .t.
       fl_exit := .f.
     endif
-    if array_tasks[i,4]
+    // if array_tasks[i,4]
+    //   aadd(arr,array_tasks[i])
+    //   lens := max(lens,len(array_tasks[i,1]))
+    // endif
+    if array_tasks[i,4] .and. hb_user_curUser:IsAllowedTask( i )
       aadd(arr,array_tasks[i])
       lens := max(lens,len(array_tasks[i,1]))
     endif
