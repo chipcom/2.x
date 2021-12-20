@@ -160,14 +160,14 @@ procedure main( ... )
 
   Init_Program() // инициализация программы (переменных, массивов,...)
 
-  f_main(r,a_parol)
+  f_main(r, is_cur_dir, a_parol)
 
   f_end()
 
   return
 
 ***** 17.05.21
-Function f_main(r0,a_parol)
+Function f_main(r0, is_cur_dir, a_parol)
   Static arr1 := {;
     {"Регистратура поликлиники"            ,X_REGIST,,.t.,"РЕГИСТРАТУРА"},;
     {"Приёмный покой стационара"           ,X_PPOKOJ,,.t.,"ПРИЁМНЫЙ ПОКОЙ"},;
@@ -222,9 +222,16 @@ Function f_main(r0,a_parol)
     //   aadd(arr,array_tasks[i])
     //   lens := max(lens,len(array_tasks[i,1]))
     // endif
-    if array_tasks[i,4] .and. hb_user_curUser:IsAllowedTask( i )
-      aadd(arr,array_tasks[i])
-      lens := max(lens,len(array_tasks[i,1]))
+    if is_cur_dir
+      if array_tasks[i,4]
+        aadd(arr,array_tasks[i])
+        lens := max(lens,len(array_tasks[i,1]))
+      endif
+    else
+      if array_tasks[i,4] .and. hb_user_curUser:IsAllowedTask( i )
+        aadd(arr,array_tasks[i])
+        lens := max(lens,len(array_tasks[i,1]))
+      endif
     endif
   next
   Public glob_task, blk_ekran, g_arr_stand := {},;

@@ -22,8 +22,10 @@ function Reconstruct_Base(is_cur_dir)
 
     if !is_cur_dir .or. hb_FileExists(dir_server+"base1"+sdbf)
       reconstruct(dir_server+"base1",base1,,,.t.)
+      reconstruct(dir_server+"mo_oper",mo_oper,"index_base('mo_oper')",,.t.)
+      reconstruct(dir_server+"mo_opern",mo_opern,"index_base('mo_opern')",,.t.)
+      reconstruct(dir_server + "roles", roles, , , .t.)
     endif
-    reconstruct(dir_server + "roles", roles, , , .t.)
   
   return nil
 
@@ -1445,8 +1447,8 @@ Function Reconstruct_DB(is_cur_dir,is_create)
     reconstruct(dir_server+"base1",base1,,,.t.)
     reconstruct(dir_server+"mo_oper",mo_oper,"index_base('mo_oper')",,.t.)
     reconstruct(dir_server+"mo_opern",mo_opern,"index_base('mo_opern')",,.t.)
+    reconstruct(dir_server + "roles", roles, , , .t.)
   endif
-  reconstruct(dir_server + "roles", roles, , , .t.)
   // простые справочники
   reconstruct(dir_server+"s_adres",{{"name","C",40,0}},"index_base('s_adres')",,.t.)
   reconstruct(dir_server+"s_kemvyd",{{"name","C",150,0}},"index_base('s_kemvyd')",,.t.)
