@@ -1,5 +1,32 @@
 #include 'chip_mo.ch'
 
+***** 20.12.21 реконстукция подсистемы паролей
+function Reconstruct_Base(is_cur_dir)
+  Local base1 := {;
+     {"P1",      "C",  20,   0},; // Ф.И.О.
+     {"P2",      "N",   1,   0},; // тип доступа
+     {"P3",      "C",  10,   0},; // пароль
+     {"P4",      "C",   1,   0},; // код отделения [ chr(kod) ]
+     {"P5",      "C",  20,   0},; // должность
+     {"P6",      "N",   1,   0},; // Группа КЭК (1-3)
+     {"P7",      "C",  10,   0},; // пароль1 для фискального регистратора
+     {"P8",      "C",  10,   0},; // пароль2 для фискального регистратора
+     {"INN",     "C",  12,   0},; // ИНН кассира
+     {"IDROLE",  "N",   4,   0};  // ID группы пользователей
+    }
+  Local roles := {;
+    { 'NAME',    'C',  30,   0 }, ; // название роли
+    { 'ACL_TASK','C',  255,   0 }, ; // доступ к задачам
+    { 'ACL_DEP', 'C',  255,   0 } ; // доступ к учреждениям
+    }
+
+    if !is_cur_dir .or. hb_FileExists(dir_server+"base1"+sdbf)
+      reconstruct(dir_server+"base1",base1,,,.t.)
+    endif
+    reconstruct(dir_server + "roles", roles, , , .t.)
+  
+  return nil
+
 ***** 24.04.21 реконстукция баз данных
 Function Reconstruct_DB(is_cur_dir,is_create)
   Local base1 := {;

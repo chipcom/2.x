@@ -91,6 +91,9 @@ procedure main( ... )
   // инициализация массива МО, запрос кода МО (при необходимости)
   r := init_mo()
 
+  // реконструкция файлов доступа к системе
+  Reconstruct_Base(is_cur_dir)
+
   // a_parol := inp_password(is_cur_dir,is_create)
   a_parol := inp_password_bay(is_cur_dir,is_create)
 
