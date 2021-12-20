@@ -171,14 +171,15 @@ Function edit_password()
                  recno(),;                   //  7
                  iif(empty(p7), p7, crypt(p7,gpasskod)),;   //  8
                  iif(empty(p8), p8, crypt(p8,gpasskod)),;    //  9
-                 iif(empty(inn), inn, crypt(inn,gpasskod)); //  10
+                 iif(empty(inn), inn, crypt(inn,gpasskod)),; //  10
+                 IDROLE;                                      // 11
                 };
         )
     skip
   enddo
   close databases
   if len(mas11) == 0
-    aadd(mas11, {space(20),space(25),space(20),0,space(10),1,0,space(10),space(10),space(12)})
+    aadd(mas11, {space(20),space(25),space(20),0,space(10),1,0,space(10),space(10),space(12), 0})
   endif
   //
   if len(mas11) > 254
@@ -200,8 +201,16 @@ Static Function f1editpass(b, ar, nDim, nElem, nKey)
          {"1 - уровень зав.отделением",1},;
          {"2 - уровень зам.гл.врача",2},;
          {"3 - уровень комиссии КЭК",3}}
+  local obj, menu_idrole := {}
+
+  // собирем доступные группы пользователей
+  aadd(menu_idrole, {'Группа пользователей не выбрана', 0})
+  for each obj in TRoleUserDB():getList()
+    aadd(menu_idrole, {obj:Name, obj:ID})
+  next
+
   keyboard ""
-  if nKey == K_ENTER
+  if nKey == K_ENTER 
     Private mfio, mdolj, mgruppa, m1gruppa := 0, mtip, m1tip, mpass, moper,;
     mfroper,minn, gl_area := {1,0,maxrow()-1,79,0}
 
@@ -225,6 +234,10 @@ Static Function f1editpass(b, ar, nDim, nElem, nKey)
       mfroper := ar[nElem,9]
       --r1
     endif
+
+    m1idrole := ar[nElem, 11]
+    midrole := inieditspr(A__MENUVERT, menu_idrole, m1idrole)
+
     buf1 := box_shadow(r1,c_1+1,r2,c_2-1,,iif(ar[nElem,7]==0,"Добавление","Редактирование"),cDataPgDn)
     if is_task(X_PLATN) .or. is_task(X_ORTO) .or. is_task(X_KASSA)
       @ r1+2,c_1+3 say "Ф.И.О. пользователя" get mfio valid func_empty(mfio)
@@ -233,9 +246,12 @@ Static Function f1editpass(b, ar, nDim, nElem, nKey)
       @ r1+2,c_1+3 say "Ф.И.О. пользователя" get mfio valid func_empty(mfio)
     endif
     @ r1+3,c_1+3 say "Должность" get mdolj
-    @ r1+4,c_1+3 say "Тип доступа" get mtip READER {|x|menu_reader(x,menu_tip,A__MENUVERT,,,.f.)}
-    @ r1+5,c_1+3 say "Пароль" get mpass picture "@!" valid func_empty(mpass)
-    i := 5
+
+    @ r1+4,c_1+3 say "Группа пользователей" get midrole READER {|x|menu_reader(x,menu_idrole,A__MENUVERT,,,.f.)}
+
+    @ r1+5,c_1+3 say "Тип доступа" get mtip READER {|x|menu_reader(x,menu_tip,A__MENUVERT,,,.f.)}
+    @ r1+6,c_1+3 say "Пароль" get mpass picture "@!" valid func_empty(mpass)
+    i := 6
     if is_task(X_KEK)
       ++i
       @ r1+i,c_1+3 say "Группа КЭК" get mgruppa READER {|x|menu_reader(x,mm_gruppa,A__MENUVERT,,,.f.)}
@@ -260,6 +276,7 @@ Static Function f1editpass(b, ar, nDim, nElem, nKey)
       ar[nElem,8]  := moper
       ar[nElem,9]  := mfroper
       ar[nElem,10] := minn
+      ar[nElem,11] := m1idrole
       if G_Use(dir_server+"base1",,,.t.)
         if ar[nElem,7] == 0
           G_RLock(.t.,FOREVER) ; ar[nElem,7] := recno()
@@ -273,7 +290,8 @@ Static Function f1editpass(b, ar, nDim, nElem, nKey)
                 p6  with m1gruppa,;
                 p7  with crypt(moper,gpasskod),;
                 p8  with crypt(mfroper,gpasskod),;
-                inn with crypt(minn,gpasskod)
+                inn with crypt(minn,gpasskod),;
+                IDROLE  with m1idrole
         b:refreshAll() ; fl := .t.
       endif
     endif

@@ -727,7 +727,7 @@ do case
     aadd(func_menu, {"spr_struct_org()",;
                      "edit_spr_uslugi()",;
                      "edit_proch_spr()",;
-                     "edit_Users_bay()",;   //"edit_password()",;
+                     "edit_password()",;      //"edit_Users_bay()",;
                      "editRoles()"} )
     //
     aadd(cmain_menu,40)
