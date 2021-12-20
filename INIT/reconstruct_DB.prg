@@ -19,13 +19,33 @@ function Reconstruct_Base(is_cur_dir)
     { 'ACL_TASK','C',  255,   0 }, ; // доступ к задачам
     { 'ACL_DEP', 'C',  255,   0 } ; // доступ к учреждениям
     }
+  Local mo_oper := {;
+    {"PO",      "C",   1,   0},; // код оператора asc(po)
+    {"PD",      "C",   4,   0},; // дата ввода c4tod(pd)
+    {"V0",      "C",   3,   0},; // добавление в регистратуре
+    {"VR",      "C",   3,   0},; // полные реквизиты      \
+    {"VK",      "C",   3,   0},; // реквизиты из картотеки => ft_unsqzn(V..., 6)
+    {"VU",      "C",   3,   0},; // ввод услуг            /
+    {"TASK",    "N",   1,   0},; // код задачи            /
+    {"CS",      "C",   4,   0},; // количество введённых символов
+    {"APP_EDIT","N",   1,   0};  // 0 - добавление, 1 - редактирование
+   }
+  Local mo_opern := {;
+    {"PD",      "C",   4,   0},; // дата ввода c4tod(pd)
+    {"PO",      "C",   1,   0},; // код оператора asc(po)
+    {"PT",      "C",   1,   0},; // код задачи
+    {"TP",      "C",   1,   0},; // тип (1-карточка, 2-л/у, 3-услуги)
+    {"AE",      "C",   1,   0},; // 1-добавление, 2-редактирование, 3-удаление
+    {"KK",      "C",   3,   0},; // кол-во (карточек, л/у или услуг)
+    {"KP",      "C",   3,   0};  // количество введённых полей
+  }
 
-    if !is_cur_dir .or. hb_FileExists(dir_server+"base1"+sdbf)
-      reconstruct(dir_server+"base1",base1,,,.t.)
-      reconstruct(dir_server+"mo_oper",mo_oper,"index_base('mo_oper')",,.t.)
-      reconstruct(dir_server+"mo_opern",mo_opern,"index_base('mo_opern')",,.t.)
-      reconstruct(dir_server + "roles", roles, , , .t.)
-    endif
+  if !is_cur_dir .or. hb_FileExists(dir_server+"base1"+sdbf)
+    reconstruct(dir_server+"base1",base1,,,.t.)
+    reconstruct(dir_server+"mo_oper",mo_oper,"index_base('mo_oper')",,.t.)
+    reconstruct(dir_server+"mo_opern",mo_opern,"index_base('mo_opern')",,.t.)
+    reconstruct(dir_server + "roles", roles, , , .t.)
+  endif
   
   return nil
 
