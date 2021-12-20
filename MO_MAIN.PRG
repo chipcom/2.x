@@ -193,10 +193,7 @@ Function f_main(r0, is_cur_dir, a_parol)
     aadd(array_tasks,arr1[i])
     sem_vagno_task[arr1[i,2]] := 'Важный режим в задаче "'+arr1[i,5]+'"'
   next
-  // arr := my_mo_f_main() // "своя" задача
-  // for i := 1 to len(arr)
-  //   aadd(array_tasks,arr[i])
-  // next
+
   if glob_mo[_MO_KOD_TFOMS] == kod_VOUNC
     aadd(array_tasks, {"ВОУНЦ - трансплантированные",X_MO,"TABLET_ICON",.T.})
   endif
@@ -218,10 +215,6 @@ Function f_main(r0, is_cur_dir, a_parol)
       array_tasks[i,4] := .t.
       fl_exit := .f.
     endif
-    // if array_tasks[i,4]
-    //   aadd(arr,array_tasks[i])
-    //   lens := max(lens,len(array_tasks[i,1]))
-    // endif
     if is_cur_dir
       if array_tasks[i,4]
         aadd(arr,array_tasks[i])
