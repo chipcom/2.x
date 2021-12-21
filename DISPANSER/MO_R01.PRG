@@ -3387,11 +3387,11 @@ if regim == "edit" .and. nKey == K_ENTER
 endif
 return ret
 
-***** 28.02.21 проверить, есть ли не до конца обработанные операции с файлами R01...
+***** 21.12.21 проверить, есть ли не до конца обработанные операции с файлами R01...
 Function find_unfinished_R01()
-/*
+
 Local fl := .t., fl1, skol := 0, mkol := 0, arr := {}, rec, fl_date := .t., vrem := 0
-Private sgod := 2021, mrec := 2
+Private sgod := 2022, mrec := 1
 if glob_mo[_MO_IS_UCH]
   if (fl := verify_packet_R05(2,arr))
     R_Use(dir_server+"mo_dr05p",,"R05p")
@@ -3432,8 +3432,8 @@ if glob_mo[_MO_IS_UCH]
     enddo
     if fl .and. skol != mkol
       fl := .f.
-      aadd(arr,"Количество, определённое в план-графике 4-12 месяц = "+lstr(skol))
-      aadd(arr,"Количество, отправленное в ТФОМС        4-12 месяц = "+lstr(mkol))
+      aadd(arr,"Количество, определённое в план-графике 1-12 месяц = "+lstr(skol))
+      aadd(arr,"Количество, отправленное в ТФОМС        1-12 месяц = "+lstr(mkol))
     endif
   endif
   close databases
@@ -3444,7 +3444,6 @@ if glob_mo[_MO_IS_UCH]
     n_message(arr,,"GR+/R","W+/R",,,"G+/R")
   endif
 endif
-*/
 return NIL
 
 ***** 03.12.21 проверить, есть ли не до конца обработанные операции с файлами R11...
