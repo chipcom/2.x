@@ -1,7 +1,7 @@
 #include 'chip_mo.ch'
 
-***** 20.12.21 реконстукция подсистемы паролей
-function Reconstruct_Base(is_cur_dir)
+***** 21.12.21 реконстукция подсистемы паролей
+function Reconstruct_Security(is_local_version)
   Local base1 := {;
      {"P1",      "C",  20,   0},; // Ф.И.О.
      {"P2",      "N",   1,   0},; // тип доступа
@@ -40,17 +40,24 @@ function Reconstruct_Base(is_cur_dir)
     {"KP",      "C",   3,   0};  // количество введённых полей
   }
 
-  if !is_cur_dir .or. hb_FileExists(dir_server+"base1"+sdbf)
-    reconstruct(dir_server+"base1",base1,,,.t.)
-    reconstruct(dir_server+"mo_oper",mo_oper,"index_base('mo_oper')",,.t.)
-    reconstruct(dir_server+"mo_opern",mo_opern,"index_base('mo_opern')",,.t.)
-    reconstruct(dir_server + "roles", roles, , , .t.)
+  if ControlBases(1, _version()) // если необходимо
+    if G_SLock1Task(sem_task, sem_vagno)  // запрет доступа всем
+      // реконструкция файлов доступа к системе
+      if !is_local_version .or. hb_FileExists(dir_server + 'base1' + sdbf)
+        reconstruct(dir_server + 'base1', base1, , , .t.)
+        reconstruct(dir_server + 'mo_oper', mo_oper, "index_base('mo_oper')", , .t.)
+        reconstruct(dir_server + 'mo_opern', mo_opern, "index_base('mo_opern')", , .t.)
+        reconstruct(dir_server + 'roles', roles, , , .t.)
+      endif
+      G_SUnLock(sem_vagno)
+    endif
   endif
+
   
   return nil
 
 ***** 24.04.21 реконстукция баз данных
-Function Reconstruct_DB(is_cur_dir,is_create)
+Function Reconstruct_DB(is_local_version,is_create)
   Local base1 := {;
      {"P1",      "C",  20,   0},; // Ф.И.О.
      {"P2",      "N",   1,   0},; // тип доступа
@@ -1463,7 +1470,7 @@ Function Reconstruct_DB(is_cur_dir,is_create)
   //
   f_init_r01() // инициализация всех файлов инф.сопровождения по диспансеризации
   // f_init_d01() // инициализация всех файлов инф.сопровождения по диспансерному наблюдению
-  if !is_cur_dir .or. hb_FileExists(dir_server+"base1"+sdbf)
+  if !is_local_version .or. hb_FileExists(dir_server+"base1"+sdbf)
     reconstruct(dir_server+"base1",base1,,,.t.)
     reconstruct(dir_server+"mo_oper",mo_oper,"index_base('mo_oper')",,.t.)
     reconstruct(dir_server+"mo_opern",mo_opern,"index_base('mo_opern')",,.t.)

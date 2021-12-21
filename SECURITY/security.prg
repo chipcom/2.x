@@ -55,13 +55,13 @@ Function involved_password(par,_n_reestr,smsg)
   return fl
 
 ***** 23.10.19 ввод пароля
-Function inp_password(is_cur_dir,is_create)
+Function inp_password(is_local_version,is_create)
   Local pss := space(10), tmp_pss := my_parol(), i_p := 0, ta := {}, s, fl_g := .f.
   Public TIP_ADM := 0, TIP_OPER := 1, TIP_KONT := 3
   Public grup_polzovat := 1, dolj_polzovat := "",;
          kod_polzovat := chr(0), tip_polzovat := TIP_ADM, fio_polzovat := "",;
          yes_parol := .t.
-  if (is_cur_dir .and. !hb_FileExists(dir_server+"base1"+sdbf)) .or. is_create
+  if (is_local_version .and. !hb_FileExists(dir_server+"base1"+sdbf)) .or. is_create
     yes_parol := .f.
     return ta
   endif

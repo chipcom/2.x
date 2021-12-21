@@ -2,7 +2,7 @@
 *******************************************************************************
 * 04.11.18 edit_Users_bay() - редактирование списка пользователей
 * 20.10.18 editUser( oBrowse, aObjects, object, nKey ) - редактирование объекта 'пользователь'
-* 20.10.18 inp_password_bay( is_cur_dir, is_create ) - запрос и проверка пароля
+* 20.10.18 inp_password_bay( is_local_version, is_create ) - запрос и проверка пароля
 * 20.10.18 get_parol_bay( r1, c1, r2, c2, ltip, color_say, color_get ) - функция окна ввода пароля
 * 11.07.17 layoutUser( oBrow, aList ) - формирование колонок для отображения списка пользователей
 * 01.09.16 PassExist( obj, aObjects, pass ) - проверка существования пользователя с указанным паролем
@@ -17,7 +17,7 @@
 #include 'chip_mo.ch'
 
 * 20.10.18 ввод пароля
-function inp_password_bay( is_cur_dir, is_create )
+function inp_password_bay( is_local_version, is_create )
 	local strPassword := space( 10 )
 	local i_p := 0, ta := {}
 	local oUser := nil
@@ -29,7 +29,7 @@ function inp_password_bay( is_cur_dir, is_create )
 		kod_polzovat := chr( 0 ), tip_polzovat := TIP_ADM, fio_polzovat := '', ;
 		yes_parol := .t.
 		
-	if ( is_cur_dir .and. ! TStructFiles():New():ExistFileClass( 'TUserDB' ) ) .or. is_create
+	if ( is_local_version .and. ! TStructFiles():New():ExistFileClass( 'TUserDB' ) ) .or. is_create
 		yes_parol := .f.
 		return ta
 	endif
