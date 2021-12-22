@@ -1157,7 +1157,7 @@ Function verify_1_sluch(fl_view)
         endif
         if arr_povod[1,1] == 4  .and. (left(mdiagnoz[1],1) == "C" .or. between(left(mdiagnoz[1],3),"D00","D09") .or. between(left(mdiagnoz[1],3),"D45","D47"))
           k := ret_prvs_V021(human_->PRVS)
-          if !eq_any(k,19,41)
+          if !eq_any(k, 9, 19, 41)  // как исключение добавил гематологов, специальность - 9
             aadd(ta,'диспансерное наблюдение при ЗНО осуществляют только врачи-онкологи (детские онкологи), а в листе учёта стоит специальность "'+inieditspr(A__MENUVERT, glob_V021, k)+'"')
           endif
         endif
