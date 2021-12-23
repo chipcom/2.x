@@ -51,6 +51,22 @@ function prefixFileRefName(in_date)
 
   return '_mo' + substr(str(valYear, 4, 0), 4, 1)
 
+// 23.12.21
+// ¢¥à­ãâì áâà®ªã ¨§ ¤¢ãå ¯®á«¥¤­¨å æ¨äà ¤«ï £®¤ 
+function last_digits_year(in_date)
+  local valYear
+
+  // ¯à®¢¥à¨¬ ¢å®¤­ë¥ ¯ à ¬¥âàë
+  if valtype(in_date) == 'D'
+    valYear := year(in_date)
+  elseif valtype(in_date) == 'N' .and. in_date >= 2018 .and. in_date <= WORK_YEAR
+    valYear := in_date
+  else
+    valYear := WORK_YEAR
+  endif
+
+  return str(valYear - 2000, 2, 0)
+
 ***** 14.02.21
 function notExistsFileNSI(nameFile)
   // nameFile - ¯®«­®¥ ¨¬ï ä ©«  ‘ˆ

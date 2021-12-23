@@ -119,6 +119,7 @@ mo_version.prg
 .\calendar\calendar_func.prg
 
 .\ref\initSpravFFOMS.prg
+.\ref\initPZarray.prg
 .\ref\dbO001.prg
 .\ref\dbF003.prg
 .\ref\dbF005.prg

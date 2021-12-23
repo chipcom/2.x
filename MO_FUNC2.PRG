@@ -97,156 +97,215 @@ else
 endif
 return count_years(_date_r,_data) >= v
 
-***** 02.01.21
+***** 23.12.21
 Function arr_plan_zakaz(ly)
-Local i, apz := {}
-DEFAULT ly TO WORK_YEAR
-if ly > 2020
-  for i := 1 to len(glob_array_PZ_21)
-    aadd(apz,{glob_array_PZ_21[i,3],;
-              glob_array_PZ_21[i,1],;
-              0,;
-              glob_array_PZ_21[i,6],;
-              glob_array_PZ_21[i,5],;
-              {};
-             } )
-  next
-elseif ly == 2020
-  for i := 1 to len(glob_array_PZ_20)
-    aadd(apz,{glob_array_PZ_20[i,3],;
-              glob_array_PZ_20[i,1],;
-              0,;
-              glob_array_PZ_20[i,6],;
-              glob_array_PZ_20[i,5],;
-              {};
-             } )
-  next
-elseif ly == 2019
-  for i := 1 to len(glob_array_PZ_19)
-    aadd(apz,{glob_array_PZ_19[i,3],;
-              glob_array_PZ_19[i,1],;
-              0,;
-              glob_array_PZ_19[i,6],;
-              glob_array_PZ_19[i,5],;
-              {};
-             } )
-  next
-else
-  for i := 1 to len(glob_array_PZ_18)
-    aadd(apz,{glob_array_PZ_18[i,3],;
-              glob_array_PZ_18[i,1],;
-              0,;
-              glob_array_PZ_18[i,6],;
-              glob_array_PZ_18[i,5],;
-              {};
-             } )
-  next
-endif
-return apz
+  Local i, apz := {}
+  local nameArr
 
-***** 23.12.21 по шифру услуги вернуть номер элемента массива "arr_plan_zakaz" для 2020 года
-Function f_arr_plan_zakaz_21(lshifr)
+  DEFAULT ly TO WORK_YEAR
+  nameArr := 'glob_array_PZ_' + last_digits_year(ly)
+  for i := 1 to len(&nameArr)
+    aadd(apz,{&nameArr.[i,3],;
+              &nameArr.[i,1],;
+              0,;
+              &nameArr.[i,6],;
+              &nameArr.[i,5],;
+              {};
+             } )
+  next
+
+  // if ly > 2020
+  //   for i := 1 to len(glob_array_PZ_21)
+  //     aadd(apz,{glob_array_PZ_21[i,3],;
+  //             glob_array_PZ_21[i,1],;
+  //             0,;
+  //             glob_array_PZ_21[i,6],;
+  //             glob_array_PZ_21[i,5],;
+  //             {};
+  //            } )
+  //   next
+  // elseif ly == 2020
+  //   for i := 1 to len(glob_array_PZ_20)
+  //     aadd(apz,{glob_array_PZ_20[i,3],;
+  //             glob_array_PZ_20[i,1],;
+  //             0,;
+  //             glob_array_PZ_20[i,6],;
+  //             glob_array_PZ_20[i,5],;
+  //             {};
+  //            } )
+  //   next
+  // elseif ly == 2019
+  //   for i := 1 to len(glob_array_PZ_19)
+  //     aadd(apz,{glob_array_PZ_19[i,3],;
+  //             glob_array_PZ_19[i,1],;
+  //             0,;
+  //             glob_array_PZ_19[i,6],;
+  //             glob_array_PZ_19[i,5],;
+  //             {};
+  //            } )
+  //   next
+  // else
+  //   for i := 1 to len(glob_array_PZ_18)
+  //     aadd(apz,{glob_array_PZ_18[i,3],;
+  //             glob_array_PZ_18[i,1],;
+  //             0,;
+  //             glob_array_PZ_18[i,6],;
+  //             glob_array_PZ_18[i,5],;
+  //             {};
+  //            } )
+  //   next
+  // endif
+  return apz
+
+***** 23.12.21 по шифру услуги у году вернуть номер элемента массива "arr_plan_zakaz" для года
+Function f_arr_plan_zakaz(lshifr, lyear)
   Local i, j, c, k := 0, shb, i16 := 0
-  local sbase
+  local sbase, sAlias, sAliasUnit
+  local nameArrayPZ
 
   if select("LUSL") == 0
     Use_base("lusl")
   endif
-  select LUSL
-  find (padr(lshifr,10))
-  if found() .and. !empty(lusl->unit_code)
-    if select("MOUNIT") == 0
-      sbase := prefixFileRefName(WORK_YEAR) + 'unit'
-      R_Use(dir_exe + sbase, cur_dir + sbase, "MOUNIT")
-      // R_Use(dir_exe+"_mo1unit",cur_dir+"_mo1unit","MOUNIT")
+
+  sAlias := create_name_alias('LUSL', lyear)
+  sAliasUnit := create_name_alias('MOUNIT', lyear)
+
+  select (sAlias)
+  find (padr(lshifr, 10))
+  if found() .and. !empty((sAlias)->unit_code)
+    if select(sAliasUnit) == 0
+      sbase := prefixFileRefName(lyear) + 'unit'
+      R_Use(dir_exe + sbase, cur_dir + sbase, sAliasUnit)
     endif
-    select MOUNIT
+    select (sAliasUnit)
     set order to 1
-    find (str(lusl->unit_code,3))
-    if found() .and. mounit->pz > 0
-      k := mounit->pz
-      i16 := mounit->ii
+    find (str((sAlias)->unit_code, 3))
+    if found() .and. (sAliasUnit)->pz > 0
+      k := (sAliasUnit)->pz
+      i16 := (sAliasUnit)->ii
     endif
   endif
   if k > 0 .and. empty(i16)
-    i16 := ascan(glob_array_PZ_21, {|x| x[1] == k })
+    nameArrayPZ := 'glob_array_PZ_' +  + last_digits_year(lyear)
+    i16 := ascan(&nameArrayPZ, {|x| x[1] == k })
   endif
   return i16
 
-***** 02.01.21 по шифру услуги вернуть номер элемента массива "arr_plan_zakaz" для 2020 года
-Function f_arr_plan_zakaz_20(lshifr)
-Local i, j, c, k := 0, shb, i16 := 0
-if select("LUSL") == 0
-  Use_base("lusl")
-endif
-select LUSL20
-find (padr(lshifr,10))
-if found() .and. !empty(lusl20->unit_code)
-  if select("MOUNIT20") == 0
-    R_Use(dir_exe+"_mo0unit",cur_dir+"_mo0unit","MOUNIT20")
-  endif
-  select MOUNIT20
-  set order to 1
-  find (str(lusl20->unit_code,3))
-  if found() .and. mounit20->pz > 0
-    k := mounit20->pz
-    i16 := mounit20->ii
-  endif
-endif
-if k > 0 .and. empty(i16)
-  i16 := ascan(glob_array_PZ_20, {|x| x[1] == k })
-endif
-return i16
+// ***** 23.12.21 по шифру услуги вернуть номер элемента массива "arr_plan_zakaz" для 2021 года
+// Function f_arr_plan_zakaz_21(lshifr)
+//   Local i, j, c, k := 0, shb, i16 := 0
+//   local sbase
 
-***** 02.01.19 по шифру услуги вернуть номер элемента массива "arr_plan_zakaz" для 2019 года
-Function f_arr_plan_zakaz_19(lshifr)
-Local i, j, c, k := 0, shb, i16 := 0
-if select("LUSL") == 0
-  Use_base("lusl")
-endif
-select LUSL19
-find (padr(lshifr,10))
-if found() .and. !empty(lusl19->unit_code)
-  if select("MOUNIT19") == 0
-    R_Use(dir_exe+"_mo9unit",cur_dir+"_mo9unit","MOUNIT19")
-  endif
-  select MOUNIT19
-  set order to 1
-  find (str(lusl19->unit_code,3))
-  if found() .and. mounit19->pz > 0
-    k := mounit19->pz
-    i16 := mounit19->ii
-  endif
-endif
-if k > 0 .and. empty(i16)
-  i16 := ascan(glob_array_PZ_19, {|x| x[1] == k })
-endif
-return i16
+//   if select("LUSL") == 0
+//     Use_base("lusl")
+//   endif
+//   select LUSL
+//   find (padr(lshifr,10))
+//   if found() .and. !empty(lusl->unit_code)
+//     if select("MOUNIT") == 0
+//       sbase := prefixFileRefName(WORK_YEAR) + 'unit'
+//       R_Use(dir_exe + sbase, cur_dir + sbase, "MOUNIT")
+//       // R_Use(dir_exe+"_mo1unit",cur_dir+"_mo1unit","MOUNIT")
+//     endif
+//     select MOUNIT
+//     set order to 1
+//     find (str(lusl->unit_code,3))
+//     if found() .and. mounit->pz > 0
+//       k := mounit->pz
+//       i16 := mounit->ii
+//     endif
+//   endif
+//   if k > 0 .and. empty(i16)
+//     i16 := ascan(glob_array_PZ_21, {|x| x[1] == k })
+//   endif
+//   return i16
 
-***** 04.02.18 по шифру услуги вернуть номер элемента массива "arr_plan_zakaz" для 2018 года
-Function f_arr_plan_zakaz_18(lshifr)
-Local i, j, c, k := 0, shb, i16 := 0
-if select("LUSL") == 0
-  Use_base("lusl")
-endif
-select LUSL18
-find (padr(lshifr,10))
-if found() .and. !empty(lusl18->unit_code)
-  if select("MOUNIT18") == 0
-    R_Use(dir_exe+"_mo8unit",cur_dir+"_mo8unit","MOUNIT18")
-  endif
-  select MOUNIT18
-  set order to 1
-  find (str(lusl18->unit_code,3))
-  if found() .and. mounit18->pz > 0
-    k := mounit18->pz
-    i16 := mounit18->ii
-  endif
-endif
-if k > 0 .and. empty(i16)
-  i16 := ascan(glob_array_PZ_18, {|x| x[1] == k })
-endif
-return i16
+// ***** 02.01.21 по шифру услуги вернуть номер элемента массива "arr_plan_zakaz" для 2020 года
+// Function f_arr_plan_zakaz_20(lshifr)
+//   Local i, j, c, k := 0, shb, i16 := 0
+//   local sbase
+
+//   if select("LUSL") == 0
+//     Use_base("lusl")
+//   endif
+//   select LUSL20
+//   find (padr(lshifr,10))
+//   if found() .and. !empty(lusl20->unit_code)
+//     if select("MOUNIT20") == 0
+//       // sbase := prefixFileRefName(WORK_YEAR) + 'unit'
+//       // R_Use(dir_exe + sbase, cur_dir + sbase, "MOUNIT20")
+//       R_Use(dir_exe+"_mo0unit",cur_dir+"_mo0unit","MOUNIT20")
+//     endif
+//     select MOUNIT20
+//     set order to 1
+//     find (str(lusl20->unit_code,3))
+//     if found() .and. mounit20->pz > 0
+//       k := mounit20->pz
+//       i16 := mounit20->ii
+//     endif
+//   endif
+//   if k > 0 .and. empty(i16)
+//     i16 := ascan(glob_array_PZ_20, {|x| x[1] == k })
+//   endif
+//   return i16
+
+// ***** 02.01.19 по шифру услуги вернуть номер элемента массива "arr_plan_zakaz" для 2019 года
+// Function f_arr_plan_zakaz_19(lshifr)
+//   Local i, j, c, k := 0, shb, i16 := 0
+//   local sbase
+
+//   if select("LUSL") == 0
+//     Use_base("lusl")
+//   endif
+//   select LUSL19
+//   find (padr(lshifr,10))
+//   if found() .and. !empty(lusl19->unit_code)
+//     if select("MOUNIT19") == 0
+//       // sbase := prefixFileRefName(WORK_YEAR) + 'unit'
+//       // R_Use(dir_exe + sbase, cur_dir + sbase, "MOUNIT19")
+//       R_Use(dir_exe+"_mo9unit",cur_dir+"_mo9unit","MOUNIT19")
+//     endif
+//     select MOUNIT19
+//     set order to 1
+//     find (str(lusl19->unit_code,3))
+//     if found() .and. mounit19->pz > 0
+//       k := mounit19->pz
+//       i16 := mounit19->ii
+//     endif
+//   endif
+//   if k > 0 .and. empty(i16)
+//     i16 := ascan(glob_array_PZ_19, {|x| x[1] == k })
+//   endif
+//   return i16
+
+// ***** 04.02.18 по шифру услуги вернуть номер элемента массива "arr_plan_zakaz" для 2018 года
+// Function f_arr_plan_zakaz_18(lshifr)
+//   Local i, j, c, k := 0, shb, i16 := 0
+//   local sbase
+
+//   if select("LUSL") == 0
+//     Use_base("lusl")
+//   endif
+//   select LUSL18
+//   find (padr(lshifr,10))
+//   if found() .and. !empty(lusl18->unit_code)
+//     if select("MOUNIT18") == 0
+//       // sbase := prefixFileRefName(WORK_YEAR) + 'unit'
+//       // R_Use(dir_exe + sbase, cur_dir + sbase, "MOUNIT")
+//       R_Use(dir_exe+"_mo8unit",cur_dir+"_mo8unit","MOUNIT18")
+//     endif
+//     select MOUNIT18
+//     set order to 1
+//     find (str(lusl18->unit_code,3))
+//     if found() .and. mounit18->pz > 0
+//       k := mounit18->pz
+//       i16 := mounit18->ii
+//     endif
+//   endif
+//   if k > 0 .and. empty(i16)
+//     i16 := ascan(glob_array_PZ_18, {|x| x[1] == k })
+//   endif
+//   return i16
 
 ***** 26.02.13
 Function f14tf_array()
@@ -265,125 +324,127 @@ Static arr_name := {;
 return arr_name
 
 ***** 24.02.21
-Function f14tf_nastr(/*@*/lshifr,/*@*/lname,lyear)
-Static a_usl, a_zak_sl, syear
-Local ta := {}, i, j, k, i14 := 0, arr, shb, fl := .f., fl1 := .f., ret := {}
-if type("apz2016") == "A" .and. !empty(apz2016)
-  if type("is_2021") == "L" .and. is_2021
-    i14 := f_arr_plan_zakaz_21(lshifr)
-  elseif type("is_2020") == "L" .and. is_2020
-    i14 := f_arr_plan_zakaz_20(lshifr)
-  elseif type("is_2019") == "L" .and. is_2019
-    i14 := f_arr_plan_zakaz_19(lshifr)
-  else
-    i14 := f_arr_plan_zakaz_18(lshifr)
+Function f14tf_nastr(/*@*/lshifr, /*@*/lname, lyear)
+  Static a_usl, a_zak_sl, syear
+  Local ta := {}, i, j, k, i14 := 0, arr, shb, fl := .f., fl1 := .f., ret := {}
+
+  if type("apz2016") == "A" .and. !empty(apz2016)
+    // if type("is_2021") == "L" .and. is_2021
+    //   i14 := f_arr_plan_zakaz_21(lshifr, lyear)
+    // elseif type("is_2020") == "L" .and. is_2020
+    //   i14 := f_arr_plan_zakaz_20(lshifr, lyear)
+    // elseif type("is_2019") == "L" .and. is_2019
+    //   i14 := f_arr_plan_zakaz_19(lshifr, lyear)
+    // else
+    //   i14 := f_arr_plan_zakaz_18(lshifr, lyear)
+    // endif
+    i14 := f_arr_plan_zakaz(lshifr, lyear)
   endif
-endif
-if a_usl == NIL .or. syear != lyear
-  a_usl := array(10,2)
-  // врачебные приемы
-  a_usl[1,1] := {"2.*","70.*","72.*"}
-  a_usl[1,2] := {"2.4.*",;
+  if a_usl == NIL .or. syear != lyear
+    a_usl := array(10,2)
+    // врачебные приемы
+    a_usl[1,1] := {"2.*","70.*","72.*"}
+    a_usl[1,2] := {"2.4.*",;
                  "2.78.47","2.78.48","2.78.49","2.78.50","2.78.51","2.78.52","2.78.53",;
                  "2.79.52","2.79.53","2.79.54","2.79.55","2.79.56","2.79.57","2.79.58",;
                  "2.88.40","2.88.41","2.88.42","2.88.43","2.88.44","2.88.45",;
                  "2.80.29","2.80.30","2.80.31","2.80.32","2.80.33"}
-  // койко-дни
-  a_usl[2,1] := {"1.*"} // включаемые услуги
-  // a_usl[2,2] := {"1.12.*","1.13.*","1.14.*","1.15.*","1.16.*","1.17.*","1.18.*"} // исключаемые услуги 07.02.21
-  a_usl[2,2] := {"1.12.*","1.13.*","1.14.*","1.15.*","1.16.*","1.17.*","1.18.*","1.20.*"} // исключаемые услуги 07.02.21
-  // дневной стационар при стационаре
-  a_usl[3,1] := {"55.1.1","55.1.4","55.1.5","55.2.*","55.5.*","55.8.*","60.2.9"}
-  a_usl[3,2] := {}
-  // дневной стационар при поликлинике
-  a_usl[4,1] := {"55.1.2","55.3.*","55.6.*"}
-  a_usl[4,2] := {}
-  // дневной стационар на дому
-  a_usl[5,1] := {"55.1.3","55.4.*","55.7.*"}
-  a_usl[5,2] := {}
-  // стомат.врачебные приемы
-  a_usl[6,1] := {}
-  f_vid_p_stom({},{},a_usl[6,1]) // добавим все новые стоматологические приёмы
-  a_usl[6,2] := {}
-  // отдельные медицинские услуги
-  a_usl[7,1] := {"4.20.702","4.15.746","4.17.777","4.11.738","4.11.739","4.11.740","4.8.804",;
+    // койко-дни
+    a_usl[2,1] := {"1.*"} // включаемые услуги
+    // a_usl[2,2] := {"1.12.*","1.13.*","1.14.*","1.15.*","1.16.*","1.17.*","1.18.*"} // исключаемые услуги 07.02.21
+    a_usl[2,2] := {"1.12.*","1.13.*","1.14.*","1.15.*","1.16.*","1.17.*","1.18.*","1.20.*"} // исключаемые услуги 07.02.21
+    // дневной стационар при стационаре
+    a_usl[3,1] := {"55.1.1","55.1.4","55.1.5","55.2.*","55.5.*","55.8.*","60.2.9"}
+    a_usl[3,2] := {}
+    // дневной стационар при поликлинике
+    a_usl[4,1] := {"55.1.2","55.3.*","55.6.*"}
+    a_usl[4,2] := {}
+    // дневной стационар на дому
+    a_usl[5,1] := {"55.1.3","55.4.*","55.7.*"}
+    a_usl[5,2] := {}
+    // стомат.врачебные приемы
+    a_usl[6,1] := {}
+    f_vid_p_stom({},{},a_usl[6,1]) // добавим все новые стоматологические приёмы
+    a_usl[6,2] := {}
+    // отдельные медицинские услуги
+    a_usl[7,1] := {"4.20.702","4.15.746","4.17.777","4.11.738","4.11.739","4.11.740","4.8.804",;
                  "4.12.7*","4.12.8*","4.12.9*","4.13.7*","4.15.7*","4.16.7*","4.17.7*","4.27.1",;
                  "60.*"}
-  a_usl[7,2] := {"60.2.9"}
-  // СМП
-  a_usl[8,1] := {"71.*"}
-  a_usl[8,2] := {}
-  // лечебные УЕТ
-  a_usl[9,1] := {"57.1.*","57.2.*","57.3.*","57.5.*"}
-  a_usl[9,2] := {"57.1.4","57.1.32","57.1.33"}
-  // ортодонтические УЕТ
-  a_usl[10,1] := {"57.1.4","57.1.32","57.1.33","57.4.*"}
-  a_usl[10,2] := {}
-endif
-lshifr := alltrim(lshifr)
-if select("LUSL") == 0
-  Use_base("lusl")
-endif
-select LUSL
-find (padr(lshifr,10))
-if found()
-  lname := lusl->name  // наименование услуги из справочника ТФОМС
-endif
-if lyear == 2021
-  if is_ksg(lshifr,1) .or. left(lshifr,5) == "1.20."  // 07.02.21
-    return {{2,-1,i14}}
-  elseif is_ksg(lshifr,2) // КСГ дневного стационара
-    return {{3,-1,i14}}
+    a_usl[7,2] := {"60.2.9"}
+    // СМП
+    a_usl[8,1] := {"71.*"}
+    a_usl[8,2] := {}
+    // лечебные УЕТ
+    a_usl[9,1] := {"57.1.*","57.2.*","57.3.*","57.5.*"}
+    a_usl[9,2] := {"57.1.4","57.1.32","57.1.33"}
+    // ортодонтические УЕТ
+    a_usl[10,1] := {"57.1.4","57.1.32","57.1.33","57.4.*"}
+    a_usl[10,2] := {}
   endif
-else
-  if is_ksg(lshifr,1) .or. left(lshifr,5) == "1.12."
-    return {{2,-1,i14}}
-  elseif is_ksg(lshifr,2) // КСГ дневного стационара
-    return {{3,-1,i14}}
+  lshifr := alltrim(lshifr)
+  if select("LUSL") == 0
+    Use_base("lusl")
   endif
-endif
-// включаемые услуги
-for j := 1 to len(a_usl)
-  for i := 1 to len(a_usl[j,1])
-    if !empty(shb := a_usl[j,1,i])
-      if "*" $ shb .or. "?" $ shb
-        fl := like(alltrim(shb),lshifr)
-      else
-        fl := (shb == lshifr)
-      endif
-      if fl
-        if f_is_zak_sl_vr(lshifr) .or. f_dn_stac_01_04(lshifr)
-          k := -1 // зак.случай в п-ке или дневной стационар
+  select LUSL
+  find (padr(lshifr,10))
+  if found()
+    lname := lusl->name  // наименование услуги из справочника ТФОМС
+  endif
+  if lyear == 2021
+    if is_ksg(lshifr,1) .or. left(lshifr,5) == "1.20."  // 07.02.21
+      return {{2,-1,i14}}
+    elseif is_ksg(lshifr,2) // КСГ дневного стационара
+      return {{3,-1,i14}}
+    endif
+  else
+    if is_ksg(lshifr,1) .or. left(lshifr,5) == "1.12."
+      return {{2,-1,i14}}
+    elseif is_ksg(lshifr,2) // КСГ дневного стационара
+      return {{3,-1,i14}}
+    endif
+  endif
+  // включаемые услуги
+  for j := 1 to len(a_usl)
+    for i := 1 to len(a_usl[j,1])
+      if !empty(shb := a_usl[j,1,i])
+        if "*" $ shb .or. "?" $ shb
+          fl := like(alltrim(shb),lshifr)
         else
-          k := 0
+          fl := (shb == lshifr)
         endif
-        aadd(ta,{j,k,i14})
+        if fl
+          if f_is_zak_sl_vr(lshifr) .or. f_dn_stac_01_04(lshifr)
+            k := -1 // зак.случай в п-ке или дневной стационар
+          else
+            k := 0
+          endif
+          aadd(ta,{j,k,i14})
+        endif
       endif
+    next
+  next
+  for k := 1 to len(ta)  // исключаемые услуги
+    j := ta[k,1]
+    for i := 1 to len(a_usl[j,2])
+      if !empty(shb := a_usl[j,2,i])
+        if "*" $ shb .or. "?" $ shb
+          fl := !like(alltrim(shb),lshifr)
+        else
+          fl := !(shb == lshifr)
+        endif
+        if !fl ; ta[k,1] := 0 ; endif
+      endif
+    next
+  next
+  for k := 1 to len(ta)
+    if ta[k,1] > 0
+      aadd(ret,ta[k])
     endif
   next
-next
-for k := 1 to len(ta)  // исключаемые услуги
-  j := ta[k,1]
-  for i := 1 to len(a_usl[j,2])
-    if !empty(shb := a_usl[j,2,i])
-      if "*" $ shb .or. "?" $ shb
-        fl := !like(alltrim(shb),lshifr)
-      else
-        fl := !(shb == lshifr)
-      endif
-      if !fl ; ta[k,1] := 0 ; endif
-    endif
-  next
-next
-for k := 1 to len(ta)
-  if ta[k,1] > 0
-    aadd(ret,ta[k])
+  if len(ret) == 0
+    aadd(ret,{len(a_usl)+1,0,i14})
   endif
-next
-if len(ret) == 0
-  aadd(ret,{len(a_usl)+1,0,i14})
-endif
-return ret
+  return ret
 
 ***** подменить услуги по по законченным случаям на обычные койко-дни
 Function ChangeUslugiZakSluch()

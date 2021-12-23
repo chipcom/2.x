@@ -3268,7 +3268,7 @@ do while hu->kod == human->kod .and. !eof()
           elseif i16 > 0
             lalunit := "MOUNIT"+iif(is_2021,"","20")   // 19.01.2021
             dbSelectArea(lalunit)
-            set order to 2
+            set order to 1  // 2 23.12.21
             find (str(i16,3))
             if &lalunit.->c_t == 2 // план-заказ подсчитывается по случаю
               //apz2016[i16,3] ++
