@@ -4,11 +4,10 @@
 ***** 22.12.21
 function correct_V004_to_V021()
   local i := 0, j := 0
-  Local t1 := 0, t2 := 0
+  // Local t1 := 0, t2 := 0
 
-  t1 := seconds()
+  // t1 := seconds()
 
-  t2 := seconds() - t1
 
   Stat_Msg('Заполняем специальность')
 
@@ -38,10 +37,12 @@ function correct_V004_to_V021()
   
   dbCloseAll()        // закроем все
 
-  if t2 > 0
-    n_message({"","Время обхода БД - "+sectotime(t2)},,;
-          color1,cDataCSay,,,color8)
-  endif
-  alertx(i, 'Количество сотрудников')
+  // t2 := seconds() - t1
+
+  // if t2 > 0
+  //   n_message({"","Время обхода БД - "+sectotime(t2)},,;
+  //         color1,cDataCSay,,,color8)
+  // endif
+  // alertx(i, 'Количество сотрудников')
 
   return nil
