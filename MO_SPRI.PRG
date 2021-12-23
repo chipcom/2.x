@@ -1809,10 +1809,12 @@ fclose(fp)
 viewtext(name_file,,,,.t.,,,5)
 return NIL
 
-***** 03.01.19
+***** 23.12.21
 Function usl6FFOMS(lksg)
 Local k, buf := save_maxrow(), name_file := "usl_ksg"+stxt, nu, sh := 80, HH := 78, ;
       t_arr, i, s, fl, v1, v2, mdate, fl1uslc, fl2uslc, ta[2], fl1del, fl2del, ret_arr
+local sbase
+
 glob_otd_dep := 0
 if is_otd_dep .and. lksg == 1 .and. (ret_arr := ret_otd_dep()) == NIL
   return NIL
@@ -1830,7 +1832,10 @@ dbcreate(cur_dir+"tmp1",{;
 use (cur_dir+"tmp1") new
 index on shifr1+shifr to (cur_dir+"tmp1")
 mdate := sys_date
-R_Use(exe_dir+"_mo9k006",,"K006")
+
+sbase := prefixFileRefName(WORK_YEAR) + 'k006'
+R_Use(exe_dir + sbase, , "K006")
+// R_Use(exe_dir+"_mo9k006",,"K006")
 index on SHIFR+SY to (cur_dir+"tmp_t009")
 use_base("luslc")
 use_base("lusl")

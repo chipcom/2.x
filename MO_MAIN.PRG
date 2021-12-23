@@ -127,7 +127,7 @@ procedure main( ... )
 
   Init_first() // начальная инициализация программы (переменных, массивов,...)
 
-  // Init_Program() // инициализация программы (переменных, массивов,...)
+  Init_Program() // инициализация программы (переменных, массивов,...)
 
   if ControlBases(1, _version()) // если необходимо
     if G_SLock1Task(sem_task,sem_vagno)  // запрет доступа всем
@@ -160,7 +160,7 @@ procedure main( ... )
     endif
   endif
 
-  Init_Program() // инициализация программы (переменных, массивов,...)
+  // Init_Program() // инициализация программы (переменных, массивов,...)
 
   f_main(r, is_local_version, a_parol)
 

@@ -1465,41 +1465,45 @@ do case
 endcase
 return ret
 
-***** 05.01.19
+***** 23.12.21
 Function input_Fusluga()
-Local ar, musl, arr_usl, buf, fl, s
-ar := GetIniSect(tmp_ini,"Fuslugi")
-musl := padr(a2default(ar,"shifr"),20)
-if (musl := input_value(18,6,20,73,color1,space(13)+"Введите шифр услуги",musl,"@K@!")) != NIL .and. !empty(musl)
-  buf := save_maxrow()
-  mywait()
-  musl := transform_shifr(musl)
-  SetIniSect(tmp_ini,"Fuslugi",{{"shifr",musl}})
-  R_Use(dir_server+"mo_su",{dir_server+"mo_sush",;
+  Local ar, musl, arr_usl, buf, fl, s
+  local sbase
+
+  ar := GetIniSect(tmp_ini,"Fuslugi")
+  musl := padr(a2default(ar,"shifr"),20)
+  if (musl := input_value(18,6,20,73,color1,space(13)+"Введите шифр услуги",musl,"@K@!")) != NIL .and. !empty(musl)
+    buf := save_maxrow()
+    mywait()
+    musl := transform_shifr(musl)
+    SetIniSect(tmp_ini,"Fuslugi",{{"shifr",musl}})
+    R_Use(dir_server+"mo_su",{dir_server+"mo_sush",;
                             dir_server+"mo_sush1"},"USL")
-  fl := .f.
-  select USL
-  if len(alltrim(musl)) <= 10
-    set order to 1
-    find (padr(musl,10))
-    fl := found()
+    fl := .f.
+    select USL
+    if len(alltrim(musl)) <= 10
+      set order to 1
+      find (padr(musl,10))
+      fl := found()
+    endif
+    if !fl
+      set order to 2
+      find (padr(musl,20))
+      fl := found()
+    endif
+    if fl
+      s := iif(empty(usl->shifr), "", "("+alltrim(usl->shifr)+") ")
+      sbase := prefixFileRefName(WORK_YEAR) + 'uslf'
+      R_Use(exe_dir + sbase, cur_dir + sbase, "luslf")
+      // R_Use(exe_dir+"_mo0uslf",cur_dir+"_mo0uslf","luslf")
+      // R_Use(exe_dir+"_mo1uslf",cur_dir+"_mo1uslf","luslf")
+      find (usl->shifr1)
+      arr_usl := {usl->kod,alltrim(usl->shifr1)+". "+s+alltrim(luslf->name),usl->shifr1}
+      luslf->(dbCloseArea())
+    else
+      func_error(4,"Услуга с шифром "+alltrim(musl)+" не найдена в нашем справочнике!")
+    endif
+    usl->(dbCloseArea())
+    rest_box(buf)
   endif
-  if !fl
-    set order to 2
-    find (padr(musl,20))
-    fl := found()
-  endif
-  if fl
-    s := iif(empty(usl->shifr), "", "("+alltrim(usl->shifr)+") ")
-    //R_Use(exe_dir+"_mo0uslf",cur_dir+"_mo0uslf","luslf")
-    R_Use(exe_dir+"_mo1uslf",cur_dir+"_mo1uslf","luslf")
-    find (usl->shifr1)
-    arr_usl := {usl->kod,alltrim(usl->shifr1)+". "+s+alltrim(luslf->name),usl->shifr1}
-    luslf->(dbCloseArea())
-  else
-    func_error(4,"Услуга с шифром "+alltrim(musl)+" не найдена в нашем справочнике!")
-  endif
-  usl->(dbCloseArea())
-  rest_box(buf)
-endif
-return arr_usl
+  return arr_usl

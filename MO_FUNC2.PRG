@@ -144,30 +144,34 @@ else
 endif
 return apz
 
-***** 02.01.21 по шифру услуги вернуть номер элемента массива "arr_plan_zakaz" для 2020 года
+***** 23.12.21 по шифру услуги вернуть номер элемента массива "arr_plan_zakaz" для 2020 года
 Function f_arr_plan_zakaz_21(lshifr)
-Local i, j, c, k := 0, shb, i16 := 0
-if select("LUSL") == 0
-  Use_base("lusl")
-endif
-select LUSL
-find (padr(lshifr,10))
-if found() .and. !empty(lusl->unit_code)
-  if select("MOUNIT") == 0
-    R_Use(dir_exe+"_mo1unit",cur_dir+"_mo1unit","MOUNIT")
+  Local i, j, c, k := 0, shb, i16 := 0
+  local sbase
+
+  if select("LUSL") == 0
+    Use_base("lusl")
   endif
-  select MOUNIT
-  set order to 1
-  find (str(lusl->unit_code,3))
-  if found() .and. mounit->pz > 0
-    k := mounit->pz
-    i16 := mounit->ii
+  select LUSL
+  find (padr(lshifr,10))
+  if found() .and. !empty(lusl->unit_code)
+    if select("MOUNIT") == 0
+      sbase := prefixFileRefName(WORK_YEAR) + 'unit'
+      R_Use(dir_exe + sbase, cur_dir + sbase, "MOUNIT")
+      // R_Use(dir_exe+"_mo1unit",cur_dir+"_mo1unit","MOUNIT")
+    endif
+    select MOUNIT
+    set order to 1
+    find (str(lusl->unit_code,3))
+    if found() .and. mounit->pz > 0
+      k := mounit->pz
+      i16 := mounit->ii
+    endif
   endif
-endif
-if k > 0 .and. empty(i16)
-  i16 := ascan(glob_array_PZ_21, {|x| x[1] == k })
-endif
-return i16
+  if k > 0 .and. empty(i16)
+    i16 := ascan(glob_array_PZ_21, {|x| x[1] == k })
+  endif
+  return i16
 
 ***** 02.01.21 по шифру услуги вернуть номер элемента массива "arr_plan_zakaz" для 2020 года
 Function f_arr_plan_zakaz_20(lshifr)
@@ -243,34 +247,6 @@ if k > 0 .and. empty(i16)
   i16 := ascan(glob_array_PZ_18, {|x| x[1] == k })
 endif
 return i16
-
-/***** 19.04.15
-Function arr_plan_zakaz(fl)
-Local i, apz := {}
-DEFAULT fl TO .f.
-aadd(apz,{"Случай госпитализации",         0,0,{}})
-aadd(apz,{"Обращение",                    32,0,{"2.78.*","2.89.*"}})
-aadd(apz,{"Посещение неотложное",         31,0,{"2.80.*","2.82.*"}})
-aadd(apz,{"Посещение профилактическое",   30,0,{"2.76.*","2.79.*","2.81.*","2.88.*"}})
-if fl // вызываем из план-заказа, чтобы выделить центры здоровья
-  i := len(apz)
-  del_array(apz[i,4],1) // удаляем 2.76.*
-  aadd(apz,{"Посещение Центра здоровья",  35,0,{"2.76.*"}})
-endif
-aadd(apz,{"Посещение при диспансеризации",34,0,{"2.3.*","2.83.*","2.84.*","2.85.*","2.86.*","2.87.*"}})
-aadd(apz,{"УЕТ стоматологии",              5,0,{"57.*"}})
-aadd(apz,{"Пациенто-день",                 2,0,{"55.1.*","55.2.*","55.3.*","55.4.*"}})
-aadd(apz,{"Гемодиализ",                   28,0,{"60.2.9"}})
-aadd(apz,{"Р-исследование",               33,0,{"4.20.702","4.15.746","60.2.1","60.2.2","60.2.3","60.2.4","60.2.6","60.2.7","60.2.8"}})
-if fl // вызываем из план-заказа, чтобы выделить жидкостную цитологию
-  i := len(apz)
-  del_array(apz[i,4],1) // удаляем "4.20.702"
-  del_array(apz[i,4],1) // удаляем "4.15.746"
-  aadd(apz,{"Лабораторные исследования",  36,0,{"4.20.702","4.15.746"}})
-endif
-aadd(apz,{"Вызов СМП",                    26,0,{"71.*"}})
-//aadd(apz,{"Случай в дневном стационаре",  99,0,{}})
-return apz*/
 
 ***** 26.02.13
 Function f14tf_array()

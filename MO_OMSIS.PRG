@@ -3944,7 +3944,7 @@ for i := 1 to 2
 next
 return NIL
 
-***** 24.02.21 форма 14-МЕД (ОМС)
+***** 23.12.21 форма 14-МЕД (ОМС)
 Function forma14_med_oms()
 Static group_ini := "f14_med_oms"
 Local begin_date, end_date, buf := savescreen(), arr_m, i, j, k, k1, k2,;
@@ -3958,6 +3958,8 @@ Local arr_skor[81,2], arr_eko[2,2], arr_profil := {}, arr_dn_stac := {}, arrDdn_
       arr_pol[32], arr_pol1[15,5], arr_pril5[29,3], ifff := 0, kol_stom_pos := 0, lal, lalf,;
       arr_pol3000[29,6], vr_rec := 0, arr_full_usl,;
       fl_pol3000_PROF, fl_pol3000_DVN2 := .T.
+
+local sbase
 
 old5 := old2 := 0
 afillall(arr_skor,0)
@@ -4159,8 +4161,12 @@ dbcreate(cur_dir+"tmpf14",{;
 use (cur_dir+"tmpf14") new alias TMPF14
 Use_base("lusl")
 Use_base("luslf")
-R_Use(dir_exe+"_mo1unit",cur_dir+"_mo1unit","MOUNIT") //пока рано
-//R_Use(dir_exe+"_mo0unit",cur_dir+"_mo0unit","MOUNIT")
+
+sbase := prefixFileRefName(WORK_YEAR) + 'unit'
+R_Use(dir_exe + sbase, cur_dir + sbase, "MOUNIT")
+
+// R_Use(dir_exe+"_mo1unit",cur_dir+"_mo1unit","MOUNIT") //пока рано
+// R_Use(dir_exe+"_mo0unit",cur_dir+"_mo0unit","MOUNIT")
 R_Use(dir_server+"mo_su",,"MOSU")
 R_Use(dir_server+"mo_hu",dir_server+"mo_hu","MOHU")
 set relation to u_kod into MOSU

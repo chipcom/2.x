@@ -867,7 +867,7 @@ Public glob_arr_usl_LIS := {;
   "4.14.75" ,;//   "соматотропный гормон"
   "4.14.76" ,;//   "кортизол (гормон)"
   "4.14.77" ; //   "тестостерон (гормон)"
-}
+} 
 InitSpravFFOMS()
 // инициализация справочника специальностей в виде DBF-файла
 init_tmp_prvs(,.t.)
@@ -2316,11 +2316,15 @@ Function InitSpravOthers()
   return NIL
 
 
-***** 03.01.21 вернуть код план-заказа по методу ВМП
+***** 23.12.21 вернуть код план-заказа по методу ВМП
 Function ret_PZ_VMP(lunit)
   Local mpztip := 0
+  local sbase
+
   if select("MOUNIT") == 0
-    R_Use(dir_exe+"_mo1unit",cur_dir+"_mo1unit","MOUNIT")
+    sbase := prefixFileRefName(WORK_YEAR) + 'unit'
+    R_Use(dir_exe + sbase, cur_dir + sbase, "MOUNIT")
+    // R_Use(dir_exe+"_mo1unit",cur_dir+"_mo1unit","MOUNIT")
   endif
   select MOUNIT
   find (str(lunit,3))
@@ -2328,15 +2332,3 @@ Function ret_PZ_VMP(lunit)
     mpztip := mounit->pz
   endif
   return mpztip
-/*
-Local mpztip := 0
-if select("MOUNIT") == 0
-  R_Use(dir_exe+"_mo0unit",cur_dir+"_mo0unit","MOUNIT")
-endif
-select MOUNIT
-find (str(lunit,3))
-if found() .and. mounit->pz > 0
-  mpztip := mounit->pz
-endif
-return mpztip
-*/
