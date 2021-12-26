@@ -578,31 +578,37 @@ endif
 select (tmp_select)
 return NIL
 
-***** проверка правильности ввода сроков лечения
-Function f_k_data(get,k)
-// k = 1 - дата начала лечения
-// k = 2 - дата окончания лечения
-if k == 2 .and. empty(mk_data)
-  mk_data := get:original
-  return func_error(3,"Не введена дата окончания лечения.")
-endif
-if k == 2 .and. ;
-    !(year(mk_data) == year(sys_date) .or. year(mk_data) == year(sys_date)-1)
-  mk_data := get:original
-  return func_error(3,"В дате окончания лечения неверно введен год.")
-endif
-if !empty(mk_data) .and. mn_data > mk_data
-  if k == 1
+***** 28.12.21 проверка правильности ввода сроков лечения
+Function f_k_data(get, k)
+  // k = 1 - дата начала лечения
+  // k = 2 - дата окончания лечения
+
+  if k == 1 .and. year(mn_data) < 2015
     mn_data := get:original
-  else
-    mk_data := get:original
+    return func_error(3, "В дате начала лечения неверно введен год (ранее 2015 года).")
   endif
-  return func_error(4,"Дата начала лечения больше даты окончания лечения. Ошибка!")
-endif
-if k == 1 .and. type("mdate_r") == "D"
-  fv_date_r(mn_data)
-endif
-return .t.
+
+  if k == 2 .and. empty(mk_data)
+    mk_data := get:original
+    return func_error(3, "Не введена дата окончания лечения.")
+  endif
+  if k == 2 .and. ;
+      !(year(mk_data) == year(sys_date) .or. year(mk_data) == year(sys_date)-1)
+    mk_data := get:original
+    return func_error(3, "В дате окончания лечения неверно введен год.")
+  endif
+  if !empty(mk_data) .and. mn_data > mk_data
+    if k == 1
+      mn_data := get:original
+    else
+      mk_data := get:original
+    endif
+    return func_error(4, "Дата начала лечения больше даты окончания лечения. Ошибка!")
+  endif
+  if k == 1 .and. type("mdate_r") == "D"
+    fv_date_r(mn_data)
+  endif
+  return .t.
 
 ***** 17.01.14 переопределение критерия "взрослый/ребёнок" по дате рождения и "_date"
 Function fv_date_r(_data,fl_end)
