@@ -30,6 +30,7 @@ function inp_password_bay( is_local_version, is_create )
 		yes_parol := .t.
 		
 	if ( is_local_version .and. ! TStructFiles():New():ExistFileClass( 'TUserDB' ) ) .or. is_create
+		hb_user_curUser := TUser():New(, 'Локальная версия', 0)
 		yes_parol := .f.
 		return ta
 	endif

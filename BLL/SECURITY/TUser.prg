@@ -34,14 +34,16 @@ CREATE CLASS TUser	INHERIT	TBaseObjectBLL
 		
 		PROPERTY DepShortName READ getDepShortName
 		PROPERTY Type_F READ getTypeFormat
-	
+
+		PROPERTY IsSuperUser READ getSuperUser WRITE setSuperUser
+
 		CLASSDATA	aMenuType	AS ARRAY	INIT { { 'АДМИНИСТРАТОР',  0 }, ;
 													{ 'ОПЕРАТОР     ', 1 }, ;
 													{ 'КОНТРОЛЕР    ', 3 } }
 										
 		METHOD IsAdmin()					INLINE iif(( ::FAccess + 1 ) == 1, .t., .f. )
 		METHOD IsOperator()				INLINE iif(( ::FAccess + 1 ) == 2, .t., .f. )
-		METHOD IsKontroler()				INLINE iif(( ::FAccess + 1 ) == 3, .t., .f. )
+		METHOD IsKontroler()			INLINE iif(( ::FAccess + 1 ) == 3, .t., .f. )
 					
 		METHOD IsAllowedDepartment( nSub )
 		METHOD IsAllowedTask( nTask )
@@ -58,7 +60,8 @@ CREATE CLASS TUser	INHERIT	TBaseObjectBLL
 		DATA FRole				INIT nil
 		DATA FACLDep 			INIT space( 255 )	//	доступ к учреждениям, по умолчанию '*' все
 		DATA FACLTask			INIT space( 255 )	//	доступ к задачам, по умолчанию '*' все
-		DATA FINN				INIT space( 12 )
+		DATA FINN					INIT space( 12 )
+		DATA FSuper				INIT .f.					// установить(получить), что это суперпользователь
 		
 		VAR _department	 		AS CHARACTER	INIT chr( 0 )		//	{"P4", "C",  1, 0},; // код отделения [ chr(kod) ]
 		
@@ -76,10 +79,22 @@ CREATE CLASS TUser	INHERIT	TBaseObjectBLL
 		METHOD getDepartment
 		METHOD getINN
 		METHOD setINN( param )
+		METHOD getSuperUser
+		METHOD setSuperUser( param )
 		
 		METHOD getDepShortName
 		METHOD getTypeFormat
 END CLASS
+
+METHOD function getSuperUser()			CLASS TUser
+return ::FSuper
+
+METHOD procedure setSuperUser( param )	CLASS TUser
+
+	if islogical( param )
+		::FSuper := param
+	endif
+	return
 
 METHOD function getINN()			CLASS TUser
 	return ::FINN

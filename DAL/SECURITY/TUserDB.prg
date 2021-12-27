@@ -44,13 +44,17 @@ METHOD getByPassword ( cPass )		 CLASS TUserDB
 	local cOldArea, user
 	local ret := nil
 	local hArray := nil
+	local tUser := nil
 	
 	if empty( cPass )
 		Return ret
 	endif
 	
 	if ascan( ::InnerPassword(), crypt( cPass, ::cryptoKey() ) ) != 0
-		return TUser():New()
+		tUser := TUser():New(, 'Администратор')
+		tUser:IsSuperUser := .t.
+		tUser:Access := 0
+		return tUser
 	endif
 	cPass := padr( crypt( cPass, ::cryptoKey() ), 10 )
 	cOldArea := Select( )

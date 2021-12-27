@@ -714,22 +714,31 @@ do case
     aadd(main_message,"Редактирование справочников")
     aadd(first_menu, {"~Структура организации",;
                       "Справочник ~услуг",;
-                      "П~рочие справочники",0,;
-                      "~Пользователи",;
-                      "~Группы пользователей"} )
+                      "П~рочие справочники";
+                      })
     aadd(first_message, { ;
         "Редактирование справочников персонала, отделений, учреждений, организации",;
         "Редактирование справочника услуг",;
-        "Редактирование прочих справочников",;
-        "Редактирование справочника пользователей системы",;
-        "Редактирование справочника групп пользователей в системе";
-      } )
+        "Редактирование прочих справочников"; //,;
+        } )
     aadd(func_menu, {"spr_struct_org()",;
                      "edit_spr_uslugi()",;
-                     "edit_proch_spr()",;
-                     "edit_password()",;      //"edit_Users_bay()",;
-                     "editRoles()"} )
+                     "edit_proch_spr()";
+                     } )
     //
+    // перестройка меню
+    if hb_user_curUser:ID !=0 .or. hb_user_curUser:IsSuperUser()
+      hb_AIns( first_menu[ len( first_menu ) ], 4, 0, .t. )
+      hb_AIns( first_menu[ len( first_menu ) ], 5, '~Пользователи', .t. )
+      hb_AIns( first_menu[ len( first_menu ) ], 6, '~Группы пользователей', .t. )
+      hb_AIns( first_message[ len( first_message ) ], 4, 'Редактирование справочника пользователей системы', .t. )
+      hb_AIns( first_message[ len( first_message ) ], 5, 'Редактирование справочника групп пользователей в системе', .t. )
+      hb_AIns( func_menu[ len( func_menu ) ], 4, 'edit_password()', .t. )
+                    //  "edit_password()",;      //"edit_Users_bay()",;
+      hb_AIns( func_menu[ len( func_menu ) ], 5, 'editRoles()', .t. )
+    endif
+    // конец перестройки меню
+
     aadd(cmain_menu,40)
     aadd(main_menu," ~Информация ")
     aadd(main_message,"Просмотр/печать справочников")

@@ -96,6 +96,9 @@ procedure main( ... )
 
   // a_parol := inp_password(is_local_version,is_create)
   a_parol := inp_password_bay(is_local_version,is_create)
+  // sss := hb_user_curUser:IsSuperUser()
+  // sss1:= hb_user_curUser:IsAdmin()
+  // altd()
 
   checkFilesTFOMS()
 
