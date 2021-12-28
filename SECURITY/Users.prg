@@ -2,7 +2,7 @@
 *******************************************************************************
 * 04.11.18 edit_Users_bay() - редактирование списка пользователей
 * 20.10.18 editUser( oBrowse, aObjects, object, nKey ) - редактирование объекта 'пользователь'
-* 20.10.18 inp_password_bay( is_local_version, is_create ) - запрос и проверка пароля
+* 28.12.21 inp_password_bay( is_local_version, is_create ) - запрос и проверка пароля
 * 20.10.18 get_parol_bay( r1, c1, r2, c2, ltip, color_say, color_get ) - функция окна ввода пароля
 * 11.07.17 layoutUser( oBrow, aList ) - формирование колонок для отображения списка пользователей
 * 01.09.16 PassExist( obj, aObjects, pass ) - проверка существования пользователя с указанным паролем
@@ -16,7 +16,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-* 20.10.18 ввод пароля
+* 28.12.21 ввод пароля
 function inp_password_bay( is_local_version, is_create )
 	local strPassword := space( 10 )
 	local i_p := 0, ta := {}
@@ -24,7 +24,7 @@ function inp_password_bay( is_local_version, is_create )
 	local aMessageRepeat := { 'Не верный пароль!', 'Попробуйте еще раз...' }
 	local aMessageEnd := { 'Нет прав доступа к системе!', 'Вы превысили число возможных попыток получить доступ!' }
 	
-	public TIP_ADM := 0, TIP_OPER := 1, TIP_KONT := 3
+	public TIP_ADM := 0
 	public grup_polzovat := 1, dolj_polzovat := '', ;
 		kod_polzovat := chr( 0 ), tip_polzovat := TIP_ADM, fio_polzovat := '', ;
 		yes_parol := .t.
@@ -66,11 +66,11 @@ function inp_password_bay( is_local_version, is_create )
 	enddo
 	aadd( ta, alltrim( fio_polzovat ) )
 	aadd( ta, 'Тип доступа: "' + { 'Администратор', 'Оператор', '', 'Контролёр' }[ tip_polzovat + 1 ] + '"' )
-	if !empty( dolj_polzovat )
-		aadd( ta, 'Должность: ' + alltrim( dolj_polzovat ) )
+	if !empty( alltrim( oUser:Position ) )
+		aadd( ta, 'Должность: ' + alltrim( oUser:Position ) )
 	endif
-	if between( grup_polzovat, 1, 3 )
-		aadd( ta, 'Группа экспертизы (КЭК): ' + lstr( grup_polzovat ) )
+	if between( hb_user_curUser:KEK, 1, 3 )
+		aadd( ta, 'Группа экспертизы (КЭК): ' + lstr( hb_user_curUser:KEK ) )
 	endif
 	return ta
 

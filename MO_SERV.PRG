@@ -4691,23 +4691,23 @@ aadd(mm_tmp, {"sc_reader","C",50,0,NIL,;
               "",{|x|inieditspr(A__MENUVERT,mm_reader,x)},;
               'Устройство чтения смарт-карт (для эл.полиса)',;
               {|| iif(empty(m1sc_reader), .t., f_read_sc_reader()) },;
-              {|| tip_polzovat == 0 }})
+              {|| hb_user_curUser:IsAdmin() }})
 aadd(mm_tmp, {"base_copy","N",1,0,NIL,;
               {|x|menu_reader(x,mm_danet,A__MENUVERT)},;
               1,{|x|inieditspr(A__MENUVERT,mm_danet,x)},;
               'Выполнять автоматическое резервное копирование при выходе из программы',,;
-              {|| tip_polzovat == 0 }})
+              {|| hb_user_curUser:IsAdmin() }})
 aadd(mm_tmp, {"wdir","N",1,0,NIL,;
               {|x|menu_reader(x,mm_wdir,A__MENUVERT)},;
               0,{|x|inieditspr(A__MENUVERT,mm_wdir,x)},;
               '└> куда выполняется копирование',;
               {|| iif(empty(m1wdir), (mpath_copy:=m1path_copy:=space(100),update_get("mpath_copy")), .t.) },;
-              {|| tip_polzovat == 0 .and. m1base_copy == 1 }})
+              {|| hb_user_curUser:IsAdmin() .and. m1base_copy == 1 }})
 aadd(mm_tmp, {"path_copy","C",100,0,NIL,;
               {|x| menu_reader(x,{{|k,r,c| mng_dir(k,r,c,"path_copy") }},A__FUNCTION)},;
               " ",{|x| x },;
               ' └> каталог для копирования',,;
-              {|| tip_polzovat == 0 .and. m1base_copy == 1 .and. m1wdir == 1 }})
+              {|| hb_user_curUser:IsAdmin() .and. m1base_copy == 1 .and. m1wdir == 1 }})
 aadd(mm_tmp, {"kart_polis","N",1,0,NIL,;
               {|x|menu_reader(x,mm_danet,A__MENUVERT)},;
               1,{|x|inieditspr(A__MENUVERT,mm_danet,x)},;
@@ -4737,12 +4737,12 @@ if is_obmen_sds()
                 {|x| menu_reader(x,{{|k,r,c| mng_dir(k,r,c,"path1_sds") }},A__FUNCTION)},;
                 " ",{|x| x },;
                 '==> для импорта картотеки',,;
-                {|| tip_polzovat == 0 }})
+                {|| hb_user_curUser:IsAdmin() }})
   aadd(mm_tmp, {"path2_sds","C",100,0,NIL,;
                 {|x| menu_reader(x,{{|k,r,c| mng_dir(k,r,c,"path2_sds") }},A__FUNCTION)},;
                 " ",{|x| x },;
                 '==> для обработанных файлов',,;
-                {|| tip_polzovat == 0 }})
+                {|| hb_user_curUser:IsAdmin() }})
 endif
 init_base(cur_dir+"tmp",,mm_tmp,0)
 use (cur_dir+"tmp") new

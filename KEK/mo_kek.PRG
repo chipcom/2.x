@@ -27,7 +27,7 @@ return fl
 
 *****
 Function is_admin_kek()
-return hb_user_curUser:IsAdmin() .or. grup_polzovat == 3
+return hb_user_curUser:IsAdmin() .or. hb_user_curUser:KEK == 3
 
 *
 
@@ -282,8 +282,7 @@ Function f11_s_kek_vvod(s)
 Local fl := .t., i
 for i := 1 to 3
   if lstr(i) $ s
-    //if i >= grup_polzovat
-    if i == grup_polzovat
+    if i == hb_user_curUser:KEK
       fl := func_error(4,"Группа экспертизы: "+lstr(i)+" уже проводилась по данной истории болезни")
     endif
   endif
@@ -377,8 +376,8 @@ return NIL
 Function f3_kek_vvod(k,at,ao)
 Static srec := 0
 Local buf := save_maxrow(), blk, n, t_arr[BR_LEN]
-DEFAULT at TO {alltrim(fio_polzovat)+" (гр."+lstr(grup_polzovat)+") "+;
-               alltrim(dolj_polzovat), asc(kod_polzovat)}
+DEFAULT at TO {alltrim(fio_polzovat)+" (гр."+lstr(hb_user_curUser:KEK)+") "+;
+               alltrim( hb_user_curUser:Position), asc(kod_polzovat)}
 Private rec_e := 0, rec_k := 0, _art[5], _pregim := k, is_own := (asc(kod_polzovat) == at[2])
 mywait()
 R_Use(dir_server+"kartotek",,"KART")
@@ -624,7 +623,7 @@ endif
 Use_base("mo_keke")
 AddRec(7)
 eks->KOD := kek_human
-eks->TIP_EKS := grup_polzovat
+eks->TIP_EKS := hb_user_curUser:KEK
 eks->KOD_EKS := asc(kod_polzovat)
 eks->DATE_EKS := sys_date
 rec_eks := eks->(recno())
@@ -1665,13 +1664,13 @@ return NIL
 
 *****
 Function f_kol_eks(s)
-Local sg := lstr(grup_polzovat)
+Local sg := lstr(hb_user_curUser:KEK)
 do case
-  case grup_polzovat == 1
+  case hb_user_curUser:KEK == 1
     s := sg+substr(s,2)
-  case grup_polzovat == 2
+  case hb_user_curUser:KEK == 2
     s := left(s,1)+sg+right(s,1)
-  case grup_polzovat == 3
+  case hb_user_curUser:KEK == 3
     s := left(s,2)+sg
 endcase
 return s

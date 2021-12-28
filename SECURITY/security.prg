@@ -54,10 +54,10 @@ Function involved_password(par,_n_reestr,smsg)
   enddo
   return fl
 
-***** 23.10.19 ввод пароля
+***** 28.12.21 ввод пароля
 Function inp_password(is_local_version,is_create)
   Local pss := space(10), tmp_pss := my_parol(), i_p := 0, ta := {}, s, fl_g := .f.
-  Public TIP_ADM := 0, TIP_OPER := 1, TIP_KONT := 3
+  Public TIP_ADM := 0
   Public grup_polzovat := 1, dolj_polzovat := "",;
          kod_polzovat := chr(0), tip_polzovat := TIP_ADM, fio_polzovat := "",;
          yes_parol := .t.
@@ -135,7 +135,7 @@ Function inp_password(is_local_version,is_create)
   endif
   return ta
 
-***** 22.09.21
+***** 28.12.21
 Function edit_password()
   Local buf := save_maxrow()
   Local mas11 := {}, mpic := {,,,{1,0}}, mas13 := {.F.,.F.,.T.},;
@@ -148,7 +148,7 @@ Function edit_password()
                        {"ОПЕРАТОР     ",1},;
                        {"КОНТРОЛЕР    ",3}}
   Private c_1 := T_COL+5, c_2
-  if tip_polzovat != 0
+  if ! hb_user_curUser:IsAdmin()
     return func_error(4,err_admin)
   endif
   if !G_SLock("edit_pass")

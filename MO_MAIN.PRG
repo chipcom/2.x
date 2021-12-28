@@ -24,6 +24,7 @@ DYNAMIC b_25_perinat_2
 procedure main( ... )
   Local r, s, is_create := .f., is_copy := .f., is_index := .f.
   Local a_parol, buf, is_local_version
+  local verify_fio_polzovat := .t.
 
   FOR EACH s IN hb_AParams() // анализ входных параметров
     s := lower(s)
@@ -100,12 +101,12 @@ procedure main( ... )
   checkFilesTFOMS()
   
   // объект организация с которой работаем
-  public hb_main_curOrg := TOrganizationDB():GetOrganization()
+  public hb_main_curOrg := TOrganizationDB():GetOrganization() 
   
   if ! hb_user_curUser:IsAdmin()  // tip_polzovat != TIP_ADM
-    Private verify_fio_polzovat := .f.
+    verify_fio_polzovat := .f.
   endif
-  if !G_SOpen(sem_task,sem_vagno,fio_polzovat,p_name_comp)
+  if !G_SOpen(sem_task, sem_vagno, fio_polzovat, p_name_comp)
     if type("verify_fio_polzovat") == "L" .and. verify_fio_polzovat
       func_error('В данный момент работает другой оператор под фамилией "'+fio_polzovat+'"')
     else
