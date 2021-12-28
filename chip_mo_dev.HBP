@@ -91,6 +91,7 @@ mo_version.prg
 
 .\DAL\Security\TUserDB.prg
 .\DAL\Security\TRoleUserDB.prg
+.\DAL\ORGANIZATION\TOrganizationDB.prg
 .\DAL\ORGANIZATION\TDepartmentDB.prg
 .\DAL\EMPLOYEES\TEmployeeDB.prg
 
@@ -98,7 +99,9 @@ mo_version.prg
 
 .\BLL\SECURITY\TUser.prg
 .\BLL\SECURITY\TRoleUser.prg
+.\BLL\ORGANIZATION\TOrganization.prg
 .\BLL\ORGANIZATION\TDepartment.prg
+.\BLL\ORGANIZATION\TBank.prg
 .\BLL\EMPLOYEES\TEmployee.prg
 
 .\init\mo_init.prg

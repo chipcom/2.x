@@ -99,6 +99,9 @@ procedure main( ... )
 
   checkFilesTFOMS()
   
+  // объект организация с которой работаем
+  public hb_main_curOrg := TOrganizationDB():GetOrganization()
+  
   if tip_polzovat != TIP_ADM
     Private verify_fio_polzovat := .f.
   endif

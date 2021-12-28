@@ -733,8 +733,11 @@ do case
       hb_AIns( first_menu[ len( first_menu ) ], 6, '~Группы пользователей', .t. )
       hb_AIns( first_message[ len( first_message ) ], 4, 'Редактирование справочника пользователей системы', .t. )
       hb_AIns( first_message[ len( first_message ) ], 5, 'Редактирование справочника групп пользователей в системе', .t. )
-      hb_AIns( func_menu[ len( func_menu ) ], 4, 'edit_password()', .t. )
-                    //  "edit_password()",;      //"edit_Users_bay()",;
+      if hb_main_curOrg:KOD_TFOMS == '102604'
+        hb_AIns( func_menu[ len( func_menu ) ], 4, 'edit_Users_bay()', .t. )
+      else
+        hb_AIns( func_menu[ len( func_menu ) ], 4, 'edit_password()', .t. )
+      endif
       hb_AIns( func_menu[ len( func_menu ) ], 5, 'editRoles()', .t. )
     endif
     // конец перестройки меню
