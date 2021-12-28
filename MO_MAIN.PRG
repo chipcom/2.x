@@ -96,12 +96,8 @@ procedure main( ... )
 
   // a_parol := inp_password(is_local_version,is_create)
   a_parol := inp_password_bay(is_local_version,is_create)
-  // sss := hb_user_curUser:IsSuperUser()
-  // sss1:= hb_user_curUser:IsAdmin()
-  // altd()
 
   checkFilesTFOMS()
-
   
   if tip_polzovat != TIP_ADM
     Private verify_fio_polzovat := .f.
@@ -110,14 +106,12 @@ procedure main( ... )
     if type("verify_fio_polzovat") == "L" .and. verify_fio_polzovat
       func_error('В данный момент работает другой оператор под фамилией "'+fio_polzovat+'"')
     else
-      // func_error('Доступ запрещен! В данный момент другой задачей выполняется ответственный режим.')
       if !hb_user_curUser:IsAdmin()
         hb_Alert("В данный момент другой задачей выполняется ответственный режим. Проверьте системный монитор")
       else
         func_error('Доступ запрещен! В данный момент другой задачей выполняется ответственный режим.')
       endif
     endif
-    // f_end()
     if !hb_user_curUser:IsAdmin()
       f_end()
     endif
@@ -162,8 +156,6 @@ procedure main( ... )
       f_end(.f.)
     endif
   endif
-
-  // Init_Program() // инициализация программы (переменных, массивов,...)
 
   f_main(r, is_local_version, a_parol)
 
@@ -300,7 +292,6 @@ Function main_up_screen()
     s := "Индивидуальные тарифы на медицинские услуги"
   endif
   @ k+1,0 say space(maxcol()+1) color "G+/N"
-  //@ k+1,0 say padc(s,maxcol()+1) color "G+/N"
   @ k+1,0 say full_date(sys_date) color "W+/N"
   @ k+1,maxcol()-4 say hour_min(seconds()) color "W+/N"
   return k+1
@@ -443,11 +434,9 @@ FUNCTION f_first(is_create)
   delete file ttt.ttt
   //
   Public cur_drv := DISKNAME()
-  Public cur_dir := cur_drv+":"+DIRNAME(cur_drv)+cslash
-  //Public cur_dir := hb_DirBase()
+  Public cur_dir := cur_drv + ":" + DIRNAME(cur_drv) + cslash
   Public dir_server := "", p_name_comp := ""
-  Public dir_exe := upper(beforatnum(cslash,exename()))+cslash
-  //Public dir_exe := upper(beforatnum(cslash,hb_ProgName()))+cslash
+  Public dir_exe := upper(beforatnum(cslash, exename())) + cslash
   Public exe_dir := dir_exe
   // проверить, запущена ли уже данная задача, если "да" - выход из задачи
   verify_1_task()
