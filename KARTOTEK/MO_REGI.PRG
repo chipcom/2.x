@@ -2553,9 +2553,8 @@ close databases
 rest_box(buf)
 return NIL
 
-*
 
-***** 13.07.15
+***** 28.12.21
 Function pripisnoe_naselenie(k)
 Static si1 := 1, si2 := 1, si3 := 1
 Local mas_pmt, mas_msg, mas_fun, j, r, nuch, nsmo
@@ -2593,7 +2592,7 @@ do case
   case k == 13
     kartoteka_z_prikreplenie()
   case k == 14
-    if tip_polzovat == TIP_ADM
+    if hb_user_curUser:IsAdmin()
       str_sem := "Создание файла сверки с ТФОМС"
       if G_SLock(str_sem)
         pripisnoe_naselenie_create_SVERKA()
@@ -5580,9 +5579,8 @@ oBrow:addColumn(oColumn)
 status_key("^<Esc>^ - выход;  ^<Enter>^ - редактирование участка;  ^<F9>^ - печать списка")
 return NIL
 
-*
 
-***** 31.05.15
+***** 28.12.21
 Function f2_vvod_uchast_spisok(nKey,oBrow)
 Local j := 0, flag := -1, buf := save_maxrow(), buf1, fl := .f.,;
       nr := row(), c1, rec, mkod, buf0, tmp_color := setcolor(), t_vr,;
@@ -5592,7 +5590,7 @@ do case
   case nKey == K_F10
     if ku > 10000
       func_error(4,"Слишком много пациентов в списке")
-    elseif tip_polzovat != TIP_ADM
+    elseif ! hb_user_curUser:IsAdmin()
       func_error(4,err_admin)
     elseif (much := input_value(18,5,20,74,color1,;
         "Введите номер участка для простановки всем пациентам из списка",0,"99")) != NIL ;

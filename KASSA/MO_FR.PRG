@@ -48,7 +48,7 @@ do case
                 "fr_nastrojka(16)",;
                 "fr_nastrojka(17)",;
                 "fr_nastrojka(20)"}
-    if tip_polzovat != 0
+    if ! hb_user_curUser:IsAdmin()
       asize(mas_pmt,7)
       asize(mas_msg,7)
       asize(mas_fun,7)
@@ -83,9 +83,8 @@ if k > 10
 endif
 return NIL
 
-*
 
-***** 12.08.18
+***** 28.12.21
 Function f5_sist_fr(k)
 Static mm_da_net := {{"да ",1},{"нет",2}}
 Static mm_chek := {{"Сквозной номер документа ККМ",1},{"Номер чека продажи ККМ",2}}
@@ -154,7 +153,7 @@ elseif k == 2
     setcolor(cDataCGet)
     ix := 3
     ClrLines(1,maxrow()-1)
-    if tip_polzovat == 0
+    if hb_user_curUser:IsAdmin()
       @ ++ix,3 say "Номером документа считать " get mmek_chek ;
                 reader {|x|menu_reader(x,mm_chek,A__MENUVERT,,,.f.)}
       @ ++ix,3 say "Вызов драйвера ..." get mnkassa ;
@@ -166,7 +165,7 @@ elseif k == 2
 //                reader {|x|menu_reader(x,mm_da_net,A__MENUVERT,,,.f.)}
 //    @ ++ix,3 say "Печатать вносимую покупателем сумму и сдачу в чек?" get mw_sdacha ;
 //                reader {|x|menu_reader(x,mm_da_net,A__MENUVERT,,,.f.)}
-    if tip_polzovat == 0
+    if hb_user_curUser:IsAdmin()
       ++ix
       @ ++ix,3 say "Учреждение принимает оплату банковскими переводами ?" get mmeK_bnbank ;
                   reader {|x|menu_reader(x,mm_da_net,A__MENUVERT,,,.f.)}
@@ -191,7 +190,7 @@ elseif k == 2
   if f_Esc_Enter(1)
     meK_ostato := mostatok
     mek_kassir := mkassir
-    if tip_polzovat == 0
+    if hb_user_curUser:IsAdmin()
       mek_bank   := m1mek_bank
       mek_bnbank := m1mek_bnbank
       mek_kassa  := m1mek_kassa

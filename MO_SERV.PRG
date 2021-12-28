@@ -2483,7 +2483,7 @@ else
 endif
 return NIL
 
-***** 29.03.21
+***** 28.12.21
 Function f_export(k)
 Static si1 := 1, sds := 1, ssp := 1
 Local mas_pmt, mas_msg, mas_fun, j
@@ -2529,7 +2529,7 @@ do case
             Svoenn_err := "В данный момент с военнослужащими работает другой пользователь"
     popup_prompt(T_ROW-len(mas_pmt)-3,T_COL+5,1,mas_pmt,mas_msg,mas_fun)
   case k == 12
-    if tip_polzovat == TIP_ADM
+    if hb_user_curUser:IsAdmin()
       str_sem := "Создание файла отправки в систему БАРС"
       if G_SLock(str_sem)
         full_naselenie_create_BARS()
@@ -2541,7 +2541,7 @@ do case
       func_error(4,err_admin)
     endif
   case k == 13
-    if tip_polzovat == TIP_ADM
+    if hb_user_curUser:IsAdmin()
       str_sem := "Создание файла отправки в ОБЛЗДРАВ"
       if G_SLock(str_sem)
         create_schets_OBLSDRAV()
@@ -2553,7 +2553,7 @@ do case
       func_error(4,err_admin)
     endif
   case k == 14
-    if tip_polzovat == TIP_ADM
+    if hb_user_curUser:IsAdmin()
       str_sem := "Создание файла отправки в ОБЛЗДРАВ"
       if G_SLock(str_sem)
         pripisnoe_naselenie_create_OBLSDRAV()
@@ -2565,7 +2565,7 @@ do case
       func_error(4,err_admin)
     endif
   case k == 15
-    if tip_polzovat == TIP_ADM
+    if hb_user_curUser:IsAdmin()
       str_sem := "Создание файла отправки в ВОМИАЦ"
       if G_SLock(str_sem)
         pripisnoe_naselenie_create_VOMIAC()
@@ -3499,7 +3499,7 @@ Local str_sem, mas_msg, mas_fun, j, n
 DEFAULT k TO 0
 do case
   case k == 0
-    if tip_polzovat != 0
+    if ! hb_user_curUser:IsAdmin()
       return func_error(4,err_admin)
     endif
     mas_pmt := {"Общие настройки"}
@@ -4462,7 +4462,7 @@ Local str_sem, mas_pmt := {}, mas_msg := {}, mas_fun := {}, j
 DEFAULT k TO 0
 do case
   case k == 0
-    if tip_polzovat != 0
+    if ! hb_user_curUser:IsAdmin()
       return func_error(4,err_admin)
     endif
     DEFAULT arr_spr TO {"V002","V020","V006"}

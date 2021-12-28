@@ -300,7 +300,7 @@ do case
   case nKey == K_F8 .and. glob_kassa == 1 .and. human->is_kas == 1 .and.;
                    human->kod_k > 0 .and. ver_pub_date(human->k_data,.t.) .and.;
                    human->cena > 0
-    if !empty(human->date_close) .and. tip_polzovat != 0
+    if !empty(human->date_close) .and. !hb_user_curUser:IsAdmin()
       func_error(4,err_close)
       return flag
     endif
@@ -679,7 +679,7 @@ do case
     flag := 0
     restscreen(buf)
   case nKey == K_INS .or. (nKey == K_ENTER .and. human->kod_k > 0)
-    if nKey == K_ENTER .and. !empty(human->date_close) .and. tip_polzovat != 0
+    if nKey == K_ENTER .and. !empty(human->date_close) .and. !hb_user_curUser:IsAdmin()
       func_error(4,err_close)
       return flag
     endif
@@ -692,7 +692,7 @@ do case
     flag := f_p_kart(nKey)
   case nKey == K_DEL .and. human->is_kas != 1 .and. ;
                              human->kod_k > 0 .and. ver_pub_date(human->k_data,.t.)
-    if !empty(human->date_close) .and. tip_polzovat != 0
+    if !empty(human->date_close) .and. !hb_user_curUser:IsAdmin()
       func_error(4,err_close)
     elseif f_Esc_Enter(2,.t.)
       mywait()
@@ -728,7 +728,7 @@ do case
       rest_box(buf)
     endif
   case human->is_kas == 1 .and. nKey == K_DEL .and. human->kod_k > 0 .and. human->cena > 0
-    if !empty(human->date_close) .and. tip_polzovat != 0
+    if !empty(human->date_close) .and. !hb_user_curUser:IsAdmin()
       func_error(4,err_close)
     elseif human->sum_voz > 0
       func_error(4,"По данному листу учета уже производился возврат денег!")
@@ -763,7 +763,7 @@ do case
         //flag := 0
         //rest_box(buf)
         func_error(4,"Возврат чека проводите по клавише <F8> !")
-      elseif tip_polzovat == 0 .and. mek_kassa == 2 .and. ;
+      elseif hb_user_curUser:IsAdmin() .and. mek_kassa == 2 .and. ;
              involved_password(1,1,"возврата "+lput_kop(lsum_voz,.t.)+" руб.") .and. ;
              f_Esc_Enter("возврата "+lput_kop(lsum_voz,.t.)+" руб.")
         select HUMAN
@@ -777,7 +777,7 @@ do case
       endif
     endif
   case nKey == K_CTRL_RET .and. human->kod_k > 0
-    if !empty(human->date_close) .and. tip_polzovat != 0
+    if !empty(human->date_close) .and. !hb_user_curUser:IsAdmin()
       func_error(4,err_close)
       return flag
     endif
@@ -1982,7 +1982,7 @@ Local mas_pmt, mas_msg, mas_fun, j
 DEFAULT k TO 1
 do case
   case k == 1
-    if tip_polzovat != 0
+    if !hb_user_curUser:IsAdmin()
       return func_error(4,err_admin)
     endif
     mas_pmt := {"Закрыть л/учета для ~одного больного",;

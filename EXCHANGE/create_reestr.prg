@@ -3,11 +3,11 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 11.10.21
+***** 28.12.21
 Function create_reestr()
   Local buf := save_maxrow(), i, j, k := 0, k1 := 0, arr, bSaveHandler, fl, rec, pole, arr_m
 
-  if tip_polzovat != 0
+  if ! hb_user_curUser:IsAdmin()
     return func_error(4,err_admin)
   endif
   if find_unfinished_reestr_sp_tk()

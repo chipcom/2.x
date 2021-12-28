@@ -3247,26 +3247,28 @@ DeleteRec()
 close databases
 return NIL
 
-***** 18.12.17
+***** 28.12.21
 Function need_delete_reestr_R01()
-Local fl := .f.
-if tip_polzovat == TIP_ADM
-  R_Use(dir_server+"mo_dr01m",,"R01m")
-  go top
-  do while !eof()
-    if empty(r01m->twork2)
-      fl := .t. ; exit
-    endif
-    skip
-  enddo
-  Use
-endif
-return fl
+  Local fl := .f.
 
-***** 17.12.17
+  if hb_user_curUser:IsAdmin()
+    R_Use(dir_server+"mo_dr01m",,"R01m")
+    go top
+    do while !eof()
+      if empty(r01m->twork2)
+        fl := .t. ; exit
+      endif
+      skip
+    enddo
+    Use
+  endif
+  return fl
+
+***** 28.12.21
 Function delete_reestr_R01()
 Local t_arr[BR_LEN], blk
-if tip_polzovat != TIP_ADM
+
+if ! hb_user_curUser:IsAdmin()
   return func_error(4,err_admin)
 endif
 G_Use(dir_server+"mo_dr01m",,"R01m")

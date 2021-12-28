@@ -9583,10 +9583,10 @@ keyboard chr(K_TAB)+chr(K_ENTER)
 rest_box(buf)
 return NIL
 
-***** 17.12.17
+***** 28.12.21
 Function delete_reestr_R11()
 Local t_arr[BR_LEN], blk
-if tip_polzovat != TIP_ADM
+if ! hb_user_curUser:IsAdmin()
   return func_error(4,err_admin)
 endif
 G_Use(dir_server+"mo_dr01m",,"R01m")

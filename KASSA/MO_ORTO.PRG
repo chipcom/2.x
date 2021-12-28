@@ -1249,7 +1249,7 @@ Local menu_opl_chek := {{"аванс за ортопедические услуги по ",0},;
 Private  summa_oplat := 0, summa_oplat_bn := 0, p_summa := 0
 
 
-if !empty(human->k_data) .and. tip_polzovat != 0
+if !empty(human->k_data) .and. ! hb_user_curUser:IsAdmin()
   func_error(4,"Пользователь не АДМИНИСТРАТОР, а наряд закрыт !")
 elseif ho->sum_voz > 0
   func_error(4,"По даной оплате уже производился возврат денег!")

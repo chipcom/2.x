@@ -4,14 +4,14 @@
 #include "..\_mylib_hbt\edit_spr.ch"
 #include "chip_mo.ch"
 
-*****
+***** 28.12.21
 Function other_schets(k)
 Static si1 := 2
 Local mas_pmt, mas_msg, mas_fun, j, str_sem
 DEFAULT k TO 1
 do case
   case k == 1
-    if tip_polzovat != 0
+    if ! hb_user_curUser:IsAdmin()
       return func_error(4,err_admin)
     endif
     mas_pmt := {"Список ~прочих счетов",;
@@ -1998,13 +1998,12 @@ for i := 1 to len(s)
 next
 return n
 
-*
 
-***** 17.09.13
+***** 28.12.21
 Function akt_kontrol_2012()
 Local buf, fl, ii := 0, fl_numeration := .f., str_sem := "Оплата счетов"
 Local t_arr[BR_LEN], blk, s
-if tip_polzovat != 0
+if ! hb_user_curUser:IsAdmin()
   return func_error(4,err_admin)
 endif
 if G_SLock(str_sem)

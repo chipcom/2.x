@@ -2035,14 +2035,14 @@ n_message(arr,,"GR+/R","W+/R",,,"G+/R")
 viewtext(Devide_Into_Pages("ttt.ttt",60,80),,,,.t.,,,2)
 return .t.
 
-***** 10.08.17
+***** 28.12.21
 Function f_get_file_XML_SDS(/*@*/path2_sds)
 Static ini_file := "_manager", ini_group := "Read_Write"
 Local path1_sds, name_zip, ar
 if !is_obmen_sds()
   return NIL
 endif
-if tip_polzovat != 0
+if ! hb_user_curUser:IsAdmin()
   func_error(4,err_admin)
   return NIL
 endif

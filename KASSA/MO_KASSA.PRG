@@ -1024,7 +1024,7 @@ do while .t.
       endif
     else  // возврат
       v_summa := mcena*(-1)
-      if mem_vozvra == 2 .and. tip_polzovat == 0 //07.04.08
+      if mem_vozvra == 2 .and. hb_user_curUser:IsAdmin() //07.04.08
         fl := .t.                                 // возврат без кассы
         select HUMAN
         G_RLock(forever)

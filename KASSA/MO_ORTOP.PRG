@@ -7042,9 +7042,8 @@ viewtext(n_file,,,,(sh>80),,,1)
 rest_box(buf)
 return NIL
 
-*
 
-***** 11.11.18
+***** 28.12.21
 Function ort_priemshk()
 Local fl := .t., buf := save_row(maxrow()), sm2 := 0, HH := 52,;
       n_file := "platn.txt", arr_m, sh, krvz, arr_dms,;
@@ -7101,7 +7100,7 @@ do while !eof()
     select KART
     goto (human->kod_k)
     select TMP
-    if ho->kod_reg == asc(kod_polzovat) .or. tip_polzovat == 0
+    if ho->kod_reg == asc(kod_polzovat) .or. hb_user_curUser:IsAdmin()
       append blank
       tmp->fio      := kart->fio
       tmp->chek     := ho->kv_cia

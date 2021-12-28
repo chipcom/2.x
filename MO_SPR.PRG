@@ -28,7 +28,7 @@ Local str_sem, mas_pmt, mas_msg, mas_fun, j
 DEFAULT k TO 0
 do case
   case k == 0
-    if tip_polzovat != 0
+    if ! hb_user_curUser:IsAdmin()
       return func_error(4,err_admin)
     endif
     mas_pmt := {"~Редактирование услуг",;
@@ -2844,8 +2844,6 @@ if tmp_select > 0
 endif
 return fl
 
-*
-
 ***** удаление дубликатов организаций, выдающих документы
 Function fdeld_s_kem()
 Static sk
@@ -2853,7 +2851,7 @@ Local buf, s1, s2, k1, k2, hGauge, r
 buf := savescreen()
 s1 := s2 := ""
 r := T_ROW
-if tip_polzovat != 0
+if ! hb_user_curUser:IsAdmin()
   return func_error(4,"Оператору доступ в данный режим запрещен!")
 endif
 if !G_SLock1Task(sem_task,sem_vagno)  // запрет доступа всем

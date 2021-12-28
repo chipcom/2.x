@@ -1099,7 +1099,7 @@ if human->ishod == 88
 endif
 return iif(k == 1, s, v)
 
-***** 14.05.20
+***** 28.12.21
 Function f1_view_rak_akt_schet_human(nk,ob,regim)
 Local ret := -1, rec, s, s1
 if !(regim == "edit")
@@ -1135,7 +1135,7 @@ elseif nk == K_ENTER .and. year(human->k_data) > 2012
     func_error(4,"Повторное выставление случая возможно только для OPLATA = 2 и полного отказа")
     return ret
   endif
-  if tip_polzovat != 0
+  if ! hb_user_curUser:IsAdmin()
     func_error(4,err_admin)
     return ret
   endif

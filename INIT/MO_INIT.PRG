@@ -608,7 +608,7 @@ aadd(gmenu_organ, {"kod_tfoms","C",8,0,NIL,NIL,;
                    space(8),NIL,;
                    'Регистрационный код МО в ТФОМС',;
                    {|g| valid_kod_tfoms(g) },;
-                   {|| tip_polzovat==0}})
+                   {|| hb_user_curUser:IsAdmin()}})
 aadd(gmenu_organ, {"name_tfoms","C",60,0,NIL,,'',,'Наименование (в ТФОМС)',,{||.f.}})
 aadd(gmenu_organ, {"uroven","N",1,0,NIL,,0,,'Уровень цен Вашей МО',,{||.f.}})
 aadd(gmenu_organ, {"name","C",130,0,NIL,NIL,;

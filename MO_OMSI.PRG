@@ -1634,7 +1634,7 @@ do case
     if kod_polzovat == chr(0)
       dostup_stat := .t.
     endif
-    if tip_polzovat != 0
+    if !hb_user_curUser:IsAdmin()
       dostup_stat := .f.
     endif
     Private s_msg := "^<Esc>^ выход"
@@ -3872,9 +3872,8 @@ restscreen(buf)
 viewtext(name_file,,,,(sh>80),,,reg_print)
 return NIL
 
-*
 
-***** 30.10.14 статистика по работе операторов
+***** 28.12.21 статистика по работе операторов
 Function st_operator()
 Local i, j, k, mdate, buf24, sh := 0, arr_oper := {}, arr_g,;
       s0, s1, s2, s3, s4, buf, name_file := "operator"+stxt, ;
@@ -3884,7 +3883,7 @@ Private koef0, koef1 := 20, koef2 := 9, koef21 := 3, koef3 := 1, ;
         stoim := 0.012, mprocent := 0,;
         koef_orto := 22, koef1_orto := 22
 koef0 := koef1 - koef2
-if tip_polzovat != 0
+if !hb_user_curUser:IsAdmin()
   return func_error(4,"Доступ в данный режим разрешен только администратору системы!")
 endif
 if (arr_g := year_month()) == NIL

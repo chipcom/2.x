@@ -2429,11 +2429,12 @@ if input_uch(T_ROW-1,T_COL+5,sys_date) != NIL .and. ;
 endif
 return NIL
 
-***** 05.02.19 Удаление листка учета лечения больного
+***** 28.12.21 Удаление листка учета лечения больного
 Function oms_del()
 Static sk := 1
 Local buf, str_sem, j, k := 1, arr_m, fl := .t., lkod_k, lyear
-if tip_polzovat != 0
+
+if ! hb_user_curUser:IsAdmin()
   return func_error(4,err_admin)
 endif
 if (arr_m := input_year()) != NIL .and. ;
@@ -3055,7 +3056,7 @@ close databases
 restscreen(buf)
 return (mkod > 0)
 
-***** 09.09.18
+***** 28.12.21
 Function f1ret_oms_human(oBrow)
 Local oColumn, blk, r := 34
 blk := {|| iif(human_->KOD_UP > 0, {3,4}, iif(human_->OPLATA == 2, {5,6},{1,2})) }
@@ -3082,7 +3083,7 @@ oBrow:addColumn(oColumn)
 oColumn := TBColumnNew(" Стоимость;  лечения", {|| put_kopE(human->cena_1,10) })
 oColumn:colorBlock := blk
 oBrow:addColumn(oColumn)
-if tip_polzovat == TIP_ADM
+if hb_user_curUser:IsAdmin()
   s := "^<Esc>^ выход  ^<Enter>^ выбор  ^<F2>^ поиск"
   if type("p_del_error") == "A" .and. p_del_error[2] > 0
     s += "  ^<Ctrl+F12>^ снятие флага об ошибке у всех"
@@ -3093,7 +3094,7 @@ else
 endif
 return NIL
 
-***** 05.12.19
+***** 28.12.21
 Function f2ret_oms_human(nkey)
 Static tmp := " "
 Local buf := savescreen(), buf1, rec1 := recno(), fl := -1, ss := 0, ;
@@ -3131,7 +3132,8 @@ if type("p_del_error") == "A" .and. p_del_error[2] > 0
     restscreen(buf)
     viewtext(n_file,,,,(sh>80),,,2)
     return -1
-  elseif eq_any(nkey,K_F12,K_CTRL_F12) .and. tip_polzovat == TIP_ADM .and. f_Esc_Enter("снятия флага об ошибке",.t.)
+  // elseif eq_any(nkey,K_F12,K_CTRL_F12) .and. tip_polzovat == TIP_ADM .and. f_Esc_Enter("снятия флага об ошибке",.t.)
+  elseif eq_any(nkey,K_F12,K_CTRL_F12) .and. hb_user_curUser:IsAdmin() .and. f_Esc_Enter("снятия флага об ошибке",.t.)
      /*involved_password(1,p_del_error[2],"снятия со всех пациентов флага об ошибке") ;
          .and. f_alert({padc("Выберите действие",60,".")},;
                        {" Отказ "," Снять флаг об ошибке со всех пациентов "},;
@@ -3349,8 +3351,9 @@ if type("p_del_error") == "A" .and. p_del_error[2] > 0
     restscreen(buf)
     viewtext(n_file,,,,(sh>80),,,2)
     return -1
-  // заплатка
-  elseif eq_any(nkey,K_F10,K_CTRL_F10) .and. tip_polzovat == TIP_ADM .and. f_Esc_Enter("смена услуги",.t.)
+  // заплатка 
+  // elseif eq_any(nkey,K_F10,K_CTRL_F10) .and. tip_polzovat == TIP_ADM .and. f_Esc_Enter("смена услуги",.t.)
+  elseif eq_any(nkey,K_F10,K_CTRL_F10) .and. hb_user_curUser:IsAdmin() .and. f_Esc_Enter("смена услуги",.t.)
     tmp_1 := select()
     G_Use(dir_server+"human_u",dir_server+"human_u","HU")
     select (tmp_1)

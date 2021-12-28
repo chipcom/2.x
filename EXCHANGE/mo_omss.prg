@@ -4,11 +4,11 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 06.12.17 ç¨â âì ä ©«ë ¨§ ’”ŽŒ‘ (¨«¨ ‘ŒŽ)
+***** 28.12.21 ç¨â âì ä ©«ë ¨§ ’”ŽŒ‘ (¨«¨ ‘ŒŽ)
 Function read_from_tf()
 Local name_zip, _date, _time, s, arr_f := {}, buf, blk_sp_tk, fl := .f., n, hUnzip,;
       nErr, cFile, cName, arr_XML_info[7], tip_csv_file := 0, kod_csv_reestr := 0
-if tip_polzovat != 0
+if ! hb_user_curUser:IsAdmin()
   return func_error(4,err_admin)
 endif
 if find_unfinished_reestr_sp_tk()

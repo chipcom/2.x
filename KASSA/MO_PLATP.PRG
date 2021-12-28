@@ -6813,7 +6813,7 @@ do case
                 "Po_proverka(16)",;
                 "Po_proverka(12)",;
                 "Po_proverka(13)"}
-    if mem_otdusl == 2 .and. tip_polzovat == 0
+    if mem_otdusl == 2 .and. hb_user_curUser:IsAdmin()
       aadd(mas_pmt,"~Отделение не равно месту работы")
       aadd(mas_msg,"Проверка отделения на равенство месту основной работы персонала")
       aadd(mas_fun,"Po_proverka(14)")
@@ -11489,7 +11489,7 @@ index on fr_data  to (cur_dir+"tmp_uu") for !empty(fr_data)
 //go top
 dbseek(arr_m[7],.t.)
 do while hum->fr_data <= arr_m[8] .and. !eof()
-  if (hum->kod_oper == asc(kod_polzovat) .or. tip_polzovat == 0) .and.;
+  if (hum->kod_oper == asc(kod_polzovat) .or. hb_user_curUser:IsAdmin()) .and.;
       ascan(krvz,hum->tip_usl) > 0
     select KART
     goto (hum->kod_k)

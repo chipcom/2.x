@@ -389,7 +389,7 @@ chm_help_code := 3001
 if eq_any(glob_task,X_PLATN,X_KASSA) .and. mem_anonim == 1
   ++count_row // Аноним
 endif
-if !is_append .and. tip_polzovat == 0 .and. mem_kart_error == 1
+if !is_append .and. hb_user_curUser:IsAdmin() .and. mem_kart_error == 1
   ++count_row
 endif
 if glob_task != X_PPOKOJ .and. (is_uchastok > 0 .or. !empty(mmo_pr)) .and. !is_smp
@@ -461,7 +461,7 @@ do while .t.
           reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
     keyboard chr(K_TAB)
   endif
-  if !is_append .and. tip_polzovat == 0 .and. mem_kart_error == 1
+  if !is_append .and. hb_user_curUser:IsAdmin() .and. mem_kart_error == 1
     ++ix ; @ ix,50 say "Статус" get mkart_error ;
           reader {|x|menu_reader(x,mm_kart_error,A__MENUVERT,,,.f.)}
     keyboard chr(K_TAB)

@@ -450,12 +450,11 @@ endcase
 restscreen(buf)
 return ret
 
-*
 
-***** 15.03.13
+***** 21.12.21
 Function delete_rpd(lrec,lname,not_end)
 Local ret := 0, fl, ia, is, ih
-if not_end .or. tip_polzovat == TIP_ADM
+if not_end .or. hb_user_curUser:IsAdmin()
   fl := .t.
 else
   fl := involved_password(2,lname,"подтверждения расформирования РПД")

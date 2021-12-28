@@ -102,7 +102,7 @@ procedure main( ... )
   // объект организация с которой работаем
   public hb_main_curOrg := TOrganizationDB():GetOrganization()
   
-  if tip_polzovat != TIP_ADM
+  if ! hb_user_curUser:IsAdmin()  // tip_polzovat != TIP_ADM
     Private verify_fio_polzovat := .f.
   endif
   if !G_SOpen(sem_task,sem_vagno,fio_polzovat,p_name_comp)
@@ -237,7 +237,7 @@ Function f_main(r0, is_local_version, a_parol)
     r0 := main_up_screen()
     // вывести центральные строки главного экрана
     main_center_screen(r0,a_parol)
-    if tip_polzovat == TIP_ADM
+    if hb_user_curUser:IsAdmin()
       find_unfinished_reestr_sp_tk(.f.,.t.)
       find_time_limit_human_reestr_sp_tk()
       find_unfinished_R01()

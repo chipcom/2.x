@@ -27,7 +27,7 @@ return fl
 
 *****
 Function is_admin_kek()
-return tip_polzovat == TIP_ADM .or. grup_polzovat == 3
+return hb_user_curUser:IsAdmin() .or. grup_polzovat == 3
 
 *
 

@@ -3058,12 +3058,11 @@ rest_box(buf)
 viewtext(n_file,,,,.t.,,,2)
 return NIL
 
-*
-
 ***** вернуть ещё не записанный на дискету реестр
 Function vozvrat_reestr()
 Local i, k, buf := savescreen(), arr, tmp_help := chm_help_code, mkod_reestr
-if tip_polzovat != 0
+
+if ! hb_user_curUser:IsAdmin()
   return func_error(4,err_admin)
 endif
 if !G_SLock(Sreestr_sem)

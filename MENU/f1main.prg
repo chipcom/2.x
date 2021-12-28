@@ -768,7 +768,7 @@ do case
           'Различные варианты экспорта в другие программы/организации',;
           "Справочник приведенных расходуемых материалов";
         } )
-      aadd(func_menu, {"prover_dbf(,.f.,(tip_polzovat==0))",;
+      aadd(func_menu, {"prover_dbf(,.f.,(hb_user_curUser:IsAdmin()))",;
                        "Change_Cena_OMS()",;
                        "f_import()",;
                        "f_export()",;
@@ -785,7 +785,7 @@ do case
           "Различные варианты импорта из других программ",;
           'Различные варианты экспорта в другие программы/организации';
         } )
-      aadd(func_menu, {"prover_dbf(,.f.,(tip_polzovat==0))",;
+      aadd(func_menu, {"prover_dbf(,.f.,(hb_user_curUser:IsAdmin()))",;
                        "Change_Cena_OMS()",;
                        "f_import()",;
                        "f_export()"} )
@@ -908,7 +908,7 @@ aadd(func_menu, {"file_Wordpad(exe_dir + cslash + 'README.RTF')",;
                  "m_help()",;
                  "nastr_rab_mesto()",;
                  "ust_printer(T_ROW)",;
-                 "net_monitor(T_ROW,T_COL-7,(tip_polzovat==0))",;
+                 "net_monitor(T_ROW,T_COL-7,(hb_user_curUser:IsAdmin()))",;
                  "view_errors()"})
 // добавим переиндексирование некоторых файлов внутри задачи
 if eq_any(glob_task,X_PPOKOJ,X_OMS,X_PLATN,X_ORTO,X_KASSA,X_KEK,X_263)

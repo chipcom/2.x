@@ -50,19 +50,19 @@ do case
                 "pp_nastr(4)"}
     popup_prompt(T_ROW, T_COL+5, sk, mas_pmt, mas_msg, mas_fun)
   case k == 1
-    if tip_polzovat == 0
+    if hb_user_curUser:IsAdmin()
       ne_real()
     else
       func_error(4,err_admin)
     endif
   case k == 2
-    if tip_polzovat == 0
+    if hb_user_curUser:IsAdmin()
       pp_nastr_ist_bol()
     else
       func_error(4,err_admin)
     endif
   case k == 3
-    if tip_polzovat == 0
+    if hb_user_curUser:IsAdmin()
       f1nastr_all(mas_pmt[k],X_PPOKOJ)
     else
       func_error(4,err_admin)

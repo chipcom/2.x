@@ -1261,7 +1261,7 @@ do case
            vounc_mem_diag    := 'Z94.0',;
            vounc_mem_ser     := space(10)
   case reg == 2 .and. Vounc_Tools_Ini(1,0,0) // редактирование
-    if tip_polzovat != 0
+    if ! hb_user_curUser:IsAdmin()
       return func_error(4,err_admin)
     endif
     str_sem := "Редактирование настроек VOUNC"
