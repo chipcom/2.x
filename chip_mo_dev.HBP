@@ -108,8 +108,6 @@ mo_version.prg
 .\init\index_base.prg
 .\init\initArrayFilesDB.prg
 .\init\update_data_DB.prg
-.\init\correct_DVN_COVID.prg
-.\init\correct_V004_to_V021.prg
 
 .\security\Users.prg
 .\security\Roles.prg
