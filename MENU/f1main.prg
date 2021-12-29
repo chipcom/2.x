@@ -4,7 +4,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 28.12.21
+***** 29.12.21
 Function f1main(n_Task)
   Local it, s, k, fl := .t., cNameIcon
   
@@ -373,12 +373,10 @@ do case
       aadd(first_message[k], "Список информационных пакетов со сведениями о выбывших пациентах")
       aadd(func_menu[k], "_263_to_I06()")
     endif
-    if hb_user_curUser:IsAdmin()
-      aadd(first_menu[k],0)
-      aadd(first_menu[k], "~Настройка каталогов")
-      aadd(first_message[k], "Настройка каталогов обмена - куда записывать созданные для ТФОМС файлы")
-      aadd(func_menu[k], "_263_to_nastr()")
-    endif
+    aadd(first_menu[k],0)
+    aadd(first_menu[k], "~Настройка каталогов")
+    aadd(first_message[k], "Настройка каталогов обмена - куда записывать созданные для ТФОМС файлы")
+    aadd(func_menu[k], "_263_to_nastr()")
     //
     aadd(cmain_menu,39)
     aadd(main_menu," из ~ТФОМС ")
@@ -419,12 +417,10 @@ do case
       aadd(first_message[k], "Список информационных пакетов со сведениями о наличии свободных мест")
       aadd(func_menu[k], "_263_from_I07()")
     endif
-    if hb_user_curUser:IsAdmin()
-      aadd(first_menu[k],0)
-      aadd(first_menu[k], "~Настройка каталогов")
-      aadd(first_message[k], "Настройка каталогов обмена - откуда зачитывать полученные из ТФОМС файлы")
-      aadd(func_menu[k], "_263_to_nastr()")
-    endif
+    aadd(first_menu[k],0)
+    aadd(first_menu[k], "~Настройка каталогов")
+    aadd(first_message[k], "Настройка каталогов обмена - откуда зачитывать полученные из ТФОМС файлы")
+    aadd(func_menu[k], "_263_to_nastr()")
     //
   case glob_task == X_PLATN //
     fl := begin_task_plat()
