@@ -398,6 +398,13 @@ Function checkFilesTFOMS()
   aadd(arrRefFFOMS, {'_mo_v021', .f., 'V021 - Классификатор медицинских специальностей (должностей) (MedSpec)' } )
   aadd(arrRefFFOMS, {'_mo_v022', .f., 'V022 - Классификатор моделей пациента при оказании высокотехнологичной медицинской помощи (ModPac)' } )
   aadd(arrRefFFOMS, {'_mo_v025', .f., 'V025 - Классификатор целей посещения (KPC)' } )
+  aadd(arrRefFFOMS, {'_mo_v030', .t., 'V030 - Схемы лечения заболевания COVID-19 (TreatReg)' } )
+  aadd(arrRefFFOMS, {'_mo_v031', .f., 'V031 - Группы препаратов для лечения заболевания COVID-19 (GroupDrugs)' } )
+  aadd(arrRefFFOMS, {'_mo_v032', .f., 'V032 - Сочетание схемы лечения и группы препаратов (CombTreat)' } )
+  aadd(arrRefFFOMS, {'_mo_v033', .f., 'V033 - Соответствие кода препарата схеме лечения (DgTreatReg)' } )
+  aadd(arrRefFFOMS, {'_mo_v034', .f., 'V034 - Единицы измерения (UnitMeas)' } )
+  aadd(arrRefFFOMS, {'_mo_v035', .f., 'V035 - Способы введения (MethIntro)' } )
+  aadd(arrRefFFOMS, {'_mo_v036', .f., 'V036 - Перечень услуг, требующих имплантацию медицинских изделий (ServImplDv)' } )
   aadd(arrRefFFOMS, {'_mo_t005', .t., 'T005 - Справочник ошибок при проведении технологического контроля Реестров сведений и Реестров счетов' } )
 
   for each row in arrRefFFOMS
