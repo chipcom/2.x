@@ -1847,7 +1847,6 @@ Function fcena_oms(sShifr,lVzReb,dDate,/*@*/fl_delete,/*@*/fl_yes,/*@*/_ifin)
     fl_delete := .t. ; fl_yes := .f.
     lal := "luslc"
     lal := create_name_alias(lal, dDate[i])
-
     dbselectarea(lal)
     set order to 1
     find (sShifr+str(lvr,1)+str(glob_otd_dep,3)) // сначала ищем цену для конкретного отделения

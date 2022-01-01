@@ -8,7 +8,7 @@
 Function R_Use_base(sBase, lalias)
   return use_base(sBase, lalias, , .t.)
 
-***** 02.01.21
+***** 02.01.22
 Function use_base(sBase, lalias, lExcluUse, lREADONLY)
   Local fl := .t., sind1, sind2
 
@@ -18,17 +18,20 @@ Function use_base(sBase, lalias, lExcluUse, lREADONLY)
       fl := R_Use(exe_dir + "_mo8usl", cur_dir + "_mo8usl", sBase + "18") .and. ;
         R_Use(exe_dir + "_mo9usl", cur_dir + "_mo9usl", sBase + "19") .and. ;
         R_Use(exe_dir + "_mo0usl", cur_dir + "_mo0usl", sBase + "20") .and. ;
-        R_Use(exe_dir + "_mo1usl", cur_dir + "_mo1usl", sBase)
+        R_Use(exe_dir + "_mo1usl", cur_dir + "_mo1usl", sBase + "21") .and. ;
+        R_Use(exe_dir + "_mo2usl", cur_dir + "_mo2usl", sBase)
     case sBase == "luslc"
       fl := R_Use(exe_dir + "_mo8uslc", {cur_dir + "_mo8uslc", cur_dir + "_mo8uslu"}, sBase + "18") .and. ;
         R_Use(exe_dir + "_mo9uslc", {cur_dir + "_mo9uslc", cur_dir + "_mo9uslu"}, sBase + "19") .and. ;
         R_Use(exe_dir + "_mo0uslc", {cur_dir + "_mo0uslc", cur_dir + "_mo0uslu"}, sBase + "20") .and. ;
-        R_Use(exe_dir + "_mo1uslc", {cur_dir + "_mo1uslc", cur_dir + "_mo1uslu"}, sBase)
+        R_Use(exe_dir + "_mo1uslc", {cur_dir + "_mo1uslc", cur_dir + "_mo1uslu"}, sBase + "21") .and. ;
+        R_Use(exe_dir + "_mo2uslc", {cur_dir + "_mo2uslc", cur_dir + "_mo2uslu"}, sBase)
     case sBase == "luslf"
       fl := R_Use(exe_dir + "_mo8uslf", cur_dir + "_mo8uslf", sBase + "18") .and. ;
         R_Use(exe_dir + "_mo9uslf", cur_dir + "_mo9uslf", sBase + "19") .and. ;
         R_Use(exe_dir + "_mo0uslf", cur_dir + "_mo0uslf", sBase + "20") .and. ;
-        R_Use(exe_dir + "_mo1uslf", cur_dir + "_mo1uslf", sBase)
+        R_Use(exe_dir + "_mo1uslf", cur_dir + "_mo1uslf", sBase + "21") .and. ;
+        R_Use(exe_dir + "_mo2uslf", cur_dir + "_mo2uslf", sBase)
     case sBase == "organiz"
       DEFAULT lalias TO "ORG"
       fl := G_Use(dir_server+"organiz",,lalias,,lExcluUse,lREADONLY)
