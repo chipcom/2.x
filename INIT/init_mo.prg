@@ -234,6 +234,16 @@ Function checkFilesTFOMS()
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
 
+  // impl - справочник имплантантов
+  sbase := "_mo_impl"
+  if hb_FileExists(exe_dir + sbase + sdbf)
+      R_Use(exe_dir + sbase )
+      index on str(ID, 4) to (cur_dir + sbase)
+      use
+  else
+    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
+  endif
+
   // onkko_vmp
   sbase := "_mo_ovmp"
   if hb_FileExists(exe_dir + sbase + sdbf)
