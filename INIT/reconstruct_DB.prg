@@ -56,7 +56,7 @@ function Reconstruct_Security(is_local_version)
   
   return nil
 
-***** 24.04.21 реконстукция баз данных
+***** 02.01.22 реконстукция баз данных
 Function Reconstruct_DB(is_local_version,is_create)
   Local base1 := {;
      {"P1",      "C",  20,   0},; // Ф.И.О.
@@ -439,6 +439,12 @@ Function Reconstruct_DB(is_local_version,is_create)
      {"PN5",      "N", 10,0},; // модель пациента ВМП
      {"PN6",      "N", 10,0};  //
     }
+  local mo_implant := {;  // имплантанты
+    {"KOD_HUM",   "N",   7, 0},;  // код листа учёта по файлу "human"
+    {"DATE_UST",  "D",   8, 0},;  // дата установки импланта
+    {"RZN",       "N",   6, 0},;  // Код вида медицинского изделия (номенклатурная классификация медицинских изделий справочника МинЗдрава (OID 1.2.643.5.1.13.13.11.1079))
+    {"SER_NUM",   "C", 100, 0};
+  }
   Local mo_onkna := {; // онконаправления
      {"KOD"      ,   "N",     7,     0},; // код больного
      {"NAPR_DATE",   "D",     8,     0},; // Дата направления
@@ -1530,6 +1536,7 @@ Function Reconstruct_DB(is_local_version,is_create)
   reconstruct(dir_server+"human",human,"index_base('human')","пролеченным больным",.t.)
   reconstruct(dir_server+"human_",human_,,"пролеченным больным1",.t.)
   reconstruct(dir_server+"human_2",human_2,,"пролеченным больным2",.t.)
+  reconstruct(dir_server + "human_im", mo_implant, "index_base('human_im')", "установленным имплантам", .t.)
   reconstruct_double_sl()
   reconstruct(dir_server+"mo_rhum",mo_rhum,,"реестру случаев",.t.)
   reconstruct(dir_server+"mo_refr",mo_refr,"index_base('mo_refr')","списку отказов",.t.)

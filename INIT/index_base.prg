@@ -3,7 +3,7 @@
 // #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 28.10.18
+***** 02.01.22
 Function index_base(sBase)
   Millisec(100)  // задержка на 0.1 с
   if type("fl_open") == "L" .and. fl_open
@@ -120,6 +120,8 @@ Function index_base(sBase)
       index on date_u to (dir_server+"human_ud") progress
       index on str(kod_vr,4)+date_u to (dir_server+"human_uv") progress
       index on str(kod_as,4)+date_u to (dir_server+"human_ua") progress
+    case sBase == "human_im"
+      index on str(kod_hum, 7) to (dir_server + "human_im") progress
     case sBase == "mo_hu"
       index on str(kod,7)+date_u to (dir_server+"mo_hu") progress
       index on str(u_kod,6) to (dir_server+"mo_huk") progress

@@ -4,7 +4,7 @@
 #include "chip_mo.ch"
 
 
-***** 31.03.21 ввод услуг в лист учёта
+***** 02.01.22 ввод услуг в лист учёта
 Function f2oms_usl_sluch(nKey,oBrow)
   Static skod_k := 0, skod_human := 0, SKOD_DIAG, SZF,;
          st_vzrosl, st_arr_dbf, skod_vr, skod_as, aksg := {}
@@ -83,6 +83,7 @@ Function f2oms_usl_sluch(nKey,oBrow)
           if !between(new_date,human->n_data,human->k_data)
             new_date := human->k_data
           endif
+            // 
           if st_arr_dbf[k,_HU_N_BASE] == 0
             select HU
             Add1Rec(7)
@@ -607,7 +608,7 @@ Function f2oms_usl_sluch(nKey,oBrow)
         elseif lastkey() != K_ESC
 
           // запомним КСЛП для случая услуг круглосуточного и дневного стационара
-          if year(mdate_u1) == 2021 .and. (substr(lower(mshifr),1,2) == 'st' .or. substr(lower(mshifr),1,2) == 'ds')
+          if year(mdate_u1) >= 2021 .and. (substr(lower(mshifr),1,2) == 'st' .or. substr(lower(mshifr),1,2) == 'ds')
             // запомним КСЛП
             tmSel := select('HUMAN_2')
             if (tmSel)->(dbRlock())
@@ -645,6 +646,10 @@ Function f2oms_usl_sluch(nKey,oBrow)
             else
               mvu[2,2] += count_edit
             endif
+    // alertx(mshifr, 'shifr 1')
+    // alertx(mshifr1, 'shifr 2')
+    if (aImpl := ret_impl_V036(mshifr, mdate_u1)) != NIL
+    endif
             if nKey == K_INS .and. len(pr_k_usl) > 0
               // комплексная услуга
               for i := 1 to len(pr_k_usl)

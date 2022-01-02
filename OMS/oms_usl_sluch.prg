@@ -4,7 +4,7 @@
 #include "chip_mo.ch"
 
 
-***** 29.01.21 ввод услуг в случай (лист учёта)
+***** 02.01.22 ввод услуг в случай (лист учёта)
 Function oms_usl_sluch(mkod_human,mkod_kartotek,fl_edit)
   // mkod_human - код по БД human
   // mkod_kartotek - код по БД kartotek
@@ -16,6 +16,8 @@ Function oms_usl_sluch(mkod_human,mkod_kartotek,fl_edit)
   Private fl_found, last_date, mvu[3,2], pr1otd, pr_amb_reab := .f.,;
           pr_arr := {}, pr_arr_otd := {}, pr1arr_otd := {}, is_1_vvod,;
           kod_lech_vr := 0, is_open_u1 := .f., arr_uva := {}, arr_usl1year, u_other := {}
+  private flExistImplant := .f., arrImplant
+
   afillall(mvu,0)
   //
   Private tmp_V002 := create_classif_FFOMS(0,"V002") // PROFIL
@@ -89,6 +91,16 @@ Function oms_usl_sluch(mkod_human,mkod_kartotek,fl_edit)
     select HUMAN
     skip
   enddo
+  //
+  // проверим наличие имплантов
+  Use_base("human_im")
+  find (str(mkod_human, 7))
+  if IMPL->(found())
+    flExistImplant := .t.
+    arrImplant := {IMPL->KOD_HUM, IMPL->DATE_UST, IMPL->RZN, IMPL->SER_NUM}
+  endif
+  IMPL->(dbCloseArea())
+
   //
   adbf := {;
     {"KOD"      ,   "N",     7,     0},; // код больного

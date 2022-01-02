@@ -3,13 +3,14 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 01.01.22 функция для when и valid при вводе услуг в лист учёта
+***** 02.01.22 функция для when и valid при вводе услуг в лист учёта
 Function f5editkusl(get,when_valid,k)
   Local fl := .t., s, i, lu_cena, lshifr1, v, old_kod, amsg, fl1, fl2, ;
         msg1_err := "Код врача равен коду ассистента! Это недопустимо.",;
         msg2_err := "Сотрудника с таким кодом нет в базе данных персонала!",;
         blk_sum := {|| mstoim_1 := round_5(mu_cena * mkol_1, 2) }
   local aImpl
+  local l_impl
 
   if when_valid == 1    // when
     if k == 2     // Шифр услуги
@@ -104,8 +105,20 @@ Function f5editkusl(get,when_valid,k)
         select LUSLF
         find (padr(mshifr,20))
         if found() .and. alltrim(mshifr) == alltrim(luslf->shifr)
-          if (aImpl := ret_impl_V036(mshifr)) != NIL
-            // altd()
+          if (c4tod(TMP->DATE_U2) >= d_01_01_2022) .and. ((aImpl := ret_impl_V036(mshifr, c4tod(TMP->DATE_U2))) != NIL)
+            if flExistImplant
+              if (l_impl := select_impl(arrImplant[2], arrImplant[3], arrImplant[4])) != NIL
+                arrImplant[2] := l_impl[1]
+                arrImplant[3] := l_impl[2]
+                arrImplant[4] := l_impl[3]
+              endif
+            else
+              if (l_impl := select_impl()) != NIL
+                arrImplant[2] := l_impl[1]
+                arrImplant[3] := l_impl[2]
+                arrImplant[4] := l_impl[3]
+              endif
+            endif
           endif
           is_usluga_zf := luslf->zf
           tip_onko_napr := luslf->onko_napr
@@ -434,3 +447,62 @@ Function f5editkusl(get,when_valid,k)
   endif
   return fl
   
+****** 02.01.22 - выбор импланта
+function select_impl(date_ust, rzn, ser_num)
+  local ret := NIL, oBox
+  local buf, tmp_keys, iRow
+  local sPicture
+
+  private mVIDIMPL := 0, m1VIDIMPL := 0  //iif(nKey == K_INS, human_->profil, tmp->profil)
+  private mDATE_INST, mNUMBER
+
+  default date_ust to sys_date
+  default rzn to 0
+  default ser_num to space(100)
+
+  mDATE_INST := date_ust
+  m1VIDIMPL := rzn
+  mNUMBER := ser_num
+
+  mVIDIMPL := padr(inieditspr(A__MENUVERT, get_implant(), m1VIDIMPL), 69)
+
+	buf := savescreen()
+	change_attr()
+	iRow := 10
+	tmp_keys := my_savekey()
+	save gets to tmp_gets
+
+	oBox := TBox():New( iRow, 10, iRow + 5, 70, .t. )
+	oBox:CaptionColor := 'B/B*'
+	oBox:Color := cDataCGet
+	oBox:MessageLine := '^<Esc>^ - выход;  ^<PgDn>^ - подтверждение ввода'
+	oBox:Caption := 'Выберите имплант'
+	oBox:View()
+
+	do while .t.
+		iRow := 11
+
+    @ ++iRow, 12 say "Дата установки" get mDATE_INST
+
+		@ ++iRow, 12 say 'Вид импланта:' get mVIDIMPL ;
+          reader {|x| menu_reader(x,get_implant(), A__MENUVERT, , , .f.)} ;
+          valid {|| mVIDIMPL := padr(mVIDIMPL, 69), .t. }
+
+    sPicture := '@S40'
+		@ ++iRow, 12 say 'Серийный номер:' get mNUMBER picture sPicture //;
+	
+		myread()
+		if lastkey() != K_ESC .and. m1VIDIMPL != 0
+      ret := {mDATE_INST, m1VIDIMPL, mNUMBER}
+			exit
+		else
+			exit
+		endif
+	enddo
+	update_gets()
+
+	oBox := nil
+	restscreen( buf )
+	restore gets from tmp_gets
+	my_restkey( tmp_keys )
+  return ret

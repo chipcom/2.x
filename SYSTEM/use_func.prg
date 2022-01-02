@@ -82,6 +82,9 @@ Function use_base(sBase, lalias, lExcluUse, lREADONLY)
       if fl
         set relation to recno() into HUMAN_, to recno() into HUMAN_2
       endif
+    case sBase == "human_im"
+      DEFAULT lalias TO "IMPL"
+      fl := G_Use(dir_server + "human_im", dir_server + "human_im", lalias, , lExcluUse, lREADONLY)
     case sBase == "human_u"
       DEFAULT lalias TO "HU"
       fl := G_Use(dir_server+"human_u_",,"HU_",,lExcluUse,lREADONLY) .and. ;
