@@ -1711,6 +1711,7 @@ if reg > 1
     skip
   enddo
   lusl->(dbCloseArea())
+  lusl21->(dbCloseArea())
   lusl20->(dbCloseArea())
   lusl19->(dbCloseArea())
   lusl18->(dbCloseArea())
@@ -1915,8 +1916,23 @@ add_string("                                        Œ..")
 fclose(fp)
 rest_box(buf)
 lusl->(dbCloseArea())
+lusl21->(dbCloseArea())
+lusl20->(dbCloseArea())
+lusl19->(dbCloseArea())
+lusl18->(dbCloseArea())
+
 lusld->(dbCloseArea())
+lusld21->(dbCloseArea())
+lusld20->(dbCloseArea())
+lusld19->(dbCloseArea())
+lusld18->(dbCloseArea())
+
 luslf->(dbCloseArea())
+luslf21->(dbCloseArea())
+luslf20->(dbCloseArea())
+luslf19->(dbCloseArea())
+luslf18->(dbCloseArea())
+
 usl->(dbCloseArea())
 hu->(dbCloseArea())
 human_->(dbCloseArea())
