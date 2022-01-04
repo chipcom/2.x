@@ -1,4 +1,4 @@
-* 29.12.21 вернуть массив по справочнику ФФОМС V030.xml
+* 04.01.22 вернуть массив по справочнику ФФОМС V030.xml
 function getV030()
   // V030.xml - Схемы лечения заболевания COVID-19 (TreatReg)
   //  1 - SCHEMCOD(C) 2 - SCHEME(C) 3 - DEGREE(N) 4 - COMMENT(M)  5 - DATEBEG(D)  6 - DATEEND(D)
@@ -11,7 +11,7 @@ function getV030()
     dbUseArea( .t.,, exe_dir + dbName, dbName, .f., .f. )
     (dbName)->(dbGoTop())
     do while !(dbName)->(EOF())
-      aadd(_arr, { alltrim((dbName)->SCHEMCOD), alltrim((dbName)->SCHEME), (dbName)->DEGREE, alltrim((dbName)->COMMENT), (dbName)->DATEBEG, (dbName)->DATEEND })
+      aadd(_arr, { alltrim((dbName)->SCHEME), alltrim((dbName)->SCHEMCOD), (dbName)->DEGREE, alltrim((dbName)->COMMENT), (dbName)->DATEBEG, (dbName)->DATEEND })
       (dbName)->(dbSkip())
     enddo
     (dbName)->(dbCloseArea())
@@ -20,3 +20,13 @@ function getV030()
 
   return _arr
 
+****** 04.01.22 вернуть схемы лечения согласно тяжести пациента
+function get_schemas_lech(_degree, ldate)
+  local _arr := {}, row
+
+  for each row in getV030()
+    if (row[3] == _degree) .and. between_date(row[5], row[6], ldate)
+      aadd(_arr, { row[1], row[2], row[3], row[4], row[5], row[6] })
+    endif
+  next
+  return _arr
