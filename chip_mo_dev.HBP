@@ -169,6 +169,7 @@ mo_version.prg
 .\ref\dbKSLPandKIRO.prg
 .\ref\dbMo_Mo.prg
 .\ref\dbImplant.prg
+.\ref\dbSeverity.prg
 
 .\oms\oms_func.prg
 .\oms\oms_double.prg
