@@ -474,7 +474,7 @@ function initPZarray()
   {99,387,"исследование ИХГ","исследование ИХГ","",""};      //  1
   }
 
-  sbase :=  prefixFileRefName(WORK_YEAR) + 'unit'  // справочник на конкретный год
+  sbase :=  prefixFileRefName(WORK_YEAR-1) + 'unit'  // справочник на конкретный год
   
   G_Use(exe_dir + sbase, cur_dir + sbase, 'UNIT')
   for i := 1 to len(glob_array_PZ_21)
