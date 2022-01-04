@@ -11,11 +11,22 @@ function getV032()
     dbUseArea( .t.,, exe_dir + dbName, dbName, .f., .f. )
     (dbName)->(dbGoTop())
     do while !(dbName)->(EOF())
-      aadd(_arr, { alltrim((dbName)->SCHEDRUG), alltrim((dbName)->NAME), (dbName)->SCHEMCOD, (dbName)->DATEBEG, (dbName)->DATEEND })
+      aadd(_arr, { alltrim((dbName)->SCHEDRUG), alltrim((dbName)->NAME), alltrim((dbName)->SCHEMCOD), (dbName)->DATEBEG, (dbName)->DATEEND })
       (dbName)->(dbSkip())
     enddo
     (dbName)->(dbCloseArea())
     Select(tmp_select)
   endif
 
+  return _arr
+
+****** 04.01.22 вернуть сочетание схемы и группы препаратов
+function get_group_by_schema_lech(_scheme, ldate)
+  local _arr := {}, row
+
+  for each row in getV032()
+    if (row[3] == alltrim(_scheme)) .and. between_date(row[4], row[5], ldate)
+      aadd(_arr, { row[1], row[2], row[3], row[4], row[5] })
+    endif
+  next
   return _arr

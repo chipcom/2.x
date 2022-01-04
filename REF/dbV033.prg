@@ -19,3 +19,14 @@ function getV033()
   endif
 
   return _arr
+
+****** 04.01.22 вернуть соответствие кода препарата схеме лечения
+function get_drugcode_by_schema_lech(_schemeDrug, ldate)
+  local _arr := {}, row
+
+  for each row in getV033()
+    if (row[1] == alltrim(_schemeDrug)) .and. between_date(row[3], row[4], ldate)
+      aadd(_arr, { row[1], row[2], row[3], row[4] })
+    endif
+  next
+  return _arr
