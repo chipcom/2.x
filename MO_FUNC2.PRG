@@ -97,64 +97,74 @@ else
 endif
 return count_years(_date_r,_data) >= v
 
-***** 23.12.21
+***** 04.01.22
 Function arr_plan_zakaz(ly)
   Local i, apz := {}
   local nameArr
 
   DEFAULT ly TO WORK_YEAR
-  nameArr := 'glob_array_PZ_' + last_digits_year(ly)
-  for i := 1 to len(&nameArr)
-    aadd(apz,{&nameArr.[i,3],;
-              &nameArr.[i,1],;
+  // nameArr := 'glob_array_PZ_' + last_digits_year(ly)
+  // for i := 1 to len(&nameArr)
+  //   aadd(apz,{&nameArr.[i,3],;
+  //             &nameArr.[i,1],;
+  //             0,;
+  //             &nameArr.[i,6],;
+  //             &nameArr.[i,5],;
+  //             {};
+  //            } )
+  // next
+
+  if ly > 2021
+    for i := 1 to len(glob_array_PZ_22)
+      aadd(apz,{glob_array_PZ_22[i,3],;
+              glob_array_PZ_22[i,1],;
               0,;
-              &nameArr.[i,6],;
-              &nameArr.[i,5],;
+              glob_array_PZ_22[i,6],;
+              glob_array_PZ_22[i,5],;
               {};
              } )
-  next
-
-  // if ly > 2020
-  //   for i := 1 to len(glob_array_PZ_21)
-  //     aadd(apz,{glob_array_PZ_21[i,3],;
-  //             glob_array_PZ_21[i,1],;
-  //             0,;
-  //             glob_array_PZ_21[i,6],;
-  //             glob_array_PZ_21[i,5],;
-  //             {};
-  //            } )
-  //   next
-  // elseif ly == 2020
-  //   for i := 1 to len(glob_array_PZ_20)
-  //     aadd(apz,{glob_array_PZ_20[i,3],;
-  //             glob_array_PZ_20[i,1],;
-  //             0,;
-  //             glob_array_PZ_20[i,6],;
-  //             glob_array_PZ_20[i,5],;
-  //             {};
-  //            } )
-  //   next
-  // elseif ly == 2019
-  //   for i := 1 to len(glob_array_PZ_19)
-  //     aadd(apz,{glob_array_PZ_19[i,3],;
-  //             glob_array_PZ_19[i,1],;
-  //             0,;
-  //             glob_array_PZ_19[i,6],;
-  //             glob_array_PZ_19[i,5],;
-  //             {};
-  //            } )
-  //   next
-  // else
-  //   for i := 1 to len(glob_array_PZ_18)
-  //     aadd(apz,{glob_array_PZ_18[i,3],;
-  //             glob_array_PZ_18[i,1],;
-  //             0,;
-  //             glob_array_PZ_18[i,6],;
-  //             glob_array_PZ_18[i,5],;
-  //             {};
-  //            } )
-  //   next
-  // endif
+    next
+  elseif ly == 2021
+    for i := 1 to len(glob_array_PZ_21)
+      aadd(apz,{glob_array_PZ_21[i,3],;
+              glob_array_PZ_21[i,1],;
+              0,;
+              glob_array_PZ_21[i,6],;
+              glob_array_PZ_21[i,5],;
+              {};
+             } )
+    next
+  elseif ly == 2020
+    for i := 1 to len(glob_array_PZ_20)
+      aadd(apz,{glob_array_PZ_20[i,3],;
+              glob_array_PZ_20[i,1],;
+              0,;
+              glob_array_PZ_20[i,6],;
+              glob_array_PZ_20[i,5],;
+              {};
+             } )
+    next
+  elseif ly == 2019
+    for i := 1 to len(glob_array_PZ_19)
+      aadd(apz,{glob_array_PZ_19[i,3],;
+              glob_array_PZ_19[i,1],;
+              0,;
+              glob_array_PZ_19[i,6],;
+              glob_array_PZ_19[i,5],;
+              {};
+             } )
+    next
+  else
+    for i := 1 to len(glob_array_PZ_18)
+      aadd(apz,{glob_array_PZ_18[i,3],;
+              glob_array_PZ_18[i,1],;
+              0,;
+              glob_array_PZ_18[i,6],;
+              glob_array_PZ_18[i,5],;
+              {};
+             } )
+    next
+  endif
   return apz
 
 ***** 23.12.21 по шифру услуги у году вернуть номер элемента массива "arr_plan_zakaz" для года
