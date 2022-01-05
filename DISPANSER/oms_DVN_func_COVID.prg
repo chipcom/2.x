@@ -740,7 +740,7 @@ Function ret_dvn_arr_COVID_umolch()
     // count_dvn_arr_umolch := len(dvn_arr_umolch)
   return dvn_COVID_arr_umolch
 
-// 21.07.21
+// 21.07.21 
 function foundFFOMSUsluga(lshifr)
   local kod_uslf := 0
   local tmp_select := select()
@@ -780,6 +780,7 @@ function foundFFOMSUsluga(lshifr)
   luslf18->(dbCloseArea())
   luslf19->(dbCloseArea())
   luslf20->(dbCloseArea())
+  luslf21->(dbCloseArea())
 
   return kod_uslf
 
