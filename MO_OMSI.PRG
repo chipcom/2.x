@@ -2397,7 +2397,7 @@ if par > 1 .and. (arr_goi := ret_g_o_i(T_ROW,T_COL-5)) == NIL
   return NIL
 endif
 Private v_deti := 1, apf := {},   apz2016 := {}, luapz2016 := {},;
-        is_2019 := .f., is_2020 := .f., is_2021 := .f.
+        is_2019 := .f., is_2020 := .f., is_2021 := .f., is_2022 := .f.
 if (v_deti := popup_prompt(T_ROW,T_COL-5,1,{"по ~всем пациентам","по ~детям"},,,"N/G*,W+/B,B/G*,BG+/B")) == 0
   restscreen(buf)
   return NIL
@@ -2468,7 +2468,9 @@ if between(par,2,3) .and. eq_any(su,1,2,5)
   R_Use(dir_exe + sbase, , "MOUNIT")
   index on str(ii, 3) to (cur_dir + "tmp_unitii")
   set index to (cur_dir + sbase), (cur_dir + "tmp_unitii")
-  if arr_m[1] == 2021
+  if arr_m[1] == 2022
+    is_2022 := .t.
+  elseif arr_m[1] == 2021
     is_2021 := .t.
   elseif arr_m[1] == 2020
     is_2020 := .t.
@@ -3071,7 +3073,7 @@ return NIL
 
 *
 
-***** 12.03.19
+***** 05.01.22
 Function f1pz1statist(arr_otd,par)
 Local lreg_lech := {0,0,0,0,0}, s, lkod, lshifr, ta, i, j, k, mkol1,;
       mkol, muet, msum, koef := 1, lshifr1, fl := .t., arr_dn_st := {"","",0},;
@@ -3266,7 +3268,16 @@ do while hu->kod == human->kod .and. !eof()
               //apz2016[i16,3] += muet
             //endif
           elseif i16 > 0
-            lalunit := "MOUNIT"+iif(is_2021,"","20")   // 19.01.2021
+            if is_2022
+              lalunit := "MOUNIT"   // 05.01.2022
+            elseif is_2021
+              lalunit := "MOUNIT21"
+            elseif is_2020
+              lalunit := "MOUNIT20"
+            elseif is_2019
+              lalunit := "MOUNIT19"
+            endif
+            // lalunit := "MOUNIT"+iif(is_2021,"","20")   // 19.01.2021
             dbSelectArea(lalunit)
             set order to 1  // 2 23.12.21
             find (str(i16,3))

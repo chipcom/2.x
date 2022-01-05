@@ -56,7 +56,7 @@ function Reconstruct_Security(is_local_version)
   
   return nil
 
-***** 02.01.22 реконстукция баз данных
+***** 05.01.22 реконстукция баз данных
 Function Reconstruct_DB(is_local_version,is_create)
   Local base1 := {;
      {"P1",      "C",  20,   0},; // Ф.И.О.
@@ -441,6 +441,7 @@ Function Reconstruct_DB(is_local_version,is_create)
     }
   local mo_implant := {;  // имплантанты
     {"KOD_HUM",   "N",   7, 0},;  // код листа учёта по файлу "human"
+    {"KOD_K",     "N",   7, 0},;  // код по картотеке
     {"DATE_UST",  "D",   8, 0},;  // дата установки импланта
     {"RZN",       "N",   6, 0},;  // Код вида медицинского изделия (номенклатурная классификация медицинских изделий справочника МинЗдрава (OID 1.2.643.5.1.13.13.11.1079))
     {"SER_NUM",   "C", 100, 0};
