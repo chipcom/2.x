@@ -196,7 +196,7 @@ Function f_arr_plan_zakaz(lshifr, lyear)
     endif
   endif
   if k > 0 .and. empty(i16)
-    nameArrayPZ := 'glob_array_PZ_' +  + last_digits_year(lyear)
+    nameArrayPZ := 'glob_array_PZ_' + last_digits_year(lyear)
     i16 := ascan(&nameArrayPZ, {|x| x[1] == k })
   endif
   return i16
