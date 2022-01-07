@@ -736,7 +736,7 @@ Function oms_sluch(Loc_kod,kod_kartotek)
   Private rdiag := 1, rpp := 1, num_screen := 1, is_onko_VMP := .f.
 
   do while .t.
-    if num_screen == 1 //
+    if num_screen == 1
       SetMode(kscr1,80)
       pr_1_str(str_1)
       j := 1
@@ -821,11 +821,11 @@ Function oms_sluch(Loc_kod,kod_kartotek)
       elseif ibrm == 3
         @ j,26 say "     боли при онкологии"
       endif
-        @ j,51 get mprer_b ;
-            reader {|x| menu_reader(x,mm_prer_b,A__MENUVERT,,,.f.)} ;
-            when {|| ibrm := f_oms_beremenn(mkod_diag),;
-              mm_prer_b := iif(ibrm == 1, mm1prer_b, iif(ibrm == 2, mm2prer_b, mm3prer_b)),;
-              (ibrm > 0) }
+      @ j,51 get mprer_b ;
+          reader {|x| menu_reader(x,mm_prer_b,A__MENUVERT,,,.f.)} ;
+          when {|| ibrm := f_oms_beremenn(mkod_diag),;
+            mm_prer_b := iif(ibrm == 1, mm1prer_b, iif(ibrm == 2, mm2prer_b, mm3prer_b)),;
+            (ibrm > 0) }
       //
       ++j
       @ j,1 say "Сопутствующие диагнозы " get mkod_diag2 picture pic_diag reader {|o|MyGetReader(o,bg)} when when_diag() valid val1_10diag(.t.,.t.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
@@ -1004,20 +1004,19 @@ Function oms_sluch(Loc_kod,kod_kartotek)
         endif*/
       endif
       //
-      ++j
-      @ j,1 say "Больничный" get mbolnich ;
+      @ ++j, 1 say "Больничный" get mbolnich ;
           reader {|x|menu_reader(x,menu_bolnich,A__MENUVERT,,,.f.)} ;
           color colget_menu ;
           valid {|g,o| f_valid_bolnich(g,o) }
-      @ row(),col()+1 say "==> с" get mdate_b_1 when m1bolnich > 0
-      @ row(),col()+1 say "по" get mdate_b_2 when m1bolnich > 0
-      @ row(),col()+1 say "Д.р.родителя" get mrodit_dr when m1bolnich == 2
+      @ row(), col()+1 say "==> с" get mdate_b_1 when m1bolnich > 0
+      @ row(), col()+1 say "по" get mdate_b_2 when m1bolnich > 0
+      @ row(), col()+1 say "Д.р.родителя" get mrodit_dr when m1bolnich == 2
       if mem_pol == 1
-        @ row(),col()+1 say "Пол" get mrodit_pol ;
+        @ row(), col()+1 say "Пол" get mrodit_pol ;
             reader {|x|menu_reader(x,menupol,A__MENUVERT,,,.f.)} ;
             when m1bolnich == 2
       else
-        @ row(),col()+1 say "Пол" get mrodit_pol pict "@!" ;
+        @ row(), col()+1 say "Пол" get mrodit_pol pict "@!" ;
             valid {|g| mrodit_pol $ "МЖ" } ;
             when m1bolnich == 2
       endif
@@ -1033,6 +1032,7 @@ Function oms_sluch(Loc_kod,kod_kartotek)
       if !empty(a_smert)
         n_message(a_smert,,"GR+/R","W+/R",,,"G+/R")
       endif
+
       if pos_read > 0
         if lower(GetList[pos_read]:name) == "mds_onk"
           --pos_read
@@ -1052,7 +1052,8 @@ Function oms_sluch(Loc_kod,kod_kartotek)
       endif
       @ maxrow(),0 say padc("<Esc> - выход;  <PgDn> - запись;  <F1> - помощь",maxcol()+1) color color0
       mark_keys({"<F1>","<Esc>","<PgDn>"},"R/BG")
-    elseif num_screen == 2 // 
+/////////////////////////////////////////////////////////////////////////////////      
+    elseif num_screen == 2
       use_base("luslf")
       Use_base("mo_su")
       use (cur_dir+"tmp_onkna") new alias TNAPR
@@ -1477,6 +1478,7 @@ Function oms_sluch(Loc_kod,kod_kartotek)
                      {"противопоказано",8}}
         mB_DIAG := inieditspr(A__MENUVERT, mmb_diag, m1B_DIAG)
       endif
+//////////////////////////////////////////////////////////
       SetMode(max(25,k),80)
       pr_1_str("Ввод/редактирование контрольного листа учёта ЗНО")
       j := 1
@@ -1521,218 +1523,219 @@ Function oms_sluch(Loc_kod,kod_kartotek)
       @ ++j,7 say "Услуга" get mname_u when .f. color color14
       @ ++j,3 say "Табельный номер направившего врача" get MTAB_NOM_NAPR pict "99999" ;
           valid {|g| iif((m1napr_v != 0) .and. (MTAB_NOM_NAPR == 0) .and. v_kart_vrach(g), func_error(4, 'Необходимо указать табельный направившего врача'),.t.) }
-    if is_oncology == 2
-      @ ++j,1 say "СВЕДЕНИЯ О СЛУЧАЕ ЛЕЧЕНИЯ ОНКОЛОГИЧЕСКОГО ЗАБОЛЕВАНИЯ"
-      @ ++j,3 say "Повод обращения" get mDS1_T ;
+      if is_oncology == 2
+        @ ++j,1 say "СВЕДЕНИЯ О СЛУЧАЕ ЛЕЧЕНИЯ ОНКОЛОГИЧЕСКОГО ЗАБОЛЕВАНИЯ"
+        @ ++j,3 say "Повод обращения" get mDS1_T ;
                  reader {|x|menu_reader(x,lmm_DS1_T,A__MENUVERT,,,.f.)} ;
                  color colget_menu
-      @ ++j,3 say "Стадия заболевания:" get mSTAD ;
+        @ ++j,3 say "Стадия заболевания:" get mSTAD ;
                  reader {|x|menu_reader(x,mm_N002,A__MENUVERT,,,.f.)} ;
                  valid {|g| f_valid_tnm(g), mSTAD:=padr(mSTAD,5), .t.} ;
                  when between(m1ds1_t,0,4) ;
                  color colget_menu
-      @ j,col() say " Tumor" get mONK_T ;
+        @ j,col() say " Tumor" get mONK_T ;
                  reader {|x|menu_reader(x,mm_N003,A__MENUVERT,,,.f.)} ;
                  valid {|g| f_valid_tnm(g), mONK_T:=padr(mONK_T,5), .t.} ;
                  when m1ds1_t == 0 .and. m1vzros_reb == 0 ;
                  color colget_menu
-      @ j,col() say " Nodus" get mONK_N ;
+        @ j,col() say " Nodus" get mONK_N ;
                  reader {|x|menu_reader(x,mm_N004,A__MENUVERT,,,.f.)} ;
                  valid {|g| f_valid_tnm(g), mONK_N:=padr(mONK_N,5), .t.} ;
                  when m1ds1_t == 0 .and. m1vzros_reb == 0 ;
                  color colget_menu
-      @ j,col() say " Metastasis" get mONK_M ;
+        @ j,col() say " Metastasis" get mONK_M ;
                  reader {|x|menu_reader(x,mm_N005,A__MENUVERT,,,.f.)} ;
                  valid {|g| f_valid_tnm(g), mONK_M:=padr(mONK_M,5), .t.} ;
                  when m1ds1_t == 0 .and. m1vzros_reb == 0 ;
                  color colget_menu
-      @ ++j,5 say "Наличие отдаленных метастазов (при рецидиве или прогрессировании)" get mMTSTZ ;
+        @ ++j,5 say "Наличие отдаленных метастазов (при рецидиве или прогрессировании)" get mMTSTZ ;
                  reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
                  when eq_any(m1DS1_T,1,2) ;
                  color colget_menu
-    if len(mm_N009) == 0 .and. len(mm_N012) == 0
-      if is_gisto
-        @ ++j,3 say "Результаты гистологии" get mrez_gist ;
+        if len(mm_N009) == 0 .and. len(mm_N012) == 0
+          if is_gisto
+            @ ++j,3 say "Результаты гистологии" get mrez_gist ;
                  reader {|x|menu_reader(x,{{|k,r,c| get_rez_gist(k,r,c)}},A__FUNCTION,,,.f.)}
-      else
-        @ ++j,3 say "Гистология / иммуногистохимия: не нужно для "+iif(is_mgi, "МГИ", mkod_diag)
-      endif
-    else
-      @ ++j,3 say "Гистология / иммуногистохимия" get mB_DIAG ;
+          else
+            @ ++j,3 say "Гистология / иммуногистохимия: не нужно для "+iif(is_mgi, "МГИ", mkod_diag)
+          endif
+        else
+          @ ++j,3 say "Гистология / иммуногистохимия" get mB_DIAG ;
                  reader {|x|menu_reader(x,mmb_diag,A__MENUVERT,,,.f.)}
-      @ ++j,3 say "Дата взятия материала" get mDIAG_DATE ;
+          @ ++j,3 say "Дата взятия материала" get mDIAG_DATE ;
                  when eq_any(m1b_diag,97,98) ;
                  valid {|| iif(empty(mDIAG_DATE) .or. mDIAG_DATE <= mk_data, .t., ;
                                func_error(4,"Дата взятия материала больше даты окончания лечения")) }
-      if len(mm_N009) == 0
-        @ ++j,3 say "Гистология: не нужно для "+iif(is_mgi, "МГИ", mkod_diag)
-      else
-        @ ++j,3 say mm_N009[1,1] get mgist1 ;
+          if len(mm_N009) == 0
+            @ ++j,3 say "Гистология: не нужно для "+iif(is_mgi, "МГИ", mkod_diag)
+          else
+            @ ++j,3 say mm_N009[1,1] get mgist1 ;
                  reader {|x|menu_reader(x,mm_N009[1,3],A__MENUVERT,,,.f.)} ;
                  when m1b_diag == 98 ;
                  color colget_menu
-        if len(mm_N009) >= 2
-          @ ++j,3 say mm_N009[2,1] get mgist2 ;
+            if len(mm_N009) >= 2
+              @ ++j,3 say mm_N009[2,1] get mgist2 ;
                  reader {|x|menu_reader(x,mm_N009[2,3],A__MENUVERT,,,.f.)} ;
                  when m1b_diag == 98 ;
                  color colget_menu
-        endif
-      endif
-      if len(mm_N012) == 0
-        @ ++j,3 say "Иммуногистохимия: не нужно для "+iif(is_mgi, "МГИ", mkod_diag)
-      else
-        @ ++j,3 say mm_N012[1,1] get mmark1 ;
+            endif
+          endif
+          if len(mm_N012) == 0
+            @ ++j,3 say "Иммуногистохимия: не нужно для "+iif(is_mgi, "МГИ", mkod_diag)
+          else
+            @ ++j,3 say mm_N012[1,1] get mmark1 ;
                  reader {|x|menu_reader(x,mm_N012[1,3],A__MENUVERT,,,.f.)} ;
                  when m1b_diag == 98 ;
                  color colget_menu
-      if len(mm_N012) >= 2
-        @ ++j,3 say mm_N012[2,1] get mmark2 ;
+            if len(mm_N012) >= 2
+              @ ++j,3 say mm_N012[2,1] get mmark2 ;
                  reader {|x|menu_reader(x,mm_N012[2,3],A__MENUVERT,,,.f.)} ;
                  when m1b_diag == 98 ;
                  color colget_menu
-      endif
-      if len(mm_N012) >= 3
-        @ ++j,3 say mm_N012[3,1] get mmark3 ;
+            endif
+            if len(mm_N012) >= 3
+              @ ++j,3 say mm_N012[3,1] get mmark3 ;
                  reader {|x|menu_reader(x,mm_N012[3,3],A__MENUVERT,,,.f.)} ;
                  when m1b_diag == 98 ;
                  color colget_menu
-      endif
-      if len(mm_N012) >= 4
-        @ ++j,3 say mm_N012[4,1] get mmark4 ;
+            endif
+            if len(mm_N012) >= 4
+              @ ++j,3 say mm_N012[4,1] get mmark4 ;
                  reader {|x|menu_reader(x,mm_N012[4,3],A__MENUVERT,,,.f.)} ;
                  when m1b_diag == 98 ;
                  color colget_menu
-      endif
-      if len(mm_N012) >= 5
-        @ ++j,3 say mm_N012[5,1] get mmark5 ;
+            endif
+            if len(mm_N012) >= 5
+              @ ++j,3 say mm_N012[5,1] get mmark5 ;
                  reader {|x|menu_reader(x,mm_N012[5,3],A__MENUVERT,,,.f.)} ;
                  when m1b_diag == 98 ;
                  color colget_menu
-      endif
-     endif
-    endif
-    @ ++j,3 say "Консилиум: дата" get mDT_CONS ;
+            endif
+          endif
+        endif
+        @ ++j,3 say "Консилиум: дата" get mDT_CONS ;
                valid {|| iif(empty(mDT_CONS) .or. between(mDT_CONS,mn_data,mk_data), .t., ;
                              func_error(4,"Дата консилиума должна быть внутри сроков лечения")) }
-    @ j,col()+1 say "проведение" get mPR_CONS ;
+        @ j,col()+1 say "проведение" get mPR_CONS ;
                reader {|x|menu_reader(x,mm_PR_CONS,A__MENUVERT,,,.f.)} ;
                when !empty(mDT_CONS) ;
                color colget_menu
-    if m1usl_ok < 3
-      @ ++j,3 say "Проведённое лечение" get musl_tip ;
+        if m1usl_ok < 3
+          @ ++j,3 say "Проведённое лечение" get musl_tip ;
                  reader {|x|menu_reader(x,mm_usl_tip,A__MENUVERT,,,.f.)} ;
                  when len(mm_usl_tip) > 1 ;
                  valid {|g,o| f_valid_usl_tip(g,o) } ;
                  color colget_menu
-      @ ++j,5 get lstr1 color color1 when .f.
-           @ j,col()+1 get musl_tip1 ;
+          @ ++j,5 get lstr1 color color1 when .f.
+          @ j,col()+1 get musl_tip1 ;
                  reader {|x|menu_reader(x,mm_usl_tip1,A__MENUVERT,,,.f.)} ;
                  when between(m1usl_tip,1,4)
-      @ ++j,5 get lstr2 color color1 when .f.
-      @ j,col()+1 get musl_tip2 ;
+          @ ++j,5 get lstr2 color color1 when .f.
+          @ j,col()+1 get musl_tip2 ;
                  reader {|x|menu_reader(x,mm_usl_tip2,A__MENUVERT,,,.f.)} ;
                  when m1usl_tip == 2
-      if fl_3_4
-        @ ++j,5 get lstr_sod color color1 when .f.
-        @ j,col()+1 get msod when between(m1usl_tip,3,4)
-        @ j,col()+5 get lstr_fr color color1 when .f.
-        @ j,col()+1 get mk_fr when between(m1usl_tip,3,4)
-      endif
-      if fl_2_4
-        @ ++j,5 get lstr_wei color color1 when .f.
-        @ j,col()+1 get mwei when eq_any(m1usl_tip,2,4)
-        @ j,col()+1 get lstr_hei color color1 when .f.
-        @ j,col()+1 get mhei when eq_any(m1usl_tip,2,4)
-        @ j,col()+1 get lstr_bsa color color1 when .f.
-        @ j,col()+1 get mbsa when eq_any(m1usl_tip,2,4)
-        @ ++j,5 get lstr_err color color1 when .f.
-        @ j,col()+1 get mis_err ;
+          if fl_3_4
+            @ ++j,5 get lstr_sod color color1 when .f.
+            @ j,col()+1 get msod when between(m1usl_tip,3,4)
+            @ j,col()+5 get lstr_fr color color1 when .f.
+            @ j,col()+1 get mk_fr when between(m1usl_tip,3,4)
+          endif
+          if fl_2_4
+            @ ++j,5 get lstr_wei color color1 when .f.
+            @ j,col()+1 get mwei when eq_any(m1usl_tip,2,4)
+            @ j,col()+1 get lstr_hei color color1 when .f.
+            @ j,col()+1 get mhei when eq_any(m1usl_tip,2,4)
+            @ j,col()+1 get lstr_bsa color color1 when .f.
+            @ j,col()+1 get mbsa when eq_any(m1usl_tip,2,4)
+            @ ++j,5 get lstr_err color color1 when .f.
+            @ j,col()+1 get mis_err ;
                 reader {|x|menu_reader(x,mm_shema_err,A__MENUVERT,,,.f.)} ;
                 when m1usl_tip == 2
-        @ ++j,5 get lstr_she color color1 when .f.
-        @ j,col()+1 get mcrit ;
+            @ ++j,5 get lstr_she color color1 when .f.
+            @ j,col()+1 get mcrit ;
                 reader {|x| menu_reader(x,mm_shema_usl,A__MENUVERT,,,.f.)} ;
                 when eq_any(m1usl_tip,2,4)
-        @ ++j,5 get lstr_lek color color1 when .f.
-        @ j,col()+1 get mlek ;
+            @ ++j,5 get lstr_lek color color1 when .f.
+            @ j,col()+1 get mlek ;
                 reader {|x|menu_reader(x,{{|k,r,c| get_lek_pr(k,r,c,m1crit)}},A__FUNCTION,,,.f.)} ;
                 when !empty(m1crit) .and. eq_any(m1usl_tip,2,4)
-        @ ++j,5 get lstr_ptr color color1 when .f.
-        @ j,col()+1 get mpptr ;
+            @ ++j,5 get lstr_ptr color color1 when .f.
+            @ j,col()+1 get mpptr ;
                 reader {|x| menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
                 when eq_any(m1usl_tip,2,4)
-      endif
-      if is_onko_VMP .and. mtipvmp == 1 // две услуги
-        @ ++j,3 say "ВМП: дополнительное лечение" get musl_vmp when .f. ;
+          endif
+          if is_onko_VMP .and. mtipvmp == 1 // две услуги
+            @ ++j,3 say "ВМП: дополнительное лечение" get musl_vmp when .f. ;
                 color colget_menu
-        @ ++j,5 get lstr_vmp1 color color1 when .f.
-        @ j,col()+1 get musl_vmp1 ;
+            @ ++j,5 get lstr_vmp1 color color1 when .f.
+            @ j,col()+1 get musl_vmp1 ;
                 reader {|x|menu_reader(x,mm_usl_vmp1,A__MENUVERT,,,.f.)}
-        @ ++j,5 get lstr_vmp2 color color1 when .f.
-        @ j,col()+1 get musl_vmp2 ;
+            @ ++j,5 get lstr_vmp2 color color1 when .f.
+            @ j,col()+1 get musl_vmp2 ;
                 reader {|x|menu_reader(x,mm_usl_vmp2,A__MENUVERT,,,.f.)} ;
                 when m1usl_vmp == 2
-        if fl2_3_4
-          @ ++j,5 get lstr_vmpsod color color1 when .f.
-          @ j,col()+1 get msod_vmp when between(m1usl_vmp,3,4)
-          @ j,col()+5 get lstr_vmpfr color color1 when .f.
-          @ j,col()+1 get mk_fr when between(m1usl_vmp,3,4)
-        endif
-        if fl2_2_4
-          @ ++j,5 get lstr_vmpwei color color1 when .f.
-          @ j,col()+1 get mwei when eq_any(m1usl_vmp,2,4)
-          @ j,col()+1 get lstr_vmphei color color1 when .f.
-          @ j,col()+1 get mhei when eq_any(m1usl_vmp,2,4)
-          @ j,col()+1 get lstr_vmpbsa color color1 when .f.
-          @ j,col()+1 get mbsa when eq_any(m1usl_vmp,2,4)
-          @ ++j,5 get lstr_vmperr color color1 when .f.
-          @ j,col()+1 get mis_err ;
-                reader {|x|menu_reader(x,mm_shema_err,A__MENUVERT,,,.f.)} ;
-                when m1usl_vmp == 2
-          @ ++j,5 get lstr_vmpshe color color1 when .f.
-          @ j,col()+1 get mcrit ;
-                reader {|x| menu_reader(x,mm_shema_usl,A__MENUVERT,,,.f.)} ;
-                when eq_any(m1usl_vmp,2,4)
-          @ ++j,5 get lstr_vmplek color color1 when .f.
-          @ j,col()+1 get mlek ;
-                reader {|x|menu_reader(x,{{|k,r,c| get_lek_pr(k,r,c,m1crit)}},A__FUNCTION,,,.f.)} ;
-                when !empty(m1crit) .and. eq_any(m1usl_vmp,2,4)
-          @ ++j,5 get lstr_vmpptr color color1 when .f.
-          @ j,col()+1 get mpptr ;
-                reader {|x| menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
-                when eq_any(m1usl_vmp,2,4)
+            if fl2_3_4
+              @ ++j,5 get lstr_vmpsod color color1 when .f.
+              @ j,col()+1 get msod_vmp when between(m1usl_vmp,3,4)
+              @ j,col()+5 get lstr_vmpfr color color1 when .f.
+              @ j,col()+1 get mk_fr when between(m1usl_vmp,3,4)
+            endif
+            if fl2_2_4
+              @ ++j,5 get lstr_vmpwei color color1 when .f.
+              @ j,col()+1 get mwei when eq_any(m1usl_vmp,2,4)
+              @ j,col()+1 get lstr_vmphei color color1 when .f.
+              @ j,col()+1 get mhei when eq_any(m1usl_vmp,2,4)
+              @ j,col()+1 get lstr_vmpbsa color color1 when .f.
+              @ j,col()+1 get mbsa when eq_any(m1usl_vmp,2,4)
+              @ ++j,5 get lstr_vmperr color color1 when .f.
+              @ j,col()+1 get mis_err ;
+                  reader {|x|menu_reader(x,mm_shema_err,A__MENUVERT,,,.f.)} ;
+                  when m1usl_vmp == 2
+              @ ++j,5 get lstr_vmpshe color color1 when .f.
+              @ j,col()+1 get mcrit ;
+                  reader {|x| menu_reader(x,mm_shema_usl,A__MENUVERT,,,.f.)} ;
+                  when eq_any(m1usl_vmp,2,4)
+              @ ++j,5 get lstr_vmplek color color1 when .f.
+              @ j,col()+1 get mlek ;
+                  reader {|x|menu_reader(x,{{|k,r,c| get_lek_pr(k,r,c,m1crit)}},A__FUNCTION,,,.f.)} ;
+                  when !empty(m1crit) .and. eq_any(m1usl_vmp,2,4)
+              @ ++j,5 get lstr_vmpptr color color1 when .f.
+              @ j,col()+1 get mpptr ;
+                  reader {|x| menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
+                  when eq_any(m1usl_vmp,2,4)
+            endif
+          endif
+          //
+          arr := {"хирургического лечения","химиотерапевтического лечения","лучевой терапии"}
+          @ ++j,3 say "Противопоказания к проведению:"
+          @ j,50 say "дата регистрации:"
+          for i := 1 to 3
+            mval := "mprot"+lstr(i)
+            mdval := "mdprot"+lstr(i)
+            @ ++j,5 say arr[i] get &mval ;
+                reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
+                color colget_menu
+            @ j,53 get &mdval
+          next i
+          @ ++j,3 say "Отказы от проведения:"
+          @ j,50 say "дата регистрации:"
+          for i := 4 to 6
+            mval := "mprot"+lstr(i)
+            mdval := "mdprot"+lstr(i)
+            @ ++j,5 say arr[i-3] get &mval ;
+                reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
+                color colget_menu
+            @ j,53 get &mdval
+          next i
         endif
       endif
-      //
-      arr := {"хирургического лечения","химиотерапевтического лечения","лучевой терапии"}
-      @ ++j,3 say "Противопоказания к проведению:"
-      @ j,50 say "дата регистрации:"
-      for i := 1 to 3
-        mval := "mprot"+lstr(i)
-        mdval := "mdprot"+lstr(i)
-        @ ++j,5 say arr[i] get &mval ;
-                reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
-                color colget_menu
-        @ j,53 get &mdval
-      next i
-      @ ++j,3 say "Отказы от проведения:"
-      @ j,50 say "дата регистрации:"
-      for i := 4 to 6
-        mval := "mprot"+lstr(i)
-        mdval := "mdprot"+lstr(i)
-        @ ++j,5 say arr[i-3] get &mval ;
-                reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
-                color colget_menu
-        @ j,53 get &mdval
-      next i
-    endif
-    endif
       //
       status_key("^<Esc>^ выход без записи ^<PgUp>^ на 1-ю страницу ^<PgDn>^ ЗАПИСЬ")
     endif
     if num_screen == 2
       set key K_F5 TO change_num_napr
     endif
+///////////////////////////////////////////////////////////////////////////////    
     count_edit += myread(,@pos_read)
     //count_edit := myread(,@pos_read,++k_read)
     close databases

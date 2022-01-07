@@ -646,8 +646,6 @@ Function f2oms_usl_sluch(nKey,oBrow)
             else
               mvu[2,2] += count_edit
             endif
-    // alertx(mshifr, 'shifr 1')
-    // alertx(mshifr1, 'shifr 2')
             if (aImpl := ret_impl_V036(mshifr, mdate_u1)) != NIL
               use_base("human_im")
               if flExistImplant

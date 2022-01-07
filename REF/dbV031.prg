@@ -19,3 +19,22 @@ function getV031()
   endif
 
   return _arr
+
+****** 07.01.22 вернуть группу препаратов
+function get_group_prep_by_kod(_code, ldate)
+  local _arr, row, code
+
+  if ValType(_code) == 'C'
+    code := val(_code)
+  elseif ValType(_code) == 'N'
+    code := _code
+  else
+    return _arr
+  endif
+    
+  for each row in getV031()
+    if (row[1] == code) .and. between_date(row[4], row[5], ldate)
+      _arr := { row[1], row[2], row[3], row[4], row[5] }
+    endif
+  next
+  return _arr

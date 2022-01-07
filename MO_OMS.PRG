@@ -1856,34 +1856,42 @@ if !fl
 endif
 return NIL
 
-***** 19.11.13 Добавление листка учета лечения больного
+***** 06.01.22 Добавление листка учета лечения больного
 Function oms_add()
-Local buf, str_sem
-change_sys_date() // перечитать системную дату (для травмпунктов, работающих ночами)
-if input_uch(T_ROW-1,T_COL+5,sys_date) != NIL .and. input_otd(T_ROW-1,T_COL+5,sys_date) != NIL
-  buf := box_shadow(0,41,2,77,color13)
-  @ 1,42 say padc(glob_otd[2],35) color color14
-  Private fl_edit_oper, fl_edit_smp, fl_edit_DDS, fl_edit_DVN, fl_edit_DVN_COVID
-  do while .t.
-    fl_edit_oper := fl_edit_smp := fl_edit_DDS := fl_edit_DVN := fl_edit_DVN_COVID := .f.
-    polikl_kart(1)
-    if fl_edit_oper
-      str_sem := "Редактирование человека "+lstr(glob_perso)
-      if G_SLock(str_sem)
-        oms_usl_sluch(glob_perso,glob_kartotek,.f.)
-        G_SUnLock(str_sem)
+  Local buf, str_sem
+
+  change_sys_date() // перечитать системную дату (для травмпунктов, работающих ночами)
+  if input_uch(T_ROW-1,T_COL+5,sys_date) != NIL .and. input_otd(T_ROW-1,T_COL+5,sys_date) != NIL
+    buf := box_shadow(0,41,2,77,color13)
+    @ 1,42 say padc(glob_otd[2],35) color color14
+    Private fl_edit_oper, fl_edit_smp, fl_edit_DDS, fl_edit_DVN, fl_edit_DVN_COVID
+    do while .t.
+      fl_edit_oper := fl_edit_smp := fl_edit_DDS := fl_edit_DVN := fl_edit_DVN_COVID := .f.
+      polikl_kart(1)
+      if fl_edit_oper
+        str_sem := "Редактирование человека "+lstr(glob_perso)
+        if G_SLock(str_sem)
+          oms_usl_sluch(glob_perso,glob_kartotek,.f.)
+
+          if check_oms_sluch_lek_pr(glob_perso)
+            oms_sluch_lek_pr(glob_perso, glob_kartotek, .f.)
+          endif
+
+          G_SUnLock(str_sem)
+        else
+          func_error(4,"В данный момент с карточкой этого пациента работает другой пользователь.")
+        endif
+      elseif fl_edit_smp .or. fl_edit_DDS .or. fl_edit_DVN .or. fl_edit_DVN_COVID
+        // не выходим из цикла
       else
-        func_error(4,"В данный момент с карточкой этого пациента работает другой пользователь.")
+        exit
       endif
-    elseif fl_edit_smp .or. fl_edit_DDS .or. fl_edit_DVN .or. fl_edit_DVN_COVID
-      // не выходим из цикла
-    else
-      exit
+    enddo
+    if buf != NIL
+      rest_box(buf)
     endif
-  enddo
-  if buf != NIL ; rest_box(buf) ; endif
-endif
-return NIL
+  endif
+  return NIL
 
 ***** Редактирование листка учета лечения больного
 Function oms_edit(k)
@@ -2089,10 +2097,12 @@ if (arr_m := input_year()) != NIL .and. ;
 endif
 return NIL
 
-***** 05.02.19 Редактирование случая с выбором по отчётному периоду
+***** 06.01.22 Редактирование случая с выбором по отчётному периоду
 Function f2oms_edit()
 Static si := 1
 Local buf, str_sem, i, arr_m, mas_pmt, buf24, buf_scr, srec, old_yes_h_otd := yes_h_otd
+local lek_pr := .f.
+
 if !myFileDeleted(cur_dir+"tmp_h"+sdbf)
   return NIL
 endif
@@ -2175,12 +2185,17 @@ if (arr_m := year_month(T_ROW,T_COL+5,,3)) != NIL
       restscreen(buf_scr)
       close databases
       if mkod > 0
+        lek_pr := check_oms_sluch_lek_pr(glob_perso)
         yes_h_otd := old_yes_h_otd
         if buf != NIL ; rest_box(buf) ; endif
         buf := box_shadow(0,41,3,77,color13)
         @ 1,42 say padc(glob_otd[2],35) color color14
         @ 2,42 say padc(glob_k_fio,35) color color8
-        mas_pmt := {"Редактирование ~карточки","Редактирование ~услуг"}
+        if lek_pr
+          mas_pmt := {"Редактирование ~карточки","Редактирование ~услуг", "Использованные ~лекарства"}
+        else
+          mas_pmt := {"Редактирование ~карточки","Редактирование ~услуг"}
+        endif
         if glob_otd[3] == 4 .or. glob_otd[4] > 0
           si := 1
           asize(mas_pmt,1)
@@ -2192,8 +2207,10 @@ if (arr_m := year_month(T_ROW,T_COL+5,,3)) != NIL
           if G_SLock(str_sem)
             if i == 1
               oms_sluch(glob_perso,glob_kartotek)
-            else
+            elseif i == 2
               oms_usl_sluch(glob_perso,glob_kartotek)
+            elseif i == 3
+              oms_sluch_lek_pr(glob_perso,glob_kartotek)
             endif
             G_SUnLock(str_sem)
           else
@@ -2429,7 +2446,7 @@ if input_uch(T_ROW-1,T_COL+5,sys_date) != NIL .and. ;
 endif
 return NIL
 
-***** 28.12.21 Удаление листка учета лечения больного
+***** 06.01.22 Удаление листка учета лечения больного
 Function oms_del()
 Static sk := 1
 Local buf, str_sem, j, k := 1, arr_m, fl := .t., lkod_k, lyear
@@ -2566,6 +2583,22 @@ if (arr_m := input_year()) != NIL .and. ;
           if !found() ; exit ; endif
           DeleteRec(.t.)
         enddo
+
+        // добавил новые файлы для листов учета
+        G_Use(dir_server + "human_im", dir_server + "human_im", "IMP")
+        do while .t.
+          find (str(glob_perso, 7))
+          if !found() ; exit ; endif
+          DeleteRec(.t.)
+        enddo
+        G_Use(dir_server + "human_lek_pr", dir_server + "human_lek_pr", "LEK")
+        do while .t.
+          find (str(glob_perso, 7))
+          if !found() ; exit ; endif
+          DeleteRec(.t.)
+        enddo
+
+
         close databases
         write_work_oper(glob_task,OPER_USL,3,j)
         write_work_oper(glob_task,OPER_LIST,3)

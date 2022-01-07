@@ -163,13 +163,13 @@ procedure main( ... )
     endif
   endif
 
-  altd()
-  aaa := get_schemas_lech(4, ctod('01/01/2022'))
-  aa1 := get_schemas_lech(3, ctod('31/12/2021'))
-  bbb := get_group_by_schema_lech('2-1', ctod('01/01/2022'))
-  ccc := get_drugcode_by_schema_lech('2-1-1', ctod('01/01/2022'))
-  ccc1 := get_drugcode_by_schema_lech('2-1-1', ctod('31/12/2021'))
-  altd()
+  // altd()
+  // aaa := get_schemas_lech(4, ctod('01/01/2022'))
+  // aa1 := get_schemas_lech(3, ctod('31/12/2021'))
+  // bbb := get_group_by_schema_lech('2-1', ctod('01/01/2022'))
+  // ccc := get_drugcode_by_schema_lech('2-1-1', ctod('01/01/2022'))
+  // ccc1 := get_drugcode_by_schema_lech('2-1-1', ctod('31/12/2021'))
+  // altd()
 
   f_main(r, is_local_version, a_parol)
 

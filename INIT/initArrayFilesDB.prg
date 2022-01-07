@@ -111,6 +111,8 @@ Function init_Array_Files_DB()
   aadd(array_files_DB,"mo_onkus")
   aadd(array_files_DB,"mo_onkco")
   aadd(array_files_DB,"mo_onkle")
+  aadd(array_files_DB,"human_im")
+  aadd(array_files_DB,"human_lek_pr")
   // реестры и счета
   aadd(array_files_DB,"mo_rees")
   aadd(array_files_DB,"mo_xml")

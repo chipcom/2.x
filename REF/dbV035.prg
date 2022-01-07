@@ -1,4 +1,4 @@
-* 29.12.21 вернуть массив по справочнику ФФОМС V035.xml
+* 07.01.22 вернуть массив по справочнику ФФОМС V035.xml
 function getV035()
   // V035.xml - Способы введения (MethIntro)
   //  1 - METHCODE(N) 2 - METHNAME(C) 3 - DATEBEG(D) 4 - DATEEND(D)
@@ -11,7 +11,7 @@ function getV035()
     dbUseArea( .t.,, exe_dir + dbName, dbName, .f., .f. )
     (dbName)->(dbGoTop())
     do while !(dbName)->(EOF())
-      aadd(_arr, { (dbName)->METHCODE, alltrim((dbName)->METHNAME), (dbName)->DATEBEG, (dbName)->DATEEND })
+      aadd(_arr, { alltrim((dbName)->METHNAME), (dbName)->METHCODE, (dbName)->DATEBEG, (dbName)->DATEEND })
       (dbName)->(dbSkip())
     enddo
     (dbName)->(dbCloseArea())
