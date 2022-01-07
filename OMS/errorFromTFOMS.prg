@@ -4,10 +4,12 @@
 #include "chip_mo.ch"
 #include 'tbox.ch'
 
-***** 11.05.20 Редактирование случая с выбором по конкретной ошибке из ТФОМС
+***** 07.01.22 Редактирование случая с выбором по конкретной ошибке из ТФОМС
 Function f3oms_edit()
   Static si := 1
   Local buf, str_sem, i, k, arr, old_yes_h_otd := yes_h_otd, iRefr, ret_arr, srec, buf24, buf_scr, s, mas_pmt
+  local lek_pr := .f.
+
 
   if !myFileDeleted(cur_dir+"tmp_h"+sdbf)
     return NIL
@@ -137,12 +139,17 @@ Function f3oms_edit()
         restscreen(buf_scr)
         close databases
         if mkod > 0
+          lek_pr := check_oms_sluch_lek_pr(glob_perso)
           yes_h_otd := old_yes_h_otd
           if buf != NIL ; rest_box(buf) ; endif
           buf := box_shadow(0,41,3,77,color13)
           @ 1,42 say padc(glob_otd[2],35) color color14
           @ 2,42 say padc(glob_k_fio,35) color color8
-          mas_pmt := {"Редактирование ~карточки","Редактирование ~услуг"}
+          if lek_pr
+            mas_pmt := {"Редактирование ~карточки","Редактирование ~услуг", "Использованные ~лекарства"}
+          else
+            mas_pmt := {"Редактирование ~карточки","Редактирование ~услуг"}
+          endif
           if glob_otd[3] == 4 .or. glob_otd[4] > 0
             si := 1
             asize(mas_pmt,1)
@@ -154,8 +161,10 @@ Function f3oms_edit()
             if G_SLock(str_sem)
               if i == 1
                 oms_sluch(glob_perso,glob_kartotek)
-              else
+              elseif i == 2
                 oms_usl_sluch(glob_perso,glob_kartotek)
+              elseif i == 3
+                oms_sluch_lek_pr(glob_perso,glob_kartotek)
               endif
               G_SUnLock(str_sem)
             else

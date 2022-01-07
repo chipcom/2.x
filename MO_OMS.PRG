@@ -1934,11 +1934,13 @@ if k > 0
 endif
 return NIL
 
-***** 05.02.19 Редактирование случая с выбором по учреждению/отделению
+***** 07.01.22 Редактирование случая с выбором по учреждению/отделению
 Function f1oms_edit()
 Static si := 1, sk := 1
 Local buf, mas_pmt, arr_m, str_sem, i, buf24, buf_scr, dostup, k := 1,;
       str_error, mtitul, str_find
+local lek_pr := .f.
+
 if (arr_m := input_year()) != NIL .and. ;
       input_uch(T_ROW-1,T_COL+5,sys_date) != NIL .and. ;
           iif(yes_h_otd==1, input_otd(T_ROW-1,T_COL+5,sys_date)!=NIL, .t.)
@@ -2064,11 +2066,16 @@ if (arr_m := input_year()) != NIL .and. ;
       restscreen(buf_scr)
       close databases
       if mkod > 0
+        lek_pr := check_oms_sluch_lek_pr(glob_perso)
         if buf != NIL ; rest_box(buf) ; endif
         buf := box_shadow(0,41,3,77,color13)
         @ 1,42 say padc(glob_otd[2],35) color color14
         @ 2,42 say padc(glob_k_fio,35) color color8
-        mas_pmt := {"Редактирование ~карточки","Редактирование ~услуг"}
+        if lek_pr
+          mas_pmt := {"Редактирование ~карточки","Редактирование ~услуг", "Использованные ~лекарства"}
+        else
+          mas_pmt := {"Редактирование ~карточки","Редактирование ~услуг"}
+        endif
         if glob_otd[3] == 4 .or. glob_otd[4] > 0
           si := 1
           asize(mas_pmt,1)
@@ -2080,8 +2087,10 @@ if (arr_m := input_year()) != NIL .and. ;
           if G_SLock(str_sem)
             if i == 1
               oms_sluch(glob_perso,glob_kartotek)
-            else
+            elseif i == 2
               oms_usl_sluch(glob_perso,glob_kartotek)
+            elseif i == 3
+              oms_sluch_lek_pr(glob_perso,glob_kartotek)
             endif
             G_SUnLock(str_sem)
           else
@@ -2227,11 +2236,13 @@ if (arr_m := year_month(T_ROW,T_COL+5,,3)) != NIL
 endif
 return NIL
 
-***** 05.05.19 Редактирование повторно выставленных случаев (после ввода актов снятия из СМО)
+***** 07.01.22 Редактирование повторно выставленных случаев (после ввода актов снятия из СМО)
 Function f4oms_edit()
 Static si := 1
 Local buf, str_sem, i, k, arr_m, arr, old_yes_h_otd := yes_h_otd,;
       iRefr, srec, buf24, buf_scr, mas_pmt
+local lek_pr := .f.
+
 if !myFileDeleted(cur_dir+"tmp_h"+sdbf)
   return NIL
 endif
@@ -2311,12 +2322,17 @@ if (arr_m := year_month(T_ROW,T_COL+5)) != NIL
       restscreen(buf_scr)
       close databases
       if mkod > 0
+        lek_pr := check_oms_sluch_lek_pr(glob_perso)
         yes_h_otd := old_yes_h_otd
         if buf != NIL ; rest_box(buf) ; endif
         buf := box_shadow(0,41,3,77,color13)
         @ 1,42 say padc(glob_otd[2],35) color color14
         @ 2,42 say padc(glob_k_fio,35) color color8
-        mas_pmt := {"Редактирование ~карточки","Редактирование ~услуг"}
+        if lek_pr
+          mas_pmt := {"Редактирование ~карточки","Редактирование ~услуг", "Использованные ~лекарства"}
+        else
+          mas_pmt := {"Редактирование ~карточки","Редактирование ~услуг"}
+        endif
         if glob_otd[3] == 4 .or. glob_otd[4] > 0
           si := 1
           asize(mas_pmt,1)
@@ -2328,8 +2344,10 @@ if (arr_m := year_month(T_ROW,T_COL+5)) != NIL
           if G_SLock(str_sem)
             if i == 1
               oms_sluch(glob_perso,glob_kartotek)
-            else
+            elseif i == 2
               oms_usl_sluch(glob_perso,glob_kartotek)
+            elseif i == 3
+              oms_sluch_lek_pr(glob_perso,glob_kartotek)
             endif
             G_SUnLock(str_sem)
           else

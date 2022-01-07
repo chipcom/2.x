@@ -108,14 +108,14 @@ function oms_sluch_lek_pr(mkod_human,mkod_kartotek,fl_edit)
   // }
 
   adbf := {;
-    {"KOD_HUM" ,   "N",     7,     0},; // код листа учёта по файлу "human"
-    {"DATE_INJ",   "D",     8,     0},; // Дата введения лекарственного препарата
-    {"SCHEME"  ,   "C",    10,     0},; // схема лечения пациента V030
-    {"SCHEMECO",   "C",     3,     0},; // сочетание схемы лечения и группы препаратов V032
-    {"REGNUM"  ,   "C",     6,     0},; // лекарственного препарата
-    {"ED_IZM"  ,   "C",    15,     0},; // Единица измерения дозы лекарственного препарата
+    {"KOD_HUM" ,   "N",    7,     0},; // код листа учёта по файлу "human"
+    {"DATE_INJ",   "D",    8,     0},; // Дата введения лекарственного препарата
+    {"SCHEME"  ,   "C",   10,     0},; // схема лечения пациента V030
+    {"SCHEMECO",   "C",    3,     0},; // сочетание схемы лечения и группы препаратов V032
+    {"REGNUM"  ,   "C",    6,     0},; // лекарственного препарата
+    {"ED_IZM"  ,   "C",    3,     0},; // Единица измерения дозы лекарственного препарата
     {"DOZE"    ,   "N",    5,      2},; // Доза введения лекарственного препарата
-    {"METHOD"  ,   "C",    20,     0},; // Путь введения лекарственного препарата
+    {"METHOD"  ,   "C",    3,     0},; // Путь введения лекарственного препарата
     {"COL_INJ" ,   "N",    5,      0},; // Количество введений в течениедня, указанного в DATA_INJ
     {"COD_MARK",   "C",  100,      0},;  // Код маркировки лекарственного препарата
     {"NUMBER"  ,   "N",    3,      0},;
@@ -132,18 +132,18 @@ function oms_sluch_lek_pr(mkod_human,mkod_kartotek,fl_edit)
       number++
       select TMP
       append blank
-      tmp->NUMBER       := number
-      tmp->KOD_HUM      := LEK_PR->KOD_HUM
-      tmp->DATE_INJ     := LEK_PR->DATE_INJ
-      tmp->SCHEME     := LEK_PR->CODE_SH
-      tmp->SCHEMECO     := LEK_PR->SCHEMECO
-      tmp->REGNUM     := LEK_PR->REGNUM
-      tmp->ED_IZM     := LEK_PR->ED_IZM
-      tmp->DOZE         := LEK_PR->DOZE
-      tmp->METHOD     := LEK_PR->METHOD_I
-      tmp->COL_INJ      := LEK_PR->COL_INJ
-      tmp->COD_MARK     := LEK_PR->COD_MARK
-      tmp->REC_N        :=  LEK_PR->(recno())
+      tmp->NUMBER   := number
+      tmp->KOD_HUM  := LEK_PR->KOD_HUM
+      tmp->DATE_INJ := LEK_PR->DATE_INJ
+      tmp->SCHEME   := LEK_PR->CODE_SH
+      tmp->SCHEMECO := LEK_PR->SCHEMECO
+      tmp->REGNUM   := LEK_PR->REGNUM
+      tmp->ED_IZM   := LEK_PR->ED_IZM
+      tmp->DOZE     := LEK_PR->DOZE
+      tmp->METHOD   := LEK_PR->METHOD_I
+      tmp->COL_INJ  := LEK_PR->COL_INJ
+      tmp->COD_MARK := LEK_PR->COD_MARK
+      tmp->REC_N    :=  LEK_PR->(recno())
       LEK_PR->(dbSkip())
     enddo
   endif
@@ -286,21 +286,21 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
   local r1 := 10, ix
   local last_date := human->n_data
 
-  private mMNN := .f.
-  private arr_lek_pr := {}
-  private mdate_u1 := iif(nKey == K_INS, last_date, tmp->date_u1)  // для совместимости с f5editkusl
-  private m1SCHEME := iif(nKey == K_INS, '', tmp->SCHEME), mSCHEME
-  private m1SCHEMECOD := iif(nKey == K_INS, '', tmp->SCHEMECO), mSCHEMECOD
-  private m1UNITCODE := iif(nKey == K_INS, '', tmp->ED_IZM), mUNITCODE
-  private m1METHOD := iif(nKey == K_INS, '', tmp->METHOD), mMETHOD
-  private m1REGNUM := iif(nKey == K_INS, '', tmp->METHOD), mREGNUM
-  private mDOZE :=  iif(nKey == K_INS, 0.0, tmp->DOZE)
-  private mKOLVO :=  iif(nKey == K_INS, 0, tmp->COL_INJ)
-
   do case
     case nKey == K_F9
     case nKey == K_F10
     case nKey == K_INS .or. (nKey == K_ENTER .and. tmp->KOD_HUM > 0)
+      private mMNN := .f.
+      private arr_lek_pr := {}
+      private mdate_u1 := iif(nKey == K_INS, last_date, tmp->date_u1)  // для совместимости с f5editkusl
+      private m1SCHEME := iif(nKey == K_INS, '', tmp->SCHEME), mSCHEME
+      private m1SCHEMECOD := iif(nKey == K_INS, '', tmp->SCHEMECO), mSCHEMECOD
+      private m1UNITCODE := iif(nKey == K_INS, '', tmp->ED_IZM), mUNITCODE
+      private m1METHOD := iif(nKey == K_INS, '', tmp->METHOD), mMETHOD
+      private m1REGNUM := iif(nKey == K_INS, '', tmp->METHOD), mREGNUM
+      private mDOZE :=  iif(nKey == K_INS, 0.0, tmp->DOZE)
+      private mKOLVO :=  iif(nKey == K_INS, 0, tmp->COL_INJ)
+
       --r1
       box_shadow(r1-1,0,maxrow()-1,79,color8,;
                  iif(nKey == K_INS,"Добавление нового препарата",;
@@ -310,25 +310,23 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
         ix := 1
         @ r1+ix,2 say "Дата введения препарата" get mdate_u1 ;
               valid {| g | f5editpreparat(g, 2, 1)}
-              // valid {|g| f5editkusl(g, 2, 1) }
+
         ++ix
         @ r1 + ix,2 say "Схема лечения" get mSCHEME ;
             reader {|x|menu_reader(x, get_schemas_lech(m1Severity, mdate_u1), A__MENUVERT,,,.f.)} ;
             valid {| g | f5editpreparat(g, 2, 3)}
-            // valid {|| mscheme := padr(mscheme, 69), .t. }
+
         ++ix
         @ r1 + ix,2 say "Сочетание схемы лечения препаратам" get mSCHEMECOD ;
             reader {|x|menu_reader(x, get_group_by_schema_lech(m1SCHEME, mdate_u1), A__MENUVERT,,,.f.)} ;
             valid {| g | f5editpreparat(g, 2, 2)}
-            // valid {|| mSCHEMECOD := padr(mSCHEMECOD, 69), .t. }
             
         ++ix
         @ r1 + ix,2 say "Препарат" get mREGNUM ;
             reader {|x|menu_reader(x, arr_lek_pr, A__MENUVERT,,,.f.)} ;
             when mMNN
-            // valid {| g | f5editpreparat(g, 2, 2)}
                 
-            ++ix
+        ++ix
         @ r1 + ix,2 say "Доза" get mDOZE picture '999.99'
         
         ++ix
@@ -341,10 +339,29 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
             reader {|x|menu_reader(x, getV035(), A__MENUVERT,,,.f.)} ;
             valid {|| mMETHOD := padr(mMETHOD, 69), .t. }
             
-                status_key("^<Esc>^ - выход без записи;  ^<PgDn>^ - подтверждение записи")
+        ++ix
+        @ r1 + ix,2 say "Количество введений" get mKOLVO picture '99'
+                
+        status_key("^<Esc>^ - выход без записи;  ^<PgDn>^ - подтверждение записи")
         count_edit := myread( , ,++k_read)
         if lastkey() != K_ESC
           // обработка и выход
+          select tmp
+          append blank
+          // tmp->NUMBER       := number
+          tmp->KOD_HUM      := HUMAN->KOD
+          tmp->DATE_INJ     := mdate_u1
+          tmp->SCHEME       := m1SCHEME
+          tmp->SCHEMECO     := m1SCHEMECOD
+          tmp->REGNUM       := m1REGNUM
+          tmp->ED_IZM       := str(m1UNITCODE, 3)
+          tmp->DOZE         := mDOZE
+          tmp->METHOD       := str(m1METHOD, 3)
+          tmp->COL_INJ      := mKOLVO
+          // tmp->COD_MARK     := LEK_PR->COD_MARK
+          // tmp->REC_N        :=  LEK_PR->(recno())
+          last_date := max(tmp->DATE_INJ, last_date)
+          flag := 0
           exit
         elseif lastkey() == K_ESC
           exit
@@ -354,7 +371,7 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
     case nKey == K_DEL .and. tmp->KOD_HUM > 0 .and. f_Esc_Enter(2)
       flag := 0
     otherwise
-      keyboard ""
+      keyboard ''
   endcase
   
   restscreen(buf)
