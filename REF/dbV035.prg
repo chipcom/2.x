@@ -17,5 +17,23 @@ function getV035()
     (dbName)->(dbCloseArea())
     Select(tmp_select)
   endif
-
   return _arr
+
+***** 07.01.22 вернуть наименование метода введения препарата
+Function ret_meth_V035(s_code)
+  // s_code - код метода
+  Local i, ret := ''
+  local code
+  
+  if ValType(s_code) == 'C'
+    code := val(s_code)
+  elseif ValType(s_code) == 'N'
+    code := s_code
+  else
+    return ret
+  endif
+
+  if !empty(code) .and. ((i := ascan(getV035(), {|x| x[2] == code })) > 0)
+    ret := getV035()[i, 1]
+  endif
+  return ret

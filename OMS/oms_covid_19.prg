@@ -95,32 +95,22 @@ function oms_sluch_lek_pr(mkod_human,mkod_kartotek,fl_edit)
   m1Severity := val(HUMAN_2->PC5) // получим степень тяжести
   mSeverity  := inieditspr(A__MENUVERT, get_severity(), m1Severity)
   
-  // Local mo_lek_pr := {; // Сведения о введенных лекарственных препаратах
-  //   {"KOD_HUM",   "N",   7, 0},; // код листа учёта по файлу "human"
-  //   {"DATE_INJ",  "D",   8, 0},;  // Дата введения лекарственного препарата
-  //   {"CODE_SH",   "C",  10, 0},;   // Код схемы лечения пациента/код группы препарата
-  //   {"REGNUM",    "C",   6, 0},;  // Идентификатор лекарственного препарата
-  //   {"ED_IZM",    "C",   3, 0},;  // Единица измерения дозы лекарственного препарата
-  //   {"DOSE_INJ",  "N",   5, 2},;  // Доза введения лекарственного препарата
-  //   {"METHOD_I",  "C",   3, 0},;  // Путь введения лекарственного препарата
-  //   {"COL_INJ",   "N",   5, 0},;  // Количество введений в течениедня, указанного в DATA_INJ
-  //   {"COD_MARK",  "C", 100, 0},;  // Код маркировки лекарственного препарата
-  // }
-
   adbf := {;
     {"KOD_HUM" ,   "N",    7,     0},; // код листа учёта по файлу "human"
     {"DATE_INJ",   "D",    8,     0},; // Дата введения лекарственного препарата
     {"SCHEME"  ,   "C",   10,     0},; // схема лечения пациента V030
     {"SCHEMECO",   "C",    3,     0},; // сочетание схемы лечения и группы препаратов V032
     {"REGNUM"  ,   "C",    6,     0},; // лекарственного препарата
+    {"MNN"     ,   "C",   20,     0},; // МНН лекарственного препарата
     {"ED_IZM"  ,   "C",    3,     0},; // Единица измерения дозы лекарственного препарата
     {"SHORTTIT",   "C",    5,     0},; // краткое наименование единицы измерения
-    {"DOZE"    ,   "N",    5,      2},; // Доза введения лекарственного препарата
+    {"DOZE"    ,   "N",    5,     2},; // Доза введения лекарственного препарата
     {"METHOD"  ,   "C",    3,     0},; // Путь введения лекарственного препарата
-    {"COL_INJ" ,   "N",    5,      0},; // Количество введений в течениедня, указанного в DATA_INJ
-    {"COD_MARK",   "C",  100,      0},;  // Код маркировки лекарственного препарата
-    {"NUMBER"  ,   "N",    3,      0},;
-    {"REC_N"   ,   "N",    8,      0};
+    {"METHNAME",   "C",   20,     0},; // Название пути введения лекарственного препарата
+    {"COL_INJ" ,   "N",    5,     0},; // Количество введений в течениедня, указанного в DATA_INJ
+    {"COD_MARK",   "C",  100,     0},;  // Код маркировки лекарственного препарата
+    {"NUMBER"  ,   "N",    3,     0},;
+    {"REC_N"   ,   "N",    8,     0};
   }
   dbcreate(cur_dir + 'tmp_lek_pr', adbf)
   use (cur_dir + 'tmp_lek_pr') new alias TMP
@@ -139,10 +129,12 @@ function oms_sluch_lek_pr(mkod_human,mkod_kartotek,fl_edit)
       tmp->SCHEME   := LEK_PR->CODE_SH
       tmp->SCHEMECO := LEK_PR->SCHEMECO
       tmp->REGNUM   := LEK_PR->REGNUM
+      tmp->MNN      := left(get_Lek_pr_By_ID(LEK_PR->REGNUM), 20)
       tmp->ED_IZM   := LEK_PR->ED_IZM
       tmp->SHORTTIT := left(inieditspr(A__MENUVERT, getV034(), val(LEK_PR->ED_IZM)), 5)
       tmp->DOZE     := LEK_PR->DOZE
       tmp->METHOD   := LEK_PR->METHOD_I
+      tmp->METHNAME := left(ret_meth_V035(LEK_PR->METHOD_I), 20)
       tmp->COL_INJ  := LEK_PR->COL_INJ
       tmp->COD_MARK := LEK_PR->COD_MARK
       tmp->REC_N    :=  LEK_PR->(recno())
@@ -151,7 +143,6 @@ function oms_sluch_lek_pr(mkod_human,mkod_kartotek,fl_edit)
   endif
   fl_found := (tmp->(lastrec()) > 0)
 
-  // mishod    := inieditspr(A__MENUVERT, glob_V012, m1ishod)
   cls
   pr_1_str("Лекарственные препараты < " + fio_plus_novor() + " >")
   @ 1,50 say padl("Лист учета № " + lstr(mkod_human), 29) color color14
@@ -195,7 +186,7 @@ function oms_sluch_lek_pr(mkod_human,mkod_kartotek,fl_edit)
   restscreen(buf)
   return nil
 
-***** 06.01.22
+***** 07.01.22
 Function f_oms_sluch_lek_pr(oBrow)
   Local oColumn, blk_color
 
@@ -207,15 +198,7 @@ Function f_oms_sluch_lek_pr(oBrow)
   oColumn:colorBlock := blk_color
   oBrow:addColumn(oColumn)
 
-  oColumn := TBColumnNew("Схема",{|| tmp->SCHEME })
-  oColumn:colorBlock := blk_color
-  oBrow:addColumn(oColumn)
-
-  oColumn := TBColumnNew("Препарат",{|| tmp->REGNUM })
-  oColumn:colorBlock := blk_color
-  oBrow:addColumn(oColumn)
-
-  oColumn := TBColumnNew("Единица",{|| tmp->SHORTTIT })
+  oColumn := TBColumnNew("Препарат",{|| tmp->MNN })
   oColumn:colorBlock := blk_color
   oBrow:addColumn(oColumn)
 
@@ -223,62 +206,24 @@ Function f_oms_sluch_lek_pr(oBrow)
   oColumn:colorBlock := blk_color
   oBrow:addColumn(oColumn)
 
-  oColumn := TBColumnNew("Способ;введения",{|| tmp->METHOD })
+  oColumn := TBColumnNew("Единица",{|| tmp->SHORTTIT })
   oColumn:colorBlock := blk_color
   oBrow:addColumn(oColumn)
 
-  oColumn := TBColumnNew("Способ;введения",{|| str(tmp->COL_INJ, 5, 0) })
+  oColumn := TBColumnNew("Способ;введения",{|| tmp->METHNAME })
+  oColumn:colorBlock := blk_color
+  oBrow:addColumn(oColumn)
+
+  oColumn := TBColumnNew("Кол-во;введений",{|| str(tmp->COL_INJ, 3, 0) })
   oColumn:colorBlock := blk_color
   oBrow:addColumn(oColumn)
   
-  // if mem_ordusl == 2
-  //   oColumn := TBColumnNew("Дата; усл.",{|| left(dtoc(tmp->date_u1),5) })
-  //   oColumn:colorBlock := blk_color
-  //   oBrow:addColumn(oColumn)
-  // endif
-  // oColumn := TBColumnNew("Отде-;ление",{|| otd->short_name })
-  // oColumn:defColor := {6,6}
-  // oColumn:colorBlock := {|| {6,6} }
-  // oBrow:addColumn(oColumn)
-  // oColumn := TBColumnNew("МКБ10",{|| tmp->kod_diag })
-  // oColumn:colorBlock := blk_color
-  // oBrow:addColumn(oColumn)
-  // oColumn := TBColumnNew("Профиль услуги",{|| padr(inieditspr(A__MENUVERT,glob_V002,tmp->PROFIL),15) })
-  // oColumn:colorBlock := blk_color
-  // oBrow:addColumn(oColumn)
-  // oColumn := TBColumnNew("Врач",{|| put_val(ret_tabn(tmp->kod_vr),5) })
-  // oColumn:colorBlock := blk_color
-  // oBrow:addColumn(oColumn)
-  // oColumn := TBColumnNew("Асс.",{|| put_val(ret_tabn(tmp->kod_as),5) })
-  // oColumn:colorBlock := blk_color
-  // oBrow:addColumn(oColumn)
-  // oColumn := TBColumnNew("Кол;усл",{|| str(tmp->kol_1,3) })
-  // oColumn:colorBlock := blk_color
-  // oBrow:addColumn(oColumn)
-  // oColumn := TBColumnNew(" Общая; ст-ть",{|| put_kop(tmp->stoim_1,8) })
-  // oColumn:colorBlock := blk_color
-  // oBrow:addColumn(oColumn)
   status_key("^<Esc>^ выход; ^<Enter>^ ред-ие; ^<Ins>^ добавление; ^<Del>^ удаление")
   return NIL
   
 ***** 06.01.22
 Function f1oms_sluch_lek_pr()
   LOCAL nRow := ROW(), nCol := COL()
-  // local s := tmp->name_u, lcolor := cDataCSay
-
-  // if is_zf_stomat == 1 .and. !empty(tmp->zf)
-  //   s := alltrim(tmp->zf)+" / "+s
-  //   lcolor := color8
-  // endif
-  // @ maxrow()-2,2 say padr(s,65) color lcolor
-  // if empty(tmp->u_cena)
-  //   s := iif(tmp->n_base==0, "", "ФФОМС")
-  // else
-  //   s := alltrim(dellastnul(tmp->u_cena,10,2))
-  // endif
-  // @ maxrow()-2,68 say padc(s,11) color cDataCSay
-  // f3oms_usl_sluch()
-  // @ nRow, nCol SAY ""
   return NIL
 
 ****** 07.01.22
@@ -356,10 +301,12 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
           tmp->SCHEME       := m1SCHEME
           tmp->SCHEMECO     := m1SCHEMECOD
           tmp->REGNUM       := m1REGNUM
+          tmp->MNN          := left(get_Lek_pr_By_ID(m1REGNUM), 20)
           tmp->ED_IZM       := str(m1UNITCODE, 3)
           tmp->SHORTTIT     := left(mUNITCODE, 5)
           tmp->DOZE         := mDOZE
           tmp->METHOD       := str(m1METHOD, 3)
+          tmp->METHNAME     := left(ret_meth_V035(m1METHOD), 20)
           tmp->COL_INJ      := mKOLVO
           // tmp->COD_MARK     := LEK_PR->COD_MARK
           // tmp->REC_N        :=  LEK_PR->(recno())

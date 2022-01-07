@@ -30,3 +30,14 @@ function get_schemas_lech(_degree, ldate)
     endif
   next
   return _arr
+
+***** 07.01.22 вернуть наименование схемы
+Function ret_schema_V030(s_code)
+  // s_code - код схемы
+  Local i, ret := ''
+  local code
+  
+  if !empty(s_code) .and. ((i := ascan(getV030(), {|x| x[2] == s_code })) > 0)
+    ret := getV030()[i, 1]
+  endif
+  return ret
