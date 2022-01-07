@@ -67,7 +67,7 @@ function check_oms_sluch_lek_pr(mkod_human)
 
   return retFl
 
-******* 06.01.22 ввода лекарственных препаратов
+******* 07.01.22 ввода лекарственных препаратов
 function oms_sluch_lek_pr(mkod_human,mkod_kartotek,fl_edit)
   // mkod_human - код по БД human
   // mkod_kartotek - код по БД kartotek
@@ -114,6 +114,7 @@ function oms_sluch_lek_pr(mkod_human,mkod_kartotek,fl_edit)
     {"SCHEMECO",   "C",    3,     0},; // сочетание схемы лечения и группы препаратов V032
     {"REGNUM"  ,   "C",    6,     0},; // лекарственного препарата
     {"ED_IZM"  ,   "C",    3,     0},; // Единица измерения дозы лекарственного препарата
+    {"SHORTTIT",   "C",    5,     0},; // краткое наименование единицы измерения
     {"DOZE"    ,   "N",    5,      2},; // Доза введения лекарственного препарата
     {"METHOD"  ,   "C",    3,     0},; // Путь введения лекарственного препарата
     {"COL_INJ" ,   "N",    5,      0},; // Количество введений в течениедня, указанного в DATA_INJ
@@ -139,6 +140,7 @@ function oms_sluch_lek_pr(mkod_human,mkod_kartotek,fl_edit)
       tmp->SCHEMECO := LEK_PR->SCHEMECO
       tmp->REGNUM   := LEK_PR->REGNUM
       tmp->ED_IZM   := LEK_PR->ED_IZM
+      tmp->SHORTTIT := left(inieditspr(A__MENUVERT, getV034(), val(LEK_PR->ED_IZM)), 5)
       tmp->DOZE     := LEK_PR->DOZE
       tmp->METHOD   := LEK_PR->METHOD_I
       tmp->COL_INJ  := LEK_PR->COL_INJ
@@ -213,7 +215,7 @@ Function f_oms_sluch_lek_pr(oBrow)
   oColumn:colorBlock := blk_color
   oBrow:addColumn(oColumn)
 
-  oColumn := TBColumnNew("Единица",{|| tmp->ED_IZM })
+  oColumn := TBColumnNew("Единица",{|| tmp->SHORTTIT })
   oColumn:colorBlock := blk_color
   oBrow:addColumn(oColumn)
 
@@ -348,13 +350,14 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
           // обработка и выход
           select tmp
           append blank
-          // tmp->NUMBER       := number
+          tmp->NUMBER       := tmp->(recno())
           tmp->KOD_HUM      := HUMAN->KOD
           tmp->DATE_INJ     := mdate_u1
           tmp->SCHEME       := m1SCHEME
           tmp->SCHEMECO     := m1SCHEMECOD
           tmp->REGNUM       := m1REGNUM
           tmp->ED_IZM       := str(m1UNITCODE, 3)
+          tmp->SHORTTIT     := left(mUNITCODE, 5)
           tmp->DOZE         := mDOZE
           tmp->METHOD       := str(m1METHOD, 3)
           tmp->COL_INJ      := mKOLVO
