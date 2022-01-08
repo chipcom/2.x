@@ -35,9 +35,9 @@ function get_schemas_lech(_degree, ldate)
 Function ret_schema_V030(s_code)
   // s_code - код схемы
   Local i, ret := ''
-  local code
+  local code := alltrim(s_code)
   
-  if !empty(s_code) .and. ((i := ascan(getV030(), {|x| x[2] == s_code })) > 0)
+  if !empty(code) .and. ((i := ascan(getV030(), {|x| x[2] == code })) > 0)
     ret := getV030()[i, 1]
   endif
   return ret

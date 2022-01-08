@@ -30,3 +30,14 @@ function get_group_by_schema_lech(_scheme, ldate)
     endif
   next
   return _arr
+
+***** 08.01.22 вернуть наименование кода схемы
+Function ret_schema_V032(s_code)
+  // s_code - код схемы
+  Local i, ret := ''
+  local code := alltrim(s_code)
+  
+  if !empty(code) .and. ((i := ascan(getV032(), {|x| x[3] == code })) > 0)
+    ret := getV032()[i, 1]
+  endif
+  return ret

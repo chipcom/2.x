@@ -67,7 +67,7 @@ function check_oms_sluch_lek_pr(mkod_human)
 
   return retFl
 
-******* 07.01.22 ввода лекарственных препаратов
+******* 08.01.22 ввода лекарственных препаратов
 function oms_sluch_lek_pr(mkod_human,mkod_kartotek,fl_edit)
   // mkod_human - код по БД human
   // mkod_kartotek - код по БД kartotek
@@ -92,20 +92,21 @@ function oms_sluch_lek_pr(mkod_human,mkod_kartotek,fl_edit)
   G_Use(dir_server + 'human_lek_pr', dir_server + 'human_lek_pr', 'LEK_PR')
 
   mWeight := val(HUMAN_2->PC4)  // получим вес пациента
-  m1Severity := val(HUMAN_2->PC5) // получим степень тяжести
-  mSeverity  := inieditspr(A__MENUVERT, get_severity(), m1Severity)
+  // m1Severity := val(HUMAN_2->PC5) // получим степень тяжести
+  // mSeverity  := inieditspr(A__MENUVERT, get_severity(), m1Severity)
   
   adbf := {;
     {"KOD_HUM" ,   "N",    7,     0},; // код листа учёта по файлу "human"
     {"DATE_INJ",   "D",    8,     0},; // Дата введения лекарственного препарата
+    {"SEVERITY",   "N",    5,     0},; // код тяжести течения заболевания по справочнику _mo_severity.dbf
     {"SCHEME"  ,   "C",   10,     0},; // схема лечения пациента V030
     {"SCHEMECO",   "C",    3,     0},; // сочетание схемы лечения и группы препаратов V032
     {"REGNUM"  ,   "C",    6,     0},; // лекарственного препарата
     {"MNN"     ,   "C",   20,     0},; // МНН лекарственного препарата
-    {"ED_IZM"  ,   "C",    3,     0},; // Единица измерения дозы лекарственного препарата
+    {"ED_IZM"  ,   "N",    3,     0},; // Единица измерения дозы лекарственного препарата
     {"SHORTTIT",   "C",    5,     0},; // краткое наименование единицы измерения
     {"DOZE"    ,   "N",    5,     2},; // Доза введения лекарственного препарата
-    {"METHOD"  ,   "C",    3,     0},; // Путь введения лекарственного препарата
+    {"METHOD"  ,   "N",    3,     0},; // Путь введения лекарственного препарата
     {"METHNAME",   "C",   20,     0},; // Название пути введения лекарственного препарата
     {"COL_INJ" ,   "N",    5,     0},; // Количество введений в течениедня, указанного в DATA_INJ
     {"COD_MARK",   "C",  100,     0},;  // Код маркировки лекарственного препарата
@@ -126,12 +127,13 @@ function oms_sluch_lek_pr(mkod_human,mkod_kartotek,fl_edit)
       tmp->NUMBER   := number
       tmp->KOD_HUM  := LEK_PR->KOD_HUM
       tmp->DATE_INJ := LEK_PR->DATE_INJ
+      tmp->SEVERITY := LEK_PR->SEVERITY
       tmp->SCHEME   := LEK_PR->CODE_SH
       tmp->SCHEMECO := LEK_PR->SCHEMECO
       tmp->REGNUM   := LEK_PR->REGNUM
       tmp->MNN      := left(get_Lek_pr_By_ID(LEK_PR->REGNUM), 20)
       tmp->ED_IZM   := LEK_PR->ED_IZM
-      tmp->SHORTTIT := left(inieditspr(A__MENUVERT, getV034(), val(LEK_PR->ED_IZM)), 5)
+      tmp->SHORTTIT := left(inieditspr(A__MENUVERT, getV034(), LEK_PR->ED_IZM), 5)
       tmp->DOZE     := LEK_PR->DOZE
       tmp->METHOD   := LEK_PR->METHOD_I
       tmp->METHNAME := left(ret_meth_V035(LEK_PR->METHOD_I), 20)
@@ -154,14 +156,14 @@ function oms_sluch_lek_pr(mkod_human,mkod_kartotek,fl_edit)
   if mWeight == 0.0
     @ 2, 2 say "Вес пациента" get mWeight picture '999.9' //;
       // valid {|| mprofil := padr(mprofil,69), .t. }
-      @ 3,2 say "Степень тяжести состояния" get mSeverity ;
-      reader {|x|menu_reader(x, get_severity(), A__MENUVERT,,,.f.)}
+      // @ 3,2 say "Степень тяжести состояния" get mSeverity ;
+      // reader {|x|menu_reader(x, get_severity(), A__MENUVERT,,,.f.)}
     myread()
   else
     @ 2, 2 say "Вес пациента:"
     @ 2, col() + 1 say mWeight picture '999.9'
-    @ 3,2 say "Степень тяжести состояния:"
-    @ 3, col() + 1 say mSeverity
+    // @ 3,2 say "Степень тяжести состояния:"
+    // @ 3, col() + 1 say mSeverity
   endif
 
   if fl_found
@@ -186,7 +188,7 @@ function oms_sluch_lek_pr(mkod_human,mkod_kartotek,fl_edit)
   restscreen(buf)
   return nil
 
-***** 07.01.22
+***** 08.01.22
 Function f_oms_sluch_lek_pr(oBrow)
   Local oColumn, blk_color
 
@@ -195,6 +197,10 @@ Function f_oms_sluch_lek_pr(oBrow)
   oBrow:addColumn(oColumn)
 
   oColumn := TBColumnNew("Дата; инек.",{|| left(dtoc(tmp->DATE_INJ), 5) })
+  oColumn:colorBlock := blk_color
+  oBrow:addColumn(oColumn)
+
+  oColumn := TBColumnNew("Тяжесть;пациента",{|| str(tmp->SEVERITY, 2) })
   oColumn:colorBlock := blk_color
   oBrow:addColumn(oColumn)
 
@@ -226,7 +232,7 @@ Function f1oms_sluch_lek_pr()
   LOCAL nRow := ROW(), nCol := COL()
   return NIL
 
-****** 07.01.22
+****** 08.01.22
 function f2oms_sluch_lek_pr(nKey,oBrow)
 
   LOCAL flag := -1, buf := savescreen(), k_read := 0, count_edit := 0
@@ -239,14 +245,24 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
     case nKey == K_INS .or. (nKey == K_ENTER .and. tmp->KOD_HUM > 0)
       private mMNN := .f.
       private arr_lek_pr := {}
-      private mdate_u1 := iif(nKey == K_INS, last_date, tmp->date_u1)  // для совместимости с f5editkusl
+      private mdate_u1 := iif(nKey == K_INS, last_date, tmp->DATE_INJ)  // для совместимости с f5editkusl
+      private m1SEVERITY := iif(nKey == K_INS, '', tmp->SEVERITY), mSEVERITY
       private m1SCHEME := iif(nKey == K_INS, '', tmp->SCHEME), mSCHEME
       private m1SCHEMECOD := iif(nKey == K_INS, '', tmp->SCHEMECO), mSCHEMECOD
       private m1UNITCODE := iif(nKey == K_INS, '', tmp->ED_IZM), mUNITCODE
       private m1METHOD := iif(nKey == K_INS, '', tmp->METHOD), mMETHOD
-      private m1REGNUM := iif(nKey == K_INS, '', tmp->METHOD), mREGNUM
+      private m1REGNUM := iif(nKey == K_INS, '', tmp->REGNUM), mREGNUM
       private mDOZE :=  iif(nKey == K_INS, 0.0, tmp->DOZE)
       private mKOLVO :=  iif(nKey == K_INS, 0, tmp->COL_INJ)
+
+      if nKey == K_ENTER
+        mSEVERITY := inieditspr(A__MENUVERT, get_severity(), m1SEVERITY)
+        mSCHEME := ret_schema_V030(m1SCHEME)
+        mSCHEMECOD := ret_schema_V032(m1SCHEMECOD)
+        mREGNUM := get_Lek_pr_By_ID(m1REGNUM)
+        mUNITCODE := inieditspr(A__MENUVERT, getV034(), m1UNITCODE)
+        mMETHOD := inieditspr(A__MENUVERT, getV035(), m1METHOD)
+      endif
 
       --r1
       box_shadow(r1-1,0,maxrow()-1,79,color8,;
@@ -258,6 +274,11 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
         @ r1+ix,2 say "Дата введения препарата" get mdate_u1 ;
               valid {| g | f5editpreparat(g, 2, 1)}
 
+        ++ix
+        @ r1 + ix,2 say "Степень тяжести состояния" get mSEVERITY ;
+              reader {|x|menu_reader(x, get_severity(), A__MENUVERT,,,.f.)} //;
+              // valid {| g | f5editpreparat(g, 2, 3)}
+      
         ++ix
         @ r1 + ix,2 say "Схема лечения" get mSCHEME ;
             reader {|x|menu_reader(x, get_schemas_lech(m1Severity, mdate_u1), A__MENUVERT,,,.f.)} ;
@@ -274,20 +295,24 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
             when mMNN
                 
         ++ix
-        @ r1 + ix,2 say "Доза" get mDOZE picture '999.99'
+        @ r1 + ix,2 say "Доза" get mDOZE picture '999.99' ;
+            when mMNN
         
         ++ix
         @ r1 + ix,2 say "Единица измерения" get mUNITCODE ;
             reader {|x|menu_reader(x, getV034(), A__MENUVERT,,,.f.)} ;
-            valid {|| mUNITCODE := padr(mUNITCODE, 69), .t. }
+            valid {|| mUNITCODE := padr(mUNITCODE, 69), .t. } ;
+            when mMNN
         
         ++ix
         @ r1 + ix,2 say "Способ введения" get mMETHOD ;
             reader {|x|menu_reader(x, getV035(), A__MENUVERT,,,.f.)} ;
-            valid {|| mMETHOD := padr(mMETHOD, 69), .t. }
+            valid {|| mMETHOD := padr(mMETHOD, 69), .t. } ;
+            when mMNN
             
         ++ix
-        @ r1 + ix,2 say "Количество введений" get mKOLVO picture '99'
+        @ r1 + ix,2 say "Количество введений" get mKOLVO picture '99' ;
+            when mMNN
                 
         status_key("^<Esc>^ - выход без записи;  ^<PgDn>^ - подтверждение записи")
         count_edit := myread( , ,++k_read)
@@ -298,16 +323,19 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
           tmp->NUMBER       := tmp->(recno())
           tmp->KOD_HUM      := HUMAN->KOD
           tmp->DATE_INJ     := mdate_u1
+          tmp->SEVERITY     := m1SEVERITY
           tmp->SCHEME       := m1SCHEME
           tmp->SCHEMECO     := m1SCHEMECOD
           tmp->REGNUM       := m1REGNUM
-          tmp->MNN          := left(get_Lek_pr_By_ID(m1REGNUM), 20)
-          tmp->ED_IZM       := str(m1UNITCODE, 3)
-          tmp->SHORTTIT     := left(mUNITCODE, 5)
-          tmp->DOZE         := mDOZE
-          tmp->METHOD       := str(m1METHOD, 3)
-          tmp->METHNAME     := left(ret_meth_V035(m1METHOD), 20)
-          tmp->COL_INJ      := mKOLVO
+          if ! empty(m1REGNUM)
+            tmp->MNN          := left(get_Lek_pr_By_ID(m1REGNUM), 20)
+            tmp->ED_IZM       := m1UNITCODE
+            tmp->SHORTTIT     := left(mUNITCODE, 5)
+            tmp->DOZE         := mDOZE
+            tmp->METHOD       := m1METHOD
+            tmp->METHNAME     := left(ret_meth_V035(m1METHOD), 20)
+            tmp->COL_INJ      := mKOLVO
+          endif
           // tmp->COD_MARK     := LEK_PR->COD_MARK
           // tmp->REC_N        :=  LEK_PR->(recno())
           last_date := max(tmp->DATE_INJ, last_date)

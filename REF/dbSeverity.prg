@@ -22,3 +22,22 @@ function get_severity()
   endif
 
   return _arr
+
+***** 08.01.22 вернуть описание тяжести состояния пациента
+Function ret_severity_name(s_code)
+  // s_code - код тяжести
+  Local i, ret := ''
+  local code
+  
+  if ValType(s_code) == 'C'
+    code := val(s_code)
+  elseif ValType(s_code) == 'N'
+    code := s_code
+  else
+    return ret
+  endif
+
+  if !empty(code) .and. ((i := ascan(get_severity(), {|x| x[2] == code })) > 0)
+    ret := get_severity()[i, 1]
+  endif
+  return ret
