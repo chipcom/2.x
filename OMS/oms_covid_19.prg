@@ -9,7 +9,7 @@ function get_weight_covid(kod_hum)
   local tmpSelect := select()
 
   select HUMAN_2
-  goto (Loc_kod)
+  goto (kod_hum)
   weight := val(HUMAN_2->PC4)
   select(tmpSelect)
 
@@ -21,9 +21,9 @@ function save_weight_covid(kod_hum, weight)
 
   if valtype(weight) == 'N'
     select HUMAN_2
-    goto (Loc_kod)
+    goto (kod_hum)
     G_RLock(forever)
-    HUMAN_2->PC4 := str(weight, 3, 1)
+    HUMAN_2->PC4 := str(weight, 5, 1)
     UnLock
     select(tmpSelect)
   endif
@@ -68,12 +68,12 @@ function check_oms_sluch_lek_pr(mkod_human)
   return retFl
 
 ******* 08.01.22 ввода лекарственных препаратов
-function oms_sluch_lek_pr(mkod_human,mkod_kartotek,fl_edit)
+function oms_sluch_lek_pr(mkod_human, mkod_kartotek, fl_edit)
   // mkod_human - код по БД human
   // mkod_kartotek - код по БД kartotek
   local aDbf, buf := savescreen(), l_color, fl_found
   local mtitle, tmp_color := setcolor(color1)
-  local nBegin
+  local nBegin, count, strWeight
 
   private mWeight := 0.0
   private mSeverity, m1Severity := 0
@@ -91,10 +91,6 @@ function oms_sluch_lek_pr(mkod_human,mkod_kartotek,fl_edit)
 
   G_Use(dir_server + 'human_lek_pr', dir_server + 'human_lek_pr', 'LEK_PR')
 
-  mWeight := val(HUMAN_2->PC4)  // получим вес пациента
-  // m1Severity := val(HUMAN_2->PC5) // получим степень тяжести
-  // mSeverity  := inieditspr(A__MENUVERT, get_severity(), m1Severity)
-  
   adbf := {;
     {"KOD_HUM" ,   "N",    7,     0},; // код листа учёта по файлу "human"
     {"DATE_INJ",   "D",    8,     0},; // Дата введения лекарственного препарата
@@ -116,15 +112,15 @@ function oms_sluch_lek_pr(mkod_human,mkod_kartotek,fl_edit)
   dbcreate(cur_dir + 'tmp_lek_pr', adbf)
   use (cur_dir + 'tmp_lek_pr') new alias TMP
 
-  number := 0
+  count := 0
   select LEK_PR
   find (str(mkod_human, 7))
   if found()
-    do while LEK_PR->kod == mkod_human .and. !eof()
-      number++
+    do while LEK_PR->KOD_HUM == mkod_human .and. !eof()
+      count++
       select TMP
       append blank
-      tmp->NUMBER   := number
+      tmp->NUMBER   := count
       tmp->KOD_HUM  := LEK_PR->KOD_HUM
       tmp->DATE_INJ := LEK_PR->DATE_INJ
       tmp->SEVERITY := LEK_PR->SEVERITY
@@ -134,7 +130,7 @@ function oms_sluch_lek_pr(mkod_human,mkod_kartotek,fl_edit)
       tmp->MNN      := left(get_Lek_pr_By_ID(LEK_PR->REGNUM), 20)
       tmp->ED_IZM   := LEK_PR->ED_IZM
       tmp->SHORTTIT := left(inieditspr(A__MENUVERT, getV034(), LEK_PR->ED_IZM), 5)
-      tmp->DOZE     := LEK_PR->DOZE
+      tmp->DOZE     := LEK_PR->DOSE_INJ
       tmp->METHOD   := LEK_PR->METHOD_I
       tmp->METHNAME := left(ret_meth_V035(LEK_PR->METHOD_I), 20)
       tmp->COL_INJ  := LEK_PR->COL_INJ
@@ -152,18 +148,19 @@ function oms_sluch_lek_pr(mkod_human,mkod_kartotek,fl_edit)
 
   setcolor(color1)
 
-  nBegin := 5
+  nBegin := 3
+
+  mWeight := get_weight_covid(mkod_human)  // получим вес пациента
+  
   if mWeight == 0.0
     @ 2, 2 say "Вес пациента" get mWeight picture '999.9' //;
       // valid {|| mprofil := padr(mprofil,69), .t. }
-      // @ 3,2 say "Степень тяжести состояния" get mSeverity ;
-      // reader {|x|menu_reader(x, get_severity(), A__MENUVERT,,,.f.)}
+    @ 2, col() + 1 say "кг"
     myread()
+    save_weight_covid(mkod_human, mWeight)
   else
-    @ 2, 2 say "Вес пациента:"
-    @ 2, col() + 1 say mWeight picture '999.9'
-    // @ 3,2 say "Степень тяжести состояния:"
-    // @ 3, col() + 1 say mSeverity
+    strWeight := 'Вес пациента: ' + alltrim(str(mWeight, 5, 2)) + ' кг'
+    @ 2, 2 say strWeight
   endif
 
   if fl_found
@@ -173,7 +170,7 @@ function oms_sluch_lek_pr(mkod_human,mkod_kartotek,fl_edit)
   endif
 
   mtitle := f_srok_lech(human->n_data,human->k_data,human_->usl_ok)  
-  Alpha_Browse(nBegin, 0, maxrow() - 5, 79, 'f_oms_sluch_lek_pr', color1, mtitle, col_tit_popup,;
+  Alpha_Browse(nBegin, 0, maxrow() - 2, 79, 'f_oms_sluch_lek_pr', color1, mtitle, col_tit_popup,;
                .f., .t., , "f1oms_sluch_lek_pr", "f2oms_sluch_lek_pr", , ;
                {"═", "░", "═", l_color, .t., 180} )
 
@@ -192,11 +189,11 @@ function oms_sluch_lek_pr(mkod_human,mkod_kartotek,fl_edit)
 Function f_oms_sluch_lek_pr(oBrow)
   Local oColumn, blk_color
 
-  oColumn := TBColumnNew(" NN; пп",{|| tmp->number })
-  oColumn:colorBlock := blk_color
-  oBrow:addColumn(oColumn)
+  // oColumn := TBColumnNew(" NN; пп",{|| tmp->number })
+  // oColumn:colorBlock := blk_color
+  // oBrow:addColumn(oColumn)
 
-  oColumn := TBColumnNew("Дата; инек.",{|| left(dtoc(tmp->DATE_INJ), 5) })
+  oColumn := TBColumnNew("Дата;инекц",{|| left(dtoc(tmp->DATE_INJ), 5) })
   oColumn:colorBlock := blk_color
   oBrow:addColumn(oColumn)
 
@@ -236,7 +233,7 @@ Function f1oms_sluch_lek_pr()
 function f2oms_sluch_lek_pr(nKey,oBrow)
 
   LOCAL flag := -1, buf := savescreen(), k_read := 0, count_edit := 0
-  local r1 := 10, ix
+  local r1 := 10, ix, number
   local last_date := human->n_data
 
   do case
@@ -254,6 +251,8 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
       private m1REGNUM := iif(nKey == K_INS, '', tmp->REGNUM), mREGNUM
       private mDOZE :=  iif(nKey == K_INS, 0.0, tmp->DOZE)
       private mKOLVO :=  iif(nKey == K_INS, 0, tmp->COL_INJ)
+      number :=  iif(nKey == K_INS, 0, tmp->NUMBER)
+
 
       if nKey == K_ENTER
         mSEVERITY := inieditspr(A__MENUVERT, get_severity(), m1SEVERITY)
@@ -318,9 +317,18 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
         count_edit := myread( , ,++k_read)
         if lastkey() != K_ESC
           // обработка и выход
-          select tmp
-          append blank
-          tmp->NUMBER       := tmp->(recno())
+          select LEK_PR
+          if nKey == K_INS
+            Add1Rec(7)
+            select tmp
+            append blank
+            tmp->NUMBER       := tmp->(recno())
+          else
+            goto (tmp->NUMBER)
+            G_RLock(forever)
+            select TMP
+            goto (number)
+          endif
           tmp->KOD_HUM      := HUMAN->KOD
           tmp->DATE_INJ     := mdate_u1
           tmp->SEVERITY     := m1SEVERITY
@@ -338,6 +346,22 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
           endif
           // tmp->COD_MARK     := LEK_PR->COD_MARK
           // tmp->REC_N        :=  LEK_PR->(recno())
+          select LEK_PR
+          LEK_PR->KOD_HUM     := HUMAN->KOD
+          LEK_PR->DATE_INJ    := mdate_u1
+          LEK_PR->SEVERITY    := m1SEVERITY
+          LEK_PR->CODE_SH     := m1SCHEME
+          LEK_PR->SCHEMECO    := m1SCHEMECOD
+          LEK_PR->REGNUM      := m1REGNUM
+          if ! empty(m1REGNUM)
+            LEK_PR->ED_IZM      := m1UNITCODE
+            LEK_PR->DOSE_INJ    := mDOZE
+            LEK_PR->METHOD_I    := m1METHOD
+            LEK_PR->COL_INJ     := mKOLVO
+          endif
+          UnLock
+          // LEK_PR->COD_MARK
+          select tmp
           last_date := max(tmp->DATE_INJ, last_date)
           flag := 0
           exit
@@ -347,6 +371,18 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
       enddo
                             
     case nKey == K_DEL .and. tmp->KOD_HUM > 0 .and. f_Esc_Enter(2)
+      if tmp->rec_n != 0
+        select LEK_PR
+        goto (tmp->rec_n)
+        DeleteRec(.t.,.f.)  // очистка записи без пометки на удаление
+        select TMP
+      endif
+      DeleteRec(.t.)  // с пометкой на удаление
+      oBrow:goTop()
+      go top
+      if eof()
+        keyboard chr(K_INS)
+      endif
       flag := 0
     otherwise
       keyboard ''
