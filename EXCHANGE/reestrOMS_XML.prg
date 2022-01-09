@@ -7,7 +7,7 @@
 Static sadiag1 := {}
 
   
-***** 30.12.21 создание XML-файлов реестра
+***** 09.01.22 создание XML-файлов реестра
 Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
   //
@@ -211,6 +211,10 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
 
   // заполним заголовок XML-документа
   s := '3.11'
+  if (strzero(_nyear,4) + strzero(_nmonth,2) > '202201') .and. (p_tip_reestr == 1) // с января 2022 года
+    // fl_ver := 32
+    s := '3.2'
+  endif
   mo_add_xml_stroke(oXmlNode,"VERSION" ,s)
   mo_add_xml_stroke(oXmlNode,"DATA"    ,date2xml(rees->DSCHET))
   mo_add_xml_stroke(oXmlNode,"FILENAME",mo_xml->FNAME)
@@ -1023,7 +1027,7 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
                   oMED_DEV := oUSL:Add( HXMLNode():New( "MED_DEV" ) )
                   mo_add_xml_stroke(oMED_DEV,"DATE_MED", date2xml(IMPL->DATE_UST))   // пока ставим 1 исполнитель
                   mo_add_xml_stroke(oMED_DEV,"CODE_MEDDEV", lstr(IMPL->RZN))
-                  mo_add_xml_stroke(oMED_DEV,"NUMBER_SER", alltrim(IMPL->SER_NUM))
+                  // mo_add_xml_stroke(oMED_DEV,"NUMBER_SER", alltrim(IMPL->SER_NUM))
                 endif
                 aImpl := nil
               endif

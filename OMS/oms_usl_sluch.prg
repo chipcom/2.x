@@ -97,7 +97,7 @@ Function oms_usl_sluch(mkod_human,mkod_kartotek,fl_edit)
   find (str(mkod_human, 7))
   if IMPL->(found())
     flExistImplant := .t.
-    arrImplant := {IMPL->KOD_HUM, IMPL->DATE_UST, IMPL->RZN, IMPL->SER_NUM}
+    arrImplant := {IMPL->KOD_HUM, IMPL->DATE_UST, IMPL->RZN}  //, IMPL->SER_NUM}
   else
     arrImplant := {mkod_human, stod('  /  /    '), 0, ''}
   endif

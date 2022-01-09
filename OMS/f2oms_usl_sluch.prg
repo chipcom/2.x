@@ -655,7 +655,7 @@ Function f2oms_usl_sluch(nKey,oBrow)
                   IMPL->KOD_HUM   := arrImplant[1]
                   IMPL->DATE_UST  := arrImplant[2]
                   IMPL->RZN       := arrImplant[3]
-                  IMPL->SER_NUM    := arrImplant[4]
+                  // IMPL->SER_NUM    := arrImplant[4]
                   UNLOCK
                 endif
               else
@@ -663,7 +663,7 @@ Function f2oms_usl_sluch(nKey,oBrow)
                 IMPL->KOD_HUM   := arrImplant[1]
                 IMPL->DATE_UST  := arrImplant[2]
                 IMPL->RZN       := arrImplant[3]
-                IMPL->SER_NUM    := arrImplant[4]
+                // IMPL->SER_NUM    := arrImplant[4]
               endif
               IMPL->(dbCloseArea())
             endif
