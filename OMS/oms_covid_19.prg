@@ -67,7 +67,7 @@ function check_oms_sluch_lek_pr(mkod_human)
 
   return retFl
 
-******* 08.01.22 ввода лекарственных препаратов
+******* 09.01.22 ввода лекарственных препаратов
 function oms_sluch_lek_pr(mkod_human, mkod_kartotek, fl_edit)
   // mkod_human - код по БД human
   // mkod_kartotek - код по БД kartotek
@@ -127,14 +127,14 @@ function oms_sluch_lek_pr(mkod_human, mkod_kartotek, fl_edit)
       tmp->SCHEME   := LEK_PR->CODE_SH
       tmp->SCHEMECO := LEK_PR->SCHEMECO
       tmp->REGNUM   := LEK_PR->REGNUM
-      tmp->MNN      := left(get_Lek_pr_By_ID(LEK_PR->REGNUM), 20)
+      tmp->MNN      := if(! empty(LEK_PR->REGNUM), left(get_Lek_pr_By_ID(LEK_PR->REGNUM), 20), '')
       tmp->ED_IZM   := LEK_PR->ED_IZM
       tmp->SHORTTIT := left(inieditspr(A__MENUVERT, getV034(), LEK_PR->ED_IZM), 5)
       tmp->DOZE     := LEK_PR->DOSE_INJ
       tmp->METHOD   := LEK_PR->METHOD_I
       tmp->METHNAME := left(ret_meth_V035(LEK_PR->METHOD_I), 20)
       tmp->COL_INJ  := LEK_PR->COL_INJ
-      tmp->COD_MARK := LEK_PR->COD_MARK
+      // tmp->COD_MARK := LEK_PR->COD_MARK
       tmp->REC_N    :=  LEK_PR->(recno())
       LEK_PR->(dbSkip())
     enddo
@@ -437,3 +437,18 @@ Function f5editpreparat(get, when_valid, k)
     endif
   endif
   return fl
+
+******* 09.01.22
+function collect_lek_pr(mkod_human)
+  local retArr := {}
+  
+  select LEK_PR
+  find (str(mkod_human, 7))
+  if found()
+    do while LEK_PR->KOD_HUM == mkod_human .and. !eof()
+      AAdd( retArr, {LEK_PR->DATE_INJ, LEK_PR->CODE_SH, LEK_PR->REGNUM, LEK_PR->ED_IZM, LEK_PR->DOSE_INJ, LEK_PR->METHOD_I, LEK_PR->COL_INJ})
+      LEK_PR->(dbSkip())
+    enddo
+  endif
+
+  return retArr

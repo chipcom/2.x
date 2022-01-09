@@ -13,7 +13,7 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
   //
   local iAKSLP, tKSLP, cKSLP // счетчик для цикла по КСЛП
   local reserveKSG_ID_C := '' // GUID для вложенных двойных случаев
-  local aImpl
+  local aImpl, weight, arrLP, row
   //
   close databases
   if empty(sadiag1)
@@ -100,6 +100,7 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
   use_base("luslc")
   use_base("luslf")
   Use_base("human_im")
+  R_Use(dir_server + 'human_lek_pr', dir_server + 'human_lek_pr', 'LEK_PR')
 
   // laluslf := "luslf"+iif(_nyear==2019,"19","")
   laluslf := create_name_alias('luslf', _nyear)
@@ -148,6 +149,7 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
   pkol := psumma := iusl := 0
   go top
   do while !eof()
+    arrLP := {}
     @ maxrow(),1 say lstr(pkol) color cColorSt2Msg
     select HUMAN
     goto (tmpb->kod_human)
@@ -475,6 +477,12 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
         if kol_kd > 0
           mo_add_xml_stroke(oSL,"KD",lstr(kol_kd)) // Указывается количество койко-дней для стационара, количество пациенто-дней для дневного стационара
         endif
+altd()
+        weight := get_weight_covid(human->(recno()))
+        if weight != 0.0
+          mo_add_xml_stroke(oSL,"WEI",alltrim(str(weight, 5, 2)))
+        endif
+
         if !empty(human_->kod_diag0)
           mo_add_xml_stroke(oSL,"DS0",human_->kod_diag0)
         endif
@@ -797,6 +805,31 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
           mo_add_xml_stroke(oSL,"TARIF" ,lstr(tarif_zak_sl,10,2))
         endif
         mo_add_xml_stroke(oSL,"SUM_M",lstr(human->cena_1,10,2))
+
+        if (human->k_data >= d_01_01_2022) .and. ((rtrim(mdiagnoz[1]) == 'U07.1') ;
+              .or. ((rtrim(mdiagnoz[1]) == 'U07.2'))) .and. (human_->USL_OK == 1) .and. (human_->PROFIL != 158) ;
+              .and. (human_->VIDPOM != 32) .and. (lower(alltrim(human_2->PC3)) != 'stt5')
+
+          arrLP := collect_lek_pr(human->(recno()))
+          if len(arrLP) != 0
+            for each row in arrLP
+              oLEK := oSL:Add( HXMLNode():New( 'LEK_PR' ) )
+              mo_add_xml_stroke(oLEK, "DATE_INJ", date2xml(row[1]))
+              mo_add_xml_stroke(oLEK, "CODE_SH", alltrim(row[2]))
+              if ! empty(row[3])
+                mo_add_xml_stroke(oLEK, "REGNUM", alltrim(row[3]))
+                // mo_add_xml_stroke(oLEK, "CODE_MARK", '')  // для дальнейшего использования
+                oDOSE := oLEK:Add( HXMLNode():New( 'LEK_DOSE' ) )
+                mo_add_xml_stroke(oDOSE, "ED_IZM", alltrim(str(row[4], 3, 0)))
+                mo_add_xml_stroke(oDOSE, "DOSE_INJ", alltrim(str(row[5], 5, 2)))
+                mo_add_xml_stroke(oDOSE, "METHOD_INJ", alltrim(str(row[6], 3, 0)))
+                mo_add_xml_stroke(oDOSE, "COL_INJ", alltrim(str(row[7], 5, 0)))
+              endif
+            next
+          endif
+          
+        endif
+
         if !empty(ldate_next)
           mo_add_xml_stroke(oSL,"NEXT_VISIT",date2xml(bom(ldate_next)))
         endif
