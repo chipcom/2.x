@@ -159,7 +159,7 @@ function oms_sluch_lek_pr(mkod_human, mkod_kartotek, fl_edit)
     myread()
     save_weight_covid(mkod_human, mWeight)
   else
-    strWeight := 'Вес пациента: ' + alltrim(str(mWeight, 5, 2)) + ' кг'
+    strWeight := 'Вес пациента: ' + alltrim(str(mWeight, 5, 1)) + ' кг'
     @ 2, 2 say strWeight
   endif
 

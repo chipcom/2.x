@@ -124,6 +124,8 @@ Function index_base(sBase)
       index on str(kod_hum, 7) to (dir_server + "human_im") progress
     case sBase == "human_lek_pr"
       index on str(kod_hum, 7) to (dir_server + "human_lek_pr") progress
+    case sBase == "human_ser_num"
+      index on type_fil + str(rec_n, 7) to (dir_server + "human_ser_num") progress
     case sBase == "mo_hu"
       index on str(kod,7)+date_u to (dir_server+"mo_hu") progress
       index on str(u_kod,6) to (dir_server+"mo_huk") progress
