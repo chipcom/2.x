@@ -13,7 +13,7 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
   //
   local iAKSLP, tKSLP, cKSLP // счетчик для цикла по КСЛП
   local reserveKSG_ID_C := '' // GUID для вложенных двойных случаев
-  local aImpl, weight, arrLP, row
+  local aImpl, arrLP, row
   //
   close databases
   if empty(sadiag1)
@@ -477,10 +477,9 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
         if kol_kd > 0
           mo_add_xml_stroke(oSL,"KD",lstr(kol_kd)) // Указывается количество койко-дней для стационара, количество пациенто-дней для дневного стационара
         endif
-altd()
-        weight := get_weight_covid(human->(recno()))
-        if weight != 0.0
-          mo_add_xml_stroke(oSL,"WEI",alltrim(str(weight, 5, 2)))
+
+        if ! empty(human_2->PC4)
+          mo_add_xml_stroke(oSL,"WEI", alltrim(human_2->PC4))
         endif
 
         if !empty(human_->kod_diag0)

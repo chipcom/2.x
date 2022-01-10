@@ -3,31 +3,31 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-****** 05.01.22 получить из HUMAN_2 вес пациента
-function get_weight_covid(kod_hum)
-  local weight := 0.0
-  local tmpSelect := select()
+// ****** 05.01.22 получить из HUMAN_2 вес пациента
+// function get_weight_covid(kod_hum)
+//   local weight := 0.0
+//   local tmpSelect := select()
 
-  select HUMAN_2
-  goto (kod_hum)
-  weight := val(HUMAN_2->PC4)
-  select(tmpSelect)
+//   select HUMAN_2
+//   goto (kod_hum)
+//   weight := val(HUMAN_2->PC4)
+//   select(tmpSelect)
 
-  return weight
+//   return weight
 
-****** 05.01.22 записать в HUMAN_2 вес пациента
-function save_weight_covid(kod_hum, weight)
-  local tmpSelect := select()
+// ****** 05.01.22 записать в HUMAN_2 вес пациента
+// function save_weight_covid(kod_hum, weight)
+//   local tmpSelect := select()
 
-  if valtype(weight) == 'N'
-    select HUMAN_2
-    goto (kod_hum)
-    G_RLock(forever)
-    HUMAN_2->PC4 := str(weight, 5, 1)
-    UnLock
-    select(tmpSelect)
-  endif
-  return weight
+//   if valtype(weight) == 'N'
+//     select HUMAN_2
+//     goto (kod_hum)
+//     G_RLock(forever)
+//     HUMAN_2->PC4 := str(weight, 5, 1)
+//     UnLock
+//     select(tmpSelect)
+//   endif
+//   return weight
 
 ******* 06.01.22 проверка на необходимость ввода лекарственных препаратов
 function check_oms_sluch_lek_pr(mkod_human)
@@ -75,7 +75,7 @@ function oms_sluch_lek_pr(mkod_human, mkod_kartotek, fl_edit)
   local mtitle, tmp_color := setcolor(color1)
   local nBegin, count, strWeight
 
-  private mWeight := 0.0
+  // private mWeight := 0.0
   private mSeverity, m1Severity := 0
 
   default fl_edit to .f.
@@ -150,19 +150,19 @@ function oms_sluch_lek_pr(mkod_human, mkod_kartotek, fl_edit)
 
   nBegin := 3
 
-  mWeight := get_weight_covid(mkod_human)  // получим вес пациента
+  // mWeight := get_weight_covid(mkod_human)  // получим вес пациента
   
-  if mWeight == 0.0
-    @ 2, 2 say "Вес пациента" get mWeight picture '999.9' ;
-        valid {| g | check_edit_field(g, 2, 1) }
+  // if mWeight == 0.0
+  //   @ 2, 2 say "Вес пациента" get mWeight picture '999.9' ;
+  //       valid {| g | check_edit_field(g, 2, 1) }
 
-    @ 2, col() + 1 say "кг"
-    myread()
-    save_weight_covid(mkod_human, mWeight)
-  else
-    strWeight := 'Вес пациента: ' + alltrim(str(mWeight, 5, 1)) + ' кг'
-    @ 2, 2 say strWeight
-  endif
+  //   @ 2, col() + 1 say "кг"
+  //   myread()
+  //   save_weight_covid(mkod_human, mWeight)
+  // else
+  //   strWeight := 'Вес пациента: ' + alltrim(str(mWeight, 5, 1)) + ' кг'
+  //   @ 2, 2 say strWeight
+  // endif
 
   if fl_found
     keyboard chr(K_RIGHT)

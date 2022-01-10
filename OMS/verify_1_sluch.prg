@@ -340,6 +340,10 @@ Function verify_1_sluch(fl_view)
   if mvozrast > 0 .and. len(mdiagnoz) > 0 .and. left(mdiagnoz[1],1) == "P"
     aadd(ta, "для основного диагноза "+mdiagnoz[1]+" возраст должен быть меньше года")
   endif
+  if human_->USL_OK == 1 ; // стационар
+      .and. (mdiagnoz[1] = 'U07.1' .or. mdiagnoz[1] = 'U07.2') .and. empty(HUMAN_2->PC4)
+    aadd(ta, "для диагноза U07.1 или U07.2 для условий стационара не указан вес пациента")
+  endif
   s := ""
   if len(mdiagnoz) > 0 .and. f_oms_beremenn(mdiagnoz[1]) == 3 .and. between(human_2->pn2,1,4)
     s := "R52."+{"0","1","2","9"}[human_2->pn2]

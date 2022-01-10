@@ -18,6 +18,7 @@ Function oms_sluch(Loc_kod,kod_kartotek)
         pos_read := 0, k_read := 0, count_edit := 0,;
         tmp_help := chm_help_code, fl_write_sluch := .f., when_uch_doc := .t.
   Local mm_reg_lech := {{"Основные",0},{"Дополнительные",9}}
+  local mWeight := 0
   
   if len(glob_otd) > 2 .and. glob_otd[3] == 4 // скорая помощь
     return oms_sluch_SMP(Loc_kod,kod_kartotek,TIP_LU_SMP)
@@ -469,6 +470,9 @@ Function oms_sluch(Loc_kod,kod_kartotek)
     MVNR2 := iif(human_2->VNR2 > 0, padr(lstr(human_2->VNR2),4), space(4))
     MVNR3 := iif(human_2->VNR3 > 0, padr(lstr(human_2->VNR3),4), space(4))
     m1vid_reab := human_2->PN1
+
+    mWeight := iif(empty(human_2->PC4), 0, val(human_2->PC4))
+
     if (ibrm := f_oms_beremenn(mkod_diag)) > 0
       m1prer_b := human_2->PN2
     endif
@@ -801,8 +805,14 @@ Function oms_sluch(Loc_kod,kod_kartotek)
       @ row(),col()+1 get mvrach when .f. color color14
       //
       ++j
-      @ j,1 say "Первичный диагноз" get mkod_diag0 picture pic_diag reader {|o| MyGetReader(o,bg)} valid val1_10diag(.t.,.f.,.t.,mk_data,iif(m1novor==0,mpol,mpol2)) ;
+      @ j, 1 say "Вес пациента" get mWeight picture '999.9' ;
+      valid {| g | check_edit_field(g, 2, 1) }
+      @ j, col() + 1 say "кг."
+
+      // @ j,1 say "Первичный диагноз" get mkod_diag0 picture pic_diag reader {|o| MyGetReader(o,bg)} valid val1_10diag(.t.,.f.,.t.,mk_data,iif(m1novor==0,mpol,mpol2)) ;
+      @ j, col() + 5 say "Первичный диагноз" get mkod_diag0 picture pic_diag reader {|o| MyGetReader(o,bg)} valid val1_10diag(.t.,.f.,.t.,mk_data,iif(m1novor==0,mpol,mpol2)) ;
           when diag_screen(2) .and. when_diag()
+      
       //if yes_bukva // если в настройке для отделения - работа со статусом стом.больного
       //     @ j,34 say "Статус стоматологического больного" get mstatus_st picture "@!" ;
       //           when diag_screen(2) ;
@@ -814,6 +824,13 @@ Function oms_sluch(Loc_kod,kod_kartotek)
           reader {|o| MyGetReader(o,bg)} ;
           when when_diag() ;
           valid {|| val1_10diag(.t.,.t.,.t.,mk_data,iif(m1novor==0,mpol,mpol2)), f_valid_beremenn(mkod_diag) }
+
+      // if (alltrim(MKOD_DIAG) == 'U07.1') .or. (alltrim(MKOD_DIAG) == 'U07.2')
+      //   @ j, col() + 10 say "Вес пациента" get mWeight picture '999.9' ;
+      //   valid {| g | check_edit_field(g, 2, 1) }
+      //   @ j, col() + 1 say "кг."
+      // endif
+    
       if (ibrm := f_oms_beremenn(mkod_diag)) == 1
         @ j,26 say "прерывание беременности"
       elseif ibrm == 2
@@ -2126,6 +2143,9 @@ Function oms_sluch(Loc_kod,kod_kartotek)
       human_2->VNR1   := val(MVNR1)
       human_2->VNR2   := val(MVNR2)
       human_2->VNR3   := val(MVNR3)
+
+      human_2->PC4    := iif(mWeight != 0, str(mWeight, 5, 1), space(10))
+
       if is_reabil_slux .and. eq_any(m1usl_ok,1,2) .and. m1profil == 158
         human_2->PN1 := m1vid_reab
       endif
