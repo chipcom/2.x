@@ -153,8 +153,9 @@ function oms_sluch_lek_pr(mkod_human, mkod_kartotek, fl_edit)
   mWeight := get_weight_covid(mkod_human)  // получим вес пациента
   
   if mWeight == 0.0
-    @ 2, 2 say "Вес пациента" get mWeight picture '999.9' //;
-      // valid {|| mprofil := padr(mprofil,69), .t. }
+    @ 2, 2 say "Вес пациента" get mWeight picture '999.9' ;
+        valid {| g | check_edit_field(g, 2, 1) }
+
     @ 2, col() + 1 say "кг"
     myread()
     save_weight_covid(mkod_human, mWeight)
@@ -452,3 +453,29 @@ function collect_lek_pr(mkod_human)
   endif
 
   return retArr
+
+***** 10.01.22 функция для when и valid при вводе различных полей
+Function check_edit_field(get, when_valid, k)
+  Local fl := .t.
+  local arrN020 := {}, tmpSelect
+  
+  if when_valid == 1    // when
+    if k == 1     // Вес пациента в кг
+    elseif k == 2 // 
+    elseif k == 3 // 
+    endif
+  else  // valid
+    if k == 1     // Вес пациента в кг
+      if val(get:buffer) > 500
+        get:varPut( get:original )
+        fl := func_error(4, "Введенный вес не может быть выше 500 кг!")
+      elseif val(get:buffer) < 0
+        get:varPut( get:original )
+        fl := func_error(4, "Введенный вес не может быть отрицательным!")
+      endif
+    elseif k == 2 // 
+    elseif k == 3 // 
+    endif
+  endif
+  return fl
+
