@@ -907,6 +907,7 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
 
           if (human->k_data >= 0d20210801 .and. p_tip_reestr == 2) ;      // правила заполнения с 01.08.21 письмо № 04-18-13 от 20.07.21
               .or. (human->k_data >= d_01_01_2022 .and. p_tip_reestr == 1)  // правила заполнения с 01.01.22 письмо № 04-18?17 от 28.12.2021
+              
             if between_date(human->n_data, human->k_data, c4tod(hu->DATE_U))
               oMR_USL_N := oUSL:Add( HXMLNode():New( "MR_USL_N" ) )
               mo_add_xml_stroke(oMR_USL_N,"MR_N",lstr(1))   // пока ставим 1 исполнитель
@@ -1023,7 +1024,7 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
                   oMED_DEV := oUSL:Add( HXMLNode():New( "MED_DEV" ) )
                   mo_add_xml_stroke(oMED_DEV,"DATE_MED", date2xml(IMPL->DATE_UST))   // пока ставим 1 исполнитель
                   mo_add_xml_stroke(oMED_DEV,"CODE_MEDDEV", lstr(IMPL->RZN))
-                  mo_add_xml_stroke(oMED_DEV,"NUMBER_SER", alltrim(IMPL->SER_NUM))
+                  // mo_add_xml_stroke(oMED_DEV,"NUMBER_SER", alltrim(IMPL->SER_NUM))
                 endif
                 aImpl := nil
               endif
