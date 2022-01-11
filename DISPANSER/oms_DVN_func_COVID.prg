@@ -776,11 +776,13 @@ function foundFFOMSUsluga(lshifr)
   endif
   select (tmp_select)
   MOSU->(dbCloseArea())
-  luslf->(dbCloseArea())
-  luslf18->(dbCloseArea())
-  luslf19->(dbCloseArea())
-  luslf20->(dbCloseArea())
-  luslf21->(dbCloseArea())
+
+  close_use_base('luslf')
+  // luslf->(dbCloseArea())
+  // luslf18->(dbCloseArea())
+  // luslf19->(dbCloseArea())
+  // luslf20->(dbCloseArea())
+  // luslf21->(dbCloseArea())
 
   return kod_uslf
 

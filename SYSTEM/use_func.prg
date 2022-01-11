@@ -8,6 +8,35 @@
 Function R_Use_base(sBase, lalias)
   return use_base(sBase, lalias, , .t.)
 
+***** 11.01.22
+function close_use_base(sBase)
+
+  sBase := lower(sBase) // проверим, что алиас открыт и выйдем если нет
+  if select(sBase) == 0
+    return nil
+  endif
+  do case
+    case sBase == "lusl"
+      lusl18->(dbCloseArea())
+      lusl19->(dbCloseArea())
+      lusl20->(dbCloseArea())
+      lusl21->(dbCloseArea())
+      lusl->(dbCloseArea())
+    case sBase == "luslc"
+      luslc18->(dbCloseArea())
+      luslc19->(dbCloseArea())
+      luslc20->(dbCloseArea())
+      luslc21->(dbCloseArea())
+      luslc->(dbCloseArea())
+    case sBase == "luslf"
+      luslf18->(dbCloseArea())
+      luslf19->(dbCloseArea())
+      luslf20->(dbCloseArea())
+      luslf21->(dbCloseArea())
+      luslf->(dbCloseArea())
+    endcase
+  return nil
+
 ***** 02.01.22
 Function use_base(sBase, lalias, lExcluUse, lREADONLY)
   Local fl := .t., sind1, sind2
