@@ -1336,11 +1336,12 @@ if (musl := input_value(18,6,20,73,color1,;
       arr_tfoms[2] := alltrim(lusl->shifr)+". "+alltrim(lusl->name)
       arr_tfoms[3] := lusl->shifr
     endif
-    lusl->(dbCloseArea())
-    lusl18->(dbCloseArea())
-    lusl19->(dbCloseArea())
-    lusl20->(dbCloseArea())
-    lusl21->(dbCloseArea())
+    close_use_base('lusl')
+    // lusl->(dbCloseArea())
+    // lusl18->(dbCloseArea())
+    // lusl19->(dbCloseArea())
+    // lusl20->(dbCloseArea())
+    // lusl21->(dbCloseArea())
   endif
   rest_box(buf)
 endif
