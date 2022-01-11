@@ -20,10 +20,16 @@ function getV030()
 
   return _arr
 
-****** 04.01.22 вернуть схемы лечения согласно тяжести пациента
+****** 11.01.22 вернуть схемы лечения согласно тяжести пациента
 function get_schemas_lech(_degree, ldate)
   local _arr := {}, row
 
+  if ValType(_degree) == 'C' .and. empty(_degree)
+    return _arr
+  endif
+  if ValType(_degree) == 'N' .and. _degree == 0
+    return _arr
+  endif
   for each row in getV030()
     if (row[3] == _degree) .and. between_date(row[5], row[6], ldate)
       aadd(_arr, { row[1], row[2], row[3], row[4], row[5], row[6] })

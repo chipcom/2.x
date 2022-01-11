@@ -3,32 +3,6 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-// ****** 05.01.22 получить из HUMAN_2 вес пациента
-// function get_weight_covid(kod_hum)
-//   local weight := 0.0
-//   local tmpSelect := select()
-
-//   select HUMAN_2
-//   goto (kod_hum)
-//   weight := val(HUMAN_2->PC4)
-//   select(tmpSelect)
-
-//   return weight
-
-// ****** 05.01.22 записать в HUMAN_2 вес пациента
-// function save_weight_covid(kod_hum, weight)
-//   local tmpSelect := select()
-
-//   if valtype(weight) == 'N'
-//     select HUMAN_2
-//     goto (kod_hum)
-//     G_RLock(forever)
-//     HUMAN_2->PC4 := str(weight, 5, 1)
-//     UnLock
-//     select(tmpSelect)
-//   endif
-//   return weight
-
 ******* 06.01.22 проверка на необходимость ввода лекарственных препаратов
 function check_oms_sluch_lek_pr(mkod_human)
   // mkod_human - код по БД human
@@ -75,7 +49,6 @@ function oms_sluch_lek_pr(mkod_human, mkod_kartotek, fl_edit)
   local mtitle, tmp_color := setcolor(color1)
   local nBegin, count, strWeight
 
-  // private mWeight := 0.0
   private mSeverity, m1Severity := 0
 
   default fl_edit to .f.
@@ -150,20 +123,6 @@ function oms_sluch_lek_pr(mkod_human, mkod_kartotek, fl_edit)
 
   nBegin := 3
 
-  // mWeight := get_weight_covid(mkod_human)  // получим вес пациента
-  
-  // if mWeight == 0.0
-  //   @ 2, 2 say "Вес пациента" get mWeight picture '999.9' ;
-  //       valid {| g | check_edit_field(g, 2, 1) }
-
-  //   @ 2, col() + 1 say "кг"
-  //   myread()
-  //   save_weight_covid(mkod_human, mWeight)
-  // else
-  //   strWeight := 'Вес пациента: ' + alltrim(str(mWeight, 5, 1)) + ' кг'
-  //   @ 2, 2 say strWeight
-  // endif
-
   if fl_found
     keyboard chr(K_RIGHT)
   else
@@ -190,19 +149,32 @@ function oms_sluch_lek_pr(mkod_human, mkod_kartotek, fl_edit)
 Function f_oms_sluch_lek_pr(oBrow)
   Local oColumn, blk_color
 
-  // oColumn := TBColumnNew(" NN; пп",{|| tmp->number })
+  // oColumn := TBColumnNew(" NN; пп",{|| tmp->(recno()) })
   // oColumn:colorBlock := blk_color
   // oBrow:addColumn(oColumn)
 
-  oColumn := TBColumnNew("Дата;инекц",{|| left(dtoc(tmp->DATE_INJ), 5) })
+  oColumn := TBColumnNew("Дата;инекц", ;
+      {|| left(dtoc(tmp->DATE_INJ), 5) })
   oColumn:colorBlock := blk_color
   oBrow:addColumn(oColumn)
 
-  oColumn := TBColumnNew("Тяжесть;пациента",{|| str(tmp->SEVERITY, 2) })
+  oColumn := TBColumnNew("Тяже-;сть  ", ;
+      {|| iif(tmp->SEVERITY == 0, space(5), left(ret_severity_name(tmp->SEVERITY), 5)) })
   oColumn:colorBlock := blk_color
   oBrow:addColumn(oColumn)
 
-  oColumn := TBColumnNew("Препарат",{|| tmp->MNN })
+  // oColumn := TBColumnNew("Схема;     ", ;
+  //     {|| iif(empty(tmp->SCHEME), space(10), left(ret_schema_V030(tmp->SCHEME), 10)) })
+  // oColumn:colorBlock := blk_color
+  // oBrow:addColumn(oColumn)
+
+  oColumn := TBColumnNew("Тип препарата", ;
+      {|| iif(empty(tmp->SCHEMECO), space(15), left(ret_schema_V032(tmp->SCHEMECO), 15)) })
+  oColumn:colorBlock := blk_color
+  oBrow:addColumn(oColumn)
+
+  oColumn := TBColumnNew("Препарат", ;
+      {|| iif(empty(tmp->REGNUM), space(15), left(get_Lek_pr_By_ID(tmp->REGNUM), 15)) })
   oColumn:colorBlock := blk_color
   oBrow:addColumn(oColumn)
 
@@ -214,11 +186,13 @@ Function f_oms_sluch_lek_pr(oBrow)
   oColumn:colorBlock := blk_color
   oBrow:addColumn(oColumn)
 
-  oColumn := TBColumnNew("Способ;введения",{|| tmp->METHNAME })
+  
+  oColumn := TBColumnNew("Способ;введения", ;
+      {|| iif(tmp->METHOD == 0, space(10), left(ret_meth_V035(tmp->METHOD), 10)) })
   oColumn:colorBlock := blk_color
   oBrow:addColumn(oColumn)
 
-  oColumn := TBColumnNew("Кол-во;введений",{|| str(tmp->COL_INJ, 3, 0) })
+  oColumn := TBColumnNew("Кол",{|| str(tmp->COL_INJ, 3, 0) })
   oColumn:colorBlock := blk_color
   oBrow:addColumn(oColumn)
   
@@ -252,6 +226,9 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
       private m1REGNUM := iif(nKey == K_INS, '', tmp->REGNUM), mREGNUM
       private mDOZE :=  iif(nKey == K_INS, 0.0, tmp->DOZE)
       private mKOLVO :=  iif(nKey == K_INS, 0, tmp->COL_INJ)
+
+      private mdate_ok_per := human->k_data
+
       number :=  iif(nKey == K_INS, 0, tmp->NUMBER)
 
 
@@ -271,8 +248,16 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
       do while .t.
         setcolor(cDataCGet)
         ix := 1
-        @ r1+ix,2 say "Дата введения препарата" get mdate_u1 ;
+        
+        if nKey == K_ENTER
+          @ r1+ix, 2 say "Дата введения препарата" get mdate_u1 ;
               valid {| g | f5editpreparat(g, 2, 1)}
+        else
+          @ r1+ix,2 say "Начало введения препарата" get mdate_u1 ;
+              valid {| g | f5editpreparat(g, 2, 1)}
+          @ r1+ix, col() say ", окончание введения препарата" get mdate_ok_per ;
+              valid {| g | f5editpreparat(g, 2, 4)}
+        endif
 
         ++ix
         @ r1 + ix,2 say "Степень тяжести состояния" get mSEVERITY ;
@@ -320,7 +305,7 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
           // обработка и выход
           select LEK_PR
           if nKey == K_INS
-            Add1Rec(7)
+            AddRec(7)
             select tmp
             append blank
             tmp->NUMBER       := tmp->(recno())
@@ -401,6 +386,7 @@ Function f5editpreparat(get, when_valid, k)
     if k == 1     // Дата оказания услуги
     elseif k == 2 // Сочетание схемы лечения препаратам
     elseif k == 3 // схема лечения
+    elseif k == 4 // дата окончания периода
     endif
   else  // valid
     if k == 1     // Дата оказания услуги
@@ -435,6 +421,12 @@ Function f5editpreparat(get, when_valid, k)
       endif
     elseif k == 3 // схема лечения
       mSCHEMECOD := alltrim(mSCHEME)
+    elseif k == 4     // Дата окончания периода
+      if !emptyany(human->n_data, mdate_ok_per) .and. mdate_ok_per < human->n_data
+        fl := func_error(4, "Введенная дата меньше даты начала лечения!")
+      elseif !emptyany(human->k_data, mdate_ok_per) .and. mdate_ok_per > human->k_data
+        fl := func_error(4, "Введенная дата больше даты окончания лечения!")       
+      endif
     endif
   endif
   return fl
