@@ -37,7 +37,7 @@ Function ret_schema_V032(s_code)
   Local i, ret := ''
   local code := alltrim(s_code)
   
-  if !empty(code) .and. ((i := ascan(getV032(), {|x| x[3] == code })) > 0)
+  if !empty(code) .and. ((i := ascan(getV032(), {|x| x[2] == code })) > 0)
     ret := getV032()[i, 1]
   endif
   return ret

@@ -19,3 +19,22 @@ function getV034()
   endif
 
   return _arr
+
+***** 12.01.22 вернуть наименование единицы измерения
+Function ret_ed_izm_V034(s_code)
+  // s_code - код схемы
+  Local i, ret := ''
+  local code
+
+  if ValType(s_code) == 'C'
+    code:= val(alltrim(s_code))
+  elseif ValType(s_code) == 'N'
+    code := s_code
+  else
+    return ret
+  endif
+  
+  if !empty(code) .and. ((i := ascan(getV034(), {|x| x[2] == code })) > 0)
+    ret := getV034()[i, 1]
+  endif
+  return ret

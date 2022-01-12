@@ -69,14 +69,11 @@ function oms_sluch_lek_pr(mkod_human, mkod_kartotek, fl_edit)
     {"DATE_INJ",   "D",    8,     0},; // Дата введения лекарственного препарата
     {"SEVERITY",   "N",    5,     0},; // код тяжести течения заболевания по справочнику _mo_severity.dbf
     {"SCHEME"  ,   "C",   10,     0},; // схема лечения пациента V030
-    {"SCHEMECO",   "C",    3,     0},; // сочетание схемы лечения и группы препаратов V032
+    {"SCHEDRUG",   "C",   10,     0},; // сочетание схемы лечения и группы препаратов V032
     {"REGNUM"  ,   "C",    6,     0},; // лекарственного препарата
-    {"MNN"     ,   "C",   20,     0},; // МНН лекарственного препарата
     {"ED_IZM"  ,   "N",    3,     0},; // Единица измерения дозы лекарственного препарата
-    {"SHORTTIT",   "C",    5,     0},; // краткое наименование единицы измерения
     {"DOZE"    ,   "N",    5,     2},; // Доза введения лекарственного препарата
     {"METHOD"  ,   "N",    3,     0},; // Путь введения лекарственного препарата
-    {"METHNAME",   "C",   20,     0},; // Название пути введения лекарственного препарата
     {"COL_INJ" ,   "N",    5,     0},; // Количество введений в течениедня, указанного в DATA_INJ
     {"COD_MARK",   "C",  100,     0},;  // Код маркировки лекарственного препарата
     {"NUMBER"  ,   "N",    3,     0},;
@@ -98,14 +95,11 @@ function oms_sluch_lek_pr(mkod_human, mkod_kartotek, fl_edit)
       tmp->DATE_INJ := LEK_PR->DATE_INJ
       tmp->SEVERITY := LEK_PR->SEVERITY
       tmp->SCHEME   := LEK_PR->CODE_SH
-      tmp->SCHEMECO := LEK_PR->SCHEMECO
+      tmp->SCHEDRUG := LEK_PR->SCHEDRUG
       tmp->REGNUM   := LEK_PR->REGNUM
-      tmp->MNN      := if(! empty(LEK_PR->REGNUM), left(get_Lek_pr_By_ID(LEK_PR->REGNUM), 20), '')
       tmp->ED_IZM   := LEK_PR->ED_IZM
-      tmp->SHORTTIT := left(inieditspr(A__MENUVERT, getV034(), LEK_PR->ED_IZM), 5)
       tmp->DOZE     := LEK_PR->DOSE_INJ
       tmp->METHOD   := LEK_PR->METHOD_I
-      tmp->METHNAME := left(ret_meth_V035(LEK_PR->METHOD_I), 20)
       tmp->COL_INJ  := LEK_PR->COL_INJ
       // tmp->COD_MARK := LEK_PR->COD_MARK
       tmp->REC_N    :=  LEK_PR->(recno())
@@ -169,7 +163,7 @@ Function f_oms_sluch_lek_pr(oBrow)
   // oBrow:addColumn(oColumn)
 
   oColumn := TBColumnNew("Тип препарата", ;
-      {|| iif(empty(tmp->SCHEMECO), space(15), left(ret_schema_V032(tmp->SCHEMECO), 15)) })
+      {|| iif(empty(tmp->SCHEDRUG), space(15), left(ret_schema_V032(tmp->SCHEDRUG), 15)) })
   oColumn:colorBlock := blk_color
   oBrow:addColumn(oColumn)
 
@@ -182,7 +176,8 @@ Function f_oms_sluch_lek_pr(oBrow)
   oColumn:colorBlock := blk_color
   oBrow:addColumn(oColumn)
 
-  oColumn := TBColumnNew("Единица",{|| tmp->SHORTTIT })
+  oColumn := TBColumnNew("Единица", ;
+      {|| iif(tmp->ED_IZM == 0, space(10), left(ret_ed_izm_V034(tmp->ED_IZM), 5)) })
   oColumn:colorBlock := blk_color
   oBrow:addColumn(oColumn)
 
@@ -204,12 +199,61 @@ Function f1oms_sluch_lek_pr()
   LOCAL nRow := ROW(), nCol := COL()
   return NIL
 
-****** 08.01.22
+****** 12.01.22
+function add_lek_pr(dInj, nKey)
+
+  select LEK_PR
+  if nKey == K_INS  // при добавлении лекарственного препарата
+    AddRec(7)
+    select tmp
+    append blank
+    tmp->NUMBER       := tmp->(recno())
+  elseif nKey == K_ENTER    // при редатировании лекарственного препарата
+    goto (tmp->REC_N)
+    G_RLock(forever)
+    select TMP
+    goto (number)
+  endif
+
+  tmp->REC_N        := LEK_PR->(recno())
+  tmp->KOD_HUM      := HUMAN->KOD
+  tmp->DATE_INJ     := dInj
+  tmp->SEVERITY     := m1SEVERITY
+  tmp->SCHEME       := m1SCHEME
+  tmp->SCHEDRUG     := m1SCHEDRUG
+  tmp->REGNUM       := m1REGNUM
+  if ! empty(m1REGNUM)
+    tmp->ED_IZM       := m1UNITCODE
+    tmp->DOZE         := mDOZE
+    tmp->METHOD       := m1METHOD
+    tmp->COL_INJ      := mKOLVO
+  endif
+  // tmp->COD_MARK     := LEK_PR->COD_MARK
+  select LEK_PR
+  LEK_PR->KOD_HUM     := HUMAN->KOD
+  LEK_PR->DATE_INJ    := dInj
+  LEK_PR->SEVERITY    := m1SEVERITY
+  LEK_PR->CODE_SH     := m1SCHEME
+  LEK_PR->SCHEDRUG    := m1SCHEDRUG
+  LEK_PR->REGNUM      := m1REGNUM
+  if ! empty(m1REGNUM)
+    LEK_PR->ED_IZM      := m1UNITCODE
+    LEK_PR->DOSE_INJ    := mDOZE
+    LEK_PR->METHOD_I    := m1METHOD
+    LEK_PR->COL_INJ     := mKOLVO
+  endif
+  UnLock
+  // LEK_PR->COD_MARK
+  select tmp
+  return nil
+
+****** 12.01.22
 function f2oms_sluch_lek_pr(nKey,oBrow)
 
   LOCAL flag := -1, buf := savescreen(), k_read := 0, count_edit := 0
   local r1 := 10, ix, number
   local last_date := human->n_data
+  local flMany := .f., tDate
 
   do case
     case nKey == K_F9
@@ -220,14 +264,14 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
       private mdate_u1 := iif(nKey == K_INS, last_date, tmp->DATE_INJ)  // для совместимости с f5editkusl
       private m1SEVERITY := iif(nKey == K_INS, '', tmp->SEVERITY), mSEVERITY
       private m1SCHEME := iif(nKey == K_INS, '', tmp->SCHEME), mSCHEME
-      private m1SCHEMECOD := iif(nKey == K_INS, '', tmp->SCHEMECO), mSCHEMECOD
+      private m1SCHEDRUG := iif(nKey == K_INS, '', tmp->SCHEDRUG), mSCHEDRUG
       private m1UNITCODE := iif(nKey == K_INS, '', tmp->ED_IZM), mUNITCODE
       private m1METHOD := iif(nKey == K_INS, '', tmp->METHOD), mMETHOD
       private m1REGNUM := iif(nKey == K_INS, '', tmp->REGNUM), mREGNUM
       private mDOZE :=  iif(nKey == K_INS, 0.0, tmp->DOZE)
       private mKOLVO :=  iif(nKey == K_INS, 0, tmp->COL_INJ)
 
-      private mdate_ok_per := human->k_data
+      private mdate_end_per := mdate_u1      // human->k_data
 
       number :=  iif(nKey == K_INS, 0, tmp->NUMBER)
 
@@ -235,16 +279,16 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
       if nKey == K_ENTER
         mSEVERITY := inieditspr(A__MENUVERT, get_severity(), m1SEVERITY)
         mSCHEME := ret_schema_V030(m1SCHEME)
-        mSCHEMECOD := ret_schema_V032(m1SCHEMECOD)
+        mSCHEDRUG := ret_schema_V032(m1SCHEDRUG)
         mREGNUM := get_Lek_pr_By_ID(m1REGNUM)
         mUNITCODE := inieditspr(A__MENUVERT, getV034(), m1UNITCODE)
         mMETHOD := inieditspr(A__MENUVERT, getV035(), m1METHOD)
       endif
 
       --r1
-      box_shadow(r1-1,0,maxrow()-1,79,color8,;
-                 iif(nKey == K_INS,"Добавление нового препарата",;
-                                   "Редактирование препарата"),iif(yes_color,"RB+/B","W/N"))
+      box_shadow(r1 - 1, 0, maxrow() - 1, 79, color8, ;
+                 iif(nKey == K_INS, "Добавление нового препарата", ;
+                                   "Редактирование препарата"), iif(yes_color, "RB+/B", "W/N"))
       do while .t.
         setcolor(cDataCGet)
         ix := 1
@@ -255,14 +299,13 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
         else
           @ r1+ix,2 say "Начало введения препарата" get mdate_u1 ;
               valid {| g | f5editpreparat(g, 2, 1)}
-          @ r1+ix, col() say ", окончание введения препарата" get mdate_ok_per ;
+          @ r1+ix, col() say ", окончание введения препарата" get mdate_end_per ;
               valid {| g | f5editpreparat(g, 2, 4)}
         endif
 
         ++ix
         @ r1 + ix,2 say "Степень тяжести состояния" get mSEVERITY ;
-              reader {|x|menu_reader(x, get_severity(), A__MENUVERT,,,.f.)} //;
-              // valid {| g | f5editpreparat(g, 2, 3)}
+              reader {|x|menu_reader(x, get_severity(), A__MENUVERT,,,.f.)}
       
         ++ix
         @ r1 + ix,2 say "Схема лечения" get mSCHEME ;
@@ -270,7 +313,7 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
             valid {| g | f5editpreparat(g, 2, 3)}
 
         ++ix
-        @ r1 + ix,2 say "Сочетание схемы лечения препаратам" get mSCHEMECOD ;
+        @ r1 + ix,2 say "Сочетание схемы лечения препаратам" get mSCHEDRUG ;
             reader {|x|menu_reader(x, get_group_by_schema_lech(m1SCHEME, mdate_u1), A__MENUVERT,,,.f.)} ;
             valid {| g | f5editpreparat(g, 2, 2)}
             
@@ -303,52 +346,27 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
         count_edit := myread( , ,++k_read)
         if lastkey() != K_ESC
           // обработка и выход
-          select LEK_PR
-          if nKey == K_INS
-            AddRec(7)
-            select tmp
-            append blank
-            tmp->NUMBER       := tmp->(recno())
-          else
-            goto (tmp->NUMBER)
-            G_RLock(forever)
-            select TMP
-            goto (number)
+          if nKey == K_INS    // добавление
+            flMany := (mdate_end_per > mdate_u1)
+            if flMany
+              // добавим пакетом лекарственные препараты
+              tDate := mdate_u1
+              do while tDate <= mdate_end_per
+                add_lek_pr(tDate, nKey)
+                last_date := max(tmp->DATE_INJ, last_date)
+                      
+                tDate := tDate + 1  // увеличим дату на 1 день
+              enddo
+            else
+              add_lek_pr(mdate_u1, nKey)
+              last_date := max(tmp->DATE_INJ, last_date)
+            endif
+          elseif nKey == K_ENTER  // редактирование
+            add_lek_pr(mdate_u1, nKey)
+            last_date := max(tmp->DATE_INJ, last_date)
           endif
-          tmp->KOD_HUM      := HUMAN->KOD
-          tmp->DATE_INJ     := mdate_u1
-          tmp->SEVERITY     := m1SEVERITY
-          tmp->SCHEME       := m1SCHEME
-          tmp->SCHEMECO     := m1SCHEMECOD
-          tmp->REGNUM       := m1REGNUM
-          if ! empty(m1REGNUM)
-            tmp->MNN          := left(get_Lek_pr_By_ID(m1REGNUM), 20)
-            tmp->ED_IZM       := m1UNITCODE
-            tmp->SHORTTIT     := left(mUNITCODE, 5)
-            tmp->DOZE         := mDOZE
-            tmp->METHOD       := m1METHOD
-            tmp->METHNAME     := left(ret_meth_V035(m1METHOD), 20)
-            tmp->COL_INJ      := mKOLVO
-          endif
-          // tmp->COD_MARK     := LEK_PR->COD_MARK
-          // tmp->REC_N        :=  LEK_PR->(recno())
-          select LEK_PR
-          LEK_PR->KOD_HUM     := HUMAN->KOD
-          LEK_PR->DATE_INJ    := mdate_u1
-          LEK_PR->SEVERITY    := m1SEVERITY
-          LEK_PR->CODE_SH     := m1SCHEME
-          LEK_PR->SCHEMECO    := m1SCHEMECOD
-          LEK_PR->REGNUM      := m1REGNUM
-          if ! empty(m1REGNUM)
-            LEK_PR->ED_IZM      := m1UNITCODE
-            LEK_PR->DOSE_INJ    := mDOZE
-            LEK_PR->METHOD_I    := m1METHOD
-            LEK_PR->COL_INJ     := mKOLVO
-          endif
-          UnLock
-          // LEK_PR->COD_MARK
-          select tmp
-          last_date := max(tmp->DATE_INJ, last_date)
+          select TMP
+          oBrow:goTop()
           flag := 0
           exit
         elseif lastkey() == K_ESC
@@ -360,7 +378,7 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
       if tmp->rec_n != 0
         select LEK_PR
         goto (tmp->rec_n)
-        DeleteRec(.t.,.f.)  // очистка записи без пометки на удаление
+        DeleteRec(.t.)  // очистка записи с пометкой на удаление
         select TMP
       endif
       DeleteRec(.t.)  // с пометкой на удаление
@@ -396,11 +414,11 @@ Function f5editpreparat(get, when_valid, k)
         fl := func_error(4, "Введенная дата больше даты окончания лечения!")
       endif
     elseif k == 2 // Сочетание схемы лечения препаратам
-      mSCHEMECOD := alltrim(mSCHEMECOD)
-      if (arr := get_group_prep_by_kod(substr(m1SCHEMECOD, len(m1SCHEMECOD)), mdate_u1)) != nil
+      mSCHEDRUG := alltrim(mSCHEDRUG)
+      if (arr := get_group_prep_by_kod(substr(m1SCHEDRUG, len(m1SCHEDRUG)), mdate_u1)) != nil
         mMNN := iif(arr[3] == 1, .t., .f.)
         if mMNN
-          arrN020 := get_drugcode_by_schema_lech(m1SCHEMECOD, mdate_u1)
+          arrN020 := get_drugcode_by_schema_lech(m1SCHEDRUG, mdate_u1)
           if len(arrN020) != 0
             tmpSelect := select()
             R_Use(exe_dir + '_mo_N020', cur_dir + '_mo_N020', 'N20')
@@ -420,11 +438,32 @@ Function f5editpreparat(get, when_valid, k)
         endif
       endif
     elseif k == 3 // схема лечения
-      mSCHEMECOD := alltrim(mSCHEME)
+      // mSCHEMECOD := alltrim(mSCHEME)
+      if alltrim(get:buffer) != mSCHEME
+        // очистим все
+        //// m1SCHEME := ''
+        //// mSCHEME := ''
+        // m1SCHEDRUG := ''
+        // mSCHEDRUG := ''
+        // m1UNITCODE := ''
+        // mUNITCODE := ''
+        // m1METHOD := ''
+        // mMETHOD := ''
+        // m1REGNUM := ''
+        // mREGNUM := ''
+        // mDOZE := 0.0
+        // mKOLVO := 0.0
+        // update_get('mSCHEDRUG')  
+        // update_get('mUNITCODE')  
+        // update_get('mMETHOD')  
+        // update_get('mREGNUM')  
+        // update_get('mDOZE')  
+        // update_get('mKOLVO')  
+      endif
     elseif k == 4     // Дата окончания периода
-      if !emptyany(human->n_data, mdate_ok_per) .and. mdate_ok_per < human->n_data
+      if !emptyany(human->n_data, mdate_end_per) .and. mdate_end_per < human->n_data
         fl := func_error(4, "Введенная дата меньше даты начала лечения!")
-      elseif !emptyany(human->k_data, mdate_ok_per) .and. mdate_ok_per > human->k_data
+      elseif !emptyany(human->k_data, mdate_end_per) .and. mdate_end_per > human->k_data
         fl := func_error(4, "Введенная дата больше даты окончания лечения!")       
       endif
     endif
