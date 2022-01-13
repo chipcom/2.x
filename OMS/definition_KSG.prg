@@ -385,23 +385,9 @@ Function definition_KSG(par,k_data2)
   */
   //aadd(ars,'   ║age='+lage+' sex='+lsex+' los='+print_array(llos))
 
-  // nfile := "_mo"+iif(lyear==2021,"1","0")+"k006"  // nfile := "_mo"+iif(lyear==2020,"0","9")+"k006"
   nfile := prefixFileRefName(lyear) + 'k006'
   if select("K006") == 0
-    R_Use(exe_dir+nfile,{cur_dir+nfile,cur_dir+nfile+"_",cur_dir+nfile+"AD"},"K006")
-    /*{"SHIFR",      "C",     10,      0},;
-      {"DS",         "C",      6,      0},;
-      {"DS1",        "M",     10,      0},;
-      {"DS2",        "M",     10,      0},;
-      {"SY",         "C",     20,      0},;
-      {"AGE",        "C",      1,      0},;
-      {"SEX",        "C",      1,      0},;
-      {"LOS",        "C",      1,      0},;
-      {"AD_CR",      "C",     10,      0},;
-      {"AD_CR1",     "C",     10,      0},;
-    index on substr(shifr,1,2)+ds+sy+age+sex+los to (cur_dir+sbase) // по диагнозу/операции
-    index on substr(shifr,1,2)+sy+ds+age+sex+los to (cur_dir+sbase+"_") // по операции/диагнозу
-    */
+    R_Use(exe_dir + nfile, {cur_dir + nfile, cur_dir + nfile + "_", cur_dir + nfile + "AD"}, "K006")
   else
     if ver_year == lyear // проверяем: если тот же год, что только что проверяли
       // ничего не меняем
@@ -831,7 +817,7 @@ Function definition_KSG(par,k_data2)
       endif
 
       // 06.02.21
-      if (year(lk_data) == 2021) .and. ( lower(substr(lksg,1,2)) == 'st' .or. lower(substr(lksg,1,2)) == 'ds' )
+      if (year(lk_data) >= 2021) .and. ( lower(substr(lksg,1,2)) == 'st' .or. lower(substr(lksg,1,2)) == 'ds' )
         if !empty(HUMAN_2->PC1)
           humKSLP := HUMAN_2->PC1
         endif
@@ -867,7 +853,7 @@ Function definition_KSG(par,k_data2)
                            mdiagnoz,;
                            lpar_org,;
                            lad_cr)
-      if year(lk_data) == 2021  // added 29.01.21
+      if year(lk_data) >= 2021  // added 29.01.21
           if !empty(akslp)
             for iKSLP := 1 to len(akslp) step 2
               if iKSLP != 1
