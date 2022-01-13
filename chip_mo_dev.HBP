@@ -157,7 +157,7 @@ mo_version.prg
 .\ref\dbV032.prg
 .\ref\dbV033.prg
 .\ref\dbV034.prg
-.\ref\dbV035.prg
+# .\ref\dbV035.prg
 .\ref\dbV036.prg
 .\ref\dbQ015.prg
 .\ref\dbQ016.prg
@@ -171,6 +171,7 @@ mo_version.prg
 .\ref\dbMo_Mo.prg
 .\ref\dbImplant.prg
 .\ref\dbSeverity.prg
+.\ref\dbMethodINJ.prg
 
 .\oms\oms_func.prg
 .\oms\oms_double.prg

@@ -183,7 +183,7 @@ Function f_oms_sluch_lek_pr(oBrow)
 
   
   oColumn := TBColumnNew("Способ;введения", ;
-      {|| iif(tmp->METHOD == 0, space(10), left(ret_meth_V035(tmp->METHOD), 10)) })
+      {|| iif(tmp->METHOD == 0, space(10), left(ret_meth_method_inj(tmp->METHOD), 10)) })
   oColumn:colorBlock := blk_color
   oBrow:addColumn(oColumn)
 
@@ -282,7 +282,7 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
         mSCHEDRUG := ret_schema_V032(m1SCHEDRUG)
         mREGNUM := get_Lek_pr_By_ID(m1REGNUM)
         mUNITCODE := inieditspr(A__MENUVERT, getV034(), m1UNITCODE)
-        mMETHOD := inieditspr(A__MENUVERT, getV035(), m1METHOD)
+        mMETHOD := inieditspr(A__MENUVERT, getMethodINJ(), m1METHOD)
       endif
 
       --r1
@@ -334,7 +334,7 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
         
         ++ix
         @ r1 + ix,2 say "Способ введения" get mMETHOD ;
-            reader {|x|menu_reader(x, getV035(), A__MENUVERT,,,.f.)} ;
+            reader {|x|menu_reader(x, getMethodINJ(), A__MENUVERT,,,.f.)} ;
             valid {|| mMETHOD := padr(mMETHOD, 69), .t. } ;
             when mMNN
             
