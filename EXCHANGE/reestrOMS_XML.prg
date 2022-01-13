@@ -820,8 +820,8 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
               mo_add_xml_stroke(oLEK, "CODE_SH", alltrim(row[2]))
               if ! empty(row[3])
                 mo_add_xml_stroke(oLEK, "REGNUM", alltrim(row[3]))
-                mo_add_xml_stroke(oLEK, "CODE_MARK", '')  // для дальнейшего использования
-                // oDOSE := oLEK:Add( HXMLNode():New( 'LEK_DOSE' ) )
+                // mo_add_xml_stroke(oLEK, "CODE_MARK", '')  // для дальнейшего использования
+                oDOSE := oLEK:Add( HXMLNode():New( 'LEK_DOSE' ) )
                 mo_add_xml_stroke(oDOSE, "ED_IZM", alltrim(str(row[4], 3, 0)))
                 mo_add_xml_stroke(oDOSE, "DOSE_INJ", alltrim(str(row[5], 5, 2)))
                 mo_add_xml_stroke(oDOSE, "METHOD_INJ", alltrim(str(row[6], 3, 0)))
