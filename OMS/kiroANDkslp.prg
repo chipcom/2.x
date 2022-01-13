@@ -129,12 +129,12 @@ function selectKSLP( lkslp, savedKSLP, dateBegin, dateEnd, DOB, mdiagnoz )
   Select(tmp_select)
   Return s
 
-***** 29.01.21 если надо, перезаписать значения КСЛП и КИРО в HUMAN_2
+***** 13.01.22 если надо, перезаписать значения КСЛП и КИРО в HUMAN_2
 Function put_str_kslp_kiro(arr,fl)
   Local lpc1 := "", lpc2 := ""
 
   if len(arr) > 4 .and. !empty(arr[5])
-    if year(human->k_data) != 2021  // added 29.01.21
+    if year(human->k_data) < 2021  // added 29.01.21
       lpc1 := lstr(arr[5,1])+","+lstr(arr[5,2],5,2)
       if len(arr[5]) >= 4
         lpc1 += ","+lstr(arr[5,3])+","+lstr(arr[5,4],5,2)
@@ -154,7 +154,7 @@ Function put_str_kslp_kiro(arr,fl)
     // запомним новое КСЛП
     tmSel := select('HUMAN_2')
     if (tmSel)->(dbRlock())
-      if year(human->k_data) != 2021  // added 29.01.21
+      if year(human->k_data) < 2021  // added 29.01.21
         human_2->pc1 := lpc1
       endif
       human_2->pc2 := lpc2
@@ -206,7 +206,7 @@ Function f_cena_kiro(/*@*/_cena, lkiro, dateSl )
   _cena := round_5(_cena * _akiro[2], 0)  // округление до рублей с 2019 года
   return _akiro
 
-***** 30.01.21 определить коэф-т сложности лечения пациента и пересчитать цену
+***** 13.01.22 определить коэф-т сложности лечения пациента и пересчитать цену
 Function f_cena_kslp(/*@*/_cena,_lshifr,_date_r,_n_data,_k_data,lkslp,arr_usl,lPROFIL_K,arr_diag,lpar_org,lad_cr)
   Static s_1_may := 0d20160430, s_18 := 0d20171231, s_19 := 0d20181231
   static s_20 := 0d20201231
@@ -262,11 +262,11 @@ Function f_cena_kslp(/*@*/_cena,_lshifr,_date_r,_n_data,_k_data,lkslp,arr_usl,lP
     // установим цену с учетом КСЛП
     if !empty(_akslp)
       _cena := round_5(_cena*ret_koef_kslp_21(_akslp),0)  // с 2019 года цена округляется до рублей
-      if year(_k_data) == 2021
+      if year(_k_data) >= 2021
         // запомним новое КСЛП
         tmSel := select('HUMAN_2')
         if (tmSel)->(dbRlock())
-          if year(human->k_data) != 2021  // added 29.01.21
+          if year(human->k_data) < 2021  // added 29.01.21
             human_2->pc1 := newKSLP
           endif
           (tmSel)->(dbRUnlock())
