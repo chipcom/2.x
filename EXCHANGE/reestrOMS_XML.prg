@@ -14,6 +14,8 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
   local iAKSLP, tKSLP, cKSLP // счетчик для цикла по КСЛП
   local reserveKSG_ID_C := '' // GUID для вложенных двойных случаев
   local aImpl, arrLP, row
+  local controlVer
+
   //
   close databases
   if empty(sadiag1)
@@ -213,7 +215,8 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
 
   // заполним заголовок XML-документа
   s := '3.11'
-  if (strzero(_nyear,4) + strzero(_nmonth,2) > '202201') .and. (p_tip_reestr == 1) // с января 2022 года
+  controlVer := _nyear * 100 + _nmonth
+  if (controlVer >= 202201) .and. (p_tip_reestr == 1) // с января 2022 года
     // fl_ver := 32
     s := '3.2'
   endif
@@ -817,8 +820,8 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
               mo_add_xml_stroke(oLEK, "CODE_SH", alltrim(row[2]))
               if ! empty(row[3])
                 mo_add_xml_stroke(oLEK, "REGNUM", alltrim(row[3]))
-                // mo_add_xml_stroke(oLEK, "CODE_MARK", '')  // для дальнейшего использования
-                oDOSE := oLEK:Add( HXMLNode():New( 'LEK_DOSE' ) )
+                mo_add_xml_stroke(oLEK, "CODE_MARK", '')  // для дальнейшего использования
+                // oDOSE := oLEK:Add( HXMLNode():New( 'LEK_DOSE' ) )
                 mo_add_xml_stroke(oDOSE, "ED_IZM", alltrim(str(row[4], 3, 0)))
                 mo_add_xml_stroke(oDOSE, "DOSE_INJ", alltrim(str(row[5], 5, 2)))
                 mo_add_xml_stroke(oDOSE, "METHOD_INJ", alltrim(str(row[6], 3, 0)))
