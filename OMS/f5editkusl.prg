@@ -9,8 +9,8 @@ Function f5editkusl(get,when_valid,k)
         msg1_err := "Код врача равен коду ассистента! Это недопустимо.",;
         msg2_err := "Сотрудника с таким кодом нет в базе данных персонала!",;
         blk_sum := {|| mstoim_1 := round_5(mu_cena * mkol_1, 2) }
-  local aImpl
-  local l_impl
+  // local aImpl
+  // local l_impl
 
   if when_valid == 1    // when
     if k == 2     // Шифр услуги
@@ -105,21 +105,21 @@ Function f5editkusl(get,when_valid,k)
         select LUSLF
         find (padr(mshifr,20))
         if found() .and. alltrim(mshifr) == alltrim(luslf->shifr)
-          if (c4tod(TMP->DATE_U2) >= d_01_01_2022) .and. ((aImpl := ret_impl_V036(mshifr, c4tod(TMP->DATE_U2))) != NIL)
-            if flExistImplant
-              if (l_impl := select_impl(arrImplant[2], arrImplant[3], arrImplant[4])) != NIL
-                arrImplant[2] := l_impl[1]
-                arrImplant[3] := l_impl[2]
-                arrImplant[4] := l_impl[3]
-              endif
-            else
-              if (l_impl := select_impl()) != NIL
-                arrImplant[2] := l_impl[1]
-                arrImplant[3] := l_impl[2]
-                arrImplant[4] := l_impl[3]
-              endif
-            endif
-          endif
+          // if (c4tod(TMP->DATE_U2) >= d_01_01_2022) .and. ((aImpl := ret_impl_V036(mshifr, c4tod(TMP->DATE_U2))) != NIL)
+          //   if flExistImplant
+          //     if (l_impl := select_impl(arrImplant[2], arrImplant[3], arrImplant[4])) != NIL
+          //       arrImplant[2] := l_impl[1]
+          //       arrImplant[3] := l_impl[2]
+          //       arrImplant[4] := l_impl[3]
+          //     endif
+          //   else
+          //     if (l_impl := select_impl()) != NIL
+          //       arrImplant[2] := l_impl[1]
+          //       arrImplant[3] := l_impl[2]
+          //       arrImplant[4] := l_impl[3]
+          //     endif
+          //   endif
+          // endif
           is_usluga_zf := luslf->zf
           tip_onko_napr := luslf->onko_napr
           tip_onko_ksg := luslf->onko_ksg

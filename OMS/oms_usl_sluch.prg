@@ -16,7 +16,7 @@ Function oms_usl_sluch(mkod_human,mkod_kartotek,fl_edit)
   Private fl_found, last_date, mvu[3,2], pr1otd, pr_amb_reab := .f.,;
           pr_arr := {}, pr_arr_otd := {}, pr1arr_otd := {}, is_1_vvod,;
           kod_lech_vr := 0, is_open_u1 := .f., arr_uva := {}, arr_usl1year, u_other := {}
-  private flExistImplant := .f., arrImplant
+  // private flExistImplant := .f., arrImplant
 
   afillall(mvu,0)
   //
@@ -93,15 +93,15 @@ Function oms_usl_sluch(mkod_human,mkod_kartotek,fl_edit)
   enddo
   //
   // проверим наличие имплантов
-  Use_base("human_im")
-  find (str(mkod_human, 7))
-  if IMPL->(found())
-    flExistImplant := .t.
-    arrImplant := {IMPL->KOD_HUM, IMPL->DATE_UST, IMPL->RZN, ''}  //, IMPL->SER_NUM}
-  else
-    arrImplant := {mkod_human, stod('  /  /    '), 0, ''}
-  endif
-  IMPL->(dbCloseArea())
+  // Use_base("human_im")
+  // find (str(mkod_human, 7))
+  // if IMPL->(found())
+  //   flExistImplant := .t.
+  //   arrImplant := {IMPL->KOD_HUM, IMPL->DATE_UST, IMPL->RZN, ''}  //, IMPL->SER_NUM}
+  // else
+  //   arrImplant := {mkod_human, stod('  /  /    '), 0, ''}
+  // endif
+  // IMPL->(dbCloseArea())
 
   //
   adbf := {;
