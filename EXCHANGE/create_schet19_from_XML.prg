@@ -10,6 +10,8 @@ Function create_schet19_from_XML(arr_XML_info,aerr,fl_msg,arr_s,name_sp_tk)
         doplataF, doplataR, mnn, fl, name_zip, arr_zip := {}, lshifr1,;
         CODE_LPU := glob_mo[_MO_KOD_TFOMS], code_schet, mb, me, nsh,;
         CODE_MO  := glob_mo[_MO_KOD_FFOMS], s1
+  local controlVer
+
   DEFAULT fl_msg TO .t., arr_s TO {}
   Private pole
   //
@@ -28,7 +30,7 @@ Function create_schet19_from_XML(arr_XML_info,aerr,fl_msg,arr_s,name_sp_tk)
   use (cur_dir+"tmp_r_t8") new index (cur_dir+"tmpt8") alias T8
   use (cur_dir+"tmp_r_t9") new index (cur_dir+"tmpt9") alias T9
   use (cur_dir+"tmp_r_t10") new index (cur_dir+"tmpt10") alias T10
-  use (cur_dir+"tmp_r_t11") new index (cur_dir+"tmpt11") alias T11
+  use (cur_dir+"tmp_r_t1_1") new index (cur_dir+"tmpt1_1") alias T1_1
   R_Use(dir_server+"mo_pers",,"PERS")
   R_Use(dir_server+"mo_otd",,"OTD")
   R_Use(dir_server+"uslugi",,"USL")
@@ -320,6 +322,11 @@ Function create_schet19_from_XML(arr_XML_info,aerr,fl_msg,arr_s,name_sp_tk)
     oXmlDoc:Add( HXMLNode():New( "ZL_LIST") )
     oXmlNode := oXmlDoc:aItems[1]:Add( HXMLNode():New( "ZGLV" ) )
     s := '3.11'
+    controlVer := tmp1->_YEAR * 100 + tmp1->_MONTH
+    if (controlVer >= 202201) .and. (p_tip_reestr == 1) // с января 2022 года
+      s := '3.2'
+    endif
+  
     mo_add_xml_stroke(oXmlNode,"VERSION" ,s)
     mo_add_xml_stroke(oXmlNode,"DATA"    ,date2xml(schet_->DSCHET))
     mo_add_xml_stroke(oXmlNode,"FILENAME",mo_xml->FNAME)
@@ -488,87 +495,92 @@ Function create_schet19_from_XML(arr_XML_info,aerr,fl_msg,arr_s,name_sp_tk)
           endif
           lal := "t1"
         else
-          lal := "t11"
+          lal := "t1_1"
           dbSelectArea(lal)
           find (t1->IDCASE)
         endif
-          oSL := oSLUCH:Add( HXMLNode():New( "SL" ) )
-           mo_add_xml_stroke(oSL,"SL_ID",&lal.->SL_ID)
-           if !empty(&lal.->VID_HMP)
-            mo_add_xml_stroke(oSL,"VID_HMP",&lal.->VID_HMP)
-           endif
-           if !empty(&lal.->METOD_HMP)
-            mo_add_xml_stroke(oSL,"METOD_HMP",&lal.->METOD_HMP)
-           endif
-           if !empty(&lal.->LPU_1)
-            mo_add_xml_stroke(oSL,"LPU_1",&lal.->LPU_1)
-           endif
-           if !empty(&lal.->PODR)
-            mo_add_xml_stroke(oSL,"PODR",&lal.->PODR)
-           endif
-           mo_add_xml_stroke(oSL,"PROFIL",&lal.->PROFIL)
-          if p_tip_reestr == 1
-           if !empty(&lal.->PROFIL_K)
+        oSL := oSLUCH:Add( HXMLNode():New( "SL" ) )
+        mo_add_xml_stroke(oSL,"SL_ID",&lal.->SL_ID)
+        if !empty(&lal.->VID_HMP)
+          mo_add_xml_stroke(oSL,"VID_HMP",&lal.->VID_HMP)
+        endif
+        if !empty(&lal.->METOD_HMP)
+          mo_add_xml_stroke(oSL,"METOD_HMP",&lal.->METOD_HMP)
+        endif
+        if !empty(&lal.->LPU_1)
+          mo_add_xml_stroke(oSL,"LPU_1",&lal.->LPU_1)
+        endif
+        if !empty(&lal.->PODR)
+          mo_add_xml_stroke(oSL,"PODR",&lal.->PODR)
+        endif
+        mo_add_xml_stroke(oSL,"PROFIL",&lal.->PROFIL)
+        if p_tip_reestr == 1
+          if !empty(&lal.->PROFIL_K)
             mo_add_xml_stroke(oSL,"PROFIL_K",&lal.->PROFIL_K)
-           endif
-           if !empty(&lal.->DET)
+          endif
+          if !empty(&lal.->DET)
             mo_add_xml_stroke(oSL,"DET",&lal.->DET)
-           endif
-           if !empty(&lal.->P_CEL)
+          endif
+          if !empty(&lal.->P_CEL)
             mo_add_xml_stroke(oSL,"P_CEL",&lal.->P_CEL)
-           endif
           endif
-           if !empty(&lal.->TAL_D)
-            mo_add_xml_stroke(oSL,"TAL_D",&lal.->TAL_D)
-            mo_add_xml_stroke(oSL,"TAL_P",&lal.->TAL_P)
-            if !empty(&lal.->TAL_NUM)
-              mo_add_xml_stroke(oSL,"TAL_NUM",&lal.->TAL_NUM)
-            endif
-           endif
-           mo_add_xml_stroke(oSL,"NHISTORY",&lal.->NHISTORY)
-           if !empty(&lal.->P_PER)
-            mo_add_xml_stroke(oSL,"P_PER",&lal.->P_PER)
-           endif
-           mo_add_xml_stroke(oSL,"DATE_1",&lal.->DATE_1)
-           mo_add_xml_stroke(oSL,"DATE_2",&lal.->DATE_2)
-           if !empty(&lal.->kd)
-            mo_add_xml_stroke(oSL,"KD",&lal.->kd) // Указывается количество койко-дней для стационара, количество пациенто-дней для дневного стационара
-           endif
-           if !empty(&lal.->DS0)
-            mo_add_xml_stroke(oSL,"DS0",&lal.->DS0)
-           endif
-           mo_add_xml_stroke(oSL,"DS1",&lal.->DS1)
-          if p_tip_reestr == 2
-           if !empty(&lal.->DS1_PR)
-            mo_add_xml_stroke(oSL,"DS1_PR",&lal.->DS1_PR)
-           endif
-           if !empty(&lal.->PR_D_N)
-            mo_add_xml_stroke(oSL,"PR_D_N",&lal.->PR_D_N)
-           endif
+        endif
+        if !empty(&lal.->TAL_D)
+          mo_add_xml_stroke(oSL,"TAL_D",&lal.->TAL_D)
+          mo_add_xml_stroke(oSL,"TAL_P",&lal.->TAL_P)
+          if !empty(&lal.->TAL_NUM)
+            mo_add_xml_stroke(oSL,"TAL_NUM",&lal.->TAL_NUM)
           endif
-          if p_tip_reestr == 1
-           for j := 1 to 7
-            pole := lal+"->DS2"+iif(j==1, "", "_"+lstr(j))
-            if !empty(&pole)
-              mo_add_xml_stroke(oSL,"DS2",&pole)
-            endif
-           next
-           for j := 1 to 3
-            pole := lal+"->DS3"+iif(j==1, "", "_"+lstr(j))
-            if !empty(&pole)
-              mo_add_xml_stroke(oSL,"DS3",&pole)
-            endif
-           next
-           if !empty(&lal.->C_ZAB)
-            mo_add_xml_stroke(oSL,"C_ZAB",&lal.->C_ZAB)
-           endif
-           if !empty(&lal.->DS_ONK)
-            mo_add_xml_stroke(oSL,"DS_ONK",&lal.->DS_ONK)
-           endif
-           if !empty(&lal.->DN)
-            mo_add_xml_stroke(oSL,"DN",&lal.->DN)
-           endif
-          else // диспансеризация
+        endif
+        mo_add_xml_stroke(oSL,"NHISTORY",&lal.->NHISTORY)
+        if !empty(&lal.->P_PER)
+          mo_add_xml_stroke(oSL,"P_PER",&lal.->P_PER)
+        endif
+        mo_add_xml_stroke(oSL,"DATE_1",&lal.->DATE_1)
+        mo_add_xml_stroke(oSL,"DATE_2",&lal.->DATE_2)
+        if !empty(&lal.->kd)
+          mo_add_xml_stroke(oSL,"KD",&lal.->kd) // Указывается количество койко-дней для стационара, количество пациенто-дней для дневного стационара
+        endif
+
+        if ! empty(&lal.->WEI) .and. p_tip_reestr == 1  // по новым правилам ПУМП от 11.01.22
+          mo_add_xml_stroke(oSL,"WEI", &lal.->WEI)
+        endif
+  
+        if !empty(&lal.->DS0)
+          mo_add_xml_stroke(oSL,"DS0",&lal.->DS0)
+        endif
+        mo_add_xml_stroke(oSL,"DS1",&lal.->DS1)
+        if p_tip_reestr == 2
+          if !empty(&lal.->DS1_PR)
+          mo_add_xml_stroke(oSL,"DS1_PR",&lal.->DS1_PR)
+         endif
+         if !empty(&lal.->PR_D_N)
+          mo_add_xml_stroke(oSL,"PR_D_N",&lal.->PR_D_N)
+         endif
+      endif
+      if p_tip_reestr == 1
+        for j := 1 to 7
+          pole := lal+"->DS2"+iif(j==1, "", "_"+lstr(j))
+          if !empty(&pole)
+            mo_add_xml_stroke(oSL,"DS2",&pole)
+          endif
+        next
+        for j := 1 to 3
+          pole := lal+"->DS3"+iif(j==1, "", "_"+lstr(j))
+          if !empty(&pole)
+            mo_add_xml_stroke(oSL,"DS3",&pole)
+          endif
+        next
+        if !empty(&lal.->C_ZAB)
+          mo_add_xml_stroke(oSL,"C_ZAB",&lal.->C_ZAB)
+        endif
+        if !empty(&lal.->DS_ONK)
+          mo_add_xml_stroke(oSL,"DS_ONK",&lal.->DS_ONK)
+        endif
+        if !empty(&lal.->DN)
+          mo_add_xml_stroke(oSL,"DN",&lal.->DN)
+        endif
+      else // диспансеризация
            for j1 := 1 to 4
             pole := lal+"->DS2N"+iif(j1==1, "", "_"+lstr(j1))
             if !empty(&pole)
@@ -821,6 +833,28 @@ Function create_schet19_from_XML(arr_XML_info,aerr,fl_msg,arr_s,name_sp_tk)
               mo_add_xml_stroke(oSL,"TARIF" ,&lal.->TARIF)
             endif
             mo_add_xml_stroke(oSL,"SUM_M",&lal.->SUM_M)
+/////////////// insert LEK_PR
+            //цикл по БД лекарств
+            select T11
+            find (t1->IDCASE + str(isl, 6))
+            do while t1->IDCASE == t11->IDCASE .and. isl == t11->sluch .and. !eof()
+              oLEK := oSL:Add( HXMLNode():New( "LEK_PR" ) )
+              mo_add_xml_stroke(oLEK, "DATA_INJ", date2xml(t11->DATA_INJ))
+              mo_add_xml_stroke(oLEK, "CODE_SH", alltrim(t11->CODE_SH))
+              if ! empty(t11->REGNUM)
+                mo_add_xml_stroke(oLEK, "REGNUM", t11->REGNUM)
+                // mo_add_xml_stroke(oLEK, "CODE_MARK", '')  // для дальнейшего использования
+                oDOSE := oLEK:Add( HXMLNode():New( 'LEK_DOSE' ) )
+                mo_add_xml_stroke(oDOSE, "ED_IZM", t11->ED_IZM)
+                mo_add_xml_stroke(oDOSE, "DOSE_INJ", t11->DOSE_INJ)
+                mo_add_xml_stroke(oDOSE, "METHOD_INJ", t11->METHOD_I)
+                mo_add_xml_stroke(oDOSE, "COL_INJ", t11->COL_INJ)
+              endif
+              select T11
+              skip
+            enddo
+///////////////
+
             if !empty(&lal.->NEXT_VISIT)
               mo_add_xml_stroke(oSL,"NEXT_VISIT",&lal.->NEXT_VISIT)
             endif

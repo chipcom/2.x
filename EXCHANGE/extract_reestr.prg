@@ -3,7 +3,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 17.08.21 вынуть реестр из XML-файлов и записать во временные DBF-файлы
+***** 15.01.22 вынуть реестр из XML-файлов и записать во временные DBF-файлы
 Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
   local p_tip_reestr
   Local _table1 := {;
@@ -135,7 +135,7 @@ Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
      {"VAL_K"   , "C", 5,0},; //
      {"NEXT_VISIT","C",10,0},; //
      {"TARIF" ,   "C",10,0}; //
-    }
+  }
   Local _table2 := {;
      {"SLUCH",    "N", 6,0},; // номер случая
      {"KOD",      "N", 6,0},; // код
@@ -164,7 +164,7 @@ Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
      {"PRVS"    , "C", 9,0},; //
      {"CODE_MD",  "C",16,0},; //
      {"COMENTU" , "C",250,0};  //
-    }
+  }
   Local _table3 := {;
      {"KOD",      "N", 6,0},; // код
      {"ID_PAC",   "C",36,0},; // код записи о пациенте ;GUID пациента в листе учета;создается при добавлении записи
@@ -190,14 +190,14 @@ Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
      {"SNILS",    "C",14,0},; //
      {"OKATOG" ,  "C",11,0},; //
      {"OKATOP",   "C",11,0}; //
-    }
+  }
   Local _table4 := {;
      {"SLUCH",    "N", 6,0},; // номер случая
      {"KOD",      "N", 6,0},; // код
      {"IDCASE",   "C",12,0},; // номер позиции записи в реестре;поле "IDCASE" (и "ZAP") в реестре случаев
      {"CODE_SL",  "C", 5,0},; //
      {"VAL_C",    "C", 6,0};  //
-    }
+  }
   Local _table5 := {;
      {"SLUCH",    "N", 6,0},; // номер случая
      {"KOD",      "N", 6,0},; // код
@@ -214,7 +214,7 @@ Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
      {"NAZ_USL"  ,"C",15,0},;  // шифр услуги
      {"NAZ_PMP" , "C", 3,0},; //
      {"NAZ_PK"  , "C", 3,0}; //
-    }
+  }
   Local _table6 := {;  // онконаправления
      {"SLUCH",    "N", 6,0},; // номер случая
      {"KOD",      "N", 6,0},; // код
@@ -226,7 +226,7 @@ Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
      {"NAPR_V"  , "C", 1,0},; // Вид направления:1-к онкологу,2-на биопсию,3-на дообследование,4-для опр.тактики лечения
      {"MET_ISSL" ,"C", 1,0},; // Метод диагностического исследования(при NAPR_V=3):1-лаб.диагностика;2-инстр.диагностика;3-луч.диагностика;4-КТ, МРТ, ангиография
      {"U_KOD"    ,"C",15,0};  // шифр услуги
-    }
+  }
   Local _table7 := {;  // Диагностический блок
      {"SLUCH",    "N", 6,0},; // номер случая
      {"KOD",      "N", 6,0},; // код
@@ -236,14 +236,14 @@ Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
      {"DIAG_CODE","C", 3,0},; // Код диагностического показателя При DIAG_TIP=1 в соответствии со справочником N007 При DIAG_TIP=2 в соответствии со справочником N010
      {"DIAG_RSLT","C", 3,0},;  // Код результата диагностики При DIAG_TIP=1 в соответствии со справочником N008 При DIAG_TIP=2 в соответствии со справочником N011
      {"REC_RSLT", "C", 1,0};
-    }
+  }
   Local _table8 := {;  // Сведения об имеющихся противопоказаниях
      {"SLUCH",    "N", 6,0},; // номер случая
      {"KOD",      "N", 6,0},; // код
      {"IDCASE",   "C",12,0},; // номер позиции записи в реестре;поле "IDCASE" (и "ZAP") в реестре случаев
      {"PROT"     ,"C", 1,0},; // Код противопоказания или отказа в соответствии со справочником N001
      {"D_PROT"   ,"C",10,0};  // Дата регистрации противопоказания или отказа
-    }
+  }
   Local _table9 := {;  // Сведения об онкологических услугах
      {"SLUCH",    "N", 6,0},; // номер случая
      {"KOD",      "N", 6,0},; // код
@@ -254,7 +254,7 @@ Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
      {"LEK_TIP_V","C", 1,0},; // Цикл лекарственной терапии       При USL_TIP=2 в соответствии со справочником N016
      {"LUCH_TIP" ,"C", 1,0},; // Тип лучевой терапии      При USL_TIP=3,4 в соответствии со справочником N017
      {"PPTR"     ,"C", 1,0};
-    }
+  }
   Local _table10 := {;  // Сведения об онкологических лек.препаратах
      {"SLUCH",    "N", 6,0},; // номер случая
      {"KOD",      "N", 6,0},; // код
@@ -262,8 +262,24 @@ Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
      {"REGNUM",   "C", 6,0},;
      {"CODE_SH" , "C",10,0},;
      {"DATE_INJ" ,"C",10,0};
-    }
+  }
+  Local _table11 := {;  // Сведения лек.препаратах применявшихся при лечении
+    {"SLUCH",    "N",   6, 0},; // номер случая
+    {"KOD",      "N",   6, 0},; // код
+    {"IDCASE",   "C",  12, 0},; // номер позиции записи в реестре;поле "IDCASE" (и "ZAP") в реестре случаев
+    {"DATA_INJ", "C",  10, 0},; // Дата введения лекарственного препарата
+    {"CODE_SH",  "C",  10, 0},; // Код схемы лечения пациента/код группы препарата
+    {"REGNUM",   "C",   6, 0},; // Идентификатор лекарственного препарата
+    {"ED_IZM",   "C",   3, 0},; // Единица измерения дозы лекарственного препарата
+    {"DOSE_INJ", "C",   5, 0},; // Доза введения лекарственного препарата
+    {"METHOD_I", "C",   3, 0},; // Путь введения лекарственного препарата
+    {"COL_INJ",  "C",   5, 0};  // Количество введений в течениедня, указанного в DATA_INJ
+  }
+  // {"COD_MARK",    "C", 100, 0},; // Код маркировки лекарственного препарата
+
+
   Local arr_f, ii, oXmlDoc, j, j1, _ar, buf := save_maxrow(), name_zip := alltrim(mname_xml)+szip, fl := .f., is_old := .f.
+
   //
   DEFAULT flag_tmp1 TO .f., is_all TO .t., goal_dir TO dir_server+dir_XML_MO+cslash
   Private pole
@@ -274,6 +290,7 @@ Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
   if (arr_f := Extract_Zip_XML(goal_dir,name_zip)) != NIL
     fl := .t.
     dbcreate(cur_dir+"tmp_r_t1",_table1)
+    dbcreate(cur_dir+"tmp_r_t1_1",_table1)
     dbcreate(cur_dir+"tmp_r_t2",_table2)
     dbcreate(cur_dir+"tmp_r_t3",_table3)
     dbcreate(cur_dir+"tmp_r_t4",_table4)
@@ -283,7 +300,7 @@ Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
     dbcreate(cur_dir+"tmp_r_t8",_table8)
     dbcreate(cur_dir+"tmp_r_t9",_table9)
     dbcreate(cur_dir+"tmp_r_t10",_table10)
-    dbcreate(cur_dir+"tmp_r_t11",_table1)
+    dbcreate(cur_dir+"tmp_r_t11",_table11)
     use (cur_dir+"tmp_r_t1") new alias T1
     use (cur_dir+"tmp_r_t2") new alias T2
     use (cur_dir+"tmp_r_t3") new alias T3
@@ -295,6 +312,7 @@ Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
     use (cur_dir+"tmp_r_t9") new alias T9
     use (cur_dir+"tmp_r_t10") new alias T10
     use (cur_dir+"tmp_r_t11") new alias T11
+    use (cur_dir+"tmp_r_t1_1") new alias T1_1
     if flag_tmp1
       dbcreate(cur_dir+"tmp1file", {;
        {"_VERSION",   "C",  5,0},;
@@ -408,14 +426,14 @@ Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
                                            ", зак.случай № "+alltrim(t1->IDCASE)+", случай № "+lstr(iisl))
                         exit
                       endif
-                      lal := "t11"
-                      select T11
+                      lal := "t1_1"
+                      select T1_1
                       append blank
-                      t11->kod    := t1->kod
-                      t11->N_ZAP  := t1->N_ZAP
-                      t11->ID_PAC := t1->ID_PAC
-                      t11->IDCASE := t1->IDCASE
-                      t11->ID_C   := t1->ID_C
+                      t1_1->kod    := t1->kod
+                      t1_1->N_ZAP  := t1->N_ZAP
+                      t1_1->ID_PAC := t1->ID_PAC
+                      t1_1->IDCASE := t1->IDCASE
+                      t1_1->ID_C   := t1->ID_C
                     endif
                     &lal.->SL_ID     := mo_read_xml_stroke(oNode11,"SL_ID")
                     &lal.->VID_HMP   := mo_read_xml_stroke(oNode11,"VID_HMP",,.f.)
@@ -437,6 +455,7 @@ Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
                     &lal.->DATE_1    := mo_read_xml_stroke(oNode11,"DATE_1")
                     &lal.->DATE_2    := mo_read_xml_stroke(oNode11,"DATE_2")
                     &lal.->KD        := mo_read_xml_stroke(oNode11,"KD",,.f.)
+                    &lal.->WEI       := mo_read_xml_stroke(oNode3,"WEI", , .f.)
                     &lal.->DS0       := mo_read_xml_stroke(oNode11,"DS0",,.f.)
                     &lal.->DS1       := mo_read_xml_stroke(oNode11,"DS1")
                     &lal.->DS1_PR    := mo_read_xml_stroke(oNode11,"DS1_PR",,.f.) // 2
@@ -632,6 +651,28 @@ Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
                     &lal.->ED_COL := mo_read_xml_stroke(oNode11,"ED_COL",,.f.)
                     &lal.->TARIF  := mo_read_xml_stroke(oNode11,"TARIF",,.f.)
                     &lal.->SUM_M  := mo_read_xml_stroke(oNode11,"SUM_M")
+/////// insert LEK_PR                    
+                    for j1 := 1 to len(oNode11:aitems) // последовательный просмотр лекарственных препаратов
+                      oNode2 := oNode11:aItems[j1]     // т.к. препаратов м.б. несколько
+                      if valtype(oNode2) != "C" .AND. oNode2:title == "LEK_PR"
+                        select T11
+                        append blank
+                        t11->sluch    := iisl
+                        t11->KOD      := mkod
+                        t11->IDCASE   := &lal.->IDCASE // для связи со случаем
+                        t11->DATA_INJ := mo_read_xml_stroke(oNode2,"DATA_INJ")  // Дата введения лекарственного препарата
+                        t11->CODE_SH  := mo_read_xml_stroke(oNode2,"CODE_SH")  // Код схемы лечения пациента/код группы препарата
+                        t11->REGNUM   := mo_read_xml_stroke(oNode2,"REGNUM")  // Идентификатор лекарственного препарата
+                        // t11->COD_MARK    := mo_read_xml_stroke(oNode2,"COD_MARK")
+                        if (oNode3 := oNode2:Find("LEK_DOSE")) != NIL
+                          t11->ED_IZM   := mo_read_xml_stroke(oNode3, "ED_IZM") // Единица измерения дозы лекарственного препарата
+                          t11->DOSE_INJ := mo_read_xml_stroke(oNode3, "DOSE_INJ") // Доза введения лекарственного препарата
+                          t11->METHOD_I := mo_read_xml_stroke(oNode3, "METHOD_INJ") // Путь введения лекарственного препарата
+                          t11->COL_INJ  := mo_read_xml_stroke(oNode3, "COL_INJ") // Количество введений в течении дня, указанного в DATA_INJ
+                        endif
+                      endif
+                    next j1
+////////
                     &lal.->NEXT_VISIT := mo_read_xml_stroke(oNode11,"NEXT_VISIT",,.f.)
                     &lal.->COMENTSL := mo_read_xml_stroke(oNode11,"COMENTSL",,.f.)
                     for j1 := 1 to len(oNode11:aitems) // последовательный просмотр
@@ -659,14 +700,13 @@ Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
                         t2->TARIF    := mo_read_xml_stroke(oNode2,"TARIF")
                         t2->SUMV_USL := mo_read_xml_stroke(oNode2,"SUMV_USL")
 
-                        // добавил по новому ПУМП от 02.08.21
-                        if p_tip_reestr == 2 .and. (xml2date(t1->DATE_Z_2) >= 0d20210801)
+                        if p_tip_reestr == 2 .and. (xml2date(t1->DATE_Z_2) >= 0d20210801) // добавил по новому ПУМП от 02.08.21
                           if (oNode100 := oNode2:Find("MR_USL_N")) != NIL
                             // пока только 1 врач
                             t2->PRVS  := mo_read_xml_stroke(oNode100,"PRVS")
                             t2->CODE_MD  := mo_read_xml_stroke(oNode100,"CODE_MD",,.f.)
                           endif
-                        else
+                        elseif p_tip_reestr == 1 .and. (xml2date(t1->DATE_Z_2) >= d_01_01_2022) // добавил по новому ПУМП от 11.01.22
                           t2->PRVS     := mo_read_xml_stroke(oNode2,"PRVS")
                           t2->CODE_MD  := mo_read_xml_stroke(oNode2,"CODE_MD",,.f.)
                         endif
@@ -722,6 +762,7 @@ Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
       fl := extract_old_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
     endif
     t1->(dbCloseArea())
+    t1_1->(dbCloseArea())
     t2->(dbCloseArea())
     t3->(dbCloseArea())
     t4->(dbCloseArea())

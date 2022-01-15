@@ -816,7 +816,7 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
           if len(arrLP) != 0
             for each row in arrLP
               oLEK := oSL:Add( HXMLNode():New( 'LEK_PR' ) )
-              mo_add_xml_stroke(oLEK, "DATE_INJ", date2xml(row[1]))
+              mo_add_xml_stroke(oLEK, "DATA_INJ", date2xml(row[1]))
               mo_add_xml_stroke(oLEK, "CODE_SH", alltrim(row[2]))
               if ! empty(row[3])
                 mo_add_xml_stroke(oLEK, "REGNUM", alltrim(row[3]))

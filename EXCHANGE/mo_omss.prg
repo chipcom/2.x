@@ -690,8 +690,8 @@ if empty(aerr)
     index on IDCASE+str(sluch,6) to (cur_dir+"tmpt9")
     use (cur_dir+"tmp_r_t10") new alias T10
     index on IDCASE+str(sluch,6)+regnum+code_sh+date_inj to (cur_dir+"tmpt10")
-    use (cur_dir+"tmp_r_t11") new alias T11
-    index on IDCASE to (cur_dir+"tmpt11")
+    use (cur_dir+"tmp_r_t1_1") new alias T1_1
+    index on IDCASE to (cur_dir+"tmpt1_1")
     //
     G_Use(dir_server+"mo_kfio",,"KFIO")
     index on str(kod,7) to (cur_dir+"tmp_kfio")
