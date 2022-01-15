@@ -817,15 +817,15 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
             for each row in arrLP
               oLEK := oSL:Add( HXMLNode():New( 'LEK_PR' ) )
               mo_add_xml_stroke(oLEK, "DATA_INJ", date2xml(row[1]))
-              mo_add_xml_stroke(oLEK, "CODE_SH", alltrim(row[2]))
+              mo_add_xml_stroke(oLEK, "CODE_SH", row[2])
               if ! empty(row[3])
-                mo_add_xml_stroke(oLEK, "REGNUM", alltrim(row[3]))
+                mo_add_xml_stroke(oLEK, "REGNUM", row[3])
                 // mo_add_xml_stroke(oLEK, "CODE_MARK", '')  // для дальнейшего использования
                 oDOSE := oLEK:Add( HXMLNode():New( 'LEK_DOSE' ) )
-                mo_add_xml_stroke(oDOSE, "ED_IZM", alltrim(str(row[4], 3, 0)))
-                mo_add_xml_stroke(oDOSE, "DOSE_INJ", alltrim(str(row[5], 5, 2)))
-                mo_add_xml_stroke(oDOSE, "METHOD_INJ", alltrim(str(row[6], 3, 0)))
-                mo_add_xml_stroke(oDOSE, "COL_INJ", alltrim(str(row[7], 5, 0)))
+                mo_add_xml_stroke(oDOSE, "ED_IZM", str(row[4], 3, 0))
+                mo_add_xml_stroke(oDOSE, "DOSE_INJ", str(row[5], 8, 2))
+                mo_add_xml_stroke(oDOSE, "METHOD_INJ", str(row[6], 3, 0))
+                mo_add_xml_stroke(oDOSE, "COL_INJ", str(row[7], 5, 0))
               endif
             next
           endif

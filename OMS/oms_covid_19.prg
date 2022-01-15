@@ -72,7 +72,7 @@ function oms_sluch_lek_pr(mkod_human, mkod_kartotek, fl_edit)
     {"SCHEDRUG",   "C",   10,     0},; // сочетание схемы лечения и группы препаратов V032
     {"REGNUM"  ,   "C",    6,     0},; // лекарственного препарата
     {"ED_IZM"  ,   "N",    3,     0},; // Единица измерения дозы лекарственного препарата
-    {"DOZE"    ,   "N",    5,     2},; // Доза введения лекарственного препарата
+    {"DOZE"    ,   "N",    8,     2},; // Доза введения лекарственного препарата
     {"METHOD"  ,   "N",    3,     0},; // Путь введения лекарственного препарата
     {"COL_INJ" ,   "N",    5,     0},; // Количество введений в течениедня, указанного в DATA_INJ
     {"COD_MARK",   "C",  100,     0},;  // Код маркировки лекарственного препарата
@@ -251,7 +251,7 @@ function add_lek_pr(dInj, nKey)
 function f2oms_sluch_lek_pr(nKey,oBrow)
 
   LOCAL flag := -1, buf := savescreen(), k_read := 0, count_edit := 0
-  local r1 := 10, ix, number
+  local r1 := 14, ix, number
   local last_date := human->n_data
   local flMany := .f., tDate
 
@@ -262,11 +262,11 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
       private mMNN := .f.
       private arr_lek_pr := {}
       private mdate_u1 := iif(nKey == K_INS, last_date, tmp->DATE_INJ)  // для совместимости с f5editkusl
-      private m1SEVERITY := iif(nKey == K_INS, '', tmp->SEVERITY), mSEVERITY
+      private m1SEVERITY := iif(nKey == K_INS, 0, tmp->SEVERITY), mSEVERITY
       private m1SCHEME := iif(nKey == K_INS, '', tmp->SCHEME), mSCHEME
       private m1SCHEDRUG := iif(nKey == K_INS, '', tmp->SCHEDRUG), mSCHEDRUG
-      private m1UNITCODE := iif(nKey == K_INS, '', tmp->ED_IZM), mUNITCODE
-      private m1METHOD := iif(nKey == K_INS, '', tmp->METHOD), mMETHOD
+      private m1UNITCODE := iif(nKey == K_INS, 0, tmp->ED_IZM), mUNITCODE
+      private m1METHOD := iif(nKey == K_INS, 0, tmp->METHOD), mMETHOD
       private m1REGNUM := iif(nKey == K_INS, '', tmp->REGNUM), mREGNUM
       private mDOZE :=  iif(nKey == K_INS, 0.0, tmp->DOZE)
       private mKOLVO :=  iif(nKey == K_INS, 0, tmp->COL_INJ)
@@ -305,7 +305,8 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
 
         ++ix
         @ r1 + ix,2 say "Степень тяжести состояния" get mSEVERITY ;
-              reader {|x|menu_reader(x, get_severity(), A__MENUVERT,,,.f.)}
+              reader {|x|menu_reader(x, get_severity(), A__MENUVERT,,,.f.)} ;
+              valid {| | m1SEVERITY != 0}
       
         ++ix
         @ r1 + ix,2 say "Схема лечения" get mSCHEME ;
@@ -320,26 +321,29 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
         ++ix
         @ r1 + ix,2 say "Препарат" get mREGNUM ;
             reader {|x|menu_reader(x, arr_lek_pr, A__MENUVERT,,,.f.)} ;
+            valid {|| ! empty(m1REGNUM) } ;
             when mMNN
                 
         ++ix
-        @ r1 + ix,2 say "Доза" get mDOZE picture '999.99' ;
+        @ r1 + ix,2 say "Доза" get mDOZE picture '99999.99' ;
+            valid {|| mDOZE != 0 } ;
             when mMNN
         
         ++ix
         @ r1 + ix,2 say "Единица измерения" get mUNITCODE ;
             reader {|x|menu_reader(x, getV034(), A__MENUVERT,,,.f.)} ;
-            valid {|| mUNITCODE := padr(mUNITCODE, 69), .t. } ;
+            valid {|| mUNITCODE := padr(mUNITCODE, 30), m1UNITCODE != 0 } ;
             when mMNN
         
         ++ix
         @ r1 + ix,2 say "Способ введения" get mMETHOD ;
             reader {|x|menu_reader(x, getMethodINJ(), A__MENUVERT,,,.f.)} ;
-            valid {|| mMETHOD := padr(mMETHOD, 69), .t. } ;
+            valid {|| mMETHOD := padr(mMETHOD, 30), m1METHOD != 0 } ;
             when mMNN
             
         ++ix
         @ r1 + ix,2 say "Количество введений" get mKOLVO picture '99' ;
+            valid {|| mKOLVO != 0 } ;
             when mMNN
                 
         status_key("^<Esc>^ - выход без записи;  ^<PgDn>^ - подтверждение записи")
@@ -414,6 +418,9 @@ Function f5editpreparat(get, when_valid, k)
         fl := func_error(4, "Введенная дата больше даты окончания лечения!")
       endif
     elseif k == 2 // Сочетание схемы лечения препаратам
+      if empty(get:buffer)
+        return .f.
+      endif
       mSCHEDRUG := alltrim(mSCHEDRUG)
       if (arr := get_group_prep_by_kod(substr(m1SCHEDRUG, len(m1SCHEDRUG)), mdate_u1)) != nil
         mMNN := iif(arr[3] == 1, .t., .f.)
@@ -438,7 +445,9 @@ Function f5editpreparat(get, when_valid, k)
         endif
       endif
     elseif k == 3 // схема лечения
-      // mSCHEMECOD := alltrim(mSCHEME)
+      if empty(get:buffer)
+        return .f.
+      endif
       if alltrim(get:buffer) != mSCHEME
         // очистим все
         //// m1SCHEME := ''
