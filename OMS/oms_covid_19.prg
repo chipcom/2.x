@@ -247,7 +247,7 @@ function add_lek_pr(dInj, nKey)
   select tmp
   return nil
 
-****** 12.01.22
+****** 16.01.22
 function f2oms_sluch_lek_pr(nKey,oBrow)
 
   LOCAL flag := -1, buf := savescreen(), k_read := 0, count_edit := 0
@@ -295,12 +295,12 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
         
         if nKey == K_ENTER
           @ r1+ix, 2 say "Дата введения препарата" get mdate_u1 ;
-              valid {| g | f5editpreparat(g, 2, 1)}
+              valid {| g | f5editpreparat(g, nKey, 2, 1)}
         else
           @ r1+ix,2 say "Начало введения препарата" get mdate_u1 ;
-              valid {| g | f5editpreparat(g, 2, 1)}
+              valid {| g | f5editpreparat(g, nKey, 2, 1)}
           @ r1+ix, col() say ", окончание введения препарата" get mdate_end_per ;
-              valid {| g | f5editpreparat(g, 2, 4)}
+              valid {| g | f5editpreparat(g, nKey, 2, 4)}
         endif
 
         ++ix
@@ -311,12 +311,12 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
         ++ix
         @ r1 + ix,2 say "Схема лечения" get mSCHEME ;
             reader {|x|menu_reader(x, get_schemas_lech(m1Severity, mdate_u1), A__MENUVERT,,,.f.)} ;
-            valid {| g | f5editpreparat(g, 2, 3)}
+            valid {| g | f5editpreparat(g, nKey, 2, 3)}
 
         ++ix
         @ r1 + ix,2 say "Сочетание схемы лечения препаратам" get mSCHEDRUG ;
             reader {|x|menu_reader(x, get_group_by_schema_lech(m1SCHEME, mdate_u1), A__MENUVERT,,,.f.)} ;
-            valid {| g | f5editpreparat(g, 2, 2)}
+            valid {| g | f5editpreparat(g, nKey, 2, 2)}
             
         ++ix
         @ r1 + ix,2 say "Препарат" get mREGNUM ;
@@ -399,8 +399,8 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
   restscreen(buf)
   return flag
 
-***** 07.01.22 функция для when и valid при вводе услуг в лист учёта
-Function f5editpreparat(get, when_valid, k)
+***** 16.01.22 функция для when и valid при вводе услуг в лист учёта
+Function f5editpreparat(get, nKey, when_valid, k)
   Local fl := .t., arr, row
   local arrN020 := {}, tmpSelect
   
@@ -416,6 +416,13 @@ Function f5editpreparat(get, when_valid, k)
         fl := func_error(4, "Введенная дата меньше даты начала лечения!")
       elseif !emptyany(human->k_data, mdate_u1) .and. mdate_u1 > human->k_data
         fl := func_error(4, "Введенная дата больше даты окончания лечения!")
+      endif
+      if nKey == K_ENTER
+      elseif nKey == K_INS
+        if mdate_u1 > mdate_end_per
+          mdate_end_per := mdate_u1
+          update_get('mdate_end_per')  
+      endif
       endif
     elseif k == 2 // Сочетание схемы лечения препаратам
       if empty(get:buffer)

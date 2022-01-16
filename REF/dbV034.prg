@@ -11,7 +11,7 @@ function getV034()
     dbUseArea( .t.,, exe_dir + dbName, dbName, .f., .f. )
     (dbName)->(dbGoTop())
     do while !(dbName)->(EOF())
-      aadd(_arr, { alltrim((dbName)->SHORTTIT), (dbName)->UNITCODE, alltrim((dbName)->UNITMEAS), (dbName)->DATEBEG, (dbName)->DATEEND })
+      aadd(_arr, { alltrim((dbName)->SHORTTIT), (dbName)->UNITCODE, (dbName)->DATEBEG, (dbName)->DATEEND, alltrim((dbName)->UNITMEAS) })
       (dbName)->(dbSkip())
     enddo
     (dbName)->(dbCloseArea())
