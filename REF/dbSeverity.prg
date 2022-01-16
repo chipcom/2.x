@@ -13,7 +13,9 @@ function get_severity()
     //  1 - ID(N) 2 - NAME(C) 3 - SYN(C) 4 - SCTID(N) 5 - SORT(N)
     (dbAlias)->(dbGoTop())
     do while !(dbAlias)->(EOF())
-      aadd(_arr, { alltrim((dbAlias)->NAME), (dbAlias)->ID, alltrim((dbAlias)->SYN), (dbAlias)->SCTID, (dbAlias)->SORT })
+      if (dbAlias)->ID <= 4  // пока только до 4 степени тяжести
+        aadd(_arr, { alltrim((dbAlias)->NAME), (dbAlias)->ID, alltrim((dbAlias)->SYN), (dbAlias)->SCTID, (dbAlias)->SORT })
+      endif
       (dbAlias)->(dbSkip())
     enddo
 

@@ -8,13 +8,13 @@ function getV036()
   static _arr := {}
 
   if len(_arr) == 0
-    dbUseArea( .t.,, exe_dir + dbName, dbName, .f., .f. )
-    (dbName)->(dbGoTop())
-    do while !(dbName)->(EOF())
-      aadd(_arr, { alltrim((dbName)->S_CODE), alltrim((dbName)->NAME), (dbName)->PARAM, alltrim((dbName)->COMMENT), (dbName)->DATEBEG, (dbName)->DATEEND })
-      (dbName)->(dbSkip())
+    dbUseArea( .t.,, exe_dir + dbName, dbAlias, .f., .f. )
+    (dbAlias)->(dbGoTop())
+    do while !(dbAlias)->(EOF())
+      aadd(_arr, { alltrim((dbAlias)->S_CODE), alltrim((dbAlias)->NAME), (dbAlias)->PARAM, alltrim((dbAlias)->COMMENT), (dbAlias)->DATEBEG, (dbAlias)->DATEEND })
+      (dbAlias)->(dbSkip())
     enddo
-    (dbName)->(dbCloseArea())
+    (dbAlias)->(dbCloseArea())
     Select(tmp_select)
   endif
 
