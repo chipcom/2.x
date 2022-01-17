@@ -11,7 +11,12 @@ function getV034()
     dbUseArea( .t.,, exe_dir + dbName, dbAlias, .f., .f. )
     (dbAlias)->(dbGoTop())
     do while !(dbAlias)->(EOF())
-      aadd(_arr, { alltrim((dbAlias)->SHORTTIT), (dbAlias)->UNITCODE, (dbAlias)->DATEBEG, (dbAlias)->DATEEND, alltrim((dbAlias)->UNITMEAS) })
+      //aadd(_arr, { alltrim((dbAlias)->SHORTTIT), (dbAlias)->UNITCODE, (dbAlias)->DATEBEG, (dbAlias)->DATEEND, alltrim((dbAlias)->UNITMEAS) })
+      if mem_n_V034 == 0
+         aadd(_arr, { alltrim((dbAlias)->SHORTTIT), (dbAlias)->UNITCODE, (dbAlias)->DATEBEG, (dbAlias)->DATEEND })
+      else
+        aadd(_arr, { alltrim((dbAlias)->UNITMEAS), (dbAlias)->UNITCODE, (dbAlias)->DATEBEG, (dbAlias)->DATEEND })
+      endif  
       (dbAlias)->(dbSkip())
     enddo
     (dbAlias)->(dbCloseArea())

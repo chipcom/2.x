@@ -3573,6 +3573,10 @@ if G_SLock(str_sem)
                         {"Использовать отделение по УМОЛЧАНИЮ",2}}
   Private mm_ort_f39 := {{"Три диагноза + итого протезов",0},;
                          {"Семь диагнозов + уточнение типов протезов",1}}
+  Private mm_v_034 := {{"краткое наименование",0},;
+                         {"полное наименование",1}}               
+  Private mm_v_methodinj := {{"на русском",0},;
+                         {"на английском",1}}                          
   delete file tmp.dbf
   do case
     case nTask == 0 .and. Tools_Ini_OMS(1,0,0,.t.) // настройка на все задачи
@@ -3781,6 +3785,14 @@ if G_SLock(str_sem)
                     "",NIL,;
                     'Каталог баз данных:',,;
                     {||.f.} })
+      aadd(mm_tmp, {"ls_v034","N",1,0,NIL,;
+                    {|x|menu_reader(x,mm_v_034,A__MENUVERT)},;
+                    0,{|x|inieditspr(A__MENUVERT,mm_v_034,x)},;
+                    'Выводить Справочник ФФОМС V034:'})             
+      aadd(mm_tmp, {"ls_method","N",1,0,NIL,;
+                    {|x|menu_reader(x,mm_v_methodinj,A__MENUVERT)},;
+                    0,{|x|inieditspr(A__MENUVERT,mm_v_methodinj,x)},;
+                    'Выводить Справочник ФФОМС ПУТИ ВВЕДЕНИЯ:'})                
       aadd(mm_tmp, {"beg_rees","N",6,0,NIL,;
                     nil,;
                     1,nil,;
@@ -3863,6 +3875,8 @@ if G_SLock(str_sem)
       tmp->bnn_rees  := mem_bnn13rees
       tmp->enn_rees  := mem_enn13rees
       tmp->date_edit := public_date        //
+      tmp->ls_v034   := mem_n_V034
+      tmp->ls_method := mem_methodinj 
       close databases
     case nTask == X_PPOKOJ //  Приёмный покой
       ctitle := "настройке приёмного покоя"
@@ -4107,6 +4121,8 @@ if G_SLock(str_sem)
         mem_bnn13rees:= tmp->bnn_rees
         mem_enn13rees:= tmp->enn_rees
         public_date := tmp->date_edit
+        mem_n_V034  := tmp->ls_v034  
+        mem_methodinj := tmp->ls_method 
         Tools_Ini_OMS(2,0,0)
       case nTask == X_PPOKOJ //  Приёмный покой
         G_Use(dir_server+"pp_nastr",,"MV")
@@ -4268,7 +4284,9 @@ Static arr := {{"okato_umolch",  "C"},;
                {"mem_enn_rees",  "N"},;
                {"mem_bnn13rees", "N"},;
                {"mem_enn13rees", "N"},;
-               {"public_date",   "D"}}
+               {"public_date",   "D"},;
+               {"mem_n_V034",    "N"},;
+               {"mem_methodinj",  "N"}}
 Local name_section := "OMS"
 Local i, j, ta := {}, v, fl
 DEFAULT fll TO .f.
@@ -4465,11 +4483,13 @@ do case
     if ! hb_user_curUser:IsAdmin()
       return func_error(4,err_admin)
     endif
-    DEFAULT arr_spr TO {"V002","V020","V006"}
+    DEFAULT arr_spr TO {"V002","V020","V006","V034","ПУТИ ВВЕДЕНИЯ"}
     DEFAULT arr_spr_name TO {;
       "Классификатор ПРОФИЛЕЙ оказанной медицинской помощи",;
       "Классификатор ПРОФИЛЕЙ КОЙКИ",;
-      "Классификатор УСЛОВИЙ оказания медицинской помощи"}
+      "Классификатор УСЛОВИЙ оказания медицинской помощи",;
+      "Классификатор ЕДИНИЦЫ ИЗМЕРЕНИЯ",;
+      "Классификатор ПУТИ ВВЕДЕНИЯ лекарственных препаратов"}
     for j := 1 to len(arr_spr)
       aadd(mas_pmt, "Настройка "+arr_spr[j])
       aadd(mas_msg, arr_spr_name[j])
@@ -4478,12 +4498,16 @@ do case
     popup_prompt(T_ROW, T_COL+5, sk, mas_pmt, mas_msg, mas_fun)
   case k > 0
     str_sem := "Настройка "+arr_spr[k]
+    if k == 5
+      arr_spr[k] := "MethodINJ"
+    endif  
     if G_SLock(str_sem)
       fnastr_sprav_FFOMS(0,arr_spr[k],arr_spr_name[k])
       G_SUnLock(str_sem)
     else
       func_error(4,err_slock)
     endif
+    arr_spr[k] := "ПУТИ ВВЕДЕНИЯ"
 endcase
 if k > 0
   sk := k
@@ -4495,6 +4519,10 @@ Function fnastr_sprav_FFOMS(k,_n,_m)
 Static sk := 1, _name, _msg
 Local str_sem, mas_pmt, mas_msg, mas_fun, j
 DEFAULT k TO 0
+// ЧТО-БЫ не делать PUBLIC
+Private glob_V034 := getV034()
+Private glob_methodinj := getMethodINJ()
+//
 do case
   case k == 0
     _name := _n ; _msg := _m
@@ -4529,6 +4557,7 @@ return NIL
 Function f1nastr_sprav_FFOMS(reg,_name,_msg)
 Local buf, t_arr[BR_LEN], blk, len1, sKey, i, s, arr, arr1, arr2, fl := .t.
 Private name_arr := "glob_"+_name, ob_kol, p_blk
+
 if !init_tmp_glob_array(,&name_arr,sys_date,_name=="V002")
   return NIL
 endif

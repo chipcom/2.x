@@ -12,7 +12,12 @@ function getMethodINJ()
     (dbAlias)->(dbGoTop())
     do while !(dbAlias)->(EOF())
       if (dbAlias)->TYPE == 'L'
-        aadd(_arr, { alltrim((dbAlias)->NAME_RUS), (dbAlias)->ID, alltrim((dbAlias)->NAME_ENG), (dbAlias)->PARENT, (dbAlias)->TYPE })
+        //aadd(_arr, { alltrim((dbAlias)->NAME_RUS), (dbAlias)->ID,  (dbAlias)->PARENT, (dbAlias)->TYPE })
+        if mem_methodinj == 0
+          aadd(_arr, { alltrim((dbAlias)->NAME_RUS), (dbAlias)->ID, ctod(""),ctod("") , (dbAlias)->PARENT})
+        else
+          aadd(_arr, { alltrim((dbAlias)->NAME_ENG), (dbAlias)->ID, ctod(""), ctod(""),  (dbAlias)->PARENT})  
+        endif  
       endif
       (dbAlias)->(dbSkip())
     enddo
