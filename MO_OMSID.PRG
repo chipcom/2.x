@@ -5,7 +5,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-#define MONTH_UPLOAD 12 //МЕСЯЦ для выгрузки R11
+#define MONTH_UPLOAD 2 //МЕСЯЦ для выгрузки R11
 
 Static lcount_uch  := 1
 Static mas1pmt := {"~все оказанные случаи",;
@@ -2825,9 +2825,8 @@ do case
   case k == 62
     f_view_R01()
   case k == 43
-    ne_real()
-   /*
-   mas_pmt := {"~Создание файлов обмена",;
+    //ne_real()
+    mas_pmt := {"~Создание файлов обмена",;
                 "~Просмотр файлов обмена"}
     mas_msg := {"Создание файлов обмена R11... за конкретный месяц",;
                 "Просмотр файлов обмена R11... и результатов работы с ними"}
@@ -2841,7 +2840,6 @@ do case
     set key K_CTRL_F10 to delete_month_R11()
     popup_prompt(T_ROW,T_COL-5,si7,mas_pmt,mas_msg,mas_fun)
     set key K_CTRL_F10 to
-  */
   case k == 71
     f_create_R11()
   case k == 72
@@ -9050,16 +9048,16 @@ if (arr_m := year_month(,,,5)) != NIL
 endif
 return NIL
 
-***** 19.02.21 Создание файла обмена R11...
+***** 18.01.21 Создание файла обмена R11...
 Function f_create_R11()
 Local buf := save_maxrow(), i, j, ir, s := "", arr := {}, fl := .t., fl1 := .f., a_reestr := {}, ar
-Private SMONTH := 1, mdate := sys_date, mrec := 2
+Private SMONTH := 1, mdate := sys_date, mrec := 1
 Private c_view := 0, c_found := 0, fl_exit := .f., pj, arr_rees := {},;
         pkol := 0, CODE_LPU := glob_mo[_MO_KOD_TFOMS], CODE_MO := glob_mo[_MO_KOD_FFOMS],;
         mkol := {0,0,0,0,0}, skol[5], ames[12,5], ame[12], bm := SMONTH,; // начальный месяц минус один
-        _arr_vozrast_DVN := ret_arr_vozrast_DVN(0d20201201)
+        _arr_vozrast_DVN := ret_arr_vozrast_DVN(0d20211201)
 
-Private sgod := 2021
+Private sgod := 2022
 //
 mywait()
 fl := .t.
@@ -9273,6 +9271,7 @@ if fl_1 // не первый раз
       skip
     enddo
   endif
+  //quit
 else // первый раз
 /*  select REES
   index on str(NMONTH,2)+str(nn,3) to (cur_dir+"tmp_dr01") for NYEAR == sgod .and. tip == 0
