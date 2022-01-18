@@ -147,13 +147,13 @@ Function f_oms_sluch_lek_pr(oBrow)
   // oColumn:colorBlock := blk_color
   // oBrow:addColumn(oColumn)
 
-  oColumn := TBColumnNew("Дата;инекц", ;
+  oColumn := TBColumnNew(" Дата;инекц", ;
       {|| left(dtoc(tmp->DATE_INJ), 5) })
   oColumn:colorBlock := blk_color
   oBrow:addColumn(oColumn)
 
-  oColumn := TBColumnNew("Тяже-;сть  ", ;
-      {|| iif(tmp->SEVERITY == 0, space(5), left(ret_severity_name(tmp->SEVERITY), 5)) })
+  oColumn := TBColumnNew("Тяже-; сть ", ;
+      {|| iif(tmp->SEVERITY == 0, space(5), padr(ret_severity_name(tmp->SEVERITY), 5)) })
   oColumn:colorBlock := blk_color
   oBrow:addColumn(oColumn)
 
@@ -162,28 +162,27 @@ Function f_oms_sluch_lek_pr(oBrow)
   // oColumn:colorBlock := blk_color
   // oBrow:addColumn(oColumn)
 
-  oColumn := TBColumnNew("Тип препарата", ;
-      {|| iif(empty(tmp->SCHEDRUG), space(15), left(ret_schema_V032(tmp->SCHEDRUG), 15)) })
+  oColumn := TBColumnNew("  Тип препарата   ", ;
+      {|| iif(empty(tmp->SCHEDRUG), space(18), padr(ret_schema_V032(tmp->SCHEDRUG), 18)) })
   oColumn:colorBlock := blk_color
   oBrow:addColumn(oColumn)
 
-  oColumn := TBColumnNew("Препарат", ;
-      {|| iif(empty(tmp->REGNUM), space(15), left(get_Lek_pr_By_ID(tmp->REGNUM), 15)) })
+  oColumn := TBColumnNew("     Препарат    ", ;
+      {|| iif(empty(tmp->REGNUM), space(17), padr(get_Lek_pr_By_ID(tmp->REGNUM), 17)) })
   oColumn:colorBlock := blk_color
   oBrow:addColumn(oColumn)
 
-  oColumn := TBColumnNew("Доза",{|| str(tmp->DOZE, 5, 2) })
+  oColumn := TBColumnNew(" Доза",{|| str(tmp->DOZE, 5, 2) })
   oColumn:colorBlock := blk_color
   oBrow:addColumn(oColumn)
 
-  oColumn := TBColumnNew("Единица", ;
-      {|| iif(tmp->ED_IZM == 0, space(10), left(ret_ed_izm_V034(tmp->ED_IZM), 5)) })
+  oColumn := TBColumnNew(" Единица; измер-я", ;
+      {|| iif(tmp->ED_IZM == 0, space(8), padr(ret_ed_izm_V034(tmp->ED_IZM), 8)) })
   oColumn:colorBlock := blk_color
   oBrow:addColumn(oColumn)
-
   
-  oColumn := TBColumnNew("Способ;введения", ;
-      {|| iif(tmp->METHOD == 0, space(10), left(ret_meth_method_inj(tmp->METHOD), 10)) })
+  oColumn := TBColumnNew("  Способ; введения ", ;
+      {|| iif(tmp->METHOD == 0, space(10), padr(ret_meth_method_inj(tmp->METHOD), 10)) })
   oColumn:colorBlock := blk_color
   oBrow:addColumn(oColumn)
 
@@ -270,19 +269,27 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
       private m1REGNUM := iif(nKey == K_INS, '', tmp->REGNUM), mREGNUM
       private mDOZE :=  iif(nKey == K_INS, 0.0, tmp->DOZE)
       private mKOLVO :=  iif(nKey == K_INS, 0, tmp->COL_INJ)
-
+      // ЧТО-БЫ не делать PUBLIC
+      Private glob_V034 := getV034()
+      Private glob_methodinj := getMethodINJ()
+      Private tmp_V034 := create_classif_FFOMS(2,"V034") // UNITCODE
+      Private tmp_MethodINJ := create_classif_FFOMS(2,"MethodINJ") // METHOD
+   
       private mdate_end_per := mdate_u1      // human->k_data
 
       number :=  iif(nKey == K_INS, 0, tmp->NUMBER)
 
-
+      mUNITCODE := space(iif(mem_n_V034==0,15,30))
+      mMETHOD   := space(30)
+      mSCHEDRUG := space(42) 
+      mREGNUM   := space(30) 
       if nKey == K_ENTER
         mSEVERITY := inieditspr(A__MENUVERT, get_severity(), m1SEVERITY)
         mSCHEME := ret_schema_V030(m1SCHEME)
-        mSCHEDRUG := ret_schema_V032(m1SCHEDRUG)
-        mREGNUM := get_Lek_pr_By_ID(m1REGNUM)
-        mUNITCODE := inieditspr(A__MENUVERT, getV034(), m1UNITCODE)
-        mMETHOD := inieditspr(A__MENUVERT, getMethodINJ(), m1METHOD)
+        mSCHEDRUG := padr(ret_schema_V032(m1SCHEDRUG),42)
+        mREGNUM := padr(get_Lek_pr_By_ID(m1REGNUM),30)
+        mUNITCODE := padr(inieditspr(A__MENUVERT, getV034(), m1UNITCODE),iif(mem_n_V034==0,15,30))
+        mMETHOD := padr(inieditspr(A__MENUVERT, getMethodINJ(), m1METHOD),30)
       endif
 
       --r1
@@ -306,7 +313,8 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
         ++ix
         @ r1 + ix,2 say "Степень тяжести состояния" get mSEVERITY ;
               reader {|x|menu_reader(x, get_severity(), A__MENUVERT,,,.f.)} ;
-              valid {| | m1SEVERITY != 0}
+              valid {| g | f5editpreparat(g, nKey, 2, 6)} 
+           //   valid {| | m1SEVERITY != 0}
       
         ++ix
         @ r1 + ix,2 say "Схема лечения" get mSCHEME ;
@@ -321,9 +329,9 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
         ++ix
         @ r1 + ix,2 say "Препарат" get mREGNUM ;
             reader {|x|menu_reader(x, arr_lek_pr, A__MENUVERT,,,.f.)} ;
-            valid {|| ! empty(m1REGNUM) } ;
+            valid {| g | f5editpreparat(g, nKey, 2, 5)} ;
             when mMNN
-                
+             // valid {|| ! empty(m1REGNUM) } ;   
         ++ix
         @ r1 + ix,2 say "Доза" get mDOZE picture '99999.99' ;
             valid {|| mDOZE != 0 } ;
@@ -331,13 +339,13 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
         
         ++ix
         @ r1 + ix,2 say "Единица измерения" get mUNITCODE ;
-            reader {|x|menu_reader(x, getV034(), A__MENUVERT,,,.f.)} ;
-            valid {|| mUNITCODE := padr(mUNITCODE, 30), m1UNITCODE != 0 } ;
+            reader {|x|menu_reader(x, tmp_V034, A__MENUVERT,,,.f.)} ;
+            valid {|| mUNITCODE := padr(mUNITCODE, iif(mem_n_V034==0,15,30)), m1UNITCODE != 0 } ;
             when mMNN
         
         ++ix
         @ r1 + ix,2 say "Способ введения" get mMETHOD ;
-            reader {|x|menu_reader(x, getMethodINJ(), A__MENUVERT,,,.f.)} ;
+            reader {|x|menu_reader(x,tmp_MethodINJ , A__MENUVERT,,,.f.)} ;
             valid {|| mMETHOD := padr(mMETHOD, 30), m1METHOD != 0 } ;
             when mMNN
             
@@ -428,6 +436,25 @@ Function f5editpreparat(get, nKey, when_valid, k)
       if empty(get:buffer)
         return .f.
       endif
+      if alltrim(get:buffer) != mSCHEDRUG
+        // очистим все
+        m1UNITCODE := 0
+        mUNITCODE  := space(iif(mem_n_V034==0,15,30))
+        //
+        mMETHOD    := space(30)
+        m1METHOD   := 0
+        //
+        m1REGNUM   := ''
+        mREGNUM    := space(30)
+        //
+        mDOZE      := 0.0
+        mKOLVO     := 0.0
+        update_get('mUNITCODE')  
+        update_get('mMETHOD')     
+        update_get('mREGNUM')  
+        update_get('mDOZE')  
+        update_get('mKOLVO')
+      endif
       mSCHEDRUG := alltrim(mSCHEDRUG)
       if (arr := get_group_prep_by_kod(substr(m1SCHEDRUG, len(m1SCHEDRUG)), mdate_u1)) != nil
         mMNN := iif(arr[3] == 1, .t., .f.)
@@ -449,6 +476,7 @@ Function f5editpreparat(get, nKey, when_valid, k)
         else
           arr_lek_pr := {}
           arrN020 := {}
+          func_error(1,"У Данной схемы НЕТ МЕДИКАМЕНТОВ!")
         endif
       endif
     elseif k == 3 // схема лечения
@@ -457,24 +485,26 @@ Function f5editpreparat(get, nKey, when_valid, k)
       endif
       if alltrim(get:buffer) != mSCHEME
         // очистим все
-        //// m1SCHEME := ''
-        //// mSCHEME := ''
-        // m1SCHEDRUG := ''
-        // mSCHEDRUG := ''
-        // m1UNITCODE := ''
-        // mUNITCODE := ''
-        // m1METHOD := ''
-        // mMETHOD := ''
-        // m1REGNUM := ''
-        // mREGNUM := ''
-        // mDOZE := 0.0
-        // mKOLVO := 0.0
-        // update_get('mSCHEDRUG')  
-        // update_get('mUNITCODE')  
-        // update_get('mMETHOD')  
-        // update_get('mREGNUM')  
-        // update_get('mDOZE')  
-        // update_get('mKOLVO')  
+         m1UNITCODE := 0
+         mUNITCODE  := space(iif(mem_n_V034==0,15,30))
+         //
+         mMETHOD    := space(30)
+         m1METHOD   := 0
+         //
+         m1SCHEDRUG := ''
+         mSCHEDRUG  := space(42) 
+         //
+         m1REGNUM   := ''
+         mREGNUM    := space(30)
+         //
+         mDOZE      := 0.0
+         mKOLVO     := 0.0
+         update_get('mUNITCODE')  
+         update_get('mMETHOD')  
+         update_get('mSCHEDRUG')  
+         update_get('mREGNUM')  
+         update_get('mDOZE')  
+         update_get('mKOLVO')  
       endif
     elseif k == 4     // Дата окончания периода
       if !emptyany(human->n_data, mdate_end_per) .and. mdate_end_per < human->n_data
@@ -482,6 +512,50 @@ Function f5editpreparat(get, nKey, when_valid, k)
       elseif !emptyany(human->k_data, mdate_end_per) .and. mdate_end_per > human->k_data
         fl := func_error(4, "Введенная дата больше даты окончания лечения!")       
       endif
+    elseif k == 5 //препарат 
+      //! empty(m1REGNUM) 
+      if empty(get:buffer)
+        return .f.
+      endif
+      if alltrim(get:buffer) != mREGNUM
+        // очистим все
+         mDOZE      := 0.0
+         mKOLVO     := 0.0
+         update_get('mDOZE')  
+         update_get('mKOLVO')  
+      endif
+    elseif k == 6 // Степень тяжести состояния
+      //! empty(m1SEVERITY)
+      if empty(get:buffer)
+        return .f.
+      endif
+      if alltrim(get:buffer) != mSEVERITY 
+        // очистим все
+        mSCHEME   := space(10) 
+        m1SCHEME  := ""
+        //
+        m1UNITCODE := 0
+        mUNITCODE  := space(iif(mem_n_V034==0,15,30))
+        //
+        mMETHOD    := space(30)
+        m1METHOD   := 0
+        //
+        m1SCHEDRUG := ''
+        mSCHEDRUG  := space(42) 
+        //
+        m1REGNUM   := ''
+        mREGNUM    := space(30)
+        //
+        mDOZE      := 0.0
+        mKOLVO     := 0.0
+        update_get('mUNITCODE')  
+        update_get('mMETHOD')  
+        update_get('mSCHEDRUG')  
+        update_get('mREGNUM')  
+        update_get('mDOZE')  
+        update_get('mKOLVO')  
+        update_get('mSCHEME') 
+      endif 
     endif
   endif
   return fl
