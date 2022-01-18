@@ -5949,6 +5949,8 @@ do while !eof()
       d2 := 17
     elseif arr_m[1] == 2020 .and. arr_m[3] == 12
       d2 := 18 // или 15
+    elseif arr_m[1] == 2021 .and. arr_m[3] == 12
+      d2 := 14  //Проверить
     endif
     msmo := int(val(schet_->smo))
     fl := between(mdate,boy(arr_m[5]),arr_m[6]+d2) ;// дата регистрации по 10 числа след.месяца
