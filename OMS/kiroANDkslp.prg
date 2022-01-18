@@ -60,7 +60,8 @@ function selectKSLP( lkslp, savedKSLP, dateBegin, dateEnd, DOB, mdiagnoz )
       strArr := sBlank
     endif
 
-    if row[ CODE_KSLP ] == 1  // старше 75 лет
+    if (row[ CODE_KSLP ] == 1 .and. year(dateEnd) == 2021) ;
+        .or. (row[ CODE_KSLP ] == 3 .and. year(dateEnd) == 2022)  // старше 75 лет
       if (age >= 75) .and. isPermissible
         strArr := sAsterisk
       else
@@ -68,7 +69,10 @@ function selectKSLP( lkslp, savedKSLP, dateBegin, dateEnd, DOB, mdiagnoz )
       endif
       strArr += buildStringKSLP(row)
       aadd(t_mas, { strArr, .f., row[ CODE_KSLP ] })
-    elseif row[ CODE_KSLP ] == 3 .and. isPermissible  // место законному представителю
+    elseif ((row[ CODE_KSLP ] == 1 .and. year(dateEnd) == 2022) .or. ;
+        (row[ CODE_KSLP ] == 2 .and. year(dateEnd) == 2022) .or. ;
+        (row[ CODE_KSLP ] == 3 .and. year(dateEnd) == 2021)) ;
+        .and. isPermissible  // место законному представителю
       if (age < 4)
         strArr := sAsterisk
         strArr += buildStringKSLP(row)
@@ -79,7 +83,7 @@ function selectKSLP( lkslp, savedKSLP, dateBegin, dateEnd, DOB, mdiagnoz )
         strArr += buildStringKSLP(row)
       endif
       aadd(t_mas, { strArr, (age < 18), row[ CODE_KSLP ] })
-    elseif row[ CODE_KSLP ] == 4 .and. isPermissible  // иммунизация РСВ
+    elseif (row[ CODE_KSLP ] == 4 .and. year(dateEnd) == 2021) .and. isPermissible  // иммунизация РСВ
       if (age < 18)
         strArr += buildStringKSLP(row)
       else
@@ -87,7 +91,7 @@ function selectKSLP( lkslp, savedKSLP, dateBegin, dateEnd, DOB, mdiagnoz )
         strArr += buildStringKSLP(row)
       endif
       aadd(t_mas, { strArr, (age < 18), row[ CODE_KSLP ] })
-    elseif row[ CODE_KSLP ] == 9 // есть сопутствующие заболевания
+    elseif (row[ CODE_KSLP ] == 9 .and. year(dateEnd) == 2021) // есть сопутствующие заболевания
       fl := conditionKSLP_9_21(, DToC(DOB), DToC(dateBegin),,,, arr2SlistN(mdiagnoz),)
       if !fl
         strArr := sBlank
@@ -96,7 +100,7 @@ function selectKSLP( lkslp, savedKSLP, dateBegin, dateEnd, DOB, mdiagnoz )
       endif
       strArr += buildStringKSLP(row)
       aadd(t_mas, { strArr, fl, row[ CODE_KSLP ] })
-    elseif row[ CODE_KSLP ] == 10 .and. isPermissible // лечение свыше 70 дней согласно инструкции
+    elseif (row[ CODE_KSLP ] == 10 .and. year(dateEnd) == 2021) .and. isPermissible // лечение свыше 70 дней согласно инструкции
       strArr := iif(srok > 70, sAsterisk, sBlank)
       strArr += buildStringKSLP(row)
       aadd(t_mas, { strArr, .f., row[ CODE_KSLP ] })
@@ -206,7 +210,7 @@ Function f_cena_kiro(/*@*/_cena, lkiro, dateSl )
   _cena := round_5(_cena * _akiro[2], 0)  // округление до рублей с 2019 года
   return _akiro
 
-***** 13.01.22 определить коэф-т сложности лечения пациента и пересчитать цену
+***** 18.01.22 определить коэф-т сложности лечения пациента и пересчитать цену
 Function f_cena_kslp(/*@*/_cena,_lshifr,_date_r,_n_data,_k_data,lkslp,arr_usl,lPROFIL_K,arr_diag,lpar_org,lad_cr)
   Static s_1_may := 0d20160430, s_18 := 0d20171231, s_19 := 0d20181231
   static s_20 := 0d20201231
@@ -246,7 +250,7 @@ Function f_cena_kslp(/*@*/_cena,_lshifr,_date_r,_n_data,_k_data,lkslp,arr_usl,lP
     "'" + arr2SlistN(arr_diag) + "'," + lstr(countDays) + ')'
 
     for each row in getKSLPtable( _k_data )
-      nameFunc := 'conditionKSLP_' + alltrim(str(row[1],2)) + '_21'
+      nameFunc := 'conditionKSLP_' + alltrim(str(row[1],2)) + '_' + last_digits_year(_n_data)
       nameFunc := namefunc + argc
 
       if ascan( lkslp, row[1]) > 0 .and. &nameFunc
@@ -261,7 +265,9 @@ Function f_cena_kslp(/*@*/_cena,_lshifr,_date_r,_n_data,_k_data,lkslp,arr_usl,lP
 
     // установим цену с учетом КСЛП
     if !empty(_akslp)
+
       _cena := round_5(_cena*ret_koef_kslp_21(_akslp),0)  // с 2019 года цена округляется до рублей
+      
       if year(_k_data) >= 2021
         // запомним новое КСЛП
         tmSel := select('HUMAN_2')

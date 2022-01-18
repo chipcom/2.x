@@ -1,7 +1,7 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-// 30.11.21
+// 18.01.22
 // возвращает массив КСЛП на указанную дату
 function getKSLPtable( dateSl )
   Local dbName, dbAlias := 'KSLP_'
@@ -33,6 +33,7 @@ function getKSLPtable( dateSl )
       (dbAlias)->(dbSkip())
     enddo
     (dbAlias)->(dbCloseArea())
+    asort(aKSLP,,,{|x,y| x[1] < y[1] })
 
     Select(tmp_select)
     // поместим в ХЭШ-массив
@@ -51,7 +52,7 @@ function getKSLPtable( dateSl )
   endif
   return retKSLP
 
-***** 30.11.21 
+***** 18.01.22 
 // возвращает массив КИРО на указанную дату
 function getKIROtable( dateSl )
   Local dbName, dbAlias := 'KIRO_'
@@ -83,6 +84,7 @@ function getKIROtable( dateSl )
       (dbAlias)->(dbSkip())
     enddo
     (dbAlias)->(dbCloseArea())
+    asort(aKIRO,,,{|x,y| x[1] < y[1] })
 
     Select(tmp_select)
     // поместим в ХЭШ-массив

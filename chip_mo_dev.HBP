@@ -187,6 +187,7 @@ mo_version.prg
 .\oms\Change_Cena_OMS.prg
 .\oms\verify_1_sluch.prg
 .\oms\conditionKSLP_21.prg
+.\oms\conditionKSLP_22.prg
 .\oms\diagnoze.prg
 .\oms\mo_oms131.prg
 .\oms\errorFromTFOMS.prg
