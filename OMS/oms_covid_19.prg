@@ -246,13 +246,14 @@ function add_lek_pr(dInj, nKey)
   select tmp
   return nil
 
-****** 16.01.22
+****** 18.01.22
 function f2oms_sluch_lek_pr(nKey,oBrow)
 
   LOCAL flag := -1, buf := savescreen(), k_read := 0, count_edit := 0
   local r1 := 14, ix, number
   local last_date := human->n_data
   local flMany := .f., tDate
+  local arr_dni, row
 
   do case
     case nKey == K_F9
@@ -361,14 +362,13 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
           if nKey == K_INS    // добавление
             flMany := (mdate_end_per > mdate_u1)
             if flMany
-              // добавим пакетом лекарственные препараты
-              tDate := mdate_u1
-              do while tDate <= mdate_end_per
-                add_lek_pr(tDate, nKey)
-                last_date := max(tmp->DATE_INJ, last_date)
-                      
-                tDate := tDate + 1  // увеличим дату на 1 день
-              enddo
+                // добавим пакетом лекарственные препараты
+              if (arr_dni := select_arr_days(mdate_u1, mdate_end_per)) != NIL
+                for each row in arr_dni
+                  add_lek_pr(row[2], nKey)
+                  last_date := max(tmp->DATE_INJ, last_date)
+                next
+              endif
             else
               add_lek_pr(mdate_u1, nKey)
               last_date := max(tmp->DATE_INJ, last_date)
@@ -599,4 +599,3 @@ Function check_edit_field(get, when_valid, k)
     endif
   endif
   return fl
-

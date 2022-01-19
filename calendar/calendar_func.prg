@@ -236,4 +236,22 @@ Function input_year()
   end_date := dtoc4(eom(c4tod(end_date)))
   return {ky, 1, 12, "за"+str(ky,5)+" год", c4tod(begin_date), c4tod(end_date), begin_date, end_date}
   
+***** 18.01.22 функция выбора используемых дат из диапазона
+function select_arr_days(begin_date, end_date)
+**** begin_date: начало диапазона
+**** end_date: конец диапазона
+**** возвращаемое значение: двумерный массив выбранных дат (1 колонка-дата в формате строки, 2 колонка-дата в формате даты), или NIL
+  local arr, arr1
+  local d, r
   
+  if end_date >= begin_date
+    arr1 := {}
+    for d := begin_date to end_date
+      aadd(arr1, {date_8(d), d})
+    next
+    if (r := 21 - len(arr1)) < 2
+      r := 2
+    endif
+    arr := bit_popup(r, 63, arr1, , color5)
+  endif
+  return arr
