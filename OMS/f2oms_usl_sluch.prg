@@ -646,8 +646,8 @@ Function f2oms_usl_sluch(nKey,oBrow)
             else
               mvu[2,2] += count_edit
             endif
-            // if (aImpl := ret_impl_V036(mshifr, mdate_u1)) != NIL
-            //   use_base("human_im")
+            if (nKey == K_INS) .and. ((aImpl := ret_impl_V036(mshifr, mdate_u1)) != NIL)
+              use_base("human_im")
             //   if flExistImplant
             //     find (str(arrImplant[1], 7))
             //     if IMPL->(found())
@@ -659,14 +659,14 @@ Function f2oms_usl_sluch(nKey,oBrow)
             //       UNLOCK
             //     endif
             //   else
-            //     Add1Rec(7)
-            //     IMPL->KOD_HUM   := arrImplant[1]
-            //     IMPL->DATE_UST  := arrImplant[2]
-            //     IMPL->RZN       := arrImplant[3]
-            //     // IMPL->SER_NUM    := arrImplant[4]
+                AddRec(7)
+                IMPL->KOD_HUM   := arrImplant[1]
+                IMPL->DATE_UST  := arrImplant[2]
+                IMPL->RZN       := arrImplant[3]
+                // IMPL->SER_NUM    := arrImplant[4]
             //   endif
-            //   IMPL->(dbCloseArea())
-            // endif
+              IMPL->(dbCloseArea())
+            endif
             if nKey == K_INS .and. len(pr_k_usl) > 0
               // комплексная услуга
               for i := 1 to len(pr_k_usl)
@@ -958,6 +958,7 @@ Function f2oms_usl_sluch(nKey,oBrow)
       aksg := f_usl_definition_KSG(human->kod)
       summa_usl()
       vr_pr_1_den(1,,u_other)
+      delete_implantant(human->kod)
       select TMP
       oBrow:goTop()
       go top

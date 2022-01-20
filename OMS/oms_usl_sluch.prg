@@ -4,19 +4,21 @@
 #include "chip_mo.ch"
 
 
-***** 02.01.22 ввод услуг в случай (лист учёта)
+***** 20.01.22 ввод услуг в случай (лист учёта)
 Function oms_usl_sluch(mkod_human,mkod_kartotek,fl_edit)
   // mkod_human - код по БД human
   // mkod_kartotek - код по БД kartotek
   Local adbf, buf := savescreen(), i, j := 0, tmp_color := setcolor(color1), rec_ksg := 0,;
         lshifr := "", l_color, tmp_help, mtitle, d1, d2, cd1, cd2, fl_oms, fl, kol_rec, old_is_zf_stomat
+  local begin_row
+
   DEFAULT fl_edit TO .t.
   //
   Private fl_edit_usl := fl_edit
   Private fl_found, last_date, mvu[3,2], pr1otd, pr_amb_reab := .f.,;
           pr_arr := {}, pr_arr_otd := {}, pr1arr_otd := {}, is_1_vvod,;
           kod_lech_vr := 0, is_open_u1 := .f., arr_uva := {}, arr_usl1year, u_other := {}
-  // private flExistImplant := .f., arrImplant
+  private arrImplant
 
   afillall(mvu,0)
   //
@@ -92,16 +94,6 @@ Function oms_usl_sluch(mkod_human,mkod_kartotek,fl_edit)
     skip
   enddo
   //
-  // проверим наличие имплантов
-  // Use_base("human_im")
-  // find (str(mkod_human, 7))
-  // if IMPL->(found())
-  //   flExistImplant := .t.
-  //   arrImplant := {IMPL->KOD_HUM, IMPL->DATE_UST, IMPL->RZN, ''}  //, IMPL->SER_NUM}
-  // else
-  //   arrImplant := {mkod_human, stod('  /  /    '), 0, ''}
-  // endif
-  // IMPL->(dbCloseArea())
 
   //
   adbf := {;
@@ -291,10 +283,22 @@ Function oms_usl_sluch(mkod_human,mkod_kartotek,fl_edit)
     endif
   endif
   cls
+
+
   pr_1_str("Услуги для < "+fio_plus_novor()+" >")
   if yes_num_lu == 1
     @ 1,50 say padl("Лист учета № "+lstr(human->kod),29) color color14
   endif
+
+  // проверим наличие имплантов
+  arrImplant := check_implantant(mkod_human)
+  if arrImplant != NIL
+    begin_row := 3
+    @ 2,49 say padl('Пациенту установлен имплантант', 30) color 'W+/R'
+  else
+    begin_row := 2
+  endif
+  
   l_color := "W+/B,W+/RB,BG+/B,BG+/RB,G+/B,GR+/B"
   s := "Полное наименование услуги"
   if is_zf_stomat == 1
@@ -312,9 +316,9 @@ Function oms_usl_sluch(mkod_human,mkod_kartotek,fl_edit)
   tmp_help := chm_help_code
   chm_help_code := 3003
   mtitle := f_srok_lech(human->n_data,human->k_data,human_->usl_ok)
-  Alpha_Browse(2,0,maxrow()-5,79,"f_oms_usl_sluch",color1,mtitle,col_tit_popup,;
-               .f.,.t.,,"f1oms_usl_sluch","f2oms_usl_sluch",,;
-               {"═","░","═",l_color,.t.,180} )
+  Alpha_Browse(begin_row, 0, maxrow() - 5, 79, "f_oms_usl_sluch", color1, mtitle, col_tit_popup, ;
+               .f., .t., , "f1oms_usl_sluch", "f2oms_usl_sluch", , ;
+               {"═", "░", "═", l_color, .t., 180} )
   select TMP
   pack
   kol_rec := lastrec()

@@ -195,6 +195,7 @@ mo_version.prg
 .\oms\TFOMS_hodatajstvo.prg
 .\oms\verifyOMS.prg
 .\oms\oms_covid_19.prg
+.\oms\oms_implantant.prg
 
 .\onkologiya\onko.prg
 
