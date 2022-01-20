@@ -195,6 +195,7 @@ mo_version.prg
 .\oms\verifyOMS.prg
 .\oms\oms_covid_19.prg
 .\oms\oms_implantant.prg
+.\oms\oms_ser_number.prg
 
 .\onkologiya\onko.prg
 

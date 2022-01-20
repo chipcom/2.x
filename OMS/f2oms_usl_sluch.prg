@@ -647,25 +647,9 @@ Function f2oms_usl_sluch(nKey,oBrow)
               mvu[2,2] += count_edit
             endif
             if (nKey == K_INS) .and. ((aImpl := ret_impl_V036(mshifr, mdate_u1)) != NIL)
-              use_base("human_im")
-            //   if flExistImplant
-            //     find (str(arrImplant[1], 7))
-            //     if IMPL->(found())
-            //       G_RLock(forever)
-            //       IMPL->KOD_HUM   := arrImplant[1]
-            //       IMPL->DATE_UST  := arrImplant[2]
-            //       IMPL->RZN       := arrImplant[3]
-            //       // IMPL->SER_NUM    := arrImplant[4]
-            //       UNLOCK
-            //     endif
-            //   else
-                AddRec(7)
-                IMPL->KOD_HUM   := arrImplant[1]
-                IMPL->DATE_UST  := arrImplant[2]
-                IMPL->RZN       := arrImplant[3]
-                // IMPL->SER_NUM    := arrImplant[4]
-            //   endif
-              IMPL->(dbCloseArea())
+              if arrImplant != nil
+                save_implantant(arrImplant)
+              endif
             endif
             if nKey == K_INS .and. len(pr_k_usl) > 0
               // комплексная услуга

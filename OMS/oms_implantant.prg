@@ -49,7 +49,7 @@ function select_impl(date_ust, rzn, ser_num)
 	
 		myread()
 		if lastkey() != K_ESC .and. m1VIDIMPL != 0
-      ret := {mDATE_INST, m1VIDIMPL, mNUMBER}
+      ret := {mDATE_INST, m1VIDIMPL, alltrim(mNUMBER)}
 			exit
 		else
 			exit
@@ -66,25 +66,59 @@ function select_impl(date_ust, rzn, ser_num)
 ****** 20.01.22 вернуть имплантант в листе учета
 function check_implantant(mkod_human)
   local tmpSelect := select()
-  local arrImplantant
+  local arrImplantant, ser_num
 
   Use_base("human_im")
   find (str(mkod_human, 7))
   if IMPL->(found())
-    arrImplantant := {IMPL->KOD_HUM, IMPL->DATE_UST, IMPL->RZN, ''}  //, IMPL->SER_NUM}
+    // найти серийный номер если есть
+    ser_num := chek_implantant_ser_number(IMPL->(recno()))
+    // создать массив
+    arrImplantant := {IMPL->KOD_HUM, IMPL->KOD_K, IMPL->DATE_UST, IMPL->RZN, iif(ser_num != nil, ser_num, '')}
   endif
   IMPL->(dbCloseArea())
   select(tmpSelect)
   return arrImplantant
 
-****** 20.01.22 вернуть имплантант в листе учета
+****** 20.01.22 удалить имплантант в листе учета
 function delete_implantant(mkod_human)
   local tmpSelect := select()
 
   Use_base("human_im")
   find (str(mkod_human, 7))
   if IMPL->(found())
-    DeleteRec(.t.,.t.)  // очистка записи без пометки на удаление
+    // вначале удалить серийный номер если есть
+    delete_implantant_ser_number(IMPL->(recno()))
+    DeleteRec(.t.,.t.)  // очистка записи с пометкой на удаление
+  endif
+  IMPL->(dbCloseArea())
+  select(tmpSelect)
+  return nil
+
+****** 20.01.22 сохранить имплантант в БД учета
+function save_implantant(arrImplantant)
+  local tmpSelect := select()
+
+  Use_base("human_im")
+  find (str(arrImplantant[1], 7))
+  if IMPL->(found())
+    G_RLock(forever)
+    IMPL->KOD_HUM   := arrImplantant[1]
+    IMPL->KOD_K     := arrImplantant[2]
+    IMPL->DATE_UST  := arrImplantant[3]
+    IMPL->RZN       := arrImplantant[4]
+    UNLOCK
+    // сохранить серийный номер если есть
+  else
+    AddRec(7)
+    IMPL->KOD_HUM   := arrImplantant[1]
+    IMPL->KOD_K     := arrImplantant[2]
+    IMPL->DATE_UST  := arrImplantant[3]
+    IMPL->RZN       := arrImplantant[4]
+  endif
+  if ! empty(arrImplantant[5])
+    // сохранить серийный номер если есть
+    save_implantant_ser_number(IMPL->(recno()), arrImplantant[5])
   endif
   IMPL->(dbCloseArea())
   select(tmpSelect)
