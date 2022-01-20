@@ -294,7 +294,7 @@ Function oms_usl_sluch(mkod_human,mkod_kartotek,fl_edit)
   arrImplant := check_implantant(mkod_human)
   if arrImplant != NIL
     begin_row := 3
-    @ 2,49 say padl('Пациенту установлен имплантант', 30) color 'W+/R'
+    @ 2, 39 say padl('Пациенту установлен имплантант. F6 - ред.', 41) color 'W+/R'
   else
     begin_row := 2
   endif

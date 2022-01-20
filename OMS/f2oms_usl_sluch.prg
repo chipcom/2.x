@@ -952,6 +952,8 @@ Function f2oms_usl_sluch(nKey,oBrow)
       flag := 0
       restscreen(buf)
       f3oms_usl_sluch()
+    case (nKey == K_F6) .and. (arrImplant != NIL)
+      hb_alert('No real')
     otherwise
       keyboard ""
   endcase
