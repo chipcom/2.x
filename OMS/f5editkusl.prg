@@ -3,16 +3,12 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 02.01.22 функция для when и valid при вводе услуг в лист учёта
+***** 21.01.22 функция для when и valid при вводе услуг в лист учёта
 Function f5editkusl(get,when_valid,k)
   Local fl := .t., s, i, lu_cena, lshifr1, v, old_kod, amsg, fl1, fl2, ;
         msg1_err := "Код врача равен коду ассистента! Это недопустимо.",;
         msg2_err := "Сотрудника с таким кодом нет в базе данных персонала!",;
         blk_sum := {|| mstoim_1 := round_5(mu_cena * mkol_1, 2) }
-  local aOptions :=  { 'Нет', 'Да' }, nChoice
-
-  // local aImpl
-  // local l_impl
 
   if when_valid == 1    // when
     if k == 2     // Шифр услуги
@@ -107,15 +103,6 @@ Function f5editkusl(get,when_valid,k)
         select LUSLF
         find (padr(mshifr,20))
         if found() .and. alltrim(mshifr) == alltrim(luslf->shifr)
-          if (c4tod(TMP->DATE_U2) >= d_01_01_2022) .and. ((aImpl := ret_impl_V036(mshifr, c4tod(TMP->DATE_U2))) != NIL)
-            if arrImplant == NIL  // имплантант отсутствует
-              if (nChoice := hb_Alert('Для данной услуги предусмотрен имплантант. Добавляем?', aOptions)) == 2
-                if (l_impl := select_impl()) != NIL
-                  arrImplant := {human->kod, human->kod_k, l_impl[1], l_impl[2], l_impl[3]}
-                endif
-              endif
-            endif
-          endif
           is_usluga_zf := luslf->zf
           tip_onko_napr := luslf->onko_napr
           tip_onko_ksg := luslf->onko_ksg

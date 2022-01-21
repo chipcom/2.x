@@ -17,6 +17,8 @@ Function f2oms_usl_sluch(nKey,oBrow)
   Local mm_dom := {{"в поликлинике", 0},;
                    {"на дому      ",-1}}
   local tmSel
+  local aOptions :=  { 'Нет', 'Да' }, nChoice
+  local l_impl, aImpl
 
   if mem_dom_aktiv == 1
        aadd(mm_dom,{"на дому-АКТИВ",-2})
@@ -598,6 +600,16 @@ Function f2oms_usl_sluch(nKey,oBrow)
         // чтение введенной информации
         count_edit := myread(,,++k_read)
 
+        if (mdate_u1 >= d_01_01_2022) .and. ((aImpl := ret_impl_V036(mshifr, mdate_u1)) != NIL)
+          if arrImplant == NIL  // имплантант отсутствует
+            if (nChoice := hb_Alert('Для данной услуги предусмотрен имплантант. Добавляем?', aOptions)) == 2
+              if (l_impl := select_implantant(mdate_u1)) != NIL
+                arrImplant := {human->kod, human->kod_k, l_impl[1], l_impl[2], l_impl[3]}
+              endif
+            endif
+          endif
+        endif
+  
         SetKey( K_F2, NIL )
         SetKey( K_F3, NIL )
         SetKey( K_F5, NIL )
@@ -953,7 +965,13 @@ Function f2oms_usl_sluch(nKey,oBrow)
       restscreen(buf)
       f3oms_usl_sluch()
     case (nKey == K_F6) .and. (arrImplant != NIL)
-      hb_alert('No real')
+      aImpl := select_implantant(arrImplant[3], arrImplant[4], arrImplant[5])
+      if aImpl != nil
+        arrImplant[3] := aImpl[1]
+        arrImplant[4] := aImpl[2]
+        arrImplant[5] := aImpl[3]
+        save_implantant(arrImplant)
+      endif
     otherwise
       keyboard ""
   endcase

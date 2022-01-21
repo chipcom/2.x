@@ -3,13 +3,13 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-****** 20.01.22 - выбор импланта
-function select_impl(date_ust, rzn, ser_num)
+****** 21.01.22 - выбор импланта
+function select_implantant(date_ust, rzn, ser_num)
   local ret := NIL, oBox
   local buf, tmp_keys, iRow
   local sPicture
 
-  private mVIDIMPL := 0, m1VIDIMPL := 0  //iif(nKey == K_INS, human_->profil, tmp->profil)
+  private mVIDIMPL := '', m1VIDIMPL := 0
   private mDATE_INST, mNUMBER
 
   default date_ust to sys_date
@@ -18,9 +18,9 @@ function select_impl(date_ust, rzn, ser_num)
 
   mDATE_INST := date_ust
   m1VIDIMPL := rzn
-  mNUMBER := ser_num
+  mNUMBER := padr(ser_num, 100)
 
-  mVIDIMPL := padr(inieditspr(A__MENUVERT, get_implant(), m1VIDIMPL), 69)
+  mVIDIMPL := padr(inieditspr(A__MENUVERT, get_implant(), m1VIDIMPL), 44)
 
 	buf := savescreen()
 	change_attr()
@@ -41,8 +41,8 @@ function select_impl(date_ust, rzn, ser_num)
     @ ++iRow, 12 say "Дата установки" get mDATE_INST
 
 		@ ++iRow, 12 say 'Вид импланта:' get mVIDIMPL ;
-          reader {|x| menu_reader(x,get_implant(), A__MENUVERT, , , .f.)} ;
-          valid {|| mVIDIMPL := padr(mVIDIMPL, 69), .t. }
+          reader {|x| menu_reader(x, get_implant(), A__MENUVERT, , , .f.)} ;
+          valid {|| mVIDIMPL := padr(mVIDIMPL, 44), .t. }
 
     sPicture := '@S40'
 		@ ++iRow, 12 say 'Серийный номер:' get mNUMBER picture sPicture //;
