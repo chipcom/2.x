@@ -11,6 +11,7 @@ Function create_schet19_from_XML(arr_XML_info,aerr,fl_msg,arr_s,name_sp_tk)
         CODE_LPU := glob_mo[_MO_KOD_TFOMS], code_schet, mb, me, nsh,;
         CODE_MO  := glob_mo[_MO_KOD_FFOMS], s1
   local controlVer
+  local tmpSelect
 
   DEFAULT fl_msg TO .t., arr_s TO {}
   Private pole
@@ -30,6 +31,8 @@ Function create_schet19_from_XML(arr_XML_info,aerr,fl_msg,arr_s,name_sp_tk)
   use (cur_dir+"tmp_r_t8") new index (cur_dir+"tmpt8") alias T8
   use (cur_dir+"tmp_r_t9") new index (cur_dir+"tmpt9") alias T9
   use (cur_dir+"tmp_r_t10") new index (cur_dir+"tmpt10") alias T10
+  use (cur_dir+"tmp_r_t11") new index (cur_dir+"tmpt11") alias T11
+  use (cur_dir+"tmp_r_t12") new index (cur_dir+"tmpt12") alias T12
   use (cur_dir+"tmp_r_t1_1") new index (cur_dir+"tmpt1_1") alias T1_1
   R_Use(dir_server+"mo_pers",,"PERS")
   R_Use(dir_server+"mo_otd",,"OTD")
@@ -920,6 +923,20 @@ Function create_schet19_from_XML(arr_XML_info,aerr,fl_msg,arr_s,name_sp_tk)
             mo_add_xml_stroke(oUSL,"KOL_USL" ,t2->KOL_USL)
             mo_add_xml_stroke(oUSL,"TARIF"   ,t2->TARIF)
             mo_add_xml_stroke(oUSL,"SUMV_USL",t2->SUMV_USL)
+
+            if p_tip_reestr == 1 .and. (xml2date(t1->DATE_Z_2) >= 0d20220101) // добавил по новому ПУМП от 18.01.22
+              // имплантант
+              tmpSelect := select()                            
+              select T12
+              find (t12->IDCASE + str(isl, 6))
+              do while t12->IDCASE == t12->IDCASE .and. isl == t12->sluch .and. !eof()
+                oIMPLANT := oUSL:Add( HXMLNode():New( "MED_DEV" ) )
+                mo_add_xml_stroke(oIMPLANT, "DATE_MED", T12->DATE_MED)
+                mo_add_xml_stroke(oIMPLANT, "CODE_MEDDEV", T12->CODE_DEV)
+                mo_add_xml_stroke(oIMPLANT, "NUMBER_SER", T12->NUM_SER)
+              enddo
+              select(tmpSelect)
+            endif
 
             // добавил по новому ПУМП от 02.08.2021
             if p_tip_reestr == 2 .and. (xml2date(t1->DATE_Z_2) >= 0d20210801)

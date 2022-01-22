@@ -2959,6 +2959,10 @@ if G_SLock1Task(sem_task,sem_vagno) // запрет доступа всем
       index on IDCASE+str(sluch,6) to (cur_dir+"tmpt9")
       use (cur_dir+"tmp_r_t10") new alias T10
       index on IDCASE+str(sluch,6)+regnum+code_sh+date_inj to (cur_dir+"tmpt10")
+      use (cur_dir+"tmp_r_t11") new alias T11
+      index on IDCASE+str(sluch,6) to (cur_dir+"tmpt11")
+      use (cur_dir+"tmp_r_t12") new alias T12
+      index on IDCASE+str(sluch,6) to (cur_dir+"tmpt12")
       use (cur_dir+"tmp_r_t1_1") new alias T1_1
       index on IDCASE to (cur_dir+"tmpt1_1")
       use (cur_dir+"tmp2file") new alias TMP2

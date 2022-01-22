@@ -3,9 +3,10 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 15.01.22 вынуть реестр из XML-файлов и записать во временные DBF-файлы
+***** 21.01.22 вынуть реестр из XML-файлов и записать во временные DBF-файлы
 Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
   local p_tip_reestr
+  local tmpSelect
   Local _table1 := {;
      {"KOD",      "N", 6,0},; // код
      {"N_ZAP",    "C",12,0},; // номер позиции записи в реестре;поле "IDCASE" (и "ZAP") в реестре случаев
@@ -276,6 +277,14 @@ Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
     {"COL_INJ",  "C",   5, 0};  // Количество введений в течениедня, указанного в DATA_INJ
   }
   // {"COD_MARK",    "C", 100, 0},; // Код маркировки лекарственного препарата
+  Local _table12 := {;  // Сведения об установленных имплантантах при лечении
+    {"SLUCH",    "N",   6, 0},; // номер случая
+    {"KOD",      "N",   6, 0},; // код
+    {"IDCASE",   "C",  12, 0},; // номер позиции записи в реестре;поле "IDCASE" (и "ZAP") в реестре случаев
+    {"DATE_MED", "C",  10, 0},; // Дата установки имплантанта
+    {"CODE_DEV", "C",  10, 0},; // Код вида медицинского изделия (имплантанта)
+    {"NUM_SER",  "C", 100, 0}; // Серийный номер медицинского изделия (имплантанта)
+  }
 
 
   Local arr_f, ii, oXmlDoc, j, j1, _ar, buf := save_maxrow(), name_zip := alltrim(mname_xml)+szip, fl := .f., is_old := .f.
@@ -301,6 +310,7 @@ Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
     dbcreate(cur_dir+"tmp_r_t9",_table9)
     dbcreate(cur_dir+"tmp_r_t10",_table10)
     dbcreate(cur_dir+"tmp_r_t11",_table11)
+    dbcreate(cur_dir+"tmp_r_t12",_table12)
     use (cur_dir+"tmp_r_t1") new alias T1
     use (cur_dir+"tmp_r_t2") new alias T2
     use (cur_dir+"tmp_r_t3") new alias T3
@@ -312,6 +322,7 @@ Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
     use (cur_dir+"tmp_r_t9") new alias T9
     use (cur_dir+"tmp_r_t10") new alias T10
     use (cur_dir+"tmp_r_t11") new alias T11
+    use (cur_dir+"tmp_r_t12") new alias T12
     use (cur_dir+"tmp_r_t1_1") new alias T1_1
     if flag_tmp1
       dbcreate(cur_dir+"tmp1file", {;
@@ -700,6 +711,22 @@ Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
                         t2->TARIF    := mo_read_xml_stroke(oNode2,"TARIF")
                         t2->SUMV_USL := mo_read_xml_stroke(oNode2,"SUMV_USL")
 
+                        if p_tip_reestr == 1 .and. (xml2date(t1->DATE_Z_2) >= 0d20220101) // добавил по новому ПУМП от 18.01.22
+                          if (oNode100 := oNode2:Find("MED_DEV")) != NIL
+                            // имплантант
+                            tmpSelect := select()                            
+                            select T12
+                            append blank
+                            T12->SLUCH    := iisl // номер случая
+                            T12->KOD      := mkod // код
+                            T12->IDCASE   := &lal.->IDCASE // для связи со случаем
+                            T12->DATE_MED := mo_read_xml_stroke(oNode2, "DATE_MED") // Дата установки имплантанта
+                            T12->CODE_DEV := mo_read_xml_stroke(oNode2, "CODE_MEDDEV") // Код вида медицинского изделия (имплантанта)
+                            T12->NUM_SER  := mo_read_xml_stroke(oNode2, "NUMBER_SER") // Серийный номер медицинского изделия (имплантанта)
+                            select(tmpSelect)
+                          endif
+                        endif
+
                         if p_tip_reestr == 2 .and. (xml2date(t1->DATE_Z_2) >= 0d20210801) // добавил по новому ПУМП от 02.08.21
                           if (oNode100 := oNode2:Find("MR_USL_N")) != NIL
                             // пока только 1 врач
@@ -773,6 +800,7 @@ Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
     t9->(dbCloseArea())
     t10->(dbCloseArea())
     t11->(dbCloseArea())
+    t12->(dbCloseArea())
     if flag_tmp1
       tmp1->(dbCloseArea())
     endif

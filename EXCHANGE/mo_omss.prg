@@ -499,7 +499,7 @@ if i > 0
 endif
 return NIL
 
-***** 15.10.21 прочитать и "разнести" по базам данных реестр СП и ТК
+***** 21.01.22 прочитать и "разнести" по базам данных реестр СП и ТК
 Function read_XML_FILE_SP(arr_XML_info,aerr,/*@*/current_i2)
   Local count_in_schet := 0, mnschet, bSaveHandler, ii1, ii2, i, k, t_arr[2],;
       ldate_sptk, s, fl_589, mANSREESTR
@@ -690,6 +690,10 @@ if empty(aerr)
     index on IDCASE+str(sluch,6) to (cur_dir+"tmpt9")
     use (cur_dir+"tmp_r_t10") new alias T10
     index on IDCASE+str(sluch,6)+regnum+code_sh+date_inj to (cur_dir+"tmpt10")
+    use (cur_dir+"tmp_r_t11") new alias T11
+    index on IDCASE+str(sluch,6) to (cur_dir+"tmpt11")
+    use (cur_dir+"tmp_r_t12") new alias T12
+    index on IDCASE+str(sluch,6) to (cur_dir+"tmpt12")
     use (cur_dir+"tmp_r_t1_1") new alias T1_1
     index on IDCASE to (cur_dir+"tmpt1_1")
     //
