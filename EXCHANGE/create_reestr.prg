@@ -17,7 +17,8 @@ Function create_reestr()
     return NIL
   endif
   //!!! ВНИМАНИЕ
-  if 2022 == arr_m[1]
+  // if 2022 == arr_m[1]
+  if 2023 == arr_m[1]
     return func_error(4,"Реестры за 2022 год недоступны")
   endif
   if !myFileDeleted(cur_dir+"tmpb"+sdbf)

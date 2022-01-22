@@ -2605,12 +2605,8 @@ if (arr_m := input_year()) != NIL .and. ;
         // добавил новые файлы для листов учета
         // удаление имплантантов
         delete_implantant(glob_perso)
-        // G_Use(dir_server + "human_im", dir_server + "human_im", "IMP")
-        // do while .t.
-        //   find (str(glob_perso, 7))
-        //   if !found() ; exit ; endif
-        //   DeleteRec(.t.)
-        // enddo
+
+        // удаление лекарственных препаратов
         G_Use(dir_server + "human_lek_pr", dir_server + "human_lek_pr", "LEK")
         do while .t.
           find (str(glob_perso, 7))

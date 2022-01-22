@@ -825,12 +825,6 @@ Function oms_sluch(Loc_kod,kod_kartotek)
           when when_diag() ;
           valid {|| val1_10diag(.t.,.t.,.t.,mk_data,iif(m1novor==0,mpol,mpol2)), f_valid_beremenn(mkod_diag) }
 
-      // if (alltrim(MKOD_DIAG) == 'U07.1') .or. (alltrim(MKOD_DIAG) == 'U07.2')
-      //   @ j, col() + 10 say "Вес пациента" get mWeight picture '999.9' ;
-      //   valid {| g | check_edit_field(g, 2, 1) }
-      //   @ j, col() + 1 say "кг."
-      // endif
-    
       if (ibrm := f_oms_beremenn(mkod_diag)) == 1
         @ j,26 say "прерывание беременности"
       elseif ibrm == 2

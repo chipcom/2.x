@@ -235,15 +235,15 @@ Function checkFilesTFOMS()
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
 
-  // // impl - справочник имплантантов
-  // sbase := "_mo_impl"
-  // if hb_FileExists(exe_dir + sbase + sdbf)
-  //     R_Use(exe_dir + sbase )
-  //     index on str(ID, 4) to (cur_dir + sbase)
-  //     use
-  // else
-  //   fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  // endif
+  // impl - справочник имплантантов
+  sbase := "_mo_impl"
+  if hb_FileExists(exe_dir + sbase + sdbf)
+      R_Use(exe_dir + sbase )
+      index on str(ID, 4) to (cur_dir + sbase)
+      use
+  else
+    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
+  endif
 
   // onkko_vmp
   sbase := "_mo_ovmp"
@@ -418,8 +418,8 @@ Function checkFilesTFOMS()
   aadd(arrRefFFOMS, {'_mo_v036', .f., 'V036 - Перечень услуг, требующих имплантацию медицинских изделий (ServImplDv)' } )
   aadd(arrRefFFOMS, {'_mo_v037', .f., 'V037 - Перечень методов ВМП, требующих имплантацию медицинских изделий' } )
   aadd(arrRefFFOMS, {'_mo_method_inj', .f., 'OID 1.2.643.5.1.13.13.11.1468 - Методы введения лекарственных препаратов' } )
-  // aadd(arrRefFFOMS, {'_mo_v036', .f., 'V036 - Перечень услуг, требующих имплантацию медицинских изделий (ServImplDv)' } )
-  // aadd(arrRefFFOMS, {'_mo_impl', .f., '_mo_impl - Перечень допустимых имплантантов' } )
+  aadd(arrRefFFOMS, {'_mo_v036', .f., 'V036 - Перечень услуг, требующих имплантацию медицинских изделий (ServImplDv)' } )
+  aadd(arrRefFFOMS, {'_mo_impl', .f., '_mo_impl - Перечень допустимых имплантантов' } )
   aadd(arrRefFFOMS, {'_mo_t005', .t., 'T005 - Справочник ошибок при проведении технологического контроля Реестров сведений и Реестров счетов' } )
 
   for each row in arrRefFFOMS
