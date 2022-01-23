@@ -172,6 +172,7 @@ mo_version.prg
 .\ref\dbImplant.prg
 .\ref\dbSeverity.prg
 .\ref\dbMethodINJ.prg
+.\ref\dbUnitOfMeasurement.prg
 
 .\oms\oms_func.prg
 .\oms\oms_double.prg
