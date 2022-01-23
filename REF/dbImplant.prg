@@ -10,12 +10,16 @@ function get_implant()
     dbName := '_mo_impl'
     dbUseArea( .t., "DBFNTX", exe_dir + dbName, dbAlias , .t., .f. )
 
-    //  1 - ID(N)  2 - RZN(N) 3 - PARENT(N) 4 - NAME(C) 5 - LOCAl(C) 6 - MATERIAL(C) 7 - METAL(L)  8 - ORDER(N)
+    //  1 - ID(N)  2 - RZN(N) 3 - PARENT(N) 4 - NAME(C) 5 - LOCAl(C) 6 - MATERIAL(C) 7 - METAL(L)  8 - ORDER(N)  9 - TYPE(C)
     (dbAlias)->(dbGoTop())
     do while !(dbAlias)->(EOF())
-      aadd(_arr, { alltrim((dbAlias)->NAME), (dbAlias)->RZN, (dbAlias)->ID, (dbAlias)->PARENT, alltrim((dbAlias)->LOCAL), alltrim((dbAlias)->MATERIAL), (dbAlias)->METAL, (dbAlias)->ORDER })
+      if (dbAlias)->TYPE == 'L'
+        aadd(_arr, { alltrim((dbAlias)->NAME), (dbAlias)->RZN, (dbAlias)->ID, (dbAlias)->PARENT, alltrim((dbAlias)->LOCAL), alltrim((dbAlias)->MATERIAL), (dbAlias)->METAL, (dbAlias)->ORDER })
+      endif
       (dbAlias)->(dbSkip())
     enddo
+    
+    asort(_arr,,,{|x, y| x[1] < y[1] })
 
     (dbAlias)->(dbCloseArea())
     Select(tmp_select)
