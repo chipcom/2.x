@@ -3,7 +3,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 04.12.21 ДВН - добавление или редактирование случая (листа учета)
+***** 24.01.22 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -19,6 +19,7 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       fl, tmp_help := chm_help_code, fl_write_sluch := .f., mu_cena, lrslt_1_etap := 0
 
   local iUslDop := iUslOtkaz := iUslOtklon := 0   // счетчики
+  local lenArr_Uslugi_DVN_COVID
 
   //
   Default st_N_DATA TO sys_date, st_K_DATA TO sys_date
@@ -693,6 +694,7 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       endif
       fl_vrach := .t.
 
+      lenArr_Uslugi_DVN_COVID := len(uslugiEtap_DVN_COVID(metap))
       for i := 1 to len(uslugiEtap_DVN_COVID(metap))
         fl_diag := .f.
         i_otkaz := 0
@@ -719,8 +721,8 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
           if mem_por_ass > 0
             @ j, 52 get &mvara pict "99999" valid {|g| v_kart_vrach(g) } when {|g|condition_when_uslugi_COVID( g, metap, mOKSI, m1dyspnea, m1strong )}
           endif
-          @ j, 58 get &mvard valid {|g| valid_date_uslugi_COVID(g, metap, mn_data, mk_data) } when {|g|condition_when_uslugi_COVID( g, metap, mOKSI, m1dyspnea, m1strong )}
-          if fl_diag
+          @ j, 58 get &mvard valid {|g| valid_date_uslugi_COVID(g, metap, mn_data, mk_data, lenArr_Uslugi_DVN_COVID, i ) } when {|g|condition_when_uslugi_COVID( g, metap, mOKSI, m1dyspnea, m1strong )}
+          if fl_diag 
             // @ j, 69 get &mvarz picture pic_diag ;
             //       reader {|o|MyGetReader(o,bg)} valid val1_10diag(.t.,.f.,.f.,mn_data,mpol)
           elseif i_otkaz == 0
