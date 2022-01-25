@@ -4,7 +4,7 @@
 
 function initPZarray()
   local nameArray
-  local i, sbase
+  local i, j, sbase
 
   Public glob_array_PZ_18 := {;
     { 1,207,"случай госпитализации ВМП 18-01","ВМП-01","к/д",""},;
@@ -474,27 +474,41 @@ function initPZarray()
   {99,387,"исследование ИХГ","исследование ИХГ","",""};      //  1
   }
 
-  sbase :=  prefixFileRefName(WORK_YEAR) + 'unit'  // справочник на конкретный год
-
-  nameArr := 'glob_array_PZ_' + last_digits_year(WORK_YEAR)
+  for j := 2018 to WORK_YEAR
+    sbase :=  prefixFileRefName(j) + 'unit'  // справочник на конкретный год
+    nameArr := 'glob_array_PZ_' + last_digits_year(j)
+    G_Use(exe_dir + sbase, cur_dir + sbase, 'UNIT')
+    for i := 1 to len(&nameArr)
+      find (str(&nameArr.[i,2],3))
+      if found() .and. !(unit->pz == &nameArr.[i,1] .and. unit->ii == i)
+        G_RLock(forever)
+        unit->pz := &nameArr.[i,1]
+        unit->ii := i
+      endif
+    next
+    unit->(dbCloseArea())
+  next
   
+  // // G_Use(exe_dir + sbase, cur_dir + sbase, 'UNIT')
+  // // for i := 1 to len(glob_array_PZ_21)
+  // //   find (str(glob_array_PZ_21[i,2],3))
+  // //   if found() .and. !(unit->pz == glob_array_PZ_21[i,1] .and. unit->ii == i)
+  // //     G_RLock(forever)
+  // //     unit->pz := glob_array_PZ_21[i,1]
+  // //     unit->ii := i
+  // //   endif
+  // // next
+
+  // sbase :=  prefixFileRefName(WORK_YEAR) + 'unit'  // справочник на конкретный год
+  // nameArr := 'glob_array_PZ_' + last_digits_year(WORK_YEAR)
   // G_Use(exe_dir + sbase, cur_dir + sbase, 'UNIT')
-  // for i := 1 to len(glob_array_PZ_21)
-  //   find (str(glob_array_PZ_21[i,2],3))
-  //   if found() .and. !(unit->pz == glob_array_PZ_21[i,1] .and. unit->ii == i)
+  // for i := 1 to len(&nameArr)
+  //   find (str(&nameArr.[i,2],3))
+  //   if found() .and. !(unit->pz == &nameArr.[i,1] .and. unit->ii == i)
   //     G_RLock(forever)
-  //     unit->pz := glob_array_PZ_21[i,1]
+  //     unit->pz := &nameArr.[i,1]
   //     unit->ii := i
   //   endif
   // next
-  G_Use(exe_dir + sbase, cur_dir + sbase, 'UNIT')
-  for i := 1 to len(&nameArr)
-    find (str(&nameArr.[i,2],3))
-    if found() .and. !(unit->pz == &nameArr.[i,1] .and. unit->ii == i)
-      G_RLock(forever)
-      unit->pz := &nameArr.[i,1]
-      unit->ii := i
-    endif
-  next
-  unit->(dbCloseArea())
+  // unit->(dbCloseArea())
 return nil
