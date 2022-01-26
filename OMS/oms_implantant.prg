@@ -11,6 +11,8 @@ function select_implantant(date_ust, rzn, ser_num)
 
   private mVIDIMPL := '', m1VIDIMPL := 0
   private mDATE_INST, mNUMBER
+  Private glob_Implantant := get_implantant()
+  private tmp_Implantant := create_classif_FFOMS(2,"Implantant") // Implantant
 
   default date_ust to sys_date
   default rzn to 0
@@ -20,7 +22,7 @@ function select_implantant(date_ust, rzn, ser_num)
   m1VIDIMPL := rzn
   mNUMBER := padr(ser_num, 100)
 
-  mVIDIMPL := padr(inieditspr(A__MENUVERT, get_implant(), m1VIDIMPL), 44)
+  mVIDIMPL := padr(inieditspr(A__MENUVERT, get_implantant(), m1VIDIMPL), 44)
 
 	buf := savescreen()
 	change_attr()
@@ -39,9 +41,12 @@ function select_implantant(date_ust, rzn, ser_num)
 		iRow := 11
 
     @ ++iRow, 12 say "Дата установки" get mDATE_INST
-
-		@ ++iRow, 12 say 'Вид импланта:' get mVIDIMPL ;
-          reader {|x| menu_reader(x, get_implant(), A__MENUVERT, , , .f.)} ;
+    
+		// @ ++iRow, 12 say 'Вид импланта:' get mVIDIMPL ;
+    //       reader {|x| menu_reader(x, get_implantant(), A__MENUVERT, , , .f.)} ;
+    //       valid {|| mVIDIMPL := padr(mVIDIMPL, 44), .t. }
+    @ ++iRow, 12 say 'Вид импланта:' get mVIDIMPL ;
+          reader {|x| menu_reader(x, tmp_Implantant, A__MENUVERT, , , .f.)} ;
           valid {|| mVIDIMPL := padr(mVIDIMPL, 44), .t. }
 
     sPicture := '@S40'

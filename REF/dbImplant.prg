@@ -1,6 +1,7 @@
 * 02.01.22 вернуть массив по справочнику Минздрава по имплантантам OID 1.2.643.5.1.13.13.11.1079.xml
-function get_implant()
+function get_implantant()
   Local dbName, dbAlias := 'impl'
+  local dBegin := 0d20220101, dEnd := 0d20241231  // для совместимости
   local tmp_select := select()
   static _arr := {}
 
@@ -14,7 +15,7 @@ function get_implant()
     (dbAlias)->(dbGoTop())
     do while !(dbAlias)->(EOF())
       if (dbAlias)->TYPE == 'L'
-        aadd(_arr, { alltrim((dbAlias)->NAME), (dbAlias)->RZN, (dbAlias)->ID, (dbAlias)->PARENT, alltrim((dbAlias)->LOCAL), alltrim((dbAlias)->MATERIAL), (dbAlias)->METAL, (dbAlias)->ORDER })
+        aadd(_arr, { alltrim((dbAlias)->NAME), (dbAlias)->RZN, dBegin, dEnd, (dbAlias)->ID, (dbAlias)->PARENT, alltrim((dbAlias)->LOCAL), alltrim((dbAlias)->MATERIAL), (dbAlias)->METAL, (dbAlias)->ORDER })
       endif
       (dbAlias)->(dbSkip())
     enddo

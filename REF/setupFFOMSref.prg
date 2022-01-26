@@ -17,14 +17,17 @@ Function nastr_sprav_FFOMS(k)
       if ! hb_user_curUser:IsAdmin()
         return func_error(4,err_admin)
       endif
-      arr_ref := {"V002","V020","V006","V034","MethodINJ"}
-      arr_name := {"Ž”ˆ‹…‰ ®ª § ­­®© ¬¥¤¨æ¨­áª®© ¯®¬®é¨", "Ž”ˆ‹…‰ ŠŽ‰Šˆ", "“‘‹Ž‚ˆ‰ ®ª § ­¨ï ¬¥¤¨æ¨­áª®© ¯®¬®é¨", "…„ˆˆ– ˆ‡Œ……ˆŸ", "“’…‰ ‚‚…„…ˆŸ"}
+      arr_ref := {'V002', 'V020', 'V006', 'V034', 'MethodINJ', 'Implantant'}
+      arr_name := {'Ž”ˆ‹…‰ ®ª § ­­®© ¬¥¤¨æ¨­áª®© ¯®¬®é¨', 'Ž”ˆ‹…‰ ŠŽ‰Šˆ', ;
+          '“‘‹Ž‚ˆ‰ ®ª § ­¨ï ¬¥¤¨æ¨­áª®© ¯®¬®é¨', '…„ˆˆ– ˆ‡Œ……ˆŸ', ;
+          '“’…‰ ‚‚…„…ˆŸ', 'ˆŒ‹€’€’Ž‚'}
       arr_spr_name := {;
-        "Š« áá¨ä¨ª â®à Ž”ˆ‹…‰ ®ª § ­­®© ¬¥¤¨æ¨­áª®© ¯®¬®é¨",;
-        "Š« áá¨ä¨ª â®à Ž”ˆ‹…‰ ŠŽ‰Šˆ",;
-        "Š« áá¨ä¨ª â®à “‘‹Ž‚ˆ‰ ®ª § ­¨ï ¬¥¤¨æ¨­áª®© ¯®¬®é¨",;
-        "Š« áá¨ä¨ª â®à …„ˆˆ– ˆ‡Œ……ˆŸ",;
-        "Š« áá¨ä¨ª â®à “’…‰ ‚‚…„…ˆŸ «¥ª àáâ¢¥­­ëå ¯à¥¯ à â®¢"}
+        'Š« áá¨ä¨ª â®à Ž”ˆ‹…‰ ®ª § ­­®© ¬¥¤¨æ¨­áª®© ¯®¬®é¨',;
+        'Š« áá¨ä¨ª â®à Ž”ˆ‹…‰ ŠŽ‰Šˆ',;
+        'Š« áá¨ä¨ª â®à “‘‹Ž‚ˆ‰ ®ª § ­¨ï ¬¥¤¨æ¨­áª®© ¯®¬®é¨',;
+        'Š« áá¨ä¨ª â®à …„ˆˆ– ˆ‡Œ……ˆŸ',;
+        'Š« áá¨ä¨ª â®à “’…‰ ‚‚…„…ˆŸ «¥ª àáâ¢¥­­ëå ¯à¥¯ à â®¢',;
+        'Š« áá¨ä¨ª â®à ˆŒ‹€’€’Ž‚ ¤«ï ¨á¯®«ì§®¢ ­¨ï'}
         
       arr_spr := arr_name   // ¯®¤áâ ¢¨¬ ¨¬¥­  ¯ã­ªâ®¢ ¬¥­î
       for j := 1 to len(arr_spr)
@@ -57,6 +60,7 @@ Function fnastr_sprav_FFOMS(k,_n,_m)
   // —’Ž-› ­¥ ¤¥« âì PUBLIC
   Private glob_V034 := getV034()
   Private glob_methodinj := getMethodINJ()
+  private glob_implantant := get_implantant()
   //
   do case
     case k == 0
@@ -222,4 +226,55 @@ Function f2nastr_sprav_FFOMS(nKey,oBrow,regim)
     endcase
   endif
   return k
+  
+***** áä®à¬¨à®¢ âì á¯à ¢®ç­¨ª ¯® ­ áâà®©ª¥ ®à£ ­¨§ æ¨¨/ãçà¥¦¤¥­¨ï/®â¤¥«¥­¨ï
+Function create_classif_FFOMS(reg,_name)
+  // reg - ¢®§¢à â ªá« áá¨ä¨ª â®à  ¤«ï 0-®à£ ­¨§ æ¨¨/1-ãçà¥¦¤¥­¨ï/2-®â¤¥«¥­¨ï
+  Local i, k, arr, arr1, arr2, fl := .t., ret := {}, ret1
+  Private name_arr := "glob_"+_name
+  //
+  arr := GetIniVar(local_tools_ini,{{_name,'0',""}})
+  arr := list2arr(arr[1])
+  if len(arr) > 0
+    ret := aclone(arr)
+    if reg > 0
+      arr1 := GetIniVar(local_tools_ini,{{_name,"1-"+lstr(glob_uch[1]),""}})
+      arr1 := list2arr(arr1[1])
+      if (k := len(arr1)) > 0
+        for i := k to 1 step -1
+          if ascan(ret,arr1[i]) == 0
+            Del_Array(arr1,i)
+          endif
+        next
+        ret := aclone(arr1)
+      endif
+      if reg == 2
+        arr2 := GetIniVar(local_tools_ini,{{_name,"2-"+lstr(glob_otd[1]),""}})
+        arr2 := list2arr(arr2[1])
+        if (k := len(arr2)) > 0
+          for i := k to 1 step -1
+            if ascan(ret,arr2[i]) == 0
+              Del_Array(arr2,i)
+            endif
+          next
+          ret := aclone(arr2)
+        endif
+      endif
+    endif
+  endif
+  if len(ret) > 0
+    ret1 := {}
+    for i := 1 to len(ret)
+      if (k := ascan(&name_arr, {|x| x[2] == ret[i] })) > 0
+        aadd(ret1, &name_arr.[k])
+      endif
+    next
+  elseif upper(_name) == "V002"
+    ret1 := aclone(glob_V002)
+  else
+    ret1 := cut_glob_array(&name_arr,sys_date)
+  endif
+  asort(ret1,,,{|x,y| upper(x[1]) < upper(y[1]) })
+  return ret1
+  
   

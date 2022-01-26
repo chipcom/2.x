@@ -329,56 +329,6 @@ enddo
 select (tmp_select)
 return ret
 
-***** сформировать справочник по настройке организации/учреждения/отделения
-Function create_classif_FFOMS(reg,_name)
-// reg - возврат кслассификатора для 0-организации/1-учреждения/2-отделения
-Local i, k, arr, arr1, arr2, fl := .t., ret := {}, ret1
-Private name_arr := "glob_"+_name
-//
-arr := GetIniVar(local_tools_ini,{{_name,'0',""}})
-arr := list2arr(arr[1])
-if len(arr) > 0
-  ret := aclone(arr)
-  if reg > 0
-    arr1 := GetIniVar(local_tools_ini,{{_name,"1-"+lstr(glob_uch[1]),""}})
-    arr1 := list2arr(arr1[1])
-    if (k := len(arr1)) > 0
-      for i := k to 1 step -1
-        if ascan(ret,arr1[i]) == 0
-          Del_Array(arr1,i)
-        endif
-      next
-      ret := aclone(arr1)
-    endif
-    if reg == 2
-      arr2 := GetIniVar(local_tools_ini,{{_name,"2-"+lstr(glob_otd[1]),""}})
-      arr2 := list2arr(arr2[1])
-      if (k := len(arr2)) > 0
-        for i := k to 1 step -1
-          if ascan(ret,arr2[i]) == 0
-            Del_Array(arr2,i)
-          endif
-        next
-        ret := aclone(arr2)
-      endif
-    endif
-  endif
-endif
-if len(ret) > 0
-  ret1 := {}
-  for i := 1 to len(ret)
-    if (k := ascan(&name_arr, {|x| x[2] == ret[i] })) > 0
-      aadd(ret1, &name_arr.[k])
-    endif
-  next
-elseif upper(_name) == "V002"
-  ret1 := aclone(glob_V002)
-else
-  ret1 := cut_glob_array(&name_arr,sys_date)
-endif
-asort(ret1,,,{|x,y| upper(x[1]) < upper(y[1]) })
-return ret1
-
 ***** вернуть первые два диагоноза для записи в XML-файл
 Function diag_for_xml(al,fl_trim,fl_dop,fl_del,fl_6,adiag_talon)
 Local mdiagnoz := diag_to_array(al,fl_trim,fl_dop,fl_del,fl_6,adiag_talon)
