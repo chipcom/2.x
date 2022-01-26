@@ -14,8 +14,8 @@ function valid_strong_date(get)
   endif
   return .t.
 
-***** 22.08.21
-function valid_date_uslugi_COVID( get, metap, beginDate, endDate)
+***** 24.01.22
+function valid_date_uslugi_COVID( get, metap, beginDate, endDate, lenArr, i)
 
   if ctod(get:buffer) > endDate
     get:varPut( get:original )
@@ -39,6 +39,13 @@ function valid_date_uslugi_COVID( get, metap, beginDate, endDate)
     return .f.
   endif
 
+  if (metap == 1 .and. upper(get:name) == 'MDATE8') .or. (metap == 2 .and. upper(get:name) == 'MDATE4') // дата приема терапевта
+    if ctod(get:buffer) != endDate
+      get:varPut( get:original )
+      func_error(4, "Дата проведения осмотра терапевта не равна дате окончания углубленной диспансеризации")
+      return .f.
+    endif
+  endif
 
   return .t.
 
