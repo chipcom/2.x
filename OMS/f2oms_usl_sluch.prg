@@ -4,7 +4,7 @@
 #include "chip_mo.ch"
 
 
-***** 02.01.22 ввод услуг в лист учёта
+***** 28.01.22 ввод услуг в лист учёта
 Function f2oms_usl_sluch(nKey,oBrow)
   Static skod_k := 0, skod_human := 0, SKOD_DIAG, SZF,;
          st_vzrosl, st_arr_dbf, skod_vr, skod_as, aksg := {}
@@ -602,11 +602,11 @@ Function f2oms_usl_sluch(nKey,oBrow)
 
         if (mdate_u1 >= d_01_01_2022) .and. ((aImpl := ret_impl_V036(mshifr, mdate_u1)) != NIL)
           if arrImplant == NIL  // имплантант отсутствует
-            if (nChoice := hb_Alert('Для данной услуги предусмотрен имплантант. Добавляем?', aOptions)) == 2
+            // if (nChoice := hb_Alert('Для данной услуги предусмотрен имплантант. Добавляем?', aOptions)) == 2
               if (l_impl := select_implantant(mdate_u1)) != NIL
                 arrImplant := {human->kod, human->kod_k, l_impl[1], l_impl[2], l_impl[3]}
               endif
-            endif
+            // endif
           endif
         endif
   
@@ -954,7 +954,12 @@ Function f2oms_usl_sluch(nKey,oBrow)
       aksg := f_usl_definition_KSG(human->kod)
       summa_usl()
       vr_pr_1_den(1,,u_other)
-      delete_implantant(human->kod)
+
+      if arrImplant != nil  // удалим имплантант
+        delete_implantant(human->kod)
+        arrImplant := nil
+      endif
+      
       select TMP
       oBrow:goTop()
       go top

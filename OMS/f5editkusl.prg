@@ -28,10 +28,10 @@ Function f5editkusl(get,when_valid,k)
       @ r1,45 say "<F3> - выбор отделения из меню" color color13
     endif
   else  // valid
-    if k == 1     // Дата оказания услуги
+    if k == 1     // Дата оказания услуги 
       if !emptyany(human->n_data,mdate_u1) .and. mdate_u1 < human->n_data
         //fl := func_error(4,"Введенная дата меньше даты начала лечения!")
-        func_error(4,"Введенная дата меньше даты начала лечения!")
+        fl := func_error(4,"Введенная дата меньше даты начала лечения!")
       elseif !emptyany(human->k_data,mdate_u1) .and. mdate_u1 > human->k_data
         fl := func_error(4,"Введенная дата больше даты окончания лечения!")
       endif

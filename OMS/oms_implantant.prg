@@ -3,16 +3,16 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-****** 21.01.22 - выбор импланта
+****** 21.01.22 - выбор импланта 
 function select_implantant(date_ust, rzn, ser_num)
   local ret := NIL, oBox
   local buf, tmp_keys, iRow
   local sPicture
+  local mDATE_INST, mNUMBER
 
   private mVIDIMPL := '', m1VIDIMPL := 0
-  private mDATE_INST, mNUMBER
   Private glob_Implantant := get_implantant()
-  private tmp_Implantant := create_classif_FFOMS(2,"Implantant") // Implantant
+  private tmp_Implantant := create_classif_FFOMS(2,"Implantant")
 
   default date_ust to sys_date
   default rzn to 0
@@ -40,17 +40,15 @@ function select_implantant(date_ust, rzn, ser_num)
 	do while .t.
 		iRow := 11
 
-    @ ++iRow, 12 say "Дата установки" get mDATE_INST
+    @ ++iRow, 12 say "Дата установки" get mDATE_INST ;
+          valid {|g| fDateImplant(g) }
     
-		// @ ++iRow, 12 say 'Вид импланта:' get mVIDIMPL ;
-    //       reader {|x| menu_reader(x, get_implantant(), A__MENUVERT, , , .f.)} ;
-    //       valid {|| mVIDIMPL := padr(mVIDIMPL, 44), .t. }
     @ ++iRow, 12 say 'Вид импланта:' get mVIDIMPL ;
           reader {|x| menu_reader(x, tmp_Implantant, A__MENUVERT, , , .f.)} ;
           valid {|| mVIDIMPL := padr(mVIDIMPL, 44), .t. }
 
     sPicture := '@S40'
-		@ ++iRow, 12 say 'Серийный номер:' get mNUMBER picture sPicture //;
+		@ ++iRow, 12 say 'Серийный номер:' get mNUMBER picture sPicture
 	
 		myread()
 		if lastkey() != K_ESC .and. m1VIDIMPL != 0
@@ -128,3 +126,19 @@ function save_implantant(arrImplantant)
   IMPL->(dbCloseArea())
   select(tmpSelect)
   return nil
+
+****** 28.01.22 проверка даты установки имплантантов
+function fDateImplant(get)
+
+  if ctod(get:buffer) < human->n_data
+    get:varPut( get:original )
+    func_error(4, 'Дата установки имплантанта меньше даты начала лечения!')
+    return .f.
+  endif
+
+  if ctod(get:buffer) > human->k_data
+    get:varPut( get:original )
+    func_error(4, 'Дата установки имплантанта больше даты окончания лечения!')
+    return .f.
+  endif
+  return .t.
