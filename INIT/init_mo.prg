@@ -97,7 +97,7 @@ Function init_mo()
 
   return main_up_screen()
 
-***** 12.12.21 проверка и переиндексирование справочников ТФОМС
+***** 29.01.22 проверка и переиндексирование справочников ТФОМС
 Function checkFilesTFOMS()
   Local fl := .t., i, arr, buf := save_maxrow()
   local arrRefFFOMS := {}, row, row_flag := .t.
@@ -109,11 +109,11 @@ Function checkFilesTFOMS()
 
   public is_otd_dep := .f., glob_otd_dep := 0, mm_otd_dep := {}
 
-  Public arr_ad_cr_it22 := {}
-  Public arr_ad_cr_it21 := {}
-  Public arr_ad_cr_it20 := {}
-  Public arr_ad_cr_it19 := {}
-  Public arr_ad_cr_it := {}
+  // Public arr_ad_cr_it22 := {}
+  // Public arr_ad_cr_it21 := {}
+  // Public arr_ad_cr_it20 := {}
+  // Public arr_ad_cr_it19 := {}
+  // Public arr_ad_cr_it := {}
 
   Public arr_12_VMP := {}
   Public is_napr_pol := .f.,; // работа с направлениями на госпитализацию в п-ке
@@ -733,21 +733,42 @@ function shema_index(val_year)
   endif
   return fl
 
-**** 01.01.22
+**** 29.01.22
 function it_Index(val_year)
   local fl := .t.
   local ar, ar1, ar2, lSchema, i
-  local sbase := prefixFileRefName(val_year) + 'it'  // 
+  local sbase := prefixFileRefName(val_year) + 'it'  //
+  local sbaseIt1, sbaseIt, sbaseShema
+  local arrName
 
-  if val_year == WORK_YEAR
+  if val_year < 2018 .or. val_year > WORK_YEAR // года не входит в рабочий диапазон
+    return fl
+  endif
+
+  sbaseIt := prefixFileRefName(val_year) + 'it'
+  sbaseIt1 := prefixFileRefName(val_year) + 'it1'
+  sbaseShema := prefixFileRefName(val_year) + 'shema'
+
+  if val_year == 2018
+    arrName := 'arr_ad_cr_it'
+  else
+    arrName := 'arr_ad_cr_it' + last_digits_year(val_year)
+  endif
+  Public &arrName := {}
+
+  if val_year >= 2021 // == WORK_YEAR
+
     // исходный файл T006 22 года
-    sbase := '_mo2it1'
-    if hb_FileExists(exe_dir + sbase + sdbf)
-      // R_Use(exe_dir + '_mo2shema', cur_dir + '_mo2shema', 'SCHEMA')
-      R_Use(exe_dir + '_mo2shema', , 'SCHEMA')
-      index on KOD to (cur_dir + '_mo2shema') //
+    // sbase := '_mo2it1'
+    if hb_FileExists(exe_dir + sbaseIt1 + sdbf)
+//      // R_Use(exe_dir + '_mo2shema', cur_dir + '_mo2shema', 'SCHEMA')
+      // R_Use(exe_dir + '_mo2shema', , 'SCHEMA')
+      R_Use(exe_dir + sbaseShema, , 'SCHEMA')
+      // index on KOD to (cur_dir + '_mo2shema') //
+      index on KOD to (cur_dir + sbaseShema)
   
-      R_Use(exe_dir + sbase, ,'IT')
+      // R_Use(exe_dir + sbase, ,'IT')
+      R_Use(exe_dir + sbaseIt1, ,'IT')
       ('IT')->(dbGoTop())  // go top
       do while !('IT')->(eof())
         ar := {}
@@ -776,62 +797,13 @@ function it_Index(val_year)
         if ('SCHEMA')->(dbSeek( padr(it->CODE,6) ))
           lSchema := .t.
         endif
-  
-        if lSchema
-          aadd(arr_ad_cr_it22,{it->USL_OK,padr(it->CODE,6),ar,ar1,ar2, alltrim(SCHEMA->NAME)})
-        else
-          aadd(arr_ad_cr_it22,{it->USL_OK,padr(it->CODE,6),ar,ar1,ar2, ''})
-        endif
-        ('IT')->(dbskip()) 
-        lSchema := .f.
-      enddo
-      ('SCHEMA')->(dbCloseArea())
-      ('IT')->(dbCloseArea())   //use
-    else
-      fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-    endif
-  elseif val_year == 2021
-    // исходный файл T006 21 года
-    sbase := '_mo1it1'
-    if hb_FileExists(exe_dir + sbase + sdbf)
-      // R_Use(exe_dir + '_mo1shema', cur_dir + '_mo1shema', 'SCHEMA')
-      R_Use(exe_dir + '_mo1shema', , 'SCHEMA')
-      index on KOD to (cur_dir + '_mo1shema') // 
 
-      R_Use(exe_dir + sbase, ,'IT')
-      ('IT')->(dbGoTop())  // go top
-      do while !('IT')->(eof())
-        ar := {}
-        ar1 := {}
-        ar2 := {}
-        if !empty(it->ds)
-          ar := Slist2arr(it->ds)
-          for i := 1 to len(ar)
-            ar[i] := padr(ar[i],5)
-          next
-        endif
-        if !empty(it->ds1)
-          ar1 := Slist2arr(it->ds1)
-          for i := 1 to len(ar1)
-            ar1[i] := padr(ar1[i],5)
-          next
-        endif
-        if !empty(it->ds2)
-          ar2 := Slist2arr(it->ds2)
-          for i := 1 to len(ar2)
-            ar2[i] := padr(ar2[i],5)
-          next
-        endif
-  
-        ('SCHEMA')->(dbGoTop())
-        if ('SCHEMA')->(dbSeek( padr(it->CODE,6) ))
-          lSchema := .t.
-        endif
-  
         if lSchema
-          aadd(arr_ad_cr_it21,{it->USL_OK,padr(it->CODE,6),ar,ar1,ar2, alltrim(SCHEMA->NAME)})
+          // aadd(arr_ad_cr_it22,{it->USL_OK,padr(it->CODE,6),ar,ar1,ar2, alltrim(SCHEMA->NAME)})
+          aadd(&arrName, {it->USL_OK, padr(it->CODE, 6), ar, ar1, ar2, alltrim(SCHEMA->NAME)})
         else
-          aadd(arr_ad_cr_it21,{it->USL_OK,padr(it->CODE,6),ar,ar1,ar2, ''})
+          // aadd(arr_ad_cr_it22,{it->USL_OK,padr(it->CODE,6),ar,ar1,ar2, ''})
+          aadd(&arrName, {it->USL_OK, padr(it->CODE, 6), ar, ar1, ar2, ''})
         endif
         ('IT')->(dbskip()) 
         lSchema := .f.
@@ -839,13 +811,67 @@ function it_Index(val_year)
       ('SCHEMA')->(dbCloseArea())
       ('IT')->(dbCloseArea())   //use
     else
-      fl := notExistsFileNSI( exe_dir + sbase + sdbf )
+      // fl := notExistsFileNSI( exe_dir + sbase + sdbf )
+      fl := notExistsFileNSI( exe_dir + sbaseIt1 + sdbf )
     endif
+  // elseif val_year == 2021
+  //   // исходный файл T006 21 года
+  //   sbase := '_mo1it1'
+  //   if hb_FileExists(exe_dir + sbase + sdbf)
+  //     // R_Use(exe_dir + '_mo1shema', cur_dir + '_mo1shema', 'SCHEMA')
+  //     R_Use(exe_dir + '_mo1shema', , 'SCHEMA')
+  //     index on KOD to (cur_dir + '_mo1shema') // 
+
+  //     R_Use(exe_dir + sbase, ,'IT')
+  //     ('IT')->(dbGoTop())  // go top
+  //     do while !('IT')->(eof())
+  //       ar := {}
+  //       ar1 := {}
+  //       ar2 := {}
+  //       if !empty(it->ds)
+  //         ar := Slist2arr(it->ds)
+  //         for i := 1 to len(ar)
+  //           ar[i] := padr(ar[i],5)
+  //         next
+  //       endif
+  //       if !empty(it->ds1)
+  //         ar1 := Slist2arr(it->ds1)
+  //         for i := 1 to len(ar1)
+  //           ar1[i] := padr(ar1[i],5)
+  //         next
+  //       endif
+  //       if !empty(it->ds2)
+  //         ar2 := Slist2arr(it->ds2)
+  //         for i := 1 to len(ar2)
+  //           ar2[i] := padr(ar2[i],5)
+  //         next
+  //       endif
+  
+  //       ('SCHEMA')->(dbGoTop())
+  //       if ('SCHEMA')->(dbSeek( padr(it->CODE,6) ))
+  //         lSchema := .t.
+  //       endif
+  
+  //       if lSchema
+  //         aadd(arr_ad_cr_it21,{it->USL_OK,padr(it->CODE,6),ar,ar1,ar2, alltrim(SCHEMA->NAME)})
+  //       else
+  //         aadd(arr_ad_cr_it21,{it->USL_OK,padr(it->CODE,6),ar,ar1,ar2, ''})
+  //       endif
+  //       ('IT')->(dbskip()) 
+  //       lSchema := .f.
+  //     enddo
+  //     ('SCHEMA')->(dbCloseArea())
+  //     ('IT')->(dbCloseArea())   //use
+  //   else
+  //     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
+  //   endif
   elseif val_year == 2020
     // исходный файл  T006 2020 года
-    sbase := "_mo0it1"
-    if hb_FileExists(exe_dir + sbase + sdbf)
-      R_Use(exe_dir + sbase, , 'IT')
+    // sbase := "_mo0it1"
+    // if hb_FileExists(exe_dir + sbase + sdbf)
+    //   R_Use(exe_dir + sbase, , 'IT')
+    if hb_FileExists(exe_dir + sbaseIt1 + sdbf)
+      R_Use(exe_dir + sbaseIt1, , 'IT')
       go top
       do while !eof()
         ar := {}
@@ -869,35 +895,44 @@ function it_Index(val_year)
             ar2[i] := padr(ar2[i],5)
           next
         endif
-        aadd(arr_ad_cr_it20,{it->USL_OK,padr(it->CODE,3),ar,ar1,ar2})
+        // aadd(arr_ad_cr_it20,{it->USL_OK,padr(it->CODE,3),ar,ar1,ar2})
+        aadd(&arrName, {it->USL_OK, padr(it->CODE, 3), ar, ar1, ar2})
         skip
       enddo
       use
     else
-      fl := notExistsFileNSI( exe_dir + sbase + sdbf )
+      // fl := notExistsFileNSI( exe_dir + sbase + sdbf )
+      fl := notExistsFileNSI( exe_dir + sbaseIt1 + sdbf )
     endif
   elseif val_year == 2019
     // исходный файл  T006 2019 год
     sbase := "_mo9it"
-    if hb_FileExists(exe_dir + sbase + sdbf)
-      R_Use(exe_dir + sbase, ,'IT')
+    // if hb_FileExists(exe_dir + sbase + sdbf)
+    //   R_Use(exe_dir + sbase, ,'IT')
+    if hb_FileExists(exe_dir + sbaseIt + sdbf)
+      R_Use(exe_dir + sbaseIt, ,'IT')
       index on ds to tmpit memory
       dbeval({|| aadd(arr_ad_cr_it19, {it->ds,it->it}) })
       use
     else
-      fl := notExistsFileNSI( exe_dir + sbase + sdbf )
+      // fl := notExistsFileNSI( exe_dir + sbase + sdbf )
+      fl := notExistsFileNSI( exe_dir + sbaseIt + sdbf )
     endif
   elseif val_year == 2018
       // /*sbase := "_mo8it"
-      if hb_FileExists(exe_dir + sbase + sdbf)
-      R_Use(exe_dir + sbase, , 'IT')
+      // if hb_FileExists(exe_dir + sbase + sdbf)
+      //   R_Use(exe_dir + sbase, , 'IT')
+    if hb_FileExists(exe_dir + sbaseIt + sdbf)
+      R_Use(exe_dir + sbaseIt, , 'IT')
       index on ds to tmpit memory
       dbeval({|| aadd(arr_ad_cr_it, {it->ds, it->it}) })
       use
     else
-      fl := notExistsFileNSI( exe_dir + sbase + sdbf )
+      // fl := notExistsFileNSI( exe_dir + sbase + sdbf )
+      fl := notExistsFileNSI( exe_dir + sbaseIt + sdbf )
     endif
   endif
+  altd()
   return fl
 
 **** 29.11.21

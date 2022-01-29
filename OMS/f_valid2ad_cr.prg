@@ -4,7 +4,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 28.01.21  //  XX.12.20
+***** 29.01.22
 Function f_valid2ad_cr()
   Static mm_bartel := {;
     {"индекс Бартела 60 баллов и менее","60"},;
@@ -57,6 +57,11 @@ Function f_valid2ad_cr()
       if !empty(MOSL1) ; aadd(arr_osl,padr(MOSL1,5)) ; endif
       if !empty(MOSL2) ; aadd(arr_osl,padr(MOSL2,5)) ; endif
       if !empty(MOSL3) ; aadd(arr_osl,padr(MOSL3,5)) ; endif
+
+      if year(MK_DATA) == 2022    // ВРЕМЕННО, ПОКА НЕ РАЗБЕРУСЬ
+        arr_ad_cr_it21 := arr_ad_cr_it22
+      endif
+
       for i := 1 to len(arr_ad_cr_it21) 
         if m1usl_ok == arr_ad_cr_it21[i,1] .and. ascan(mm_ad_cr,{|x| x[2] == arr_ad_cr_it21[i,2] }) == 0
           if !empty(arr_ad_cr_it21[i,3]) .and. empty(arr_ad_cr_it21[i,4]) .and. empty(arr_ad_cr_it21[i,5]) // осн.диагноз
