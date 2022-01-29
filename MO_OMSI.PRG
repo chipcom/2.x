@@ -193,7 +193,7 @@ return k
 
 *
 
-***** 22.09.21
+***** 29.01.22
 Function print_l_uch(mkod, par, regim, lnomer)
 // mkod - ª®¤ ΅®«μ­®£® ―® „ human
 Local sh := 80, HH := 77, buf := save_maxrow(),;
@@ -749,7 +749,7 @@ do while !eof()
         akslp := List2Arr(human_2->pc1)
         if len(akslp) > 1
           if year(human->k_data) >= 2021
-            s1 += "(α γηρβ®¬ ‘‹="+str(ret_koef_kslp_21(akslp),4,2)+") "
+            s1 += "(α γηρβ®¬ ‘‹=" + str(ret_koef_kslp_21(akslp, year(human->k_data)), 4, 2) + ") "
           else
             s1 += "(α γηρβ®¬ ‘‹="+str(ret_koef_kslp(akslp),4,2)+") "
           endif

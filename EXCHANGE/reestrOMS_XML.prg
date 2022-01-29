@@ -7,7 +7,7 @@
 Static sadiag1 := {}
 
   
-***** 21.01.22 создание XML-файлов реестра
+***** 29.01.22 создание XML-файлов реестра
 Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
   //
@@ -656,7 +656,9 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
           // заполним сведения о КСГ для XML-документа
           if year(human->K_DATA) >= 2021     // 02.02.21 Байкин 
             tKSLP := getKSLPtable(human->K_DATA)
-            mo_add_xml_stroke(oKSG,"IT_SL",lstr(ret_koef_kslp_21_XML(akslp,tKSLP),7,5))
+
+            mo_add_xml_stroke(oKSG, "IT_SL", lstr(ret_koef_kslp_21_XML(akslp, tKSLP, year(human->K_DATA)), 7, 5))
+
             for iAKSLP := 1 to len(akslp)
               if (cKSLP := ascan(tKSLP, {|x| x[1] == akslp[ iAKSLP ] })) > 0
                 oSLk := oKSG:Add( HXMLNode():New( "SL_KOEF" ) )

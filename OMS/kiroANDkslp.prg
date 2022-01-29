@@ -210,7 +210,7 @@ Function f_cena_kiro(/*@*/_cena, lkiro, dateSl )
   _cena := round_5(_cena * _akiro[2], 0)  // округление до рублей с 2019 года
   return _akiro
 
-***** 18.01.22 определить коэф-т сложности лечения пациента и пересчитать цену
+***** 29.01.22 определить коэф-т сложности лечения пациента и пересчитать цену
 Function f_cena_kslp(/*@*/_cena,_lshifr,_date_r,_n_data,_k_data,lkslp,arr_usl,lPROFIL_K,arr_diag,lpar_org,lad_cr)
   Static s_1_may := 0d20160430, s_18 := 0d20171231, s_19 := 0d20181231
   static s_20 := 0d20201231
@@ -266,7 +266,9 @@ Function f_cena_kslp(/*@*/_cena,_lshifr,_date_r,_n_data,_k_data,lkslp,arr_usl,lP
     // установим цену с учетом КСЛП
     if !empty(_akslp)
 
-      _cena := round_5(_cena*ret_koef_kslp_21(_akslp),0)  // с 2019 года цена округляется до рублей
+      if year(_k_data) >= 2021
+        _cena := round_5(_cena * ret_koef_kslp_21(_akslp, year(_k_data)), 0)  // с 2019 года цена округляется до рублей
+      endif
       
       if year(_k_data) >= 2021
         // запомним новое КСЛП
@@ -461,39 +463,55 @@ Function ret_koef_kslp(akslp)
   return k
   
   
-  ***** 26.01.21 вернуть итоговый КСЛП для 21 года
-Function ret_koef_kslp_21(akslp)
+***** 29.01.21 вернуть итоговый КСЛП для 21 года
+Function ret_koef_kslp_21(akslp, nYear)
   Local k := 1  // КСЛП равен 1
 
   if valtype(akslp) == "A" .and. len(akslp) >= 2
-    for i := 1 TO len(akslp) STEP 2
-      if i == 1
-        k := akslp[2]
-      else
-        k += (akslp[i + 1] - 1)
+    if nYear == 2021
+      for i := 1 TO len(akslp) STEP 2
+        if i == 1
+          k := akslp[2]
+        else
+          k += (akslp[i + 1] - 1)
+        endif
+      next
+      if k > 1.8
+        k := 1.8  // согласно п.3 инструкции
       endif
-    next
-  endif
-  if k > 1.8
-    k := 1.8  // согласно п.3 инструкции
+    elseif nYear == 2022
+      for i := 1 TO len(akslp) STEP 2
+        if i == 1
+          k := akslp[2]
+        else
+          k += akslp[i + 1]
+        endif
+      next
+    endif
   endif
   return k
 
-***** 03.02.21 вернуть итоговый КСЛП для 21 года
-Function ret_koef_kslp_21_XML(akslp, tKSLP)
+***** 29.01.22 вернуть итоговый КСЛП для 21 года
+Function ret_koef_kslp_21_XML(akslp, tKSLP, nYear)
   Local k := 1  // КСЛП равен 1
   local iAKSLP
 
   if valtype(akslp) == "A"
-    for iAKSLP := 1 to len(akslp)
-      if (cKSLP := ascan(tKSLP, {|x| x[1] == akslp[ iAKSLP ] })) > 0
-        // mo_add_xml_stroke( oSLk, "ID_SL", lstr(akslp[ iAKSLP ] ) )
-        // mo_add_xml_stroke( oSLk, "VAL_C", lstr( tKSLP[ cKSLP, 4 ], 7, 5 ) )
-        k += (tKSLP[ cKSLP, 4 ] - 1)
+    if nYear == 2021
+      for iAKSLP := 1 to len(akslp)
+        if (cKSLP := ascan(tKSLP, {|x| x[1] == akslp[ iAKSLP ] })) > 0
+          k += (tKSLP[ cKSLP, 4 ] - 1)
+        endif
+      next
+      if k > 1.8
+        k := 1.8  // согласно п.3 инструкции
       endif
-    next
-  endif
-  if k > 1.8
-    k := 1.8  // согласно п.3 инструкции
+    elseif nYear == 2022
+      for iAKSLP := 1 to len(akslp)
+        if (cKSLP := ascan(tKSLP, {|x| x[1] == akslp[ iAKSLP ] })) > 0
+          k += tKSLP[ cKSLP, 4 ]
+        endif
+      next
+    endif
   endif
   return k
