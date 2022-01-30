@@ -768,48 +768,48 @@ function it_Index(val_year)
       index on KOD to (cur_dir + sbaseShema)
   
       // R_Use(exe_dir + sbase, ,'IT')
-      R_Use(exe_dir + sbaseIt1, ,'IT')
-      ('IT')->(dbGoTop())  // go top
-      do while !('IT')->(eof())
+      R_Use(exe_dir + sbaseIt1, ,'IT1')
+      ('IT1')->(dbGoTop())  // go top
+      do while !('IT1')->(eof())
         ar := {}
         ar1 := {}
         ar2 := {}
-        if !empty(it->ds)
-          ar := Slist2arr(it->ds)
+        if !empty(it1->ds)
+          ar := Slist2arr(it1->ds)
           for i := 1 to len(ar)
             ar[i] := padr(ar[i],5)
           next
         endif
-        if !empty(it->ds1)
-          ar1 := Slist2arr(it->ds1)
+        if !empty(it1->ds1)
+          ar1 := Slist2arr(it1->ds1)
           for i := 1 to len(ar1)
             ar1[i] := padr(ar1[i],5)
           next
         endif
-        if !empty(it->ds2)
-          ar2 := Slist2arr(it->ds2)
+        if !empty(it1->ds2)
+          ar2 := Slist2arr(it1->ds2)
           for i := 1 to len(ar2)
             ar2[i] := padr(ar2[i],5)
           next
         endif
   
         ('SCHEMA')->(dbGoTop())
-        if ('SCHEMA')->(dbSeek( padr(it->CODE,6) ))
+        if ('SCHEMA')->(dbSeek( padr(it1->CODE,6) ))
           lSchema := .t.
         endif
 
         if lSchema
           // aadd(arr_ad_cr_it22,{it->USL_OK,padr(it->CODE,6),ar,ar1,ar2, alltrim(SCHEMA->NAME)})
-          aadd(&arrName, {it->USL_OK, padr(it->CODE, 6), ar, ar1, ar2, alltrim(SCHEMA->NAME)})
+          aadd(&arrName, {it1->USL_OK, padr(it1->CODE, 6), ar, ar1, ar2, alltrim(SCHEMA->NAME)})
         else
           // aadd(arr_ad_cr_it22,{it->USL_OK,padr(it->CODE,6),ar,ar1,ar2, ''})
-          aadd(&arrName, {it->USL_OK, padr(it->CODE, 6), ar, ar1, ar2, ''})
+          aadd(&arrName, {it1->USL_OK, padr(it1->CODE, 6), ar, ar1, ar2, ''})
         endif
-        ('IT')->(dbskip()) 
+        ('IT1')->(dbskip()) 
         lSchema := .f.
       enddo
       ('SCHEMA')->(dbCloseArea())
-      ('IT')->(dbCloseArea())   //use
+      ('IT1')->(dbCloseArea())   //use
     else
       // fl := notExistsFileNSI( exe_dir + sbase + sdbf )
       fl := notExistsFileNSI( exe_dir + sbaseIt1 + sdbf )
@@ -932,7 +932,6 @@ function it_Index(val_year)
       fl := notExistsFileNSI( exe_dir + sbaseIt + sdbf )
     endif
   endif
-  altd()
   return fl
 
 **** 29.11.21
