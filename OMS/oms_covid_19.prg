@@ -172,7 +172,7 @@ Function f_oms_sluch_lek_pr(oBrow)
   oColumn:colorBlock := blk_color
   oBrow:addColumn(oColumn)
 
-  oColumn := TBColumnNew(" Доза",{|| str(tmp->DOZE, 5, 2) })
+  oColumn := TBColumnNew(" Доза",{|| str(tmp->DOZE, 6, 2) })
   oColumn:colorBlock := blk_color
   oBrow:addColumn(oColumn)
 
