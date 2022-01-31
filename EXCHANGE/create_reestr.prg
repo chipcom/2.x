@@ -3,7 +3,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 28.12.21
+***** 31.01.22
 Function create_reestr()
   Local buf := save_maxrow(), i, j, k := 0, k1 := 0, arr, bSaveHandler, fl, rec, pole, arr_m
 
@@ -19,8 +19,8 @@ Function create_reestr()
   //!!! ВНИМАНИЕ
   // if 2022 == arr_m[1]
     // return func_error(4,"Реестры за 2022 год недоступны")
-  if 2023 == arr_m[1]
-    return func_error(4,"Реестры за 2023 год недоступны")
+  if DONT_CREATE_REESTR_YEAR == arr_m[1]
+    return func_error(4,"Реестры за " + str(DONT_CREATE_REESTR_YEAR, 4) + " год недоступны")
   endif
   if !myFileDeleted(cur_dir+"tmpb"+sdbf)
     return NIL
