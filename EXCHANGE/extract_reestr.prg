@@ -466,7 +466,7 @@ Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
                     &lal.->DATE_1    := mo_read_xml_stroke(oNode11,"DATE_1")
                     &lal.->DATE_2    := mo_read_xml_stroke(oNode11,"DATE_2")
                     &lal.->KD        := mo_read_xml_stroke(oNode11,"KD",,.f.)
-                    &lal.->WEI       := mo_read_xml_stroke(oNode3,"WEI", , .f.)
+                    &lal.->WEI       := mo_read_xml_stroke(oNode11,"WEI", , .f.)
                     &lal.->DS0       := mo_read_xml_stroke(oNode11,"DS0",,.f.)
                     &lal.->DS1       := mo_read_xml_stroke(oNode11,"DS1")
                     &lal.->DS1_PR    := mo_read_xml_stroke(oNode11,"DS1_PR",,.f.) // 2
