@@ -8,7 +8,7 @@ function check_oms_sluch_lek_pr(mkod_human)
   // mkod_human - код по БД human
 
   local vidPom, m1USL_OK, m1PROFIL, last_date, mdiagnoz, d1, d2, ad_cr
-  local retFl := .f.
+  local retFl := .f., mvozrast
 
   G_Use(dir_server + "human_2", , "HUMAN_2")
   G_Use(dir_server + "human_", , "HUMAN_")
@@ -30,8 +30,12 @@ function check_oms_sluch_lek_pr(mkod_human)
   human_kod_diag := mdiagnoz[1]
   vidPom := human_->VIDPOM
   ad_cr := lower(alltrim(human_2->PC3))
+  mvozrast := count_years(human->DATE_R, d2)
 
-  retFl := (d2 >= d_01_01_2022) .and. ((alltrim(human_kod_diag) == 'U07.1') ;
+
+  retFl := (d2 >= d_01_01_2022) ;
+    .and. mvozrast >= 18 .and. !check_diag_pregant() ;
+    .and. ((alltrim(human_kod_diag) == 'U07.1') ;
     .or. (alltrim(human_kod_diag) == 'U07.2')) .and. (M1USL_OK == 1) ;
     .and. (M1PROFIL != 158) .and. (vidPom != 32) .and. (ad_cr != 'stt5')
 
@@ -41,6 +45,58 @@ function check_oms_sluch_lek_pr(mkod_human)
 
   return retFl
 
+******* 01.02.22
+function between_diag(sDiag, bDiag, eDiag)
+  local fl := .f.
+  local l, l1, l2
+  local k, k1, k2, v, v1, v2
+
+  sDiag := alltrim(sDiag)
+  bDiag := alltrim(bDiag)
+  eDiag := alltrim(eDiag)
+  l := substr(sDiag, 1, 1)
+  l1 := substr(bDiag, 1, 1)
+  l2 := substr(eDiag, 1, 1)
+
+  if empty(sDiag) .or. ! between(l, l1, l2)
+    return fl
+  endif
+
+  k := rat(".", sDiag)
+  sDiag := substr(sDiag, 2, k - iif(k > 0, 2, 0))
+  k1 := rat(".", bDiag)
+  bDiag := substr(bDiag, 2)
+  k2 := rat(".", eDiag)
+  eDiag := substr(eDiag, 2)
+
+  v := int(val(sDiag))
+  v1 := int(val(bDiag))
+  v2 := int(val(eDiag))
+  fl := between(v, v1, v2)
+  return fl
+
+
+******* 01.02.22
+function check_diag_pregant()
+  local fl := .f.
+
+  fl := iif( ;
+      between_diag(HUMAN->KOD_DIAG2, 'O00', 'O99') .or. ;
+      between_diag(HUMAN->KOD_DIAG3, 'O00', 'O99') .or. ;
+      between_diag(HUMAN->KOD_DIAG4, 'O00', 'O99') .or. ;
+      between_diag(HUMAN->SOPUT_B1, 'O00', 'O99') .or. ;
+      between_diag(HUMAN->SOPUT_B2, 'O00', 'O99') .or. ;
+      between_diag(HUMAN->SOPUT_B3, 'O00', 'O99') .or. ;
+      between_diag(HUMAN->SOPUT_B4, 'O00', 'O99') .or. ;
+      between_diag(HUMAN->KOD_DIAG2, 'Z34', 'Z35') .or. ;
+      between_diag(HUMAN->KOD_DIAG3, 'Z34', 'Z35') .or. ;
+      between_diag(HUMAN->KOD_DIAG4, 'Z34', 'Z35') .or. ;
+      between_diag(HUMAN->SOPUT_B1, 'Z34', 'Z35') .or. ;
+      between_diag(HUMAN->SOPUT_B2, 'Z34', 'Z35') .or. ;
+      between_diag(HUMAN->SOPUT_B3, 'Z34', 'Z35') .or. ;
+      between_diag(HUMAN->SOPUT_B4, 'Z34', 'Z35'), .t., .f.)
+  return fl
+  
 ******* 09.01.22 ввода лекарственных препаратов
 function oms_sluch_lek_pr(mkod_human, mkod_kartotek, fl_edit)
   // mkod_human - код по БД human

@@ -341,7 +341,10 @@ Function verify_1_sluch(fl_view)
     aadd(ta, "для основного диагноза "+mdiagnoz[1]+" возраст должен быть меньше года")
   endif
   if human_->USL_OK == 1 ; // стационар
-      .and. (mdiagnoz[1] = 'U07.1' .or. mdiagnoz[1] = 'U07.2') .and. empty(HUMAN_2->PC4)
+      .and. (mdiagnoz[1] = 'U07.1' .or. mdiagnoz[1] = 'U07.2') ;  // проверим что диагноз COVID-19
+      .and. empty(HUMAN_2->PC4) ;                                 // вес отсутствует
+      .and. (count_years(human->DATE_R, human->k_data) >= 18) ;   // проверим что возраст больше 18 лет
+      .and. !check_diag_pregant()   // проверим, что не беременна
     aadd(ta, "для диагноза U07.1 или U07.2 для условий стационара не указан вес пациента")
   endif
   s := ""
