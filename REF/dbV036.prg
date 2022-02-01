@@ -27,8 +27,7 @@ Function ret_impl_V036(s_code, lk_data)
   Local i, retArr := nil
   local code := alltrim(s_code)
 
-  if !empty(code) .and. ((i := ascan(getV036(), {|x| x[1] == code })) > 0)
-  // if !empty(code) .and. ((i := ascan(getV036(), {|x| x[1] == code .and. x[3] == 2 })) > 0)
+  if !empty(code) .and. ((i := ascan(getV036(), {|x| x[1] == code .and. (x[3] == 1 .or. x[3] == 3) })) > 0) // согласно ПУМП 04-18-03 от 31.01.2022
     retArr := getV036()[i]
   endif
   return retArr
