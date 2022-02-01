@@ -20,14 +20,15 @@ function getV036()
 
   return _arr
 
-***** 01.01.22 вернуть массив услуга для имплантации
+***** 01.02.22 вернуть массив услуга для имплантации
 Function ret_impl_V036(s_code, lk_data)
   // s_code - код федеральной услуги
   // lk_data - дата оказания услуги
   Local i, retArr := nil
   local code := alltrim(s_code)
 
-  if !empty(code) .and. ((i := ascan(getV036(), {|x| x[1] == code .and. x[3] == 2 })) > 0)
+  if !empty(code) .and. ((i := ascan(getV036(), {|x| x[1] == code })) > 0)
+  // if !empty(code) .and. ((i := ascan(getV036(), {|x| x[1] == code .and. x[3] == 2 })) > 0)
     retArr := getV036()[i]
   endif
   return retArr
