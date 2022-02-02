@@ -244,13 +244,18 @@ Function f_cena_kslp(/*@*/_cena,_lshifr,_date_r,_n_data,_k_data,lkslp,arr_usl,lP
 
     savedKSLP := iif(empty(HUMAN_2->PC1), "'"+"'", "'" + alltrim(HUMAN_2->PC1) + "'")  // получим сохраненные КСЛП
 
+    // argc := '(' + savedKSLP + ',' + ;
+    // "'" + dtoc(_date_r) + "'," + "'" + dtoc(_n_data) + "'," + ;
+    // lstr(lPROFIL_K) + ',' + "'" + _lshifr + "'," + lstr(lpar_org) + ',' + ;
+    // "'" + arr2SlistN(arr_diag) + "'," + lstr(countDays) + ')'
     argc := '(' + savedKSLP + ',' + ;
-    "'" + dtoc(_date_r) + "'," + "'" + dtoc(_n_data) + "'," + ;
+    "'" + dtoc(_date_r) + "'," + "'" + dtoc(_k_data) + "'," + ;
     lstr(lPROFIL_K) + ',' + "'" + _lshifr + "'," + lstr(lpar_org) + ',' + ;
     "'" + arr2SlistN(arr_diag) + "'," + lstr(countDays) + ')'
 
     for each row in getKSLPtable( _k_data )
-      nameFunc := 'conditionKSLP_' + alltrim(str(row[1],2)) + '_' + last_digits_year(_n_data)
+      // nameFunc := 'conditionKSLP_' + alltrim(str(row[1],2)) + '_' + last_digits_year(_n_data)
+      nameFunc := 'conditionKSLP_' + alltrim(str(row[1],2)) + '_' + last_digits_year(_k_data)
       nameFunc := namefunc + argc
 
       if ascan( lkslp, row[1]) > 0 .and. &nameFunc

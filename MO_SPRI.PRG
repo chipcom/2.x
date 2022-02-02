@@ -103,7 +103,7 @@ if k > 0
 endif
 return NIL
 
-***** 18.08.18
+***** 02.02.22
 Function fspr_uslugi(k)
 Static _su := 110
 Static sk := 1, sk1 := 1, sk2 := 1
@@ -158,21 +158,24 @@ do case
                 "Операции на ~парных органах",;
                 "Классификатор ~видов ВМП",;
                 "Классификатор ~методов ВМП",;
-                "Услуги ФФОМС -> ~наши услуги"}
+                "Услуги ФФОМС -> ~наши услуги",;
+                "Список ~имплантатов"}
     mas_msg := {"Вывод списка услуг Минздрава РФ (ФФОМС) по подразделам",;
                 "Вывод списка стоматологических услуг Минздрава РФ (ФФОМС) по группам",;
                 "Распечатка списка услуг с использованием телемедицинских технологий",;
                 "Распечатка списка операций на парных органах (частях тела)",;
                 "Распечатка классификатора видов ВМП",;
                 "Распечатка классификатора методов ВМП (с группировкой по видам ВМП)",;
-                "Привязка Ваших услуг к услугам ФФОМС"}
+                "Привязка Ваших услуг к услугам ФФОМС",;
+                "Распечатка списка имплантатов"}
     mas_fun := {"fspr_uslugi(21)",;
                 "fspr_uslugi(22)",;
                 "fspr_uslugi(23)",;
                 "fspr_uslugi(24)",;
                 "fspr_uslugi(25)",;
                 "fspr_uslugi(26)",;
-                "fspr_uslugi(27)"}
+                "fspr_uslugi(27)",;
+                "fspr_uslugi(30)"}
     k := len(mas_pmt)
     use_base("luslc")
     set order to 2
@@ -225,6 +228,8 @@ do case
     usl6FFOMS(2)
   case k == 29
     usl6FFOMS(1)
+  case k == 30 
+    v_implantant()
 endcase
 if k > 0
   if k > 20
@@ -559,6 +564,52 @@ close databases
 fclose(fp)
 viewtext(n_file,,,,,,,2)
 return NIL
+
+*****
+Static Function v_implantant()
+  
+Local vrem_local :="", k, l, s, i, ss, sh := 80, HH := 57, n_file := "implant"+stxt
+local mas[2]
+Local glob_implantant := get_implantant()
+mywait()
+fp := fcreate(n_file) ; n_list := 1 ; tek_stroke := 0
+add_string("")
+add_string(center("Имплантируемые материалы",sh))
+add_string("")
+l := sh
+asort(glob_implantant,,,{|x,y| (padr(x[7],75)+x[1]) < (padr(y[7],75)+y[1])}) 
+//index on padr(local,75)+padr(name,120) to tmp_impl
+vrem_local := glob_implantant[1,7] //impl->local
+if len(alltrim(vrem_local)) < 2
+  add_string(center("Без группы",sh))
+else  
+  add_string(center(vrem_local,sh))
+endif
+for i := 1 to len(glob_implantant)
+  if vrem_local != glob_implantant[i,7] //impl->local
+    if verify_FF(HH, .t., sh)
+      //aeval(arr_title, {|x| add_string(x) } )
+    endif
+    vrem_local := glob_implantant[i,7] //impl->local
+    add_string("")
+    add_string(center(vrem_local,sh))
+    add_string("")
+  endif
+  if verify_FF(HH, .t., sh)
+    //aeval(arr_title, {|x| add_string(x) } )
+  endif
+  ss := lstr(glob_implantant[i,2],6)+" "
+  k := perenos(mas,ss+alltrim(glob_implantant[i,1]),l," ,;") //impl->name
+  s := padr(mas[1],l)
+  add_string(s)
+  if k > 1
+    add_string(padl(alltrim(mas[2]),l))
+  endif
+  next
+fclose(fp)
+viewtext(n_file,,,,,,,2)
+return NIL
+  
 
 
 *****
