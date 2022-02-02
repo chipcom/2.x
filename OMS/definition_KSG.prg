@@ -4,7 +4,7 @@
 #include "chip_mo.ch"
  
 
-***** 11.02.21 определение КСГ по остальным введённым полям ввода - 2019-20 год
+***** 02.02.22 определение КСГ по остальным введённым полям ввода - 2019-22 год
 Function definition_KSG(par,k_data2)
   // файлы "human", "human_" и "human_2" открыты и стоят на нужной записи
   //       "human" открыт для записи суммы случая
@@ -883,35 +883,33 @@ Function definition_KSG(par,k_data2)
         // if len(akslp) >= 4
         //   s += "+"+str(akslp[4],4,2)
         // endif
-        s += ", цена "+lstr(lcena,11,0)+"р.)"
+        s += ", цена " + lstr(lcena, 11, 0) + "р.)"
       endif
       if !empty(lkiro)
         vkiro := 0
-        if ldnej < 4 // менее 4-х дней
-          if ascan(lkiro,1) > 0
+        if ascan({102, 105, 107, 110, 202, 205, 207}, lrslt) > 0 // более 3-х дней, лечение прервано
+          if ascan(lkiro, 3) > 0
+            vkiro := 3
+          elseif ascan(lkiro, 4) > 0
+            vkiro := 4
+          elseif lis_err == 1 .and. ascan(lkiro, 6) > 0 // добавляем ещё несоблюдение схемы химиотерапии (КИРО=6)
+            vkiro := 6
+          endif
+        elseif ldnej < 4 // менее 4-х дней
+          if ascan(lkiro, 1) > 0
             vkiro := 1
-          elseif ascan(lkiro,2) > 0
+          elseif ascan(lkiro, 2) > 0
             vkiro := 2
             if lksg == 'ds02.005' //; // Экстракорпоральное оплодотворение
-                   //.and. lk_data >= 0d20190301 // с 1 марта КИРО=2 не действует
               vkiro := 0
             endif
-          elseif lis_err == 1 .and. ascan(lkiro,5) > 0 // добавляем ещё несоблюдение схемы химиотерапии (КИРО=5)
+          elseif lis_err == 1 .and. ascan(lkiro, 5) > 0 // добавляем ещё несоблюдение схемы химиотерапии (КИРО=5)
             vkiro := 5
-          endif
-        elseif ascan({102,105,107,110,202,205,207},lrslt) > 0 // более 3-х дней, лечение прервано
-          if ascan(lkiro,3) > 0
-            vkiro := 3
-          elseif ascan(lkiro,4) > 0
-            vkiro := 4
-          elseif lis_err == 1 .and. ascan(lkiro,6) > 0 // добавляем ещё несоблюдение схемы химиотерапии (КИРО=6)
-            vkiro := 6
           endif
         endif
         if vkiro > 0
-          // akiro := f_cena_kiro(@lcena,vkiro)
           akiro := f_cena_kiro(@lcena, vkiro, lk_data)
-          s += "  (КИРО = "+str(akiro[2],4,2)+", цена "+lstr(lcena,11,0)+"р.)"
+          s += "  (КИРО = " + str(akiro[2], 4, 2) + ", цена " + lstr(lcena, 11, 0) + "р.)"
         endif
       endif
       if !empty(s)
