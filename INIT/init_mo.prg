@@ -33,7 +33,7 @@ Function init_mo()
                {"171099",2,"г.Волгоград, ул.Тракторостроителей, д.13"}};
     };
   }
-  if hb_FileExists(nfile)
+  // if hb_FileExists(nfile)
 
     // glob_arr_mo := getMo_mo(nfile)
 
@@ -84,9 +84,9 @@ Function init_mo()
     if empty(cCode)
       fl := func_error('Работа невозможна - не введён код МО.')
     endif
-  else
-    fl := func_error('Работа невозможна - не обнаружен файл "_MO_MO.DBB"')
-  endif
+  // else
+  //   fl := func_error('Работа невозможна - не обнаружен файл "_MO_MO.DBB"')
+  // endif
 
   rest_box(buf)
 
