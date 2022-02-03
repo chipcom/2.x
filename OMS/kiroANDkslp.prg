@@ -512,6 +512,7 @@ Function ret_koef_kslp_21_XML(akslp, tKSLP, nYear)
         k := 1.8  // согласно п.3 инструкции
       endif
     elseif nYear == 2022
+      k := 0
       for iAKSLP := 1 to len(akslp)
         if (cKSLP := ascan(tKSLP, {|x| x[1] == akslp[ iAKSLP ] })) > 0
           k += tKSLP[ cKSLP, 4 ]
