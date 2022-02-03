@@ -347,6 +347,9 @@ Function verify_1_sluch(fl_view)
       .and. !check_diag_pregant()   // проверим, что не беременна
     aadd(ta, "для диагноза U07.1 или U07.2 для условий стационара не указан вес пациента")
   endif
+  if !empty(HUMAN_2->PC4) .and. val(HUMAN_2->PC4) < 0.3
+    aadd(ta, "вес пациента не может быть меньше 300 грамм")
+  endif
   s := ""
   if len(mdiagnoz) > 0 .and. f_oms_beremenn(mdiagnoz[1]) == 3 .and. between(human_2->pn2,1,4)
     s := "R52."+{"0","1","2","9"}[human_2->pn2]

@@ -600,7 +600,8 @@ Function f2oms_usl_sluch(nKey,oBrow)
         // чтение введенной информации
         count_edit := myread(,,++k_read)
 
-        if (mdate_u1 >= d_01_01_2022) .and. ((aImpl := ret_impl_V036(mshifr, mdate_u1)) != NIL)
+        // if (mdate_u1 >= d_01_01_2022) .and. ((aImpl := ret_impl_V036(mshifr, mdate_u1)) != NIL)
+        if (HUMAN->K_DATA >= d_01_01_2022) .and. ((aImpl := ret_impl_V036(mshifr, HUMAN->K_DATA)) != NIL)
           if arrImplant == NIL  // имплантант отсутствует
             // if (nChoice := hb_Alert('Для данной услуги предусмотрен имплантант. Добавляем?', aOptions)) == 2
               if (l_impl := select_implantant(mdate_u1)) != NIL
