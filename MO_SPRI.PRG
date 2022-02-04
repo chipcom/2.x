@@ -565,7 +565,7 @@ fclose(fp)
 viewtext(n_file,,,,,,,2)
 return NIL
 
-*****
+***** 04.02.22
 Static Function v_implantant()
   
 Local vrem_local :="", k, l, s, i, ss, sh := 80, HH := 57, n_file := "implant"+stxt
@@ -598,7 +598,8 @@ for i := 1 to len(glob_implantant)
   if verify_FF(HH, .t., sh)
     //aeval(arr_title, {|x| add_string(x) } )
   endif
-  ss := lstr(glob_implantant[i,2],6)+" "
+  // ss := lstr(glob_implantant[i,2],6)+" "
+  ss := ""
   k := perenos(mas,ss+alltrim(glob_implantant[i,1]),l," ,;") //impl->name
   s := padr(mas[1],l)
   add_string(s)
