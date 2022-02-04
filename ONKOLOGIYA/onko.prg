@@ -4,24 +4,25 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 02.12.21
-Function ret_arr_shema(k) 
-  // возвращает схемы лекарственных терапий для онкологии на текущий рабочий год
-  Static ashema := {{},{},{}}
+***** 04.02.22
+Function ret_arr_shema(k, k_data) 
+  // возвращает схемы лекарственных терапий для онкологии на дату
+  Static ashema := {{}, {}, {}}
   Local i
   local _data := 0d20210101 // 21 год
 
+  Default k_data TO sys_date
+  _data := k_data
+
   if empty(ashema[1])
-    // Private _data := 0d20210101 // 2021 год
-    // R_Use(exe_dir+"_mo1shema",,"IT")
-    R_Use(exe_dir + prefixFileRefName(WORK_YEAR) + 'shema', , 'IT')
-    aadd(ashema[1],{"-----     без схемы лекарственной терапии",padr("нет",10)})
-    index on kod to (cur_dir+"tmp_schema") for left(kod,2) == "sh" .and. between_date(it->datebeg,it->dateend,_data)
-    dbeval({|| aadd(ashema[1],{it->kod+left(it->name,68),it->kod}) })
-    index on kod to (cur_dir+"tmp_schema") for left(kod,2) == "mt" .and. between_date(it->datebeg,it->dateend,_data)
-    dbeval({|| aadd(ashema[2],{it->kod+left(it->name,68),it->kod}) })
-    index on kod to (cur_dir+"tmp_schema") for left(kod,2) == "fr" .and. between_date(it->datebeg,it->dateend,_data)
-    dbeval({|| aadd(ashema[3],{it->kod+left(it->name,68),it->kod,0,0}) })
+    R_Use(exe_dir + prefixFileRefName(_data) + 'shema', , 'IT')
+    aadd(ashema[1], {"-----     без схемы лекарственной терапии", padr("нет", 10)})
+    index on kod to (cur_dir + "tmp_schema") for left(kod, 2) == "sh" .and. between_date(it->datebeg, it->dateend, _data)
+    dbeval({|| aadd(ashema[1], {it->kod + left(it->name, 68), it->kod}) })
+    index on kod to (cur_dir + "tmp_schema") for left(kod, 2) == "mt" .and. between_date(it->datebeg, it->dateend, _data)
+    dbeval({|| aadd(ashema[2], {it->kod + left(it->name, 68), it->kod}) })
+    index on kod to (cur_dir + "tmp_schema") for left(kod, 2) == "fr" .and. between_date(it->datebeg, it->dateend, _data)
+    dbeval({|| aadd(ashema[3], {it->kod + left(it->name, 68), it->kod, 0, 0}) })
     use
     for i := 1 to len(ashema[3])
       ashema[3,i,3] := int(val(substr(ashema[3,i,1],3,2)))
@@ -31,7 +32,7 @@ Function ret_arr_shema(k)
   return ashema[k]
 
 ***** 15.02.20
-Function f_is_oncology(r,/*@*/_onk_smp)
+Function f_is_oncology(r, /*@*/_onk_smp)
   Local i, k, mdiagnoz, lusl_ok, lprofil, lzno := 0, lyear, lk_data
   if r == 1
     lk_data := human->k_data
@@ -51,19 +52,20 @@ Function f_is_oncology(r,/*@*/_onk_smp)
     lzno := m1ds_onk
   endif
   if empty(mdiagnoz)
-    aadd(mdiagnoz,space(6))
+    aadd(mdiagnoz, space(6))
   endif
   k := lzno
-  if lyear >= 2021 .and. (left(mdiagnoz[1],1) == "C" .or. between(left(mdiagnoz[1],3),"D00","D09") .or. between(left(mdiagnoz[1],3),"D45","D47")) // согласно письму 04-18-05 от 12.02.21
+  if lyear >= 2021 .and. (left(mdiagnoz[1],1) == "C" .or. between(left(mdiagnoz[1], 3), "D00", "D09") ;
+          .or. between(left(mdiagnoz[1], 3), "D45", "D47")) // согласно письму 04-18-05 от 12.02.21
     k := 2
-  elseif lyear >= 2019 .and. (left(mdiagnoz[1],1) == "C" .or. between(left(mdiagnoz[1],3),"D00","D09"))
+  elseif lyear >= 2019 .and. (left(mdiagnoz[1], 1) == "C" .or. between(left(mdiagnoz[1], 3), "D00", "D09"))
     k := 2
-  elseif lyear == 2018 .and. left(mdiagnoz[1],1) == "C"
+  elseif lyear == 2018 .and. left(mdiagnoz[1], 1) == "C"
     k := 2
-  elseif left(mdiagnoz[1],3) == "D70" .and. lk_data < 0d20200401 // только до 1 апреля 2020 года
+  elseif left(mdiagnoz[1], 3) == "D70" .and. lk_data < 0d20200401 // только до 1 апреля 2020 года
     for i := 2 to len(mdiagnoz)
       if left(mdiagnoz[i],1) == "C"
-        if between(left(mdiagnoz[i],3),"C00","C80") .or. left(mdiagnoz[i],3) == "C97"
+        if between(left(mdiagnoz[i], 3), "C00", "C80") .or. left(mdiagnoz[i], 3) == "C97"
           k := 2
         endif
       endif
@@ -90,6 +92,6 @@ Function when_ds_onk()
   
 ***** 29.01.19
 Function is_lymphoid(_diag) // ЗНО кроветворной или лимфоидной тканей
-  return !empty(_diag) .and. between(left(_diag,3),"C81","C96")
+  return !empty(_diag) .and. between(left(_diag, 3), "C81", "C96")
   
   

@@ -1453,15 +1453,15 @@ if fl
 endif
 return NIL
 
-***** 21.04.19
+***** 04.02.22
 Function f1_write_file_XML_SDS(n_file)
 Local buf := save_maxrow(), aerr := {}, arr, fl, i, j, t2, s, s1, afio[3], adiag_talon[16]
 mywait("Импорт XML-файла ...")
 strfile(center("Протокол импорта файла",80)+eos,"ttt.ttt")
 strfile(center(n_file,80)+eos+eos,"ttt.ttt",.t.)
 glob_podr := "" ; glob_otd_dep := 0
-Private is := 0, is1 := 0, iz := 0, isp1 := 0, isp2 := 0,;
-        _arr_sh := ret_arr_shema(1), _arr_mt := ret_arr_shema(2), _arr_fr := ret_arr_shema(3)
+Private is := 0, is1 := 0, iz := 0, isp1 := 0, isp2 := 0  //,;
+        // _arr_sh := ret_arr_shema(1), _arr_mt := ret_arr_shema(2), _arr_fr := ret_arr_shema(3)
 use_base("lusl")
 use_base("luslc")
 use_base("luslf")
@@ -1686,6 +1686,10 @@ do while !eof()
       human->K_DATA     := ihuman->DATE_2
       human->CENA := human->CENA_1 := ihuman->SUMV
       human->OBRASHEN := iif(ihuman->DS_ONK == 1, '1', " ")
+
+      // заполним для онкологии
+      private _arr_sh := ret_arr_shema(1, ihuman->DATE_2), _arr_mt := ret_arr_shema(2, ihuman->DATE_2), _arr_fr := ret_arr_shema(3, ihuman->DATE_2)
+
       afill(adiag_talon,0)
       if ihuman->c_zab == 3
         adiag_talon[1] := 2

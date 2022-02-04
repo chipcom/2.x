@@ -3,7 +3,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 28.04.20 добавление или редактирование случая (листа учета)
+***** 04.02.22 добавление или редактирование случая (листа учета)
 Function oms_sluch(Loc_kod,kod_kartotek)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -302,13 +302,13 @@ Function oms_sluch(Loc_kod,kod_kartotek)
     {"CODE_SH",     "C",    10,     0},; // код схемы лек.терапии V024
     {"DATE_INJ",    "D",     8,     0};  // дата введения лек.препарата
   })
-
+ 
   Private musl_tip, m1usl_tip, musl_tip1, m1usl_tip1, musl_tip2, m1usl_tip2, msod, ;
     musl_vmp, m1usl_vmp, musl_vmp1, m1usl_vmp1, musl_vmp2, m1usl_vmp2, msod_vmp, ;
     mpptr, m1pptr := 0, mpptr_vmp, m1pptr_vmp := 0,;
     mIS_ERR, m1is_err := 0,; // Признак несоблюдения схемы лекарственной терапии: 0-нормально, 1-не соблюдена
     mIS_ERR_vmp, m1is_err_vmp := 0,;
-    _arr_sh := ret_arr_shema(1), _arr_mt := ret_arr_shema(2), _arr_fr := ret_arr_shema(3),;
+    _arr_sh := ret_arr_shema(1, MK_DATA), _arr_mt := ret_arr_shema(2, MK_DATA), _arr_fr := ret_arr_shema(3, MK_DATA),;
     mm_usl_tip := {{"не проводилось",0},; // N013
                     {"Хирургическое лечение",1},;
                     {"Лекарственная противоопухолевая терапия",2},;
