@@ -7,7 +7,7 @@
 Static sadiag1 := {}
 
   
-***** 29.01.22 создание XML-файлов реестра
+***** 04.02.22 создание XML-файлов реестра
 Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
   //
@@ -16,6 +16,7 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
   local aImpl, arrLP, row
   local ser_num
   local controlVer
+  local endDateZK
 
   //
   close databases
@@ -400,6 +401,9 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
         lal := iif(kol_sl == 2, "human_3", "human")
         mo_add_xml_stroke(oSLUCH,"DATE_Z_1",date2xml(&lal.->N_DATA))
         mo_add_xml_stroke(oSLUCH,"DATE_Z_2",date2xml(&lal.->K_DATA))
+
+        endDateZK := &lal.->K_DATA
+
         if p_tip_reestr == 1
           if kol_sl == 2
             mo_add_xml_stroke(oSLUCH,"KD_Z",lstr(human_3->k_data-human_3->n_data)) // Указывается количество койко-дней для стационара, количество пациенто-дней для дневного стационара
@@ -948,7 +952,8 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
           mo_add_xml_stroke(oUSL,"SUMV_USL",lstr(hu->STOIM_1,10,2))
 
           if (human->k_data >= 0d20210801 .and. p_tip_reestr == 2) ;      // правила заполнения с 01.08.21 письмо № 04-18-13 от 20.07.21
-              .or. (human->k_data >= d_01_01_2022 .and. p_tip_reestr == 1)  // правила заполнения с 01.01.22 письмо № 04-18?17 от 28.12.2021
+              .or. (endDateZK >= d_01_01_2022 .and. p_tip_reestr == 1)  // правила заполнения с 01.01.22 письмо № 04-18?17 от 28.12.2021
+              // .or. (human->k_data >= d_01_01_2022 .and. p_tip_reestr == 1)  // правила заполнения с 01.01.22 письмо № 04-18?17 от 28.12.2021
               
             if between_date(human->n_data, human->k_data, c4tod(hu->DATE_U))
               oMR_USL_N := oUSL:Add( HXMLNode():New( "MR_USL_N" ) )

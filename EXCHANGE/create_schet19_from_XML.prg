@@ -4,7 +4,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 18.08.21 создать счета по результатам прочитанного реестра СП
+***** 04.02.22 создать счета по результатам прочитанного реестра СП
 Function create_schet19_from_XML(arr_XML_info,aerr,fl_msg,arr_s,name_sp_tk)
   Local arr_schet := {}, c, len_stand, _arr_stand, lshifr, i, j, k, lbukva,;
         doplataF, doplataR, mnn, fl, name_zip, arr_zip := {}, lshifr1,;
