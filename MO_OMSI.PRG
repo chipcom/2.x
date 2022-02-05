@@ -5136,14 +5136,8 @@ if lastkey() == K_ESC
 elseif !between(arr_m[1], 2019, WORK_YEAR)
   return func_error(4,"Данный отчёт работает только с 2019 по " + str(WORK_YEAR,4) + " годами")
 endif
-lal := "lusl" ; lalf := "luslf"
-// if arr_m[1] == 2019
-//   lal += "19" ; lalf += "19"
-// elseif arr_m[1] == 2020
-//   lal += "20" ; lalf += "20"
-// elseif arr_m[1] == 2021
-//   lal += "21" ; lalf += "21"
-// endif
+lal := "lusl"
+lalf := "luslf"
 lal := create_name_alias(lal, arr_m[1])
 lalf := create_name_alias(lalf, arr_m[1])
 

@@ -4165,8 +4165,6 @@ Use_base("luslf")
 sbase := prefixFileRefName(WORK_YEAR) + 'unit'
 R_Use(dir_exe + sbase, cur_dir + sbase, "MOUNIT")
 
-// R_Use(dir_exe+"_mo1unit",cur_dir+"_mo1unit","MOUNIT") //пока рано
-// R_Use(dir_exe+"_mo0unit",cur_dir+"_mo0unit","MOUNIT")
 R_Use(dir_server+"mo_su",,"MOSU")
 R_Use(dir_server+"mo_hu",dir_server+"mo_hu","MOHU")
 set relation to u_kod into MOSU

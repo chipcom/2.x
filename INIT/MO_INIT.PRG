@@ -2324,7 +2324,6 @@ Function ret_PZ_VMP(lunit)
   if select("MOUNIT") == 0
     sbase := prefixFileRefName(WORK_YEAR) + 'unit'
     R_Use(dir_exe + sbase, cur_dir + sbase, "MOUNIT")
-    // R_Use(dir_exe+"_mo1unit",cur_dir+"_mo1unit","MOUNIT")
   endif
   select MOUNIT
   find (str(lunit,3))
