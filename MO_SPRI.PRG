@@ -3250,7 +3250,8 @@ if mo_Lock_Task(X_OMS) // запрет только ОМС G_SLock1Task(sem_task,sem_vagno) // 
   endif
   close databases
   // разрешение доступа всем
-  G_SUnLock(sem_vagno)
+  //G_SUnLock(sem_vagno)
+  mo_UnLock_Task(X_OMS)
   keyboard ""
   if go_to_schet // если выписаны счета
     keyboard chr(K_ENTER)
