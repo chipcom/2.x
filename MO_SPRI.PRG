@@ -565,7 +565,7 @@ fclose(fp)
 viewtext(n_file,,,,,,,2)
 return NIL
 
-***** 04.02.22
+*****  04.02.22
 Static Function v_implantant()
   
 Local vrem_local :="", k, l, s, i, ss, sh := 80, HH := 57, n_file := "implant"+stxt
@@ -599,8 +599,8 @@ for i := 1 to len(glob_implantant)
     //aeval(arr_title, {|x| add_string(x) } )
   endif
   // ss := lstr(glob_implantant[i,2],6)+" "
-  ss := ""
-  k := perenos(mas,ss+alltrim(glob_implantant[i,1]),l," ,;") //impl->name
+  // k := perenos(mas,ss+alltrim(glob_implantant[i,1]),l," ,;") //impl->name
+  k := perenos(mas, alltrim(glob_implantant[i, 1]), l, " ,;") //impl->name
   s := padr(mas[1],l)
   add_string(s)
   if k > 1
@@ -2883,6 +2883,7 @@ return NIL
 Function ReCreate_some_Schet_From_FILE_SP(arr)
 Local arr_XML_info[8], cFile, arr_f, k, n, oXmlDoc, aerr := {}, t_arr[2],;
       i, s, rec_schet, rec_schet_xml, go_to_schet := .f., arr_schet := {}
+  
 Private name_schet, _date_schet, mXML_REESTR
 for i := 1 to len(arr)
   select SCHET
@@ -2929,10 +2930,11 @@ if (n := ascan(arr_f,{|x| upper(Name_Without_Ext(x)) == upper(cReadFile)})) == 0
   return func_error(4,"В архиве "+name_zip+" нет файла "+cReadFile+sxml)
 endif
 close databases
-if G_SLock1Task(sem_task,sem_vagno) // запрет доступа всем
+
+if mo_Lock_Task(X_OMS) // запрет только ОМС G_SLock1Task(sem_task,sem_vagno) // запрет доступа всем
   k := len(arr_schet)
   s := iif(k == 1, "счёта ", lstr(k)+" счетов ")
-  if involved_password(3,arr_schet[1,4],"пересоздания "+s+arr_schet[1,4]) ;
+  if iif(arr_schet[1,5] > stod("20220201") .and. arr_schet[1,5] < stod("20220209") ,.T.,involved_password(3,arr_schet[1,4],"пересоздания "+s+arr_schet[1,4])) ;
      .and. f_Esc_Enter("пересоздания "+s) // .and. m_copy_DB_from_end(.t.) // резервное копирование
     Private fl_open := .t.
     index_base("schet") // для составления счетов
