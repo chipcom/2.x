@@ -122,6 +122,7 @@ mo_version.prg
 
 .\ref\initSpravFFOMS.prg
 .\ref\initPZarray.prg
+.\ref\dbAdditionalCriteria.prg
 .\ref\dbO001.prg
 .\ref\dbF003.prg
 .\ref\dbF005.prg
