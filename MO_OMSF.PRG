@@ -57,34 +57,38 @@ else
 endif
 return update_get("mstentvmp")*/
 
-***** 13.02.18
+***** 06.02.22
 Function f_oms_beremenn(sdiag)
-Static arr := {"O10","O11","O12","O13","O14","O15","O16",;
+  Static arr := {"O10","O11","O12","O13","O14","O15","O16",;
                "O20","O21","O22","O23","O24","O25","O26","O28",;
                "O30","O31","O32","O33","O36","O40","O41",;
                "O43","O44","O45","O46","O47","O98","O99",;
                "Z33","Z34","Z35","Z36"}
-Local k := 0, j, c, s
-pr_ds_it := 0
-if (c := left(sdiag,1)) == "C"
-  pr_ds_it := k := 3 // онкология
-elseif c == "O" .or. c == "Z"
-  if (s := left(sdiag,3)) == "O04"
-    k := 1 // аборт
-  elseif ascan(arr,s) > 0
-    k := 2 // беременность
+  Local k := 0, j, c, s
+  local ad_criteria := getAdditionalCriteria(0d20190101)
+
+  pr_ds_it := 0
+  if (c := left(sdiag,1)) == "C"
+    pr_ds_it := k := 3 // онкология
+  elseif c == "O" .or. c == "Z"
+    if (s := left(sdiag,3)) == "O04"
+      k := 1 // аборт
+    elseif ascan(arr,s) > 0
+      k := 2 // беременность
+    endif
   endif
-endif
-if pr_ds_it == 0 .and. alltrim(sdiag) == "R54"
-  pr_ds_it := 4
-endif
-if pr_ds_it == 0 .and. (j := ascan(arr_ad_cr_it19,{|x| x[1] == padr(sdiag,5) })) > 0
-  pr_ds_it := arr_ad_cr_it19[j,2]
-endif
-if eq_any(k,1,2) .and. type("m1USL_OK") == "N" .and. m1USL_OK == 4 // СМП
-  k := 0
-endif
-return k
+  if pr_ds_it == 0 .and. alltrim(sdiag) == "R54"
+    pr_ds_it := 4
+  endif
+  // if pr_ds_it == 0 .and. (j := ascan(arr_ad_cr_it19,{|x| x[1] == padr(sdiag,5) })) > 0
+  if pr_ds_it == 0 .and. (j := ascan(ad_criteria, {|x| x[1] == padr(sdiag,5) })) > 0
+    // pr_ds_it := arr_ad_cr_it19[j,2]
+    pr_ds_it := ad_criteria[j,2]
+  endif
+  if eq_any(k,1,2) .and. type("m1USL_OK") == "N" .and. m1USL_OK == 4 // СМП
+    k := 0
+  endif
+  return k
 
 ***** 02.01.18
 Function f_valid_beremenn(sdiag)

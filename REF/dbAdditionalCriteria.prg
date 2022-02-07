@@ -1,7 +1,7 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-// 06.02.22
+// 07.02.22
 // возвращает массив дополнительных критериев на указанную дату
 function getAdditionalCriteria( dateSl )
   Local dbName, dbAlias := '_ADCRIT'
@@ -20,7 +20,7 @@ function getAdditionalCriteria( dateSl )
 
   // получим массив критериев из хэша по ключу ГОД ОКОНЧАНИЯ СЛУЧАЯ, или загрузим его из справочника
   if hb_HHasKey( hCriteria, yearSl )
-    aCriteria := hb_HGet(hCriteria, yearSl)
+    retCriteria := hb_HGet(hCriteria, yearSl)
   else
     if yearSl >= 2021
       // поместим в ХЭШ-массив

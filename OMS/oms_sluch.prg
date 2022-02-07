@@ -3,7 +3,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 04.02.22 добавление или редактирование случая (листа учета)
+***** 07.02.22 добавление или редактирование случая (листа учета)
 Function oms_sluch(Loc_kod,kod_kartotek)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -735,7 +735,7 @@ Function oms_sluch(Loc_kod,kod_kartotek)
   setcolor(cDataCGet)
   make_diagP(1)  // сделать "шестизначные" диагнозы
   f_valid_usl_ok(,-1)
-  f_valid2ad_cr()
+  f_valid2ad_cr(MK_DATA)  // получим дополнительные критерии на дату окончания лечения
 
   Private rdiag := 1, rpp := 1, num_screen := 1, is_onko_VMP := .f.
 
@@ -893,7 +893,7 @@ Function oms_sluch(Loc_kod,kod_kartotek)
       ++j
       @ j,3 say "профиль мед.помощи" get MPROFIL ;
           reader {|x|menu_reader(x,tmp_V002,A__MENUVERT,,,.f.)} ;
-          valid f_valid2ad_cr()
+          valid f_valid2ad_cr(MK_DATA)
       ++j
       @ j,3 say "профиль койки" get MPROFIL_K ;
           reader {|x|menu_reader(x,tmp_V020,A__MENUVERT,,,.f.)} ;

@@ -97,7 +97,7 @@ Function init_mo()
 
   return main_up_screen()
 
-***** 29.01.22 проверка и переиндексирование справочников ТФОМС
+***** 07.02.22 проверка и переиндексирование справочников ТФОМС
 Function checkFilesTFOMS()
   Local fl := .t., i, arr, buf := save_maxrow()
   local arrRefFFOMS := {}, row, row_flag := .t.
@@ -177,7 +177,7 @@ Function checkFilesTFOMS()
     fl := uslf_Index(countYear)   // справочник услуг ФФОМС countYear
     fl := unit_Index(countYear)   // план-заказ
     fl := shema_index(countYear)
-    fl := it_Index(countYear)
+    // fl := it_Index(countYear)
     fl := k006_index(countYear)
   next
 

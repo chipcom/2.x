@@ -1,11 +1,10 @@
-
 #include "inkey.ch"
 #include "function.ch"
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 29.01.22
-Function f_valid2ad_cr()
+***** 07.02.22
+Function f_valid2ad_cr(k_date)
   Static mm_bartel := {;
     {"индекс Бартела 60 баллов и менее","60"},;
     {"индекс Бартела более 60 баллов",  "61"}}
@@ -25,6 +24,7 @@ Function f_valid2ad_cr()
     {"rb5cov - оценка состояния пациента после COVID-19 5 балла по ШРМ", "rb5cov"},;
     {"rbs - медицинская реабилитация детей с нарушениями слуха","rbs"}}
   Local i, j, arr_sop := {}, arr_osl := {}, fl
+  local arr_ad_criteria
 
   input_ad_cr := .f. ; mm_ad_cr := {}
   if m1usl_ok < 3 .and. m1vmp == 0
@@ -47,6 +47,7 @@ Function f_valid2ad_cr()
         aadd(mm_ad_cr,mm_rb[11])
       endif
     elseif m1usl_ok == 1 .and. !empty(MKOD_DIAG)
+      // заполним массивы arr_sop, arr_osl сопутствующими диагнозами и осложнениями
       if !empty(MKOD_DIAG2) ; aadd(arr_sop,padr(MKOD_DIAG2,5)) ; endif
       if !empty(MKOD_DIAG3) ; aadd(arr_sop,padr(MKOD_DIAG3,5)) ; endif
       if !empty(MKOD_DIAG4) ; aadd(arr_sop,padr(MKOD_DIAG4,5)) ; endif
@@ -58,44 +59,42 @@ Function f_valid2ad_cr()
       if !empty(MOSL2) ; aadd(arr_osl,padr(MOSL2,5)) ; endif
       if !empty(MOSL3) ; aadd(arr_osl,padr(MOSL3,5)) ; endif
 
-      if year(MK_DATA) == 2022    // ВРЕМЕННО, ПОКА НЕ РАЗБЕРУСЬ
-        arr_ad_cr_it21 := arr_ad_cr_it22
-      endif
+      arr_ad_criteria := getAdditionalCriteria(k_date)  // загрузим доп. критерии на дату
 
-      for i := 1 to len(arr_ad_cr_it21) 
-        if m1usl_ok == arr_ad_cr_it21[i,1] .and. ascan(mm_ad_cr,{|x| x[2] == arr_ad_cr_it21[i,2] }) == 0
-          if !empty(arr_ad_cr_it21[i,3]) .and. empty(arr_ad_cr_it21[i,4]) .and. empty(arr_ad_cr_it21[i,5]) // осн.диагноз
-            if ascan(arr_ad_cr_it21[i,3],padr(MKOD_DIAG,5)) > 0
-              // aadd(mm_ad_cr,{"",arr_ad_cr_it21[i,2]})
-              aadd(mm_ad_cr,{alltrim(arr_ad_cr_it21[i,2])+' '+arr_ad_cr_it21[i,6],arr_ad_cr_it21[i,2]})
+      for i := 1 to len(arr_ad_criteria) 
+        if m1usl_ok == arr_ad_criteria[i,1] .and. ascan(mm_ad_cr,{|x| x[2] == arr_ad_criteria[i,2] }) == 0
+          if !empty(arr_ad_criteria[i,3]) .and. empty(arr_ad_criteria[i,4]) .and. empty(arr_ad_criteria[i,5]) // осн.диагноз
+            if ascan(arr_ad_criteria[i,3],padr(MKOD_DIAG,5)) > 0
+              // aadd(mm_ad_cr,{"",arr_ad_criteria[i,2]})
+              aadd(mm_ad_cr,{alltrim(arr_ad_criteria[i,2])+' '+arr_ad_criteria[i,6],arr_ad_criteria[i,2]})
             endif
           endif
-          if !empty(arr_ad_cr_it21[i,3]) .and. !empty(arr_ad_cr_it21[i,4]) .and. empty(arr_ad_cr_it21[i,5]) // осн.+сопут.диагнозы
+          if !empty(arr_ad_criteria[i,3]) .and. !empty(arr_ad_criteria[i,4]) .and. empty(arr_ad_criteria[i,5]) // осн.+сопут.диагнозы
             fl := .t.
-            if eq_any(left(arr_ad_cr_it21[i,2],2),"i3","i4") .and. mk_data >= 0d20200901
+            if eq_any(left(arr_ad_criteria[i,2],2),"i3","i4") .and. mk_data >= 0d20200901
               fl := .f.
             endif
-            if eq_any(left(arr_ad_cr_it21[i,2],2),"cr") .and. mk_data < 0d20200901
+            if eq_any(left(arr_ad_criteria[i,2],2),"cr") .and. mk_data < 0d20200901
               fl := .f.
             endif
   
-            if fl .and. !empty(arr_sop) .and. ascan(arr_ad_cr_it21[i,3],padr(MKOD_DIAG,5)) > 0
+            if fl .and. !empty(arr_sop) .and. ascan(arr_ad_criteria[i,3],padr(MKOD_DIAG,5)) > 0
               for j := 1 to len(arr_sop)
-                if ascan(arr_ad_cr_it21[i,4],arr_sop[j]) > 0
-                  // aadd(mm_ad_cr,{"",arr_ad_cr_it21[i,2]})
-                  aadd(mm_ad_cr,{alltrim(arr_ad_cr_it21[i,2])+' '+arr_ad_cr_it21[i,6],arr_ad_cr_it21[i,2]})
+                if ascan(arr_ad_criteria[i,4],arr_sop[j]) > 0
+                  // aadd(mm_ad_cr,{"",arr_ad_criteria[i,2]})
+                  aadd(mm_ad_cr,{alltrim(arr_ad_criteria[i,2])+' '+arr_ad_criteria[i,6],arr_ad_criteria[i,2]})
                   exit
                 endif
               next
             endif
           endif
-          if !empty(arr_ad_cr_it21[i,3]) .and. empty(arr_ad_cr_it21[i,4]) .and. !empty(arr_ad_cr_it21[i,5]) // диагноз осложнения
+          if !empty(arr_ad_criteria[i,3]) .and. empty(arr_ad_criteria[i,4]) .and. !empty(arr_ad_criteria[i,5]) // диагноз осложнения
             if !empty(arr_osl)
               for j := 1 to len(arr_osl)
-                if ascan(arr_ad_cr_it21[i,5],arr_osl[j]) > 0
-                  // if ascan(arr_ad_cr_it21[i,4],arr_osl[j]) > 0
-                  // aadd(mm_ad_cr,{"",arr_ad_cr_it21[i,2]})
-                  aadd(mm_ad_cr,{alltrim(arr_ad_cr_it21[i,2])+' '+arr_ad_cr_it21[i,6],arr_ad_cr_it21[i,2]})
+                if ascan(arr_ad_criteria[i,5],arr_osl[j]) > 0
+                  // if ascan(arr_ad_criteria[i,4],arr_osl[j]) > 0
+                  // aadd(mm_ad_cr,{"",arr_ad_criteria[i,2]})
+                  aadd(mm_ad_cr,{alltrim(arr_ad_criteria[i,2])+' '+arr_ad_criteria[i,6],arr_ad_criteria[i,2]})
                   exit
                 endif
               next
@@ -104,17 +103,17 @@ Function f_valid2ad_cr()
         endif
       next
     elseif m1usl_ok == 2 .and. m1profil == 137  // ЭКО дневной стационар
-      for i := 1 to len(arr_ad_cr_it21) 
-        if m1usl_ok == arr_ad_cr_it21[i,1] .and. lower(substr(arr_ad_cr_it21[i,2],1,3)) == 'ivf'
-          aadd(mm_ad_cr,{alltrim(arr_ad_cr_it21[i,2])+' '+arr_ad_cr_it21[i,6],arr_ad_cr_it21[i,2]})
+      for i := 1 to len(arr_ad_criteria) 
+        if m1usl_ok == arr_ad_criteria[i,1] .and. lower(substr(arr_ad_criteria[i,2],1,3)) == 'ivf'
+          aadd(mm_ad_cr,{alltrim(arr_ad_criteria[i,2])+' '+arr_ad_criteria[i,6],arr_ad_criteria[i,2]})
         endif
       next
     elseif m1usl_ok == 2 .and. !empty(MKOD_DIAG)
-      for i := 1 to len(arr_ad_cr_it21)
+      for i := 1 to len(arr_ad_criteria)
         
-        if m1usl_ok == arr_ad_cr_it21[i,1] .and. ascan(arr_ad_cr_it21[i,3],padr(MKOD_DIAG,5)) > 0
-          // aadd(mm_ad_cr,{"",arr_ad_cr_it21[i,2]})
-          aadd(mm_ad_cr,{alltrim(arr_ad_cr_it21[i,2])+' '+arr_ad_cr_it21[i,6],arr_ad_cr_it21[i,2]})
+        if m1usl_ok == arr_ad_criteria[i,1] .and. ascan(arr_ad_criteria[i,3],padr(MKOD_DIAG,5)) > 0
+          // aadd(mm_ad_cr,{"",arr_ad_criteria[i,2]})
+          aadd(mm_ad_cr,{alltrim(arr_ad_criteria[i,2])+' '+arr_ad_criteria[i,6],arr_ad_criteria[i,2]})
         endif
       next
     elseif eq_any(pr_ds_it,1,2) .and. m1usl_ok == 1
