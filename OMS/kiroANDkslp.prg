@@ -62,7 +62,7 @@ function selectKSLP( lkslp, savedKSLP, dateBegin, dateEnd, DOB, mdiagnoz )
 
     if (row[ CODE_KSLP ] == 1 .and. year(dateEnd) == 2021) ;
         .or. (row[ CODE_KSLP ] == 3 .and. year(dateEnd) == 2022)  // старше 75 лет
-      if (age >= 75) .and. isPermissible
+      if (age >= 75) .and. (year(dateEnd) == 2021) .and. isPermissible
         strArr := sAsterisk
       else
         strArr := sBlank

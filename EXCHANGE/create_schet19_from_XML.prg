@@ -928,12 +928,13 @@ Function create_schet19_from_XML(arr_XML_info,aerr,fl_msg,arr_s,name_sp_tk)
               // имплантант
               tmpSelect := select()                            
               select T12
-              find (t12->IDCASE + str(isl, 6))
-              do while t12->IDCASE == t12->IDCASE .and. isl == t12->sluch .and. !eof()
+              find (t1->IDCASE + str(isl, 6))
+              do while t1->IDCASE == t12->IDCASE .and. isl == t12->sluch .and. !eof()
                 oIMPLANT := oUSL:Add( HXMLNode():New( "MED_DEV" ) )
                 mo_add_xml_stroke(oIMPLANT, "DATE_MED", T12->DATE_MED)
                 mo_add_xml_stroke(oIMPLANT, "CODE_MEDDEV", T12->CODE_DEV)
                 mo_add_xml_stroke(oIMPLANT, "NUMBER_SER", T12->NUM_SER)
+                skip
               enddo
               select(tmpSelect)
             endif
