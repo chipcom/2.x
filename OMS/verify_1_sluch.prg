@@ -350,6 +350,11 @@ Function verify_1_sluch(fl_view)
   if !empty(HUMAN_2->PC4) .and. val(HUMAN_2->PC4) < 0.3
     aadd(ta, "вес пациента не может быть меньше 300 грамм")
   endif
+
+  if year(human->k_data) == 2022 .and. !empty(HUMAN_2->PC1)
+    collect_uslugi()
+  endif
+
   s := ""
   if len(mdiagnoz) > 0 .and. f_oms_beremenn(mdiagnoz[1]) == 3 .and. between(human_2->pn2,1,4)
     s := "R52."+{"0","1","2","9"}[human_2->pn2]
@@ -4828,3 +4833,24 @@ function addKodDoctorToArray(arr, nCode)
     aadd(arr,nCode)
   endif
   return arr
+
+function collect_uslugi()
+  local human_number, human_uslugi
+  local tmp_select := select()
+  local arrUslugi := {}
+
+  human_number := human->(recno())
+  human_uslugi := hu->(recno())
+  dbSelectArea("HU")
+  // SELECT HU
+
+altd()
+  find (str(human_number, 7))
+  do while hu->kod == human_number .and. !eof()
+    aadd(arrUslugi, {usl->shifr, usl->shifr})
+    hu->(dbSkip())
+  enddo
+
+  hu->(dbGoto(human_uslugi))
+  select(tmp_select)
+  return nil
