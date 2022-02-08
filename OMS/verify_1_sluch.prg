@@ -15,7 +15,9 @@ Function verify_1_sluch(fl_view)
         lal, lalf
 
   local reserveKSG_1 := .f., reserveKSG_2 := .f.
-  local sbase
+  local sbase, arrUslugi := {}
+  local arr_uslugi_geriatr := {'B01.007.001', 'B01.007.003', 'B01.007.003' }, row
+  local flGeriatr := .f.
 
   if empty(human->k_data)
     return .t.  // не проверять
@@ -352,7 +354,17 @@ Function verify_1_sluch(fl_view)
   endif
 
   if year(human->k_data) == 2022 .and. !empty(HUMAN_2->PC1)
-    collect_uslugi()
+    if alltrim(human_2->PC1) == '3' // КСЛП 3 - старше 75 лет для 2022 года
+      arrUslugi := collect_uslugi()
+      for each row in arr_uslugi_geriatr
+        if ascan(arrUslugi, row) > 0
+          flGeriatr := .t.
+        endif
+      next
+      if !flGeriatr
+        aadd(ta, "для выбранного КСЛП = 3, в списке услуг для случая необходимо наличие одной из услуг B01.007.001, B01.007.002 или B01.007.003")
+      endif
+    endif
   endif
 
   s := ""
@@ -4834,23 +4846,33 @@ function addKodDoctorToArray(arr, nCode)
   endif
   return arr
 
+******* 08.02.22 собрать шифры услуг в случае
 function collect_uslugi()
-  local human_number, human_uslugi
+  local human_number, human_uslugi, mohu_usluga
   local tmp_select := select()
   local arrUslugi := {}
 
   human_number := human->(recno())
   human_uslugi := hu->(recno())
-  dbSelectArea("HU")
-  // SELECT HU
+  mohu_usluga := mohu->(recno())
+  dbSelectArea('HU')
 
-altd()
   find (str(human_number, 7))
   do while hu->kod == human_number .and. !eof()
-    aadd(arrUslugi, {usl->shifr, usl->shifr})
+    aadd(arrUslugi, alltrim(usl->shifr))
     hu->(dbSkip())
   enddo
 
   hu->(dbGoto(human_uslugi))
+
+  dbSelectArea('MOHU')
+  set relation to u_kod into MOSU
+  find (str(human_number, 7))
+  do while mohu->kod == human_number .and. !eof()
+    aadd(arrUslugi, alltrim(iif(empty(mosu->shifr),mosu->shifr1,mosu->shifr)))
+    mohu->(dbSkip())
+  enddo
+  mohu->(dbGoto(mohu_usluga))
+
   select(tmp_select)
-  return nil
+  return arrUslugi
