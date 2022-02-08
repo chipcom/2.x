@@ -60,8 +60,8 @@ function selectKSLP( lkslp, savedKSLP, dateBegin, dateEnd, DOB, mdiagnoz )
       strArr := sBlank
     endif
 
-    if (row[ CODE_KSLP ] == 1 .and. year(dateEnd) == 2021) ;
-        .or. (row[ CODE_KSLP ] == 3 .and. year(dateEnd) == 2022)  // старше 75 лет
+    if (row[ CODE_KSLP ] == 3 .and. year(dateEnd) == 2022) ;    // старше 75 лет
+        .or. (row[ CODE_KSLP ] == 1 .and. year(dateEnd) == 2021)
       if (age >= 75) .and. (year(dateEnd) == 2021) .and. isPermissible
         strArr := sAsterisk
       else
@@ -271,8 +271,12 @@ Function f_cena_kslp(/*@*/_cena,_lshifr,_date_r,_n_data,_k_data,lkslp,arr_usl,lP
     // установим цену с учетом КСЛП
     if !empty(_akslp)
 
-      if year(_k_data) >= 2021
+      if year(_k_data) == 2021
         _cena := round_5(_cena * ret_koef_kslp_21(_akslp, year(_k_data)), 0)  // с 2019 года цена округляется до рублей
+      elseif year(_k_data) == 2022
+        // на 2022 базовая ставка стационарного случая 24322,6 руб
+        // на 2022 базовая ставка для случая дневного стационара 13915,7 руб
+        _cena := round_5(_cena + 24322.6 * ret_koef_kslp_21(_akslp, year(_k_data)), 0)
       endif
       
       if year(_k_data) >= 2021
