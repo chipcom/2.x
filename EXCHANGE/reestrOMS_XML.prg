@@ -17,6 +17,7 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
   local ser_num
   local controlVer
   local endDateZK
+  local diagnoz_replace := ''
 
   //
   close databases
@@ -494,6 +495,12 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
           mo_add_xml_stroke(oSL,"DS0",human_->kod_diag0)
         endif
       endif
+      // подменим диагноз если необходимо для генно-инженерных препаратов
+      if endDateZK >= 0d20220101 .and. alltrim(mdiagnoz[1]) == 'Z92.2'
+        mdiagnoz[1] := mdiagnoz[2]
+        diagnoz_replace := mdiagnoz[2]
+        mdiagnoz[2] := ''
+      endif
       mo_add_xml_stroke(oSL,"DS1",rtrim(mdiagnoz[1]))
       if p_tip_reestr == 2  // для реестров по диспансеризации
         s := 3 // не подлежит диспансерному наблюдению
@@ -942,7 +949,12 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
           mo_add_xml_stroke(oUSL,"DATE_IN" ,date2xml(c4tod(hu->DATE_U)))
           mo_add_xml_stroke(oUSL,"DATE_OUT",date2xml(c4tod(hu_->DATE_U2)))
           if p_tip_reestr == 1
-            mo_add_xml_stroke(oUSL,"DS"    ,hu_->kod_diag)
+            // подменим диагноз если необходимо для генно-инженерных препаратов
+            if endDateZK >= 0d20220101 .and. alltrim(hu_->kod_diag) == 'Z92.2'
+              mo_add_xml_stroke(oUSL,"DS"    , diagnoz_replace)
+            else
+              mo_add_xml_stroke(oUSL,"DS"    , hu_->kod_diag)
+            endif
           else
             mo_add_xml_stroke(oUSL,"P_OTK" ,'0')
           endif
@@ -1042,7 +1054,12 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
           mo_add_xml_stroke(oUSL,"DATE_IN" ,date2xml(c4tod(mohu->DATE_U)))
           mo_add_xml_stroke(oUSL,"DATE_OUT",date2xml(c4tod(mohu->DATE_U2)))
           if p_tip_reestr == 1
-            mo_add_xml_stroke(oUSL,"DS"      ,mohu->kod_diag)
+            // подменим диагноз если необходимо для генно-инженерных препаратов
+            if endDateZK >= 0d20220101 .and. alltrim(mohu->kod_diag) == 'Z92.2'
+              mo_add_xml_stroke(oUSL,"DS"    , diagnoz_replace)
+            else
+              mo_add_xml_stroke(oUSL,"DS"      ,mohu->kod_diag)
+            endif
           endif
           if p_tip_reestr == 2
 // разобраться с отказами услугами ФФОМС
