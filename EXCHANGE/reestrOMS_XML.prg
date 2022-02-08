@@ -995,7 +995,8 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
           mo_add_xml_stroke(oUSL,"TARIF"   ,lstr(a_otkaz[j,6],10,2))
           mo_add_xml_stroke(oUSL,"SUMV_USL",lstr(a_otkaz[j,6],10,2))
 
-          if human->k_data >= 0d20210801 .and. p_tip_reestr == 2  // новые правила заполнения с 01.08.21 письмо № 04-18-13 от 20.07.21
+          if human->k_data >= 0d20210801 .and. p_tip_reestr == 2 ; // новые правила заполнения с 01.08.21 письмо № 04-18-13 от 20.07.21
+              .or. (endDateZK >= d_01_01_2022 .and. p_tip_reestr == 1)  // правила заполнения с 01.01.22 письмо № 04-18?17 от 28.12.2021
             // Закомментировал после разъяснения Л.А.Антоновой 18.08.21
             // oMR_USL_N := oUSL:Add( HXMLNode():New( "MR_USL_N" ) )
             // mo_add_xml_stroke(oMR_USL_N,"MR_N",lstr(1))   // уточнить
