@@ -26,6 +26,10 @@ Function f_valid2ad_cr()
     {"rbs - медицинская реабилитация детей с нарушениями слуха","rbs"}}
   Local i, j, arr_sop := {}, arr_osl := {}, fl
 
+  if year(MK_DATA) == 2022    // ВРЕМЕННО, ПОКА НЕ РАЗБЕРУСЬ
+    arr_ad_cr_it21 := arr_ad_cr_it22
+  endif
+
   input_ad_cr := .f. ; mm_ad_cr := {}
   if m1usl_ok < 3 .and. m1vmp == 0
     if m1profil == 158 // реабилитация
@@ -57,10 +61,6 @@ Function f_valid2ad_cr()
       if !empty(MOSL1) ; aadd(arr_osl,padr(MOSL1,5)) ; endif
       if !empty(MOSL2) ; aadd(arr_osl,padr(MOSL2,5)) ; endif
       if !empty(MOSL3) ; aadd(arr_osl,padr(MOSL3,5)) ; endif
-
-      if year(MK_DATA) == 2022    // ВРЕМЕННО, ПОКА НЕ РАЗБЕРУСЬ
-        arr_ad_cr_it21 := arr_ad_cr_it22
-      endif
 
       for i := 1 to len(arr_ad_cr_it21) 
         if m1usl_ok == arr_ad_cr_it21[i,1] .and. ascan(mm_ad_cr,{|x| x[2] == arr_ad_cr_it21[i,2] }) == 0
