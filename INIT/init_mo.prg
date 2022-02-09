@@ -169,7 +169,7 @@ Function checkFilesTFOMS()
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
 
-  for countYear = WORK_YEAR - 4 to WORK_YEAR
+  for countYear = WORK_YEAR - 2 to WORK_YEAR
     fl := vmp_usl_check(countYear)
     fl := dep_index_and_fill(countYear)  // справочник отделений на countYear год
     fl := usl_Index(countYear)    // справочник услуг ТФОМС на countYear год
