@@ -26,6 +26,8 @@ Function f_valid2ad_cr(k_date)
   Local i, j, arr_sop := {}, arr_osl := {}, fl
   local arr_ad_criteria
 
+  arr_ad_criteria := getAdditionalCriteria(k_date)  // загрузим доп. критерии на дату
+
   input_ad_cr := .f. ; mm_ad_cr := {}
   if m1usl_ok < 3 .and. m1vmp == 0
     if m1profil == 158 // реабилитация
@@ -58,8 +60,6 @@ Function f_valid2ad_cr(k_date)
       if !empty(MOSL1) ; aadd(arr_osl,padr(MOSL1,5)) ; endif
       if !empty(MOSL2) ; aadd(arr_osl,padr(MOSL2,5)) ; endif
       if !empty(MOSL3) ; aadd(arr_osl,padr(MOSL3,5)) ; endif
-
-      arr_ad_criteria := getAdditionalCriteria(k_date)  // загрузим доп. критерии на дату
 
       for i := 1 to len(arr_ad_criteria) 
         if m1usl_ok == arr_ad_criteria[i,1] .and. ascan(mm_ad_cr,{|x| x[2] == arr_ad_criteria[i,2] }) == 0

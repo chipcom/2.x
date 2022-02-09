@@ -3,7 +3,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 21.01.22 вынуть реестр из XML-файлов и записать во временные DBF-файлы
+***** 09.02.22 вынуть реестр из XML-файлов и записать во временные DBF-файлы
 Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
   local p_tip_reestr
   local tmpSelect
@@ -720,9 +720,9 @@ Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
                             T12->SLUCH    := iisl // номер случая
                             T12->KOD      := mkod // код
                             T12->IDCASE   := &lal.->IDCASE // для связи со случаем
-                            T12->DATE_MED := mo_read_xml_stroke(oNode2, "DATE_MED") // Дата установки имплантанта
-                            T12->CODE_DEV := mo_read_xml_stroke(oNode2, "CODE_MEDDEV") // Код вида медицинского изделия (имплантанта)
-                            T12->NUM_SER  := mo_read_xml_stroke(oNode2, "NUMBER_SER") // Серийный номер медицинского изделия (имплантанта)
+                            T12->DATE_MED := mo_read_xml_stroke(oNode100, "DATE_MED") // Дата установки имплантанта
+                            T12->CODE_DEV := mo_read_xml_stroke(oNode100, "CODE_MEDDEV") // Код вида медицинского изделия (имплантанта)
+                            T12->NUM_SER  := mo_read_xml_stroke(oNode100, "NUMBER_SER") // Серийный номер медицинского изделия (имплантанта)
                             select(tmpSelect)
                           endif
                         endif

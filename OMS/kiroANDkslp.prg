@@ -16,7 +16,7 @@ function buildStringKSLP(row)
   ret := str(row[ CODE_KSLP ], 2) + '.' + row[ NAME_KSLP ]
   return ret
 
-// 27.02.21
+// 08.02.22
 // функция выбора состава КСЛП, возвращает { маска,строка количества КСЛП }, или nil
 function selectKSLP( lkslp, savedKSLP, dateBegin, dateEnd, DOB, mdiagnoz )
   // lkslp - значение КСЛП (выбранные КСЛП)
@@ -59,16 +59,18 @@ function selectKSLP( lkslp, savedKSLP, dateBegin, dateEnd, DOB, mdiagnoz )
     else
       strArr := sBlank
     endif
-
-    if (row[ CODE_KSLP ] == 1 .and. year(dateEnd) == 2021) ;
-        .or. (row[ CODE_KSLP ] == 3 .and. year(dateEnd) == 2022)  // старше 75 лет
+    if (row[ CODE_KSLP ] == 3 .and. year(dateEnd) == 2022) ;    // старше 75 лет
+        .or. (row[ CODE_KSLP ] == 1 .and. year(dateEnd) == 2021)
       if (age >= 75) .and. (year(dateEnd) == 2021) .and. isPermissible
         strArr := sAsterisk
+        strArr += buildStringKSLP(row)
+      elseif (age >= 75) .and. (year(dateEnd) == 2022) .and. isPermissible
+        strArr += buildStringKSLP(row)
       else
         strArr := sBlank
+        strArr += buildStringKSLP(row)
       endif
-      strArr += buildStringKSLP(row)
-      aadd(t_mas, { strArr, .f., row[ CODE_KSLP ] })
+      aadd(t_mas, { strArr, (age >= 75), row[ CODE_KSLP ] })
     elseif ((row[ CODE_KSLP ] == 1 .and. year(dateEnd) == 2022) .or. ;
         (row[ CODE_KSLP ] == 2 .and. year(dateEnd) == 2022) .or. ;
         (row[ CODE_KSLP ] == 3 .and. year(dateEnd) == 2021)) ;
@@ -210,7 +212,7 @@ Function f_cena_kiro(/*@*/_cena, lkiro, dateSl )
   _cena := round_5(_cena * _akiro[2], 0)  // округление до рублей с 2019 года
   return _akiro
 
-***** 29.01.22 определить коэф-т сложности лечения пациента и пересчитать цену
+***** 08.02.22 определить коэф-т сложности лечения пациента и пересчитать цену
 Function f_cena_kslp(/*@*/_cena,_lshifr,_date_r,_n_data,_k_data,lkslp,arr_usl,lPROFIL_K,arr_diag,lpar_org,lad_cr)
   Static s_1_may := 0d20160430, s_18 := 0d20171231, s_19 := 0d20181231
   static s_20 := 0d20201231
@@ -267,12 +269,16 @@ Function f_cena_kslp(/*@*/_cena,_lshifr,_date_r,_n_data,_k_data,lkslp,arr_usl,lP
     if (nLast := RAt(',', newKSLP)) > 0
       newKSLP := substr(newKSLP, 1, nLast - 1)  // удалим последнюю не нужную ','
     endif
-
+// altd()
     // установим цену с учетом КСЛП
     if !empty(_akslp)
 
-      if year(_k_data) >= 2021
+      if year(_k_data) == 2021
         _cena := round_5(_cena * ret_koef_kslp_21(_akslp, year(_k_data)), 0)  // с 2019 года цена округляется до рублей
+      elseif year(_k_data) == 2022
+        // на 2022 базовая ставка стационарного случая 24322,6 руб
+        // на 2022 базовая ставка для случая дневного стационара 13915,7 руб
+        _cena := round_5(_cena + 24322.6 * ret_koef_kslp_21(_akslp, year(_k_data)), 0)
       endif
       
       if year(_k_data) >= 2021
@@ -468,7 +474,7 @@ Function ret_koef_kslp(akslp)
   return k
   
   
-***** 31.01.21 вернуть итоговый КСЛП для 21 года
+***** 08.02.22 вернуть итоговый КСЛП для 21 года
 Function ret_koef_kslp_21(akslp, nYear)
   Local k := 1  // КСЛП равен 1
 
@@ -485,6 +491,7 @@ Function ret_koef_kslp_21(akslp, nYear)
         k := 1.8  // согласно п.3 инструкции
       endif
     elseif nYear == 2022
+      k := 0
       for i := 1 TO len(akslp) STEP 2
         if i == 1 // возможно только одно КСЛП
           k += akslp[2]
