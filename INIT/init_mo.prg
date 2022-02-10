@@ -97,7 +97,7 @@ Function init_mo()
 
   return main_up_screen()
 
-***** 29.01.22 проверка и переиндексирование справочников ТФОМС
+***** 10.02.22 проверка и переиндексирование справочников ТФОМС
 Function checkFilesTFOMS()
   Local fl := .t., i, arr, buf := save_maxrow()
   local arrRefFFOMS := {}, row, row_flag := .t.
@@ -404,7 +404,7 @@ Function checkFilesTFOMS()
   aadd(arrRefFFOMS, {'_mo_v015', .f., 'V015 - Классификатор медицинских специальностей (Medspec)' } )
   aadd(arrRefFFOMS, {'_mo_v016', .f., 'V016 - Классификатор типов диспансеризации (DispT)' } )
   aadd(arrRefFFOMS, {'_mo_v018', .f., 'V018 - Классификатор видов высокотехнологичной медицинской помощи (HVid)' } )
-  aadd(arrRefFFOMS, {'_mo_v019', .f., 'V019 - Классификатор методов высокотехнологичной медицинской помощи (HMet)' } )
+  aadd(arrRefFFOMS, {'_mo_v019', .t., 'V019 - Классификатор методов высокотехнологичной медицинской помощи (HMet)' } )
   aadd(arrRefFFOMS, {'_mo_v020', .f., 'V020 - Классификатор профилей койки' } )
   aadd(arrRefFFOMS, {'_mo_v021', .f., 'V021 - Классификатор медицинских специальностей (должностей) (MedSpec)' } )
   aadd(arrRefFFOMS, {'_mo_v022', .f., 'V022 - Классификатор моделей пациента при оказании высокотехнологичной медицинской помощи (ModPac)' } )
