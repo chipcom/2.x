@@ -14,7 +14,7 @@ Function make_V018_V019(lk_data)
         if between_date(_glob_V018[i, 3], _glob_V018[i, 4], sd2022)
           aadd(glob_V018, aclone(_glob_V018[i]))
         endif
-      if y == 2021
+      elseif y == 2021
         if between_date(_glob_V018[i, 3], _glob_V018[i, 4], sd2021)
           aadd(glob_V018, aclone(_glob_V018[i]))
         endif

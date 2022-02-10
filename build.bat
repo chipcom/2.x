@@ -1,5 +1,5 @@
 echo #DEFINE _DATA_VER + "%DATE%" > ver_date.ch
-c:\Harbour\bin\hbmk2 chip_mo.hbp
+c:\Harbour\bin\hbmk2 chip_mo.hbp -comp=mingw
 copy chip_mo.exe d:\_mo\_arc
 copy *.shb  d:\_mo\_arc
 copy *.frm  d:\_mo\_arc

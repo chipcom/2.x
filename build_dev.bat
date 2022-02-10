@@ -1,4 +1,4 @@
-c:\Harbour\bin\hbmk2 chip_mo_dev.hbp -b
+c:\Harbour\bin\hbmk2 chip_mo_dev.hbp -b -comp=mingw
 copy chip_mo.exe d:\_mo\chip\exe
 
 @REM @echo off
