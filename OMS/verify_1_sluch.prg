@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-***** 03.12.21
+***** 11.02.22
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
         i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -49,15 +49,7 @@ Function verify_1_sluch(fl_view)
   ym2 := left(dtos(d2),6)
   d1_year := year(d1) ; d2_year := year(d2)
   lal := "lusl" ;  lalf := "luslf"
-  // if d2_year == 2019
-  //   lal += "19"
-  //   lalf += "19"
-  // endif
-  // // НЕ ЗНАЮ
-  // if d2_year == 2020
-  //   lal += "20"
-  //   lalf += "20"
-  // endif
+
   lal := create_name_alias(lal, d2_year)
   lalf := create_name_alias(lalf, d2_year)
   //
@@ -746,7 +738,7 @@ Function verify_1_sluch(fl_view)
           if !is_12_VMP
             aadd(ta,'работа с услугой '+alltrim_lshifr+' запрещена в Вашей МО')
           endif
-        elseif left_lshifr_5 == "1.20." // ВМП  // 07.02.21
+        elseif (left_lshifr_5 == "1.20.") .or. (left_lshifr_5 == "1.21.") // ВМП  // 11.02.22
           midsp := 18 // Законченный случай в круглосуточном стационаре
           kkd_1_12 += hu->kol_1
           kol_ksg += hu->kol_1

@@ -269,7 +269,6 @@ Function f_cena_kslp(/*@*/_cena,_lshifr,_date_r,_n_data,_k_data,lkslp,arr_usl,lP
     if (nLast := RAt(',', newKSLP)) > 0
       newKSLP := substr(newKSLP, 1, nLast - 1)  // удалим последнюю не нужную ','
     endif
-// altd()
     // установим цену с учетом КСЛП
     if !empty(_akslp)
 

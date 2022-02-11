@@ -169,7 +169,7 @@ Function checkFilesTFOMS()
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
 
-  for countYear = WORK_YEAR - 2 to WORK_YEAR
+  for countYear = WORK_YEAR - 4 to WORK_YEAR
     fl := vmp_usl_check(countYear)
     fl := dep_index_and_fill(countYear)  // справочник отделений на countYear год
     fl := usl_Index(countYear)    // справочник услуг ТФОМС на countYear год
@@ -180,7 +180,6 @@ Function checkFilesTFOMS()
     fl := it_Index(countYear)
     fl := k006_index(countYear)
   next
-
 
   Public is_MO_VMP := (is_ksg_VMP .or. is_21_VMP .or. is_12_VMP .or. is_14_VMP .or. is_ds_VMP)
   // справочник доплат по законченным случаям (старый справочник)
@@ -535,8 +534,10 @@ function usl_Index(val_year)
       index on shifr to (cur_dir+sbase)
       // сбор данных для ВМП
       if val_year = WORK_YEAR
-        find ("1.20.") // ВМП федеральное   // 07.02.21 замена услуг с 1.12 на 1.20 письмо 12-20-60 от 01.02.21
-        do while left(lusl->shifr,5) == "1.20." .and. !eof()
+        find ("1.21.") // ВМП федеральное   // 10.02.22 замена услуг с 1.20 на 1.21 письмо 12-20-60 от 01.02.22
+        // find ("1.20.") // ВМП федеральное   // 07.02.21 замена услуг с 1.12 на 1.20 письмо 12-20-60 от 01.02.21
+        // do while left(lusl->shifr,5) == "1.20." .and. !eof()
+        do while left(lusl->shifr,5) == "1.21." .and. !eof()
           aadd(arr_12_VMP,int(val(substr(lusl->shifr,6))))
           skip
         enddo
@@ -620,8 +621,11 @@ function uslc_Index(val_year)
       endif
     //
       if val_year == WORK_YEAR
-        find (glob_mo[_MO_KOD_TFOMS] + '1.20.') // ВМП 07.02.21
+        find (glob_mo[_MO_KOD_TFOMS] + '1.21.') // ВМП 11.02.22
         is_21_VMP := found()
+      elseif val_year == 2021
+          find (glob_mo[_MO_KOD_TFOMS] + '1.20.') // ВМП 07.02.21
+          is_21_VMP := found()
       elseif val_year == 2020 .or. val_year == 2019
         find (glob_mo[_MO_KOD_TFOMS] + '1.12.') // ВМП 2020 и 2019 года
         is_12_VMP := found()
