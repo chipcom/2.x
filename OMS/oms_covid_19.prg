@@ -613,8 +613,8 @@ function collect_lek_pr(mkod_human)
   find (str(mkod_human, 7))
   if found()
     do while LEK_PR->KOD_HUM == mkod_human .and. !eof()
-      // AAdd( retArr, {LEK_PR->DATE_INJ, LEK_PR->CODE_SH, LEK_PR->REGNUM, LEK_PR->ED_IZM, LEK_PR->DOSE_INJ, LEK_PR->METHOD_I, LEK_PR->COL_INJ})
-      AAdd( retArr, {LEK_PR->DATE_INJ, LEK_PR->SCHEDRUG, LEK_PR->REGNUM, LEK_PR->ED_IZM, LEK_PR->DOSE_INJ, LEK_PR->METHOD_I, LEK_PR->COL_INJ})
+      AAdd( retArr, {LEK_PR->DATE_INJ, LEK_PR->CODE_SH, LEK_PR->REGNUM, LEK_PR->ED_IZM, ;
+                  LEK_PR->DOSE_INJ, LEK_PR->METHOD_I, LEK_PR->COL_INJ, LEK_PR->SCHEDRUG})
       LEK_PR->(dbSkip())
     enddo
   endif
