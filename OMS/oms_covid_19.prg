@@ -199,10 +199,6 @@ function oms_sluch_lek_pr(mkod_human, mkod_kartotek, fl_edit)
 Function f_oms_sluch_lek_pr(oBrow)
   Local oColumn, blk_color
 
-  // oColumn := TBColumnNew(" NN; пп",{|| tmp->(recno()) })
-  // oColumn:colorBlock := blk_color
-  // oBrow:addColumn(oColumn)
-
   oColumn := TBColumnNew(" Дата;инекц", ;
       {|| left(dtoc(tmp->DATE_INJ), 5) })
   oColumn:colorBlock := blk_color
@@ -212,11 +208,6 @@ Function f_oms_sluch_lek_pr(oBrow)
       {|| iif(tmp->SEVERITY == 0, space(5), padr(ret_severity_name(tmp->SEVERITY), 5)) })
   oColumn:colorBlock := blk_color
   oBrow:addColumn(oColumn)
-
-  // oColumn := TBColumnNew("Схема;     ", ;
-  //     {|| iif(empty(tmp->SCHEME), space(10), left(ret_schema_V030(tmp->SCHEME), 10)) })
-  // oColumn:colorBlock := blk_color
-  // oBrow:addColumn(oColumn)
 
   oColumn := TBColumnNew("  Тип препарата   ", ;
       {|| iif(empty(tmp->SCHEDRUG), space(18), padr(ret_schema_V032(tmp->SCHEDRUG), 18)) })
@@ -371,7 +362,6 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
         @ r1 + ix,2 say "Степень тяжести состояния" get mSEVERITY ;
               reader {|x|menu_reader(x, get_severity(), A__MENUVERT,,,.f.)} ;
               valid {| g | f5editpreparat(g, nKey, 2, 6)} 
-           //   valid {| | m1SEVERITY != 0}
       
         ++ix
         @ r1 + ix,2 say "Схема лечения" get mSCHEME ;
@@ -388,7 +378,7 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
             reader {|x|menu_reader(x, arr_lek_pr, A__MENUVERT,,,.f.)} ;
             valid {| g | f5editpreparat(g, nKey, 2, 5)} ;
             when mMNN
-             // valid {|| ! empty(m1REGNUM) } ;   
+
         ++ix
         @ r1 + ix,2 say "Доза" get mDOZE picture '99999.99' ;
             valid {|| mDOZE != 0 } ;
@@ -581,7 +571,6 @@ Function f5editpreparat(get, nKey, when_valid, k)
          update_get('mKOLVO')  
       endif
     elseif k == 6 // Степень тяжести состояния
-      //! empty(m1SEVERITY)
       if empty(get:buffer)
         return .f.
       endif
@@ -624,7 +613,8 @@ function collect_lek_pr(mkod_human)
   find (str(mkod_human, 7))
   if found()
     do while LEK_PR->KOD_HUM == mkod_human .and. !eof()
-      AAdd( retArr, {LEK_PR->DATE_INJ, LEK_PR->CODE_SH, LEK_PR->REGNUM, LEK_PR->ED_IZM, LEK_PR->DOSE_INJ, LEK_PR->METHOD_I, LEK_PR->COL_INJ})
+      AAdd( retArr, {LEK_PR->DATE_INJ, LEK_PR->CODE_SH, LEK_PR->REGNUM, LEK_PR->ED_IZM, ;
+                  LEK_PR->DOSE_INJ, LEK_PR->METHOD_I, LEK_PR->COL_INJ, LEK_PR->SCHEDRUG})
       LEK_PR->(dbSkip())
     enddo
   endif

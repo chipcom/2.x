@@ -1418,17 +1418,6 @@ if m1vmp != old .and. old != NIL
 endif
 return .t.
 
-***** 17.01.14 действия в ответ на выбор в меню "Вид ВМП"
-Function f_valid_vidvmp(get,old)
-if empty(m1vidvmp)
-  MMETVMP := space(67) ; M1METVMP := 0
-  update_get("MMETVMP")
-elseif !(m1vidvmp == old) .and. old != NIL .and. get != NIL
-  MMETVMP := space(67) ; M1METVMP := 0
-  update_get("MMETVMP")
-endif
-return .t.
-
 ***** действия в ответ на выбор в меню "Больничный"
 Function f_valid_bolnich(get,old)
 if m1bolnich != old .and. old != NIL

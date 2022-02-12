@@ -3053,9 +3053,7 @@ elseif x == 3
 endif
 return arr
 
-*
-
-***** 07.02.21
+***** 11.02.22
 Function ret_kd_f14()
 Local lshifr, mkol := 0
 if empty(lshifr := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data))
@@ -3064,8 +3062,7 @@ endif
 if eq_any(left(lshifr,4),"1.7.","1.9.") .or. left(lshifr,5) == "1.10." // законченный случай
   mkol := human->k_data - human->n_data
 elseif left(lshifr,2) == "1."  // остальные койко-дни
-  if !eq_any(left(lshifr,5),"1.12.","1.13.","1.14.","1.15.","1.16.*","1.17.*","1.18.*","1.20.*")  // 07.02.2021
-    // if !eq_any(left(lshifr,5),"1.12.","1.13.","1.14.","1.15.","1.16.*","1.17.*","1.18.*")
+  if !eq_any(left(lshifr,5),"1.12.","1.13.","1.14.","1.15.","1.16.*","1.17.*","1.18.*","1.20.*","1.21.*")  // 11.02.22
     mkol := hu->kol
   endif
 endif

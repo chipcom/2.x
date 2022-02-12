@@ -97,7 +97,7 @@ Function init_mo()
 
   return main_up_screen()
 
-***** 07.02.22 проверка и переиндексирование справочников ТФОМС
+***** 10.02.22 проверка и переиндексирование справочников ТФОМС
 Function checkFilesTFOMS()
   Local fl := .t., i, arr, buf := save_maxrow()
   local arrRefFFOMS := {}, row, row_flag := .t.
@@ -180,7 +180,6 @@ Function checkFilesTFOMS()
     // fl := it_Index(countYear)
     fl := k006_index(countYear)
   next
-
 
   Public is_MO_VMP := (is_ksg_VMP .or. is_21_VMP .or. is_12_VMP .or. is_14_VMP .or. is_ds_VMP)
   // справочник доплат по законченным случаям (старый справочник)
@@ -404,10 +403,10 @@ Function checkFilesTFOMS()
   aadd(arrRefFFOMS, {'_mo_v015', .f., 'V015 - Классификатор медицинских специальностей (Medspec)' } )
   aadd(arrRefFFOMS, {'_mo_v016', .f., 'V016 - Классификатор типов диспансеризации (DispT)' } )
   aadd(arrRefFFOMS, {'_mo_v018', .f., 'V018 - Классификатор видов высокотехнологичной медицинской помощи (HVid)' } )
-  aadd(arrRefFFOMS, {'_mo_v019', .f., 'V019 - Классификатор методов высокотехнологичной медицинской помощи (HMet)' } )
+  aadd(arrRefFFOMS, {'_mo_v019', .t., 'V019 - Классификатор методов высокотехнологичной медицинской помощи (HMet)' } )
   aadd(arrRefFFOMS, {'_mo_v020', .f., 'V020 - Классификатор профилей койки' } )
   aadd(arrRefFFOMS, {'_mo_v021', .f., 'V021 - Классификатор медицинских специальностей (должностей) (MedSpec)' } )
-  aadd(arrRefFFOMS, {'_mo_v022', .f., 'V022 - Классификатор моделей пациента при оказании высокотехнологичной медицинской помощи (ModPac)' } )
+  aadd(arrRefFFOMS, {'_mo_v022', .t., 'V022 - Классификатор моделей пациента при оказании высокотехнологичной медицинской помощи (ModPac)' } )
   aadd(arrRefFFOMS, {'_mo_v025', .f., 'V025 - Классификатор целей посещения (KPC)' } )
   aadd(arrRefFFOMS, {'_mo_v030', .t., 'V030 - Схемы лечения заболевания COVID-19 (TreatReg)' } )
   aadd(arrRefFFOMS, {'_mo_v031', .f., 'V031 - Группы препаратов для лечения заболевания COVID-19 (GroupDrugs)' } )
@@ -535,8 +534,10 @@ function usl_Index(val_year)
       index on shifr to (cur_dir+sbase)
       // сбор данных для ВМП
       if val_year = WORK_YEAR
-        find ("1.20.") // ВМП федеральное   // 07.02.21 замена услуг с 1.12 на 1.20 письмо 12-20-60 от 01.02.21
-        do while left(lusl->shifr,5) == "1.20." .and. !eof()
+        find ("1.21.") // ВМП федеральное   // 10.02.22 замена услуг с 1.20 на 1.21 письмо 12-20-60 от 01.02.22
+        // find ("1.20.") // ВМП федеральное   // 07.02.21 замена услуг с 1.12 на 1.20 письмо 12-20-60 от 01.02.21
+        // do while left(lusl->shifr,5) == "1.20." .and. !eof()
+        do while left(lusl->shifr,5) == "1.21." .and. !eof()
           aadd(arr_12_VMP,int(val(substr(lusl->shifr,6))))
           skip
         enddo
@@ -620,8 +621,11 @@ function uslc_Index(val_year)
       endif
     //
       if val_year == WORK_YEAR
-        find (glob_mo[_MO_KOD_TFOMS] + '1.20.') // ВМП 07.02.21
+        find (glob_mo[_MO_KOD_TFOMS] + '1.21.') // ВМП 11.02.22
         is_21_VMP := found()
+      elseif val_year == 2021
+          find (glob_mo[_MO_KOD_TFOMS] + '1.20.') // ВМП 07.02.21
+          is_21_VMP := found()
       elseif val_year == 2020 .or. val_year == 2019
         find (glob_mo[_MO_KOD_TFOMS] + '1.12.') // ВМП 2020 и 2019 года
         is_12_VMP := found()
@@ -759,15 +763,10 @@ function it_Index(val_year)
   if val_year >= 2021 // == WORK_YEAR
 
     // исходный файл T006 22 года
-    // sbase := '_mo2it1'
     if hb_FileExists(exe_dir + sbaseIt1 + sdbf)
-//      // R_Use(exe_dir + '_mo2shema', cur_dir + '_mo2shema', 'SCHEMA')
-      // R_Use(exe_dir + '_mo2shema', , 'SCHEMA')
       R_Use(exe_dir + sbaseShema, , 'SCHEMA')
-      // index on KOD to (cur_dir + '_mo2shema') //
       index on KOD to (cur_dir + sbaseShema)
   
-      // R_Use(exe_dir + sbase, ,'IT')
       R_Use(exe_dir + sbaseIt1, ,'IT1')
       ('IT1')->(dbGoTop())  // go top
       do while !('IT1')->(eof())
@@ -799,10 +798,8 @@ function it_Index(val_year)
         endif
 
         if lSchema
-          // aadd(arr_ad_cr_it22,{it->USL_OK,padr(it->CODE,6),ar,ar1,ar2, alltrim(SCHEMA->NAME)})
           aadd(&arrName, {it1->USL_OK, padr(it1->CODE, 6), ar, ar1, ar2, alltrim(SCHEMA->NAME)})
         else
-          // aadd(arr_ad_cr_it22,{it->USL_OK,padr(it->CODE,6),ar,ar1,ar2, ''})
           aadd(&arrName, {it1->USL_OK, padr(it1->CODE, 6), ar, ar1, ar2, ''})
         endif
         ('IT1')->(dbskip()) 
@@ -811,65 +808,10 @@ function it_Index(val_year)
       ('SCHEMA')->(dbCloseArea())
       ('IT1')->(dbCloseArea())   //use
     else
-      // fl := notExistsFileNSI( exe_dir + sbase + sdbf )
       fl := notExistsFileNSI( exe_dir + sbaseIt1 + sdbf )
     endif
-  // elseif val_year == 2021
-  //   // исходный файл T006 21 года
-  //   sbase := '_mo1it1'
-  //   if hb_FileExists(exe_dir + sbase + sdbf)
-  //     // R_Use(exe_dir + '_mo1shema', cur_dir + '_mo1shema', 'SCHEMA')
-  //     R_Use(exe_dir + '_mo1shema', , 'SCHEMA')
-  //     index on KOD to (cur_dir + '_mo1shema') // 
-
-  //     R_Use(exe_dir + sbase, ,'IT')
-  //     ('IT')->(dbGoTop())  // go top
-  //     do while !('IT')->(eof())
-  //       ar := {}
-  //       ar1 := {}
-  //       ar2 := {}
-  //       if !empty(it->ds)
-  //         ar := Slist2arr(it->ds)
-  //         for i := 1 to len(ar)
-  //           ar[i] := padr(ar[i],5)
-  //         next
-  //       endif
-  //       if !empty(it->ds1)
-  //         ar1 := Slist2arr(it->ds1)
-  //         for i := 1 to len(ar1)
-  //           ar1[i] := padr(ar1[i],5)
-  //         next
-  //       endif
-  //       if !empty(it->ds2)
-  //         ar2 := Slist2arr(it->ds2)
-  //         for i := 1 to len(ar2)
-  //           ar2[i] := padr(ar2[i],5)
-  //         next
-  //       endif
-  
-  //       ('SCHEMA')->(dbGoTop())
-  //       if ('SCHEMA')->(dbSeek( padr(it->CODE,6) ))
-  //         lSchema := .t.
-  //       endif
-  
-  //       if lSchema
-  //         aadd(arr_ad_cr_it21,{it->USL_OK,padr(it->CODE,6),ar,ar1,ar2, alltrim(SCHEMA->NAME)})
-  //       else
-  //         aadd(arr_ad_cr_it21,{it->USL_OK,padr(it->CODE,6),ar,ar1,ar2, ''})
-  //       endif
-  //       ('IT')->(dbskip()) 
-  //       lSchema := .f.
-  //     enddo
-  //     ('SCHEMA')->(dbCloseArea())
-  //     ('IT')->(dbCloseArea())   //use
-  //   else
-  //     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  //   endif
   elseif val_year == 2020
     // исходный файл  T006 2020 года
-    // sbase := "_mo0it1"
-    // if hb_FileExists(exe_dir + sbase + sdbf)
-    //   R_Use(exe_dir + sbase, , 'IT')
     if hb_FileExists(exe_dir + sbaseIt1 + sdbf)
       R_Use(exe_dir + sbaseIt1, , 'IT')
       go top
@@ -895,40 +837,31 @@ function it_Index(val_year)
             ar2[i] := padr(ar2[i],5)
           next
         endif
-        // aadd(arr_ad_cr_it20,{it->USL_OK,padr(it->CODE,3),ar,ar1,ar2})
         aadd(&arrName, {it->USL_OK, padr(it->CODE, 3), ar, ar1, ar2})
         skip
       enddo
       use
     else
-      // fl := notExistsFileNSI( exe_dir + sbase + sdbf )
       fl := notExistsFileNSI( exe_dir + sbaseIt1 + sdbf )
     endif
   elseif val_year == 2019
     // исходный файл  T006 2019 год
     sbase := "_mo9it"
-    // if hb_FileExists(exe_dir + sbase + sdbf)
-    //   R_Use(exe_dir + sbase, ,'IT')
     if hb_FileExists(exe_dir + sbaseIt + sdbf)
       R_Use(exe_dir + sbaseIt, ,'IT')
       index on ds to tmpit memory
       dbeval({|| aadd(arr_ad_cr_it19, {it->ds,it->it}) })
       use
     else
-      // fl := notExistsFileNSI( exe_dir + sbase + sdbf )
       fl := notExistsFileNSI( exe_dir + sbaseIt + sdbf )
     endif
   elseif val_year == 2018
-      // /*sbase := "_mo8it"
-      // if hb_FileExists(exe_dir + sbase + sdbf)
-      //   R_Use(exe_dir + sbase, , 'IT')
     if hb_FileExists(exe_dir + sbaseIt + sdbf)
       R_Use(exe_dir + sbaseIt, , 'IT')
       index on ds to tmpit memory
       dbeval({|| aadd(arr_ad_cr_it, {it->ds, it->it}) })
       use
     else
-      // fl := notExistsFileNSI( exe_dir + sbase + sdbf )
       fl := notExistsFileNSI( exe_dir + sbaseIt + sdbf )
     endif
   endif

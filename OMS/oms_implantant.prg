@@ -48,7 +48,8 @@ function select_implantant(date_ust, rzn, ser_num)
           valid {|| mVIDIMPL := padr(mVIDIMPL, 44), .t. }
 
     sPicture := '@S40'
-		@ ++iRow, 12 say 'Серийный номер:' get mNUMBER picture sPicture
+		@ ++iRow, 12 say 'Серийный номер:' get mNUMBER picture sPicture ;
+          valid {|| !empty(mNUMBER) }
 	
 		myread()
 		if lastkey() != K_ESC .and. m1VIDIMPL != 0

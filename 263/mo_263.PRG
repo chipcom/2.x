@@ -28,7 +28,6 @@ if n_zapusk == 0
 
   sbase := prefixFileRefName(WORK_YEAR) + 'uslc'
   R_Use(exe_dir + sbase, , 'USLC')
-  // R_Use(exe_dir+"_mo9uslc",,"USLC")
 
   index on codemo to (cur_dir+"tmp_uslc") ;
         for datebeg == 0d20190101 .and. eq_any(left(shifr,5),"1.11.","55.1.") ;

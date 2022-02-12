@@ -67,8 +67,15 @@ Function f_usl_definition_KSG(lkod,k_data2)
           endif
           exit
         endif
-        if lyear > 2020
+        if lyear > 2021
           select LUSL
+          find (padr(lshifr,10)) // длина lshifr 10 знаков
+          if found() .and. (eq_any(left(lshifr,5),"1.21.") .or. is_ksg(lusl->shifr)) // стоит другой КСГ
+            lrec := tmp->(recno())
+            exit
+          endif
+        elseif lyear == 2021
+          select LUSL21
           find (padr(lshifr,10)) // длина lshifr 10 знаков
           if found() .and. (eq_any(left(lshifr,5),"1.20.") .or. is_ksg(lusl->shifr)) // стоит другой КСГ
             lrec := tmp->(recno())

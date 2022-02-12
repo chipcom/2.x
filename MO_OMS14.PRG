@@ -605,7 +605,7 @@ do while hu->kod == human->kod .and. !eof()
         if !is_12_VMP
           aadd(ta,'работа с услугой '+alltrim_lshifr+' запрещена в Вашей МО')
         endif
-      elseif eq_any(left_lshifr_5,"1.20.","1.15.","1.16.","1.17.","1.18.") // ВМП
+      elseif eq_any(left_lshifr_5,"1.21.","1.20.","1.15.","1.16.","1.17.","1.18.") // ВМП
         midsp := 18 // Законченный случай в круглосуточном стационаре
         kkd_1_12 += hu->kol_1
         kol_ksg += hu->kol_1
@@ -3834,7 +3834,8 @@ if lvmp > 0
     aadd(arerr,' для метода ВМП '+lstr(lvidvmp)+' нет услуги ТФОМС')
   else
     // lksg := "1.12."+lstr(lvidvmp)  // 07.02.2021
-    lksg := "1.20."+lstr(lvidvmp)
+    // lksg := "1.20."+lstr(lvidvmp)  // 11.02.2022
+    lksg := "1.21." + lstr(lvidvmp)
     aadd(ars," для "+lstr(lvidvmp)+" метода ВМП введена услуга "+lksg)
     lcena := ret_cena_KSG(lksg,lvr,date_usl)
     if lcena > 0
