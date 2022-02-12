@@ -989,7 +989,7 @@ Function oms_sluch(Loc_kod,kod_kartotek)
         @ j,col()+1 say "план. госп-ция" get mTAL_P when m1vmp == 1
         ++j
         @ j,1 say " вид ВМП" get mvidvmp ;
-            reader {|x|menu_reader(x,{{|k,r,c|f_get_vidvmp(k,r,c)}},A__FUNCTION,,,.f.)} ;
+            reader {|x|menu_reader(x, {{|k, r, c|f_get_vidvmp(k, r, c, mkod_diag)}}, A__FUNCTION, , , .f.)} ;
             when m1vmp == 1 ;
             valid {|g,o| f_valid_vidvmp(g,o) } ;
             color colget_menu
@@ -999,7 +999,7 @@ Function oms_sluch(Loc_kod,kod_kartotek)
             when m1vmp == 1 ;
             color colget_menu
             // valid {|g,o| f_valid_mmodpac(g,o) } ;
-        ++j
+        ++j 
         @ j,1 say " метод ВМП" get mmetvmp ;
             reader {|x|menu_reader(x,{{|k,r,c|f_get_metvmp(k,r,c,m1vidvmp,m1modpac)}},A__FUNCTION,,,.f.)} ;
             when m1vmp == 1 .and. !empty(m1vidvmp) ;  //   valid {|| f_valid_metvmp(m1metvmp) } ;

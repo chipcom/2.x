@@ -23,41 +23,16 @@ function getV022table()
   endif
   return _arr
 
-***** 11.02.21 в GET-е вернуть строку из glob_V022
-Function f_get_mmodpac(k, r, c, lvidvmp, sDiag)
-  Local arr := {}, i, ret, ret_arr
-  local diag := alltrim(sDiag)
-  local model := getV022table()
-  local row
+***** 11.02.21 вернуть строку модели пациента ВМП
+Function ret_V022(idmpac,lk_data)
+  Local i, s := space(10)
+  local aV022 := getV022table()
 
-  if empty(lvidvmp) .or. empty(diag)
-    return NIL
+  // make_V018_V019(lk_data)
+  if !empty(idmpac) .and. ((i := ascan(aV022, {|x| x[1] == idmpac })) > 0)
+    s := aV022[i,2]
   endif
-
-  make_V018_V019(mk_data)
-  for i := 1 to len(glob_V019)
-    if glob_V019[i,4] == alltrim(lvidvmp) .and. ( ascan(glob_V019[i,3],diag) > 0 )
-      for each row in model
-        if row[1] == glob_V019[i,8]
-          if ascan(arr, {|x| x[2] == row[1] }) == 0
-            aadd(arr, {padr(alltrim(row[2]),76),row[1]})
-            exit
-          endif
-        endif
-      next
-    endif
-  next
-  if empty(arr)
-    func_error(4,"В справочнике V022 не найдено моделей пациентов для вида ВМП "+lvidvmp)
-    return NIL
-  endif
-  popup_2array(arr,-r,c,k,1,@ret_arr,"Выбор модели пациента для "+lvidvmp,"GR+/RB*","N/RB*,W+/N")
-  if valtype(ret_arr) == "A"
-    ret := array(2)
-    ret[1] := ret_arr[2]
-    ret[2] := ret_arr[1]
-  endif
-return ret
+  return s
 
 ***** 11.02.21 действия в ответ на выбор в меню "Вид модели пациента ВМП"
 // Function f_valid_mmodpac(get,old)
@@ -69,16 +44,3 @@ return ret
 //     update_get("mmodpac")
 //   endif
 //   return .t.
-  
-***** 11.02.21 вернуть строку модели пациента ВМП
-Function ret_V022(idmpac,lk_data)
-  Local i, s := space(10)
-  local aV022 := getV022table()
-
-  // make_V018_V019(lk_data)
-  if !empty(idmpac) .and. ((i := ascan(aV022, {|x| x[1] == idmpac })) > 0)
-    s := aV022[i,2]
-  endif
-  return s
-  
-    
