@@ -1298,26 +1298,6 @@ for i := 1 to len(au) // цикл по кодам услуг, по которым стоит нужный шифр ТФОМС
 next
 return ret_u
 
-***** 07.02.16 вернуть строку вида ВМП
-Function ret_V018(lVIDVMP,lk_data)
-Local i, s := space(10)
-make_V018_V019(lk_data)
-if !empty(lVIDVMP) .and. (i := ascan(glob_V018, {|x| x[1] == alltrim(lVIDVMP) })) > 0
-  s := glob_V018[i,1]+"."+glob_V018[i,2]
-endif
-return s
-
-***** 07.02.16 вернуть строку метода ВМП
-Function ret_V019(lMETVMP,lVIDVMP,lk_data)
-Local i, s := space(10)
-make_V018_V019(lk_data)
-if !emptyany(lMETVMP,lVIDVMP) ;
-            .and. (i := ascan(glob_V019, {|x| x[1] == lMETVMP })) > 0 ;
-            .and. glob_V019[i,4] == alltrim(lVIDVMP)
-  s := alltrim(str(glob_V019[i,1], 6))+"."+glob_V019[i,2]
-endif
-return s
-
 ***** 23.12.15 в GET'е вернуть множественный выбор учреждений/отделений
 Function ret_Nuch_Notd(k,r,c)
 Local lcount_uch, lcount_otd, s

@@ -1320,6 +1320,9 @@ Local _sluch_u := {;
    {"VRACH_FIO",   "C",    50,     0};
   }
 Local i, j, k, arr_ksg, cType, cName, a_struct, fl := .t., buf := save_maxrow()
+local glob_V018
+local glob_V019
+
 mywait()
 a_struct := {_lpu,_otd,_sluch,_sluch_u}
 strfile(space(10)+"Протокол импорта случаев "+;
@@ -1647,7 +1650,11 @@ if fl
       if !empty(ihuman->VID_HMP)
         s := ""
         if ihuman->USL_OK == 1 // стационар
-          make_V018_V019(ihuman->date_2)
+          // make_V018_V019(ihuman->date_2)
+
+          glob_V018 := getV018table(ihuman->date_2)
+          glob_V019 := getV019table(ihuman->date_2)
+
           if ascan(glob_V018, {|x| x[1] == ihuman->VID_HMP }) == 0
             s := 'не найден вид ВМП "'+ihuman->VID_HMP+'" в справочнике V018'
           elseif empty(ihuman->METOD_HMP)

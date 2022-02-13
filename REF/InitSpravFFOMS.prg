@@ -103,13 +103,13 @@ Function InitSpravFFOMS()
   // V018.xml - Классификатор видов ВМП
   Public glob_V018 := {}, _glob_V018 := {}
   if is_MO_VMP
-    _glob_V018 := getV018table()
+    _glob_V018 := getV018table(sys_date)
   endif
 
   // V019.xml - Классификатор методов ВМП
   Public glob_V019 := {}, _glob_V019 := {}
   if is_MO_VMP
-    _glob_V019 := getV019table()
+    _glob_V019 := getV019table(sys_date)
     make_V018_V019(0d20220101)  // 10.02.22
     // make_V018_V019(0d20210101)  // 07.02.21
   endif

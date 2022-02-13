@@ -2005,12 +2005,13 @@ else
 endif
 return NIL
 
-***** 01.12.21
+***** 13.02.22
 Function usl11FFOMS()
 Local buf := save_maxrow(), name_file := "vidVMP"+stxt, sh := 80, HH := 60, t_arr[2], i, j, k
+local glob_V018 := getV018table(0d20220101)
 
 mywait()
-make_V018_V019(0d20210101)
+// make_V018_V019(0d20210101)
 
 fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
 add_string("")
@@ -2029,12 +2030,14 @@ fclose(fp)
 viewtext(name_file,,,,.t.,,,2)
 return NIL
 
-***** 19.01.18
+***** 13.02.22
 Function usl12FFOMS()
 Static sast, sarr
 Local buf := save_maxrow(), name_file := "metodVMP"+stxt, sh := 80, HH := 60, t_arr[2], a, i, j, k, n, s
+local glob_V018 := getV018table(0d20220101)
+local glob_V019 := getV019table(0d20220101)
 
-make_V018_V019(0d20210101)
+// make_V018_V019(0d20210101)
 if sast == NIL
   sast := {} ; sarr := {}
   for j := 1 to len(glob_V018)

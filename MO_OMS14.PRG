@@ -4,13 +4,17 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 01.06.21
+***** 13.02.22
 Function verify_1_sluch_18(fl_view)
 Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
       i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
       d1, d2, cd1, cd2, ym2, a_period_amb := {}, a_1_11, u_1_stom := "", lprofil, ;
       lbukva, lst, lidsp, a_idsp := {}, a_bukva := {}, t_arr[2], ltip, lkol, ;
       a_dializ := {}, is_2_88 := .f., a_rec_ffoms := {}, mpovod := 1 // 1.0
+local glob_V018
+local glob_V019
+      
+
 if empty(human->k_data)
   return .t.  // не проверять
 endif
@@ -1665,7 +1669,10 @@ if human_->USL_OK == 1  // стационар
   if human_2->VMP == 1 // проверим ВМП
     if is_12_VMP .or. is_21_VMP // ВМП по-новому 08.02.2021
       // if is_12_VMP  // ВМП по-новому
-      make_V018_V019(d2)
+      // make_V018_V019(d2)
+      glob_V018 := getV018table(d2)
+      glob_V019 := getV019table(d2)
+      
       if empty(human_2->TAL_NUM)
         aadd(ta,'ВМП оказана, но не введен номер талона на ВМП')
       endif
