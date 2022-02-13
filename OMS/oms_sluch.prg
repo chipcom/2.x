@@ -995,13 +995,13 @@ Function oms_sluch(Loc_kod,kod_kartotek)
             color colget_menu
         ++j
         @ j,1 say " модель" get mmodpac ;
-            reader {|x|menu_reader(x,{{|k,r,c|f_get_mmodpac(k,r,c,m1vidvmp, mkod_diag)}},A__FUNCTION,,,.f.)} ;
+            reader {|x|menu_reader(x,{{|k,r,c|f_get_mmodpac(k,r,c, m1vidvmp, mkod_diag)}},A__FUNCTION,,,.f.)} ;
             when m1vmp == 1 ;
             color colget_menu
             // valid {|g,o| f_valid_mmodpac(g,o) } ;
         ++j 
         @ j,1 say " метод ВМП" get mmetvmp ;
-            reader {|x|menu_reader(x,{{|k,r,c|f_get_metvmp(k,r,c,m1vidvmp,m1modpac)}},A__FUNCTION,,,.f.)} ;
+            reader {|x|menu_reader(x,{{|k,r,c|f_get_metvmp(k,r,c, m1vidvmp,m1modpac)}},A__FUNCTION,,,.f.)} ;
             when m1vmp == 1 .and. !empty(m1vidvmp) ;  //   valid {|| f_valid_metvmp(m1metvmp) } ;
             color colget_menu
             // reader {|x|menu_reader(x,{{|k,r,c|f_get_metvmp(k,r,c,m1vidvmp, mkod_diag)}},A__FUNCTION,,,.f.)} ;

@@ -1401,20 +1401,24 @@ if M1F14_EKST != old .and. old != NIL
 endif
 return .t.
 
-***** 23.01.18 действия в ответ на выбор в меню "ВМП"
+***** 13.02.22 действия в ответ на выбор в меню "ВМП"
 Function f_valid_vmp(get,old)
 if m1vmp != old .and. old != NIL
   if m1vmp == 0
+    mTAL_NUM := space(20)
     mTAL_D := mTAL_P := ctod("")
     MVIDVMP := space(70) ; M1VIDVMP := SPACE(12) // вид ВМП по справочнику V018
     MMETVMP := space(67) ; M1METVMP := 0        // метод ВМП по справочнику V019
+    mmodpac := space(71) ; m1modpac := 0        // модель пациента
   else
     input_ad_cr := .f. ; mad_cr := space(66) ; m1ad_cr := space(10)
   endif
+  update_get("mTAL_NUM")
   update_get("mTAL_D")
   update_get("mTAL_P")
   update_get("MVIDVMP")
   update_get("MMETVMP")
+  update_get("mmodpac")
 endif
 return .t.
 

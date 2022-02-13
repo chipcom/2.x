@@ -18,6 +18,7 @@ Function verify_1_sluch(fl_view)
   local sbase, arrUslugi := {}
   local arr_uslugi_geriatr := {'B01.007.001', 'B01.007.003', 'B01.007.003' }, row
   local flGeriatr := .f.
+  local glob_V019
 
   if empty(human->k_data)
     return .t.  // не проверять
@@ -43,6 +44,8 @@ Function verify_1_sluch(fl_view)
   //
   glob_kartotek := human->kod_k
   d1 := human->n_data ; d2 := human->k_data ; cuch_doc := human->uch_doc
+
+  glob_V019 := getV019table(human->k_data)
 
   reserveKSG_1 := exist_reserve_KSG(human->kod, 'HUMAN')
 
@@ -1762,9 +1765,12 @@ Function verify_1_sluch(fl_view)
         skip
       enddo
       if empty(arr_onk_usl)
-        if iif(human_2->VMP == 1, .t., between(onksl->ds1_t,0,2)) .and. empty(alltrim(human_2->PC3))
-          aadd(ta,'не введено онкологическое лечение')
-        endif
+        //
+        // закомментировал временно 13.02.22 пока не разберусь
+        //
+        // if iif(human_2->VMP == 1, .t., between(onksl->ds1_t,0,2)) .and. empty(alltrim(human_2->PC3))
+        //   aadd(ta,'не введено онкологическое лечение')
+        // endif
       elseif eq_ascan(arr_onk_usl,2,4)
         if empty(onksl->crit)
           aadd(ta,'не введена схема лекарственной терапии')
@@ -2212,7 +2218,7 @@ Function verify_1_sluch(fl_view)
         if !empty(ar_1_19_1)
           aadd(ta,'при оказании ВМП не может быть применена услуга 1.19.1')
         endif
-        make_V018_V019(d2)
+        // make_V018_V019(d2)
         if empty(human_2->TAL_NUM)
           aadd(ta,'ВМП оказана, но не введен номер талона на ВМП')
         endif
