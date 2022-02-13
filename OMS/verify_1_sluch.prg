@@ -1762,9 +1762,12 @@ Function verify_1_sluch(fl_view)
         skip
       enddo
       if empty(arr_onk_usl)
-        if iif(human_2->VMP == 1, .t., between(onksl->ds1_t,0,2)) .and. empty(alltrim(human_2->PC3))
-          aadd(ta,'не введено онкологическое лечение')
-        endif
+        //
+        // закомментировал временно 13.02.22 пока не разберусь
+        //
+        // if iif(human_2->VMP == 1, .t., between(onksl->ds1_t,0,2)) .and. empty(alltrim(human_2->PC3))
+        //   aadd(ta,'не введено онкологическое лечение')
+        // endif
       elseif eq_ascan(arr_onk_usl,2,4)
         if empty(onksl->crit)
           aadd(ta,'не введена схема лекарственной терапии')
