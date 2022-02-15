@@ -72,7 +72,8 @@ function check_implantant(mkod_human)
   local tmpSelect := select()
   local arrImplantant, ser_num
 
-  Use_base("human_im")
+  // Use_base("human_im")
+  R_Use(dir_server + 'human_im', dir_server + 'human_im', 'IMPL')
   find (str(mkod_human, 7))
   if IMPL->(found())
     // найти серийный номер если есть
@@ -93,7 +94,7 @@ function delete_implantant(mkod_human)
   if IMPL->(found())
     // вначале удалить серийный номер если есть
     delete_implantant_ser_number(IMPL->(recno()))
-    DeleteRec(.t.,.t.)  // очистка записи с пометкой на удаление
+    DeleteRec(.t.,.f.)  // очистка записи с пометкой на удаление
   endif
   IMPL->(dbCloseArea())
   select(tmpSelect)

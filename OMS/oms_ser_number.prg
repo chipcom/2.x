@@ -18,7 +18,7 @@ local ret_ser_num, fl
 
 type := Upper(type)
 
-if fl := G_Use(dir_server + 'human_ser_num', dir_server + 'human_ser_num', 'NUM_SER', , .f., .f.)
+if fl := R_Use(dir_server + 'human_ser_num', dir_server + 'human_ser_num', 'NUM_SER')
   find (type + str(rec_n, 7))
   if NUM_SER->(found())
     ret_ser_num := NUM_SER->SER_NUM
@@ -87,7 +87,7 @@ type := Upper(type)
 if fl := G_Use(dir_server + 'human_ser_num', dir_server + 'human_ser_num', 'NUM_SER', , .f., .f.)
   find (type + str(rec_n, 7))
   if NUM_SER->(found())
-    DeleteRec(.t.,.t.)  // очистка записи с пометкой на удаление
+    DeleteRec(.t.,.f.)  // очистка записи с пометкой на удаление
   endif
 endif
 NUM_SER->(dbCloseArea())
