@@ -5098,7 +5098,7 @@ close databases
 restscreen(buf)
 return NIL
 
-***** 24.11.21
+***** 17.02.22
 Function pril_5_6_62()
 Local begin_date, end_date, buf := savescreen(), i, j, k, k1, k2,;
       t_arr[10], t_arr1[10], name_file := "f14med"+stxt, tfoms_pz[5,11],;
@@ -5174,6 +5174,10 @@ endif
 if arr_m[1] == 2020 .and. arr_m[3] == 12 // проверить
   kds := 15 // дата регистрации по 15.01.21
   kdr := 18 // по какую дату РАК сумма к оплате 18.01.21
+endif
+if arr_m[1] == 2021 .and. arr_m[3] == 12 // проверить
+  kds := 14 // дата регистрации по 14.01.22
+  kdr := 17 // по какую дату РАК сумма к оплате 17.01.22
 endif
 *********************************************************************
 mdate_rak := arr_m[6]+kdr
