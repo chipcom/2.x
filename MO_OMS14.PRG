@@ -1669,7 +1669,6 @@ if human_->USL_OK == 1  // стационар
   if human_2->VMP == 1 // проверим ВМП
     if is_12_VMP .or. is_21_VMP // ВМП по-новому 08.02.2021
       // if is_12_VMP  // ВМП по-новому
-      // make_V018_V019(d2)
       glob_V018 := getV018table(d2)
       glob_V019 := getV019table(d2)
       

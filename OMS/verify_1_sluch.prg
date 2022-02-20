@@ -18,7 +18,7 @@ Function verify_1_sluch(fl_view)
   local sbase, arrUslugi := {}
   local arr_uslugi_geriatr := {'B01.007.001', 'B01.007.003', 'B01.007.003' }, row
   local flGeriatr := .f.
-  local glob_V019
+  local glob_V018, glob_V019
 
   if empty(human->k_data)
     return .t.  // не проверять
@@ -45,6 +45,7 @@ Function verify_1_sluch(fl_view)
   glob_kartotek := human->kod_k
   d1 := human->n_data ; d2 := human->k_data ; cuch_doc := human->uch_doc
 
+  glob_V018 := getV018table(human->k_data)
   glob_V019 := getV019table(human->k_data)
 
   reserveKSG_1 := exist_reserve_KSG(human->kod, 'HUMAN')
@@ -2218,7 +2219,6 @@ Function verify_1_sluch(fl_view)
         if !empty(ar_1_19_1)
           aadd(ta,'при оказании ВМП не может быть применена услуга 1.19.1')
         endif
-        // make_V018_V019(d2)
         if empty(human_2->TAL_NUM)
           aadd(ta,'ВМП оказана, но не введен номер талона на ВМП')
         endif

@@ -3,7 +3,7 @@
 
 #define NUMBER_YEAR 3 // число лет для переиндексации назад
 
-***** 10.06.21 инициализация массива МО, запрос кода МО (при необходимости)
+***** 19.02.22 инициализация массива МО, запрос кода МО (при необходимости)
 Function init_mo()
   Local fl := .t., i, arr, arr1, cCode := '', buf := save_maxrow(), ;
         nfile := exe_dir+'_mo_mo.dbb'
@@ -33,60 +33,54 @@ Function init_mo()
                {"171099",2,"г.Волгоград, ул.Тракторостроителей, д.13"}};
     };
   }
-  // if hb_FileExists(nfile)
 
-    // glob_arr_mo := getMo_mo(nfile)
+  create_mo_add()
+  glob_arr_mo := getMo_mo_New('_mo_mo')
 
-    create_mo_add()
-    glob_arr_mo := getMo_mo_New('_mo_mo')
-
-    if hb_FileExists(dir_server+"organiz"+sdbf)
-      R_Use(dir_server+"organiz",,"ORG")
-      if lastrec() > 0
-        cCode := left(org->kod_tfoms,6)
-      endif
+  if hb_FileExists(dir_server+"organiz"+sdbf)
+    R_Use(dir_server+"organiz",,"ORG")
+    if lastrec() > 0
+      cCode := left(org->kod_tfoms,6)
     endif
-    close databases
-    if !empty(cCode)
+  endif
+  close databases
+  if !empty(cCode)
+    if (i := ascan(glob_arr_mo, {|x| x[_MO_KOD_TFOMS] == cCode})) > 0
+      glob_mo := glob_arr_mo[i]
+      if (i := ascan(glob_adres_podr, {|x| x[1] == glob_mo[_MO_KOD_TFOMS] })) > 0
+        is_adres_podr := .t. ; glob_podr_2 := glob_adres_podr[i,2,2,1] // второй код для удалённого адреса
+      endif
+    else
+      func_error(4,'У Вас в справочнике занесён несуществующий код МО "'+cCode+'". Введите его заново.')
+      cCode := ""
+    endif
+  endif
+  if empty(cCode)
+    if (cCode := input_value(18,2,20,77,color1,;
+                              "Введите код МО или обособленного подразделения, присвоенный ТФОМС",;
+                              space(6),"999999")) != NIL .and. !empty(cCode)
       if (i := ascan(glob_arr_mo, {|x| x[_MO_KOD_TFOMS] == cCode})) > 0
         glob_mo := glob_arr_mo[i]
-        if (i := ascan(glob_adres_podr, {|x| x[1] == glob_mo[_MO_KOD_TFOMS] })) > 0
-          is_adres_podr := .t. ; glob_podr_2 := glob_adres_podr[i,2,2,1] // второй код для удалённого адреса
-        endif
-      else
-        func_error(4,'У Вас в справочнике занесён несуществующий код МО "'+cCode+'". Введите его заново.')
-        cCode := ""
-      endif
-    endif
-    if empty(cCode)
-      if (cCode := input_value(18,2,20,77,color1,;
-                               "Введите код МО или обособленного подразделения, присвоенный ТФОМС",;
-                               space(6),"999999")) != NIL .and. !empty(cCode)
-        if (i := ascan(glob_arr_mo, {|x| x[_MO_KOD_TFOMS] == cCode})) > 0
-          glob_mo := glob_arr_mo[i]
-          if hb_FileExists(dir_server+"organiz"+sdbf)
-            G_Use(dir_server+"organiz",,"ORG")
-            if lastrec() == 0
-              AddRecN()
-            else
-              G_RLock(forever)
-            endif
-            org->kod_tfoms := glob_mo[_MO_KOD_TFOMS]
-            org->name_tfoms := glob_mo[_MO_SHORT_NAME]
-            org->uroven := get_uroven()
+        if hb_FileExists(dir_server+"organiz"+sdbf)
+          G_Use(dir_server+"organiz",,"ORG")
+          if lastrec() == 0
+            AddRecN()
+          else
+            G_RLock(forever)
           endif
-          close databases
-        else
-          fl := func_error('Работа невозможна - введённый код МО "'+cCode+'" неверен.')
+          org->kod_tfoms := glob_mo[_MO_KOD_TFOMS]
+          org->name_tfoms := glob_mo[_MO_SHORT_NAME]
+          org->uroven := get_uroven()
         endif
+        close databases
+      else
+        fl := func_error('Работа невозможна - введённый код МО "'+cCode+'" неверен.')
       endif
     endif
-    if empty(cCode)
-      fl := func_error('Работа невозможна - не введён код МО.')
-    endif
-  // else
-  //   fl := func_error('Работа невозможна - не обнаружен файл "_MO_MO.DBB"')
-  // endif
+  endif
+  if empty(cCode)
+    fl := func_error('Работа невозможна - не введён код МО.')
+  endif
 
   rest_box(buf)
 
@@ -103,9 +97,6 @@ Function checkFilesTFOMS()
   local arrRefFFOMS := {}, row, row_flag := .t.
   local lSchema := .f.
   local countYear
-
-  // local t1, t2
-  // t1 := seconds()
 
   public is_otd_dep := .f., glob_otd_dep := 0, mm_otd_dep := {}
 
@@ -477,7 +468,6 @@ Function checkFilesTFOMS()
   endif
   rest_box(buf)
 
-  // return main_up_screen()
   return nil
 
 **** 29.11.21
