@@ -19,6 +19,7 @@ Function verify_1_sluch(fl_view)
   local arr_uslugi_geriatr := {'B01.007.001', 'B01.007.003', 'B01.007.003' }, row
   local flGeriatr := .f.
   local glob_V018, glob_V019
+  local arrImplant
 
   if empty(human->k_data)
     return .t.  // не проверять
@@ -4326,6 +4327,17 @@ Function verify_1_sluch(fl_view)
     is_disp_nabl := .f.
     arr_nazn := {}
     read_arr_DVN_COVID(human->kod)
+  endif
+
+  // проверим наличие имплантов
+  arrImplant := check_implantant(human->kod)
+  if arrImplant != NIL
+    if empty(arrImplant[4])
+      aadd(ta,'для имплантанта необходимо указать его вид')
+    endif
+    if empty(arrImplant[5])
+      aadd(ta,'для имплантанта необходимо указать серийный номер')
+    endif
   endif
 
   // проверим на наличие направивиших врачей
