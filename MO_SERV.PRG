@@ -1650,7 +1650,6 @@ if fl
       if !empty(ihuman->VID_HMP)
         s := ""
         if ihuman->USL_OK == 1 // стационар
-          // make_V018_V019(ihuman->date_2)
 
           glob_V018 := getV018table(ihuman->date_2)
           glob_V019 := getV019table(ihuman->date_2)

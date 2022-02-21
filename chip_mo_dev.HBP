@@ -121,7 +121,6 @@ mo_version.prg
 .\calendar\calendar_func.prg
 
 .\ref\initSpravFFOMS.prg
-.\ref\initPZarray.prg
 .\ref\dbAdditionalCriteria.prg
 .\ref\dbO001.prg
 .\ref\dbF003.prg
@@ -169,7 +168,7 @@ mo_version.prg
 .\ref\dbT008.prg
 .\ref\dbT012.prg
 .\ref\dbVMP_USL.prg
-.\ref\make_V018_V019.prg
+#.\ref\make_V018_V019.prg
 .\ref\dbKSLPandKIRO.prg
 .\ref\dbMo_Mo.prg
 .\ref\dbImplant.prg
@@ -243,3 +242,6 @@ mo_version.prg
 
 .\SYSTEM\use_func.prg
 .\SYSTEM\extension.prg
+
+.\TUNING\ret_days_for_akt_sverki.prg
+.\TUNING\initPZarray.prg

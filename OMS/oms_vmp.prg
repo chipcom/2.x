@@ -22,24 +22,20 @@ Function f_get_vidvmp(k, r, c, diagnoze)
     y := 2018
   endif
 
-  // if sy != y  // при первом вызове или смене года
-    // make_V018_V019(mk_data)
-    for each row in glob_V019   // только с нужным диагнозом
-      if (kk := ascan(row[3], {|x| x == alltrim(diagnoze) })) > 0
-        aadd(arr_vid, row[4])
-      endif
-    next
+  for each row in glob_V019   // только с нужным диагнозом
+    if (kk := ascan(row[3], {|x| x == alltrim(diagnoze) })) > 0
+      aadd(arr_vid, row[4])
+    endif
+  next
 
-    arr := {}
-    for i := 1 to len(glob_V018)
-      if (kk := ascan(arr_vid, {|x| x == alltrim(glob_V018[i, 1]) })) > 0
-        sTmp := padl(glob_V018[i, 1], 5) + "."
-        // aadd(arr,{padr(glob_V018[i,1]+"."+glob_V018[i,2],76),glob_V018[i,1]})
-        aadd(arr, {padr(sTmp + glob_V018[i, 2], 76), glob_V018[i, 1]})
-      endif
-    next
-    // sy := y
-  // endif
+  arr := {}
+  for i := 1 to len(glob_V018)
+    if (kk := ascan(arr_vid, {|x| x == alltrim(glob_V018[i, 1]) })) > 0
+      sTmp := padl(glob_V018[i, 1], 5) + "."
+      // aadd(arr,{padr(glob_V018[i,1]+"."+glob_V018[i,2],76),glob_V018[i,1]})
+      aadd(arr, {padr(sTmp + glob_V018[i, 2], 76), glob_V018[i, 1]})
+    endif
+  next
   if empty(k)
     k := svidvmp
   endif
@@ -63,7 +59,6 @@ Function f_get_metvmp(k, r, c, lvidvmp, modpac)
     return NIL
   endif
 
-  // make_V018_V019(mk_data)
   for i := 1 to len(glob_V019)
     if glob_V019[i,4] == alltrim(lvidvmp) .and. glob_V019[i,8] == modpac
       aadd(arr, {padr(str(glob_V019[i,1],4)+"."+glob_V019[i,2],76),glob_V019[i,1]})
@@ -95,7 +90,6 @@ Function f_get_mmodpac(k, r, c, lvidvmp, sDiag)
     return NIL
   endif
 
-  // make_V018_V019(mk_data)
   for i := 1 to len(glob_V019)
     if glob_V019[i,4] == alltrim(lvidvmp) .and. ( ascan(glob_V019[i,3],diag) > 0 )
       for each row in model
@@ -136,7 +130,6 @@ Function ret_V018(lVIDVMP, lk_data)
   Local i, s := space(10)
   local glob_V018 := getV018table(lk_data)
 
-  // make_V018_V019(lk_data)
   if !empty(lVIDVMP) .and. (i := ascan(glob_V018, {|x| x[1] == alltrim(lVIDVMP) })) > 0
     s := glob_V018[i, 1] + "." + glob_V018[i, 2]
   endif
@@ -147,7 +140,6 @@ Function ret_V019(lMETVMP, lVIDVMP, lk_data)
   Local i, s := space(10)
   local glob_V019 := getV019table(lk_data)
 
-  // make_V018_V019(lk_data)
   if !emptyany(lMETVMP, lVIDVMP) ;
               .and. (i := ascan(glob_V019, {|x| x[1] == lMETVMP })) > 0 ;
               .and. glob_V019[i, 4] == alltrim(lVIDVMP)
