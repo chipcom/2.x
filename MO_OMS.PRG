@@ -743,7 +743,7 @@ endif
     if tip_lu == TIP_LU_SMP // определяем шифр услуги СМП
       lshifr := "71."
       if m1tip == 0
-        if is_komm_SMP() .and. mk_data < 0d20190501 // если это коммерческая скорая
+        if (is_komm_SMP() .and. mk_data < 0d20190501) .or. (is_komm_SMP() .and. mk_data >= 0d20220101)// если это коммерческая скорая
           lshifr += "2."
         elseif m1komu == 0
           if len(alltrim(msmo)) == 5 .and. left(msmo,2) == '34'
