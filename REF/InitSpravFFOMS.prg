@@ -100,18 +100,6 @@ Function InitSpravFFOMS()
   // V016.xml - Классификатор видов диспансеризации/профосмотров
   Public glob_V016 := getV016()
 
-  // V018.xml - Классификатор видов ВМП
-  // Public glob_V018 := {}, _glob_V018 := {}
-  if is_MO_VMP
-    // _glob_V018 := getV018table(sys_date)
-  endif
-
-  // V019.xml - Классификатор методов ВМП
-  // Public glob_V019 := {}, _glob_V019 := {}
-  if is_MO_VMP
-    // _glob_V019 := getV019table(sys_date)
-  endif
-
   // V020.xml - Классификатор профилей койки
   Public glob_V020 := getV020()
 
