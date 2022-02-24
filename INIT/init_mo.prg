@@ -1,6 +1,7 @@
 #include "function.ch"
 #include "chip_mo.ch"
 
+#define FILE_HASH   'files.hst'   // имя файла для хэшев файлов
 #define NUMBER_YEAR 3 // число лет для переиндексации назад
 
 ***** 19.02.22 инициализация массива МО, запрос кода МО (при необходимости)
@@ -97,6 +98,8 @@ Function checkFilesTFOMS()
   local arrRefFFOMS := {}, row, row_flag := .t.
   local lSchema := .f.
   local countYear
+  local hash_files
+  local file_index, sMD5, sbase
 
   public is_otd_dep := .f., glob_otd_dep := 0, mm_otd_dep := {}
 
@@ -130,32 +133,52 @@ Function checkFilesTFOMS()
 
   mywait('Подождите, идет проверка служебных данных в рабочем каталоге...')
 
+  hash_files := read_files_md5(cur_dir + FILE_HASH)
+
   // справочник диагнозов
-  sbase := "_mo_mkb"
+  sbase := '_mo_mkb'
+  file_index := cur_dir + sbase + sntx
+  sMD5 := ''
   if hb_FileExists(exe_dir + sbase + sdbf)
-    R_Use(exe_dir + sbase )
-    index on shifr+str(ks,1) to (cur_dir+sbase)
-    close databases
+    if ! hb_FileExists(file_index) .or. ;
+          ! check_izm_file_MD5(hash_files, sbase, exe_dir + sbase + sdbf, @sMD5)
+      R_Use(exe_dir + sbase )
+      index on shifr+str(ks,1) to (cur_dir+sbase)
+      close databases
+    endif
+    hash_files := add_hash_row(hash_files, sbase, sMD5)
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
 
   // услуги <-> специальности
   sbase := "_mo_spec"
+  file_index := cur_dir + sbase + sntx
+  sMD5 := ''
   if hb_FileExists(exe_dir + sbase + sdbf)
-    R_Use(exe_dir + sbase )
-    index on shifr+str(vzros_reb,1)+str(prvs_new,6) to (cur_dir+sbase)
-    use
+    if ! hb_FileExists(file_index) .or. ;
+          ! check_izm_file_MD5(hash_files, sbase, exe_dir + sbase + sdbf, @sMD5)
+      R_Use(exe_dir + sbase )
+      index on shifr+str(vzros_reb,1)+str(prvs_new,6) to (cur_dir+sbase)
+      use
+    endif
+    hash_files := add_hash_row(hash_files, sbase, sMD5)
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
 
   // услуги <-> профили
   sbase := "_mo_prof"
+  file_index := cur_dir + sbase + sntx
+  sMD5 := ''
   if hb_FileExists(exe_dir + sbase + sdbf)
-    R_Use(exe_dir + sbase )
-    index on shifr+str(vzros_reb,1)+str(profil,3) to (cur_dir+sbase)
-    use
+    if ! hb_FileExists(file_index) .or. ;
+          ! check_izm_file_MD5(hash_files, sbase, exe_dir + sbase + sdbf, @sMD5)
+      R_Use(exe_dir + sbase )
+      index on shifr+str(vzros_reb,1)+str(profil,3) to (cur_dir+sbase)
+      use
+    endif
+    hash_files := add_hash_row(hash_files, sbase, sMD5)
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
@@ -197,185 +220,295 @@ Function checkFilesTFOMS()
   endif*/
 
 
-  sbase := "_mo_t007"
   Public arr_t007 := {}
+  sbase := "_mo_t007"
+  file_index := cur_dir + sbase + sntx
+  sMD5 := ''
   if hb_FileExists(exe_dir + sbase + sdbf)
-    R_Use(exe_dir + sbase ,,"T7")
-    index on upper(left(NAME,50))+str(profil_k,3) to (cur_dir+sbase) UNIQUE
-    dbeval({|| aadd(arr_t007, {alltrim(t7->name),profil_k,pk_V020}) })
-    index on str(profil_k,3)+str(profil,3) to (cur_dir+sbase)
-    index on str(pk_V020,3)+str(profil,3) to (cur_dir+sbase+"2")
-    use
+    if ! hb_FileExists(file_index) .or. ;
+        ! hb_FileExists(cur_dir + sbase + '2' + sntx) .or. ;
+        ! check_izm_file_MD5(hash_files, sbase, exe_dir + sbase + sdbf, @sMD5)
+      R_Use(exe_dir + sbase ,,"T7")
+      index on upper(left(NAME,50))+str(profil_k,3) to (cur_dir+sbase) UNIQUE
+      dbeval({|| aadd(arr_t007, {alltrim(t7->name),profil_k,pk_V020}) })
+      index on str(profil_k,3)+str(profil,3) to (cur_dir+sbase)
+      index on str(pk_V020,3)+str(profil,3) to (cur_dir+sbase+"2")
+      use
+    endif
+    hash_files := add_hash_row(hash_files, sbase, sMD5)
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
 
   // справочник страховых компаний РФ
   sbase := "_mo_smo"
+  file_index := cur_dir + sbase + sntx
+  sMD5 := ''
   if hb_FileExists(exe_dir + sbase + sdbf)
     Public glob_array_srf := {}
-    R_Use(exe_dir + sbase )
-    index on okato to (cur_dir+sbase) UNIQUE
-    dbeval({|| aadd(glob_array_srf,{"",field->okato}) })
-    index on okato+smo to (cur_dir+sbase)
-    index on smo to (cur_dir+sbase+'2')
-    index on okato+ogrn to (cur_dir+sbase+'3')
-    use
+    if ! hb_FileExists(file_index) .or. ;
+          ! hb_FileExists(cur_dir + sbase + '2' + sntx) .or. ;
+          ! hb_FileExists(cur_dir + sbase + '3' + sntx) .or. ;
+          ! check_izm_file_MD5(hash_files, sbase, exe_dir + sbase + sdbf, @sMD5)
+      R_Use(exe_dir + sbase )
+      index on okato to (cur_dir+sbase) UNIQUE
+      dbeval({|| aadd(glob_array_srf,{"",field->okato}) })
+      index on okato+smo to (cur_dir+sbase)
+      index on smo to (cur_dir+sbase+'2')
+      index on okato+ogrn to (cur_dir+sbase+'3')
+      use
+    endif
+    hash_files := add_hash_row(hash_files, sbase, sMD5)
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
 
   // impl - справочник имплантантов
   sbase := "_mo_impl"
+  file_index := cur_dir + sbase + sntx
+  sMD5 := ''
   if hb_FileExists(exe_dir + sbase + sdbf)
+    if ! hb_FileExists(file_index) .or. ;
+          ! check_izm_file_MD5(hash_files, sbase, exe_dir + sbase + sdbf, @sMD5)
       R_Use(exe_dir + sbase )
       index on str(ID, 4) to (cur_dir + sbase)
       use
+    endif
+    hash_files := add_hash_row(hash_files, sbase, sMD5)
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
 
   // onkko_vmp
   sbase := "_mo_ovmp"
+  file_index := cur_dir + sbase + sntx
+  sMD5 := ''
   if hb_FileExists(exe_dir + sbase + sdbf)
+    if ! hb_FileExists(file_index) .or. ;
+          ! check_izm_file_MD5(hash_files, sbase, exe_dir + sbase + sdbf, @sMD5)
       R_Use(exe_dir + sbase )
       index on str(metod,3) to (cur_dir+sbase)
       use
+    endif
+    hash_files := add_hash_row(hash_files, sbase, sMD5)
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
 
   // N002
   sbase := "_mo_N002"
+  file_index := cur_dir + sbase + sntx
+  sMD5 := ''
   if hb_FileExists(exe_dir + sbase + sdbf)
+    if ! hb_FileExists(file_index) .or. ;
+          ! hb_FileExists(cur_dir + sbase + 'd' + sntx) .or. ;
+          ! check_izm_file_MD5(hash_files, sbase, exe_dir + sbase + sdbf, @sMD5)
       R_Use(exe_dir + sbase )
       index on str(id_st,6) to (cur_dir+sbase)
       index on ds_st+kod_st to (cur_dir+sbase+"d")
       use
+    endif
+    hash_files := add_hash_row(hash_files, sbase, sMD5)
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
 
   // N003
   sbase := "_mo_N003"
+  file_index := cur_dir + sbase + sntx
+  sMD5 := ''
   if hb_FileExists(exe_dir + sbase + sdbf)
+    if ! hb_FileExists(file_index) .or. ;
+          ! hb_FileExists(cur_dir + sbase + 'd' + sntx) .or. ;
+          ! check_izm_file_MD5(hash_files, sbase, exe_dir + sbase + sdbf, @sMD5)
       R_Use(exe_dir + sbase )
       index on str(id_t,6) to (cur_dir+sbase)
       index on ds_t+kod_t to (cur_dir+sbase+"d")
       use
+    endif
+    hash_files := add_hash_row(hash_files, sbase, sMD5)
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
 
   // N004
   sbase := "_mo_N004"
+  file_index := cur_dir + sbase + sntx
+  sMD5 := ''
   if hb_FileExists(exe_dir + sbase + sdbf)
+    if ! hb_FileExists(file_index) .or. ;
+          ! hb_FileExists(cur_dir + sbase + 'd' + sntx) .or. ;
+          ! check_izm_file_MD5(hash_files, sbase, exe_dir + sbase + sdbf, @sMD5)
       R_Use(exe_dir + sbase )
       index on str(id_n,6) to (cur_dir+sbase)
       index on ds_n+kod_n to (cur_dir+sbase+"d")
       use
+    endif
+    hash_files := add_hash_row(hash_files, sbase, sMD5)
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
 
   // N005
   sbase := "_mo_N005"
+  file_index := cur_dir + sbase + sntx
+  sMD5 := ''
   if hb_FileExists(exe_dir + sbase + sdbf)
+    if ! hb_FileExists(file_index) .or. ;
+          ! hb_FileExists(cur_dir + sbase + 'd' + sntx) .or. ;
+          ! check_izm_file_MD5(hash_files, sbase, exe_dir + sbase + sdbf, @sMD5)
       R_Use(exe_dir + sbase )
       index on str(id_m,6) to (cur_dir+sbase)
       index on ds_m+kod_m to (cur_dir+sbase+"d")
       use
+    endif
+    hash_files := add_hash_row(hash_files, sbase, sMD5)
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
 
   // N006 - в 2019 году пустой
   sbase := "_mo_N006"
+  file_index := cur_dir + sbase + sntx
+  sMD5 := ''
   if hb_FileExists(exe_dir + sbase + sdbf)
+    if ! hb_FileExists(file_index) .or. ;
+          ! check_izm_file_MD5(hash_files, sbase, exe_dir + sbase + sdbf, @sMD5)
       R_Use(exe_dir + sbase )
       index on ds_gr+str(id_t,6)+str(id_n,6)+str(id_m,6) to (cur_dir+sbase)
       use
+    endif
+    hash_files := add_hash_row(hash_files, sbase, sMD5)
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
 
   // N007
   sbase := "_mo_N007"
+  file_index := cur_dir + sbase + sntx
+  sMD5 := ''
   if hb_FileExists(exe_dir + sbase + sdbf)
+    if ! hb_FileExists(file_index) .or. ;
+          ! check_izm_file_MD5(hash_files, sbase, exe_dir + sbase + sdbf, @sMD5)
       R_Use(exe_dir + sbase )
       index on str(id_mrf,6) to (cur_dir+sbase)
       use
+    endif
+    hash_files := add_hash_row(hash_files, sbase, sMD5)
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
 
   // N008
   sbase := "_mo_N008"
+  file_index := cur_dir + sbase + sntx
+  sMD5 := ''
   if hb_FileExists(exe_dir + sbase + sdbf)
+    if ! hb_FileExists(file_index) .or. ;
+          ! check_izm_file_MD5(hash_files, sbase, exe_dir + sbase + sdbf, @sMD5)
       R_Use(exe_dir + sbase )
       index on str(id_mrf,6) to (cur_dir+sbase)
       use
+    endif
+    hash_files := add_hash_row(hash_files, sbase, sMD5)
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
 
   // N010
   sbase := "_mo_N010"
+  file_index := cur_dir + sbase + sntx
+  sMD5 := ''
   if hb_FileExists(exe_dir + sbase + sdbf)
+    if ! hb_FileExists(file_index) .or. ;
+          ! check_izm_file_MD5(hash_files, sbase, exe_dir + sbase + sdbf, @sMD5)
       R_Use(exe_dir + sbase )
       index on str(id_igh,6) to (cur_dir+sbase)
       use
+    endif
+    hash_files := add_hash_row(hash_files, sbase, sMD5)
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
 
   // N011
   sbase := "_mo_N011"
+  file_index := cur_dir + sbase + sntx
+  sMD5 := ''
   if hb_FileExists(exe_dir + sbase + sdbf)
+    if ! hb_FileExists(file_index) .or. ;
+          ! check_izm_file_MD5(hash_files, sbase, exe_dir + sbase + sdbf, @sMD5)
       R_Use(exe_dir + sbase )
       index on str(id_igh,6) to (cur_dir+sbase)
       use
+    endif
+    hash_files := add_hash_row(hash_files, sbase, sMD5)
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
 
   // N020
   sbase := "_mo_N020"
+  file_index := cur_dir + sbase + sntx
+  sMD5 := ''
   if hb_FileExists(exe_dir + sbase + sdbf)
+    if ! hb_FileExists(file_index) .or. ;
+          ! hb_FileExists(cur_dir + sbase + 'n' + sntx) .or. ;
+          ! check_izm_file_MD5(hash_files, sbase, exe_dir + sbase + sdbf, @sMD5)
       R_Use(exe_dir + sbase )
       index on id_lekp to (cur_dir+sbase)
       index on upper(mnn) to (cur_dir+sbase+"n")
       use
+    endif
+    hash_files := add_hash_row(hash_files, sbase, sMD5)
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
 
   // N021
   sbase := "_mo_N021"
+  file_index := cur_dir + sbase + sntx
+  sMD5 := ''
   if hb_FileExists(exe_dir + sbase + sdbf)
+    if ! hb_FileExists(file_index) .or. ;
+          ! check_izm_file_MD5(hash_files, sbase, exe_dir + sbase + sdbf, @sMD5)
       R_Use(exe_dir + sbase )
       index on code_sh+id_lekp to (cur_dir+sbase)
       use
+    endif
+    hash_files := add_hash_row(hash_files, sbase, sMD5)
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
 
   // справочник подразделений из паспорта ЛПУ
   sbase := "_mo_podr"
+  file_index := cur_dir + sbase + sntx
+  sMD5 := ''
   if hb_FileExists(exe_dir + sbase + sdbf)
+    if ! hb_FileExists(file_index) .or. ;
+          ! check_izm_file_MD5(hash_files, sbase, exe_dir + sbase + sdbf, @sMD5)
       R_Use(exe_dir + sbase )
       index on codemo+padr(upper(kodotd),25) to (cur_dir+sbase)
       use
+    endif
+    hash_files := add_hash_row(hash_files, sbase, sMD5)
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
 
   // справочник соответствия профиля мед.помощи с профилем койки
   sbase := "_mo_prprk"
+  file_index := cur_dir + sbase + sntx
+  sMD5 := ''
   if hb_FileExists(exe_dir + sbase + sdbf)
+    if ! hb_FileExists(file_index) .or. ;
+          ! check_izm_file_MD5(hash_files, sbase, exe_dir + sbase + sdbf, @sMD5)
       R_Use(exe_dir + sbase )
       index on str(profil,3)+str(profil_k,3) to (cur_dir+sbase)
       use
+    endif
+    hash_files := add_hash_row(hash_files, sbase, sMD5)
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
@@ -429,11 +562,17 @@ Function checkFilesTFOMS()
   if fl
     // справочник ошибок
     sbase := "_mo_t005"
-    R_Use(exe_dir + sbase )
-    index on str(kod,3) to (cur_dir+sbase)
-    use
+    file_index := cur_dir + sbase + sntx
+    sMD5 := ''
+    if ! hb_FileExists(file_index) .or. ;
+          ! check_izm_file_MD5(hash_files, sbase, exe_dir + sbase + sdbf, @sMD5)
+      R_Use(exe_dir + sbase )
+      index on str(kod,3) to (cur_dir+sbase)
+      use
+    endif
+    hash_files := add_hash_row(hash_files, sbase, sMD5)
   endif
-  
+
   // справочник ОКАТО
   if fl
     okato_index()
