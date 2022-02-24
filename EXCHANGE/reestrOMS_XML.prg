@@ -1698,10 +1698,24 @@ Function ret_prvs_V015toV021(lkod)
   endif
   return new_kod
   
-***** 19.01.20
+***** 24.02.22
 Function create1reestr19(_recno,_nyear,_nmonth)
   Local buf := savescreen(), s, i, j, pole
-  Private mpz[100], oldpz[100], atip[100], p_array_PZ := iif(_nyear > 2019, glob_array_PZ_20, glob_array_PZ_19)
+  local nameArr
+  Private mpz[100], oldpz[100], atip[100], p_array_PZ
+  
+  // if _nyear > 2021
+  //   p_array_PZ := glob_array_PZ_22
+  // elseif _nyear > 2020
+  //   p_array_PZ := glob_array_PZ_21
+  // elseif _nyear > 2019
+  //   p_array_PZ := iif(_nyear > 2019, glob_array_PZ_20, glob_array_PZ_19)
+  // endif
+
+  nameArr := 'glob_array_PZ_' + last_digits_year( _nyear )
+  p_array_PZ := &nameArr
+
+
   for j := 0 to 99
     pole := "tmp->PZ"+lstr(j)
     mpz[j+1] := oldpz[j+1] := &pole
