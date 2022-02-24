@@ -1470,7 +1470,7 @@ close databases
 viewtext(n_file,,,,(sh > 80),,,reg_print)
 return NIL
 
-***** 24.02.21 многовариантный поиск
+***** 24.02.22 многовариантный поиск
 Function s_mnog_poisk()
 Static mm_rak := {;
   {"все случаи",0},;
@@ -1524,6 +1524,8 @@ Local buf := savescreen(), tmp_color := setcolor(cDataCGet),;
                   {"не прикреплён к нашей МО",2}},;
       tmp_file := "tmp_mn_p"+sdbf,;
       k_diagnoz, k_usl, tt_diagnoz[10], tt_usl[10]
+local nameArr
+
 if mem_dom_aktiv == 1
   aadd(mm_dom,{"на дому-АКТИВ",3})
   aadd(mm_dom,{"на дому + на дому-АКТИВ",4})
@@ -1561,8 +1563,12 @@ if yes_bukva
 endif
 Private pr_arr := {}, pr_arr_otd := {}, is_talon := ret_is_talon(), arr_tal_diag[2,3], mm_pz := {}
 afillall(arr_tal_diag,0)
-for i := 1 to len(glob_array_PZ_19)
-  aadd(mm_pz, {glob_array_PZ_19[i,3],glob_array_PZ_19[i,1]})
+
+nameArr := 'glob_array_PZ_' + '19'    //last_digits_year(ly)
+// for i := 1 to len(glob_array_PZ_19)
+//   aadd(mm_pz, {glob_array_PZ_19[i,3],glob_array_PZ_19[i,1]})
+for i := 1 to len(&nameArr)
+  aadd(mm_pz, {&nameArr.[i,3], &nameArr.[i,1]})
 next
 if is_talon
   is_kategor2 := !empty(stm_kategor2)
@@ -3944,7 +3950,7 @@ for i := 1 to 2
 next
 return NIL
 
-***** 23.12.21 форма 14-МЕД (ОМС)
+***** 24.02.22 форма 14-МЕД (ОМС)
 Function forma14_med_oms()
 Static group_ini := "f14_med_oms"
 Local begin_date, end_date, buf := savescreen(), arr_m, i, j, k, k1, k2,;
@@ -3960,6 +3966,7 @@ Local arr_skor[81,2], arr_eko[2,2], arr_profil := {}, arr_dn_stac := {}, arrDdn_
       fl_pol3000_PROF, fl_pol3000_DVN2 := .T.
 
 local sbase
+local nameArr
 
 old5 := old2 := 0
 afillall(arr_skor,0)
@@ -4499,7 +4506,9 @@ do while !eof()
               find (str(&lal.->unit_code,3))
               if found() .and. mounit->pz > 0
                 if (i16 := mounit->ii) > 0
-                  j1 := glob_array_PZ_21[i16,1]
+                  // j1 := glob_array_PZ_21[i16,1]
+                  nameArr := 'glob_array_PZ_' + last_digits_year(human->k_data)
+                  j1 := &nameArr.[i16, 1]
                   if eq_any(j1,68,75)
                     vid_vp := 0 // Посещение профилактическое
                   elseif eq_any(j1,69,76)

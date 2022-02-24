@@ -510,9 +510,11 @@ endcase
 return k
 
 
-***** 24.01.18
+***** 24.02.22
 Function create1reestr17(_recno,_nyear,_nmonth)
 Local buf := savescreen(), s, i, j, pole
+local nameArr
+
 Private mpz[100], oldpz[100], atip[100]
 for j := 0 to 99
   pole := "tmp->PZ"+lstr(j)
@@ -523,8 +525,11 @@ for j := 0 to 99
       atip[j+1] := glob_array_PZ[i,4]
     endif
   else
-    if (i := ascan(glob_array_PZ_18, {|x| x[1] == j })) > 0
-      atip[j+1] := glob_array_PZ_18[i,4]
+    nameArr := 'glob_array_PZ_' + last_digits_year(_nyear)
+    // if (i := ascan(glob_array_PZ_18, {|x| x[1] == j })) > 0
+    //   atip[j+1] := glob_array_PZ_18[i,4]
+    if (i := ascan(&nameArr, {|x| x[1] == j })) > 0
+      atip[j+1] := &nameArr.[i,4]
     endif
   endif
 next
@@ -588,9 +593,11 @@ next
 return NIL
 
 
-***** 24.01.18
+***** 24.02.22
 Static Function f_p_z17(_pzkol,_pz,k)
 Local s, s2, i
+local nameArr
+
 if pnyear < 2018 .and. _PZ == 62
   s := "УЕТ"
   s2 := ltrim(str(_pzkol,9,2))
@@ -602,8 +609,11 @@ else
       s2 += glob_array_PZ[i,5]
     endif
   else
-    if (i := ascan(glob_array_PZ_18, {|x| x[1] == _PZ })) > 0 .and. !empty(glob_array_PZ_18[i,5])
-      s2 += glob_array_PZ_18[i,5]
+    nameArr := 'glob_array_PZ_' + last_digits_year(pnyear)
+    // if (i := ascan(glob_array_PZ_18, {|x| x[1] == _PZ })) > 0 .and. !empty(glob_array_PZ_18[i,5])
+    if (i := ascan(&nameArr, {|x| x[1] == _PZ })) > 0 .and. !empty(&nameArr.[i,5])
+      // s2 += glob_array_PZ_18[i,5]
+      s2 += &nameArr.[i,5]
     endif
   endif
 endif
@@ -644,15 +654,19 @@ setcolor(tmp_color)
 return NIL
 
 
-***** 24.01.18
+***** 24.02.22
 Function f2create1reestr17(nKey,oBrow)
 Local buf, rec, k := -1, s, i, j, mas_pmt := {}, arr, r1, r2
+local nameArr
+
 do case
   case nkey == K_INS
     replace tmp->plus with !tmp->plus
     j := tmp->pz + 1
     if pnyear >= 2018
-      i := ascan(glob_array_PZ_18, {|x| x[1] == tmp->PZ })
+      nameArr := 'glob_array_PZ_' + last_digits_year(pnyear)
+      // i := ascan(glob_array_PZ_18, {|x| x[1] == tmp->PZ })
+      i := ascan(&nameArr, {|x| x[1] == tmp->PZ })
     elseif pnyear >= 2016
       i := ascan(glob_array_PZ, {|x| x[1] == tmp->PZ })
     endif
@@ -665,7 +679,9 @@ do case
           mpz[j] += human_->PZKOL
         endif
       else
-        if i > 0 .and. !empty(glob_array_PZ_18[i,5])
+        nameArr := 'glob_array_PZ_' + last_digits_year(pnyear)
+        // if i > 0 .and. !empty(glob_array_PZ_18[i,5])
+        if i > 0 .and. !empty(&nameArr.[i,5])
           mpz[j] ++
         else
           mpz[j] += human_->PZKOL
@@ -680,7 +696,9 @@ do case
           mpz[j] -= human_->PZKOL
         endif
       else
-        if i > 0 .and. !empty(glob_array_PZ_18[i,5])
+        nameArr := 'glob_array_PZ_' + last_digits_year(pnyear)
+        // if i > 0 .and. !empty(glob_array_PZ_18[i,5])
+        if i > 0 .and. !empty(&nameArr.[i, 5])
           mpz[j] --
         else
           mpz[j] -= human_->PZKOL
@@ -703,9 +721,12 @@ do case
         endif
       next
     else
+      nameArr := 'glob_array_PZ_' + last_digits_year(pnyear)
       for j := 2 to len(oldpz)
-        if !empty(oldpz[j]) .and. (i := ascan(glob_array_PZ_18, {|x| x[1] == j-1 })) > 0
-          aadd(mas_pmt, 'Отметить "'+glob_array_PZ_18[i,3]+'"') ; aadd(arr,j-1)
+        // if !empty(oldpz[j]) .and. (i := ascan(glob_array_PZ_18, {|x| x[1] == j-1 })) > 0
+        if !empty(oldpz[j]) .and. (i := ascan(&nameArr, {|x| x[1] == j-1 })) > 0
+          // aadd(mas_pmt, 'Отметить "'+glob_array_PZ_18[i,3]+'"') ; aadd(arr,j-1)
+          aadd(mas_pmt, 'Отметить "' + &nameArr.[i, 3]+'"') ; aadd(arr,j-1)
         endif
       next
     endif

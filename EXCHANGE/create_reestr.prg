@@ -3,9 +3,10 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 31.01.22
+***** 24.02.22
 Function create_reestr()
   Local buf := save_maxrow(), i, j, k := 0, k1 := 0, arr, bSaveHandler, fl, rec, pole, arr_m
+  local nameArr
 
   if ! hb_user_curUser:IsAdmin()
     return func_error(4,err_admin)
@@ -205,13 +206,17 @@ Function create_reestr()
               tmpb->PZ := j
               pole := "tmp->PZ"+lstr(j)
               if tmp->nyear > 2018 // 2019 год
-                if (i := ascan(glob_array_PZ_19, {|x| x[1] == j })) > 0 .and. !empty(glob_array_PZ_19[i,5])
+                nameArr := 'glob_array_PZ_' + last_digits_year(tmp->nyear)
+                // if (i := ascan(glob_array_PZ_19, {|x| x[1] == j })) > 0 .and. !empty(glob_array_PZ_19[i,5])
+                if (i := ascan(&nameArr, {|x| x[1] == j })) > 0 .and. !empty(&nameArr.[i,5])
                   &pole := &pole + 1 // учёт по случаям
                 else
                   &pole := &pole + k // учёт по единицам план-заказа
                 endif
               else
-                if (i := ascan(glob_array_PZ_18, {|x| x[1] == j })) > 0 .and. !empty(glob_array_PZ_18[i,5])
+                nameArr := 'glob_array_PZ_' + '18'  // last_digits_year(tmp->nyear)
+                // if (i := ascan(glob_array_PZ_18, {|x| x[1] == j })) > 0 .and. !empty(glob_array_PZ_18[i,5])
+                if (i := ascan(&nameArr, {|x| x[1] == j })) > 0 .and. !empty(&nameArr.[i,5])
                   &pole := &pole + 1
                 else
                   &pole := &pole + human_->PZKOL

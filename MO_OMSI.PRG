@@ -1726,9 +1726,8 @@ if k > 10
 endif
 return NIL
 
-*
 
-***** 02.10.19 восстановление объёмов
+***** 24.02.22 восстановление объёмов
 Function vosst_ob_em_RAK()
 Static arr_smo, mm_pz
 Static mm_poisk := {{"По дате РАК (XML-файла)",0},;
@@ -1736,6 +1735,8 @@ Static mm_poisk := {{"По дате РАК (XML-файла)",0},;
 Static mm_eks := {{"все ",0},{"МЭК ",1},{"МЭЭ ",2},{"ЭКМП",3}}
 Static s1eks := 0, s1smo := 0, s1pz := 0, s1poisk := 0
 Local buf := savescreen(), i, ar, s, r := 14
+local nameArr
+
 if arr_smo == NIL
   arr_smo := mo_cut_menu(glob_arr_smo)
   for i := 1 to len(arr_smo)
@@ -1746,9 +1747,14 @@ if arr_smo == NIL
     asize(arr_smo,2) // отсекаем ТФОМС
   endif
   mm_pz := {{"все",0}}
-  for i := 1 to len(glob_array_PZ_19)
-    aadd(mm_pz, {glob_array_PZ_19[i,3],glob_array_PZ_19[i,1]})
-  next
+
+  nameArr := 'glob_array_PZ_' + '19'  //last_digits_year(ly)
+
+  // for i := 1 to len(glob_array_PZ_19)
+  //   aadd(mm_pz, {glob_array_PZ_19[i,3],glob_array_PZ_19[i,1]})
+  for i := 1 to len(&nameArr)
+    aadd(mm_pz, {&nameArr.[i, 3], &nameArr.[i,1]})
+    next
 endif
 if empty(s1smo)
   s1smo := 0
