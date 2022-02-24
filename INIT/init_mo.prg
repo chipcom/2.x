@@ -184,15 +184,15 @@ Function checkFilesTFOMS()
   endif
 
   for countYear = WORK_YEAR - 4 to WORK_YEAR
-    fl := vmp_usl_check(countYear)
-    fl := dep_index_and_fill(countYear)  // справочник отделений на countYear год
-    fl := usl_Index(countYear)    // справочник услуг ТФОМС на countYear год
-    fl := uslc_Index(countYear)   // цены на услуги на countYear год
-    fl := uslf_Index(countYear)   // справочник услуг ФФОМС countYear
-    fl := unit_Index(countYear)   // план-заказ
-    fl := shema_index(countYear)
-    fl := it_Index(countYear)
-    fl := k006_index(countYear)
+    fl := vmp_usl_check(countYear, @hash_files)
+    fl := dep_index_and_fill(countYear, @hash_files)  // справочник отделений на countYear год
+    fl := usl_Index(countYear, @hash_files)    // справочник услуг ТФОМС на countYear год
+    fl := uslc_Index(countYear, @hash_files)   // цены на услуги на countYear год
+    fl := uslf_Index(countYear, @hash_files)   // справочник услуг ФФОМС countYear
+    fl := unit_Index(countYear, @hash_files)   // план-заказ
+    fl := shema_index(countYear, @hash_files)
+    fl := it_Index(countYear, @hash_files)
+    fl := k006_index(countYear, @hash_files)
   next
 
   Public is_MO_VMP := (is_ksg_VMP .or. is_21_VMP .or. is_12_VMP .or. is_14_VMP .or. is_ds_VMP)
@@ -609,12 +609,12 @@ Function checkFilesTFOMS()
 
   return nil
 
-**** 29.11.21
-function vmp_usl_check(val_year)  // справочник соответствия услуг ВМП услугам ТФОМС на countYear год
+**** 24.02.22
+function vmp_usl_check(val_year, /*@*/hash_files)  // справочник соответствия услуг ВМП услугам ТФОМС на countYear год
   local fl := .t.
   local sbase := prefixFileRefName(val_year) + 'vmp_usl'  // справочник соответствия услуг ВМП услугам ТФОМС
     
-  if val_year == 2021
+  if val_year >= 2021
     if ! hb_FileExists(exe_dir + sbase + sdbf)
       fl := notExistsFileNSI( exe_dir + sbase + sdbf )
     endif
@@ -622,7 +622,7 @@ function vmp_usl_check(val_year)  // справочник соответствия услуг ВМП услугам Т
   return fl
 
 **** 30.11.21
-function dep_index_and_fill(val_year)
+function dep_index_and_fill(val_year, /*@*/hash_files)
   local fl := .t.
   local sbase := prefixFileRefName(val_year) + 'dep'  // справочник отделений на конкретный год
   
@@ -653,7 +653,7 @@ function dep_index_and_fill(val_year)
   return fl
 
 **** 29.11.21
-function usl_Index(val_year)
+function usl_Index(val_year, /*@*/hash_files)
   local fl := .t.
   local sbase := prefixFileRefName(val_year) + 'usl'  // справочник услуг ТФОМС на конкретный год
 
@@ -679,7 +679,7 @@ function usl_Index(val_year)
   return fl
   
 **** 29.11.21
-function uslc_Index(val_year)
+function uslc_Index(val_year, /*@*/hash_files)
   local fl := .t.
   local sbase, prefix := prefixFileRefName(val_year)
   local index_usl_name
@@ -818,7 +818,7 @@ function uslc_Index(val_year)
   return fl
 
 **** 29.11.21
-function uslf_Index(val_year)
+function uslf_Index(val_year, /*@*/hash_files)
   local fl := .t.
   local sbase := prefixFileRefName(val_year) + 'uslf'  // справочник услуг ФФОМС на конкретный год
 
@@ -834,7 +834,7 @@ function uslf_Index(val_year)
   return fl
 
 **** 29.11.21
-function unit_Index(val_year)
+function unit_Index(val_year, /*@*/hash_files)
   local fl := .t.
   local sbase := prefixFileRefName(val_year) + 'unit'  // план-заказ на конкретный год
       
@@ -850,7 +850,7 @@ function unit_Index(val_year)
   return fl
 
 **** 29.11.21
-function shema_index(val_year)
+function shema_index(val_year, /*@*/hash_files)
   local fl := .t.
   local sbase := prefixFileRefName(val_year) + 'shema'  // 
 
@@ -867,7 +867,7 @@ function shema_index(val_year)
   return fl
 
 **** 29.01.22
-function it_Index(val_year)
+function it_Index(val_year, /*@*/hash_files)
   local fl := .t.
   local ar, ar1, ar2, lSchema, i
   local sbase := prefixFileRefName(val_year) + 'it'  //
@@ -997,7 +997,7 @@ function it_Index(val_year)
   return fl
 
 **** 29.11.21
-function k006_index(val_year)
+function k006_index(val_year, /*@*/hash_files)
   local fl := .t.
   local sbase := prefixFileRefName(val_year) + 'k006'  // 
 
