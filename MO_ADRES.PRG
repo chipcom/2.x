@@ -44,32 +44,39 @@ myread()
 inkey(0)
 return NIL*/
 
-*
 
 ***** переиндексировать все файлы адресного реестра ОКАТО
-Function okato_index()
-Local i, fl_index := .f., ;
-  arr_f  := {"_okator","_okatoo","_okatos","_okatoo8","_okatos8"},;
-  arr_i1 := {"_okatr", "_okato", "_okats", "_okato8", "_okats8"},;
-  arr_i2 := {"_okatrn","_okaton","_okatsn","_okaton8","_okatsn8"}
-for i := 1 to len(arr_f)
-  if files_time(dir_exe+arr_f[i]+sdbf,cur_dir+arr_i1[i]+sntx) .or. ;
-     files_time(dir_exe+arr_f[i]+sdbf,cur_dir+arr_i2[i]+sntx)
-    fl_index := .t. ; exit
-  endif
-next
-if fl_index
-  for i := 1 to len(arr_f)
-    if hb_FileExists(dir_exe+arr_f[i]+sdbf)
-      R_Use(dir_exe+arr_f[i])
-      oktAdIndBase(arr_f[i])
-      use
-    endif
-  next
-endif
-return NIL
+Function okato_index(hash_files)
+  Local i, fl_index := .f., ;
+    arr_f  := {"_okator","_okatoo","_okatos","_okatoo8","_okatos8"},;
+    arr_i1 := {"_okatr", "_okato", "_okats", "_okato8", "_okats8"},;
+    arr_i2 := {"_okatrn","_okaton","_okatsn","_okaton8","_okatsn8"}
+    local sbase
+    local file_index, sMD5
+  
+  // for i := 1 to len(arr_f)
+  //   if files_time(dir_exe+arr_f[i]+sdbf,cur_dir+arr_i1[i]+sntx) .or. ;
+  //       files_time(dir_exe+arr_f[i]+sdbf,cur_dir+arr_i2[i]+sntx)
+  //     fl_index := .t. ; exit
+  //   endif
+  // next
+  // if fl_index
+    for i := 1 to len(arr_f)
+      if hb_FileExists(dir_exe + arr_f[i] + sdbf)
+        sMD5 := hb_MD5File( exe_dir + arr_f[i] + sdbf )
+        if ! hb_FileExists(cur_dir + arr_i1[i] + sntx) .or. ;
+              ! hb_FileExists(cur_dir + arr_i2[i] + sntx) .or. ;
+              ! check_izm_file_MD5(hash_files, arr_f[i], sMD5)
+          R_Use(dir_exe + arr_f[i])
+          oktAdIndBase(arr_f[i])
+          use
+        endif
+        hash_files := add_hash_row(hash_files, arr_f[i], sMD5)
+      endif
+    next
+  // endif
+  return NIL
 
-*
 
 *****
 Static Function oktAdIndBase(k)
