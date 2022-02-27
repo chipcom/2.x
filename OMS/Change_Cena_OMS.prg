@@ -4,6 +4,7 @@
 ***** 23.10.19 Изменение цен на услуги в соответствии со справочником услуг ТФОМС
 Function Change_Cena_OMS()
   Local buf := save_maxrow(), lshifr1, fl, lrec, rec_human, k_data2, kod_ksg, begin_date := addmonth(sys_date,-3)
+  Local fl_ygl_disp := .F.
   if begin_date < boy(begin_date)
     begin_date := boy(begin_date)
   endif
@@ -74,6 +75,11 @@ Function Change_Cena_OMS()
           sdial := mcena_1 := 0 ; fl := .f. ; kod_ksg := ""
           select HU
           find (str(human->kod,7))
+          if human->ishod == 401 .or. human->ishod == 402
+            fl_ygl_disp := .T.
+          else 
+            fl_ygl_disp := .F.
+          endif
           do while hu->kod == human->kod .and. !eof()
             // цикл по услугам
             usl->(dbGoto(hu->u_kod))
@@ -101,8 +107,15 @@ Function Change_Cena_OMS()
                   G_RLock(forever)
                   replace u_cena  with lu_cena, stoim with mstoim_1, stoim_1 with mstoim_1
                   fl := .t.
+                  // возможна добавка по УД
                 endif
-                mcena_1 += hu->stoim_1
+                if fl_ygl_disp .and. hu->kod_vr == 0 .and. hu->kod_as == 0
+                  // не суммируем 
+                else  
+                   mcena_1 += hu->stoim_1
+                endif
+                //my_debug(,"Сумма накопительная")
+                //my_debug(,mcena_1)
               endif
             endif
             select HU
