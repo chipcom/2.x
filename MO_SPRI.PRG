@@ -2935,7 +2935,7 @@ close databases
 if mo_Lock_Task(X_OMS) // запрет только ОМС G_SLock1Task(sem_task,sem_vagno) // запрет доступа всем
   k := len(arr_schet)
   s := iif(k == 1, "счёта ", lstr(k)+" счетов ")
-  if iif(arr_schet[1,5] > stod("20220201") .and. arr_schet[1,5] < stod("20220209") ,.T.,involved_password(3,arr_schet[1,4],"пересоздания "+s+arr_schet[1,4])) ;
+  if iif(arr_schet[1,5] > stod("20220224") .and. arr_schet[1,5] < stod("20220228") ,.T.,involved_password(3,arr_schet[1,4],"пересоздания "+s+arr_schet[1,4])) ;
      .and. f_Esc_Enter("пересоздания "+s) // .and. m_copy_DB_from_end(.t.) // резервное копирование
     Private fl_open := .t.
     index_base("schet") // для составления счетов

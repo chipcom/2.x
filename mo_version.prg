@@ -3,7 +3,7 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-static st_version := {2, 12, 2, 'e+'}
+static st_version := {2, 12, 2, 'e++'}
 static st_date_version := _DATA_VER
 static st__s_full_name := 'ЧИП + Учёт работы Медицинской Организации'
 
@@ -20,7 +20,7 @@ function _date_version()
 ***** 24.06.21 возврат наименования программного комплекса
 function __s_full_name()
   
-return st__s_full_name
+  return st__s_full_name
 
 ***** 23.06.21 возврат строкового представления версии
 function __s_version()

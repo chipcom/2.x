@@ -23,7 +23,7 @@ function read_files_md5(source)
       for each row in aStr
         tArr := split(row, ', ')
         if len(tArr) == 2
-          hash_files[tArr[1]] := tArr[2]
+          hash_files[upper(tArr[1])] := tArr[2]
         endif
       next
     endif
@@ -33,38 +33,39 @@ function read_files_md5(source)
   endif
   return nil
 
-function create_files_md5(source, ext)
+function save_files_md5(aHash, destinationFile)
   local fp, i, s
-  LOCAL aFiles, aFile
-  
-  fp := fcreate(source + FILE_HASH, FC_HIDDEN)
-  IF ! Empty( aFiles := hb_vfDirectory( source + ext ) )
-    // IF ! Empty( aFiles := hb_vfDirectory( source + '*.xml' ) )
-    s := ''
-    FOR EACH aFile IN aFiles
-      s := upper(aFile[ F_NAME ]) + ', ' + hb_MD5File( source + aFile[ F_NAME ] ) + hb_eol()
-      FWrite( fp, s)
-    NEXT
+  local key, sMD5
+  local aKeys
+
+  if HB_VFEXISTS(destinationFile)
+    hb_vfErase( destinationFile )
   endif
+  
+  aKeys := hb_hKeys( aHash )
+  fp := fcreate(destinationFile, FC_HIDDEN)
+  for each key in aKeys
+    s := ''
+    sMD5 := aHash[ key ]
+    s := upper(key) + ', ' + sMD5 + hb_eol()
+    FWrite( fp, s)
+  next
   fclose(fp)
   return nil
   
-function check_izm_file_MD5(hash_files, nameRef, nfile, /*@*/sMD5)
+function check_izm_file_MD5(hash_files, nameRef, sMD5)
   local fl := .f.
-  local hashMD5File, tmpMD5
+  local hashMD5File
 
-  tmpMD5 := hb_MD5File( nfile )
   if hash_files != nil
     nameRef := upper(nameRef)
     if hb_HHasKey( hash_files, nameRef )
       hashMD5File := hb_HGet(hash_files, nameRef)
-      if hashMD5file == tmpMD5 // файл не изменялся
-        // if hashMD5file == hb_MD5File( nfile ) // файл не изменялся
+      if hashMD5file == sMD5 // файл не изменялся
         fl := .t.
       endif
     endif
   endif
-  sMD5 := tmpMD5
   return fl
 
 function add_hash_row(hash_files, name, sMD5)
@@ -72,6 +73,6 @@ function add_hash_row(hash_files, name, sMD5)
   if hash_files == nil
     hash_files := hb_Hash()
   endif
-  hash_files[name] := sMD5
+  hash_files[upper(name)] := sMD5
 
   return hash_files
