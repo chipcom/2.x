@@ -1321,7 +1321,7 @@ endif
 select (tmp_select)
 return .t.
 
-***** 20.02.20 действия в ответ на выбор в меню "Условия оказания медицинской помощи"
+***** 28.02.22 действия в ответ на выбор в меню "Условия оказания медицинской помощи"
 Function f_valid_usl_ok(get,old,is_input)
 Local _y, _m, s
 DEFAULT is_input TO .t.
@@ -1377,7 +1377,7 @@ if is_input .and. type("p_nstr_vnr") == "N"
     update_get("MVNR2")
     update_get("MVNR3")
   endif
-  if !((m1usl_ok==1 .and. (is_ksg_VMP .or. is_21_VMP .or. is_12_VMP .or. is_14_VMP)) .or. (m1usl_ok==2 .and. is_ds_VMP))
+  if !((m1usl_ok==1 .and. (is_ksg_VMP .or. is_22_VMP .or. is_21_VMP .or. is_12_VMP .or. is_14_VMP)) .or. (m1usl_ok==2 .and. is_ds_VMP))
     mvmp := "нет"        ; m1vmp := 0
     MVIDVMP := space(70) ; M1VIDVMP := SPACE(12) // вид ВМП по справочнику V018
     MMETVMP := space(67) ; M1METVMP := 0        // метод ВМП по справочнику V019
