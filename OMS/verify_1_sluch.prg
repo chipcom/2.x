@@ -2871,26 +2871,29 @@ Function verify_1_sluch(fl_view)
         endif
       endif
     endif
-  elseif kvp_2_79 > 0
+  // elseif kvp_2_79 > 0
+  //   s := "2.79.*"
+  //   is_1_den := is_last_den := .f.
+  //   for i := 1 to len(au_lu)
+  //     if left(au_lu[i,1],4) == "2.79"
+  //       if d1 == au_lu[i,2]
+  //         is_1_den := .t.
+  //       endif
+  //       if d2 == au_lu[i,2]
+  //         is_last_den := .t.
+  //       endif
+  //     endif
+  //   next
+  //   if !is_1_den
+  //     aadd(ta,'первая услуга '+s+' должна быть оказана в первый день лечения')
+  //   elseif human_->RSLT_NEW != 302
+  //     if !is_last_den
+  //       aadd(ta,'последняя услуга '+s+' должна быть оказана в последний день лечения')
+  //     endif
+  //   endif
+  elseif kvp_2_79 > 1
     s := "2.79.*"
-    is_1_den := is_last_den := .f.
-    for i := 1 to len(au_lu)
-      if left(au_lu[i,1],4) == "2.79"
-        if d1 == au_lu[i,2]
-          is_1_den := .t.
-        endif
-        if d2 == au_lu[i,2]
-          is_last_den := .t.
-        endif
-      endif
-    next
-    if !is_1_den
-      aadd(ta,'первая услуга '+s+' должна быть оказана в первый день лечения')
-    elseif human_->RSLT_NEW != 302
-      if !is_last_den
-        aadd(ta,'последняя услуга '+s+' должна быть оказана в последний день лечения')
-      endif
-    endif
+    aadd(ta, 'услуга ' + s + ' должна быть единственной в случае')
   elseif is_2_89 // медицинская реабилитация (физкультурный диспансер и другие)
     if d1 == d2
       aadd(ta,'время лечения не должно равняться одному дню')
