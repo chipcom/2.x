@@ -815,7 +815,7 @@ function uslc_Index(val_year, /*@*/hash_files)
     //
       if val_year == WORK_YEAR
         find (glob_mo[_MO_KOD_TFOMS] + '1.21.') // Çåè 11.02.22
-        is_21_VMP := found()
+        // is_21_VMP := found()
         is_22_VMP := found()
       elseif val_year == 2021
         find (glob_mo[_MO_KOD_TFOMS] + '1.20.') // Çåè 07.02.21

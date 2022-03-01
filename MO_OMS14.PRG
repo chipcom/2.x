@@ -609,13 +609,21 @@ do while hu->kod == human->kod .and. !eof()
         if !is_12_VMP
           aadd(ta,'работа с услугой '+alltrim_lshifr+' запрещена в Вашей МО')
         endif
-      elseif eq_any(left_lshifr_5,"1.21.","1.20.","1.15.","1.16.","1.17.","1.18.") // ВМП
+      elseif eq_any(left_lshifr_5, "1.20.", "1.15.", "1.16.", "1.17.", "1.18.") // ВМП
         midsp := 18 // Законченный случай в круглосуточном стационаре
         kkd_1_12 += hu->kol_1
         kol_ksg += hu->kol_1
         hu_->PZKOL := d
         if !is_21_VMP
           aadd(ta,'работа с услугой '+alltrim_lshifr+' запрещена в Вашей МО')
+        endif
+      elseif eq_any(left_lshifr_5,"1.21.") // ВМП
+        midsp := 18 // Законченный случай в круглосуточном стационаре
+        kkd_1_12 += hu->kol_1
+        kol_ksg += hu->kol_1
+        hu_->PZKOL := d
+        if !is_22_VMP
+          aadd(ta,'работа с услугой ' + alltrim_lshifr + ' запрещена в Вашей МО')
         endif
       else
         // ошибка
