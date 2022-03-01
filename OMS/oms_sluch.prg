@@ -19,6 +19,8 @@ Function oms_sluch(Loc_kod,kod_kartotek)
         tmp_help := chm_help_code, fl_write_sluch := .f., when_uch_doc := .t.
   Local mm_reg_lech := {{"Основные",0},{"Дополнительные",9}}
   local mWeight := 0
+  local oldPictureTalon := '@S12'
+  local newPictureTalon := '@S 99.9999.99999.999'
   
   if len(glob_otd) > 2 .and. glob_otd[3] == 4 // скорая помощь
     return oms_sluch_SMP(Loc_kod,kod_kartotek,TIP_LU_SMP)
@@ -984,7 +986,8 @@ Function oms_sluch(Loc_kod,kod_kartotek)
             when m1usl_ok==1 .or. (m1usl_ok==2 .and. is_ds_VMP) ;
             valid {|g,o| f_valid_vmp(g,o) } ;
             color colget_menu
-        @ j,col() + 1 say "номер талона" get mTAL_NUM PICTURE '@S12' ;
+        // @ j,col() + 1 say "номер талона" get mTAL_NUM PICTURE '@S12' ;
+        @ j,col() + 1 say "номер талона" get mTAL_NUM PICTURE iif(MK_DATA >= 0d20220101, newPictureTalon, oldPictureTalon) ;
             valid {|g| valid_number_talon(g, mk_data, .t.)} ;
             when m1vmp == 1
         @ j,col()+1 say "выдан" get mTAL_D when m1vmp == 1

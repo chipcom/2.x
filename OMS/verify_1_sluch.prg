@@ -2230,6 +2230,8 @@ Function verify_1_sluch(fl_view)
         endif
         if empty(human_2->TAL_NUM)
           aadd(ta,'ВМП оказана, но не введен номер талона на ВМП')
+        elseif (human->k_data > 0d20220101) .and. !empty(human_2->TAL_NUM) .and. !valid_number_talon(human_2->TAL_NUM, human->k_data, .f.)
+          aadd(ta,'ВМП оказана, но формат номера талона на ВМП не верен (шаблон 99.9999.99999.999)')
         endif
         if empty(human_2->TAL_D)
           aadd(ta,'ВМП оказана, но не введена дата выдачи талона на ВМП')
