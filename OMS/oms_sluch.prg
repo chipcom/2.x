@@ -984,7 +984,9 @@ Function oms_sluch(Loc_kod,kod_kartotek)
             when m1usl_ok==1 .or. (m1usl_ok==2 .and. is_ds_VMP) ;
             valid {|g,o| f_valid_vmp(g,o) } ;
             color colget_menu
-        @ j,col()+1 say "номер талона" get mTAL_NUM PICTURE '@S12' when m1vmp == 1
+        @ j,col() + 1 say "номер талона" get mTAL_NUM PICTURE '@S12' ;
+            valid {|g| valid_number_talon(g, mk_data, .t.)} ;
+            when m1vmp == 1
         @ j,col()+1 say "выдан" get mTAL_D when m1vmp == 1
         @ j,col()+1 say "план. госп-ция" get mTAL_P when m1vmp == 1
         ++j

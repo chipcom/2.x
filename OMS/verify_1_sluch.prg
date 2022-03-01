@@ -4897,3 +4897,27 @@ function collect_uslugi()
 
   select(tmp_select)
   return arrUslugi
+
+function valid_number_talon(g, dEnd, lMessage)
+  local strCheck, ret := .f.
+
+  if dEnd < 0d20220101
+    return .t.
+  endif
+
+  if valtype(g) == 'O'
+    strCheck := alltrim(g:buffer)
+  elseif valtype(g) == 'C'
+    strCheck := alltrim(g)
+  else
+    return ret
+  endif
+  // В соответствии с приказом Минздрава России от 30.01.2015 № 29н
+  if !(ret := hb_Regexlike( '([0-9]{2,}[.][0-9]{4,}[.][0-9]{5,}[.][0-9]{3,})', strCheck, .f.))
+    if lMessage
+      func_error(4, 'Неверный номер талона (шаблон 99.9999.99999.999)')
+      // g:buffer := g:original
+    endif
+  endif
+
+  return ret
