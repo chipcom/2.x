@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-***** 11.02.22
+***** 02.03.22
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
         i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -20,6 +20,7 @@ Function verify_1_sluch(fl_view)
   local flGeriatr := .f.
   local glob_V018, glob_V019
   local arrImplant
+  local arrLekPreparat, arrGroupPrep, mMNN
 
   if empty(human->k_data)
     return .t.  // не проверять
@@ -4342,9 +4343,63 @@ Function verify_1_sluch(fl_view)
     read_arr_DVN_COVID(human->kod)
   endif
 
+  // проверим лекарственные препараты
+  if human_->USL_OK == 1 ; // стационар
+        .and. (mdiagnoz[1] = 'U07.1' .or. mdiagnoz[1] = 'U07.2') ;  // проверим что диагноз COVID-19
+        .and. (count_years(human->DATE_R, human->k_data) >= 18) ;   // проверим что возраст больше 18 лет
+        .and. !check_diag_pregant()  // проверим, что не беременна
+    arrLekPreparat := collect_lek_pr(rec_human) // выберем лекарственные препараты
+    if len(arrLekPreparat) == 0  // пустой список лекарственных препаратов
+      aadd(ta,'для диагнозов U07.1 и U07.2 необходим ввод лекараственных препаратов')
+    else  // не пустой проверим его
+      for each row in arrLekPreparat
+        // {LEK_PR->DATE_INJ, LEK_PR->CODE_SH, LEK_PR->REGNUM, LEK_PR->ED_IZM, ;
+        // LEK_PR->DOSE_INJ, LEK_PR->METHOD_I, LEK_PR->COL_INJ, LEK_PR->SCHEDRUG}
+        if empty(row[1])
+          aadd(ta,'не указана дата инъекции')
+        endif
+        if ! between_date(human->n_data, human->k_data, row[1])
+          aadd(ta,'дата инъекции не входит в период случая')
+        endif
+        if empty(row[2])
+          aadd(ta,'пустая схема лечения')
+        endif
+        if empty(row[8])
+          aadd(ta,'пустая схема соответствия препаратам')
+        endif
+        if (arrGroupPrep := get_group_prep_by_kod(substr(row[8], len(row[8])), row[1])) != nil
+          mMNN := iif(arrGroupPrep[3] == 1, .t., .f.)
+          if mMNN
+            if empty(row[3])
+              aadd(ta,'не выбран лекарственный препарат')
+            endif
+            if empty(row[4])
+              aadd(ta,'не выбрана единица измерения')
+            endif
+            if empty(row[5])
+              aadd(ta,'не выбрана доза препарата')
+            endif
+            if empty(row[6])
+              aadd(ta,'не выбран способ введения препарата')
+            endif
+            if empty(row[7])
+              aadd(ta,'не количество инъекций в день')
+            endif
+          endif
+        endif
+      next
+    endif
+  endif
+
   // проверим наличие имплантов
   arrImplant := check_implantant(human->kod)
   if arrImplant != NIL
+    if empty(arrImplant[3])
+      aadd(ta,'не указана дата установки имплантанта')
+    endif
+    if ! between_date(human->n_data, human->k_data, arrImplant[3])
+      aadd(ta,'дата установки имплантанта не входит в период случая')
+    endif
     if empty(arrImplant[4])
       aadd(ta,'для имплантанта необходимо указать его вид')
     endif

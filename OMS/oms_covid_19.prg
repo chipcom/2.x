@@ -608,8 +608,14 @@ Function f5editpreparat(get, nKey, when_valid, k)
 ******* 09.01.22
 function collect_lek_pr(mkod_human)
   local retArr := {}
+  local existAlias := .f.
+  local oldSelect := select()
+  local lekAlias
   
-  select LEK_PR
+  lekAlias := select('LEK_PR')
+  if lekAlias == 0
+    R_Use(dir_server + 'human_lek_pr', dir_server + 'human_lek_pr','LEK_PR')
+  endif
   find (str(mkod_human, 7))
   if found()
     do while LEK_PR->KOD_HUM == mkod_human .and. !eof()
@@ -617,6 +623,11 @@ function collect_lek_pr(mkod_human)
                   LEK_PR->DOSE_INJ, LEK_PR->METHOD_I, LEK_PR->COL_INJ, LEK_PR->SCHEDRUG})
       LEK_PR->(dbSkip())
     enddo
+  endif
+
+  select(oldSelect)
+  if lekAlias == 0
+    LEK_PR->(dbCloseArea())
   endif
 
   return retArr
