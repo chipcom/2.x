@@ -174,6 +174,7 @@ function oms_sluch_lek_pr(mkod_human, mkod_kartotek, fl_edit)
   nBegin := 3
 
   if fl_found
+    tmp->(dbGoTop())
     keyboard chr(K_RIGHT)
   else
     keyboard chr(K_INS)
