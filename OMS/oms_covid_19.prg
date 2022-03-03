@@ -194,6 +194,7 @@ function oms_sluch_lek_pr(mkod_human, mkod_kartotek, fl_edit)
 
   setcolor(tmp_color)
   restscreen(buf)
+  verify_OMS_sluch(mkod_human)
   return nil
 
 ***** 08.01.22

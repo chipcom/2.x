@@ -987,7 +987,7 @@ Function oms_sluch(Loc_kod,kod_kartotek)
             valid {|g,o| f_valid_vmp(g,o) } ;
             color colget_menu
         // @ j,col() + 1 say "номер талона" get mTAL_NUM PICTURE '@S12' ;
-        @ j,col() + 1 say "номер талона" get mTAL_NUM PICTURE iif(MK_DATA >= 0d20220101, newPictureTalon, oldPictureTalon) ;
+        @ j,col() + 1 say "№ талона" get mTAL_NUM PICTURE iif(MK_DATA >= 0d20220101, newPictureTalon, oldPictureTalon) ;
             valid {|g| valid_number_talon(g, mk_data, .t.)} ;
             when m1vmp == 1
         @ j,col()+1 say "выдан" get mTAL_D when m1vmp == 1

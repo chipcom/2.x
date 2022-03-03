@@ -16,8 +16,6 @@ if !empty(_smo)
 endif
 return s
 
-*
-
 ***** 12.05.2019 просмотр/печать листов учёта
 Function o_list_uch()
 Local j := 0, buf := savescreen(), mtitul, func_step := "", r2 := maxrow()-2
@@ -70,8 +68,6 @@ endif
 restscreen(buf)
 return NIL
 
-*
-
 ***** 25.11.14
 Function f1o_list_uch(oBrow)
 Local oColumn, blk := {|_i| _i:=iif(between(human->tip_h,1,6),human->tip_h,2),;
@@ -99,8 +95,6 @@ oBrow:addColumn(oColumn)
 status_key("^<Esc>^ выход ^<Enter>^ печать л/у ^<F9>^ печать свода л/у ^<F10>^ печать справки ОМС")
 return NIL
 
-*
-
 *****
 Function f2o_list_uch(k)
 Static arr := {"лечится",;
@@ -120,8 +114,6 @@ if k >= B_SCHET  // добавление номера счета
   s := "счёт № "+alltrim(schet_->nschet)+" от "+date_8(schet_->dschet)
 endif
 return s
-
-*
 
 ***** 12.05.2019
 Function f3o_list_uch()
@@ -149,8 +141,6 @@ endif
 @ maxrow()-3,3 say padc(s,74) color "B/W"
 select HUMAN
 return NIL
-
-*
 
 ***** 25.11.14
 Function f4o_list_uch(nKey,oBrow)
@@ -191,29 +181,29 @@ if fl
 endif
 return k
 
-*
 
-***** 29.01.22
+***** 03.03.22
 Function print_l_uch(mkod, par, regim, lnomer)
-// mkod - код больного по БД human
-Local sh := 80, HH := 77, buf := save_maxrow(),;
+  // mkod - код больного по БД human
+  Local sh := 80, HH := 77, buf := save_maxrow(),;
       name_lpu, name_otd := "", mvzros_reb, mreg_lech, mmest_inog, mrab_nerab,;
       mkomu, name_org, mlech_vr := "", mishod, mprodol, msumma := 0, mmi_git,;
       mud_lich := "", arr, n_file := "list_uch"+stxt, adiag_talon[16],;
       madres, i := 1, j, k, tmp[2], tmp1, w1 := 37, s, s1, mnum_lu, lshifr1
-local tmpAlias
+  local tmpAlias
+  local arrLekPreparat, row
 
-DEFAULT par TO 1, regim TO 1, lnomer TO 0
-mywait()
-fp := fcreate(n_file) ; tek_stroke := 0 ; n_list := 1
-//
-R_Use(dir_server+"organiz",,"ORG")
-name_org := alltrim(org->name)
-dbCloseAll()
-if !myFileDeleted(cur_dir+"tmp1"+sdbf)
-  return NIL
-endif
-dbcreate(cur_dir+"tmp1",{{"kod","N",4,0},;
+  DEFAULT par TO 1, regim TO 1, lnomer TO 0
+  mywait()
+  fp := fcreate(n_file) ; tek_stroke := 0 ; n_list := 1
+  //
+  R_Use(dir_server+"organiz",,"ORG")
+  name_org := alltrim(org->name)
+  dbCloseAll()
+  if !myFileDeleted(cur_dir+"tmp1"+sdbf)
+    return NIL
+  endif
+  dbcreate(cur_dir+"tmp1",{{"kod","N",4,0},;
                          {"name","C",255,0},;
                          {"shifr","C",20,0},;
                          {"shifr1","C",20,0},;
@@ -231,10 +221,10 @@ dbcreate(cur_dir+"tmp1",{{"kod","N",4,0},;
                          {"profil","N",4,0},;
                          {"kol","N",4,0},;
                          {"summa","N",11,2}})
-use (cur_dir+"tmp1")
-index on str(kod,4) to (cur_dir+"tmp11")
-index on dtos(date_u1)+fsort_usl(shifr) to (cur_dir+"tmp12")
-use (cur_dir+"tmp1") index (cur_dir+"tmp11"),(cur_dir+"tmp12") alias tmp1
+  use (cur_dir+"tmp1")
+  index on str(kod,4) to (cur_dir+"tmp11")
+  index on dtos(date_u1)+fsort_usl(shifr) to (cur_dir+"tmp12")
+  use (cur_dir+"tmp1") index (cur_dir+"tmp11"),(cur_dir+"tmp12") alias tmp1
 Use_base("lusl")
 Use_base("luslf")
 R_Use(dir_server+"uslugi",,"USL")
@@ -677,130 +667,164 @@ do while mohu->kod == mkod .and. !eof()
   select MOHU
   Skip
 enddo
-mpsumma := 0
-w1 := 34
-print1_l_uch(w1)
-select TMP1
-set order TO 2
-go top
-do while !eof()
-  s := alltrim(tmp1->shifr)
-  if !(alltrim(tmp1->shifr) == alltrim(tmp1->shifr1)) .and. !empty(tmp1->shifr1)
-    s += "("+alltrim(tmp1->shifr1)+")"
-  endif
-  s += iif(tmp1->dom==1,"/на дому/",iif(tmp1->dom==2,"/домАКТИВ/"," "))
-  s += alltrim(tmp1->name)
-  if eq_any(alltrim(tmp1->shifr),"2.3.1","2.3.3","2.6.1","2.60.1")
-    s += " ("+alltrim(inieditspr(A__MENUVERT, glob_V002, tmp1->PROFIL))+")"
-  elseif !empty(tmp1->zf)
-    s += " ЗФ:"+alltrim(tmp1->ZF)
-  endif
-  k := perenos(tmp,s,w1)
-  if verify_FF(HH)
-    print1_l_uch(w1)
-  endif
-  if eq_any(left(tmp1->shifr,5),"1.11.","55.1.")
-    s := left(date_8(tmp1->date_u1),2)+"-"+left(date_8(tmp1->date_u2),5)+" "
-  else
-    s := date_8(tmp1->date_u1)+" "
-  endif
-  if tmp1->is_edit == 1
-    s += "КДП№2 "
-  elseif tmp1->is_edit == 2
-    s += " РДЛ  "
-  elseif tmp1->is_edit == 4
-    s += "ПАбюро"
-  elseif tmp1->is_edit == 5
-    s += "ПАпроч"
-  elseif tmp1->is_edit == -1
-    s += "ЦКДЛ  "
-  elseif alltrim(tmp1->shifr) == "4.20.2" .or. tmp1->is_edit == 3
-    s += "ВОКОД "
-  else
-    s += tmp1->otd+" "
-  endif
-  s += tmp1->kod_diag+" "
-  s += padr(tmp[1],w1)
-  s += put_val(ret_tabn(tmp1->kod_vr),6)+;
-       put_val(ret_tabn(tmp1->kod_as),6)
-  if tmp1->plus
-    s += padl("+"+lstr(tmp1->kol),4)
-    mpsumma += tmp1->summa
-  else
-    if tmp1->summa >= 100000
-      s += " "+padr(lstr(tmp1->kol),3)
-    else
-      s += put_val(tmp1->kol,4)
+  mpsumma := 0
+  w1 := 34
+  print1_l_uch(w1)
+  select TMP1
+  set order TO 2
+  go top
+  do while !eof()
+    s := alltrim(tmp1->shifr)
+    if !(alltrim(tmp1->shifr) == alltrim(tmp1->shifr1)) .and. !empty(tmp1->shifr1)
+      s += "("+alltrim(tmp1->shifr1)+")"
     endif
-    msumma += tmp1->summa
-  endif
-  s += put_kopE(tmp1->summa,9)
-  //
-  if eq_any(human->ishod,401,402 ) .and. tmp1->kod_vr == 0 
-   // УГЛУБЛЕННАЯ дисп-ия взрослого населения
-  else
-    add_string(s)
-  endif
-  //
-  s1 := ""
-  if tmp1->summa > 0 .and. is_ksg(tmp1->shifr)
-    if year(human->k_data) > 2017
-      if !empty(human_2->pc1)
-        akslp := List2Arr(human_2->pc1)
-        if len(akslp) > 1
-          if year(human->k_data) >= 2021
-            s1 += "(с учётом КСЛП=" + str(ret_koef_kslp_21(akslp, year(human->k_data)), 4, 2) + ") "
-          else
-            s1 += "(с учётом КСЛП="+str(ret_koef_kslp(akslp),4,2)+") "
+    s += iif(tmp1->dom==1,"/на дому/",iif(tmp1->dom==2,"/домАКТИВ/"," "))
+    s += alltrim(tmp1->name)
+    if eq_any(alltrim(tmp1->shifr),"2.3.1","2.3.3","2.6.1","2.60.1")
+      s += " ("+alltrim(inieditspr(A__MENUVERT, glob_V002, tmp1->PROFIL))+")"
+    elseif !empty(tmp1->zf)
+      s += " ЗФ:"+alltrim(tmp1->ZF)
+    endif
+    k := perenos(tmp,s,w1)
+    if verify_FF(HH)
+      print1_l_uch(w1)
+    endif
+    if eq_any(left(tmp1->shifr,5),"1.11.","55.1.")
+      s := left(date_8(tmp1->date_u1),2)+"-"+left(date_8(tmp1->date_u2),5)+" "
+    else
+      s := date_8(tmp1->date_u1)+" "
+    endif
+    if tmp1->is_edit == 1
+      s += "КДП№2 "
+    elseif tmp1->is_edit == 2
+      s += " РДЛ  "
+    elseif tmp1->is_edit == 4
+      s += "ПАбюро"
+    elseif tmp1->is_edit == 5
+      s += "ПАпроч"
+    elseif tmp1->is_edit == -1
+      s += "ЦКДЛ  "
+    elseif alltrim(tmp1->shifr) == "4.20.2" .or. tmp1->is_edit == 3
+      s += "ВОКОД "
+    else
+      s += tmp1->otd+" "
+    endif
+    s += tmp1->kod_diag+" "
+    s += padr(tmp[1],w1)
+    s += put_val(ret_tabn(tmp1->kod_vr),6)+;
+        put_val(ret_tabn(tmp1->kod_as),6)
+    if tmp1->plus
+      s += padl("+"+lstr(tmp1->kol),4)
+      mpsumma += tmp1->summa
+    else
+      if tmp1->summa >= 100000
+        s += " "+padr(lstr(tmp1->kol),3)
+      else
+        s += put_val(tmp1->kol,4)
+      endif
+      msumma += tmp1->summa
+    endif
+    s += put_kopE(tmp1->summa,9)
+    //
+    if eq_any(human->ishod,401,402 ) .and. tmp1->kod_vr == 0 
+    // УГЛУБЛЕННАЯ дисп-ия взрослого населения
+    else
+      add_string(s)
+    endif
+    //
+    s1 := ""
+    if tmp1->summa > 0 .and. is_ksg(tmp1->shifr)
+      if year(human->k_data) > 2017
+        if !empty(human_2->pc1)
+          akslp := List2Arr(human_2->pc1)
+          if len(akslp) > 1
+            if year(human->k_data) >= 2021
+              s1 += "(с учётом КСЛП=" + str(ret_koef_kslp_21(akslp, year(human->k_data)), 4, 2) + ") "
+            else
+              s1 += "(с учётом КСЛП="+str(ret_koef_kslp(akslp),4,2)+") "
+            endif
+          endif
+        endif
+        if !empty(human_2->pc2)
+          akiro := List2Arr(human_2->pc2)
+          if len(akiro) > 1
+            s1 += "(с учётом КИРО="+str(akiro[2],4,2)+")"
+          endif
+        endif
+      elseif human_->USL_OK == 1 // стационар
+        s := iif(empty(tmp1->shifr1),tmp1->shifr,tmp1->shifr1)
+        if human_->USL_OK < 3 .and. !empty(human_2->pc1)
+          akslp := List2Arr(human_2->pc1)
+          if len(akslp) > 1 .and. valtype(akslp) == "N"
+            s1 += "(с учётом КСЛП="+str(akslp[2],4,2)+")"
           endif
         endif
       endif
-      if !empty(human_2->pc2)
-        akiro := List2Arr(human_2->pc2)
-        if len(akiro) > 1
-          s1 += "(с учётом КИРО="+str(akiro[2],4,2)+")"
-        endif
-      endif
-    elseif human_->USL_OK == 1 // стационар
-      s := iif(empty(tmp1->shifr1),tmp1->shifr,tmp1->shifr1)
-      if human_->USL_OK < 3 .and. !empty(human_2->pc1)
-        akslp := List2Arr(human_2->pc1)
-        if len(akslp) > 1 .and. valtype(akslp) == "N"
-          s1 += "(с учётом КСЛП="+str(akslp[2],4,2)+")"
-        endif
+    endif
+    if eq_any(human->ishod,401,402 ) .and. tmp1->kod_vr == 0 
+      // УГЛУБЛЕННАЯ дисп-ия взрослого населения
+    else
+      for i := 2 to k
+        add_string(space(21)+padl(rtrim(tmp[i]),w1))
+      next
+      if !empty(s1)
+        add_string(space(21)+s1)
       endif
     endif
+    select TMP1
+    skip
+  enddo
+
+  zap
+  set order to 1
+  add_string(replicate("-",sh))
+  s := "Общая сумма лечения: "+put_kop(human->cena_1,12)
+  if mpsumma > 0
+    s := alltrim(s)+" (+"+lput_kop(mpsumma,.t.)+")"
   endif
-  if eq_any(human->ishod,401,402 ) .and. tmp1->kod_vr == 0 
-   // УГЛУБЛЕННАЯ дисп-ия взрослого населения
-  else
-    for i := 2 to k
-      add_string(space(21)+padl(rtrim(tmp[i]),w1))
+  add_string(padl(s,sh))
+
+  arrLekPreparat := collect_lek_pr(mkod) // выберем лекарственные препараты
+  if len(arrLekPreparat) != 0  // не пустой список лекарственных препаратов
+    add_string("")
+    add_string(center("Л_Е_К_А_Р_С_Т_В_Е_Н_Н_Ы_Е   П_Р_Е_П_А_Р_А_Т_Ы", sh))
+    header_lek_preparat(w1)
+    for each row in arrLekPreparat
+      s := ''
+      // mSEVERITY := inieditspr(A__MENUVERT, get_severity(), m1SEVERITY)
+      mSCHEME := ret_schema_V030(row[2])
+      mSCHEDRUG := padr(ret_schema_V032(row[8]),42)
+      mREGNUM := padr(get_Lek_pr_By_ID(row[3]),30)
+      mUNITCODE := padr(inieditspr(A__MENUVERT, getV034(), row[4]),iif(mem_n_V034==0,15,30))
+      mMETHOD := padr(inieditspr(A__MENUVERT, getMethodINJ(), row[6]),30)
+
+      s := date_8(row[1]) + ' '
+      if empty(mREGNUM)
+        s += padr(ret_schema_V032(row[8]), 33)
+      else
+        s += padr(mREGNUM, 33) + ' '
+        s := s + str(row[5], 6, 2) + ' ' ;
+            + padr(mUNITCODE, 7) + ' ' ;
+            + padr(mMETHOD, 15) + ' ' ;
+            + str(row[7], 6)
+      endif
+      add_string(s)
     next
-    if !empty(s1)
-      add_string(space(21)+s1)
-    endif
   endif
-  select TMP1
-  skip
-enddo
-//quit
-zap
-set order to 1
-add_string(replicate("-",sh))
-s := "Общая сумма лечения: "+put_kop(human->cena_1,12)
-if mpsumma > 0
-  s := alltrim(s)+" (+"+lput_kop(mpsumma,.t.)+")"
-endif
-add_string(padl(s,sh))
-close databases
-fclose(fp)
-rest_box(buf)
-viewtext(n_file,,,,.f.,,,5)
-return NIL
 
-*
+  close databases
+  fclose(fp)
+  rest_box(buf)
+  viewtext(n_file,,,,.f.,,,5)
+  return NIL
 
+*****
+Function header_lek_preparat(w1)
+  add_string("────────┬─────────────────────────────────┬──────┬───────┬───────────────┬──────")
+  add_string("  Дата  │Наименование препарата или группы│Доз-ка│Единица│Способ введения│Кол-во")
+  add_string("────────┴─────────────────────────────────┴──────┴───────┴───────────────┴──────")
+  return NIL
+  
 *****
 Static Function print1_l_uch(w1)
 add_string("────────┬─────┬─────┬"+replicate("─",w1)             +"┬─────┬─────┬───┬────────")
@@ -808,7 +832,6 @@ add_string("  Дата  │ Отд.│МКБ10│"+padc("Наименование услуги",w1)+"│ Врач│ Асс.│
 add_string("────────┴─────┴─────┴"+replicate("─",w1)             +"┴─────┴─────┴───┴────────")
 return NIL
 
-*
 
 ***** 14.02.18 печать доп.заголовка, если это лист учёта диспансеризации/профилактики
 Function print_l_uch_disp(sh)
@@ -839,8 +862,6 @@ if !empty(s)
   add_string(center(" ["+s+"]",sh))
 endif
 return NIL
-
-*
 
 ***** 13.02.19 добовка по онкологии к листу учёта
 Function print_luch_onk(sh)
@@ -880,8 +901,6 @@ if f_is_oncology(1) == 2 .and. human_->USL_OK < 3
   add_string("")
 endif
 return NIL
-
-*
 
 ***** 12.11.13 печать нескольких листов учёта
 Function print_al_uch(arr_h,arr_m)
@@ -1186,8 +1205,6 @@ rest_box(buf)
 viewtext(n_file,,,,.f.,,,5)
 return NIL
 
-*
-
 ***** 19.12.13
 Function menu_schet_akt(r,c)
 Static mas_pmt := {"По ~всем выставленным случаям",;
@@ -1204,8 +1221,6 @@ endif
 rest_box(buf)
 return j
 
-*
-
 ***** 19.12.13
 Function title_schet_akt(sh)
 if glob_schet_akt == 2
@@ -1214,8 +1229,6 @@ elseif glob_schet_akt == 3
   add_string(center("[ без учёта повторно выставленных случаев ]",sh))
 endif
 return NIL
-
-*
 
 ***** 19.12.13
 Function f_usl_schet_akt(loplata)
@@ -1226,8 +1239,6 @@ elseif glob_schet_akt == 3
   fl := (loplata != 9)
 endif
 return fl
-
-*
 
 ***** 22.06.17 статистика
 Function e_statist(k)
@@ -1825,8 +1836,6 @@ enddo
 restscreen(buf)
 return NIL
 
-*
-
 ***** 02.10.19 функция для списка для восстановления объёмов
 Function f1vosst_ob_em_RAK(asmo,ssmo,mm_pz)
 Local adbf, i, nkvartal, n_file := "v_ob_em"+stxt, HH := 60, sh := 80, buf := save_maxrow(), t_arr[2]
@@ -2015,8 +2024,6 @@ close databases
 rest_box(buf)
 return NIL
 
-*
-
 ***** объем работ персонала (по оказанным услуга)
 Function ob1_statist(k,k1)
 Static si0 := 1, si1 := 1, si2 := 1, si3 := 1, si4 := 1, si5 := 1,;
@@ -2202,8 +2209,6 @@ if k > 10
 endif
 return NIL
 
-*
-
 ***** 12.03.14 объем работ персонала (по номенклатуре ФФОМС)
 Function obF_statist(k,k1)
 Static si0 := 1, si1 := 1, si2 := 1, si3 := 1, si4 := 1, si5 := 1, si6 := 1
@@ -2340,8 +2345,6 @@ if k > 10
   endif
 endif
 return NIL
-
-*
 
 ***** статистика по план-заказу
 Function pz_statist(k)
@@ -3077,8 +3080,6 @@ restscreen(buf)
 viewtext(name_file,,,,(sh>80),,,reg_print)
 return NIL
 
-*
-
 ***** 05.01.22
 Function f1pz1statist(arr_otd,par)
 Local lreg_lech := {0,0,0,0,0}, s, lkod, lshifr, ta, i, j, k, mkol1,;
@@ -3398,8 +3399,6 @@ if su == 1
 endif
 return NIL
 
-*
-
 *****
 Static Function ret_g_o_i(r,c)
 Static sast := {.t.,.f.},;
@@ -3416,8 +3415,6 @@ if (a := bit_popup(T_ROW,T_COL-5,sarr,sast)) != NIL
   next
 endif
 return ret
-
-*
 
 *****
 Static Function ret_z_n(r,c)
@@ -3436,8 +3433,6 @@ if (a := bit_popup(T_ROW,T_COL-5,sarr,sast)) != NIL
 endif
 return ret
 
-*
-
 *****
 Static Function ret_reestr_no(r,c)
 Static sast := {.t.,.t.},;
@@ -3454,8 +3449,6 @@ if (a := bit_popup(T_ROW,T_COL-5,sarr,sast)) != NIL
   next
 endif
 return ret
-
-*
 
 ***** 19.02.13
 Function pz2statist(arr_m,par2)
@@ -3586,8 +3579,6 @@ close databases
 rest_box(buf)
 return fl
 
-*
-
 *****
 Function pz21statist(oBrow)
 Local oColumn, blk := {|| iif (tmp->is==1, {1,2}, {3,4}) }
@@ -3609,8 +3600,6 @@ oColumn:colorBlock := blk
 status_key("^<Esc>^ - выход;  ^<Enter>^ - подсчет;  ^<Ins><+><->^ - отметить СМО для подсчета")
 return NIL
 
-*
-
 *****
 Function pz22statist(nKey,oBrow)
 Local ret := 0
@@ -3631,8 +3620,6 @@ do case
     ret := 0
 endcase
 return ret
-
-*
 
 ***** 27.09.13 Расчёт потребности в финансовом обеспечении выполнения объёмов мед.помощи
 Function pz_raschet_potr()
@@ -4249,8 +4236,6 @@ rest_box(buf24)
 viewtext(Devide_Into_Pages(name_file,60,80),,,,.t.,,,2)
 return NIL
 
-*
-
 *****
 Static Function fst_operator(get)
 Local mvar := readvar(), s := "Допустимый диапазон для данного коэффициента трудоемкости "
@@ -4268,7 +4253,6 @@ if mvar == "KOEF21" .and. !between(&mvar,2,KOEF2-1)
 endif
 return .t.
 
-*
 
 *****
 Static Function put_dec_oper(v,l,fl_plus)
@@ -4276,7 +4260,6 @@ Local s := put_val_0(v,l,2)
 DEFAULT fl_plus TO .t.
 return padl(if(empty(s).or.!fl_plus,"","+")+alltrim(s),l)
 
-*
 
 ***** 17.07.21 печать бланков
 Function prn_blank(k)
@@ -4417,7 +4400,6 @@ if k > 10
 endif
 return NIL
 
-*
 
 ***** 05.05.19
 FUNCTION pr_sprav_onk_vmp()
@@ -4451,7 +4433,6 @@ viewtext(name_file,,,,.t.,,,2)
 close databases
 return NIL
 
-*
 
 ***** 16.08.18
 Function pr_sprav_N002(n)
@@ -4525,7 +4506,6 @@ close databases
 viewtext(name_file,,,,.t.,,,reg_print)
 return NIL
 
-*
 
 ***** 16.08.18
 FUNCTION pr_sprav_N006()
@@ -4579,7 +4559,6 @@ close databases
 viewtext(name_file,,,,.t.,,,reg_print)
 return NIL
 
-*
 
 ***** 05.11.19
 FUNCTION f_blank_usl_pn()
@@ -4665,7 +4644,6 @@ enddo
 restscreen(buf)
 return NIL
 
-*
 
 *****
 FUNCTION ne_real()
@@ -4673,8 +4651,6 @@ Local c := cColorStMsg, c1 := cColorSt2Msg
 n_message({"Приносим извинения.",;
            "В данный момент функция не реализована."},,c,c,,,c1 )
 return NIL
-
-*
 
 ***** 24.01.19 отчёт Ф-МПП
 Function report_f_mpp()
@@ -5392,8 +5368,6 @@ fill_in_Excel_Book(dir_exe+"mo_pr6_62"+sxls,;
                    "присланный из ТФОМС")
 return NIL
 
-*
-
 ***** 07.07.20 Мониторинг состояния здоровья населения в части заболеваний, состояний, факторов риска,
 ***** связанных с несоблюдением здорового образа жизни
 Function monitoring_zog()
@@ -5571,8 +5545,6 @@ if (par := popup_prompt(T_ROW,T_COL-5,1,mas1pmt)) > 0 .and. ;
   endif
 endif
 return NIL
-
-*
 
 ***** 07.07.20
 Function f1monitoring_zog(ldiag)

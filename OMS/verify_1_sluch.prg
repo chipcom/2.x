@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-***** 02.03.22
+***** 03.03.22
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
         i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;

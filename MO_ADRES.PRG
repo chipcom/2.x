@@ -54,13 +54,13 @@ Function okato_index(hash_files)
     local sbase
     local file_index, sMD5
   
-  // for i := 1 to len(arr_f)
-  //   if files_time(dir_exe+arr_f[i]+sdbf,cur_dir+arr_i1[i]+sntx) .or. ;
-  //       files_time(dir_exe+arr_f[i]+sdbf,cur_dir+arr_i2[i]+sntx)
-  //     fl_index := .t. ; exit
-  //   endif
-  // next
-  // if fl_index
+  for i := 1 to len(arr_f)
+    if files_time(dir_exe+arr_f[i]+sdbf,cur_dir+arr_i1[i]+sntx) .or. ;
+        files_time(dir_exe+arr_f[i]+sdbf,cur_dir+arr_i2[i]+sntx)
+      fl_index := .t. ; exit
+    endif
+  next
+  if fl_index
     for i := 1 to len(arr_f)
       if hb_FileExists(dir_exe + arr_f[i] + sdbf)
         sMD5 := hb_MD5File( exe_dir + arr_f[i] + sdbf )
@@ -74,9 +74,8 @@ Function okato_index(hash_files)
         hash_files := add_hash_row(hash_files, arr_f[i], sMD5)
       endif
     next
-  // endif
+  endif
   return NIL
-
 
 *****
 Static Function oktAdIndBase(k)

@@ -134,7 +134,7 @@ Function checkFilesTFOMS()
 
   mywait('Подождите, идет проверка служебных данных в рабочем каталоге...')
 
-  hash_files := read_files_md5(cur_dir + FILE_HASH)
+  // hash_files := read_files_md5(cur_dir + FILE_HASH)
 
   // справочник диагнозов
   sbase := '_mo_mkb'
