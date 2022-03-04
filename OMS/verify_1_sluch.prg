@@ -4353,8 +4353,6 @@ Function verify_1_sluch(fl_view)
       aadd(ta,'для диагнозов U07.1 и U07.2 необходим ввод лекараственных препаратов')
     else  // не пустой проверим его
       for each row in arrLekPreparat
-        // {LEK_PR->DATE_INJ, LEK_PR->CODE_SH, LEK_PR->REGNUM, LEK_PR->ED_IZM, ;
-        // LEK_PR->DOSE_INJ, LEK_PR->METHOD_I, LEK_PR->COL_INJ, LEK_PR->SCHEDRUG}
         if empty(row[1])
           aadd(ta,'не указана дата инъекции')
         endif

@@ -182,7 +182,7 @@ endif
 return k
 
 
-***** 03.03.22
+***** 04.03.22
 Function print_l_uch(mkod, par, regim, lnomer)
   // mkod - код больного по БД human
   Local sh := 80, HH := 77, buf := save_maxrow(),;
@@ -192,6 +192,7 @@ Function print_l_uch(mkod, par, regim, lnomer)
       madres, i := 1, j, k, tmp[2], tmp1, w1 := 37, s, s1, mnum_lu, lshifr1
   local tmpAlias
   local arrLekPreparat, row
+  local cREGNUM, cUNITCODE, cMETHOD
 
   DEFAULT par TO 1, regim TO 1, lnomer TO 0
   mywait()
@@ -790,22 +791,21 @@ enddo
     add_string(center("Л_Е_К_А_Р_С_Т_В_Е_Н_Н_Ы_Е   П_Р_Е_П_А_Р_А_Т_Ы", sh))
     header_lek_preparat(w1)
     for each row in arrLekPreparat
+      if verify_FF(HH)
+        header_lek_preparat(w1)
+      endif
       s := ''
-      // mSEVERITY := inieditspr(A__MENUVERT, get_severity(), m1SEVERITY)
-      mSCHEME := ret_schema_V030(row[2])
-      mSCHEDRUG := padr(ret_schema_V032(row[8]),42)
-      mREGNUM := padr(get_Lek_pr_By_ID(row[3]),30)
-      mUNITCODE := padr(inieditspr(A__MENUVERT, getV034(), row[4]),iif(mem_n_V034==0,15,30))
-      mMETHOD := padr(inieditspr(A__MENUVERT, getMethodINJ(), row[6]),30)
-
+      cREGNUM := padr(get_Lek_pr_By_ID(row[3]),30)
+      cUNITCODE := padr(inieditspr(A__MENUVERT, getV034(), row[4]),iif(mem_n_V034==0,15,30))
+      cMETHOD := padr(inieditspr(A__MENUVERT, getMethodINJ(), row[6]),30)
       s := date_8(row[1]) + ' '
-      if empty(mREGNUM)
+      if empty(cREGNUM)
         s += padr(ret_schema_V032(row[8]), 33)
       else
-        s += padr(mREGNUM, 33) + ' '
+        s += padr(cREGNUM, 33) + ' '
         s := s + str(row[5], 6, 2) + ' ' ;
-            + padr(mUNITCODE, 7) + ' ' ;
-            + padr(mMETHOD, 15) + ' ' ;
+            + padr(cUNITCODE, 7) + ' ' ;
+            + padr(cMETHOD, 15) + ' ' ;
             + str(row[7], 6)
       endif
       add_string(s)
