@@ -618,6 +618,7 @@ function collect_lek_pr(mkod_human)
   if lekAlias == 0
     R_Use(dir_server + 'human_lek_pr', dir_server + 'human_lek_pr','LEK_PR')
   endif
+  select LEK_PR
   find (str(mkod_human, 7))
   if found()
     do while LEK_PR->KOD_HUM == mkod_human .and. !eof()
