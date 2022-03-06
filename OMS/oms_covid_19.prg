@@ -607,30 +607,31 @@ Function f5editpreparat(get, nKey, when_valid, k)
   endif
   return fl
 
-******* 09.01.22
+******* 06.03.22
 function collect_lek_pr(mkod_human)
   local retArr := {}
   local existAlias := .f.
   local oldSelect := select()
   local lekAlias
+  local cAlias := 'LEK_PR'
   
-  lekAlias := select('LEK_PR')
+  lekAlias := select(cAlias)
   if lekAlias == 0
-    R_Use(dir_server + 'human_lek_pr', dir_server + 'human_lek_pr','LEK_PR')
+    R_Use(dir_server + 'human_lek_pr', dir_server + 'human_lek_pr', cAlias)
   endif
-  select LEK_PR
-  find (str(mkod_human, 7))
-  if found()
-    do while LEK_PR->KOD_HUM == mkod_human .and. !eof()
-      AAdd( retArr, {LEK_PR->DATE_INJ, LEK_PR->CODE_SH, LEK_PR->REGNUM, LEK_PR->ED_IZM, ;
-                  LEK_PR->DOSE_INJ, LEK_PR->METHOD_I, LEK_PR->COL_INJ, LEK_PR->SCHEDRUG})
-      LEK_PR->(dbSkip())
+  dbSelectArea(cAlias)  // 'LEK_PR')
+  (cAlias)->(dbSeek(str(mkod_human, 7)))
+  if (cAlias)->(found())
+    do while (cAlias)->KOD_HUM == mkod_human .and. !eof()
+      AAdd( retArr, {(cAlias)->DATE_INJ, (cAlias)->CODE_SH, (cAlias)->REGNUM, (cAlias)->ED_IZM, ;
+                  (cAlias)->DOSE_INJ, (cAlias)->METHOD_I, (cAlias)->COL_INJ, (cAlias)->SCHEDRUG})
+      (cAlias)->(dbSkip())
     enddo
   endif
 
   select(oldSelect)
   if lekAlias == 0
-    LEK_PR->(dbCloseArea())
+    (cAlias)->(dbCloseArea())
   endif
 
   return retArr
