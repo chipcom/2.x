@@ -1,56 +1,74 @@
 #include 'function.ch'
+#include 'wapi.ch'
 
 #define SW_SHOWNORMAL 1
 
-// 09.04.21
-function openExcel(nameFile)
+// 07.03.22
+function openExcel(cFile)
   local error
 
-  error := ShellExecute(GetDeskTopWindow(),'open','Excel.exe',nameFile,,1)
+  // error := WAPI_ShellExecute(GetDeskTopWindow(), 'open', 'Excel.exe', cFile, , 1)
+  error := WAPI_ShellExecute(GetDeskTopWindow(), 'open', cFile, , , SW_SHOWNORMAL)
+  // if error <= 32
+  //   error := WAPI_ShellExecute(GetDeskTopWindow(), 'open', 'scalc.exe', cFile, , 1)
+  // endif
+  // if error <= 32
+  //   func_error(4, 'Не возможен запуск Excel или LibreOffice Calc!')
+  // endif
   if error <= 32
-    error := ShellExecute(GetDeskTopWindow(),'open','scalc.exe',nameFile,,1)
+    Err_WAPI_ShellExecute(error, cFile)
   endif
-  if error <= 32
-    func_error(4, 'Не возможен запуск Excel или LibreOffice Calc!')
-  endif
-
   return nil
 
-  *****
-  Function f_help()
+***** 07.03.22
+Function f_help()
   Local spar := ''
+  local error
+  local cFile := exe_dir + cslash + 'CHIP_MO.CHM'
+  
   if chm_help_code >= 0
-    spar := '-mapid '+lstr(chm_help_code)+' '
+    spar := '-mapid ' + lstr(chm_help_code) + ' '
   endif
-  ShellExecute(GetDeskTopWindow(),;
-               'open',;
-               'hh.exe',;
-               spar+exe_dir+cslash+'CHIP_MO.CHM',;
-               ,;
-               SW_SHOWNORMAL)
-  return NIL
-  
-  *****
-  Function file_AdobeReader(cFile)
-  ShellExecute(GetDeskTopWindow(),;
-               'open',;
-               'AcroRd32.exe',;
-               cFile,;
-               ,;
-               SW_SHOWNORMAL)
-  return NIL
-
-***** 31.05.21
-Function file_Wordpad(rtf_file)
-
-  if hb_FileExists( rtf_file )
-    ShellExecute(GetDeskTopWindow(),;
-               'open',;
-               'wordpad.exe',;
-               rtf_file,;
-               ,;
-               SW_SHOWNORMAL)
+  error := ShellExecute(GetDeskTopWindow(), 'open', 'hh.exe', spar + cFile, , SW_SHOWNORMAL)
+  if error <= 32
+    Err_WAPI_ShellExecute(error, cFile)
   endif
   return NIL
   
+***** 07.03.22
+Function file_AdobeReader(cFile)
+  local error
+
+  error := WAPI_ShellExecute(GetDeskTopWindow(), 'open', 'AcroRd32.exe', cFile, , SW_SHOWNORMAL)
+  if error <= 32
+    Err_WAPI_ShellExecute(error, cFile)
+  endif
+  return NIL
+
+***** 07.03.22
+Function file_Wordpad(cFile)
+  local error
+
+  error := WAPI_ShellExecute(GetDeskTopWindow(), 'open', cFile, , , SW_SHOWNORMAL)
+  if error <= 32
+    Err_WAPI_ShellExecute(error, cFile)
+  endif
+  return NIL
   
+***** 07.03.22
+function Err_WAPI_ShellExecute(nCode, cFile)
+
+  do case
+    case nCode == SE_ERR_FNF
+      alertx('Файл ' + cFile + ' не найден.')
+    case nCode == SE_ERR_PNF
+      alertx('Путь ' + hb_FNameDir(cFile ) + ' отсутствует.')
+    case nCode == SE_ERR_SHARE
+      alertx('Произошла ошибка совместного доступа.')
+    case nCode == SE_ERR_ASSOCINCOMPLETE
+      alertx('Ассоциация имени файла с расширением ' + hb_FNameExt( cFile ) + ' является или неполной или недействительной.')
+    case nCode == SE_ERR_NOASSOC
+      alertx('Отсутствует программа, связанная с типом файла: ' + hb_FNameExt( cFile ))
+    otherwise
+  endcase
+  return nil

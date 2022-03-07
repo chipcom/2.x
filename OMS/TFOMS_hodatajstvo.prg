@@ -631,7 +631,6 @@ Function f2_view_list_hodatajstvo(nKey,oBrow)
         endif
         mybell(2,OK)
         for i := 1 to k
-          // ShellExecute(GetDeskTopWindow(),'open','Excel.exe',_tmp_dir1+arr_f[i],,1)
           openExcel(_tmp_dir1+arr_f[i])
         next
       endif
