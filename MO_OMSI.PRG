@@ -191,7 +191,7 @@ Function print_l_uch(mkod, par, regim, lnomer)
       mud_lich := "", arr, n_file := "list_uch"+stxt, adiag_talon[16],;
       madres, i := 1, j, k, tmp[2], tmp1, w1 := 37, s, s1, mnum_lu, lshifr1
   local tmpAlias
-  local arrLekPreparat, row
+  local arrLekPreparat, arrImplantant, aNameImp, aSerNum, nNameImp, nSerNum, row
   local cREGNUM, cUNITCODE, cMETHOD
 
   DEFAULT par TO 1, regim TO 1, lnomer TO 0
@@ -812,10 +812,30 @@ enddo
     next
   endif
 
+  arrImplantant := check_implantant(mkod) // ¢ë¡¥à¥¬ ¨¬¯« ­â ­â
+  if arrImplantant != nil
+    add_string("")
+    add_string(center("“_‘_’_€___‚_‹_…___›_…   ˆ_Œ__‹_€__’_€__’_›", sh))
+    header_implantant(w1)
+    s := ''
+    s := date_8(arrImplantant[3]) + ' '
+    s := s + ;
+          padr(inieditspr(A__MENUVERT, get_implantant(), arrImplantant[4]), 40) + ' ' + ;
+          padr(arrImplantant[5], 35)
+    add_string(s)
+  endif
+
   close databases
   fclose(fp)
   rest_box(buf)
   viewtext(n_file,,,,.f.,,,5)
+  return NIL
+
+*****
+Function header_implantant(w1)
+  add_string("ÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ")
+  add_string("  „ â   ³ ¨¬¥­®¢ ­¨¥ ¨¬¯« ­â ­â                 ³‘¥à¨©­ë© ­®¬¥à")
+  add_string("ÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ")
   return NIL
 
 *****

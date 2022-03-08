@@ -619,7 +619,7 @@ function collect_lek_pr(mkod_human)
   if lekAlias == 0
     R_Use(dir_server + 'human_lek_pr', dir_server + 'human_lek_pr', cAlias)
   endif
-  dbSelectArea(cAlias)  // 'LEK_PR')
+  dbSelectArea(cAlias)
   (cAlias)->(dbSeek(str(mkod_human, 7)))
   if (cAlias)->(found())
     do while (cAlias)->KOD_HUM == mkod_human .and. !eof()

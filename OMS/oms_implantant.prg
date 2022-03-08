@@ -67,27 +67,34 @@ function select_implantant(date_ust, rzn, ser_num)
 	my_restkey( tmp_keys )
   return ret
 
-****** 20.01.22 вернуть имплантант в листе учета
+****** 07.03.22 вернуть имплантант в листе учета
 function check_implantant(mkod_human)
-  local tmpSelect := select()
+  local oldSelect := select()
   local arrImplantant, ser_num
+  local cAlias := 'IMPL', impAlias
 
-  // Use_base("human_im")
-  R_Use(dir_server + 'human_im', dir_server + 'human_im', 'IMPL')
-  find (str(mkod_human, 7))
-  if IMPL->(found())
-    // найти серийный номер если есть
-    ser_num := chek_implantant_ser_number(IMPL->(recno()))
-    // создать массив
-    arrImplantant := {IMPL->KOD_HUM, IMPL->KOD_K, IMPL->DATE_UST, IMPL->RZN, iif(ser_num != nil, ser_num, '')}
+  impAlias := select(cAlias)
+  if impAlias == 0
+    R_Use(dir_server + 'human_im', dir_server + 'human_im', cAlias)
   endif
-  IMPL->(dbCloseArea())
-  select(tmpSelect)
+  dbSelectArea(cAlias)
+  (cAlias)->(dbSeek(str(mkod_human, 7)))
+  if (cAlias)->(found())
+    // найти серийный номер если есть
+    ser_num := chek_implantant_ser_number((cAlias)->(recno()))
+    // создать массив
+    arrImplantant := {(cAlias)->KOD_HUM, (cAlias)->KOD_K, (cAlias)->DATE_UST, (cAlias)->RZN, iif(ser_num != nil, ser_num, '')}
+  endif
+  (cAlias)->(dbCloseArea())
+  select(oldSelect)
+  if impAlias == 0
+    (cAlias)->(dbCloseArea())
+  endif
   return arrImplantant
 
 ****** 20.01.22 удалить имплантант в листе учета
 function delete_implantant(mkod_human)
-  local tmpSelect := select()
+  local oldSelect := select()
 
   Use_base("human_im")
   find (str(mkod_human, 7))
@@ -97,12 +104,12 @@ function delete_implantant(mkod_human)
     DeleteRec(.t.,.f.)  // очистка записи с пометкой на удаление
   endif
   IMPL->(dbCloseArea())
-  select(tmpSelect)
+  select(oldSelect)
   return nil
 
 ****** 20.01.22 сохранить имплантант в БД учета
 function save_implantant(arrImplantant)
-  local tmpSelect := select()
+  local oldSelect := select()
 
   Use_base("human_im")
   find (str(arrImplantant[1], 7))
@@ -126,7 +133,7 @@ function save_implantant(arrImplantant)
     save_implantant_ser_number(IMPL->(recno()), arrImplantant[5])
   endif
   IMPL->(dbCloseArea())
-  select(tmpSelect)
+  select(oldSelect)
   return nil
 
 ****** 28.01.22 проверка даты установки имплантантов
