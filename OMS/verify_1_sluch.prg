@@ -952,7 +952,7 @@ Function verify_1_sluch(fl_view)
             mpztip := 4
           else
             is_2_88 := .t.
-            if between_shifr(alltrim_lshifr,"2.88.111","2.88.118")
+            if between_shifr(alltrim_lshifr,"2.88.111","2.88.118") .and. (human->k_data < 0d20220201)
               if is_dom
                 is_dom := .f. // чтобы для услуги с коронавирусом (на дому) не менять повод обращения
               else

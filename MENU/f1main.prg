@@ -904,7 +904,8 @@ aadd(first_message, { ;
    "Установка кодов принтера",;
    "Режим просмотра - кто находится в задаче и в каком режиме",;
    "Просмотр файла ошибок"})
-aadd(func_menu, {"file_Wordpad(exe_dir + cslash + 'README.RTF')",;
+// aadd(func_menu, {"file_Wordpad(exe_dir + cslash + 'README.RTF')",;
+aadd(func_menu, {"view_file_in_Viewer(exe_dir + cslash + 'README.RTF')",;
                  "m_help()",;
                  "nastr_rab_mesto()",;
                  "ust_printer(T_ROW)",;

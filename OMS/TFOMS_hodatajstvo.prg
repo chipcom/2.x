@@ -631,7 +631,8 @@ Function f2_view_list_hodatajstvo(nKey,oBrow)
         endif
         mybell(2,OK)
         for i := 1 to k
-          openExcel(_tmp_dir1+arr_f[i])
+          // openExcel(_tmp_dir1+arr_f[i])
+          view_file_in_Viewer(_tmp_dir1+arr_f[i])
         next
       endif
     case nKey == K_F5

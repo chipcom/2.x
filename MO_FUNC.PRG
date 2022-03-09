@@ -287,7 +287,7 @@ me := mem_enn13rees
 endif*/
 return iif(_nyear < 2017, 3, 5) // начиная с 2017 года - 5 символов
 
-***** 05.11.19 если это укрупнённый архив, распаковать и прочитать
+***** 09.03.22 если это укрупнённый архив, распаковать и прочитать
 Function Is_Our_ZIP(cName,/*@*/tip_csv_file,/*@*/kod_csv_reestr)
 Static cStFile, si
 Local fl := .f., arr := {}, arr_f, i, s := cName, s1, name_ext, _date, _time, c
@@ -328,7 +328,8 @@ elseif eq_any(left(s,8),"RHRT34_M","RFRT34_M") .and. substr(s,9,6) == glob_MO[_M
     if (i := popup_prompt(T_ROW,T_COL-5,i,arr_f)) > 0
       cStFile := cName ; si := i
       if arr[i,4] == spdf
-        file_AdobeReader(_tmp2dir1+arr[i,3])
+        // file_AdobeReader(_tmp2dir1+arr[i,3])
+        view_file_in_Viewer(_tmp2dir1 + arr[i, 3])
       elseif arr[i,4] == szip
         fl := .t.
         full_zip := _tmp2dir1+arr[i,3] // переопределяем Private-переменную
@@ -350,7 +351,8 @@ elseif left(s,6) == glob_MO[_MO_KOD_TFOMS]
     arr_f := {} ; aeval(arr,{|x| aadd(arr_f,x[2])})
     if (i := popup_prompt(T_ROW,T_COL-5,1,arr_f)) > 0
       if arr[i,4] == spdf
-        file_AdobeReader(_tmp2dir1+arr[i,3])
+        // file_AdobeReader(_tmp2dir1+arr[i,3])
+        view_file_in_Viewer(_tmp2dir1 + arr[i, 3])
       endif
     endif
   endif

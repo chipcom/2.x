@@ -44,7 +44,7 @@ function checkVersionInternet( row, oldVersion )
       key := inkey(0)
       if key == K_F2
         fileFromFTP( readMe )
-        file_Wordpad( readMe )
+        view_file_in_Viewer( readMe )
       endif
     endif
   endif

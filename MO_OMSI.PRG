@@ -4394,7 +4394,8 @@ do case
   case k == 61 // Контрольный лист учёта ЗНО
     call_fr("mo_onko_KL")
   case k == 62 // Правила заполнения контрольного листа учёта ЗНО
-    file_Wordpad(exe_dir + cslash + 'RULE_KL.RTF')
+    // file_Wordpad(exe_dir + cslash + 'RULE_KL.RTF')
+    view_file_in_Viewer(exe_dir + cslash + 'RULE_KL.RTF')
   case k == 71
     call_fr("mo_y1dvn")
   case k == 72
