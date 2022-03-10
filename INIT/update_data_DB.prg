@@ -1,7 +1,7 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-******* 28.12.21 проведение изменений в содержимом БД при обновлении
+******* 10.03.22 проведение изменений в содержимом БД при обновлении
 function update_data_DB(aVersion)
   local snversion := int(aVersion[1]*10000 + aVersion[2]*100 + aVersion[3])
   local ver_base := get_version_DB()
@@ -13,14 +13,45 @@ function update_data_DB(aVersion)
   if ver_base < 21131 // переход на версию 2.11.31
     update_v21131()     // заполним поле PRVS_V021 кодами из справочника мед. специальностей V021
   endif
+
+  if ver_base < 21203 // переход на версию 2.12.3
+    update_v21203()     // заполним поле MO_HU_K файла human_im.dbf
+  endif
+  return nil
+
+***** 10.03.22
+function update_v21203()
+  local i := 0, j := 0
+  local cAlias := 'IMPL'
+  // Local t1 := 0, t2 := 0
+
+  // t1 := seconds()
+  R_Use(dir_server + 'mo_hu', {dir_server + 'mo_huv', ;
+        dir_server + 'mo_hua', ;
+        dir_server + 'mo_hu'}, 'HU')
+
+  G_Use(dir_server + "human_im", dir_server + "human_im", cAlias)
+  (cAlias)->(dbSelectArea())
+  (cAlias)->(dbGoTop())
+  do while ! (cAlias)->(Eof())
+    if (cAlias)->KOD_HUM != 0
+      hb_Alert((cAlias)->RZN)
+    endif
+    (cAlias)->(dbSkip())
+  end do
+  
+  dbCloseAll()        // закроем все
+  // t2 := seconds() - t1
+  // if t2 > 0
+  //   n_message({"","Время обхода БД - "+sectotime(t2)},,;
+  //         color1,cDataCSay,,,color8)
+  // endif
+  // alertx(i, 'Количество сотрудников')
   return nil
 
 ***** 22.12.21
 function update_v21131()
   local i := 0, j := 0
-  // Local t1 := 0, t2 := 0
-
-  // t1 := seconds()
   Stat_Msg('Заполняем специальность')
   use_base('mo_pers', 'PERS', .t.) // откроем файл mo_pers
 
@@ -40,13 +71,6 @@ function update_v21131()
     pers->(dbSkip())
   end do
   dbCloseAll()        // закроем все
-
-  // t2 := seconds() - t1
-  // if t2 > 0
-  //   n_message({"","Время обхода БД - "+sectotime(t2)},,;
-  //         color1,cDataCSay,,,color8)
-  // endif
-  // alertx(i, 'Количество сотрудников')
   return nil
 
 ***** 17.12.21
