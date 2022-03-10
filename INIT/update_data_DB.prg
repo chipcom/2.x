@@ -21,25 +21,31 @@ function update_data_DB(aVersion)
 
 ***** 10.03.22
 function update_v21203()
-  local i := 0, j := 0
   local cAlias := 'IMPL'
   // Local t1 := 0, t2 := 0
 
   // t1 := seconds()
-  R_Use(dir_server + 'mo_hu', {dir_server + 'mo_huv', ;
-        dir_server + 'mo_hua', ;
-        dir_server + 'mo_hu'}, 'HU')
+  R_Use(dir_server + 'human', dir_server + 'humank', 'HUMAN')
+  R_Use(dir_server + 'mo_hu', dir_server + 'mo_hu', 'HU')
 
   G_Use(dir_server + "human_im", dir_server + "human_im", cAlias)
   (cAlias)->(dbSelectArea())
   (cAlias)->(dbGoTop())
   do while ! (cAlias)->(Eof())
     if (cAlias)->KOD_HUM != 0
-      hb_Alert((cAlias)->RZN)
+      HU->(dbseek(str((cAlias)->KOD_HUM, 7)))
+      if HU->(found())
+        HUMAN->(dbseek(str((cAlias)->KOD_HUM, 7)))
+        if HUMAN->(found())
+          if (cAlias)->(dbRLock())
+            (cAlias)->MO_HU_K := HU->(recno())
+          endif
+          (cAlias)->(dbRUnlock())
+        endif
+      endif
     endif
     (cAlias)->(dbSkip())
   end do
-  
   dbCloseAll()        // закроем все
   // t2 := seconds() - t1
   // if t2 > 0

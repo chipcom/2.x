@@ -20,7 +20,7 @@ DYNAMIC f1forma_792_MIAC
 DYNAMIC monitoring_vid_pom
 DYNAMIC b_25_perinat_2
 
-***** 21.12.21
+***** 10.03.22
 procedure main( ... )
   Local r, s, is_create := .f., is_copy := .f., is_index := .f.
   Local a_parol, buf, is_local_version
@@ -140,8 +140,8 @@ procedure main( ... )
       // провести реконструкцию БД учёта направлений на госпитализацию
       _263_init()
       // для начала работы _first_run() (убрал в NOT_USED)
-      pereindex() // обязательно
       update_data_DB(_version())    // провести изменения в базе если необходимо
+      pereindex() // обязательно
       // записать новый номер версии
       ControlBases(3)
       if glob_mo[_MO_IS_UCH]

@@ -67,7 +67,7 @@ function select_implantant(date_ust, rzn, ser_num)
 	my_restkey( tmp_keys )
   return ret
 
-****** 07.03.22 вернуть имплантант в листе учета
+****** 10.03.22 вернуть имплантант в листе учета
 function check_implantant(mkod_human)
   local oldSelect := select()
   local arrImplantant, ser_num
@@ -83,7 +83,7 @@ function check_implantant(mkod_human)
     // найти серийный номер если есть
     ser_num := chek_implantant_ser_number((cAlias)->(recno()))
     // создать массив
-    arrImplantant := {(cAlias)->KOD_HUM, (cAlias)->KOD_K, (cAlias)->DATE_UST, (cAlias)->RZN, iif(ser_num != nil, ser_num, '')}
+    arrImplantant := {(cAlias)->KOD_HUM, (cAlias)->KOD_K, (cAlias)->DATE_UST, (cAlias)->RZN, iif(ser_num != nil, ser_num, ''), (cAlias)->MO_HU_K}
   endif
   (cAlias)->(dbCloseArea())
   select(oldSelect)
@@ -107,7 +107,7 @@ function delete_implantant(mkod_human)
   select(oldSelect)
   return nil
 
-****** 20.01.22 сохранить имплантант в БД учета
+****** 10.03.22 сохранить имплантант в БД учета
 function save_implantant(arrImplantant)
   local oldSelect := select()
 
@@ -119,6 +119,7 @@ function save_implantant(arrImplantant)
     IMPL->KOD_K     := arrImplantant[2]
     IMPL->DATE_UST  := arrImplantant[3]
     IMPL->RZN       := arrImplantant[4]
+    IMPL->MO_HU_K   := arrImplantant[5]
     UNLOCK
     // сохранить серийный номер если есть
   else
@@ -127,6 +128,7 @@ function save_implantant(arrImplantant)
     IMPL->KOD_K     := arrImplantant[2]
     IMPL->DATE_UST  := arrImplantant[3]
     IMPL->RZN       := arrImplantant[4]
+    IMPL->MO_HU_K   := arrImplantant[5]
   endif
   if ! empty(arrImplantant[5])
     // сохранить серийный номер если есть
