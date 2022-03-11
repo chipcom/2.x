@@ -1690,29 +1690,6 @@ if !empty(m1okato)
 endif
 return len(mm_ismo) > 0
 
-// ***** 20.12.18
-// Function f1oms_usl_sluch()
-// LOCAL nRow := ROW(), nCol := COL(), s := tmp->name_u, lcolor := cDataCSay
-// if is_zf_stomat == 1 .and. !empty(tmp->zf)
-//   s := alltrim(tmp->zf)+" / "+s
-//   lcolor := color8
-// endif
-// @ maxrow()-2,2 say padr(s,65) color lcolor
-// if empty(tmp->u_cena)
-//   s := iif(tmp->n_base==0, "", "””ŽŒ‘")
-// else
-//   s := alltrim(dellastnul(tmp->u_cena,10,2))
-// endif
-// @ maxrow()-2,68 say padc(s,11) color cDataCSay
-// f3oms_usl_sluch()
-// @ nRow, nCol SAY ""
-// return NIL
-
-// *****
-// Function f3oms_usl_sluch()
-// @ maxrow()-4,59 say padl("ˆâ®£®: "+lstr(human->cena_1,11,2),20) color "W+/N"
-// return NIL
-
 ***** 28.02.18
 Function verify_OMS_sluch(mkod)
 Local buf := save_maxrow(), fl := .t., name_file := "err_sl"+stxt
