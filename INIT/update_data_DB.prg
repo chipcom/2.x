@@ -19,7 +19,7 @@ function update_data_DB(aVersion)
   endif
   return nil
 
-***** 10.03.22
+***** 12.03.22
 function update_v21203()
   local cAlias := 'IMPL'
   // Local t1 := 0, t2 := 0
@@ -46,8 +46,12 @@ function update_v21203()
     endif
     (cAlias)->(dbSkip())
   end do
+  HU->(dbCloseAre())
+  HUMAN->(dbCloseAre())
+  (cAlias)->(dbSelectArea())
+  index_base('human_im')
   dbCloseAll()        // закроем все
-  // t2 := seconds() - t1
+// t2 := seconds() - t1
   // if t2 > 0
   //   n_message({"","Время обхода БД - "+sectotime(t2)},,;
   //         color1,cDataCSay,,,color8)
