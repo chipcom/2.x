@@ -291,9 +291,8 @@ Function oms_usl_sluch(mkod_human,mkod_kartotek,fl_edit)
   endif
 
   // проверим наличие имплантов
-  arrImplant := check_implantant(mkod_human)
-  if arrImplant != NIL
-    begin_row := 3
+  if exist_implantant_in_DB(mkod_human)
+      begin_row := 3
     @ 2, 39 say padl('Пациенту установлен имплантант. F6 - ред.', 41) color 'W+/R'
   else
     begin_row := 2

@@ -812,17 +812,17 @@ enddo
     next
   endif
 
-  arrImplantant := check_implantant(mkod) // выберем имплантант
-  if arrImplantant != nil
+  arrImplantant := collect_implantant(mkod) // выберем имплантант
+  if ! empty(arrImplantant)
     add_string("")
     add_string(center("У_С_Т_А_Н_О_В_Л_Е_Н_Н_Ы_Е   И_М_П_Л_А_Н_Т_А_Н_Т_Ы", sh))
     header_implantant(w1)
-    s := ''
-    s := date_8(arrImplantant[3]) + ' '
-    s := s + ;
-          padr(inieditspr(A__MENUVERT, get_implantant(), arrImplantant[4]), 40) + ' ' + ;
-          padr(arrImplantant[5], 35)
-    add_string(s)
+    // s := ''
+    // s := date_8(arrImplantant[3]) + ' '
+    // s := s + ;
+    //       padr(inieditspr(A__MENUVERT, get_implantant(), arrImplantant[4]), 40) + ' ' + ;
+    //       padr(arrImplantant[5], 35)
+    // add_string(s)
   endif
 
   close databases

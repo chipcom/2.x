@@ -4390,8 +4390,8 @@ Function verify_1_sluch(fl_view)
   endif
 
   // проверим наличие имплантов
-  arrImplant := check_implantant(human->kod)
-  if arrImplant != NIL
+  arrImplant := collect_implantant(human->kod)
+  if ! empty(arrImplant)
     if empty(arrImplant[3])
       aadd(ta,'не указана дата установки имплантанта')
     endif

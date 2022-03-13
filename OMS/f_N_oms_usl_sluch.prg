@@ -5,7 +5,10 @@
 
 ***** 20.12.18
 Function f_oms_usl_sluch(oBrow)
-  Local oColumn, blk_color
+  Local oColumn, blk_color, arrImplant
+
+  blk_color := {|| iif( ! service_requires_implants(tmp->shifr_u, tmp->DATE_U), {1, 2}, ;
+      iif(! exist_implantant_in_DB(glob_perso, tmp->rec_hu), {3, 4}, {5, 6})) }  // голубовато - зеленовато
 
   oColumn := TBColumnNew(" NN; пп",{|| tmp->number })
   oColumn:colorBlock := blk_color
@@ -90,12 +93,32 @@ Function f2oms_usl_sluch(nKey,oBrow)
   local tmSel
   local aOptions :=  { 'Нет', 'Да' }, nChoice
   local l_impl, aImpl
+  local arrImplant
 
   if mem_dom_aktiv == 1
        aadd(mm_dom,{"на дому-АКТИВ",-2})
   endif
   Private r1 := 10, mrec_hu := tmp->rec_hu
   do case
+    case nKey == K_F6 .and. (HUMAN->K_DATA >= d_01_01_2022) .and. service_requires_implants(tmp->shifr_u, tmp->date_u1)
+      arrImplant := collect_implantant(glob_perso, tmp->rec_hu)
+
+      view_implantant(arrImplant)
+
+      // if empty(arrImplant)  // имплантанты отсутствует
+      //   if (l_impl := select_implantant(tmp->date_u1)) != NIL
+      //     arrImplant := {human->kod, human->kod_k, l_impl[1], l_impl[2], l_impl[3]}
+      //   endif
+      // else
+      //   aImpl := select_implantant(arrImplant[3], arrImplant[4], arrImplant[5])
+      //   if aImpl != nil
+      //     arrImplant[3] := aImpl[1]
+      //     arrImplant[4] := aImpl[2]
+      //     arrImplant[5] := aImpl[3]
+      //   endif
+      // endif
+      // save_implantant(arrImplant)
+
     case nKey == K_F9 .and. !empty(aksg)
       f_put_arr_ksg(aksg)
     case nKey == K_F10 .and. tmp->kod > 0 .and. f_Esc_Enter("запоминания услуг")
@@ -671,16 +694,15 @@ Function f2oms_usl_sluch(nKey,oBrow)
         // чтение введенной информации
         count_edit := myread(,,++k_read)
 
-        // if (mdate_u1 >= d_01_01_2022) .and. ((aImpl := ret_impl_V036(mshifr, mdate_u1)) != NIL)
-        if (HUMAN->K_DATA >= d_01_01_2022) .and. ((aImpl := ret_impl_V036(mshifr, HUMAN->K_DATA)) != NIL)
-          if arrImplant == NIL  // имплантант отсутствует
-            // if (nChoice := hb_Alert('Для данной услуги предусмотрен имплантант. Добавляем?', aOptions)) == 2
-              if (l_impl := select_implantant(mdate_u1)) != NIL
-                arrImplant := {human->kod, human->kod_k, l_impl[1], l_impl[2], l_impl[3]}
-              endif
-            // endif
-          endif
-        endif
+        // // if (HUMAN->K_DATA >= d_01_01_2022) .and. ((aImpl := ret_impl_V036(mshifr, HUMAN->K_DATA)) != NIL)
+        // if (HUMAN->K_DATA >= d_01_01_2022) .and. service_requires_implants(mshifr, HUMAN->K_DATA)
+        //   // if arrImplant == NIL  // имплантант отсутствует
+        //   if ! empty(arrImplant := collect_implantant(glob_perso, tmp->rec_hu))  // имплантант отсутствует
+        //     if (l_impl := select_implantant(mdate_u1)) != NIL
+        //       arrImplant := {human->kod, human->kod_k, l_impl[1], l_impl[2], l_impl[3]}
+        //     endif
+        //   endif
+        // endif
   
         SetKey( K_F2, NIL )
         SetKey( K_F3, NIL )
