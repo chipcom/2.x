@@ -211,7 +211,6 @@ function collect_implantant(mkod_human, rec_hu)
   local ser_num, arrImplantant := {}
   local cAlias := 'IMPL', impAlias
 
-  // default rec_hu to 0
   HB_Default(@rec_hu, 0)
   impAlias := select(cAlias)
   if impAlias == 0
@@ -244,49 +243,71 @@ function collect_implantant(mkod_human, rec_hu)
   endif
   return arrImplantant
 
-****** 20.01.22 удалить имплантант в листе учета
-function delete_implantant(mkod_human)
+****** 14.03.22 удалить имплантант в листе учета
+function delete_implantants(mkod_human, rec_hu)
   local oldSelect := select()
+  local cAlias := 'IMPL'
 
+  HB_Default(@rec_hu, 0)
   Use_base("human_im")
-  find (str(mkod_human, 7))
-  if IMPL->(found())
-    // вначале удалить серийный номер если есть
-    delete_implantant_ser_number(IMPL->(recno()))
-    DeleteRec(.t.,.f.)  // очистка записи с пометкой на удаление
+  // find (str(mkod_human, 7))
+  dbSelectArea(cAlias)
+  if rec_hu == 0
+    (cAlias)->(dbSeek(str(mkod_human, 7)))
+  else
+    (cAlias)->(dbSeek(str(mkod_human, 7) + str(rec_hu, 7)))
   endif
-  IMPL->(dbCloseArea())
+  if (cAlias)->(found())
+    do while !(cAlias)->(EOF()) .and. mkod_human == (cAlias)->KOD_HUM
+      if rec_hu == 0
+        // вначале удалить серийный номер если есть
+        delete_implantant_ser_number((cAlias)->(recno()))
+        DeleteRec(.t.,.f.)  // очистка записи с пометкой на удаление
+      else
+        if (cAlias)->MO_HU_K == rec_hu
+          // вначале удалить серийный номер если есть
+          delete_implantant_ser_number((cAlias)->(recno()))
+          DeleteRec(.t.,.f.)  // очистка записи с пометкой на удаление
+        endif
+      endif
+      (cAlias)->(dbSkip())
+    enddo
+  endif
+  (cAlias)->(dbCloseArea())
   select(oldSelect)
   return nil
 
-****** 10.03.22 сохранить имплантант в БД учета
-function save_implantant(arrImplantant)
+****** 14.03.22 сохранить имплантант в БД учета
+function save_implantant(mkod_human, rec_hu)
+  // function save_implantant(arrImplantant)
   local oldSelect := select()
 
-  Use_base("human_im")
-  find (str(arrImplantant[1], 7))
-  if IMPL->(found())
-    G_RLock(forever)
-    IMPL->KOD_HUM   := arrImplantant[1]
-    IMPL->KOD_K     := arrImplantant[2]
-    IMPL->DATE_UST  := arrImplantant[3]
-    IMPL->RZN       := arrImplantant[4]
-    IMPL->MO_HU_K   := arrImplantant[5]
-    UNLOCK
-    // сохранить серийный номер если есть
-  else
-    AddRec(7)
-    IMPL->KOD_HUM   := arrImplantant[1]
-    IMPL->KOD_K     := arrImplantant[2]
-    IMPL->DATE_UST  := arrImplantant[3]
-    IMPL->RZN       := arrImplantant[4]
-    IMPL->MO_HU_K   := arrImplantant[5]
-  endif
-  if ! empty(arrImplantant[5])
-    // сохранить серийный номер если есть
-    save_implantant_ser_number(IMPL->(recno()), arrImplantant[5])
-  endif
-  IMPL->(dbCloseArea())
+  delete_implantants(mkod_human, rec_hu)
+
+  // Use_base("human_im")
+  // find (str(arrImplantant[1], 7))
+  // if IMPL->(found())
+  //   G_RLock(forever)
+  //   IMPL->KOD_HUM   := arrImplantant[1]
+  //   IMPL->KOD_K     := arrImplantant[2]
+  //   IMPL->DATE_UST  := arrImplantant[3]
+  //   IMPL->RZN       := arrImplantant[4]
+  //   IMPL->MO_HU_K   := arrImplantant[5]
+  //   UNLOCK
+  //   // сохранить серийный номер если есть
+  // else
+  //   AddRec(7)
+  //   IMPL->KOD_HUM   := arrImplantant[1]
+  //   IMPL->KOD_K     := arrImplantant[2]
+  //   IMPL->DATE_UST  := arrImplantant[3]
+  //   IMPL->RZN       := arrImplantant[4]
+  //   IMPL->MO_HU_K   := arrImplantant[5]
+  // endif
+  // if ! empty(arrImplantant[5])
+  //   // сохранить серийный номер если есть
+  //   save_implantant_ser_number(IMPL->(recno()), arrImplantant[5])
+  // endif
+  // IMPL->(dbCloseArea())
   select(oldSelect)
   return nil
 

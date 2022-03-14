@@ -2388,7 +2388,7 @@ if input_uch(T_ROW-1,T_COL+5,sys_date) != NIL .and. ;
 endif
 return NIL
 
-***** 20.01.22 Удаление листка учета лечения больного
+***** 14.03.22 Удаление листка учета лечения больного
 Function oms_del()
 Static sk := 1
 Local buf, str_sem, j, k := 1, arr_m, fl := .t., lkod_k, lyear
@@ -2528,7 +2528,7 @@ if (arr_m := input_year()) != NIL .and. ;
 
         // добавил новые файлы для листов учета
         // удаление имплантантов
-        delete_implantant(glob_perso)
+        delete_implantants(glob_perso)
 
         // удаление лекарственных препаратов
         G_Use(dir_server + "human_lek_pr", dir_server + "human_lek_pr", "LEK")

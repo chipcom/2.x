@@ -78,7 +78,7 @@ Function f3oms_usl_sluch()
   @ maxrow() - 4, 59 say padl("Итого: " + lstr(human->cena_1, 11, 2), 20) color "W+/N"
   return NIL
     
-***** 28.01.22 ввод услуг в лист учёта
+***** 14.03.22 ввод услуг в лист учёта
 Function f2oms_usl_sluch(nKey,oBrow)
   Static skod_k := 0, skod_human := 0, SKOD_DIAG, SZF,;
          st_vzrosl, st_arr_dbf, skod_vr, skod_as, aksg := {}
@@ -117,7 +117,7 @@ Function f2oms_usl_sluch(nKey,oBrow)
       //     arrImplant[5] := aImpl[3]
       //   endif
       // endif
-      // save_implantant(arrImplant)
+      save_implantant(human->kod, tmp->rec_hu)
 
     case nKey == K_F9 .and. !empty(aksg)
       f_put_arr_ksg(aksg)
@@ -754,7 +754,7 @@ Function f2oms_usl_sluch(nKey,oBrow)
             endif
             if (nKey == K_INS) .and. ((aImpl := ret_impl_V036(mshifr, mdate_u1)) != NIL)
               if arrImplant != nil
-                save_implantant(arrImplant)
+                // save_implantant(arrImplant)
               endif
             endif
             if nKey == K_INS .and. len(pr_k_usl) > 0
@@ -1050,7 +1050,7 @@ Function f2oms_usl_sluch(nKey,oBrow)
       vr_pr_1_den(1,,u_other)
 
       if arrImplant != nil  // удалим имплантант
-        delete_implantant(human->kod)
+        delete_implantants(human->kod, tmp->rec_hu)
         arrImplant := nil
       endif
       
@@ -1069,7 +1069,7 @@ Function f2oms_usl_sluch(nKey,oBrow)
         arrImplant[3] := aImpl[1]
         arrImplant[4] := aImpl[2]
         arrImplant[5] := aImpl[3]
-        save_implantant(arrImplant)
+        // save_implantant(arrImplant)
       endif
     otherwise
       keyboard ""
