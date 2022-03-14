@@ -61,7 +61,7 @@ function view_implantant(arrImplantant)
   restscreen(buf)
   return nil
 
-***** 13.02.22
+***** 14.03.22
 Function f_view_implant(oBrow)
   Local oColumn, blk_color
   blk_color := {|| {1, 2} }
@@ -72,52 +72,41 @@ Function f_view_implant(oBrow)
   oColumn := TBColumnNew(' Серийный номер имплантанта',{|| padr(tmp_001->SER_NUM, 27) })
   oColumn:colorBlock := blk_color
   oBrow:addColumn(oColumn)
-  status_key("^<Esc>^ выход; ^<Enter>^ ред-ие; ^<Ins>^ добавление; ^<Del>^ удаление; ^<F1>^ помощь")
+  status_key("^<Esc>^ выход; ^<Enter>^ ред-ие; ^<Ins>^ добавление; ^<Del>^ удаление")
   return NIL
 
 ***** 13.03.22
 Function f1_view_implant()
-  // LOCAL nRow := ROW(), nCol := COL(), s := tmp->name_u, lcolor := cDataCSay
-
-  // if is_zf_stomat == 1 .and. !empty(tmp->zf)
-  //   s := alltrim(tmp->zf) + " / " + s
-  //   lcolor := color8
-  // endif
-  // @ maxrow()-2,2 say padr(s, 65) color lcolor
-  // if empty(tmp->u_cena)
-  //   s := iif(tmp->n_base==0, "", "ФФОМС")
-  // else
-  //   s := alltrim(dellastnul(tmp->u_cena, 10, 2))
-  // endif
-  // @ maxrow() - 2, 68 say padc(s, 11) color cDataCSay
-  // f3oms_usl_sluch()
-  // @ nRow, nCol SAY ""
   return NIL
 
-***** 13.02.22 
+***** 14.03.22 
 Function f2_view_implant(nKey, oBrow)
   local flag := -1, ret
 
   do case
-    case nKey == K_F10 .and. f_Esc_Enter("запоминания услуг")
-      flag := 0
-    case eq_any(nKey,K_CTRL_F10,K_F11)
-    case eq_any(nKey,K_F4,K_F5,K_CTRL_F5)
     case nKey == K_INS .or. (nKey == K_ENTER)
       if nKey == K_ENTER
         ret := select_implantant(tmp_001->DATE_UST, tmp_001->RZN, tmp_001->SER_NUM)
       else
-        ret := select_implantant()
+        ret := select_implantant(tmp->DATE_U1)
         if ret != nil
           tmp_001->(dbAppend())
         endif
       endif
-      tmp_001->DATE_UST := ret[1]
-      tmp_001->RZN := ret[2]
-      tmp_001->SER_NUM := ret[3]
-      tmp_001->(dbGoTop())
+      if lastkey() != K_ESC
+        tmp_001->DATE_UST := ret[1]
+        tmp_001->RZN := ret[2]
+        tmp_001->SER_NUM := ret[3]
+        tmp_001->KOD_HUM := tmp->KOD
+        tmp_001->KOD_K := glob_kartotek
+        tmp_001->MO_HU_K := tmp->rec_hu
+        tmp_001->(dbGoTop())
+      endif
       flag := 0
     case nKey == K_DEL .and. f_Esc_Enter(2)
+      tmp_001->(dbDelete())
+      oBrow:goTop()
+      tmp_001->(dbGoTop())
     otherwise
       keyboard ''
   endcase
