@@ -298,7 +298,7 @@ Function oms_usl_sluch(mkod_human,mkod_kartotek,fl_edit)
     begin_row := 2
   endif
   
-  l_color := "W+/B,W+/RB,BG+/B,BG+/RB,G+/B,GR+/B"
+  l_color := "W+/B,W+/RB,BG+/B,BG+/RB,G+/B,GR+/B,G+/B,G+/RB,R/B,N/R"
   s := "Полное наименование услуги"
   if is_zf_stomat == 1
     s := "Формула зуба / "+s

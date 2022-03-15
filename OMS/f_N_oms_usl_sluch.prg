@@ -8,7 +8,7 @@ Function f_oms_usl_sluch(oBrow)
   Local oColumn, blk_color, arrImplant
 
   blk_color := {|| iif( ! service_requires_implants(tmp->shifr_u, tmp->DATE_U), {1, 2}, ;
-      iif(! exist_implantant_in_DB(glob_perso, tmp->rec_hu), {3, 4}, {5, 6})) }  // голубовато - зеленовато
+      iif(! exist_implantant_in_DB(glob_perso, tmp->rec_hu), {9, 10}, {7, 8})) }  // голубовато - зеленовато
 
   oColumn := TBColumnNew(" NN; пп",{|| tmp->number })
   oColumn:colorBlock := blk_color
