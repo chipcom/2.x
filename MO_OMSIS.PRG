@@ -5912,7 +5912,8 @@ tmp := aclone(arr_m)
 tmp[5] := 1 // январь
 ret_days_for_akt_sverki(tmp,@b1_1,,@a1_1,)
 //
-d1 := d2 := 10
+d1 := 10
+d2 := 10
 ret_days_for_akt_sverki(arr_m,@b1,@b2,@a1,@a2)
 Use_base("lusl")
 Use_base("luslf")
@@ -5961,10 +5962,19 @@ do while !eof()
       d2 := 14  //Проверить
     elseif arr_m[1] == 2022 .and. arr_m[3] == 1
       d2 := 15  
+    elseif arr_m[1] == 2022 .and. arr_m[3] == 2
+      d1 := 15
     endif
+    //my_debug(,"date1_mes="+dtos(arr_m[5]))
+    //my_debug(,"date2_mes="+dtos(arr_m[6]))
+    //my_debug(,"d1="+str(d1))
+    //my_debug(,"d2="+str(d2))
+    //my_debug(,"date1="+dtos(boy(arr_m[5])))
+    //my_debug(,"date2="+dtos(arr_m[6]+d2))
     msmo := int(val(schet_->smo))
     fl := between(mdate,boy(arr_m[5]),arr_m[6]+d2) ;// дата регистрации по 10 числа след.месяца
             .and. between(mdate1,boy(arr_m[5]),arr_m[6]) // !!отч.период этот год
+
     if fl
       if !fl_month
         // счета за пред.отч.периоды с датой от 11 тек.месяца по 10 след.месяца
@@ -5973,6 +5983,7 @@ do while !eof()
       if msmo != 34 .and. ascan(arr_smo, {|x| x[2] == msmo }) == 0
         aadd(arr_smo, {"",msmo})
       endif
+
       select HUMAN
       find (str(schet->kod,6))
       do while human->schet == schet->kod .and. !eof()
