@@ -78,7 +78,7 @@ Function f3oms_usl_sluch()
   @ maxrow() - 4, 59 say padl("Итого: " + lstr(human->cena_1, 11, 2), 20) color "W+/N"
   return NIL
     
-***** 14.03.22 ввод услуг в лист учёта
+***** 16.03.22 ввод услуг в лист учёта
 Function f2oms_usl_sluch(nKey,oBrow)
   Static skod_k := 0, skod_human := 0, SKOD_DIAG, SZF,;
          st_vzrosl, st_arr_dbf, skod_vr, skod_as, aksg := {}
@@ -92,7 +92,6 @@ Function f2oms_usl_sluch(nKey,oBrow)
                    {"на дому      ",-1}}
   local tmSel
   local aOptions :=  { 'Нет', 'Да' }, nChoice
-  local l_impl, aImpl
   local arrImplant
 
   if mem_dom_aktiv == 1
@@ -104,21 +103,6 @@ Function f2oms_usl_sluch(nKey,oBrow)
       arrImplant := collect_implantant(glob_perso, tmp->rec_hu)
 
       view_implantant(arrImplant)
-
-      // if empty(arrImplant)  // имплантанты отсутствует
-      //   if (l_impl := select_implantant(tmp->date_u1)) != NIL
-      //     arrImplant := {human->kod, human->kod_k, l_impl[1], l_impl[2], l_impl[3]}
-      //   endif
-      // else
-      //   aImpl := select_implantant(arrImplant[3], arrImplant[4], arrImplant[5])
-      //   if aImpl != nil
-      //     arrImplant[3] := aImpl[1]
-      //     arrImplant[4] := aImpl[2]
-      //     arrImplant[5] := aImpl[3]
-      //   endif
-      // endif
-      save_implantant(human->kod, tmp->rec_hu)
-
     case nKey == K_F9 .and. !empty(aksg)
       f_put_arr_ksg(aksg)
     case nKey == K_F10 .and. tmp->kod > 0 .and. f_Esc_Enter("запоминания услуг")
@@ -694,16 +678,6 @@ Function f2oms_usl_sluch(nKey,oBrow)
         // чтение введенной информации
         count_edit := myread(,,++k_read)
 
-        // // if (HUMAN->K_DATA >= d_01_01_2022) .and. ((aImpl := ret_impl_V036(mshifr, HUMAN->K_DATA)) != NIL)
-        // if (HUMAN->K_DATA >= d_01_01_2022) .and. service_requires_implants(mshifr, HUMAN->K_DATA)
-        //   // if arrImplant == NIL  // имплантант отсутствует
-        //   if ! empty(arrImplant := collect_implantant(glob_perso, tmp->rec_hu))  // имплантант отсутствует
-        //     if (l_impl := select_implantant(mdate_u1)) != NIL
-        //       arrImplant := {human->kod, human->kod_k, l_impl[1], l_impl[2], l_impl[3]}
-        //     endif
-        //   endif
-        // endif
-  
         SetKey( K_F2, NIL )
         SetKey( K_F3, NIL )
         SetKey( K_F5, NIL )
@@ -751,11 +725,6 @@ Function f2oms_usl_sluch(nKey,oBrow)
               mvu[1,2] += count_edit
             else
               mvu[2,2] += count_edit
-            endif
-            if (nKey == K_INS) .and. ((aImpl := ret_impl_V036(mshifr, mdate_u1)) != NIL)
-              if arrImplant != nil
-                // save_implantant(arrImplant)
-              endif
             endif
             if nKey == K_INS .and. len(pr_k_usl) > 0
               // комплексная услуга
@@ -1063,14 +1032,6 @@ Function f2oms_usl_sluch(nKey,oBrow)
       flag := 0
       restscreen(buf)
       f3oms_usl_sluch()
-    case (nKey == K_F6) .and. (arrImplant != NIL)
-      aImpl := select_implantant(arrImplant[3], arrImplant[4], arrImplant[5])
-      if aImpl != nil
-        arrImplant[3] := aImpl[1]
-        arrImplant[4] := aImpl[2]
-        arrImplant[5] := aImpl[3]
-        // save_implantant(arrImplant)
-      endif
     otherwise
       keyboard ""
   endcase

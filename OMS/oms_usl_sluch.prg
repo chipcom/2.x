@@ -4,7 +4,7 @@
 #include "chip_mo.ch"
 
 
-***** 20.01.22 ввод услуг в случай (лист учёта)
+***** 16.03.22 ввод услуг в случай (лист учёта)
 Function oms_usl_sluch(mkod_human,mkod_kartotek,fl_edit)
   // mkod_human - код по БД human
   // mkod_kartotek - код по БД kartotek
@@ -19,6 +19,10 @@ Function oms_usl_sluch(mkod_human,mkod_kartotek,fl_edit)
           pr_arr := {}, pr_arr_otd := {}, pr1arr_otd := {}, is_1_vvod,;
           kod_lech_vr := 0, is_open_u1 := .f., arr_uva := {}, arr_usl1year, u_other := {}
   private arrImplant
+
+  if hb_vfExists(cur_dir + 'tmp_impl.dbf')
+    hb_vfErase(cur_dir + 'tmp_impl.dbf')
+  endif
 
   afillall(mvu,0)
   //
@@ -97,7 +101,7 @@ Function oms_usl_sluch(mkod_human,mkod_kartotek,fl_edit)
 
   //
   adbf := {;
-    {"KOD"      ,   "N",     7,     0},; // код больного
+    {"KOD"      ,   "N",     7,     0},; // код больного в HUMAN.dbf
     {"DATE_U"   ,   "C",     4,     0},; // дата оказания услуги
     {"date_u2"  ,   "C",     4,     0},; // дата окончания оказания услуги
     {"date_u1"  ,   "D",     8,     0},;
@@ -319,6 +323,18 @@ Function oms_usl_sluch(mkod_human,mkod_kartotek,fl_edit)
                .f., .t., , "f1oms_usl_sluch", "f2oms_usl_sluch", , ;
                {"═", "░", "═", l_color, .t., 180} )
   select TMP
+
+  TMP->(dbGoTop())
+  do while ! TMP->(eof())
+    if service_requires_implants(TMP->shifr_u, TMP->date_u1)
+      if hb_vfExists(cur_dir + 'tmp_impl.dbf')
+        delete_implantants(TMP->KOD, TMP->rec_hu)
+        save_implantant(TMP->KOD, TMP->rec_hu)
+      endif
+    endif
+    TMP->(dbSkip())
+  end do
+
   pack
   kol_rec := lastrec()
   Private mcena_1 := human->cena_1, msmo := human_->smo
