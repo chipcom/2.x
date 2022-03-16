@@ -2388,7 +2388,7 @@ if input_uch(T_ROW-1,T_COL+5,sys_date) != NIL .and. ;
 endif
 return NIL
 
-***** 14.03.22 Удаление листка учета лечения больного
+***** 16.03.22 Удаление листка учета лечения больного
 Function oms_del()
 Static sk := 1
 Local buf, str_sem, j, k := 1, arr_m, fl := .t., lkod_k, lyear

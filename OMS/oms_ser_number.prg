@@ -56,7 +56,7 @@ if fl := G_Use(dir_server + 'human_ser_num', dir_server + 'human_ser_num', 'NUM_
     NUM_SER->SER_NUM    := ser_num
     UNLOCK
   else
-    AddRec(7)
+    AddRec(' ', , .t.)
     NUM_SER->TYPE_FIL   := type
     NUM_SER->REC_N      := rec_n
     NUM_SER->SER_NUM    := ser_num

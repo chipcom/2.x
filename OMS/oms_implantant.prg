@@ -278,7 +278,7 @@ function delete_implantants(mkod_human, rec_hu)
   return nil
 
 ****** 16.03.22 сохранить имплантант в БД учета
-function save_implantant(mkod_human, rec_hu)
+function save_implantants(mkod_human, rec_hu)
   local oldSelect := select()
   local cAlias := 'tmp_001'
 
@@ -289,7 +289,7 @@ function save_implantant(mkod_human, rec_hu)
   (cAlias)->(dbGoTop())
   do while ! (cAlias)->(EOF())
     dbSelectArea('IMPL')
-    AddRec(7)
+    AddRec(7, , .t.)
     IMPL->KOD_HUM   := (cAlias)->KOD_HUM
     IMPL->KOD_K     := (cAlias)->KOD_K
     IMPL->DATE_UST  := (cAlias)->DATE_UST

@@ -296,11 +296,12 @@ Function oms_usl_sluch(mkod_human,mkod_kartotek,fl_edit)
 
   // проверим наличие имплантов
   if exist_implantant_in_DB(mkod_human)
-      begin_row := 3
+    // begin_row := 3
     @ 2, 39 say padl('Пациенту установлен имплантант. F6 - ред.', 41) color 'W+/R'
-  else
-    begin_row := 2
+  // else
+  //   begin_row := 2
   endif
+  begin_row := 3
   
   l_color := "W+/B,W+/RB,BG+/B,BG+/RB,G+/B,GR+/B,G+/B,G+/RB,R/B,N/R"
   s := "Полное наименование услуги"
@@ -329,7 +330,7 @@ Function oms_usl_sluch(mkod_human,mkod_kartotek,fl_edit)
     if service_requires_implants(TMP->shifr_u, TMP->date_u1)
       if hb_vfExists(cur_dir + 'tmp_impl.dbf')
         delete_implantants(TMP->KOD, TMP->rec_hu)
-        save_implantant(TMP->KOD, TMP->rec_hu)
+        save_implantants(TMP->KOD, TMP->rec_hu)
       endif
     endif
     TMP->(dbSkip())
