@@ -7,17 +7,18 @@
 Static sadiag1 := {}
 
   
-***** 04.02.22 создание XML-файлов реестра
+***** 17.03.22 создание XML-файлов реестра
 Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
   //
   local iAKSLP, tKSLP, cKSLP // счетчик для цикла по КСЛП
   local reserveKSG_ID_C := '' // GUID для вложенных двойных случаев
-  local aImpl, arrLP, row
+  local arrLP, row
   local ser_num
   local controlVer
   local endDateZK
   local diagnoz_replace := ''
+  local aImpl
 
   //
   close databases
@@ -1083,21 +1084,30 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
           else
             if (human->k_data >= 0d20210801 .and. p_tip_reestr == 2) ;      // правила заполнения с 01.08.21 письмо № 04-18-13 от 20.07.21
                 .or. (human->k_data >= d_01_01_2022 .and. p_tip_reestr == 1)  // правила заполнения с 01.01.22 письмо № 04-18?17 от 28.12.2021
-              if (p_tip_reestr == 1) .and. ((aImpl := ret_impl_V036(lshifr, c4tod(hu_->DATE_U2))) != NIL)
-                // проверим наличие имплантантов
-                IMPL->(dbSeek(str(human->kod, 7), .t.))
-                if IMPL->(found())
-                  oMED_DEV := oUSL:Add( HXMLNode():New( "MED_DEV" ) )
-                  mo_add_xml_stroke(oMED_DEV,"DATE_MED", date2xml(IMPL->DATE_UST))   // пока ставим 1 исполнитель
-                  mo_add_xml_stroke(oMED_DEV,"CODE_MEDDEV", lstr(IMPL->RZN))
+              // if (p_tip_reestr == 1) .and. ((aImpl := ret_impl_V036(lshifr, c4tod(hu_->DATE_U2))) != NIL)
+              //   // проверим наличие имплантантов
+              //   IMPL->(dbSeek(str(human->kod, 7), .t.))
+              //   if IMPL->(found())
+              //     oMED_DEV := oUSL:Add( HXMLNode():New( "MED_DEV" ) )
+              //     mo_add_xml_stroke(oMED_DEV,"DATE_MED", date2xml(IMPL->DATE_UST))   // пока ставим 1 исполнитель
+              //     mo_add_xml_stroke(oMED_DEV,"CODE_MEDDEV", lstr(IMPL->RZN))
 
-                  if (ser_num := chek_implantant_ser_number(IMPL->(recno()))) != nil
-                    mo_add_xml_stroke(oMED_DEV,"NUMBER_SER", alltrim(ser_num))
-                  endif
-                endif
-                aImpl := nil
-                ser_num := nil
+              //     if (ser_num := chek_implantant_ser_number(IMPL->(recno()))) != nil
+              //       mo_add_xml_stroke(oMED_DEV,"NUMBER_SER", alltrim(ser_num))
+              //     endif
+              //   endif
+              //   aImpl := nil
+              //   ser_num := nil
+              // endif
+              if (p_tip_reestr == 1) .and. service_requires_implants(lshifr, c4tod(hu_->DATE_U2))
+                for each row in collect_implantant(human->kod, mohu->(recno()))
+                  oMED_DEV := oUSL:Add( HXMLNode():New( "MED_DEV" ) )
+                  mo_add_xml_stroke(oMED_DEV,"DATE_MED", date2xml(row[3]))
+                  mo_add_xml_stroke(oMED_DEV,"CODE_MEDDEV", lstr(row[4]))
+                  mo_add_xml_stroke(oMED_DEV,"NUMBER_SER", alltrim(row[5]))
+                next
               endif
+                
               if between_date(human->n_data, human->k_data, c4tod(mohu->DATE_U))
                 oMR_USL_N := oUSL:Add( HXMLNode():New( "MR_USL_N" ) )
                 mo_add_xml_stroke(oMR_USL_N,"MR_N",lstr(1))   // пока ставим 1 исполнитель
