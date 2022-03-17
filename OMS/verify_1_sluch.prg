@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-***** 03.03.22
+***** 17.03.22
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
         i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -16,7 +16,7 @@ Function verify_1_sluch(fl_view)
 
   local reserveKSG_1 := .f., reserveKSG_2 := .f.
   local sbase, arrUslugi := {}
-  local arr_uslugi_geriatr := {'B01.007.001', 'B01.007.003', 'B01.007.003' }, row
+  local arr_uslugi_geriatr := {'B01.007.001', 'B01.007.003', 'B01.007.003' }, row, rowTmp
   local flGeriatr := .f.
   local glob_V018, glob_V019
   local arrImplant
@@ -4389,22 +4389,48 @@ Function verify_1_sluch(fl_view)
     endif
   endif
 
-  // проверим наличие имплантов
-  arrImplant := collect_implantant(human->kod)
-  if ! empty(arrImplant)
-    if empty(arrImplant[3])
-      aadd(ta,'не указана дата установки имплантанта')
+  arrUslugi := collect_uslugi()
+  for each row in arrUslugi
+    if service_requires_implants(row, human->k_data)
+      // проверим наличие имплантов
+      arrImplant := collect_implantant(human->kod)
+      if ! empty(arrImplant)
+        for each rowTmp in arrImplant
+          if empty(rowTmp[3])
+            aadd(ta, 'не указана дата установки имплантанта')
+          endif
+          if ! between_date(human->n_data, human->k_data, rowTmp[3])
+            aadd(ta, 'дата установки имплантанта не входит в период случая')
+          endif
+          if empty(rowTmp[4])
+            aadd(ta, 'для имплантанта необходимо указать его вид')
+          endif
+          if empty(rowTmp[5])
+            aadd(ta, 'для имплантанта необходимо указать серийный номер')
+          endif
+        next
+      else
+        aadd(ta, 'для услуги ' + row + ' обязательно указание имплантантов')
+      endif
     endif
-    if ! between_date(human->n_data, human->k_data, arrImplant[3])
-      aadd(ta,'дата установки имплантанта не входит в период случая')
-    endif
-    if empty(arrImplant[4])
-      aadd(ta,'для имплантанта необходимо указать его вид')
-    endif
-    if empty(arrImplant[5])
-      aadd(ta,'для имплантанта необходимо указать серийный номер')
-    endif
-  endif
+  next
+
+  // // проверим наличие имплантов
+  // arrImplant := collect_implantant(human->kod)
+  // if ! empty(arrImplant)
+  //   if empty(arrImplant[3])
+  //     aadd(ta,'не указана дата установки имплантанта')
+  //   endif
+  //   if ! between_date(human->n_data, human->k_data, arrImplant[3])
+  //     aadd(ta,'дата установки имплантанта не входит в период случая')
+  //   endif
+  //   if empty(arrImplant[4])
+  //     aadd(ta,'для имплантанта необходимо указать его вид')
+  //   endif
+  //   if empty(arrImplant[5])
+  //     aadd(ta,'для имплантанта необходимо указать серийный номер')
+  //   endif
+  // endif
 
   // проверим на наличие направивиших врачей
   if is_exist_Prescription
