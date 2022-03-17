@@ -104,11 +104,8 @@ Function f2_view_implant(nKey, oBrow)
       endif
       flag := 0
     case nKey == K_DEL .and. f_Esc_Enter(2)
-      // tmp_001->(FLock())
-      // tmp_001->(dbRLock())
       tmp_001->(dbDelete())
       tmp_001->(__dbPack())
-      // tmp_001->(dbUnlock())
       oBrow:goTop()
       tmp_001->(dbGoTop())
     otherwise
@@ -116,22 +113,20 @@ Function f2_view_implant(nKey, oBrow)
   endcase
   return flag
   
-****** 21.01.22 - выбор импланта 
+****** 17.03.22 - выбор импланта 
 function select_implantant(date_ust, rzn, ser_num)
   local ret := NIL, oBox
   local buf, tmp_keys, iRow
   local sPicture
-  local mDATE_INST, mNUMBER
+  local mNUMBER
 
   private mVIDIMPL := '', m1VIDIMPL := 0
   Private glob_Implantant := get_implantant()
-  private tmp_Implantant := create_classif_FFOMS(2,"Implantant")
+  private tmp_Implantant := create_classif_FFOMS(2, 'Implantant')
 
-  default date_ust to sys_date
   default rzn to 0
   default ser_num to space(100)
 
-  mDATE_INST := date_ust
   m1VIDIMPL := rzn
   mNUMBER := padr(ser_num, 100)
 
@@ -139,7 +134,7 @@ function select_implantant(date_ust, rzn, ser_num)
 
 	buf := savescreen()
 	change_attr()
-	iRow := 10
+	iRow := 11
 	tmp_keys := my_savekey()
 	save gets to tmp_gets
 
@@ -151,11 +146,8 @@ function select_implantant(date_ust, rzn, ser_num)
 	oBox:View()
 
 	do while .t.
-		iRow := 11
+		iRow := 12
 
-    @ ++iRow, 12 say "Дата установки" get mDATE_INST ;
-          valid {|g| fDateImplant(g) }
-    
     @ ++iRow, 12 say 'Вид импланта:' get mVIDIMPL ;
           reader {|x| menu_reader(x, tmp_Implantant, A__MENUVERT, , , .f.)} ;
           valid {|| mVIDIMPL := padr(mVIDIMPL, 44), .t. }
@@ -166,7 +158,7 @@ function select_implantant(date_ust, rzn, ser_num)
 	
 		myread()
 		if lastkey() != K_ESC .and. m1VIDIMPL != 0
-      ret := {mDATE_INST, m1VIDIMPL, alltrim(mNUMBER)}
+      ret := {date_ust, m1VIDIMPL, alltrim(mNUMBER)}
 			exit
 		else
 			exit
@@ -229,6 +221,10 @@ function collect_implantant(mkod_human, rec_hu)
   if (cAlias)->(found())
     do while !(cAlias)->(EOF()) .and. mkod_human == (cAlias)->KOD_HUM
       if rec_hu == 0
+        // найти серийный номер если есть
+        ser_num := chek_implantant_ser_number((cAlias)->(recno()))
+        // создать массив
+        AAdd(arrImplantant, {(cAlias)->KOD_HUM, (cAlias)->KOD_K, (cAlias)->DATE_UST, (cAlias)->RZN, iif(ser_num != nil, ser_num, ''), (cAlias)->MO_HU_K})
       else
         if rec_hu == (cAlias)->MO_HU_K
           // найти серийный номер если есть
@@ -307,18 +303,26 @@ function save_implantants(mkod_human, rec_hu)
   select(oldSelect)
   return nil
 
-****** 28.01.22 проверка даты установки имплантантов
-function fDateImplant(get)
+***** 01.02.22 вернуть массив услуга для имплантации
+Function ret_impl_V036(s_code, lk_data)
+  // s_code - код федеральной услуги
+  // lk_data - дата оказания услуги
+  Local i, retArr := nil
+  local code := alltrim(s_code)
 
-  if ctod(get:buffer) < human->n_data
-    get:varPut( get:original )
-    func_error(4, 'Дата установки имплантанта меньше даты начала лечения!')
-    return .f.
+  if !empty(code) .and. ((i := ascan(getV036(), {|x| x[1] == code .and. (x[3] == 1 .or. x[3] == 3) })) > 0) // согласно ПУМП 04-18-03 от 31.01.2022
+    retArr := getV036()[i]
   endif
+  return retArr
 
-  if ctod(get:buffer) > human->k_data
-    get:varPut( get:original )
-    func_error(4, 'Дата установки имплантанта больше даты окончания лечения!')
-    return .f.
+***** 12.03.22 услуга требует имплантанты
+Function service_requires_implants(s_code, lk_data)
+  // s_code - код федеральной услуги
+  // lk_data - дата оказания услуги
+  Local i, fl := .f.
+  local code := alltrim(s_code)
+
+  if !empty(code) .and. ((i := ascan(getV036(), {|x| x[1] == code .and. (x[3] == 1 .or. x[3] == 3) })) > 0) // согласно ПУМП 04-18-03 от 31.01.2022
+    fl := .t.
   endif
-  return .t.
+  return fl

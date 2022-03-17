@@ -3,9 +3,9 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 20.12.18
+***** 17.03.22
 Function f_oms_usl_sluch(oBrow)
-  Local oColumn, blk_color, arrImplant
+  Local oColumn, blk_color
 
   blk_color := {|| iif( ! service_requires_implants(tmp->shifr_u, tmp->DATE_U), {1, 2}, ;
       iif(! exist_implantant_in_DB(glob_perso, tmp->rec_hu), {9, 10}, {7, 8})) }  // голубовато - зеленовато
@@ -53,9 +53,10 @@ Function f_oms_usl_sluch(oBrow)
   status_key("^<Esc>^ выход; ^<Enter>^ ред-ие; ^<Ins>^ добавление; ^<Del>^ удаление; ^<F1>^ помощь")
   return NIL
 
-***** 20.12.18
+***** 17.03.22
 Function f1oms_usl_sluch()
   LOCAL nRow := ROW(), nCol := COL(), s := tmp->name_u, lcolor := cDataCSay
+  local strImplInfo := 'Услуга требует установки имплантантов. F6 - ред.'
 
   if is_zf_stomat == 1 .and. !empty(tmp->zf)
     s := alltrim(tmp->zf) + " / " + s
@@ -70,6 +71,14 @@ Function f1oms_usl_sluch()
   @ maxrow() - 2, 68 say padc(s, 11) color cDataCSay
   f3oms_usl_sluch()
   @ nRow, nCol SAY ""
+
+  // проверим наличие имплантов
+  if service_requires_implants(tmp->shifr_u, tmp->DATE_U)
+    @ 2, 80 - len(strImplInfo) say padl(strImplInfo, len(strImplInfo)) color 'W+/R'
+  else
+    @ 2, 80 - len(strImplInfo) say Replicate(' ', len(strImplInfo))
+  endif
+
   return NIL
   
 *****
@@ -78,7 +87,7 @@ Function f3oms_usl_sluch()
   @ maxrow() - 4, 59 say padl("Итого: " + lstr(human->cena_1, 11, 2), 20) color "W+/N"
   return NIL
     
-***** 16.03.22 ввод услуг в лист учёта
+***** 17.03.22 ввод услуг в лист учёта
 Function f2oms_usl_sluch(nKey,oBrow)
   Static skod_k := 0, skod_human := 0, SKOD_DIAG, SZF,;
          st_vzrosl, st_arr_dbf, skod_vr, skod_as, aksg := {}
@@ -92,7 +101,6 @@ Function f2oms_usl_sluch(nKey,oBrow)
                    {"на дому      ",-1}}
   local tmSel
   local aOptions :=  { 'Нет', 'Да' }, nChoice
-  local arrImplant
 
   if mem_dom_aktiv == 1
        aadd(mm_dom,{"на дому-АКТИВ",-2})
@@ -100,9 +108,7 @@ Function f2oms_usl_sluch(nKey,oBrow)
   Private r1 := 10, mrec_hu := tmp->rec_hu
   do case
     case nKey == K_F6 .and. (HUMAN->K_DATA >= d_01_01_2022) .and. service_requires_implants(tmp->shifr_u, tmp->date_u1)
-      arrImplant := collect_implantant(glob_perso, tmp->rec_hu)
-
-      view_implantant(arrImplant)
+      view_implantant( collect_implantant(glob_perso, tmp->rec_hu) )
     case nKey == K_F9 .and. !empty(aksg)
       f_put_arr_ksg(aksg)
     case nKey == K_F10 .and. tmp->kod > 0 .and. f_Esc_Enter("запоминания услуг")
@@ -1004,9 +1010,6 @@ Function f2oms_usl_sluch(nKey,oBrow)
         select HU
         goto (tmp->rec_hu)
         DeleteRec(.t.,.f.)  // очистка записи без пометки на удаление
-        //select HU_
-        //goto (tmp->rec_hu)
-        //DeleteRec(.t.,.f.)
       else
         select MOHU
         goto (tmp->rec_hu)
@@ -1018,10 +1021,8 @@ Function f2oms_usl_sluch(nKey,oBrow)
       summa_usl()
       vr_pr_1_den(1,,u_other)
 
-      if arrImplant != nil  // удалим имплантант
-        delete_implantants(human->kod, tmp->rec_hu)
-        arrImplant := nil
-      endif
+      // удалим имплантанты
+      delete_implantants(human->kod, tmp->rec_hu)
       
       select TMP
       oBrow:goTop()

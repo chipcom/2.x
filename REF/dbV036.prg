@@ -19,27 +19,3 @@ function getV036()
   endif
 
   return _arr
-
-***** 01.02.22 вернуть массив услуга для имплантации
-Function ret_impl_V036(s_code, lk_data)
-  // s_code - код федеральной услуги
-  // lk_data - дата оказания услуги
-  Local i, retArr := nil
-  local code := alltrim(s_code)
-
-  if !empty(code) .and. ((i := ascan(getV036(), {|x| x[1] == code .and. (x[3] == 1 .or. x[3] == 3) })) > 0) // согласно ПУМП 04-18-03 от 31.01.2022
-    retArr := getV036()[i]
-  endif
-  return retArr
-
-***** 12.03.22 услуга требует имплантанты
-Function service_requires_implants(s_code, lk_data)
-  // s_code - код федеральной услуги
-  // lk_data - дата оказания услуги
-  Local i, fl := .f.
-  local code := alltrim(s_code)
-
-  if !empty(code) .and. ((i := ascan(getV036(), {|x| x[1] == code .and. (x[3] == 1 .or. x[3] == 3) })) > 0) // согласно ПУМП 04-18-03 от 31.01.2022
-    fl := .t.
-  endif
-  return fl

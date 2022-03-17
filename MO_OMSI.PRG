@@ -182,7 +182,7 @@ endif
 return k
 
 
-***** 04.03.22
+***** 17.03.22
 Function print_l_uch(mkod, par, regim, lnomer)
   // mkod - код больного по БД human
   Local sh := 80, HH := 77, buf := save_maxrow(),;
@@ -613,31 +613,6 @@ do while mohu->kod == mkod .and. !eof()
     Select MOSU
     goto (mohu->u_kod)
     lname := mosu->name
-    // if year(human->k_data) > 2020
-    //   select LUSLF
-    //   find (padr(mosu->shifr1,20))
-    //   if found()
-    //     lname := luslf->name  // наименование услуги из справочника ТФОМС
-    //   endif
-    // elseif year(human->k_data) > 2019
-    //   select LUSLF20
-    //   find (padr(mosu->shifr1,20))
-    //   if found()
-    //     lname := luslf20->name  // наименование услуги из справочника ТФОМС
-    //   endif
-    // elseif year(human->k_data) > 2018
-    //   select LUSLF19
-    //   find (padr(mosu->shifr1,20))
-    //   if found()
-    //     lname := luslf19->name  // наименование услуги из справочника ТФОМС
-    //   endif
-    // else
-    //   select LUSLF18
-    //   find (padr(mosu->shifr1,20))
-    //   if found()
-    //     lname := luslf18->name  // наименование услуги из справочника ТФОМС
-    //   endif
-    // endif
     tmpAlias := create_name_alias('LUSLF', year(human->k_data))
     select (tmpAlias)
     find (padr(mosu->shifr1,20))
@@ -817,12 +792,14 @@ enddo
     add_string("")
     add_string(center("У_С_Т_А_Н_О_В_Л_Е_Н_Н_Ы_Е   И_М_П_Л_А_Н_Т_А_Н_Т_Ы", sh))
     header_implantant(w1)
-    // s := ''
-    // s := date_8(arrImplantant[3]) + ' '
-    // s := s + ;
-    //       padr(inieditspr(A__MENUVERT, get_implantant(), arrImplantant[4]), 40) + ' ' + ;
-    //       padr(arrImplantant[5], 35)
-    // add_string(s)
+    for each row in arrImplantant
+      s := ''
+      s := date_8(row[3]) + ' '
+      s := s + ;
+          padr(inieditspr(A__MENUVERT, get_implantant(), row[4]), 40) + ' ' + ;
+          padr(row[5], 35)
+      add_string(s)
+    next
   endif
 
   close databases

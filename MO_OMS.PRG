@@ -2526,7 +2526,6 @@ if (arr_m := input_year()) != NIL .and. ;
           DeleteRec(.t.)
         enddo
 
-        // добавил новые файлы для листов учета
         // удаление имплантантов
         delete_implantants(glob_perso)
 

@@ -4,7 +4,7 @@
 #include "chip_mo.ch"
 
 
-***** 16.03.22 ввод услуг в случай (лист учёта)
+***** 17.03.22 ввод услуг в случай (лист учёта)
 Function oms_usl_sluch(mkod_human,mkod_kartotek,fl_edit)
   // mkod_human - код по БД human
   // mkod_kartotek - код по БД kartotek
@@ -294,16 +294,9 @@ Function oms_usl_sluch(mkod_human,mkod_kartotek,fl_edit)
     @ 1,50 say padl("Лист учета № "+lstr(human->kod),29) color color14
   endif
 
-  // проверим наличие имплантов
-  if exist_implantant_in_DB(mkod_human)
-    // begin_row := 3
-    @ 2, 39 say padl('Пациенту установлен имплантант. F6 - ред.', 41) color 'W+/R'
-  // else
-  //   begin_row := 2
-  endif
   begin_row := 3
   
-  l_color := "W+/B,W+/RB,BG+/B,BG+/RB,G+/B,GR+/B,G+/B,G+/RB,R/B,N/R"
+  l_color := "W+/B,W+/RB,BG+/B,BG+/RB,G+/B,GR+/B,G+/B,G+/RB,R+/B,N/R"
   s := "Полное наименование услуги"
   if is_zf_stomat == 1
     s := "Формула зуба / "+s
