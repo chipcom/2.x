@@ -201,7 +201,7 @@ function exist_implantant_in_DB(mkod_human, rec_hu)
   endif
   return fl
 
-****** 12.03.22 вернуть имплантант в листе учета
+****** 18.03.22 вернуть имплантант в листе учета
 function collect_implantant(mkod_human, rec_hu)
   local oldSelect := select()
   local ser_num, arrImplantant := {}
@@ -220,19 +220,14 @@ function collect_implantant(mkod_human, rec_hu)
   endif
   if (cAlias)->(found())
     do while !(cAlias)->(EOF()) .and. mkod_human == (cAlias)->KOD_HUM
-      if rec_hu == 0
-        // найти серийный номер если есть
-        ser_num := chek_implantant_ser_number((cAlias)->(recno()))
-        // создать массив
-        AAdd(arrImplantant, {(cAlias)->KOD_HUM, (cAlias)->KOD_K, (cAlias)->DATE_UST, (cAlias)->RZN, iif(ser_num != nil, ser_num, ''), (cAlias)->MO_HU_K})
-      else
-        if rec_hu == (cAlias)->MO_HU_K
-          // найти серийный номер если есть
-          ser_num := chek_implantant_ser_number((cAlias)->(recno()))
-          // создать массив
-          AAdd(arrImplantant, {(cAlias)->KOD_HUM, (cAlias)->KOD_K, (cAlias)->DATE_UST, (cAlias)->RZN, iif(ser_num != nil, ser_num, ''), (cAlias)->MO_HU_K})
-        endif
+      if rec_hu != 0 .and. rec_hu != (cAlias)->MO_HU_K
+        (cAlias)->(dbSkip())
+        loop
       endif
+      // найти серийный номер если есть
+      ser_num := chek_implantant_ser_number((cAlias)->(recno()))
+      // создать массив
+      AAdd(arrImplantant, {(cAlias)->KOD_HUM, (cAlias)->KOD_K, (cAlias)->DATE_UST, (cAlias)->RZN, iif(ser_num != nil, ser_num, ''), (cAlias)->MO_HU_K})
       (cAlias)->(dbSkip())
     enddo
   endif
