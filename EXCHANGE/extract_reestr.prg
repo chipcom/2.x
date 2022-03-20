@@ -3,7 +3,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 09.02.22 вынуть реестр из XML-файлов и записать во временные DBF-файлы
+***** 19.03.22 вынуть реестр из XML-файлов и записать во временные DBF-файлы
 Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
   local p_tip_reestr
   local tmpSelect
