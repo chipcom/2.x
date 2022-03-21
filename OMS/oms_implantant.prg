@@ -4,8 +4,8 @@
 #include "chip_mo.ch"
 #include 'dbstruct.ch'
 
-****** 13.03.22 - просмотр списка имплантантов
-function view_implantant(arrImplantant)
+****** 21.03.22 - просмотр списка имплантантов
+function view_implantant(arrImplantant, date_usl, fl_change)
   local tmp_keys
   local oBox, oBrowse, oColumn
   local nTop := 7, nLeft := 10, nBottom := 17, nRight := 70
@@ -30,7 +30,11 @@ function view_implantant(arrImplantant)
     (cAlias)->(dbAppend())
     (cAlias)->KOD_HUM := row[1]
     (cAlias)->KOD_K := row[2]
-    (cAlias)->DATE_UST := row[3]
+    if fl_change
+      (cAlias)->DATE_UST := date_usl
+    else
+      (cAlias)->DATE_UST := row[3]
+    endif
     (cAlias)->RZN := row[4]
     (cAlias)->SER_NUM := row[5]
     (cAlias)->MO_HU_K := row[6]

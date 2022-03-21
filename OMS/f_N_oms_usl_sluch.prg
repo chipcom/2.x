@@ -87,7 +87,7 @@ Function f3oms_usl_sluch()
   @ maxrow() - 4, 59 say padl("Итого: " + lstr(human->cena_1, 11, 2), 20) color "W+/N"
   return NIL
     
-***** 17.03.22 ввод услуг в лист учёта
+***** 21.03.22 ввод услуг в лист учёта
 Function f2oms_usl_sluch(nKey,oBrow)
   Static skod_k := 0, skod_human := 0, SKOD_DIAG, SZF,;
          st_vzrosl, st_arr_dbf, skod_vr, skod_as, aksg := {}
@@ -102,13 +102,15 @@ Function f2oms_usl_sluch(nKey,oBrow)
   local tmSel
   local aOptions :=  { 'Нет', 'Да' }, nChoice
 
+  static old_date_usl, new_date_usl
+
   if mem_dom_aktiv == 1
        aadd(mm_dom,{"на дому-АКТИВ",-2})
   endif
   Private r1 := 10, mrec_hu := tmp->rec_hu
   do case
     case nKey == K_F6 .and. (HUMAN->K_DATA >= d_01_01_2022) .and. service_requires_implants(tmp->shifr_u, tmp->date_u1)
-      view_implantant( collect_implantant(glob_perso, tmp->rec_hu) )
+      view_implantant( collect_implantant(glob_perso, tmp->rec_hu), new_date_usl, (new_date_usl != old_date_usl) )
     case nKey == K_F9 .and. !empty(aksg)
       f_put_arr_ksg(aksg)
     case nKey == K_F10 .and. tmp->kod > 0 .and. f_Esc_Enter("запоминания услуг")
@@ -501,6 +503,13 @@ Function f2oms_usl_sluch(nKey,oBrow)
       Private mm_gist := {{"в Волгоградском патал.анат.бюро",4},;
                           {"в нашей медицинской организации",0},;
                           {"в иногороднем патал.анат.бюро  ",5}}
+
+      new_date_usl := mdate_u1
+      if service_requires_implants(tmp->shifr_u, tmp->date_u1)
+        old_date_usl := mdate_u1
+      else
+        old_date_usl := NIL
+      endif
       if nKey == K_ENTER
         mshifr1 := iif(empty(mshifr1), mshifr, mshifr1)
         if is_telemedicina(mshifr1,@tip_telemed2)
@@ -692,6 +701,8 @@ Function f2oms_usl_sluch(nKey,oBrow)
         if eq_any(lastkey(),K_CTRL_F10,K_F11)
           hb_KeyPut(K_CTRL_F10) //keysend(KS_CTRL_F10)
         elseif lastkey() != K_ESC
+
+          new_date_usl := mdate_u1
 
           // запомним КСЛП для случая услуг круглосуточного и дневного стационара
           if year(mdate_u1) >= 2021 .and. (substr(lower(mshifr),1,2) == 'st' .or. substr(lower(mshifr),1,2) == 'ds')
