@@ -288,7 +288,7 @@ Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
   }
 
 
-  Local arr_f, ii, oXmlDoc, j, j1, _ar, buf := save_maxrow(), name_zip := alltrim(mname_xml)+szip, fl := .f., is_old := .f.
+  Local arr_f, ii, oXmlDoc, j, j1, j2, _ar, buf := save_maxrow(), name_zip := alltrim(mname_xml)+szip, fl := .f., is_old := .f.
   local ushifr
 
   //
@@ -728,24 +728,23 @@ Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
                           //   T12->NUM_SER  := mo_read_xml_stroke(oNode100, "NUMBER_SER") // Серийный номер медицинского изделия (имплантанта)
                           //   select(tmpSelect)
                           // endif
-
                           /////// insert MED_DEV
-                          for j1 := 1 to len(oNode2:aitems) // последовательный просмотр медицинских имплантантов
-                            oNode100 := oNode2:aItems[j1]     // т.к. имплантантов может быть несколько
+                          for j2 := 1 to len(oNode2:aitems) // последовательный просмотр медицинских имплантантов
+                            oNode100 := oNode2:aItems[j2]     // т.к. имплантантов может быть несколько
                             if valtype(oNode100) != "C" .AND. oNode100:title == "MED_DEV"
                               tmpSelect := select()                            
                               select T12
                               append blank
                               T12->sluch    := iisl
                               T12->KOD      := mkod
-                              T12->IDCASE   := &lal.->IDCASE // для связи со случаем
-                              T12->CODE_USL := ushifr         // для привязки к услуге
+                              T12->IDCASE   := &lal.->IDCASE    // для связи со случаем
+                              T12->CODE_USL := alltrim(ushifr)  // для привязки к услуге
                               T12->DATE_MED := mo_read_xml_stroke(oNode100, "DATE_MED") // Дата установки имплантанта
                               T12->CODE_DEV := mo_read_xml_stroke(oNode100, "CODE_MEDDEV") // Код вида медицинского изделия (имплантанта)
                               T12->NUM_SER  := mo_read_xml_stroke(oNode100, "NUMBER_SER") // Серийный номер медицинского изделия (имплантанта)
                               select(tmpSelect)
                             endif
-                          next j1
+                          next j2
                           ////////
 
                         endif
