@@ -2527,7 +2527,6 @@ Function verify_1_sluch(fl_view)
       endif
     endif
   endif
-
   if len(a_period_stac) > 0 //.and. !is_s_dializ .and. !is_dializ .and. !is_perito
     select HU
     find (str(human->kod,7))
@@ -4677,6 +4676,10 @@ Function verify_1_sluch(fl_view)
     human_->PZTIP := mpztip
     human_->PZKOL := iif(mpzkol > 0, mpzkol, 1)
   endif
+  if between_shifr(alltrim_lshifr,"2.88.111","2.88.119") .and. (human->k_data >= 0d20220201)
+    arr_povod[1,1] := 1
+    human_->POVOD := iif(len(arr_povod) > 0, arr_povod[1,1], 1)
+  endif 
   if !valid_GUID(human_->ID_PAC)
     human_->ID_PAC := mo_guid(1,human_->(recno()))
   endif
