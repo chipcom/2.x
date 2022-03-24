@@ -3300,24 +3300,24 @@ if type("p_del_error") == "A" .and. p_del_error[2] > 0
               mas_otch[1,2] += 1
               mas_otch[2,2] += hu->stoim
             endif
-          endif
-         if HUMAN_->profil == 60 // онкология 
-           mas_otchet[29,1] += 1 
-           mas_otchet[29,2] += human->cena_1
-         elseif  HUMAN_->profil == 158   // медицинская реабилитация
-           mas_otchet[30,1] += 1 
-           mas_otchet[30,2] += human->cena_1
-         else // Иные профили, всего, в том числе
-           mas_otchet[31,1] += 1 
-           mas_otchet[31,2] += human->cena_1
-           if flag_covid // пациентам с новой коронавирусной инфекцией COVID-19
-             mas_otchet[32,1] += 1 
-             mas_otchet[32,2] += human->cena_1
-           endif 
-         endif  
-         // 28 = 29+30+31 Стационарная медицинская помощь
-         mas_otchet[28,1] += 1 
-         mas_otchet[28,2] += human->cena_1
+            if HUMAN_->profil == 60 // онкология 
+              mas_otchet[29,1] += 1 
+              mas_otchet[29,2] += human->cena_1
+            elseif  HUMAN_->profil == 158   // медицинская реабилитация
+              mas_otchet[30,1] += 1 
+              mas_otchet[30,2] += human->cena_1
+            else // Иные профили, всего, в том числе
+              mas_otchet[31,1] += 1 
+              mas_otchet[31,2] += human->cena_1
+              if flag_covid // пациентам с новой коронавирусной инфекцией COVID-19
+                mas_otchet[32,1] += 1 
+                mas_otchet[32,2] += human->cena_1
+              endif 
+            endif  
+            // 28 = 29+30+31 Стационарная медицинская помощь
+            mas_otchet[28,1] += 1 
+            mas_otchet[28,2] += human->cena_1
+          endif  
         endif
         //
         if HUMAN_->Usl_ok == 2 // дневной стационар
@@ -3328,19 +3328,19 @@ if type("p_del_error") == "A" .and. p_del_error[2] > 0
               mas_otch[3,2] += 1
               mas_otch[4,2] += human->cena_1
             endif
-          endif
-          if HUMAN_->profil == 60 // онкология 
-            mas_otchet[25,1] += 1 
-            mas_otchet[25,2] += human->cena_1
-          elseif  HUMAN_->profil == 137   // ЭКО
-            mas_otchet[26,1] += 1 
-            mas_otchet[26,2] += human->cena_1
-          else // иные профили
-            mas_otchet[27,1] += 1 
-            mas_otchet[27,2] += human->cena_1
+            if HUMAN_->profil == 60 // онкология 
+              mas_otchet[25,1] += 1 
+              mas_otchet[25,2] += human->cena_1
+            elseif  HUMAN_->profil == 137   // ЭКО
+              mas_otchet[26,1] += 1 
+              mas_otchet[26,2] += human->cena_1
+            else // иные профили
+              mas_otchet[27,1] += 1 
+              mas_otchet[27,2] += human->cena_1
+            endif  
+            mas_otchet[24,1] += 1  // 24 = 25+26+27 Дневные стационары, всего,
+            mas_otchet[24,2] += human->cena_1
           endif  
-          mas_otchet[24,1] += 1  // 24 = 25+26+27 Дневные стационары, всего,
-          mas_otchet[24,2] += human->cena_1
         endif
         //
         if HUMAN_->Usl_ok == 3 // амбулаторная

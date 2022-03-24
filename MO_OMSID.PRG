@@ -9105,7 +9105,7 @@ else
   return NIL
 endif
 
-if fl_1 // не первый раз
+if fl_1 .or. code_lpu == "321001"// не первый раз
   R_Use(dir_server+"mo_dr05p",,"R05p")
   goto (mrec)
   skol[1] := r05p->KOL1
