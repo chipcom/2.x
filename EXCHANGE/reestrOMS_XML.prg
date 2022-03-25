@@ -1295,7 +1295,7 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
   return NIL
   
   
-***** 05.01.21 работаем по текущей записи
+***** 25.03.21 работаем по текущей записи
 Function f1_create2reestr19(_nyear,_nmonth)
   Local i, j, lst, s
 
@@ -1459,6 +1459,8 @@ Function f1_create2reestr19(_nyear,_nmonth)
   endif
   if !empty(lvidpoms)
     if !eq_ascan(atmpusl,"55.1.2","55.1.3") .or. glob_mo[_MO_KOD_TFOMS] == '801935' // ЭКО-Москва
+      lvidpoms := ret_vidpom_licensia(human_->USL_OK,lvidpoms,human_->profil) // только для дн.стационара при стационаре
+    elseif eq_ascan(atmpusl,"55.1.2") .and. glob_mo[_MO_KOD_TFOMS] == '805960'  // грязелечебница
       lvidpoms := ret_vidpom_licensia(human_->USL_OK,lvidpoms,human_->profil) // только для дн.стационара при стационаре
     else
       if eq_ascan(atmpusl,"55.1.3")
