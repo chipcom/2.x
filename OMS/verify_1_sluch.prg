@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-***** 17.03.22
+***** 25.03.22
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
         i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -349,6 +349,14 @@ Function verify_1_sluch(fl_view)
   endif
   if !empty(HUMAN_2->PC4) .and. val(HUMAN_2->PC4) < 0.3
     aadd(ta, "вес пациента не может быть меньше 300 грамм")
+  endif
+
+  if year(human->k_data) == 2022 .and. !empty(HUMAN_2->PC1)
+    if alltrim(human_2->PC1) == '2' // КСЛП 2 - место законному представителю
+      if human_->PROFIL != 12 .and. human_->PROFIL != 18  // допустимо для профилей "гематология" и "деткская онкология"
+        aadd(ta, "для выбранного КСЛП = 2, профиль оказания услуг должен быть или 'гематология' или 'детская онкология'")
+      endif
+    endif
   endif
 
   if year(human->k_data) == 2022 .and. !empty(HUMAN_2->PC1)
