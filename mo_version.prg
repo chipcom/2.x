@@ -3,11 +3,7 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-<<<<<<< HEAD
 static st_version := {2, 12, 3, ''}
-=======
-static st_version := {2, 12, 2, 'j'}
->>>>>>> master
 static st_date_version := _DATA_VER
 static st__s_full_name := 'ЧИП + Учёт работы Медицинской Организации'
 
