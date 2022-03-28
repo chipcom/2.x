@@ -46,6 +46,7 @@ Function f_valid2ad_cr(k_date)
         aadd(mm_ad_cr,mm_rb[2])
         aadd(mm_ad_cr,mm_rb[3])
         aadd(mm_ad_cr,mm_rb[7])
+        aadd(mm_ad_cr,mm_rb[8])
         aadd(mm_ad_cr,mm_rb[11])
       endif
     elseif m1usl_ok == 1 .and. !empty(MKOD_DIAG)
