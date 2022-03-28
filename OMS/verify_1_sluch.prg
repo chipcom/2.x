@@ -4721,46 +4721,33 @@ function checkRSLT_ISHOD(result, ishod, arr)
     return
   endif
 
-  // RSLT={102, 103, 104, 105, 106, 109, 107, 108, 110} -> ISHOD <> 101
   if eq_any(result, 102, 103, 104, 105, 106, 107, 108, 110) .and. ishod == 101
     str += str1 + ' (' + strResult + ') ' + str2 + ' (' + getISHOD_V012(101) + ')'
     aadd(arr, str)
   endif
-  // RSLT={105, 106} -> ISHOD=104
   if eq_any(result, 105, 106) .and. ishod != 104
     str += str1 + ' (' + strResult + ') ' + str3 + ' (' + getISHOD_V012(104) + ')'
     aadd(arr, str)
   endif
 
-  // RSLT={202, 203, 204, 205, 206, 207, 208} -> ISHOD <> 201
   if eq_any(result, 202, 203, 204, 205, 206, 207, 208) .and. ishod == 201
     str += str1 + ' (' + strResult + ') ' + str2 + ' (' + getISHOD_V012(201) + ')'
     aadd(arr, str)
   endif
-  // RSLT={205, 206} -> ISHOD=204
   if eq_any(result, 205, 206) .and. ishod != 204
     str += str1 + ' (' + strResult + ') ' + str3 + ' (' + getISHOD_V012(204) + ')'
     aadd(arr, str)
   endif
 
-  // ISHOD=306 -> RSLT = {301, 305, 308, 314, 315, 317, 318, 321, 322, 323, 324, 325, 332, 333, 334, 335, 336, 343, 344, 347, 348, 349, 350, 351, 353, 355, 356, 357, 358, 361, 362, 363, 364, 365, 366, 367, 368, 369, 370, 371, 372, 373, 374}
-  // ISHOD=306 -> RSLT = {305, 308, 314, 315, 301}
-  // if  ishod == 306 .and. !eq_any(result, 301, 305, 308, 314, 315, 317, 318, 321, 322, 323, 324, 325, 332, 333, 334, 335, 336, 343, 344, 347, 348, 349, 350, 351, 353, 355, 356, 357, 358, 361, 362, 363, 364, 365, 366, 367, 368, 369, 370, 371, 372, 373, 374)
-  //   str += str4 + ' (' + getISHOD_V012(306) + ') ' + str5 + ' (301, 305, 308, 314, 315, 317, 318, 321, 322, 323, 324, 325, 332, 333, 334, 335, 336, 343, 344, 347, 348, 349, 350, 351, 353, 355, 356, 357, 358, 361, 362, 363, 364, 365, 366, 367, 368, 369, 370, 371, 372, 373, 374)'
-  //   aadd(arr, str)
-  // endif
-  // RSLT={313} -> ISHOD=305
   if (result == 313) .and. (ishod != 305)
     str += str1 + ' (' + strResult + ') ' + str3 + ' (' + getISHOD_V012(305) + ')'
     aadd(arr, str)
   endif
 
-  // RSLT = {407, 408, 409, 410, 411, 412, 413, 414} -> ISHOD=402
   if eq_any(result, 407, 408, 409, 410, 411, 412, 413, 414) .and. ishod != 402
     str += str1 + ' (' + strResult + ') ' + str3 + ' (' + getISHOD_V012(402) + ')'
     aadd(arr, str)
   endif
-  // RSLT={405, 406} -> ISHOD=403
   if eq_any(result, 405, 406) .and. ishod != 403
     str += str1 + ' (' + strResult + ') ' + str3 + ' (' + getISHOD_V012(403) + ')'
     aadd(arr, str)
