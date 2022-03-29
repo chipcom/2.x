@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-***** 25.03.22
+***** 29.03.22
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
         i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -21,6 +21,7 @@ Function verify_1_sluch(fl_view)
   local glob_V018, glob_V019
   local arrImplant
   local arrLekPreparat, arrGroupPrep, mMNN
+  local flLekPreparat := .f.
 
   if empty(human->k_data)
     return .t.  // не проверять
@@ -4351,10 +4352,19 @@ Function verify_1_sluch(fl_view)
   endif
 
   // проверим лекарственные препараты
-  if human_->USL_OK == 1 ; // стационар
-        .and. (mdiagnoz[1] = 'U07.1' .or. mdiagnoz[1] = 'U07.2') ;  // проверим что диагноз COVID-19
-        .and. (count_years(human->DATE_R, human->k_data) >= 18) ;   // проверим что возраст больше 18 лет
-        .and. !check_diag_pregant()  // проверим, что не беременна
+  if eq_any(alltrim(mdiagnoz[1]), 'U07.1', 'U07.2') .and. (count_years(human->DATE_R, human->k_data) >= 18) ;
+        .and. !check_diag_pregant()
+    if (human_->USL_OK == 1) .and. (human->k_data >= 0d20220101)
+      flLekPreparat := (human_->PROFIL != 158) .and. (human_->VIDPOM != 32) ;
+          .and. (lower(alltrim(human_2->PC3)) != 'stt5')
+    elseif (human_->USL_OK == 3) .and. (human->k_data >= d_01_04_2022)
+      flLekPreparat := (human_->PROFIL != 158) .and. (human_->VIDPOM != 32) ;
+         .and. (get_IDPC_from_V025_by_number(human_->povod) == '3.0')
+    endif
+  endif
+
+  if flLekPreparat
+
     arrLekPreparat := collect_lek_pr(rec_human) // выберем лекарственные препараты
     if len(arrLekPreparat) == 0  // пустой список лекарственных препаратов
       aadd(ta,'для диагнозов U07.1 и U07.2 необходим ввод лекараственных препаратов')

@@ -7,7 +7,7 @@
 Static sadiag1 := {}
 
   
-***** 17.03.22 создание XML-файлов реестра
+***** 29.03.22 создание XML-файлов реестра
 Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
   //
@@ -19,6 +19,7 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
   local endDateZK
   local diagnoz_replace := ''
   local aImpl
+  local flLekPreparat
 
   //
   close databases
@@ -271,6 +272,8 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
     arr_nazn := {}
 
     mtab_v_dopo_na := mtab_v_mo := mtab_v_stac := mtab_v_reab := mtab_v_sanat := 0
+
+    flLekPreparat := .f.
 
     //
     select HUMAN
@@ -824,9 +827,22 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
         endif
         mo_add_xml_stroke(oSL,"SUM_M",lstr(human->cena_1,10,2))
 
-        if (human->k_data >= d_01_01_2022) .and. ((rtrim(mdiagnoz[1]) == 'U07.1') ;
-              .or. ((rtrim(mdiagnoz[1]) == 'U07.2'))) .and. (human_->USL_OK == 1) .and. (human_->PROFIL != 158) ;
-              .and. (human_->VIDPOM != 32) .and. (lower(alltrim(human_2->PC3)) != 'stt5')
+        // проверим лекарственные препараты
+        if eq_any(rtrim(mdiagnoz[1]), 'U07.1', 'U07.2') .and. (count_years(human->DATE_R, human->k_data) >= 18) ;
+            .and. !check_diag_pregant()
+          if (human_->USL_OK == 1) .and. (human->k_data >= 0d20220101)
+            flLekPreparat := (human_->PROFIL != 158) .and. (human_->VIDPOM != 32) ;
+                .and. (lower(alltrim(human_2->PC3)) != 'stt5')
+          elseif (human_->USL_OK == 3) .and. (human->k_data >= d_01_04_2022)
+            flLekPreparat := (human_->PROFIL != 158) .and. (human_->VIDPOM != 32) ;
+                .and. (get_IDPC_from_V025_by_number(human_->povod) == '3.0')
+          endif
+        endif
+
+        if flLekPreparat
+        // if (human->k_data >= d_01_01_2022) .and. ((rtrim(mdiagnoz[1]) == 'U07.1') ;
+        //       .or. ((rtrim(mdiagnoz[1]) == 'U07.2'))) .and. (human_->USL_OK == 1) .and. (human_->PROFIL != 158) ;
+        //       .and. (human_->VIDPOM != 32) .and. (lower(alltrim(human_2->PC3)) != 'stt5')
 
           arrLP := collect_lek_pr(human->(recno()))
           if len(arrLP) != 0

@@ -3,12 +3,12 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-******* 06.01.22 проверка на необходимость ввода лекарственных препаратов
+******* 29.03.22 проверка на необходимость ввода лекарственных препаратов
 function check_oms_sluch_lek_pr(mkod_human)
   // mkod_human - код по БД human
 
   local vidPom, m1USL_OK, m1PROFIL, last_date, mdiagnoz, d1, d2, ad_cr
-  local retFl := .f., mvozrast
+  local retFl := .f., mvozrast, p_cel
 
   G_Use(dir_server + "human_2", , "HUMAN_2")
   G_Use(dir_server + "human_", , "HUMAN_")
@@ -27,17 +27,21 @@ function check_oms_sluch_lek_pr(mkod_human)
   if len(mdiagnoz) == 0
     mdiagnoz := {space(6)}
   endif
-  human_kod_diag := mdiagnoz[1]
+  human_kod_diag := alltrim(mdiagnoz[1])
   vidPom := human_->VIDPOM
   ad_cr := lower(alltrim(human_2->PC3))
   mvozrast := count_years(human->DATE_R, d2)
 
+  p_cel := get_IDPC_from_V025_by_number(human_->povod)
 
-  retFl := (d2 >= d_01_01_2022) ;
-    .and. mvozrast >= 18 .and. !check_diag_pregant() ;
-    .and. ((alltrim(human_kod_diag) == 'U07.1') ;
-    .or. (alltrim(human_kod_diag) == 'U07.2')) .and. (M1USL_OK == 1) ;
-    .and. (M1PROFIL != 158) .and. (vidPom != 32) .and. (ad_cr != 'stt5')
+  if eq_any(human_kod_diag, 'U07.1', 'U07.2') .and. mvozrast >= 18 .and. !check_diag_pregant()
+    if (M1USL_OK == 1) .and. (d2 >= 0d20220101)
+      retFl := (M1PROFIL != 158) .and. (vidPom != 32) .and. (ad_cr != 'stt5')
+    elseif (M1USL_OK == 3) .and. (d2 >= d_01_04_2022)
+      retFl := (M1PROFIL != 158) .and. (vidPom != 32) .and. (p_cel == '3.0')
+    endif
+  endif
+
 
   HUMAN_2->(dbCloseArea())    
   HUMAN_->(dbCloseArea())    
