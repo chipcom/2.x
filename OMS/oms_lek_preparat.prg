@@ -113,6 +113,13 @@ function oms_sluch_lek_pr(mkod_human, mkod_kartotek, fl_edit)
 
   default fl_edit to .f.
 
+  G_Use(dir_server + "human_u",{dir_server + "human_u", ;
+    dir_server + "human_uk", ;
+    dir_server + "human_ud", ;
+    dir_server + "human_uv", ;
+    dir_server + "human_ua"}, "HU")
+  G_Use(dir_server + "mo_hu", dir_server + "mo_hu", "MOHU")
+
   G_Use(dir_server + "human_2", , "HUMAN_2")
   G_Use(dir_server + "human_", , "HUMAN_")
   G_Use(dir_server + "human", {dir_server + "humank", ;
@@ -195,6 +202,8 @@ function oms_sluch_lek_pr(mkod_human, mkod_kartotek, fl_edit)
   HUMAN_2->(dbCloseArea())
   HUMAN_->(dbCloseArea())
   HUMAN->(dbCloseArea())
+  HU->(dbCloseArea())    
+  MOHU->(dbCloseArea())    
 
   setcolor(tmp_color)
   restscreen(buf)
@@ -299,14 +308,14 @@ function add_lek_pr(dInj, nKey)
   select tmp
   return nil
 
-****** 18.01.22
+****** 29.03.22
 function f2oms_sluch_lek_pr(nKey,oBrow)
 
   LOCAL flag := -1, buf := savescreen(), k_read := 0, count_edit := 0
   local r1 := 14, ix, number
   local last_date := human->n_data
   local flMany := .f., tDate
-  local arr_dni, row
+  local arr_dni, row, i
 
   do case
     case nKey == K_F9
@@ -314,6 +323,7 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
     case nKey == K_INS .or. (nKey == K_ENTER .and. tmp->KOD_HUM > 0)
       private mMNN := .f.
       private arr_lek_pr := {}
+      private m1date_u1
       private mdate_u1 := iif(nKey == K_INS, last_date, tmp->DATE_INJ)  // ¤«ï á®¢¬¥áâ¨¬®áâ¨ á f5editkusl
       private m1SEVERITY := iif(nKey == K_INS, 0, tmp->SEVERITY), mSEVERITY
       private m1SCHEME := iif(nKey == K_INS, '', tmp->SCHEME), mSCHEME
@@ -330,10 +340,21 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
       Private tmp_MethodINJ := create_classif_FFOMS(2,"MethodINJ") // METHOD
    
       private mdate_end_per := mdate_u1      // human->k_data
+      private arrDateUslug
 
       number :=  iif(nKey == K_INS, 0, tmp->NUMBER)
 
-      mUNITCODE := space(iif(mem_n_V034==0,15,30))
+      if human_->USL_OK == 3
+        arrDateUslug := collect_date_uslugi()
+        if !empty(mdate_u1)
+          if (i := ascan(arrDateUslug, {|x| x[1] == dtoc(mdate_u1) })) > 0
+            m1date_u1 := arrDateUslug[i, 2]
+            mdate_u1 :=  arrDateUslug[i, 1]
+          endif
+        endif
+      endif
+
+      mUNITCODE := space(iif(mem_n_V034 == 0, 15, 30))
       mMETHOD   := space(30)
       mSCHEDRUG := space(42) 
       mREGNUM   := space(30) 
@@ -354,10 +375,14 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
         setcolor(cDataCGet)
         ix := 1
         
-        if nKey == K_ENTER .or. (nKey == K_INS .and. human_->USL_OK == 3)
+        if (nKey == K_ENTER .or. nKey == K_INS) .and. human_->USL_OK == 3
+          @ r1+ix, 2 say "„ â  ¢¢¥¤¥­¨ï ¯à¥¯ à â " get mdate_u1 ;
+              reader {|x|menu_reader(x, arrDateUslug, A__MENUVERT, , , .f.)} ;
+              valid {| g | f5editpreparat(g, nKey, 2, 1)}
+        elseif nKey == K_ENTER .and. human_->USL_OK == 1
           @ r1+ix, 2 say "„ â  ¢¢¥¤¥­¨ï ¯à¥¯ à â " get mdate_u1 ;
               valid {| g | f5editpreparat(g, nKey, 2, 1)}
-        else
+        elseif nKey == K_INS .and. human_->USL_OK == 1
           @ r1+ix,2 say " ç «® ¢¢¥¤¥­¨ï ¯à¥¯ à â " get mdate_u1 ;
               valid {| g | f5editpreparat(g, nKey, 2, 1)}
           @ r1+ix, col() say ", ®ª®­ç ­¨¥ ¢¢¥¤¥­¨ï ¯à¥¯ à â " get mdate_end_per ;
@@ -459,7 +484,7 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
   restscreen(buf)
   return flag
 
-***** 16.01.22 äã­ªæ¨ï ¤«ï when ¨ valid ¯à¨ ¢¢®¤¥ ãá«ã£ ¢ «¨áâ ãçñâ 
+***** 29.03.22 äã­ªæ¨ï ¤«ï when ¨ valid ¯à¨ ¢¢®¤¥ ãá«ã£ ¢ «¨áâ ãçñâ 
 Function f5editpreparat(get, nKey, when_valid, k)
   Local fl := .t., arr, row
   local arrN020 := {}, tmpSelect
@@ -472,6 +497,9 @@ Function f5editpreparat(get, nKey, when_valid, k)
     endif
   else  // valid
     if k == 1     // „ â  ®ª § ­¨ï ãá«ã£¨
+      if ValType(mdate_u1) == 'C'
+        mdate_u1 := CToD(mdate_u1)
+      endif
       if !emptyany(human->n_data, mdate_u1) .and. mdate_u1 < human->n_data
         fl := func_error(4, "‚¢¥¤¥­­ ï ¤ â  ¬¥­ìè¥ ¤ âë ­ ç «  «¥ç¥­¨ï!")
       elseif !emptyany(human->k_data, mdate_u1) .and. mdate_u1 > human->k_data

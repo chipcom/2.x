@@ -4987,6 +4987,47 @@ function collect_uslugi()
   select(tmp_select)
   return arrUslugi
 
+******* 29.03.22 собрать даты оказания услуг в случае
+function collect_date_uslugi()
+  local human_number, human_uslugi, mohu_usluga
+  local tmp_select := select()
+  local arrDate := {}, aSortDate
+  local i := 0, sDate
+
+  human_number := human->(recno())
+  human_uslugi := hu->(recno())
+  mohu_usluga := mohu->(recno())
+  dbSelectArea('HU')
+
+  find (str(human_number, 7))
+  do while hu->kod == human_number .and. !eof()
+    sDate := dtoc(c4tod(hu->date_u))
+    if ascan(arrDate, {|x| x[1] == sDate }) == 0
+      i++
+      aadd(arrDate, {sDate, i})
+    endif
+    hu->(dbSkip())
+  enddo
+
+  hu->(dbGoto(human_uslugi))
+
+  dbSelectArea('MOHU')
+  // set relation to u_kod into MOSU
+  find (str(human_number, 7))
+  do while mohu->kod == human_number .and. !eof()
+    sDate := dtoc(c4tod(mohu->date_u))
+    if ascan(arrDate, {|x| x[1] == sDate }) == 0
+      i++
+      aadd(arrDate, {sDate, i})
+    endif
+    mohu->(dbSkip())
+  enddo
+  mohu->(dbGoto(mohu_usluga))
+
+  aSortDate := ASort(arrDate,,, { |x, y| x[1] < y[1] })  
+  select(tmp_select)
+  return aSortDate
+
 function valid_number_talon(g, dEnd, lMessage)
   local strCheck, ret := .f.
 
