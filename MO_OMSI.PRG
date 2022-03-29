@@ -2408,7 +2408,8 @@ if k > 10
 endif
 return NIL
 
-***** 02.12.21
+
+***** 29.03.22
 Function pz1statist(par,par2)
 Static _su := 2
 Local buf := savescreen(), fl_exit := .f., fl := .t., a_otd := {},;
@@ -2547,6 +2548,8 @@ adbf := {{"kod","N",4,0},;
          {"kol1","N",7,0},;
          {"uet","N",11,4},;
          {"sum","N",13,2}}
+dbcreate(cur_dir+"tmp_xls",adbf)
+use (cur_dir+"tmp_xls") new
 dbcreate(cur_dir+"tmp",adbf)
 use (cur_dir+"tmp") new
 if su > 2
@@ -2730,24 +2733,40 @@ if su > 2
 else
   add_string(padc("Статистика по выполнению план-заказа",sh))
 endif
+select TMP_XLS
+append blank
 if par == 1
   add_string(center("по счету № "+p_number+" от "+full_date(p_date)+" г.",sh))
+  tmp_xls->u_name := "по счету № "+p_number+" от "+full_date(p_date)+" г."
 elseif par == 2 .and. par2 == 1
   add_string(center("по счетам "+arr_m[4],sh))
+  tmp_xls->u_name := "по счетам "+arr_m[4]
   if fl_period
     add_string(center("[ подсчёт производится по отчётному периоду]",sh))
+    select TMP_XLS
+    append blank
+    tmp_xls->u_name := "[ подсчёт производится по отчётному периоду]"
     if mdate_reg != NIL
       add_string(center("[ по счетам, зарегистрированным по "+full_date(mdate_reg)+"г. включительно ]",sh))
+      select TMP_XLS
+      append blank
+      tmp_xls->u_name := "[ по счетам, зарегистрированным по "+full_date(mdate_reg)+"г. включительно ]"
     endif
   endif
 elseif par == 2 .and. par2 == 2
   add_string(center("по счетам (дата окончания лечения "+arr_m[4]+")",sh))
+  tmp_xls->u_name := "по счетам (дата окончания лечения "+arr_m[4]+")"
 else
   add_string(center("по невыписанным счетам (дата окончания лечения "+arr_m[4]+")",sh))
+  tmp_xls->u_name := "по невыписанным счетам (дата окончания лечения "+arr_m[4]+")"
 endif
 if v_deti == 2
   add_string(center("[ ПО ДЕТЯМ ]",sh))
+  select TMP_XLS
+  append blank
+  tmp_xls->u_name := center("[ ПО ДЕТЯМ ]",sh)
 endif
+
 if par < 3
   title_schet_akt(sh)
 endif
@@ -2868,6 +2887,7 @@ elseif eq_any(su,2,3)
   arr_title[3] += "│    услуг     "
   arr_title[4] += "┴──────────────"
   aeval(arr_title, {|x| add_string(x) } )
+
   select HU
   set relation to
   if su == 2
@@ -2893,6 +2913,15 @@ elseif eq_any(su,2,3)
       endif
       s += put_kopE(tmp->sum,14)
       add_string(s)
+      // 1-й 
+      select TMP_XLS
+      append blank
+      tmp_xls->kod    := tmp->kod   
+      tmp_xls->shifr  := tmp->shifr   
+      tmp_xls->u_name := tmp->u_name
+      tmp_xls->kol    := tmp->kol 
+      tmp_xls->sum    := tmp->sum 
+         // {"kol1","N",7,0},;
       for j := 2 to k
         add_string(space(11)+as[j])
       next
@@ -2961,6 +2990,14 @@ elseif eq_any(su,2,3)
       ssl[1] += tmp->kol
       ssl[2] += tmp->uet
       ssl[3] += tmp->sum
+      select TMP_XLS
+      append blank
+      tmp_xls->kod    := tmp->kod   
+      tmp_xls->shifr  := tmp->shifr   
+      tmp_xls->u_name := tmp->u_name
+      tmp_xls->kol    := tmp->kol 
+      tmp_xls->sum    := tmp->sum 
+         // {"kol1","N",7,0},;
       select TMP
       skip
     enddo
@@ -3083,6 +3120,14 @@ elseif su == 4
         endif
         s += put_kopE(tmp1->sum,11)
         add_string(s)
+        select TMP_XLS
+        append blank
+        tmp_xls->kod    := tmp1->kod   
+        tmp_xls->shifr  := usl->shifr   
+        tmp_xls->u_name := alltrim(lname)
+        tmp_xls->kol    := tmp1->kol 
+        tmp_xls->sum    := tmp1->sum 
+           // {"kol1","N",7,0},;
         for j := 2 to k
           add_string(padl(alltrim(as[j]),n1))
         next
@@ -3098,7 +3143,13 @@ fclose(fp)
 close databases
 restscreen(buf)
 viewtext(name_file,,,,(sh>80),,,reg_print)
+
+// if glob_mo[_MO_KOD_TFOMS] == '805965' //РДЛ
+create_xls_rdl('rdl_report')
+// endif
 return NIL
+
+
 
 ***** 05.01.22
 Function f1pz1statist(arr_otd,par)
