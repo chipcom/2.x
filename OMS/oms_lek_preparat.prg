@@ -354,7 +354,7 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
         setcolor(cDataCGet)
         ix := 1
         
-        if nKey == K_ENTER
+        if nKey == K_ENTER .or. (nKey == K_INS .and. human_->USL_OK == 3)
           @ r1+ix, 2 say "Дата введения препарата" get mdate_u1 ;
               valid {| g | f5editpreparat(g, nKey, 2, 1)}
         else
@@ -515,6 +515,7 @@ Function f5editpreparat(get, nKey, when_valid, k)
           if len(arrN020) != 0
             tmpSelect := select()
             R_Use(exe_dir + '_mo_N020', cur_dir + '_mo_N020', 'N20')
+            arr_lek_pr := {}
             for each row in arrN020
               find (row[2])
               if found()
