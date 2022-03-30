@@ -1,3 +1,79 @@
+#include "function.ch"
+#include "chip_mo.ch"
+
+******* 08.02.22 собрать шифры услуг в случае
+function collect_uslugi()
+  local human_number, human_uslugi, mohu_usluga
+  local tmp_select := select()
+  local arrUslugi := {}
+
+  human_number := human->(recno())
+  human_uslugi := hu->(recno())
+  mohu_usluga := mohu->(recno())
+  dbSelectArea('HU')
+
+  find (str(human_number, 7))
+  do while hu->kod == human_number .and. !eof()
+    aadd(arrUslugi, alltrim(usl->shifr))
+    hu->(dbSkip())
+  enddo
+
+  hu->(dbGoto(human_uslugi))
+
+  dbSelectArea('MOHU')
+  set relation to u_kod into MOSU
+  find (str(human_number, 7))
+  do while mohu->kod == human_number .and. !eof()
+    aadd(arrUslugi, alltrim(iif(empty(mosu->shifr),mosu->shifr1,mosu->shifr)))
+    mohu->(dbSkip())
+  enddo
+  mohu->(dbGoto(mohu_usluga))
+
+  select(tmp_select)
+  return arrUslugi
+
+******* 30.03.22 собрать даты оказания услуг в случае
+function collect_date_uslugi()
+  local human_number, human_uslugi, mohu_usluga
+  local tmp_select := select()
+  local arrDate := {}, aSortDate
+  local i := 0, sDate, dDate
+
+  human_number := human->(recno())
+  human_uslugi := hu->(recno())
+  mohu_usluga := mohu->(recno())
+  dbSelectArea('HU')
+
+  find (str(human_number, 7))
+  do while hu->kod == human_number .and. !eof()
+    dDate := c4tod(hu->date_u)
+    sDate := dtoc(dDate)
+    if ascan(arrDate, {|x| x[1] == sDate }) == 0
+      i++
+      aadd(arrDate, {sDate, i, dDate})
+    endif
+    hu->(dbSkip())
+  enddo
+
+  hu->(dbGoto(human_uslugi))
+
+  dbSelectArea('MOHU')
+  // set relation to u_kod into MOSU
+  find (str(human_number, 7))
+  do while mohu->kod == human_number .and. !eof()
+    dDate := c4tod(mohu->date_u)
+    sDate := dtoc(dDate)
+    if ascan(arrDate, {|x| x[1] == sDate }) == 0
+      i++
+      aadd(arrDate, {sDate, i, dDate})
+    endif
+    mohu->(dbSkip())
+  enddo
+  mohu->(dbGoto(mohu_usluga))
+
+  aSortDate := ASort(arrDate,,, { |x, y| x[3] < y[3] })  
+  select(tmp_select)
+  return aSortDate
 
 **** 01.10.21 - возврат структуры временного файла для направлений на онкологию
 function create_struct_temporary_onkna()
