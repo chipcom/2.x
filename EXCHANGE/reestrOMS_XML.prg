@@ -1732,14 +1732,6 @@ Function create1reestr19(_recno,_nyear,_nmonth)
   local nameArr
   Private mpz[100], oldpz[100], atip[100], p_array_PZ
   
-  // if _nyear > 2021
-  //   p_array_PZ := glob_array_PZ_22
-  // elseif _nyear > 2020
-  //   p_array_PZ := glob_array_PZ_21
-  // elseif _nyear > 2019
-  //   p_array_PZ := iif(_nyear > 2019, glob_array_PZ_20, glob_array_PZ_19)
-  // endif
-
   nameArr := 'glob_array_PZ_' + last_digits_year( _nyear )
   p_array_PZ := &nameArr
 

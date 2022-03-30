@@ -379,7 +379,7 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
           @ r1+ix, 2 say "Дата введения препарата" get mdate_u1 ;
               reader {|x|menu_reader(x, arrDateUslug, A__MENUVERT, , , .f.)} ;
               valid {| g | f5editpreparat(g, nKey, 2, 1)}
-        elseif nKey == K_ENTER .and. human_->USL_OK == 1
+          elseif nKey == K_ENTER .and. human_->USL_OK == 1
           @ r1+ix, 2 say "Дата введения препарата" get mdate_u1 ;
               valid {| g | f5editpreparat(g, nKey, 2, 1)}
         elseif nKey == K_INS .and. human_->USL_OK == 1
