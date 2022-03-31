@@ -1676,7 +1676,6 @@ if human_->USL_OK == 1  // стационар
   endif
   if human_2->VMP == 1 // проверим ВМП
     if is_12_VMP .or. is_21_VMP .or. is_22_VMP // ВМП по-новому 08.02.2021
-      // if is_12_VMP  // ВМП по-новому
       glob_V018 := getV018table(d2)
       glob_V019 := getV019table(d2)
       

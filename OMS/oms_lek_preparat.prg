@@ -3,12 +3,12 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-******* 06.01.22 проверка на необходимость ввода лекарственных препаратов
+******* 29.03.22 проверка на необходимость ввода лекарственных препаратов
 function check_oms_sluch_lek_pr(mkod_human)
   // mkod_human - код по БД human
 
   local vidPom, m1USL_OK, m1PROFIL, last_date, mdiagnoz, d1, d2, ad_cr
-  local retFl := .f., mvozrast
+  local retFl := .f., mvozrast, p_cel
 
   G_Use(dir_server + "human_2", , "HUMAN_2")
   G_Use(dir_server + "human_", , "HUMAN_")
@@ -27,17 +27,21 @@ function check_oms_sluch_lek_pr(mkod_human)
   if len(mdiagnoz) == 0
     mdiagnoz := {space(6)}
   endif
-  human_kod_diag := mdiagnoz[1]
+  human_kod_diag := alltrim(mdiagnoz[1])
   vidPom := human_->VIDPOM
   ad_cr := lower(alltrim(human_2->PC3))
   mvozrast := count_years(human->DATE_R, d2)
 
+  p_cel := get_IDPC_from_V025_by_number(human_->povod)
 
-  retFl := (d2 >= d_01_01_2022) ;
-    .and. mvozrast >= 18 .and. !check_diag_pregant() ;
-    .and. ((alltrim(human_kod_diag) == 'U07.1') ;
-    .or. (alltrim(human_kod_diag) == 'U07.2')) .and. (M1USL_OK == 1) ;
-    .and. (M1PROFIL != 158) .and. (vidPom != 32) .and. (ad_cr != 'stt5')
+  if eq_any(human_kod_diag, 'U07.1', 'U07.2') .and. mvozrast >= 18 .and. !check_diag_pregant()
+    if (M1USL_OK == 1) .and. (d2 >= 0d20220101)
+      retFl := (M1PROFIL != 158) .and. (vidPom != 32) .and. (ad_cr != 'stt5')
+    elseif (M1USL_OK == 3) .and. (d2 >= d_01_04_2022)
+      retFl := (M1PROFIL != 158) .and. (vidPom != 32) .and. (p_cel == '3.0')
+    endif
+  endif
+
 
   HUMAN_2->(dbCloseArea())    
   HUMAN_->(dbCloseArea())    
@@ -108,6 +112,13 @@ function oms_sluch_lek_pr(mkod_human, mkod_kartotek, fl_edit)
   private mSeverity, m1Severity := 0
 
   default fl_edit to .f.
+
+  G_Use(dir_server + "human_u",{dir_server + "human_u", ;
+    dir_server + "human_uk", ;
+    dir_server + "human_ud", ;
+    dir_server + "human_uv", ;
+    dir_server + "human_ua"}, "HU")
+  G_Use(dir_server + "mo_hu", dir_server + "mo_hu", "MOHU")
 
   G_Use(dir_server + "human_2", , "HUMAN_2")
   G_Use(dir_server + "human_", , "HUMAN_")
@@ -191,6 +202,8 @@ function oms_sluch_lek_pr(mkod_human, mkod_kartotek, fl_edit)
   HUMAN_2->(dbCloseArea())
   HUMAN_->(dbCloseArea())
   HUMAN->(dbCloseArea())
+  HU->(dbCloseArea())    
+  MOHU->(dbCloseArea())    
 
   setcolor(tmp_color)
   restscreen(buf)
@@ -295,14 +308,14 @@ function add_lek_pr(dInj, nKey)
   select tmp
   return nil
 
-****** 18.01.22
+****** 29.03.22
 function f2oms_sluch_lek_pr(nKey,oBrow)
 
   LOCAL flag := -1, buf := savescreen(), k_read := 0, count_edit := 0
   local r1 := 14, ix, number
   local last_date := human->n_data
   local flMany := .f., tDate
-  local arr_dni, row
+  local arr_dni, row, i
 
   do case
     case nKey == K_F9
@@ -310,6 +323,7 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
     case nKey == K_INS .or. (nKey == K_ENTER .and. tmp->KOD_HUM > 0)
       private mMNN := .f.
       private arr_lek_pr := {}
+      private m1date_u1
       private mdate_u1 := iif(nKey == K_INS, last_date, tmp->DATE_INJ)  // для совместимости с f5editkusl
       private m1SEVERITY := iif(nKey == K_INS, 0, tmp->SEVERITY), mSEVERITY
       private m1SCHEME := iif(nKey == K_INS, '', tmp->SCHEME), mSCHEME
@@ -326,10 +340,21 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
       Private tmp_MethodINJ := create_classif_FFOMS(2,"MethodINJ") // METHOD
    
       private mdate_end_per := mdate_u1      // human->k_data
+      private arrDateUslug
 
       number :=  iif(nKey == K_INS, 0, tmp->NUMBER)
 
-      mUNITCODE := space(iif(mem_n_V034==0,15,30))
+      if human_->USL_OK == 3
+        arrDateUslug := collect_date_uslugi()
+        if !empty(mdate_u1)
+          if (i := ascan(arrDateUslug, {|x| x[1] == dtoc(mdate_u1) })) > 0
+            m1date_u1 := arrDateUslug[i, 2]
+            mdate_u1 :=  arrDateUslug[i, 1]
+          endif
+        endif
+      endif
+
+      mUNITCODE := space(iif(mem_n_V034 == 0, 15, 30))
       mMETHOD   := space(30)
       mSCHEDRUG := space(42) 
       mREGNUM   := space(30) 
@@ -350,10 +375,14 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
         setcolor(cDataCGet)
         ix := 1
         
-        if nKey == K_ENTER
+        if (nKey == K_ENTER .or. nKey == K_INS) .and. human_->USL_OK == 3
+          @ r1+ix, 2 say "Дата введения препарата" get mdate_u1 ;
+              reader {|x|menu_reader(x, arrDateUslug, A__MENUVERT, , , .f.)} ;
+              valid {| g | f5editpreparat(g, nKey, 2, 1)}
+          elseif nKey == K_ENTER .and. human_->USL_OK == 1
           @ r1+ix, 2 say "Дата введения препарата" get mdate_u1 ;
               valid {| g | f5editpreparat(g, nKey, 2, 1)}
-        else
+        elseif nKey == K_INS .and. human_->USL_OK == 1
           @ r1+ix,2 say "Начало введения препарата" get mdate_u1 ;
               valid {| g | f5editpreparat(g, nKey, 2, 1)}
           @ r1+ix, col() say ", окончание введения препарата" get mdate_end_per ;
@@ -455,7 +484,7 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
   restscreen(buf)
   return flag
 
-***** 16.01.22 функция для when и valid при вводе услуг в лист учёта
+***** 29.03.22 функция для when и valid при вводе услуг в лист учёта
 Function f5editpreparat(get, nKey, when_valid, k)
   Local fl := .t., arr, row
   local arrN020 := {}, tmpSelect
@@ -468,6 +497,9 @@ Function f5editpreparat(get, nKey, when_valid, k)
     endif
   else  // valid
     if k == 1     // Дата оказания услуги
+      if ValType(mdate_u1) == 'C'
+        mdate_u1 := CToD(mdate_u1)
+      endif
       if !emptyany(human->n_data, mdate_u1) .and. mdate_u1 < human->n_data
         fl := func_error(4, "Введенная дата меньше даты начала лечения!")
       elseif !emptyany(human->k_data, mdate_u1) .and. mdate_u1 > human->k_data
@@ -511,6 +543,7 @@ Function f5editpreparat(get, nKey, when_valid, k)
           if len(arrN020) != 0
             tmpSelect := select()
             R_Use(exe_dir + '_mo_N020', cur_dir + '_mo_N020', 'N20')
+            arr_lek_pr := {}
             for each row in arrN020
               find (row[2])
               if found()

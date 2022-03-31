@@ -1690,75 +1690,6 @@ if !empty(m1okato)
 endif
 return len(mm_ismo) > 0
 
-***** 20.12.18
-Function f_oms_usl_sluch(oBrow)
-Local oColumn, blk_color
-oColumn := TBColumnNew(" NN; пп",{|| tmp->number })
-oColumn:colorBlock := blk_color
-oBrow:addColumn(oColumn)
-if mem_ordusl == 1
-  oColumn := TBColumnNew("Дата; усл.",{|| left(dtoc(tmp->date_u1),5) })
-  oColumn:colorBlock := blk_color
-  oBrow:addColumn(oColumn)
-endif
-oColumn := TBColumnNew(" Шифр услуги",{|| iif(tmp->dom==-1,padr(tmp->shifr_u,11)+"дом",;
-                                           iif(tmp->dom==-2,padr(tmp->shifr_u,11)+"д-А",;
-                                           padr(tmp->shifr_u,14))) })
-oColumn:colorBlock := blk_color
-oBrow:addColumn(oColumn)
-if mem_ordusl == 2
-  oColumn := TBColumnNew("Дата; усл.",{|| left(dtoc(tmp->date_u1),5) })
-  oColumn:colorBlock := blk_color
-  oBrow:addColumn(oColumn)
-endif
-oColumn := TBColumnNew("Отде-;ление",{|| otd->short_name })
-oColumn:defColor := {6,6}
-oColumn:colorBlock := {|| {6,6} }
-oBrow:addColumn(oColumn)
-oColumn := TBColumnNew("МКБ10",{|| tmp->kod_diag })
-oColumn:colorBlock := blk_color
-oBrow:addColumn(oColumn)
-oColumn := TBColumnNew("Профиль услуги",{|| padr(inieditspr(A__MENUVERT,glob_V002,tmp->PROFIL),15) })
-oColumn:colorBlock := blk_color
-oBrow:addColumn(oColumn)
-oColumn := TBColumnNew("Врач",{|| put_val(ret_tabn(tmp->kod_vr),5) })
-oColumn:colorBlock := blk_color
-oBrow:addColumn(oColumn)
-oColumn := TBColumnNew("Асс.",{|| put_val(ret_tabn(tmp->kod_as),5) })
-oColumn:colorBlock := blk_color
-oBrow:addColumn(oColumn)
-oColumn := TBColumnNew("Кол;усл",{|| str(tmp->kol_1,3) })
-oColumn:colorBlock := blk_color
-oBrow:addColumn(oColumn)
-oColumn := TBColumnNew(" Общая; ст-ть",{|| put_kop(tmp->stoim_1,8) })
-oColumn:colorBlock := blk_color
-oBrow:addColumn(oColumn)
-status_key("^<Esc>^ выход; ^<Enter>^ ред-ие; ^<Ins>^ добавление; ^<Del>^ удаление; ^<F1>^ помощь")
-return NIL
-
-***** 20.12.18
-Function f1oms_usl_sluch()
-LOCAL nRow := ROW(), nCol := COL(), s := tmp->name_u, lcolor := cDataCSay
-if is_zf_stomat == 1 .and. !empty(tmp->zf)
-  s := alltrim(tmp->zf)+" / "+s
-  lcolor := color8
-endif
-@ maxrow()-2,2 say padr(s,65) color lcolor
-if empty(tmp->u_cena)
-  s := iif(tmp->n_base==0, "", "ФФОМС")
-else
-  s := alltrim(dellastnul(tmp->u_cena,10,2))
-endif
-@ maxrow()-2,68 say padc(s,11) color cDataCSay
-f3oms_usl_sluch()
-@ nRow, nCol SAY ""
-return NIL
-
-*****
-Function f3oms_usl_sluch()
-@ maxrow()-4,59 say padl("Итого: "+lstr(human->cena_1,11,2),20) color "W+/N"
-return NIL
-
 ***** 28.02.18
 Function verify_OMS_sluch(mkod)
 Local buf := save_maxrow(), fl := .t., name_file := "err_sl"+stxt
@@ -2457,7 +2388,7 @@ if input_uch(T_ROW-1,T_COL+5,sys_date) != NIL .and. ;
 endif
 return NIL
 
-***** 20.01.22 Удаление листка учета лечения больного
+***** 16.03.22 Удаление листка учета лечения больного
 Function oms_del()
 Static sk := 1
 Local buf, str_sem, j, k := 1, arr_m, fl := .t., lkod_k, lyear
@@ -2595,9 +2526,8 @@ if (arr_m := input_year()) != NIL .and. ;
           DeleteRec(.t.)
         enddo
 
-        // добавил новые файлы для листов учета
         // удаление имплантантов
-        delete_implantant(glob_perso)
+        delete_implantants(glob_perso)
 
         // удаление лекарственных препаратов
         G_Use(dir_server + "human_lek_pr", dir_server + "human_lek_pr", "LEK")

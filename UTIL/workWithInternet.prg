@@ -34,7 +34,7 @@ function checkVersionInternet( row, oldVersion )
       oBox := TBox():New( row, nLeft, row + len(arr) + 3, nRight )
       oBox:Color := 'N/W' + ',' + 'N+/W'
       oBox:Frame := BORDER_DOUBLE
-      oBox:MessageLine := '^<любая клавиша>^ - выход; ^F2^ - новое в програме'
+      oBox:MessageLine := '^<любая клавиша>^ - продолжить работу; ^F2^ - новое в програме'
       oBox:Save := .t.
   
       oBox:View()

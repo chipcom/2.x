@@ -20,7 +20,7 @@ DYNAMIC f1forma_792_MIAC
 DYNAMIC monitoring_vid_pom
 DYNAMIC b_25_perinat_2
 
-***** 21.12.21
+***** 10.03.22
 procedure main( ... )
   Local r, s, is_create := .f., is_copy := .f., is_index := .f.
   Local a_parol, buf, is_local_version
@@ -75,6 +75,7 @@ procedure main( ... )
   Public d_01_11_2019 := 0d20191101
   Public d_01_01_2021 := 0d20210101
   Public d_01_01_2022 := 0d20220101 // новый 2022 год и переход на новый ПУМП письмо № 04-18?17 от 28.12.2021
+  Public d_01_04_2022 := 0d20220401 // изменения в ПУМП 04-18-007 от 23.03.22
   //
 	// объект пользователя зарегистрировавшегося в системе
 	public hb_user_curUser := nil
@@ -161,14 +162,6 @@ procedure main( ... )
       f_end(.f.)
     endif
   endif
-
-  // altd()
-  // aaa := get_schemas_lech(4, ctod('01/01/2022'))
-  // aa1 := get_schemas_lech(3, ctod('31/12/2021'))
-  // bbb := get_group_by_schema_lech('2-1', ctod('01/01/2022'))
-  // ccc := get_drugcode_by_schema_lech('2-1-1', ctod('01/01/2022'))
-  // ccc1 := get_ed_izm_sql()
-  // altd()
 
   f_main(r, is_local_version, a_parol)
 

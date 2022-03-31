@@ -3,7 +3,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 09.02.22 вынуть реестр из XML-файлов и записать во временные DBF-файлы
+***** 19.03.22 вынуть реестр из XML-файлов и записать во временные DBF-файлы
 Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
   local p_tip_reestr
   local tmpSelect
@@ -281,13 +281,15 @@ Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
     {"SLUCH",    "N",   6, 0},; // номер случая
     {"KOD",      "N",   6, 0},; // код
     {"IDCASE",   "C",  12, 0},; // номер позиции записи в реестре;поле "IDCASE" (и "ZAP") в реестре случаев
+    {"CODE_USL", "C",  20, 0},; //
     {"DATE_MED", "C",  10, 0},; // Дата установки имплантанта
     {"CODE_DEV", "C",  10, 0},; // Код вида медицинского изделия (имплантанта)
     {"NUM_SER",  "C", 100, 0}; // Серийный номер медицинского изделия (имплантанта)
   }
 
 
-  Local arr_f, ii, oXmlDoc, j, j1, _ar, buf := save_maxrow(), name_zip := alltrim(mname_xml)+szip, fl := .f., is_old := .f.
+  Local arr_f, ii, oXmlDoc, j, j1, j2, _ar, buf := save_maxrow(), name_zip := alltrim(mname_xml)+szip, fl := .f., is_old := .f.
+  local ushifr
 
   //
   DEFAULT flag_tmp1 TO .f., is_all TO .t., goal_dir TO dir_server+dir_XML_MO+cslash
@@ -707,24 +709,44 @@ Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
                         t2->P_OTK    := mo_read_xml_stroke(oNode2,"P_OTK",,.f.)
                         t2->DS       := mo_read_xml_stroke(oNode2,"DS",,.f.)
                         t2->CODE_USL := mo_read_xml_stroke(oNode2,"CODE_USL")
+                        ushifr := t2->CODE_USL
                         t2->KOL_USL  := mo_read_xml_stroke(oNode2,"KOL_USL")
                         t2->TARIF    := mo_read_xml_stroke(oNode2,"TARIF")
                         t2->SUMV_USL := mo_read_xml_stroke(oNode2,"SUMV_USL")
 
                         if p_tip_reestr == 1 .and. (xml2date(t1->DATE_Z_2) >= 0d20220101) // добавил по новому ПУМП от 18.01.22
-                          if (oNode100 := oNode2:Find("MED_DEV")) != NIL
-                            // имплантант
-                            tmpSelect := select()                            
-                            select T12
-                            append blank
-                            T12->SLUCH    := iisl // номер случая
-                            T12->KOD      := mkod // код
-                            T12->IDCASE   := &lal.->IDCASE // для связи со случаем
-                            T12->DATE_MED := mo_read_xml_stroke(oNode100, "DATE_MED") // Дата установки имплантанта
-                            T12->CODE_DEV := mo_read_xml_stroke(oNode100, "CODE_MEDDEV") // Код вида медицинского изделия (имплантанта)
-                            T12->NUM_SER  := mo_read_xml_stroke(oNode100, "NUMBER_SER") // Серийный номер медицинского изделия (имплантанта)
-                            select(tmpSelect)
-                          endif
+                          // if (oNode100 := oNode2:Find("MED_DEV")) != NIL
+                          //   // имплантант
+                          //   tmpSelect := select()                            
+                          //   select T12
+                          //   append blank
+                          //   T12->SLUCH    := iisl // номер случая
+                          //   T12->KOD      := mkod // код
+                          //   T12->IDCASE   := &lal.->IDCASE // для связи со случаем
+                          //   T12->DATE_MED := mo_read_xml_stroke(oNode100, "DATE_MED") // Дата установки имплантанта
+                          //   T12->CODE_DEV := mo_read_xml_stroke(oNode100, "CODE_MEDDEV") // Код вида медицинского изделия (имплантанта)
+                          //   T12->NUM_SER  := mo_read_xml_stroke(oNode100, "NUMBER_SER") // Серийный номер медицинского изделия (имплантанта)
+                          //   select(tmpSelect)
+                          // endif
+                          /////// insert MED_DEV
+                          for j2 := 1 to len(oNode2:aitems) // последовательный просмотр медицинских имплантантов
+                            oNode100 := oNode2:aItems[j2]     // т.к. имплантантов может быть несколько
+                            if valtype(oNode100) != "C" .AND. oNode100:title == "MED_DEV"
+                              tmpSelect := select()                            
+                              select T12
+                              append blank
+                              T12->sluch    := iisl
+                              T12->KOD      := mkod
+                              T12->IDCASE   := &lal.->IDCASE    // для связи со случаем
+                              T12->CODE_USL := alltrim(ushifr)  // для привязки к услуге
+                              T12->DATE_MED := mo_read_xml_stroke(oNode100, "DATE_MED") // Дата установки имплантанта
+                              T12->CODE_DEV := mo_read_xml_stroke(oNode100, "CODE_MEDDEV") // Код вида медицинского изделия (имплантанта)
+                              T12->NUM_SER  := mo_read_xml_stroke(oNode100, "NUMBER_SER") // Серийный номер медицинского изделия (имплантанта)
+                              select(tmpSelect)
+                            endif
+                          next j2
+                          ////////
+
                         endif
 
                         if p_tip_reestr == 2 .and. (xml2date(t1->DATE_Z_2) >= 0d20210801) // добавил по новому ПУМП от 02.08.21

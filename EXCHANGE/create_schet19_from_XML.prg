@@ -4,7 +4,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 04.02.22 создать счета по результатам прочитанного реестра СП
+***** 23.03.22 создать счета по результатам прочитанного реестра СП
 Function create_schet19_from_XML(arr_XML_info,aerr,fl_msg,arr_s,name_sp_tk)
   Local arr_schet := {}, c, len_stand, _arr_stand, lshifr, i, j, k, lbukva,;
         doplataF, doplataR, mnn, fl, name_zip, arr_zip := {}, lshifr1,;
@@ -12,6 +12,7 @@ Function create_schet19_from_XML(arr_XML_info,aerr,fl_msg,arr_s,name_sp_tk)
         CODE_MO  := glob_mo[_MO_KOD_FFOMS], s1
   local controlVer
   local tmpSelect
+  local ushifr
 
   DEFAULT fl_msg TO .t., arr_s TO {}
   Private pole
@@ -919,6 +920,7 @@ Function create_schet19_from_XML(arr_XML_info,aerr,fl_msg,arr_s,name_sp_tk)
             if !empty(t2->P_OTK)
               mo_add_xml_stroke(oUSL,"P_OTK" ,t2->P_OTK)
             endif
+            ushifr := alltrim(t2->CODE_USL)
             mo_add_xml_stroke(oUSL,"CODE_USL",t2->CODE_USL)
             mo_add_xml_stroke(oUSL,"KOL_USL" ,t2->KOL_USL)
             mo_add_xml_stroke(oUSL,"TARIF"   ,t2->TARIF)
@@ -929,7 +931,7 @@ Function create_schet19_from_XML(arr_XML_info,aerr,fl_msg,arr_s,name_sp_tk)
               tmpSelect := select()                            
               select T12
               find (t1->IDCASE + str(isl, 6))
-              do while t1->IDCASE == t12->IDCASE .and. isl == t12->sluch .and. !eof()
+              do while t1->IDCASE == t12->IDCASE .and. isl == t12->sluch .and. ushifr == alltrim(t12->CODE_USL) .and. !eof()
                 oIMPLANT := oUSL:Add( HXMLNode():New( "MED_DEV" ) )
                 mo_add_xml_stroke(oIMPLANT, "DATE_MED", T12->DATE_MED)
                 mo_add_xml_stroke(oIMPLANT, "CODE_MEDDEV", T12->CODE_DEV)

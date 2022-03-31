@@ -56,7 +56,7 @@ if fl := G_Use(dir_server + 'human_ser_num', dir_server + 'human_ser_num', 'NUM_
     NUM_SER->SER_NUM    := ser_num
     UNLOCK
   else
-    AddRec(7)
+    AddRec(' ', , .t.)
     NUM_SER->TYPE_FIL   := type
     NUM_SER->REC_N      := rec_n
     NUM_SER->SER_NUM    := ser_num
@@ -78,7 +78,7 @@ function delete_lek_preparat_ser_number(rec_n)
 delete_ser_number('L', rec_n)
 return nil
 
-****** 20.01.22 удалить серийный номер в БД
+****** 16.03.22 удалить серийный номер в БД
 function delete_ser_number(type, rec_n)
 local tmpSelect := select()
 
@@ -87,7 +87,7 @@ type := Upper(type)
 if fl := G_Use(dir_server + 'human_ser_num', dir_server + 'human_ser_num', 'NUM_SER', , .f., .f.)
   find (type + str(rec_n, 7))
   if NUM_SER->(found())
-    DeleteRec(.t.,.f.)  // очистка записи с пометкой на удаление
+    DeleteRec(.t.)  // очистка записи с пометкой на удаление
   endif
 endif
 NUM_SER->(dbCloseArea())

@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-***** 25.03.22
+***** 29.03.22
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
         i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -16,11 +16,12 @@ Function verify_1_sluch(fl_view)
 
   local reserveKSG_1 := .f., reserveKSG_2 := .f.
   local sbase, arrUslugi := {}
-  local arr_uslugi_geriatr := {'B01.007.001', 'B01.007.003', 'B01.007.003' }, row
+  local arr_uslugi_geriatr := {'B01.007.001', 'B01.007.003', 'B01.007.003' }, row, rowTmp
   local flGeriatr := .f.
   local glob_V018, glob_V019
   local arrImplant
   local arrLekPreparat, arrGroupPrep, mMNN
+  local flLekPreparat := .f.
 
   if empty(human->k_data)
     return .t.  // не проверять
@@ -4351,10 +4352,19 @@ Function verify_1_sluch(fl_view)
   endif
 
   // проверим лекарственные препараты
-  if human_->USL_OK == 1 ; // стационар
-        .and. (mdiagnoz[1] = 'U07.1' .or. mdiagnoz[1] = 'U07.2') ;  // проверим что диагноз COVID-19
-        .and. (count_years(human->DATE_R, human->k_data) >= 18) ;   // проверим что возраст больше 18 лет
-        .and. !check_diag_pregant()  // проверим, что не беременна
+  if eq_any(alltrim(mdiagnoz[1]), 'U07.1', 'U07.2') .and. (count_years(human->DATE_R, human->k_data) >= 18) ;
+        .and. !check_diag_pregant()
+    if (human_->USL_OK == 1) .and. (human->k_data >= 0d20220101)
+      flLekPreparat := (human_->PROFIL != 158) .and. (human_->VIDPOM != 32) ;
+          .and. (lower(alltrim(human_2->PC3)) != 'stt5')
+    elseif (human_->USL_OK == 3) .and. (human->k_data >= d_01_04_2022)
+      flLekPreparat := (human_->PROFIL != 158) .and. (human_->VIDPOM != 32) ;
+         .and. (get_IDPC_from_V025_by_number(human_->povod) == '3.0')
+    endif
+  endif
+
+  if flLekPreparat
+
     arrLekPreparat := collect_lek_pr(rec_human) // выберем лекарственные препараты
     if len(arrLekPreparat) == 0  // пустой список лекарственных препаратов
       aadd(ta,'для диагнозов U07.1 и U07.2 необходим ввод лекараственных препаратов')
@@ -4396,22 +4406,48 @@ Function verify_1_sluch(fl_view)
     endif
   endif
 
-  // проверим наличие имплантов
-  arrImplant := check_implantant(human->kod)
-  if arrImplant != NIL
-    if empty(arrImplant[3])
-      aadd(ta,'не указана дата установки имплантанта')
+  arrUslugi := collect_uslugi()
+  for each row in arrUslugi
+    if service_requires_implants(row, human->k_data)
+      // проверим наличие имплантов
+      arrImplant := collect_implantant(human->kod)
+      if ! empty(arrImplant)
+        for each rowTmp in arrImplant
+          if empty(rowTmp[3])
+            aadd(ta, 'не указана дата установки имплантанта')
+          endif
+          if ! between_date(human->n_data, human->k_data, rowTmp[3])
+            aadd(ta, 'дата установки имплантанта не входит в период случая')
+          endif
+          if empty(rowTmp[4])
+            aadd(ta, 'для имплантанта необходимо указать его вид')
+          endif
+          if empty(rowTmp[5])
+            aadd(ta, 'для имплантанта необходимо указать серийный номер')
+          endif
+        next
+      else
+        aadd(ta, 'для услуги ' + row + ' обязательно указание имплантантов')
+      endif
     endif
-    if ! between_date(human->n_data, human->k_data, arrImplant[3])
-      aadd(ta,'дата установки имплантанта не входит в период случая')
-    endif
-    if empty(arrImplant[4])
-      aadd(ta,'для имплантанта необходимо указать его вид')
-    endif
-    if empty(arrImplant[5])
-      aadd(ta,'для имплантанта необходимо указать серийный номер')
-    endif
-  endif
+  next
+
+  // // проверим наличие имплантов
+  // arrImplant := collect_implantant(human->kod)
+  // if ! empty(arrImplant)
+  //   if empty(arrImplant[3])
+  //     aadd(ta,'не указана дата установки имплантанта')
+  //   endif
+  //   if ! between_date(human->n_data, human->k_data, arrImplant[3])
+  //     aadd(ta,'дата установки имплантанта не входит в период случая')
+  //   endif
+  //   if empty(arrImplant[4])
+  //     aadd(ta,'для имплантанта необходимо указать его вид')
+  //   endif
+  //   if empty(arrImplant[5])
+  //     aadd(ta,'для имплантанта необходимо указать серийный номер')
+  //   endif
+  // endif
 
   // проверим на наличие направивиших врачей
   if is_exist_Prescription
@@ -4919,37 +4955,6 @@ function addKodDoctorToArray(arr, nCode)
     aadd(arr,nCode)
   endif
   return arr
-
-******* 08.02.22 собрать шифры услуг в случае
-function collect_uslugi()
-  local human_number, human_uslugi, mohu_usluga
-  local tmp_select := select()
-  local arrUslugi := {}
-
-  human_number := human->(recno())
-  human_uslugi := hu->(recno())
-  mohu_usluga := mohu->(recno())
-  dbSelectArea('HU')
-
-  find (str(human_number, 7))
-  do while hu->kod == human_number .and. !eof()
-    aadd(arrUslugi, alltrim(usl->shifr))
-    hu->(dbSkip())
-  enddo
-
-  hu->(dbGoto(human_uslugi))
-
-  dbSelectArea('MOHU')
-  set relation to u_kod into MOSU
-  find (str(human_number, 7))
-  do while mohu->kod == human_number .and. !eof()
-    aadd(arrUslugi, alltrim(iif(empty(mosu->shifr),mosu->shifr1,mosu->shifr)))
-    mohu->(dbSkip())
-  enddo
-  mohu->(dbGoto(mohu_usluga))
-
-  select(tmp_select)
-  return arrUslugi
 
 function valid_number_talon(g, dEnd, lMessage)
   local strCheck, ret := .f.

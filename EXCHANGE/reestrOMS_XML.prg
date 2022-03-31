@@ -7,17 +7,19 @@
 Static sadiag1 := {}
 
   
-***** 04.02.22 создание XML-файлов реестра
+***** 29.03.22 создание XML-файлов реестра
 Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
   //
   local iAKSLP, tKSLP, cKSLP // счетчик для цикла по КСЛП
   local reserveKSG_ID_C := '' // GUID для вложенных двойных случаев
-  local aImpl, arrLP, row
+  local arrLP, row
   local ser_num
   local controlVer
   local endDateZK
   local diagnoz_replace := ''
+  local aImpl
+  local flLekPreparat
 
   //
   close databases
@@ -270,6 +272,8 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
     arr_nazn := {}
 
     mtab_v_dopo_na := mtab_v_mo := mtab_v_stac := mtab_v_reab := mtab_v_sanat := 0
+
+    flLekPreparat := .f.
 
     //
     select HUMAN
@@ -823,9 +827,22 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
         endif
         mo_add_xml_stroke(oSL,"SUM_M",lstr(human->cena_1,10,2))
 
-        if (human->k_data >= d_01_01_2022) .and. ((rtrim(mdiagnoz[1]) == 'U07.1') ;
-              .or. ((rtrim(mdiagnoz[1]) == 'U07.2'))) .and. (human_->USL_OK == 1) .and. (human_->PROFIL != 158) ;
-              .and. (human_->VIDPOM != 32) .and. (lower(alltrim(human_2->PC3)) != 'stt5')
+        // проверим лекарственные препараты
+        if eq_any(rtrim(mdiagnoz[1]), 'U07.1', 'U07.2') .and. (count_years(human->DATE_R, human->k_data) >= 18) ;
+            .and. !check_diag_pregant()
+          if (human_->USL_OK == 1) .and. (human->k_data >= 0d20220101)
+            flLekPreparat := (human_->PROFIL != 158) .and. (human_->VIDPOM != 32) ;
+                .and. (lower(alltrim(human_2->PC3)) != 'stt5')
+          elseif (human_->USL_OK == 3) .and. (human->k_data >= d_01_04_2022)
+            flLekPreparat := (human_->PROFIL != 158) .and. (human_->VIDPOM != 32) ;
+                .and. (get_IDPC_from_V025_by_number(human_->povod) == '3.0')
+          endif
+        endif
+
+        if flLekPreparat
+        // if (human->k_data >= d_01_01_2022) .and. ((rtrim(mdiagnoz[1]) == 'U07.1') ;
+        //       .or. ((rtrim(mdiagnoz[1]) == 'U07.2'))) .and. (human_->USL_OK == 1) .and. (human_->PROFIL != 158) ;
+        //       .and. (human_->VIDPOM != 32) .and. (lower(alltrim(human_2->PC3)) != 'stt5')
 
           arrLP := collect_lek_pr(human->(recno()))
           if len(arrLP) != 0
@@ -1083,21 +1100,30 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
           else
             if (human->k_data >= 0d20210801 .and. p_tip_reestr == 2) ;      // правила заполнения с 01.08.21 письмо № 04-18-13 от 20.07.21
                 .or. (human->k_data >= d_01_01_2022 .and. p_tip_reestr == 1)  // правила заполнения с 01.01.22 письмо № 04-18?17 от 28.12.2021
-              if (p_tip_reestr == 1) .and. ((aImpl := ret_impl_V036(lshifr, c4tod(hu_->DATE_U2))) != NIL)
-                // проверим наличие имплантантов
-                IMPL->(dbSeek(str(human->kod, 7), .t.))
-                if IMPL->(found())
-                  oMED_DEV := oUSL:Add( HXMLNode():New( "MED_DEV" ) )
-                  mo_add_xml_stroke(oMED_DEV,"DATE_MED", date2xml(IMPL->DATE_UST))   // пока ставим 1 исполнитель
-                  mo_add_xml_stroke(oMED_DEV,"CODE_MEDDEV", lstr(IMPL->RZN))
+              // if (p_tip_reestr == 1) .and. ((aImpl := ret_impl_V036(lshifr, c4tod(hu_->DATE_U2))) != NIL)
+              //   // проверим наличие имплантантов
+              //   IMPL->(dbSeek(str(human->kod, 7), .t.))
+              //   if IMPL->(found())
+              //     oMED_DEV := oUSL:Add( HXMLNode():New( "MED_DEV" ) )
+              //     mo_add_xml_stroke(oMED_DEV,"DATE_MED", date2xml(IMPL->DATE_UST))   // пока ставим 1 исполнитель
+              //     mo_add_xml_stroke(oMED_DEV,"CODE_MEDDEV", lstr(IMPL->RZN))
 
-                  if (ser_num := chek_implantant_ser_number(IMPL->(recno()))) != nil
-                    mo_add_xml_stroke(oMED_DEV,"NUMBER_SER", alltrim(ser_num))
-                  endif
-                endif
-                aImpl := nil
-                ser_num := nil
+              //     if (ser_num := chek_implantant_ser_number(IMPL->(recno()))) != nil
+              //       mo_add_xml_stroke(oMED_DEV,"NUMBER_SER", alltrim(ser_num))
+              //     endif
+              //   endif
+              //   aImpl := nil
+              //   ser_num := nil
+              // endif
+              if (p_tip_reestr == 1) .and. service_requires_implants(lshifr, c4tod(hu_->DATE_U2))
+                for each row in collect_implantant(human->kod, mohu->(recno()))
+                  oMED_DEV := oUSL:Add( HXMLNode():New( "MED_DEV" ) )
+                  mo_add_xml_stroke(oMED_DEV,"DATE_MED", date2xml(row[3]))
+                  mo_add_xml_stroke(oMED_DEV,"CODE_MEDDEV", lstr(row[4]))
+                  mo_add_xml_stroke(oMED_DEV,"NUMBER_SER", alltrim(row[5]))
+                next
               endif
+                
               if between_date(human->n_data, human->k_data, c4tod(mohu->DATE_U))
                 oMR_USL_N := oUSL:Add( HXMLNode():New( "MR_USL_N" ) )
                 mo_add_xml_stroke(oMR_USL_N,"MR_N",lstr(1))   // пока ставим 1 исполнитель
@@ -1706,14 +1732,6 @@ Function create1reestr19(_recno,_nyear,_nmonth)
   local nameArr
   Private mpz[100], oldpz[100], atip[100], p_array_PZ
   
-  // if _nyear > 2021
-  //   p_array_PZ := glob_array_PZ_22
-  // elseif _nyear > 2020
-  //   p_array_PZ := glob_array_PZ_21
-  // elseif _nyear > 2019
-  //   p_array_PZ := iif(_nyear > 2019, glob_array_PZ_20, glob_array_PZ_19)
-  // endif
-
   nameArr := 'glob_array_PZ_' + last_digits_year( _nyear )
   p_array_PZ := &nameArr
 

@@ -4,7 +4,7 @@
 #include "chip_mo.ch"
 
 
-***** 20.01.22 ввод услуг в случай (лист учёта)
+***** 17.03.22 ввод услуг в случай (лист учёта)
 Function oms_usl_sluch(mkod_human,mkod_kartotek,fl_edit)
   // mkod_human - код по БД human
   // mkod_kartotek - код по БД kartotek
@@ -19,6 +19,10 @@ Function oms_usl_sluch(mkod_human,mkod_kartotek,fl_edit)
           pr_arr := {}, pr_arr_otd := {}, pr1arr_otd := {}, is_1_vvod,;
           kod_lech_vr := 0, is_open_u1 := .f., arr_uva := {}, arr_usl1year, u_other := {}
   private arrImplant
+
+  if hb_vfExists(cur_dir + 'tmp_impl.dbf')
+    hb_vfErase(cur_dir + 'tmp_impl.dbf')
+  endif
 
   afillall(mvu,0)
   //
@@ -97,7 +101,7 @@ Function oms_usl_sluch(mkod_human,mkod_kartotek,fl_edit)
 
   //
   adbf := {;
-    {"KOD"      ,   "N",     7,     0},; // код больного
+    {"KOD"      ,   "N",     7,     0},; // код больного в HUMAN.dbf
     {"DATE_U"   ,   "C",     4,     0},; // дата оказания услуги
     {"date_u2"  ,   "C",     4,     0},; // дата окончания оказания услуги
     {"date_u1"  ,   "D",     8,     0},;
@@ -290,16 +294,9 @@ Function oms_usl_sluch(mkod_human,mkod_kartotek,fl_edit)
     @ 1,50 say padl("Лист учета № "+lstr(human->kod),29) color color14
   endif
 
-  // проверим наличие имплантов
-  arrImplant := check_implantant(mkod_human)
-  if arrImplant != NIL
-    begin_row := 3
-    @ 2, 39 say padl('Пациенту установлен имплантант. F6 - ред.', 41) color 'W+/R'
-  else
-    begin_row := 2
-  endif
+  begin_row := 3
   
-  l_color := "W+/B,W+/RB,BG+/B,BG+/RB,G+/B,GR+/B"
+  l_color := "W+/B,W+/RB,BG+/B,BG+/RB,G+/B,GR+/B,G+/B,G+/RB,R+/B,N/R"
   s := "Полное наименование услуги"
   if is_zf_stomat == 1
     s := "Формула зуба / "+s
@@ -320,6 +317,18 @@ Function oms_usl_sluch(mkod_human,mkod_kartotek,fl_edit)
                .f., .t., , "f1oms_usl_sluch", "f2oms_usl_sluch", , ;
                {"═", "░", "═", l_color, .t., 180} )
   select TMP
+
+  TMP->(dbGoTop())
+  do while ! TMP->(eof())
+    if service_requires_implants(TMP->shifr_u, TMP->date_u1)
+      if hb_vfExists(cur_dir + 'tmp_impl.dbf')
+        delete_implantants(TMP->KOD, TMP->rec_hu)
+        save_implantants(TMP->KOD, TMP->rec_hu)
+      endif
+    endif
+    TMP->(dbSkip())
+  end do
+
   pack
   kol_rec := lastrec()
   Private mcena_1 := human->cena_1, msmo := human_->smo
