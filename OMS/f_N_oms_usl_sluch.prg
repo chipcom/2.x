@@ -87,8 +87,8 @@ Function f3oms_usl_sluch()
   @ maxrow() - 4, 59 say padl("Итого: " + lstr(human->cena_1, 11, 2), 20) color "W+/N"
   return NIL
     
-***** 21.03.22 ввод услуг в лист учёта
-Function f2oms_usl_sluch(nKey,oBrow)
+***** 02.04.22 ввод услуг в лист учёта
+Function f2oms_usl_sluch(nKey, oBrow)
   Static skod_k := 0, skod_human := 0, SKOD_DIAG, SZF,;
          st_vzrosl, st_arr_dbf, skod_vr, skod_as, aksg := {}
   LOCAL flag := -1, buf := savescreen(), fl := .f., rec, max_date, new_date,;
@@ -101,6 +101,7 @@ Function f2oms_usl_sluch(nKey,oBrow)
                    {"на дому      ",-1}}
   local tmSel
   local aOptions :=  { 'Нет', 'Да' }, nChoice
+  local blk_col
 
   static old_date_usl, new_date_usl
 
@@ -111,6 +112,11 @@ Function f2oms_usl_sluch(nKey,oBrow)
   do case
     case nKey == K_F6 .and. (HUMAN->K_DATA >= d_01_01_2022) .and. service_requires_implants(tmp->shifr_u, tmp->date_u1)
       view_implantant( collect_implantant(glob_perso, tmp->rec_hu), new_date_usl, (new_date_usl != old_date_usl) )
+
+      blk_col := {|| iif( ! service_requires_implants(tmp->shifr_u, tmp->DATE_U), {1, 2}, ;
+                  iif(! exist_implantant_in_DB(glob_perso, tmp->rec_hu), {9, 10}, {7, 8})) }
+      oBrow:ColorRect(blk_col)
+
     case nKey == K_F9 .and. !empty(aksg)
       f_put_arr_ksg(aksg)
     case nKey == K_F10 .and. tmp->kod > 0 .and. f_Esc_Enter("запоминания услуг")

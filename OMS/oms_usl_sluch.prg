@@ -4,7 +4,7 @@
 #include "chip_mo.ch"
 
 
-***** 17.03.22 ввод услуг в случай (лист учёта)
+***** 02.04.22 ввод услуг в случай (лист учёта)
 Function oms_usl_sluch(mkod_human,mkod_kartotek,fl_edit)
   // mkod_human - код по БД human
   // mkod_kartotek - код по БД kartotek
@@ -318,16 +318,16 @@ Function oms_usl_sluch(mkod_human,mkod_kartotek,fl_edit)
                {"═", "░", "═", l_color, .t., 180} )
   select TMP
 
-  TMP->(dbGoTop())
-  do while ! TMP->(eof())
-    if service_requires_implants(TMP->shifr_u, TMP->date_u1)
-      if hb_vfExists(cur_dir + 'tmp_impl.dbf')
-        delete_implantants(TMP->KOD, TMP->rec_hu)
-        save_implantants(TMP->KOD, TMP->rec_hu)
-      endif
-    endif
-    TMP->(dbSkip())
-  end do
+  // TMP->(dbGoTop())
+  // do while ! TMP->(eof())
+  //   if service_requires_implants(TMP->shifr_u, TMP->date_u1)
+  //     if hb_vfExists(cur_dir + 'tmp_impl.dbf')
+  //       delete_implantants(TMP->KOD, TMP->rec_hu)
+  //       save_implantants(TMP->KOD, TMP->rec_hu)
+  //     endif
+  //   endif
+  //   TMP->(dbSkip())
+  // end do
 
   pack
   kol_rec := lastrec()
