@@ -53,10 +53,11 @@ Function f_oms_usl_sluch(oBrow)
   status_key("^<Esc>^ выход; ^<Enter>^ ред-ие; ^<Ins>^ добавление; ^<Del>^ удаление; ^<F1>^ помощь")
   return NIL
 
-***** 17.03.22
+***** 05.04.22
 Function f1oms_usl_sluch()
   LOCAL nRow := ROW(), nCol := COL(), s := tmp->name_u, lcolor := cDataCSay
-  local strImplInfo := 'Услуга требует установки имплантантов. F6 - ред.'
+  local strImplInfo := 'Услуга требует ввода данных по имплантантам. F6 - ред.'
+  local strImplExists := 'Информация по имплантантам введена. F6 - ред.'
 
   if is_zf_stomat == 1 .and. !empty(tmp->zf)
     s := alltrim(tmp->zf) + " / " + s
@@ -74,7 +75,11 @@ Function f1oms_usl_sluch()
 
   // проверим наличие имплантов
   if service_requires_implants(tmp->shifr_u, tmp->DATE_U)
-    @ 2, 80 - len(strImplInfo) say padl(strImplInfo, len(strImplInfo)) color 'W+/R'
+    if exist_implantant_in_DB(glob_perso, tmp->rec_hu)
+      @ 2, 80 - len(strImplExists) say padl(strImplExists, len(strImplExists)) color 'W+/R'
+    else
+      @ 2, 80 - len(strImplInfo) say padl(strImplInfo, len(strImplInfo)) color 'W+/R'
+    endif
   else
     @ 2, 80 - len(strImplInfo) say Replicate(' ', len(strImplInfo))
   endif
