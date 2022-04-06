@@ -9,7 +9,7 @@ function create_xls_rdl(name)
   local format_text, format_text2, format_text3
   local error
   local name_file := name + '.xlsx'
-  local iRow := 6
+  local iRow := 1
 
   lxw_init() 
     
@@ -58,15 +58,15 @@ function create_xls_rdl(name)
   do while ! FRD->(eof())
 
     lxw_worksheet_set_row(worksheet, iRow, 30.0)
-    lxw_worksheet_write_number(worksheet, iRow, 0, FRD->KOD, format_text3)
+    // lxw_worksheet_write_number(worksheet, iRow, 0, FRD->KOD, format_text3)
+    // lxw_worksheet_write_number(worksheet, iRow, 1, FRD->KOD1, format_text3)
 
-    lxw_worksheet_write_number(worksheet, iRow, 1, FRD->KOD1, format_text3)
-    lxw_worksheet_write_string(worksheet, iRow, 2, hb_StrToUtf8( alltrim(FRD->SHIFR) ), format_text)
-    lxw_worksheet_write_string(worksheet, iRow, 3, hb_StrToUtf8( alltrim(FRD->U_NAME) ), format_text)
-    lxw_worksheet_write_number(worksheet, iRow, 4, FRD->KOL, format_text3)
-    lxw_worksheet_write_number(worksheet, iRow, 5, FRD->KOL1, format_text3)
-    lxw_worksheet_write_number(worksheet, iRow, 6, FRD->UET, format_text3)
-    lxw_worksheet_write_number(worksheet, iRow, 7, FRD->SUM, format_text3)
+    lxw_worksheet_write_string(worksheet, iRow, 0, hb_StrToUtf8( alltrim(FRD->SHIFR) ), format_text)
+    lxw_worksheet_write_string(worksheet, iRow, 1, hb_StrToUtf8( alltrim(FRD->U_NAME) ), format_text)
+    lxw_worksheet_write_number(worksheet, iRow, 2, FRD->KOL, format_text3)
+    // lxw_worksheet_write_number(worksheet, iRow, 5, FRD->KOL1, format_text3)
+    // lxw_worksheet_write_number(worksheet, iRow, 6, FRD->UET, format_text3)
+    lxw_worksheet_write_number(worksheet, iRow, 3, FRD->SUM, format_text3)
 
     ++iRow
     FRD->(dbSkip())

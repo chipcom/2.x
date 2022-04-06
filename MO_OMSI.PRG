@@ -3123,7 +3123,8 @@ Function pz1statist(par,par2)
   viewtext(name_file,,,,(sh>80),,,reg_print)
   
   if glob_mo[_MO_KOD_TFOMS] == '805965' //„‹
-    create_xls_rdl('rdl_report')
+    create_xls_rdl('rdl_report') 
+    SaveTo(cur_dir + 'rdl_report.xlsx')
   endif
   return NIL
   
