@@ -3210,6 +3210,18 @@ if type("p_del_error") == "A" .and. p_del_error[2] > 0
       goto ((tmp_1)->(recno()))
       //goto (human->(recno()))
       //
+      // Диспансеризация  
+      if eq_any(human->ishod,401,402) .and. HUMAN_->Usl_ok == 3 // амбулаторная// УД
+        mas_otchet[10,1] += 1 
+        mas_otchet[10,2] += human->cena_1
+      elseif eq_any(human->ishod,201,202,101,102) .and. HUMAN_->Usl_ok == 3 // амбулаторная// Диспансеризация
+        mas_otchet[9,1] += 1 
+        mas_otchet[9,2] += human->cena_1
+      elseif eq_any(human->ishod,203,301,302,303,304,305) .and. HUMAN_->Usl_ok == 3 // амбулаторная// Профосмотры 
+        mas_otchet[7,1] += 1 
+        mas_otchet[7,2] += human->cena_1
+      endif  // прочее        
+
       select HU
       find (str(human->kod,7))
       do while human->kod == hu->kod .and. !eof()
@@ -3276,82 +3288,80 @@ if type("p_del_error") == "A" .and. p_del_error[2] > 0
         if HUMAN_->Usl_ok == 3 // амбулаторная
           // Диспансеризация  
           if eq_any(human->ishod,401,402) // УД
-             mas_otchet[10,1] += 1 
-             mas_otchet[10,2] += human->cena_1
+            // mas_otchet[10,1] += 1 
+            // mas_otchet[10,2] += human->cena_1
           elseif eq_any(human->ishod,201,202,101,102) // Диспансеризация
-            mas_otchet[9,1] += 1 
-            mas_otchet[9,2] += human->cena_1
-
+            //mas_otchet[9,1] += 1 
+            //mas_otchet[9,2] += human->cena_1
           elseif eq_any(human->ishod,203,301,302,303,304,305) // Профосмотры 
-            mas_otchet[7,1] += 1 
-            mas_otchet[7,2] += human->cena_1
-          endif
-          
-          if padr(lshifr,3) == "60." // Диагностика
-            if padr(lshifr,4) == "60.4" //КТ
-              mas_otch[13,1] += 1
-              mas_otch[14,1] += hu->stoim
+            //mas_otchet[7,1] += 1 
+            //mas_otchet[7,2] += human->cena_1
+          else  // прочее        
+            if padr(lshifr,3) == "60." // Диагностика
+              if padr(lshifr,4) == "60.4" //КТ
+                mas_otch[13,1] += 1
+                mas_otch[14,1] += hu->stoim
+                //
+                mas_otchet[17,1] += 1 
+                mas_otchet[17,2] += human->cena_1
+              endif
+              if padr(lshifr,4) == "60.5" //МРТ
+                mas_otchet[18,1] += 1 
+                mas_otchet[18,2] += human->cena_1
+              endif
+              if padr(lshifr,4) == "60.6" //CCC
+                mas_otchet[19,1] += 1 
+                mas_otchet[19,2] += human->cena_1
+              endif
+              if padr(lshifr,4) == "60.7" //эндоскопические диагностические исследования
+                mas_otchet[20,1] += 1 
+                mas_otchet[20,2] += human->cena_1
+              endif
+              if padr(lshifr,4) == "60.8" //патанатомия
+                mas_otchet[22,1] += 1 
+                mas_otchet[22,2] += human->cena_1
+              endif
+              if padr(lshifr,4) == "60.9" //генная
+                mas_otchet[21,1] += 1 
+                mas_otchet[21,2] += human->cena_1
+              endif
+            //
+              mas_otch[11,1] += 1
+              mas_otch[12,1] += hu->stoim
+              if flag_covid
+                mas_otch[11,2] += 1
+                mas_otch[12,2] += hu->stoim
+              endif
+            endif
+            //
+            if padr(alltrim(lshifr),8) == "4.17.785" .or.;
+               padr(alltrim(lshifr),8) == "4.17.786" .or.;
+               padr(alltrim(lshifr),8) == "4.17.787"     //COVID
               //
-              mas_otchet[17,1] += 1 
-              mas_otchet[17,2] += human->cena_1
+              mas_otch[15,1] += 1
+              mas_otch[16,1] += hu->stoim
+              //
+              mas_otch[11,1] += 1
+              mas_otch[12,1] += hu->stoim
+              if flag_covid
+                mas_otch[11,2] += 1
+                mas_otch[12,2] += hu->stoim
+              endif
+              mas_otchet[23,1] += 1 
+              mas_otchet[23,2] += human->cena_1
             endif
-            if padr(lshifr,4) == "60.5" //МРТ
-              mas_otchet[18,1] += 1 
-              mas_otchet[18,2] += human->cena_1
-            endif
-            if padr(lshifr,4) == "60.6" //CCC
-              mas_otchet[19,1] += 1 
-              mas_otchet[19,2] += human->cena_1
-            endif
-            if padr(lshifr,4) == "60.7" //эндоскопические диагностические исследования
-              mas_otchet[20,1] += 1 
-              mas_otchet[20,2] += human->cena_1
-            endif
-            if padr(lshifr,4) == "60.8" //патанатомия
-              mas_otchet[22,1] += 1 
-              mas_otchet[22,2] += human->cena_1
-            endif
-            if padr(lshifr,4) == "60.9" //генная
-              mas_otchet[21,1] += 1 
-              mas_otchet[21,2] += human->cena_1
-            endif
-            //
-            mas_otch[11,1] += 1
-            mas_otch[12,1] += hu->stoim
-            if flag_covid
-              mas_otch[11,2] += 1
-              mas_otch[12,2] += hu->stoim
-            endif
-          endif
-          //
-          if padr(alltrim(lshifr),8) == "4.17.785" .or.;
-             padr(alltrim(lshifr),8) == "4.17.786" .or.;
-             padr(alltrim(lshifr),8) == "4.17.787"     //COVID
-            //
-            mas_otch[15,1] += 1
-            mas_otch[16,1] += hu->stoim
-            //
-            mas_otch[11,1] += 1
-            mas_otch[12,1] += hu->stoim
-            if flag_covid
-              mas_otch[11,2] += 1
-              mas_otch[12,2] += hu->stoim
-            endif
-            mas_otchet[23,1] += 1 
-            mas_otchet[23,2] += human->cena_1
-          endif
           // профеля
-          if padr(lshifr,5) == "2.80." .or. ; // Неотложка
-             padr(lshifr,5) == "2.82."        //  ПРиемный покой
-            mas_otch[9,1]  += 1
-            mas_otch[10,1] += hu->stoim
-            mas_otchet[12,1] += 1 
-            mas_otchet[12,2] += human->cena_1
-            if flag_covid
-              mas_otch[9,2]  += 1
-              mas_otch[10,2] += hu->stoim
-            endif
-          elseif padr(lshifr,5) == "2.78." // Обращения
+            if padr(lshifr,5) == "2.80." .or. ; // Неотложка
+              padr(lshifr,5) == "2.82."        //  ПРиемный покой
+              mas_otch[9,1]  += 1
+              mas_otch[10,1] += hu->stoim
+              mas_otchet[12,1] += 1 
+              mas_otchet[12,2] += human->cena_1
+              if flag_covid
+                mas_otch[9,2]  += 1
+                mas_otch[10,2] += hu->stoim
+              endif
+            elseif padr(lshifr,5) == "2.78." // Обращения
             // нужен фильтр по профилям
             // Акушерство и генология == 2,136,137
             // Дерматовенерология  == 16
@@ -3359,28 +3369,29 @@ if type("p_del_error") == "A" .and. p_del_error[2] > 0
             // Травматология и ортопедия == 100
             // Стоматологии 85,86,87,88,89,90,171,
             // Медреабилитация 158
-            if eq_any(human_->profil,2,136,137,16,60,100,85,86,87,89,90,171,158)
-              mas_otch[7,1] += 1
-              mas_otch[8,1] += hu->stoim
-              if flag_covid
-                mas_otch[7,2] += 1
-                mas_otch[8,2] += hu->stoim
-              endif
-              if human_->profil == 158
-                mas_otchet[13,1] += 1 
-                mas_otchet[13,2] += human->cena_1
-              else  
-                mas_otchet[14,1] += 1 
-                mas_otchet[14,2] += human->cena_1
+              if eq_any(human_->profil,2,136,137,16,60,100,85,86,87,89,90,171,158)
+                mas_otch[7,1] += 1
+                mas_otch[8,1] += hu->stoim
                 if flag_covid
-                  mas_otchet[15,1] += 1 
-                  mas_otchet[15,2] += human->cena_1
+                  mas_otch[7,2] += 1
+                  mas_otch[8,2] += hu->stoim
+                endif
+                if human_->profil == 158
+                  mas_otchet[13,1] += 1 
+                  mas_otchet[13,2] += human->cena_1
+                else  
+                  mas_otchet[14,1] += 1 
+                  mas_otchet[14,2] += human->cena_1
+                  if flag_covid
+                    mas_otchet[15,1] += 1 
+                    mas_otchet[15,2] += human->cena_1
+                  endif  
                 endif  
-              endif  
+              endif
+            else // посещения с иными целями
+              mas_otchet[11,1] += 1 
+              mas_otchet[11,2] += human->cena_1
             endif
-          else // посещения с иными целями
-            mas_otchet[11,1] += 1 
-            mas_otchet[11,2] += human->cena_1
           endif
           //
           if padr(lshifr,5) == "2.79." .or.; // Посещения профилактические

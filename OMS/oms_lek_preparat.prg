@@ -101,7 +101,7 @@ function check_diag_pregant()
       between_diag(HUMAN->SOPUT_B4, 'Z34', 'Z35'), .t., .f.)
   return fl
   
-******* 09.01.22 ввода лекарственных препаратов
+******* 05.04.22 ввода лекарственных препаратов
 function oms_sluch_lek_pr(mkod_human, mkod_kartotek, fl_edit)
   // mkod_human - код по БД human
   // mkod_kartotek - код по БД kartotek
@@ -142,9 +142,9 @@ function oms_sluch_lek_pr(mkod_human, mkod_kartotek, fl_edit)
     {"DOZE"    ,   "N",    8,     2},; // Доза введения лекарственного препарата
     {"METHOD"  ,   "N",    3,     0},; // Путь введения лекарственного препарата
     {"COL_INJ" ,   "N",    5,     0},; // Количество введений в течениедня, указанного в DATA_INJ
-    {"COD_MARK",   "C",  100,     0},;  // Код маркировки лекарственного препарата
-    {"NUMBER"  ,   "N",    3,     0},;
-    {"REC_N"   ,   "N",    8,     0};
+    {"COD_MARK",   "C",  100,     0},; // Код маркировки лекарственного препарата
+    {"NUMBER"  ,   "N",    3,     0},; // счетчик строк
+    {"REC_N"   ,   "N",    8,     0};  // номер записи в файле human_lek_pr.dbf
   }
   dbcreate(cur_dir + 'tmp_lek_pr', adbf)
   use (cur_dir + 'tmp_lek_pr') new alias TMP
@@ -308,11 +308,11 @@ function add_lek_pr(dInj, nKey)
   select tmp
   return nil
 
-****** 29.03.22
+****** 05.04.22
 function f2oms_sluch_lek_pr(nKey,oBrow)
 
   LOCAL flag := -1, buf := savescreen(), k_read := 0, count_edit := 0
-  local r1 := 14, ix, number
+  local r1, ix, number
   local last_date := human->n_data
   local flMany := .f., tDate
   local arr_dni, row, i
@@ -367,8 +367,8 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
         mMETHOD := padr(inieditspr(A__MENUVERT, getMethodINJ(), m1METHOD),30)
       endif
 
-      --r1
-      box_shadow(r1 - 1, 0, maxrow() - 1, 79, color8, ;
+      r1 := 13
+      box_shadow(r1, 0, maxrow() - 1, 79, color8, ;
                  iif(nKey == K_INS, "Добавление нового препарата", ;
                                    "Редактирование препарата"), iif(yes_color, "RB+/B", "W/N"))
       do while .t.
@@ -376,10 +376,10 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
         ix := 1
         
         if (nKey == K_ENTER .or. nKey == K_INS) .and. human_->USL_OK == 3
-          @ r1+ix, 2 say "Дата введения препарата" get mdate_u1 ;
+          @ r1+ix, 2 say "Дата назначения препарата" get mdate_u1 ;
               reader {|x|menu_reader(x, arrDateUslug, A__MENUVERT, , , .f.)} ;
               valid {| g | f5editpreparat(g, nKey, 2, 1)}
-          elseif nKey == K_ENTER .and. human_->USL_OK == 1
+        elseif nKey == K_ENTER .and. human_->USL_OK == 1
           @ r1+ix, 2 say "Дата введения препарата" get mdate_u1 ;
               valid {| g | f5editpreparat(g, nKey, 2, 1)}
         elseif nKey == K_INS .and. human_->USL_OK == 1

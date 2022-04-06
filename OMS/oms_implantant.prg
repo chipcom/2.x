@@ -4,7 +4,7 @@
 #include "chip_mo.ch"
 #include 'dbstruct.ch'
 
-****** 21.03.22 - просмотр списка имплантантов
+****** 02.04.22 - просмотр списка имплантантов
 function view_implantant(arrImplantant, date_usl, fl_change)
   local tmp_keys
   local oBox, oBrowse, oColumn
@@ -22,6 +22,7 @@ function view_implantant(arrImplantant, date_usl, fl_change)
   }
   local fl_found
   local buf := savescreen()
+  local k_hum, mo_hu_rec
 
   dbCreate( cur_dir + 'tmp_impl', mo_implant )
   G_Use( cur_dir + 'tmp_impl', , cAlias, , .t.)
@@ -29,6 +30,7 @@ function view_implantant(arrImplantant, date_usl, fl_change)
   for each row in arrImplantant
     (cAlias)->(dbAppend())
     (cAlias)->KOD_HUM := row[1]
+    k_hum := row[1]
     (cAlias)->KOD_K := row[2]
     if fl_change
       (cAlias)->DATE_UST := date_usl
@@ -38,6 +40,7 @@ function view_implantant(arrImplantant, date_usl, fl_change)
     (cAlias)->RZN := row[4]
     (cAlias)->SER_NUM := row[5]
     (cAlias)->MO_HU_K := row[6]
+    mo_hu_rec := row[6]
   next
   fl_found := ((cAlias)->(lastrec()) > 0)
 
@@ -59,6 +62,9 @@ function view_implantant(arrImplantant, date_usl, fl_change)
                {"═", "│", "═", l_color, .t., 180} )
 
   (cAlias)->(dbCloseArea())
+
+  delete_implantants(k_hum, mo_hu_rec)
+  save_implantants(k_hum, mo_hu_rec)
 	restore gets from tmp_gets
 	my_restkey( tmp_keys )
   select(oldSelect)
