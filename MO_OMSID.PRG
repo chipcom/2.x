@@ -3803,7 +3803,11 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
            {"g2","N",6,0},;
            {"g3","N",6,0},;
            {"g4","N",6,0},;
-           {"g5","N",6,0}}
+           {"g5","N",6,0},;
+           {"g6","N",6,0},;
+           {"g7","N",6,0},;
+           {"g8","N",6,0},;
+           {"g9","N",6,0}}
   dbcreate(cur_dir+"tmp1",adbf)
   use (cur_dir+"tmp1") new
   index on str(nn,2) to (cur_dir+"tmp1")
@@ -4098,7 +4102,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
     strfile("FF","tmp1.txt",.t.)
     feval("tmp2.txt",{|s| strfile(s+eos,"tmp1.txt",.t.) })
   endif
-  viewtext("tmp1.txt",,,,,,,2)
+  viewtext("tmp1.txt",,,,,,,3)
 endif
 close databases
 rest_box(buf)
@@ -4468,9 +4472,9 @@ if !empty(tmp->kod2h) // диспансеризация II этап
 endif
 return NIL
 
-***** 03.09.20
+***** 07.04.22
 Function f2_f21_inf_DVN(par)
-Local is_selo, i, j, k, k1 := 5, fl2 := .f., ar[21], arr11[15], arr12[43], au := {}, fl_pens
+Local is_selo, i, j, k, k1 := 9, fl2 := .f., ar[21], arr11[15], arr12[43], au := {}, fl_pens
 Private arr_otklon := {}, arr_usl_otkaz := {},;
         M1RAB_NERAB := human->RAB_NERAB, m1veteran := 0, m1mobilbr := 0,;
         m1kurenie := 0, mad1 := 120, mad2 := 80, m1tip_mas := 0, mssr := 0,;
@@ -4489,13 +4493,22 @@ if kart_->invalid > 0
   arr_21[21] ++
 endif
 if par == 1
-  if mdvozrast < 40
+  if mdvozrast < 35
     k1 := 1
-  elseif mdvozrast < 65
+  elseif mdvozrast < 40
     k1 := 2
-  else
+  elseif mdvozrast < 55
     k1 := 3
+  elseif mdvozrast < 60
+    k1 := 4
+  elseif mdvozrast < 65
+    k1 := 5
+  elseif mdvozrast < 75
+    k1 := 6
+  else
+    k1 := 7
   endif
+  //g5
 endif
 if human->n_data == human->k_data // за один день
   ar[5] := 1
@@ -4703,8 +4716,8 @@ for i := 1 to len(ar)
   if ar[i] > 0
     find (str(i,2))
     &pole := &pole + ar[i]
-    if k1 < 4 .and. fl_pens
-      tmp1->g4 += ar[i]
+    if k1 < 8 .and. fl_pens
+      tmp1->g8 += ar[i]
     endif
   endif
 next
@@ -6752,7 +6765,7 @@ Function f1_f21_inf_DNL(Loc_kod,kod_kartotek) // сводная информация
 Local ii, im, i, j, k, s, sumr := 0, ar := {0}, ltip_school := -1, ar15[26],;
       is_2 := .f., ad := {}, arr, a3 := {}, fl_ves := .T.
 Private m1tip_school := -1, m1school := 0, mvozrast, mdvozrast, mgruppa := 0, m1GR_FIZ := 1, m1invalid1 := 0
-Private mvar, m1var, m1FIZ_RAZV1, m1napr_stac
+Private mvar, m1var, m1FIZ_RAZV1, m1napr_stac := 0
 afill(ar15,0)
 mvozrast := count_years(human->date_r,human->n_data)
 mdvozrast := year(human->n_data) - year(human->date_r)
