@@ -4156,8 +4156,8 @@ next
 
 if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
                                    .and. (arr_m := year_month(,,,5)) != NIL
-mywait()
-dbcreate(cur_dir+"tmp",{{"gruppa_1","N",1,0},;// 1-группа 2- группа 3 - без группа
+  mywait()
+  dbcreate(cur_dir+"tmp",{{"gruppa_1","N",1,0},;// 1-группа 2- группа 3 - без группа
                         {"etap_1","N",1,0},;  // Этап 1-й 2-й
                         {"sub_day","N",1,0},; // Выполнение в субботу 0-нет 1-да
                         {"one_day","N",1,0},; // Выполнение в 1 день 0-нет 1-да
@@ -4205,8 +4205,8 @@ dbcreate(cur_dir+"tmp",{{"gruppa_1","N",1,0},;// 1-группа 2- группа 3 - без груп
         tmp->etap_1 := 2
       endif
       //
-      arr := read_arr_DISPANS(human->kod)
-//      my_debug(,print_array(arr))
+      arr := read_arr_DISPANS(human->kod) 
+     //     my_debug(,print_array(arr))
       //
       for i := 1 to len(arr)
         if valtype(arr[i]) == "A" .and. valtype(arr[i,1]) == "C"
@@ -4279,10 +4279,10 @@ dbcreate(cur_dir+"tmp",{{"gruppa_1","N",1,0},;// 1-группа 2- группа 3 - без груп
     select TMP
     skip
   enddo
-// создаем отчет
-reg_print := f_reg_print(arr_title,@sh,2)
-fp := fcreate(n_file) ; tek_stroke := 0 ; n_list := 1
-add_string("")
+  // создаем отчет
+  reg_print := f_reg_print(arr_title,@sh,2)
+   fp := fcreate(n_file) ; tek_stroke := 0 ; n_list := 1
+  add_string("")
   //
   for II := 0 to 3
     afill(arr_itog,0)
@@ -4341,7 +4341,7 @@ add_string("")
       endif
       skip
     enddo
-// Выводим
+  // Выводим
     add_string(center("Лица, перенесшие COVID-19",sh))
     if II==3
       add_string(center("ИТОГО",sh))
@@ -4372,13 +4372,15 @@ add_string("")
     add_string("")
     add_string("")
   next
-endif
+//endif
 //
-close databases
-fclose(fp)
-Private yes_albom := .t.
-viewtext(n_file,,,,(sh>80),,,reg_print)
+  close databases
+  fclose(fp)
+  Private yes_albom := .t.
+  viewtext(n_file,,,,(sh>80),,,reg_print)
+endif
 rest_box(buf)
+close databases
 //quit
 return NIL
 
