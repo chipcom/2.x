@@ -146,8 +146,9 @@ function oms_sluch_lek_pr(mkod_human, mkod_kartotek, fl_edit)
     {"NUMBER"  ,   "N",    3,     0},; // счетчик строк
     {"REC_N"   ,   "N",    8,     0};  // номер записи в файле human_lek_pr.dbf
   }
-  dbcreate(cur_dir + 'tmp_lek_pr', adbf)
-  use (cur_dir + 'tmp_lek_pr') new alias TMP
+  // dbcreate(cur_dir + 'tmp_lek_pr', adbf)
+  // use (cur_dir + 'tmp_lek_pr') new alias TMP
+  dbCreate( 'mem:lek_pr', adbf, , .T., 'TMP' )
 
   select LEK_PR
   find (str(mkod_human, 7))
@@ -172,6 +173,7 @@ function oms_sluch_lek_pr(mkod_human, mkod_kartotek, fl_edit)
     enddo
   endif
   fl_found := (tmp->(lastrec()) > 0)
+  index on dtos(DATE_INJ) TAG LEK_PR
 
   cls
   pr_1_str("Лекарственные препараты < " + fio_plus_novor() + " >")
@@ -196,6 +198,8 @@ function oms_sluch_lek_pr(mkod_human, mkod_kartotek, fl_edit)
 
   LEK_PR->(dbCloseArea())
   TMP->(dbCloseArea())
+  dbDrop( 'mem:lek_pr' )  /* освободим память */
+  hb_vfErase('mem:lek_pr.ntx')  /* освободим память от индексного файла */
 
   HUMAN_2->(dbCloseArea())
   HUMAN_->(dbCloseArea())
