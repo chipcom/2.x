@@ -22,7 +22,7 @@ DEFAULT fl_view TO .t.
 rec_human := human->(recno())
 Private mdate_r := human->date_r, mvozrast, mdvozrast, M1VZROS_REB := human->VZROS_REB,;
         arr_usl_otkaz := {}, m1novor := 0, mpol := human->pol, mDATE_R2 := ctod(""),;
-        is_oncology := 0, version_3_1 := left(dtos(human->k_data),6) > "201808" // с сентября 2018 года
+        is_oncology := 0, version_3_1 := left(dtos(human->k_data),6) > "201808" // с сентября 18 года
 if human_->NOVOR > 0
   m1novor := 1 // для переопределения M1VZROS_REB
   mDATE_R2 := human_->DATE_R2
@@ -1107,7 +1107,7 @@ do while mohu->kod == human->kod .and. !eof()
   skip
 enddo
 v := 0
-if .f. // is_oncology == 2 // онкология - в 2019 за 2018 не проверяем и не отправляем
+if .f. // is_oncology == 2 // онкология - в 19 за 18 не проверяем и не отправляем
   select ONKSL
   find (str(human->kod,7))
   if between(onksl->PR_CONS,1,3) .and. !between(onksl->DT_CONS,d1,d2)
@@ -3676,7 +3676,7 @@ if fl_view
 endif
 return (_ocenka >= 5)
 
-***** 16.01.19 определение КСГ по остальным введённым полям ввода - 2018 год
+***** 16.01.19 определение КСГ по остальным введённым полям ввода - 18 год
 Function definition_KSG_18(par)
 // файлы "human", "human_" и "human_2" открыты и стоят на нужной записи
 //       "human" открыт для записи суммы случая

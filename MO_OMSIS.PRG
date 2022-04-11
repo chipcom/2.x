@@ -3121,7 +3121,7 @@ if fl .and. mn->rak > 0
         n := 2224.60
       elseif y == 2017
         n := 1819.50
-      else  // 2016 год
+      else  // 16 год
         n := 1747.70
       endif
       mrak_p := k := round(mrak_s/n*100,0)
@@ -6537,13 +6537,6 @@ Local tfoms_pz[6,3], mkol, ta, i, ii, j, k, lshifr, lvidpom := 1, lshifr1, j1, f
       arr := {}, mkol_k := 0, mkol_1 := 0, mkol_2 := 0, mkol_55 := 0, lenp,;
       fl_T := (schet_->bukva == "T"), fl_K := (schet_->bukva == "K"), lalf := "luslf"
 
-  // if arr_m[1] == 2018
-  //   lalf += "18"
-  // elseif arr_m[1] == 2019
-  //   lalf += "19"
-  // elseif arr_m[1] == 2020
-  //   lalf += "20"
-  // endif
   lalf := create_name_alias(lalf, arr_m[1])
 
 select HU

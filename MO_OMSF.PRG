@@ -24,7 +24,7 @@ glob_podr := "" ; glob_otd_dep := 0
 if lusl == 1 .and. lkdate >= d_01_08_2017
   if year(lkdate) > 2017
     if is_otd_dep
-      glob_otd_dep := otd->CODE_DEP // код отделения по кодировке ТФОМС из справочника SprDep - 2018 год
+      glob_otd_dep := otd->CODE_DEP // код отделения по кодировке ТФОМС из справочника SprDep - 18 год
       if empty(glob_otd_dep)
         // базы отделения и учреждения открыты и стоят на нужной записи
         aadd(_arr,' не заполнен код отделения по кодировке ТФОМС для "'+alltrim(otd->name)+'/'+alltrim(uch->name)+'"')
@@ -41,21 +41,6 @@ if lusl == 1 .and. lkdate >= d_01_08_2017
   endif
 endif
 return len(_arr) > 0
-
-***** 02.08.17 работало в 2017 году, в 2018 - закомментировано
-/*Function f_valid_metvmp(_metvmp)
-if between(_metvmp,498,499)
-  if !(mstentvmp $ "123")
-    mstentvmp := ' '
-  endif
-  SetPos(p_nstr_stent,1)
-  DispOut(p_str_stent,cDataCGet)
-else
-  mstentvmp := ' '
-  SetPos(p_nstr_stent,1)
-  DispOut(space(len(p_str_stent)),cDataCGet)
-endif
-return update_get("mstentvmp")*/
 
 ***** 06.02.22
 Function f_oms_beremenn(sdiag)
@@ -343,7 +328,7 @@ if empty(mdiagnoz[1]) // если пустой основной диагноз, заполним его
 endif
 return mdiagnoz
 
-***** 17.08.2018 вернуть диагнозы в массиве
+***** 17.08.18 вернуть диагнозы в массиве
 Function diag_to_array(al,fl_trim,fl_dop,fl_del,fl_6,adiag_talon)
 Local ad, _arr := {}, j, k, s, lshifr, dp, dp1, _ta, tmp_select := select()
 DEFAULT al      TO "human", ; // alias БД листов учета
@@ -912,7 +897,7 @@ find (padr(_shifr,10))
 if found() //.and. between_date(lusl->datebeg,lusl->dateend,ldate_usl)
   fl := .t.
   lbukva := alltrim(&lal.->bukva)
-  if len(lbukva) != 1 // для 2018 года
+  if len(lbukva) != 1 // для 18 года
     lbukva := " "
   endif
   lst := &lal.->st
@@ -966,7 +951,7 @@ Function is_usluga_TFOMS(lshifr,lshifr1,ldate_usl,;
   if found() //.and. between_date(lusl->datebeg,lusl->dateend,ldate_usl)
     fl := .t.
     lbukva := alltrim(&lal.->bukva)
-    if len(lbukva) != 1 // для 2018 года
+    if len(lbukva) != 1 // для 18 года
       lbukva := ' '
     endif
     lst := &lal.->st
@@ -1028,7 +1013,7 @@ if left(lshifr,2) == sl
 endif
 return fl
 
-***** 10.09.2018
+***** 10.09.18
 Function ret_kod_usl_lek_ter(lVZROS_REB)
 Static skodv := 0, skodr := 0
 Local s, lkod

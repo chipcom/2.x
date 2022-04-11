@@ -3281,7 +3281,6 @@ do while hu->kod == human->kod .and. !eof()
             elseif is_2019
               lalunit := "MOUNIT19"
             endif
-            // lalunit := "MOUNIT"+iif(is_2021,"","20")   // 19.01.2021
             dbSelectArea(lalunit)
             set order to 1  // 2 23.12.21
             find (str(i16,3))
@@ -4718,14 +4717,14 @@ do while !eof()
     // дата отчетного периода
     mdate1 := stod(strzero(schet_->nyear,4)+strzero(schet_->nmonth,2)+"15")
     //
-    *** 2018 год
+    *** 18 год
     k := iif(arr_m[3]==12,21,10) // дата регистрации по 10.04.18
     if arr_m[3] == 12 .and. glob_mo[_MO_KOD_TFOMS] == '134505'
       k := 23
     endif
     ***
     fl := between(mdate,arr_m[5],arr_m[6]+k) ;
-            .and. between(mdate1,arr_m[5],arr_m[6]) // !!отч.период 2018 год
+            .and. between(mdate1,arr_m[5],arr_m[6]) // !!отч.период 18 год
   endif
   if fl
     select HUMAN

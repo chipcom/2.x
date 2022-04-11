@@ -1470,10 +1470,10 @@ Function oms_sluch_DVN(Loc_kod,kod_kartotek,f_print)
       m1p_otk := 0
       if (i := ascan(mm_gruppa,{|x| x[2] == m1GRUPPA })) > 0
         if (m1rslt := mm_gruppa[i,3]) == 352
-          m1rslt := 353 // ―® ―¨αμ¬γ ’”‘ ®β 06.07.2018 ό09-30-96
+          m1rslt := 353 // ―® ―¨αμ¬γ ’”‘ ®β 06.07.18 ό09-30-96
         endif
         if eq_any(m1GRUPPA,11,21)
-          m1GRUPPA++  // ―® ―¨αμ¬γ ’”‘ ®β 06.07.2018 ό09-30-96
+          m1GRUPPA++  // ―® ―¨αμ¬γ ’”‘ ®β 06.07.18 ό09-30-96
         endif
         if m1GRUPPA > 20
           m1p_otk := 1 // ®βª § ®β ―ΰ¨ε®¤  ­  2-© νβ ―
