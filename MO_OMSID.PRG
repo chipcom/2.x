@@ -5,7 +5,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-#define MONTH_UPLOAD 4 //Œ…‘Ÿ– ¤«ï ¢ë£àã§ª¨ R11
+#define MONTH_UPLOAD 5 //Œ…‘Ÿ– ¤«ï ¢ë£àã§ª¨ R11
 
 Static lcount_uch  := 1
 Static mas1pmt := {"~¢á¥ ®ª § ­­ë¥ á«ãç ¨",;
@@ -3193,7 +3193,7 @@ if regim == "edit" .and. nKey == K_ENTER
       {19,"3.4.9","ˆ§¬¥à¥­¨¥ ¢­ãâà¨£« §­®£® ¤ ¢«¥­¨ï"},;
       {20,{{"2.3.1",97},{"2.3.1",57},{"2.3.2",97},{"2.3.2",57},{"2.3.3",42},{"2.3.5",57},{"2.3.5",97},{"2.3.6",57},{"2.3.6",97}},"à¨¥¬ (®á¬®âà) ¢à ç -â¥à ¯¥¢â "};
      }
-    if is_disp .and. year(mk_data) > 2017 // á 2018 £®¤ 
+    if is_disp .and. year(mk_data) > 2017 // á 18 £®¤ 
       arr_10[13] := {13,"4.14.66","ˆáá«¥¤®¢ ­¨¥ ªà®¢¨ ­  ¯à®áâ â-á¯¥æ¨ä¨ç¥áª¨©  ­â¨£¥­"}
       Del_Array(arr_10,18)
       Del_Array(arr_10,17)
@@ -3502,7 +3502,7 @@ if regim == "edit" .and. nKey == K_ENTER
         {15,"ƒàã¯¯®¢®¥ ¯à®ä¨« ªâ¨ç¥áª®¥ ª®­áã«ìâ¨à®¢ ­¨¥ (èª®«  ¯ æ¨¥­â )","0"},;
         {16,"à¨¥¬ (®á¬®âà) ¢à ç -â¥à ¯¥¢â ",{"2.84.2","2.84.7","2.84.9","2.84.11"}};
        }
-      if is_disp .and. year(mk_data) > 2017 // á 2018 £®¤ 
+      if is_disp .and. year(mk_data) > 2017 // á 18 £®¤ 
         arr_11[ 6] := { 6,"¥ªâ®á¨£¬®ª®«®­®áª®¯¨ï ¤¨ £­®áâ¨ç¥áª ï","10.6.710"}
         arr_11[14] := {14,"ˆ­¤¨¢¨¤ã «ì­®¥ ¨«¨ £àã¯¯®¢®¥ (èª®«  ¤«ï ¯ æ¨¥­â ) ã£«ã¡«¥­­®¥ ¯à®ä¨« ªâ¨ç¥áª®¥ ª®­áã«ìâ¨à®¢ ­¨¥","56.1.723"}
         Del_Array(arr_11,15)
@@ -3803,7 +3803,11 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
            {"g2","N",6,0},;
            {"g3","N",6,0},;
            {"g4","N",6,0},;
-           {"g5","N",6,0}}
+           {"g5","N",6,0},;
+           {"g6","N",6,0},;
+           {"g7","N",6,0},;
+           {"g8","N",6,0},;
+           {"g9","N",6,0}}
   dbcreate(cur_dir+"tmp1",adbf)
   use (cur_dir+"tmp1") new
   index on str(nn,2) to (cur_dir+"tmp1")
@@ -4098,7 +4102,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
     strfile("FF","tmp1.txt",.t.)
     feval("tmp2.txt",{|s| strfile(s+eos,"tmp1.txt",.t.) })
   endif
-  viewtext("tmp1.txt",,,,,,,2)
+  viewtext("tmp1.txt",,,,,,,3)
 endif
 close databases
 rest_box(buf)
@@ -4152,8 +4156,8 @@ next
 
 if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
                                    .and. (arr_m := year_month(,,,5)) != NIL
-mywait()
-dbcreate(cur_dir+"tmp",{{"gruppa_1","N",1,0},;// 1-£àã¯¯  2- £àã¯¯  3 - ¡¥§ £àã¯¯ 
+  mywait()
+  dbcreate(cur_dir+"tmp",{{"gruppa_1","N",1,0},;// 1-£àã¯¯  2- £àã¯¯  3 - ¡¥§ £àã¯¯ 
                         {"etap_1","N",1,0},;  // â ¯ 1-© 2-©
                         {"sub_day","N",1,0},; // ‚ë¯®«­¥­¨¥ ¢ áã¡¡®âã 0-­¥â 1-¤ 
                         {"one_day","N",1,0},; // ‚ë¯®«­¥­¨¥ ¢ 1 ¤¥­ì 0-­¥â 1-¤ 
@@ -4201,8 +4205,8 @@ dbcreate(cur_dir+"tmp",{{"gruppa_1","N",1,0},;// 1-£àã¯¯  2- £àã¯¯  3 - ¡¥§ £àã¯
         tmp->etap_1 := 2
       endif
       //
-      arr := read_arr_DISPANS(human->kod)
-//      my_debug(,print_array(arr))
+      arr := read_arr_DISPANS(human->kod) 
+     //     my_debug(,print_array(arr))
       //
       for i := 1 to len(arr)
         if valtype(arr[i]) == "A" .and. valtype(arr[i,1]) == "C"
@@ -4275,10 +4279,10 @@ dbcreate(cur_dir+"tmp",{{"gruppa_1","N",1,0},;// 1-£àã¯¯  2- £àã¯¯  3 - ¡¥§ £àã¯
     select TMP
     skip
   enddo
-// á®§¤ ¥¬ ®âç¥â
-reg_print := f_reg_print(arr_title,@sh,2)
-fp := fcreate(n_file) ; tek_stroke := 0 ; n_list := 1
-add_string("")
+  // á®§¤ ¥¬ ®âç¥â
+  reg_print := f_reg_print(arr_title,@sh,2)
+   fp := fcreate(n_file) ; tek_stroke := 0 ; n_list := 1
+  add_string("")
   //
   for II := 0 to 3
     afill(arr_itog,0)
@@ -4337,7 +4341,7 @@ add_string("")
       endif
       skip
     enddo
-// ‚ë¢®¤¨¬
+  // ‚ë¢®¤¨¬
     add_string(center("‹¨æ , ¯¥à¥­¥áè¨¥ COVID-19",sh))
     if II==3
       add_string(center("ˆ’ŽƒŽ",sh))
@@ -4368,13 +4372,15 @@ add_string("")
     add_string("")
     add_string("")
   next
-endif
+//endif
 //
-close databases
-fclose(fp)
-Private yes_albom := .t.
-viewtext(n_file,,,,(sh>80),,,reg_print)
+  close databases
+  fclose(fp)
+  Private yes_albom := .t.
+  viewtext(n_file,,,,(sh>80),,,reg_print)
+endif
 rest_box(buf)
+close databases
 //quit
 return NIL
 
@@ -4468,9 +4474,9 @@ if !empty(tmp->kod2h) // ¤¨á¯ ­á¥à¨§ æ¨ï II íâ ¯
 endif
 return NIL
 
-***** 03.09.20
+***** 07.04.22
 Function f2_f21_inf_DVN(par)
-Local is_selo, i, j, k, k1 := 5, fl2 := .f., ar[21], arr11[15], arr12[43], au := {}, fl_pens
+Local is_selo, i, j, k, k1 := 9, fl2 := .f., ar[21], arr11[15], arr12[43], au := {}, fl_pens
 Private arr_otklon := {}, arr_usl_otkaz := {},;
         M1RAB_NERAB := human->RAB_NERAB, m1veteran := 0, m1mobilbr := 0,;
         m1kurenie := 0, mad1 := 120, mad2 := 80, m1tip_mas := 0, mssr := 0,;
@@ -4489,13 +4495,22 @@ if kart_->invalid > 0
   arr_21[21] ++
 endif
 if par == 1
-  if mdvozrast < 40
+  if mdvozrast < 35
     k1 := 1
-  elseif mdvozrast < 65
+  elseif mdvozrast < 40
     k1 := 2
-  else
+  elseif mdvozrast < 55
     k1 := 3
+  elseif mdvozrast < 60
+    k1 := 4
+  elseif mdvozrast < 65
+    k1 := 5
+  elseif mdvozrast < 75
+    k1 := 6
+  else
+    k1 := 7
   endif
+  //g5
 endif
 if human->n_data == human->k_data // §  ®¤¨­ ¤¥­ì
   ar[5] := 1
@@ -4703,8 +4718,8 @@ for i := 1 to len(ar)
   if ar[i] > 0
     find (str(i,2))
     &pole := &pole + ar[i]
-    if k1 < 4 .and. fl_pens
-      tmp1->g4 += ar[i]
+    if k1 < 8 .and. fl_pens
+      tmp1->g8 += ar[i]
     endif
   endif
 next
@@ -6514,7 +6529,12 @@ if (arr_m := year_month(,,,5)) != NIL
              {"g15ps","N",6,0},;
              {"g15p1","N",6,0},;
              {"g15p1s","N",6,0},;
-             {"g15e","N",6,0}}
+             {"g15e","N",6,0},;
+             {"g18","N",6,0},;
+             {"g18s","N",6,0},;
+             {"m18","N",6,0},;
+             {"m18s","N",6,0}}         
+              
     dbcreate(cur_dir+"tmp1",adbf)
     use (cur_dir+"tmp1") new
     index on str(mm,2) to (cur_dir+"tmp1")
@@ -6638,15 +6658,15 @@ if (arr_m := year_month(,,,5)) != NIL
 "        ³  3  ³  4  ³  5  ³  6  ³  7  ³  8  ³  3  ³  4  ³  5  ³  6  ³  7  ³  8  ",;
 "ÄÄÄÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄ"}*/
     arr_title := {;
-"ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ",;
-"            ž­®è¨ (15-17 «¥â)                              ³                 „¥¢ãèª¨ (15-17 «¥â)                       ",;
-"ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄ",;
-"     ä ªâ ®á¬®â.(ç¥«.)       ³¯ â®«³ ¨§  ³¨§ 7 ³ ¨§  ³­ ¯à.³      ä ªâ ®á¬®â.(ç¥«.)      ³¯ â®«³ ¨§  ³¨§ 14³ ¨§  ³­ ¯à.",;
-"ÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄ´à¥¯à.³ £à.7³¢¯¥à-³ 7.2 ³­  IIÃÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄ´à¥¯à.³£à.14³¢¯¥à-³14.2 ³­  II",;
-"¢á¥£®³ á¥«®³¯®á¥é³ á¥«®³ ­¤à®³á¨áâ.³ á¥«®³¢ë¥  ³ á¥«®³íâ ¯ ³¢á¥£®³ á¥«®³¯®á¥é³ á¥«®³£¨­¥ª³á¨áâ.³ á¥«®³¢ë¥  ³ á¥«®³íâ ¯ ",;
-"ÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄ",;
-"  3  ³  4  ³  5  ³ 5.1 ³  6  ³  7  ³ 7.1 ³ 7.2 ³ 7.3 ³  8  ³  11 ³ 11.1³  12 ³ 12.1³  13 ³  14 ³ 14.1³ 14.2³ 14.3³ 15  ",;
-"ÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄ"}
+"ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ",;
+"            ž­®è¨ (15-17 «¥â)                                          ³                         „¥¢ãèª¨ (15-17 «¥â)                           ",;
+"ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄ",;
+"     ä ªâ ®á¬®â.(ç¥«.)       ³¯ â®«³ ¨§  ³¨§ 7 ³ ¨§  ³­ ¯à.³­ ¯à.³ ¨§  ³      ä ªâ ®á¬®â.(ç¥«.)      ³¯ â®«³ ¨§  ³¨§ 14³ ¨§  ³­ ¯à.³­ ¯à.³ ¨§  ",;
+"ÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄ´à¥¯à.³ £à.7³¢¯¥à-³ 7.2 ³­  II³­  «.³  9  ÃÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄ´à¥¯à.³£à.14³¢¯¥à-³14.2 ³­  II³­  «.³ 18  ",;
+"¢á¥£®³ á¥«®³¯®á¥é³ á¥«®³ ­¤à®³á¨áâ.³ á¥«®³¢ë¥  ³ á¥«®³íâ ¯ ³¨§ 7 ³ á¥«®³¢á¥£®³ á¥«®³¯®á¥é³ á¥«®³£¨­¥ª³á¨áâ.³ á¥«®³¢ë¥  ³ á¥«®³íâ ¯ ³¨§ 16³ á¥«®",;
+"ÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄÅÄÄÄÄÄ",;
+"  3  ³  4  ³  5  ³ 5.1 ³  6  ³  7  ³ 7.1 ³ 7.2 ³ 7.3 ³  8  ³  9  ³ 9.1 ³  13 ³ 13.1³  14 ³ 14.1³  15 ³  16 ³ 16.1³ 16.2³ 16.3³ 17  ³ 18  ³ 18.1",;
+"ÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄÁÄÄÄÄÄ"}
     sh := len(arr_title[1])
     i := 1
     add_string("")
@@ -6663,6 +6683,8 @@ if (arr_m := year_month(,,,5)) != NIL
            put_val(tmp1->m15p1,6)+;
            put_val(tmp1->m15p1s,6)+;
            put_val(tmp1->m15e,6)+;
+           put_val(tmp1->m18,6)+;
+           put_val(tmp1->m18s,6)+;
            put_val(tmp1->g15,6)+;
            put_val(tmp1->g15s,6)+;
            put_val(tmp1->g15pos,6)+;
@@ -6672,7 +6694,9 @@ if (arr_m := year_month(,,,5)) != NIL
            put_val(tmp1->g15ps,6)+;
            put_val(tmp1->g15p1,6)+;
            put_val(tmp1->g15p1s,6)+;
-           put_val(tmp1->g15e,6)
+           put_val(tmp1->g15e,6)+;
+           put_val(tmp1->g18,6)+;
+           put_val(tmp1->g18s,6)
     if verify_FF(HH-1,.t.,sh)
       aeval(arr_title, {|x| add_string(x) } )
     endif
@@ -6740,10 +6764,10 @@ return NIL
 
 ***** 20.06.20
 Function f1_f21_inf_DNL(Loc_kod,kod_kartotek) // á¢®¤­ ï ¨­ä®à¬ æ¨ï
-Local ii, im, i, j, k, s, sumr := 0, ar := {0}, ltip_school := -1, ar15[22],;
+Local ii, im, i, j, k, s, sumr := 0, ar := {0}, ltip_school := -1, ar15[26],;
       is_2 := .f., ad := {}, arr, a3 := {}, fl_ves := .T.
 Private m1tip_school := -1, m1school := 0, mvozrast, mdvozrast, mgruppa := 0, m1GR_FIZ := 1, m1invalid1 := 0
-Private mvar, m1var, m1FIZ_RAZV1
+Private mvar, m1var, m1FIZ_RAZV1, m1napr_stac := 0
 afill(ar15,0)
 mvozrast := count_years(human->date_r,human->n_data)
 mdvozrast := year(human->n_data) - year(human->date_r)
@@ -6763,6 +6787,21 @@ next
 ii := 1
 is_2 := (human->ishod == 302) // íâ® ¢â®à®© íâ ¯
 read_arr_PN(Loc_kod)
+if human->pol == "Œ"
+  if m1napr_stac > 0
+    ar15[23] ++ 
+    if f_is_selo() 
+      ar15[24] ++ 
+    endif 
+  endif
+else
+  if m1napr_stac > 0
+    ar15[25] ++ 
+    if f_is_selo() 
+      ar15[26] ++ 
+    endif 
+  endif
+endif
 //
 mGRUPPA := human_->RSLT_NEW - 331//L_BEGIN_RSLT
 if mvozrast == 0
@@ -6998,6 +7037,10 @@ for j := 1 to len(ar)
   tmp1->g15p1 += ar15[15]
   tmp1->g15p1s += ar15[16]
   tmp1->g15e += ar15[12]
+  tmp1->g18 += ar15[23]
+  tmp1->g18s += ar15[24]
+  tmp1->m18 += ar15[25]
+  tmp1->m18s += ar15[26]
   if between(mgruppa,1,5)
     pole := "tmp1->g"+lstr(mgruppa)
     &pole := &pole + 1

@@ -622,7 +622,7 @@ elseif _regim == 2
      endif
      arr := make_unique_arr5(arr)
      arr1 := make_unique_arr5(arr1)
-     //if len(arr1) == 0 // искусственно добавим одно исследование до 2018 года
+     //if len(arr1) == 0 // искусственно добавим одно исследование до 18 года
        //aadd(arr1, {"общий анализ мочи", mn_data, "", 1, 2})
      //endif
     if len(arr1) > 0

@@ -566,7 +566,7 @@ Function f_is_usl_oms_sluch_DVN(i,_etap,_vozrast,_pol,/*@*/_diag,/*@*/_otkaz,/*@
     else
       i := iif(_pol == "М", 13, 14)
     endif
-    if valtype(ar[i]) == "N" // специально для услуги "Электрокардиография","13.1.1" ранее 2018 года
+    if valtype(ar[i]) == "N" // специально для услуги "Электрокардиография","13.1.1" ранее 18 года
       fl := (ar[i] != 0)
       if ar[i] < 0  // ЭКГ
         _ekg := (_vozrast < abs(ar[i])) // необязательный возраст

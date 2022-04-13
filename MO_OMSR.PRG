@@ -791,7 +791,7 @@ Function create2reestr17(_recno,_nyear,_nmonth,reg_sort)
 Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, ;
       lst, lshifr1, code_reestr, mb, me, nsh, adiag_talon[16]
 //
-Private version_3_1 := (strzero(_nyear,4)+strzero(_nmonth,2) > "201808") // с сентября 2018 года
+Private version_3_1 := (strzero(_nyear,4)+strzero(_nmonth,2) > "201808") // с сентября 18 года
 //
 
 stat_msg("Составление реестра случаев")
@@ -942,7 +942,7 @@ oXmlDoc:Add( HXMLNode():New( "ZL_LIST") )
     if p_tip_reestr == 1
       if _NYEAR > 2017
         s := '2.13'
-        if _NYEAR == 2018 .and. _NMONTH >= 5 // с мая 2018 года
+        if _NYEAR == 2018 .and. _NMONTH >= 5 // с мая 18 года
           s := '2.14'
           fl_2_14 := .t.
         endif
@@ -1054,7 +1054,7 @@ do while !eof()
             if human_->USL_OK == 1 .and. p_tip_reestr == 1
               akslp := f_cena_kslp(hu->stoim,lshifr,iif(human_->NOVOR==0,human->date_r,human_->DATE_R2),human->n_data,human->k_data)
             endif
-          else // 2018
+          else // 18 год
             if human_->USL_OK < 3 .and. p_tip_reestr == 1
               if !empty(human_2->pc1)
                 akslp := List2Arr(human_2->pc1)
@@ -2140,14 +2140,14 @@ for ii := 1 to len(arr_schet)
   oXmlDoc := HXMLDoc():New()
   oXmlDoc:Add( HXMLNode():New( "ZL_LIST") )
    oXmlNode := oXmlDoc:aItems[1]:Add( HXMLNode():New( "ZGLV" ) )
-    if tmp1->_YEAR > 2018 .or. (tmp1->_YEAR == 2018 .and. tmp1->_MONTH >= 9) // с сентября 2018 года
+    if tmp1->_YEAR > 2018 .or. (tmp1->_YEAR == 2018 .and. tmp1->_MONTH >= 9) // с сентября 18 года
       s := '3.1'
     else
       s := '2.12'
       if c == "H"
         if tmp1->_YEAR > 2017
           s := '2.13'
-          if tmp1->_YEAR == 2018 .and. tmp1->_MONTH >= 5 // с мая 2018 года
+          if tmp1->_YEAR == 2018 .and. tmp1->_MONTH >= 5 // с мая 18 года
             s := '2.14'
           endif
         endif

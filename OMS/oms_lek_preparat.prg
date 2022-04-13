@@ -101,13 +101,13 @@ function check_diag_pregant()
       between_diag(HUMAN->SOPUT_B4, 'Z34', 'Z35'), .t., .f.)
   return fl
   
-******* 05.04.22 ввода лекарственных препаратов
+******* 08.04.22 ввода лекарственных препаратов
 function oms_sluch_lek_pr(mkod_human, mkod_kartotek, fl_edit)
   // mkod_human - код по БД human
   // mkod_kartotek - код по БД kartotek
   local aDbf, buf := savescreen(), l_color, fl_found
   local mtitle, tmp_color := setcolor(color1)
-  local nBegin, count, strWeight
+  local nBegin, strWeight
 
   private mSeverity, m1Severity := 0
 
@@ -146,18 +146,17 @@ function oms_sluch_lek_pr(mkod_human, mkod_kartotek, fl_edit)
     {"NUMBER"  ,   "N",    3,     0},; // счетчик строк
     {"REC_N"   ,   "N",    8,     0};  // номер записи в файле human_lek_pr.dbf
   }
-  dbcreate(cur_dir + 'tmp_lek_pr', adbf)
-  use (cur_dir + 'tmp_lek_pr') new alias TMP
+  // dbcreate(cur_dir + 'tmp_lek_pr', adbf)
+  // use (cur_dir + 'tmp_lek_pr') new alias TMP
+  dbCreate( 'mem:lek_pr', adbf, , .T., 'TMP' )
 
-  count := 0
   select LEK_PR
   find (str(mkod_human, 7))
   if found()
     do while LEK_PR->KOD_HUM == mkod_human .and. !eof()
-      count++
       select TMP
       append blank
-      tmp->NUMBER   := count
+      tmp->NUMBER   := tmp->(recno())
       tmp->KOD_HUM  := LEK_PR->KOD_HUM
       tmp->DATE_INJ := LEK_PR->DATE_INJ
       tmp->SEVERITY := LEK_PR->SEVERITY
@@ -174,6 +173,7 @@ function oms_sluch_lek_pr(mkod_human, mkod_kartotek, fl_edit)
     enddo
   endif
   fl_found := (tmp->(lastrec()) > 0)
+  index on dtos(DATE_INJ) TAG LEK_PR
 
   cls
   pr_1_str("Лекарственные препараты < " + fio_plus_novor() + " >")
@@ -198,6 +198,8 @@ function oms_sluch_lek_pr(mkod_human, mkod_kartotek, fl_edit)
 
   LEK_PR->(dbCloseArea())
   TMP->(dbCloseArea())
+  dbDrop( 'mem:lek_pr' )  /* освободим память */
+  hb_vfErase('mem:lek_pr.ntx')  /* освободим память от индексного файла */
 
   HUMAN_2->(dbCloseArea())
   HUMAN_->(dbCloseArea())
@@ -260,8 +262,12 @@ Function f1oms_sluch_lek_pr()
   LOCAL nRow := ROW(), nCol := COL()
   return NIL
 
-****** 12.01.22
-function add_lek_pr(dInj, nKey)
+****** 08.04.22
+function add_lek_pr(dateInjection, nKey)
+
+  if ValType(dateInjection) == 'C'
+    dateInjection := ctod(dateInjection)
+  endif
 
   select LEK_PR
   if nKey == K_INS  // при добавлении лекарственного препарата
@@ -278,7 +284,7 @@ function add_lek_pr(dInj, nKey)
 
   tmp->REC_N        := LEK_PR->(recno())
   tmp->KOD_HUM      := HUMAN->KOD
-  tmp->DATE_INJ     := dInj
+  tmp->DATE_INJ     := dateInjection
   tmp->SEVERITY     := m1SEVERITY
   tmp->SCHEME       := m1SCHEME
   tmp->SCHEDRUG     := m1SCHEDRUG
@@ -292,7 +298,7 @@ function add_lek_pr(dInj, nKey)
   // tmp->COD_MARK     := LEK_PR->COD_MARK
   select LEK_PR
   LEK_PR->KOD_HUM     := HUMAN->KOD
-  LEK_PR->DATE_INJ    := dInj
+  LEK_PR->DATE_INJ    := dateInjection
   LEK_PR->SEVERITY    := m1SEVERITY
   LEK_PR->CODE_SH     := m1SCHEME
   LEK_PR->SCHEDRUG    := m1SCHEDRUG

@@ -790,7 +790,7 @@ endif
 if fl
   return fl // для 2019 года
 endif
-if left(lshifr,1) $ "12" .and. substr(lshifr,5,1) == "." .and. len(lshifr) == 6 // 2018 год
+if left(lshifr,1) $ "12" .and. substr(lshifr,5,1) == "." .and. len(lshifr) == 6 // 18 год
   fl := .t.
   for i := 2 to 6
     if i == 5

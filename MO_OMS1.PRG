@@ -3393,8 +3393,6 @@ if fl_write_sluch // если записали - запускаем проверку
 endif
 return NIL
 
-*
-
 ***** 15.02.18 вернуть тип вводимого листа учёта
 Function ret_tip_lu(/*@*/stip)
 Local k := 0
@@ -3462,8 +3460,6 @@ elseif human->ishod == 99
   k := TIP_LU_PREND
 endif
 return k
-
-*
 
 ***** 06.11.19 сравнение профилей с учётом изменения правил в 2014 году
 Function f_profil_ginek_otolar(lp1,lp2)

@@ -1716,7 +1716,7 @@ if len(arr_zf) > 0 .and. ascan(arr_STdelzub,lu_kod) > 0 .and. select("KARTDELZ")
 endif
 return NIL
 
-***** 11.12.2018 вернуть массив с кодами услуг удаления зуба
+***** 11.12.18 вернуть массив с кодами услуг удаления зуба
 Function ret_arr_STdelzub()
 Static arr := {;
   {"A16.07.030.001", "Удаление временного зуба"},;

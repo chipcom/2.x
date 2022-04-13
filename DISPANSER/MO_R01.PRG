@@ -1656,59 +1656,6 @@ else
 endif
 return fl
 
-********************************************************************************
-
-/***** 09.07.18
-Function fill_dr00()
-Local buf := save_maxrow(), hGauge, fl := .t., fl_exit := .f.
-Private sgod := 2018, mrec := 2, c_view := 0, c_found := 0, ;
-        CODE_LPU := glob_mo[_MO_KOD_TFOMS], CODE_MO := glob_mo[_MO_KOD_FFOMS],;
-        mkol := {0,0,0}, skol := {0,0,splan_d2}
-Status_Key("^<Esc>^ - прервать поиск")
-hGauge := GaugeNew(,,,"Поиск подлежащих диспансеризации 1 раз в 2 года",.t.)
-GaugeDisplay( hGauge )
-Use (dir_server+"mo_dr00") new alias TMP
-R_Use(dir_server+"human_",,"HUMAN_")
-R_Use(dir_server+"human",dir_server+"humankk","HUMAN")
-set relation to recno() into HUMAN_
-R_Use(dir_server+"kartote2",,"KART2")
-R_Use(dir_server+"kartote_",,"KART_")
-R_Use(dir_server+"kartotek",,"KART")
-set relation to recno() into KART_, recno() into KART2
-go top
-do while !eof()
-  GaugeUpdate( hGauge, recno()/lastrec() )
-  if inkey() == K_ESC
-    fl_exit := .t. ; exit
-  endif
-  if kart->kod > 0
-    f0_create_R01(sgod,@c_view,@c_found)
-  endif
-  select KART
-  skip
-enddo
-CloseGauge(hGauge)
-if tmp->(lastrec()) == 0
-  fl := func_error(4,"При поиске пациентов для диспансеризации не обнаружено сведений!")
-elseif fl_exit
-  fl := func_error(4,"Прервано пользователем!")
-endif
-if fl
-  if mkol[3] < skol[3]
-    ClrLine(24,color0)
-    n_message({"Не хватает "+lstr(skol[3]-mkol[3])+" чел. в картотеке для дисп-ии 1 раз в 2 года"},;
-              {'','Для завершения процесса нажмите любую клавишу'},"GR+/R","W+/R",,,"G+/R")
-    fl := .f.
-  endif
-endif
-if !fl
-  select TMP
-  zap
-endif
-close databases
-rest_box(buf)
-return fl*/
-
 ***** 03.12.21 Создание файла обмена R01...
 Function f_create_R01()
 Local buf := save_maxrow(), i, j, ir, s := "", arr := {}, fl := .t., fl1 := .f., a_reestr := {},;

@@ -1,1 +1,0 @@
-copy d:\_mo\chip\p3\chist\124\*.* d:\_mo\chip\p3 /Y
