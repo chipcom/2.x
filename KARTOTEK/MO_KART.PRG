@@ -52,41 +52,41 @@ return NIL
 
 *****
 Function regi_kart()
-if (lkod := polikl1_kart()) >= 0
-  view_kart(1)
-endif
-return NIL
+  if (lkod := polikl1_kart()) >= 0
+    view_kart(1)
+  endif
+  return NIL
 
-*
 
 ***** добавление в картотеку
 Function append_kart()
-Local k := edit_kartotek(0)
-if k > 0
-  if mem_kodkrt == 2 .and. !(is_uchastok == 1)
-    f_message({"",;
-       "Регистрационный номер добавленного больного - "+lstr(k),""},;
-       "W",,,16)
-    if glob_task == X_REGIST // регистратура
-      keyboard chr(K_UP)+chr(K_ENTER)
+  Local k := edit_kartotek(0)
+
+  if k > 0
+    if mem_kodkrt == 2 .and. !(is_uchastok == 1)
+      f_message({"",;
+          "Регистрационный номер добавленного больного - "+lstr(k),""},;
+          "W",,,16)
+      if glob_task == X_REGIST // регистратура
+        keyboard chr(K_UP)+chr(K_ENTER)
+      endif
     endif
   endif
-endif
-return NIL
+  return NIL
 
-*
 
 ***** 03.09.17
-Function edit_kartotek(mkod,_top_r,_bot_r,fl_oms,_Human_kod)
-Local ar := GetIniVar(tmp_ini,{{"RAB_MESTO","kart_polis","1"}} )
-Private p_edit_kartoteka := .f., p_find_polis := int(val(ar[1]))
-mkod := edit_kartotek_(mkod,_top_r,_bot_r,fl_oms,_Human_kod)
-if p_edit_kartoteka
-  glob_kartotek := mkod
-  p_edit_kartoteka := .f.
-  mkod := edit_kartotek_(mkod,_top_r,_bot_r,fl_oms,_Human_kod)
-endif
-return mkod
+Function edit_kartotek(mkod, _top_r, _bot_r, fl_oms, _Human_kod)
+  Local ar := GetIniVar(tmp_ini,{{"RAB_MESTO","kart_polis","1"}} )
+
+  Private p_edit_kartoteka := .f., p_find_polis := int(val(ar[1]))
+  mkod := edit_kartotek_(mkod, _top_r, _bot_r, fl_oms, _Human_kod)
+  if p_edit_kartoteka
+    glob_kartotek := mkod
+    p_edit_kartoteka := .f.
+    mkod := edit_kartotek_(mkod, _top_r, _bot_r, fl_oms, _Human_kod)
+  endif
+  return mkod
 
 ***** 01.11.19
 Function edit_kartotek_(mkod,_top_r,_bot_r,fl_oms,_Human_kod)
@@ -1623,7 +1623,6 @@ else
 endif
 return ret
 
-*
 
 *****
 Function view_kart(regim,r1,r2)
@@ -2295,16 +2294,17 @@ endif
 return fl
 
 *****
-Function dubl_zap(r,c)
-Local mas_pmt := {"~Поиск дублирующихся записей",;
+Function dubl_zap(r, c)
+  Local mas_pmt := {"~Поиск дублирующихся записей",;
                   "~Удаление дублирующихся записей"}
-Local mas_msg := {"Поиск дублирующихся записей в картотеке",;
+  Local mas_msg := {"Поиск дублирующихся записей в картотеке",;
                   "Удаление дублирующихся записей из картотеки"}
-Local mas_fun := {"f1dubl_zap()",;
+  Local mas_fun := {"f1dubl_zap()",;
                   "f2dubl_zap()"}
-DEFAULT r TO T_ROW,c TO T_COL+5
-popup_prompt(r,c,1,mas_pmt,mas_msg,mas_fun)
-return NIL
+
+  DEFAULT r TO T_ROW,c TO T_COL+5
+  popup_prompt(r, c, 1, mas_pmt, mas_msg, mas_fun)
+  return NIL
 
 ***** 09.07.18
 Function f1dubl_zap()
