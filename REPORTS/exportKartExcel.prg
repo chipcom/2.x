@@ -3,8 +3,8 @@
 #include 'function.ch'
 #include 'hblibxlsxwriter.ch'
 
-***** 23.04.21 создать файл Excel
-function exportKartExcel(fName, aCondition)
+***** 15.04.22 создать файл Excel
+function exportKartExcel(fName, aCondition, aFilter)
   local workbook
   local header
   local worksheet
@@ -92,7 +92,38 @@ function exportKartExcel(fName, aCondition)
       fl_exit := .t. ; exit
     endif
 
+    if KART->KOD == 0   // пропустим пустые записи
+      KART->(dbSkip())
+      loop
+    endif
     if ! (left(kart2->PC2,1) == '1')  // выбираем только живых
+      if aFilter != nil
+        if aFilter[1] != 1  // фильтр по полу
+          if aFilter[1] == 2
+            if hb_StrToUtf8(kart->pol) != 'М'
+              KART->(dbSkip())
+              loop
+            endif
+          elseif aFilter[1] == 3
+            if hb_StrToUtf8(kart->pol) != 'Ж'
+              KART->(dbSkip())
+              loop
+            endif
+          endif
+          if !empty(aFilter[2])   // фильтр по дате рождения (мин)
+            if KART->DATE_R < aFilter[2]
+              KART->(dbSkip())
+              loop
+            endif
+          endif
+          if !empty(aFilter[3])   // фильтр по дате рождения (макс)
+            if KART->DATE_R > aFilter[3]
+              KART->(dbSkip())
+              loop
+            endif
+          endif
+        endif
+      endif
       j := 0
       for i := 1 to len(aCondition)
         if i == 1
