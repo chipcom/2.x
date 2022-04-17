@@ -98,3 +98,40 @@ function filter_to_kartotek_Excel()
 	restore gets from tmp_gets
 	my_restkey( tmp_keys )
   return aReturn
+
+***** 17.04.22 проверка для фильтра на строку БД
+function control_filter_kartotek(cAliasKart, cAliasKart2, cAliasKart_, aFilter)
+  local lRet := .t.
+
+  if (cAliasKart)->KOD == 0   // пропустим пустые записи
+    lRet := .f.
+  endif
+
+  if left((cAliasKart2)->PC2, 1) == '1'  // выбираем только живых
+    lRet := .f.
+  endif
+
+  if lRet .and. aFilter != nil
+    if aFilter[1] != 1  // фильтр по полу
+      if aFilter[1] == 2
+        if (cAliasKart)->pol != 'М'
+          lRet := .f.
+        endif
+      elseif lRet .and. aFilter[1] == 3
+        if (cAliasKart)->pol != 'Ж'
+            lRet := .f.
+        endif
+      endif
+    endif
+    if lRet .and. !empty(aFilter[2])   // фильтр по дате рождения (мин)
+      if (cAliasKart)->DATE_R < aFilter[2]
+        lRet := .f.
+      endif
+    endif
+    if lRet .and. !empty(aFilter[3])   // фильтр по дате рождения (макс)
+      if (cAliasKart)->DATE_R > aFilter[3]
+        lRet := .f.
+      endif
+    endif
+  endif
+  return lRet

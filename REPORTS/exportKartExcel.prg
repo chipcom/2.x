@@ -80,7 +80,7 @@ function exportKartExcel(fName, aCondition, aFilter)
   R_Use(dir_server + 'kartotek', , 'KART')
   set relation to recno() into KART_, to recno() into KART2
 
-  hGauge := GaugeNew(,,,hb_Utf8ToStr('Экспорт картотеки в Excel','RU866'),.t.)
+  hGauge := GaugeNew(, , , hb_Utf8ToStr('Экспорт картотеки в Excel','RU866'), .t.)
   GaugeDisplay( hGauge )
   row := 3
   curr := 0
@@ -92,38 +92,7 @@ function exportKartExcel(fName, aCondition, aFilter)
       fl_exit := .t. ; exit
     endif
 
-    if KART->KOD == 0   // пропустим пустые записи
-      KART->(dbSkip())
-      loop
-    endif
-    if ! (left(kart2->PC2,1) == '1')  // выбираем только живых
-      if aFilter != nil
-        if aFilter[1] != 1  // фильтр по полу
-          if aFilter[1] == 2
-            if hb_StrToUtf8(kart->pol) != 'М'
-              KART->(dbSkip())
-              loop
-            endif
-          elseif aFilter[1] == 3
-            if hb_StrToUtf8(kart->pol) != 'Ж'
-              KART->(dbSkip())
-              loop
-            endif
-          endif
-          if !empty(aFilter[2])   // фильтр по дате рождения (мин)
-            if KART->DATE_R < aFilter[2]
-              KART->(dbSkip())
-              loop
-            endif
-          endif
-          if !empty(aFilter[3])   // фильтр по дате рождения (макс)
-            if KART->DATE_R > aFilter[3]
-              KART->(dbSkip())
-              loop
-            endif
-          endif
-        endif
-      endif
+    if control_filter_kartotek('KART', 'KART2', 'KART_', aFilter)
       j := 0
       for i := 1 to len(aCondition)
         if i == 1
@@ -225,7 +194,6 @@ function exportKartExcel(fName, aCondition, aFilter)
   if fl_exit
     func_error(4, hb_Utf8ToStr('Операция прервана!','RU866'))
   endif
-  
 
   lxw_workbook_close(workbook)
 
