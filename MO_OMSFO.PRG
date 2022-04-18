@@ -7,35 +7,35 @@
 Static lcount_uch := 1
 Static lcount_otd := 1
 
-***** 30.08.16 вернуть вид помощи (bit-овый вариант)
+***** 18.04.22 вернуть вид помощи (bit-овый вариант) 
 Function fbp_mz_rf(r,c)
-Static sast := {}
-Local fl := .t., i, j, a, arr := {}
-if glob_menu_mz_rf[1]
-  aadd(arr, {"стационар",1})
-endif
-if glob_menu_mz_rf[2]
-  aadd(arr, {"дневной стационар",2})
-endif
-if glob_menu_mz_rf[3]
-  aadd(arr, {"стоматология",3})
-endif
-if (j := len(arr)) == 1
-  return arr
-elseif j > 1
-  if len(sast) != j
-    sast := array(j) ; afill(sast,.t.)
+  Static sast := {}
+  Local fl := .t., i, j, a, arr := {}
+
+  if glob_menu_mz_rf[1]
+    aadd(arr, {"стационар",1})
   endif
-  if (a := bit_popup(r,c,arr,sast)) != NIL
-    afill(sast,.f.) ; fl := .t.
-    for i := 1 to len(a)
-      if (j := ascan(arr,{|x| x[2]==a[i,2] })) > 0
-        sast[j] := .t.
-      endif
-    next
+  if glob_menu_mz_rf[2]
+    aadd(arr, {"дневной стационар",2})
   endif
-endif
-return a
+  aadd(arr, {"поликлиника" + iif(glob_menu_mz_rf[3], "/стоматология", ""),3})
+  
+  if (j := len(arr)) == 1
+    return arr
+  elseif j > 1
+    if len(sast) != j
+      sast := array(j) ; afill(sast,.t.)
+    endif
+    if (a := bit_popup(r,c,arr,sast)) != NIL
+      afill(sast,.f.) ; fl := .t.
+      for i := 1 to len(a)
+        if (j := ascan(arr,{|x| x[2]==a[i,2] })) > 0
+          sast[j] := .t.
+        endif
+      next
+    endif
+  endif
+  return a
 
 ***** 30.08.16
 Function obF2_statist(k,serv_arr)
