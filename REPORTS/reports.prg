@@ -44,28 +44,43 @@ Function kartotekToExcel()
   endif 
 
   aFilter := filter_to_kartotek_Excel()
-  exportKartExcel(hb_OemToAnsi(name_file_full), t_mas, aFilter)
-  SaveTo(cur_dir + name_file_full)
+  if exportKartExcel(hb_OemToAnsi(name_file_full), t_mas, aFilter)
+    hb_vfErase(cur_dir + name_file_full)
+  else
+    SaveTo(cur_dir + name_file_full)
+  endif
 
   return nil
 
-****** 15.04.22
+****** 18.04.22
 function filter_to_kartotek_Excel()
-  local aGender := {{'все', 1}, {'мужской', 2}, {'женский', 3}}
-  local minDOB := maxDOB := CToD('')
-  local iRow := 11
+  local aCondition := {{' = ', 1}, {' > ', 2}, {' < ', 3}}
+  local notUsed := {'не применять', 1}
+  local aGender := {notUsed, {'мужской', 2}, {'женский', 3}}
+  local aDOB := {notUsed, {'по дате рождения', 2}, {'по возрасту', 3}}
+  local minDOB := CToD('')
+  local maxDOB := minDOB
+  local dAge := minDOB
+  local nAge := 0
+  local iRow := 9
   local oBox, tmp_keys, tmp_gets
-  local aReturn := Array(3)
+  local aReturn := Array(5)
 
   private mGender, m1Gender
+  private mDOB, m1DOB
+  private mCondition, m1Condition
 
   m1Gender := 1
   mGender := inieditspr(A__MENUVERT, aGender, m1Gender)
+  m1DOB := 1
+  mDOB := inieditspr(A__MENUVERT, aDOB, m1DOB)
+  m1Condition := 1
+  mCondition := inieditspr(A__MENUVERT, aCondition, m1Condition)
 
 	tmp_keys := my_savekey()
 	save gets to tmp_gets
 
-	oBox := TBox():New( iRow, 10, iRow + 5, 70, .t. )
+	oBox := TBox():New( iRow, 8, iRow + 5, 70, .t. )
 	oBox:CaptionColor := 'B/B*'
 	oBox:Color := cDataCGet
 	oBox:MessageLine := '^<Esc>^ - выход;  ^<PgDn>^ - подтверждение ввода'
@@ -73,19 +88,39 @@ function filter_to_kartotek_Excel()
 	oBox:View()
 
 	do while .t.
-		iRow := 12
+		iRow := 9
 
     @ ++iRow, 12 say 'Пол:' get mGender ;
           reader {|x| menu_reader(x, aGender, A__MENUVERT, , , .f.)}
 
-    @ ++iRow, 12 say 'Дата рождения (минимальная):' get minDOB
-    @ ++iRow, 12 say 'Дата рождения (максимальная):' get maxDOB
+    @ ++iRow, 12 say 'Дата рождения:' get mDOB ;
+      reader {|x| menu_reader(x, aDOB, A__MENUVERT, , , .f.)}
+
+    // @ ++iRow, 12 say 'Дата рождения (минимальная):' get minDOB
+    // @ ++iRow, 12 say 'Дата рождения (максимальная):' get maxDOB
+    if m1DOB == 2
+      @ ++iRow, 15 say 'минимальная:' get minDOB when m1DOB == 2
+      @ iRow, col() + 4 say 'максимальная:' get maxDOB when m1DOB == 2
+    elseif m1DOB == 3
+      @ ++iRow, 15 say 'возраст:' get nAge picture '999' when m1DOB == 3
+      @ iRow, col() + 2 say 'условие:' get mCondition ;
+          reader {|x| menu_reader(x, aCondition, A__MENUVERT, , , .f.)} ;
+          when m1DOB == 3
+      @ iRow, col() + 2 say 'дата отчета:' get dAge when m1DOB == 3
+    endif
 
 		myread()
 		if lastkey() == K_PGDN
       aReturn[1] := m1Gender
-      aReturn[2] := minDOB
-      aReturn[3] := maxDOB
+      aReturn[2] := m1DOB
+      if m1DOB == 2 // отбор по дате рождения
+        aReturn[3] := minDOB
+        aReturn[4] := maxDOB
+      elseif m1DOB == 3 // отбор по возрасту
+        aReturn[3] := nAge
+        aReturn[4] := m1Condition
+        aReturn[5] := dAge
+      endif
 			exit
 		elseif lastkey() == K_ESC
       aReturn := nil
@@ -99,9 +134,10 @@ function filter_to_kartotek_Excel()
 	my_restkey( tmp_keys )
   return aReturn
 
-***** 17.04.22 проверка для фильтра на строку БД
+***** 18.04.22 проверка для фильтра на строку БД
 function control_filter_kartotek(cAliasKart, cAliasKart2, cAliasKart_, aFilter)
   local lRet := .t.
+  local age
 
   if (cAliasKart)->KOD == 0   // пропустим пустые записи
     lRet := .f.
@@ -123,14 +159,31 @@ function control_filter_kartotek(cAliasKart, cAliasKart2, cAliasKart_, aFilter)
         endif
       endif
     endif
-    if lRet .and. !empty(aFilter[2])   // фильтр по дате рождения (мин)
-      if (cAliasKart)->DATE_R < aFilter[2]
-        lRet := .f.
+    if lRet .and. aFilter[2] == 2
+      if !empty(aFilter[3])   // фильтр по дате рождения (мин)
+        if (cAliasKart)->DATE_R < aFilter[3]
+          lRet := .f.
+        endif
       endif
-    endif
-    if lRet .and. !empty(aFilter[3])   // фильтр по дате рождения (макс)
-      if (cAliasKart)->DATE_R > aFilter[3]
-        lRet := .f.
+      if !empty(aFilter[4])   // фильтр по дате рождения (макс)
+        if (cAliasKart)->DATE_R > aFilter[4]
+          lRet := .f.
+        endif
+      endif
+    elseif lRet .and. aFilter[2] == 3
+      age := count_years((cAliasKart)->DATE_R, aFilter[5])
+      if aFilter[4] == 1
+        if aFilter[3] != age  // возраст равен
+          lRet := .f.
+        endif
+      elseif aFilter[4] == 2  // возраст больше
+        if aFilter[3] < age
+          lRet := .f.
+        endif
+      elseif aFilter[4] == 3  // возраст меньше
+        if aFilter[3] > age
+          lRet := .f.
+        endif
       endif
     endif
   endif

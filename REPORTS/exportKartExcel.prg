@@ -3,14 +3,19 @@
 #include 'function.ch'
 #include 'hblibxlsxwriter.ch'
 
-***** 15.04.22 создать файл Excel
+***** 18.04.22 создать файл Excel
 function exportKartExcel(fName, aCondition, aFilter)
+  *** возвращает .t. - если построение прервано иначе .f.
   local workbook
   local header
   local worksheet
   local formatDate
   local fmtCellNumber, fmtCellString, fmtCellStringCenter
   local arr_fio, row, curr, i, j, fl_exit := .f., s
+
+  if aFilter == nil // пустое значение для фильтров
+    return .t.
+  endif
 
   lxw_init() 
 
@@ -199,4 +204,4 @@ function exportKartExcel(fName, aCondition, aFilter)
 
   CloseGauge(hGauge)
 
-  return nil
+  return fl_exit
