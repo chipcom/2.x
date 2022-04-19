@@ -572,26 +572,26 @@ Function f5editpreparat(get, nKey, when_valid, k)
       endif
       if alltrim(get:buffer) != mSCHEME
         // очистим все
-         m1UNITCODE := 0
-         mUNITCODE  := space(iif(mem_n_V034==0,15,30))
-         //
-         mMETHOD    := space(30)
-         m1METHOD   := 0
-         //
-         m1SCHEDRUG := ''
-         mSCHEDRUG  := space(42) 
-         //
-         m1REGNUM   := ''
-         mREGNUM    := space(30)
-         //
-         mDOZE      := 0.0
-         mKOLVO     := 0.0
-         update_get('mUNITCODE')  
-         update_get('mMETHOD')  
-         update_get('mSCHEDRUG')  
-         update_get('mREGNUM')  
-         update_get('mDOZE')  
-         update_get('mKOLVO')  
+        m1UNITCODE := 0
+        mUNITCODE  := space(iif(mem_n_V034==0,15,30))
+        //
+        mMETHOD    := space(30)
+        m1METHOD   := 0
+        //
+        m1SCHEDRUG := ''
+        mSCHEDRUG  := space(42) 
+        //
+        m1REGNUM   := ''
+        mREGNUM    := space(30)
+        //
+        mDOZE      := 0.0
+        mKOLVO     := 0.0
+        update_get('mUNITCODE')  
+        update_get('mMETHOD')  
+        update_get('mSCHEDRUG')  
+        update_get('mREGNUM')  
+        update_get('mDOZE')  
+        update_get('mKOLVO')  
       endif
     elseif k == 4     // Дата окончания периода
       if !emptyany(human->n_data, mdate_end_per) .and. mdate_end_per < human->n_data
@@ -600,16 +600,21 @@ Function f5editpreparat(get, nKey, when_valid, k)
         fl := func_error(4, "Введенная дата больше даты окончания лечения!")       
       endif
     elseif k == 5 //препарат 
-      //! empty(m1REGNUM) 
       if empty(get:buffer)
         return .f.
       endif
       if alltrim(get:buffer) != mREGNUM
         // очистим все
-         mDOZE      := 0.0
-         mKOLVO     := 0.0
-         update_get('mDOZE')  
-         update_get('mKOLVO')  
+        m1UNITCODE := 0
+        mUNITCODE  := space(iif(mem_n_V034==0,15,30))
+        mMETHOD    := space(30)
+        m1METHOD   := 0
+        mDOZE      := 0.0
+        mKOLVO     := 0.0
+        update_get('mUNITCODE')  
+        update_get('mMETHOD')  
+        update_get('mDOZE')  
+        update_get('mKOLVO')  
       endif
     elseif k == 6 // Степень тяжести состояния
       if empty(get:buffer)
