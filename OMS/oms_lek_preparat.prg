@@ -240,8 +240,10 @@ Function f_oms_sluch_lek_pr(oBrow)
   oColumn:colorBlock := blk_color
   oBrow:addColumn(oColumn)
 
+  // oColumn := TBColumnNew(" Единица; измер-я", ;
+  //     {|| iif(tmp->ED_IZM == 0, space(8), padr(ret_ed_izm_V034(tmp->ED_IZM), 8)) })
   oColumn := TBColumnNew(" Единица; измер-я", ;
-      {|| iif(tmp->ED_IZM == 0, space(8), padr(ret_ed_izm_V034(tmp->ED_IZM), 8)) })
+    {|| iif(tmp->ED_IZM == 0, space(8), padr(ret_ed_izm(tmp->ED_IZM), 8)) })
   oColumn:colorBlock := blk_color
   oBrow:addColumn(oColumn)
   
@@ -340,7 +342,8 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
       private mDOZE :=  iif(nKey == K_INS, 0.0, tmp->DOZE)
       private mKOLVO :=  iif(nKey == K_INS, 0, tmp->COL_INJ)
       // ЧТО-БЫ не делать PUBLIC
-      Private glob_V034 := getV034()
+      // Private glob_V034 := getV034()
+      Private glob_V034 := get_ed_izm()
       Private glob_methodinj := getMethodINJ()
       Private tmp_V034 := create_classif_FFOMS(2,"V034") // UNITCODE
       Private tmp_MethodINJ := create_classif_FFOMS(2,"MethodINJ") // METHOD
@@ -369,7 +372,8 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
         mSCHEME := ret_schema_V030(m1SCHEME)
         mSCHEDRUG := padr(ret_schema_V032(m1SCHEDRUG),42)
         mREGNUM := padr(get_Lek_pr_By_ID(m1REGNUM),30)
-        mUNITCODE := padr(inieditspr(A__MENUVERT, getV034(), m1UNITCODE),iif(mem_n_V034==0,15,30))
+        // mUNITCODE := padr(inieditspr(A__MENUVERT, getV034(), m1UNITCODE),iif(mem_n_V034==0,15,30))
+        mUNITCODE := padr(inieditspr(A__MENUVERT, get_ed_izm(), m1UNITCODE),iif(mem_n_V034==0,15,30))
         mMETHOD := padr(inieditspr(A__MENUVERT, getMethodINJ(), m1METHOD),30)
       endif
 

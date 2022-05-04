@@ -58,7 +58,8 @@ Function fnastr_sprav_FFOMS(k,_n,_m)
   Local str_sem, mas_pmt, mas_msg, mas_fun, j
   DEFAULT k TO 0
   // ЧТО-БЫ не делать PUBLIC
-  Private glob_V034 := getV034()
+  // Private glob_V034 := getV034()
+  Private glob_V034 := get_ed_izm()
   Private glob_methodinj := getMethodINJ()
   private glob_implantant := get_implantant()
   //
