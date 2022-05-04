@@ -342,7 +342,6 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
       private mDOZE :=  iif(nKey == K_INS, 0.0, tmp->DOZE)
       private mKOLVO :=  iif(nKey == K_INS, 0, tmp->COL_INJ)
       // ЧТО-БЫ не делать PUBLIC
-      // Private glob_V034 := getV034()
       Private glob_V034 := get_ed_izm()
       Private glob_methodinj := getMethodINJ()
       Private tmp_V034 := create_classif_FFOMS(2,"V034") // UNITCODE
@@ -372,7 +371,6 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
         mSCHEME := ret_schema_V030(m1SCHEME)
         mSCHEDRUG := padr(ret_schema_V032(m1SCHEDRUG),42)
         mREGNUM := padr(get_Lek_pr_By_ID(m1REGNUM),30)
-        // mUNITCODE := padr(inieditspr(A__MENUVERT, getV034(), m1UNITCODE),iif(mem_n_V034==0,15,30))
         mUNITCODE := padr(inieditspr(A__MENUVERT, get_ed_izm(), m1UNITCODE),iif(mem_n_V034==0,15,30))
         mMETHOD := padr(inieditspr(A__MENUVERT, getMethodINJ(), m1METHOD),30)
       endif

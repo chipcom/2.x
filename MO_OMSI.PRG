@@ -771,7 +771,6 @@ enddo
       endif
       s := ''
       cREGNUM := padr(get_Lek_pr_By_ID(row[3]),30)
-      // cUNITCODE := padr(inieditspr(A__MENUVERT, getV034(), row[4]),iif(mem_n_V034==0,15,30))
       cUNITCODE := padr(inieditspr(A__MENUVERT, get_ed_izm(), row[4]),iif(mem_n_V034==0,15,30))
       cMETHOD := padr(inieditspr(A__MENUVERT, getMethodINJ(), row[6]),30)
       s := date_8(row[1]) + ' '
