@@ -4112,13 +4112,12 @@ return NIL
 
 
 
-***** 16.12.21
+***** 05.05.22
 Function inf_YDVN()
 
 Local i, ii, s, arr_m, buf := save_maxrow(), ar, arr_excel := {}, is_all
 Local sh, HH := 53,  n_file := "gor_YDVN"+stxt, reg_print, arr_itog[19]
 local t_rec, t_poisk, t_rezult 
-
 local arr_title := {;
 "──────┬───────┬────────┬───────┬─────────┬──────┬──────┬──────┬──────┬──────┬───────┬──────┬──────┬──────┬──────┬──────┬──────┬───────",;
 "прошли│ в том │   в    │   в   │прошли за│      │      │      │      │      │направ-│прошли│      │      │      │      │      │впервые",;
@@ -4127,17 +4126,15 @@ local arr_title := {;
 "──────┼───────┼────────┼───────┼─────────┼──────┼──────┼──────┼──────┼──────┼───────┼──────┼──────┼──────┼──────┼──────┼──────┼───────",;
 "   2  │  2.1  │   3    │   4   │    5    │   6  │   7  │   8  │   9  │  10  │   11  │  12  │  13  │  14  │  15  │  16  │  17  │   18  ",;
 "──────┴───────┴────────┴───────┴─────────┴──────┴──────┴──────┴──────┴──────┴───────┴──────┴──────┴──────┴──────┴──────┴──────┴───────"}
-
-
 Local title_zagol := {;
 "Иные граждане",;
 "с коморбидным фоном (наличие двух и более хронических неинфекционных заболеваний - 1 группа",;
 "не более чем с одним сопутствующим хроническим неинфекционным заболеванием - 2 группа",;
 "Итого"}
-
-
+local mas_n_otchet[15]
 Private  pole_pervich, pole_1pervich, pole_dispans, pole_1dispans
 
+afill(mas_n_otchet,0)
 R_Use(dir_server+"kartote_",,"KART_")
 R_Use(dir_server+"kartotek",,"KART")
 
@@ -4152,7 +4149,6 @@ for i := 1 to 5
 //  Private &pole_dispans := space(10)
   Private &pole_1dispans := 0
 next
-
 
 if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
                                    .and. (arr_m := year_month(,,,5)) != NIL
@@ -4204,9 +4200,12 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
       else
         tmp->etap_1 := 2
       endif
+      // выбираем услуги
+//      larr := array(2, len(uslugiEtap_DVN_COVID(metap)))
+//      arr_usl := {} // array(len(uslugiEtap_DVN_COVID(metap)))
       //
       arr := read_arr_DISPANS(human->kod) 
-     //     my_debug(,print_array(arr))
+//      my_debug(,print_array(arr))
       //
       for i := 1 to len(arr)
         if valtype(arr[i]) == "A" .and. valtype(arr[i,1]) == "C"
@@ -4226,9 +4225,61 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
               if &pole_1dispans == 1 .and. &pole_1pervich == 1
                 tmp->d_one := 1
               endif
-           endcase
+            case arr[i,1] == "40"
+              tmp_mas := arr[i,2] 
+              fl_t := .F.
+              fl_t1 := .F.
+              for jj := 1 to len(tmp_mas)
+                 if alltrim(tmp_mas[jj])     == "70.8.2"     // 70- Проведение теста с 6 минутной ходьбой
+                  fl_t := .T. 
+                   mas_n_otchet[3] ++
+                 elseif alltrim(tmp_mas[jj]) == "A12.09.001" // 71- "Проведение спирометрии или спирографии"
+                  fl_t := .T.
+                   mas_n_otchet[4] ++
+                 elseif alltrim(tmp_mas[jj]) == "A12.09.005" //"69- Пульсооксиметрия"
+                  fl_t := .T.
+                   mas_n_otchet[2] ++
+                 elseif alltrim(tmp_mas[jj]) == "A06.09.007" // 72- Рентгенография легких
+                  fl_t := .T.
+                   mas_n_otchet[5] ++
+                 elseif alltrim(tmp_mas[jj]) == "B03.016.003"// 73- "Общий (клинический) анализ крови развернутый"    
+                  fl_t := .T.
+                   mas_n_otchet[6] ++
+                 elseif alltrim(tmp_mas[jj]) == "B03.016.004"// 74- Анализ крови биохимический общетерапевтический
+                  fl_t := .T.
+                   mas_n_otchet[7] ++
+                 elseif alltrim(tmp_mas[jj]) == "70.8.3"     // 75 "Определение концентрации Д-димера в крови" 
+                  fl_t := .T.
+                   mas_n_otchet[8] ++
+                 elseif alltrim(tmp_mas[jj]) == "70.8.52"    // 2 - 78 Дуплексное сканир-ие вен нижних конечностей
+                  fl_t1 := .T.
+                  mas_n_otchet[10] ++
+                 elseif alltrim(tmp_mas[jj]) == "70.8.51"    // 2 - 79 Проведение КТ легких 
+                  fl_t1 := .T.//mas_n_otchet[9] ++
+                   mas_n_otchet[11] ++
+                 elseif alltrim(tmp_mas[jj]) == "70.8.50"    // 2 - 80 Проведение Эхокардиографии
+                  fl_t1 := .T.
+                  mas_n_otchet[12] ++
+                 endif 
+              next    
+              if fl_t
+                mas_n_otchet[1] ++
+              endif 
+              if fl_t1
+                mas_n_otchet[9] ++
+              endif 
+              case arr[i,1] == "56"  //реабилитация
+                if valtype(arr[i,2]) == "N"
+                  //mas_n_otchet[14] ++
+                elseif valtype(arr[i,2]) == "A"
+                  if arr[i,2][2] > 0
+                    mas_n_otchet[14] ++
+                  endif  
+                endif
+            endcase
         endif
       next
+//
       if human_->RSLT_NEW == 317
         tmp->gruppa := 1
         tmp->napr2  := 0
@@ -4373,7 +4424,26 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
     add_string("")
   next
 //endif
-//
+add_string("68- Всего лиц с отконениями I этап              = "+ padl(lstr(mas_n_otchet[1]),9)+" чел.")
+add_string("69- Сатурация                                   = "+ padl(lstr(mas_n_otchet[2]),9)+" чел.")
+add_string("70- Тест с 6 минутной ходьбой                   = "+ padl(lstr(mas_n_otchet[3]),9)+" чел.")
+add_string("71- Спирометрия                                 = "+ padl(lstr(mas_n_otchet[4]),9)+" чел.")
+add_string("72- Рентгенография легких                       = "+ padl(lstr(mas_n_otchet[5]),9)+" чел.")
+add_string("73- Общий анализ крови                          = "+ padl(lstr(mas_n_otchet[6]),9)+" чел.")
+add_string("74- Биохимический анализ крови                  = "+ padl(lstr(mas_n_otchet[7]),9)+" чел.")
+add_string("75- Определение концентрации Д-димера в крови   = "+ padl(lstr(mas_n_otchet[8]),9)+" чел.")
+add_string("77- Всего лиц с отконениями II этап             = "+ padl(lstr(mas_n_otchet[9]),9)+" чел.")
+add_string("78- Дуплексное сканир-ие вен нижних конечностей = "+ padl(lstr(mas_n_otchet[10]),9)+" чел.")
+add_string("79- Проведение КТ легких                        = "+ padl(lstr(mas_n_otchet[11]),9)+" чел.")
+add_string("80- Проведение Эхокардиографии                  = "+ padl(lstr(mas_n_otchet[12]),9)+" чел.")
+add_string("83- Всего подлежат Диспансерному наблюдению     = "+ padl(lstr(arr_itog[18]),9)+" чел.")
+add_string("85- Направлен на реабилитацию                   = "+ padl(lstr(mas_n_otchet[14]),9)+" чел.")
+
+
+
+
+
+
   close databases
   fclose(fp)
   Private yes_albom := .t.
