@@ -134,7 +134,7 @@ Function TFOMS_hodatajstvo(arr_m,iRefr,par)
         frd->npasport := kart_->nom_ud
         frd->dpasport := full_date(kart_->kogdavyd)
         if !(empty(kart_->strana) .or. kart_->strana=='643')
-          frd->gragd := inieditspr(A__MENUVERT, glob_O001, kart_->strana)
+          frd->gragd := inieditspr(A__MENUVERT, getO001(), kart_->strana)
         endif
         if !empty(kart->SNILS)
           frd->snils := transform(kart->SNILS,picture_pf)

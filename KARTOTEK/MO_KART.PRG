@@ -1222,7 +1222,7 @@ Function get_oksm(r)
   change_attr()
   box_shadow(r1,c,r2,77,,"Ввод дополнительных сведений по иностранцу","GR+/BG")
   setcursor()
-  @ r1+1,c+2 say "Страна" get mstrana ;  //reader {|x|menu_reader(x,glob_O001,A__MENUVERT,,,.f.)}
+  @ r1+1,c+2 say "Страна" get mstrana ;
              reader {|x|menu_reader(x,{{|k,r,c|f1get_oksm(k,r,c)}},A__FUNCTION,,,.f.)}
   @ r1+2,c+2 say "Основание пребывания в РФ" get mosn_preb ;
              reader {|x|menu_reader(x,menu_osn_preb_RF,A__MENUVERT,,,.f.)}
@@ -1290,12 +1290,12 @@ Function f1get_oksm(k,r,c)
     zap
     if lsng == 0
       lcolor := color5
-      for i := 1 to len(glob_O001)
-        if !(glob_O001[i,2] == "643") // не включать Россию
+      for i := 1 to len(getO001())
+        if !(getO001()[i,2] == "643") // не включать Россию
           append blank
-          rg->kodN := glob_O001[i,2]
-          rg->kodA := glob_O001[i,6]
-          rg->name := glob_O001[i,1]
+          rg->kodN := getO001()[i,2]
+          rg->kodA := getO001()[i,6]
+          rg->name := getO001()[i,1]
           if ascan(arr_sng,rg->kodN) > 0
             rg->sng := 1
           endif
@@ -1304,11 +1304,11 @@ Function f1get_oksm(k,r,c)
     else
       lcolor := "N/W*,GR+/R"
       for j := 1 to len(arr_sng)
-        if (i := ascan(glob_O001,{|x| x[2] == arr_sng[j] })) > 0
+        if (i := ascan(getO001(),{|x| x[2] == arr_sng[j] })) > 0
           append blank
-          rg->kodN := glob_O001[i,2]
-          rg->kodA := glob_O001[i,6]
-          rg->name := glob_O001[i,1]
+          rg->kodN := getO001()[i,2]
+          rg->kodA := getO001()[i,6]
+          rg->name := getO001()[i,1]
           rg->sng := 1
         endif
       next
