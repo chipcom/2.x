@@ -3236,11 +3236,11 @@ if type("p_del_error") == "A" .and. p_del_error[2] > 0
         if HUMAN_->Usl_ok == 1 //стационар
           if padr(lshifr,2) == "st" // KSG
             mas_otch[1,1] += 1
-            mas_otch[2,1] += hu->stoim
+            mas_otch[2,1] += human->cena_1 // hu->stoim
             if eq_any(padr(alltrim(lshifr),8),"st12.015","st12.016",;
                       "st12.017","st12.018","st12.019")
               mas_otch[1,2] += 1
-              mas_otch[2,2] += hu->stoim
+              mas_otch[2,2] += human->cena_1 // hu->stoim
             endif
             if HUMAN_->profil == 60 // онкология 
               mas_otchet[29,1] += 1 
