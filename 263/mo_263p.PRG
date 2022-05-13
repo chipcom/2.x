@@ -115,9 +115,7 @@ elseif napr->t_ans_1 == 1
 endif
 return s
 
-*
-
-***** 19.02.17
+** 13.05.22
 Function f2_263_p_napr(nKey,oBrow,regim)
 Static mm_forma, s1stac_mo := "      ", s1vrach := 0
 Local bg := {|o,k| get_MKB10(o,k) }
@@ -188,7 +186,7 @@ do case
         index on str(kod_n,6) to (cur_dir+"tmp_nfn") for kod_f == napr->KOD_F_1out
         find (str(napr->kod,6))
         if found()
-          s_error := "ошибка "+lstr(nfn->OSHIB)+" - "+inieditspr(A__MENUVERT,glob_T008,nfn->OSHIB)
+          s_error := "ошибка " + lstr(nfn->OSHIB) + " - " + inieditspr(A__MENUVERT, getT008(), nfn->OSHIB)
           if !empty(nfn->IM_POL)
             s_error += " (в поле "+alltrim(nfn->IM_POL)+")"
           endif

@@ -257,9 +257,7 @@ elseif go_to_rpd // если приняты платёжки
 endif
 return NIL
 
-*
-
-***** 26.04.20 прочитать реестр ФЛК
+** 13.05.22 прочитать реестр ФЛК
 Function read_XML_FILE_FLK(arr_XML_info,aerr)
 Local ii, pole, i, k, t_arr[2], adbf, ar
 mkod_reestr := arr_XML_info[7]
@@ -341,8 +339,8 @@ for ii := 1 to 2
     do while tmp2->tip == ii .and. !eof()
       if empty(tmp2->SOSHIB)
         s := "код ошибки = "+lstr(tmp2->OSHIB)+" "
-        if (i := ascan(glob_F012,{|x| x[2] == tmp2->OSHIB})) > 0
-          s += '"'+glob_F012[i,5]+'"'
+        if (i := ascan(getF012(),{|x| x[2] == tmp2->OSHIB})) > 0
+          s += '"'+getF012()[i,5]+'"'
         endif
       else
         s := "код ошибки = "+tmp2->SOSHIB+" "

@@ -7,7 +7,7 @@
 Static Shodata_sem := "Работа с ходатайствами"
 Static Shodata_err := "В данный момент с ходатайствами работает другой пользователь."
 
-***** 08.04.21 оформление ходатайства
+***** 13.05.22 оформление ходатайства
 Function TFOMS_hodatajstvo(arr_m,iRefr,par)
   // Функция отрабатывает только par = 1 или 2 и ошибку iReft = 57 или 599
   // arr_m - временной массив
@@ -129,7 +129,7 @@ Function TFOMS_hodatajstvo(arr_m,iRefr,par)
         frd->pol_g := iif(kart->pol=="М",' ','√')
         frd->date_r := full_date(kart->date_r)
         frd->mesto_r := kart_->mesto_r
-        frd->vpasport := inieditspr(A__MENUVERT, glob_F011, kart_->vid_ud)
+        frd->vpasport := inieditspr(A__MENUVERT, getF011(), kart_->vid_ud)
         frd->spasport := kart_->ser_ud
         frd->npasport := kart_->nom_ud
         frd->dpasport := full_date(kart_->kogdavyd)
