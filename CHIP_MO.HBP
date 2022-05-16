@@ -209,6 +209,7 @@ mo_version.prg
 .\reports\createXLS.prg
 .\reports\hodotajstvoXLS.prg
 .\reports\exportKartExcel.prg
+.\reports\create_xls_rdl.prg
 
 .\util\workWithZIP.prg
 .\util\runExternalProgram.prg
