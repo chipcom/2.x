@@ -52,41 +52,41 @@ return NIL
 
 *****
 Function regi_kart()
-if (lkod := polikl1_kart()) >= 0
-  view_kart(1)
-endif
-return NIL
+  if (lkod := polikl1_kart()) >= 0
+    view_kart(1)
+  endif
+  return NIL
 
-*
 
 ***** добавление в картотеку
 Function append_kart()
-Local k := edit_kartotek(0)
-if k > 0
-  if mem_kodkrt == 2 .and. !(is_uchastok == 1)
-    f_message({"",;
-       "Регистрационный номер добавленного больного - "+lstr(k),""},;
-       "W",,,16)
-    if glob_task == X_REGIST // регистратура
-      keyboard chr(K_UP)+chr(K_ENTER)
+  Local k := edit_kartotek(0)
+
+  if k > 0
+    if mem_kodkrt == 2 .and. !(is_uchastok == 1)
+      f_message({"",;
+          "Регистрационный номер добавленного больного - "+lstr(k),""},;
+          "W",,,16)
+      if glob_task == X_REGIST // регистратура
+        keyboard chr(K_UP)+chr(K_ENTER)
+      endif
     endif
   endif
-endif
-return NIL
+  return NIL
 
-*
 
 ***** 03.09.17
-Function edit_kartotek(mkod,_top_r,_bot_r,fl_oms,_Human_kod)
-Local ar := GetIniVar(tmp_ini,{{"RAB_MESTO","kart_polis","1"}} )
-Private p_edit_kartoteka := .f., p_find_polis := int(val(ar[1]))
-mkod := edit_kartotek_(mkod,_top_r,_bot_r,fl_oms,_Human_kod)
-if p_edit_kartoteka
-  glob_kartotek := mkod
-  p_edit_kartoteka := .f.
-  mkod := edit_kartotek_(mkod,_top_r,_bot_r,fl_oms,_Human_kod)
-endif
-return mkod
+Function edit_kartotek(mkod, _top_r, _bot_r, fl_oms, _Human_kod)
+  Local ar := GetIniVar(tmp_ini,{{"RAB_MESTO","kart_polis","1"}} )
+
+  Private p_edit_kartoteka := .f., p_find_polis := int(val(ar[1]))
+  mkod := edit_kartotek_(mkod, _top_r, _bot_r, fl_oms, _Human_kod)
+  if p_edit_kartoteka
+    glob_kartotek := mkod
+    p_edit_kartoteka := .f.
+    mkod := edit_kartotek_(mkod, _top_r, _bot_r, fl_oms, _Human_kod)
+  endif
+  return mkod
 
 ***** 01.11.19
 Function edit_kartotek_(mkod,_top_r,_bot_r,fl_oms,_Human_kod)
@@ -1222,7 +1222,7 @@ Function get_oksm(r)
   change_attr()
   box_shadow(r1,c,r2,77,,"Ввод дополнительных сведений по иностранцу","GR+/BG")
   setcursor()
-  @ r1+1,c+2 say "Страна" get mstrana ;  //reader {|x|menu_reader(x,glob_O001,A__MENUVERT,,,.f.)}
+  @ r1+1,c+2 say "Страна" get mstrana ;
              reader {|x|menu_reader(x,{{|k,r,c|f1get_oksm(k,r,c)}},A__FUNCTION,,,.f.)}
   @ r1+2,c+2 say "Основание пребывания в РФ" get mosn_preb ;
              reader {|x|menu_reader(x,menu_osn_preb_RF,A__MENUVERT,,,.f.)}
@@ -1290,12 +1290,12 @@ Function f1get_oksm(k,r,c)
     zap
     if lsng == 0
       lcolor := color5
-      for i := 1 to len(glob_O001)
-        if !(glob_O001[i,2] == "643") // не включать Россию
+      for i := 1 to len(getO001())
+        if !(getO001()[i,2] == "643") // не включать Россию
           append blank
-          rg->kodN := glob_O001[i,2]
-          rg->kodA := glob_O001[i,6]
-          rg->name := glob_O001[i,1]
+          rg->kodN := getO001()[i,2]
+          rg->kodA := getO001()[i,6]
+          rg->name := getO001()[i,1]
           if ascan(arr_sng,rg->kodN) > 0
             rg->sng := 1
           endif
@@ -1304,11 +1304,11 @@ Function f1get_oksm(k,r,c)
     else
       lcolor := "N/W*,GR+/R"
       for j := 1 to len(arr_sng)
-        if (i := ascan(glob_O001,{|x| x[2] == arr_sng[j] })) > 0
+        if (i := ascan(getO001(),{|x| x[2] == arr_sng[j] })) > 0
           append blank
-          rg->kodN := glob_O001[i,2]
-          rg->kodA := glob_O001[i,6]
-          rg->name := glob_O001[i,1]
+          rg->kodN := getO001()[i,2]
+          rg->kodA := getO001()[i,6]
+          rg->name := getO001()[i,1]
           rg->sng := 1
         endif
       next
@@ -1623,7 +1623,6 @@ else
 endif
 return ret
 
-*
 
 *****
 Function view_kart(regim,r1,r2)
@@ -2295,16 +2294,17 @@ endif
 return fl
 
 *****
-Function dubl_zap(r,c)
-Local mas_pmt := {"~Поиск дублирующихся записей",;
+Function dubl_zap(r, c)
+  Local mas_pmt := {"~Поиск дублирующихся записей",;
                   "~Удаление дублирующихся записей"}
-Local mas_msg := {"Поиск дублирующихся записей в картотеке",;
+  Local mas_msg := {"Поиск дублирующихся записей в картотеке",;
                   "Удаление дублирующихся записей из картотеки"}
-Local mas_fun := {"f1dubl_zap()",;
+  Local mas_fun := {"f1dubl_zap()",;
                   "f2dubl_zap()"}
-DEFAULT r TO T_ROW,c TO T_COL+5
-popup_prompt(r,c,1,mas_pmt,mas_msg,mas_fun)
-return NIL
+
+  DEFAULT r TO T_ROW,c TO T_COL+5
+  popup_prompt(r, c, 1, mas_pmt, mas_msg, mas_fun)
+  return NIL
 
 ***** 09.07.18
 Function f1dubl_zap()

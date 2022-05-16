@@ -27,16 +27,15 @@ function get_ed_izm()
     (dbAlias)->(dbGoTop())
     do while !(dbAlias)->(EOF())
       if mem_n_V034 == 0
-         aadd(_arr, { alltrim((dbAlias)->SHOTNAME), (dbAlias)->ID })
+         aadd(_arr, { alltrim((dbAlias)->SHOTNAME), (dbAlias)->ID, CToD(''), CToD('') })
       else
-        aadd(_arr, { alltrim((dbAlias)->FULLNAME), (dbAlias)->ID })
+        aadd(_arr, { alltrim((dbAlias)->FULLNAME), (dbAlias)->ID, CToD(''), CToD('') })
       endif  
       (dbAlias)->(dbSkip())
     enddo
     (dbAlias)->(dbCloseArea())
     Select(tmp_select)
   endif
-
   return _arr
 
   function get_ed_izm_sql()

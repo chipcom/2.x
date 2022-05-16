@@ -3,14 +3,19 @@
 #include 'function.ch'
 #include 'hblibxlsxwriter.ch'
 
-***** 23.04.21 создать файл Excel
-function exportKartExcel(fName, aCondition)
+***** 18.04.22 создать файл Excel
+function exportKartExcel(fName, aCondition, aFilter)
+  *** возвращает .t. - если построение прервано иначе .f.
   local workbook
   local header
   local worksheet
   local formatDate
   local fmtCellNumber, fmtCellString, fmtCellStringCenter
   local arr_fio, row, curr, i, j, fl_exit := .f., s
+
+  if aFilter == nil // пустое значение для фильтров
+    return .t.
+  endif
 
   lxw_init() 
 
@@ -80,7 +85,7 @@ function exportKartExcel(fName, aCondition)
   R_Use(dir_server + 'kartotek', , 'KART')
   set relation to recno() into KART_, to recno() into KART2
 
-  hGauge := GaugeNew(,,,hb_Utf8ToStr('Экспорт картотеки в Excel','RU866'),.t.)
+  hGauge := GaugeNew(, , , hb_Utf8ToStr('Экспорт картотеки в Excel','RU866'), .t.)
   GaugeDisplay( hGauge )
   row := 3
   curr := 0
@@ -92,7 +97,7 @@ function exportKartExcel(fName, aCondition)
       fl_exit := .t. ; exit
     endif
 
-    if ! (left(kart2->PC2,1) == '1')  // выбираем только живых
+    if control_filter_kartotek('KART', 'KART2', 'KART_', aFilter)
       j := 0
       for i := 1 to len(aCondition)
         if i == 1
@@ -194,10 +199,9 @@ function exportKartExcel(fName, aCondition)
   if fl_exit
     func_error(4, hb_Utf8ToStr('Операция прервана!','RU866'))
   endif
-  
 
   lxw_workbook_close(workbook)
 
   CloseGauge(hGauge)
 
-  return nil
+  return fl_exit

@@ -240,8 +240,10 @@ Function f_oms_sluch_lek_pr(oBrow)
   oColumn:colorBlock := blk_color
   oBrow:addColumn(oColumn)
 
+  // oColumn := TBColumnNew(" Единица; измер-я", ;
+  //     {|| iif(tmp->ED_IZM == 0, space(8), padr(ret_ed_izm_V034(tmp->ED_IZM), 8)) })
   oColumn := TBColumnNew(" Единица; измер-я", ;
-      {|| iif(tmp->ED_IZM == 0, space(8), padr(ret_ed_izm_V034(tmp->ED_IZM), 8)) })
+    {|| iif(tmp->ED_IZM == 0, space(8), padr(ret_ed_izm(tmp->ED_IZM), 8)) })
   oColumn:colorBlock := blk_color
   oBrow:addColumn(oColumn)
   
@@ -340,7 +342,7 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
       private mDOZE :=  iif(nKey == K_INS, 0.0, tmp->DOZE)
       private mKOLVO :=  iif(nKey == K_INS, 0, tmp->COL_INJ)
       // ЧТО-БЫ не делать PUBLIC
-      Private glob_V034 := getV034()
+      Private glob_V034 := get_ed_izm()
       Private glob_methodinj := getMethodINJ()
       Private tmp_V034 := create_classif_FFOMS(2,"V034") // UNITCODE
       Private tmp_MethodINJ := create_classif_FFOMS(2,"MethodINJ") // METHOD
@@ -369,7 +371,7 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
         mSCHEME := ret_schema_V030(m1SCHEME)
         mSCHEDRUG := padr(ret_schema_V032(m1SCHEDRUG),42)
         mREGNUM := padr(get_Lek_pr_By_ID(m1REGNUM),30)
-        mUNITCODE := padr(inieditspr(A__MENUVERT, getV034(), m1UNITCODE),iif(mem_n_V034==0,15,30))
+        mUNITCODE := padr(inieditspr(A__MENUVERT, get_ed_izm(), m1UNITCODE),iif(mem_n_V034==0,15,30))
         mMETHOD := padr(inieditspr(A__MENUVERT, getMethodINJ(), m1METHOD),30)
       endif
 
@@ -572,26 +574,26 @@ Function f5editpreparat(get, nKey, when_valid, k)
       endif
       if alltrim(get:buffer) != mSCHEME
         // очистим все
-         m1UNITCODE := 0
-         mUNITCODE  := space(iif(mem_n_V034==0,15,30))
-         //
-         mMETHOD    := space(30)
-         m1METHOD   := 0
-         //
-         m1SCHEDRUG := ''
-         mSCHEDRUG  := space(42) 
-         //
-         m1REGNUM   := ''
-         mREGNUM    := space(30)
-         //
-         mDOZE      := 0.0
-         mKOLVO     := 0.0
-         update_get('mUNITCODE')  
-         update_get('mMETHOD')  
-         update_get('mSCHEDRUG')  
-         update_get('mREGNUM')  
-         update_get('mDOZE')  
-         update_get('mKOLVO')  
+        m1UNITCODE := 0
+        mUNITCODE  := space(iif(mem_n_V034==0,15,30))
+        //
+        mMETHOD    := space(30)
+        m1METHOD   := 0
+        //
+        m1SCHEDRUG := ''
+        mSCHEDRUG  := space(42) 
+        //
+        m1REGNUM   := ''
+        mREGNUM    := space(30)
+        //
+        mDOZE      := 0.0
+        mKOLVO     := 0.0
+        update_get('mUNITCODE')  
+        update_get('mMETHOD')  
+        update_get('mSCHEDRUG')  
+        update_get('mREGNUM')  
+        update_get('mDOZE')  
+        update_get('mKOLVO')  
       endif
     elseif k == 4     // Дата окончания периода
       if !emptyany(human->n_data, mdate_end_per) .and. mdate_end_per < human->n_data
@@ -600,16 +602,21 @@ Function f5editpreparat(get, nKey, when_valid, k)
         fl := func_error(4, "Введенная дата больше даты окончания лечения!")       
       endif
     elseif k == 5 //препарат 
-      //! empty(m1REGNUM) 
       if empty(get:buffer)
         return .f.
       endif
       if alltrim(get:buffer) != mREGNUM
         // очистим все
-         mDOZE      := 0.0
-         mKOLVO     := 0.0
-         update_get('mDOZE')  
-         update_get('mKOLVO')  
+        m1UNITCODE := 0
+        mUNITCODE  := space(iif(mem_n_V034==0,15,30))
+        mMETHOD    := space(30)
+        m1METHOD   := 0
+        mDOZE      := 0.0
+        mKOLVO     := 0.0
+        update_get('mUNITCODE')  
+        update_get('mMETHOD')  
+        update_get('mDOZE')  
+        update_get('mKOLVO')  
       endif
     elseif k == 6 // Степень тяжести состояния
       if empty(get:buffer)

@@ -231,9 +231,7 @@ do case
 endcase
 return ret
 
-*
-
-***** 19.02.17 работа с направлениями на госпитализацию в стационаре
+** 13.05.22 работа с направлениями на госпитализацию в стационаре
 Function _263_edit_s_gospit(nKey)
 Static sk := 1
 Local bg := {|o,k| get_MKB10(o,k) }
@@ -358,7 +356,7 @@ if flag
     index on str(kod_n,6) to (cur_dir+"tmp_nfn") for kod_f == napr->KOD_F_4out
     find (str(napr->kod,6))
     if found()
-      s_error := "ошибка "+lstr(nfn->OSHIB)+" - "+inieditspr(A__MENUVERT,glob_T008,nfn->OSHIB)
+      s_error := "ошибка " + lstr(nfn->OSHIB) + " - " + inieditspr(A__MENUVERT, getT008(), nfn->OSHIB)
       if !empty(nfn->IM_POL)
         s_error += " (в поле "+alltrim(nfn->IM_POL)+")"
       endif
@@ -759,9 +757,7 @@ elseif napr->t_ans_6 == 1
 endif
 return s
 
-*
-
-***** 16.03.17
+** 13.05.22
 Function f2_263_s_vybytie(nKey,oBrow,regim)
 Local ret := -1, rec, i, k, r1, tmp_color, buf, fl, s_error := "",;
       n_file := "spisokne"+stxt, sh := 84, HH := 80, t_arr[3], s1
@@ -836,7 +832,7 @@ do case
         index on str(kod_n,6) to (cur_dir+"tmp_nfn") for kod_f == napr->KOD_F_6out
         find (str(napr->kod,6))
         if found()
-          s_error := "ошибка "+lstr(nfn->OSHIB)+" - "+inieditspr(A__MENUVERT,glob_T008,nfn->OSHIB)
+          s_error := "ошибка " + lstr(nfn->OSHIB) + " - " + inieditspr(A__MENUVERT, getT008(), nfn->OSHIB)
           if !empty(nfn->IM_POL)
             s_error += " (в поле "+alltrim(nfn->IM_POL)+")"
           endif
@@ -1071,28 +1067,26 @@ G_SUnLock(str_sem)
 rest_box(buf)
 return NIL
 
-*
-
-***** 19.02.17
+** 13.05.22
 Function f1_263_s_napr()
-Local s := " направлено в стационар"
-if napr->KOD_F_6out > 0
-  s := " выбытие "+date_8(napr->date_6)
-elseif napr->type_h_4 > 0
-  s := "госпитализир. "+date_8(napr->date_h_4)
-elseif napr->KOD_F_3in > 0 .or. napr->KOD_F_3out > 0
-  s := "аннулировано "+date_8(napr->date_3)
-endif
-return s
+  Local s := " направлено в стационар"
+  
+  if napr->KOD_F_6out > 0
+    s := " выбытие " + date_8(napr->date_6)
+  elseif napr->type_h_4 > 0
+    s := "госпитализир. " + date_8(napr->date_h_4)
+  elseif napr->KOD_F_3in > 0 .or. napr->KOD_F_3out > 0
+    s := "аннулировано " + date_8(napr->date_3)
+  endif
+  return s
 
-*
-
-***** 08.03.17
+** 13.05.22
 Function f2_263_s_napr(nKey,oBrow,regim)
 Static s_arr
 Local ret := -1, rec, i, k, tmp_color, buf, s_error := "", arr_p := {}, sast := {}, a, fl,;
       tmp_V006 := {{"Стационар",1},{"Дневной стационар",2}},;
       n_file := "spisok"+stxt, sh := 84, HH := 60, t_arr[3], s1, s2, s3
+
 do case
   case regim == "edit"
     if nKey == K_F9 .and. (k := f_alert({padc('Выберите вариант печати списка направлений',60,'.')},;
@@ -1222,7 +1216,7 @@ do case
         index on str(kod_n,6) to (cur_dir+"tmp_nfn") for kod_f == napr->KOD_F_2out
         find (str(napr->kod,6))
         if found()
-          s_error := "ошибка "+lstr(nfn->OSHIB)+" - "+inieditspr(A__MENUVERT,glob_T008,nfn->OSHIB)
+          s_error := "ошибка " + lstr(nfn->OSHIB) + " - " + inieditspr(A__MENUVERT, getT008(), nfn->OSHIB)
           if !empty(nfn->IM_POL)
             s_error += " (в поле "+alltrim(nfn->IM_POL)+")"
           endif

@@ -1945,7 +1945,7 @@ elseif k == 3
 endif
 return NIL
 
-***** 16.10.18
+** 13.05.22
 Function f2_263_to_I01(nKey,oBrow,regim)
 Local lkod, buf, r1, rec, i, ret := -1, arr, lcodem, n1, n2, ;
       n_file := "i01"+stxt, sh := 80, HH := 60, t_arr[4], s, s1, s2, s3, s4
@@ -2031,7 +2031,7 @@ if regim == "edit"
         select NFN
         find (str(napr->kod,6))
         if found() .and. nfn->OSHIB > 0
-          s := space(3)+"ОШИБКА "+lstr(nfn->OSHIB)+" - "+inieditspr(A__MENUVERT,glob_T008,nfn->OSHIB)
+          s := space(3) + "ОШИБКА " + lstr(nfn->OSHIB) + " - " + inieditspr(A__MENUVERT, getT008(), nfn->OSHIB)
           if !empty(nfn->IM_POL)
             s += " (в поле "+alltrim(nfn->IM_POL)+")"
           endif
@@ -2093,7 +2093,7 @@ G_SUnLock(str_sem)
 rest_box(buf)
 return NIL
 
-***** 16.10.18
+** 13.05.22
 Function f2_263_to_I03(nKey,oBrow,regim)
 Local lkod, buf, r1, rec, i, ret := -1, arr, lcodem, n1, n2, ;
       n_file := "I03"+stxt, sh := 80, HH := 60, t_arr[4], s1, s2, s3, s4
@@ -2191,7 +2191,7 @@ if regim == "edit"
         select NFN
         find (str(napr->kod,6))
         if found() .and. nfn->OSHIB > 0
-          s := space(3)+"ОШИБКА "+lstr(nfn->OSHIB)+" - "+inieditspr(A__MENUVERT,glob_T008,nfn->OSHIB)
+          s := space(3) + "ОШИБКА " + lstr(nfn->OSHIB) + " - " + inieditspr(A__MENUVERT, getT008(), nfn->OSHIB)
           if !empty(nfn->IM_POL)
             s += " (в поле "+alltrim(nfn->IM_POL)+")"
           endif
@@ -2254,7 +2254,7 @@ G_SUnLock(str_sem)
 rest_box(buf)
 return NIL
 
-***** 16.04.18
+** 13.05.22
 Function f2_263_to_I04(nKey,oBrow,regim)
 Local lkod, buf, r1, rec, i, ret := -1, arr, lcodem, n1, n2, s1, s2, s3, s4, ;
       n_file := "i0"+lstr(ppaket)+stxt, sh := 80, HH := 60, t_arr[4]
@@ -2357,7 +2357,7 @@ if regim == "edit"
         select NFN
         find (str(napr->kod,6))
         if found() .and. nfn->OSHIB > 0
-          s := space(3)+"ОШИБКА "+lstr(nfn->OSHIB)+" - "+inieditspr(A__MENUVERT,glob_T008,nfn->OSHIB)
+          s := space(3) + "ОШИБКА " + lstr(nfn->OSHIB) + " - " + inieditspr(A__MENUVERT, getT008(), nfn->OSHIB)
           if !empty(nfn->IM_POL)
             s += " (в поле "+alltrim(nfn->IM_POL)+")"
           endif
@@ -2521,7 +2521,7 @@ if regim == "edit"
         select NFN
         find (str(napr->kod,6))
         if found() .and. nfn->OSHIB > 0
-          s := space(3)+"ОШИБКА "+lstr(nfn->OSHIB)+" - "+inieditspr(A__MENUVERT,glob_T008,nfn->OSHIB)
+          s := space(3) + "ОШИБКА " + lstr(nfn->OSHIB) + " - " + inieditspr(A__MENUVERT, getT008(), nfn->OSHIB)
           if !empty(nfn->IM_POL)
             s += " (в поле "+alltrim(nfn->IM_POL)+")"
           endif
@@ -2642,7 +2642,7 @@ Function _263_to_nastr()
   close databases
   return NIL
 
-***** 29.01.19 Получение из ТФОМС файлов обмена (информационных пакетов)
+** 13.05.22 Получение из ТФОМС файлов обмена (информационных пакетов)
 Function _263_from_read()
 Static nerrf := 999
 Local i, j, k, n, s, af := {}, arr_f := {}, aerr := {}, blk := {|x| aadd(af,x) }, ii, ;
@@ -2734,9 +2734,9 @@ for ii := 1 to len(arr_f)
             if tmp1->kol2 == 0
               select TMP2
               go top
-              strfile(space(5)+"обнаружена ошибка в файле:"+hb_eol()+;
-                      space(5)+"- "+lstr(tmp2->OSHIB)+" - "+inieditspr(A__MENUVERT,glob_T008,tmp2->OSHIB)+;
-                      hb_eol(),cFileProtokol,.t.)
+              strfile(space(5) + "обнаружена ошибка в файле:" + hb_eol() + ;
+                      space(5) + "- " + lstr(tmp2->OSHIB) + " - " + inieditspr(A__MENUVERT, getT008(), tmp2->OSHIB) + ;
+                      hb_eol(), cFileProtokol, .t.)
             else
               strfile(space(5)+"обнаружены ошибки:"+hb_eol(),cFileProtokol,.t.)
             endif
@@ -2755,10 +2755,10 @@ for ii := 1 to len(arr_f)
                     if found()
                       select KART
                       goto (napr->KOD_K)
-                      strfile(space(5)+"- "+alltrim(kart->fio)+" д.р."+full_date(kart->DATE_R)+hb_eol()+;
-                              space(7)+lstr(tmp2->OSHIB)+" - "+inieditspr(A__MENUVERT,glob_T008,tmp2->OSHIB)+hb_eol()+;
-                              space(7)+"ошибка в поле "+tmp2->IM_POL+hb_eol()+;
-                              hb_eol(),cFileProtokol,.t.)
+                      strfile(space(5) + "- " + alltrim(kart->fio) + " д.р." + full_date(kart->DATE_R) + hb_eol() + ;
+                              space(7) + lstr(tmp2->OSHIB) + " - " + inieditspr(A__MENUVERT, getT008(), tmp2->OSHIB) + hb_eol() + ;
+                              space(7) + "ошибка в поле " + tmp2->IM_POL + hb_eol() + ;
+                              hb_eol(), cFileProtokol, .t.)
                       nerr := 2
                       select NFN
                       find (str(napr->kod,6))
@@ -2771,9 +2771,9 @@ for ii := 1 to len(arr_f)
                     else
                       select KART
                       goto (napr->KOD_K)
-                      strfile(space(5)+"- "+alltrim(kart->fio)+" д.р."+full_date(kart->DATE_R)+hb_eol()+;
-                              space(7)+lstr(nerrf)+" - "+inieditspr(A__MENUVERT,glob_T008,nerrf)+hb_eol()+;
-                              hb_eol(),cFileProtokol,.t.)
+                      strfile(space(5) + "- " + alltrim(kart->fio) + " д.р." + full_date(kart->DATE_R) + hb_eol() + ;
+                              space(7) + lstr(nerrf) + " - " + inieditspr(A__MENUVERT, getT008(), nerrf) +hb_eol() + ;
+                              hb_eol(), cFileProtokol, .t.)
                       nerr := 2
                       select NFN
                       find (str(napr->kod,6))
@@ -2804,10 +2804,10 @@ for ii := 1 to len(arr_f)
                     if found()
                       select KART
                       goto (napr->KOD_K)
-                      strfile(space(5)+"- "+alltrim(kart->fio)+" д.р."+full_date(kart->DATE_R)+hb_eol()+;
-                              space(7)+lstr(tmp2->OSHIB)+" - "+inieditspr(A__MENUVERT,glob_T008,tmp2->OSHIB)+hb_eol()+;
-                              space(7)+"ошибка в поле "+tmp2->IM_POL+hb_eol()+;
-                              hb_eol(),cFileProtokol,.t.)
+                      strfile(space(5) + "- " + alltrim(kart->fio) + " д.р." + full_date(kart->DATE_R) + hb_eol() + ;
+                              space(7) + lstr(tmp2->OSHIB) + " - " + inieditspr(A__MENUVERT, getT008(), tmp2->OSHIB) + hb_eol() + ;
+                              space(7)+"ошибка в поле " + tmp2->IM_POL + hb_eol() + ;
+                              hb_eol(), cFileProtokol, .t.)
                       nerr := 2
                       select NFN
                       find (str(napr->kod,6))
@@ -2820,9 +2820,9 @@ for ii := 1 to len(arr_f)
                     else
                       select KART
                       goto (napr->KOD_K)
-                      strfile(space(5)+"- "+alltrim(kart->fio)+" д.р."+full_date(kart->DATE_R)+hb_eol()+;
-                              space(7)+lstr(nerrf)+" - "+inieditspr(A__MENUVERT,glob_T008,nerrf)+hb_eol()+;
-                              hb_eol(),cFileProtokol,.t.)
+                      strfile(space(5) + "- " + alltrim(kart->fio) + " д.р." + full_date(kart->DATE_R) + hb_eol() + ;
+                              space(7) + lstr (nerrf) + " - " + inieditspr(A__MENUVERT, getT008(), nerrf) + hb_eol() + ;
+                              hb_eol(), cFileProtokol, .t.)
                       nerr := 2
                       select NFN
                       find (str(napr->kod,6))
@@ -2853,10 +2853,10 @@ for ii := 1 to len(arr_f)
                     if found()
                       select KART
                       goto (napr->KOD_K)
-                      strfile(space(5)+"- "+alltrim(kart->fio)+" д.р."+full_date(kart->DATE_R)+hb_eol()+;
-                              space(7)+lstr(tmp2->OSHIB)+" - "+inieditspr(A__MENUVERT,glob_T008,tmp2->OSHIB)+hb_eol()+;
-                              space(7)+"ошибка в поле "+tmp2->IM_POL+hb_eol()+;
-                              hb_eol(),cFileProtokol,.t.)
+                      strfile(space(5) + "- " + alltrim(kart->fio) + " д.р." + full_date(kart->DATE_R) + hb_eol() + ;
+                              space(7) + lstr(tmp2->OSHIB) + " - " + inieditspr(A__MENUVERT, getT008(), tmp2->OSHIB) + hb_eol() + ;
+                              space(7) + "ошибка в поле " + tmp2->IM_POL + hb_eol() + ;
+                              hb_eol(), cFileProtokol, .t.)
                       nerr := 2
                       select NFN
                       find (str(napr->kod,6))
@@ -2869,9 +2869,9 @@ for ii := 1 to len(arr_f)
                     else
                       select KART
                       goto (napr->KOD_K)
-                      strfile(space(5)+"- "+alltrim(kart->fio)+" д.р."+full_date(kart->DATE_R)+hb_eol()+;
-                              space(7)+lstr(nerrf)+" - "+inieditspr(A__MENUVERT,glob_T008,nerrf)+hb_eol()+;
-                              hb_eol(),cFileProtokol,.t.)
+                      strfile(space(5) + "- " + alltrim(kart->fio) + " д.р." + full_date (kart->DATE_R) + hb_eol() + ;
+                              space(7) + lstr(nerrf) + " - " + inieditspr(A__MENUVERT, getT008(), nerrf) + hb_eol() + ;
+                              hb_eol(), cFileProtokol, .t.)
                       nerr := 2
                       select NFN
                       find (str(napr->kod,6))
@@ -2902,10 +2902,10 @@ for ii := 1 to len(arr_f)
                     if found()
                       select KART
                       goto (napr->KOD_K)
-                      strfile(space(5)+"- "+alltrim(kart->fio)+" д.р."+full_date(kart->DATE_R)+hb_eol()+;
-                              space(7)+lstr(tmp2->OSHIB)+" - "+inieditspr(A__MENUVERT,glob_T008,tmp2->OSHIB)+hb_eol()+;
-                              space(7)+"ошибка в поле "+tmp2->IM_POL+hb_eol()+;
-                              hb_eol(),cFileProtokol,.t.)
+                      strfile(space(5) + "- " + alltrim(kart->fio) + " д.р." + full_date(kart->DATE_R) + hb_eol() + ;
+                              space(7) + lstr(tmp2->OSHIB) + " - " + inieditspr(A__MENUVERT, getT008(), tmp2->OSHIB) + hb_eol() + ;
+                              space(7) + "ошибка в поле " + tmp2->IM_POL + hb_eol() + ;
+                              hb_eol(), cFileProtokol, .t.)
                       nerr := 2
                       select NFN
                       find (str(napr->kod,6))
@@ -2918,9 +2918,9 @@ for ii := 1 to len(arr_f)
                     else
                       select KART
                       goto (napr->KOD_K)
-                      strfile(space(5)+"- "+alltrim(kart->fio)+" д.р."+full_date(kart->DATE_R)+hb_eol()+;
-                              space(7)+lstr(nerrf)+" - "+inieditspr(A__MENUVERT,glob_T008,nerrf)+hb_eol()+;
-                              hb_eol(),cFileProtokol,.t.)
+                      strfile(space(5) + "- " + alltrim(kart->fio) + " д.р." + full_date(kart->DATE_R) + hb_eol() + ;
+                              space(7) + lstr(nerrf) + " - " + inieditspr(A__MENUVERT, getT008(), nerrf) + hb_eol() + ;
+                              hb_eol(), cFileProtokol, .t.)
                       nerr := 2
                       select NFN
                       find (str(napr->kod,6))

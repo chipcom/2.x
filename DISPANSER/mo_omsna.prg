@@ -3218,9 +3218,7 @@ commit
 rest_box(buf)
 return NIL
 
-*
-
-***** 29.11.18 прочитать и "разнести" по базам данных файл D02
+** 13.05.22 прочитать и "разнести" по базам данных файл D02
 Function read_XML_FILE_D02(arr_XML_info,aerr,/*@*/current_i2,lrec_xml)
 Local count_in_schet := 0, bSaveHandler, ii1, ii2, i, j, k, t_arr[2], ldate_D02, s, err_file := .f.
 DEFAULT lrec_xml TO 0
@@ -3327,8 +3325,8 @@ if empty(aerr) // если проверка прошла успешно
         refr->reestr := mkod_reestr
         refr->D01_ZAP := 0
         refr->KOD_ERR := tmp3->_ERROR
-        if (j := ascan(glob_T012, {|x| x[2] == tmp3->_ERROR })) > 0
-          strfile(space(8)+"ошибка "+lstr(tmp3->_ERROR)+" - "+glob_T012[j,1]+hb_eol(),cFileProtokol,.t.)
+        if (j := ascan(getT012(), {|x| x[2] == tmp3->_ERROR })) > 0
+          strfile(space(8) + "ошибка " + lstr(tmp3->_ERROR) + " - " + getT012()[j,1] + hb_eol(), cFileProtokol, .t.)
         else
           strfile(space(8)+"ошибка "+lstr(tmp3->_ERROR)+" (неизвестная ошибка)"+hb_eol(),cFileProtokol,.t.)
         endif
@@ -3403,8 +3401,8 @@ if empty(aerr) // если проверка прошла успешно
           refr->reestr := mkod_reestr
           refr->D01_ZAP := tmp2->_N_ZAP
           refr->KOD_ERR := tmp3->_ERROR
-          if (j := ascan(glob_T012, {|x| x[2] == tmp3->_ERROR })) > 0
-            strfile(space(8)+"ошибка "+lstr(tmp3->_ERROR)+" - "+glob_T012[j,1]+hb_eol(),cFileProtokol,.t.)
+          if (j := ascan(getT012(), {|x| x[2] == tmp3->_ERROR })) > 0
+            strfile(space(8) + "ошибка " + lstr(tmp3->_ERROR) + " - " + getT012()[j,1] + hb_eol(), cFileProtokol, .t.)
           else
             strfile(space(8)+"ошибка "+lstr(tmp3->_ERROR)+" (неизвестная ошибка)"+hb_eol(),cFileProtokol,.t.)
           endif

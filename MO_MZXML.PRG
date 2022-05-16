@@ -65,7 +65,7 @@ elseif _regim == 2
      if y == 0 .and. m == 0 // ребёнку менее 1 месяца
        i := 0 // новорожденный
      endif
-     if !empty(kart_->strana) .and. !(kart_->strana == "643") .and. ascan(glob_O001, {|x| x[2] == kart_->strana }) > 0
+     if !empty(kart_->strana) .and. !(kart_->strana == "643") .and. ascan(getO001(), {|x| x[2] == kart_->strana }) > 0
        i := 1 // иностранный гражданин
      endif
      mo_add_xml_stroke(oChild,"without_snils_reason",lstr(i))
@@ -975,7 +975,7 @@ Function f1pr_inog_inostr(par,lkod,/*@*/lregion,/*@*/losnov,arr_m)
 Local rec
 select KART
 goto (lkod)
-if !empty(kart_->strana) .and. ascan(glob_O001, {|x| x[2] == kart_->strana }) > 0
+if !empty(kart_->strana) .and. ascan(getO001(), {|x| x[2] == kart_->strana }) > 0
   lregion := kart_->strana
   select KIS
   find (str(lkod,7))
@@ -1093,7 +1093,7 @@ if j == 1 .or. j == 2
           frd->profil := sprofil
         endif
         frd->ist_fin := mm_ist_fin[tmp_kart->ist_fin]
-        frd->region := inieditspr(A__MENUVERT, glob_O001, tmp_kart->region)
+        frd->region := inieditspr(A__MENUVERT, getO001(), tmp_kart->region)
         frd->osnov := inieditspr(A__MENUVERT, menu_osn_preb_RF, tmp_kart->osnov)
         frd->fio := kart->fio
         frd->kols += tmp_kart->kols
@@ -1161,7 +1161,7 @@ else
       find (left(tmp1->region,2))
       frd->region := charrem("*",name)
     else
-      frd->region := inieditspr(A__MENUVERT, glob_O001, tmp1->region)
+      frd->region := inieditspr(A__MENUVERT, getO001(), tmp1->region)
       frd->osnov := inieditspr(A__MENUVERT, menu_osn_preb_RF, tmp1->osnov)
     endif
     frd->kols := tmp1->kols
