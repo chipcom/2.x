@@ -202,6 +202,7 @@ mo_version.prg
 .\oms\oms_implantant.prg
 .\oms\oms_ser_number.prg
 .\oms\oms_vmp.prg
+.\oms\oms_sluch_med_reab.prg
 
 .\onkologiya\onko.prg
 
