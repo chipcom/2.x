@@ -50,16 +50,16 @@ Function InitSpravFFOMS()
   Public glob_F010 := getf010()
 
   // F011.xml - Классификатор типов документов, удостоверяющих личность
-  // Public glob_F011 := getF011()
+  Public glob_F011 := getF011()
 
   // F012.xml - Справочник ошибок форматно-логического контроля
-  // Public glob_F012 := getF012()
+  Public glob_F012 := getF012()
 
   // F014.xml - Классификатор причин отказа в оплате медицинской помощи
-  // Public glob_F014 := getF014()  // теперь добавлен в Т005
+  Public glob_F014 := getF014()  // теперь добавлен в Т005
 
   // F015.xml - Классификатор федеральных округов
-  // Public glob_F015 := getF015()
+  Public glob_F015 := getF015()
 
   // O001.dbf - Общероссийский классификатор стран мира (ОКСМ)
   Public glob_O001 := getO001() // {}
@@ -101,13 +101,13 @@ Function InitSpravFFOMS()
   Public glob_V016 := getV016()
 
   // V020.xml - Классификатор профилей койки
-  // Public glob_V020 := getV020()
+  Public glob_V020 := getV020()
 
   // T008.xml - Коды ошибок в протоколах обработки инф.пакетов
-  // Public glob_T008 := getT008()
+  Public glob_T008 := getT008()
 
   // T012.xml - Классификатор ошибок ИСОМП
-  // Public glob_T012 := getT012()
+  Public glob_T012 := getT012()
 
   // массив перекодировки специальностей из V015 в V021
   Public glob_arr_V015_V021 := {;
