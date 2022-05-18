@@ -8,6 +8,20 @@ function getISHOD_V012( ishod )
   endif
   return ret
 
+** 18.05.22 вернуть исход заболевания по условию оказания и дате
+function getISHOD_usl_date(uslovie, date)
+  local ret := {}
+  local row
+
+  for each row in getV012()
+    if (empty(row[4]) .and. date >= row[3]) .or. between_date(row[3], row[4], date)
+      if uslovie == row[5]
+        aadd(ret, {row[1], row[2], row[3], row[4], row[5]})
+      endif
+    endif
+  next
+  return ret
+
 * 11.12.21 вернуть массив по справочнику ФФОМС V012.xml
 function getV012()
   // V012.xml - Классификатор исходов заболевания
@@ -42,24 +56,5 @@ function getV012()
 
     (dbAlias)->(dbCloseArea())
     Select(tmp_select)
-
-    // aadd(_arr, {"101/ст-р/Выздоровление",101,stod("20110101"),stod(""),1})
-    // aadd(_arr, {"102/ст-р/Улучшение",102,stod("20110101"),stod(""),1})
-    // aadd(_arr, {"103/ст-р/Без перемен",103,stod("20110101"),stod(""),1})
-    // aadd(_arr, {"104/ст-р/Ухудшение",104,stod("20110101"),stod(""),1})
-    // aadd(_arr, {"201/дн.с/Выздоровление",201,stod("20110101"),stod(""),2})
-    // aadd(_arr, {"202/дн.с/Улучшение",202,stod("20110101"),stod(""),2})
-    // aadd(_arr, {"203/дн.с/Без перемен",203,stod("20110101"),stod(""),2})
-    // aadd(_arr, {"204/дн.с/Ухудшение",204,stod("20110101"),stod(""),2})
-    // aadd(_arr, {"301/п-ка/Выздоровление",301,stod("20110101"),stod(""),3})
-    // aadd(_arr, {"302/п-ка/Ремиссия",302,stod("20110101"),stod(""),3})
-    // aadd(_arr, {"303/п-ка/Улучшение",303,stod("20110101"),stod(""),3})
-    // aadd(_arr, {"304/п-ка/Без перемен",304,stod("20110101"),stod(""),3})
-    // aadd(_arr, {"305/п-ка/Ухудшение",305,stod("20110101"),stod(""),3})
-    // aadd(_arr, {"306/п-ка/Осмотр",306,stod("20120123"),stod(""),3})
-    // aadd(_arr, {"401/Улучшение",401,stod("20110101"),stod(""),4})
-    // aadd(_arr, {"402/Без эффекта",402,stod("20110101"),stod(""),4})
-    // aadd(_arr, {"403/Ухудшение",403,stod("20110101"),stod(""),4})
   endif
-
   return _arr 
