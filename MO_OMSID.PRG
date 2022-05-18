@@ -4423,7 +4423,14 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
     add_string("")
     add_string("")
   next
+  if verify_FF(HH,.t.,sh)
+    //aeval(arr_title, {|x| add_string(x) } )
+  endif
 //endif
+add_string("Доля лиц с отклонениями  от нормы, выявленными у граждан, перенсеших новую коронавирусную инфекцию" )
+add_string("COVID-19 по результатам I этапа углубленной диспансеризации (доля от количества граждан, завершивших")
+add_string(" I этап углубленной диспансеризации и прошедших конкретное исследование, %)")  								
+add_string("")
 add_string("68- Всего лиц с отконениями I этап              = "+ padl(lstr(mas_n_otchet[1]),9)+" чел.")
 add_string("69- Сатурация                                   = "+ padl(lstr(mas_n_otchet[2]),9)+" чел.")
 add_string("70- Тест с 6 минутной ходьбой                   = "+ padl(lstr(mas_n_otchet[3]),9)+" чел.")
@@ -4432,18 +4439,21 @@ add_string("72- Рентгенография легких                       = "+ padl(lstr(mas_n
 add_string("73- Общий анализ крови                          = "+ padl(lstr(mas_n_otchet[6]),9)+" чел.")
 add_string("74- Биохимический анализ крови                  = "+ padl(lstr(mas_n_otchet[7]),9)+" чел.")
 add_string("75- Определение концентрации Д-димера в крови   = "+ padl(lstr(mas_n_otchet[8]),9)+" чел.")
+add_string("")
+add_string("Доля лиц с отклонениями  от нормы, выявленными у граждан, перенсеших новую коронавирусную инфекцию ")
+add_string("COVID-19 по результатам II этапа углубленной диспансеризации (доля от количества граждан, завершивших ")
+add_string(" II этап углубленной диспансеризации и прошедших конкретное исследование, %)")  			
+add_string("")
 add_string("77- Всего лиц с отконениями II этап             = "+ padl(lstr(mas_n_otchet[9]),9)+" чел.")
 add_string("78- Дуплексное сканир-ие вен нижних конечностей = "+ padl(lstr(mas_n_otchet[10]),9)+" чел.")
 add_string("79- Проведение КТ легких                        = "+ padl(lstr(mas_n_otchet[11]),9)+" чел.")
 add_string("80- Проведение Эхокардиографии                  = "+ padl(lstr(mas_n_otchet[12]),9)+" чел.")
+add_string("")
+add_string("Число граждан, взятых на диспансерное наблюдение и направленных на реабилитацию по")
+add_string("результатам углубленной диспансеризации  (абс.ч.)")  		
+add_string("")
 add_string("83- Всего подлежат Диспансерному наблюдению     = "+ padl(lstr(arr_itog[18]),9)+" чел.")
 add_string("85- Направлен на реабилитацию                   = "+ padl(lstr(mas_n_otchet[14]),9)+" чел.")
-
-
-
-
-
-
   close databases
   fclose(fp)
   Private yes_albom := .t.
