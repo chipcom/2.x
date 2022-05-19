@@ -1929,41 +1929,43 @@ return arr
 *
 
 ***** сделать единую строку полиса из полей серии и номера полиса
-Function make_polis(_spolis,_npolis)
-Local s := alltrim(_spolis)
-if !empty(s)
-  s += " "
-endif
-return s+alltrim(_npolis)
+Function make_polis(_spolis, _npolis)
+  Local s := alltrim(_spolis)
 
-*
-
-***** вывести наименование диагноза при вводе случая
-Function diag_screen(k,arr_d)
-Static buf_d
-Local i, lc, r := 12
-if type("row_diag_screen") == "N" .and. row_diag_screen > 0
-  r := row_diag_screen
-endif
-if k == 0 // обнулить буфер
-  buf_d := nil
-elseif k == 1 // если надо, отрисовать прямоугольник, и вывести диагноз
-  if buf_d == nil
-    buf_d := box_shadow(r,3,r+5,76,"N/RB","Диагноз","W/RB")
+  if !empty(s)
+    s += ' '
   endif
-  for i := 1 to len(arr_d)
-    lc := if("в ОМС" $ arr_d[i] .or. "по полу" $ arr_d[i], "GR+/RB", "W+/RB")
-    @ r+i,5 say padr(arr_d[i],71) color lc
-  next
-elseif k == 2 // восстановить экран  и обнулить буфер
-  if buf_d != nil
-    rest_box(buf_d)
-  endif
-  buf_d := nil
-endif
-return .t.
+  return s + alltrim(_npolis)
 
-*
+** 19.05.22 вывести наименование диагноза при вводе случая
+Function diag_screen(k, arr_d, lUp)
+  Static buf_d
+  Local i, lc, r // := 12
+
+  default lUp TO .f.
+
+  r := iif(lUp, 5, 12)
+  if type('row_diag_screen') == 'N' .and. row_diag_screen > 0
+    r := row_diag_screen
+  endif
+  if k == 0 // обнулить буфер
+    buf_d := nil
+  elseif k == 1 // если надо, отрисовать прямоугольник, и вывести диагноз
+    if buf_d == nil
+      buf_d := box_shadow(r, 3, r + 5, 76, 'N/RB', 'Диагноз', 'W/RB')
+    endif
+    for i := 1 to len(arr_d)
+      lc := if('в ОМС' $ arr_d[i] .or. 'по полу' $ arr_d[i], 'GR+/RB', 'W+/RB')
+      @ r+i,5 say padr(arr_d[i],71) color lc
+    next
+  elseif k == 2 // восстановить экран  и обнулить буфер
+    if buf_d != nil
+      rest_box(buf_d)
+    endif
+    buf_d := nil
+  endif
+  return .t.
+
 
 ***** вывести мигалки перед диагнозами, если введена доп.инф-ия по талону
 Function put_dop_diag()

@@ -5,8 +5,8 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** проверка ввода диагноза в случае ОМС
-Function val1_10diag(fl_search,fl_plus,fl_screen,ldate,lpol)
+** 19.05.22 проверка ввода диагноза в случае ОМС
+Function val1_10diag(fl_search, fl_plus, fl_screen, ldate, lpol, lUp)
   // fl_search - искать введённый диагноз в справочнике
   // fl_plus   - допускается ли ввод первично(+)/повторно(-) в конце диагноза
   // fl_screen - выводить ли на экран наименование диагноза
@@ -17,6 +17,8 @@ Function val1_10diag(fl_search,fl_plus,fl_screen,ldate,lpol)
   local isGeneralDiagnoze
         
   DEFAULT fl_search TO .t., fl_plus TO .f., fl_screen TO .f., ldate TO sys_date
+  default lUp TO .f.
+
   if type("is_talon") == "L" .and. is_talon
     lis_talon := .t.
   endif
@@ -101,7 +103,7 @@ Function val1_10diag(fl_search,fl_plus,fl_screen,ldate,lpol)
           arr[4] := padc(alltrim(s)+"!",71)
           mybell()
         endif
-        diag_screen(1,arr)
+        diag_screen(1, arr, lUp)
       endif
     else
       if "." $ mshifr  // если шифр четырехзначный

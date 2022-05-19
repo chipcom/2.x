@@ -319,15 +319,15 @@ function oms_sluch_MED_REAB(Loc_kod, kod_kartotek, f_print)
     @ ++j, 1 say 'Основной диагноз' get mkod_diag picture pic_diag ;
         reader {|o| MyGetReader(o, bg)} ;
         when when_diag() ;
-        valid {|| val1_10diag(.t., .t., .t., mk_data, mpol) }
-
-    // @ ++j,1 say "Сопутствующие диагнозы " get mkod_diag2 picture pic_diag reader {|o|MyGetReader(o,bg)} when when_diag() valid val1_10diag(.t.,.t.,.t., mk_data, mpol)
+        valid {|| val1_10diag(.t., .t., .t., mk_data, mpol, .t.) }
 
     @ ++j, 1 say 'Профиль мед.помощи' get mprofil ;
-        when .f. color cDataCSay
+        when .f. color cDataCSay ;
+          valid {|| val1_10diag(.t., .t., .t., mk_data, mpol, .t.) }
 
     @ ++j, 1 say 'Вид реаблитации' get mvidreab ;
       reader {|x|menu_reader(x, type_reabilitacia(), A__MENUVERT, , , .f.)}
+      // when diag_screen(2)
 
     @ ++j, 1 say 'Шкала Реабилитационной Маршрутизации' get mshrm ;
       reader {|x|menu_reader(x, type_shrm_reabilitacia(), A__MENUVERT, , , .f.)}
@@ -546,7 +546,8 @@ function oms_sluch_MED_REAB(Loc_kod, kod_kartotek, f_print)
   restscreen(buf)
 
   if fl_write_sluch // если записали
-    if type("fl_edit_oper") == "L" // если находимся в режиме добавления случая
+    defenition_usluga_med_reab(mkod, m1vidreab, m1shrm)
+    if type('fl_edit_oper') == 'L' // если находимся в режиме добавления случая
       fl_edit_oper := .t.  // проверку запустим при выходе из набивания услуг
     else // иначе запускаем проверку
       if (mcena_1 > 0) .and. !empty(val(msmo))
@@ -560,19 +561,19 @@ function oms_sluch_MED_REAB(Loc_kod, kod_kartotek, f_print)
   // endif
   return nil
 
-** 18.05.22
+** 19.05.22
 function type_reabilitacia()
   static ret := {}
 
   if len(ret) == 0
-    aadd(ret, {'заболевания опорно-двигательного аппарата', 1}) // 27
-    aadd(ret, {'сердечно-сосудистая потология', 2}) // 30
-    aadd(ret, {'заболевания центральной нервной системы', 3}) // 33
-    aadd(ret, {'заболевания периферической нервной системы', 4}) // 36
-    aadd(ret, {'лечении органов дыхания, после COVID-19', 5}) // 39
-    aadd(ret, {'лечении органов дыхания, после COVID-19, телемедицина', 6}) // 42
-    aadd(ret, {'лечении органов дыхания', 7}) // 45
-    aadd(ret, {'онкологическое лечение', 8})  // 48
+    aadd(ret, {'заболевания опорно-двигательного аппарата', 1, {'2.89.27', '2.89.28', '2.89.29'}})
+    aadd(ret, {'сердечно-сосудистая потология', 2, {'2.89.30', '2.89.31', '2.89.32'}})
+    aadd(ret, {'заболевания центральной нервной системы', 3, {'2.89.33', '2.89.34', '2.89.35'}})
+    aadd(ret, {'заболевания периферической нервной системы', 4, {'2.89.36', '2.89.37', '2.89.38'}})
+    aadd(ret, {'лечении органов дыхания, после COVID-19', 5, {'2.89.39', '2.89.40', '2.89.41'}})
+    aadd(ret, {'лечении органов дыхания, после COVID-19, телемедицина', 6, {'2.89.42', '2.89.43', '2.89.44'}})
+    aadd(ret, {'лечении органов дыхания', 7, {'2.89.45', '2.89.46', '2.89.47'}})
+    aadd(ret, {'онкологическое лечение', 8, {'2.89.48', '2.89.49', '2.89.50'}})
   endif
   return ret
 
@@ -586,3 +587,120 @@ function type_shrm_reabilitacia()
     aadd(ret, {'ШРМ 3', 3})
   endif
   return ret
+
+** 19.05.22
+function defenition_usluga_med_reab(lkod, vid, shrm)
+  Local arr, i, s, lshifr, lrec, lu_kod, lcena, lyear, mrec_hu, not_ksg := .t., sdial, fl
+  local buf := save_maxrow()
+  local ar
+
+  ar := type_reabilitacia()[vid, 3][shrm]
+altd()
+  mywait('Добавление услуги')
+  R_Use(dir_server + 'mo_uch', , 'UCH')
+  R_Use(dir_server + 'mo_otd', , 'OTD')
+  Use_base('lusl')
+  Use_base('luslc')
+  Use_base('uslugi')
+  R_Use(dir_server + 'uslugi1', {dir_server + 'uslugi1', ;
+                              dir_server + 'uslugi1s'}, 'USL1')
+  use_base('human_u') // если понадобится, удалить старую услугу и добавить новую
+  R_Use(dir_server + 'mo_su', , 'MOSU')
+  R_Use(dir_server + 'mo_hu', dir_server + 'mo_hu', 'MOHU')
+  set relation to u_kod into MOSU
+  G_Use(dir_server + 'human_2', , 'HUMAN_2')
+  R_Use(dir_server + 'human_', , 'HUMAN_')
+  G_Use(dir_server + 'human', , 'HUMAN') // перезаписать сумму
+  set relation to recno() into HUMAN_, to recno() into HUMAN_2
+  goto (lkod)
+  lyear := year(human->K_DATA)
+
+  lrec := lcena := 0
+  // select HU
+  // find (str(lkod, 7))
+  // do while hu->kod == lkod .and. !eof()
+  //   usl->(dbGoto(hu->u_kod))
+  //   if empty(lshifr := opr_shifr_TFOMS(usl->shifr1, usl->kod, human->k_data))
+  //     lshifr := usl->shifr
+  //   endif
+  //   if !empty(arr[3]) .and. alltrim(lshifr) == arr[3] // уже стоит тот же КСГ
+  //     not_ksg := .f.
+  //     lcena := arr[4]
+  //     if !(round(hu->u_cena,2) == round(lcena,2)) // перезапишем цену
+  //       select HU
+  //       G_RLock(forever)
+  //       hu->u_cena := lcena
+  //       hu->stoim := hu->stoim_1 := lcena
+  //       UnLock
+  //     endif
+  //     exit
+  //   endif
+  //   if lyear > 2021 // add 11.02.22
+  //     select LUSL
+  //     find (lshifr) // длина lshifr 10 знаков
+  //     if found() .and. (eq_any(left(lshifr,5),"1.21.") .or. is_ksg(lusl->shifr)) // стоит другой КСГ
+  //       lrec := hu->(recno())
+  //       exit
+  //     endif
+  //   endif
+  //   select HU
+  //   skip
+  // enddo
+
+// return { ars, arerr, alltrim(lksg), lcena, akslp, akiro, s_dializ }
+
+  close databases
+  rest_box(buf)
+  return nil
+
+** 19.05.22
+function ret_array_med_reab(vid, shrm)
+  local arr_uslugi_med_reab := { ;
+    { ;   // заболевания опорно-двигательного аппарата
+      {'2.6.15',	1,	1,	1,	1,	1,	1}, ;
+      {'2.6.13',	0.25,	1,	0.5,	1,	0.55,	1}, ;
+      {'2.6.16',	1,	1,	1,	2,	1,	2}, ;
+      {'2.6.17',	0.45,	1,	0.5,	1,	0.5,	1}, ;
+      {'2.6.14',	0.25,	1,	0.35,	1,	0.45,	1}, ;
+      {'2.6.19',	0.45,	1,	0.5,	1,	0.5,	1}, ;
+      {'2.6.5',	1,	1,	1,	1,	1,	1}, ;
+      {'2.6.6',	0.5,	1,	0.75,	1,	1,	2}, ;
+      {'2.6.7',	1,	1,	1,	1,	1,	1}, ;
+      {'2.6.8',	0.5,	1,	0.75,	2,	1,	1}, ;
+      {'3.4.31',	0.1,	1,	0.15,	1,	0.15,	1}, ;
+      {'4.11.136',	1,	1,	1,	1,	1,	1}, ;
+      {'4.2.153',	1,	1,	1,	1,	1,	1}, ;
+      {'13.1.1',	1,	1,	1,	1,	1,	1}, ;
+      {'14.2.3',	0.1,	1,	0.1,	1,	0.1,	1}, ;
+      {'7.12.5',	0.2,	1,	0.3,	1,	0.4,	1}, ;
+      {'7.12.6',	0.2,	1,	0.3,	1,	0.4,	1}, ;
+      {'7.2.2',	0.1,	1,	0.1,	1,	0.2,	1}, ;
+      {'20.1.2',	1,	9,	1,	11,	1,	13}, ;
+      {'20.2.1',	0.6,	9,	0.75,	11,	0.85,	13}, ;
+      {'21.1.2',	0.7,	9,	0.85,	9,	0.85,	11}, ;
+      {'19.1.2',	0.3,	9,	0.35,	10,	0.45,	10}, ;
+      {'19.1.5',	0.1,	9,	0.2,	9,	0.25,	11}, ;
+      {'19.1.36',	0.3,	9,	0.4,	9,	0.45,	11}, ;
+      {'19.1.30',	0.2,	9,	0.3,	9,	0.35,	11}, ;
+      {'19.1.29',	0.2,	9,	0.5,	9,	0.55,	11}, ;
+      {'19.1.33',	0.1,	9,	0.25,	9,	0.35,	11}, ;
+      {'19.1.34',	0.1,	9,	0.25,	9,	0.35,	11}, ;
+      {'19.1.35',	0.1,	9,	0.25,	9,	0.35,	11}, ;
+      {'19.1.9',	0.1,	9,	0.25,	9,	0.35,	11}, ;
+      {'19.7.1',	0.2,	9,	0.25,	10,	0.35,	10}, ;
+      {'19.1.7',	0.3,	9,	0.35,	10,	0.45,	10}, ;
+      {'19.1.6',	0.3,	9,	0.35,	10,	0.45,	10}, ;
+      {'19.1.37',	0.3,	9,	0.45,	10,	0.55,	10}, ;
+      {'19.3.1',	0.2,	9,	0.45,	10,	0.55,	10}, ;
+      {'20.2.4',	0.1,	9,	0.45,	9,	0.45,	11}, ;
+      {'22.1.2',	0.1,	9,	0.35,	9,	0.35,	11}, ;
+      {'19.1.38',	0.1,	9,	0.35,	9,	0.35,	11}, ;
+      {'19.6.1',	0.2,	9,	0.35,	9,	0.35,	11}, ;
+      {'19.2.2',	0.1,	5.5,	0.35,	9,	0.35,	11}, ;
+      {'19.2.5',	0.25,	7.5,	0.25,	9,	0.35,	11}, ;
+      {'19.6.2',	0.35,	7.5,	0.45,	9,	0.45,	11}, ;
+      {'19.1.32',	0.35,	7.5,	0.45,	9,	0.45,	11} ;
+    } ;
+  }
+
+  return nil
