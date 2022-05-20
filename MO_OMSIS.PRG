@@ -5913,7 +5913,9 @@ tmp[5] := 1 // январь
 ret_days_for_akt_sverki(tmp,@b1_1,,@a1_1,)
 //
 d1 := 10
+
 d2 := 10
+
 ret_days_for_akt_sverki(arr_m,@b1,@b2,@a1,@a2)
 Use_base("lusl")
 Use_base("luslf")
@@ -5949,6 +5951,9 @@ do while !eof()
     endif
     mdate1 := stod(strzero(schet_->nyear,4)+strzero(schet_->nmonth,2)+"15")
     fl_month := between(mdate1,arr_m[5],arr_m[6]) // отч.период текущий месяц
+    if arr_m[1] == 2022 .and. arr_m[3] > 4
+      d1 := 20
+    endif  
     if arr_m[1] == 2018 .and. arr_m[3] == 12
       d2 := 21
       if glob_mo[_MO_KOD_TFOMS] == '134505'
@@ -5964,6 +5969,8 @@ do while !eof()
       d2 := 15  
     elseif arr_m[1] == 2022 .and. arr_m[3] == 2
       d1 := 15
+    elseif arr_m[1] == 2022 .and. arr_m[3] == 4
+      d2 := 12 
     endif
     //my_debug(,"date1_mes="+dtos(arr_m[5]))
     //my_debug(,"date2_mes="+dtos(arr_m[6]))
