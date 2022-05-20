@@ -1858,7 +1858,7 @@ if k > 0
 endif
 return NIL
 
-***** 07.01.22 Редактирование случая с выбором по учреждению/отделению
+** 20.05.22 Редактирование случая с выбором по учреждению/отделению
 Function f1oms_edit()
 Static si := 1, sk := 1
 Local buf, mas_pmt, arr_m, str_sem, i, buf24, buf_scr, dostup, k := 1,;
@@ -2000,7 +2000,7 @@ if (arr_m := input_year()) != NIL .and. ;
         else
           mas_pmt := {"Редактирование ~карточки","Редактирование ~услуг"}
         endif
-        if glob_otd[3] == 4 .or. glob_otd[4] > 0
+        if glob_otd[3] == 4 .or. (glob_otd[4] > 0 .and. glob_otd[4] != TIP_LU_MED_REAB)
           si := 1
           asize(mas_pmt,1)
           keyboard chr(K_ENTER)
@@ -2030,7 +2030,7 @@ if (arr_m := input_year()) != NIL .and. ;
 endif
 return NIL
 
-***** 06.01.22 Редактирование случая с выбором по отчётному периоду
+** 20.05.22 Редактирование случая с выбором по отчётному периоду
 Function f2oms_edit()
 Static si := 1
 Local buf, str_sem, i, arr_m, mas_pmt, buf24, buf_scr, srec, old_yes_h_otd := yes_h_otd
@@ -2129,7 +2129,7 @@ if (arr_m := year_month(T_ROW,T_COL+5,,3)) != NIL
         else
           mas_pmt := {"Редактирование ~карточки","Редактирование ~услуг"}
         endif
-        if glob_otd[3] == 4 .or. glob_otd[4] > 0
+        if glob_otd[3] == 4 .or. (glob_otd[4] > 0 .and. glob_otd[4] != TIP_LU_MED_REAB)
           si := 1
           asize(mas_pmt,1)
           keyboard chr(K_ENTER)
@@ -2160,7 +2160,7 @@ if (arr_m := year_month(T_ROW,T_COL+5,,3)) != NIL
 endif
 return NIL
 
-***** 07.01.22 Редактирование повторно выставленных случаев (после ввода актов снятия из СМО)
+** 20.05.22 Редактирование повторно выставленных случаев (после ввода актов снятия из СМО)
 Function f4oms_edit()
 Static si := 1
 Local buf, str_sem, i, k, arr_m, arr, old_yes_h_otd := yes_h_otd,;
@@ -2257,7 +2257,7 @@ if (arr_m := year_month(T_ROW,T_COL+5)) != NIL
         else
           mas_pmt := {"Редактирование ~карточки","Редактирование ~услуг"}
         endif
-        if glob_otd[3] == 4 .or. glob_otd[4] > 0
+        if glob_otd[3] == 4 .or. (glob_otd[4] > 0 .and. glob_otd[4] != TIP_LU_MED_REAB)
           si := 1
           asize(mas_pmt,1)
           keyboard chr(K_ENTER)
@@ -2364,7 +2364,7 @@ if input_uch(T_ROW-1,T_COL+5,sys_date) != NIL .and. ;
           else
             @ 1,42 say padc(glob_otd[2],35) color color14
             mas_pmt := {"Редактирование ~карточки","Редактирование ~услуг"}
-            if glob_otd[3] == 4 .or. glob_otd[4] > 0
+            if glob_otd[3] == 4 .or. (glob_otd[4] > 0 .and. glob_otd[4] != TIP_LU_MED_REAB)
               si := 1
               asize(mas_pmt,1)
             endif
@@ -2913,7 +2913,7 @@ do case
 endcase
 return k
 
-***** поиск больного
+** 20.05.22 поиск больного
 Function ret_oms_human(dostup,arr_m)
 //  dostup = B_END      = 2 - больные выписались из данного отделения
 //  dostup = B_STANDART = 3 - проверен стандарт лечения и не включен в реестр

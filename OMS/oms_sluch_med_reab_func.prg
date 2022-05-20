@@ -3,9 +3,9 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-** 19.05.22
+** 20.05.22
 function defenition_usluga_med_reab(lkod, vid, shrm)
-  Local arr, i, s, lshifr, lrec, lu_kod, lcena, lyear, mrec_hu, not_ksg := .t., sdial, fl
+  Local arr, i, s, lshifr, lrec, lu_kod, lcena, lyear, mrec_hu, fl
   local buf := save_maxrow()
   local shifr_reab
 
@@ -27,85 +27,87 @@ function defenition_usluga_med_reab(lkod, vid, shrm)
   R_Use(dir_server + 'human_', , 'HUMAN_')
   G_Use(dir_server + 'human', , 'HUMAN') // перезаписать сумму
   set relation to recno() into HUMAN_, to recno() into HUMAN_2
-  goto (lkod)
+  // goto (lkod)
+  HUMAN->(dbGoto(lkod))
   lyear := year(human->K_DATA)
 
   lrec := lcena := 0
-  select HU
+  dbSelectArea('HU')
   find (str(lkod, 7))
   do while hu->kod == lkod .and. !eof()
-  //   usl->(dbGoto(hu->u_kod))
-  //   if empty(lshifr := opr_shifr_TFOMS(usl->shifr1, usl->kod, human->k_data))
-  //     lshifr := usl->shifr
-  //   endif
-  //   if !empty(arr[3]) .and. alltrim(lshifr) == arr[3] // уже стоит тот же КСГ
-  //     not_ksg := .f.
-  //     lcena := arr[4]
-  //     if !(round(hu->u_cena,2) == round(lcena,2)) // перезапишем цену
-  //       select HU
-  //       G_RLock(forever)
-  //       hu->u_cena := lcena
-  //       hu->stoim := hu->stoim_1 := lcena
-  //       UnLock
-  //     endif
-  //     exit
-  //   endif
-  //   if lyear > 2021 // add 11.02.22
-  //     select LUSL
-  //     find (lshifr) // длина lshifr 10 знаков
-  //     if found() .and. (eq_any(left(lshifr,5),"1.21.") .or. is_ksg(lusl->shifr)) // стоит другой КСГ
-  //       lrec := hu->(recno())
-  //       exit
-  //     endif
-  //   endif
-  //   select HU
-  //   skip
+    usl->(dbGoto(hu->u_kod))
+    if empty(lshifr := opr_shifr_TFOMS(usl->shifr1, usl->kod, human->k_data))
+      lshifr := usl->shifr
+    endif
+    if !empty(shifr_reab) .and. alltrim(lshifr) == shifr_reab // уже стоит та же услуга
+      lcena := iif(m1vzros_reb == 0, usl->CENA, usl->CENAD)
+      if !(round(hu->u_cena,2) == round(lcena,2)) // перезапишем цену
+        dbSelectArea('HU')
+        G_RLock(forever)
+        hu->u_cena := lcena
+        hu->stoim := hu->stoim_1 := lcena
+        UnLock
+      endif
+      exit
+    endif
+    if lyear > 2021
+      dbSelectArea('LUSL')
+      find (lshifr) // длина lshifr 10 знаков
+      if found() .and. (eq_any(left(lshifr, 5), '2.89.')) // стоит другая услуга реабилитации
+        lrec := hu->(recno())
+        exit
+      endif
+    endif
+    HU->(dbSkip())
+    // dbSelectArea('HU')
+    // skip
   enddo
   if empty(lcena)
     lu_kod := foundOurUsluga(shifr_reab, human->k_data, human_->profil, human->VZROS_REB, @lcena)
     lcena := round_5(lcena, 0)
     if ! empty(lcena)
       //// if round(arr[4],2) == round(lcena,2) // цена определена правильно
-      // select HU
-      // if lrec == 0
-      //   Add1Rec(7)
-      //   hu->kod := human->kod
-      // else
-      //   goto (lrec)
-      //   G_RLock(forever)
-      // endif
-      // mrec_hu := hu->(recno())
-      // hu->kod_vr  := human_->VRACH
-      // hu->kod_as  := 0
-      // hu->u_koef  := 1
-      // hu->u_kod   := lu_kod
-      // hu->u_cena  := lcena
-      // hu->is_edit := 0
-      // hu->date_u  := dtoc4(human->n_data)
-      // hu->otd     := human->otd
-      // hu->kol     := hu->kol_1 := 1
-      // hu->stoim   := hu->stoim_1 := lcena
-      // select HU_
-      // do while hu_->(lastrec()) < mrec_hu
-      //   APPEND BLANK
-      // enddo
-      // goto (mrec_hu)
-      // G_RLock(forever)
-      // if lrec == 0 .or. !valid_GUID(hu_->ID_U)
-      //   hu_->ID_U := mo_guid(3, hu_->(recno()))
-      // endif
-      // hu_->PROFIL := human_->PROFIL
-      // hu_->PRVS   := human_->PRVS
-      // hu_->kod_diag := human->KOD_DIAG
-
-    //// else
-    ////   func_error(4,"ОШИБКА: разница в цене услуги "+lstr(arr[4])+" != "+lstr(lcena))
-    ////   not_ksg := .f.
-    ////   lcena := 0
-    //// endif
+      dbSelectArea('HU')
+      if lrec == 0
+        Add1Rec(7)
+        hu->kod := human->kod
+      else
+        HU->(dbGoto(lrec))
+        G_RLock(forever)
+      endif
+      mrec_hu := hu->(recno())
+      hu->kod_vr  := human_->VRACH
+      hu->kod_as  := 0
+      hu->u_koef  := 1
+      hu->u_kod   := lu_kod
+      hu->u_cena  := lcena
+      hu->is_edit := 0
+      hu->date_u  := dtoc4(human->n_data)
+      hu->otd     := human->otd
+      hu->kol     := hu->kol_1 := 1
+      hu->stoim   := hu->stoim_1 := lcena
+      dbSelectArea('HU_')
+      do while hu_->(lastrec()) < mrec_hu
+        hu_->(dbAppend())
+      enddo
+      HU_->(dbGoto(mrec_hu))
+      G_RLock(forever)
+      if lrec == 0 .or. !valid_GUID(hu_->ID_U)
+        hu_->ID_U := mo_guid(3, hu_->(recno()))
+      endif
+      hu_->PROFIL := human_->PROFIL
+      hu_->PRVS   := human_->PRVS
+      hu_->kod_diag := human->KOD_DIAG
     else
       func_error(4, 'ОШИБКА: для организации услуга ' + alltrim(shifr_reab) + ' не установлена!')
+      lcena := 0
     endif
+  endif
+  if !(round(human->CENA_1, 2) == round(lcena, 2))
+    dbSelectArea('HUMAN')
+    G_RLock(forever)
+    human->CENA := human->CENA_1 := lcena // перезапишем стоимость лечения
+    HUMAN->(dbUnlock()) // UnLock
   endif
 
 // return { ars, arerr, alltrim(lksg), lcena, akslp, akiro, s_dializ }
