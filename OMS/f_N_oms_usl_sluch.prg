@@ -92,7 +92,7 @@ Function f3oms_usl_sluch()
   @ maxrow() - 4, 59 say padl("Итого: " + lstr(human->cena_1, 11, 2), 20) color "W+/N"
   return NIL
     
-***** 02.04.22 ввод услуг в лист учёта
+***** 22.05.22 ввод услуг в лист учёта
 Function f2oms_usl_sluch(nKey, oBrow)
   Static skod_k := 0, skod_human := 0, SKOD_DIAG, SZF,;
          st_vzrosl, st_arr_dbf, skod_vr, skod_as, aksg := {}
@@ -107,9 +107,11 @@ Function f2oms_usl_sluch(nKey, oBrow)
   local tmSel
   local aOptions :=  { 'Нет', 'Да' }, nChoice
   local blk_col
+  local lTypeLUMedReab := .f.
 
   static old_date_usl, new_date_usl
 
+  lTypeLUMedReab := is_lu_med_reab()
   if mem_dom_aktiv == 1
        aadd(mm_dom,{"на дому-АКТИВ",-2})
   endif
@@ -477,7 +479,7 @@ Function f2oms_usl_sluch(nKey, oBrow)
       Private motd := space(10), ;
               m1otd := iif(nKey == K_INS, iif(pr1otd == NIL, human->otd, pr1otd), tmp->otd),;
               mu_kod := iif(nKey == K_INS, 0, tmp->u_kod),;
-              mdate_u1 := iif(nKey == K_INS, last_date, tmp->date_u1),;
+              mdate_u1 := iif(nKey == K_INS, last_date, tmp->date_u1), ;
               mis_nul := iif(nKey == K_INS, .f., tmp->is_nul),;
               mis_oms := iif(nKey == K_INS, .f., tmp->is_oms),;
               mis_edit := iif(nKey == K_INS, 0, tmp->is_edit),;
@@ -521,6 +523,7 @@ Function f2oms_usl_sluch(nKey, oBrow)
       else
         old_date_usl := NIL
       endif
+altd()
       if nKey == K_ENTER
         mshifr1 := iif(empty(mshifr1), mshifr, mshifr1)
         if is_telemedicina(mshifr1,@tip_telemed2)
@@ -604,8 +607,11 @@ Function f2oms_usl_sluch(nKey, oBrow)
           @ row(),col()+2 get motd color color14 when .f.
         endif
         ++ix
-        @ r1+ix,2 say "Дата оказания услуги" get mdate_u1 ;
-                  valid {|g| f5editkusl(g,2,1) }
+        @ r1 + ix, 2 say "Дата оказания услуги" get mdate_u1 ;
+                  valid {|g| f5editkusl(g, 2, 1) }
+        // @ row(), col() + 2 say "Дата оказания услуги" get mdate_u2  // ;
+          // valid {|g| f5editkusl(g, 2, 1) }
+
         ++ix
         @ r1+ix,2 say "Диагноз по МКБ-10" get mkod_diag picture pic_diag ;
             reader {|o|MyGetReader(o,bg)} ;
