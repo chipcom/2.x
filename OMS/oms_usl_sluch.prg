@@ -105,6 +105,7 @@ Function oms_usl_sluch(mkod_human,mkod_kartotek,fl_edit)
     {"DATE_U"   ,   "C",     4,     0},; // дата оказания услуги
     {"date_u2"  ,   "C",     4,     0},; // дата окончания оказания услуги
     {"date_u1"  ,   "D",     8,     0},;
+    {"date_end" ,   "D",     8,     0},; // дата окончания выполнения многоразовой услуги
     {"date_next",   "D",     8,     0},; // дата след.визита для дисп.наблюдения
     {"shifr_u"  ,   "C",    20,     0},;
     {"shifr1"   ,   "C",    20,     0},;
@@ -145,6 +146,7 @@ Function oms_usl_sluch(mkod_human,mkod_kartotek,fl_edit)
       tmp->KOD     := hu->kod
       tmp->DATE_U  := hu->date_u
       tmp->date_u2 := hu_->date_u2
+      tmp->date_end := hu_->date_end
       tmp->date_u1 := c4tod(hu->date_u)
       tmp->shifr_u := usl->shifr
       tmp->shifr1  := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data)

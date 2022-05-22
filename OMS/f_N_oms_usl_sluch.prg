@@ -108,10 +108,12 @@ Function f2oms_usl_sluch(nKey, oBrow)
   local aOptions :=  { 'Нет', 'Да' }, nChoice
   local blk_col
   local lTypeLUMedReab := .f.
+  local aUslMedReab
 
   static old_date_usl, new_date_usl
 
   lTypeLUMedReab := is_lu_med_reab()
+
   if mem_dom_aktiv == 1
        aadd(mm_dom,{"на дому-АКТИВ",-2})
   endif
@@ -480,6 +482,7 @@ Function f2oms_usl_sluch(nKey, oBrow)
               m1otd := iif(nKey == K_INS, iif(pr1otd == NIL, human->otd, pr1otd), tmp->otd),;
               mu_kod := iif(nKey == K_INS, 0, tmp->u_kod),;
               mdate_u1 := iif(nKey == K_INS, last_date, tmp->date_u1), ;
+              mdate_end := iif(nKey == K_INS, last_date, tmp->date_end), ;
               mis_nul := iif(nKey == K_INS, .f., tmp->is_nul),;
               mis_oms := iif(nKey == K_INS, .f., tmp->is_oms),;
               mis_edit := iif(nKey == K_INS, 0, tmp->is_edit),;
@@ -523,7 +526,6 @@ Function f2oms_usl_sluch(nKey, oBrow)
       else
         old_date_usl := NIL
       endif
-altd()
       if nKey == K_ENTER
         mshifr1 := iif(empty(mshifr1), mshifr, mshifr1)
         if is_telemedicina(mshifr1,@tip_telemed2)
@@ -598,10 +600,10 @@ altd()
         setcolor(cDataCGet)
         ix := 1
         if mem_kodotd == 1 .or. mem_otdusl == 2
-          @ r1+ix,2 say "Отделение, где оказана услуга" get motd ;
+          @ r1 + ix,2 say "Отделение, где оказана услуга" get motd ;
                     reader {|x|menu_reader(x,{{|k,r,c| get_otd(k,r+1,c,.t.) }},A__FUNCTION,,,.f.)}
         else
-          @ r1+ix,2 say "Отделение, где оказана услуга" get m1otd pict "99" ;
+          @ r1 + ix,2 say "Отделение, где оказана услуга" get m1otd pict "99" ;
                     when {|g| f5editkusl(g,1,10) } ;
                     valid {|g| f5editkusl(g,2,10) }
           @ row(),col()+2 get motd color color14 when .f.
@@ -609,22 +611,20 @@ altd()
         ++ix
         @ r1 + ix, 2 say "Дата оказания услуги" get mdate_u1 ;
                   valid {|g| f5editkusl(g, 2, 1) }
-        // @ row(), col() + 2 say "Дата оказания услуги" get mdate_u2  // ;
-          // valid {|g| f5editkusl(g, 2, 1) }
 
         ++ix
-        @ r1+ix,2 say "Диагноз по МКБ-10" get mkod_diag picture pic_diag ;
+        @ r1 + ix,2 say "Диагноз по МКБ-10" get mkod_diag picture pic_diag ;
             reader {|o|MyGetReader(o,bg)} ;
             when when_diag() ;
             valid val1_10diag(.t.,.f.,.f.,human->k_data,iif(human_->novor==0,human->pol,human_->pol2))  // изменил после разговора с Антоновой 31.03.21
             // valid val1_10diag(.t.,.f.,.f.,human->n_data,iif(human_->novor==0,human->pol,human_->pol2))
         if is_zf_stomat == 1
           ++ix
-          @ r1+ix,2 say "Зубная формула" get mzf pict pic_diag ;
+          @ r1 + ix,2 say "Зубная формула" get mzf pict pic_diag ;
                     valid {|g| f5editkusl(g,2,101) }
         endif
         ++ix 
-        @ r1+ix,2 say "Шифр услуги" get mshifr pict "@!" ;
+        @ r1 + ix,2 say "Шифр услуги" get mshifr pict "@!" ;
             when {|g| f5editkusl(g,1,2) } ;
             valid {|g| f5editkusl(g,2,2) }
         // @ row(),40 say "Цена услуги" get mu_cena pict pict_cena ;
@@ -635,8 +635,9 @@ altd()
         endif
 
         ++ix
-        @ r1+ix,2 say "Услуга" get mname_u when .f. color color14
-        ++ix ; row_dom := r1+ix
+        @ r1 + ix,2 say "Услуга" get mname_u when .f. color color14
+        ++ix
+        row_dom := r1 + ix
         @ row_dom,2 say "Где оказана услуга" get mnmic ;
             reader {|x|menu_reader(x,glob_nmic,A__MENUVERT,,,.f.)} ;
             when tip_telemed2 ;
@@ -675,35 +676,43 @@ altd()
                 when !empty(tip_par_org)
           endif
         endif
+        if human_->usl_ok == 3 .and. lTypeLUMedReab
+          //  arr2list({m1vidreab, m1shrm})
+          aUslMedReab := ret_usluga_med_reab(mshifr, list2arr(human_2->PC5)[1], list2arr(human_2->PC5)[1])
+          ++ix
+          @ r1 + ix, 2 say "Дата окончания оказания услуги" get mdate_end ;
+              when (aUslMedReab != nil) .and. (ret_usluga_med_reab(mshifr, list2arr(human_2->PC5)[1], list2arr(human_2->PC5)[1])[3] > 1)
+              // valid {|g| f5editkusl(g, 2, 1) }
+        endif
         ++ix
-        @ r1+ix,2 say "Профиль" get MPROFIL ;
+        @ r1 + ix,2 say "Профиль" get MPROFIL ;
             reader {|x|menu_reader(x,tmp_V002,A__MENUVERT,,,.f.)} ;
             when mis_edit == 0 ;
             valid {|| mprofil := padr(mprofil,69), .t. }
         for x := 1 to 3
           if mem_por_vr == x
             ++ix
-            @ r1+ix,2 say "Врач(сред.медперсонал)" get mtabn_vr pict "99999" ;
+            @ r1 + ix,2 say "Врач(сред.медперсонал)" get mtabn_vr pict "99999" ;
                 when {|g| mis_edit == 0 .and. f5editkusl(g,1,3) } ;
                 valid {|g| f5editkusl(g,2,3) }
             @ row(),col()+3 get mvrach when .f. color color14
           endif
           if mem_por_ass == x
             ++ix
-            @ r1+ix,2 say "Таб.№ ассистента" get mtabn_as pict "99999" ;
+            @ r1 + ix,2 say "Таб.№ ассистента" get mtabn_as pict "99999" ;
                 when {|g| mis_edit == 0 .and. f5editkusl(g,1,4) } ;
                 valid {|g| f5editkusl(g,2,4) }
             @ row(),col()+3 get massist when .f. color color14
           endif
           if mem_por_kol == x
             ++ix
-            @ r1+ix,2 say "Количество услуг" get mkol_1 pict "999" ;
+            @ r1 + ix,2 say "Количество услуг" get mkol_1 pict "999" ;
                 when {|g| f5editkusl(g,1,5) } ;
                 valid {|g| f5editkusl(g,2,5) }
           endif
         next
         ++ix
-        @ r1+ix,2 say "Стоимость услуги" get mstoim_1 pict pict_cena when .f.
+        @ r1 + ix,2 say "Стоимость услуги" get mstoim_1 pict pict_cena when .f.
         status_key("^<Esc>^ - выход без записи;  ^<PgDn>^ - подтверждение записи")
         set key K_F11 to clear_gets
         set key K_CTRL_F10 to clear_gets
@@ -741,6 +750,12 @@ altd()
             loop
           elseif mdate_u1 < human->n_data .and. !(tip_telemed2 .and. m1nmic > 0)
             func_error(4,"Введенная дата меньше даты начала лечения!")
+            loop
+          elseif lTypeLUMedReab .and. (!empty(mdate_end)) .and. mdate_end < human->n_data
+            func_error(4, 'Введенная дата окончания многократной услуги меньше даты начала лечения!')
+            loop
+          elseif lTypeLUMedReab .and. (!empty(mdate_end)) .and. mdate_end < human->k_data
+            func_error(4, 'Введенная дата окончания многократной услуги больше даты окончания лечения!')
             loop
           elseif len(pr_k_usl) == 0 .and. emptyall(mu_kod,mshifr)
             func_error(4,"Не введена услуга!")
@@ -813,6 +828,9 @@ altd()
                 hu_->PROFIL := m1PROFIL
                 hu_->PRVS   := m1PRVS
                 hu_->kod_diag := mkod_diag
+                if lTypeLUMedReab .and. !empty(mdate_end)
+                  hu_->date_end := mdate_end
+                endif
                 UNLOCK
                 //
                 pr1otd := m1otd
@@ -821,6 +839,7 @@ altd()
                 select TMP
                 tmp->KOD     := human->kod
                 tmp->DATE_U  := dtoc4(mdate_u1)
+                tmp->DATE_END:= mdate_end
                 tmp->U_KOD   := mu_kod
                 tmp->U_CENA  := mu_cena
                 tmp->KOD_VR  := mkod_vr
@@ -841,7 +860,7 @@ altd()
                 tmp->rec_hu  := mrec_hu
                 last_date := tmp->date_u1
               next
-            else// запись одной введённой услуги
+            else  // запись одной введённой услуги
               SKOD_DIAG := mkod_diag
               if mn_base == 1 .and. mu_kod == 0
                 // добавляем в свой справочник федеральную услугу
@@ -908,6 +927,9 @@ altd()
                 hu_->PROFIL   := m1PROFIL
                 hu_->PRVS     := m1PRVS
                 hu_->kod_diag := mkod_diag
+                if lTypeLUMedReab .and. !empty(mdate_end)
+                  hu_->date_end := mdate_end
+                endif
                 if pr_amb_reab .and. left(mshifr1,2)=='4.'
                   hu_->zf := m1NPR_MO
                 endif
@@ -971,6 +993,7 @@ altd()
               select TMP
               tmp->KOD     := human->kod
               tmp->DATE_U  := dtoc4(mdate_u1)
+              tmp->DATE_END := mdate_end
               tmp->DATE_NEXT := mdate_next
               tmp->U_KOD   := mu_kod
               tmp->U_CENA  := mu_cena
