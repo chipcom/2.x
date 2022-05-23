@@ -3,12 +3,17 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 21.01.22 функция для when и valid при вводе услуг в лист учёта
-Function f5editkusl(get,when_valid,k)
+***** 23.05.22 функция для when и valid при вводе услуг в лист учёта
+Function f5editkusl(get, when_valid, k, lMedReab, vidReab, shrm)
   Local fl := .t., s, i, lu_cena, lshifr1, v, old_kod, amsg, fl1, fl2, ;
         msg1_err := "Код врача равен коду ассистента! Это недопустимо.",;
         msg2_err := "Сотрудника с таким кодом нет в базе данных персонала!",;
         blk_sum := {|| mstoim_1 := round_5(mu_cena * mkol_1, 2) }
+  local aMedReab
+
+  default lMedReab to .f.
+  default vidReab to 0
+  default shrm to 0
 
   if when_valid == 1    // when
     if k == 2     // Шифр услуги
@@ -41,7 +46,15 @@ Function f5editkusl(get,when_valid,k)
       endif
     elseif k == 2 // Шифр услуги
       if !empty(mshifr) .and. !(mshifr == get:original)
-                mshifr := transform_shifr(mshifr)
+            mshifr := transform_shifr(mshifr)
+        if lMedReab   // сначала проверим шифр амбулаторную мед. реабилитацию
+          aMedReab := ret_usluga_med_reab(mshifr, vidReab, shrm)
+          if aMedReab == nil .or. len(aMedReab) == 0
+            func_error(4, 'Услуга не входит в набор услуг обращения в амбулаторной медицинской реабилитации')
+            mshifr := space(20)
+            return .f.
+          endif
+        endif
         // сначала проверим на код лаб.услуги, направляемой в ЦКДЛ
         if is_lab_usluga(mshifr) .and. !(type("is_oncology") == "N")
           fl := .f.

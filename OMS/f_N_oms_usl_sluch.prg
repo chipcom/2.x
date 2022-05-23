@@ -58,6 +58,7 @@ Function f1oms_usl_sluch()
   LOCAL nRow := ROW(), nCol := COL(), s := tmp->name_u, lcolor := cDataCSay
   local strImplInfo := 'Услуга требует ввода данных по имплантантам. F6 - ред.'
   local strImplExists := 'Информация по имплантантам введена. F6 - ред.'
+  local aMedReab
 
   if is_zf_stomat == 1 .and. !empty(tmp->zf)
     s := alltrim(tmp->zf) + " / " + s
@@ -612,22 +613,26 @@ Function f2oms_usl_sluch(nKey, oBrow)
         @ r1 + ix, 2 say "Дата оказания услуги" get mdate_u1 ;
                   valid {|g| f5editkusl(g, 2, 1) }
 
+        if human_->usl_ok == 3 .and. lTypeLUMedReab
+          @ row(), col() + 2 say "Дата окончания оказания услуги" get mdate_end //;
+        endif
+
         ++ix
         @ r1 + ix,2 say "Диагноз по МКБ-10" get mkod_diag picture pic_diag ;
             reader {|o|MyGetReader(o,bg)} ;
             when when_diag() ;
-            valid val1_10diag(.t.,.f.,.f.,human->k_data,iif(human_->novor==0,human->pol,human_->pol2))  // изменил после разговора с Антоновой 31.03.21
-            // valid val1_10diag(.t.,.f.,.f.,human->n_data,iif(human_->novor==0,human->pol,human_->pol2))
+            valid val1_10diag(.t., .f., .f., human->k_data, iif(human_->novor==0, human->pol, human_->pol2))  // изменил после разговора с Антоновой 31.03.21
         if is_zf_stomat == 1
           ++ix
           @ r1 + ix,2 say "Зубная формула" get mzf pict pic_diag ;
                     valid {|g| f5editkusl(g,2,101) }
         endif
+
         ++ix 
         @ r1 + ix,2 say "Шифр услуги" get mshifr pict "@!" ;
-            when {|g| f5editkusl(g,1,2) } ;
-            valid {|g| f5editkusl(g,2,2) }
-        // @ row(),40 say "Цена услуги" get mu_cena pict pict_cena ;
+            when {|g| f5editkusl(g, 1, 2) } ;
+            valid {|g| f5editkusl(g, 2, 2, lTypeLUMedReab, list2arr(human_2->PC5)[1], list2arr(human_2->PC5)[2]) }
+
         @ row(),35 say "Цена услуги" get mu_cena pict pict_cena ;
             when .f. color color14
         if human_->usl_ok < 3
@@ -676,14 +681,6 @@ Function f2oms_usl_sluch(nKey, oBrow)
                 when !empty(tip_par_org)
           endif
         endif
-        if human_->usl_ok == 3 .and. lTypeLUMedReab
-          //  arr2list({m1vidreab, m1shrm})
-          aUslMedReab := ret_usluga_med_reab(mshifr, list2arr(human_2->PC5)[1], list2arr(human_2->PC5)[1])
-          ++ix
-          @ r1 + ix, 2 say "Дата окончания оказания услуги" get mdate_end ;
-              when (aUslMedReab != nil) .and. (ret_usluga_med_reab(mshifr, list2arr(human_2->PC5)[1], list2arr(human_2->PC5)[1])[3] > 1)
-              // valid {|g| f5editkusl(g, 2, 1) }
-        endif
         ++ix
         @ r1 + ix,2 say "Профиль" get MPROFIL ;
             reader {|x|menu_reader(x,tmp_V002,A__MENUVERT,,,.f.)} ;
@@ -707,8 +704,8 @@ Function f2oms_usl_sluch(nKey, oBrow)
           if mem_por_kol == x
             ++ix
             @ r1 + ix,2 say "Количество услуг" get mkol_1 pict "999" ;
-                when {|g| f5editkusl(g,1,5) } ;
-                valid {|g| f5editkusl(g,2,5) }
+                when {|g| f5editkusl(g, 1, 5) } ;
+                valid {|g| f5editkusl(g, 2, 5) }
           endif
         next
         ++ix
@@ -751,13 +748,23 @@ Function f2oms_usl_sluch(nKey, oBrow)
           elseif mdate_u1 < human->n_data .and. !(tip_telemed2 .and. m1nmic > 0)
             func_error(4,"Введенная дата меньше даты начала лечения!")
             loop
-          elseif lTypeLUMedReab .and. (!empty(mdate_end)) .and. mdate_end < human->n_data
-            func_error(4, 'Введенная дата окончания многократной услуги меньше даты начала лечения!')
-            loop
-          elseif lTypeLUMedReab .and. (!empty(mdate_end)) .and. mdate_end < human->k_data
-            func_error(4, 'Введенная дата окончания многократной услуги больше даты окончания лечения!')
-            loop
-          elseif len(pr_k_usl) == 0 .and. emptyall(mu_kod,mshifr)
+          elseif lTypeLUMedReab
+            aMedReab := ret_usluga_med_reab(mshifr, list2arr(human_2->PC5)[1], list2arr(human_2->PC5)[2])
+            if (!empty(mdate_end)) .and. mdate_end < human->n_data
+              func_error(4, 'Введенная дата окончания многократной услуги меньше даты начала лечения!')
+              loop
+            endif
+            if (!empty(mdate_end)) .and. mdate_end > human->k_data
+              func_error(4, 'Введенная дата окончания многократной услуги больше даты окончания лечения!')
+              loop
+            endif
+            // if aMedReab != nil .and. len(aMedReab) != 0
+            //   if mkol_1 < aMedReab[3]
+            //     func_error(4, 'Для услуги ' + alltrim(mshifr) + ' требуется минимум ' + lstr(aMedReab[3]) + ' предоставлений!')
+            //     loop
+            //   endif
+            // endif
+          elseif len(pr_k_usl) == 0 .and. emptyall(mu_kod, mshifr)
             func_error(4,"Не введена услуга!")
             loop
           elseif len(pr_k_usl) == 0 .and. !mis_nul .and. empty(mstoim_1) .and. !NulUslugaTFOMS(iif(empty(mshifr1), mshifr, mshifr1))
@@ -768,7 +775,7 @@ Function f2oms_usl_sluch(nKey, oBrow)
             func_error(4,"Не введен врач!")
             loop
           else
-            err_date_diap(mdate_u1,"Дата оказания услуги")
+            err_date_diap(mdate_u1, "Дата оказания услуги")
             mywait()
             if nKey == K_INS
               mvu[1,2] += count_edit
