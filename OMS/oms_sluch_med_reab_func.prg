@@ -424,3 +424,14 @@ function is_lu_med_reab()
 
   ret := (glob_otd[4] > 0 .and. glob_otd[4] == TIP_LU_MED_REAB)
   return ret
+
+** 23.05.22 обязательные услуги
+function compulsory_services(vid, shrm)
+  local aRet := {}, row
+
+  for each row in ret_array_med_reab(vid, shrm)
+    if row[2]
+      aadd(aRet, {row[1], row[2], row[3] })
+    endif
+  next
+  return aRet

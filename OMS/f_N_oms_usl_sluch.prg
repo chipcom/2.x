@@ -58,7 +58,6 @@ Function f1oms_usl_sluch()
   LOCAL nRow := ROW(), nCol := COL(), s := tmp->name_u, lcolor := cDataCSay
   local strImplInfo := 'Услуга требует ввода данных по имплантантам. F6 - ред.'
   local strImplExists := 'Информация по имплантантам введена. F6 - ред.'
-  local aMedReab
 
   if is_zf_stomat == 1 .and. !empty(tmp->zf)
     s := alltrim(tmp->zf) + " / " + s
@@ -110,6 +109,7 @@ Function f2oms_usl_sluch(nKey, oBrow)
   local blk_col
   local lTypeLUMedReab := .f.
   local aUslMedReab
+  local mdate_end
 
   static old_date_usl, new_date_usl
 
@@ -479,11 +479,11 @@ Function f2oms_usl_sluch(nKey, oBrow)
         skod_vr := kod_lech_vr
         kod_lech_vr := 0
       endif
+      mdate_end := iif(nKey == K_INS, last_date, tmp->date_end)
       Private motd := space(10), ;
               m1otd := iif(nKey == K_INS, iif(pr1otd == NIL, human->otd, pr1otd), tmp->otd),;
               mu_kod := iif(nKey == K_INS, 0, tmp->u_kod),;
               mdate_u1 := iif(nKey == K_INS, last_date, tmp->date_u1), ;
-              mdate_end := iif(nKey == K_INS, last_date, tmp->date_end), ;
               mis_nul := iif(nKey == K_INS, .f., tmp->is_nul),;
               mis_oms := iif(nKey == K_INS, .f., tmp->is_oms),;
               mis_edit := iif(nKey == K_INS, 0, tmp->is_edit),;
@@ -643,33 +643,34 @@ Function f2oms_usl_sluch(nKey, oBrow)
         @ r1 + ix,2 say "Услуга" get mname_u when .f. color color14
         ++ix
         row_dom := r1 + ix
-        @ row_dom,2 say "Где оказана услуга" get mnmic ;
-            reader {|x|menu_reader(x,glob_nmic,A__MENUVERT,,,.f.)} ;
+        @ row_dom, 2 say "Где оказана услуга" get mnmic ;
+            reader {|x|menu_reader(x, glob_nmic, A__MENUVERT, , , .f.)} ;
             when tip_telemed2 ;
             valid {|| iif(m1nmic == 0, (mnmic1 := space(10), m1nmic1 := 0), ), update_get("mnmic1") }
         ++ix
-        @ row_dom+1,2 say " Получены ли результаты на дату окончания лечения" get mnmic1 ;
-            reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
+        @ row_dom + 1, 2 say " Получены ли результаты на дату окончания лечения" get mnmic1 ;
+            reader {|x|menu_reader(x, mm_danet, A__MENUVERT, , , .f.)} ;
             when m1nmic > 0
+
         if !tip_telemed2
-          @ row_dom  ,1 say space(78) color color1
-          @ row_dom+1,1 say space(78) color color1
+          @ row_dom,     1 say space(78) color color1
+          @ row_dom + 1, 1 say space(78) color color1
           if human_->usl_ok == 3
             if iif(empty(mshifr), .t., is_gist)
               @ row_dom,2 say " Где проведено это исследование" get mgist ;
-                  reader {|x|menu_reader(x,mm_gist,A__MENUVERT,,,.f.)} ;
+                  reader {|x|menu_reader(x, mm_gist, A__MENUVERT, , , .f.)} ;
                   when iif(empty(mshifr), .f., is_gist) ;
                   valid {|| mis_edit := m1gist, .t. }
             endif
             if iif(empty(mshifr), .t., DomUslugaTFOMS(mshifr1)) .and. !(is_gist .or. pr_amb_reab)
               @ row_dom,2 say "Где оказана услуга" get mdom ;
-                  reader {|x|menu_reader(x,mm_dom,A__MENUVERT,,,.f.)} ;
+                  reader {|x|menu_reader(x, mm_dom, A__MENUVERT, , , .f.)} ;
                   when iif(empty(mshifr), .t., DomUslugaTFOMS(mshifr1))
             endif
-            if iif(empty(mshifr), pr_amb_reab, pr_amb_reab.and.left(mshifr1,2)=='4.')
+            if iif(empty(mshifr), pr_amb_reab, pr_amb_reab .and. left(mshifr1, 2)=='4.')
               @ row_dom,2 say "Где оказана услуга" get mNPR_MO ;
-                  reader {|x|menu_reader(x,{{|k,r,c|f_get_mo(k,r,c,,2)}},A__FUNCTION,,,.f.)} ;
-                  when iif(empty(mshifr), pr_amb_reab, pr_amb_reab.and.left(mshifr1,2)=='4.')
+                  reader {|x|menu_reader(x,{{|k, r, c|f_get_mo(k, r, c, , 2)}}, A__FUNCTION, , , .f.)} ;
+                  when iif(empty(mshifr), pr_amb_reab, pr_amb_reab .and. left(mshifr1, 2) == '4.')
             endif
             if !(is_gist .or. pr_amb_reab)
               @ row_dom,35 say "Дата след.явки для дисп.набл-ия" get mdate_next when fl_date_next
@@ -715,7 +716,6 @@ Function f2oms_usl_sluch(nKey, oBrow)
         set key K_CTRL_F10 to clear_gets
         // чтение введенной информации
         count_edit := myread(,,++k_read)
-
         SetKey( K_F2, NIL )
         SetKey( K_F3, NIL )
         SetKey( K_F5, NIL )
@@ -749,21 +749,29 @@ Function f2oms_usl_sluch(nKey, oBrow)
             func_error(4,"Введенная дата меньше даты начала лечения!")
             loop
           elseif lTypeLUMedReab
-            aMedReab := ret_usluga_med_reab(mshifr, list2arr(human_2->PC5)[1], list2arr(human_2->PC5)[2])
-            if (!empty(mdate_end)) .and. mdate_end < human->n_data
-              func_error(4, 'Введенная дата окончания многократной услуги меньше даты начала лечения!')
-              loop
-            endif
-            if (!empty(mdate_end)) .and. mdate_end > human->k_data
-              func_error(4, 'Введенная дата окончания многократной услуги больше даты окончания лечения!')
-              loop
-            endif
-            // if aMedReab != nil .and. len(aMedReab) != 0
-            //   if mkol_1 < aMedReab[3]
-            //     func_error(4, 'Для услуги ' + alltrim(mshifr) + ' требуется минимум ' + lstr(aMedReab[3]) + ' предоставлений!')
-            //     loop
-            //   endif
+        // aaaa := compulsory_services(list2arr(human_2->PC5)[1], list2arr(human_2->PC5)[2])
+        // altd()
+            aUslMedReab := ret_usluga_med_reab(mshifr, list2arr(human_2->PC5)[1], list2arr(human_2->PC5)[2])
+            // if (!empty(mdate_end))
+              // if ! between_date(human->n_data, human->k_data, mdate_u1, mdate_end)
+              //   func_error(4, 'Период дат оказания услуги не входит в период лечения!')
+              //   loop
+              // endif
+              // if mdate_end > human->k_data
+              //   func_error(4, 'Введенная дата окончания многократной услуги больше даты окончания лечения!')
+              //   loop
+              // endif
+              // if mdate_end < human->n_data
+              //   func_error(4, 'Введенная дата окончания многократной услуги меньше даты начала лечения!')
+              //   loop
+              // endif
             // endif
+            if aUslMedReab != nil .and. len(aUslMedReab) != 0
+              if mkol_1 < aUslMedReab[3]
+                func_error(4, 'Для услуги ' + alltrim(mshifr) + ' требуется минимум ' + lstr(aUslMedReab[3]) + ' предоставлений!')
+                loop
+              endif
+            endif
           elseif len(pr_k_usl) == 0 .and. emptyall(mu_kod, mshifr)
             func_error(4,"Не введена услуга!")
             loop
@@ -775,6 +783,7 @@ Function f2oms_usl_sluch(nKey, oBrow)
             func_error(4,"Не введен врач!")
             loop
           else
+altd()
             err_date_diap(mdate_u1, "Дата оказания услуги")
             mywait()
             if nKey == K_INS
