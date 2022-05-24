@@ -255,3 +255,12 @@ function select_arr_days(begin_date, end_date)
     arr := bit_popup(r, 63, arr1, , color5)
   endif
   return arr
+
+** 24.05.22 количество дней между датами
+function count_days(d1, d2)
+  local mdni
+
+  if d1 <= d2
+    mdni := d2 - d1 + 1
+  endif
+  return mdni

@@ -739,278 +739,126 @@ Function f2oms_usl_sluch(nKey, oBrow)
             endif
             select(tmSel)
           endif
-
           mkol := mkol_1 ; mstoim := mstoim_1
           Private amsg := {}
           if empty(mdate_u1)
-            func_error(4,"Не введена дата оказания услуги!")
+            func_error(4, 'Не введена дата оказания услуги!')
             loop
-          elseif mdate_u1 < human->n_data .and. !(tip_telemed2 .and. m1nmic > 0)
-            func_error(4,"Введенная дата меньше даты начала лечения!")
+          endif
+          if mdate_u1 < human->n_data .and. !(tip_telemed2 .and. m1nmic > 0)
+            func_error(4, 'Введенная дата начал оказания услуги меньше даты начала лечения!')
             loop
-          elseif lTypeLUMedReab
+          endif
+          if lTypeLUMedReab .and. left(mshifr1, 5) != '2.89.'
         // aaaa := compulsory_services(list2arr(human_2->PC5)[1], list2arr(human_2->PC5)[2])
-        // altd()
             aUslMedReab := ret_usluga_med_reab(mshifr, list2arr(human_2->PC5)[1], list2arr(human_2->PC5)[2])
-            // if (!empty(mdate_end))
-              // if ! between_date(human->n_data, human->k_data, mdate_u1, mdate_end)
-              //   func_error(4, 'Период дат оказания услуги не входит в период лечения!')
-              //   loop
-              // endif
-              // if mdate_end > human->k_data
-              //   func_error(4, 'Введенная дата окончания многократной услуги больше даты окончания лечения!')
-              //   loop
-              // endif
-              // if mdate_end < human->n_data
-              //   func_error(4, 'Введенная дата окончания многократной услуги меньше даты начала лечения!')
-              //   loop
-              // endif
-            // endif
-            if aUslMedReab != nil .and. len(aUslMedReab) != 0
-              if mkol_1 < aUslMedReab[3]
-                func_error(4, 'Для услуги ' + alltrim(mshifr) + ' требуется минимум ' + lstr(aUslMedReab[3]) + ' предоставлений!')
+            if (!empty(mdate_end))
+              if mdate_end < mdate_u1
+                func_error(4, 'Введенная дата окончания многократной услуги меньше даты начала оказания услуги!')
+                loop
+              endif
+              if mdate_end > human->k_data
+                func_error(4, 'Введенная дата окончания многократной услуги больше даты окончания лечения!')
                 loop
               endif
             endif
-          elseif len(pr_k_usl) == 0 .and. emptyall(mu_kod, mshifr)
-            func_error(4,"Не введена услуга!")
-            loop
-          elseif len(pr_k_usl) == 0 .and. !mis_nul .and. empty(mstoim_1) .and. !NulUslugaTFOMS(iif(empty(mshifr1), mshifr, mshifr1))
-            func_error(4,"Не введена цена услуги!")
-            loop
-          elseif mis_edit >= 0 .and. empty(mkod_vr) .and. !is_gist .and. is_usluga_TFOMS(mshifr,mshifr1,human->k_data) ;
-             .and. !(pr_amb_reab .and. left(mshifr1,2)=='4.' .and. (m1NPR_MO=='999999' .or. m1NPR_MO!=glob_mo[_MO_KOD_TFOMS]))
-            func_error(4,"Не введен врач!")
-            loop
-          else
-altd()
-            err_date_diap(mdate_u1, "Дата оказания услуги")
-            mywait()
-            if nKey == K_INS
-              mvu[1,2] += count_edit
-            else
-              mvu[2,2] += count_edit
-            endif
-            if nKey == K_INS .and. len(pr_k_usl) > 0
-              // комплексная услуга
-              for i := 1 to len(pr_k_usl)
-                mshifr := pr_k_usl[i,1]
-                mu_kod := pr_k_usl[i,3]
-                mname_u := pr_k_usl[i,4]
-                mu_cena := pr_k_usl[i,5]
-                mshifr1 := pr_k_usl[i,8]
-                mis_nul := pr_k_usl[i,9]
-                mis_oms := pr_k_usl[i,10]
-                mstoim := mstoim_1 := round_5(mu_cena * mkol_1, 2)
-                //
-                select HU
-                Add1Rec(7)
-                mrec_hu := hu->(recno())
-                fl_found := .t.
-                select TMP
-                append blank
-                rec_tmp := tmp->(recno())
-                ++mvu[1,1]  // услуга добавлена оператором
-                //
-                select HU
-                replace hu->kod     with human->kod,;
-                        hu->kod_vr  with mkod_vr,;
-                        hu->kod_as  with mkod_as,;
-                        hu->u_koef  with 1,;
-                        hu->u_kod   with mu_kod,;
-                        hu->u_cena  with mu_cena,;
-                        hu->is_edit with 0,;
-                        hu->date_u  with dtoc4(mdate_u1),;
-                        hu->otd     with m1otd,;
-                        hu->kol     with mkol_1,;
-                        hu->stoim   with mstoim_1,;
-                        hu->kol_1   with mkol_1,;
-                        hu->stoim_1 with mstoim_1
-                if len(arr_uva) > 0 .and. (j := ascan(arr_uva, {|x| like(x[1],alltrim(mshifr)) })) > 0
-                  if arr_uva[j,2] == 1
-                    hu->kod_vr := 0
-                  endif
-                  if arr_uva[j,3] == 1
-                    hu->kod_as := 0
-                  endif
-                endif
-                select HU_
-                do while hu_->(lastrec()) < mrec_hu
-                  APPEND BLANK
-                enddo
-                goto (mrec_hu)
-                G_RLock(forever)
-                hu_->ID_U   := mo_guid(3,hu_->(recno()))
-                hu_->PROFIL := m1PROFIL
-                hu_->PRVS   := m1PRVS
-                hu_->kod_diag := mkod_diag
-                if lTypeLUMedReab .and. !empty(mdate_end)
-                  hu_->date_end := mdate_end
-                endif
-                UNLOCK
-                //
-                pr1otd := m1otd
-                adbf := array(fcount())
-                aeval(adbf, {|x,i| adbf[i] := fieldget(i) } )
-                select TMP
-                tmp->KOD     := human->kod
-                tmp->DATE_U  := dtoc4(mdate_u1)
-                tmp->DATE_END:= mdate_end
-                tmp->U_KOD   := mu_kod
-                tmp->U_CENA  := mu_cena
-                tmp->KOD_VR  := mkod_vr
-                tmp->KOD_AS  := mkod_as
-                tmp->OTD     := m1otd
-                tmp->KOL_1   := mkol_1
-                tmp->STOIM_1 := mstoim_1
-                tmp->kod_diag:= mkod_diag
-                tmp->ZF      := mzf
-                tmp->PROFIL  := m1profil
-                tmp->PRVS    := m1prvs
-                tmp->date_u1 := mdate_u1
-                tmp->shifr_u := mshifr
-                tmp->shifr1  := mshifr1
-                tmp->name_u  := mname_u
-                tmp->is_nul  := mis_nul
-                tmp->is_oms  := mis_oms
-                tmp->rec_hu  := mrec_hu
-                last_date := tmp->date_u1
-              next
-            else  // запись одной введённой услуги
-              SKOD_DIAG := mkod_diag
-              if mn_base == 1 .and. mu_kod == 0
-                // добавляем в свой справочник федеральную услугу
-                select MOSU
-                set order to 1
-                FIND (STR(-1,6))
-                if found()
-                  G_RLock(forever)
-                else
-                  AddRec(6)
-                endif
-                mu_kod := mosu->kod := recno()
-                mosu->name   := mname_u
-                mosu->shifr1 := mshifr1
-                mosu->profil := m1PROFIL
+            if aUslMedReab != nil .and. len(aUslMedReab) != 0
+              if aUslMedReab[3] > mkol_1
+                func_error(4, 'Для услуги ' + alltrim(mshifr) + ' требуется минимум ' + lstr(aUslMedReab[3]) + ' предоставлений!')
+                loop
               endif
-              // одна услуга
-              if mn_base == 0
-                if human_->usl_ok == 3 .and. left(mshifr1,5) == "2.89."
-                  pr_amb_reab := .t.
+    // altd()
+              if aUslMedReab[3] > 1 .and. (count_days(mdate_u1, mdate_end) < aUslMedReab[3])
+                func_error(4, 'Количество дней выполнения услуги меньше количества повторений услуги!')
+                loop
+              endif
+            endif
+          endif
+          if len(pr_k_usl) == 0 .and. emptyall(mu_kod, mshifr)
+            func_error(4, 'Не введена услуга!')
+            loop
+          endif
+          if len(pr_k_usl) == 0 .and. !mis_nul .and. empty(mstoim_1) .and. !NulUslugaTFOMS(iif(empty(mshifr1), mshifr, mshifr1))
+            func_error(4, 'Не введена цена услуги!')
+            loop
+          endif
+          if mis_edit >= 0 .and. empty(mkod_vr) .and. !is_gist .and. is_usluga_TFOMS(mshifr, mshifr1, human->k_data) ;
+             .and. !(pr_amb_reab .and. left(mshifr1, 2)=='4.' .and. (m1NPR_MO == '999999' .or. m1NPR_MO!=glob_mo[_MO_KOD_TFOMS]))
+            func_error(4, 'Не введен врач!')
+            loop
+          endif
+          err_date_diap(mdate_u1, 'Дата оказания услуги')
+          mywait()
+          if nKey == K_INS
+            mvu[1, 2] += count_edit
+          else
+            mvu[2, 2] += count_edit
+          endif
+          if nKey == K_INS .and. len(pr_k_usl) > 0
+            // комплексная услуга
+            for i := 1 to len(pr_k_usl)
+              mshifr := pr_k_usl[i, 1]
+              mu_kod := pr_k_usl[i, 3]
+              mname_u := pr_k_usl[i, 4]
+              mu_cena := pr_k_usl[i, 5]
+              mshifr1 := pr_k_usl[i, 8]
+              mis_nul := pr_k_usl[i, 9]
+              mis_oms := pr_k_usl[i, 10]
+              mstoim := mstoim_1 := round_5(mu_cena * mkol_1, 2)
+              //
+              select HU
+              Add1Rec(7)
+              mrec_hu := hu->(recno())
+              fl_found := .t.
+              select TMP
+              append blank
+              rec_tmp := tmp->(recno())
+              ++mvu[1,1]  // услуга добавлена оператором
+              //
+              select HU
+              replace hu->kod     with human->kod,;
+                      hu->kod_vr  with mkod_vr,;
+                      hu->kod_as  with mkod_as,;
+                      hu->u_koef  with 1,;
+                      hu->u_kod   with mu_kod,;
+                      hu->u_cena  with mu_cena,;
+                      hu->is_edit with 0,;
+                      hu->date_u  with dtoc4(mdate_u1),;
+                      hu->otd     with m1otd,;
+                      hu->kol     with mkol_1,;
+                      hu->stoim   with mstoim_1,;
+                      hu->kol_1   with mkol_1,;
+                      hu->stoim_1 with mstoim_1
+              if len(arr_uva) > 0 .and. (j := ascan(arr_uva, {|x| like(x[1], alltrim(mshifr)) })) > 0
+                if arr_uva[j, 2] == 1
+                  hu->kod_vr := 0
                 endif
-                select HU
-                if nKey == K_INS
-                  Add1Rec(7)
-                  mrec_hu := hu->(recno())
-                  fl_found := .t.
-                  select TMP
-                  append blank
-                  rec_tmp := tmp->(recno())
-                  ++mvu[1,1]  // услуга добавлена оператором
-                else
-                  goto (mrec_hu)
-                  G_RLock(forever)
-                  select TMP
-                  goto (rec_tmp)
-                  ++mvu[2,1]  // услуга отредактирована оператором
+                if arr_uva[j, 3] == 1
+                  hu->kod_as := 0
                 endif
-                select HU
-                replace hu->kod     with human->kod,;
-                        hu->kod_vr  with mkod_vr,;
-                        hu->kod_as  with mkod_as,;
-                        hu->u_koef  with 1,;
-                        hu->u_kod   with mu_kod,;
-                        hu->u_cena  with mu_cena,;
-                        hu->is_edit with mis_edit,;
-                        hu->date_u  with dtoc4(mdate_u1),;
-                        hu->otd     with m1otd,;
-                        hu->kol     with mkol_1,;
-                        hu->stoim   with mstoim_1,;
-                        hu->kol_1   with mkol_1,;
-                        hu->stoim_1 with mstoim_1
-                if DomUslugaTFOMS(iif(empty(mshifr1), mshifr, mshifr1))
-                  hu->KOL_RCP := m1dom
-                endif
-                select HU_
-                do while hu_->(lastrec()) < mrec_hu
-                  APPEND BLANK
-                enddo
-                goto (mrec_hu)
-                G_RLock(forever)
-                if nKey == K_INS .or. !valid_GUID(hu_->ID_U)
-                  hu_->ID_U := mo_guid(3,hu_->(recno()))
-                endif
-                hu_->PROFIL   := m1PROFIL
-                hu_->PRVS     := m1PRVS
-                hu_->kod_diag := mkod_diag
-                if lTypeLUMedReab .and. !empty(mdate_end)
-                  hu_->date_end := mdate_end
-                endif
-                if pr_amb_reab .and. left(mshifr1,2)=='4.'
-                  hu_->zf := m1NPR_MO
-                endif
-              else
-                select MOHU
-                if nKey == K_INS
-                  Add1Rec(7)
-                  mrec_hu := mohu->(recno())
-                  fl_found := .t.
-                  select TMP
-                  append blank
-                  rec_tmp := tmp->(recno())
-                  ++mvu[1,1]  // услуга добавлена оператором
-                else
-                  goto (mrec_hu)
-                  G_RLock(forever)
-                  select TMP
-                  goto (rec_tmp)
-                  ++mvu[2,1]  // услуга отредактирована оператором
-                endif
-                select MOHU
-                mohu->kod     := human->kod
-                mohu->kod_vr  := mkod_vr
-                mohu->kod_as  := mkod_as
-                mohu->u_kod   := mu_kod
-                mohu->u_cena  := mu_cena
-                mohu->date_u  := dtoc4(mdate_u1)
-                mohu->otd     := m1otd
-                mohu->kol_1   := mkol_1
-                mohu->stoim_1 := mstoim_1
-                if nKey == K_INS .or. !valid_GUID(mohu->ID_U)
-                  mohu->ID_U  := mo_guid(4,mohu->(recno()))
-                endif
-                mohu->PROFIL  := m1PROFIL
-                mohu->PRVS    := m1PRVS
-                mohu->kod_diag:= mkod_diag
-                if is_zf_stomat == 1
-                  mohu->ZF    := mzf
-                elseif tip_telemed2
-                  mohu->ZF    := iif(m1nmic > 0, lstr(m1nmic)+":"+lstr(m1nmic1), "")
-                else
-                  mohu->ZF    := m1par_org
-                endif
-                //
-                mrec_hu := mohu->(recno())
-                if is_zf_stomat == 1
-                  if valtype(is_usluga_zf) == "N" .and. is_usluga_zf == 1 ; // должна быть формула зуба
-                                   .and. STVerifyKolZf(arr_zf,mkol_1,@amsg) // проверка по количеству зубов
-                    func_error(4,amsg[1])
-                  endif
-                  //STappendDelZ(human->kod_k,mzf,mohu->date_u,mohu->u_kod)
-                  select MOHU
-                endif
+              endif
+              select HU_
+              do while hu_->(lastrec()) < mrec_hu
+                APPEND BLANK
+              enddo
+              goto (mrec_hu)
+              G_RLock(forever)
+              hu_->ID_U   := mo_guid(3, hu_->(recno()))
+              hu_->PROFIL := m1PROFIL
+              hu_->PRVS   := m1PRVS
+              hu_->kod_diag := mkod_diag
+              if lTypeLUMedReab .and. !empty(mdate_end)
+                hu_->date_end := mdate_end
               endif
               UNLOCK
               //
               pr1otd := m1otd
-              /*if is_zf_stomat == 1
-                STappend(iif(mn_base==0,1,7),mrec_hu,human->kod_k,hu->date_u,mu_kod,mkod_vr,mzf,mkod_diag)
-              endif*/
+              adbf := array(fcount())
+              aeval(adbf, {|x,i| adbf[i] := fieldget(i) } )
               select TMP
               tmp->KOD     := human->kod
               tmp->DATE_U  := dtoc4(mdate_u1)
-              tmp->DATE_END := mdate_end
-              tmp->DATE_NEXT := mdate_next
+              tmp->DATE_END:= mdate_end
               tmp->U_KOD   := mu_kod
               tmp->U_CENA  := mu_cena
               tmp->KOD_VR  := mkod_vr
@@ -1019,15 +867,7 @@ altd()
               tmp->KOL_1   := mkol_1
               tmp->STOIM_1 := mstoim_1
               tmp->kod_diag:= mkod_diag
-              if is_zf_stomat == 1
-                tmp->ZF    := mzf
-              elseif tip_telemed2
-                tmp->ZF    := iif(m1nmic > 0, lstr(m1nmic)+":"+lstr(m1nmic1), "")
-              elseif pr_amb_reab .and. left(mshifr1,2)=='4.'
-                tmp->ZF    := m1NPR_MO
-              else
-                tmp->ZF    := m1par_org
-              endif
+              tmp->ZF      := mzf
               tmp->PROFIL  := m1profil
               tmp->PRVS    := m1prvs
               tmp->date_u1 := mdate_u1
@@ -1036,22 +876,184 @@ altd()
               tmp->name_u  := mname_u
               tmp->is_nul  := mis_nul
               tmp->is_oms  := mis_oms
-              tmp->is_edit := mis_edit
-              if nKey == K_INS
-                tmp->is_zf := is_usluga_zf
-              endif
-              tmp->par_org := tip_par_org
-              tmp->n_base  := mn_base
-              tmp->dom     := m1dom
               tmp->rec_hu  := mrec_hu
               last_date := tmp->date_u1
+            next
+          else  // запись одной введённой услуги
+            SKOD_DIAG := mkod_diag
+            if mn_base == 1 .and. mu_kod == 0
+              // добавляем в свой справочник федеральную услугу
+              select MOSU
+              set order to 1
+              FIND (STR(-1, 6))
+              if found()
+                G_RLock(forever)
+              else
+                AddRec(6)
+              endif
+              mu_kod := mosu->kod := recno()
+              mosu->name   := mname_u
+              mosu->shifr1 := mshifr1
+              mosu->profil := m1PROFIL
             endif
-            aksg := f_usl_definition_KSG(human->kod)
-            summa_usl()
-            if mem_pom_va == 2
-              skod_vr := mkod_vr
-              skod_as := mkod_as
+            // одна услуга
+              if mn_base == 0
+              if human_->usl_ok == 3 .and. left(mshifr1,5) == "2.89."
+                pr_amb_reab := .t.
+              endif
+              select HU
+              if nKey == K_INS
+                Add1Rec(7)
+                mrec_hu := hu->(recno())
+                fl_found := .t.
+                select TMP
+                append blank
+                rec_tmp := tmp->(recno())
+                ++mvu[1,1]  // услуга добавлена оператором
+              else
+                goto (mrec_hu)
+                G_RLock(forever)
+                select TMP
+                goto (rec_tmp)
+                ++mvu[2,1]  // услуга отредактирована оператором
+              endif
+              select HU
+              replace hu->kod     with human->kod,;
+                      hu->kod_vr  with mkod_vr,;
+                      hu->kod_as  with mkod_as,;
+                      hu->u_koef  with 1,;
+                      hu->u_kod   with mu_kod,;
+                      hu->u_cena  with mu_cena,;
+                      hu->is_edit with mis_edit,;
+                      hu->date_u  with dtoc4(mdate_u1),;
+                      hu->otd     with m1otd,;
+                      hu->kol     with mkol_1,;
+                      hu->stoim   with mstoim_1,;
+                      hu->kol_1   with mkol_1,;
+                      hu->stoim_1 with mstoim_1
+              if DomUslugaTFOMS(iif(empty(mshifr1), mshifr, mshifr1))
+                hu->KOL_RCP := m1dom
+              endif
+              select HU_
+              do while hu_->(lastrec()) < mrec_hu
+                APPEND BLANK
+              enddo
+              goto (mrec_hu)
+              G_RLock(forever)
+              if nKey == K_INS .or. !valid_GUID(hu_->ID_U)
+                hu_->ID_U := mo_guid(3,hu_->(recno()))
+              endif
+              hu_->PROFIL   := m1PROFIL
+              hu_->PRVS     := m1PRVS
+              hu_->kod_diag := mkod_diag
+              if lTypeLUMedReab .and. !empty(mdate_end)
+                hu_->date_end := mdate_end
+              endif
+              if pr_amb_reab .and. left(mshifr1,2)=='4.'
+                hu_->zf := m1NPR_MO
+              endif
+            else
+              select MOHU
+              if nKey == K_INS
+                Add1Rec(7)
+                mrec_hu := mohu->(recno())
+                fl_found := .t.
+                select TMP
+                append blank
+                rec_tmp := tmp->(recno())
+                ++mvu[1,1]  // услуга добавлена оператором
+              else
+                goto (mrec_hu)
+                G_RLock(forever)
+                select TMP
+                goto (rec_tmp)
+                ++mvu[2,1]  // услуга отредактирована оператором
+              endif
+              select MOHU
+              mohu->kod     := human->kod
+              mohu->kod_vr  := mkod_vr
+              mohu->kod_as  := mkod_as
+              mohu->u_kod   := mu_kod
+              mohu->u_cena  := mu_cena
+              mohu->date_u  := dtoc4(mdate_u1)
+              mohu->otd     := m1otd
+              mohu->kol_1   := mkol_1
+              mohu->stoim_1 := mstoim_1
+              if nKey == K_INS .or. !valid_GUID(mohu->ID_U)
+                mohu->ID_U  := mo_guid(4,mohu->(recno()))
+              endif
+              mohu->PROFIL  := m1PROFIL
+              mohu->PRVS    := m1PRVS
+              mohu->kod_diag:= mkod_diag
+              if is_zf_stomat == 1
+                mohu->ZF    := mzf
+              elseif tip_telemed2
+                mohu->ZF    := iif(m1nmic > 0, lstr(m1nmic)+":"+lstr(m1nmic1), "")
+              else
+                mohu->ZF    := m1par_org
+              endif
+              //
+              mrec_hu := mohu->(recno())
+              if is_zf_stomat == 1
+                if valtype(is_usluga_zf) == "N" .and. is_usluga_zf == 1 ; // должна быть формула зуба
+                                   .and. STVerifyKolZf(arr_zf,mkol_1,@amsg) // проверка по количеству зубов
+                  func_error(4,amsg[1])
+                endif
+                //STappendDelZ(human->kod_k,mzf,mohu->date_u,mohu->u_kod)
+                select MOHU
+              endif
             endif
+            UNLOCK
+            //
+            pr1otd := m1otd
+            /*if is_zf_stomat == 1
+              STappend(iif(mn_base==0,1,7),mrec_hu,human->kod_k,hu->date_u,mu_kod,mkod_vr,mzf,mkod_diag)
+            endif*/
+            select TMP
+            tmp->KOD     := human->kod
+            tmp->DATE_U  := dtoc4(mdate_u1)
+            tmp->DATE_END := mdate_end
+            tmp->DATE_NEXT := mdate_next
+            tmp->U_KOD   := mu_kod
+            tmp->U_CENA  := mu_cena
+            tmp->KOD_VR  := mkod_vr
+            tmp->KOD_AS  := mkod_as
+            tmp->OTD     := m1otd
+            tmp->KOL_1   := mkol_1
+            tmp->STOIM_1 := mstoim_1
+            tmp->kod_diag:= mkod_diag
+            if is_zf_stomat == 1
+              tmp->ZF    := mzf
+            elseif tip_telemed2
+              tmp->ZF    := iif(m1nmic > 0, lstr(m1nmic)+":"+lstr(m1nmic1), "")
+            elseif pr_amb_reab .and. left(mshifr1,2)=='4.'
+              tmp->ZF    := m1NPR_MO
+            else
+              tmp->ZF    := m1par_org
+            endif
+            tmp->PROFIL  := m1profil
+            tmp->PRVS    := m1prvs
+            tmp->date_u1 := mdate_u1
+            tmp->shifr_u := mshifr
+            tmp->shifr1  := mshifr1
+            tmp->name_u  := mname_u
+            tmp->is_nul  := mis_nul
+            tmp->is_oms  := mis_oms
+            tmp->is_edit := mis_edit
+            if nKey == K_INS
+              tmp->is_zf := is_usluga_zf
+            endif
+            tmp->par_org := tip_par_org
+            tmp->n_base  := mn_base
+            tmp->dom     := m1dom
+            tmp->rec_hu  := mrec_hu
+            last_date := tmp->date_u1
+          endif
+          aksg := f_usl_definition_KSG(human->kod)
+          summa_usl()
+          if mem_pom_va == 2
+            skod_vr := mkod_vr
+            skod_as := mkod_as
           endif
         endif
         exit
