@@ -92,7 +92,7 @@ Function f3oms_usl_sluch()
   @ maxrow() - 4, 59 say padl("Итого: " + lstr(human->cena_1, 11, 2), 20) color "W+/N"
   return NIL
     
-***** 22.05.22 ввод услуг в лист учёта
+***** 24.05.22 ввод услуг в лист учёта
 Function f2oms_usl_sluch(nKey, oBrow)
   Static skod_k := 0, skod_human := 0, SKOD_DIAG, SZF,;
          st_vzrosl, st_arr_dbf, skod_vr, skod_as, aksg := {}

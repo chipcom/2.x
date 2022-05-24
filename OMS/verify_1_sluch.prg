@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-***** 29.03.22
+***** 24.05.22
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
         i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -22,6 +22,7 @@ Function verify_1_sluch(fl_view)
   local arrImplant
   local arrLekPreparat, arrGroupPrep, mMNN
   local flLekPreparat := .f.
+  local obyaz_uslugi_med_reab, iUsluga
 
   if empty(human->k_data)
     return .t.  // не проверять
@@ -570,10 +571,10 @@ Function verify_1_sluch(fl_view)
     is_exist_Prescription := .t.
   endif
 
-  d_sroks := ""
+  d_sroks := ''
 
   select HU
-  find (str(human->kod,7))
+  find (str(human->kod, 7))
   do while hu->kod == human->kod .and. !eof()
     lshifr1 := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data)
     if is_usluga_TFOMS(usl->shifr,lshifr1,human->k_data,@auet,@lbukva,@lst,@lidsp,@s)
@@ -3014,58 +3015,80 @@ Function verify_1_sluch(fl_view)
         if au_lu[i,6] > 1 .and. au_lu[i,2] + au_lu[i,6] - 1 > d2
           aadd(ta,'дата окончания услуги '+alltrim_lshifr+' больше даты окончания лечения')
         endif
+        //
         fl_not_2_89 := .f.
-        if left_lshifr_3 == "20." // ЛФК
-          atmp := {"20.1.2","20.1.1","20.1.3","20.1.1","20.1.1"}
-          for j := 6 to 12
-            aadd(atmp,"20.1.4")
+        otd->(dbGoto(human->OTD))
+        if otd->tiplu == TIP_LU_MED_REAB
+          obyaz_uslugi_med_reab := compulsory_services(list2arr(human_2->PC5)[1], list2arr(human_2->PC5)[2])
+          for each row in arrUslugi
+            if (iUsluga := ascan(obyaz_uslugi_med_reab, {|x| alltrim(x) == alltrim(row) })) > 0
+              hb_ADel(obyaz_uslugi_med_reab, iUsluga, .t.)
+            endif
           next
-          for j := 13 to 14
-            aadd(atmp,"20.1.5")
-          next
-          aadd(atmp,"20.2.3") // j=15 ЛФК с исп-ием телемедицины
-          if ascan(atmp,alltrim_lshifr) > 0
-            for j := 1 to 15
-              if a_2_89[j] == 1 .and. !(alltrim_lshifr == atmp[j])
-                fl_not_2_89 := .t.
-              endif
+          if len(obyaz_uslugi_med_reab) > 0
+            for each row in obyaz_uslugi_med_reab
+              aadd(ta, 'отсутствует обязательная услуга для медицинской реабилитации "' + alltrim(row) + '"')
             next
           endif
-          if alltrim_lshifr == "20.2.1" .and. emptyall(a_2_89[1],a_2_89[4],a_2_89[5])
-            fl_not_2_89 := .t.
-          elseif alltrim_lshifr == "20.2.2" .and. empty(a_2_89[3])
-            fl_not_2_89 := .t.
-          endif
-        elseif left_lshifr_3 == "21." // массаж
-          // кроме онкологии
-          atmp := {"21.1.2","21.1.1","21.1.3","21.1.1","21.1.1"}
-          if ascan(atmp,alltrim_lshifr) > 0
-            for j := 1 to len(atmp)
-              if a_2_89[j] == 1 .and. !(alltrim_lshifr == atmp[j])
-                fl_not_2_89 := .t.
-              endif
+        else
+          if left_lshifr_3 == '20.' // ЛФК
+            atmp := {'20.1.2', '20.1.1', '20.1.3', '20.1.1', '20.1.1'}
+            for j := 6 to 12
+              aadd(atmp, '20.1.4')
             next
-          endif
-          // онкология
-          if alltrim_lshifr == "21.1.4" .and. emptyall(a_2_89[6],a_2_89[7],a_2_89[9],a_2_89[10])
-            fl_not_2_89 := .t.
-          endif
-          if alltrim_lshifr == "21.2.1" .and. emptyall(a_2_89[6],a_2_89[7],a_2_89[8],a_2_89[9],a_2_89[11])
-            fl_not_2_89 := .t.
-          endif
-          // 2.89.25 "Обращение с целью медицинской реабилитации пациентов при лечении органов дыхания"
-          if alltrim_lshifr == "21.1.5" .and. empty(a_2_89[14])
-            fl_not_2_89 := .t.
-          endif
-        elseif left_lshifr_3 == "22." // рефлексотерапия
-          // кроме онкологии
-          atmp := {"22.1.2","22.1.1","22.1.3","22.1.1","22.1.1"}
-          if ascan(atmp,alltrim_lshifr) > 0
-            for j := 1 to 5
-              if a_2_89[j] == 1 .and. !(alltrim_lshifr == atmp[j])
-                fl_not_2_89 := .t.
-              endif
+            for j := 13 to 14
+              aadd(atmp, '20.1.5')
             next
+            aadd(atmp,'20.2.3') // j=15 ЛФК с исп-ием телемедицины
+            if ascan(atmp, alltrim_lshifr) > 0
+              for j := 1 to 15
+                if a_2_89[j] == 1 .and. !(alltrim_lshifr == atmp[j])
+                  fl_not_2_89 := .t.
+                endif
+              next
+            endif
+            if alltrim_lshifr == '20.2.1' .and. emptyall(a_2_89[1], a_2_89[4], a_2_89[5])
+              fl_not_2_89 := .t.
+            elseif alltrim_lshifr == '20.2.2' .and. empty(a_2_89[3])
+              fl_not_2_89 := .t.
+            endif
+          elseif left_lshifr_3 == '21.' // массаж
+            // кроме онкологии
+            atmp := {'21.1.2', '21.1.1', '21.1.3', '21.1.1', '21.1.1'}
+            if ascan(atmp, alltrim_lshifr) > 0
+              for j := 1 to len(atmp)
+                if a_2_89[j] == 1 .and. !(alltrim_lshifr == atmp[j])
+                  fl_not_2_89 := .t.
+                endif
+              next
+            endif
+            // онкология
+            if alltrim_lshifr == '21.1.4' .and. emptyall(a_2_89[6], a_2_89[7], a_2_89[9], a_2_89[10])
+              fl_not_2_89 := .t.
+            endif
+            if alltrim_lshifr == '21.2.1' .and. emptyall(a_2_89[6], a_2_89[7], a_2_89[8], a_2_89[9], a_2_89[11])
+              fl_not_2_89 := .t.
+            endif
+            // 2.89.25 "Обращение с целью медицинской реабилитации пациентов при лечении органов дыхания"
+            if alltrim_lshifr == '21.1.5' .and. empty(a_2_89[14])
+              fl_not_2_89 := .t.
+            endif
+          elseif left_lshifr_3 == '22.' // рефлексотерапия
+            // кроме онкологии
+            atmp := {'22.1.2', '22.1.1', '22.1.3', '22.1.1', '22.1.1'}
+            if ascan(atmp, alltrim_lshifr) > 0
+              for j := 1 to 5
+                if a_2_89[j] == 1 .and. !(alltrim_lshifr == atmp[j])
+                  fl_not_2_89 := .t.
+                endif
+              next
+            endif
+          endif
+          if zs > 1
+            aadd(ta, 'в листе учета более одной услуги 2.89.* "законченный случай"')
+          endif
+          if kol_2_6 < 2
+            aadd(ta, 'кроме услуги ' + lstshifr + ' в листе учета должно быть две и более услуг 2.6.*')
           endif
         endif
         if fl_not_2_89
@@ -3079,51 +3102,45 @@ Function verify_1_sluch(fl_view)
         aadd(ta,' у Вас: '+lstr(au_lu[i,4])+', разрешено: '+print_array(aps[j,2]))
       endif*/
     next
-    if zs > 1
-      aadd(ta,'в листе учета более одной услуги 2.89.* "законченный случай"')
-    endif
     if oth_usl > 0
-      aadd(ta,'в листе учета не должно быть данных услуг: '+s)
-    endif
-    if kol_2_6 < 2
-      aadd(ta,'кроме услуги '+lstshifr+' в листе учета должно быть две и более услуг 2.6.*')
+      aadd(ta, 'в листе учета не должно быть данных услуг: ' + s)
     endif
     if kol_2_6 > 0
       if !is_1_den
-        aadd(ta,'первая услуга 2.6.* должна быть оказана в первый день лечения')
+        aadd(ta, 'первая услуга 2.6.* должна быть оказана в первый день лечения')
       endif
       if !is_last_den
-        aadd(ta,'последняя услуга 2.6.* должна быть оказана в последний день лечения')
+        aadd(ta, 'последняя услуга 2.6.* должна быть оказана в последний день лечения')
       endif
     endif
     if km == 0
-      aadd(ta,'в листе учета нет ни одной услуги "манипуляция"')
+      aadd(ta, 'в листе учета нет ни одной услуги "манипуляция"')
     endif
   elseif is_70_5 .or. is_70_6 .or. is_70_3 .or. is_72_2
     //
   elseif kol_2_60 > 0
-    aadd(ta,'вместе с услугами '+s+' должна быть услуга "законченный случай"')
+    aadd(ta, 'вместе с услугами ' + s + ' должна быть услуга "законченный случай"')
   endif
   d := human->k_data - human->n_data
   if kkd > 0
     if empty(d) .and. kkd == 1
       // по-новому один койко-день
     elseif kkd > d
-      aadd(ta,'кол-во койко-дней ('+lstr(kkd)+') превышает срок лечения на '+lstr(kkd-d))
+      aadd(ta, 'кол-во койко-дней (' + lstr(kkd) + ') превышает срок лечения на ' + lstr(kkd - d))
     elseif kkd < d
-      aadd(ta,'кол-во койко-дней ('+lstr(kkd)+') меньше срока лечения на '+lstr(d-kkd))
+      aadd(ta, 'кол-во койко-дней (' + lstr(kkd) + ') меньше срока лечения на ' + lstr(d - kkd))
     endif
   elseif kds > 0
-    if kds > (d+1)
-      aadd(ta,'кол-во услуг дневного стационара ('+lstr(kds)+') превышает срок лечения на '+lstr(kds-(d+1)))
+    if kds > (d + 1)
+      aadd(ta, 'кол-во услуг дневного стационара (' + lstr(kds) + ') превышает срок лечения на ' + lstr(kds - (d + 1)))
     endif
     if is_eko
       if human_->PROFIL != 137
-        aadd(ta,'для КСГ='+shifr_ksg+' профиль должен быть по "акушерству и гинекологии (использованию вспомогательных репродуктивных технологий)"')
+        aadd(ta, 'для КСГ=' + shifr_ksg + ' профиль должен быть по "акушерству и гинекологии (использованию вспомогательных репродуктивных технологий)"')
       endif
       a_1_11 := {}
       for i := 1 to len(au_flu)
-        aadd(a_1_11,alltrim(au_flu[i,1]))
+        aadd(a_1_11, alltrim(au_flu[i, 1]))
       next
       j := 1 // КСЛП - 1 схема
       if ascan(a_1_11,"A11.20.031") > 0  // крио
@@ -4528,6 +4545,8 @@ Function verify_1_sluch(fl_view)
     set order to 1
     human->(dbGoto(rec_human))
   endif
+
+
   if human_->oplata == 2
     aadd(ta,'вернулся из ТФОМС с ошибкой и ещё не отредактирован')
   endif

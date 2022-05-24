@@ -431,7 +431,7 @@ function compulsory_services(vid, shrm)
 
   for each row in ret_array_med_reab(vid, shrm)
     if row[2]
-      aadd(aRet, {row[1], row[2], row[3] })
+      aadd(aRet, row[1])
     endif
   next
   return aRet
