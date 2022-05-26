@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-***** 24.05.22
+** 26.05.22
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
         i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -583,10 +583,10 @@ Function verify_1_sluch(fl_view)
   select HU
   find (str(human->kod, 7))
   do while hu->kod == human->kod .and. !eof()
-    lshifr1 := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data)
-    if is_usluga_TFOMS(usl->shifr,lshifr1,human->k_data,@auet,@lbukva,@lst,@lidsp,@s)
+    lshifr1 := opr_shifr_TFOMS(usl->shifr1, usl->kod, human->k_data)
+    if is_usluga_TFOMS(usl->shifr, lshifr1, human->k_data, @auet, @lbukva, @lst,@lidsp, @s)
       if empty(hu->kol_1)
-        aadd(ta,'не заполнено поле "Количество услуг" для "'+alltrim(usl->shifr)+'"')
+        aadd(ta, 'не заполнено поле "Количество услуг" для "' + alltrim(usl->shifr) + '"')
       endif
       lshifr := iif(empty(lshifr1), usl->shifr, lshifr1)
       if hu->STOIM_1 > 0 .or. left(lshifr,3) == "71."  // скорая помощь
@@ -701,16 +701,16 @@ Function verify_1_sluch(fl_view)
         mdate_u2 := dtoc4(mdate + hu->kol_1 - 1)
       endif
       // проверяем на профиль
-      lprofil := UslugaAccordanceProfil(lshifr,human->vzros_reb,hu_->profil,ta,usl->shifr)
+      lprofil := UslugaAccordanceProfil(lshifr, human->vzros_reb, hu_->profil, ta, usl->shifr)
       if human_->USL_OK == 4 .and. lprofil != hu_->profil
         hu_->profil := lprofil
       endif
       dbSelectArea(lal)
-      find (padr(lshifr,10))
-      if found() .and. !empty(&lal.->unit_code) .and. ascan(arr_unit,&lal.->unit_code) == 0
-        aadd(arr_unit,&lal.->unit_code)
+      find (padr(lshifr, 10))
+      if found() .and. !empty(&lal.->unit_code) .and. ascan(arr_unit, &lal.->unit_code) == 0
+        aadd(arr_unit, &lal.->unit_code)
       endif
-      aadd(au_lu,{lshifr,;              // 1
+      aadd(au_lu, {lshifr,;              // 1
                   mdate,;               // 2
                   hu_->profil,;         // 3
                   hu_->PRVS,;           // 4
@@ -720,7 +720,7 @@ Function verify_1_sluch(fl_view)
                   hu_->kod_diag,;       // 8
                   hu->(recno()),;       // 9 - номер записи
                   hu->is_edit})         // 10
-      kodKSG := ""
+      kodKSG := ''
       if is_ksg(lshifr)
         if !empty(s) .and. "," $ s
           lvidpoms := s
@@ -3000,24 +3000,24 @@ Function verify_1_sluch(fl_view)
       if !between(au_lu[i,2],d1,d2)
         aadd(ta,'дата услуги '+alltrim_lshifr+' вне диапазона лечения ('+date_8(au_lu[i,2])+')')
       endif
-      if len(mdiagnoz) > 0 .and. !(alltrim(mdiagnoz[1]) == alltrim(au_lu[i,8]))
-        aadd(ta,'в услуге '+alltrim_lshifr+' должен стоять основной диагноз')
+      if len(mdiagnoz) > 0 .and. !(alltrim(mdiagnoz[1]) == alltrim(au_lu[i, 8]))
+        aadd(ta, 'в услуге ' + alltrim_lshifr + ' должен стоять основной диагноз')
       endif
-      if left_lshifr_5 == "2.89."
+      if left_lshifr_5 == '2.89.'
         zs += au_lu[i,6]
-      elseif left_lshifr_4 == "2.6."
-        if d1 == au_lu[i,2]
+      elseif left_lshifr_4 == '2.6.'  // .and. (! lTypeLU_med_reab)
+        if d1 == au_lu[i, 2]
           is_1_den := .t.
-        elseif d2 == au_lu[i,2]
+        elseif d2 == au_lu[i, 2]
           is_last_den := .t.
         endif
-        if au_lu[i,6] != 1
-          aadd(ta,'в услуге '+alltrim_lshifr+' количество не должно быть больше 1')
+        if au_lu[i, 6] != 1
+          aadd(ta, 'в услуге ' + alltrim_lshifr + ' количество не должно быть больше 1')
         endif
-      elseif ascan(arr_lfk,alltrim_lshifr) > 0
+      elseif ascan(arr_lfk, alltrim_lshifr) > 0
         ++km
-        if eq_any(alltrim_lshifr,"4.2.153","4.11.136","3.4.31") .and. au_lu[i,6] != 1
-          aadd(ta,'в услуге '+alltrim_lshifr+' количество не должно быть больше 1')
+        if eq_any(alltrim_lshifr, '4.2.153', '4.11.136', '3.4.31') .and. au_lu[i, 6] != 1
+          aadd(ta, 'в услуге ' + alltrim_lshifr + ' количество не должно быть больше 1')
         endif
         if au_lu[i,6] > 1 .and. au_lu[i,2] + au_lu[i,6] - 1 > d2
           aadd(ta,'дата окончания услуги '+alltrim_lshifr+' больше даты окончания лечения')

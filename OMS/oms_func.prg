@@ -14,7 +14,7 @@ Function UslugaAccordanceProfil(lshifr, lvzros_reb, lprofil, ta, short_shifr)
     R_Use(dir_exe + '_mo_prof', cur_dir + '_mo_prof', 'MOPROF')
   endif
   lshifr := padr(lshifr, 20)
-  lvzros_reb := iif(lvzros_reb==0, 0, 1)
+  lvzros_reb := iif(lvzros_reb == 0, 0, 1)
   select MOPROF
   find (lshifr)
   if found() // если данная услуга участвует в проверке по профилю

@@ -46,7 +46,7 @@ Function f5editkusl(get, when_valid, k, lMedReab, vidReab, shrm)
       endif
     elseif k == 2 // Шифр услуги
       if !empty(mshifr) .and. !(mshifr == get:original)
-            mshifr := transform_shifr(mshifr)
+        mshifr := transform_shifr(mshifr)
         if lMedReab   // сначала проверим шифр амбулаторную мед. реабилитацию
           aMedReab := ret_usluga_med_reab(mshifr, vidReab, shrm)
           if aMedReab == nil .or. len(aMedReab) == 0

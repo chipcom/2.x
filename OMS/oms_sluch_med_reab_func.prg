@@ -27,7 +27,6 @@ function defenition_usluga_med_reab(lkod, vid, shrm)
   R_Use(dir_server + 'human_', , 'HUMAN_')
   G_Use(dir_server + 'human', , 'HUMAN') // перезаписать сумму
   set relation to recno() into HUMAN_, to recno() into HUMAN_2
-  // goto (lkod)
   HUMAN->(dbGoto(lkod))
   lyear := year(human->K_DATA)
 
