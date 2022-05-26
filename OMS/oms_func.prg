@@ -1,13 +1,195 @@
-#include "function.ch"
-#include "chip_mo.ch"
+#include 'inkey.ch'
+#include 'function.ch'
+#include 'edit_spr.ch'
+#include 'chip_mo.ch'
 
-******* 08.02.22 собрать шифры услуг в случае
-function collect_uslugi()
+** 26.05.22 проверка на соответствие услуги профилю
+Function UslugaAccordanceProfil(lshifr, lvzros_reb, lprofil, ta, short_shifr)
+  Local s := '', s1 := ''
+
+  if valtype(short_shifr) == 'C' .and. !empty(short_shifr) .and. !(alltrim(lshifr) == alltrim(short_shifr))
+    s1 := '(' + alltrim(short_shifr) + ')'
+  endif
+  if select('MOPROF') == 0
+    R_Use(dir_exe + '_mo_prof', cur_dir + '_mo_prof', 'MOPROF')
+  endif
+  lshifr := padr(lshifr, 20)
+  lvzros_reb := iif(lvzros_reb==0, 0, 1)
+  select MOPROF
+  find (lshifr)
+  if found() // если данная услуга участвует в проверке по профилю
+    find (lshifr + str(lvzros_reb, 1) + str(lprofil, 3))
+    if !found()
+      find (lshifr + str(lvzros_reb, 1))
+      if human_->USL_OK == 4  // если скорая помощь
+        if found()                // и нашли первый попавшийся профиль,
+          lprofil := moprof->profil // то заменяем без всяких сообщений
+        endif
+      else // для всех остальных условий формируем сообщение об ошибке
+        do while moprof->shifr==lshifr .and. moprof->vzros_reb == lvzros_reb .and. !eof()
+          s += '"' + lstr(moprof->profil) + '.' + inieditspr(A__MENUVERT, glob_V002, moprof->profil) + '", '
+          skip
+        enddo
+        aadd(ta, rtrim(lshifr) + s1 + ' - профиль "' + lstr(lprofil) + '.' + ;
+                inieditspr(A__MENUVERT, glob_V002, lprofil) + ;
+                '" для ' + {'взрослого', 'ребёнка'}[lvzros_reb + 1] + ;
+                ' недопустим' + iif(empty(s), '', ' (разрешается ' + left(s, len(s) - 2) + ')'))
+      endif
+    endif
+  endif
+  return lprofil
+  
+** 26.05.22 проверка на соответствие услуги специальности
+Function UslugaAccordancePRVS(lshifr, lvzros_reb, lprvs, ta, short_shifr, lvrach)
+  Local s := '', s1 := '', s2, i, k
+
+  if valtype(short_shifr) == 'C' .and. !empty(short_shifr) .and. !(alltrim(lshifr) == alltrim(short_shifr))
+    s1 := '(' + alltrim(short_shifr) + ')'
+  endif
+  if select('MOSPEC') == 0
+    R_Use(dir_exe + '_mo_spec', cur_dir + '_mo_spec', 'MOSPEC')
+  endif
+  lshifr := padr(lshifr, 20)
+  lvzros_reb := iif(lvzros_reb == 0, 0, 1)
+  if lprvs < 0
+    k := abs(lprvs)
+  else
+    k := ret_V004_V015(lprvs)
+  endif
+  s2 := lstr(k) + '.' + inieditspr(A__MENUVERT, glob_V015, k)
+  //
+  lprvs := ret_prvs_V021(lprvs)
+  select MOSPEC
+  find (lshifr)
+  if found() // если данная услуга участвует в проверке по специальности
+    find (lshifr + str(lvzros_reb, 1) + str(lprvs, 6))
+    if !found()
+      find (lshifr + str(lvzros_reb, 1))
+      // формируем сообщение об ошибке
+      do while mospec->shifr==lshifr .and. mospec->vzros_reb == lvzros_reb .and. !eof()
+        k := mospec->prvs_new
+        if (i := ascan(glob_arr_V015_V021, {|x| x[2] == k})) > 0 // перевод из 21-го справочника
+          k := glob_arr_V015_V021[i, 1]                          // в 15-ый справочник
+        endif
+        s += '"' + lstr(k) + '.' + inieditspr(A__MENUVERT, glob_V015, k) + '", '
+        skip
+      enddo
+      pers->(dbGoto(lvrach))
+      aadd(ta, rtrim(lshifr) + s1 + ' - (' + fam_i_o(pers->fio) + ' [' + lstr(pers->tab_nom) + ;
+              ']) специальность "' + s2 + '" для ' + {'взрослого', 'ребёнка'}[lvzros_reb + 1] + ;
+              ' недопустима' + iif(empty(s), '', ' (разрешается ' + left(s, len(s) - 2) + ')'))
+    endif
+  endif
+  return nil
+  
+** 26.05.22 вернуть код новой медицинской специальности в кодировке справочника V015
+Function ret_new_spec(old_spec, new_spec)
+  Local i, lkod := 0
+
+  if empty(new_spec)
+    if !empty(old_spec) .and. (i := ascan(glob_arr_V004_V015, {|x| x[1] == old_spec })) > 0
+      lkod := glob_arr_V004_V015[i, 2]
+    endif
+  else
+    lkod := new_spec
+  endif
+  return lkod
+  
+** 26.05.22 вернуть значение специальности в кодировке справочника V004
+Function ret_old_prvs(new_kod)
+  Local i, old_kod := new_kod
+
+  if new_kod < 0
+    new_kod := abs(new_kod)
+    if (i := ascan(glob_arr_V004_V015, {|x| x[2] == new_kod })) > 0
+      old_kod := glob_arr_V004_V015[i, 1]
+    elseif (i := ascan(glob_arr_V015_V004, {|x| x[3] == new_kod })) > 0
+      old_kod := glob_arr_V015_V004[i, 1]
+    endif
+  endif
+  return old_kod
+  
+** 26.05.22 вернуть значение специальности в кодировке справочника V015
+Function ret_new_prvs(_prvs)
+  Local new_kod
+
+  if _prvs < 0
+    new_kod := abs(_prvs)
+  else
+    new_kod := ret_V004_V015(_prvs)
+  endif
+  return new_kod
+  
+** 26.05.22 вернуть значение специальности в кодировке справочника V021
+Function ret_prvs_V021(_prvs)
+  Local i, new_kod := 76, ; // по умолчанию - терапия
+        lkod := ret_new_prvs(_prvs) // в кодировке справочника V015
+
+  if (i := ascan(glob_arr_V015_V021, {|x| x[1] == lkod })) > 0
+    new_kod := glob_arr_V015_V021[i, 2]
+  endif
+  return new_kod
+  
+** 26.05.22 перевести специальность из кодировки справочника V021 в V015
+Function prvs_V021_to_V015(_prvs)
+  Local i, new_kod := 27 // по умолчанию - терапия
+
+  if valtype(_prvs) == 'C'
+    _prvs := int(val(_prvs))
+  endif
+  if (i := ascan(glob_arr_V015_V021, {|x| x[2] == _prvs })) > 0
+    new_kod := glob_arr_V015_V021[i, 1]
+  endif
+  return new_kod
+  
+** 26.05.22 вернуть массив соответствий специальности V015 специальностям V0004
+Function ret_arr_new_olds_prvs()
+  Local i, j, np, op, arr := {}
+
+  for i := 1 to len(glob_arr_V004_V015)
+    op := glob_arr_V004_V015[i, 1]
+    np := glob_arr_V004_V015[i, 2]
+    if (j := ascan(arr, {|x| x[1] == np })) == 0
+      aadd(arr, {np, {}})
+      j := len(arr)
+    endif
+    aadd(arr[j, 2], op)
+  next
+  for i := 1 to len(glob_arr_V015_V004)
+    op := glob_arr_V015_V004[i, 1]
+    np := glob_arr_V015_V004[i, 3]
+    if (j := ascan(arr, {|x| x[1] == np })) == 0
+      aadd(arr, {np, {}})
+      j := len(arr)
+    endif
+    aadd(arr[j, 2], op)
+  next
+  return asort(arr, , , {|x, y| x[1] < y[1] })
+  
+** 26.05.22 вернуть значение специальности для XML-файла реестра
+Function put_prvs_to_reestr(_PRVS, _YEAR)
+  Local k := _PRVS
+
+  if _YEAR > 2018             // в кодировке V021
+    k := ret_prvs_V021(_PRVS)
+  elseif _YEAR < 2016         // в кодировке V004
+    k := ret_old_prvs(_PRVS)
+  else                        // в кодировке V015
+    if _PRVS < 0
+      k := abs(_PRVS)
+    else
+      k := ret_V004_V015(_PRVS)
+    endif
+  endif
+  return lstr(k)
+  
+** 26.05.22 собрать шифры услуг в случае
+function collect_uslugi(rec_human)
   local human_number, human_uslugi, mohu_usluga
   local tmp_select := select()
   local arrUslugi := {}
 
-  human_number := human->(recno())
+  human_number := hb_DefaultValue(rec_human, human->(recno()))
   human_uslugi := hu->(recno())
   mohu_usluga := mohu->(recno())
   dbSelectArea('HU')
@@ -24,7 +206,7 @@ function collect_uslugi()
   set relation to u_kod into MOSU
   find (str(human_number, 7))
   do while mohu->kod == human_number .and. !eof()
-    aadd(arrUslugi, alltrim(iif(empty(mosu->shifr),mosu->shifr1,mosu->shifr)))
+    aadd(arrUslugi, alltrim(iif(empty(mosu->shifr), mosu->shifr1, mosu->shifr)))
     mohu->(dbSkip())
   enddo
   mohu->(dbGoto(mohu_usluga))
@@ -32,14 +214,14 @@ function collect_uslugi()
   select(tmp_select)
   return arrUslugi
 
-******* 30.03.22 собрать даты оказания услуг в случае
-function collect_date_uslugi()
+** 26.05.22 собрать даты оказания услуг в случае
+function collect_date_uslugi(rec_human)
   local human_number, human_uslugi, mohu_usluga
   local tmp_select := select()
   local arrDate := {}, aSortDate
   local i := 0, sDate, dDate
 
-  human_number := human->(recno())
+  human_number := hb_DefaultValue(rec_human, human->(recno()))
   human_uslugi := hu->(recno())
   mohu_usluga := mohu->(recno())
   dbSelectArea('HU')
@@ -75,7 +257,7 @@ function collect_date_uslugi()
   select(tmp_select)
   return aSortDate
 
-**** 01.10.21 - возврат структуры временного файла для направлений на онкологию
+** 01.10.21 - возврат структуры временного файла для направлений на онкологию
 function create_struct_temporary_onkna()
   return {; // онконаправления
     {"KOD"      ,   "N",     7,     0},; // код больного
@@ -91,7 +273,7 @@ function create_struct_temporary_onkna()
     {"KOD_VR"   ,   "N",     5,     0};  // код врача (справочник mo_pers)
   }
 
-**** 01.10.21
+** 01.10.21
 function get_kod_vrach_by_tabnom(tabnom)
   local aliasIsUse
   local oldSelect, ret := 0
@@ -116,7 +298,7 @@ function get_kod_vrach_by_tabnom(tabnom)
   Select(oldSelect)
   return ret
 
-**** 01.10.21
+** 01.10.21
 function get_tabnom_vrach_by_kod(kod)
   local aliasIsUse
   local oldSelect, ret := 0
@@ -142,7 +324,7 @@ function get_tabnom_vrach_by_kod(kod)
   Select(oldSelect)
   return ret
 
-**** 11.10.21
+** 11.10.21
 function exist_reserve_KSG(kod_pers, aliasHUMAN)
   local aliasIsUseHU, aliasIsUseUSL
   local oldSelect, ret := .f.

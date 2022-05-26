@@ -1,7 +1,7 @@
-#include "inkey.ch"
-#include "function.ch"
-#include "edit_spr.ch"
-#include "chip_mo.ch"
+#include 'inkey.ch'
+#include 'function.ch'
+#include 'edit_spr.ch'
+#include 'chip_mo.ch'
 
 Static sadiag1 := {}
 
@@ -15,13 +15,15 @@ Function verify_1_sluch(fl_view)
         lal, lalf
 
   local reserveKSG_1 := .f., reserveKSG_2 := .f.
-  local sbase, arrUslugi := {}
+  local sbase
   local arr_uslugi_geriatr := {'B01.007.001', 'B01.007.003', 'B01.007.003' }, row, rowTmp
   local flGeriatr := .f.
   local glob_V018, glob_V019
   local arrImplant
   local arrLekPreparat, arrGroupPrep, mMNN
   local flLekPreparat := .f.
+  local arrUslugi := {} // массив содиржаший коды услуг в случае
+  local lTypeLU_med_reab := .f.
   local obyaz_uslugi_med_reab, iUsluga
 
   if empty(human->k_data)
@@ -32,6 +34,9 @@ Function verify_1_sluch(fl_view)
   Private mdate_r := human->date_r, mvozrast, mdvozrast, M1VZROS_REB := human->VZROS_REB,;
           arr_usl_otkaz := {}, m1novor := 0, mpol := human->pol, mDATE_R2 := ctod(""),;
           is_oncology := 0, is_oncology_smp := 0
+
+  arrUslugi := collect_uslugi(rec_human)   // выберем все коды услуг случая
+
   if human_->NOVOR > 0
     m1novor := 1 // для переопределения M1VZROS_REB
     mDATE_R2 := human_->DATE_R2
@@ -224,18 +229,21 @@ Function verify_1_sluch(fl_view)
   human_2->(G_RLock(forever))
   uch->(dbGoto(human->LPU))
   otd->(dbGoto(human->OTD))
-  s := fam_i_o(human->fio)+" "
+  s := fam_i_o(human->fio) + ' '
   if !empty(otd->short_name)
-    s += "["+alltrim(otd->short_name)+"] "
+    s += '[' + alltrim(otd->short_name) + '] '
   endif
-  s += date_8(human->n_data)+"-"+date_8(human->k_data)
-  @ maxrow(),0 say padr(" "+s,50) color "G+/R"
+
+  lTypeLU_med_reab := (otd->tiplu == TIP_LU_MED_REAB)
+
+  s += date_8(human->n_data) + '-' + date_8(human->k_data)
+  @ maxrow(), 0 say padr(' ' + s, 50) color 'G+/R'
   if human_->usl_ok == 3
-    s := "амбулаторной карты"
+    s := 'амбулаторной карты'
   elseif human_->usl_ok == 4
-    s := "карты вызова"
+    s := 'карты вызова'
   else
-    s := "истории болезни"
+    s := 'истории болезни'
   endif
   if empty(CHARREPL("0",human->uch_doc,space(10)))
     aadd(ta,'не заполнен номер '+s+': '+human->uch_doc)
@@ -363,9 +371,8 @@ Function verify_1_sluch(fl_view)
 
   if year(human->k_data) == 2022 .and. !empty(HUMAN_2->PC1)
     if alltrim(human_2->PC1) == '3' // КСЛП 3 - старше 75 лет для 2022 года
-      arrUslugi := collect_uslugi()
       for each row in arr_uslugi_geriatr
-        if ascan(arrUslugi, row) > 0
+        if ascan(arrUslugi, row) > 0 // проверим все услуги случая
           flGeriatr := .t.
         endif
       next
@@ -3017,10 +3024,9 @@ Function verify_1_sluch(fl_view)
         endif
         //
         fl_not_2_89 := .f.
-        otd->(dbGoto(human->OTD))
-        if otd->tiplu == TIP_LU_MED_REAB
+        if lTypeLU_med_reab
           obyaz_uslugi_med_reab := compulsory_services(list2arr(human_2->PC5)[1], list2arr(human_2->PC5)[2])
-          for each row in arrUslugi
+          for each row in arrUslugi // проверим все услуги случая
             if (iUsluga := ascan(obyaz_uslugi_med_reab, {|x| alltrim(x) == alltrim(row) })) > 0
               hb_ADel(obyaz_uslugi_med_reab, iUsluga, .t.)
             endif
@@ -4423,8 +4429,7 @@ Function verify_1_sluch(fl_view)
     endif
   endif
 
-  arrUslugi := collect_uslugi()
-  for each row in arrUslugi
+  for each row in arrUslugi // проверим все услуги случая
     if service_requires_implants(row, human->k_data)
       // проверим наличие имплантов
       arrImplant := collect_implantant(human->kod)
@@ -4448,23 +4453,6 @@ Function verify_1_sluch(fl_view)
       endif
     endif
   next
-
-  // // проверим наличие имплантов
-  // arrImplant := collect_implantant(human->kod)
-  // if ! empty(arrImplant)
-  //   if empty(arrImplant[3])
-  //     aadd(ta,'не указана дата установки имплантанта')
-  //   endif
-  //   if ! between_date(human->n_data, human->k_data, arrImplant[3])
-  //     aadd(ta,'дата установки имплантанта не входит в период случая')
-  //   endif
-  //   if empty(arrImplant[4])
-  //     aadd(ta,'для имплантанта необходимо указать его вид')
-  //   endif
-  //   if empty(arrImplant[5])
-  //     aadd(ta,'для имплантанта необходимо указать серийный номер')
-  //   endif
-  // endif
 
   // проверим на наличие направивиших врачей
   if is_exist_Prescription
