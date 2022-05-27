@@ -3098,10 +3098,11 @@ Function verify_1_sluch(fl_view)
           endif
         endif
         if fl_not_2_89
-          aadd(ta,'услуга '+alltrim_lshifr+' не входит в набор услуг для обращения с целью медицинской реабилитации '+shifr_zs)
+          aadd(ta, 'услуга ' + alltrim_lshifr + ' не входит в набор услуг для обращения с целью медицинской реабилитации ' + shifr_zs)
         endif
       else
-        s += alltrim_lshifr+" " ; ++oth_usl
+        s += alltrim_lshifr + ' '
+        ++oth_usl
       endif
       /*if (j := ascan(aps,{|x| x[1] == au_lu[i,3]})) > 0 .and. ascan(aps[j,2],ret_old_prvs(au_lu[i,4])) == 0
         aadd(ta,'в услуге '+alltrim_lshifr+' у врача стоит неверная специальность')

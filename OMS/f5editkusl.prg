@@ -56,32 +56,32 @@ Function f5editkusl(get, when_valid, k, lMedReab, vidReab, shrm)
           endif
         endif
         // сначала проверим на код лаб.услуги, направляемой в ЦКДЛ
-        if is_lab_usluga(mshifr) .and. !(type("is_oncology") == "N")
+        if is_lab_usluga(mshifr) .and. !(type('is_oncology') == 'N')
           fl := .f.
-          if f1cena_oms(mshifr,;
-                        mshifr,;
-                        (human->vzros_reb==0),;
-                        human->k_data,;
-                        .t.,;
+          if f1cena_oms(mshifr, ;
+                        mshifr, ;
+                        (human->vzros_reb == 0), ;
+                        human->k_data, ;
+                        .t., ;
                         @mis_oms) == NIL
             select LUSL
-            find (padr(mshifr,10))
+            find (padr(mshifr, 10))
             if found()
-              func_error(4,"Данная лабораторная услуга не разрешена для использования в Вашей МО")
+              func_error(4, 'Данная лабораторная услуга не разрешена для использования в Вашей МО')
             else
-              func_error(4,"Введена несуществующая лабораторная услуга")
+              func_error(4, 'Введена несуществующая лабораторная услуга')
             endif
             mshifr := space(20)
           else // услуга разрешена данной МО
-            if select("MOPROF") == 0
-              R_Use(dir_exe+"_mo_prof",cur_dir+"_mo_prof","MOPROF")
+            if select('MOPROF') == 0
+              R_Use(dir_exe + '_mo_prof', cur_dir + '_mo_prof', 'MOPROF')
               //index on shifr+str(vzros_reb,1)+str(profil,3) to (sbase)
             endif
-            m1profil := iif(left(mshifr,5) == "4.16.", 6, 34)
+            m1profil := iif(left(mshifr, 5) == '4.16.', 6, 34)
             select MOPROF
-            find (padr(mshifr,20)+str(iif(human->vzros_reb == 0, 0, 1),1)+str(m1profil,3))
+            find (padr(mshifr, 20) + str(iif(human->vzros_reb == 0, 0, 1), 1) + str(m1profil, 3))
             if !found()
-              find (padr(mshifr,20)+str(iif(human->vzros_reb == 0, 0, 1),1))
+              find (padr(mshifr, 20) + str(iif(human->vzros_reb == 0, 0, 1),1))
               if found()
                 m1profil := moprof->profil
               endif
@@ -114,19 +114,19 @@ Function f5editkusl(get, when_valid, k, lMedReab, vidReab, shrm)
         // сначала проверим на код операции ФФОМС
         fl1 := fl2 := .f.
         select LUSLF
-        find (padr(mshifr,20))
+        find (padr(mshifr, 20))
         if found() .and. alltrim(mshifr) == alltrim(luslf->shifr)
           is_usluga_zf := luslf->zf
-          tip_onko_napr := luslf->onko_napr
+          tip_onko_napr:= luslf->onko_napr
           tip_onko_ksg := luslf->onko_ksg
           if (tip_telemed := luslf->telemed) == 1
-            tip_telemed2 := (left(mshifr,4) == "B01.")
+            tip_telemed2 := (left(mshifr, 4) == 'B01.')
           endif
           tip_par_org := luslf->par_org
           fl1 := .t.
           select MOSU
           set order to 3
-          find (padr(mshifr,20)) // поищем федеральный код операции ФФОМС
+          find (padr(mshifr, 20)) // поищем федеральный код операции ФФОМС
           if found()
             if mosu->tip == 0 // проверяем, что ЭТО НЕ стоматология 2016 (удалённая)
               mu_kod  := mosu->kod
@@ -134,7 +134,7 @@ Function f5editkusl(get, when_valid, k, lMedReab, vidReab, shrm)
               mshifr1 := mosu->shifr1
               if !empty(mosu->profil)
                 m1PROFIL := mosu->profil
-                mPROFIL := padr(inieditspr(A__MENUVERT, glob_V002, m1PROFIL),69)
+                mPROFIL := padr(inieditspr(A__MENUVERT, glob_V002, m1PROFIL), 69)
               endif
             else // Старая стоматология 2016
               fl1 := .f.
@@ -142,14 +142,14 @@ Function f5editkusl(get, when_valid, k, lMedReab, vidReab, shrm)
             endif
           else
             mu_kod  := 0
-            mname_u := left(luslf->name,65)
+            mname_u := left(luslf->name, 65)
             mshifr1 := mshifr
           endif
         endif
         if !fl1 // не нашли в операциях ФФОМС
           select MOSU
           set order to 2
-          find (padr(mshifr,10)) // поищем собственный код операции ФФОМС
+          find (padr(mshifr, 10)) // поищем собственный код операции ФФОМС
           if found()
             if mosu->tip == 0 // проверяем, что ЭТО НЕ стоматология 2016 (удалённая)
               fl1 := .t.
@@ -158,16 +158,16 @@ Function f5editkusl(get, when_valid, k, lMedReab, vidReab, shrm)
               mshifr1 := mosu->shifr1
               if !empty(mosu->profil)
                 m1PROFIL := mosu->profil
-                mPROFIL := padr(inieditspr(A__MENUVERT, glob_V002, m1PROFIL),69)
+                mPROFIL := padr(inieditspr(A__MENUVERT, glob_V002, m1PROFIL), 69)
               endif
               select LUSLF
-              find (padr(mshifr1,20))
+              find (padr(mshifr1, 20))
               if found()
                 is_usluga_zf := luslf->zf
                 tip_onko_napr := luslf->onko_napr
                 tip_onko_ksg := luslf->onko_ksg
                 if (tip_telemed := luslf->telemed) == 1
-                  tip_telemed2 := (left(mshifr1,4) == "B01.")
+                  tip_telemed2 := (left(mshifr1, 4) == 'B01.')
                 endif
                 tip_par_org := luslf->par_org
               endif
@@ -177,15 +177,15 @@ Function f5editkusl(get, when_valid, k, lMedReab, vidReab, shrm)
             endif
           endif
         endif
-        if type("is_oncology") == "N"
+        if type('is_oncology') == 'N'
           if !fl1
-            fl := func_error(4,"Шифра "+alltrim(mshifr)+" нет в базе данных федеральных услуг.")
+            fl := func_error(4, 'Шифра ' + alltrim(mshifr) + ' нет в базе данных федеральных услуг.')
           endif
           return fl
         elseif fl1
           mn_base := 1
           mstoim_1 := mu_cena := 0
-          if type("tip_telemed2") == "L" .and. is_telemedicina(mshifr1,@tip_telemed2) // является услугой телемедицины - не заполняется код врача
+          if type('tip_telemed2') == 'L' .and. is_telemedicina(mshifr1, @tip_telemed2) // является услугой телемедицины - не заполняется код врача
             tip_telemed := 1
             mis_edit := -1
           endif
@@ -193,34 +193,35 @@ Function f5editkusl(get, when_valid, k, lMedReab, vidReab, shrm)
           mkol := mkol_1 := 1
           verify_uva(2)
           update_gets()
-          if type("row_dom") == "N"
+          if type('row_dom') == 'N'
             if empty(tip_par_org)
-              m1dom := 0 ; mdom := space(20)
-              @ row_dom+1,1 say space(78) color color1
+              m1dom := 0
+              mdom := space(20)
+              @ row_dom + 1, 1 say space(78) color color1
             endif
-            if type("tip_telemed2") == "L" .and. tip_telemed2
-              @ row_dom,2 say "Где оказана услуга" color color1
-              @ row(),col()+1 say padr(mnmic,58) color color13
-              @ row_dom+1,2 say " Получены ли результаты на дату окончания лечения" color color1
-              @ row(),col()+1 say padr(mnmic1,27) color color13
+            if type('tip_telemed2') == 'L' .and. tip_telemed2
+              @ row_dom, 2 say 'Где оказана услуга' color color1
+              @ row(), col() + 1 say padr(mnmic, 58) color color13
+              @ row_dom + 1,2 say ' Получены ли результаты на дату окончания лечения' color color1
+              @ row(), col() + 1 say padr(mnmic1, 27) color color13
             endif
           endif
           return fl  // !!!!!!!!!!!!!!!!!!!!!
         endif
         if fl2
-          fl := func_error(4,"Данную СТОМАТОЛОГИЧЕСКУЮ услугу запрещено вводить после 2016 года!")
+          fl := func_error(4, 'Данную СТОМАТОЛОГИЧЕСКУЮ услугу запрещено вводить после 2016 года!')
         else // теперь проверим по старому алгоритму
           select USL
           set order to 1
-          find (padr(mshifr,10))
+          find (padr(mshifr, 10))
           if found()
             lu_cena := iif(human->vzros_reb == 0, usl->cena, usl->cena_d)
-            lshifr1 := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data)
-            if (v := f1cena_oms(usl->shifr,;
-                                lshifr1,;
-                                (human->vzros_reb==0),;
-                                human->k_data,;
-                                usl->is_nul,;
+            lshifr1 := opr_shifr_TFOMS(usl->shifr1, usl->kod, human->k_data)
+            if (v := f1cena_oms(usl->shifr, ;
+                                lshifr1, ;
+                                (human->vzros_reb == 0), ;
+                                human->k_data, ;
+                                usl->is_nul, ;
                                 @mis_oms)) != NIL
               lu_cena := v
             endif
@@ -233,10 +234,10 @@ Function f5editkusl(get, when_valid, k, lMedReab, vidReab, shrm)
                 fl1 := usl->is_nul
               endif
             endif
-            if !fl1
-              fl := func_error(4,"В данной услуге не проставлена цена!")
-            else
-              if mem_otdusl == 2 .and. type("pr1arr_otd") == "A"
+            if !fl1 
+              fl := func_error(4, 'В данной услуге не проставлена цена!')
+            else 
+              if mem_otdusl == 2 .and. type('pr1arr_otd') == 'A'
                 // автоматическое присвоение отделения по месту работы персонала
                 fl := .t.
               else
