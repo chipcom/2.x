@@ -35,10 +35,10 @@ Function f5editkusl(get, when_valid, k, lMedReab, vidReab, shrm)
   else  // valid
     if k == 1     // Дата оказания услуги 
       if !emptyany(human->n_data,mdate_u1) .and. mdate_u1 < human->n_data
-        //fl := func_error(4,"Введенная дата меньше даты начала лечения!")
-        fl := func_error(4,"Введенная дата меньше даты начала лечения!")
+        //fl := func_error(4, "Введенная дата меньше даты начала лечения!")
+        fl := func_error(4, "Введенная дата меньше даты начала лечения!")
       elseif !emptyany(human->k_data,mdate_u1) .and. mdate_u1 > human->k_data
-        fl := func_error(4,"Введенная дата больше даты окончания лечения!")
+        fl := func_error(4, "Введенная дата больше даты окончания лечения!")
       endif
       if fl .and. is_zf_stomat == 1 .and. !empty(mzf)
         // перепрыгнуть на ввод шифра услуги
@@ -244,7 +244,7 @@ Function f5editkusl(get, when_valid, k, lMedReab, vidReab, shrm)
                 select UO
                 find (str(usl->kod,4))
                 if found() .and. !(chr(m1otd) $ uo->otdel)
-                  fl := func_error(4,"Данную услугу запрещено вводить в данном отделении!")
+                  fl := func_error(4, "Данную услугу запрещено вводить в данном отделении!")
                 endif
               endif
               if fl
@@ -315,7 +315,7 @@ Function f5editkusl(get, when_valid, k, lMedReab, vidReab, shrm)
             endif
             fl := update_gets()
           else
-            fl := func_error(4,"Такого шифра нет в базе данных услуг.")
+            fl := func_error(4, "Такого шифра нет в базе данных услуг.")
           endif
         endif
       endif
@@ -331,7 +331,7 @@ Function f5editkusl(get, when_valid, k, lMedReab, vidReab, shrm)
           if type("mkod_as") == "N" .and. perso->kod == mkod_as
             fl := func_error(4,msg1_err)
           elseif mem_kat_va == 2 .and. perso->kateg != 1 .and. !UslugaFeldsher(iif(empty(mshifr1),mshifr,mshifr1))
-            fl := func_error(4,"Данный сотрудник не является ВРАЧОМ по штатному расписанию")
+            fl := func_error(4, "Данный сотрудник не является ВРАЧОМ по штатному расписанию")
           else
             mkod_vr := perso->kod
             m1prvs := -ret_new_spec(perso->prvs,perso->prvs_new)
@@ -356,7 +356,7 @@ Function f5editkusl(get, when_valid, k, lMedReab, vidReab, shrm)
           if perso->kod == mkod_vr
             fl := func_error(4,msg1_err)
           elseif mem_kat_va == 2 .and. perso->kateg != 2
-            fl := func_error(4,"Данный сотрудник не является СРЕДНИМ МЕД.ПЕРСОНАЛОМ по штатному расписанию")
+            fl := func_error(4, "Данный сотрудник не является СРЕДНИМ МЕД.ПЕРСОНАЛОМ по штатному расписанию")
           else
             mkod_as := perso->kod
             massist := padr(perso->fio,35)
@@ -371,7 +371,7 @@ Function f5editkusl(get, when_valid, k, lMedReab, vidReab, shrm)
     elseif k == 5 // Количество услуг
       if mkol_1 != get:original
         eval(blk_sum)
-        update_get("mstoim_1")
+        update_get('mstoim_1')
       endif
     elseif k == 10  // код отделения
       if (i := ascan(pr_arr, {|x| x[1] == m1otd } )) > 0
@@ -379,7 +379,7 @@ Function f5editkusl(get, when_valid, k, lMedReab, vidReab, shrm)
           select UO
           find (str(mu_kod,4))
           if found() .and. !(chr(m1otd) $ uo->otdel)
-            fl := func_error(4,"Данную услугу запрещено вводить в данном отделении!")
+            fl := func_error(4, "Данную услугу запрещено вводить в данном отделении!")
           endif
         endif
         if fl
@@ -388,7 +388,7 @@ Function f5editkusl(get, when_valid, k, lMedReab, vidReab, shrm)
           @ r1,45 say space(30) color color13
         endif
       else
-        fl := func_error(4,"Данный код отделения не найден!")
+        fl := func_error(4, "Данный код отделения не найден!")
       endif
     elseif k == 101  // зубная формула
       if !empty(mzf)
@@ -434,9 +434,9 @@ Function f5editkusl(get, when_valid, k, lMedReab, vidReab, shrm)
         else
           &(readvar()) := get:original
           if iif(yes_many_uch, .t., perso->uch == glob_uch[1])
-            fl := func_error(4,"Не проставлено отделение, в котором работает данный человек!")
+            fl := func_error(4, "Не проставлено отделение, в котором работает данный человек!")
           else
-            fl := func_error(4,"Данный человек работает в другом учреждении!")
+            fl := func_error(4, "Данный человек работает в другом учреждении!")
           endif
         endif
       endif

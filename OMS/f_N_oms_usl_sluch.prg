@@ -3,96 +3,8 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 17.03.22
-Function f_oms_usl_sluch(oBrow)
-  Local oColumn, blk_color
-
-  blk_color := {|| iif( ! service_requires_implants(tmp->shifr_u, tmp->DATE_U), {1, 2}, ;
-      iif(! exist_implantant_in_DB(glob_perso, tmp->rec_hu), {9, 10}, {7, 8})) }  // голубовато - зеленовато
-
-  oColumn := TBColumnNew(" NN; пп",{|| tmp->number })
-  oColumn:colorBlock := blk_color
-  oBrow:addColumn(oColumn)
-  if mem_ordusl == 1
-    oColumn := TBColumnNew("Дата; усл.",{|| left(dtoc(tmp->date_u1),5) })
-    oColumn:colorBlock := blk_color
-    oBrow:addColumn(oColumn)
-  endif
-  oColumn := TBColumnNew(" Шифр услуги",{|| iif(tmp->dom==-1,padr(tmp->shifr_u,11)+"дом",;
-                                             iif(tmp->dom==-2,padr(tmp->shifr_u,11)+"д-А",;
-                                             padr(tmp->shifr_u,14))) })
-  oColumn:colorBlock := blk_color
-  oBrow:addColumn(oColumn)
-  if mem_ordusl == 2
-    oColumn := TBColumnNew("Дата; усл.",{|| left(dtoc(tmp->date_u1),5) })
-    oColumn:colorBlock := blk_color
-    oBrow:addColumn(oColumn)
-  endif
-  oColumn := TBColumnNew("Отде-;ление",{|| otd->short_name })
-  oColumn:defColor := {6,6}
-  oColumn:colorBlock := {|| {6,6} }
-  oBrow:addColumn(oColumn)
-  oColumn := TBColumnNew("МКБ10",{|| tmp->kod_diag })
-  oColumn:colorBlock := blk_color
-  oBrow:addColumn(oColumn)
-  oColumn := TBColumnNew("Профиль услуги",{|| padr(inieditspr(A__MENUVERT,glob_V002,tmp->PROFIL),15) })
-  oColumn:colorBlock := blk_color
-  oBrow:addColumn(oColumn)
-  oColumn := TBColumnNew("Врач",{|| put_val(ret_tabn(tmp->kod_vr),5) })
-  oColumn:colorBlock := blk_color
-  oBrow:addColumn(oColumn)
-  oColumn := TBColumnNew("Асс.",{|| put_val(ret_tabn(tmp->kod_as),5) })
-  oColumn:colorBlock := blk_color
-  oBrow:addColumn(oColumn)
-  oColumn := TBColumnNew("Кол;усл",{|| str(tmp->kol_1,3) })
-  oColumn:colorBlock := blk_color
-  oBrow:addColumn(oColumn)
-  oColumn := TBColumnNew(" Общая; ст-ть",{|| put_kop(tmp->stoim_1,8) })
-  oColumn:colorBlock := blk_color
-  oBrow:addColumn(oColumn)
-  status_key("^<Esc>^ выход; ^<Enter>^ ред-ие; ^<Ins>^ добавление; ^<Del>^ удаление; ^<F1>^ помощь")
-  return NIL
-
-***** 05.04.22
-Function f1oms_usl_sluch()
-  LOCAL nRow := ROW(), nCol := COL(), s := tmp->name_u, lcolor := cDataCSay
-  local strImplInfo := 'Услуга требует ввода данных по имплантантам. F6 - ред.'
-  local strImplExists := 'Информация по имплантантам введена. F6 - ред.'
-
-  if is_zf_stomat == 1 .and. !empty(tmp->zf)
-    s := alltrim(tmp->zf) + " / " + s
-    lcolor := color8
-  endif
-  @ maxrow()-2,2 say padr(s, 65) color lcolor
-  if empty(tmp->u_cena)
-    s := iif(tmp->n_base==0, "", "ФФОМС")
-  else
-    s := alltrim(dellastnul(tmp->u_cena, 10, 2))
-  endif
-  @ maxrow() - 2, 68 say padc(s, 11) color cDataCSay
-  f3oms_usl_sluch()
-  @ nRow, nCol SAY ""
-
-  // проверим наличие имплантов
-  if service_requires_implants(tmp->shifr_u, tmp->DATE_U)
-    if exist_implantant_in_DB(glob_perso, tmp->rec_hu)
-      @ 2, 80 - len(strImplExists) say padl(strImplExists, len(strImplExists)) color 'W+/R'
-    else
-      @ 2, 80 - len(strImplInfo) say padl(strImplInfo, len(strImplInfo)) color 'W+/R'
-    endif
-  else
-    @ 2, 80 - len(strImplInfo) say Replicate(' ', len(strImplInfo))
-  endif
-
-  return NIL
-  
-*****
-Function f3oms_usl_sluch()
-
-  @ maxrow() - 4, 59 say padl("Итого: " + lstr(human->cena_1, 11, 2), 20) color "W+/N"
-  return NIL
     
-***** 24.05.22 ввод услуг в лист учёта
+** 24.05.22 ввод услуг в лист учёта
 Function f2oms_usl_sluch(nKey, oBrow)
   Static skod_k := 0, skod_human := 0, SKOD_DIAG, SZF,;
          st_vzrosl, st_arr_dbf, skod_vr, skod_as, aksg := {}
@@ -110,13 +22,14 @@ Function f2oms_usl_sluch(nKey, oBrow)
   local lTypeLUMedReab := .f.
   local aUslMedReab
   local mdate_end
+  local mnogo_uslug_med_reab := {'19.', '20.', '21.', '22.'}
 
   static old_date_usl, new_date_usl
 
   lTypeLUMedReab := is_lu_med_reab()
 
   if mem_dom_aktiv == 1
-       aadd(mm_dom,{"на дому-АКТИВ",-2})
+       aadd(mm_dom, {'на дому-АКТИВ', -2})
   endif
   Private r1 := 10, mrec_hu := tmp->rec_hu
   do case
@@ -481,45 +394,45 @@ Function f2oms_usl_sluch(nKey, oBrow)
       endif
       mdate_end := iif(nKey == K_INS, last_date, tmp->date_end)
       Private motd := space(10), ;
-              m1otd := iif(nKey == K_INS, iif(pr1otd == NIL, human->otd, pr1otd), tmp->otd),;
-              mu_kod := iif(nKey == K_INS, 0, tmp->u_kod),;
-              mdate_u1 := iif(nKey == K_INS, last_date, tmp->date_u1), ;
-              mis_nul := iif(nKey == K_INS, .f., tmp->is_nul),;
-              mis_oms := iif(nKey == K_INS, .f., tmp->is_oms),;
-              mis_edit := iif(nKey == K_INS, 0, tmp->is_edit),;
-              mu_cena := iif(nKey == K_INS, 0, tmp->u_cena),;
-              mkod_vr := iif(nKey == K_INS, skod_vr, tmp->kod_vr),;
-              mkod_as := iif(nKey == K_INS, skod_as, tmp->kod_as),;
-              mtabn_vr := 0, mtabn_as := 0, m1prvs := 0,;
-              mshifr := iif(nKey == K_INS, space(20), tmp->shifr_u),;
-              mshifr1 := iif(nKey == K_INS, space(20), tmp->shifr1),;
-              mname_u := iif(nKey == K_INS, space(65), tmp->name_u),;
-              mKOD_DIAG := iif(nKey == K_INS, SKOD_DIAG, tmp->KOD_DIAG),;
-              mZF := iif(nKey == K_INS, SZF, tmp->ZF),;
-              mpar_org := space(10), m1par_org := iif(nKey == K_INS, "", tmp->ZF),;
-              is_gist := .f., mgist := space(10), m1gist := iif(nKey == K_INS, 4, tmp->is_edit),;
-              m1PROFIL := iif(nKey == K_INS, human_->profil, tmp->profil), mPROFIL,;
-              mkol_1 := iif(nKey == K_INS, 0, tmp->kol_1),;
-              mstoim_1 := iif(nKey == K_INS, 0, tmp->stoim_1),;
-              mn_base := iif(nKey == K_INS, 0, tmp->n_base),;
-              mdom, m1dom := iif(nKey == K_INS, 0, tmp->dom),;
-              mdate_next := iif(nKey == K_INS, ctod(""), tmp->DATE_NEXT), fl_date_next := .f.,;
-              mvrach := massist := space(35), vr_uva := as_uva := .t., ;
-              arr_zf, is_usluga_zf := iif(nKey == K_INS, 0, tmp->is_zf),;
-              m1NPR_MO := "", mNPR_MO := space(10),;
-              pr_k_usl := {},;  // массив комплексных услуг
-              tip_par_org := iif(nKey == K_INS, "", tmp->par_org),;
-              tip_telemed := 0, tip_telemed2 := .f.,;
-              mnmic := space(10), m1nmic := 0, mnmic1 := space(10), m1nmic1 := 0,;
-              row_dom, gl_area := {1,0,maxrow()-1,79,0}
+        m1otd := iif(nKey == K_INS, iif(pr1otd == NIL, human->otd, pr1otd), tmp->otd),;
+        mu_kod := iif(nKey == K_INS, 0, tmp->u_kod),;
+        mdate_u1 := iif(nKey == K_INS, last_date, tmp->date_u1), ;
+        mis_nul := iif(nKey == K_INS, .f., tmp->is_nul),;
+        mis_oms := iif(nKey == K_INS, .f., tmp->is_oms),;
+        mis_edit := iif(nKey == K_INS, 0, tmp->is_edit),;
+        mu_cena := iif(nKey == K_INS, 0, tmp->u_cena),;
+        mkod_vr := iif(nKey == K_INS, skod_vr, tmp->kod_vr),;
+        mkod_as := iif(nKey == K_INS, skod_as, tmp->kod_as),;
+        mtabn_vr := 0, mtabn_as := 0, m1prvs := 0,;
+        mshifr := iif(nKey == K_INS, space(20), tmp->shifr_u),;
+        mshifr1 := iif(nKey == K_INS, space(20), tmp->shifr1),;
+        mname_u := iif(nKey == K_INS, space(65), tmp->name_u),;
+        mKOD_DIAG := iif(nKey == K_INS, SKOD_DIAG, tmp->KOD_DIAG),;
+        mZF := iif(nKey == K_INS, SZF, tmp->ZF),;
+        mpar_org := space(10), m1par_org := iif(nKey == K_INS, "", tmp->ZF),;
+        is_gist := .f., mgist := space(10), m1gist := iif(nKey == K_INS, 4, tmp->is_edit),;
+        m1PROFIL := iif(nKey == K_INS, human_->profil, tmp->profil), mPROFIL,;
+        mkol_1 := iif(nKey == K_INS, 0, tmp->kol_1),;
+        mstoim_1 := iif(nKey == K_INS, 0, tmp->stoim_1),;
+        mn_base := iif(nKey == K_INS, 0, tmp->n_base),;
+        mdom, m1dom := iif(nKey == K_INS, 0, tmp->dom),;
+        mdate_next := iif(nKey == K_INS, ctod(""), tmp->DATE_NEXT), fl_date_next := .f.,;
+        mvrach := massist := space(35), vr_uva := as_uva := .t., ;
+        arr_zf, is_usluga_zf := iif(nKey == K_INS, 0, tmp->is_zf),;
+        m1NPR_MO := "", mNPR_MO := space(10),;
+        pr_k_usl := {},;  // массив комплексных услуг
+        tip_par_org := iif(nKey == K_INS, "", tmp->par_org),;
+        tip_telemed := 0, tip_telemed2 := .f.,;
+        mnmic := space(10), m1nmic := 0, mnmic1 := space(10), m1nmic1 := 0,;
+        row_dom, gl_area := {1,0,maxrow()-1,79,0}
 
-              // переменные для КСЛП
-              private mKSLP := iif(nKey == K_INS, space(10), iif(empty(HUMAN_2->PC1), space(10), alltrim(HUMAN_2->PC1)) ),;
-              m1KSLP := iif(nKey == K_INS, space(10), iif(empty(HUMAN_2->PC1), space(10), alltrim(HUMAN_2->PC1)) )
+      // переменные для КСЛП
+      private mKSLP := iif(nKey == K_INS, space(10), iif(empty(HUMAN_2->PC1), space(10), alltrim(HUMAN_2->PC1)) ),;
+        m1KSLP := iif(nKey == K_INS, space(10), iif(empty(HUMAN_2->PC1), space(10), alltrim(HUMAN_2->PC1)) )
 
-      Private mm_gist := {{"в Волгоградском патал.анат.бюро",4},;
-                          {"в нашей медицинской организации",0},;
-                          {"в иногороднем патал.анат.бюро  ",5}}
+      Private mm_gist := {{'в Волгоградском патал.анат.бюро', 4}, ;
+                          {'в нашей медицинской организации', 0}, ;
+                          {'в иногороднем патал.анат.бюро  ', 5}}
 
       new_date_usl := mdate_u1
       if service_requires_implants(tmp->shifr_u, tmp->date_u1)
@@ -614,7 +527,8 @@ Function f2oms_usl_sluch(nKey, oBrow)
                   valid {|g| f5editkusl(g, 2, 1) }
 
         if human_->usl_ok == 3 .and. lTypeLUMedReab
-          @ row(), col() + 2 say "Дата окончания оказания услуги" get mdate_end //;
+          @ row(), col() + 2 say "Дата окончания оказания услуги" get mdate_end ;
+            when (iif(nKey == K_INS, .t., (ascan(mnogo_uslug_med_reab, left(mshifr1, 3)) > 0)))
         endif
 
         ++ix
@@ -739,7 +653,8 @@ Function f2oms_usl_sluch(nKey, oBrow)
             endif
             select(tmSel)
           endif
-          mkol := mkol_1 ; mstoim := mstoim_1
+          mkol := mkol_1
+          mstoim := mstoim_1
           Private amsg := {}
           if empty(mdate_u1)
             func_error(4, 'Не введена дата оказания услуги!')
@@ -749,7 +664,7 @@ Function f2oms_usl_sluch(nKey, oBrow)
             func_error(4, 'Введенная дата начал оказания услуги меньше даты начала лечения!')
             loop
           endif
-          if lTypeLUMedReab .and. left(mshifr1, 5) != '2.89.'
+          if lTypeLUMedReab .and. (ascan(mnogo_uslug_med_reab, left(mshifr1, 3)) > 0)   // left(mshifr1, 5) != '2.89.'
         // aaaa := compulsory_services(list2arr(human_2->PC5)[1], list2arr(human_2->PC5)[2])
             aUslMedReab := ret_usluga_med_reab(mshifr, list2arr(human_2->PC5)[1], list2arr(human_2->PC5)[2])
             if (!empty(mdate_end))
@@ -847,9 +762,16 @@ Function f2oms_usl_sluch(nKey, oBrow)
               hu_->PROFIL := m1PROFIL
               hu_->PRVS   := m1PRVS
               hu_->kod_diag := mkod_diag
-              if lTypeLUMedReab .and. !empty(mdate_end)
+              // if lTypeLUMedReab .and. !empty(mdate_end)
+              //   hu_->date_end := mdate_end
+              // endif
+              if lTypeLUMedReab .and. (ascan(mnogo_uslug_med_reab, left(mshifr1, 3)) > 0)
                 hu_->date_end := mdate_end
+              else
+                hu_->date_end := mdate_u1
               endif
+        
+        
               UNLOCK
               //
               pr1otd := m1otd
@@ -1107,4 +1029,92 @@ Function f2oms_usl_sluch(nKey, oBrow)
   endcase
   restuchotd(uch_otd)
   return flag
+
+** 17.03.22
+Function f_oms_usl_sluch(oBrow)
+  Local oColumn, blk_color
+
+  blk_color := {|| iif( ! service_requires_implants(tmp->shifr_u, tmp->DATE_U), {1, 2}, ;
+      iif(! exist_implantant_in_DB(glob_perso, tmp->rec_hu), {9, 10}, {7, 8})) }  // голубовато - зеленовато
+
+  oColumn := TBColumnNew(" NN; пп",{|| tmp->number })
+  oColumn:colorBlock := blk_color
+  oBrow:addColumn(oColumn)
+  if mem_ordusl == 1
+    oColumn := TBColumnNew("Дата; усл.",{|| left(dtoc(tmp->date_u1),5) })
+    oColumn:colorBlock := blk_color
+    oBrow:addColumn(oColumn)
+  endif
+  oColumn := TBColumnNew(" Шифр услуги",{|| iif(tmp->dom==-1,padr(tmp->shifr_u,11)+"дом",;
+                                             iif(tmp->dom==-2,padr(tmp->shifr_u,11)+"д-А",;
+                                             padr(tmp->shifr_u,14))) })
+  oColumn:colorBlock := blk_color
+  oBrow:addColumn(oColumn)
+  if mem_ordusl == 2
+    oColumn := TBColumnNew("Дата; усл.",{|| left(dtoc(tmp->date_u1),5) })
+    oColumn:colorBlock := blk_color
+    oBrow:addColumn(oColumn)
+  endif
+  oColumn := TBColumnNew("Отде-;ление",{|| otd->short_name })
+  oColumn:defColor := {6,6}
+  oColumn:colorBlock := {|| {6,6} }
+  oBrow:addColumn(oColumn)
+  oColumn := TBColumnNew("МКБ10",{|| tmp->kod_diag })
+  oColumn:colorBlock := blk_color
+  oBrow:addColumn(oColumn)
+  oColumn := TBColumnNew("Профиль услуги",{|| padr(inieditspr(A__MENUVERT,glob_V002,tmp->PROFIL),15) })
+  oColumn:colorBlock := blk_color
+  oBrow:addColumn(oColumn)
+  oColumn := TBColumnNew("Врач",{|| put_val(ret_tabn(tmp->kod_vr),5) })
+  oColumn:colorBlock := blk_color
+  oBrow:addColumn(oColumn)
+  oColumn := TBColumnNew("Асс.",{|| put_val(ret_tabn(tmp->kod_as),5) })
+  oColumn:colorBlock := blk_color
+  oBrow:addColumn(oColumn)
+  oColumn := TBColumnNew("Кол;усл",{|| str(tmp->kol_1,3) })
+  oColumn:colorBlock := blk_color
+  oBrow:addColumn(oColumn)
+  oColumn := TBColumnNew(" Общая; ст-ть",{|| put_kop(tmp->stoim_1,8) })
+  oColumn:colorBlock := blk_color
+  oBrow:addColumn(oColumn)
+  status_key("^<Esc>^ выход; ^<Enter>^ ред-ие; ^<Ins>^ добавление; ^<Del>^ удаление; ^<F1>^ помощь")
+  return NIL
+
+** 05.04.22
+Function f1oms_usl_sluch()
+  LOCAL nRow := ROW(), nCol := COL(), s := tmp->name_u, lcolor := cDataCSay
+  local strImplInfo := 'Услуга требует ввода данных по имплантантам. F6 - ред.'
+  local strImplExists := 'Информация по имплантантам введена. F6 - ред.'
+
+  if is_zf_stomat == 1 .and. !empty(tmp->zf)
+    s := alltrim(tmp->zf) + " / " + s
+    lcolor := color8
+  endif
+  @ maxrow()-2,2 say padr(s, 65) color lcolor
+  if empty(tmp->u_cena)
+    s := iif(tmp->n_base==0, "", "ФФОМС")
+  else
+    s := alltrim(dellastnul(tmp->u_cena, 10, 2))
+  endif
+  @ maxrow() - 2, 68 say padc(s, 11) color cDataCSay
+  f3oms_usl_sluch()
+  @ nRow, nCol SAY ""
+
+  // проверим наличие имплантов
+  if service_requires_implants(tmp->shifr_u, tmp->DATE_U)
+    if exist_implantant_in_DB(glob_perso, tmp->rec_hu)
+      @ 2, 80 - len(strImplExists) say padl(strImplExists, len(strImplExists)) color 'W+/R'
+    else
+      @ 2, 80 - len(strImplInfo) say padl(strImplInfo, len(strImplInfo)) color 'W+/R'
+    endif
+  else
+    @ 2, 80 - len(strImplInfo) say Replicate(' ', len(strImplInfo))
+  endif
+
+  return NIL
   
+**
+Function f3oms_usl_sluch()
+
+  @ maxrow() - 4, 59 say padl("Итого: " + lstr(human->cena_1, 11, 2), 20) color "W+/N"
+  return NIL
