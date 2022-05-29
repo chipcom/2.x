@@ -434,3 +434,7 @@ function compulsory_services(vid, shrm)
     endif
   next
   return aRet
+
+** 29.05.22
+function mnogo_uslug_med_reab()
+  return {'19.', '20.', '21.', '22.'}

@@ -22,7 +22,6 @@ Function f2oms_usl_sluch(nKey, oBrow)
   local lTypeLUMedReab := .f.
   local aUslMedReab
   local mdate_end
-  local mnogo_uslug_med_reab := {'19.', '20.', '21.', '22.'}
 
   static old_date_usl, new_date_usl
 
@@ -529,7 +528,7 @@ Function f2oms_usl_sluch(nKey, oBrow)
 
         if human_->usl_ok == 3 .and. lTypeLUMedReab
           @ row(), col() + 2 say 'Дата окончания оказания услуги' get mdate_end ;
-            when (iif(nKey == K_INS, .t., (ascan(mnogo_uslug_med_reab, left(mshifr1, 3)) > 0)))
+            when (iif(nKey == K_INS, .t., (ascan(mnogo_uslug_med_reab(), left(mshifr1, 3)) > 0)))
         endif
 
         ++ix
@@ -665,7 +664,7 @@ Function f2oms_usl_sluch(nKey, oBrow)
             func_error(4, 'Введенная дата начал оказания услуги меньше даты начала лечения!')
             loop
           endif
-          if lTypeLUMedReab .and. (ascan(mnogo_uslug_med_reab, left(mshifr1, 3)) > 0)   // left(mshifr1, 5) != '2.89.'
+          if lTypeLUMedReab .and. (ascan(mnogo_uslug_med_reab(), left(mshifr1, 3)) > 0)   // left(mshifr1, 5) != '2.89.'
         // aaaa := compulsory_services(list2arr(human_2->PC5)[1], list2arr(human_2->PC5)[2])
             aUslMedReab := ret_usluga_med_reab(mshifr, list2arr(human_2->PC5)[1], list2arr(human_2->PC5)[2])
             if (!empty(mdate_end))
@@ -683,7 +682,6 @@ Function f2oms_usl_sluch(nKey, oBrow)
                 func_error(4, 'Для услуги ' + alltrim(mshifr) + ' требуется минимум ' + lstr(aUslMedReab[3]) + ' предоставлений!')
                 loop
               endif
-    // altd()
               if aUslMedReab[3] > 1 .and. (count_days(mdate_u1, mdate_end) < aUslMedReab[3])
                 func_error(4, 'Количество дней выполнения услуги меньше количества повторений услуги!')
                 loop
@@ -766,7 +764,7 @@ Function f2oms_usl_sluch(nKey, oBrow)
               // if lTypeLUMedReab .and. !empty(mdate_end)
               //   hu_->date_end := mdate_end
               // endif
-              if lTypeLUMedReab .and. (ascan(mnogo_uslug_med_reab, left(mshifr1, 3)) > 0)
+              if lTypeLUMedReab .and. (ascan(mnogo_uslug_med_reab(), left(mshifr1, 3)) > 0)
                 hu_->date_end := mdate_end
               else
                 hu_->date_end := mdate_u1
@@ -872,7 +870,7 @@ Function f2oms_usl_sluch(nKey, oBrow)
               if lTypeLUMedReab .and. !empty(mdate_end)
                 hu_->date_end := mdate_end
               endif
-              if pr_amb_reab .and. left(mshifr1,2)=='4.'
+              if pr_amb_reab .and. left(mshifr1, 2) == '4.'
                 hu_->zf := m1NPR_MO
               endif
             else
