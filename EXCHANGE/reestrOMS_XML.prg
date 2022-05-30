@@ -500,8 +500,10 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
           mo_add_xml_stroke(oSL,"DS0",human_->kod_diag0)
         endif
       endif
-      // подменим диагноз если необходимо для генно-инженерных препаратов
-      if endDateZK >= 0d20220101 .and. alltrim(mdiagnoz[1]) == 'Z92.2'
+      // подменим диагноз если необходимо для генно-инженерных препаратов или
+      // операции по поводу грыж, взрослые (уровень 4)
+      // if endDateZK >= 0d20220101 .and. alltrim(mdiagnoz[1]) == 'Z92.2'
+      if endDateZK >= 0d20220101 .and. eq_any(alltrim(mdiagnoz[1]), 'Z92.2', 'Z92.4')
         mdiagnoz[1] := mdiagnoz[2]
         diagnoz_replace := mdiagnoz[2]
         mdiagnoz[2] := ''
@@ -967,11 +969,13 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
           mo_add_xml_stroke(oUSL,"DATE_IN" ,date2xml(c4tod(hu->DATE_U)))
           mo_add_xml_stroke(oUSL,"DATE_OUT",date2xml(c4tod(hu_->DATE_U2)))
           if p_tip_reestr == 1
-            // подменим диагноз если необходимо для генно-инженерных препаратов
-            if endDateZK >= 0d20220101 .and. alltrim(hu_->kod_diag) == 'Z92.2'
-              mo_add_xml_stroke(oUSL,"DS"    , diagnoz_replace)
+            // подменим диагноз если необходимо для генно-инженерных препаратов или
+            // операции по поводу грыж, взрослые (уровень 4)
+            // if endDateZK >= 0d20220101 .and. alltrim(hu_->kod_diag) == 'Z92.2'
+            if endDateZK >= 0d20220101 .and. eq_any(alltrim(mdiagnoz[1]), 'Z92.2', 'Z92.4')
+              mo_add_xml_stroke(oUSL,"DS", diagnoz_replace)
             else
-              mo_add_xml_stroke(oUSL,"DS"    , hu_->kod_diag)
+              mo_add_xml_stroke(oUSL,"DS", hu_->kod_diag)
             endif
           else
             mo_add_xml_stroke(oUSL,"P_OTK" ,'0')
@@ -1072,11 +1076,13 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
           mo_add_xml_stroke(oUSL,"DATE_IN" ,date2xml(c4tod(mohu->DATE_U)))
           mo_add_xml_stroke(oUSL,"DATE_OUT",date2xml(c4tod(mohu->DATE_U2)))
           if p_tip_reestr == 1
-            // подменим диагноз если необходимо для генно-инженерных препаратов
-            if endDateZK >= 0d20220101 .and. alltrim(mohu->kod_diag) == 'Z92.2'
-              mo_add_xml_stroke(oUSL,"DS"    , diagnoz_replace)
+            // подменим диагноз если необходимо для генно-инженерных препаратов или
+            // операции по поводу грыж, взрослые (уровень 4)
+            // if endDateZK >= 0d20220101 .and. alltrim(mohu->kod_diag) == 'Z92.2'
+            if endDateZK >= 0d20220101 .and. eq_any(alltrim(mdiagnoz[1]), 'Z92.2', 'Z92.4')
+              mo_add_xml_stroke(oUSL,"DS", diagnoz_replace)
             else
-              mo_add_xml_stroke(oUSL,"DS"      ,mohu->kod_diag)
+              mo_add_xml_stroke(oUSL,"DS", mohu->kod_diag)
             endif
           endif
           if p_tip_reestr == 2
