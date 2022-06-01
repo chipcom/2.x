@@ -20,6 +20,7 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
   local diagnoz_replace := ''
   local aImpl
   local flLekPreparat
+  local lReplaceDiagnose := .f.
 
   //
   close databases
@@ -502,11 +503,13 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
       endif
       // подменим диагноз если необходимо для генно-инженерных препаратов или
       // операции по поводу грыж, взрослые (уровень 4)
+      lReplaceDiagnose := .f.
       // if endDateZK >= 0d20220101 .and. alltrim(mdiagnoz[1]) == 'Z92.2'
       if endDateZK >= 0d20220101 .and. eq_any(alltrim(mdiagnoz[1]), 'Z92.2', 'Z92.4')
         mdiagnoz[1] := mdiagnoz[2]
         diagnoz_replace := mdiagnoz[2]
         mdiagnoz[2] := ''
+        lReplaceDiagnose := .t.
       endif
       mo_add_xml_stroke(oSL,"DS1",rtrim(mdiagnoz[1]))
       if p_tip_reestr == 2  // для реестров по диспансеризации
@@ -972,7 +975,8 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
             // подменим диагноз если необходимо для генно-инженерных препаратов или
             // операции по поводу грыж, взрослые (уровень 4)
             // if endDateZK >= 0d20220101 .and. alltrim(hu_->kod_diag) == 'Z92.2'
-            if endDateZK >= 0d20220101 .and. eq_any(alltrim(mdiagnoz[1]), 'Z92.2', 'Z92.4')
+            // if endDateZK >= 0d20220101 .and. eq_any(alltrim(mdiagnoz[1]), 'Z92.2', 'Z92.4')
+            if lReplaceDiagnose
               mo_add_xml_stroke(oUSL,"DS", diagnoz_replace)
             else
               mo_add_xml_stroke(oUSL,"DS", hu_->kod_diag)
@@ -1079,7 +1083,8 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
             // подменим диагноз если необходимо для генно-инженерных препаратов или
             // операции по поводу грыж, взрослые (уровень 4)
             // if endDateZK >= 0d20220101 .and. alltrim(mohu->kod_diag) == 'Z92.2'
-            if endDateZK >= 0d20220101 .and. eq_any(alltrim(mdiagnoz[1]), 'Z92.2', 'Z92.4')
+            // if endDateZK >= 0d20220101 .and. eq_any(alltrim(mdiagnoz[1]), 'Z92.2', 'Z92.4')
+            if lReplaceDiagnose
               mo_add_xml_stroke(oUSL,"DS", diagnoz_replace)
             else
               mo_add_xml_stroke(oUSL,"DS", mohu->kod_diag)
