@@ -1,14 +1,14 @@
 ***** реестры/счета с 2019 года
-#include "inkey.ch"
-#include "function.ch"
-#include "edit_spr.ch"
-#include "chip_mo.ch"
+#include 'inkey.ch'
+#include 'function.ch'
+#include 'edit_spr.ch'
+#include 'chip_mo.ch'
 
 Static sadiag1 := {}
 
   
-***** 29.03.22 создание XML-файлов реестра
-Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
+** 31.05.22 создание XML-файлов реестра
+Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
   //
   local iAKSLP, tKSLP, cKSLP // счетчик для цикла по КСЛП
@@ -26,54 +26,56 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
   close databases
   if empty(sadiag1)
     Private file_form, diag1 := {}, len_diag := 0
-    if (file_form := search_file("DISP_NAB"+sfrm)) == NIL
-      return func_error(4,"Не обнаружен файл DISP_NAB"+sfrm)
+    if (file_form := search_file('DISP_NAB' + sfrm)) == NIL
+      return func_error(4, 'Не обнаружен файл DISP_NAB' + sfrm)
     endif
-    f2_vvod_disp_nabl("A00")
+    f2_vvod_disp_nabl('A00')
     sadiag1 := diag1
   endif
   for i := 1 to 5
     sk := lstr(i)
-    pole_diag := "mdiag"+sk
-    pole_1dispans := "m1dispans"+sk
-    pole_dn_dispans := "mdndispans"+sk
+    pole_diag := 'mdiag' + sk
+    pole_1dispans := 'm1dispans' + sk
+    pole_dn_dispans := 'mdndispans' + sk
     Private &pole_diag := space(6)
     Private &pole_1dispans := 0
-    Private &pole_dn_dispans := ctod("")
+    Private &pole_dn_dispans := ctod('')
   next
-  stat_msg("Составление реестра случаев")
-  nsh := f_mb_me_nsh(_nyear,@mb,@me)
-  R_Use(dir_exe+"_mo_mkb",,"MKB_10")
-  index on shifr+str(ks,1) to (cur_dir+"_mo_mkb")
-  G_Use(dir_server+"mo_rees",,"REES")
-  index on str(nn,nsh) to (cur_dir+"tmp_rees") for nyear == _nyear .and. nmonth == _nmonth
+  stat_msg('Составление реестра случаев')
+  nsh := f_mb_me_nsh(_nyear, @mb, @me)
+  R_Use(dir_exe + "_mo_mkb", , "MKB_10")
+  index on shifr+str(ks,1) to (cur_dir + "_mo_mkb")
+  G_Use(dir_server + "mo_rees", , "REES")
+  index on str(nn, nsh) to (cur_dir + "tmp_rees") for nyear == _nyear .and. nmonth == _nmonth
   fl := .f.
   for mnn := mb to me
-    find (str(mnn,nsh))
+    find (str(mnn, nsh))
     if !found() // нашли свободный номер
-      fl := .t. ; exit
+      fl := .t.
+      exit
     endif
   next
   if !fl
     close databases
-    return func_error(10,"Не удалось найти свободный номер пакета в ТФОМС. Проверьте настройки!")
+    return func_error(10, "Не удалось найти свободный номер пакета в ТФОМС. Проверьте настройки!")
   endif
-  index on str(nschet,6) to (cur_dir+"tmp_rees") for nyear == _nyear
+  index on str(nschet, 6) to (cur_dir + "tmp_rees") for nyear == _nyear
   if !eof()
     go bottom
-    mnschet := rees->nschet+1
+    mnschet := rees->nschet + 1
   endif
-  if !between(mnschet,mem_beg_rees,mem_end_rees)
+  if !between(mnschet, mem_beg_rees, mem_end_rees)
     fl := .f.
     for mnschet := mem_beg_rees to mem_end_rees
-      find (str(mnschet,6))
+      find (str(mnschet, 6))
       if !found() // нашли свободный номер
-        fl := .t. ; exit
+        fl := .t.
+        exit
       endif
     next
     if !fl
       close databases
-      return func_error(10,"Не удалось найти свободный номер реестра. Проверьте настройки!")
+      return func_error(10, "Не удалось найти свободный номер реестра. Проверьте настройки!")
     endif
   endif
   set index to
@@ -84,17 +86,17 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
   rees->NYEAR  := _NYEAR
   rees->NMONTH := _NMONTH
   rees->NN     := mnn
-  s := "RM"+CODE_LPU+"T34"+"_"+right(strzero(_NYEAR,4),2)+strzero(_NMONTH,2)+strzero(mnn,nsh)
-  rees->NAME_XML := {"H","F"}[p_tip_reestr]+s
+  s := "RM" + CODE_LPU + "T34" + "_" + right(strzero(_NYEAR, 4), 2) + strzero(_NMONTH, 2) + strzero(mnn, nsh)
+  rees->NAME_XML := {"H", "F"}[p_tip_reestr] + s
   mkod_reestr := rees->KOD
   rees->CODE  := ret_unique_code(mkod_reestr)
   code_reestr := rees->CODE
   //
-  G_Use(dir_server+"mo_xml",,"MO_XML")
+  G_Use(dir_server + "mo_xml", , "MO_XML")
   AddRecN()
   mo_xml->KOD    := recno()
   mo_xml->FNAME  := rees->NAME_XML
-  mo_xml->FNAME2 := "L"+s
+  mo_xml->FNAME2 := "L" + s
   mo_xml->DFILE  := rees->DSCHET
   mo_xml->TFILE  := hour_min(seconds())
   mo_xml->TIP_OUT := _XML_FILE_REESTR // тип высылаемого файла;1-реестр
@@ -113,47 +115,47 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
 
   // laluslf := "luslf"+iif(_nyear==2019,"19","")
   laluslf := create_name_alias('luslf', _nyear)
-  R_Use(dir_server+"mo_uch",,"UCH")
-  R_Use(dir_server+"mo_otd",,"OTD")
-  R_Use(dir_server+"mo_pers",,"P2")
-  R_Use(dir_server+"mo_pers",dir_server+"mo_pers","P2TABN")
-  R_Use(dir_server+"uslugi",,"USL")
-  G_Use(dir_server+"mo_rhum",,"RHUM")
-  index on str(REESTR,6) to (cur_dir+"tmp_rhum")
-  G_Use(dir_server+"human_u_",,"HU_")
-  R_Use(dir_server+"human_u",dir_server+"human_u","HU")
+  R_Use(dir_server + "mo_uch", , "UCH")
+  R_Use(dir_server + "mo_otd", , "OTD")
+  R_Use(dir_server + "mo_pers", , "P2")
+  R_Use(dir_server + "mo_pers", dir_server + "mo_pers", "P2TABN")
+  R_Use(dir_server + "uslugi", , "USL")
+  G_Use(dir_server + "mo_rhum", , "RHUM")
+  index on str(REESTR, 6) to (cur_dir + "tmp_rhum")
+  G_Use(dir_server + "human_u_", , "HU_")
+  R_Use(dir_server + "human_u", dir_server + "human_u", "HU")
   set relation to recno() into HU_, to u_kod into USL
-  R_Use(dir_server+"mo_su",,"MOSU")
-  G_Use(dir_server+"mo_hu",dir_server+"mo_hu","MOHU")
+  R_Use(dir_server + "mo_su", , "MOSU")
+  G_Use(dir_server + "mo_hu", dir_server + "mo_hu", "MOHU")
   set relation to u_kod into MOSU
   if p_tip_reestr == 1
-    R_Use(dir_server+"kart_inv",,"INV")
-    index on str(kod,7) to (cur_dir+"tmp_inv")
+    R_Use(dir_server + "kart_inv", , "INV")
+    index on str(kod, 7) to (cur_dir + "tmp_inv")
   endif
-  R_Use(dir_server+"kartote2",,"KART2")
-  R_Use(dir_server+"kartote_",,"KART_")
-  R_Use(dir_server+"kartotek",,"KART")
+  R_Use(dir_server + "kartote2", , "KART2")
+  R_Use(dir_server + "kartote_", , "KART_")
+  R_Use(dir_server + "kartotek", , "KART")
   set relation to recno() into KART_, to recno() into KART2
-  R_Use(dir_server+"mo_onkna",dir_server+"mo_onkna","ONKNA") // онконаправления
-  R_Use(dir_server+"mo_onkco",dir_server+"mo_onkco","ONKCO")
-  R_Use(dir_server+"mo_onksl",dir_server+"mo_onksl","ONKSL") // Сведения о случае лечения онкологического заболевания
-  R_Use(dir_server+"mo_onkdi",dir_server+"mo_onkdi","ONKDI") // Диагностический блок
-  R_Use(dir_server+"mo_onkpr",dir_server+"mo_onkpr","ONKPR") // Сведения об имеющихся противопоказаниях
-  G_Use(dir_server+"mo_onkus",dir_server+"mo_onkus","ONKUS")
-  G_Use(dir_server+"mo_onkle",dir_server+"mo_onkle","ONKLE")
-  G_Use(dir_server+"human_3",{dir_server+"human_3",dir_server+"human_32"},"HUMAN_3")
+  R_Use(dir_server + "mo_onkna", dir_server + "mo_onkna", "ONKNA") // онконаправления
+  R_Use(dir_server + "mo_onkco", dir_server + "mo_onkco", "ONKCO")
+  R_Use(dir_server + "mo_onksl", dir_server + "mo_onksl", "ONKSL") // Сведения о случае лечения онкологического заболевания
+  R_Use(dir_server + "mo_onkdi", dir_server + "mo_onkdi", "ONKDI") // Диагностический блок
+  R_Use(dir_server + "mo_onkpr", dir_server + "mo_onkpr", "ONKPR") // Сведения об имеющихся противопоказаниях
+  G_Use(dir_server + "mo_onkus", dir_server + "mo_onkus", "ONKUS")
+  G_Use(dir_server + "mo_onkle", dir_server + "mo_onkle", "ONKLE")
+  G_Use(dir_server + "human_3", {dir_server + "human_3", dir_server + "human_32"}, "HUMAN_3")
   set order to 2 // индекс по 2-му случаю
-  G_Use(dir_server+"human_2",,"HUMAN_2")
-  G_Use(dir_server+"human_",,"HUMAN_")
-  R_Use(dir_server+"human",,"HUMAN")
+  G_Use(dir_server + "human_2", , "HUMAN_2")
+  G_Use(dir_server + "human_", , "HUMAN_")
+  R_Use(dir_server + "human", , "HUMAN")
   set relation to recno() into HUMAN_, to recno() into HUMAN_2, to kod_k into KART
-  R_Use(exe_dir+"_mo_t2_v1",,"T21")
-  index on shifr to (cur_dir+"tmp_t21")
-  use (cur_dir+"tmpb") new
+  R_Use(exe_dir + "_mo_t2_v1", , "T21")
+  index on shifr to (cur_dir + "tmp_t21")
+  use (cur_dir + "tmpb") new
   if reg_sort == 1
-    index on upper(fio) to (cur_dir+"tmpb") for kod_tmp==_recno .and. plus
+    index on upper(fio) to (cur_dir + "tmpb") for kod_tmp==_recno .and. plus
   else
-    index on str(pz,2)+str(10000000-cena_1,11,2) to (cur_dir+"tmpb") for kod_tmp==_recno .and. plus
+    index on str(pz, 2) + str(10000000-cena_1, 11, 2) to (cur_dir + "tmpb") for kod_tmp==_recno .and. plus
   endif
   pkol := psumma := iusl := 0
   go top
@@ -162,7 +164,8 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
     @ maxrow(),1 say lstr(pkol) color cColorSt2Msg
     select HUMAN
     goto (tmpb->kod_human)
-    pkol++ ; psumma += human->cena_1
+    pkol++ 
+    psumma += human->cena_1
     select RHUM
     AddRec(6)
     rhum->REESTR := mkod_reestr
@@ -970,12 +973,16 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
             mo_add_xml_stroke(oUSL,"DET"   ,iif(human->VZROS_REB==0,'0','1'))
           endif
           mo_add_xml_stroke(oUSL,"DATE_IN" ,date2xml(c4tod(hu->DATE_U)))
-          mo_add_xml_stroke(oUSL,"DATE_OUT",date2xml(c4tod(hu_->DATE_U2)))
+          if empty(hu_->DATE_END)
+            mo_add_xml_stroke(oUSL,"DATE_OUT",date2xml(c4tod(hu_->DATE_U2)))
+          else
+            mo_add_xml_stroke(oUSL,"DATE_OUT",date2xml(hu_->DATE_END))
+          endif
           if p_tip_reestr == 1
             // подменим диагноз если необходимо для генно-инженерных препаратов или
             // операции по поводу грыж, взрослые (уровень 4)
             // if endDateZK >= 0d20220101 .and. alltrim(hu_->kod_diag) == 'Z92.2'
-            // if endDateZK >= 0d20220101 .and. eq_any(alltrim(mdiagnoz[1]), 'Z92.2', 'Z92.4')
+            // if endDateZK >= 0d20220101 .and. eq_any(alltrim(hu_->kod_diag), 'Z92.2', 'Z92.4')
             if lReplaceDiagnose
               mo_add_xml_stroke(oUSL,"DS", diagnoz_replace)
             else
@@ -1083,7 +1090,7 @@ Function create2reestr19(_recno,_nyear,_nmonth,reg_sort)
             // подменим диагноз если необходимо для генно-инженерных препаратов или
             // операции по поводу грыж, взрослые (уровень 4)
             // if endDateZK >= 0d20220101 .and. alltrim(mohu->kod_diag) == 'Z92.2'
-            // if endDateZK >= 0d20220101 .and. eq_any(alltrim(mdiagnoz[1]), 'Z92.2', 'Z92.4')
+            // if endDateZK >= 0d20220101 .and. eq_any(mohu->kod_diag, 'Z92.2', 'Z92.4')
             if lReplaceDiagnose
               mo_add_xml_stroke(oUSL,"DS", diagnoz_replace)
             else
