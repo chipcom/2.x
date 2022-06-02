@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-** 19.05.22 амбулаторная медицинская реабилитация - добавление или редактирование случая (листа учета)
+** 02.06.22 амбулаторная медицинская реабилитация - добавление или редактирование случая (листа учета)
 function oms_sluch_MED_REAB(Loc_kod, kod_kartotek, f_print)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -21,7 +21,7 @@ function oms_sluch_MED_REAB(Loc_kod, kod_kartotek, f_print)
     pos_read := 0, k_read := 0, count_edit := 0, ;
     fl_write_sluch := .f., when_uch_doc := .t.
   local tlist_rslt, list_rslt := {}, list_ishod, row
-  local aReab
+  local aReab, sArr := ''
 
   Default st_n_data TO sys_date, st_k_data TO sys_date
   Default Loc_kod TO 0, kod_kartotek TO 0
@@ -166,9 +166,10 @@ function oms_sluch_MED_REAB(Loc_kod, kod_kartotek, f_print)
     m1PROFIL   := human_->PROFIL
     m1NPR_MO   := human_->NPR_MO
     mNPR_DATE  := human_2->NPR_DATE
-    aReab       := list2arr(human_2->PC5)
-    m1vidreab   := aReab[1]
-    m1shrm      := aReab[2]
+    
+    aReab      := list2arr(human_2->PC5)
+    m1vidreab  := aReab[1]
+    m1shrm     := aReab[2]
     mn_data    := human->N_DATA
     mk_data    := human->K_DATA
     m1rslt     := human_->RSLT_NEW
@@ -501,7 +502,7 @@ function oms_sluch_MED_REAB(Loc_kod, kod_kartotek, f_print)
         human_->date_e2 := c4sys_date
       endif
       human_2->NPR_DATE := mNPR_DATE
-      human_2->PC5    := arr2list({m1vidreab, m1shrm})
+      human_2->PC5    := arr2list({m1vidreab, m1shrm}, .t.)
 
       Private fl_nameismo := .f.
       if m1komu == 0 .and. m1company == 34

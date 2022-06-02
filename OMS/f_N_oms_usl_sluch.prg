@@ -545,7 +545,9 @@ Function f2oms_usl_sluch(nKey, oBrow)
         ++ix 
         @ r1 + ix,2 say 'Шифр услуги' get mshifr pict '@!' ;
             when {|g| f5editkusl(g, 1, 2) } ;
-            valid {|g| f5editkusl(g, 2, 2, lTypeLUMedReab, list2arr(human_2->PC5)[1], list2arr(human_2->PC5)[2]) }
+            valid {|g| f5editkusl(g, 2, 2, lTypeLUMedReab, ;
+              iif(empty(human_2->PC5), nil, list2arr(human_2->PC5)[1]), ;
+              iif(empty(human_2->PC5), nil, list2arr(human_2->PC5)[2])) }
 
         @ row(),35 say 'Цена услуги' get mu_cena pict pict_cena ;
             when .f. color color14
