@@ -74,6 +74,7 @@ mo_oms14.prg
 .\KARTOTEK\mo_regi.prg
 .\KARTOTEK\polikl1_kart.prg
 .\KARTOTEK\pripisnoe_naselenie.prg
+.\KARTOTEK\documents.prg
 mo_sds.prg
 mo_serv.prg
 mo_spr.prg
