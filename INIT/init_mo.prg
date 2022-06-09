@@ -557,14 +557,14 @@ Function checkFilesTFOMS()
   aadd(arrRefFFOMS, {'_mo_v031', .f., 'V031 - Группы препаратов для лечения заболевания COVID-19 (GroupDrugs)' } )
   aadd(arrRefFFOMS, {'_mo_v032', .f., 'V032 - Сочетание схемы лечения и группы препаратов (CombTreat)' } )
   aadd(arrRefFFOMS, {'_mo_v033', .f., 'V033 - Соответствие кода препарата схеме лечения (DgTreatReg)' } )
-  // aadd(arrRefFFOMS, {'_mo_v034', .f., 'V034 - Единицы измерения (UnitMeas)' } )
-  // aadd(arrRefFFOMS, {'_mo_v035', .f., 'V035 - Способы введения (MethIntro)' } )
   aadd(arrRefFFOMS, {'_mo_v036', .f., 'V036 - Перечень услуг, требующих имплантацию медицинских изделий (ServImplDv)' } )
-  aadd(arrRefFFOMS, {'_mo_v037', .f., 'V037 - Перечень методов ВМП, требующих имплантацию медицинских изделий' } )
   aadd(arrRefFFOMS, {'_mo_method_inj', .f., 'OID 1.2.643.5.1.13.13.11.1468 - Методы введения лекарственных препаратов' } )
   aadd(arrRefFFOMS, {'_mo_v036', .f., 'V036 - Перечень услуг, требующих имплантацию медицинских изделий (ServImplDv)' } )
   aadd(arrRefFFOMS, {'_mo_impl', .f., '_mo_impl - Перечень допустимых имплантантов' } )
   aadd(arrRefFFOMS, {'_mo_t005', .t., 'T005 - Справочник ошибок при проведении технологического контроля Реестров сведений и Реестров счетов' } )
+  // aadd(arrRefFFOMS, {'_mo_v034', .f., 'V034 - Единицы измерения (UnitMeas)' } )
+  // aadd(arrRefFFOMS, {'_mo_v035', .f., 'V035 - Способы введения (MethIntro)' } )
+  // aadd(arrRefFFOMS, {'_mo_v037', .f., 'V037 - Перечень методов ВМП, требующих имплантацию медицинских изделий' } )
 
   for each row in arrRefFFOMS
     sbase := row[1]
