@@ -4,6 +4,12 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
+** 10.06.22
+Function create_schet17_from_XML(arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk)
+  // см. файл not_use/create_schet17_from_XML.prg
+  func_error(10, 'Счет не формируется!')
+  return .t.
+
 ***** 23.03.22 создать счета по результатам прочитанного реестра СП
 Function create_schet19_from_XML(arr_XML_info,aerr,fl_msg,arr_s,name_sp_tk)
   Local arr_schet := {}, c, len_stand, _arr_stand, lshifr, i, j, k, lbukva,;
