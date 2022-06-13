@@ -591,12 +591,12 @@ FUNCTION f_end(yes_copy)
   QUIT
   RETURN NIL
 
-***** 03.12.13
+** 03.12.13
 Function f_err_sem_vagno_task(n_Task)
-  return func_error(4,'В задаче "'+array_tasks[ind_task(n_Task),5]+;
+  return func_error(4, 'В задаче "' + array_tasks[ind_task(n_Task), 5] + ;
                     '" выполняется ОТВЕТСТВЕННАЯ операция. Доступ временно запрещён!')
 
-***** 03.12.13
+** 03.12.13
 Function mo_Lock_Task(n_Task)
   Local i, fl := .t., n := 0
 
@@ -605,40 +605,40 @@ Function mo_Lock_Task(n_Task)
     ++n                  // то максимум 1 пользователь
   endif
   i := ind_task(n_Task)
-  if !G_SValueNLock(f_name_task(n_Task),n,sem_vagno_task[n_Task])
-    fl := func_error('В задаче "'+array_tasks[i,5]+'" работают пользователи. Операция временно запрещена!')
+  if !G_SValueNLock(f_name_task(n_Task), n, sem_vagno_task[n_Task])
+    fl := func_error('В задаче "' + array_tasks[i, 5] + '" работают пользователи. Операция временно запрещена!')
   endif
   return fl
 
-***** 03.12.13
+** 03.12.13
 Function mo_UnLock_Task(n_Task)
   return G_SUnLock(sem_vagno_task[n_Task])
 
-***** вернуть имя задачи по цифровому коду
+** вернуть имя задачи по цифровому коду
 Function f_name_task(n_Task)
   Local it, s
 
   DEFAULT n_Task TO glob_task
   s := lstr(n_Task)
   if (it := ascan(array_tasks, {|x| x[2] == n_Task})) > 0
-    s := array_tasks[it,1]
+    s := array_tasks[it, 1]
   endif
   return s
 
-***** проверить, доступна ли данному МО конкретная задача
+** проверить, доступна ли данному МО конкретная задача
 Function is_task(n_Task)
   Local it
 
-  if !(type("array_tasks") == "A") // в начале задачи  ещё не определён массив
+  if !(type('array_tasks') == 'A') // в начале задачи  ещё не определён массив
     return .f.
   endif
   DEFAULT n_Task TO glob_task
   if (it := ascan(array_tasks, {|x| x[2] == n_Task})) == 0
     return .f.
   endif
-  return array_tasks[it,4]
+  return array_tasks[it, 4]
 
-***** вернуть индекс массива конкретной задачи
+** вернуть индекс массива конкретной задачи
 Function ind_task(n_Task)
   Local it
 
@@ -648,8 +648,8 @@ Function ind_task(n_Task)
   endif
   return it
 
-***** 14.06.21
-Function find_unfinished_reestr_sp_tk(is_oper,is_count)
+** 14.06.21
+Function find_unfinished_reestr_sp_tk(is_oper, is_count)
   Static max_rec := 9900000 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   Local fl := .t., s, buf := save_maxrow(), arr, rech := 0, af := {}, bSaveHandler
 
@@ -660,40 +660,40 @@ Function find_unfinished_reestr_sp_tk(is_oper,is_count)
   bSaveHandler := ERRORBLOCK( {|x| BREAK(x)} )
   BEGIN SEQUENCE
     if is_count
-      R_Use(dir_server+"human",,"HUMAN")
+      R_Use(dir_server + 'human', , 'HUMAN')
       rech := lastrec()
       Use
     endif
-    R_Use(dir_server+"mo_rees",,"REES")
-    R_Use(dir_server+"mo_xml",,"MO_XML")
+    R_Use(dir_server + "mo_rees", , "REES")
+    R_Use(dir_server + "mo_xml", , "MO_XML")
     set relation to REESTR into REES
-    index on FNAME to (cur_dir+"tmp_xml") for TIP_IN == _XML_FILE_SP .and. empty(TWORK2)
+    index on FNAME to (cur_dir + "tmp_xml") for TIP_IN == _XML_FILE_SP .and. empty(TWORK2)
     go top
     do while !eof()
-      aadd(af, {rtrim(mo_xml->FNAME),lstr(rees->NSCHET)})
+      aadd(af, {rtrim(mo_xml->FNAME), lstr(rees->NSCHET)})
       skip
     enddo
     close databases
     rest_box(buf)
     if (fl := (len(af) > 0 .or. rech > max_rec))
       if rech > max_rec
-        arr := {"До исчерпания лимита базы данных у Вас",;
-              "осталась возможность добавить "+lstr(10000000 - rech)+" листов учёта."}
+        arr := {"До исчерпания лимита базы данных у Вас", ;
+              "осталась возможность добавить " + lstr(10000000 - rech) + " листов учёта."}
       endif
       if len(af) > 0
         s := "Не завершено чтение "
         if len(af) == 1
-          s += "реестра СП и ТК "+af[1,1]+" (реестр "+af[1,2]+")"
+          s += "реестра СП и ТК " + af[1, 1] + " (реестр " + af[1, 2] + ")"
         else
-          s += lstr(len(af))+" реестров СП и ТК"
+          s += lstr(len(af)) + " реестров СП и ТК"
         endif
-        arr := {"",s}
+        arr := {"", s}
       endif
       if is_oper
-        aadd(arr,"")
-        aadd(arr,"Операция запрещена!")
+        aadd(arr, "")
+        aadd(arr, "Операция запрещена!")
       endif
-      n_message(arr,{"","Обратитесь к разработчикам"},"GR+/R","W+/R",,,"G+/R")
+      n_message(arr, {"", "Обратитесь к разработчикам"}, "GR+/R", "W+/R", , , "G+/R")
     endif
   RECOVER USING error
     close databases
@@ -702,27 +702,27 @@ Function find_unfinished_reestr_sp_tk(is_oper,is_count)
   ERRORBLOCK(bSaveHandler)
   return fl
 
-***** 10.06.21 проверить, есть ли неотосланные просроченные листы учёта
+** 10.06.21 проверить, есть ли неотосланные просроченные листы учёта
 Function find_time_limit_human_reestr_sp_tk()
-  Local buf := savescreen(), arr[10,2], i, mas_pmt, r, c, n, d := sys_date-23
+  Local buf := savescreen(), arr[10, 2], i, mas_pmt, r, c, n, d := sys_date-23
   Local fl := .f., bSaveHandler := ERRORBLOCK( {|x| BREAK(x)} )
 
   mywait('Подождите, проверяем просроченные случаи (неотправленные в ТФОМС)...')
   BEGIN SEQUENCE
-    dbcreate(cur_dir+"tmp_tl",{{"kod_h","N",8,0},;
-                             {"kod_xml","N",6,0},;
-                             {"dni","N",2,0}})
-    use (cur_dir+"tmp_tl") new
-    R_Use(dir_server+"human_",,"HUMAN_")
-    R_Use(dir_server+"human",,"HUMAN")
+    dbcreate(cur_dir + "tmp_tl", {{"kod_h", "N", 8, 0}, ;
+                             {"kod_xml", "N", 6, 0}, ;
+                             {"dni","N", 2, 0}})
+    use (cur_dir + "tmp_tl") new
+    R_Use(dir_server + "human_", , "HUMAN_")
+    R_Use(dir_server + "human", , "HUMAN")
     set relation to recno() into HUMAN_
-    R_Use(dir_server+"mo_refr",dir_server+"mo_refr","REFR")
-    R_Use(dir_server+"mo_xml",,"MO_XML")
-    R_Use(dir_server+"mo_rees",,"REES")
+    R_Use(dir_server + "mo_refr", dir_server + "mo_refr", "REFR")
+    R_Use(dir_server + "mo_xml", , "MO_XML")
+    R_Use(dir_server + "mo_rees", , "REES")
     set relation to KOD_XML into MO_XML
-    R_Use(dir_server+"mo_rhum",,"RHUM")
+    R_Use(dir_server + "mo_rhum", , "RHUM")
     set relation to reestr into REES
-    index on str(reestr,6) to (cur_dir+"tmp_rhum") for OPLATA == 2 .and. d < rees->DSCHET
+    index on str(reestr, 6) to (cur_dir + "tmp_rhum") for OPLATA == 2 .and. d < rees->DSCHET
     go top
     do while !eof()
       if (r := sys_date - rees->DSCHET) <= 0
@@ -730,12 +730,12 @@ Function find_time_limit_human_reestr_sp_tk()
       endif
       human->(dbGoto(rhum->kod_hum))
       // проверим, не попал ли ещё в другой реестр (или прочий счёт)
-      if emptyall(human->schet,human_->REESTR) .and. rhum->REES_ZAP == human_->REES_ZAP
+      if emptyall(human->schet, human_->REESTR) .and. rhum->REES_ZAP == human_->REES_ZAP
         select REFR
-        find (str(1,1)+str(mo_xml->REESTR,6)+str(1,1)+str(rhum->kod_hum,8))
+        find (str(1, 1) + str(mo_xml->REESTR, 6) + str(1, 1) + str(rhum->kod_hum, 8))
         do while refr->TIPD == 1 .and. refr->KODD == mo_xml->REESTR .and. ;
                refr->TIPZ == 1 .and. refr->KODZ == rhum->kod_hum  .and. !eof()
-          if !eq_any(refr->REFREASON,50,57)
+          if !eq_any(refr->REFREASON, 50, 57)
             select TMP_TL
             append blank
             tmp_tl->kod_h   := rhum->kod_hum
@@ -759,22 +759,22 @@ Function find_time_limit_human_reestr_sp_tk()
   if fl
     close databases
     restscreen(buf)
-    return func_error(4,"Непонятная ошибка. Выполните переиндексирование в подзадаче ОМС")
+    return func_error(4, "Непонятная ошибка. Выполните переиндексирование в подзадаче ОМС")
   endif
   select TMP_TL
   if lastrec() > 0
     afillall(arr,0)
     i := 0
-    index on dni to (cur_dir+"tmp_tl") unique
+    index on dni to (cur_dir + "tmp_tl") unique
     go top
     if tmp_tl->dni <= 10 // не более 10 дней просрочено, иначе не выводим
       do while !eof()
         ++i
         if i == 10
-          arr[i,1] := -1
+          arr[i, 1] := -1
           exit
         endif
-        arr[i,1] := tmp_tl->dni
+        arr[i, 1] := tmp_tl->dni
         skip
       enddo
       set index to
@@ -783,28 +783,30 @@ Function find_time_limit_human_reestr_sp_tk()
         if (i := ascan(arr, {|x| x[1] == tmp_tl->dni})) == 0
           i := 10
         endif
-        arr[i,2] ++
+        arr[i, 2] ++
         skip
       enddo
       close databases
-      mas_pmt := {} ; n := 0
+      mas_pmt := {}
+      n := 0
       for i := 1 to 10
-        if emptyany(arr[i,1],arr[i,2])
+        if emptyany(arr[i, 1], arr[i, 2])
           exit
-        elseif arr[i,1] == -1
-          aadd(mas_pmt, lstr(arr[i,2])+" чел. - просрочено более "+lstr(arr[9,1])+" дн.")
+        elseif arr[i, 1] == -1
+          aadd(mas_pmt, lstr(arr[i, 2]) + " чел. - просрочено более " + lstr(arr[9, 1]) + " дн.")
         else
-          aadd(mas_pmt, lstr(arr[i,2])+" чел. - просрочено "+lstr(arr[i,1])+" дн.")
+          aadd(mas_pmt, lstr(arr[i, 2]) + " чел. - просрочено " + lstr(arr[i, 1]) + " дн.")
         endif
-        n := max(n,len(atail(mas_pmt)))
+        n := max(n, len(atail(mas_pmt)))
       next
       if len(mas_pmt) > 0
         i := 1
-        r := maxrow()-len(mas_pmt)-4 ; c := int((80-n-3)/2)
+        r := maxrow() - len(mas_pmt) - 4
+        c := int((80 - n - 3) / 2)
         status_key("^<Esc>^ выход из режима и вход в задачу  ^<Enter>^ просмотр просроченных случаев")
-        str_center(r-1,"Обнаружены просроченные случаи:","W+/N*")
-        do while (i := popup_prompt(r,c,i,mas_pmt)) > 0
-          f1find_time_limit_human_reestr_sp_tk(i,arr)
+        str_center(r - 1, "Обнаружены просроченные случаи:", "W+/N*")
+        do while (i := popup_prompt(r, c, i, mas_pmt)) > 0
+          f1find_time_limit_human_reestr_sp_tk(i, arr)
         enddo
       endif
     endif
@@ -813,47 +815,47 @@ Function find_time_limit_human_reestr_sp_tk()
   restscreen(buf)
   return NIL
 
-*****
-Function f1find_time_limit_human_reestr_sp_tk(i,arr)
-  Local n_file := "time_lim"+stxt, sh := 80, HH := 60
+**
+Function f1find_time_limit_human_reestr_sp_tk(i, arr)
+  Local n_file := "time_lim" + stxt, sh := 80, HH := 60
 
   fp := fcreate(n_file) ; n_list := 1 ; tek_stroke := 0
   add_string("")
-  add_string(center("Список случаев, вернувшихся с ошибкой и ещё не отосланных в ТФОМС",sh))
+  add_string(center("Список случаев, вернувшихся с ошибкой и ещё не отосланных в ТФОМС", sh))
   if i == 10
-    add_string(center("(просрочено более "+lstr(arr[9,1])+" дн.)",sh))
+    add_string(center("(просрочено более " + lstr(arr[9, 1]) + " дн.)", sh))
   else
-    add_string(center("(просрочено "+lstr(arr[i,1])+" дн.)",sh))
+    add_string(center("(просрочено " + lstr(arr[i, 1]) + " дн.)", sh))
   endif
-  add_string(center("по состоянию на "+full_date(sys_date)+" "+hour_min(seconds()),sh))
+  add_string(center("по состоянию на " + full_date(sys_date) + " " + hour_min(seconds()), sh))
   add_string("")
-  R_Use(dir_server+"mo_otd",,"OTD")
-  R_Use(dir_server+"human_",,"HUMAN_")
-  R_Use(dir_server+"human",,"HUMAN")
+  R_Use(dir_server + "mo_otd", , "OTD")
+  R_Use(dir_server + "human_", , "HUMAN_")
+  R_Use(dir_server + "human", , "HUMAN")
   set relation to recno() into HUMAN_, to otd into OTD
-  use (cur_dir+"tmp_tl") new
+  use (cur_dir + "tmp_tl") new
   set relation to kod_h into HUMAN
   if i == 10
-    index on upper(human->fio) to (cur_dir+"tmp_tl") for dni > arr[9,1]
+    index on upper(human->fio) to (cur_dir + "tmp_tl") for dni > arr[9, 1]
   else
-    index on upper(human->fio) to (cur_dir+"tmp_tl") for dni == arr[i,1]
+    index on upper(human->fio) to (cur_dir + "tmp_tl") for dni == arr[i, 1]
   endif
   i := 0
   go top
   do while !eof()
     verify_FF(HH, .t., sh)
-    add_string(lstr(++i)+". "+alltrim(human->fio)+", "+full_date(human->date_r)+;
-             iif(empty(otd->SHORT_NAME), "", " ["+alltrim(otd->SHORT_NAME)+"]")+;
-             " "+date_8(human->n_data)+"-"+date_8(human->k_data))
+    add_string(lstr(++i) + ". " + alltrim(human->fio) + ", " + full_date(human->date_r) + ;
+             iif(empty(otd->SHORT_NAME), "", " [" + alltrim(otd->SHORT_NAME) + "]") + ;
+             " " + date_8(human->n_data) + "-" + date_8(human->k_data))
     select TMP_TL
     skip
   enddo
   close databases
   fclose(fp)
-  viewtext(n_file,,,,.f.,,,2)
+  viewtext(n_file, , , , .f., , , 2)
   return NIL
 
-*****
+***
 Function my_mo_begin_task()
   Local fl := .t.
 
