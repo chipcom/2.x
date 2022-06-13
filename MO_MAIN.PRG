@@ -4,11 +4,11 @@
 *******************************************************************************
 * my_mo_begin_task()
 *******************************************************************************
-#include "set.ch"
-#include "inkey.ch"
-#include "function.ch"
-#include "edit_spr.ch"
-#include "chip_mo.ch"
+#include 'set.ch'
+#include 'inkey.ch'
+#include 'function.ch'
+#include 'edit_spr.ch'
+#include 'chip_mo.ch'
 
 external ust_printer, ErrorSys, ReadModal, like, flstr, prover_dbf, net_monitor, pr_view, ne_real
 // старые (редко используемые) отчёты запускаем из hrb-файлов (для уменьшения задачи)
@@ -20,7 +20,7 @@ DYNAMIC f1forma_792_MIAC
 DYNAMIC monitoring_vid_pom
 DYNAMIC b_25_perinat_2
 
-***** 10.03.22
+** 12.06.22
 procedure main( ... )
   Local r, s, is_create := .f., is_copy := .f., is_index := .f.
   Local a_parol, buf, is_local_version
@@ -29,42 +29,43 @@ procedure main( ... )
   FOR EACH s IN hb_AParams() // анализ входных параметров
     s := lower(s)
     DO CASE
-      CASE s == "/create"
+      CASE s == '/create'
         is_create := .t.
-      CASE s == "/copy"
+      CASE s == '/copy'
         is_copy := .t.
-      CASE s == "/index"
+      CASE s == '/index'
         is_index := .t.
     ENDCASE
   NEXT
   //
-  public Err_version := fs_version(_version())+" от "+_date_version()
+  public Err_version := fs_version(_version()) + ' от ' + _date_version()
   Public kod_VOUNC := '101004'
-  Public kod_LIS   := {'125901','805965'}
+  Public kod_LIS   := {'125901', '805965'}
   //
   Public DELAY_SPRD := 0 // время задержки для разворачивания строк
-  Public sdbf := ".DBF", sntx := ".NTX", stxt := ".TXT", szip := ".ZIP",;
-       smem := ".MEM", srar := ".RAR", sxml := ".XML", sini := ".INI",;
-       sfr3 := ".FR3", sfrm := ".FRM", spdf := ".PDF", scsv := ".CSV",;
-       sxls := ".xls", schip := ".CHIP", cslash := "\",;
-       sdbt := ".dbt"
+  Public sdbf := '.dbf', sntx := '.ntx', stxt := '.txt', szip := '.zip', ;
+       smem := '.mem', srar := '.rar', sxml := '.xml', sini := '.ini', ;
+       sfr3 := '.fr3', sfrm := '.frm', spdf := '.pdf', scsv := '.csv', ;
+       sxls := '.xls', schip := '.chip', sdbt := '.dbt'
+  public cslash := hb_ps()    // '\'
+       
   PUBLIC public_mouse := .f., pravo_write := .t., pravo_read := .t., ;
-       MenuTo_Minut := 0, sys_date := DATE(), cScrMode := "COLOR", ;
-       DemoMode := .f., picture_pf := "@R 999-999-999 99", ;
-       pict_cena := "9999999.99", forever := "forever"
+       MenuTo_Minut := 0, sys_date := DATE(), cScrMode := 'COLOR', ;
+       DemoMode := .f., picture_pf := '@R 999-999-999 99', ;
+       pict_cena := '9999999.99', forever := 'forever'
   Public gpasskod := ret_gpasskod()
-  PUBLIC sem_task := "Учёт работы МО"
-  PUBLIC sem_vagno := "Учёт работы МО - ответственный режим"
-  PUBLIC err_slock := "В данный момент с этим режимом работает другой пользователь. Доступ запрещён!"
-  PUBLIC err_admin := "Доступ в данный режим разрешен только администратору системы!"
-  PUBLIC err_sdemo := "Это демонстрационная версия. Операция запрещена!"
-  PUBLIC fr_data := "_data", fr_titl := "_titl"
-  Public dir_XML_MO := "XML_MO", dir_XML_TF := "XML_TF"
-  Public dir_NAPR_MO := "NAPR_MO", dir_NAPR_TF := "NAPR_TF"
-  Public _tmp_dir  := "TMP___"
-  Public _tmp_dir1 := _tmp_dir+cslash
-  Public _tmp2dir  := "TMP2___"
-  Public _tmp2dir1 := _tmp2dir+cslash
+  PUBLIC sem_task := 'Учёт работы МО'
+  PUBLIC sem_vagno := 'Учёт работы МО - ответственный режим'
+  PUBLIC err_slock := 'В данный момент с этим режимом работает другой пользователь. Доступ запрещён!'
+  PUBLIC err_admin := 'Доступ в данный режим разрешен только администратору системы!'
+  PUBLIC err_sdemo := 'Это демонстрационная версия. Операция запрещена!'
+  PUBLIC fr_data := '_data', fr_titl := '_titl'
+  Public dir_XML_MO := 'XML_MO', dir_XML_TF := 'XML_TF'
+  Public dir_NAPR_MO := 'NAPR_MO', dir_NAPR_TF := 'NAPR_TF'
+  Public _tmp_dir  := 'TMP___'
+  Public _tmp_dir1 := _tmp_dir + cslash
+  Public _tmp2dir  := 'TMP2___'
+  Public _tmp2dir1 := _tmp2dir + cslash
   Public d_01_04_2013 := 0d20130401
   Public d_01_04_2015 := 0d20150401
   Public d_01_08_2016 := 0d20160801
@@ -81,14 +82,14 @@ procedure main( ... )
 	public hb_user_curUser := nil
 
   SET(_SET_DELETED, .T.)
-  SETCLEARB(" ")
+  SETCLEARB(' ')
   is_local_version := f_first(is_create)
   put_icon(__s_full_name() + __s_version(), 'MAIN_ICON')
   set key K_F1 to f_help()
-  hard_err("create")
-  FillScreen(p_char_screen,p_color_screen) //FillScreen("█","N+/N")
-  cur_year := STR(YEAR(sys_date),4)
-  new_dir = ""
+  hard_err('create')
+  FillScreen(p_char_screen, p_color_screen) //FillScreen("█","N+/N")
+  cur_year := STR(YEAR(sys_date), 4)
+  new_dir = ''
   SETCOLOR(color1)
 
   // инициализация массива МО, запрос кода МО (при необходимости)
@@ -98,7 +99,7 @@ procedure main( ... )
   Reconstruct_Security(is_local_version)
 
   // a_parol := inp_password(is_local_version,is_create)
-  a_parol := inp_password_bay(is_local_version,is_create)
+  a_parol := inp_password_bay(is_local_version, is_create)
 
   checkFilesTFOMS()
   
@@ -109,11 +110,11 @@ procedure main( ... )
     verify_fio_polzovat := .f.
   endif
   if !G_SOpen(sem_task, sem_vagno, fio_polzovat, p_name_comp)
-    if type("verify_fio_polzovat") == "L" .and. verify_fio_polzovat
-      func_error('В данный момент работает другой оператор под фамилией "'+fio_polzovat+'"')
+    if type('verify_fio_polzovat') == 'L' .and. verify_fio_polzovat
+      func_error('В данный момент работает другой оператор под фамилией "' + fio_polzovat + '"')
     else
       if !hb_user_curUser:IsAdmin()
-        hb_Alert("В данный момент другой задачей выполняется ответственный режим. Проверьте системный монитор")
+        hb_Alert('В данный момент другой задачей выполняется ответственный режим. Проверьте системный монитор')
       else
         func_error('Доступ запрещен! В данный момент другой задачей выполняется ответственный режим.')
       endif
@@ -133,11 +134,11 @@ procedure main( ... )
   Init_Program() // инициализация программы (переменных, массивов,...)
 
   if ControlBases(1, _version()) // если необходимо
-    if G_SLock1Task(sem_task,sem_vagno)  // запрет доступа всем
+    if G_SLock1Task(sem_task, sem_vagno)  // запрет доступа всем
       buf := savescreen()
-      f_message({"Переход на новую версию программы "+fs_version(_version())+' от '+_date_version()},,,,8)
+      f_message({'Переход на новую версию программы ' + fs_version(_version()) + ' от ' + _date_version()}, , , , 8)
       // провести реконструкцию БД
-      Reconstruct_DB(is_local_version,is_create)
+      Reconstruct_DB(is_local_version, is_create)
       // провести реконструкцию БД учёта направлений на госпитализацию
       _263_init()
       // для начала работы _first_run() (убрал в NOT_USED)
@@ -153,12 +154,12 @@ procedure main( ... )
       G_SUnLock(sem_vagno)
       restscreen(buf)
     else
-      n_message({'Вы запустили новую версию задачи '+fs_version(_version())+' от '+_date_version(),;
-               'Требуется реконструкция (и переиндексирование) базы данных.',;
-               'Но в данный момент работают другие задачи.',;
-               'Необходимо, чтобы все пользователи вышли из задач.'},;
-              {'','Для завершения работы нажмите любую клавишу'},;
-              cColorSt2Msg,cColorStMsg,,,"G+/R")
+      n_message({'Вы запустили новую версию задачи ' + fs_version(_version()) + ' от ' + _date_version(), ;
+               'Требуется реконструкция (и переиндексирование) базы данных.', ;
+               'Но в данный момент работают другие задачи.', ;
+               'Необходимо, чтобы все пользователи вышли из задач.'}, ;
+              {'', 'Для завершения работы нажмите любую клавишу'}, ;
+              cColorSt2Msg,cColorStMsg, , , 'G+/R')
       f_end(.f.)
     endif
   endif
@@ -535,23 +536,23 @@ Function hard_err(p)
   endcase
   return NIL
 
-***** 06.10.19
+** 13.06.22
 FUNCTION f_end(yes_copy)
-  Static group_ini := "RAB_MESTO"
-  Local i, spath := "", bSaveHandler := ERRORBLOCK( {|x| BREAK(x)} )
+  Static group_ini := 'RAB_MESTO'
+  Local i, spath := '', bSaveHandler := ERRORBLOCK( {|x| BREAK(x)} )
 
   BEGIN SEQUENCE
     write_rest_pp() // записать незаписанные истории болезней из приёмного покоя
     CLOSE ALL
     DEFAULT yes_copy TO .t.
     if yes_copy
-      i := GetIniVar(tmp_ini, {{group_ini,"base_copy","1"},;
-                             {group_ini,"path_copy",""}} )
-      if i[1] != NIL .and. i[1]=="1" .and. G_SLock1Task(sem_task,sem_vagno)
+      i := GetIniVar(tmp_ini, {{group_ini, 'base_copy', '1'}, ;
+                             {group_ini, 'path_copy', ''}} )
+      if i[1] != NIL .and. i[1] == '1' .and. G_SLock1Task(sem_task, sem_vagno)
         if len(i) > 1 .and. i[2] != NIL .and. !empty(i[2])
           spath := i[2]
         endif
-        m_copy_DB_from_end(.f.,spath) // резервное копирование
+        m_copy_DB_from_end(.f., spath) // резервное копирование
         G_SUnLock(sem_vagno) // разрешение доступа всем
       endif
     endif
@@ -566,27 +567,21 @@ FUNCTION f_end(yes_copy)
   END
   ERRORBLOCK(bSaveHandler)
   //
-  hard_err("delete")
+  hard_err('delete')
   if __mvExist( 'cur_dir' )
-	  filedelete(cur_dir+"tmp*.dbf")
-	  filedelete(cur_dir+"tmp*.ntx")
-	  filedelete(_tmp_dir1+"*.*")
-	  if hb_DirExists(cur_dir+_tmp_dir) .and. hb_DirDelete(cur_dir+_tmp_dir) != 0
-		  //func_error(4,"Не могу удалить каталог "+cur_dir+_tmp_dir)
+	  filedelete(cur_dir + 'tmp*.dbf')
+	  filedelete(cur_dir + 'tmp*.ntx')
+	  filedelete(_tmp_dir1 + '*.*')
+	  if hb_DirExists(cur_dir + _tmp_dir) .and. hb_DirDelete(cur_dir + _tmp_dir) != 0
+		  //func_error(4, "Не могу удалить каталог "'+'cur_dir'+'_tmp_dir)
 	  endif
-	  filedelete(_tmp2dir1+"*.*")
-	  if hb_DirExists(cur_dir+_tmp2dir) .and. hb_DirDelete(cur_dir+_tmp2dir) != 0
-		  //func_error(4,"Не могу удалить каталог "+cur_dir+_tmp2dir)
+	  filedelete(_tmp2dir1 + '*.*')
+	  if hb_DirExists(cur_dir + _tmp2dir) .and. hb_DirDelete(cur_dir + _tmp2dir) != 0
+		  //func_error(4, "Не могу удалить каталог " + cur_dir + _tmp2dir)
 	  endif
   endif
   // удалим файлы отчетов в формате '*.HTML' из временной директории
-  filedelete( HB_DirTemp() + "*.HTML")
-  // закроем если нужно доплнительный поток для сообщений
-  // if __mvExist( 'hb_user_curUser' )
-  //	if hb_user_curUser != nil
-  //		udpSendMessage( 'KIL', 'ALL', hb_user_curUser:Name1251, '' )
-  //	endif
-  // endif
+  filedelete( HB_DirTemp() + '*.HTML')
   SET KEY K_ALT_F3 TO
   SET KEY K_ALT_F2 TO
   SET KEY K_ALT_X  TO

@@ -61,12 +61,9 @@ mo_omsit.prg
 mo_omsif.prg
 mo_omsf.prg
 mo_omsfo.prg
-.\dispanser\mo_omsna.prg
-.\dispanser\mo_r01.prg
 mo_omso.prg
 mo_omsp.prg
 mo_omspr.prg
-mo_omsr.prg
 mo_oms14.prg
 .\PP\mo_pp.prg
 .\PP\mo_ppi.prg
@@ -239,12 +236,15 @@ mo_version.prg
 .\dispanser\oms_dispans_naprav.prg
 .\dispanser\oms_dispans_diagnoze.prg
 .\dispanser\oms_dispans_func.prg
+.\dispanser\mo_omsna.prg
+.\dispanser\mo_r01.prg
 
 .\EXCHANGE\reestrOMS_XML.prg
 .\EXCHANGE\create_schet19_from_XML.prg
 .\EXCHANGE\extract_reestr.prg
 .\EXCHANGE\create_reestr.prg
 .\EXCHANGE\mo_omss.prg
+.\EXCHANGE\mo_omsr.prg
 
 .\SYSTEM\use_func.prg
 .\SYSTEM\extension.prg
