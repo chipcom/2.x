@@ -418,177 +418,6 @@ if tmp_select > 0
 endif
 return _ta
 
-***** 08.08.16 проверка на соответствие услуги профилю
-Function UslugaAccordanceProfil(lshifr,lvzros_reb,lprofil,ta,short_shifr)
-Local s := "", s1 := ""
-if valtype(short_shifr)=="C" .and. !empty(short_shifr) .and. !(alltrim(lshifr)==alltrim(short_shifr))
-  s1 := "("+alltrim(short_shifr)+")"
-endif
-if select("MOPROF") == 0
-  R_Use(dir_exe+"_mo_prof",cur_dir+"_mo_prof","MOPROF")
-  //index on shifr+str(vzros_reb,1)+str(profil,3) to (sbase)
-endif
-lshifr := padr(lshifr,20)
-lvzros_reb := iif(lvzros_reb==0, 0, 1)
-select MOPROF
-find (lshifr)
-if found() // если данная услуга участвует в проверке по профилю
-  find (lshifr+str(lvzros_reb,1)+str(lprofil,3))
-  if !found()
-    find (lshifr+str(lvzros_reb,1))
-    if human_->USL_OK == 4  // если скорая помощь
-      if found()                // и нашли первый попавшийся профиль,
-        lprofil := moprof->profil // то заменяем без всяких сообщений
-      endif
-    else // для всех остальных условий формируем сообщение об ошибке
-      do while moprof->shifr==lshifr .and. moprof->vzros_reb==lvzros_reb .and. !eof()
-        s += '"'+lstr(moprof->profil)+"."+inieditspr(A__MENUVERT, glob_V002, moprof->profil)+'", '
-        skip
-      enddo
-      aadd(ta,rtrim(lshifr)+s1+' - профиль "'+lstr(lprofil)+"."+;
-              inieditspr(A__MENUVERT, glob_V002, lprofil)+;
-              '" для '+{'взрослого','ребёнка'}[lvzros_reb+1]+;
-              ' недопустим'+iif(empty(s),"",' (разрешается '+left(s,len(s)-2)+')'))
-    endif
-  endif
-endif
-return lprofil
-
-***** 14.03.19 проверка на соответствие услуги специальности
-Function UslugaAccordancePRVS(lshifr,lvzros_reb,lprvs,ta,short_shifr,lvrach)
-Local s := "", s1 := "", s2, i, k
-if valtype(short_shifr)=="C" .and. !empty(short_shifr) .and. !(alltrim(lshifr)==alltrim(short_shifr))
-  s1 := "("+alltrim(short_shifr)+")"
-endif
-if select("MOSPEC") == 0
-  R_Use(dir_exe+"_mo_spec",cur_dir+"_mo_spec","MOSPEC")
-  //index on shifr+str(vzros_reb,1)+str(prvs_new,4) to (sbase)
-endif
-lshifr := padr(lshifr,20)
-lvzros_reb := iif(lvzros_reb == 0, 0, 1)
-if lprvs < 0
-  k := abs(lprvs)
-else
-  k := ret_V004_V015(lprvs)
-endif
-s2 := lstr(k)+'.'+inieditspr(A__MENUVERT, glob_V015, k)
-//
-lprvs := ret_prvs_V021(lprvs)
-select MOSPEC
-find (lshifr)
-if found() // если данная услуга участвует в проверке по специальности
-  find (lshifr+str(lvzros_reb,1)+str(lprvs,6))
-  if !found()
-    find (lshifr+str(lvzros_reb,1))
-    // формируем сообщение об ошибке
-    do while mospec->shifr==lshifr .and. mospec->vzros_reb==lvzros_reb .and. !eof()
-      k := mospec->prvs_new
-      if (i := ascan(glob_arr_V015_V021,{|x| x[2] == k})) > 0 // перевод из 21-го справочника
-        k := glob_arr_V015_V021[i,1]                          // в 15-ый справочник
-      endif
-      s += '"'+lstr(k)+"."+inieditspr(A__MENUVERT, glob_V015, k)+'", '
-      skip
-    enddo
-    pers->(dbGoto(lvrach))
-    aadd(ta,rtrim(lshifr)+s1+' - ('+fam_i_o(pers->fio)+' ['+lstr(pers->tab_nom)+;
-            ']) специальность "'+s2+'" для '+{'взрослого','ребёнка'}[lvzros_reb+1]+;
-            ' недопустима'+iif(empty(s),"",' (разрешается '+left(s,len(s)-2)+')'))
-  endif
-endif
-return nil
-
-***** 07.08.16 вернуть код новой медицинской специальности в кодировке справочника V015
-Function ret_new_spec(old_spec,new_spec)
-Local i, lkod := 0
-if empty(new_spec)
-  if !empty(old_spec) .and. (i := ascan(glob_arr_V004_V015, {|x| x[1] == old_spec })) > 0
-    lkod := glob_arr_V004_V015[i,2]
-  endif
-else
-  lkod := new_spec
-endif
-return lkod
-
-***** 08.08.16 вернуть значение специальности в кодировке справочника V004
-Function ret_old_prvs(new_kod)
-Local i, old_kod := new_kod
-if new_kod < 0
-  new_kod := abs(new_kod)
-  if (i := ascan(glob_arr_V004_V015, {|x| x[2] == new_kod })) > 0
-    old_kod := glob_arr_V004_V015[i,1]
-  elseif (i := ascan(glob_arr_V015_V004, {|x| x[3] == new_kod })) > 0
-    old_kod := glob_arr_V015_V004[i,1]
-  endif
-endif
-return old_kod
-
-***** 19.10.16 вернуть значение специальности в кодировке справочника V015
-Function ret_new_prvs(_prvs)
-Local new_kod
-if _prvs < 0
-  new_kod := abs(_prvs)
-else
-  new_kod := ret_V004_V015(_prvs)
-endif
-return new_kod
-
-***** 28.11.18 вернуть значение специальности в кодировке справочника V021
-Function ret_prvs_V021(_prvs)
-Local i, new_kod := 76, ; // по умолчанию - терапия
-      lkod := ret_new_prvs(_prvs) // в кодировке справочника V015
-if (i := ascan(glob_arr_V015_V021, {|x| x[1] == lkod })) > 0
-  new_kod := glob_arr_V015_V021[i,2]
-endif
-return new_kod
-
-***** 10.04.19 перевести специальность из кодировки справочника V021 в V015
-Function prvs_V021_to_V015(_prvs)
-Local i, new_kod := 27 // по умолчанию - терапия
-if valtype(_prvs) == "C"
-  _prvs := int(val(_prvs))
-endif
-if (i := ascan(glob_arr_V015_V021, {|x| x[2] == _prvs })) > 0
-  new_kod := glob_arr_V015_V021[i,1]
-endif
-return new_kod
-
-***** 01.04.18 вернуть массив соответствий специальности V015 специальностям V0004
-Function ret_arr_new_olds_prvs()
-Local i, j, np, op, arr := {}
-for i := 1 to len(glob_arr_V004_V015)
-  op := glob_arr_V004_V015[i,1]
-  np := glob_arr_V004_V015[i,2]
-  if (j := ascan(arr, {|x| x[1] == np })) == 0
-    aadd(arr, {np,{}}) ;  j := len(arr)
-  endif
-  aadd(arr[j,2], op)
-next
-for i := 1 to len(glob_arr_V015_V004)
-  op := glob_arr_V015_V004[i,1]
-  np := glob_arr_V015_V004[i,3]
-  if (j := ascan(arr, {|x| x[1] == np })) == 0
-    aadd(arr, {np,{}}) ;  j := len(arr)
-  endif
-  aadd(arr[j,2], op)
-next
-return asort(arr,,,{|x,y| x[1] < y[1] })
-
-***** 12.01.19 вернуть значение специальности для XML-файла реестра
-Function put_prvs_to_reestr(_PRVS,_YEAR)
-Local k := _PRVS
-if _YEAR > 2018             // в кодировке V021
-  k := ret_prvs_V021(_PRVS)
-elseif _YEAR < 2016         // в кодировке V004
-  k := ret_old_prvs(_PRVS)
-else                        // в кодировке V015
-  if _PRVS < 0
-    k := abs(_PRVS)
-  else
-    k := ret_V004_V015(_PRVS)
-  endif
-endif
-return lstr(k)
-
 ***** 26.01.17
 Function add_val_2_array(arr,i,j,k1,k2)
 // arr - двумерный массив
@@ -1692,8 +1521,6 @@ if valtype(a) == "A"
 endif
 return {ret,rets}
 
-*
-
 ***** 18.09.19
 Function f_usl1year(lshifr,_mshifr,_mname)
 Local k := 0, c, s, tmp_select := select(), buf := save_maxrow(),;
@@ -1744,8 +1571,6 @@ if ascan(arr_usl1year,lshifr) > 0
   endif
 endif
 return NIL
-
-*
 
 ***** 11.01.13 вернуть уровень МО в зависимости от даты
 Function get_uroven(dDate)
@@ -1837,9 +1662,7 @@ elseif !lis_nul
 endif
 return lu_cena
 
-*
-
-***** Группы МКБ + услуги по стандартам
+** Группы МКБ + услуги по стандартам
 Function Uslugi_MKB_Standart()
 Local arr
 arr := array(11)
@@ -1926,44 +1749,44 @@ aadd(arr[11],"1.7.75")
 aadd(arr[11],"1.7.77")
 return arr
 
-*
+** сделать единую строку полиса из полей серии и номера полиса
+Function make_polis(_spolis, _npolis)
+  Local s := alltrim(_spolis)
 
-***** сделать единую строку полиса из полей серии и номера полиса
-Function make_polis(_spolis,_npolis)
-Local s := alltrim(_spolis)
-if !empty(s)
-  s += " "
-endif
-return s+alltrim(_npolis)
-
-*
-
-***** вывести наименование диагноза при вводе случая
-Function diag_screen(k,arr_d)
-Static buf_d
-Local i, lc, r := 12
-if type("row_diag_screen") == "N" .and. row_diag_screen > 0
-  r := row_diag_screen
-endif
-if k == 0 // обнулить буфер
-  buf_d := nil
-elseif k == 1 // если надо, отрисовать прямоугольник, и вывести диагноз
-  if buf_d == nil
-    buf_d := box_shadow(r,3,r+5,76,"N/RB","Диагноз","W/RB")
+  if !empty(s)
+    s += ' '
   endif
-  for i := 1 to len(arr_d)
-    lc := if("в ОМС" $ arr_d[i] .or. "по полу" $ arr_d[i], "GR+/RB", "W+/RB")
-    @ r+i,5 say padr(arr_d[i],71) color lc
-  next
-elseif k == 2 // восстановить экран  и обнулить буфер
-  if buf_d != nil
-    rest_box(buf_d)
-  endif
-  buf_d := nil
-endif
-return .t.
+  return s + alltrim(_npolis)
 
-*
+** 19.05.22 вывести наименование диагноза при вводе случая
+Function diag_screen(k, arr_d, lUp)
+  Static buf_d
+  Local i, lc, r // := 12
+
+  default lUp TO .f.
+
+  r := iif(lUp, 5, 12)
+  if type('row_diag_screen') == 'N' .and. row_diag_screen > 0
+    r := row_diag_screen
+  endif
+  if k == 0 // обнулить буфер
+    buf_d := nil
+  elseif k == 1 // если надо, отрисовать прямоугольник, и вывести диагноз
+    if buf_d == nil
+      buf_d := box_shadow(r, 3, r + 5, 76, 'N/RB', 'Диагноз', 'W/RB')
+    endif
+    for i := 1 to len(arr_d)
+      lc := if('в ОМС' $ arr_d[i] .or. 'по полу' $ arr_d[i], 'GR+/RB', 'W+/RB')
+      @ r+i,5 say padr(arr_d[i],71) color lc
+    next
+  elseif k == 2 // восстановить экран  и обнулить буфер
+    if buf_d != nil
+      rest_box(buf_d)
+    endif
+    buf_d := nil
+  endif
+  return .t.
+
 
 ***** вывести мигалки перед диагнозами, если введена доп.инф-ия по талону
 Function put_dop_diag()
@@ -1990,9 +1813,7 @@ if is_talon
 endif
 return .t.
 
-*
-
-***** сделать "пяти или шести-значные" диагнозы
+** сделать "пяти или шести-значные" диагнозы
 Function make_diagP(k)
 if k == 1  // сделать "шестизначные" диагнозы
   MKOD_DIAG  := MKOD_DIAG  + substr(mdiag_plus,1,1)
@@ -2023,9 +1844,7 @@ else       // сделать "пятизначные" диагнозы
 endif
 return NIL
 
-*
-
-***** сформировать номер амбулаторной карты
+** сформировать номер амбулаторной карты
 Function amb_kartaN(fl_0)
 Local lnomer := lstr(kart->kod)
 if is_uchastok == 1
@@ -2295,9 +2114,7 @@ SetIniSect(tmp_ini,"polikl1",{{"s_regim"  ,lstr(s_regim)},;
                               {"s_snils"  ,s_snils      }})
 return mkod
 
-*
-
-***** выбор карточки из картотеки
+** выбор карточки из картотеки
 Function oms_view_kart(r1,r2)
 Local buf := savescreen(), mkod := 0, arr_blk, fl := .f.
 DEFAULT r1 TO 2, r2 TO maxrow()-2
@@ -2490,9 +2307,7 @@ endif
 rest_box(buf)
 return .t.
 
-*
-
-***** 14.03.16 поиск по шаблону в картотеке
+** 14.03.16 поиск по шаблону в картотеке
 Function fvalid_fio(lregim,input_sh,fl_number,mbukva)
 Local fl := .f., pos1, pos2, tmp_list, buf, ;
       tmp2 := "", c1, fl_bukva, s_msg, rec_tmp := 0
@@ -2781,21 +2596,21 @@ return NIL
 
 *****
 Function f1_v_fio(oBrow)
-Local oColumn
-oColumn := TBColumnNew(center("Ф.И.О.",49),{||padr(tmp->fio,49)})
-oBrow:addColumn(oColumn)
-status_key("^<Esc>^ - отказ от выбора;  ^<Enter>^ - выбор")
-return NIL
+  Local oColumn
+
+  oColumn := TBColumnNew(center('Ф.И.О.', 49), {||padr(tmp->fio, 49)})
+  oBrow:addColumn(oColumn)
+  status_key('^<Esc>^ - отказ от выбора;  ^<Enter>^ - выбор')
+  return NIL
 
 *****
 Function f2_v_fio()
-kartotek_to_screen(14,23)
-if !(type("dubl1_kart") == "N")
-  select TMP
-endif
-return NIL
-
-*
+  
+  kartotek_to_screen(14,23)
+  if !(type('dubl1_kart') == 'N')
+    select TMP
+  endif
+  return NIL
 
 *****
 Function input_schet(rr, r, c)
@@ -2952,24 +2767,23 @@ endif
 setcolor(tmp_color)
 return fl
 
-*****
+**
 Function f1inp_schet(oBrow)
-Local oColumn
-oColumn := TBColumnNew("  Номер;  счета", {|| tmp->nomer_s })
-oBrow:addColumn(oColumn)
-oColumn := TBColumnNew("  Дата;  счета", {|| tmp->date_s })
-oBrow:addColumn(oColumn)
-oColumn := TBColumnNew("Кол.;бол.", {|| tmp->kol })
-oBrow:addColumn(oColumn)
-oColumn := TBColumnNew(" Сумма счета", {|| put_kop(tmp->summa,12) })
-oBrow:addColumn(oColumn)
-oColumn := TBColumnNew(" Критерий", {|| tmp->krit })
-oBrow:addColumn(oColumn)
-oColumn := TBColumnNew(center("Принадлежность счета",24),{|| left(tmp->name,24)})
-oBrow:addColumn(oColumn)
-return NIL
+  Local oColumn
 
-*
+  oColumn := TBColumnNew("  Номер;  счета", {|| tmp->nomer_s })
+  oBrow:addColumn(oColumn)
+  oColumn := TBColumnNew("  Дата;  счета", {|| tmp->date_s })
+  oBrow:addColumn(oColumn)
+  oColumn := TBColumnNew("Кол.;бол.", {|| tmp->kol })
+  oBrow:addColumn(oColumn)
+  oColumn := TBColumnNew(" Сумма счета", {|| put_kop(tmp->summa, 12) })
+  oBrow:addColumn(oColumn)
+  oColumn := TBColumnNew(" Критерий", {|| tmp->krit })
+  oBrow:addColumn(oColumn)
+  oColumn := TBColumnNew(center("Принадлежность счета",24),{|| left(tmp->name, 24)})
+  oBrow:addColumn(oColumn)
+  return NIL
 
 *****
 Function fs_krit()
@@ -3086,8 +2900,6 @@ next
 save_arr_DISPANS(lkod,arr)
 return NIL
 
-*
-
 ***** 14.08.13
 Function read_arr_PredN(lkod)
 Local arr, i, k
@@ -3120,8 +2932,6 @@ for i := 1 to len(arr)
 next
 return NIL
 
-*
-
 ***** 21.03.14
 Function save_arr_PerN(lkod)
 Local arr := {}, k, ta
@@ -3146,8 +2956,6 @@ for i := 1 to count_pern_arr_iss
 next
 save_arr_DISPANS(lkod,arr)
 return NIL
-
-*
 
 ***** 25.08.13
 Function read_arr_PerN(lkod)
@@ -3178,8 +2986,6 @@ for i := 1 to len(arr)
   endif
 next
 return NIL
-
-*
 
 ***** 19.09.13
 Function save_arr_DISPANS(lkod,arr)

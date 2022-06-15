@@ -182,50 +182,53 @@ endif
 return k
 
 
-***** 17.03.22
+** 31.05.22
 Function print_l_uch(mkod, par, regim, lnomer)
   // mkod - код больного по БД human
-  Local sh := 80, HH := 77, buf := save_maxrow(),;
-      name_lpu, name_otd := "", mvzros_reb, mreg_lech, mmest_inog, mrab_nerab,;
-      mkomu, name_org, mlech_vr := "", mishod, mprodol, msumma := 0, mmi_git,;
-      mud_lich := "", arr, n_file := "list_uch"+stxt, adiag_talon[16],;
+  Local sh := 80, HH := 77, buf := save_maxrow(), ;
+      name_lpu, name_otd := '', mvzros_reb, mreg_lech, mmest_inog, mrab_nerab, ;
+      mkomu, name_org, mlech_vr := '', mishod, mprodol, msumma := 0, mmi_git, ;
+      mud_lich := '', arr, n_file := 'list_uch' + stxt, adiag_talon[16], ;
       madres, i := 1, j, k, tmp[2], tmp1, w1 := 37, s, s1, mnum_lu, lshifr1
   local tmpAlias
   local arrLekPreparat, arrImplantant, aNameImp, aSerNum, nNameImp, nSerNum, row
   local cREGNUM, cUNITCODE, cMETHOD
+  local lTypeLUMedReab := .f., aMedReab
 
   DEFAULT par TO 1, regim TO 1, lnomer TO 0
   mywait()
-  fp := fcreate(n_file) ; tek_stroke := 0 ; n_list := 1
+  fp := fcreate(n_file)
+  tek_stroke := 0
+  n_list := 1
   //
-  R_Use(dir_server+"organiz",,"ORG")
+  R_Use(dir_server + 'organiz', , 'ORG')
   name_org := alltrim(org->name)
   dbCloseAll()
-  if !myFileDeleted(cur_dir+"tmp1"+sdbf)
+  if !myFileDeleted(cur_dir + 'tmp1' + sdbf)
     return NIL
   endif
-  dbcreate(cur_dir+"tmp1",{{"kod","N",4,0},;
-                         {"name","C",255,0},;
-                         {"shifr","C",20,0},;
-                         {"shifr1","C",20,0},;
-                         {"dom","N",1,0},;
-                         {"zf","C",30,0},;
-                         {"kod_diag","C",5,0},;
-                         {"date_u1","D",8,0},;
-                         {"date_u2","D",8,0},;
-                         {"rec_hu","N",8,0},;
-                         {"otd","C",5,0},;
-                         {"plus","L",1,0},;
-                         {"is_edit","N",2,0},;
-                         {"kod_vr","N",5,0},;
-                         {"kod_as","N",5,0},;
-                         {"profil","N",4,0},;
-                         {"kol","N",4,0},;
-                         {"summa","N",11,2}})
-  use (cur_dir+"tmp1")
-  index on str(kod,4) to (cur_dir+"tmp11")
-  index on dtos(date_u1)+fsort_usl(shifr) to (cur_dir+"tmp12")
-  use (cur_dir+"tmp1") index (cur_dir+"tmp11"),(cur_dir+"tmp12") alias tmp1
+  dbcreate(cur_dir + 'tmp1', {{'kod', 'N', 4, 0}, ;
+                         {'name', 'C', 255, 0}, ;
+                         {'shifr', 'C', 20, 0}, ;
+                         {'shifr1', 'C', 20, 0}, ;
+                         {'dom', 'N', 1, 0}, ;
+                         {'zf', 'C', 30, 0}, ;
+                         {'kod_diag', 'C', 5, 0}, ;
+                         {'date_u1', 'D', 8, 0}, ;
+                         {'date_u2', 'D', 8, 0}, ;
+                         {'rec_hu', 'N', 8, 0}, ;
+                         {'otd', 'C', 5, 0}, ;
+                         {'plus', 'L', 1, 0}, ;
+                         {'is_edit', 'N', 2, 0}, ;
+                         {'kod_vr', 'N', 5, 0}, ;
+                         {'kod_as', 'N', 5, 0}, ;
+                         {'profil', 'N', 4, 0}, ;
+                         {'kol', 'N', 4, 0}, ;
+                         {'summa', 'N', 11, 2}})
+  use (cur_dir + 'tmp1')
+  index on str(kod, 4) to (cur_dir + 'tmp11')
+  index on dtos(date_u1)+fsort_usl(shifr) to (cur_dir + 'tmp12')
+  use (cur_dir + 'tmp1') index (cur_dir + 'tmp11'), (cur_dir + 'tmp12') alias tmp1
 Use_base("lusl")
 Use_base("luslf")
 R_Use(dir_server+"uslugi",,"USL")
@@ -336,18 +339,20 @@ if human->tip_h >= B_SCHET .and. human->schet > 0 // добавление номера счета
   endif
   add_string("")
 endif
-name_lpu := rtrim(inieditspr(A__POPUPMENU, dir_server+"mo_uch", human->lpu))
-name_otd := "  [ "+alltrim(otd->name)+" ]"
+name_lpu := rtrim(inieditspr(A__POPUPMENU, dir_server + 'mo_uch', human->lpu))
+name_otd := '  [ ' + alltrim(otd->name) + ' ]'
+lTypeLUMedReab := (otd->tiplu == TIP_LU_MED_REAB)
+
 mvzros_reb := inieditspr(A__MENUVERT, menu_vzros, human->vzros_reb)
 mrab_nerab := inieditspr(A__MENUVERT, menu_rab, kart->rab_nerab)
-mkomu := f4_view_list_schet(human->komu,cut_code_smo(human_->smo),human->str_crb)
+mkomu := f4_view_list_schet(human->komu, cut_code_smo(human_->smo), human->str_crb)
 mnum_lu := alltrim(human->uch_doc)
 if yes_num_lu == 1
-  mnum_lu += " ["+lstr(human->kod)+"]"
+  mnum_lu += ' [' + lstr(human->kod) + ']'
 endif
 //
-for i := 1 to perenos(tmp,name_org,sh)
-  add_string(center(alltrim(tmp[i]),sh))
+for i := 1 to perenos(tmp, name_org, sh)
+  add_string(center(alltrim(tmp[i]), sh))
 next
 add_string("")
 add_string(center(name_lpu+name_otd,sh))
@@ -476,13 +481,20 @@ next
 if !empty(tmp1)
   add_string("  Диагнозы осложнения:"+tmp1)
 endif
-add_string("  Медицинская помощь: условия оказания: "+inieditspr(A__MENUVERT, glob_V006, human_->USL_OK))
+if lTypeLUMedReab
+  aMedReab := list2arr(human_2->PC5)  // [1], list2arr(human_2->PC5)[2]
+  add_string('')
+  add_string('  Вид реаблитации: ' + inieditspr(A__MENUVERT, type_reabilitacia(), aMedReab[1]))
+  add_string('  Шкала Реабилитационной Маршрутизации: ' + inieditspr(A__MENUVERT, type_shrm_reabilitacia(), aMedReab[2]))
+endif
+
+add_string('  Медицинская помощь: условия оказания: ' + inieditspr(A__MENUVERT, glob_V006, human_->USL_OK))
 //add_string("    вид: "+inieditspr(A__MENUVERT, glob_V008, human_->VIDPOM))
 if human_->PROFIL > 0
-  k := perenos(tmp,"профиль: "+inieditspr(A__MENUVERT, glob_V002, human_->PROFIL),sh-4)
-  add_string(space(4)+tmp[1])
+  k := perenos(tmp, 'профиль: ' + inieditspr(A__MENUVERT, glob_V002, human_->PROFIL), sh - 4)
+  add_string(space(4) + tmp[1])
   for i := 2 to k
-    add_string(padl(alltrim(tmp[i]),sh))
+    add_string(padl(alltrim(tmp[i]), sh))
   next
 endif
 if human_2->PROFIL_K > 0 .and. human_->USL_OK < 3
@@ -536,7 +548,8 @@ endif
 if !empty(mlech_vr)
   add_string("  Лечащий врач : "+mlech_vr)
 endif
-add_string("")
+
+add_string('')
 add_string(center("Срок лечения с "+full_date(human->n_data)+" по "+full_date(human->k_data),sh))
 add_string("")
 if human->bolnich > 0
@@ -5002,7 +5015,7 @@ DEFAULT fl_plus TO .t.
 return padl(if(empty(s).or.!fl_plus,"","+")+alltrim(s),l)
 
 
-***** 17.07.21 печать бланков
+** 08.06.22 печать бланков
 Function prn_blank(k)
 Static si1 := 1, si2 := 1, si3 := 1, si4 := 1, si5 := 1, si6 := 1, si7 := 1
 Local mas_pmt, mas_msg, mas_fun, j
@@ -5014,19 +5027,22 @@ do case
                 "Диспансеризация детей-~сирот",;
                 "Диспансеризация ~взрослых",;
                 "Медосмотры ~несовершеннолетних",;
-                "Углубленная диспансеризация"}
+                "Углубленная ~диспансеризация",;
+                "Медицинская ~реабилитация"}
     mas_msg := {"Распечатка бланков и справочников для онкологических листов учёта",;
                 "Распечатка бланков для скорой помощи",;
                 "Распечатка бланков по диспансеризации детей-сирот",;
                 "Распечатка бланков по диспансеризации и профилактике взрослого населения",;
                 "Распечатка бланков по медицинским осмотрам несовершеннолетних",;
-                "Распечатка бланков по углубленной диспансеризации взрослого населения"}
+                "Распечатка бланков по углубленной диспансеризации взрослого населения",;
+                "Распечатка бланков по медицинской реабилитации"}
     mas_fun := {"prn_blank(11)",;
                 "prn_blank(12)",;
                 "prn_blank(13)",;
                 "prn_blank(14)",;
                 "prn_blank(15)",;
-                "prn_blank(16)"}
+                "prn_blank(16)",;
+                "prn_blank(17)"}
     popup_prompt(T_ROW,T_COL-5,si1,mas_pmt,mas_msg,mas_fun)
   case k == 11
     mas_pmt := {"~Контрольный лист учёта ЗНО",;
@@ -5088,6 +5104,29 @@ do case
     mas_fun := {"prn_blank(71)",;
                 "prn_blank(72)"}
     popup_prompt(T_ROW,T_COL-5,si4,mas_pmt,mas_msg,mas_fun)
+  case k == 17
+    mas_pmt := {"Реабилитация ~ССС",;
+                "Реабилитация органов ~дыхания", ;
+                "Реабилитация после COVID-~19", ;
+                "Реабилитация органов О-~Д аппарата", ;
+                "Реабилитация центральной нервной с~истемы", ;
+                "Реабилитация переферической нервной с~истемы" }
+                // "Реабилитация после COVID-19 ~Телемедицина", ;  
+    mas_msg := {"Распечатка бланка реабилитации сердечно-сосудистых состояний", ;
+                "Распечатка бланка реабилитации органов дыхания", ;
+                "Распечатка бланка реабилитации органов дыхания, после COVID-19", ;
+                "Распечатка бланка реабилитации с заболеваниями опорно-двигательного аппарата", ;
+                "Распечатка бланка реабилитации с заболеваниями центральной нервной системы", ;
+                "Распечатка бланка реабилитации с заболеваниями периферической нервной системы" }
+                // "Распечатка бланка реабилитации органов дыхания, после COVID-19 с использованием телемедицины", ;
+      mas_fun := {"prn_blank(81)", ;
+                "prn_blank(82)", ;
+                "prn_blank(83)", ;  
+                "prn_blank(85)", ; 
+                "prn_blank(87)", ;
+                "prn_blank(86)" }        
+                // "prn_blank(84)",; 
+    popup_prompt(T_ROW,T_COL-5,si4,mas_pmt,mas_msg,mas_fun)
   case k == 21
     call_fr("smp_2")
   case k == 22
@@ -5121,7 +5160,21 @@ do case
     call_fr("mo_y1dvn")
   case k == 72
     call_fr("mo_y2dvn")
-endcase
+  case k == 81
+    call_fr("mo_reabC")
+  case k == 82
+    call_fr("mo_reabD")
+  case k == 83
+    call_fr("mo_reabV")
+  case k == 84
+    call_fr("mo_reabL")
+  case k == 85
+    call_fr("mo_reabT")
+  case k == 86
+    call_fr("mo_reabN")
+  case k == 87
+    call_fr("mo_reabM")
+  endcase
 if k > 10
   j := int(val(right(lstr(k),1)))
   if between(k,11,19)

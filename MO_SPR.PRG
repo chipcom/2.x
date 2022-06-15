@@ -4525,7 +4525,7 @@ endif
 select (tmp_select)
 return ret
 
-***** 18.02.20 редактирование справочника отделений
+** 17.05.22 редактирование справочника отделений
 Function edit_otd()
 Local i, j, blk, arr[US_LEN], fl
 if input_uch(T_ROW-1,T_COL+5) == NIL
@@ -4549,7 +4549,8 @@ Private mm_tiplu := {;
   {"пренатальная диагностика"             ,TIP_LU_PREND},;  // 9
   {"гемодиализ"                           ,TIP_LU_H_DIA},;  // 10
   {"перитонеальный диализ"                ,TIP_LU_P_DIA},;  // 11
-  {"COVID - углубленная диспансеризация" ,TIP_LU_DVN_COVID}}  // 15
+  {"COVID - углубленная диспансеризация" ,TIP_LU_DVN_COVID},;  // 15
+  {"медицинская реабилитация"            ,TIP_LU_MED_REAB}}  // 16
 if glob_mo[_MO_KOD_TFOMS] == '126501'
   Ins_Array(mm_tiplu, 3, {"неотложная медицинская помощь",TIP_LU_NMP})
 endif

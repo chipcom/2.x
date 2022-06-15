@@ -1,7 +1,10 @@
-#include "inkey.ch"
-#include "function.ch"
-#include "edit_spr.ch"
-#include "chip_mo.ch"
+#include 'inkey.ch'
+#include 'function.ch'
+#include 'edit_spr.ch'
+#include 'chip_mo.ch'
+
+Static Sreestr_sem := "Работа с реестрами"
+Static Sreestr_err := "В данный момент с реестрами работает другой пользователь."
 
 ***** 24.02.22
 Function create_reestr()
@@ -236,8 +239,7 @@ Function create_reestr()
               pack
             endif
             if tmp->nyear > 2018 // 2019 год
-              create1reestr19(tmp->(recno()),tmp->nyear,tmp->nmonth)
-  
+              create1reestr19(tmp->(recno()), tmp->nyear, tmp->nmonth)
             else
               create1reestr17(tmp->(recno()),tmp->nyear,tmp->nmonth)
             endif
@@ -250,5 +252,73 @@ Function create_reestr()
   endif
   close databases
   return NIL
+  
+
+** 10.06.22
+Function create1reestr17(recno, nyear, nmonth)
+  // см. файл not_use/create1reestr17.prg
+  func_error(10, 'Реестр за ' + lstr(nyear) + ' не формируется!')
+  return nil
+
+** 10.06.22
+Function f1create_reestr(oBrow)
+  Local oColumn, n := 36, n1 := 20, blk
+
+  oColumn := TBColumnNew('Отчетный год', {|| str(tmp->nyear, 4) })
+  oColumn:colorBlock := blk
+  oBrow:addColumn(oColumn)
+  oColumn := TBColumnNew('Отчетный месяц', {|| str(tmp->nmonth, 2) })
+  oColumn:colorBlock := blk
+  oBrow:addColumn(oColumn)
+  oColumn := TBColumnNew('Дни max', {|| put_val(tmp->dni, 3) })
+  oColumn:defColor := {5,5}
+  oColumn:colorBlock := {|| {5, 5} }
+  oBrow:addColumn(oColumn)
+  oColumn := TBColumnNew('Кол-во больных', {|| str(tmp->kol, 10) })
+  oColumn:colorBlock := blk
+  oBrow:addColumn(oColumn)
+  oColumn := TBColumnNew('Сумма случаев', {|| str(tmp->summa, 15, 2) })
+  oColumn:colorBlock := blk
+  oBrow:addColumn(oColumn)
+  status_key('^<Esc>^ выход;  ^<Enter>^ составить реестр случаев;  ^<F9>^ печать списка пациентов')
+  return NIL
+  
+** 10.06.22
+Function f2create_reestr(nKey, oBrow)
+  Local buf, rec, k := -1, sh := 80, HH := 60, nfile := 'spisok' + stxt, j := 0
+  do case
+    case nkey == K_F9
+      buf := save_maxrow()
+      mywait()
+      rec := tmp->(recno())
+      fp := fcreate(nfile)
+      n_list := 1
+      tek_stroke := 0
+      add_string('')
+      add_string(center('Список пациентов за отчётный период ' + str(tmp->nyear, 4) + '/' + strzero(tmp->nmonth, 2), sh))
+      add_string('')
+      R_Use(dir_server + 'mo_otd', , 'OTD')
+      R_Use(dir_server + 'human', , 'HUMAN')
+      set relation to otd into OTD
+      use (cur_dir + 'tmpb') new
+      set relation to kod_human into HUMAN
+      index on upper(human->fio) + dtos(human->k_data) to (cur_dir + 'tmpb') for kod_tmp == rec
+      go top
+      do while !eof()
+        verify_FF(HH, .t., sh)
+        add_string(str(++j, 5) + '. ' + padr(human->fio, 47) + date_8(human->n_data) + '-' + ;
+                   date_8(human->k_data) + ' [' + otd->short_name + ']')
+        skip
+      enddo
+      fclose(fp)
+      otd->(dbCloseArea())
+      human->(dbCloseArea())
+      tmpb->(dbCloseArea())
+      select TMP
+      rest_box(buf)
+      viewtext(nfile, , , , , , , 2)
+  endcase
+  return k
+  
   
   
