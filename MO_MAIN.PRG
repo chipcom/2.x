@@ -43,12 +43,12 @@ procedure main( ... )
   Public kod_LIS   := {'125901', '805965'}
   //
   Public DELAY_SPRD := 0 // время задержки для разворачивания строк
-  Public sdbf := '.dbf', sntx := '.ntx', stxt := '.txt', szip := '.zip', ;
-       smem := '.mem', srar := '.rar', sxml := '.xml', sini := '.ini', ;
-       sfr3 := '.fr3', sfrm := '.frm', spdf := '.pdf', scsv := '.csv', ;
-       sxls := '.xls', schip := '.chip', sdbt := '.dbt'
+  Public sdbf := ".DBF", sntx := ".NTX", stxt := ".TXT", szip := ".ZIP",;
+    smem := ".MEM", srar := ".RAR", sxml := ".XML", sini := ".INI",;
+    sfr3 := ".FR3", sfrm := ".FRM", spdf := ".PDF", scsv := ".CSV",;
+    sxls := ".xls", schip := ".CHIP", sdbt := ".dbt"
   public cslash := hb_ps()    // '\'
-       
+    
   PUBLIC public_mouse := .f., pravo_write := .t., pravo_read := .t., ;
        MenuTo_Minut := 0, sys_date := DATE(), cScrMode := 'COLOR', ;
        DemoMode := .f., picture_pf := '@R 999-999-999 99', ;
