@@ -7,7 +7,7 @@
 Static sadiag1 := {}
 
   
-** 31.05.22 создание XML-файлов реестра
+** 22.06.22 создание XML-файлов реестра
 Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
   //
@@ -973,10 +973,14 @@ Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
             mo_add_xml_stroke(oUSL,"DET"   ,iif(human->VZROS_REB==0,'0','1'))
           endif
           mo_add_xml_stroke(oUSL,"DATE_IN" ,date2xml(c4tod(hu->DATE_U)))
-          if empty(hu_->DATE_END)
-            mo_add_xml_stroke(oUSL,"DATE_OUT",date2xml(c4tod(hu_->DATE_U2)))
+          if p_tip_reestr == 1
+            if ! empty(hu_->DATE_END) .and. (hu->KOL_1 > 1)
+              mo_add_xml_stroke(oUSL,"DATE_OUT",date2xml(hu_->DATE_END))
+            else
+              mo_add_xml_stroke(oUSL,"DATE_OUT",date2xml(c4tod(hu_->DATE_U2)))
+            endif
           else
-            mo_add_xml_stroke(oUSL,"DATE_OUT",date2xml(hu_->DATE_END))
+            mo_add_xml_stroke(oUSL,"DATE_OUT",date2xml(c4tod(hu_->DATE_U2)))
           endif
           if p_tip_reestr == 1
             // подменим диагноз если необходимо для генно-инженерных препаратов или
