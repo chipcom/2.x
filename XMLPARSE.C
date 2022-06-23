@@ -547,7 +547,7 @@ HB_FUNC( HBXML_GETDOC )
    BOOL           bFile;
    unsigned char  *ptr;
    int            iMainTags = 0;
-   char BOM[3] = {239,187,191}; //  маркер последовательности байтов начала файла в кодировке UTF-8
+   char BOM[3] = {(char)239,(char)187,(char)191}; //  маркер последовательности байтов начала файла в кодировке UTF-8
 
    if( ISCHAR(2) )
    {
