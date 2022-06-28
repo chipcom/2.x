@@ -48,6 +48,19 @@ Function ret_t005(lkod)
 
   return 'Неизвестная категория проверки с идентификатором: ' + str(lkod)
 
+* 28.06.22 вернуть строку для кода дефекта с описанием ошибки ТФОМС из справочника T005.dbf
+Function ret_t005_smol(lkod)
+  local arrErrors := loadT005()
+  local row := {}
+
+  for each row in arrErrors
+    if row[1] == lkod
+      return '(' + lstr(row[1]) + ') ' + row[2] 
+    endif
+  next
+
+  return 'Неизвестная категория проверки с идентификатором: ' + str(lkod)
+
 * 05.08.21 вернуть массив описателя ошибки для кода дефекта с описанием ошибки ТФОМС из справочника T005.dbf
 Function retArr_t005(lkod, isEmpty)
   local arrErrors := loadT005()

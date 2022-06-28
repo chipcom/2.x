@@ -1238,7 +1238,7 @@ else      //  c 25.05.2021  до 86
 endif
 return i
 
-***** 08.04.19 Акты сверки по СМО
+** 28.06.22 Акты сверки по СМО
 Function akt_sverki_smo()
 Static sitog := {;
   "2. Общая сумма средств на оплату по зарег.счетам за месяц",;
@@ -1249,7 +1249,8 @@ Static sitog := {;
   "5. Перечисленная сумма средств",;
   "      кроме того, сумма штрафов"}
 Local buf := save_maxrow(), lsmo, i, j, k, s, aitog[2,7], hitog[2,7], ismo, vid_eks,;
-      b1, b2, a1, a2, name_file := "aktsver", sh := 80, HH := 60, is_smp := {.f.,.f.}
+      b1, b2, a1, a2, name_file := "aktsver", sh := 80, HH := 60, is_smp := {.f.,.f.},;
+      mas_txt[30], k_txt := 0, ii
 if (lsmo := ret_actual_smo()) == NIL
   return NIL
 endif
@@ -1470,9 +1471,13 @@ else
         if verify_FF(HH,.t.,sh)
           aeval(arr_title, {|x| add_string(x) } )
         endif
+        k_txt := perenos(mas_txt,alltrim(ret_t005_smol(hitog[ireg-1,j,j1,1])),38)
         add_string(str(hitog[ireg-1,j,j1,2],15,2)+;
                    " ("+lstr(hitog[ireg-1,j,j1,3])+" л/у) "+;
-                   ltrim(ret_t005(hitog[ireg-1,j,j1,1])))
+                    mas_txt[1])
+        for ii := 2 to k_txt
+          add_string(space(42)+mas_txt[ii])
+        next  
       next
       add_string(replicate("-",sh))
     endif
