@@ -11442,11 +11442,11 @@ Local arr_title := {;
   " N ≥           î.à.é. Ø†Ê®•≠‚†            ≥Ç‡•¨Ô ≥ ó•™ ≥äÆ§ è ≥  ë„¨¨†   ≥        Ç‡†Á        ",;
   "ƒƒƒ¡ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ¡ƒƒƒƒƒƒ¡ƒƒƒƒƒ¡ƒƒƒƒƒƒ¡ƒƒƒƒƒƒƒƒƒƒ¡ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ"}
 
-if glob_mo[_MO_KOD_TFOMS] == '171004' // äÅ-4
+if glob_mo[_MO_KOD_TFOMS] == '171004' .or. glob_mo[_MO_KOD_TFOMS] == '114504' // äÅ-4  ® äè 4
   arr_title := {;
-  "ƒƒƒ¬ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ¬ƒƒƒƒƒƒ¬ƒƒƒƒƒ¬ƒƒƒƒƒƒƒƒ¬ƒƒƒƒƒƒƒƒƒƒ¬ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ",;
-  " N ≥           î.à.é. Ø†Ê®•≠‚†            ≥Ç‡•¨Ô ≥ ó•™ ≥ ÑÆ£Æ¢Æ‡≥  ë„¨¨†   ≥       Ç‡†Á       ",;
-  "ƒƒƒ¡ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ¡ƒƒƒƒƒƒ¡ƒƒƒƒƒ¡ƒƒƒƒƒƒƒƒ¡ƒƒƒƒƒƒƒƒƒƒ¡ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ"}
+  "ƒƒƒ¬ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ¬ƒƒƒƒƒƒ¬ƒƒƒƒƒ¬ƒƒƒƒƒƒƒƒƒƒ¬ƒƒƒƒƒƒƒƒƒƒ¬ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ",;
+  " N ≥           î.à.é. Ø†Ê®•≠‚†            ≥Ç‡•¨Ô ≥ ó•™ ≥  ÑÆ£Æ¢Æ‡ ≥  ë„¨¨†   ≥       Ç‡†Á       ",;
+  "ƒƒƒ¡ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ¡ƒƒƒƒƒƒ¡ƒƒƒƒƒ¡ƒƒƒƒƒƒƒƒƒƒ¡ƒƒƒƒƒƒƒƒƒƒ¡ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ"}
 endif
 
 sh := len(arr_title[1])
@@ -11517,6 +11517,21 @@ do while hum->fr_data <= arr_m[8] .and. !eof()
       goto (t_hum_rec)
       tmp->dogovor  := lstr(hum->kod_k)+"/"+lstr(nom_prihod)
     endif
+//
+    if glob_mo[_MO_KOD_TFOMS] == '114504' //  äè 4
+      nom_prihod := 0
+      t_hum_rec := hum->(recno())
+      kart_kod := hum->kod_k
+      t_k_data := year(hum->k_data)
+      select HUM
+      do while hum->kod_k == kart_kod .and. year(hum->k_data) == t_k_data .and. !eof()
+        ++nom_prihod
+        skip
+      enddo
+      goto (t_hum_rec)
+      tmp->dogovor  := lstr(kart->uchast)+"/"+lstr(kart->kod_vu)+"/"+lstr(nom_prihod)
+    endif
+//
     if c4tod(hum->fr_data) != hum->n_data .or.;
        c4tod(hum->fr_data) != hum->k_data
       tmp->t_flag := 1
@@ -11583,13 +11598,13 @@ if bkol_oper > 0
     if verify_FF(HH,.t.,sh)
       aeval(arr_title, {|x| add_string(x) } )
     endif
-    if glob_mo[_MO_KOD_TFOMS] == '171004' // äÅ-4
+    if glob_mo[_MO_KOD_TFOMS] == '171004' .or. glob_mo[_MO_KOD_TFOMS] == '114504' //  äÅ-4   äè 4
       add_string(str(++ii,3)+" "+;
                  padr(tmp->fio,38)+;
                  iif(tmp->summa_bn > 0,"Åç","  ")+;
                  padr(sectotime(tmp->fr_time),5)+" "+;
                  padl(lstr(tmp->chek),5)+" "+;
-                 padr(tmp->dogovor,8)+" "+;
+                 padr(tmp->dogovor,10)+" "+;
                  iif(tmp->summa_bn > 0,put_kope(tmp->summa_bn,10),put_kope(tmp->summa,10))+" "+;
                  padr(fam_i_o(tmp->fio_vr),18)+;
                  iif(tmp->t_flag==1,"*"," "))
@@ -11598,7 +11613,7 @@ if bkol_oper > 0
                    padr(tmp->fio,38)+"  "+;
                    padr(sectotime(tmp->fr_time),5)+" "+;
                    padl(lstr(tmp->chek),5)+" "+;
-                   padr(tmp->dogovor,8)+" "+;
+                   padr(tmp->dogovor,10)+" "+;
                    put_kope(tmp->summa-tmp->summa_bn,10)+" "+;
                    padr(fam_i_o(tmp->fio_vr),18)+;
                    iif(tmp->t_flag==1,"*"," "))
@@ -11629,8 +11644,8 @@ if bkol_oper > 0
     skip
   enddo
   add_string(replicate("ƒ",sh))
-  if glob_mo[_MO_KOD_TFOMS] == '171004' // äÅ-4
-    add_string(padR("à‚Æ£Æ: ",63)+put_kope(sm2,12))
+  if glob_mo[_MO_KOD_TFOMS] == '171004' .or. glob_mo[_MO_KOD_TFOMS] == '114504' // äÅ-4
+    add_string(padR("à‚Æ£Æ: ",65)+put_kope(sm2,12))
   else
     add_string(padR("à‚Æ£Æ: ",61)+put_kope(sm2,12))
   endif
