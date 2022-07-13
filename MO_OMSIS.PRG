@@ -3950,12 +3950,12 @@ for i := 1 to 2
 next
 return NIL
 
-***** 24.02.22 форма 14-МЕД (ОМС)
+***** 13.07.22 форма 14-МЕД (ОМС)
 Function forma14_med_oms()
 Static group_ini := "f14_med_oms"
 Local begin_date, end_date, buf := savescreen(), arr_m, i, j, k, k1, k2,;
       t_arr[10], t_arr1[10], name_file := "f14med"+stxt, tfoms_pz[5,11],;
-      sh, HH := 80, reg_print := 5, is_trudosp, is_rebenok, is_inogoro,;
+      sh, HH := 80, reg_print := 5, is_trudosp, is_rebenok, is_inogoro, is_onkologia,;
       is_reabili, is_ekstra, lshifr1, koef, vid_vp, r1 := 9, fl_exit := .f.,;
       is_vmp, d2_year, ar, arr_excel := {}, fl_error := .f., is_z_sl,;
       cFileProtokol := "tmp"+stxt, arr_prof := {}, arr_usl, au, ii,;
@@ -4082,7 +4082,7 @@ arr_pril5[29,1] := "Дн.стац.ЭКО - руб."
 
 *********************************************************************
 //arr_m := {2020,1,12,"за январь - декабрь 2020 года",0d20200101,0d20201231}
-arr_m := {2022,1,3,"за январь - март 2022 года",0d20220101,0d20220331}
+arr_m := {2022,1,6,"за январь - июнь 2022 года",0d20220101,0d20220630}
 *********************************************************************
 
 lal := "lusl" ; lalf := "luslf"
@@ -4188,7 +4188,7 @@ R_Use(dir_server+"human",dir_server+"humans","HUMAN")
 set relation to recno() into HUMAN_, to recno() into HUMAN_2, to kod_k into KART
 //
 *********************************************************************
-mdate_rak := arr_m[6]+13 // по какую дату РАК сумма к оплате 13.04.22
+mdate_rak := arr_m[6]+13 // по какую дату РАК сумма к оплате 13.07.22
 //mdate_rak := arr_m[6]+18 // по какую дату РАК сумма к оплате 18.01.21
 *********************************************************************
 R_Use(dir_server+"mo_xml",,"MO_XML")
@@ -4216,7 +4216,7 @@ do while !eof()
     //
     *** 2022 год
     //k := 15 // дата регистрации по 15.01.21
-    k := 7 // дата регистрации по 07.04.22
+    k := 7 // дата регистрации по 07.06.22
     ***
     fl := between(mdate,arr_m[5],arr_m[6]+k) .and. between(mdate1,arr_m[5],arr_m[6]) // !!отч.период 2022 год
   endif
@@ -5166,6 +5166,10 @@ do while !eof()
             if (i := ascan(arr_dn_stac, {|x| x[1] == human_->PROFIL })) == 0
               aadd(arr_dn_stac, {human_->PROFIL,0,0,0,0}) ; i := len(arr_dn_stac)
             endif
+            is_onkologia := .F.
+            if equalany(human_->PROFIL,18,60,76)
+              is_onkologia := .T.
+            endif 
             if is_dializ
               lvidpom := 31 // !!!!!!!
             endif
@@ -5196,22 +5200,22 @@ do while !eof()
             arr_pril5[25,igs] += tfoms_pz[4,1] // "Дн.стац. - пациентов, чел."
             arr_pril5[26,igs] += tfoms_pz[4,3] // "Дн.стац. - руб."
             aadd(ta,{50,tfoms_pz[4,1],tfoms_pz[4,1],iif(ds_spec==1,tfoms_pz[4,1],0),iif(ds_spec==2,tfoms_pz[4,1],0),tfoms_pz[4,9]})
-            aadd(ta,{55,tfoms_pz[4,2],tfoms_pz[4,2],iif(ds_spec==1,tfoms_pz[4,2],0),iif(ds_spec==2,tfoms_pz[4,2],0),tfoms_pz[4,10]})
+            aadd(ta,{56,tfoms_pz[4,2],tfoms_pz[4,2],iif(ds_spec==1,tfoms_pz[4,2],0),iif(ds_spec==2,tfoms_pz[4,2],0),tfoms_pz[4,10]})
             if is_rebenok
               aadd(ta,{51,tfoms_pz[4,1],tfoms_pz[4,1],iif(ds_spec==1,tfoms_pz[4,1],0),iif(ds_spec==2,tfoms_pz[4,1],0),tfoms_pz[4,9]})
-              aadd(ta,{56,tfoms_pz[4,2],tfoms_pz[4,2],iif(ds_spec==1,tfoms_pz[4,2],0),iif(ds_spec==2,tfoms_pz[4,2],0),tfoms_pz[4,10]})
+              aadd(ta,{57,tfoms_pz[4,2],tfoms_pz[4,2],iif(ds_spec==1,tfoms_pz[4,2],0),iif(ds_spec==2,tfoms_pz[4,2],0),tfoms_pz[4,10]})
             endif
             if is_trudosp
               aadd(ta,{52,tfoms_pz[4,1],tfoms_pz[4,1],iif(ds_spec==1,tfoms_pz[4,1],0),iif(ds_spec==2,tfoms_pz[4,1],0),tfoms_pz[4,9]})
-              aadd(ta,{57,tfoms_pz[4,2],tfoms_pz[4,2],iif(ds_spec==1,tfoms_pz[4,2],0),iif(ds_spec==2,tfoms_pz[4,2],0),tfoms_pz[4,10]})
+              aadd(ta,{58,tfoms_pz[4,2],tfoms_pz[4,2],iif(ds_spec==1,tfoms_pz[4,2],0),iif(ds_spec==2,tfoms_pz[4,2],0),tfoms_pz[4,10]})
             endif
             if is_reabili
               aadd(ta,{53,tfoms_pz[4,1],tfoms_pz[4,1],iif(ds_spec==1,tfoms_pz[4,1],0),iif(ds_spec==2,tfoms_pz[4,1],0),tfoms_pz[4,9]})
-              aadd(ta,{58,tfoms_pz[4,2],tfoms_pz[4,2],iif(ds_spec==1,tfoms_pz[4,2],0),iif(ds_spec==2,tfoms_pz[4,2],0),tfoms_pz[4,10]})
+              aadd(ta,{59,tfoms_pz[4,2],tfoms_pz[4,2],iif(ds_spec==1,tfoms_pz[4,2],0),iif(ds_spec==2,tfoms_pz[4,2],0),tfoms_pz[4,10]})
             endif
             if is_inogoro
-              aadd(ta,{54,tfoms_pz[4,1],tfoms_pz[4,1],iif(ds_spec==1,tfoms_pz[4,1],0),iif(ds_spec==2,tfoms_pz[4,1],0),tfoms_pz[4,9]})
-              aadd(ta,{59,tfoms_pz[4,2],tfoms_pz[4,2],iif(ds_spec==1,tfoms_pz[4,2],0),iif(ds_spec==2,tfoms_pz[4,2],0),tfoms_pz[4,10]})
+              aadd(ta,{55,tfoms_pz[4,1],tfoms_pz[4,1],iif(ds_spec==1,tfoms_pz[4,1],0),iif(ds_spec==2,tfoms_pz[4,1],0),tfoms_pz[4,9]})
+              aadd(ta,{61,tfoms_pz[4,2],tfoms_pz[4,2],iif(ds_spec==1,tfoms_pz[4,2],0),iif(ds_spec==2,tfoms_pz[4,2],0),tfoms_pz[4,10]})
             endif
             if is_ekstra
               arr_pril5[27,igs] += tfoms_pz[4,2] // "Дн.стац.ЭКО - пациенто-дней"
@@ -5219,28 +5223,34 @@ do while !eof()
               arr_pril5[29,igs] += tfoms_pz[4,3] // "Дн.стац.ЭКО - руб."
               arr_eko[1,1] += tfoms_pz[4,2]
               arr_eko[1,2] += tfoms_pz[4,10]
-              aadd(ta,{65,tfoms_pz[4,1],tfoms_pz[4,1],0,iif(ds_spec==2,tfoms_pz[4,1],0),tfoms_pz[4,9]})
-              aadd(ta,{67,tfoms_pz[4,3],tfoms_pz[4,3],0,iif(ds_spec==2,tfoms_pz[4,3],0),tfoms_pz[4,11]})
+              aadd(ta,{68,tfoms_pz[4,1],tfoms_pz[4,1],0,iif(ds_spec==2,tfoms_pz[4,1],0),tfoms_pz[4,9]})
+              aadd(ta,{70,tfoms_pz[4,3],tfoms_pz[4,3],0,iif(ds_spec==2,tfoms_pz[4,3],0),tfoms_pz[4,11]})
               if is_inogoro
                 arr_eko[2,1] += tfoms_pz[4,2]
                 arr_eko[2,2] += tfoms_pz[4,10]
-                aadd(ta,{66,tfoms_pz[4,1],tfoms_pz[4,1],0,iif(ds_spec==2,tfoms_pz[4,1],0),tfoms_pz[4,9]})
-                aadd(ta,{68,tfoms_pz[4,3],tfoms_pz[4,3],0,iif(ds_spec==2,tfoms_pz[4,3],0),tfoms_pz[4,11]})
+                aadd(ta,{69,tfoms_pz[4,1],tfoms_pz[4,1],0,iif(ds_spec==2,tfoms_pz[4,1],0),tfoms_pz[4,9]})
+                aadd(ta,{71,tfoms_pz[4,3],tfoms_pz[4,3],0,iif(ds_spec==2,tfoms_pz[4,3],0),tfoms_pz[4,11]})
               endif
             endif
-            aadd(ta,{60,tfoms_pz[4,3],tfoms_pz[4,3],iif(ds_spec==1,tfoms_pz[4,3],0),iif(ds_spec==2,tfoms_pz[4,3],0),tfoms_pz[4,11]})
+            aadd(ta,{62,tfoms_pz[4,3],tfoms_pz[4,3],iif(ds_spec==1,tfoms_pz[4,3],0),iif(ds_spec==2,tfoms_pz[4,3],0),tfoms_pz[4,11]})
             if is_rebenok
-              aadd(ta,{61,tfoms_pz[4,3],tfoms_pz[4,3],iif(ds_spec==1,tfoms_pz[4,3],0),iif(ds_spec==2,tfoms_pz[4,3],0),tfoms_pz[4,11]})
-            endif
-            if is_trudosp
-              aadd(ta,{62,tfoms_pz[4,3],tfoms_pz[4,3],iif(ds_spec==1,tfoms_pz[4,3],0),iif(ds_spec==2,tfoms_pz[4,3],0),tfoms_pz[4,11]})
-            endif
-            if is_reabili
               aadd(ta,{63,tfoms_pz[4,3],tfoms_pz[4,3],iif(ds_spec==1,tfoms_pz[4,3],0),iif(ds_spec==2,tfoms_pz[4,3],0),tfoms_pz[4,11]})
             endif
-            if is_inogoro
+            if is_trudosp
               aadd(ta,{64,tfoms_pz[4,3],tfoms_pz[4,3],iif(ds_spec==1,tfoms_pz[4,3],0),iif(ds_spec==2,tfoms_pz[4,3],0),tfoms_pz[4,11]})
             endif
+            if is_reabili
+              aadd(ta,{65,tfoms_pz[4,3],tfoms_pz[4,3],iif(ds_spec==1,tfoms_pz[4,3],0),iif(ds_spec==2,tfoms_pz[4,3],0),tfoms_pz[4,11]})
+            endif
+            if is_inogoro
+              aadd(ta,{67,tfoms_pz[4,3],tfoms_pz[4,3],iif(ds_spec==1,tfoms_pz[4,3],0),iif(ds_spec==2,tfoms_pz[4,3],0),tfoms_pz[4,11]})
+            endif
+            if is_onkologia // онкология
+               //  добавка 13.07.22    // стр 54, 60, 66
+               aadd(ta,{54,tfoms_pz[4,1],tfoms_pz[4,1],iif(ds_spec==1,tfoms_pz[4,1],0),iif(ds_spec==2,tfoms_pz[4,1],0),tfoms_pz[4,9]})
+               aadd(ta,{60,tfoms_pz[4,2],tfoms_pz[4,2],iif(ds_spec==1,tfoms_pz[4,2],0),iif(ds_spec==2,tfoms_pz[4,2],0),tfoms_pz[4,10]})   
+               aadd(ta,{66,tfoms_pz[4,3],tfoms_pz[4,3],iif(ds_spec==1,tfoms_pz[4,3],0),iif(ds_spec==2,tfoms_pz[4,3],0),tfoms_pz[4,11]})
+            endif   
           // скорая помощь
           case tfoms_pz[5,1] > 0
             arr_pril5[2,igs] += tfoms_pz[5,1] // "СМП - вызовов, ед."
