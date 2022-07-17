@@ -234,7 +234,7 @@ Function f14tf_nastr(/*@*/lshifr, /*@*/lname, lyear)
     lname := lusl->name  // наименование услуги из справочника ТФОМС
   endif
   if lyear == 2022
-    if is_ksg(lshifr,1) .or. left(lshifr,5) == "1.21."  // 11.02.22
+    if is_ksg(lshifr,1) .or. left(lshifr,5) == "1.21." .or. left(lshifr,7) == "60.10.3" // 17.07.22 11.02.22
       return {{2,-1,i14}}
     elseif is_ksg(lshifr,2) // КСГ дневного стационара
       return {{3,-1,i14}}

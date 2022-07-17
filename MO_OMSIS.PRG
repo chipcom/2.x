@@ -4249,6 +4249,7 @@ do while !eof()
         endif
         select RAKSH
         find (str(human->kod,7))
+        my_debug(,str(human->kod,7))
         do while human->kod == raksh->kod_h .and. !eof()
           if !empty(raksh->SANK_MEK + raksh->SANK_MEE + raksh->SANK_EKMP)
             select TMPF14
@@ -4266,6 +4267,7 @@ do while !eof()
           skip
         enddo
       endif
+       
       if koef > 0
         afill(fl_pol1,0)
         is_vmp := (human_2->VMP == 1)
@@ -4497,6 +4499,9 @@ do while !eof()
             aadd(arr_full_usl,lshifr)
             ta := f14tf_nastr(@lshifr,,d2_year)
             lshifr := alltrim(lshifr)
+            if left(lshifr,7) == "60.10.3"
+              my_debug(,round(hu->stoim_1*koef,2))   
+            endif  
             aadd(au,{lshifr,hu->kol_1,round(hu->stoim_1*koef,2),0,0,hu->kol_1})
             i16 := 0
             dbSelectArea(lal)

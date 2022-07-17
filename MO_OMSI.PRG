@@ -5888,7 +5888,7 @@ Local begin_date, end_date, buf := savescreen(), i, j, k, k1, k2,;
 if !hb_FileExists(dir_exe+"_mo_pr62"+sdbf)
   return func_error(4,"¥ ®¡­ àã¦¥­ ä ©« _mo_pr62"+sdbf)
 endif
-Private arr_m := {2019,1,12,"§  ï­¢ àì - ¤¥ª ¡àì 2019 £®¤ ",0d20190101,0d20191231},;
+Private arr_m := {2022,1,12,"§  ï­¢ àì - ¤¥ª ¡àì 2022 £®¤ ",0d20220101,0d20221231},;
         mm_uslov := {{"¯® áç¥â ¬ ®âç.¯¥à¨®¤  (¡¥§ ãçñâ  €Š)",0},;
                      {"á ãçñâ®¬ €Š (ª ª ¢ ä®à¬¥ 14-Œ…„/ŽŒ‘)",1}}
 Private mdate := arr_m[4], m1date := arr_m[1], muslov := mm_uslov[2,1], m1uslov := mm_uslov[2,2],;
@@ -5955,6 +5955,10 @@ endif
 if arr_m[1] == 2021 .and. arr_m[3] == 12 // ¯à®¢¥à¨âì
   kds := 14 // ¤ â  à¥£¨áâà æ¨¨ ¯® 14.01.22
   kdr := 17 // ¯® ª ªãî ¤ âã €Š áã¬¬  ª ®¯« â¥ 17.01.22
+endif
+if arr_m[1] == 2022 .and. arr_m[3] == 6 // ¯à®¢¥à¨âì
+  kds := 7 // ¤ â  à¥£¨áâà æ¨¨ ¯® 7.07.22
+  kdr := 13 // ¯® ª ªãî ¤ âã €Š áã¬¬  ª ®¯« â¥ 2
 endif
 *********************************************************************
 mdate_rak := arr_m[6]+kdr
@@ -6029,7 +6033,7 @@ do while !eof()
       endif
       if koef > 0 .and. human_->USL_OK < 3
         kodKSG := ""
-        s_dializ := mkol := 0
+        s_dializ := mkol := s_dializ_KB4 := 0
         select HU
         find (str(human->kod,7))
         do while hu->kod == human->kod .and. !eof()
@@ -6041,6 +6045,8 @@ do while !eof()
               kodKSG := lshifr
             elseif left(lshifr,5) == "60.3."
               s_dializ += round(hu->stoim_1*koef,2)
+            elseif left(lshifr,6) == "60.10."  //„¨ «¨§ ã Š 4   
+              s_dializ_KB4 += round(hu->stoim_1*koef,2)
             endif
             if human_->USL_OK == 1
               mkol := human->k_data - human->n_data  // ª®©ª®-¤¥­ì
@@ -6062,10 +6068,11 @@ do while !eof()
             append blank
             tmp->usl_ok := human_->USL_OK
             tmp->shifr  := padr(kodKSG,8)
+            tmp->stroke := "999"
           endif
           tmp->kols ++
           tmp->kold += mkol
-          tmp->summa += ssum - s_dializ
+          tmp->summa += ssum - s_dializ - s_dializ_KB4
         endif
       endif
       select HUMAN
@@ -6105,9 +6112,12 @@ do while !eof()
     endif
   endif
   tmp->stroke := pr->stroke
+  //my_debug(,tmp->stroke)
+  //my_debug(,tmp->shifr)
   select PR
   skip
 enddo
+//quit
 select PR
 go top
 do while !eof()
@@ -6133,6 +6143,7 @@ do while !eof()
 enddo
 select TMP
 index on str(usl_ok,1)+stroke to (cur_dir+"tmp")
+//quit
 for i := 1 to 2
   ar := {}
   bk := {4,5}[i] ; j := 0
@@ -6151,8 +6162,47 @@ for i := 1 to 2
     ar_pr6 := {{"‘¢®¤ Š‘ƒ („‘)",aclone(ar)}}
   endif
 next
+// ¥á«¨ ­®¢ë¥ Š‘ƒ ¥áâì - á®§¤ ¥¬ â¥ªáâ
+fl_999 := .F.
+select tmp
+go top
+do while !eof()
+  if tmp->stroke == "999"
+    fl_999 := .T.
+  endif  
+  skip
+enddo  
+if fl_999
+  HH := 80
+  arr_title := {;
+  "ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ",;
+  "      Š‘ƒ     ³ ‘«ãç ¥¢ ³     Ž¡ê¥¬    ³  ‘à¥¤­ïï ¤«¨â¥«ì­®áâì     ",;
+  "              ³ «¥ç¥­¨ï ³ä¨­ ­á¨à®¢ ­¨ï³  ¯à¥¡ë¢ ­¨ï ¢ áâ æ¨®­ à¥  ",;
+  "ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ"}
+  sh := len(arr_title[1])
+  //
+  fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
+  add_string("")
+  add_string(center("‘¯¨á®ª Š‘ƒ, ®âáãâáâ¢ãîé¨å ¢ ¯à¨«®¦¥­¨ïå 5 ¨ 6 ä®à¬ë 62",sh))
+  add_string("")
+  aeval(arr_title, {|x| add_string(x) } )
+  select tmp
+  go top
+  do while !eof()
+    if tmp->stroke == "999"
+      add_string(padr(tmp->shifr,14)+padl(lstr(tmp->kols),10)+put_kop(tmp->summa,15)+" "+put_kop(tmp->sr_kol,15))
+    endif  
+    skip
+  enddo  
+  fclose(fp)
+endif
+ // 
 close databases
 restscreen(buf)
+//
+if fl_999
+  viewtext(name_file,,,,.t.,,,5)
+endif
 fill_in_Excel_Book(dir_exe+"mo_pr5_62"+sxls,;
                    cur_dir+"__pr5_62"+sxls,;
                    ar_pr5,;
