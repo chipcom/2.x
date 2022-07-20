@@ -4249,7 +4249,7 @@ do while !eof()
         endif
         select RAKSH
         find (str(human->kod,7))
-        my_debug(,str(human->kod,7))
+        //my_debug(,str(human->kod,7))
         do while human->kod == raksh->kod_h .and. !eof()
           if !empty(raksh->SANK_MEK + raksh->SANK_MEE + raksh->SANK_EKMP)
             select TMPF14
@@ -4262,12 +4262,13 @@ do while !eof()
             tmpf14->KOD_H     := human->kod
             tmpf14->kol_akt   := j
             tmpf14->usl_ok    := iif(schet_->BUKVA=="T",5,human_->USL_OK)
+            my_debug(," ‘ã¬¬  "+str(raksh->SANK_MEK + raksh->SANK_MEE + raksh->SANK_EKMP))
           endif
           select RAKSH
           skip
         enddo
       endif
-       
+      //quit 
       if koef > 0
         afill(fl_pol1,0)
         is_vmp := (human_2->VMP == 1)
