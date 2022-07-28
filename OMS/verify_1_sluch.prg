@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-** 26.05.22
+** 28.07.22
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
         i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -1708,8 +1708,8 @@ Function verify_1_sluch(fl_view)
         onksl->b_diag := -1
         UnLock
       else
-        if len(arr_onkdi0) > 0
-          aadd(ta,"не заполннена дата взятия материала")
+        if len(arr_onkdi0) > 0 .and. empty(human_2->NPR_DATE) .and. empty(human_->NPR_MO)
+          aadd(ta,"не заполнена дата взятия материала")
         endif
         if is_gisto .and. emptyall(len(ar_N009),len(ar_N012))  // взятие гистологии и справочники пустые
           if empty(ngist)
@@ -1728,7 +1728,7 @@ Function verify_1_sluch(fl_view)
           elseif is_mgi .and. len(ar_N012) > 0 .and. len(arr_onkdi2) != 1
             aadd(ta,"для листа учёта по молекулярной генетике зполняется только один маркер по иммуногистохимии")
           endif
-          if onksl->b_diag == 98
+          if onksl->b_diag == 98 .and. empty(human_2->NPR_DATE) .and. empty(human_->NPR_MO)
             if ngist != len(ar_N009)
               aadd(ta,"не все гистологии заполнены")
             endif

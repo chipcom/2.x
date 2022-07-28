@@ -3,7 +3,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-** 17.05.22 добавление или редактирование случая (листа учета)
+** 28.07.22 добавление или редактирование случая (листа учета)
 Function oms_sluch(Loc_kod, kod_kartotek)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -1571,6 +1571,13 @@ Function oms_sluch(Loc_kod, kod_kartotek)
                  when eq_any(m1DS1_T,1,2) ;
                  color colget_menu
         if len(mm_N009) == 0 .and. len(mm_N012) == 0
+          if is_gisto
+            @ ++j,3 say "Результаты гистологии" get mrez_gist ;
+                 reader {|x|menu_reader(x,{{|k,r,c| get_rez_gist(k,r,c)}},A__FUNCTION,,,.f.)}
+          else
+            @ ++j,3 say "Гистология / иммуногистохимия: не нужно для "+iif(is_mgi, "МГИ", mkod_diag)
+          endif
+        elseif (len(mm_N009) != 0 .or. len(mm_N012) != 0) .and. !empty(mNPR_DATE) .and. !empty(mNPR_MO)
           if is_gisto
             @ ++j,3 say "Результаты гистологии" get mrez_gist ;
                  reader {|x|menu_reader(x,{{|k,r,c| get_rez_gist(k,r,c)}},A__FUNCTION,,,.f.)}
