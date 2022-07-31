@@ -1708,7 +1708,7 @@ Function verify_1_sluch(fl_view)
         onksl->b_diag := -1
         UnLock
       else
-        if len(arr_onkdi0) > 0 .and. empty(human_2->NPR_DATE) .and. empty(human_->NPR_MO)
+        if len(arr_onkdi0) > 0
           aadd(ta,"не заполнена дата взятия материала")
         endif
         if is_gisto .and. emptyall(len(ar_N009),len(ar_N012))  // взятие гистологии и справочники пустые
@@ -1728,7 +1728,7 @@ Function verify_1_sluch(fl_view)
           elseif is_mgi .and. len(ar_N012) > 0 .and. len(arr_onkdi2) != 1
             aadd(ta,"для листа учёта по молекулярной генетике зполняется только один маркер по иммуногистохимии")
           endif
-          if onksl->b_diag == 98 .and. empty(human_2->NPR_DATE) .and. empty(human_->NPR_MO)
+          if onksl->b_diag == 98
             if ngist != len(ar_N009)
               aadd(ta,"не все гистологии заполнены")
             endif

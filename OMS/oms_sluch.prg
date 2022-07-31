@@ -3,7 +3,13 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-** 28.07.22 добавление или редактирование случая (листа учета)
+** 29.07.22 проходит только КТ, УЗИ диагностика при онкологии
+function only_control_onko(napr, date, rslt, ishod)
+  // napr - наравившее МО
+  // date - дата направления
+  return !empty(napr) .and. !empty(date) .and. rslt == 314 .and. ishod == 304
+
+** 31.07.22 добавление или редактирование случая (листа учета)
 Function oms_sluch(Loc_kod, kod_kartotek)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -1338,6 +1344,8 @@ Function oms_sluch(Loc_kod, kod_kartotek)
             m1B_DIAG := 98
           endif
           k--
+        elseif only_control_onko(mNPR_MO, mNPR_DATE, m1rslt, m1ishod)
+          m1B_DIAG := 99 // не надо
         else
           if len(mm_N009) == 0
             k++
@@ -1489,11 +1497,12 @@ Function oms_sluch(Loc_kod, kod_kartotek)
           endif
         endif
         mmb_diag := {{"выполнено (результат получен)",98},;
-                     {"выполнено (результат не получен)",97},;
-                     {"выполнено (до 1 сентября 2018г.)",-1},;
-                     {"отказ",0},;
-                     {"не показано",7},;
-                     {"противопоказано",8}}
+                      {"выполнено (результат не получен)",97},;
+                      {"выполнено (до 1 сентября 2018г.)",-1},;
+                      {"отказ",0},;
+                      {"не показано",7},;
+                      {"противопоказано",8},;  //}
+                      {"не надо",99}}
         mB_DIAG := inieditspr(A__MENUVERT, mmb_diag, m1B_DIAG)
       endif
 //////////////////////////////////////////////////////////
@@ -1510,22 +1519,24 @@ Function oms_sluch(Loc_kod, kod_kartotek)
       @ j,57 get mn_data when .f.
       @ row(),col()+1 say "-" get mk_data when .f.
 
-      @ ++j,1 say "НАПРАВЛЕНИЕ №" get cur_napr pict "99" when .f.
-      @ j,col() say "(из" get count_napr pict "99" when .f.
-      @ j,col() say ")"
-      @ j,29 say "(<F5> - добавление/редактирование направления №...)" color "G/B"
+      // направления на доп. исследования
+      if ! only_control_onko(mNPR_MO, mNPR_DATE, m1rslt, m1ishod)
+        @ ++j,1 say "НАПРАВЛЕНИЕ №" get cur_napr pict "99" when .f.
+        @ j,col() say "(из" get count_napr pict "99" when .f.
+        @ j,col() say ")"
+        @ j,29 say "(<F5> - добавление/редактирование направления №...)" color "G/B"
 
-      @ ++j,3 say "Дата направления" get mNAPR_DATE ;
+        @ ++j,3 say "Дата направления" get mNAPR_DATE ;
                 valid {|| iif(empty(mNAPR_DATE) .or. between(mNAPR_DATE,mn_data,mk_data), .t., ;
-                               func_error(4,"Дата направления должна быть внутри сроков лечения")) }
-      @ ++j,3 say "В какую МО направлен" get mnapr_mo ;
+                              func_error(4,"Дата направления должна быть внутри сроков лечения")) }
+        @ ++j,3 say "В какую МО направлен" get mnapr_mo ;
                 reader {|x|menu_reader(x,{{|k,r,c|f_get_mo(k,r,c)}},A__FUNCTION,,,.f.)}
-      @ ++j,3 say "Вид направления" get mnapr_v ;
+        @ ++j,3 say "Вид направления" get mnapr_v ;
                 reader {|x|menu_reader(x,mm_napr_v,A__MENUVERT,,,.f.)} //; color colget_menu
-      @ ++j,5 say "Метод диагностического исследования" get mmet_issl ;
+        @ ++j,5 say "Метод диагностического исследования" get mmet_issl ;
                 reader {|x|menu_reader(x,mm_met_issl,A__MENUVERT,,,.f.)} ;
                 when m1napr_v == 3 //; color colget_menu
-      @ ++j,5 say "Медицинская услуга" get mshifr pict "@!" ;
+        @ ++j,5 say "Медицинская услуга" get mshifr pict "@!" ;
                 when {|g| m1napr_v == 3 .and. m1MET_ISSL > 0 } ;
                 valid {|g|
                             Local fl := f5editkusl(g,2,2)
@@ -1538,10 +1549,13 @@ Function oms_sluch(Loc_kod, kod_kartotek)
                             endif
                             return fl
                        }
-      @ ++j,7 say "Услуга" get mname_u when .f. color color14
-      @ ++j,3 say "Табельный номер направившего врача" get MTAB_NOM_NAPR pict "99999" ;
-          valid {|g| iif((m1napr_v != 0) .and. (MTAB_NOM_NAPR == 0) .and. v_kart_vrach(g), func_error(4, 'Необходимо указать табельный направившего врача'),.t.) }
+        @ ++j,7 say "Услуга" get mname_u when .f. color color14
+        @ ++j,3 say "Табельный номер направившего врача" get MTAB_NOM_NAPR pict "99999" ;
+              valid {|g| iif((m1napr_v != 0) .and. (MTAB_NOM_NAPR == 0) .and. v_kart_vrach(g), func_error(4, 'Необходимо указать табельный направившего врача'),.t.) }
+      endif
+
       if is_oncology == 2
+        // описание состояния при онкологии
         @ ++j,1 say "СВЕДЕНИЯ О СЛУЧАЕ ЛЕЧЕНИЯ ОНКОЛОГИЧЕСКОГО ЗАБОЛЕВАНИЯ"
         @ ++j,3 say "Повод обращения" get mDS1_T ;
                  reader {|x|menu_reader(x,lmm_DS1_T,A__MENUVERT,,,.f.)} ;
@@ -1570,81 +1584,91 @@ Function oms_sluch(Loc_kod, kod_kartotek)
                  reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
                  when eq_any(m1DS1_T,1,2) ;
                  color colget_menu
-        if len(mm_N009) == 0 .and. len(mm_N012) == 0
-          if is_gisto
-            @ ++j,3 say "Результаты гистологии" get mrez_gist ;
-                 reader {|x|menu_reader(x,{{|k,r,c| get_rez_gist(k,r,c)}},A__FUNCTION,,,.f.)}
-          else
-            @ ++j,3 say "Гистология / иммуногистохимия: не нужно для "+iif(is_mgi, "МГИ", mkod_diag)
-          endif
-        elseif (len(mm_N009) != 0 .or. len(mm_N012) != 0) .and. !empty(mNPR_DATE) .and. !empty(mNPR_MO)
-          if is_gisto
-            @ ++j,3 say "Результаты гистологии" get mrez_gist ;
-                 reader {|x|menu_reader(x,{{|k,r,c| get_rez_gist(k,r,c)}},A__FUNCTION,,,.f.)}
-          else
-            @ ++j,3 say "Гистология / иммуногистохимия: не нужно для "+iif(is_mgi, "МГИ", mkod_diag)
-          endif
-        else
-          @ ++j,3 say "Гистология / иммуногистохимия" get mB_DIAG ;
-                 reader {|x|menu_reader(x,mmb_diag,A__MENUVERT,,,.f.)}
-          @ ++j,3 say "Дата взятия материала" get mDIAG_DATE ;
-                 when eq_any(m1b_diag,97,98) ;
-                 valid {|| iif(empty(mDIAG_DATE) .or. mDIAG_DATE <= mk_data, .t., ;
-                               func_error(4,"Дата взятия материала больше даты окончания лечения")) }
-          if len(mm_N009) == 0
-            @ ++j,3 say "Гистология: не нужно для "+iif(is_mgi, "МГИ", mkod_diag)
-          else
-            @ ++j,3 say mm_N009[1,1] get mgist1 ;
-                 reader {|x|menu_reader(x,mm_N009[1,3],A__MENUVERT,,,.f.)} ;
-                 when m1b_diag == 98 ;
-                 color colget_menu
-            if len(mm_N009) >= 2
-              @ ++j,3 say mm_N009[2,1] get mgist2 ;
-                 reader {|x|menu_reader(x,mm_N009[2,3],A__MENUVERT,,,.f.)} ;
-                 when m1b_diag == 98 ;
-                 color colget_menu
+
+        // проведение гистологии или иммуногистохимии
+        if ! only_control_onko(mNPR_MO, mNPR_DATE, m1rslt, m1ishod)
+          if len(mm_N009) == 0 .and. len(mm_N012) == 0
+            if is_gisto
+              @ ++j,3 say "Результаты гистологии" get mrez_gist ;
+                   reader {|x|menu_reader(x,{{|k,r,c| get_rez_gist(k,r,c)}},A__FUNCTION,,,.f.)}
+            else
+              @ ++j,3 say "Гистология / иммуногистохимия: не нужно для "+iif(is_mgi, "МГИ", mkod_diag)
             endif
-          endif
-          if len(mm_N012) == 0
-            @ ++j,3 say "Иммуногистохимия: не нужно для "+iif(is_mgi, "МГИ", mkod_diag)
+          elseif (len(mm_N009) != 0 .or. len(mm_N012) != 0) //.and. only_control_onko(mNPR_MO, mNPR_DATE, m1rslt, m1ishod)  //!empty(mNPR_DATE) .and. !empty(mNPR_MO)
+            if is_gisto
+              @ ++j,3 say "Результаты гистологии" get mrez_gist ;
+                   reader {|x|menu_reader(x,{{|k,r,c| get_rez_gist(k,r,c)}},A__FUNCTION,,,.f.)}
+            else
+              @ ++j,3 say "Гистология / иммуногистохимия: не нужно для "+iif(is_mgi, "МГИ", mkod_diag)
+            endif
           else
-            @ ++j,3 say mm_N012[1,1] get mmark1 ;
-                 reader {|x|menu_reader(x,mm_N012[1,3],A__MENUVERT,,,.f.)} ;
-                 when m1b_diag == 98 ;
-                 color colget_menu
-            if len(mm_N012) >= 2
-              @ ++j,3 say mm_N012[2,1] get mmark2 ;
-                 reader {|x|menu_reader(x,mm_N012[2,3],A__MENUVERT,,,.f.)} ;
-                 when m1b_diag == 98 ;
-                 color colget_menu
+            @ ++j,3 say "Гистология / иммуногистохимия" get mB_DIAG ;
+                   reader {|x|menu_reader(x,mmb_diag,A__MENUVERT,,,.f.)}
+            @ ++j,3 say "Дата взятия материала" get mDIAG_DATE ;
+                   when eq_any(m1b_diag,97,98) ;
+                   valid {|| iif(empty(mDIAG_DATE) .or. mDIAG_DATE <= mk_data, .t., ;
+                                 func_error(4,"Дата взятия материала больше даты окончания лечения")) }
+            if len(mm_N009) == 0
+              @ ++j,3 say "Гистология: не нужно для "+iif(is_mgi, "МГИ", mkod_diag)
+            else
+              @ ++j,3 say mm_N009[1,1] get mgist1 ;
+                   reader {|x|menu_reader(x,mm_N009[1,3],A__MENUVERT,,,.f.)} ;
+                   when m1b_diag == 98 ;
+                   color colget_menu
+              if len(mm_N009) >= 2
+                @ ++j,3 say mm_N009[2,1] get mgist2 ;
+                   reader {|x|menu_reader(x,mm_N009[2,3],A__MENUVERT,,,.f.)} ;
+                   when m1b_diag == 98 ;
+                   color colget_menu
+              endif
             endif
-            if len(mm_N012) >= 3
-              @ ++j,3 say mm_N012[3,1] get mmark3 ;
-                 reader {|x|menu_reader(x,mm_N012[3,3],A__MENUVERT,,,.f.)} ;
-                 when m1b_diag == 98 ;
-                 color colget_menu
-            endif
-            if len(mm_N012) >= 4
-              @ ++j,3 say mm_N012[4,1] get mmark4 ;
-                 reader {|x|menu_reader(x,mm_N012[4,3],A__MENUVERT,,,.f.)} ;
-                 when m1b_diag == 98 ;
-                 color colget_menu
-            endif
-            if len(mm_N012) >= 5
-              @ ++j,3 say mm_N012[5,1] get mmark5 ;
-                 reader {|x|menu_reader(x,mm_N012[5,3],A__MENUVERT,,,.f.)} ;
-                 when m1b_diag == 98 ;
-                 color colget_menu
+            if len(mm_N012) == 0
+              @ ++j,3 say "Иммуногистохимия: не нужно для "+iif(is_mgi, "МГИ", mkod_diag)
+            else
+              @ ++j,3 say mm_N012[1,1] get mmark1 ;
+                   reader {|x|menu_reader(x,mm_N012[1,3],A__MENUVERT,,,.f.)} ;
+                   when m1b_diag == 98 ;
+                   color colget_menu
+              if len(mm_N012) >= 2
+                @ ++j,3 say mm_N012[2,1] get mmark2 ;
+                   reader {|x|menu_reader(x,mm_N012[2,3],A__MENUVERT,,,.f.)} ;
+                   when m1b_diag == 98 ;
+                   color colget_menu
+              endif
+              if len(mm_N012) >= 3
+                @ ++j,3 say mm_N012[3,1] get mmark3 ;
+                   reader {|x|menu_reader(x,mm_N012[3,3],A__MENUVERT,,,.f.)} ;
+                   when m1b_diag == 98 ;
+                   color colget_menu
+              endif
+              if len(mm_N012) >= 4
+                @ ++j,3 say mm_N012[4,1] get mmark4 ;
+                   reader {|x|menu_reader(x,mm_N012[4,3],A__MENUVERT,,,.f.)} ;
+                   when m1b_diag == 98 ;
+                   color colget_menu
+              endif
+              if len(mm_N012) >= 5
+                @ ++j,3 say mm_N012[5,1] get mmark5 ;
+                   reader {|x|menu_reader(x,mm_N012[5,3],A__MENUVERT,,,.f.)} ;
+                   when m1b_diag == 98 ;
+                   color colget_menu
+              endif
             endif
           endif
         endif
-        @ ++j,3 say "Консилиум: дата" get mDT_CONS ;
-               valid {|| iif(empty(mDT_CONS) .or. between(mDT_CONS,mn_data,mk_data), .t., ;
-                             func_error(4,"Дата консилиума должна быть внутри сроков лечения")) }
-        @ j,col()+1 say "проведение" get mPR_CONS ;
-               reader {|x|menu_reader(x,mm_PR_CONS,A__MENUVERT,,,.f.)} ;
-               when !empty(mDT_CONS) ;
-               color colget_menu
+
+        // проведение консилиума
+        if ! only_control_onko(mNPR_MO, mNPR_DATE, m1rslt, m1ishod)
+          @ ++j,3 say "Консилиум: дата" get mDT_CONS ;
+            valid {|| iif(empty(mDT_CONS) .or. between(mDT_CONS,mn_data,mk_data), .t., ;
+                          func_error(4,"Дата консилиума должна быть внутри сроков лечения")) }
+          @ j,col()+1 say "проведение" get mPR_CONS ;
+            reader {|x|menu_reader(x,mm_PR_CONS,A__MENUVERT,,,.f.)} ;
+            when !empty(mDT_CONS) ;
+            color colget_menu
+        endif
+
+        // проведение лечения
         if m1usl_ok < 3
           @ ++j,3 say "Проведённое лечение" get musl_tip ;
                  reader {|x|menu_reader(x,mm_usl_tip,A__MENUVERT,,,.f.)} ;
