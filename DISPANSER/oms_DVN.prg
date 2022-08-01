@@ -1128,7 +1128,10 @@ Function oms_sluch_DVN(Loc_kod,kod_kartotek,f_print)
         func_error(4,'Не заполнен номер амбулаторной карты')
         loop
       endif
-      if eq_any(m1gruppa, 3, 4, 13, 14, 23, 24) .and. (m1dopo_na == 0) .and. (m1napr_v_mo == 0) .and. (m1napr_stac == 0) .and. (m1napr_reab == 0)
+      if eq_any(m1gruppa, 3, 4, 13, 14, 23, 24) ;
+            .and. m1DS_ONK != 1 .and. len(arr) == 0 ;
+            .and. (m1dopo_na == 0) ;
+            .and. (m1napr_v_mo == 0) .and. (m1napr_stac == 0) .and. (m1napr_reab == 0)
         func_error(4,"Для выбранной ГРУППЫ ЗДОРОВЬЯ выберите назначения (направления) для пациента!")
         loop
       endif

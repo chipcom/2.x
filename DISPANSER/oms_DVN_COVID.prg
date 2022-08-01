@@ -98,7 +98,6 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
     mDateCOVID := sys_date,;  // дата окончания лечения COVID
     mgruppa, m1gruppa := 1,;      // группа здоровья
     mdyspnea, m1dyspnea := 0 //
-    // m1ndisp := 1, mndisp,;
   Private mdispans, m1dispans := 0, mnazn_l , m1nazn_l  := 0,;
     mdopo_na, m1dopo_na := 0, mssh_na , m1ssh_na  := 0,;
     mspec_na, m1spec_na := 0, msank_na, m1sank_na := 0
@@ -118,7 +117,6 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
   private mkomorbid, m1komorbid := 0
 
   Private mm_gruppa, mm_ndisp1
-  // Private is_disp_19 := .t.
 
   mm_ndisp1 := aclone(mm_ndisp)
 
@@ -1345,7 +1343,6 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       human->K_DATA     := MK_DATA       // дата окончания лечения
       human->CENA := human->CENA_1 := MCENA_1 // стоимость лечения
       human->ishod      := 400 + metap
-      // human->OBRASHEN   := iif(m1DS_ONK == 1, '1', " ")
       human->bolnich    := 0
       human->date_b_1   := ""
       human->date_b_2   := ""
@@ -1435,27 +1432,26 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
       for i := 1 to len(arr_usl_dop)  // i2
         flExist := .f.
         if arr_usl_dop[i,12] == 0   // это услуга ТФОМС
+          // сначала выберем информацию из human_u по услугам ТФОМС
           select HU
-            // сначала выберем информацию из human_u по услугам ТФОМС
-            find (str(Loc_kod,7))
-            do while hu->kod == Loc_kod .and. !eof()
-              usl->(dbGoto(hu->u_kod))
-              if empty(lshifr := opr_shifr_TFOMS(usl->shifr1,usl->kod,mk_data))
-                lshifr := usl->shifr
-              endif
-              lshifr := alltrim(lshifr)
-              if lshifr == alltrim(arr_usl_dop[i,5])
-                G_RLock(forever)
-                flExist := .t.
-                exit
-              endif
-              skip
-            enddo
-            if ! flExist
-              Add1Rec(7)
-              hu->kod := human->kod
+          find (str(Loc_kod,7))
+          do while hu->kod == Loc_kod .and. !eof()
+            usl->(dbGoto(hu->u_kod))
+            if empty(lshifr := opr_shifr_TFOMS(usl->shifr1,usl->kod,mk_data))
+              lshifr := usl->shifr
             endif
-          // endif
+            lshifr := alltrim(lshifr)
+            if lshifr == alltrim(arr_usl_dop[i,5])
+              G_RLock(forever)
+              flExist := .t.
+              exit
+            endif
+            skip
+          enddo
+          if ! flExist
+            Add1Rec(7)
+            hu->kod := human->kod
+          endif
           mrec_hu := hu->(recno())
           hu->kod_vr  := arr_usl_dop[i,1]
           hu->kod_as  := arr_usl_dop[i,3]
@@ -1483,26 +1479,25 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
           hu_->zf := ""
           UNLOCK
         else  // 1 - это услуга ФФОМС
+          // затем выберем информацию из mo_hu по услугам ФФОМС
           select MOHU
-            // затем выберем информацию из mo_hu по услугам ФФОМС
-            set relation to u_kod into MOSU 
-            find (str(Loc_kod,7))
-            do while MOHU->kod == Loc_kod .and. !eof()
-              MOSU->(dbGoto(MOHU->u_kod))
-              select MOHU
-              lshifr := alltrim(iif(empty(MOSU->shifr),MOSU->shifr1,MOSU->shifr))
-              if alltrim(lshifr) == alltrim(arr_usl_dop[i,5])
-                G_RLock(forever)
-                flExist := .t.
-                exit
-              endif
-              skip
-            enddo
-            if ! flExist
-              Add1Rec(7)
-              MOHU->kod := human->kod
+          set relation to u_kod into MOSU 
+          find (str(Loc_kod,7))
+          do while MOHU->kod == Loc_kod .and. !eof()
+            MOSU->(dbGoto(MOHU->u_kod))
+            select MOHU
+            lshifr := alltrim(iif(empty(MOSU->shifr),MOSU->shifr1,MOSU->shifr))
+            if alltrim(lshifr) == alltrim(arr_usl_dop[i,5])
+              G_RLock(forever)
+              flExist := .t.
+              exit
             endif
-          // endif
+            skip
+          enddo
+          if ! flExist
+            Add1Rec(7)
+            MOHU->kod := human->kod
+          endif
           mrec_mohu := MOHU->(recno())
           MOHU->kod_vr  := arr_usl_dop[i,1]
           MOHU->kod_as  := arr_usl_dop[i,3]
@@ -1543,8 +1538,8 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
                 skip
               enddo
             else
-              select MOHU
               // затем выберем информацию из mo_hu по услугам ФФОМС
+              select MOHU
               set relation to u_kod into MOSU 
               find (str(Loc_kod,7))
               do while MOHU->kod == Loc_kod .and. !eof()
