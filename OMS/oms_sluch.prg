@@ -2610,5 +2610,5 @@ Function oms_sluch(Loc_kod, kod_kartotek)
       endif
     endif
   endif
-  return NIL
+  return nil
   
