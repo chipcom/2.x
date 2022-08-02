@@ -210,6 +210,9 @@ Function oms_sluch_DVN(Loc_kod,kod_kartotek,f_print)
   //
   Private pole_diag, pole_pervich, pole_1pervich, pole_d_diag, ;
           pole_stadia, pole_dispans, pole_1dispans, pole_d_dispans, pole_dn_dispans
+
+  arr := {} // массив для направлений
+
   for i := 1 to 5
     sk := lstr(i)
     pole_diag := "mdiag"+sk
@@ -1888,7 +1891,7 @@ Function oms_sluch_DVN(Loc_kod,kod_kartotek,f_print)
       save_arr_DVN(mkod)
       // направления при подозрении на ЗНО
       cur_napr := 0
-      arr := {}
+      // arr := {}
       G_Use(dir_server+"mo_onkna",dir_server+"mo_onkna","NAPR") // онконаправления
       find (str(mkod,7))
       do while napr->kod == mkod .and. !eof()

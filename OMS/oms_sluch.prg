@@ -1594,13 +1594,6 @@ Function oms_sluch(Loc_kod, kod_kartotek)
             else
               @ ++j, 3 say 'Гистология / иммуногистохимия: не нужно для ' +iif(is_mgi, 'МГИ',  mkod_diag)
             endif
-          elseif (len(mm_N009) != 0 .or. len(mm_N012) != 0) //.and. only_control_onko(mNPR_MO, mNPR_DATE, m1rslt, m1ishod)  //!empty(mNPR_DATE) .and. !empty(mNPR_MO)
-            if is_gisto
-              @ ++j, 3 say 'Результаты гистологии' get mrez_gist ;
-                   reader {|x|menu_reader(x, {{|k,r,c| get_rez_gist(k,r,c)}}, A__FUNCTION, , ,.f.)}
-            else
-              @ ++j, 3 say 'Гистология / иммуногистохимия: не нужно для ' +iif(is_mgi, 'МГИ',  mkod_diag)
-            endif
           else
             @ ++j, 3 say 'Гистология / иммуногистохимия' get mB_DIAG ;
                    reader {|x|menu_reader(x,mmb_diag, A__MENUVERT, , ,.f.)}
