@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-** 31.07.22 добавление или редактирование случая (листа учета)
+** 02.08.22 добавление или редактирование случая (листа учета)
 Function oms_sluch_main(Loc_kod, kod_kartotek)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -81,7 +81,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
     mrslt, m1rslt := st_rslt         , ; // результат
     mishod, m1ishod := st_ishod      , ; // исход
     m1company := 0, mcompany, mm_company, ;
-    mkomu, M1KOMU := 0, M1STR_CRB := 0, ; // 0-ОМС,1-компании,3-комитеты/ЛПУ,5-личный счет
+    mkomu, M1KOMU := 0, M1STR_CRB := 0, ; // 0-ОМС, 1-компании, 3-комитеты/ЛПУ, 5-личный счет
     m1NPR_MO := '',  mNPR_MO := space(10),  mNPR_DATE := ctod(''), ;
     m1reg_lech := 0, mreg_lech, ;
     MN_DATA     := st_N_DATA         , ; // дата начала лечения
@@ -111,7 +111,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
     MOSL1 := SPACE(6)     , ; // шифр 1-ого диагноза осложнения заболевания
     MOSL2 := SPACE(6)     , ; // шифр 2-ого диагноза осложнения заболевания
     MOSL3 := SPACE(6)     , ; // шифр 3-ого диагноза осложнения заболевания
-    MVMP, M1VMP := 0      , ; // 0-нет,1-да ВМП
+    MVMP, M1VMP := 0      , ; // 0-нет, 1-да ВМП
     mtal_num := space(20), ; // номер талона на ВМП
     MVIDVMP, M1VIDVMP := SPACE(12), ; // вид ВМП по справочнику V018
     mmodpac := space(12), ; // модель пациента по справочнику V022
@@ -164,7 +164,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
     mONK_N, m1ONK_N := 0, ; // Значение Nodus        Заполняется в соответствии со справочником N004
     mONK_M, m1ONK_M := 0, ; // Значение Metastasis   Заполняется в соответствии со справочником N005
     mMTSTZ, m1MTSTZ := 0, ;   // Признак выявления отдалённых метастазов       Подлежит заполнению значением 1 при выявлении отдалённых метастазов только при DS1_T=1 или DS1_T=2
-    mB_DIAG, m1B_DIAG := 98, ; // гистология:99-не надо,98-сделана,97-нет результата,0-отказ,7-не показано,8-противопоказано
+    mB_DIAG, m1B_DIAG := 98, ; // гистология:99-не надо,98-сделана,97-нет результата, 0-отказ, 7-не показано, 8-противопоказано
     mK_FR := space(2), ; // кол-во фракций проведения лучевой терапии	Обязательно для заполнения при проведении лучевой или химиолучевой терапии (USL_TIP=3 или USL_TIP=4)м.б.=0
     mCRIT, m1crit := space(10), ; // код схемы лек.терапии V024 (sh..., mt...)
     mCRIT2, ; // доп.критерий (fr...)
@@ -178,7 +178,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
   //   {'KOD'      ,   'N',      7,     0}, ; // код больного
   //   {'NAPR_DATE',    'D',      8,     0}, ; // Дата направления
   //   {'NAPR_MO',      'C',      6,     0}, ; // код другого МО, куда выписано направление
-  //   {'NAPR_V'  ,    'N',      1,     0}, ; // Вид направления:1-к онкологу,2-на биопсию,3-на дообследование,4-для опр.тактики лечения
+  //   {'NAPR_V'  ,    'N',      1,     0}, ; // Вид направления:1-к онкологу, 2-на биопсию, 3-на дообследование, 4-для опр.тактики лечения
   //   {'MET_ISSL' ,   'N',      1,     0}, ; // Метод диагностического исследования(при NAPR_V=3):1-лаб.диагностика;2-инстр.диагностика;3-луч.диагностика;4-КТ, МРТ, ангиография
   //   {'shifr'  ,     'C',     20,     0}, ;
   //   {'shifr_u'  ,   'C',     20,     0}, ;
@@ -220,11 +220,11 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
     R_Use(exe_dir+ '_mo_N007', cur_dir + '_mo_N007',  'N7')
     go top
     do while !eof()
-      aadd(st_rez_gist, {n7->mrf_name,n7->id_mrf, {},0}) ; i := len(st_rez_gist)
+      aadd(st_rez_gist, {n7->mrf_name,n7->id_mrf, {}, 0}) ; i := len(st_rez_gist)
       select N8
-      find (str(n7->id_mrf,6))
+      find (str(n7->id_mrf, 6))
       do while n8->id_mrf == n7->id_mrf .and. !eof()
-        aadd(st_rez_gist[i,3], {alltrim(n8->r_m_name), n8->id_r_m})
+        aadd(st_rez_gist[i, 3], {alltrim(n8->r_m_name), n8->id_r_m})
         skip
       enddo
       select N7
@@ -244,7 +244,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
   dbcreate(cur_dir + 'tmp_onkco',  {; // Сведения о проведении консилиума
     {'KOD'      ,   'N',      7,     0}, ; // код больного
     {'PR_CONS'  ,   'N',      1,     0}, ; // Сведения о проведении консилиума(N019):0-отсутствует необходимость;1-определена тактика обследования;2-определена тактика лечения;3-изменена тактика лечения
-    {'DT_CONS'  ,   'D',      8,     0};  // Дата проведения консилиума	Обязательно к заполнению при PR_CONS=1,2,3
+    {'DT_CONS'  ,   'D',      8,     0};  // Дата проведения консилиума	Обязательно к заполнению при PR_CONS=1, 2, 3
   })
   dbcreate(cur_dir + 'tmp_onkdi',  {; // Диагностический блок
     {'KOD'      ,   'N',      7,     0}, ; // код больного
@@ -270,9 +270,9 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
     {'HIR_TIP'  ,   'N',      1,     0}, ; // Тип хирургического лечения При USL_TIP=1 в соответствии со справочником N014
     {'LEK_TIP_L',    'N',      1,     0}, ; // Линия лекарственной терапии При USL_TIP=2 в соответствии со справочником N015
     {'LEK_TIP_V',    'N',      1,     0}, ; // Цикл лекарственной терапии   При USL_TIP=2 в соответствии со справочником N016
-    {'LUCH_TIP' ,   'N',      1,     0}, ; // Тип лучевой терапии  При USL_TIP=3,4 в соответствии со справочником N017
-    {'PPTR' ,       'N',      1,     0}, ; // Признак проведения профилактики тошноты и рвотного рефлекса - указывается '1' при USL_TIP=2,4
-    {'SOD'      ,   'N',      6,     2};  // SOD - Суммарная очаговая доза - При USL_TIP=3,4
+    {'LUCH_TIP' ,   'N',      1,     0}, ; // Тип лучевой терапии  При USL_TIP=3, 4 в соответствии со справочником N017
+    {'PPTR' ,       'N',      1,     0}, ; // Признак проведения профилактики тошноты и рвотного рефлекса - указывается '1' при USL_TIP=2, 4
+    {'SOD'      ,   'N',      6,     2};  // SOD - Суммарная очаговая доза - При USL_TIP=3, 4
   })
   dbcreate(cur_dir + 'tmp_onkle',  {; // Сведения о применённых лекарственных препаратах
     {'KOD'      ,   'N',      7,     0}, ; // код больного
@@ -296,9 +296,9 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
                     {'Диагностика', 6}}
 
   mm_USL_TIP_all := aclone(mm_USL_TIP)
-  asize(mm_USL_TIP,6) // без диагностики
+  asize(mm_USL_TIP, 6) // без диагностики
   //
-  afill(adiag_talon,0)
+  afill(adiag_talon, 0)
   R_Use(dir_server + 'human_2', , 'HUMAN_2')
   R_Use(dir_server + 'human_', , 'HUMAN_')
   R_Use(dir_server + 'human', , 'HUMAN')
@@ -328,7 +328,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
       m1komu    := kart->KOMU
       m1str_crb := kart->STR_CRB
     endif
-    if eq_any(is_uchastok,1,3)
+    if eq_any(is_uchastok, 1, 3)
       MUCH_DOC := padr(amb_kartaN(), 10)
     elseif mem_kodkrt == 2
       MUCH_DOC := padr(lstr(mkod_k), 10)
@@ -339,7 +339,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
     // проверка исхода = СМЕРТЬ
     select HUMAN
     set index to (dir_server + 'humankk')
-    find (str(mkod_k,7))
+    find (str(mkod_k, 7))
     do while human->kod_k == mkod_k .and. !eof()
       if recno() != Loc_kod .and. is_death(human_->RSLT_NEW) .and. ;
                                    human_->oplata != 9 .and. human_->NOVOR == 0
@@ -383,7 +383,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
       m1DS_ONK := 1
     endif
     for i := 1 to 16
-      adiag_talon[i] := int(val(substr(human_->DISPANS,i,1)))
+      adiag_talon[i] := int(val(substr(human_->DISPANS,i, 1)))
     next
     mstatus_st  := human_->STATUS_ST
     m1VIDPOLIS  := human_->VPOLIS
@@ -407,10 +407,10 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
     m1PROFIL_K := human_2->PROFIL_K
     m1NPR_MO   := human_->NPR_MO
     mNPR_DATE  := human_2->NPR_DATE
-    M1F14_EKST := int(val(substr(human_->FORMA14,1,1)))
-    M1F14_SKOR := int(val(substr(human_->FORMA14,2,1)))
-    M1F14_VSKR := int(val(substr(human_->FORMA14,3,1)))
-    M1F14_RASH := int(val(substr(human_->FORMA14,4,1)))
+    M1F14_EKST := int(val(substr(human_->FORMA14, 1, 1)))
+    M1F14_SKOR := int(val(substr(human_->FORMA14, 2, 1)))
+    M1F14_VSKR := int(val(substr(human_->FORMA14, 3, 1)))
+    M1F14_RASH := int(val(substr(human_->FORMA14, 4, 1)))
     mn_data    := human->N_DATA
     mk_data    := human->K_DATA
     m1povod    := human_->POVOD
@@ -438,7 +438,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
     M1METVMP := human_2->METVMP
     m1modpac := human_2->PN5
     /*if between(M1METVMP,498,499) .and. year(mk_data)  == 2017
-      mstentvmp := left(human_2->PC1,1) // кол-во стентов для методов ВМП 498,499
+      mstentvmp := left(human_2->PC1, 1) // кол-во стентов для методов ВМП 498,499
     endif*/
     mTAL_NUM := human_2->TAL_NUM
     mTAL_D := human_2->TAL_D
@@ -457,10 +457,10 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
     if alltrim(msmo) == '34'
       mnameismo := ret_inogSMO_name(2,@rec_inogSMO,.t.) // открыть и закрыть
     endif
-    if eq_any(m1usl_ok,1,2) .and. is_task(X_PPOKOJ) ;
+    if eq_any(m1usl_ok, 1, 2) .and. is_task(X_PPOKOJ) ;
                             .and. !empty(mUCH_DOC) .and. mem_e_istbol == 1
       R_Use(dir_server + 'mo_pp', dir_server + 'mo_pp_h',  'PP')
-      find (str(Loc_kod,7))
+      find (str(Loc_kod, 7))
       if found()
         when_uch_doc := .f.  // нельзя изменять номер истории болезни
       endif
@@ -471,7 +471,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
       R_Use(dir_server + 'mo_su', , 'MOSU')
       R_Use(dir_server + 'mo_onkna', dir_server + 'mo_onkna',  'NAPR') // онконаправления
       set relation to u_kod into MOSU
-      find (str(Loc_kod,7))
+      find (str(Loc_kod, 7))
       do while napr->kod == Loc_kod .and. !eof()
         old_oncology := .t.
         cur_napr := 1 // при ред-ии - сначала первое направление текущее
@@ -491,7 +491,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
         skip
       enddo
       R_Use(dir_server + 'mo_onkco', dir_server + 'mo_onkco',  'CO')
-      find (str(Loc_kod,7))
+      find (str(Loc_kod, 7))
       if found()
         m1PR_CONS := co->pr_cons
         mDT_CONS := co->dt_cons
@@ -499,7 +499,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
     endif
     if is_oncology == 2 // онкология
       R_Use(dir_server + 'mo_onksl', dir_server + 'mo_onksl',  'SL')
-      find (str(Loc_kod,7))
+      find (str(Loc_kod, 7))
       if found()
         old_oncology := .t.
         m1DS1_T := sl->DS1_T
@@ -515,20 +515,20 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
         m1crit := sl->crit
         m1is_err := sl->is_err
         if sl->WEI > 0
-          mWEI := padr(alltrim(str_0(sl->WEI,5,1)), 5)
+          mWEI := padr(alltrim(str_0(sl->WEI, 5, 1)), 5)
         endif
         if sl->HEI > 0
           mHEI := padr(lstr(sl->HEI), 3)
         endif
         if sl->BSA > 0
-          mBSA := padr(alltrim(str_0(sl->BSA,4,2)), 4)
+          mBSA := padr(alltrim(str_0(sl->BSA, 4, 2)), 4)
         endif
       endif
       is_gisto := (m1usl_ok == 3 .and. m1profil == 15)  // поликлиника + профиль = гистология
       i := j := 0
       use (cur_dir + 'tmp_onkdi') new alias TDIAG
       R_Use(dir_server + 'mo_onkdi', dir_server + 'mo_onkdi',  'DIAG') // Диагностический блок
-      find (str(Loc_kod,7))
+      find (str(Loc_kod, 7))
       do while diag->kod == Loc_kod .and. !eof()
         old_oncology := .t.
         mDIAG_DATE := diag->DIAG_DATE
@@ -540,7 +540,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
         tdiag->DIAG_RSLT := diag->DIAG_RSLT
         if diag->DIAG_TIP == 1 // гистологический признак
           if is_gisto .and. (k := ascan(arr_rez_gist, {|x| x[2] == diag->DIAG_CODE })) > 0
-            arr_rez_gist[k,4] := diag->DIAG_RSLT
+            arr_rez_gist[k, 4] := diag->DIAG_RSLT
           endif
           if ++i < 3
             mgist[i] := diag->DIAG_CODE
@@ -557,9 +557,9 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
       enddo
       use (cur_dir + 'tmp_onkpr') new alias TPR
       R_Use(dir_server + 'mo_onkpr', dir_server + 'mo_onkpr',  'PR') // Сведения об имеющихся противопоказаниях
-      find (str(Loc_kod,7))
+      find (str(Loc_kod, 7))
       do while pr->kod == Loc_kod .and. !eof()
-        if between(pr->PROT,1,6)
+        if between(pr->PROT, 1, 6)
           old_oncology := .t.
           select TPR
           append blank
@@ -571,7 +571,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
       enddo
       use (cur_dir + 'tmp_onkus') new alias TMPOU
       R_Use(dir_server + 'mo_onkus', dir_server + 'mo_onkus',  'OU') // Сведения о проведённых лечениях
-      find (str(Loc_kod,7))
+      find (str(Loc_kod, 7))
       do while ou->kod == Loc_kod .and. !eof()
         select TMPOU
         append blank
@@ -580,8 +580,8 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
         tmpou->LEK_TIP_L := ou->LEK_TIP_L
         tmpou->LEK_TIP_V := ou->LEK_TIP_V
         tmpou->LUCH_TIP  := ou->LUCH_TIP
-        tmpou->SOD       := iif(eq_any(ou->USL_TIP,3,4), sl->sod,0)
-        tmpou->PPTR      := iif(eq_any(ou->USL_TIP,2,4), ou->PPTR,0)
+        tmpou->SOD       := iif(eq_any(ou->USL_TIP, 3, 4), sl->sod, 0)
+        tmpou->PPTR      := iif(eq_any(ou->USL_TIP, 2, 4), ou->PPTR, 0)
         select OU
         skip
       enddo
@@ -591,7 +591,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
       endif
       use (cur_dir + 'tmp_onkle') new alias TMPLE
       R_Use(dir_server + 'mo_onkle', dir_server + 'mo_onkle',  'LE') // Сведения о применённых лекарственных препаратах
-      find (str(Loc_kod,7))
+      find (str(Loc_kod, 7))
       do while le->kod == Loc_kod .and. !eof()
         select TMPLE
         append blank
@@ -603,7 +603,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
       enddo
     endif
   endif
-  if !(left(msmo,2) == '34') // не Волгоградская область
+  if !(left(msmo, 2) == '34') // не Волгоградская область
     m1ismo := msmo ; msmo := '34'
   endif
   if Loc_kod == 0
@@ -633,8 +633,8 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
   mvzros_reb := inieditspr(A__MENUVERT, menu_vzros, m1vzros_reb)
   if empty(m1USL_OK) ; m1USL_OK := 1 ; endif // на всякий случай
   mUSL_OK   := inieditspr(A__MENUVERT, glob_V006, m1USL_OK)
-  if eq_any(m1usl_ok,1,2)
-    if !between(m1p_per,1,4)
+  if eq_any(m1usl_ok, 1, 2)
+    if !between(m1p_per, 1, 4)
       m1p_per := 1
     endif
     mp_per := inieditspr(A__MENUVERT, mm_p_per, m1p_per)
@@ -677,7 +677,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
   f_valid_komu(,-1)
   if m1komu == 0
     m1company := int(val(msmo))
-  elseif eq_any(m1komu,1,3)
+  elseif eq_any(m1komu, 1, 3)
     m1company := m1str_crb
   endif
   mcompany  := inieditspr(A__MENUVERT, mm_company, m1company)
@@ -707,7 +707,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
   setcolor(color8)
   myclear(1)
 
-  Private gl_area := {1,0,maxrow()-1,maxcol(), 0}, ;
+  Private gl_area := {1, 0,maxrow()-1,maxcol(), 0}, ;
     p_nstr_vnr, p_str_vnr, p_str_vnrm, p_nstr_ad_cr, p_str_ad_cr //p_nstr_stent, p_str_stent
 
   setcolor(cDataCGet)
@@ -765,8 +765,8 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
       endif
       //
       ++j
-      @ j, 1 say 'Сроки лечения' get mn_data valid {|g|f_k_data(g,1)}
-      @ row(), col() + 1 say '-'   get mk_data valid {|g|f_k_data(g,2)}
+      @ j, 1 say 'Сроки лечения' get mn_data valid {|g|f_k_data(g, 1)}
+      @ row(), col() + 1 say '-'   get mk_data valid {|g|f_k_data(g, 2)}
       @ row(), col()+3 get mvzros_reb when .f. color cDataCSay
       if yes_vypisan == B_END
         @ row(), col()+5 say ' Лечение завершено?' color 'G+/B'
@@ -852,21 +852,21 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
       @ j, 1 say 'Мед.помощь: условия оказания' get MUSL_OK ;
           reader {|x|menu_reader(x,tmp_V006, A__MENUVERT, , ,.f.)} ;
           when diag_screen(2) ;
-          valid {|g,o| iif(eq_any(m1usl_ok,1,2), ;
+          valid {|g,o| iif(eq_any(m1usl_ok, 1, 2), ;
             (SetPos(rpp,40),  DispOut('признак', cDataCGet)), ;
             (mp_per:=space(25), m1p_per:=0)), ;
             update_get('mp_per'),  f_valid_usl_ok(g,o)  }
-      if eq_any(m1usl_ok,1,2)
+      if eq_any(m1usl_ok, 1, 2)
         @ j, 40 say 'признак'
       endif
       @ j, 48 get mp_per ;
           reader {|x| menu_reader(x,mm_p_per, A__MENUVERT, , ,.f.)} ;
-          when eq_any(m1usl_ok,1,2)
+          when eq_any(m1usl_ok, 1, 2)
       if is_dop_ob_em
         ++j
         @ j, 3 say 'вид объёмов специализированной медицинской помощи' get mreg_lech ;
             reader {|x|menu_reader(x,mm_reg_lech, A__MENUVERT, , ,.f.)} ;
-            when eq_any(m1usl_ok,1,2)
+            when eq_any(m1usl_ok, 1, 2)
       endif
       ++j
       @ j, 3 say 'профиль мед.помощи' get MPROFIL ;
@@ -875,12 +875,12 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
       ++j
       @ j, 3 say 'профиль койки' get MPROFIL_K ;
           reader {|x|menu_reader(x,tmp_V020, A__MENUVERT, , ,.f.)} ;
-          when eq_any(m1usl_ok,1,2)
+          when eq_any(m1usl_ok, 1, 2)
       if is_reabil_slux
         ++j
         @ j, 3 say 'вид мед.реабилитации' get mvid_reab ;
             reader {|x|menu_reader(x,mm_vid_reab, A__MENUVERT, , ,.f.)} ;
-            when eq_any(m1usl_ok,1,2) .and. m1profil == 158
+            when eq_any(m1usl_ok, 1, 2) .and. m1profil == 158
       endif
       //
       ++j
@@ -947,7 +947,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
       ++j
       p_nstr_ad_cr := j
       p_str_ad_cr := 'Доп.критерий'
-      @ p_nstr_ad_cr,1 say p_str_ad_cr get MAD_CR ;
+      @ p_nstr_ad_cr, 1 say p_str_ad_cr get MAD_CR ;
           reader {|x| menu_reader(x,mm_ad_cr,A__MENUVERT_SPACE, , ,.f.)} ;
           when input_ad_cr ;
           color colget_menu
@@ -989,7 +989,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
         /*++j ; p_nstr_stent := j
         if year(mk_data) == 2017
           p_str_stent := '   число стентов, установленных в коронарные артерии'
-          @ p_nstr_stent,1 say iif(between(m1metvmp,498,499),  p_str_stent, space(len(p_str_stent)))
+          @ p_nstr_stent, 1 say iif(between(m1metvmp,498,499),  p_str_stent, space(len(p_str_stent)))
           @ p_nstr_stent, col() + 1 get mstentvmp ;
                                  when between(m1metvmp,498,499) ;
                                  valid mstentvmp $ ' 123'
@@ -1012,7 +1012,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
             valid {|g| mrodit_pol $ 'МЖ' } ;
             when m1bolnich == 2
       endif
-      @ maxrow()-1,1 say 'Признак подозрения на ЗНО' get mDS_ONK ;
+      @ maxrow()-1, 1 say 'Признак подозрения на ЗНО' get mDS_ONK ;
           reader {|x|menu_reader(x,mm_danet, A__MENUVERT, , ,.f.)} ;
           when {|| when_ds_onk() } ;
           color colget_menu
@@ -1089,14 +1089,14 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
         if Loc_kod > 0 // редактирование
           R_Use(dir_server + 'uslugi', , 'USL')
           R_Use_base('human_u')
-          find (str(Loc_kod,7))
+          find (str(Loc_kod, 7))
           do while hu->kod == Loc_kod .and. !eof()
             usl->(dbGoto(hu->u_kod))
             if empty(lshifr := opr_shifr_TFOMS(usl->shifr1,usl->kod,mk_data))
               lshifr := usl->shifr
             endif
             lshifr := alltrim(lshifr)
-            if left(lshifr,5) == '60.9.'  // МГИ
+            if left(lshifr, 5) == '60.9.'  // МГИ
               is_mgi := .t. ; exit
             endif
             select HU
@@ -1121,15 +1121,15 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
         //
         lmm_DS1_T := aclone(mm_DS1_T)
         if m1usl_ok < 3
-          Del_Array(lmm_DS1_T,5) // удалим диспансерное наблюдение
-          Del_Array(lmm_DS1_T,4) // удалим динамическое наблюдение
+          Del_Array(lmm_DS1_T, 5) // удалим диспансерное наблюдение
+          Del_Array(lmm_DS1_T, 4) // удалим динамическое наблюдение
         else
-          Del_Array(lmm_DS1_T,1) // удаляем первые 3 строки (лечение)
-          Del_Array(lmm_DS1_T,1)
-          Del_Array(lmm_DS1_T,1)
+          Del_Array(lmm_DS1_T, 1) // удаляем первые 3 строки (лечение)
+          Del_Array(lmm_DS1_T, 1)
+          Del_Array(lmm_DS1_T, 1)
         endif
         if ascan(lmm_DS1_T, {|x| x[2] == m1DS1_T}) == 0
-          m1DS1_T := lmm_DS1_T[1,2]
+          m1DS1_T := lmm_DS1_T[1, 2]
         endif
         mm_N002 := f_define_tnm(2,mkod_diag)
         mm_N003 := f_define_tnm(3,mkod_diag)
@@ -1138,16 +1138,16 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
         mDS1_T := inieditspr(A__MENUVERT, mm_DS1_T, m1DS1_T)
         mMTSTZ := inieditspr(A__MENUVERT, mm_danet, m1MTSTZ)
         if len(mm_N002) == 1
-          m1STAD := mm_N002[1,2]
+          m1STAD := mm_N002[1, 2]
         endif
         if len(mm_N003) == 1
-          m1ONK_T := mm_N003[1,2]
+          m1ONK_T := mm_N003[1, 2]
         endif
         if len(mm_N004) == 1
-          m1ONK_N := mm_N004[1,2]
+          m1ONK_N := mm_N004[1, 2]
         endif
         if len(mm_N005) == 1
-          m1ONK_M := mm_N005[1,2]
+          m1ONK_M := mm_N005[1, 2]
         endif
         mSTAD  := padr(inieditspr(A__MENUVERT, mm_N002, m1STAD), 5)
         mONK_T := padr(inieditspr(A__MENUVERT, mm_N003, m1ONK_T), 5)
@@ -1164,7 +1164,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
         if !is_mgi // для МГИ гистология не вводится
           R_Use(exe_dir+ '_mo_N009', , 'N9')
           dbeval({|| aadd(mm_N009, {'', n9->id_mrf, {}}) }, ;
-                 {|| between_date(n9->datebeg,n9->dateend,mk_data) .and. left(mkod_diag,3) == n9->ds_mrf })
+                 {|| between_date(n9->datebeg,n9->dateend,mk_data) .and. left(mkod_diag, 3) == n9->ds_mrf })
           asort(mm_N009, , , {|x,y| x[2] < y[2] })
         endif
         if len(mm_N009) > 0
@@ -1172,33 +1172,33 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
           R_Use(exe_dir+ '_mo_N008', cur_dir + '_mo_N008',  'N8')
           for i := 1 to min(2,len(mm_N009))
             select N7
-            find (str(mm_N009[i,2],6))
+            find (str(mm_N009[i, 2], 6))
             if found()
-              mm_N009[i,1] := alltrim(n7->mrf_name)
+              mm_N009[i, 1] := alltrim(n7->mrf_name)
             else
-              func_error(4, 'Не найден гистологический признак ID_MRF=' +lstr(mm_N009[i,2])+ ' для ' +mkod_diag)
+              func_error(4, 'Не найден гистологический признак ID_MRF=' +lstr(mm_N009[i, 2])+ ' для ' +mkod_diag)
             endif
             select N8
-            find (str(mm_N009[i,2],6))
-            do while n8->id_mrf == mm_N009[i,2] .and. !eof()
-              aadd(mm_N009[i,3], {alltrim(n8->r_m_name), n8->id_r_m})
+            find (str(mm_N009[i, 2], 6))
+            do while n8->id_mrf == mm_N009[i, 2] .and. !eof()
+              aadd(mm_N009[i, 3], {alltrim(n8->r_m_name), n8->id_r_m})
               skip
             enddo
-            if ascan(mm_N009[i,3], {|x| x[2] == &('m1gist' +lstr(i)) }) == 0
+            if ascan(mm_N009[i, 3], {|x| x[2] == &('m1gist' +lstr(i)) }) == 0
               &('m1gist' +lstr(i)) := 0
             endif
-            &('mgist' +lstr(i)) := inieditspr(A__MENUVERT, mm_N009[i,3], &('m1gist' +lstr(i)))
+            &('mgist' +lstr(i)) := inieditspr(A__MENUVERT, mm_N009[i, 3], &('m1gist' +lstr(i)))
           next
         endif
         // Иммуногистохимия
         mm_N012 := {}
         R_Use(exe_dir+ '_mo_N012', , 'N12')
         dbeval({|| aadd(mm_N012, {'', n12->id_igh, {}}) }, ;
-               {|| between_date(n12->datebeg,n12->dateend,mk_data) .and. left(mkod_diag,3) == n12->ds_igh })
+               {|| between_date(n12->datebeg,n12->dateend,mk_data) .and. left(mkod_diag, 3) == n12->ds_igh })
         asort(mm_N012, , , {|x,y| x[2] < y[2] })
         if len(mm_N012) > 0 .and. is_mgi
           if (i := ascan(glob_MGI, {|x| x[1] == lshifr })) > 0 // услуга входит в список ТФОМС
-            if (j := ascan(mm_N012, {|x| x[2] == glob_MGI[i,2] })) > 0 // по данному диагнозу присутствует необходимый маркер
+            if (j := ascan(mm_N012, {|x| x[2] == glob_MGI[i, 2] })) > 0 // по данному диагнозу присутствует необходимый маркер
               tmp_arr := {}
               aadd(tmp_arr, aclone(mm_N012[j]))
               mm_N012 := aclone(tmp_arr) // оставим в массиве только один нужный нам маркер
@@ -1214,35 +1214,35 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
           R_Use(exe_dir+ '_mo_N011', cur_dir + '_mo_N011',  'N11')
           for i := 1 to min(5,len(mm_N012))
             select N10
-            find (str(mm_N012[i,2],6))
-            do while n10->id_igh == mm_N012[i,2] .and. !eof()
+            find (str(mm_N012[i, 2], 6))
+            do while n10->id_igh == mm_N012[i, 2] .and. !eof()
               if between_date(n10->datebeg,n10->dateend,mk_data)
-                mm_N012[i,1] := alltrim(n10->igh_name)
+                mm_N012[i, 1] := alltrim(n10->igh_name)
                 exit
               endif
               skip
             enddo
-            if empty(mm_N012[i,1])
-              func_error(4, 'Не найден признак иммуногистохимии ID_IGH=' +lstr(mm_N012[i,2])+ ' для ' +mkod_diag)
+            if empty(mm_N012[i, 1])
+              func_error(4, 'Не найден признак иммуногистохимии ID_IGH=' +lstr(mm_N012[i, 2])+ ' для ' +mkod_diag)
             endif
             select N11
-            find (str(mm_N012[i,2],6))
-            do while n11->id_igh == mm_N012[i,2] .and. !eof()
+            find (str(mm_N012[i, 2], 6))
+            do while n11->id_igh == mm_N012[i, 2] .and. !eof()
               if between_date(n11->datebeg,n11->dateend,mk_data)
-                aadd(mm_N012[i,3], {alltrim(n11->kod_r_i), n11->id_r_i})
+                aadd(mm_N012[i, 3], {alltrim(n11->kod_r_i), n11->id_r_i})
               endif
               skip
             enddo
-            if ascan(mm_N012[i,3], {|x| x[2] == &('m1mark' +lstr(i)) }) == 0
+            if ascan(mm_N012[i, 3], {|x| x[2] == &('m1mark' +lstr(i)) }) == 0
               &('m1mark' +lstr(i)) := 0
             endif
-            &('mmark' +lstr(i)) := inieditspr(A__MENUVERT, mm_N012[i,3], &('m1mark' +lstr(i)))
+            &('mmark' +lstr(i)) := inieditspr(A__MENUVERT, mm_N012[i, 3], &('m1mark' +lstr(i)))
           next
         endif
         is_onko_VMP := .f. ; musl1vmp := musl2vmp := mtipvmp := 0
         if m1usl_ok < 3 .and. m1vmp == 1 .and. m1metvmp > 0
           R_Use(exe_dir+ '_mo_ovmp', cur_dir + '_mo_ovmp',  'OVMP')
-          find (str(m1metvmp,3)) // номер метода ВМП
+          find (str(m1metvmp, 3)) // номер метода ВМП
           if found()
             is_onko_VMP := .t.
             musl1vmp := ovmp->usl1  // 1-я услуга
@@ -1272,29 +1272,29 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
         mm_str1 := {'',  'Тип лечения',  'Цикл терапии',  'Тип терапии',  'Тип терапии',  ''}
         lstr1 := space(12) ; m1usl_tip1 := 0 ; musl_tip1 := space(69) ; mm_usl_tip1 := {}
         lstr2 := space(13) ; m1usl_tip2 := 0 ; musl_tip2 := space(19) ; mm_usl_tip2 := {}
-        lstr_sod := ret_str_onc(1,2) ; mvsod := 0 ; msod := space(6)
-        lstr_fr  := ret_str_onc(2,2)
-        lstr_wei := ret_str_onc(3,2)
-        lstr_hei := ret_str_onc(4,2)
-        lstr_bsa := ret_str_onc(5,2)
-        lstr_err := ret_str_onc(6,2) ; mis_err := space(11)
-        lstr_she := ret_str_onc(7,2) ; mcrit := space(57)
-        lstr_lek := ret_str_onc(8,2) ; mlek := space(53) ; m1lek := space(53)
-        lstr_ptr := ret_str_onc(6,2) ; mpptr := space(3)
+        lstr_sod := ret_str_onc(1, 2) ; mvsod := 0 ; msod := space(6)
+        lstr_fr  := ret_str_onc(2, 2)
+        lstr_wei := ret_str_onc(3, 2)
+        lstr_hei := ret_str_onc(4, 2)
+        lstr_bsa := ret_str_onc(5, 2)
+        lstr_err := ret_str_onc(6, 2) ; mis_err := space(11)
+        lstr_she := ret_str_onc(7, 2) ; mcrit := space(57)
+        lstr_lek := ret_str_onc(8, 2) ; mlek := space(53) ; m1lek := space(53)
+        lstr_ptr := ret_str_onc(6, 2) ; mpptr := space(3)
         //
         lstr_vmp1 := space(12) ; m1usl_vmp1 := 0 ; musl_vmp1 := space(69) ; mm_usl_vmp1 := {}
         lstr_vmp2 := space(13) ; m1usl_vmp2 := 0 ; musl_vmp2 := space(19) ; mm_usl_vmp2 := {}
-        lstr_vmpsod := ret_str_onc(1,2) ; mvsod_vmp := 0 ; msod_vmp := space(6)
-        lstr_vmpfr  := ret_str_onc(2,2)
-        lstr_vmpwei := ret_str_onc(3,2)
-        lstr_vmphei := ret_str_onc(4,2)
-        lstr_vmpbsa := ret_str_onc(5,2)
-        lstr_vmperr := ret_str_onc(6,2)
-        lstr_vmpshe := ret_str_onc(7,2)
-        lstr_vmplek := ret_str_onc(8,2)
-        lstr_vmpptr := ret_str_onc(6,2)
+        lstr_vmpsod := ret_str_onc(1, 2) ; mvsod_vmp := 0 ; msod_vmp := space(6)
+        lstr_vmpfr  := ret_str_onc(2, 2)
+        lstr_vmpwei := ret_str_onc(3, 2)
+        lstr_vmphei := ret_str_onc(4, 2)
+        lstr_vmpbsa := ret_str_onc(5, 2)
+        lstr_vmperr := ret_str_onc(6, 2)
+        lstr_vmpshe := ret_str_onc(7, 2)
+        lstr_vmplek := ret_str_onc(8, 2)
+        lstr_vmpptr := ret_str_onc(6, 2)
         use (cur_dir + 'tmp_onkus') new alias TMPOU
-        index on str(usl_tip,1) to (cur_dir + 'tmp_onkus')
+        index on str(usl_tip, 1) to (cur_dir + 'tmp_onkus')
         go top
         if lastrec() == 0
           append blank
@@ -1371,14 +1371,14 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
             fl_2_4 := fl_3_4 := .t.
             mm_USL_TIP := aclone(mm_USL_TIP_all)
             //if m1vzros_reb > 0 .or. is_lymphoid(mkod_diag) // если ребёнок или ЗНО кроветворная или лимфоидная
-              //Del_Array(mm_USL_TIP,5) // удалим химиолучевую
-              //Del_Array(mm_USL_TIP,4) // удалим лучевую
+              //Del_Array(mm_USL_TIP, 5) // удалим химиолучевую
+              //Del_Array(mm_USL_TIP, 4) // удалим лучевую
             //endif
           endif
           if is_onko_VMP .and. mtipvmp == 1 // две услуги
             mUSL_VMP := inieditspr(A__MENUVERT, mm_USL_TIP_all, m1USL_VMP)
             select TMPOU
-            find (str(m1usl_vmp,1))
+            find (str(m1usl_vmp, 1))
             if m1usl_vmp == 2
               m1usl_vmp1 := iif(found(),  tmpou->LEK_TIP_V, 0)
               mm_usl_vmp1 := mm_N016
@@ -1386,26 +1386,26 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
               mm_usl_vmp2 := mm_N015
               lstr_vmp2 := 'Линия терапии'
               musl_vmp2 := inieditspr(A__MENUVERT, mm_usl_vmp2, m1usl_vmp2)
-              lstr_vmperr := ret_str_onc(6,1)
+              lstr_vmperr := ret_str_onc(6, 1)
               mis_err := inieditspr(A__MENUVERT, mm_shema_err, m1is_err)
-              lstr_vmpwei := ret_str_onc(3,1)
-              lstr_vmphei := ret_str_onc(4,1)
-              lstr_vmpbsa := ret_str_onc(5,1)
-              lstr_vmpshe := ret_str_onc(7,1)
+              lstr_vmpwei := ret_str_onc(3, 1)
+              lstr_vmphei := ret_str_onc(4, 1)
+              lstr_vmpbsa := ret_str_onc(5, 1)
+              lstr_vmpshe := ret_str_onc(7, 1)
               mm_shema_usl := _arr_sh
               mcrit := inieditspr(A__MENUVERT, mm_shema_usl, m1crit)
-              lstr_vmplek := ret_str_onc(8,1)
+              lstr_vmplek := ret_str_onc(8, 1)
               mlek := m1lek := init_lek_pr(m1usl_vmp,m1crit)
-              lstr_vmpptr := ret_str_onc(9,1)
+              lstr_vmpptr := ret_str_onc(9, 1)
               m1pptr := tmpou->pptr
               mpptr := inieditspr(A__MENUVERT, mm_danet, m1pptr)
             elseif m1usl_vmp == 3
               m1usl_vmp1 := iif(found(),  tmpou->LUCH_TIP, 0)
               mm_usl_vmp1 := mm_N017
               mvsod_vmp := iif(found(),  tmpou->sod, 0)
-              lstr_vmpsod := ret_str_onc(1,1)
-              msod_vmp := padr(alltrim(str_0(mvsod_vmp,6,2)), 6)
-              lstr_vmpfr  := ret_str_onc(2,1)
+              lstr_vmpsod := ret_str_onc(1, 1)
+              msod_vmp := padr(alltrim(str_0(mvsod_vmp, 6, 2)), 6)
+              lstr_vmpfr  := ret_str_onc(2, 1)
             endif
             lstr_vmp1 := padr(mm_str1[m1usl_vmp+1],12)
             musl_vmp1 := inieditspr(A__MENUVERT, mm_usl_vmp1, m1usl_vmp1)
@@ -1414,7 +1414,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
         //
         mUSL_TIP := inieditspr(A__MENUVERT, mm_USL_TIP, m1USL_TIP)
         select TMPOU
-        find (str(m1usl_tip,1))
+        find (str(m1usl_tip, 1))
         if !found()
           go top
         endif
@@ -1426,40 +1426,40 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
           mm_usl_tip1 := mm_N016
           m1usl_tip2 := tmpou->LEK_TIP_L
           mm_usl_tip2 := mm_N015
-        elseif eq_any(m1usl_tip,3,4)
+        elseif eq_any(m1usl_tip, 3, 4)
           m1usl_tip1 := tmpou->LUCH_TIP
           mm_usl_tip1 := mm_N017
           mvsod := tmpou->sod
         endif
-        if between(m1usl_tip,1,4)
+        if between(m1usl_tip, 1, 4)
           lstr1 := padr(mm_str1[m1usl_tip+1],12)
           musl_tip1 := inieditspr(A__MENUVERT, mm_usl_tip1, m1usl_tip1)
           if m1usl_tip == 2
             lstr2 := 'Линия терапии'
             musl_tip2 := inieditspr(A__MENUVERT, mm_usl_tip2, m1usl_tip2)
-            lstr_err := ret_str_onc(6,1)
+            lstr_err := ret_str_onc(6, 1)
             mis_err := inieditspr(A__MENUVERT, mm_shema_err, m1is_err)
           endif
-          if eq_any(m1usl_tip,3,4)
-            lstr_sod := ret_str_onc(1,1)
-            msod := padr(alltrim(str_0(mvsod,6,2)), 6)
-            lstr_fr  := ret_str_onc(2,1)
+          if eq_any(m1usl_tip, 3, 4)
+            lstr_sod := ret_str_onc(1, 1)
+            msod := padr(alltrim(str_0(mvsod, 6, 2)), 6)
+            lstr_fr  := ret_str_onc(2, 1)
           endif
-          if eq_any(m1usl_tip,2,4)
-            lstr_wei := ret_str_onc(3,1)
-            lstr_hei := ret_str_onc(4,1)
-            lstr_bsa := ret_str_onc(5,1)
-            lstr_she := ret_str_onc(7,1)
-            if left(m1crit,2) == 'mt' .and. m1usl_tip == 2
+          if eq_any(m1usl_tip, 2, 4)
+            lstr_wei := ret_str_onc(3, 1)
+            lstr_hei := ret_str_onc(4, 1)
+            lstr_bsa := ret_str_onc(5, 1)
+            lstr_she := ret_str_onc(7, 1)
+            if left(m1crit, 2) == 'mt' .and. m1usl_tip == 2
               m1crit := space(10)
-            elseif eq_any(left(m1crit,2),  'не',  'sh') .and. m1usl_tip == 4
+            elseif eq_any(left(m1crit, 2),  'не',  'sh') .and. m1usl_tip == 4
               m1crit := space(10)
             endif
             mm_shema_usl := iif(m1usl_tip == 2, _arr_sh, _arr_mt)
             mcrit := inieditspr(A__MENUVERT, mm_shema_usl, m1crit)
-            lstr_lek := ret_str_onc(8,1)
+            lstr_lek := ret_str_onc(8, 1)
             mlek := m1lek := init_lek_pr(m1usl_tip,m1crit)
-            lstr_ptr := ret_str_onc(9,1)
+            lstr_ptr := ret_str_onc(9, 1)
             m1pptr := tmpou->pptr
             mpptr := inieditspr(A__MENUVERT, mm_danet, m1pptr)
           endif
@@ -1507,7 +1507,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
         @ ++j, 5 say 'Медицинская услуга' get mshifr pict '@!' ;
                 when {|g| m1napr_v == 3 .and. m1MET_ISSL > 0 } ;
                 valid {|g|
-                            Local fl := f5editkusl(g,2,2)
+                            Local fl := f5editkusl(g, 2, 2)
                             if empty(mshifr)
                               mu_kod  := 0
                               mname_u := space(65)
@@ -1530,39 +1530,32 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
                  color colget_menu
         @ ++j, 3 say 'Стадия заболевания:' get mSTAD ;
                  reader {|x|menu_reader(x,mm_N002, A__MENUVERT, , ,.f.)} ;
-                 valid {|g| f_valid_tnm(g),  mSTAD:=padr(mSTAD,5),  .t.} ;
-                 when between(m1ds1_t,0,4) ;
+                 valid {|g| f_valid_tnm(g),  mSTAD:=padr(mSTAD, 5),  .t.} ;
+                 when between(m1ds1_t, 0, 4) ;
                  color colget_menu
         @ j, col() say ' Tumor' get mONK_T ;
                  reader {|x|menu_reader(x,mm_N003, A__MENUVERT, , ,.f.)} ;
-                 valid {|g| f_valid_tnm(g),  mONK_T:=padr(mONK_T,5),  .t.} ;
+                 valid {|g| f_valid_tnm(g),  mONK_T:=padr(mONK_T, 5),  .t.} ;
                  when m1ds1_t == 0 .and. m1vzros_reb == 0 ;
                  color colget_menu
         @ j, col() say ' Nodus' get mONK_N ;
                  reader {|x|menu_reader(x,mm_N004, A__MENUVERT, , ,.f.)} ;
-                 valid {|g| f_valid_tnm(g),  mONK_N:=padr(mONK_N,5),  .t.} ;
+                 valid {|g| f_valid_tnm(g),  mONK_N:=padr(mONK_N, 5),  .t.} ;
                  when m1ds1_t == 0 .and. m1vzros_reb == 0 ;
                  color colget_menu
         @ j, col() say ' Metastasis' get mONK_M ;
                  reader {|x|menu_reader(x,mm_N005, A__MENUVERT, , ,.f.)} ;
-                 valid {|g| f_valid_tnm(g),  mONK_M:=padr(mONK_M,5),  .t.} ;
+                 valid {|g| f_valid_tnm(g),  mONK_M:=padr(mONK_M, 5),  .t.} ;
                  when m1ds1_t == 0 .and. m1vzros_reb == 0 ;
                  color colget_menu
         @ ++j, 5 say 'Наличие отдаленных метастазов (при рецидиве или прогрессировании)' get mMTSTZ ;
                  reader {|x|menu_reader(x,mm_danet, A__MENUVERT, , ,.f.)} ;
-                 when eq_any(m1DS1_T,1,2) ;
+                 when eq_any(m1DS1_T, 1, 2) ;
                  color colget_menu
 
         // проведение гистологии или иммуногистохимии
         if ! only_control_onko(mNPR_MO, mNPR_DATE, m1rslt, m1ishod)
           if len(mm_N009) == 0 .and. len(mm_N012) == 0
-            if is_gisto
-              @ ++j, 3 say 'Результаты гистологии' get mrez_gist ;
-                   reader {|x|menu_reader(x, {{|k,r,c| get_rez_gist(k,r,c)}}, A__FUNCTION, , ,.f.)}
-            else
-              @ ++j, 3 say 'Гистология / иммуногистохимия: не нужно для ' +iif(is_mgi, 'МГИ',  mkod_diag)
-            endif
-          elseif (len(mm_N009) != 0 .or. len(mm_N012) != 0) //.and. only_control_onko(mNPR_MO, mNPR_DATE, m1rslt, m1ishod)  //!empty(mNPR_DATE) .and. !empty(mNPR_MO)
             if is_gisto
               @ ++j, 3 say 'Результаты гистологии' get mrez_gist ;
                    reader {|x|menu_reader(x, {{|k,r,c| get_rez_gist(k,r,c)}}, A__FUNCTION, , ,.f.)}
@@ -1579,13 +1572,13 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
             if len(mm_N009) == 0
               @ ++j, 3 say 'Гистология: не нужно для ' +iif(is_mgi, 'МГИ',  mkod_diag)
             else
-              @ ++j, 3 say mm_N009[1,1] get mgist1 ;
-                   reader {|x|menu_reader(x,mm_N009[1,3], A__MENUVERT, , ,.f.)} ;
+              @ ++j, 3 say mm_N009[1, 1] get mgist1 ;
+                   reader {|x|menu_reader(x,mm_N009[1, 3], A__MENUVERT, , ,.f.)} ;
                    when m1b_diag == 98 ;
                    color colget_menu
               if len(mm_N009) >= 2
-                @ ++j, 3 say mm_N009[2,1] get mgist2 ;
-                   reader {|x|menu_reader(x,mm_N009[2,3], A__MENUVERT, , ,.f.)} ;
+                @ ++j, 3 say mm_N009[2, 1] get mgist2 ;
+                   reader {|x|menu_reader(x,mm_N009[2, 3], A__MENUVERT, , ,.f.)} ;
                    when m1b_diag == 98 ;
                    color colget_menu
               endif
@@ -1593,31 +1586,31 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
             if len(mm_N012) == 0
               @ ++j, 3 say 'Иммуногистохимия: не нужно для ' +iif(is_mgi, 'МГИ',  mkod_diag)
             else
-              @ ++j, 3 say mm_N012[1,1] get mmark1 ;
-                   reader {|x|menu_reader(x,mm_N012[1,3], A__MENUVERT, , ,.f.)} ;
+              @ ++j, 3 say mm_N012[1, 1] get mmark1 ;
+                   reader {|x|menu_reader(x,mm_N012[1, 3], A__MENUVERT, , ,.f.)} ;
                    when m1b_diag == 98 ;
                    color colget_menu
               if len(mm_N012) >= 2
-                @ ++j, 3 say mm_N012[2,1] get mmark2 ;
-                   reader {|x|menu_reader(x,mm_N012[2,3], A__MENUVERT, , ,.f.)} ;
+                @ ++j, 3 say mm_N012[2, 1] get mmark2 ;
+                   reader {|x|menu_reader(x,mm_N012[2, 3], A__MENUVERT, , ,.f.)} ;
                    when m1b_diag == 98 ;
                    color colget_menu
               endif
               if len(mm_N012) >= 3
-                @ ++j, 3 say mm_N012[3,1] get mmark3 ;
-                   reader {|x|menu_reader(x,mm_N012[3,3], A__MENUVERT, , ,.f.)} ;
+                @ ++j, 3 say mm_N012[3, 1] get mmark3 ;
+                   reader {|x|menu_reader(x,mm_N012[3, 3], A__MENUVERT, , ,.f.)} ;
                    when m1b_diag == 98 ;
                    color colget_menu
               endif
               if len(mm_N012) >= 4
-                @ ++j, 3 say mm_N012[4,1] get mmark4 ;
-                   reader {|x|menu_reader(x,mm_N012[4,3], A__MENUVERT, , ,.f.)} ;
+                @ ++j, 3 say mm_N012[4, 1] get mmark4 ;
+                   reader {|x|menu_reader(x,mm_N012[4, 3], A__MENUVERT, , ,.f.)} ;
                    when m1b_diag == 98 ;
                    color colget_menu
               endif
               if len(mm_N012) >= 5
-                @ ++j, 3 say mm_N012[5,1] get mmark5 ;
-                   reader {|x|menu_reader(x,mm_N012[5,3], A__MENUVERT, , ,.f.)} ;
+                @ ++j, 3 say mm_N012[5, 1] get mmark5 ;
+                   reader {|x|menu_reader(x,mm_N012[5, 3], A__MENUVERT, , ,.f.)} ;
                    when m1b_diag == 98 ;
                    color colget_menu
               endif
@@ -1646,24 +1639,24 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
           @ ++j, 5 get lstr1 color color1 when .f.
           @ j, col() + 1 get musl_tip1 ;
                  reader {|x|menu_reader(x,mm_usl_tip1, A__MENUVERT, , ,.f.)} ;
-                 when between(m1usl_tip,1,4)
+                 when between(m1usl_tip, 1, 4)
           @ ++j, 5 get lstr2 color color1 when .f.
           @ j, col() + 1 get musl_tip2 ;
                  reader {|x|menu_reader(x,mm_usl_tip2, A__MENUVERT, , ,.f.)} ;
                  when m1usl_tip == 2
           if fl_3_4
             @ ++j, 5 get lstr_sod color color1 when .f.
-            @ j, col() + 1 get msod when between(m1usl_tip,3,4)
+            @ j, col() + 1 get msod when between(m1usl_tip, 3, 4)
             @ j, col()+5 get lstr_fr color color1 when .f.
-            @ j, col() + 1 get mk_fr when between(m1usl_tip,3,4)
+            @ j, col() + 1 get mk_fr when between(m1usl_tip, 3, 4)
           endif
           if fl_2_4
             @ ++j, 5 get lstr_wei color color1 when .f.
-            @ j, col() + 1 get mwei when eq_any(m1usl_tip,2,4)
+            @ j, col() + 1 get mwei when eq_any(m1usl_tip, 2, 4)
             @ j, col() + 1 get lstr_hei color color1 when .f.
-            @ j, col() + 1 get mhei when eq_any(m1usl_tip,2,4)
+            @ j, col() + 1 get mhei when eq_any(m1usl_tip, 2, 4)
             @ j, col() + 1 get lstr_bsa color color1 when .f.
-            @ j, col() + 1 get mbsa when eq_any(m1usl_tip,2,4)
+            @ j, col() + 1 get mbsa when eq_any(m1usl_tip, 2, 4)
             @ ++j, 5 get lstr_err color color1 when .f.
             @ j, col() + 1 get mis_err ;
                 reader {|x|menu_reader(x,mm_shema_err, A__MENUVERT, , ,.f.)} ;
@@ -1671,15 +1664,15 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
             @ ++j, 5 get lstr_she color color1 when .f.
             @ j, col() + 1 get mcrit ;
                 reader {|x| menu_reader(x,mm_shema_usl, A__MENUVERT, , ,.f.)} ;
-                when eq_any(m1usl_tip,2,4)
+                when eq_any(m1usl_tip, 2, 4)
             @ ++j, 5 get lstr_lek color color1 when .f.
             @ j, col() + 1 get mlek ;
                 reader {|x|menu_reader(x, {{|k,r,c| get_lek_pr(k,r,c,m1crit)}}, A__FUNCTION, , ,.f.)} ;
-                when !empty(m1crit) .and. eq_any(m1usl_tip,2,4)
+                when !empty(m1crit) .and. eq_any(m1usl_tip, 2, 4)
             @ ++j, 5 get lstr_ptr color color1 when .f.
             @ j, col() + 1 get mpptr ;
                 reader {|x| menu_reader(x,mm_danet, A__MENUVERT, , ,.f.)} ;
-                when eq_any(m1usl_tip,2,4)
+                when eq_any(m1usl_tip, 2, 4)
           endif
           if is_onko_VMP .and. mtipvmp == 1 // две услуги
             @ ++j, 3 say 'ВМП: дополнительное лечение' get musl_vmp when .f. ;
@@ -1693,17 +1686,17 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
                 when m1usl_vmp == 2
             if fl2_3_4
               @ ++j, 5 get lstr_vmpsod color color1 when .f.
-              @ j, col() + 1 get msod_vmp when between(m1usl_vmp,3,4)
+              @ j, col() + 1 get msod_vmp when between(m1usl_vmp, 3, 4)
               @ j, col()+5 get lstr_vmpfr color color1 when .f.
-              @ j, col() + 1 get mk_fr when between(m1usl_vmp,3,4)
+              @ j, col() + 1 get mk_fr when between(m1usl_vmp, 3, 4)
             endif
             if fl2_2_4
               @ ++j, 5 get lstr_vmpwei color color1 when .f.
-              @ j, col() + 1 get mwei when eq_any(m1usl_vmp,2,4)
+              @ j, col() + 1 get mwei when eq_any(m1usl_vmp, 2, 4)
               @ j, col() + 1 get lstr_vmphei color color1 when .f.
-              @ j, col() + 1 get mhei when eq_any(m1usl_vmp,2,4)
+              @ j, col() + 1 get mhei when eq_any(m1usl_vmp, 2, 4)
               @ j, col() + 1 get lstr_vmpbsa color color1 when .f.
-              @ j, col() + 1 get mbsa when eq_any(m1usl_vmp,2,4)
+              @ j, col() + 1 get mbsa when eq_any(m1usl_vmp, 2, 4)
               @ ++j, 5 get lstr_vmperr color color1 when .f.
               @ j, col() + 1 get mis_err ;
                   reader {|x|menu_reader(x,mm_shema_err, A__MENUVERT, , ,.f.)} ;
@@ -1711,15 +1704,15 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
               @ ++j, 5 get lstr_vmpshe color color1 when .f.
               @ j, col() + 1 get mcrit ;
                   reader {|x| menu_reader(x,mm_shema_usl, A__MENUVERT, , ,.f.)} ;
-                  when eq_any(m1usl_vmp,2,4)
+                  when eq_any(m1usl_vmp, 2, 4)
               @ ++j, 5 get lstr_vmplek color color1 when .f.
               @ j, col() + 1 get mlek ;
                   reader {|x|menu_reader(x, {{|k,r,c| get_lek_pr(k,r,c,m1crit)}}, A__FUNCTION, , ,.f.)} ;
-                  when !empty(m1crit) .and. eq_any(m1usl_vmp,2,4)
+                  when !empty(m1crit) .and. eq_any(m1usl_vmp, 2, 4)
               @ ++j, 5 get lstr_vmpptr color color1 when .f.
               @ j, col() + 1 get mpptr ;
                   reader {|x| menu_reader(x,mm_danet, A__MENUVERT, , ,.f.)} ;
-                  when eq_any(m1usl_vmp,2,4)
+                  when eq_any(m1usl_vmp, 2, 4)
             endif
           endif
           //
@@ -1752,9 +1745,8 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
     if num_screen == 2
       set key K_F5 TO change_num_napr
     endif
-///////////////////////////////////////////////////////////////////////////////    
+//
     count_edit += myread(,@pos_read)
-    //count_edit := myread(,@pos_read,++k_read)
     close databases
     if num_screen == 2
       set key K_F5 TO
@@ -1791,7 +1783,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
               append blank
               tdiag->DIAG_DATE := mDIAG_DATE
               tdiag->DIAG_TIP := 1 // 1 - гистологический признак
-              tdiag->DIAG_CODE := mm_N009[i,2]
+              tdiag->DIAG_CODE := mm_N009[i, 2]
               if m1B_DIAG == 98
                 tdiag->DIAG_RSLT := &('m1gist' +lstr(i))
                 tdiag->REC_RSLT := 1
@@ -1806,7 +1798,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
               append blank
               tdiag->DIAG_DATE := mDIAG_DATE
               tdiag->DIAG_TIP := 2 // 2 - маркёр (ИГХ)
-              tdiag->DIAG_CODE := mm_N012[i,2]
+              tdiag->DIAG_CODE := mm_N012[i, 2]
               if m1B_DIAG == 98
                 tdiag->DIAG_RSLT := &('m1mark' +lstr(i))
                 tdiag->REC_RSLT := 1
@@ -1826,7 +1818,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
             tpr->d_prot := &('mdprot' +lstr(i))
           endif
         next i
-        if eq_any(m1B_DIAG,0,7,8) // гистология:0-отказ,7-не показано,8-противопоказано
+        if eq_any(m1B_DIAG, 0, 7, 8) // гистология:0-отказ, 7-не показано, 8-противопоказано
           append blank
           tpr->prot := m1B_DIAG
           tpr->d_prot := mn_data
@@ -1840,9 +1832,9 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
         tmpou->HIR_TIP := iif(m1usl_tip == 1, m1usl_tip1, 0)
         tmpou->LEK_TIP_V := iif(m1usl_tip == 2, m1usl_tip1, 0)
         tmpou->LEK_TIP_L := iif(m1usl_tip == 2, m1usl_tip2, 0)
-        tmpou->LUCH_TIP := iif(eq_any(m1usl_tip,3,4),  m1usl_tip1, 0)
-        tmpou->PPTR := iif(eq_any(m1usl_tip,2,4),  m1PPTR, 0)
-        if eq_any(m1usl_tip,3,4)
+        tmpou->LUCH_TIP := iif(eq_any(m1usl_tip, 3, 4),  m1usl_tip1, 0)
+        tmpou->PPTR := iif(eq_any(m1usl_tip, 2, 4),  m1PPTR, 0)
+        if eq_any(m1usl_tip, 3, 4)
           if val(msod) < 1000
             tmpou->sod := val(CHARREPL(',  ', msod, '.'))
           else
@@ -1860,9 +1852,9 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
           tmpou->HIR_TIP := iif(m1usl_vmp == 1, m1usl_vmp1, 0)
           tmpou->LEK_TIP_V := iif(m1usl_vmp == 2, m1usl_vmp1, 0)
           tmpou->LEK_TIP_L := iif(m1usl_vmp == 2, m1usl_vmp2, 0)
-          tmpou->LUCH_TIP := iif(eq_any(m1usl_vmp,3,4),  m1usl_vmp1, 0)
-          tmpou->PPTR := iif(eq_any(m1usl_vmp,2,4),  m1PPTR, 0)
-          if eq_any(m1usl_vmp,3,4)
+          tmpou->LUCH_TIP := iif(eq_any(m1usl_vmp, 3, 4),  m1usl_vmp1, 0)
+          tmpou->PPTR := iif(eq_any(m1usl_vmp, 2, 4),  m1PPTR, 0)
+          if eq_any(m1usl_vmp, 3, 4)
             if val(msod_vmp) < 1000
               tmpou->sod := val(CHARREPL(',  ', msod_vmp, '.'))
             else
@@ -1893,7 +1885,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
       else
         k := f_alert({padc('Выберите действие', 60, '.')}, ;
                      {' Выход без записи ',  ' Запись ',  ' Возврат в редактирование '}, ;
-                     iif(lastkey()==K_ESC,1,2),  'W+/N',  'N+/N', maxrow()-2, , 'W+/N,N/BG' )
+                     iif(lastkey()==K_ESC, 1, 2),  'W+/N',  'N+/N', maxrow()-2, , 'W+/N,N/BG' )
       endif
     else
       is_oncology := f_is_oncology(2)
@@ -1903,7 +1895,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
       else
         k := f_alert({padc('Выберите действие', 60, '.')}, ;
                      {' Выход без записи ',  ' Запись ',  ' Возврат в редактирование '}, ;
-                     iif(lastkey()==K_ESC,1,2),  'W+/N',  'N+/N', maxrow()-2, , 'W+/N,N/BG' )
+                     iif(lastkey()==K_ESC, 1, 2),  'W+/N',  'N+/N', maxrow()-2, , 'W+/N,N/BG' )
       endif
     endif
     SetMode(25,80) // Определить окно 25*80 символов
@@ -1992,7 +1984,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
       make_diagP(2)  // сделать 'пятизначные' диагнозы
       Use_base('human')
       if Loc_kod > 0
-        find (str(Loc_kod,7))
+        find (str(Loc_kod, 7))
         mkod := Loc_kod
         G_RLock(forever)
       else
@@ -2014,26 +2006,26 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
       goto (mkod)
       G_RLock(forever)
       //
-      if isbit(mem_oms_pole,1)  //  'сроки лечения', ;  1
+      if isbit(mem_oms_pole, 1)  //  'сроки лечения', ;  1
         st_N_DATA := MN_DATA
         st_K_DATA := MK_DATA
       endif
-      if isbit(mem_oms_pole,2)  //  'леч.врач', ;       2
+      if isbit(mem_oms_pole, 2)  //  'леч.врач', ;       2
         st_VRACH := m1vrach
       endif
-      if isbit(mem_oms_pole,3)  //  'осн.диагноз', ;    3
-        SKOD_DIAG := substr(MKOD_DIAG,1,5)
+      if isbit(mem_oms_pole, 3)  //  'осн.диагноз', ;    3
+        SKOD_DIAG := substr(MKOD_DIAG, 1, 5)
       endif
-      if isbit(mem_oms_pole,4)  //  'профиль', ;        4
+      if isbit(mem_oms_pole, 4)  //  'профиль', ;        4
         st_PROFIL := m1PROFIL
       endif
-      if isbit(mem_oms_pole,5)  //  'результат', ;      5
+      if isbit(mem_oms_pole, 5)  //  'результат', ;      5
         st_RSLT := m1rslt
       endif
-      if isbit(mem_oms_pole,6)  //  'исход', ;          6
+      if isbit(mem_oms_pole, 6)  //  'исход', ;          6
         st_ISHOD := m1ishod
       endif
-      /*if isbit(mem_oms_pole,7)  //  'повод обращения'  7
+      /*if isbit(mem_oms_pole, 7)  //  'повод обращения'  7
         st_povod := m1povod
       endif*/
       glob_perso := mkod
@@ -2083,7 +2075,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
       human->date_b_2   := iif(m1bolnich == 0, '',  dtoc4(mdate_b_2))
       human_->RODIT_DR  := iif(m1bolnich < 2, ctod(''),  mrodit_dr)
       human_->RODIT_POL := iif(m1bolnich < 2, '',  mrodit_pol)
-      s := '' ; aeval(adiag_talon, {|x| s += str(x,1) })
+      s := '' ; aeval(adiag_talon, {|x| s += str(x, 1) })
       human_->DISPANS   := s
       human_->STATUS_ST := ltrim(MSTATUS_ST)
       //human_->POVOD     := m1povod
@@ -2098,7 +2090,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
       human_->USL_OK    := m1USL_OK
       human_->PROFIL    := m1PROFIL
       human_->NPR_MO    := m1NPR_MO
-      human_->FORMA14   := str(M1F14_EKST,1)+str(M1F14_SKOR,1)+str(M1F14_VSKR,1)+str(M1F14_RASH,1)
+      human_->FORMA14   := str(M1F14_EKST, 1)+str(M1F14_SKOR, 1)+str(M1F14_VSKR, 1)+str(M1F14_RASH, 1)
       human_->KOD_DIAG0 := mkod_diag0
       human_->RSLT_NEW  := m1rslt
       human_->ISHOD_NEW := m1ishod
@@ -2128,7 +2120,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
       human_2->OSL3   := MOSL3
       human_2->NPR_DATE := mNPR_DATE
       human_2->PROFIL_K := m1PROFIL_K
-      human_2->p_per  := iif(eq_any(m1USL_OK,1,2),  m1p_per, 0)
+      human_2->p_per  := iif(eq_any(m1USL_OK, 1, 2),  m1p_per, 0)
       human_2->VMP    := M1VMP
       human_2->TAL_NUM  := mTAL_NUM
       human_2->TAL_D  := mTAL_D
@@ -2146,7 +2138,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
 
       human_2->PC4    := iif(mWeight != 0, str(mWeight, 5, 1),  space(10))
 
-      if is_reabil_slux .and. eq_any(m1usl_ok,1,2) .and. m1profil == 158
+      if is_reabil_slux .and. eq_any(m1usl_ok, 1, 2) .and. m1profil == 158
         human_2->PN1 := m1vid_reab
       endif
       human_2->PN2 := iif(f_oms_beremenn(mkod_diag) > 0, m1prer_b, 0)
@@ -2160,13 +2152,13 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
         if old_oncology // но была в листе учёта
           G_Use(dir_server + 'mo_onkna', dir_server + 'mo_onkna',  'NAPR') // онконаправления
           do while .t.
-            find (str(mkod,7))
+            find (str(mkod, 7))
             if !found() ; exit ; endif
             DeleteRec(.t.)
           enddo
           G_Use(dir_server + 'mo_onkco', dir_server + 'mo_onkco',  'CO')
           do while .t.
-            find (str(mkod,7))
+            find (str(mkod, 7))
             if !found() ; exit ; endif
             DeleteRec(.t.)
           enddo
@@ -2176,31 +2168,31 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
         if old_oncology // но была онкология в листе учёта
           G_Use(dir_server + 'mo_onksl', dir_server + 'mo_onksl',  'SL')
           do while .t.
-            find (str(mkod,7))
+            find (str(mkod, 7))
             if !found() ; exit ; endif
             DeleteRec(.t.)
           enddo
           G_Use(dir_server + 'mo_onkdi', dir_server + 'mo_onkdi',  'DI')
           do while .t.
-            find (str(mkod,7))
+            find (str(mkod, 7))
             if !found() ; exit ; endif
             DeleteRec(.t.)
           enddo
           G_Use(dir_server + 'mo_onkpr', dir_server + 'mo_onkpr',  'PR')
           do while .t.
-            find (str(mkod,7))
+            find (str(mkod, 7))
             if !found() ; exit ; endif
             DeleteRec(.t.)
           enddo
           G_Use(dir_server + 'mo_onkus', dir_server + 'mo_onkus',  'US')
           do while .t.
-            find (str(mkod,7))
+            find (str(mkod, 7))
             if !found() ; exit ; endif
             DeleteRec(.t.)
           enddo
           G_Use(dir_server + 'mo_onkle', dir_server + 'mo_onkle',  'LE')
           do while .t.
-            find (str(mkod,7))
+            find (str(mkod, 7))
             if !found() ; exit ; endif
             DeleteRec(.t.)
           enddo
@@ -2211,7 +2203,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
         Use_base('mo_su')
         use (cur_dir + 'tmp_onkna') new alias TNAPR
         G_Use(dir_server + 'mo_onkna', dir_server + 'mo_onkna',  'NAPR') // онконаправления
-        find (str(mkod,7))
+        find (str(mkod, 7))
         do while napr->kod == mkod .and. !eof()
           aadd(arr,recno())
           skip
@@ -2229,7 +2221,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
                 tnapr->U_KOD := mosu->kod
               else
                 set order to 1
-                FIND (STR(-1,6))
+                FIND (STR(-1, 6))
                 if found()
                   G_RLock(forever)
                 else
@@ -2265,7 +2257,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
         enddo
         //
         G_Use(dir_server + 'mo_onkco', dir_server + 'mo_onkco',  'CO')
-        find (str(mkod,7))
+        find (str(mkod, 7))
         if found()
           G_RLock(forever)
         else
@@ -2277,7 +2269,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
         //
         if is_oncology == 2 // онкология
           G_Use(dir_server + 'mo_onksl', dir_server + 'mo_onksl',  'SL')
-          find (str(mkod,7))
+          find (str(mkod, 7))
           if found()
             G_RLock(forever)
           else
@@ -2292,11 +2284,11 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
           sl->MTSTZ := m1MTSTZ
           sl->b_diag := m1b_diag
           sl->sod := 0
-          sl->k_fr := iif(eq_any(m1usl_tip,3,4),  val(mk_fr),  0)
+          sl->k_fr := iif(eq_any(m1usl_tip, 3, 4),  val(mk_fr),  0)
           if is_onko_VMP .and. mtipvmp == 1 .and. musl2vmp == 3 // две услуги
             sl->k_fr := val(mk_fr)
           endif
-          if eq_any(m1usl_tip,2,4)
+          if eq_any(m1usl_tip, 2, 4)
             sl->crit := m1crit
           else
             sl->crit := ''
@@ -2304,9 +2296,9 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
           if sl->k_fr == 0
             sl->crit2 := ''
           elseif (i := ascan(_arr_fr, {|x| between(sl->k_fr,x[3],x[4]) })) > 0
-            sl->crit2 := _arr_fr[i,2]
+            sl->crit2 := _arr_fr[i, 2]
           endif
-          if eq_any(m1usl_tip,2,4)
+          if eq_any(m1usl_tip, 2, 4)
             sl->is_err := iif(m1usl_tip == 2, m1is_err, 0)
             sl->WEI := iif(val(mWEI) < 1000, val(CHARREPL(',  ', mWEI, '.')),  70 )
             sl->HEI := val(mHEI)
@@ -2324,7 +2316,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
           //
           arr := {}
           G_Use(dir_server + 'mo_onkdi', dir_server + 'mo_onkdi',  'DIAG') // Диагностический блок
-          find (str(mkod,7))
+          find (str(mkod, 7))
           do while diag->kod == mkod .and. !eof()
             aadd(arr,recno())
             skip
@@ -2376,7 +2368,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
           //
           arr := {}
           G_Use(dir_server + 'mo_onkpr', dir_server + 'mo_onkpr',  'PR') // Сведения об имеющихся противопоказаниях
-          find (str(mkod,7))
+          find (str(mkod, 7))
           do while pr->kod == mkod .and. !eof()
             aadd(arr,recno())
             skip
@@ -2405,7 +2397,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
           enddo
           arr := {}
           G_Use(dir_server + 'mo_onkus', dir_server + 'mo_onkus',  'US')
-          find (str(mkod,7))
+          find (str(mkod, 7))
           do while us->kod == mkod .and. !eof()
             aadd(arr,recno())
             skip
@@ -2440,13 +2432,13 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
           //
           arr := {}
           G_Use(dir_server + 'mo_onkle', dir_server + 'mo_onkle',  'LE')
-          find (str(mkod,7))
+          find (str(mkod, 7))
           do while le->kod == mkod .and. !eof()
             aadd(arr,recno())
             skip
           enddo
           i := 0
-          if eq_any(m1usl_tip,2,4) .or. (is_onko_VMP .and. mtipvmp == 1 .and. musl2vmp == 2)
+          if eq_any(m1usl_tip, 2, 4) .or. (is_onko_VMP .and. mtipvmp == 1 .and. musl2vmp == 2)
             use (cur_dir + 'tmp_onkle') new alias TMPLE
             go top
             do while !eof()
@@ -2485,8 +2477,8 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
       endif
       if fl_nameismo .or. rec_inogSMO > 0
         G_Use(dir_server + 'mo_hismo', , 'SN')
-        index on str(kod,7) to (cur_dir + 'tmp_ismo')
-        find (str(mkod,7))
+        index on str(kod, 7) to (cur_dir + 'tmp_ismo')
+        find (str(mkod, 7))
         if found()
           if fl_nameismo
             G_RLock(forever)
@@ -2502,13 +2494,13 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
           endif
         endif
       endif
-      write_work_oper(glob_task,OPER_LIST,iif(Loc_kod==0,1,2), 1,count_edit)
+      write_work_oper(glob_task,OPER_LIST,iif(Loc_kod==0, 1, 2), 1,count_edit)
       fl_write_sluch := .t.
       close databases
       //
       if pp_OMS .and. mtip_h > B_END // приемный покой + лечение завершено
         G_Use(dir_server + 'mo_pp', dir_server + 'mo_pp_h',  'PP')
-        find (str(mkod,7))
+        find (str(mkod, 7))
         if found()
           G_RLock(forever)
           if (MKOJKO_DNI := mk_data - mn_data) < 1
@@ -2545,7 +2537,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
           pp->K_DATA    := MK_DATA      // дата окончания лечения
           pp->K_TIME    := '11:00'      // время выписки
           pp->KOJKO_DNI := MKOJKO_DNI   // продолжительность госпитализации
-          pp->BOLNICH    := M1BOLNICH    // больничный (0-нет,1-да,2-по уходу)
+          pp->BOLNICH    := M1BOLNICH    // больничный (0-нет, 1-да, 2-по уходу)
           if m1bolnich > 0
             pp->DATE_B_1 := MDATE_B_1    // дата начала больничного
             pp->DATE_B_2 := MDATE_B_2    // дата окончания больничного
@@ -2567,7 +2559,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
   restscreen(buf)
   chm_help_code := tmp_help
   if fl_write_sluch // если записали
-    if eq_any(m1USL_OK,1,2)
+    if eq_any(m1USL_OK, 1, 2)
       f_1pac_definition_KSG(mkod)
     endif
     if type('fl_edit_oper') == 'L' // если находимся в режиме добавления случая
