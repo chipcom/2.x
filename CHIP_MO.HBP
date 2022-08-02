@@ -178,6 +178,7 @@ mo_version.prg
 .\oms\oms_double.prg
 .\oms\definition_KSG.prg
 .\oms\oms_sluch.prg
+.\oms\oms_sluch_main.prg
 .\oms\oms_usl_sluch.prg
 .\oms\f_N_oms_usl_sluch.prg
 .\oms\f5editkusl.prg
