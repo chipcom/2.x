@@ -6,11 +6,6 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** вернуть строку с номером версии
-Function fs_version(aVersion)
-// aVersion - 4-мерный массив
-return lstr(aVersion[1])+'.'+lstr(aVersion[2])+'.'+lstr(aVersion[3]) + iif(len(aVersion) == 4, aVersion[4], '')
-
 ***** 28.12.21 контроль версии базы данных
 Function ControlBases(type_oper,aVersion)
   // type_oper  - тип операции

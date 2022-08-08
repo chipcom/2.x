@@ -3590,47 +3590,51 @@ rest_box(buf)
 viewtext(name_file,,,,.t.,,,reg_print)
 return NIL
 
-***** 24.11.21 Подсчёт стационарных случаев по профилям (по диагнозам, КСГ и операциям)
+
+***** 08.08.22 Подсчёт стационарных случаев по профилям (по диагнозам, КСГ и операциям)
 Function i_stac_sl_profil()
-Local buf := savescreen(), sh := 80, HH := 80, n_file := "stac_pro"+stxt
-Private arr_m := {2019,1,12,"за январь - декабрь 2019 года",0d20190101,0d20191231},;
-        mm_uslov := {{"по всем случаям                      ",2},;
-                     {"по счетам отч.периода (без учёта РАК)",0},;
-                     {"с учётом РАК (как в форме 14-МЕД/ОМС)",1}}
-Private mdate := arr_m[4], m1date := arr_m[1], muslov := mm_uslov[3,1], m1uslov := mm_uslov[3,2]
-r1 := 17
-box_shadow(r1,2,22,77,color1," Отчёт по профилям в стационаре (дневном стационаре) ",color8)
-tmp_solor := setcolor(cDataCGet)
-@ r1+ 2,4 say "Период времени" get mdate ;
-          reader {|x|menu_reader(x,;
-                 {{|k,r,c| k := year_month(r+1,c,,{3,4}),;
-                           iif(k==nil, nil, (arr_m:=aclone(k),k:={k[1],k[4]})),;
-                           k }},A__FUNCTION,,,.f.)}
-@ r1+ 3,4 say "Условия отбора" get muslov ;
-          reader {|x|menu_reader(x,mm_uslov,A__MENUVERT,,,.f.)}
-status_key("^<Esc>^ - выход;  ^<PgDn>^ - создание отчёта")
-myread()
-restscreen(buf)
-if lastkey() == K_ESC
-  return nil
-elseif !between(arr_m[1],2018,2020)
-  return func_error(4,"Данный отчёт работает только с 2018-21 годами")
-else
-  begin_date := dtoc4(arr_m[5])
-  end_date := dtoc4(arr_m[6])
-  WaitStatus("<Esc> - прервать поиск") ; mark_keys({"<Esc>"})
-  //
-  kds := kdr := 10
-  if arr_m[1] == 2019 .and. arr_m[3] == 12
-    kds := 17 // дата регистрации по 17.01.20
-    kdr := 21 // по какую дату РАК сумма к оплате 21.01.20
-  elseif arr_m[1] == 2018 .and. arr_m[3] == 12
-    kds := 21
-    kdr := 22
-  elseif arr_m[1] == 2020 .and. arr_m[3] == 12
-    kds := 21    // !!! ВНИМАНИЕ
-    kdr := 22
-  endif
+  Local buf := savescreen(), sh := 80, HH := 80, n_file := "stac_pro"+stxt
+  Private arr_m := {2022,1,6,"за январь - июнь 2022 года",0d20220101,0d20220630},;
+          mm_uslov := {{"по всем случаям                      ",2},;
+                       {"по счетам отч.периода (без учёта РАК)",0},;
+                       {"с учётом РАК (как в форме 14-МЕД/ОМС)",1}}
+  Private mdate := arr_m[4], m1date := arr_m[1], muslov := mm_uslov[3,1], m1uslov := mm_uslov[3,2]
+  r1 := 17
+  box_shadow(r1,2,22,77,color1," Отчёт по профилям в стационаре (дневном стационаре) ",color8)
+  tmp_solor := setcolor(cDataCGet)
+  @ r1+ 2,4 say "Период времени" get mdate ;
+            reader {|x|menu_reader(x,;
+                   {{|k,r,c| k := year_month(r+1,c,,{3,4}),;
+                             iif(k==nil, nil, (arr_m:=aclone(k),k:={k[1],k[4]})),;
+                             k }},A__FUNCTION,,,.f.)}
+  @ r1+ 3,4 say "Условия отбора" get muslov ;
+            reader {|x|menu_reader(x,mm_uslov,A__MENUVERT,,,.f.)}
+  status_key("^<Esc>^ - выход;  ^<PgDn>^ - создание отчёта")
+  myread()
+  restscreen(buf)
+  if lastkey() == K_ESC
+    return nil
+  elseif !between(arr_m[1],2018,2022)
+    return func_error(4,"Данный отчёт работает только с 2018-22 годами")
+  else
+    begin_date := dtoc4(arr_m[5])
+    end_date := dtoc4(arr_m[6])
+    WaitStatus("<Esc> - прервать поиск") ; mark_keys({"<Esc>"})
+    //
+    kds := kdr := 10
+    if arr_m[1] == 2019 .and. arr_m[3] == 12
+      kds := 17 // дата регистрации по 17.01.20
+      kdr := 21 // по какую дату РАК сумма к оплате 21.01.20
+    elseif arr_m[1] == 2018 .and. arr_m[3] == 12
+      kds := 21
+      kdr := 22
+    elseif arr_m[1] == 2020 .and. arr_m[3] == 12
+      kds := 21    
+      kdr := 22
+    elseif arr_m[1] == 2022 .and. arr_m[3] == 12
+      kds := 21    // !!! ВНИМАНИЕ -проверить
+      kdr := 22  
+    endif
   *********************************************************************
   mdate_rak := arr_m[6]+kdr
   *********************************************************************
