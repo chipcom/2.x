@@ -188,3 +188,39 @@ function control_filter_kartotek(cAliasKart, cAliasKart2, cAliasKart_, aFilter)
     endif
   endif
   return lRet
+
+** 14.08.22
+Function string_selected_uch(arr_u, c_uch)
+  Local i, t_arr[2], s := ''
+  local count_uch
+
+  if ! (type('count_uch') == 'N')
+    count_uch := iif(c_uch == NIL, 1, c_uch)
+  endif
+  if count_uch > 1
+    if count_uch == len(arr_u)
+      return '[ по всем учреждениям ]'
+    else
+      aeval(arr_u, {|x| s += '"' + alltrim(x[2]) + '", ' } )
+      s := substr(s, 1, len(s) - 2)
+    endif
+  endif
+  return s
+
+** 14.08.22
+Function string_selected_otd(arr_o, c_otd)
+  Local i, t_arr[2], s := ''
+
+  if ! (type('c_otd') == 'N')
+    c_otd := iif(c_otd == NIL, 1, c_otd)
+  endif
+  if c_otd > 1 .and. valtype(arr_o) == 'A'
+    if c_otd == len(arr_o)
+      return '[ по всем отделениям ]'
+    else
+      aeval(arr_o, {|x| s += '"' + alltrim(x[2]) + '", ' })
+      s := substr(s, 1, len(s) - 2)
+    endif
+  endif
+  return s
+  
