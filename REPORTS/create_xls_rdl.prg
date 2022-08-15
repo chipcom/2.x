@@ -3,7 +3,7 @@
 #include 'function.ch'
 #include 'hblibxlsxwriter.ch'
 
-** 14.08.22
+** 15.08.22
 function create_xls_rdl(name, arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd)
   local workbook, worksheet, format_top1, format_top2
   local worksheetError
@@ -18,9 +18,6 @@ function create_xls_rdl(name, arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd)
 
   /* Создадим новую книгу. */
   workbook   = lxw_workbook_new(name_file)
-
-  /* Добавим лист в книгу. */
-  worksheet = lxw_workbook_add_worksheet(workbook, 'План-заказ')
 
   /* Конфигурируем формат для шапки. */
   format_header_main    = lxw_workbook_add_format(workbook)
@@ -70,6 +67,9 @@ function create_xls_rdl(name, arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd)
   lxw_worksheet_set_column(worksheet, 7, 7, 7.14)
 
   if hb_FileExists(cur_dir + 'tmp_xls' + sdbf)
+    /* Добавим лист в книгу. */
+    worksheet = lxw_workbook_add_worksheet(workbook, 'План-заказ')
+
     //   adbf := {{'kod','N',4,0},;
     //     {'kod1','N',4,0},;
     //     {'shifr','C',10,0},;

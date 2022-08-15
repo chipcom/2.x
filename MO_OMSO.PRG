@@ -1987,7 +1987,7 @@ if popup_2array(arr,r,c,si,1,@ret_arr) > 0 .and. valtype(ret_arr) == "A"
 endif
 return ret
 
-***** 11.02.19 список снятий по актам
+** 15.08.22 список снятий по актам
 Function akt_list_of_refusal_pacient()
 Static si := 3
 Static mas_pmt := {"случаи полного снятия",;
@@ -2070,8 +2070,11 @@ adbf := {{"nrak","C",50,0},;
          {"k_data","C",10,0},;
          {"cena_1","N",11,2},;
          {"sum_sn","C",30,0},;
+         {"sum_snn","N",11,2},;
          {"REFREASON","C",15,0},;
-         {"DATE_REP","C",10,0}}
+         {"DATE_REP","C",10,0},;
+         {"NUMORDER","N",10,0},;
+         {"kod_h","N",7,0}}  //10.08.2022 для РДЛ
 dbcreate(fr_data,adbf)
 use (fr_data) new alias FRD
 adbf := {{"REFREASON","N",3,0},;
@@ -2080,6 +2083,22 @@ adbf := {{"REFREASON","N",3,0},;
 dbcreate(fr_data+"1",adbf)
 use (fr_data+"1") new alias FRD1
 index on str(REFREASON,3) to (fr_data+"1")
+adbf := {{"num_usl","C",10,0},;    // номер услуги по порядку
+         {"REFREASON","C",15,0},; 
+         {"shifr_usl","C",10,0},;  // шифр услуги 
+         {"name_usl","C",250,0},; // наименование услуги 
+         {"NUMORDER","N",10,0},;   // Номер заявки(ORDER Number)
+         {"fio","C",60,0},;
+         {"date_r","C",10,0},;
+         {"kol_usl","N",10,0},;    // кол-во услуг
+         {"cena_1","N",11,2},;
+         {"sum_sn","N",11,2},;
+         {"DATE_REP","C",10,0},; 
+         {"otd","C",42,0}}
+dbcreate(fr_data+"2",adbf)
+dbcreate(fr_data+"3",adbf)
+use (fr_data+"2") new alias FRD2
+use (fr_data+"3") new alias FRD3
 //
 fp := fcreate(n_file) ; n_list := 1 ; tek_stroke := 0
 add_string("")
@@ -2099,9 +2118,10 @@ add_string("")
 R_Use(dir_server+"schet_",,"SCHET_")
 R_Use(dir_server+"mo_pers",,"PERS")
 R_Use(dir_server+"mo_otd",,"OTD")
+R_Use(dir_server+"human_2",,"HUMAN_2")
 R_Use(dir_server+"human_",,"HUMAN_")
 R_Use(dir_server+"human",,"HUMAN")
-set relation to recno() into HUMAN_, to otd into OTD
+set relation to recno() into HUMAN_, to recno() into HUMAN_2, to otd into OTD
 R_Use(dir_server+"mo_raksh",,"RAKSH")
 index on str(kod_raks,6) to (cur_dir+"tmpraksh")
 R_Use(dir_server+"mo_raks",,"RAKS")
@@ -2220,6 +2240,7 @@ do while !eof()
                 frd->n_data := left(date_8(human->n_data),5)
                 frd->k_data := date_8(human->k_data)
                 frd->cena_1 := human->cena_1
+                frd->sum_snn := s
                 if !empty(s) .and. empty(ssh)
                   frd->sum_sn := lstr(s,15,2)
                 elseif empty(s) .and. !empty(ssh)
@@ -2231,6 +2252,8 @@ do while !eof()
                   s := lstr(raksh->REFREASON)+" неизвестная причина отказа"
                 endif
                 frd->REFREASON := lstr(raksh->REFREASON)+s1
+                frd->NUMORDER  :=  HUMAN_2->pn3 
+                frd->kod_h     := human->kod
                 select FRD1
                 find (str(raksh->REFREASON,3))
                 if !found()
@@ -2277,7 +2300,100 @@ frt->name2 := s
 if frt->nitog3 > 0
   frt->name3 := "Итого штрафов: "+lstr(frt->nitog3)+" на сумму "+lstr(frt->summa3,15,2)+"р."
 endif
+if glob_mo[_MO_KOD_TFOMS] == '805965' //РДЛ
+  R_Use(dir_server+"uslugi",,"USLUGI")
+  R_Use(dir_server+"human_u",dir_server+"human_u","human_u")
+  use_base("lusl")
+  select frd
+  go top
+  do while !eof()
+    select HUMAN_U
+    find (str(frd->kod_h,7))
+    do while frd->kod_h == human_u->kod .and. !eof()
+      select frd2 
+      append blank
+      //{"num_usl","N",10,0},;    // номер услуги по порядку
+      select Uslugi
+      goto human_u->u_kod 
+      //frd2->num_usl    := 
+      frd2->shifr_usl  := uslugi->shifr 
+      frd2->name_usl   := uslugi->name 
+      frd2->kol_usl := human_u->kol_1
+      frd2->cena_1  := human_u->stoim_1
+      musl := transform_shifr(frd2->shifr_usl)
+      select lusl
+      find(musl)
+      frd2->name_usl := lusl->name
+      if frd->cena_1 == frd->sum_snn // снято полностью 
+        frd2->sum_sn := human_u->stoim_1
+      endi
+      frd2->REFREASON := frd->REFREASON
+      frd2->DATE_REP  := frd->DATE_REP
+      frd2->NUMORDER  := frd->NUMORDER 
+      frd2->fio       := frd->fio  
+      frd2->date_r    := frd->date_r 
+      frd2->otd       := frd->otd
+      select human_u
+      skip  
+    enddo
+    select frd
+    skip
+  enddo
+// упорядычеваем
+  select frd2
+  index on refreason+shifr_usl+str(numorder,10) to tmp_frd9
+  go top
+  temp_1 := " "
+  temp_2 := 1
+  temp_3 := 0 // кол_во
+  temp_4 := 0 // сумма
+  do while !eof()
+    select FRD3 
+    append blank
+    if frd2->shifr_usl != temp_1
+      if temp_3 == 0
+       // 
+      else
+        frd3->fio        := " ВСЕГО :"
+        frd3->kol_usl    := temp_3 
+        frd3->cena_1     := temp_4
+        frd3->sum_sn     := temp_4 
+        append blank
+      endif  
+      frd3->num_usl    := str(temp_2)
+      frd3->shifr_usl  := frd2->shifr_usl
+      frd3->name_usl   := frd2->name_usl
+      frd3->REFREASON  := frd2->REFREASON
+      temp_1 := frd2->shifr_usl
+      temp_2 ++
+      temp_3 := frd2->kol_usl
+      temp_4 := frd2->sum_sn
+    else
+      frd3->shifr_usl  := " "
+      frd3->name_usl   := " "
+      temp_3 += frd2->kol_usl
+      temp_4 += frd2->sum_sn
+    endif  
+    frd3->kol_usl    := frd2->kol_usl
+    frd3->cena_1     := frd2->cena_1
+    frd3->sum_sn     := frd2->sum_sn 
+    frd3->DATE_REP   := frd2->DATE_REP 
+    frd3->NUMORDER   := frd2->NUMORDER 
+    frd3->fio        := frd2->fio
+    frd3->date_r     := frd2->date_r
+    frd3->otd        := frd2->otd   
+    select frd2
+    skip
+  enddo
+  select FRD3 
+  append blank
+  frd3->fio        := " ВСЕГО :"
+  frd3->kol_usl    := temp_3 
+  frd3->cena_1     := temp_4
+  frd3->sum_sn     := temp_4 
+endif
 close databases
+
 rest_box(buf)
 name_fr := "mo_spis_sn"+sfr3
 if _upr_epson() .or. !file(dir_exe+name_fr)
@@ -2285,6 +2401,12 @@ if _upr_epson() .or. !file(dir_exe+name_fr)
 else
   call_fr(name_fr)
 endif
+
+// if glob_mo[_MO_KOD_TFOMS] == '805965' //РДЛ
+  create_xls_rdl('rdl_report', arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd)
+  SaveTo(cur_dir + 'rdl_report.xlsx')
+// endif
+
 return NIL
 
 ***** 13.02.19 Список РАК
