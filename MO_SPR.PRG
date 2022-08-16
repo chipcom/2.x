@@ -4058,7 +4058,8 @@ do case
             mSERTIF, m1sertif := 0, mD_SERTIF := ctod(""),;
             mPRVS, m1prvs := 0, muroven := 0, motdal := 0,;
             mDBEGIN := boy(sys_date), mDEND := ctod(""),;
-            gl_area := {1,0,maxrow()-1,79,0}
+            gl_area := {1,0,maxrow()-1,79,0}, ;
+            mprvs_021, m1prvs_021 := 0
     if nKey == K_ENTER
       mkod       := recno()
       mfio       := p2->fio
@@ -4079,6 +4080,7 @@ do case
       m1sertif   := p2->sertif
       mD_SERTIF  := p2->D_SERTIF
       m1prvs     := ret_new_spec(p2->prvs,p2->prvs_new)
+      m1prvs_021 := p2->prvs_021
       if fieldpos("profil") > 0
         fl_profil := .t.
         m1profil := p2->profil
@@ -4100,6 +4102,10 @@ do case
     msertif   := inieditspr(A__MENUVERT,mm_danet,m1sertif)
     m1prvs    := iif(empty(m1prvs), space(4), padr(lstr(m1prvs),4))
     mprvs     := ret_tmp_prvs(0,m1prvs)
+
+    m1prvs_021:= iif(empty(m1prvs_021), space(4), padr(lstr(m1prvs_021),4))
+    mprvs_021 := inieditspr(A__MENUVERT, glob_V021, val(m1prvs_021))
+
     tmp_color := setcolor(cDataCScr)
     k := maxrow()-19
     if fl_profil
@@ -4110,36 +4116,38 @@ do case
             if(nKey == K_INS,"Добавление","Редактирование")+" информации о сотруднике",color8)
     setcolor(cDataCGet)
     r := k
-    ++r ; @ r,2 say "Табельный номер" get mtab_nom picture "99999" ;
+    @ ++r, 2 say "Табельный номер" get mtab_nom picture "99999" ;
                 valid {|g| val_tab_nom(g,nKey) }
-          @ r,36 say "Сводный табельный номер" get msvod_nom picture "99999"
-    ++r ; @ r,2 say "Ф.И.О." get mfio
-    ++r ; @ r,2 say "СНИЛС" get msnils picture picture_pf valid val_snils(msnils,1)
-    ++r ; @ r,2 say "Мед.специальность" get mPRVS ;
+    @ r, 36 say "Сводный табельный номер" get msvod_nom picture "99999"
+    @ ++r, 2 say "Ф.И.О." get mfio
+    @ ++r, 2 say "СНИЛС" get msnils picture picture_pf valid val_snils(msnils,1)
+    @ ++r, 2 say "Мед.специальность" get mPRVS ;
                 reader {|x|menu_reader(x,{{|k,r,c| fget_tmp_V015(k,r,c)}},A__FUNCTION,,,.f.)}
+    // @ ++r, 2 say "Мед.специальность V021" get mPRVS_021 ;
+    //         reader {|x|menu_reader(x, getV021(), A__MENUVERT_SPACE, , , .f.)}
     if fl_profil
-      ++r ; @ r,2 say "Профиль" get mprofil ;
+      @ ++r, 2 say "Профиль" get mprofil ;
                   reader {|x|menu_reader(x,tmp_V002,A__MENUVERT_SPACE,,,.f.)}
     endif
-    ++r ; @ r,2 say "Учр-е" get much ;
+    @ ++r, 2 say "Учр-е" get much ;
                 reader {|x|menu_reader(x,{{|k,r,c| ret_uch_otd(k,r,c)}},A__FUNCTION,,,.f.)}
-          @ r,39 say "Отделение" get motd when .f.
-    ++r ; @ r,2 say "Категория" get mkateg ;
+    @ r, 39 say "Отделение" get motd when .f.
+    @ ++r, 2 say "Категория" get mkateg ;
                 reader {|x|menu_reader(x,gmenu_kateg,A__MENUVERT,,,.f.)}
-    ++r ; @ r,2 say "Наименование должности" get mname_dolj
-    ++r ; @ r,2 say "Вид работы" get mvid ;
+    @ ++r, 2 say "Наименование должности" get mname_dolj
+    @ ++r, 2 say "Вид работы" get mvid ;
                 reader {|x|menu_reader(x,osn_sovm,A__MENUVERT,,,.f.)}
-    ++r ; @ r,36 say "Ставка" color color8 get mstavka picture "9.99"
-    ++r ; @ r,2 say "Медицинская категория" get mvr_kateg ;
+    @ r, 36 say "Ставка" color color8 get mstavka picture "9.99"
+    @ ++r, 2 say "Медицинская категория" get mvr_kateg ;
                 reader {|x|menu_reader(x,menu_vr_kateg,A__MENUVERT,,,.f.)}
-    ++r ; @ r,2 say "Наименование должности по мед.категории" get mDOLJKAT
-    ++r ; @ r,2 say "Дата подтверждения мед.категории" get mD_KATEG
-    ++r ; @ r,2 say "Наличие сертификата" get mSERTIF ;
+    @ ++r, 2 say "Наименование должности по мед.категории" get mDOLJKAT
+    @ ++r, 2 say "Дата подтверждения мед.категории" get mD_KATEG
+    @ ++r, 2 say "Наличие сертификата" get mSERTIF ;
                 reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
-    ++r ; @ r,2 say "Дата подтверждения сертификата" get mD_SERTIF
-    ++r ; @ r,2 say "Код врача для выписки рецептов по ДЛО" get mKOD_DLO pict "99999"
-    ++r ; @ r,2 say "Дата начала работы в должности" get mDBEGIN
-    ++r ; @ r,2 say "Дата окончания работы" get mDEND
+    @ ++r, 2 say "Дата подтверждения сертификата" get mD_SERTIF
+    @ ++r, 2 say "Код врача для выписки рецептов по ДЛО" get mKOD_DLO pict "99999"
+    @ ++r, 2 say "Дата начала работы в должности" get mDBEGIN
+    @ ++r, 2 say "Дата окончания работы" get mDEND
     status_key("^<Esc>^ - выход без записи;  ^<PgDn>^ - подтверждение ввода")
     myread()
     if lastkey() != K_ESC .and. !empty(mfio) .and. f_Esc_Enter(1)
@@ -4172,6 +4180,7 @@ do case
       p2->sertif   := m1sertif
       p2->D_SERTIF := mD_SERTIF
       p2->prvs_new := val(m1prvs)
+      // p2->prvs_021 := val(m1prvs_021)
       if fl_profil
         p2->profil := m1profil
       endif
