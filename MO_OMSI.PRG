@@ -2398,7 +2398,7 @@ if k > 10
 endif
 return NIL
 
-** 15.08.22
+** 17.08.22
 Function pz1statist(par,par2)
   Static _su := 2
   Local buf := savescreen(), fl_exit := .f., fl := .t., a_otd := {},;
@@ -3133,10 +3133,10 @@ Function pz1statist(par,par2)
   restscreen(buf)
   viewtext(name_file,,,,(sh>80),,,reg_print)
   
-  // if glob_mo[_MO_KOD_TFOMS] == '805965' //êÑã
+  if glob_mo[_MO_KOD_TFOMS] == '805965' //êÑã
     create_xls_rdl('rdl_report', arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd)
     SaveTo(cur_dir + 'rdl_report.xlsx')
-  // endif
+  endif
   return NIL
   
 ** 02.12.21

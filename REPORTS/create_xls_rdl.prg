@@ -55,20 +55,20 @@ function create_xls_rdl(name, arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd)
   // lxw_format_set_text_wrap(format_text3)
   lxw_format_set_border(format_text3, LXW_BORDER_THIN)
 
-  /* Установить ширину колонок */
-  lxw_worksheet_set_column(worksheet, 0, 0, 3.0)
-  
-  lxw_worksheet_set_column(worksheet, 1, 1, 8.0)
-  lxw_worksheet_set_column(worksheet, 2, 2, 8.0)
-  lxw_worksheet_set_column(worksheet, 3, 3, 9.86)
-  lxw_worksheet_set_column(worksheet, 4, 4, 3.0)
-  lxw_worksheet_set_column(worksheet, 5, 5, 5.43)
-  lxw_worksheet_set_column(worksheet, 6, 6, 3.0)
-  lxw_worksheet_set_column(worksheet, 7, 7, 7.14)
-
   if hb_FileExists(cur_dir + 'tmp_xls' + sdbf)
     /* Добавим лист в книгу. */
     worksheet = lxw_workbook_add_worksheet(workbook, 'План-заказ')
+
+    /* Установить ширину колонок */
+    lxw_worksheet_set_column(worksheet, 0, 0, 3.0)
+  
+    lxw_worksheet_set_column(worksheet, 1, 1, 8.0)
+    lxw_worksheet_set_column(worksheet, 2, 2, 8.0)
+    lxw_worksheet_set_column(worksheet, 3, 3, 9.86)
+    lxw_worksheet_set_column(worksheet, 4, 4, 3.0)
+    lxw_worksheet_set_column(worksheet, 5, 5, 5.43)
+    lxw_worksheet_set_column(worksheet, 6, 6, 3.0)
+    lxw_worksheet_set_column(worksheet, 7, 7, 7.14)
 
     //   adbf := {{'kod','N',4,0},;
     //     {'kod1','N',4,0},;

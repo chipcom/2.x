@@ -1987,7 +1987,7 @@ if popup_2array(arr,r,c,si,1,@ret_arr) > 0 .and. valtype(ret_arr) == "A"
 endif
 return ret
 
-** 15.08.22 список снятий по актам
+** 17.08.22 список снятий по актам
 Function akt_list_of_refusal_pacient()
 Static si := 3
 Static mas_pmt := {"случаи полного снятия",;
@@ -2402,10 +2402,10 @@ else
   call_fr(name_fr)
 endif
 
-// if glob_mo[_MO_KOD_TFOMS] == '805965' //РДЛ
+if glob_mo[_MO_KOD_TFOMS] == '805965' //РДЛ
   create_xls_rdl('rdl_report', arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd)
   SaveTo(cur_dir + 'rdl_report.xlsx')
-// endif
+endif
 
 return NIL
 
