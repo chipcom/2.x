@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-** 02.08.22 добавление или редактирование случая (листа учета)
+** 18.08.22 добавление или редактирование случая (листа учета)
 Function oms_sluch_main(Loc_kod, kod_kartotek)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -21,6 +21,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
   local mWeight := 0
   local oldPictureTalon := '@S12'
   local newPictureTalon := '@S 99.9999.99999.999'
+  local mm_da_net := {{'нет', 0}, {'да ', 1}}
 
   Default st_N_DATA TO sys_date, st_K_DATA TO sys_date
   Default Loc_kod TO 0, kod_kartotek TO 0
@@ -144,6 +145,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
   Private mm_prer_b := mm2prer_b
 
   private MTAB_NOM_NAPR := 0
+  private mNMSE, m1NMSE := 0  // направление на МСЭ
 
   if mem_zav_l == 1  // да
     m1_l_z := 1   // да
@@ -660,6 +662,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
   mishod    := inieditspr(A__MENUVERT, glob_V012, m1ishod)
   mvidpolis := inieditspr(A__MENUVERT, mm_vid_polis, m1vidpolis)
   mbolnich  := inieditspr(A__MENUVERT, menu_bolnich, m1bolnich)
+  mNMSE     := inieditspr(A__MENUVERT, mm_da_net, m1NMSE)
   //mpovod    := inieditspr(A__MENUVERT, stm_povod, m1povod)
   //mtravma   := inieditspr(A__MENUVERT, stm_travma, m1travma)
   motd      := inieditspr(A__POPUPMENU, dir_server + 'mo_otd',  m1otd)
@@ -883,24 +886,26 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
             when eq_any(m1usl_ok, 1, 2) .and. m1profil == 158
       endif
       //
-      ++j
-      @ j, 1 say 'Результат обращения' get mrslt ;
+      @ ++j, 1 say 'Результат обращения' get mrslt ;
           reader {|x|menu_reader(x,mm_rslt, A__MENUVERT, , ,.f.)} ;
           valid {|g,o| f_valid_rslt(g,o) }
       //
-      ++j
-      @ j, 1 say 'Исход заболевания' get mishod ;
+      @ ++j, 1 say 'Исход заболевания' get mishod ;
           reader {|x|menu_reader(x,mm_ishod, A__MENUVERT, , ,.f.)}
+
+      @ j, col() + 3 say 'Направление на МСЭ' get mNMSE ;
+        reader {|x|menu_reader(x, mm_da_net, A__MENUVERT, , ,.f.)} ;
+        color colget_menu //;
+        // valid {|g,o| f_valid_bolnich(g,o) }
+
       //
-      ++j
-      @ j, 1 say 'Госпитализирован' get MF14_EKST ;
+      @ ++j, 1 say 'Госпитализирован' get MF14_EKST ;
           reader {|x|menu_reader(x,mm_ekst, A__MENUVERT, , ,.f.)} ;
           valid {|g,o| f_valid_f14_ekst(g,o) }
       @ row(), col()+3 say 'Доставлен скорой помощью' get MF14_SKOR ;
           reader {|x|menu_reader(x,mm_danet, A__MENUVERT, , ,.f.)} ;
           when M1F14_EKST == 1
-      ++j
-      @ j, 3 say 'вскрытие' get MF14_VSKR ;
+      @ ++j, 3 say 'вскрытие' get MF14_VSKR ;
           reader {|x|menu_reader(x,mm_vskrytie, A__MENUVERT, , ,.f.)} ;
           when is_death(m1RSLT)
       @ row(), col()+3 say 'установлено расхождение диагнозов' get MF14_RASH ;
