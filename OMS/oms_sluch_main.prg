@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-** 18.08.22 добавление или редактирование случая (листа учета)
+** 19.08.22 добавление или редактирование случая (листа учета)
 Function oms_sluch_main(Loc_kod, kod_kartotek)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -450,6 +450,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
     MVNR2 := iif(human_2->VNR2 > 0, padr(lstr(human_2->VNR2), 4),  space(4))
     MVNR3 := iif(human_2->VNR3 > 0, padr(lstr(human_2->VNR3), 4),  space(4))
     m1vid_reab := human_2->PN1
+    m1NMSE := human_2->PN6
 
     mWeight := iif(empty(human_2->PC4),  0, val(human_2->PC4))
 
@@ -732,25 +733,21 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
       diag_screen(0)
       pos_read := 0
       put_dop_diag(0)
-      ++j
-      @ j, 1 say 'Учреждение' get mlpu when .f. color cDataCSay
+      @ ++j, 1 say 'Учреждение' get mlpu when .f. color cDataCSay
       @ row(), col()+2 say 'Отделение' get motd when .f. color cDataCSay
       //
-      ++j
-      @ j, 1 say 'ФИО' get mfio_kart ;
+      @ ++j, 1 say 'ФИО' get mfio_kart ;
           reader {|x| menu_reader(x, {{|k,r,c| get_fio_kart(k,r,c)}}, A__FUNCTION, , ,.f.)} ;
           valid {|g,o| update_get('mkomu'), update_get('mcompany'), ;
             update_get('mspolis'), update_get('mnpolis'), ;
             update_get('mvidpolis') }
       //
-      ++j
-      @ j, 1 say 'Направление: дата' get mNPR_DATE
+      @ ++j, 1 say 'Направление: дата' get mNPR_DATE
       @ j, col() + 1 say 'из МО' get mNPR_MO ;
           reader {|x|menu_reader(x, {{|k,r,c|f_get_mo(k,r,c)}}, A__FUNCTION, , ,.f.)} ;
           color colget_menu
       //
-      ++j
-      @ j, 1 say 'Новорожденный?' get mnovor ;
+      @ ++j, 1 say 'Новорожденный?' get mnovor ;
           reader {|x|menu_reader(x,mm_danet, A__MENUVERT, , ,.f.)} ;
           valid {|g,o| f_valid_novor(g,o) } ;
           color colget_menu
@@ -767,8 +764,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
             when (m1novor == 1)
       endif
       //
-      ++j
-      @ j, 1 say 'Сроки лечения' get mn_data valid {|g|f_k_data(g, 1)}
+      @ ++j, 1 say 'Сроки лечения' get mn_data valid {|g|f_k_data(g, 1)}
       @ row(), col() + 1 say '-'   get mk_data valid {|g|f_k_data(g, 2)}
       @ row(), col()+3 get mvzros_reb when .f. color cDataCSay
       if yes_vypisan == B_END
@@ -778,19 +774,16 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
             color 'GR+/B'
       endif
       //
-      ++j
-      @ j, 1 say '№ амб.карты (истории)' get much_doc picture '@!' ;
+      @ ++j, 1 say '№ амб.карты (истории)' get much_doc picture '@!' ;
           when when_uch_doc
       @ row(), col() + 1 say 'Врач' get MTAB_NOM pict '99999' ;
           valid {|g| v_kart_vrach(g,.t.) } when diag_screen(2)
       @ row(), col() + 1 get mvrach when .f. color color14
       //
-      ++j
-      @ j, 1 say 'Вес пациента' get mWeight picture '999.9' ;
-      valid {| g | check_edit_field(g, 2, 1) }
+      @ ++j, 1 say 'Вес пациента' get mWeight picture '999.9' ;
+        valid {| g | check_edit_field(g, 2, 1) }
       @ j, col() + 1 say 'кг.'
 
-      // @ j, 1 say 'Первичный диагноз' get mkod_diag0 picture pic_diag reader {|o| MyGetReader(o, bg)} valid val1_10diag(.t.,.f.,.t.,mk_data,iif(m1novor==0,mpol,mpol2)) ;
       @ j, col() + 5 say 'Первичный диагноз' get mkod_diag0 picture pic_diag reader {|o| MyGetReader(o, bg)} valid val1_10diag(.t.,.f.,.t.,mk_data,iif(m1novor==0,mpol,mpol2)) ;
           when diag_screen(2) .and. when_diag()
       
@@ -819,21 +812,19 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
             mm_prer_b := iif(ibrm == 1, mm1prer_b, iif(ibrm == 2, mm2prer_b, mm3prer_b)), ;
             (ibrm > 0) }
       //
-      ++j
-      @ j, 1 say 'Сопутствующие диагнозы ' get mkod_diag2 picture pic_diag reader {|o|MyGetReader(o, bg)} when when_diag() valid val1_10diag(.t.,.t.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
+      @ ++j, 1 say 'Сопутствующие диагнозы ' get mkod_diag2 picture pic_diag reader {|o|MyGetReader(o, bg)} when when_diag() valid val1_10diag(.t.,.t.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
       @ row(), col() say ',  '            get mkod_diag3 picture pic_diag reader {|o|MyGetReader(o, bg)} when when_diag() valid val1_10diag(.t.,.t.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
       @ row(), col() say ',  '            get mkod_diag4 picture pic_diag reader {|o|MyGetReader(o, bg)} when when_diag() valid val1_10diag(.t.,.t.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
       @ row(), col() say ',  '            get msoput_b1  picture pic_diag reader {|o|MyGetReader(o, bg)} when when_diag() valid val1_10diag(.t.,.t.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
       @ row(), col() say ',  '            get msoput_b2  picture pic_diag reader {|o|MyGetReader(o, bg)} when when_diag() valid val1_10diag(.t.,.t.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
       @ row(), col() say ',  '            get msoput_b3  picture pic_diag reader {|o|MyGetReader(o, bg)} when when_diag() valid val1_10diag(.t.,.t.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
       @ row(), col() say ',  '            get msoput_b4  picture pic_diag reader {|o|MyGetReader(o, bg)} when when_diag() valid val1_10diag(.t.,.t.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
-      ++j
-      @ j, 1 say 'Диагнозы осложнения    ' get mosl1 picture pic_diag reader {|o|MyGetReader(o, bg)} when when_diag() valid val1_10diag(.t.,.f.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
+
+      @ ++j, 1 say 'Диагнозы осложнения    ' get mosl1 picture pic_diag reader {|o|MyGetReader(o, bg)} when when_diag() valid val1_10diag(.t.,.f.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
       @ row(), col() say ',  '            get mosl2 picture pic_diag reader {|o|MyGetReader(o, bg)} when when_diag() valid val1_10diag(.t.,.f.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
       @ row(), col() say ',  '            get mosl3 picture pic_diag reader {|o|MyGetReader(o, bg)} when when_diag() valid val1_10diag(.t.,.f.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
       //
-      ++j
-      @ j, 1 say 'Принадлежность счёта' get mkomu ;
+      @ ++j, 1 say 'Принадлежность счёта' get mkomu ;
           reader {|x|menu_reader(x, mm_komu, A__MENUVERT, , , .f.)} ;
           valid {|g, o| f_valid_komu(g, o) } ;
           color colget_menu
@@ -842,8 +833,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
           when diag_screen(2) .and. m1komu < 5 ;
           valid {|g| func_valid_ismo(g, m1komu, 38) }
       //
-      ++j
-      @ j, 1 say 'Полис ОМС: серия' get mspolis when m1komu == 0
+      @ ++j, 1 say 'Полис ОМС: серия' get mspolis when m1komu == 0
       @ row(), col()+3 say 'номер' get mnpolis when m1komu == 0
       @ row(), col()+3 say 'вид'   get mvidpolis ;
           reader {|x|menu_reader(x, mm_vid_polis, A__MENUVERT, , , .f.)} ;
@@ -866,22 +856,18 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
           reader {|x| menu_reader(x,mm_p_per, A__MENUVERT, , ,.f.)} ;
           when eq_any(m1usl_ok, 1, 2)
       if is_dop_ob_em
-        ++j
-        @ j, 3 say 'вид объёмов специализированной медицинской помощи' get mreg_lech ;
+        @ ++j, 3 say 'вид объёмов специализированной медицинской помощи' get mreg_lech ;
             reader {|x|menu_reader(x,mm_reg_lech, A__MENUVERT, , ,.f.)} ;
             when eq_any(m1usl_ok, 1, 2)
       endif
-      ++j
-      @ j, 3 say 'профиль мед.помощи' get MPROFIL ;
+      @ ++j, 3 say 'профиль мед.помощи' get MPROFIL ;
           reader {|x|menu_reader(x,tmp_V002, A__MENUVERT, , ,.f.)} ;
           valid f_valid2ad_cr(MK_DATA)
-      ++j
-      @ j, 3 say 'профиль койки' get MPROFIL_K ;
+      @ ++j, 3 say 'профиль койки' get MPROFIL_K ;
           reader {|x|menu_reader(x,tmp_V020, A__MENUVERT, , ,.f.)} ;
           when eq_any(m1usl_ok, 1, 2)
       if is_reabil_slux
-        ++j
-        @ j, 3 say 'вид мед.реабилитации' get mvid_reab ;
+        @ ++j, 3 say 'вид мед.реабилитации' get mvid_reab ;
             reader {|x|menu_reader(x,mm_vid_reab, A__MENUVERT, , ,.f.)} ;
             when eq_any(m1usl_ok, 1, 2) .and. m1profil == 158
       endif
@@ -895,8 +881,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
 
       @ j, col() + 3 say 'Направление на МСЭ' get mNMSE ;
         reader {|x|menu_reader(x, mm_da_net, A__MENUVERT, , ,.f.)} ;
-        color colget_menu //;
-        // valid {|g,o| f_valid_bolnich(g,o) }
+        color colget_menu
 
       //
       @ ++j, 1 say 'Госпитализирован' get MF14_EKST ;
@@ -961,32 +946,27 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
       endif
       //
       if is_MO_VMP
-        ++j
-        @ j, 1 say 'ВМП?' get MVMP ;
+        @ ++j, 1 say 'ВМП?' get MVMP ;
             reader {|x|menu_reader(x,mm_danet, A__MENUVERT, , ,.f.)} ;
             when m1usl_ok==1 .or. (m1usl_ok==2 .and. is_ds_VMP) ;
             valid {|g,o| f_valid_vmp(g,o) } ;
             color colget_menu
-        // @ j, col() + 1 say 'номер талона' get mTAL_NUM PICTURE '@S12' ;
         @ j, col() + 1 say '№ талона' get mTAL_NUM PICTURE iif(MK_DATA >= 0d20220101, newPictureTalon, oldPictureTalon) ;
             valid {|g| valid_number_talon(g, mk_data, .t.)} ;
             when m1vmp == 1
         @ j, col() + 1 say 'выдан' get mTAL_D when m1vmp == 1
         @ j, col() + 1 say 'план. госп-ция' get mTAL_P when m1vmp == 1
-        ++j
-        @ j, 1 say ' вид ВМП' get mvidvmp ;
+        @ ++j, 1 say ' вид ВМП' get mvidvmp ;
             reader {|x|menu_reader(x, {{|k, r, c|f_get_vidvmp(k, r, c, mkod_diag)}}, A__FUNCTION, , , .f.)} ;
             when m1vmp == 1 ;
             valid {|g,o| f_valid_vidvmp(g,o) } ;
             color colget_menu
-        ++j
-        @ j, 1 say ' модель' get mmodpac ;
+        @ ++j, 1 say ' модель' get mmodpac ;
             reader {|x|menu_reader(x, {{|k,r,c|f_get_mmodpac(k,r,c, m1vidvmp, mkod_diag)}}, A__FUNCTION, , ,.f.)} ;
             when m1vmp == 1 ;
             color colget_menu
             // valid {|g,o| f_valid_mmodpac(g,o) } ;
-        ++j 
-        @ j, 1 say ' метод ВМП' get mmetvmp ;
+        @ ++j, 1 say ' метод ВМП' get mmetvmp ;
             reader {|x|menu_reader(x, {{|k,r,c|f_get_metvmp(k,r,c, m1vidvmp,m1modpac)}}, A__FUNCTION, , ,.f.)} ;
             when m1vmp == 1 .and. !empty(m1vidvmp) ;  //   valid {|| f_valid_metvmp(m1metvmp) } ;
             color colget_menu
@@ -1013,15 +993,15 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
             reader {|x|menu_reader(x,menupol, A__MENUVERT, , ,.f.)} ;
             when m1bolnich == 2
       else
-        @ row(),  col() + 1 say 'Пол' get mrodit_pol pict '@!' ;
+        @ row(), col() + 1 say 'Пол' get mrodit_pol pict '@!' ;
             valid {|g| mrodit_pol $ 'МЖ' } ;
             when m1bolnich == 2
       endif
-      @ maxrow()-1, 1 say 'Признак подозрения на ЗНО' get mDS_ONK ;
+      @ maxrow() - 1, 1 say 'Признак подозрения на ЗНО' get mDS_ONK ;
           reader {|x|menu_reader(x,mm_danet, A__MENUVERT, , ,.f.)} ;
           when {|| when_ds_onk() } ;
           color colget_menu
-      @ maxrow()-1,55 say 'Сумма лечения' color color1
+      @ maxrow() - 1, 55 say 'Сумма лечения' color color1
       @ row(), col() + 1 say lput_kop(mcena_1) color color8
       if is_talon
         set key K_F10 TO inp_dop_diag
@@ -1484,9 +1464,9 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
       j := 1
       myclear(j)
       pos_read := 0
-           @ j, 1 say 'Осн.диагноз' color color8 get mkod_diag when .f.
+      @ j, 1 say 'Осн.диагноз' color color8 get mkod_diag when .f.
       if yes_num_lu == 1 .and. Loc_kod > 0
-           @ j, 50 say padl('Лист учета № ' +lstr(Loc_kod), 29) color color14
+        @ j, 50 say padl('Лист учета № ' +lstr(Loc_kod), 29) color color14
       endif
       @ ++j, 1 say 'ФИО' get mfio_kart when .f.
       @ j, 57 get mn_data when .f.
@@ -2133,6 +2113,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
       human_2->VIDVMP := M1VIDVMP
       human_2->METVMP := M1METVMP
       human_2->PN5    := m1modpac
+      human_2->PN6    := m1NMSE  // направление на МСЭ
       /*if year(mk_data) == 2017 .and. between(M1METVMP,498,499)
         human_2->PC1 := mstentvmp // кол-во стентов для методов ВМП 498,499
       endif*/
@@ -2151,6 +2132,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
       // if year(mk_data)  == 2021 .and. !empty(m1KSLP)  // учет КСЛП
       //   human_2->PC1 := m1KSLP // список КСЛП
       // endif
+
 
       human_2->PC3 := iif(input_ad_cr, m1ad_cr, '')
       if is_oncology == 0 // нет онкологии

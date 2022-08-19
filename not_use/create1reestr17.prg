@@ -3,7 +3,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 24.02.22
+***** 19.08.22
 Function create1reestr17(_recno,_nyear,_nmonth)
   Local buf := savescreen(), s, i, j, pole
   local nameArr
@@ -968,7 +968,14 @@ Function create2reestr17(_recno,_nyear,_nmonth,reg_sort)
           endif
         endif
       endif
-      mo_add_xml_stroke(oSLUCH,"RSLT",lstr(human_->RSLT_NEW))
+      mo_add_xml_stroke(oSLUCH, 'RSLT', lstr(human_->RSLT_NEW))
+
+      if p_tip_reestr == 1
+        if human_2->PN6 == 1
+          mo_add_xml_stroke(oSLUCH, 'MSE', '1')
+        endif
+      endif
+
       if p_tip_reestr == 2 .and. len(arr_nazn) > 0
         oPRESCRIPTION := oSLUCH:Add( HXMLNode():New( "PRESCRIPTION" ) )
         for j := 1 to len(arr_nazn)

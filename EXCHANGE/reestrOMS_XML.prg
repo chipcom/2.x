@@ -7,7 +7,7 @@
 Static sadiag1 := {}
 
   
-** 22.06.22 создание XML-файлов реестра
+** 19.08.22 создание XML-файлов реестра
 Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
   //
@@ -437,7 +437,9 @@ Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
         lal := iif(kol_sl == 2, "human_3", "human_")
         mo_add_xml_stroke(oSLUCH,"RSLT",lstr(&lal.->RSLT_NEW))
         if p_tip_reestr == 1
-          //mo_add_xml_stroke(oSLUCH,"MSE",'1')
+          if human_2->PN6 == 1
+            mo_add_xml_stroke(oSLUCH, 'MSE', '1')
+          endif
         else    // для реестров по диспансеризации
           mo_add_xml_stroke(oSLUCH,"ISHOD",lstr(human_->ISHOD_NEW))
           mo_add_xml_stroke(oSLUCH,"IDSP" ,lstr(human_->IDSP))
