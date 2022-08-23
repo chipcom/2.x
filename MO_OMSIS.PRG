@@ -1470,7 +1470,7 @@ close databases
 viewtext(n_file,,,,(sh > 80),,,reg_print)
 return NIL
 
-***** 24.02.22 ¬­®£®¢ à¨ ­â­ë© ¯®¨áª
+***** 22.08.22 ¬­®£®¢ à¨ ­â­ë© ¯®¨áª
 Function s_mnog_poisk()
 Static mm_rak := {;
   {"¢á¥ á«ãç ¨",0},;
@@ -1540,6 +1540,7 @@ Private tmp_V009 := cut_glob_array(glob_V009,sys_date) // rslt
 Private tmp_V012 := cut_glob_array(glob_V012,sys_date) // ishod
 Private arr_doc := {"„ â  à®¦¤.",;
                     "€¤à¥á",;
+                    "®¬¥à ª àâë",; 
                     "‘à®ª¨ «¥ç.",;
                     "„¨ £­®§",;
                     "‘ç¥â",;
@@ -2289,50 +2290,56 @@ if k > 0
       arr_title[4] += "ÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ"
     endif
     if isbit(mn->vid_doc,3)
+      arr_title[1] += "ÂÄÄÄÄÄÄÄÄÄÄ"
+      arr_title[2] += "³  N ª àâë "
+      arr_title[3] += "³          "
+      arr_title[4] += "ÁÄÄÄÄÄÄÄÄÄÄ"
+    endif
+    if isbit(mn->vid_doc,4)
       arr_title[1] += "ÂÄÄÄÄÄÄÄÄ"
       arr_title[2] += "³ ‘à®ª¨  "
       arr_title[3] += "³«¥ç¥­¨ï "
       arr_title[4] += "ÁÄÄÄÄÄÄÄÄ"
     endif
-    if isbit(mn->vid_doc,4)
+    if isbit(mn->vid_doc,5)
       arr_title[1] += "ÂÄÄÄÄÄÄÄÄÄÄÄÄÄ"
       arr_title[2] += "³   „¨ £­®§   "
       arr_title[3] += "³             "
       arr_title[4] += "ÁÄÄÄÄÄÄÄÄÄÄÄÄÄ"
     endif
-    if isbit(mn->vid_doc,5)
+    if isbit(mn->vid_doc,6)
       arr_title[1] += "ÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ"
       arr_title[2] += "³ ®¬¥à ¨ ¤ â   "
       arr_title[3] += "³    áç¥â       "
       arr_title[4] += "ÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ"
     endif
-    if isbit(mn->vid_doc,6)
+    if isbit(mn->vid_doc,7)
       arr_title[1] += "ÂÄÄÄÄÄÄÄÄÄ"
       arr_title[2] += "³   €Š   "
       arr_title[3] += "³         "
       arr_title[4] += "ÁÄÄÄÄÄÄÄÄÄ"
       R_Use(dir_server+"mo_raksh",cur_dir+"tmp_raksh","RAKSH")
     endif
-    if isbit(mn->vid_doc,7)
+    if isbit(mn->vid_doc,8)
       arr_title[1] += "ÂÄÄÄÄÄ"
       arr_title[2] += "³ ‹¥ç."
       arr_title[3] += "³ ¢à ç"
       arr_title[4] += "ÁÄÄÄÄÄ"
     endif
-      if isbit(mn->vid_doc,8)
+      if isbit(mn->vid_doc,9)
       arr_title[1] += "ÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ"
       arr_title[2] += "³                       "
       arr_title[3] += "³     ‘¯¨á®ª ãá«ã£      "
       arr_title[4] += "ÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ"
     endif
-    if isbit(mn->vid_doc,9)
+    if isbit(mn->vid_doc,10)
       arr_title[1] += "ÂÄÄÄÄÄÄÄÄ"
       arr_title[2] += "³„®¯®«­¨â"
       arr_title[3] += "³ªà¨â¥à¨©"
       arr_title[4] += "ÁÄÄÄÄÄÄÄÄ"
     endif
     if yes_parol
-      if isbit(mn->vid_doc,10)
+      if isbit(mn->vid_doc,11)
         arr_title[1] += "ÂÄÄÄÄÄÄÄÄÄÄ"
         arr_title[2] += "³„ â  ¢¢®¤ "
         arr_title[3] += "³¨ ®¯¥à â®à"
@@ -2776,8 +2783,14 @@ if k > 0
         s2 += " "+padr(alltrim(a_diagnoz[2]),24)
         s3 += " "+padr(alltrim(a_diagnoz[3]),24)
       endif
+       //
+       if isbit(mn->vid_doc,3) // ­®¬¥à ª àâë
+        s1 += space(11)
+        s2 += " "+human->uch_doc
+        s3 += space(11)
+      endif
       //
-      if isbit(mn->vid_doc,3)
+      if isbit(mn->vid_doc,4)
         if mn_data == human->k_data
           s1 += " "+date_8(human->k_data)
           s2 += space(9)
@@ -2788,7 +2801,7 @@ if k > 0
         s3 += space(9)
       endif
       //
-      if isbit(mn->vid_doc,4)
+      if isbit(mn->vid_doc,5)
         afill(adiag_talon,0)
         for i := 1 to 16
           adiag_talon[i] := int(val(substr(human_->DISPANS,i,1)))
@@ -2814,7 +2827,7 @@ if k > 0
         endif
       endif
       //
-      if isbit(mn->vid_doc,5)
+      if isbit(mn->vid_doc,6)
         if human->tip_h >= B_SCHET .and. human->schet > 0
           select SCHET
           goto (human->schet)
@@ -2827,7 +2840,7 @@ if k > 0
         s3 += space(16)
       endif
       //
-      if isbit(mn->vid_doc,6)
+      if isbit(mn->vid_doc,7)
         if tmp->rak_p == 0
           s1 += " "+padc("®¯« ç¨-",9)
           s2 += " "+padc("¢ ¥âáï",9)
@@ -2844,7 +2857,7 @@ if k > 0
         endif
       endif
       //
-      if isbit(mn->vid_doc,7)
+      if isbit(mn->vid_doc,8)
         if human_->vrach > 0
           select PERSO
           goto (human_->vrach)
@@ -2856,7 +2869,7 @@ if k > 0
         s3 += space(6)
       endif
       //
-      if isbit(mn->vid_doc,8)
+      if isbit(mn->vid_doc,9)
         tmp1 := "" ; aup := {}
         ar := {human->kod}
         if is_2
@@ -2938,7 +2951,7 @@ if k > 0
         endif
       endif
       //
-      if isbit(mn->vid_doc,9)
+      if isbit(mn->vid_doc,10)
         afill(a_diagnoz,"") ; i := 0
         if !empty(human_2->pc3) .and. !left(human_2->pc3,1) == '6' // ªà®¬¥ "áâ à®áâ¨"
           a_diagnoz[++i] := human_2->pc3
@@ -2955,7 +2968,7 @@ if k > 0
         s3 += " "+padc(a_diagnoz[3],8)
       endif
       if yes_parol
-        if isbit(mn->vid_doc,10)
+        if isbit(mn->vid_doc,11)
           s1 += " "+date_8(c4tod(human->date_e))+"£."
           if asc(human->kod_p) > 0
             select BASE1
