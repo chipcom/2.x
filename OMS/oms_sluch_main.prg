@@ -22,6 +22,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
   local oldPictureTalon := '@S12'
   local newPictureTalon := '@S 99.9999.99999.999'
   local mm_da_net := {{'нет', 0}, {'да ', 1}}
+  local polis_oms, str_polis_oms
 
   Default st_N_DATA TO sys_date, st_K_DATA TO sys_date
   Default Loc_kod TO 0, kod_kartotek TO 0
@@ -326,6 +327,10 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
     mNPOLIS     := kart_->NPOLIS
     m1okato     := kart_->KVARTAL_D    // ОКАТО субъекта РФ территории страхования
     msmo        := kart_->SMO
+
+    polis_oms := TPolicyOMS():New(kart_->VPOLIS, kart_->SPOLIS, kart_->NPOLIS, kart_->SMO)
+    str_polis_oms := polis_oms:AsString()
+altd()
     if kart->MI_GIT == 9
       m1komu    := kart->KOMU
       m1str_crb := kart->STR_CRB

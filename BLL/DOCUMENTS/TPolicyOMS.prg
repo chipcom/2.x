@@ -23,25 +23,22 @@ CREATE CLASS TPolicyOMS
     DATA FPolicySeries  INIT space(10)
     DATA FPolicyNumber	INIT space(20)
     DATA FSMO           INIT space(5)
-    DATA FBeginPolicy   INIT ctod('')
-    DATA FPolicyPeriod  INIT ctod('')
-    DATA FOKATOInogSMO  INIT space(5)
-    DATA FNameInogSMO   INIT space(100)
-    DATA FIsInogSMO     INIT .f.
-    DATA FOwner         INIT nil
 
 		METHOD SetFormat(format)    INLINE ::FFormat := format
     METHOD GetAsString(format)
 ENDCLASS
 
-METHOD New(nType, cSeries, cNumber, cSMO, dBeginPolicy, dPolicyPeriod) CLASS TPolicyOMS
+METHOD New(nType, cSeries, cNumber, cSMO) CLASS TPolicyOMS
+  // Local kartotek_ := {;
+  //   {"VPOLIS",    "N",  1,0},; // вид полиса (от 1 до 3);1-старый,2-врем.,3-новый;по умолчанию 1 - старый
+  //   {"SPOLIS",    "C", 10,0},; // серия полиса;;для наших - разделить по пробелу
+  //   {"NPOLIS",    "C", 20,0},; // номер полиса;;"для иногородних - вынуть из ""k_inog"" и разделить"
+  //   {"SMO",       "C",  5,0},; // реестровый номер СМО;;преобразовать из старых кодов в новые, иногродние = 34
 
   ::FPolicyType := hb_defaultvalue(nType, 1)
-  ::FPolicySeries := left(hb_defaultvalue(cSeries, space( 10 ) ), 10)
-  ::FPolicyNumber := left(hb_defaultvalue(cNumber, space( 20 ) ), 20)
-  ::FSMO := left(hb_defaultvalue(cSMO, space(5)), 5)
-  ::FBeginPolicy := hb_defaultvalue(dBeginPolicy, ctod(''))
-  ::FPolicyPeriod := hb_defaultvalue(dPolicyPeriod, ctod(''))
+  ::FPolicySeries := padr(hb_defaultvalue(cSeries, space(10)), 10)
+  ::FPolicyNumber := padr(hb_defaultvalue(cNumber, space(20)), 20)
+  ::FSMO := padr(hb_defaultvalue(cSMO, space(5)), 5)
   return self
     
 METHOD FUNCTION GetAsString(format) CLASS TPolicyOMS
@@ -84,45 +81,39 @@ METHOD FUNCTION GetAsString(format) CLASS TPolicyOMS
       endif
     case itm == '#NNN'
       if ! empty(::FPolicyNumber)
-        && if ::FPolicyType == 3
-          && s := transform( ::FPolicyNumber, picture_number )
-        && else
-          && s := ::FPolicyNumber
-        && endif
-        && s := '№ ' + alltrim( s )
         s := '№ ' + alltrim(if(::FPolicyType == 3, transform(::FPolicyNumber, picture_number ), ::FPolicyNumber))
       endif
-    case itm == 'ISSUE'
-      if alltrim(::FSMO) == '34' .and. len(alltrim(::FSMO)) == 2
-        mnameismo := ret_inogSMO_name_bay(::FOwner, self)
-      elseif left(::FSMO, 2) == '34'
-        // Волгоград
-      elseif ! empty(::FSMO)
-        m1ismo := ::FSMO
-        ::FSMO := '34'
-      endif
+    // case itm == 'ISSUE'
+    //   if alltrim(::FSMO) == '34' .and. len(alltrim(::FSMO)) == 2
+    //     mnameismo := ret_inogSMO_name_bay(::FOwner, self)
+    //   elseif left(::FSMO, 2) == '34'
+    //     // Волгоград
+    //   elseif ! empty(::FSMO)
+    //     m1ismo := ::FSMO
+    //     ::FSMO := '34'
+    //   endif
       
-      mismo := T_mo_smoDB():getBySMO(m1ismo)
+    //   mismo := T_mo_smoDB():getBySMO(m1ismo)
     
-      if empty(m1namesmo := int(val(::FSMO)))
-        m1namesmo := glob_arr_smo[1, 2] // по умолчанию = КапиталЪ Медстрах
-      endif
-      mnamesmo := inieditspr(A__MENUVERT, glob_arr_smo, m1namesmo)
-      if m1namesmo == 34
-        if !empty(mismo)
-          mnamesmo := mismo
-        elseif !empty(mnameismo)
-          mnamesmo := mnameismo
-        endif
-      endif
-      s := alltrim(mnamesmo)
-    case itm == 'DATE'
-      s := dtoc(::FBeginPolicy)
+    //   if empty(m1namesmo := int(val(::FSMO)))
+    //     m1namesmo := glob_arr_smo[1, 2] // по умолчанию = КапиталЪ Медстрах
+    //   endif
+    //   mnamesmo := inieditspr(A__MENUVERT, glob_arr_smo, m1namesmo)
+    //   if m1namesmo == 34
+    //     if !empty(mismo)
+    //       mnamesmo := mismo
+    //     elseif !empty(mnameismo)
+    //       mnamesmo := mnameismo
+    //     endif
+    //   endif
+    //   s := alltrim(mnamesmo)
+    // case itm == 'DATE'
+    //   s := dtoc(::FBeginPolicy)
     otherwise
       s := alltrim(tk)	// просто переносим текст
     endcase
-    s += ch
-    if s != nil
+    // s += ch
+    if (s != nil) .and. (! empty(s))
       asString += iif(i == 1, '', tkSep) + s
     endif
   next

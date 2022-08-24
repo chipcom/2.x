@@ -102,6 +102,7 @@ mo_version.prg
 .\BLL\ORGANIZATION\TDepartment.prg
 .\BLL\ORGANIZATION\TBank.prg
 .\BLL\EMPLOYEES\TEmployee.prg
+.\BLL\DOCUMENTS\TPolicyOMS.prg
 
 .\init\mo_init.prg
 .\init\init_mo.prg
