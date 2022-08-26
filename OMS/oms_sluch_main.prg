@@ -330,6 +330,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
 
     polis_oms := TPolicyOMS():New(kart_->VPOLIS, kart_->SPOLIS, kart_->NPOLIS, kart_->SMO)
     str_polis_oms := polis_oms:AsString('TYPE #SSS #NNN ISSUE')
+    polis_oms:Edit()
 altd()
     if kart->MI_GIT == 9
       m1komu    := kart->KOMU
