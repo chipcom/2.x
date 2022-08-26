@@ -4392,7 +4392,9 @@ Function verify_1_sluch(fl_view)
     read_arr_DVN_COVID(human->kod)
   endif
 
-  // проверим лекарственные препараты
+  //
+  // ПРОВЕРКА ЛЕКАРСТВЕННЫХ ПРЕПАРАТОВ
+  //
   if eq_any(alltrim(mdiagnoz[1]), 'U07.1', 'U07.2') .and. (count_years(human->DATE_R, human->k_data) >= 18) ;
         .and. !check_diag_pregant()
     if (human_->USL_OK == 1) .and. (human->k_data >= 0d20220101)
@@ -4405,7 +4407,6 @@ Function verify_1_sluch(fl_view)
   endif
 
   if flLekPreparat
-
     arrLekPreparat := collect_lek_pr(rec_human) // выберем лекарственные препараты
     if len(arrLekPreparat) == 0  // пустой список лекарственных препаратов
       aadd(ta, 'для диагнозов U07.1 и U07.2 необходим ввод лекараственных препаратов')
@@ -4447,6 +4448,9 @@ Function verify_1_sluch(fl_view)
     endif
   endif
 
+  //
+  // ПРОВЕРКА УСТАНОВЛЕННЫХ ИМПЛАНТОВ
+  //
   for each row in arrUslugi // проверим все услуги случая
     if service_requires_implants(row, human->k_data)
       // проверим наличие имплантов
@@ -4472,7 +4476,9 @@ Function verify_1_sluch(fl_view)
     endif
   next
 
-  // проверим на наличие направивиших врачей
+  //
+  // ПРОВЕРКА НАПРАВИВШИХ ВРАЧЕЙ
+  //
   if is_exist_Prescription
     if human->k_data >= 0d20210801
       checkSectionPrescription( ta )
