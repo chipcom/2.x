@@ -4,6 +4,7 @@
 #include 'function.ch'
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
+#include 'inkey.ch'
 
 // класс описывающий полис ОМС
 CREATE CLASS TPolicyOMS
@@ -42,6 +43,7 @@ CREATE CLASS TPolicyOMS
     METHOD GetAsString(format)
     METHOD setPolicyOMS(oGet, vidpolis)
     METHOD validNumberPolicyOMS(is_volgograd)
+		METHOD roCheckPolicyOMS( oGet, m1vidpolis)
 ENDCLASS
 
 METHOD New(nType, cSeries, cNumber, cSMO) CLASS TPolicyOMS
@@ -187,16 +189,15 @@ METHOD FUNCTION Edit() CLASS TPolicyOMS
 		m1vidpolis := ::FPolicyType
 		mvidpolis := inieditspr(A__MENUVERT, TPolicyOMS():aMenuType, m1vidpolis)		// вид полиса
 		series := ::FPolicySeries
+		number := ::PolicyNumber
 	// 	&& if m1vidpolis == 3
 	// 		&& number := transform(oPolicyOMS:PolicyNumber, picture_number)
 	// 	&& else
-	// 		number := oPolicyOMS:PolicyNumber
 	// 	&& endif
 
 		msmo        := ::FSMO    // реестровый номер СМО
 		if alltrim(msmo) == '34'
       mnameismo := ret_inogSMO_name(2, @rec_inogSMO, .t.)
-      // 		mnameismo := ret_inogSMO_name_bay(oPatient, oPolicyOMS)
 		elseif left(msmo, 2) == '34'
 			// Волгоградская область
 		elseif !empty(msmo)
@@ -235,7 +236,7 @@ METHOD FUNCTION Edit() CLASS TPolicyOMS
 	
 	sPicture :=  if(eq_any(m1vidpolis, 3), picture_number, if(eq_any(m1vidpolis, 3), ;
 				'@R 9999999999999999999', '@R 999999999'))
-	// do while .t.
+	do while .t.
 		iRow := 10
 		@ ++iRow, 12 say 'Вид полиса:' get mvidpolis ;
 					reader {| x | menu_reader(x, TPolicyOMS():aMenuType, A__MENUVERT, , , .f.)} ;
@@ -244,43 +245,47 @@ METHOD FUNCTION Edit() CLASS TPolicyOMS
 					sPicture :=  if(eq_any(m1vidpolis, 3), picture_number, if(eq_any(m1vidpolis, 3), ;
 							'@R 9999999999999999999', '@R 999999999')), ;
 					update_gets())}
-	// 				&& sPicture :=  if(eq_any(m1vidpolis, 3), picture_number, '@S20'), ;
-	// 				&& number := transform(oPolicyOMS:PolicyNumber, if(eq_any(m1vidpolis, 3), picture_number, '@S20')), ;
 
 		@ ++iRow, 12 say 'Серия:' get series when if(m1vidpolis != 1, .f., .t.)
 		@ iRow, col() + 1 say 'Номер:' get number ;
-					valid {| oGet | roCheckPolicyOMS(oGet, m1vidpolis, oPatient, oPolicyOMS)} ;
+					valid {| oGet | ::roCheckPolicyOMS(oGet, m1vidpolis)} ;
 					picture sPicture
-	// 				&& picture if(eq_any(m1vidpolis, 3), picture_number, '@S20')
 	
 		@ ++iRow, 12 say 'СМО' get mnamesmo ;
 					reader {| x | menu_reader(x, glob_arr_smo, A__MENUVERT, , , .f.)} ;
-					valid {| oGet | func_valid_ismo_bay(oGet, 0, 41, 'namesmo')}
+					when diag_screen(2) .and. m1komu < 5 ;
+					valid {|g| func_valid_ismo(g, m1komu, 38) }
+					// valid {| oGet | func_valid_ismo_bay(oGet, 0, 41, 'namesmo')}
 					
+		// @ row(), col() + 1 say '==>' get mcompany ;
+		// 	reader {|x|menu_reader(x, mm_company, A__MENUVERT, , , .f.)} ;
+		// 	when diag_screen(2) .and. m1komu < 5 ;
+		// 	valid {|g| func_valid_ismo(g, m1komu, 38) }
+
 		myread()
-	// 	if lastkey() != K_ESC
+		if lastkey() != K_ESC
 		
-	// 		::validNumberPolicyOMS(between(m1namesmo, 34001, 34007))
+			::validNumberPolicyOMS(between(m1namesmo, 34001, 34007))
 				
-	// 		oPolicyOMS:PolicyType := m1vidpolis
-	// 		oPolicyOMS:PolicySeries := series
-	// 		oPolicyOMS:PolicyNumber := alltrim( charrem(' ', number))
-	// 		oPolicyOMS:SMO := lstr(m1namesmo)
-	// 		if m1namesmo == 34
-	// 			if ! empty(m1ismo)
-	// 				if ! empty(mismo)
-	// 					oPolicyOMS:IsInogSMO := .t.
-	// 					oPolicyOMS:NameInogSMO := mismo
-	// 				endif
-	// 			else
-	// 				oPolicyOMS:SMO := m1ismo  // заменяем "34" на код иногородней СМО
-	// 			endif
-	// 		endif
-	// 		exit
-	// 	else
-	// 		exit
-	// 	endif
-	// enddo
+			::PolicyType := m1vidpolis
+			::PolicySeries := series
+			::PolicyNumber := alltrim( charrem(' ', number))
+			::SMO := lstr(m1namesmo)
+			if m1namesmo == 34
+				if ! empty(m1ismo)
+					// if ! empty(mismo)
+					// 	oPolicyOMS:IsInogSMO := .t.
+					// 	oPolicyOMS:NameInogSMO := mismo
+					// endif
+				else
+					::SMO := m1ismo  // заменяем "34" на код иногородней СМО
+				endif
+			endif
+			exit
+		else
+			exit
+		endif
+	enddo
 	// if ! isnil(mPolicyOMS) .and. ! empty(oPolicyOMS:PolicyNumber)
 	// 	mPolicyOMS := padr(oPolicyOMS:AsString, 65)
 	// endif
@@ -300,20 +305,20 @@ METHOD FUNCTION setPolicyOMS(oGet, vidpolis) CLASS TPolicyOMS
 	endif
 	return .t.
 
-* 26.12.18 проверка номера полиса ОМС
-function roCheckPolicyOMS( oGet, m1vidpolis, oPatient, oPolicyOMS )
-	local ret := .t., mkod
+** 26.12.18 проверка номера полиса ОМС
+METHOD FUNCTION roCheckPolicyOMS( oGet, m1vidpolis) CLASS TPolicyOMS	//, oPatient, oPolicyOMS )
+	local ret := .t.		//, mkod
 
 	::FPolicyType := m1vidpolis
 	::FPolicyNumber := alltrim(charrem(' ', oGet:Buffer))
 	::validNumberPolicyOMS()
 
-	if ( findKartoteka_bay( oPatient, 2, @mkod, oPolicyOMS ) )
-		update_gets()
-	endif
+	// if (findKartoteka_bay(oPatient, 2, @mkod, oPolicyOMS))
+	// 	update_gets()
+	// endif
 	return ret
 
-* 26.12.18
+** 26.12.18
 METHOD FUNCTION validNumberPolicyOMS(is_volgograd) CLASS TPolicyOMS
 	local a_err := {}
 	local CountDigit := 0, s := ''
@@ -400,47 +405,47 @@ METHOD FUNCTION checksumPolisOMS(cNumber) CLASS TPolicyOMS
 	return lstr(i) == right(cNumber, 1)
 
 ** 26.08.22
-function func_valid_ismo_bay( oGet, lkomu, sh, name_var )
-	local r1, r2, n := 4, buf, tmp_keys, tmp_list, tmp_color
-	local oBox
+// function func_valid_ismo_bay( oGet, lkomu, sh, name_var )
+// 	local r1, r2, n := 4, buf, tmp_keys, tmp_list, tmp_color
+// 	local oBox
 
-	DEFAULT name_var TO 'company'
-	private mvar := 'm1' + name_var
-	if lkomu == 0 .and. &mvar == 34
-		if oGet:row() > 18
-			r2 := oGet:row() - 1
-			r1 := r2 - n
-		else
-			r1 := oGet:row() + 1
-			r2 := r1 + n
-		endif
-		tmp_keys := my_savekey()
-		save gets to tmp_list
-		private mm_ismo := {}
+// 	DEFAULT name_var TO 'company'
+// 	private mvar := 'm1' + name_var
+// 	if lkomu == 0 .and. &mvar == 34
+// 		if oGet:row() > 18
+// 			r2 := oGet:row() - 1
+// 			r1 := r2 - n
+// 		else
+// 			r1 := oGet:row() + 1
+// 			r2 := r1 + n
+// 		endif
+// 		tmp_keys := my_savekey()
+// 		save gets to tmp_list
+// 		private mm_ismo := {}
 		
-		oBox := TBox():New(r1, 2, r2, 77, .t.)
-		oBox:Caption := 'Ввод иногородней СМО'
-		oBox:CaptionColor := 'GR/W'
-		oBox:Color := 'N/W,W+/N,,,B/W'
-		oBox:View()
+// 		oBox := TBox():New(r1, 2, r2, 77, .t.)
+// 		oBox:Caption := 'Ввод иногородней СМО'
+// 		oBox:CaptionColor := 'GR/W'
+// 		oBox:Color := 'N/W,W+/N,,,B/W'
+// 		oBox:View()
 		
-		@ r1 + 1, 4 say 'Субъект РФ' get mokato ;
-					reader {| x | menu_reader(x, ;
-					{{| k, r, c | get_srf(k, r, c)}, 62}, A__FUNCTION, , , .f.)} ;
-					valid {| g, o | when_ismo(g, o)}
-		@ r1 + 2, 4 say 'СМО' get mismo ;
-					reader {| x | menu_reader(x, mm_ismo, A__MENUVERT, , , .f.)} ;
-					when {| | len(mm_ismo) > 0 .and. empty(mnameismo)} ;
-					valid {| | iif(empty(mismo), , mnameismo := space(100)), .t.}
-		@ r1 + 3, 4 say 'Наименование СМО' get mnameismo pict '@S56' ;
-					when empty(m1ismo)
-		myread()
-		restore gets from tmp_list
-		my_restkey( tmp_keys )
-		if ! emptyall(mismo, mnameismo)
-			mvar := 'm' + name_var
-			&mvar := padr(iif(emptyall(mismo), mnameismo, mismo), sh)
-		endif
-	endif
-	return .t.
+// 		@ r1 + 1, 4 say 'Субъект РФ' get mokato ;
+// 					reader {| x | menu_reader(x, ;
+// 					{{| k, r, c | get_srf(k, r, c)}, 62}, A__FUNCTION, , , .f.)} ;
+// 					valid {| g, o | when_ismo(g, o)}
+// 		@ r1 + 2, 4 say 'СМО' get mismo ;
+// 					reader {| x | menu_reader(x, mm_ismo, A__MENUVERT, , , .f.)} ;
+// 					when {| | len(mm_ismo) > 0 .and. empty(mnameismo)} ;
+// 					valid {| | iif(empty(mismo), , mnameismo := space(100)), .t.}
+// 		@ r1 + 3, 4 say 'Наименование СМО' get mnameismo pict '@S56' ;
+// 					when empty(m1ismo)
+// 		myread()
+// 		restore gets from tmp_list
+// 		my_restkey( tmp_keys )
+// 		if ! emptyall(mismo, mnameismo)
+// 			mvar := 'm' + name_var
+// 			&mvar := padr(iif(emptyall(mismo), mnameismo, mismo), sh)
+// 		endif
+// 	endif
+// 	return .t.
 
