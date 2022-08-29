@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-** 28.07.22
+** 29.08.22
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
         i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -4407,7 +4407,6 @@ Function verify_1_sluch(fl_view)
   endif
 
   if flLekPreparat
-    // altd()
     arrLekPreparat := collect_lek_pr(rec_human) // выберем лекарственные препараты
     if len(arrLekPreparat) == 0  // пустой список лекарственных препаратов
       aadd(ta, 'для диагнозов U07.1 и U07.2 необходим ввод лекараственных препаратов')
@@ -4425,24 +4424,25 @@ Function verify_1_sluch(fl_view)
         if empty(row[8])
           aadd(ta, 'пустая схема соответствия препаратам')
         endif
+        // altd()
         if (arrGroupPrep := get_group_prep_by_kod(alltrim(row[8]), row[1])) != nil
           // if (arrGroupPrep := get_group_prep_by_kod(substr(row[8], len(row[8])), row[1])) != nil
           mMNN := iif(arrGroupPrep[3] == 1, .t., .f.)
           if mMNN
             if empty(row[3])
-              aadd(ta, 'не выбран лекарственный препарат')
+              aadd(ta, 'для "' + alltrim(arrGroupPrep[2]) + '" не выбран лекарственный препарат')
             endif
             if empty(row[4])
-              aadd(ta, 'не выбрана единица измерения')
+              aadd(ta, 'для "' + alltrim(arrGroupPrep[2]) + '" не выбрана единица измерения')
             endif
             if empty(row[5])
-              aadd(ta, 'не выбрана доза препарата')
+              aadd(ta, 'для "' + alltrim(arrGroupPrep[2]) + '" не выбрана доза препарата')
             endif
             if empty(row[6])
-              aadd(ta, 'не выбран способ введения препарата')
+              aadd(ta, 'для "' + alltrim(arrGroupPrep[2]) + '" не выбран способ введения препарата')
             endif
             if empty(row[7])
-              aadd(ta, 'не количество инъекций в день')
+              aadd(ta, 'для "' + alltrim(arrGroupPrep[2]) + '" не количество инъекций в день')
             endif
           endif
         endif

@@ -20,12 +20,12 @@ function getV031()
 
   return _arr
 
-****** 07.01.22 вернуть группу препаратов
+****** 29.08.22 вернуть группу препаратов
 function get_group_prep_by_kod(_code, ldate)
   local _arr, row, code
 
   if ValType(_code) == 'C'
-    code := val(_code)
+    code := val(substr(_code, len(_code)))
   elseif ValType(_code) == 'N'
     code := _code
   else
