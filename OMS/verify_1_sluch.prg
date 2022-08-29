@@ -4407,6 +4407,7 @@ Function verify_1_sluch(fl_view)
   endif
 
   if flLekPreparat
+    // altd()
     arrLekPreparat := collect_lek_pr(rec_human) // выберем лекарственные препараты
     if len(arrLekPreparat) == 0  // пустой список лекарственных препаратов
       aadd(ta, 'для диагнозов U07.1 и U07.2 необходим ввод лекараственных препаратов')
@@ -4424,7 +4425,8 @@ Function verify_1_sluch(fl_view)
         if empty(row[8])
           aadd(ta, 'пустая схема соответствия препаратам')
         endif
-        if (arrGroupPrep := get_group_prep_by_kod(substr(row[8], len(row[8])), row[1])) != nil
+        if (arrGroupPrep := get_group_prep_by_kod(alltrim(row[8]), row[1])) != nil
+          // if (arrGroupPrep := get_group_prep_by_kod(substr(row[8], len(row[8])), row[1])) != nil
           mMNN := iif(arrGroupPrep[3] == 1, .t., .f.)
           if mMNN
             if empty(row[3])

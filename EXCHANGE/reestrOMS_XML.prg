@@ -850,28 +850,24 @@ Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
         endif
 
         if flLekPreparat
-        // if (human->k_data >= d_01_01_2022) .and. ((rtrim(mdiagnoz[1]) == 'U07.1') ;
-        //       .or. ((rtrim(mdiagnoz[1]) == 'U07.2'))) .and. (human_->USL_OK == 1) .and. (human_->PROFIL != 158) ;
-        //       .and. (human_->VIDPOM != 32) .and. (lower(alltrim(human_2->PC3)) != 'stt5')
-
+          // добавим в xml-документ информацию о лекарственных препаратах
           arrLP := collect_lek_pr(human->(recno()))
           if len(arrLP) != 0
             for each row in arrLP
-              oLEK := oSL:Add( HXMLNode():New( 'LEK_PR' ) )
-              mo_add_xml_stroke(oLEK, "DATA_INJ", date2xml(row[1]))
-              mo_add_xml_stroke(oLEK, "CODE_SH", row[8])
+              oLEK := oSL:Add(HXMLNode():New('LEK_PR'))
+              mo_add_xml_stroke(oLEK, 'DATA_INJ', date2xml(row[1]))
+              mo_add_xml_stroke(oLEK, 'CODE_SH', row[8])
               if ! empty(row[3])
-                mo_add_xml_stroke(oLEK, "REGNUM", row[3])
+                mo_add_xml_stroke(oLEK, 'REGNUM', row[3])
                 // mo_add_xml_stroke(oLEK, "CODE_MARK", '')  // для дальнейшего использования
                 oDOSE := oLEK:Add( HXMLNode():New( 'LEK_DOSE' ) )
-                mo_add_xml_stroke(oDOSE, "ED_IZM", str(row[4], 3, 0))
-                mo_add_xml_stroke(oDOSE, "DOSE_INJ", str(row[5], 8, 2))
-                mo_add_xml_stroke(oDOSE, "METHOD_INJ", str(row[6], 3, 0))
-                mo_add_xml_stroke(oDOSE, "COL_INJ", str(row[7], 5, 0))
+                mo_add_xml_stroke(oDOSE, 'ED_IZM', str(row[4], 3, 0))
+                mo_add_xml_stroke(oDOSE, 'DOSE_INJ', str(row[5], 8, 2))
+                mo_add_xml_stroke(oDOSE, 'METHOD_INJ', str(row[6], 3, 0))
+                mo_add_xml_stroke(oDOSE, 'COL_INJ', str(row[7], 5, 0))
               endif
             next
           endif
-          
         endif
 
         if !empty(ldate_next)
