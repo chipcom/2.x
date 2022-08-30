@@ -879,7 +879,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
       @ ++j, 1 say 'Исход заболевания' get mishod ;
           reader {|x|menu_reader(x,mm_ishod, A__MENUVERT, , ,.f.)}
 
-      @ j, col() + 3 say 'Направление на МСЭ' get mNMSE ;
+      @ j, 42 say 'Направление на МСЭ' get mNMSE ;
         reader {|x|menu_reader(x, mm_da_net, A__MENUVERT, , ,.f.)} ;
         color colget_menu
 
