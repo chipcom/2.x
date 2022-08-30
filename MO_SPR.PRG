@@ -4534,39 +4534,40 @@ endif
 select (tmp_select)
 return ret
 
-** 17.05.22 редактирование справочника отделений
+** 30.08.22 редактирование справочника отделений
 Function edit_otd()
 Local i, j, blk, arr[US_LEN], fl
 if input_uch(T_ROW-1,T_COL+5) == NIL
   return NIL
 endif
-Private tmp_V002 := create_classif_FFOMS(1,"V002") // PROFIL
-Private tmp_V020 := create_classif_FFOMS(1,"V020") // PROFIL_K
-Private tmp_V006 := create_classif_FFOMS(1,"V006") // USL_OK
+Private tmp_V002 := create_classif_FFOMS(1, 'V002') // PROFIL
+Private tmp_V020 := create_classif_FFOMS(1, 'V020') // PROFIL_K
+Private tmp_V006 := create_classif_FFOMS(1, 'V006') // USL_OK
 //Private tmp_V008 := create_classif_FFOMS(1,"V008") // VIDPOM
 //Private tmp_V010 := create_classif_FFOMS(1,"V010") // IDSP
 Private mm_adres_podr := {}
 Private mm_tiplu := {;
-  {"стандартный"                          ,0           },;  // 1
-  {"скорая медицинская помощь"            ,TIP_LU_SMP  },;  // 2
-  {"дисп-ия детей-сирот в стационаре"     ,TIP_LU_DDS  },;  // 3
-  {"дисп-ия детей-сирот под опекой"       ,TIP_LU_DDSOP},;  // 4
-  {"профилактика несовешеннолетних"       ,TIP_LU_PN   },;  // 5
-  {"предварит.осмотры несовешеннолетних"  ,TIP_LU_PREDN},;  // 6
-  {"периодич.осмотры несовешеннолетних"   ,TIP_LU_PERN },;  // 7
-  {"диспансеризация/профосмотр взрослых"  ,TIP_LU_DVN  },;  // 8
-  {"пренатальная диагностика"             ,TIP_LU_PREND},;  // 9
-  {"гемодиализ"                           ,TIP_LU_H_DIA},;  // 10
-  {"перитонеальный диализ"                ,TIP_LU_P_DIA},;  // 11
-  {"COVID - углубленная диспансеризация" ,TIP_LU_DVN_COVID},;  // 15
-  {"медицинская реабилитация"            ,TIP_LU_MED_REAB}}  // 16
+  {'стандартный'                          ,0           },;  // 1
+  {'скорая медицинская помощь'            ,TIP_LU_SMP  },;  // 2
+  {'дисп-ия детей-сирот в стационаре'     ,TIP_LU_DDS  },;  // 3
+  {'дисп-ия детей-сирот под опекой'       ,TIP_LU_DDSOP},;  // 4
+  {'профилактика несовешеннолетних'       ,TIP_LU_PN   },;  // 5
+  {'предварит.осмотры несовешеннолетних'  ,TIP_LU_PREDN},;  // 6
+  {'периодич.осмотры несовешеннолетних'   ,TIP_LU_PERN },;  // 7
+  {'диспансеризация/профосмотр взрослых'  ,TIP_LU_DVN  },;  // 8
+  {'пренатальная диагностика'             ,TIP_LU_PREND},;  // 9
+  {'гемодиализ'                           ,TIP_LU_H_DIA},;  // 10
+  {'перитонеальный диализ'                ,TIP_LU_P_DIA},;  // 11
+  {'COVID - углубленная диспансеризация' ,TIP_LU_DVN_COVID},;  // 15
+  {'медицинская реабилитация'            ,TIP_LU_MED_REAB},;  // 16
+  {'постановка на учет онко-пациентов'   ,TIP_LU_ONKO_DISP}}  // 17
 if glob_mo[_MO_KOD_TFOMS] == '126501'
-  Ins_Array(mm_tiplu, 3, {"неотложная медицинская помощь",TIP_LU_NMP})
+  Ins_Array(mm_tiplu, 3, {'неотложная медицинская помощь', TIP_LU_NMP})
 endif
 if ascan(glob_klin_diagn,1) > 0
-  aadd(mm_tiplu, {"жидкостная цитология рака шейки матки",TIP_LU_G_CIT})
+  aadd(mm_tiplu, {'жидкостная цитология рака шейки матки', TIP_LU_G_CIT})
 elseif ascan(glob_klin_diagn,2) > 0
-  aadd(mm_tiplu, {"пренатальный скрининг наруш.внутр.разв.",TIP_LU_G_CIT})
+  aadd(mm_tiplu, {'пренатальный скрининг наруш.внутр.разв.', TIP_LU_G_CIT})
 endif
 Private mm1tiplu := aclone(mm_tiplu)
 hb_ADel( mm1tiplu, 7 , .t. )

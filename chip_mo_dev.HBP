@@ -203,6 +203,7 @@ mo_version.prg
 .\oms\oms_sluch_med_reab.prg
 .\oms\oms_sluch_med_reab_func.prg
 .\oms\oms_sluch_dializ.prg
+.\oms\oms_sluch_onko_disp.prg
 
 .\onkologiya\onko.prg
 

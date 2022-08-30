@@ -51,6 +51,8 @@ Function oms_sluch(Loc_kod, kod_kartotek)
       return oms_sluch_DVN_COVID(Loc_kod, kod_kartotek)
     elseif glob_otd[4] == TIP_LU_MED_REAB // амбулаторная медицинская реабилитация
       return oms_sluch_MED_REAB(Loc_kod, kod_kartotek)
+    elseif glob_otd[4] == TIP_LU_ONKO_DISP // постановка на диспансерный учет онкопациетов в поликлинике
+      return oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
     else  // основной вид листа учета
       return oms_sluch_main(Loc_kod, kod_kartotek)
     endif
