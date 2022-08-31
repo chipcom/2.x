@@ -10,7 +10,9 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
   static SKOD_DIAG := '     ', st_N_DATA, st_K_DATA, ;
-    st_vrach := 0, st_profil := 0, st_profil_k := 0, st_rslt := 0, st_ishod := 0
+    st_vrach := 0, st_profil := 0, st_profil_k := 0, ;
+    st_rslt := 0, ; // динамическое наблюдение
+    st_ishod := 304 // без перемен
 
   local bg := {|o, k| get_MKB10(o, k, .t.) }, ;
     buf, tmp_color := setcolor(), a_smert := {}, ;
@@ -20,6 +22,7 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
     fl_write_sluch := .f., when_uch_doc := .t.
   local mm_da_net := {{'нет', 0}, {'да ', 1}}
   local caption_window
+  local top2, s
 
   Default st_N_DATA TO sys_date, st_K_DATA TO sys_date
   Default Loc_kod TO 0, kod_kartotek TO 0
@@ -78,7 +81,7 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
     MCENA_1     := 0                 , ; // стоимость лечения
     MVRACH      := space(10)         , ; // фамилия и инициалы лечащего врача
     M1VRACH := st_vrach, MTAB_NOM := 0, m1prvs := 0, ; // код, таб.№ и спец-ть лечащего врача
-    m1USL_OK := 0, mUSL_OK, ;
+    m1USL_OK := 3, mUSL_OK, ;             // амбулаторно
     m1PROFIL := st_profil, mPROFIL, ;
     m1PROFIL_K := st_profil_k, mPROFIL_K
 
@@ -178,7 +181,7 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
     mk_data    := human->K_DATA
     m1rslt     := human_->RSLT_NEW
     m1ishod    := human_->ISHOD_NEW
-    mcena_1 := human->CENA_1
+    mcena_1    := human->CENA_1
     //
     if alltrim(msmo) == '34'
       mnameismo := ret_inogSMO_name(2,@rec_inogSMO,.t.) // открыть и закрыть
@@ -213,7 +216,7 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
   MFIO_KART := _f_fio_kart()
   mvzros_reb := inieditspr(A__MENUVERT, menu_vzros, m1vzros_reb)
   if empty(m1USL_OK)
-    m1USL_OK := 1
+    m1USL_OK := 3
   endif // на всякий случай
   mUSL_OK   := inieditspr(A__MENUVERT, glob_V006, m1USL_OK)
   mPROFIL   := inieditspr(A__MENUVERT, glob_V002, m1PROFIL)
@@ -239,36 +242,37 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
       mcompany := padr(mnameismo,38)
     endif
   endif
-  caption_window := ' случая (листа учёта)'
+  caption_window := ' случая постановки на диспансерный учет онкологического пациента'
   if Loc_kod == 0
     caption_window := 'Добавление' + caption_window
   else
     caption_window := 'Редактирование' + caption_window
   endif
 
-  pr_1_str(caption_window)
   setcolor(color8)
-  myclear(1)
-
-  Private gl_area := {1, 0,maxrow()-1,maxcol(), 0}
-
+  top2 := 13
+  myclear(top2)
+  @ top2 - 1,0 say padc(caption_window, 80) color "B/BG*"
+  Private gl_area := {1, 0, maxrow() - 1, maxcol(), 0}
+  // Private gl_arr := {;  // для битовых полей
+  //   {"usluga", "N",10,0, ,, ,{|x|inieditspr(A__MENUBIT,mm_usluga,x)} };
+  //  }
+  @ maxrow(), 0 say padc('<Esc> - выход;  <PgDn> - запись', maxcol() + 1) color color0
+  mark_keys({'<F1>', '<Esc>', '<PgDn>'}, 'R/BG')
   setcolor(cDataCGet)
-  make_diagP(1)  // сделать 'шестизначные' диагнозы
-  f_valid_usl_ok(, -1)
+  make_diagP(1)  // сделать "шестизначные" диагнозы
+  diag_screen(0)
+
+  // f_valid_usl_ok(, -1)
 
   Private rdiag := 1, rpp := 1
 
   do while .t.
-    SetMode(26, 80)
-    pr_1_str(caption_window)
-    j := 1
-    myclear(j)
+    j := top2
     if yes_num_lu == 1 .and. Loc_kod > 0
       @ j, 50 say padl('Лист учета № ' + lstr(Loc_kod), 29) color color14
     endif
-    diag_screen(0)
     pos_read := 0
-    // put_dop_diag(0)
     //
     @ ++j, 1 say 'Учреждение' get mlpu when .f. color cDataCSay
     @ row(), col() + 2 say 'Отделение' get motd when .f. color cDataCSay
@@ -302,13 +306,10 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
     ++j
     @ ++j, 1 say 'Дата постановки на диспансерный учет' get mn_data valid {|g|f_k_data(g, 1)}
     // @ row(), col() + 1 say '-'   get mk_data valid {|g|f_k_data(g, 2)}
-    @ row(), col() + 3 get mvzros_reb when .f. color cDataCSay
+    // @ row(), col() + 3 get mvzros_reb when .f. color cDataCSay
     //
     //
     @ ++j, 1 say '№ амб.карты (истории)' get much_doc picture '@!' when when_uch_doc
-    @ row(), col() + 1 say 'Врач' get MTAB_NOM pict '99999' ;
-        valid {|g| v_kart_vrach(g, .t.), f_valid_onko_vrach(MTAB_NOM, mdate_r, MN_DATA) } when diag_screen(2)
-    @ row(), col() + 1 get mvrach when .f. color color14
     //
     //
     ++j
@@ -316,30 +317,168 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
       reader {|o| MyGetReader(o, bg)} ;
       when when_diag() ;
       valid {|| val1_10diag(.t., .t., .t., mn_data, mpol),  f_valid_onko_diag(mkod_diag, mdate_r, MN_DATA) }
+    @ row(), col() + 1 say 'Врач' get MTAB_NOM pict '99999' ;
+      valid {|g| v_kart_vrach(g, .t.), f_valid_onko_vrach(MTAB_NOM, mdate_r, MN_DATA) } when diag_screen(2)
+    @ row(), col() + 1 get mvrach when .f. color color14
     //
-
-    status_key('^<Esc>^ выход без записи ^<PgDn>^ ЗАПИСЬ')
 
     count_edit += myread(, @pos_read)
 
-    k := 2
-    if lastkey() != K_ESC
-      k := f_alert({padc('Выберите действие', 60, '.')}, ;
+    k := f_alert({padc('Выберите действие', 60, '.')}, ;
                    {' Выход без записи ',  ' Запись ',  ' Возврат в редактирование '}, ;
                    iif(lastkey() == K_ESC, 1, 2),  'W+/N',  'N+/N', maxrow() - 2, , 'W+/N,N/BG' )
-    endif
     if k == 3
       loop
     elseif k == 2 // запись информации
       MK_DATA := MN_DATA  // даты совпадают
+      if empty(mn_data)
+        func_error(4, 'Не введена дата постановки на учет')
+        loop
+      endif
+      if m1komu < 5 .and. empty(m1company)
+        if m1komu == 0
+          s := 'СМО'
+        elseif m1komu == 1
+          s := 'компании'
+        else
+          s := 'комитета/МО'
+        endif
+        func_error(4, 'Не заполнено наименование ' + s)
+        loop
+      endif
+      if m1komu == 0 .and. empty(mnpolis)
+        func_error(4,'Не заполнен номер полиса')
+        loop
+      endif
+      if empty(mfio)
+        func_error(4, 'Не введены Ф.И.О. Нет записи!')
+        loop
+      endif
+      if empty(mdate_r)
+        func_error(4, 'Не заполнена дата рождения')
+        loop
+      endif
+      // if eq_any(m1vid_ud,3,14) .and. !empty(mser_ud) .and. empty(del_spec_symbol(mmesto_r))
+      //   func_error(4,iif(m1vid_ud == 3, 'Для свид-ва о рождении', 'Для паспорта РФ') + ;
+      //                ' обязательно заполнение поля "Место рождения"')
+      //   loop
+      // endif
+      if empty(mkod_diag)
+        func_error(4, 'Не введен шифр основного заболевания.')
+        loop
+      endif
+
+      mywait('Ждите. Производится запись листа учёта ...')
+      // далее проверки и запись
+
+      make_diagP(2)  // сделать 'пятизначные' диагнозы
+      Use_base('human')
+      if Loc_kod > 0
+        find (str(Loc_kod, 7))
+        mkod := Loc_kod
+        G_RLock(forever)
+      else
+        Add1Rec(7)
+        mkod := recno()
+        replace human->kod with mkod
+      endif
+      select HUMAN_
+      do while human_->(lastrec()) < mkod
+        APPEND BLANK
+      enddo
+      goto (mkod)
+      G_RLock(forever)
+      //
+      select HUMAN_2
+      do while human_2->(lastrec()) < mkod
+        APPEND BLANK
+      enddo
+      goto (mkod)
+      G_RLock(forever)
+      //
+      glob_perso := mkod
+      if m1komu == 0
+        msmo := lstr(m1company)
+        m1str_crb := 0
+      else
+        msmo := ''
+        m1str_crb := m1company
+      endif
+      //
+      human->kod_k      := glob_kartotek
+      // human->TIP_H      := mtip_h
+      human->FIO        := MFIO          // Ф.И.О. больного
+      human->POL        := MPOL          // пол
+      human->DATE_R     := MDATE_R       // дата рождения больного
+      human->VZROS_REB  := M1VZROS_REB   // 0-взрослый, 1-ребенок, 2-подросток
+      human->ADRES      := MADRES        // адрес больного
+      human->MR_DOL     := MMR_DOL       // место работы или причина безработности
+      human->RAB_NERAB  := M1RAB_NERAB   // 0-работающий, 1-неработающий
+      human->KOD_DIAG   := MKOD_DIAG     // шифр 1-ой осн.болезни
+      // human->KOD_DIAG2  := MKOD_DIAG2    // шифр 2-ой осн.болезни
+      // human->KOD_DIAG3  := MKOD_DIAG3    // шифр 3-ой осн.болезни
+      // human->KOD_DIAG4  := MKOD_DIAG4    // шифр 4-ой осн.болезни
+      // human->SOPUT_B1   := MSOPUT_B1     // шифр 1-ой сопутствующей болезни
+      // human->SOPUT_B2   := MSOPUT_B2     // шифр 2-ой сопутствующей болезни
+      // human->SOPUT_B3   := MSOPUT_B3     // шифр 3-ой сопутствующей болезни
+      // human->SOPUT_B4   := MSOPUT_B4     // шифр 4-ой сопутствующей болезни
+      // human->diag_plus  := mdiag_plus    //
+      human->KOMU       := M1KOMU        // от 0 до 5
+      human_->SMO       := msmo
+      human->STR_CRB    := m1str_crb
+      human->POLIS      := make_polis(mspolis, mnpolis) // серия и номер страхового полиса
+      human->LPU        := M1LPU         // код учреждения
+      human->OTD        := M1OTD         // код отделения
+      human->UCH_DOC    := MUCH_DOC      // вид и номер учетного документа
+      human->N_DATA     := MN_DATA       // дата начала лечения
+      human->K_DATA     := MK_DATA       // дата окончания лечения
+      human->CENA       := MCENA_1       // стоимость лечения
+      human->CENA_1     := MCENA_1       // стоимость лечения
+      // human->OBRASHEN := iif(m1DS_ONK == 1, '1',  ' ')
+      // s := '' ; aeval(adiag_talon, {|x| s += str(x, 1) })
+      // human_->DISPANS   := s
+      human_->VPOLIS    := m1vidpolis
+      human_->SPOLIS    := ltrim(mspolis)
+      human_->NPOLIS    := ltrim(mnpolis)
+      human_->OKATO     := '' // это поле вернётся из ТФОМС в случае иногороднего
+      human_->USL_OK    := m1USL_OK
+      human_->PROFIL    := m1PROFIL
+      human_->RSLT_NEW  := m1rslt
+      human_->ISHOD_NEW := m1ishod
+      human_->VRACH     := m1vrach
+      human_->PRVS      := m1prvs
+      human_->OPLATA    := 0 // уберём '2',  если отредактировали запись из реестра СП и ТК
+      human_->ST_VERIFY := 0 // снова ещё не проверен
+      if Loc_kod == 0  // при добавлении
+        human_->ID_PAC    := mo_guid(1, human_->(recno()))
+        human_->ID_C      := mo_guid(2, human_->(recno()))
+        human_->SUMP      := 0
+        human_->SANK_MEK  := 0
+        human_->SANK_MEE  := 0
+        human_->SANK_EKMP := 0
+        human_->REESTR    := 0
+        human_->REES_ZAP  := 0
+        human->schet      := 0
+        human_->SCHET_ZAP := 0
+        human->kod_p   := kod_polzovat    // код оператора
+        human->date_e  := c4sys_date
+      else // при редактированиии
+        human_->kod_p2  := kod_polzovat    // код оператора
+        human_->date_e2 := c4sys_date
+      endif
+      human_2->PROFIL_K := m1PROFIL_K
+      human_2->p_per  := iif(eq_any(m1USL_OK, 1, 2),  m1p_per, 0)
+
+      // write_work_oper(glob_task,OPER_LIST,iif(Loc_kod==0,1,2),1,count_edit)
+      // fl_write_sluch := .t.
+      close databases
+      stat_msg('Запись завершена!', .f.)
     endif
     exit
-
   enddo
   close databases
   diag_screen(2)
   setcolor(tmp_color)
-
   restscreen(buf)
 
   return nil
