@@ -22,6 +22,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
   local oldPictureTalon := '@S12'
   local newPictureTalon := '@S 99.9999.99999.999'
   local mm_da_net := {{'нет', 0}, {'да ', 1}}
+  local j
 
   Default st_N_DATA TO sys_date, st_K_DATA TO sys_date
   Default Loc_kod TO 0, kod_kartotek TO 0
@@ -812,17 +813,26 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
             mm_prer_b := iif(ibrm == 1, mm1prer_b, iif(ibrm == 2, mm2prer_b, mm3prer_b)), ;
             (ibrm > 0) }
       //
-      @ ++j, 1 say 'Сопутствующие диагнозы ' get mkod_diag2 picture pic_diag reader {|o|MyGetReader(o, bg)} when when_diag() valid val1_10diag(.t.,.t.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
-      @ row(), col() say ',  '            get mkod_diag3 picture pic_diag reader {|o|MyGetReader(o, bg)} when when_diag() valid val1_10diag(.t.,.t.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
-      @ row(), col() say ',  '            get mkod_diag4 picture pic_diag reader {|o|MyGetReader(o, bg)} when when_diag() valid val1_10diag(.t.,.t.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
-      @ row(), col() say ',  '            get msoput_b1  picture pic_diag reader {|o|MyGetReader(o, bg)} when when_diag() valid val1_10diag(.t.,.t.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
-      @ row(), col() say ',  '            get msoput_b2  picture pic_diag reader {|o|MyGetReader(o, bg)} when when_diag() valid val1_10diag(.t.,.t.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
-      @ row(), col() say ',  '            get msoput_b3  picture pic_diag reader {|o|MyGetReader(o, bg)} when when_diag() valid val1_10diag(.t.,.t.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
-      @ row(), col() say ',  '            get msoput_b4  picture pic_diag reader {|o|MyGetReader(o, bg)} when when_diag() valid val1_10diag(.t.,.t.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
+      ++j
+      // @ j, 1 say 'Сопутствующие диагнозы' get mkod_diag2 picture pic_diag reader {|o|MyGetReader(o, bg)} when when_diag() valid val1_10diag(.t.,.t.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
+      // @ row(), col() say ',' get mkod_diag3 picture pic_diag reader {|o|MyGetReader(o, bg)} when when_diag() valid val1_10diag(.t.,.t.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
+      // @ row(), col() say ',' get mkod_diag4 picture pic_diag reader {|o|MyGetReader(o, bg)} when when_diag() valid val1_10diag(.t.,.t.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
+      // @ row(), col() say ',' get msoput_b1  picture pic_diag reader {|o|MyGetReader(o, bg)} when when_diag() valid val1_10diag(.t.,.t.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
+      // @ row(), col() say ',' get msoput_b2  picture pic_diag reader {|o|MyGetReader(o, bg)} when when_diag() valid val1_10diag(.t.,.t.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
+      // @ row(), col() say ',' get msoput_b3  picture pic_diag reader {|o|MyGetReader(o, bg)} when when_diag() valid val1_10diag(.t.,.t.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
+      // @ row(), col() say ',' get msoput_b4  picture pic_diag reader {|o|MyGetReader(o, bg)} when when_diag() valid val1_10diag(.t.,.t.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
+      @ j, 1 say 'Сопутствующие диагнозы' get mkod_diag2 picture pic_diag reader {|o|MyGetReader(o, bg)} when when_diag() valid val1_10diag(.t., .t., .t., mk_data, iif(m1novor == 0, mpol, mpol2))
+      @ j, 30 say ',' get mkod_diag3 picture pic_diag reader {|o|MyGetReader(o, bg)} when when_diag() valid val1_10diag(.t., .t., .t., mk_data, iif(m1novor == 0, mpol, mpol2))
+      @ j, 38 say ',' get mkod_diag4 picture pic_diag reader {|o|MyGetReader(o, bg)} when when_diag() valid val1_10diag(.t., .t., .t., mk_data, iif(m1novor == 0, mpol, mpol2))
+      @ j, 46 say ',' get msoput_b1  picture pic_diag reader {|o|MyGetReader(o, bg)} when when_diag() valid val1_10diag(.t., .t., .t., mk_data, iif(m1novor == 0, mpol, mpol2))
+      @ j, 54 say ',' get msoput_b2  picture pic_diag reader {|o|MyGetReader(o, bg)} when when_diag() valid val1_10diag(.t., .t., .t., mk_data, iif(m1novor == 0, mpol, mpol2))
+      @ j, 62 say ',' get msoput_b3  picture pic_diag reader {|o|MyGetReader(o, bg)} when when_diag() valid val1_10diag(.t., .t., .t., mk_data, iif(m1novor == 0, mpol, mpol2))
+      @ j, 70 say ',' get msoput_b4  picture pic_diag reader {|o|MyGetReader(o, bg)} when when_diag() valid val1_10diag(.t., .t., .t., mk_data, iif(m1novor == 0, mpol, mpol2))
 
-      @ ++j, 1 say 'Диагнозы осложнения    ' get mosl1 picture pic_diag reader {|o|MyGetReader(o, bg)} when when_diag() valid val1_10diag(.t.,.f.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
-      @ row(), col() say ',  '            get mosl2 picture pic_diag reader {|o|MyGetReader(o, bg)} when when_diag() valid val1_10diag(.t.,.f.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
-      @ row(), col() say ',  '            get mosl3 picture pic_diag reader {|o|MyGetReader(o, bg)} when when_diag() valid val1_10diag(.t.,.f.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
+      ++j
+      @ j, 1 say 'Диагнозы осложнения   ' get mosl1 picture pic_diag reader {|o|MyGetReader(o, bg)} when when_diag() valid val1_10diag(.t.,.f.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
+      @ row(), col() say ','            get mosl2 picture pic_diag reader {|o|MyGetReader(o, bg)} when when_diag() valid val1_10diag(.t.,.f.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
+      @ row(), col() say ','            get mosl3 picture pic_diag reader {|o|MyGetReader(o, bg)} when when_diag() valid val1_10diag(.t.,.f.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
       //
       @ ++j, 1 say 'Принадлежность счёта' get mkomu ;
           reader {|x|menu_reader(x, mm_komu, A__MENUVERT, , , .f.)} ;
