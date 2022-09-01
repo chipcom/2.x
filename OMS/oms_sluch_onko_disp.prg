@@ -23,6 +23,7 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
   local mm_da_net := {{'нет', 0}, {'да ', 1}}
   local caption_window
   local top2, s
+  local mtip_h
 
   Default st_N_DATA TO sys_date, st_K_DATA TO sys_date
   Default Loc_kod TO 0, kod_kartotek TO 0
@@ -84,6 +85,12 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
     m1USL_OK := 3, mUSL_OK, ;             // амбулаторно
     m1PROFIL := st_profil, mPROFIL, ;
     m1PROFIL_K := st_profil_k, mPROFIL_K
+
+  Private mm_profil := {{'онкология', 60}, ;
+    {'гематология', 12}, ;
+    {'детская онкология', 18}, ;
+    {'педиатрия', 68}, ;
+    {'общей врачебной практики', 57}}
 
   //
   R_Use(dir_server + 'human_2', , 'HUMAN_2')
@@ -147,6 +154,7 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
     mfio        := human->fio
     mpol        := human->pol
     mdate_r     := human->date_r
+    MTIP_H      := human->tip_h
     M1VZROS_REB := human->VZROS_REB
     MADRES      := human->ADRES         // адрес больного
     MMR_DOL     := human->MR_DOL        // место работы или причина безработности
@@ -187,6 +195,8 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
       mnameismo := ret_inogSMO_name(2,@rec_inogSMO,.t.) // открыть и закрыть
     endif
   endif
+  mPROFIL := inieditspr(A__MENUVERT, mm_profil, m1PROFIL)
+
   if !(left(msmo, 2) == '34') // не Волгоградская область
     m1ismo := msmo
     msmo := '34'
@@ -218,9 +228,9 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
   if empty(m1USL_OK)
     m1USL_OK := 3
   endif // на всякий случай
-  mUSL_OK   := inieditspr(A__MENUVERT, glob_V006, m1USL_OK)
-  mPROFIL   := inieditspr(A__MENUVERT, glob_V002, m1PROFIL)
-  mPROFIL_K := inieditspr(A__MENUVERT, getV020(),  m1PROFIL_K)
+  // mUSL_OK   := inieditspr(A__MENUVERT, glob_V006, m1USL_OK)
+  // mPROFIL   := inieditspr(A__MENUVERT, glob_V002, m1PROFIL)
+  // mPROFIL_K := inieditspr(A__MENUVERT, getV020(),  m1PROFIL_K)
   mrslt     := inieditspr(A__MENUVERT, glob_V009, m1rslt)
   mishod    := inieditspr(A__MENUVERT, glob_V012, m1ishod)
   mvidpolis := inieditspr(A__MENUVERT, mm_vid_polis, m1vidpolis)
@@ -237,20 +247,21 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
   mcompany  := inieditspr(A__MENUVERT, mm_company, m1company)
   if m1company == 34
     if !empty(mismo)
-      mcompany := padr(mismo,38)
+      mcompany := padr(mismo, 38)
     elseif !empty(mnameismo)
-      mcompany := padr(mnameismo,38)
+      mcompany := padr(mnameismo, 38)
     endif
   endif
   caption_window := ' случая постановки на диспансерный учет онкологического пациента'
   if Loc_kod == 0
     caption_window := 'Добавление' + caption_window
+    mtip_h := yes_vypisan
   else
     caption_window := 'Редактирование' + caption_window
   endif
 
   setcolor(color8)
-  top2 := 13
+  top2 := 11
   myclear(top2)
   @ top2 - 1,0 say padc(caption_window, 80) color "B/BG*"
   Private gl_area := {1, 0, maxrow() - 1, maxcol(), 0}
@@ -302,8 +313,10 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
         when m1komu == 0 ;
         valid func_valid_polis(m1vidpolis, mspolis, mnpolis)
     //
-    //
     ++j
+    @ ++j, 1 say 'Профиль' get mPROFIL ;
+      reader {|x|menu_reader(x,mm_profil, A__MENUVERT, , ,.f.)} //; color colget_menu
+    //
     @ ++j, 1 say 'Дата постановки на диспансерный учет' get mn_data valid {|g|f_k_data(g, 1)}
     // @ row(), col() + 1 say '-'   get mk_data valid {|g|f_k_data(g, 2)}
     // @ row(), col() + 3 get mvzros_reb when .f. color cDataCSay
@@ -316,7 +329,7 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
     @ j, 1 say 'Основной диагноз' get mkod_diag picture pic_diag ;
       reader {|o| MyGetReader(o, bg)} ;
       when when_diag() ;
-      valid {|| val1_10diag(.t., .t., .t., mn_data, mpol),  f_valid_onko_diag(mkod_diag, mdate_r, MN_DATA) }
+      valid {|| val1_10diag(.t., .f., .f., mn_data, mpol),  f_valid_onko_diag(mkod_diag, mdate_r, MN_DATA) }
     @ row(), col() + 1 say 'Врач' get MTAB_NOM pict '99999' ;
       valid {|g| v_kart_vrach(g, .t.), f_valid_onko_vrach(MTAB_NOM, mdate_r, MN_DATA) } when diag_screen(2)
     @ row(), col() + 1 get mvrach when .f. color color14
@@ -406,7 +419,7 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
       endif
       //
       human->kod_k      := glob_kartotek
-      // human->TIP_H      := mtip_h
+      human->TIP_H      := B_STANDART
       human->FIO        := MFIO          // Ф.И.О. больного
       human->POL        := MPOL          // пол
       human->DATE_R     := MDATE_R       // дата рождения больного
