@@ -1321,71 +1321,81 @@ endif
 select (tmp_select)
 return .t.
 
-***** 28.02.22 действия в ответ на выбор в меню "Условия оказания медицинской помощи"
-Function f_valid_usl_ok(get,old,is_input)
-Local _y, _m, s
-DEFAULT is_input TO .t.
-if m1usl_ok != old .and. m1usl_ok > 0 .and. old != NIL
-  mm_rslt := {}
-  if m1usl_ok == 3 .and. is_input // поликлиника - убираем диспансеризацию
-    aeval(tmp_V009,{|x| iif(x[5]==m1usl_ok.and.x[2]<316, aadd(mm_rslt,x), nil) })
-  else
-    aeval(tmp_V009,{|x| iif(x[5]==m1usl_ok, aadd(mm_rslt,x), nil) })
-  endif
-  mm_ishod := {}
-  aeval(tmp_V012,{|x| iif(x[5]==m1usl_ok, aadd(mm_ishod,x), nil) })
-  if get != NIL
-    m1rslt := 0 ; mrslt := ""
-    if ascan(mm_rslt, {|x| x[2] == rslt_umolch}) > 0
-      m1rslt := rslt_umolch
-      mrslt := inieditspr(A__MENUVERT, tmp_V009, m1rslt)
-    endif
-    m1ishod := 0 ; mishod := ""
-    if ascan(mm_ishod, {|x| x[2] == ishod_umolch}) > 0
-      m1ishod := ishod_umolch
-      mishod := inieditspr(A__MENUVERT, tmp_V012, m1ishod)
-    endif
-    mrslt  := padr(mrslt ,60)
-    mishod := padr(mishod,60)
-    update_get("mrslt")
-    update_get("mishod")
-  endif
-endif
-if is_input .and. type("p_nstr_vnr") == "N"
-  s := "" ; input_vnr := input_vnrm := .f.
-  if m1usl_ok == 1 // стационар
-    count_ymd(iif(M1NOVOR==1,mdate_r2,mdate_r),mn_data,@_y,@_m,)
-    //if _y == 0 .and. _m < 7 // ребёнок не старше 6 месяцев
-    if _y == 0 // ребёнок до года
-      s := p_str_vnr ; input_vnr := .t.
+** 03.09.22 действия в ответ на выбор в меню "Условия оказания медицинской помощи"
+Function f_valid_usl_ok(get, old, is_input)
+  Local _y, _m, s
+  DEFAULT is_input TO .t.
+
+  if m1usl_ok != old .and. m1usl_ok > 0 .and. old != NIL
+    mm_rslt := {}
+    if m1usl_ok == 3 .and. is_input // поликлиника - убираем диспансеризацию
+      aeval(tmp_V009, {|x| iif(x[5] == m1usl_ok .and. x[2] < 316, aadd(mm_rslt, x), nil)})
     else
-      MVNR := space(4)
+      aeval(tmp_V009, {|x| iif(x[5] == m1usl_ok, aadd(mm_rslt, x), nil)})
     endif
-    if mpol == "Ж" .and. _y > 10 // "мамаша" старше 10 лет
-      s := p_str_vnrm ; input_vnrm := .t.
-    else
-      MVNR1 := MVNR2 := MVNR3 := space(4)
+    mm_ishod := {}
+    aeval(tmp_V012, {|x| iif(x[5] == m1usl_ok, aadd(mm_ishod, x), nil) })
+    if get != NIL
+      m1rslt := 0
+      mrslt := ''
+      if ascan(mm_rslt, {|x| x[2] == rslt_umolch}) > 0
+        m1rslt := rslt_umolch
+        mrslt := inieditspr(A__MENUVERT, tmp_V009, m1rslt)
+      endif
+      m1ishod := 0
+      mishod := ''
+      if ascan(mm_ishod, {|x| x[2] == ishod_umolch}) > 0
+        m1ishod := ishod_umolch
+        mishod := inieditspr(A__MENUVERT, tmp_V012, m1ishod)
+      endif
+      mrslt  := padr(mrslt , 58)
+      mishod := padr(mishod, 20)
+      update_get('mrslt')
+      update_get('mishod')
     endif
-  else // другие условия оказания мед.помощи
-    MVNR := MVNR1 := MVNR2 := MVNR3 := space(4)
   endif
-  @ p_nstr_vnr,1 say padr(s,maxcol()) color cDataCGet
-  if input_vnr
-    update_get("MVNR")
-  elseif input_vnrm
-    update_get("MVNR1")
-    update_get("MVNR2")
-    update_get("MVNR3")
+  if is_input .and. type('p_nstr_vnr') == 'N'
+    s := ''
+    input_vnr := input_vnrm := .f.
+    if m1usl_ok == 1 // стационар
+      count_ymd(iif(M1NOVOR == 1, mdate_r2, mdate_r), mn_data, @_y, @_m,)
+      //if _y == 0 .and. _m < 7 // ребёнок не старше 6 месяцев
+      if _y == 0 // ребёнок до года
+        s := p_str_vnr
+        input_vnr := .t.
+      else
+        MVNR := space(4)
+      endif
+      if mpol == 'Ж' .and. _y > 10 // "мамаша" старше 10 лет
+        s := p_str_vnrm
+        input_vnrm := .t.
+      else
+        MVNR1 := MVNR2 := MVNR3 := space(4)
+      endif
+    else // другие условия оказания мед.помощи
+      MVNR := MVNR1 := MVNR2 := MVNR3 := space(4)
+    endif
+    @ p_nstr_vnr, 1 say padr(s, maxcol()) color cDataCGet
+    if input_vnr
+      update_get('MVNR')
+    elseif input_vnrm
+      update_get('MVNR1')
+      update_get('MVNR2')
+      update_get('MVNR3')
+    endif
+    if !((m1usl_ok == 1 .and. (is_ksg_VMP .or. is_22_VMP .or. is_21_VMP .or. is_12_VMP .or. is_14_VMP)) ;
+        .or. (m1usl_ok == 2 .and. is_ds_VMP))
+      mvmp := 'нет'
+      m1vmp := 0
+      MVIDVMP := space(70)
+      M1VIDVMP := SPACE(12) // вид ВМП по справочнику V018
+      MMETVMP := space(67)
+      M1METVMP := 0        // метод ВМП по справочнику V019
+      update_get('MVIDVMP')
+      update_get('MMETVMP')
+    endif
   endif
-  if !((m1usl_ok==1 .and. (is_ksg_VMP .or. is_22_VMP .or. is_21_VMP .or. is_12_VMP .or. is_14_VMP)) .or. (m1usl_ok==2 .and. is_ds_VMP))
-    mvmp := "нет"        ; m1vmp := 0
-    MVIDVMP := space(70) ; M1VIDVMP := SPACE(12) // вид ВМП по справочнику V018
-    MMETVMP := space(67) ; M1METVMP := 0        // метод ВМП по справочнику V019
-    update_get("MVIDVMP")
-    update_get("MMETVMP")
-  endif
-endif
-return .t.
+  return .t.
 
 ***** действия в ответ на выбор в меню "Результат"
 Function f_valid_rslt(g,o)
