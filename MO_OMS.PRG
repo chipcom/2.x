@@ -3076,7 +3076,7 @@ else
 endif
 return NIL
 
-***** 28.12.21
+** 04.09.22
 Function f2ret_oms_human(nkey)
 Static tmp := " "
 Local buf := savescreen(), buf1, rec1 := recno(), fl := -1, ss := 0, ;
@@ -3169,6 +3169,107 @@ if type("p_del_error") == "A" .and. p_del_error[2] > 0
     mybell(4,OK)
     restscreen(buf)
     return 0
+  elseif nkey == K_CTRL_F5
+    if glob_mo[_MO_KOD_TFOMS] == '805965' //РДЛ
+      // надо фильтр по коду ошибки
+      adbf1 :=  {{'num_usl', 'C', 10, 0}, ;    // номер услуги по порядку
+                {'shifr_usl', 'C', 10, 0}, ;  // шифр услуги 
+                {'name_usl', 'C', 250, 0}, ; // наименование услуги 
+                {'NUMORDER', 'N', 10, 0}, ;   // Номер заявки(ORDER Number)
+                {'fio', 'C', 70, 0}, ;
+                {'kol_usl', 'N', 10, 0}, ;    // кол-во услуг
+                {'cena_1', 'N', 11, 2}, ;
+                {'otd', 'C', 42, 0}, ;
+                {'otd_kod', 'N', 3, 0}}     
+      dbcreate(fr_data + '3', adbf1)
+      use (fr_data + '2') new alias FRD2
+      use (fr_data + '3') new alias FRD3
+      Private ii_otd  
+      for ii_otd:= 1 to 4
+        select frd2
+        index on shifr_usl + smo_kod + str(numorder, 10) to tmp_frd9  for (otd_kod == ii_otd .and. REFREASON == kod_REFREASON_menu)
+        go top
+        select FRD3 
+        append blank
+        frd3->fio := frd2->otd
+        temp_1 := ' '
+        temp_2 := 1
+        temp_3 := 0 // кол_во
+        temp_4 := 0 // сумма
+   
+        select FRD3 
+        append blank
+        // добавляем шапку
+        tsmo := ''
+        if frd2->smo_kod == '34007'
+          tsmo := '"Капитал МС"' 
+        elseif  frd2->smo_kod == '34002'
+          tsmo := '"Согаз"'
+        else
+          tsmo := ' Иногородние ТФОМС'
+        endif     
+        frd3->fio :=  tsmo
+        // 
+        do while !eof()
+          if frd2->smo_kod == '34007'
+            tsmo := '"Капитал МС"' 
+          elseif  frd2->smo_kod == '34002'
+            tsmo := '"Согаз"'
+          else
+            tsmo := ' Иногородние ТФОМС'
+          endif
+          select FRD3 
+          append blank
+          if frd2->shifr_usl != temp_1
+            if temp_3 == 0
+            // 
+            else
+              frd3->name_usl   := ' ВСЕГО :'
+              frd3->kol_usl    := temp_3 
+              frd3->cena_1     := temp_4
+              append blank
+              // добавляем шапку
+              frd3->fio :=  tsmo
+              append blank
+            endif  
+            frd3->num_usl    := str(temp_2)
+            frd3->shifr_usl  := frd2->shifr_usl
+            frd3->name_usl   := frd2->name_usl
+            temp_1 := frd2->shifr_usl
+            temp_2 ++
+            temp_3 := frd2->kol_usl
+            temp_4 := frd2->cena_1
+          else
+            frd3->shifr_usl  := ' '
+            frd3->name_usl   := ' '
+            temp_3 += frd2->kol_usl
+            temp_4 += frd2->cena_1
+          endif  
+          frd3->kol_usl    := frd2->kol_usl
+          frd3->cena_1     := frd2->cena_1
+          frd3->fio        := frd2->fio
+          frd3->otd        := frd2->otd   
+          frd3->NUMORDER   := frd2->NUMORDER
+          select frd2
+          skip
+        enddo
+        select FRD3 
+        append blank
+        frd3->fio        := ' ВСЕГО :'
+        frd3->kol_usl    := temp_3 
+        frd3->cena_1     := temp_4
+      Next 
+      frd3->(dbclosearea())
+      frd2->(dbclosearea())
+
+      // Здесь запрос на запись ЭКСЕЛЯ
+      if glob_mo[_MO_KOD_TFOMS] == '805965' //РДЛ
+        create_xls_rdl('rdl_report')  //, arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd)
+        SaveTo(cur_dir + 'rdl_report.xlsx')
+      endif
+    
+    endif 
+
   elseif nkey == K_CTRL_F9
     mywait()
     

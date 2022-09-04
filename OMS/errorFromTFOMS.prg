@@ -71,9 +71,151 @@ Function f3oms_edit()
       select HUMAN
       skip
     enddo
+    if glob_mo[_MO_KOD_TFOMS] == '805965' //РДЛ
+      adbf := {{"REFREASON","N",15,0},; 
+           {"shifr_usl","C",10,0},;  // шифр услуги 
+           {"name_usl","C",250,0},; // наименование услуги 
+           {"NUMORDER","N",10,0},;   // Номер заявки(ORDER Number)
+           {"fio","C",70,0},;
+           {"date_r","C",10,0},;
+           {"kol_usl","N",10,0},;    // кол-во услуг
+           {"cena_1","N",11,2},;
+           {"otd","C",42,0},;
+           {"otd_kod","N",3,0},; 
+           {"smo_kod","C",5,0}}
+      dbcreate(fr_data+"2",adbf)
+      use (fr_data+"2") new alias FRD2
+      // база готова
+      R_Use(dir_server+"mo_otd",,"OTD")
+      R_Use(dir_server+"human_2",,"HU2")
+      R_Use(dir_server+"uslugi",,"USL")
+      R_Use(dir_server+"human_u_",,"HU_")
+      R_Use(dir_server+"human_u",dir_server+"human_u","HU")
+      set relation to recno() into HU_, to u_kod into USL
+      use_base("lusl")
+      select tmp_h 
+      go top
+      do while !eof() 
+        select hu
+        find (str(tmp_h->kod,7))
+        do while tmp_h->kod == hu->kod .and. !eof()
+          select hu2
+          goto tmp_h->kod
+          select  frd2
+          append blank
+          //"num_usl","C",10,0},;    // номер услуги по порядку
+          frd2->REFREASON := tmp_h->refreason 
+          frd2->shifr_usl := usl->shifr    // шифр услуги 
+          frd2->name_usl  :=  usl->name // наименование услуги 
+          select human
+          goto tmp_h->kod
+          select human_
+          goto tmp_h->kod
+          frd2->smo_kod   := human_->smo
+          //
+          musl := transform_shifr(frd2->shifr_usl)
+          select lusl
+          find(musl)
+          frd2->name_usl := lusl->name
+          //
+          frd2->NUMORDER := hu2->pn3   // Номер заявки(ORDER Number)
+
+          frd2->fio     := alltrim (human->fio )+" "+full_date(human->date_r)
+          frd2->kol_usl := hu->kol_1     // кол-во услуг
+          frd2->cena_1  := hu->stoim_1
+          select otd
+          goto human->otd
+          frd2->otd    := alltrim(otd->NAME)
+          frd2->otd_kod := human->otd
+          select hu
+          skip
+        enddo
+        select tmp_h 
+        skip
+      enddo 
+      // повторная обработка
+      select frd2
+    /*Private ii  
+    for ii:= 1 to 4
+      select frd2
+      index on shifr_usl+refreason+smo_kod+str(numorder,10) to tmp_frd9  for otd_kod==ii 
+      go top
+      select FRD3 
+      append blank
+      frd3->fio := frd2->otd
+      temp_1 := " "
+      temp_2 := 1
+      temp_3 := 0 // кол_во
+      temp_4 := 0 // сумма
+   
+        select FRD3 
+        append blank
+        // добавляем шапку
+        tsmo := ""
+        if frd2->smo_kod == "34007"
+          tsmo := '"Капитал МС"' 
+        elseif  frd2->smo_kod == "34002"
+          tsmo := '"Согаз"'
+        else
+          tsmo := " Иногородние ТФОМС" 
+        endif     
+        frd3->fio := "Ошибка "+ frd2->REFREASON +" / "+ tsmo
+      // 
+      do while !eof()
+      
+        if frd2->smo_kod == "34007"
+          tsmo := '"Капитал МС"' 
+        elseif  frd2->smo_kod == "34002"
+          tsmo := '"Согаз"'
+        else
+          tsmo := " Иногородние ТФОМС" 
+        endif
+        select FRD3 
+        append blank
+        if frd2->shifr_usl != temp_1
+          if temp_3 == 0
+           // 
+          else
+            frd3->name_usl   := " ВСЕГО :"
+            frd3->kol_usl    := temp_3 
+            frd3->cena_1     := temp_4
+            append blank
+            // добавляем шапку
+            frd3->fio := "Ошибка "+ frd2->REFREASON +" / "+ tsmo
+            append blank
+          endif  
+          frd3->num_usl    := str(temp_2)
+          frd3->shifr_usl  := frd2->shifr_usl
+          frd3->name_usl   := frd2->name_usl
+          frd3->REFREASON  := frd2->REFREASON
+          temp_1 := frd2->shifr_usl
+          temp_2 ++
+          temp_3 := frd2->kol_usl
+          temp_4 := frd2->cena_1
+        else
+          frd3->shifr_usl  := " "
+          frd3->name_usl   := " "
+          temp_3 += frd2->kol_usl
+          temp_4 += frd2->cena_1
+        endif  
+        frd3->kol_usl    := frd2->kol_usl
+        frd3->cena_1     := frd2->cena_1
+        frd3->fio        := frd2->fio
+        frd3->otd        := frd2->otd   
+        frd3->NUMORDER   := frd2->NUMORDER
+        select frd2
+      skip
+      enddo
+      select FRD3 
+      append blank
+      frd3->fio        := " ВСЕГО :"
+      frd3->kol_usl    := temp_3 
+      frd3->cena_1     := temp_4
+    Next */ 
+    endif
     close databases
     rest_box(buf24)
-
+    Private kod_REFREASON_menu
     if empty(arr)
       func_error(4,"Нет пациентов с ошибками из ТФОМС "+arr_m[4])
     elseif (iRefr := popup_2array(arr,T_ROW,T_COL+5,,,@ret_arr,"Выбор вида ошибки","B/BG",color0, 'errorOMSkey', ;
@@ -86,6 +228,7 @@ Function f3oms_edit()
         return TFOMS_hodatajstvo(arr_m,iRefr,i-1)
       endif
       Private mr1 := T_ROW, regim_vyb := 2, p_del_error := ret_arr
+      kod_REFREASON_menu := iRefr
       do while .t.
         R_Use(dir_server+"mo_otd",,"OTD")
         G_Use(dir_server+"human_",,"HUMAN_")

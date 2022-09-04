@@ -177,11 +177,79 @@ function create_xls_rdl(name, arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd)
     hb_vfErase(cur_dir + '_data3' + sdbf)
   endif
 
+  if hb_FileExists(cur_dir + 'tmp_err' + sdbf)
+
+    // adbf1 :=  {{'num_usl', 'C', 10, 0}, ;    // номер услуги по порядку
+    // {'shifr_usl', 'C', 10, 0}, ;  // шифр услуги 
+    // {'name_usl', 'C', 250, 0}, ; // наименование услуги 
+    // {'NUMORDER', 'N', 10, 0}, ;   // Номер заявки(ORDER Number)
+    // {'fio', 'C', 70, 0}, ;
+    // {'kol_usl', 'N', 10, 0}, ;    // кол-во услуг
+    // {'cena_1', 'N', 11, 2}, ;
+    // {'otd', 'C', 42, 0}, ;
+    // {'otd_kod', 'N', 3, 0}}     
+
+    use (cur_dir + 'tmp_err') new  alias FRD
+    FRD->(dbGoTop())
+    /* Добавим лист "Ошибки из ТФОМС" книгу. */
+    worksheetError = lxw_workbook_add_worksheet(workbook, 'Ошибки из ТФОМС')
+
+    iRow := 0
+    // шапка таблицы
+    // lxw_worksheet_merge_range(worksheetError, iRow, 0, iRow++, 9, 'Список снятий по актам контроля', format_header_main)
+    // lxw_worksheet_merge_range(worksheetError, iRow, 0, iRow++, 9, hb_StrToUtf8( alltrim(arr_m[4]) ), format_header_main)  // вывод временного периода
+    // lxw_worksheet_merge_range(worksheetError, iRow, 0, iRow++, 9, '( по дате отчётного периода / все случаи снятия )', format_header_main)
+    // lxw_worksheet_merge_range(worksheetError, iRow, 0, iRow++, 9, '(ТФОМС (иногородние)', format_header_main)
+    // lxw_worksheet_merge_range(worksheetError, iRow, 0, iRow++, 9, hb_StrToUtf8(string_selected_uch(st_a_uch, lcount_uch)), format_header_main)
+    // if len(st_a_uch) == 1
+    //   lxw_worksheet_merge_range(worksheetError, iRow, 0, iRow++, 9, hb_StrToUtf8(string_selected_otd(st_a_otd, lcount_otd)), format_header_main)
+    // endif
+      
+    lxw_worksheet_write_string(worksheetError, iRow, 0, '№ п/п', format_header)
+    lxw_worksheet_write_string(worksheetError, iRow, 1, 'Шифр', format_header)
+    lxw_worksheet_write_string(worksheetError, iRow, 2, 'Наименование услуги', format_header)
+    lxw_worksheet_write_string(worksheetError, iRow, 3, 'Номер заявки', format_header)
+    lxw_worksheet_write_string(worksheetError, iRow, 4, 'ФИО', format_header)
+    lxw_worksheet_write_string(worksheetError, iRow, 5, 'Кол-во услуг', format_header)
+    lxw_worksheet_write_string(worksheetError, iRow, 6, 'Стоимость услуг', format_header)
+
+    /* Установить ширину колонок */
+    lxw_worksheet_set_column(worksheetError, 0, 0, 8.0)
+    lxw_worksheet_set_column(worksheetError, 1, 1, 8.0)
+    lxw_worksheet_set_column(worksheetError, 2, 2, 50.0)
+    lxw_worksheet_set_column(worksheetError, 3, 3, 10.0)
+    lxw_worksheet_set_column(worksheetError, 4, 4, 50.0)
+    lxw_worksheet_set_column(worksheetError, 5, 5, 8.0)
+    lxw_worksheet_set_column(worksheetError, 6, 6, 25.0)
+
+    iRow++
+    do while ! FRD->(eof())
+      lxw_worksheet_write_string(worksheetError, iRow, 0, hb_StrToUtf8( alltrim(FRD->NUM_USL) ), format_text)
+      lxw_worksheet_write_string(worksheetError, iRow, 1, hb_StrToUtf8( alltrim(FRD->SHIFR_USL) ), format_text)
+      lxw_worksheet_write_string(worksheetError, iRow, 2, hb_StrToUtf8( alltrim(FRD->NAME_USL) ), format_text)
+      if FRD->NUMORDER != 0
+        lxw_worksheet_write_number(worksheetError, iRow, 3, FRD->NUMORDER, format_text3)
+      endif
+      lxw_worksheet_write_string(worksheetError, iRow, 4, hb_StrToUtf8( alltrim(FRD->FIO) ), format_text)
+      lxw_worksheet_write_number(worksheetError, iRow, 5, FRD->KOL_USL, format_text3)
+      lxw_worksheet_write_number(worksheetError, iRow, 6, FRD->SUM_SN, format_text3)
+
+      // lxw_worksheet_write_string(worksheetError, iRow, 1, hb_StrToUtf8( alltrim(FRD->REFREASON) ), format_text)
+      // lxw_worksheet_write_string(worksheetError, iRow, 6, hb_StrToUtf8( alltrim(FRD->DATE_R) ), format_text)
+      // lxw_worksheet_write_string(worksheetError, iRow, 9, hb_StrToUtf8( alltrim(FRD->OTD) ), format_text)
+
+      ++iRow
+      FRD->(dbSkip())
+    end
+    frd->(dbCloseArea())
+    hb_vfErase(cur_dir + 'tmp_err' + sdbf)
+  endif
+
   /* Закрыть книгу, записать файл и освободить память. */
   error = lxw_workbook_close(workbook)
   /* Проверить наличие ошибки при создании xlsx файла. */
   if !EMPTY(error)
     alertx(hb_Utf8ToStr(sprintf('Ошибка в workbook_close().\n' + ;
-               'Ошибка %d = %s\n', error, HB_NTOS(error)),'RU866'),'error')
+               'Ошибка %d = %s\n', error, HB_NTOS(error)), 'RU866'), 'error')
   endif
   return nil
