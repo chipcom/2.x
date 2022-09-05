@@ -231,8 +231,12 @@ function create_xls_rdl(name, arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd)
         lxw_worksheet_write_number(worksheetError, iRow, 3, FRD->NUMORDER, format_text3)
       endif
       lxw_worksheet_write_string(worksheetError, iRow, 4, hb_StrToUtf8( alltrim(FRD->FIO) ), format_text)
-      lxw_worksheet_write_number(worksheetError, iRow, 5, FRD->KOL_USL, format_text3)
-      lxw_worksheet_write_number(worksheetError, iRow, 6, FRD->SUM_SN, format_text3)
+      if FRD->KOL_USL != 0
+        lxw_worksheet_write_number(worksheetError, iRow, 5, FRD->KOL_USL, format_text3)
+      endif
+      if FRD->cena_1 != 0
+        lxw_worksheet_write_number(worksheetError, iRow, 6, FRD->CENA_1, format_text3)
+      endif
 
       // lxw_worksheet_write_string(worksheetError, iRow, 1, hb_StrToUtf8( alltrim(FRD->REFREASON) ), format_text)
       // lxw_worksheet_write_string(worksheetError, iRow, 6, hb_StrToUtf8( alltrim(FRD->DATE_R) ), format_text)
@@ -242,7 +246,7 @@ function create_xls_rdl(name, arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd)
       FRD->(dbSkip())
     end
     frd->(dbCloseArea())
-    hb_vfErase(cur_dir + 'tmp_err' + sdbf)
+    // hb_vfErase(cur_dir + 'tmp_err' + sdbf)
   endif
 
   /* Закрыть книгу, записать файл и освободить память. */
