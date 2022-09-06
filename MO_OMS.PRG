@@ -3082,6 +3082,8 @@ Static tmp := " "
 Local buf := savescreen(), buf1, rec1 := recno(), fl := -1, ss := 0, ;
       j, n_file := "omserror"+stxt, sh := 80, HH := 60, ii
 Local mas_otchet := {}
+local tmpSelect
+
 for ii := 1 to 32
    aadd(mas_otchet,{0,0})
 next  
@@ -3171,6 +3173,7 @@ if type("p_del_error") == "A" .and. p_del_error[2] > 0
     return 0
   elseif nkey == K_CTRL_F5
     if glob_mo[_MO_KOD_TFOMS] == '805965' //РДЛ
+      tmpSelect := select()
       // надо фильтр по коду ошибки
       adbf1 :=  {{'num_usl', 'C', 10, 0}, ;    // номер услуги по порядку
                 {'shifr_usl', 'C', 10, 0}, ;  // шифр услуги 
@@ -3264,11 +3267,10 @@ if type("p_del_error") == "A" .and. p_del_error[2] > 0
       frd3->(dbclosearea())
       frd2->(dbclosearea())
 
+      select(tmpSelect)
       // Здесь запрос на запись ЭКСЕЛЯ
-      if glob_mo[_MO_KOD_TFOMS] == '805965' //РДЛ
-        create_xls_rdl('rdl_report')  //, arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd)
-        SaveTo(cur_dir + 'rdl_report.xlsx')
-      endif
+      create_xls_rdl('rdl_report')  //, arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd)
+      SaveTo(cur_dir + 'rdl_report.xlsx')
     
     endif 
 

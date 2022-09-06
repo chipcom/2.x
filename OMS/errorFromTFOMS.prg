@@ -4,7 +4,7 @@
 #include "chip_mo.ch"
 #include 'tbox.ch'
 
-** 20.05.22 Редактирование случая с выбором по конкретной ошибке из ТФОМС
+** 06.09.22 Редактирование случая с выбором по конкретной ошибке из ТФОМС
 Function f3oms_edit()
   Static si := 1
   Local buf, str_sem, i, k, arr, old_yes_h_otd := yes_h_otd, iRefr, ret_arr, srec, buf24, buf_scr, s, mas_pmt
@@ -83,8 +83,8 @@ Function f3oms_edit()
            {"otd","C",42,0},;
            {"otd_kod","N",3,0},; 
            {"smo_kod","C",5,0}}
-      dbcreate(fr_data+"2",adbf)
-      use (fr_data+"2") new alias FRD2
+      dbcreate(cur_dir + fr_data + '2', adbf)
+      use (cur_dir + fr_data + '2') new alias FRD2
       // база готова
       R_Use(dir_server+"mo_otd",,"OTD")
       R_Use(dir_server+"human_2",,"HU2")
@@ -103,7 +103,6 @@ Function f3oms_edit()
           goto tmp_h->kod
           select  frd2
           append blank
-          //"num_usl","C",10,0},;    // номер услуги по порядку
           frd2->REFREASON := tmp_h->refreason 
           frd2->shifr_usl := usl->shifr    // шифр услуги 
           frd2->name_usl  :=  usl->name // наименование услуги 
@@ -133,85 +132,6 @@ Function f3oms_edit()
         select tmp_h 
         skip
       enddo 
-      // повторная обработка
-      select frd2
-    /*Private ii  
-    for ii:= 1 to 4
-      select frd2
-      index on shifr_usl+refreason+smo_kod+str(numorder,10) to tmp_frd9  for otd_kod==ii 
-      go top
-      select FRD3 
-      append blank
-      frd3->fio := frd2->otd
-      temp_1 := " "
-      temp_2 := 1
-      temp_3 := 0 // кол_во
-      temp_4 := 0 // сумма
-   
-        select FRD3 
-        append blank
-        // добавляем шапку
-        tsmo := ""
-        if frd2->smo_kod == "34007"
-          tsmo := '"Капитал МС"' 
-        elseif  frd2->smo_kod == "34002"
-          tsmo := '"Согаз"'
-        else
-          tsmo := " Иногородние ТФОМС" 
-        endif     
-        frd3->fio := "Ошибка "+ frd2->REFREASON +" / "+ tsmo
-      // 
-      do while !eof()
-      
-        if frd2->smo_kod == "34007"
-          tsmo := '"Капитал МС"' 
-        elseif  frd2->smo_kod == "34002"
-          tsmo := '"Согаз"'
-        else
-          tsmo := " Иногородние ТФОМС" 
-        endif
-        select FRD3 
-        append blank
-        if frd2->shifr_usl != temp_1
-          if temp_3 == 0
-           // 
-          else
-            frd3->name_usl   := " ВСЕГО :"
-            frd3->kol_usl    := temp_3 
-            frd3->cena_1     := temp_4
-            append blank
-            // добавляем шапку
-            frd3->fio := "Ошибка "+ frd2->REFREASON +" / "+ tsmo
-            append blank
-          endif  
-          frd3->num_usl    := str(temp_2)
-          frd3->shifr_usl  := frd2->shifr_usl
-          frd3->name_usl   := frd2->name_usl
-          frd3->REFREASON  := frd2->REFREASON
-          temp_1 := frd2->shifr_usl
-          temp_2 ++
-          temp_3 := frd2->kol_usl
-          temp_4 := frd2->cena_1
-        else
-          frd3->shifr_usl  := " "
-          frd3->name_usl   := " "
-          temp_3 += frd2->kol_usl
-          temp_4 += frd2->cena_1
-        endif  
-        frd3->kol_usl    := frd2->kol_usl
-        frd3->cena_1     := frd2->cena_1
-        frd3->fio        := frd2->fio
-        frd3->otd        := frd2->otd   
-        frd3->NUMORDER   := frd2->NUMORDER
-        select frd2
-      skip
-      enddo
-      select FRD3 
-      append blank
-      frd3->fio        := " ВСЕГО :"
-      frd3->kol_usl    := temp_3 
-      frd3->cena_1     := temp_4
-    Next */ 
     endif
     close databases
     rest_box(buf24)

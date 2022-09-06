@@ -3,7 +3,7 @@
 #include 'function.ch'
 #include 'hblibxlsxwriter.ch'
 
-** 15.08.22
+** 06.09.22
 function create_xls_rdl(name, arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd)
   local workbook, worksheet, format_top1, format_top2
   local worksheetError
@@ -13,7 +13,9 @@ function create_xls_rdl(name, arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd)
   local error
   local name_file := name + '.xlsx'
   local iRow := 1
+  local tmpAlias
 
+  tmpAlias := select()
   lxw_init()
 
   /* Создадим новую книгу. */
@@ -23,7 +25,6 @@ function create_xls_rdl(name, arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd)
   format_header_main    = lxw_workbook_add_format(workbook)
   lxw_format_set_align(format_header_main, LXW_ALIGN_CENTER)
   lxw_format_set_align(format_header_main, LXW_ALIGN_VERTICAL_CENTER)
-  // lxw_format_set_bold(format_header_main)
   lxw_format_set_font_size(format_header_main, 14)
 
   format_header    = lxw_workbook_add_format(workbook)
@@ -32,13 +33,6 @@ function create_xls_rdl(name, arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd)
   lxw_format_set_font_size(format_header, 12)
   lxw_format_set_text_wrap(format_header)
   lxw_format_set_border(format_header, LXW_BORDER_THIN)
-
-  // format_header2    = lxw_workbook_add_format(workbook)
-  // lxw_format_set_align(format_header2, LXW_ALIGN_CENTER)
-  // lxw_format_set_align(format_header2, LXW_ALIGN_VERTICAL_CENTER)
-  // lxw_format_set_font_size(format_header2, 11)
-  // lxw_format_set_text_wrap(format_header2)
-  // lxw_format_set_border(format_header2, LXW_BORDER_THIN)
 
   /* Конфигурируем формат для ntrcnf. */
   format_text    = lxw_workbook_add_format(workbook)
@@ -49,10 +43,8 @@ function create_xls_rdl(name, arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd)
   lxw_format_set_border(format_text, LXW_BORDER_THIN)
 
   format_text3    = lxw_workbook_add_format(workbook)
-  // lxw_format_set_align(format_text3, LXW_ALIGN_CENTER)
   lxw_format_set_align(format_text3, LXW_ALIGN_VERTICAL_CENTER)
   lxw_format_set_font_size(format_text3, 11)
-  // lxw_format_set_text_wrap(format_text3)
   lxw_format_set_border(format_text3, LXW_BORDER_THIN)
 
   if hb_FileExists(cur_dir + 'tmp_xls' + sdbf)
@@ -84,14 +76,10 @@ function create_xls_rdl(name, arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd)
     do while ! FRD->(eof())
 
       lxw_worksheet_set_row(worksheet, iRow, 30.0)
-      // lxw_worksheet_write_number(worksheet, iRow, 0, FRD->KOD, format_text3)
-      // lxw_worksheet_write_number(worksheet, iRow, 1, FRD->KOD1, format_text3)
 
       lxw_worksheet_write_string(worksheet, iRow, 0, hb_StrToUtf8( alltrim(FRD->SHIFR) ), format_text)
       lxw_worksheet_write_string(worksheet, iRow, 1, hb_StrToUtf8( alltrim(FRD->U_NAME) ), format_text)
       lxw_worksheet_write_number(worksheet, iRow, 2, FRD->KOL, format_text3)
-      // lxw_worksheet_write_number(worksheet, iRow, 5, FRD->KOL1, format_text3)
-      // lxw_worksheet_write_number(worksheet, iRow, 6, FRD->UET, format_text3)
       lxw_worksheet_write_number(worksheet, iRow, 3, FRD->SUM, format_text3)
 
       ++iRow
@@ -195,15 +183,6 @@ function create_xls_rdl(name, arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd)
     worksheetError = lxw_workbook_add_worksheet(workbook, 'Ошибки из ТФОМС')
 
     iRow := 0
-    // шапка таблицы
-    // lxw_worksheet_merge_range(worksheetError, iRow, 0, iRow++, 9, 'Список снятий по актам контроля', format_header_main)
-    // lxw_worksheet_merge_range(worksheetError, iRow, 0, iRow++, 9, hb_StrToUtf8( alltrim(arr_m[4]) ), format_header_main)  // вывод временного периода
-    // lxw_worksheet_merge_range(worksheetError, iRow, 0, iRow++, 9, '( по дате отчётного периода / все случаи снятия )', format_header_main)
-    // lxw_worksheet_merge_range(worksheetError, iRow, 0, iRow++, 9, '(ТФОМС (иногородние)', format_header_main)
-    // lxw_worksheet_merge_range(worksheetError, iRow, 0, iRow++, 9, hb_StrToUtf8(string_selected_uch(st_a_uch, lcount_uch)), format_header_main)
-    // if len(st_a_uch) == 1
-    //   lxw_worksheet_merge_range(worksheetError, iRow, 0, iRow++, 9, hb_StrToUtf8(string_selected_otd(st_a_otd, lcount_otd)), format_header_main)
-    // endif
       
     lxw_worksheet_write_string(worksheetError, iRow, 0, '№ п/п', format_header)
     lxw_worksheet_write_string(worksheetError, iRow, 1, 'Шифр', format_header)
@@ -224,11 +203,16 @@ function create_xls_rdl(name, arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd)
 
     iRow++
     do while ! FRD->(eof())
-      lxw_worksheet_write_string(worksheetError, iRow, 0, hb_StrToUtf8( alltrim(FRD->NUM_USL) ), format_text)
-      lxw_worksheet_write_string(worksheetError, iRow, 1, hb_StrToUtf8( alltrim(FRD->SHIFR_USL) ), format_text)
-      lxw_worksheet_write_string(worksheetError, iRow, 2, hb_StrToUtf8( alltrim(FRD->NAME_USL) ), format_text)
-      if FRD->NUMORDER != 0
-        lxw_worksheet_write_number(worksheetError, iRow, 3, FRD->NUMORDER, format_text3)
+      if (FRD->NUMORDER != 0) .or. (FRD->KOL_USL != 0)
+        lxw_worksheet_write_string(worksheetError, iRow, 0, hb_StrToUtf8(alltrim(FRD->NUM_USL)), format_text)
+        lxw_worksheet_write_string(worksheetError, iRow, 1, hb_StrToUtf8(alltrim(FRD->SHIFR_USL)), format_text)
+        lxw_worksheet_write_string(worksheetError, iRow, 2, hb_StrToUtf8(alltrim(FRD->NAME_USL)), format_text)
+
+        if (FRD->NUMORDER != 0)
+          lxw_worksheet_write_number(worksheetError, iRow, 3, FRD->NUMORDER, format_text3)
+        else
+          lxw_worksheet_write_string(worksheetError, iRow, 3, '', format_text)
+        endif
       endif
       lxw_worksheet_write_string(worksheetError, iRow, 4, hb_StrToUtf8( alltrim(FRD->FIO) ), format_text)
       if FRD->KOL_USL != 0
@@ -238,15 +222,11 @@ function create_xls_rdl(name, arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd)
         lxw_worksheet_write_number(worksheetError, iRow, 6, FRD->CENA_1, format_text3)
       endif
 
-      // lxw_worksheet_write_string(worksheetError, iRow, 1, hb_StrToUtf8( alltrim(FRD->REFREASON) ), format_text)
-      // lxw_worksheet_write_string(worksheetError, iRow, 6, hb_StrToUtf8( alltrim(FRD->DATE_R) ), format_text)
-      // lxw_worksheet_write_string(worksheetError, iRow, 9, hb_StrToUtf8( alltrim(FRD->OTD) ), format_text)
-
       ++iRow
       FRD->(dbSkip())
     end
     frd->(dbCloseArea())
-    // hb_vfErase(cur_dir + 'tmp_err' + sdbf)
+    hb_vfErase(cur_dir + 'tmp_err' + sdbf)
   endif
 
   /* Закрыть книгу, записать файл и освободить память. */
@@ -256,4 +236,6 @@ function create_xls_rdl(name, arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd)
     alertx(hb_Utf8ToStr(sprintf('Ошибка в workbook_close().\n' + ;
                'Ошибка %d = %s\n', error, HB_NTOS(error)), 'RU866'), 'error')
   endif
+  select(tmpAlias)
+
   return nil
