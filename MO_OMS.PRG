@@ -175,71 +175,81 @@ endif
 select (tmp_select)
 return .t.
 
-***** 28.02.22 действия в ответ на выбор в меню "Условия оказания медицинской помощи"
-Function f_valid_usl_ok(get,old,is_input)
-Local _y, _m, s
-DEFAULT is_input TO .t.
-if m1usl_ok != old .and. m1usl_ok > 0 .and. old != NIL
-  mm_rslt := {}
-  if m1usl_ok == 3 .and. is_input // поликлиника - убираем диспансеризацию
-    aeval(tmp_V009,{|x| iif(x[5]==m1usl_ok.and.x[2]<316, aadd(mm_rslt,x), nil) })
-  else
-    aeval(tmp_V009,{|x| iif(x[5]==m1usl_ok, aadd(mm_rslt,x), nil) })
-  endif
-  mm_ishod := {}
-  aeval(tmp_V012,{|x| iif(x[5]==m1usl_ok, aadd(mm_ishod,x), nil) })
-  if get != NIL
-    m1rslt := 0 ; mrslt := ""
-    if ascan(mm_rslt, {|x| x[2] == rslt_umolch}) > 0
-      m1rslt := rslt_umolch
-      mrslt := inieditspr(A__MENUVERT, tmp_V009, m1rslt)
-    endif
-    m1ishod := 0 ; mishod := ""
-    if ascan(mm_ishod, {|x| x[2] == ishod_umolch}) > 0
-      m1ishod := ishod_umolch
-      mishod := inieditspr(A__MENUVERT, tmp_V012, m1ishod)
-    endif
-    mrslt  := padr(mrslt ,60)
-    mishod := padr(mishod,60)
-    update_get("mrslt")
-    update_get("mishod")
-  endif
-endif
-if is_input .and. type("p_nstr_vnr") == "N"
-  s := "" ; input_vnr := input_vnrm := .f.
-  if m1usl_ok == 1 // стационар
-    count_ymd(iif(M1NOVOR==1,mdate_r2,mdate_r),mn_data,@_y,@_m,)
-    //if _y == 0 .and. _m < 7 // ребёнок не старше 6 месяцев
-    if _y == 0 // ребёнок до года
-      s := p_str_vnr ; input_vnr := .t.
+** 03.09.22 действия в ответ на выбор в меню "Условия оказания медицинской помощи"
+Function f_valid_usl_ok(get, old, is_input)
+  Local _y, _m, s
+  DEFAULT is_input TO .t.
+
+  if m1usl_ok != old .and. m1usl_ok > 0 .and. old != NIL
+    mm_rslt := {}
+    if m1usl_ok == 3 .and. is_input // поликлиника - убираем диспансеризацию
+      aeval(tmp_V009, {|x| iif(x[5] == m1usl_ok .and. x[2] < 316, aadd(mm_rslt, x), nil)})
     else
-      MVNR := space(4)
+      aeval(tmp_V009, {|x| iif(x[5] == m1usl_ok, aadd(mm_rslt, x), nil)})
     endif
-    if mpol == "Ж" .and. _y > 10 // "мамаша" старше 10 лет
-      s := p_str_vnrm ; input_vnrm := .t.
-    else
-      MVNR1 := MVNR2 := MVNR3 := space(4)
+    mm_ishod := {}
+    aeval(tmp_V012, {|x| iif(x[5] == m1usl_ok, aadd(mm_ishod, x), nil) })
+    if get != NIL
+      m1rslt := 0
+      mrslt := ''
+      if ascan(mm_rslt, {|x| x[2] == rslt_umolch}) > 0
+        m1rslt := rslt_umolch
+        mrslt := inieditspr(A__MENUVERT, tmp_V009, m1rslt)
+      endif
+      m1ishod := 0
+      mishod := ''
+      if ascan(mm_ishod, {|x| x[2] == ishod_umolch}) > 0
+        m1ishod := ishod_umolch
+        mishod := inieditspr(A__MENUVERT, tmp_V012, m1ishod)
+      endif
+      mrslt  := padr(mrslt , 58)
+      mishod := padr(mishod, 20)
+      update_get('mrslt')
+      update_get('mishod')
     endif
-  else // другие условия оказания мед.помощи
-    MVNR := MVNR1 := MVNR2 := MVNR3 := space(4)
   endif
-  @ p_nstr_vnr,1 say padr(s,maxcol()) color cDataCGet
-  if input_vnr
-    update_get("MVNR")
-  elseif input_vnrm
-    update_get("MVNR1")
-    update_get("MVNR2")
-    update_get("MVNR3")
+  if is_input .and. type('p_nstr_vnr') == 'N'
+    s := ''
+    input_vnr := input_vnrm := .f.
+    if m1usl_ok == 1 // стационар
+      count_ymd(iif(M1NOVOR == 1, mdate_r2, mdate_r), mn_data, @_y, @_m,)
+      //if _y == 0 .and. _m < 7 // ребёнок не старше 6 месяцев
+      if _y == 0 // ребёнок до года
+        s := p_str_vnr
+        input_vnr := .t.
+      else
+        MVNR := space(4)
+      endif
+      if mpol == 'Ж' .and. _y > 10 // "мамаша" старше 10 лет
+        s := p_str_vnrm
+        input_vnrm := .t.
+      else
+        MVNR1 := MVNR2 := MVNR3 := space(4)
+      endif
+    else // другие условия оказания мед.помощи
+      MVNR := MVNR1 := MVNR2 := MVNR3 := space(4)
+    endif
+    @ p_nstr_vnr, 1 say padr(s, maxcol()) color cDataCGet
+    if input_vnr
+      update_get('MVNR')
+    elseif input_vnrm
+      update_get('MVNR1')
+      update_get('MVNR2')
+      update_get('MVNR3')
+    endif
+    if !((m1usl_ok == 1 .and. (is_ksg_VMP .or. is_22_VMP .or. is_21_VMP .or. is_12_VMP .or. is_14_VMP)) ;
+        .or. (m1usl_ok == 2 .and. is_ds_VMP))
+      mvmp := 'нет'
+      m1vmp := 0
+      MVIDVMP := space(70)
+      M1VIDVMP := SPACE(12) // вид ВМП по справочнику V018
+      MMETVMP := space(67)
+      M1METVMP := 0        // метод ВМП по справочнику V019
+      update_get('MVIDVMP')
+      update_get('MMETVMP')
+    endif
   endif
-  if !((m1usl_ok==1 .and. (is_ksg_VMP .or. is_22_VMP .or. is_21_VMP .or. is_12_VMP .or. is_14_VMP)) .or. (m1usl_ok==2 .and. is_ds_VMP))
-    mvmp := "нет"        ; m1vmp := 0
-    MVIDVMP := space(70) ; M1VIDVMP := SPACE(12) // вид ВМП по справочнику V018
-    MMETVMP := space(67) ; M1METVMP := 0        // метод ВМП по справочнику V019
-    update_get("MVIDVMP")
-    update_get("MMETVMP")
-  endif
-endif
-return .t.
+  return .t.
 
 ***** действия в ответ на выбор в меню "Результат"
 Function f_valid_rslt(g,o)
@@ -1920,12 +1930,14 @@ else
 endif
 return NIL
 
-***** 28.12.21
+** 04.09.22
 Function f2ret_oms_human(nkey)
 Static tmp := " "
 Local buf := savescreen(), buf1, rec1 := recno(), fl := -1, ss := 0, ;
       j, n_file := "omserror"+stxt, sh := 80, HH := 60, ii
 Local mas_otchet := {}
+local tmpSelect
+
 for ii := 1 to 32
    aadd(mas_otchet,{0,0})
 next  
@@ -2013,6 +2025,109 @@ if type("p_del_error") == "A" .and. p_del_error[2] > 0
     mybell(4,OK)
     restscreen(buf)
     return 0
+  elseif nkey == K_CTRL_F5
+    if glob_mo[_MO_KOD_TFOMS] == '805965' //РДЛ
+      tmpSelect := select()
+      // надо фильтр по коду ошибки
+      adbf1 :=  {{'num_usl', 'C', 10, 0}, ;    // номер услуги по порядку
+                {'shifr_usl', 'C', 10, 0}, ;  // шифр услуги 
+                {'name_usl', 'C', 250, 0}, ; // наименование услуги 
+                {'NUMORDER', 'N', 10, 0}, ;   // Номер заявки(ORDER Number)
+                {'fio', 'C', 70, 0}, ;
+                {'kol_usl', 'N', 10, 0}, ;    // кол-во услуг
+                {'cena_1', 'N', 11, 2}, ;
+                {'otd', 'C', 42, 0}, ;
+                {'otd_kod', 'N', 3, 0}}     
+      dbcreate(cur_dir + 'tmp_err', adbf1)
+      // dbcreate(fr_data + '3', adbf1)
+      use (cur_dir + fr_data + '2') new alias FRD2
+      // use (fr_data + '3') new alias FRD3
+      use (cur_dir + 'tmp_err') new alias FRD3
+      Private ii_otd  
+      for ii_otd:= 1 to 4
+        select frd2
+        index on shifr_usl + smo_kod + str(numorder, 10) to tmp_frd9  for (otd_kod == ii_otd .and. REFREASON == kod_REFREASON_menu)
+        go top
+        select FRD3 
+        append blank
+        frd3->fio := frd2->otd
+        temp_1 := ' '
+        temp_2 := 1
+        temp_3 := 0 // кол_во
+        temp_4 := 0 // сумма
+   
+        select FRD3 
+        append blank
+        // добавляем шапку
+        tsmo := ''
+        if frd2->smo_kod == '34007'
+          tsmo := '"Капитал МС"' 
+        elseif  frd2->smo_kod == '34002'
+          tsmo := '"Согаз"'
+        else
+          tsmo := ' Иногородние ТФОМС'
+        endif     
+        frd3->fio :=  tsmo
+        // 
+        do while !eof()
+          if frd2->smo_kod == '34007'
+            tsmo := '"Капитал МС"' 
+          elseif  frd2->smo_kod == '34002'
+            tsmo := '"Согаз"'
+          else
+            tsmo := ' Иногородние ТФОМС'
+          endif
+          select FRD3 
+          append blank
+          if frd2->shifr_usl != temp_1
+            if temp_3 == 0
+            // 
+            else
+              frd3->name_usl   := ' ВСЕГО :'
+              frd3->kol_usl    := temp_3 
+              frd3->cena_1     := temp_4
+              append blank
+              // добавляем шапку
+              frd3->fio :=  tsmo
+              append blank
+            endif  
+            frd3->num_usl    := str(temp_2)
+            frd3->shifr_usl  := frd2->shifr_usl
+            frd3->name_usl   := frd2->name_usl
+            temp_1 := frd2->shifr_usl
+            temp_2 ++
+            temp_3 := frd2->kol_usl
+            temp_4 := frd2->cena_1
+          else
+            frd3->shifr_usl  := ' '
+            frd3->name_usl   := ' '
+            temp_3 += frd2->kol_usl
+            temp_4 += frd2->cena_1
+          endif  
+          frd3->kol_usl    := frd2->kol_usl
+          frd3->cena_1     := frd2->cena_1
+          frd3->fio        := frd2->fio
+          frd3->otd        := frd2->otd   
+          frd3->NUMORDER   := frd2->NUMORDER
+          select frd2
+          skip
+        enddo
+        select FRD3 
+        append blank
+        frd3->fio        := ' ВСЕГО :'
+        frd3->kol_usl    := temp_3 
+        frd3->cena_1     := temp_4
+      Next 
+      frd3->(dbclosearea())
+      frd2->(dbclosearea())
+
+      select(tmpSelect)
+      // Здесь запрос на запись ЭКСЕЛЯ
+      create_xls_rdl('rdl_report')  //, arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd)
+      SaveTo(cur_dir + 'rdl_report.xlsx')
+    
+    endif 
+
   elseif nkey == K_CTRL_F9
     mywait()
     

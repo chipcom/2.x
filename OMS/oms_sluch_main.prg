@@ -56,8 +56,8 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
   Private tmp_V006 := create_classif_FFOMS(2, 'V006') // USL_OK
   Private tmp_V002 := create_classif_FFOMS(2, 'V002') // PROFIL
   Private tmp_V020 := create_classif_FFOMS(2, 'V020') // PROFIL_K
-  Private tmp_V009 := cut_glob_array(glob_V009,sys_date) // rslt
-  Private tmp_V012 := cut_glob_array(glob_V012,sys_date) // ishod
+  Private tmp_V009 := cut_glob_array(glob_V009, sys_date) // rslt
+  Private tmp_V012 := cut_glob_array(glob_V012, sys_date) // ishod
   Private mm_rslt, mm_ishod, rslt_umolch := 0, ishod_umolch := 0
   //
   Private mkod := Loc_kod, mtip_h, is_talon := .f., ibrm := 0, ;
@@ -81,7 +81,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
     adiag_talon[16]                  , ; // из статталона к диагнозам
     mprer_b := space(28),  m1prer_b := 0, ; // прерывание беременности
     mrslt, m1rslt := st_rslt         , ; // результат
-    mishod, m1ishod := st_ishod      , ; // исход
+    mishod := space(20), m1ishod := st_ishod      , ; // исход
     m1company := 0, mcompany, mm_company, ;
     mkomu, M1KOMU := 0, M1STR_CRB := 0, ; // 0-ОМС, 1-компании, 3-комитеты/ЛПУ, 5-личный счет
     m1NPR_MO := '',  mNPR_MO := space(10),  mNPR_DATE := ctod(''), ;
@@ -856,9 +856,9 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
           reader {|x|menu_reader(x,tmp_V006, A__MENUVERT, , ,.f.)} ;
           when diag_screen(2) ;
           valid {|g,o| iif(eq_any(m1usl_ok, 1, 2), ;
-            (SetPos(rpp,40),  DispOut('признак', cDataCGet)), ;
+            (SetPos(rpp, 40),  DispOut('признак', cDataCGet)), ;
             (mp_per:=space(25), m1p_per:=0)), ;
-            update_get('mp_per'),  f_valid_usl_ok(g,o)  }
+            update_get('mp_per'),  f_valid_usl_ok(g, o)  }
       if eq_any(m1usl_ok, 1, 2)
         @ j, 40 say 'признак'
       endif

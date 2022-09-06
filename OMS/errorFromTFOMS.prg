@@ -4,7 +4,7 @@
 #include "chip_mo.ch"
 #include 'tbox.ch'
 
-** 20.05.22 Редактирование случая с выбором по конкретной ошибке из ТФОМС
+** 06.09.22 Редактирование случая с выбором по конкретной ошибке из ТФОМС
 Function f3oms_edit()
   Static si := 1
   Local buf, str_sem, i, k, arr, old_yes_h_otd := yes_h_otd, iRefr, ret_arr, srec, buf24, buf_scr, s, mas_pmt
@@ -71,9 +71,71 @@ Function f3oms_edit()
       select HUMAN
       skip
     enddo
+    if glob_mo[_MO_KOD_TFOMS] == '805965' //РДЛ
+      adbf := {{"REFREASON","N",15,0},; 
+           {"shifr_usl","C",10,0},;  // шифр услуги 
+           {"name_usl","C",250,0},; // наименование услуги 
+           {"NUMORDER","N",10,0},;   // Номер заявки(ORDER Number)
+           {"fio","C",70,0},;
+           {"date_r","C",10,0},;
+           {"kol_usl","N",10,0},;    // кол-во услуг
+           {"cena_1","N",11,2},;
+           {"otd","C",42,0},;
+           {"otd_kod","N",3,0},; 
+           {"smo_kod","C",5,0}}
+      dbcreate(cur_dir + fr_data + '2', adbf)
+      use (cur_dir + fr_data + '2') new alias FRD2
+      // база готова
+      R_Use(dir_server+"mo_otd",,"OTD")
+      R_Use(dir_server+"human_2",,"HU2")
+      R_Use(dir_server+"uslugi",,"USL")
+      R_Use(dir_server+"human_u_",,"HU_")
+      R_Use(dir_server+"human_u",dir_server+"human_u","HU")
+      set relation to recno() into HU_, to u_kod into USL
+      use_base("lusl")
+      select tmp_h 
+      go top
+      do while !eof() 
+        select hu
+        find (str(tmp_h->kod,7))
+        do while tmp_h->kod == hu->kod .and. !eof()
+          select hu2
+          goto tmp_h->kod
+          select  frd2
+          append blank
+          frd2->REFREASON := tmp_h->refreason 
+          frd2->shifr_usl := usl->shifr    // шифр услуги 
+          frd2->name_usl  :=  usl->name // наименование услуги 
+          select human
+          goto tmp_h->kod
+          select human_
+          goto tmp_h->kod
+          frd2->smo_kod   := human_->smo
+          //
+          musl := transform_shifr(frd2->shifr_usl)
+          select lusl
+          find(musl)
+          frd2->name_usl := lusl->name
+          //
+          frd2->NUMORDER := hu2->pn3   // Номер заявки(ORDER Number)
+
+          frd2->fio     := alltrim (human->fio )+" "+full_date(human->date_r)
+          frd2->kol_usl := hu->kol_1     // кол-во услуг
+          frd2->cena_1  := hu->stoim_1
+          select otd
+          goto human->otd
+          frd2->otd    := alltrim(otd->NAME)
+          frd2->otd_kod := human->otd
+          select hu
+          skip
+        enddo
+        select tmp_h 
+        skip
+      enddo 
+    endif
     close databases
     rest_box(buf24)
-
+    Private kod_REFREASON_menu
     if empty(arr)
       func_error(4,"Нет пациентов с ошибками из ТФОМС "+arr_m[4])
     elseif (iRefr := popup_2array(arr,T_ROW,T_COL+5,,,@ret_arr,"Выбор вида ошибки","B/BG",color0, 'errorOMSkey', ;
@@ -86,6 +148,7 @@ Function f3oms_edit()
         return TFOMS_hodatajstvo(arr_m,iRefr,i-1)
       endif
       Private mr1 := T_ROW, regim_vyb := 2, p_del_error := ret_arr
+      kod_REFREASON_menu := iRefr
       do while .t.
         R_Use(dir_server+"mo_otd",,"OTD")
         G_Use(dir_server+"human_",,"HUMAN_")
