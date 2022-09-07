@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-** 02.06.22 амбулаторная медицинская реабилитация - добавление или редактирование случая (листа учета)
+** 07.09.22 амбулаторная медицинская реабилитация - добавление или редактирование случая (листа учета)
 function oms_sluch_MED_REAB(Loc_kod, kod_kartotek, f_print)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -360,6 +360,14 @@ function oms_sluch_MED_REAB(Loc_kod, kod_kartotek, f_print)
       loop
     elseif k == 2
       // проверки и запись
+      if m1vidreab == 0
+        func_error(4, 'Не выбран вид реабилитации.')
+        loop
+      endif
+      if m1shrm == 0
+        func_error(4, 'Не выбрана шкала реабилитации.')
+        loop
+      endif
       if empty(mn_data)
         func_error(4, 'Не введена дата начала лечения.')
         loop
