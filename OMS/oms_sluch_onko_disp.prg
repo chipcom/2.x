@@ -496,18 +496,39 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
 
   return nil
 
-** 30.08.22
+** 08.09.22
 function f_valid_onko_diag(diag, dob, date_post)
   // diag - онкологический диагноз
   // dob - дата рождения
   // date_post - дата постановки на учет
 
-  return .t.
+  // для взрослых один из рубрик C00-D09
+  // для детей один из рубрик C00-D89
+  local vozrast, fl := .f., diagBeg := 'C00', diagAdult := 'D09', diagChild := 'D89'
 
-** 30.08.22
+  vozrast := count_years(dob, date_post)
+  if ! (fl := between_diag(diag, 'C00', iif(vozrast < 18, diagChild, diagAdult)))
+  // if ! fl
+    func_error(4, 'Недопустимый диагноз, допустимый диапазон с ' + diagBeg + ' по ' + iif(vozrast < 18, diagChild, diagAdult) + '!')
+  endif
+
+  return fl
+
+** 08.09.22
 function f_valid_onko_vrach(tab_nom, dob, date_post)
   // tab_nom - табельный номер врача
   // dob - дата рождения
   // date_post - дата постановки на учет
+  local vozrast, fl := .f.
+  local med_spec_child := {9, 19, 49, 102}
+  local med_spec_adult := {39, 41}
 
-return .t.
+  vozrast := count_years(dob, date_post)
+  if vozrast < 18
+  else
+  endif
+  if ! fl
+    func_error(4, 'Недопустимая специальность врача!')
+  endif
+
+  return fl
