@@ -148,17 +148,19 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
   if Loc_kod > 0
     select HUMAN
     goto (Loc_kod)
+    MTIP_H      := human->tip_h
     M1LPU       := human->LPU
     M1OTD       := human->OTD
     M1FIO       := 1
-    mfio        := human->fio
-    mpol        := human->pol
-    mdate_r     := human->date_r
-    MTIP_H      := human->tip_h
-    M1VZROS_REB := human->VZROS_REB
-    MADRES      := human->ADRES         // адрес больного
-    MMR_DOL     := human->MR_DOL        // место работы или причина безработности
-    M1RAB_NERAB := human->RAB_NERAB     // 0-работающий, 1-неработающий
+    // будем брать из картотеки
+    // mfio        := human->fio
+    // mpol        := human->pol
+    // mdate_r     := human->date_r
+    // M1VZROS_REB := human->VZROS_REB
+    // MADRES      := human->ADRES         // адрес больного
+    // MMR_DOL     := human->MR_DOL        // место работы или причина безработности
+    // M1RAB_NERAB := human->RAB_NERAB     // 0-работающий, 1-неработающий
+    //
     mUCH_DOC    := human->uch_doc
     m1VRACH     := human_->vrach
     MKOD_DIAG   := human->KOD_DIAG
@@ -508,27 +510,51 @@ function f_valid_onko_diag(diag, dob, date_post)
 
   vozrast := count_years(dob, date_post)
   if ! (fl := between_diag(diag, 'C00', iif(vozrast < 18, diagChild, diagAdult)))
-  // if ! fl
     func_error(4, 'Недопустимый диагноз, допустимый диапазон с ' + diagBeg + ' по ' + iif(vozrast < 18, diagChild, diagAdult) + '!')
   endif
 
   return fl
 
-** 08.09.22
-function f_valid_onko_vrach(tab_nom, dob, date_post)
+** 09.09.22
+function f_valid_onko_vrach(tabnom, dob, date_post)
   // tab_nom - табельный номер врача
   // dob - дата рождения
   // date_post - дата постановки на учет
   local vozrast, fl := .f.
-  local med_spec_child := {9, 19, 49, 102}
-  local med_spec_adult := {39, 41}
+  local med_spec_child_V021 := {9, 19, 49, 102}
+  local med_spec_adult_V021 := {39, 41}
 
   vozrast := count_years(dob, date_post)
-  if vozrast < 18
-  else
+  if ascan(iif(vozrast < 18, med_spec_child_V021, med_spec_adult_V021), get_spec_vrach_V021_by_tabnom(tabnom)) > 0
+    fl := .t.
   endif
   if ! fl
     func_error(4, 'Недопустимая специальность врача!')
   endif
-
   return fl
+
+** 09.09.22
+function get_spec_vrach_V021_by_tabnom(tabnom)
+  ** tabnom - табельный номер
+  local aliasIsUse
+  local oldSelect
+  local ret := 0
+
+  if tabnom == 0
+    return 0
+  endif
+
+  aliasIsUse := aliasIsAlreadyUse('TPERS')
+  if ! aliasIsUse
+    oldSelect := Select()
+    R_Use(dir_server + 'mo_pers', dir_server + 'mo_pers', 'TPERS')
+  endif
+
+  if TPERS->(dbSeek(str(tabnom, 5)))
+    ret := ret_prvs_V015toV021(TPERS->PRVS_NEW)
+  endif
+  if ! aliasIsUse
+    TPERS->(dbCloseArea())
+  endif
+  Select(oldSelect)
+  return ret
