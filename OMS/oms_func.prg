@@ -273,57 +273,6 @@ function create_struct_temporary_onkna()
     {'KOD_VR'   , 'N',  5, 0} ;  // код врача (справочник mo_pers)
   }
 
-** 01.10.21
-function get_kod_vrach_by_tabnom(tabnom)
-  local aliasIsUse
-  local oldSelect, ret := 0
-
-  if tabnom == 0
-    return 0
-  endif
-
-  aliasIsUse := aliasIsAlreadyUse('TPERS')
-  if ! aliasIsUse
-    oldSelect := Select()
-    R_Use(dir_server + 'mo_pers', dir_server + 'mo_pers', 'TPERS')
-  endif
-
-  if TPERS->(dbSeek(str(tabnom,5)))
-    ret := TPERS->kod
-  endif
-
-  if ! aliasIsUse
-    TPERS->(dbCloseArea())
-  endif
-  Select(oldSelect)
-  return ret
-
-** 01.10.21
-function get_tabnom_vrach_by_kod(kod)
-  local aliasIsUse
-  local oldSelect, ret := 0
-
-  if kod == 0
-    return ret
-  endif
-  
-  aliasIsUse := aliasIsAlreadyUse('TPERS')
-  if ! aliasIsUse
-    oldSelect := Select()
-    R_Use(dir_server + 'mo_pers', , 'TPERS') 
-  endif
-
-  TPERS->(dbGoto(kod))
-  if ! (TPERS->(Eof()) .or. TPERS->(Bof()))
-    ret := TPERS->tab_nom
-  endif
-
-  if ! aliasIsUse
-    TPERS->(dbCloseArea())
-  endif
-  Select(oldSelect)
-  return ret
-
 ** 11.10.21
 function exist_reserve_KSG(kod_pers, aliasHUMAN)
   local aliasIsUseHU, aliasIsUseUSL

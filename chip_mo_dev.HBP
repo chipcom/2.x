@@ -206,6 +206,8 @@ mo_version.prg
 .\oms\oms_sluch_onko_disp.prg
 .\oms\oms_sluch_smp.prg
 
+.\personal\personal_func.prg
+
 .\onkologiya\onko.prg
 
 .\reports\reports.prg

@@ -532,29 +532,3 @@ function f_valid_onko_vrach(tabnom, dob, date_post)
     func_error(4, 'Недопустимая специальность врача!')
   endif
   return fl
-
-** 09.09.22
-function get_spec_vrach_V021_by_tabnom(tabnom)
-  ** tabnom - табельный номер
-  local aliasIsUse
-  local oldSelect
-  local ret := 0
-
-  if tabnom == 0
-    return 0
-  endif
-
-  aliasIsUse := aliasIsAlreadyUse('TPERS')
-  if ! aliasIsUse
-    oldSelect := Select()
-    R_Use(dir_server + 'mo_pers', dir_server + 'mo_pers', 'TPERS')
-  endif
-
-  if TPERS->(dbSeek(str(tabnom, 5)))
-    ret := ret_prvs_V015toV021(TPERS->PRVS_NEW)
-  endif
-  if ! aliasIsUse
-    TPERS->(dbCloseArea())
-  endif
-  Select(oldSelect)
-  return ret
