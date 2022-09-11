@@ -5,7 +5,7 @@
 
 ** согласно письму ТФОМС 09-30-276 от 29.08.22 года
 
-** 30.08.22 добавление или редактирование случая (листа учета)
+** 11.09.22 добавление или редактирование случая (листа учета)
 function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -19,11 +19,14 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
     p_uch_doc := '@!', pic_diag := '@K@!', ;
     i, colget_menu := 'R/W', colgetImenu := 'R/BG', ;
     pos_read := 0, k_read := 0, count_edit := 0, ;
-    fl_write_sluch := .f., when_uch_doc := .t.
+    fl_write_sluch := .f., when_uch_doc := .t., ;
+    arr_del := {}, mrec_hu := 0
   local mm_da_net := {{'нет', 0}, {'да ', 1}}
   local caption_window
   local top2, s
   local mtip_h
+  local vozrast
+  local lshifr := padr('2.5.2', 10)
 
   Default st_N_DATA TO sys_date, st_K_DATA TO sys_date
   Default Loc_kod TO 0, kod_kartotek TO 0
@@ -46,7 +49,7 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
     MUCH_DOC    := space(10)         , ; // вид и номер учетного документа
     m1company := 0, mcompany, mm_company, ;
     mkomu, M1KOMU := 0, M1STR_CRB := 0, ; // 0-ОМС, 1-компании, 3-комитеты/ЛПУ, 5-личный счет
-    msmo := '',  rec_inogSMO := 0, ;
+    msmo := '34007',  rec_inogSMO := 0, ;
     mokato, m1okato := '',  mismo, m1ismo := '',  mnameismo := space(100), ;
     mvidpolis, m1vidpolis := 1, mspolis := space(10),  mnpolis := space(20)
 
@@ -86,10 +89,10 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
     m1PROFIL := st_profil, mPROFIL, ;
     m1PROFIL_K := st_profil_k, mPROFIL_K
 
-  Private mm_profil := {{'онкология', 60}, ;
+  Private mm_profil := {{'педиатрия', 68}, ;
     {'гематология', 12}, ;
     {'детская онкология', 18}, ;
-    {'педиатрия', 68}, ;
+    {'онкология', 60}, ;
     {'общей врачебной практики', 57}}
 
   //
@@ -196,13 +199,49 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
     if alltrim(msmo) == '34'
       mnameismo := ret_inogSMO_name(2,@rec_inogSMO,.t.) // открыть и закрыть
     endif
+
+    // выберем услуги
+    R_Use(dir_server + 'uslugi', , 'USL')
+    use_base('human_u')
+    find (str(Loc_kod, 7))
+    do while hu->kod == Loc_kod .and. !eof()
+      usl->(dbGoto(hu->u_kod))
+      if empty(lshifr := opr_shifr_TFOMS(usl->shifr1, usl->kod, mk_data))
+        lshifr := usl->shifr
+      endif
+      if mrec_hu == 0
+        mrec_hu := hu->(recno())
+      else
+        aadd(arr_del, hu->(recno()))
+      endif
+      select HU
+      skip
+    enddo
+    for i := 1 to len(arr_del)
+      select HU
+      goto (arr_del[i])
+      DeleteRec(.t., .f.)  // очистка записи без пометки на удаление
+    next
   endif
+
+  // готовим список профилей по возрасту  
+  vozrast := count_years(mdate_r, mk_data)
+  if vozrast < 18
+    hb_ADel(mm_profil, 4, .t.)
+    hb_ADel(mm_profil, 5, .t.)
+  else
+    hb_ADel(mm_profil, 3, .t.)
+    hb_ADel(mm_profil, 2, .t.)
+    hb_ADel(mm_profil, 1, .t.)
+  endif
+
   mPROFIL := inieditspr(A__MENUVERT, mm_profil, m1PROFIL)
 
   if !(left(msmo, 2) == '34') // не Волгоградская область
     m1ismo := msmo
     msmo := '34'
   endif
+
   if Loc_kod == 0
     R_Use(dir_server + 'mo_otd', , 'OTD')
     goto (m1otd)
@@ -217,6 +256,7 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
   R_Use(dir_server + 'mo_uch', , 'UCH')
   goto (m1lpu)
   mlpu := rtrim(uch->name)
+
   if m1vrach > 0
     R_Use(dir_server + 'mo_pers', , 'P2')
     goto (m1vrach)
@@ -224,6 +264,7 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
     m1prvs := -ret_new_spec(p2->prvs, p2->prvs_new)
     mvrach := padr(fam_i_o(p2->fio) + ' ' + ret_tmp_prvs(m1prvs), 36)
   endif
+
   close databases
   MFIO_KART := _f_fio_kart()
   mvzros_reb := inieditspr(A__MENUVERT, menu_vzros, m1vzros_reb)
@@ -387,6 +428,15 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
       // далее проверки и запись
 
       make_diagP(2)  // сделать 'пятизначные' диагнозы
+      //
+      Use_base('lusl')
+      Use_base('luslc')
+      Use_base('uslugi')
+      R_Use(dir_server + 'uslugi1', {dir_server + 'uslugi1', ;
+                                dir_server + 'uslugi1s'}, 'USL1')
+      Private mu_kod, mu_cena
+      mu_kod := foundOurUsluga(lshifr, mk_data, m1PROFIL, M1VZROS_REB, @mu_cena)
+
       Use_base('human')
       if Loc_kod > 0
         find (str(Loc_kod, 7))
@@ -484,8 +534,46 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
       human_2->PROFIL_K := m1PROFIL_K
       human_2->p_per  := iif(eq_any(m1USL_OK, 1, 2),  m1p_per, 0)
 
-      // write_work_oper(glob_task,OPER_LIST,iif(Loc_kod==0,1,2),1,count_edit)
-      // fl_write_sluch := .t.
+
+      use_base('human_u')
+      select HU
+      if mrec_hu == 0
+        Add1Rec(7)
+        mrec_hu := hu->(recno())
+      else
+        goto (mrec_hu)
+        G_RLock(forever)
+      endif
+      replace hu->kod     with human->kod, ;
+              hu->kod_vr  with m1vrach, ;
+              hu->kod_as  with 0, ;
+              hu->u_koef  with 1, ;
+              hu->u_kod   with mu_kod, ;
+              hu->u_cena  with mu_cena, ;
+              hu->is_edit with 0, ;
+              hu->date_u  with dtoc4(MK_DATA), ;
+              hu->otd     with m1otd, ;
+              hu->kol     with 1, ;
+              hu->stoim   with mu_cena, ;
+              hu->kol_1   with 1, ;
+              hu->stoim_1 with mu_cena, ;
+              hu->KOL_RCP with 0
+      select HU_
+      do while hu_->(lastrec()) < mrec_hu
+        APPEND BLANK
+      enddo
+      goto (mrec_hu)
+      G_RLock(forever)
+      if Loc_kod == 0 .or. !valid_GUID(hu_->ID_U)
+        hu_->ID_U := mo_guid(3, hu_->(recno()))
+      endif
+      hu_->PROFIL   := m1PROFIL
+      hu_->PRVS     := m1PRVS
+      hu_->kod_diag := mkod_diag
+      hu_->zf       := ''
+
+      write_work_oper(glob_task, OPER_LIST, iif(Loc_kod == 0, 1, 2), 1, count_edit)
+      fl_write_sluch := .t.
       close databases
       stat_msg('Запись завершена!', .f.)
     endif
@@ -495,6 +583,11 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
   diag_screen(2)
   setcolor(tmp_color)
   restscreen(buf)
+  // if fl_write_sluch // если записали - запускаем проверку
+  //   if !empty(val(msmo))
+  //     verify_OMS_sluch(glob_perso)
+  //   endif
+  // endif
 
   return nil
 
