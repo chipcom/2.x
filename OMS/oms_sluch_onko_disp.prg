@@ -227,8 +227,8 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
   // готовим список профилей по возрасту  
   vozrast := count_years(mdate_r, mk_data)
   if vozrast < 18
-    hb_ADel(mm_profil, 4, .t.)
     hb_ADel(mm_profil, 5, .t.)
+    hb_ADel(mm_profil, 4, .t.)
   else
     hb_ADel(mm_profil, 3, .t.)
     hb_ADel(mm_profil, 2, .t.)
@@ -501,7 +501,7 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
       human->CENA_1     := MCENA_1       // стоимость лечения
       // human->OBRASHEN := iif(m1DS_ONK == 1, '1',  ' ')
       // s := '' ; aeval(adiag_talon, {|x| s += str(x, 1) })
-      // human_->DISPANS   := s
+      human_->DISPANS   := '2000000000000000'  // поставлен на диспансерный учет
       human_->VPOLIS    := m1vidpolis
       human_->SPOLIS    := ltrim(mspolis)
       human_->NPOLIS    := ltrim(mnpolis)
