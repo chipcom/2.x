@@ -602,7 +602,8 @@ Local mo_dnab := {; // диспансерное наблюдение
    {"PEREHOD",  "N", 1,0},;  // переход 2021
    {"PEREHOD1", "N", 1,0},;  // переход заплатка 2021
    {"PEREHOD2", "N", 1,0},;  // переход заплатка 2021
-   {"PEREHOD3", "N", 1,0};  // переход 2022
+   {"PEREHOD3", "N", 1,0},;  // переход 2022
+   {"PEREHOD4", "N", 1,0};   // переход 2023 начало
   }
 Local mo_d01 := {; // отсылаемые файлы D01
    {"KOD",         "N", 6,0},; // код реестра (номер записи)
@@ -675,13 +676,13 @@ do case
     //endif
 
     //
-    if fieldnum("PEREHOD3") == 0
+    if fieldnum("PEREHOD4") == 0
       close databases
       if !G_SLock(S_sem)
         return func_error(4,"Доступ в данный режим пока запрещён")
       endif
       buf := save_maxrow()
-      WaitStatus("Ждите! Составляется список по диспансерному наблюдению на 2022 год")
+      WaitStatus("Ждите! Составляется список по диспансерному наблюдению на 2022-2023 год")
       f_init_d01() // инициализация всех файлов инф.сопровождения по диспансерному наблюдению
       Use (dir_server+"mo_dnab") new alias DN
       go top
@@ -767,9 +768,9 @@ do case
                     dn->N_DATA := human->k_data // дата начала диспансерного наблюдения
                   endif
                   //заплатка 10.12.2021
-                  if dn->N_DATA > stod("20211130")
-                    dn->N_DATA := dn->N_DATA - 30
-                  endif
+                  //if dn->N_DATA > stod("20211130")
+                  //  dn->N_DATA := dn->N_DATA - 30
+                  //endif
                   //
                   dn->LU_DATA := human->k_data // дата листа учёта с целью диспансерного наблюдения
                   dn->NEXT_DATA := &pole_dn_dispans // дата следующей явки с целью диспансерного наблюдения
@@ -810,9 +811,9 @@ do case
                         dn->N_DATA := human->k_data // дата начала диспансерного наблюдения
                       endif
                       //заплатка 10.12.2021
-                      if dn->N_DATA > stod("20211130")
-                        dn->N_DATA := dn->N_DATA - 30
-                      endif
+                      //if dn->N_DATA > stod("20211130")
+                      //  dn->N_DATA := dn->N_DATA - 30
+                      //endif
                       //
                       dn->LU_DATA := human->k_data // дата листа учёта с целью диспансерного наблюдения
                       dn->NEXT_DATA := c4tod(human->DATE_OPL) // дата следующей явки с целью диспансерного наблюдения
@@ -848,7 +849,7 @@ do case
           if !between(k,2021,2023) // ЮЮ если некорректная дата след.визита
             dn->NEXT_DATA := addmonth(dn->LU_DATA,12)
           endif
-          do while dn->NEXT_DATA < 0d20220101 // ЮЮ
+          do while dn->NEXT_DATA < 0d20230101 // ЮЮ
             dn->NEXT_DATA := addmonth(dn->NEXT_DATA,dn->FREQUENCY)
           enddo
         endif
@@ -1026,7 +1027,7 @@ do case
                     dn->KOD_K := human->KOD_K
                     dn->KOD_DIAG := ar_dn[j]
                   endif
-                  if empty(dn->next_data) .or. dn->next_data < stod("20220101")
+                  if empty(dn->next_data) .or. dn->next_data < stod("20230101")
                     // правим только старше 2021
                     dn->VRACH := human_->vrach
                     dn->PRVS := human_->prvs
@@ -1067,7 +1068,7 @@ do case
                         dn->KOD_K := human->KOD_K
                         dn->KOD_DIAG := ar_dn[i]
                       endif
-                      if empty(dn->next_data) .or. dn->next_data < stod("20220101")
+                      if empty(dn->next_data) .or. dn->next_data < stod("20230101")
                         dn->VRACH := hu->KOD_VR
                         dn->PRVS := hu_->prvs // Специальность врача по справочнику V004, с минусом - по справочнику V015
                         if empty(dn->N_DATA)
@@ -1100,7 +1101,7 @@ do case
       go top
       do while !eof()
         UpdateStatus()
-        if empty(dn->next_data) .or. dn->next_data < stod("20220101")
+        if empty(dn->next_data) .or. dn->next_data < stod("20230101")
           if !empty(dn->LU_DATA)
             if dn->FREQUENCY == 0
               dn->FREQUENCY := 1
@@ -1109,7 +1110,7 @@ do case
             if !between(k,2021,2023) // ЮЮ если некорректная дата след.визита
               dn->NEXT_DATA := addmonth(dn->LU_DATA,12)
             endif
-            do while dn->NEXT_DATA < 0d20220101 // ЮЮ
+            do while dn->NEXT_DATA < 0d20230101 // ЮЮ
               dn->NEXT_DATA := addmonth(dn->NEXT_DATA,dn->FREQUENCY)
             enddo
           endif
@@ -1162,13 +1163,14 @@ do case
                 "disp_nabludenie(43)"}
     popup_prompt(T_ROW,T_COL-5,si4,mas_pmt,mas_msg,mas_fun)
   case k == 23
-    mas_pmt := {"~Создание файла обмена D01",;
+    ne_real() 
+    /*mas_pmt := {"~Создание файла обмена D01",;
                 "~Просмотр файлов обмена D01"}
     mas_msg := {"Создание файла обмена D01... с ещё не отправленными пациентами (диагнозами)",;
                 "Просмотр файлов обмена D01... и результатов работы с ними"}
     mas_fun := {"disp_nabludenie(31)",;
                 "disp_nabludenie(32)"}
-    popup_prompt(T_ROW,T_COL-5,si3,mas_pmt,mas_msg,mas_fun)
+    popup_prompt(T_ROW,T_COL-5,si3,mas_pmt,mas_msg,mas_fun)*/
   case k == 41
     inf_disp_nabl()
   case k == 42
@@ -1268,8 +1270,8 @@ if lastkey() == K_ESC .or. empty(m1dopo_na)
 endif
 if !(valtype(parr_m) == "A")
   parr_m := array(8)
-  parr_m[5] := 0d20210101    // ЮЮ
-  parr_m[6] := 0d20211231    // ЮЮ
+  parr_m[5] := 0d20220101    // ЮЮ
+  parr_m[6] := 0d20221231    // ЮЮ
 endif
 stat_msg("Поиск информации...")
 fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
@@ -1582,15 +1584,15 @@ do case
             endif
             if empty(mN_DATA)
               fl := func_error(4,"Не введена дата начала диспансерного наблюдения")
-            elseif mN_DATA >= 0d20211201  // ЮЮ
+            elseif mN_DATA >= 0d20221201  // ЮЮ
               fl := func_error(4,"Дата начала диспансерного наблюдения слишком большая")
             endif
             if empty(mNEXT_DATA)
               fl := func_error(4,"Не введена дата следующей явки")
             elseif mN_DATA >= mNEXT_DATA
               fl := func_error(4,"Дата следующей явки меньше даты начала диспансерного наблюдения")
-            elseif mNEXT_DATA <= 0d20220101  // ЮЮ
-              fl := func_error(4,"Дата следующей явки должна быть не ранее 1 января")
+            //elseif mNEXT_DATA <= 0d20230101  // ЮЮ
+            //  fl := func_error(4,"Дата следующей явки должна быть не ранее 1 января")
             endif
             if !fl
               loop
@@ -1988,7 +1990,7 @@ do case
               fl := func_error(4,"Не введена дата следующей явки")
             elseif mN_DATA >= mNEXT_DATA
               fl := func_error(4,"Дата следующей явки меньше даты начала диспансерного наблюдения")
-            elseif mNEXT_DATA <= 0d20220101  // ЮЮ
+            elseif mNEXT_DATA <= 0d20230101  // ЮЮ
               fl := func_error(4,"Дата следующей явки должна быть не ранее 1 января")
             endif
             if !fl
@@ -2061,12 +2063,12 @@ return ascan(diag1,alltrim(ldiag)) > 0
 
 *
 
-***** 05.12.19 Информация по первичному вводу сведений о состоящих на диспансерном учёте
+***** 12.09.22 Информация по первичному вводу сведений о состоящих на диспансерном учёте
 Function inf_disp_nabl()
 Static suchast := 0, svrach := 0, sdiag := '',;
        mm_spisok := {{"весь список пациентов",0},{"с неполным вводом",1},{"с корректным вводом",2}}
 Local bg := {|o,k| get_MKB10(o,k,.f.) }
-Local buf := savescreen(), r := 14, sh, HH := 60, name_file := "info_dn"+stxt, ru := 0,;
+Local buf := savescreen(), r := 13, sh, HH := 60, name_file := "info_dn"+stxt, ru := 0,;
       rd := 0, rd1 := 0, rpr := 0
 setcolor(cDataCGet)
 myclear(r)
@@ -2076,10 +2078,11 @@ Private muchast := suchast,;
         mkod_diag1 := "   ", mkod_diag2 := "   ",;
         m1spisok := 0, mspisok := mm_spisok[1,1],;
         m1adres := 0, madres := mm_danet[1,1],;
+        m1period := 0, mperiod := space(10), parr_m,;
         gl_area := {r,0,maxrow()-1,maxcol(),0}
 status_key("^<Esc>^ - выход;  ^<PgDn>^ - составление документа")
 //
-@ r,0 to r+9,maxcol() COLOR color8
+@ r,0 to r+10,maxcol() COLOR color8
 str_center(r," Запрос информации по ведённому диспансерному наблюдению ",color14)
 @ r+2,2 say "Номер участка (0 - по всем участкам)" get muchast pict "99999"
 @ r+3,2 say "Табельный номер врача (0 - по всем врачам)" get mvrach pict "99999"
@@ -2091,10 +2094,20 @@ str_center(r," Запрос информации по ведённому диспансерному наблюдению ",color14
         pict "@K@!" reader {|o|MyGetReader(o,bg)} when empty(mkod_diag)
 @ r+6,2 say "Полнота списка" get mspisok ;
         reader {|x|menu_reader(x,mm_spisok,A__MENUVERT,,,.f.)}
-@ r+7,2 say "Выводить адреса пациентов" get madres ;
+@ r+7,2 say "Дата постановки на диспансерное наблюдение" get mperiod ;
+  reader {|x|menu_reader(x,;
+           {{|k,r,c| k:=year_month(r+1,c),;
+                if(k==nil,nil,(parr_m:=aclone(k),k:={k[1],k[4]})),;
+                k }},A__FUNCTION,,,.f.)}
+@ r+8,2 say "Выводить адреса пациентов" get madres ;
         reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
 myread()
 if lastkey() != K_ESC
+  if !(valtype(parr_m) == "A")
+    parr_m := array(8)
+    parr_m[5] := 0d20220101    // ЮЮ
+    parr_m[6] := 0d20221231    // ЮЮ
+  endif
   if mvrach > 0
     R_Use(dir_server+"mo_pers",dir_server+"mo_pers","PERSO")
     find (str(mvrach,5))
@@ -2160,6 +2173,11 @@ if lastkey() != K_ESC
   go top
   do while !eof()
     fl := .t.
+    if between(dn->n_data,parr_m[5],parr_m[6])
+      fl := .t.
+    else
+      fl := .f. 
+    endif  
     if muchast > 0
       fl := (kart->uchast == muchast)
     endif
@@ -2227,9 +2245,9 @@ if lastkey() != K_ESC
         ++r
       endif
       s += str(pers->tab_nom,6)+" "+dn->kod_diag+" "+date_8(dn->n_data)+" "+date_8(dn->next_data)
-      s += iif(dn->next_data < 0d20220101,"___","   ")   // ЮЮ
+      s += iif(dn->next_data < 0d20230101,"___","   ")   // ЮЮ
       s += iif(empty(dn->frequency),"_____",str(dn->frequency,5))
-      if dn->next_data < 0d20220101  //ЮЮ
+      if dn->next_data < 0d20230101  //ЮЮ
         ++rd
       endif
       if empty(dn->frequency)
@@ -2253,8 +2271,8 @@ if lastkey() != K_ESC
   else
     add_string("=== Итого пациентов - "+lstr(r)+" чел., итого диагнозов - "+lstr(rs)+" ===")
     add_string("=== из них УМЕРЛО   - "+lstr(ru)+" чел., в ТФОМС отправлены не будут ===")
-    add_string("=== из них дата СЛЕДУЮЩЕГО визита ранее 2022 года - "+lstr(rd)+" диагнозов.")
-    add_string("    в ТФОМС отправлены не будут ")
+    //add_string("=== из них дата СЛЕДУЮЩЕГО визита ранее 2023 года - "+lstr(rd)+" диагнозов.")
+    //add_string("    в ТФОМС отправлены не будут ")
     add_string("=== пациентов прикрепленных не к нашему МО - "+lstr(rpr)+" чел. ===")
     add_string("    ТФОМСом вероятно приняты не будут ")
   endif
@@ -2467,7 +2485,7 @@ dbcreate(cur_dir+"tmp",{{"KOD_K","N",7,0}})
 use (cur_dir+"tmp") new
 select DK
 set relation to reestr into REES
-index on str(kod_k,7) to (cur_dir+"tmp_d01k") for rees->nyear == 2021 // ЮЮ
+index on str(kod_k,7) to (cur_dir+"tmp_d01k") for rees->nyear == 2022 // ЮЮ
 R_Use(dir_server+"kartotek",,"KART")
 R_Use(dir_server+"kartote2",,"KART2")
 R_Use(dir_server+"mo_dnab",,"DN")
