@@ -5,7 +5,7 @@
 
 ** согласно письму ТФОМС 09-30-276 от 29.08.22 года
 
-** 11.09.22 добавление или редактирование случая (листа учета)
+** 13.09.22 добавление или редактирование случая (листа учета)
 function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -583,11 +583,11 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
   diag_screen(2)
   setcolor(tmp_color)
   restscreen(buf)
-  // if fl_write_sluch // если записали - запускаем проверку
-  //   if !empty(val(msmo))
-  //     verify_OMS_sluch(glob_perso)
-  //   endif
-  // endif
+  if fl_write_sluch // если записали - запускаем проверку
+    if !empty(val(msmo))
+      verify_OMS_sluch(glob_perso)
+    endif
+  endif
 
   return nil
 
