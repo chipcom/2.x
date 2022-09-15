@@ -91,7 +91,6 @@ Function create_reestr()
       else
         tip_lu := 0
       endif
-      altd()
       if human->tip_h == B_STANDART .and. emptyall(human_->reestr, human->schet) ;
                                   .and. (human->cena_1 > 0 .or. human_->USL_OK == 4 .or. tip_lu == TIP_LU_ONKO_DISP) ;
                                   .and. val(human_->smo) > 0 .and. human_->ST_VERIFY >= 5 // и проверили 
@@ -103,7 +102,7 @@ Function create_reestr()
           endif
           tmp->summa += human->cena_1
         endif
-    endif
+      endif
     select HUMAN
     skip
   enddo
@@ -166,8 +165,9 @@ Function create_reestr()
         close databases
         if fl
           Private kol_1r := 0, kol_2r := 0, p_tip_reestr := 1
-          verify_OMS(arr_m,.f.)
-          ClrLine(maxrow(),color0)
+          verify_OMS(arr_m, .f.)
+          ClrLine(maxrow(), color0)
+// altd()
           if kol_1r == 0 .and. kol_2r == 0
             //
           elseif kol_1r > 0 .and. kol_2r == 0

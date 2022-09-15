@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-** 29.08.22
+** 15.09.22
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
         i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -26,6 +26,7 @@ Function verify_1_sluch(fl_view)
   local lTypeLUMedReab := .f.
   local aUslMedReab
   local obyaz_uslugi_med_reab, iUsluga
+  local lTypeLUOnkoDisp := .f.
 
   if empty(human->k_data)
     return .t.  // не проверять
@@ -50,7 +51,13 @@ Function verify_1_sluch(fl_view)
     human->VZROS_REB := M1VZROS_REB   // то перезаписываем
     UnLock
   endif
-  is_oncology := f_is_oncology(1,@is_oncology_smp)
+
+  otd->(dbGoto(human->OTD))
+  lTypeLUOnkoDisp := (otd->tiplu == TIP_LU_ONKO_DISP)
+
+  if ! lTypeLUOnkoDisp
+    is_oncology := f_is_oncology(1,@is_oncology_smp)
+  endif
   //
   glob_kartotek := human->kod_k
   d1 := human->n_data ; d2 := human->k_data ; cuch_doc := human->uch_doc
@@ -586,17 +593,17 @@ Function verify_1_sluch(fl_view)
   find (str(human->kod, 7))
   do while hu->kod == human->kod .and. !eof()
     lshifr1 := opr_shifr_TFOMS(usl->shifr1, usl->kod, human->k_data)
-    if is_usluga_TFOMS(usl->shifr, lshifr1, human->k_data, @auet, @lbukva, @lst,@lidsp, @s)
+    if is_usluga_TFOMS(usl->shifr, lshifr1, human->k_data, @auet, @lbukva, @lst, @lidsp, @s)
       if empty(hu->kol_1)
         aadd(ta, 'не заполнено поле "Количество услуг" для "' + alltrim(usl->shifr) + '"')
       endif
       lshifr := iif(empty(lshifr1), usl->shifr, lshifr1)
-      if hu->STOIM_1 > 0 .or. left(lshifr,3) == "71."  // скорая помощь
+      if hu->STOIM_1 > 0 .or. lTypeLUOnkoDisp .or. left(lshifr, 3) == "71."  // скорая помощь
         if !empty(lbukva) .and. ascan(a_bukva,{|x| x[1] == lbukva }) == 0
-          aadd(a_bukva,{lbukva,lshifr})
+          aadd(a_bukva, {lbukva, lshifr})
         endif
         if !empty(lidsp) .and. ascan(a_idsp,{|x| x[1] == lidsp }) == 0
-          aadd(a_idsp,{lidsp,lshifr})
+          aadd(a_idsp, {lidsp, lshifr})
         endif
       endif
       if lst == 1
@@ -2675,19 +2682,23 @@ Function verify_1_sluch(fl_view)
     endif
     k := 1
   endif
+  if lTypeLUOnkoDisp
+    a_idsp := {{29, 'За посещение в поликлинике'}}
+    k := 1
+  endif
   if k == 0
     aadd(ta, 'ни в одной из услуг в справочнике ТФОМС не установлен способ оплаты')
   elseif k == 1
-    midsp := human_->IDSP := a_idsp[1,1]
+    midsp := human_->IDSP := a_idsp[1, 1]
   else
-    asort(a_idsp,,,{|x,y| x[1] < y[1] })
-    if len(a_idsp) == 2 .and. a_idsp[1,1] == 28 .and. a_idsp[2,1] == 33 .and. is_dializ
-      Del_Array(a_idsp,1) // удалить 1-ый элемент массива
-      midsp := human_->IDSP := a_idsp[1,1]
+    asort(a_idsp, , , {|x, y| x[1] < y[1] })
+    if len(a_idsp) == 2 .and. a_idsp[1, 1] == 28 .and. a_idsp[2, 1] == 33 .and. is_dializ
+      Del_Array(a_idsp, 1) // удалить 1-ый элемент массива
+      midsp := human_->IDSP := a_idsp[1, 1]
     else
-      aadd(ta, 'смешивание способов оплаты: '+;
-              lstr(a_idsp[1,1])+'-'+alltrim(a_idsp[1,2])+' и '+;
-              lstr(a_idsp[2,1])+'-'+alltrim(a_idsp[2,2]))
+      aadd(ta, 'смешивание способов оплаты: ' + ;
+              lstr(a_idsp[1, 1]) + '-' + alltrim(a_idsp[1, 2]) + ' и ' + ;
+              lstr(a_idsp[2, 1]) + '-' + alltrim(a_idsp[2, 2]))
     endif
   endif
   if (k := len(a_bukva)) == 0
@@ -4424,7 +4435,6 @@ Function verify_1_sluch(fl_view)
         if empty(row[8])
           aadd(ta, 'пустая схема соответствия препаратам')
         endif
-        // altd()
         if (arrGroupPrep := get_group_prep_by_kod(alltrim(row[8]), row[1])) != nil
           // if (arrGroupPrep := get_group_prep_by_kod(substr(row[8], len(row[8])), row[1])) != nil
           mMNN := iif(arrGroupPrep[3] == 1, .t., .f.)
@@ -4655,7 +4665,7 @@ Function verify_1_sluch(fl_view)
       d_srok->dni   := a_rec_ffoms[i,3]
     endif
   endif
-  if len(arr_unit) == 0 // .and. ! is_disp_DVN_COVID
+  if len(arr_unit) == 0 .and. ! lTypeLUOnkoDisp // .and. ! is_disp_DVN_COVID
     aadd(ta,"ни в одной из услуг не обнаружен код план-заказа")
   endif
   if is_disp_DDS .or. is_disp_DVN .or. is_prof_PN

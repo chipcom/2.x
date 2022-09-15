@@ -5,12 +5,13 @@
 
 #define max_rec_reestr 9999
 
-***** 11.10.21
-Function verify_OMS(arr_m,fl_view)
-  Local ii := 0, iprov := 0, inprov := 0, ko := 2, fl, name_file := "err_sl"+stxt,;
+***** 15.09.22
+Function verify_OMS(arr_m, fl_view)
+  Local ii := 0, iprov := 0, inprov := 0, ko := 2, fl, name_file := 'err_sl' + stxt, ;
         name_file2, name_file3, kr_unlock, i,;
         mas_pmt := {"Список обнаруженных ошибок в результате проверки"}, mas_file := {}
-  aadd(mas_file,name_file)
+
+  aadd(mas_file, name_file)
   DEFAULT arr_m TO year_month(T_ROW,T_COL+5,,3), fl_view TO .t.
   if arr_m == NIL
     return NIL
@@ -28,57 +29,57 @@ Function verify_OMS(arr_m,fl_view)
   add_string(center("по дате окончания лечения "+arr_m[4],80))
   add_string("")
   if !fl_view
-    Use (cur_dir+"tmp") new
-    use (cur_dir+"tmpb") index (cur_dir+"tmpb") new
+    Use (cur_dir + "tmp") new
+    use (cur_dir + "tmpb") index (cur_dir + "tmpb") new
   endif
-  dbcreate(cur_dir+"tmp_no",{{"kod","N",7,0},;
+  dbcreate(cur_dir + "tmp_no",{{"kod","N",7,0},;
                              {"tip","N",1,0},;
                              {"komu","N",1,0},;
                              {"str_crb","N",2,0}})
-  use (cur_dir+"tmp_no") new
+  use (cur_dir + "tmp_no") new
   f_create_diag_srok()
-  R_Use(dir_server+"mo_pers",,"PERS")
-  R_Use(dir_server+"mo_uch",,"UCH")
-  R_Use(dir_server+"mo_otd",,"OTD")
+  R_Use(dir_server + "mo_pers",,"PERS")
+  R_Use(dir_server + "mo_uch",,"UCH")
+  R_Use(dir_server + "mo_otd",,"OTD")
   use_base("lusl")
   use_base("luslc")
   use_base("luslf")
-  R_Use(dir_server+"uslugi",,"USL")
-  G_Use(dir_server+"human_u_",,"HU_")
-  G_Use(dir_server+"human_u",{dir_server+"human_u",;
-                              dir_server+"human_uk",;
-                              dir_server+"human_ud",;
-                              dir_server+"human_uv",;
-                              dir_server+"human_ua"},"HU")
+  R_Use(dir_server + "uslugi",,"USL")
+  G_Use(dir_server + "human_u_",,"HU_")
+  G_Use(dir_server + "human_u",{dir_server + "human_u",;
+                              dir_server + "human_uk",;
+                              dir_server + "human_ud",;
+                              dir_server + "human_uv",;
+                              dir_server + "human_ua"},"HU")
   set relation to recno() into HU_, to u_kod into USL
-  R_Use(dir_server+"mo_su",,"MOSU")
-  G_Use(dir_server+"mo_hu",dir_server+"mo_hu","MOHU")
+  R_Use(dir_server + "mo_su",,"MOSU")
+  G_Use(dir_server + "mo_hu",dir_server + "mo_hu","MOHU")
   set relation to u_kod into MOSU
-  G_Use(dir_server+"kartote_",,"KART_")
-  R_Use(dir_server+"kartotek",,"KART")
+  G_Use(dir_server + "kartote_",,"KART_")
+  R_Use(dir_server + "kartotek",,"KART")
   set relation to recno() into KART_
-  G_Use(dir_server+"mo_onkna",dir_server+"mo_onkna","ONKNA") // онконаправления
-  G_Use(dir_server+"mo_onksl",dir_server+"mo_onksl","ONKSL") // Сведения о случае лечения онкологического заболевания
-  G_Use(dir_server+"mo_onkdi",dir_server+"mo_onkdi","ONKDI") // Диагностический блок
-  G_Use(dir_server+"mo_onkpr",dir_server+"mo_onkpr","ONKPR") // Сведения об имеющихся противопоказаниях
-  G_Use(dir_server+"mo_onkus",dir_server+"mo_onkus","ONKUS")
-  G_Use(dir_server+"mo_onkco",dir_server+"mo_onkco","ONKCO")
-  G_Use(dir_server+"mo_onkle",dir_server+"mo_onkle","ONKLE")
-  G_Use(dir_server+"human_2",,"HUMAN_2")
-  G_Use(dir_server+"human_",,"HUMAN_")
-  G_Use(dir_server+"human",dir_server+"humand","HUMAN")
+  G_Use(dir_server + "mo_onkna",dir_server + "mo_onkna","ONKNA") // онконаправления
+  G_Use(dir_server + "mo_onksl",dir_server + "mo_onksl","ONKSL") // Сведения о случае лечения онкологического заболевания
+  G_Use(dir_server + "mo_onkdi",dir_server + "mo_onkdi","ONKDI") // Диагностический блок
+  G_Use(dir_server + "mo_onkpr",dir_server + "mo_onkpr","ONKPR") // Сведения об имеющихся противопоказаниях
+  G_Use(dir_server + "mo_onkus",dir_server + "mo_onkus","ONKUS")
+  G_Use(dir_server + "mo_onkco",dir_server + "mo_onkco","ONKCO")
+  G_Use(dir_server + "mo_onkle",dir_server + "mo_onkle","ONKLE")
+  G_Use(dir_server + "human_2",,"HUMAN_2")
+  G_Use(dir_server + "human_",,"HUMAN_")
+  G_Use(dir_server + "human",dir_server + "humand","HUMAN")
   dbseek(dtos(arr_m[5]),.t.)
   if ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 .and. fl_view
     Private old_npr_mo := "000000"
-    index on f_napr_mo_lis()+upper(fio)+str(kod_k,7) to (cur_dir+"tmp_hfio") ;
+    index on f_napr_mo_lis()+upper(fio)+str(kod_k,7) to (cur_dir + "tmp_hfio") ;
           while human->k_data <= arr_m[6] .and. !eof() ;
           for tip_h == B_STANDART .and. empty(schet) .and. !empty(k_data)
   else
-    index on upper(fio)+str(kod_k,7) to (cur_dir+"tmp_hfio") ;
+    index on upper(fio)+str(kod_k,7) to (cur_dir + "tmp_hfio") ;
           while human->k_data <= arr_m[6] .and. !eof() ;
           for tip_h == B_STANDART .and. empty(schet) .and. !empty(k_data)
   endif
-  set index to (dir_server+"humans"),(dir_server+"humankk"),(dir_server+"humand"),(cur_dir+"tmp_hfio")
+  set index to (dir_server + "humans"),(dir_server + "humankk"),(dir_server + "humand"),(cur_dir + "tmp_hfio")
   set relation to recno() into HUMAN_, to recno() into HUMAN_2, to kod_k into KART
   set order to 4
   go top
@@ -89,10 +90,13 @@ Function verify_OMS(arr_m,fl_view)
     if empty(human_->reestr)
       ++ii
       if (fl := (human->cena_1 == 0)) // если цена нулевая
+        otd->(dbGoto(human->OTD))
         if is_smp(human_->USL_OK,human_->PROFIL)  // скорая помощь
           fl = .f.
         elseif eq_any(human->ishod,201,202,204) // диспансеризация взрослого населения
           fl = .f.
+        elseif otd->tiplu == TIP_LU_ONKO_DISP
+          fl := .f.
         endif
       endif
       if empty(int(val(human_->smo))) // нет СМО
@@ -170,12 +174,12 @@ Function verify_OMS(arr_m,fl_view)
   if !fl_view
     select HUMAN
     set index to  // отвязываем условный индекс
-    G_Use(dir_server+"human_3",{dir_server+"human_3",dir_server+"human_32"},"HUMAN_3")
+    G_Use(dir_server + "human_3",{dir_server + "human_3",dir_server + "human_32"},"HUMAN_3")
     // проверяем случаи, где 2-ой случай закончился в текущем отчётном месяце, а 1-ый - неважно
     select HUMAN_3
     set order to 2 // встать на индекс по 2-му случаю
     select TMPB
-    index on str(kod_human,7) to (cur_dir+"tmpb") for ishod == 89  // 2-ой лист учёта в двойном случае
+    index on str(kod_human,7) to (cur_dir + "tmpb") for ishod == 89  // 2-ой лист учёта в двойном случае
     go top
     do while !eof()
       select HUMAN_3
@@ -316,11 +320,11 @@ Function verify_OMS(arr_m,fl_view)
     set index to
     add_string("")
     add_string(center("Список листов учёта, которые не проверялись",80))
-    R_Use(dir_server+"str_komp",,"STR")
-    R_Use(dir_server+"komitet",,"KOM")
+    R_Use(dir_server + "str_komp",,"STR")
+    R_Use(dir_server + "komitet",,"KOM")
     select TMP_NO
     set relation to kod into HUMAN
-    index on str(tip,1)+str(komu,1)+str(str_crb,2)+upper(human->fio) to (cur_dir+"tmp_no")
+    index on str(tip,1)+str(komu,1)+str(str_crb,2)+upper(human->fio) to (cur_dir + "tmp_no")
     old_tip := old_komu := old_str_crb := -1
     go top
     do while !eof()

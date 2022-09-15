@@ -5,13 +5,13 @@
 
 ** согласно письму ТФОМС 09-30-276 от 29.08.22 года
 
-** 13.09.22 добавление или редактирование случая (листа учета)
+** 15.09.22 добавление или редактирование случая (листа учета)
 function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
   static SKOD_DIAG := '     ', st_N_DATA, st_K_DATA, ;
     st_vrach := 0, st_profil := 0, st_profil_k := 0, ;
-    st_rslt := 0, ; // динамическое наблюдение
+    st_rslt := 314, ; // динамическое наблюдение
     st_ishod := 304 // без перемен
 
   local bg := {|o, k| get_MKB10(o, k, .t.) }, ;
@@ -87,7 +87,8 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
     M1VRACH := st_vrach, MTAB_NOM := 0, m1prvs := 0, ; // код, таб.№ и спец-ть лечащего врача
     m1USL_OK := 3, mUSL_OK, ;             // амбулаторно
     m1PROFIL := st_profil, mPROFIL, ;
-    m1PROFIL_K := st_profil_k, mPROFIL_K
+    m1PROFIL_K := st_profil_k, mPROFIL_K, ;
+    m1IDSP   := 29                        // за посещение
 
   Private mm_profil := {{'педиатрия', 68}, ;
     {'гематология', 12}, ;
@@ -192,7 +193,7 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
     m1PROFIL_K := human_2->PROFIL_K
     mn_data    := human->N_DATA
     mk_data    := human->K_DATA
-    m1rslt     := human_->RSLT_NEW
+    // m1rslt     := human_->RSLT_NEW
     m1ishod    := human_->ISHOD_NEW
     mcena_1    := human->CENA_1
     //
@@ -274,7 +275,7 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
   // mUSL_OK   := inieditspr(A__MENUVERT, glob_V006, m1USL_OK)
   // mPROFIL   := inieditspr(A__MENUVERT, glob_V002, m1PROFIL)
   // mPROFIL_K := inieditspr(A__MENUVERT, getV020(),  m1PROFIL_K)
-  mrslt     := inieditspr(A__MENUVERT, glob_V009, m1rslt)
+  // mrslt     := inieditspr(A__MENUVERT, glob_V009, m1rslt)
   mishod    := inieditspr(A__MENUVERT, glob_V012, m1ishod)
   mvidpolis := inieditspr(A__MENUVERT, mm_vid_polis, m1vidpolis)
   motd      := inieditspr(A__POPUPMENU, dir_server + 'mo_otd',  m1otd)
@@ -357,15 +358,16 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
         valid func_valid_polis(m1vidpolis, mspolis, mnpolis)
     //
     ++j
+    //
+    //
+    @ ++j, 1 say '№ амб.карты (истории)' get much_doc picture '@!' when when_uch_doc
+    //
     @ ++j, 1 say 'Профиль' get mPROFIL ;
       reader {|x|menu_reader(x,mm_profil, A__MENUVERT, , ,.f.)} //; color colget_menu
     //
     @ ++j, 1 say 'Дата постановки на диспансерный учет' get mn_data valid {|g|f_k_data(g, 1)}
     // @ row(), col() + 1 say '-'   get mk_data valid {|g|f_k_data(g, 2)}
     // @ row(), col() + 3 get mvzros_reb when .f. color cDataCSay
-    //
-    //
-    @ ++j, 1 say '№ амб.карты (истории)' get much_doc picture '@!' when when_uch_doc
     //
     //
     ++j
@@ -508,6 +510,7 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
       human_->OKATO     := '' // это поле вернётся из ТФОМС в случае иногороднего
       human_->USL_OK    := m1USL_OK
       human_->PROFIL    := m1PROFIL
+      human_->IDSP      := m1IDSP   // 29
       human_->RSLT_NEW  := m1rslt
       human_->ISHOD_NEW := m1ishod
       human_->VRACH     := m1vrach
