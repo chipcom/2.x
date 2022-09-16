@@ -7,7 +7,7 @@
 Static sadiag1 := {}
 
   
-** 19.08.22 создание XML-файлов реестра
+** 16.09.22 создание XML-файлов реестра
 Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
   //
@@ -21,6 +21,7 @@ Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
   local aImpl
   local flLekPreparat
   local lReplaceDiagnose := .f.
+  local lTypeLUOnkoDisp := .f.  // флаг листа учета постановки на диспансерное наблюдение онкобольных
 
   //
   close databases
@@ -151,11 +152,11 @@ Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
   set relation to recno() into HUMAN_, to recno() into HUMAN_2, to kod_k into KART
   R_Use(exe_dir + "_mo_t2_v1", , "T21")
   index on shifr to (cur_dir + "tmp_t21")
-  use (cur_dir + "tmpb") new
+  use (cur_dir + 'tmpb') new
   if reg_sort == 1
-    index on upper(fio) to (cur_dir + "tmpb") for kod_tmp==_recno .and. plus
+    index on upper(fio) to (cur_dir + 'tmpb') for kod_tmp==_recno .and. plus
   else
-    index on str(pz, 2) + str(10000000-cena_1, 11, 2) to (cur_dir + "tmpb") for kod_tmp==_recno .and. plus
+    index on str(pz, 2) + str(10000000 - cena_1, 11, 2) to (cur_dir + 'tmpb') for kod_tmp==_recno .and. plus
   endif
   pkol := psumma := iusl := 0
   go top
@@ -164,6 +165,10 @@ Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
     @ maxrow(),1 say lstr(pkol) color cColorSt2Msg
     select HUMAN
     goto (tmpb->kod_human)
+
+    otd->(dbGoto(human->OTD))
+    lTypeLUOnkoDisp := (otd->tiplu == TIP_LU_ONKO_DISP)
+  
     pkol++ 
     psumma += human->cena_1
     select RHUM
@@ -478,6 +483,9 @@ Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
           if (s := get_IDPC_from_V025_by_number(human_->povod)) == ''
             s := '2.6'
           endif
+          if lTypeLUOnkoDisp
+            s := '1.3'
+          endif
           mo_add_xml_stroke(oSL,"P_CEL",s)
         endif
       endif
@@ -548,10 +556,14 @@ Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
           endif
         next
         if need_reestr_c_zab(human_->USL_OK,mdiagnoz[1]) .or. is_oncology_smp > 0
-          if human_->USL_OK == 3 .and. human_->povod == 4 // если P_CEL=1.3
-            mo_add_xml_stroke(oSL,"C_ZAB",'2') // При диспансерном наблюдении характер заболевания не может быть <Острое>
+          if lTypeLUOnkoDisp
+            mo_add_xml_stroke(oSL,"C_ZAB",'2') //
           else
-            mo_add_xml_stroke(oSL,"C_ZAB",'1') // Характер основного заболевания
+            if human_->USL_OK == 3 .and. human_->povod == 4 // если P_CEL=1.3
+              mo_add_xml_stroke(oSL,"C_ZAB",'2') // При диспансерном наблюдении характер заболевания не может быть <Острое>
+            else
+              mo_add_xml_stroke(oSL,"C_ZAB",'1') // Характер основного заболевания
+            endif
           endif
         endif
         if human_->USL_OK < 4
@@ -576,7 +588,10 @@ Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
               s := 6 // снят по другим причинам
             endif
           endif
-          mo_add_xml_stroke(oSL,"DN",lstr(s))
+          mo_add_xml_stroke(oSL, 'DN', lstr(s))
+        elseif lTypeLUOnkoDisp
+          s := 2 // взят
+          mo_add_xml_stroke(oSL, 'DN', lstr(s))
         endif
       else   // для реестров по диспансеризации
         for i := 2 to len(mdiagnoz)
@@ -728,7 +743,7 @@ Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
           endif
         next j
       endif
-      if is_oncology > 0 .or. is_oncology_smp > 0
+      if (is_oncology > 0 .or. is_oncology_smp > 0) .and. ! lTypeLUOnkoDisp
         // заполним сведения о консилиумах для XML-документа
         oCONS := oSL:Add( HXMLNode():New( "CONS" ) ) // консилиумов м.б.несколько (но у нас один)
         mo_add_xml_stroke(oCONS,"PR_CONS",lstr(onkco->PR_CONS)) // N019
@@ -736,7 +751,7 @@ Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
           mo_add_xml_stroke(oCONS,"DT_CONS",date2xml(onkco->DT_CONS))
         endif
       endif
-      if human_->USL_OK < 4 .and. is_oncology == 2
+      if human_->USL_OK < 4 .and. is_oncology == 2 .and. ! lTypeLUOnkoDisp
         // заполним сведения об онкологии для XML-документа
         oONK_SL := oSL:Add( HXMLNode():New( "ONK_SL" ) )
         mo_add_xml_stroke(oONK_SL,"DS1_T",lstr(onksl->DS1_T))
@@ -905,13 +920,13 @@ Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
             j := iif(human->RAB_NERAB==0, 21, 11)
           endif
           sCOMENTSL := lstr(j)
-        elseif between(human->ishod,301,302)
-          j := iif(between(m1mesto_prov,0,1), m1mesto_prov, 0)
+        elseif between(human->ishod, 301, 302)
+          j := iif(between(m1mesto_prov, 0, 1), m1mesto_prov, 0)
           sCOMENTSL := lstr(j)
         endif
       endif
-      if p_tip_reestr == 1 .and. !empty(sCOMENTSL)
-        mo_add_xml_stroke(oSL,"COMENTSL",sCOMENTSL)
+      if p_tip_reestr == 1 .and. !empty(sCOMENTSL) .and. ! lTypeLUOnkoDisp
+        mo_add_xml_stroke(oSL, 'COMENTSL', sCOMENTSL)
       endif
       if !is_zak_sl
         for j := 1 to len(a_usl)

@@ -5,7 +5,7 @@
 
 ** согласно письму ТФОМС 09-30-276 от 29.08.22 года
 
-** 15.09.22 добавление или редактирование случая (листа учета)
+** 16.09.22 добавление или редактирование случая (листа учета)
 function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -168,15 +168,6 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
     mUCH_DOC    := human->uch_doc
     m1VRACH     := human_->vrach
     MKOD_DIAG   := human->KOD_DIAG
-    // MKOD_DIAG0  := human_->KOD_DIAG0
-    // MKOD_DIAG2  := human->KOD_DIAG2
-    // MKOD_DIAG3  := human->KOD_DIAG3
-    // MKOD_DIAG4  := human->KOD_DIAG4
-    // MSOPUT_B1   := human->SOPUT_B1
-    // MSOPUT_B2   := human->SOPUT_B2
-    // MSOPUT_B3   := human->SOPUT_B3
-    // MSOPUT_B4   := human->SOPUT_B4
-    // MDIAG_PLUS  := human->DIAG_PLUS
     MPOLIS      := human->POLIS         // серия и номер страхового полиса
     m1VIDPOLIS  := human_->VPOLIS
     mSPOLIS     := human_->SPOLIS
@@ -236,6 +227,13 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
     hb_ADel(mm_profil, 1, .t.)
   endif
 
+  if m1PROFIL == 0
+    if vozrast < 18
+      m1PROFIL := 18  // детская онкология
+    else
+      m1PROFIL := 60  // онкология
+    endif
+  endif
   mPROFIL := inieditspr(A__MENUVERT, mm_profil, m1PROFIL)
 
   if !(left(msmo, 2) == '34') // не Волгоградская область
@@ -272,10 +270,6 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
   if empty(m1USL_OK)
     m1USL_OK := 3
   endif // на всякий случай
-  // mUSL_OK   := inieditspr(A__MENUVERT, glob_V006, m1USL_OK)
-  // mPROFIL   := inieditspr(A__MENUVERT, glob_V002, m1PROFIL)
-  // mPROFIL_K := inieditspr(A__MENUVERT, getV020(),  m1PROFIL_K)
-  // mrslt     := inieditspr(A__MENUVERT, glob_V009, m1rslt)
   mishod    := inieditspr(A__MENUVERT, glob_V012, m1ishod)
   mvidpolis := inieditspr(A__MENUVERT, mm_vid_polis, m1vidpolis)
   motd      := inieditspr(A__POPUPMENU, dir_server + 'mo_otd',  m1otd)
@@ -309,16 +303,11 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
   myclear(top2)
   @ top2 - 1,0 say padc(caption_window, 80) color "B/BG*"
   Private gl_area := {1, 0, maxrow() - 1, maxcol(), 0}
-  // Private gl_arr := {;  // для битовых полей
-  //   {"usluga", "N",10,0, ,, ,{|x|inieditspr(A__MENUBIT,mm_usluga,x)} };
-  //  }
   @ maxrow(), 0 say padc('<Esc> - выход;  <PgDn> - запись', maxcol() + 1) color color0
   mark_keys({'<F1>', '<Esc>', '<PgDn>'}, 'R/BG')
   setcolor(cDataCGet)
   make_diagP(1)  // сделать "шестизначные" диагнозы
   diag_screen(0)
-
-  // f_valid_usl_ok(, -1)
 
   Private rdiag := 1, rpp := 1
 
@@ -363,11 +352,9 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
     @ ++j, 1 say '№ амб.карты (истории)' get much_doc picture '@!' when when_uch_doc
     //
     @ ++j, 1 say 'Профиль' get mPROFIL ;
-      reader {|x|menu_reader(x,mm_profil, A__MENUVERT, , ,.f.)} //; color colget_menu
+      reader {|x|menu_reader(x, mm_profil, A__MENUVERT, , ,.f.)} //; color colget_menu
     //
     @ ++j, 1 say 'Дата постановки на диспансерный учет' get mn_data valid {|g|f_k_data(g, 1)}
-    // @ row(), col() + 1 say '-'   get mk_data valid {|g|f_k_data(g, 2)}
-    // @ row(), col() + 3 get mvzros_reb when .f. color cDataCSay
     //
     //
     ++j
@@ -482,14 +469,6 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
       human->MR_DOL     := MMR_DOL       // место работы или причина безработности
       human->RAB_NERAB  := M1RAB_NERAB   // 0-работающий, 1-неработающий
       human->KOD_DIAG   := MKOD_DIAG     // шифр 1-ой осн.болезни
-      // human->KOD_DIAG2  := MKOD_DIAG2    // шифр 2-ой осн.болезни
-      // human->KOD_DIAG3  := MKOD_DIAG3    // шифр 3-ой осн.болезни
-      // human->KOD_DIAG4  := MKOD_DIAG4    // шифр 4-ой осн.болезни
-      // human->SOPUT_B1   := MSOPUT_B1     // шифр 1-ой сопутствующей болезни
-      // human->SOPUT_B2   := MSOPUT_B2     // шифр 2-ой сопутствующей болезни
-      // human->SOPUT_B3   := MSOPUT_B3     // шифр 3-ой сопутствующей болезни
-      // human->SOPUT_B4   := MSOPUT_B4     // шифр 4-ой сопутствующей болезни
-      // human->diag_plus  := mdiag_plus    //
       human->KOMU       := M1KOMU        // от 0 до 5
       human_->SMO       := msmo
       human->STR_CRB    := m1str_crb
@@ -501,8 +480,6 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
       human->K_DATA     := MK_DATA       // дата окончания лечения
       human->CENA       := MCENA_1       // стоимость лечения
       human->CENA_1     := MCENA_1       // стоимость лечения
-      // human->OBRASHEN := iif(m1DS_ONK == 1, '1',  ' ')
-      // s := '' ; aeval(adiag_talon, {|x| s += str(x, 1) })
       human_->DISPANS   := '2000000000000000'  // поставлен на диспансерный учет
       human_->VPOLIS    := m1vidpolis
       human_->SPOLIS    := ltrim(mspolis)
@@ -536,7 +513,6 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
       endif
       human_2->PROFIL_K := m1PROFIL_K
       human_2->p_per  := iif(eq_any(m1USL_OK, 1, 2),  m1p_per, 0)
-
 
       use_base('human_u')
       select HU

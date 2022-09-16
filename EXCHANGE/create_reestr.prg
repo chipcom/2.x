@@ -167,7 +167,6 @@ Function create_reestr()
           Private kol_1r := 0, kol_2r := 0, p_tip_reestr := 1
           verify_OMS(arr_m, .f.)
           ClrLine(maxrow(), color0)
-// altd()
           if kol_1r == 0 .and. kol_2r == 0
             //
           elseif kol_1r > 0 .and. kol_2r == 0
