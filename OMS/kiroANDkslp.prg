@@ -135,7 +135,7 @@ function selectKSLP( lkslp, savedKSLP, dateBegin, dateEnd, DOB, mdiagnoz )
   Select(tmp_select)
   Return s
 
-***** 13.01.22 если надо, перезаписать значения КСЛП и КИРО в HUMAN_2
+** 13.01.22 если надо, перезаписать значения КСЛП и КИРО в HUMAN_2
 Function put_str_kslp_kiro(arr,fl)
   Local lpc1 := "", lpc2 := ""
 
@@ -173,7 +173,7 @@ Function put_str_kslp_kiro(arr,fl)
   endif
   return NIL
 
-***** 04.02.21
+** 04.02.21
 // возвращает сумму итогового КСЛП по маске КСЛП и дате случая
 function calcKSLP(cKSLP, dateSl)
   // cKSLP - строка выбранных КСЛП
@@ -192,7 +192,39 @@ function calcKSLP(cKSLP, dateSl)
   endif
   return summ
 
-***** 30.11.21 
+** 22.09.22
+function defenition_KIRO(lkiro, ldnej, lksg, lrslt, lis_err)
+  // lkiro - список возможных КИРО для КСГ
+  // ldnej - длительность случая в койко-днях
+  // lksg - шифр КСГ
+  // lrslt - результат обращения (справочник V009)
+  // lis_err - ошибка (какая-то)
+  local vkiro := 0
+
+  if ascan({102, 105, 107, 110, 202, 205, 207}, lrslt) > 0 // более 3-х дней, лечение прервано
+    if ascan(lkiro, 3) > 0
+      vkiro := 3
+    elseif ascan(lkiro, 4) > 0
+      vkiro := 4
+    elseif lis_err == 1 .and. ascan(lkiro, 6) > 0 // добавляем ещё несоблюдение схемы химиотерапии (КИРО=6)
+      vkiro := 6
+    endif
+  elseif ldnej < 4 // менее 4-х дней
+    if ascan(lkiro, 1) > 0
+      vkiro := 1
+    elseif ascan(lkiro, 2) > 0
+      vkiro := 2
+      if lksg == 'ds02.005' //; // Экстракорпоральное оплодотворение
+        vkiro := 0
+      endif
+    elseif lis_err == 1 .and. ascan(lkiro, 5) > 0 // добавляем ещё несоблюдение схемы химиотерапии (КИРО=5)
+      vkiro := 5
+    endif
+  endif
+
+  return vkiro
+
+** 30.11.21 
 Function f_cena_kiro(/*@*/_cena, lkiro, dateSl )
   // _cena - изменяемая цена
   // lkiro - уровень КИРО
@@ -212,7 +244,7 @@ Function f_cena_kiro(/*@*/_cena, lkiro, dateSl )
   _cena := round_5(_cena * _akiro[2], 0)  // округление до рублей с 2019 года
   return _akiro
 
-***** 08.02.22 определить коэф-т сложности лечения пациента и пересчитать цену
+** 08.02.22 определить коэф-т сложности лечения пациента и пересчитать цену
 Function f_cena_kslp(/*@*/_cena,_lshifr,_date_r,_n_data,_k_data,lkslp,arr_usl,lPROFIL_K,arr_diag,lpar_org,lad_cr)
   Static s_1_may := 0d20160430, s_18 := 0d20171231, s_19 := 0d20181231
   static s_20 := 0d20201231
@@ -461,7 +493,7 @@ Function f_cena_kslp(/*@*/_cena,_lshifr,_date_r,_n_data,_k_data,lkslp,arr_usl,lP
   endif
   return _akslp
   
-***** 23.01.19 вернуть итоговый КСЛП
+** 23.01.19 вернуть итоговый КСЛП
 Function ret_koef_kslp(akslp)
   Local k := 1
   if valtype(akslp) == "A" .and. len(akslp) >= 2
@@ -473,7 +505,7 @@ Function ret_koef_kslp(akslp)
   return k
   
   
-***** 08.02.22 вернуть итоговый КСЛП для 21 года
+** 08.02.22 вернуть итоговый КСЛП для 21 года
 Function ret_koef_kslp_21(akslp, nYear)
   Local k := 1  // КСЛП равен 1
 
@@ -502,7 +534,7 @@ Function ret_koef_kslp_21(akslp, nYear)
   endif
   return k
 
-***** 29.01.22 вернуть итоговый КСЛП для 21 года
+** 29.01.22 вернуть итоговый КСЛП для 21 года
 Function ret_koef_kslp_21_XML(akslp, tKSLP, nYear)
   Local k := 1  // КСЛП равен 1
   local iAKSLP
