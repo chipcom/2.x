@@ -192,35 +192,55 @@ function calcKSLP(cKSLP, dateSl)
   endif
   return summ
 
-** 22.09.22
-function defenition_KIRO(lkiro, ldnej, lksg, lrslt, lis_err)
+** 23.09.22
+function defenition_KIRO(lkiro, ldnej, lrslt, lis_err, lksg)
   // lkiro - список возможных КИРО для КСГ
   // ldnej - длительность случая в койко-днях
-  // lksg - шифр КСГ
   // lrslt - результат обращения (справочник V009)
   // lis_err - ошибка (какая-то)
+  // lksg - шифр КСГ
   local vkiro := 0
 
-  if ascan({102, 105, 107, 110, 202, 205, 207}, lrslt) > 0 // более 3-х дней, лечение прервано
-    if ascan(lkiro, 3) > 0
-      vkiro := 3
-    elseif ascan(lkiro, 4) > 0
-      vkiro := 4
-    elseif lis_err == 1 .and. ascan(lkiro, 6) > 0 // добавляем ещё несоблюдение схемы химиотерапии (КИРО=6)
-      vkiro := 6
-    endif
-  elseif ldnej < 4 // менее 4-х дней
+  if ldnej < 4  // длительность случая 3 койко-дня и менее
     if ascan(lkiro, 1) > 0
       vkiro := 1
     elseif ascan(lkiro, 2) > 0
       vkiro := 2
-      if lksg == 'ds02.005' //; // Экстракорпоральное оплодотворение
-        vkiro := 0
-      endif
     elseif lis_err == 1 .and. ascan(lkiro, 5) > 0 // добавляем ещё несоблюдение схемы химиотерапии (КИРО=5)
       vkiro := 5
     endif
+  else          // длительность случая 4 койко-дня и более
+    if ascan({102, 105, 107, 110, 202, 205, 207}, lrslt) > 0
+      if ascan(lkiro, 3) > 0
+        vkiro := 3
+      elseif ascan(lkiro, 4) > 0
+        vkiro := 4
+      elseif lis_err == 1 .and. ascan(lkiro, 6) > 0 // добавляем ещё несоблюдение схемы химиотерапии (КИРО=6)
+        vkiro := 6
+      endif
+    endif
   endif
+
+  // if ascan({102, 105, 107, 110, 202, 205, 207}, lrslt) > 0 // более 3-х дней, лечение прервано
+  //   if ascan(lkiro, 3) > 0
+  //     vkiro := 3
+  //   elseif ascan(lkiro, 4) > 0
+  //     vkiro := 4
+  //   elseif lis_err == 1 .and. ascan(lkiro, 6) > 0 // добавляем ещё несоблюдение схемы химиотерапии (КИРО=6)
+  //     vkiro := 6
+  //   endif
+  // elseif ldnej < 4 // менее 4-х дней
+  //   if ascan(lkiro, 1) > 0
+  //     vkiro := 1
+  //   elseif ascan(lkiro, 2) > 0
+  //     vkiro := 2
+  //     if lksg == 'ds02.005' //; // Экстракорпоральное оплодотворение
+  //       vkiro := 0
+  //     endif
+  //   elseif lis_err == 1 .and. ascan(lkiro, 5) > 0 // добавляем ещё несоблюдение схемы химиотерапии (КИРО=5)
+  //     vkiro := 5
+  //   endif
+  // endif
 
   return vkiro
 
