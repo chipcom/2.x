@@ -1,11 +1,11 @@
-#include "inkey.ch"
-#include "function.ch"
-#include "edit_spr.ch"
-#include "chip_mo.ch"
+#include 'inkey.ch'
+#include 'function.ch'
+#include 'edit_spr.ch'
+#include 'chip_mo.ch'
  
 
-***** 02.02.22 определение КСГ по остальным введённым полям ввода - 2019-22 год
-Function definition_KSG(par,k_data2)
+** 28.09.22 определение КСГ по остальным введённым полям ввода - 2019-22 год
+Function definition_KSG(par, k_data2)
   // файлы "human", "human_" и "human_2" открыты и стоят на нужной записи
   //       "human" открыт для записи суммы случая
   // выполнено use_base("human_u","HU") - для записи
@@ -67,8 +67,9 @@ Function definition_KSG(par,k_data2)
         lusl, susl, s_dializ := 0, ahu := {}, amohu := {},;
         date_usl := stod("20210101") // stod("20200101")
 
-    local iKSLP, newKSLP := '', tmSel
-    local humKSLP := ''
+  local iKSLP, newKSLP := '', tmSel
+  local humKSLP := ''
+  local vkiro := 0
 
   DEFAULT par TO 1, sp0 TO "", sp1 TO space(1), sp6 TO space(6), sp15 TO space(20)
   Private pole
@@ -872,7 +873,7 @@ Function definition_KSG(par,k_data2)
         endif
         if !empty(akslp)
         // 05.02.21
-        s += "  (КСЛП = "
+        s += '  (КСЛП = '
         for iKSLP := 1 to len(akslp) step 2
           if iKSLP != 1
             s += '+'
@@ -883,33 +884,34 @@ Function definition_KSG(par,k_data2)
         // if len(akslp) >= 4
         //   s += "+"+str(akslp[4],4,2)
         // endif
-        s += ", цена " + lstr(lcena, 11, 0) + "р.)"
+        s += ', цена ' + lstr(lcena, 11, 0) + 'р.)'
       endif
       if !empty(lkiro)
-        vkiro := 0
-        if ascan({102, 105, 107, 110, 202, 205, 207}, lrslt) > 0 // более 3-х дней, лечение прервано
-          if ascan(lkiro, 3) > 0
-            vkiro := 3
-          elseif ascan(lkiro, 4) > 0
-            vkiro := 4
-          elseif lis_err == 1 .and. ascan(lkiro, 6) > 0 // добавляем ещё несоблюдение схемы химиотерапии (КИРО=6)
-            vkiro := 6
-          endif
-        elseif ldnej < 4 // менее 4-х дней
-          if ascan(lkiro, 1) > 0
-            vkiro := 1
-          elseif ascan(lkiro, 2) > 0
-            vkiro := 2
-            if lksg == 'ds02.005' //; // Экстракорпоральное оплодотворение
-              vkiro := 0
-            endif
-          elseif lis_err == 1 .and. ascan(lkiro, 5) > 0 // добавляем ещё несоблюдение схемы химиотерапии (КИРО=5)
-            vkiro := 5
-          endif
-        endif
+        // if ascan({102, 105, 107, 110, 202, 205, 207}, lrslt) > 0 // более 3-х дней, лечение прервано
+        //   if ascan(lkiro, 3) > 0
+        //     vkiro := 3
+        //   elseif ascan(lkiro, 4) > 0
+        //     vkiro := 4
+        //   elseif lis_err == 1 .and. ascan(lkiro, 6) > 0 // добавляем ещё несоблюдение схемы химиотерапии (КИРО=6)
+        //     vkiro := 6
+        //   endif
+        // elseif ldnej < 4 // менее 4-х дней
+        //   if ascan(lkiro, 1) > 0
+        //     vkiro := 1
+        //   elseif ascan(lkiro, 2) > 0
+        //     vkiro := 2
+        //     if lksg == 'ds02.005' //; // Экстракорпоральное оплодотворение
+        //       vkiro := 0
+        //     endif
+        //   elseif lis_err == 1 .and. ascan(lkiro, 5) > 0 // добавляем ещё несоблюдение схемы химиотерапии (КИРО=5)
+        //     vkiro := 5
+        //   endif
+        // endif
+        vkiro := defenition_KIRO(lkiro, ldnej, lrslt, lis_err, lksg)
+
         if vkiro > 0
           akiro := f_cena_kiro(@lcena, vkiro, lk_data)
-          s += "  (КИРО = " + str(akiro[2], 4, 2) + ", цена " + lstr(lcena, 11, 0) + "р.)"
+          s += '  (КИРО = ' + str(akiro[2], 4, 2) + ', цена ' + lstr(lcena, 11, 0) + 'р.)'
         endif
       endif
       if !empty(s)
@@ -920,9 +922,8 @@ Function definition_KSG(par,k_data2)
     if lusl == 2 .and. s_dializ > 0
       return {{},{},"",0,{},{},s_dializ}
     else
-      aadd(arerr," РЕЗУЛЬТАТ: не получилось выбрать КСГ"+iif(fl_reabil,' для случая медицинской реабилитации',''))
+      aadd(arerr, ' РЕЗУЛЬТАТ: не получилось выбрать КСГ' + iif(fl_reabil, ' для случая медицинской реабилитации', ''))
     endif
   endif
   return { ars, arerr, alltrim(lksg), lcena, akslp, akiro, s_dializ }
   //        1     2        3            4      5      6        7
-  
