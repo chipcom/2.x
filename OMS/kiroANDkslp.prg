@@ -221,6 +221,7 @@ function defenition_KIRO(lkiro, ldnej, lrslt, lis_err, lksg)
     endif
   endif
 
+  // это старое
   // if ascan({102, 105, 107, 110, 202, 205, 207}, lrslt) > 0 // более 3-х дней, лечение прервано
   //   if ascan(lkiro, 3) > 0
   //     vkiro := 3

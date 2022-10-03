@@ -878,7 +878,7 @@ Function definition_KSG(par, k_data2)
           if iKSLP != 1
             s += ' + '
           endif
-          s += str(akslp[iKSLP+1],4,2)
+          s += str(akslp[iKSLP + 1 ], 4, 2)
         next
         // s += '  (КСЛП = ' +str(akslp[2],4,2)
         // if len(akslp) >= 4
@@ -887,26 +887,6 @@ Function definition_KSG(par, k_data2)
         s += ', цена ' + lstr(lcena, 11, 0) + 'р.)'
       endif
       if !empty(lkiro)
-        // if ascan({102, 105, 107, 110, 202, 205, 207}, lrslt) > 0 // более 3-х дней, лечение прервано
-        //   if ascan(lkiro, 3) > 0
-        //     vkiro := 3
-        //   elseif ascan(lkiro, 4) > 0
-        //     vkiro := 4
-        //   elseif lis_err == 1 .and. ascan(lkiro, 6) > 0 // добавляем ещё несоблюдение схемы химиотерапии (КИРО=6)
-        //     vkiro := 6
-        //   endif
-        // elseif ldnej < 4 // менее 4-х дней
-        //   if ascan(lkiro, 1) > 0
-        //     vkiro := 1
-        //   elseif ascan(lkiro, 2) > 0
-        //     vkiro := 2
-        //     if lksg == 'ds02.005' //; // Экстракорпоральное оплодотворение
-        //       vkiro := 0
-        //     endif
-        //   elseif lis_err == 1 .and. ascan(lkiro, 5) > 0 // добавляем ещё несоблюдение схемы химиотерапии (КИРО=5)
-        //     vkiro := 5
-        //   endif
-        // endif
         vkiro := defenition_KIRO(lkiro, ldnej, lrslt, lis_err, lksg)
 
         if vkiro > 0
