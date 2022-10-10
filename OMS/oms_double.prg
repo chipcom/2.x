@@ -1,10 +1,10 @@
-***** режимы ввода данных для задачи ОМС (продолжение) - mo_oms3.prg
-#include "inkey.ch"
-#include "function.ch"
-#include "edit_spr.ch"
-#include "chip_mo.ch"
+** режимы ввода данных для задачи ОМС (продолжение) - mo_oms3.prg
+#include 'inkey.ch'
+#include 'function.ch'
+#include 'edit_spr.ch'
+#include 'chip_mo.ch'
 
-***** 03.02.19 работа с двойными случаями
+** 10.10.22 работа с двойными случаями
 Function oms_double(k)
   Static sk := 1
   Local mas_pmt, mas_msg, mas_fun, j
@@ -12,15 +12,15 @@ Function oms_double(k)
   DEFAULT k TO 0
   do case
     case k == 0
-      mas_pmt := {"~Собрать двойной случай",;
-                "Список ~двойных случаев",;
-                "~Разделить двойной случай"}
-      mas_msg := {"Добавление двойного случая (составить из двух случаев один двойной)",;
-                "Просмотр списка двойных случаев",;
-                "Удаление двойного случая (снова разделить двойной случай на два отдельных)"}
-      mas_fun := {"oms_double(1)",;
-                "oms_double(2)",;
-                "oms_double(3)"}
+      mas_pmt := {'~Собрать двойной случай',;
+                'Список ~двойных случаев',;
+                '~Разделить двойной случай'}
+      mas_msg := {'Добавление двойного случая (составить из двух случаев один двойной)',;
+                'Просмотр списка двойных случаев',;
+                'Удаление двойного случая (снова разделить двойной случай на два отдельных)'}
+      mas_fun := {'oms_double(1)',;
+                'oms_double(2)',;
+                'oms_double(3)'}
       popup_prompt(T_ROW,T_COL+5,sk,mas_pmt,mas_msg,mas_fun)
     case k == 1
       create_double_sl()
@@ -34,34 +34,34 @@ Function oms_double(k)
   endif
   return NIL
 
-***** 11.03.21 склеить два случая
+** 10.10.22 склеить два случая
 Function create_double_sl()
   Local buf, str_sem, i, d, fl, lshifr, arr_m, mas_pmt, buf24, buf_scr, srec, old_yes_h_otd := yes_h_otd
   // local find_reserve_1 := find_reserve_2 := .f.  // если в случае присутствуют 
   local fl_reserve_1, fl_reserve_2  // если в случае присутствуют 
-                            // {"st36.009 - A16.20.078",
-                            // "st36.010 - A16.12.030",
-                            // "st36.011 - A16.10.021.001"}
+                            // {'st36.009 - A16.20.078',
+                            // 'st36.010 - A16.12.030',
+                            // 'st36.011 - A16.10.021.001'}
 
   fl_reserve_1 := fl_reserve_2 := .f.
 
-  if !myFileDeleted(cur_dir+"tmp_h"+sdbf)
+  if !myFileDeleted(cur_dir + 'tmp_h'+sdbf)
     return NIL
   endif
   buf := box_shadow(0,41,4,77,color13)
-  @ 1,42 say padc("Выберите первый случай",35) color color14
-  if (arr_m := year_month(T_ROW,T_COL+5,,3)) != NIL
+  @ 1,42 say padc('Выберите первый случай',35) color color14
+  if (arr_m := year_month(T_ROW,T_COL+5, ,3)) != NIL
     buf24 := save_maxrow()
     mywait()
-    dbcreate(cur_dir+"tmp_h",{{"kod","N",7,0}})
-    use (cur_dir+"tmp_h") new
-    R_Use(dir_server+"human_2",,"HUMAN_2")
-    R_Use(dir_server+"human_",,"HUMAN_")
-    R_Use(dir_server+"human",dir_server+"humand","HUMAN")
+    dbcreate(cur_dir + 'tmp_h',{{'kod', 'N',7,0}})
+    use (cur_dir + 'tmp_h') new
+    R_Use(dir_server + 'human_2', , 'HUMAN_2')
+    R_Use(dir_server + 'human_', , 'HUMAN_')
+    R_Use(dir_server + 'human', dir_server + 'humand', 'HUMAN')
     set relation to recno() into HUMAN_, to recno() into HUMAN_2
     d := addmonth(arr_m[5],-2)  // учесть предыдущий месяц
     dbseek(dtos(d),.t.)
-    index on upper(fio) to (cur_dir+"tmp_h2") ;
+    index on upper(fio) to (cur_dir + 'tmp_h2') ;
         while human->k_data <= arr_m[6] ;
         for tip_h == B_STANDART .and. schet < 1 .and. human_->reestr == 0 .and. human_->USL_OK == 1 ;
                                 .and. empty(human->ishod) .and. human_->profil != 158 .and. human_2->vmp == 0
@@ -81,26 +81,26 @@ Function create_double_sl()
     close databases
     rest_box(buf24)
     if i == 0
-      func_error(4,"В данный момент нет стационарных пациентов с датой окончания "+arr_m[4])
+      func_error(4, 'В данный момент нет стационарных пациентов с датой окончания '+arr_m[4])
     else
       Private mr1 := T_ROW, regim_vyb := 2
-      R_Use(dir_server+"mo_otd",,"OTD")
-      R_Use(dir_server+"human_2",,"HUMAN_2")
-      R_Use(dir_server+"human_",,"HUMAN_")
-      R_Use(dir_server+"human",,"HUMAN")
+      R_Use(dir_server + 'mo_otd', , 'OTD')
+      R_Use(dir_server + 'human_2', , 'HUMAN_2')
+      R_Use(dir_server + 'human_', , 'HUMAN_')
+      R_Use(dir_server + 'human', , 'HUMAN')
       set relation to recno() into HUMAN_, to recno() into HUMAN_2, to otd into OTD
-      use (cur_dir+"tmp_h") new
+      use (cur_dir + 'tmp_h') new
       set relation to kod into HUMAN
-      index on upper(human->fio) to (cur_dir+"tmp_h")
+      index on upper(human->fio) to (cur_dir + 'tmp_h')
       goto (srec)
       mkod := 0
       yes_h_otd := 2
       buf_scr := savescreen()
-      if Alpha_Browse(T_ROW,2,maxrow()-2,77,"f1ret_oms_human",color0,;
-                    'По дате окончания лечения "'+arr_m[4]+'"','B/BG',,.t.,,,"f2ret_oms_human",,;
-                    {'═','░','═',"N/BG,W+/N,B/BG,BG+/B,R/BG,W+/R"} )
+      if Alpha_Browse(T_ROW, 2, maxrow() - 2, 77, 'f1ret_oms_human', color0, ;
+                    'По дате окончания лечения "' + arr_m[4] + '"', 'B/BG', , .t., , , 'f2ret_oms_human', , ;
+                    {'═', '░', '═', 'N/BG,W+/N,B/BG,BG+/B,R/BG,W+/R'} )
         if (glob_perso := tmp_h->kod) == 0
-          func_error(4,"Не найдено нужных записей!")
+          func_error(4, 'Не найдено нужных записей!')
         else
           srec := tmp_h->(recno())
           mkod := glob_perso
@@ -112,13 +112,13 @@ Function create_double_sl()
           lcena := human->cena_1
           glob_k_fio := fio_plus_novor()
           glob_otd[1] := human->otd
-          glob_otd[2] := inieditspr(A__POPUPMENU, dir_server+"mo_otd", human->otd)
+          glob_otd[2] := inieditspr(A__POPUPMENU, dir_server + 'mo_otd', human->otd)
           glob_uch[1] := human->LPU
-          glob_uch[2] := inieditspr(A__POPUPMENU, dir_server+"mo_uch", human->LPU)
+          glob_uch[2] := inieditspr(A__POPUPMENU, dir_server + 'mo_uch', human->LPU)
           fl := .f.
-          use_base("lusl")
-          // R_Use(dir_server+"uslugi",,"USL")
-          // R_Use_base("human_u")
+          use_base('lusl')
+          // R_Use(dir_server + 'uslugi', , 'USL')
+          // R_Use_base('human_u')
           // set relation to u_kod into USL
           // find (str(glob_perso,7))
           // do while hu->kod == glob_perso .and. !eof()
@@ -128,7 +128,7 @@ Function create_double_sl()
           //   * реинфузия аутокрови (КСГ st36.009, выбирается по услуге A16.20.078)
           //   * баллонная внутриаортальная контрпульсация (КСГ st36.010, выбирается по услуге A16.12.030)
           //   * экстракорпоральная мембранная оксигенация (КСГ st36.011, выбирается по услуге A16.10.021.001)
-          //   if is_ksg(lshifr) .and. ascan({"st36.009","st36.010","st36.011"},alltrim(lshifr)) > 0
+          //   if is_ksg(lshifr) .and. ascan({'st36.009', 'st36.010', 'st36.011'},alltrim(lshifr)) > 0
           //     find_reserve_1 := .t.
           //     fl := .t.
           //     reserve_ln_data_1 := ln_data
@@ -141,11 +141,11 @@ Function create_double_sl()
           fl_reserve_1 := exist_reserve_KSG(glob_perso, 'HUMAN')
           if ! fl_reserve_1
             if lk_data == ln_data
-              func_error(4,"Дата начала не может равняться дате окончания лечения!")
+              func_error(4, 'Дата начала не может равняться дате окончания лечения!')
               mkod := 0
             endif
-          elseif left(ldiag,1) == "O" .and. (lk_data - ln_data < 6) .and. ! fl_reserve_1
-            func_error(4,"Дородовая госпитализация должна быть не менее 6 дней!")
+          elseif left(ldiag,1) == 'O' .and. (lk_data - ln_data < 6) .and. ! fl_reserve_1
+            func_error(4, 'Дородовая госпитализация должна быть не менее 6 дней!')
             mkod := 0
           endif
         endif
@@ -153,19 +153,19 @@ Function create_double_sl()
       restscreen(buf_scr)
       close databases
       if mkod > 0
-        str_sem := "Редактирование человека "+lstr(glob_perso)
+        str_sem := 'Редактирование человека '+lstr(glob_perso)
         if G_SLock(str_sem)
           @ 1,42 say padc(glob_k_fio,35) color color8
-          @ 2,42 say padc("1: с "+date_8(ln_data)+" по "+date_8(lk_data),35) color color8
-          @ 3,42 say padc("Выберите второй случай",35) color color14
-          use (cur_dir+"tmp_h") new
+          @ 2,42 say padc('1: с '+date_8(ln_data)+ ' по '+date_8(lk_data),35) color color8
+          @ 3,42 say padc('Выберите второй случай',35) color color14
+          use (cur_dir + 'tmp_h') new
           zap
-          R_Use(dir_server+"human_2",,"HUMAN_2")
-          R_Use(dir_server+"human_",,"HUMAN_")
-          R_Use(dir_server+"human",dir_server+"humand","HUMAN")
+          R_Use(dir_server + 'human_2', , 'HUMAN_2')
+          R_Use(dir_server + 'human_', , 'HUMAN_')
+          R_Use(dir_server + 'human', dir_server + 'humand', 'HUMAN')
           set relation to recno() into HUMAN_, to recno() into HUMAN_2
           dbseek(dtos(arr_m[5]),.t.)
-          index on upper(fio) to (cur_dir+"tmp_h2") ;
+          index on upper(fio) to (cur_dir + 'tmp_h2') ;
               while human->k_data <= AddMonth(arr_m[6], 2) ;  // 11.03.21
               for kod_k==glob_kartotek .and. kod!=glob_perso .and. schet<1 .and. ;
                   tip_h==B_STANDART .and. human_->reestr==0 .and. human_->USL_OK==1 .and. ;
@@ -182,34 +182,34 @@ Function create_double_sl()
           close databases
           rest_box(buf24)
           if i == 0
-            func_error(4,"В данный момент больше нет стационарных случаев по данному пациенту")
+            func_error(4, 'В данный момент больше нет стационарных случаев по данному пациенту')
           else
-            R_Use(dir_server+"mo_otd",,"OTD")
-            R_Use(dir_server+"human_2",,"HUMAN_2")
-            R_Use(dir_server+"human_",,"HUMAN_")
-            R_Use(dir_server+"human",,"HUMAN")
+            R_Use(dir_server + 'mo_otd', , 'OTD')
+            R_Use(dir_server + 'human_2', , 'HUMAN_2')
+            R_Use(dir_server + 'human_', , 'HUMAN_')
+            R_Use(dir_server + 'human', , 'HUMAN')
             set relation to recno() into HUMAN_, to recno() into HUMAN_2, to otd into OTD
-            use (cur_dir+"tmp_h") new
+            use (cur_dir + 'tmp_h') new
             set relation to kod into HUMAN
-            index on dtos(human->k_data) to (cur_dir+"tmp_h")
+            index on dtos(human->k_data) to (cur_dir + 'tmp_h')
             go top
             mkod := 0
             buf_scr := savescreen()
-            if Alpha_Browse(T_ROW,2,maxrow()-2,77,"f1ret_oms_human",color0,;
-                          'Второй случай по дате окончания лечения "'+arr_m[4]+'"','B/BG',,.t.,,,"f2ret_oms_human",,;
-                          {'═','░','═',"N/BG,W+/N,B/BG,BG+/B,R/BG,W+/R"} )
+            if Alpha_Browse(T_ROW, 2, maxrow() - 2, 77, 'f1ret_oms_human', color0, ;
+                          'Второй случай по дате окончания лечения "' + arr_m[4] + '"', 'B/BG', ,.t., , , 'f2ret_oms_human', , ;
+                          {'═', '░', '═', 'N/BG,W+/N,B/BG,BG+/B,R/BG,W+/R'} )
               if (glob_perso2 := tmp_h->kod) == 0
-                func_error(4,"Не найдено нужных записей!")
+                func_error(4, 'Не найдено нужных записей!')
               elseif !(ldiag == human->kod_diag)
-                func_error(4,"Основной диагноз в обоих случаях должен совпадать!")
+                func_error(4, 'Основной диагноз в обоих случаях должен совпадать!')
               elseif lprofil != human_->profil
-                func_error(4,"Профиль медицинской помощи в обоих случаях должен совпадать!")
+                func_error(4, 'Профиль медицинской помощи в обоих случаях должен совпадать!')
               // elseif (lk_data != human->n_data) .and. !find_reserve_1
-              //   func_error(4,"Дата начала 2-го случая должна быть равна дате окончания 1-го случая!")
+              //   func_error(4, 'Дата начала 2-го случая должна быть равна дате окончания 1-го случая!')
               else
                 fl_reserve_2 := exist_reserve_KSG(glob_perso2, 'HUMAN')
                 if (lk_data != human->n_data) .and. ! fl_reserve_1 .and. ! fl_reserve_2
-                  func_error(4,"Дата начала 2-го случая должна быть равна дате окончания 1-го случая!")
+                  func_error(4, 'Дата начала 2-го случая должна быть равна дате окончания 1-го случая!')
                 else
                   mkod := glob_perso2
                   ln_data2 := human->n_data
@@ -226,17 +226,17 @@ Function create_double_sl()
             restscreen(buf_scr)
             close databases
             if mkod > 0
-              str_sem2 := "Редактирование человека "+lstr(glob_perso2)
+              str_sem2 := 'Редактирование человека '+lstr(glob_perso2)
               if G_SLock(str_sem2)
-                @ 3,42 say padc("2: с "+date_8(ln_data2)+" по "+date_8(lk_data2),35) color color8
-                if f_Esc_Enter("создания двойного случая",.t.)
-                  mywait("Проверка (попытка пересчёта) цены КСГ первого случая.")
+                @ 3,42 say padc('2: с '+date_8(ln_data2)+ ' по '+date_8(lk_data2),35) color color8
+                if f_Esc_Enter('создания двойного случая',.t.)
+                  mywait('Проверка (попытка пересчёта) цены КСГ первого случая.')
                   recount_double_sl(glob_perso,lk_data2)
-                  mywait("Выполняется операция слияния двух листов учёта в двойной.")
-                  use_base("human")
+                  mywait('Выполняется операция слияния двух листов учёта в двойной.')
+                  use_base('human')
                   goto (glob_perso)
                   lcena := human->cena_1
-                  G_Use(dir_server+"human_3",{dir_server+"human_3",dir_server+"human_32"},"HUMAN_3")
+                  G_Use(dir_server + 'human_3',{dir_server + 'human_3', dir_server + 'human_32'}, 'HUMAN_3')
                   AddRec(7)
                   human_3->KOD       := glob_perso
                   human_3->KOD2      := glob_perso2
@@ -295,18 +295,18 @@ Function create_double_sl()
                   human_2->pn4 := glob_perso // ссылка на 1-й лист учёта
                   //
                   close databases
-                  stat_msg("Операция слияния завершена!") ; mybell(2,OK)
+                  stat_msg('Операция слияния завершена!') ; mybell(2,OK)
                   rest_box(buf24)
                 endif
                 G_SUnLock(str_sem2)
               else
-                func_error(4,"В данный момент с карточкой этого пациента работает другой пользователь.")
+                func_error(4, 'В данный момент с карточкой этого пациента работает другой пользователь.')
               endif
             endif
           endif
           G_SUnLock(str_sem)
         else
-          func_error(4,"В данный момент с карточкой этого пациента работает другой пользователь.")
+          func_error(4, 'В данный момент с карточкой этого пациента работает другой пользователь.')
         endif
       endif
     endif
@@ -316,66 +316,66 @@ Function create_double_sl()
   rest_box(buf)
   return NIL
 
-***** 24.09.19 Проверка (попытка пересчёта) цены КСГ первого случая
+** 10.10.22 Проверка (попытка пересчёта) цены КСГ первого случая
 Function recount_double_sl(mkod_human,k_data2)
   Local aksg, lcena, adbf := {;
-    {"KOD"      ,   "N",     7,     0},; // код больного
-    {"DATE_U"   ,   "C",     4,     0},; // дата оказания услуги
-    {"date_u2"  ,   "C",     4,     0},; // дата окончания оказания услуги
-    {"date_u1"  ,   "D",     8,     0},;
-    {"date_next",   "D",     8,     0},; // дата след.визита для дисп.наблюдения
-    {"shifr_u"  ,   "C",    20,     0},;
-    {"shifr1"   ,   "C",    20,     0},;
-    {"name_u"   ,   "C",    65,     0},;
-    {"U_KOD"    ,   "N",     6,     0},; // код услуги
-    {"U_CENA"   ,   "N",    10,     2},; // цена услуги
-    {"dom"      ,   "N",     2,     0},; // -1 - на дому
-    {"KOD_VR"   ,   "N",     4,     0},; // код врача
-    {"KOD_AS"   ,   "N",     4,     0},; // код ассистента
-    {"OTD"      ,   "N",     3,     0},; // код отделения
-    {"KOL_1"    ,   "N",     3,     0},; // оплачиваемое количество услуг
-    {"STOIM_1"  ,   "N",    10,     2},; // оплачиваемая стоимость услуги
-    {"ZF"       ,   "C",    30,     0},; // зубная формула или парные органы
-    {"PAR_ORG"  ,   "C",    40,     0},; // разрешённые парные органы
-    {"ID_U"     ,   "C",    36,     0},; // код записи об оказанной услуге;GUID оказанной услуги;создается при добавлении записи
-    {"PROFIL"   ,   "N",     3,     0},; // профиль;по справочнику V002
-    {"PRVS"     ,   "N",     9,     0},; // Специальность врача;по справочнику V004;
-    {"kod_diag" ,   "C",     6,     0},; // диагноз;перенести из основного диагноза
-    {"n_base"   ,   "N",     1,     0},; // номер справочника услуг 0-старый,1-новый
-    {"is_nul"   ,   "L",     1,     0},;
-    {"is_oms"   ,   "L",     1,     0},;
-    {"is_zf"    ,   "N",     1,     0},;
-    {"is_edit"  ,   "N",     2,     0},;
-    {"number"   ,   "N",     3,     0},;
-    {"rec_hu"   ,   "N",     8,     0}}
+    {'KOD'      ,   'N',     7,     0},; // код больного
+    {'DATE_U'   ,   'C',     4,     0},; // дата оказания услуги
+    {'date_u2'  ,   'C',     4,     0},; // дата окончания оказания услуги
+    {'date_u1'  ,   'D',     8,     0},;
+    {'date_next',   'D',     8,     0},; // дата след.визита для дисп.наблюдения
+    {'shifr_u'  ,   'C',    20,     0},;
+    {'shifr1'   ,   'C',    20,     0},;
+    {'name_u'   ,   'C',    65,     0},;
+    {'U_KOD'    ,   'N',     6,     0},; // код услуги
+    {'U_CENA'   ,   'N',    10,     2},; // цена услуги
+    {'dom'      ,   'N',     2,     0},; // -1 - на дому
+    {'KOD_VR'   ,   'N',     4,     0},; // код врача
+    {'KOD_AS'   ,   'N',     4,     0},; // код ассистента
+    {'OTD'      ,   'N',     3,     0},; // код отделения
+    {'KOL_1'    ,   'N',     3,     0},; // оплачиваемое количество услуг
+    {'STOIM_1'  ,   'N',    10,     2},; // оплачиваемая стоимость услуги
+    {'ZF'       ,   'C',    30,     0},; // зубная формула или парные органы
+    {'PAR_ORG'  ,   'C',    40,     0},; // разрешённые парные органы
+    {'ID_U'     ,   'C',    36,     0},; // код записи об оказанной услуге;GUID оказанной услуги;создается при добавлении записи
+    {'PROFIL'   ,   'N',     3,     0},; // профиль;по справочнику V002
+    {'PRVS'     ,   'N',     9,     0},; // Специальность врача;по справочнику V004;
+    {'kod_diag' ,   'C',     6,     0},; // диагноз;перенести из основного диагноза
+    {'n_base'   ,   'N',     1,     0},; // номер справочника услуг 0-старый,1-новый
+    {'is_nul'   ,   'L',     1,     0},;
+    {'is_oms'   ,   'L',     1,     0},;
+    {'is_zf'    ,   'N',     1,     0},;
+    {'is_edit'  ,   'N',     2,     0},;
+    {'number'   ,   'N',     3,     0},;
+    {'rec_hu'   ,   'N',     8,     0}}
 
-  use_base("lusl")
-  use_base("luslc")
-  use_base("luslf")
-  Use_base("mo_su")
+  use_base('lusl')
+  use_base('luslc')
+  use_base('luslf')
+  Use_base('mo_su')
   set order to 0
-  G_Use(dir_server+"uslugi",{dir_server+"uslugish",;
-                           dir_server+"uslugi"},"USL")
+  G_Use(dir_server + 'uslugi',{dir_server + 'uslugish',;
+                           dir_server + 'uslugi'}, 'USL')
   set order to 0
-  Use_base("mo_hu")
-  Use_base("human_u")
-  G_Use(dir_server+"human_2",,"HUMAN_2")
-  G_Use(dir_server+"human_",,"HUMAN_")
-  G_Use(dir_server+"human",{dir_server+"humank",;
-                          dir_server+"humankk",;
-                          dir_server+"humano"},"HUMAN")
+  Use_base('mo_hu')
+  Use_base('human_u')
+  G_Use(dir_server + 'human_2', , 'HUMAN_2')
+  G_Use(dir_server + 'human_', , 'HUMAN_')
+  G_Use(dir_server + 'human',{dir_server + 'humank',;
+                          dir_server + 'humankk',;
+                          dir_server + 'humano'}, 'HUMAN')
   set relation to recno() into HUMAN_, to recno() into HUMAN_2
   find (str(mkod_human,7))
   glob_kartotek := human->kod_k
   lcena := human->cena_1
   last_date := human->n_data
-  R_Use(dir_server+"mo_uch",,"UCH")
+  R_Use(dir_server + 'mo_uch', , 'UCH')
   uch->(dbGoto(human->LPU))
-  R_Use(dir_server+"mo_otd",,"OTD")
+  R_Use(dir_server + 'mo_otd', , 'OTD')
   otd->(dbGoto(human->OTD))
   f_put_glob_podr(human_->USL_OK,k_data2) // заполнить код подразделения
-  dbcreate(cur_dir+"tmp_usl_",adbf)
-  use (cur_dir+"tmp_usl_") new alias TMP
+  dbcreate(cur_dir + 'tmp_usl_',adbf)
+  use (cur_dir + 'tmp_usl_') new alias TMP
   select HUMAN
   set order to 1
   find (str(mkod_human,7))
@@ -484,96 +484,96 @@ Function recount_double_sl(mkod_human,k_data2)
   fl_found := (tmp->(lastrec()) > 0)
   is_1_vvod := (tmp->(lastrec()) == 0 .and. mem_ordu_1 == 1)
   if mem_ordusl == 1
-    index on dtos(date_u1)+fsort_usl(shifr_u) to (cur_dir+"tmp_usl_")
+    index on dtos(date_u1)+fsort_usl(shifr_u) to (cur_dir + 'tmp_usl_')
   else
-    index on fsort_usl(shifr_u)+dtos(date_u1) to (cur_dir+"tmp_usl_")
+    index on fsort_usl(shifr_u)+dtos(date_u1) to (cur_dir + 'tmp_usl_')
   endif
   //
   old_is_zf_stomat := is_zf_stomat
   select HU
-  set relation to  // "отвязываем" human_u_
+  set relation to  // 'отвязываем' human_u_
   select USL
   set order to 1
   is_zf_stomat := 0
-  R_Use(dir_server+"usl_otd",dir_server+"usl_otd","UO")
-  R_Use(dir_server+"mo_pers",dir_server+"mo_pers","PERSO")
+  R_Use(dir_server + 'usl_otd', dir_server + 'usl_otd', 'UO')
+  R_Use(dir_server + 'mo_pers', dir_server + 'mo_pers', 'PERSO')
   select TMP
   set relation to otd into OTD
   go top
   if rec_ksg > 0
     f_usl_definition_KSG(human->kod,k_data2)
   else
-    func_error(4,"В первом случае не обнаружена КСГ!")
+    func_error(4, 'В первом случае не обнаружена КСГ!')
   endif
   close databases
   is_zf_stomat := old_is_zf_stomat
   return NIL
 
-***** 25.02.19 просмотр двойных случаев
+** 10.10.22 просмотр двойных случаев
 Function view_double_sl()
   Local k, s, buf, arr := {}
 
   if (k := input_double_sl(1)) != NIL
     buf := savescreen()
-    G_Use(dir_server+"human_3",{dir_server+"human_3",dir_server+"human_32"},"HUMAN_3")
+    G_Use(dir_server + 'human_3',{dir_server + 'human_3', dir_server + 'human_32'}, 'HUMAN_3')
     find (str(k[1],7))
-    R_Use(dir_server+"mo_otd",,"OTD")
-    G_Use(dir_server+"human_2",,"HUMAN_2")
-    G_Use(dir_server+"human_",,"HUMAN_")
-    G_Use(dir_server+"human",,"HUMAN")
+    R_Use(dir_server + 'mo_otd', , 'OTD')
+    G_Use(dir_server + 'human_2', , 'HUMAN_2')
+    G_Use(dir_server + 'human_', , 'HUMAN_')
+    G_Use(dir_server + 'human', , 'HUMAN')
     set relation to recno() into HUMAN_, to recno() into HUMAN_2, to otd into OTD
     goto (k[1])
-    aadd(arr,"Двойной лист учёта по пациенту: "+alltrim(k[2]))
-    aadd(arr,"на сумму "+lstr(human_3->cena_1,11,2)+" руб.")
-    aadd(arr,"1-ый в отд. "+alltrim(otd->name)+" на сумму "+lstr(human->cena_1,11,2)+" руб.")
-    aadd(arr,"c "+date_8(human->n_data)+" по "+date_8(human->k_data)+iif(human_->ST_VERIFY == 5, "", " (с ошибкой)"))
+    aadd(arr, 'Двойной лист учёта по пациенту: '+alltrim(k[2]))
+    aadd(arr, 'на сумму '+lstr(human_3->cena_1,11,2)+ ' руб.')
+    aadd(arr, '1-ый в отд. '+alltrim(otd->name)+ ' на сумму '+lstr(human->cena_1,11,2)+ ' руб.')
+    aadd(arr, 'c '+date_8(human->n_data)+ ' по '+date_8(human->k_data)+iif(human_->ST_VERIFY == 5, '', ' (с ошибкой)'))
     fl := (human_->ST_VERIFY < 5)
     select HUMAN
     goto (human_3->kod2)
-    aadd(arr,"2-ой в отд. "+alltrim(otd->name)+" на сумму "+lstr(human->cena_1,11,2)+" руб.")
-    aadd(arr,"c "+date_8(human->n_data)+" по "+date_8(human->k_data)+iif(human_->ST_VERIFY == 5, "", " (с ошибкой)"))
+    aadd(arr, '2-ой в отд. '+alltrim(otd->name)+ ' на сумму '+lstr(human->cena_1,11,2)+ ' руб.')
+    aadd(arr, 'c '+date_8(human->n_data)+ ' по '+date_8(human->k_data)+iif(human_->ST_VERIFY == 5, '', ' (с ошибкой)'))
     if !fl
       fl := (human_->ST_VERIFY < 5)
     endif
     if fl
-      aadd(arr,"")
-      aadd(arr,"Расформируйте двойной лист учёта и отредактируйте оба листа учёта")
+      aadd(arr, '')
+      aadd(arr, 'Расформируйте двойной лист учёта и отредактируйте оба листа учёта')
     endif
     close databases
-    f_message(arr,,color8,color1)
+    f_message(arr, ,color8,color1)
     mybell(1) ; inkey(0)
     restscreen(buf)
   endif
   return NIL
 
-***** 05.02.19 снова разделить два случая
+** 10.10.22 снова разделить два случая
 Function delete_double_sl()
-  Local k, s, buf, arr := {}, str_sem := "Расформирование двойного листа учёта"
+  Local k, s, buf, arr := {}, str_sem := 'Расформирование двойного листа учёта'
 
   if (k := input_double_sl(2)) != NIL .and. G_SLock(str_sem)
     buf := savescreen()
-    G_Use(dir_server+"human_3",{dir_server+"human_3",dir_server+"human_32"},"HUMAN_3")
+    G_Use(dir_server + 'human_3',{dir_server + 'human_3', dir_server + 'human_32'}, 'HUMAN_3')
     find (str(k[1],7))
-    R_Use(dir_server+"mo_otd",,"OTD")
-    G_Use(dir_server+"human_2",,"HUMAN_2")
-    G_Use(dir_server+"human_",,"HUMAN_")
-    G_Use(dir_server+"human",,"HUMAN")
+    R_Use(dir_server + 'mo_otd', , 'OTD')
+    G_Use(dir_server + 'human_2', , 'HUMAN_2')
+    G_Use(dir_server + 'human_', , 'HUMAN_')
+    G_Use(dir_server + 'human', , 'HUMAN')
     set relation to recno() into HUMAN_, to recno() into HUMAN_2, to otd into OTD
     goto (k[1])
-    aadd(arr,"Расформировывается двойной лист учёта")
-    aadd(arr,"по пациенту: "+alltrim(k[2]))
-    aadd(arr,"на сумму "+lstr(human_3->cena_1,11,2)+" руб.")
-    aadd(arr,"После расформирования будут созданы два листа учёта:")
-    aadd(arr,"1-ый в отд. "+alltrim(otd->name)+" на сумму "+lstr(human->cena_1,11,2)+" руб.")
+    aadd(arr, 'Расформировывается двойной лист учёта')
+    aadd(arr, 'по пациенту: '+alltrim(k[2]))
+    aadd(arr, 'на сумму '+lstr(human_3->cena_1,11,2)+ ' руб.')
+    aadd(arr, 'После расформирования будут созданы два листа учёта:')
+    aadd(arr, '1-ый в отд. '+alltrim(otd->name)+ ' на сумму '+lstr(human->cena_1,11,2)+ ' руб.')
     select HUMAN
     goto (human_3->kod2)
-    aadd(arr,"2-ой в отд. "+alltrim(otd->name)+" на сумму "+lstr(human->cena_1,11,2)+" руб.")
-    f_message(arr,,cColorSt2Msg,cColorSt1Msg)
-    s := "Подтвердите расформирование двойного листа учёта"
+    aadd(arr, '2-ой в отд. '+alltrim(otd->name)+ ' на сумму '+lstr(human->cena_1,11,2)+ ' руб.')
+    f_message(arr, ,cColorSt2Msg,cColorSt1Msg)
+    s := 'Подтвердите расформирование двойного листа учёта'
     stat_msg(s) ; mybell(1)
-    if f_Esc_Enter("расформирования",.t.)
-      stat_msg(s+" ещё раз.") ; mybell(3)
-      if f_Esc_Enter("расформирования",.t.)
+    if f_Esc_Enter('расформирования',.t.)
+      stat_msg(s+ ' ещё раз.') ; mybell(3)
+      if f_Esc_Enter('расформирования',.t.)
         select HUMAN
         G_RLock(forever)
         human->ishod := 0 // это 2-ой л/у в двойном случае
@@ -588,7 +588,7 @@ Function delete_double_sl()
         select HUMAN_3
         DeleteRec()  // удаляем двойной случай
         close databases
-        stat_msg("Двойной лист учёта успешно расформирован.") ; mybell(5)
+        stat_msg('Двойной лист учёта успешно расформирован.') ; mybell(5)
       endif
     endif
     close databases
@@ -597,25 +597,25 @@ Function delete_double_sl()
   endif
   return NIL
 
-***** 25.02.19
+** 10.10.22
 Function input_double_sl(par)
   Static srec := 0
   Local buf, i, arr_m, buf24, blk, t_arr[BR_LEN], ret
 
-  if (arr_m := year_month(T_ROW,T_COL+5,,3)) != NIL
+  if (arr_m := year_month(T_ROW,T_COL+5, ,3)) != NIL
     buf24 := save_maxrow()
     mywait()
-    R_Use(dir_server+"human_3",dir_server+"human_32","HUMAN_3")
-    R_Use(dir_server+"human_",,"HUMAN_")
-    R_Use(dir_server+"human",dir_server+"humand","HUMAN")
+    R_Use(dir_server + 'human_3', dir_server + 'human_32', 'HUMAN_3')
+    R_Use(dir_server + 'human_', , 'HUMAN_')
+    R_Use(dir_server + 'human', dir_server + 'humand', 'HUMAN')
     set relation to kod into HUMAN_, to str(kod,7) into HUMAN_3
     dbseek(dtos(arr_m[5]),.t.)
-    index on upper(fio) to (cur_dir+"tmp_h2") ;
+    index on upper(fio) to (cur_dir + 'tmp_h2') ;
         while human->k_data <= arr_m[6] ;
         for ishod == 89 .and. schet < 1 .and. human_->reestr == 0
     go top
     if eof()
-      func_error(4,"Не найдено двойных случаев "+arr_m[4])
+      func_error(4, 'Не найдено двойных случаев '+arr_m[4])
     else
       if srec > 0
         Locate for kod == srec
@@ -628,17 +628,17 @@ Function input_double_sl(par)
       t_arr[BR_LEFT] := 2
       t_arr[BR_RIGHT] := 77
       t_arr[BR_COLOR] := color0
-      t_arr[BR_TITUL] := "Двойные случаи "+arr_m[4]
-      t_arr[BR_TITUL_COLOR] := "B/BG"
-      t_arr[BR_ARR_BROWSE] := {'═','░','═',"N/BG,W+/N,R/BG,W+/R",.f.}
+      t_arr[BR_TITUL] := 'Двойные случаи '+arr_m[4]
+      t_arr[BR_TITUL_COLOR] := 'B/BG'
+      t_arr[BR_ARR_BROWSE] := {'═','░','═', 'N/BG,W+/N,R/BG,W+/R',.f.}
       blk := {|| iif(f1_input_double_sl(), {1,2}, {3,4}) }
-      t_arr[BR_COLUMN] := {{ center("ФИО",42), {|| padr(human->fio,42) },blk },;
-                         { "  Сроки лечения",{|| date_8(human_3->N_DATA)+"-"+date_8(human_3->K_DATA) },blk },;
-                         { "   Сумма",{|| put_kop(human_3->CENA_1,11) },blk }}
-      t_arr[BR_STAT_MSG] := {|| status_key("^<Esc>^ - выход;  ^<Enter>^ - выбор двойного случая для "+iif(par==2,"расформирования","просмотра")) }
+      t_arr[BR_COLUMN] := {{ center('ФИО',42), {|| padr(human->fio,42) },blk },;
+                         { '  Сроки лечения',{|| date_8(human_3->N_DATA)+ '-'+date_8(human_3->K_DATA) },blk },;
+                         { '   Сумма',{|| put_kop(human_3->CENA_1,11) },blk }}
+      t_arr[BR_STAT_MSG] := {|| status_key('^<Esc>^ - выход;  ^<Enter>^ - выбор двойного случая для '+iif(par==2, 'расформирования', 'просмотра')) }
       t_arr[BR_ENTER] := {|| ret := {human_3->kod,human->fio} }
       edit_browse(t_arr)
-      if valtype(ret) == "A"
+      if valtype(ret) == 'A'
         srec := ret[1]
       endif
     endif
@@ -647,7 +647,7 @@ Function input_double_sl(par)
   endif
   return ret
 
-***** 25.02.19
+** 10.10.22
 Function f1_input_double_sl()
   Local fl, rec, rec3
 
@@ -663,7 +663,7 @@ Function f1_input_double_sl()
     goto (human_3->kod) // встать на 1-ый случай
     fl := (human_->ST_VERIFY == 5)
     select HUMAN
-    set index to (cur_dir+"tmp_h2")
+    set index to (cur_dir + 'tmp_h2')
     set relation to kod into HUMAN_, to str(kod,7) into HUMAN_3
     goto (rec)
   endif
