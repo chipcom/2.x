@@ -45,7 +45,7 @@ Function create_double_sl()
 
   fl_reserve_1 := fl_reserve_2 := .f.
 
-  if !myFileDeleted(cur_dir + 'tmp_h'+sdbf)
+  if !myFileDeleted(cur_dir + 'tmp_h' +sdbf)
     return NIL
   endif
   buf := box_shadow(0,41,4,77,color13)
@@ -81,7 +81,7 @@ Function create_double_sl()
     close databases
     rest_box(buf24)
     if i == 0
-      func_error(4, 'В данный момент нет стационарных пациентов с датой окончания '+arr_m[4])
+      func_error(4, 'В данный момент нет стационарных пациентов с датой окончания ' +arr_m[4])
     else
       Private mr1 := T_ROW, regim_vyb := 2
       R_Use(dir_server + 'mo_otd', , 'OTD')
@@ -153,10 +153,10 @@ Function create_double_sl()
       restscreen(buf_scr)
       close databases
       if mkod > 0
-        str_sem := 'Редактирование человека '+lstr(glob_perso)
+        str_sem := 'Редактирование человека ' +lstr(glob_perso)
         if G_SLock(str_sem)
           @ 1,42 say padc(glob_k_fio,35) color color8
-          @ 2,42 say padc('1: с '+date_8(ln_data)+ ' по '+date_8(lk_data),35) color color8
+          @ 2,42 say padc('1: с ' +date_8(ln_data)+ ' по ' +date_8(lk_data),35) color color8
           @ 3,42 say padc('Выберите второй случай',35) color color14
           use (cur_dir + 'tmp_h') new
           zap
@@ -226,9 +226,9 @@ Function create_double_sl()
             restscreen(buf_scr)
             close databases
             if mkod > 0
-              str_sem2 := 'Редактирование человека '+lstr(glob_perso2)
+              str_sem2 := 'Редактирование человека ' +lstr(glob_perso2)
               if G_SLock(str_sem2)
-                @ 3,42 say padc('2: с '+date_8(ln_data2)+ ' по '+date_8(lk_data2),35) color color8
+                @ 3,42 say padc('2: с ' +date_8(ln_data2)+ ' по ' +date_8(lk_data2),35) color color8
                 if f_Esc_Enter('создания двойного случая',.t.)
                   mywait('Проверка (попытка пересчёта) цены КСГ первого случая.')
                   recount_double_sl(glob_perso,lk_data2)
@@ -523,15 +523,15 @@ Function view_double_sl()
     G_Use(dir_server + 'human', , 'HUMAN')
     set relation to recno() into HUMAN_, to recno() into HUMAN_2, to otd into OTD
     goto (k[1])
-    aadd(arr, 'Двойной лист учёта по пациенту: '+alltrim(k[2]))
-    aadd(arr, 'на сумму '+lstr(human_3->cena_1,11,2)+ ' руб.')
-    aadd(arr, '1-ый в отд. '+alltrim(otd->name)+ ' на сумму '+lstr(human->cena_1,11,2)+ ' руб.')
-    aadd(arr, 'c '+date_8(human->n_data)+ ' по '+date_8(human->k_data)+iif(human_->ST_VERIFY == 5, '', ' (с ошибкой)'))
+    aadd(arr, 'Двойной лист учёта по пациенту: ' +alltrim(k[2]))
+    aadd(arr, 'на сумму ' +lstr(human_3->cena_1,11,2)+ ' руб.')
+    aadd(arr, '1-ый в отд. ' +alltrim(otd->name)+ ' на сумму ' +lstr(human->cena_1,11,2)+ ' руб.')
+    aadd(arr, 'c ' +date_8(human->n_data)+ ' по ' +date_8(human->k_data)+iif(human_->ST_VERIFY == 5, '', ' (с ошибкой)'))
     fl := (human_->ST_VERIFY < 5)
     select HUMAN
     goto (human_3->kod2)
-    aadd(arr, '2-ой в отд. '+alltrim(otd->name)+ ' на сумму '+lstr(human->cena_1,11,2)+ ' руб.')
-    aadd(arr, 'c '+date_8(human->n_data)+ ' по '+date_8(human->k_data)+iif(human_->ST_VERIFY == 5, '', ' (с ошибкой)'))
+    aadd(arr, '2-ой в отд. ' +alltrim(otd->name)+ ' на сумму ' +lstr(human->cena_1,11,2)+ ' руб.')
+    aadd(arr, 'c ' +date_8(human->n_data)+ ' по ' +date_8(human->k_data)+iif(human_->ST_VERIFY == 5, '', ' (с ошибкой)'))
     if !fl
       fl := (human_->ST_VERIFY < 5)
     endif
@@ -561,13 +561,13 @@ Function delete_double_sl()
     set relation to recno() into HUMAN_, to recno() into HUMAN_2, to otd into OTD
     goto (k[1])
     aadd(arr, 'Расформировывается двойной лист учёта')
-    aadd(arr, 'по пациенту: '+alltrim(k[2]))
-    aadd(arr, 'на сумму '+lstr(human_3->cena_1,11,2)+ ' руб.')
+    aadd(arr, 'по пациенту: ' +alltrim(k[2]))
+    aadd(arr, 'на сумму ' +lstr(human_3->cena_1,11,2)+ ' руб.')
     aadd(arr, 'После расформирования будут созданы два листа учёта:')
-    aadd(arr, '1-ый в отд. '+alltrim(otd->name)+ ' на сумму '+lstr(human->cena_1,11,2)+ ' руб.')
+    aadd(arr, '1-ый в отд. ' +alltrim(otd->name)+ ' на сумму ' +lstr(human->cena_1,11,2)+ ' руб.')
     select HUMAN
     goto (human_3->kod2)
-    aadd(arr, '2-ой в отд. '+alltrim(otd->name)+ ' на сумму '+lstr(human->cena_1,11,2)+ ' руб.')
+    aadd(arr, '2-ой в отд. ' +alltrim(otd->name)+ ' на сумму ' +lstr(human->cena_1,11,2)+ ' руб.')
     f_message(arr, ,cColorSt2Msg,cColorSt1Msg)
     s := 'Подтвердите расформирование двойного листа учёта'
     stat_msg(s) ; mybell(1)
@@ -615,7 +615,7 @@ Function input_double_sl(par)
         for ishod == 89 .and. schet < 1 .and. human_->reestr == 0
     go top
     if eof()
-      func_error(4, 'Не найдено двойных случаев '+arr_m[4])
+      func_error(4, 'Не найдено двойных случаев ' +arr_m[4])
     else
       if srec > 0
         Locate for kod == srec
@@ -628,14 +628,14 @@ Function input_double_sl(par)
       t_arr[BR_LEFT] := 2
       t_arr[BR_RIGHT] := 77
       t_arr[BR_COLOR] := color0
-      t_arr[BR_TITUL] := 'Двойные случаи '+arr_m[4]
+      t_arr[BR_TITUL] := 'Двойные случаи ' +arr_m[4]
       t_arr[BR_TITUL_COLOR] := 'B/BG'
       t_arr[BR_ARR_BROWSE] := {'═','░','═', 'N/BG,W+/N,R/BG,W+/R',.f.}
       blk := {|| iif(f1_input_double_sl(), {1,2}, {3,4}) }
       t_arr[BR_COLUMN] := {{ center('ФИО',42), {|| padr(human->fio,42) },blk },;
-                         { '  Сроки лечения',{|| date_8(human_3->N_DATA)+ '-'+date_8(human_3->K_DATA) },blk },;
+                         { '  Сроки лечения',{|| date_8(human_3->N_DATA)+ '-' +date_8(human_3->K_DATA) },blk },;
                          { '   Сумма',{|| put_kop(human_3->CENA_1,11) },blk }}
-      t_arr[BR_STAT_MSG] := {|| status_key('^<Esc>^ - выход;  ^<Enter>^ - выбор двойного случая для '+iif(par==2, 'расформирования', 'просмотра')) }
+      t_arr[BR_STAT_MSG] := {|| status_key('^<Esc>^ - выход;  ^<Enter>^ - выбор двойного случая для ' +iif(par==2, 'расформирования', 'просмотра')) }
       t_arr[BR_ENTER] := {|| ret := {human_3->kod,human->fio} }
       edit_browse(t_arr)
       if valtype(ret) == 'A'
