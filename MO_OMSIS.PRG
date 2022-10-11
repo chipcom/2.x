@@ -30,14 +30,14 @@ if pds==2 .and. !(arr_g[5]==bom(arr_g[5]) .and. arr_g[6]==eom(arr_g[6]))
   return func_error(4,"Запрашиваемый период должен быть кратен месяцу")
 endif
 mywait()
-if R_Use(dir_server+"human_",,"HUMAN_") .and. ;
-    R_Use(dir_server+"human",dir_server+"humans","HUMAN") .and. ;
-     R_Use(dir_server+"human_u",dir_server+"human_u","HU") .and. ;
-       R_Use(dir_server+"mo_otd",,"OTD") .and. ;
-        R_Use(dir_server+"slugba",dir_server+"slugba","SL") .and. ;
-         R_Use(dir_server+"uslugi",dir_server+"uslugi","USL") .and. ;
-          R_Use(dir_server+"schet_",,"SCHET_") .and. ;
-            R_Use(dir_server+"schet",dir_server+"schetd","SCHET")
+if R_Use(dir_server + "human_",,"HUMAN_") .and. ;
+    R_Use(dir_server + "human",dir_server + "humans","HUMAN") .and. ;
+     R_Use(dir_server + "human_u",dir_server + "human_u","HU") .and. ;
+       R_Use(dir_server + "mo_otd",,"OTD") .and. ;
+        R_Use(dir_server + "slugba",dir_server + "slugba","SL") .and. ;
+         R_Use(dir_server + "uslugi",dir_server + "uslugi","USL") .and. ;
+          R_Use(dir_server + "schet_",,"SCHET_") .and. ;
+            R_Use(dir_server + "schet",dir_server + "schetd","SCHET")
   Private atmp_os[8], arr_uch[8]
   afill(atmp_os,0) ; afill(arr_uch,0)
   if k3 > 2
@@ -74,30 +74,30 @@ if R_Use(dir_server+"human_",,"HUMAN_") .and. ;
     if k3 == 2  // с объединением по принадлежности
       index on schet_->smo+iif(empty(schet_->smo),str(komu,1)+str(str_crb,2),;
                                                   str(0,1)+str(0,2))+;
-                            pdate+fsort_schet(schet_->nschet,nomer_s) to (cur_dir+"tmp") ;
+                            pdate+fsort_schet(schet_->nschet,nomer_s) to (cur_dir + "tmp") ;
             while pdate <= arr_g[8]
     else
-      index on pdate+fsort_schet(schet_->nschet,nomer_s) to (cur_dir+"tmp") ;
+      index on pdate+fsort_schet(schet_->nschet,nomer_s) to (cur_dir + "tmp") ;
                                                       while pdate <= arr_g[8]
     endif
   elseif pds == 2
     if k3 == 2  // с объединением по принадлежности
       index on schet_->smo+iif(empty(schet_->smo),str(komu,1)+str(str_crb,2),;
                                                   str(0,1)+str(0,2))+;
-                            pdate+fsort_schet(schet_->nschet,nomer_s) to (cur_dir+"tmp") ;
+                            pdate+fsort_schet(schet_->nschet,nomer_s) to (cur_dir + "tmp") ;
             for between_otch_period(schet_->dschet,schet_->NYEAR,schet_->NMONTH,arr_g[5],arr_g[6])
     else
-      index on pdate+fsort_schet(schet_->nschet,nomer_s) to (cur_dir+"tmp") ;
+      index on pdate+fsort_schet(schet_->nschet,nomer_s) to (cur_dir + "tmp") ;
             for between_otch_period(schet_->dschet,schet_->NYEAR,schet_->NMONTH,arr_g[5],arr_g[6])
     endif
   else
     if k3 == 2  // с объединением по принадлежности
       index on schet_->smo+iif(empty(schet_->smo),str(komu,1)+str(str_crb,2),;
                                                   str(0,1)+str(0,2))+;
-                            pdate+fsort_schet(schet_->nschet,nomer_s) to (cur_dir+"tmp") ;
+                            pdate+fsort_schet(schet_->nschet,nomer_s) to (cur_dir + "tmp") ;
         for schet_->NREGISTR==0 .and. between(date_reg_schet(),arr_g[5],arr_g[6])
     else
-      index on pdate+fsort_schet(schet_->nschet,nomer_s) to (cur_dir+"tmp") ;
+      index on pdate+fsort_schet(schet_->nschet,nomer_s) to (cur_dir + "tmp") ;
         for schet_->NREGISTR==0 .and. between(date_reg_schet(),arr_g[5],arr_g[6])
     endif
   endif
@@ -309,11 +309,11 @@ return arr_title
 *****
 Static Function s33_statist(k3,k4)
 Local j, arr_os := {}
-dbcreate(cur_dir+"tmp_os", {{"kod","N",3,0},{"name","C",30,0},;
+dbcreate(cur_dir + "tmp_os", {{"kod","N",3,0},{"name","C",30,0},;
                     {"p3","N",17,2},{"p4","N",7,0},;
                     {"p5","N",17,2},{"p6","N",7,0}} )
-use (cur_dir+"tmp_os") new
-index on str(kod,3) to (cur_dir+"tmp_os")
+use (cur_dir + "tmp_os") new
+index on str(kod,3) to (cur_dir + "tmp_os")
 if k3 == 3  // С разбивкой по отделениям
   otd->( dbeval({|| aadd(arr_os, {kod,name}) }))
   asort(arr_os,,,{|x,y| x[2] < y[2] } )
@@ -436,19 +436,19 @@ Local buf := savescreen(), buf24 := save_maxrow(), i, j, arr_blk,;
 Private atmp_os[8], arr_uch[8]
 if input_schet(0)
   WaitStatus()
-  if R_Use(dir_server+"human_",,"HUMAN_") .and. ;
-      R_Use(dir_server+"human",dir_server+"humans","HUMAN") .and. ;
-       R_Use(dir_server+"human_u",dir_server+"human_u","HU") .and. ;
-        R_Use(dir_server+"mo_otd",,"OTD") .and. ;
-         R_Use(dir_server+"slugba",dir_server+"slugba","SL") .and. ;
-          R_Use(dir_server+"uslugi",dir_server+"uslugi","USL") .and. ;
-           R_Use(dir_server+"schet_",,"SCHET_") .and. ;
-            R_Use(dir_server+"schet",,"SCHET")
+  if R_Use(dir_server + "human_",,"HUMAN_") .and. ;
+      R_Use(dir_server + "human",dir_server + "humans","HUMAN") .and. ;
+       R_Use(dir_server + "human_u",dir_server + "human_u","HU") .and. ;
+        R_Use(dir_server + "mo_otd",,"OTD") .and. ;
+         R_Use(dir_server + "slugba",dir_server + "slugba","SL") .and. ;
+          R_Use(dir_server + "uslugi",dir_server + "uslugi","USL") .and. ;
+           R_Use(dir_server + "schet_",,"SCHET_") .and. ;
+            R_Use(dir_server + "schet",,"SCHET")
     set relation to recno() into SCHET_
     goto (glob_schet)
     if schet->lpu > 0
       glob_uch[1] := schet->lpu
-      glob_uch[2] := inieditspr(A__POPUPMENU,dir_server+"mo_uch",schet->lpu)
+      glob_uch[2] := inieditspr(A__POPUPMENU,dir_server + "mo_uch",schet->lpu)
     endif
     Private p_number := alltrim(schet_->nschet),;
             p_date := schet_->dschet,;
@@ -568,29 +568,29 @@ adbf := {{"KOMU"     ,   "N",     1,     0},; // от 1 до 5
          {"KOL_BOLN" ,   "N",     6,     0},;
          {"SUMMA"    ,   "N",    13,     2},;
          {"is","N",1,0}}
-dbcreate(cur_dir+"tmp_smo",adbf)
-use (cur_dir+"tmp_smo") new alias TMP
-index on smo to (cur_dir+"tmp_smo1")
-index on nkomu to (cur_dir+"tmp_smo2")
-set index to (cur_dir+"tmp_smo1"),(cur_dir+"tmp_smo2")
-R_Use(dir_server+"schet_",,"SCHET_")
-R_Use(dir_server+"schet",dir_server+"schetd","SCHET")
+dbcreate(cur_dir + "tmp_smo",adbf)
+use (cur_dir + "tmp_smo") new alias TMP
+index on smo to (cur_dir + "tmp_smo1")
+index on nkomu to (cur_dir + "tmp_smo2")
+set index to (cur_dir + "tmp_smo1"),(cur_dir + "tmp_smo2")
+R_Use(dir_server + "schet_",,"SCHET_")
+R_Use(dir_server + "schet",dir_server + "schetd","SCHET")
 set relation to recno() into SCHET_
 set filter to empty(schet_->IS_DOPLATA)
 if pds == 1
   dbseek(begin_date,.t.)
-  index on pdate to (cur_dir+"tmp_s") while pdate <= end_date
+  index on pdate to (cur_dir + "tmp_s") while pdate <= end_date
 elseif pds == 2
   if mdate_reg == NIL
-    index on pdate to (cur_dir+"tmp_s") ;
+    index on pdate to (cur_dir + "tmp_s") ;
           for between_otch_period(schet_->dschet,schet_->NYEAR,schet_->NMONTH,arr_m[5],arr_m[6])
   else
-    index on pdate to (cur_dir+"tmp_s") ;
+    index on pdate to (cur_dir + "tmp_s") ;
           for between_otch_period(schet_->dschet,schet_->NYEAR,schet_->NMONTH,arr_m[5],arr_m[6]) ;
                  .and. schet_->NREGISTR==0 .and. date_reg_schet() <= mdate_reg
   endif
 else
-  index on pdate to (cur_dir+"tmp_s") ;
+  index on pdate to (cur_dir + "tmp_s") ;
         for schet_->NREGISTR==0 .and. between(date_reg_schet(),arr_m[5],arr_m[6])
 endif
 go top
@@ -688,34 +688,34 @@ adbf := {{"tip","N",2,0},;
          {"kol","N",11,3},;
          {"uet","N",11,4},;
          {"sum","N",16,2}}
-dbcreate(cur_dir+"tmp",adbf)
-use (cur_dir+"tmp") new alias TMP
-index on str(tip,2)+shifr to (cur_dir+"tmp")
-use (cur_dir+"tmp_smo") index (cur_dir+"tmp_smo1") new alias TMP_SMO
-R_Use(dir_server+"uslugi",,"USL")
-R_Use(dir_server+"human_u",dir_server+"human_u","HU")
+dbcreate(cur_dir + "tmp",adbf)
+use (cur_dir + "tmp") new alias TMP
+index on str(tip,2)+shifr to (cur_dir + "tmp")
+use (cur_dir + "tmp_smo") index (cur_dir + "tmp_smo1") new alias TMP_SMO
+R_Use(dir_server + "uslugi",,"USL")
+R_Use(dir_server + "human_u",dir_server + "human_u","HU")
 set relation to u_kod into USL
-R_Use(dir_server+"human_",,"HUMAN_")
-R_Use(dir_server+"human",dir_server+"humans","HUMAN")
+R_Use(dir_server + "human_",,"HUMAN_")
+R_Use(dir_server + "human",dir_server + "humans","HUMAN")
 set relation to recno() into HUMAN_
-R_Use(dir_server+"schet_",,"SCHET_")
-R_Use(dir_server+"schet",dir_server+"schetd","SCHET")
+R_Use(dir_server + "schet_",,"SCHET_")
+R_Use(dir_server + "schet",dir_server + "schetd","SCHET")
 set relation to recno() into SCHET_
 set filter to empty(schet_->IS_DOPLATA) .and. !empty(val(schet_->smo))
 if pds == 1
   dbseek(begin_date,.t.)
-  index on pdate to (cur_dir+"tmp_s") while pdate <= end_date
+  index on pdate to (cur_dir + "tmp_s") while pdate <= end_date
 elseif pds == 2
   if mdate_reg == NIL
-    index on pdate to (cur_dir+"tmp_s") ;
+    index on pdate to (cur_dir + "tmp_s") ;
           for between_otch_period(schet_->dschet,schet_->NYEAR,schet_->NMONTH,arr_m[5],arr_m[6])
   else
-    index on pdate to (cur_dir+"tmp_s") ;
+    index on pdate to (cur_dir + "tmp_s") ;
           for between_otch_period(schet_->dschet,schet_->NYEAR,schet_->NMONTH,arr_m[5],arr_m[6]) ;
                  .and. schet_->NREGISTR==0 .and. date_reg_schet() <= mdate_reg
   endif
 else
-  index on pdate to (cur_dir+"tmp_s") ;
+  index on pdate to (cur_dir + "tmp_s") ;
         for schet_->NREGISTR==0 .and. between(date_reg_schet(),arr_m[5],arr_m[6])
 endif
 as := array(10,3) ; afillall(as,0)
@@ -948,7 +948,7 @@ add_string(replicate("─",sh))
 add_string("")
 add_string(center("Расшифровка по услугам",sh))
 select TMP
-index on str(tip,2)+fsort_usl(shifr) to (cur_dir+"tmp")
+index on str(tip,2)+fsort_usl(shifr) to (cur_dir + "tmp")
 for i := 1 to 11
   if i < 9 .or. i == 11
     ta := arr_title
@@ -1121,12 +1121,12 @@ Local fl_exit := .f., sh, HH := 60, reg_print, n_file := "_uz_spec"+stxt,;
 WaitStatus("<Esc> - прервать поиск") ; mark_keys({"<Esc>"})
 if m1usl == 1
   abitusl := {}
-  R_Use(dir_server+"uslugi",,"USL")
-  R_Use(dir_server+"human_u",dir_server+"human_u","HU")
+  R_Use(dir_server + "uslugi",,"USL")
+  R_Use(dir_server + "human_u",dir_server + "human_u","HU")
   set relation to u_kod into USL
-  R_Use(dir_server+"human",dir_server+"humans","HUMAN")
-  R_Use(dir_server+"schet_",,"SCHET_")
-  R_Use(dir_server+"schet",dir_server+"schetd","SCHET")
+  R_Use(dir_server + "human",dir_server + "humans","HUMAN")
+  R_Use(dir_server + "schet_",,"SCHET_")
+  R_Use(dir_server + "schet",dir_server + "schetd","SCHET")
   set relation to recno() into SCHET_
   set filter to empty(schet_->IS_DOPLATA)
   dbseek(begin_date,.t.)
@@ -1179,19 +1179,19 @@ aadd(adbf, {"usl_shifr","C",10,0})
 aadd(adbf, {"usl_name","C",60,0})
 aadd(adbf, {"kol_usl","N",12,5})
 aadd(adbf, {"summa","N",15,2})
-dbcreate(cur_dir+"tmp",adbf)
-use (cur_dir+"tmp") new
+dbcreate(cur_dir + "tmp",adbf)
+use (cur_dir + "tmp") new
 if m1perso < 3
-  index on str(kod_perso,4)+usl_shifr to (cur_dir+"tmp")
+  index on str(kod_perso,4)+usl_shifr to (cur_dir + "tmp")
 else
-  index on usl_shifr+str(kod_perso,4) to (cur_dir+"tmp")
+  index on usl_shifr+str(kod_perso,4) to (cur_dir + "tmp")
 endif
-R_Use(dir_server+"uslugi",,"USL")
-R_Use(dir_server+"human_u",dir_server+"human_u","HU")
+R_Use(dir_server + "uslugi",,"USL")
+R_Use(dir_server + "human_u",dir_server + "human_u","HU")
 set relation to u_kod into USL
-R_Use(dir_server+"human",dir_server+"humans","HUMAN")
-R_Use(dir_server+"schet_",,"SCHET_")
-R_Use(dir_server+"schet",dir_server+"schetd","SCHET")
+R_Use(dir_server + "human",dir_server + "humans","HUMAN")
+R_Use(dir_server + "schet_",,"SCHET_")
+R_Use(dir_server + "schet",dir_server + "schetd","SCHET")
 set relation to recno() into SCHET_
 set filter to empty(schet_->IS_DOPLATA)
 dbseek(begin_date,.t.)
@@ -1289,7 +1289,7 @@ if !fl_exit
       "─────┬"+replicate("─",sh_perso),;
       "Таб.№│"+padr(" ФИО сотрудника",sh_perso),;
       "─────┴"+replicate("─",sh_perso)}
-    R_Use(dir_server+"mo_pers",,"P2")
+    R_Use(dir_server + "mo_pers",,"P2")
     tmp->(dbeval({|| p2->(dbgoto(tmp->kod_perso)), ;
                      tmp->tab_nomer:=p2->tab_nom, ;
                      tmp->fio_perso:=p2->fio }))
@@ -1299,7 +1299,7 @@ if !fl_exit
   arr_title := array(3) ; afill(arr_title,"")
   select TMP
   if m1perso < 3
-    index on upper(fio_perso)+usl_shifr to (cur_dir+"tmp")
+    index on upper(fio_perso)+usl_shifr to (cur_dir + "tmp")
     arr_title[1] += titl_perso[1]
     arr_title[2] += titl_perso[2]
     arr_title[3] += titl_perso[3]
@@ -1379,11 +1379,11 @@ if !fl_exit
   viewtext(n_file,,,,(sh>80),,,reg_print)
   if mkol > 0
     ClrLine(24,color0)
-    d_file := cur_dir+"UZ_SPEC"+sdbf
+    d_file := cur_dir + "UZ_SPEC"+sdbf
     if !del_dbf_file(d_file)
       return NIL
     endif
-    use (cur_dir+"tmp") new
+    use (cur_dir + "tmp") new
     __dbCopy(d_file,arr_fields,,,,,.F.,) // copy fields kod_perso,fio_perso,kol_usl to (d_file)
     close databases
     n_message({"Создан файл для загрузки в Excel: "+d_file},,cColorStMsg,cColorStMsg,,,cColorSt2Msg)
@@ -1405,7 +1405,7 @@ add_string(center("на оплату медицинской помощи за счет средств Программы",sh))
 add_string(center("модернизации здравоохранения Волгоградской области на 2011-2012 годы",sh))
 add_string(center("в части повышения доступности амбулаторной медицинской помощи",sh))
 add_string("")
-R_Use(dir_server+"organiz",,"ORG")
+R_Use(dir_server + "organiz",,"ORG")
 add_string("Поставщик:       "+alltrim(org->name))
 add_string("Адрес:           "+org->adres)
 add_string("Расчетный счет:  "+alltrim(org->r_schet)+" "+alltrim(org->bank))
@@ -1575,10 +1575,10 @@ if is_talon
   is_kategor2 := !empty(stm_kategor2)
 endif
 //
-R_Use(dir_server+"mo_otd",,"OTD")
+R_Use(dir_server + "mo_otd",,"OTD")
 dbeval({|| aadd(pr_arr,{otd->(recno()),otd->name,otd->kod_lpu,""}) },;
        {|| f_is_uch(st_a_uch,otd->kod_lpu) .and. between_date(otd->dbegin,otd->dend,sys_date)} )
-R_Use(dir_server+"mo_uch",,"UCH")
+R_Use(dir_server + "mo_uch",,"UCH")
 aeval(pr_arr, {|x,i| dbGoto(x[3]), pr_arr[i,4] := uch->name } )
 //
 asort(pr_arr,,,{|x,y| iif(x[3] == y[3], upper(x[2]) < upper(y[2]), upper(x[4]) < upper(y[4])) } )
@@ -1590,24 +1590,24 @@ lvid_doc := setbit(lvid_doc,5)
 //
 Private pdate_lech, pdate_schet, pdate_usl, pdate_vvod, mstr_crb := 0, mstr_crbM := {}, mslugba
 //
-dbcreate(cur_dir+"tmp", {;
+dbcreate(cur_dir + "tmp", {;
      {"U_KOD"  ,    "N",      4,      0},;  // код услуги
      {"U_SHIFR",    "C",     10,      0},;  // шифр услуги
      {"U_NAME",     "C",     65,      0};   // наименование услуги
   })
-use (cur_dir+"tmp")
-index on str(u_kod,4) to (cur_dir+"tmpk")
-index on fsort_usl(u_shifr) to (cur_dir+"tmpn")
+use (cur_dir + "tmp")
+index on str(u_kod,4) to (cur_dir + "tmpk")
+index on fsort_usl(u_shifr) to (cur_dir + "tmpn")
 tmp->(dbCloseArea())
 //
-dbcreate(cur_dir+"tmpF", {;
+dbcreate(cur_dir + "tmpF", {;
      {"U_KOD"  ,    "N",      6,      0},;  // код услуги
      {"U_SHIFR",    "C",     20,      0},;  // шифр услуги
      {"U_NAME",     "C",    255,      0};   // наименование услуги
   })
-use (cur_dir+"tmpF")
-index on str(u_kod,6) to (cur_dir+"tmpFk")
-index on fsort_usl(u_shifr) to (cur_dir+"tmpFn")
+use (cur_dir + "tmpF")
+index on str(u_kod,6) to (cur_dir + "tmpFk")
+index on fsort_usl(u_shifr) to (cur_dir + "tmpFn")
 tmpF->(dbCloseArea())
 //
 aadd(mm_tmp, {"date_lech","N",4,0,NIL,;
@@ -1998,7 +1998,7 @@ aadd(mm_tmp, {"vid_doc","N",5,0,NIL,;
 delete file (tmp_file)
 init_base(tmp_file,,mm_tmp,0)
 //
-R_Use(dir_server+"mo_pers",dir_server+"mo_pers","PERSO")
+R_Use(dir_server + "mo_pers",dir_server + "mo_pers","PERSO")
 k := f_edit_spr(A__APPEND,mm_tmp,"множественному запросу",;
                 "e_use(cur_dir+'tmp_mn_p')",0,1,,,,,"write_mn_p")
 if k > 0
@@ -2015,7 +2015,7 @@ if k > 0
     mn->zav_lech := yes_vypisan + mn->zav_lech - 1
   endif
   // заменить таб.номер на код
-  R_Use(dir_server+"mo_pers",dir_server+"mo_pers","PERSO")
+  R_Use(dir_server + "mo_pers",dir_server + "mo_pers","PERSO")
   if mn->vrach1 > 0
     find (str(mn->vrach1,5))
     if found()
@@ -2111,7 +2111,7 @@ if k > 0
   endif
   if mn->uslugi > 0
     fl_rak_usl := .f.
-    use (cur_dir+"tmp") index (cur_dir+"tmpn") new
+    use (cur_dir + "tmp") index (cur_dir + "tmpn") new
     go top
     dbeval({|| aadd(arr_usl, {tmp->u_kod,tmp->u_shifr,tmp->u_name,0,0,0}),;
                iif(left(tmp->u_shifr,3)=="71.", fl_rak_usl := .t., );
@@ -2122,7 +2122,7 @@ if k > 0
     endif
   endif
   if mn->uslugiF > 0
-    use (cur_dir+"tmpF") index (cur_dir+"tmpFn") new
+    use (cur_dir + "tmpF") index (cur_dir + "tmpFn") new
     go top
     dbeval({|| aadd(arr_uslF, {tmpf->u_kod,tmpf->u_shifr,tmpf->u_name,0,0,0});
            })
@@ -2134,31 +2134,31 @@ if k > 0
   flag_huF := (mn->otd_usl > 0 .or. mn->vr1 > 0 .or. mn->as1 > 0 .or. mn->vras1 > 0 .or. ;
                mn->uslugiF > 0 .or. mn->dom > 0 .or. ;
                mn->kol_pos == 2 .or. mn->date_usl > 0 .or. mn->profil_u > 0)
-  dbcreate(cur_dir+"tmp",{{"kod",      "N", 7,0},;
+  dbcreate(cur_dir + "tmp",{{"kod",      "N", 7,0},;
                           {"kod_k",    "N", 7,0},;
                           {"stoim",    "N",10,2},;
                           {"rak_p",    "N", 3,0},;
                           {"rak_s",    "N",10,2}})
-  use (cur_dir+"tmp") new
-  dbcreate(cur_dir+"tmp_k",{{"kod_k","N",7,0},;
+  use (cur_dir + "tmp") new
+  dbcreate(cur_dir + "tmp_k",{{"kod_k","N",7,0},;
                             {"kol",  "N",6,0}})
-  use (cur_dir+"tmp_k") new
-  index on str(kod_k,7) to (cur_dir+"tmp_k")
+  use (cur_dir + "tmp_k") new
+  index on str(kod_k,7) to (cur_dir + "tmp_k")
   if mn->kol_pos == 2
     Private kol_pos_amb := 0, pol_pos_stom1 := 0, pol_pos_stom2 := 0, pol_pos_stom3 := 0
-    dbcreate(cur_dir+"tmp_kp",{{"kod_k","N",7,0},;
+    dbcreate(cur_dir + "tmp_kp",{{"kod_k","N",7,0},;
                                {"data", "C",4,0}})
-    use (cur_dir+"tmp_kp") new
-    index on str(kod_k,7)+data to (cur_dir+"tmp_kp")
+    use (cur_dir + "tmp_kp") new
+    index on str(kod_k,7)+data to (cur_dir + "tmp_kp")
   endif
   f1_diag_statist_bukva()
   fl_exit := .f.
   if p_regim == 3  // по дате оказания усуги
-    dbcreate(cur_dir+"tmp_hum",{{"kod","N",7,0}})
-    use (cur_dir+"tmp_hum") new
-    R_Use(dir_server+"human_u",dir_server+"human_ud","HU")
+    dbcreate(cur_dir + "tmp_hum",{{"kod","N",7,0}})
+    use (cur_dir + "tmp_hum") new
+    R_Use(dir_server + "human_u",dir_server + "human_ud","HU")
     find (pdate_usl[7])
-    index on kod to (cur_dir+"tmp_hu") while date_u <= pdate_usl[8] UNIQUE
+    index on kod to (cur_dir + "tmp_hu") while date_u <= pdate_usl[8] UNIQUE
     go top
     do while !eof()
       select TMP_HUM
@@ -2175,39 +2175,39 @@ if k > 0
   endif
   Status_Key("^<Esc>^ - прервать поиск")
   if isbit(mn->vid_doc,6) .or. mn->rak > 0
-    R_Use(dir_server+"mo_raksh",,"RAKSH")
-    index on str(kod_h,7) to (cur_dir+"tmp_raksh")
+    R_Use(dir_server + "mo_raksh",,"RAKSH")
+    index on str(kod_h,7) to (cur_dir + "tmp_raksh")
   endif
   use_base("lusl")
   use_base("luslc")
   use_base("luslf")
-  R_Use(dir_server+"mo_su",,"MOSU")
-  R_Use(dir_server+"mo_hu",dir_server+"mo_hu","MOHU")
-  R_Use(dir_server+"uslugi",,"USL")
-  R_Use(dir_server+"human_u_",,"HU_")
-  R_Use(dir_server+"human_u",dir_server+"human_u","HU")
+  R_Use(dir_server + "mo_su",,"MOSU")
+  R_Use(dir_server + "mo_hu",dir_server + "mo_hu","MOHU")
+  R_Use(dir_server + "uslugi",,"USL")
+  R_Use(dir_server + "human_u_",,"HU_")
+  R_Use(dir_server + "human_u",dir_server + "human_u","HU")
   set relation to recno() into HU_, to u_kod into USL
   //
-  R_Use(dir_server+"schet_",,"SCHET_")
-  R_Use(dir_server+"schet",,"SCHET")
+  R_Use(dir_server + "schet_",,"SCHET_")
+  R_Use(dir_server + "schet",,"SCHET")
   set relation to recno() into SCHET_
   //
-  R_Use(dir_server+"kartote2",,"KART2")
-  R_Use(dir_server+"kartote_",,"KART_")
-  R_Use(dir_server+"kartotek",,"KART")
+  R_Use(dir_server + "kartote2",,"KART2")
+  R_Use(dir_server + "kartote_",,"KART_")
+  R_Use(dir_server + "kartotek",,"KART")
   set relation to recno() into KART_, recno() into KART2
   //
-  R_Use(dir_server+"human_3",{dir_server+"human_3",dir_server+"human_32"},"HUMAN_3")
-  R_Use(dir_server+"human_",,"HUMAN_")
-  R_Use(dir_server+"human_2",,"HUMAN_2")
-  R_Use(dir_server+"human",,"HUMAN")
+  R_Use(dir_server + "human_3",{dir_server + "human_3",dir_server + "human_32"},"HUMAN_3")
+  R_Use(dir_server + "human_",,"HUMAN_")
+  R_Use(dir_server + "human_2",,"HUMAN_2")
+  R_Use(dir_server + "human",,"HUMAN")
   set relation to recno() into HUMAN_, to recno() into HUMAN_2
   //
   Private c_view := 0, c_found := 0
   do case
     case p_regim == 1  // по дате окончания лечения
       select HUMAN
-      set index to (dir_server+"humand")
+      set index to (dir_server + "humand")
       dbseek(dtos(pdate_lech[5]),.t.)
       do while human->k_data <= pdate_lech[6] .and. !eof()
         if inkey() == K_ESC
@@ -2222,9 +2222,9 @@ if k > 0
       enddo
     case p_regim == 2  // по дате выписки счета
       select HUMAN
-      set index to (dir_server+"humans")
+      set index to (dir_server + "humans")
       select SCHET
-      set index to (dir_server+"schetd")
+      set index to (dir_server + "schetd")
       set filter to empty(schet_->IS_DOPLATA)
       dbseek(pdate_schet[7],.t.)
       do while schet->pdate <= pdate_schet[8] .and. !eof()
@@ -2246,7 +2246,7 @@ if k > 0
         skip
       enddo
     case p_regim == 3  // по дате оказания усуги
-      use (cur_dir+"tmp_hum") new
+      use (cur_dir + "tmp_hum") new
       set relation to kod into HUMAN
       go top
       do while !eof()
@@ -2318,7 +2318,7 @@ if k > 0
       arr_title[2] += "│   РАК   "
       arr_title[3] += "│         "
       arr_title[4] += "┴─────────"
-      R_Use(dir_server+"mo_raksh",cur_dir+"tmp_raksh","RAKSH")
+      R_Use(dir_server + "mo_raksh",cur_dir + "tmp_raksh","RAKSH")
     endif
     if isbit(mn->vid_doc,8)
       arr_title[1] += "┬─────"
@@ -2348,28 +2348,28 @@ if k > 0
     endif
     reg_print := f_reg_print(arr_title,@sh,2)
     if sh < 65 ; sh := 65 ; endif
-    R_Use(dir_server+"human_u_",,"HU_")
-    R_Use(dir_server+"human_u",dir_server+"human_u","HU")
+    R_Use(dir_server + "human_u_",,"HU_")
+    R_Use(dir_server + "human_u",dir_server + "human_u","HU")
     set relation to recno() into HU_
-    R_Use(dir_server+"uslugi",,"USL")
-    R_Use(dir_server+"mo_su",,"MOSU")
-    R_Use(dir_server+"mo_hu",dir_server+"mo_hu","MOHU")
-    R_Use(dir_server+"schet_",,"SCHET_")
-    R_Use(dir_server+"schet",,"SCHET")
+    R_Use(dir_server + "uslugi",,"USL")
+    R_Use(dir_server + "mo_su",,"MOSU")
+    R_Use(dir_server + "mo_hu",dir_server + "mo_hu","MOHU")
+    R_Use(dir_server + "schet_",,"SCHET_")
+    R_Use(dir_server + "schet",,"SCHET")
     set relation to recno() into SCHET_
     if yes_parol
-      R_Use(dir_server+"base1",,"BASE1")
+      R_Use(dir_server + "base1",,"BASE1")
     endif
-    R_Use(dir_server+"mo_pers",,"PERSO")
-    R_Use(dir_server+"kartote2",,"KART2")
-    R_Use(dir_server+"kartote_",,"KART_")
-    R_Use(dir_server+"kartotek",,"KART")
+    R_Use(dir_server + "mo_pers",,"PERSO")
+    R_Use(dir_server + "kartote2",,"KART2")
+    R_Use(dir_server + "kartote_",,"KART_")
+    R_Use(dir_server + "kartotek",,"KART")
     set relation to recno() into KART_, to recno() into KART2
-    R_Use(dir_server+"mo_onksl",dir_server+"mo_onksl","ONKSL") // Сведения о случае лечения онкологического заболевания
-    R_Use(dir_server+"human_3",{dir_server+"human_3",dir_server+"human_32"},"HUMAN_3")
-    R_Use(dir_server+"human_2",,"HUMAN_2")
-    R_Use(dir_server+"human_",,"HUMAN_")
-    R_Use(dir_server+"human",dir_server+"humank","HUMAN")
+    R_Use(dir_server + "mo_onksl",dir_server + "mo_onksl","ONKSL") // Сведения о случае лечения онкологического заболевания
+    R_Use(dir_server + "human_3",{dir_server + "human_3",dir_server + "human_32"},"HUMAN_3")
+    R_Use(dir_server + "human_2",,"HUMAN_2")
+    R_Use(dir_server + "human_",,"HUMAN_")
+    R_Use(dir_server + "human",dir_server + "humank","HUMAN")
     set relation to recno() into HUMAN_, to recno() into HUMAN_2
     fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
     add_string("")
@@ -2555,7 +2555,7 @@ if k > 0
     endif
     f_put_tal_diag()  // вывод информации о характере, диспансеризации...
     if yes_h_otd == 1 .and. mn->otd > 0
-      add_string("Отделение, в котором выписан счет: "+inieditspr(A__POPUPMENU, dir_server+"mo_otd", mn->otd))
+      add_string("Отделение, в котором выписан счет: "+inieditspr(A__POPUPMENU, dir_server + "mo_otd", mn->otd))
     endif
     if mn->ist_fin >= 0
       add_string("Источник финансирования "+inieditspr(A__MENUVERT, mm_ist_fin, mn->ist_fin))
@@ -2589,7 +2589,7 @@ if k > 0
       add_string("Где оказана услуга: "+inieditspr(A__MENUVERT, mm_dom, mn->dom))
     endif
     if mn->otd_usl > 0
-      add_string("Отделение, в котором оказана услуга: "+inieditspr(A__POPUPMENU, dir_server+"mo_otd", mn->otd_usl))
+      add_string("Отделение, в котором оказана услуга: "+inieditspr(A__POPUPMENU, dir_server + "mo_otd", mn->otd_usl))
     endif
     if mn->vr1 > 0
       add_string("Врач, оказавший услугу(и): "+alltrim(mn->vr))
@@ -2643,8 +2643,8 @@ if k > 0
       next
       add_string("  ИТОГО:     Оказано услуг "+lstr(k))
     endif
-    use (cur_dir+"tmp_bbuk") index (cur_dir+"tmp_bbuk") new
-    use (cur_dir+"tmp_buk") index (cur_dir+"tmp_buk") new
+    use (cur_dir + "tmp_bbuk") index (cur_dir + "tmp_bbuk") new
+    use (cur_dir + "tmp_buk") index (cur_dir + "tmp_buk") new
     if lastrec() > 0
       verify_FF(HH-3,.t.,sh)
       add_string("Стоматологический статус|Больн.|Случаев")
@@ -2654,17 +2654,17 @@ if k > 0
     add_string("")
     add_string(" == РЕЗУЛЬТАТЫ ПОИСКА ==")
     if mn->kol_lu > 0
-      use (cur_dir+"tmp_k") index (cur_dir+"tmp_k") new
+      use (cur_dir + "tmp_k") index (cur_dir + "tmp_k") new
       COUNT TO skol FOR tmp_k->kol > mn->kol_lu
-      use (cur_dir+"tmp") new
+      use (cur_dir + "tmp") new
       set relation to str(kod,7) into HUMAN, to str(kod_k,7) into TMP_K
-      index on upper(human->fio)+dtos(human->k_data) to (cur_dir+"tmp") ;
+      index on upper(human->fio)+dtos(human->k_data) to (cur_dir + "tmp") ;
             for tmp_k->kol > mn->kol_lu
     else
-      use (cur_dir+"tmp_k") new
-      use (cur_dir+"tmp") new
+      use (cur_dir + "tmp_k") new
+      use (cur_dir + "tmp") new
       set relation to str(kod,7) into HUMAN
-      index on upper(human->fio)+dtos(human->k_data) to (cur_dir+"tmp")
+      index on upper(human->fio)+dtos(human->k_data) to (cur_dir + "tmp")
       add_string("Итого количество больных: "+lstr(tmp_k->(lastrec()))+" чел.")
       s := "Итого листов учета: "+lstr(tmp->(lastrec()))+" на сумму "+lput_kop(ssumma,.t.)+" руб."
       if suet > 0
@@ -2682,7 +2682,7 @@ if k > 0
       add_string(padl(  "в том числе с лечебной целью: ",47)+lstr(pol_pos_stom1))
       add_string(padl(      "с профилактической целью: ",47)+lstr(pol_pos_stom2))
       add_string(padl("при оказании неотложной помощи: ",47)+lstr(pol_pos_stom3))
-      //use (cur_dir+"tmp_kp") new
+      //use (cur_dir + "tmp_kp") new
       //add_string("Количество посещений (сколько дней пациенты заходили в МО): "+lstr(tmp_kp->(lastrec())))
     endif
     add_string("")
@@ -3963,7 +3963,7 @@ for i := 1 to 2
 next
 return NIL
 
-***** 13.07.22 форма 14-МЕД (ОМС)
+** 11.10.22 форма 14-МЕД (ОМС)
 Function forma14_med_oms()
 Static group_ini := "f14_med_oms"
 Local begin_date, end_date, buf := savescreen(), arr_m, i, j, k, k1, k2,;
@@ -4094,8 +4094,7 @@ arr_pril5[28,1] := "Дн.стац.ЭКО - пациентов, чел."
 arr_pril5[29,1] := "Дн.стац.ЭКО - руб."
 
 *********************************************************************
-//arr_m := {2020,1,12,"за январь - декабрь 2020 года",0d20200101,0d20201231}
-arr_m := {2022,1,6,"за январь - июнь 2022 года",0d20220101,0d20220630}
+arr_m := {2022, 1, 9, 'за январь - сентябрь 2022 года', 0d20220101, 0d20220930}
 *********************************************************************
 
 lal := "lusl" ; lalf := "luslf"
@@ -4151,15 +4150,15 @@ WaitStatus(arr_m[4])
 @ maxrow(),0 say " ждите..." color "W/R"
 begin_date := dtoc4(arr_m[5])
 end_date := dtoc4(arr_m[6])
-dbcreate(cur_dir+"tmp",{{"nstr","N",2,0},;
+dbcreate(cur_dir + "tmp",{{"nstr","N",2,0},;
                         {"sum4","N",15,2},;
                         {"sum5","N",15,2},;
                         {"sum6","N",15,2},;
                         {"sum7","N",15,2},;
                         {"sum8","N",15,2},;
                         {"sum9","N",15,2}})
-use (cur_dir+"tmp") new alias TMP
-index on str(nstr,2) to (cur_dir+"tmp")
+use (cur_dir + "tmp") new alias TMP
+index on str(nstr,2) to (cur_dir + "tmp")
 append blank ; tmp->nstr :=  1 ; tmp->sum4 := tmp->sum5 := mk1
 append blank ; tmp->nstr :=  2 ; tmp->sum4 := tmp->sum5 := mk2
 append blank ; tmp->nstr :=  3 ; tmp->sum4 := tmp->sum5 := mk3
@@ -4168,7 +4167,7 @@ append blank ; tmp->nstr := 46 ; tmp->sum4 := tmp->sum5 := md1 ; tmp->sum7 := md
 append blank ; tmp->nstr := 47 ; tmp->sum4 := tmp->sum5 := md2 ; tmp->sum7 := md21 ; tmp->sum8 := md22
 append blank ; tmp->nstr := 48 ; tmp->sum4 := tmp->sum5 := md3
 append blank ; tmp->nstr := 49 ; tmp->sum4 := tmp->sum5 := md4
-dbcreate(cur_dir+"tmpf14",{;
+dbcreate(cur_dir + "tmpf14",{;
    {"KOD_XML",  "N", 6,0},; // ссылка на файл "mo_xml"
    {"SCHET",    "N", 6,0},; //
    {"KOD_RAK",  "N", 6,0},; // № записи в файле RAK
@@ -4178,43 +4177,43 @@ dbcreate(cur_dir+"tmpf14",{;
    {"usl_ok",   "N", 1,0},; //
    {"KOD_H",    "N", 7,0};  // код листа учета по БД "human"
   })
-use (cur_dir+"tmpf14") new alias TMPF14
+use (cur_dir + "tmpf14") new alias TMPF14
 Use_base("lusl")
 Use_base("luslf")
 
 sbase := prefixFileRefName(WORK_YEAR) + 'unit'
 R_Use(dir_exe + sbase, cur_dir + sbase, "MOUNIT")
 
-R_Use(dir_server+"mo_su",,"MOSU")
-R_Use(dir_server+"mo_hu",dir_server+"mo_hu","MOHU")
+R_Use(dir_server + "mo_su",,"MOSU")
+R_Use(dir_server + "mo_hu",dir_server + "mo_hu","MOHU")
 set relation to u_kod into MOSU
-R_Use(dir_server+"uslugi",,"USL")
-R_Use(dir_server+"human_u_",,"HU_")
-R_Use(dir_server+"human_u",dir_server+"human_u","HU")
+R_Use(dir_server + "uslugi",,"USL")
+R_Use(dir_server + "human_u_",,"HU_")
+R_Use(dir_server + "human_u",dir_server + "human_u","HU")
 set relation to recno() into HU_, to u_kod into USL
-R_Use(dir_server+"kartote_",,"KART_")
-R_Use(dir_server+"kartotek",,"KART")
+R_Use(dir_server + "kartote_",,"KART_")
+R_Use(dir_server + "kartotek",,"KART")
 set relation to recno() into KART_
-R_Use(dir_server+"human_2",,"HUMAN_2")
-R_Use(dir_server+"human_",,"HUMAN_")
-R_Use(dir_server+"human",dir_server+"humans","HUMAN")
+R_Use(dir_server + "human_2",,"HUMAN_2")
+R_Use(dir_server + "human_",,"HUMAN_")
+R_Use(dir_server + "human",dir_server + "humans","HUMAN")
 set relation to recno() into HUMAN_, to recno() into HUMAN_2, to kod_k into KART
 //
 *********************************************************************
 mdate_rak := arr_m[6]+13 // по какую дату РАК сумма к оплате 13.07.22
 //mdate_rak := arr_m[6]+18 // по какую дату РАК сумма к оплате 18.01.21
 *********************************************************************
-R_Use(dir_server+"mo_xml",,"MO_XML")
-R_Use(dir_server+"mo_rak",,"RAK")
+R_Use(dir_server + "mo_xml",,"MO_XML")
+R_Use(dir_server + "mo_rak",,"RAK")
 set relation to kod_xml into MO_XML
-R_Use(dir_server+"mo_raks",,"RAKS")
+R_Use(dir_server + "mo_raks",,"RAKS")
 set relation to akt into RAK
-R_Use(dir_server+"mo_raksh",,"RAKSH")
+R_Use(dir_server + "mo_raksh",,"RAKSH")
 set relation to kod_raks into RAKS
-index on str(kod_h,7) to (cur_dir+"tmp_raksh") for mo_xml->DFILE <= mdate_rak
+index on str(kod_h,7) to (cur_dir + "tmp_raksh") for mo_xml->DFILE <= mdate_rak
 //
-R_Use(dir_server+"schet_",,"SCHET_")
-R_Use(dir_server+"schet",,"SCHET")
+R_Use(dir_server + "schet_",,"SCHET_")
+R_Use(dir_server + "schet",,"SCHET")
 set relation to recno() into SCHET_
 ob_kol := 0
 go top
@@ -4229,9 +4228,9 @@ do while !eof()
     //
     *** 2022 год
     //k := 15 // дата регистрации по 15.01.21
-    k := 7 // дата регистрации по 07.06.22
+    k := 7 // дата регистрации по 07.10.22
     ***
-    fl := between(mdate,arr_m[5],arr_m[6]+k) .and. between(mdate1,arr_m[5],arr_m[6]) // !!отч.период 2022 год
+    fl := between(mdate, arr_m[5], arr_m[6] + k) .and. between(mdate1, arr_m[5], arr_m[6]) // !!отч.период 2022 год
   endif
   if fl
     select HUMAN
@@ -5414,7 +5413,7 @@ if !fl_exit .and. tmpf14->(lastrec()) > 0
   select TMPF14
   set relation to KOD_RAKSH into RAKSH, to schet into SCHET, to kod_h into HUMAN
   index on str(usl_ok,1)+str(schet_->nyear,4)+str(schet_->nmonth,2)+;
-           str(human_->SCHET_ZAP,6) to (cur_dir+"tmpf14")
+           str(human_->SCHET_ZAP,6) to (cur_dir + "tmpf14")
   for j := 1 to 5
     find (str(j,1))
     if found()
@@ -5478,7 +5477,7 @@ arr_razdel := {;
  {"6. скорая медицинская помощь",69,81};
 }
 //
-R_Use(dir_server+"organiz",,"ORG")
+R_Use(dir_server + "organiz",,"ORG")
 ar := {}
 aadd(ar, {12,77,mm_month[arr_m[3]] })
 aadd(ar, {12,94,right(lstr(arr_m[1]),2) })
@@ -5487,7 +5486,7 @@ aadd(ar, {37,19,glob_mo[_MO_ADRES] })
 aadd(ar, {42,19,org->okpo })
 aadd(arr_excel, {"Лист 1",aclone(ar)})
 //
-use (cur_dir+"tmp") index (cur_dir+"tmp") new
+use (cur_dir + "tmp") index (cur_dir + "tmp") new
 for i := 1 to len(arr_razdel)
   ar := {} ; i_stroke := iif(eq_any(i,1,4), 7, 6)
   for j := arr_razdel[i,2] to arr_razdel[i,3]
@@ -5553,7 +5552,7 @@ strfile(hb_eol()+;
         hb_eol(),cFileProtokol,.t.)
 if kol_stom_pos > 0
   fl_error := .t.
-  use (cur_dir+"TMP_STOM") new
+  use (cur_dir + "TMP_STOM") new
   strfile(hb_eol()+;
           "Отчёт о количестве и стоимости обращений и посещений при оказании стоматологической помощи"+;
           hb_eol()+;
@@ -5873,7 +5872,7 @@ if fl_error
   viewtext(Devide_Into_Pages(cFileProtokol,60,80),,,,.t.,,,3)
 endif
 fill_in_Excel_Book(dir_exe+"mo_14med"+sxls,;
-                   cur_dir+"__14med"+sxls,;
+                   cur_dir + "__14med"+sxls,;
                    arr_excel,;
                    "присланный из ТФОМС")
 return NIL
@@ -5897,12 +5896,12 @@ adbf := {{"smo","N",5,0},;
          {"schet","N",6,0},;
          {"summa1","N",15,2},; // за месяц
          {"summa2","N",15,2}} // снг
-dbcreate(cur_dir+"tmp1",adbf)
-use (cur_dir+"tmp1") new
-index on str(smo,5)+str(s1,1)+str(s2,1) to (cur_dir+"tmp1")
-dbcreate(cur_dir+"tmp1prot",adbf)
-use (cur_dir+"tmp1prot") new
-index on str(smo,5)+str(s1,1)+str(s2,1)+str(schet,6) to (cur_dir+"tmp1prot")
+dbcreate(cur_dir + "tmp1",adbf)
+use (cur_dir + "tmp1") new
+index on str(smo,5)+str(s1,1)+str(s2,1) to (cur_dir + "tmp1")
+dbcreate(cur_dir + "tmp1prot",adbf)
+use (cur_dir + "tmp1prot") new
+index on str(smo,5)+str(s1,1)+str(s2,1)+str(schet,6) to (cur_dir + "tmp1prot")
 //
 adbf := {{"smo","N",5,0},;
          {"pz","N",1,0},;
@@ -5914,17 +5913,17 @@ adbf := {{"smo","N",5,0},;
          {"kol4","N",6,0},; // снг
          {"summa1","N",15,2},; // за месяц
          {"summa2","N",15,2}} // снг
-dbcreate(cur_dir+"tmp2",adbf)
-use (cur_dir+"tmp2") new
-index on str(smo,5)+str(vid,1)+str(pz,1) to (cur_dir+"tmp2")
-dbcreate(cur_dir+"tmp2prot",adbf)
-use (cur_dir+"tmp2prot") new
-index on str(smo,5)+str(vid,1)+str(pz,1)+str(schet,6) to (cur_dir+"tmp2prot")
-dbcreate(cur_dir+"tmp2pr_u",{{"kod","N",6,0},;
+dbcreate(cur_dir + "tmp2",adbf)
+use (cur_dir + "tmp2") new
+index on str(smo,5)+str(vid,1)+str(pz,1) to (cur_dir + "tmp2")
+dbcreate(cur_dir + "tmp2prot",adbf)
+use (cur_dir + "tmp2prot") new
+index on str(smo,5)+str(vid,1)+str(pz,1)+str(schet,6) to (cur_dir + "tmp2prot")
+dbcreate(cur_dir + "tmp2pr_u",{{"kod","N",6,0},;
                              {"shifr","C",20,0},;
                              {"kol","N",15,2}})
-use (cur_dir+"tmp2pr_u") new
-index on str(kod,6)+shifr to (cur_dir+"tmp2pr_u")
+use (cur_dir + "tmp2pr_u") new
+index on str(kod,6)+shifr to (cur_dir + "tmp2pr_u")
 adbf := {{"smo","N",5,0},;
          {"kod_k","N",7,0},;
          {"enp","C",16,0},;
@@ -5932,10 +5931,10 @@ adbf := {{"smo","N",5,0},;
          {"vid","N",1,0},;
          {"kol3","N",6,0},; // за месяц
          {"kol4","N",6,0}}  // снг
-dbcreate(cur_dir+"tmp3",adbf)
-use (cur_dir+"tmp3") new
-//index on str(smo,5)+str(vid,1)+str(pz,1)+str(kod_k,7) to (cur_dir+"tmp3")
-index on str(smo,5)+str(vid,1)+str(pz,1)+enp to (cur_dir+"tmp3")
+dbcreate(cur_dir + "tmp3",adbf)
+use (cur_dir + "tmp3") new
+//index on str(smo,5)+str(vid,1)+str(pz,1)+str(kod_k,7) to (cur_dir + "tmp3")
+index on str(smo,5)+str(vid,1)+str(pz,1)+enp to (cur_dir + "tmp3")
 //
 tmp := aclone(arr_m)
 tmp[5] := 1 // январь
@@ -5948,18 +5947,18 @@ d2 := 10
 ret_days_for_akt_sverki(arr_m,@b1,@b2,@a1,@a2)
 Use_base("lusl")
 Use_base("luslf")
-R_Use(dir_server+"mo_su",,"MOSU")
-R_Use(dir_server+"mo_hu",dir_server+"mo_hu","MOHU")
+R_Use(dir_server + "mo_su",,"MOSU")
+R_Use(dir_server + "mo_hu",dir_server + "mo_hu","MOHU")
 set relation to u_kod into MOSU
-R_Use(dir_server+"uslugi",,"USL")
-R_Use(dir_server+"human_u",dir_server+"human_u","HU")
+R_Use(dir_server + "uslugi",,"USL")
+R_Use(dir_server + "human_u",dir_server + "human_u","HU")
 set relation to u_kod into USL
-R_Use(dir_server+"kartote2",,"KART2")
-R_Use(dir_server+"human_",,"HUMAN_")
-R_Use(dir_server+"human",dir_server+"humans","HUMAN")
+R_Use(dir_server + "kartote2",,"KART2")
+R_Use(dir_server + "human_",,"HUMAN_")
+R_Use(dir_server + "human",dir_server + "humans","HUMAN")
 set relation to recno() into HUMAN_, to kod_k into KART2
-R_Use(dir_server+"schet_",,"SCHET_")
-R_Use(dir_server+"schet",,"SCHET")
+R_Use(dir_server + "schet_",,"SCHET_")
+R_Use(dir_server + "schet",,"SCHET")
 set relation to recno() into SCHET_
 go top
 do while !eof()
@@ -6035,14 +6034,14 @@ do while !eof()
 enddo
 @ maxrow(),0 say padr("подсчёт снятий",28) color "W/R"
 arr_h := {}
-R_Use(dir_server+"mo_xml",,"MO_XML")
-R_Use(dir_server+"mo_rak",,"RAK")
+R_Use(dir_server + "mo_xml",,"MO_XML")
+R_Use(dir_server + "mo_rak",,"RAK")
 set relation to KOD_XML into MO_XML
-R_Use(dir_server+"mo_raks",,"RAKS")
+R_Use(dir_server + "mo_raks",,"RAKS")
 set relation to akt into RAK
-R_Use(dir_server+"mo_raksh",,"RAKSH")
+R_Use(dir_server + "mo_raksh",,"RAKSH")
 set relation to kod_raks into RAKS
-index on str(kod_h,7) to (cur_dir+"tmp_raksh") for between(mo_xml->dfile,boy(arr_m[5]),arr_m[6]+a2)
+index on str(kod_h,7) to (cur_dir + "tmp_raksh") for between(mo_xml->dfile,boy(arr_m[5]),arr_m[6]+a2)
                                              //for between(rak->DAKT,boy(arr_m[5]),arr_m[6])
 go top
 do while !eof()
@@ -6153,20 +6152,20 @@ if ireg == 2
   name_file += "p"
 endif
 fp := fcreate(name_file+stxt) ; n_list := 1 ; tek_stroke := 0
-use (cur_dir+"tmp1") index (cur_dir+"tmp1") new
-use (cur_dir+"tmp2") index (cur_dir+"tmp2") new
+use (cur_dir + "tmp1") index (cur_dir + "tmp1") new
+use (cur_dir + "tmp2") index (cur_dir + "tmp2") new
 if ireg == 2 // протокол созданияя формы 1
-  R_Use(dir_server+"schet_",,"SCHET_")
-  R_Use(dir_server+"schet",,"SCHET")
+  R_Use(dir_server + "schet_",,"SCHET_")
+  R_Use(dir_server + "schet",,"SCHET")
   set relation to recno() into SCHET_
-  use (cur_dir+"tmp1prot") new
+  use (cur_dir + "tmp1prot") new
   set relation to schet into SCHET
-  index on str(smo,5)+str(s1,1)+str(s2,1)+dtos(date_reg_schet())+schet_->nschet to (cur_dir+"tmp1prot")
-  use (cur_dir+"tmp2pr_u") new
-  index on str(kod,6)+fsort_usl(shifr) to (cur_dir+"tmp2pr_u")
-  use (cur_dir+"tmp2prot") new
+  index on str(smo,5)+str(s1,1)+str(s2,1)+dtos(date_reg_schet())+schet_->nschet to (cur_dir + "tmp1prot")
+  use (cur_dir + "tmp2pr_u") new
+  index on str(kod,6)+fsort_usl(shifr) to (cur_dir + "tmp2pr_u")
+  use (cur_dir + "tmp2prot") new
   set relation to schet into SCHET
-  index on str(smo,5)+str(vid,1)+str(pz,1)+dtos(date_reg_schet())+schet_->nschet to (cur_dir+"tmp2prot")
+  index on str(smo,5)+str(vid,1)+str(pz,1)+dtos(date_reg_schet())+schet_->nschet to (cur_dir + "tmp2prot")
   add_string("Протокол создания формы №1 для ФФОМС "+arr_m[4])
   add_string(" [ зарегистрированные счета по дате РЕГИСТРАЦИИ ]")
   for i := 1 to len(arr_smo)
@@ -6880,28 +6879,28 @@ adbf := {{"nn","N",1,0},;       // 0-основная,1-старики
          {"p18","N",10,0},;       //
          {"p19","N",10,0},;       //
          {"p20","N",10,0}}        //
-dbcreate(cur_dir+"tmp",adbf)
-use (cur_dir+"tmp") new alias TMP
-index on str(nn,1)+str(ist_fin,1)+str(tip,1)+str(spec,9) to (cur_dir+"tmp")
+dbcreate(cur_dir + "tmp",adbf)
+use (cur_dir + "tmp") new alias TMP
+index on str(nn,1)+str(ist_fin,1)+str(tip,1)+str(spec,9) to (cur_dir + "tmp")
 if m1usl == 1
-  dbcreate(cur_dir+"tmpu",adbf)
-  use (cur_dir+"tmpu") new alias TMPU
-  index on str(nn,1)+str(ist_fin,1)+str(tip,1)+str(spec,9)+str(u_kod,5) to (cur_dir+"tmpu")
+  dbcreate(cur_dir + "tmpu",adbf)
+  use (cur_dir + "tmpu") new alias TMPU
+  index on str(nn,1)+str(ist_fin,1)+str(tip,1)+str(spec,9)+str(u_kod,5) to (cur_dir + "tmpu")
 endif
 //
-R_Use(dir_server+"mo_su",,"MOSU")
-R_Use(dir_server+"mo_hu",dir_server+"mo_hu","MOHU")
+R_Use(dir_server + "mo_su",,"MOSU")
+R_Use(dir_server + "mo_hu",dir_server + "mo_hu","MOHU")
 set relation to u_kod into MOSU
-R_Use(dir_server+"uslugi",,"USL")
-R_Use(dir_server+"human_u_",,"HU_")
-R_Use(dir_server+"kartote_",,"KART_")
-R_Use(dir_server+"kartotek",,"KART")
+R_Use(dir_server + "uslugi",,"USL")
+R_Use(dir_server + "human_u_",,"HU_")
+R_Use(dir_server + "kartote_",,"KART_")
+R_Use(dir_server + "kartotek",,"KART")
 set relation to recno() into KART_
-R_Use(dir_server+"human_u",{dir_server+"human_u",;
-                            dir_server+"human_ud"},"HU")
+R_Use(dir_server + "human_u",{dir_server + "human_u",;
+                            dir_server + "human_ud"},"HU")
 set relation to recno() into HU_, to u_kod into USL
-R_Use(dir_server+"human_",,"HUMAN_")
-R_Use(dir_server+"human",dir_server+"humand","HUMAN")
+R_Use(dir_server + "human_",,"HUMAN_")
+R_Use(dir_server + "human",dir_server + "humand","HUMAN")
 set relation to recno() into HUMAN_, to kod_k into KART
 stat_msg("По дате окончания лечения")
 old := mdate11-1
@@ -6932,11 +6931,11 @@ if k == 0
 endif
 name_file := "prik_848"+stxt ; HH := 42
 fp := fcreate(name_file) ; tek_stroke := 0 ; n_list := 1
-use (cur_dir+"tmp") index (cur_dir+"tmp") new
+use (cur_dir + "tmp") index (cur_dir + "tmp") new
 if m1usl == 1
-  R_Use(dir_server+"mo_su",,"MOSU")
-  R_Use(dir_server+"uslugi",,"USL")
-  use (cur_dir+"tmpu") index (cur_dir+"tmpu") new
+  R_Use(dir_server + "mo_su",,"MOSU")
+  R_Use(dir_server + "uslugi",,"USL")
+  use (cur_dir + "tmpu") index (cur_dir + "tmpu") new
 endif
 for _tip := 1 to 5
   arr_title := {}

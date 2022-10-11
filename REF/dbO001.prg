@@ -1,4 +1,4 @@
-* 21.02.21 вернуть массив ФФОМС O001.xml
+** 04.10.22 вернуть массив ФФОМС O001.xml
 function getO001()
   static _O001 := {}
   Local dbName, dbAlias := 'O001'
@@ -10,7 +10,7 @@ function getO001()
   if len(_O001) == 0
     dbName := '_mo_O001'
     tmp_select := select()
-    dbUseArea( .t., "DBFNTX", exe_dir + dbName, dbAlias , .t., .f. )
+    dbUseArea( .t., 'DBFNTX', exe_dir + dbName, dbAlias , .t., .f. )
 
     (dbAlias)->(dbGoTop())
     do while !(dbAlias)->(EOF())
@@ -23,15 +23,17 @@ function getO001()
 
   return _O001
 
-* 21.02.21 вернуть страну
+** 04.10.22 вернуть страну
 Function getCountry(lstrana)
   Static kod_RF := '643'
 
   Local s := space(10), i
 
   if !empty(lstrana) .and. lstrana != kod_RF ;
-         .and. (i := ascan(glob_O001, {|x| x[2] == lstrana })) > 0
-    s := glob_O001[i,1]
+         .and. (i := ascan(getO001(), {|x| x[2] == lstrana })) > 0
+        //  .and. (i := ascan(glob_O001, {|x| x[2] == lstrana })) > 0
+    s := getO001()[i, 1]
+    // s := glob_O001[i, 1]
   endif
   return s
   
