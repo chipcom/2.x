@@ -1,18 +1,18 @@
-***** mo_omsid.prg - информация по диспансеризации в ОМС
+** mo_omsid.prg - информация по диспансеризации в ОМС
 #include "inkey.ch"
 #include "fastreph.ch"
 #include "function.ch"
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-#define MONTH_UPLOAD 10 //МЕСЯЦ для выгрузки R11
+#define MONTH_UPLOAD 11 //МЕСЯЦ для выгрузки R11
 
 Static lcount_uch  := 1
 Static mas1pmt := {"~все оказанные случаи",;
                    "случаи в выставленных ~счетах",;
                    "случаи в за~регистрированных счетах"}
 
-***** 28.10.18 Диспансеризация, профилактика и медосмотры
+** 28.10.18 Диспансеризация, профилактика и медосмотры
 Function dispanserizacia(k)
 Static si1 := 1, si2 := 1, sj := 1, sj1 := 1
 Local mas_pmt, mas_msg, mas_fun, j, j1
@@ -49,7 +49,7 @@ if k > 10
 endif
 return NIL
 
-***** 23.09.20 Информация по диспансеризации детей-сирот
+** 23.09.20 Информация по диспансеризации детей-сирот
 Function inf_DDS(k)
 Static si1 := 1, si2 := 1, sj := 1, sj1 := 1, sj2 := 1
 Local mas_pmt, mas_msg, mas_fun, j, j1
@@ -121,7 +121,7 @@ if k > 10
 endif
 return NIL
 
-***** 12.07.13 Распечатка карты диспансеризации (учётная форма № 030-Д/с/у-13)
+** 12.07.13 Распечатка карты диспансеризации (учётная форма № 030-Д/с/у-13)
 Function inf_DDS_karta()
 Local arr_m, buf := save_maxrow(), blk, t_arr[BR_LEN]
 if (arr_m := year_month(T_ROW,T_COL-5)) != NIL
@@ -163,9 +163,7 @@ close databases
 rest_box(buf)
 return NIL
 
-*
-
-***** 11.03.19
+** 11.03.19
 Function f0_inf_DDS(arr_m,is_schet,is_reg,is_snils)
 Local fl := .t.
 DEFAULT is_schet TO .t., is_reg TO .f., is_snils TO .f.
@@ -213,7 +211,7 @@ endif
 close databases
 return fl
 
-***** 05.07.13
+** 05.07.13
 Function f1_inf_DDS_karta(nKey,oBrow,regim)
 Local ret := -1, lkod_h, lkod_k, rec := tmp->(recno()), buf := save_maxrow()
 if regim == "edit" .and. nKey == K_ENTER
@@ -228,7 +226,7 @@ if regim == "edit" .and. nKey == K_ENTER
 endif
 return ret
 
-***** 22.04.18
+** 22.04.18
 Function f2_inf_DDS_karta(Loc_kod,kod_kartotek,lvozrast)
 Static st := "     ", ub := "<u><b>", ue := "</b></u>", sh := 88
 Local adbf, s, i, j, k, y, m, d, fl, mm_danet, blk := {|s| __dbAppend(), field->stroke := s }
@@ -828,9 +826,7 @@ close databases
 call_fr("mo_030dcu13")
 return NIL
 
-*
-
-***** 05.07.13
+** 05.07.13
 Function f3_inf_DDS_karta(_menu,_i,_r,ub,ue,fl)
 Local j, s := ""
 DEFAULT _r TO ", ", fl TO .t.
@@ -851,9 +847,7 @@ if fl
 endif
 return s
 
-*
-
-***** 04.05.16
+** 04.05.16
 Function f4_inf_DDS_karta(par,_etap,et2)
 Local i, k, arr := {}
 if par == 1
@@ -958,7 +952,7 @@ else
 endif
 return arr
 
-***** 28.01.15
+** 28.01.15
 Function inf_DDS_svod(par,par2,is_schet)
 Local arr_m, i, buf := save_maxrow(), lkod_h, lkod_k, rec
 if (arr_m := year_month(T_ROW,T_COL-5)) != NIL
@@ -1216,7 +1210,7 @@ close databases
 rest_box(buf)
 return NIL
 
-***** 04.05.16
+** 04.05.16
 Function f2_inf_DDS_svod(Loc_kod,kod_kartotek) // сводная информация
 Local i := 0, c, s := "НЕТ акта", pole, arr, ddo := {}, dposle := {}
 R_Use(dir_server+"mo_rak",,"RAK")
@@ -1334,7 +1328,7 @@ for i := 1 to len(arr)
 next
 return NIL
 
-***** 20.06.21 Приложение к письму КЗВО №14-05/50 от 07.02.2020г.
+** 20.06.21 Приложение к письму КЗВО №14-05/50 от 07.02.2020г.
 Function inf_DDS_svod2(par2,is_schet)
 Local arr_m, i, buf := save_maxrow(), lkod_h, lkod_k, rec, sh := 91, HH := 60, n_file := "ddssvod2"+stxt
 if (arr_m := year_month(T_ROW,T_COL-5)) != NIL
@@ -1462,7 +1456,7 @@ rest_box(buf)
 return NIL
 
 
-***** 20.06.21
+** 20.06.21
 Function f2_inf_DDS_svod2(Loc_kod,kod_kartotek)
 Local i, j, k, is_selo, ad := {}, ar := {1}, ar1 := {},;
       ar2 := array(len(arr_deti[1]))
@@ -1652,7 +1646,7 @@ for j := 1 to len(ar1)
 next
 return NIL
 
-***** 08.11.13
+** 08.11.13
 Function inf_DDS_030dso(is_schet)
 Local arr_m, i, n, buf := save_maxrow(), lkod_h, lkod_k, rec, sh := 80, HH := 80, n_file := "f_030dso"+stxt, d1, d2
 if (arr_m := year_month(T_ROW,T_COL-5)) != NIL
@@ -2246,7 +2240,7 @@ close databases
 rest_box(buf)
 return NIL
 
-***** 08.11.13
+** 08.11.13
 Function f2_inf_DDS_030dso(Loc_kod,kod_kartotek) // сводная информация
 Local i, j, k, av := {}, av1 := {}, ad := {}, arr, s, fl, ;
       is_man := (mpol == "М"), blk_tbl, blk_tip, blk_put_tip, ;
@@ -2606,7 +2600,7 @@ for n := 1 to len(av1) // цикл по возрастам таблицы
 next
 return NIL
 
-***** 24.12.19
+** 24.12.19
 Function inf_DDS_XMLfile(is_schet)
 Static stitle := "XML-портал: диспансеризация детей-сирот "
 Local arr_m, n, buf := save_maxrow(), lkod_h, lkod_k, rec, blk, t_arr[BR_LEN]
@@ -2699,9 +2693,7 @@ close databases
 rest_box(buf)
 return NIL
 
-*
-
-***** 06.09.21 Информация по диспансеризации и профилактике взрослого населения
+** 06.09.21 Информация по диспансеризации и профилактике взрослого населения
 Function inf_DVN(k)
 Static si1 := 1, si2 := 1, si3 := 1, si4 := 1, si5 := 2, si6 := 2, si7 := 2, sj := 1, sj1 := 1
 Local mas_pmt, mas_msg, mas_fun, j
@@ -2865,7 +2857,7 @@ if k > 10
 endif
 return NIL
 
-***** 15.08.19
+** 15.08.19
 Function f0_inf_DVN(arr_m,is_schet,is_reg,is_1_2)
 Local fl := .t., j := 0, n, buf := save_maxrow()
 DEFAULT is_schet TO .t., is_reg TO .f., is_1_2 TO .f.
@@ -2947,9 +2939,7 @@ endif
 close databases
 return fl
 
-*
-
-***** 20.10.16 карта учёта диспансеризации по форме №131/у
+** 20.10.16 карта учёта диспансеризации по форме №131/у
 Function f_131_u()
 Local arr_m, buf := save_maxrow(), k, blk, t_arr[BR_LEN], rec := 0
 if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
@@ -3007,7 +2997,7 @@ close databases
 rest_box(buf)
 return NIL
 
-***** 20.09.15
+** 20.09.15
 Static Function __f_131_u(k)
 Local s := "", ie := 1
 if emptyall(tmp->kod1h,tmp->kod2h) // значит профилактика
@@ -3036,9 +3026,7 @@ else
 endif
 return s
 
-*
-
-***** 21.07.19
+** 21.07.19
 Function f1_131_u(nKey,oBrow,regim)
 Static lV := "V", sb1 := "<b><u>", sb2 := "</u></b>"
 Static s_smg := "Не удалось определить группу здоровья"
@@ -3740,12 +3728,12 @@ if regim == "edit" .and. nKey == K_ENTER
 endif
 return ret
 
-***** 01.07.17
+** 01.07.17
 Static Function f_131_u_da_net(k,sb1,sb2)
 if k > 1 ; k := 1 ; endif // если вместо "да" битовый ответ
 return f3_inf_DDS_karta({{"да - 1",1},{"нет - 2",0}},k,";  ",sb1,sb2,.f.)
 
-***** 03.09.20 Приложение к Приказу ГБУЗ "ВОМИАЦ" от 12.05.2017г. №1615
+** 03.09.20 Приложение к Приказу ГБУЗ "ВОМИАЦ" от 12.05.2017г. №1615
 Function f21_inf_DVN(par) // свод
 Local arr_m, buf := save_maxrow(), s, as := {}, as1[14], i, j, k, n, ar, at, ii, g1, sh := 65, fl, mdvozrast, adbf
 if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
@@ -4108,11 +4096,7 @@ close databases
 rest_box(buf)
 return NIL
 
-*
-
-
-
-***** 05.05.22
+** 05.05.22
 Function inf_YDVN()
 
 Local i, ii, s, arr_m, buf := save_maxrow(), ar, arr_excel := {}, is_all
@@ -4465,7 +4449,7 @@ close databases
 return NIL
 
 
-***** 27.04.20
+** 27.04.20
 Function f1_f21_inf_DVN()
 Local sumr := 0, m1GRUPPA, fl2 := .f., is_selo
 select TMP2
@@ -4554,7 +4538,7 @@ if !empty(tmp->kod2h) // диспансеризация II этап
 endif
 return NIL
 
-***** 07.04.22
+** 07.04.22
 Function f2_f21_inf_DVN(par)
 Local is_selo, i, j, k, k1 := 9, fl2 := .f., ar[21], arr11[15], arr12[43], au := {}, fl_pens
 Private arr_otklon := {}, arr_usl_otkaz := {},;
@@ -4819,7 +4803,7 @@ for i := 1 to len(arr12)
 next
 return NIL
 
-***** 20.10.16 Индикаторы мониторинга диспансеризации взрослых
+** 20.10.16 Индикаторы мониторинга диспансеризации взрослых
 Function f22_inf_DVN()
 Static group_ini := "f22_inf_DVN"
 Static as := {;
@@ -4977,9 +4961,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
 endif
 return NIL
 
-*
-
-***** 23.09.15
+** 23.09.15
 Function f1_f22_inf_DVN() // сводная информация
 Local i, ar := {}, fl_reg1 := .f., fl_reg2 := .f., is_d := .f., is_pr := .f.,;
       k5 := 0, k9 := 0, m1gruppa, fl
@@ -5170,7 +5152,7 @@ if !empty(ar)
 endif
 return NIL
 
-***** 20.01.21 список пациентов
+** 20.01.21 список пациентов
 Function f2_inf_DVN(is_schet,par)
 Local arr_m, buf := save_maxrow(), lkod_h, lkod_k, rec, s, as := {},;
       a, sh, HH := 53, n, n_file := "spis_dvn"+stxt, reg_print
@@ -5466,7 +5448,7 @@ close databases
 rest_box(buf)
 return NIL
 
-***** 15.02.20
+** 15.02.20
 Function f2_inf_DVN_svod(par,kod_h) // сводная информация
 Static P_BEGIN_RSLT := 342
 Local i, j, c, s, pole, ar, arr := {}, fl, lshifr, arr_usl := {}
@@ -5724,7 +5706,7 @@ for i := 1 to len(arr)
 next
 return NIL
 
-***** 10.11.19
+** 10.11.19
 Function f21_inf_DVN_svod18(par)
 Local i, arr := {}
 if par == 1
@@ -5747,7 +5729,7 @@ else
 endif
 return arr
 
-***** 08.12.15
+** 08.12.15
 Function f21_inf_DVN_svod(par)
 Local i, arr := {}
 if par == 1
@@ -5770,11 +5752,7 @@ else
 endif
 return arr
 
-
-
-*
-
-***** 19.02.18 Информация по профилактике и медосмотрам несовершеннолетних
+** 19.02.18 Информация по профилактике и медосмотрам несовершеннолетних
 Function inf_DNL(k)
 Static si1 := 1, si2 := 1, sj1 := 1, sj2 := 1
 Local mas_pmt, mas_msg, mas_fun, j, j1, j2
@@ -5844,9 +5822,7 @@ if k > 10
 endif
 return NIL
 
-*
-
-***** 25.03.18 Распечатка карты проф.мед.осмотра (учётная форма № 030-ПО/у...)
+** 25.03.18 Распечатка карты проф.мед.осмотра (учётная форма № 030-ПО/у...)
 Function inf_DNL_karta()
 Local arr_m, buf := save_maxrow(), blk, t_arr[BR_LEN]
 if (arr_m := year_month(T_ROW,T_COL-5)) != NIL
@@ -5889,9 +5865,7 @@ close databases
 rest_box(buf)
 return NIL
 
-*
-
-***** 11.03.19
+** 11.03.19
 Function f0_inf_DNL(arr_m,is_schet,is_reg,arr_ishod,is_snils)
 Local fl := .t.
 DEFAULT is_schet TO .t., is_reg TO .f., is_snils TO .f., arr_ishod TO {301,302} // профилактика 1 и 2 этап
@@ -5942,9 +5916,7 @@ endif
 close databases
 return fl
 
-*
-
-***** 07.08.13
+** 07.08.13
 Function f1_inf_DNL_karta(nKey,oBrow,regim)
 Local ret := -1, lkod_h, lkod_k, rec := tmp->(recno()), buf := save_maxrow()
 if regim == "edit" .and. nKey == K_ENTER
@@ -5959,7 +5931,7 @@ if regim == "edit" .and. nKey == K_ENTER
 endif
 return ret
 
-***** 22.04.18
+** 22.04.18
 Function f2_inf_DNL_karta(Loc_kod,kod_kartotek,lvozrast)
 Static st := "     ", ub := "<u><b>", ue := "</b></u>", sh := 88
 Local adbf, s, i, j, k, y, m, d, fl, mm_danet, blk := {|s| __dbAppend(), field->stroke := s }
@@ -6412,7 +6384,7 @@ close databases
 call_fr("mo_030pou17")
 return NIL
 
-***** 02.06.20
+** 02.06.20
 Function f4_inf_DNL_karta(par,_etap)
 Local i, k := 0, fl, arr := {}, ar
 if type("mperiod") == "N" .and. between(mperiod,1,31)
@@ -6531,7 +6503,7 @@ else
 endif
 return arr
 
-***** 25.11.13
+** 25.11.13
 Function f5_inf_DNL_karta(i)
 Local k := 0
 do case
@@ -6558,7 +6530,7 @@ do case
 endcase
 return k
 
-***** 09.06.20 Приложение к письму ГБУЗ "ВОМИАЦ" №1025 от 08.07.2019г.
+** 09.06.20 Приложение к письму ГБУЗ "ВОМИАЦ" №1025 от 08.07.2019г.
 Function f21_inf_DNL(par)
 Local arr_m, buf := save_maxrow(), lkod_h, lkod_k, rec, s, adbf, as, i, j, k, sh, HH := 40, n, n_file := "svod_dnl"+stxt
 if (arr_m := year_month(,,,5)) != NIL
@@ -6842,7 +6814,7 @@ close databases
 rest_box(buf)
 return NIL
 
-***** 20.06.20
+** 20.06.20
 Function f1_f21_inf_DNL(Loc_kod,kod_kartotek) // сводная информация
 Local ii, im, i, j, k, s, sumr := 0, ar := {0}, ltip_school := -1, ar15[26],;
       is_2 := .f., ad := {}, arr, a3 := {}, fl_ves := .T.
@@ -7156,7 +7128,7 @@ for j := 1 to len(ar)
 next
 return NIL
 
-***** 25.03.18
+** 25.03.18
 Function inf_DNL_030poo(is_schet)
 Local arr_m, i, n, buf := save_maxrow(), lkod_h, lkod_k, rec, sh := 80, HH := 80, n_file := "f_030poo"+stxt, d1, d2
 if (arr_m := year_month(T_ROW,T_COL-5)) != NIL
@@ -7657,7 +7629,7 @@ close databases
 rest_box(buf)
 return NIL
 
-***** 14.07.19
+** 14.07.19
 Function f2_inf_DNL_030poo(Loc_kod,kod_kartotek) // сводная информация
 Local i, j, k, av := {}, av1 := {}, ad := {}, arr, s, fl, ;
       is_man := (human->pol == "М"), blk_tbl, blk_tip, blk_put_tip, a10[9], a11[13]
@@ -8119,9 +8091,7 @@ for n := 1 to len(av1) // цикл по возрастам таблицы
 next
 return NIL
 
-*
-
-***** 11.03.19
+** 11.03.19
 Function inf_DNL_XMLfile(is_schet,stitle)
 Local arr_m, n, buf := save_maxrow(), lkod_h, lkod_k, rec, blk, t_arr[BR_LEN], arr, n_func
 if (arr_m := year_month(T_ROW,T_COL-5)) != NIL
@@ -8231,9 +8201,7 @@ close databases
 rest_box(buf)
 return NIL
 
-*
-
-***** 22.11.13
+** 22.11.13
 Function f1_inf_N_XMLfile(nKey,oBrow,regim)
 Local ret := -1, rec := tmp->(recno())
 if regim == "edit"
@@ -8254,9 +8222,7 @@ if regim == "edit"
 endif
 return ret
 
-*
-
-***** 22.11.13 по листу учёта несовершеннолетнего создать часть XML-файла
+** 22.11.13 по листу учёта несовершеннолетнего создать часть XML-файла
 Function f2_inf_N_XMLfile(Loc_kod,kod_kartotek,lvozrast)
 Local adbf, s, i, j, k, y, m, d, fl
 R_Use(dir_server+"kartote_",,"KART_")
@@ -8275,9 +8241,7 @@ R_Use(dir_server+"mo_raksh",cur_dir+"tmpraksh","RAKSH")
 mo_mzxml_N(2,,,lvozrast)
 return NIL
 
-*
-
-***** 25.11.13
+** 25.11.13
 Function f4_inf_PREDN_karta(par,_etap)
 Local i, k, fl, arr := {}, ar := npred_arr_1_etap[mperiod]
 if par == 1
@@ -8359,9 +8323,7 @@ else
 endif
 return arr
 
-*
-
-***** 25.11.13
+** 25.11.13
 Function f4_inf_PerN_karta(par)
 Local i, k, fl, arr := {}, ar := nper_arr_1_etap[mperiod]
 if par == 1
@@ -8388,9 +8350,7 @@ else
 endif
 return arr
 
-*
-
-***** 31.10.16 Запрос несовершеннолетних, подлежащих медосмотрам, методом многовариантного поиска
+** 31.10.16 Запрос несовершеннолетних, подлежащих медосмотрам, методом многовариантного поиска
 Function mnog_poisk_DNL()
 Local mm_tmp := {}, mm_sort
 Local buf := savescreen(), tmp_color := setcolor(cDataCGet),;
@@ -8829,7 +8789,7 @@ close databases
 restscreen(buf) ; setcolor(tmp_color)
 return NIL
 
-***** 31.10.16
+** 31.10.16
 Function write_mn_p_DNL(k)
 Local fl := .t.
 if k == 1
@@ -8841,9 +8801,7 @@ if k == 1
 endif
 return fl
 
-*
-
-***** 21.11.19
+** 21.11.19
 Static Function f1_mnog_poisk_DNL(cv,cf)
 Local i, j, k, n, s, arr, fl, god_r, arr1, vozr
 ++cv
@@ -8938,7 +8896,7 @@ endif
 @ row(),col() say lstr(cf) color cColorStMsg
 return NIL
 
-***** 31.10.16 запрос в GET-е возрастных периодов медомотров несовершеннолетних
+** 31.10.16 запрос в GET-е возрастных периодов медомотров несовершеннолетних
 Function f2_mnog_poisk_DNL(k,r,c,par)
 Static sast, sarr
 Local buf := save_maxrow(), a, i, j, s, s1
@@ -8986,9 +8944,7 @@ if empty(s1)
 endif
 return {s,s1}
 
-*
-
-***** 18.12.13 Сводные документы по всем видам диспансеризации и профилактики
+** 18.12.13 Сводные документы по всем видам диспансеризации и профилактики
 Function inf_DISP(k)
 Static si1 := 1, si2 := 1
 Local mas_pmt, mas_msg, mas_fun
@@ -9012,9 +8968,7 @@ if k > 10
 endif
 return NIL
 
-*
-
-***** 18.12.13 Итоги за период времени для ТФОМС
+** 18.12.13 Итоги за период времени для ТФОМС
 Function itog_svod_DISP_TF()
 Local i, k, arr_m, buf := save_maxrow(), ;
       sh := 80, hh := 60, n_file := "svod_dis"+stxt
@@ -9171,7 +9125,7 @@ if (arr_m := year_month(,,,5)) != NIL
 endif
 return NIL
 
-***** 18.01.21 Создание файла обмена R11...
+** 18.01.21 Создание файла обмена R11...
 Function f_create_R11()
 Local buf := save_maxrow(), i, j, ir, s := "", arr := {}, fl := .t., fl1 := .f., a_reestr := {}, ar
 Private SMONTH := 1, mdate := sys_date, mrec := 1
@@ -9472,7 +9426,7 @@ if fl
 endif
 return NIL
 
-***** 09.02.20 переопределить все три первичных ключа в картотеке
+** 09.02.20 переопределить все три первичных ключа в картотеке
 Static Function f0_create_R11(sgod)
 Local fl, v, ltip := 0, ltip1 := 0, lvoz := 0, ag, lgod_r
 if !emptyany(kart->kod,kart->fio,kart->date_r) // данную запись в картотеке недавно удалили
@@ -9502,7 +9456,7 @@ if !emptyany(kart->kod,kart->fio,kart->date_r) // данную запись в картотеке неда
 endif
 return {ltip,ltip1,lvoz}
 
-***** 22.10.21
+** 22.10.21
 Function f1_create_R11(lm,fl_dr00)
 Local nsh := 3, smsg, lnn := 0 ,buf := save_maxrow()
 if !f_Esc_Enter("создания файла R11",.t.)
@@ -9705,7 +9659,7 @@ keyboard chr(K_TAB)+chr(K_ENTER)
 rest_box(buf)
 return NIL
 
-***** 28.12.21
+** 28.12.21
 Function delete_reestr_R11()
 Local t_arr[BR_LEN], blk
 if ! hb_user_curUser:IsAdmin()
@@ -9751,7 +9705,7 @@ endif
 close databases
 return NIL
 
-***** 09.02.20
+** 09.02.20
 Function f1_delete_reestr_R11(nKey,oBrow,regim)
 Local ret := -1, rec_m := r01m->(recno()), ir, fl := .t.
 if regim == "edit" .and. nKey == K_ENTER
@@ -9785,7 +9739,7 @@ if regim == "edit" .and. nKey == K_ENTER
 endif
 return ret
 
-***** 09.02.20 аннулировать чтение реестра R11
+** 09.02.20 аннулировать чтение реестра R11
 Function f2_delete_reestr_R11(rec_m)
 Local ir, mkod_reestr
 G_Use(dir_server+"mo_xml",,"MO_XML")
@@ -9837,7 +9791,7 @@ select R01m
 DeleteRec()
 return NIL
 
-***** 13.02.20 удаление всех пакетов R11(PR11) за конкретный месяц
+** 13.02.20 удаление всех пакетов R11(PR11) за конкретный месяц
 Function delete_month_R11()
 Local pss := space(10), tmp_pss := my_parol()
 Local i, lm, mkod_reestr, ar_m := {}, buf
@@ -9898,7 +9852,7 @@ close databases
 return NIL
 
 /*
-***** 28.02.21 удаление всех пакетов R01(PR01) за конкретный месяц
+** 28.02.21 удаление всех пакетов R01(PR01) за конкретный месяц
 Function delete_month_R01()
 Local pss := space(10), tmp_pss := my_parol()
 Local i, lm, mkod_reestr, ar_m := {}, buf
@@ -9960,7 +9914,7 @@ return NIL
 
 */
 
-***** 25.02.21
+** 25.02.21
 Function f32_view_R11(lm)
   Local fl := .t., buf := save_maxrow(), k := 0, skol[5,3], ames[12,5,3], mrec := 2, n_file := "r11_itog"+stxt,;
         arr_rees := {}, mkod_reestr := 0
