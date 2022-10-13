@@ -104,7 +104,7 @@ Function InitSpravFFOMS()
   Public glob_V020 := getV020()
 
   // T008.xml - Коды ошибок в протоколах обработки инф.пакетов
-  Public glob_T008 := getT008()
+  // Public glob_T008 := getT008()
 
   // T012.xml - Классификатор ошибок ИСОМП
   // Public glob_T012 := getT012()
