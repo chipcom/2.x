@@ -98,7 +98,7 @@ Function InitSpravFFOMS()
   Public glob_V021 := getV021()
 
   // V016.xml - Классификатор видов диспансеризации/профосмотров
-  Public glob_V016 := getV016()
+  // Public glob_V016 := getV016()
 
   // V020.xml - Классификатор профилей койки
   // Public glob_V020 := getV020()
