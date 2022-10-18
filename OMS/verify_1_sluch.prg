@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-** 29.08.22
+** 18.10.22
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
         i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -1208,10 +1208,11 @@ Function verify_1_sluch(fl_view)
             endif
           endif
         endif
-        if arr_povod[1,1] == 4  .and. (left(mdiagnoz[1],1) == "C" .or. between(left(mdiagnoz[1],3),"D00","D09") .or. between(left(mdiagnoz[1],3),"D45","D47"))
+        if arr_povod[1, 1] == 4  .and. (left(mdiagnoz[1], 1) == "C" .or. between(left(mdiagnoz[1],3),"D00","D09") .or. between(left(mdiagnoz[1], 3), 'D45', 'D47'))
           k := ret_prvs_V021(human_->PRVS)
           if !eq_any(k, 9, 19, 41)  // как исключение добавил гематологов, специальность - 9
-            aadd(ta, 'диспансерное наблюдение при ЗНО осуществляют только врачи-онкологи (детские онкологи), а в листе учёта стоит специальность "'+inieditspr(A__MENUVERT, glob_V021, k)+'"')
+            // aadd(ta, 'диспансерное наблюдение при ЗНО осуществляют только врачи-онкологи (детские онкологи), а в листе учёта стоит специальность "'+inieditspr(A__MENUVERT, glob_V021, k)+'"')
+            aadd(ta, 'диспансерное наблюдение при ЗНО осуществляют только врачи-онкологи (детские онкологи), а в листе учёта стоит специальность "'+inieditspr(A__MENUVERT, getV021(), k)+'"')
           endif
         endif
       endif

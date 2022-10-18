@@ -3928,7 +3928,7 @@ else
 endif
 return NIL
 
-***** 05.04.15
+** 18.10.22
 Function f1edit_pers(oBrow)
 Static ak := {"   ","вр.","ср.","мл.","пр."}
 Local oColumn, nf := 27, n := 19,;
@@ -4104,7 +4104,8 @@ do case
     mprvs     := ret_tmp_prvs(0,m1prvs)
 
     m1prvs_021:= iif(empty(m1prvs_021), space(4), padr(lstr(m1prvs_021),4))
-    mprvs_021 := inieditspr(A__MENUVERT, glob_V021, val(m1prvs_021))
+    // mprvs_021 := inieditspr(A__MENUVERT, glob_V021, val(m1prvs_021))
+    mprvs_021 := inieditspr(A__MENUVERT, getV021(), val(m1prvs_021))
 
     tmp_color := setcolor(cDataCScr)
     k := maxrow()-19
