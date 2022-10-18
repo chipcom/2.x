@@ -92,62 +92,69 @@ Function fnastr_sprav_FFOMS(k,_n,_m)
   endif
   return NIL
   
-*****
-Function f1nastr_sprav_FFOMS(reg,_name,_msg)
+** 18.10.22
+Function f1nastr_sprav_FFOMS(reg, _name, _msg)
   Local buf, t_arr[BR_LEN], blk, len1, sKey, i, s, arr, arr1, arr2, fl := .t.
-  Private name_arr := "glob_"+_name, ob_kol, p_blk
+  // Private name_arr := 'glob_' + _name + '()', ob_kol, p_blk
+  Private name_arr := 'get' + _name + '()', ob_kol, p_blk
+
+  if upper(_name) == 'V034'
+    name_arr := 'get_ed_izm()'
+  elseif upper(_name) == 'IMPLANTANT'
+    name_arr := 'get_implantant()'
+  endif
   
-  if !init_tmp_glob_array(,&name_arr,sys_date,_name=="V002")
+  if !init_tmp_glob_array(, &name_arr, sys_date, _name=='V002')
     return NIL
   endif
-  use (cur_dir+"tmp_ga") new
+  use (cur_dir + 'tmp_ga') new
   ob_kol := lastrec()
   sKey := lstr(reg)
-  s := "Настройка по "
+  s := 'Настройка по '
   do case
     case reg == 0
       s += 'организации'
     case reg == 1
-      sKey += "-"+lstr(glob_uch[1])
-      s += 'учреждению "'+glob_uch[2]+'"'
+      sKey += '-' + lstr(glob_uch[1])
+      s += 'учреждению "' + glob_uch[2] + '"'
     case reg == 2
-      sKey += "-"+lstr(glob_otd[1])
-      s += 'отделению "'+glob_otd[2]+'"'
+      sKey += "-" + lstr(glob_otd[1])
+      s += 'отделению "' + glob_otd[2] + '"'
   endcase
   //
   if (fl := Semaphor_Tools_Ini(1))
-    arr := GetIniVar(tools_ini,{{_name,'0',""}})
+    arr := GetIniVar(tools_ini,{{_name, '0', ''}})
     arr := list2arr(arr[1])
     if len(arr) > 0
       ob_kol := len(arr)
-      tmp_ga->(dbeval({|| tmp_ga->is := (ascan(arr,kod) > 0) }))
+      tmp_ga->(dbeval({|| tmp_ga->is := (ascan(arr, kod) > 0) }))
     endif
     if reg > 0
       if empty(arr)
-        fl := func_error(4,"Сначала необходимо сохранить настройку классификатора по ОРГАНИЗАЦИИ")
+        fl := func_error(4, 'Сначала необходимо сохранить настройку классификатора по ОРГАНИЗАЦИИ')
       else
         delete for !tmp_ga->is
         pack
         //
-        arr1 := GetIniVar(tools_ini,{{_name,"1-"+lstr(glob_uch[1]),""}})
+        arr1 := GetIniVar(tools_ini, {{_name, '1-' + lstr(glob_uch[1]), ''}})
         arr1 := list2arr(arr1[1])
         if len(arr1) > 0
           ob_kol := len(arr1)
-          tmp_ga->(dbeval({|| tmp_ga->is := (ascan(arr1,kod) > 0) }))
+          tmp_ga->(dbeval({|| tmp_ga->is := (ascan(arr1, kod) > 0) }))
         endif
       endif
       if fl .and. reg == 2
         if empty(arr1)
-          fl := func_error(4,"Сначала необходимо сохранить настройку классификатора по УЧРЕЖДЕНИЮ")
+          fl := func_error(4, 'Сначала необходимо сохранить настройку классификатора по УЧРЕЖДЕНИЮ')
         else
           delete for !tmp_ga->is
           pack
           //
-          arr2 := GetIniVar(tools_ini,{{_name,sKey,""}})
+          arr2 := GetIniVar(tools_ini, {{_name, sKey, ''}})
           arr2 := list2arr(arr2[1])
           if len(arr2) > 0
             ob_kol := len(arr2)
-            tmp_ga->(dbeval({|| tmp_ga->is := (ascan(arr2,kod) > 0) }))
+            tmp_ga->(dbeval({|| tmp_ga->is := (ascan(arr2, kod) > 0) }))
           endif
         endif
       endif
@@ -158,35 +165,35 @@ Function f1nastr_sprav_FFOMS(reg,_name,_msg)
     close databases
     return NIL
   endif
-  index on upper(name) to (cur_dir+"tmp_ga")
+  index on upper(name) to (cur_dir + 'tmp_ga')
   buf := savescreen()
-  box_shadow(0,50,2,77,color1)
-  p_blk := {|| SetPos(1,51), DispOut(padc("Выбрано строк: "+lstr(ob_kol),26),color8) }
-  blk := {|| iif(tmp_ga->is, {1,2}, {3,4}) }
+  box_shadow(0, 50, 2, 77, color1)
+  p_blk := {|| SetPos(1, 51), DispOut(padc('Выбрано строк: ' + lstr(ob_kol), 26), color8) }
+  blk := {|| iif(tmp_ga->is, {1, 2}, {3, 4}) }
   eval(p_blk)
   //
   t_arr[BR_TOP] := 4
-  t_arr[BR_BOTTOM] := maxrow()-2
+  t_arr[BR_BOTTOM] := maxrow() - 2
   t_arr[BR_LEFT] := 2
   t_arr[BR_RIGHT] := 77
-  len1 := t_arr[BR_RIGHT]-t_arr[BR_LEFT]-3-4
+  len1 := t_arr[BR_RIGHT] - t_arr[BR_LEFT] - 3 - 4
   t_arr[BR_COLOR] := color0
-  t_arr[BR_TITUL] := _name+" "+_msg
-  t_arr[BR_TITUL_COLOR] := "B/BG"
+  t_arr[BR_TITUL] := _name + ' ' + _msg
+  t_arr[BR_TITUL_COLOR] := 'B/BG'
   t_arr[BR_FL_NOCLEAR] := .t.
-  t_arr[BR_ARR_BROWSE] := {,,,"N/BG,W+/N,B/BG,W+/B",.t.}
-  t_arr[BR_COLUMN] := {{ ' ', {|| iif(tmp_ga->is, '', ' ') },blk },;
-                       { center(s,len1), {|| padr(tmp_ga->name,len1) },blk }}
-  t_arr[BR_EDIT] := {|nk,ob| f2nastr_sprav_FFOMS(nk,ob,"edit") }
-  t_arr[BR_STAT_MSG] := {|| status_key("^<Esc>^ - выход;  ^<+,-,Ins>^ - отметить;  ^<F2>^ - поиск по подстроке") }
+  t_arr[BR_ARR_BROWSE] := { , , , 'N/BG,W+/N,B/BG,W+/B', .t.}
+  t_arr[BR_COLUMN] := {{ ' ', {|| iif(tmp_ga->is, '', ' ') }, blk },;
+                       { center(s, len1), {|| padr(tmp_ga->name, len1) }, blk }}
+  t_arr[BR_EDIT] := {|nk, ob| f2nastr_sprav_FFOMS(nk, ob, 'edit') }
+  t_arr[BR_STAT_MSG] := {|| status_key('^<Esc>^ - выход;  ^<+,-,Ins>^ - отметить;  ^<F2>^ - поиск по подстроке') }
   go top
   edit_browse(t_arr)
   eval(p_blk)
-  if f_Esc_Enter("записи настройки")
+  if f_Esc_Enter('записи настройки')
     arr := {}
-    tmp_ga->(dbeval({|| iif(tmp_ga->is, aadd(arr,tmp_ga->kod),nil) }))
+    tmp_ga->(dbeval({|| iif(tmp_ga->is, aadd(arr, tmp_ga->kod), nil) }))
     if Semaphor_Tools_Ini(1)
-      SetIniVar(tools_ini,{{_name,sKey,arr2list(arr)}})
+      SetIniVar(tools_ini, {{_name, sKey, arr2list(arr)}})
       Semaphor_Tools_Ini(2)
     endif
   endif
@@ -227,34 +234,41 @@ Function f2nastr_sprav_FFOMS(nKey,oBrow,regim)
   endif
   return k
   
-***** сформировать справочник по настройке организации/учреждения/отделения
-Function create_classif_FFOMS(reg,_name)
+** 18.10.22 сформировать справочник по настройке организации/учреждения/отделения
+Function create_classif_FFOMS(reg, _name)
   // reg - возврат кслассификатора для 0-организации/1-учреждения/2-отделения
   Local i, k, arr, arr1, arr2, fl := .t., ret := {}, ret1
-  Private name_arr := "glob_"+_name
+  // Private name_arr := 'glob_' + _name + '()'
+  Private name_arr := 'get' + _name + '()'
   //
-  arr := GetIniVar(local_tools_ini,{{_name,'0',""}})
+  if upper(_name) == 'V034'
+    name_arr := 'get_ed_izm()'
+  elseif upper(_name) == 'IMPLANTANT'
+    name_arr := 'get_implantant()'
+  endif
+
+  arr := GetIniVar(local_tools_ini,{{_name, '0', ''}})
   arr := list2arr(arr[1])
   if len(arr) > 0
     ret := aclone(arr)
     if reg > 0
-      arr1 := GetIniVar(local_tools_ini,{{_name,"1-"+lstr(glob_uch[1]),""}})
+      arr1 := GetIniVar(local_tools_ini, {{_name, '1-' + lstr(glob_uch[1]), ''}})
       arr1 := list2arr(arr1[1])
       if (k := len(arr1)) > 0
         for i := k to 1 step -1
-          if ascan(ret,arr1[i]) == 0
-            Del_Array(arr1,i)
+          if ascan(ret, arr1[i]) == 0
+            Del_Array(arr1, i)
           endif
         next
         ret := aclone(arr1)
       endif
       if reg == 2
-        arr2 := GetIniVar(local_tools_ini,{{_name,"2-"+lstr(glob_otd[1]),""}})
+        arr2 := GetIniVar(local_tools_ini, {{_name, '2-' + lstr(glob_otd[1]), ''}})
         arr2 := list2arr(arr2[1])
         if (k := len(arr2)) > 0
           for i := k to 1 step -1
-            if ascan(ret,arr2[i]) == 0
-              Del_Array(arr2,i)
+            if ascan(ret, arr2[i]) == 0
+              Del_Array(arr2, i)
             endif
           next
           ret := aclone(arr2)
@@ -269,10 +283,11 @@ Function create_classif_FFOMS(reg,_name)
         aadd(ret1, &name_arr.[k])
       endif
     next
-  elseif upper(_name) == "V002"
-    ret1 := aclone(glob_V002)
+  elseif upper(_name) == 'V002'
+    // ret1 := aclone(glob_V002)
+    ret1 := aclone(getV002())
   else
-    ret1 := cut_glob_array(&name_arr,sys_date)
+    ret1 := cut_glob_array(&name_arr, sys_date)
   endif
   asort(ret1,,,{|x,y| upper(x[1]) < upper(y[1]) })
   return ret1
