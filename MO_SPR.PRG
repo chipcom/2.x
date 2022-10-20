@@ -4412,10 +4412,11 @@ index on kod to (cur_dir+"tmpkV004")
 tmp_V004->(dbCloseArea())
 //
 len1 := 0
-_glob_array := glob_V015
+// _glob_array := glob_V015
+_glob_array := getV015()
 for i := 1 to len(_glob_array)
-  if iif(is_all, .t., between_date(_glob_array[i,5],_glob_array[i,6],_date))
-    len1 := max(len1,len(lstr(_glob_array[i,2])+alltrim(_glob_array[i,1]))+1)
+  if iif(is_all, .t., between_date(_glob_array[i, 5], _glob_array[i, 6], _date))
+    len1 := max(len1, len(lstr(_glob_array[i, 2]) + alltrim(_glob_array[i, 1])) + 1)
   endif
 next
 dbcreate(cur_dir+"tmp_V015",{{"name","C",len1,0},;

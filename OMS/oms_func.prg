@@ -39,7 +39,7 @@ Function UslugaAccordanceProfil(lshifr, lvzros_reb, lprofil, ta, short_shifr)
   endif
   return lprofil
   
-** 26.05.22 проверка на соответствие услуги специальности
+** 20.10.22 проверка на соответствие услуги специальности
 Function UslugaAccordancePRVS(lshifr, lvzros_reb, lprvs, ta, short_shifr, lvrach)
   Local s := '', s1 := '', s2, i, k
 
@@ -56,7 +56,8 @@ Function UslugaAccordancePRVS(lshifr, lvzros_reb, lprvs, ta, short_shifr, lvrach
   else
     k := ret_V004_V015(lprvs)
   endif
-  s2 := lstr(k) + '.' + inieditspr(A__MENUVERT, glob_V015, k)
+  // s2 := lstr(k) + '.' + inieditspr(A__MENUVERT, glob_V015, k)
+  s2 := lstr(k) + '.' + inieditspr(A__MENUVERT, getV015(), k)
   //
   lprvs := ret_prvs_V021(lprvs)
   select MOSPEC
@@ -71,7 +72,8 @@ Function UslugaAccordancePRVS(lshifr, lvzros_reb, lprvs, ta, short_shifr, lvrach
         if (i := ascan(glob_arr_V015_V021, {|x| x[2] == k})) > 0 // перевод из 21-го справочника
           k := glob_arr_V015_V021[i, 1]                          // в 15-ый справочник
         endif
-        s += '"' + lstr(k) + '.' + inieditspr(A__MENUVERT, glob_V015, k) + '", '
+        // s += '"' + lstr(k) + '.' + inieditspr(A__MENUVERT, glob_V015, k) + '", '
+        s += '"' + lstr(k) + '.' + inieditspr(A__MENUVERT, getV015(), k) + '", '
         skip
       enddo
       pers->(dbGoto(lvrach))

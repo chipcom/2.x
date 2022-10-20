@@ -1322,7 +1322,7 @@ else
 endif
 return lshifr
 
-***** 04.04.18
+** 20.10.22
 Function f1_read_file_XML_SDS(k,lal,aerr,ainf,lprofil)
 Static aprvs
 Local i, s, lk, lprvs, ret := 0
@@ -1419,13 +1419,14 @@ elseif !empty(k := &lal.->vr_snils) .and. !empty(&lal.->prvs)
     &lal.->vrach := lk
   else
     if ascan(pass,{|x| x[1] == k .and. x[2] == lprvs }) == 0
-      aadd(pass,{k,lprvs})
+      aadd(pass,{k, lprvs})
       s := space(80)
-      if !val_snils(k,2,@s)
-        aadd(aerr,'VRACH_SNILS="'+transform(k,picture_pf)+'"-'+s)
+      if !val_snils(k, 2, @s)
+        aadd(aerr, 'VRACH_SNILS="' + transform(k, picture_pf) + '"-' + s)
       endif
-      aadd(aerr,'В справочнике персонала не обнаружен сотрудник со СНИЛС '+transform(k,picture_pf)+;
-                ' и специальностью "'+inieditspr(A__MENUVERT,glob_V015,lprvs)+'"')
+      aadd(aerr, 'В справочнике персонала не обнаружен сотрудник со СНИЛС ' + transform(k, picture_pf) + ;
+                ' и специальностью "' + inieditspr(A__MENUVERT, getV015(), lprvs) + '"')
+                // ' и специальностью "'+inieditspr(A__MENUVERT,glob_V015,lprvs)+'"')
     endif
     if empty(ret)
       ret := 3

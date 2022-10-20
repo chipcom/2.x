@@ -92,7 +92,7 @@ Function InitSpravFFOMS()
   Public glob_V014 := getV014()
 
   // V015.xml - Классификатор медицинских специальностей
-  Public glob_V015 := getV015()
+  // Public glob_V015 := getV015()
 
   // V021.xml - Классификатор медицинских специальностей (последний)
   // Public glob_V021 := getV021()

@@ -6850,7 +6850,7 @@ endif
 restscreen(buf)
 return NIL
 
-***** 11.10.18
+** 20.10.22
 Function f1_prikaz_848_miac()
 Local tfoms_pz[11], rec, vid_vp, vid1vp, lshifr1, _what_if := _init_if(), d2_year, ss[20]
 mywait()
@@ -6945,10 +6945,11 @@ for _tip := 1 to 5
   do while tmp->nn == 1 .and. tmp->tip==_tip .and. tmp->ist_fin==0 .and. !eof()
     if ascan(arr2, {|x| x[1] == tmp->spec}) == 0
       if _tip == 2 .and. m1dolpro == 0 .and. tmp->spec < 0
-        aadd(arr2,{tmp->spec,inieditspr(A__MENUVERT,glob_V015,abs(tmp->spec))})
+        // aadd(arr2,{tmp->spec,inieditspr(A__MENUVERT,glob_V015,abs(tmp->spec))})
+        aadd(arr2, {tmp->spec, inieditspr(A__MENUVERT, getV015(), abs(tmp->spec))})
       else
-        aadd(arr2,{tmp->spec,inieditspr(A__MENUVERT,;
-                                        iif(_tip==2.and.m1dolpro==0,glob_V004,glob_V002),;
+        aadd(arr2, {tmp->spec, inieditspr(A__MENUVERT, ;
+                                        iif(_tip == 2 .and. m1dolpro == 0, glob_V004, glob_V002), ;
                                         tmp->spec)})
       endif
     endif
@@ -6961,10 +6962,11 @@ for _tip := 1 to 5
     do while tmp->nn == 0 .and. tmp->tip==_tip .and. tmp->ist_fin==_ist_fin .and. !eof()
       if ascan(arr, {|x| x[1] == tmp->spec}) == 0
         if _tip == 2 .and. m1dolpro == 0 .and. tmp->spec < 0
-          aadd(arr,{tmp->spec,inieditspr(A__MENUVERT,glob_V015,abs(tmp->spec))})
+          // aadd(arr,{tmp->spec,inieditspr(A__MENUVERT,glob_V015,abs(tmp->spec))})
+          aadd(arr, {tmp->spec, inieditspr(A__MENUVERT, getV015(), abs(tmp->spec))})
         else
-          aadd(arr,{tmp->spec,inieditspr(A__MENUVERT,;
-                                        iif(_tip==2.and.m1dolpro==0,glob_V004,glob_V002),;
+          aadd(arr, {tmp->spec, inieditspr(A__MENUVERT, ;
+                                        iif(_tip == 2 .and. m1dolpro == 0, glob_V004, glob_V002), ;
                                         tmp->spec)})
         endif
       endif

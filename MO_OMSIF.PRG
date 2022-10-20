@@ -4912,7 +4912,8 @@ if found()
   index on padr(lstr(kod),9) to (cur_dir+"tmp") for tip == 3
   go top
   do while !eof()
-    f2_f30(inieditspr(A__MENUVERT, glob_V015, tmp->kod))
+    // f2_f30(inieditspr(A__MENUVERT, glob_V015, tmp->kod))
+    f2_f30(inieditspr(A__MENUVERT, getV015(), tmp->kod))
     skip
   enddo
   R_Use(dir_server+"uslugi",,"USL")
@@ -5029,7 +5030,8 @@ if found()  // в tmp уже должны входить
   index on padr(lstr(kod),9) to (cur_dir+"tmp2") for tip == 3
   go top
   do while !eof()
-    f2_f30_dop(inieditspr(A__MENUVERT, glob_V015, tmp2->kod))
+    // f2_f30_dop(inieditspr(A__MENUVERT, glob_V015, tmp2->kod))
+    f2_f30_dop(inieditspr(A__MENUVERT, getV015(), tmp2->kod))
     skip
   enddo
 //  R_Use(dir_server+"uslugi",,"USL")
