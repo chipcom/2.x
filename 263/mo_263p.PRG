@@ -115,7 +115,7 @@ elseif napr->t_ans_1 == 1
 endif
 return s
 
-** 13.05.22
+** 21.10.22
 Function f2_263_p_napr(nKey,oBrow,regim)
 Static mm_forma, s1stac_mo := "      ", s1vrach := 0
 Local bg := {|o,k| get_MKB10(o,k) }
@@ -125,8 +125,9 @@ if empty(s1stac_mo) .and. is_napr_stac // по умолчанию направляем в наш
   s1stac_mo := glob_mo[_MO_KOD_TFOMS]  // стационар (если он у нас есть)
 endif
 if mm_forma == NIL
-  mm_forma := aclone(glob_V014)
-  Del_Array(mm_forma,1) // убираем "экстренную" помощь
+  // mm_forma := aclone(glob_V014)
+  mm_forma := aclone(getV014())
+  Del_Array(mm_forma, 1) // убираем "экстренную" помощь
 endif
 do case
   case regim == "open"
@@ -226,7 +227,8 @@ do case
       endif
       mdisp := inieditspr(A__MENUVERT, mm_danet, m1disp)
       mUSL_OK := inieditspr(A__MENUVERT, tmp_V006, m1USL_OK)
-      mforma := inieditspr(A__MENUVERT,glob_V014,m1forma)
+      // mforma := inieditspr(A__MENUVERT,glob_V014,m1forma)
+      mforma := inieditspr(A__MENUVERT, getV014(), m1forma)
       mprofil_k := inieditspr(A__MENUVERT, arr_t007, M1PROFIL_K)
       mprofil := inieditspr(A__MENUVERT, glob_V002, M1PROFIL)
       DEFAULT mdate_hosp TO md_napr+30
@@ -548,7 +550,7 @@ return s
 
 *
 
-***** 19.02.17
+** 21.10.22
 Function f2_263_p_annul(nKey,oBrow,regim)
 Local ret := -1, rec, i, k, s, tmp_color, buf, s_error := "",;
       tmp_V006 := {{"Стационар",1},{"Дневной стационар",2}}
@@ -592,17 +594,18 @@ do case
         if (i := ascan(pr_arr,{|x| x[1]==m1otd } )) > 0
           motd := pr_arr[i,2]
         elseif m1otd > 0
-          motd := "! некорректное отделение !"
+          motd := '! некорректное отделение !'
         endif
       endif
       mUSL_OK := inieditspr(A__MENUVERT, tmp_V006, m1USL_OK)
-      mforma := inieditspr(A__MENUVERT,glob_V014,m1forma)
+      // mforma := inieditspr(A__MENUVERT,glob_V014,m1forma)
+      mforma := inieditspr(A__MENUVERT, getV014(), m1forma)
       mprofil_k := inieditspr(A__MENUVERT, arr_t007, M1PROFIL_K)
       mprofil := inieditspr(A__MENUVERT, glob_V002, M1PROFIL)
       mstac_mo := ret_mo(m1stac_mo)[_MO_SHORT_NAME]
       mrea_annul := inieditspr(A__MENUVERT, mm_reason_annul, m1rea_annul)
       if m1vrach > 0
-        R_Use(dir_server+"mo_pers",,"P2")
+        R_Use(dir_server + 'mo_pers', , 'P2')
         goto (m1vrach)
         MTAB_NOM := p2->tab_nom
         m1prvs := ret_new_spec(p2->prvs,p2->prvs_new)
