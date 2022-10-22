@@ -84,12 +84,16 @@ Function oms_sluch_dializ(par,Loc_kod,kod_kartotek)
   Private mm_rslt := {}, mm_ishod := {}
   if par == 1 // гемодиализ (1)
     m1USL_OK := 2
-    aeval(glob_V009,{|x| iif(x[5]==m1usl_ok, aadd(mm_rslt,x), nil) })
-    m1rslt := 201 ; m1ishod := 203
+    // aeval(glob_V009,{|x| iif(x[5]==m1usl_ok, aadd(mm_rslt,x), nil) })
+    aeval(getV009(), {|x| iif(x[5] == m1usl_ok, aadd(mm_rslt, x), nil) })
+    m1rslt := 201
+    m1ishod := 203
   else // перитонеальный диализ (2)
     m1USL_OK := 3
-    aeval(glob_V009,{|x| iif(x[5]==m1usl_ok.and.x[2]<316, aadd(mm_rslt,x), nil) })
-    m1rslt := 314 ; m1ishod := 304
+    // aeval(glob_V009,{|x| iif(x[5]==m1usl_ok.and.x[2]<316, aadd(mm_rslt,x), nil) })
+    aeval(getV009(), {|x| iif(x[5] == m1usl_ok .and. x[2] < 316, aadd(mm_rslt, x), nil) })
+    m1rslt := 314
+    m1ishod := 304
   endif
   // aeval(glob_V012,{|x| iif(x[5]==m1usl_ok, aadd(mm_ishod,x), nil) })
   aeval(getV012(), {|x| iif(x[5] == m1usl_ok, aadd(mm_ishod, x), nil) })

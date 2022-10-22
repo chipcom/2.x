@@ -1,10 +1,12 @@
-* 25.05.21 вернуть результат обращения за медицинской помощью по коду
+** 22.10.22 вернуть результат обращения за медицинской помощью по коду
 function getRSLT_V009( result )
   local ret := NIL
   local i
 
-  if (i := ascan(glob_V009, {|x| x[2] == result })) > 0
-    ret := glob_V009[i,1]
+  // if (i := ascan(glob_V009, {|x| x[2] == result })) > 0
+    // ret := glob_V009[i,1]
+  if (i := ascan(getV009(), {|x| x[2] == result })) > 0
+      ret := getV009()[i, 1]
   endif
   return ret
 

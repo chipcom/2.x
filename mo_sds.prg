@@ -750,10 +750,11 @@ do while !eof()
   if empty(ihuman->RSLT)
     aadd(ae,"не заполнен результат лечения RSLT")
   else
-    if int(val(left(lstr(ihuman->RSLT),1))) != ihuman->USL_OK
-      aadd(ae,"поле USL_OK = "+lstr(ihuman->USL_OK)+" не соответствует значению поля RSLT = "+lstr(ihuman->RSLT))
-    elseif ascan(glob_V009,{|x| x[2] == ihuman->RSLT}) == 0
-      aadd(ae,"неверное значение поля RSLT = "+lstr(ihuman->RSLT))
+    if int(val(left(lstr(ihuman->RSLT), 1))) != ihuman->USL_OK
+      aadd(ae, 'поле USL_OK = ' + lstr(ihuman->USL_OK) + ' не соответствует значению поля RSLT = ' + lstr(ihuman->RSLT))
+    // elseif ascan(glob_V009,{|x| x[2] == ihuman->RSLT}) == 0
+    elseif ascan(getV009(), {|x| x[2] == ihuman->RSLT}) == 0
+      aadd(ae, 'неверное значение поля RSLT = ' + lstr(ihuman->RSLT))
     endif
   endif
   if empty(ihuman->ISHOD)

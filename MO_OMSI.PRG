@@ -510,10 +510,11 @@ add_string('    способ оплаты: ' + tmp[1])
 for i := 2 to k
   add_string(space(19) + tmp[i])
 next
-k := perenos(tmp, 'Результат обращения: ' + inieditspr(A__MENUVERT, glob_V009, human_->RSLT_NEW),sh - 2)
-add_string("  "+tmp[1])
+// k := perenos(tmp, 'Результат обращения: ' + inieditspr(A__MENUVERT, glob_V009, human_->RSLT_NEW),sh - 2)
+k := perenos(tmp, 'Результат обращения: ' + inieditspr(A__MENUVERT, getV009(), human_->RSLT_NEW), sh - 2)
+add_string('  ' + tmp[1])
 for i := 2 to k
-  add_string(padl(alltrim(tmp[i]),sh))
+  add_string(padl(alltrim(tmp[i]), sh))
 next
 if human->OBRASHEN == '1'
   add_string("  Признак подорения на злокачественное новообразование: да")
@@ -1078,9 +1079,10 @@ for ii := 1 to len(arr_h)
     add_string('  Профиль: ' + inieditspr(A__MENUVERT, glob_V002, human_->PROFIL))
   endif
   // add_string('  Способ оплаты: ' + inieditspr(A__MENUVERT, glob_V010, human_->IDSP))
-  add_string('  Способ оплаты: ' + inieditspr(A__MENUVERT, getV010(), human_->IDSP))
-  add_string('  Результат обращения: ' + inieditspr(A__MENUVERT, glob_V009, human_->RSLT_NEW))
+  // add_string('  Результат обращения: ' + inieditspr(A__MENUVERT, glob_V009, human_->RSLT_NEW))
   // add_string("  Исход заболевания: "+inieditspr(A__MENUVERT, glob_V012, human_->ISHOD_NEW))
+  add_string('  Способ оплаты: ' + inieditspr(A__MENUVERT, getV010(), human_->IDSP))
+  add_string('  Результат обращения: ' + inieditspr(A__MENUVERT, getV009(), human_->RSLT_NEW))
   add_string('  Исход заболевания: ' + inieditspr(A__MENUVERT, getV012(), human_->ISHOD_NEW))
   if !empty(mlech_vr)
     add_string('  Лечащий врач : ' + mlech_vr)

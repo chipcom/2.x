@@ -1203,8 +1203,9 @@ if len(arr1) > 1
   next
   aadd(arr, tmp1)
 endif
-aadd(arr, '  Результат обращения: ' + inieditspr(A__MENUVERT, glob_V009, human_->RSLT_NEW))
+// aadd(arr, '  Результат обращения: ' + inieditspr(A__MENUVERT, glob_V009, human_->RSLT_NEW))
 // aadd(arr, "  Исход заболевания: "+inieditspr(A__MENUVERT, glob_V012, human_->ISHOD_NEW))
+aadd(arr, '  Результат обращения: ' + inieditspr(A__MENUVERT, getV009(), human_->RSLT_NEW))
 aadd(arr, '  Исход заболевания: ' + inieditspr(A__MENUVERT, getV012(), human_->ISHOD_NEW))
 aadd(arr, '  Срок лечения с ' + full_date(human->n_data) + ' по ' + full_date(human->k_data))
 Select HU

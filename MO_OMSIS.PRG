@@ -1532,12 +1532,13 @@ if mem_dom_aktiv == 1
 endif
 Private ssumma := 0, srak_s := 0, suet := 0, p_regim := 1, mm_company := {}, is_kategor2 := .f.,;
         mm_rslt := {}, mm_ishod := {}, rslt_umolch := -1, ishod_umolch := -1
-Private tmp_V006 := create_classif_FFOMS(0,"V006") // USL_OK
+Private tmp_V006 := create_classif_FFOMS(0, "V006") // USL_OK
 //Private tmp_V008 := create_classif_FFOMS(0,"V008") // VIDPOM
-Private tmp_V002 := create_classif_FFOMS(0,"V002") // PROFIL
+Private tmp_V002 := create_classif_FFOMS(0, "V002") // PROFIL
 //Private tmp_V010 := create_classif_FFOMS(0,"V010") // IDSP
-Private tmp_V009 := cut_glob_array(glob_V009,sys_date) // rslt
+// Private tmp_V009 := cut_glob_array(glob_V009,sys_date) // rslt
 // Private tmp_V012 := cut_glob_array(glob_V012,sys_date) // ishod
+Private tmp_V009 := cut_glob_array(getV009(), sys_date) // rslt
 Private tmp_V012 := cut_glob_array(getV012(), sys_date) // ishod
 Private arr_doc := {"Дата рожд.",;
                     "Адрес",;
