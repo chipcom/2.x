@@ -4629,13 +4629,17 @@ arr[US_EDIT_SPR ] := {{"name","C",30,0,,,space(30),,"Наименование отделения"},;
                       //  {|x|menu_reader(x,tmp_V010,A__MENUVERT,,,.f.)},;
                       //  0,{|x|inieditspr(A__MENUVERT,glob_V010,x)},;
                       //  "Способ оплаты"},;
+                      // {"IDVMP","N",2,0,,;
+                      //  {|x|menu_reader(x,tmp_V008,A__MENUVERT,,,.f.)},;
+                      //  0,{|x|inieditspr(A__MENUVERT,glob_V008,x)},;
+                      //  "Вид мед.помощи"},;
                       {"IDSP","N",2,0,,;
                        {|x|menu_reader(x,tmp_V010,A__MENUVERT,,,.f.)},;
                        0,{|x|inieditspr(A__MENUVERT,getV010(),x)},;
                        "Способ оплаты"},;
                       {"IDVMP","N",2,0,,;
                        {|x|menu_reader(x,tmp_V008,A__MENUVERT,,,.f.)},;
-                       0,{|x|inieditspr(A__MENUVERT,glob_V008,x)},;
+                       0,{|x|inieditspr(A__MENUVERT,getV008(),x)},;
                        "Вид мед.помощи"},;
                       */
 if is_otd_dep

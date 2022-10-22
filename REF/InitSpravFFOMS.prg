@@ -77,7 +77,7 @@ Function InitSpravFFOMS()
   Public glob_V006 := getV006()
 
   // V008.xml - Классификатор видов медицинской помощи
-  Public glob_V008 := getV008()
+  // Public glob_V008 := getV008()
 
   // V009.xml - Классификатор результатов обращения за медицинской помощью
   // Public glob_V009 := getV009()

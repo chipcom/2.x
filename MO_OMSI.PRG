@@ -490,6 +490,7 @@ endif
 
 add_string('  Медицинская помощь: условия оказания: ' + inieditspr(A__MENUVERT, glob_V006, human_->USL_OK))
 //add_string("    вид: "+inieditspr(A__MENUVERT, glob_V008, human_->VIDPOM))
+//add_string("    вид: "+inieditspr(A__MENUVERT, getV008(), human_->VIDPOM))
 if human_->PROFIL > 0
   k := perenos(tmp, 'профиль: ' + inieditspr(A__MENUVERT, glob_V002, human_->PROFIL), sh - 4)
   add_string(space(4) + tmp[1])
