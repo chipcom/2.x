@@ -1547,11 +1547,14 @@ if fl
       strfile("_SLUCH: запись № "+lstr(ihuman->(recno()))+;
               ", неверное значение поля USL_OK = "+lstr(ihuman->USL_OK)+hb_eol(),cFileProtokol,.t.)
     endif
-    /*if !empty(ihuman->IDSP) .and. ascan(glob_V010,{|x| x[2]==ihuman->IDSP})==0
+    /*
+    // if !empty(ihuman->IDSP) .and. ascan(glob_V010,{|x| x[2]==ihuman->IDSP})==0
+    if !empty(ihuman->IDSP) .and. ascan(getV010(),{|x| x[2]==ihuman->IDSP})==0
       fl := .f.
       strfile("_SLUCH: запись № "+lstr(ihuman->(recno()))+;
               ", неверное значение поля IDSP = "+lstr(ihuman->IDSP)+hb_eol(),cFileProtokol,.t.)
-    endif*/
+    endif
+    */
     if !empty(ihuman->RSLT) .and. ascan(glob_V009,{|x| x[2]==ihuman->RSLT})==0
       fl := .f.
       strfile("_SLUCH: запись № "+lstr(ihuman->(recno()))+;

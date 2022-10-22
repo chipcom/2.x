@@ -504,12 +504,13 @@ if human_2->PROFIL_K > 0 .and. human_->USL_OK < 3
     add_string(padl(alltrim(tmp[i]),sh))
   next
 endif
-k := perenos(tmp,inieditspr(A__MENUVERT, glob_V010, human_->IDSP),sh-19)
-add_string("    способ оплаты: "+tmp[1])
+// k := perenos(tmp,inieditspr(A__MENUVERT, glob_V010, human_->IDSP),sh-19)
+k := perenos(tmp, inieditspr(A__MENUVERT, getV010(), human_->IDSP), sh - 19)
+add_string('    способ оплаты: ' + tmp[1])
 for i := 2 to k
-  add_string(space(19)+tmp[i])
+  add_string(space(19) + tmp[i])
 next
-k := perenos(tmp,"Результат обращения: "+inieditspr(A__MENUVERT, glob_V009, human_->RSLT_NEW),sh-2)
+k := perenos(tmp, 'Результат обращения: ' + inieditspr(A__MENUVERT, glob_V009, human_->RSLT_NEW),sh - 2)
 add_string("  "+tmp[1])
 for i := 2 to k
   add_string(padl(alltrim(tmp[i]),sh))
@@ -1076,7 +1077,8 @@ for ii := 1 to len(arr_h)
   if human_->PROFIL > 0
     add_string('  Профиль: ' + inieditspr(A__MENUVERT, glob_V002, human_->PROFIL))
   endif
-  add_string('  Способ оплаты: ' + inieditspr(A__MENUVERT, glob_V010, human_->IDSP))
+  // add_string('  Способ оплаты: ' + inieditspr(A__MENUVERT, glob_V010, human_->IDSP))
+  add_string('  Способ оплаты: ' + inieditspr(A__MENUVERT, getV010(), human_->IDSP))
   add_string('  Результат обращения: ' + inieditspr(A__MENUVERT, glob_V009, human_->RSLT_NEW))
   // add_string("  Исход заболевания: "+inieditspr(A__MENUVERT, glob_V012, human_->ISHOD_NEW))
   add_string('  Исход заболевания: ' + inieditspr(A__MENUVERT, getV012(), human_->ISHOD_NEW))

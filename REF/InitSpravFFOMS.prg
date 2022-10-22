@@ -83,7 +83,7 @@ Function InitSpravFFOMS()
   Public glob_V009 := getV009()
 
   // V010.xml - Классификатор способов оплаты медицинской помощи
-  Public glob_V010 := getV010()
+  // Public glob_V010 := getV010()
 
   // V012.xml - Классификатор исходов заболевания
   // Public glob_V012 := getV012()
