@@ -4383,12 +4383,14 @@ endif
 restscreen(buf)
 return fl
 
-***** 23.01.17 инициализировать tmp-файл БД медицинский специальностей
-Function init_tmp_prvs(_date,is_all)
+** 22.10.22 инициализировать tmp-файл БД медицинский специальностей
+Function init_tmp_prvs(_date, is_all)
 Local i, s, len1, fl_is, rec, tmp_select := select()
+
 DEFAULT is_all TO .f.
 len1 := 0
-_glob_array := glob_V004
+// _glob_array := glob_V004
+_glob_array := getV004()
 for i := 1 to len(_glob_array)
   if iif(is_all, .t., between_date(_glob_array[i,3],_glob_array[i,4],_date))
     len1 := max(len1,len(lstr(_glob_array[i,2])+alltrim(_glob_array[i,1]))+1)

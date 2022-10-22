@@ -6853,7 +6853,7 @@ endif
 restscreen(buf)
 return NIL
 
-** 20.10.22
+** 22.10.22
 Function f1_prikaz_848_miac()
 Local tfoms_pz[11], rec, vid_vp, vid1vp, lshifr1, _what_if := _init_if(), d2_year, ss[20]
 mywait()
@@ -6952,8 +6952,11 @@ for _tip := 1 to 5
         aadd(arr2, {tmp->spec, inieditspr(A__MENUVERT, getV015(), abs(tmp->spec))})
       else
         aadd(arr2, {tmp->spec, inieditspr(A__MENUVERT, ;
-                                        iif(_tip == 2 .and. m1dolpro == 0, glob_V004, glob_V002), ;
+                                        iif(_tip == 2 .and. m1dolpro == 0, getV004(), glob_V002), ;
                                         tmp->spec)})
+        // aadd(arr2, {tmp->spec, inieditspr(A__MENUVERT, ;
+        //   iif(_tip == 2 .and. m1dolpro == 0, glob_V004, glob_V002), ;
+        //   tmp->spec)})
       endif
     endif
     skip
@@ -6968,9 +6971,12 @@ for _tip := 1 to 5
           // aadd(arr,{tmp->spec,inieditspr(A__MENUVERT,glob_V015,abs(tmp->spec))})
           aadd(arr, {tmp->spec, inieditspr(A__MENUVERT, getV015(), abs(tmp->spec))})
         else
+          // aadd(arr, {tmp->spec, inieditspr(A__MENUVERT, ;
+          //                               iif(_tip == 2 .and. m1dolpro == 0, glob_V004, glob_V002), ;
+          //                               tmp->spec)})
           aadd(arr, {tmp->spec, inieditspr(A__MENUVERT, ;
-                                        iif(_tip == 2 .and. m1dolpro == 0, glob_V004, glob_V002), ;
-                                        tmp->spec)})
+            iif(_tip == 2 .and. m1dolpro == 0, getV004(), glob_V002), ;
+            tmp->spec)})
         endif
       endif
       skip
