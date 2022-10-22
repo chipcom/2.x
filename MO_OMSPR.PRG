@@ -1174,7 +1174,7 @@ do case
 endcase
 return k
 
-*****
+** 22.10.22
 Function f91pr_vklad(mkod, mnomer)
 // mkod - код больного по БД human
 // mnomer - номер больного по счету
@@ -1203,9 +1203,10 @@ if len(arr1) > 1
   next
   aadd(arr, tmp1)
 endif
-aadd(arr, "  Результат обращения: "+inieditspr(A__MENUVERT, glob_V009, human_->RSLT_NEW))
-aadd(arr, "  Исход заболевания: "+inieditspr(A__MENUVERT, glob_V012, human_->ISHOD_NEW))
-aadd(arr, "  Срок лечения с "+full_date(human->n_data)+" по "+full_date(human->k_data))
+aadd(arr, '  Результат обращения: ' + inieditspr(A__MENUVERT, glob_V009, human_->RSLT_NEW))
+// aadd(arr, "  Исход заболевания: "+inieditspr(A__MENUVERT, glob_V012, human_->ISHOD_NEW))
+aadd(arr, '  Исход заболевания: ' + inieditspr(A__MENUVERT, getV012(), human_->ISHOD_NEW))
+aadd(arr, '  Срок лечения с ' + full_date(human->n_data) + ' по ' + full_date(human->k_data))
 Select HU
 find (str(mkod,7))
 do while hu->kod == mkod .and. !eof()

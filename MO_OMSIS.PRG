@@ -1470,7 +1470,7 @@ close databases
 viewtext(n_file,,,,(sh > 80),,,reg_print)
 return NIL
 
-***** 22.08.22 многовариантный поиск
+** 22.10.22 многовариантный поиск
 Function s_mnog_poisk()
 Static mm_rak := {;
   {"все случаи",0},;
@@ -1537,7 +1537,8 @@ Private tmp_V006 := create_classif_FFOMS(0,"V006") // USL_OK
 Private tmp_V002 := create_classif_FFOMS(0,"V002") // PROFIL
 //Private tmp_V010 := create_classif_FFOMS(0,"V010") // IDSP
 Private tmp_V009 := cut_glob_array(glob_V009,sys_date) // rslt
-Private tmp_V012 := cut_glob_array(glob_V012,sys_date) // ishod
+// Private tmp_V012 := cut_glob_array(glob_V012,sys_date) // ishod
+Private tmp_V012 := cut_glob_array(getV012(), sys_date) // ishod
 Private arr_doc := {"Дата рожд.",;
                     "Адрес",;
                     "Номер карты",; 

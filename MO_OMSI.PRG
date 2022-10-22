@@ -182,7 +182,7 @@ endif
 return k
 
 
-** 31.05.22
+** 22.10.22
 Function print_l_uch(mkod, par, regim, lnomer)
   // mkod - код больного по БД human
   Local sh := 80, HH := 77, buf := save_maxrow(), ;
@@ -517,7 +517,8 @@ next
 if human->OBRASHEN == '1'
   add_string("  Признак подорения на злокачественное новообразование: да")
 endif
-add_string("  Исход заболевания: "+inieditspr(A__MENUVERT, glob_V012, human_->ISHOD_NEW))
+// add_string("  Исход заболевания: "+inieditspr(A__MENUVERT, glob_V012, human_->ISHOD_NEW))
+add_string('  Исход заболевания: ' + inieditspr(A__MENUVERT, getV012(), human_->ISHOD_NEW))
 if is_death(human_->RSLT_NEW) .and. M1F14_VSKR == 1 // смерть
   s := "  Проведено патологоанатомическое вскрытие"
   if M1F14_RASH == 1
@@ -912,12 +913,12 @@ if f_is_oncology(1) == 2 .and. human_->USL_OK < 3
 endif
 return NIL
 
-** 12.11.13 печать нескольких листов учёта
-Function print_al_uch(arr_h,arr_m)
+** 22.10.22 печать нескольких листов учёта
+Function print_al_uch(arr_h, arr_m)
 Local sh := 80, HH := 77, buf := save_maxrow(),;
       name_lpu, mvzros_reb, mreg_lech, mmest_inog, mrab_nerab,;
-      mkomu, name_org, mlech_vr := "", mishod, mprodol, msumma := 0, mmi_git,;
-      mud_lich := "", arr, n_file := "list_uch"+stxt, adiag_talon[16],;
+      mkomu, name_org, mlech_vr := '', mishod, mprodol, msumma := 0, mmi_git,;
+      mud_lich := '', arr, n_file := 'list_uch' + stxt, adiag_talon[16],;
       i := 1, j, k, tmp[2], tmp1, w1 := 65, s, mnum_lu, fl_parakl, lshifr1
 mywait()
 fp := fcreate(n_file) ; tek_stroke := 0 ; n_list := 1
@@ -1071,15 +1072,16 @@ for ii := 1 to len(arr_h)
       add_string(tmp1)
     endif
   endif
-  verify_FF(HH-6,.t.,sh)
+  verify_FF(HH - 6, .t., sh)
   if human_->PROFIL > 0
-    add_string("  Профиль: "+inieditspr(A__MENUVERT, glob_V002, human_->PROFIL))
+    add_string('  Профиль: ' + inieditspr(A__MENUVERT, glob_V002, human_->PROFIL))
   endif
-  add_string("  Способ оплаты: "+inieditspr(A__MENUVERT, glob_V010, human_->IDSP))
-  add_string("  Результат обращения: "+inieditspr(A__MENUVERT, glob_V009, human_->RSLT_NEW))
-  add_string("  Исход заболевания: "+inieditspr(A__MENUVERT, glob_V012, human_->ISHOD_NEW))
+  add_string('  Способ оплаты: ' + inieditspr(A__MENUVERT, glob_V010, human_->IDSP))
+  add_string('  Результат обращения: ' + inieditspr(A__MENUVERT, glob_V009, human_->RSLT_NEW))
+  // add_string("  Исход заболевания: "+inieditspr(A__MENUVERT, glob_V012, human_->ISHOD_NEW))
+  add_string('  Исход заболевания: ' + inieditspr(A__MENUVERT, getV012(), human_->ISHOD_NEW))
   if !empty(mlech_vr)
-    add_string("  Лечащий врач : "+mlech_vr)
+    add_string('  Лечащий врач : ' + mlech_vr)
   endif
   if human->bolnich > 0
     add_string("  Временная нетрудоспособность (больничный) с "+;

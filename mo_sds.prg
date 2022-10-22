@@ -53,7 +53,7 @@ if k > 0
 endif
 return NIL
 
-***** 13.02.22
+** 22.10.22
 Function read_file_XML_SDS(n_file)
 Static cDelimiter := " ,"
 Local _sluch := {;
@@ -757,12 +757,13 @@ do while !eof()
     endif
   endif
   if empty(ihuman->ISHOD)
-    aadd(ae,"не заполнен исход лечения ISHOD")
+    aadd(ae, 'не заполнен исход лечения ISHOD')
   else
-    if int(val(left(lstr(ihuman->ISHOD),1))) != ihuman->USL_OK
-      aadd(ae,"поле USL_OK = "+lstr(ihuman->USL_OK)+" не соответствует значению поля ISHOD = "+lstr(ihuman->ISHOD))
-    elseif ascan(glob_V012,{|x| x[2] == ihuman->ISHOD}) == 0
-      aadd(ae,"неверное значение поля ISHOD = "+lstr(ihuman->ISHOD))
+    if int(val(left(lstr(ihuman->ISHOD), 1))) != ihuman->USL_OK
+      aadd(ae, 'поле USL_OK = ' + lstr(ihuman->USL_OK) + ' не соответствует значению поля ISHOD = ' + lstr(ihuman->ISHOD))
+    // elseif ascan(glob_V012,{|x| x[2] == ihuman->ISHOD}) == 0
+    elseif ascan(getV012(), {|x| x[2] == ihuman->ISHOD}) == 0
+      aadd(ae, 'неверное значение поля ISHOD = ' + lstr(ihuman->ISHOD))
     endif
   endif
   lkol_usl := 0

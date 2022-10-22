@@ -25,18 +25,18 @@ else
 endif
 return fl
 
-***** 01.11.19 СМП - добавление или редактирование случая (листа учета)
-Function oms_sluch_SMP(Loc_kod,kod_kartotek,tip_lu)
+** 22.10.22 СМП - добавление или редактирование случая (листа учета)
+Function oms_sluch_SMP(Loc_kod, kod_kartotek, tip_lu)
 // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
 // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
 // tip_lu - TIP_LU_SMP или TIP_LU_NMP - скорая помощь (неотложная медицинская помощь)
 Static mm_brigada, st_brigada, mm_trombolit, st_trombolit, mm_spec, SKOD_DIAG := '     ',;
        st_N_DATA, st_vrach := 0, st_rslt := 0, st_ishod := 0
 Local top2, ar, ibrm := 0
-Local bg := {|o,k| get_MKB10(o,k,.t.) }, arr_del := {}, mrec_hu := 0,;
+Local bg := {|o, k| get_MKB10(o, k, .t.) }, arr_del := {}, mrec_hu := 0,;
       buf := savescreen(), tmp_color := setcolor(), a_smert := {},;
-      arr_usluga := {}, p_uch_doc := "@!", pic_diag := "@K@!",;
-      i, colget_menu := "R/W", colgetImenu := "R/BG",;
+      arr_usluga := {}, p_uch_doc := '@!', pic_diag := '@K@!',;
+      i, colget_menu := 'R/W', colgetImenu := 'R/BG',;
       pos_read := 0, k_read := 0, count_edit := 0,;
       tmp_help := chm_help_code, fl_write_sluch := .f.
 //
@@ -268,7 +268,8 @@ Private mkod := Loc_kod, mtip_h, is_talon := .f.,;
 Private mm_prer_b := mm2prer_b
 //
 aeval(glob_V009,{|x| iif(x[5] == m1USL_OK, aadd(mm_rslt,x), nil) })
-aeval(glob_V012,{|x| iif(x[5] == m1USL_OK, aadd(mm_ishod,x), nil) })
+// aeval(glob_V012,{|x| iif(x[5] == m1USL_OK, aadd(mm_ishod,x), nil) })
+aeval(getV012(), {|x| iif(x[5] == m1USL_OK, aadd(mm_ishod,x), nil) })
 if ascan(mm_rslt, {|x| x[2] == rslt_umolch}) > 0
   m1rslt := rslt_umolch
 endif
@@ -444,7 +445,8 @@ mvzros_reb := inieditspr(A__MENUVERT, menu_vzros, m1vzros_reb)
 MNOVOR    := inieditspr(A__MENUVERT, mm_danet, M1NOVOR)
 MF14_EKST := inieditspr(A__MENUVERT, mm_ekst_smp, M1F14_EKST)
 mrslt     := inieditspr(A__MENUVERT, glob_V009, m1rslt)
-mishod    := inieditspr(A__MENUVERT, glob_V012, m1ishod)
+// mishod    := inieditspr(A__MENUVERT, glob_V012, m1ishod)
+mishod    := inieditspr(A__MENUVERT, getV012(), m1ishod)
 mlpu      := inieditspr(A__POPUPMENU, dir_server+"mo_uch", m1lpu)
 motd      := inieditspr(A__POPUPMENU, dir_server+"mo_otd", m1otd)
 MKEMVYD   := inieditspr(A__POPUPMENU, dir_server+"s_kemvyd", M1KEMVYD)

@@ -1226,9 +1226,7 @@ if !empty(full_dbf)
 endif
 return NIL
 
-*
-
-***** 27.10.14
+** 22.10.22
 Function f1_import_sluch_OMS()
 Local _lpu := {;
    {"KOD",     "N",  3, 0},; // ваш код учреждения
@@ -1559,7 +1557,8 @@ if fl
       strfile("_SLUCH: запись № "+lstr(ihuman->(recno()))+;
               ", неверное значение поля RSLT = "+lstr(ihuman->RSLT)+hb_eol(),cFileProtokol,.t.)
     endif
-    if !empty(ihuman->ISHOD) .and. ascan(glob_V012,{|x| x[2]==ihuman->ISHOD})==0
+    // if !empty(ihuman->ISHOD) .and. ascan(glob_V012,{|x| x[2]==ihuman->ISHOD})==0
+    if !empty(ihuman->ISHOD) .and. ascan(getV012(), {|x| x[2] == ihuman->ISHOD})==0
       fl := .f.
       strfile("_SLUCH: запись № "+lstr(ihuman->(recno()))+;
               ", неверное значение поля ISHOD = "+lstr(ihuman->ISHOD)+hb_eol(),cFileProtokol,.t.)
