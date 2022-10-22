@@ -1542,7 +1542,8 @@ if fl
       strfile("_SLUCH: запись № "+lstr(ihuman->(recno()))+;
               ", неверное значение поля PROFIL = "+lstr(ihuman->PROFIL)+hb_eol(),cFileProtokol,.t.)
     endif
-    if !empty(ihuman->USL_OK) .and. ascan(glob_V006,{|x| x[2]==ihuman->USL_OK})==0
+    // if !empty(ihuman->USL_OK) .and. ascan(glob_V006,{|x| x[2]==ihuman->USL_OK})==0
+    if !empty(ihuman->USL_OK) .and. ascan(getV006(), {|x| x[2] == ihuman->USL_OK}) == 0
       fl := .f.
       strfile("_SLUCH: запись № "+lstr(ihuman->(recno()))+;
               ", неверное значение поля USL_OK = "+lstr(ihuman->USL_OK)+hb_eol(),cFileProtokol,.t.)

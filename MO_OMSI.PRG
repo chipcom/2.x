@@ -488,7 +488,8 @@ if lTypeLUMedReab
   add_string('  Шкала Реабилитационной Маршрутизации: ' + inieditspr(A__MENUVERT, type_shrm_reabilitacia(), aMedReab[2]))
 endif
 
-add_string('  Медицинская помощь: условия оказания: ' + inieditspr(A__MENUVERT, glob_V006, human_->USL_OK))
+// add_string('  Медицинская помощь: условия оказания: ' + inieditspr(A__MENUVERT, glob_V006, human_->USL_OK))
+add_string('  Медицинская помощь: условия оказания: ' + inieditspr(A__MENUVERT, getV006(), human_->USL_OK))
 //add_string("    вид: "+inieditspr(A__MENUVERT, glob_V008, human_->VIDPOM))
 //add_string("    вид: "+inieditspr(A__MENUVERT, getV008(), human_->VIDPOM))
 if human_->PROFIL > 0
@@ -1051,10 +1052,13 @@ for ii := 1 to len(arr_h)
   add_string(padc(" Срок лечения с "+full_date(human->n_data)+" по "+full_date(human->k_data)+" ",sh,"─"))
   uch->(dbGoto(human->lpu))
   otd->(dbGoto(human->otd))
-  add_string("  Условия: "+;
-             inieditspr(A__MENUVERT, glob_V006, human_->USL_OK)+", "+;
-             alltrim(otd->name)+" ["+alltrim(uch->name)+"]")
-  s := "  "
+  // add_string("  Условия: "+;
+  //            inieditspr(A__MENUVERT, glob_V006, human_->USL_OK)+", "+;
+  //            alltrim(otd->name)+" ["+alltrim(uch->name)+"]")
+  add_string('  Условия: ' + ;
+    inieditspr(A__MENUVERT, getV006(), human_->USL_OK) + ', ' + ;
+    alltrim(otd->name) + ' [' + alltrim(uch->name) + ']')
+s := "  "
   if !empty(human_->KOD_DIAG0)
     s := padr("  Первичный диагноз: "+human_->KOD_DIAG0,40)
   endif

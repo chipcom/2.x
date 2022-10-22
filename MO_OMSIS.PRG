@@ -3965,7 +3965,7 @@ for i := 1 to 2
 next
 return NIL
 
-** 11.10.22 δ®ΰ¬  14-…„ (‘)
+** 22.10.22 δ®ΰ¬  14-…„ (‘)
 Function forma14_med_oms()
 Static group_ini := "f14_med_oms"
 Local begin_date, end_date, buf := savescreen(), arr_m, i, j, k, k1, k2,;
@@ -5417,13 +5417,14 @@ if !fl_exit .and. tmpf14->(lastrec()) > 0
   index on str(usl_ok,1)+str(schet_->nyear,4)+str(schet_->nmonth,2)+;
            str(human_->SCHET_ZAP,6) to (cur_dir + "tmpf14")
   for j := 1 to 5
-    find (str(j,1))
+    find (str(j, 1))
     if found()
-      add_string("")
+      add_string('')
       if j == 5
-        add_string(center("[ αβ®¬ β®«®£¨ο ]",sh))
+        add_string(center('[ αβ®¬ β®«®£¨ο ]', sh))
       else
-        add_string(center("["+inieditspr(A__MENUVERT,glob_V006,j)+"]",sh))
+        // add_string(center("["+inieditspr(A__MENUVERT,glob_V006,j)+"]",sh))
+        add_string(center('[' + inieditspr(A__MENUVERT, getV006(), j) + ']', sh))
       endif
       aeval(arr_title, {|x| add_string(x) } )
       do while tmpf14->usl_ok == j .and. !eof()

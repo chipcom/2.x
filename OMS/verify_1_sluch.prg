@@ -1998,7 +1998,8 @@ Function verify_1_sluch(fl_view)
   if empty(human_->USL_OK)
     human_->USL_OK := musl_ok
   elseif mUSL_OK > 0 .and. human_->USL_OK != mUSL_OK
-    aadd(ta, 'в поле "Условия оказания" должно быть "'+inieditspr(A__MENUVERT,glob_V006,mUSL_OK)+'"')
+    // aadd(ta, 'в поле "Условия оказания" должно быть "'+inieditspr(A__MENUVERT,glob_V006,mUSL_OK)+'"')
+    aadd(ta, 'в поле "Условия оказания" должно быть "' + inieditspr(A__MENUVERT, getV006(), mUSL_OK) + '"')
   endif
   if human_->USL_OK == 3 // для поликлиники
     s := space(80)

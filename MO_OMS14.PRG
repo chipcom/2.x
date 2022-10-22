@@ -4,7 +4,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 13.02.22
+** 22.10.22
 Function verify_1_sluch_18(fl_view)
 Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
       i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -1463,7 +1463,8 @@ next
 if empty(human_->USL_OK)
   human_->USL_OK := musl_ok
 elseif mUSL_OK > 0 .and. human_->USL_OK != mUSL_OK
-  aadd(ta,'в поле "Условия оказания" должно быть "'+inieditspr(A__MENUVERT,glob_V006,mUSL_OK)+'"')
+  // aadd(ta,'в поле "Условия оказания" должно быть "'+inieditspr(A__MENUVERT,glob_V006,mUSL_OK)+'"')
+  aadd(ta, 'в поле "Условия оказания" должно быть "' + inieditspr(A__MENUVERT, getV006(), mUSL_OK) + '"')
 endif
 if human_->USL_OK == 3 // для поликлиники
   s := space(80)

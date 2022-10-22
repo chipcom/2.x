@@ -744,11 +744,12 @@ do while !eof()
   else
     aadd(ae,"неверное значение поля USL_OK = "+lstr(ihuman->USL_OK))
   endif
-  if !empty(ihuman->USL_OK) .and. ascan(glob_V006,{|x| x[2] == ihuman->USL_OK}) == 0
-    aadd(ae,"неверное значение поля USL_OK = "+lstr(ihuman->USL_OK))
+  // if !empty(ihuman->USL_OK) .and. ascan(glob_V006,{|x| x[2] == ihuman->USL_OK}) == 0
+  if !empty(ihuman->USL_OK) .and. ascan(getV006(), {|x| x[2] == ihuman->USL_OK}) == 0
+    aadd(ae, 'неверное значение поля USL_OK = ' + lstr(ihuman->USL_OK))
   endif
   if empty(ihuman->RSLT)
-    aadd(ae,"не заполнен результат лечения RSLT")
+    aadd(ae, 'не заполнен результат лечения RSLT')
   else
     if int(val(left(lstr(ihuman->RSLT), 1))) != ihuman->USL_OK
       aadd(ae, 'поле USL_OK = ' + lstr(ihuman->USL_OK) + ' не соответствует значению поля RSLT = ' + lstr(ihuman->RSLT))
