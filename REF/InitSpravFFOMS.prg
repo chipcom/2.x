@@ -103,6 +103,9 @@ Function InitSpravFFOMS()
   // V020.xml - Классификатор профилей койки
   // Public glob_V020 := getV020()
 
+  // Цели посещения
+  // Public glob_V025 := getV025table() // Цели посещения
+
   // T008.xml - Коды ошибок в протоколах обработки инф.пакетов
   // Public glob_T008 := getT008()
 

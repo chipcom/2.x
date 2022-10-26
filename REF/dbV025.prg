@@ -1,6 +1,6 @@
-***** 04.12.21
+** 26.10.22
 // вернуть массив по справочнику ФФОМС V025 Классификатор целей посещения (KPC)
-function getV025table()
+function getV025()
   Local dbName, dbAlias := 'V025'
   local tmp_select := select()
   static _arr := {}, i
@@ -25,7 +25,7 @@ function getV025table()
   return _arr
 
 function get_IDPC_from_V025_by_number(num)
-  local tableV025 := getV025table()
+  local tableV025 := getV025()
   local row
   local retIDPC := ''
 
