@@ -610,8 +610,8 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
   do while .t.
     close databases
     DispBegin()
-    // hS := 25 ; wS := 80
-    hS := 26 ; wS := 80
+    hS := 26
+    wS := 80
     SetMode(hS,wS)
     @ 0, 0 say padc(str_1,wS) color "B/BG*"
     gl_area := {1,0,maxrow()-1,maxcol(),0}
@@ -656,22 +656,22 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
                 ret_ndisp_COVID(Loc_kod,kod_kartotek) ;
           }
 
-      // ++j
       @ j, col() + 5 say "№ амбулаторной карты" get much_doc picture "@!" ;
           when !(is_uchastok == 1 .and. is_task(X_REGIST)) .or. mem_edit_ist==2
     
       ret_ndisp_COVID(Loc_kod,kod_kartotek)
 
       @ ++j, 8 get mndisp when .f. color color14
-      // ++j
 
       @ ++j, 1 say "Степень тяжести болезни"
       @ j, col()+1 get mstrong ;
             reader {|x|menu_reader(x,mm_strong,A__MENUVERT,,,.f.)};
             valid {|g| valid_strong_date(g) }
 
-      @ ++j, 1 say "Дата окончания лечения COVID" get mDateCOVID ;
-          valid {|| iif(((mn_data - mDateCOVID) < 60), func_error(4,"Прошло меньше 60 дней после заболевания!"), .t.)} ;
+      @ ++j, 1 say 'Дата окончания лечения COVID' get mDateCOVID ;
+          valid {|| iif(((empty(mDateCOVID)) .or. ((mn_data - mDateCOVID) < 60)), ;
+            func_error(4, iif(empty(mDateCOVID), 'Дата окончания лечения не может быть пустой!', 'Прошло меньше 60 дней после заболевания!')), ;
+            .t.)} ;
           when (m1strong != 5)   // редактируем только на первом этапе  // Письмо ТФОМС 09-30-370 от 03.12.21
       if metap == 1 // вводим только на первом этапе
         @ ++j, 1 say "Пульсооксиметрия" get mOKSI pict "999" ;
