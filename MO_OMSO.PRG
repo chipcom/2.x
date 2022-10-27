@@ -220,10 +220,10 @@ do while !eof()
       s += ", в т.ч. штрафов - " +lstr(tmp2->KOL_PEN)
     endif
     put_long_str(s, cFileProtokol)
-    // if ascan(glob_F006,{|x| x[2] == tmp2->_KONT }) > 0
-      // s := 'Вид контроля: ' + inieditspr(A__MENUVERT, glob_F006, tmp2->_KONT)
-    if ascan(getF006(), {|x| x[2] == tmp2->_KONT }) > 0
-      s := 'Вид контроля: ' + inieditspr(A__MENUVERT, getF006(), tmp2->_KONT)
+    if ascan(glob_F006,{|x| x[2] == tmp2->_KONT }) > 0
+      s := 'Вид контроля: ' + inieditspr(A__MENUVERT, glob_F006, tmp2->_KONT)
+    // if ascan(getF006(), {|x| x[2] == tmp2->_KONT }) > 0
+    //   s := 'Вид контроля: ' + inieditspr(A__MENUVERT, getF006(), tmp2->_KONT)
       put_long_str(s, cFileProtokol)
     endif
     if tmp2->_TYPEK > 0
@@ -381,10 +381,10 @@ do while !eof()
             put_long_str(s,cFileProtokol,5)
             put_long_str("OPLATA = " +lstr(tmp4->_OPLATA)+s1,cFileProtokol,5)
             if emptyall(tmp4->_SANK_MEK,tmp4->_SANK_MEE,tmp4->_SANK_EKMP,tmp4->PENALTY)
-              // if ascan(glob_F006,{|x| x[2] == tmp2->_KONT }) > 0
-              //   s := "Вид контроля: " +inieditspr(A__MENUVERT,glob_F006,tmp2->_KONT)
-              if ascan(getF006(),{|x| x[2] == tmp2->_KONT }) > 0
-                s := 'Вид контроля: ' + inieditspr(A__MENUVERT, getF006(), tmp2->_KONT)
+              if ascan(glob_F006,{|x| x[2] == tmp2->_KONT }) > 0
+                s := "Вид контроля: " +inieditspr(A__MENUVERT,glob_F006,tmp2->_KONT)
+              // if ascan(getF006(),{|x| x[2] == tmp2->_KONT }) > 0
+              //   s := 'Вид контроля: ' + inieditspr(A__MENUVERT, getF006(), tmp2->_KONT)
                 put_long_str(s, cFileProtokol, 5)
               endif
               s := ""
@@ -977,11 +977,11 @@ Function view_rak_akt(lrec)
 ** 26.10.22
 Function f0_view_rak_akt(k)
   Local s, s1, s2
-  local vControl := getF006()
+  // local vControl := getF006()
 
   if emptyall(rak->typek,rak->skont)
-    // s := padr(inieditspr(A__MENUVERT,glob_F006,rak->KONT),19)
-    s := padr(inieditspr(A__MENUVERT, vControl, rak->KONT), 19)
+    s := padr(inieditspr(A__MENUVERT,glob_F006,rak->KONT),19)
+    // s := padr(inieditspr(A__MENUVERT, vControl, rak->KONT), 19)
     s1 := left(s, 10)
     s2 := right(s, 9)
   else
@@ -1020,10 +1020,10 @@ t_arr[BR_TOP] := T_ROW
 t_arr[BR_BOTTOM] := maxrow()-2
 t_arr[BR_LEFT] := 2
 t_arr[BR_RIGHT] := maxcol()-2
-// t_arr[BR_TITUL] := "Акт № " +alltrim(rak->nakt)+" от " +date_8(rak->dakt)+;
-//                    iif(ascan(glob_F006,{|x| x[2] == rak->kont }) > 0, " [" +inieditspr(A__MENUVERT,glob_F006,rak->KONT)+"]", "")
-t_arr[BR_TITUL] := 'Акт № ' + alltrim(rak->nakt) + ' от ' + date_8(rak->dakt) + ;
-      iif(ascan(getF006(), {|x| x[2] == rak->kont }) > 0, ' [' + inieditspr(A__MENUVERT, getF006(), rak->KONT) + ']', '')
+t_arr[BR_TITUL] := "Акт № " +alltrim(rak->nakt)+" от " +date_8(rak->dakt)+;
+                   iif(ascan(glob_F006,{|x| x[2] == rak->kont }) > 0, " [" +inieditspr(A__MENUVERT,glob_F006,rak->KONT)+"]", "")
+// t_arr[BR_TITUL] := 'Акт № ' + alltrim(rak->nakt) + ' от ' + date_8(rak->dakt) + ;
+//       iif(ascan(getF006(), {|x| x[2] == rak->kont }) > 0, ' [' + inieditspr(A__MENUVERT, getF006(), rak->KONT) + ']', '')
 t_arr[BR_TITUL_COLOR] := "B/GR*"
 t_arr[BR_COLOR] := color0
 t_arr[BR_ARR_BROWSE] := {'═','░','═', "N/BG,W+/N,B/BG,W+/B",.t.}
@@ -1154,8 +1154,8 @@ elseif nk == K_ENTER .and. year(human->k_data) > 2012
   s := alltrim(human->fio)+" " +date_8(human->n_data)+"-" +date_8(human->k_data)+" (" +lstr(f_view_rak_akt_schet_human(2))+"р.)"
   s1 := "код дефекта: " +lstr(raksh->REFREASON)
   if emptyall(human->cena_1,raksh->SANK_MEK,raksh->SANK_MEE,raksh->SANK_EKMP,raksh->PENALTY) // скорая помощь
-    // s1 += ", санкции " +inieditspr(A__MENUVERT,glob_F006,rak->KONT)+": 0р. (СМП)"
-    s1 += ', санкции ' + inieditspr(A__MENUVERT, getF006(), rak->KONT) + ': 0р. (СМП)'
+    s1 += ", санкции " +inieditspr(A__MENUVERT,glob_F006,rak->KONT)+": 0р. (СМП)"
+    // s1 += ', санкции ' + inieditspr(A__MENUVERT, getF006(), rak->KONT) + ': 0р. (СМП)'
   endif
   if !empty(raksh->SANK_MEK)
     s1 += ", санкции МЭК: " +lstr(raksh->SANK_MEK,15,2)+"р."
@@ -1202,10 +1202,10 @@ endif
 raks->(dbGoto(raksh->kod_raks))
 rak->(dbGoto(raks->akt))
 i := 0
-// if ascan(glob_F006,{|x| x[2] == rak->kont }) > 0
-//   aadd(arr, "Вид контроля: " +inieditspr(A__MENUVERT,glob_F006,rak->KONT))
-if ascan(getF006(), {|x| x[2] == rak->kont }) > 0
-  aadd(arr, 'Вид контроля: ' + inieditspr(A__MENUVERT, getF006(), rak->KONT))
+if ascan(glob_F006,{|x| x[2] == rak->kont }) > 0
+  aadd(arr, "Вид контроля: " +inieditspr(A__MENUVERT,glob_F006,rak->KONT))
+// if ascan(getF006(), {|x| x[2] == rak->kont }) > 0
+//   aadd(arr, 'Вид контроля: ' + inieditspr(A__MENUVERT, getF006(), rak->KONT))
 endif
 if !emptyall(rak->TYPEK,rak->skont)
   aadd(arr, "Контроль: " +iif(rak->TYPEK==1, "первичный", "повторный")+;

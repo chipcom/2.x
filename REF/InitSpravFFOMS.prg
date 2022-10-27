@@ -35,7 +35,7 @@ Function InitSpravFFOMS()
   Public glob_F005 := getF005()
 
   // F006.xml - Классификатор видов контроля
-  // Public glob_F006 := getF006()
+  Public glob_F006 := getF006() // РАЗОБРАТЬСЯ НЕ ТРОГАТЬ
 
   // F007.xml - Классификатор ведомственной принадлежности медицинской организации
   Public glob_F007 := getF007()
