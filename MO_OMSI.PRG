@@ -143,44 +143,45 @@ endif
 select HUMAN
 return NIL
 
-** 25.11.14
-Function f4o_list_uch(nKey,oBrow)
-Local buf, rec, k := -1, fl := .f., arr_m, arr_rec := {}
-rec := human->(recno())
-if eq_any(nkey,K_ENTER,K_F10)
-  fl := .t.
-  glob_perso := human->kod
-elseif nkey == K_F9
-  buf := savescreen()
-  change_attr()
-  if (arr_m := year_month()) != NIL
-    go top
-    dbeval( {|| aadd(arr_rec, {human->k_data,human->(recno())}) },;
-            {|| between(human->k_data,arr_m[5],arr_m[6]) } )
-    if len(arr_rec) > 0
-      fl := .t.
-      asort(arr_rec,,,{|x,y| x[1] < y[1] } )
-    else
-      goto (rec)
-      func_error(4, 'Не найдено листов учета по данному больному в требуемом диапазоне времени!')
-    endif
-  endif
-  restscreen(buf)
-endif
-if fl
-  close databases
-  if nkey == K_ENTER
-    print_l_uch(glob_perso)
+** 31.10.22
+Function f4o_list_uch(nKey, oBrow)
+  Local buf, rec, k := -1, fl := .f., arr_m, arr_rec := {}
+
+  rec := human->(recno())
+  if eq_any(nkey, K_ENTER, K_F10)
+    fl := .t.
+    glob_perso := human->kod
   elseif nkey == K_F9
-    print_al_uch(arr_rec,arr_m)
-  elseif nkey == K_F10
-    print_spravka_OMS(glob_perso)
+    buf := savescreen()
+    change_attr()
+    if (arr_m := year_month()) != NIL
+      go top
+      dbeval({|| aadd(arr_rec, {human->k_data, human->(recno())})}, ;
+            {|| between(human->k_data, arr_m[5], arr_m[6])})
+      if len(arr_rec) > 0
+        fl := .t.
+        asort(arr_rec, , ,{|x, y| x[1] < y[1]})
+      else
+        goto (rec)
+        func_error(4, 'Не найдено листов учета по данному больному в требуемом диапазоне времени!')
+      endif
+    endif
+    restscreen(buf)
   endif
-  eval(blk_open)
-  set index to (cur_dir + 'tmp_olu')
-  goto (rec)
-endif
-return k
+  if fl
+    close databases
+    if nkey == K_ENTER
+      print_l_uch(glob_perso)
+    elseif nkey == K_F9
+      print_al_uch(arr_rec, arr_m)
+    elseif nkey == K_F10
+      print_spravka_OMS(glob_perso)
+    endif
+    eval(blk_open)
+    set index to (cur_dir + 'tmp_olu')
+    goto (rec)
+  endif
+  return k
 
 
 ** 29.10.22
@@ -936,6 +937,8 @@ Local sh := 80, HH := 77, buf := save_maxrow(),;
       mkomu, name_org, mlech_vr := '', mishod, mprodol, msumma := 0, mmi_git,;
       mud_lich := '', arr, n_file := 'list_uch' + stxt, adiag_talon[16],;
       i := 1, j, k, tmp[2], tmp1, w1 := 65, s, mnum_lu, fl_parakl, lshifr1
+local diagVspom := '', diagMemory := '', add_criteria
+
 mywait()
 fp := fcreate(n_file) ; tek_stroke := 0 ; n_list := 1
 //
@@ -1080,17 +1083,36 @@ s := '  '
   if !empty(s)
     add_string(s)
   endif
-  arr := diag_to_array(,.t.,.t.,.t.,.t.,adiag_talon)
+  diagVspom := ''
+  arr := diag_to_array( , .t., .t., .t., .t., adiag_talon)
   if len(arr) > 0
-    add_string('  Шифр основного заболевания: ' + arr[1])
+    if eq_any(alltrim(arr[1]), 'Z92.2', 'Z92.4')
+      diagVspom := alltrim(arr[1])
+      diagMemory := alltrim(arr[2])
+    endif
+    // altd()
+    add_string('  Основной диагноз: ' + iif(empty(diagVspom), arr[1], arr[2] + ' (!!!вспомогательный диагноз ' + diagVspom + '!!!)'))
     if len(arr) > 1
-      tmp1 := '  Шифры сопутствующих заболеваний:'
-      for j := 2 to len(arr)
+      tmp1 := '  Сопутствующие диагнозы:'
+      for j := iif(empty(diagVspom), 2, 3) to len(arr)
+      // for j := 2 to len(arr)
         tmp1 += ' ' + arr[j]
       next
       add_string(tmp1)
     endif
   endif
+  tmp1 := ''
+
+  // if len(arr) > 0
+  //   add_string('  Шифр основного заболевания: ' + arr[1])
+  //   if len(arr) > 1
+  //     tmp1 := '  Шифры сопутствующих заболеваний:'
+  //     for j := 2 to len(arr)
+  //       tmp1 += ' ' + arr[j]
+  //     next
+  //     add_string(tmp1)
+  //   endif
+  // endif
   verify_FF(HH - 6, .t., sh)
   if human_->PROFIL > 0
     add_string('  Профиль: ' + inieditspr(A__MENUVERT, glob_V002, human_->PROFIL))
@@ -1104,6 +1126,17 @@ s := '  '
   if !empty(mlech_vr)
     add_string('  Лечащий врач : ' + mlech_vr)
   endif
+  // if year(human->k_data) > 2017 .and. !empty(human_2->pc3)
+  //   k := 0
+  //   add_string('  Дополнительный критерий : ')
+  //   add_criteria := getArrayCriteria(human->K_DATA, human_2->pc3)
+  //   if ! empty(add_criteria)
+  //       k := perenos(tmp, alltrim(human_2->pc3) + ' - ' + alltrim(add_criteria[6]), sh - 3)
+  //       for i := 1 to k
+  //         add_string(space(3) + tmp[i])
+  //       next
+  //     endif
+  // endif
   if human->bolnich > 0
     add_string('  Временная нетрудоспособность (больничный) с ' +;
                full_date(c4tod(human->date_b_1)) + ' по ' + full_date(c4tod(human->date_b_2)))
