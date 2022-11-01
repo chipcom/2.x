@@ -111,6 +111,8 @@ mo_version.prg
 .\init\initArrayFilesDB.prg
 .\init\update_data_DB.prg
 
+.\information\view_list_uch.prg
+
 .\security\Users.prg
 .\security\Roles.prg
 .\security\security.prg
