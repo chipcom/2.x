@@ -1211,7 +1211,6 @@ Function verify_1_sluch(fl_view)
         if arr_povod[1, 1] == 4  .and. (left(mdiagnoz[1], 1) == "C" .or. between(left(mdiagnoz[1],3),"D00","D09") .or. between(left(mdiagnoz[1], 3), 'D45', 'D47'))
           k := ret_prvs_V021(human_->PRVS)
           if !eq_any(k, 9, 19, 41)  // как исключение добавил гематологов, специальность - 9
-            // aadd(ta, 'диспансерное наблюдение при ЗНО осуществляют только врачи-онкологи (детские онкологи), а в листе учёта стоит специальность "'+inieditspr(A__MENUVERT, glob_V021, k)+'"')
             aadd(ta, 'диспансерное наблюдение при ЗНО осуществляют только врачи-онкологи (детские онкологи), а в листе учёта стоит специальность "'+inieditspr(A__MENUVERT, getV021(), k)+'"')
           endif
         endif
@@ -4426,9 +4425,7 @@ Function verify_1_sluch(fl_view)
         if empty(row[8])
           aadd(ta, 'пустая схема соответствия препаратам')
         endif
-        // altd()
         if (arrGroupPrep := get_group_prep_by_kod(alltrim(row[8]), row[1])) != nil
-          // if (arrGroupPrep := get_group_prep_by_kod(substr(row[8], len(row[8])), row[1])) != nil
           mMNN := iif(arrGroupPrep[3] == 1, .t., .f.)
           if mMNN
             if empty(row[3])

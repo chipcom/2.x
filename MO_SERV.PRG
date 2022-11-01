@@ -601,7 +601,6 @@ for j := 1 to len(arr_order)
       arr_order[j,LISS_KDATA] := max(arr_order[j,LISS_KDATA],arr_order[j,LISS_USL,i,LISU_DATE])
     endif
     arr_order[j,LISS_USL,i,LISU_SPEC] := int(val(arr_order[j,LISS_USL,i,LISU_SPEC]))
-    // if ascan(glob_V004, {|x| x[2] == arr_order[j,LISS_USL,i,LISU_SPEC] }) == 0
     if ascan(getV004(), {|x| x[2] == arr_order[j, LISS_USL, i, LISU_SPEC] }) == 0
       arr_order[j, LISS_USL, i, LISU_SPEC] := 1107 // Клиническая лабораторная диагностика
     endif
@@ -1569,7 +1568,6 @@ if fl
       strfile("_SLUCH: запись № "+lstr(ihuman->(recno()))+;
               ", неверное значение поля ISHOD = "+lstr(ihuman->ISHOD)+hb_eol(),cFileProtokol,.t.)
     endif
-    // if !empty(ihuman->PRVS) .and. ascan(glob_V004,{|x| x[2]==ihuman->PRVS})==0
     if !empty(ihuman->PRVS) .and. ascan(getV004(), {|x| x[2] == ihuman->PRVS}) == 0
       fl := .f.
       strfile("_SLUCH: запись № "+lstr(ihuman->(recno()))+;
@@ -1722,7 +1720,6 @@ if fl
       strfile("_SLUCH_U: запись № "+lstr(ihu->(recno()))+;
               ", неверное значение поля PROFIL = "+lstr(ihu->PROFIL)+hb_eol(),cFileProtokol,.t.)
     endif
-    // if !empty(ihu->PRVS) .and. ascan(glob_V004,{|x| x[2]==ihu->PRVS})==0
     if !empty(ihu->PRVS) .and. ascan(getV004(), {|x| x[2] == ihu->PRVS}) == 0
       fl := .f.
       strfile('_SLUCH_U: запись № ' + lstr(ihu->(recno())) + ;

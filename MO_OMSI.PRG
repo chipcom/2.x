@@ -1090,7 +1090,6 @@ s := '  '
       diagVspom := alltrim(arr[1])
       diagMemory := alltrim(arr[2])
     endif
-    // altd()
     add_string('  Основной диагноз: ' + iif(empty(diagVspom), arr[1], arr[2] + ' (!!!вспомогательный диагноз ' + diagVspom + '!!!)'))
     if len(arr) > 1
       tmp1 := '  Сопутствующие диагнозы:'

@@ -4104,7 +4104,6 @@ do case
     mprvs     := ret_tmp_prvs(0,m1prvs)
 
     m1prvs_021:= iif(empty(m1prvs_021), space(4), padr(lstr(m1prvs_021),4))
-    // mprvs_021 := inieditspr(A__MENUVERT, glob_V021, val(m1prvs_021))
     mprvs_021 := inieditspr(A__MENUVERT, getV021(), val(m1prvs_021))
 
     tmp_color := setcolor(cDataCScr)
@@ -4389,7 +4388,6 @@ Local i, s, len1, fl_is, rec, tmp_select := select()
 
 DEFAULT is_all TO .f.
 len1 := 0
-// _glob_array := glob_V004
 _glob_array := getV004()
 for i := 1 to len(_glob_array)
   if iif(is_all, .t., between_date(_glob_array[i,3],_glob_array[i,4],_date))

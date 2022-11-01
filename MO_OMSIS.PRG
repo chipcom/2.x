@@ -6954,9 +6954,6 @@ for _tip := 1 to 5
         aadd(arr2, {tmp->spec, inieditspr(A__MENUVERT, ;
                                         iif(_tip == 2 .and. m1dolpro == 0, getV004(), glob_V002), ;
                                         tmp->spec)})
-        // aadd(arr2, {tmp->spec, inieditspr(A__MENUVERT, ;
-        //   iif(_tip == 2 .and. m1dolpro == 0, glob_V004, glob_V002), ;
-        //   tmp->spec)})
       endif
     endif
     skip
@@ -6971,9 +6968,6 @@ for _tip := 1 to 5
           // aadd(arr,{tmp->spec,inieditspr(A__MENUVERT,glob_V015,abs(tmp->spec))})
           aadd(arr, {tmp->spec, inieditspr(A__MENUVERT, getV015(), abs(tmp->spec))})
         else
-          // aadd(arr, {tmp->spec, inieditspr(A__MENUVERT, ;
-          //                               iif(_tip == 2 .and. m1dolpro == 0, glob_V004, glob_V002), ;
-          //                               tmp->spec)})
           aadd(arr, {tmp->spec, inieditspr(A__MENUVERT, ;
             iif(_tip == 2 .and. m1dolpro == 0, getV004(), glob_V002), ;
             tmp->spec)})
