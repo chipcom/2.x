@@ -596,15 +596,21 @@ Function print_l_uch(mkod, par, regim, lnomer)
           endif
         endif
         if !empty(tmp_kslp)
-          add_string(space(21) + tmp_kslp[1])
-          for i := 2 to k_kslp
-            add_string(space(21) + padl(rtrim(tmp_kslp[i]), w1))
+          for i := 1 to k_kslp
+            if i == 1
+              add_string(space(21) + tmp_kslp[i])
+            else
+              add_string(space(21) + padl(rtrim(tmp_kslp[i]), w1))
+            endif
           next
         endif
         if !empty(tmp_kiro)
-          add_string(space(21) + tmp_kiro[1])
-          for i := 2 to k_kiro
-            add_string(space(21) + padl(rtrim(tmp_kiro[i]), w1))
+          for i := 1 to k_kiro
+            if i == 1
+              add_string(space(21) + tmp_kiro[i])
+            else
+              add_string(space(21) + padl(rtrim(tmp_kiro[i]), w1))
+            endif
           next
         endif
     // elseif human_->USL_OK == 1 // стационар
