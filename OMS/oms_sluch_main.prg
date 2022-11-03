@@ -638,7 +638,6 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
   MFIO_KART := _f_fio_kart()
   mvzros_reb := inieditspr(A__MENUVERT, menu_vzros, m1vzros_reb)
   if empty(m1USL_OK) ; m1USL_OK := 1 ; endif // на всякий случай
-  // mUSL_OK   := inieditspr(A__MENUVERT, glob_V006, m1USL_OK)
   mUSL_OK   := inieditspr(A__MENUVERT, getV006(), m1USL_OK)
   if eq_any(m1usl_ok, 1, 2)
     if !between(m1p_per, 1, 4)

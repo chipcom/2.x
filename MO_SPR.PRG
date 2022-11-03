@@ -4624,28 +4624,6 @@ arr[US_EDIT_SPR ] := {{"name","C",30,0,,,space(30),,"Наименование отделения"},;
                       {"dend","D",8,0,,,ctod(""),,;
                        "     Дата окончания работы в задаче ОМС"};
                       }
-                      /*
-                      {"IDUMP","N",2,0,,;
-                       {|x|menu_reader(x,tmp_V006,A__MENUVERT,,,.f.)},;
-                       0,{|x|inieditspr(A__MENUVERT,glob_V006,x)},;
-                       "Условия оказания медицинской помощи"},;
-                      // {"IDSP","N",2,0,,;
-                      //  {|x|menu_reader(x,tmp_V010,A__MENUVERT,,,.f.)},;
-                      //  0,{|x|inieditspr(A__MENUVERT,glob_V010,x)},;
-                      //  "Способ оплаты"},;
-                      // {"IDVMP","N",2,0,,;
-                      //  {|x|menu_reader(x,tmp_V008,A__MENUVERT,,,.f.)},;
-                      //  0,{|x|inieditspr(A__MENUVERT,glob_V008,x)},;
-                      //  "Вид мед.помощи"},;
-                      {"IDSP","N",2,0,,;
-                       {|x|menu_reader(x,tmp_V010,A__MENUVERT,,,.f.)},;
-                       0,{|x|inieditspr(A__MENUVERT,getV010(),x)},;
-                       "Способ оплаты"},;
-                      {"IDVMP","N",2,0,,;
-                       {|x|menu_reader(x,tmp_V008,A__MENUVERT,,,.f.)},;
-                       0,{|x|inieditspr(A__MENUVERT,getV008(),x)},;
-                       "Вид мед.помощи"},;
-                      */
 if is_otd_dep
   Ins_Array(arr[US_EDIT_SPR],6,{"CODE_DEP","N",2,0,,;
                                 {|x|menu_reader(x,mm_otd_dep,A__MENUVERT_SPACE,,,.f.)},;

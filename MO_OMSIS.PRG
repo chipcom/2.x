@@ -5423,7 +5423,6 @@ if !fl_exit .and. tmpf14->(lastrec()) > 0
       if j == 5
         add_string(center('[ стоматология ]', sh))
       else
-        // add_string(center("["+inieditspr(A__MENUVERT,glob_V006,j)+"]",sh))
         add_string(center('[' + inieditspr(A__MENUVERT, getV006(), j) + ']', sh))
       endif
       aeval(arr_title, {|x| add_string(x) } )
