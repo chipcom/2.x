@@ -1,10 +1,8 @@
-** 22.10.22 вернуть результат обращения за медицинской помощью по коду
-function getRSLT_V009( result )
+** 04.11.22 вернуть результат обращения за медицинской помощью по коду
+function getRSLT_V009(result)
   local ret := NIL
   local i
 
-  // if (i := ascan(glob_V009, {|x| x[2] == result })) > 0
-    // ret := glob_V009[i,1]
   if (i := ascan(getV009(), {|x| x[2] == result })) > 0
       ret := getV009()[i, 1]
   endif
@@ -24,7 +22,7 @@ function getRSLT_usl_date(uslovie, date)
   next
   return ret
 
-* 10.12.21 вернуть массив по справочнику ТФОМС V009.xml
+** 04.11.22 вернуть массив по справочнику ТФОМС V009.xml
 function getV009()
   // V009.xml - Классификатор результатов обращения за медицинской помощью
   Local dbName, dbAlias := 'V009'
@@ -35,7 +33,7 @@ function getV009()
   if len(_arr) == 0
     tmp_select := select()
     dbName := '_mo_v009'
-    dbUseArea( .t., "DBFNTX", exe_dir + dbName, dbAlias , .t., .f. )
+    dbUseArea( .t., 'DBFNTX', exe_dir + dbName, dbAlias , .t., .f. )
 
   //  1 - RMPNAME(C)  2 - IDRMP(N)  3 - DATEBEG(D)  4 - DATEEND(D)  5 - DL_USLOV(N)
   (dbAlias)->(dbGoTop())
@@ -51,7 +49,6 @@ function getV009()
           vid := '/'
         endif
         stroke := str((dbAlias)->IDRMP, 3) + vid + alltrim((dbAlias)->RMPNAME)
-        // aadd(_arr, { alltrim((dbAlias)->RMPNAME), (dbAlias)->IDRMP, (dbAlias)->DATEBEG, (dbAlias)->DATEEND, (dbAlias)->DL_USLOV })
         aadd(_arr, { stroke, (dbAlias)->IDRMP, (dbAlias)->DATEBEG, (dbAlias)->DATEEND, (dbAlias)->DL_USLOV })
       endif
       (dbAlias)->(dbSkip())
