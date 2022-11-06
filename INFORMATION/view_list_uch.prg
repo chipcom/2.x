@@ -980,7 +980,7 @@ Function f4o_list_uch(nKey, oBrow)
   endif
   return k
 
-** 22.10.22 печать нескольких листов учёта
+** 05.11.22 печать нескольких листов учёта
 Function print_al_uch(arr_h, arr_m)
   Local sh := 80, HH := 77, buf := save_maxrow(), ;
         name_lpu, mvzros_reb, mreg_lech, mmest_inog, mrab_nerab, ;
@@ -1165,9 +1165,6 @@ Function print_al_uch(arr_h, arr_m)
     if human_->PROFIL > 0
       add_string('  Профиль: ' + inieditspr(A__MENUVERT, glob_V002, human_->PROFIL))
     endif
-    // add_string('  Способ оплаты: ' + inieditspr(A__MENUVERT, glob_V010, human_->IDSP))
-    // add_string('  Результат обращения: ' + inieditspr(A__MENUVERT, glob_V009, human_->RSLT_NEW))
-    // add_string('  Исход заболевания: ' +inieditspr(A__MENUVERT, glob_V012, human_->ISHOD_NEW))
     add_string('  Способ оплаты: ' + inieditspr(A__MENUVERT, getV010(), human_->IDSP))
     add_string('  Результат обращения: ' + inieditspr(A__MENUVERT, getV009(), human_->RSLT_NEW))
     add_string('  Исход заболевания: ' + inieditspr(A__MENUVERT, getV012(), human_->ISHOD_NEW))

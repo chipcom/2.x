@@ -25,7 +25,7 @@ else
 endif
 return fl
 
-** 22.10.22 СМП - добавление или редактирование случая (листа учета)
+** 05.11.22 СМП - добавление или редактирование случая (листа учета)
 Function oms_sluch_SMP(Loc_kod, kod_kartotek, tip_lu)
 // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
 // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -267,8 +267,6 @@ Private mkod := Loc_kod, mtip_h, is_talon := .f.,;
   m1IDSP   := iif(tip_lu == TIP_LU_SMP, 24, 41)
 Private mm_prer_b := mm2prer_b
 //
-// aeval(glob_V009,{|x| iif(x[5] == m1USL_OK, aadd(mm_rslt,x), nil) })
-// aeval(glob_V012,{|x| iif(x[5] == m1USL_OK, aadd(mm_ishod,x), nil) })
 aeval(getV009(), {|x| iif(x[5] == m1USL_OK, aadd(mm_rslt, x), nil) })
 aeval(getV012(), {|x| iif(x[5] == m1USL_OK, aadd(mm_ishod,x), nil) })
 if ascan(mm_rslt, {|x| x[2] == rslt_umolch}) > 0
@@ -445,8 +443,6 @@ MFIO_KART := _f_fio_kart()
 mvzros_reb := inieditspr(A__MENUVERT, menu_vzros, m1vzros_reb)
 MNOVOR    := inieditspr(A__MENUVERT, mm_danet, M1NOVOR)
 MF14_EKST := inieditspr(A__MENUVERT, mm_ekst_smp, M1F14_EKST)
-// mrslt     := inieditspr(A__MENUVERT, glob_V009, m1rslt)
-// mishod    := inieditspr(A__MENUVERT, glob_V012, m1ishod)
 mrslt     := inieditspr(A__MENUVERT, getV009(), m1rslt)
 mishod    := inieditspr(A__MENUVERT, getV012(), m1ishod)
 mlpu      := inieditspr(A__POPUPMENU, dir_server+"mo_uch", m1lpu)

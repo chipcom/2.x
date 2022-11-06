@@ -92,7 +92,7 @@ return NIL
 
 *
 
-** 21.10.22
+** 06.11.22
 Function f0_263_s_gospit()
   Local s := ''
 
@@ -113,7 +113,6 @@ Function f0_263_s_gospit()
     case napr->TYPE_H_4 == 3 // госп-ия: 3-перевод внутри нашего МО
       s := 'внутри нашего МО'
     case napr->TYPE_H_4 == 4 // госп-ия: 4-экстр./неотл. (I05)
-      // s := inieditspr(A__MENUVERT,glob_V014,napr->F_MEDC_4)+" госпитализация"
       s := inieditspr(A__MENUVERT, getV014(), napr->F_MEDC_4) + ' госпитализация'
   endcase
   return s
@@ -233,7 +232,7 @@ do case
 endcase
 return ret
 
-** 21.10.22 работа с направлениями на госпитализацию в стационаре
+** 06.11.22 работа с направлениями на госпитализацию в стационаре
 Function _263_edit_s_gospit(nKey)
 Static sk := 1
 Local bg := {|o,k| get_MKB10(o,k) }
@@ -334,13 +333,11 @@ if flag
       mCODEM_FROM := ret_mo(m1CODEM_FROM)[_MO_SHORT_NAME]
     endif
   endif
-  // mm_forma := aclone(glob_V014)
   mm_forma := aclone(getV014())
   if mTYPE_H_4 > 1
     Del_Array(mm_forma,3) // убираем "плановую" помощь
   endif
   mUSL_OK := inieditspr(A__MENUVERT, tmp_V006, m1USL_OK)
-  // mforma := inieditspr(A__MENUVERT,glob_V014,m1forma)
   mforma := inieditspr(A__MENUVERT, getV014(), m1forma)
   mprofil_k := inieditspr(A__MENUVERT, arr_t007, M1PROFIL_K)
   mprofil := inieditspr(A__MENUVERT, glob_V002, M1PROFIL)
@@ -761,7 +758,7 @@ elseif napr->t_ans_6 == 1
 endif
 return s
 
-** 21.10.22
+** 06.11.22
 Function f2_263_s_vybytie(nKey,oBrow,regim)
 Local ret := -1, rec, i, k, r1, tmp_color, buf, fl, s_error := "",;
       n_file := "spisokne"+stxt, sh := 84, HH := 80, t_arr[3], s1
@@ -819,7 +816,6 @@ do case
               mtip, m1tip := napr->type_6,;
               gl_area := {1,0,23,79,0}
       mtip := inieditspr(A__MENUVERT,mm_tip_vyb,m1tip)
-      // mforma := inieditspr(A__MENUVERT,glob_V014,m1forma)
       mforma := inieditspr(A__MENUVERT, getV014(), m1forma)
       mprofil_k := inieditspr(A__MENUVERT, arr_t007, M1PROFIL_K)
       mprofil := inieditspr(A__MENUVERT, glob_V002, M1PROFIL)
@@ -1085,7 +1081,7 @@ Function f1_263_s_napr()
   endif
   return s
 
-** 21.10.22
+** 06.11.22
 Function f2_263_s_napr(nKey,oBrow,regim)
 Static s_arr
 Local ret := -1, rec, i, k, tmp_color, buf, s_error := "", arr_p := {}, sast := {}, a, fl,;
@@ -1155,10 +1151,6 @@ do case
           s1 += padr(t_arr[1],23)
           s2 += padr(t_arr[2],23)
           s3 += padr(t_arr[3],23)
-          // s := rtrim(napr->ds_1)+" "+;
-          //      inieditspr(A__MENUVERT,glob_V014,napr->F_MEDC_1)+" "+;
-          //      inieditspr(A__MENUVERT, arr_t007, napr->PROFIL_K_1)+" ("+;
-          //      inieditspr(A__MENUVERT, glob_V002, napr->PROFIL_1)+")"
           s := rtrim(napr->ds_1) + ' ' + ;
             inieditspr(A__MENUVERT, getV014(), napr->F_MEDC_1) + ' ' + ;
             inieditspr(A__MENUVERT, arr_t007, napr->PROFIL_K_1) + ' (' + ;
@@ -1209,7 +1201,6 @@ do case
           motd := '! некорректное отделение !'
         endif
       endif
-      // mforma := inieditspr(A__MENUVERT,glob_V014,m1forma)
       mforma := inieditspr(A__MENUVERT, getV014(), m1forma)
       mprofil_k := inieditspr(A__MENUVERT, arr_t007, M1PROFIL_K)
       mprofil := inieditspr(A__MENUVERT, glob_V002, M1PROFIL)
@@ -1423,7 +1414,7 @@ elseif napr->TIP_ANNUL == 3
 endif
 return s
 
-** 21.10.22
+** 06.11.22
 Function f2_263_s_annul(nKey,oBrow,regim)
 Local ret := -1, rec, i, k, s, tmp_color, buf, s_error := "",;
       tmp_V006 := {{"Стационар",1},{"Дневной стационар",2}}
@@ -1467,7 +1458,6 @@ do case
         endif
       endif
       mUSL_OK := inieditspr(A__MENUVERT, tmp_V006, m1USL_OK)
-      // mforma := inieditspr(A__MENUVERT,glob_V014,m1forma)
       mforma := inieditspr(A__MENUVERT,getV014(), m1forma)
       mprofil_k := inieditspr(A__MENUVERT, arr_t007, M1PROFIL_K)
       mprofil := inieditspr(A__MENUVERT, glob_V002, M1PROFIL)

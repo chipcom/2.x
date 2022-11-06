@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-** 22.10.22 добавление или редактирование случая (листа учета)
+** 05.11.22 добавление или редактирование случая (листа учета)
 Function oms_sluch_main(Loc_kod, kod_kartotek)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -56,8 +56,6 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
   Private tmp_V006 := create_classif_FFOMS(2, 'V006') // USL_OK
   Private tmp_V002 := create_classif_FFOMS(2, 'V002') // PROFIL
   Private tmp_V020 := create_classif_FFOMS(2, 'V020') // PROFIL_K
-  // Private tmp_V009 := cut_glob_array(glob_V009, sys_date) // rslt
-  // Private tmp_V012 := cut_glob_array(glob_V012, sys_date) // ishod
   Private tmp_V009 := cut_glob_array(getV009(), sys_date) // rslt
   Private tmp_V012 := cut_glob_array(getV012(), sys_date) // ishod
   Private mm_rslt, mm_ishod, rslt_umolch := 0, ishod_umolch := 0
@@ -662,8 +660,6 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
   MF14_SKOR := inieditspr(A__MENUVERT, mm_danet, M1F14_SKOR)
   MF14_VSKR := inieditspr(A__MENUVERT, mm_vskrytie, M1F14_VSKR)
   MF14_RASH := inieditspr(A__MENUVERT, mm_danet, M1F14_RASH)
-  // mrslt     := inieditspr(A__MENUVERT, glob_V009, m1rslt)
-  // mishod    := inieditspr(A__MENUVERT, glob_V012, m1ishod)
   mrslt     := inieditspr(A__MENUVERT, getV009(), m1rslt)
   mishod    := inieditspr(A__MENUVERT, getV012(), m1ishod)
   mvidpolis := inieditspr(A__MENUVERT, mm_vid_polis, m1vidpolis)

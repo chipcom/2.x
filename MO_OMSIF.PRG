@@ -4706,9 +4706,7 @@ if fl
 endif
 return ret
 
-*
-
-***** 08.01.19
+** 06.11.22
 Function forma_30()
 Local i, j, k, arr, s, buf := save_maxrow(), fl_exit := .f.,;
       reg_print, name_file := "_form_30"+stxt, ;
@@ -4912,7 +4910,6 @@ if found()
   index on padr(lstr(kod),9) to (cur_dir+"tmp") for tip == 3
   go top
   do while !eof()
-    // f2_f30(inieditspr(A__MENUVERT, glob_V015, tmp->kod))
     f2_f30(inieditspr(A__MENUVERT, getV015(), tmp->kod))
     skip
   enddo
@@ -5030,7 +5027,6 @@ if found()  // в tmp уже должны входить
   index on padr(lstr(kod),9) to (cur_dir+"tmp2") for tip == 3
   go top
   do while !eof()
-    // f2_f30_dop(inieditspr(A__MENUVERT, glob_V015, tmp2->kod))
     f2_f30_dop(inieditspr(A__MENUVERT, getV015(), tmp2->kod))
     skip
   enddo

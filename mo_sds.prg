@@ -53,7 +53,7 @@ if k > 0
 endif
 return NIL
 
-** 22.10.22
+** 05.11.22
 Function read_file_XML_SDS(n_file)
 Static cDelimiter := " ,"
 Local _sluch := {;
@@ -752,7 +752,6 @@ do while !eof()
   else
     if int(val(left(lstr(ihuman->RSLT), 1))) != ihuman->USL_OK
       aadd(ae, 'поле USL_OK = ' + lstr(ihuman->USL_OK) + ' не соответствует значению поля RSLT = ' + lstr(ihuman->RSLT))
-    // elseif ascan(glob_V009,{|x| x[2] == ihuman->RSLT}) == 0
     elseif ascan(getV009(), {|x| x[2] == ihuman->RSLT}) == 0
       aadd(ae, 'неверное значение поля RSLT = ' + lstr(ihuman->RSLT))
     endif
@@ -762,7 +761,6 @@ do while !eof()
   else
     if int(val(left(lstr(ihuman->ISHOD), 1))) != ihuman->USL_OK
       aadd(ae, 'поле USL_OK = ' + lstr(ihuman->USL_OK) + ' не соответствует значению поля ISHOD = ' + lstr(ihuman->ISHOD))
-    // elseif ascan(glob_V012,{|x| x[2] == ihuman->ISHOD}) == 0
     elseif ascan(getV012(), {|x| x[2] == ihuman->ISHOD}) == 0
       aadd(ae, 'неверное значение поля ISHOD = ' + lstr(ihuman->ISHOD))
     endif
@@ -1309,8 +1307,8 @@ close databases
 rest_box(buf)
 return .t.
 
-***** 10.03.18 вернуть шифр услуги 2.60.*
-Function ret_shifr_2_60(lprofil,lvzros_reb)
+** 06.11.22 вернуть шифр услуги 2.60.*
+Function ret_shifr_2_60(lprofil, lvzros_reb)
 Local lshifr
 //2.60.1 врач
 //2.60.2 участковый терапевт, педиатр, врач общей практики
@@ -1428,7 +1426,6 @@ elseif !empty(k := &lal.->vr_snils) .and. !empty(&lal.->prvs)
       endif
       aadd(aerr, 'В справочнике персонала не обнаружен сотрудник со СНИЛС ' + transform(k, picture_pf) + ;
                 ' и специальностью "' + inieditspr(A__MENUVERT, getV015(), lprvs) + '"')
-                // ' и специальностью "'+inieditspr(A__MENUVERT,glob_V015,lprvs)+'"')
     endif
     if empty(ret)
       ret := 3

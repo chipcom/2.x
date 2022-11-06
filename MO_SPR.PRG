@@ -93,11 +93,11 @@ local tmpAlias, i
     return func_error(4,err_slock)
   endif
   if !Use_base("lusl") .or. !Use_base("luslc") .or. ;
-      !G_Use(dir_server+"uslugi1",{dir_server+"uslugi1",;
-                                dir_server+"uslugi1s"},"USL1") .or. ;
-      !G_Use(dir_server+"uslugi",,"USL") .or. ;
-      !G_Use(dir_server+"usl_otd",dir_server+"usl_otd","UO") .or. ;
-      !R_Use(dir_server+"slugba",dir_server+"slugba","SL")
+      !G_Use(dir_server + "uslugi1",{dir_server + "uslugi1",;
+                                dir_server + "uslugi1s"},"USL1") .or. ;
+      !G_Use(dir_server + "uslugi",,"USL") .or. ;
+      !G_Use(dir_server + "usl_otd",dir_server + "usl_otd","UO") .or. ;
+      !R_Use(dir_server + "slugba",dir_server + "slugba","SL")
     close databases
     return NIL
   endif
@@ -116,18 +116,18 @@ local tmpAlias, i
     next
   endif
   Private tmp_V002 := create_classif_FFOMS(0,"V002") // PROFIL
-  dbcreate(cur_dir+"tmp_usl1",{{"shifr1",  "C",10,0},;
+  dbcreate(cur_dir + "tmp_usl1",{{"shifr1",  "C",10,0},;
                              {"name",    "C",77,0},;
                              {"date_b",  "D", 8,0}})
-  use (cur_dir+"tmp_usl1") new
-  index on dtos(date_b) to (cur_dir+"tmp_usl1")
+  use (cur_dir + "tmp_usl1") new
+  index on dtos(date_b) to (cur_dir + "tmp_usl1")
   select USL
-  index on iif(kod>0,"1","0")+fsort_usl(shifr) to (cur_dir+"tmp_usl")
-  set index to (cur_dir+"tmp_usl"),;
-             (dir_server+"uslugi"),;
-             (dir_server+"uslugish"),;
-             (dir_server+"uslugis1"),;
-             (dir_server+"uslugisl")
+  index on iif(kod>0,"1","0")+fsort_usl(shifr) to (cur_dir + "tmp_usl")
+  set index to (cur_dir + "tmp_usl"),;
+             (dir_server + "uslugi"),;
+             (dir_server + "uslugish"),;
+             (dir_server + "uslugis1"),;
+             (dir_server + "uslugisl")
   Private str_find := "1", muslovie := "usl->kod > 0"
   arr_block := {{|| FindFirst(str_find)},;
               {|| FindLast(str_find)},;
@@ -231,29 +231,29 @@ do case
   case nKey == K_DEL .and. usl->kod > 0
     stat_msg("Ждите! Производится проверка на наличие удаляемой услуги в других базах данных.")
     mybell(0.1,OK)
-    R_Use(dir_server+"human_u",dir_server+"human_uk","HU")
+    R_Use(dir_server + "human_u",dir_server + "human_uk","HU")
     find (str(usl->kod,4))
     fl := found()
     hu->(dbCloseArea())
     if !fl
-      R_Use(dir_server+"hum_p_u",dir_server+"hum_p_uk","HU")
+      R_Use(dir_server + "hum_p_u",dir_server + "hum_p_uk","HU")
       find (str(usl->kod,4))
       fl := found()
       hu->(dbCloseArea())
     endif
     if !fl
-      R_Use(dir_server+"hum_oru",dir_server+"hum_oruk","HU")
+      R_Use(dir_server + "hum_oru",dir_server + "hum_oruk","HU")
       find (str(usl->kod,4))
       fl := found()
       hu->(dbCloseArea())
     endif
     if !fl
-      R_Use(dir_server+"kas_pl_u",dir_server+"kas_pl2u","HU")
+      R_Use(dir_server + "kas_pl_u",dir_server + "kas_pl2u","HU")
       find (str(usl->kod,4))
       fl := found()
       hu->(dbCloseArea())
       if !fl
-        R_Use(dir_server+"kas_ortu",dir_server+"kas_or2u","HU")
+        R_Use(dir_server + "kas_ortu",dir_server + "kas_or2u","HU")
         find (str(usl->kod,4))
         fl := found()
         hu->(dbCloseArea())
@@ -548,7 +548,7 @@ if k > 0
     if v1 > 0
       return func_error(4,"Данный шифр услуги уже встречается в справочнике услуг!")
     endif
-    R_Use(dir_server+"mo_su",dir_server+"mo_sush","MOSU")
+    R_Use(dir_server + "mo_su",dir_server + "mo_sush","MOSU")
     find (mshifr)
     if found()
       v1 := 1
@@ -774,18 +774,18 @@ str_sem := "Редактирование услуг"
 if !G_SLock(str_sem)
   return func_error(4,err_slock)
 endif
-if !Use_base("luslf") .or. !G_Use(dir_server+"mo_su",,"MOSU")
+if !Use_base("luslf") .or. !G_Use(dir_server + "mo_su",,"MOSU")
   close databases
   return NIL
 endif
 mywait()
 Private tmp_V002 := create_classif_FFOMS(0,"V002") // PROFIL
 select MOSU
-index on iif(kod>0,"1","0")+shifr1 to (cur_dir+"tmp_usl")
-set index to (cur_dir+"tmp_usl"),;
-             (dir_server+"mo_su"),;
-             (dir_server+"mo_sush"),;
-             (dir_server+"mo_sush1")
+index on iif(kod>0,"1","0")+shifr1 to (cur_dir + "tmp_usl")
+set index to (cur_dir + "tmp_usl"),;
+             (dir_server + "mo_su"),;
+             (dir_server + "mo_sush"),;
+             (dir_server + "mo_sush1")
 Private str_find := "1", muslovie := "mosu->kod > 0"
 arr_block := {{|| FindFirst(str_find)},;
               {|| FindLast(str_find)},;
@@ -864,12 +864,12 @@ do case
   case nKey == K_DEL .and. mosu->kod > 0
     stat_msg("Ждите! Производится проверка на наличие удаляемой услуги в других базах данных.")
     mybell(0.1,OK)
-    R_Use(dir_server+"mo_hu",dir_server+"mo_huk","HU")
+    R_Use(dir_server + "mo_hu",dir_server + "mo_huk","HU")
     find (str(mosu->kod,6))
     fl := found()
     hu->(dbCloseArea())
     if !fl
-      R_Use(dir_server+"mo_onkna",,"NAPR") // онконаправления
+      R_Use(dir_server + "mo_onkna",,"NAPR") // онконаправления
       Locate for U_KOD == mosu->kod
       fl := found()
       napr->(dbCloseArea())
@@ -1047,7 +1047,7 @@ do case
         mshifr := space(10)
       endif
       if fl
-        R_Use(dir_server+"uslugi",dir_server+"uslugish","USL")
+        R_Use(dir_server + "uslugi",dir_server + "uslugish","USL")
         find (mshifr)
         if found()
           fl := func_error(4,"Данный шифр услуги уже встречается в основном справочнике услуг!")
@@ -1070,10 +1070,10 @@ Local mlen, t_mas := {}, buf := savescreen(), ret, ;
       i, tmp_color := setcolor(), m1var := "", s := "",;
       tmp_select := select(), r1, a_uch := {}
 mywait()
-R_Use(dir_server+"mo_uch",,"LPU")
+R_Use(dir_server + "mo_uch",,"LPU")
 dbeval({|| iif(between_date(lpu->dbegin,lpu->dend,sys_date), ;
                aadd(a_uch,lpu->(recno())), nil) })
-R_Use(dir_server+"mo_otd",,"OTD")
+R_Use(dir_server + "mo_otd",,"OTD")
 set relation to kod_lpu into LPU
 dbeval({|| s := if(chr(recno()) $ k," * ","   ")+;
                 padr(otd->name,30)+" "+padr(lpu->short_name,5)+str(recno(),10),;
@@ -1135,8 +1135,8 @@ Private pr1 := r1, pc1 := 2, pc2 := 77, fl_found := .t.
 if !G_SLock(str_sem)
   return func_error(4,err_slock)
 endif
-R_Use(dir_server+"mo_pers",dir_server+"mo_pers","PERSO")
-G_Use(dir_server+"uslugi_k",dir_server+"uslugi_k","UK")
+R_Use(dir_server + "mo_pers",dir_server + "mo_pers","PERSO")
+G_Use(dir_server + "uslugi_k",dir_server + "uslugi_k","UK")
 go top
 if eof()
   fl_found := .f.
@@ -1240,7 +1240,7 @@ do case
         UNLOCK
         COMMIT
         if nKey == K_ENTER .and. !(old_shifr == mshifr)
-          G_Use(dir_server+"uslugi1k",{dir_server+"uslugi1k"},"U1K")
+          G_Use(dir_server + "uslugi1k",{dir_server + "uslugi1k"},"U1K")
           do while .t.
             find (old_shifr)
             if !found() ; exit ; endif
@@ -1265,7 +1265,7 @@ do case
                             .and. f_Esc_Enter(2,.t.)
     buf := save_maxrow()
     mywait()
-    G_Use(dir_server+"uslugi1k",{dir_server+"uslugi1k"},"U1K")
+    G_Use(dir_server + "uslugi1k",{dir_server + "uslugi1k"},"U1K")
     do while .t.
       find (uk->shifr)
       if !found() ; exit ; endif
@@ -1293,14 +1293,14 @@ Function f3_k_uslugi()
 Local buf := savescreen(), adbf
 Private fl_found
 mywait()
-G_Use(dir_server+"uslugi",dir_server+"uslugish","USL")
-G_Use(dir_server+"uslugi1k",{dir_server+"uslugi1k"},"U1K")
+G_Use(dir_server + "uslugi",dir_server + "uslugish","USL")
+G_Use(dir_server + "uslugi1k",{dir_server + "uslugi1k"},"U1K")
 adbf := dbstruct()
 aadd(adbf, {"rec_u1k","N",6,0} )
 aadd(adbf, {"name","C",64,0} )
-dbcreate(cur_dir+"tmp",adbf)
-use (cur_dir+"tmp") new alias TMP
-index on shifr1 to (cur_dir+"tmp")
+dbcreate(cur_dir + "tmp",adbf)
+use (cur_dir + "tmp") new alias TMP
+index on shifr1 to (cur_dir + "tmp")
 select U1K
 find (uk->shifr)
 if (fl_found := found())
@@ -1447,10 +1447,10 @@ if !G_SLock(str_sem)
   return func_error(4,err_slock)
 endif
 mywait()
-dbcreate(cur_dir+"tmp",uslugi)
-use (cur_dir+"tmp") alias tmp
-index on fsort_usl(shifr) to (cur_dir+"tmp")
-if useUch_Usl() .and. R_Use(dir_server+"uslugi",,"USL")
+dbcreate(cur_dir + "tmp",uslugi)
+use (cur_dir + "tmp") alias tmp
+index on fsort_usl(shifr) to (cur_dir + "tmp")
+if useUch_Usl() .and. R_Use(dir_server + "uslugi",,"USL")
   k1 := usl->(lastrec())
   k2 := uu->(lastrec())
   select UU
@@ -1772,9 +1772,9 @@ if !G_SLock(str_sem)
   return func_error(4,err_slock)
 endif
 mywait()
-if G_Use(dir_server+"uch_pers",dir_server+"uch_pers","UCHP") .and. ;
-   R_Use(dir_server+"mo_pers",,"PERSO")
-  index on str(kod,4) to (cur_dir+"tmp_pers") for kod > 0
+if G_Use(dir_server + "uch_pers",dir_server + "uch_pers","UCHP") .and. ;
+   R_Use(dir_server + "mo_pers",,"PERSO")
+  index on str(kod,4) to (cur_dir + "tmp_pers") for kod > 0
   select UCHP
   set order to 0
   go top
@@ -1812,8 +1812,8 @@ if G_Use(dir_server+"uch_pers",dir_server+"uch_pers","UCHP") .and. ;
   Commit
   select UCHP
   set relation to str(kod,4) into PERSO
-  index on upper(perso->fio) to (cur_dir+"tmp_uch") for god == lgod .and. mes == lmes
-  set index to (cur_dir+"tmp_uch"),(dir_server+"uch_pers")
+  index on upper(perso->fio) to (cur_dir + "tmp_uch") for god == lgod .and. mes == lmes
+  set index to (cur_dir + "tmp_uch"),(dir_server + "uch_pers")
   go top
   Alpha_Browse(2,2,maxrow()-2,77,"f1_trpers",color0,mtitle,"BG+/GR",;
                .f.,,,,"f2_trpers",,{,,,"N/BG,W+/N,B/BG,BG+/B",.t.,180} )
@@ -1879,8 +1879,8 @@ str_sem := "Редактирование несовместимых услуг"
 if !G_SLock(str_sem)
   return func_error(4,err_slock)
 endif
-G_Use(dir_server+"ns_usl",,"UK")
-index on upper(name) to (cur_dir+"tmp_usl")
+G_Use(dir_server + "ns_usl",,"UK")
+index on upper(name) to (cur_dir + "tmp_usl")
 go top
 if eof()
   fl_found := .f.
@@ -1912,8 +1912,8 @@ do case
     fp := fcreate("n_uslugi"+stxt) ; n_list := 1 ; tek_stroke := 0
     add_string("")
     add_string(center("Услуги, не совместимые по дате",sh))
-    R_Use(dir_server+"uslugi",dir_server+"uslugish","USL")
-    R_Use(dir_server+"ns_usl_k",dir_server+"ns_usl_k","U1K")
+    R_Use(dir_server + "uslugi",dir_server + "uslugish","USL")
+    R_Use(dir_server + "ns_usl_k",dir_server + "ns_usl_k","U1K")
     set relation to shifr into USL
     select UK
     go top
@@ -1979,7 +1979,7 @@ do case
   case nKey == K_DEL .and. !empty(uk->name) .and. f_Esc_Enter(2,.t.)
     buf := save_maxrow()
     mywait()
-    G_Use(dir_server+"ns_usl_k",dir_server+"ns_usl_k","U1K")
+    G_Use(dir_server + "ns_usl_k",dir_server + "ns_usl_k","U1K")
     do while .t.
       find (str(uk->(recno()),6))
       if !found() ; exit ; endif
@@ -2006,14 +2006,14 @@ Function f3_ns_uslugi()
 Local buf := savescreen(), adbf
 Private fl_found
 mywait()
-R_Use(dir_server+"uslugi",dir_server+"uslugish","USL")
-G_Use(dir_server+"ns_usl_k",dir_server+"ns_usl_k","U1K")
+R_Use(dir_server + "uslugi",dir_server + "uslugish","USL")
+G_Use(dir_server + "ns_usl_k",dir_server + "ns_usl_k","U1K")
 adbf := dbstruct()
 aadd(adbf, {"rec_u1k","N",6,0} )
 aadd(adbf, {"name","C",64,0} )
-dbcreate(cur_dir+"tmp",adbf)
-use (cur_dir+"tmp") new alias TMP
-index on shifr to (cur_dir+"tmp")
+dbcreate(cur_dir + "tmp",adbf)
+use (cur_dir + "tmp") new alias TMP
+index on shifr to (cur_dir + "tmp")
 select U1K
 find (str(uk->(recno()),6))
 if (fl_found := found())
@@ -2168,7 +2168,7 @@ Local ret := -1, mm_da_net := {{"да ",0},{"НЕТ",1}}
 Local buf, fl := .f., rec, rec1, k := maxrow()-7, tmp_color
 do case
   case regim == "open"
-    G_Use(dir_server+"usl_uva",dir_server+"usl_uva","DBF1")
+    G_Use(dir_server + "usl_uva",dir_server + "usl_uva","DBF1")
     go top
     if (ret := !eof()) .and. lrec != NIL .and. lrec > 0
       goto (lrec)
@@ -2252,19 +2252,19 @@ return fl
 
 ***** Ввод/редактирование услуг, которые могут быть оказаны человеку только раз в году
 Function f_usl_raz()
-Local buf := savescreen(), adbf, i, n_file := dir_server+"usl1year"+smem
+Local buf := savescreen(), adbf, i, n_file := dir_server + "usl1year"+smem
 Private fl_found := .f., arr_usl1year := {}
 if hb_fileExists(n_file)
   arr_usl1year := rest_arr(n_file)
 endif
 mywait()
-R_Use(dir_server+"uslugi",dir_server+"uslugish","USL")
+R_Use(dir_server + "uslugi",dir_server + "uslugish","USL")
 adbf := {{"kod","N",4,0},;
          {"shifr","C",10,0},;
          {"name","C",64,0}}
-dbcreate(cur_dir+"tmp",adbf)
-use (cur_dir+"tmp") new alias TMP
-index on fsort_usl(shifr) to (cur_dir+"tmp")
+dbcreate(cur_dir + "tmp",adbf)
+use (cur_dir + "tmp") new alias TMP
+index on fsort_usl(shifr) to (cur_dir + "tmp")
 for i := 1 to len(arr_usl1year)
   fl_found := .t.
   select USL
@@ -2285,7 +2285,7 @@ close databases
 restscreen(buf)
 if f_Esc_Enter(1)
   arr_usl1year := {}
-  use (cur_dir+"tmp")
+  use (cur_dir + "tmp")
   go top
   do while !eof()
     if !empty(tmp->kod)
@@ -2370,7 +2370,7 @@ if c2 > 77
   c2 := 77 ; c1 := 27
 endif
 pc1 := c1 ; pc2 := c2
-G_Use(dir_server+"slugba",dir_server+"slugba","SL")
+G_Use(dir_server + "slugba",dir_server + "slugba","SL")
 go top
 if lastrec() == 0
   AddRec(3)
@@ -2458,7 +2458,7 @@ do case
         UNLOCK
         COMMIT
         if nKey == K_ENTER .and. old_shifr != mshifr
-          G_Use(dir_server+"uslugi",{dir_server+"uslugisl"},"USL")
+          G_Use(dir_server + "uslugi",{dir_server + "uslugisl"},"USL")
           do while .t.
             find (str(old_shifr,3))
             if !found() ; exit ; endif
@@ -2483,7 +2483,7 @@ do case
     restore screen from buf
     return k
   case nKey == K_DEL .and. !empty(sl->name) .and. f_Esc_Enter(2)
-    R_Use(dir_server+"uslugi",{dir_server+"uslugisl"},"USL")
+    R_Use(dir_server + "uslugi",{dir_server + "uslugisl"},"USL")
     find (str(sl->shifr,3))
     fl := found()
     Use
@@ -2542,7 +2542,7 @@ do case
   case k == 2
     str_sem := "Редактирование места работы"
     if G_SLock(str_sem)
-      popup_edit(dir_server+"s_mr",T_ROW,T_COL+5,maxrow()-2,,1)
+      popup_edit(dir_server + "s_mr",T_ROW,T_COL+5,maxrow()-2,,1)
       G_SUnLock(str_sem)
     else
       func_error(4,err_slock)
@@ -2601,7 +2601,7 @@ Local ret := -1, j := 0, flag := -1, buf := save_maxrow(), buf1, ;
       fl := .f., rec, mkod, tmp_color := setcolor()
 do case
   case regim == "open"
-    G_Use(dir_server+"s_adres",dir_server+"s_adres","SA")
+    G_Use(dir_server + "s_adres",dir_server + "s_adres","SA")
     go top
     ret := !eof()
   case regim == "edit"
@@ -2668,7 +2668,7 @@ Local ret := -1, j := 0, flag := -1, buf := save_maxrow(), buf1, ;
       fl := .f., rec, mkod, tmp_color := setcolor()
 do case
   case regim == "open"
-    G_Use(dir_server+"s_kemvyd",dir_server+"s_kemvyd","SA")
+    G_Use(dir_server + "s_kemvyd",dir_server + "s_kemvyd","SA")
     go top
     if par != NIL .and. par > 0
       goto (par)
@@ -2821,7 +2821,7 @@ return ret
 *****
 Function yes_d_kemvyd(rec)
 Local tmp_select := select(), fl := .t., arr, i, j, s, kr
-R_Use(dir_server+"kartote_",,"TMPKART")
+R_Use(dir_server + "kartote_",,"TMPKART")
 Locate for kemvyd == rec progress
 if found()
   fl := func_error(4,'Данная организация уже "привязана" к пациенту. Удаление запрещено!')
@@ -2873,7 +2873,7 @@ if (k1 := input_s_kemvyd(sk,r,maxrow()-2)) != NIL
         mywait()
         hGauge := GaugeNew(,,,"",.t.)
         GaugeDisplay( hGauge )
-        G_Use(dir_server+"kartote_",,"TMPKART")
+        G_Use(dir_server + "kartote_",,"TMPKART")
         go top
         do while !eof()
           GaugeUpdate( hGauge, recno()/lastrec() )
@@ -2886,7 +2886,7 @@ if (k1 := input_s_kemvyd(sk,r,maxrow()-2)) != NIL
         enddo
         CloseGauge(hGauge)
         //
-        G_Use(dir_server+"s_kemvyd",dir_server+"s_kemvyd","SA")
+        G_Use(dir_server + "s_kemvyd",dir_server + "s_kemvyd","SA")
         set order to 0
         goto (k1[1])
         DeleteRec(.t.)
@@ -2909,7 +2909,7 @@ Local blk, arr[US_LEN]
 arr[US_BOTTOM   ] := maxrow()-2
 arr[US_LEFT     ] := 2
 arr[US_RIGHT    ] := 77
-arr[US_BASE     ] := dir_server+"mo_schoo"
+arr[US_BASE     ] := dir_server + "mo_schoo"
 arr[US_ARR_BROWSE]:= {"═","░","═",,.t.}
 arr[US_COLUMN   ] := {{" Наименование",{|| name },blk},;
                       {" Адрес",{|| left(adres,26) },blk},;
@@ -2931,8 +2931,8 @@ return NIL
 ***** 29.07.13
 Static Function fdel_school(k)
 Local _fl := .t., arr, i
-R_Use(dir_server+"human",,"__B")
-index on kod to (cur_dir+"tmp_b") for between(ishod,301,309)
+R_Use(dir_server + "human",,"__B")
+index on kod to (cur_dir + "tmp_b") for between(ishod,301,309)
 go top
 do while !eof()
   arr := read_arr_DISPANS(__b->kod)
@@ -2964,7 +2964,7 @@ Local blk, arr[US_LEN]
 arr[US_BOTTOM   ] := maxrow()-2
 arr[US_LEFT     ] := 2
 arr[US_RIGHT    ] := 77
-arr[US_BASE     ] := dir_server+"mo_stdds"
+arr[US_BASE     ] := dir_server + "mo_stdds"
 arr[US_ARR_BROWSE]:= {"═","░","═",,.t.}
 arr[US_COLUMN   ] := {{" Наименование",{|| left(name,40) },blk},;
                       {" Адрес",{|| left(adres,16) },blk},;
@@ -2985,7 +2985,7 @@ return NIL
 ***** 25.05.13
 Static Function fdel_dds_stac(k)
 Local _fl
-R_Use(dir_server+"human",,"__B")
+R_Use(dir_server + "human",,"__B")
 dbLocateProgress( {|| __b->ZA_SMO == k } )
 _fl := !found()
 dbCloseArea()
@@ -3135,7 +3135,7 @@ do case
   case regim == "open"
     buf := save_maxrow()
     mywait()
-    G_Use(dir_server+"u_usl_5",,"U5")
+    G_Use(dir_server + "u_usl_5",,"U5")
     go top
     do while !eof()
       G_RLock(forever)
@@ -3145,7 +3145,7 @@ do case
       skip
     enddo
     Commit
-    index on str(tip,2)+_usl_1+str(razryad,2)+str(otdal,1) to (cur_dir+"tmp_u5")
+    index on str(tip,2)+_usl_1+str(razryad,2)+str(otdal,1) to (cur_dir + "tmp_u5")
     find (str_find)
     ret := found()
     rest_box(buf)
@@ -3313,8 +3313,8 @@ Private menu_kateg := {{" без",0},;
                        {"1-ая",2},;
                        {"высш",3}}
 mywait()
-G_Use(dir_server+"mo_pers",,"PERSO")
-index on upper(fio) to (cur_dir+"tmp_pers")
+G_Use(dir_server + "mo_pers",,"PERSO")
+index on upper(fio) to (cur_dir + "tmp_pers")
 go top
 t_arr[BR_TOP] := 2
 t_arr[BR_BOTTOM] := maxrow()-2
@@ -3471,8 +3471,8 @@ Local ret := -1, sh
 Local buf, fl := .f., rec, rec1, k := 12, tmp_color, a_da, a_net, t_arr[2]
 do case
   case regim == "open"
-    G_Use(dir_server+"u_usl_7",,"U7")
-    index on upper(name) to (cur_dir+"tmp_u7")
+    G_Use(dir_server + "u_usl_7",,"U7")
+    index on upper(name) to (cur_dir + "tmp_u7")
     go top
     ret := !eof()
   case regim == "edit"
@@ -3506,8 +3506,8 @@ do case
         a_da := Slist2arr(u7->usl_ins)
         a_net := Slist2arr(u7->usl_del)
         useUch_Usl()
-        R_Use(dir_server+"uslugi",,"USL")
-        index on fsort_usl(shifr) to (cur_dir+"tmpu")
+        R_Use(dir_server + "uslugi",,"USL")
+        index on fsort_usl(shifr) to (cur_dir + "tmpu")
         go top
         do while !eof()
           if _f_usl_danet(a_da,a_net)
@@ -3684,7 +3684,7 @@ return NIL
 ***** 11.10.15 привязка участковых врачей к участкам
 Function f_attach_uch_vrach()
 Local i, blk, arr := {}, t_arr[BR_LEN]
-R_Use(dir_server+"kartotek",dir_server+"kartoteu","KART")
+R_Use(dir_server + "kartotek",dir_server + "kartoteu","KART")
 for i := 1 to 99
   find (strzero(i,2))
   if found()
@@ -3697,8 +3697,8 @@ if len(arr) == 0
 endif
 Private p2blk := {|i| i := iif(between(p2->kateg,1,4), p2->kateg, 1),;
                                       " ("+{"вр","ср","мл","пр"}[i]+".) " }
-G_Use(dir_server+"mo_uchvr",,"UV")
-index on str(uch,2) to (cur_dir+"tmp")
+G_Use(dir_server + "mo_uchvr",,"UV")
+index on str(uch,2) to (cur_dir + "tmp")
 for i := 1 to len(arr)
   find (str(arr[i],2))
   if !found()
@@ -3720,7 +3720,7 @@ do while !eof()
   skip
 enddo
 dbUnLockAll()
-index on str(uch,2) to (cur_dir+"tmp") for is == 1
+index on str(uch,2) to (cur_dir + "tmp") for is == 1
 t_arr[BR_TOP] := T_ROW
 t_arr[BR_BOTTOM] := maxrow()-2
 t_arr[BR_LEFT]  := 2
@@ -3733,7 +3733,7 @@ t_arr[BR_COLUMN] := {{"Уч-к",{|| str(uv->uch,3)+" " },blk},;
                      {" Участковый врач",{|| padr(f1_attach_uch_vrach(),67) },blk}}
 t_arr[BR_EDIT] := {|nk,ob| f2_attach_uch_vrach(nk,ob,"edit") }
 t_arr[BR_STAT_MSG] := {|| status_key("^<Esc>^ - выход;  ^<Enter>^ - редактирование участкового врача") }
-R_Use(dir_server+"mo_pers",dir_server+"mo_pers","P2")
+R_Use(dir_server + "mo_pers",dir_server + "mo_pers","P2")
 select UV
 go top
 edit_browse(t_arr)
@@ -3909,8 +3909,8 @@ if G_SLock(str_sem)
               str_find,muslovie;
              }
   if Use_base("mo_pers")
-    index on iif(kod>0,'1','0')+upper(fio) to (cur_dir+"tmp_pers")
-    set index to (cur_dir+"tmp_pers"),(dir_server+"mo_pers")
+    index on iif(kod>0,'1','0')+upper(fio) to (cur_dir + "tmp_pers")
+    set index to (cur_dir + "tmp_pers"),(dir_server + "mo_pers")
     find (str_find)
     if !found()
       keyboard chr(K_INS)
@@ -4094,8 +4094,8 @@ do case
     if mstavka <= 0
       mstavka := 1
     endif
-    much      := inieditspr(A__POPUPBASE,dir_server+"mo_uch",m1uch)
-    motd      := inieditspr(A__POPUPBASE,dir_server+"mo_otd",m1otd)
+    much      := inieditspr(A__POPUPBASE,dir_server + "mo_uch",m1uch)
+    motd      := inieditspr(A__POPUPBASE,dir_server + "mo_otd",m1otd)
     mkateg    := inieditspr(A__MENUVERT,gmenu_kateg,m1kateg)
     mvid      := inieditspr(A__MENUVERT,osn_sovm,m1vid)
     mvr_kateg := inieditspr(A__MENUVERT,menu_vr_kateg,m1vr_kateg)
@@ -4202,22 +4202,22 @@ do case
     buf := save_maxrow()
     s := "Ждите! Производится проверка на допустимость удаления "
     mywait(s+"human_u")
-    R_Use(dir_server+"human_u",,"HU")
-    set index to (dir_server+"human_uv")
+    R_Use(dir_server + "human_u",,"HU")
+    set index to (dir_server + "human_uv")
     find (str(k,4))
     if !(fl := found())
-      set index to (dir_server+"human_ua")
+      set index to (dir_server + "human_ua")
       find (str(k,4))
       fl := found()
     endif
     hu->(dbCloseArea())
     if !fl
       mywait(s+"hum_p_u")
-      R_Use(dir_server+"hum_p_u",,"HU")  // проверить Платные услуги
-      set index to (dir_server+"hum_p_uv")
+      R_Use(dir_server + "hum_p_u",,"HU")  // проверить Платные услуги
+      set index to (dir_server + "hum_p_uv")
       find (str(k,4))
       if !(fl := found())
-        set index to (dir_server+"hum_p_ua")
+        set index to (dir_server + "hum_p_ua")
         find (str(k,4))
         fl := found()
       endif
@@ -4225,11 +4225,11 @@ do case
     endif
     if !fl
       mywait(s+"hum_oru")
-      R_Use(dir_server+"hum_oru",,"HU") // проверить Ортопедию
-      set index to (dir_server+"hum_oruv")
+      R_Use(dir_server + "hum_oru",,"HU") // проверить Ортопедию
+      set index to (dir_server + "hum_oruv")
       find (str(k,4))
       if !(fl := found())
-        set index to (dir_server+"hum_orua")
+        set index to (dir_server + "hum_orua")
         find (str(k,4))
         fl := found()
       endif
@@ -4237,18 +4237,18 @@ do case
     endif
     if !fl
       mywait(s+"kas_pl_u")
-      R_Use(dir_server+"kas_pl_u",,"HU") // проверить Кассу
-      index on str(kod_vr,4) to (cur_dir+"tmp_hu") for kod_vr > 0
+      R_Use(dir_server + "kas_pl_u",,"HU") // проверить Кассу
+      index on str(kod_vr,4) to (cur_dir + "tmp_hu") for kod_vr > 0
       find (str(k,4))
       fl := found()
       hu->(dbCloseArea())
       if !fl
         mywait(s+"kas_ort")
-        R_Use(dir_server+"kas_ort",,"HU")
-        index on str(kod_vr,4) to (cur_dir+"tmp_hu") for kod_vr > 0
+        R_Use(dir_server + "kas_ort",,"HU")
+        index on str(kod_vr,4) to (cur_dir + "tmp_hu") for kod_vr > 0
         find (str(k,4))
         if !(fl := found())
-          index on str(kod_tex,4) to (cur_dir+"tmp_hu") for kod_tex > 0
+          index on str(kod_tex,4) to (cur_dir + "tmp_hu") for kod_tex > 0
           find (str(k,4))
           fl := found()
         endif
@@ -4382,108 +4382,110 @@ endif
 restscreen(buf)
 return fl
 
-** 22.10.22 инициализировать tmp-файл БД медицинский специальностей
+** 06.11.22 инициализировать tmp-файл БД медицинский специальностей
 Function init_tmp_prvs(_date, is_all)
-Local i, s, len1, fl_is, rec, tmp_select := select()
+  Local i, s, len1, fl_is, rec, tmp_select := select()
 
-DEFAULT is_all TO .f.
-len1 := 0
-_glob_array := getV004()
-for i := 1 to len(_glob_array)
-  if iif(is_all, .t., between_date(_glob_array[i,3],_glob_array[i,4],_date))
-    len1 := max(len1,len(lstr(_glob_array[i,2])+alltrim(_glob_array[i,1]))+1)
-  endif
-next
-dbcreate(cur_dir+"tmp_V004",{{"name","C",len1,0},;
-                             {"kod","C",9,0},;
-                             {"is","L",1,0}})
-use (cur_dir+"tmp_V004") new
-for i := 1 to len(_glob_array)
-  fl_is := between_date(_glob_array[i,3],_glob_array[i,4],_date)
-  if iif(is_all, .t., fl_is)
-    append blank
-    replace name with lstr(_glob_array[i,2])+'.'+_glob_array[i,1], ;
-            kod with padr(lstr(_glob_array[i,2]),9), ;
-            is with fl_is
-  endif
-next
-index on upper(name) to (cur_dir+"tmp_V004")
-index on kod to (cur_dir+"tmpkV004")
-tmp_V004->(dbCloseArea())
-//
-len1 := 0
-// _glob_array := glob_V015
-_glob_array := getV015()
-for i := 1 to len(_glob_array)
-  if iif(is_all, .t., between_date(_glob_array[i, 5], _glob_array[i, 6], _date))
-    len1 := max(len1, len(lstr(_glob_array[i, 2]) + alltrim(_glob_array[i, 1])) + 1)
-  endif
-next
-dbcreate(cur_dir+"tmp_V015",{{"name","C",len1,0},;
-                             {"kod","C",4,0},;
-                             {"kod_up","C",4,0},;
-                             {"vs","C",4,0},;
-                             {"name_up","C",50,0},;
-                             {"uroven","N",1,0},;
-                             {"sindex","C",56,0},;
-                             {"isn","N",1,0},;
-                             {"is","L",1,0}})
-use (cur_dir+"tmp_V015") new
-for i := 1 to len(_glob_array)
-  fl_is := between_date(_glob_array[i,5],_glob_array[i,6],_date)
-  if iif(is_all, .t., fl_is)
-    append blank
-    replace name with lstr(_glob_array[i,2])+'.'+_glob_array[i,1], ;
-            kod with lstr(_glob_array[i,2]), ;
-            kod_up with _glob_array[i,3], ;
-            is with fl_is
-  endif
-next
-index on upper(name) to (cur_dir+"tmp_V015")
-index on kod to (cur_dir+"tmpkV015")
-set order to 0
-go top
-do while !eof()
-  rec := recno()
-  i := 0 ; s := upper(padr(afteratnum(".",tmp_V015->name,1),10))+tmp_V015->kod
-  svs := "" ; anu := {}
-  set order to 1
-  do while .t.
-    if empty(tmp_V015->kod_up)
-      svs := iif(int(val(tmp_V015->kod)) == 0, "врач", "сред")
-      exit
+  DEFAULT is_all TO .f.
+  len1 := 0
+  _glob_array := getV004()
+  for i := 1 to len(_glob_array)
+    if iif(is_all, .t., between_date(_glob_array[i, 3], _glob_array[i, 4], _date))
+      len1 := max(len1, len(lstr(_glob_array[i, 2]) + alltrim(_glob_array[i, 1])) + 1)
     endif
-    find (tmp_V015->kod_up)
-    if found()
-      if i == 9 ; exit ; endif
-      s := upper(padr(afteratnum(".",tmp_V015->name,1),10))+tmp_V015->kod+s
-      if !empty(tmp_V015->kod_up)
-        aadd(anu,tmp_V015->name)
-      endif
-      ++i
-    else
-      exit
-    endif
-  enddo
-  set order to 0
-  goto (rec)
-  tmp_V015->uroven := i
-  tmp_V015->sindex := s
-  tmp_V015->vs := svs
-  s := ""
-  for i := 1 to min(2,len(anu))
-    if !empty(s)
-      s := left(s,10)+"/"
-    endif
-    s += anu[i]
   next
-  tmp_V015->name_up := s
-  skip
-enddo
-index on sindex to (cur_dir+"tmpsV015")
-tmp_V015->(dbCloseArea())
-select (tmp_select)
-return NIL
+  dbcreate(cur_dir + 'tmp_V004', {{'name', 'C', len1, 0}, ;
+                             {'kod', 'C', 9, 0}, ;
+                             {'is', 'L', 1, 0}})
+  use (cur_dir + 'tmp_V004') new
+  for i := 1 to len(_glob_array)
+    fl_is := between_date(_glob_array[i, 3], _glob_array[i, 4], _date)
+    if iif(is_all, .t., fl_is)
+      append blank
+      replace name with lstr(_glob_array[i, 2]) + '.' + _glob_array[i, 1], ;
+                        kod with padr(lstr(_glob_array[i, 2]), 9), ;
+                        is with fl_is
+    endif
+  next
+  index on upper(name) to (cur_dir + "tmp_V004")
+  index on kod to (cur_dir + "tmpkV004")
+  tmp_V004->(dbCloseArea())
+  //
+  len1 := 0
+  _glob_array := getV015()
+  for i := 1 to len(_glob_array)
+    if iif(is_all, .t., between_date(_glob_array[i, 5], _glob_array[i, 6], _date))
+      len1 := max(len1, len(lstr(_glob_array[i, 2]) + alltrim(_glob_array[i, 1])) + 1)
+    endif
+  next
+  dbcreate(cur_dir + "tmp_V015", {{"name", "C", len1, 0}, ;
+                                  {"kod", "C", 4, 0}, ;
+                                  {"kod_up", "C", 4, 0}, ;
+                                  {"vs", "C", 4, 0}, ;
+                                  {"name_up", "C", 50, 0}, ;
+                                  {"uroven", "N", 1, 0}, ;
+                                  {"sindex", "C", 56, 0}, ;
+                                  {"isn", "N", 1, 0}, ;
+                                  {"is", "L", 1, 0}})
+  use (cur_dir + "tmp_V015") new
+  for i := 1 to len(_glob_array)
+    fl_is := between_date(_glob_array[i, 5], _glob_array[i, 6], _date)
+    if iif(is_all, .t., fl_is)
+      append blank
+      replace name with lstr(_glob_array[i, 2]) + '.' + _glob_array[i, 1], ;
+              kod with lstr(_glob_array[i, 2]), ;
+              kod_up with _glob_array[i, 3], ;
+              is with fl_is
+    endif
+  next
+  index on upper(name) to (cur_dir + "tmp_V015")
+  index on kod to (cur_dir + "tmpkV015")
+  set order to 0
+  go top
+  do while !eof()
+    rec := recno()
+    i := 0
+    s := upper(padr(afteratnum(".", tmp_V015->name, 1), 10)) + tmp_V015->kod
+    svs := "" ; anu := {}
+    set order to 1
+    do while .t.
+      if empty(tmp_V015->kod_up)
+        svs := iif(int(val(tmp_V015->kod)) == 0, "врач", "сред")
+        exit
+      endif
+      find (tmp_V015->kod_up)
+      if found()
+        if i == 9
+          exit
+        endif
+        s := upper(padr(afteratnum(".", tmp_V015->name, 1), 10)) + tmp_V015->kod + s
+        if !empty(tmp_V015->kod_up)
+          aadd(anu,tmp_V015->name)
+        endif
+        ++i
+      else
+        exit
+      endif
+    enddo
+    set order to 0
+    goto (rec)
+    tmp_V015->uroven := i
+    tmp_V015->sindex := s
+    tmp_V015->vs := svs
+    s := ""
+    for i := 1 to min(2, len(anu))
+      if !empty(s)
+        s := left(s, 10) + "/"
+      endif
+      s += anu[i]
+    next
+    tmp_V015->name_up := s
+    skip
+  enddo
+  index on sindex to (cur_dir + "tmpsV015")
+  tmp_V015->(dbCloseArea())
+  select (tmp_select)
+  return NIL
 
 ***** 09.08.16 вернуть медицинскую специальность из tmp-файла
 Function ret_tmp_prvs(kod_old,kod_new)
@@ -4497,7 +4499,7 @@ if empty(kod_new)
   if k < 0 // новая специальность занесена в лист учёта
     k := abs(k)
     k := padr(lstr(k),4)
-    use (cur_dir+"tmp_V015") index (cur_dir+"tmpkV015") new
+    use (cur_dir + "tmp_V015") index (cur_dir + "tmpkV015") new
     find (k)
     if found()
       ret := alltrim(tmp_V015->name)
@@ -4514,7 +4516,7 @@ if empty(kod_new)
   else
     k := kod_old
   endif
-  use (cur_dir+"tmp_V004") index (cur_dir+"tmpkV004") new
+  use (cur_dir + "tmp_V004") index (cur_dir + "tmpkV004") new
   find (k)
   if found()
     ret := alltrim(tmp_V004->name)
@@ -4526,7 +4528,7 @@ else
   else
     k := kod_new
   endif
-  use (cur_dir+"tmp_V015") index (cur_dir+"tmpkV015") new
+  use (cur_dir + "tmp_V015") index (cur_dir + "tmpkV015") new
   find (k)
   if found()
     ret := alltrim(tmp_V015->name)
@@ -4577,7 +4579,7 @@ blk := {|| iif(between_date(dbegin,dend), {1,2}, {3,4}) }
 arr[US_BOTTOM   ] := maxrow()-2
 arr[US_LEFT     ] := 2
 arr[US_RIGHT    ] := 77
-arr[US_BASE     ] := dir_server+"mo_otd"
+arr[US_BASE     ] := dir_server + "mo_otd"
 arr[US_TITUL    ] := glob_uch[2]
 arr[US_TITUL_COLOR] := "BG+/GR"
 arr[US_ARR_BROWSE]:= {"═","░","═","N/BG,W+/N,B/BG,W+/B",.t.}
@@ -4642,7 +4644,7 @@ endif
                                 "Адрес удалённого подразделения для стационара"})
 endif
 if is_adres_podr .and. (i := ascan(glob_adres_podr, {|x| x[1] == glob_mo[_MO_KOD_TFOMS] })) > 0
-  G_Use(dir_server+"mo_otd",,"OTD")
+  G_Use(dir_server + "mo_otd",,"OTD")
   go top
   do while !eof()
     if otd->ADRES_PODR > 0 .and. (j := ascan(glob_adres_podr[i,2], {|x| x[2] == otd->ADRES_PODR })) > 0 ;
@@ -4672,7 +4674,7 @@ aadd(arr[US_EDIT_SPR], {"PLAN_PF","N",6,0,,,0,,"План профилактик на месяц"})
 aadd(arr[US_EDIT_SPR], {"PLAN_PD","N",6,0,,,0,,"План приемов на дому на месяц"})
 edit_u_spr(1,arr)
 /*if is_adres_podr .and. (i := ascan(glob_adres_podr, {|x| x[1] == glob_mo[_MO_KOD_TFOMS] })) > 0
-  G_Use(dir_server+"mo_otd",,"OTD")
+  G_Use(dir_server + "mo_otd",,"OTD")
   go top
   do while !eof()
     if otd->ADRES_PODR > 0 .and. (j := ascan(glob_adres_podr[i,2], {|x| x[2] == otd->ADRES_PODR })) > 0 ;
@@ -4690,12 +4692,12 @@ return NIL
 *****
 Static Function fdel_otd(k)
 Local _fl, i, tmp_select := select()
-R_Use(dir_server+"mo_pers",,"__B")
+R_Use(dir_server + "mo_pers",,"__B")
 dbLocateProgress( {|| __b->otd == k} )
 _fl := !found()
 dbCloseArea()
 if _fl
-  R_Use(dir_server+"human",dir_server+"humann","__B")
+  R_Use(dir_server + "human",dir_server + "humann","__B")
   for i := 0 to 9
     find (str(i,1)+str(k,3)) // index on str(tip_h,1)+str(otd,3)+...
     if found()
@@ -4705,7 +4707,7 @@ if _fl
   dbCloseArea()
 endif
 if _fl
-  R_Use(dir_server+"hum_p",dir_server+"hum_pn","__B")
+  R_Use(dir_server + "hum_p",dir_server + "hum_pn","__B")
   find (str(k,3)) // index on str(otd,3)+...
   _fl := !found()
   dbCloseArea()
@@ -4720,7 +4722,7 @@ Local ret, ret_arr, tmp_select
 if arr == NIL // только при первом вызове
   arr := {}
   tmp_select := select()
-  R_Use(exe_dir+"_mo_podr",cur_dir+"_mo_podr","PODR")
+  R_Use(exe_dir+"_mo_podr",cur_dir + "_mo_podr","PODR")
   find (glob_mo[_MO_KOD_TFOMS])
   do while podr->codemo == glob_mo[_MO_KOD_TFOMS] .and. !eof()
     aadd(arr,{"("+alltrim(podr->KODOTD)+") "+alltrim(podr->NAMEOTD),podr->KODOTD})
@@ -4741,7 +4743,7 @@ return {lkod,s}
 ***** 06.06.15
 Static Function ini_kod_podr(lkod)
 Local s := space(10), tmp_select := select()
-R_Use(exe_dir+"_mo_podr",cur_dir+"_mo_podr","PODR")
+R_Use(exe_dir+"_mo_podr",cur_dir + "_mo_podr","PODR")
 find (glob_mo[_MO_KOD_TFOMS]+padr(upper(lkod),25))
 if found()
   s := "("+alltrim(podr->KODOTD)+") "+alltrim(podr->NAMEOTD)
@@ -4759,7 +4761,7 @@ blk := {|| iif(between_date(dbegin,dend), {1,2}, {3,4}) }
 arr[US_BOTTOM   ] := maxrow()-2
 arr[US_LEFT     ] := T_COL+5
 arr[US_RIGHT    ] := arr[US_LEFT]+48
-arr[US_BASE     ] := dir_server+"mo_uch"
+arr[US_BASE     ] := dir_server + "mo_uch"
 arr[US_ARR_BROWSE]:= {"═","░","═","N/BG,W+/N,B/BG,W+/B",.t.}
 arr[US_COLUMN   ] := {{" Наименование",{|| name},blk},;
                       {"Сокр.;наим.",{|| SHORT_NAME },blk},;
@@ -4785,7 +4787,7 @@ return NIL
 *****
 Static Function fdel_uch(k)
 Local _fl, tmp_select := select()
-R_Use(dir_server+"mo_otd",,"__B")
+R_Use(dir_server + "mo_otd",,"__B")
 dbLocateProgress( {|| __b->kod_lpu == k} )
 _fl := !found()
 dbCloseArea()
@@ -4815,7 +4817,7 @@ do while i > 0
       glob_strah[1] := k
     endif
   elseif i != 0 .and. ;
-     (k := popup_edit(dir_server+"str_komp",T_ROW+i+1,T_COL+5,;
+     (k := popup_edit(dir_server + "str_komp",T_ROW+i+1,T_COL+5,;
         T_ROW+i+7,glob_strah[1],PE_RETURN,,,,{||!between(tfoms,44,47)})) != NIL
     glob_strah := k
     f_edit_spr(i,arr,"прочей компании",;
@@ -4843,7 +4845,7 @@ do while i > 0
       glob_komitet[1] := k
     endif
   elseif i != 0 .and. ;
-         (k := popup_edit(dir_server+"komitet",T_ROW+i+1,T_COL+5,;
+         (k := popup_edit(dir_server + "komitet",T_ROW+i+1,T_COL+5,;
                           T_ROW+i+7,glob_komitet[1],PE_RETURN)) != NIL
     glob_komitet := k
     f_edit_spr(i,gmenu_komit,"комитету (МО)",;

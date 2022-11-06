@@ -2055,7 +2055,7 @@ if regim == "edit"
 endif
 return ret
 
-***** 16.10.18 Список информационных пакетов с аннулированными направлениями
+** 06.07.22 Список информационных пакетов с аннулированными направлениями
 Function _263_to_I03()
 Static str_sem := "263_to_I03"
 Local buf := save_maxrow(), blk, t_arr[BR_LEN]
@@ -2183,7 +2183,6 @@ if regim == "edit"
           add_string(space(3)+"направление аннулировано в нашем СТАЦИОНАРЕ")
         endif
         add_string(space(3)+alltrim(_kart->fio)+", д.р."+full_date(_kart->date_r))
-        // add_string(space(3)+"форма оказания медицинской помощи - "+inieditspr(A__MENUVERT,glob_V014,napr->F_MEDC_1))
         add_string(space(3) + 'форма оказания медицинской помощи - ' + inieditspr(A__MENUVERT, getV014(), napr->F_MEDC_1))
         add_string(space(3)+inieditspr(A__MENUVERT, arr_t007, napr->PROFIL_K_1)+;
                                      " ("+inieditspr(A__MENUVERT, glob_V002, napr->PROFIL_1)+")")
@@ -2255,7 +2254,7 @@ G_SUnLock(str_sem)
 rest_box(buf)
 return NIL
 
-** 21.10.22
+** 06.11.22
 Function f2_263_to_I04(nKey,oBrow,regim)
 Local lkod, buf, r1, rec, i, ret := -1, arr, lcodem, n1, n2, s1, s2, s3, s4, ;
       n_file := "i0"+lstr(ppaket)+stxt, sh := 80, HH := 60, t_arr[4]
@@ -2353,7 +2352,6 @@ if regim == "edit"
         add_string(space(3)+"Диагноз приёмного отделения "+alltrim(napr->DS_4))
         add_string(space(3)+inieditspr(A__MENUVERT, arr_t007, napr->PROFIL_K_4)+;
                                      " ("+inieditspr(A__MENUVERT, glob_V002, napr->PROFIL_4)+")")
-        // add_string(space(3)+"Форма оказания медицинской помощи - "+inieditspr(A__MENUVERT,glob_V014,napr->F_MEDC_4))
         add_string(space(3) + 'Форма оказания медицинской помощи - ' + inieditspr(A__MENUVERT, getV014(), napr->F_MEDC_4))
         add_string(space(3)+"Номер истории болезни - "+alltrim(napr->NUM_HIST_4))
         select NFN
@@ -2422,7 +2420,7 @@ G_SUnLock(str_sem)
 rest_box(buf)
 return NIL
 
-** 21.10.22
+** 06.11.22
 Function f2_263_to_I06(nKey,oBrow,regim)
 Local lkod, buf, r1, rec, i, ret := -1, arr, lcodem, n1, n2, s1, s2, s3, s4, ;
       n_file := "i06"+stxt, sh := 80, HH := 60, t_arr[4]
@@ -2516,7 +2514,6 @@ if regim == "edit"
         add_string(space(3)+"Диагноз приёмного отделения "+alltrim(napr->DS_4))
         add_string(space(3)+inieditspr(A__MENUVERT, arr_t007, napr->PROFIL_K_4)+;
                                      " ("+inieditspr(A__MENUVERT, glob_V002, napr->PROFIL_4)+")")
-        // add_string(space(3)+"Форма оказания медицинской помощи - "+inieditspr(A__MENUVERT,glob_V014,napr->F_MEDC_4))
         add_string(space(3) + 'Форма оказания медицинской помощи - ' + inieditspr(A__MENUVERT, getV014(), napr->F_MEDC_4))
         add_string(space(3)+"Номер истории болезни - "+alltrim(napr->NUM_HIST_4))
         add_string(space(3)+"Тип выбытия - "+inieditspr(A__MENUVERT,mm_tip_vyb,napr->type_6))

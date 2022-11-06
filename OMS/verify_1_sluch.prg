@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-** 28.10.22
+** 05.11.22
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
         i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -4683,8 +4683,6 @@ Function verify_1_sluch(fl_view)
   arr := {301,305,308,314,315,317,318,321,322,323,324,325,332,333,334,335,336,343,344,347,348,349,350,;
           351,353,355,356,357,358,361,362,363,364,365,366,367,368,369,370,371,372,373,374}
   if human_->ISHOD_NEW == 306 .and. ascan(arr,human_->RSLT_NEW) == 0
-    // aadd(ta, 'для исхода заболевания "306/Осмотр" некорректный результат обращения "'+;
-    //         inieditspr(A__MENUVERT, glob_V009, human_->RSLT_NEW)+'"')
     aadd(ta, 'для исхода заболевания "306/Осмотр" некорректный результат обращения "' + ;
       inieditspr(A__MENUVERT, getV009(), human_->RSLT_NEW) + '"')
 endif

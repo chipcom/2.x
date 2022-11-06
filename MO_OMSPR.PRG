@@ -1174,7 +1174,7 @@ do case
 endcase
 return k
 
-** 22.10.22
+** 05.11.22
 Function f91pr_vklad(mkod, mnomer)
 // mkod - ª®¤ ¡®«ì­®£® ¯® „ human
 // mnomer - ­®¬¥à ¡®«ì­®£® ¯® áç¥âã
@@ -1203,8 +1203,6 @@ if len(arr1) > 1
   next
   aadd(arr, tmp1)
 endif
-// aadd(arr, '  ¥§ã«ìâ â ®¡à é¥­¨ï: ' + inieditspr(A__MENUVERT, glob_V009, human_->RSLT_NEW))
-// aadd(arr, "  ˆáå®¤ § ¡®«¥¢ ­¨ï: "+inieditspr(A__MENUVERT, glob_V012, human_->ISHOD_NEW))
 aadd(arr, '  ¥§ã«ìâ â ®¡à é¥­¨ï: ' + inieditspr(A__MENUVERT, getV009(), human_->RSLT_NEW))
 aadd(arr, '  ˆáå®¤ § ¡®«¥¢ ­¨ï: ' + inieditspr(A__MENUVERT, getV012(), human_->ISHOD_NEW))
 aadd(arr, '  ‘à®ª «¥ç¥­¨ï á ' + full_date(human->n_data) + ' ¯® ' + full_date(human->k_data))
