@@ -7,7 +7,7 @@
 Static sadiag1 := {}
 
   
-** 19.08.22 создание XML-файлов реестра
+** 07.11.22 создание XML-файлов реестра
 Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
   //
@@ -494,7 +494,7 @@ Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
           mo_add_xml_stroke(oSL,"KD",lstr(kol_kd)) // Указывается количество койко-дней для стационара, количество пациенто-дней для дневного стационара
         endif
 
-        if ! empty(human_2->PC4)
+        if ! empty(human_2->PC4) .and. year(human->K_DATA) > 2021 
           mo_add_xml_stroke(oSL,"WEI", alltrim(human_2->PC4))
         endif
 
