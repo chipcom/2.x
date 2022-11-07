@@ -1081,7 +1081,7 @@ Function f_oms_usl_sluch(oBrow)
   status_key('^<Esc>^ выход; ^<Enter>^ ред-ие; ^<Ins>^ добавление; ^<Del>^ удаление; ^<F1>^ помощь')
   return NIL
 
-** 05.04.22
+** 07.11.22
 Function f1oms_usl_sluch()
   LOCAL nRow := ROW(), nCol := COL(), s := tmp->name_u, lcolor := cDataCSay
   local strImplInfo := 'Услуга требует ввода данных по имплантантам. F6 - ред.'
@@ -1102,7 +1102,7 @@ Function f1oms_usl_sluch()
   @ nRow, nCol SAY ''
 
   // проверим наличие имплантов
-  if service_requires_implants(tmp->shifr_u, tmp->DATE_U)
+  if (year(human->k_data) > 2021) .and. service_requires_implants(tmp->shifr_u, tmp->DATE_U)
     if exist_implantant_in_DB(glob_perso, tmp->rec_hu)
       @ 2, 80 - len(strImplExists) say padl(strImplExists, len(strImplExists)) color 'W+/R'
     else
