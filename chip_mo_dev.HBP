@@ -72,8 +72,6 @@ mo_oms14.prg
 .\KARTOTEK\documents.prg
 mo_sds.prg
 mo_serv.prg
-mo_spr.prg
-mo_spri.prg
 mo_st39.prg
 mo_vounc.prg
 .\263\mo_263.prg
@@ -119,6 +117,10 @@ mo_version.prg
 
 .\calendar\calendar.prg
 .\calendar\calendar_func.prg
+
+.\dictionary\mo_spr.prg
+.\dictionary\mo_spri.prg
+.\dictionary\spr_uslugi.prg
 
 .\ref\initSpravFFOMS.prg
 .\ref\dbAdditionalCriteria.prg
