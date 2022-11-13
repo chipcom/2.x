@@ -6,7 +6,7 @@
 
 Static sadiag1 := {}
 
-** 07.11.22 создание XML-файлов реестра
+** 13.11.22 создание XML-файлов реестра
 Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
   //
@@ -746,6 +746,11 @@ Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
           mo_add_xml_stroke(oCONS,"DT_CONS",date2xml(onkco->DT_CONS))
         endif
       endif
+      if human_->USL_OK == 3 .and. lTypeLUOnkoDisp  // постановка на учет онкобольного
+        oONK_SL := oSL:Add( HXMLNode():New( "ONK_SL" ) )
+        mo_add_xml_stroke(oONK_SL,"DS1_T",lstr(onksl->DS1_T))
+        mo_add_xml_stroke(oONK_SL,"STAD",lstr(onksl->STAD))
+      endif
       if human_->USL_OK < 4 .and. is_oncology == 2 .and. ! lTypeLUOnkoDisp
         // заполним сведения об онкологии для XML-документа
         oONK_SL := oSL:Add( HXMLNode():New( "ONK_SL" ) )
@@ -1454,7 +1459,7 @@ Function f1_create2reestr19(_nyear,_nmonth)
       lshifr := alltrim(iif(empty(lshifr1), usl->shifr, lshifr1))
       if human_->USL_OK == 3 .and. is_usluga_disp_nabl(lshifr)
         ldate_next := c4tod(human->DATE_OPL)
-        fl_disp_nabl := .t.
+        fl_disp_nabl := .t. 
       endif
       aadd(atmpusl,lshifr)
       if eq_any(left(lshifr,5),"1.11.","55.1.")

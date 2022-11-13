@@ -879,43 +879,45 @@ if lkod == 0
 endif
 return lkod
 
-***** 16.10.18 функция определения массива в ф-ии редактирования листа учёта
-Function f_define_tnm(n,ldiag)
-Local ar, sn := lstr(n), sd := padr(ldiag,5)
-Local lal := "n"+sn, polek, poled, s := {"","ST","T","N","M"}[n]
-polek := lal+"->kod_"+s
-poled := lal+"->ds_"+s
-polei := lal+"->id_"+s
-if select(lal) == 0
-  R_Use(exe_dir+"_mo_N00"+sn,{cur_dir+"_mo_N00"+sn,cur_dir+"_mo_N00"+sn+"d"},lal)
-endif
-dbSelectArea(lal) // встать на справочник N0...
-set order to 2
-find (sd)
-if found()
-  ar := f1_define_tnm(sd,5,polek,poled,polei)
-else
-  sd := padr(ldiag,3)
-  find (sd)
-  if found() .and. sd == alltrim(&poled)
-    ar := f1_define_tnm(sd,3,polek,poled,polei)
-  else
-    find (space(5))
-    ar := f1_define_tnm(space(5),5,polek,poled,polei)
-  endif
-endif
-return ar
+** 13.11.22 функция определения массива в ф-ии редактирования листа учёта
+Function f_define_tnm(n, ldiag)
+  Local ar, sn := lstr(n), sd := padr(ldiag, 5)
 
-***** 17.10.18
-Function f1_define_tnm(s,n,polek,poled,polei)
-Local arr := {}
-do while left(&poled,n) == s .and. !eof()
-  if empty(s) .or. alltrim(&poled) == alltrim(s)
-    aadd(arr,{&polek,&polei})
+  Local lal := 'n' + sn, polek, poled, polei, s := {'', 'ST', 'T', 'N', 'M'}[n]
+  polek := lal + '->kod_' + s
+  poled := lal + '->ds_' + s
+  polei := lal + '->id_' + s
+  if select(lal) == 0
+    R_Use(exe_dir + '_mo_N00' + sn, {cur_dir + '_mo_N00' + sn, cur_dir + '_mo_N00' + sn + 'd'}, lal)
   endif
-  skip
-enddo
-return arr
+  dbSelectArea(lal) // встать на справочник N0...
+  set order to 2
+  find (sd)
+  if found()
+    ar := f1_define_tnm(sd, 5, polek, poled, polei)
+  else
+    sd := padr(ldiag, 3)
+    find (sd)
+    if found() .and. sd == alltrim(&poled)
+      ar := f1_define_tnm(sd, 3, polek, poled, polei)
+    else
+      find (space(5))
+      ar := f1_define_tnm(space(5), 5, polek, poled, polei)
+    endif
+  endif
+  return ar
+
+** 13.11.22
+Function f1_define_tnm(s, n, polek, poled, polei)
+  Local arr := {}
+
+  do while left(&poled, n) == s .and. !eof()
+    if empty(s) .or. alltrim(&poled) == alltrim(s)
+      aadd(arr, {&polek, &polei})
+    endif
+    skip
+  enddo
+  return arr
 
 ***** 22.10.19 проверка правильности соответствующей стадии по соответствующему справочнику
 Function f_verify_tnm(n,lkod,ldiag,ar)
@@ -1425,16 +1427,19 @@ restscreen(buf)
 setcolor(tmp_color)
 return ret
 
-***** 31.01.22
-Function is_usluga_disp_nabl(_shifr,_shifr1)
-if empty(_shifr1)
-  _shifr := alltrim(_shifr)
-else
-  _shifr := alltrim(_shifr1)
-endif
-return between_shifr(_shifr,"2.78.61","2.78.86") .or. between_shifr(_shifr,"2.88.52","2.88.103") ;
-                                                 .or. between_shifr(_shifr,"2.88.105","2.88.106") ;
-                                                 .or. between_shifr(_shifr,"2.88.120","2.88.145")
+** 13.11.22
+Function is_usluga_disp_nabl(_shifr, _shifr1)
+
+  if empty(_shifr1)
+    _shifr := alltrim(_shifr)
+  else
+    _shifr := alltrim(_shifr1)
+  endif
+  return between_shifr(_shifr, '2.78.61', '2.78.86') ;
+    .or. between_shifr(_shifr, '2.88.52', '2.88.103') ;
+    .or. between_shifr(_shifr, '2.88.105', '2.88.106') ;
+    .or. between_shifr(_shifr, '2.88.120', '2.88.145') ;
+    .or. _shifr == '2.5.2'  // добавил согласно письму ТФОМС 09-30-376/1 от 09.11.22 года
 
 ***** 05.09.19 является услугой телемедицины - не заполняется код врача
 Function is_telemedicina(lshifr,/*@*/fl2)

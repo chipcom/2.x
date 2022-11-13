@@ -3,9 +3,11 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-** согласно письму ТФОМС 09-30-276 от 29.08.22 года
+** согласно письму ТФОМС 09-30-276 от 29.08.22 года - отменено
+** согласно письму ТФОМС 09-30-376/1 от 09.11.22 года
+#define CHILD_EXIST .f. // учитывать несовершеннолетних или нет
 
-** 16.09.22 добавление или редактирование случая (листа учета)
+** 13.11.22 добавление или редактирование случая (листа учета)
 function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -57,9 +59,9 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
   Private tmp_V006 := create_classif_FFOMS(2, 'V006') // USL_OK
   Private tmp_V002 := create_classif_FFOMS(2, 'V002') // PROFIL
   Private tmp_V020 := create_classif_FFOMS(2, 'V020') // PROFIL_K
-  Private tmp_V009 := cut_glob_array(glob_V009,sys_date) // rslt
-  Private tmp_V012 := cut_glob_array(glob_V012,sys_date) // ishod
-
+  Private tmp_V009 := cut_glob_array(getV009(),sys_date) // rslt
+  Private tmp_V012 := cut_glob_array(getV012(),sys_date) // ishod
+  private mm_N002
   Private mm_rslt, mm_ishod, rslt_umolch := 0, ishod_umolch := 0
   //
   Private ;
@@ -88,7 +90,9 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
     m1USL_OK := 3, mUSL_OK, ;             // амбулаторно
     m1PROFIL := st_profil, mPROFIL, ;
     m1PROFIL_K := st_profil_k, mPROFIL_K, ;
-    m1IDSP   := 29                        // за посещение
+    m1IDSP   := 29, ;                     // за посещение
+    mdate_next := sys_date, ;  // ctod('')                // дата следующего посещения
+    mSTAD, m1STAD := 0 // Стадия заболевания      Заполняется в соответствии со справочником N002
 
   Private mm_profil := {{'педиатрия', 68}, ;
     {'гематология', 12}, ;
@@ -97,6 +101,7 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
     {'общей врачебной практики', 57}}
 
   //
+  R_Use(dir_server + 'mo_onksl', dir_server + 'mo_onksl',  'SL')
   R_Use(dir_server + 'human_2', , 'HUMAN_2')
   R_Use(dir_server + 'human_', , 'HUMAN_')
   R_Use(dir_server + 'human', , 'HUMAN')
@@ -187,10 +192,19 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
     // m1rslt     := human_->RSLT_NEW
     m1ishod    := human_->ISHOD_NEW
     mcena_1    := human->CENA_1
-    //
+    mdate_next := c4tod(human->DATE_OPL)
+      //
     if alltrim(msmo) == '34'
       mnameismo := ret_inogSMO_name(2,@rec_inogSMO,.t.) // открыть и закрыть
     endif
+
+    select SL
+    find (str(Loc_kod, 7))
+    if found()
+      m1STAD := sl->STAD
+    endif
+    mm_N002 := f_define_tnm(2, mkod_diag)
+    mSTAD  := padr(inieditspr(A__MENUVERT, mm_N002, m1STAD), 5)
 
     // выберем услуги
     R_Use(dir_server + 'uslugi', , 'USL')
@@ -218,17 +232,22 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
 
   // готовим список профилей по возрасту  
   vozrast := count_years(mdate_r, mk_data)
-  if vozrast < 18
+  if vozrast < 18 .and. CHILD_EXIST
     hb_ADel(mm_profil, 5, .t.)
     hb_ADel(mm_profil, 4, .t.)
+  elseif vozrast < 18 .and. ! CHILD_EXIST
+    func_error(4, 'Данный лист учета допустим только для совершеннлетних пациентов')
+    close databases
+    return nil
   else
+    hb_ADel(mm_profil, 5, .t.)
     hb_ADel(mm_profil, 3, .t.)
-    hb_ADel(mm_profil, 2, .t.)
+    // hb_ADel(mm_profil, 2, .t.)
     hb_ADel(mm_profil, 1, .t.)
   endif
 
   if m1PROFIL == 0
-    if vozrast < 18
+    if vozrast < 18 .and. CHILD_EXIST
       m1PROFIL := 18  // детская онкология
     else
       m1PROFIL := 60  // онкология
@@ -270,7 +289,7 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
   if empty(m1USL_OK)
     m1USL_OK := 3
   endif // на всякий случай
-  mishod    := inieditspr(A__MENUVERT, glob_V012, m1ishod)
+  mishod    := inieditspr(A__MENUVERT, getV012(), m1ishod)
   mvidpolis := inieditspr(A__MENUVERT, mm_vid_polis, m1vidpolis)
   motd      := inieditspr(A__POPUPMENU, dir_server + 'mo_otd',  m1otd)
   mokato    := inieditspr(A__MENUVERT, glob_array_srf, m1okato)
@@ -299,7 +318,7 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
   endif
 
   setcolor(color8)
-  top2 := 11
+  top2 := 10
   myclear(top2)
   @ top2 - 1,0 say padc(caption_window, 80) color "B/BG*"
   Private gl_area := {1, 0, maxrow() - 1, maxcol(), 0}
@@ -358,12 +377,22 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
     //
     //
     ++j
+    @ j, 1 say 'Дата следующей явки для диспансерного наблюдения' get mdate_next valid (mdate_next > MN_DATA)
+    //
+    ++j
     @ j, 1 say 'Основной диагноз' get mkod_diag picture pic_diag ;
       reader {|o| MyGetReader(o, bg)} ;
       when when_diag() ;
-      valid {|| val1_10diag(.t., .f., .f., mn_data, mpol),  f_valid_onko_diag(mkod_diag, mdate_r, MN_DATA) }
-    @ row(), col() + 1 say 'Врач' get MTAB_NOM pict '99999' ;
-      valid {|g| v_kart_vrach(g, .t.), f_valid_onko_vrach(MTAB_NOM, mdate_r, MN_DATA) } when diag_screen(2)
+      valid {|| val1_10diag(.t., .f., .f., mn_data, mpol),  f_valid_onko_diag(mkod_diag, mdate_r, MN_DATA, CHILD_EXIST) }
+
+    @ row(), col() + 1 say 'Стадия заболевания:' get mSTAD ;
+      reader {|x|menu_reader(x, mm_N002, A__MENUVERT, , ,.f.)} ;
+      valid {|g| f_valid_tnm(g),  mSTAD:=padr(mSTAD, 5),  .t.} ;
+      color colget_menu
+
+    // @ row(), col() + 1 say 'Врач' get MTAB_NOM pict '99999' ;
+    @ ++j, 1 say 'Врач' get MTAB_NOM pict '99999' ;
+      valid {|g| v_kart_vrach(g, .t.), f_valid_onko_vrach(MTAB_NOM, mdate_r, MN_DATA, CHILD_EXIST) } when diag_screen(2)
     @ row(), col() + 1 get mvrach when .f. color color14
     //
 
@@ -375,11 +404,11 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
     if k == 3
       loop
     elseif k == 2 // запись информации
-      MK_DATA := MN_DATA  // даты совпадают
       if empty(mn_data)
         func_error(4, 'Не введена дата постановки на учет')
         loop
       endif
+      MK_DATA := MN_DATA  // даты должны совпадать
       if m1komu < 5 .and. empty(m1company)
         if m1komu == 0
           s := 'СМО'
@@ -401,6 +430,14 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
       endif
       if empty(mdate_r)
         func_error(4, 'Не заполнена дата рождения')
+        loop
+      endif
+      if empty(mdate_next)
+        func_error(4, 'Не заполнена дата следующего посещения')
+        loop
+      endif
+      if mdate_next <= MK_DATA
+        func_error(4, 'Не верная дата следующего посещения')
         loop
       endif
       // if eq_any(m1vid_ud,3,14) .and. !empty(mser_ud) .and. empty(del_spec_symbol(mmesto_r))
@@ -480,6 +517,7 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
       human->K_DATA     := MK_DATA       // дата окончания лечения
       human->CENA       := MCENA_1       // стоимость лечения
       human->CENA_1     := MCENA_1       // стоимость лечения
+      human->DATE_OPL := dtoc4(mdate_next)  // дата следующего посещения
       human_->DISPANS   := '2000000000000000'  // поставлен на диспансерный учет
       human_->VPOLIS    := m1vidpolis
       human_->SPOLIS    := ltrim(mspolis)
@@ -551,6 +589,17 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
       hu_->kod_diag := mkod_diag
       hu_->zf       := ''
 
+      G_Use(dir_server + 'mo_onksl', dir_server + 'mo_onksl',  'SL')
+      find (str(mkod, 7))
+      if found()
+        G_RLock(forever)
+      else
+        AddRec(7)
+        sl->kod := mkod
+      endif
+      sl->DS1_T := 4  // согласно письма ТФОМС
+      sl->STAD := m1STAD
+
       write_work_oper(glob_task, OPER_LIST, iif(Loc_kod == 0, 1, 2), 1, count_edit)
       fl_write_sluch := .t.
       close databases
@@ -570,8 +619,8 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
 
   return nil
 
-** 08.09.22
-function f_valid_onko_diag(diag, dob, date_post)
+** 13.11.22
+function f_valid_onko_diag(diag, dob, date_post, children_acceptable)
   // diag - онкологический диагноз
   // dob - дата рождения
   // date_post - дата постановки на учет
@@ -581,22 +630,34 @@ function f_valid_onko_diag(diag, dob, date_post)
   local vozrast, fl := .f., diagBeg := 'C00', diagAdult := 'D09', diagChild := 'D89'
 
   vozrast := count_years(dob, date_post)
+  if vozrast < 18 .and. ! children_acceptable
+    fl := .f.
+    func_error(4, 'допустимо только для совершеннолетних пациентов!')
+    return fl
+  endif
   if ! (fl := between_diag(diag, 'C00', iif(vozrast < 18, diagChild, diagAdult)))
     func_error(4, 'Недопустимый диагноз, допустимый диапазон с ' + diagBeg + ' по ' + iif(vozrast < 18, diagChild, diagAdult) + '!')
+    return fl
   endif
+  mm_N002 := f_define_tnm(2, diag)
 
   return fl
 
 ** 09.09.22
-function f_valid_onko_vrach(tabnom, dob, date_post)
+function f_valid_onko_vrach(tabnom, dob, date_post, children_acceptable)
   // tab_nom - табельный номер врача
   // dob - дата рождения
   // date_post - дата постановки на учет
   local vozrast, fl := .f.
-  local med_spec_child_V021 := {9, 19, 49, 102}
-  local med_spec_adult_V021 := {39, 41}
+  local med_spec_child_V021 := {9, 19, 49, 102} // допустимые специальности для детей
+  local med_spec_adult_V021 := {9, 41}  // допустимые специальности для взрослых только "гематология" и "онкология"
 
   vozrast := count_years(dob, date_post)
+  if vozrast < 18 .and. ! children_acceptable
+    fl := .f.
+    func_error(4, 'допустимо только для совершеннолетних пациентов!')
+    return fl
+  endif
   if ascan(iif(vozrast < 18, med_spec_child_V021, med_spec_adult_V021), get_spec_vrach_V021_by_tabnom(tabnom)) > 0
     fl := .t.
   endif

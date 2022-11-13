@@ -4,7 +4,7 @@
 #include 'chip_mo.ch'
 
 ***** 01.11.19 СМП - добавление или редактирование случая (листа учета)
-Function oms_sluch_SMP(Loc_kod,kod_kartotek,tip_lu)
+Function oms_sluch_SMP_1(Loc_kod,kod_kartotek,tip_lu)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
   // tip_lu - TIP_LU_SMP или TIP_LU_NMP - скорая помощь (неотложная медицинская помощь)
@@ -246,8 +246,10 @@ Function oms_sluch_SMP(Loc_kod,kod_kartotek,tip_lu)
     m1IDSP   := iif(tip_lu == TIP_LU_SMP, 24, 41)
   Private mm_prer_b := mm2prer_b
   //
-  aeval(glob_V009,{|x| iif(x[5] == m1USL_OK, aadd(mm_rslt,x), nil) })
-  aeval(glob_V012,{|x| iif(x[5] == m1USL_OK, aadd(mm_ishod,x), nil) })
+  // aeval(glob_V009,{|x| iif(x[5] == m1USL_OK, aadd(mm_rslt,x), nil) })
+  // aeval(glob_V012,{|x| iif(x[5] == m1USL_OK, aadd(mm_ishod,x), nil) })
+  aeval(getV009(),{|x| iif(x[5] == m1USL_OK, aadd(mm_rslt,x), nil) })
+  aeval(getV012(),{|x| iif(x[5] == m1USL_OK, aadd(mm_ishod,x), nil) })
   if ascan(mm_rslt, {|x| x[2] == rslt_umolch}) > 0
     m1rslt := rslt_umolch
   endif
@@ -422,8 +424,10 @@ Function oms_sluch_SMP(Loc_kod,kod_kartotek,tip_lu)
   mvzros_reb := inieditspr(A__MENUVERT, menu_vzros, m1vzros_reb)
   MNOVOR    := inieditspr(A__MENUVERT, mm_danet, M1NOVOR)
   MF14_EKST := inieditspr(A__MENUVERT, mm_ekst_smp, M1F14_EKST)
-  mrslt     := inieditspr(A__MENUVERT, glob_V009, m1rslt)
-  mishod    := inieditspr(A__MENUVERT, glob_V012, m1ishod)
+  // mrslt     := inieditspr(A__MENUVERT, glob_V009, m1rslt)
+  // mishod    := inieditspr(A__MENUVERT, glob_V012, m1ishod)
+  mrslt     := inieditspr(A__MENUVERT, getV009(), m1rslt)
+  mishod    := inieditspr(A__MENUVERT, getV012(), m1ishod)
   mlpu      := inieditspr(A__POPUPMENU, dir_server + "mo_uch", m1lpu)
   motd      := inieditspr(A__POPUPMENU, dir_server + "mo_otd", m1otd)
   MKEMVYD   := inieditspr(A__POPUPMENU, dir_server + "s_kemvyd", M1KEMVYD)
@@ -1136,7 +1140,7 @@ Function oms_sluch_SMP(Loc_kod,kod_kartotek,tip_lu)
   return NIL
   
 ***** 26.01.16 действия в ответ на выбор в меню "Тромболитическая терапия:"
-Function f_valid_brig(get,old,menu1,menu2,st1,st2)
+Function f_valid_brig_1(get,old,menu1,menu2,st1,st2)
 if m1tip != old .and. old != NIL
   mm_brig := {}
   if m1tip == 0 //

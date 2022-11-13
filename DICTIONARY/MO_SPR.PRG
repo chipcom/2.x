@@ -2104,86 +2104,88 @@ endif
 select (tmp_select)
 return ret
 
-** 22.10.22 редактирование справочника отделений
+** 13.11.22 редактирование справочника отделений
 Function edit_otd()
-Local i, j, blk, arr[US_LEN], fl
-if input_uch(T_ROW-1,T_COL+5) == NIL
-  return NIL
-endif
-Private tmp_V002 := create_classif_FFOMS(1, 'V002') // PROFIL
-Private tmp_V020 := create_classif_FFOMS(1, 'V020') // PROFIL_K
-Private tmp_V006 := create_classif_FFOMS(1, 'V006') // USL_OK
-//Private tmp_V008 := create_classif_FFOMS(1, 'V008') // VIDPOM
-//Private tmp_V010 := create_classif_FFOMS(1, 'V010') // IDSP
-Private mm_adres_podr := {}
-Private mm_tiplu := {;
-  {'стандартный'                          , 0           }, ;  // 1
-  {'скорая медицинская помощь'            ,TIP_LU_SMP  }, ;  // 2
-  {'дисп-ия детей-сирот в стационаре'     ,TIP_LU_DDS  }, ;  // 3
-  {'дисп-ия детей-сирот под опекой'       ,TIP_LU_DDSOP}, ;  // 4
-  {'профилактика несовешеннолетних'       ,TIP_LU_PN   }, ;  // 5
-  {'предварит.осмотры несовешеннолетних'  ,TIP_LU_PREDN}, ;  // 6
-  {'периодич.осмотры несовешеннолетних'   ,TIP_LU_PERN }, ;  // 7
-  {'диспансеризация/профосмотр взрослых'  ,TIP_LU_DVN  }, ;  // 8
-  {'пренатальная диагностика'             ,TIP_LU_PREND}, ;  // 9
-  {'гемодиализ'                           ,TIP_LU_H_DIA}, ;  // 10
-  {'перитонеальный диализ'                ,TIP_LU_P_DIA}, ;  // 11
-  {'COVID - углубленная диспансеризация' ,TIP_LU_DVN_COVID}, ;  // 15
-  {'медицинская реабилитация'            ,TIP_LU_MED_REAB}}  // 16
-if glob_mo[_MO_KOD_TFOMS] == '126501'
-  Ins_Array(mm_tiplu, 3, {'неотложная медицинская помощь',TIP_LU_NMP})
-endif
-if ascan(glob_klin_diagn, 1) > 0
-  aadd(mm_tiplu, {'жидкостная цитология рака шейки матки',TIP_LU_G_CIT})
-elseif ascan(glob_klin_diagn, 2) > 0
-  aadd(mm_tiplu, {'пренатальный скрининг наруш.внутр.разв.',TIP_LU_G_CIT})
-endif
-Private mm1tiplu := aclone(mm_tiplu)
-hb_ADel( mm1tiplu, 7 , .t. )
-hb_ADel( mm1tiplu, 6 , .t. )
-blk := {|| iif(between_date(dbegin,dend), {1, 2}, {3, 4}) }
-arr[US_BOTTOM   ] := maxrow()-2
-arr[US_LEFT     ] := 2
-arr[US_RIGHT    ] := 77
-arr[US_BASE     ] := dir_server + 'mo_otd'
-arr[US_TITUL    ] := glob_uch[2]
-arr[US_TITUL_COLOR] := 'BG+/GR'
-arr[US_ARR_BROWSE]:= {'═', '░', '═', 'N/BG,W+/N,B/BG,W+/B', .t.}
-arr[US_BLK_FILTER]:= {|| dbSetFilter( {|| kod_lpu == glob_uch[1]}, 'kod_lpu == glob_uch[1]' ) }
-arr[US_BLK_WRITE] := {|| __us->kod_lpu := glob_uch[1] }
-arr[US_COLUMN   ] := {{' Наименование отделения', {|| name},blk}, ;
-                      {' ', {|| iif(empty(KOD_PODR), ' ', '√')},blk}, ;
-                      {'Сокр.', {|| short_name},blk}, ;
-                      {' Вид листа учёта', {|| padr(inieditspr(A__MENUVERT,mm_tiplu,tiplu), 19)},blk}, ;
-                      {' Профиль', {|| padr(inieditspr(A__MENUVERT,glob_V002,profil), 15)},blk};
+  Local i, j, blk, arr[US_LEN], fl
+
+  if input_uch(T_ROW - 1, T_COL + 5) == NIL
+    return NIL
+  endif
+  Private tmp_V002 := create_classif_FFOMS(1, 'V002') // PROFIL
+  Private tmp_V020 := create_classif_FFOMS(1, 'V020') // PROFIL_K
+  Private tmp_V006 := create_classif_FFOMS(1, 'V006') // USL_OK
+  //Private tmp_V008 := create_classif_FFOMS(1, 'V008') // VIDPOM
+  //Private tmp_V010 := create_classif_FFOMS(1, 'V010') // IDSP
+  Private mm_adres_podr := {}
+  Private mm_tiplu := {;
+    {'стандартный'                          , 0           }, ;  // 1
+    {'скорая медицинская помощь'            ,TIP_LU_SMP  }, ;  // 2
+    {'дисп-ия детей-сирот в стационаре'     ,TIP_LU_DDS  }, ;  // 3
+    {'дисп-ия детей-сирот под опекой'       ,TIP_LU_DDSOP}, ;  // 4
+    {'профилактика несовешеннолетних'       ,TIP_LU_PN   }, ;  // 5
+    {'предварит.осмотры несовешеннолетних'  ,TIP_LU_PREDN}, ;  // 6
+    {'периодич.осмотры несовешеннолетних'   ,TIP_LU_PERN }, ;  // 7
+    {'диспансеризация/профосмотр взрослых'  ,TIP_LU_DVN  }, ;  // 8
+    {'пренатальная диагностика'             ,TIP_LU_PREND}, ;  // 9
+    {'гемодиализ'                           ,TIP_LU_H_DIA}, ;  // 10
+    {'перитонеальный диализ'                ,TIP_LU_P_DIA}, ;  // 11
+    {'COVID - углубленная диспансеризация' ,TIP_LU_DVN_COVID}, ;  // 15
+    {'медицинская реабилитация'            ,TIP_LU_MED_REAB}, ;  // 16
+    {'постановка на наблюдение онкопациентов',TIP_LU_ONKO_DISP}}  // 17
+  if glob_mo[_MO_KOD_TFOMS] == '126501'
+    Ins_Array(mm_tiplu, 3, {'неотложная медицинская помощь', TIP_LU_NMP})
+  endif
+  if ascan(glob_klin_diagn, 1) > 0
+    aadd(mm_tiplu, {'жидкостная цитология рака шейки матки', TIP_LU_G_CIT})
+  elseif ascan(glob_klin_diagn, 2) > 0
+    aadd(mm_tiplu, {'пренатальный скрининг наруш.внутр.разв.', TIP_LU_G_CIT})
+  endif
+  Private mm1tiplu := aclone(mm_tiplu)
+  hb_ADel( mm1tiplu, 7 , .t. )
+  hb_ADel( mm1tiplu, 6 , .t. )
+  blk := {|| iif(between_date(dbegin,dend), {1, 2}, {3, 4}) }
+  arr[US_BOTTOM   ] := maxrow() - 2
+  arr[US_LEFT     ] := 2
+  arr[US_RIGHT    ] := 77
+  arr[US_BASE     ] := dir_server + 'mo_otd'
+  arr[US_TITUL    ] := glob_uch[2]
+  arr[US_TITUL_COLOR] := 'BG+/GR'
+  arr[US_ARR_BROWSE]:= {'═', '░', '═', 'N/BG,W+/N,B/BG,W+/B', .t.}
+  arr[US_BLK_FILTER]:= {|| dbSetFilter( {|| kod_lpu == glob_uch[1]}, 'kod_lpu == glob_uch[1]' ) }
+  arr[US_BLK_WRITE] := {|| __us->kod_lpu := glob_uch[1] }
+  arr[US_COLUMN   ] := {{' Наименование отделения', {|| name}, blk}, ;
+                      {' ', {|| iif(empty(KOD_PODR), ' ', '√')}, blk}, ;
+                      {'Сокр.', {|| short_name}, blk}, ;
+                      {' Вид листа учёта', {|| padr(inieditspr(A__MENUVERT, mm_tiplu,tiplu), 19)}, blk}, ;
+                      {' Профиль', {|| padr(inieditspr(A__MENUVERT, glob_V002, profil), 15)}, blk} ;
                      }
-arr[US_BLK_DEL  ] := {|_k| fdel_otd(_k) }
-arr[US_IM_PADEG ] := arr[US_SEMAPHORE] := 'отделения'
-arr[US_ROD_PADEG] := 'отделений'
-arr[US_EDIT_SPR ] := {{'name', 'C', 30, 0, , ,space(30), , 'Наименование отделения'}, ;
+  arr[US_BLK_DEL  ] := {|_k| fdel_otd(_k) }
+  arr[US_IM_PADEG ] := arr[US_SEMAPHORE] := 'отделения'
+  arr[US_ROD_PADEG] := 'отделений'
+  arr[US_EDIT_SPR ] := {{'name', 'C', 30, 0, , ,space(30), , 'Наименование отделения'}, ;
                       {'short_name', 'C', 5, 0, , ,space(5), , 'Сокращённое наименование отделения'}, ;
                       {'TIPLU', 'N', 2, 0, , ;
-                       {|x|menu_reader(x,mm1tiplu,A__MENUVERT, , , .f.)}, ;
-                       0, {|x|inieditspr(A__MENUVERT,mm_tiplu,x)}, ;
+                       {|x|menu_reader(x, mm1tiplu, A__MENUVERT, , , .f.)}, ;
+                       0, {|x|inieditspr(A__MENUVERT, mm_tiplu, x)}, ;
                        'Вид листа учёта при вводе данных'}, ;
                       {'TIP_OTD', 'N', 2, 0, , ;
-                       {|x|menu_reader(x,mm_danet,A__MENUVERT, , , .f.)}, ;
-                       0, {|x|inieditspr(A__MENUVERT,mm_danet,x)}, ;
+                       {|x|menu_reader(x, mm_danet, A__MENUVERT, , , .f.)}, ;
+                       0, {|x|inieditspr(A__MENUVERT, mm_danet, x)}, ;
                        'Является данное отделение приёмным покоем стационара'}, ;
                       {'PROFIL', 'N', 3, 0, , ;
-                       {|x|menu_reader(x,tmp_V002,A__MENUVERT_SPACE, , , .f.)}, ;
-                       0, {|x|inieditspr(A__MENUVERT,glob_V002,x)}, ;
+                       {|x|menu_reader(x, tmp_V002, A__MENUVERT_SPACE, , , .f.)}, ;
+                       0, {|x|inieditspr(A__MENUVERT, glob_V002, x)}, ;
                        'Профиль мед.помощи'}, ;
                       {'PROFIL_K', 'N', 3, 0, , ;
-                       {|x|menu_reader(x,tmp_V020,A__MENUVERT_SPACE, , , .f.)}, ;
+                       {|x|menu_reader(x, tmp_V020, A__MENUVERT_SPACE, , , .f.)}, ;
                        0, {|x|inieditspr(A__MENUVERT, getV020(), x)}, ;
                        'Профиль койки'}, ;
                       {'IDUMP', 'N', 2, 0, , ;
                        {|x|menu_reader(x, tmp_V006, A__MENUVERT, , , .f.)}, ;
-                       0, {|x|inieditspr(A__MENUVERT,getV006(), x)}, ;
+                       0, {|x|inieditspr(A__MENUVERT, getV006(), x)}, ;
                        'Условия оказания медицинской помощи'}, ;
                       {'KOD_PODR', 'C', 25, 0, , ;
-                       {|x| menu_reader(x, {{|k,r,c| get_kod_podr(k,r,c)}},A__FUNCTION, , , .f.)}, ;
+                       {|x| menu_reader(x, {{|k, r, c| get_kod_podr(k, r, c)}}, A__FUNCTION, , , .f.)}, ;
                        '', {|x| ini_kod_podr(x)}, ;
                        'Код подразделения из паспорта ЛПУ'}, ;
                       {'ADDRESS', 'C', 150, 0, , ,space(150), , 'Адрес'}, ;
@@ -2192,68 +2194,68 @@ arr[US_EDIT_SPR ] := {{'name', 'C', 30, 0, , ,space(30), , 'Наименование отделен
                       {'dend', 'D', 8, 0, , ,ctod(''), , ;
                        '     Дата окончания работы в задаче ОМС'};
                       }
-if is_otd_dep
-  Ins_Array(arr[US_EDIT_SPR], 6, {'CODE_DEP', 'N', 2, 0, , ;
-                                {|x|menu_reader(x,mm_otd_dep,A__MENUVERT_SPACE, , , .f.)}, ;
-                                0, {|x|inieditspr(A__MENUVERT,mm_otd_dep,x)}, ;
+  if is_otd_dep
+    Ins_Array(arr[US_EDIT_SPR], 6, {'CODE_DEP', 'N', 2, 0, , ;
+                                {|x|menu_reader(x, mm_otd_dep, A__MENUVERT_SPACE, , , .f.)}, ;
+                                0, {|x|inieditspr(A__MENUVERT, mm_otd_dep, x)}, ;
                                 'По справочнику ТФОМС'})
-endif
-/*if is_adres_podr
-  if (i := ascan(glob_adres_podr, {|x| x[1] == glob_mo[_MO_KOD_TFOMS] })) > 0
-    for j := 1 to len(glob_adres_podr[i, 2])
-      aadd(mm_adres_podr, {glob_adres_podr[i, 2,j, 3],glob_adres_podr[i, 2,j, 2]})
-    next
   endif
-  Ins_Array(arr[US_EDIT_SPR], 7, {'ADRES_PODR', 'N', 2, 0, , ;
+  /*if is_adres_podr
+    if (i := ascan(glob_adres_podr, {|x| x[1] == glob_mo[_MO_KOD_TFOMS] })) > 0
+      for j := 1 to len(glob_adres_podr[i, 2])
+        aadd(mm_adres_podr, {glob_adres_podr[i, 2,j, 3],glob_adres_podr[i, 2,j, 2]})
+      next
+    endif
+    Ins_Array(arr[US_EDIT_SPR], 7, {'ADRES_PODR', 'N', 2, 0, , ;
                                 {|x|menu_reader(x,mm_adres_podr,A__MENUVERT, , , .f.)}, ;
                                 0, {|x|inieditspr(A__MENUVERT,mm_adres_podr,x)}, ;
                                 'Адрес удалённого подразделения для стационара'})
-endif
-if is_adres_podr .and. (i := ascan(glob_adres_podr, {|x| x[1] == glob_mo[_MO_KOD_TFOMS] })) > 0
-  G_Use(dir_server + 'mo_otd', , 'OTD')
-  go top
-  do while !eof()
-    if otd->ADRES_PODR > 0 .and. (j := ascan(glob_adres_podr[i, 2], {|x| x[2] == otd->ADRES_PODR })) > 0 ;
+  endif
+  if is_adres_podr .and. (i := ascan(glob_adres_podr, {|x| x[1] == glob_mo[_MO_KOD_TFOMS] })) > 0
+    G_Use(dir_server + 'mo_otd', , 'OTD')
+    go top
+    do while !eof()
+      if otd->ADRES_PODR > 0 .and. (j := ascan(glob_adres_podr[i, 2], {|x| x[2] == otd->ADRES_PODR })) > 0 ;
                            .and. !(otd->CODE_TFOMS == glob_adres_podr[i, 2,j, 1])
-      G_RLock(forever)
-      otd->CODE_TFOMS := glob_adres_podr[i, 2,j, 1]
-      UnLock
-    endif
-    skip
-  enddo
-  close databases
-endif*/
-if is_task(X_PLATN)
-  aadd(arr[US_EDIT_SPR], {'dbeginp', 'D', 8, 0, , , boy(sys_date), , ;
+        G_RLock(forever)
+        otd->CODE_TFOMS := glob_adres_podr[i, 2,j, 1]
+        UnLock
+      endif
+      skip
+    enddo
+    close databases
+  endif*/
+  if is_task(X_PLATN)
+    aadd(arr[US_EDIT_SPR], {'dbeginp', 'D', 8, 0, , , boy(sys_date), , ;
                          'Дата начала работы в задаче "Платные услуги"'})
-  aadd(arr[US_EDIT_SPR], {'dendp', 'D', 8, 0, , , ctod(''), , ;
+    aadd(arr[US_EDIT_SPR], {'dendp', 'D', 8, 0, , , ctod(''), , ;
                          '     Дата окончания работы в задаче "Платные услуги"'})
-endif
-if is_task(X_ORTO)
-  aadd(arr[US_EDIT_SPR], {'dbegino', 'D', 8, 0, , , boy(sys_date), , ;
+  endif
+  if is_task(X_ORTO)
+    aadd(arr[US_EDIT_SPR], {'dbegino', 'D', 8, 0, , , boy(sys_date), , ;
                          'Дата начала работы в задаче "Ортопедия"'})
-  aadd(arr[US_EDIT_SPR], {'dendo', 'D', 8, 0, , , ctod(''), , ;
+    aadd(arr[US_EDIT_SPR], {'dendo', 'D', 8, 0, , , ctod(''), , ;
                          '     Дата окончания работы в задаче "Ортопедия"'})
-endif
-aadd(arr[US_EDIT_SPR], {'PLAN_VP', 'N', 6, 0, , , 0, , 'План врачебных приемов на месяц'})
-aadd(arr[US_EDIT_SPR], {'PLAN_PF', 'N', 6, 0, , , 0, , 'План профилактик на месяц'})
-aadd(arr[US_EDIT_SPR], {'PLAN_PD', 'N', 6, 0, , , 0, , 'План приемов на дому на месяц'})
-edit_u_spr(1, arr)
-/*if is_adres_podr .and. (i := ascan(glob_adres_podr, {|x| x[1] == glob_mo[_MO_KOD_TFOMS] })) > 0
-  G_Use(dir_server + 'mo_otd', , 'OTD')
-  go top
-  do while !eof()
-    if otd->ADRES_PODR > 0 .and. (j := ascan(glob_adres_podr[i, 2], {|x| x[2] == otd->ADRES_PODR })) > 0 ;
+  endif
+  aadd(arr[US_EDIT_SPR], {'PLAN_VP', 'N', 6, 0, , , 0, , 'План врачебных приемов на месяц'})
+  aadd(arr[US_EDIT_SPR], {'PLAN_PF', 'N', 6, 0, , , 0, , 'План профилактик на месяц'})
+  aadd(arr[US_EDIT_SPR], {'PLAN_PD', 'N', 6, 0, , , 0, , 'План приемов на дому на месяц'})
+  edit_u_spr(1, arr)
+  /*if is_adres_podr .and. (i := ascan(glob_adres_podr, {|x| x[1] == glob_mo[_MO_KOD_TFOMS] })) > 0
+    G_Use(dir_server + 'mo_otd', , 'OTD')
+    go top
+    do while !eof()
+      if otd->ADRES_PODR > 0 .and. (j := ascan(glob_adres_podr[i, 2], {|x| x[2] == otd->ADRES_PODR })) > 0 ;
                            .and. !(otd->CODE_TFOMS == glob_adres_podr[i, 2,j, 1])
-      G_RLock(forever)
-      otd->CODE_TFOMS := glob_adres_podr[i, 2,j, 1]
-      UnLock
-    endif
-    skip
-  enddo
-  close databases
-endif*/
-return NIL
+        G_RLock(forever)
+        otd->CODE_TFOMS := glob_adres_podr[i, 2,j, 1]
+        UnLock
+      endif
+      skip
+    enddo
+    close databases
+  endif*/
+  return NIL
 
 ** 08.11.22
 Function fdel_otd(k)
