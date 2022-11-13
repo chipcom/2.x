@@ -23,7 +23,7 @@ function getO001()
 
   return _O001
 
-** 04.10.22 вернуть страну
+** 01.11.22 вернуть страну
 Function getCountry(lstrana)
   Static kod_RF := '643'
 
@@ -31,9 +31,7 @@ Function getCountry(lstrana)
 
   if !empty(lstrana) .and. lstrana != kod_RF ;
          .and. (i := ascan(getO001(), {|x| x[2] == lstrana })) > 0
-        //  .and. (i := ascan(glob_O001, {|x| x[2] == lstrana })) > 0
     s := getO001()[i, 1]
-    // s := glob_O001[i, 1]
   endif
   return s
   

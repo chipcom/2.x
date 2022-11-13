@@ -114,12 +114,12 @@ Local nTypeFile := 0, aerr := {}, j, oXmlDoc, oXmlNode, oNode1, oNode2, ;
       go_to_rpd := .f., nerror, buf := save_maxrow()
 nTypeFile := arr_XML_info[1]
 for j := 1 to 4
-  if !myFileDeleted(cur_dir+"tmp"+lstr(j)+"file"+sdbf)
+  if !myFileDeleted(cur_dir + "tmp"+lstr(j)+"file"+sdbf)
     return NIL
   endif
 next
 for j := 1 to 8
-  if !myFileDeleted(cur_dir+"tmp_r_t"+lstr(j)+sdbf)
+  if !myFileDeleted(cur_dir + "tmp_r_t"+lstr(j)+sdbf)
     return NIL
   endif
 next
@@ -166,8 +166,8 @@ if empty(aerr)
         // запишем принимаемый файл (протокол ФЛК)
         //chip_copy_zipXML(hb_OemToAnsi(full_zip),dir_server+dir_XML_TF)
         chip_copy_zipXML(full_zip,dir_server+dir_XML_TF)
-        use (cur_dir+"tmp1file") new alias TMP1
-        G_Use(dir_server+"mo_xml",,"MO_XML")
+        use (cur_dir + "tmp1file") new alias TMP1
+        G_Use(dir_server + "mo_xml",,"MO_XML")
         AddRecN()
         mo_xml->KOD := recno()
         mo_xml->FNAME := cReadFile
@@ -186,7 +186,7 @@ if empty(aerr)
       if read_XML_FILE_SP(arr_XML_info,aerr,@nCountWithErr) > 0
         go_to_schet := create_schet_from_XML(arr_XML_info,aerr,,,cReadFile)
       elseif nCountWithErr > 0 // все пришли с ошибкой
-        G_Use(dir_server+"mo_xml",,"MO_XML")
+        G_Use(dir_server + "mo_xml",,"MO_XML")
         goto (mXML_REESTR)
         G_RLock(forever)
         mo_xml->TWORK2 := hour_min(seconds())
@@ -203,7 +203,7 @@ if empty(aerr)
       strfile(hb_eol()+"Тип файла: PR01 (ответ на файл R01)"+hb_eol()+hb_eol(),cFileProtokol,.t.)
       nCountWithErr := 0
       read_XML_FILE_R02(arr_XML_info,aerr,@nCountWithErr,_XML_FILE_R02)
-      G_Use(dir_server+"mo_xml",,"MO_XML")
+      G_Use(dir_server + "mo_xml",,"MO_XML")
       goto (mXML_REESTR)
       G_RLock(forever)
       mo_xml->TWORK2 := hour_min(seconds())
@@ -211,7 +211,7 @@ if empty(aerr)
       strfile(hb_eol()+"Тип файла: PR11 (ответ на файл R11)"+hb_eol()+hb_eol(),cFileProtokol,.t.)
       nCountWithErr := 0
       read_XML_FILE_R02(arr_XML_info,aerr,@nCountWithErr,_XML_FILE_R12)
-      G_Use(dir_server+"mo_xml",,"MO_XML")
+      G_Use(dir_server + "mo_xml",,"MO_XML")
       goto (mXML_REESTR)
       G_RLock(forever)
       mo_xml->TWORK2 := hour_min(seconds())
@@ -219,7 +219,7 @@ if empty(aerr)
       strfile(hb_eol()+"Тип файла: PR05 (ответ на файл R05)"+hb_eol()+hb_eol(),cFileProtokol,.t.)
       nCountWithErr := 0
       read_XML_FILE_R06(arr_XML_info,aerr,@nCountWithErr)
-      G_Use(dir_server+"mo_xml",,"MO_XML")
+      G_Use(dir_server + "mo_xml",,"MO_XML")
       goto (mXML_REESTR)
       G_RLock(forever)
       mo_xml->TWORK2 := hour_min(seconds())
@@ -227,7 +227,7 @@ if empty(aerr)
       strfile(hb_eol()+"Тип файла: D02 (ответ на файл D01)"+hb_eol()+hb_eol(),cFileProtokol,.t.)
       nCountWithErr := 0
       read_XML_FILE_D02(arr_XML_info,aerr,@nCountWithErr)
-      G_Use(dir_server+"mo_xml",,"MO_XML")
+      G_Use(dir_server + "mo_xml",,"MO_XML")
       goto (mXML_REESTR)
       G_RLock(forever)
       mo_xml->TWORK2 := hour_min(seconds())
@@ -261,8 +261,8 @@ return NIL
 Function read_XML_FILE_FLK(arr_XML_info,aerr)
 Local ii, pole, i, k, t_arr[2], adbf, ar
 mkod_reestr := arr_XML_info[7]
-use (cur_dir+"tmp1file") new alias TMP1
-R_Use(dir_server+"mo_rees",,"REES")
+use (cur_dir + "tmp1file") new alias TMP1
+R_Use(dir_server + "mo_rees",,"REES")
 goto (arr_XML_info[7])
 strfile("Обрабатывается ответ ТФОМС на реестр № "+;
         lstr(rees->NSCHET)+" от "+full_date(rees->DSCHET)+"г. ("+;
@@ -273,8 +273,8 @@ if !emptyany(rees->nyear,rees->nmonth)
           mm_month[rees->nmonth]+str(rees->nyear,5)+" года"+;
           hb_eol(),cFileProtokol,.t.)
 endif
-use (cur_dir+"tmp2file") new alias TMP2
-index on str(tip,1)+str(oshib,3)+soshib to (cur_dir+"tmp2")
+use (cur_dir + "tmp2file") new alias TMP2
+index on str(tip,1)+str(oshib,3)+soshib to (cur_dir + "tmp2")
 if is_err_FLK
   if !extract_reestr(rees->(recno()),rees->name_xml)
     aadd(aerr,center("Не найден ZIP-архив с РЕЕСТРом № "+lstr(rees->nschet)+" от "+date_8(rees->DSCHET),80))
@@ -285,23 +285,23 @@ if is_err_FLK
     close databases
     return .f.
   endif
-  use (cur_dir+"tmp_r_t1") new alias T1
-  index on upper(ID_PAC) to (cur_dir+"tmp_r_t1")
-  use (cur_dir+"tmp_r_t2") new alias T2
-  use (cur_dir+"tmp_r_t3") new alias T3
-  use (cur_dir+"tmp_r_t4") new alias T4
-  use (cur_dir+"tmp_r_t5") new alias T5
-  use (cur_dir+"tmp_r_t6") new alias T6
-  use (cur_dir+"tmp_r_t7") new alias T7
-  use (cur_dir+"tmp_r_t8") new alias T8
+  use (cur_dir + "tmp_r_t1") new alias T1
+  index on upper(ID_PAC) to (cur_dir + "tmp_r_t1")
+  use (cur_dir + "tmp_r_t2") new alias T2
+  use (cur_dir + "tmp_r_t3") new alias T3
+  use (cur_dir + "tmp_r_t4") new alias T4
+  use (cur_dir + "tmp_r_t5") new alias T5
+  use (cur_dir + "tmp_r_t6") new alias T6
+  use (cur_dir + "tmp_r_t7") new alias T7
+  use (cur_dir + "tmp_r_t8") new alias T8
   // заполнить поле "N_ZAP" в файле "tmp2"
   fill_tmp2_file_flk()
-  R_Use(dir_server+"mo_otd",,"OTD")
-  G_Use(dir_server+"human_",,"HUMAN_")
-  G_Use(dir_server+"human",,"HUMAN")
+  R_Use(dir_server + "mo_otd",,"OTD")
+  G_Use(dir_server + "human_",,"HUMAN_")
+  G_Use(dir_server + "human",,"HUMAN")
   set relation to recno() into HUMAN_, to otd into OTD
-  G_Use(dir_server+"mo_rhum",,"RHUM")
-  index on str(REES_ZAP,6) to (cur_dir+"tmp_rhum") for reestr == mkod_reestr
+  G_Use(dir_server + "mo_rhum",,"RHUM")
+  index on str(REES_ZAP,6) to (cur_dir + "tmp_rhum") for reestr == mkod_reestr
   select TMP2 // сначала проверка
   go top
   do while !eof()
@@ -407,7 +407,7 @@ return .t.
 ***** 22.01.19 заполнить поле "N_ZAP" в файле "tmp2"
 Function fill_tmp2_file_flk()
 Local i, s, s1, adbf, ar
-use (cur_dir+"tmp22fil") new alias TMP22
+use (cur_dir + "tmp22fil") new alias TMP22
 select TMP2
 adbf := array(fcount())
 go top
@@ -493,7 +493,7 @@ tmp22->(dbCloseArea())
 if i > 0
   select TMP2
   append from tmp22fil codepage "RU866"
-  index on str(tip,1)+str(oshib,3) to (cur_dir+"tmp2")
+  index on str(tip,1)+str(oshib,3) to (cur_dir + "tmp2")
 endif
 return NIL
 
@@ -507,12 +507,12 @@ Function read_XML_FILE_SP(arr_XML_info,aerr,/*@*/current_i2)
 if !(type("p_ctrl_enter_sp_tk") == "L")
   Private p_ctrl_enter_sp_tk := .f.
 endif
-use (cur_dir+"tmp1file") new alias TMP1
+use (cur_dir + "tmp1file") new alias TMP1
 ldate_sptk := tmp1->_DATA
 mnschet := int(val(tmp1->_NSCHET))  // в число (отрезать всё, что после "-")
 mANSREESTR := afteratnum("-",tmp1->_NSCHET)
-R_Use(dir_server+"mo_rees",,"REES")
-index on str(NSCHET,6) to (cur_dir+"tmp_rees") for NYEAR == tmp1->_YEAR
+R_Use(dir_server + "mo_rees",,"REES")
+index on str(NSCHET,6) to (cur_dir + "tmp_rees") for NYEAR == tmp1->_YEAR
 find (str(mnschet,6))
 if found()
   mkod_reestr := arr_XML_info[7] := rees->kod
@@ -527,8 +527,8 @@ if found()
   endif
   strfile(hb_eol(),cFileProtokol,.t.)
   //
-  R_Use(dir_server+"mo_xml",,"MO_XML")
-  index on ANSREESTR to (cur_dir+"tmp_xml") for reestr == mkod_reestr
+  R_Use(dir_server + "mo_xml",,"MO_XML")
+  index on ANSREESTR to (cur_dir + "tmp_xml") for reestr == mkod_reestr
   find (mANSREESTR)
   if found()
     aadd(aerr,'По реестру № '+lstr(mnschet)+' от '+date_8(tmp1->_DSCHET)+' уже прочитан ответ номер "'+alltrim(tmp1->_NSCHET)+'"')
@@ -544,12 +544,12 @@ if empty(aerr) .and. !extract_reestr(rees->(recno()),rees->name_xml)
   aadd(aerr,center("Без данного архива дальнейшая работа НЕВОЗМОЖНА!",80))
 endif
 if empty(aerr)
-  R_Use(dir_server+"human_3",{dir_server+"human_3",dir_server+"human_32"},"HUMAN_3")
-  R_Use(dir_server+"human",,"HUMAN")
-  R_Use(dir_server+"human_",,"HUMAN_")
-  R_Use(dir_server+"mo_rhum",,"RHUM")
-  index on str(REES_ZAP,6) to (cur_dir+"tmp_rhum") for reestr == mkod_reestr
-  use (cur_dir+"tmp2file") new alias TMP2
+  R_Use(dir_server + "human_3",{dir_server + "human_3",dir_server + "human_32"},"HUMAN_3")
+  R_Use(dir_server + "human",,"HUMAN")
+  R_Use(dir_server + "human_",,"HUMAN_")
+  R_Use(dir_server + "mo_rhum",,"RHUM")
+  index on str(REES_ZAP,6) to (cur_dir + "tmp_rhum") for reestr == mkod_reestr
+  use (cur_dir + "tmp2file") new alias TMP2
   // сначала проверка
   ii1 := ii2 := 0
   go top
@@ -617,11 +617,11 @@ if empty(aerr)
         index_base("schet") // для составления счетов
         index_base("human") // для разноски счетов
         index_base("human_3") // двойные случаи
-        use (dir_server+"human_u") new READONLY
-        index on str(kod,7)+date_u to (dir_server+"human_u") progress
+        use (dir_server + "human_u") new READONLY
+        index on str(kod,7)+date_u to (dir_server + "human_u") progress
         use
-        Use (dir_server+"mo_hu") new READONLY
-        index on str(kod,7)+date_u to (dir_server+"mo_hu") progress
+        Use (dir_server + "mo_hu") new READONLY
+        index on str(kod,7)+date_u to (dir_server + "mo_hu") progress
         Use
       endif
       if ii2 > 0 // были пациенты с ошибками
@@ -642,7 +642,7 @@ if empty(aerr)
     // запишем принимаемый файл (реестр СП)
     //chip_copy_zipXML(hb_OemToAnsi(full_zip),dir_server+dir_XML_TF)
     chip_copy_zipXML(full_zip,dir_server+dir_XML_TF)
-    G_Use(dir_server+"mo_xml",,"MO_XML")
+    G_Use(dir_server + "mo_xml",,"MO_XML")
     AddRecN()
     mo_xml->KOD := recno()
     mo_xml->FNAME := cReadFile
@@ -662,56 +662,56 @@ if empty(aerr)
     use
     if ii2 > 0
       if !p_ctrl_enter_sp_tk
-        G_Use(dir_server+"mo_refr",dir_server+"mo_refr","REFR")
+        G_Use(dir_server + "mo_refr",dir_server + "mo_refr","REFR")
       endif
-      //G_Use(dir_server+"mo_kfio",,"KFIO")
-      //index on str(kod,7) to (cur_dir+"tmp_kfio")
+      //G_Use(dir_server + "mo_kfio",,"KFIO")
+      //index on str(kod,7) to (cur_dir + "tmp_kfio")
     endif
     // открыть распакованный реестр
-    use (cur_dir+"tmp_r_t1") new alias T1
-    index on str(val(n_zap),6) to (cur_dir+"tmpt1")
-    use (cur_dir+"tmp_r_t2") new alias T2
-    index on IDCASE+str(sluch,6) to (cur_dir+"tmpt2")
-    use (cur_dir+"tmp_r_t3") new alias T3
-    index on upper(ID_PAC) to (cur_dir+"tmpt3")
-    use (cur_dir+"tmp_r_t4") new alias T4
-    index on IDCASE+str(sluch,6) to (cur_dir+"tmpt4")
-    use (cur_dir+"tmp_r_t5") new alias T5
-    index on IDCASE+str(sluch,6) to (cur_dir+"tmpt5")
-    use (cur_dir+"tmp_r_t6") new alias T6
-    index on IDCASE+str(sluch,6) to (cur_dir+"tmpt6")
-    use (cur_dir+"tmp_r_t7") new alias T7
-    index on IDCASE+str(sluch,6) to (cur_dir+"tmpt7")
-    use (cur_dir+"tmp_r_t8") new alias T8
-    index on IDCASE+str(sluch,6) to (cur_dir+"tmpt8")
-    use (cur_dir+"tmp_r_t9") new alias T9
-    index on IDCASE+str(sluch,6) to (cur_dir+"tmpt9")
-    use (cur_dir+"tmp_r_t10") new alias T10
-    index on IDCASE+str(sluch,6)+regnum+code_sh+date_inj to (cur_dir+"tmpt10")
-    use (cur_dir+"tmp_r_t11") new alias T11
-    index on IDCASE+str(sluch,6) to (cur_dir+"tmpt11")
-    use (cur_dir+"tmp_r_t12") new alias T12
-    index on IDCASE+str(sluch,6) to (cur_dir+"tmpt12")
-    use (cur_dir+"tmp_r_t1_1") new alias T1_1
-    index on IDCASE to (cur_dir+"tmpt1_1")
+    use (cur_dir + "tmp_r_t1") new alias T1
+    index on str(val(n_zap),6) to (cur_dir + "tmpt1")
+    use (cur_dir + "tmp_r_t2") new alias T2
+    index on IDCASE+str(sluch,6) to (cur_dir + "tmpt2")
+    use (cur_dir + "tmp_r_t3") new alias T3
+    index on upper(ID_PAC) to (cur_dir + "tmpt3")
+    use (cur_dir + "tmp_r_t4") new alias T4
+    index on IDCASE+str(sluch,6) to (cur_dir + "tmpt4")
+    use (cur_dir + "tmp_r_t5") new alias T5
+    index on IDCASE+str(sluch,6) to (cur_dir + "tmpt5")
+    use (cur_dir + "tmp_r_t6") new alias T6
+    index on IDCASE+str(sluch,6) to (cur_dir + "tmpt6")
+    use (cur_dir + "tmp_r_t7") new alias T7
+    index on IDCASE+str(sluch,6) to (cur_dir + "tmpt7")
+    use (cur_dir + "tmp_r_t8") new alias T8
+    index on IDCASE+str(sluch,6) to (cur_dir + "tmpt8")
+    use (cur_dir + "tmp_r_t9") new alias T9
+    index on IDCASE+str(sluch,6) to (cur_dir + "tmpt9")
+    use (cur_dir + "tmp_r_t10") new alias T10
+    index on IDCASE+str(sluch,6)+regnum+code_sh+date_inj to (cur_dir + "tmpt10")
+    use (cur_dir + "tmp_r_t11") new alias T11
+    index on IDCASE+str(sluch,6) to (cur_dir + "tmpt11")
+    use (cur_dir + "tmp_r_t12") new alias T12
+    index on IDCASE+str(sluch,6) to (cur_dir + "tmpt12")
+    use (cur_dir + "tmp_r_t1_1") new alias T1_1
+    index on IDCASE to (cur_dir + "tmpt1_1")
     //
-    G_Use(dir_server+"mo_kfio",,"KFIO")
-    index on str(kod,7) to (cur_dir+"tmp_kfio")
-    G_Use(dir_server+"kartote2",,"KART2")
-    G_Use(dir_server+"kartote_",,"KART_")
-    G_Use(dir_server+"kartotek",dir_server+"kartoten","KART")
+    G_Use(dir_server + "mo_kfio",,"KFIO")
+    index on str(kod,7) to (cur_dir + "tmp_kfio")
+    G_Use(dir_server + "kartote2",,"KART2")
+    G_Use(dir_server + "kartote_",,"KART_")
+    G_Use(dir_server + "kartotek",dir_server + "kartoten","KART")
     set order to 0 // индекс открыт для реконструкции при перезаписи ФИО и даты рождения
-    R_Use(dir_server+"mo_otd",,"OTD")
-    G_Use(dir_server+"human_",,"HUMAN_")
-    G_Use(dir_server+"human",{dir_server+"humann",dir_server+"humans"},"HUMAN")
+    R_Use(dir_server + "mo_otd",,"OTD")
+    G_Use(dir_server + "human_",,"HUMAN_")
+    G_Use(dir_server + "human",{dir_server + "humann",dir_server + "humans"},"HUMAN")
     set order to 0 // индексы открыты для реконструкции при перезаписи ФИО
     set relation to recno() into HUMAN_, to otd into OTD
-    G_Use(dir_server+"human_3",{dir_server+"human_3",dir_server+"human_32"},"HUMAN_3")
-    G_Use(dir_server+"mo_rhum",,"RHUM")
-    index on str(REES_ZAP,6) to (cur_dir+"tmp_rhum") for reestr == mkod_reestr
-    use (cur_dir+"tmp3file") new alias TMP3
-    index on str(_n_zap,8) to (cur_dir+"tmp3")
-    use (cur_dir+"tmp2file") new alias TMP2
+    G_Use(dir_server + "human_3",{dir_server + "human_3",dir_server + "human_32"},"HUMAN_3")
+    G_Use(dir_server + "mo_rhum",,"RHUM")
+    index on str(REES_ZAP,6) to (cur_dir + "tmp_rhum") for reestr == mkod_reestr
+    use (cur_dir + "tmp3file") new alias TMP3
+    index on str(_n_zap,8) to (cur_dir + "tmp3")
+    use (cur_dir + "tmp2file") new alias TMP2
     count_in_schet := lastrec() ; current_i2 := 0
     go top
     do while !eof()
@@ -1026,7 +1026,7 @@ Local arr_schet := {}, c, len_stand, _arr_stand, lshifr, i, j, k, lbukva,;
 DEFAULT fl_msg TO .t., arr_s TO {}
 Private pole
 //
-use (cur_dir+"tmp1file") new alias TMP1
+use (cur_dir + "tmp1file") new alias TMP1
 mdate_schet := tmp1->_DSCHET
 nsh := f_mb_me_nsh(tmp1->_year,@mb,@me)
 k := tmp1->_year
@@ -1043,13 +1043,13 @@ Function view_list_schet()
 Local i, k, buf := savescreen(), tmp_help := chm_help_code, mdate := stod("20130101")
 mywait()
 close databases
-R_Use(dir_server+"mo_rees",,"REES")
-G_Use(dir_server+"mo_xml",,"MO_XML")
-G_Use(dir_server+"schet_",,"SCHET_")
-G_Use(dir_server+"schet",dir_server+"schetd","SCHET")
+R_Use(dir_server + "mo_rees",,"REES")
+G_Use(dir_server + "mo_xml",,"MO_XML")
+G_Use(dir_server + "schet_",,"SCHET_")
+G_Use(dir_server + "schet",dir_server + "schetd","SCHET")
 set relation to recno() into SCHET_
 dbseek(dtoc4(mdate),.t.)
-index on dtos(schet_->dschet)+fsort_schet(schet_->nschet,nomer_s) to (cur_dir+"tmp_sch") ;
+index on dtos(schet_->dschet)+fsort_schet(schet_->nschet,nomer_s) to (cur_dir + "tmp_sch") ;
       for schet_->dschet >= mdate .and. !empty(pdate) .and.;
           (schet_->IS_DOPLATA==1 .or. !empty(val(schet_->smo))) ;
       DESCENDING
@@ -1307,10 +1307,10 @@ do case
       if len(arr) > 0
         ReCreate_some_Schet_From_FILE_SP(arr)
         close databases
-        R_Use(dir_server+"mo_rees",,"REES")
-        G_Use(dir_server+"mo_xml",,"MO_XML")
-        G_Use(dir_server+"schet_",,"SCHET_")
-        G_Use(dir_server+"schet",dir_server+"schetd","SCHET")
+        R_Use(dir_server + "mo_rees",,"REES")
+        G_Use(dir_server + "mo_xml",,"MO_XML")
+        G_Use(dir_server + "schet_",,"SCHET_")
+        G_Use(dir_server + "schet",dir_server + "schetd","SCHET")
         set relation to recno() into SCHET_
         go top
         ret := 1
@@ -1319,10 +1319,10 @@ do case
   case nKey == K_CTRL_F12 .and. !empty(schet_->NAME_XML) .and. schet_->XML_REESTR > 0
     ReCreate_some_Schet_From_FILE_SP({schet->(recno())})
     close databases
-    R_Use(dir_server+"mo_rees",,"REES")
-    G_Use(dir_server+"mo_xml",,"MO_XML")
-    G_Use(dir_server+"schet_",,"SCHET_")
-    G_Use(dir_server+"schet",dir_server+"schetd","SCHET")
+    R_Use(dir_server + "mo_rees",,"REES")
+    G_Use(dir_server + "mo_xml",,"MO_XML")
+    G_Use(dir_server + "schet_",,"SCHET_")
+    G_Use(dir_server + "schet",dir_server + "schetd","SCHET")
     set relation to recno() into SCHET_
     go top
     ret := 1
@@ -1400,15 +1400,15 @@ if lkomu == 5
 elseif !empty(lsmo)
   s := inieditspr(A__MENUVERT, glob_arr_smo, int(val(lsmo)))
   if empty(s)
-    s := inieditspr(A__POPUPMENU, dir_server+"str_komp", lstr_crb)
+    s := inieditspr(A__POPUPMENU, dir_server + "str_komp", lstr_crb)
     if empty(s)
       s := lsmo
     endif
   endif
 elseif lkomu == 1
-  s := inieditspr(A__POPUPMENU, dir_server+"str_komp", lstr_crb)
+  s := inieditspr(A__POPUPMENU, dir_server + "str_komp", lstr_crb)
 elseif lkomu == 3
-  s := inieditspr(A__POPUPMENU, dir_server+"komitet", lstr_crb)
+  s := inieditspr(A__POPUPMENU, dir_server + "komitet", lstr_crb)
 endif
 return s
 
@@ -1446,10 +1446,7 @@ else
 endif
 return NIL
 
-
-*
-
-***** 17.02.21 печать счета
+** 31.10.22 печать счета
 Function print_schet_S(reg)
 Local adbf, j, s, ii := 0, fl_numeration := .f., buf := save_maxrow(),;
       lshifr1, ldate1, ldate2, hGauge
@@ -1477,7 +1474,7 @@ adbf := {{"name","C",130,0},;
          {"susluga","C",250,0},;
          {"summa","N",15,2}}
 dbcreate(fr_titl, adbf)
-R_Use(dir_server+"organiz",,"ORG")
+R_Use(dir_server + "organiz",,"ORG")
 use (fr_titl) new alias FRT
 append blank
 frt->name := frt->name_schet := org->name
@@ -1513,9 +1510,9 @@ if (j := ascan(arr_rekv_smo,{|x| x[1]==schet_->SMO})) > 0
   endif
 elseif schet->str_crb > 0
   if schet->komu == 3
-    s := inieditspr(A__POPUPMENU, dir_server+"komitet", schet->str_crb)
+    s := inieditspr(A__POPUPMENU, dir_server + "komitet", schet->str_crb)
   else
-    s := inieditspr(A__POPUPMENU, dir_server+"str_komp", schet->str_crb)
+    s := inieditspr(A__POPUPMENU, dir_server + "str_komp", schet->str_crb)
   endif
 endif
 frt->plat := s
@@ -1566,17 +1563,17 @@ if reg > 1
   use (fr_data) new alias FRD
   index on str(nomer,4) to (fr_data)
   use_base("lusl")
-  R_Use(dir_server+"uslugi1",{dir_server+"uslugi1",;
-                              dir_server+"uslugi1s"},"USL1")
-  R_Use(dir_server+"uslugi",,"USL")
-  R_Use(dir_server+"human_u",dir_server+"human_u","HU")
+  R_Use(dir_server + "uslugi1",{dir_server + "uslugi1",;
+                              dir_server + "uslugi1s"},"USL1")
+  R_Use(dir_server + "uslugi",,"USL")
+  R_Use(dir_server + "human_u",dir_server + "human_u","HU")
   set relation to u_kod into USL
-  R_Use(dir_server+"kartote_",,"KART_")
-  R_Use(dir_server+"kartotek",,"KART")
+  R_Use(dir_server + "kartote_",,"KART_")
+  R_Use(dir_server + "kartotek",,"KART")
   set relation to recno() into KART_
-  G_Use(dir_server+"human_3",{dir_server+"human_3",dir_server+"human_32"},"HUMAN_3")
-  R_Use(dir_server+"human_",,"HUMAN_")
-  R_Use(dir_server+"human",dir_server+"humans","HUMAN")
+  G_Use(dir_server + "human_3",{dir_server + "human_3",dir_server + "human_32"},"HUMAN_3")
+  R_Use(dir_server + "human_",,"HUMAN_")
+  R_Use(dir_server + "human",dir_server + "humans","HUMAN")
   set relation to recno() into HUMAN_, to kod_k into KART
   Select HUMAN
   find (str(schet->kod,6))
@@ -1689,7 +1686,11 @@ if reg > 1
       endif
       frd->polis := alltrim(alltrim(human_->SPOLIS)+" "+human_->NPOLIS)
       frd->vid_pom := lstr(lvidpom)
-      frd->diagnoz := a_diag[1]
+      if eq_any(alltrim(a_diag[1]), 'Z92.2', 'Z92.4')
+        frd->diagnoz := a_diag[2]
+      else
+        frd->diagnoz := a_diag[1]
+      endif
       frd->n_data := full_date(&lal.->n_data)
       frd->k_data := full_date(&lal.->k_data)
       frd->ob_em := kol_dn
@@ -1713,11 +1714,6 @@ if reg > 1
     skip
   enddo
   close_use_base('lusl')
-  // lusl->(dbCloseArea())
-  // lusl21->(dbCloseArea())
-  // lusl20->(dbCloseArea())
-  // lusl19->(dbCloseArea())
-  // lusl18->(dbCloseArea())
   usl1->(dbCloseArea())
   usl->(dbCloseArea())
   hu->(dbCloseArea())
@@ -1744,8 +1740,6 @@ do case
 endcase
 select SCHET
 return NIL
-
-*
 
 ***** Просмотр и печать выписанных счетов/реестров на доплату
 Function print_schet_doplata(reg)
@@ -1780,15 +1774,15 @@ arr_title := {;
 use_base("lusl")
 use_base("lusld")
 use_base("luslf")
-R_Use(dir_server+"uslugi",,"USL")
-R_Use(dir_server+"human_u",dir_server+"human_u","HU")
+R_Use(dir_server + "uslugi",,"USL")
+R_Use(dir_server + "human_u",dir_server + "human_u","HU")
 set relation to u_kod into USL
-R_Use(dir_server+"human_",,"HUMAN_")
-R_Use(dir_server+"human",dir_server+"humans","HUMAN")
+R_Use(dir_server + "human_",,"HUMAN_")
+R_Use(dir_server + "human",dir_server + "humans","HUMAN")
 set relation to recno() into HUMAN_
-R_Use(dir_server+"organiz",,"ORG")
-R_Use(dir_server+"schetd",,"SD")
-index on str(kod,6) to (cur_dir+"tmp_sd")
+R_Use(dir_server + "organiz",,"ORG")
+R_Use(dir_server + "schetd",,"SD")
+index on str(kod,6) to (cur_dir + "tmp_sd")
 //
 sh := len(arr_title[1])
 fp := fcreate(n_file) ; n_list := 1 ; tek_stroke := 0
@@ -1953,7 +1947,7 @@ if !(round(ssumma,2) == round(schet->summa,2))
   UnLock
   Commit
 endif
-set index to (cur_dir+"tmp_sch")
+set index to (cur_dir + "tmp_sch")
 goto (rec)
 viewtext(n_file,,,,.t.,,,2)
 return NIL
@@ -1984,7 +1978,7 @@ adbf := {;
  {"DATE_F", "D",  8,0},;
  {"KOL2",   "N",  6,0};   // кол-во ошибок
 }
-dbcreate(cur_dir+"tmp1file",adbf)
+dbcreate(cur_dir + "tmp1file",adbf)
 adbf := {; // элементы PR
  {"TIP",        "N",  1,0},;  // тип(номер) обрабатываемого файла
  {"OSHIB",      "N",  3,0},;  // код ошибки T005
@@ -1996,11 +1990,11 @@ adbf := {; // элементы PR
  {"N_ZAP",      "N",  6,0},;  // поле из первичного реестра
  {"KOD_HUMAN",  "N",  7,0};   // код по БД листов учёта
 }
-dbcreate(cur_dir+"tmp2file",adbf) // элементы PR
-dbcreate(cur_dir+"tmp22fil",adbf) // доп.файл, если по одному пациенту > 1 листа учёта
-use (cur_dir+"tmp1file") new alias TMP1
+dbcreate(cur_dir + "tmp2file",adbf) // элементы PR
+dbcreate(cur_dir + "tmp22fil",adbf) // доп.файл, если по одному пациенту > 1 листа учёта
+use (cur_dir + "tmp1file") new alias TMP1
 append blank
-use (cur_dir+"tmp2file") new alias TMP2
+use (cur_dir + "tmp2file") new alias TMP2
 for ii := 1 to len(arr_f)
   // т.к. в ZIP'е два XML-файла, второй файл также прочитать
   if upper(right(arr_f[ii],4)) == sxml .and. valtype(oXmlDoc := HXMLDoc():Read(_tmp_dir1+arr_f[ii])) == "O"
@@ -2049,7 +2043,7 @@ Function reestr_sp_tk_tmpfile(oXmlDoc,aerr,mname_xml)
 Local j, j1, _ar, oXmlNode, oNode1, oNode2, buf := save_maxrow()
 DEFAULT aerr TO {}, mname_xml TO ""
 stat_msg("Распаковка/чтение/анализ реестра СП и ТК "+beforatnum(".",mname_xml))
-dbcreate(cur_dir+"tmp1file", {;
+dbcreate(cur_dir + "tmp1file", {;
  {"_VERSION",   "C",  5,0},;
  {"_DATA",      "D",  8,0},;
  {"_FILENAME",  "C", 26,0},;
@@ -2062,7 +2056,7 @@ dbcreate(cur_dir+"tmp1file", {;
  {"KOL1",       "N",  6,0},;
  {"KOL2",       "N",  6,0};
 })
-dbcreate(cur_dir+"tmp2file", {;
+dbcreate(cur_dir + "tmp2file", {;
  {"_N_ZAP",     "N",  8,0},;
  {"_ID_PAC",    "C", 36,0},;
  {"_VPOLIS",    "N",  1,0},;
@@ -2087,15 +2081,15 @@ dbcreate(cur_dir+"tmp2file", {;
  {"_DR"   ,     "C", 10,0},; //
  {"_OPLATA",    "N",  1,0};
 })
-dbcreate(cur_dir+"tmp3file", {;
+dbcreate(cur_dir + "tmp3file", {;
  {"_N_ZAP",     "N",  8,0},;
  {"_REFREASON", "N",  3,0},;
  {"SREFREASON", "C", 12,0};
 })
-use (cur_dir+"tmp1file") new alias TMP1
+use (cur_dir + "tmp1file") new alias TMP1
 append blank
-use (cur_dir+"tmp2file") new alias TMP2
-use (cur_dir+"tmp3file") new alias TMP3
+use (cur_dir + "tmp2file") new alias TMP2
+use (cur_dir + "tmp3file") new alias TMP3
 FOR j := 1 TO Len( oXmlDoc:aItems[1]:aItems )
   @ maxrow(),1 say padr(lstr(j),6) color cColorSt2Msg
   oXmlNode := oXmlDoc:aItems[1]:aItems[j]

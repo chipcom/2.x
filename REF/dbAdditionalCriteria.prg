@@ -1,8 +1,23 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-// 07.02.22
-// возвращает массив дополнительных критериев на указанную дату
+** 30.10.22
+** возвращает массив параметров дополнительного критерия
+function getArrayCriteria(dateSl, codeCriteria)
+  local tmpArrCriteria, row := {}
+  local arr
+
+  tmpArrCriteria := getAdditionalCriteria(dateSl)
+  for each row in tmpArrCriteria
+    if alltrim(row[2]) == alltrim(codeCriteria)
+      arr := row
+      exit
+    endif
+  next
+return arr
+
+** 07.02.22
+** возвращает массив дополнительных критериев на указанную дату
 function getAdditionalCriteria( dateSl )
   Local dbName, dbAlias := '_ADCRIT'
   local tmp_select := select()

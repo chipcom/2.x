@@ -34,14 +34,16 @@ Function oms_double(k)
   endif
   return NIL
 
-** 10.10.22 склеить два случая
+** 04.11.22 склеить два случая
 Function create_double_sl()
-  Local buf, str_sem, i, d, fl, lshifr, arr_m, mas_pmt, buf24, buf_scr, srec, old_yes_h_otd := yes_h_otd
+  Local buf, str_sem, str_sem2, i, d, fl, lshifr, arr_m, mas_pmt, buf24, buf_scr, srec, old_yes_h_otd := yes_h_otd
   // local find_reserve_1 := find_reserve_2 := .f.  // если в случае присутствуют 
   local fl_reserve_1, fl_reserve_2  // если в случае присутствуют 
                             // {'st36.009 - A16.20.078',
                             // 'st36.010 - A16.12.030',
                             // 'st36.011 - A16.10.021.001'}
+  local rslt_sl1, rslt_sl2, rslt_fl1 := .f., rslt_fl2 := .f.
+  local rslt_kiro := {102, 105, 107, 110, 202, 205, 207}  // взято из правил применения КСГ
 
   fl_reserve_1 := fl_reserve_2 := .f.
 
@@ -110,6 +112,8 @@ Function create_double_sl()
           ldiag := human->kod_diag
           lprofil := human_->profil
           lcena := human->cena_1
+          rslt_sl1 := human_->RSLT_NEW
+          rslt_fl1 := ascan(rslt_kiro, rslt_sl1) > 0
           glob_k_fio := fio_plus_novor()
           glob_otd[1] := human->otd
           glob_otd[2] := inieditspr(A__POPUPMENU, dir_server + 'mo_otd', human->otd)
@@ -216,6 +220,8 @@ Function create_double_sl()
                   lk_data2 := human->k_data
                   lcena2 := human->cena_1
                   lrslt := human_->RSLT_NEW
+                  rslt_sl2 := human_->RSLT_NEW
+                  rslt_fl2 := ascan(rslt_kiro, rslt_sl2) > 0
                   lishod := human_->ISHOD_NEW
                   lvnr1 := human_2->VNR1
                   lvnr2 := human_2->VNR2
@@ -225,6 +231,25 @@ Function create_double_sl()
             endif
             restscreen(buf_scr)
             close databases
+
+            // проверим особые результаты на совпадения
+            if rslt_fl1 .or. rslt_fl2
+              if rslt_sl1 != rslt_sl2
+                n_message({'Результаты лечения в случаях отличаются:', ;
+                            '1-ый случай - ' + getRSLT_V009(rslt_sl1), ;
+                            '2-ой случай - ' + getRSLT_V009(rslt_sl2), ;
+                            '', ;
+                            'Отредактируйте ' + iif(rslt_fl2, '1-й', '2-й') + ' случай и попробуйте снова' ;
+                          }, , ;
+                          color1, cDataCSay, , , color8)
+                
+                G_SUnLock(str_sem)
+                close databases
+                rest_box(buf)
+                return NIL
+              endif
+            endif
+
             if mkod > 0
               str_sem2 := 'Редактирование человека ' +lstr(glob_perso2)
               if G_SLock(str_sem2)

@@ -2055,7 +2055,7 @@ if regim == "edit"
 endif
 return ret
 
-***** 16.10.18 ‘¯¨á®ª ¨­ä®à¬ æ¨®­­ëå ¯ ª¥â®¢ á  ­­ã«¨à®¢ ­­ë¬¨ ­ ¯à ¢«¥­¨ï¬¨
+** 06.07.22 ‘¯¨á®ª ¨­ä®à¬ æ¨®­­ëå ¯ ª¥â®¢ á  ­­ã«¨à®¢ ­­ë¬¨ ­ ¯à ¢«¥­¨ï¬¨
 Function _263_to_I03()
 Static str_sem := "263_to_I03"
 Local buf := save_maxrow(), blk, t_arr[BR_LEN]
@@ -2093,7 +2093,7 @@ G_SUnLock(str_sem)
 rest_box(buf)
 return NIL
 
-** 13.05.22
+** 21.10.22
 Function f2_263_to_I03(nKey,oBrow,regim)
 Local lkod, buf, r1, rec, i, ret := -1, arr, lcodem, n1, n2, ;
       n_file := "I03"+stxt, sh := 80, HH := 60, t_arr[4], s1, s2, s3, s4
@@ -2183,7 +2183,7 @@ if regim == "edit"
           add_string(space(3)+"­ ¯à ¢«¥­¨¥  ­­ã«¨à®¢ ­® ¢ ­ è¥¬ ‘’€–ˆ€…")
         endif
         add_string(space(3)+alltrim(_kart->fio)+", ¤.à."+full_date(_kart->date_r))
-        add_string(space(3)+"ä®à¬  ®ª § ­¨ï ¬¥¤¨æ¨­áª®© ¯®¬®é¨ - "+inieditspr(A__MENUVERT,glob_V014,napr->F_MEDC_1))
+        add_string(space(3) + 'ä®à¬  ®ª § ­¨ï ¬¥¤¨æ¨­áª®© ¯®¬®é¨ - ' + inieditspr(A__MENUVERT, getV014(), napr->F_MEDC_1))
         add_string(space(3)+inieditspr(A__MENUVERT, arr_t007, napr->PROFIL_K_1)+;
                                      " ("+inieditspr(A__MENUVERT, glob_V002, napr->PROFIL_1)+")")
         add_string(space(3)+"¯à¨ç¨­   ­­ã«¨à®¢ ­¨ï: "+inieditspr(A__MENUVERT, mm_reason_annul, napr->rea_annul))
@@ -2254,7 +2254,7 @@ G_SUnLock(str_sem)
 rest_box(buf)
 return NIL
 
-** 13.05.22
+** 06.11.22
 Function f2_263_to_I04(nKey,oBrow,regim)
 Local lkod, buf, r1, rec, i, ret := -1, arr, lcodem, n1, n2, s1, s2, s3, s4, ;
       n_file := "i0"+lstr(ppaket)+stxt, sh := 80, HH := 60, t_arr[4]
@@ -2352,7 +2352,7 @@ if regim == "edit"
         add_string(space(3)+"„¨ £­®§ ¯à¨ñ¬­®£® ®â¤¥«¥­¨ï "+alltrim(napr->DS_4))
         add_string(space(3)+inieditspr(A__MENUVERT, arr_t007, napr->PROFIL_K_4)+;
                                      " ("+inieditspr(A__MENUVERT, glob_V002, napr->PROFIL_4)+")")
-        add_string(space(3)+"”®à¬  ®ª § ­¨ï ¬¥¤¨æ¨­áª®© ¯®¬®é¨ - "+inieditspr(A__MENUVERT,glob_V014,napr->F_MEDC_4))
+        add_string(space(3) + '”®à¬  ®ª § ­¨ï ¬¥¤¨æ¨­áª®© ¯®¬®é¨ - ' + inieditspr(A__MENUVERT, getV014(), napr->F_MEDC_4))
         add_string(space(3)+"®¬¥à ¨áâ®à¨¨ ¡®«¥§­¨ - "+alltrim(napr->NUM_HIST_4))
         select NFN
         find (str(napr->kod,6))
@@ -2420,7 +2420,7 @@ G_SUnLock(str_sem)
 rest_box(buf)
 return NIL
 
-***** 16.10.18
+** 06.11.22
 Function f2_263_to_I06(nKey,oBrow,regim)
 Local lkod, buf, r1, rec, i, ret := -1, arr, lcodem, n1, n2, s1, s2, s3, s4, ;
       n_file := "i06"+stxt, sh := 80, HH := 60, t_arr[4]
@@ -2514,7 +2514,7 @@ if regim == "edit"
         add_string(space(3)+"„¨ £­®§ ¯à¨ñ¬­®£® ®â¤¥«¥­¨ï "+alltrim(napr->DS_4))
         add_string(space(3)+inieditspr(A__MENUVERT, arr_t007, napr->PROFIL_K_4)+;
                                      " ("+inieditspr(A__MENUVERT, glob_V002, napr->PROFIL_4)+")")
-        add_string(space(3)+"”®à¬  ®ª § ­¨ï ¬¥¤¨æ¨­áª®© ¯®¬®é¨ - "+inieditspr(A__MENUVERT,glob_V014,napr->F_MEDC_4))
+        add_string(space(3) + '”®à¬  ®ª § ­¨ï ¬¥¤¨æ¨­áª®© ¯®¬®é¨ - ' + inieditspr(A__MENUVERT, getV014(), napr->F_MEDC_4))
         add_string(space(3)+"®¬¥à ¨áâ®à¨¨ ¡®«¥§­¨ - "+alltrim(napr->NUM_HIST_4))
         add_string(space(3)+"’¨¯ ¢ë¡ëâ¨ï - "+inieditspr(A__MENUVERT,mm_tip_vyb,napr->type_6))
         add_string(space(3)+"„ â  ¢ë¡ëâ¨ï - "+full_date(napr->date_6))

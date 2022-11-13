@@ -53,7 +53,7 @@ if k > 0
 endif
 return NIL
 
-***** 13.02.22
+** 05.11.22
 Function read_file_XML_SDS(n_file)
 Static cDelimiter := " ,"
 Local _sluch := {;
@@ -744,25 +744,25 @@ do while !eof()
   else
     aadd(ae,"неверное значение поля USL_OK = "+lstr(ihuman->USL_OK))
   endif
-  if !empty(ihuman->USL_OK) .and. ascan(glob_V006,{|x| x[2] == ihuman->USL_OK}) == 0
-    aadd(ae,"неверное значение поля USL_OK = "+lstr(ihuman->USL_OK))
+  if !empty(ihuman->USL_OK) .and. ascan(getV006(), {|x| x[2] == ihuman->USL_OK}) == 0
+    aadd(ae, 'неверное значение поля USL_OK = ' + lstr(ihuman->USL_OK))
   endif
   if empty(ihuman->RSLT)
-    aadd(ae,"не заполнен результат лечения RSLT")
+    aadd(ae, 'не заполнен результат лечения RSLT')
   else
-    if int(val(left(lstr(ihuman->RSLT),1))) != ihuman->USL_OK
-      aadd(ae,"поле USL_OK = "+lstr(ihuman->USL_OK)+" не соответствует значению поля RSLT = "+lstr(ihuman->RSLT))
-    elseif ascan(glob_V009,{|x| x[2] == ihuman->RSLT}) == 0
-      aadd(ae,"неверное значение поля RSLT = "+lstr(ihuman->RSLT))
+    if int(val(left(lstr(ihuman->RSLT), 1))) != ihuman->USL_OK
+      aadd(ae, 'поле USL_OK = ' + lstr(ihuman->USL_OK) + ' не соответствует значению поля RSLT = ' + lstr(ihuman->RSLT))
+    elseif ascan(getV009(), {|x| x[2] == ihuman->RSLT}) == 0
+      aadd(ae, 'неверное значение поля RSLT = ' + lstr(ihuman->RSLT))
     endif
   endif
   if empty(ihuman->ISHOD)
-    aadd(ae,"не заполнен исход лечения ISHOD")
+    aadd(ae, 'не заполнен исход лечения ISHOD')
   else
-    if int(val(left(lstr(ihuman->ISHOD),1))) != ihuman->USL_OK
-      aadd(ae,"поле USL_OK = "+lstr(ihuman->USL_OK)+" не соответствует значению поля ISHOD = "+lstr(ihuman->ISHOD))
-    elseif ascan(glob_V012,{|x| x[2] == ihuman->ISHOD}) == 0
-      aadd(ae,"неверное значение поля ISHOD = "+lstr(ihuman->ISHOD))
+    if int(val(left(lstr(ihuman->ISHOD), 1))) != ihuman->USL_OK
+      aadd(ae, 'поле USL_OK = ' + lstr(ihuman->USL_OK) + ' не соответствует значению поля ISHOD = ' + lstr(ihuman->ISHOD))
+    elseif ascan(getV012(), {|x| x[2] == ihuman->ISHOD}) == 0
+      aadd(ae, 'неверное значение поля ISHOD = ' + lstr(ihuman->ISHOD))
     endif
   endif
   lkol_usl := 0
@@ -1307,8 +1307,8 @@ close databases
 rest_box(buf)
 return .t.
 
-***** 10.03.18 вернуть шифр услуги 2.60.*
-Function ret_shifr_2_60(lprofil,lvzros_reb)
+** 06.11.22 вернуть шифр услуги 2.60.*
+Function ret_shifr_2_60(lprofil, lvzros_reb)
 Local lshifr
 //2.60.1 врач
 //2.60.2 участковый терапевт, педиатр, врач общей практики
@@ -1322,7 +1322,7 @@ else
 endif
 return lshifr
 
-***** 04.04.18
+** 20.10.22
 Function f1_read_file_XML_SDS(k,lal,aerr,ainf,lprofil)
 Static aprvs
 Local i, s, lk, lprvs, ret := 0
@@ -1419,13 +1419,13 @@ elseif !empty(k := &lal.->vr_snils) .and. !empty(&lal.->prvs)
     &lal.->vrach := lk
   else
     if ascan(pass,{|x| x[1] == k .and. x[2] == lprvs }) == 0
-      aadd(pass,{k,lprvs})
+      aadd(pass,{k, lprvs})
       s := space(80)
-      if !val_snils(k,2,@s)
-        aadd(aerr,'VRACH_SNILS="'+transform(k,picture_pf)+'"-'+s)
+      if !val_snils(k, 2, @s)
+        aadd(aerr, 'VRACH_SNILS="' + transform(k, picture_pf) + '"-' + s)
       endif
-      aadd(aerr,'В справочнике персонала не обнаружен сотрудник со СНИЛС '+transform(k,picture_pf)+;
-                ' и специальностью "'+inieditspr(A__MENUVERT,glob_V015,lprvs)+'"')
+      aadd(aerr, 'В справочнике персонала не обнаружен сотрудник со СНИЛС ' + transform(k, picture_pf) + ;
+                ' и специальностью "' + inieditspr(A__MENUVERT, getV015(), lprvs) + '"')
     endif
     if empty(ret)
       ret := 3

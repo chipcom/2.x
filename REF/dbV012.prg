@@ -1,10 +1,10 @@
-* 25.05.21 вернуть исход заболевания по коду
+** 06.11.22 вернуть исход заболевания по коду
 function getISHOD_V012( ishod )
   local ret := NIL
   local i
 
-  if (i := ascan(glob_V012, {|x| x[2] == ishod })) > 0
-    ret := glob_V012[i,1]
+  if (i := ascan(getV012(), {|x| x[2] == ishod })) > 0
+    ret := getV012()[i,1]
   endif
   return ret
 

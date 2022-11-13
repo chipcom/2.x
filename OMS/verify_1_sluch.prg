@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-** 15.09.22
+** 07.11.22
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
         i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -547,18 +547,18 @@ Function verify_1_sluch(fl_view)
   midsp := musl_ok := mRSLT_NEW := mprofil := mvrach := m1lis := 0
   lvidpoms := ""
   // реабилитация - для физкультурного диспансера и других
-  arr_lfk := {"3.1.5","3.1.19","3.4.31",;
-              "4.2.153","4.11.136",;
-              "7.12.5","7.12.6","7.12.7","7.2.2",;
-              "13.1.1",;
-              "14.2.3",;
-              "16.1.17","16.1.18",;
-              "19.1.1","19.1.2","19.1.3","19.1.5","19.1.6","19.1.7","19.1.9","19.1.11","19.1.12","19.1.29","19.1.30","19.1.31",;
-              "19.2.1","19.2.2","19.2.4","19.3.1","19.5.1","19.5.2","19.5.19","19.6.1",;
-              "19.3.1",;
-              "20.1.1","20.1.2","20.1.3","20.1.4","20.1.5","20.2.1","20.2.2","20.2.3",;
-              "21.1.1","21.1.2","21.1.3","21.1.4","21.1.5","21.2.1",;
-              "22.1.1","22.1.2","22.1.3"}
+  arr_lfk := {'3.1.5', '3.1.19', '3.4.31', ;
+              '4.2.153', '4.11.136', ;
+              '7.12.5', '7.12.6', '7.12.7', '7.2.2', ;
+              '13.1.1', ;
+              '14.2.3', ;
+              '16.1.17', '16.1.18', ;
+              '19.1.1', '19.1.2', '19.1.3', '19.1.5', '19.1.6', '19.1.7', '19.1.9', '19.1.11', '19.1.12', '19.1.29', '19.1.30', '19.1.31', ;
+              '19.2.1', '19.2.2', '19.2.4', '19.3.1', '19.5.1', '19.5.2', '19.5.19', '19.6.1', ;
+              '19.3.1', ;
+              '20.1.1', '20.1.2', '20.1.3', '20.1.4', '20.1.5', '20.1.6', '20.2.1', '20.2.2', '20.2.3', ;
+              '21.1.1', '21.1.2', '21.1.3', '21.1.4', '21.1.5', '21.2.1', ;
+              '22.1.1', '22.1.2', '22.1.3'}
   //
   f_put_glob_podr(human_->USL_OK,d2,ta) // заполнить код подразделения
   musl_ok := 3  // п-ка по умолчанию 
@@ -1215,10 +1215,10 @@ Function verify_1_sluch(fl_view)
             endif
           endif
         endif
-        if arr_povod[1,1] == 4  .and. (left(mdiagnoz[1],1) == "C" .or. between(left(mdiagnoz[1],3),"D00","D09") .or. between(left(mdiagnoz[1],3),"D45","D47"))
+        if arr_povod[1, 1] == 4  .and. (left(mdiagnoz[1], 1) == "C" .or. between(left(mdiagnoz[1],3),"D00","D09") .or. between(left(mdiagnoz[1], 3), 'D45', 'D47'))
           k := ret_prvs_V021(human_->PRVS)
           if !eq_any(k, 9, 19, 41)  // как исключение добавил гематологов, специальность - 9
-            aadd(ta, 'диспансерное наблюдение при ЗНО осуществляют только врачи-онкологи (детские онкологи), а в листе учёта стоит специальность "'+inieditspr(A__MENUVERT, glob_V021, k)+'"')
+            aadd(ta, 'диспансерное наблюдение при ЗНО осуществляют только врачи-онкологи (детские онкологи), а в листе учёта стоит специальность "'+inieditspr(A__MENUVERT, getV021(), k)+'"')
           endif
         endif
       endif
@@ -2004,7 +2004,7 @@ Function verify_1_sluch(fl_view)
   if empty(human_->USL_OK)
     human_->USL_OK := musl_ok
   elseif mUSL_OK > 0 .and. human_->USL_OK != mUSL_OK
-    aadd(ta, 'в поле "Условия оказания" должно быть "'+inieditspr(A__MENUVERT,glob_V006,mUSL_OK)+'"')
+    aadd(ta, 'в поле "Условия оказания" должно быть "' + inieditspr(A__MENUVERT, getV006(), mUSL_OK) + '"')
   endif
   if human_->USL_OK == 3 // для поликлиники
     s := space(80)
@@ -4436,7 +4436,6 @@ Function verify_1_sluch(fl_view)
           aadd(ta, 'пустая схема соответствия препаратам')
         endif
         if (arrGroupPrep := get_group_prep_by_kod(alltrim(row[8]), row[1])) != nil
-          // if (arrGroupPrep := get_group_prep_by_kod(substr(row[8], len(row[8])), row[1])) != nil
           mMNN := iif(arrGroupPrep[3] == 1, .t., .f.)
           if mMNN
             if empty(row[3])
@@ -4464,26 +4463,28 @@ Function verify_1_sluch(fl_view)
   // ПРОВЕРКА УСТАНОВЛЕННЫХ ИМПЛАНТОВ
   //
   for each row in arrUslugi // проверим все услуги случая
-    if service_requires_implants(row, human->k_data)
-      // проверим наличие имплантов
-      arrImplant := collect_implantant(human->kod)
-      if ! empty(arrImplant)
-        for each rowTmp in arrImplant
-          if empty(rowTmp[3])
-            aadd(ta, 'не указана дата установки имплантанта')
-          endif
-          if ! between_date(human->n_data, human->k_data, rowTmp[3])
-            aadd(ta, 'дата установки имплантанта не входит в период случая')
-          endif
-          if empty(rowTmp[4])
-            aadd(ta, 'для имплантанта необходимо указать его вид')
-          endif
-          if empty(rowTmp[5])
-            aadd(ta, 'для имплантанта необходимо указать серийный номер')
-          endif
-        next
-      else
-        aadd(ta, 'для услуги ' + row + ' обязательно указание имплантантов')
+    if year(human->k_data) > 2021
+      if service_requires_implants(row, human->k_data)
+        // проверим наличие имплантов
+        arrImplant := collect_implantant(human->kod)
+        if ! empty(arrImplant)
+          for each rowTmp in arrImplant
+            if empty(rowTmp[3])
+              aadd(ta, 'не указана дата установки имплантанта')
+            endif
+            if ! between_date(human->n_data, human->k_data, rowTmp[3])
+              aadd(ta, 'дата установки имплантанта не входит в период случая')
+            endif
+            if empty(rowTmp[4])
+              aadd(ta, 'для имплантанта необходимо указать его вид')
+            endif
+            if empty(rowTmp[5])
+              aadd(ta, 'для имплантанта необходимо указать серийный номер')
+            endif
+          next
+        else
+          aadd(ta, 'для услуги ' + row + ' обязательно указание имплантантов')
+        endif
       endif
     endif
   next
@@ -4695,9 +4696,9 @@ Function verify_1_sluch(fl_view)
   arr := {301,305,308,314,315,317,318,321,322,323,324,325,332,333,334,335,336,343,344,347,348,349,350,;
           351,353,355,356,357,358,361,362,363,364,365,366,367,368,369,370,371,372,373,374}
   if human_->ISHOD_NEW == 306 .and. ascan(arr,human_->RSLT_NEW) == 0
-    aadd(ta, 'для исхода заболевания "306/Осмотр" некорректный результат обращения "'+;
-            inieditspr(A__MENUVERT, glob_V009, human_->RSLT_NEW)+'"')
-  endif
+    aadd(ta, 'для исхода заболевания "306/Осмотр" некорректный результат обращения "' + ;
+      inieditspr(A__MENUVERT, getV009(), human_->RSLT_NEW) + '"')
+endif
   if !emptyany(human_->NPR_MO,human_2->NPR_DATE) .and. !empty(s := verify_dend_mo(human_->NPR_MO,human_2->NPR_DATE,.t.))
     aadd(ta, 'направившая МО: '+s)
   endif

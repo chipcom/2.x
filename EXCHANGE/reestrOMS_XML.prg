@@ -1,4 +1,4 @@
-***** реестры/счета с 2019 года
+** реестры/счета с 2019 года
 #include 'inkey.ch'
 #include 'function.ch'
 #include 'edit_spr.ch'
@@ -6,8 +6,7 @@
 
 Static sadiag1 := {}
 
-  
-** 16.09.22 создание XML-файлов реестра
+** 07.11.22 создание XML-файлов реестра
 Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
   //
@@ -253,7 +252,7 @@ Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
   //
   //
   select RHUM
-  index on str(REES_ZAP,6) to (cur_dir+"tmp_rhum") for REESTR==mkod_reestr
+  index on str(REES_ZAP,6) to (cur_dir + "tmp_rhum") for REESTR==mkod_reestr
   go top
   do while !eof()
     @ maxrow(),0 say str(rhum->REES_ZAP/pkol*100,6,2)+"%" color cColorSt2Msg
@@ -476,10 +475,6 @@ Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
         endif
         mo_add_xml_stroke(oSL,"DET",iif(human->VZROS_REB==0,'0','1'))
         if human_->USL_OK == 3
-          // s := "2.6"
-          // if (i := ascan(glob_V025, {|x| x[2] == human_->povod})) > 0
-          //   s := glob_V025[i,3]
-          // endif
           if (s := get_IDPC_from_V025_by_number(human_->povod)) == ''
             s := '2.6'
           endif
@@ -506,7 +501,7 @@ Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
           mo_add_xml_stroke(oSL,"KD",lstr(kol_kd)) // Указывается количество койко-дней для стационара, количество пациенто-дней для дневного стационара
         endif
 
-        if ! empty(human_2->PC4)
+        if ! empty(human_2->PC4) .and. year(human->K_DATA) > 2021 
           mo_add_xml_stroke(oSL,"WEI", alltrim(human_2->PC4))
         endif
 
@@ -1150,7 +1145,7 @@ Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
               //   aImpl := nil
               //   ser_num := nil
               // endif
-              if (p_tip_reestr == 1) .and. service_requires_implants(lshifr, c4tod(hu_->DATE_U2))
+              if (p_tip_reestr == 1) .and. (year(human->k_data) > 2021) .and. service_requires_implants(lshifr, c4tod(hu_->DATE_U2))
                 for each row in collect_implantant(human->kod, mohu->(recno()))
                   oMED_DEV := oUSL:Add( HXMLNode():New( "MED_DEV" ) )
                   mo_add_xml_stroke(oMED_DEV,"DATE_MED", date2xml(row[3]))
@@ -1327,7 +1322,7 @@ Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
         mo_add_xml_stroke(oPAC,"DOCDATE",date2xml(kart_->kogdavyd))
       endif
       if !empty(kart_->kemvyd) .and. ;
-         !empty(smr := del_spec_symbol(inieditspr(A__POPUPMENU, dir_server+"s_kemvyd", kart_->kemvyd)))
+         !empty(smr := del_spec_symbol(inieditspr(A__POPUPMENU, dir_server + "s_kemvyd", kart_->kemvyd)))
         mo_add_xml_stroke(oPAC,"DOCORG",smr)
       endif
     endif
@@ -1356,7 +1351,7 @@ Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
   return NIL
   
   
-***** 25.03.21 работаем по текущей записи
+** 25.03.21 работаем по текущей записи
 Function f1_create2reestr19(_nyear,_nmonth)
   Local i, j, lst, s
 
@@ -1752,7 +1747,7 @@ Function f1_create2reestr19(_nyear,_nmonth)
   endif
   return NIL
   
-***** 05.08.21 вернуть значение специальности из кодировки справочника V015 в кодировке справочника V021
+** 05.08.21 вернуть значение специальности из кодировки справочника V015 в кодировке справочника V021
 Function ret_prvs_V015toV021(lkod)
   Local i, new_kod := 76 // по умолчанию - терапия
 
@@ -1761,7 +1756,7 @@ Function ret_prvs_V015toV021(lkod)
   endif
   return new_kod
   
-***** 24.02.22
+** 24.02.22
 Function create1reestr19(_recno,_nyear,_nmonth)
   Local buf := savescreen(), s, i, j, pole
   local nameArr
@@ -1782,14 +1777,14 @@ Function create1reestr19(_recno,_nyear,_nmonth)
   Private pkol := tmp->kol, psumma := tmp->summa, pnyear := _nyear
   Private old_kol := pkol, old_summa := psumma, p_blk := {|mkol,msum| f_blk_create1reestr19(_nyear) }
   close databases
-  R_Use(dir_server+"human_3",{dir_server+"human_3",dir_server+"human_32"},"HUMAN_3")
+  R_Use(dir_server + "human_3",{dir_server + "human_3",dir_server + "human_32"},"HUMAN_3")
   set order to 2
-  R_Use(dir_server+"human_",,"HUMAN_")
-  R_Use(dir_server+"human",,"HUMAN")
+  R_Use(dir_server + "human_",,"HUMAN_")
+  R_Use(dir_server + "human",,"HUMAN")
   set relation to recno() into HUMAN_
-  use (cur_dir+"tmpb") new alias TMP
+  use (cur_dir + "tmpb") new alias TMP
   set relation to kod_human into HUMAN
-  index on upper(human->fio)+dtos(tmp->k_data) to (cur_dir+"tmpb") for kod_tmp == _recno
+  index on upper(human->fio)+dtos(tmp->k_data) to (cur_dir + "tmpb") for kod_tmp == _recno
   go top
   eval(p_blk)
   if Alpha_Browse(3,0,maxrow()-4,79,"f1create1reestr19",color0,;
@@ -1819,7 +1814,7 @@ Function create1reestr19(_recno,_nyear,_nmonth)
   restscreen(buf)
   return NIL
   
-***** 21.05.17
+** 21.05.17
 Function f_blk_create1reestr19(_nyear)
   Local i, s, ta[2], sh := maxcol()+1
   s := "Случаев - "+expand_value(pkol)+" на сумму "+expand_value(psumma,2)+" руб."
@@ -1839,7 +1834,7 @@ Function f_blk_create1reestr19(_nyear)
   next
   return NIL
   
-***** 19.01.20
+** 19.01.20
 Static Function f_p_z19(_pzkol,_pz,k)
   Local s, s2, i
   s2 := alltrim(str_0(_pzkol,9,2))
@@ -1849,7 +1844,7 @@ Static Function f_p_z19(_pzkol,_pz,k)
   endif
   return iif(k == 1, s, s2)
   
-***** 06.02.19
+** 06.02.19
 Function f1create1reestr19(oBrow)
   Local oColumn, tmp_color, blk_color := {|| if(tmp->plus, {1,2}, {3,4}) }, n := 32
   oColumn := TBColumnNew(" ", {|| if(tmp->plus,""," ") })
@@ -1882,7 +1877,7 @@ Function f1create1reestr19(oBrow)
   setcolor(tmp_color)
   return NIL
   
-***** 19.01.20
+** 19.01.20
 Function f2create1reestr19(nKey,oBrow)
   Local buf, rec, k := -1, s, i, j, mas_pmt := {}, arr, r1, r2
   do case

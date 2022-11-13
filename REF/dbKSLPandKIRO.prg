@@ -1,9 +1,33 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
+** 01.11.22
+function getInfoKSLP(dateSl, code)
+  local row := {}
+  local tmpArray := getKSLPtable(dateSl)
+
+  for each row in tmpArray
+    if row[1] == code
+      return row
+    endif
+  next
+  return row
+
+** 01.11.22
+function getInfoKIRO(dateSl, code)
+  local row := {}
+  local tmpArray := getKIROtable(dateSl)
+
+  for each row in tmpArray
+    if row[1] == code
+      return row
+    endif
+  next
+  return row
+
 // 18.01.22
 // возвращает массив КСЛП на указанную дату
-function getKSLPtable( dateSl )
+function getKSLPtable(dateSl)
   Local dbName, dbAlias := 'KSLP_'
   local tmp_select := select()
   local retKSLP := {}

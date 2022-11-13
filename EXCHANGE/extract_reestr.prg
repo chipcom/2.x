@@ -761,6 +761,9 @@ Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
                             t2->PRVS     := mo_read_xml_stroke(oNode100,"PRVS")
                             t2->CODE_MD  := mo_read_xml_stroke(oNode100,"CODE_MD",,.f.)
                           endif
+                        else // ―® αβ ΰ®¬γ “
+                          t2->PRVS     := mo_read_xml_stroke(oNode2, "PRVS")
+                          t2->CODE_MD  := mo_read_xml_stroke(oNode2, "CODE_MD", , .f.)
                         endif
 
                         t2->COMENTU  := mo_read_xml_stroke(oNode2,"COMENTU",,.f.)

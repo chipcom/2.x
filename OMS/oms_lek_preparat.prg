@@ -316,7 +316,7 @@ function add_lek_pr(dateInjection, nKey)
   select tmp
   return nil
 
-****** 05.04.22
+** 18.10.22
 function f2oms_sluch_lek_pr(nKey,oBrow)
 
   LOCAL flag := -1, buf := savescreen(), k_read := 0, count_edit := 0
@@ -344,8 +344,8 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
       // —’Ž-› ­¥ ¤¥« âì PUBLIC
       Private glob_V034 := get_ed_izm()
       Private glob_methodinj := getMethodINJ()
-      Private tmp_V034 := create_classif_FFOMS(2,"V034") // UNITCODE
-      Private tmp_MethodINJ := create_classif_FFOMS(2,"MethodINJ") // METHOD
+      Private tmp_V034 := create_classif_FFOMS(2, 'V034') // UNITCODE
+      Private tmp_MethodINJ := create_classif_FFOMS(2, 'MethodINJ') // METHOD
    
       private mdate_end_per := mdate_u1      // human->k_data
       private arrDateUslug

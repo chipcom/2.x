@@ -318,105 +318,108 @@ enddo
 select (tmp_select)
 return ret
 
-***** вернуть первые два диагоноза для записи в XML-файл
-Function diag_for_xml(al,fl_trim,fl_dop,fl_del,fl_6,adiag_talon)
-Local mdiagnoz := diag_to_array(al,fl_trim,fl_dop,fl_del,fl_6,adiag_talon)
-aadd(mdiagnoz,"") // чтобы был безусловно первый элемент
-aadd(mdiagnoz,"") // чтобы был безусловно второй элемент
-if empty(mdiagnoz[1]) // если пустой основной диагноз, заполним его
-  mdiagnoz[1] := "Z01.8" // Другое уточнённое специальное обследование
-endif
-return mdiagnoz
+** вернуть первые два диагоноза для записи в XML-файл
+Function diag_for_xml(al, fl_trim, fl_dop, fl_del, fl_6, adiag_talon)
+  Local mdiagnoz := diag_to_array(al, fl_trim, fl_dop, fl_del, fl_6, adiag_talon)
 
-***** 17.08.18 вернуть диагнозы в массиве
-Function diag_to_array(al,fl_trim,fl_dop,fl_del,fl_6,adiag_talon)
-Local ad, _arr := {}, j, k, s, lshifr, dp, dp1, _ta, tmp_select := select()
-DEFAULT al      TO "human", ; // alias БД листов учета
-        fl_trim TO .f., ;     // удалять завершающие пробелы
-        fl_dop  TO .f., ;     // дописывать букву
-        fl_del  TO .t., ;     // удалять повторяющиеся диагнозы
-        fl_6    TO .f.        // разрешать поиск шестизначных диагнозов
-if empty(al)
-  ad := {MKOD_DIAG ,;
-         MKOD_DIAG2,;
-         MKOD_DIAG3,;
-         MKOD_DIAG4,;
-         MSOPUT_B1 ,;
-         MSOPUT_B2 ,;
-         MSOPUT_B3 ,;
-         MSOPUT_B4}
-else
-  ad := {&al.->KOD_DIAG ,;
-         &al.->KOD_DIAG2,;
-         &al.->KOD_DIAG3,;
-         &al.->KOD_DIAG4,;
-         &al.->SOPUT_B1 ,;
-         &al.->SOPUT_B2 ,;
-         &al.->SOPUT_B3 ,;
-         &al.->SOPUT_B4}
-endif
-if fl_6
-  if select("MKB_10") == 0
-    R_Use(dir_exe+"_mo_mkb",cur_dir+"_mo_mkb","MKB_10")
+  aadd(mdiagnoz, '') // чтобы был безусловно первый элемент
+  aadd(mdiagnoz, '') // чтобы был безусловно второй элемент
+  if empty(mdiagnoz[1]) // если пустой основной диагноз, заполним его
+    mdiagnoz[1] := 'Z01.8' // Другое уточнённое специальное обследование
   endif
-  select MKB_10
-endif
-for j := 1 to 8
-  if iif(fl_del, !empty(ad[j]), .t.)
-    lshifr := ad[j] ; dp := dp1 := ""
-    if fl_trim
-      lshifr := alltrim(lshifr)
+  return mdiagnoz
+
+** 31.10.22 вернуть диагнозы в массиве
+Function diag_to_array(al, fl_trim, fl_dop, fl_del, fl_6, adiag_talon)
+  Local ad, _arr := {}, j, k, s, lshifr, dp, dp1, _ta, tmp_select := select()
+
+  DEFAULT al      TO 'human', ; // alias БД листов учета
+          fl_trim TO .f., ;     // удалять завершающие пробелы
+          fl_dop  TO .f., ;     // дописывать букву
+          fl_del  TO .t., ;     // удалять повторяющиеся диагнозы
+          fl_6    TO .f.        // разрешать поиск шестизначных диагнозов
+  if empty(al)
+    ad := {MKOD_DIAG , ;
+           MKOD_DIAG2, ;
+           MKOD_DIAG3, ;
+           MKOD_DIAG4, ;
+          MSOPUT_B1, ;
+          MSOPUT_B2, ;
+          MSOPUT_B3, ;
+          MSOPUT_B4}
+  else
+    ad := {&al.->KOD_DIAG , ;
+           &al.->KOD_DIAG2, ;
+           &al.->KOD_DIAG3, ;
+           &al.->KOD_DIAG4, ;
+          &al.->SOPUT_B1, ;
+          &al.->SOPUT_B2, ;
+          &al.->SOPUT_B3, ;
+          &al.->SOPUT_B4}
+  endif
+  if fl_6
+    if select('MKB_10') == 0
+      R_Use(dir_exe + '_mo_mkb', cur_dir + '_mo_mkb', 'MKB_10')
     endif
-    if adiag_talon != NIL
-      s := adiag_talon[j*2-1]
-      if eq_any(s,1,2)
-        dp := iif(s == 1, "+", "-")
+    select MKB_10
+  endif
+  for j := 1 to 8
+    if iif(fl_del, !empty(ad[j]), .t.)
+      lshifr := ad[j]
+      dp := dp1 := ''
+      if fl_trim
+        lshifr := alltrim(lshifr)
       endif
-      s := adiag_talon[j*2]
-      if s > 0
-        dp += "д"+lstr(s)
-      endif
-    endif
-    if !empty(al)
-      k := substr(&al.->diag_plus,j,1)
-      if fl_6 .and. !empty(k)
-        find (ad[j]+k)
-        if found() // если нашли шестизначный шифр
-          lshifr := ad[j]+k
+      if adiag_talon != NIL
+        s := adiag_talon[j * 2 - 1]
+        if eq_any(s, 1, 2)
+          dp := iif(s == 1, '+', '-')
+        endif
+        s := adiag_talon[j * 2]
+        if s > 0
+          dp += 'д' + lstr(s)
         endif
       endif
-      if fl_dop .and. !empty(k) .and. k $ yes_d_plus
-        dp1 := k
+      if !empty(al)
+        k := substr(&al.->diag_plus, j, 1)
+        if fl_6 .and. !empty(k)
+          find (ad[j] + k)
+          if found() // если нашли шестизначный шифр
+            lshifr := ad[j] + k
+          endif
+        endif
+        if fl_dop .and. !empty(k) .and. k $ yes_d_plus
+          dp1 := k
+        endif
       endif
-    endif
-    aadd(_arr, {lshifr,dp+dp1})
-  endif
-next
-_ta := {}
-if fl_del // удалим из списка повторяющиеся диагнозы
-  for j := 1 to len(_arr)
-    if ascan(_ta, {|x| x == _arr[j,1] } ) == 0
-      aadd(_ta, _arr[j,1] )
+      aadd(_arr, {lshifr, dp + dp1})
     endif
   next
-  for j := 1 to len(_ta)
-    s := ""
-    for k := 1 to len(_arr)
-      if _arr[k,1] == _ta[j]
-        s += _arr[k,2]
+  _ta := {}
+  if fl_del // удалим из списка повторяющиеся диагнозы
+    for j := 1 to len(_arr)
+      if ascan(_ta, {|x| x == _arr[j, 1] } ) == 0
+        aadd(_ta, _arr[j, 1] )
       endif
     next
-    _ta[j] += s
-  next
-else
-  for j := 1 to len(_arr)
-    aadd(_ta, _arr[j,1] + _arr[j,2])
-  next
-endif
-if tmp_select > 0
-  select (tmp_select)
-endif
-return _ta
+    for j := 1 to len(_ta)
+      s := ''
+      for k := 1 to len(_arr)
+        if _arr[k, 1] == _ta[j]
+          s += _arr[k, 2]
+        endif
+      next
+      _ta[j] += s
+    next
+  else
+    for j := 1 to len(_arr)
+      aadd(_ta, _arr[j, 1] + _arr[j, 2])
+    next
+  endif
+  if tmp_select > 0
+    select (tmp_select)
+  endif
+  return _ta
 
 ***** 26.01.17
 Function add_val_2_array(arr,i,j,k1,k2)

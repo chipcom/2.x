@@ -3393,51 +3393,52 @@ if fl_write_sluch // если записали - запускаем проверку
 endif
 return NIL
 
-** 01.09.22 вернуть тип вводимого листа учёта
+** 18.10.22 вернуть тип вводимого листа учёта
 Function ret_tip_lu(/*@*/stip)
   Local k := 0, tmp_select
-  stip := "   "
-  if between(human->ishod,101,102)
+
+  stip := '   '
+  if between(human->ishod, 101, 102)
     k := iif(!empty(human->ZA_SMO), TIP_LU_DDS, TIP_LU_DDSOP)
     if human->ishod == 101
-      stip := iif(!empty(human->ZA_SMO), "ДС1", "ДУ1")
+      stip := iif(!empty(human->ZA_SMO), 'ДС1', 'ДУ1')
     else //102
-      stip := iif(!empty(human->ZA_SMO), "ДС2", "ДУ2")
+      stip := iif(!empty(human->ZA_SMO), 'ДС2', 'ДУ2')
     endif
-  elseif between(human->ishod,201,205)
+  elseif between(human->ishod, 201, 205)
     k := TIP_LU_DVN
     if human->ishod == 201
-      stip := "ДВ1"
-    elseif eq_any(human->ishod,202,205)
-      stip := "ДВ2"
+      stip := 'ДВ1'
+    elseif eq_any(human->ishod, 202, 205)
+      stip := 'ДВ2'
     elseif human->ishod == 204
-      stip := "ДВ3"
+      stip := 'ДВ3'
     else // 203
-      stip := "ОПВ"
+      stip := 'ОПВ'
     endif
-  elseif between(human->ishod,301,302)
+  elseif between(human->ishod, 301, 302)
     k := TIP_LU_PN
     if human->ishod == 301
-      stip := "ОН1"
+      stip := 'ОН1'
     else //302
-      stip := "ОН2"
+      stip := 'ОН2'
     endif
-  elseif between(human->ishod,303,304)
+  elseif between(human->ishod, 303, 304)
     k := TIP_LU_PREDN
     if human->ishod == 303
-      stip := "ПО1"
+      stip := 'ПО1'
     else // 304
-      stip := "ПО2"
+      stip := 'ПО2'
     endif
   elseif human->ishod == 305
     k := TIP_LU_PERN
-    stip := "ОПН"
-  elseif between(human->ishod,401,402)  // при углубленной диспансеризации после COVID
+    stip := 'ОПН'
+  elseif between(human->ishod, 401, 402)  // при углубленной диспансеризации после COVID
     k := TIP_LU_DVN_COVID
     if human->ishod == 401
-      stip := "УД1"             // для 1-го этапа
+      stip := 'УД1'             // для 1-го этапа
     else // 402
-      stip := "УД2"              // для 2-го этапа
+      stip := 'УД2'             // для 2-го этапа
     endif
   elseif human->ishod == 98
     k := TIP_LU_G_CIT

@@ -1,11 +1,11 @@
-***** mo_serv.prg - сервисы и настройки
+** mo_serv.prg - сервисы и настройки
 #include "set.ch"
 #include "inkey.ch"
 #include "function.ch"
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 08.01.17
+** 08.01.17
 Function f_import(k)
 Static si1 := 1, sds := 1, ssp := 1
 Local mas_pmt, mas_msg, mas_fun, j
@@ -40,7 +40,7 @@ if k > 10
 endif
 return NIL
 
-***** 23.12.17
+** 23.12.17
 Function import_from_LIS()
 Local full_o79
 Private p_var_manager := "Read_from_LIS", cFileProtokol := "protokol"+stxt
@@ -63,11 +63,11 @@ if !empty(full_o79) .and. hb_FileExists(full_o79)
 endif
 return NIL
 
-***** 28.04.20
+** 28.04.20
 Function f1_impXML_from_LIS(name_file)
 Local buf := save_maxrow(), aerr := {}, arr, fl_exit := .f., fl := .f., i, j, t1, t2, s, s1
-if !hb_FileExists(dir_server+"mo_flis"+sdbf)
-  dbcreate(dir_server+"mo_flis", {; // Список принятых файлов из ЛИС
+if !hb_FileExists(dir_server + "mo_flis"+sdbf)
+  dbcreate(dir_server + "mo_flis", {; // Список принятых файлов из ЛИС
     {"KOD",         "N", 6,0},; // код;номер записи
     {"FNAME",       "C",50,0},; // имя файла
     {"DREAD",       "D", 8,0},; // дата чтения
@@ -79,7 +79,7 @@ if !hb_FileExists(dir_server+"mo_flis"+sdbf)
   })
 endif
 sname := StripPath(name_file)
-G_Use(dir_server+"mo_flis",,"FL")
+G_Use(dir_server + "mo_flis",,"FL")
 index on upper(fname) to tmp_fl
 find (padr(upper(sname),50))
 if found()
@@ -110,51 +110,51 @@ if fl .and. f_Esc_Enter("чтения файла из ЛИС")
   //
   t1 := seconds()
   @ maxrow(),0 say padl(sname,80) color "W/R"
-  R_Use(dir_exe+"_mo_mkb",cur_dir+"_mo_mkb","MKB_10")
+  R_Use(dir_exe+"_mo_mkb",cur_dir + "_mo_mkb","MKB_10")
   use_base("lusl")
   use_base("luslc")
   Use_base("uslugi")
-  R_Use(dir_exe+"_mo_prof",cur_dir+"_mo_prof","MOPROF")
-  R_Use(dir_server+"uslugi1",{dir_server+"uslugi1",;
-                              dir_server+"uslugi1s"},"USL1")
+  R_Use(dir_exe+"_mo_prof",cur_dir + "_mo_prof","MOPROF")
+  R_Use(dir_server + "uslugi1",{dir_server + "uslugi1",;
+                              dir_server + "uslugi1s"},"USL1")
   R_Use(dir_exe+"_mo_N012",,"N12")
-  G_Use(dir_server+"mo_onkco",dir_server+"mo_onkco","CO")
-  G_Use(dir_server+"mo_onksl",dir_server+"mo_onksl","SL")
-  G_Use(dir_server+"mo_onkdi",dir_server+"mo_onkdi","DIAG") // Диагностический блок
-  G_Use(dir_server+"human_u_",,"HU_")
-  index on padr(zf,30) to (cur_dir+"tmp_hu_") progress
+  G_Use(dir_server + "mo_onkco",dir_server + "mo_onkco","CO")
+  G_Use(dir_server + "mo_onksl",dir_server + "mo_onksl","SL")
+  G_Use(dir_server + "mo_onkdi",dir_server + "mo_onkdi","DIAG") // Диагностический блок
+  G_Use(dir_server + "human_u_",,"HU_")
+  index on padr(zf,30) to (cur_dir + "tmp_hu_") progress
   set order to 0
-  G_Use(dir_server+"human_u",{dir_server+"human_u",;
-                              dir_server+"human_uk",;
-                              dir_server+"human_ud",;
-                              dir_server+"human_uv",;
-                              dir_server+"human_ua"},"HU")
-  G_Use(dir_server+"human_",,"HUMAN_")
-  G_Use(dir_server+"human_2",,"HUMAN_2")
-  //index on str(pn3,10) to (cur_dir+"tmp_human2") progress
-  G_Use(dir_server+"human",{dir_server+"humank",;
-                            dir_server+"humankk",;
-                            dir_server+"humann",;
-                            dir_server+"humand",;
-                            dir_server+"humano",;
-                            dir_server+"humans"},"HUMAN")
-  G_Use(dir_server+"mo_pers",,"PERSO")
-  index on snils to (cur_dir+"tmp_pers")
-  set index to (cur_dir+"tmp_pers"),(dir_server+"mo_pers")
-  G_Use(dir_server+"mo_kfio",,"KFIO")
-  index on str(kod,7) to (cur_dir+"tmp_kfio")
-  G_Use(dir_server+"mo_kismo",,"KSN")
-  index on str(kod,7) to (cur_dir+"tmpkismo")
-  G_Use(dir_server+"mo_hismo",,"HSN")
-  index on str(kod,7) to (cur_dir+"tmphismo")
-  G_Use(dir_server+"kartote_",,"KART_")
-  G_Use(dir_server+"kartote2",,"KART2")
-  index on kod_AK to (cur_dir+"tmp_kart2") progress
-  G_Use(dir_server+"kartotek",{dir_server+"kartotek",;
-                               dir_server+"kartoten",;
-                               dir_server+"kartotep",;
-                               dir_server+"kartoteu",;
-                               dir_server+"kartotes"},"KART")
+  G_Use(dir_server + "human_u",{dir_server + "human_u",;
+                              dir_server + "human_uk",;
+                              dir_server + "human_ud",;
+                              dir_server + "human_uv",;
+                              dir_server + "human_ua"},"HU")
+  G_Use(dir_server + "human_",,"HUMAN_")
+  G_Use(dir_server + "human_2",,"HUMAN_2")
+  //index on str(pn3,10) to (cur_dir + "tmp_human2") progress
+  G_Use(dir_server + "human",{dir_server + "humank",;
+                            dir_server + "humankk",;
+                            dir_server + "humann",;
+                            dir_server + "humand",;
+                            dir_server + "humano",;
+                            dir_server + "humans"},"HUMAN")
+  G_Use(dir_server + "mo_pers",,"PERSO")
+  index on snils to (cur_dir + "tmp_pers")
+  set index to (cur_dir + "tmp_pers"),(dir_server + "mo_pers")
+  G_Use(dir_server + "mo_kfio",,"KFIO")
+  index on str(kod,7) to (cur_dir + "tmp_kfio")
+  G_Use(dir_server + "mo_kismo",,"KSN")
+  index on str(kod,7) to (cur_dir + "tmpkismo")
+  G_Use(dir_server + "mo_hismo",,"HSN")
+  index on str(kod,7) to (cur_dir + "tmphismo")
+  G_Use(dir_server + "kartote_",,"KART_")
+  G_Use(dir_server + "kartote2",,"KART2")
+  index on kod_AK to (cur_dir + "tmp_kart2") progress
+  G_Use(dir_server + "kartotek",{dir_server + "kartotek",;
+                               dir_server + "kartoten",;
+                               dir_server + "kartotep",;
+                               dir_server + "kartoteu",;
+                               dir_server + "kartotes"},"KART")
   Private such := 1, sotd := 1,; // код отделения "Лаборатория-ЛИС на Ангарском"
           sotd2 := 3 // код отделения "ЛИС в Краснооктябрьском р-не"
           //sotd4 := 4   // код отделения "ЛИС на Елецкой"
@@ -237,11 +237,11 @@ close databases
 rest_box(buf)
 return NIL
 
-***** 03.05.17
+** 03.05.17
 Function f1_import_from_LIS(name_file)
 Local buf := save_maxrow(), aerr := {}, arr, fl_exit, fl := .f., i, j, t1, t2, s, s1, iencode
-if !hb_FileExists(dir_server+"mo_flis"+sdbf)
-  dbcreate(dir_server+"mo_flis", {; // Список принятых файлов из ЛИС
+if !hb_FileExists(dir_server + "mo_flis"+sdbf)
+  dbcreate(dir_server + "mo_flis", {; // Список принятых файлов из ЛИС
     {"KOD",         "N", 6,0},; // код;номер записи
     {"FNAME",       "C",50,0},; // имя файла
     {"DREAD",       "D", 8,0},; // дата чтения
@@ -253,7 +253,7 @@ if !hb_FileExists(dir_server+"mo_flis"+sdbf)
   })
 endif
 sname := StripPath(name_file)
-G_Use(dir_server+"mo_flis",,"FL")
+G_Use(dir_server + "mo_flis",,"FL")
 index on upper(fname) to tmp_fl
 find (padr(upper(sname),50))
 if found()
@@ -283,40 +283,40 @@ if fl .and. f_Esc_Enter("чтения файла из ЛИС") .and. (iencode := f_define_LIS_co
   //
   t1 := seconds()
   @ maxrow(),0 say padl(sname,80) color "W/R"
-  R_Use(dir_exe+"_mo_mkb",cur_dir+"_mo_mkb","MKB_10")
+  R_Use(dir_exe+"_mo_mkb",cur_dir + "_mo_mkb","MKB_10")
   use_base("lusl")
   use_base("luslc")
   Use_base("uslugi")
-  R_Use(dir_exe+"_mo_prof",cur_dir+"_mo_prof","MOPROF")
-  R_Use(dir_server+"uslugi1",{dir_server+"uslugi1",;
-                              dir_server+"uslugi1s"},"USL1")
+  R_Use(dir_exe+"_mo_prof",cur_dir + "_mo_prof","MOPROF")
+  R_Use(dir_server + "uslugi1",{dir_server + "uslugi1",;
+                              dir_server + "uslugi1s"},"USL1")
   Use_base("human_u")
-  G_Use(dir_server+"human_",,"HUMAN_")
-  G_Use(dir_server+"human_2",,"HUMAN_2")
-  index on str(pn3,10) to (cur_dir+"tmp_human2")
-  G_Use(dir_server+"human",{dir_server+"humank",;
-                            dir_server+"humankk",;
-                            dir_server+"humann",;
-                            dir_server+"humand",;
-                            dir_server+"humano",;
-                            dir_server+"humans"},"HUMAN")
-  G_Use(dir_server+"mo_pers",,"PERSO")
-  index on snils to (cur_dir+"tmp_pers")
-  set index to (cur_dir+"tmp_pers"),(dir_server+"mo_pers")
-  G_Use(dir_server+"mo_kfio",,"KFIO")
-  index on str(kod,7) to (cur_dir+"tmp_kfio")
-  G_Use(dir_server+"mo_kismo",,"KSN")
-  index on str(kod,7) to (cur_dir+"tmpkismo")
-  G_Use(dir_server+"mo_hismo",,"HSN")
-  index on str(kod,7) to (cur_dir+"tmphismo")
-  G_Use(dir_server+"kartote_",,"KART_")
-  G_Use(dir_server+"kartote2",,"KART2")
-  index on kod_AK to (cur_dir+"tmp_kart2")
-  G_Use(dir_server+"kartotek",{dir_server+"kartotek",;
-                               dir_server+"kartoten",;
-                               dir_server+"kartotep",;
-                               dir_server+"kartoteu",;
-                               dir_server+"kartotes"},"KART")
+  G_Use(dir_server + "human_",,"HUMAN_")
+  G_Use(dir_server + "human_2",,"HUMAN_2")
+  index on str(pn3,10) to (cur_dir + "tmp_human2")
+  G_Use(dir_server + "human",{dir_server + "humank",;
+                            dir_server + "humankk",;
+                            dir_server + "humann",;
+                            dir_server + "humand",;
+                            dir_server + "humano",;
+                            dir_server + "humans"},"HUMAN")
+  G_Use(dir_server + "mo_pers",,"PERSO")
+  index on snils to (cur_dir + "tmp_pers")
+  set index to (cur_dir + "tmp_pers"),(dir_server + "mo_pers")
+  G_Use(dir_server + "mo_kfio",,"KFIO")
+  index on str(kod,7) to (cur_dir + "tmp_kfio")
+  G_Use(dir_server + "mo_kismo",,"KSN")
+  index on str(kod,7) to (cur_dir + "tmpkismo")
+  G_Use(dir_server + "mo_hismo",,"HSN")
+  index on str(kod,7) to (cur_dir + "tmphismo")
+  G_Use(dir_server + "kartote_",,"KART_")
+  G_Use(dir_server + "kartote2",,"KART2")
+  index on kod_AK to (cur_dir + "tmp_kart2")
+  G_Use(dir_server + "kartotek",{dir_server + "kartotek",;
+                               dir_server + "kartoten",;
+                               dir_server + "kartotep",;
+                               dir_server + "kartoteu",;
+                               dir_server + "kartotes"},"KART")
   Private such := 1, sotd := 1 // код отделения "Лаборатория-ЛИС на Ангарском"
   if left(fl->FNAME,4) == "LAB2"
     sotd := 3 // код отделения "ЛИС в Краснооктябрьском р-не"
@@ -408,7 +408,7 @@ close databases
 rest_box(buf)
 return NIL
 
-***** 02.01.17
+** 02.01.17
 Static Function Utf82Oem(s)
 return hb_Utf8ToStr(s,"RU866")
 
@@ -446,7 +446,7 @@ return hb_Utf8ToStr(s,"RU866")
 #define LISU_ID        8
 #define LISU_D_RSLT    9
 
-***** 28.04.20
+** 28.04.20
 Function f2_impXML_from_LIS(ta)
 Static arr[LISU_D_RSLT]
 Local i, j := 1, s
@@ -495,7 +495,7 @@ for i := 2 to len(ta)
 next j
 return f2_import_from_LIS(2)
 
-***** 28.04.20
+** 28.04.20
 Function f2_import_from_LIS(par)
 Static siu := 0, jsiu := 0
 Local i, j, k, fl, afio[3], mfio, aerr := {}, tmp_arr := {}, arr_unit, lvzros_reb, i_738, i_739
@@ -601,8 +601,8 @@ for j := 1 to len(arr_order)
       arr_order[j,LISS_KDATA] := max(arr_order[j,LISS_KDATA],arr_order[j,LISS_USL,i,LISU_DATE])
     endif
     arr_order[j,LISS_USL,i,LISU_SPEC] := int(val(arr_order[j,LISS_USL,i,LISU_SPEC]))
-    if ascan(glob_V004, {|x| x[2] == arr_order[j,LISS_USL,i,LISU_SPEC] }) == 0
-      arr_order[j,LISS_USL,i,LISU_SPEC] := 1107 // Клиническая лабораторная диагностика
+    if ascan(getV004(), {|x| x[2] == arr_order[j, LISS_USL, i, LISU_SPEC] }) == 0
+      arr_order[j, LISS_USL, i, LISU_SPEC] := 1107 // Клиническая лабораторная диагностика
     endif
     arr_order[j,LISS_USL,i,LISU_SNILS] := charrem("- ",arr_order[j,LISS_USL,i,LISU_SNILS])
     if empty(arr_order[j,LISS_USL,i,LISU_SNILS])
@@ -981,7 +981,7 @@ if siu > 500
 endif
 return aerr
 
-***** 28.04.20 записать онкологическую добавку по МГИ
+** 28.04.20 записать онкологическую добавку по МГИ
 Function f_LIS_mgi(mkod,ao)
 Local i, ar_N012 := {}
 select CO
@@ -1013,7 +1013,7 @@ if (i := ascan(glob_MGI,{|x| x[1] == ao[LISS_USL,1,LISU_SHIFR] })) > 0 // услуга
 endif
 return NIL
 
-***** 14.01.17 проверить отдельно фамилию, имя или отчество при импорте из ЛИС
+** 14.01.17 проверить отдельно фамилию, имя или отчество при импорте из ЛИС
 Function f_LIS_fio(s,n)
 Static arr_char := {" ","-",".","'",'"'} // разрешённые спецсимволы
 Local i, c, s1 := ""
@@ -1039,7 +1039,7 @@ for i := 1 to len(s)
 next
 return s1
 
-***** 15.01.17 проверить полис при импорте из ЛИС
+** 15.01.17 проверить полис при импорте из ЛИС
 Function f_LIS_polis()
 Local n
 if empty(arr_pac[LIS_OKATO]) .or. mo_nodigit(arr_pac[LIS_OKATO]) // пустое или не цифры
@@ -1085,7 +1085,7 @@ elseif arr_pac[LIS_VPOLIS] == 3
 endif
 return NIL
 
-***** 15.01.17 проверить паспорт при импорте из ЛИС
+** 15.01.17 проверить паспорт при импорте из ЛИС
 Function f_LIS_pasport()
 Local i, _sl, _sr
 arr_pac[LIS_VID_UD] := int(val(arr_pac[LIS_VID_UD]))
@@ -1131,7 +1131,7 @@ else
 endif
 return NIL
 
-***** 03.05.17
+** 03.05.17
 Function f_define_LIS_coding(name_file)
 Local arr_pac, a1[3], a2[3], fl[3], i, j := 0, ret := {.t.,.t.}
 //my_debug(,name_file)
@@ -1184,7 +1184,7 @@ else
 endif
 return j
 
-***** Импорт случаев ОМС (листов учёта) из других программ (по-старому)
+** Импорт случаев ОМС (листов учёта) из других программ (по-старому)
 Function import_sluch_OMS()
 Local full_dbf, name_dbf, i, s := "", fl := .t.
 Private arr_f := {"_lpu","_otd","_sluch","_sluch_u"}, ;
@@ -1226,9 +1226,7 @@ if !empty(full_dbf)
 endif
 return NIL
 
-*
-
-***** 27.10.14
+** 05.11.22
 Function f1_import_sluch_OMS()
 Local _lpu := {;
    {"KOD",     "N",  3, 0},; // ваш код учреждения
@@ -1350,37 +1348,37 @@ for i := 1 to len(arr_f)
 next
 if fl
   glob_podr := "" ; glob_otd_dep := 0 // пока без кодов подразделений
-  dbcreate(cur_dir+"tmp_ksg",{;
+  dbcreate(cur_dir + "tmp_ksg",{;
    {"REC"      ,   "N",     7,     0},;
    {"CODE_USL"   , "C",    10,     0},;
    {"TARIF"   ,    "N",    10,     2}})
-  use (cur_dir+"tmp_ksg") new
-  R_Use(dir_exe+"_okator",cur_dir+"_okatr","REGION")
-  R_Use(dir_exe+"_okatoo",cur_dir+"_okato","OBLAST")
-  R_Use(dir_exe+"_okatos",cur_dir+"_okats","SELO")
-  R_Use(dir_exe+"_mo_mkb",cur_dir+"_mo_mkb","MKB_10")
+  use (cur_dir + "tmp_ksg") new
+  R_Use(dir_exe+"_okator",cur_dir + "_okatr","REGION")
+  R_Use(dir_exe+"_okatoo",cur_dir + "_okato","OBLAST")
+  R_Use(dir_exe+"_okatos",cur_dir + "_okats","SELO")
+  R_Use(dir_exe+"_mo_mkb",cur_dir + "_mo_mkb","MKB_10")
   use_base("lusl")
   use_base("luslc")
   use_base("luslf")
-  G_Use(dir_server+"mo_uch",,"LPU")
-  G_Use(dir_server+"mo_otd",,"OTD")
+  G_Use(dir_server + "mo_uch",,"LPU")
+  G_Use(dir_server + "mo_otd",,"OTD")
   Use_base("mo_su")
   Use_base("uslugi")
-  R_Use(dir_server+"uslugi1",{dir_server+"uslugi1",;
-                              dir_server+"uslugi1s"},"USL1")
+  R_Use(dir_server + "uslugi1",{dir_server + "uslugi1",;
+                              dir_server + "uslugi1s"},"USL1")
   Use_base("mo_hu")
   Use_base("human_u")
   Use_base("human")
   //
-  R_Use(exe_dir+"_mo_smo",{cur_dir+"_mo_smo",cur_dir+"_mo_smo2"},"SMO")
+  R_Use(exe_dir+"_mo_smo",{cur_dir + "_mo_smo",cur_dir + "_mo_smo2"},"SMO")
   use (name_path+"_lpu") new alias ILPU
-  index on str(kod,3) to (cur_dir+"tmp_ilpu")
+  index on str(kod,3) to (cur_dir + "tmp_ilpu")
   use (name_path+"_otd") new alias IOTD
-  index on str(kod,3) to (cur_dir+"tmp_iotd")
+  index on str(kod,3) to (cur_dir + "tmp_iotd")
   use (name_path+"_sluch_u") new alias IHU
-  index on str(kod,10) to (cur_dir+"tmp_ihu")
+  index on str(kod,10) to (cur_dir + "tmp_ihu")
   use (name_path+"_sluch") new alias IHUMAN
-  index on str(kod,10) to (cur_dir+"tmp_ihum")
+  index on str(kod,10) to (cur_dir + "tmp_ihum")
   go top
   do while !eof()
     select MKB_10
@@ -1544,27 +1542,29 @@ if fl
       strfile("_SLUCH: запись № "+lstr(ihuman->(recno()))+;
               ", неверное значение поля PROFIL = "+lstr(ihuman->PROFIL)+hb_eol(),cFileProtokol,.t.)
     endif
-    if !empty(ihuman->USL_OK) .and. ascan(glob_V006,{|x| x[2]==ihuman->USL_OK})==0
+    if !empty(ihuman->USL_OK) .and. ascan(getV006(), {|x| x[2] == ihuman->USL_OK}) == 0
       fl := .f.
       strfile("_SLUCH: запись № "+lstr(ihuman->(recno()))+;
               ", неверное значение поля USL_OK = "+lstr(ihuman->USL_OK)+hb_eol(),cFileProtokol,.t.)
     endif
-    /*if !empty(ihuman->IDSP) .and. ascan(glob_V010,{|x| x[2]==ihuman->IDSP})==0
+    /*
+    if !empty(ihuman->IDSP) .and. ascan(getV010(),{|x| x[2]==ihuman->IDSP})==0
       fl := .f.
       strfile("_SLUCH: запись № "+lstr(ihuman->(recno()))+;
               ", неверное значение поля IDSP = "+lstr(ihuman->IDSP)+hb_eol(),cFileProtokol,.t.)
-    endif*/
-    if !empty(ihuman->RSLT) .and. ascan(glob_V009,{|x| x[2]==ihuman->RSLT})==0
-      fl := .f.
-      strfile("_SLUCH: запись № "+lstr(ihuman->(recno()))+;
-              ", неверное значение поля RSLT = "+lstr(ihuman->RSLT)+hb_eol(),cFileProtokol,.t.)
     endif
-    if !empty(ihuman->ISHOD) .and. ascan(glob_V012,{|x| x[2]==ihuman->ISHOD})==0
+    */
+    if !empty(ihuman->RSLT) .and. ascan(getV009(), {|x| x[2] == ihuman->RSLT}) == 0
+      fl := .f.
+      strfile('_SLUCH: запись № ' + lstr(ihuman->(recno())) + ;
+              ', неверное значение поля RSLT = ' + lstr(ihuman->RSLT) + hb_eol(), cFileProtokol, .t.)
+    endif
+    if !empty(ihuman->ISHOD) .and. ascan(getV012(), {|x| x[2] == ihuman->ISHOD})==0
       fl := .f.
       strfile("_SLUCH: запись № "+lstr(ihuman->(recno()))+;
               ", неверное значение поля ISHOD = "+lstr(ihuman->ISHOD)+hb_eol(),cFileProtokol,.t.)
     endif
-    if !empty(ihuman->PRVS) .and. ascan(glob_V004,{|x| x[2]==ihuman->PRVS})==0
+    if !empty(ihuman->PRVS) .and. ascan(getV004(), {|x| x[2] == ihuman->PRVS}) == 0
       fl := .f.
       strfile("_SLUCH: запись № "+lstr(ihuman->(recno()))+;
               ", неверное значение поля PRVS = "+lstr(ihuman->PRVS)+hb_eol(),cFileProtokol,.t.)
@@ -1716,10 +1716,10 @@ if fl
       strfile("_SLUCH_U: запись № "+lstr(ihu->(recno()))+;
               ", неверное значение поля PROFIL = "+lstr(ihu->PROFIL)+hb_eol(),cFileProtokol,.t.)
     endif
-    if !empty(ihu->PRVS) .and. ascan(glob_V004,{|x| x[2]==ihu->PRVS})==0
+    if !empty(ihu->PRVS) .and. ascan(getV004(), {|x| x[2] == ihu->PRVS}) == 0
       fl := .f.
-      strfile("_SLUCH_U: запись № "+lstr(ihu->(recno()))+;
-              ", неверное значение поля PRVS = "+lstr(ihu->PRVS)+hb_eol(),cFileProtokol,.t.)
+      strfile('_SLUCH_U: запись № ' + lstr(ihu->(recno())) + ;
+              ', неверное значение поля PRVS = ' + lstr(ihu->PRVS) + hb_eol(), cFileProtokol, .t.)
     endif
     if ihu->otd <= 0
       fl := .f.
@@ -1762,14 +1762,14 @@ if fl
     iz := ip := 0
     lOldDeleted := SET(_SET_DELETED, .F.)
     select TMP_KSG
-    index on str(rec,7) to (cur_dir+"tmp_ksg")
-    G_Use(dir_server+"mo_pers",dir_server+"mo_pers","PERSO")
-    G_Use(dir_server+"mo_kfio",,"KFIO")
-    index on str(kod,7) to (cur_dir+"tmp_kfio")
-    G_Use(dir_server+"mo_kismo",,"KSN")
-    index on str(kod,7) to (cur_dir+"tmpkismo")
-    G_Use(dir_server+"mo_hismo",,"HSN")
-    index on str(kod,7) to (cur_dir+"tmphismo")
+    index on str(rec,7) to (cur_dir + "tmp_ksg")
+    G_Use(dir_server + "mo_pers",dir_server + "mo_pers","PERSO")
+    G_Use(dir_server + "mo_kfio",,"KFIO")
+    index on str(kod,7) to (cur_dir + "tmp_kfio")
+    G_Use(dir_server + "mo_kismo",,"KSN")
+    index on str(kod,7) to (cur_dir + "tmpkismo")
+    G_Use(dir_server + "mo_hismo",,"HSN")
+    index on str(kod,7) to (cur_dir + "tmphismo")
     Use_base("kartotek")
     select IHUMAN
     go top
@@ -2395,7 +2395,7 @@ endif
 rest_box(buf)
 return fl
 
-*****
+**
 Function import_verify_okato(s)
 Local fl := .t.
 if right(s,9) == replicate('0',9)
@@ -2415,7 +2415,7 @@ return fl
 
 *
 
-***** Импорт данных из программы "Флюоротека" фирмы "ЧИП плюс"
+** Импорт данных из программы "Флюоротека" фирмы "ЧИП плюс"
 Function import_fluoroteka()
 Local full_zip, buf, k, str_sem := "Импорт флюоротеки"
 if G_SLock(str_sem)
@@ -2431,9 +2431,9 @@ if G_SLock(str_sem)
       hGauge := GaugeNew(,,,"Синхронизация флюоротеки с картотекой",.t.)
       GaugeDisplay( hGauge )
       Use (_tmp_dir1+"_reg.d") new alias RG
-      index on upper(fio)+dtos(data_r) to (cur_dir+"tmp_r") progress
-      G_Use(dir_server+"kartote_",,"KART_")
-      R_Use(dir_server+"kartotek",,"KART")
+      index on upper(fio)+dtos(data_r) to (cur_dir + "tmp_r") progress
+      G_Use(dir_server + "kartote_",,"KART_")
+      R_Use(dir_server + "kartotek",,"KART")
       go top
       do while !eof()
         GaugeUpdate( hGauge, recno()/lastrec() )
@@ -2489,7 +2489,7 @@ else
 endif
 return NIL
 
-***** 28.12.21
+** 07.11.22
 Function f_export(k)
 Static si1 := 1, sds := 1, ssp := 1
 Local mas_pmt, mas_msg, mas_fun, j
@@ -2535,17 +2535,17 @@ do case
             Svoenn_err := "В данный момент с военнослужащими работает другой пользователь"
     popup_prompt(T_ROW-len(mas_pmt)-3,T_COL+5,1,mas_pmt,mas_msg,mas_fun)
   case k == 12
-    if hb_user_curUser:IsAdmin()
-      str_sem := "Создание файла отправки в систему БАРС"
-      if G_SLock(str_sem)
-        full_naselenie_create_BARS()
-        G_SUnLock(str_sem)
-      else
-        func_error(4,err_slock)
-      endif
-    else
-      func_error(4,err_admin)
-    endif
+    // if hb_user_curUser:IsAdmin()
+    //   str_sem := "Создание файла отправки в систему БАРС"
+    //   if G_SLock(str_sem)
+    //     full_naselenie_create_BARS()
+    //     G_SUnLock(str_sem)
+    //   else
+    //     func_error(4,err_slock)
+    //   endif
+    // else
+    //   func_error(4,err_admin)
+    // endif
   case k == 13
     if hb_user_curUser:IsAdmin()
       str_sem := "Создание файла отправки в ОБЛЗДРАВ"
@@ -2594,12 +2594,12 @@ if k > 10
 endif
 return NIL
 
-***** 08.05.17 Создание файла для ЛИС из БД КДП2 (пациенты с кодом ЛИС и, возможно, изменёнными реквизитами)
+** 08.05.17 Создание файла для ЛИС из БД КДП2 (пациенты с кодом ЛИС и, возможно, изменёнными реквизитами)
 Function export_to_LIS()
 create_DBF_for_LIS(2)
 return NIL
 
-***** 20.11.16
+** 20.11.16
 Function create_file_export_military()
 if !hb_FileExists(dir_server+sbase+sdbf)
   adbf := {;
@@ -2616,7 +2616,7 @@ if !hb_FileExists(dir_server+sbase+sdbf)
 endif
 return NIL
 
-***** 20.11.16
+** 20.11.16
 Function export_military()
 Local adbf, buf := savescreen()
 if !G_SLock(Svoenn_sem)
@@ -2624,7 +2624,7 @@ if !G_SLock(Svoenn_sem)
 endif
 create_file_export_military()
 G_Use(dir_server+sbase,,"VOEN")
-index on dtos(dfile) to (cur_dir+"tmp_voen") DESCENDING
+index on dtos(dfile) to (cur_dir + "tmp_voen") DESCENDING
 go top
 if eof()
   keyboard chr(K_END)+chr(K_ENTER)
@@ -2637,7 +2637,7 @@ G_SUnLock(Svoenn_sem)
 restscreen(buf)
 return NIL
 
-***** 20.11.16
+** 20.11.16
 Function f1_export_military(oBrow)
 Local oColumn, ;
       blk := {|| iif(hb_fileExists(goal_dir+alltrim(voen->FNAME)+sxls), ;
@@ -2661,7 +2661,7 @@ oBrow:addColumn(oColumn)
 status_key("^<Esc>^ выход;  ^<F5>^ запись файла для ТФОМС;  ^<Del>^ удалить ещё не записанный файл")
 return NIL
 
-*****
+**
 Static Function f11_export_military()
 Local s := ""
 if !hb_fileExists(goal_dir+alltrim(voen->FNAME)+sxls)
@@ -2673,7 +2673,7 @@ else
 endif
 return padr(s,10)
 
-***** 20.11.16
+** 20.11.16
 Function f2_export_military(nKey,oBrow)
 Local ret := -1, s, buf := savescreen()
 do case
@@ -2729,7 +2729,7 @@ endcase
 restscreen(buf)
 return ret
 
-***** 20.11.16
+** 20.11.16
 Function VoenList2arr(sList)
 Local i, j, s, arr := {}, ar
 if !empty(sList)
@@ -2744,10 +2744,10 @@ if !empty(sList)
 endif
 return arr
 
-***** 20.11.16
+** 20.11.16
 Function f_create_military()
 Local fl := .f., k, buf24 := save_maxrow(), t_arr[BR_LEN], blk, arr := {}, arr_m
-if !myFileDeleted(cur_dir+"tmp"+sdbf)
+if !myFileDeleted(cur_dir + "tmp"+sdbf)
   return NIL
 endif
 if !G_SLock(Svoenn_sem)
@@ -2768,12 +2768,12 @@ if fl
   G_SUnLock(Svoenn_sem)
   return func_error(4,"Уже создан файл экспорта с датой "+full_date(sys_date)+"г.")
 endif
-dbcreate(cur_dir+"tmp",{{"kod","N",4,0},;
+dbcreate(cur_dir + "tmp",{{"kod","N",4,0},;
                         {"tip","N",1,0},;
                         {"name","C",30,0},;
                         {"is","L",1,0}})
-use (cur_dir+"tmp") new
-R_Use(dir_server+"komitet",,"KOM")
+use (cur_dir + "tmp") new
+R_Use(dir_server + "komitet",,"KOM")
 go top
 do while !eof()
   select TMP
@@ -2785,7 +2785,7 @@ do while !eof()
   select KOM
   skip
 enddo
-R_Use(dir_server+"str_komp",,"SK")
+R_Use(dir_server + "str_komp",,"SK")
 go top
 do while !eof()
   if !between(sk->tfoms,44,47)
@@ -2806,8 +2806,8 @@ if k == 0
   func_error(4,"В Вашей МО не работают с комитетами и прочими компаниями.")
 else
   close databases
-  use (cur_dir+"tmp") new
-  index on upper(name) to (cur_dir+"tmp")
+  use (cur_dir + "tmp") new
+  index on upper(name) to (cur_dir + "tmp")
   //
   t_arr[BR_TOP] := T_ROW
   t_arr[BR_BOTTOM] := maxrow()-2
@@ -2840,7 +2840,7 @@ if k == 0
   func_error(4,"Не выбрано ни одной компании")
 elseif (arr_m := year_month(T_ROW,T_COL+5)) != NIL
   mywait()
-  dbcreate(cur_dir+"tmp1",{;
+  dbcreate(cur_dir + "tmp1",{;
     {"KOD"      ,   "N",     7,     0},; // код человека по kartotek.dbf
     {"DATE_R"   ,   "D",     8,     0},; // дата рождения больного
     {"KOMU"     ,   "N",     1,     0},; // от 1 до 5
@@ -2851,12 +2851,12 @@ elseif (arr_m := year_month(T_ROW,T_COL+5)) != NIL
     {"FAM"      ,   "C",    40,     0},;
     {"IM"       ,   "C",    40,     0},;
     {"OT"       ,   "C",    40,     0}})
-  use (cur_dir+"tmp1") new
-  index on str(kod,7) to (cur_dir+"tmp1")
-  R_Use(dir_server+"mo_kfio",,"KFIO")
-  index on str(kod,7) to (cur_dir+"tmp_kfio")
-  R_Use(dir_server+"kartotek",,"KART")
-  R_Use(dir_server+"human",dir_server+"humand","HUMAN")
+  use (cur_dir + "tmp1") new
+  index on str(kod,7) to (cur_dir + "tmp1")
+  R_Use(dir_server + "mo_kfio",,"KFIO")
+  index on str(kod,7) to (cur_dir + "tmp_kfio")
+  R_Use(dir_server + "kartotek",,"KART")
+  R_Use(dir_server + "human",dir_server + "humand","HUMAN")
   set relation to kod_k into KART
   old := arr_m[5]
   dbseek(dtos(arr_m[5]),.t.)
@@ -2970,7 +2970,7 @@ G_SUnLock(Svoenn_sem)
 rest_box(buf24)
 return NIL
 
-***** 20.11.16
+** 20.11.16
 Function f1create_military(nKey,oBrow,regim)
 Local k := -1, rec, fl
 if regim == "edit"
@@ -2988,291 +2988,7 @@ if regim == "edit"
 endif
 return k
 
-***** 15.11.18 создать файл в БАРС
-Function full_naselenie_create_BARS()
-Local ii := 0, s, buf := savescreen(), fl, af := {}, arr_fio, ta, fl_polis, fl_pasport, tt
-Local mo_bars :=  {;
-   {"C_NAME",     "C",    160,      0},;
-   {"CARD_NUMB",  "C",     26,      0},;
-   {"SURNAME",    "C",     60,      0},;
-   {"FIRSTNAME",  "C",     60,      0},;
-   {"LASTNAME",   "C",     60,      0},;
-   {"BIRTHDATE",  "D",      8,      0},;
-   {"SEX",        "C",     10,      0},;
-   {"SNILS",      "C",     11,      0},;
-   {"OMS_TYPE",   "C",      1,      0},;
-   {"OMS_SER",    "C",     60,      0},;
-   {"OMS_NUM",    "C",     60,      0},;
-   {"OMS_AGCODE", "C",    250,      0},;
-   {"OMS_WHEN",   "D",      8,      0},;
-   {"OMS_BEGIN",  "D",      8,      0},;
-   {"OMS_END",    "D",      8,      0},;
-   {"DMS_TYPE",   "C",      1,      0},;
-   {"DMS_SER",    "C",     60,      0},;
-   {"DMS_NUM",    "C",     60,      0},;
-   {"DMS_AGCODE", "C",    250,      0},;
-   {"DMS_WHEN",   "D",      8,      0},;
-   {"DMS_BEGIN",  "D",      8,      0},;
-   {"DMS_END",    "D",      8,      0},;
-   {"REGLPUCOD",  "C",     20,      0},;
-   {"SITE_CODE",  "C",     20,      0},;
-   {"REGPURPCOD", "C",     20,      0},;
-   {"RS_BEGIN",   "D",      8,      0},;
-   {"RS_END",     "D",      8,      0},;
-   {"SOC_STATE",  "C",    250,      0},;
-   {"SOC_BEGIN",  "D",      8,      0},;
-   {"SOC_END",    "D",      8,      0},;
-   {"PHONE1",     "C",     60,      0},;
-   {"PHONE2",     "C",     60,      0},;
-   {"EMAIL",      "C",     60,      0},;
-   {"FAX",        "C",     60,      0},;
-   {"TELEX",      "C",     60,      0},;
-   {"CONT_BEGIN", "D",      8,      0},;
-   {"CONT_END",   "D",      8,      0},;
-   {"IS_MAIN",    "C",      1,      0},;
-   {"PD_TYPE",    "C",     60,      0},;
-   {"PD_SER",     "C",     60,      0},;
-   {"PD_NUMB",    "C",     60,      0},;
-   {"PD_WHEN",    "D",      8,      0},;
-   {"PD_WHO",     "C",    250,      0},;
-   {"CITIZEN",    "C",    250,      0},;
-   {"PD_BEGIN",   "D",      8,      0},;
-   {"PD_END",     "D",      8,      0},;
-   {"KLADR_CODE", "C",     20,      0},;
-   {"RAION",      "C",    250,      0},;
-   {"CITY",       "C",    250,      0},;
-   {"STREET",     "C",     60,      0},;
-   {"HOUSE",      "C",     11,      0},;
-   {"HOUSELIT",   "C",      1,      0},;
-   {"BLOCK",      "N",      5,      0},;
-   {"FLAT",       "N",      5,      0},;
-   {"FLATLIT",    "C",      1,      0},;
-   {"ADDR_INDEX", "C",     10,      0},;
-   {"ADDR_BEGIN", "D",      8,      0},;
-   {"ADDR_END",   "D",      8,      0},;
-   {"MANUAL_INP", "C",    250,      0},;
-   {"MARITAL",    "C",     60,      0},;
-   {"MAR_BEGIN",  "D",      8,      0},;
-   {"MAR_END",    "D",      8,      0},;
-   {"ADDR_MAIN",  "C",      1,      0},;
-   {"WORK_PLACE", "C",     40,      0},;
-   {"WORK_OKVED", "C",    250,      0},;
-   {"WORK_RAION", "C",    250,      0},;
-   {"WORK_DEP",   "C",    250,      0},;
-   {"JOBTITLE",   "C",    250,      0},;
-   {"WORK_HAND",  "C",    250,      0},;
-   {"WORK_BEGIN", "D",      8,      0},;
-   {"WORK_END",   "D",      8,      0},;
-   {"CATEGORY",   "C",    250,      0},;
-   {"CAT_SER",    "C",     60,      0},;
-   {"CAT_NUM",    "C",     60,      0},;
-   {"AC_DATE",    "D",      8,      0},;
-   {"CAT_BEGIN",  "D",      8,      0},;
-   {"CAT_END",    "D",      8,      0},;
-   {"INAB_NUM",   "C",     60,      0},;
-   {"INAB_TYPE",  "C",     60,      0},;
-   {"INAB_GRADE", "C",     60,      0},;
-   {"INAB_GROUP", "C",     60,      0},;
-   {"DISAB_GRAD", "C",     60,      0},;
-   {"INAB_BEGIN", "D",      8,      0},;
-   {"INAB_END",   "D",      8,      0},;
-   {"DEATHDATE",  "D",      8,      0},;
-   {"DEATHTIME",  "C",      5,      0},;
-   {"DEATH_DOC",  "C",     60,      0},;
-   {"DEATH_NUM",  "C",     60,      0},;
-   {"DEATH_DATE", "D",      8,      0},;
-   {"PRIMECH",    "C",    250,      0},;
-   {"REGTYPECOD", "C",     30,      0},;
-   {"REGCATCOD",  "C",     20,      0},;
-   {"REGDOCNUMB", "C",     15,      0},;
-   {"F_KLADR",    "C",     20,      0},;
-   {"F_RAION",    "C",    250,      0},;
-   {"F_CITY",     "C",    250,      0},;
-   {"F_STREET",   "C",     60,      0},;
-   {"F_HOUSE",    "C",     11,      0},;
-   {"F_HOUSELIT", "C",      1,      0},;
-   {"F_BLOCK",    "N",      5,      0},;
-   {"F_FLAT",     "N",      5,      0},;
-   {"F_FLATLIT",  "C",      1,      0},;
-   {"F_INDEX",    "C",     10,      0},;
-   {"F_BEGIN",    "D",      8,      0},;
-   {"F_END",      "D",      8,      0},;
-   {"F_MANL_INP", "C",    250,      0};
-  }
-if !f_Esc_Enter("создания файла для БАРСа",.t.)
-  return NIL
-endif
-ClrLine(maxrow(),color0)
-dbcreate(cur_dir+"bars",mo_bars)
-use (cur_dir+"bars") new
-hGauge := GaugeNew(,,,"Составление файла для БАРСа",.t.)
-GaugeDisplay( hGauge )
-curr := 0
-R_Use(dir_server+"s_kemvyd",,"VID")
-R_Use(exe_dir+"_mo_smo",cur_dir+"_mo_smo2","SMO")
-//index on smo to (cur_dir+sbase+'2')
-//G_Use(dir_server+"mo_krtr",,"KRTR")
-//index on str(kod,6) to (cur_dir+"tmp_krtr")
-//G_Use(dir_server+"mo_krtf",,"KRTF")
-//index on str(kod,6) to (cur_dir+"tmp_krtf")
-//G_Use(dir_server+"mo_krtp",,"KRTP")
-//index on str(reestr,6) to (cur_dir+"tmp_k")
-//R_Use(dir_server+"mo_kfio",cur_dir+"tmp_kfio","KFIO")
-R_Use_base("kartotek")
-set order to 0
-go top
-do while  !eof()
-  GaugeUpdate( hGauge, ++curr/lastrec() )
-  if kart->kod > 0
-    fl := .t.
-    if empty(kart->date_r)
-      fl := .f. // не заполнено поле "Дата рождения"
-    elseif kart->date_r >= sys_date
-      fl := .f. // дата рождения больше сегодняшней даты
-    elseif year(kart->date_r) < 1900
-      fl := .f. // дата рождения < 1900г.
-    endif
-    //a1[i] := hb_AnsiToOem(arr_pac[i])
-    //a2[i] := hb_OemToAnsi(a1[i])
-    if fl
-      select BARS
-      append blank
-      bars->C_NAME       := hb_OemToAnsi("Пациенты")
-      bars->CARD_NUMB    := lstr(kart->kod)
-      arr_fio := retFamImOt(1,.f.,.F.)
-      bars->SURNAME      := hb_OemToAnsi(arr_fio[1])
-      bars->FIRSTNAME    := hb_OemToAnsi(arr_fio[2])
-      bars->LASTNAME     := hb_OemToAnsi(arr_fio[3])
-      bars->BIRTHDATE    := kart->DATE_R
-      bars->SEX          := hb_OemToAnsi(iif(kart->pol=="М","Мужской","Женский"))
-      bars->SNILS        := kart->snils
-      bars->OMS_TYPE     := lstr(kart_->vpolis)
-      bars->OMS_SER      := kart_->spolis
-      bars->OMS_NUM      := kart_->npolis
-      select SMO
-      find (kart_->smo)
-      if found()
-        bars->OMS_AGCODE := hb_OemToAnsi(smo->name)   // наименование страховой
-      endif
-      bars->OMS_WHEN     := date()
-      bars->OMS_BEGIN    := date()
-      bars->OMS_END      := c4tod(kart->srok_polis)
-     // bars->DMS_TYPE",   "C",      1,      0},;
-     // bars->DMS_SER",    "C",     60,      0},;
-     // bars->DMS_NUM",    "C",     60,      0},;
-     // bars->DMS_AGCODE", "C",    250,      0},;
-     // bars->DMS_WHEN",   "D",      8,      0},;
-     // bars->DMS_BEGIN",  "D",      8,      0},;
-     // bars->DMS_END",    "D",      8,      0},;
-     // bars->REGLPUCOD",  "C",     20,      0},;
-     // bars->SITE_CODE",  "C",     20,      0},;
-     // bars->REGPURPCOD", "C",     20,      0},;
-     // bars->RS_BEGIN",   "D",      8,      0},;
-     // bars->RS_END",     "D",      8,      0},;
-     // bars->SOC_STATE",  "C",    250,      0},;
-     // bars->SOC_BEGIN",  "D",      8,      0},;
-     // bars->SOC_END",    "D",      8,      0},;
-      bars->PHONE1       := kart_->phone_h
-      bars->PHONE2       := kart_->phone_m
-     // bars->EMAIL",      "C",     60,      0},;
-     // bars->FAX",        "C",     60,      0},;
-     // bars->TELEX",      "C",     60,      0},;
-      bars->CONT_BEGIN   := date()
-     // bars->CONT_END",   "D",      8,      0},;
-      bars->IS_MAIN      := "1"
-
-      bars->PD_TYPE      := hb_OemToAnsi(inieditspr(A__MENUVERT, menu_vidud, kart_->vid_ud))// тип документа
-      bars->PD_SER       := kart_->ser_ud
-      bars->PD_NUMB      := kart_->nom_ud
-      bars->PD_WHEN      := kart_->kogdavyd
-      select VID
-      goto (kart_->kemvyd)
-      bars->PD_WHO       := hb_OemToAnsi(vid->name)
-     //bars->CITIZEN",    "C",    250,      0},;
-      bars->PD_BEGIN     := date()
-     //bars->PD_END",     "D",      8,      0},;
-     // bars->KLADR_CODE", "C",     20,      0},;
-      tt := ret_okato_Array(kart_->okatog,.T.)
-      bars->RAION        := hb_OemToAnsi(tt[2])
-      bars->CITY         := hb_OemToAnsi(tt[3])
-     // bars->STREET",     "C",     60,      0},;
-     // bars->HOUSE",      "C",     11,      0},;
-     // bars->HOUSELIT",   "C",      1,      0},;
-     // bars->BLOCK",      "N",      5,      0},;
-     // bars->FLAT",       "N",      5,      0},;
-     //bars->FLATLIT",    "C",      1,      0},;
-     //bars->ADDR_INDEX", "C",     10,      0},;
-      bars->ADDR_BEGIN   := date()
-     // bars->ADDR_END",   "D",      8,      0},;
-      bars->MANUAL_INP   := hb_OemToAnsi(kart->adres)
-     // bars->MARITAL",    "C",     60,      0},;
-     // bars->MAR_BEGIN",  "D",      8,      0},;
-     // bars->MAR_END",    "D",      8,      0},;
-      bars->ADDR_MAIN       := iif(kart->rab_nerab==0,lstr(1),"")
-     // bars->WORK_PLACE", "C",     40,      0},;
-     // bars->WORK_OKVED", "C",    250,      0},;
-     // bars->WORK_RAION", "C",    250,      0},;
-     // bars->WORK_DEP",   "C",    250,      0},;
-     // bars->JOBTITLE",   "C",    250,      0},;
-      if kart->rab_nerab==0
-        bars->WORK_HAND    := hb_OemToAnsi(kart->mr_dol)
-        bars->WORK_BEGIN   := date()
-      endif
-     // bars->WORK_END",   "D",      8,      0},;
-     // bars->CATEGORY",   "C",    250,      0},;
-     // bars->CAT_SER",    "C",     60,      0},;
-     // bars->CAT_NUM",    "C",     60,      0},;
-     // bars->AC_DATE",    "D",      8,      0},;
-     // bars->CAT_BEGIN",  "D",      8,      0},;
-     // bars->CAT_END",    "D",      8,      0},;
-     // bars->INAB_NUM",   "C",     60,      0},;
-     // bars->INAB_TYPE",  "C",     60,      0},;
-     // bars->INAB_GRADE", "C",     60,      0},;
-     // bars->INAB_GROUP", "C",     60,      0},;
-     // bars->DISAB_GRAD", "C",     60,      0},;
-     // bars->INAB_BEGIN", "D",      8,      0},;
-     // bars->INAB_END",   "D",      8,      0},;
-     // bars->DEATHDATE",  "D",      8,      0},;
-     // bars->DEATHTIME",  "C",      5,      0},;
-     // bars->DEATH_DOC",  "C",     60,      0},;
-     // bars->DEATH_NUM",  "C",     60,      0},;
-     // bars->DEATH_DATE", "D",      8,      0},;
-     // bars->PRIMECH",    "C",    250,      0},;
-     // bars->REGTYPECOD", "C",     30,      0},;
-     // bars->REGCATCOD",  "C",     20,      0},;
-     // bars->REGDOCNUMB", "C",     15,      0},;
-     // bars->F_KLADR",    "C",     20,      0},;
-     // bars->F_RAION",    "C",    250,      0},;
-     // bars->F_CITY",     "C",    250,      0},;
-     // bars->F_STREET",   "C",     60,      0},;
-     // bars->F_HOUSE",    "C",     11,      0},;
-     // bars->F_HOUSELIT", "C",      1,      0},;
-     // bars->F_BLOCK",    "N",      5,      0},;
-     // bars->F_FLAT",     "N",      5,      0},;
-     // bars->F_FLATLIT",  "C",      1,      0},;
-     // bars->F_INDEX",    "C",     10,      0},;
-     // bars->F_BEGIN",    "D",      8,      0},;
-     // bars->F_END",      "D",      8,      0},;
-     // bars->F_MANL_INP", "C",    250,      0};
-      if bars->(recno()) % 100 == 0
-        @ maxrow(),1 say lstr(bars->(recno())) color color0
-        if bars->(recno()) % 2000 == 0
-          Commit
-        endif
-      endif
-    endif
-  endif
-  select KART
-  skip
-enddo
-close databases
-CloseGauge(hGauge)
-n_message({"в каталоге "+upper(cur_dir)+" создан файл "+upper("bars"+sdbf),;
-           "для загрузки в систему БАРС."},,;
-           cColorStMsg,cColorStMsg,,,cColorSt2Msg)
-return NIL
-
-***** 14.07.19 создать файл счетов в Облздрав
+** 14.07.19 создать файл счетов в Облздрав
 Function create_schets_OBLSDRAV()
 Local arr_f, ar, hZip, i, cPassword, fl := .t., hGauge, s, y, cFile, buf := savescreen()
 f_message({"Ждите! Создаётся архив счетов",;
@@ -3288,8 +3004,8 @@ zip_file := charrepl(".",zip_file,"_")
 zip_file := charrepl("-",zip_file,"_")
 zip_file += szip
 arr_f := {}
-G_Use(dir_server+"schet_",,"SCHET_")
-index on dtos(schet_->dschet) to (cur_dir+"tmp_sch") ;
+G_Use(dir_server + "schet_",,"SCHET_")
+index on dtos(schet_->dschet) to (cur_dir + "tmp_sch") ;
       for schet_->nyear == 2018 .or. (schet_->nyear == 2019 .and. between(schet_->nmonth,1,6))
 go top
 do while !eof()
@@ -3338,7 +3054,7 @@ delete file (zip_file)
 restscreen(buf)
 return NIL
 
-***** 29.03.21 создать файл приписного населения в Облздрав
+** 29.03.21 создать файл приписного населения в Облздрав
 Function pripisnoe_naselenie_create_VOMIAC()
   local name_file := 'Пациенты старше 60 лет'
   local name_file_full := name_file + '.xlsx'
@@ -3357,7 +3073,7 @@ Function pripisnoe_naselenie_create_VOMIAC()
 
   return nil
 
-***** 16.11.18 создать файл приписного населения в Облздрав
+** 16.11.18 создать файл приписного населения в Облздрав
 Function pripisnoe_naselenie_create_OBLSDRAV()
 Local buf := savescreen(),  arr_fio, pr_date, name_file, name_zip
 Local mo_bars :=  {;
@@ -3391,21 +3107,21 @@ if !f_Esc_Enter("создания файла для ВОМИАЦ",.t.)
   return NIL
 endif
 ClrLine(maxrow(),color0)
-dbcreate(cur_dir+"tmpbars",mo_bars)
-use (cur_dir+"tmpbars") new alias BARS
+dbcreate(cur_dir + "tmpbars",mo_bars)
+use (cur_dir + "tmpbars") new alias BARS
 hGauge := GaugeNew(,,,"Составление файла для ВОМИАЦ",.t.)
 GaugeDisplay( hGauge )
 curr := 0
-R_Use(dir_server+"s_kemvyd",,"VID")
-R_Use(exe_dir+"_mo_smo",cur_dir+"_mo_smo2","SMO")
+R_Use(dir_server + "s_kemvyd",,"VID")
+R_Use(exe_dir+"_mo_smo",cur_dir + "_mo_smo2","SMO")
 //index on smo to (cur_dir+sbase+'2')
-//G_Use(dir_server+"mo_krtr",,"KRTR")
-//index on str(kod,6) to (cur_dir+"tmp_krtr")
-//G_Use(dir_server+"mo_krtf",,"KRTF")
-//index on str(kod,6) to (cur_dir+"tmp_krtf")
-//G_Use(dir_server+"mo_krtp",,"KRTP")
-//index on str(reestr,6) to (cur_dir+"tmp_k")
-//R_Use(dir_server+"mo_kfio",cur_dir+"tmp_kfio","KFIO")
+//G_Use(dir_server + "mo_krtr",,"KRTR")
+//index on str(kod,6) to (cur_dir + "tmp_krtr")
+//G_Use(dir_server + "mo_krtf",,"KRTF")
+//index on str(kod,6) to (cur_dir + "tmp_krtf")
+//G_Use(dir_server + "mo_krtp",,"KRTP")
+//index on str(reestr,6) to (cur_dir + "tmp_k")
+//R_Use(dir_server + "mo_kfio",cur_dir + "tmp_kfio","KFIO")
 R_Use_base("kartotek")
 set order to 0
 go top
@@ -3483,12 +3199,12 @@ CloseGauge(hGauge)
 //
 name_file := alltrim("ZLERPN2"+glob_MO[_MO_KOD_TFOMS]+dtos(date()))
 name_zip := name_file+szip
-copy file (cur_dir+"tmpbars"+sdbf) to (cur_dir+name_file+sdbf)
+copy file (cur_dir + "tmpbars"+sdbf) to (cur_dir+name_file+sdbf)
 //
 if hb_FileExists(name_file+sdbf)
   if chip_create_zipXML(name_zip,{name_file+sdbf},.t.)
     copy file (dir_server+dir_XML_MO+cslash+name_zip) to (cur_dir+name_zip)
-    n_message({"В каталоге "+cur_dir+" создан файл "+upper(name_zip),;
+    n_message({"В каталоге "+cur_dir + " создан файл "+upper(name_zip),;
                "c прикрепленным населением для отправки в ВОМИАЦ."},,;
                cColorSt2Msg,cColorStMsg,,,"G+/R")
     delete file (dir_server+dir_XML_MO+cslash+name_zip)
@@ -3498,7 +3214,7 @@ else
 endif
 return NIL
 
-***** Общие настройки каждой задачи
+** Общие настройки каждой задачи
 Function nastr_all(k,nTask)
 Static sk := 1, mas_pmt
 Local str_sem, mas_msg, mas_fun, j, n
@@ -3545,7 +3261,7 @@ return NIL
 
 *
 
-***** 09.12.18 Общие настройки каждой задачи
+** 09.12.18 Общие настройки каждой задачи
 Function f1nastr_all(nameTask,nTask)
 Local mm_tmp := {}, ctitle
 Local str_sem := "Редактирование общих настроек задачи "+lstr(nTask)
@@ -3823,9 +3539,9 @@ if G_SLock(str_sem)
                     NIL,;
                     ctod(""),NIL,;
                     "По какую дату (включительно) разрешается редактировать информацию"})
-      init_base(cur_dir+"tmp",,mm_tmp,0)
+      init_base(cur_dir + "tmp",,mm_tmp,0)
       f_mb_me_nsh(2013)
-      use (cur_dir+"tmp") new
+      use (cur_dir + "tmp") new
       append blank
       tmp->_okato    := okato_umolch
       tmp->a_smp_inp := mem_smp_input
@@ -3919,9 +3635,9 @@ if G_SLock(str_sem)
                     NIL,;
                     "",NIL,;
                     "Расширение прочих файлов шаблонов организации... (по <F5>)"})
-      init_base(cur_dir+"tmp",,mm_tmp,0)
-      R_Use(dir_server+"pp_nastr",,"MV")
-      use (cur_dir+"tmp") new
+      init_base(cur_dir + "tmp",,mm_tmp,0)
+      R_Use(dir_server + "pp_nastr",,"MV")
+      use (cur_dir + "tmp") new
       append blank
       tmp->IST_BOL   := mv->IST_BOL
       tmp->N_IST_BOL := mv->N_IST_BOL
@@ -3978,8 +3694,8 @@ if G_SLock(str_sem)
                     {|x|menu_reader(x,mm_kassa,A__MENUVERT)},;
                     0,{|x|inieditspr(A__MENUVERT,mm_kassa,x)},;
                     'Работа через кассовый аппарат:'})
-      init_base(cur_dir+"tmp",,mm_tmp,0)
-      use (cur_dir+"tmp") new
+      init_base(cur_dir + "tmp",,mm_tmp,0)
+      use (cur_dir + "tmp") new
       append blank
       tmp->anonim    := mem_anonim
       tmp->a_edit_s  := mem_edit_s
@@ -4012,8 +3728,8 @@ if G_SLock(str_sem)
                     1,{|x|inieditspr(A__MENUVERT,mm_da_net,x)},;
                     'Разрешается добавлять услуги в режиме "Открытие наряда"?'})
       aadd(mm_tmp, {"a_ortootd","N",3,0,NIL,;
-                    {|x|menu_reader(x,{dir_server+"mo_otd",,},A__POPUPEDIT)},;
-                    0,{|x|inieditspr(A__POPUPEDIT,dir_server+"mo_otd",x)},;
+                    {|x|menu_reader(x,{dir_server + "mo_otd",,},A__POPUPEDIT)},;
+                    0,{|x|inieditspr(A__POPUPEDIT,dir_server + "mo_otd",x)},;
                     'Отделение по умолчанию при вводе услуг'})
       aadd(mm_tmp, {"e_12","C",1,0,NIL,;
                     nil,;
@@ -4055,8 +3771,8 @@ if G_SLock(str_sem)
                     {|x|menu_reader(x,mm_kassa,A__MENUVERT)},;
                     0,{|x|inieditspr(A__MENUVERT,mm_kassa,x)},;
                     'Работа через кассовый аппарат:'})
-      init_base(cur_dir+"tmp",,mm_tmp,0)
-      use (cur_dir+"tmp") new
+      init_base(cur_dir + "tmp",,mm_tmp,0)
+      use (cur_dir + "tmp") new
       append blank
       tmp->ort_f39    := mem_ort_f39
       tmp->a_edit_s   := mem_edit_s
@@ -4075,7 +3791,7 @@ if G_SLock(str_sem)
       close databases
   endcase
   if f_edit_spr(A__EDIT,mm_tmp,ctitle,"g_use(cur_dir+'tmp',,,.t.,.t.)",0,1) > 0
-    use (cur_dir+"tmp") new
+    use (cur_dir + "tmp") new
     do case
       case nTask == 0
         mem_smp_input:= tmp->a_smp_inp
@@ -4131,7 +3847,7 @@ if G_SLock(str_sem)
         mem_methodinj := tmp->ls_method 
         Tools_Ini_OMS(2,0,0)
       case nTask == X_PPOKOJ //  Приёмный покой
-        G_Use(dir_server+"pp_nastr",,"MV")
+        G_Use(dir_server + "pp_nastr",,"MV")
         G_RLock(forever)
         mv->IST_BOL   := tmp->IST_BOL
         mv->N_IST_BOL := tmp->N_IST_BOL
@@ -4181,7 +3897,7 @@ return NIL
 
 *
 
-***** сделать копию tools.ini с сервера в локальный каталог с именем loctools.ini
+** сделать копию tools.ini с сервера в локальный каталог с именем loctools.ini
 Function copy_Tools_Ini()
 LOCAL i := 0, fl := .f., bSaveHandler
 if !hb_FileExists(tools_ini) // если ни разу не заходили в режим настроек
@@ -4214,7 +3930,7 @@ if (fl := Semaphor_Tools_Ini(1))
 endif
 return fl
 
-*****
+**
 Function Semaphor_Tools_Ini(k)
 Static sem_tools := "Semaphor_Tools"
 Local i := 0, buf, fl := .t.
@@ -4240,7 +3956,7 @@ return fl
 
 *
 
-***** 09.12.18
+** 09.12.18
 Function Tools_Ini_OMS(reg,k1,k2,fll)
 Static arr := {{"okato_umolch",  "C"},;
                {"mem_smp_input", "N"},;
@@ -4351,7 +4067,7 @@ return fl
 
 *
 
-*****
+**
 Function Tools_Ini_PP(reg,k1,k2,fll)
 Static arr := {{"pp_NOVOR",    "N"},;
                {"pp_KEM_NAPR", "C"},;
@@ -4387,7 +4103,7 @@ return fl
 
 *
 
-*****
+**
 Function Tools_Ini_Platn(reg,k1,k2,fll)
 Static arr := {{"mem_anonim", "N"},;
                {"mem_naprvr", "N"},;
@@ -4431,7 +4147,7 @@ return fl
 
 *
 
-*****
+**
 Function Tools_Ini_Orto(reg,k1,k2,fll)
 Static arr := {{"mem_ort_na", "C"},;
                {"mem_edit_s", "N"},;
@@ -4475,12 +4191,12 @@ return fl
 
 *
 
-***** настройки по вводу данных в каждой задаче
+** настройки по вводу данных в каждой задаче
 Function nastr_input(k,nTask)
 return NIL
 
 
-***** 01.12.16 настройка рабочего места
+** 01.12.16 настройка рабочего места
 Function nastr_rab_mesto()
 Static group_ini := "RAB_MESTO"
 Static mm_wdir := {{'в папку рабочего каталога "OwnChipArchiv"',0},;
@@ -4563,8 +4279,8 @@ if is_obmen_sds()
                 '==> для обработанных файлов',,;
                 {|| hb_user_curUser:IsAdmin() }})
 endif
-init_base(cur_dir+"tmp",,mm_tmp,0)
-use (cur_dir+"tmp") new
+init_base(cur_dir + "tmp",,mm_tmp,0)
+use (cur_dir + "tmp") new
 append blank
 tmp->sc_reader := sr
 tmp->base_copy := int(val(a2default(ar,"base_copy","1")))
@@ -4580,7 +4296,7 @@ if is_obmen_sds()
 endif
 close databases
 if f_edit_spr(A__EDIT,mm_tmp,"настройке рабочего места","g_use(cur_dir+'tmp',,,.t.,.t.)",0,1) > 0
-  use (cur_dir+"tmp") new
+  use (cur_dir + "tmp") new
   mm_tmp := {;
              {group_ini,"sc_reader",   tmp->sc_reader},;
              {group_ini,"base_copy",   tmp->base_copy},;
@@ -4603,7 +4319,7 @@ return NIL
 #define SW_HIDE 0
 #define SW_SHOWNORMAL 1
 
-*****
+**
 Function f_read_sc_reader()
 Static max_seconds := 20
 Static name_ini := "SCreader.ini", group_ini := "SCreader"
@@ -4656,7 +4372,7 @@ endif
 rest_box(buf)
 return .t.
 
-*****
+**
 Function f_read_sc_polis()
 Static max_seconds := 20
 Static name_ini := "SCreader.ini", group_ini := "SCreader"
@@ -4711,7 +4427,7 @@ if fl
               arr_epolis[_EP_IM],arr_epolis[_EP_NPOLIS])
     fl := func_error(4,iif(empty(se),smsg+".",se))
   else
-    R_Use(exe_dir+"_mo_smo",cur_dir+"_mo_smo3","_SMO")
+    R_Use(exe_dir+"_mo_smo",cur_dir + "_mo_smo3","_SMO")
     find (arr_epolis[_EP_OKATO]+padr(arr_epolis[_EP_OGRN],13))
     if found()
       arr_epolis[_EP_SMO] := _smo->smo
@@ -4730,7 +4446,7 @@ endif
 rest_box(buf)
 return fl
 
-***** 14.03.16
+** 14.03.16
 Function mo_read_el_polis(/*@*/k)
 Local fl := .f., rec := 0, mfio, mdate_r, arr, buf := savescreen()
 Private arr_epolis[_EP_LEN]
@@ -4740,22 +4456,22 @@ if f_read_sc_polis()
           alltrim(arr_epolis[_EP_IM])+" "+;
           alltrim(arr_epolis[_EP_OT])
   mdate_r := arr_epolis[_EP_DR]
-  R_Use(dir_server+"kartotek",dir_server+"kartotep","KART")
+  R_Use(dir_server + "kartotek",dir_server + "kartotep","KART")
   find ("1"+padr(arr_epolis[_EP_NPOLIS],17))
   if found()
     rec := recno()
   else
     mfio := padr(upper(mfio),50)
-    set index to (dir_server+"kartoten")
+    set index to (dir_server + "kartoten")
     find ("1"+mfio+dtos(mdate_r))
     if found()
       rec := recno()
     endif
   endif
   if rec > 0
-    R_Use(dir_server+"kartote2",,"KART2")
+    R_Use(dir_server + "kartote2",,"KART2")
     goto (rec)
-    R_Use(dir_server+"kartote_",,"KART_")
+    R_Use(dir_server + "kartote_",,"KART_")
     goto (rec)
     kartotek_to_screen(1,8)
     @ 0,0 to 9,79 color "G+/B"
@@ -4823,8 +4539,8 @@ if f_read_sc_polis()
     kart_->mesto_r  := arr_epolis[_EP_MR]
     kart_->KVARTAL_D := arr_epolis[_EP_OKATO]
     if newMEST_INOG == 9
-      G_Use(dir_server+"mo_kfio",,"KFIO")
-      index on str(kod,7) to (cur_dir+"tmp_kfio")
+      G_Use(dir_server + "mo_kfio",,"KFIO")
+      index on str(kod,7) to (cur_dir + "tmp_kfio")
       find (str(glob_kartotek,7))
       if found()
         G_RLock(forever)
@@ -4847,12 +4563,12 @@ return fl
 
 *
 
-***** 08.11.20 создание первичной БД из реестров
+** 08.11.20 создание первичной БД из реестров
 Function create_main_base_from_reestrs()
 Local full_zip, name_zip, i, k, n, fl := .t., buf := save_maxrow(),;
       arr_r := {}, arr_rsptk := {}, arr_s := {}, a_reestr := {},;
       oXmlDoc, cFile, cbukva
-R_Use(dir_server+"human")
+R_Use(dir_server + "human")
 k := lastrec()
 use
 Private p_lpu := 1, p_otd := 1 // для КДГБ
@@ -4892,7 +4608,7 @@ if !empty(full_zip)
       s := Name_Without_Ext(arr_r[i])
       if chip_copy_zipXML(arr_r[i],dir_server+dir_XML_MO)
         if extract_reestr(1,s,.t.,.f.)
-          use (cur_dir+"tmp1file") new alias TMP1
+          use (cur_dir + "tmp1file") new alias TMP1
           s1 := substr(afteratnum("_",Name_Without_Ext(StripPath(arr_r[i]))),5)
           n := int(val(s1))
           aadd(a_reestr,{arr_r[i],;       // 1
@@ -4919,7 +4635,7 @@ if !empty(full_zip)
     endif
   next
   // счета
-  dbcreate(cur_dir+"tmp_s_id",{{"KOD",    "N", 6,0},;
+  dbcreate(cur_dir + "tmp_s_id",{{"KOD",    "N", 6,0},;
                                {"NIDCASE","N",12,0},;
                                {"IDCASE", "C",12,0},;
                                {"ID_C",   "C",36,0}})
@@ -4930,7 +4646,7 @@ if !empty(full_zip)
       if chip_copy_zipXML(arr_s[i],dir_server+dir_XML_MO)
         k := len(pr_array_schet)+1
         if extract_reestr(k,s,.t.,.t.)
-          use (cur_dir+"tmp1file") new alias TMP1
+          use (cur_dir + "tmp1file") new alias TMP1
           s1 := substr(afteratnum("_",Name_Without_Ext(StripPath(arr_s[i]))),5)
           n := int(val(s1))
           cbukva := " "
@@ -4949,7 +4665,7 @@ if !empty(full_zip)
                                cbukva,;         //10 буква счёта
                                k})              //11 код счёта в массиве
           use
-          use (cur_dir+"tmp_s_id") new
+          use (cur_dir + "tmp_s_id") new
           append from tmp_r_t1
           use
         else
@@ -5028,7 +4744,7 @@ if !empty(full_zip)
         strfile(" "+print_array(a_reestr[i,7,k])+hb_eol(),cImportProtokol,.t.)
       next
     next
-    use (cur_dir+"tmp_s_id") new alias TS
+    use (cur_dir + "tmp_s_id") new alias TS
     dbeval({|| ts->NIDCASE := int(val(ts->IDCASE)) })
     use
     fl := f1_create_main_base_from_reestrs(a_reestr)
@@ -5041,7 +4757,7 @@ return NIL
 *
 
 
-***** 22.11.19
+** 22.11.19
 Function f1_create_main_base_from_reestrs(a_reestr)
 Local aerr, oXmlDoc, oXmlNode, oNode1, oNode2, cFile, old_sys_date,;
       i, j, n, s, arr_XML_info[7], fl := .t., arr_f, nCountWithErr
@@ -5097,8 +4813,8 @@ for i := 1 to len(a_reestr)
                 // запишем принимаемый файл (протокол ФЛК)
                 //chip_copy_zipXML(hb_OemToAnsi(full_zip),dir_server+dir_XML_TF)
                 chip_copy_zipXML(full_zip,dir_server+dir_XML_TF)
-                use (cur_dir+"tmp1file") new alias TMP1
-                G_Use(dir_server+"mo_xml",,"MO_XML")
+                use (cur_dir + "tmp1file") new alias TMP1
+                G_Use(dir_server + "mo_xml",,"MO_XML")
                 AddRecN()
                 mo_xml->KOD := recno()
                 mo_xml->FNAME := cReadFile
@@ -5153,7 +4869,7 @@ for i := 1 to len(a_reestr)
                 fl := .f. ; exit
               endif
               old_sys_date := sys_date
-              use (cur_dir+"tmp1file") new alias TMP1
+              use (cur_dir + "tmp1file") new alias TMP1
               sys_date := tmp1->_DSCHET
               use
               full_zip := a_reestr[i,7,j,1]
@@ -5170,7 +4886,7 @@ for i := 1 to len(a_reestr)
                 create_schet_from_XML(arr_XML_info,aerr,.f.,,cReadFile)
                 stat_msg("")
               elseif nCountWithErr > 0 // все пришли с ошибкой
-                G_Use(dir_server+"mo_xml",,"MO_XML")
+                G_Use(dir_server + "mo_xml",,"MO_XML")
                 goto (mXML_REESTR)
                 G_RLock(forever)
                 mo_xml->TWORK2 := hour_min(seconds())
@@ -5217,20 +4933,20 @@ return fl
 
 *
 
-***** 11.04.19
+** 11.04.19
 Function f2_create_main_base_from_reestrs(mname_xml)
 Local fl := .t., auch_otd, _tip_lu
-use (cur_dir+"tmp_r_t1") new alias T1
-use (cur_dir+"tmp_r_t2") new alias T2
-index on IDCASE to (cur_dir+"tmp_t2")
-use (cur_dir+"tmp_r_t3") new alias T3
-index on upper(ID_PAC) to (cur_dir+"tmp_t3")
-use (cur_dir+"tmp1file") new alias TMP1
-use (cur_dir+"tmp_r_t4") new alias T4
-index on IDCASE to (cur_dir+"tmp_t4")
+use (cur_dir + "tmp_r_t1") new alias T1
+use (cur_dir + "tmp_r_t2") new alias T2
+index on IDCASE to (cur_dir + "tmp_t2")
+use (cur_dir + "tmp_r_t3") new alias T3
+index on upper(ID_PAC) to (cur_dir + "tmp_t3")
+use (cur_dir + "tmp1file") new alias TMP1
+use (cur_dir + "tmp_r_t4") new alias T4
+index on IDCASE to (cur_dir + "tmp_t4")
 //
 mkod_reestr := 0
-G_Use(dir_server+"mo_rees",,"REES")
+G_Use(dir_server + "mo_rees",,"REES")
 if flag_is_lu
   Locate for NAME_XML == padr(mname_xml,26)
   if found()
@@ -5253,7 +4969,7 @@ rees->DATE_OUT := tmp1->_DSCHET
 rees->NUMB_OUT := 1
 mkod_reestr := recno()
 //
-G_Use(dir_server+"mo_xml",,"MO_XML")
+G_Use(dir_server + "mo_xml",,"MO_XML")
 AddRecN()
 mo_xml->KOD    := recno()
 mo_xml->FNAME  := mname_xml
@@ -5270,35 +4986,35 @@ Commit
 use_base("lusl")
 use_base("luslc")
 use_base("luslf")
-G_Use(dir_server+"mo_rhum",,"RHUM")
-G_Use(dir_server+"mo_pers",,"PERSO")
-index on snils+str(prvs_new,4) to (cur_dir+"tmppsnils")
-index on snils+str(prvs,9) to (cur_dir+"tmppsnils1")
-set index to (cur_dir+"tmppsnils"),(cur_dir+"tmppsnils1")
+G_Use(dir_server + "mo_rhum",,"RHUM")
+G_Use(dir_server + "mo_pers",,"PERSO")
+index on snils+str(prvs_new,4) to (cur_dir + "tmppsnils")
+index on snils+str(prvs,9) to (cur_dir + "tmppsnils1")
+set index to (cur_dir + "tmppsnils"),(cur_dir + "tmppsnils1")
 Use_base("mo_su")
 Use_base("uslugi")
-R_Use(dir_server+"uslugi1",{dir_server+"uslugi1",;
-                            dir_server+"uslugi1s"},"USL1")
-G_Use(dir_server+"mo_kfio",,"KFIO")
-index on str(kod,7) to (cur_dir+"tmp_kfio")
-G_Use(dir_server+"mo_kismo",,"KSN")
-index on str(kod,7) to (cur_dir+"tmpkismo")
-G_Use(dir_server+"mo_hismo",,"HSN")
-index on str(kod,7) to (cur_dir+"tmphismo")
-R_Use(dir_server+"mo_otd",,"OTD")
-index on str(tiplu,2)+str(kod_lpu,3) to (cur_dir+"tmpotd1") ;
+R_Use(dir_server + "uslugi1",{dir_server + "uslugi1",;
+                            dir_server + "uslugi1s"},"USL1")
+G_Use(dir_server + "mo_kfio",,"KFIO")
+index on str(kod,7) to (cur_dir + "tmp_kfio")
+G_Use(dir_server + "mo_kismo",,"KSN")
+index on str(kod,7) to (cur_dir + "tmpkismo")
+G_Use(dir_server + "mo_hismo",,"HSN")
+index on str(kod,7) to (cur_dir + "tmphismo")
+R_Use(dir_server + "mo_otd",,"OTD")
+index on str(tiplu,2)+str(kod_lpu,3) to (cur_dir + "tmpotd1") ;
       for empty(dend) .and. kod > 0 .and. kod_lpu > 0
-index on str(profil,3)+str(idump,2)+str(kod_lpu,3) to (cur_dir+"tmpotd2") ;
+index on str(profil,3)+str(idump,2)+str(kod_lpu,3) to (cur_dir + "tmpotd2") ;
       for empty(dend) .and. kod > 0 .and. kod_lpu > 0
-index on str(code_dep,3)+str(idump,2)+str(kod_lpu,3) to (cur_dir+"tmpotd3") ;
+index on str(code_dep,3)+str(idump,2)+str(kod_lpu,3) to (cur_dir + "tmpotd3") ;
       for empty(dend) .and. kod > 0 .and. kod_lpu > 0
-set index to (cur_dir+"tmpotd1"),(cur_dir+"tmpotd2"),(cur_dir+"tmpotd3")
+set index to (cur_dir + "tmpotd1"),(cur_dir + "tmpotd2"),(cur_dir + "tmpotd3")
 Use_base("kartotek")
 Use_base("mo_hu")
 Use_base("human_u")
 Use_base("human")
 select HUMAN_
-index on upper(ID_C) to (cur_dir+"tmp_h_")
+index on upper(ID_C) to (cur_dir + "tmp_h_")
 //
 stat_msg("Импорт из реестра "+mname_xml)
 pkol := 0
@@ -5354,14 +5070,14 @@ my_debug(,"|полис|"+rtrim(mpolis))
     else
       if empty(lkod_k)
         select KART
-        set order to 2 // index on if(kod>0,"1","0")+upper(fio)+dtos(date_r) to (dir_server+"kartoten") progress
+        set order to 2 // index on if(kod>0,"1","0")+upper(fio)+dtos(date_r) to (dir_server + "kartoten") progress
         find ("1"+upper(mfio)+dtos(mdate_r))
         if found()
           lkod_k := kart->kod
         endif
       endif
       select KART
-      set order to 1 // index on str(kod,7) to (dir_server+"kartotek") progress
+      set order to 1 // index on str(kod,7) to (dir_server + "kartotek") progress
       if empty(lkod_k)
         Add1Rec(7)
         lkod_k := kart->kod := recno()
@@ -5897,7 +5613,7 @@ return fl
 
 *
 
-***** 11.04.19 перезаписать лист учёта, если таковой уже есть в БД
+** 11.04.19 перезаписать лист учёта, если таковой уже есть в БД
 Function f3_create_main_base_from_reestrs()
 Local i, j, k, arr_hu, ta, arr_ne, fl
 select KART
@@ -6542,7 +6258,7 @@ return NIL
 
 *
 
-***** 10.04.19 поискать врача по СНИЛС и, м.б., по специальности
+** 10.04.19 поискать врача по СНИЛС и, м.б., по специальности
 Function ret_perso_with_tab_nom(lsnils,lprvs)
 Static aprvs
 Local i, j, lvrach := 0
@@ -6573,7 +6289,7 @@ return lvrach
 *
 
 
-***** 10.04.19 поискать отделение по типу л/у (и м.б.по профилю) (и м.б. по врачу)
+** 10.04.19 поискать отделение по типу л/у (и м.б.по профилю) (и м.б. по врачу)
 Static Function ret_otd_with_lu_prof(lpodr,lump,llu,lprof,lvrach)
 // lpodr  - код подразделения
 // lump   - условия оказания мед.помощи

@@ -1470,7 +1470,7 @@ close databases
 viewtext(n_file,,,,(sh > 80),,,reg_print)
 return NIL
 
-***** 22.08.22 многовариантный поиск
+** 05.11.22 многовариантный поиск
 Function s_mnog_poisk()
 Static mm_rak := {;
   {"все случаи",0},;
@@ -1532,12 +1532,12 @@ if mem_dom_aktiv == 1
 endif
 Private ssumma := 0, srak_s := 0, suet := 0, p_regim := 1, mm_company := {}, is_kategor2 := .f.,;
         mm_rslt := {}, mm_ishod := {}, rslt_umolch := -1, ishod_umolch := -1
-Private tmp_V006 := create_classif_FFOMS(0,"V006") // USL_OK
+Private tmp_V006 := create_classif_FFOMS(0, "V006") // USL_OK
 //Private tmp_V008 := create_classif_FFOMS(0,"V008") // VIDPOM
-Private tmp_V002 := create_classif_FFOMS(0,"V002") // PROFIL
+Private tmp_V002 := create_classif_FFOMS(0, "V002") // PROFIL
 //Private tmp_V010 := create_classif_FFOMS(0,"V010") // IDSP
-Private tmp_V009 := cut_glob_array(glob_V009,sys_date) // rslt
-Private tmp_V012 := cut_glob_array(glob_V012,sys_date) // ishod
+Private tmp_V009 := cut_glob_array(getV009(), sys_date) // rslt
+Private tmp_V012 := cut_glob_array(getV012(), sys_date) // ishod
 Private arr_doc := {"Дата рожд.",;
                     "Адрес",;
                     "Номер карты",; 
@@ -3963,7 +3963,7 @@ for i := 1 to 2
 next
 return NIL
 
-** 11.10.22 форма 14-МЕД (ОМС)
+** 22.10.22 форма 14-МЕД (ОМС)
 Function forma14_med_oms()
 Static group_ini := "f14_med_oms"
 Local begin_date, end_date, buf := savescreen(), arr_m, i, j, k, k1, k2,;
@@ -5415,13 +5415,13 @@ if !fl_exit .and. tmpf14->(lastrec()) > 0
   index on str(usl_ok,1)+str(schet_->nyear,4)+str(schet_->nmonth,2)+;
            str(human_->SCHET_ZAP,6) to (cur_dir + "tmpf14")
   for j := 1 to 5
-    find (str(j,1))
+    find (str(j, 1))
     if found()
-      add_string("")
+      add_string('')
       if j == 5
-        add_string(center("[ стоматология ]",sh))
+        add_string(center('[ стоматология ]', sh))
       else
-        add_string(center("["+inieditspr(A__MENUVERT,glob_V006,j)+"]",sh))
+        add_string(center('[' + inieditspr(A__MENUVERT, getV006(), j) + ']', sh))
       endif
       aeval(arr_title, {|x| add_string(x) } )
       do while tmpf14->usl_ok == j .and. !eof()
@@ -6850,7 +6850,7 @@ endif
 restscreen(buf)
 return NIL
 
-***** 11.10.18
+** 06.11.22
 Function f1_prikaz_848_miac()
 Local tfoms_pz[11], rec, vid_vp, vid1vp, lshifr1, _what_if := _init_if(), d2_year, ss[20]
 mywait()
@@ -6945,10 +6945,10 @@ for _tip := 1 to 5
   do while tmp->nn == 1 .and. tmp->tip==_tip .and. tmp->ist_fin==0 .and. !eof()
     if ascan(arr2, {|x| x[1] == tmp->spec}) == 0
       if _tip == 2 .and. m1dolpro == 0 .and. tmp->spec < 0
-        aadd(arr2,{tmp->spec,inieditspr(A__MENUVERT,glob_V015,abs(tmp->spec))})
+        aadd(arr2, {tmp->spec, inieditspr(A__MENUVERT, getV015(), abs(tmp->spec))})
       else
-        aadd(arr2,{tmp->spec,inieditspr(A__MENUVERT,;
-                                        iif(_tip==2.and.m1dolpro==0,glob_V004,glob_V002),;
+        aadd(arr2, {tmp->spec, inieditspr(A__MENUVERT, ;
+                                        iif(_tip == 2 .and. m1dolpro == 0, getV004(), glob_V002), ;
                                         tmp->spec)})
       endif
     endif
@@ -6961,11 +6961,11 @@ for _tip := 1 to 5
     do while tmp->nn == 0 .and. tmp->tip==_tip .and. tmp->ist_fin==_ist_fin .and. !eof()
       if ascan(arr, {|x| x[1] == tmp->spec}) == 0
         if _tip == 2 .and. m1dolpro == 0 .and. tmp->spec < 0
-          aadd(arr,{tmp->spec,inieditspr(A__MENUVERT,glob_V015,abs(tmp->spec))})
+          aadd(arr, {tmp->spec, inieditspr(A__MENUVERT, getV015(), abs(tmp->spec))})
         else
-          aadd(arr,{tmp->spec,inieditspr(A__MENUVERT,;
-                                        iif(_tip==2.and.m1dolpro==0,glob_V004,glob_V002),;
-                                        tmp->spec)})
+          aadd(arr, {tmp->spec, inieditspr(A__MENUVERT, ;
+            iif(_tip == 2 .and. m1dolpro == 0, getV004(), glob_V002), ;
+            tmp->spec)})
         endif
       endif
       skip
