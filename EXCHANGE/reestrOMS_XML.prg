@@ -6,7 +6,7 @@
 
 Static sadiag1 := {}
 
-** 13.11.22 создание XML-файлов реестра
+** 15.11.22 создание XML-файлов реестра
 Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
   //
@@ -373,7 +373,11 @@ Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
           endif
         endif
         mo_add_xml_stroke(oSLUCH,"USL_OK"  ,lstr(human_->USL_OK))
-        mo_add_xml_stroke(oSLUCH,"VIDPOM"  ,lstr(lvidpom))
+        if lTypeLUOnkoDisp
+          mo_add_xml_stroke(oSLUCH,"VIDPOM"  , '13')
+        else
+          mo_add_xml_stroke(oSLUCH,"VIDPOM"  , lstr(lvidpom))
+        endif
         if p_tip_reestr == 1
           lal := iif(kol_sl == 2, "human_3", "human_")
           mo_add_xml_stroke(oSLUCH,"ISHOD"   ,lstr(&lal.->ISHOD_NEW))
@@ -746,6 +750,14 @@ Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
           mo_add_xml_stroke(oCONS,"DT_CONS",date2xml(onkco->DT_CONS))
         endif
       endif
+      if  lTypeLUOnkoDisp
+        // заполним сведения о консилиумах для XML-документа
+        oCONS := oSL:Add( HXMLNode():New( "CONS" ) ) // консилиумов м.б.несколько (но у нас один)
+        mo_add_xml_stroke(oCONS,"PR_CONS",lstr(onkco->PR_CONS)) // N019
+        if !empty(onkco->DT_CONS)
+          mo_add_xml_stroke(oCONS,"DT_CONS",date2xml(onkco->DT_CONS))
+        endif
+      endif
       if human_->USL_OK == 3 .and. lTypeLUOnkoDisp  // постановка на учет онкобольного
         oONK_SL := oSL:Add( HXMLNode():New( "ONK_SL" ) )
         mo_add_xml_stroke(oONK_SL,"DS1_T",lstr(onksl->DS1_T))
@@ -925,7 +937,7 @@ Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
           sCOMENTSL := lstr(j)
         endif
       endif
-      if p_tip_reestr == 1 .and. !empty(sCOMENTSL) .and. ! lTypeLUOnkoDisp
+      if p_tip_reestr == 1 .and. !empty(sCOMENTSL) //.and. ! lTypeLUOnkoDisp
         mo_add_xml_stroke(oSL, 'COMENTSL', sCOMENTSL)
       endif
       if !is_zak_sl

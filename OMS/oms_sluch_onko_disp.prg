@@ -7,7 +7,7 @@
 ** согласно письму ТФОМС 09-30-376/1 от 09.11.22 года
 #define CHILD_EXIST .f. // учитывать несовершеннолетних или нет
 
-** 13.11.22 добавление или редактирование случая (листа учета)
+** 15.11.22 добавление или редактирование случая (листа учета)
 function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -101,7 +101,7 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
     {'общей врачебной практики', 57}}
 
   //
-  R_Use(dir_server + 'mo_onksl', dir_server + 'mo_onksl',  'SL')
+  R_Use(dir_server + 'mo_onksl', dir_server + 'mo_onksl', 'SL')
   R_Use(dir_server + 'human_2', , 'HUMAN_2')
   R_Use(dir_server + 'human_', , 'HUMAN_')
   R_Use(dir_server + 'human', , 'HUMAN')
@@ -599,6 +599,16 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
       endif
       sl->DS1_T := 4  // согласно письма ТФОМС
       sl->STAD := m1STAD
+
+      G_Use(dir_server + 'mo_onkco', dir_server + 'mo_onkco',  'CO')
+      find (str(mkod, 7))
+      if found()
+        G_RLock(forever)
+      else
+        AddRec(7)
+        co->kod := mkod
+      endif
+      co->PR_CONS := 0  // Отсутствует необходимость проведения консилиума
 
       write_work_oper(glob_task, OPER_LIST, iif(Loc_kod == 0, 1, 2), 1, count_edit)
       fl_write_sluch := .t.
