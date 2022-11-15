@@ -763,9 +763,9 @@ endif
 select (tmp_select)
 return fl // подтверждение, что услуга - ОМС
 
-***** 04.02.21 является ли данная услуга услугой ТФОМС
-Function is_usluga_TFOMS(lshifr,lshifr1,ldate_usl,;
-  /*@*/arr_uet,/*@*/lbukva,/*@*/lst,/*@*/lidsp,/*@*/lvidpoms)
+** 15.11.22 является ли данная услуга услугой ТФОМС
+Function is_usluga_TFOMS(lshifr, lshifr1, ldate_usl, ;
+  /*@*/arr_uet, /*@*/lbukva, /*@*/lst, /*@*/lidsp, /*@*/lvidpoms)
   Local _shifr, tmp_select := select(), fl := .f.
   local lal := 'lusl', y := WORK_YEAR
 
@@ -776,10 +776,12 @@ Function is_usluga_TFOMS(lshifr,lshifr1,ldate_usl,;
 
   lal := create_name_alias(lal, y)
 
-  lst := 0 ; lvidpoms := '' ; lbukva := ' '
+  lst := 0
+  lvidpoms := ''
+  lbukva := ' '
   _shifr := iif(empty(lshifr1), lshifr, lshifr1)
   dbSelectArea(lal)
-  find (padr(_shifr,10))
+  find (padr(_shifr, 10))
   if found() //.and. between_date(lusl->datebeg,lusl->dateend,ldate_usl)
     fl := .t.
     lbukva := alltrim(&lal.->bukva)
