@@ -177,6 +177,7 @@ mo_version.prg
 .\ref\dbMethodINJ.prg
 .\ref\dbUnitOfMeasurement.prg
 .\ref\setupFFOMSref.prg
+.\ref\refPRVS.prg
 
 .\oms\oms_func.prg
 .\oms\oms_double.prg

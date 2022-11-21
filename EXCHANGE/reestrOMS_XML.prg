@@ -1764,15 +1764,6 @@ Function f1_create2reestr19(_nyear,_nmonth)
   endif
   return NIL
   
-** 05.08.21 вернуть значение специальности из кодировки справочника V015 в кодировке справочника V021
-Function ret_prvs_V015toV021(lkod)
-  Local i, new_kod := 76 // по умолчанию - терапия
-
-  if (i := ascan(glob_arr_V015_V021, {|x| x[1] == lkod })) > 0
-    new_kod := glob_arr_V015_V021[i,2]
-  endif
-  return new_kod
-  
 ** 24.02.22
 Function create1reestr19(_recno,_nyear,_nmonth)
   Local buf := savescreen(), s, i, j, pole
