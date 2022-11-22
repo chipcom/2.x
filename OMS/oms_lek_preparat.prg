@@ -49,36 +49,6 @@ function check_oms_sluch_lek_pr(mkod_human)
 
   return retFl
 
-******* 01.02.22
-function between_diag(sDiag, bDiag, eDiag)
-  local fl := .f.
-  local l, l1, l2
-  local k, k1, k2, v, v1, v2
-
-  sDiag := alltrim(sDiag)
-  bDiag := alltrim(bDiag)
-  eDiag := alltrim(eDiag)
-  l := substr(sDiag, 1, 1)
-  l1 := substr(bDiag, 1, 1)
-  l2 := substr(eDiag, 1, 1)
-
-  if empty(sDiag) .or. ! between(l, l1, l2)
-    return fl
-  endif
-
-  k := rat(".", sDiag)
-  sDiag := substr(sDiag, 2, k - iif(k > 0, 2, 0))
-  k1 := rat(".", bDiag)
-  bDiag := substr(bDiag, 2)
-  k2 := rat(".", eDiag)
-  eDiag := substr(eDiag, 2)
-
-  v := int(val(sDiag))
-  v1 := int(val(bDiag))
-  v2 := int(val(eDiag))
-  fl := between(v, v1, v2)
-  return fl
-
 
 ******* 01.02.22
 function check_diag_pregant()

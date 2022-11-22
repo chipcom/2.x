@@ -383,7 +383,7 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
     @ j, 1 say 'Основной диагноз' get mkod_diag picture pic_diag ;
       reader {|o| MyGetReader(o, bg)} ;
       when when_diag() ;
-      valid {|| val1_10diag(.t., .f., .f., mn_data, mpol),  f_valid_onko_diag(mkod_diag, mdate_r, MN_DATA, CHILD_EXIST) }
+      valid {|| val1_10diag(.t., .t., .t., mn_data, mpol),  f_valid_onko_diag(mkod_diag, mdate_r, MN_DATA, CHILD_EXIST) }
 
     @ row(), col() + 1 say 'Стадия заболевания:' get mSTAD ;
       reader {|x|menu_reader(x, mm_N002, A__MENUVERT, , ,.f.)} ;
@@ -629,7 +629,7 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
 
   return nil
 
-** 13.11.22
+** 22.11.22
 function f_valid_onko_diag(diag, dob, date_post, children_acceptable)
   // diag - онкологический диагноз
   // dob - дата рождения
@@ -638,14 +638,21 @@ function f_valid_onko_diag(diag, dob, date_post, children_acceptable)
   // для взрослых один из рубрик C00-D09
   // для детей один из рубрик C00-D89
   local vozrast, fl := .f., diagBeg := 'C00', diagAdult := 'D09', diagChild := 'D89'
+  local mshifr
 
+  private mvar := upper(readvar())
+
+  mshifr := alltrim(&mvar)
   vozrast := count_years(dob, date_post)
   if vozrast < 18 .and. ! children_acceptable
     fl := .f.
     func_error(4, 'допустимо только для совершеннолетних пациентов!')
     return fl
   endif
-  if ! (fl := between_diag(diag, 'C00', iif(vozrast < 18, diagChild, diagAdult)))
+  fl := between_diag(mshifr, 'C00', 'C97') .or. ;
+        between_diag(mshifr, 'D00', iif(vozrast < 18, diagChild, diagAdult))
+
+  if ! fl
     func_error(4, 'Недопустимый диагноз, допустимый диапазон с ' + diagBeg + ' по ' + iif(vozrast < 18, diagChild, diagAdult) + '!')
     return fl
   endif

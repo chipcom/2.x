@@ -5,6 +5,36 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
+** 22.11.22
+function between_diag(sDiag, bDiag, eDiag)
+  local fl := .f.
+  local l, l1, l2
+  local k, k1, k2, v, v1, v2
+
+  sDiag := alltrim(sDiag)
+  bDiag := alltrim(bDiag)
+  eDiag := alltrim(eDiag)
+  l := substr(sDiag, 1, 1)
+  l1 := substr(bDiag, 1, 1)
+  l2 := substr(eDiag, 1, 1)
+
+  if empty(sDiag) .or. ! between(l, l1, l2)
+    return fl
+  endif
+
+  k := rat('.', sDiag)
+  sDiag := substr(sDiag, 2, k - iif(k > 0, 2, 0))
+  k1 := rat('.', bDiag)
+  bDiag := substr(bDiag, 2)
+  k2 := rat('.', eDiag)
+  eDiag := substr(eDiag, 2)
+
+  v := int(val(sDiag))
+  v1 := int(val(bDiag))
+  v2 := int(val(eDiag))
+  fl := between(v, v1, v2)
+  return fl
+
 ** 19.05.22 проверка ввода диагноза в случае ОМС
 Function val1_10diag(fl_search, fl_plus, fl_screen, ldate, lpol, lUp)
   // fl_search - искать введённый диагноз в справочнике
@@ -244,24 +274,25 @@ Function val1_10diag(fl_search, fl_plus, fl_screen, ldate, lpol, lUp)
   enddo
   return arr_t
   
-  ***** меняет русские буквы на латинские при вводе диагноза
-  Function get_mkb10(oGet,nKey,fl_F7)
+** меняет русские буквы на латинские при вводе диагноза
+Function get_mkb10(oGet, nKey, fl_F7)
   Local cKey, arr, i, mvar, mvar_old
-  if nKey == K_F7 .and. fl_F7 .and. !(yes_d_plus == "+-")
-    arr := {"MKOD_DIAG" ,;
-            "MKOD_DIAG2",;
-            "MKOD_DIAG3",;
-            "MKOD_DIAG4",;
-            "MSOPUT_B1" ,;
-            "MSOPUT_B2" ,;
-            "MSOPUT_B3" ,;
-            "MSOPUT_B4" ,;
-            "MKOD_DIAG0"}
+
+  if nKey == K_F7 .and. fl_F7 .and. !(yes_d_plus == '+-')
+    arr := {'MKOD_DIAG' ,;
+            'MKOD_DIAG2',;
+            'MKOD_DIAG3',;
+            'MKOD_DIAG4',;
+            'MSOPUT_B1' ,;
+            'MSOPUT_B2' ,;
+            'MSOPUT_B3' ,;
+            'MSOPUT_B4' ,;
+            'MKOD_DIAG0'}
     mvar := readvar()
-    if (i := ascan(arr,{|x| x==mvar})) > 1
-      mvar_old := arr[i-1]
+    if (i := ascan(arr, {|x| x == mvar})) > 1
+      mvar_old := arr[i - 1]
       if !empty(&mvar_old)
-        keyboard chr(K_HOME)+left(&mvar_old,5)
+        keyboard chr(K_HOME) + left(&mvar_old, 5)
       endif
     endif
   elseif between(nKey, 32, 255)
@@ -270,8 +301,8 @@ Function val1_10diag(fl_search, fl_plus, fl_screen, ldate, lpol, lUp)
     if oGet:pos < 4  // курсор в начале
       cKey := kb_rus_lat(ckey)  // если русская буква
     endif
-    if cKey == ","
-      cKey := "." // замениь запятую на точку (цифровая клавиатура под Windows)
+    if cKey == ','
+      cKey := '.' // замениь запятую на точку (цифровая клавиатура под Windows)
     endif
     **************
     IF ( SET( _SET_INSERT ) )
