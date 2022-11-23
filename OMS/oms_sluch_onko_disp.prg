@@ -629,7 +629,7 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
 
   return nil
 
-** 22.11.22
+** 23.11.22
 function f_valid_onko_diag(diag, dob, date_post, children_acceptable)
   // diag - онкологический диагноз
   // dob - дата рождения
@@ -639,6 +639,7 @@ function f_valid_onko_diag(diag, dob, date_post, children_acceptable)
   // для детей один из рубрик C00-D89
   local vozrast, fl := .f., diagBeg := 'C00', diagAdult := 'D09', diagChild := 'D89'
   local mshifr
+  local aDiag
 
   private mvar := upper(readvar())
 
@@ -649,8 +650,11 @@ function f_valid_onko_diag(diag, dob, date_post, children_acceptable)
     func_error(4, 'допустимо только для совершеннолетних пациентов!')
     return fl
   endif
-  fl := between_diag(mshifr, 'C00', 'C97') .or. ;
-        between_diag(mshifr, 'D00', iif(vozrast < 18, diagChild, diagAdult))
+  aDiag := { ;
+            {'C00', 'C97'}, ;
+            {'D00', iif(vozrast < 18, diagChild, diagAdult)} ;
+          }
+  fl := between_diag_array(mshifr, aDiag)
 
   if ! fl
     func_error(4, 'Недопустимый диагноз, допустимый диапазон с ' + diagBeg + ' по ' + iif(vozrast < 18, diagChild, diagAdult) + '!')

@@ -5,6 +5,21 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
+** 23.11.22
+function between_diag_array(sDiag, aDiag)
+  local fl := .f., i
+
+  if valtype(aDiag) != 'A'
+    return fl
+  endif
+  for i := 1 to len(aDiag)
+    fl := between_diag(sDiag, aDiag[i, 1], aDiag[i, 2])
+    if fl
+      return fl
+    endif
+  next
+  return fl
+
 ** 22.11.22
 function between_diag(sDiag, bDiag, eDiag)
   local fl := .f.
@@ -296,7 +311,7 @@ Function get_mkb10(oGet, nKey, fl_F7)
       endif
     endif
   elseif between(nKey, 32, 255)
-    cKey := CHR( nKey )
+    cKey := CHR(nKey)
     ************** найти ЛАТ букву, стоящую на клавиатуре там же, где и РУС
     if oGet:pos < 4  // курсор в начале
       cKey := kb_rus_lat(ckey)  // если русская буква
@@ -304,17 +319,20 @@ Function get_mkb10(oGet, nKey, fl_F7)
     if cKey == ','
       cKey := '.' // замениь запятую на точку (цифровая клавиатура под Windows)
     endif
+    if oGet:pos > 3 .and. (cKey == 'Ю' .or. cKey == 'ю')
+      cKey := '.' // замениь букву "Ю" на точку (цифровая клавиатура под Windows)
+    endif
     **************
-    IF ( SET( _SET_INSERT ) )
-      oGet:insert( cKey )
+    IF (SET(_SET_INSERT))
+      oGet:insert(cKey)
     ELSE
-      oGet:overstrike( cKey )
+      oGet:overstrike(cKey)
     ENDIF
-    IF ( oGet:typeOut )
-      IF ( SET( _SET_BELL ) )
+    IF (oGet:typeOut)
+      IF (SET(_SET_BELL))
         ?? CHR(7)
       ENDIF
-      IF ( !SET( _SET_CONFIRM ) )
+      IF (! SET(_SET_CONFIRM))
         oGet:exitState := GE_ENTER
       ENDIF
     ENDIF
