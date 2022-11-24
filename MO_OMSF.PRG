@@ -154,14 +154,6 @@ if not_lpu
 endif
 return NIL
 
-***** 25.01.16 вернуть код специальности из справочника V015 по коду из справочника V004
-Function ret_V004_V015(_PRVS)
-Local i, ret := 0
-if (i := ascan(glob_arr_V004_V015, {|x| x[1] == _PRVS })) > 0
-  ret := glob_arr_V004_V015[i,2]
-endif
-return ret
-
 ***** 23.12.12 является ли услуга приёмом на дому
 Function priem_na_domu(lshifr)
 Static arr := {"2.56.1","2.56.2","2.56.3","2.56.4","2.56.5","2.56.6",;
