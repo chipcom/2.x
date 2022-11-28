@@ -10,19 +10,19 @@ Function f_d_dializ()
   endif
   return .t.
   
-** 05.11.22 гемодиализ (1) и перитонеальный диализ (2)
-Function oms_sluch_dializ(par,Loc_kod,kod_kartotek)
+** 28.11.22 гемодиализ (1) и перитонеальный диализ (2)
+Function oms_sluch_dializ(par, Loc_kod, kod_kartotek)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
   Static SKOD_DIAG := 'N18.5', st_N_DATA, st_K_DATA, st_vrach := 0
-  Local top2 := {2,11}[par]
-  Local bg := {|o,k| get_MKB10(o,k,.t.) }, ;
+  Local top2 := {2, 11}[par]
+  Local bg := {|o, k| get_MKB10(o, k, .t.) }, ;
         buf := savescreen(), tmp_color := setcolor(), a_smert := {}, ;
         p_uch_doc := '@!', pic_diag := '@K@!', ;
         i, d, colget_menu := 'R/W', colgetImenu := 'R/BG', ;
         pos_read := 0, k_read := 0, count_edit := 0, arr_usl, fl, ss, ;
         tmp_help := chm_help_code, fl_write_sluch := .f.
-  Static kod_ksg := 'ds18.002', arr_lek := {;
+  Static kod_ksg := 'ds18.002', arr_lek := { ;
         {'A25.28.001.001', 'препараты железа'}, ;
         {'A25.28.001.002', 'антианемические препараты (стимуляторы эритропоэза)'}, ;
         {'A25.28.001.003', 'антипаратиреоидные препараты'}, ;
@@ -31,7 +31,9 @@ Function oms_sluch_dializ(par,Loc_kod,kod_kartotek)
         {'A25.28.001.006', 'препараты для лечения гиперкальциемии, гиперкалиемии и гиперфосфатемии'}}
   //
   Default st_N_DATA TO bom(sys_date), st_K_DATA TO eom(sys_date)
-  Private mkol_proc := 0, mkol_proc2 := 0, ;
+  Private ;
+    mkol_proc := 0, mkol_proc2 := 0, mkol_proc3 := 0, ; // кол-во процедур диализа разного вида
+    mkol_proc4 := 0, mkol_proc5 := 0, mkol_proc6 := 0, ;
     MFIO        := space(50)         , ; // Ф.И.О. больного
     mfam := space(40), mim := space(40), mot := space(40), ;
     mpol        := 'М'            , ;
@@ -48,13 +50,13 @@ Function oms_sluch_dializ(par,Loc_kod,kod_kartotek)
     m1KOMU := 0, MKOMU, M1STR_CRB := 0, ;
     mvidpolis, m1vidpolis := 1, ;
     msnils := space(11), ;
-    mokatog := padr(alltrim(okato_umolch),11, '0'), ;
+    mokatog := padr(alltrim(okato_umolch), 11, '0'), ;
     m1adres_reg := 1, madres_reg, ;
     rec_inogSMO := 0, ;
     mkol[6], musl_lek[6], ;
     mokato, m1okato := '', mismo, m1ismo := '', mnameismo := space(100)
-  afill(mkol,0)
-  afill(musl_lek,0)
+  afill(mkol, 0)
+  afill(musl_lek, 0)
   //
   Private mkod := Loc_kod, mtip_h, is_talon := .f., ;
           mkod_k := kod_kartotek, fl_kartotek := (kod_kartotek == 0), ;
@@ -95,9 +97,9 @@ Function oms_sluch_dializ(par,Loc_kod,kod_kartotek)
   endif
   aeval(getV012(), {|x| iif(x[5] == m1usl_ok, aadd(mm_ishod, x), nil) })
   //
-  R_Use(dir_server + 'kartote_',, 'KART_')
+  R_Use(dir_server + 'kartote_', , 'KART_')
   goto (kod_kartotek)
-  R_Use(dir_server + 'kartotek',, 'KART')
+  R_Use(dir_server + 'kartotek', , 'KART')
   goto (kod_kartotek)
   mFIO        := kart->FIO
   mpol        := kart->pol
@@ -112,7 +114,7 @@ Function oms_sluch_dializ(par,Loc_kod,kod_kartotek)
   if kart->MEST_INOG == 9 // т.е. отдельно занесены Ф.И.О.
     m1MEST_INOG := kart->MEST_INOG
   endif
-  m1vidpolis  := kart_->VPOLIS // вид полиса (от 1 до 3);1-старый,2-врем.,3-новый
+  m1vidpolis  := kart_->VPOLIS // вид полиса (от 1 до 3);1-старый, 2-врем., 3-новый
   mspolis     := kart_->SPOLIS // серия полиса
   mnpolis     := kart_->NPOLIS // номер полиса
   msmo        := kart_->SMO    // реестровый номер СМО
@@ -123,29 +125,29 @@ Function oms_sluch_dializ(par,Loc_kod,kod_kartotek)
   m1okato     := kart_->KVARTAL_D    // ОКАТО субъекта РФ территории страхования
   //
   arr := retFamImOt(1,.f.)
-  mfam := padr(arr[1],40)
-  mim  := padr(arr[2],40)
-  mot  := padr(arr[3],40)
+  mfam := padr(arr[1], 40)
+  mim  := padr(arr[2], 40)
+  mot  := padr(arr[3], 40)
   if alltrim(msmo) == '34'
     mnameismo := ret_inogSMO_name(1,@rec_inogSMO)
-  elseif left(msmo,2) == '34'
+  elseif left(msmo, 2) == '34'
     // Волгоградская область
   elseif !empty(msmo)
     m1ismo := msmo ; msmo := '34'
   endif
-  if eq_any(is_uchastok,1,3)
-    MUCH_DOC := padr(amb_kartaN(),10)
+  if eq_any(is_uchastok, 1, 3)
+    MUCH_DOC := padr(amb_kartaN(), 10)
   elseif mem_kodkrt == 2
-    MUCH_DOC := padr(lstr(mkod_k),10)
+    MUCH_DOC := padr(lstr(mkod_k), 10)
   endif
   close databases
   chm_help_code := 3002
   //
-  R_Use(dir_server + 'human_',, 'HUMAN_')
+  R_Use(dir_server + 'human_', , 'HUMAN_')
   R_Use(dir_server + 'human',dir_server + 'humankk', 'HUMAN')
   set relation to recno() into HUMAN_
   // проверка исхода = СМЕРТЬ
-  find (str(mkod_k,7))
+  find (str(mkod_k, 7))
   do while human->kod_k == mkod_k .and. !eof()
     if recno() != Loc_kod .and. is_death(human_->RSLT_NEW) .and. ;
                                  human_->oplata != 9 .and. human_->NOVOR == 0
@@ -156,15 +158,15 @@ Function oms_sluch_dializ(par,Loc_kod,kod_kartotek)
     endif
     skip
   enddo
-  if !(left(msmo,2) == '34') // не Волгоградская область
+  if !(left(msmo, 2) == '34') // не Волгоградская область
     m1ismo := msmo ; msmo := '34'
   endif
   if m1vrach > 0
-    R_Use(dir_server + 'mo_pers',, 'P2')
+    R_Use(dir_server + 'mo_pers', , 'P2')
     goto (m1vrach)
     MTAB_NOM := p2->tab_nom
     m1prvs := -ret_new_spec(p2->prvs,p2->prvs_new)
-    mvrach := padr(fam_i_o(p2->fio)+ ' '+ret_tmp_prvs(m1prvs),36)
+    mvrach := padr(fam_i_o(p2->fio)+ ' '+ret_tmp_prvs(m1prvs), 36)
   endif
   close databases
   fv_date_r( iif(Loc_kod>0,mn_data,) )
@@ -181,15 +183,15 @@ Function oms_sluch_dializ(par,Loc_kod,kod_kartotek)
   f_valid_komu(,-1)
   if m1komu == 0
     m1company := int(val(msmo))
-  elseif eq_any(m1komu,1,3)
+  elseif eq_any(m1komu, 1, 3)
     m1company := m1str_crb
   endif
   mcompany := inieditspr(A__MENUVERT, mm_company, m1company)
   if m1company == 34
     if !empty(mismo)
-      mcompany := padr(mismo,38)
+      mcompany := padr(mismo, 38)
     elseif !empty(mnameismo)
-      mcompany := padr(mnameismo,38)
+      mcompany := padr(mnameismo, 38)
     endif
   endif
   str_1 := iif(par==1, 'гемодиализа', 'перитонеального диализа')+ ' за месяц'
@@ -201,8 +203,8 @@ Function oms_sluch_dializ(par,Loc_kod,kod_kartotek)
   endif
   setcolor(color8)
   myclear(top2)
-  @ top2-1,0 say padc(str_1,80) color 'B/BG*'
-  Private gl_area := {1,0,maxrow()-1,maxcol(),0}
+  @ top2-1, 0 say padc(str_1, 80) color 'B/BG*'
+  Private gl_area := {1, 0,maxrow()-1,maxcol(), 0}
   status_key('^<Esc>^ - выход  ^<PgDn>^ - запись листов учёта')
   setcolor(cDataCGet)
   make_diagP(1)  // сделать 'шестизначные' диагнозы
@@ -211,36 +213,36 @@ Function oms_sluch_dializ(par,Loc_kod,kod_kartotek)
   do while .t.
     j := top2
     if yes_num_lu == 1 .and. Loc_kod > 0
-      @ j,50 say padl('Лист учета № '+lstr(Loc_kod),29) color color14
+      @ j, 50 say padl('Лист учета № '+lstr(Loc_kod), 29) color color14
     endif
     //
-    ++j; @ j,1 say 'Учреждение' get mlpu when .f. color cDataCSay
+    ++j; @ j, 1 say 'Учреждение' get mlpu when .f. color cDataCSay
          @ row(),col()+2 say 'Отделение' get motd when .f. color cDataCSay
     //
-    ++j; @ j,1 say 'ФИО' get mfio_kart ;
-         reader {|x| menu_reader(x,{{|k,r,c| get_fio_kart(k,r,c)}},A__FUNCTION,,,.f.)} ;
+    ++j; @ j, 1 say 'ФИО' get mfio_kart ;
+         reader {|x| menu_reader(x, {{|k,r,c| get_fio_kart(k,r,c)}},A__FUNCTION, , ,.f.)} ;
          valid {|g,o| update_get('mkomu'),update_get('mcompany') }
     //
-    ++j; @ j,1 say 'Принадлежность счёта' get mkomu ;
-               reader {|x|menu_reader(x,mm_komu,A__MENUVERT,,,.f.)} ;
+    ++j; @ j, 1 say 'Принадлежность счёта' get mkomu ;
+               reader {|x|menu_reader(x,mm_komu,A__MENUVERT, , ,.f.)} ;
                valid {|g,o| f_valid_komu(g,o) } ;
                color colget_menu
          @ row(),col()+1 say '==>' get mcompany ;
-             reader {|x|menu_reader(x,mm_company,A__MENUVERT,,,.f.)} ;
+             reader {|x|menu_reader(x,mm_company,A__MENUVERT, , ,.f.)} ;
              when diag_screen(2) .and. m1komu < 5 ;
-             valid {|g| func_valid_ismo(g,m1komu,38) }
+             valid {|g| func_valid_ismo(g,m1komu, 38) }
     //
-    ++j; @ j,1 say 'Полис ОМС: серия' get mspolis when m1komu == 0
+    ++j; @ j, 1 say 'Полис ОМС: серия' get mspolis when m1komu == 0
          @ row(),col()+3 say 'номер'  get mnpolis when m1komu == 0
          @ row(),col()+3 say 'вид'    get mvidpolis ;
-                      reader {|x|menu_reader(x,mm_vid_polis,A__MENUVERT,,,.f.)} ;
+                      reader {|x|menu_reader(x,mm_vid_polis,A__MENUVERT, , ,.f.)} ;
                       when diag_screen(2) .and. m1komu == 0 ;
                       valid func_valid_polis(m1vidpolis,mspolis,mnpolis)
     //
-    ++j; @ j,1 say 'Основной диагноз' get mkod_diag picture pic_diag when .f. //reader {|o|MyGetReader(o,bg)} when when_diag() valid val1_10diag(.t.,.t.,.t.,mn_data,iif(m1novor==0,mpol,mpol2))
+    ++j; @ j, 1 say 'Основной диагноз' get mkod_diag picture pic_diag when .f. //reader {|o|MyGetReader(o,bg)} when when_diag() valid val1_10diag(.t.,.t.,.t.,mn_data,iif(m1novor==0,mpol,mpol2))
          @ row(),col() say ', соп.диагноз' get mkod_diag2 picture pic_diag reader {|o|MyGetReader(o,bg)} when when_diag() valid val1_10diag(.t.,.t.,.t.,mn_data,iif(m1novor==0,mpol,mpol2))
     //
-    ++j; @ j,1 say '№ амб.карты' get much_doc picture '@!' ;
+    ++j; @ j, 1 say '№ амб.карты' get much_doc picture '@!' ;
                when !(is_uchastok == 1 .and. is_task(X_REGIST)) ;
                      .or. mem_edit_ist==2
                //   !(    У23/12356     и есть 'Регистратура')
@@ -248,35 +250,39 @@ Function oms_sluch_dializ(par,Loc_kod,kod_kartotek)
                valid {|g| v_kart_vrach(g,.t.) } when diag_screen(2)
          @ row(),col()+1 get mvrach when .f. color color14
     //
-    ++j; @ j,1 say 'Диализ проводился с' get mn_data valid {|g| f_d_dializ()}
+    ++j; @ j, 1 say 'Диализ проводился с' get mn_data valid {|g| f_d_dializ()}
          @ row(),col()+1 say            'по' get mk_data valid {|g| f_d_dializ()}
     //
     if par == 1
-      ++j; @ j,1 say 'Количество процедур лекарственной терапии:'
-     for i := 1 to 6
-      ++j; @ j,2 say arr_lek[i,1] get mkol[i] pict '99'
-           @ j,col()+1 say arr_lek[i,2]
-     next
-      ++j; @ j,1 say 'Количество НИЗКОпоточных процедур' get mkol_proc pict '99'
-      ++j; @ j,1 say 'Количество ВЫСОКОпоточных процедур' get mkol_proc2 pict '99'
+      @ ++j, 1 say 'Количество процедур лекарственной терапии:'
+      for i := 1 to 6
+        @ ++j, 2 say arr_lek[i, 1] get mkol[i] pict '99'
+        @ j, col() + 1 say arr_lek[i, 2]
+      next
+      @ ++j, 1 say 'Количество НИЗКОпоточных процедур' get mkol_proc pict '99'
+      @ ++j, 1 say 'Количество ВЫСОКОпоточных процедур' get mkol_proc2 pict '99'
+      @ ++j, 1 say 'Количество перитонеальных диализов при нарушении ультрафильтрации (А18.30.001.003)' get mkol_proc3 pict '99'
+      @ ++j, 1 say 'Количество дней обмена перитонеального диализа (A18.30.001)' get mkol_proc4 pict '99'
+      @ ++j, 1 say 'Количество перитонеальных диализов с использованием автоматизированных технологий (А18.30.001.002)' get mkol_proc5 pict '99'
+      @ ++j, 1 say 'Количество перитонеальных диализов при нарушении ультрафильтрации (А18.30.001.003)' get mkol_proc6 pict '99'
     endif
-    ++j; @ j,1 say 'Результат обращения' get mrslt ;
-             reader {|x|menu_reader(x,mm_rslt,A__MENUVERT,,,.f.)} ;
+    @ ++j, 1 say 'Результат обращения' get mrslt ;
+             reader {|x|menu_reader(x,mm_rslt,A__MENUVERT, , ,.f.)} ;
              valid {|g,o| f_valid_rslt(g,o) }
     //
-    ++j; @ j,1 say 'Исход заболевания' get mishod ;
-             reader {|x|menu_reader(x,mm_ishod,A__MENUVERT,,,.f.)}
+    @ ++j, 1 say 'Исход заболевания' get mishod ;
+             reader {|x|menu_reader(x, mm_ishod, A__MENUVERT, , ,.f.)}
     if !empty(a_smert)
-      n_message(a_smert,, 'GR+/R', 'W+/R',,, 'G+/R')
+      n_message(a_smert, , 'GR+/R', 'W+/R', , , 'G+/R')
     endif
     if pos_read > 0 .and. lower(GetList[pos_read]:name) == 'mishod'
       --pos_read
     endif
-    count_edit := myread(,@pos_read,++k_read)
+    count_edit := myread(, @pos_read, ++k_read)
     diag_screen(2)
-    k := f_alert({padc('Выберите действие',60, '.')}, ;
+    k := f_alert({padc('Выберите действие', 60, '.')}, ;
                  {' Выход без записи ', ' Запись ', ' Возврат в редактирование '}, ;
-                 iif(lastkey()==K_ESC,1,2), 'W+/N', 'N+/N',maxrow()-2,, 'W+/N,N/BG' )
+                 iif(lastkey()==K_ESC, 1, 2), 'W+/N', 'N+/N', maxrow() - 2, , 'W+/N,N/BG' )
     if k == 3
       loop
     elseif k == 2
@@ -295,17 +301,17 @@ Function oms_sluch_dializ(par,Loc_kod,kod_kartotek)
         func_error(4, 'Дата окончания меньше даты начала процедур.')
         loop
       endif
-      if !(left(dtos(mn_data),6) == left(dtos(mk_data),6))
+      if !(left(dtos(mn_data), 6) == left(dtos(mk_data), 6))
         func_error(4, 'Даты начала и окончания процедур не в одном отчётном месяце.')
         loop
       endif
       ldnej := mk_data - mn_data + 1
       vlek := vdial := 0
       if par == 1
-        if empty(vdial := mkol_proc + mkol_proc2)
+        if empty(vdial := mkol_proc + mkol_proc2 + mkol_proc3 + mkol_proc4 + mkol_proc5 + mkol_proc6)
           func_error(4, 'Количество процедур гемодиализа равно нулю')
           loop
-        elseif mkol_proc + mkol_proc2 > ldnej
+        elseif mkol_proc + mkol_proc2 + mkol_proc3 + mkol_proc4 + mkol_proc5 + mkol_proc6 > ldnej
           func_error(4, 'Количество процедур гемодиализа больше длительности лечения')
           loop
         endif
@@ -323,7 +329,7 @@ Function oms_sluch_dializ(par,Loc_kod,kod_kartotek)
           endif
         endif
       endif
-      if empty(CHARREPL('0',much_doc,space(10)))
+      if empty(CHARREPL('0', much_doc, space(10)))
         func_error(4, 'Не заполнен номер амбулаторной карты')
         loop
       endif
@@ -332,11 +338,14 @@ Function oms_sluch_dializ(par,Loc_kod,kod_kartotek)
         loop
       endif
       if m1komu < 5 .and. empty(m1company)
-        if m1komu == 0     ; s := 'СМО'
-        elseif m1komu == 1 ; s := 'компании'
-        else               ; s := 'комитета/МО'
+        if m1komu == 0
+          s := 'СМО'
+        elseif m1komu == 1
+          s := 'компании'
+        else
+          s := 'комитета/МО'
         endif
-        func_error(4, 'Не заполнено наименование '+s)
+        func_error(4, 'Не заполнено наименование ' + s)
         loop
       endif
       if m1komu == 0 .and. empty(mnpolis)
@@ -352,44 +361,56 @@ Function oms_sluch_dializ(par,Loc_kod,kod_kartotek)
       arr_usl := {}
       if par == 1
         if vlek > 0
-          aadd(arr_usl,{'55.1.1',0,0,iif(vlek > vdial, vdial, vlek)})
+          aadd(arr_usl, {'55.1.1', 0, 0, iif(vlek > vdial, vdial, vlek)})
         endif
         if mkol_proc > 0
-          aadd(arr_usl,{'60.3.9',0,0,mkol_proc})
+          aadd(arr_usl, {'60.3.9', 0, 0, mkol_proc})
         endif
         if mkol_proc2 > 0
-          aadd(arr_usl,{'60.3.10',0,0,mkol_proc2})
+          aadd(arr_usl, {'60.3.10', 0, 0, mkol_proc2})
+        endif
+        if mkol_proc3 > 0
+          aadd(arr_usl, {'60.3.13', 0, 0, mkol_proc3})
+        endif
+        if mkol_proc4 > 0
+          aadd(arr_usl, {'60.3.14', 0, 0, mkol_proc4})
+        endif
+        if mkol_proc5 > 0
+          aadd(arr_usl, {'60.3.15', 0, 0, mkol_proc5})
+        endif
+        if mkol_proc6 > 0
+          aadd(arr_usl, {'60.3.16', 0, 0, mkol_proc6})
         endif
       else
-        aadd(arr_usl,{'60.3.1',0,0,ldnej})
+        aadd(arr_usl, {'60.3.1', 0, 0, ldnej})
       endif
       fv_date_r(mn_data) // переопределение M1VZROS_REB
       Use_base('lusl')
       Use_base('luslc')
       Use_base('uslugi')
-      R_Use(dir_server + 'uslugi1',{dir_server + 'uslugi1', ;
+      R_Use(dir_server + 'uslugi1', {dir_server + 'uslugi1', ;
                                   dir_server + 'uslugi1s'}, 'USL1')
       glob_podr := '' ; glob_otd_dep := 0 ; fl := .t.
       for i := 1 to len(arr_usl)
-        arr_usl[i,2] := foundOurUsluga(arr_usl[i,1],mk_data,m1PROFIL,M1VZROS_REB,@arr_usl[i,3])
-        if empty(arr_usl[i,2])
-          fl := func_error(4, 'Цена на услугу '+arr_usl[i,1]+ ' отсутствует в справочнике ТФОМС')
+        arr_usl[i, 2] := foundOurUsluga(arr_usl[i, 1],mk_data,m1PROFIL,M1VZROS_REB,@arr_usl[i, 3])
+        if empty(arr_usl[i, 2])
+          fl := func_error(4, 'Цена на услугу '+arr_usl[i, 1]+ ' отсутствует в справочнике ТФОМС')
         endif
       next
       close databases
       if !fl
         loop
       endif
-      k := f_alert({padc('Сейчас будет записан лист учёта. Выберите действие',60, '.')}, ;
+      k := f_alert({padc('Сейчас будет записан лист учёта. Выберите действие', 60, '.')}, ;
                    {' Выход без записи ', ' Запись ', ' Возврат в редактирование '}, ;
-                   iif(lastkey()==K_ESC,1,2), 'W+/N', 'N+/N',maxrow()-2,, 'W+/N,N/BG' )
+                   iif(lastkey()==K_ESC, 1, 2), 'W+/N', 'N+/N',maxrow()-2, , 'W+/N,N/BG' )
       if k == 3
         loop
       elseif k == 1
         exit
       endif
       if mem_op_out == 2 .and. yes_parol
-        box_shadow(19,10,22,69,cColorStMsg)
+        box_shadow(19, 10, 22, 69,cColorStMsg)
         str_center(20, 'Оператор "' + fio_polzovat + '".', cColorSt2Msg)
         str_center(21, 'Ввод данных за ' + date_month(sys_date), cColorStMsg)
       endif
@@ -405,17 +426,17 @@ Function oms_sluch_dializ(par,Loc_kod,kod_kartotek)
       st_N_DATA := MN_DATA
       st_K_DATA := MK_DATA
       st_VRACH := m1vrach
-      SKOD_DIAG := substr(MKOD_DIAG,1,5)
+      SKOD_DIAG := substr(MKOD_DIAG, 1, 5)
       Private mu_kod, mu_cena, fl_nameismo
       Use_base('lusl')
       Use_base('luslc')
       use_base('luslf')
       Use_base('mo_su')
       Use_base('uslugi')
-      R_Use(dir_server + 'uslugi1',{dir_server + 'uslugi1', ;
+      R_Use(dir_server + 'uslugi1', {dir_server + 'uslugi1', ;
                                   dir_server + 'uslugi1s'}, 'USL1')
-      G_Use(dir_server + 'mo_hismo',, 'SN')
-      index on str(kod,7) to (cur_dir + 'tmp_ismo')
+      G_Use(dir_server + 'mo_hismo', , 'SN')
+      index on str(kod, 7) to (cur_dir + 'tmp_ismo')
       Use_base('mo_hu')
       use_base('human_u')
       Use_base('human')
@@ -462,7 +483,7 @@ Function oms_sluch_dializ(par,Loc_kod,kod_kartotek)
       human->N_DATA     := MN_DATA // дата начала лечения
       human->K_DATA     := MK_DATA // дата окончания лечения
       human->CENA := human->CENA_1 := 0 // стоимость лечения
-      human_->DISPANS   := replicate('0',16)
+      human_->DISPANS   := replicate('0', 16)
       human_->POVOD     := 1
       //human_->TRAVMA    := m1travma
       human_->VPOLIS    := m1vidpolis
@@ -508,7 +529,7 @@ Function oms_sluch_dializ(par,Loc_kod,kod_kartotek)
       endif
       if fl_nameismo .or. rec_inogSMO > 0
         select SN
-        find (str(mkod,7))
+        find (str(mkod, 7))
         if found()
           if fl_nameismo
             G_RLock(forever)
@@ -534,17 +555,17 @@ Function oms_sluch_dializ(par,Loc_kod,kod_kartotek)
                 hu->kod_vr  with m1vrach, ;
                 hu->kod_as  with 0, ;
                 hu->u_koef  with 1, ;
-                hu->u_kod   with arr_usl[i,2], ;
-                hu->u_cena  with arr_usl[i,3], ;
+                hu->u_kod   with arr_usl[i, 2], ;
+                hu->u_cena  with arr_usl[i, 3], ;
                 hu->is_edit with 0, ;
                 hu->date_u  with dtoc4(MN_DATA), ;
                 hu->otd     with m1otd, ;
-                hu->kol     with arr_usl[i,4], ;
-                hu->stoim   with arr_usl[i,3]*arr_usl[i,4], ;
-                hu->kol_1   with arr_usl[i,4], ;
-                hu->stoim_1 with arr_usl[i,3]*arr_usl[i,4], ;
+                hu->kol     with arr_usl[i, 4], ;
+                hu->stoim   with arr_usl[i, 3]*arr_usl[i, 4], ;
+                hu->kol_1   with arr_usl[i, 4], ;
+                hu->stoim_1 with arr_usl[i, 3]*arr_usl[i, 4], ;
                 hu->KOL_RCP with 0
-        ss += arr_usl[i,3]*arr_usl[i,4]
+        ss += arr_usl[i, 3]*arr_usl[i, 4]
         select HU_
         do while hu_->(lastrec()) < mrec_hu
           APPEND BLANK
@@ -562,7 +583,7 @@ Function oms_sluch_dializ(par,Loc_kod,kod_kartotek)
       if par == 1 .and. vlek > 0
         for i := 1 to len(arr_lek)
           if mkol[i] > 0
-            mu_kod := append_shifr_mo_su(arr_lek[i,1])
+            mu_kod := append_shifr_mo_su(arr_lek[i, 1])
             select MOHU
             Add1Rec(7)
             mohu->kod     := mkod
@@ -582,7 +603,7 @@ Function oms_sluch_dializ(par,Loc_kod,kod_kartotek)
         next
       endif
       human->CENA := human->CENA_1 := ss // стоимость лечения
-      write_work_oper(glob_task,OPER_LIST,iif(Loc_kod==0,1,2),1,count_edit)
+      write_work_oper(glob_task,OPER_LIST,iif(Loc_kod==0, 1, 2), 1,count_edit)
       fl_write_sluch := .t.
       close databases
       stat_msg('Запись завершена!',.f.)
