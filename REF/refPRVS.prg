@@ -32,16 +32,19 @@ Function ret_new_spec(old_spec, new_spec)
   endif
   return lkod
   
-** 26.05.22 вернуть значение специальности в кодировке справочника V004
+** 28.05.22 вернуть значение специальности в кодировке справочника V004
 Function ret_old_prvs(new_kod)
   Local i, old_kod := new_kod
+  local arr_conv := conversion_V015_V004()
 
   if new_kod < 0
     new_kod := abs(new_kod)
     if (i := ascan(glob_arr_V004_V015, {|x| x[2] == new_kod })) > 0
       old_kod := glob_arr_V004_V015[i, 1]
-    elseif (i := ascan(glob_arr_V015_V004, {|x| x[3] == new_kod })) > 0
-      old_kod := glob_arr_V015_V004[i, 1]
+    // elseif (i := ascan(glob_arr_V015_V004, {|x| x[3] == new_kod })) > 0
+    //   old_kod := glob_arr_V015_V004[i, 1]
+    elseif (i := ascan(arr_conv, {|x| x[3] == new_kod })) > 0
+      old_kod := arr_conv[i, 1]
     endif
   endif
   return old_kod
@@ -79,9 +82,10 @@ Function prvs_V021_to_V015(_prvs)
   endif
   return new_kod
   
-** 26.05.22 вернуть массив соответствий специальности V015 специальностям V0004
+** 28.05.22 вернуть массив соответствий специальности V015 специальностям V0004
 Function ret_arr_new_olds_prvs()
   Local i, j, np, op, arr := {}
+  local arr_conv := conversion_V015_V004()
 
   for i := 1 to len(glob_arr_V004_V015)
     op := glob_arr_V004_V015[i, 1]
@@ -92,9 +96,12 @@ Function ret_arr_new_olds_prvs()
     endif
     aadd(arr[j, 2], op)
   next
-  for i := 1 to len(glob_arr_V015_V004)
-    op := glob_arr_V015_V004[i, 1]
-    np := glob_arr_V015_V004[i, 3]
+  // for i := 1 to len(glob_arr_V015_V004)
+  for i := 1 to len(arr_conv)
+    // op := glob_arr_V015_V004[i, 1]
+    // np := glob_arr_V015_V004[i, 3]
+    op := arr_conv[i, 1]
+    np := arr_conv[i, 3]
     if (j := ascan(arr, {|x| x[1] == np })) == 0
       aadd(arr, {np, {}})
       j := len(arr)
