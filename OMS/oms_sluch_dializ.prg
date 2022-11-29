@@ -33,7 +33,7 @@ Function oms_sluch_dializ(par, Loc_kod, kod_kartotek)
   //
   Default st_N_DATA TO bom(sys_date), st_K_DATA TO eom(sys_date)
   Private ;
-    mkol_proc := 0, mkol_proc2 := 0, mkol_proc3 := 0, ; // кол-во процедур диализа разного вида
+    mkol_proc := 0, mkol_proc1 := 0, mkol_proc2 := 0, mkol_proc3 := 0, ; // кол-во процедур диализа разного вида
     mkol_proc4 := 0, mkol_proc5 := 0, mkol_proc6 := 0, ;
     MFIO        := space(50)         , ; // Ф.И.О. больного
     mfam := space(40), mim := space(40), mot := space(40), ;
@@ -265,11 +265,16 @@ Function oms_sluch_dializ(par, Loc_kod, kod_kartotek)
         @ j, col() + 1 say arr_lek[i, 2]
       next
       @ ++j, 1 say 'Количество НИЗКОпоточных процедур' get mkol_proc pict '99'
-      @ ++j, 1 say 'Количество ВЫСОКОпоточных процедур' get mkol_proc2 pict '99'
-      @ ++j, 1 say 'Количество диализов при нарушении ультрафильтрации (А18.30.001.003)' get mkol_proc3 pict '99'
-      @ ++j, 1 say 'Количество дней обмена перитонеального диализа (A18.30.001)' get mkol_proc4 pict '99'
-      @ ++j, 1 say 'Количество диализов с автоматизированными технологиями (А18.30.001.002)' get mkol_proc5 pict '99'
-      @ ++j, 1 say 'Количество диализов при нарушении ультрафильтрации (А18.30.001.003)' get mkol_proc6 pict '99'
+      @ ++j, 1 say 'Количество ВЫСОКОпоточных процедур' get mkol_proc1 pict '99'
+      if m1USL_OK == 2
+        @ ++j, 1 say 'Гемодиафильтрация (A18.05.011)' get mkol_proc2 pict '99'
+      endif
+      // @ ++j, 1 say 'Количество диализов при нарушении ультрафильтрации (А18.30.001.003)' get mkol_proc3 pict '99'
+      if m1USL_OK == 1
+        @ ++j, 1 say 'Количество дней обмена перитонеального диализа (A18.30.001)' get mkol_proc4 pict '99'
+        @ ++j, 1 say 'Количество диализов с автоматизированными технологиями (А18.30.001.002)' get mkol_proc5 pict '99'
+        @ ++j, 1 say 'Количество диализов при нарушении ультрафильтрации (А18.30.001.003)' get mkol_proc6 pict '99'
+      endif
     endif
     @ ++j, 1 say 'Результат обращения' get mrslt ;
         reader {|x|menu_reader(x, mm_rslt,A__MENUVERT, , , .f.)} ;
@@ -313,10 +318,10 @@ Function oms_sluch_dializ(par, Loc_kod, kod_kartotek)
       ldnej := mk_data - mn_data + 1
       vlek := vdial := 0
       if par == 1
-        if empty(vdial := mkol_proc + mkol_proc2 + mkol_proc3 + mkol_proc4 + mkol_proc5 + mkol_proc6)
+        if empty(vdial := mkol_proc + mkol_proc1 + mkol_proc2 + mkol_proc3 + mkol_proc4 + mkol_proc5 + mkol_proc6)
           func_error(4, 'Количество процедур гемодиализа равно нулю')
           loop
-        elseif mkol_proc + mkol_proc2 + mkol_proc3 + mkol_proc4 + mkol_proc5 + mkol_proc6 > ldnej
+        elseif mkol_proc + mkol_proc1 + mkol_proc2 + mkol_proc3 + mkol_proc4 + mkol_proc5 + mkol_proc6 > ldnej
           func_error(4, 'Количество процедур гемодиализа больше длительности лечения')
           loop
         endif
@@ -371,8 +376,11 @@ Function oms_sluch_dializ(par, Loc_kod, kod_kartotek)
         if mkol_proc > 0
           aadd(arr_usl, {'60.3.9', 0, 0, mkol_proc})
         endif
+        if mkol_proc1 > 0
+          aadd(arr_usl, {'60.3.10', 0, 0, mkol_proc1})
+        endif
         if mkol_proc2 > 0
-          aadd(arr_usl, {'60.3.10', 0, 0, mkol_proc2})
+          aadd(arr_usl, {'60.3.11', 0, 0, mkol_proc2})
         endif
         if mkol_proc3 > 0
           aadd(arr_usl, {'60.3.13', 0, 0, mkol_proc3})
@@ -625,6 +633,7 @@ Function oms_sluch_dializ(par, Loc_kod, kod_kartotek)
   setcolor(tmp_color)
   restscreen(buf)
   chm_help_code := tmp_help
+  // SetMode(25, 80)
   if fl_write_sluch // если записали - запускаем проверку
     verify_OMS_sluch(mkod)
   endif
