@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-** 29.11.22
+** 30.11.22
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
         i, j, k, c, s := ' ', a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -850,6 +850,9 @@ Function verify_1_sluch(fl_view)
           mpovod := 10 // 3.0
           musl_ok := 3  // п-ка
           is_perito := .t.
+        elseif eq_any(alltrim_lshifr, '60.3.12', '60.3.13')  // 30.11.22
+            musl_ok := 3  // п-ка
+            is_dializ := .t.
         elseif eq_any(alltrim_lshifr, '60.3.9', '60.3.10', '60.3.11') //01.12.21
           musl_ok := 2  // дневной стационар
           is_dializ := .t.
