@@ -863,7 +863,11 @@ if (arr_m := input_year()) != NIL .and. ;
         else
           mas_pmt := {"Редактирование ~карточки","Редактирование ~услуг"}
         endif
-        if glob_otd[3] == 4 .or. (glob_otd[4] > 0 .and. glob_otd[4] != TIP_LU_MED_REAB)
+        if glob_otd[3] == 4 .or. ;
+                    (glob_otd[4] > 0 .and. ;
+                    glob_otd[4] != TIP_LU_MED_REAB .and. ;
+                    glob_otd[4] != TIP_LU_H_DIA .and. ;
+                    glob_otd[4] != TIP_LU_P_DIA)
           si := 1
           asize(mas_pmt,1)
           keyboard chr(K_ENTER)
@@ -893,7 +897,7 @@ if (arr_m := input_year()) != NIL .and. ;
 endif
 return NIL
 
-** 20.05.22 Редактирование случая с выбором по отчётному периоду
+** 01.12.22 Редактирование случая с выбором по отчётному периоду
 Function f2oms_edit()
 Static si := 1
 Local buf, str_sem, i, arr_m, mas_pmt, buf24, buf_scr, srec, old_yes_h_otd := yes_h_otd
@@ -988,13 +992,17 @@ if (arr_m := year_month(T_ROW,T_COL+5,,3)) != NIL
         @ 1,42 say padc(glob_otd[2],35) color color14
         @ 2,42 say padc(glob_k_fio,35) color color8
         if lek_pr
-          mas_pmt := {"Редактирование ~карточки","Редактирование ~услуг", "Использованные ~лекарства"}
+          mas_pmt := {"Редактирование ~карточки", "Редактирование ~услуг", "Использованные ~лекарства"}
         else
-          mas_pmt := {"Редактирование ~карточки","Редактирование ~услуг"}
+          mas_pmt := {"Редактирование ~карточки", "Редактирование ~услуг"}
         endif
-        if glob_otd[3] == 4 .or. (glob_otd[4] > 0 .and. glob_otd[4] != TIP_LU_MED_REAB)
+        if glob_otd[3] == 4 .or. ;
+                (glob_otd[4] > 0 .and. ;
+                glob_otd[4] != TIP_LU_MED_REAB .and. ;
+                glob_otd[4] != TIP_LU_H_DIA .and. ;
+                glob_otd[4] != TIP_LU_P_DIA)
           si := 1
-          asize(mas_pmt,1)
+          asize(mas_pmt, 1)
           keyboard chr(K_ENTER)
         endif
         do while (i := popup_prompt(T_ROW,T_COL+5,si,mas_pmt)) > 0
@@ -1120,7 +1128,11 @@ if (arr_m := year_month(T_ROW,T_COL+5)) != NIL
         else
           mas_pmt := {"Редактирование ~карточки","Редактирование ~услуг"}
         endif
-        if glob_otd[3] == 4 .or. (glob_otd[4] > 0 .and. glob_otd[4] != TIP_LU_MED_REAB)
+        if glob_otd[3] == 4 .or. ;
+                    (glob_otd[4] > 0 .and. ;
+                    glob_otd[4] != TIP_LU_MED_REAB .and. ;
+                    glob_otd[4] != TIP_LU_H_DIA .and. ;
+                    glob_otd[4] != TIP_LU_P_DIA)
           si := 1
           asize(mas_pmt,1)
           keyboard chr(K_ENTER)
@@ -1227,7 +1239,11 @@ if input_uch(T_ROW-1,T_COL+5,sys_date) != NIL .and. ;
           else
             @ 1,42 say padc(glob_otd[2],35) color color14
             mas_pmt := {"Редактирование ~карточки","Редактирование ~услуг"}
-            if glob_otd[3] == 4 .or. (glob_otd[4] > 0 .and. glob_otd[4] != TIP_LU_MED_REAB)
+            if glob_otd[3] == 4 .or. ;
+                      (glob_otd[4] > 0 .and. ;
+                      glob_otd[4] != TIP_LU_MED_REAB .and. ;
+                      glob_otd[4] != TIP_LU_H_DIA .and. ;
+                      glob_otd[4] != TIP_LU_P_DIA)
               si := 1
               asize(mas_pmt,1)
             endif

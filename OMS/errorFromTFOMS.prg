@@ -4,7 +4,7 @@
 #include "chip_mo.ch"
 #include 'tbox.ch'
 
-** 06.09.22 Редактирование случая с выбором по конкретной ошибке из ТФОМС
+** 01.12.22 Редактирование случая с выбором по конкретной ошибке из ТФОМС
 Function f3oms_edit()
   Static si := 1
   Local buf, str_sem, i, k, arr, old_yes_h_otd := yes_h_otd, iRefr, ret_arr, srec, buf24, buf_scr, s, mas_pmt
@@ -213,7 +213,11 @@ Function f3oms_edit()
           else
             mas_pmt := {"Редактирование ~карточки","Редактирование ~услуг"}
           endif
-          if glob_otd[3] == 4 .or. (glob_otd[4] > 0 .and. glob_otd[4] != TIP_LU_MED_REAB)
+          if glob_otd[3] == 4 .or. ;
+                    (glob_otd[4] > 0 .and. ;
+                    glob_otd[4] != TIP_LU_MED_REAB .and. ;
+                    glob_otd[4] != TIP_LU_H_DIA .and. ;
+                    glob_otd[4] != TIP_LU_P_DIA)
             si := 1
             asize(mas_pmt,1)
             keyboard chr(K_ENTER)
