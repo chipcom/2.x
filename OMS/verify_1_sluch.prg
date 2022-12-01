@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-** 30.11.22
+** 01.12.22
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
         i, j, k, c, s := ' ', a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -319,10 +319,10 @@ Function verify_1_sluch(fl_view)
         aadd(ta, 'основной диагноз не входит в ОМС')
       endif
       if !empty(mkb_10->pol) .and. !(mkb_10->pol == mpol)
-        aadd(ta, 'несовместимость диагноза по полу ' +alltrim(mdiagnoz[i]))
+        aadd(ta, 'несовместимость диагноза по полу ' + alltrim(mdiagnoz[i]))
       endif
     else
-      aadd(ta, 'не найден диагноз ' +alltrim(mdiagnoz[i]) + ' в справочнике МКБ-10')
+      aadd(ta, 'не найден диагноз ' + alltrim(mdiagnoz[i]) + ' в справочнике МКБ-10')
     endif
   next
   mdiagnoz3 := {}
@@ -345,10 +345,10 @@ Function verify_1_sluch(fl_view)
     find (mdiagnoz3[i])
     if found()
       if !empty(mkb_10->pol) .and. !(mkb_10->pol == mpol)
-        aadd(ta, 'несовместимость диагноза по полу ' +alltrim(mdiagnoz3[i]))
+        aadd(ta, 'несовместимость диагноза по полу ' + alltrim(mdiagnoz3[i]))
       endif
     else
-      aadd(ta, 'не найден диагноз ' +alltrim(mdiagnoz3[i]) + ' в справочнике МКБ-10')
+      aadd(ta, 'не найден диагноз ' + alltrim(mdiagnoz3[i]) + ' в справочнике МКБ-10')
     endif
   next
   if human_->USL_OK == 1 ; // стационар
@@ -648,7 +648,7 @@ Function verify_1_sluch(fl_view)
           if human_->USL_OK == 3
             hu_->PRVS := iif(hu_->profil == 34, -13, -54)
           else
-            aadd(ta, 'лабораторная услуга "' +alltrim(usl->shifr) + '" может быть оказана только в поликлинике')
+            aadd(ta, 'лабораторная услуга "' + alltrim(usl->shifr) + '" может быть оказана только в поликлинике')
           endif
         elseif hu->is_edit == 0 .and. (! is_disp_DVN_COVID) // исправлено для углубленной диспансеризации
           aadd(ta, 'не заполнено поле "Врач, оказавший услугу ' + alltrim(usl->shifr) + '"')
@@ -732,7 +732,7 @@ Function verify_1_sluch(fl_view)
                   hu_->date_end  })      // 11 - дата окончания предоставления услуги
       kodKSG := ''
       if is_ksg(lshifr)
-        if !empty(s) .and. ', ' $ s
+        if !empty(s) .and. ',' $ s
           lvidpoms := s
         endif
         shifr_ksg := kodKSG := alltrim_lshifr
@@ -769,7 +769,7 @@ Function verify_1_sluch(fl_view)
           kol_ksg += hu->kol_1
           hu_->PZKOL := d
           if !is_12_VMP
-            aadd(ta, 'работа с услугой ' +alltrim_lshifr+ ' запрещена в Вашей МО')
+            aadd(ta, 'работа с услугой ' + alltrim_lshifr+ ' запрещена в Вашей МО')
           endif
         elseif (left_lshifr_5 == '1.20.')   // .or. (left_lshifr_5 == '1.21.') // ВМП  // 11.02.22
           midsp := 18 // Законченный случай в круглосуточном стационаре
@@ -777,7 +777,7 @@ Function verify_1_sluch(fl_view)
           kol_ksg += hu->kol_1
           hu_->PZKOL := d
           if !is_21_VMP
-            aadd(ta, 'работа с услугой ' +alltrim_lshifr+ ' запрещена в Вашей МО')
+            aadd(ta, 'работа с услугой ' + alltrim_lshifr+ ' запрещена в Вашей МО')
           endif
         elseif (left_lshifr_5 == '1.21.') // ВМП  // 11.02.22
           midsp := 18 // Законченный случай в круглосуточном стационаре
@@ -785,7 +785,7 @@ Function verify_1_sluch(fl_view)
           kol_ksg += hu->kol_1
           hu_->PZKOL := d
           if !is_22_VMP
-            aadd(ta, 'работа с услугой ' +alltrim_lshifr+ ' запрещена в Вашей МО')
+            aadd(ta, 'работа с услугой ' + alltrim_lshifr+ ' запрещена в Вашей МО')
           endif
         else
           // ошибка
@@ -1077,9 +1077,9 @@ Function verify_1_sluch(fl_view)
           mpovod := 4 // 1.3-Диспансерное наблюдение
           ldate_next := c4tod(human->DATE_OPL)
           if empty(ldate_next)
-            aadd(ta, 'для услуги ' +alltrim_lshifr+ ' не заполнена "Дата следующей явки пациента для диспансерного наблюдения"')
+            aadd(ta, 'для услуги ' + alltrim_lshifr+ ' не заполнена "Дата следующей явки пациента для диспансерного наблюдения"')
           elseif ldate_next < d2
-            aadd(ta, 'для услуги ' +alltrim_lshifr+ ' "дата следующей явки пациента для диспансерного наблюдения" меньше даты окончания лечения')
+            aadd(ta, 'для услуги ' + alltrim_lshifr+ ' "дата следующей явки пациента для диспансерного наблюдения" меньше даты окончания лечения')
           endif
         endif
         kvp += hu->kol_1
@@ -1093,7 +1093,7 @@ Function verify_1_sluch(fl_view)
           aadd(arr_povod,{mpovod,alltrim_lshifr})
         endif
       elseif !(hu->date_u==mdate_u1) .and. len(au_lu) == 1
-        aadd(ta, 'дата услуги ' +alltrim_lshifr+ ' должна равняться дате начала лечения')
+        aadd(ta, 'дата услуги ' + alltrim_lshifr+ ' должна равняться дате начала лечения')
       endif
       hu_->date_u2 := mdate_u2
       if empty(hu_->kod_diag) .and. len(mdiagnoz) > 0
@@ -1102,7 +1102,7 @@ Function verify_1_sluch(fl_view)
       select MKB_10
       find (padr(hu_->kod_diag, 6))
       if !found()
-        aadd(ta, 'не найден диагноз ' +alltrim(hu_->kod_diag) + '(' +alltrim(usl->shifr) + ') в справочнике МКБ-10')
+        aadd(ta, 'не найден диагноз ' + alltrim(hu_->kod_diag) + '(' + alltrim(usl->shifr) + ') в справочнике МКБ-10')
       endif
       aadd(adiag,hu_->kod_diag)
       atail(au_lu)[7] := c4tod(mdate_u2)
@@ -1253,7 +1253,7 @@ Function verify_1_sluch(fl_view)
   else
     for i := 1 to len(au_lu)
       if !between(au_lu[i, 2],d1,d2)
-        aadd(ta, 'услуга ' +au_lu[i, 5]+ '(' +date_8(au_lu[i, 2]) + ') не попадает в диапазон лечения')
+        aadd(ta, 'услуга ' + au_lu[i, 5]+ '(' +date_8(au_lu[i, 2]) + ') не попадает в диапазон лечения')
       endif
     next
     if human_->usl_ok < 4 .and. fl .and. !(human->OBRASHEN == '1')
@@ -1325,7 +1325,7 @@ Function verify_1_sluch(fl_view)
                         alltrim(iif(empty(mosu->shifr),mosu->shifr1,mosu->shifr)) + ' для направления ' + lstr(i))
               endif
             else
-              aadd(ta, 'услуга ' +alltrim(iif(empty(mosu->shifr),mosu->shifr1,mosu->shifr)) +;
+              aadd(ta, 'услуга ' + alltrim(iif(empty(mosu->shifr),mosu->shifr1,mosu->shifr)) +;
                       ' не найдена в справочнике (для направления ' + lstr(i) + ')')
             endif
           endif
@@ -1357,7 +1357,7 @@ Function verify_1_sluch(fl_view)
       arr_onkna := aclone(arr)
     endif
     for i := 1 to len(arr)  // ищем дубликаты направления
-      s := dtos(arr[i, 1]) +arr[i, 2]+ str(arr[i, 3], 1) + str(arr[i, 4], 1) + str(arr[i, 5], 6)
+      s := dtos(arr[i, 1]) + arr[i, 2]+ str(arr[i, 3], 1) + str(arr[i, 4], 1) + str(arr[i, 5], 6)
       arr[i, 6] := s
       if i > 1 .and. (j := ascan(arr, {|x| s == x[6] }, 1, i-1)) > 0
         select ONKNA
@@ -1374,7 +1374,7 @@ Function verify_1_sluch(fl_view)
     dbSelectArea(lalf)
     find (padr(lshifr, 20))
     usl_found := found()
-    s := alltrim(mosu->shifr1) +iif(empty(mosu->shifr), '', '(' +alltrim(mosu->shifr) + ')')
+    s := alltrim(mosu->shifr1) +iif(empty(mosu->shifr), '', '(' + alltrim(mosu->shifr) + ')')
     if mosu->tip == 5
       aadd(ta, 'услуга "' + s + '" удалена в 2017 году')
     endif
@@ -1451,15 +1451,15 @@ Function verify_1_sluch(fl_view)
           a2 := List2Arr(&lalf.->par_org)
           s1 := ''
           for i := 1 to len(a2)
-            if ascan(a1,a2[i]) > 0
-              s1 += lstr(a2[i]) + ', '
+            if ascan(a1, a2[i]) > 0
+              s1 += lstr(a2[i]) + ','
             endif
           next
           if !empty(s1)
-            s1 := left(s1,len(s1)-1)
+            s1 := left(s1, len(s1) - 1)
           endif
           if empty(s1) .or. !(s1 == alltrim(mohu->zf))
-            aadd(ta, 'в услуге ' + s + ' некорректно введены органы (части тела) ' +alltrim(mohu->zf))
+            aadd(ta, 'в услуге ' + s + ' некорректно введены органы (части тела) ' + alltrim(mohu->zf))
           endif
         endif
       endif
@@ -1510,7 +1510,7 @@ Function verify_1_sluch(fl_view)
     select MKB_10
     find (padr(mohu->kod_diag, 6))
     if !found()
-      aadd(ta, 'не найден диагноз ' +alltrim(mohu->kod_diag) + ' в справочнике МКБ-10')
+      aadd(ta, 'не найден диагноз ' + alltrim(mohu->kod_diag) + ' в справочнике МКБ-10')
     endif
     aadd(au_flu,{lshifr,;               // 1
                  mdate,;                // 2
@@ -1950,9 +1950,9 @@ Function verify_1_sluch(fl_view)
   endif
   if len(mdiagnoz) > 0 .and. left(mdiagnoz[1], 3) == 'O04' .and. eq_any(human_->profil, 136, 137) // акушерству и гинекологии
     if !between(human_2->pn2, 1, 2)
-      aadd(ta, 'для диагноза ' +alltrim(mdiagnoz[1]) + ' обязательно заполнять, искусственное прерывание беременности проводилось по медицинским показаниям или нет')
+      aadd(ta, 'для диагноза ' + alltrim(mdiagnoz[1]) + ' обязательно заполнять, искусственное прерывание беременности проводилось по медицинским показаниям или нет')
     elseif human_2->pn2 == 1 .and. (len(mdiagnoz) < 2 .or. empty(mdiagnoz[2]))
-      aadd(ta, 'для диагноза ' +alltrim(mdiagnoz[1]) + ' (искусственное прерывание беременности по медицинским показаниям) не указан сопутствующий диагноз')
+      aadd(ta, 'для диагноза ' + alltrim(mdiagnoz[1]) + ' (искусственное прерывание беременности по медицинским показаниям) не указан сопутствующий диагноз')
     endif
   endif
   if empty(human_->VRACH) .and. !(ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil, 6, 34))
@@ -2051,7 +2051,7 @@ Function verify_1_sluch(fl_view)
       if a_srok_lech[i, 5] == 0
         otd->(dbGoto(a_srok_lech[i, 4]))
         aadd(ta, 'пересечение ' +date_8(a_srok_lech[i, 1]) + '-' +date_8(a_srok_lech[i, 2]) +;
-                iif(empty(otd->short_name), '', ' [' +alltrim(otd->short_name) + ']'))
+                iif(empty(otd->short_name), '', ' [' + alltrim(otd->short_name) + ']'))
       endif
     next
   endif
@@ -2124,7 +2124,7 @@ Function verify_1_sluch(fl_view)
       for i := 1 to len(au_lu)
         if left(au_lu[i, 1], 5) == '1.11.'
           if !(alltrim(au_lu[i, 1]) == '1.11.2')
-            aadd(ta, 'неверная услуга ' +au_lu[i, 1])
+            aadd(ta, 'неверная услуга ' + au_lu[i, 1])
           endif
           aadd(a_1_11,{au_lu[i, 2],;
                        au_lu[i, 7],;
@@ -2148,7 +2148,7 @@ Function verify_1_sluch(fl_view)
       for i := 1 to len(au_lu)
         if left(au_lu[i, 1], 5) == '1.11.'
           if !(alltrim(au_lu[i, 1]) == '1.11.1')
-            aadd(ta, 'неверная услуга ' +au_lu[i, 1])
+            aadd(ta, 'неверная услуга ' + au_lu[i, 1])
           endif
           aadd(a_1_11,{au_lu[i, 2],;
                        au_lu[i, 7],;
@@ -2294,7 +2294,7 @@ Function verify_1_sluch(fl_view)
                   mpztip := 1
                 endif
               else
-                aadd(ta, 'основной диагноз ' + s + ', а у метода ВМП "' + lstr(human_2->METVMP) + '.' +alltrim(glob_V019[i, 2]) + '"')
+                aadd(ta, 'основной диагноз ' + s + ', а у метода ВМП "' + lstr(human_2->METVMP) + '.' + alltrim(glob_V019[i, 2]) + '"')
                 aadd(ta, '└─допустимые диагнозы: ' +print_array(glob_V019[i, 3]))
               endif
             endif
@@ -2317,7 +2317,7 @@ Function verify_1_sluch(fl_view)
                   mpztip := 1
                 endif
               else
-                aadd(ta, 'основной диагноз ' + s + ', а у метода ВМП "' + lstr(human_2->METVMP) + '.' +alltrim(glob_V019[i, 2]) + '"')
+                aadd(ta, 'основной диагноз ' + s + ', а у метода ВМП "' + lstr(human_2->METVMP) + '.' + alltrim(glob_V019[i, 2]) + '"')
                 aadd(ta, '└─допустимые диагнозы: ' +print_array(glob_V019[i, 3]))
               endif
             endif
@@ -2350,7 +2350,7 @@ Function verify_1_sluch(fl_view)
                    human_->ISHOD_NEW == a_period_stac[i, 8])
                 aadd(ta, 'в стационарном случае основного лечения (с КСГ) ' +;
                      date_8(a_period_stac[i, 1]) + '-' +date_8(a_period_stac[i, 2]) +;
-                     iif(empty(otd->short_name), '', ' [' +alltrim(otd->short_name) + ']') +;
+                     iif(empty(otd->short_name), '', ' [' + alltrim(otd->short_name) + ']') +;
                      ' должны повторяться основной диагноз, профиль, результат и исход лечения из данного случая')
               endif
             endif
@@ -2365,7 +2365,7 @@ Function verify_1_sluch(fl_view)
                    human_->ISHOD_NEW == a_period_stac[i, 8])
                 aadd(ta, 'в стационарном случае диализа ' +;
                      date_8(a_period_stac[i, 1]) + '-' +date_8(a_period_stac[i, 2]) +;
-                     iif(empty(otd->short_name), '', ' [' +alltrim(otd->short_name) + ']') +;
+                     iif(empty(otd->short_name), '', ' [' + alltrim(otd->short_name) + ']') +;
                      ' должны повторяться основной диагноз, профиль, результат и исход лечения из данного случая')
               endif
               exit
@@ -2430,7 +2430,7 @@ Function verify_1_sluch(fl_view)
         if left(au_lu[i, 1], 5) == '55.1.'
           if empty(s) ; s := au_lu[i, 1] ; endif
           if !(au_lu[i, 1] == s) // не смешивать разные 55.1.*
-            aadd(ta, 'неверная услуга ' +au_lu[i, 1])
+            aadd(ta, 'неверная услуга ' + au_lu[i, 1])
           elseif !eq_any(alltrim(au_lu[i, 1]), '55.1.1', '55.1.2', '55.1.3')
             aadd(ta, 'неверная услуга ' +rtrim(au_lu[i, 1]))
           endif
@@ -2533,7 +2533,7 @@ Function verify_1_sluch(fl_view)
       else // только для дн.стационара при стационаре смотрим лицензию
         lvidpoms := ret_vidpom_licensia(human_->USL_OK,lvidpoms)
       endif
-      if ', ' $ lvidpoms
+      if ',' $ lvidpoms
         if ascan(au_lu,{|x| alltrim(x[1]) == '55.1.1'}) > 0 .or. ;
            ascan(au_lu,{|x| alltrim(x[1]) == '55.1.4'}) > 0 .or. ;
            ascan(au_lu,{|x| alltrim(x[1]) == '55.1.6'}) > 0
@@ -2580,13 +2580,13 @@ Function verify_1_sluch(fl_view)
                             .and. !(left(lshifr, 6)=='60.10.') ;
                             .and. is_2_stomat(lshifr, ,.t.) == 0 // не стоматология
               otd->(dbGoto(u_other[i, 8]))
-              aadd(ta, 'услуга ' +alltrim(usl->shifr) + ' от ' +date_8(mdate) + ' в случае ' +;
+              aadd(ta, 'услуга ' + alltrim(usl->shifr) + ' от ' +date_8(mdate) + ' в случае ' +;
                    date_8(u_other[i, 6]) + '-' +date_8(u_other[i, 7]) +;
-                   iif(empty(otd->short_name), '', ' [' +alltrim(otd->short_name) + ']'))
+                   iif(empty(otd->short_name), '', ' [' + alltrim(otd->short_name) + ']'))
               otd->(dbGoto(a_period_stac[k, 4]))
               aadd(ta, '└>пересекается 222 со случаем стац.лечения ' +;
                    date_8(a_period_stac[k, 1]) + '-' +date_8(a_period_stac[k, 2]) +;
-                   iif(empty(otd->short_name), '', ' [' +alltrim(otd->short_name) + ']'))
+                   iif(empty(otd->short_name), '', ' [' + alltrim(otd->short_name) + ']'))
             endif
           endif
         endif
@@ -2610,12 +2610,12 @@ Function verify_1_sluch(fl_view)
     if empty(arr_ksg[2]) // нет ошибок
       if shifr_ksg == arr_ksg[3] // КСГ определена правильно
         if !(round(cena_ksg, 2) == round(arr_ksg[4], 2)) // не та цена
-          aadd(ta,s+ 'в л/у для КСГ=' +arr_ksg[3]+ ' стоит цена ' + lstr(cena_ksg, 10, 2) + ', а должна быть ' + lstr(arr_ksg[4], 10, 2))
+          aadd(ta,s+ 'в л/у для КСГ=' + arr_ksg[3]+ ' стоит цена ' + lstr(cena_ksg, 10, 2) + ', а должна быть ' + lstr(arr_ksg[4], 10, 2))
         else
           put_str_kslp_kiro(arr_ksg,.f.)
         endif
       else // не тот шифр КСГ
-        aadd(ta,s+ 'в л/у стоит КСГ=' +alltrim(shifr_ksg) + '(' + lstr(cena_ksg, 10, 2) + '), а должна быть ' +arr_ksg[3]+ '(' + lstr(arr_ksg[4], 10, 2) + ')')
+        aadd(ta,s+ 'в л/у стоит КСГ=' + alltrim(shifr_ksg) + '(' + lstr(cena_ksg, 10, 2) + '), а должна быть ' + arr_ksg[3]+ '(' + lstr(arr_ksg[4], 10, 2) + ')')
       endif
     else
       aeval(arr_ksg[2],{|x| aadd(ta,s+x) })
@@ -2634,7 +2634,7 @@ Function verify_1_sluch(fl_view)
         otd->(dbGoto(a_period_amb[i, 4]))
         aadd(ta, '└>с тем же профилем ' +;
                 date_8(a_period_amb[i, 1]) + '-' +date_8(a_period_amb[i, 2]) +;
-                iif(empty(otd->short_name), '', ' [' +alltrim(otd->short_name) + ']'))
+                iif(empty(otd->short_name), '', ' [' + alltrim(otd->short_name) + ']'))
         //aadd(ta, '└>данный л/у - запись № ' + lstr(human->(recno())) + ', прошлый л/у - запись № ' + lstr(a_period_amb[i, 5]))
       endif
     next
@@ -2710,8 +2710,8 @@ Function verify_1_sluch(fl_view)
     //
   else
     aadd(ta, 'смешивание букв счёта: ' +;
-            a_bukva[1, 1]+ '-' +alltrim(a_bukva[1, 2]) + ' и ' +;
-            a_bukva[2, 1]+ '-' +alltrim(a_bukva[2, 2]))
+            a_bukva[1, 1]+ '-' + alltrim(a_bukva[1, 2]) + ' и ' +;
+            a_bukva[2, 1]+ '-' + alltrim(a_bukva[2, 2]))
   endif
   if is_disp_DDS .or. is_disp_DVN .or. is_prof_PN .or. is_disp_DVN_COVID
     //
@@ -3136,7 +3136,7 @@ Function verify_1_sluch(fl_view)
         ++oth_usl
       endif
       /*if (j := ascan(aps,{|x| x[1] == au_lu[i, 3]})) > 0 .and. ascan(aps[j, 2],ret_old_prvs(au_lu[i, 4])) == 0
-        aadd(ta, 'в услуге ' +alltrim_lshifr+ ' у врача стоит неверная специальность')
+        aadd(ta, 'в услуге ' + alltrim_lshifr+ ' у врача стоит неверная специальность')
         aadd(ta, ' у Вас: ' + lstr(au_lu[i, 4]) + ', разрешено: ' +print_array(aps[j, 2]))
       endif*/
     next
@@ -3492,7 +3492,7 @@ Function verify_1_sluch(fl_view)
       if a_srok_lech[i, 5] == 1
         otd->(dbGoto(a_srok_lech[i, 4]))
         aadd(ta, 'пересечение с аналогичным диализом ' +date_8(a_srok_lech[i, 1]) + '-' +date_8(a_srok_lech[i, 2]) +;
-                iif(empty(otd->short_name), '', ' [' +alltrim(otd->short_name) + ']'))
+                iif(empty(otd->short_name), '', ' [' + alltrim(otd->short_name) + ']'))
       endif
     next
   endif
@@ -3513,16 +3513,16 @@ Function verify_1_sluch(fl_view)
     is_1_den := is_last_den := .f. ; zs := kvp := 0 ; oth_usl := ''
     for i := 1 to len(au_lu)
       if au_lu[i, 3] == 0
-        aadd(ta, 'в услуге ' +alltrim(au_lu[i, 1]) + ' не проставлен профиль')
+        aadd(ta, 'в услуге ' + alltrim(au_lu[i, 1]) + ' не проставлен профиль')
       endif
       if au_lu[i, 4] == 0
-        aadd(ta, 'в услуге ' +alltrim(au_lu[i, 1]) + ' не проставлена спец-ть врача')
+        aadd(ta, 'в услуге ' + alltrim(au_lu[i, 1]) + ' не проставлена спец-ть врача')
       endif
       if au_lu[i, 2] > d2
-        aadd(ta, 'услуга ' +au_lu[i, 5]+ '(' +date_8(au_lu[i, 2]) + ') не попадает в диапазон лечения')
+        aadd(ta, 'услуга ' + au_lu[i, 5]+ '(' +date_8(au_lu[i, 2]) + ') не попадает в диапазон лечения')
       endif
       if is_issl_DDS(au_lu[i],mvozrast,ta)
-        s := 'услуга ' +au_lu[i, 5]+ '(' +date_8(au_lu[i, 2]) + ')'
+        s := 'услуга ' + au_lu[i, 5]+ '(' +date_8(au_lu[i, 2]) + ')'
         if alltrim(au_lu[i, 1]) == '7.61.3'
           if au_lu[i, 2] < addmonth(d1,-12)
             aadd(ta, 'флюорография оказана более 1 года назад')
@@ -3540,7 +3540,7 @@ Function verify_1_sluch(fl_view)
           is_1_den := .t.
         endif
       else
-        s := 'услуга ' +au_lu[i, 5]+ '-' +inieditspr(A__MENUVERT,glob_V002,au_lu[i, 3]) + '(' +date_8(au_lu[i, 2]) + ')'
+        s := 'услуга ' + au_lu[i, 5]+ '-' +inieditspr(A__MENUVERT,glob_V002,au_lu[i, 3]) + '(' +date_8(au_lu[i, 2]) + ')'
         if is_osmotr_DDS_1_etap(au_lu[i],mvozrast,metap,mpol,tip_lu) //eq_any(alltrim(au_lu[i, 5]),'2.3.1','2.4.1') // + 2.4.1-психиатр
           if eq_any(au_lu[i, 3], 68, 57) // педиатр (врач общей практики)
             if au_lu[i, 2] < d1
@@ -3562,7 +3562,7 @@ Function verify_1_sluch(fl_view)
           ++zs
           s := ret_shifr_zs_DDS(tip_lu)
           if !(alltrim(au_lu[i, 1]) == s)
-            aadd(ta, 'в л/у услуга ' +alltrim(au_lu[i, 1]) + ', а должна быть ' + s +;
+            aadd(ta, 'в л/у услуга ' + alltrim(au_lu[i, 1]) + ', а должна быть ' + s +;
                     ' для возраста ' + lstr(mvozrast) + ' ' + s_let(mvozrast))
           endif
         elseif is_osmotr_DDS(au_lu[i],mvozrast,ta,metap,mpol,tip_lu)
@@ -3649,16 +3649,16 @@ Function verify_1_sluch(fl_view)
       is_1_den := is_last_den := .f. ; zs := kvp := 0 ; oth_usl := kod_zs := '' ; is_neonat := .f.
       for i := 1 to len(au_lu)
         if au_lu[i, 3] == 0
-          aadd(ta, 'в услуге ' +alltrim(au_lu[i, 1]) + ' не проставлен профиль')
+          aadd(ta, 'в услуге ' + alltrim(au_lu[i, 1]) + ' не проставлен профиль')
         endif
         if au_lu[i, 4] == 0
-          aadd(ta, 'в услуге ' +alltrim(au_lu[i, 1]) + ' не проставлена спец-ть врача')
+          aadd(ta, 'в услуге ' + alltrim(au_lu[i, 1]) + ' не проставлена спец-ть врача')
         endif
         if au_lu[i, 2] > d2
-          aadd(ta, 'услуга ' +au_lu[i, 5]+ '(' +date_8(au_lu[i, 2]) + ') не попадает в диапазон лечения')
+          aadd(ta, 'услуга ' + au_lu[i, 5]+ '(' +date_8(au_lu[i, 2]) + ') не попадает в диапазон лечения')
         endif
         if is_issled_PN(au_lu[i],mperiod,ta,mpol)
-          s := 'услуга ' +au_lu[i, 5]+ '(' +date_8(au_lu[i, 2]) + ')'
+          s := 'услуга ' + au_lu[i, 5]+ '(' +date_8(au_lu[i, 2]) + ')'
           if mvozrast < 2
             if left(au_lu[i, 5], 5) == '4.26.'
               is_neonat := .t.
@@ -3675,7 +3675,7 @@ Function verify_1_sluch(fl_view)
             is_1_den := .t.
           endif
         else
-          s := 'услуга ' +au_lu[i, 5]+ '-' +inieditspr(A__MENUVERT,glob_V002,au_lu[i, 3]) + '(' +date_8(au_lu[i, 2]) + ')'
+          s := 'услуга ' + au_lu[i, 5]+ '-' +inieditspr(A__MENUVERT,glob_V002,au_lu[i, 3]) + '(' +date_8(au_lu[i, 2]) + ')'
           if eq_any(au_lu[i, 3], 68, 57) .and. !(au_lu[i, 5] == '2.4.2')// врачебный приём - педиатр (врач общей практики)
             if au_lu[i, 2] < d1
               aadd(ta, 'дата осмотра педиатра не попадает в диапазон лечения')
@@ -3909,14 +3909,14 @@ Function verify_1_sluch(fl_view)
       if !empty(arr_diag[1]) .and. ascan(sadiag1,arr_diag[1]) > 0
         if empty(arr_diag[4])
           if s == 2
-            aadd(ta, 'не введена дата следующего визита для ' +arr_diag[1])
+            aadd(ta, 'не введена дата следующего визита для ' + arr_diag[1])
           endif
         elseif arr_diag[4] > d2
           if s == 1
             is_disp_nabl := .t.
           endif
         else
-          aadd(ta, 'некорректная дата следующего визита для ' +arr_diag[1])
+          aadd(ta, 'некорректная дата следующего визита для ' + arr_diag[1])
         endif
       endif
     next
@@ -3926,9 +3926,9 @@ Function verify_1_sluch(fl_view)
     for i := 1 to len(au_lu_ne)
       s := alltrim(au_lu_ne[i, 1])
       if !empty(au_lu_ne[i, 2])
-        s += '(' +alltrim(au_lu_ne[i, 2]) + ')'
+        s += '(' + alltrim(au_lu_ne[i, 2]) + ')'
       endif
-      s += ' ' +alltrim(au_lu_ne[i, 3])
+      s += ' ' + alltrim(au_lu_ne[i, 3])
       aadd(ta, 'неверная услуга "' + s + '" от ' +date_8(au_lu_ne[i, 4]) + 'г.')
     next
     metap := 3
@@ -4186,9 +4186,9 @@ Function verify_1_sluch(fl_view)
       hu->(dbGoto(au_lu[i, 9]))       // 9 - номер записи
       lshifr := alltrim(au_lu[i, 1])
       if left(lshifr, 4) == '2.3.' .and. !empty(au_lu[i, 3])
-        s := 'услуга ' +au_lu[i, 5]+ '-' +inieditspr(A__MENUVERT,glob_V002,au_lu[i, 3]) + '(' +date_8(au_lu[i, 2]) + ')'
+        s := 'услуга ' + au_lu[i, 5]+ '-' +inieditspr(A__MENUVERT,glob_V002,au_lu[i, 3]) + '(' +date_8(au_lu[i, 2]) + ')'
       else
-        s := 'услуга ' +au_lu[i, 5]+ '(' +date_8(au_lu[i, 2]) + ')'
+        s := 'услуга ' + au_lu[i, 5]+ '(' +date_8(au_lu[i, 2]) + ')'
       endif
       if au_lu[i, 3] == 0
         aadd(ta,s+ ' - не проставлен профиль')
@@ -4372,7 +4372,7 @@ Function verify_1_sluch(fl_view)
             if left(am[i], 3) == 'E78'
               fl := .t.
             else
-              aadd(ta, 'для II группы здоровья диспансерный учёт может быть установлен только для гиперхолестеринемии, а не для ' +am[i])
+              aadd(ta, 'для II группы здоровья диспансерный учёт может быть установлен только для гиперхолестеринемии, а не для ' + am[i])
             endif
           next
           if fl .and. m1dispans != 3 // {'участковым терапевтом', 3}
@@ -4727,7 +4727,7 @@ endif
     add_string('')
     uch->(dbGoto(human->LPU))
     otd->(dbGoto(human->OTD))
-    add_string(fio_plus_novor() + ' ' +alltrim(human->kod_diag) + ' ' +;
+    add_string(fio_plus_novor() + ' ' + alltrim(human->kod_diag) + ' ' +;
                date_8(human->n_data) + '-' +date_8(human->k_data) +;
                ' (' +count_ymd(human->date_r,human->n_data) + ')')
     Ins_Array(ta, 1, alltrim(uch->name) + '/' + alltrim(otd->name) + '/профиль по "' +;
