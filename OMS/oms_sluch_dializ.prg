@@ -371,7 +371,7 @@ Function oms_sluch_dializ(par, Loc_kod, kod_kartotek)
       arr_usl := {}
       if par == 1
         if vlek > 0
-          aadd(arr_usl, {'55.1.1', 0, 0, iif(vlek > vdial, vdial, vlek)})
+          aadd(arr_usl, {'55.1.1', 0, 0, iif(vlek > vdial, vlek, vdial)})
         endif
         if mkol_proc > 0
           aadd(arr_usl, {'60.3.9', 0, 0, mkol_proc})
