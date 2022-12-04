@@ -2053,56 +2053,61 @@ Function init_tmp_prvs(_date, is_all)
   select (tmp_select)
   return NIL
 
-** 09.08.16 вернуть медицинскую специальность из tmp-файла
-Function ret_tmp_prvs(kod_old,kod_new)
-Local i, k, tmp_select := select(), ret := space(10)
-if empty(kod_new)
-  if valtype(kod_old) == 'C'
-    k := int(val(kod_old))
+** 04.11.22 вернуть медицинскую специальность из tmp-файла
+Function ret_tmp_prvs(kod_old, kod_new)
+  Local i, k, tmp_select := select(), ret := space(10)
+  local arr_conv_V004_V015 := conversion_V004_V015()
+
+  if empty(kod_new)
+    if valtype(kod_old) == 'C'
+      k := int(val(kod_old))
+    else
+      k := kod_old
+    endif
+    if k < 0 // новая специальность занесена в лист учёта
+      k := abs(k)
+      k := padr(lstr(k), 4)
+      use (cur_dir + 'tmp_V015') index (cur_dir + 'tmpkV015') new
+      find (k)
+      if found()
+        ret := alltrim(tmp_V015->name)
+      endif
+      tmp_V015->(dbCloseArea())
+      select (tmp_select)
+      return ret
+    endif
+    // if (i := ascan(glob_arr_V004_V015, {|x| x[1] == k })) > 0
+    //   return lstr(glob_arr_V004_V015[i, 2])+'.'+glob_arr_V004_V015[i, 3]
+    // endif
+    if (i := ascan(arr_conv_V004_V015, {|x| x[1] == k })) > 0
+      return lstr(arr_conv_V004_V015[i, 2]) + '.' + arr_conv_V004_V015[i, 3]
+    endif
+    if valtype(kod_old) == 'N'
+      k := padr(lstr(kod_old), 9)
+    else
+      k := kod_old
+    endif
+    use (cur_dir + 'tmp_V004') index (cur_dir + 'tmpkV004') new
+    find (k)
+    if found()
+      ret := alltrim(tmp_V004->name)
+    endif
+    tmp_V004->(dbCloseArea())
   else
-    k := kod_old
-  endif
-  if k < 0 // новая специальность занесена в лист учёта
-    k := abs(k)
-    k := padr(lstr(k), 4)
+    if valtype(kod_new) == 'N'
+      k := padr(lstr(kod_new), 4)
+    else
+      k := kod_new
+    endif
     use (cur_dir + 'tmp_V015') index (cur_dir + 'tmpkV015') new
     find (k)
     if found()
       ret := alltrim(tmp_V015->name)
     endif
     tmp_V015->(dbCloseArea())
-    select (tmp_select)
-    return ret
   endif
-  if (i := ascan(glob_arr_V004_V015, {|x| x[1] == k })) > 0
-    return lstr(glob_arr_V004_V015[i, 2])+'.'+glob_arr_V004_V015[i, 3]
-  endif
-  if valtype(kod_old) == 'N'
-    k := padr(lstr(kod_old), 9)
-  else
-    k := kod_old
-  endif
-  use (cur_dir + 'tmp_V004') index (cur_dir + 'tmpkV004') new
-  find (k)
-  if found()
-    ret := alltrim(tmp_V004->name)
-  endif
-  tmp_V004->(dbCloseArea())
-else
-  if valtype(kod_new) == 'N'
-    k := padr(lstr(kod_new), 4)
-  else
-    k := kod_new
-  endif
-  use (cur_dir + 'tmp_V015') index (cur_dir + 'tmpkV015') new
-  find (k)
-  if found()
-    ret := alltrim(tmp_V015->name)
-  endif
-  tmp_V015->(dbCloseArea())
-endif
-select (tmp_select)
-return ret
+  select (tmp_select)
+  return ret
 
 ** 13.11.22 редактирование справочника отделений
 Function edit_otd()
