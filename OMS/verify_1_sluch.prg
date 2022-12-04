@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-** 01.12.22
+** 04.12.22
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
         i, j, k, c, s := ' ', a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -190,13 +190,15 @@ Function verify_1_sluch(fl_view)
           aadd(u_other, {hu->u_kod, hu->date_u, hu->kol_1, hu_->profil, 0, human->n_data, human->k_data, human->OTD})
         endif
         if is_period_amb
-          lshifr1 := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data)
-          if is_usluga_TFOMS(usl->shifr,lshifr1,human->k_data)
+          lshifr1 := opr_shifr_TFOMS(usl->shifr1, usl->kod, human->k_data)
+          if is_usluga_TFOMS(usl->shifr, lshifr1, human->k_data)
             lshifr := alltrim(iif(empty(lshifr1), usl->shifr, lshifr1))
             if eq_any(left(lshifr, 5), '2.80.', '2.82.', '60.4.', '60.5.', '60.6.', '60.7.', '60.8.', '60.9.')
-              is_period_amb := .f. ; exit
-            elseif lshifr == '60.3.1' // перит.диализ
-              aadd(a_dializ,{human->n_data,human->k_data,human_->USL_OK,human->OTD, 3}) // диализы не в кругл.стационаре
+              is_period_amb := .f.
+              exit
+            // elseif lshifr == '60.3.1' // перит.диализ
+            elseif eq_any(lshifr, '60.3.1', '60.3.12', '60.3.13')  // 04.12.22
+              aadd(a_dializ, {human->n_data, human->k_data, human_->USL_OK, human->OTD, 3}) // диализы не в кругл.стационаре
               exit
             endif
           endif
@@ -846,14 +848,11 @@ Function verify_1_sluch(fl_view)
         hu_->PZTIP := 5
         hu_->PZKOL := hu->kol_1
         mdate_u2 := dtoc4(human->k_data)
-        if alltrim_lshifr == '60.3.1'
+        if eq_any(alltrim_lshifr, '60.3.1', '60.3.12', '60.3.13')  // 04.12.22
           mpovod := 10 // 3.0
           musl_ok := 3  // п-ка
           is_perito := .t.
-        elseif eq_any(alltrim_lshifr, '60.3.12', '60.3.13')  // 30.11.22
-            musl_ok := 3  // п-ка
-            is_dializ := .t.
-        elseif eq_any(alltrim_lshifr, '60.3.9', '60.3.10', '60.3.11') //01.12.21
+        elseif eq_any(alltrim_lshifr, '60.3.9', '60.3.10', '60.3.11') //01.12.21 
           musl_ok := 2  // дневной стационар
           is_dializ := .t.
         else
