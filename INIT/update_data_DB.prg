@@ -59,9 +59,11 @@ function update_v21203()
   // alertx(i, 'Количество сотрудников')
   return nil
 
-***** 22.12.21
+** 06.12.22
 function update_v21131()
   local i := 0, j := 0
+  local arr_conv_V015_V021 := conversion_V015_V021()
+
   Stat_Msg('Заполняем специальность')
   use_base('mo_pers', 'PERS', .t.) // откроем файл mo_pers
 
@@ -72,8 +74,11 @@ function update_v21131()
     @ maxrow(),1 say pers->fio color cColorStMsg
     if ! empty(pers->PRVS_NEW)
       j := 0
-      if (j := ascan(glob_arr_V015_V021, {|x| x[1] == pers->PRVS_NEW })) > 0
-        pers->PRVS_021 := glob_arr_V015_V021[j, 2]
+      // if (j := ascan(glob_arr_V015_V021, {|x| x[1] == pers->PRVS_NEW })) > 0
+      //   pers->PRVS_021 := glob_arr_V015_V021[j, 2]
+      // endif
+      if (j := ascan(arr_conv_V015_V021, {|x| x[1] == pers->PRVS_NEW })) > 0
+        pers->PRVS_021 := arr_conv_V015_V021[j, 2]
       endif
     elseif ! empty(pers->PRVS)
       pers->PRVS_021 := ret_prvs_V021(pers->PRVS)

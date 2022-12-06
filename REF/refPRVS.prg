@@ -14,12 +14,16 @@ Function ret_V004_V015(_PRVS)
   endif
   return ret
   
-** 05.08.21 вернуть значение специальности из кодировки справочника V015 в кодировке справочника V021
+** 06.12.22 вернуть значение специальности из кодировки справочника V015 в кодировке справочника V021
 Function ret_prvs_V015toV021(lkod)
   Local i, new_kod := 76 // по умолчанию - терапия
+  local arr_conv_V015_V021 := conversion_V015_V021()
 
-  if (i := ascan(glob_arr_V015_V021, {|x| x[1] == lkod })) > 0
-    new_kod := glob_arr_V015_V021[i, 2]
+  // if (i := ascan(glob_arr_V015_V021, {|x| x[1] == lkod })) > 0
+  //   new_kod := glob_arr_V015_V021[i, 2]
+  // endif
+  if (i := ascan(arr_conv_V015_V021, {|x| x[1] == lkod })) > 0
+    new_kod := arr_conv_V015_V021[i, 2]
   endif
   return new_kod
   
@@ -71,25 +75,33 @@ Function ret_new_prvs(_prvs)
   endif
   return new_kod
   
-** 26.05.22 вернуть значение специальности из кодировки справочника V015 в кодировке справочника V021
+** 06.12.22 вернуть значение специальности из кодировки справочника V015 в кодировке справочника V021
 Function ret_prvs_V021(_prvs)
   Local i, new_kod := 76, ; // по умолчанию - терапия
         lkod := ret_new_prvs(_prvs) // в кодировке справочника V015
+  local arr_conv_V015_V021 := conversion_V015_V021()
 
-  if (i := ascan(glob_arr_V015_V021, {|x| x[1] == lkod })) > 0
-    new_kod := glob_arr_V015_V021[i, 2]
+  // if (i := ascan(glob_arr_V015_V021, {|x| x[1] == lkod })) > 0
+  //   new_kod := glob_arr_V015_V021[i, 2]
+  // endif
+  if (i := ascan(arr_conv_V015_V021, {|x| x[1] == lkod })) > 0
+    new_kod := arr_conv_V015_V021[i, 2]
   endif
   return new_kod
   
 ** 26.05.22 перевести специальность из кодировки справочника V021 в V015
 Function prvs_V021_to_V015(_prvs)
   Local i, new_kod := 27 // по умолчанию - терапия
+  local arr_conv_V015_V021 := conversion_V015_V021()
 
   if valtype(_prvs) == 'C'
     _prvs := int(val(_prvs))
   endif
-  if (i := ascan(glob_arr_V015_V021, {|x| x[2] == _prvs })) > 0
-    new_kod := glob_arr_V015_V021[i, 1]
+  // if (i := ascan(glob_arr_V015_V021, {|x| x[2] == _prvs })) > 0
+  //   new_kod := glob_arr_V015_V021[i, 1]
+  // endif
+  if (i := ascan(arr_conv_V015_V021, {|x| x[2] == _prvs })) > 0
+    new_kod := arr_conv_V015_V021[i, 1]
   endif
   return new_kod
   
