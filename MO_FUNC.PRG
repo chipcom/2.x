@@ -138,7 +138,7 @@ if kart->MEST_INOG == 9 // т.е. отдельно занесены Ф.И.О.
     select KFIO
   else
     R_Use(dir_server+"mo_kfio",,"KFIO")
-    index on str(kod,7) to (cur_dir+"tmp_kfio")
+    index on str(kod,7) to (cur_dir + "tmp_kfio")
   endif
   find (str(kart->kod,7))
   if found()
@@ -189,7 +189,7 @@ Local s := space(100), fl := .f., tmp_select := select()
 DEFAULT fl_close TO .f.
 if select("SN") == 0
   R_Use(dir_server+iif(ltip==1,"mo_kismo","mo_hismo"),,"SN")
-  index on str(kod,7) to (cur_dir+"tmp_ismo")
+  index on str(kod,7) to (cur_dir + "tmp_ismo")
   fl := .t.
 endif
 select SN
@@ -381,7 +381,7 @@ elseif eq_any(left(s,2),"E2","O2") // файлы протокола прикрепления и открепления
   kod_csv_reestr := 0
   if (s1 := substr(s,3,6)) == glob_MO[_MO_KOD_TFOMS]
     R_Use(dir_server+"mo_krtf",,"KRTF")
-    index on upper(fname) to (cur_dir+"tmp_krtf")
+    index on upper(fname) to (cur_dir + "tmp_krtf")
     find (padr(s,26)) // не принимали ли уже данный файл
     if found()
       fl := func_error(4,"Этот файл уже был прочитан в "+krtf->TFILE+" "+date_8(krtf->DFILE)+"г.")
@@ -407,7 +407,7 @@ elseif left(s,3) == "SO2" // ответ на запрос сверки
   kod_csv_reestr := 0
   if (s1 := substr(s,4,6)) == glob_MO[_MO_KOD_TFOMS]
     R_Use(dir_server+"mo_krtf",,"KRTF")
-    index on upper(fname) to (cur_dir+"tmp_krtf")
+    index on upper(fname) to (cur_dir + "tmp_krtf")
     find (padr(s,26)) // не принимали ли уже данный файл
     if found()
       fl := func_error(4,"Этот файл уже был прочитан в "+krtf->TFILE+" "+date_8(krtf->DFILE)+"г.")
@@ -442,7 +442,7 @@ if eq_any(left(s,3),"EO2","LO2") // файлы протокола прикрепления и открепления
   kod_csv_reestr := 0
   if (s1 := substr(s,4,6)) == glob_MO[_MO_KOD_TFOMS]
     R_Use(dir_server+"mo_krtf",,"KRTF")
-    index on upper(fname) to (cur_dir+"tmp_krtf")
+    index on upper(fname) to (cur_dir + "tmp_krtf")
     find (padr(s,26)) // не принимали ли уже данный файл
     if found()
       fl := func_error(4,"Этот файл уже был прочитан в "+krtf->TFILE+" "+date_8(krtf->DFILE)+"г.")
@@ -481,7 +481,7 @@ if eq_any(left(s,3),"VHR","VFR","PHR","PFR") // файл протокола ФЛК
   nTypeFile := _XML_FILE_FLK
   R_Use(dir_server+"mo_rees",,"REES")
   R_Use(dir_server+"mo_xml",,"MO_XML")
-  index on upper(fname) to (cur_dir+"tmpmoxml")
+  index on upper(fname) to (cur_dir + "tmpmoxml")
   find (padr(substr(s,2),26)) // имя то же самое, начиная со второго знака
   if found() .and. (nReestr := mo_xml->REESTR) > 0
     select REES
@@ -523,7 +523,7 @@ elseif eq_any(left(s,3),"D02","R02","R12","R06") // ответный файл на отосланный 
       nTypeFile := _XML_FILE_D02
       R_Use(dir_server+"mo_d01",,"REES")
       R_Use(dir_server+"mo_xml",,"MO_XML")
-      index on upper(fname) to (cur_dir+"tmpmoxml")
+      index on upper(fname) to (cur_dir + "tmpmoxml")
       find (padr("D01T34M"+glob_MO[_MO_KOD_TFOMS]+"_"+s,26)) // сконструировали имя файла D01
       if found() .and. (nReestr := mo_xml->REESTR) > 0
         select REES
@@ -542,7 +542,7 @@ elseif eq_any(left(s,3),"D02","R02","R12","R06") // ответный файл на отосланный 
       nTypeFile := _XML_FILE_R02
       R_Use(dir_server+"mo_dr01",,"REES")
       R_Use(dir_server+"mo_xml",,"MO_XML")
-      index on upper(fname) to (cur_dir+"tmpmoxml")
+      index on upper(fname) to (cur_dir + "tmpmoxml")
       find (padr("R01T34M"+glob_MO[_MO_KOD_TFOMS]+"_"+s,26)) // сконструировали имя файла R01
       if found() .and. (nReestr := mo_xml->REESTR) > 0
         select REES
@@ -561,7 +561,7 @@ elseif eq_any(left(s,3),"D02","R02","R12","R06") // ответный файл на отосланный 
       nTypeFile := _XML_FILE_R12
       R_Use(dir_server+"mo_dr01",,"REES")
       R_Use(dir_server+"mo_xml",,"MO_XML")
-      index on upper(fname) to (cur_dir+"tmpmoxml")
+      index on upper(fname) to (cur_dir + "tmpmoxml")
       find (padr("R11T34M"+glob_MO[_MO_KOD_TFOMS]+"_"+s,26)) // сконструировали имя файла R11
       if found() .and. (nReestr := mo_xml->REESTR) > 0
         select REES
@@ -580,7 +580,7 @@ elseif eq_any(left(s,3),"D02","R02","R12","R06") // ответный файл на отосланный 
       nTypeFile := _XML_FILE_R06
       R_Use(dir_server+"mo_dr05",,"REES")
       R_Use(dir_server+"mo_xml",,"MO_XML")
-      index on upper(fname) to (cur_dir+"tmpmoxml")
+      index on upper(fname) to (cur_dir + "tmpmoxml")
       find (padr("R05T34M"+glob_MO[_MO_KOD_TFOMS]+"_"+s,26)) // сконструировали имя файла R05
       if found() .and. (nReestr := mo_xml->REESTR) > 0
         select REES
@@ -622,7 +622,7 @@ elseif eq_any(left(s,4),"PR01","PR11","PR05") // ответный файл на отосланный фай
       nTypeFile := _XML_FILE_R02
       R_Use(dir_server+"mo_dr01",,"REES")
       R_Use(dir_server+"mo_xml",,"MO_XML")
-      index on upper(fname) to (cur_dir+"tmpmoxml")
+      index on upper(fname) to (cur_dir + "tmpmoxml")
       find (padr(substr(cName,2),26)) // сконструировали имя файла R01
       if found() .and. (nReestr := mo_xml->REESTR) > 0
         select REES
@@ -641,7 +641,7 @@ elseif eq_any(left(s,4),"PR01","PR11","PR05") // ответный файл на отосланный фай
       nTypeFile := _XML_FILE_R12
       R_Use(dir_server+"mo_dr01",,"REES")
       R_Use(dir_server+"mo_xml",,"MO_XML")
-      index on upper(fname) to (cur_dir+"tmpmoxml")
+      index on upper(fname) to (cur_dir + "tmpmoxml")
       find (padr(substr(cName,2),26)) // сконструировали имя файла R01
       if found() .and. (nReestr := mo_xml->REESTR) > 0
         select REES
@@ -660,7 +660,7 @@ elseif eq_any(left(s,4),"PR01","PR11","PR05") // ответный файл на отосланный фай
       nTypeFile := _XML_FILE_R06
       R_Use(dir_server+"mo_dr05",,"REES")
       R_Use(dir_server+"mo_xml",,"MO_XML")
-      index on upper(fname) to (cur_dir+"tmpmoxml")
+      index on upper(fname) to (cur_dir + "tmpmoxml")
       find (padr(substr(cName,2),26)) // сконструировали имя файла R05
       if found() .and. (nReestr := mo_xml->REESTR) > 0
         select REES
@@ -702,7 +702,7 @@ elseif eq_any(left(s,4),"PR01","PR11","PR05") // ответный файл на отосланный фай
       nTypeFile := _XML_FILE_R02
       R_Use(dir_server+"mo_dr01",,"REES")
       R_Use(dir_server+"mo_xml",,"MO_XML")
-      index on upper(fname) to (cur_dir+"tmpmoxml")
+      index on upper(fname) to (cur_dir + "tmpmoxml")
       find (padr(substr(cName,2),26)) // сконструировали имя файла R01
       if found() .and. (nReestr := mo_xml->REESTR) > 0
         select REES
@@ -721,7 +721,7 @@ elseif eq_any(left(s,4),"PR01","PR11","PR05") // ответный файл на отосланный фай
       nTypeFile := _XML_FILE_R06
       R_Use(dir_server+"mo_dr05",,"REES")
       R_Use(dir_server+"mo_xml",,"MO_XML")
-      index on upper(fname) to (cur_dir+"tmpmoxml")
+      index on upper(fname) to (cur_dir + "tmpmoxml")
       find (padr(substr(cName,2),26)) // сконструировали имя файла R05
       if found() .and. (nReestr := mo_xml->REESTR) > 0
         select REES
@@ -833,7 +833,7 @@ return (len(arr_err) == 0)
 Function Verify_Is_Already_XML(cName,/*@*/_date,/*@*/_time)
 Local l, fl, tmp_select := select()
 R_Use(dir_server+"mo_xml",,"MX")
-index on upper(FNAME) to (cur_dir+"tmp_mxml")
+index on upper(FNAME) to (cur_dir + "tmp_mxml")
 l := fieldlen(fieldnum("FNAME"))
 find (padr(cName,l))
 if (fl := found())
@@ -1191,121 +1191,26 @@ if ret == -1
 endif
 return ret
 
-***** 23.01.17 в GET'е выбрать значение из TMP_V015.DBF (глобального массива) с поиском по подстроке
-Function fget_tmp_V015(k,r,c,a_spec)
-Local ret, fl, kolRec, nRec, tmp_select := select(), s, blk, t_arr[BR_LEN]
-use (cur_dir+"tmp_v015") index (cur_dir+"tmpsV015"),(cur_dir+"tmpkV015") new alias tmp_ga
-kolRec := lastrec()
-if r <= maxrow()/2
-  t_arr[BR_TOP] := r+1
-  if (t_arr[BR_BOTTOM] := t_arr[BR_TOP]+kolRec+3) > maxrow()-2
-    t_arr[BR_BOTTOM] := maxrow()-2
-  endif
-else
-  t_arr[BR_BOTTOM] := r-1
-  if (t_arr[BR_TOP] := t_arr[BR_BOTTOM]-kolRec-3) < 1
-    t_arr[BR_TOP] := 1
-  endif
-endif
-if valtype(a_spec) == "A"
-  blk := {|| iif(tmp_ga->isn==1, {1,2}, {3,4}) }
-  if !empty(a_spec)
-    go top
-    do while !eof()
-      if ascan(a_spec,int(val(tmp_ga->kod))) > 0
-        tmp_ga->isn := 1
-      endif
-      skip
-    enddo
-  endif
-else
-  blk := {|| iif(tmp_ga->vs=="врач", {1,2}, {3,4}) }
-endif
-t_arr[BR_LEFT] := 2
-t_arr[BR_RIGHT] := 77
-t_arr[BR_COLOR] := color0
-t_arr[BR_ARR_BROWSE] := {"═","░","═","N/BG,W+/N,B/BG,W+/B",.f.}
-t_arr[BR_COLUMN] := {;
-  { "Код", {|| tmp_ga->kod },blk },;
-  { center("Медицинская специальность",40), {|| padr(f1get_tmp_V015(),40) },blk },;
-  { " ", {|| tmp_ga->vs },blk },;
-  { center("подчинение",21), {|| left(tmp_ga->name_up,21) },blk };
-}
-t_arr[BR_EDIT] := {|nk,ob| f1get_tmp_ga(nk,ob,"edit",a_spec) }
-if valtype(a_spec) == "A"
-  Ins_Array(t_arr[BR_COLUMN], 1, {" ", {|| iif(tmp_ga->isn==1,""," ") }, blk })
-  t_arr[BR_STAT_MSG] := {|| status_key("^<Esc>^ - выход;  ^<Ins>^ - отметить специальность;  ^<F2>^ - поиск по подстроке") }
-else
-  t_arr[BR_ENTER] := {|| iif(tmp_ga->uroven==0, (func_error(4,"Запрещается выбирать данную специальность"),ret:=nil),;
-                                                (ret := {tmp_ga->kod,alltrim(tmp_ga->name)})) }
-  t_arr[BR_STAT_MSG] := {|| status_key("^<Esc>^ - выход;  ^<Enter>^ - выбор;  ^<F2>^ - поиск по подстроке") }
-endif
-fl := .f. ; nRec := 0
-if !(valtype(a_spec) == "A") .and. k != NIL
-  set order to 2
-  find (k)
-  if (fl := found())
-    nRec := recno()
-  endif
-  set order to 1
-endif
-if !fl
-  nRec := 0
-endif
-go top
-if nRec > 0
-  if kolRec-nRec < t_arr[BR_BOTTOM]-t_arr[BR_TOP]-3 // последняя страница?
-    keyboard chr(K_END)+replicate(chr(K_UP),kolRec-nRec-1)
-  else
-    goto (nRec)
-  endif
-endif
-edit_browse(t_arr)
-if valtype(a_spec) == "A"
-  s := ""
-  asize(a_spec,0)
-  go top
-  do while !eof()
-    if tmp_ga->isn == 1
-      s += alltrim(tmp_ga->kod)+","
-      aadd(a_spec,int(val(tmp_ga->kod)))
-      tmp_ga->isn := 0
+**
+Function is_up_usl(arr_usl, mkod)
+  Local i := 0, tmp_select := select()
+
+  select USL
+  do while .t.
+    find (str(mkod, 4))
+    if !found()
+      exit
     endif
-    skip
+    if usl->kod_up == 0 .or. i > 20
+      exit
+    endif
+    mkod := usl->kod_up
+    ++i
   enddo
-  if empty(s)
-    s := "---"
-  else
-    s := left(s,len(s)-1)
+  if tmp_select > 0
+    select(tmp_select)
   endif
-  ret := {1,s}
-endif
-tmp_ga->(dbCloseArea())
-select (tmp_select)
-return ret
-
-***** 07.08.16
-Static Function f1get_tmp_V015()
-Local s := afteratnum(".",tmp_ga->name,1)
-s := space(2*tmp_ga->uroven)+s
-return s
-
-*****
-Function is_up_usl(arr_usl,mkod)
-Local i := 0, tmp_select := select()
-select USL
-do while .t.
-  find (str(mkod,4))
-  if !found() ; exit ; endif
-  if usl->kod_up == 0 .or. i > 20
-    exit
-  endif
-  mkod := usl->kod_up ; ++i
-enddo
-if tmp_select > 0
-  select(tmp_select)
-endif
-return ( ascan(arr_usl,usl->kod) > 0 )
+  return ( ascan(arr_usl, usl->kod) > 0 )
 
 ***** 03.01.19
 Function input_usluga(arr_tfoms)
@@ -1397,7 +1302,7 @@ return trd
 ***** 13.02.14
 FUNCTION input_uch(r,c,date1,date2)
 Local ret, k, fl_is, tmp_select := select()
-if !myFileDeleted(cur_dir+"tmp_ga"+sdbf)
+if !myFileDeleted(cur_dir + "tmp_ga"+sdbf)
   return ret
 endif
 if empty(glob_uch[1])
@@ -1406,10 +1311,10 @@ if empty(glob_uch[1])
   glob_uch[1] := int(val(ar[1]))
   glob_otd[1] := int(val(ar[2]))
 endif
-dbcreate(cur_dir+"tmp_ga",{{"name","C",30,0},;
+dbcreate(cur_dir + "tmp_ga",{{"name","C",30,0},;
                            {"kod","N",3,0},;
                            {"is","L",1,0}})
-use (cur_dir+"tmp_ga") new
+use (cur_dir + "tmp_ga") new
 R_Use(dir_server+"mo_uch",,"UCH")
 go top
 do while !eof()
@@ -1429,7 +1334,7 @@ select TMP_GA
 if (k := tmp_ga->(lastrec())) == 1
   ret := {tmp_ga->kod,alltrim(tmp_ga->name)}
 else
-  index on upper(name) to (cur_dir+"tmp_ga")
+  index on upper(name) to (cur_dir + "tmp_ga")
 endif
 tmp_ga->(dbCloseArea())
 select (tmp_select)
@@ -1453,15 +1358,15 @@ return input_otd(r1,c1,sys_date)
 FUNCTION input_otd(r,c,date1,date2,nTask)
 Local ret, k, fl_is, tmp_select := select()
 DEFAULT nTask TO X_OMS
-if !myFileDeleted(cur_dir+"tmp_ga"+sdbf)
+if !myFileDeleted(cur_dir + "tmp_ga"+sdbf)
   return ret
 endif
-dbcreate(cur_dir+"tmp_ga",{{"name","C",30,0},;
+dbcreate(cur_dir + "tmp_ga",{{"name","C",30,0},;
                            {"kod","N",3,0},;
                            {"idump","N",2,0},;
                            {"tiplu","N",2,0},;
                            {"is","L",1,0}})
-use (cur_dir+"tmp_ga") new
+use (cur_dir + "tmp_ga") new
 R_Use(dir_server+"mo_otd",,"OTD")
 go top
 do while !eof()
@@ -1491,7 +1396,7 @@ select TMP_GA
 if (k := tmp_ga->(lastrec())) == 1
   ret := {tmp_ga->kod,alltrim(tmp_ga->name),tmp_ga->idump,tmp_ga->tiplu}
 else
-  index on upper(name) to (cur_dir+"tmp_ga")
+  index on upper(name) to (cur_dir + "tmp_ga")
 endif
 tmp_ga->(dbCloseArea())
 select (tmp_select)
@@ -1555,7 +1460,7 @@ Private mr := r
 mywait()
 //help_code := H_Input_fio
 if R_Use(dir_server+"mo_pers",,"PERSO")
-  index on upper(fio) to (cur_dir+"tmp_pers") for kod > 0
+  index on upper(fio) to (cur_dir + "tmp_pers") for kod > 0
   if glob_human[1] > 0
     goto (glob_human[1])
     fl := !eof() .and. !deleted()
@@ -1915,7 +1820,7 @@ Local ret := -1, j := 0, flag := -1, buf := save_maxrow(), buf1, ;
 do case
   case regim == "open"
     G_Use(dir_server+"s_mr",,"SA")
-    index on upper(name) to (cur_dir+"tmp_mr")
+    index on upper(name) to (cur_dir + "tmp_mr")
     go top
     ret := !eof()
   case regim == "edit"
@@ -2100,7 +2005,7 @@ for i := 1 to k
   add_string(ta[i])
 next
 R_Use(dir_server+"uslugi",,"USL")
-index on fsort_usl(shifr) to (cur_dir+"tmpu")
+index on fsort_usl(shifr) to (cur_dir + "tmpu")
 go top
 do while !eof()
   if _f_usl_danet(mda,mnet)

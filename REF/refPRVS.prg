@@ -105,6 +105,19 @@ Function prvs_V021_to_V015(_prvs)
   endif
   return new_kod
   
+** 07.12.22 перевести специальность из кодировки справочника V015 в V021
+Function prvs_V015_to_V021(_prvs)
+  Local i, new_kod := 76 // по умолчанию - терапия
+  local arr_conv_V015_V021 := conversion_V015_V021()
+
+  if valtype(_prvs) == 'C'
+    _prvs := int(val(_prvs))
+  endif
+  if (i := ascan(arr_conv_V015_V021, {|x| x[1] == _prvs })) > 0
+    new_kod := arr_conv_V015_V021[i, 2]
+  endif
+  return new_kod
+  
 ** 04.12.22 вернуть массив соответствий специальности V015 специальностям V0004
 Function ret_arr_new_olds_prvs()
   Local i, j, np, op, arr := {}

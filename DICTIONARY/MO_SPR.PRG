@@ -1742,9 +1742,11 @@ Function f2edit_pers(nKey, oBrow)
       @ ++r, 2 say 'Ф.И.О.' get mfio
       @ ++r, 2 say 'СНИЛС' get msnils picture picture_pf valid val_snils(msnils, 1)
       @ ++r, 2 say 'Мед.специальность' get mPRVS ;
-                reader {|x|menu_reader(x, {{|k, r, c| fget_tmp_V015(k, r, c)}}, A__FUNCTION, , , .f.)}
-      // @ ++r, 2 say 'Мед.специальность V021' get mPRVS_021 ;
-      //         reader {|x|menu_reader(x, getV021(), A__MENUVERT_SPACE, , , .f.)}
+                reader {|x|menu_reader(x, {{|k, r, c| fget_tmp_V015(k, r, c)}}, A__FUNCTION, , , .f.)} ;
+                valid {|g| set_prvs(g, 1)}
+      @ ++r, 2 say 'Мед.специальность V021' get mPRVS_021 ;
+                reader {|x|menu_reader(x, getV021(), A__MENUVERT_SPACE, , , .f.)} ;
+                valid {|g| set_prvs(g, 2)}
       if fl_profil
         @ ++r, 2 say 'Профиль' get mprofil ;
                   reader {|x|menu_reader(x, tmp_V002, A__MENUVERT_SPACE, , , .f.)}
@@ -1799,8 +1801,8 @@ Function f2edit_pers(nKey, oBrow)
         p2->D_KATEG  := mD_KATEG
         p2->sertif   := m1sertif
         p2->D_SERTIF := mD_SERTIF
-        p2->prvs_new := val(m1prvs)
-        // p2->prvs_021 := val(m1prvs_021)
+        p2->prvs_new := iif(valtype(m1prvs) == 'C', val(m1prvs), m1prvs)
+        p2->prvs_021 := iif(valtype(m1prvs_021) == 'C', val(m1prvs_021), m1prvs_021)  //val(m1prvs_021)
         if fl_profil
           p2->profil := m1profil
         endif
@@ -1887,6 +1889,25 @@ Function f2edit_pers(nKey, oBrow)
       endif
   endcase
   return ret
+
+** 07.12.22
+function set_prvs(get, regim)
+  ** regim - место вызова, (1 - выбор mprvs, 2 - выбор mprvs_021)
+  local fl := .t., prvs := 0, prvs_021 := 0
+
+  if regim == 1
+    prvs := iif(valtype(m1prvs) == 'C', val(m1prvs), m1prvs)
+    m1prvs_021 := prvs_V015_to_V021(prvs)
+    mprvs_021 := inieditspr(A__MENUVERT, getV021(), m1prvs_021)
+    update_get('mprvs_021')
+  elseif regim == 2
+    prvs_021 := m1prvs_021
+    m1PRVS := prvs_V021_to_V015(prvs_021)
+    mprvs  := ret_tmp_prvs(0, m1prvs)
+    update_get('mprvs')
+  endif
+
+  return fl
 
 ** проверка на допустимость табельного номера
 Function val_tab_nom(get, nKey)
