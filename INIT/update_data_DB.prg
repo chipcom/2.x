@@ -74,9 +74,6 @@ function update_v21131()
     @ maxrow(),1 say pers->fio color cColorStMsg
     if ! empty(pers->PRVS_NEW)
       j := 0
-      // if (j := ascan(glob_arr_V015_V021, {|x| x[1] == pers->PRVS_NEW })) > 0
-      //   pers->PRVS_021 := glob_arr_V015_V021[j, 2]
-      // endif
       if (j := ascan(arr_conv_V015_V021, {|x| x[1] == pers->PRVS_NEW })) > 0
         pers->PRVS_021 := arr_conv_V015_V021[j, 2]
       endif

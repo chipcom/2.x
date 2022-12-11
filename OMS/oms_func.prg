@@ -69,9 +69,6 @@ Function UslugaAccordancePRVS(lshifr, lvzros_reb, lprvs, ta, short_shifr, lvrach
       // формируем сообщение об ошибке
       do while mospec->shifr==lshifr .and. mospec->vzros_reb == lvzros_reb .and. !eof()
         k := mospec->prvs_new
-        // if (i := ascan(glob_arr_V015_V021, {|x| x[2] == k})) > 0 // перевод из 21-го справочника
-        //   k := glob_arr_V015_V021[i, 1]                          // в 15-ый справочник
-        // endif
         if (i := ascan(arr_conv_V015_V021, {|x| x[2] == k})) > 0 // перевод из 21-го справочника
           k := arr_conv_V015_V021[i, 1]                          // в 15-ый справочник
         endif

@@ -2156,9 +2156,6 @@ Function ret_tmp_prvs(kod_old, kod_new)
       select (tmp_select)
       return ret
     endif
-    // if (i := ascan(glob_arr_V004_V015, {|x| x[1] == k })) > 0
-    //   return lstr(glob_arr_V004_V015[i, 2])+ '.' +glob_arr_V004_V015[i, 3]
-    // endif
     if (i := ascan(arr_conv_V004_V015, {|x| x[1] == k })) > 0
       return lstr(arr_conv_V004_V015[i, 2]) + '.' + arr_conv_V004_V015[i, 3]
     endif

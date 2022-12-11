@@ -6,9 +6,6 @@
 Function ret_V004_V015(_PRVS)
   Local i, ret := 0
   local arr_conv := conversion_V004_V015()
-  // if (i := ascan(glob_arr_V004_V015, {|x| x[1] == _PRVS })) > 0
-  //   ret := glob_arr_V004_V015[i, 2]
-  // endif
   if (i := ascan(arr_conv, {|x| x[1] == _PRVS })) > 0
     ret := arr_conv[i, 2]
   endif
@@ -19,9 +16,6 @@ Function ret_prvs_V015toV021(lkod)
   Local i, new_kod := 76 // по умолчанию - терапия
   local arr_conv_V015_V021 := conversion_V015_V021()
 
-  // if (i := ascan(glob_arr_V015_V021, {|x| x[1] == lkod })) > 0
-  //   new_kod := glob_arr_V015_V021[i, 2]
-  // endif
   if (i := ascan(arr_conv_V015_V021, {|x| x[1] == lkod })) > 0
     new_kod := arr_conv_V015_V021[i, 2]
   endif
@@ -33,9 +27,6 @@ Function ret_new_spec(old_spec, new_spec)
   local arr_conv := conversion_V004_V015()
 
   if empty(new_spec)
-    // if !empty(old_spec) .and. (i := ascan(glob_arr_V004_V015, {|x| x[1] == old_spec })) > 0
-    //   lkod := glob_arr_V004_V015[i, 2]
-    // endif
     if !empty(old_spec) .and. (i := ascan(arr_conv, {|x| x[1] == old_spec })) > 0
       lkod := arr_conv[i, 2]
     endif
@@ -52,10 +43,6 @@ Function ret_old_prvs(new_kod)
 
   if new_kod < 0
     new_kod := abs(new_kod)
-    // if (i := ascan(glob_arr_V004_V015, {|x| x[2] == new_kod })) > 0
-    //   old_kod := glob_arr_V004_V015[i, 1]
-    // elseif (i := ascan(glob_arr_V015_V004, {|x| x[3] == new_kod })) > 0
-    //   old_kod := glob_arr_V015_V004[i, 1]
     if (i := ascan(arr_conv_V004_V015, {|x| x[2] == new_kod })) > 0
       old_kod := arr_conv_V004_V015[i, 1]
     elseif (i := ascan(arr_conv, {|x| x[3] == new_kod })) > 0
@@ -81,9 +68,6 @@ Function ret_prvs_V021(_prvs)
         lkod := ret_new_prvs(_prvs) // в кодировке справочника V015
   local arr_conv_V015_V021 := conversion_V015_V021()
 
-  // if (i := ascan(glob_arr_V015_V021, {|x| x[1] == lkod })) > 0
-  //   new_kod := glob_arr_V015_V021[i, 2]
-  // endif
   if (i := ascan(arr_conv_V015_V021, {|x| x[1] == lkod })) > 0
     new_kod := arr_conv_V015_V021[i, 2]
   endif
@@ -97,9 +81,6 @@ Function prvs_V021_to_V015(_prvs)
   if valtype(_prvs) == 'C'
     _prvs := int(val(_prvs))
   endif
-  // if (i := ascan(glob_arr_V015_V021, {|x| x[2] == _prvs })) > 0
-  //   new_kod := glob_arr_V015_V021[i, 1]
-  // endif
   if (i := ascan(arr_conv_V015_V021, {|x| x[2] == _prvs })) > 0
     new_kod := arr_conv_V015_V021[i, 1]
   endif
@@ -124,9 +105,6 @@ Function ret_arr_new_olds_prvs()
   local arr_conv := conversion_V015_V004()
   local arr_conv_V004_V015 := conversion_V004_V015()
 
-  // for i := 1 to len(glob_arr_V004_V015)
-  //   op := glob_arr_V004_V015[i, 1]
-  //   np := glob_arr_V004_V015[i, 2]
   for i := 1 to len(arr_conv_V004_V015)
     op := arr_conv_V004_V015[i, 1]
     np := arr_conv_V004_V015[i, 2]
@@ -136,10 +114,7 @@ Function ret_arr_new_olds_prvs()
     endif
     aadd(arr[j, 2], op)
   next
-  // for i := 1 to len(glob_arr_V015_V004)
   for i := 1 to len(arr_conv)
-    // op := glob_arr_V015_V004[i, 1]
-    // np := glob_arr_V015_V004[i, 3]
     op := arr_conv[i, 1]
     np := arr_conv[i, 3]
     if (j := ascan(arr, {|x| x[1] == np })) == 0

@@ -988,9 +988,6 @@ Function fget_spec_deti(k,r,c,a_spec)
       mospec->(dbCloseArea())
     endif
     for i := 1 to len(as)
-      // if (j := ascan(glob_arr_V015_V021,{|x| x[2] == as[i]})) > 0 // перевод из 21-го справочника
-      //   as[i] := glob_arr_V015_V021[j,1]                          // в 15-ый справочник
-      // endif
       if (j := ascan(arr_conv_V015_V021,{|x| x[2] == as[i]})) > 0 // перевод из 21-го справочника
         as[i] := arr_conv_V015_V021[j,1]                          // в 15-ый справочник
       endif
