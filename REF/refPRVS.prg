@@ -142,6 +142,164 @@ Function put_prvs_to_reestr(_PRVS, _YEAR)
   endif
   return lstr(k)
   
+** 04.11.22 вернуть медицинскую специальность из tmp-файла
+Function ret_tmp_prvs(kod_old, kod_new)
+  Local i, k, tmp_select := select(), ret := space(10)
+  local arr_conv_V004_V015 := conversion_V004_V015()
+
+  if empty(kod_new)
+    if valtype(kod_old) == 'C'
+      k := int(val(kod_old))
+    else
+      k := kod_old
+    endif
+    if k < 0 // новая специальность занесена в лист учёта
+      k := abs(k)
+      k := padr(lstr(k), 4)
+      use (cur_dir + 'tmp_V015') index (cur_dir + 'tmpkV015') new
+      find (k)
+      if found()
+        ret := alltrim(tmp_V015->name)
+      endif
+      tmp_V015->(dbCloseArea())
+      select (tmp_select)
+      return ret
+    endif
+    if (i := ascan(arr_conv_V004_V015, {|x| x[1] == k })) > 0
+      return lstr(arr_conv_V004_V015[i, 2]) + '.' + arr_conv_V004_V015[i, 3]
+    endif
+    if valtype(kod_old) == 'N'
+      k := padr(lstr(kod_old), 9)
+    else
+      k := kod_old
+    endif
+    use (cur_dir + 'tmp_V004') index (cur_dir + 'tmpkV004') new
+    find (k)
+    if found()
+      ret := alltrim(tmp_V004->name)
+    endif
+    tmp_V004->(dbCloseArea())
+  else
+    if valtype(kod_new) == 'N'
+      k := padr(lstr(kod_new), 4)
+    else
+      k := kod_new
+    endif
+    use (cur_dir + 'tmp_V015') index (cur_dir + 'tmpkV015') new
+    find (k)
+    if found()
+      ret := alltrim(tmp_V015->name)
+    endif
+    tmp_V015->(dbCloseArea())
+  endif
+  select (tmp_select)
+  return ret
+
+** 06.11.22 инициализировать tmp-файл БД медицинский специальностей
+Function init_tmp_prvs(_date, is_all)
+  Local i, s, len1, fl_is, rec, tmp_select := select()
+
+  DEFAULT is_all TO .f.
+  len1 := 0
+  _glob_array := getV004()
+  for i := 1 to len(_glob_array)
+    if iif(is_all, .t., between_date(_glob_array[i, 3], _glob_array[i, 4], _date))
+      len1 := max(len1, len(lstr(_glob_array[i, 2]) + alltrim(_glob_array[i, 1])) + 1)
+    endif
+  next
+  dbcreate(cur_dir + 'tmp_V004', {{'name', 'C', len1, 0}, ;
+                             {'kod', 'C', 9, 0}, ;
+                             {'is', 'L', 1, 0}})
+  use (cur_dir + 'tmp_V004') new
+  for i := 1 to len(_glob_array)
+    fl_is := between_date(_glob_array[i, 3], _glob_array[i, 4], _date)
+    if iif(is_all, .t., fl_is)
+      append blank
+      replace name with lstr(_glob_array[i, 2]) + '.' + _glob_array[i, 1], ;
+                        kod with padr(lstr(_glob_array[i, 2]), 9), ;
+                        is with fl_is
+    endif
+  next
+  index on upper(name) to (cur_dir + 'tmp_V004')
+  index on kod to (cur_dir + 'tmpkV004')
+  tmp_V004->(dbCloseArea())
+  //
+  len1 := 0
+  _glob_array := getV015()
+  for i := 1 to len(_glob_array)
+    if iif(is_all, .t., between_date(_glob_array[i, 5], _glob_array[i, 6], _date))
+      len1 := max(len1, len(lstr(_glob_array[i, 2]) + alltrim(_glob_array[i, 1])) + 1)
+    endif
+  next
+  dbcreate(cur_dir + 'tmp_V015', {{'name', 'C', len1, 0}, ;
+                                  {'kod', 'C', 4, 0}, ;
+                                  {'kod_up', 'C', 4, 0}, ;
+                                  {'vs', 'C', 4, 0}, ;
+                                  {'name_up', 'C', 50, 0}, ;
+                                  {'uroven', 'N', 1, 0}, ;
+                                  {'sindex', 'C', 56, 0}, ;
+                                  {'isn', 'N', 1, 0}, ;
+                                  {'is', 'L', 1, 0}})
+  use (cur_dir + 'tmp_V015') new
+  for i := 1 to len(_glob_array)
+    fl_is := between_date(_glob_array[i, 5], _glob_array[i, 6], _date)
+    if iif(is_all, .t., fl_is)
+      append blank
+      replace name with lstr(_glob_array[i, 2]) + '.' + _glob_array[i, 1], ;
+              kod with lstr(_glob_array[i, 2]), ;
+              kod_up with _glob_array[i, 3], ;
+              is with fl_is
+    endif
+  next
+  index on upper(name) to (cur_dir + 'tmp_V015')
+  index on kod to (cur_dir + 'tmpkV015')
+  set order to 0
+  go top
+  do while !eof()
+    rec := recno()
+    i := 0
+    s := upper(padr(afteratnum('.', tmp_V015->name, 1), 10)) + tmp_V015->kod
+    svs := '' ; anu := {}
+    set order to 1
+    do while .t.
+      if empty(tmp_V015->kod_up)
+        svs := iif(int(val(tmp_V015->kod)) == 0, 'врач', 'сред')
+        exit
+      endif
+      find (tmp_V015->kod_up)
+      if found()
+        if i == 9
+          exit
+        endif
+        s := upper(padr(afteratnum('.', tmp_V015->name, 1), 10)) + tmp_V015->kod + s
+        if !empty(tmp_V015->kod_up)
+          aadd(anu,tmp_V015->name)
+        endif
+        ++i
+      else
+        exit
+      endif
+    enddo
+    set order to 0
+    goto (rec)
+    tmp_V015->uroven := i
+    tmp_V015->sindex := s
+    tmp_V015->vs := svs
+    s := ''
+    for i := 1 to min(2, len(anu))
+      if !empty(s)
+        s := left(s, 10) + '/'
+      endif
+      s += anu[i]
+    next
+    tmp_V015->name_up := s
+    skip
+  enddo
+  index on sindex to (cur_dir + 'tmpsV015')
+  tmp_V015->(dbCloseArea())
+  select (tmp_select)
+  return NIL
+
 ** 24.11.22 соответствие справочника V015 -> V021
 function conversion_V015_V021()
   static arr

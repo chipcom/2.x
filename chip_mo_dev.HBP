@@ -120,8 +120,9 @@ mo_version.prg
 
 .\dictionary\mo_spr.prg
 .\dictionary\mo_spri.prg
-.\dictionary\spr_func.prg
+.\dictionary\spr_personal.prg
 .\dictionary\spr_uslugi.prg
+.\dictionary\spr_func.prg
 
 .\ref\initSpravFFOMS.prg
 .\ref\dbAdditionalCriteria.prg
