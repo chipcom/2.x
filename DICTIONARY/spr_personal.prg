@@ -390,7 +390,7 @@ Function f2edit_pers(nKey, oBrow)
   endcase
   return ret
 
-** 07.12.22
+** 12.12.22
 function set_prvs(get, regim)
   ** regim - место вызова, (1 - выбор mprvs, 2 - выбор mprvs_021)
   local fl := .t., prvs := 0, prvs_021 := 0
@@ -399,12 +399,16 @@ function set_prvs(get, regim)
     prvs := iif(valtype(m1prvs) == 'C', val(m1prvs), m1prvs)
     m1prvs_021 := prvs_V015_to_V021(prvs)
     mprvs_021 := inieditspr(A__MENUVERT, getV021(), m1prvs_021)
+    mname_dolj := DoljBySpec_V021(m1prvs_021)
     update_get('mprvs_021')
+    update_get('mname_dolj')
   elseif regim == 2
     prvs_021 := m1prvs_021
     m1PRVS := prvs_V021_to_V015(prvs_021)
     mprvs  := ret_tmp_prvs(0, m1prvs)
+    mname_dolj := DoljBySpec_V021(prvs_021)
     update_get('mprvs')
+    update_get('mname_dolj')
   endif
 
   return fl
