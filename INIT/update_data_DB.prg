@@ -1,7 +1,7 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-******* 10.03.22 проведение изменений в содержимом БД при обновлении
+** 16.12.22 проведение изменений в содержимом БД при обновлении
 function update_data_DB(aVersion)
   local snversion := int(aVersion[1]*10000 + aVersion[2]*100 + aVersion[3])
   local ver_base := get_version_DB()
@@ -10,16 +10,17 @@ function update_data_DB(aVersion)
     update_v21130()     // скоректироем листы углубленной диспансеризации
   endif
 
-  if ver_base < 21131 // переход на версию 2.11.31
-    update_v21131()     // заполним поле PRVS_V021 кодами из справочника мед. специальностей V021
-  endif
-
   if ver_base < 21203 // переход на версию 2.12.3
     update_v21203()     // заполним поле MO_HU_K файла human_im.dbf
   endif
+
+  if ver_base < 21208 // переход на версию 2.12.08
+    update_v21208()     // заполним поле PRVS_V021 кодами из справочника мед. специальностей V021
+  endif
+
   return nil
 
-***** 12.03.22
+** 12.03.22
 function update_v21203()
   local cAlias := 'IMPL'
   // Local t1 := 0, t2 := 0
@@ -28,7 +29,7 @@ function update_v21203()
   R_Use(dir_server + 'human', dir_server + 'humank', 'HUMAN')
   R_Use(dir_server + 'mo_hu', dir_server + 'mo_hu', 'HU')
 
-  G_Use(dir_server + "human_im", dir_server + "human_im", cAlias)
+  G_Use(dir_server + 'human_im', dir_server + 'human_im', cAlias)
   (cAlias)->(dbSelectArea())
   (cAlias)->(dbGoTop())
   do while ! (cAlias)->(Eof())
@@ -59,8 +60,8 @@ function update_v21203()
   // alertx(i, 'Количество сотрудников')
   return nil
 
-** 06.12.22
-function update_v21131()
+** 16.12.22
+function update_v21208()
   local i := 0, j := 0
   local arr_conv_V015_V021 := conversion_V015_V021()
 
@@ -108,10 +109,10 @@ function update_v21130()
 
     Stat_Msg('Проверка и исправление кода врача в листах учета Углубленной диспансеризации')
 
-    R_Use(dir_server+"uslugi",,"USL")
-    R_Use(dir_server+"mo_su",,"MOSU")
+    R_Use(dir_server + 'uslugi', , 'USL')
+    R_Use(dir_server + 'mo_su', , 'MOSU')
 
-    use_base("mo_hu")
+    use_base('mo_hu')
     use_base('human_u') // откроем файл human_u и сопутствующие файлы
 
     use_base('human') // откроем файл human_u и сопутствующие файлы
@@ -148,14 +149,14 @@ function update_v21130()
         elseif human->ishod == 402
           select MOHU
           set relation to u_kod into MOSU 
-          mohu->(dbseek(str(mkod,7)))
+          mohu->(dbseek(str(mkod, 7)))
           do while MOHU->kod == mkod .and. !eof()
             MOSU->(dbGoto(MOHU->u_kod))
-            lshifr := alltrim(iif(empty(MOSU->shifr),MOSU->shifr1,MOSU->shifr))
+            lshifr := alltrim(iif(empty(MOSU->shifr), MOSU->shifr1, MOSU->shifr))
       
             if (lshifr == 'B01.026.002' .or. lshifr == 'B01.047.002' .or. lshifr == 'B01.047.006') .and. human_->VRACH != mohu->KOD_VR
               j++
-              @ maxrow(),1 say human->fio color cColorStMsg
+              @ maxrow(), 1 say human->fio color cColorStMsg
               human_->(dbSelectArea())
               if human_->(dbRLock())
                 human_->VRACH := mohu->KOD_VR

@@ -1,4 +1,4 @@
-***** mo_omsna.prg - диспансерное наблюдение
+** mo_omsna.prg - диспансерное наблюдение
 #include "inkey.ch"
 #include "fastreph.ch"
 #include "function.ch"
@@ -7,10 +7,9 @@
 
 Static lcount_uch  := 1
 
-*
 
-***** 01.12.19 проверить дагноз для диспансерного наблюдения
-Function f_is_diag_dn(ldiag,/*@*/arr_dn)
+** 16.12.22 проверить дагноз для диспансерного наблюдения
+Function f_is_diag_dn(ldiag, /*@*/arr_dn)
 Static sarr_dn, narr_dn, len_diag
 Local i, j, d1, d2, s, fl := .f.
 if sarr_dn == NIL
@@ -20,24 +19,48 @@ if sarr_dn == NIL
 //   {"M02-M94","M3","M7-M9","M11-M14","M20-M29","M36-M44","M46-M80","M82-M99"},;
 
   sarr_dn := {;
+   {"B18-B24"},; 
    {"C00-C97"},;
-   {"D00-D09"},;   // до D09.9 может быть добавить  {"D45-D47")
-   {"E10.2-E10.9"},;   // c E10.2
-   {"E11.2-E11.9"},;   // c E10.2
-   {"E12.2-E12.9"},;   // c E10.2
-   {"E13-E13.9"},;     // c E10.2
-   {"E13-E14"},;
-   {"E78"},;
-   {"I00"},;
-   {"I01"},;
-   {"I01.0"},;
-   {"I01.1"},;
-   {"I01.2"},;
-   {"I01.8"},;
-   {"I01.9"},;
-   {"I02"},;
-   {"I02.0"},;
-   {"I02.9"},;
+   {"D00-D10"},;   // до D09.9 может быть добавить  {"D45-D47")
+   {"D11"},;
+   {"D11.0"},;
+   {"D11.7"},;
+   {"D12.6"},;
+   {"D12.8"},;
+   {"D13.4"},;
+   {"D13.7"},;
+   {"D14"},;
+   {"D14.0"},;
+   {"D14.1"},;
+   {"D14.2"},;
+   {"D14.3"},;
+   {"D16-D16.9"},;
+   {"D22-D23.9"},;
+   {"D24"},;
+   {"D29.1"},;
+   {"D30.0"},;
+   {"D30.3"},;
+   {"D30.4"},;
+   {"D31-D31.9"},;
+   {"D35.0"},;
+   {"D35.1"},;
+   {"D35.2"},;
+   {"D35.8"},;
+   {"D37.6"},;
+   {"D39.1"},;
+   {"D41.0"},;
+   {"D44.8"},;
+   {"E04.1"},;
+   {"E04.2"},;
+   {"E05.1"},;
+   {"E05.2"},;
+   {"E11-E11.9"},;   // c E10.2 {"E10.2-E10.9"},; 
+   {"E21.0"},;     
+   {"E22.0"},; 
+   {"E28.2"},; 
+   {"E34.5"},; 
+   {"E34.8"},; 
+   {"E78-E78.9"},;
    {"I05"},;
    {"I05.0"},;
    {"I05.1"},;
@@ -72,20 +95,50 @@ if sarr_dn == NIL
    {"I10"},;
    {"I11.0"},;
    {"I11.9"},;
+   {"I12"},;
    {"I12.0"},;
    {"I12.9"},;
+   {"I13"},; 
    {"I13.0"},;
    {"I13.1"},;
    {"I13.2"},;
    {"I13.9"},;
+   {"I15"},;
    {"I15.0"},;
    {"I15.1"},;
    {"I15.2"},;
    {"I15.8"},;
    {"I15.9"},;
+   {"I20"},;
    {"I20.1"},;
    {"I20.8"},;
    {"I20.9"},;
+   {"I21"},;
+   {"I21.0"},;
+   {"I21.1"},;
+   {"I21.2"},;
+   {"I21.3"},;
+   {"I21.4"},;
+   {"I21.9"},;
+   {"I22"},;
+   {"I22.0"},;
+   {"I22.1"},;
+   {"I22.8"},;
+   {"I22.9"},;
+   {"I23"},;
+   {"I23.0"},;
+   {"I23.1"},;
+   {"I23.2"},;
+   {"I23.3"},;
+   {"I23.4"},;
+   {"I23.5"},;
+   {"I23.6"},;
+   {"I23.8"},;
+   {"I24"},;
+   {"I24.0"},;
+   {"I24.1"},; 
+   {"I24.8"},;
+   {"I25"},;
    {"I25.0"},;
    {"I25.1"},;
    {"I25.2"},;
@@ -95,34 +148,141 @@ if sarr_dn == NIL
    {"I25.6"},;
    {"I25.8"},;
    {"I25.9"},;
+   {"I26"},;
+   {"I26.0"},;
+   {"I26.9"},;
    {"I27.0"},;
+   {"I27.2"},; 
    {"I27.8"},;
+   {"I28"},;
+   {"I28.0"},;
+   {"I28.1"},;
+   {"I28.8"},;
+   {"I28.9"},;
+   {"I33"},;
+   {"I33.0"},;
+   {"I33.9"},;
+   {"I34"},;
+   {"I34.0"},;
+   {"I34.1"},;
+   {"I34.2"},;
+   {"I34.8"},;
+   {"I34.9"},;
+   {"I35"},;
+   {"I35.0"},;
+   {"I35.1"},;
+   {"I35.2"},;
+   {"I35.8"},;
+   {"I35.9"},;
+   {"I36"},;
+   {"I36.0"},;
+   {"I36.1"},;
+   {"I36.2"},;
+   {"I36.8"},;
+   {"I36.9"},;
+   {"I37"},;
+   {"I37.0"},;
+   {"I37.1"},;
+   {"I37.2"},;
+   {"I37.8"},;
+   {"I37.9"},;
+   {"I38"},;
+   {"I39"},;
+   {"I39.0"},;
+   {"I39.1"},;
+   {"I39.2"},;
+   {"I39.3"},;
+   {"I39.4"},;
+   {"I39.8"},;
+   {"I40"},;
+   {"I40.0"},;
+   {"I40.1"},;
+   {"I40.8"},;
+   {"I40.9"},;
+   {"I41"},;
+   {"I41.0"},;
+   {"I41.1"},;   
+   {"I41.2"},;
+   {"I41.8"},;
+   {"I42"},;
+   {"I42.0"},;
+   {"I42.1"},;
+   {"I42.2"},;
+   {"I42.3"},;
+   {"I42.4"},;
+   {"I42.5"},;
+   {"I42.7"},;
+   {"I42.8"},;
+   {"I42.9"},; 
+   {"I44"},; 
+   {"I44.0"},; 
+   {"I44.1"},;
+   {"I44.2"},;
+   {"I44.3"},;
+   {"I44.4"},;
+   {"I44.5"},;
+   {"I44.6"},;
+   {"I44.7"},;
+   {"I45"},;
+   {"I45.0"},;
+   {"I45.1"},;
+   {"I45.2"},;
+   {"I45.3"},;
+   {"I45.4"},;
+   {"I45.5"},;
+   {"I45.6"},;
    {"I45.8"},;
+   {"I45.9"},;
+   {"I46"},;
+   {"I46.0"},;
+   {"I46.1"},;
+   {"I46.9"},;
+   {"I47"},;
+   {"I47.0"},;
    {"I47.1"},;
    {"I47.2"},;
+   {"I47.9"},; 
+   {"I48"},;
    {"I48.0"},;
    {"I48.1"},;
    {"I48.2"},;
    {"I48.3"},;
    {"I48.4"},;
+   {"I48.9"},;
+   {"I49"},;
    {"I49.0"},;
    {"I49.1"},;
    {"I49.2"},;
    {"I49.3"},;
    {"I49.4"},;
+   {"I49.5"},;
+   {"I49.8"},;
+   {"I49.9"},;
+   {"I50"},;
    {"I50.0"},;
    {"I50.1"},;
    {"I50.9"},;
+   {"I51.0"},;
+   {"I51.1"},;
+   {"I51.2"},;
+   {"I51.4"},;
    {"I65.2"},;
-   {"I67.3"},;
    {"I67.8"},;
-   {"I67.9"},;
    {"I69.0"},;
    {"I69.1"},;
    {"I69.2"},;
    {"I69.3"},;
    {"I69.4"},;
-   {"I69.8"},;
+   {"I71"},;
+   {"I71.0"},;
+   {"I71.1"},;
+   {"I71.2"},;
+   {"I71.3"},;
+   {"I71.4"},;
+   {"I71.5"},;
+   {"I71.6"},;
+   {"I71.8"},;
+   {"I71.9"},;
    {"J12"},;
    {"J12.0"},;
    {"J12.1"},;
@@ -132,35 +292,23 @@ if sarr_dn == NIL
    {"J12.9"},;
    {"J13"},;
    {"J14"},;
-   {"J15"},;
-   {"J15.0"},;
-   {"J15.1"},;
-   {"J15.2"},;
-   {"J15.3"},;
-   {"J15.4"},;
-   {"J15.5"},;
-   {"J15.6"},;
-   {"J15.7"},;
-   {"J15.8"},;
-   {"J15.9"},;
-   {"J16.0"},;
-   {"J16.8"},;
-   {"J18.0"},;
-   {"J18.1"},;
-   {"J18.2"},;
-   {"J18.8"},;
-   {"J18.9"},;
+   {"J31"},;
+   {"J31.0"},; 
+   {"J31.1"},;
+   {"J31.2"},;
+   {"J33"},;
+   {"J33.0"},;
+   {"J33.1"},;
+   {"J33.8"},;
+   {"J33.9"},;
+   {"J37"},;
+   {"J37.0"},;
+   {"J37.1"},;
+   {"J38.1"},;
    {"J41.0"},;
    {"J41.1"},;
    {"J41.8"},;
-   {"J42"},;
-   {"J43.0"},;
-   {"J43.1"},;
-   {"J43.2"},;
-   {"J43.8"},;
-   {"J43.9"},;
    {"J44.0"},;
-   {"J44.1"},;
    {"J44.8"},;
    {"J44.9"},;
    {"J45.0"},;
@@ -168,27 +316,26 @@ if sarr_dn == NIL
    {"J45.8"},;
    {"J45.9"},;
    {"J47"},;
-   {"J47.0"},;
-   {"J70.2"},;
-   {"J70.3"},;
-   {"J70.4"},;
-   {"J82"},;
-   {"J84.0"},;
    {"J84.1"},;
-   {"J84.8"},;
-   {"J84.9"},;
-   {"J98.2"},;
+   {"K13.0"},;
+   {"K13.2"},;
+   {"K13.7"},;
    {"K20"},;
    {"K21.0"},;
+   {"K22.0"},;
+   {"K22.2"},;
    {"K22.7"},;
-   {"K22.8"},;
-   {"K22.9"},;
+   {"K25"},;
    {"K25.0"},;
    {"K25.1"},;
    {"K25.2"},;
    {"K25.3"},;
+   {"K25.4"},;
+   {"K25.5"},;
+   {"K25.6"},;
    {"K25.7"},;
    {"K25.9"},;
+   {"K26"},; 
    {"K26.0"},;
    {"K26.1"},;
    {"K26.2"},;
@@ -198,341 +345,180 @@ if sarr_dn == NIL
    {"K26.6"},;
    {"K26.7"},;
    {"K26.9"},;
-   {"K28.3"},;
-   {"K28.7"},;
-   {"K28.9"},;
    {"K29.4"},;
    {"K29.5"},;
    {"K31.7"},;
-   {"K57.1"},;
-   {"K57.3"},;
-   {"K57.5"},;
-   {"K57.9"},;
-   {"K63.5"},;
-   {"K63.8"},;
+   {"K50"},;
+   {"K50.0"},;
+   {"K50.1"},;
+   {"K50.8"},;
+   {"K50.9"},;
+   {"K51"},;
+   {"K51.0"},;
+   {"K51.1"},;
+   {"K51.2"},;
+   {"K51.3"},;
+   {"K51.4"},;
+   {"K51.5"},;
+   {"K51.8"},;
+   {"K51.9"},;
+   {"K62.1"},;
+   {"K70.3"},;
+   {"K74.3"},;
+   {"K74.4"},;
+   {"K74.5"},;
+   {"K74.6"},;
+   {"K86"},;
    {"K86.0"},;
    {"K86.1"},;
    {"K86.2"},;
    {"K86.3"},;
    {"K86.8"},;
    {"K86.9"},;
-   {"K91.1"},;
-   {"K91.2"},;
-   {"K91.4"},;
-   {"K91.5"},;
-   {"K91.8"},;
-   {"K91.9"},;
-   {"M02"},;
-   {"M02.0"},;
-   {"M02.1"},;
-   {"M02.2"},;
-   {"M02.3"},;
-   {"M02.8"},;
-   {"M02.9"},;
-   {"M05"},;
-   {"M05.0"},;
-   {"M05.1"},;
-   {"M05.2"},;
-   {"M05.3"},;
-   {"M05.8"},;
-   {"M05.9"},;
-   {"M06"},;
-   {"M06.0"},;
-   {"M06.1"},;
-   {"M06.2"},;
-   {"M06.3"},;
-   {"M06.4"},;
-   {"M06.8"},;
-   {"M06.9"},;
-   {"M10"},;
-   {"M10.0"},;
-   {"M10.1"},;
-   {"M10.2"},;
-   {"M10.3"},;
-   {"M10.4"},;
-   {"M10.9"},;
-   {"M15"},;
-   {"M15.0"},;
-   {"M15.1"},;
-   {"M15.2"},;
-   {"M15.3"},;
-   {"M15.4"},;
-   {"M15.8"},;
-   {"M15.9"},;
-   {"M16"},;
-   {"M16.0"},;
-   {"M16.1"},;
-   {"M16.2"},;
-   {"M16.3"},;
-   {"M16.4"},;
-   {"M16.5"},;
-   {"M16.6"},;
-   {"M16.7"},;
-   {"M16.9"},;
-   {"M17"},;
-   {"M17.0"},;
-   {"M17.1"},;
-   {"M17.2"},;
-   {"M17.3"},;
-   {"M17.4"},;
-   {"M17.5"},;
-   {"M17.9"},;
-   {"M18"},;
-   {"M18.0"},;
-   {"M18.1"},;
-   {"M18.2"},;
-   {"M18.3"},;
-   {"M18.4"},;
-   {"M18.5"},;
-   {"M18.9"},;
-   {"M19"},;
-   {"M19.0"},;
-   {"M19.1"},;
-   {"M19.2"},;
-   {"M19.8"},;
-   {"M19.9"},;
-   {"M30"},;
-   {"M30.0"},;
-   {"M30.1"},;
-   {"M30.2"},;
-   {"M30.3"},;
-   {"M30.8"},;
-   {"M31"},;
-   {"M31.0"},;
-   {"M31.1"},;
-   {"M31.2"},;
-   {"M31.3"},;
-   {"M31.4"},;
-   {"M31.5"},;
-   {"M31.6"},;
-   {"M31.7"},;
-   {"M31.8"},;
-   {"M31.9"},;
-   {"M32"},;
-   {"M32.0"},;
-   {"M32.1"},;
-   {"M32.8"},;
-   {"M32.9"},;
-   {"M33"},;
-   {"M33.1"},;
-   {"M33.2"},;
-   {"M33.9"},;
-   {"M34"},;
-   {"M34.0"},;
-   {"M34.1"},;
-   {"M34.2"},;
-   {"M34.8"},;
-   {"M34.9"},;
-   {"M35"},;
-   {"M35.0"},;
-   {"M35.1"},;
-   {"M35.2"},;
-   {"M35.3"},;
-   {"M35.4"},;
-   {"M35.5"},;
-   {"M35.6"},;
-   {"M35.7"},;
-   {"M35.8"},;
-   {"M35.9"},;
-   {"M45"},;
-   {"M45.0"},;
-   {"M45.1"},;
-   {"M45.2"},;
-   {"M45.3"},;
-   {"M45.4"},;
-   {"M45.5"},;
-   {"M45.6"},;
-   {"M45.7"},;
-   {"M45.8"},;
-   {"M45.9"},;
+   {"L43"},;
+   {"L43.0"},;    
+   {"L43.1"},;
+   {"L43.2"},;
+   {"L43.3"},;
+   {"L43.8"},;
+   {"L43.9"},;
+   {"L57.1"},;
+   {"L82"},;
    {"M81.5"},;
-   {"N00"},;
-   {"N00.0"},;
-   {"N00.1"},;
-   {"N00.2"},;
-   {"N00.3"},;
-   {"N00.4"},;
-   {"N00.5"},;
-   {"N00.6"},;
-   {"N00.7"},;
-   {"N00.8"},;
-   {"N00.9"},;
-   {"N01"},;
-   {"N01.0"},;
-   {"N01.1"},;
-   {"N01.2"},;
-   {"N01.3"},;
-   {"N01.4"},;
-   {"N01.5"},;
-   {"N01.6"},;
-   {"N01.7"},;
-   {"N01.8"},;
-   {"N01.9"},;
-   {"N02"},;
-   {"N02.0"},;
-   {"N02.1"},;
-   {"N02.2"},;
-   {"N02.3"},;
-   {"N02.4"},;
-   {"N02.5"},;
-   {"N02.6"},;
-   {"N02.7"},;
-   {"N02.8"},;
-   {"N02.9"},;
-   {"N03"},;
-   {"N03"},;
-   {"N03.0"},;
-   {"N03.1"},;
-   {"N03.2"},;
-   {"N03.3"},;
-   {"N03.4"},;
-   {"N03.5"},;
-   {"N03.6"},;
-   {"N03.7"},;
-   {"N03.8"},;
-   {"N03.9"},;
-   {"N04"},;
-   {"N04.0"},;
-   {"N04.1"},;
-   {"N04.2"},;
-   {"N04.3"},;
-   {"N04.4"},;
-   {"N04.5"},;
-   {"N04.6"},;
-   {"N04.7"},;
-   {"N04.8"},;
-   {"N04.9"},;
-   {"N05"},;
-   {"N05.0"},;
-   {"N05.0"},;
-   {"N05.1"},;
-   {"N05.2"},;
-   {"N05.3"},;
-   {"N05.4"},;
-   {"N05.5"},;
-   {"N05.6"},;
-   {"N05.7"},;
-   {"N05.8"},;
-   {"N05.9"},;
-   {"N06"},;
-   {"N06.0"},;
-   {"N06.1"},;
-   {"N06.2"},;
-   {"N06.3"},;
-   {"N06.4"},;
-   {"N06.5"},;
-   {"N06.6"},;
-   {"N06.7"},;
-   {"N06.8"},;
-   {"N06.9"},;
-   {"N07"},;
-   {"N07.0"},;
-   {"N07.1"},;
-   {"N07.2"},;
-   {"N07.3"},;
-   {"N07.4"},;
-   {"N07.5"},;
-   {"N07.6"},;
-   {"N07.7"},;
-   {"N07.8"},;
-   {"N07.9"},;
-   {"N08"},;
-   {"N08.0"},;
-   {"N08.1"},;
-   {"N08.2"},;
-   {"N08.3"},;
-   {"N08.4"},;
-   {"N08.5"},;
-   {"N08.8"},;
-   {"N10"},;
-   {"N11"},;
-   {"N11.0"},;
-   {"N11.1"},;
-   {"N11.8"},;
-   {"N11.9"},;
-   {"N12"},;
-   {"N13"},;
-   {"N13.0"},;
-   {"N13.1"},;
-   {"N13.2"},;
-   {"N13.3"},;
-   {"N13.4"},;
-   {"N13.5"},;
-   {"N13.6"},;
-   {"N13.7"},;
-   {"N13.8"},;
-   {"N13.9"},;
-   {"N14"},;
-   {"N14.0"},;
-   {"N14.1"},;
-   {"N14.2"},;
-   {"N14.3"},;
-   {"N14.4"},;
-   {"N15"},;
-   {"N15.0"},;
-   {"N15.1"},;
-   {"N15.8"},;
-   {"N15.9"},;
-   {"N16"},;
-   {"N16.0"},;
-   {"N16.1"},;
-   {"N16.2"},;
-   {"N16.3"},;
-   {"N16.4"},;
-   {"N16.5"},;
-   {"N16.6"},;
-   {"N17"},;
-   {"N17.0"},;
-   {"N17.0"},;
-   {"N17.1"},;
-   {"N17.2"},;
-   {"N17.8"},;
-   {"N17.9"},;
-   {"N18"},;
-   {"N18.0"},;
+   {"M85"},;
+   {"M85.0"},;    
+   {"M85.1"},;
+   {"M85.2"},; 
+   {"M85.3"},;
+   {"M85.4"},;
+   {"M85.5"},;
+   {"M85.6"},;
+   {"M85.8"},;
+   {"M85.9"},;
+   {"M88"},;
+   {"M88.0"},;
+   {"M88.8"},;
+   {"M88.9"},;
+   {"M96"},;
+   {"M96.0"},; 
+   {"M96.1"},;
+   {"M96.2"},; 
+   {"M96.3"},;
+   {"M96.4"},;
+   {"M96.5"},; 
+   {"M96.6"},; 
+   {"M96.8"},;
+   {"M96.9"},;
    {"N18.1"},;
-   {"N18.2"},;
-   {"N18.3"},;
-   {"N18.3"},;
-   {"N18.4"},;
-   {"N18.5"},;
-   {"N18.8"},;
    {"N18.9"},;
-   {"N19"},;
-   {"N20"},;
-   {"N20.1"},;
-   {"N20.2"},;
-   {"N20.9"},;
-   {"N21"},;
-   {"N21.0"},;
-   {"N21.1"},;
-   {"N21.8"},;
-   {"N21.9"},;
-   {"N22"},;
-   {"N22.0"},;
-   {"N22.8"},;
-   {"N23"},;
-   {"N25"},;
-   {"N25.0"},;
-   {"N25.1"},;
-   {"N25.8"},;
-   {"N25.9"},;
-   {"N26"},;
-   {"N27"},;
-   {"N27.0"},;
-   {"N27.1"},;
-   {"N27.9"},;
-   {"N28"},;
-   {"N28.0"},;
-   {"N28.1"},;
-   {"N28.8"},;
-   {"N28.9"},;
-   {"N29"},;
-   {"N29.0"},;
-   {"N29.1"},;
-   {"N29.8"},;
+   {"N48.0"},;
+   {"N60"},; 
+   {"N60.0"},;
+   {"N60.1"},;
+   {"N60.2"},;
+   {"N60.3"},;
+   {"N60.4"},;
+   {"N60.8"},;
+   {"N60.9"},;
+   {"N84"},;
+   {"N84.0"},;
+   {"N84.1"},;
+   {"N84.2"},;
+   {"N84.3"},;
+   {"N84.8"},;
+   {"N84.9"},;
+   {"N85.0"},;
+   {"N85.1"},;
+   {"N87.1"},;
+   {"N87.2"},;
+   {"N88.0"},;
+   {"Q20"},; 
+   {"Q20.0"},; 
+   {"Q20.1"},; 
+   {"Q20.2"},; 
+   {"Q20.3"},; 
+   {"Q20.4"},; 
+   {"Q20.5"},; 
+   {"Q20.6"},; 
+   {"Q20.8"},; 
+   {"Q20.9"},; 
+   {"Q21"},; 
+   {"Q21.0"},; 
+   {"Q21.1"},; 
+   {"Q21.2"},; 
+   {"Q21.3"},; 
+   {"Q21.4"},; 
+   {"Q21.8"},; 
+   {"Q21.9"},;
+   {"Q22"},; 
+   {"Q22.0"},;
+   {"Q22.1"},;
+   {"Q22.2"},;
+   {"Q22.3"},;
+   {"Q22.4"},;
+   {"Q22.5"},;
+   {"Q22.6"},;
+   {"Q22.8"},;
+   {"Q22.9"},; 
+   {"Q23"},; 
+   {"Q23.0"},; 
+   {"Q23.1"},;
+   {"Q23.2"},;
+   {"Q23.3"},;
+   {"Q23.4"},;
+   {"Q23.8"},;
+   {"Q23.9"},;
+   {"Q24"},;
+   {"Q24.0"},;
+   {"Q24.1"},;
+   {"Q24.2"},;
+   {"Q24.3"},;
+   {"Q24.4"},;
+   {"Q24.5"},;
+   {"Q24.6"},;
+   {"Q24.8"},;
+   {"Q24.9"},;
+   {"Q25-Q25.9"},;
+   {"Q26"},;
+   {"Q26.0"},;
+   {"Q26.1"},;
+   {"Q26.2"},;
+   {"Q26.3"},;
+   {"Q26.4"},;
+   {"Q26.5"},;
+   {"Q26.6"},;
+   {"Q26.8"},;
+   {"Q26.9"},;
+   {"Q27"},;
+   {"Q27.0"},;
+   {"Q27.1"},;
+   {"Q27.2"},;
+   {"Q27.3"},;
+   {"Q27.4"},;
+   {"Q27.8"},;
+   {"Q27.9"},;
+   {"Q28"},;
+   {"Q28.0"},;
+   {"Q28.1"},;
+   {"Q28.2"},;
+   {"Q28.3"},;
+   {"Q28.8"},;
+   {"Q28.9"},;
+   {"Q78.1"},;
+   {"Q78.4"},;
+   {"Q82.1"},;
+   {"Q82.5"},;
+   {"Q85.1"},;
    {"R73.0"},;
-   {"R73.9"};
+   {"R73.9"},;
+   {"Z95.0"},;
+   {"Z95.1"},;
+   {"Z95.2"},;
+   {"Z95.3"},;
+   {"Z95.4"},;
+   {"Z95.5"},;
+   {"Z95.8"},;
+   {"Z95.9"};     
   }
   len_diag := len(sarr_dn)
   narr_dn := {}
@@ -569,11 +555,9 @@ if arr_dn != NIL
 endif
 return fl
 
-*
-
-*****
+**
 Function test_mkb_10()
-R_Use(dir_exe+"_mo_mkb",cur_dir+"_mo_mkb","MKB_10")
+R_Use(dir_exe + "_mo_mkb",cur_dir + "_mo_mkb","MKB_10")
 go top
 do while !eof()
   if mkb_10->ks == 0 .and. between_date(mkb_10->dbegin,mkb_10->dend,sys_date)
@@ -585,9 +569,7 @@ enddo
 close databases
 return NIL
 
-*
-
-***** 26.11.19 инициализация всех файлов инф.сопровождения по диспансерному наблюдению
+** 26.11.19 инициализация всех файлов инф.сопровождения по диспансерному наблюдению
 Function f_init_d01()
 Local mo_dnab := {; // диспансерное наблюдение
    {"KOD_K",    "N", 7,0},; // код по картотеке
@@ -603,7 +585,8 @@ Local mo_dnab := {; // диспансерное наблюдение
    {"PEREHOD1", "N", 1,0},;  // переход заплатка 2021
    {"PEREHOD2", "N", 1,0},;  // переход заплатка 2021
    {"PEREHOD3", "N", 1,0},;  // переход 2022
-   {"PEREHOD4", "N", 1,0};   // переход 2023 начало
+   {"PEREHOD4", "N", 1,0},;  // переход 2023 начало
+   {"PEREHOD5", "N", 1,0};   // переход 2023 Полный
   }
 Local mo_d01 := {; // отсылаемые файлы D01
    {"KOD",         "N", 6,0},; // код реестра (номер записи)
@@ -641,17 +624,15 @@ Local mo_d01e := {; // список ошибок в реестрах будущих диспансеризаций
    {"KOD_ERR",  "N", 3,0},; // код ошибки ТК
    {"MESTO",    "N", 1,0};  // место проведения диспансерного наблюдения: 0 - в МО или 1 - на дому
   }
-reconstruct(dir_server+"mo_d01", mo_d01 ,,,.t.)
-reconstruct(dir_server+"mo_d01k",mo_d01k,,,.t.)
-reconstruct(dir_server+"mo_d01d",mo_d01d,,,.t.)
-reconstruct(dir_server+"mo_d01e",mo_d01e,,,.t.)
-reconstruct(dir_server+"mo_dnab",mo_dnab,"index_base('mo_dnab')",,.t.)
-//index on str(KOD_K,7)+KOD_DIAG to (dir_server+"mo_dnab")
+reconstruct(dir_server + "mo_d01", mo_d01 , , , .t.)
+reconstruct(dir_server + "mo_d01k", mo_d01k, , , .t.)
+reconstruct(dir_server + "mo_d01d", mo_d01d, , , .t.)
+reconstruct(dir_server + "mo_d01e", mo_d01e, , , .t.)
+reconstruct(dir_server + "mo_dnab", mo_dnab, "index_base('mo_dnab')", , .t.)
+//index on str(KOD_K,7)+KOD_DIAG to (dir_server + "mo_dnab")
 return NIL
 
-*
-
-***** 09.12.20 Диспансерное наблюдение
+** 09.12.20 Диспансерное наблюдение
 Function disp_nabludenie(k)
 Static S_sem := "disp_nabludenie"
 Static si1 := 2, si2 := 1, si3 := 2, si4 := 1, si5 := 1
@@ -662,12 +643,12 @@ DEFAULT k TO 1
 do case
   case k == 1
     // временное начало
-    R_Use(dir_server+"mo_d01e")
+    R_Use(dir_server + "mo_d01e")
     if fieldnum("MESTO") == 0
       fl_umer := .t.
     endif
     use
-    R_Use(dir_server+"mo_dnab")
+    R_Use(dir_server + "mo_dnab")
     //if fieldnum("PEREHOD1") == 0
     //  zaplatka_D01 := .T.
     //endif
@@ -676,15 +657,15 @@ do case
     //endif
 
     //
-    if fieldnum("PEREHOD4") == 0
+    if fieldnum("PEREHOD5") == 0
       close databases
       if !G_SLock(S_sem)
         return func_error(4,"Доступ в данный режим пока запрещён")
       endif
       buf := save_maxrow()
-      WaitStatus("Ждите! Составляется список по диспансерному наблюдению на 2022-2023 год")
+      WaitStatus("Ждите! Составляется список по диспансерному наблюдению на 2023 год")
       f_init_d01() // инициализация всех файлов инф.сопровождения по диспансерному наблюдению
-      Use (dir_server+"mo_dnab") new alias DN
+      Use (dir_server + "mo_dnab") new alias DN
       go top
       do while !eof()
         UpdateStatus()
@@ -696,16 +677,16 @@ do case
         skip
       enddo
       commit
-      index on str(KOD_K,7)+KOD_DIAG to (dir_server+"mo_dnab")
+      index on str(KOD_K,7)+KOD_DIAG to (dir_server + "mo_dnab")
       //
-      R_Use(dir_server+"uslugi",,"USL")
-      R_Use(dir_server+"human_u_",,"HU_")
-      R_Use(dir_server+"human_u",dir_server+"human_u","HU")
+      R_Use(dir_server + "uslugi",,"USL")
+      R_Use(dir_server + "human_u_",,"HU_")
+      R_Use(dir_server + "human_u",dir_server + "human_u","HU")
       set relation to recno() into HU_, to u_kod into USL
-      R_Use(dir_server+"human_",,"HUMAN_")
-      R_Use(dir_server+"human",,"HUMAN")
+      R_Use(dir_server + "human_",,"HUMAN_")
+      R_Use(dir_server + "human",,"HUMAN")
       set relation to recno() into HUMAN_
-      index on str(kod_k,7) to (cur_dir+"tmp_hfio") for human_->usl_ok == 3 .and. k_data > 0d20191231 // ЮЮ
+      index on str(kod_k,7) to (cur_dir + "tmp_hfio") for human_->usl_ok == 3 .and. k_data > 0d20201231 // ЮЮ
       go top
       do while !eof()
         UpdateStatus()
@@ -767,10 +748,10 @@ do case
                   if empty(dn->N_DATA)
                     dn->N_DATA := human->k_data // дата начала диспансерного наблюдения
                   endif
-                  //заплатка 10.12.2021
-                  //if dn->N_DATA > stod("20211130")
-                  //  dn->N_DATA := dn->N_DATA - 30
-                  //endif
+                  //заплатка 10.12.2022
+                  if dn->N_DATA > stod("20221130")
+                    dn->N_DATA := dn->N_DATA - 30
+                  endif
                   //
                   dn->LU_DATA := human->k_data // дата листа учёта с целью диспансерного наблюдения
                   dn->NEXT_DATA := &pole_dn_dispans // дата следующей явки с целью диспансерного наблюдения
@@ -810,10 +791,10 @@ do case
                       if empty(dn->N_DATA)
                         dn->N_DATA := human->k_data // дата начала диспансерного наблюдения
                       endif
-                      //заплатка 10.12.2021
-                      //if dn->N_DATA > stod("20211130")
-                      //  dn->N_DATA := dn->N_DATA - 30
-                      //endif
+                      //заплатка 10.12.2022
+                      if dn->N_DATA > stod("20221130")
+                        dn->N_DATA := dn->N_DATA - 30
+                      endif
                       //
                       dn->LU_DATA := human->k_data // дата листа учёта с целью диспансерного наблюдения
                       dn->NEXT_DATA := c4tod(human->DATE_OPL) // дата следующей явки с целью диспансерного наблюдения
@@ -846,7 +827,7 @@ do case
             dn->FREQUENCY := 1
           endif
           k := year(dn->NEXT_DATA)
-          if !between(k,2021,2023) // ЮЮ если некорректная дата след.визита
+          if !between(k,2022,2024) // ЮЮ если некорректная дата след.визита
             dn->NEXT_DATA := addmonth(dn->LU_DATA,12)
           endif
           do while dn->NEXT_DATA < 0d20230101 // ЮЮ
@@ -866,11 +847,11 @@ do case
         return func_error(4,"Доступ в данный режим пока запрещён")
       endif
       buf := save_maxrow()
-      WaitStatus("Из списка по диспансерному наблюдению на 2022 год удаляются дети и умершие")
+      WaitStatus("Из списка по диспансерному наблюдению на 2023 год удаляются дети и умершие")
       f_init_d01() // инициализация всех файлов инф.сопровождения по диспансерному наблюдению
-      R_Use(dir_server+"kartote2",,"_KART2")
-      R_Use(dir_server+"kartotek",,"_KART")
-      Use (dir_server+"mo_dnab") new alias DN
+      R_Use(dir_server + "kartote2",,"_KART2")
+      R_Use(dir_server + "kartotek",,"_KART")
+      Use (dir_server + "mo_dnab") new alias DN
       go top
       do while !eof()
         UpdateStatus()
@@ -900,19 +881,19 @@ do case
         skip
       enddo
       commit
-      index on str(KOD_K,7)+KOD_DIAG to (dir_server+"mo_dnab")
+      index on str(KOD_K,7)+KOD_DIAG to (dir_server + "mo_dnab")
       close databases
       rest_box(buf)
       G_SUnLock(S_sem)
     endif
 
-    if zaplatka_D01
+/*    if zaplatka_D01
       mywait()
-      //(dir_server+"mo_dnab",mo_dnab,"index_base('mo_dnab')",,.t.)
-     // G_Use(dir_server+"mo_dnab",dir_server+"mo_dnab","DN")
-      G_Use(dir_server+"mo_d01k",,"REES_K")
-      G_Use(dir_server+"mo_d01",,"REES")
-      index on str(nn,3) to (cur_dir+"tmp_d01") for nyear == 2020 // ЮЮ
+      //(dir_server + "mo_dnab",mo_dnab,"index_base('mo_dnab')",,.t.)
+     // G_Use(dir_server + "mo_dnab",dir_server + "mo_dnab","DN")
+      G_Use(dir_server + "mo_d01k",,"REES_K")
+      G_Use(dir_server + "mo_d01",,"REES")
+      index on str(nn,3) to (cur_dir + "tmp_d01") for nyear == 2020 // ЮЮ
       go top
       do while !eof()
         if proverka_spisok_D01(rees->NAME_XML)
@@ -938,8 +919,10 @@ do case
       close databases
       f_init_d01() // инициализация всех файлов инф.сопровождения по диспансерному наблюдению
     endif
+  */  
 //////////////////////////////
 //////////////////////////////
+/*
     if zaplatka_D02
       close databases
       if !G_SLock(S_sem)
@@ -947,7 +930,7 @@ do case
       endif
       buf := save_maxrow()
       WaitStatus("Ждите! Проверяется список по диспансерному наблюдению на 2022 год")
-      Use (dir_server+"mo_dnab") new alias DN
+      Use (dir_server + "mo_dnab") new alias DN
       go top
       do while !eof()
         UpdateStatus()
@@ -959,16 +942,16 @@ do case
         skip
       enddo
       commit
-      index on str(KOD_K,7)+KOD_DIAG to (dir_server+"mo_dnab")
+      index on str(KOD_K,7)+KOD_DIAG to (dir_server + "mo_dnab")
       //
-      R_Use(dir_server+"uslugi",,"USL")
-      R_Use(dir_server+"human_u_",,"HU_")
-      R_Use(dir_server+"human_u",dir_server+"human_u","HU")
+      R_Use(dir_server + "uslugi",,"USL")
+      R_Use(dir_server + "human_u_",,"HU_")
+      R_Use(dir_server + "human_u",dir_server + "human_u","HU")
       set relation to recno() into HU_, to u_kod into USL
-      R_Use(dir_server+"human_",,"HUMAN_")
-      R_Use(dir_server+"human",,"HUMAN")
+      R_Use(dir_server + "human_",,"HUMAN_")
+      R_Use(dir_server + "human",,"HUMAN")
       set relation to recno() into HUMAN_
-      index on str(kod_k,7) to (cur_dir+"tmp_hfio") for human_->usl_ok == 3 .and. k_data > 0d20191231 // ЮЮ
+      index on str(kod_k,7) to (cur_dir + "tmp_hfio") for human_->usl_ok == 3 .and. k_data > 0d20191231 // ЮЮ
       go top
       do while !eof()
         UpdateStatus()
@@ -1027,7 +1010,7 @@ do case
                     dn->KOD_K := human->KOD_K
                     dn->KOD_DIAG := ar_dn[j]
                   endif
-                  if empty(dn->next_data) .or. dn->next_data < stod("20230101")
+                  if empty(dn->next_data) .or. dn->next_data < stod("20240101")
                     // правим только старше 2021
                     dn->VRACH := human_->vrach
                     dn->PRVS := human_->prvs
@@ -1068,7 +1051,7 @@ do case
                         dn->KOD_K := human->KOD_K
                         dn->KOD_DIAG := ar_dn[i]
                       endif
-                      if empty(dn->next_data) .or. dn->next_data < stod("20230101")
+                      if empty(dn->next_data) .or. dn->next_data < stod("20240101")
                         dn->VRACH := hu->KOD_VR
                         dn->PRVS := hu_->prvs // Специальность врача по справочнику V004, с минусом - по справочнику V015
                         if empty(dn->N_DATA)
@@ -1101,7 +1084,7 @@ do case
       go top
       do while !eof()
         UpdateStatus()
-        if empty(dn->next_data) .or. dn->next_data < stod("20230101")
+        if empty(dn->next_data) .or. dn->next_data < stod("20240101")
           if !empty(dn->LU_DATA)
             if dn->FREQUENCY == 0
               dn->FREQUENCY := 1
@@ -1110,7 +1093,7 @@ do case
             if !between(k,2021,2023) // ЮЮ если некорректная дата след.визита
               dn->NEXT_DATA := addmonth(dn->LU_DATA,12)
             endif
-            do while dn->NEXT_DATA < 0d20230101 // ЮЮ
+            do while dn->NEXT_DATA < 0d20240101 // ЮЮ
               dn->NEXT_DATA := addmonth(dn->NEXT_DATA,dn->FREQUENCY)
             enddo
           endif
@@ -1123,7 +1106,7 @@ do case
       f_init_d01() // инициализация всех файлов инф.сопровождения по диспансерному наблюдению
     endif
     //
-
+*/
     // временный конец
     mas_pmt := {"~Работа с файлами обмена D01",;
                 "~Информация по дисп.наблюдению"}
@@ -1163,14 +1146,14 @@ do case
                 "disp_nabludenie(43)"}
     popup_prompt(T_ROW,T_COL-5,si4,mas_pmt,mas_msg,mas_fun)
   case k == 23
-    ne_real() 
-    /*mas_pmt := {"~Создание файла обмена D01",;
+    //ne_real() 
+    mas_pmt := {"~Создание файла обмена D01",;
                 "~Просмотр файлов обмена D01"}
     mas_msg := {"Создание файла обмена D01... с ещё не отправленными пациентами (диагнозами)",;
                 "Просмотр файлов обмена D01... и результатов работы с ними"}
     mas_fun := {"disp_nabludenie(31)",;
                 "disp_nabludenie(32)"}
-    popup_prompt(T_ROW,T_COL-5,si3,mas_pmt,mas_msg,mas_fun)*/
+    popup_prompt(T_ROW,T_COL-5,si3,mas_pmt,mas_msg,mas_fun)
   case k == 41
     inf_disp_nabl()
   case k == 42
@@ -1221,9 +1204,9 @@ if k > 10
 endif
 return NIL
 
-*
+ 
 
-***** 17.01.14 переопределение критерия "взрослый/ребёнок" по дате рождения и "_date"
+** 17.01.14 переопределение критерия "взрослый/ребёнок" по дате рождения и "_date"
 Function fvdn_date_r(_data,mdate_r)
 Local k,  cy, ldate_r := mdate_r
 DEFAULT _data TO sys_date
@@ -1237,9 +1220,9 @@ endif
 
 return k
 
-*
+ 
 
-***** 26.12.19 //14.12.20
+** 26.12.19 //14.12.20
 Function f_inf_dop_disp_nabl()
 Local arr, adiagnoz, sh := 80, HH := 60, buf := save_maxrow(), name_file := "disp_nabl"+stxt,;
       buf1, ii1 := 0, s, s2, i, t_arr[2], ar, ausl, fl
@@ -1288,24 +1271,24 @@ add_string("")
 aeval(arr_title, {|x| add_string(x) } )
 //
 use_base("lusl")
-R_Use(dir_server+"uslugi",,"USL")
-R_Use(dir_server+"mo_pers",,"PERS")
-R_Use(dir_server+"human_u",dir_server+"human_u","HU")
+R_Use(dir_server + "uslugi",,"USL")
+R_Use(dir_server + "mo_pers",,"PERS")
+R_Use(dir_server + "human_u",dir_server + "human_u","HU")
 set relation to u_kod into USL
-R_Use(dir_server+"human_",,"HUMAN_")
+R_Use(dir_server + "human_",,"HUMAN_")
 set relation to vrach into PERS
-R_Use(dir_server+"human",dir_server+"humankk","HUMAN")
+R_Use(dir_server + "human",dir_server + "humankk","HUMAN")
 set relation to recno() into HUMAN_
-index on str(kod_k,7)+descend(dtos(k_data)) to (cur_dir+"tmp_humankk") ;
+index on str(kod_k,7)+descend(dtos(k_data)) to (cur_dir + "tmp_humankk") ;
       for human_->USL_OK == 3 .and. between(human->k_data,parr_m[5],parr_m[6]) ;
       progress
 //
-R_Use(dir_server+"mo_dnab",,"DD")
-index on str(kod_k,7) to (cur_dir+"tmp_dd") for kod_k > 0
-R_Use(dir_server+"kartote2",,"KART2")
-R_Use(dir_server+"kartotek",,"KART")
+R_Use(dir_server + "mo_dnab",,"DD")
+index on str(kod_k,7) to (cur_dir + "tmp_dd") for kod_k > 0
+R_Use(dir_server + "kartote2",,"KART2")
+R_Use(dir_server + "kartotek",,"KART")
 set relation to recno() into KART2
-index on upper(kart->fio)+dtos(kart->date_r)+str(kart->kod,7) to (cur_dir+"tmp_rhum") ;
+index on upper(kart->fio)+dtos(kart->date_r)+str(kart->kod,7) to (cur_dir + "tmp_rhum") ;
       for kart->kod > 0
 go top
 do while !eof()
@@ -1317,7 +1300,7 @@ do while !eof()
   endif
   if fl
     mdate_r := kart->date_r ; M1VZROS_REB := kart->VZROS_REB
-    fv_date_r(0d20211201) // переопределение M1VZROS_REB // ЮЮ
+    fv_date_r(0d20221201) // переопределение M1VZROS_REB // ЮЮ
     fl := (M1VZROS_REB == 0)
   endif
   if fl .and. !empty(m1uchast)
@@ -1404,9 +1387,9 @@ else
 endif
 return NIL
 
-*
+ 
 
-***** 02.12.19 Первичный ввод сведений о состоящих на диспансерном учёте в Вашей МО
+** 02.12.19 Первичный ввод сведений о состоящих на диспансерном учёте в Вашей МО
 Function vvodP_disp_nabl()
 Local buf := savescreen(), k, s, s1, t_arr := array(BR_LEN), str_sem1, lcolor
 mywait()
@@ -1416,8 +1399,8 @@ dbcreate("tmp_kart",{;
    {"POL",      "C", 1,0},;
    {"DATE_R",   "D", 8,0};
   })
-use (cur_dir+"tmp_kart") new
-R_Use(dir_server+"kartotek",,"_KART")
+use (cur_dir + "tmp_kart") new
+R_Use(dir_server + "kartotek",,"_KART")
 Use_base("mo_dnab")
 index on str(kod_k,7) to ("tmp_dnab") for kod_k > 0 UNIQUE
 go top
@@ -1441,7 +1424,7 @@ if lastrec() == 0
   restscreen(buf)
   return func_error(4,"Список для диспансерного наблюдения пуст. Добавление через поиск по леч.врачу")
 endif
-index on upper(fio) to (cur_dir+"tmp_kart")
+index on upper(fio) to (cur_dir + "tmp_kart")
 go top
 do while Alpha_Browse(T_ROW,7,maxrow()-2,71,"f1vvodP_disp_nabl",color8,,,,,,,,,{"═","░","═",} )
   f2vvodP_disp_nabl(tmp_kart->kod_k)
@@ -1450,9 +1433,9 @@ close databases
 restscreen(buf)
 return NIL
 
-*
+ 
 
-***** 02.12.19
+** 02.12.19
 Function f1vvodP_disp_nabl(oBrow)
 Local oColumn
 oColumn := TBColumnNew(center("Ф.И.О.",50), {|| tmp_kart->fio })
@@ -1461,10 +1444,10 @@ oColumn := TBColumnNew("Дата рожд.", {|| full_date(tmp_kart->date_r) })
 oBrow:addColumn(oColumn)
 return NIL
 
-*
+ 
 
 
-***** 09.12.18 Первичный ввод сведений о состоящих на диспансерном учёте в Вашей МО
+** 09.12.18 Первичный ввод сведений о состоящих на диспансерном учёте в Вашей МО
 Function f2vvodP_disp_nabl(lkod_k)
 Local buf := savescreen(), k, s, s1, t_arr := array(BR_LEN), str_sem1, lcolor
 Private str_find, muslovie
@@ -1494,7 +1477,7 @@ if G_SLock(str_sem1)
   aadd(t_arr[BR_COLUMN],{"Кол-во;месяцев между;визитами",{|| put_val(dn->frequency,7) },blk})
   aadd(t_arr[BR_COLUMN],{"Место проведения;диспансерного;наблюдения",{|| iif(empty(dn->kod_diag),space(7),iif(dn->mesto==0," в МО  ","на дому")) },blk})
   t_arr[BR_EDIT] := {|nk,ob| f3vvodP_disp_nabl(nk,ob,"edit") }
-  R_Use(dir_server+"mo_pers",dir_server+"mo_pers","P2")
+  R_Use(dir_server + "mo_pers",dir_server + "mo_pers","P2")
   Use_base("mo_dnab")
   edit_browse(t_arr)
   G_SUnLock(str_sem1)
@@ -1507,9 +1490,9 @@ select TMP_KART
 restscreen(buf)
 return NIL
 
-*
+ 
 
-***** 05.12.19
+** 05.12.19
 Function f3vvodP_disp_nabl(nKey,oBrow,regim)
 Local ret := -1
 Local buf, fl := .f., rec := 0, rec1, r1, r2, tmp_color
@@ -1533,7 +1516,7 @@ do case
         Private gl_area := {1,0,maxrow()-1,79,0}, ;
                 mKOD_DIAG := iif(nKey == K_INS, space(5), dn->kod_diag),;
                 mN_DATA := iif(nKey == K_INS, sys_date-1, dn->n_data),;
-                mNEXT_DATA := iif(nKey == K_INS, 0d20220101, dn->next_data),;  // ЮЮ
+                mNEXT_DATA := iif(nKey == K_INS, 0d20230101, dn->next_data),;  // ЮЮ
                 mfrequency := iif(nKey == K_INS, 3, dn->frequency),;
                 MVRACH := space(10),; // фамилия и инициалы лечащего врача
                 M1VRACH := iif(nKey == K_INS, 0, dn->vrach), MTAB_NOM := 0, m1prvs := 0,; // код, таб.№ и спец-ть лечащего врача
@@ -1591,8 +1574,8 @@ do case
               fl := func_error(4,"Не введена дата следующей явки")
             elseif mN_DATA >= mNEXT_DATA
               fl := func_error(4,"Дата следующей явки меньше даты начала диспансерного наблюдения")
-            //elseif mNEXT_DATA <= 0d20230101  // ЮЮ
-            //  fl := func_error(4,"Дата следующей явки должна быть не ранее 1 января")
+            elseif mNEXT_DATA <= 0d20230101  // ЮЮ
+              fl := func_error(4,"Дата следующей явки должна быть не ранее 1 января")
             endif
             if !fl
               loop
@@ -1624,7 +1607,7 @@ do case
           endif
           exit
         enddo
-        R_Use(dir_server+"mo_pers",dir_server+"mo_pers","P2")
+        R_Use(dir_server + "mo_pers",dir_server + "mo_pers","P2")
         select DN
         setcolor(tmp_color)
         restore screen from buf
@@ -1639,9 +1622,9 @@ do case
 endcase
 return ret
 
-*
+ 
 
-***** 23.08.19 14.12.20 Список пациентов, по которым были л/у с диспансерным наблюдением
+** 23.08.19 14.12.20 Список пациентов, по которым были л/у с диспансерным наблюдением
 Function f_inf_disp_nabl(par)
 Local arr, adiagnoz, sh := 80, HH := 60, buf := save_maxrow(), name_file := "disp_nabl"+stxt,;
       ii1 := 0, ii2 := 0, ii3 := 0, s, name_dbf := "___DN"+sdbf
@@ -1688,27 +1671,27 @@ if par < 3
 endif
 //
 use_base("lusl")
-R_Use(dir_server+"uslugi",,"USL")
-R_Use(dir_server+"mo_pers",,"PERS")
-R_Use(dir_server+"schet_",,"SCHET_")
-R_Use(dir_server+"schet",,"SCHET")
+R_Use(dir_server + "uslugi",,"USL")
+R_Use(dir_server + "mo_pers",,"PERS")
+R_Use(dir_server + "schet_",,"SCHET_")
+R_Use(dir_server + "schet",,"SCHET")
 set relation to recno() into SCHET_
-R_Use(dir_server+"human_u",dir_server+"human_u","HU")
+R_Use(dir_server + "human_u",dir_server + "human_u","HU")
 set relation to u_kod into USL
-R_Use(dir_server+"human_",,"HUMAN_")
+R_Use(dir_server + "human_",,"HUMAN_")
 set relation to vrach into PERS
-R_Use(dir_server+"human",dir_server+"humankk","HUMAN")
+R_Use(dir_server + "human",dir_server + "humankk","HUMAN")
 set relation to recno() into HUMAN_
-index on str(kod_k,7)+dtos(k_data) to (cur_dir+"tmp_humankk") ;
-      for human_->USL_OK == 3 .and. human->k_data >= 0d20210101 ; // т.е. последний год ЮЮ
+index on str(kod_k,7)+dtos(k_data) to (cur_dir + "tmp_humankk") ;
+      for human_->USL_OK == 3 .and. human->k_data >= 0d20220101 ; // т.е. последний год ЮЮ
       progress
 //
-R_Use(dir_server+"mo_d01d",,"DD")
-index on str(kod_d,6) to (cur_dir+"tmp_dd")
-R_Use(dir_server+"kartotek",,"KART")
-R_Use(dir_server+"mo_d01k",,"RHUM")
+R_Use(dir_server + "mo_d01d",,"DD")
+index on str(kod_d,6) to (cur_dir + "tmp_dd")
+R_Use(dir_server + "kartotek",,"KART")
+R_Use(dir_server + "mo_d01k",,"RHUM")
 set relation to kod_k into KART
-index on upper(kart->fio)+dtos(kart->date_r)+str(kart->kod,7) to (cur_dir+"tmp_rhum") ;
+index on upper(kart->fio)+dtos(kart->date_r)+str(kart->kod,7) to (cur_dir + "tmp_rhum") ;
       for kart->kod > 0 .and. rhum->oplata == 1
 go top
 do while !eof()
@@ -1815,9 +1798,9 @@ else
 endif
 return NIL
 
-*
+ 
 
-***** 09.12.18 Первичный ввод сведений о состоящих на диспансерном учёте в Вашей МО
+** 09.12.18 Первичный ввод сведений о состоящих на диспансерном учёте в Вашей МО
 Function vvod_disp_nabl()
 Local buf := savescreen(), k, s, s1, t_arr := array(BR_LEN), str_sem1, lcolor
 Private str_find, muslovie
@@ -1837,9 +1820,9 @@ if input_perso(T_ROW,T_COL-5)
       exit
     elseif G_SLock(str_sem1)
       s1 := f0_vvod_disp_nabl()
-      R_Use(dir_server+"kartote2",,"_KART2")
+      R_Use(dir_server + "kartote2",,"_KART2")
       goto (glob_kartotek)
-      R_Use(dir_server+"kartotek",,"_KART")
+      R_Use(dir_server + "kartotek",,"_KART")
       goto (glob_kartotek)
       s := alltrim(padr(_kart->fio,37))+" ("+full_date(_kart->date_r)+")"
       lcolor := color1
@@ -1891,13 +1874,13 @@ close databases
 restscreen(buf)
 return NIL
 
-*
+ 
 
-***** 09.12.18
+** 09.12.18
 Function f0_vvod_disp_nabl()
 Local s := ""
-R_Use(dir_server+"mo_d01k",,"DK")
-index on str(reestr,6) to (cur_dir+"tmp_dk") for kod_k == glob_kartotek
+R_Use(dir_server + "mo_d01k",,"DK")
+index on str(reestr,6) to (cur_dir + "tmp_dk") for kod_k == glob_kartotek
 go top
 do while !eof()
   if dk->oplata == 0
@@ -1914,9 +1897,9 @@ enddo
 dk->(dbCloseArea())
 return s
 
-*
+ 
 
-***** 28.11.18  // 14.12.20
+** 28.11.18  // 14.12.20
 Function f1_vvod_disp_nabl(nKey,oBrow,regim)
 Local ret := -1
 Local buf, fl := .f., rec := 0, rec1, r1, r2, tmp_color
@@ -1944,7 +1927,7 @@ do case
         Private gl_area := {1,0,maxrow()-1,79,0}, ;
                 mKOD_DIAG := iif(nKey == K_INS, space(5), dn->kod_diag),;
                 mN_DATA := iif(nKey == K_INS, sys_date-1, dn->n_data),;
-                mNEXT_DATA := iif(nKey == K_INS, 0d20220101, dn->next_data),; // ЮЮ
+                mNEXT_DATA := iif(nKey == K_INS, 0d20230101, dn->next_data),; // ЮЮ
                 mfrequency := iif(nKey == K_INS, 3, dn->frequency),;
                 mMESTO, m1mesto := iif(nKey == K_INS, 0, dn->mesto)
         mmesto := inieditspr(A__MENUVERT, mm_dom, m1mesto)
@@ -1955,7 +1938,7 @@ do case
         do while .t.
           @ r1+1,pc1+3 say "Диагноз, по поводу которого пациент подлежит дисп.наблюдению" get mkod_diag ;
                        pict "@K@!" reader {|o|MyGetReader(o,bg)} ;
-                       valid val1_10diag(.t.,.f.,.f.,0d20211201,_kart->pol)  // ЮЮ
+                       valid val1_10diag(.t.,.f.,.f.,0d20221201,_kart->pol)  // ЮЮ
           @ r1+2,pc1+3 say "Дата начала диспансерного наблюдения" get mn_data
           @ r1+3,pc1+3 say "Дата следующей явки с целью диспансерного наблюдения" get mnext_data
           @ r1+4,pc1+3 say "Кол-во месяцев до каждого следующего визита" get mfrequency pict "99"
@@ -1983,7 +1966,7 @@ do case
             endif
             if empty(mN_DATA)
               fl := func_error(4,"Не введена дата начала диспансерного наблюдения")
-            elseif mN_DATA >= 0d20211201  // ЮЮ
+            elseif mN_DATA >= 0d20221201  // ЮЮ
               fl := func_error(4,"Дата начала диспансерного наблюдения слишком большая")
             endif
             if empty(mNEXT_DATA)
@@ -2037,9 +2020,9 @@ do case
 endcase
 return ret
 
-*
+ 
 
-***** 09.12.18 Информация по первичному вводу сведений о состоящих на диспансерном учёте
+** 09.12.18 Информация по первичному вводу сведений о состоящих на диспансерном учёте
 Function f2_vvod_disp_nabl(ldiag)
 Local fl := .f., lfp, i, s, d1, d2
 if len_diag == 0
@@ -2061,9 +2044,9 @@ next*/
 endif
 return ascan(diag1,alltrim(ldiag)) > 0
 
-*
+ 
 
-***** 12.09.22 Информация по первичному вводу сведений о состоящих на диспансерном учёте
+** 12.09.22 Информация по первичному вводу сведений о состоящих на диспансерном учёте
 Function inf_disp_nabl()
 Static suchast := 0, svrach := 0, sdiag := '',;
        mm_spisok := {{"весь список пациентов",0},{"с неполным вводом",1},{"с корректным вводом",2}}
@@ -2105,11 +2088,11 @@ myread()
 if lastkey() != K_ESC
   if !(valtype(parr_m) == "A")
     parr_m := array(8)
-    parr_m[5] := 0d20220101    // ЮЮ
+    parr_m[5] := 0d20010101    // ЮЮ
     parr_m[6] := 0d20221231    // ЮЮ
   endif
   if mvrach > 0
-    R_Use(dir_server+"mo_pers",dir_server+"mo_pers","PERSO")
+    R_Use(dir_server + "mo_pers",dir_server + "mo_pers","PERSO")
     find (str(mvrach,5))
     if found()
       glob_human := {perso->kod,;
@@ -2160,13 +2143,13 @@ if lastkey() != K_ESC
   add_string(center("Список пациентов, состоящих на диспансерном учёте",sh))
   add_string("")
   aeval(arr_title, {|x| add_string(x) } )
-  R_Use(dir_server+"mo_pers",,"PERS")
-  R_Use(dir_server+"kartote2",,"KART2")
-  R_Use(dir_server+"kartote_",,"KART_")
-  R_Use(dir_server+"kartotek",,"KART")
+  R_Use(dir_server + "mo_pers",,"PERS")
+  R_Use(dir_server + "kartote2",,"KART2")
+  R_Use(dir_server + "kartote_",,"KART_")
+  R_Use(dir_server + "kartotek",,"KART")
   R_Use_base("mo_dnab")
   set relation to kod_k into KART, to kod_k into KART_, to vrach into PERS
-  index on upper(kart->fio)+dtos(kart->date_r)+str(dn->kod_k,7)+dn->kod_diag to (cur_dir+"tmp_dn") ;
+  index on upper(kart->fio)+dtos(kart->date_r)+str(dn->kod_k,7)+dn->kod_diag to (cur_dir + "tmp_dn") ;
         for kart->kod > 0
   old := r := rs := 0
   sadres := ""
@@ -2195,7 +2178,7 @@ if lastkey() != K_ESC
       fl := between(diag_to_num(dn->kod_diag,1),d1,d2)
     endif
     if fl .and. m1spisok > 0
-      if dn->next_data < 0d20220101 .or. empty(dn->frequency)  // ЮЮ
+      if dn->next_data < 0d20230101 .or. empty(dn->frequency)  // ЮЮ
         fl := iif(m1spisok == 1, .t., .f.)
       else
         fl := iif(m1spisok == 2, .t., .f.)
@@ -2283,15 +2266,15 @@ endif
 restscreen(buf)
 return NIL
 
-*
+ 
 
-***** 27.11.19 Список диагнозов, обязательных для диспансерного наблюдения
+** 27.11.19 Список диагнозов, обязательных для диспансерного наблюдения
 Function spr_disp_nabl()
 Local i, j, s := "", c := "  ", sh := 80, HH := 60, diag1 := {}, buf := save_maxrow(), name_file := "diagn_dn"+stxt
 f_is_diag_dn(,@diag1)
 fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
 add_string("")
-add_string(center("Список диагнозов, обязательных для диспансерного наблюдения от 22.11.19г.",sh))
+add_string(center("Список диагнозов, обязательных для диспансерного наблюдения на 2023 г.",sh))
 add_string("")
 for i := 1 to len(diag1)
   verify_FF(HH,.t.,sh)
@@ -2310,9 +2293,9 @@ viewtext(name_file,,,,.t.,,,2)
 rest_box(buf)
 return NIL
 
-*
+ 
 
-/***** 07.11.18 Список пациентов с диагнозами, обязательными для диспансерного учёта (за 2 года)
+/** 07.11.18 Список пациентов с диагнозами, обязательными для диспансерного учёта (за 2 года)
 Function pac_disp_nabl()
 Static su := 0
 Local ku, i, adiagnoz, ar, sh := 80, HH := 60, buf := save_maxrow(), name_file := "disp_nabl"+stxt,;
@@ -2327,12 +2310,12 @@ add_string("")
 add_string(center("Список пациентов с диагнозами, обязательными для диспансерного учёта (за 2 года)",sh))
 add_string(center("участок № "+lstr(ku),sh))
 add_string("")
-R_Use(dir_server+"human_",,"HUMAN_")
-R_Use(dir_server+"human",dir_server+"humankk","HUMAN")
+R_Use(dir_server + "human_",,"HUMAN_")
+R_Use(dir_server + "human",dir_server + "humankk","HUMAN")
 R_Use_base("kartotek")
 set order to 4
 find (strzero(ku,2))
-index on upper(fio) to (cur_dir+"tmp_kart") ;
+index on upper(fio) to (cur_dir + "tmp_kart") ;
       for kart->kod > 0 .and. kart2->MO_PR == glob_mo[_MO_KOD_TFOMS] .and. !(left(kart2->PC2,1) == "1") ;
       while ku == uchast
 go top
@@ -2414,17 +2397,17 @@ viewtext(name_file,,,,.t.,,,2)
 rest_box(buf)
 return NIL*/
 
-*
+ 
 
-***** 25.12.20 // 14.12.20 Обмен с ТФОМС информацией по диспансерному наблюдению
+** 25.12.20 // 14.12.20 Обмен с ТФОМС информацией по диспансерному наблюдению
 Function f_create_D01()
 Local fl := .t., arr, id01 := 0, lspec, lmesto, buf := save_maxrow()
 mywait()
-R_Use(dir_server+"mo_xml",,"MO_XML")
-index on str(reestr,6) to (cur_dir+"tmp_xml") ;
-      for DFILE > 0d20211202 .and. tip_in == _XML_FILE_D02 .and. empty(TIP_OUT) // ЮЮ
-R_Use(dir_server+"mo_d01",,"REES")
-index on str(nn,3) to (cur_dir+"tmp_d01") for nyear == 2021 // ЮЮ
+R_Use(dir_server + "mo_xml",,"MO_XML")
+index on str(reestr,6) to (cur_dir + "tmp_xml") ;
+      for DFILE > 0d20221202 .and. tip_in == _XML_FILE_D02 .and. empty(TIP_OUT) // ЮЮ
+R_Use(dir_server + "mo_d01",,"REES")
+index on str(nn,3) to (cur_dir + "tmp_d01") for nyear == 2022 // ЮЮ
 
 go top
 do while !eof()
@@ -2455,10 +2438,10 @@ endif
 
 select REES
 set index to
-G_Use(dir_server+"mo_d01d",,"DD")
-index on str(kod_d,6) to (cur_dir+"tmp_d01d")
-G_Use(dir_server+"mo_d01k",,"DK")
-index on str(reestr,6) to (cur_dir+"tmp_d01k")
+G_Use(dir_server + "mo_d01d",,"DD")
+index on str(kod_d,6) to (cur_dir + "tmp_d01d")
+G_Use(dir_server + "mo_d01k",,"DK")
+index on str(reestr,6) to (cur_dir + "tmp_d01k")
 do while .t.
   select DK
   find (str(0,6)) // если во время создания D01...XML операция не была корректно завершена
@@ -2481,16 +2464,16 @@ enddo
 Commit
 
 
-dbcreate(cur_dir+"tmp",{{"KOD_K","N",7,0}})
-use (cur_dir+"tmp") new
+dbcreate(cur_dir + "tmp",{{"KOD_K","N",7,0}})
+use (cur_dir + "tmp") new
 select DK
 set relation to reestr into REES
-index on str(kod_k,7) to (cur_dir+"tmp_d01k") for rees->nyear == 2022 // ЮЮ
-R_Use(dir_server+"kartotek",,"KART")
-R_Use(dir_server+"kartote2",,"KART2")
-R_Use(dir_server+"mo_dnab",,"DN")
+index on str(kod_k,7) to (cur_dir + "tmp_d01k") for rees->nyear == 2022 // ЮЮ
+R_Use(dir_server + "kartotek",,"KART")
+R_Use(dir_server + "kartote2",,"KART2")
+R_Use(dir_server + "mo_dnab",,"DN")
 set relation to kod_k into KART
-index on upper(kart->fio)+dtos(kart->date_r)+str(kod_k,7) to (cur_dir+"tmp_dn") for kart->kod > 0 unique
+index on upper(kart->fio)+dtos(kart->date_r)+str(kod_k,7) to (cur_dir + "tmp_dn") for kart->kod > 0 unique
 go top
 do while !eof()
   fl := .t.
@@ -2529,11 +2512,11 @@ if tmp->(lastrec()) == 0
   func_error(4,"Не обнаружено пациентов, состоящих под дисп.наблюдением, ещё не отправленных в ТФОМС")
 else
   select DK
-  index on str(kod_k,7) to (cur_dir+"tmp_d01k")
-  R_Use(dir_server+"mo_pers",,"PERSO")
+  index on str(kod_k,7) to (cur_dir + "tmp_d01k")
+  R_Use(dir_server + "mo_pers",,"PERSO")
   select DN
   set relation to vrach into PERSO
-  index on str(kod_k,7) to (cur_dir+"tmp_dn")
+  index on str(kod_k,7) to (cur_dir + "tmp_dn")
   select TMP
   go top
   do while !eof()
@@ -2542,12 +2525,12 @@ else
     find (str(tmp->kod_k,7))
     do while dn->kod_k == tmp->kod_k .and. !eof()
       if f_is_diag_dn(dn->kod_diag) // только диагнозы из последнего списка от 21 ноября
-        if dn->next_data > stod("20211231")   //22.12.2020
+        if dn->next_data > stod("20221231")   //22.12.2022
           lspec := ret_prvs_V021(iif(empty(perso->prvs_new), perso->prvs, -perso->prvs_new))
           aadd(arr,{lspec,dn->kod_diag,dn->n_data,bom(dn->next_data),dn->FREQUENCY})
           i := len(arr)
           if empty(arr[i,4]) .or. !between(arr[i,4],0d20210101,0d20250101) // ЮЮ
-            arr[i,4] := 0d20220101  // ЮЮ
+            arr[i,4] := 0d20230101  // ЮЮ
           endif
           if !between(arr[i,5],1,36)
             arr[i,5] := 3
@@ -2605,28 +2588,28 @@ rest_box(buf)
 if id01 > 0 .and. f_Esc_Enter("создания D01 ("+lstr(id01)+" чел.)",.t.)
   mywait()
   inn := 0 ; nsh := 3
-  G_Use(dir_server+"mo_d01",,"REES")
-  index on str(nn,3) to (cur_dir+"tmp_d01") for nyear == 2021 // ЮЮ
+  G_Use(dir_server + "mo_d01",,"REES")
+  index on str(nn,3) to (cur_dir + "tmp_d01") for nyear == 2022 // ЮЮ
   go top
   do while !eof()
     inn := rees->nn
     skip
   enddo
   set index to
-  R_Use(dir_server+"kartote2",,"KART2")
-  R_Use(dir_server+"kartote_",,"KART_")
-  R_Use(dir_server+"kartotek",,"KART")
-  G_Use(dir_server+"mo_xml",,"MO_XML")
+  R_Use(dir_server + "kartote2",,"KART2")
+  R_Use(dir_server + "kartote_",,"KART_")
+  R_Use(dir_server + "kartotek",,"KART")
+  G_Use(dir_server + "mo_xml",,"MO_XML")
   smsg := "Составление файла D01..."
   stat_msg(smsg)
   select REES
   AddRecN()
   rees->KOD    := recno()
   rees->DSCHET := sys_date
-  rees->NYEAR  := 2021 // ЮЮ
+  rees->NYEAR  := 2022 // ЮЮ
   rees->MM     := 12
   rees->NN     := inn+1
-  s := "D01"+"T34M"+glob_mo[_MO_KOD_TFOMS]+"_2112"+strzero(rees->NN,nsh) //ЮЮ
+  s := "D01"+"T34M"+glob_mo[_MO_KOD_TFOMS]+"_2212"+strzero(rees->NN,nsh) //ЮЮ
   rees->NAME_XML := s
   mkod_reestr := rees->KOD
   //
@@ -2647,9 +2630,9 @@ if id01 > 0 .and. f_Esc_Enter("создания D01 ("+lstr(id01)+" чел.)",.t.)
   UnLock
   Commit
   pkol := 0
-  G_Use(dir_server+"mo_d01d",cur_dir+"tmp_d01d","DD")
-  G_Use(dir_server+"mo_d01k",,"RHUM")
-  index on str(REESTR,6)+str(D01_ZAP,6) to (cur_dir+"tmp_rhum")
+  G_Use(dir_server + "mo_d01d",cur_dir + "tmp_d01d","DD")
+  G_Use(dir_server + "mo_d01k",,"RHUM")
+  index on str(REESTR,6)+str(D01_ZAP,6) to (cur_dir + "tmp_rhum")
   do while .t.
     find (str(0,6))
     if found()
@@ -2690,7 +2673,7 @@ if id01 > 0 .and. f_Esc_Enter("создания D01 ("+lstr(id01)+" чел.)",.t.)
   //
   select RHUM
   set relation to kod_k into KART, to kod_k into KART_, to kod_k into KART2
-  index on str(D01_ZAP,6) to (cur_dir+"tmp_rhum") for REESTR == mkod_reestr
+  index on str(D01_ZAP,6) to (cur_dir + "tmp_rhum") for REESTR == mkod_reestr
   go top
   do while !eof()
     @ maxrow(),0 say str(rhum->D01_ZAP/pkol*100,6,2)+"%" color cColorSt2Msg
@@ -2708,17 +2691,31 @@ if id01 > 0 .and. f_Esc_Enter("создания D01 ("+lstr(id01)+" чел.)",.t.)
     if !empty(kart->snils)
       mo_add_xml_stroke(oXmlNode,"SS",transform(kart->SNILS,picture_pf))
     endif
-    mo_add_xml_stroke(oXmlNode,"TYPE_P",lstr(iif(between(kart_->VPOLIS,1,3),kart_->VPOLIS,1)))
-    if !empty(kart_->SPOLIS)
-      mo_add_xml_stroke(oXmlNode,"SER_P",kart_->SPOLIS)
-    endif
-    s := alltrim(kart_->NPOLIS)
-    if kart_->VPOLIS == 3 .and. len(s) != 16
+    //  проверим наличие ЕНП - иначе старый вариант
+    if len(alltrim(kart2->KOD_MIS)) > 14
+      mo_add_xml_stroke(oXmlNode,"TYPE_P",lstr(3)) // только НОВЫЙ
+      //if !empty(kart_->SPOLIS) у нового нет серии
+      //  mo_add_xml_stroke(oXmlNode,"SER_P",kart_->SPOLIS)
+      //endif
+      s := alltrim(kart2->KOD_MIS)
       s := padr(s,16,"0")
-    endif
-    mo_add_xml_stroke(oXmlNode,"NUM_P",s)
-    if kart_->VPOLIS == 3
+       // 
+      mo_add_xml_stroke(oXmlNode,"NUM_P",s)
       mo_add_xml_stroke(oXmlNode,"ENP",s)
+    else  
+      mo_add_xml_stroke(oXmlNode,"TYPE_P",lstr(iif(between(kart_->VPOLIS,1,3),kart_->VPOLIS,1)))
+      if !empty(kart_->SPOLIS)
+        mo_add_xml_stroke(oXmlNode,"SER_P",kart_->SPOLIS)
+      endif
+      s := alltrim(kart_->NPOLIS)
+      if kart_->VPOLIS == 3 .and. len(s) != 16
+        s := padr(s,16,"0")
+      endif
+      // 
+      mo_add_xml_stroke(oXmlNode,"NUM_P",s)
+      if kart_->VPOLIS == 3
+        mo_add_xml_stroke(oXmlNode,"ENP",s)
+      endif
     endif
     mo_add_xml_stroke(oXmlNode,"DOCTYPE",lstr(kart_->vid_ud))
     if !empty(kart_->ser_ud)
@@ -2784,18 +2781,18 @@ if id01 > 0 .and. f_Esc_Enter("создания D01 ("+lstr(id01)+" чел.)",.t.)
 endif
 return NIL
 
-*
+ 
 
-***** 03.12.19 Обмен с ТФОМС информацией по диспансерному наблюдению
+** 03.12.19 Обмен с ТФОМС информацией по диспансерному наблюдению
 Function f_view_D01()
 Local i, k, buf := savescreen()
-Private goal_dir := dir_server+dir_XML_MO+cslash
-G_Use(dir_server+"mo_xml",,"MO_XML")
-G_Use(dir_server+"mo_d01",,"REES")
-index on descend(strzero(nn,3)) to (cur_dir+"tmp_rees") for nyear == 2021 // ЮЮ
+Private goal_dir := dir_server + dir_XML_MO + cslash
+G_Use(dir_server + "mo_xml",,"MO_XML")
+G_Use(dir_server + "mo_d01",,"REES")
+index on descend(strzero(nn,3)) to (cur_dir + "tmp_rees") for nyear == 2022 // ЮЮ
 go top
 if eof()
-  func_error(4,"Не было создано файлов D01... для 2022 года") // ЮЮ
+  func_error(4,"Не было создано файлов D01... для 2023 года") // ЮЮ
 else
   Private reg := 1
   Alpha_Browse(T_ROW,2,maxrow()-2,77,"f1_view_D01",color0,,,,,,,;
@@ -2805,12 +2802,12 @@ close databases
 restscreen(buf)
 return NIL
 
-*
+ 
 
-***** 29.11.18
+** 29.11.18
 Function f1_view_D01(oBrow)
 Local oColumn, ;
-      blk := {|| iif(hb_fileExists(goal_dir+alltrim(rees->NAME_XML)+szip), ;
+      blk := {|| iif(hb_fileExists(goal_dir + alltrim(rees->NAME_XML) + szip), ;
                      iif(empty(rees->date_out), {3,4}, {1,2}),;
                      {5,6}) }
 oColumn := TBColumnNew(" №№",{|| str(rees->nn,3) })
@@ -2841,9 +2838,9 @@ else
 endif
 return NIL
 
-*
+ 
 
-***** 03.12.18
+** 03.12.18
 Static Function f11_view_D01()
 Local s := ""
 if rees->kod_xml > 0
@@ -2853,7 +2850,7 @@ if rees->kod_xml > 0
   endif
 endif
 if empty(s)
-  if !hb_fileExists(goal_dir+alltrim(rees->NAME_XML)+szip)
+  if !hb_fileExists(goal_dir + alltrim(rees->NAME_XML) + szip)
     s := "нет файла"
   elseif empty(rees->date_out)
     s := "не записан"
@@ -2863,9 +2860,9 @@ if empty(s)
 endif
 return padr(s,10)
 
-*
+ 
 
-***** 03.12.18
+** 03.12.18
 Function f2_view_D01(nKey,oBrow)
 Local ret := -1, rec := rees->(recno()), tmp_color := setcolor(), r, r1, r2,;
       s, buf := savescreen(), arr := {}, i := 1, k, mdate, t_arr[2], arr_pmt := {}
@@ -2890,12 +2887,12 @@ do case
           k := 0
           for i := 1 to len(arr)
             zip_file := alltrim(arr[i,1])+szip
-            if hb_fileExists(goal_dir+zip_file)
-              mywait('Копирование "'+zip_file+'" в каталог "'+s+'"')
-              //copy file (goal_dir+zip_file) to (hb_OemToAnsi(s)+zip_file)
-              copy file (goal_dir+zip_file) to (s+zip_file)
-              //if hb_fileExists(hb_OemToAnsi(s)+zip_file)
-              if hb_fileExists(s+zip_file)
+            if hb_fileExists(goal_dir + zip_file)
+              mywait('Копирование "' + zip_file + '" в каталог "' + s + '"')
+              //copy file (goal_dir + zip_file) to (hb_OemToAnsi(s) + zip_file)
+              copy file (goal_dir + zip_file) to (s + zip_file)
+              //if hb_fileExists(hb_OemToAnsi(s) + zip_file)
+              if hb_fileExists(s + zip_file)
                 ++k
                 rees->(dbGoto(arr[i,3]))
                 smsg := "Пакет D01 № "+lstr(rees->nn)+" от "+date_8(mdate)+"г. "+alltrim(rees->name_xml)+szip
@@ -2918,7 +2915,7 @@ do case
                 strfile(smsg+hb_eol(),cFileProtokol,.t.)
               endif
             else
-              smsg := "! Не обнаружен файл "+goal_dir+zip_file
+              smsg := "! Не обнаружен файл " + goal_dir + zip_file
               func_error(4,smsg)
               strfile(smsg+hb_eol(),cFileProtokol,.t.)
             endif
@@ -2947,8 +2944,8 @@ do case
       ret := delete_reestr_D02(rees->(recno()),alltrim(rees->NAME_XML))
     endif
     close databases
-    G_Use(dir_server+"mo_xml",,"MO_XML")
-    G_Use(dir_server+"mo_d01",cur_dir+"tmp_rees","REES")
+    G_Use(dir_server + "mo_xml",,"MO_XML")
+    G_Use(dir_server + "mo_d01",cur_dir + "tmp_rees","REES")
     if ret != 1
       goto (rec)
     endif
@@ -2957,9 +2954,9 @@ setcolor(tmp_color)
 restscreen(buf)
 return ret
 
-*
+ 
 
-***** 29.11.18
+** 29.11.18
 Function f3_view_D01(oBrow)
 Static si := 1
 Local i, r := row(), r1, r2, buf := save_maxrow(), fl, s,;
@@ -2967,7 +2964,7 @@ Local i, r := row(), r1, r2, buf := save_maxrow(), fl, s,;
       mm_menu := {"Список ~всех пациентов из D01"}
 mywait()
 select MO_XML
-index on FNAME to (cur_dir+"tmp_xml") ;
+index on FNAME to (cur_dir + "tmp_xml") ;
       for reestr==rees->kod .and. tip_in==_XML_FILE_D02 .and. empty(TIP_OUT)
 go top
 do while !eof()
@@ -3015,9 +3012,9 @@ endif
 select REES
 return NIL
 
-*
+ 
 
-***** 29.11.18
+** 29.11.18
 Function  f31_view_D01(reg,s)
 Local fl := .t., buf := save_maxrow(), k := 0, n_file := "D01_spis"+stxt
 mywait()
@@ -3029,12 +3026,12 @@ if reg == 99
 endif
 add_string(center("[ "+s+" ]",80))
 add_string("")
-R_Use(dir_server+"mo_d01d",,"DD")
-index on str(kod_d,6) to (cur_dir+"tmp_dd")
-R_Use(dir_server+"kartotek",,"KART")
-R_Use(dir_server+"mo_d01k",,"RHUM")
+R_Use(dir_server + "mo_d01d",,"DD")
+index on str(kod_d,6) to (cur_dir + "tmp_dd")
+R_Use(dir_server + "kartotek",,"KART")
+R_Use(dir_server + "mo_d01k",,"RHUM")
 set relation to kod_k into KART
-index on str(rhum->D01_ZAP,6) to (cur_dir+"tmp_rhum") for reestr == rees->kod
+index on str(rhum->D01_ZAP,6) to (cur_dir + "tmp_rhum") for reestr == rees->kod
 go top
 do while !eof()
   if iif(reg == 99, .t., rhum->OPLATA == reg)
@@ -3072,14 +3069,14 @@ rest_box(buf)
 viewtext(n_file,,,,.t.,,,2)
 return NIL
 
-*
+ 
 
-***** 03.12.19 зачитать D01 во временные файлы
+** 03.12.19 зачитать D01 во временные файлы
 Function reestr_D01_tmpfile(oXmlDoc,aerr,mname_xml)
 Local j, j1, _ar, oXmlNode, oNode1, oNode2, buf := save_maxrow()
 DEFAULT aerr TO {}, mname_xml TO ""
 stat_msg("Распаковка/чтение/анализ файла "+mname_xml)
-dbcreate(cur_dir+"tmp4file", {;
+dbcreate(cur_dir + "tmp4file", {;
  {"ZAP",        "N",  6,0},;
  {"IDPAC",      "C", 36,0},;
  {"SURNAME",    "C", 40,0},;
@@ -3104,7 +3101,7 @@ dbcreate(cur_dir+"tmp4file", {;
  {"kod_k",      "N",  7,0},;
  {"OPLATA",     "N",  1,0};
 })
-dbcreate(cur_dir+"tmp5file", {;
+dbcreate(cur_dir + "tmp5file", {;
  {"ZAP",        "N",  6,0},;
  {"PRVS"    ,   "C",  4,0},;
  {"DS"      ,   "C",  5,0},;
@@ -3112,8 +3109,8 @@ dbcreate(cur_dir+"tmp5file", {;
  {"DATE_VIZIT", "C", 10,0},;
  {"FREQUENCY",  "N",  2,0};
 })
-use (cur_dir+"tmp4file") new alias TMP2
-use (cur_dir+"tmp5file") new alias TMP5
+use (cur_dir + "tmp4file") new alias TMP2
+use (cur_dir + "tmp5file") new alias TMP5
 FOR j := 1 TO Len( oXmlDoc:aItems[1]:aItems )
   @ maxrow(),1 say padr(lstr(j),6) color cColorSt2Msg
   oXmlNode := oXmlDoc:aItems[1]:aItems[j]
@@ -3171,14 +3168,14 @@ tmp5->(dbCloseArea())
 rest_box(buf)
 return NIL
 
-*
+ 
 
-***** 27.11.18 зачитать D02 во временные файлы
+** 27.11.18 зачитать D02 во временные файлы
 Function reestr_D02_tmpfile(oXmlDoc,aerr,mname_xml)
 Local j, j1, _ar, oXmlNode, oNode1, oNode2, buf := save_maxrow()
 DEFAULT aerr TO {}, mname_xml TO ""
 stat_msg("Распаковка/чтение/анализ файла "+mname_xml)
-dbcreate(cur_dir+"tmp1file", {;
+dbcreate(cur_dir + "tmp1file", {;
  {"_VERSION",   "C",  5,0},;
  {"_DATE_F",    "D",  8,0},;
  {"_NAME_F",    "C", 26,0},;
@@ -3186,20 +3183,20 @@ dbcreate(cur_dir+"tmp1file", {;
  {"KOL",        "N",  6,0},; // количество пациентов в реестре/файле
  {"KOL_ERR",    "N",  6,0};  // количество пациентов с ошибками в реестре
 })
-dbcreate(cur_dir+"tmp2file", {;
+dbcreate(cur_dir + "tmp2file", {;
  {"_N_ZAP",     "N",  6,0},;
  {"_SMO",       "C",  5,0},;
  {"_ENP",       "C", 16,0},;
  {"_OPLATA",    "N",  1,0};
 })
-dbcreate(cur_dir+"tmp3file", {;
+dbcreate(cur_dir + "tmp3file", {;
  {"_N_ZAP",     "N",  6,0},;
  {"_ERROR",     "N",  3,0};
 })
-use (cur_dir+"tmp1file") new alias TMP1
+use (cur_dir + "tmp1file") new alias TMP1
 append blank
-use (cur_dir+"tmp2file") new alias TMP2
-use (cur_dir+"tmp3file") new alias TMP3
+use (cur_dir + "tmp2file") new alias TMP2
+use (cur_dir + "tmp3file") new alias TMP3
 FOR j := 1 TO Len( oXmlDoc:aItems[1]:aItems )
   @ maxrow(),1 say padr(lstr(j),6) color cColorSt2Msg
   oXmlNode := oXmlDoc:aItems[1]:aItems[j]
@@ -3241,17 +3238,17 @@ Function read_XML_FILE_D02(arr_XML_info,aerr,/*@*/current_i2,lrec_xml)
 Local count_in_schet := 0, bSaveHandler, ii1, ii2, i, j, k, t_arr[2], ldate_D02, s, err_file := .f.
 DEFAULT lrec_xml TO 0
 mkod_reestr := arr_XML_info[7]
-use (cur_dir+"tmp1file") new alias TMP1
+use (cur_dir + "tmp1file") new alias TMP1
 ldate_D02 := tmp1->_DATE_F
-R_Use(dir_server+"mo_d01",,"REES")
+R_Use(dir_server + "mo_d01",,"REES")
 goto (arr_XML_info[7])
 strfile("Обрабатывается ответ ТФОМС (D02) на информационный пакет "+alltrim(rees->NAME_XML)+sxml+hb_eol()+;
         "от "+date_8(rees->DSCHET)+"г. ("+lstr(rees->kol)+" чел.)"+hb_eol()+hb_eol(),cFileProtokol,.t.)
 rees_kol := rees->kol
 //
-R_Use(dir_server+"mo_d01k",,"RHUM")
-index on str(D01_ZAP,6) to (cur_dir+"tmp_rhum") for REESTR == mkod_reestr
-use (cur_dir+"tmp2file") new alias TMP2
+R_Use(dir_server + "mo_d01k",,"RHUM")
+index on str(D01_ZAP,6) to (cur_dir + "tmp_rhum") for REESTR == mkod_reestr
+use (cur_dir + "tmp2file") new alias TMP2
 i := 0 ; k := lastrec()
 // сначала проверка
 ii1 := ii2 := 0
@@ -3279,8 +3276,8 @@ enddo
 tmp1->kol := ii1
 tmp1->kol_err := ii2
 if empty(ii2)
-  use (cur_dir+"tmp3file") new alias TMP3
-  index on str(_n_zap,6) to (cur_dir+"tmp3")
+  use (cur_dir + "tmp3file") new alias TMP3
+  index on str(_n_zap,6) to (cur_dir + "tmp3")
   find (str(0,6))
   err_file := found() // ошибки на уровне файла
 endif
@@ -3289,7 +3286,7 @@ if empty(aerr) // если проверка прошла успешно
   // запишем принимаемый файл (реестр СП)
   //chip_copy_zipXML(hb_OemToAnsi(full_zip),dir_server+dir_XML_TF)
   chip_copy_zipXML(full_zip,dir_server+dir_XML_TF)
-  G_Use(dir_server+"mo_xml",,"MO_XML")
+  G_Use(dir_server + "mo_xml",,"MO_XML")
   if empty(lrec_xml)
     AddRecN()
   else
@@ -3312,7 +3309,7 @@ if empty(aerr) // если проверка прошла успешно
   //
   mXML_REESTR := mo_xml->KOD
   use
-  G_Use(dir_server+"mo_d01",,"REES")
+  G_Use(dir_server + "mo_d01",,"REES")
   goto (mkod_reestr)
   G_RLock(forever)
   rees->answer := 1
@@ -3323,10 +3320,10 @@ if empty(aerr) // если проверка прошла успешно
   endif
   use
   if ii2 > 0 .or. err_file
-    use (cur_dir+"tmp3file") new alias TMP3
-    index on str(_n_zap,6) to (cur_dir+"tmp3")
-    G_Use(dir_server+"mo_d01e",,"REFR")
-    index on str(REESTR,6)+str(D01_ZAP,6) to (cur_dir+"tmp_D01e")
+    use (cur_dir + "tmp3file") new alias TMP3
+    index on str(_n_zap,6) to (cur_dir + "tmp3")
+    G_Use(dir_server + "mo_d01e",,"REFR")
+    index on str(REESTR,6)+str(D01_ZAP,6) to (cur_dir + "tmp_D01e")
     if err_file
       select REFR
       do while .t.
@@ -3354,11 +3351,11 @@ if empty(aerr) // если проверка прошла успешно
     endif
     tmp3->(dbCloseArea())
   endif
-  G_Use(dir_server+"kartote2",,"KART2")
-  G_Use(dir_server+"kartote_",,"KART_")
-  G_Use(dir_server+"kartotek",,"KART")
-  G_Use(dir_server+"mo_d01k",,"RHUM")
-  index on str(D01_ZAP,6) to (cur_dir+"tmp_rhum") for REESTR == mkod_reestr
+  G_Use(dir_server + "kartote2",,"KART2")
+  G_Use(dir_server + "kartote_",,"KART_")
+  G_Use(dir_server + "kartotek",,"KART")
+  G_Use(dir_server + "mo_d01k",,"RHUM")
+  index on str(D01_ZAP,6) to (cur_dir + "tmp_rhum") for REESTR == mkod_reestr
   i := 0
   if err_file
     go top
@@ -3369,10 +3366,10 @@ if empty(aerr) // если проверка прошла успешно
       skip
     enddo
   else
-    use (cur_dir+"tmp3file") new alias TMP3
-    index on str(_n_zap,6) to (cur_dir+"tmp3")
-    use (cur_dir+"tmp2file") new alias TMP2
-    index on str(_n_zap,6) to (cur_dir+"tmp2")
+    use (cur_dir + "tmp3file") new alias TMP3
+    index on str(_n_zap,6) to (cur_dir + "tmp3")
+    use (cur_dir + "tmp2file") new alias TMP2
+    index on str(_n_zap,6) to (cur_dir + "tmp2")
     count_in_schet := lastrec() ; current_i2 := 0
     go top
     do while !eof()
@@ -3445,19 +3442,19 @@ endif
 close databases
 return count_in_schet
 
-*
+ 
 
-***** 03.12.18
+** 03.12.18
 Function delete_reestr_D01(mkod_reestr)
 Local ret := -1, rec, ir, fl := .t.
 if f_Esc_Enter("аннулирования D01")
   mywait()
   select REES
   goto (mkod_reestr)
-  G_Use(dir_server+"mo_d01d",,"DD")
-  index on str(kod_d,6) to (cur_dir+"tmp_d01d")
-  G_Use(dir_server+"mo_d01k",,"DK")
-  index on str(reestr,6) to (cur_dir+"tmp_d01k")
+  G_Use(dir_server + "mo_d01d",,"DD")
+  index on str(kod_d,6) to (cur_dir + "tmp_d01d")
+  G_Use(dir_server + "mo_d01k",,"DK")
+  index on str(reestr,6) to (cur_dir + "tmp_d01k")
   do while .t.
     select DK
     find (str(mkod_reestr,6))
@@ -3489,9 +3486,9 @@ if f_Esc_Enter("аннулирования D01")
 endif
 return ret
 
-*
+ 
 
-***** 29.11.18 аннулировать чтение недочитанного реестра D02
+** 29.11.18 аннулировать чтение недочитанного реестра D02
 Function delete_reestr_D02(mkod_reestr,mname_reestr)
 Local i, s, r := row(), r1, r2, buf := save_maxrow(), ;
       mm_menu := {}, mm_func := {}, mm_flag := {}, mreestr_sp_tk, ;
@@ -3499,7 +3496,7 @@ Local i, s, r := row(), r1, r2, buf := save_maxrow(), ;
       cFileProtokol := "tmp"+stxt
 mywait()
 select MO_XML
-index on FNAME to (cur_dir+"tmp_xml") ;
+index on FNAME to (cur_dir + "tmp_xml") ;
       for reestr == mkod_reestr .and. tip_in == _XML_FILE_D02 .and. TIP_OUT == 0
 go top
 do while !eof()
@@ -3559,15 +3556,15 @@ if (i := popup_prompt(r1,10,1,mm_menu,,,color5)) > 0
         endif
         if is_allow_delete
           close databases
-          G_Use(dir_server+"mo_d01",,"REES")
+          G_Use(dir_server + "mo_d01",,"REES")
           goto (mkod_reestr)
-          use (cur_dir+"tmp1file") new alias TMP1
-          use (cur_dir+"tmp2file") new alias TMP2
+          use (cur_dir + "tmp1file") new alias TMP1
+          use (cur_dir + "tmp2file") new alias TMP2
           arr := {}
           aadd(arr,"Информационный пакет "+alltrim(rees->NAME_XML)+sxml+" от "+date_8(rees->DSCHET)+"г.")
           aadd(arr,"за "+lstr(rees->NYEAR)+" год, кол-во пациентов "+lstr(rees->kol)+" чел.")
           aadd(arr,"")
-          G_Use(dir_server+"mo_xml",,"MO_XML")
+          G_Use(dir_server + "mo_xml",,"MO_XML")
           goto (mreestr_sp_tk)
           aadd(arr,"Аннулируется файл ответа "+cFile+" от "+date_8(mo_xml->DFILE)+"г.")
           aadd(arr,"После подтверждения аннулирования все последствия чтения данного")
@@ -3586,23 +3583,23 @@ if (i := popup_prompt(r1,10,1,mm_menu,,,color5)) > 0
           close databases
         endif
         if is_allow_delete
-          G_Use(dir_server+"mo_xml",,"MO_XML")
-          G_Use(dir_server+"mo_d01",,"REES")
+          G_Use(dir_server + "mo_xml",,"MO_XML")
+          G_Use(dir_server + "mo_d01",,"REES")
           goto (mkod_reestr)
           G_RLock(forever)
           rees->answer := 0
           rees->kol_err := 0
-          G_Use(dir_server+"mo_d01e",,"REFR")
-          index on str(REESTR,6)+str(D01_ZAP,6) to (cur_dir+"tmp_D01e")
+          G_Use(dir_server + "mo_d01e",,"REFR")
+          index on str(REESTR,6)+str(D01_ZAP,6) to (cur_dir + "tmp_D01e")
           select REFR
           do while .t.
             find (str(mkod_reestr,6)+str(0,6)) // удалим ошибки на уровне файла
             if !found() ; exit ; endif
             DeleteRec(.t.)
           enddo
-          G_Use(dir_server+"mo_d01k",,"RHUM")
-          index on str(D01_ZAP,6) to (cur_dir+"tmp_rhum") for reestr == mkod_reestr
-          use (cur_dir+"tmp2file") new alias TMP2
+          G_Use(dir_server + "mo_d01k",,"RHUM")
+          index on str(D01_ZAP,6) to (cur_dir + "tmp_rhum") for reestr == mkod_reestr
+          use (cur_dir + "tmp2file") new alias TMP2
           go top
           do while !eof()
             select RHUM
@@ -3632,9 +3629,9 @@ endif
 rest_box(buf)
 return 0
 
-*
+ 
 
-***** 18.12.20
+** 18.12.20
 Function proverka_spisok_D01(reestr_D01)
 Local fl := .F., arr_d01 := {}, i := 0
 
