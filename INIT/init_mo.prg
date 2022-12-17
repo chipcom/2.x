@@ -1,5 +1,5 @@
-#include "function.ch"
-#include "chip_mo.ch"
+#include 'function.ch'
+#include 'chip_mo.ch'
 
 #define FILE_HASH   'files.hst'   // имя файла для хэшев файлов
 #define NUMBER_YEAR 3 // число лет для переиндексации назад
@@ -12,34 +12,34 @@ Function init_mo()
   mywait()
   Public oper_parol := 30  // пароль для фискального регистратора
   Public oper_frparol := 30 // пароль для фискального регистратора ОТЧЕТ
-  Public oper_fr_inn  := "" // ИНН кассира
-  Public glob_arr_mo := {}, glob_mo, glob_podr := "", glob_podr_2 := ""
+  Public oper_fr_inn  := '' // ИНН кассира
+  Public glob_arr_mo := {}, glob_mo, glob_podr := '', glob_podr_2 := ''
   Public is_adres_podr := .f., glob_adres_podr := {;
-    {"103001",{{"103001",1,"г.Волгоград, ул.Землячки, д.78"},;
-               {"103099",2,"г.Михайловка, ул.Мичурина, д.8"},;
-               {"103099",3,"г.Волжский, ул.Комсомольская, д.25"},;
-               {"103099",4,"г.Волжский, ул.Оломоуцкая, д.33"},;
-               {"103099",5,"г.Камышин, ул.Днепровская, д.43"},;
-               {"103099",6,"г.Камышин, ул.Мира, д.51"},;
-               {"103099",7,"г.Урюпинск, ул.Фридек-Мистек, д.8"}};
+    {'103001',{{'103001',1,'г.Волгоград, ул.Землячки, д.78'},;
+               {'103099',2,'г.Михайловка, ул.Мичурина, д.8'},;
+               {'103099',3,'г.Волжский, ул.Комсомольская, д.25'},;
+               {'103099',4,'г.Волжский, ул.Оломоуцкая, д.33'},;
+               {'103099',5,'г.Камышин, ул.Днепровская, д.43'},;
+               {'103099',6,'г.Камышин, ул.Мира, д.51'},;
+               {'103099',7,'г.Урюпинск, ул.Фридек-Мистек, д.8'}};
     },;
-    {"101003",{{"101003",1,"г.Волгоград, ул.Циолковского, д.1"},;
-               {"101099",2,"г.Волгоград, ул.Советская, д.47"}};
+    {'101003',{{'101003',1,'г.Волгоград, ул.Циолковского, д.1'},;
+               {'101099',2,'г.Волгоград, ул.Советская, д.47'}};
     },;
-    {"131001",{{"131001",1,"г.Волгоград, ул.Кирова, д.10"},;
-               {"131099",2,"г.Волгоград, ул.Саши Чекалина, д.7"},;
-               {"131099",3,"г.Волгоград, ул.им.Федотова, д.18"}};
+    {'131001',{{'131001',1,'г.Волгоград, ул.Кирова, д.10'},;
+               {'131099',2,'г.Волгоград, ул.Саши Чекалина, д.7'},;
+               {'131099',3,'г.Волгоград, ул.им.Федотова, д.18'}};
     },;
-    {"171004",{{"171004",1,"г.Волгоград, ул.Ополченская, д.40"},;
-               {"171099",2,"г.Волгоград, ул.Тракторостроителей, д.13"}};
+    {'171004',{{'171004',1,'г.Волгоград, ул.Ополченская, д.40'},;
+               {'171099',2,'г.Волгоград, ул.Тракторостроителей, д.13'}};
     };
   }
 
   create_mo_add()
   glob_arr_mo := getMo_mo_New('_mo_mo')
 
-  if hb_FileExists(dir_server+"organiz"+sdbf)
-    R_Use(dir_server+"organiz",,"ORG")
+  if hb_FileExists(dir_server + 'organiz' +sdbf)
+    R_Use(dir_server + 'organiz',,'ORG')
     if lastrec() > 0
       cCode := left(org->kod_tfoms,6)
     endif
@@ -52,18 +52,18 @@ Function init_mo()
         is_adres_podr := .t. ; glob_podr_2 := glob_adres_podr[i,2,2,1] // второй код для удалённого адреса
       endif
     else
-      func_error(4,'У Вас в справочнике занесён несуществующий код МО "'+cCode+'". Введите его заново.')
-      cCode := ""
+      func_error(4,'В справочник занесён несуществующий код МО "' + cCode + '". Введите его заново.')
+      cCode := ''
     endif
   endif
   if empty(cCode)
     if (cCode := input_value(18,2,20,77,color1,;
-                              "Введите код МО или обособленного подразделения, присвоенный ТФОМС",;
-                              space(6),"999999")) != NIL .and. !empty(cCode)
+                              'Введите код МО или обособленного подразделения, присвоенный ТФОМС',;
+                              space(6),'999999')) != NIL .and. !empty(cCode)
       if (i := ascan(glob_arr_mo, {|x| x[_MO_KOD_TFOMS] == cCode})) > 0
         glob_mo := glob_arr_mo[i]
-        if hb_FileExists(dir_server+"organiz"+sdbf)
-          G_Use(dir_server+"organiz",,"ORG")
+        if hb_FileExists(dir_server + 'organiz' + sdbf)
+          G_Use(dir_server + 'organiz',,'ORG')
           if lastrec() == 0
             AddRecN()
           else
@@ -75,7 +75,7 @@ Function init_mo()
         endif
         close databases
       else
-        fl := func_error('Работа невозможна - введённый код МО "'+cCode+'" неверен.')
+        fl := func_error('Работа невозможна - введённый код МО "' + cCode + '" неверен.')
       endif
     endif
   endif
@@ -86,13 +86,13 @@ Function init_mo()
   rest_box(buf)
 
   if ! fl
-    hard_err("delete")
+    hard_err('delete')
     QUIT
   endif
 
   return main_up_screen()
 
-***** 28.02.22 проверка и переиндексирование справочников ТФОМС
+** 16.12.22 проверка и переиндексирование справочников ТФОМС
 Function checkFilesTFOMS()
   Local fl := .t., i, arr, buf := save_maxrow()
   local arrRefFFOMS := {}, row, row_flag := .t.
@@ -118,12 +118,12 @@ Function checkFilesTFOMS()
   Public is_22_VMP := .f.     // ВМП для 22 года
   
   // справочник цен на услуги ТФОМС 2016-2017
-  Public glob_MU_dializ := {}//"A18.05.002.001","A18.05.002.002","A18.05.002.003",;
-                            //"A18.05.003","A18.05.003.001","A18.05.011","A18.30.001","A18.30.001.001"}
-  Public glob_KSG_dializ := {}//"10000901","10000902","10000903","10000905","10000906","10000907","10000913",;
-                             //"20000912","20000916","20000917","20000918","20000919","20000920"}
-                             //"1000901","1000902","1000903","1000905","1000906","1000907","1000913",;
-                             //"2000912","2000916","2000917","2000918","2000919","2000920"}
+  Public glob_MU_dializ := {}//'A18.05.002.001','A18.05.002.002','A18.05.002.003',;
+                            //'A18.05.003','A18.05.003.001','A18.05.011','A18.30.001','A18.30.001.001'}
+  Public glob_KSG_dializ := {}//'10000901','10000902','10000903','10000905','10000906','10000907','10000913',;
+                             //'20000912','20000916','20000917','20000918','20000919','20000920'}
+                             //'1000901','1000902','1000903','1000905','1000906','1000907','1000913',;
+                             //'2000912','2000916','2000917','2000918','2000919','2000920'}
   
   Public is_vr_pr_pp := .f., is_hemodializ := .f., is_per_dializ := .f., is_reabil_slux := .f.,;
          is_ksg_1300098 := .f., is_dop_ob_em := .f., glob_yes_kdp2[10], glob_menu_mz_rf := {.f.,.f.,.f.}
@@ -154,7 +154,7 @@ Function checkFilesTFOMS()
   endif
 
   // услуги <-> специальности
-  sbase := "_mo_spec"
+  sbase := '_mo_spec'
   file_index := cur_dir + sbase + sntx
   sMD5 := ''
   if hb_FileExists(exe_dir + sbase + sdbf)
@@ -171,7 +171,7 @@ Function checkFilesTFOMS()
   endif
 
   // услуги <-> профили
-  sbase := "_mo_prof"
+  sbase := '_mo_prof'
   file_index := cur_dir + sbase + sntx
   sMD5 := ''
   if hb_FileExists(exe_dir + sbase + sdbf)
@@ -201,7 +201,7 @@ Function checkFilesTFOMS()
 
   Public is_MO_VMP := (is_ksg_VMP .or. is_12_VMP .or. is_14_VMP .or. is_ds_VMP .or. is_21_VMP .or. is_22_VMP)
   // справочник доплат по законченным случаям (старый справочник)
-  /*sbase := "_mo_usld"
+  /*sbase := '_mo_usld'
   if hb_FileExists(exe_dir + sbase + sdbf)
     if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
       R_Use(exe_dir + sbase )
@@ -211,8 +211,8 @@ Function checkFilesTFOMS()
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif*/
-  // справочник "услуги по законченным случаям + диагнозы"
-  /*sbase := "_mo_uslz"
+  // справочник 'услуги по законченным случаям + диагнозы'
+  /*sbase := '_mo_uslz'
   if hb_FileExists(exe_dir + sbase + sdbf)
     if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
       R_Use(exe_dir + sbase )
@@ -225,7 +225,7 @@ Function checkFilesTFOMS()
 
 
   Public arr_t007 := {}
-  sbase := "_mo_t007"
+  sbase := '_mo_t007'
   file_index := cur_dir + sbase + sntx
   sMD5 := ''
   if hb_FileExists(exe_dir + sbase + sdbf)
@@ -233,11 +233,11 @@ Function checkFilesTFOMS()
     if ! hb_FileExists(file_index) .or. ;
         ! hb_FileExists(cur_dir + sbase + '2' + sntx) .or. ;
         ! check_izm_file_MD5(hash_files, sbase, sMD5)
-      R_Use(exe_dir + sbase ,,"T7")
+      R_Use(exe_dir + sbase ,,'T7')
       index on upper(left(NAME,50))+str(profil_k,3) to (cur_dir+sbase) UNIQUE
       dbeval({|| aadd(arr_t007, {alltrim(t7->name),profil_k,pk_V020}) })
       index on str(profil_k,3)+str(profil,3) to (cur_dir+sbase)
-      index on str(pk_V020,3)+str(profil,3) to (cur_dir+sbase+"2")
+      index on str(pk_V020,3)+str(profil,3) to (cur_dir+sbase+'2')
       use
     endif
     hash_files := add_hash_row(hash_files, sbase, sMD5)
@@ -246,7 +246,7 @@ Function checkFilesTFOMS()
   endif
 
   // справочник страховых компаний РФ
-  sbase := "_mo_smo"
+  sbase := '_mo_smo'
   file_index := cur_dir + sbase + sntx
   sMD5 := ''
   if hb_FileExists(exe_dir + sbase + sdbf)
@@ -258,7 +258,7 @@ Function checkFilesTFOMS()
           ! check_izm_file_MD5(hash_files, sbase, sMD5)
       R_Use(exe_dir + sbase )
       index on okato to (cur_dir+sbase) UNIQUE
-      dbeval({|| aadd(glob_array_srf,{"",field->okato}) })
+      dbeval({|| aadd(glob_array_srf,{'',field->okato}) })
       index on okato+smo to (cur_dir+sbase)
       index on smo to (cur_dir+sbase+'2')
       index on okato+ogrn to (cur_dir+sbase+'3')
@@ -270,7 +270,7 @@ Function checkFilesTFOMS()
   endif
 
   // impl - справочник имплантантов
-  sbase := "_mo_impl"
+  sbase := '_mo_impl'
   file_index := cur_dir + sbase + sntx
   sMD5 := ''
   if hb_FileExists(exe_dir + sbase + sdbf)
@@ -287,7 +287,7 @@ Function checkFilesTFOMS()
   endif
 
   // onkko_vmp
-  sbase := "_mo_ovmp"
+  sbase := '_mo_ovmp'
   file_index := cur_dir + sbase + sntx
   sMD5 := ''
   if hb_FileExists(exe_dir + sbase + sdbf)
@@ -304,7 +304,7 @@ Function checkFilesTFOMS()
   endif
 
   // N002
-  sbase := "_mo_N002"
+  sbase := '_mo_N002'
   file_index := cur_dir + sbase + sntx
   sMD5 := ''
   if hb_FileExists(exe_dir + sbase + sdbf)
@@ -314,7 +314,7 @@ Function checkFilesTFOMS()
           ! check_izm_file_MD5(hash_files, sbase, sMD5)
       R_Use(exe_dir + sbase )
       index on str(id_st,6) to (cur_dir+sbase)
-      index on ds_st+kod_st to (cur_dir+sbase+"d")
+      index on ds_st+kod_st to (cur_dir+sbase+'d')
       use
     endif
     hash_files := add_hash_row(hash_files, sbase, sMD5)
@@ -323,7 +323,7 @@ Function checkFilesTFOMS()
   endif
 
   // N003
-  sbase := "_mo_N003"
+  sbase := '_mo_N003'
   file_index := cur_dir + sbase + sntx
   sMD5 := ''
   if hb_FileExists(exe_dir + sbase + sdbf)
@@ -333,7 +333,7 @@ Function checkFilesTFOMS()
           ! check_izm_file_MD5(hash_files, sbase, sMD5)
       R_Use(exe_dir + sbase )
       index on str(id_t,6) to (cur_dir+sbase)
-      index on ds_t+kod_t to (cur_dir+sbase+"d")
+      index on ds_t+kod_t to (cur_dir+sbase+'d')
       use
     endif
     hash_files := add_hash_row(hash_files, sbase, sMD5)
@@ -342,7 +342,7 @@ Function checkFilesTFOMS()
   endif
 
   // N004
-  sbase := "_mo_N004"
+  sbase := '_mo_N004'
   file_index := cur_dir + sbase + sntx
   sMD5 := ''
   if hb_FileExists(exe_dir + sbase + sdbf)
@@ -352,7 +352,7 @@ Function checkFilesTFOMS()
           ! check_izm_file_MD5(hash_files, sbase, sMD5)
       R_Use(exe_dir + sbase )
       index on str(id_n,6) to (cur_dir+sbase)
-      index on ds_n+kod_n to (cur_dir+sbase+"d")
+      index on ds_n+kod_n to (cur_dir+sbase+'d')
       use
     endif
     hash_files := add_hash_row(hash_files, sbase, sMD5)
@@ -361,7 +361,7 @@ Function checkFilesTFOMS()
   endif
 
   // N005
-  sbase := "_mo_N005"
+  sbase := '_mo_N005'
   file_index := cur_dir + sbase + sntx
   sMD5 := ''
   if hb_FileExists(exe_dir + sbase + sdbf)
@@ -371,7 +371,7 @@ Function checkFilesTFOMS()
           ! check_izm_file_MD5(hash_files, sbase, sMD5)
       R_Use(exe_dir + sbase )
       index on str(id_m,6) to (cur_dir+sbase)
-      index on ds_m+kod_m to (cur_dir+sbase+"d")
+      index on ds_m+kod_m to (cur_dir+sbase+'d')
       use
     endif
     hash_files := add_hash_row(hash_files, sbase, sMD5)
@@ -380,7 +380,7 @@ Function checkFilesTFOMS()
   endif
 
   // N006 - в 2019 году пустой
-  sbase := "_mo_N006"
+  sbase := '_mo_N006'
   file_index := cur_dir + sbase + sntx
   sMD5 := ''
   if hb_FileExists(exe_dir + sbase + sdbf)
@@ -397,7 +397,7 @@ Function checkFilesTFOMS()
   endif
 
   // N007
-  sbase := "_mo_N007"
+  sbase := '_mo_N007'
   file_index := cur_dir + sbase + sntx
   sMD5 := ''
   if hb_FileExists(exe_dir + sbase + sdbf)
@@ -414,7 +414,7 @@ Function checkFilesTFOMS()
   endif
 
   // N008
-  sbase := "_mo_N008"
+  sbase := '_mo_N008'
   file_index := cur_dir + sbase + sntx
   sMD5 := ''
   if hb_FileExists(exe_dir + sbase + sdbf)
@@ -431,7 +431,7 @@ Function checkFilesTFOMS()
   endif
 
   // N010
-  sbase := "_mo_N010"
+  sbase := '_mo_N010'
   file_index := cur_dir + sbase + sntx
   sMD5 := ''
   if hb_FileExists(exe_dir + sbase + sdbf)
@@ -448,7 +448,7 @@ Function checkFilesTFOMS()
   endif
 
   // N011
-  sbase := "_mo_N011"
+  sbase := '_mo_N011'
   file_index := cur_dir + sbase + sntx
   sMD5 := ''
   if hb_FileExists(exe_dir + sbase + sdbf)
@@ -465,7 +465,7 @@ Function checkFilesTFOMS()
   endif
 
   // N020
-  sbase := "_mo_N020"
+  sbase := '_mo_N020'
   file_index := cur_dir + sbase + sntx
   sMD5 := ''
   if hb_FileExists(exe_dir + sbase + sdbf)
@@ -475,7 +475,7 @@ Function checkFilesTFOMS()
           ! check_izm_file_MD5(hash_files, sbase, sMD5)
       R_Use(exe_dir + sbase )
       index on id_lekp to (cur_dir+sbase)
-      index on upper(mnn) to (cur_dir+sbase+"n")
+      index on upper(mnn) to (cur_dir+sbase+'n')
       use
     endif
     hash_files := add_hash_row(hash_files, sbase, sMD5)
@@ -484,7 +484,7 @@ Function checkFilesTFOMS()
   endif
 
   // N021
-  sbase := "_mo_N021"
+  sbase := '_mo_N021'
   file_index := cur_dir + sbase + sntx
   sMD5 := ''
   if hb_FileExists(exe_dir + sbase + sdbf)
@@ -501,7 +501,7 @@ Function checkFilesTFOMS()
   endif
 
   // справочник подразделений из паспорта ЛПУ
-  sbase := "_mo_podr"
+  sbase := '_mo_podr'
   file_index := cur_dir + sbase + sntx
   sMD5 := ''
   if hb_FileExists(exe_dir + sbase + sdbf)
@@ -518,7 +518,7 @@ Function checkFilesTFOMS()
   endif
 
   // справочник соответствия профиля мед.помощи с профилем койки
-  sbase := "_mo_prprk"
+  sbase := '_mo_prprk'
   file_index := cur_dir + sbase + sntx
   sMD5 := ''
   if hb_FileExists(exe_dir + sbase + sdbf)
@@ -537,7 +537,7 @@ Function checkFilesTFOMS()
   aadd(arrRefFFOMS, {'_mo_f006', .t., 'F006 - Классификатор видов контроля (VidExp)' } )
   aadd(arrRefFFOMS, {'_mo_f010', .f., 'F010 - Классификатор субъектов Российской Федерации (Subekti)' } )
   aadd(arrRefFFOMS, {'_mo_f011', .f., 'F011 - Классификатор типов документов, удостоверяющих личность (Tipdoc)' } )
-  aadd(arrRefFFOMS, {'_mo_o001', .f., 'O001 - Общероссийский классификатор стран мира (ОКСМ)' } )
+  // aadd(arrRefFFOMS, {'_mo_o001', .f., 'O001 - Общероссийский классификатор стран мира (ОКСМ)' } )
   aadd(arrRefFFOMS, {'_mo_q015', .t., 'Q015 - Перечень технологических правил реализации ФЛК в ИС ведения персонифицированного учета сведений об оказанной медицинской помощи (FLK_MPF)' } )
   aadd(arrRefFFOMS, {'_mo_q016', .t., 'Q016 - Перечень технологических правил реализации ФЛК в ИС ведения персонифицированного учета сведений об оказанной медицинской помощи (FLK_MPF)' } )
   aadd(arrRefFFOMS, {'_mo_q017', .t., 'Q017 - Перечень категорий проверок ФЛК и МЭК (TEST_K)' } )
@@ -582,7 +582,7 @@ Function checkFilesTFOMS()
   fl := row_flag
   if fl
     // справочник ошибок
-    sbase := "_mo_t005"
+    sbase := '_mo_t005'
     file_index := cur_dir + sbase + sntx
     sMD5 := ''
     sMD5 := hb_MD5File( exe_dir + sbase + sdbf )
@@ -599,10 +599,10 @@ Function checkFilesTFOMS()
   if fl
     okato_index(hash_files)
     //
-    dbcreate(cur_dir+"tmp_srf",{{"okato","C",5,0},{"name","C",80,0}})
-    use (cur_dir+"tmp_srf") new alias TMP
-    R_Use(dir_exe+"_okator",cur_dir+"_okatr","RE")
-    R_Use(dir_exe+"_okatoo",cur_dir+"_okato","OB")
+    dbcreate(cur_dir+'tmp_srf',{{'okato','C',5,0},{'name','C',80,0}})
+    use (cur_dir+'tmp_srf') new alias TMP
+    R_Use(dir_exe+'_okator',cur_dir+'_okatr','RE')
+    R_Use(dir_exe+'_okatoo',cur_dir+'_okato','OB')
     for i := 1 to len(glob_array_srf)
       select OB
       find (glob_array_srf[i,2])
@@ -620,11 +620,11 @@ Function checkFilesTFOMS()
       select TMP
       append blank
       tmp->okato := glob_array_srf[i,2]
-      tmp->name  := iif(substr(glob_array_srf[i,2],3,1)=='0',"","  ")+glob_array_srf[i,1]
+      tmp->name  := iif(substr(glob_array_srf[i,2],3,1)=='0','','  ')+glob_array_srf[i,1]
     next
     close databases
   else
-    hard_err("delete")
+    hard_err('delete')
     QUIT
   endif
   save_files_md5(hash_files, cur_dir + FILE_HASH)
@@ -715,10 +715,10 @@ function usl_Index(val_year, /*@*/hash_files)
       endif
       // сбор данных для ВМП
       if val_year = WORK_YEAR
-        find ("1.21.") // ВМП федеральное   // 10.02.22 замена услуг с 1.20 на 1.21 письмо 12-20-60 от 01.02.22
-        // find ("1.20.") // ВМП федеральное   // 07.02.21 замена услуг с 1.12 на 1.20 письмо 12-20-60 от 01.02.21
-        // do while left(lusl->shifr,5) == "1.20." .and. !eof()
-        do while left(lusl->shifr,5) == "1.21." .and. !eof()
+        find ('1.21.') // ВМП федеральное   // 10.02.22 замена услуг с 1.20 на 1.21 письмо 12-20-60 от 01.02.22
+        // find ('1.20.') // ВМП федеральное   // 07.02.21 замена услуг с 1.12 на 1.20 письмо 12-20-60 от 01.02.21
+        // do while left(lusl->shifr,5) == '1.20.' .and. !eof()
+        do while left(lusl->shifr,5) == '1.21.' .and. !eof()
           aadd(arr_12_VMP,int(val(substr(lusl->shifr,6))))
           skip
         enddo
@@ -1067,7 +1067,7 @@ function it_Index(val_year, /*@*/hash_files)
     endif
   elseif val_year == 2019
     // исходный файл  T006 2019 год
-    sbase := "_mo9it"
+    sbase := '_mo9it'
     if hb_FileExists(exe_dir + sbaseIt + sdbf)
       R_Use(exe_dir + sbaseIt, ,'IT')
       index on ds to tmpit memory

@@ -2,6 +2,12 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
+#require 'hbsqlit3'
+
+function openSQL_DB()
+
+  return sqlite3_open( exe_dir + 'chip_mo.db', .f. )
+
 function aliasIsAlreadyUse(cAlias)
   local we_opened_it := .f.
   local save_sel := select()

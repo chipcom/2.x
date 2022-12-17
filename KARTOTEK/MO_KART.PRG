@@ -1,10 +1,10 @@
-***** mo_kart.prg - режимы работы с картотекой
+** mo_kart.prg - режимы работы с картотекой
 #include "inkey.ch"
 #include "function.ch"
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 10.03.13 Работа с картотекой в задаче ОМС
+** 10.03.13 Работа с картотекой в задаче ОМС
 Function oms_kartoteka(k)
 Static si1 := 1
 Local mas_pmt, mas_msg, mas_fun, j
@@ -50,7 +50,7 @@ if between(k,1,9)
 endif
 return NIL
 
-*****
+**
 Function regi_kart()
   if (lkod := polikl1_kart()) >= 0
     view_kart(1)
@@ -58,7 +58,7 @@ Function regi_kart()
   return NIL
 
 
-***** добавление в картотеку
+** добавление в картотеку
 Function append_kart()
   Local k := edit_kartotek(0)
 
@@ -75,7 +75,7 @@ Function append_kart()
   return NIL
 
 
-***** 03.09.17
+** 03.09.17
 Function edit_kartotek(mkod, _top_r, _bot_r, fl_oms, _Human_kod)
   Local ar := GetIniVar(tmp_ini,{{"RAB_MESTO","kart_polis","1"}} )
 
@@ -88,7 +88,7 @@ Function edit_kartotek(mkod, _top_r, _bot_r, fl_oms, _Human_kod)
   endif
   return mkod
 
-***** 01.11.19
+** 01.11.19
 Function edit_kartotek_(mkod,_top_r,_bot_r,fl_oms,_Human_kod)
 Static mm_kart_error := {{"нет замечаний",0},{"полис недействителен",-8},{"ошибки в реквизитах",-9}}
 Static mm_invalid := {{"нет",0},{"1 группа",1},{"2 группа",2},{"3 группа",3},{"дети-инвалиды",4}}
@@ -283,7 +283,7 @@ if !is_append .and. R_Use(dir_server+"kartote_",,"KART_") ;
   //
   if between(m1invalid,1,4)
     R_Use(dir_server+"kart_inv",,"INV")
-    index on str(kod,7) to (cur_dir+"tmp_inv")
+    index on str(kod,7) to (cur_dir + "tmp_inv")
     find (str(mkod,7))
     if (fl_invalid := found())
       MDATE_INV := inv->DATE_INV
@@ -762,7 +762,7 @@ do while .t.
       endif
       if m1MEST_INOG == 9 .or. newMEST_INOG == 9
         G_Use(dir_server+"mo_kfio",,"KFIO")
-        index on str(kod,7) to (cur_dir+"tmp_kfio")
+        index on str(kod,7) to (cur_dir + "tmp_kfio")
         find (str(mkod,7))
         if found()
           if newMEST_INOG == 9
@@ -785,7 +785,7 @@ do while .t.
       endif
       if between(m1invalid,1,4) .or. fl_invalid
         G_Use(dir_server+"kart_inv",,"INV")
-        index on str(kod,7) to (cur_dir+"tmp_inv")
+        index on str(kod,7) to (cur_dir + "tmp_inv")
         find (str(mkod,7))
         if found()
           if m1invalid == 0
@@ -806,7 +806,7 @@ do while .t.
       endif
       if fl_nameismo .or. rec_inogSMO > 0
         G_Use(dir_server+"mo_kismo",,"SN")
-        index on str(kod,7) to (cur_dir+"tmp_ismo")
+        index on str(kod,7) to (cur_dir + "tmp_ismo")
         find (str(mkod,7))
         if found()
           if fl_nameismo
@@ -966,7 +966,7 @@ do while .t.
             msmo        := kart_->SMO
             m1okato     := kart_->KVARTAL_D    // ОКАТО субъекта РФ территории страхования
             G_Use(dir_server+"mo_hismo",,"SN")
-            index on str(kod,7) to (cur_dir+"tmp_ismo")
+            index on str(kod,7) to (cur_dir + "tmp_ismo")
             select HUMAN
             set order to 0
             for i := 1 to len(arr)
@@ -1027,7 +1027,7 @@ chm_help_code := tmp_help
 restscreen(buf)
 return mkod
 
-***** 20.07.17 ввод инвалидности
+** 20.07.17 ввод инвалидности
 Function f_kart_valid_inv(r)
 Local c := 2, r1, r2, buf, tmp_help, tmp_list, tmp_color, tek_sost, tmp_keys, ;
       pic_diag := "@K@!", bg := {|o,k| get_MKB10(o,k,.t.) }
@@ -1059,7 +1059,7 @@ setcolor(tmp_color)
 RESTORE GETS FROM tmp_list
 return .t.
 
-***** 27.06.14 проверка на правильность и исправление номера телефона
+** 27.06.14 проверка на правильность и исправление номера телефона
 Function valid_phone(get,is_mobil)
 Local fl := .t., s, s1
 Private tmp := readvar()
@@ -1083,7 +1083,7 @@ if !empty(s)
 endif
 return fl
 
-***** 29.08.18 поиск пациента в картотеке во время режима добавления
+** 29.08.18 поиск пациента в картотеке во время режима добавления
 Function findKartoteka(k,/*@*/lkod_k)
 Local s, buf, rec := 0
 if lkod_k > 0 ; return .t. ; endif
@@ -1200,7 +1200,7 @@ if rec > 0 .and. lkod_k == rec
 endif
 return .t.
 
-***** 11.09.18
+** 11.09.18
 Function get_oksm(r)
   Local c := 7, r1, r2, buf, tmp_help, tmp_list, tmp_color, tmp_cursor, tek_sost, tmp_keys
 
@@ -1244,76 +1244,79 @@ Function get_oksm(r)
   endif
   return .t.
   
-***** 01.08.18
-Function f1get_oksm(k,r,c)
-  Static skodN := ""
-  Static arr_sng := {;
-    "895",;//"АБХАЗИЯ"
-    "031",;//"АЗЕРБАЙДЖАН"
-    "051",;//"АРМЕНИЯ"
-    "112",;//"БЕЛАРУСЬ"
-    "268",;//"ГРУЗИЯ"
-    "398",;//"КАЗАХСТАН"
-    "417",;//"КИРГИЗИЯ"
-    "428",;//"ЛАТВИЯ"
-    "440",;//"ЛИТВА"
-    "498",;//"МОЛДОВА, РЕСПУБЛИКА"
-    "762",;//"ТАДЖИКИСТАН"
-    "795",;//"ТУРКМЕНИЯ"
-    "860",;//"УЗБЕКИСТАН"
-    "804",;//"УКРАИНА"
-    "233",;//"ЭСТОНИЯ"
-    "896" ;//"ЮЖНАЯ ОСЕТИЯ"
+** 16.12.22
+Function f1get_oksm(k, r, c)
+  Static skodN := ''
+  Static arr_sng := { ;
+    '895', ;//"АБХАЗИЯ"
+    '031', ;//"АЗЕРБАЙДЖАН"
+    '051', ;//"АРМЕНИЯ"
+    '112', ;//"БЕЛАРУСЬ"
+    '268', ;//"ГРУЗИЯ"
+    '398', ;//"КАЗАХСТАН"
+    '417', ;//"КИРГИЗИЯ"
+    '428', ;//"ЛАТВИЯ"
+    '440', ;//"ЛИТВА"
+    '498', ;//"МОЛДОВА, РЕСПУБЛИКА"
+    '762', ;//"ТАДЖИКИСТАН"
+    '795', ;//"ТУРКМЕНИЯ"
+    '860', ;//"УЗБЕКИСТАН"
+    '804', ;//"УКРАИНА"
+    '233', ;//"ЭСТОНИЯ"
+    '896' ;//"ЮЖНАЯ ОСЕТИЯ"
   }
   Local ret, r1, r2, i, lcolor, tmp_select := select()
 
-  if (r1 := r+1) > int(maxrow()/2)
-    r2 := r-1 ; r1 := 2
+  if (r1 := r + 1) > int(maxrow() / 2)
+    r2 := r - 1
+    r1 := 2
   else
-    r2 := maxrow()-2
+    r2 := maxrow() - 2
   endif
   Private p_oksm, lsng := 1, pkodN := skodN
-  if valtype(k) == "C" .and. !empty(k)
+  if valtype(k) == 'C' .and. !empty(k)
     pkodN := k
-    if ascan(arr_sng,k) == 0
+    if ascan(arr_sng, k) == 0
       lsng := 0
     endif
   endif
-  dbcreate(cur_dir+"tmp_oksm",{;
-    {"kodN","C", 3,0},;
-    {"kodA","C", 3,0},;
-    {"sng", "N", 1,0},;
-    {"name","C",60,0};
+  dbcreate(cur_dir + 'tmp_oksm', { ;
+    {'kodN', 'C', 3, 0}, ;
+    {'kodA', 'C', 3, 0}, ;
+    {'sng', 'N', 1, 0}, ;
+    {'name', 'C', 60, 0} ;
   })
-  use (cur_dir+"tmp_oksm") new alias RG
+  use (cur_dir + 'tmp_oksm') new alias RG
   do while .t.
     zap
     if lsng == 0
       lcolor := color5
       for i := 1 to len(getO001())
-        if !(getO001()[i,2] == "643") // не включать Россию
+        if !(getO001()[i, 2] == '643') // не включать Россию
           append blank
-          rg->kodN := getO001()[i,2]
-          rg->kodA := getO001()[i,6]
-          rg->name := getO001()[i,1]
-          if ascan(arr_sng,rg->kodN) > 0
+          rg->kodN := getO001()[i, 2]
+          // rg->kodA := getO001()[i, 6]
+          rg->kodA := getO001()[i, 4]
+          rg->name := getO001()[i, 1]
+          if ascan(arr_sng, rg->kodN) > 0
             rg->sng := 1
           endif
         endif
       next
     else
-      lcolor := "N/W*,GR+/R"
+      lcolor := 'N/W*,GR+/R'
       for j := 1 to len(arr_sng)
-        if (i := ascan(getO001(),{|x| x[2] == arr_sng[j] })) > 0
+        if (i := ascan(getO001(), {|x| x[2] == arr_sng[j]})) > 0
           append blank
-          rg->kodN := getO001()[i,2]
-          rg->kodA := getO001()[i,6]
-          rg->name := getO001()[i,1]
+          rg->kodN := getO001()[i, 2]
+          // rg->kodA := getO001()[i, 6]
+          rg->kodA := getO001()[i, 4]
+          rg->name := getO001()[i, 1]
           rg->sng := 1
         endif
       next
     endif
-    index on name to (cur_dir+"tmp_oksm")
+    index on name to (cur_dir + 'tmp_oksm')
     go top
     if !empty(pkodN)
       Locate for kodN == pkodN
@@ -1322,10 +1325,10 @@ Function f1get_oksm(k,r,c)
       endif
     endif
     p_oksm := 0
-    if Alpha_Browse(r1,2,r2,77,"f2get_oksm",lcolor,,,,,,,"f3get_oksm")
+    if Alpha_Browse(r1, 2, r2, 77, 'f2get_oksm', lcolor, , , , , , , 'f3get_oksm')
       if p_oksm == 0
         skodN := rg->kodN
-        ret := { rg->kodN, alltrim(rg->name) }
+        ret := {rg->kodN, alltrim(rg->name)}
         exit
       endif
     elseif p_oksm == 0
@@ -1336,22 +1339,22 @@ Function f1get_oksm(k,r,c)
   select (tmp_select)
   return ret
 
-*****
+**
 Function f2get_oksm(oBrow)
   Local n := 60
 
-  oBrow:addColumn(TBColumnNew("Код", {|| rg->kodN }) )
-  oBrow:addColumn(TBColumnNew("   ", {|| rg->kodA }) )
+  oBrow:addColumn(TBColumnNew('Код', {|| rg->kodN}))
+  oBrow:addColumn(TBColumnNew('   ', {|| rg->kodA}))
   if lsng == 0
-    oBrow:addColumn(TBColumnNew(center("Наименование страны",n), {|| padr(rg->name,n) }) )
-    status_key("^<Esc>^ - выход;  ^<Enter>^ - выбор страны;  ^<F3>^ - страны ближнего зарубежья")
+    oBrow:addColumn(TBColumnNew(center('Наименование страны', n), {|| padr(rg->name, n)}))
+    status_key('^<Esc>^ - выход;  ^<Enter>^ - выбор страны;  ^<F3>^ - страны ближнего зарубежья')
   else
-    oBrow:addColumn(TBColumnNew(center("Страны ближнего зарубежья",n), {|| padr(rg->name,n) }) )
-    status_key("^<Esc>^ - выход;  ^<Enter>^ - выбор страны;  ^<F3>^ - все страны")
+    oBrow:addColumn(TBColumnNew(center('Страны ближнего зарубежья', n), {|| padr(rg->name,n)}))
+    status_key('^<Esc>^ - выход;  ^<Enter>^ - выбор страны;  ^<F3>^ - все страны')
   endif
   return NIL
 
-*****
+**
 Function f3get_oksm(nkey)
   Local ret := -1
 
@@ -1361,14 +1364,12 @@ Function f3get_oksm(nkey)
     pkodN := rg->kodN
     lsng := iif(lsng == 0, 1, 0)
     if lsng == 1 .and. rg->sng != lsng
-      pkodN := ""
+      pkodN := ''
     endif
   endif
   return ret
 
-  *
-
-***** ввод представителей
+** ввод представителей
 Function f_kart_valid_pred(r)
 Local c := 2, r1, r2, buf, tmp_help, tmp_list, tmp_color, h := 7,;
       tek_sost, tmp_keys
@@ -1442,9 +1443,9 @@ setcolor(tmp_color)
 RESTORE GETS FROM tmp_list
 return .t.
 
-* статические функции для edit_kartotek()
+** статические функции для edit_kartotek()
 
-******
+**
 Static Function e_k_uchast(get)
 if is_uchastok == 1 .and. muchast != get:original
   mkod_vu := 0
@@ -1452,7 +1453,7 @@ if is_uchastok == 1 .and. muchast != get:original
 endif
 return .t.
 
-******
+**
 Static Function e_k_kod_vu()
 Local t_kod_vu := 0, vr_kod_vu, buf := save_maxrow(), is_f := 0
 if muchast > 0 .and. mkod_vu == 0 .and. ;
@@ -1507,7 +1508,7 @@ if muchast > 0 .and. mkod_vu == 0 .and. ;
 endif
 return .t.
 
-*****
+**
 Function f_prim1()
 Static r1 := 14, c1 := 10, r2 := 22, c2 := 69
 Local i, j, mas, tmp, s1, buf, tmp_color, tmp_help := chm_help_code, fl, ;
@@ -1556,7 +1557,7 @@ my_restkey(tmp_keys)
 restscreen(buf)
 return NIL
 
-*****
+**
 Static Function val_st_kat(get)
 Local i, fl := .t.
 if (i := ascan(stm_kategor, {|x| x[2] == m1kategor } )) > 0
@@ -1567,7 +1568,7 @@ else
 endif
 return fl
 
-*****
+**
 Function ini_adres(reg)
 Local s := space(10)
 if reg == 1
@@ -1591,7 +1592,7 @@ else
 endif
 return s
 
-*****
+**
 Function get_adres(reg,k,r,c)
 Local ret, ret1, oldk, s, mm_menu := {"тот же","другой"}
 if reg == 1
@@ -1624,7 +1625,7 @@ endif
 return ret
 
 
-*****
+**
 Function view_kart(regim,r1,r2)
 Local buf := savescreen(), i, mkod := 0, k, ;
       fl := .f., mtitul, l_color, str_sem,;
@@ -1781,7 +1782,7 @@ if eval(blk_open,1)
               enddo
               //
               G_Use(dir_server+"mo_kismo",,"SN")
-              index on str(kod,7) to (cur_dir+"tmp_ismo")
+              index on str(kod,7) to (cur_dir + "tmp_ismo")
               do while .t.
                 find (str(glob_kartotek,7))
                 if !found() ; exit ; endif
@@ -1789,7 +1790,7 @@ if eval(blk_open,1)
               enddo
               // подобие регистра застрахованных
               G_Use(dir_server+"kart_etk")
-              index on str(kod_k,7) to (cur_dir+"tmp_kart_etk")
+              index on str(kod_k,7) to (cur_dir + "tmp_kart_etk")
               do while .t.
                 find (str(glob_kartotek,7))
                 if !found() ; exit ; endif
@@ -1838,7 +1839,7 @@ close databases
 restscreen(buf)
 return (mkod > 0)
 
-***** 20.02.14
+** 20.02.14
 Function f1_v_kart(oBrow)
 Local oColumn, blk := {|| {1,2} }, n := 43
 if p_regim == 3
@@ -1909,7 +1910,7 @@ endif
 mark_keys({"<F2>"},"GR+/BG")
 return NIL
 
-***** 05.07.16
+** 05.07.16
 Function ret_last3_pos()
 Local i, s, arr := {}, mes_arr := {}
 R_Use(dir_server+"mo_regi",dir_server+"mo_regi3","RU")
@@ -1952,7 +1953,7 @@ ru->(dbCloseArea())
 select KART
 return mes_arr
 
-***** 05.07.16
+** 05.07.16
 Function f2_v_kart(nkey,oBrow)
 Static s_regim := 1, s_shablon := "", s_polis := "", s_snils := ""
 Local buf := savescreen(), rec1 := recno(), fl := -1, fr := 13,;
@@ -2293,7 +2294,7 @@ else
 endif
 return fl
 
-*****
+**
 Function dubl_zap(r, c)
   Local mas_pmt := {"~Поиск дублирующихся записей",;
                   "~Удаление дублирующихся записей"}
@@ -2306,7 +2307,7 @@ Function dubl_zap(r, c)
   popup_prompt(r, c, 1, mas_pmt, mas_msg, mas_fun)
   return NIL
 
-***** 09.07.18
+** 09.07.18
 Function f1dubl_zap()
 Static si := 1
 Local hGauge, sh, HH := 77, name_file := "dubl_zap"+stxt, j1, ;
@@ -2320,13 +2321,13 @@ if (i := f_alert({'Выберите, каким образом будет осуществляться поиск дубликатов
   return NIL
 endif
 si := i
-if !myFileDeleted(cur_dir+"tmp"+sdbf)
+if !myFileDeleted(cur_dir + "tmp"+sdbf)
   return NIL
 endif
-if !myFileDeleted(cur_dir+"tmpitg"+sdbf)
+if !myFileDeleted(cur_dir + "tmpitg"+sdbf)
   return NIL
 endif
-dbcreate(cur_dir+"tmpitg",{;
+dbcreate(cur_dir + "tmpitg",{;
   {"ID","N",8,0},;
   {"fio","C",50,0},;
   {"DATE_R","D",8,0},;
@@ -2343,7 +2344,7 @@ dbcreate(cur_dir+"tmpitg",{;
   {"DATE_PR","D",8,0},;
   {"MO_PR","C",6,0};
 })
-use (cur_dir+"tmpitg") new
+use (cur_dir + "tmpitg") new
 R_Use(dir_server+"kartote2",,"KART2")
 //
 status_key("^<Esc>^ - прервать поиск")
@@ -2360,12 +2361,12 @@ if i == 1
   add_string(center('(сравнение по полю "Ф.И.О." + "Дата рождения")',sh))
   add_string("")
   aeval(arr_title, {|x| add_string(x) })
-  dbcreate(cur_dir+"tmp",{{"fio","C",50,0},{"DATE_R","D",8,0}})
-  use (cur_dir+"tmp") new
-  index on upper(fio)+dtos(date_r) to (cur_dir+"tmp")
+  dbcreate(cur_dir + "tmp",{{"fio","C",50,0},{"DATE_R","D",8,0}})
+  use (cur_dir + "tmp") new
+  index on upper(fio)+dtos(date_r) to (cur_dir + "tmp")
   R_Use(dir_server+"kartotek",dir_server+"kartoten","KART")
   set relation to recno() into KART2
-  index on upper(fio)+dtos(date_r) to (cur_dir+"tmp_kart") for kod > 0
+  index on upper(fio)+dtos(date_r) to (cur_dir + "tmp_kart") for kod > 0
   go top
   do while !eof()
     GaugeUpdate( hGauge, ++curr/lastrec() )
@@ -2437,9 +2438,9 @@ elseif i == 2
   add_string(center('(сравнение по полю "Полис")',sh))
   add_string("")
   aeval(arr_title, {|x| add_string(x) } )
-  dbcreate(cur_dir+"tmp",{{"POLIS","C",17,0}})
-  use (cur_dir+"tmp") new
-  index on polis to (cur_dir+"tmp")
+  dbcreate(cur_dir + "tmp",{{"POLIS","C",17,0}})
+  use (cur_dir + "tmp") new
+  index on polis to (cur_dir + "tmp")
   R_Use(dir_server+"kartotek",dir_server+"kartotep","KART")
   set relation to recno() into KART2
   find ("1")
@@ -2523,9 +2524,9 @@ elseif i == 3
   add_string(center('(сравнение по полю "СНИЛС")',sh))
   add_string("")
   aeval(arr_title, {|x| add_string(x) } )
-  dbcreate(cur_dir+"tmp",{{"SNILS","C",11,0}})
-  use (cur_dir+"tmp") new
-  index on snils to (cur_dir+"tmp")
+  dbcreate(cur_dir + "tmp",{{"SNILS","C",11,0}})
+  use (cur_dir + "tmp") new
+  index on snils to (cur_dir + "tmp")
   R_Use(dir_server+"kartotek",dir_server+"kartotes","KART")
   set relation to recno() into KART2
   find ("1")
@@ -2609,14 +2610,14 @@ elseif i == 4
   add_string(center('(сравнение по полю ЕНП "Единый Номер Полиса")',sh))
   add_string("")
   aeval(arr_title, {|x| add_string(x) } )
-  dbcreate(cur_dir+"tmp",{{"kod_mis","C",20,0}})
-  use (cur_dir+"tmp") new
-  index on kod_mis to (cur_dir+"tmp")
+  dbcreate(cur_dir + "tmp",{{"kod_mis","C",20,0}})
+  use (cur_dir + "tmp") new
+  index on kod_mis to (cur_dir + "tmp")
   R_Use(dir_server+"kartote_",,"KART_")
   R_Use(dir_server+"kartotek",,"KART")
   select KART2
   set relation to recno() into KART, to recno() into KART_
-  index on kod_mis to (cur_dir+"tmp_kodmis") for !empty(kod_mis) .and. !empty(kart->kod)
+  index on kod_mis to (cur_dir + "tmp_kodmis") for !empty(kod_mis) .and. !empty(kart->kod)
   go top
   do while !eof()
     GaugeUpdate( hGauge, ++curr/lastrec() )
@@ -2696,7 +2697,7 @@ else
 endif
 return NIL
 
-***** 18.11.18
+** 18.11.18
 Function f2dubl_zap()
 Local buf := savescreen()
 Private dubl1_kart := 0, dubl2_kart := 0, top_frm
@@ -2735,7 +2736,7 @@ if view_kart(3) .and. dubl1_kart > 0 .and. dubl2_kart > 0
       mywait()
       // список пациентов в реестрах будущих диспансеризаций
       /*G_Use(dir_server+"mo_r01k",,"R01K")
-      index on str(kod_k,7) to (cur_dir+"tmp_r01k")
+      index on str(kod_k,7) to (cur_dir + "tmp_r01k")
       do while .t.
         find (str(dubl2_kart,7))
         if !found() ; exit ; endif
@@ -2745,7 +2746,7 @@ if view_kart(3) .and. dubl1_kart > 0 .and. dubl2_kart > 0
       close databases*/
       // направления на госпитализацию
       G_Use(dir_server+"mo_nnapr",,"NAPR")
-      index on str(kod_k,7) to (cur_dir+"tmp_napr")
+      index on str(kod_k,7) to (cur_dir + "tmp_napr")
       do while .t.
         find (str(dubl2_kart,7))
         if !found() ; exit ; endif
@@ -2782,7 +2783,7 @@ if view_kart(3) .and. dubl1_kart > 0 .and. dubl2_kart > 0
       enddo
       //
       G_Use(dir_server+"mo_kismo",,"SN")
-      index on str(kod,7) to (cur_dir+"tmp_ismo")
+      index on str(kod,7) to (cur_dir + "tmp_ismo")
       do while .t.
         find (str(dubl2_kart,7))
         if !found() ; exit ; endif
@@ -2835,7 +2836,7 @@ if view_kart(3) .and. dubl1_kart > 0 .and. dubl2_kart > 0
       enddo
       // подобие регистра застрахованных
       G_Use(dir_server+"kart_etk")
-      index on str(kod_k,7) to (cur_dir+"tmp_kart_etk")
+      index on str(kod_k,7) to (cur_dir + "tmp_kart_etk")
       do while .t.
         find (str(dubl2_kart,7))
         if !found() ; exit ; endif
@@ -2850,8 +2851,8 @@ if view_kart(3) .and. dubl1_kart > 0 .and. dubl2_kart > 0
       enddo
       // оплата по ДМС и взаимозачету
       G_Use(dir_server+"plat_vz",,"PVZ")
-      index on str(kod_k,7) to (cur_dir+"tmp_pvz")
-      set index to (cur_dir+"tmp_pvz"),(dir_server+"plat_vz")
+      index on str(kod_k,7) to (cur_dir + "tmp_pvz")
+      set index to (cur_dir + "tmp_pvz"),(dir_server+"plat_vz")
       do while .t.
         find (str(dubl2_kart,7))
         if !found() ; exit ; endif
@@ -2882,7 +2883,7 @@ if view_kart(3) .and. dubl1_kart > 0 .and. dubl2_kart > 0
       enddo
       // cписок карточек пациентов в отосланных ходатайствах
       G_Use(dir_server+"mo_hod_k",,"HK")
-      index on str(kod_k,7) to (cur_dir+"tmp_hk")
+      index on str(kod_k,7) to (cur_dir + "tmp_hk")
       do while .t.
         find (str(dubl2_kart,7))
         if !found() ; exit ; endif
@@ -2901,7 +2902,7 @@ if view_kart(3) .and. dubl1_kart > 0 .and. dubl2_kart > 0
       enddo
       // список карточек в реестрах на прикрепление
       G_Use(dir_server+"mo_krtp",,"KRTP")
-      index on str(kod_k,7) to (cur_dir+"tmp_krtp")
+      index on str(kod_k,7) to (cur_dir + "tmp_krtp")
       do while .t.
         find (str(dubl2_kart,7))
         if !found() ; exit ; endif
@@ -2911,7 +2912,7 @@ if view_kart(3) .and. dubl1_kart > 0 .and. dubl2_kart > 0
       enddo
       // список ошибок в реестрах на прикрепление
       G_Use(dir_server+"mo_krte",,"KRTE")
-      index on str(kod_k,7) to (cur_dir+"tmp_krte")
+      index on str(kod_k,7) to (cur_dir + "tmp_krte")
       do while .t.
         find (str(dubl2_kart,7))
         if !found() ; exit ; endif
@@ -2921,7 +2922,7 @@ if view_kart(3) .and. dubl1_kart > 0 .and. dubl2_kart > 0
       enddo
       // список карточек в файлах на открепление
       G_Use(dir_server+"mo_krto",,"KRTO")
-      index on str(kod_k,7) to (cur_dir+"tmp_krto")
+      index on str(kod_k,7) to (cur_dir + "tmp_krto")
       do while .t.
         find (str(dubl2_kart,7))
         if !found() ; exit ; endif
@@ -2959,9 +2960,9 @@ endif
 restscreen(buf)
 return NIL
 
-*
 
-***** 03.12.15
+
+** 03.12.15
 Function kartotek_to_screen(r1,r2)
 Local i, s, s1, mmo_pr, arr := {}, tmp_select := select()
 is_talon := .t. // пока так
@@ -3102,9 +3103,9 @@ next
 select (tmp_select)
 return NIL
 
-*
 
-***** 13.07.15 вернуть последний импортированный файл
+
+** 13.07.15 вернуть последний импортированный файл
 Function wq_ret_last_name()
 Local s := "", arr_f := {}
 scandirfiles(dir_server, ;
@@ -3118,7 +3119,7 @@ if !empty(arr_f)
 endif
 return s
 
-***** 14.07.15 проверить что это последний (по дате) импортируемый файл
+** 14.07.15 проверить что это последний (по дате) импортируемый файл
 Function wq_if_last_file(lname,/*@*/flast)
 Local fl := .t., s := wq_ret_last_name()
 if !empty(s)
@@ -3136,9 +3137,9 @@ if !fl
 endif
 return fl
 
-*
 
-***** 20.10.15 импорт файла из ТФОМС с остатками прикреплённых без врача
+
+** 20.10.15 импорт файла из ТФОМС с остатками прикреплённых без врача
 Function wq_import()
 Local adbf, cName, i, s, buf, arr, arr_f, fbase
 Private p_var_manager := "Read_WQ_TFOMS", full_zip
@@ -3150,7 +3151,7 @@ if !empty(full_zip := manager(T_ROW,T_COL+5,maxrow()-2,,.t.,1,,,,"WQ2*"+szip))
     return func_error(4,"Данный файл уже был импортирован!")
   endif
   R_Use(dir_server+"mo_krtr",,"KRTR")
-  index on wq to (cur_dir+"tmp_krtr") for !empty(wq)
+  index on wq to (cur_dir + "tmp_krtr") for !empty(wq)
   find (padr(substr(cName,10),11))
   fl := found()
   Use
@@ -3179,7 +3180,7 @@ if !empty(full_zip := manager(T_ROW,T_COL+5,maxrow()-2,,.t.,1,,,,"WQ2*"+szip))
         last_file := padr(last_file,11)
         k := 0
         R_Use(dir_server+"mo_krtr",,"KRTR")
-        index on wq to (cur_dir+"tmp_krtr") for !empty(wq)
+        index on wq to (cur_dir + "tmp_krtr") for !empty(wq)
         go top
         do while !eof()
           if last_file == krtr->wq
@@ -3252,7 +3253,7 @@ if !empty(full_zip := manager(T_ROW,T_COL+5,maxrow()-2,,.t.,1,,,,"WQ2*"+szip))
             Use (dir_server+fbase) new alias WQ
             i1 := i2 := 0
             G_Use(dir_server+"mo_kfio",,"KFIO")
-            index on str(kod,7) to (cur_dir+"tmp_kfio")
+            index on str(kod,7) to (cur_dir + "tmp_kfio")
             use_base("kartotek")
             R_Use(_tmp_dir1+cName,,"T1")
             go top
@@ -3487,9 +3488,9 @@ if !empty(full_zip := manager(T_ROW,T_COL+5,maxrow()-2,,.t.,1,,,,"WQ2*"+szip))
 endif
 return NIL
 
-*
 
-***** 13.07.15
+
+** 13.07.15
 Function wq_view()
 Local sh, HH := 78, name_file := "imp_prip"+stxt,i := 0, arr_title, lu, la, ;
       buf := save_maxrow(), fname := wq_ret_last_name()
@@ -3508,7 +3509,7 @@ add_string(center("Список пациентов из файла "+fname,sh))
 add_string("")
 aeval(arr_title, {|x| add_string(x) } )
 R_Use(dir_server+fname,,"WQ")
-index on upper(fio)+dtos(dr) to (cur_dir+"tmp_wq")
+index on upper(fio)+dtos(dr) to (cur_dir + "tmp_wq")
 go top
 do while !eof()
   if verify_FF(HH,.t.,sh)
@@ -3524,9 +3525,9 @@ rest_box(buf)
 viewtext(name_file,,,,.t.,,,6)
 return NIL
 
-*
 
-***** 14.07.15 быстрое редактирование участков списком
+
+** 14.07.15 быстрое редактирование участков списком
 Function wq_edit_uchast()
 Local fl, buf := savescreen()
 Private fname := wq_ret_last_name()
@@ -3534,7 +3535,7 @@ if empty(fname)
   return func_error(4,"Не было чтения файла в новом формате!")
 endif
 R_Use(dir_server+"mo_krtr",,"KRTR")
-index on wq to (cur_dir+"tmp_krtr") for !empty(wq)
+index on wq to (cur_dir + "tmp_krtr") for !empty(wq)
 find (padr(substr(fname,10),11))
 fl := found()
 Use
@@ -3545,7 +3546,7 @@ mywait()
 Use_base("kartotek")
 set order to 0
 G_Use(dir_server+fname,,"WQ")
-index on upper(fio)+dtos(dr) to (cur_dir+"tmp_wq")
+index on upper(fio)+dtos(dr) to (cur_dir + "tmp_wq")
 go top
 Private ku := wq->(lastrec())
 if ku == 0
@@ -3561,9 +3562,9 @@ close databases
 restscreen(buf)
 return NIL
 
-*
 
-***** 16.01.17
+
+** 16.01.17
 Function f1_wq_edit_uchast(oBrow)
 Local oColumn, blk := {|| iif(wq->uchast <= 0, {3,4}, {1,2}) }
 oColumn := TBColumnNew(center("ФИО",30),{|| padr(wq->fio,30) })
@@ -3581,9 +3582,9 @@ oBrow:addColumn(oColumn)
 status_key("^<Esc>^ - выход;  ^<Enter>^ - редактирование участка;  ^<F9>^ - печать списка")
 return NIL
 
-*
 
-***** 14.07.15
+
+** 14.07.15
 Function f2_wq_edit_uchast(nKey,oBrow)
 Local j := 0, flag := -1, buf := save_maxrow(), buf1, fl := .f., nr := row(), c1, rec, arr_title, ;
       mkod, buf0, tmp_color := setcolor(), t_vr, sh, HH := 78, name_file := "wq"+stxt, i := 0
@@ -3640,9 +3641,9 @@ do case
 endcase
 return flag
 
-*
 
-***** 09.06.17 Подготовка и создание файлов прикрепления для WQ...
+
+** 09.06.17 Подготовка и создание файлов прикрепления для WQ...
 Function wq_prikreplenie()
 Local i, j := 0, arr_uch := {}, fl_err := .f., buf := save_maxrow(),;
       fl := .f., filename := wq_ret_last_name()
@@ -3652,7 +3653,7 @@ endif
 Private nkod_reestr := 0
 mywait()
 R_Use(dir_server+"mo_krtr",,"KRTR")
-index on wq to (cur_dir+"tmp_krtr") for !empty(wq)
+index on wq to (cur_dir + "tmp_krtr") for !empty(wq)
 go top
 if eof() // т.е. первый раз
   nkod_reestr := 1
@@ -3671,7 +3672,7 @@ if !fl .and. empty(nkod_reestr)
   fl := !func_error(4,"На последний файл прикрепления не был прочитан ответ. Запрет операции!")
 endif
 if !fl
-  index on dtos(dfile) to (cur_dir+"tmp_krtr") for left(fname,3) == "MO2"
+  index on dtos(dfile) to (cur_dir + "tmp_krtr") for left(fname,3) == "MO2"
   find (dtos(sys_date))
   if found()
     fl := !func_error(4,"Файл прикрепления с датой "+full_date(sys_date)+"г. уже был создан")
@@ -3691,7 +3692,7 @@ if hb_FileExists(dir_server+filename+sdbf)
   mywait()
   //
   R_Use(dir_server+filename,,"WQ")
-  index on upper(fio)+dtos(dr) to (cur_dir+"tmp_wq")
+  index on upper(fio)+dtos(dr) to (cur_dir + "tmp_wq")
   go top
   do while !eof()
     if empty(wq->uchast)
@@ -3722,12 +3723,12 @@ if fl_err
   return NIL
 endif
 mywait()
-dbcreate(cur_dir+"tmp",{;
+dbcreate(cur_dir + "tmp",{;
   {"kod_k", "N",7,0},;
   {"kod_wq","N",6,0},;
   {"uchast","N",2,0},;
   {"vr",    "N",1,0}})
-use (cur_dir+"tmp") new
+use (cur_dir + "tmp") new
 j := 0
 R_Use(dir_server+filename,,"WQ")
 go top
@@ -3762,7 +3763,7 @@ strfile(space(5)+"Список участков"+hb_eol()+hb_eol(),cFileProtokol)
 R_Use(dir_server+"mo_otd",,"OTD")
 R_Use(dir_server+"mo_pers",,"P2")
 R_Use(dir_server+"mo_uchvr",,"UV")
-index on str(uch,2) to (cur_dir+"tmp_uv")
+index on str(uch,2) to (cur_dir + "tmp_uv")
 j := 0
 for i := 1 to len(arr_uch)
   s := str(arr_uch[i,1],2)+":"
@@ -3828,7 +3829,7 @@ if !fl_err .and. ;
   s := "MO2"+glob_mo[_MO_KOD_TFOMS]+dtos(mdate)
   n_file := s+scsv
   G_Use(dir_server+"mo_krtr",,"KRTR")
-  index on str(kod,6) to (cur_dir+"tmp_krtr")
+  index on str(kod,6) to (cur_dir + "tmp_krtr")
   AddRec(6)
   krtr->KOD := recno()
   krtr->FNAME := s
@@ -3840,7 +3841,7 @@ if !fl_err .and. ;
   krtr->KOL_P := 0
   krtr->ANSWER := 0  // 0-не было ответа, 1-был прочитан ответ
   G_Use(dir_server+"mo_krtf",,"KRTF")
-  index on str(kod,6) to (cur_dir+"tmp_krtf")
+  index on str(kod,6) to (cur_dir + "tmp_krtf")
   AddRec(6)
   krtf->KOD   := recno()
   krtf->FNAME := krtr->FNAME
@@ -3862,21 +3863,21 @@ if !fl_err .and. ;
   fp := fcreate(n_file)
   //
   G_Use(dir_server+"mo_krtp",,"KRTP")
-  index on str(reestr,6) to (cur_dir+"tmp_krtp")
+  index on str(reestr,6) to (cur_dir + "tmp_krtp")
   mywait("Создание файла прикрепления")
   j := ii := 0
-  R_Use(exe_dir+"_mo_podr",cur_dir+"_mo_podr","PODR")
+  R_Use(exe_dir+"_mo_podr",cur_dir + "_mo_podr","PODR")
   find (glob_mo[_MO_KOD_TFOMS])
   loidmo := alltrim(podr->oidmo)
   R_Use(dir_server+"mo_otd",,"OTD")
   R_Use(dir_server+"mo_pers",,"P2")
-  R_Use(dir_server+"mo_uchvr",cur_dir+"tmp_uv","UV")
+  R_Use(dir_server+"mo_uchvr",cur_dir + "tmp_uv","UV")
   R_Use(dir_server+filename,,"WQ")
   use_base("kartotek")
   set order to 0
-  use (cur_dir+"tmp") new
+  use (cur_dir + "tmp") new
   set relation to kod_wq into WQ
-  index on upper(wq->fio) to (cur_dir+"tmp__")
+  index on upper(wq->fio) to (cur_dir + "tmp__")
   go top
   do while !eof()
     @ maxrow(),0 say str(++j/tmp->(lastrec())*100,6,2)+"%" color cColorWait
@@ -4083,7 +4084,7 @@ if !fl_err .and. ;
 endif
 return NIL
 
-***** 11.10.15
+** 11.10.15
 Static Function f1_wq_prikreplenie(cFileProtokol,/*@*/is_err)
 Local s
 if p2->kateg != 1
@@ -4112,7 +4113,7 @@ else
 endif
 return NIL
 
-***** 09.06.16 заменить ";" в поле на " " для отправки в файле CSV
+** 09.06.16 заменить ";" в поле на " " для отправки в файле CSV
 Function f_s_csv(s)
 Static c := ";"
 if c $ s
@@ -4120,13 +4121,13 @@ if c $ s
 endif
 return charone(" ",s)
 
-***** 20.11.15 Подсчёт количества пациентов, прикреплённых ко всем участковым врачам
+** 20.11.15 Подсчёт количества пациентов, прикреплённых ко всем участковым врачам
 Function prn_itogo_uch_vrach()
 Local sh, HH := 60, name_file := "uchvrach"+stxt, arr_title
 Local ii := 0, buf := save_maxrow(), i, j, k, fl, arr := ret_arr_uch_vrach()
 mywait()
 R_Use(dir_server+"mo_pers",,"P2")
-index on snils to (cur_dir+"tmp_pers") for !empty(snils)
+index on snils to (cur_dir + "tmp_pers") for !empty(snils)
 R_Use_base("kartotek")
 go top
 do while !eof()
@@ -4173,9 +4174,9 @@ do while !eof()
   skip
 enddo
 use (dir_server+"kart_etk") new
-index on str(kod_tf,10) to (cur_dir+"tmp_kart_etk")
+index on str(kod_tf,10) to (cur_dir + "tmp_kart_etk")
 R_Use(dir_server+"kart_et")
-index on str(kod_tf,10) to (cur_dir+"tmp_kart_et") ;
+index on str(kod_tf,10) to (cur_dir + "tmp_kart_et") ;
       for mo_pr == glob_MO[_MO_KOD_TFOMS] .and. !empty(snils_vr) .and. !(kart_et->PC2=='1')
 go top
 do while !eof()
@@ -4259,7 +4260,7 @@ fclose(fp)
 viewtext(name_file,,,,.t.,,,2)
 return NIL
 
-***** 28.09.15 вернуть массив участковых врачей
+** 28.09.15 вернуть массив участковых врачей
 Function ret_arr_uch_vrach()
 Local i, j, ar, arr := {}
 R_Use(dir_server+"mo_pers",,"P2")
@@ -4296,7 +4297,7 @@ for i := 1 to len(arr)
 next
 return arr
 
-***** 28.09.15
+** 28.09.15
 Static Function f1_ret_arr_uch_vrach(arr,lkod,k,luch)
 Local i
 select P2
