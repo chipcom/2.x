@@ -1,6 +1,6 @@
 #require 'hbsqlit3'
 
-** 17.12.22 вернуть Классификатор типов документов, удостоверяющих личность F011.xml
+** 19.12.22 вернуть Классификатор типов документов, удостоверяющих личность F011.xml
 function getF011()
   // F011.xml - Классификатор типов документов, удостоверяющих личность
   // IDDoc,     "C",   2, 0  // Код типа документа
@@ -21,7 +21,7 @@ function getF011()
     aTable := sqlite3_get_table( db, 'SELECT docname, iddoc, datebeg, dateend, docser, docnum FROM f011')
     if len(aTable) > 1
       for nI := 2 to Len( aTable )
-        aadd(_arr, {alltrim(aTable[nI, 1]), alltrim(aTable[nI, 2]), ctod(aTable[nI, 3]), ctod(aTable[nI, 4]), alltrim(aTable[nI, 5]), alltrim(aTable[nI, 6])})
+        aadd(_arr, {alltrim(aTable[nI, 1]), val(aTable[nI, 2]), ctod(aTable[nI, 3]), ctod(aTable[nI, 4]), alltrim(aTable[nI, 5]), alltrim(aTable[nI, 6])})
       next
     endif
     db := nil

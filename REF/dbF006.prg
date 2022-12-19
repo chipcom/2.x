@@ -1,6 +1,6 @@
 #require 'hbsqlit3'
 
-* 17.12.22 вернуть массив Классификатор видов контроля F006.xml
+* 19.12.22 вернуть массив Классификатор видов контроля F006.xml
 function getF006()
   // F006.xml - Классификатор видов контроля
   // IDVID,     "N",   2, 0  // Код вида контроля
@@ -19,7 +19,7 @@ function getF006()
     aTable := sqlite3_get_table(db, 'SELECT idvid, vidname, datebeg, dateend FROM f006')
     if len(aTable) > 1
       for nI := 2 to Len( aTable )
-        aadd(_arr, {alltrim(aTable[nI, 2]), alltrim(aTable[nI, 1]), ctod(aTable[nI, 3]), ctod(aTable[nI, 4])})
+        aadd(_arr, {alltrim(aTable[nI, 2]), val(aTable[nI, 1]), ctod(aTable[nI, 3]), ctod(aTable[nI, 4])})
       next
     endif
     db := nil
