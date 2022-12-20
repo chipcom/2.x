@@ -250,7 +250,7 @@ endif
 mrec := 1 // пока так
 goto (mrec)
 if empty(r05p->n_y)
-  mdate := r05p->D_KZ := 0d20221202
+  mdate := r05p->D_KZ := 0d20221214
   r05p->N_Y := sgod // год для диспансеризации
   r05p->TYPEOFREC := 0 // 0-первично представленная запись, 1-актуализированная запись
   r05p->KOL1 := 0 // количество пациентов для диспансеризации на год
@@ -293,7 +293,7 @@ Private skol1 := 0, skol2 := 0, skol11 := 0, skol12 := 0, skol13 := 0
 buf := box_shadow(r1,2,maxrow()-2,77,,"План-график на "+lstr(sgod)+" год",color8)
 do while .t.
   @ r1+1,54 say "| прикреплённое" color color14
-  @ r1+2,4 say "Приказ КЗ ВО №3648 от" get mdate when .f.
+  @ r1+2,4 say "Приказ КЗ ВО №3630 от" get mdate when .f.
    @ row(),col()+12 say "_план_|_количество___" color color14
   @ r1+3,4 say "Численность лиц для диспансеризации (всего)" get mkol1  pict "99999"
    @ row(),col()+1 say "|" color color14 get skol1 color color8 pict "99999" when .f.
