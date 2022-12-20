@@ -2521,9 +2521,16 @@ else
   go top
   do while !eof()
     arr := {} ; lmesto := 0
+    flag_otmena := .F.
     select DN
     find (str(tmp->kod_k,7))
     do while dn->kod_k == tmp->kod_k .and. !eof()
+      // для фроловской црб
+      if glob_mo[_MO_KOD_TFOMS] == '611001'
+        if dn->FREQUENCY == 0 
+          flag_otmena := .T.
+        endif  
+      endif 
       if f_is_diag_dn(dn->kod_diag) // только диагнозы из последнего списка от 21 ноября
         if dn->next_data > stod("20221231")   //22.12.2022
           lspec := ret_prvs_V021(iif(empty(perso->prvs_new), perso->prvs, -perso->prvs_new))
@@ -2543,6 +2550,9 @@ else
       select DN
       skip
     enddo
+    if flag_otmena := .T.
+      arr := {}
+    endif 
     ar1 := {} ; ar2 := {}
     for i := 1 to len(arr)
       fl := .t.

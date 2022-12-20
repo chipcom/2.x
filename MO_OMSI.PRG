@@ -1580,6 +1580,10 @@ Function pz1statist(par,par2)
         k += luapz2016[i,3]
       endif
     next
+    my_debug(,print_array(luapz2016))
+    my_debug(,print_array(apz2016))
+    my_debug(,print_array(kol_sl_2))
+
     add_string(replicate('─', sh))
     add_string(padl('Всего листов учета',42) +str(k,20,0) +str(sstoim,17,2))
     add_string('')
@@ -2146,9 +2150,11 @@ do while hu->kod == human->kod .and. !eof()
               lalunit := 'MOUNIT19'
             endif
             dbSelectArea(lalunit)
-            set order to 1  // 2 23.12.21
-            find (str(i16,3))
-            if &lalunit.->c_t == 2 // план-заказ подсчитывается по случаю
+            set order to 2  // 2 23.12.21 == 1
+            //find (str(i16,3))
+            //if &lalunit.->c_t == 2 // план-заказ подсчитывается по случаю
+            t_vrem := &lalunit.->unit_code
+            if eq_any( t_vrem,511,317,261,262,318,319,320,321)
               //apz2016[i16,3] ++
               apz2016[i16,3] := 0
             else

@@ -4,7 +4,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 23.12.20 инициализация всех файлов инф.сопровождения по диспансеризации
+***** 18.12.22 инициализация всех файлов инф.сопровождения по диспансеризации
 Function f_init_r01()
 Local mo_dr00 := {; // пул пациентов, подлежащих диспансеризации/профосмотрам взрослого населения
    {"kod",        "N", 7,0},; // код по картотеке
@@ -177,7 +177,7 @@ reconstruct(dir_server+"mo_dr05e",mo_dr05e,,,.t.)
 reconstruct(dir_server+"mo_dr00", mo_dr00 ,,,.t.)
 //
 G_Use(dir_server+"mo_dr05p",,"R05p")
-Locate for n_y < 2022  // ЮЮ 08.12.21
+Locate for n_y < 2023  // ЮЮ 12.12.22
 fl := found()
 Use
 if fl
@@ -185,7 +185,7 @@ if fl
 endif
 return NIL
 
-***** 14.12.18 очистить файлы - удалить 2021 год
+***** 18.12.22 очистить файлы - удалить 2022 год
 Function f_zap_all_mo_dr()
 Local i, arrx := {}
 use (dir_server+"mo_dr01") new
@@ -235,12 +235,12 @@ endif
 close databases
 return NIL
 
-***** 03.12.21 Создание файла обмена R05...
+***** 18.12.22 Создание файла обмена R05...
 Function f_create_R05()
 Local buf := save_maxrow(), i, fl
 Private mdate, mkol1 := 0, mkol2 := 0, mkol11 := 0, mkol12 := 0, mkol13 := 0,;
         mrec, CODE_LPU := glob_mo[_MO_KOD_TFOMS]
-Private sgod := 2022
+Private sgod := 2023
 
 //
 G_Use(dir_server+"mo_dr05p",,"R05p")
@@ -250,7 +250,7 @@ endif
 mrec := 1 // пока так
 goto (mrec)
 if empty(r05p->n_y)
-  mdate := r05p->D_KZ := 0d20211202
+  mdate := r05p->D_KZ := 0d20221202
   r05p->N_Y := sgod // год для диспансеризации
   r05p->TYPEOFREC := 0 // 0-первично представленная запись, 1-актуализированная запись
   r05p->KOL1 := 0 // количество пациентов для диспансеризации на год
@@ -361,10 +361,10 @@ rest_box(buf)
 rest_box(buf24)
 return NIL
 
-***** 12.12.19 Ввод/редактирование плана-графика с разбивкой по месяцам
+***** 18.12.22 Ввод/редактирование плана-графика с разбивкой по месяцам
 Function f_pereschet_R05
 Local buf := save_maxrow(), nrow := row(), ncol := col(), icurs := setcursor(0), s,;
-      _arr_vozrast_DVN := ret_arr_vozrast_DVN(0d20211201)
+      _arr_vozrast_DVN := ret_arr_vozrast_DVN(0d20221201)
 mywait("Ждите! Производится подсчёт прикреплённого взрослого населения.")
 skol1 := skol2 := skol11 := skol12 := skol13 := 0
 R_Use(dir_server+"kartote2",,"KART2")
@@ -1656,7 +1656,7 @@ else
 endif
 return fl
 
-***** 03.12.21 Создание файла обмена R01...
+***** 18.12.22 Создание файла обмена R01...
 Function f_create_R01()
 Local buf := save_maxrow(), i, j, ir, s := "", arr := {}, fl := .t., fl1 := .f., a_reestr := {},;
       azip := {}, aerr := {}, full_zip, name_zip, cFile, cName, oXmlDoc, lgod_r
@@ -1665,11 +1665,11 @@ Private SMONTH := 1, mdate := sys_date, mrec := 1
 Private c_view := 0, c_found := 0, fl_exit := .f., pj, arr_rees := {},;
         pkol := 0, CODE_LPU := glob_mo[_MO_KOD_TFOMS], CODE_MO := glob_mo[_MO_KOD_FFOMS],;
         mkol := {0,0,0,0,0}, skol[5], ames[12,5], ame[12], bm := SMONTH,; // начальный месяц минус один
-        _arr_vozrast_DVN := ret_arr_vozrast_DVN(0d20201201)
-Private sgod := 2022
+        _arr_vozrast_DVN := ret_arr_vozrast_DVN(0d20221201)
+Private sgod := 2023
 
 //
-//f00_create_R01()
+f00_create_R01()
 //
 mywait()
 if (fl := verify_packet_R05(1,arr))
@@ -2039,10 +2039,10 @@ endif
 return NIL
 
 
-***** 03.12.21
+***** 18.12.22
 Function f00_create_R01()
 Local fl := .f., v, t1, t2, lgod_r, ltip1, ltip, lvoz
-local sgod := 2021
+local sgod := 2022
 
  Status_Key("^<Esc>^ - прервать поиск")
  hGauge := GaugeNew(,,,"Проверка пациентов, подлежащих дисп-ии/профосмотрам",.t.)
@@ -2250,17 +2250,27 @@ for SMONTH := 1 to 12
     if !empty(kart->snils)
       mo_add_xml_stroke(oXmlNode,"SS",transform(kart->SNILS,picture_pf))
     endif
-    mo_add_xml_stroke(oXmlNode,"TYPE_P",lstr(iif(between(kart_->VPOLIS,1,3),kart_->VPOLIS,1)))
-    if !empty(kart_->SPOLIS)
-      mo_add_xml_stroke(oXmlNode,"SER_P",kart_->SPOLIS)
-    endif
-    s := alltrim(kart_->NPOLIS)
-    if kart_->VPOLIS == 3 .and. len(s) != 16
+    //  проверим наличие ЕНП - иначе старый вариант
+    if len(alltrim(kart2->KOD_MIS)) > 14
+      mo_add_xml_stroke(oXmlNode,"TYPE_P",lstr(3)) // только НОВЫЙ
+      s := alltrim(kart2->KOD_MIS)
       s := padr(s,16,"0")
-    endif
-    mo_add_xml_stroke(oXmlNode,"NUM_P",s)
-    if kart_->VPOLIS == 3
+      // 
+      mo_add_xml_stroke(oXmlNode,"NUM_P",s)
       mo_add_xml_stroke(oXmlNode,"ENP",s)
+    else
+      mo_add_xml_stroke(oXmlNode,"TYPE_P",lstr(iif(between(kart_->VPOLIS,1,3),kart_->VPOLIS,1)))
+      if !empty(kart_->SPOLIS)
+        mo_add_xml_stroke(oXmlNode,"SER_P",kart_->SPOLIS)
+      endif
+      s := alltrim(kart_->NPOLIS)
+      if kart_->VPOLIS == 3 .and. len(s) != 16
+        s := padr(s,16,"0")
+      endif
+      mo_add_xml_stroke(oXmlNode,"NUM_P",s)
+      if kart_->VPOLIS == 3
+        mo_add_xml_stroke(oXmlNode,"ENP",s)
+      endif
     endif
     mo_add_xml_stroke(oXmlNode,"DOCTYPE",lstr(kart_->vid_ud))
     if !empty(kart_->ser_ud)

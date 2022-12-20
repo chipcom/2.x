@@ -2768,7 +2768,7 @@ do case
                 "inf_DVN(43)"}
     str_sem := "ИСОМП"
     if G_SLock(str_sem)
-      ///fff_init_r01()
+      fff_init_r01() //открыл
       popup_prompt(T_ROW-len(mas_pmt)-3,T_COL-5,si4,mas_pmt,mas_msg,mas_fun)
       G_SUnLock(str_sem)
     else
@@ -2817,8 +2817,8 @@ do case
   case k == 62
     f_view_R01()
   case k == 43
-    //ne_real()
-    mas_pmt := {"~Создание файлов обмена",;
+    ne_real()
+    /*mas_pmt := {"~Создание файлов обмена",;
                 "~Просмотр файлов обмена"}
     mas_msg := {"Создание файлов обмена R11... за конкретный месяц",;
                 "Просмотр файлов обмена R11... и результатов работы с ними"}
@@ -2832,6 +2832,7 @@ do case
     set key K_CTRL_F10 to delete_month_R11()
     popup_prompt(T_ROW,T_COL-5,si7,mas_pmt,mas_msg,mas_fun)
     set key K_CTRL_F10 to
+    */
   case k == 71
     f_create_R11()
   case k == 72
@@ -9851,8 +9852,9 @@ rest_box(buf)
 close databases
 return NIL
 
-/*
+
 ** 28.02.21 удаление всех пакетов R01(PR01) за конкретный месяц
+/*
 Function delete_month_R01()
 Local pss := space(10), tmp_pss := my_parol()
 Local i, lm, mkod_reestr, ar_m := {}, buf
@@ -9865,7 +9867,7 @@ elseif !between(lm,2,12)
   return NIL
 else
   pss := get_parol(,,,,,"N/W","W/N*")
-  if lastkey() == K_ENTER .and. ascan(tmp_pss,crypt(pss,gpasskod)) > 0 .and. f_Esc_Enter("удаления файлов R11",.t.)
+  if lastkey() == K_ENTER .and. ascan(tmp_pss,crypt(pss,gpasskod)) > 0 .and. f_Esc_Enter("удаления файлов R01",.t.)
     //
   else
     return NIL
@@ -9905,14 +9907,14 @@ else
     G_Use(dir_server+"mo_dr01m",,"R01m")
     f2_delete_reestr_R01(ar_m[i,1])
   next
-  stat_msg("Успешно удалено реестров R01 - "+lstr(len(ar_m))+" (и, соответственно, ответов на них PR11)")
+  stat_msg("Успешно удалено реестров R01 - "+lstr(len(ar_m))+" (и, соответственно, ответов на них PR01)")
   inkey(10)
 endif
 rest_box(buf)
 close databases
 return NIL
-
 */
+
 
 ** 25.02.21
 Function f32_view_R11(lm)
