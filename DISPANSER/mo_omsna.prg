@@ -2550,7 +2550,7 @@ else
       select DN
       skip
     enddo
-    if flag_otmena := .T.
+    if flag_otmena == .T.
       arr := {}
     endif 
     ar1 := {} ; ar2 := {}
