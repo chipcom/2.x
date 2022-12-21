@@ -1,11 +1,59 @@
-#include "hbhash.ch" 
+#include 'hbhash.ch' 
 
-// На замену глобальной переменной glob_Q015
-// проверит и заменить везде
-//
+#require 'hbsqlit3'
 
-* 20.02.21 вернуть массив ФФОМС Q015.xml
+** 21.12.22 вернуть массив ФФОМС Q015.xml
 function loadQ015()
+  // возвращает хэш-массив перечня категорий проверок ФЛК и МЭК
+  // <key> - идентификатор правила проверки
+  // <value> - массив
+
+  // Q015 - Перечень технологических правил реализации ФЛК в ИС ведения персонифицированного учета сведений об оказанной медицинской помощи (FLK_MPF)
+  // ID_TEST, Строчный(12), Идентификатор проверки.
+  //      Формируется по шаблону KKKK.00.TTTT, где
+  //      KKKK - идентификатор категории проверки 
+  //        в соответствии с классификатором Q017,
+  //      TTTT - уникальный номер проверки в категории
+  // ID_EL, Строчный(100),	Идентификатор элемента, 
+  //      подлежащего проверке (Приложение А, классификатор Q018)
+  // TYPE_MD	ОМ	Допустимые типы передаваемых данных, содержащих 
+  //      элемент, подлежащий проверке
+  // TYPE_D, Строчный(2),	Тип передаваемых данных, содержащих элемент,
+  //      подлежащий проверке (Приложение А, классификатор Q019)
+  // NSI_OBJ, Строчный(4), Код объекта НСИ, на соответствие с которым 
+  //      осуществляется проверка значения элемента
+  // NSI_EL, Строчный(20), Имя элемента объекта НСИ, на соответствие с 
+  //      которым осуществляется проверка значения элемента
+  // USL_TEST, Строчный(254),	Условие проведения проверки элемента
+  // VAL_EL, Строчный(254),	Множество допустимых значений элемента
+  // MIN_LEN, Целочисленный(4),	Минимальная длина значения элемента
+  // MAX_LEN, Целочисленный(4),	Максимальная длина значения элемента
+  // MASK_VAL, Строчный(254),	Маска значения элемента
+  // COMMENT, Строчный(500), Комментарий
+  // DATEBEG, Строчный(10),	Дата начала действия записи
+  // DATEEND, Строчный(10),	Дата окончания действия записи
+
+  static _Q015
+  local db
+  local aTable
+  local nI
+  if _Q015 == nil
+    _Q015 := hb_hash()
+
+    db := openSQL_DB()
+    aTable := sqlite3_get_table(db, 'SELECT id_test, id_el, nsi_obj, nsi_el, usl_test, val_el, comment, datebeg, dateend FROM q015')
+    if len(aTable) > 1
+      for nI := 2 to Len( aTable )
+        hb_hSet(_Q015, alltrim(upper(aTable[nI, 1])), {alltrim(aTable[nI, 2]), alltrim(aTable[nI, 3]), alltrim(aTable[nI, 4]), alltrim(aTable[nI, 5]), alltrim(aTable[nI, 6]), alltrim(aTable[nI, 7]), ctod(aTable[nI, 8]), ctod(aTable[nI, 9])})
+      next
+    endif
+    db := nil
+
+  endif
+  return _Q015
+
+** 21.12.22 вернуть массив ФФОМС Q015.xml
+function loadQ015_1()
   // возвращает хэш-массив перечня категорий проверок ФЛК и МЭК
   // <key> - идентификатор правила проверки
   // <value> - массив
@@ -20,11 +68,11 @@ function loadQ015()
     _Q015 := hb_hash()
     dbName := '_mo_Q015'
     tmp_select := select()
-    dbUseArea( .t., "DBFNTX", exe_dir + dbName, dbAlias , .t., .f. )
+    dbUseArea(.t., 'DBFNTX', exe_dir + dbName, dbAlias , .t., .f.)
 
     (dbAlias)->(dbGoTop())
     do while !(dbAlias)->(EOF())
-      hb_hSet( _Q015, alltrim(upper((dbAlias)->KOD)), {alltrim((dbAlias)->NAME), alltrim((dbAlias)->NSI_OBJ), alltrim((dbAlias)->NSI_EL), alltrim((dbAlias)->USL_TEST), alltrim((dbAlias)->VAL_EL), alltrim((dbAlias)->COMMENT), (dbAlias)->DATEBEG, (dbAlias)->DATEEND} )
+      hb_hSet(_Q015, alltrim(upper((dbAlias)->KOD)), {alltrim((dbAlias)->NAME), alltrim((dbAlias)->NSI_OBJ), alltrim((dbAlias)->NSI_EL), alltrim((dbAlias)->USL_TEST), alltrim((dbAlias)->VAL_EL), alltrim((dbAlias)->COMMENT), (dbAlias)->DATEBEG, (dbAlias)->DATEEND})
       (dbAlias)->(dbSkip())
     enddo
     (dbAlias)->(dbCloseArea())
@@ -47,7 +95,7 @@ function getRuleCheckErrorByID_Q015(idRule)
   local rule := alltrim(upper(idRule))
   local aRet := {}
 
-  if hb_hHaskey( arrRules, rule )
+  if hb_hHaskey(arrRules, rule)
     aRet := arrRules[rule]
   else
     AAdd(aRet, 'Неизвестное правило проверки с идентификатором: ' + rule)
