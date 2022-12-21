@@ -2153,8 +2153,8 @@ do while hu->kod == human->kod .and. !eof()
             set order to 2  // 2 23.12.21 == 1
             //find (str(i16,3))
             //if &lalunit.->c_t == 2 // план-заказ подсчитывается по случаю
-            t_vrem := &lalunit.->unit_code
-            if eq_any( t_vrem,511,317,261,262,318,319,320,321)
+            t_vrem := &lalunit.->code
+            if eq_any( t_vrem, 511, 317, 261, 262, 318, 319, 320, 321)
               //apz2016[i16,3] ++
               apz2016[i16,3] := 0
             else
