@@ -99,7 +99,7 @@ Function f2edit_pers(nKey, oBrow)
       rec := p2->(recno())
       buf := save_maxrow()
       mywait()
-      name_file := 'tab_nom' + stx
+      name_file := 'tab_nom' + stxt
       fp := fcreate(name_file)
       n_list := 1
       tek_stroke := 0
