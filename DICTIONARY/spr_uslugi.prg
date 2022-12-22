@@ -155,11 +155,11 @@ Function f1_es_uslugi(oBrow)
   oColumn := TBColumnNew(center('Наименование услуги', n), {|| left(usl->name, n)})
   oColumn:colorBlock := blk
   oBrow:addColumn(oColumn)
-  status_key('^<Esc>^ выход ^<Enter>^ редактирование ^<Ins>^ добавление ^<Del>^ удаление ^<F2>^ поиск')
+  status_key('^<Esc>^ выход ^<Enter>^ редактирование ^<Ins>^ добавление ^<F4>^ копирование ^<Del>^ удаление ^<F2>^ поиск')
   return NIL
   
 **
-Function f2_es_uslugi(nKey,oBrow)
+Function f2_es_uslugi(nKey, oBrow)
   Static sshifr := '          '
   LOCAL j := 0, k := -1, buf := save_maxrow(), buf1, fl := .f., rec, ;
         tmp_color := setcolor(), r1 := 14, c1 := 2
@@ -187,7 +187,7 @@ Function f2_es_uslugi(nKey,oBrow)
           func_error(4, 'Услуга с шифром "' + alltrim(mshifr) + '" не найдена!')
         endif
       endif
-    case nKey == K_INS .or. (nKey == K_ENTER .and. usl->kod > 0)
+    case nKey == K_INS .or. nKey == K_F4 .or. (nKey == K_ENTER .and. usl->kod > 0)
       rec := f3_es_uslugi(nKey)
       select USL
       oBrow:goTop()
@@ -281,7 +281,7 @@ Function f2_es_uslugi(nKey,oBrow)
   rest_box(buf)
   return k
   
-** 03.09.17
+** 22.12.22
 Function f3_es_uslugi(nKey)
   Static menu_nul := {{'нет', .f.}, {'да', .t.}}
   Local tmp_help := chm_help_code, buf := savescreen(), r, r1 := maxrow() - 11, ;
@@ -328,7 +328,7 @@ Function f3_es_uslugi(nKey)
   else
     mslugba := space(10)
   endif
-  if nKey == K_ENTER // редактирование
+  if nKey == K_ENTER .or. nKey == K_F4 // редактирование или копирование
     if !empty(s := f0_e_uslugi1(mkod, , .t.))
       mshifr1 := s
     endif
@@ -345,10 +345,10 @@ Function f3_es_uslugi(nKey)
   chm_help_code := 1//H_Edit_uslugi
   //
   SETCOLOR(color8)
-  Scroll( r1, 0, maxrow()-1, maxcol() )
+  Scroll(r1, 0, maxrow() - 1, maxcol())
   @ r1, 0 to r1, maxcol()
   status_key('^<Esc>^ - выход без записи;  ^<PgDn>^ - запись')
-  IF nKey == K_INS
+  IF nKey == K_INS .or. nKey == K_F4
     str_center(r1, ' Добавление услуги ')
   ELSE
     str_center(r1, ' Редактирование ')
@@ -410,7 +410,7 @@ Function f3_es_uslugi(nKey)
         mywait()
         select USL
         SET ORDER TO 2
-        if nKey == K_INS
+        if nKey == K_INS .or. nKey == K_F4
           FIND (STR(-1, 4))
           if found()
             G_RLock(forever)
@@ -499,7 +499,7 @@ Function f3_es_uslugi(nKey)
   set order to 1
   Return ret
   
-** 15.01.19
+** 22.12.22
 Function f4_es_uslugi(k, fl_poisk, nKey)
   Local fl, v1, v2, s, rec, fl1del, fl2del
 
@@ -514,7 +514,7 @@ Function f4_es_uslugi(k, fl_poisk, nKey)
       v1 := 0
       find (mshifr)
       do while usl->shifr == mshifr .and. !eof()
-        if nKey == K_INS
+        if nKey == K_INS .or. nKey == K_F4
           ++v1
         elseif recno() != rec
           ++v1
