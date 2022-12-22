@@ -2088,8 +2088,8 @@ myread()
 if lastkey() != K_ESC
   if !(valtype(parr_m) == "A")
     parr_m := array(8)
-    parr_m[5] := 0d20010101    // žž
-    parr_m[6] := 0d20221231    // žž
+    parr_m[5] := 0d19000101    // žž
+    parr_m[6] := 0d20231231    // žž
   endif
   if mvrach > 0
     R_Use(dir_server + "mo_pers",dir_server + "mo_pers","PERSO")
