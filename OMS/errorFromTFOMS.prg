@@ -272,11 +272,6 @@ Function errorOMSkey(nkey, ind)
   if len(error_code) < 4
     perenos( opis, retArr_t005(val(error_code))[3], 56 )
   elseif (len(error_code) == 12) .and. (hb_TokenCount( error_code, '.') == 3)
-    // if substr(error_code, 4, 1) == 'F' .and. substr(error_code, 6, 2) == '00'
-    //   arr_error := getRuleCheckErrorByID_Q015(error_code)
-    // elseif substr(error_code, 4, 1) == 'K' .and. substr(error_code, 6, 2) == '00'
-    //   arr_error := getRuleCheckErrorByID_Q016(error_code)
-    // endif
     arr_error := errorArrayFFOMS( error_code )
     perenos( opis, arr_error[6], 56 )
     if ! empty(arr_error[4])
