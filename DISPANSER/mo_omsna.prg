@@ -1433,64 +1433,62 @@ close databases
 restscreen(buf)
 return NIL
 
- 
-
 ** 02.12.19
 Function f1vvodP_disp_nabl(oBrow)
-Local oColumn
-oColumn := TBColumnNew(center("Ф.И.О.",50), {|| tmp_kart->fio })
-oBrow:addColumn(oColumn)
-oColumn := TBColumnNew("Дата рожд.", {|| full_date(tmp_kart->date_r) })
-oBrow:addColumn(oColumn)
-return NIL
+  Local oColumn
+  
+  oColumn := TBColumnNew(center('Ф.И.О.', 50), {|| tmp_kart->fio })
+  oBrow:addColumn(oColumn)
+  oColumn := TBColumnNew('Дата рожд.', {|| full_date(tmp_kart->date_r) })
+  oBrow:addColumn(oColumn)
+  return NIL
 
  
 
 
-** 09.12.18 Первичный ввод сведений о состоящих на диспансерном учёте в Вашей МО
+** 23.12.22 Первичный ввод сведений о состоящих на диспансерном учёте в Вашей МО
 Function f2vvodP_disp_nabl(lkod_k)
-Local buf := savescreen(), k, s, s1, t_arr := array(BR_LEN), str_sem1, lcolor
-Private str_find, muslovie
-glob_kartotek := lkod_k
-str_sem1 := lstr(glob_kartotek)+"f2vvodP_disp_nabl"
-if G_SLock(str_sem1)
-  str_find := str(glob_kartotek,7) ; muslovie := "dn->kod_k == glob_kartotek"
-  t_arr[BR_TOP] := T_ROW
-  t_arr[BR_BOTTOM] := maxrow()-2
-  t_arr[BR_LEFT] := 2
-  t_arr[BR_RIGHT] := maxcol()-2
-  t_arr[BR_COLOR] := color0
-  t_arr[BR_TITUL] := alltrim(tmp_kart->fio)+" "+full_date(tmp_kart->date_r)
-  t_arr[BR_TITUL_COLOR] := "B/BG"
-  t_arr[BR_ARR_BROWSE] := {"═","░","═","N/BG,W+/N,B/BG,BG+/B",.t.}
-  t_arr[BR_OPEN] := {|nk,ob| f1_vvod_disp_nabl(nk,ob,"open") }
-  t_arr[BR_ARR_BLOCK] := {{| | FindFirst(str_find)},;
-                          {| | FindLast(str_find)},;
-                          {|n| SkipPointer(n, muslovie)},;
-                          str_find,muslovie;
-                         }
-  blk := {|| iif(emptyany(dn->vrach,dn->next_data,dn->frequency) .or. dn->NEXT_DATA <= 0d20191201, {3,4}, {1,2}) }
-  t_arr[BR_COLUMN] := {{"Таб.;номер;врача",{|| iif(dn->vrach > 0, (p2->(dbGoto(dn->vrach)), p2->tab_nom), 0) },blk}}
-  aadd(t_arr[BR_COLUMN],{"Диагноз;заболевания",{|| dn->kod_diag },blk})
-  aadd(t_arr[BR_COLUMN],{"   Дата;постановки; на учёт",{|| full_date(dn->n_data) },blk})
-  aadd(t_arr[BR_COLUMN],{"   Дата;следующего;посещения",{|| full_date(dn->next_data) },blk})
-  aadd(t_arr[BR_COLUMN],{"Кол-во;месяцев между;визитами",{|| put_val(dn->frequency,7) },blk})
-  aadd(t_arr[BR_COLUMN],{"Место проведения;диспансерного;наблюдения",{|| iif(empty(dn->kod_diag),space(7),iif(dn->mesto==0," в МО  ","на дому")) },blk})
-  t_arr[BR_EDIT] := {|nk,ob| f3vvodP_disp_nabl(nk,ob,"edit") }
-  R_Use(dir_server + "mo_pers",dir_server + "mo_pers","P2")
-  Use_base("mo_dnab")
-  edit_browse(t_arr)
-  G_SUnLock(str_sem1)
-else
-  func_error(4,"По этому пациенту в данный момент вводит информацию другой пользователь")
-endif
-dn->(dbCloseArea())
-p2->(dbCloseArea())
-select TMP_KART
-restscreen(buf)
-return NIL
+  Local buf := savescreen(), k, s, s1, t_arr := array(BR_LEN), str_sem1, lcolor
 
- 
+  Private str_find, muslovie
+  glob_kartotek := lkod_k
+  str_sem1 := lstr(glob_kartotek) + 'f2vvodP_disp_nabl'
+  if G_SLock(str_sem1)
+    str_find := str(glob_kartotek, 7) ; muslovie := 'dn->kod_k == glob_kartotek'
+    t_arr[BR_TOP] := T_ROW
+    t_arr[BR_BOTTOM] := maxrow() - 2
+    t_arr[BR_LEFT] := 2
+    t_arr[BR_RIGHT] := maxcol() - 2
+    t_arr[BR_COLOR] := color0
+    t_arr[BR_TITUL] := alltrim(tmp_kart->fio) + ' ' + full_date(tmp_kart->date_r)
+    t_arr[BR_TITUL_COLOR] := 'B/BG'
+    t_arr[BR_ARR_BROWSE] := {'═', '░', '═', 'N/BG, W+/N, B/BG, BG+/B', .t.}
+    t_arr[BR_OPEN] := {|nk, ob| f1_vvod_disp_nabl(nk, ob, 'open')}
+    t_arr[BR_ARR_BLOCK] := {{| | FindFirst(str_find)}, ;
+                            {| | FindLast(str_find)}, ;
+                            {|n| SkipPointer(n, muslovie)}, ;
+                            str_find,muslovie ;
+                          }
+    blk := {|| iif(emptyany(dn->vrach, dn->next_data, dn->frequency) .or. dn->NEXT_DATA <= 0d20191201, {3, 4}, {1, 2})}
+    t_arr[BR_COLUMN] := {{'Таб.;номер;врача', {|| iif(dn->vrach > 0, (p2->(dbGoto(dn->vrach)), p2->tab_nom), 0)}, blk}}
+    aadd(t_arr[BR_COLUMN], {'Диагноз;заболевания', {|| dn->kod_diag }, blk})
+    aadd(t_arr[BR_COLUMN], {'   Дата;постановки; на учёт', {|| full_date(dn->n_data)}, blk})
+    aadd(t_arr[BR_COLUMN], {'   Дата;следующего;посещения', {|| full_date(dn->next_data)}, blk})
+    aadd(t_arr[BR_COLUMN], {'Кол-во;месяцев между;визитами', {|| put_val(dn->frequency, 7)}, blk})
+    aadd(t_arr[BR_COLUMN], {'Место проведения;диспансерного;наблюдения', {|| iif(empty(dn->kod_diag), space(7), iif(dn->mesto == 0, ' в МО  ', 'на дому'))}, blk})
+    t_arr[BR_EDIT] := {|nk, ob| f3vvodP_disp_nabl(nk, ob, 'edit')}
+    R_Use(dir_server + 'mo_pers', dir_server + 'mo_pers', 'P2')
+    Use_base('mo_dnab')
+    edit_browse(t_arr)
+    G_SUnLock(str_sem1)
+    dn->(dbCloseArea()) 
+    p2->(dbCloseArea())
+  else
+    func_error(4,"По этому пациенту в данный момент вводит информацию другой пользователь")
+  endif
+  select TMP_KART
+  restscreen(buf)
+  return NIL
 
 ** 05.12.19
 Function f3vvodP_disp_nabl(nKey,oBrow,regim)
