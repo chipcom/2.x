@@ -1271,7 +1271,7 @@ commit
 rest_box(buf)
 return NIL
 
-** 13.05.22 прочитать и "разнести" по базам данных файл R06
+** 26.12.22 прочитать и "разнести" по базам данных файл R06
 Function read_XML_FILE_R06(arr_XML_info,aerr,/*@*/current_i2,lrec_xml)
 Local count_in_schet := 0, bSaveHandler, ii1, ii2, i, j, k, t_arr[2], ldate_R06, s
 DEFAULT lrec_xml TO 0
@@ -1384,11 +1384,12 @@ if empty(aerr) // если проверка прошла успешно
       refr->reestr := mkod_reestr
       refr->R05_ZAP := tmp2->_N_ZAP
       refr->KOD_ERR := tmp2->_ERROR
-      if (j := ascan(getT012(), {|x| x[2] == tmp2->_ERROR })) > 0
-        strfile(space(8) + "ошибка " + lstr(tmp2->_ERROR) + " - " + getT012()[j,1] + hb_eol(), cFileProtokol, .t.)
-      else
-        strfile(space(8)+"ошибка "+lstr(tmp2->_ERROR)+" (неизвестная ошибка)"+hb_eol(),cFileProtokol,.t.)
-      endif
+      // if (j := ascan(getT012(), {|x| x[2] == tmp2->_ERROR })) > 0
+      //   strfile(space(8) + "ошибка " + lstr(tmp2->_ERROR) + " - " + getT012()[j,1] + hb_eol(), cFileProtokol, .t.)
+      // else
+      //   strfile(space(8)+"ошибка "+lstr(tmp2->_ERROR)+" (неизвестная ошибка)"+hb_eol(),cFileProtokol,.t.)
+      // endif
+      strfile(space(8) + getError_T012(tmp2->_ERROR) + hb_eol(), cFileProtokol, .t.)
     endif
     UnLock ALL
     select TMP2
@@ -2876,7 +2877,7 @@ commit
 rest_box(buf)
 return NIL
 
-** 13.05.22 прочитать и "разнести" по базам данных файл R02
+** 26.12.22 прочитать и "разнести" по базам данных файл R02
 Function read_XML_FILE_R02(arr_XML_info,aerr,/*@*/current_i2,tip_f)
 Local count_in_schet := 0, bSaveHandler, ii1, ii2, i, j, k, t_arr[2], ldate_R02, s, err_file := .f.
 DEFAULT tip_f TO _XML_FILE_R02
@@ -2978,11 +2979,12 @@ if empty(aerr) // если проверка прошла успешно
         refr->reestr := mkod_reestr
         refr->R01_ZAP := 0
         refr->KOD_ERR := tmp3->_ERROR
-        if (j := ascan(getT012(), {|x| x[2] == tmp3->_ERROR })) > 0
-          strfile(space(8) + "ошибка " + lstr(tmp3->_ERROR) + " - " + getT012()[j,1] + hb_eol(), cFileProtokol, .t.)
-        else
-          strfile(space(8)+"ошибка "+lstr(tmp3->_ERROR)+" (неизвестная ошибка)"+hb_eol(),cFileProtokol,.t.)
-        endif
+        // if (j := ascan(getT012(), {|x| x[2] == tmp3->_ERROR })) > 0
+        //   strfile(space(8) + "ошибка " + lstr(tmp3->_ERROR) + " - " + getT012()[j,1] + hb_eol(), cFileProtokol, .t.)
+        // else
+        //   strfile(space(8)+"ошибка "+lstr(tmp3->_ERROR)+" (неизвестная ошибка)"+hb_eol(),cFileProtokol,.t.)
+        // endif
+        strfile(space(8) + getError_T012(tmp3->_ERROR) + hb_eol(), cFileProtokol, .t.)
         select TMP3
         skip
       enddo
@@ -3045,11 +3047,12 @@ if empty(aerr) // если проверка прошла успешно
         refr->reestr := mkod_reestr
         refr->R01_ZAP := tmp2->_N_ZAP
         refr->KOD_ERR := tmp3->_ERROR
-        if (j := ascan(getT012(), {|x| x[2] == tmp3->_ERROR })) > 0
-          strfile(space(8) + "ошибка " + lstr(tmp3->_ERROR) + " - " + getT012()[j,1] + hb_eol(), cFileProtokol, .t.)
-        else
-          strfile(space(8)+"ошибка "+lstr(tmp3->_ERROR)+" (неизвестная ошибка)"+hb_eol(),cFileProtokol,.t.)
-        endif
+        // if (j := ascan(getT012(), {|x| x[2] == tmp3->_ERROR })) > 0
+        //   strfile(space(8) + "ошибка " + lstr(tmp3->_ERROR) + " - " + getT012()[j,1] + hb_eol(), cFileProtokol, .t.)
+        // else
+        //   strfile(space(8)+"ошибка "+lstr(tmp3->_ERROR)+" (неизвестная ошибка)"+hb_eol(),cFileProtokol,.t.)
+        // endif
+        strfile(space(8) + getError_T012(tmp3->_ERROR) + hb_eol(), cFileProtokol, .t.)
         select TMP3
         skip
       enddo
