@@ -3409,55 +3409,55 @@ if glob_mo[_MO_IS_UCH]
 endif
 return NIL
 
-***** 03.12.21 проверить, есть ли не до конца обработанные операции с файлами R11...
+** 29.12.22 проверить, есть ли не до конца обработанные операции с файлами R11...
 Function find_unfinished_R11()
 Local fl := .t., fl1, skol := 0, mkol := 0, arr := {}, rec, fl_date := .t.
-Private mrec := 2, smonth := 3
-Private sgod := 2021
 
-if glob_mo[_MO_IS_UCH]
-  if (fl := verify_packet_R05(2,arr))
-    R_Use(dir_server + "mo_dr05p",,"R05p")
-    goto (mrec)
-    skol := &("r05p->kol1_"+strzero(smonth,2)) + &("r05p->kol2_"+strzero(smonth,2))
-    select MO_XML
-    index on str(reestr,6) to (cur_dir+"tmp_xml") for tip_in == _XML_FILE_R12 .and. empty(TIP_OUT)
-    R_Use(dir_server + "mo_dr01",,"REES")
-    index on str(nn,3) to (cur_dir+"tmp_dr01") for NYEAR == sgod .and. NMONTH == smonth .and. tip == 1
-    go top
-    do while fl .and. !eof()
-      if rees->kol_err < 0
-        fl := .f.
-        aadd(arr,"В файле PR11 за "+lstr(rees->NMONTH)+"-й месяц "+lstr(sgod)+"г. ошибки на уровне файла")
-      elseif empty(rees->answer)
-        fl := .f.
-        aadd(arr,"Файл PR11 за "+lstr(rees->NMONTH)+"-й месяц "+lstr(sgod)+" года не был прочитан")
-      else
-        mkol += (rees->KOL - rees->KOL_ERR)
-        select MO_XML
-        find (str(rees->kod,6))
-        if found() .and. empty(mo_xml->TWORK2)
+  Private mrec := 2, smonth := 3
+  // Private sgod := 2021
+  Private sgod := 2022
+
+  if glob_mo[_MO_IS_UCH]
+    if (fl := verify_packet_R05(2,arr))
+      R_Use(dir_server + "mo_dr05p",,"R05p")
+      goto (mrec)
+      skol := &("r05p->kol1_"+strzero(smonth,2)) + &("r05p->kol2_"+strzero(smonth,2))
+      select MO_XML
+      index on str(reestr,6) to (cur_dir+"tmp_xml") for tip_in == _XML_FILE_R12 .and. empty(TIP_OUT)
+      R_Use(dir_server + "mo_dr01",,"REES")
+      index on str(nn,3) to (cur_dir+"tmp_dr01") for NYEAR == sgod .and. NMONTH == smonth .and. tip == 1
+      go top
+      do while fl .and. !eof()
+        if rees->kol_err < 0
           fl := .f.
-          aadd(arr,"Прервано чтение файла "+alltrim(mo_xml->FNAME)+"! Аннулируйте (Ctrl+F12) и прочитайте снова")
+          aadd(arr,"В файле PR11 за "+lstr(rees->NMONTH)+"-й месяц "+lstr(sgod)+"г. ошибки на уровне файла")
+        elseif empty(rees->answer)
+          fl := .f.
+          aadd(arr,"Файл PR11 за "+lstr(rees->NMONTH)+"-й месяц "+lstr(sgod)+" года не был прочитан")
+        else
+          mkol += (rees->KOL - rees->KOL_ERR)
+          select MO_XML
+          find (str(rees->kod,6))
+          if found() .and. empty(mo_xml->TWORK2)
+            fl := .f.
+            aadd(arr,"Прервано чтение файла "+alltrim(mo_xml->FNAME)+"! Аннулируйте (Ctrl+F12) и прочитайте снова")
+          endif
         endif
+        select REES
+        skip
+      enddo
+      if fl .and. skol != mkol
+        fl := .f.
+        aadd(arr,"Количество, определённое в план-графике = "+lstr(skol))
+        aadd(arr,"Количество, отправленное в ТФОМС        = "+lstr(mkol))
       endif
-      select REES
-      skip
-    enddo
-    if fl .and. skol != mkol
-      fl := .f.
-      aadd(arr,"Количество, определённое в план-графике = "+lstr(skol))
-      aadd(arr,"Количество, отправленное в ТФОМС        = "+lstr(mkol))
+    endif
+    close databases
+    if !fl .and. !empty(arr)
+      Ins_Array(arr,1,"")
+      Ins_Array(arr,1,"-------------------------------------------")
+      Ins_Array(arr,1,"Операции создания (обмена) файлов R11(PR11)")
+      n_message(arr,,"GR+/R","W+/R",,,"G+/R")
     endif
   endif
-  close databases
-  if !fl .and. !empty(arr)
-    Ins_Array(arr,1,"")
-    Ins_Array(arr,1,"-------------------------------------------")
-    Ins_Array(arr,1,"Операции создания (обмена) файлов R11(PR11)")
-    n_message(arr,,"GR+/R","W+/R",,,"G+/R")
-  endif
-endif
-return NIL
-
-
+  return NIL

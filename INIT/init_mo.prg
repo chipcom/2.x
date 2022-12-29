@@ -92,7 +92,7 @@ Function init_mo()
 
   return main_up_screen()
 
-** 21.12.22 проверка и переиндексирование справочников ТФОМС
+** 29.12.22 проверка и переиндексирование справочников ТФОМС
 Function checkFilesTFOMS()
   Local fl := .t., i, arr, buf := save_maxrow()
   local arrRefFFOMS := {}, row, row_flag := .t.
@@ -103,12 +103,6 @@ Function checkFilesTFOMS()
 
   public is_otd_dep := .f., glob_otd_dep := 0, mm_otd_dep := {}
 
-  // Public arr_ad_cr_it22 := {}
-  // Public arr_ad_cr_it21 := {}
-  // Public arr_ad_cr_it20 := {}
-  // Public arr_ad_cr_it19 := {}
-  // Public arr_ad_cr_it := {}
-
   Public arr_12_VMP := {}
   Public is_napr_pol := .f.,; // работа с направлениями на госпитализацию в п-ке
          is_napr_stac := .f.,;  // работа с направлениями на госпитализацию в стационаре
@@ -116,6 +110,7 @@ Function checkFilesTFOMS()
   Public is_ksg_VMP := .f., is_12_VMP := .f., is_14_VMP := .f., is_ds_VMP := .f.
   Public is_21_VMP := .f.     // ВМП для 21 года
   Public is_22_VMP := .f.     // ВМП для 22 года
+  Public is_23_VMP := .f.     // ВМП для 23 года
   
   // справочник цен на услуги ТФОМС 2016-2017
   Public glob_MU_dializ := {}//'A18.05.002.001','A18.05.002.002','A18.05.002.003',;
@@ -199,7 +194,7 @@ Function checkFilesTFOMS()
     fl := k006_index(countYear, @hash_files)
   next
 
-  Public is_MO_VMP := (is_ksg_VMP .or. is_12_VMP .or. is_14_VMP .or. is_ds_VMP .or. is_21_VMP .or. is_22_VMP)
+  Public is_MO_VMP := (is_ksg_VMP .or. is_12_VMP .or. is_14_VMP .or. is_ds_VMP .or. is_21_VMP .or. is_22_VMP .or. is_23_VMP)
   // справочник доплат по законченным случаям (старый справочник)
   /*sbase := '_mo_usld'
   if hb_FileExists(exe_dir + sbase + sdbf)
@@ -814,8 +809,10 @@ function uslc_Index(val_year, /*@*/hash_files)
       endif
     //
       if val_year == WORK_YEAR
+        find (glob_mo[_MO_KOD_TFOMS] + '1.21.') // ВМП исправить
+        is_23_VMP := found()
+      elseif val_year == 2022
         find (glob_mo[_MO_KOD_TFOMS] + '1.21.') // ВМП 11.02.22
-        // is_21_VMP := found()
         is_22_VMP := found()
       elseif val_year == 2021
         find (glob_mo[_MO_KOD_TFOMS] + '1.20.') // ВМП 07.02.21

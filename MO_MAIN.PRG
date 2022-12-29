@@ -20,7 +20,7 @@ DYNAMIC f1forma_792_MIAC
 DYNAMIC monitoring_vid_pom
 DYNAMIC b_25_perinat_2
 
-** 12.06.22
+** 29.12.22
 procedure main( ... )
   Local r, s, is_create := .f., is_copy := .f., is_index := .f.
   Local a_parol, buf, is_local_version
@@ -77,6 +77,7 @@ procedure main( ... )
   Public d_01_01_2021 := 0d20210101
   Public d_01_01_2022 := 0d20220101 // новый 2022 год и переход на новый ПУМП письмо № 04-18?17 от 28.12.2021
   Public d_01_04_2022 := 0d20220401 // изменения в ПУМП 04-18-007 от 23.03.22
+  Public d_01_01_2023 := 0d20230101 // новый 2023 год
   //
 	// объект пользователя зарегистрировавшегося в системе
 	public hb_user_curUser := nil

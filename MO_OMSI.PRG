@@ -1218,7 +1218,7 @@ Function pz1statist(par,par2)
     return NIL
   endif
   Private v_deti := 1, apf := {},   apz2016 := {}, luapz2016 := {},;
-          is_2019 := .f., is_2020 := .f., is_2021 := .f., is_2022 := .f.
+          is_2019 := .f., is_2020 := .f., is_2021 := .f., is_2022 := .f., is_2023 := .f.
   if (v_deti := popup_prompt(T_ROW,T_COL-5,1,{'по ~всем пациентам', 'по ~детям'}, , , 'N/G*,W+/B,B/G*,BG+/B')) == 0
     restscreen(buf)
     return NIL
@@ -1289,7 +1289,9 @@ Function pz1statist(par,par2)
     R_Use(dir_exe + sbase, , 'MOUNIT')
     index on str(ii, 3) to (cur_dir + 'tmp_unitii')
     set index to (cur_dir + sbase), (cur_dir + 'tmp_unitii')
-    if arr_m[1] == 2022
+    if arr_m[1] == 2023
+      is_2023 := .t.
+    elseif arr_m[1] == 2022
       is_2022 := .t.
     elseif arr_m[1] == 2021
       is_2021 := .t.
@@ -2140,8 +2142,10 @@ do while hu->kod == human->kod .and. !eof()
               //apz2016[i16,3] += muet
             //endif
           elseif i16 > 0
-            if is_2022
-              lalunit := 'MOUNIT'   // 05.01.2022
+            if is_2023
+              lalunit := 'MOUNIT'   // 29.12.2022
+            elseif is_2022
+              lalunit := 'MOUNIT22'   // 05.01.2022
             elseif is_2021
               lalunit := 'MOUNIT21'
             elseif is_2020
@@ -3989,7 +3993,7 @@ close databases
 restscreen(buf)
 return NIL
 
-** 17.02.22
+** 29.12.22
 Function pril_5_6_62()
 Local begin_date, end_date, buf := savescreen(), i, j, k, k1, k2,;
       t_arr[10], t_arr1[10], name_file := 'f14med' +stxt, tfoms_pz[5,11],;
@@ -4062,16 +4066,20 @@ if arr_m[1] == 2019 .and. arr_m[3] == 12
   kds := 17 // дата регистрации по 17.01.20
   kdr := 21 // по какую дату РАК сумма к оплате 21.01.20
 endif
-if arr_m[1] == 2020 .and. arr_m[3] == 12 // проверить
+if arr_m[1] == 2020 .and. arr_m[3] == 12
   kds := 15 // дата регистрации по 15.01.21
   kdr := 18 // по какую дату РАК сумма к оплате 18.01.21
 endif
-if arr_m[1] == 2021 .and. arr_m[3] == 12 // проверить
+if arr_m[1] == 2021 .and. arr_m[3] == 12
   kds := 14 // дата регистрации по 14.01.22
   kdr := 17 // по какую дату РАК сумма к оплате 17.01.22
 endif
-if arr_m[1] == 2022 .and. arr_m[3] == 6 // проверить
+if arr_m[1] == 2022 .and. arr_m[3] == 6
   kds := 7 // дата регистрации по 7.07.22
+  kdr := 13 // по какую дату РАК сумма к оплате 2
+endif
+if arr_m[1] == 2023 .and. arr_m[3] == 6 // проверить
+  kds := 7 // дата регистрации по 7.07.23
   kdr := 13 // по какую дату РАК сумма к оплате 2
 endif
 **

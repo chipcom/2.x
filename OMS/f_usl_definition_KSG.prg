@@ -3,7 +3,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 29.01.22 определить КСГ для 1 пациента из режима редактирования услуг
+** 29.12.22 определить КСГ для 1 пациента из режима редактирования услуг
 Function f_usl_definition_KSG(lkod,k_data2)
   Local arr, buf := save_maxrow(), lshifr, lrec, lu_kod, lcena, not_ksg := .t.,;
         mrec_hu, tmp_rec := 0, tmp_select := select(), is_usl1 := .f.,;
@@ -67,8 +67,15 @@ Function f_usl_definition_KSG(lkod,k_data2)
           endif
           exit
         endif
-        if lyear > 2021
+        if lyear > 2022 // исправить
           select LUSL
+          find (padr(lshifr,10)) // длина lshifr 10 знаков
+          if found() .and. (eq_any(left(lshifr,5),"1.21.") .or. is_ksg(lusl->shifr)) // стоит другой КСГ
+            lrec := tmp->(recno())
+            exit
+          endif
+        elseif lyear == 2022
+          select LUSL22
           find (padr(lshifr,10)) // длина lshifr 10 знаков
           if found() .and. (eq_any(left(lshifr,5),"1.21.") .or. is_ksg(lusl->shifr)) // стоит другой КСГ
             lrec := tmp->(recno())
@@ -109,13 +116,20 @@ Function f_usl_definition_KSG(lkod,k_data2)
       if empty(arr[2])
         if empty(lcena)
           lu_kod := foundOurUsluga(arr[3],human->k_data,human_->profil,human->VZROS_REB,@lcena)
-          if lyear == 2022  // 22 год
+          if lyear == 2023  // 23 год
             if len(arr) > 4 .and. !empty(arr[5])
               lcena := round_5(lcena + 24322.6 * ret_koef_kslp_21(arr[5], lyear), 0)
             endif
             if len(arr) > 5 .and. !empty(arr[6])
               lcena := round_5(lcena*arr[6,2],0)
             endif
+          if lyear == 2022  // 22 год
+              if len(arr) > 4 .and. !empty(arr[5])
+                lcena := round_5(lcena + 24322.6 * ret_koef_kslp_21(arr[5], lyear), 0)
+              endif
+              if len(arr) > 5 .and. !empty(arr[6])
+                lcena := round_5(lcena*arr[6,2],0)
+              endif
           elseif lyear == 2021  // 21 год
             if len(arr) > 4 .and. !empty(arr[5])
               lcena := round_5(lcena * ret_koef_kslp_21(arr[5], lyear), 0)

@@ -1,8 +1,8 @@
 #include "function.ch"
 
-***** 11.02.22 определить КСГ для 1 пациента с открытием файлов
+** 29.12.22 определить КСГ для 1 пациента с открытием файлов
 // ВНИМАНИЕ! Не менять название функции, используется в PROCNAME() другой функции
-Function f_1pac_definition_KSG(lkod,is_msg)
+Function f_1pac_definition_KSG(lkod, is_msg)
   Local arr, i, s, buf := save_maxrow(), lshifr, lrec, lu_kod, lcena, lyear, mrec_hu, not_ksg := .t., sdial, fl
 
   DEFAULT is_msg TO .t.
@@ -67,8 +67,15 @@ Function f_1pac_definition_KSG(lkod,is_msg)
           endif
           exit
         endif
-        if lyear > 2021 // add 11.02.22
+        if lyear > 2022 // add 29.12.22 исправить
           select LUSL
+          find (lshifr) // длина lshifr 10 знаков
+          if found() .and. (eq_any(left(lshifr, 5), '1.21.') .or. is_ksg(lusl->shifr)) // стоит другой КСГ
+            lrec := hu->(recno())
+            exit
+          endif
+        elseif lyear == 2022 // add 11.02.22
+          select LUSL22
           find (lshifr) // длина lshifr 10 знаков
           if found() .and. (eq_any(left(lshifr,5),"1.21.") .or. is_ksg(lusl->shifr)) // стоит другой КСГ
             lrec := hu->(recno())

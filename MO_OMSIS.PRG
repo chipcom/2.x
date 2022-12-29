@@ -5877,9 +5877,7 @@ fill_in_Excel_Book(dir_exe+"mo_14med"+sxls,;
                    "присланный из ТФОМС")
 return NIL
 
-*
-
-***** 24.01.19 распечатка формы №1 из приказа ФОМС №146
+** 29.1.22 распечатка формы №1 из приказа ФОМС №146
 Function forma1_ffoms()
 Local mdate, i, j, k, d1, d2, arr_smo := {}, at1, at2, ta, fl_month, tmp, b1_1, a1_1,;
       _bd, fl, b1, b2, a1, a2, lsmo, name_file := "forma1", HH := 80, sh := 84
@@ -5990,14 +5988,20 @@ do while !eof()
     elseif arr_m[1] == 2019 .and. arr_m[3] == 12
       d2 := 17
     elseif arr_m[1] == 2020 .and. arr_m[3] == 12
-      d2 := 18 // или 15
+      d2 := 18
     elseif arr_m[1] == 2021 .and. arr_m[3] == 12
-      d2 := 14  //Проверить
+      d2 := 14
     elseif arr_m[1] == 2022 .and. arr_m[3] == 1
       d2 := 15  
     elseif arr_m[1] == 2022 .and. arr_m[3] == 2
       d1 := 15
     elseif arr_m[1] == 2022 .and. arr_m[3] == 4
+      d2 := 12 
+    elseif arr_m[1] == 2023 .and. arr_m[3] == 1
+      d2 := 15  
+    elseif arr_m[1] == 2023 .and. arr_m[3] == 2
+      d1 := 15
+    elseif arr_m[1] == 2023 .and. arr_m[3] == 4
       d2 := 12 
     endif
     //my_debug(,"date1_mes="+dtos(arr_m[5]))
