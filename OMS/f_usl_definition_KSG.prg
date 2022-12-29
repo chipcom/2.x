@@ -88,14 +88,14 @@ Function f_usl_definition_KSG(lkod,k_data2)
             lrec := tmp->(recno())
             exit
           endif
-        elseif lyear > 2019
+        elseif lyear == 2020
           select LUSL20
           find (padr(lshifr,10)) // длина lshifr 10 знаков
           if found() .and. (eq_any(left(lshifr,5),"1.12.") .or. is_ksg(lusl20->shifr)) // стоит другой КСГ
             lrec := tmp->(recno())
             exit
           endif
-        elseif lyear > 2018
+        elseif lyear == 2019
           select LUSL19
           find (padr(lshifr,10)) // длина lshifr 10 знаков
           if found() .and. (eq_any(left(lshifr,5),"1.12.") .or. is_ksg(lusl19->shifr)) // стоит другой КСГ
@@ -123,7 +123,7 @@ Function f_usl_definition_KSG(lkod,k_data2)
             if len(arr) > 5 .and. !empty(arr[6])
               lcena := round_5(lcena*arr[6,2],0)
             endif
-          if lyear == 2022  // 22 год
+          elseif lyear == 2022  // 22 год
               if len(arr) > 4 .and. !empty(arr[5])
                 lcena := round_5(lcena + 24322.6 * ret_koef_kslp_21(arr[5], lyear), 0)
               endif
