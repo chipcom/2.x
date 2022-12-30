@@ -1,7 +1,7 @@
-#include "function.ch"
-#include "chip_mo.ch"
+#include 'function.ch'
+#include 'chip_mo.ch'
 
-***** 01.12.21
+** 30.12.22
 // возвращает шифр услуги соответствующий виду и методу ВМП и диагнозу
 function getServiceForVMP(lvidvmp, dateSl, hVid, hMethod, model, sDiag)
   // hVid - вид ВМП (строка)
@@ -9,7 +9,6 @@ function getServiceForVMP(lvidvmp, dateSl, hVid, hMethod, model, sDiag)
   // model - модель пациента V022 (целое)
   // sDiag - основной диагноз
   local ret := '', vid := alltrim(hVid), diag := alltrim(sDiag)
-  // local arrVMP_USL := getVMP_USL(dateSl)
   local i := 0, row, arr := {}
 
   if year(dateSl) < 2021
@@ -25,7 +24,7 @@ function getServiceForVMP(lvidvmp, dateSl, hVid, hMethod, model, sDiag)
   next
   return ret
 
-***** 01.12.21
+** 01.12.21
 // возвращает массив соответствия видов и методов ВМП услугам ФФОС
 function getVMP_USL( dateSl)
   static arrVMP_USL := {}
@@ -38,7 +37,7 @@ function getVMP_USL( dateSl)
     // dbName := '_mo1vmp_usl'
 
     tmp_select := select()
-    dbUseArea( .t., "DBFNTX", exe_dir + dbName, dbAlias , .t., .f. )
+    dbUseArea(.t., 'DBFNTX', exe_dir + dbName, dbAlias , .t., .f.)
   
     //  1 - SHIFR(C)  2 - HVID(C)  3 - HMETHOD(N) 4 - MODEL(N) 5 - DIAGNOZIS(C)
     (dbAlias)->(dbGoTop())
