@@ -1,7 +1,7 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-***** 13.02.21
+** 30.12.22
 // возвращает массив V019
 function getV019table( dateSl )
   Local dbName, dbAlias := 'V019'
@@ -35,13 +35,13 @@ function getV019table( dateSl )
       endif
       (dbAlias)->(dbSkip())
     enddo
-    asort(_arr,,,{|x,y| x[1] < y[1] })
+    asort(_arr, , ,{|x, y| x[1] < y[1] })
     (dbAlias)->(dbCloseArea())
     Select(tmp_select)
     // поместим в ХЭШ-массив
     hV019[yearSl] := _arr
   endif
-  if empty(_arr)
-    alertx('На дату ' + DToC(dateSl) + ' V019 отсутствуют!')
-  endif
+  // if empty(_arr)
+    // alertx('На дату ' + DToC(dateSl) + ' V019 отсутствуют!')
+  // endif
   return _arr
