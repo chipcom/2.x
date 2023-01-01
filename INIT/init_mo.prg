@@ -49,7 +49,8 @@ Function init_mo()
     if (i := ascan(glob_arr_mo, {|x| x[_MO_KOD_TFOMS] == cCode})) > 0
       glob_mo := glob_arr_mo[i]
       if (i := ascan(glob_adres_podr, {|x| x[1] == glob_mo[_MO_KOD_TFOMS] })) > 0
-        is_adres_podr := .t. ; glob_podr_2 := glob_adres_podr[i,2,2,1] // второй код для удалённого адреса
+        is_adres_podr := .t.
+        glob_podr_2 := glob_adres_podr[i, 2, 2, 1] // второй код для удалённого адреса
       endif
     else
       func_error(4,'В справочник занесён несуществующий код МО "' + cCode + '". Введите его заново.')
@@ -57,13 +58,13 @@ Function init_mo()
     endif
   endif
   if empty(cCode)
-    if (cCode := input_value(18,2,20,77,color1,;
-                              'Введите код МО или обособленного подразделения, присвоенный ТФОМС',;
-                              space(6),'999999')) != NIL .and. !empty(cCode)
+    if (cCode := input_value(18, 2, 20, 77, color1, ;
+                              'Введите код МО или обособленного подразделения, присвоенный ТФОМС', ;
+                              space(6), '999999')) != NIL .and. !empty(cCode)
       if (i := ascan(glob_arr_mo, {|x| x[_MO_KOD_TFOMS] == cCode})) > 0
         glob_mo := glob_arr_mo[i]
         if hb_FileExists(dir_server + 'organiz' + sdbf)
-          G_Use(dir_server + 'organiz',,'ORG')
+          G_Use(dir_server + 'organiz', , 'ORG')
           if lastrec() == 0
             AddRecN()
           else
@@ -104,8 +105,8 @@ Function checkFilesTFOMS()
   public is_otd_dep := .f., glob_otd_dep := 0, mm_otd_dep := {}
 
   Public arr_12_VMP := {}
-  Public is_napr_pol := .f.,; // работа с направлениями на госпитализацию в п-ке
-         is_napr_stac := .f.,;  // работа с направлениями на госпитализацию в стационаре
+  Public is_napr_pol := .f., ; // работа с направлениями на госпитализацию в п-ке
+         is_napr_stac := .f., ;  // работа с направлениями на госпитализацию в стационаре
          glob_klin_diagn := {} // работа со специальными лабораторными исследованиями
   Public is_ksg_VMP := .f., is_12_VMP := .f., is_14_VMP := .f., is_ds_VMP := .f.
   Public is_21_VMP := .f.     // ВМП для 21 года
@@ -121,11 +122,11 @@ Function checkFilesTFOMS()
                              //'2000912','2000916','2000917','2000918','2000919','2000920'}
   
   Public is_vr_pr_pp := .f., is_hemodializ := .f., is_per_dializ := .f., is_reabil_slux := .f.,;
-         is_ksg_1300098 := .f., is_dop_ob_em := .f., glob_yes_kdp2[10], glob_menu_mz_rf := {.f.,.f.,.f.}
+         is_ksg_1300098 := .f., is_dop_ob_em := .f., glob_yes_kdp2[10], glob_menu_mz_rf := {.f., .f., .f.}
 
   Public is_alldializ := .f.
 
-  afill(glob_yes_kdp2,.f.)
+  afill(glob_yes_kdp2, .f.)
 
   mywait('Подождите, идет проверка служебных данных в рабочем каталоге...')
 
@@ -140,7 +141,7 @@ Function checkFilesTFOMS()
     if ! hb_FileExists(file_index) .or. ;
           ! check_izm_file_MD5(hash_files, sbase, sMD5)
       R_Use(exe_dir + sbase )
-      index on shifr+str(ks,1) to (cur_dir+sbase)
+      index on shifr + str(ks, 1) to (cur_dir + sbase)
       close databases
     endif
     hash_files := add_hash_row(hash_files, sbase, sMD5)
@@ -157,7 +158,7 @@ Function checkFilesTFOMS()
     if ! hb_FileExists(file_index) .or. ;
           ! check_izm_file_MD5(hash_files, sbase, sMD5)
       R_Use(exe_dir + sbase )
-      index on shifr+str(vzros_reb,1)+str(prvs_new,6) to (cur_dir+sbase)
+      index on shifr + str(vzros_reb, 1) + str(prvs_new, 6) to (cur_dir + sbase)
       use
     endif
     hash_files := add_hash_row(hash_files, sbase, sMD5)
@@ -174,7 +175,7 @@ Function checkFilesTFOMS()
     if ! hb_FileExists(file_index) .or. ;
           ! check_izm_file_MD5(hash_files, sbase, sMD5)
       R_Use(exe_dir + sbase )
-      index on shifr+str(vzros_reb,1)+str(profil,3) to (cur_dir+sbase)
+      index on shifr + str(vzros_reb, 1) + str(profil, 3) to (cur_dir + sbase)
       use
     endif
     hash_files := add_hash_row(hash_files, sbase, sMD5)
@@ -182,7 +183,8 @@ Function checkFilesTFOMS()
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
 
-  for countYear = WORK_YEAR - 4 to WORK_YEAR
+  // for countYear = WORK_YEAR - 4 to WORK_YEAR
+  for countYear = WORK_YEAR - NUMBER_YEAR to WORK_YEAR
     fl := vmp_usl_check(countYear, @hash_files)
     fl := dep_index_and_fill(countYear, @hash_files)  // справочник отделений на countYear год
     fl := usl_Index(countYear, @hash_files)    // справочник услуг ТФОМС на countYear год
@@ -198,9 +200,9 @@ Function checkFilesTFOMS()
   // справочник доплат по законченным случаям (старый справочник)
   /*sbase := '_mo_usld'
   if hb_FileExists(exe_dir + sbase + sdbf)
-    if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
+    if files_time(exe_dir + sbase + sdbf,cur_dir + sbase+sntx)
       R_Use(exe_dir + sbase )
-      index on shifr+dtos(datebeg) to (cur_dir+sbase)
+      index on shifr+dtos(datebeg) to (cur_dir + sbase)
       use
     endif
   else
@@ -209,9 +211,9 @@ Function checkFilesTFOMS()
   // справочник 'услуги по законченным случаям + диагнозы'
   /*sbase := '_mo_uslz'
   if hb_FileExists(exe_dir + sbase + sdbf)
-    if files_time(exe_dir + sbase + sdbf,cur_dir+sbase+sntx)
+    if files_time(exe_dir + sbase + sdbf,cur_dir + sbase+sntx)
       R_Use(exe_dir + sbase )
-      index on shifr+str(type_diag,1)+kod_diag to (cur_dir+sbase)
+      index on shifr+str(type_diag,1)+kod_diag to (cur_dir + sbase)
       use
     endif
   else
@@ -229,10 +231,10 @@ Function checkFilesTFOMS()
         ! hb_FileExists(cur_dir + sbase + '2' + sntx) .or. ;
         ! check_izm_file_MD5(hash_files, sbase, sMD5)
       R_Use(exe_dir + sbase ,,'T7')
-      index on upper(left(NAME,50))+str(profil_k,3) to (cur_dir+sbase) UNIQUE
-      dbeval({|| aadd(arr_t007, {alltrim(t7->name),profil_k,pk_V020}) })
-      index on str(profil_k,3)+str(profil,3) to (cur_dir+sbase)
-      index on str(pk_V020,3)+str(profil,3) to (cur_dir+sbase+'2')
+      index on upper(left(NAME, 50)) + str(profil_k, 3) to (cur_dir + sbase) UNIQUE
+      dbeval({|| aadd(arr_t007, {alltrim(t7->name), profil_k, pk_V020})})
+      index on str(profil_k, 3) + str(profil, 3) to (cur_dir + sbase)
+      index on str(pk_V020, 3) + str(profil, 3) to (cur_dir + sbase + '2')
       use
     endif
     hash_files := add_hash_row(hash_files, sbase, sMD5)
@@ -252,11 +254,11 @@ Function checkFilesTFOMS()
           ! hb_FileExists(cur_dir + sbase + '3' + sntx) .or. ;
           ! check_izm_file_MD5(hash_files, sbase, sMD5)
       R_Use(exe_dir + sbase )
-      index on okato to (cur_dir+sbase) UNIQUE
-      dbeval({|| aadd(glob_array_srf,{'',field->okato}) })
-      index on okato+smo to (cur_dir+sbase)
-      index on smo to (cur_dir+sbase+'2')
-      index on okato+ogrn to (cur_dir+sbase+'3')
+      index on okato to (cur_dir + sbase) UNIQUE
+      dbeval({|| aadd(glob_array_srf, {'', field->okato})})
+      index on okato + smo to (cur_dir + sbase)
+      index on smo to (cur_dir + sbase + '2')
+      index on okato + ogrn to (cur_dir + sbase + '3')
       use
     endif
     hash_files := add_hash_row(hash_files, sbase, sMD5)
@@ -290,7 +292,7 @@ Function checkFilesTFOMS()
     if ! hb_FileExists(file_index) .or. ;
           ! check_izm_file_MD5(hash_files, sbase, sMD5)
       R_Use(exe_dir + sbase )
-      index on str(metod,3) to (cur_dir+sbase)
+      index on str(metod, 3) to (cur_dir + sbase)
       use
     endif
     hash_files := add_hash_row(hash_files, sbase, sMD5)
@@ -308,8 +310,8 @@ Function checkFilesTFOMS()
           ! hb_FileExists(cur_dir + sbase + 'd' + sntx) .or. ;
           ! check_izm_file_MD5(hash_files, sbase, sMD5)
       R_Use(exe_dir + sbase )
-      index on str(id_st,6) to (cur_dir+sbase)
-      index on ds_st+kod_st to (cur_dir+sbase+'d')
+      index on str(id_st, 6) to (cur_dir + sbase)
+      index on ds_st + kod_st to (cur_dir + sbase + 'd')
       use
     endif
     hash_files := add_hash_row(hash_files, sbase, sMD5)
@@ -327,8 +329,8 @@ Function checkFilesTFOMS()
           ! hb_FileExists(cur_dir + sbase + 'd' + sntx) .or. ;
           ! check_izm_file_MD5(hash_files, sbase, sMD5)
       R_Use(exe_dir + sbase )
-      index on str(id_t,6) to (cur_dir+sbase)
-      index on ds_t+kod_t to (cur_dir+sbase+'d')
+      index on str(id_t, 6) to (cur_dir + sbase)
+      index on ds_t + kod_t to (cur_dir + sbase + 'd')
       use
     endif
     hash_files := add_hash_row(hash_files, sbase, sMD5)
@@ -346,8 +348,8 @@ Function checkFilesTFOMS()
           ! hb_FileExists(cur_dir + sbase + 'd' + sntx) .or. ;
           ! check_izm_file_MD5(hash_files, sbase, sMD5)
       R_Use(exe_dir + sbase )
-      index on str(id_n,6) to (cur_dir+sbase)
-      index on ds_n+kod_n to (cur_dir+sbase+'d')
+      index on str(id_n, 6) to (cur_dir + sbase)
+      index on ds_n + kod_n to (cur_dir + sbase + 'd')
       use
     endif
     hash_files := add_hash_row(hash_files, sbase, sMD5)
@@ -365,8 +367,8 @@ Function checkFilesTFOMS()
           ! hb_FileExists(cur_dir + sbase + 'd' + sntx) .or. ;
           ! check_izm_file_MD5(hash_files, sbase, sMD5)
       R_Use(exe_dir + sbase )
-      index on str(id_m,6) to (cur_dir+sbase)
-      index on ds_m+kod_m to (cur_dir+sbase+'d')
+      index on str(id_m, 6) to (cur_dir + sbase)
+      index on ds_m + kod_m to (cur_dir + sbase + 'd')
       use
     endif
     hash_files := add_hash_row(hash_files, sbase, sMD5)
@@ -383,7 +385,7 @@ Function checkFilesTFOMS()
     if ! hb_FileExists(file_index) .or. ;
           ! check_izm_file_MD5(hash_files, sbase, sMD5)
       R_Use(exe_dir + sbase )
-      index on ds_gr+str(id_t,6)+str(id_n,6)+str(id_m,6) to (cur_dir+sbase)
+      index on ds_gr + str(id_t, 6) + str(id_n, 6) + str(id_m, 6) to (cur_dir + sbase)
       use
     endif
     hash_files := add_hash_row(hash_files, sbase, sMD5)
@@ -400,7 +402,7 @@ Function checkFilesTFOMS()
     if ! hb_FileExists(file_index) .or. ;
           ! check_izm_file_MD5(hash_files, sbase, sMD5)
       R_Use(exe_dir + sbase )
-      index on str(id_mrf,6) to (cur_dir+sbase)
+      index on str(id_mrf, 6) to (cur_dir + sbase)
       use
     endif
     hash_files := add_hash_row(hash_files, sbase, sMD5)
@@ -417,7 +419,7 @@ Function checkFilesTFOMS()
     if ! hb_FileExists(file_index) .or. ;
           ! check_izm_file_MD5(hash_files, sbase, sMD5)
       R_Use(exe_dir + sbase )
-      index on str(id_mrf,6) to (cur_dir+sbase)
+      index on str(id_mrf, 6) to (cur_dir + sbase)
       use
     endif
     hash_files := add_hash_row(hash_files, sbase, sMD5)
@@ -434,7 +436,7 @@ Function checkFilesTFOMS()
     if ! hb_FileExists(file_index) .or. ;
           ! check_izm_file_MD5(hash_files, sbase, sMD5)
       R_Use(exe_dir + sbase )
-      index on str(id_igh,6) to (cur_dir+sbase)
+      index on str(id_igh, 6) to (cur_dir + sbase)
       use
     endif
     hash_files := add_hash_row(hash_files, sbase, sMD5)
@@ -451,7 +453,7 @@ Function checkFilesTFOMS()
     if ! hb_FileExists(file_index) .or. ;
           ! check_izm_file_MD5(hash_files, sbase, sMD5)
       R_Use(exe_dir + sbase )
-      index on str(id_igh,6) to (cur_dir+sbase)
+      index on str(id_igh, 6) to (cur_dir + sbase)
       use
     endif
     hash_files := add_hash_row(hash_files, sbase, sMD5)
@@ -469,8 +471,8 @@ Function checkFilesTFOMS()
           ! hb_FileExists(cur_dir + sbase + 'n' + sntx) .or. ;
           ! check_izm_file_MD5(hash_files, sbase, sMD5)
       R_Use(exe_dir + sbase )
-      index on id_lekp to (cur_dir+sbase)
-      index on upper(mnn) to (cur_dir+sbase+'n')
+      index on id_lekp to (cur_dir + sbase)
+      index on upper(mnn) to (cur_dir + sbase + 'n')
       use
     endif
     hash_files := add_hash_row(hash_files, sbase, sMD5)
@@ -487,7 +489,7 @@ Function checkFilesTFOMS()
     if ! hb_FileExists(file_index) .or. ;
           ! check_izm_file_MD5(hash_files, sbase, sMD5)
       R_Use(exe_dir + sbase )
-      index on code_sh+id_lekp to (cur_dir+sbase)
+      index on code_sh + id_lekp to (cur_dir + sbase)
       use
     endif
     hash_files := add_hash_row(hash_files, sbase, sMD5)
@@ -504,7 +506,7 @@ Function checkFilesTFOMS()
     if ! hb_FileExists(file_index) .or. ;
           ! check_izm_file_MD5(hash_files, sbase, sMD5)
       R_Use(exe_dir + sbase )
-      index on codemo+padr(upper(kodotd),25) to (cur_dir+sbase)
+      index on codemo + padr(upper(kodotd), 25) to (cur_dir + sbase)
       use
     endif
     hash_files := add_hash_row(hash_files, sbase, sMD5)
@@ -521,7 +523,7 @@ Function checkFilesTFOMS()
     if ! hb_FileExists(file_index) .or. ;
           ! check_izm_file_MD5(hash_files, sbase, sMD5)
       R_Use(exe_dir + sbase )
-      index on str(profil,3)+str(profil_k,3) to (cur_dir+sbase)
+      index on str(profil, 3) + str(profil_k, 3) to (cur_dir + sbase)
       use
     endif
     hash_files := add_hash_row(hash_files, sbase, sMD5)
@@ -584,7 +586,7 @@ Function checkFilesTFOMS()
     if ! hb_FileExists(file_index) .or. ;
           ! check_izm_file_MD5(hash_files, sbase, sMD5)
       R_Use(exe_dir + sbase )
-      index on str(kod,3) to (cur_dir+sbase)
+      index on str(kod, 3) to (cur_dir + sbase)
       use
     endif
     hash_files := add_hash_row(hash_files, sbase, sMD5)
@@ -594,28 +596,28 @@ Function checkFilesTFOMS()
   if fl
     okato_index(hash_files)
     //
-    dbcreate(cur_dir+'tmp_srf',{{'okato','C',5,0},{'name','C',80,0}})
-    use (cur_dir+'tmp_srf') new alias TMP
-    R_Use(dir_exe+'_okator',cur_dir+'_okatr','RE')
-    R_Use(dir_exe+'_okatoo',cur_dir+'_okato','OB')
+    dbcreate(cur_dir + 'tmp_srf', {{'okato', 'C', 5, 0}, {'name', 'C', 80, 0}})
+    use (cur_dir + 'tmp_srf') new alias TMP
+    R_Use(dir_exe + '_okator', cur_dir + '_okatr', 'RE')
+    R_Use(dir_exe + '_okatoo', cur_dir + '_okato', 'OB')
     for i := 1 to len(glob_array_srf)
       select OB
-      find (glob_array_srf[i,2])
+      find (glob_array_srf[i, 2])
       if found()
-        glob_array_srf[i,1] := rtrim(ob->name)
+        glob_array_srf[i, 1] := rtrim(ob->name)
       else
         select RE
-        find (left(glob_array_srf[i,2],2))
+        find (left(glob_array_srf[i, 2], 2))
         if found()
-          glob_array_srf[i,1] := rtrim(re->name)
-        elseif left(glob_array_srf[i,2],2) == '55'
-          glob_array_srf[i,1] := 'г.Байконур'
+          glob_array_srf[i, 1] := rtrim(re->name)
+        elseif left(glob_array_srf[i, 2], 2) == '55'
+          glob_array_srf[i, 1] := 'г.Байконур'
         endif
       endif
       select TMP
       append blank
-      tmp->okato := glob_array_srf[i,2]
-      tmp->name  := iif(substr(glob_array_srf[i,2],3,1)=='0','','  ')+glob_array_srf[i,1]
+      tmp->okato := glob_array_srf[i, 2]
+      tmp->name  := iif(substr(glob_array_srf[i, 2], 3, 1) == '0', '', '  ') + glob_array_srf[i, 1]
     next
     close databases
   else
@@ -660,7 +662,7 @@ function dep_index_and_fill(val_year, /*@*/hash_files)
       set index to (file_index)
     endif
     if val_year == WORK_YEAR
-      dbeval({|| aadd(mm_otd_dep, {alltrim(dep->name_short) + ' (' + alltrim(dep->name) + ')', dep->code, dep->place}) })
+      dbeval({|| aadd(mm_otd_dep, {alltrim(dep->name_short) + ' (' + alltrim(dep->name) + ')', dep->code, dep->place})})
       if (is_otd_dep := (len(mm_otd_dep) > 0))
         asort(mm_otd_dep, , , {|x, y| x[1] < y[1]})
       endif
@@ -700,7 +702,7 @@ function usl_Index(val_year, /*@*/hash_files)
   if hb_FileExists(exe_dir + sbase + sdbf)
     sMD5 := hb_MD5File( exe_dir + sbase + sdbf )
     R_Use(exe_dir + sbase, ,'LUSL')
-    if (year(sys_date) - val_year) < NUMBER_YEAR .or. files_time(exe_dir + sbase + sdbf, cur_dir + sbase + sntx)
+    if (year(sys_date) - val_year) < NUMBER_YEAR  .or. files_time(exe_dir + sbase + sdbf, cur_dir + sbase + sntx)
       if ! hb_FileExists(file_index) .or. ;
             ! check_izm_file_MD5(hash_files, sbase, sMD5)
         index on shifr to (cur_dir + sbase)
@@ -994,24 +996,24 @@ function it_Index(val_year, /*@*/hash_files)
         if !empty(it1->ds)
           ar := Slist2arr(it1->ds)
           for i := 1 to len(ar)
-            ar[i] := padr(ar[i],5)
+            ar[i] := padr(ar[i], 5)
           next
         endif
         if !empty(it1->ds1)
           ar1 := Slist2arr(it1->ds1)
           for i := 1 to len(ar1)
-            ar1[i] := padr(ar1[i],5)
+            ar1[i] := padr(ar1[i], 5)
           next
         endif
         if !empty(it1->ds2)
           ar2 := Slist2arr(it1->ds2)
           for i := 1 to len(ar2)
-            ar2[i] := padr(ar2[i],5)
+            ar2[i] := padr(ar2[i], 5)
           next
         endif
   
         ('SCHEMA')->(dbGoTop())
-        if ('SCHEMA')->(dbSeek( padr(it1->CODE,6) ))
+        if ('SCHEMA')->(dbSeek( padr(it1->CODE, 6)))
           lSchema := .t.
         endif
 
@@ -1040,19 +1042,19 @@ function it_Index(val_year, /*@*/hash_files)
         if !empty(it->ds)
           ar := Slist2arr(it->ds)
           for i := 1 to len(ar)
-            ar[i] := padr(ar[i],5)
+            ar[i] := padr(ar[i], 5)
           next
         endif
         if !empty(it->ds1)
           ar1 := Slist2arr(it->ds1)
           for i := 1 to len(ar1)
-            ar1[i] := padr(ar1[i],5)
+            ar1[i] := padr(ar1[i], 5)
           next
         endif
         if !empty(it->ds2)
           ar2 := Slist2arr(it->ds2)
           for i := 1 to len(ar2)
-            ar2[i] := padr(ar2[i],5)
+            ar2[i] := padr(ar2[i], 5)
           next
         endif
         aadd(&arrName, {it->USL_OK, padr(it->CODE, 3), ar, ar1, ar2})
@@ -1068,7 +1070,7 @@ function it_Index(val_year, /*@*/hash_files)
     if hb_FileExists(exe_dir + sbaseIt + sdbf)
       R_Use(exe_dir + sbaseIt, ,'IT')
       index on ds to tmpit memory
-      dbeval({|| aadd(arr_ad_cr_it19, {it->ds,it->it}) })
+      dbeval({|| aadd(arr_ad_cr_it19, {it->ds, it->it}) })
       use
     else
       fl := notExistsFileNSI( exe_dir + sbaseIt + sdbf )
