@@ -31,9 +31,6 @@ cpru1251m.c
 xmlparse.c
 hxmldoc.prg
 mo_adres.prg
-mo_func.prg
-mo_func1.prg
-mo_func2.prg
 .\KASSA\mo_fr.prg
 .\KASSA\mo_kassa.prg
 .\KASSA\mo_kas_p.prg
@@ -122,6 +119,10 @@ mo_version.prg
 .\dictionary\spr_personal.prg
 .\dictionary\spr_uslugi.prg
 .\dictionary\spr_func.prg
+
+.\function\mo_func.prg
+.\function\mo_func1.prg
+.\function\mo_func2.prg
 
 .\ref\initSpravFFOMS.prg
 .\ref\dbAdditionalCriteria.prg
