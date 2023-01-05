@@ -252,6 +252,7 @@ mo_version.prg
 .\EXCHANGE\create_reestr.prg
 .\EXCHANGE\mo_omss.prg
 .\EXCHANGE\mo_omsr.prg
+.\EXCHANGE\func_exchange.prg
 
 .\SYSTEM\use_func.prg
 .\SYSTEM\extension.prg
