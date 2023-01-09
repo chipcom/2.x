@@ -3,7 +3,7 @@
 #include "inkey.ch"
 #include "function.ch"
 #include "edit_spr.ch"
-#include "chip_mo.ch"
+#include "chip_mo.ch" 
 
 ***** 13.10.20 в GET-е вернуть {_MO_SHORT_NAME,_MO_KOD_TFOMS} и по пробелу - очистка поля
 Function f_get_mo(k,r,c,lusl,lpar)
@@ -47,7 +47,6 @@ Function f_get_mo(k,r,c,lusl,lpar)
     {"mo3", "N", 1,0},;
     {"name","C",72,0};
   })
-
   use (cur_dir+"tmp_mo") new alias RG
   do while .t.
     zap
@@ -60,7 +59,7 @@ Function f_get_mo(k,r,c,lusl,lpar)
       endif
       for i := 1 to len(glob_arr_mo)
         loc_arr_MO := glob_arr_mo[i]
-        if iif(muslovie == NIL, .t., &muslovie) .and. year(sys_date) < year(glob_arr_mo[i,_MO_DEND])
+        if iif(muslovie == NIL, .t., &muslovie) .and. year(sys_date) <= year(glob_arr_mo[i,_MO_DEND])
           append blank
           rg->kodN := glob_arr_mo[i,_MO_KOD_TFOMS]
           rg->kodF := glob_arr_mo[i,_MO_KOD_FFOMS]
@@ -73,7 +72,7 @@ Function f_get_mo(k,r,c,lusl,lpar)
     else
       lcolor := "N/W*,GR+/R"
       for j := 1 to len(arr_mo3)
-        if (i := ascan(glob_arr_mo,{|x| x[_MO_KOD_TFOMS]==arr_mo3[j] })) > 0 .and. year(sys_date) < year(glob_arr_mo[i,_MO_DEND])
+        if (i := ascan(glob_arr_mo,{|x| x[_MO_KOD_TFOMS]==arr_mo3[j] })) > 0 .and. year(sys_date) <= year(glob_arr_mo[i,_MO_DEND])
           append blank
           rg->kodN := glob_arr_mo[i,_MO_KOD_TFOMS]
           rg->kodF := glob_arr_mo[i,_MO_KOD_FFOMS]
