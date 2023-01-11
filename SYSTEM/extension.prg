@@ -6,7 +6,8 @@
 
 function openSQL_DB()
 
-  return sqlite3_open( exe_dir + 'chip_mo.db', .f. )
+  // return sqlite3_open( exe_dir + 'chip_mo.db', .f. )
+  return sqlite3_open( exe_dir + FILE_NAME_SQL, .f. )
 
 function aliasIsAlreadyUse(cAlias)
   local we_opened_it := .f.
