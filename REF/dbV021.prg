@@ -1,7 +1,7 @@
 
 #require 'hbsqlit3'
 
-* 11.01.23 вернуть массив по справочнику ФФОМС V021.xml
+* 12.01.23 вернуть массив по справочнику ФФОМС V021.xml
 function getV021()
   // V021.xml - Классификатор медицинских специальностей (должностей) (MedSpec)
   //  1 - SPECNAME(C)  2 - IDSPEC(N)  3 - DATEBEG(D)  4 - DATEEND(D)  5 - POSTNAME(C)  6 - IDPOST_MZ(C)
@@ -27,11 +27,20 @@ function getV021()
     // Select(tmp_select)
     Set(_SET_DATEFORMAT, 'yyyy-mm-dd')
     db := openSQL_DB()
-    aTable := sqlite3_get_table( db, "SELECT idspec, specname, postname, idpost_mz, datebeg, dateend FROM v021" )
+    // aTable := sqlite3_get_table( db, "SELECT idspec, specname, postname, idpost_mz, datebeg, dateend FROM v021" )
+    aTable := sqlite3_get_table( db, 'SELECT ' + ;
+        'idspec, ' + ;
+        'idspec || "." || trim(specname), ' +;
+        'postname, ' + ;
+        'idpost_mz, ' + ;
+        'datebeg, ' + ;
+        'dateend ' + ;
+        'FROM v021')
     if len(aTable) > 1
       for nI := 2 to Len( aTable )
         if Empty(ctod(aTable[nI, 6]))
-         aadd(_arr, {alltrim(aTable[nI, 1]) + '.' + alltrim(aTable[nI, 2]), val(aTable[nI, 1]), ctod(aTable[nI, 5]), ctod(aTable[nI, 6]), alltrim(aTable[nI, 3]), alltrim(aTable[nI, 4])})
+        //  aadd(_arr, {alltrim(aTable[nI, 1]) + '.' + alltrim(aTable[nI, 2]), val(aTable[nI, 1]), ctod(aTable[nI, 5]), ctod(aTable[nI, 6]), alltrim(aTable[nI, 3]), alltrim(aTable[nI, 4])})
+         aadd(_arr, {alltrim(aTable[nI, 2]), val(aTable[nI, 1]), ctod(aTable[nI, 5]), ctod(aTable[nI, 6]), alltrim(aTable[nI, 3]), alltrim(aTable[nI, 4])})
         endif
       next
     endif
