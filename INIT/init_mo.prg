@@ -93,7 +93,7 @@ Function init_mo()
 
   return main_up_screen()
 
-** 29.12.22 проверка и переиндексирование справочников ТФОМС
+** 12.01.23 проверка и переиндексирование справочников ТФОМС
 Function checkFilesTFOMS()
   Local fl := .t., i, arr, buf := save_maxrow()
   local arrRefFFOMS := {}, row, row_flag := .t.
@@ -544,8 +544,8 @@ Function checkFilesTFOMS()
   // aadd(arrRefFFOMS, {'_mo_v009', .f., 'V009 - Классификатор результатов обращения за медицинской помощью' } )
   // aadd(arrRefFFOMS, {'_mo_v010', .f., 'V010 - Классификатор способов оплаты медицинской помощи (Sposob)' } )
   // aadd(arrRefFFOMS, {'_mo_v012', .f., 'V012 - Классификатор исходов заболевания (Ishod)' } )
-  aadd(arrRefFFOMS, {'_mo_v015', .f., 'V015 - Классификатор медицинских специальностей (Medspec)' } )
-  aadd(arrRefFFOMS, {'_mo_v016', .f., 'V016 - Классификатор типов диспансеризации (DispT)' } )
+  // aadd(arrRefFFOMS, {'_mo_v015', .f., 'V015 - Классификатор медицинских специальностей (Medspec)' } )
+  // aadd(arrRefFFOMS, {'_mo_v016', .f., 'V016 - Классификатор типов диспансеризации (DispT)' } )
   aadd(arrRefFFOMS, {'_mo_v018', .f., 'V018 - Классификатор видов высокотехнологичной медицинской помощи (HVid)' } )
   aadd(arrRefFFOMS, {'_mo_v019', .t., 'V019 - Классификатор методов высокотехнологичной медицинской помощи (HMet)' } )
   aadd(arrRefFFOMS, {'_mo_v020', .f., 'V020 - Классификатор профилей койки' } )

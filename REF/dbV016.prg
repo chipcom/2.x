@@ -1,26 +1,45 @@
-* 12.12.21 вернуть Классификатор видов диспансеризации/профосмотров V016.xml
+#require 'hbsqlit3'
+
+** 12.01.23 вернуть Классификатор видов диспансеризации/профосмотров V016.xml
 function getV016()
   // V016.xml - Классификатор видов диспансеризации/профосмотров
-  Local dbName, dbAlias := 'V016'
-  local tmp_select := select()
-  local ar := {}
+  // Local dbName, dbAlias := 'V016'
+  // local tmp_select := select()
   static _arr := {}
+  local ar := {}
+  local db
+  local aTable
+  local nI
 
   if len(_arr) == 0
-    tmp_select := select()
-    dbName := '_mo_v016'
-    dbUseArea( .t., "DBFNTX", exe_dir + dbName, dbAlias , .t., .f. )
+    // tmp_select := select()
+    // dbName := '_mo_v016'
+    // dbUseArea( .t., "DBFNTX", exe_dir + dbName, dbAlias , .t., .f. )
 
-    //  1 - IDDT(C)  2 - DTNAME(C)  3 - RULE(C)  4 - DATEBEG(D)  5 - DATEEND(D)
-    (dbAlias)->(dbGoTop())
-    do while !(dbAlias)->(EOF())
-      ar := list2Arr((dbAlias)->RULE)
-      aadd(_arr, { (dbAlias)->IDDT, (dbAlias)->DTNAME, ar, (dbAlias)->DATEBEG, (dbAlias)->DATEEND })
-      (dbAlias)->(dbSkip())
-    enddo
+    // //  1 - IDDT(C)  2 - DTNAME(C)  3 - RULE(C)  4 - DATEBEG(D)  5 - DATEEND(D)
+    // (dbAlias)->(dbGoTop())
+    // do while !(dbAlias)->(EOF())
+    //   ar := list2Arr((dbAlias)->RULE)
+    //   aadd(_arr, { (dbAlias)->IDDT, (dbAlias)->DTNAME, ar, (dbAlias)->DATEBEG, (dbAlias)->DATEEND })
+    //   (dbAlias)->(dbSkip())
+    // enddo
 
-    (dbAlias)->(dbCloseArea())
-    Select(tmp_select)
+    // (dbAlias)->(dbCloseArea())
+    // Select(tmp_select)
+
+    Set(_SET_DATEFORMAT, 'yyyy-mm-dd')
+    db := openSQL_DB()
+    aTable := sqlite3_get_table(db, 'SELECT iddt, dtname, rule, datebeg, dateend FROM v016')
+    
+    if len(aTable) > 1
+      for nI := 2 to Len( aTable )
+        ar := list2Arr(aTable[nI, 3])
+        aadd(_arr, {alltrim(aTable[nI, 1]), alltrim(aTable[nI, 2]), ar, ctod(aTable[nI, 4]), ctod(aTable[nI, 5])})
+      next
+    endif
+    Set(_SET_DATEFORMAT, 'dd.mm.yyyy')
+    db := nil
+
   endif
 
   return _arr
