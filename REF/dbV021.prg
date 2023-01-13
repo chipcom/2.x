@@ -35,13 +35,13 @@ function getV021()
         'idpost_mz, ' + ;
         'datebeg, ' + ;
         'dateend ' + ;
-        'FROM v021')
+        'FROM v021 WHERE dateend == "    -  -  "')
     if len(aTable) > 1
       for nI := 2 to Len( aTable )
-        if Empty(ctod(aTable[nI, 6]))
+        // if Empty(ctod(aTable[nI, 6]))
         //  aadd(_arr, {alltrim(aTable[nI, 1]) + '.' + alltrim(aTable[nI, 2]), val(aTable[nI, 1]), ctod(aTable[nI, 5]), ctod(aTable[nI, 6]), alltrim(aTable[nI, 3]), alltrim(aTable[nI, 4])})
-         aadd(_arr, {alltrim(aTable[nI, 2]), val(aTable[nI, 1]), ctod(aTable[nI, 5]), ctod(aTable[nI, 6]), alltrim(aTable[nI, 3]), alltrim(aTable[nI, 4])})
-        endif
+          aadd(_arr, {alltrim(aTable[nI, 2]), val(aTable[nI, 1]), ctod(aTable[nI, 5]), ctod(aTable[nI, 6]), alltrim(aTable[nI, 3]), alltrim(aTable[nI, 4])})
+        // endif
       next
     endif
     Set(_SET_DATEFORMAT, 'dd.mm.yyyy')
