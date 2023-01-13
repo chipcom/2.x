@@ -37,7 +37,6 @@ function getV017()
     Set(_SET_DATEFORMAT, 'dd.mm.yyyy')
     db := nil
   endif
-altd()
   return _arr
 
 ***** 13.12.21 вернуть список результатов диспансеризации на дату в соответствии со списком кодов
