@@ -63,10 +63,16 @@ function getV009()
   //   Select(tmp_select)
     Set(_SET_DATEFORMAT, 'yyyy-mm-dd')
     db := openSQL_DB()
-    aTable := sqlite3_get_table(db, 'SELECT idrmp, rmpname, dl_uslov, datebeg, dateend FROM v009')
+    aTable := sqlite3_get_table(db, 'SELECT ' + ;
+      'idrmp, ' + ;
+      'rmpname, ' + ;
+      'dl_uslov, ' + ;
+      'datebeg, ' + ;
+      'dateend ' + ;
+      'FROM v009 WHERE dateend == "    -  -  "')
     if len(aTable) > 1
       for nI := 2 to Len( aTable )
-        if empty(ctod(aTable[nI, 5]))  // только если поле окончания действия пусто
+        // if empty(ctod(aTable[nI, 5]))  // только если поле окончания действия пусто
           if val(aTable[nI, 3]) == 1
             vid := '/ст-р/'
           elseif val(aTable[nI, 3]) == 2
@@ -77,8 +83,8 @@ function getV009()
             vid := '/'
           endif
           stroke := str(val(aTable[nI, 1]), 3) + vid + alltrim(aTable[nI, 2])
-        endif
-        aadd(_arr, { stroke, val(aTable[nI, 1]), ctod(aTable[nI, 4]), ctod(aTable[nI, 5]), val(aTable[nI, 3]) })
+          aadd(_arr, { stroke, val(aTable[nI, 1]), ctod(aTable[nI, 4]), ctod(aTable[nI, 5]), val(aTable[nI, 3]) })
+        // endif
       next
     endif
     Set(_SET_DATEFORMAT, 'dd.mm.yyyy')

@@ -28,11 +28,16 @@ function getV010()
     // Select(tmp_select)
     Set(_SET_DATEFORMAT, 'yyyy-mm-dd')
     db := openSQL_DB()
-    aTable := sqlite3_get_table( db, "SELECT idsp, spname, datebeg, dateend FROM v010" )
+    aTable := sqlite3_get_table(db, 'SELECT ' + ;
+        'idsp, ' + ;
+        'spname, ' + ;
+        'datebeg, ' + ;
+        'dateend ' + ;
+        'FROM v010')
     if len(aTable) > 1
       for nI := 2 to Len( aTable )
         stroke := StrZero(val(aTable[nI, 1]), 2, 0) + '/' + alltrim(aTable[nI, 2])
-        aadd(_arr, { stroke, val(aTable[nI, 1]), alltrim(aTable[nI, 2]), ctod(aTable[nI, 3]), ctod(aTable[nI, 4]) })
+        aadd(_arr, {stroke, val(aTable[nI, 1]), alltrim(aTable[nI, 2]), ctod(aTable[nI, 3]), ctod(aTable[nI, 4])})
       next
     endif
     Set(_SET_DATEFORMAT, 'dd.mm.yyyy')
