@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-** 05.11.22 добавление или редактирование случая (листа учета)
+** 14.01.23 добавление или редактирование случая (листа учета)
 Function oms_sluch_main(Loc_kod, kod_kartotek)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -548,12 +548,12 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
           endif
           if ++i < 3
             mgist[i] := diag->DIAG_CODE
-            &('m1gist' +lstr(i)) := diag->DIAG_RSLT
+            &('m1gist' + lstr(i)) := diag->DIAG_RSLT
           endif
         elseif diag->DIAG_TIP == 2 // маркёр (ИГХ)
           if ++j < 6
             mmark[j] := diag->DIAG_CODE
-            &('m1mark' +lstr(j)) := diag->DIAG_RSLT
+            &('m1mark' + lstr(j)) := diag->DIAG_RSLT
           endif
         endif
         select DIAG
@@ -729,7 +729,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
       j := 1
       myclear(j)
       if yes_num_lu == 1 .and. Loc_kod > 0
-        @ j, 50 say padl('Лист учета № ' +lstr(Loc_kod), 29) color color14
+        @ j, 50 say padl('Лист учета № ' + lstr(Loc_kod), 29) color color14
       endif
       diag_screen(0)
       pos_read := 0
@@ -948,7 +948,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
       p_nstr_ad_cr := j
       p_str_ad_cr := 'Доп.критерий'
       @ p_nstr_ad_cr, 1 say p_str_ad_cr get MAD_CR ;
-          reader {|x| menu_reader(x,mm_ad_cr,A__MENUVERT_SPACE, , ,.f.)} ;
+          reader {|x| menu_reader(x, mm_ad_cr, A__MENUVERT_SPACE, , , .f.)} ;
           when input_ad_cr ;
           color colget_menu
       if !input_ad_cr
@@ -1099,18 +1099,18 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
           enddo
         endif
         for i := 1 to 6
-          &('m1prot' +lstr(i)) := 0
-          &('mdprot' +lstr(i)) := ctod('')
+          &('m1prot' + lstr(i)) := 0
+          &('mdprot' + lstr(i)) := ctod('')
         next
         use (cur_dir + 'tmp_onkpr') new alias TPR
         go top
         do while !eof()
-          &('m1prot' +lstr(tpr->prot)) := 1
-          &('mdprot' +lstr(tpr->prot)) := tpr->d_prot
+          &('m1prot' + lstr(tpr->prot)) := 1
+          &('mdprot' + lstr(tpr->prot)) := tpr->d_prot
           skip
         enddo
         for i := 1 to 6
-          &('mprot' +lstr(i)) := inieditspr(A__MENUVERT, mm_danet, &('m1prot' +lstr(i)))
+          &('mprot' + lstr(i)) := inieditspr(A__MENUVERT, mm_danet, &('m1prot' + lstr(i)))
         next
         mPR_CONS := inieditspr(A__MENUVERT, mm_PR_CONS, m1PR_CONS)
         //
@@ -1171,7 +1171,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
             if found()
               mm_N009[i, 1] := alltrim(n7->mrf_name)
             else
-              func_error(4, 'Не найден гистологический признак ID_MRF=' +lstr(mm_N009[i, 2])+ ' для ' +mkod_diag)
+              func_error(4, 'Не найден гистологический признак ID_MRF=' + lstr(mm_N009[i, 2])+ ' для ' +mkod_diag)
             endif
             select N8
             find (str(mm_N009[i, 2], 6))
@@ -1179,10 +1179,10 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
               aadd(mm_N009[i, 3], {alltrim(n8->r_m_name), n8->id_r_m})
               skip
             enddo
-            if ascan(mm_N009[i, 3], {|x| x[2] == &('m1gist' +lstr(i)) }) == 0
-              &('m1gist' +lstr(i)) := 0
+            if ascan(mm_N009[i, 3], {|x| x[2] == &('m1gist' + lstr(i)) }) == 0
+              &('m1gist' + lstr(i)) := 0
             endif
-            &('mgist' +lstr(i)) := inieditspr(A__MENUVERT, mm_N009[i, 3], &('m1gist' +lstr(i)))
+            &('mgist' + lstr(i)) := inieditspr(A__MENUVERT, mm_N009[i, 3], &('m1gist' + lstr(i)))
           next
         endif
         // Иммуногистохимия
@@ -1218,7 +1218,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
               skip
             enddo
             if empty(mm_N012[i, 1])
-              func_error(4, 'Не найден признак иммуногистохимии ID_IGH=' +lstr(mm_N012[i, 2])+ ' для ' +mkod_diag)
+              func_error(4, 'Не найден признак иммуногистохимии ID_IGH=' + lstr(mm_N012[i, 2])+ ' для ' +mkod_diag)
             endif
             select N11
             find (str(mm_N012[i, 2], 6))
@@ -1228,10 +1228,10 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
               endif
               skip
             enddo
-            if ascan(mm_N012[i, 3], {|x| x[2] == &('m1mark' +lstr(i)) }) == 0
-              &('m1mark' +lstr(i)) := 0
+            if ascan(mm_N012[i, 3], {|x| x[2] == &('m1mark' + lstr(i)) }) == 0
+              &('m1mark' + lstr(i)) := 0
             endif
-            &('mmark' +lstr(i)) := inieditspr(A__MENUVERT, mm_N012[i, 3], &('m1mark' +lstr(i)))
+            &('mmark' + lstr(i)) := inieditspr(A__MENUVERT, mm_N012[i, 3], &('m1mark' + lstr(i)))
           next
         endif
         is_onko_VMP := .f. ; musl1vmp := musl2vmp := mtipvmp := 0
@@ -1302,7 +1302,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
           if (is_gisto := (m1usl_ok == 3 .and. m1profil == 15))  // поликлиника + профиль = гистология
             aeval(arr_rez_gist, {|x| iif(x[4] > 0, ++kg, )})
             m1rez_gist := iif(kg > 0, 1, 0)
-            mrez_gist := 'количество гистологий - ' +lstr(kg)
+            mrez_gist := 'количество гистологий - ' + lstr(kg)
             mDIAG_DATE := mn_data
             m1B_DIAG := 98
           endif
@@ -1388,9 +1388,14 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
               lstr_vmpbsa := ret_str_onc(5, 1)
               lstr_vmpshe := ret_str_onc(7, 1)
               mm_shema_usl := _arr_sh
-              mcrit := inieditspr(A__MENUVERT, mm_shema_usl, m1crit)
+
+              if !empty(m1ad_cr) .and. left(lower(m1ad_cr), 5) == 'gemop' // после разговора с Л.Н.Антоновой 13.01.23
+                mcrit := mad_cr
+              else
+                mcrit := inieditspr(A__MENUVERT, mm_shema_usl, m1crit)
+              endif
               lstr_vmplek := ret_str_onc(8, 1)
-              mlek := m1lek := init_lek_pr(m1usl_vmp,m1crit)
+              mlek := m1lek := init_lek_pr(m1usl_vmp, m1crit)
               lstr_vmpptr := ret_str_onc(9, 1)
               m1pptr := tmpou->pptr
               mpptr := inieditspr(A__MENUVERT, mm_danet, m1pptr)
@@ -1450,10 +1455,15 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
             elseif eq_any(left(m1crit, 2),  'не',  'sh') .and. m1usl_tip == 4
               m1crit := space(10)
             endif
-            mm_shema_usl := iif(m1usl_tip == 2, _arr_sh, _arr_mt)
+            if !empty(m1ad_cr) .and. left(lower(m1ad_cr), 5) == 'gemop' // после разговора с Л.Н.Антоновой 13.01.23
+              mm_shema_usl := mm_ad_cr
+              m1crit := alltrim(m1ad_cr)
+            else
+              mm_shema_usl := iif(m1usl_tip == 2, _arr_sh, _arr_mt)
+            endif
             mcrit := inieditspr(A__MENUVERT, mm_shema_usl, m1crit)
             lstr_lek := ret_str_onc(8, 1)
-            mlek := m1lek := init_lek_pr(m1usl_tip,m1crit)
+            mlek := m1lek := init_lek_pr(m1usl_tip, m1crit)
             lstr_ptr := ret_str_onc(9, 1)
             m1pptr := tmpou->pptr
             mpptr := inieditspr(A__MENUVERT, mm_danet, m1pptr)
@@ -1476,7 +1486,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
       pos_read := 0
       @ j, 1 say 'Осн.диагноз' color color8 get mkod_diag when .f.
       if yes_num_lu == 1 .and. Loc_kod > 0
-        @ j, 50 say padl('Лист учета № ' +lstr(Loc_kod), 29) color color14
+        @ j, 50 say padl('Лист учета № ' + lstr(Loc_kod), 29) color color14
       endif
       @ ++j, 1 say 'ФИО' get mfio_kart when .f.
       @ j, 57 get mn_data when .f.
@@ -1633,11 +1643,11 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
                  color colget_menu
           @ ++j, 5 get lstr1 color color1 when .f.
           @ j, col() + 1 get musl_tip1 ;
-                 reader {|x|menu_reader(x,mm_usl_tip1, A__MENUVERT, , ,.f.)} ;
+                 reader {|x|menu_reader(x, mm_usl_tip1, A__MENUVERT, , ,.f.)} ;
                  when between(m1usl_tip, 1, 4)
           @ ++j, 5 get lstr2 color color1 when .f.
           @ j, col() + 1 get musl_tip2 ;
-                 reader {|x|menu_reader(x,mm_usl_tip2, A__MENUVERT, , ,.f.)} ;
+                 reader {|x|menu_reader(x, mm_usl_tip2, A__MENUVERT, , ,.f.)} ;
                  when m1usl_tip == 2
           if fl_3_4
             @ ++j, 5 get lstr_sod color color1 when .f.
@@ -1654,19 +1664,20 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
             @ j, col() + 1 get mbsa when eq_any(m1usl_tip, 2, 4)
             @ ++j, 5 get lstr_err color color1 when .f.
             @ j, col() + 1 get mis_err ;
-                reader {|x|menu_reader(x,mm_shema_err, A__MENUVERT, , ,.f.)} ;
+                reader {|x|menu_reader(x, mm_shema_err, A__MENUVERT, , ,.f.)} ;
                 when m1usl_tip == 2
             @ ++j, 5 get lstr_she color color1 when .f.
+
             @ j, col() + 1 get mcrit ;
-                reader {|x| menu_reader(x,mm_shema_usl, A__MENUVERT, , ,.f.)} ;
+                reader {|x| menu_reader(x, mm_shema_usl, A__MENUVERT, , ,.f.)} ;
                 when eq_any(m1usl_tip, 2, 4)
             @ ++j, 5 get lstr_lek color color1 when .f.
             @ j, col() + 1 get mlek ;
-                reader {|x|menu_reader(x, {{|k,r,c| get_lek_pr(k,r,c,m1crit)}}, A__FUNCTION, , ,.f.)} ;
+                reader {|x|menu_reader(x, {{|k, r, c| get_lek_pr(k, r, c, m1crit)}}, A__FUNCTION, , , .f.)} ;
                 when !empty(m1crit) .and. eq_any(m1usl_tip, 2, 4)
             @ ++j, 5 get lstr_ptr color color1 when .f.
             @ j, col() + 1 get mpptr ;
-                reader {|x| menu_reader(x,mm_danet, A__MENUVERT, , ,.f.)} ;
+                reader {|x| menu_reader(x, mm_danet, A__MENUVERT, , ,.f.)} ;
                 when eq_any(m1usl_tip, 2, 4)
           endif
           if is_onko_VMP .and. mtipvmp == 1 // две услуги
@@ -1702,7 +1713,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
                   when eq_any(m1usl_vmp, 2, 4)
               @ ++j, 5 get lstr_vmplek color color1 when .f.
               @ j, col() + 1 get mlek ;
-                  reader {|x|menu_reader(x, {{|k,r,c| get_lek_pr(k,r,c,m1crit)}}, A__FUNCTION, , ,.f.)} ;
+                  reader {|x|menu_reader(x, {{|k, r, c| get_lek_pr(k, r, c, m1crit)}}, A__FUNCTION, , , .f.)} ;
                   when !empty(m1crit) .and. eq_any(m1usl_vmp, 2, 4)
               @ ++j, 5 get lstr_vmpptr color color1 when .f.
               @ j, col() + 1 get mpptr ;
@@ -1715,8 +1726,8 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
           @ ++j, 3 say 'Противопоказания к проведению:'
           @ j, 50 say 'дата регистрации:'
           for i := 1 to 3
-            mval := 'mprot' +lstr(i)
-            mdval := 'mdprot' +lstr(i)
+            mval := 'mprot' + lstr(i)
+            mdval := 'mdprot' + lstr(i)
             @ ++j, 5 say arr[i] get &mval ;
                 reader {|x|menu_reader(x,mm_danet, A__MENUVERT, , ,.f.)} ;
                 color colget_menu
@@ -1725,8 +1736,8 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
           @ ++j, 3 say 'Отказы от проведения:'
           @ j, 50 say 'дата регистрации:'
           for i := 4 to 6
-            mval := 'mprot' +lstr(i)
-            mdval := 'mdprot' +lstr(i)
+            mval := 'mprot' + lstr(i)
+            mdval := 'mdprot' + lstr(i)
             @ ++j, 5 say arr[i-3] get &mval ;
                 reader {|x|menu_reader(x,mm_danet, A__MENUVERT, , ,.f.)} ;
                 color colget_menu
@@ -1780,7 +1791,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
               tdiag->DIAG_TIP := 1 // 1 - гистологический признак
               tdiag->DIAG_CODE := mm_N009[i, 2]
               if m1B_DIAG == 98
-                tdiag->DIAG_RSLT := &('m1gist' +lstr(i))
+                tdiag->DIAG_RSLT := &('m1gist' + lstr(i))
                 tdiag->REC_RSLT := 1
               else
                 tdiag->DIAG_RSLT := 0
@@ -1795,7 +1806,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
               tdiag->DIAG_TIP := 2 // 2 - маркёр (ИГХ)
               tdiag->DIAG_CODE := mm_N012[i, 2]
               if m1B_DIAG == 98
-                tdiag->DIAG_RSLT := &('m1mark' +lstr(i))
+                tdiag->DIAG_RSLT := &('m1mark' + lstr(i))
                 tdiag->REC_RSLT := 1
               else
                 tdiag->DIAG_RSLT := 0
@@ -1807,10 +1818,10 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
         use (cur_dir + 'tmp_onkpr') new alias TPR
         zap
         for i := 1 to 6
-          if !emptyany(&('m1prot' +lstr(i)), &('mdprot' +lstr(i)))
+          if !emptyany(&('m1prot' + lstr(i)), &('mdprot' + lstr(i)))
             append blank
             tpr->prot := i
-            tpr->d_prot := &('mdprot' +lstr(i))
+            tpr->d_prot := &('mdprot' + lstr(i))
           endif
         next i
         if eq_any(m1B_DIAG, 0, 7, 8) // гистология:0-отказ, 7-не показано, 8-противопоказано
@@ -2286,7 +2297,11 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
             sl->k_fr := val(mk_fr)
           endif
           if eq_any(m1usl_tip, 2, 4)
-            sl->crit := m1crit
+            if !empty(m1ad_cr) .and. left(lower(m1ad_cr), 5) == 'gemop' // после разговора с Л.Н.Антоновой 13.01.23
+              sl->crit := m1ad_cr
+            else
+              sl->crit := m1crit
+            endif
           else
             sl->crit := ''
           endif
@@ -2448,7 +2463,11 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
                 G_RLock(forever)
               endif
               le->REGNUM   := tmple->REGNUM
-              le->CODE_SH  := m1crit // tmple->CODE_SH
+              if !empty(m1ad_cr) .and. left(lower(m1ad_cr), 5) == 'gemop' // после разговора с Л.Н.Антоновой 13.01.23
+                le->CODE_SH  := m1ad_cr // tmple->CODE_SH
+              else
+                le->CODE_SH  := m1crit // tmple->CODE_SH
+              endif
               le->DATE_INJ := tmple->DATE_INJ
               select TMPLE
               skip

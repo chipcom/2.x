@@ -231,7 +231,7 @@ Function init_ismo(lsmo)
 Local s := space(10), tmp_select
 if !empty(lsmo)
   tmp_select := select()
-  R_Use(dir_exe+"_mo_smo",cur_dir+"_mo_smo2","SMO")
+  R_Use(dir_exe+"_mo_smo",cur_dir + "_mo_smo2","SMO")
   find (padr(lsmo,5))
   if found()
     s := rtrim(smo->name)
@@ -430,7 +430,7 @@ return NIL
 Function ZakSluchAccordanceDiagnoz(lshifr,mdiagnoz,ta)
 Local i, fl := {.f.,.f.}
 if select("UZK") == 0
-  R_Use(dir_exe+"_mo_uslz",cur_dir+"_mo_uslz","UZK")
+  R_Use(dir_exe+"_mo_uslz",cur_dir + "_mo_uslz","UZK")
   //index on shifr+str(type_diag,1)+kod_diag to (sbase)
 endif
 lshifr := padr(lshifr,10)
@@ -921,7 +921,7 @@ Local smsg := "онкология: в справочнике N00"+sn+" не найдена стадия заболевания 
 polek := lal+"->kod_"+s
 poled := lal+"->ds_"+s
 if select(lal) == 0
-  R_Use(exe_dir+"_mo_N00"+sn,{cur_dir+"_mo_N00"+sn,cur_dir+"_mo_N00"+sn+"d"},lal)
+  R_Use(exe_dir + "_mo_N00"+sn,{cur_dir + "_mo_N00"+sn,cur_dir + "_mo_N00"+sn+"d"},lal)
 endif
 dbSelectArea(lal) // встать на справочник N0...
 set order to 1    // переключиться на индекс по коду
@@ -1091,7 +1091,7 @@ if o != NIL .and. o != m1usl_tip
       mm_shema_usl := iif(m1usl_tip == 2, _arr_sh, _arr_mt)
       mcrit := padr(inieditspr(A__MENUVERT, mm_shema_usl, m1crit), 57)
       lstr_lek := ret_str_onc(8,1)
-      mlek := padr(init_lek_pr(m1usl_tip,m1crit), 53)
+      mlek := padr(init_lek_pr(m1usl_tip, m1crit), 53)
       lstr_ptr := ret_str_onc(9,1)
       mpptr := inieditspr(A__MENUVERT, mm_danet, m1pptr)
     endif
@@ -1122,145 +1122,149 @@ if o != NIL .and. o != m1usl_tip
 endif
 return .t.
 
-***** 30.01.19
-Function init_lek_pr(_usl_tip,_crit)
-Local s, n
-use (cur_dir+"tmp_onkle") new alias TMPLE
-index on REGNUM to (cur_dir+"tmp_onkle") UNIQUE
-n := 0
-dbeval({|| ++n })
-s := "препаратов - "+lstr(n)
-index on dtos(DATE_INJ) to (cur_dir+"tmp_onkle") UNIQUE
-n := 0
-dbeval({|| ++n })
-s += ", дней приёма - "+lstr(n)
-tmple->(dbCloseArea())
-return s
+** 14.01.23
+Function init_lek_pr(_usl_tip, _crit)
+  Local s, n
 
-***** 19.01.20
-Function get_lek_pr(k,r,c,_crit)
-Local i, j, nrec, t_arr := array(BR_LEN), ret := {space(10),space(10)}
-Private arr_lek_pr := {}, yes_crit
-dbcreate(cur_dir+"tmp",{{"id_lekp","C",6,0},;
-                        {"mnn","C",70,0},;
-                        {"kol","N",3,0}})
-use (cur_dir+"tmp") new
-index on id_lekp to (cur_dir+"tmp")
-R_Use(exe_dir+"_mo_N020",{cur_dir+"_mo_N020",cur_dir+"_mo_N020n"},"N20")
-set filter to between_date(datebeg,dateend,mk_data)
-R_Use(exe_dir+"_mo_N021",cur_dir+"_mo_N021","N21")
-set filter to between_date(datebeg,dateend,mk_data)
-find (_crit)
-yes_crit := found()
-use (cur_dir+"tmp_onkle") new alias TMPLE
-index on REGNUM+dtos(DATE_INJ) to (cur_dir+"tmp_onkle") UNIQUE
-if yes_crit // по данному критерию есть препараты в схеме
-  select N21
+  use (cur_dir + 'tmp_onkle') new alias TMPLE
+  index on REGNUM to (cur_dir + 'tmp_onkle') UNIQUE
+  n := 0
+  dbeval({|| ++n })
+  s := 'препаратов - ' + lstr(n)
+  index on dtos(DATE_INJ) to (cur_dir + 'tmp_onkle') UNIQUE
+  n := 0
+  dbeval({|| ++n })
+  s += ', дней приёма - ' + lstr(n)
+  tmple->(dbCloseArea())
+  return s
+
+** 14.01.23
+Function get_lek_pr(k, r, c, _crit)
+  Local i, j, nrec, t_arr := array(BR_LEN), ret := {space(10), space(10)}
+
+  Private arr_lek_pr := {}, yes_crit
+  dbcreate(cur_dir + 'tmp', {{'id_lekp', 'C', 6, 0}, ;
+                        {'mnn', 'C', 70, 0}, ;
+                        {'kol', 'N', 3, 0}})
+  use (cur_dir + 'tmp') new
+  index on id_lekp to (cur_dir + 'tmp')
+  R_Use(exe_dir + '_mo_N020', {cur_dir + '_mo_N020', cur_dir + '_mo_N020n'}, 'N20')
+  set filter to between_date(datebeg, dateend, mk_data)
+  R_Use(exe_dir + '_mo_N021', cur_dir + '_mo_N021', 'N21')
+  set filter to between_date(datebeg, dateend, mk_data)
   find (_crit)
-  do while n21->code_sh == _crit .and. !eof()
-    select TMP
-    append blank
-    tmp->id_lekp := n21->id_lekp
-    aadd(arr_lek_pr, {tmp->id_lekp,tmp->(recno()),{}} ) ; i := len(arr_lek_pr)
-    select N20
-    find (n21->id_lekp)
-    if found()
-      tmp->mnn := n20->mnn
-    else
-      tmp->mnn := "Препарат "+n21->id_lekp+" не найден в справочнике N020"
-    endif
-    select TMPLE
-    find (tmp->id_lekp)
-    do while tmp->id_lekp == tmple->REGNUM .and. !eof()
-      aadd(arr_lek_pr[i,3],tmple->DATE_INJ)
+  yes_crit := found()
+  use (cur_dir + 'tmp_onkle') new alias TMPLE
+  index on REGNUM + dtos(DATE_INJ) to (cur_dir + 'tmp_onkle') UNIQUE
+  if yes_crit // по данному критерию есть препараты в схеме
+    select N21
+    find (_crit)
+    do while n21->code_sh == _crit .and. !eof()
+      select TMP
+      append blank
+      tmp->id_lekp := n21->id_lekp
+      aadd(arr_lek_pr, {tmp->id_lekp, tmp->(recno()), {}})
+      i := len(arr_lek_pr)
+      select N20
+      find (n21->id_lekp)
+      if found()
+        tmp->mnn := n20->mnn
+      else
+        tmp->mnn := 'Препарат ' + n21->id_lekp + ' не найден в справочнике N020'
+      endif
+      select TMPLE
+      find (tmp->id_lekp)
+      do while tmp->id_lekp == tmple->REGNUM .and. !eof()
+        aadd(arr_lek_pr[i, 3], tmple->DATE_INJ)
+        skip
+      enddo
+      tmp->kol := len(arr_lek_pr[i, 3])
+      select N21
       skip
     enddo
-    tmp->kol := len(arr_lek_pr[i,3])
-    select N21
-    skip
-  enddo
-else // по данному критерию нет препаратов в схеме
-  select TMPLE
-  go top
-  do while !eof()
-    select N20
-    find (tmple->REGNUM)
-    if found() // найден препарат в справочнике
-      select TMP
-      find (tmple->REGNUM)
-      if !found()
-        append blank
-        tmp->id_lekp := tmple->REGNUM
-        tmp->mnn := n20->mnn
-      endif
-      tmp->kol ++
-      if (i := ascan(arr_lek_pr, {|x| x[2] == tmp->(recno()) } )) == 0
-        aadd(arr_lek_pr, {tmp->id_lekp,tmp->(recno()),{}} ) ; i := len(arr_lek_pr)
-      endif
-      aadd(arr_lek_pr[i,3],tmple->DATE_INJ)
-    endif
+  else // по данному критерию нет препаратов в схеме
     select TMPLE
-    skip
-  enddo
-endif
-select TMPLE
-set index to
-nrec := tmp->(lastrec())
-if yes_crit
-  t_arr[BR_TOP] := r-nrec-4
-else//
-  t_arr[BR_TOP] := r-4-4
-endif
-if t_arr[BR_TOP] < 2
-  t_arr[BR_TOP] := 2
-endif
-t_arr[BR_BOTTOM] := r-1
-t_arr[BR_LEFT]  := 1
-t_arr[BR_RIGHT] := 77
-t_arr[BR_COLOR] := color5
-t_arr[BR_TITUL] := "Редактирование дат введения препаратов для схемы "+alltrim(_crit)
-t_arr[BR_TITUL_COLOR] := "BG+/GR"
-t_arr[BR_ARR_BROWSE] := {"═","░","═",,.t.}
-t_arr[BR_COLUMN] := {{" Наименование препарата",{|| tmp->mnn }},;
-                     {" Дни",{|| tmp->kol}}}
-t_arr[BR_EDIT] := {|nk,ob| f1_get_lek_pr(nk,ob,"edit",r) }
-s := "^<Esc>^ - выход;  ^<Enter>^ - редактирование дат"
-if !yes_crit
-  s += "; ^<Ins>^ - добавить препарат;  ^<Del>^ - удалить препарат"
-endif
-t_arr[BR_STAT_MSG] := {|| status_key(s) }
-select TMP
-index on upper(mnn) to (cur_dir+"tmp")
-go top
-if eof() .and. !yes_crit
-  keyboard chr(K_INS)
-endif
-edit_browse(t_arr)
-//
-nrec := tmp->(lastrec())
-select TMPLE
-zap
-for i := 1 to nrec
-  if len(arr_lek_pr) >= i
-    for j := 1 to len(arr_lek_pr[i,3])
+    go top
+    do while !eof()
+      select N20
+      find (tmple->REGNUM)
+      if found() // найден препарат в справочнике
+        select TMP
+        find (tmple->REGNUM)
+        if !found()
+          append blank
+          tmp->id_lekp := tmple->REGNUM
+          tmp->mnn := n20->mnn
+        endif
+        tmp->kol ++
+        if (i := ascan(arr_lek_pr, {|x| x[2] == tmp->(recno())})) == 0
+          aadd(arr_lek_pr, {tmp->id_lekp, tmp->(recno()),{}})
+          i := len(arr_lek_pr)
+        endif
+        aadd(arr_lek_pr[i, 3], tmple->DATE_INJ)
+      endif
       select TMPLE
-      append blank
-      tmple->REGNUM   := arr_lek_pr[i,1]
-      tmple->CODE_SH  := _crit
-      tmple->DATE_INJ := arr_lek_pr[i,3,j]
-    next
+      skip
+    enddo
   endif
-next
-index on dtos(DATE_INJ) to (cur_dir+"tmp_onkle") UNIQUE
-ndn := 0
-dbeval({|| ++ndn })
-ret[1] := ret[2] := padr("препаратов - "+lstr(nrec)+", дней приёма - "+lstr(ndn), 53)
-//
-tmp->(dbCloseArea())
-tmple->(dbCloseArea())
-n20->(dbCloseArea())
-n21->(dbCloseArea())
-return ret
+  select TMPLE
+  set index to
+  nrec := tmp->(lastrec())
+  if yes_crit
+    t_arr[BR_TOP] := r - nrec - 4
+  else//
+    t_arr[BR_TOP] := r - 4 - 4
+  endif
+  if t_arr[BR_TOP] < 2
+    t_arr[BR_TOP] := 2
+  endif
+  t_arr[BR_BOTTOM] := r - 1
+  t_arr[BR_LEFT]  := 1
+  t_arr[BR_RIGHT] := 77
+  t_arr[BR_COLOR] := color5
+  t_arr[BR_TITUL] := 'Редактирование дат введения препаратов для схемы ' + alltrim(_crit)
+  t_arr[BR_TITUL_COLOR] := 'BG+/GR'
+  t_arr[BR_ARR_BROWSE] := {'═', '░', '═', , .t.}
+  t_arr[BR_COLUMN] := {{' Наименование препарата', {|| tmp->mnn }}, ;
+                      {' Дни', {|| tmp->kol}}}
+  t_arr[BR_EDIT] := {|nk, ob| f1_get_lek_pr(nk,ob, 'edit', r)}
+  s := '^<Esc>^ - выход;  ^<Enter>^ - редактирование дат'
+  if !yes_crit
+    s += '; ^<Ins>^ - добавить препарат;  ^<Del>^ - удалить препарат'
+  endif
+  t_arr[BR_STAT_MSG] := {|| status_key(s)}
+  select TMP
+  index on upper(mnn) to (cur_dir + 'tmp')
+  go top
+  if eof() .and. !yes_crit
+    keyboard chr(K_INS)
+  endif
+  edit_browse(t_arr)
+  //
+  nrec := tmp->(lastrec())
+  select TMPLE
+  zap
+  for i := 1 to nrec
+    if len(arr_lek_pr) >= i
+      for j := 1 to len(arr_lek_pr[i, 3])
+        select TMPLE
+        append blank
+        tmple->REGNUM   := arr_lek_pr[i, 1]
+        tmple->CODE_SH  := _crit
+        tmple->DATE_INJ := arr_lek_pr[i, 3, j]
+      next
+    endif
+  next
+  index on dtos(DATE_INJ) to (cur_dir + 'tmp_onkle') UNIQUE
+  ndn := 0
+  dbeval({|| ++ndn })
+  ret[1] := ret[2] := padr('препаратов - ' + lstr(nrec) + ', дней приёма - ' + lstr(ndn), 53)
+  //
+  tmp->(dbCloseArea())
+  tmple->(dbCloseArea())
+  n20->(dbCloseArea())
+  n21->(dbCloseArea())
+  return ret
 
 ***** 31.01.19 выбор нескольких дат
 Function f1_get_lek_pr(nKey,oBrow,regim,get_row)
@@ -2314,7 +2318,7 @@ Function fvalid_fio(lregim,input_sh,fl_number,mbukva)
 Local fl := .f., pos1, pos2, tmp_list, buf, ;
       tmp2 := "", c1, fl_bukva, s_msg, rec_tmp := 0
 DEFAULT lregim TO 1, mbukva TO ""
-if !myFileDeleted(cur_dir+"tmp_kart"+sdbf)
+if !myFileDeleted(cur_dir + "tmp_kart"+sdbf)
   return fl
 endif
 Private top_frm
@@ -2329,15 +2333,15 @@ endif
 //
 Private tmp1, ch
 buf := savescreen()
-dbcreate(cur_dir+"tmp_kart",{{"kod","N",7,0},;
+dbcreate(cur_dir + "tmp_kart",{{"kod","N",7,0},;
                      {"fio","C",50,0},;
                      {"mest_inog","N",1,0},;
                      {"bukva","C",1,0},;
                      {"uchast","N",2,0},;
                      {"kod_vu","N",5,0},;
                      {"kod_AK","C",6,0}} )
-use (cur_dir+"tmp_kart") new alias TMP
-index on upper(fio) to (cur_dir+"tmp_kart")
+use (cur_dir + "tmp_kart") new alias TMP
+index on upper(fio) to (cur_dir + "tmp_kart")
 if lregim == 1
   if fl_number
     if is_uchastok == 1
@@ -2522,7 +2526,7 @@ if fl
   R_Use(dir_server+"kartote2",,"KART2")
   R_Use(dir_server+"kartote_",,"KART_")
   R_Use(dir_server+"kartotek",,"KART")
-  use (cur_dir+"tmp_kart") index (cur_dir+"tmp_kart") new alias TMP
+  use (cur_dir + "tmp_kart") index (cur_dir + "tmp_kart") new alias TMP
   set relation to kod into KART, to kod into KART_, to kod into KART2
   if rec_tmp > 0
     goto (rec_tmp)
@@ -2632,7 +2636,7 @@ Local adbf_tmp := {;
    {"STR_CRB",    "N",      2,      0};
   }
 DEFAULT r TO T_ROW, c TO T_COL-5
-if !myFileDeleted(cur_dir+"tmp"+sdbf)
+if !myFileDeleted(cur_dir + "tmp"+sdbf)
   return fl
 endif
 ar := GetIniSect(tmp_ini,"schet")
@@ -2649,8 +2653,8 @@ if .t.//(i := popup_prompt(r,c,p_i,mas_pmt)) > 0
       @ 18,22 say "Введите номер счета" get mnomer picture "@!@K"
       myread({"confirm"})
       if lastkey() != K_ESC .and. !empty(mnomer)
-        dbcreate(cur_dir+"tmp",adbf_tmp)
-        Use (cur_dir+"tmp") new alias TMP
+        dbcreate(cur_dir + "tmp",adbf_tmp)
+        Use (cur_dir + "tmp") new alias TMP
         R_Use(dir_server+"schet_",,"SCHET_")
         R_Use(dir_server+"schet",dir_server+"schetn","SCHET")
         set relation to recno() into SCHET_
@@ -2688,7 +2692,7 @@ if .t.//(i := popup_prompt(r,c,p_i,mas_pmt)) > 0
             glob_schet := tmp->kod
           else
             dbeval({|| tmp->name := f4_view_list_schet(tmp->komu,tmp->smo,tmp->str_crb) })
-            index on descend(dtos(date_s)) to (cur_dir+"tmp")
+            index on descend(dtos(date_s)) to (cur_dir + "tmp")
             go top
             if (fl := Alpha_Browse(T_ROW,2,maxrow()-2,77,"f1inp_schet",color0,;
                             "Счета с номером "+alltrim(mnomer),"R/BG",;
@@ -2705,9 +2709,9 @@ if .t.//(i := popup_prompt(r,c,p_i,mas_pmt)) > 0
       /*if (k := func2_komu(,,r-1,c,.t.)) != NIL
         buf24 := save_maxrow()
         mywait()
-        dbcreate(cur_dir+"tmp",adbf_tmp)
-        Use (cur_dir+"tmp") new alias TMP
-        index on descend(date_s) to (cur_dir+"tmp")
+        dbcreate(cur_dir + "tmp",adbf_tmp)
+        Use (cur_dir + "tmp") new alias TMP
+        index on descend(date_s) to (cur_dir + "tmp")
         G_Use(dir_server+"schet",dir_server+"schetp","SCHET")
         find (str(glob_komu,1)+str(glob_all[1],2))
         do while schet->komu == glob_komu .and. schet->str_crb == glob_all[1] .and. !eof()
