@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-** 14.01.23 добавление или редактирование случая (листа учета)
+** 15.01.23 добавление или редактирование случая (листа учета)
 Function oms_sluch_main(Loc_kod, kod_kartotek)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -1395,7 +1395,8 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
                 mcrit := inieditspr(A__MENUVERT, mm_shema_usl, m1crit)
               endif
               lstr_vmplek := ret_str_onc(8, 1)
-              mlek := m1lek := init_lek_pr(m1usl_vmp, m1crit)
+              // mlek := m1lek := init_lek_pr(m1usl_vmp, m1crit)
+              mlek := m1lek := init_lek_pr()
               lstr_vmpptr := ret_str_onc(9, 1)
               m1pptr := tmpou->pptr
               mpptr := inieditspr(A__MENUVERT, mm_danet, m1pptr)
@@ -1463,7 +1464,8 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
             endif
             mcrit := inieditspr(A__MENUVERT, mm_shema_usl, m1crit)
             lstr_lek := ret_str_onc(8, 1)
-            mlek := m1lek := init_lek_pr(m1usl_tip, m1crit)
+            // mlek := m1lek := init_lek_pr(m1usl_tip, m1crit)
+            mlek := m1lek := init_lek_pr()
             lstr_ptr := ret_str_onc(9, 1)
             m1pptr := tmpou->pptr
             mpptr := inieditspr(A__MENUVERT, mm_danet, m1pptr)

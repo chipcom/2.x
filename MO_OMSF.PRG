@@ -1028,402 +1028,87 @@ ret[2] := "количество гистологий - "+lstr(kg)
 rest_box(buf)
 return ret
 
-***** 02.02.19
-Function ret_str_onc(k,par)
-Static arr := {;
-  "Суммарная очаговая доза (в Греях)",;  // 1 lstr_sod
-  "Кол-во фракций",;                     // 2 lstr_fr
-  "Масса тела (в кг.)",;                 // 3 lstr_wei
-  "Рост (в см)",;                        // 4 lstr_hei
-  "Площадь пов-ти тела (в кв.м)",;       // 5 lstr_bsa
-  "Режим введения лекарственного препарата (дней введения)",; // 6 lstr_err
-  "Схема лекарственной терапии",;        // 7 lstr_she
-  "Список лекарственных препаратов",;    // 8 lstr_lek
-  "Проводилась ли профилактика тошноты и рвотного рефлекса"}     // 9 lstr_ptr
-Local s := arr[k]
-DEFAULT par TO 1
-return iif(par == 1, s, space(len(s)))
-
-***** 02.02.19
-Function f_valid_usl_tip(g,o)
-if o != NIL .and. o != m1usl_tip
-  mm_shema_usl := {}
-  lstr1 := space(12) ; m1usl_tip1 := 0 ;  musl_tip1 := space(69)
-  lstr2 := space(13) ; m1usl_tip2 := 0 ;  musl_tip2 := space(19)
-  lstr_sod := ret_str_onc(1,2) ; mvsod := 0 ; msod := space(6)
-  lstr_fr  := ret_str_onc(2,2) ; mk_fr := space(2)
-  lstr_wei := ret_str_onc(3,2) ; mwei := space(5)
-  lstr_hei := ret_str_onc(4,2) ; mhei := space(3)
-  lstr_bsa := ret_str_onc(5,2) ; mbsa := space(4)
-  lstr_err := ret_str_onc(6,2) ; mis_err := space(11)
-  lstr_she := ret_str_onc(7,2) ; mcrit := space(57)
-  lstr_lek := ret_str_onc(8,2) ; mlek := space(53)
-  lstr_ptr := ret_str_onc(9,2) ; mpptr := space(3) ; m1pptr := 0
-  if between(m1usl_tip,1,4)
-    lstr1 := padr(mm_str1[m1usl_tip+1],12)
-    if m1usl_tip == 1
-      mm_usl_tip1 := mm_N014
-    elseif m1usl_tip == 2
-      lstr2 := "Линия терапии"
-      mm_usl_tip1 := mm_N016
-      mm_usl_tip2 := mm_N015
-      musl_tip2 := padr(mm_usl_tip2[1,1],19) ; m1usl_tip2 := mm_usl_tip2[1,2]
-    elseif between(m1usl_tip,3,4)
-      mm_usl_tip1 := mm_N017
-      lstr_sod := ret_str_onc(1,1)
-      msod := padr(alltrim(str_0(mvsod,6,2)),6)
-      lstr_fr  := ret_str_onc(2,1)
-    endif
-    if eq_any(m1usl_tip,2,4)
-      if left(m1crit,2) == "mt" .and. m1usl_tip == 2
-        m1crit := space(10)
-      elseif eq_any(left(m1crit,2),"не","sh") .and. m1usl_tip == 4
-        m1crit := space(10)
+** 15.01.23
+Function f_valid_usl_tip(g, o)
+  
+  if o != NIL .and. o != m1usl_tip
+    mm_shema_usl := {}
+    lstr1 := space(12) ; m1usl_tip1 := 0 ;  musl_tip1 := space(69)
+    lstr2 := space(13) ; m1usl_tip2 := 0 ;  musl_tip2 := space(19)
+    lstr_sod := ret_str_onc(1, 2) ; mvsod := 0 ; msod := space(6)
+    lstr_fr  := ret_str_onc(2, 2) ; mk_fr := space(2)
+    lstr_wei := ret_str_onc(3, 2) ; mwei := space(5)
+    lstr_hei := ret_str_onc(4, 2) ; mhei := space(3)
+    lstr_bsa := ret_str_onc(5, 2) ; mbsa := space(4)
+    lstr_err := ret_str_onc(6, 2) ; mis_err := space(11)
+    lstr_she := ret_str_onc(7, 2) ; mcrit := space(57)
+    lstr_lek := ret_str_onc(8, 2) ; mlek := space(53)
+    lstr_ptr := ret_str_onc(9, 2) ; mpptr := space(3) ; m1pptr := 0
+    if between(m1usl_tip, 1, 4)
+      lstr1 := padr(mm_str1[m1usl_tip + 1], 12)
+      if m1usl_tip == 1
+        mm_usl_tip1 := mm_N014
+      elseif m1usl_tip == 2
+        lstr2 := 'Линия терапии'
+        mm_usl_tip1 := mm_N016
+        mm_usl_tip2 := mm_N015
+        musl_tip2 := padr(mm_usl_tip2[1, 1], 19)
+        m1usl_tip2 := mm_usl_tip2[1, 2]
+      elseif between(m1usl_tip, 3, 4)
+        mm_usl_tip1 := mm_N017
+        lstr_sod := ret_str_onc(1, 1)
+        msod := padr(alltrim(str_0(mvsod, 6, 2)), 6)
+        lstr_fr  := ret_str_onc(2, 1)
       endif
-      lstr_wei := ret_str_onc(3,1)
-      lstr_hei := ret_str_onc(4,1)
-      lstr_bsa := ret_str_onc(5,1)
-      if m1usl_tip == 2
-        lstr_err := ret_str_onc(6,1)
-        mis_err := inieditspr(A__MENUVERT, mm_shema_err, m1is_err)
-      endif
-      lstr_she := ret_str_onc(7,1)
-      mm_shema_usl := iif(m1usl_tip == 2, _arr_sh, _arr_mt)
-      mcrit := padr(inieditspr(A__MENUVERT, mm_shema_usl, m1crit), 57)
-      lstr_lek := ret_str_onc(8,1)
-      mlek := padr(init_lek_pr(m1usl_tip, m1crit), 53)
-      lstr_ptr := ret_str_onc(9,1)
-      mpptr := inieditspr(A__MENUVERT, mm_danet, m1pptr)
-    endif
-    musl_tip1 := padr(mm_usl_tip1[1,1],69) ; m1usl_tip1 := mm_usl_tip1[1,2]
-  endif
-  update_get("lstr1")
-  update_get("musl_tip1")
-  update_get("lstr2")
-  update_get("musl_tip2")
-  update_get("lstr_sod")
-  update_get("msod")
-  update_get("lstr_fr")
-  update_get("mk_fr")
-  update_get("lstr_wei")
-  update_get("mwei")
-  update_get("lstr_hei")
-  update_get("mhei")
-  update_get("lstr_bsa")
-  update_get("mbsa")
-  update_get("lstr_err")
-  update_get("mis_err")
-  update_get("lstr_she")
-  update_get("mcrit")
-  update_get("lstr_lek")
-  update_get("mlek")
-  update_get("lstr_ptr")
-  update_get("mpptr")
-endif
-return .t.
-
-** 14.01.23
-Function init_lek_pr(_usl_tip, _crit)
-  Local s, n
-
-  use (cur_dir + 'tmp_onkle') new alias TMPLE
-  index on REGNUM to (cur_dir + 'tmp_onkle') UNIQUE
-  n := 0
-  dbeval({|| ++n })
-  s := 'препаратов - ' + lstr(n)
-  index on dtos(DATE_INJ) to (cur_dir + 'tmp_onkle') UNIQUE
-  n := 0
-  dbeval({|| ++n })
-  s += ', дней приёма - ' + lstr(n)
-  tmple->(dbCloseArea())
-  return s
-
-** 14.01.23
-Function get_lek_pr(k, r, c, _crit)
-  Local i, j, nrec, t_arr := array(BR_LEN), ret := {space(10), space(10)}
-
-  Private arr_lek_pr := {}, yes_crit
-  dbcreate(cur_dir + 'tmp', {{'id_lekp', 'C', 6, 0}, ;
-                        {'mnn', 'C', 70, 0}, ;
-                        {'kol', 'N', 3, 0}})
-  use (cur_dir + 'tmp') new
-  index on id_lekp to (cur_dir + 'tmp')
-  R_Use(exe_dir + '_mo_N020', {cur_dir + '_mo_N020', cur_dir + '_mo_N020n'}, 'N20')
-  set filter to between_date(datebeg, dateend, mk_data)
-  R_Use(exe_dir + '_mo_N021', cur_dir + '_mo_N021', 'N21')
-  set filter to between_date(datebeg, dateend, mk_data)
-  find (_crit)
-  yes_crit := found()
-  use (cur_dir + 'tmp_onkle') new alias TMPLE
-  index on REGNUM + dtos(DATE_INJ) to (cur_dir + 'tmp_onkle') UNIQUE
-  if yes_crit // по данному критерию есть препараты в схеме
-    select N21
-    find (_crit)
-    do while n21->code_sh == _crit .and. !eof()
-      select TMP
-      append blank
-      tmp->id_lekp := n21->id_lekp
-      aadd(arr_lek_pr, {tmp->id_lekp, tmp->(recno()), {}})
-      i := len(arr_lek_pr)
-      select N20
-      find (n21->id_lekp)
-      if found()
-        tmp->mnn := n20->mnn
-      else
-        tmp->mnn := 'Препарат ' + n21->id_lekp + ' не найден в справочнике N020'
-      endif
-      select TMPLE
-      find (tmp->id_lekp)
-      do while tmp->id_lekp == tmple->REGNUM .and. !eof()
-        aadd(arr_lek_pr[i, 3], tmple->DATE_INJ)
-        skip
-      enddo
-      tmp->kol := len(arr_lek_pr[i, 3])
-      select N21
-      skip
-    enddo
-  else // по данному критерию нет препаратов в схеме
-    select TMPLE
-    go top
-    do while !eof()
-      select N20
-      find (tmple->REGNUM)
-      if found() // найден препарат в справочнике
-        select TMP
-        find (tmple->REGNUM)
-        if !found()
-          append blank
-          tmp->id_lekp := tmple->REGNUM
-          tmp->mnn := n20->mnn
+      if eq_any(m1usl_tip, 2, 4)
+        if left(m1crit, 2) == 'mt' .and. m1usl_tip == 2
+          m1crit := space(10)
+        elseif eq_any(left(m1crit, 2), 'не', 'sh') .and. m1usl_tip == 4
+          m1crit := space(10)
         endif
-        tmp->kol ++
-        if (i := ascan(arr_lek_pr, {|x| x[2] == tmp->(recno())})) == 0
-          aadd(arr_lek_pr, {tmp->id_lekp, tmp->(recno()),{}})
-          i := len(arr_lek_pr)
+        lstr_wei := ret_str_onc(3, 1)
+        lstr_hei := ret_str_onc(4, 1)
+        lstr_bsa := ret_str_onc(5, 1)
+        if m1usl_tip == 2
+          lstr_err := ret_str_onc(6, 1)
+          mis_err := inieditspr(A__MENUVERT, mm_shema_err, m1is_err)
         endif
-        aadd(arr_lek_pr[i, 3], tmple->DATE_INJ)
+        lstr_she := ret_str_onc(7, 1)
+        mm_shema_usl := iif(m1usl_tip == 2, _arr_sh, _arr_mt)
+        mcrit := padr(inieditspr(A__MENUVERT, mm_shema_usl, m1crit), 57)
+        lstr_lek := ret_str_onc(8, 1)
+        // mlek := padr(init_lek_pr(m1usl_tip, m1crit), 53)
+        mlek := padr(init_lek_pr(), 53)
+        lstr_ptr := ret_str_onc(9, 1)
+        mpptr := inieditspr(A__MENUVERT, mm_danet, m1pptr)
       endif
-      select TMPLE
-      skip
-    enddo
-  endif
-  select TMPLE
-  set index to
-  nrec := tmp->(lastrec())
-  if yes_crit
-    t_arr[BR_TOP] := r - nrec - 4
-  else//
-    t_arr[BR_TOP] := r - 4 - 4
-  endif
-  if t_arr[BR_TOP] < 2
-    t_arr[BR_TOP] := 2
-  endif
-  t_arr[BR_BOTTOM] := r - 1
-  t_arr[BR_LEFT]  := 1
-  t_arr[BR_RIGHT] := 77
-  t_arr[BR_COLOR] := color5
-  t_arr[BR_TITUL] := 'Редактирование дат введения препаратов для схемы ' + alltrim(_crit)
-  t_arr[BR_TITUL_COLOR] := 'BG+/GR'
-  t_arr[BR_ARR_BROWSE] := {'═', '░', '═', , .t.}
-  t_arr[BR_COLUMN] := {{' Наименование препарата', {|| tmp->mnn }}, ;
-                      {' Дни', {|| tmp->kol}}}
-  t_arr[BR_EDIT] := {|nk, ob| f1_get_lek_pr(nk,ob, 'edit', r)}
-  s := '^<Esc>^ - выход;  ^<Enter>^ - редактирование дат'
-  if !yes_crit
-    s += '; ^<Ins>^ - добавить препарат;  ^<Del>^ - удалить препарат'
-  endif
-  t_arr[BR_STAT_MSG] := {|| status_key(s)}
-  select TMP
-  index on upper(mnn) to (cur_dir + 'tmp')
-  go top
-  if eof() .and. !yes_crit
-    keyboard chr(K_INS)
-  endif
-  edit_browse(t_arr)
-  //
-  nrec := tmp->(lastrec())
-  select TMPLE
-  zap
-  for i := 1 to nrec
-    if len(arr_lek_pr) >= i
-      for j := 1 to len(arr_lek_pr[i, 3])
-        select TMPLE
-        append blank
-        tmple->REGNUM   := arr_lek_pr[i, 1]
-        tmple->CODE_SH  := _crit
-        tmple->DATE_INJ := arr_lek_pr[i, 3, j]
-      next
+      musl_tip1 := padr(mm_usl_tip1[1, 1], 69)
+      m1usl_tip1 := mm_usl_tip1[1, 2]
     endif
-  next
-  index on dtos(DATE_INJ) to (cur_dir + 'tmp_onkle') UNIQUE
-  ndn := 0
-  dbeval({|| ++ndn })
-  ret[1] := ret[2] := padr('препаратов - ' + lstr(nrec) + ', дней приёма - ' + lstr(ndn), 53)
-  //
-  tmp->(dbCloseArea())
-  tmple->(dbCloseArea())
-  n20->(dbCloseArea())
-  n21->(dbCloseArea())
-  return ret
-
-***** 31.01.19 выбор нескольких дат
-Function f1_get_lek_pr(nKey,oBrow,regim,get_row)
-Local mlen, t_mas := {}, buf := savescreen(), i, j, d, tmp_color := setcolor(),;
-      k, n, r1, r2, top_bottom, r := row(), ret := -1
-if regim == "edit"
-  if nKey == K_ENTER .and. tmp->(lastrec()) > 0
-    if (i := ascan(arr_lek_pr, {|x| x[2] == tmp->(recno()) })) == 0
-      func_error(4,"Непонятная ошибка!")
-    else
-      for d := mn_data to mk_data
-        aadd(t_mas, iif(ascan(arr_lek_pr[i,3],d) > 0, " * ", "   ")+full_date(d))
-      next
-      mlen := len(t_mas)
-      status_key("^<Esc>^ - отказ; ^<Enter>^ - подтверждение; ^<Ins,+,->^ - смена выбора даты")
-      top_bottom := (r < maxrow()/2)
-      if top_bottom     // сверху вниз
-        r1 := r+1
-        if (r2 := r1+mlen+1) > maxrow()-2
-          r2 := maxrow()-2
-        endif
-      else
-        r2 := r-1
-        if (r1 := r2-mlen-1) < 2
-          r1 := 2
-        endif
-      endif
-      if popup(r1,60,r2,77,t_mas,i,color0,.t.,"fmenu_reader",,"Даты введения","B/BG") > 0
-        arr_lek_pr[i,3] := {}
-        for j := 1 to mlen
-          if "*" == substr(t_mas[j],2,1)
-            aadd(arr_lek_pr[i,3],ctod(substr(t_mas[j],4)))
-          endif
-        next
-        tmp->kol := len(arr_lek_pr[i,3])
-      endif
-    endif
-  elseif nKey == K_INS .and. !yes_crit
-    if (k := f2_get_lek_pr(get_row)) != NIL
-      select TMP
-      go top
-      Locate for id_lekp == k[1]
-      if found()
-        func_error(2,"Данный препарат уже добавлен!")
-      else
-        AddRecN()
-        tmp->id_lekp := k[1]
-        tmp->mnn := k[2]
-        aadd(arr_lek_pr, {tmp->id_lekp,tmp->(recno()),{}} )
-      endif
-      ret := 0
-    endif
-    select TMP
-  elseif nKey == K_DEL .and. !yes_crit .and. f_Esc_Enter(2)
-    if (i := ascan(arr_lek_pr, {|x| x[2] == tmp->(recno()) })) > 0
-      Del_Array(arr_lek_pr,i)
-    endif
-    deleterec()
-    go top
-    oBrow:gotop()
-    ret := 1
+    update_get('lstr1')
+    update_get('musl_tip1')
+    update_get('lstr2')
+    update_get('musl_tip2')
+    update_get('lstr_sod')
+    update_get('msod')
+    update_get('lstr_fr')
+    update_get('mk_fr')
+    update_get('lstr_wei')
+    update_get('mwei')
+    update_get('lstr_hei')
+    update_get('mhei')
+    update_get('lstr_bsa')
+    update_get('mbsa')
+    update_get('lstr_err')
+    update_get('mis_err')
+    update_get('lstr_she')
+    update_get('mcrit')
+    update_get('lstr_lek')
+    update_get('mlek')
+    update_get('lstr_ptr')
+    update_get('mpptr')
   endif
-endif
-restscreen(buf)
-setcolor(tmp_color)
-return ret
-
-***** 31.01.19
-Function f2_get_lek_pr(r)
-Static srec := 0
-Local ret, t_arr[BR_LEN]
-t_arr[BR_TOP] := 3
-t_arr[BR_BOTTOM] := r-1
-t_arr[BR_LEFT] := 4
-t_arr[BR_RIGHT] := 77
-t_arr[BR_COLOR] := color0
-t_arr[BR_TITUL] := "Добавление лекарственного препарата"
-t_arr[BR_TITUL_COLOR] := "BG+/GR"
-t_arr[BR_ARR_BROWSE] := {"═","░","═","N/BG,W+/N",.f.,72}
-t_arr[BR_COLUMN] := {{ center("Наименование",72),{|| left(n20->mnn,70) } }}
-t_arr[BR_STAT_MSG] := {|| status_key("^<Esc>^ - выход;  ^<Enter>^ - выбор;  ^<F2>^ - поиск по подстроке") }
-t_arr[BR_EDIT] := {|nk,ob| f3_get_lek_pr(nk,ob) }
-t_arr[BR_ENTER] := {|| srec := n20->(recno()), ret := {n20->id_lekp,n20->mnn} }
-//
-select N20
-set order to 2
-if srec > 0
-  goto (srec)
-else
-  go top
-endif
-edit_browse(t_arr)
-return ret
-
-***** 31.01.19
-Function f3_get_lek_pr(nk,ob)
-Local ret := -1, rec
-if nk == K_F2
-  if (ret := f4_get_lek_pr(@rec,ob)) == 0
-    ob:goTop()
-    goto (rec)
-  endif
-endif
-return ret
-
-***** 31.01.19
-Function f4_get_lek_pr(ret_rec,obrow)
-Static stmp1 := ""
-Local rec1 := recno(), buf := savescreen(), tmp_color, ret := -1, j, r1 := pr2-6, r2 := pr2-1
-box_shadow(r1,pc1+1,r2,pc2-1,cDataPgDn,"Поиск по ключу",cDataCSay)
-tmp_color := setcolor(cDataCGet)
-@ r1+2,pc1+2 say center("Введите ключевое слово",pc2-pc1-3)
-do while .t.
-  setcolor(cDataCGet)
-  tmp := padr(stmp1,pc2-pc1-3)
-  status_key("^<Esc>^ - отказ от ввода")
-  @ r1+3,pc1+2 get tmp picture "@K@!"
-  myread()
-  setcolor(color0)
-  if lastkey() == K_ESC .or. empty(tmp)
-    goto (rec1)
-  else
-    mywait()
-    stmp1 := tmp := alltrim(tmp)
-    Private tmp_mas := {}, tmp_kod := {}, i := 0, t_len, k1 := pr1+3, k2 := pr2-1
-    oBrow:goTop()
-    do while !eof()
-      if tmp $ upper(n20->mnn)
-        ++i
-        aadd(tmp_mas, n20->mnn)
-        aadd(tmp_kod, recno())
-      endif
-      skip
-    enddo
-    if (t_len := len(tmp_kod)) == 0
-      func_error(3,"Неудачный поиск!")
-      loop
-    else
-      box_shadow(pr1,pc1,pr2,pc2)
-      SETCOLOR("B/BG")
-      @ pr1+1,pc1+2 say "Ключ: "+tmp
-      SETCOLOR(color0)
-      if t_len < pr2-pr1-5
-        k2 := k1 + t_len + 2
-      endif
-      @ k1,pc1+1 say padc("Найденное количество - "+lstr(i),pc2-pc1-1)
-      status_key("^<Esc>^ - отказ от выбора")
-      if (i := popup(k1+1,pc1+1,k2,pc2-1,tmp_mas,1,0)) > 0
-        ret_rec := tmp_kod[i]
-        ret := 0
-      endif
-    endif
-  endif
-  exit
-enddo
-goto (rec1)
-restscreen(buf)
-setcolor(tmp_color)
-return ret
+  return .t.
 
 ** 13.11.22
 Function is_usluga_disp_nabl(_shifr, _shifr1)
@@ -1439,27 +1124,28 @@ Function is_usluga_disp_nabl(_shifr, _shifr1)
     .or. between_shifr(_shifr, '2.88.120', '2.88.145') ;
     .or. _shifr == '2.5.2'  // добавил согласно письму ТФОМС 09-30-376/1 от 09.11.22 года
 
-***** 05.09.19 является услугой телемедицины - не заполняется код врача
-Function is_telemedicina(lshifr,/*@*/fl2)
-Local fl := .f., tmp_select := select()
-fl2 := .f.
-select LUSLF
-find (padr(lshifr,20))
-if found() .and. alltrim(lshifr) == alltrim(luslf->shifr) .and. luslf->telemed == 1
-  fl := .t.
-  fl2 := (left(luslf->shifr,4) == "B01.")
-endif
-select (tmp_select)
-return fl
+** 05.09.19 является услугой телемедицины - не заполняется код врача
+Function is_telemedicina(lshifr, /*@*/fl2)
+  Local fl := .f., tmp_select := select()
 
-***** 12.01.20 вернуть разрешённые парные органы
-Function ret_par_org(lshifr,_k_data)
+  fl2 := .f.
+  select LUSLF
+  find (padr(lshifr, 20))
+  if found() .and. alltrim(lshifr) == alltrim(luslf->shifr) .and. luslf->telemed == 1
+    fl := .t.
+    fl2 := (left(luslf->shifr, 4) == 'B01.')
+  endif
+  select (tmp_select)
+  return fl
+
+** 12.01.20 вернуть разрешённые парные органы
+Function ret_par_org(lshifr, _k_data)
   Local s := '', lalf := 'LUSLF', tmp_select := select()
+
   // if year(_k_data) < 2020 // т.к. в 2020 году пополнился список операций на парных органах
   //   lalf += "19"
   // endif
   lalf := create_name_alias(lalf, _k_data)
-
   dbSelectArea(lalf)
   if fieldnum('par_org') > 0
     find (padr(lshifr,20))
@@ -1470,28 +1156,29 @@ Function ret_par_org(lshifr,_k_data)
   select (tmp_select)
   return s
 
-***** 22.01.19 обязательна ли зубная формула
+** 22.01.19 обязательна ли зубная формула
 Function ret_is_zf(lshifr)
-Local n := 0, tmp_select := select()
-select LUSLF
-if fieldnum("zf") > 0
-  find (padr(lshifr,20))
-  if found() .and. alltrim(lshifr) == alltrim(luslf->shifr)
-    n := luslf->zf
+  Local n := 0, tmp_select := select()
+  select LUSLF
+  if fieldnum('zf') > 0
+    find (padr(lshifr, 20))
+    if found() .and. alltrim(lshifr) == alltrim(luslf->shifr)
+      n := luslf->zf
+    endif
   endif
-endif
-select (tmp_select)
-return n
+  select (tmp_select)
+  return n
 
-***** 22.01.19 вернуть строку парных органов
-Function ini_par_org(val,orig)
-Local i, j, a := List2Arr(orig), a1 := List2Arr(val), ret := ""
-for i := 1 to len(a)
-  if ascan(a1,a[i]) > 0 .and. (j := ascan(garr_par_org, {|x| x[2] == a[i] })) > 0
-    ret += garr_par_org[j,1]+","
-  endif
-next
-return iif(empty(ret), space(10), left(ret,len(ret)-1))
+** 22.01.19 вернуть строку парных органов
+Function ini_par_org(val, orig)
+  Local i, j, a := List2Arr(orig), a1 := List2Arr(val), ret := ''
+
+  for i := 1 to len(a)
+    if ascan(a1,a[i]) > 0 .and. (j := ascan(garr_par_org, {|x| x[2] == a[i]})) > 0
+      ret += garr_par_org[j, 1] + ','
+    endif
+  next
+  return iif(empty(ret), space(10), left(ret, len(ret) - 1))
 
 ***** 07.02.19 в GET'е выбор парных органов
 Function get_par_org(r,c,val,orig)

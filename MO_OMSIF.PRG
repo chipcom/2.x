@@ -52,7 +52,7 @@ if k > 10
 endif
 return NIL
 
-***** 13.01.20
+***** 15.01.23
 Function forma_12_(is_diag,is_100000)
 Local i, j, k, arr, begin_date, end_date, s, buf := save_maxrow(),;
       s1_, s1, s2, s3, s4, d1, d2, diapazon, kh, hGauge, v,;
@@ -67,7 +67,8 @@ else
   name_file := iif(is_diag, "_frm_12d", "_form_12")+stxt
 endif
 Private adiag_talon[16], arr_v := {{0,14},{0,3},{15,17},{18,999}}, ;
-        len_name := {28,28,28,28,28}, kol_dt, koef_dt[5], p_is_voz[5]
+        len_name := {28,28,28,28,28}, kol_dt, koef_dt[5], p_is_voz[5],;
+        GOD_PENSIONEROV   
 afill(p_is_voz, .f.)
 
 file_form := exe_dir+"_mo_form"+sdbf
@@ -80,6 +81,7 @@ endif
 if (arr_m := year_month()) == NIL
   return NIL
 endif
+GOD_PENSIONEROV := arr_m[1]
 yes_god := (arr_m[2]==1 .and. arr_m[3]==12)
 if (st_a_uchast := ret_uchast(T_ROW,T_COL-5)) == NIL
   return NIL
@@ -1564,7 +1566,7 @@ endif
 if len(ret) == 0 ; ret := NIL ; endif
 return ret
 
-***** 13.01.20
+***** 15.01.23
 Function ret_v_f12(mpol,mvozrast,/*@*/v4)
 Local v
 if (v := ascan(arr_v, {|x| between(mvozrast,x[1],x[2]) } )) == 0
@@ -1573,27 +1575,48 @@ endif
 v4 := 0
 if v == 1 .and. mvozrast < 4
   v4 := 2 // дети до 3х лет
-elseif v == 4 .and. ((mpol == "Ж" .and. mvozrast >= 55) .or. (mpol == "М" .and. mvozrast >= 60))
-  v4 := 5 // взрослые старше трудоспособного возраста
+elseif v == 4 
+  if GOD_PENSIONEROV < 2020  
+    if ((mpol == "Ж" .and. mvozrast >= 55) .or. (mpol == "М" .and. mvozrast >= 60))
+      v4 := 5 // взрослые старше трудоспособного возраста
+    endif 
+  elseif GOD_PENSIONEROV < 2022  
+    if ((mpol == "Ж" .and. mvozrast >= 56) .or. (mpol == "М" .and. mvozrast >= 61))
+      v4 := 5 // взрослые старше трудоспособного возраста
+    endif  
+  elseif GOD_PENSIONEROV < 2024  
+     if ((mpol == "Ж" .and. mvozrast >= 57) .or. (mpol == "М" .and. mvozrast >= 62))
+       v4 := 5 // взрослые старше трудоспособного возраста
+     endif  
+  elseif GOD_PENSIONEROV < 2026  
+      if ((mpol == "Ж" .and. mvozrast >= 58) .or. (mpol == "М" .and. mvozrast >= 63))
+        v4 := 5 // взрослые старше трудоспособного возраста
+      endif  
+  else
+    if ((mpol == "Ж" .and. mvozrast >= 59) .or. (mpol == "М" .and. mvozrast >= 64))
+      v4 := 5 // взрослые старше трудоспособного возраста
+    endif  
+  endif   
 endif
 return v
 
 *
 
-***** 05.01.16
+***** 15.01.23
 Function forma_12_o()
 Local i, j, k, arr, begin_date, end_date, s, buf := save_maxrow(),;
       fl_exit := .f., sh := 79, HH := 80, reg_print := 5, speriod,;
       arr_title, name_file := "_frm_12o"+stxt, s_lu := 0, s_human := 0,;
       fl_plus := .f., md_plus, sd_plus, k_plus, jh := 0, arr_m,;
       is_talon := .t., pole, arv, nf, adbf, kh, s1, s2, s3
-Private au1, au2, adiag_talon[16]
+Private au1, au2, adiag_talon[16], GOD_PENSIONEROV 
 if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) == NIL
   return NIL
 endif
 if (arr_m := year_month()) == NIL
   return NIL
 endif
+GOD_PENSIONEROV := arr_m[1]
 if !empty(yes_d_plus)
   fl_plus := .t. ; md_plus := array(len(yes_d_plus))
   k_plus := len(md_plus)
@@ -2380,10 +2403,11 @@ add_string(replicate("-",sh))
 x := 1
 arr_title := f14_title()
 sh := len(arr_title[1])
-add_string(padr(org->name,60)+padl("Форма № 14",sh-60))
+add_string(padr(org->name,sh))
+add_string(space(60)+padl("Форма № 14",sh-60))
 add_string(padl("Утверждена",sh))
 add_string(padl("Приказом Росстата",sh))
-add_string(padl("от 27.12.2016г. № 866",sh))
+add_string(padl("от 27.12.2022г. № 985",sh))
 add_string(center("СВЕДЕНИЯ О ДЕЯТЕЛЬНОСТИ ПОДРАЗДЕЛЕНИЙ МЕДИЦИНСКОЙ ОРГАНИЗАЦИИ,",sh))
 add_string(center("ОКАЗЫВАЮЩИХ МЕДИЦИНСКУЮ ПОМОЩЬ В СТАЦИОНАРНЫХ УСЛОВИЯХ",sh))
 if is_otd
@@ -3083,10 +3107,36 @@ if mvozrast < 18
   arr_tip := {3}
 else
   arr_tip := {1}
-  if (human->pol == "Ж" .and. mvozrast >= 56) .or. ;
-     (human->pol == "М" .and. mvozrast >= 61)
-    fl_pensioner := .t.
-    aadd(arr_tip,2)
+  if human->n_data < stod('20200101') 
+    if (human->pol == "Ж" .and. mvozrast >= 55) .or. ;
+       (human->pol == "М" .and. mvozrast >= 60)
+       fl_pensioner := .t.
+      aadd(arr_tip,2)
+    endif
+  elseif human->n_data < stod('20220101') 
+    if (human->pol == "Ж" .and. mvozrast >= 56) .or. ;
+      (human->pol == "М" .and. mvozrast >= 61)
+      fl_pensioner := .t.
+     aadd(arr_tip,2)
+   endif
+  elseif human->n_data < stod('20240101') 
+    if (human->pol == "Ж" .and. mvozrast >= 57) .or. ;
+      (human->pol == "М" .and. mvozrast >= 62)
+      fl_pensioner := .t.
+     aadd(arr_tip,2)
+   endif
+  elseif human->n_data < stod('20260101') 
+    if (human->pol == "Ж" .and. mvozrast >= 58) .or. ;
+      (human->pol == "М" .and. mvozrast >= 63)
+      fl_pensioner := .t.
+     aadd(arr_tip,2)
+   endif
+  else 
+    if (human->pol == "Ж" .and. mvozrast >= 59) .or. ;
+      (human->pol == "М" .and. mvozrast >= 64)
+      fl_pensioner := .t.
+     aadd(arr_tip,2)
+   endif
   endif
 endif
 M1F14_EKST := int(val(substr(human_->FORMA14,1,1)))
@@ -4046,7 +4096,7 @@ if k > 10
 endif
 return NIL
 
-***** 02.01.15
+***** 15.01.23
 Function forma_16_vn(is_diag)
 Static sy := 1
 Local begin_date, end_date, pole, file_form, jh := 0, jt := 0,;
@@ -4109,7 +4159,7 @@ lfp := fopen(file_form)
 do while .t.
   UpdateStatus()
   if feof(lfp)
-    s := "52.  O03-O08 Аборты"
+    s := "54.  O03-O08 Аборты"
   else
     s := fReadLn(lfp)
   endif
@@ -4148,13 +4198,13 @@ next*/
       tmp->stroke := s1 ; tmp->pol := "ж"
       aadd(diag1, {s1,"Ж",diapazon})
     endif
-    if tmp->stroke == "52"
-      aadd(arr_stroke,"53")
+    if tmp->stroke == "54"
+      aadd(arr_stroke,"55")
       // добавляем две строки "по уходу за ребенком"
       append blank
-      tmp->stroke := "53" ; tmp->pol := "м"
+      tmp->stroke := "55" ; tmp->pol := "м"
       append blank
-      tmp->stroke := "54" ; tmp->pol := "ж"
+      tmp->stroke := "56" ; tmp->pol := "ж"
       exit
     endif
   endif
@@ -4235,7 +4285,7 @@ R_Use(dir_server+"organiz",,"ORG")
 add_string(padr(org->name,60)+padl("Форма 16-вн",sh-60))
 add_string(padl("Утверждена",sh))
 add_string(padl("Приказом Росстата",sh))
-add_string(padl("от 25.12.2014г. № 723",sh))
+add_string(padl("от 27.12.2022г. № 985",sh))
 add_string(center("Сведения о причинах временной нетрудоспособности",sh))
 add_string(center(arr_m[4],sh))
 if yes_otd == 2
@@ -4426,26 +4476,30 @@ enddo
 ft_use()
 t_arr1 := {;
 "",;
-"Всего по заболеваниям                     м 50",;
-"                                          ж 51",;
-"  из них: аборты (из стр.45) O03-O08      ж 52",;
+"Всего по заболеваниям                     м 52",;
+"                                          ж 53",;
+"  из них: аборты (из стр.45) O03-O08      ж 54",;
 "",;
-"   уход за больным..........              м 53",;
-"                                          ж 54",;
+"   уход за больным..........              м 55",;
+"                                          ж 56",;
 "",;
-"   отпуск в связи с санатор-              м 55",;
-"   но-курортным лечением                  ж 56",;
+"   отпуск в связи с санатор-              м 57",;
+"   но-курортным лечением                  ж 58",;
 "   (без туберкулеза и доле-",;
 "   чивания инфаркта миокарда)",;
 "",;
-"   освобождение от работы в               м 57",;
-"   связи с карантином и                   ж 58",;
+"   освобождение от работы в               м 59",;
+"   связи с карантином и                   ж 60",;
 "   бактерионосительством",;
 "",;
-"ИТОГО ПО ВСЕМ ПРИЧИНАМ                    м 59",;
-"                                          ж 60",;
+"  из них: в связи с карантином   Z20.8,   м 61",;
+"   по COVID-19 (из стр. 59 - 60) Z22.8,   ж 62",;
+"                                 Z29.0",;  
+"",; 
+"ИТОГО ПО ВСЕМ ПРИЧИНАМ                    м 63",;
+"                                          ж 64",;
 "",;
-"Отпуск по беременности и родам            ж 61",;
+"Отпуск по беременности и родам            ж 65",;
 ""}
 last_stroke := "*"
 select TMP
@@ -4454,7 +4508,7 @@ for i := 1 to len(t_arr1)
     aeval(arr_title, {|x| add_string(x) } )
   endif
   ls1 := t_arr1[i]
-  if "м 50" == right(t_arr1[i],4)
+  if "м 52" == right(t_arr1[i],4)
     ls1 := padr(ls1,46)+;
          put_val(s1dni,8)+;
          put_val(s1sluch,8)+;
@@ -4469,7 +4523,7 @@ for i := 1 to len(t_arr1)
          put_val(s1v[9],5)+;
          put_val(s1v[10],5)+;
          if(empty(s1sluch), "", umest_val(s1dni/s1sluch,7,1))
-  elseif "ж 51" == right(t_arr1[i],4)
+  elseif "ж 53" == right(t_arr1[i],4)
     ls1 := padr(ls1,46)+;
          put_val(s2dni,8)+;
          put_val(s2sluch,8)+;
@@ -4484,8 +4538,8 @@ for i := 1 to len(t_arr1)
          put_val(s2v[9],5)+;
          put_val(s2v[10],5)+;
          if(empty(s2sluch), "", umest_val(s2dni/s2sluch,7,1))
-  elseif "ж 52" == right(t_arr1[i],4)
-    find ("52")
+  elseif "ж 54" == right(t_arr1[i],4)
+    find ("54")
     if iif(is_diag, (tmp->dni > 0), .t.)
       ls1 := padr(ls1,46)+;
            put_val(tmp->dni,8)+;
@@ -4504,8 +4558,8 @@ for i := 1 to len(t_arr1)
     else
       ls1 := ""
     endif
-  elseif "м 53" == right(t_arr1[i],4)  // по уходу за ребенком
-    find ("53")
+  elseif "м 55" == right(t_arr1[i],4)  // по уходу за ребенком
+    find ("55")
     ls1 := padr(ls1,46)+;
          put_val(tmp->dni,8)+;
          put_val(tmp->sluch,8)+;
@@ -4532,8 +4586,8 @@ for i := 1 to len(t_arr1)
          s1v[8]  += tmp->v8
          s1v[9]  += tmp->v9
          s1v[10] += tmp->v10
-  elseif "ж 54" == right(t_arr1[i],4)  // по уходу за ребенком
-    find ("54")
+  elseif "ж 56" == right(t_arr1[i],4)  // по уходу за ребенком
+    find ("56")
     ls1 := padr(ls1,46)+;
          put_val(tmp->dni,8)+;
          put_val(tmp->sluch,8)+;
@@ -4560,7 +4614,7 @@ for i := 1 to len(t_arr1)
          s2v[8]  += tmp->v8
          s2v[9]  += tmp->v9
          s2v[10] += tmp->v10
-  elseif "м 59" == right(t_arr1[i],4)
+  elseif "м 63" == right(t_arr1[i],4)
     ls1 := padr(ls1,46)+;
          put_val(s1dni,8)+;
          put_val(s1sluch,8)+;
@@ -4575,7 +4629,7 @@ for i := 1 to len(t_arr1)
          put_val(s1v[9],5)+;
          put_val(s1v[10],5)+;
          if(empty(s1sluch), "", umest_val(s1dni/s1sluch,7,1))
-  elseif "ж 60" == right(t_arr1[i],4)
+  elseif "ж 64" == right(t_arr1[i],4)
     ls1 := padr(ls1,46)+;
          put_val(s2dni,8)+;
          put_val(s2sluch,8)+;
