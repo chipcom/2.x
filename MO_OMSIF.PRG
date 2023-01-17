@@ -2106,7 +2106,7 @@ return NIL
 
 *
 
-***** 10.03.19
+***** 16.01.23
 Function forma_14_(is_diag,is_otd,is_pereved)
 Local i, j, k, arr, begin_date, end_date, s, buf := save_maxrow(),;
       fl_exit := .f., sh, HH := 80, reg_print, speriod,;
@@ -2152,6 +2152,7 @@ adbf := {{"stroke","C",9,0},;
          {"p_rash","N",7,0},;
          {"p_udo1","N",7,0}}
 //
+
 dbcreate(cur_dir+"tmp_tab",adbf)
 use (cur_dir+"tmp_tab") new alias TMP_TAB
 index on str(tip,1)+stroke to (cur_dir+"tmp_tab")
@@ -2318,6 +2319,75 @@ if is_diag
   use (cur_dir+"tmp_d4") new
   index on shifr to (cur_dir+"tmp_d4")
 endif
+//
+adbf := {{"stroke", "C",9,0},;
+  {"vip_0_14","N",7,0},;
+  {"vip_15_19","N",7,0},;
+  {"vip_20_24","N",7,0},;
+  {"vip_25_29","N",7,0},;
+  {"vip_30_34","N",7,0},;
+  {"vip_35_39","N",7,0},;
+  {"vip_40_44","N",7,0},;
+  {"vip_45_49","N",7,0},;
+  {"vip_50_54","N",7,0},;
+  {"vip_55_59","N",7,0},;
+  {"vip_60_64","N",7,0},;
+  {"vip_65_69","N",7,0},;
+  {"vip_70_74","N",7,0},;
+  {"vip_75_79","N",7,0},;
+  {"vip_80_84","N",7,0},;
+  {"vip_85_99","N",7,0},;
+  {"umer_0_14","N",7,0},;
+  {"umer_15_19","N",7,0},;
+  {"umer_20_24","N",7,0},;
+  {"umer_25_29","N",7,0},;
+  {"umer_30_34","N",7,0},;
+  {"umer_35_39","N",7,0},;
+  {"umer_40_44","N",7,0},;
+  {"umer_45_49","N",7,0},;
+  {"umer_50_54","N",7,0},;
+  {"umer_55_59","N",7,0},;
+  {"umer_60_64","N",7,0},;
+  {"umer_65_69","N",7,0},;
+  {"umer_70_74","N",7,0},;
+  {"umer_75_79","N",7,0},;
+  {"umer_80_84","N",7,0},;
+  {"umer_85_99","N",7,0}}                 
+//
+dbcreate(cur_dir+"tmp_2910",adbf)
+use (cur_dir+"tmp_2910") new
+index on stroke to (cur_dir+"tmp_2910")
+//
+Private arr_2910 := f14_arr_2910(), diag1_2910 := {}, len_diag_2910
+for j := 1 to len(arr_2910)
+  s1 := arr_2910[j,2]  // ≠Æ¨•‡ ·‚‡Æ™®
+  s2 := arr_2910[j,3]  // §®†£≠ÆßÎ
+  if iif(is_diag, !("." $ s1), .t.) // ‚Æ´Ï™Æ £‡„ØØÎ ‚®Ø† 1, 2, ..., 7
+    diapazon := {}
+    for i := 1 to numtoken(s2,",")
+      s3 := token(s2,",",i)
+      if "-" $ s3
+        d1 := token(s3,"-",1)
+        d2 := token(s3,"-",2)
+      else
+        d1 := d2 := s3
+      endif
+      aadd(diapazon, {diag_to_num(d1,1),diag_to_num(d2,2)} )
+    next
+    select TMP_2910
+    append blank
+    tmp_2910->stroke := s1
+    aadd(diag1_2910, {s1,diapazon})
+  endif
+next
+len_diag_2910 := len(diag1_2910)
+if is_diag
+   aadd(adbf,{"diagnoz","C",6,0})
+  dbcreate(cur_dir+"tmp_d5",adbf)
+  use (cur_dir+"tmp_d5") new
+  index on diagnoz to (cur_dir+"tmp_d5")
+endif
+//
 R_Use(dir_server+"uslugi",,"USL")
 R_Use(dir_server+"human_u",dir_server+"human_u","HU")
 set relation to u_kod into USL
@@ -2388,7 +2458,10 @@ else
     skip
   enddo
 endif
+//
+//
 close databases
+//quit
 rest_box(buf)
 if fl_exit ; return NIL ; endif
 //
@@ -2436,7 +2509,10 @@ if is_diag
   index on stroke+diagnoz to (cur_dir+"tmp_d3")
   use (cur_dir+"tmp_d4") new
   index on stroke+shifr to (cur_dir+"tmp_d4")
+  use (cur_dir+"tmp_d5") new
+  index on stroke+diagnoz to (cur_dir+"tmp_d5")
 endif
+use (cur_dir+"tmp_2910") index (cur_dir+"tmp_2910") new
 use (cur_dir+"tmp_3000") index (cur_dir+"tmp_3000") new
 use (cur_dir+"tmp_4000") index (cur_dir+"tmp_4000") new
 use (cur_dir+"tmp_tab") index (cur_dir+"tmp_tab") new alias TMP
@@ -2833,6 +2909,222 @@ if yes_vmp
     endif
   next
 endif
+//
+arr_title := {;
+  "___________________________________________________________________________________________________________________________",;
+  "                                        ≥     ≥            ≥_____ÇÎØ®·†≠Æ_Ø†Ê®•≠‚Æ¢_(®ß_‚†°.2000_£‡.4_®_£‡.22)_¢_¢Æß‡†·‚•__",;
+  "                                        ≥  ¸  ≥            ≥ 0 ≥ 15≥ 20≥ 25≥ 30≥ 35≥ 40≥ 45≥ 50≥ 55≥ 60≥ 65≥ 70≥ 75≥ 80≥ 85",;
+  "    ç†®¨•≠Æ¢†≠®• ß†°Æ´•¢†≠®©            ≥·‚‡Æ-≥   äÆ§ ØÆ   ≥ 14≥ 19≥ 24≥ 29≥ 34≥ 39≥ 44≥ 49≥ 54≥ 59≥ 64≥ 69≥ 74≥ 79≥ 84≥...",;
+  "                                        ≥ ™®  ≥   åäÅ-10   ≥´•‚≥´•‚≥´•‚≥´•‚≥´•‚≥´•‚≥´•‚≥´•‚≥´•‚≥´•‚≥´•‚≥´•‚≥´•‚≥´•‚≥´•‚≥´•‚",;
+  "ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ¡ƒƒƒƒƒ¡ƒƒƒƒƒƒƒƒƒƒƒƒ¡ƒƒƒ¡ƒƒƒ¡ƒƒƒ¡ƒƒƒ¡ƒƒƒ¡ƒƒƒ¡ƒƒƒ¡ƒƒƒ¡ƒƒƒ¡ƒƒƒ¡ƒƒƒ¡ƒƒƒ¡ƒƒƒ¡ƒƒƒ¡ƒƒƒ¡ƒƒƒ"}
+  sh := len(arr_title[1])
+  len_name := 40
+  tek_stroke := HH+10
+  verify_FF(HH,.t.,sh)
+  add_string(center("2. ëÇÖÑÖçàü é óàëãÖ ÇõÅõÇòàï àá ëíÄñàéçÄêÄ èé ÇéáêÄëíì èÄñàÖçíÄ, Á•´Æ¢•™",sh))
+  add_string("")
+  add_string("(2910)"+padl("äÆ§ ØÆ éäÖà: Á•´Æ¢•™ - 792",sh-6))
+  aeval(arr_title, {|x| add_string(x) } )
+  for k := 1 to len(arr_2910)
+    s1_ := arr_2910[k,2] ; s1 := padr(s1_,9)
+    if iif(is_diag, !("." $ s1_), .t.)
+      select TMP_2910
+      find (s1)
+      if found() //.and. iif(is_diag, !emptyall(tmp_2910->p_boln,tmp_2910->p1boln), .t.)
+        t_arr1 := array(12) ; t_arr2 := array(12)
+        afill(t_arr1,"")    ; afill(t_arr2,"")
+        j1 := perenos(t_arr1,arr_2910[k,1],len_name)
+        j2 := perenos(t_arr2,arr_2910[k,3],12,",")
+        if verify_FF(HH-max(j1,j2),.t.,sh)
+          aeval(arr_title, {|x| add_string(x) } )
+        endif
+        ls1 := padr(t_arr1[1],len_name)+;
+               padc(s1_,7)+;
+               padc(alltrim(t_arr2[1]),12)
+        ls1 += put_val(tmp_2910->vip_0_14,4)+;
+               put_val(tmp_2910->vip_15_19,4)+;
+               put_val(tmp_2910->vip_20_24,4)
+        ls1 += put_val(tmp_2910->vip_25_29,4)+;
+               put_val(tmp_2910->vip_30_34,4)+;
+               put_val(tmp_2910->vip_35_39,4)
+        ls1 += put_val(tmp_2910->vip_40_44,4)+;
+               put_val(tmp_2910->vip_45_49,4)+;
+               put_val(tmp_2910->vip_50_54,4)
+        ls1 += put_val(tmp_2910->vip_55_59,4)+;
+               put_val(tmp_2910->vip_60_64,4)+;
+               put_val(tmp_2910->vip_65_69,4) 
+        ls1 += put_val(tmp_2910->vip_70_74,4)+;
+               put_val(tmp_2910->vip_75_79,4)+;
+               put_val(tmp_2910->vip_80_84,4)+; 
+               put_val(tmp_2910->vip_85_99,4)
+         if is_diag .and. !(s1_ == "1")
+          add_string(replicate("-",sh))
+        endif
+        add_string(ls1)
+        for i := 2 to max(j1,j2)
+          ls2 := padl(alltrim(t_arr1[i]),len_name)+;
+                 space(7)+;
+                 padc(alltrim(t_arr2[i]),12)
+          add_string(ls2)
+        next
+        if iif(is_diag, !(s1_ == "1"), .t.)
+          add_string(replicate("-",sh))
+        endif
+        if is_diag
+          select TMP_D5
+          find (s1)
+          do while tmp_d5->stroke==s1 .and. !eof()
+            select MKB10
+            find (tmp_d5->diagnoz)
+            s := alltrim(mkb10->name)+" "
+            skip
+            do while mkb10->shifr == tmp_d5->diagnoz .and. mkb10->ks > 0 ;
+                                                            .and. !eof()
+              s += alltrim(mkb10->name)+" "
+              skip
+            enddo
+            j1 := perenos(t_arr1,s,len_name+7)
+            if verify_FF(HH-j1,.t.,sh)
+              aeval(arr_title, {|x| add_string(x) } )
+            endif
+            ls1 := padr(t_arr1[1],len_name+7)+;
+                   padc(alltrim(tmp_d5->diagnoz),12)
+            ls1 += put_val(tmp_d5->vip_0_14,4)+;
+                   put_val(tmp_d5->vip_15_19,4)+;
+                   put_val(tmp_d5->vip_20_24,4)
+            ls1 += put_val(tmp_d5->vip_25_29,4)+;
+                   put_val(tmp_d5->vip_30_34,4)+;
+                   put_val(tmp_d5->vip_35_39,4)
+            ls1 += put_val(tmp_d5->vip_40_44,4)+;
+                   put_val(tmp_d5->vip_45_49,4)+;
+                   put_val(tmp_d5->vip_50_54,4)
+            ls1 += put_val(tmp_d5->vip_55_59,4)+;
+                   put_val(tmp_d5->vip_60_64,4)+;
+                   put_val(tmp_d5->vip_65_69,4) 
+            ls1 += put_val(tmp_d5->vip_70_74,4)+;
+                   put_val(tmp_d5->vip_75_79,4)+;
+                   put_val(tmp_d5->vip_80_84,4)+; 
+                   put_val(tmp_d5->vip_85_99,4)
+            add_string(ls1)
+            for i := 2 to j1
+              add_string(padl(alltrim(t_arr1[i]),len_name+7))
+            next
+            select TMP_D5
+            skip
+          enddo
+        endif
+      endif
+    endif
+  next
+  //
+  arr_title := {;
+    "___________________________________________________________________________________________________________________________",;
+    "                                        ≥     ≥            ≥_____ì¨•‡´Æ_Ø†Ê®•≠‚Æ¢_(®ß_‚†°.2000_£‡.4_®_£‡.22)_¢_¢Æß‡†·‚•____",;
+    "                                        ≥  ¸  ≥            ≥ 0 ≥ 15≥ 20≥ 25≥ 30≥ 35≥ 40≥ 45≥ 50≥ 55≥ 60≥ 65≥ 70≥ 75≥ 80≥ 85",;
+    "    ç†®¨•≠Æ¢†≠®• ß†°Æ´•¢†≠®©            ≥·‚‡Æ-≥   äÆ§ ØÆ   ≥ 14≥ 19≥ 24≥ 29≥ 34≥ 39≥ 44≥ 49≥ 54≥ 59≥ 64≥ 69≥ 74≥ 79≥ 84≥...",;
+    "                                        ≥ ™®  ≥   åäÅ-10   ≥´•‚≥´•‚≥´•‚≥´•‚≥´•‚≥´•‚≥´•‚≥´•‚≥´•‚≥´•‚≥´•‚≥´•‚≥´•‚≥´•‚≥´•‚≥´•‚",;
+    "ƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒƒ¡ƒƒƒƒƒ¡ƒƒƒƒƒƒƒƒƒƒƒƒ¡ƒƒƒ¡ƒƒƒ¡ƒƒƒ¡ƒƒƒ¡ƒƒƒ¡ƒƒƒ¡ƒƒƒ¡ƒƒƒ¡ƒƒƒ¡ƒƒƒ¡ƒƒƒ¡ƒƒƒ¡ƒƒƒ¡ƒƒƒ¡ƒƒƒ¡ƒƒƒ"}
+    sh := len(arr_title[1])
+    len_name := 40
+    tek_stroke := HH+10
+    verify_FF(HH,.t.,sh)
+    //add_string(center("2. ëÇÖÑÖçàü é óàëãÖ ÇõÅõÇòàï àá ëíÄñàéçÄêÄ èé ÇéáêÄëíì èÄñàÖçíÄ, Á•´Æ¢•™",sh))
+    add_string("")
+    //add_string("(2910)"+padl("äÆ§ ØÆ éäÖà: Á•´Æ¢•™ - 792",sh-6))
+    aeval(arr_title, {|x| add_string(x) } )
+    for k := 1 to len(arr_2910)
+      s1_ := arr_2910[k,2] ; s1 := padr(s1_,9)
+      if iif(is_diag, !("." $ s1_), .t.)
+        select TMP_2910
+        find (s1)
+        if found() //.and. iif(is_diag, !emptyall(tmp_2910->p_boln,tmp_2910->p1boln), .t.)
+          t_arr1 := array(12) ; t_arr2 := array(12)
+          afill(t_arr1,"")    ; afill(t_arr2,"")
+          j1 := perenos(t_arr1,arr_2910[k,1],len_name)
+          j2 := perenos(t_arr2,arr_2910[k,3],12,",")
+          if verify_FF(HH-max(j1,j2),.t.,sh)
+            aeval(arr_title, {|x| add_string(x) } )
+          endif
+          ls1 := padr(t_arr1[1],len_name)+;
+                 padc(s1_,7)+;
+                 padc(alltrim(t_arr2[1]),12)
+          ls1 += put_val(tmp_2910->umer_0_14,4)+;
+                 put_val(tmp_2910->umer_15_19,4)+;
+                 put_val(tmp_2910->umer_20_24,4)
+          ls1 += put_val(tmp_2910->umer_25_29,4)+;
+                 put_val(tmp_2910->umer_30_34,4)+;
+                 put_val(tmp_2910->umer_35_39,4)
+          ls1 += put_val(tmp_2910->umer_40_44,4)+;
+                 put_val(tmp_2910->umer_45_49,4)+;
+                 put_val(tmp_2910->umer_50_54,4)
+          ls1 += put_val(tmp_2910->umer_55_59,4)+;
+                 put_val(tmp_2910->umer_60_64,4)+;
+                 put_val(tmp_2910->umer_65_69,4) 
+          ls1 += put_val(tmp_2910->umer_70_74,4)+;
+                 put_val(tmp_2910->umer_75_79,4)+;
+                 put_val(tmp_2910->umer_80_84,4)+; 
+                 put_val(tmp_2910->umer_85_99,4)
+            
+          if is_diag .and. !(s1_ == "1")
+            add_string(replicate("-",sh))
+          endif
+          add_string(ls1)
+          for i := 2 to max(j1,j2)
+            ls2 := padl(alltrim(t_arr1[i]),len_name)+;
+                   space(7)+;
+                   padc(alltrim(t_arr2[i]),12)
+            add_string(ls2)
+          next
+          if iif(is_diag, !(s1_ == "1"), .t.)
+            add_string(replicate("-",sh))
+          endif
+          if is_diag
+            select TMP_D5
+            find (s1)
+            do while tmp_d5->stroke==s1 .and. !eof()
+              select MKB10
+              find (tmp_d5->diagnoz)
+              s := alltrim(mkb10->name)+" "
+              skip
+              do while mkb10->shifr == tmp_d5->diagnoz .and. mkb10->ks > 0 ;
+                                                              .and. !eof()
+                s += alltrim(mkb10->name)+" "
+                skip
+              enddo
+              j1 := perenos(t_arr1,s,len_name+7)
+              if verify_FF(HH-j1,.t.,sh)
+                aeval(arr_title, {|x| add_string(x) } )
+              endif
+              ls1 := padr(t_arr1[1],len_name+7)+;
+                     padc(alltrim(tmp_d5->diagnoz),12)
+              ls1 += put_val(tmp_d5->umer_0_14,4)+;
+                     put_val(tmp_d5->umer_15_19,4)+;
+                     put_val(tmp_d5->umer_20_24,4)
+              ls1 += put_val(tmp_d5->umer_25_29,4)+;
+                     put_val(tmp_d5->umer_30_34,4)+;
+                     put_val(tmp_d5->umer_35_39,4)
+              ls1 += put_val(tmp_d5->umer_40_44,4)+;
+                     put_val(tmp_d5->umer_45_49,4)+;
+                     put_val(tmp_d5->umer_50_54,4)
+              ls1 += put_val(tmp_d5->umer_55_59,4)+;
+                     put_val(tmp_d5->umer_60_64,4)+;
+                     put_val(tmp_d5->umer_65_69,4) 
+              ls1 += put_val(tmp_d5->umer_70_74,4)+;
+                     put_val(tmp_d5->umer_75_79,4)+;
+                     put_val(tmp_d5->umer_80_84,4)+; 
+                     put_val(tmp_d5->umer_85_99,4)
+            
+              add_string(ls1)
+              for i := 2 to j1
+                add_string(padl(alltrim(t_arr1[i]),len_name+7))
+              next
+              select TMP_D5
+              skip
+            enddo
+          endif
+        endif
+      endif
+    next
 /*if arr_perevod[5]+arr_perevod[6]+arr_perevod[9]+arr_perevod[10] > 0
   add_string(replicate("=",sh))
   ls1 := padr("ä‡Æ¨• ‚Æ£Æ, °Æ´Ï≠Î• Ø•‡•¢•§•≠≠Î• ¢ §‡„£®• ·‚†Ê®Æ≠†‡Î:",len_name+22)
@@ -2853,6 +3145,19 @@ viewtext(name_file,,,,.t.,,,reg_print)
 return NIL
 
 *
+
+***** 16.01.23
+Function f14_arr_2910()
+  Static arr := {;
+    {"·†Â†‡≠Î© §®†°•‚ (®ß ·‚‡. 5.4)","1","E10-E11,E13-E14"},;
+    {"°Æ´•ß≠®, Â†‡†™‚•‡®ß„ÓÈ®•·Ô\ØÆ¢ÎË•≠≠Î¨ ™‡Æ¢Ô≠Î¨ §†¢´•≠®•¨ (®ß ·‚‡.10.3)","2","I10,I11.9,I12.9,I13.9"},;
+    {"Â‡Æ≠®Á•·™†Ô ®Ë•¨®Á•·™†Ô\°Æ´•ß≠Ï ·•‡§Ê† (·‚‡. 10.4.5)","3","I25"},;
+    {"°‡Æ≠Â®‚ Â‡Æ≠®Á•·™®© ®\≠•„‚ÆÁ≠•≠≠Î©, Ì¨‰®ß•¨† (·‚‡. 11.7)","4","J40-J43"},;
+    {"§‡„£†Ô Â‡Æ≠®Á•·™†Ô\Æ°·‚‡„™‚®¢≠†Ô ´•£ÆÁ≠†Ô\°Æ´•ß≠Ï (·‚‡.11.8)","5","J44"},;
+    {"°‡Æ≠ÂÆÌ™‚†‚®Á•·™†Ô °Æ´•ß≠Ï (·‚‡. 11.9)","6","J47"},;
+    {"†·‚¨†, †·‚¨†‚®Á•·™®© ·‚†‚„· (·‚‡. 11.10)","7","J45,J46"};
+    }
+  return arr
 
 ***** 02.01.16
 Function f14_arr_3000()
@@ -3263,12 +3568,153 @@ if nkd > 0 .and. (k := ret_f_14(mdiag)) != NIL
     endif
   endif
 endif
+// ¢‡•ß™† ‚†°´®Ê† 2910
+if nkd > 0 
+  k := ret_f_14_2910(mdiag)
+  for j := 1 to len(k)
+    select TMP_2910
+    find (padr(k[j,1],9))
+    if found()
+    if is_death(human_->RSLT_NEW) // ·¨•‡‚Ï
+      lum := 1
+      lvip := 0
+    else
+      lum := 0
+      lvip := 1
+    endif    
+    if mvozrast <= 14 
+      tmp_2910->umer_0_14 += lum
+      tmp_2910->vip_0_14  += lvip 
+    elseif 15 <= mvozrast .and. mvozrast <= 19 
+      tmp_2910->umer_15_19 += lum
+      tmp_2910->vip_15_19  += lvip 
+    elseif 20 <= mvozrast .and. mvozrast <= 24   
+      tmp_2910->umer_20_24 += lum
+      tmp_2910->vip_20_24  += lvip 
+    elseif 25 <= mvozrast .and. mvozrast <= 29 
+      tmp_2910->umer_25_29 += lum
+      tmp_2910->vip_25_29  += lvip 
+    elseif 30 <= mvozrast .and. mvozrast <= 34 
+      tmp_2910->umer_30_34 += lum
+      tmp_2910->vip_30_34  += lvip 
+    elseif 35 <= mvozrast .and. mvozrast <= 39 
+      tmp_2910->umer_35_39 += lum
+      tmp_2910->vip_35_39  += lvip 
+    elseif 40 <= mvozrast .and. mvozrast <= 44 
+      tmp_2910->umer_40_44 += lum
+      tmp_2910->vip_40_44  += lvip 
+    elseif 45 <= mvozrast .and. mvozrast <= 29 
+      tmp_2910->umer_45_49 += lum
+      tmp_2910->vip_45_49  += lvip 
+    elseif 50 <= mvozrast .and. mvozrast <= 54 
+      tmp_2910->umer_50_54 += lum
+      tmp_2910->vip_50_54  += lvip 
+    elseif 55 <= mvozrast .and. mvozrast <= 59 
+      tmp_2910->umer_55_59 += lum
+      tmp_2910->vip_55_59  += lvip 
+    elseif 60 <= mvozrast .and. mvozrast <= 64 
+      tmp_2910->umer_60_64 += lum
+      tmp_2910->vip_60_64  += lvip 
+    elseif 65 <= mvozrast .and. mvozrast <= 69 
+      tmp_2910->umer_65_69 += lum
+      tmp_2910->vip_65_69  += lvip 
+    elseif 70 <= mvozrast .and. mvozrast <= 74 
+      tmp_2910->umer_70_74 += lum
+      tmp_2910->vip_70_74  += lvip 
+    elseif 75 <= mvozrast .and. mvozrast <= 79 
+      tmp_2910->umer_75_79 += lum
+      tmp_2910->vip_75_79  += lvip 
+    elseif 80 <= mvozrast .and. mvozrast <= 84 
+      tmp_2910->umer_80_84 += lum
+      tmp_2910->vip_80_84  += lvip 
+    else //if 20 <= mvozrast .and. mvozrast <= 24 
+      tmp_2910->umer_85_99 += lum    
+      tmp_2910->vip_85_99  += lvip  
+    endif
+  endif
+  next
+  if is_diag
+    select TMP_D3
+    find (mdiag)
+    if !found()
+      append blank
+      tmp_d5->diagnoz := mdiag
+      if (j := ascan(k,{|y|eq_any(alltrim(y[1]),'2','3','4','5','6','7')})) > 0
+        tmp_d5->stroke := padr(k[j,1],9)
+      endif
+    endif
+    //
+    //
+    //
+    if is_death(human_->RSLT_NEW) // ·¨•‡‚Ï
+      lum := 1
+      lvip := 0
+    else
+      lum := 0
+      lvip := 1
+    endif    
+    if mvozrast <= 14 
+      tmp_d5->umer_0_14 += lum
+      tmp_d5->vip_0_14  += lvip 
+    elseif 15 <= mvozrast .and. mvozrast <= 19 
+      tmp_d5->umer_15_19 += lum
+      tmp_d5->vip_15_19  += lvip 
+    elseif 20 <= mvozrast .and. mvozrast <= 24   
+      tmp_d5->umer_20_24 += lum
+      tmp_d5->vip_20_24  += lvip 
+    elseif 25 <= mvozrast .and. mvozrast <= 29 
+      tmp_d5->umer_25_29 += lum
+      tmp_2910->vip_25_29  += lvip 
+    elseif 30 <= mvozrast .and. mvozrast <= 34 
+      tmp_d5->umer_30_34 += lum
+      tmp_d5->vip_30_34  += lvip 
+    elseif 35 <= mvozrast .and. mvozrast <= 39 
+      tmp_d5->umer_35_39 += lum
+      tmp_d5->vip_35_39  += lvip 
+    elseif 40 <= mvozrast .and. mvozrast <= 44 
+      tmp_d5->umer_40_44 += lum
+      tmp_d5->vip_40_44  += lvip 
+    elseif 45 <= mvozrast .and. mvozrast <= 29 
+      tmp_d5->umer_45_49 += lum
+      tmp_d5->vip_45_49  += lvip 
+    elseif 50 <= mvozrast .and. mvozrast <= 54 
+      tmp_d5->umer_50_54 += lum
+      tmp_d5->vip_50_54  += lvip 
+    elseif 55 <= mvozrast .and. mvozrast <= 59 
+      tmp_d5->umer_55_59 += lum
+      tmp_d5->vip_55_59  += lvip 
+    elseif 60 <= mvozrast .and. mvozrast <= 64 
+      tmp_d5->umer_60_64 += lum
+      tmp_d5->vip_60_64  += lvip 
+    elseif 65 <= mvozrast .and. mvozrast <= 69 
+      tmp_d5->umer_65_69 += lum
+      tmp_d5->vip_65_69  += lvip 
+    elseif 70 <= mvozrast .and. mvozrast <= 74 
+      tmp_d5->umer_70_74 += lum
+      tmp_d5->vip_70_74  += lvip 
+    elseif 75 <= mvozrast .and. mvozrast <= 79 
+      tmp_d5->umer_75_79 += lum
+      tmp_d5->vip_75_79  += lvip 
+    elseif 80 <= mvozrast .and. mvozrast <= 84 
+      tmp_d5->umer_80_84 += lum
+      tmp_d5->vip_80_84  += lvip 
+    else //if 20 <= mvozrast .and. mvozrast <= 24 
+      tmp_d5->umer_85_99 += lum    
+      tmp_d5->vip_85_99  += lvip  
+    endif
+  endif
+  aadd(arr_d, mdiag)
+endif
+//
+// ™Æ≠•Ê ¢‡•ß™® 2910
 // Ø‡Æ¢•‡Ô•¨ ‚†°´®Ê„ 3000 (≠Æ¢Æ‡Æ¶§•≠≠ÎÂ)
 if nkd > 0 .and. human_->NOVOR > 0 .and. mvozrast == 0 .and. mmonth == 0 .and. mday <= 6
   k := ret_f_14_3000(mdiag)
+  //my_debug(,"3000 "+print_array(k))
   for j := 1 to len(k)
     select TMP_3000
     find (padr(k[j,1],9))
+    //my_debug(,"3000 "+padr(k[j,1],9))
     if human_2->VNR < 1000
       tmp_3000->p_boln ++
       if fl_death
@@ -3469,6 +3915,25 @@ next
 if len(ret) == 0 ; ret := NIL ; endif
 return ret
 
+***** 16.01.23
+Function ret_f_14_2910(lshifr)
+  Local ret := {}, i, j, d, r
+  //aadd(ret,{'1',{}})
+  d := diag_to_num(lshifr,1)
+  for i := 1 to len_diag_2910
+    r := diag1_2910[i,2]
+    for j := 1 to len(r)
+      if between(d,r[j,1],r[j,2])
+        aadd(ret, {diag1_2910[i,1],diag1_2910[i,2]})
+        exit
+      endif
+    next
+  next
+ // if len(ret) == 1
+ //   aadd(ret,{'7',{}})
+ // endif
+  return ret
+
 ***** 08.01.13
 Function ret_f_14_3000(lshifr)
 Local ret := {}, i, j, d, r
@@ -3484,7 +3949,7 @@ for i := 1 to len_diag_3000
   next
 next
 if len(ret) == 1
-  aadd(ret,{'7',{}})
+  aadd(ret,{'8',{}})
 endif
 return ret
 
