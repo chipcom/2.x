@@ -76,11 +76,11 @@ Function f_get_metvmp(k, r, c, lvidvmp, modpac)
   endif
   return ret
 
-***** 13.02.21 в GET-е вернуть строку из glob_V022
+** 17.01.23 в GET-е вернуть строку из glob_V022
 Function f_get_mmodpac(k, r, c, lvidvmp, sDiag)
   Local arr := {}, i, ret, ret_arr
   local diag := alltrim(sDiag)
-  local model := getV022table()
+  local model := getV022()
   local row
 
   local glob_V019 := getV019table(mk_data)

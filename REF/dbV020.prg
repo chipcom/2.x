@@ -18,7 +18,6 @@ function getV020()
       'datebeg, ' + ;
       'dateend ' + ;
       'FROM v020')
-    // cmdText := 'CREATE TABLE v020(idk_pr INTEGER, k_prname BLOB, datebeg TEXT(10), dateend TEXT(10))'
     if len(aTable) > 1
       for nI := 2 to Len( aTable )
         aadd(_arr, {alltrim(aTable[nI, 2]), val(aTable[nI, 1]), ;
