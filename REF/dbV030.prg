@@ -1,4 +1,4 @@
-** 17.01.23 вернуть массив по справочнику ФФОМС V030.xml
+** 18.01.23 вернуть массив по справочнику ФФОМС V030.xml
 function getV030()
   // V030.xml - Схемы лечения заболевания COVID-19 (TreatReg)
   //  1 - SCHEMCOD(C) 2 - SCHEME(C) 3 - DEGREE(N) 4 - COMMENT(M)  5 - DATEBEG(D)  6 - DATEEND(D)
@@ -6,6 +6,9 @@ function getV030()
   // Local dbAlias := 'V030'
   // local tmp_select := select()
   static _arr := {}
+  local db
+  local aTable
+  local nI
 
   if len(_arr) == 0
     db := openSQL_DB()
