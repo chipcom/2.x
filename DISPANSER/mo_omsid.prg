@@ -5,7 +5,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-#define MONTH_UPLOAD 12 //МЕСЯЦ для выгрузки R11
+#define MONTH_UPLOAD 2 //МЕСЯЦ для выгрузки R11
 
 Static lcount_uch  := 1
 Static mas1pmt := {"~все оказанные случаи",;
@@ -2817,8 +2817,8 @@ do case
   case k == 62
     f_view_R01()
   case k == 43
-    ne_real()
-    /*mas_pmt := {"~Создание файлов обмена",;
+   // ne_real()
+    mas_pmt := {"~Создание файлов обмена",;
                 "~Просмотр файлов обмена"}
     mas_msg := {"Создание файлов обмена R11... за конкретный месяц",;
                 "Просмотр файлов обмена R11... и результатов работы с ними"}
@@ -2832,7 +2832,7 @@ do case
     set key K_CTRL_F10 to delete_month_R11()
     popup_prompt(T_ROW,T_COL-5,si7,mas_pmt,mas_msg,mas_fun)
     set key K_CTRL_F10 to
-    */
+    
   case k == 71
     f_create_R11()
   case k == 72
@@ -9126,16 +9126,16 @@ if (arr_m := year_month(,,,5)) != NIL
 endif
 return NIL
 
-** 18.01.21 Создание файла обмена R11...
+** 18.01.23 Создание файла обмена R11...
 Function f_create_R11()
 Local buf := save_maxrow(), i, j, ir, s := "", arr := {}, fl := .t., fl1 := .f., a_reestr := {}, ar
 Private SMONTH := 1, mdate := sys_date, mrec := 1
 Private c_view := 0, c_found := 0, fl_exit := .f., pj, arr_rees := {},;
         pkol := 0, CODE_LPU := glob_mo[_MO_KOD_TFOMS], CODE_MO := glob_mo[_MO_KOD_FFOMS],;
         mkol := {0,0,0,0,0}, skol[5], ames[12,5], ame[12], bm := SMONTH,; // начальный месяц минус один
-        _arr_vozrast_DVN := ret_arr_vozrast_DVN(0d20211201)
+        _arr_vozrast_DVN := ret_arr_vozrast_DVN(0d20221201)
 
-Private sgod := 2022
+Private sgod := 2023
 //
 mywait()
 fl := .t.
@@ -9156,8 +9156,8 @@ go top
 do while !eof()
 
   if rees->kol_err < 0
-    //fl := func_error(4,"В файле R12 за "+lstr(rees->NMONTH)+"-й месяц "+;
-    //                   lstr(sgod)+"г. ошибки на уровне файла! Операция запрещена")
+    fl := func_error(4,"В файле PR11 за "+lstr(rees->NMONTH)+"-й месяц "+;
+                       lstr(sgod)+"г. ошибки на уровне файла! Операция запрещена")
   elseif empty(rees->answer)
     fl := func_error(4,"Файл PR11 за "+lstr(rees->NMONTH)+"-й месяц "+;
                        lstr(sgod)+" года не был прочитан! Операция запрещена")
@@ -9607,6 +9607,29 @@ index on upper(kart->fio)+dtos(kart->date_r) to (cur_dir+"tmp_00")
     if !empty(kart->snils)
       mo_add_xml_stroke(oXmlNode,"SS",transform(kart->SNILS,picture_pf))
     endif
+     //  проверим наличие ЕНП - иначе старый вариант
+     if len(alltrim(kart2->KOD_MIS)) > 14
+      mo_add_xml_stroke(oXmlNode,"TYPE_P",lstr(3)) // только НОВЫЙ
+      s := alltrim(kart2->KOD_MIS)
+      s := padr(s,16,"0")
+      // 
+      mo_add_xml_stroke(oXmlNode,"NUM_P",s)
+      mo_add_xml_stroke(oXmlNode,"ENP",s)
+    else
+      mo_add_xml_stroke(oXmlNode,"TYPE_P",lstr(iif(between(kart_->VPOLIS,1,3),kart_->VPOLIS,1)))
+      if !empty(kart_->SPOLIS)
+        mo_add_xml_stroke(oXmlNode,"SER_P",kart_->SPOLIS)
+      endif
+      s := alltrim(kart_->NPOLIS)
+      if kart_->VPOLIS == 3 .and. len(s) != 16
+        s := padr(s,16,"0")
+      endif
+      mo_add_xml_stroke(oXmlNode,"NUM_P",s)
+      if kart_->VPOLIS == 3
+        mo_add_xml_stroke(oXmlNode,"ENP",s)
+      endif
+    endif
+/*
     mo_add_xml_stroke(oXmlNode,"TYPE_P",lstr(iif(between(kart_->VPOLIS,1,3),kart_->VPOLIS,1)))
     if !empty(kart_->SPOLIS)
       mo_add_xml_stroke(oXmlNode,"SER_P",kart_->SPOLIS)
@@ -9618,7 +9641,7 @@ index on upper(kart->fio)+dtos(kart->date_r) to (cur_dir+"tmp_00")
     mo_add_xml_stroke(oXmlNode,"NUM_P",s)
     if kart_->VPOLIS == 3
       mo_add_xml_stroke(oXmlNode,"ENP",s)
-    endif
+    endif*/
     mo_add_xml_stroke(oXmlNode,"DOCTYPE",lstr(kart_->vid_ud))
     if !empty(kart_->ser_ud)
       mo_add_xml_stroke(oXmlNode,"DOCSER",kart_->ser_ud)
