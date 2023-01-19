@@ -2,7 +2,7 @@
 #include 'chip_mo.ch'
 
 #define FILE_HASH   'files.hst'   // имя файла для хэшев файлов
-#define NUMBER_YEAR 5 // число лет для переиндексации назад
+#define NUMBER_YEAR 3 // число лет для переиндексации назад
 
 ** 17.01.23 инициализация массива МО, запрос кода МО (при необходимости)
 Function init_mo()

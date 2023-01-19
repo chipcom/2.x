@@ -2021,6 +2021,9 @@ Function forma14_med_oms()
       if arr_m[1] == 2022 .and. arr_m[3] > 4
         d1 := 20
       endif  
+      if arr_m[1] == 2023 //.and. arr_m[3] > 1
+        d1 := 20
+      endif 
       if arr_m[1] == 2018 .and. arr_m[3] == 12
         d2 := 21
         if glob_mo[_MO_KOD_TFOMS] == '134505'
@@ -2038,6 +2041,8 @@ Function forma14_med_oms()
         d1 := 15
       elseif arr_m[1] == 2022 .and. arr_m[3] == 4
         d2 := 12 
+      elseif arr_m[1] == 2022 .and. arr_m[3] == 12
+        d2 := 14 
       elseif arr_m[1] == 2023 .and. arr_m[3] == 1
         d2 := 15  
       elseif arr_m[1] == 2023 .and. arr_m[3] == 2
