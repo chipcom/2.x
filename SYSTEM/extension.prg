@@ -1,13 +1,31 @@
 #include 'Directry.ch'
 #include 'function.ch'
 #include 'chip_mo.ch'
+#include 'common.ch'
 
 #require 'hbsqlit3'
 
+#DEFINE TIMEEXISTS  600
+
 function openSQL_DB()
 
-  // return sqlite3_open( exe_dir + 'chip_mo.db', .f. )
   return sqlite3_open( exe_dir + FILE_NAME_SQL, .f. )
+
+** 19.01.23
+function timeout_load(/*@*/time_load)
+  local ret := .f.
+
+  if isnil(time_load)
+    time_load := int(seconds())
+    ret := .t.
+  else
+    if (int(seconds()) - time_load) > TIMEEXISTS
+      time_load := int(seconds())
+      ret := .t.
+    endif
+  endif
+
+  return ret
 
 function aliasIsAlreadyUse(cAlias)
   local we_opened_it := .f.

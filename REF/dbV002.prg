@@ -1,15 +1,20 @@
+#include 'function.ch'
 
-** 18.01.23 вернуть массив по справочнику регионов ТФОМС V002.xml
-function getV002()
+** 19.01.23 вернуть массив по справочнику регионов ТФОМС V002.xml
+function getV002(work_date)
   // V002.dbf - Классификатор профилей оказанной медицинской помощи
   //  1 - PRNAME(C)  2 - IDPR(N)  3 - DATEBEG(D)  4 - DATEEND(D)
   // local dbName := "_mo_V002"
-  static _arr := {}
+  static _arr // := {}
+  static time_load
   local db
   local aTable
   local nI
+  local ret_array
 
-  if len(_arr) == 0
+  DEFAULT work_date TO sys_date
+  if timeout_load(@time_load)
+    _arr := {}
     Set(_SET_DATEFORMAT, 'yyyy-mm-dd')
     db := openSQL_DB()
     aTable := sqlite3_get_table(db, 'SELECT ' + ;
@@ -25,7 +30,6 @@ function getV002()
     endif
     Set(_SET_DATEFORMAT, 'dd.mm.yyyy')
     db := nil
-
     // dbUseArea( .t.,, exe_dir + dbName, dbName, .f., .f. )
     // (dbName)->(dbGoTop())
     // do while !(dbName)->(EOF())
@@ -34,6 +38,7 @@ function getV002()
     // enddo
     // (dbName)->(dbCloseArea())
   endif
+  ret_array := {}
 
   return _arr
 
