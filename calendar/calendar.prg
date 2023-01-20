@@ -172,7 +172,12 @@ Function is_work_day(mdate)
     endif
     return fl
 
-***** попадает ли date1 (диапазон date1-date2) в диапазон _begin_date-_end_date
+** 20.01.23 проверяем дату во вхождение в период, допустимо пустое значение конечной даты
+function correct_date_dictionary(dt, date_begin, date_end)
+
+  return ((date_begin <= dt) .and. (empty(date_end) .or. date_end >= dt))
+
+** попадает ли date1 (диапазон date1-date2) в диапазон _begin_date-_end_date
 Function between_date(_begin_date,_end_date,date1,date2, impossiblyEmptyRange)
   // _begin_date - начало действия
   // _end_date   - окончание действия

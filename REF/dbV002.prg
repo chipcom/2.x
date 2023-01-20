@@ -8,7 +8,7 @@ function getV002(work_date)
   static _arr // := {}
   static time_load
   local db
-  local aTable
+  local aTable, row
   local nI
   local ret_array
 
@@ -39,6 +39,12 @@ function getV002(work_date)
     // (dbName)->(dbCloseArea())
   endif
   ret_array := {}
-
-  return _arr
+  for each row in _arr
+    // if (row[3] <= work_date) .and. (empty(row[4]) .or. row[4] >= work_date)
+    if correct_date_dictionary(work_date, row[3], row[4])
+      aadd(ret_array, row)
+    endif
+  next
+  // return _arr
+  return ret_array
 
