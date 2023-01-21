@@ -1,6 +1,8 @@
 #include 'function.ch'
 
-** 19.01.23 вернуть массив по справочнику регионов ТФОМС V002.xml
+#require 'hbsqlit3'
+
+** 21.01.23 вернуть массив по справочнику регионов ТФОМС V002.xml
 function getV002(work_date)
   // V002.dbf - Классификатор профилей оказанной медицинской помощи
   //  1 - PRNAME(C)  2 - IDPR(N)  3 - DATEBEG(D)  4 - DATEEND(D)

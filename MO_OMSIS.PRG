@@ -1392,9 +1392,7 @@ endif
 close databases
 return NIL
 
-*
-
-*****
+** 21.01.23
 Function SchetUzkieSpec()
 Local sh:=84, HH:=60, reg_print:=2, i, j, k, s, t_arr[2], n_file := "_schet.txt"
 //
@@ -1536,7 +1534,8 @@ Private tmp_V006 := create_classif_FFOMS(0, "V006") // USL_OK
 //Private tmp_V008 := create_classif_FFOMS(0,"V008") // VIDPOM
 Private tmp_V002 := create_classif_FFOMS(0, "V002") // PROFIL
 //Private tmp_V010 := create_classif_FFOMS(0,"V010") // IDSP
-Private tmp_V009 := cut_glob_array(getV009(), sys_date) // rslt
+  // Private tmp_V009 := cut_glob_array(getV009(), sys_date) // rslt
+Private tmp_V009 := getV009(sys_date) // rslt
 Private tmp_V012 := cut_glob_array(getV012(), sys_date) // ishod
 Private arr_doc := {"Дата рожд.",;
                     "Адрес",;

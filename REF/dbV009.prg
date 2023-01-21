@@ -1,41 +1,51 @@
+#include 'function.ch'
+
 #require 'hbsqlit3'
 
-** 04.11.22 вернуть результат обращения за медицинской помощью по коду
-function getRSLT_V009(result)
-  local ret := NIL
-  local i
-
-  if (i := ascan(getV009(), {|x| x[2] == result })) > 0
-      ret := getV009()[i, 1]
-  endif
-  return ret
-
-** 18.05.22 вернуть результат обращения по условию оказания и дате
-function getRSLT_usl_date(uslovie, date)
-  local ret := {}
-  local row
-
-  for each row in getV009()
-    if (empty(row[4]) .and. date >= row[3]) .or. between_date(row[3], row[4], date)
-      if uslovie == row[5]
-        aadd(ret, {row[1], row[2], row[3], row[4], row[5]})
-      endif
-    endif
-  next
-  return ret
-
-** 10.01.23 вернуть массив по справочнику ТФОМС V009.xml
-function getV009()
+** 21.01.23 вернуть массив по справочнику ТФОМС V009.xml
+function getV009(work_date)
   // V009.xml - Классификатор результатов обращения за медицинской помощью
   // Local dbName, dbAlias := 'V009'
   // local tmp_select := select()
+  static _arr   //:= {} 
   local stroke := '', vid := ''
+  static time_load
   local db
-  local aTable
+  local aTable, row
   local nI
-  static _arr := {} 
+  local ret_array
 
-  if len(_arr) == 0
+  DEFAULT work_date TO sys_date
+  // if len(_arr) == 0
+  if timeout_load(@time_load)
+    _arr := {}
+    Set(_SET_DATEFORMAT, 'yyyy-mm-dd')
+    db := openSQL_DB()
+    aTable := sqlite3_get_table(db, 'SELECT ' + ;
+      'idrmp, ' + ;
+      'rmpname, ' + ;
+      'dl_uslov, ' + ;
+      'datebeg, ' + ;
+      'dateend ' + ;
+      'FROM v009 WHERE dateend == "    -  -  "')
+    if len(aTable) > 1
+      for nI := 2 to Len( aTable )
+        if val(aTable[nI, 3]) == 1
+          vid := '/ст-р/'
+        elseif val(aTable[nI, 3]) == 2
+          vid := '/дн.с/'
+        elseif val(aTable[nI, 3]) == 3
+          vid := '/п-ка/'
+        else
+          vid := '/'
+        endif
+        stroke := str(val(aTable[nI, 1]), 3) + vid + alltrim(aTable[nI, 2])
+        aadd(_arr, { stroke, val(aTable[nI, 1]), ctod(aTable[nI, 4]), ctod(aTable[nI, 5]), val(aTable[nI, 3]) })
+      next
+    endif
+    Set(_SET_DATEFORMAT, 'dd.mm.yyyy')
+    db := nil
+
   //   tmp_select := select()
   //   dbName := '_mo_v009'
   //   dbUseArea( .t., 'DBFNTX', exe_dir + dbName, dbAlias , .t., .f. )
@@ -61,33 +71,37 @@ function getV009()
 
   //   (dbAlias)->(dbCloseArea())
   //   Select(tmp_select)
-    Set(_SET_DATEFORMAT, 'yyyy-mm-dd')
-    db := openSQL_DB()
-    aTable := sqlite3_get_table(db, 'SELECT ' + ;
-      'idrmp, ' + ;
-      'rmpname, ' + ;
-      'dl_uslov, ' + ;
-      'datebeg, ' + ;
-      'dateend ' + ;
-      'FROM v009 WHERE dateend == "    -  -  "')
-    if len(aTable) > 1
-      for nI := 2 to Len( aTable )
-        // if empty(ctod(aTable[nI, 5]))  // только если поле окончания действия пусто
-          if val(aTable[nI, 3]) == 1
-            vid := '/ст-р/'
-          elseif val(aTable[nI, 3]) == 2
-            vid := '/дн.с/'
-          elseif val(aTable[nI, 3]) == 3
-            vid := '/п-ка/'
-          else
-            vid := '/'
-          endif
-          stroke := str(val(aTable[nI, 1]), 3) + vid + alltrim(aTable[nI, 2])
-          aadd(_arr, { stroke, val(aTable[nI, 1]), ctod(aTable[nI, 4]), ctod(aTable[nI, 5]), val(aTable[nI, 3]) })
-        // endif
-      next
-    endif
-    Set(_SET_DATEFORMAT, 'dd.mm.yyyy')
-    db := nil
   endif
-  return _arr
+  ret_array := {}
+  for each row in _arr
+    // if (row[3] <= work_date) .and. (empty(row[4]) .or. row[4] >= work_date)
+    if correct_date_dictionary(work_date, row[3], row[4])
+      aadd(ret_array, row)
+    endif
+  next
+  // return _arr
+  return ret_array
+
+** 04.11.22 вернуть результат обращения за медицинской помощью по коду
+function getRSLT_V009(result)
+  local ret := NIL
+  local i
+
+  if (i := ascan(getV009(), {|x| x[2] == result })) > 0
+      ret := getV009()[i, 1]
+  endif
+  return ret
+
+** 18.05.22 вернуть результат обращения по условию оказания и дате
+function getRSLT_usl_date(uslovie, date)
+  local ret := {}
+  local row
+
+  for each row in getV009()
+    if (empty(row[4]) .and. date >= row[3]) .or. between_date(row[3], row[4], date)
+      if uslovie == row[5]
+        aadd(ret, {row[1], row[2], row[3], row[4], row[5]})
+      endif
+    endif
+  next
+  return ret

@@ -7,7 +7,7 @@
 ** согласно письму ТФОМС 09-30-376/1 от 09.11.22 года
 #define CHILD_EXIST .f. // учитывать несовершеннолетних или нет
 
-** 15.11.22 добавление или редактирование случая (листа учета)
+** 21.01.23 добавление или редактирование случая (листа учета)
 function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -59,7 +59,8 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
   Private tmp_V006 := create_classif_FFOMS(2, 'V006') // USL_OK
   Private tmp_V002 := create_classif_FFOMS(2, 'V002') // PROFIL
   Private tmp_V020 := create_classif_FFOMS(2, 'V020') // PROFIL_K
-  Private tmp_V009 := cut_glob_array(getV009(),sys_date) // rslt
+  // Private tmp_V009 := cut_glob_array(getV009(), sys_date) // rslt
+  Private tmp_V009 := getV009(sys_date) // rslt
   Private tmp_V012 := cut_glob_array(getV012(),sys_date) // ishod
   private mm_N002
   Private mm_rslt, mm_ishod, rslt_umolch := 0, ishod_umolch := 0
