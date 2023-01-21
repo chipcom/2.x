@@ -1470,144 +1470,145 @@ return NIL
 
 ** 05.11.22 многовариантный поиск
 Function s_mnog_poisk()
-Static mm_rak := {;
-  {"все случаи",0},;
-  {"за исключением полностью неоплачиваемых",1},;
-  {"полностью неоплачиваемые и перевыставленные",2},;
-  {"полностью неоплачиваемые и неперевыставленные",3},;
-  {"полностью неоплачиваемые",4},;
-  {"частично неоплачиваемые",5},;
-  {"полностью или частично неоплачиваемые",6};
-}
-Static mm_d_p_m := {;  // "Диспансеризация/Профилактика/Медосмотр?"
-  {"диспансеризация детей-сирот при стационаре I этап",1},;
-  {"диспансеризация детей-сирот при стационаре II этап",2},;
-  {"диспансеризация детей-сирот под опекой I этап",3},;
-  {"диспансеризация детей-сирот под опекой II этап",4},;
-  {"диспансеризация взрослого населения I этап (1 раз в 3 года)",5},;
-  {"диспансеризация взрослого населения II этап (1 раз в 3 года)",6},;
-  {"профилактика взрослого населения",7},;
-  {"диспансеризация взрослого населения I этап (1 раз в 2 года)",8},;
-  {"диспансеризация взрослого населения II этап (1 раз в 2 года)",9},;
-  {"профосмотр несовершеннолетних I этап",10},;
-  {"профосмотр несовершеннолетних II этап",11},;
-  {"предварительный осмотр несовершеннолетних I этап",12},;
-  {"предварительный осмотр несовершеннолетних II этап",13},;
-  {"периодический осмотр несовершеннолетних",14},;
-  {"углубленная диспансеризация I этап (COVID-19)",15},;
-  {"углубленная диспансеризация II этап (COVID-19)",16};
-}
-Static mm_perevyst := {;
-  {"все случаи",1},;
-  {"без учёта случаев с отказом (перевыставленных)",0},;
-  {"только случаи с отказом (которые были перевыставлены)",2};
-}
-Static mm_g_selo :=  {{"город",1},{"село",2}}
-Static mm_regschet := {{"Не зарегистрированные счета",1},{"Зарегистрированные счета",2}}
-Static mm_schet := {{"Не попавшие в счета",1},{"Попавшие в счета",2}}
-Static mm_reestr := {{"Не попавшие в реестры",1},{"Попавшие в реестры",2}}
-Static mm_zav_lech := {{"Незаконченный случай",1},{"законченный случай",2}}
-Static mm_dvojn := {{"все случаи",1},{"только двойные случаи",2},{"все, кроме двойных случаев",3}}
-Local mm_tmp := {}, k, adiag_talon[16]
-Local buf := savescreen(), tmp_color := setcolor(cDataCGet),;
-      tmp_help := help_code, hGauge, name_file := "in_boln"+stxt,;
-      sh := 80, HH := 77, i, a_diagnoz[10], ;
-      mm_da_net := {{"нет",1},{"да ",2}}, lvid_doc := 0,;
-      menu_bolnich := {{"нет",1},{"да",2},{"родители",3}},;
-      mm_mest := {{"Волгоград или область",1},{"иногородние",2}},;
-      mm_dom := {{"-----",0},{"в поликлинике",1},{"на дому",2}},;
-      mm_invalid := {{"неважно",0},{"любая группа",9},{"1 группа",1},{"2 группа",2},{"3 группа",3},{"дети-инвалиды",4}},;
-      mm_prik := {{"неважно",0},;
-                  {"прикреплён к нашей МО",1},;
-                  {"не прикреплён к нашей МО",2}},;
-      tmp_file := "tmp_mn_p"+sdbf,;
-      k_diagnoz, k_usl, tt_diagnoz[10], tt_usl[10]
-local nameArr
+  Static mm_rak := { ;
+    {'все случаи', 0}, ;
+    {'за исключением полностью неоплачиваемых', 1}, ;
+    {'полностью неоплачиваемые и перевыставленные', 2}, ;
+    {'полностью неоплачиваемые и неперевыставленные', 3}, ;
+    {'полностью неоплачиваемые', 4}, ;
+    {'частично неоплачиваемые', 5}, ;
+    {'полностью или частично неоплачиваемые', 6} ;
+  }
+  Static mm_d_p_m := { ;  // 'Диспансеризация/Профилактика/Медосмотр?'
+    {'диспансеризация детей-сирот при стационаре I этап', 1}, ;
+    {'диспансеризация детей-сирот при стационаре II этап', 2}, ;
+    {'диспансеризация детей-сирот под опекой I этап', 3}, ;
+    {'диспансеризация детей-сирот под опекой II этап', 4}, ;
+    {'диспансеризация взрослого населения I этап (1 раз в 3 года)', 5}, ;
+    {'диспансеризация взрослого населения II этап (1 раз в 3 года)', 6}, ;
+    {'профилактика взрослого населения', 7}, ;
+    {'диспансеризация взрослого населения I этап (1 раз в 2 года)', 8}, ;
+    {'диспансеризация взрослого населения II этап (1 раз в 2 года)', 9}, ;
+    {'профосмотр несовершеннолетних I этап', 10}, ;
+    {'профосмотр несовершеннолетних II этап', 11}, ;
+    {'предварительный осмотр несовершеннолетних I этап', 12}, ;
+    {'предварительный осмотр несовершеннолетних II этап', 13}, ;
+    {'периодический осмотр несовершеннолетних', 14}, ;
+    {'углубленная диспансеризация I этап (COVID-19)', 15}, ;
+    {'углубленная диспансеризация II этап (COVID-19)', 16} ;
+  }
+  Static mm_perevyst := { ;
+    {'все случаи', 1}, ;
+    {'без учёта случаев с отказом (перевыставленных)', 0}, ;
+    {'только случаи с отказом (которые были перевыставлены)', 2} ;
+  }
+  Static mm_g_selo :=  {{'город', 1}, {'село', 2}}
+  Static mm_regschet := {{'Не зарегистрированные счета', 1}, {'Зарегистрированные счета', 2}}
+  Static mm_schet := {{'Не попавшие в счета', 1}, {'Попавшие в счета', 2}}
+  Static mm_reestr := {{'Не попавшие в реестры', 1}, {'Попавшие в реестры', 2}}
+  Static mm_zav_lech := {{'Незаконченный случай', 1}, {'законченный случай', 2}}
+  Static mm_dvojn := {{'все случаи', 1}, {'только двойные случаи', 2}, {'все, кроме двойных случаев', 3}}
+  Local mm_tmp := {}, k, adiag_talon[16]
+  Local buf := savescreen(), tmp_color := setcolor(cDataCGet), ;
+        tmp_help := help_code, hGauge, name_file := cur_dir + 'in_boln' + stxt, ;
+        sh := 80, HH := 77, i, a_diagnoz[10], ;
+        mm_da_net := {{'нет', 1}, {'да ', 2}}, lvid_doc := 0, ;
+        menu_bolnich := {{'нет', 1}, {'да', 2}, {'родители', 3}}, ;
+        mm_mest := {{'Волгоград или область', 1}, {'иногородние', 2}}, ;
+        mm_dom := {{'-----', 0}, {'в поликлинике', 1}, {'на дому', 2}}, ;
+        mm_invalid := {{'неважно', 0}, {'любая группа', 9}, {'1 группа', 1}, {'2 группа', 2}, {'3 группа', 3}, {'дети-инвалиды', 4}}, ;
+        mm_prik := {{'неважно', 0}, ;
+                    {'прикреплён к нашей МО', 1}, ;
+                    {'не прикреплён к нашей МО', 2}}, ;
+        tmp_file := cur_dir + 'tmp_mn_p' + sdbf, ;
+        k_diagnoz, k_usl, tt_diagnoz[10], tt_usl[10]
+  local nameArr
 
-if mem_dom_aktiv == 1
-  aadd(mm_dom,{"на дому-АКТИВ",3})
-  aadd(mm_dom,{"на дому + на дому-АКТИВ",4})
-endif
-Private ssumma := 0, srak_s := 0, suet := 0, p_regim := 1, mm_company := {}, is_kategor2 := .f.,;
-        mm_rslt := {}, mm_ishod := {}, rslt_umolch := -1, ishod_umolch := -1
-Private tmp_V006 := create_classif_FFOMS(0, "V006") // USL_OK
-//Private tmp_V008 := create_classif_FFOMS(0,"V008") // VIDPOM
-Private tmp_V002 := create_classif_FFOMS(0, "V002") // PROFIL
-//Private tmp_V010 := create_classif_FFOMS(0,"V010") // IDSP
+  if mem_dom_aktiv == 1
+    aadd(mm_dom, {'на дому-АКТИВ', 3})
+    aadd(mm_dom, {'на дому + на дому-АКТИВ', 4})
+  endif
+  Private ssumma := 0, srak_s := 0, suet := 0, p_regim := 1, mm_company := {}, is_kategor2 := .f., ;
+          mm_rslt := {}, mm_ishod := {}, rslt_umolch := -1, ishod_umolch := -1
+  Private tmp_V006 := create_classif_FFOMS(0, 'V006') // USL_OK
+  //Private tmp_V008 := create_classif_FFOMS(0,'V008') // VIDPOM
+  Private tmp_V002 := create_classif_FFOMS(0, 'V002') // PROFIL
+  //Private tmp_V010 := create_classif_FFOMS(0, 'V010') // IDSP
   // Private tmp_V009 := cut_glob_array(getV009(), sys_date) // rslt
-Private tmp_V009 := getV009(sys_date) // rslt
-Private tmp_V012 := cut_glob_array(getV012(), sys_date) // ishod
-Private arr_doc := {"Дата рожд.",;
-                    "Адрес",;
-                    "Номер карты",; 
-                    "Сроки леч.",;
-                    "Диагноз",;
-                    "Счет",;
-                    "РАК",;
-                    "Леч.врач",;
-                    "Услуги",;
-                    "Доп.критерий"}
-if yes_parol
-  aadd(arr_doc, "Дата ввода")
-endif
-if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) == NIL
-  return NIL
-endif
-if yes_bukva
-  Private md_plus := array(len(yes_d_plus))
-  k_plus := len(md_plus)
-  afill(md_plus," ")
-  aeval(md_plus, {|x,i| md_plus[i] := substr(yes_d_plus,i,1) } )
-  sd_plus := array(k_plus)
-  afill(sd_plus,0)
-endif
-Private pr_arr := {}, pr_arr_otd := {}, is_talon := ret_is_talon(), arr_tal_diag[2,3], mm_pz := {}
-afillall(arr_tal_diag,0)
+  // Private tmp_V012 := cut_glob_array(getV012(), sys_date) // ishod
+  Private tmp_V009 := getV009(sys_date) // rslt
+  Private tmp_V012 := getV012(sys_date) // ishod
+  Private arr_doc := {'Дата рожд.', ;
+                      'Адрес', ;
+                      'Номер карты', ; 
+                      'Сроки леч.', ;
+                      'Диагноз', ;
+                      'Счет', ;
+                      'РАК', ;
+                      'Леч.врач', ;
+                      'Услуги', ;
+                      'Доп.критерий'}
+  if yes_parol
+    aadd(arr_doc, 'Дата ввода')
+  endif
+  if (st_a_uch := inputN_uch(T_ROW, T_COL - 5, , , @lcount_uch)) == NIL
+    return NIL
+  endif
+  if yes_bukva
+    Private md_plus := array(len(yes_d_plus))
+    k_plus := len(md_plus)
+    afill(md_plus, ' ')
+    aeval(md_plus, {|x, i| md_plus[i] := substr(yes_d_plus, i, 1)})
+    sd_plus := array(k_plus)
+    afill(sd_plus, 0)
+  endif
+  Private pr_arr := {}, pr_arr_otd := {}, is_talon := ret_is_talon(), arr_tal_diag[2, 3], mm_pz := {}
+  afillall(arr_tal_diag, 0)
 
-nameArr := 'glob_array_PZ_' + '19'    //last_digits_year(ly)
-// for i := 1 to len(glob_array_PZ_19)
-//   aadd(mm_pz, {glob_array_PZ_19[i,3],glob_array_PZ_19[i,1]})
-for i := 1 to len(&nameArr)
-  aadd(mm_pz, {&nameArr.[i,3], &nameArr.[i,1]})
-next
-if is_talon
-  is_kategor2 := !empty(stm_kategor2)
-endif
-//
-R_Use(dir_server + "mo_otd",,"OTD")
-dbeval({|| aadd(pr_arr,{otd->(recno()),otd->name,otd->kod_lpu,""}) },;
-       {|| f_is_uch(st_a_uch,otd->kod_lpu) .and. between_date(otd->dbegin,otd->dend,sys_date)} )
-R_Use(dir_server + "mo_uch",,"UCH")
-aeval(pr_arr, {|x,i| dbGoto(x[3]), pr_arr[i,4] := uch->name } )
-//
-asort(pr_arr,,,{|x,y| iif(x[3] == y[3], upper(x[2]) < upper(y[2]), upper(x[4]) < upper(y[4])) } )
-aeval(pr_arr, {|x| aadd(pr_arr_otd,x[2]+" "+x[4]) } )
-close databases
-//
-lvid_doc := setbit(lvid_doc,3)
-lvid_doc := setbit(lvid_doc,5)
-//
-Private pdate_lech, pdate_schet, pdate_usl, pdate_vvod, mstr_crb := 0, mstr_crbM := {}, mslugba
-//
-dbcreate(cur_dir + "tmp", {;
-     {"U_KOD"  ,    "N",      4,      0},;  // код услуги
-     {"U_SHIFR",    "C",     10,      0},;  // шифр услуги
-     {"U_NAME",     "C",     65,      0};   // наименование услуги
-  })
-use (cur_dir + "tmp")
-index on str(u_kod,4) to (cur_dir + "tmpk")
-index on fsort_usl(u_shifr) to (cur_dir + "tmpn")
-tmp->(dbCloseArea())
-//
-dbcreate(cur_dir + "tmpF", {;
-     {"U_KOD"  ,    "N",      6,      0},;  // код услуги
-     {"U_SHIFR",    "C",     20,      0},;  // шифр услуги
-     {"U_NAME",     "C",    255,      0};   // наименование услуги
-  })
-use (cur_dir + "tmpF")
-index on str(u_kod,6) to (cur_dir + "tmpFk")
-index on fsort_usl(u_shifr) to (cur_dir + "tmpFn")
-tmpF->(dbCloseArea())
+  nameArr := 'glob_array_PZ_' + '19'    //last_digits_year(ly)
+  // for i := 1 to len(glob_array_PZ_19)
+  //   aadd(mm_pz, {glob_array_PZ_19[i,3],glob_array_PZ_19[i,1]})
+  for i := 1 to len(&nameArr)
+    aadd(mm_pz, {&nameArr.[i, 3], &nameArr.[i, 1]})
+  next
+  if is_talon
+    is_kategor2 := !empty(stm_kategor2)
+  endif
+  //
+  R_Use(dir_server + 'mo_otd', , 'OTD')
+  dbeval({|| aadd(pr_arr, {otd->(recno()), otd->name, otd->kod_lpu, ''}) }, ;
+       {|| f_is_uch(st_a_uch, otd->kod_lpu) .and. between_date(otd->dbegin, otd->dend, sys_date)})
+  R_Use(dir_server + 'mo_uch', , 'UCH')
+  aeval(pr_arr, {|x, i| dbGoto(x[3]), pr_arr[i, 4] := uch->name})
+  //
+  asort(pr_arr, , , {|x, y| iif(x[3] == y[3], upper(x[2]) < upper(y[2]), upper(x[4]) < upper(y[4]))})
+  aeval(pr_arr, {|x| aadd(pr_arr_otd, x[2] + ' ' + x[4])})
+  close databases
+  //
+  lvid_doc := setbit(lvid_doc, 3)
+  lvid_doc := setbit(lvid_doc, 5)
+  //
+  Private pdate_lech, pdate_schet, pdate_usl, pdate_vvod, mstr_crb := 0, mstr_crbM := {}, mslugba
+  //
+  dbcreate(cur_dir + 'tmp', { ;
+      {'U_KOD'  ,    'N',      4,      0}, ;  // код услуги
+      {'U_SHIFR',    'C',     10,      0}, ;  // шифр услуги
+      {'U_NAME',     'C',     65,      0} ;   // наименование услуги
+    })
+  use (cur_dir + 'tmp')
+  index on str(u_kod, 4) to (cur_dir + 'tmpk')
+  index on fsort_usl(u_shifr) to (cur_dir + 'tmpn')
+  tmp->(dbCloseArea())
+  //
+  dbcreate(cur_dir + 'tmpF', { ;
+      {'U_KOD'  ,    'N',      6,      0}, ;  // код услуги
+      {'U_SHIFR',    'C',     20,      0}, ;  // шифр услуги
+      {'U_NAME',     'C',    255,      0} ;   // наименование услуги
+    })
+  use (cur_dir + 'tmpF')
+  index on str(u_kod, 6) to (cur_dir + 'tmpFk')
+  index on fsort_usl(u_shifr) to (cur_dir + 'tmpFn')
+  tmpF->(dbCloseArea())
 //
 aadd(mm_tmp, {"date_lech","N",4,0,NIL,;
               {|x|menu_reader(x,;

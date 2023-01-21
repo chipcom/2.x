@@ -60,8 +60,9 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
   Private tmp_V002 := create_classif_FFOMS(2, 'V002') // PROFIL
   Private tmp_V020 := create_classif_FFOMS(2, 'V020') // PROFIL_K
   // Private tmp_V009 := cut_glob_array(getV009(), sys_date) // rslt
+  // Private tmp_V012 := cut_glob_array(getV012(),sys_date) // ishod
   Private tmp_V009 := getV009(sys_date) // rslt
-  Private tmp_V012 := cut_glob_array(getV012(),sys_date) // ishod
+  Private tmp_V012 := getV012(sys_date) // ishod
   private mm_N002
   Private mm_rslt, mm_ishod, rslt_umolch := 0, ishod_umolch := 0
   //
