@@ -2,7 +2,13 @@
 
 #require 'hbsqlit3'
 
-** 21.01.23 вернуть массив по справочнику ФФОМС V012.xml
+#define V012_IDIZ     1
+#define V012_IZNAME   2
+#define V012_DL_USLOV 3
+#define V012_DATEBEG  4
+#define V012_DATEEND  5
+
+** 23.01.23 вернуть массив по справочнику ФФОМС V012.xml
 function getV012(work_date)
   // V012.xml - Классификатор исходов заболевания
   // Local dbName, dbAlias := 'V012'
@@ -15,7 +21,6 @@ function getV012(work_date)
   local nI
   local ret_array
 
-  DEFAULT work_date TO sys_date
   // if len(_arr) == 0
   if timeout_load(@time_load)
     _arr := {}
@@ -27,21 +32,26 @@ function getV012(work_date)
         'dl_uslov, ' + ;
         'datebeg, ' + ;
         'dateend ' + ;
-        'FROM v012 WHERE dateend == "    -  -  "')
+        'FROM v012')   // WHERE dateend == "    -  -  "')
     if len(aTable) > 1
       for nI := 2 to Len( aTable )
         // if empty(ctod(aTable[nI, 5]))  // только если поле окончания действия пусто
-          if val(aTable[nI, 3]) == 1
-            vid := '/ст-р/'
-          elseif val(aTable[nI, 3]) == 2
-            vid := '/дн.с/'
-          elseif val(aTable[nI, 3]) == 3
-            vid := '/п-ка/'
-          else
-            vid := '/'
-          endif
-          stroke := str(val(aTable[nI, 1]), 3) + vid + alltrim(aTable[nI, 2])
-          aadd(_arr, { stroke, val(aTable[nI, 1]), ctod(aTable[nI, 4]), ctod(aTable[nI, 5]), val(aTable[nI, 3]) })
+        // if val(aTable[nI, 3]) == 1
+        if val(aTable[nI, V012_DL_USLOV]) == 1
+          vid := '/ст-р/'
+        // elseif val(aTable[nI, 3]) == 2
+        elseif val(aTable[nI, V012_DL_USLOV]) == 2
+          vid := '/дн.с/'
+        // elseif val(aTable[nI, 3]) == 3
+        elseif val(aTable[nI, V012_DL_USLOV]) == 3
+          vid := '/п-ка/'
+        else
+          vid := '/'
+        endif
+        // stroke := str(val(aTable[nI, 1]), 3) + vid + alltrim(aTable[nI, 2])
+        stroke := str(val(aTable[nI, V012_IDIZ]), 3) + vid + alltrim(aTable[nI, V012_IZNAME])
+        // aadd(_arr, { stroke, val(aTable[nI, 1]), ctod(aTable[nI, 4]), ctod(aTable[nI, 5]), val(aTable[nI, 3]) })
+        aadd(_arr, { stroke, val(aTable[nI, V012_IDIZ]), ctod(aTable[nI, V012_DATEBEG]), ctod(aTable[nI, V012_DATEEND]), val(aTable[nI, V012_DL_USLOV])})
         // endif
       next
     endif
@@ -74,36 +84,43 @@ function getV012(work_date)
     // Select(tmp_select)
 
   endif
-  ret_array := {}
-  for each row in _arr
-    // if (row[3] <= work_date) .and. (empty(row[4]) .or. row[4] >= work_date)
-    if correct_date_dictionary(work_date, row[3], row[4])
-      aadd(ret_array, row)
-    endif
-  next
+  if hb_isnil(work_date)
+    return _arr
+  else
+    ret_array := {}
+    for each row in _arr
+      // if (row[3] <= work_date) .and. (empty(row[4]) .or. row[4] >= work_date)
+      if correct_date_dictionary(work_date, row[3], row[4])
+        aadd(ret_array, row)
+      endif
+    next
+  endif
   // return _arr
   return ret_array
 
 ** 06.11.22 вернуть исход заболевания по коду
-function getISHOD_V012( ishod )
+function getISHOD_V012(ishod)
   local ret := NIL
   local i
 
-  if (i := ascan(getV012(), {|x| x[2] == ishod })) > 0
-    ret := getV012()[i,1]
+  if (i := ascan(getV012(), {|x| x[2] == ishod})) > 0
+    ret := getV012()[i, 1]
   endif
   return ret
 
-** 18.05.22 вернуть исход заболевания по условию оказания и дате
+** 23.01.23 вернуть исход заболевания по условию оказания и дате
 function getISHOD_usl_date(uslovie, date)
   local ret := {}
   local row
 
-  for each row in getV012()
-    if (empty(row[4]) .and. date >= row[3]) .or. between_date(row[3], row[4], date)
+  // for each row in getV012()
+  //   if (empty(row[4]) .and. date >= row[3]) .or. between_date(row[3], row[4], date)
+  for each row in getV012(date)
+    // if (empty(row[4]) .and. date >= row[3]) .or. between_date(row[3], row[4], date)
       if uslovie == row[5]
-        aadd(ret, {row[1], row[2], row[3], row[4], row[5]})
+        // aadd(ret, {row[1], row[2], row[3], row[4], row[5]})
+        aadd(ret, row)
       endif
-    endif
+    // endif
   next
   return ret
