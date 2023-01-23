@@ -2,10 +2,11 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
+** 23.01.23
 FUNCTION initPZarray()
 
   LOCAL nameArray
-  LOCAL i, j, sbase
+  LOCAL i, j, sbase, file_index
 
   PUBLIC glob_array_PZ_18 := { ;
       { 1, 207, 'á«ãç © £®á¯¨â «¨§ æ¨¨ ‚Œ 18-01', '‚Œ-01', 'ª/¤', '' }, ;
@@ -580,7 +581,15 @@ FUNCTION initPZarray()
   FOR j := 2018 TO WORK_YEAR
       sbase :=  prefixFileRefName( j ) + 'unit'  // á¯à ¢®ç­¨ª ­  ª®­ªà¥â­ë© £®¤
       nameArr := 'glob_array_PZ_' + last_digits_year( j )
-      G_Use( exe_dir + sbase, cur_dir + sbase, 'UNIT' )
+
+      file_index := cur_dir + sbase + sntx
+      if hb_FileExists(file_index)
+        G_Use( exe_dir + sbase, cur_dir + sbase, 'UNIT' )
+      else
+        G_Use( exe_dir + sbase, , 'UNIT' )
+        index on str(code, 3) to (cur_dir + sbase)
+      endif
+      // G_Use( exe_dir + sbase, cur_dir + sbase, 'UNIT' )
       FOR i := 1 TO Len( &nameArr )
          find ( Str( &nameArr.[ i, 2 ], 3 ) )
          IF Found() .AND. !( unit->pz == &nameArr.[ i, 1 ] .AND. unit->ii == i )
