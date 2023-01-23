@@ -4,16 +4,15 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-** 22.10.22
+** 23.01.23
 Function verify_1_sluch_18(fl_view)
-Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
-      i, j, k, c, s := " ", a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
-      d1, d2, cd1, cd2, ym2, a_period_amb := {}, a_1_11, u_1_stom := "", lprofil, ;
+  Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
+      i, j, k, c, s := ' ', a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
+      d1, d2, cd1, cd2, ym2, a_period_amb := {}, a_1_11, u_1_stom := '', lprofil, ;
       lbukva, lst, lidsp, a_idsp := {}, a_bukva := {}, t_arr[2], ltip, lkol, ;
       a_dializ := {}, is_2_88 := .f., a_rec_ffoms := {}, mpovod := 1 // 1.0
-local glob_V018
-local glob_V019
-      
+  local glob_V018
+  local glob_V019
 
 if empty(human->k_data)
   return .t.  // не проверять
@@ -1645,7 +1644,8 @@ if human_->USL_OK == 1  // стационар
     endif
   else // остальные койко-дни
     if human_->profil == 158
-      aadd(ta,'в случае нельзя использовать профиль по: '+inieditspr(A__MENUVERT, glob_V002, 158))
+      // aadd(ta,'в случае нельзя использовать профиль по: '+inieditspr(A__MENUVERT, glob_V002, 158))
+      aadd(ta,'в случае нельзя использовать профиль по: '+inieditspr(A__MENUVERT, getV002(), 158))
     endif
     a_1_11 := {}
     for i := 1 to len(au_lu)
@@ -1665,7 +1665,8 @@ if human_->USL_OK == 1  // стационар
       if len(mdiagnoz) > 0 .and. alltrim(mdiagnoz[1]) == a_1_11[i,1] .and. ;
               human_->profil == a_1_11[i,2] .and. human_->PRVS == a_1_11[i,3]
         if a_1_11[i,2] == 158
-          aadd(ta,'в услуге нельзя использовать профиль по: '+inieditspr(A__MENUVERT, glob_V002, 158))
+          // aadd(ta,'в услуге нельзя использовать профиль по: '+inieditspr(A__MENUVERT, glob_V002, 158))
+          aadd(ta, 'в услуге нельзя использовать профиль по: ' + inieditspr(A__MENUVERT, getV002(), 158))
         endif
         fl := .t. ; exit
       endif
@@ -2157,11 +2158,13 @@ if is_disp_DDS .or. is_disp_DVN .or. is_prof_PN .or. is_pren_diagn .or. kol_ksg 
                                                 .or. is_2_89 .or. is_reabil //.or. is_s_dializ
   if is_reabil  // проводим проверку на профиль при реабилитации
     if human_->profil != 158
-      aadd(ta,'в случае надо использовать профиль по: '+inieditspr(A__MENUVERT, glob_V002, 158))
+      // aadd(ta,'в случае надо использовать профиль по: '+inieditspr(A__MENUVERT, glob_V002, 158))
+      aadd(ta, 'в случае надо использовать профиль по: ' + inieditspr(A__MENUVERT, getV002(), 158))
     endif
     for i := 1 to len(au_lu)
-      if au_lu[i,3] == 158 .and. alltrim(au_lu[i,1]) != shifr_ksg
-        aadd(ta,'нельзя в услуге '+alltrim(au_lu[i,1])+'использовать профиль по: '+inieditspr(A__MENUVERT, glob_V002, au_lu[i,3]))
+      if au_lu[i, 3] == 158 .and. alltrim(au_lu[i, 1]) != shifr_ksg
+        // aadd(ta,'нельзя в услуге '+alltrim(au_lu[i,1])+'использовать профиль по: '+inieditspr(A__MENUVERT, glob_V002, au_lu[i,3]))
+        aadd(ta, 'нельзя в услуге ' + alltrim(au_lu[i, 1]) + 'использовать профиль по: ' + inieditspr(A__MENUVERT, getV002(), au_lu[i, 3]))
       endif
     next
     if is_reabil_slux
@@ -2176,7 +2179,8 @@ if is_disp_DDS .or. is_disp_DVN .or. is_prof_PN .or. is_pren_diagn .or. kol_ksg 
   endif
 else
   if human_->profil == 158
-    aadd(ta,'в случае нельзя использовать профиль по: '+inieditspr(A__MENUVERT, glob_V002, 158))
+    // aadd(ta,'в случае нельзя использовать профиль по: '+inieditspr(A__MENUVERT, glob_V002, 158))
+    aadd(ta, 'в случае нельзя использовать профиль по: ' + inieditspr(A__MENUVERT, getV002(), 158))
   endif
   arr_profil := {human_->profil}
   for i := 1 to len(au_lu)
@@ -2191,11 +2195,13 @@ else
   next
   if len(arr_profil) > 1
     if human_->USL_OK == 4  // если скорая помощь
-      human_->profil := au_lu[1,3]
+      human_->profil := au_lu[1, 3]
     else
-      aadd(ta,'в случае использован профиль по: '+inieditspr(A__MENUVERT, glob_V002, arr_profil[1]))
+      // aadd(ta,'в случае использован профиль по: '+inieditspr(A__MENUVERT, glob_V002, arr_profil[1]))
+      aadd(ta, 'в случае использован профиль по: ' + inieditspr(A__MENUVERT, getV002(), arr_profil[1]))
       for i := 2 to len(arr_profil)
-        aadd(ta,'                  а в услуге по: '+inieditspr(A__MENUVERT, glob_V002, arr_profil[i]))
+        // aadd(ta,'                  а в услуге по: '+inieditspr(A__MENUVERT, glob_V002, arr_profil[i]))
+        aadd(ta, '                  а в услуге по: ' + inieditspr(A__MENUVERT, getV002(), arr_profil[i]))
       next
     endif
   elseif empty(arr_profil[1])
@@ -2783,7 +2789,8 @@ if is_disp_DDS //
         is_1_den := .t.
       endif
     else
-      s := 'услуга '+au_lu[i,5]+'-'+inieditspr(A__MENUVERT,glob_V002,au_lu[i,3])+'('+date_8(au_lu[i,2])+')'
+      // s := 'услуга '+au_lu[i,5]+'-'+inieditspr(A__MENUVERT,glob_V002,au_lu[i,3])+'('+date_8(au_lu[i,2])+')'
+      s := 'услуга ' + au_lu[i, 5] + '-' + inieditspr(A__MENUVERT, getV002(), au_lu[i, 3]) + '(' + date_8(au_lu[i, 2]) + ')'
       if is_osmotr_DDS_1_etap(au_lu[i],mvozrast,metap,mpol,tip_lu) //eq_any(alltrim(au_lu[i,5]),'2.3.1','2.4.1') // + 2.4.1-психиатр
         if eq_any(au_lu[i,3],68,57) // педиатр (врач общей практики)
           if au_lu[i,2] < d1
@@ -2917,7 +2924,8 @@ if is_prof_PN //
           is_1_den := .t.
         endif
       else
-        s := 'услуга '+au_lu[i,5]+'-'+inieditspr(A__MENUVERT,glob_V002,au_lu[i,3])+'('+date_8(au_lu[i,2])+')'
+        // s := 'услуга '+au_lu[i,5]+'-'+inieditspr(A__MENUVERT,glob_V002,au_lu[i,3])+'('+date_8(au_lu[i,2])+')'
+        s := 'услуга ' + au_lu[i, 5] + '-' + inieditspr(A__MENUVERT, getV002(), au_lu[i, 3]) + '(' + date_8(au_lu[i, 2]) + ')'
         if eq_any(au_lu[i,3],68,57) // педиатр (врач общей практики)
           if au_lu[i,2] < d1
             aadd(ta,'Дата осмотра педиатра не попадает в диапазон лечения')
@@ -3281,10 +3289,11 @@ if is_disp_DVN //
   for i := 1 to len(au_lu)
     hu->(dbGoto(au_lu[i,9]))       // 9 - номер записи
     lshifr := alltrim(au_lu[i,1])
-    if left(lshifr,4) == '2.3.' .and. !empty(au_lu[i,3])
-      s := 'услуга '+au_lu[i,5]+'-'+inieditspr(A__MENUVERT,glob_V002,au_lu[i,3])+'('+date_8(au_lu[i,2])+')'
+    if left(lshifr, 4) == '2.3.' .and. !empty(au_lu[i, 3])
+      // s := 'услуга '+au_lu[i,5]+'-'+inieditspr(A__MENUVERT,glob_V002,au_lu[i,3])+'('+date_8(au_lu[i,2])+')'
+      s := 'услуга ' + au_lu[i, 5] + '-' + inieditspr(A__MENUVERT, getV002(), au_lu[i, 3]) + '(' + date_8(au_lu[i, 2]) + ')'
     else
-      s := 'услуга '+au_lu[i,5]+'('+date_8(au_lu[i,2])+')'
+      s := 'услуга ' + au_lu[i, 5] + '(' + date_8(au_lu[i, 2]) + ')'
     endif
     if au_lu[i,3] == 0
       aadd(ta,s+' - не проставлен профиль')
@@ -3617,11 +3626,13 @@ if len(ta) > 0
   add_string("")
   uch->(dbGoto(human->LPU))
   otd->(dbGoto(human->OTD))
-  add_string(alltrim(human->fio)+" "+alltrim(human->kod_diag)+" "+;
-             date_8(human->n_data)+"-"+date_8(human->k_data)+;
-             " ("+count_ymd(human->date_r,human->n_data)+")")
-  Ins_Array(ta,1,alltrim(uch->name)+'/'+alltrim(otd->name)+'/профиль по "'+;
-                 inieditspr(A__MENUVERT, glob_V002, human_->profil)+'"')
+  add_string(alltrim(human->fio) + ' ' + alltrim(human->kod_diag) + ' ' + ;
+             date_8(human->n_data) + '-' + date_8(human->k_data) + ;
+             ' (' + count_ymd(human->date_r, human->n_data) + ')')
+  // Ins_Array(ta,1,alltrim(uch->name)+'/'+alltrim(otd->name)+'/профиль по "'+;
+  //   inieditspr(A__MENUVERT, glob_V002, human_->profil)+'"')
+  Ins_Array(ta, 1, alltrim(uch->name) + '/' + alltrim(otd->name) + '/профиль по "' + ;
+                 inieditspr(A__MENUVERT, getV002(), human_->profil) + '"')
   if human->cena_1 == 0 ; // если цена нулевая
       .and. eq_any(human->ishod,201,202) // диспансеризация взрослого населения
     asize(ta,1) // чтобы не выводить бессмысленные строки
@@ -3676,7 +3687,7 @@ if fl_view
 endif
 return (_ocenka >= 5)
 
-***** 16.01.19 определение КСГ по остальным введённым полям ввода - 18 год
+** 23.01.23 определение КСГ по остальным введённым полям ввода - 18 год
 Function definition_KSG_18(par)
 // файлы "human", "human_" и "human_2" открыты и стоят на нужной записи
 //       "human" открыт для записи суммы случая
@@ -3827,7 +3838,8 @@ s := iif(lVMP==1,'ВМП ',' ')
 if par == 1
   s += alltrim(uch->name)+'/'+alltrim(otd->name)+'/'
 endif
-s += 'профиль "'+inieditspr(A__MENUVERT, glob_V002, lprofil)+'"'
+// s += 'профиль "'+inieditspr(A__MENUVERT, glob_V002, lprofil)+'"'
+s += 'профиль "' + inieditspr(A__MENUVERT, getV002(), lprofil) + '"'
 aadd(ars,s)
 aadd(ars,' д.р.'+full_date(ldate_r)+iif(lvr==0,'(взр.','(реб.')+'), '+iif(lpol=='М','муж.','жен.')+;
          ', осн.диаг.'+osn_diag+;

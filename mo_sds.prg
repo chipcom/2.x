@@ -1240,8 +1240,10 @@ do while !eof()
             enddo
           endif
         elseif ihuman->PROFIL > 0
-          aadd(ae, 'не найдена соответствующая услуга '+left(lshifr,5) + '* ('+iif(m1VZROS_REB==0, "взрослый", "ребёнок") +;
-                  ') для профиля "'+inieditspr(A__MENUVERT, glob_V002, ihuman->PROFIL) + '"')
+          // aadd(ae, 'не найдена соответствующая услуга '+left(lshifr,5) + '* ('+iif(m1VZROS_REB==0, "взрослый", "ребёнок") +;
+          //         ') для профиля "'+inieditspr(A__MENUVERT, glob_V002, ihuman->PROFIL) + '"')
+          aadd(ae, 'не найдена соответствующая услуга ' + left(lshifr, 5) + '* (' + iif(m1VZROS_REB == 0, 'взрослый', 'ребёнок') + ;
+            ') для профиля "' + inieditspr(A__MENUVERT, getV002(), ihuman->PROFIL) + '"')
         endif
       endif
     else
@@ -1326,23 +1328,25 @@ else
 endif
 return lshifr
 
-** 20.10.22
-Function f1_read_file_XML_SDS(k,lal,aerr,ainf,lprofil)
-Static aprvs
-Local i, s, lk, lprvs, ret := 0
-if k == 0
-  paso := {} ; pasv := {} ; pasp := {} ; pass := {}
-  return ret
-endif
-if !empty(k := &lal.->PROFIL)
-  if ascan(glob_V002,{|x| x[2]==k}) == 0
-    if ascan(pasp,k) == 0
-      aadd(pasp,k)
-      aadd(aerr, "Указано неверное значение поля PROFIL = "+lstr(k))
-    endif
-    ret := 1
+** 23.01.23
+Function f1_read_file_XML_SDS(k, lal, aerr, ainf, lprofil)
+  Static aprvs
+  Local i, s, lk, lprvs, ret := 0
+
+  if k == 0
+    paso := {} ; pasv := {} ; pasp := {} ; pass := {}
+    return ret
   endif
-endif
+  if !empty(k := &lal.->PROFIL)
+    // if ascan(glob_V002,{|x| x[2]==k}) == 0
+    if ascan(getV002(), {|x| x[2] == k}) == 0
+      if ascan(pasp, k) == 0
+        aadd(pasp, k)
+        aadd(aerr, 'Указано неверное значение поля PROFIL = ' + lstr(k))
+      endif
+      ret := 1
+    endif
+  endif
 if !empty(k := &lal.->otd_sds)
   if (i := ascan(pr_otd, {|x| x[1] == k })) > 0
     &lal.->otd := pr_otd[i,2]
