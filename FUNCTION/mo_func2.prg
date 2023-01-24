@@ -91,17 +91,20 @@ Function ret_unique_code(_kod, nlen)
   enddo
   return val(s)
 
-** 12.07.20 определить лицо старше трудоспособного возраста
-Function f_starshe_trudosp(_pol, _date_r, _data, par)
+  ***** 19.01.23 определить лицо старше трудоспособного возраста
+Function f_starshe_trudosp(_pol,_date_r,_data,par)
   Local v
-
   DEFAULT par TO 1
   if par == 1
-    v := iif(_pol == 'М', 60, 55) // для МИАЦ
-  else
-    v := iif(_pol == 'М', 65, 60) // для ТФОМС
+    v := iif(_pol=="М", 60, 55) // для МИАЦ
+  elseif par == 3 
+    v := iif(_pol=="М", 62, 57) // по ЗАКОНУ за 2022 год
+  elseif par == 4
+    v := iif(_pol=="М", 63, 58) // по ЗАКОНУ за 2023-2024 год 
+  else  
+    v := iif(_pol=="М", 65, 60) // для ТФОМС
   endif
-  return count_years(_date_r, _data) >= v
+  return count_years(_date_r,_data) >= v
 
 ** 04.01.22
 Function arr_plan_zakaz(ly)

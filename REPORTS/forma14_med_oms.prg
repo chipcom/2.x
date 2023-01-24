@@ -135,7 +135,7 @@ Function forma14_med_oms()
   arr_pril5[29,1] := "Дн.стац.ЭКО - руб."
   
   *********************************************************************
-  arr_m := {2022, 1, 9, 'за январь - сентябрь 2022 года', 0d20220101, 0d20220930}
+  arr_m := {2022, 1, 12, 'за январь - декабрь 2022 года', 0d20220101, 0d20221231}
   *********************************************************************
   
   lal := "lusl" ; lalf := "luslf"
@@ -241,7 +241,7 @@ Function forma14_med_oms()
   set relation to recno() into HUMAN_, to recno() into HUMAN_2, to kod_k into KART
   //
   *********************************************************************
-  mdate_rak := arr_m[6]+13 // по какую дату РАК сумма к оплате 13.07.22
+  mdate_rak := arr_m[6]+19 // по какую дату РАК сумма к оплате 19.01.23
   //mdate_rak := arr_m[6]+18 // по какую дату РАК сумма к оплате 18.01.21
   *********************************************************************
   R_Use(dir_server + "mo_xml",,"MO_XML")
@@ -269,7 +269,7 @@ Function forma14_med_oms()
       //
       *** 2022 год
       //k := 15 // дата регистрации по 15.01.21
-      k := 7 // дата регистрации по 07.10.22
+      k := 14 // дата регистрации по 14.01.23
       ***
       fl := between(mdate, arr_m[5], arr_m[6] + k) .and. between(mdate1, arr_m[5], arr_m[6]) // !!отч.период 2022 год
     endif
@@ -315,7 +315,7 @@ Function forma14_med_oms()
               tmpf14->KOD_H     := human->kod
               tmpf14->kol_akt   := j
               tmpf14->usl_ok    := iif(schet_->BUKVA=="T",5,human_->USL_OK)
-              my_debug(," Сумма "+str(raksh->SANK_MEK + raksh->SANK_MEE + raksh->SANK_EKMP))
+              //my_debug(," Сумма "+str(raksh->SANK_MEK + raksh->SANK_MEE + raksh->SANK_EKMP))
             endif
             select RAKSH
             skip
@@ -325,7 +325,7 @@ Function forma14_med_oms()
         if koef > 0
           afill(fl_pol1,0)
           is_vmp := (human_2->VMP == 1)
-          is_trudosp := f_starshe_trudosp(human->POL,human->DATE_R,human->n_data,2)
+          is_trudosp := f_starshe_trudosp(human->POL,human->DATE_R,human->n_data,3) // настроен на 2022 год
           is_reabili := (human_->PROFIL == 158)
           is_rebenok := (human->VZROS_REB > 0)
           is_inogoro := (int(val(schet_->smo)) == 34)
@@ -577,7 +577,7 @@ Function forma14_med_oms()
                     elseif j1 == 71
                       is_centr_z := .t.
                       vid_vp := 0 // Посещение профилактическое Центра здоровья
-                    elseif eq_any(j1,73,74,87,88,89,90)  // т.е. 261,262,318,319,320,321
+                    elseif eq_any(j1,73,74,87,88,89,90,59)  // т.е. 261,262,318,319,320,321,511   //23.01.23
                       vid_vp := 0 // комплексное посещение при диспансеризации
                       is_z_sl := .t.
                       fl_pol3000_DVN2 := .F.
@@ -960,44 +960,44 @@ Function forma14_med_oms()
               elseif vid_vp == 2 // по поводу заболевания
                 fl_pol1[13] := -1
                 arr_pril5[10,igs] += tfoms_pz[2,1] // "Число обращений по поводу заболевания"
-             //my_debug(,print_array(tfoms_pz))
-                aadd(ta,{27,tfoms_pz[2,1],tfoms_pz[2,1],iif(ds_spec==1,tfoms_pz[2,1],0),tfoms_pz[2,3],tfoms_pz[2,3],iif(ds_spec==1,tfoms_pz[2,3],0)})
+             //my_debug(,"11=="+print_array(tfoms_pz))
+                aadd(ta,{27,tfoms_pz[2,1],tfoms_pz[2,1],iif(ds_spec==1,tfoms_pz[2,1],0),tfoms_pz[2,3],tfoms_pz[2,3],iif(ds_spec==1.or.ds1_spec==1,tfoms_pz[2,3],0)})
                 if fl
                   arr_pol[27] += tfoms_pz[2,3]
                 endif
                 if is_s_obsh
-                  aadd(ta,{28,tfoms_pz[2,1],tfoms_pz[2,1],iif(ds_spec==1,tfoms_pz[2,1],0),tfoms_pz[2,3],tfoms_pz[2,3],iif(ds_spec==1,tfoms_pz[2,3],0)})
+                  aadd(ta,{28,tfoms_pz[2,1],tfoms_pz[2,1],iif(ds_spec==1,tfoms_pz[2,1],0),tfoms_pz[2,3],tfoms_pz[2,3],iif(ds_spec==1.or.ds1_spec==1,tfoms_pz[2,3],0)})
                   if fl
                     arr_pol[28] += tfoms_pz[2,3]
                   endif
                 endif
                 if is_rebenok
-                  aadd(ta,{29,tfoms_pz[2,1],tfoms_pz[2,1],iif(ds_spec==1,tfoms_pz[2,1],0),tfoms_pz[2,3],tfoms_pz[2,3],iif(ds_spec==1,tfoms_pz[2,3],0)})
+                  aadd(ta,{29,tfoms_pz[2,1],tfoms_pz[2,1],iif(ds_spec==1,tfoms_pz[2,1],0),tfoms_pz[2,3],tfoms_pz[2,3],iif(ds_spec==1.or.ds1_spec==1,tfoms_pz[2,3],0)})
                   if fl
                     arr_pol[29] += tfoms_pz[2,3]
                   endif
                 endif
                 if is_trudosp
-                  aadd(ta,{30,tfoms_pz[2,1],tfoms_pz[2,1],iif(ds_spec==1,tfoms_pz[2,1],0),tfoms_pz[2,3],tfoms_pz[2,3],iif(ds_spec==1,tfoms_pz[2,3],0)})
+                  aadd(ta,{30,tfoms_pz[2,1],tfoms_pz[2,1],iif(ds_spec==1,tfoms_pz[2,1],0),tfoms_pz[2,3],tfoms_pz[2,3],iif(ds_spec==1.or.ds1_spec==1,tfoms_pz[2,3],0)})
                   if fl
                     arr_pol[30] += tfoms_pz[2,3]
                   endif
                 endif
                 if is_reabili
-                  aadd(ta,{31,tfoms_pz[2,1],tfoms_pz[2,1],iif(ds_spec==1,tfoms_pz[2,1],0),tfoms_pz[2,3],tfoms_pz[2,3],iif(ds_spec==1,tfoms_pz[2,3],0)})
+                  aadd(ta,{31,tfoms_pz[2,1],tfoms_pz[2,1],iif(ds_spec==1,tfoms_pz[2,1],0),tfoms_pz[2,3],tfoms_pz[2,3],iif(ds_spec==1.or.ds1_spec==1,tfoms_pz[2,3],0)})
                   if fl
                     arr_pol[31] += tfoms_pz[2,3]
                   endif
                 endif
                 if is_inogoro
-                  aadd(ta,{32,tfoms_pz[2,1],tfoms_pz[2,1],iif(ds_spec==1,tfoms_pz[2,1],0),tfoms_pz[2,3],tfoms_pz[2,3],iif(ds_spec==1,tfoms_pz[2,3],0)})
+                  aadd(ta,{32,tfoms_pz[2,1],tfoms_pz[2,1],iif(ds_spec==1,tfoms_pz[2,1],0),tfoms_pz[2,3],tfoms_pz[2,3],iif(ds_spec==1.or.ds1_spec==1,tfoms_pz[2,3],0)})
                   if fl
                     arr_pol[32] += tfoms_pz[2,3]
                   endif
                 endif
               elseif vid_vp == 0 // профилактика
                 tfoms_pz[2,2] := tfoms_pz[2,7] := tfoms_pz[2,9] := tfoms_pz[2,5] := 0 // обнулим количество приемов
-                if eq_any(schet_->BUKVA,'O','F','R','D','U') // диспансеризация и профосмотры
+                if eq_any(schet_->BUKVA,'O','F','R','D','U','W','Y') // диспансеризация и профосмотры + углубленная 23.01.23 
                   lshifr := "дисп-ия" ; lkol := 1
                   if (j := ascan(arr_prof, {|x| x[1] == lshifr })) == 0
                     aadd(arr_prof, {lshifr,0}) ; j := len(arr_prof)
@@ -1655,7 +1655,7 @@ Function forma14_med_oms()
   "                              │случаев│    сумма    │1случ.│ всего │взрос.│ дети  "+hb_eol()+;
   "──────────────────────────────┴───────┴─────────────┴──────┴───────┴──────┴───────"+hb_eol(),cFileProtokol,.t.)
     for i := 1 to len(arr_dn_stac)-1
-      s := padr(lstr(arr_dn_stac[i,1])+" "+inieditspr(A__MENUVERT, glob_V002, arr_dn_stac[i,1]),30)+;
+      s := padr(lstr(arr_dn_stac[i,1])+" "+inieditspr(A__MENUVERT, getV002(), arr_dn_stac[i,1]),30)+;
               put_val(arr_dn_stac[i,2],8)+put_kope(arr_dn_stac[i,3],14)
       k := 0
       if arr_dn_stac[i,2] > 0
@@ -1701,7 +1701,7 @@ Function forma14_med_oms()
   "                              │пациентов│     сумма    │пациентов│     сумма    "+hb_eol()+;
   "──────────────────────────────┴─────────┴──────────────┴─────────┴──────────────"+hb_eol(),cFileProtokol,.t.)
     for i := 1 to len(arr_profil)
-      strfile(padr(lstr(arr_profil[i,1])+" "+inieditspr(A__MENUVERT, glob_V002, arr_profil[i,1]),30)+;
+      strfile(padr(lstr(arr_profil[i,1])+" "+inieditspr(A__MENUVERT, getV002(), arr_profil[i,1]),30)+;
               put_val(arr_profil[i,2],10)+put_kope(arr_profil[i,3],15)+;
               put_val(arr_profil[i,4],10)+put_kope(arr_profil[i,5],15)+;
               hb_eol(),cFileProtokol,.t.)
@@ -2042,20 +2042,19 @@ Function forma14_med_oms()
       elseif arr_m[1] == 2022 .and. arr_m[3] == 4
         d2 := 12 
       elseif arr_m[1] == 2022 .and. arr_m[3] == 12
-        d2 := 14 
+        d2 := 19 
       elseif arr_m[1] == 2023 .and. arr_m[3] == 1
-        d2 := 15  
-      elseif arr_m[1] == 2023 .and. arr_m[3] == 2
-        d1 := 15
-      elseif arr_m[1] == 2023 .and. arr_m[3] == 4
-        d2 := 12 
+        d2 := 19  
       endif
-      //my_debug(,"date1_mes="+dtos(arr_m[5]))
-      //my_debug(,"date2_mes="+dtos(arr_m[6]))
-      //my_debug(,"d1="+str(d1))
-      //my_debug(,"d2="+str(d2))
-      //my_debug(,"date1="+dtos(boy(arr_m[5])))
-      //my_debug(,"date2="+dtos(arr_m[6]+d2))
+      my_debug(,"date1_mes="+dtos(arr_m[5]))
+      my_debug(,"date2_mes="+dtos(arr_m[6]))
+      my_debug(,"d1="+str(d1))
+      my_debug(,"d2="+str(d2))
+      my_debug(,"date1="+dtos(boy(arr_m[5])))
+      my_debug(,"date2="+dtos(arr_m[6]+d2))
+      my_debug(,"a1="+str(a1))
+      my_debug(,"a2="+str(a2))
+
       msmo := int(val(schet_->smo))
       fl := between(mdate,boy(arr_m[5]),arr_m[6]+d2) ;// дата регистрации по 10 числа след.месяца
               .and. between(mdate1,boy(arr_m[5]),arr_m[6]) // !!отч.период этот год
@@ -2095,6 +2094,7 @@ Function forma14_med_oms()
                                                //for between(rak->DAKT,boy(arr_m[5]),arr_m[6])
   go top
   do while !eof()
+    my_debug(,mo_xml->dfile)
     UpdateStatus()
     if ascan(arr_h,raksh->kod_h) == 0
       human->(dbGoto(raksh->kod_h))
