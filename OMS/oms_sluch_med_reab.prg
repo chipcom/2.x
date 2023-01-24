@@ -217,7 +217,8 @@ function oms_sluch_MED_REAB(Loc_kod, kod_kartotek, f_print)
   mvzros_reb := inieditspr(A__MENUVERT, menu_vzros, m1vzros_reb)
   mUSL_OK   := inieditspr(A__MENUVERT, getV006(), m1USL_OK)
 
-  mPROFIL   := inieditspr(A__MENUVERT, glob_V002, m1PROFIL)
+  // mPROFIL   := inieditspr(A__MENUVERT, glob_V002, m1PROFIL)
+  mPROFIL   := inieditspr(A__MENUVERT, getV002(), m1PROFIL)
   if !empty(m1NPR_MO)
     mNPR_MO := ret_mo(m1NPR_MO)[_MO_SHORT_NAME]
   endif

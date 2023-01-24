@@ -103,7 +103,8 @@ Function f5editkusl(get, when_valid, k, lMedReab, vidReab, shrm)
             mis_nul := .t.
             mis_edit := -1 // т.е. лаб.услуга направлена в ЦКДЛ
             mu_koef := 1
-            mPROFIL := padr(inieditspr(A__MENUVERT, glob_V002, m1PROFIL),69)
+            // mPROFIL := padr(inieditspr(A__MENUVERT, glob_V002, m1PROFIL),69)
+            mPROFIL := padr(inieditspr(A__MENUVERT, getV002(), m1PROFIL),69)
             mkod_vr := mtabn_vr := 0
             mvrach := space(35)
             mkod_as := mtabn_as := 0
@@ -136,7 +137,8 @@ Function f5editkusl(get, when_valid, k, lMedReab, vidReab, shrm)
               mshifr1 := mosu->shifr1
               if !empty(mosu->profil)
                 m1PROFIL := mosu->profil
-                mPROFIL := padr(inieditspr(A__MENUVERT, glob_V002, m1PROFIL), 69)
+                // mPROFIL := padr(inieditspr(A__MENUVERT, glob_V002, m1PROFIL), 69)
+                mPROFIL := padr(inieditspr(A__MENUVERT, getV002(), m1PROFIL), 69)
               endif
             else // Старая стоматология 2016
               fl1 := .f.
@@ -160,7 +162,8 @@ Function f5editkusl(get, when_valid, k, lMedReab, vidReab, shrm)
               mshifr1 := mosu->shifr1
               if !empty(mosu->profil)
                 m1PROFIL := mosu->profil
-                mPROFIL := padr(inieditspr(A__MENUVERT, glob_V002, m1PROFIL), 69)
+                // mPROFIL := padr(inieditspr(A__MENUVERT, glob_V002, m1PROFIL), 69)
+                mPROFIL := padr(inieditspr(A__MENUVERT, getV002(), m1PROFIL), 69)
               endif
               select LUSLF
               find (padr(mshifr1, 20))
@@ -267,7 +270,8 @@ Function f5editkusl(get, when_valid, k, lMedReab, vidReab, shrm)
                 fl_date_next := is_usluga_disp_nabl(mshifr,mshifr1)
                 if !empty(usl->profil)
                   m1PROFIL := usl->profil
-                  mPROFIL := padr(inieditspr(A__MENUVERT, glob_V002, m1PROFIL),69)
+                  // mPROFIL := padr(inieditspr(A__MENUVERT, glob_V002, m1PROFIL),69)
+                  mPROFIL := padr(inieditspr(A__MENUVERT, getV002(), m1PROFIL),69)
                 endif
                 eval(blk_sum)
                 verify_uva(2)

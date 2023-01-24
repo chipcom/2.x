@@ -2199,7 +2199,8 @@ Function verify_1_sluch(fl_view)
       //endif
     else // остальные койко-дни
       if human_->profil == 158
-        aadd(ta, 'в случае нельзя использовать профиль по: ' +inieditspr(A__MENUVERT, glob_V002, 158))
+        // aadd(ta, 'в случае нельзя использовать профиль по: ' +inieditspr(A__MENUVERT, glob_V002, 158))
+        aadd(ta, 'в случае нельзя использовать профиль по: ' + inieditspr(A__MENUVERT, getV002(), 158))
       endif
       a_1_11 := {}
       for i := 1 to len(au_lu)
@@ -2219,7 +2220,8 @@ Function verify_1_sluch(fl_view)
         if len(mdiagnoz) > 0 .and. alltrim(mdiagnoz[1]) == a_1_11[i, 1] .and. ;
                 human_->profil == a_1_11[i, 2] .and. human_->PRVS == a_1_11[i, 3]
           if a_1_11[i, 2] == 158
-            aadd(ta, 'в услуге нельзя использовать профиль по: ' +inieditspr(A__MENUVERT, glob_V002, 158))
+            // aadd(ta, 'в услуге нельзя использовать профиль по: ' +inieditspr(A__MENUVERT, glob_V002, 158))
+            aadd(ta, 'в услуге нельзя использовать профиль по: ' + inieditspr(A__MENUVERT, getV002(), 158))
           endif
           fl := .t. ; exit
         endif
@@ -2790,12 +2792,14 @@ Function verify_1_sluch(fl_view)
                                                   .or. is_disp_DVN_COVID  //.or. is_s_dializ
     if is_reabil  // проводим проверку на профиль при реабилитации
       if human_->profil != 158
-        aadd(ta, 'в случае надо использовать профиль по: ' +inieditspr(A__MENUVERT, glob_V002, 158))
+        // aadd(ta, 'в случае надо использовать профиль по: ' +inieditspr(A__MENUVERT, glob_V002, 158))
+        aadd(ta, 'в случае надо использовать профиль по: ' + inieditspr(A__MENUVERT, getV002(), 158))
       endif
 
       for i := 1 to len(au_lu)
         if au_lu[i, 3] == 158 .and. alltrim(au_lu[i, 1]) != shifr_ksg
-          aadd(ta, 'нельзя в услуге ' + alltrim(au_lu[i, 1]) + ' использовать профиль по: ' + inieditspr(A__MENUVERT, glob_V002, au_lu[i, 3]))
+          // aadd(ta, 'нельзя в услуге ' + alltrim(au_lu[i, 1]) + ' использовать профиль по: ' + inieditspr(A__MENUVERT, glob_V002, au_lu[i, 3]))
+          aadd(ta, 'нельзя в услуге ' + alltrim(au_lu[i, 1]) + ' использовать профиль по: ' + inieditspr(A__MENUVERT, getV002(), au_lu[i, 3]))
         endif
       next
 
@@ -2811,7 +2815,8 @@ Function verify_1_sluch(fl_view)
     endif
   else
     if human_->profil == 158
-      aadd(ta, 'в случае нельзя использовать профиль по: ' +inieditspr(A__MENUVERT, glob_V002, 158))
+      // aadd(ta, 'в случае нельзя использовать профиль по: ' +inieditspr(A__MENUVERT, glob_V002, 158))
+      aadd(ta, 'в случае нельзя использовать профиль по: ' + inieditspr(A__MENUVERT, getV002(), 158))
     endif
     arr_profil := {human_->profil}
     for i := 1 to len(au_lu)
@@ -2828,9 +2833,11 @@ Function verify_1_sluch(fl_view)
       if human_->USL_OK == 4  // если скорая помощь
         human_->profil := au_lu[1, 3]
       else
-        aadd(ta, 'в случае использован профиль по: ' +inieditspr(A__MENUVERT, glob_V002, arr_profil[1]))
+        // aadd(ta, 'в случае использован профиль по: ' +inieditspr(A__MENUVERT, glob_V002, arr_profil[1]))
+        aadd(ta, 'в случае использован профиль по: ' + inieditspr(A__MENUVERT, getV002(), arr_profil[1]))
         for i := 2 to len(arr_profil)
-          aadd(ta, '                  а в услуге по: ' +inieditspr(A__MENUVERT, glob_V002, arr_profil[i]))
+          // aadd(ta, '                  а в услуге по: ' +inieditspr(A__MENUVERT, glob_V002, arr_profil[i]))
+          aadd(ta, '                  а в услуге по: ' + inieditspr(A__MENUVERT, getV002(), arr_profil[i]))
         next
       endif
     elseif empty(arr_profil[1])
@@ -3542,7 +3549,8 @@ Function verify_1_sluch(fl_view)
           is_1_den := .t.
         endif
       else
-        s := 'услуга ' + au_lu[i, 5]+ '-' +inieditspr(A__MENUVERT,glob_V002,au_lu[i, 3]) + '(' +date_8(au_lu[i, 2]) + ')'
+        // s := 'услуга ' + au_lu[i, 5]+ '-' +inieditspr(A__MENUVERT,glob_V002,au_lu[i, 3]) + '(' +date_8(au_lu[i, 2]) + ')'
+        s := 'услуга ' + au_lu[i, 5] + '-' +inieditspr(A__MENUVERT, getV002(), au_lu[i, 3]) + '(' + date_8(au_lu[i, 2]) + ')'
         if is_osmotr_DDS_1_etap(au_lu[i],mvozrast,metap,mpol,tip_lu) //eq_any(alltrim(au_lu[i, 5]),'2.3.1','2.4.1') // + 2.4.1-психиатр
           if eq_any(au_lu[i, 3], 68, 57) // педиатр (врач общей практики)
             if au_lu[i, 2] < d1
@@ -3677,7 +3685,8 @@ Function verify_1_sluch(fl_view)
             is_1_den := .t.
           endif
         else
-          s := 'услуга ' + au_lu[i, 5]+ '-' +inieditspr(A__MENUVERT,glob_V002,au_lu[i, 3]) + '(' +date_8(au_lu[i, 2]) + ')'
+          // s := 'услуга ' + au_lu[i, 5]+ '-' +inieditspr(A__MENUVERT,glob_V002,au_lu[i, 3]) + '(' +date_8(au_lu[i, 2]) + ')'
+          s := 'услуга ' + au_lu[i, 5]+ '-' + inieditspr(A__MENUVERT, getV002(), au_lu[i, 3]) + '(' + date_8(au_lu[i, 2]) + ')'
           if eq_any(au_lu[i, 3], 68, 57) .and. !(au_lu[i, 5] == '2.4.2')// врачебный приём - педиатр (врач общей практики)
             if au_lu[i, 2] < d1
               aadd(ta, 'дата осмотра педиатра не попадает в диапазон лечения')
@@ -4188,7 +4197,8 @@ Function verify_1_sluch(fl_view)
       hu->(dbGoto(au_lu[i, 9]))       // 9 - номер записи
       lshifr := alltrim(au_lu[i, 1])
       if left(lshifr, 4) == '2.3.' .and. !empty(au_lu[i, 3])
-        s := 'услуга ' + au_lu[i, 5]+ '-' +inieditspr(A__MENUVERT,glob_V002,au_lu[i, 3]) + '(' +date_8(au_lu[i, 2]) + ')'
+        // s := 'услуга ' + au_lu[i, 5]+ '-' +inieditspr(A__MENUVERT,glob_V002,au_lu[i, 3]) + '(' +date_8(au_lu[i, 2]) + ')'
+        s := 'услуга ' + au_lu[i, 5]+ '-' + inieditspr(A__MENUVERT, getV002(), au_lu[i, 3]) + '(' + date_8(au_lu[i, 2]) + ')'
       else
         s := 'услуга ' + au_lu[i, 5]+ '(' +date_8(au_lu[i, 2]) + ')'
       endif
@@ -4732,8 +4742,10 @@ endif
     add_string(fio_plus_novor() + ' ' + alltrim(human->kod_diag) + ' ' +;
                date_8(human->n_data) + '-' +date_8(human->k_data) +;
                ' (' +count_ymd(human->date_r,human->n_data) + ')')
-    Ins_Array(ta, 1, alltrim(uch->name) + '/' + alltrim(otd->name) + '/профиль по "' +;
-                   alltrim(inieditspr(A__MENUVERT, glob_V002, human_->profil)) + '"')
+    // Ins_Array(ta, 1, alltrim(uch->name) + '/' + alltrim(otd->name) + '/профиль по "' +;
+    //   alltrim(inieditspr(A__MENUVERT, glob_V002, human_->profil)) + '"')
+    Ins_Array(ta, 1, alltrim(uch->name) + '/' + alltrim(otd->name) + '/профиль по "' + ;
+                   alltrim(inieditspr(A__MENUVERT, getV002(), human_->profil)) + '"')
     if human->cena_1 == 0 ; // если цена нулевая
         .and. eq_any(human->ishod, 201, 202) // диспансеризация взрослого населения
       asize(ta, 1) // чтобы не выводить бессмысленные строки

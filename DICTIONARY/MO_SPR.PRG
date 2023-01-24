@@ -1561,7 +1561,7 @@ Function edit_otd()
                       {' ', {|| iif(empty(KOD_PODR), ' ', '√')}, blk}, ;
                       {'Сокр.', {|| short_name}, blk}, ;
                       {' Вид листа учёта', {|| padr(inieditspr(A__MENUVERT, mm_tiplu,tiplu), 19)}, blk}, ;
-                      {' Профиль', {|| padr(inieditspr(A__MENUVERT, glob_V002, profil), 15)}, blk} ;
+                      {' Профиль', {|| padr(inieditspr(A__MENUVERT, getV002(), profil), 15)}, blk} ;
                      }
   arr[US_BLK_DEL  ] := {|_k| fdel_otd(_k)}
   arr[US_IM_PADEG ] := arr[US_SEMAPHORE] := 'отделения'
@@ -1578,7 +1578,7 @@ Function edit_otd()
                        'Является данное отделение приёмным покоем стационара'}, ;
                       {'PROFIL', 'N', 3, 0, , ;
                        {|x|menu_reader(x, tmp_V002, A__MENUVERT_SPACE, , , .f.)}, ;
-                       0, {|x|inieditspr(A__MENUVERT, glob_V002, x)}, ;
+                       0, {|x|inieditspr(A__MENUVERT, getV002(), x)}, ;
                        'Профиль мед.помощи'}, ;
                       {'PROFIL_K', 'N', 3, 0, , ;
                        {|x|menu_reader(x, tmp_V020, A__MENUVERT_SPACE, , , .f.)}, ;

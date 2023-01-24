@@ -230,7 +230,8 @@ Function f2edit_pers(nKey, oBrow)
       k := maxrow() - 19
       if fl_profil
         --k
-        mprofil := inieditspr(A__MENUVERT, glob_V002, m1profil)
+        // mprofil := inieditspr(A__MENUVERT, glob_V002, m1profil)
+        mprofil := inieditspr(A__MENUVERT, getV002(), m1profil)
       endif
       box_shadow(k - 1, 0, maxrow() - 1, 79, , ;
             if(nKey == K_INS, 'Добавление', 'Редактирование') + ' информации о сотруднике', color8)

@@ -340,7 +340,7 @@ if flag
   mUSL_OK := inieditspr(A__MENUVERT, tmp_V006, m1USL_OK)
   mforma := inieditspr(A__MENUVERT, getV014(), m1forma)
   mprofil_k := inieditspr(A__MENUVERT, arr_t007, M1PROFIL_K)
-  mprofil := inieditspr(A__MENUVERT, glob_V002, M1PROFIL)
+  mprofil := inieditspr(A__MENUVERT, getV002(), M1PROFIL)
   if work_otd_263 == 1
     Private pr_arr := {}, pr_arr_otd := {}, pr1arr_otd := {}
     make_arr_uch_otd(mdate_h)
@@ -818,7 +818,7 @@ do case
       mtip := inieditspr(A__MENUVERT,mm_tip_vyb,m1tip)
       mforma := inieditspr(A__MENUVERT, getV014(), m1forma)
       mprofil_k := inieditspr(A__MENUVERT, arr_t007, M1PROFIL_K)
-      mprofil := inieditspr(A__MENUVERT, glob_V002, M1PROFIL)
+      mprofil := inieditspr(A__MENUVERT, getV002(), M1PROFIL)
       if empty(m1CODEM_FROM)
         mCODEM_FROM := space(10)
       else
@@ -1154,7 +1154,7 @@ do case
           s := rtrim(napr->ds_1) + ' ' + ;
             inieditspr(A__MENUVERT, getV014(), napr->F_MEDC_1) + ' ' + ;
             inieditspr(A__MENUVERT, arr_t007, napr->PROFIL_K_1) + ' (' + ;
-            inieditspr(A__MENUVERT, glob_V002, napr->PROFIL_1) + ')'
+            inieditspr(A__MENUVERT, getV002(), napr->PROFIL_1) + ')'
           perenos(t_arr, s, 23)
           s1 += padr(t_arr[1],24)+date_8(napr->DATE_H_1)
           s2 += padr(t_arr[2],24)+iif(napr->usl_ok_1==2,"дневной","стационар")
@@ -1203,7 +1203,7 @@ do case
       endif
       mforma := inieditspr(A__MENUVERT, getV014(), m1forma)
       mprofil_k := inieditspr(A__MENUVERT, arr_t007, M1PROFIL_K)
-      mprofil := inieditspr(A__MENUVERT, glob_V002, M1PROFIL)
+      mprofil := inieditspr(A__MENUVERT, getV002(), M1PROFIL)
       mUSL_OK := inieditspr(A__MENUVERT, tmp_V006, m1USL_OK)
       if !empty(m1pol_mo)
         if m1pol_mo == glob_mo[_MO_KOD_TFOMS]
@@ -1460,7 +1460,7 @@ do case
       mUSL_OK := inieditspr(A__MENUVERT, tmp_V006, m1USL_OK)
       mforma := inieditspr(A__MENUVERT,getV014(), m1forma)
       mprofil_k := inieditspr(A__MENUVERT, arr_t007, M1PROFIL_K)
-      mprofil := inieditspr(A__MENUVERT, glob_V002, M1PROFIL)
+      mprofil := inieditspr(A__MENUVERT, getV002(), M1PROFIL)
       mrea_annul := inieditspr(A__MENUVERT, mm_reason_annul, m1rea_annul)
       if !empty(m1pol_mo)
         if m1pol_mo == glob_mo[_MO_KOD_TFOMS]
@@ -1656,7 +1656,7 @@ if mdate_r != d7->DATE_R_EDI
 endif
 G_Use(dir_server+"mo_n7out",,"N7")
 index on padr(inieditspr(A__MENUVERT, arr_t007, n7->PROFIL_K),60)+str(PROFIL_K,3)+str(usl_ok,1)+;
-         padr(inieditspr(A__MENUVERT, glob_V002, n7->PROFIL),20)+str(PROFIL,3) to (cur_dir+"tmp_n7")
+         padr(inieditspr(A__MENUVERT, getV002(), n7->PROFIL),20)+str(PROFIL,3) to (cur_dir+"tmp_n7")
 go top
 //
 box_shadow(0,0,4,79,color1,"Редактирование количества свободных коек по профилям в стационаре",color14)
@@ -1678,7 +1678,7 @@ t_arr[BR_ARR_BROWSE] := {'═','░','═',"N/BG,W+/N,B/BG,W+/B,R/BG,W+/R",.t.}
 blk := {|| f0_263_s_svob_kojki() }
 t_arr[BR_COLUMN] := {{" ", {|| iif(n7->usl_ok==2,"д","с") }, blk },;
                      {" Профиль койки", {|| padr(inieditspr(A__MENUVERT,arr_T007,n7->PROFIL_K),16) }, blk },;
-                     {"Профиль м/пом.", {|| padr(inieditspr(A__MENUVERT,glob_V002,n7->PROFIL),14) }, blk },;
+                     {"Профиль м/пом.", {|| padr(inieditspr(A__MENUVERT,getV002(),n7->PROFIL),14) }, blk },;
                      {"сро;леч;к/д", {|| put_val(n7->kol_kd,3) }, {|| {5,5}} },; // 
                      {"Кол.;коек", {|| put_val(n7->QUANTITY,4) }, blk },; // количество коек
                      {"сост;на;пред", {|| put_val(n7->Q_P,4) }, blk },; // состояло пациентов на начало пред.суток
@@ -1746,7 +1746,7 @@ if k == 0
   buf := box_shadow(maxrow()-4,0,maxrow()-1,79,color1,"Профиль койки и профиль медицинской помощи","B+/B")
 elseif k == 1
   @ maxrow()-3,1 say padc(alltrim(inieditspr(A__MENUVERT, arr_t007, n7->PROFIL_K)),78) color color14
-  @ maxrow()-2,1 say padc(alltrim(inieditspr(A__MENUVERT, glob_V002, n7->PROFIL)),78) color color14
+  @ maxrow()-2,1 say padc(alltrim(inieditspr(A__MENUVERT, getV002(), n7->PROFIL)),78) color color14
 elseif k == 2
   rest_box(buf)
 endif
@@ -1786,7 +1786,7 @@ elseif regim == "edit"
         gl_area := {1,0,23,79,0}, mPLACE_FREE2
       mUSL_OK := inieditspr(A__MENUVERT, tmp_V006, m1USL_OK)
       mprofil_k := inieditspr(A__MENUVERT, arr_t007, M1PROFIL_K)
-      mprofil := inieditspr(A__MENUVERT, glob_V002, M1PROFIL)
+      mprofil := inieditspr(A__MENUVERT, getV002(), M1PROFIL)
       mPLACE_FREE2 := mPF_M + mPF_W + mPF_C
       tmp_color := setcolor()
       buf := savescreen()
@@ -1907,7 +1907,7 @@ elseif regim == "edit"
         s2 += padr(t_arr[2],n1)
         s3 += padr(t_arr[3],n1)
         s4 += padr(t_arr[4],n1)
-        perenos(t_arr,inieditspr(A__MENUVERT,glob_V002,n7->PROFIL),n2-1)
+        perenos(t_arr,inieditspr(A__MENUVERT,getV002(),n7->PROFIL),n2-1)
         s1 += padr(t_arr[1],n2)
         s2 += padr(t_arr[2],n2)
         s3 += padr(t_arr[3],n2)

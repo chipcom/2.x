@@ -3828,8 +3828,8 @@ Function i_stac_sl_profil()
       if tmp->profil > 0 .and. tmp->tip < 3
         if (i := ascan(au, {|x| x[1] == tmp->profil})) == 0
           aadd(au,{tmp->profil,"",0,0}) ; i := len(au)
-          if (j := ascan(glob_V002, {|x| x[2] == tmp->profil})) > 0
-            au[i,2] := glob_V002[j,1]
+          if (j := ascan(getV002(), {|x| x[2] == tmp->profil})) > 0
+            au[i,2] := getV002()[j,1]
           else
             au[i,2] := "профиль "+lstr(tmp->profil)
           endif
@@ -3878,8 +3878,8 @@ Function i_stac_sl_profil()
         add_string(alltrim(tmp->shifr)+" "+alltrim(&lal.->name))
       endif
       old := padr(tmp->shifr,20)
-      if (j := ascan(glob_V002, {|x| x[2] == tmp->profil})) > 0
-        s := glob_V002[j,1]
+      if (j := ascan(getV002(), {|x| x[2] == tmp->profil})) > 0
+        s := getV002()[j,1]
       else
         s := "профиль "+lstr(tmp->profil)
       endif
@@ -3904,8 +3904,8 @@ Function i_stac_sl_profil()
         add_string(rtrim(left(tmp->shifr,5))+" "+alltrim(diag->name))
       endif
       old := padr(tmp->shifr,5)
-      if (j := ascan(glob_V002, {|x| x[2] == tmp->profil})) > 0
-        s := glob_V002[j,1]
+      if (j := ascan(getV002(), {|x| x[2] == tmp->profil})) > 0
+        s := getV002()[j,1]
       else
         s := "профиль "+lstr(tmp->profil)
       endif
@@ -3940,8 +3940,8 @@ Function i_stac_sl_profil()
         add_string(alltrim(tmp->shifr)+" "+alltrim(&lal.->name))
       endif
       old := padr(tmp->shifr,20)
-      if (j := ascan(glob_V002, {|x| x[2] == tmp->profil})) > 0
-        s := glob_V002[j,1]
+      if (j := ascan(getV002(), {|x| x[2] == tmp->profil})) > 0
+        s := getV002()[j,1]
       else
         s := "профиль "+lstr(tmp->profil)
       endif

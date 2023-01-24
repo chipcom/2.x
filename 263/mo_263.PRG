@@ -274,7 +274,7 @@ endif
 R_Use(exe_dir+"_mo_t007",cur_dir+"_mo_t007","T7")
 find (str(lprofil_k,3))
 do while lprofil_k == t7->profil_k .and. !eof()
-  aadd(arr, {inieditspr(A__MENUVERT, glob_V002, t7->PROFIL),t7->profil})
+  aadd(arr, {inieditspr(A__MENUVERT, getV002(), t7->PROFIL),t7->profil})
   skip
 enddo
 t7->(dbCloseArea())
@@ -908,7 +908,7 @@ if is_napr_stac
       endif
       G_Use(dir_server+"mo_n7out",,"N7")
       index on padr(inieditspr(A__MENUVERT, arr_t007, n7->PROFIL_K),60)+str(n7->PROFIL_K,3)+;
-               padr(inieditspr(A__MENUVERT, glob_V002, n7->PROFIL),20)+str(n7->PROFIL,3) to (cur_dir+"tmp_n7")
+               padr(inieditspr(A__MENUVERT, getV002(), n7->PROFIL),20)+str(n7->PROFIL,3) to (cur_dir+"tmp_n7")
       go top
       if !eof()
         do while !eof()
@@ -934,7 +934,7 @@ if is_napr_stac
           endif
           if !empty(ta)
             Ins_Array(ta,1,alltrim(inieditspr(A__MENUVERT, arr_t007, n7->PROFIL_K))+;
-                           " ("+alltrim(inieditspr(A__MENUVERT, glob_V002, n7->PROFIL))+")")
+                           " ("+alltrim(inieditspr(A__MENUVERT, getV002(), n7->PROFIL))+")")
             aadd(arr_error, {7,0,aclone(ta)} )
           endif
           select N7
@@ -1714,7 +1714,7 @@ if !fl_error .and. yes_i07
   //
   G_Use(dir_server+"mo_n7out",,"N7")
   index on padr(inieditspr(A__MENUVERT, arr_t007, n7->PROFIL_K),60)+str(n7->PROFIL_K,3)+;
-           padr(inieditspr(A__MENUVERT, glob_V002, n7->PROFIL),20)+str(n7->PROFIL,3) to (cur_dir+"tmp_n7")
+           padr(inieditspr(A__MENUVERT, getV002(), n7->PROFIL),20)+str(n7->PROFIL,3) to (cur_dir+"tmp_n7")
   _263_put_10_days(nf->DATE_R)
   select N7
   go top
@@ -2027,7 +2027,7 @@ if regim == "edit"
         add_string(space(3)+alltrim(_kart->fio)+", д.р."+full_date(_kart->date_r))
         add_string(space(3)+"планируемая дата госпитализации "+date_8(napr->DATE_H_1)+" по диагнозу "+alltrim(napr->DS_1))
         add_string(space(3)+inieditspr(A__MENUVERT, arr_t007, napr->PROFIL_K_1)+;
-                                     " ("+inieditspr(A__MENUVERT, glob_V002, napr->PROFIL_1)+")")
+                                     " ("+inieditspr(A__MENUVERT, getV002(), napr->PROFIL_1)+")")
         select NFN
         find (str(napr->kod,6))
         if found() .and. nfn->OSHIB > 0
@@ -2185,7 +2185,7 @@ if regim == "edit"
         add_string(space(3)+alltrim(_kart->fio)+", д.р."+full_date(_kart->date_r))
         add_string(space(3) + 'форма оказания медицинской помощи - ' + inieditspr(A__MENUVERT, getV014(), napr->F_MEDC_1))
         add_string(space(3)+inieditspr(A__MENUVERT, arr_t007, napr->PROFIL_K_1)+;
-                                     " ("+inieditspr(A__MENUVERT, glob_V002, napr->PROFIL_1)+")")
+                                     " ("+inieditspr(A__MENUVERT, getV002(), napr->PROFIL_1)+")")
         add_string(space(3)+"причина аннулирования: "+inieditspr(A__MENUVERT, mm_reason_annul, napr->rea_annul))
         add_string(space(3)+"дата аннулирования "+full_date(napr->date_3))
         select NFN
@@ -2351,7 +2351,7 @@ if regim == "edit"
                             ", время "+napr->TIME_H_4)
         add_string(space(3)+"Диагноз приёмного отделения "+alltrim(napr->DS_4))
         add_string(space(3)+inieditspr(A__MENUVERT, arr_t007, napr->PROFIL_K_4)+;
-                                     " ("+inieditspr(A__MENUVERT, glob_V002, napr->PROFIL_4)+")")
+                                     " ("+inieditspr(A__MENUVERT, getV002(), napr->PROFIL_4)+")")
         add_string(space(3) + 'Форма оказания медицинской помощи - ' + inieditspr(A__MENUVERT, getV014(), napr->F_MEDC_4))
         add_string(space(3)+"Номер истории болезни - "+alltrim(napr->NUM_HIST_4))
         select NFN
@@ -2513,7 +2513,7 @@ if regim == "edit"
                             ", время "+napr->TIME_H_4)
         add_string(space(3)+"Диагноз приёмного отделения "+alltrim(napr->DS_4))
         add_string(space(3)+inieditspr(A__MENUVERT, arr_t007, napr->PROFIL_K_4)+;
-                                     " ("+inieditspr(A__MENUVERT, glob_V002, napr->PROFIL_4)+")")
+                                     " ("+inieditspr(A__MENUVERT, getV002(), napr->PROFIL_4)+")")
         add_string(space(3) + 'Форма оказания медицинской помощи - ' + inieditspr(A__MENUVERT, getV014(), napr->F_MEDC_4))
         add_string(space(3)+"Номер истории болезни - "+alltrim(napr->NUM_HIST_4))
         add_string(space(3)+"Тип выбытия - "+inieditspr(A__MENUVERT,mm_tip_vyb,napr->type_6))
@@ -3101,7 +3101,7 @@ for ii := 1 to len(arr_f)
                             space(7)+"планируемая дата госпитализации "+date_8(tmp2->DATE_HOSP)+;
                                      " по диагнозу "+alltrim(tmp2->DS)+hb_eol()+;
                             space(7)+inieditspr(A__MENUVERT, arr_t007, tmp2->PROFIL_K)+;
-                                     " ("+inieditspr(A__MENUVERT, glob_V002, tmp2->PROFIL)+")"+;
+                                     " ("+inieditspr(A__MENUVERT, getV002(), tmp2->PROFIL)+")"+;
                             hb_eol(),cFileProtokol,.t.)
                     m1kod_k := 0
                     select NAPR
@@ -3858,7 +3858,7 @@ if regim == "edit"
         add_string(space(3)+"Направление выдано по результатам диспансеризации/профосмотра взрослых: "+iif(napr->disp_1==1,"нет","да"))
         add_string(space(3)+"планируемая дата госпитализации "+date_8(napr->DATE_H_1)+" по диагнозу "+alltrim(napr->DS_1))
         add_string(space(3)+inieditspr(A__MENUVERT, arr_t007, napr->PROFIL_K_1)+;
-                                     " ("+inieditspr(A__MENUVERT, glob_V002, napr->PROFIL_1)+")")
+                                     " ("+inieditspr(A__MENUVERT, getV002(), napr->PROFIL_1)+")")
         select NAPR
         skip
       enddo

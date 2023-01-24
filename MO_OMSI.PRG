@@ -2113,7 +2113,7 @@ do while hu->kod == human->kod .and. !eof()
               //arr_lp[i,2,i1,3] ++
             endif
             if eq_any(left(lshifr,4), '2.3.', '2.6.', '2.60', '1.11', '55.1')
-              s := inieditspr(A__MENUVERT, glob_V002, hu_->PROFIL)
+              s := inieditspr(A__MENUVERT, getV002(), hu_->PROFIL)
               if (i := ascan(arr_lp, {|x| x[1] == lshifr })) == 0
                 aadd(arr_lp, {lshifr,{}}) ; i := len(arr_lp)
               endif
@@ -2722,7 +2722,7 @@ for i := 1 to 7
         aeval(arr_title, {|x| add_string(x) } )
       endif
       if tmp->tip1 == 7
-        s := inieditspr(A__MENUVERT, glob_V002, int(tmp->tarif))
+        s := inieditspr(A__MENUVERT, getV002(), int(tmp->tarif))
         s := padr(s,31) + ' ' +{'вз.', 'реб'}[tmp->vr] +space(9)
       else
         s := alltrim(tmp->shifr) + ' '
@@ -3804,7 +3804,7 @@ else
       find (str(ii,1))
       do while tmp1->usl_ok == ii .and. !eof()
         if tmp1->is_our == mour .and. ascan(arr_profil, {|x| x[1] == tmp1->profil }) == 0
-          aadd(arr_profil, {tmp1->profil,inieditspr(A__MENUVERT, glob_V002, tmp1->profil)})
+          aadd(arr_profil, {tmp1->profil,inieditspr(A__MENUVERT, getV002(), tmp1->profil)})
         endif
         skip
       enddo
@@ -3862,7 +3862,7 @@ else
       find (str(ii,1))
       do while tmp1->usl_ok == ii .and. !eof()
         if tmp1->is_our == mour .and. ascan(arr_profil, {|x| x[1] == tmp1->profil }) == 0
-          aadd(arr_profil, {tmp1->profil,inieditspr(A__MENUVERT, glob_V002, tmp1->profil)})
+          aadd(arr_profil, {tmp1->profil,inieditspr(A__MENUVERT, getV002(), tmp1->profil)})
         endif
         skip
       enddo
@@ -3922,7 +3922,7 @@ else
       find (str(ii,1))
       do while tmp1->usl_ok == ii .and. !eof()
         if tmp1->is_our == mour .and. ascan(arr_profil, {|x| x[1] == tmp1->profil }) == 0
-          aadd(arr_profil, {tmp1->profil,inieditspr(A__MENUVERT, glob_V002, tmp1->profil)})
+          aadd(arr_profil, {tmp1->profil,inieditspr(A__MENUVERT, getV002(), tmp1->profil)})
         endif
         skip
       enddo

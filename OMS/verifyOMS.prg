@@ -283,8 +283,10 @@ Function verify_OMS(arr_m, fl_view)
       endif
       uch->(dbGoto(human->LPU))
       otd->(dbGoto(human->OTD))
-      frd->otd := alltrim(uch->name)+'/ '+alltrim(otd->name)+'/ профиль по "'+;
-                  inieditspr(A__MENUVERT, glob_V002, human_->profil)+'"'
+      // frd->otd := alltrim(uch->name)+'/ '+alltrim(otd->name)+'/ профиль по "'+;
+      //   inieditspr(A__MENUVERT, glob_V002, human_->profil)+'"'
+      frd->otd := alltrim(uch->name) + '/ ' + alltrim(otd->name) + '/ профиль по "' + ;
+                  inieditspr(A__MENUVERT, getV002(), human_->profil) + '"'
       pers->(dbGoto(human_->VRACH))
       frd->vrach := "[ "+lstr(pers->tab_nom)+" ] "+pers->fio
       //
@@ -303,8 +305,10 @@ Function verify_OMS(arr_m, fl_view)
       endif
       uch->(dbGoto(human->LPU))
       otd->(dbGoto(human->OTD))
-      frd->otd1 := alltrim(uch->name)+'/ '+alltrim(otd->name)+'/ профиль по "'+;
-                   inieditspr(A__MENUVERT, glob_V002, human_->profil)+'"'
+      // frd->otd1 := alltrim(uch->name)+'/ '+alltrim(otd->name)+'/ профиль по "'+;
+      //              inieditspr(A__MENUVERT, glob_V002, human_->profil)+'"'
+      frd->otd1 := alltrim(uch->name) + '/ ' + alltrim(otd->name) + '/ профиль по "' + ;
+                      inieditspr(A__MENUVERT, getV002(), human_->profil) + '"'
       pers->(dbGoto(human_->VRACH))
       frd->vrach1 := "[ "+lstr(pers->tab_nom)+" ] "+pers->fio
       select D_SROK

@@ -5419,7 +5419,7 @@ if found()
   index on str(kod,9) to (cur_dir+"tmp") for tip == 2
   go top
   do while !eof()
-    f2_f30(inieditspr(A__MENUVERT, glob_V002, tmp->kod))
+    f2_f30(inieditspr(A__MENUVERT, getV002(), tmp->kod))
     skip
   enddo
   add_string(replicate("-",sh))
@@ -5486,7 +5486,7 @@ if found()
   index on str(kod,9) to (cur_dir+"tmp1") for tip == 1
   go top
   do while !eof()
-    f2_f30(inieditspr(A__MENUVERT, glob_V002, tmp1->kod),,2)
+    f2_f30(inieditspr(A__MENUVERT, getV002(), tmp1->kod),,2)
     skip
   enddo
 endif
@@ -5536,7 +5536,7 @@ if found()  // в tmp уже должны входить
   index on str(kod,9) to (cur_dir+"tmp2") for tip == 2
   go top
   do while !eof()
-    f2_f30_dop(inieditspr(A__MENUVERT, glob_V002, tmp2->kod))
+    f2_f30_dop(inieditspr(A__MENUVERT, getV002(), tmp2->kod))
     skip
   enddo
   add_string(replicate("-",sh))

@@ -279,10 +279,11 @@ function dispans_napr(mk_data, /*@*/j, lAdult)
         reader {|x|menu_reader(x,mm_napr_stac,A__MENUVERT,,,.f.)} ;
         valid {|| iif(m1napr_stac==0, (m1profil_stac:=0,mtab_v_stac:=0,mprofil_stac:=space(32)), ), update_get("mprofil_stac")}
     mprofil_stac := iif(len(mprofil_stac)>0,substr(mprofil_stac,1,27),'')
-    @ j,col()+1 say "по профилю" get mprofil_stac PICTURE '@S27';
-        reader {|x|menu_reader(x,glob_V002,A__MENUVERT,,,.f.)} ;
+    @ j, col() + 1 say 'по профилю' get mprofil_stac PICTURE '@S27' ;
+        reader {|x|menu_reader(x, getV002(), A__MENUVERT, , , .f.)} ;
         when m1napr_stac > 0
-    @ j,73 get mtab_v_stac pict "99999" ;
+        // reader {|x|menu_reader(x,glob_V002,A__MENUVERT,,,.f.)} ;
+      @ j,73 get mtab_v_stac pict "99999" ;
         valid {|g| iif((mtab_v_stac == 0) .and. v_kart_vrach(g), func_error(4, strNeedTabNumber),.t.) } ;
         when m1napr_stac > 0
 // направлен на реабилитацию
@@ -323,10 +324,11 @@ function dispans_napr(mk_data, /*@*/j, lAdult)
     @ ++j,1 say "Направлен на лечение" get mnapr_stac ;
         reader {|x|menu_reader(x,mm_napr_stac,A__MENUVERT,,,.f.)} ;
         valid {|| iif(m1napr_stac==0, (m1profil_stac:=0,mprofil_stac:=space(32)), ), update_get("mprofil_stac")}
-    @ j,col()+1 say "по профилю" get mprofil_stac ;
-        reader {|x|menu_reader(x,glob_V002,A__MENUVERT,,,.f.)} ;
+    @ j, col() + 1 say 'по профилю' get mprofil_stac ;
+        reader {|x|menu_reader(x, getV002(), A__MENUVERT, , , .f.)} ;
         when m1napr_stac > 0
-    @ ++j,1 say "Направлен на реабилитацию" get mnapr_reab ;
+        // reader {|x|menu_reader(x,glob_V002,A__MENUVERT,,,.f.)} ;
+      @ ++j,1 say "Направлен на реабилитацию" get mnapr_reab ;
         reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
         valid {|| iif(m1napr_reab==0, (m1profil_kojki:=0,mprofil_kojki:=space(30)), ), update_get("mprofil_kojki")}
     @ j,col()+1 say ", профиль койки" get mprofil_kojki ;

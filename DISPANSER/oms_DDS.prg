@@ -582,7 +582,8 @@ Function oms_sluch_DDS(tip_lu,Loc_kod,kod_kartotek,f_print)
     ma_mo_spec := left(ma_mo_spec,len(ma_mo_spec)-1)
   endif
   mnapr_stac := inieditspr(A__MENUVERT, mm_napr_stac, m1napr_stac)
-  mprofil_stac := inieditspr(A__MENUVERT, glob_V002, m1profil_stac)
+  // mprofil_stac := inieditspr(A__MENUVERT, glob_V002, m1profil_stac)
+  mprofil_stac := inieditspr(A__MENUVERT, getV002(), m1profil_stac)
   mnapr_reab := inieditspr(A__MENUVERT, mm_danet, m1napr_reab)
   mprofil_kojki := inieditspr(A__MENUVERT, getV020(), m1profil_kojki)
   //

@@ -502,7 +502,8 @@ Function f2oms_usl_sluch(nKey, oBrow)
         m1PROFIL := human_->profil
       endif
       mdom := inieditspr(A__MENUVERT, mm_dom, m1dom)
-      mPROFIL := padr(inieditspr(A__MENUVERT, glob_V002, m1PROFIL), 69)
+      // mPROFIL := padr(inieditspr(A__MENUVERT, glob_V002, m1PROFIL), 69)
+      mPROFIL := padr(inieditspr(A__MENUVERT, getV002(), m1PROFIL), 69)
       --r1
       box_shadow(r1 - 1, 0, maxrow() - 1, 79, color8, ;
                  iif(nKey == K_INS, 'Добавление новой услуги', ;
@@ -1063,7 +1064,8 @@ Function f_oms_usl_sluch(oBrow)
   oColumn := TBColumnNew('МКБ10',{|| tmp->kod_diag })
   oColumn:colorBlock := blk_color
   oBrow:addColumn(oColumn)
-  oColumn := TBColumnNew('Профиль услуги',{|| padr(inieditspr(A__MENUVERT,glob_V002,tmp->PROFIL),15) })
+  // oColumn := TBColumnNew('Профиль услуги',{|| padr(inieditspr(A__MENUVERT,glob_V002,tmp->PROFIL),15) })
+  oColumn := TBColumnNew('Профиль услуги', {|| padr(inieditspr(A__MENUVERT, getV002(), tmp->PROFIL), 15) })
   oColumn:colorBlock := blk_color
   oBrow:addColumn(oColumn)
   oColumn := TBColumnNew('Врач',{|| put_val(ret_tabn(tmp->kod_vr),5) })

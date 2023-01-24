@@ -228,7 +228,7 @@ do case
       mUSL_OK := inieditspr(A__MENUVERT, tmp_V006, m1USL_OK)
       mforma := inieditspr(A__MENUVERT, getV014(), m1forma)
       mprofil_k := inieditspr(A__MENUVERT, arr_t007, M1PROFIL_K)
-      mprofil := inieditspr(A__MENUVERT, glob_V002, M1PROFIL)
+      mprofil := inieditspr(A__MENUVERT, getV002(), M1PROFIL)
       DEFAULT mdate_hosp TO md_napr+30
       if !empty(m1stac_mo)
         mstac_mo := ret_mo(m1stac_mo)[_MO_SHORT_NAME]
@@ -596,7 +596,7 @@ do case
       mUSL_OK := inieditspr(A__MENUVERT, tmp_V006, m1USL_OK)
       mforma := inieditspr(A__MENUVERT, getV014(), m1forma)
       mprofil_k := inieditspr(A__MENUVERT, arr_t007, M1PROFIL_K)
-      mprofil := inieditspr(A__MENUVERT, glob_V002, M1PROFIL)
+      mprofil := inieditspr(A__MENUVERT, getV002(), M1PROFIL)
       mstac_mo := ret_mo(m1stac_mo)[_MO_SHORT_NAME]
       mrea_annul := inieditspr(A__MENUVERT, mm_reason_annul, m1rea_annul)
       if m1vrach > 0
@@ -815,7 +815,7 @@ elseif i == 2
       t_arr[BR_COLUMN] := {{" Наименование учреждения",{|| padr(ret_mo(substr(nf->name_f,12,6))[_MO_SHORT_NAME],29) }, blk },;
                            {"Отч.дата", {|| date_8(nf->date_r) }, blk },;
                            {"ус", {|| iif(n7->usl_ok==2,"дн","ст") }, blk },;
-                           {"Профиль мед.помощи", {|| padr(inieditspr(A__MENUVERT,glob_V002,n7->PROFIL),18) }, blk },;
+                           {"Профиль мед.помощи", {|| padr(inieditspr(A__MENUVERT,getV002(),n7->PROFIL),18) }, blk },;
                            {" Количество коек", {|| padr(lstr(n7->QUANTITY)+", свободно "+lstr(n7->PLACE_FREE),17) }, blk }}
       t_arr[BR_STAT_MSG] := {|| status_key("^<Esc>^ выход ^<Enter>^ просмотр информации по выбранному стационару и профилю") }
       t_arr[BR_STEP_FUNC] := {|| f1_263_p_svob_kojki(1) }
@@ -834,10 +834,10 @@ elseif i == 3
   else
     dbeval({|| aadd(arr, {"",n7->profil}) })
     for i := 1 to len(arr)
-      if (j := ascan(glob_V002, {|x| x[2] == arr[i,2] })) == 0
+      if (j := ascan(getV002(), {|x| x[2] == arr[i,2] })) == 0
         arr[i,1] := "Профиль мед.помощи "+lstr(arr[i,2])
       else
-        arr[i,1] := glob_V002[j,1]
+        arr[i,1] := getV002()[j,1]
       endif
     next
     popup_2array(arr,T_ROW,T_COL+5,sprofil,1,@ret_arr,"Выбор профиля мед.помощи","B/BG")
@@ -949,7 +949,7 @@ if regim == "edit"
           s2 += padr(t_arr[2],n1)
           s3 += padr(t_arr[3],n1)
           s4 += padr(t_arr[4],n1)
-          perenos(t_arr,inieditspr(A__MENUVERT,glob_V002,n7->PROFIL),n2-1)
+          perenos(t_arr,inieditspr(A__MENUVERT,getV002(),n7->PROFIL),n2-1)
           s1 += padr(t_arr[1],n2)
           s2 += padr(t_arr[2],n2)
           s3 += padr(t_arr[3],n2)
@@ -992,7 +992,7 @@ if regim == "edit"
         s2 += padr(t_arr[2],n1)
         s3 += padr(t_arr[3],n1)
         s4 += padr(t_arr[4],n1)
-        perenos(t_arr,inieditspr(A__MENUVERT,glob_V002,n7->PROFIL),n2-1)
+        perenos(t_arr,inieditspr(A__MENUVERT,getV002(),n7->PROFIL),n2-1)
         s1 += padr(t_arr[1],n2)
         s2 += padr(t_arr[2],n2)
         s3 += padr(t_arr[3],n2)
