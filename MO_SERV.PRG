@@ -1652,7 +1652,7 @@ if fl
         if ihuman->USL_OK == 1 // стационар
 
           arrV018 := getV018(ihuman->date_2)
-          arrV019 := getV019table(ihuman->date_2)
+          arrV019 := getV019(ihuman->date_2)
 
           if ascan(arrV018, {|x| x[1] == ihuman->VID_HMP }) == 0
             s := 'не найден вид ВМП "' + ihuman->VID_HMP + '" в справочнике V018'

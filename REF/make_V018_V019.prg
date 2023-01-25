@@ -10,7 +10,7 @@ Function make_V018_V019(lk_data)
   if sy != y
     sy := y
     glob_V018 := getV018(lk_data)
-    glob_V019 := getV019table(lk_data)
+    glob_V019 := getV019(lk_data)
   endif
   return NIL
   

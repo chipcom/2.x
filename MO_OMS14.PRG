@@ -12,7 +12,7 @@ Function verify_1_sluch_18(fl_view)
       lbukva, lst, lidsp, a_idsp := {}, a_bukva := {}, t_arr[2], ltip, lkol, ;
       a_dializ := {}, is_2_88 := .f., a_rec_ffoms := {}, mpovod := 1 // 1.0
   local arrV018
-  local glob_V019
+  local arrV019
 
 if empty(human->k_data)
   return .t.  // не проверять
@@ -1676,7 +1676,7 @@ if human_->USL_OK == 1  // стационар
   if human_2->VMP == 1 // проверим ВМП
     if is_12_VMP .or. is_21_VMP .or. is_22_VMP // ВМП по-новому 08.02.2021
       arrV018 := getV018(d2)
-      glob_V019 := getV019table(d2)
+      arrV019 := getV019(d2)
       
       if empty(human_2->TAL_NUM)
         aadd(ta,'ВМП оказана, но не введен номер талона на ВМП')
@@ -1697,12 +1697,12 @@ if human_->USL_OK == 1  // стационар
         aadd(ta,'Не найден вид ВМП "'+human_2->VIDVMP+'" в справочнике V018')
       elseif empty(human_2->METVMP)
         aadd(ta,'ВМП оказана, введён вид ВМП, но не введён метод ВМП')
-      elseif (i := ascan(glob_V019, {|x| x[1] == human_2->METVMP })) > 0
-        if glob_V019[i,4] == alltrim(human_2->VIDVMP)
+      elseif (i := ascan(arrV019, {|x| x[1] == human_2->METVMP })) > 0
+        if arrV019[i,4] == alltrim(human_2->VIDVMP)
           if !(len(mdiagnoz) == 0 .or. empty(mdiagnoz[1]))
             fl := .f. ; s := padr(mdiagnoz[1],6)
-            for j := 1 to len(glob_V019[i,3])
-              if left(s,len(glob_V019[i,3,j])) == glob_V019[i,3,j]
+            for j := 1 to len(arrV019[i,3])
+              if left(s,len(arrV019[i,3,j])) == arrV019[i,3,j]
                 fl := .t. ; exit
               endif
             next
@@ -1711,8 +1711,8 @@ if human_->USL_OK == 1  // стационар
                 mpztip := 1
               endif
             else
-              aadd(ta,'основной диагноз '+s+', а у метода ВМП "'+lstr(human_2->METVMP)+'.'+alltrim(glob_V019[i,2])+'"')
-              aadd(ta,'└─допустимые диагнозы: '+print_array(glob_V019[i,3]))
+              aadd(ta,'основной диагноз '+s+', а у метода ВМП "'+lstr(human_2->METVMP)+'.'+alltrim(arrV019[i,2])+'"')
+              aadd(ta,'└─допустимые диагнозы: '+print_array(arrV019[i,3]))
             endif
           endif
         else

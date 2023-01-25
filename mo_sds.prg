@@ -227,7 +227,7 @@ Local _sluch_u := {; // услуги (в отделении)
   }
 Local fl := .t., buf := save_maxrow()
 local arrV018
-local glob_V019
+local arrV019
 //
 mywait("Чтение XML-файла ...")
 dbcreate(cur_dir + "_sluch",_sluch)
@@ -929,15 +929,15 @@ do while !eof()
     enddo
     if !empty(ihuman->VID_HMP) .and. ihuman->USL_OK == 1 // стационар
       arrV018 := getV018(ihuman->date_2)
-      glob_V019 := getV019table(ihuman->date_2)
+      arrV019 := getV019(ihuman->date_2)
       
       if ascan(arrV018, {|x| x[1] == ihuman->VID_HMP }) == 0
         aadd(ae, 'не найден вид ВМП "'+rtrim(ihuman->VID_HMP) + '" в справочнике V018')
       elseif empty(ihuman->METOD_HMP)
         aadd(ae, 'ВМП оказана, введён вид ВМП, но не введён метод ВМП')
-      elseif (i := ascan(glob_V019, {|x| x[1] == ihuman->METOD_HMP })) > 0
-        if glob_V019[i,4] == ihuman->VID_HMP
-          if ascan(glob_V019[i,3], {|x| left(ihuman->ds1,len(x))==x }) == 0
+      elseif (i := ascan(arrV019, {|x| x[1] == ihuman->METOD_HMP })) > 0
+        if arrV019[i,4] == ihuman->VID_HMP
+          if ascan(arrV019[i,3], {|x| left(ihuman->ds1,len(x))==x }) == 0
             aadd(ae, 'основной диагноз не соответствует методу ВМП')
           endif
         else

@@ -1,9 +1,9 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-** 17.01.23
+** 25.01.23
 // возвращает массив V019
-function getV019table( dateSl )
+function getV019( dateSl )
   // Local dbName, dbAlias := 'V019'
   // local tmp_select := select()
   local yearSl := year(dateSl)

@@ -2036,7 +2036,7 @@ Function usl12FFOMS()
   Static sast, sarr
   Local buf := save_maxrow(), name_file := cur_dir + 'metodVMP' + stxt, sh := 80, HH := 60, t_arr[2], a, i, j, k, n, s
   local arrV018 := getV018(boy())
-  local arrV019 := getV019table(boy())
+  local arrV019 := getV019(boy())
 
   if sast == NIL
     sast := {}

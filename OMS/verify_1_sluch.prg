@@ -18,7 +18,7 @@ Function verify_1_sluch(fl_view)
   local sbase
   local arr_uslugi_geriatr := {'B01.007.001', 'B01.007.003', 'B01.007.003' }, row, rowTmp
   local flGeriatr := .f.
-  local arrV018, glob_V019
+  local arrV018, arrV019
   local arrImplant
   local arrLekPreparat, arrGroupPrep, mMNN
   local flLekPreparat := .f.
@@ -63,7 +63,7 @@ Function verify_1_sluch(fl_view)
   d1 := human->n_data ; d2 := human->k_data ; cuch_doc := human->uch_doc
 
   arrV018 := getV018(human->k_data)
-  glob_V019 := getV019table(human->k_data)
+  arrV019 := getV019(human->k_data)
 
   reserveKSG_1 := exist_reserve_KSG(human->kod, 'HUMAN')
 
@@ -2282,12 +2282,12 @@ Function verify_1_sluch(fl_view)
           aadd(ta, 'Не найден вид ВМП "' + human_2->VIDVMP + '" в справочнике V018')
         elseif empty(human_2->METVMP)
           aadd(ta, 'ВМП оказана, введён вид ВМП, но не введён метод ВМП')
-        elseif ((i := ascan(glob_V019, {|x| x[1] == human_2->METVMP})) > 0) .and. (year(human->k_data)==2020)
-          if glob_V019[i, 4] == alltrim(human_2->VIDVMP)
+        elseif ((i := ascan(arrV019, {|x| x[1] == human_2->METVMP})) > 0) .and. (year(human->k_data)==2020)
+          if arrV019[i, 4] == alltrim(human_2->VIDVMP)
             if !(len(mdiagnoz) == 0 .or. empty(mdiagnoz[1]))
               fl := .f. ; s := padr(mdiagnoz[1], 6)
-              for j := 1 to len(glob_V019[i, 3])
-                if left(s,len(glob_V019[i, 3,j])) == glob_V019[i, 3,j]
+              for j := 1 to len(arrV019[i, 3])
+                if left(s,len(arrV019[i, 3,j])) == arrV019[i, 3,j]
                   fl := .t. ; exit
                 endif
               next
@@ -2296,21 +2296,21 @@ Function verify_1_sluch(fl_view)
                   mpztip := 1
                 endif
               else
-                aadd(ta, 'основной диагноз ' + s + ', а у метода ВМП "' + lstr(human_2->METVMP) + '.' + alltrim(glob_V019[i, 2]) + '"')
-                aadd(ta, '└─допустимые диагнозы: ' +print_array(glob_V019[i, 3]))
+                aadd(ta, 'основной диагноз ' + s + ', а у метода ВМП "' + lstr(human_2->METVMP) + '.' + alltrim(arrV019[i, 2]) + '"')
+                aadd(ta, '└─допустимые диагнозы: ' +print_array(arrV019[i, 3]))
               endif
             endif
           else
             aadd(ta, 'метод ВМП ' + lstr(human_2->METVMP) + ' не соответствует виду ВМП ' +human_2->VIDVMP)
           endif
-        // elseif ((i := ascan(glob_V019, {|x| x[1] == human_2->METVMP .and. x[8] == human_2->PN5 })) > 0) .and. (year(human->k_data)>=2021)
-        elseif ((i := ascan(glob_V019, {|x| x[1] == human_2->METVMP .and. x[8] == human_2->PN5 .and. x[4] == alltrim(human_2->VIDVMP) })) > 0) .and. (year(human->k_data)>=2021)
-          if (glob_V019[i, 4] == alltrim(human_2->VIDVMP)) //.or. (glob_V019[i, 4] == '26' .and. alltrim(human_2->VIDVMP) == '27')
+        // elseif ((i := ascan(arrV019, {|x| x[1] == human_2->METVMP .and. x[8] == human_2->PN5 })) > 0) .and. (year(human->k_data)>=2021)
+        elseif ((i := ascan(arrV019, {|x| x[1] == human_2->METVMP .and. x[8] == human_2->PN5 .and. x[4] == alltrim(human_2->VIDVMP) })) > 0) .and. (year(human->k_data)>=2021)
+          if (arrV019[i, 4] == alltrim(human_2->VIDVMP)) //.or. (arrV019[i, 4] == '26' .and. alltrim(human_2->VIDVMP) == '27')
 
             if !(len(mdiagnoz) == 0 .or. empty(mdiagnoz[1]))
               fl := .f. ; s := padr(mdiagnoz[1], 6)
-              for j := 1 to len(glob_V019[i, 3])
-                if left(s,len(glob_V019[i, 3,j])) == glob_V019[i, 3,j]
+              for j := 1 to len(arrV019[i, 3])
+                if left(s,len(arrV019[i, 3,j])) == arrV019[i, 3,j]
                   fl := .t. ; exit
                 endif
               next
@@ -2319,8 +2319,8 @@ Function verify_1_sluch(fl_view)
                   mpztip := 1
                 endif
               else
-                aadd(ta, 'основной диагноз ' + s + ', а у метода ВМП "' + lstr(human_2->METVMP) + '.' + alltrim(glob_V019[i, 2]) + '"')
-                aadd(ta, '└─допустимые диагнозы: ' +print_array(glob_V019[i, 3]))
+                aadd(ta, 'основной диагноз ' + s + ', а у метода ВМП "' + lstr(human_2->METVMP) + '.' + alltrim(arrV019[i, 2]) + '"')
+                aadd(ta, '└─допустимые диагнозы: ' +print_array(arrV019[i, 3]))
               endif
             endif
           else
