@@ -330,7 +330,6 @@ Function print_l_uch(mkod, par, regim, lnomer)
 
   add_string('  Медицинская помощь: условия оказания: ' + inieditspr(A__MENUVERT, getV006(), human_->USL_OK))
   if human_->PROFIL > 0
-    // k := perenos(tmp, 'профиль: ' + inieditspr(A__MENUVERT, glob_V002, human_->PROFIL), sh - 4)
     k := perenos(tmp, 'профиль: ' + inieditspr(A__MENUVERT, getV002(), human_->PROFIL), sh - 4)
     add_string(space(4) + tmp[1])
     for i := 2 to k
@@ -507,7 +506,6 @@ Function print_l_uch(mkod, par, regim, lnomer)
     s += iif(tmp1->dom==1, '/на дому/', iif(tmp1->dom==2, '/домАКТИВ/', ' '))
     s += alltrim(tmp1->name)
     if eq_any(alltrim(tmp1->shifr), '2.3.1', '2.3.3', '2.6.1', '2.60.1')
-      // s += ' (' + alltrim(inieditspr(A__MENUVERT, glob_V002, tmp1->PROFIL)) + ')'
       s += ' (' + alltrim(inieditspr(A__MENUVERT, getV002(), tmp1->PROFIL)) + ')'
     elseif !empty(tmp1->zf)
       s += ' ЗФ:' + alltrim(tmp1->ZF)
@@ -1165,7 +1163,6 @@ Function print_al_uch(arr_h, arr_m)
     // endif
     verify_FF(HH - 6, .t., sh)
     if human_->PROFIL > 0
-      // add_string('  Профиль: ' + inieditspr(A__MENUVERT, glob_V002, human_->PROFIL))
       add_string('  Профиль: ' + inieditspr(A__MENUVERT, getV002(), human_->PROFIL))
     endif
     add_string('  Способ оплаты: ' + inieditspr(A__MENUVERT, getV010(), human_->IDSP))
@@ -1252,7 +1249,6 @@ Function print_al_uch(arr_h, arr_m)
     do while !eof()
       s := alltrim(tmp1->shifr) + iif(tmp1->dom==1, '/на дому/', iif(tmp1->dom==2, '/домАКТИВ/', ' ')) + alltrim(tmp1->name)
       if eq_any(alltrim(tmp1->shifr), '2.3.1', '2.3.3', '2.6.1', '2.60.1')
-        // s += ' (' + alltrim(inieditspr(A__MENUVERT, glob_V002, tmp1->PROFIL)) + ')'
         s += ' (' + alltrim(inieditspr(A__MENUVERT, getV002(), tmp1->PROFIL)) + ')'
       elseif !empty(tmp1->zf)
         s += ' ЗФ:' + alltrim(tmp1->ZF)

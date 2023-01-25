@@ -263,9 +263,7 @@ if valtype(ret_arr) == "A"
 endif
 return ret
 
-*
-
-***** 02.07.14 в GET-е вернуть строку из glob_V0002
+** 02.07.14 в GET-е вернуть строку из getV002()
 Function f_get_profil(k,r,c,lprofil_k)
 Local arr := {}, i, ret, ret_arr, tmp_select := select()
 if empty(lprofil_k)

@@ -1240,8 +1240,6 @@ do while !eof()
             enddo
           endif
         elseif ihuman->PROFIL > 0
-          // aadd(ae, 'не найдена соответствующая услуга '+left(lshifr,5) + '* ('+iif(m1VZROS_REB==0, "взрослый", "ребёнок") +;
-          //         ') для профиля "'+inieditspr(A__MENUVERT, glob_V002, ihuman->PROFIL) + '"')
           aadd(ae, 'не найдена соответствующая услуга ' + left(lshifr, 5) + '* (' + iif(m1VZROS_REB == 0, 'взрослый', 'ребёнок') + ;
             ') для профиля "' + inieditspr(A__MENUVERT, getV002(), ihuman->PROFIL) + '"')
         endif
@@ -1338,7 +1336,6 @@ Function f1_read_file_XML_SDS(k, lal, aerr, ainf, lprofil)
     return ret
   endif
   if !empty(k := &lal.->PROFIL)
-    // if ascan(glob_V002,{|x| x[2]==k}) == 0
     if ascan(getV002(), {|x| x[2] == k}) == 0
       if ascan(pasp, k) == 0
         aadd(pasp, k)

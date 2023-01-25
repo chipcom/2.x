@@ -282,7 +282,6 @@ function dispans_napr(mk_data, /*@*/j, lAdult)
     @ j, col() + 1 say 'по профилю' get mprofil_stac PICTURE '@S27' ;
         reader {|x|menu_reader(x, getV002(), A__MENUVERT, , , .f.)} ;
         when m1napr_stac > 0
-        // reader {|x|menu_reader(x,glob_V002,A__MENUVERT,,,.f.)} ;
       @ j,73 get mtab_v_stac pict "99999" ;
         valid {|g| iif((mtab_v_stac == 0) .and. v_kart_vrach(g), func_error(4, strNeedTabNumber),.t.) } ;
         when m1napr_stac > 0
@@ -327,7 +326,6 @@ function dispans_napr(mk_data, /*@*/j, lAdult)
     @ j, col() + 1 say 'по профилю' get mprofil_stac ;
         reader {|x|menu_reader(x, getV002(), A__MENUVERT, , , .f.)} ;
         when m1napr_stac > 0
-        // reader {|x|menu_reader(x,glob_V002,A__MENUVERT,,,.f.)} ;
       @ ++j,1 say "Направлен на реабилитацию" get mnapr_reab ;
         reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)} ;
         valid {|| iif(m1napr_reab==0, (m1profil_kojki:=0,mprofil_kojki:=space(30)), ), update_get("mprofil_kojki")}

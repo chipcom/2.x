@@ -284,7 +284,6 @@ Function create_classif_FFOMS(reg, _name)
       endif
     next
   elseif upper(_name) == 'V002'
-    // ret1 := aclone(glob_V002)
     ret1 := aclone(getV002())
   else
     ret1 := cut_glob_array(&name_arr, sys_date)

@@ -526,8 +526,6 @@ for i := 1 to len(arr_usl)
   endif
 next
 for i := 1 to len(arr_pusl)
-  // s := arr_pusl[i,1]+' ('+inieditspr(A__MENUVERT,glob_V002,arr_pusl[i,5])+;
-  //   ") "+date_8(c4tod(arr_pusl[i,2]))+'г. оказана '
   s := arr_pusl[i, 1] + ' (' + inieditspr(A__MENUVERT, getV002(), arr_pusl[i, 5]) + ;
        ') ' + date_8(c4tod(arr_pusl[i, 2])) + 'г. оказана '
   if arr_pusl[i,3] > 1

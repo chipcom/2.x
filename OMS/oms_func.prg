@@ -27,14 +27,9 @@ Function UslugaAccordanceProfil(lshifr, lvzros_reb, lprofil, ta, short_shifr)
         endif
       else // для всех остальных условий формируем сообщение об ошибке
         do while moprof->shifr==lshifr .and. moprof->vzros_reb == lvzros_reb .and. !eof()
-          // s += '"' + lstr(moprof->profil) + '.' + inieditspr(A__MENUVERT, glob_V002, moprof->profil) + '", '
           s += '"' + lstr(moprof->profil) + '.' + inieditspr(A__MENUVERT, getV002(), moprof->profil) + '", '
           skip
         enddo
-        // aadd(ta, rtrim(lshifr) + s1 + ' - профиль "' + lstr(lprofil) + '.' + ;
-        //         inieditspr(A__MENUVERT, glob_V002, lprofil) + ;
-        //         '" для ' + {'взрослого', 'ребёнка'}[lvzros_reb + 1] + ;
-        //         ' недопустим' + iif(empty(s), '', ' (разрешается ' + left(s, len(s) - 2) + ')'))
         aadd(ta, rtrim(lshifr) + s1 + ' - профиль "' + lstr(lprofil) + '.' + ;
                   inieditspr(A__MENUVERT, getV002(), lprofil) + ;
                   '" для ' + {'взрослого', 'ребёнка'}[lvzros_reb + 1] + ;

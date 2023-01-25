@@ -206,7 +206,6 @@ Function definition_KSG(par, k_data2)
   if par == 1
     s += alltrim(uch->name) + '/' + alltrim(otd->name) + '/'
   endif
-  // s += 'профиль "' + inieditspr(A__MENUVERT, glob_V002, lprofil) + '"'
   s += 'профиль "' + inieditspr(A__MENUVERT, getV002(), lprofil) + '"'
   aadd(ars, s)
   aadd(ars, ' д.р.' + full_date(ldate_r) + iif(lvr==0, '(взр.', '(реб.') + '), ' + iif(lpol == 'М', 'муж.', 'жен.') +;

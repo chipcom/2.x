@@ -613,8 +613,6 @@ if d_srok->(lastrec()) > 0
     add_string(alltrim(human->fio)+" "+alltrim(human->kod_diag)+" "+;
                date_8(human->n_data)+"-"+date_8(human->k_data)+;
                iif(d_srok->tip==0, "", " (2."+am[d_srok->tip]+".*)"))
-    // add_string(alltrim(uch->name)+'/'+alltrim(otd->name)+'/профиль по "'+;
-    //            inieditspr(A__MENUVERT, glob_V002, human_->profil)+'"')
     add_string(alltrim(uch->name) + '/' + alltrim(otd->name) + '/профиль по "' + ;
       inieditspr(A__MENUVERT, getV002(), human_->profil) + '"')
     pers->(dbGoto(human_->VRACH))
@@ -631,8 +629,6 @@ if d_srok->(lastrec()) > 0
   add_string("с основным диагнозом "+alltrim(human->kod_diag)+" "+;
              date_8(human->n_data)+"-"+date_8(human->k_data)+;
              iif(d_srok->tip1==0, "", " (2."+am[d_srok->tip1]+".*)"))
-  // add_string(alltrim(uch->name)+'/'+alltrim(otd->name)+'/профиль по "'+;
-  //   inieditspr(A__MENUVERT, glob_V002, human_->profil)+'"')
   add_string(alltrim(uch->name) + '/' + alltrim(otd->name) + '/профиль по "' + ;
              inieditspr(A__MENUVERT, getV002(), human_->profil) + '"')
   pers->(dbGoto(human_->VRACH))

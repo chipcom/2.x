@@ -1537,7 +1537,6 @@ if fl
       strfile("_SLUCH: запись № "+lstr(ihuman->(recno()))+;
               ", неверное значение поля OKATOP = "+ihuman->OKATOP+hb_eol(),cFileProtokol,.t.)
     endif
-    // if !empty(ihuman->PROFIL) .and. ascan(glob_V002,{|x| x[2]==ihuman->PROFIL})==0
     if !empty(ihuman->PROFIL) .and. ascan(getV002(), {|x| x[2] == ihuman->PROFIL}) == 0
       fl := .f.
       strfile('_SLUCH: запись № ' + lstr(ihuman->(recno())) + ;
@@ -1712,7 +1711,6 @@ if fl
   select IHU
   go top
   do while !eof()
-    // if !empty(ihu->PROFIL) .and. ascan(glob_V002,{|x| x[2]==ihu->PROFIL})==0
     if !empty(ihu->PROFIL) .and. ascan(getV002(), {|x| x[2] == ihu->PROFIL}) == 0
       fl := .f.
       strfile('_SLUCH_U: запись № ' + lstr(ihu->(recno())) + ;

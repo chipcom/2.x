@@ -1012,7 +1012,6 @@ do while human->k_data <= arr_m[6] .and. !eof()
         else
           tmp->KOD_OTD := arr_sl[i,2]
         endif
-        // tmp->PROFIL   := inieditspr(A__MENUVERT, glob_V002, arr_sl[i,3])
         tmp->PROFIL   := inieditspr(A__MENUVERT, getV002(), arr_sl[i,3])
         tmp->POL_PAC  := iif(iif(human_->NOVOR > 0, human_->pol2, human->pol) == "Œ", 1, 0)
         tmp->DATE_ROG := full_date(iif(human_->NOVOR > 0, human_->date_r2, human->date_r))
@@ -1232,7 +1231,6 @@ if !fl_exit
             if verify_FF(HH-1,.t.,sh)
               aeval(arr_title, {|x| add_string(x) } )
             endif
-            // add_string("- "+inieditspr(A__MENUVERT, glob_V002, tmp->PROFIL))
             add_string('- ' + inieditspr(A__MENUVERT, getV002(), tmp->PROFIL))
             s := space(7)
             for v := 1 to 4
@@ -1257,7 +1255,6 @@ if !fl_exit
           if verify_FF(HH-1,.t.,sh)
             aeval(arr_title, {|x| add_string(x) } )
           endif
-          // add_string(inieditspr(A__MENUVERT, glob_V002, tmp->PROFIL))
           add_string(inieditspr(A__MENUVERT, getV002(), tmp->PROFIL))
           s := space(7)
           for v := 1 to 4

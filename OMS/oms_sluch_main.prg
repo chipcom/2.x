@@ -645,7 +645,6 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
     endif
     mp_per := inieditspr(A__MENUVERT, mm_p_per, m1p_per)
   endif
-  // mPROFIL   := inieditspr(A__MENUVERT, glob_V002, m1PROFIL)
   mPROFIL   := inieditspr(A__MENUVERT, getV002(), m1PROFIL)
   mPROFIL_K := inieditspr(A__MENUVERT, getV020(),  m1PROFIL_K)
   mvid_reab := inieditspr(A__MENUVERT, mm_vid_reab, m1vid_reab)

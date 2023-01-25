@@ -1072,7 +1072,6 @@ if j == 1 .or. j == 2
         select FRD
         append blank
         frd->vid := mm_vid[tmp_kart->vid]
-        // if empty(frd->profil := inieditspr(A__MENUVERT, glob_V002, tmp_kart->PROFIL))
         if empty(frd->profil := inieditspr(A__MENUVERT, getV002(), tmp_kart->PROFIL))
           frd->profil := sprofil
         endif
@@ -1090,7 +1089,6 @@ if j == 1 .or. j == 2
         select FRD
         append blank
         frd->vid := mm_vid[tmp_kart->vid]
-        // if empty(frd->profil := inieditspr(A__MENUVERT, glob_V002, tmp_kart->PROFIL))
         if empty(frd->profil := inieditspr(A__MENUVERT, getV002(), tmp_kart->PROFIL))
           frd->profil := sprofil
         endif
@@ -1154,7 +1152,6 @@ else
     select FRD
     append blank
     frd->vid := mm_vid[tmp1->vid]
-    // if empty(frd->profil := inieditspr(A__MENUVERT, glob_V002, tmp1->PROFIL))
     if empty(frd->profil := inieditspr(A__MENUVERT, getV002(), tmp1->PROFIL))
       frd->profil := sprofil
     endif
