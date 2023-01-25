@@ -1318,8 +1318,8 @@ Local _sluch_u := {;
    {"VRACH_FIO",   "C",    50,     0};
   }
 Local i, j, k, arr_ksg, cType, cName, a_struct, fl := .t., buf := save_maxrow()
-local glob_V018
-local glob_V019
+local arrV018
+local arrV019
 
 mywait()
 a_struct := {_lpu,_otd,_sluch,_sluch_u}
@@ -1651,23 +1651,23 @@ if fl
         s := ""
         if ihuman->USL_OK == 1 // стационар
 
-          glob_V018 := getV018table(ihuman->date_2)
-          glob_V019 := getV019table(ihuman->date_2)
+          arrV018 := getV018(ihuman->date_2)
+          arrV019 := getV019table(ihuman->date_2)
 
-          if ascan(glob_V018, {|x| x[1] == ihuman->VID_HMP }) == 0
-            s := 'не найден вид ВМП "'+ihuman->VID_HMP+'" в справочнике V018'
+          if ascan(arrV018, {|x| x[1] == ihuman->VID_HMP }) == 0
+            s := 'не найден вид ВМП "' + ihuman->VID_HMP + '" в справочнике V018'
           elseif empty(ihuman->METOD_HMP)
             s := 'ВМП оказана, введён вид ВМП, но не введён метод ВМП'
-          elseif (i := ascan(glob_V019, {|x| x[1] == ihuman->METOD_HMP })) > 0
-            if glob_V019[i,4] == ihuman->VID_HMP
-              if ascan(glob_V019[i,3], {|x| left(ihuman->ds1,len(x))==x }) == 0
+          elseif (i := ascan(arrV019, {|x| x[1] == ihuman->METOD_HMP })) > 0
+            if arrV019[i,4] == ihuman->VID_HMP
+              if ascan(arrV019[i, 3], {|x| left(ihuman->ds1, len(x))==x }) == 0
                 s := 'основной диагноз не соответствует методу ВМП'
               endif
             else
-              s := 'метод ВМП '+lstr(ihuman->METOD_HMP)+' не соответствует виду ВМП '+ihuman->VID_HMP
+              s := 'метод ВМП ' + lstr(ihuman->METOD_HMP) + ' не соответствует виду ВМП '+ihuman->VID_HMP
             endif
           else
-            s := 'не найден метод ВМП '+lstr(ihuman->METOD_HMP)+' в справочнике V019'
+            s := 'не найден метод ВМП ' + lstr(ihuman->METOD_HMP) + ' в справочнике V019'
           endif
         else
           s := "введен вид ВМП, а случай не стационарный"

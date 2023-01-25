@@ -53,7 +53,7 @@ if k > 0
 endif
 return NIL
 
-** 23.11.22
+** 25.01.23
 Function read_file_XML_SDS(n_file)
 Static cDelimiter := " , "
 Local _sluch := {;
@@ -226,7 +226,7 @@ Local _sluch_u := {; // услуги (в отделении)
    {"PRVS",        "N",     4,     0};
   }
 Local fl := .t., buf := save_maxrow()
-local glob_V018
+local arrV018
 local glob_V019
 //
 mywait("Чтение XML-файла ...")
@@ -928,10 +928,10 @@ do while !eof()
       skip
     enddo
     if !empty(ihuman->VID_HMP) .and. ihuman->USL_OK == 1 // стационар
-      glob_V018 := getV018table(ihuman->date_2)
+      arrV018 := getV018(ihuman->date_2)
       glob_V019 := getV019table(ihuman->date_2)
       
-      if ascan(glob_V018, {|x| x[1] == ihuman->VID_HMP }) == 0
+      if ascan(arrV018, {|x| x[1] == ihuman->VID_HMP }) == 0
         aadd(ae, 'не найден вид ВМП "'+rtrim(ihuman->VID_HMP) + '" в справочнике V018')
       elseif empty(ihuman->METOD_HMP)
         aadd(ae, 'ВМП оказана, введён вид ВМП, но не введён метод ВМП')

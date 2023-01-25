@@ -2005,87 +2005,92 @@ else
 endif
 return NIL
 
-***** 13.02.22
+** 25.01.23
 Function usl11FFOMS()
-Local buf := save_maxrow(), name_file := "vidVMP"+stxt, sh := 80, HH := 60, t_arr[2], i, j, k
-local glob_V018 := getV018table(0d20220101)
+  Local buf := save_maxrow(), name_file := cur_dir + 'vidVMP' + stxt, sh := 80, HH := 60, t_arr[2], i, j, k
+  local arrV018 := getV018(boy())
 
-mywait()
-
-fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
-add_string("")
-add_string(center("Классификатор видов ВМП",sh))
-add_string("")
-for j := 1 to len(glob_V018)
-  k := perenos(t_arr,glob_V018[j,2],67)
-  verify_FF(HH-k+1,.t.,sh)
-  add_string(padr(glob_V018[j,1],13)+t_arr[1])
-  for i := 2 to k
-    add_string(space(13)+t_arr[i])
-  next
-next
-rest_box(buf)
-fclose(fp)
-viewtext(name_file,,,,.t.,,,2)
-return NIL
-
-***** 13.02.22
-Function usl12FFOMS()
-Static sast, sarr
-Local buf := save_maxrow(), name_file := "metodVMP"+stxt, sh := 80, HH := 60, t_arr[2], a, i, j, k, n, s
-local glob_V018 := getV018table(0d20220101)
-local glob_V019 := getV019table(0d20220101)
-
-if sast == NIL
-  sast := {} ; sarr := {}
-  for j := 1 to len(glob_V018)
-    aadd(sast,.t.)
-    aadd(sarr,{padr(glob_V018[j,1],13)+left(glob_V018[j,2],67),glob_V018[j,1]})
-  next
-endif
-if (a := bit_popup(T_ROW,T_COL-5,sarr,sast)) != NIL
-  afill(sast,.f.)
-  for i := 1 to len(a)
-    if (j := ascan(sarr,{|x| x[2]==a[i,2] })) > 0
-      sast[j] := .t.
-    endif
-  next
   mywait()
-  fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
-  add_string("")
-  add_string(center("Классификатор методов ВМП",sh))
-  add_string("")
-  for n := 1 to len(a)
-    if (j := ascan(glob_V018, {|x| x[1] == a[n,2] })) > 0
-      k := perenos(t_arr,glob_V018[j,2],67)
-      verify_FF(HH-k+3,.t.,sh)
-      add_string(replicate("-",sh))
-      add_string(padr(glob_V018[j,1],13)+t_arr[1])
-      for i := 2 to k
-        add_string(space(13)+t_arr[i])
-      next
-      add_string(replicate("-",sh))
-      for l := 1 to len(glob_V019)
-        if glob_V019[l,4] == glob_V018[j,1]
-          s := glob_V019[l,2]+" (диагноз"+iif(len(glob_V019[l,3]) > 1, "ы", "")+;
-               " "+print_array(glob_V019[l,3])+")"
-          k := perenos(t_arr,s,66)
-          verify_FF(HH-k+1,.t.,sh)
-          add_string(str(glob_V019[l,1],13)+" "+t_arr[1])
-          for i := 2 to k
-            add_string(space(14)+t_arr[i])
-          next
-        endif
-      next
-    endif
+
+  fp := fcreate(name_file)
+  n_list := 1
+  tek_stroke := 0
+  add_string('')
+  add_string(center('Классификатор видов ВМП', sh))
+  add_string('')
+  for j := 1 to len(arrV018)
+    k := perenos(t_arr, arrV018[j, 2], 67)
+    verify_FF(HH - k + 1, .t., sh)
+    add_string(padr(arrV018[j, 1], 13) + t_arr[1])
+    for i := 2 to k
+      add_string(space(13) + t_arr[i])
+    next
   next
   rest_box(buf)
   fclose(fp)
-  viewtext(name_file,,,,.t.,,,2)
-endif
-return NIL
+  viewtext(name_file, , , , .t., , , 2)
+  return NIL
 
-*****
+** 25.01.23
+Function usl12FFOMS()
+  Static sast, sarr
+  Local buf := save_maxrow(), name_file := cur_dir + 'metodVMP' + stxt, sh := 80, HH := 60, t_arr[2], a, i, j, k, n, s
+  local arrV018 := getV018(boy())
+  local arrV019 := getV019table(boy())
+
+  if sast == NIL
+    sast := {}
+    sarr := {}
+    for j := 1 to len(arrV018)
+      aadd(sast, .t.)
+      aadd(sarr, {padr(arrV018[j, 1], 13) + left(arrV018[j, 2], 67), arrV018[j, 1]})
+    next
+  endif
+  if (a := bit_popup(T_ROW, T_COL - 5, sarr, sast)) != NIL
+    afill(sast, .f.)
+    for i := 1 to len(a)
+      if (j := ascan(sarr, {|x| x[2]==a[i, 2] })) > 0
+        sast[j] := .t.
+      endif
+    next
+    mywait()
+    fp := fcreate(name_file)
+    n_list := 1
+    tek_stroke := 0
+    add_string('')
+    add_string(center('Классификатор методов ВМП', sh))
+    add_string('')
+    for n := 1 to len(a)
+      if (j := ascan(arrV018, {|x| x[1] == a[n, 2] })) > 0
+        k := perenos(t_arr, arrV018[j, 2], 67)
+        verify_FF(HH - k + 3, .t., sh)
+        add_string(replicate('-', sh))
+        add_string(padr(arrV018[j, 1], 13) + t_arr[1])
+        for i := 2 to k
+          add_string(space(13) + t_arr[i])
+        next
+        add_string(replicate('-', sh))
+        for l := 1 to len(arrV019)
+          if arrV019[l, 4] == arrV018[j, 1]
+            s := arrV019[l, 2] + ' (диагноз' + iif(len(arrV019[l, 3]) > 1, 'ы', '') + ;
+               ' ' + print_array(arrV019[l, 3]) + ')'
+            k := perenos(t_arr, s, 66)
+            verify_FF(HH - k + 1, .t., sh)
+            add_string(str(arrV019[l, 1], 13) + ' ' + t_arr[1])
+            for i := 2 to k
+              add_string(space(14) + t_arr[i])
+            next
+          endif
+        next
+      endif
+    next
+    rest_box(buf)
+    fclose(fp)
+    viewtext(name_file, , , , .t., , , 2)
+  endif
+  return NIL
+
+**
 Function spr_other()
 Local mas_pmt, mas_msg, mas_fun, j, r, c := T_COL-5
 mas_pmt := {"~Прочие организации",;

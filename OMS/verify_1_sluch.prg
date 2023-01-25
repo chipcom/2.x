@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-** 04.12.22
+** 25.01.23
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
         i, j, k, c, s := ' ', a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -18,7 +18,7 @@ Function verify_1_sluch(fl_view)
   local sbase
   local arr_uslugi_geriatr := {'B01.007.001', 'B01.007.003', 'B01.007.003' }, row, rowTmp
   local flGeriatr := .f.
-  local glob_V018, glob_V019
+  local arrV018, glob_V019
   local arrImplant
   local arrLekPreparat, arrGroupPrep, mMNN
   local flLekPreparat := .f.
@@ -62,7 +62,7 @@ Function verify_1_sluch(fl_view)
   glob_kartotek := human->kod_k
   d1 := human->n_data ; d2 := human->k_data ; cuch_doc := human->uch_doc
 
-  glob_V018 := getV018table(human->k_data)
+  arrV018 := getV018(human->k_data)
   glob_V019 := getV019table(human->k_data)
 
   reserveKSG_1 := exist_reserve_KSG(human->kod, 'HUMAN')
@@ -2278,7 +2278,7 @@ Function verify_1_sluch(fl_view)
         endif
         if empty(human_2->VIDVMP)
           aadd(ta, 'ВМП оказана, но не введён вид ВМП')
-        elseif ascan(glob_V018, {|x| x[1] == alltrim(human_2->VIDVMP) }) == 0
+        elseif ascan(arrV018, {|x| x[1] == alltrim(human_2->VIDVMP) }) == 0
           aadd(ta, 'Не найден вид ВМП "' + human_2->VIDVMP + '" в справочнике V018')
         elseif empty(human_2->METVMP)
           aadd(ta, 'ВМП оказана, введён вид ВМП, но не введён метод ВМП')

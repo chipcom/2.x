@@ -1,9 +1,9 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-** 16.01.23
+** 25.01.23
 // возвращает массив V018 на указанную дату
-function getV018table( dateSl )
+function getV018( dateSl )
   // Local dbName, dbAlias := 'V018'
   // local tmp_select := select()
   local yearSl := year(dateSl)
@@ -11,7 +11,6 @@ function getV018table( dateSl )
   local db
   local aTable, stmt
   local nI
-  // local beginYear, endYear
 
   static hV018, lHashV018 := .f.
 
@@ -26,27 +25,9 @@ function getV018table( dateSl )
     _arr := hb_HGet(hV018, yearSl)
   else
     _arr := {}
-    // beginYear := date2xml(BoY(dateSl))
-    // endYear := date2xml(EoY(dateSl))
 
     db := openSQL_DB()
     Set(_SET_DATEFORMAT, 'yyyy-mm-dd')
-//     stmt := sqlite3_prepare(db, 'SELECT ' + ;
-//       'idhvid, ' + ;
-//       'hvidname, ' + ;
-//       'datebeg, ' + ;
-//       'dateend ' + ;
-//       'FROM v018' // WHERE ' + ;
-//     // '(dateend BETWEEN :datebeg AND :dateend) OR (:datebeg1 >= datebeg AND dateend == "    -  -  ")')
-//       // '(substr(datebeg,1,4) == substr(:datebeg,1,4)) AND (substr(:dateend,1,4) == substr(datebeg,1,4) OR dateend == "    -  -  ")')
-//     // '(:datebeg >= datebeg AND (dateend <= :dateend OR dateend == "    -  -  "))')
-//     // sqlite3_bind_text(stmt, 1, beginYear)
-//     // sqlite3_bind_text(stmt, 2, endYear)
-//     // sqlite3_bind_text(stmt, 3, beginYear)
-  
-//     do while sqlite3_step(stmt) == SQLITE_ROW
-//       aadd(_arr, {sqlite3_column_text(stmt, 1), hb_Utf8ToStr(sqlite3_column_blob(stmt, 2), 'RU866'), ctod(sqlite3_column_text(stmt, 3)), ctod(sqlite3_column_text(stmt, 4))})
-//     enddo
     aTable := sqlite3_get_table(db, 'SELECT ' + ;
       'idhvid, ' + ;
       'hvidname, ' + ;

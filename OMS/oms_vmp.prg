@@ -5,7 +5,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 13.02.22 в GET-е вернуть строку из glob_V018
+** 25.01.23 в GET-е вернуть строку из справочника V018
 Function f_get_vidvmp(k, r, c, diagnoze) 
   // Static sy := 0, 
   local arr, svidvmp := ""
@@ -15,7 +15,7 @@ Function f_get_vidvmp(k, r, c, diagnoze)
   local row, arr_vid := {}, kk
 
   local glob_V019 := getV019table(mk_data)
-  local glob_V018 := getV018table(mk_data)
+  local arrV018 := getV018(mk_data)
 
   diagnoze := alltrim(diagnoze)
   if y < 2018
@@ -29,11 +29,10 @@ Function f_get_vidvmp(k, r, c, diagnoze)
   next
 
   arr := {}
-  for i := 1 to len(glob_V018)
-    if (kk := ascan(arr_vid, {|x| x == alltrim(glob_V018[i, 1]) })) > 0
-      sTmp := padl(glob_V018[i, 1], 5) + "."
-      // aadd(arr,{padr(glob_V018[i,1]+"."+glob_V018[i,2],76),glob_V018[i,1]})
-      aadd(arr, {padr(sTmp + glob_V018[i, 2], 76), glob_V018[i, 1]})
+  for i := 1 to len(arrV018)
+    if (kk := ascan(arr_vid, {|x| x == alltrim(arrV018[i, 1]) })) > 0
+      sTmp := padl(arrV018[i, 1], 5) + '.'
+      aadd(arr, {padr(sTmp + arrV018[i, 2], 76), arrV018[i, 1]})
     endif
   next
   if empty(k)
@@ -48,12 +47,12 @@ Function f_get_vidvmp(k, r, c, diagnoze)
   endif
   return ret
 
-***** 13.02.21 в GET-е вернуть строку из glob_V019
+** 25.01.23 в GET-е вернуть строку из glob_V019
 Function f_get_metvmp(k, r, c, lvidvmp, modpac)
   Local arr := {}, i, ret, ret_arr
 
   local glob_V019 := getV019table(mk_data)
-  local glob_V018 := getV018table(mk_data)
+  // local arrV018 := getV018(mk_data)
 
   if empty(lvidvmp) .or. empty(modpac)
     return NIL
@@ -76,7 +75,7 @@ Function f_get_metvmp(k, r, c, lvidvmp, modpac)
   endif
   return ret
 
-** 17.01.23 в GET-е вернуть строку из getV022()
+** 25.01.23 в GET-е вернуть строку из getV022()
 Function f_get_mmodpac(k, r, c, lvidvmp, sDiag)
   Local arr := {}, i, ret, ret_arr
   local diag := alltrim(sDiag)
@@ -84,7 +83,7 @@ Function f_get_mmodpac(k, r, c, lvidvmp, sDiag)
   local row
 
   local glob_V019 := getV019table(mk_data)
-  local glob_V018 := getV018table(mk_data)
+  // local arrV018 := getV018(mk_data)
 
   if empty(lvidvmp) .or. empty(diag)
     return NIL
@@ -125,13 +124,13 @@ Function f_valid_vidvmp(get,old)
   endif
   return .t.
 
-***** 13.02.22 вернуть строку вида ВМП
+** 25.01.23 вернуть строку вида ВМП
 Function ret_V018(lVIDVMP, lk_data)
   Local i, s := space(10)
-  local glob_V018 := getV018table(lk_data)
+  local arrV018 := getV018(lk_data)
 
-  if !empty(lVIDVMP) .and. (i := ascan(glob_V018, {|x| x[1] == alltrim(lVIDVMP) })) > 0
-    s := glob_V018[i, 1] + "." + glob_V018[i, 2]
+  if !empty(lVIDVMP) .and. (i := ascan(arrV018, {|x| x[1] == alltrim(lVIDVMP) })) > 0
+    s := arrV018[i, 1] + '.' + arrV018[i, 2]
   endif
   return s
   

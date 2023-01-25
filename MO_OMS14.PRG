@@ -4,14 +4,14 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-** 23.01.23
+** 25.01.23
 Function verify_1_sluch_18(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
       i, j, k, c, s := ' ', a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
       d1, d2, cd1, cd2, ym2, a_period_amb := {}, a_1_11, u_1_stom := '', lprofil, ;
       lbukva, lst, lidsp, a_idsp := {}, a_bukva := {}, t_arr[2], ltip, lkol, ;
       a_dializ := {}, is_2_88 := .f., a_rec_ffoms := {}, mpovod := 1 // 1.0
-  local glob_V018
+  local arrV018
   local glob_V019
 
 if empty(human->k_data)
@@ -1675,7 +1675,7 @@ if human_->USL_OK == 1  // стационар
   endif
   if human_2->VMP == 1 // проверим ВМП
     if is_12_VMP .or. is_21_VMP .or. is_22_VMP // ВМП по-новому 08.02.2021
-      glob_V018 := getV018table(d2)
+      arrV018 := getV018(d2)
       glob_V019 := getV019table(d2)
       
       if empty(human_2->TAL_NUM)
@@ -1693,7 +1693,7 @@ if human_->USL_OK == 1  // стационар
       endif
       if empty(human_2->VIDVMP)
         aadd(ta,'ВМП оказана, но не введён вид ВМП')
-      elseif ascan(glob_V018, {|x| x[1] == alltrim(human_2->VIDVMP) }) == 0
+      elseif ascan(arrV018, {|x| x[1] == alltrim(human_2->VIDVMP) }) == 0
         aadd(ta,'Не найден вид ВМП "'+human_2->VIDVMP+'" в справочнике V018')
       elseif empty(human_2->METVMP)
         aadd(ta,'ВМП оказана, введён вид ВМП, но не введён метод ВМП')
