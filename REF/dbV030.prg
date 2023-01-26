@@ -1,16 +1,23 @@
-** 18.01.23 вернуть массив по справочнику ФФОМС V030.xml
+#include 'function.ch'
+
+#require 'hbsqlit3'
+
+** 26.01.23 вернуть массив по справочнику ФФОМС V030.xml
 function getV030()
   // V030.xml - Схемы лечения заболевания COVID-19 (TreatReg)
   //  1 - SCHEMCOD(C) 2 - SCHEME(C) 3 - DEGREE(N) 4 - COMMENT(M)  5 - DATEBEG(D)  6 - DATEEND(D)
   // local dbName := "_mo_v030"
   // Local dbAlias := 'V030'
   // local tmp_select := select()
-  static _arr := {}
+  static _arr   // := {}
+  static time_load
   local db
   local aTable
   local nI
 
-  if len(_arr) == 0
+  // if len(_arr) == 0
+  if timeout_load(@time_load)
+    _arr := {}
     db := openSQL_DB()
     Set(_SET_DATEFORMAT, 'yyyy-mm-dd')
 

@@ -4,13 +4,12 @@
 #define FILE_HASH   'files.hst'   // имя файла для хэшев файлов
 #define NUMBER_YEAR 3 // число лет для переиндексации назад
 
-** 17.01.23 инициализация массива МО, запрос кода МО (при необходимости)
+** 26.01.23 инициализация массива МО, запрос кода МО (при необходимости)
 Function init_mo()
-  Local fl := .t., i, arr, arr1, cCode := '', buf := save_maxrow(), ;
-        nfile := exe_dir + '_mo_mo.dbb'
+  Local fl := .t., i, arr, arr1, cCode := '', buf := save_maxrow()
 
 //   local aaa
-//   aaa := getV030()
+//   aaa := getV036()
 // altd()
 
   mywait()

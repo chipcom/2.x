@@ -1,21 +1,42 @@
-* 29.12.21 вернуть массив по справочнику ФФОМС V033.xml
+#include 'function.ch'
+
+#require 'hbsqlit3'
+
+** 26.01.23 вернуть массив по справочнику ФФОМС V033.xml
 function getV033()
   // V033.xml - Соответствие кода препарата схеме лечения (DgTreatReg)
   //  1 - SCHEDRUG(C) 2 - DRUGCODE(C)  3 - DATEBEG(D)  4 - DATEEND(D)
-  local dbName := '_mo_v033'
-  Local dbAlias := 'V033'
-  local tmp_select := select()
-  static _arr := {}
+  // local dbName := '_mo_v033'
+  // Local dbAlias := 'V033'
+  // local tmp_select := select()
+  static _arr   //:= {}
+  static time_load
+  local db
+  local aTable
+  local nI
 
-  if len(_arr) == 0
-    dbUseArea( .t.,, exe_dir + dbName, dbAlias, .f., .f. )
-    (dbAlias)->(dbGoTop())
-    do while !(dbAlias)->(EOF())
-      aadd(_arr, { alltrim((dbAlias)->SCHEDRUG), alltrim((dbAlias)->DRUGCODE), (dbAlias)->DATEBEG, (dbAlias)->DATEEND })
-      (dbAlias)->(dbSkip())
-    enddo
-    (dbAlias)->(dbCloseArea())
-    Select(tmp_select)
+  // if len(_arr) == 0
+  if timeout_load(@time_load)
+    _arr := {}
+    Set(_SET_DATEFORMAT, 'yyyy-mm-dd')
+    db := openSQL_DB()
+    aTable := sqlite3_get_table(db, 'SELECT schedrug, drugcode, datebeg, dateend FROM v033')
+    
+    if len(aTable) > 1
+      for nI := 2 to Len( aTable )
+        aadd(_arr, {alltrim(aTable[nI, 1]), alltrim(aTable[nI, 2]), ctod(aTable[nI, 3]), ctod(aTable[nI, 4])})
+      next
+    endif
+    Set(_SET_DATEFORMAT, 'dd.mm.yyyy')
+    db := nil
+    // dbUseArea( .t.,, exe_dir + dbName, dbAlias, .f., .f. )
+    // (dbAlias)->(dbGoTop())
+    // do while !(dbAlias)->(EOF())
+    //   aadd(_arr, { alltrim((dbAlias)->SCHEDRUG), alltrim((dbAlias)->DRUGCODE), (dbAlias)->DATEBEG, (dbAlias)->DATEEND })
+    //   (dbAlias)->(dbSkip())
+    // enddo
+    // (dbAlias)->(dbCloseArea())
+    // Select(tmp_select)
   endif
 
   return _arr

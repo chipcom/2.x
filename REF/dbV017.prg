@@ -1,16 +1,32 @@
+#include 'function.ch'
+
 #require 'hbsqlit3'
 
-** 12.01.23 вернуть Классификатор результатов диспансеризации (DispR) V017.xml
+** 26.01.23 вернуть Классификатор результатов диспансеризации (DispR) V017.xml
 function getV017()
   // V017.xml - Классификатор результатов диспансеризации (DispR)
   // Local dbName, dbAlias := 'V017'
   // local tmp_select := select()
-  static _arr := {}
+  static _arr   //:= {}
+  static time_load
   local db
   local aTable
   local nI
 
-  if len(_arr) == 0
+  // if len(_arr) == 0
+  if timeout_load(@time_load)
+    _arr := {}
+    Set(_SET_DATEFORMAT, 'yyyy-mm-dd')
+    db := openSQL_DB()
+    aTable := sqlite3_get_table(db, 'SELECT iddr, drname, datebeg, dateend FROM v017')
+    
+    if len(aTable) > 1
+      for nI := 2 to Len( aTable )
+        aadd(_arr, {val(aTable[nI, 1]), alltrim(aTable[nI, 2]), ctod(aTable[nI, 3]), ctod(aTable[nI, 4])})
+      next
+    endif
+    Set(_SET_DATEFORMAT, 'dd.mm.yyyy')
+    db := nil
     // tmp_select := select()
     // dbName := '_mo_v017'
     // dbUseArea( .t., "DBFNTX", exe_dir + dbName, dbAlias , .t., .f. )
@@ -25,17 +41,6 @@ function getV017()
     // (dbAlias)->(dbCloseArea())
     // Select(tmp_select)
 
-    Set(_SET_DATEFORMAT, 'yyyy-mm-dd')
-    db := openSQL_DB()
-    aTable := sqlite3_get_table(db, 'SELECT iddr, drname, datebeg, dateend FROM v017')
-    
-    if len(aTable) > 1
-      for nI := 2 to Len( aTable )
-      aadd(_arr, {val(aTable[nI, 1]), alltrim(aTable[nI, 2]), ctod(aTable[nI, 3]), ctod(aTable[nI, 4])})
-      next
-    endif
-    Set(_SET_DATEFORMAT, 'dd.mm.yyyy')
-    db := nil
   endif
   return _arr
 

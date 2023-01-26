@@ -1,17 +1,20 @@
 #require 'hbsqlit3'
 
-* 12.01.23 вернуть массив по справочнику V015.xml
+** 26.01.23 вернуть массив по справочнику V015.xml
 // возвращает массив V015
 function getV015()
   // V015.xml - Классификатор медицинских специальностей
   // Local dbName, dbAlias := 'V015'
   // local tmp_select := select()
-  static _arr := {}
+  static _arr   // := {}
+  static time_load
   local db
   local aTable
   local nI
   
-  if len(_arr) == 0
+  // if len(_arr) == 0
+  if timeout_load(@time_load)
+    _arr := {}
     Set(_SET_DATEFORMAT, 'yyyy-mm-dd')
     db := openSQL_DB()
     aTable := sqlite3_get_table(db, 'SELECT ' + ;

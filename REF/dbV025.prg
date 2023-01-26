@@ -1,14 +1,22 @@
-** 17.01.23
+#include 'function.ch'
+
+#require 'hbsqlit3'
+
+** 26.01.23
 // вернуть массив по справочнику ФФОМС V025 Классификатор целей посещения (KPC)
 function getV025()
   // Local dbName, dbAlias := 'V025'
   // local tmp_select := select()
-  static _arr := {}, i
+  static _arr   // := {}
+  static time_load
+  local i
   local db
-  local aTable, stmt
+  local aTable
   local nI
   
-  if len(_arr) == 0
+  // if len(_arr) == 0
+  if timeout_load(@time_load)
+    _arr := {}
     db := openSQL_DB()
     Set(_SET_DATEFORMAT, 'yyyy-mm-dd')
 

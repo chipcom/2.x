@@ -1,14 +1,21 @@
-* 17.01.23 вернуть массив по справочнику ФФОМС V020.xml - Классификатор профилей койки
+#include 'function.ch'
+
+#require 'hbsqlit3'
+
+** 26.01.23 вернуть массив по справочнику ФФОМС V020.xml - Классификатор профилей койки
 function getV020()
   // Local dbName, dbAlias := 'V020'
   // local tmp_select := select()
-  static _arr := {}
+  static _arr   //:= {}
+  static time_load
   local db
   local aTable, stmt
   local nI
 
 
-  if len(_arr) == 0
+  // if len(_arr) == 0
+  if timeout_load(@time_load)
+    _arr := {}
     db := openSQL_DB()
     Set(_SET_DATEFORMAT, 'yyyy-mm-dd')
 
