@@ -1,26 +1,52 @@
-* 04.01.22 вернуть массив по справочнику Минздрава по Степень тяжести состояния пациента OID 1.2.643.5.1.13.13.11.1006.xml
+#include 'function.ch'
+
+#require 'hbsqlit3'
+
+** 26.01.23 вернуть массив по справочнику Минздрава по Степень тяжести состояния пациента OID 1.2.643.5.1.13.13.11.1006.xml
 function get_severity()
-  Local dbName, dbAlias := 'sev'
-  local tmp_select := select()
-  static _arr := {}
+  // Local dbName, dbAlias := 'sev'
+  // local tmp_select := select()
+  static _arr   // := {}
+  static time_load
+  local db
+  local aTable, row
+  local nI
 
+  if timeout_load(@time_load)
+    _arr := {}
+    Set(_SET_DATEFORMAT, 'yyyy-mm-dd')
+    db := openSQL_DB()
+    aTable := sqlite3_get_table(db, 'SELECT ' + ;
+        'id, ' + ;
+        'name, ' + ;
+        'syn, ' + ;
+        'sctid, ' + ;
+        'sort ' + ;
+        'FROM Severity')
+    if len(aTable) > 1
+      for nI := 2 to Len( aTable )
+        if val(aTable[nI, 1]) <= 4  // пока только до 4 степени тяжести
+          aadd(_arr, {alltrim(aTable[nI, 2]), val(aTable[nI, 1]), alltrim(aTable[nI, 3]), val(aTable[nI, 4]), val(aTable[nI, 5])})
+        endif
+      next
+    endif
+    Set(_SET_DATEFORMAT, 'dd.mm.yyyy')
+    db := nil
+    // tmp_select := select()
+    // dbName := '_mo_severity'
+    // dbUseArea( .t., "DBFNTX", exe_dir + dbName, dbAlias , .t., .f. )
 
-  if len(_arr) == 0
-    tmp_select := select()
-    dbName := '_mo_severity'
-    dbUseArea( .t., "DBFNTX", exe_dir + dbName, dbAlias , .t., .f. )
+    // //  1 - ID(N) 2 - NAME(C) 3 - SYN(C) 4 - SCTID(N) 5 - SORT(N)
+    // (dbAlias)->(dbGoTop())
+    // do while !(dbAlias)->(EOF())
+    //   if (dbAlias)->ID <= 4  // пока только до 4 степени тяжести
+    //     aadd(_arr, { alltrim((dbAlias)->NAME), (dbAlias)->ID, alltrim((dbAlias)->SYN), (dbAlias)->SCTID, (dbAlias)->SORT })
+    //   endif
+    //   (dbAlias)->(dbSkip())
+    // enddo
 
-    //  1 - ID(N) 2 - NAME(C) 3 - SYN(C) 4 - SCTID(N) 5 - SORT(N)
-    (dbAlias)->(dbGoTop())
-    do while !(dbAlias)->(EOF())
-      if (dbAlias)->ID <= 4  // пока только до 4 степени тяжести
-        aadd(_arr, { alltrim((dbAlias)->NAME), (dbAlias)->ID, alltrim((dbAlias)->SYN), (dbAlias)->SCTID, (dbAlias)->SORT })
-      endif
-      (dbAlias)->(dbSkip())
-    enddo
-
-    (dbAlias)->(dbCloseArea())
-    Select(tmp_select)
+    // (dbAlias)->(dbCloseArea())
+    // Select(tmp_select)
   endif
 
   return _arr
