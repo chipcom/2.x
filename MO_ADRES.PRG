@@ -1,10 +1,10 @@
 ***** mo_adres.prg
-#include "inkey.ch"
-#include "function.ch"
-#include "edit_spr.ch"
-#include "chip_mo.ch"
+#include 'inkey.ch'
+#include 'function.ch'
+#include 'edit_spr.ch'
+#include 'chip_mo.ch'
 
-Static skod_volg := "18400"
+Static skod_volg := '18400'
 // УРОВЕНЬ-1 Ter (C-2) код территории
 // Начало территории 18-000-000-000-1 - Наименование территорий
 
@@ -45,63 +45,59 @@ inkey(0)
 return NIL*/
 
 
-***** переиндексировать все файлы адресного реестра ОКАТО
-Function okato_index(hash_files)
+** 27.01.23 переиндексировать все файлы адресного реестра ОКАТО
+Function okato_index()
   Local i, fl_index := .f., ;
-    arr_f  := {"_okator","_okatoo","_okatos","_okatoo8","_okatos8"},;
-    arr_i1 := {"_okatr", "_okato", "_okats", "_okato8", "_okats8"},;
-    arr_i2 := {"_okatrn","_okaton","_okatsn","_okaton8","_okatsn8"}
+    arr_f  := {'_okator', '_okatoo', '_okatos', '_okatoo8', '_okatos8'}, ;
+    arr_i1 := {'_okatr', '_okato', '_okats', '_okato8', '_okats8'}, ;
+    arr_i2 := {'_okatrn', '_okaton', '_okatsn', '_okaton8', '_okatsn8'}
     local sbase
-    local file_index, sMD5
+    local file_index
   
   for i := 1 to len(arr_f)
-    if files_time(dir_exe+arr_f[i]+sdbf,cur_dir+arr_i1[i]+sntx) .or. ;
-        files_time(dir_exe+arr_f[i]+sdbf,cur_dir+arr_i2[i]+sntx)
-      fl_index := .t. ; exit
+    if files_time(dir_exe + arr_f[i] + sdbf, cur_dir + arr_i1[i] + sntx) .or. ;
+        files_time(dir_exe + arr_f[i] + sdbf, cur_dir + arr_i2[i] + sntx)
+      fl_index := .t.
+      exit
     endif
   next
   if fl_index
     for i := 1 to len(arr_f)
       if hb_FileExists(dir_exe + arr_f[i] + sdbf)
-        sMD5 := hb_MD5File( exe_dir + arr_f[i] + sdbf )
         if ! hb_FileExists(cur_dir + arr_i1[i] + sntx) .or. ;
-              ! hb_FileExists(cur_dir + arr_i2[i] + sntx) .or. ;
-              ! check_izm_file_MD5(hash_files, arr_f[i], sMD5)
+              ! hb_FileExists(cur_dir + arr_i2[i] + sntx)
           R_Use(dir_exe + arr_f[i])
           oktAdIndBase(arr_f[i])
           use
         endif
-        hash_files := add_hash_row(hash_files, arr_f[i], sMD5)
       endif
     next
   endif
   return NIL
 
-*****
+**
 Static Function oktAdIndBase(k)
 k := lower(k)
 do case
-  case k == "_okator"
-    index on okato to (cur_dir+"_okatr") progress
-    index on okato+upper(substr(name,1,30)) to (cur_dir+"_okatrn") progress
-  case k == "_okatoo"
-    index on okato to (cur_dir+"_okato") progress
-    index on substr(okato,1,5)+upper(substr(name,1,30)) to (cur_dir+"_okaton") progress
-  case k == "_okatos"
-    index on okato to (cur_dir+"_okats") progress
-    index on substr(okato,1,8)+upper(substr(name,1,30)) to (cur_dir+"_okatsn") progress
-  case k == "_okatoo8"
-    index on okato to (cur_dir+"_okato8") progress
-    index on substr(okato,1,5)+upper(substr(name,1,30)) to (cur_dir+"_okaton8") progress
-  case k == "_okatos8"
-    index on okato to (cur_dir+"_okats8") progress
-    index on substr(okato,1,8)+upper(substr(name,1,30)) to (cur_dir+"_okatsn8") progress
+  case k == '_okator'
+    index on okato to (cur_dir + '_okatr') progress
+    index on okato + upper(substr(name, 1, 30)) to (cur_dir + '_okatrn') progress
+  case k == '_okatoo'
+    index on okato to (cur_dir + '_okato') progress
+    index on substr(okato, 1, 5) + upper(substr(name, 1, 30)) to (cur_dir + '_okaton') progress
+  case k == '_okatos'
+    index on okato to (cur_dir + '_okats') progress
+    index on substr(okato, 1, 8) + upper(substr(name, 1, 30)) to (cur_dir + '_okatsn') progress
+  case k == '_okatoo8'
+    index on okato to (cur_dir + '_okato8') progress
+    index on substr(okato, 1, 5) + upper(substr(name, 1, 30)) to (cur_dir + '_okaton8') progress
+  case k == '_okatos8'
+    index on okato to (cur_dir + '_okats8') progress
+    index on substr(okato, 1, 8) + upper(substr(name, 1, 30)) to (cur_dir + '_okatsn8') progress
 endcase
 return NIL
 
-*
-
-*****
+**
 Static Function oktAdUseBase(k,_region)
 k := lower(k)
 if _region != NIL .and. _region == "18"
@@ -109,15 +105,15 @@ if _region != NIL .and. _region == "18"
 endif
 do case
   case k == "_okator"
-    R_Use(dir_exe+"_okator",{cur_dir+"_okatr",cur_dir+"_okatrn"},"REGION")
+    R_Use(dir_exe + "_okator",{cur_dir + "_okatr",cur_dir + "_okatrn"},"REGION")
   case k == "_okatoo"
-    R_Use(dir_exe+"_okatoo",{cur_dir+"_okato",cur_dir+"_okaton"},"OBLAST")
+    R_Use(dir_exe + "_okatoo",{cur_dir + "_okato",cur_dir + "_okaton"},"OBLAST")
   case k == "_okatos"
-    R_Use(dir_exe+"_okatos",{cur_dir+"_okats",cur_dir+"_okatsn"},"SELO")
+    R_Use(dir_exe + "_okatos",{cur_dir + "_okats",cur_dir + "_okatsn"},"SELO")
   case k == "_okatoo8"
-    R_Use(dir_exe+"_okatoo8",{cur_dir+"_okato8",cur_dir+"_okaton8"},"OBLAST")
+    R_Use(dir_exe + "_okatoo8",{cur_dir + "_okato8",cur_dir + "_okaton8"},"OBLAST")
   case k == "_okatos8"
-    R_Use(dir_exe+"_okatos8",{cur_dir+"_okats8",cur_dir+"_okatsn8"},"SELO")
+    R_Use(dir_exe + "_okatos8",{cur_dir + "_okats8",cur_dir + "_okatsn8"},"SELO")
 endcase
 return NIL
 
