@@ -9,7 +9,7 @@ Function init_mo()
   Local fl := .t., i, arr, arr1, cCode := '', buf := save_maxrow()
 
 //   local aaa
-//   aaa := getV036()
+//   aaa := get_array_PZ_2023()
 // altd()
 
   mywait()

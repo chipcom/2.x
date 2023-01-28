@@ -1011,26 +1011,29 @@ endif
 close databases
 return count_in_schet
 
-***** 26.11.18 создать счета по результатам прочитанного реестра СП
-Function create_schet_from_XML(arr_XML_info,aerr,fl_msg,arr_s,name_sp_tk)
-Local arr_schet := {}, c, len_stand, _arr_stand, lshifr, i, j, k, lbukva,;
-      doplataF, doplataR, mnn, fl, name_zip, arr_zip := {}, lshifr1,;
-      CODE_LPU := glob_mo[_MO_KOD_TFOMS], code_schet, mb, me, nsh,;
+** 28.01.23 создать счета по результатам прочитанного реестра СП
+Function create_schet_from_XML(arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk)
+  Local arr_schet := {}, c, len_stand, _arr_stand, lshifr, i, j, k, lbukva, ;
+      doplataF, doplataR, mnn, fl, name_zip, arr_zip := {}, lshifr1, ;
+      CODE_LPU := glob_mo[_MO_KOD_TFOMS], code_schet, mb, me, nsh, ;
       CODE_MO  := glob_mo[_MO_KOD_FFOMS], s1
-DEFAULT fl_msg TO .t., arr_s TO {}
-Private pole
-//
-use (cur_dir + "tmp1file") new alias TMP1
-mdate_schet := tmp1->_DSCHET
-nsh := f_mb_me_nsh(tmp1->_year,@mb,@me)
-k := tmp1->_year
-close databases
-if k > 2018
-  return create_schet19_from_XML(arr_XML_info,aerr,fl_msg,arr_s,name_sp_tk)
-else
-  return create_schet17_from_XML(arr_XML_info,aerr,fl_msg,arr_s,name_sp_tk)
-endif
-return .t.
+
+  DEFAULT fl_msg TO .t., arr_s TO {}
+  Private pole
+  //
+  use (cur_dir + 'tmp1file') new alias TMP1
+  mdate_schet := tmp1->_DSCHET
+  nsh := f_mb_me_nsh(tmp1->_year, @mb, @me)
+  k := tmp1->_year
+  close databases
+  if k > 2018
+    return create_schet19_from_XML(arr_XML_info, aerr, fl_msg, arr_s, name_sp_tk)
+  else
+    // см. файл not_use/create_schet17_from_XML.prg
+    func_error(10, 'Счет ранее 2019 не формируется!')
+    return .f.
+  endif
+  return .t.
 
 ***** 02.04.13 Просмотр списка счетов, запись для ТФОМС, печать счетов
 Function view_list_schet()

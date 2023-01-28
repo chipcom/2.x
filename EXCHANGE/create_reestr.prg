@@ -6,7 +6,7 @@
 Static Sreestr_sem := "Работа с реестрами"
 Static Sreestr_err := "В данный момент с реестрами работает другой пользователь."
 
-***** 13.09.22
+** 28.01.23
 Function create_reestr()
   Local buf := save_maxrow(), i, j, k := 0, k1 := 0, arr, bSaveHandler, fl, rec, pole, arr_m
   local nameArr
@@ -249,7 +249,8 @@ Function create_reestr()
             if tmp->nyear > 2018 // 2019 год
               create1reestr19(tmp->(recno()), tmp->nyear, tmp->nmonth)
             else
-              create1reestr17(tmp->(recno()),tmp->nyear,tmp->nmonth)
+              // см. файл not_use/create1reestr17.prg
+              func_error(10, 'Реестр ранее 2019 года не формируется!')
             endif
           endif
         endif
@@ -261,13 +262,6 @@ Function create_reestr()
   close databases
   return NIL
   
-
-** 10.06.22
-Function create1reestr17(recno, nyear, nmonth)
-  // см. файл not_use/create1reestr17.prg
-  func_error(10, 'Реестр за ' + lstr(nyear) + ' не формируется!')
-  return nil
-
 ** 10.06.22
 Function f1create_reestr(oBrow)
   Local oColumn, n := 36, n1 := 20, blk
