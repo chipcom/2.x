@@ -3011,9 +3011,20 @@ fp := fcreate(name_file) ; tek_stroke := 0 ; n_list := 1
 sh := len(arr_title[1])
 add_string("")
 if Tip_data == 1
-  add_string(center("Расход материалов",sh))
-  add_string(center(arr[4],sh))
-  add_string(center("[ по дате окончания лечения ]",sh))
+  if  f_is_ist_pr(glob_mas_pr,3) .and. !f_is_ist_pr(glob_mas_pr,1) .and. !f_is_ist_pr(glob_mas_pr,2)
+    add_string(center("Ведомость расходования жидкости, содержащей прекурсор метилметакрила",sh))
+    //my_debug(,arr[3])
+    if empty(arr[3])
+      add_string(center("Ведомость № _____ , от "+full_date(date()),sh))
+    else  
+      add_string(center("Ведомость № "+lstr(arr[3]) +" , от "+full_date(date()),sh))
+    endif
+    add_string(center(arr[4],sh))
+  else  
+    add_string(center("Расход материалов",sh))
+    add_string(center(arr[4],sh))
+    add_string(center("[ по дате окончания лечения ]",sh))
+  endif
 else
   add_string(center("Предварительный Расход материалов",sh))
   add_string(center(arr[4],sh))
@@ -3060,10 +3071,14 @@ else
 endif
 for prr := 1 to len(mm_orto_mat)
   if f_is_ist_pr(glob_mas_pr,prr)
-    add_string(padr("─",sh,"─"))
-    add_string(center(mm_orto_mat[prr,1],sh))
-    add_string(padr("─",sh,"─"))
-    add_string("")
+    if f_is_ist_pr(glob_mas_pr,3) .and. !f_is_ist_pr(glob_mas_pr,1) .and. !f_is_ist_pr(glob_mas_pr,2)
+      //
+    else  
+      add_string(padr("─",sh,"─"))
+      add_string(center(mm_orto_mat[prr,1],sh))
+      add_string(padr("─",sh,"─"))
+      add_string("")
+    endif  
     for pr := 1 to len(mperso)
       select TMP
       zap
@@ -3183,7 +3198,7 @@ for prr := 1 to len(mm_orto_mat)
           select TMP_VAH
           skip
         enddo
- my_debug(,"arr_mt_vah  "+print_array(arr_mt_vah))
+ //my_debug(,"arr_mt_vah  "+print_array(arr_mt_vah))
         // присваиваем наименование и ключ важности
         if len(arr_mt) > 0
           select OR
@@ -3193,8 +3208,6 @@ for prr := 1 to len(mm_orto_mat)
             arr_mt[i,5] := or->kod
             arr_mt[i,6] := or->kod1
           next
- //my_debug(,"arr_mt  "+print_array(arr_mt))
-
           select perso
           goto (mperso[pr,1])
           xxx := 0
@@ -3312,10 +3325,14 @@ next
 //
 for prr := 1 to len(mm_orto_mat)
   if f_is_ist_pr(glob_mas_pr,prr)
-    add_string(padr("─",sh,"─"))
-    add_string(center(mm_orto_mat[prr,1],sh))
-    add_string(padr("─",sh,"─"))
-    add_string("")
+    if f_is_ist_pr(glob_mas_pr,3) .and. !f_is_ist_pr(glob_mas_pr,1) .and. !f_is_ist_pr(glob_mas_pr,2)
+      //
+    else  
+      add_string(padr("─",sh,"─"))
+      add_string(center(mm_orto_mat[prr,1],sh))
+      add_string(padr("─",sh,"─"))
+      add_string("")
+    endif  
     for pr := 1 to len(mperso)
       select TMP
       zap
@@ -3498,6 +3515,9 @@ for prr := 1 to len(mm_orto_mat)
   select TMP_IT
   zap
 next
+if f_is_ist_pr(glob_mas_pr,3) .and. !f_is_ist_pr(glob_mas_pr,1) .and. !f_is_ist_pr(glob_mas_pr,2)
+  add_string(center("________________ (должность) _________________ (подпись) ________________ (расшифровка)    М.П.",sh))
+endif  
 close databases
 fclose(fp)
 rest_box(buf)

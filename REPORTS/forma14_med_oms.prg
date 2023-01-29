@@ -15,7 +15,7 @@ Function forma14_med_oms()
         cFileProtokol := "tmp" + stxt, arr_prof := {}, arr_usl, au, ii,;
         filetmp14 := "tmp14" + stxt, sum_k := 0, sum_ki := 0, sum_kd := 0, sum_kt := 0, kol_d := 0 , sum_d := 0
   Local arr_skor[81,2], arr_eko[2,2], arr_profil := {}, arr_dn_stac := {}, arrDdn_stac[4], fl_pol1[15],;
-        arr_pol[32], arr_pol1[15, 5], arr_pril5[29, 3], ifff := 0, kol_stom_pos := 0, lal, lalf,;
+        arr_pol[32], arr_pol1[15, 5], arr_pril5[31, 3], ifff := 0, kol_stom_pos := 0, lal, lalf,;
         arr_pol3000[29, 6], vr_rec := 0, arr_full_usl,;
         fl_pol3000_PROF, fl_pol3000_DVN2 := .T.
   
@@ -133,6 +133,9 @@ Function forma14_med_oms()
   arr_pril5[27,1] := "Дн.стац.ЭКО - пациенто-дней"
   arr_pril5[28,1] := "Дн.стац.ЭКО - пациентов, чел."
   arr_pril5[29,1] := "Дн.стац.ЭКО - руб."
+  arr_pril5[30,1] := "Стац - стентирование, единиц" 
+  arr_pril5[31,1] := "Стац - стентирование иногородние, единиц" 
+
   
   *********************************************************************
   arr_m := {2022, 1, 12, 'за январь - декабрь 2022 года', 0d20220101, 0d20221231}
@@ -554,7 +557,7 @@ Function forma14_med_oms()
               ta := f14tf_nastr(@lshifr,,d2_year)
               lshifr := alltrim(lshifr)
               if left(lshifr,7) == "60.10.3"
-                my_debug(,round(hu->stoim_1*koef,2))   
+                //my_debug(,round(hu->stoim_1*koef,2))   
               endif  
               aadd(au,{lshifr,hu->kol_1,round(hu->stoim_1*koef,2),0,0,hu->kol_1})
               i16 := 0
@@ -1259,22 +1262,22 @@ Function forma14_med_oms()
               arr_pril5[25,igs] += tfoms_pz[4,1] // "Дн.стац. - пациентов, чел."
               arr_pril5[26,igs] += tfoms_pz[4,3] // "Дн.стац. - руб."
               aadd(ta,{50,tfoms_pz[4,1],tfoms_pz[4,1],iif(ds_spec==1,tfoms_pz[4,1],0),iif(ds_spec==2,tfoms_pz[4,1],0),tfoms_pz[4,9]})
-              aadd(ta,{56,tfoms_pz[4,2],tfoms_pz[4,2],iif(ds_spec==1,tfoms_pz[4,2],0),iif(ds_spec==2,tfoms_pz[4,2],0),tfoms_pz[4,10]})
-              if is_rebenok
+              aadd(ta,{56-1,tfoms_pz[4,2],tfoms_pz[4,2],iif(ds_spec==1,tfoms_pz[4,2],0),iif(ds_spec==2,tfoms_pz[4,2],0),tfoms_pz[4,10]})
+              if is_rebenok //52 и 57
                 aadd(ta,{51,tfoms_pz[4,1],tfoms_pz[4,1],iif(ds_spec==1,tfoms_pz[4,1],0),iif(ds_spec==2,tfoms_pz[4,1],0),tfoms_pz[4,9]})
-                aadd(ta,{57,tfoms_pz[4,2],tfoms_pz[4,2],iif(ds_spec==1,tfoms_pz[4,2],0),iif(ds_spec==2,tfoms_pz[4,2],0),tfoms_pz[4,10]})
+                aadd(ta,{57-1,tfoms_pz[4,2],tfoms_pz[4,2],iif(ds_spec==1,tfoms_pz[4,2],0),iif(ds_spec==2,tfoms_pz[4,2],0),tfoms_pz[4,10]})
               endif
-              if is_trudosp
+              if is_trudosp // 54 и 59
                 aadd(ta,{52,tfoms_pz[4,1],tfoms_pz[4,1],iif(ds_spec==1,tfoms_pz[4,1],0),iif(ds_spec==2,tfoms_pz[4,1],0),tfoms_pz[4,9]})
-                aadd(ta,{58,tfoms_pz[4,2],tfoms_pz[4,2],iif(ds_spec==1,tfoms_pz[4,2],0),iif(ds_spec==2,tfoms_pz[4,2],0),tfoms_pz[4,10]})
+                aadd(ta,{58-1,tfoms_pz[4,2],tfoms_pz[4,2],iif(ds_spec==1,tfoms_pz[4,2],0),iif(ds_spec==2,tfoms_pz[4,2],0),tfoms_pz[4,10]})
               endif
-              if is_reabili
+              if is_reabili  // 55 и 60
                 aadd(ta,{53,tfoms_pz[4,1],tfoms_pz[4,1],iif(ds_spec==1,tfoms_pz[4,1],0),iif(ds_spec==2,tfoms_pz[4,1],0),tfoms_pz[4,9]})
-                aadd(ta,{59,tfoms_pz[4,2],tfoms_pz[4,2],iif(ds_spec==1,tfoms_pz[4,2],0),iif(ds_spec==2,tfoms_pz[4,2],0),tfoms_pz[4,10]})
+                aadd(ta,{59-1,tfoms_pz[4,2],tfoms_pz[4,2],iif(ds_spec==1,tfoms_pz[4,2],0),iif(ds_spec==2,tfoms_pz[4,2],0),tfoms_pz[4,10]})
               endif
-              if is_inogoro
-                aadd(ta,{55,tfoms_pz[4,1],tfoms_pz[4,1],iif(ds_spec==1,tfoms_pz[4,1],0),iif(ds_spec==2,tfoms_pz[4,1],0),tfoms_pz[4,9]})
-                aadd(ta,{61,tfoms_pz[4,2],tfoms_pz[4,2],iif(ds_spec==1,tfoms_pz[4,2],0),iif(ds_spec==2,tfoms_pz[4,2],0),tfoms_pz[4,10]})
+              if is_inogoro  // 56 и 61
+                aadd(ta,{55-1,tfoms_pz[4,1],tfoms_pz[4,1],iif(ds_spec==1,tfoms_pz[4,1],0),iif(ds_spec==2,tfoms_pz[4,1],0),tfoms_pz[4,9]})
+                aadd(ta,{61-2,tfoms_pz[4,2],tfoms_pz[4,2],iif(ds_spec==1,tfoms_pz[4,2],0),iif(ds_spec==2,tfoms_pz[4,2],0),tfoms_pz[4,10]})
               endif
               if is_ekstra
                 arr_pril5[27,igs] += tfoms_pz[4,2] // "Дн.стац.ЭКО - пациенто-дней"
@@ -1282,34 +1285,35 @@ Function forma14_med_oms()
                 arr_pril5[29,igs] += tfoms_pz[4,3] // "Дн.стац.ЭКО - руб."
                 arr_eko[1,1] += tfoms_pz[4,2]
                 arr_eko[1,2] += tfoms_pz[4,10]
-                aadd(ta,{68,tfoms_pz[4,1],tfoms_pz[4,1],0,iif(ds_spec==2,tfoms_pz[4,1],0),tfoms_pz[4,9]})
-                aadd(ta,{70,tfoms_pz[4,3],tfoms_pz[4,3],0,iif(ds_spec==2,tfoms_pz[4,3],0),tfoms_pz[4,11]})
+                aadd(ta,{68-3,tfoms_pz[4,1],tfoms_pz[4,1],0,iif(ds_spec==2,tfoms_pz[4,1],0),tfoms_pz[4,9]})
+                aadd(ta,{70-3,tfoms_pz[4,3],tfoms_pz[4,3],0,iif(ds_spec==2,tfoms_pz[4,3],0),tfoms_pz[4,11]})
                 if is_inogoro
                   arr_eko[2,1] += tfoms_pz[4,2]
                   arr_eko[2,2] += tfoms_pz[4,10]
-                  aadd(ta,{69,tfoms_pz[4,1],tfoms_pz[4,1],0,iif(ds_spec==2,tfoms_pz[4,1],0),tfoms_pz[4,9]})
-                  aadd(ta,{71,tfoms_pz[4,3],tfoms_pz[4,3],0,iif(ds_spec==2,tfoms_pz[4,3],0),tfoms_pz[4,11]})
+                  aadd(ta,{69-3,tfoms_pz[4,1],tfoms_pz[4,1],0,iif(ds_spec==2,tfoms_pz[4,1],0),tfoms_pz[4,9]})
+                  aadd(ta,{71-3,tfoms_pz[4,3],tfoms_pz[4,3],0,iif(ds_spec==2,tfoms_pz[4,3],0),tfoms_pz[4,11]})
                 endif
               endif
-              aadd(ta,{62,tfoms_pz[4,3],tfoms_pz[4,3],iif(ds_spec==1,tfoms_pz[4,3],0),iif(ds_spec==2,tfoms_pz[4,3],0),tfoms_pz[4,11]})
+              aadd(ta,{62-2,tfoms_pz[4,3],tfoms_pz[4,3],iif(ds_spec==1,tfoms_pz[4,3],0),iif(ds_spec==2,tfoms_pz[4,3],0),tfoms_pz[4,11]})
               if is_rebenok
-                aadd(ta,{63,tfoms_pz[4,3],tfoms_pz[4,3],iif(ds_spec==1,tfoms_pz[4,3],0),iif(ds_spec==2,tfoms_pz[4,3],0),tfoms_pz[4,11]})
+                aadd(ta,{63-2,tfoms_pz[4,3],tfoms_pz[4,3],iif(ds_spec==1,tfoms_pz[4,3],0),iif(ds_spec==2,tfoms_pz[4,3],0),tfoms_pz[4,11]})
               endif
               if is_trudosp
-                aadd(ta,{64,tfoms_pz[4,3],tfoms_pz[4,3],iif(ds_spec==1,tfoms_pz[4,3],0),iif(ds_spec==2,tfoms_pz[4,3],0),tfoms_pz[4,11]})
+                aadd(ta,{64-2,tfoms_pz[4,3],tfoms_pz[4,3],iif(ds_spec==1,tfoms_pz[4,3],0),iif(ds_spec==2,tfoms_pz[4,3],0),tfoms_pz[4,11]})
               endif
               if is_reabili
-                aadd(ta,{65,tfoms_pz[4,3],tfoms_pz[4,3],iif(ds_spec==1,tfoms_pz[4,3],0),iif(ds_spec==2,tfoms_pz[4,3],0),tfoms_pz[4,11]})
+                aadd(ta,{65-2,tfoms_pz[4,3],tfoms_pz[4,3],iif(ds_spec==1,tfoms_pz[4,3],0),iif(ds_spec==2,tfoms_pz[4,3],0),tfoms_pz[4,11]})
               endif
               if is_inogoro
-                aadd(ta,{67,tfoms_pz[4,3],tfoms_pz[4,3],iif(ds_spec==1,tfoms_pz[4,3],0),iif(ds_spec==2,tfoms_pz[4,3],0),tfoms_pz[4,11]})
+                aadd(ta,{67-3,tfoms_pz[4,3],tfoms_pz[4,3],iif(ds_spec==1,tfoms_pz[4,3],0),iif(ds_spec==2,tfoms_pz[4,3],0),tfoms_pz[4,11]})
               endif
-              if is_onkologia // онкология
+              /*if is_onkologia // онкология
                  //  добавка 13.07.22    // стр 54, 60, 66
                  aadd(ta,{54,tfoms_pz[4,1],tfoms_pz[4,1],iif(ds_spec==1,tfoms_pz[4,1],0),iif(ds_spec==2,tfoms_pz[4,1],0),tfoms_pz[4,9]})
                  aadd(ta,{60,tfoms_pz[4,2],tfoms_pz[4,2],iif(ds_spec==1,tfoms_pz[4,2],0),iif(ds_spec==2,tfoms_pz[4,2],0),tfoms_pz[4,10]})   
                  aadd(ta,{66,tfoms_pz[4,3],tfoms_pz[4,3],iif(ds_spec==1,tfoms_pz[4,3],0),iif(ds_spec==2,tfoms_pz[4,3],0),tfoms_pz[4,11]})
-              endif   
+              endif  
+              */ 
             // скорая помощь
             case tfoms_pz[5,1] > 0
               arr_pril5[2,igs] += tfoms_pz[5,1] // "СМП - вызовов, ед."
@@ -2046,14 +2050,14 @@ Function forma14_med_oms()
       elseif arr_m[1] == 2023 .and. arr_m[3] == 1
         d2 := 19  
       endif
-      my_debug(,"date1_mes="+dtos(arr_m[5]))
-      my_debug(,"date2_mes="+dtos(arr_m[6]))
-      my_debug(,"d1="+str(d1))
-      my_debug(,"d2="+str(d2))
-      my_debug(,"date1="+dtos(boy(arr_m[5])))
-      my_debug(,"date2="+dtos(arr_m[6]+d2))
-      my_debug(,"a1="+str(a1))
-      my_debug(,"a2="+str(a2))
+      //my_debug(,"date1_mes="+dtos(arr_m[5]))
+      //my_debug(,"date2_mes="+dtos(arr_m[6]))
+      //my_debug(,"d1="+str(d1))
+      //my_debug(,"d2="+str(d2))
+      //my_debug(,"date1="+dtos(boy(arr_m[5])))
+      //my_debug(,"date2="+dtos(arr_m[6]+d2))
+      //my_debug(,"a1="+str(a1))
+      //my_debug(,"a2="+str(a2))
 
       msmo := int(val(schet_->smo))
       fl := between(mdate,boy(arr_m[5]),arr_m[6]+d2) ;// дата регистрации по 10 числа след.месяца
@@ -2094,7 +2098,7 @@ Function forma14_med_oms()
                                                //for between(rak->DAKT,boy(arr_m[5]),arr_m[6])
   go top
   do while !eof()
-    my_debug(,mo_xml->dfile)
+    //my_debug(,mo_xml->dfile)
     UpdateStatus()
     if ascan(arr_h,raksh->kod_h) == 0
       human->(dbGoto(raksh->kod_h))
