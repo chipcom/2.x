@@ -102,6 +102,7 @@ mo_version.prg
 .\init\reconstruct_DB.prg
 .\init\index.prg
 .\init\index_base.prg
+.\init\index_work_dir.prg
 .\init\initArrayFilesDB.prg
 .\init\update_data_DB.prg
 

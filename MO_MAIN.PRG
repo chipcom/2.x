@@ -102,7 +102,7 @@ procedure main( ... )
   // a_parol := inp_password(is_local_version,is_create)
   a_parol := inp_password_bay(is_local_version, is_create)
 
-  checkFilesTFOMS()
+  index_work_dir(exe_dir, cur_dir)    // checkFilesTFOMS() переименовал
   
   // объект организация с которой работаем
   public hb_main_curOrg := TOrganizationDB():GetOrganization() 
