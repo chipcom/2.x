@@ -121,15 +121,15 @@ Function index_work_dir(exe_dir, cur_dir)
   sbase := '_mo_t007'
   file_index := cur_dir + sbase + sntx
   if hb_FileExists(exe_dir + sbase + sdbf)
-    if ! hb_FileExists(file_index) .or. ;
-        ! hb_FileExists(cur_dir + sbase + '2' + sntx)
+    // if ! hb_FileExists(file_index) .or. ;
+    //     ! hb_FileExists(cur_dir + sbase + '2' + sntx)
       R_Use(exe_dir + sbase, , 'T7')
       index on upper(left(NAME, 50)) + str(profil_k, 3) to (cur_dir + sbase) UNIQUE
-      dbeval({|| aadd(arr_t007, {alltrim(t7->name), profil_k, pk_V020})})
+      dbeval({|| aadd(arr_t007, {alltrim(t7->name), t7->profil_k, t7->pk_V020})})
       index on str(profil_k, 3) + str(profil, 3) to (cur_dir + sbase)
       index on str(pk_V020, 3) + str(profil, 3) to (cur_dir + sbase + '2')
       use
-    endif
+    // endif
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
@@ -139,9 +139,9 @@ Function index_work_dir(exe_dir, cur_dir)
   file_index := cur_dir + sbase + sntx
   if hb_FileExists(exe_dir + sbase + sdbf)
     Public glob_array_srf := {}
-    if ! hb_FileExists(file_index) .or. ;
-          ! hb_FileExists(cur_dir + sbase + '2' + sntx) .or. ;
-          ! hb_FileExists(cur_dir + sbase + '3' + sntx)
+    // if ! hb_FileExists(file_index) .or. ;
+    //       ! hb_FileExists(cur_dir + sbase + '2' + sntx) .or. ;
+    //       ! hb_FileExists(cur_dir + sbase + '3' + sntx)
       R_Use(exe_dir + sbase )
       index on okato to (cur_dir + sbase) UNIQUE
       dbeval({|| aadd(glob_array_srf, {'', field->okato})})
@@ -149,7 +149,7 @@ Function index_work_dir(exe_dir, cur_dir)
       index on smo to (cur_dir + sbase + '2')
       index on okato + ogrn to (cur_dir + sbase + '3')
       use
-    endif
+    // endif
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif

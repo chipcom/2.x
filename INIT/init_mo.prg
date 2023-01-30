@@ -96,7 +96,7 @@ Function init_mo()
 
   return main_up_screen()
 
-// ** 27.01.23 проверка и переиндексирование справочников ТФОМС
+** 27.01.23 проверка и переиндексирование справочников ТФОМС
 // Function checkFilesTFOMS()
 //   Local fl := .t., i, arr, buf := save_maxrow()
 //   local arrRefFFOMS := {}, row, row_flag := .t.
@@ -231,17 +231,17 @@ Function init_mo()
 //   // sMD5 := ''
 //   if hb_FileExists(exe_dir + sbase + sdbf)
 //     // sMD5 := hb_MD5File( exe_dir + sbase + sdbf )
-//     if ! hb_FileExists(file_index) .or. ;
-//         ! hb_FileExists(cur_dir + sbase + '2' + sntx)
+//     // if ! hb_FileExists(file_index) .or. ;
+//     //     ! hb_FileExists(cur_dir + sbase + '2' + sntx)
 //         //  .or. ;
 //         // ! check_izm_file_MD5(hash_files, sbase, sMD5)
 //       R_Use(exe_dir + sbase ,,'T7')
 //       index on upper(left(NAME, 50)) + str(profil_k, 3) to (cur_dir + sbase) UNIQUE
-//       dbeval({|| aadd(arr_t007, {alltrim(t7->name), profil_k, pk_V020})})
+//       dbeval({|| aadd(arr_t007, {alltrim(t7->name), t7->profil_k, t7->pk_V020})})
 //       index on str(profil_k, 3) + str(profil, 3) to (cur_dir + sbase)
 //       index on str(pk_V020, 3) + str(profil, 3) to (cur_dir + sbase + '2')
 //       use
-//     endif
+//     // endif
 //     // hash_files := add_hash_row(hash_files, sbase, sMD5)
 //   else
 //     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
@@ -254,9 +254,9 @@ Function init_mo()
 //   if hb_FileExists(exe_dir + sbase + sdbf)
 //     sMD5 := hb_MD5File( exe_dir + sbase + sdbf )
 //     Public glob_array_srf := {}
-//     if ! hb_FileExists(file_index) .or. ;
-//           ! hb_FileExists(cur_dir + sbase + '2' + sntx) .or. ;
-//           ! hb_FileExists(cur_dir + sbase + '3' + sntx)
+//     // if ! hb_FileExists(file_index) .or. ;
+//     //       ! hb_FileExists(cur_dir + sbase + '2' + sntx) .or. ;
+//     //       ! hb_FileExists(cur_dir + sbase + '3' + sntx)
 //     //  .or. ;
 //     //       ! check_izm_file_MD5(hash_files, sbase, sMD5)
 //       R_Use(exe_dir + sbase )
@@ -266,7 +266,7 @@ Function init_mo()
 //       index on smo to (cur_dir + sbase + '2')
 //       index on okato + ogrn to (cur_dir + sbase + '3')
 //       use
-//     endif
+//     // endif
 //     // hash_files := add_hash_row(hash_files, sbase, sMD5)
 //   else
 //     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
