@@ -308,8 +308,8 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
       private mDOZE :=  iif(nKey == K_INS, 0.0, tmp->DOZE)
       private mKOLVO :=  iif(nKey == K_INS, 0, tmp->COL_INJ)
       // ЧТО-БЫ не делать PUBLIC
-      Private glob_V034 := get_ed_izm()
-      Private glob_methodinj := getMethodINJ()
+      // Private glob_V034 := get_ed_izm()
+      // Private glob_methodinj := getMethodINJ()
       Private tmp_V034 := create_classif_FFOMS(2, 'V034') // UNITCODE
       Private tmp_MethodINJ := create_classif_FFOMS(2, 'MethodINJ') // METHOD
    

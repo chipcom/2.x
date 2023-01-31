@@ -131,7 +131,7 @@ function select_implantant(date_ust, rzn, ser_num)
   local mNUMBER
 
   private mVIDIMPL := '', m1VIDIMPL := 0
-  Private glob_Implantant := get_implantant()
+  // Private glob_Implantant := get_implantant()
   private tmp_Implantant := create_classif_FFOMS(2, 'Implantant')
 
   default rzn to 0

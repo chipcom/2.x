@@ -1,10 +1,10 @@
-***** распечатка различных справочников - mo_spri.prg
+** распечатка различных справочников - mo_spri.prg
 #include "inkey.ch"
 #include "function.ch"
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 16.09.18 просмотр/печать общих справочников
+** 16.09.18 просмотр/печать общих справочников
 Function o_sprav(k)
 Static sk := 1, sk1 := 1, sk2 := 1
 Local str_sem, mas_pmt, mas_msg, mas_fun, j
@@ -103,7 +103,7 @@ if k > 0
 endif
 return NIL
 
-***** 02.02.22
+** 02.02.22
 Function fspr_uslugi(k)
 Static _su := 110
 Static sk := 1, sk1 := 1, sk2 := 1
@@ -242,7 +242,7 @@ if k > 0
 endif
 return NIL
 
-***** 03.01.18
+** 03.01.18
 Function f4_uslugi(reg)
 Local i, s := "Список услуг ", mas[2], buf := save_maxrow(),;
       n_file := "uslugi"+stxt, sh := 80, HH := 60, l, k, j, lshifr, lshifr1, lname
@@ -364,7 +364,7 @@ fclose(fp)
 viewtext(n_file,,,,,,,2)
 RETURN NIL
 
-*****
+**
 Function f42_uslugi(reg,_shifr)
 Local s := "", v1, v2, fl1del, fl2del
 if reg == 1
@@ -404,7 +404,7 @@ endif
 return s
 
 
-***** 01.12.21
+** 01.12.21
 Static Function v_1usluga()
 Local arr_usl, atf := {0,"",""}, i := 1, k, mas[2], sh := 80, HH := 60, j := 0, j1, ;
       sb, fl, lshifr, s, n_file := "usluga_1"+stxt
@@ -533,7 +533,7 @@ endif
 return NIL
 
 
-*****
+**
 Static Function v_k_uslugi()
 Local sh := 80, HH := 57, n_file := "k_uslugi"+stxt
 mywait()
@@ -565,55 +565,53 @@ fclose(fp)
 viewtext(n_file,,,,,,,2)
 return NIL
 
-*****  04.02.22
-Static Function v_implantant()
+**  31.01.23
+Function v_implantant()
   
-Local vrem_local :="", k, l, s, i, ss, sh := 80, HH := 57, n_file := "implant"+stxt
-local mas[2]
-Local glob_implantant := get_implantant()
-mywait()
-fp := fcreate(n_file) ; n_list := 1 ; tek_stroke := 0
-add_string("")
-add_string(center("Имплантируемые материалы",sh))
-add_string("")
-l := sh
-asort(glob_implantant,,,{|x,y| (padr(x[7],75)+x[1]) < (padr(y[7],75)+y[1])}) 
-//index on padr(local,75)+padr(name,120) to tmp_impl
-vrem_local := glob_implantant[1,7] //impl->local
-if len(alltrim(vrem_local)) < 2
-  add_string(center("Без группы",sh))
-else  
-  add_string(center(vrem_local,sh))
-endif
-for i := 1 to len(glob_implantant)
-  if vrem_local != glob_implantant[i,7] //impl->local
-    if verify_FF(HH, .t., sh)
-      //aeval(arr_title, {|x| add_string(x) } )
+  Local vrem_local := '', k, l, s, i, ss, sh := 80, HH := 57, n_file := cur_dir + 'implant' + stxt
+  local mas[2]
+  Local arrImplantant := get_implantant()
+
+  mywait()
+  fp := fcreate(n_file)
+  n_list := 1
+  tek_stroke := 0
+  add_string('')
+  add_string(center('Имплантируемые материалы', sh))
+  add_string('')
+  l := sh
+  asort(arrImplantant, , ,{|x, y| (padr(x[7], 75) + x[1]) < (padr(y[7], 75) + y[1])}) 
+  vrem_local := arrImplantant[1, 7]
+  if len(alltrim(vrem_local)) < 2
+    add_string(center('Без группы', sh))
+  else  
+    add_string(center(vrem_local, sh))
+  endif
+  for i := 1 to len(arrImplantant)
+    if vrem_local != arrImplantant[i, 7]
+      if verify_FF(HH, .t., sh)
+      endif
+      vrem_local := arrImplantant[i, 7]
+      add_string('')
+      add_string(center(vrem_local, sh))
+      add_string('')
     endif
-    vrem_local := glob_implantant[i,7] //impl->local
-    add_string("")
-    add_string(center(vrem_local,sh))
-    add_string("")
-  endif
-  if verify_FF(HH, .t., sh)
-    //aeval(arr_title, {|x| add_string(x) } )
-  endif
-  // ss := lstr(glob_implantant[i,2],6)+" "
-  // k := perenos(mas,ss+alltrim(glob_implantant[i,1]),l," ,;") //impl->name
-  k := perenos(mas, alltrim(glob_implantant[i, 1]), l, " ,;") //impl->name
-  s := padr(mas[1],l)
-  add_string(s)
-  if k > 1
-    add_string(padl(alltrim(mas[2]),l))
-  endif
+    if verify_FF(HH, .t., sh)
+    endif
+    k := perenos(mas, alltrim(arrImplantant[i, 1]), l, ' ,;')
+    s := padr(mas[1], l)
+    add_string(s)
+    if k > 1
+      add_string(padl(alltrim(mas[2]), l))
+    endif
   next
-fclose(fp)
-viewtext(n_file,,,,,,,2)
-return NIL
+  fclose(fp)
+  viewtext(n_file, , , , , , , 2)
+  return NIL
   
 
 
-*****
+**
 Static Function v_nulusluga()
 Local mas[2], k, l, s, sh := 80, HH := 57, n_file := "n_uslugi"+stxt
 mywait()
@@ -673,7 +671,7 @@ fclose(fp)
 viewtext(n_file,,,,,,,2)
 return NIL
 
-***** 01.12.21 даты смены цен
+** 01.12.21 даты смены цен
 Function usl1TFOMS()
   Local k, buf := save_maxrow(), name_file := "uslugi"+stxt, sh := 80, HH := 60, ;
       i, s, fl, v1, v2, mdate, pole, nu, t_arr[BR_LEN], ret, ret_arr, scode, dy
@@ -918,7 +916,7 @@ Function usl1TFOMS()
   endif
   return NIL
 
-***** 15.01.18
+** 15.01.18
 Function ret_otd_dep()
 Local ret_arr
 if !(valtype(glob_otd_dep) == "N")
@@ -930,7 +928,7 @@ if valtype(ret_arr) == "A"
 endif
 return ret_arr
 
-***** 07.08.17
+** 07.08.17
 Function f_spr_usl_adres_podr()
 Static arr := {}
 Local i, j, ret_arr
@@ -950,7 +948,7 @@ if empty(ret_arr)
 endif
 return ret_arr
 
-***** 08.12.21
+** 08.12.21
 Function usl2TFOMS()
   Static sdate
   Local k, buf := save_maxrow(), name_file := "uslugi"+stxt, nu, ret_arr,;
@@ -1147,7 +1145,7 @@ Function usl2TFOMS()
   endif
   return NIL
 
-***** 08.12.21
+** 08.12.21
 Function ret_vozrast_k006(s)
   Local ret := ""
 
@@ -1167,7 +1165,7 @@ Function ret_vozrast_k006(s)
   endcase
   return ret
 
-***** 08.12.21
+** 08.12.21
 Function ret_duration_k006(s,s1)
   Static sd := "день", sdr := "дня", sdm := "дней"
   Local arr := {"1-3 " + s1 + sdr,;                   //  1
@@ -1184,7 +1182,7 @@ Function ret_duration_k006(s,s1)
 
   return "дл-ть " + iif(between(i, 1, 10), arr[i], "")
 
-***** 14.01.19
+** 14.01.19
 Static Function f_ret_kz_ksg(lkz,lkslp,lkiro)
 Local s := 'коэф-т затратоёмкости '+lstr(lkz,5,2)
 if !empty(lkslp)
@@ -1195,7 +1193,7 @@ if !empty(lkiro)
 endif
 return s
 
-***** 01.12.21
+** 01.12.21
 Function usl3TFOMS()
 Local i, k, buf := save_maxrow(), name_file := "uslugi"+stxt,;
       sh := 85, HH := 80, mas1[5], mas2[5], arr[5], k1, k2, t_arr, mdate, lyear
@@ -1299,7 +1297,7 @@ if (k := popup_2array(usl9TFOMS(mdate),T_ROW,T_COL-5,su,1,@t_arr,"Выберите групп
 endif
 return NIL
 
-***** 24.11.21
+** 24.11.21
 Static Function usl9TFOMS(mdate)
 Static sdate, sarr1
 Local arr := {{" 1. Койко-дни по профилям",1},;
@@ -1363,7 +1361,7 @@ sdate := mdate
 sarr1 := aclone(arr1)
 return arr1
 
-***** 25.02.15
+** 25.02.15
 Static Function usl3FFOMS()
 // A,B - класс медуслуги
 // XX - раздел медуслуги
@@ -1407,7 +1405,7 @@ next
 return arr
 
 
-***** 12.01.14
+** 12.01.14
 Static Function usl4FFOMS()
 // A - класс медуслуги
 // XX - раздел медуслуги
@@ -1451,7 +1449,7 @@ next
 return arr
 
 
-***** 12.01.14
+** 12.01.14
 Static Function usl5FFOMS()
 // B - класс медуслуги
 // XX - раздел медуслуги
@@ -1533,7 +1531,7 @@ for i := 1 to len(arr)
 next
 return arr
 
-***** 25.11.21
+** 25.11.21
 Function usl_stom_FFOMS()
 Static arr_gr := {"Общепрофильные","Ортодонтия","Терапевтическая стоматология","Физиотерапия","Хирургическая стоматология"}
 Local i, j, k, s, buf := save_maxrow(), name_file := "uslugiS"+stxt, sh := 80, HH := 60, t_arr[2], fl
@@ -1575,7 +1573,7 @@ fclose(fp)
 viewtext(name_file,,,,.t.,,,2)
 return NIL
 
-***** 25.11.21 Распечатка списка услуг с использованием телемедицинских технологий
+** 25.11.21 Распечатка списка услуг с использованием телемедицинских технологий
 Function usl_telemedicina()
 Local i, j, k, buf := save_maxrow(), name_file := "uslugiT"+stxt, sh := 80, HH := 60, t_arr[2], fl
 mywait()
@@ -1602,9 +1600,9 @@ fclose(fp)
 viewtext(name_file,,,,.t.,,,2)
 return NIL
 
-***** 25.11.21 Распечатка списка операций на парных органах
+** 25.11.21 Распечатка списка операций на парных органах
 Function usl_par_organ()
-***** 11.01.20 Распечатка списка услуг с использованием телемедицинских технологий
+** 11.01.20 Распечатка списка услуг с использованием телемедицинских технологий
 Local i, j, k, buf := save_maxrow(), name_file := "uslugiT"+stxt, sh := 80, HH := 60, t_arr[2], fl
 mywait()
 R_Use_base("luslf")
@@ -1636,7 +1634,7 @@ fclose(fp)
 viewtext(name_file,,,,.t.,,,2)
 return NIL
 
-***** 25.11.21 Вывод списка услуг диагностики при дообследовании в направлениях на ЗНО
+** 25.11.21 Вывод списка услуг диагностики при дообследовании в направлениях на ЗНО
 Function usl_napr_FFOMS()
 Static arr_gr := {;
   {"1 - лабораторная диагностика",1},;
@@ -1682,7 +1680,7 @@ fclose(fp)
 viewtext(name_file,,,,.t.,,,2)
 return NIL
 
-***** 25.11.21 Вывод списка услуг по типам лечения ОНКОзаболеваний
+** 25.11.21 Вывод списка услуг по типам лечения ОНКОзаболеваний
 Function usl_ksg_FFOMS()
   Static arr_gr := {;
     {"1 - Хирургическое лечение",1},;
@@ -1735,7 +1733,7 @@ Function usl_ksg_FFOMS()
   viewtext(name_file,,,,.t.,,,2)
   return NIL
 
-***** 12.01.14
+** 12.01.14
 Function usl1FFOMS()
 Static su := "A01", suA := "01", suB := "001"
 Local k, buf := save_maxrow(), name_file := "uslugiF"+stxt, arr[2],;
@@ -1808,7 +1806,7 @@ if fl
 endif
 return NIL
 
-***** 03.01.19
+** 03.01.19
 Function usl2FFOMS()
 Local i, k, buf := save_maxrow(), name_file := "uslugiF"+stxt, sh := 85, HH := 80, mas1[5]
 //
@@ -1861,7 +1859,7 @@ fclose(fp)
 viewtext(name_file,,,,.t.,,,5)
 return NIL
 
-***** 23.12.21
+** 23.12.21
 Function usl6FFOMS(lksg)
 Local k, buf := save_maxrow(), name_file := "usl_ksg"+stxt, nu, sh := 80, HH := 78, ;
       t_arr, i, s, fl, v1, v2, mdate, fl1uslc, fl2uslc, ta[2], fl1del, fl2del, ret_arr
@@ -2113,7 +2111,7 @@ endif
 popup_prompt(r,c,1,mas_pmt,mas_msg,mas_fun)
 return NIL
 
-*****
+**
 Function f1spr_other(k)
 Local buf := save_maxrow(), mas1 := {}, mas2
 do case
@@ -2135,14 +2133,14 @@ close databases
 rest_box(buf)
 return NIL
 
-*****
+**
 Function f2spr_other(oBrow)
 oBrow:addColumn(TBColumnNew("Шифр", {|| sl->shifr }) )
 oBrow:addColumn(TBColumnNew(center("Наименование службы",40), {|| sl->name }) )
 status_key("^<Esc>^ - выход;  ^<Enter>^ - выбор службы")
 return NIL
 
-*****
+**
 Static Function f3spr_other(reg)
 Local buf := save_maxrow(), n_file := "uslugi"+stxt, sh := 80, HH := 60, l, k,;
       mas[2]
@@ -2247,7 +2245,7 @@ viewtext(n_file,,,,,,,2)
 rest_box(buf)
 return NIL
 
-*****
+**
 Function f5spr_other()
 Local fl := !empty(shifr)
 if fl
@@ -2259,7 +2257,7 @@ endif
 return fl
 
 *** 07.03.21
-***** список персонала
+** список персонала
 Function spr_personal()
 Local k, sh := 80, HH := 57, fl := .t., s
 mywait()
@@ -2301,7 +2299,7 @@ viewtext("spisok"+stxt,,,,,,,2)
 return NIL
 
 
-***** список отделений с кодами
+** список отделений с кодами
 Function spr_kod_otd()
 Local sh := 64, HH := 57, buf := save_maxrow(), n_file := "kod_otd"+stxt
 mywait()
@@ -2341,7 +2339,7 @@ viewtext(n_file)
 return NIL
 
 
-***** просмотр/печать справочника диагнозов
+** просмотр/печать справочника диагнозов
 Function spr_info_diagn(k)
 Static sk := 1
 Local str_sem, mas_pmt, mas_msg, mas_fun, j
@@ -2373,7 +2371,7 @@ endif
 return NIL
 
 
-***** 05.04.20
+** 05.04.20
 Function f_10diag(k)
 Local buf := savescreen(), i := 1, c1 := 1, c2 := 77, msh_b, msh_e, arr_t, s, s1
 Private pregim := k, uregim := 1
@@ -2464,7 +2462,7 @@ close databases
 restscreen(buf)
 return NIL
 
-***** 13.04.21
+** 13.04.21
 Function f1_10diag(oBrow)
 Local oColumn, blk, n := 65
 if pregim == 1
@@ -2506,7 +2504,7 @@ else
 endif
 return NIL
 
-*****
+**
 Function f2_10diag(nKey,oBrow)
 Static sshifr := "     ", sname := ""
 Local buf, buf24, fl := .f., s, rec, k := -1, bg := {|o,k| get_MKB10(o,k) }
@@ -2612,7 +2610,7 @@ do case
 endcase
 return k
 
-*****
+**
 Function f3_10diag(nKey,nInd)
 Local rec, i
 if nKey == K_F9
@@ -2641,7 +2639,7 @@ endif
 return -1
 
 
-*****
+**
 Function f10_diagnoz()
 Static srec
 Local buf := savescreen(), c1 := 1, c2 := 77, tmp_select := select()
@@ -2663,7 +2661,7 @@ endif
 return NIL
 
 
-*****
+**
 Function diag_to_num(lshifr,j)
 Local s, c5, c6, i, l, lnum := 0
 lshifr := alltrim(lshifr)
@@ -2689,7 +2687,7 @@ if (l := len(lshifr)) > 0
 endif
 return lnum
 
-***** 09.12.18 инициализировать все mem (public) - переменные
+** 09.12.18 инициализировать все mem (public) - переменные
 Function init_all_mem_public()
 // настраиваемые из всех задач
 Public mem_smp_input := 0
@@ -2885,7 +2883,7 @@ Public is_r_mu := .f.
 Public gpath_reg := "" // путь к файлам R_MU.DBF
 return NIL
 
-***** 11.05.20 удалить счет(а) по одному реестру СП и ТК и по этим людям создать заново счета (м.б.другое кол-во счетов)
+** 11.05.20 удалить счет(а) по одному реестру СП и ТК и по этим людям создать заново счета (м.б.другое кол-во счетов)
 Function ReCreate_some_Schet_From_FILE_SP(arr)
 Local arr_XML_info[8], cFile, arr_f, k, n, oXmlDoc, aerr := {}, t_arr[2],;
       i, s, rec_schet, rec_schet_xml, go_to_schet := .f., arr_schet := {}
@@ -3264,7 +3262,7 @@ else
 endif
 return NIL
 
-***** 03.04.13 дополнить файл ofile строками из файла nfile
+** 03.04.13 дополнить файл ofile строками из файла nfile
 Function f_append_file(ofile,nfile)
 Local s
 ft_use(nfile)
