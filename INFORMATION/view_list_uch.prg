@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-** 29.10.22
+** 31.01.23
 Function print_l_uch(mkod, par, regim, lnomer)
   // mkod - код больного по БД human
   Local sh := 80, HH := 77, buf := save_maxrow(), ;
@@ -20,6 +20,7 @@ Function print_l_uch(mkod, par, regim, lnomer)
   local arrKSLP, akslp, len_akslp, arrKIRO, akiro
   local k_kslp, tmp_kslp := {}
   local k_kiro, tmp_kiro := {}
+  local mas[2]
 
   DEFAULT par TO 1, regim TO 1, lnomer TO 0
   mywait()
@@ -706,10 +707,12 @@ Function print_l_uch(mkod, par, regim, lnomer)
     for each row in arrImplantant
       s := ''
       s := date_8(row[3]) + ' '
-      s := s + ;
-          padr(inieditspr(A__MENUVERT, get_implantant(), row[4]), 40) + ' ' + ;
-          padr(row[5], 35)
+      k := perenos(mas, inieditspr(A__MENUVERT, get_implantant(), row[4]), 40, ' ,;')
+      s := s + padr(mas[1], 40) + ' ' + padr(row[5], 35)
       add_string(s)
+      if k > 1
+        add_string(space(9) + padl(alltrim(mas[2]), 40))
+      endif
     next
   endif
 

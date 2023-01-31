@@ -581,21 +581,21 @@ Function v_implantant()
   add_string('')
   l := sh
   asort(arrImplantant, , ,{|x, y| (padr(x[7], 75) + x[1]) < (padr(y[7], 75) + y[1])}) 
-  vrem_local := arrImplantant[1, 7]
-  if len(alltrim(vrem_local)) < 2
-    add_string(center('Без группы', sh))
-  else  
-    add_string(center(vrem_local, sh))
-  endif
+  // vrem_local := arrImplantant[1, 7]
+  // if len(alltrim(vrem_local)) < 2
+  //   add_string(center('Без группы', sh))
+  // else  
+  //   add_string(center(vrem_local, sh))
+  // endif
   for i := 1 to len(arrImplantant)
-    if vrem_local != arrImplantant[i, 7]
-      if verify_FF(HH, .t., sh)
-      endif
-      vrem_local := arrImplantant[i, 7]
-      add_string('')
-      add_string(center(vrem_local, sh))
-      add_string('')
-    endif
+    // if vrem_local != arrImplantant[i, 7]
+    //   if verify_FF(HH, .t., sh)
+    //   endif
+    //   vrem_local := arrImplantant[i, 7]
+    //   add_string('')
+    //   add_string(center(vrem_local, sh))
+    //   add_string('')
+    // endif
     if verify_FF(HH, .t., sh)
     endif
     k := perenos(mas, alltrim(arrImplantant[i, 1]), l, ' ,;')
