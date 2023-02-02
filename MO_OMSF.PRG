@@ -699,62 +699,6 @@ if !fl .and. empty(val(human_->smo)) // если не ОМС
 endif
 return fl
 
-***** 05.01.20 является ли данная услуга услугой ТФОМС
-Function is_usluga_TFOMS__(lshifr,lshifr1,ldate_usl,;
-                         /*@*/arr_uet,/*@*/lbukva,/*@*/lst,/*@*/lidsp,/*@*/lvidpoms)
-Local _shifr, tmp_select := select(), fl := .f., y := 2020, lal := "lusl"
-y := year(ldate_usl)
-if select("LUSL") == 0
-  use_base("lusl")
-endif
-// if y < 2019
-//   lal += "18"
-// elseif y < 2020
-//   lal += "19"
-// endif
-lal := create_name_alias(lal, y)
-
-lst := 0 ; lvidpoms := "" ; lbukva := " "
-_shifr := iif(empty(lshifr1), lshifr, lshifr1)
-dbSelectArea(lal)
-find (padr(_shifr,10))
-if found() //.and. between_date(lusl->datebeg,lusl->dateend,ldate_usl)
-  fl := .t.
-  lbukva := alltrim(&lal.->bukva)
-  if len(lbukva) != 1 // для 18 года
-    lbukva := " "
-  endif
-  lst := &lal.->st
-  lidsp := int(val(&lal.->idsp))
-  if &lal.->(fieldpos("idsps")) > 0 .and. "," $ &lal.->idsps
-    lidsp := 0
-  endif
-  arr_uet := {&lal.->uetv,&lal.->uetd}
-  lvidpoms := alltrim(&lal.->vmp_s)
-endif
-if !fl
-  if select("LUSLF") == 0
-    use_base("luslf")
-  endif
-  lal := "luslf"
-  // if y < 2019
-  //   lal += "18"
-  // elseif y < 2020
-  //   lal += "19"
-  // endif
-  lal := create_name_alias(lal, y)
-
-  dbSelectArea(lal)
-  find (padr(_shifr,20))
-  if found() //.and. between_date(luslf->datebeg,luslf->dateend,ldate_usl)
-    fl := .t.
-    lbukva := " "
-    arr_uet := {&lal.->uetv,&lal.->uetd}
-  endif
-endif
-select (tmp_select)
-return fl // подтверждение, что услуга - ОМС
-
 ** 15.11.22 является ли данная услуга услугой ТФОМС
 Function is_usluga_TFOMS(lshifr, lshifr1, ldate_usl, ;
   /*@*/arr_uet, /*@*/lbukva, /*@*/lst, /*@*/lidsp, /*@*/lvidpoms)

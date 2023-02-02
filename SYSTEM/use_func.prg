@@ -88,7 +88,7 @@ Function use_base(sBase, lalias, lExcluUse, lREADONLY)
         R_Use(exe_dir + '_mo0usl', cur_dir + '_mo0usl', sBase + '20') .and. ;
         R_Use(exe_dir + '_mo1usl', cur_dir + '_mo1usl', sBase + '21') .and. ;
         R_Use(exe_dir + '_mo2usl', cur_dir + '_mo2usl', sBase + '22') .and. ;
-        R_Use(exe_dir + '_mo3usl', cur_dir + '_mo2usl', sBase)
+        R_Use(exe_dir + '_mo3usl', cur_dir + '_mo3usl', sBase)
     case sBase == 'luslc'
       fl := R_Use(exe_dir + '_mo8uslc', {cur_dir + '_mo8uslc', cur_dir + '_mo8uslu'}, sBase + '18') .and. ;
         R_Use(exe_dir + '_mo9uslc', {cur_dir + '_mo9uslc', cur_dir + '_mo9uslu'}, sBase + '19') .and. ;
