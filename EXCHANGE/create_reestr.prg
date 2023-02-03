@@ -6,84 +6,87 @@
 Static Sreestr_sem := "Работа с реестрами"
 Static Sreestr_err := "В данный момент с реестрами работает другой пользователь."
 
-** 28.01.23
+** 03.02.23
 Function create_reestr()
   Local buf := save_maxrow(), i, j, k := 0, k1 := 0, arr, bSaveHandler, fl, rec, pole, arr_m
   local nameArr
   local tip_lu
 
   if ! hb_user_curUser:IsAdmin()
-    return func_error(4,err_admin)
+    return func_error(4, err_admin)
   endif
   if find_unfinished_reestr_sp_tk()
-    return func_error(4, "Попытайтесь снова")
+    return func_error(4, 'Попытайтесь снова')
   endif
-  if (arr_m := year_month(T_ROW,T_COL+5,,3)) == NIL
+  if (arr_m := year_month(T_ROW, T_COL + 5, , 3)) == NIL
     return NIL
   endif
   //!!! ВНИМАНИЕ
-  // if 2022 == arr_m[1]
-    // return func_error(4, "Реестры за 2022 год недоступны")
   if DONT_CREATE_REESTR_YEAR == arr_m[1]
-    return func_error(4, "Реестры за " + str(DONT_CREATE_REESTR_YEAR, 4) + " год недоступны")
+    return func_error(4, 'Реестры за ' + str(DONT_CREATE_REESTR_YEAR, 4) + ' год недоступны')
   endif
-  if !myFileDeleted(cur_dir + "tmpb"+sdbf)
+  if !myFileDeleted(cur_dir + 'tmpb' + sdbf)
     return NIL
   endif
-  if !myFileDeleted(cur_dir + "tmp"+sdbf)
+  if !myFileDeleted(cur_dir + 'tmp' + sdbf)
     return NIL
   endif
-  arr := {"Предупреждение!",;
-          "",;
-          "Во время составления реестра",;
-          "никто не должен работать в задаче ОМС"}
-  n_message(arr,, "GR+/R", "W+/R",,, "G+/R")
+  arr := {'Предупреждение!', ;
+          '', ;
+          'Во время составления реестра', ;
+          'никто не должен работать в задаче ОМС'}
+  n_message(arr, , 'GR+/R', 'W+/R', , , 'G+/R')
   Private pkol := 0, psumma := 0, ;
           CODE_LPU := glob_mo[_MO_KOD_TFOMS], ;
           CODE_MO  := glob_mo[_MO_KOD_FFOMS]
-  stat_msg("Подождите, работаю...")
-  dbcreate(cur_dir + "tmpb",{;
-      {"kod_tmp"  , "N", 6,0},;
-      {"kod_human", "N", 7,0},;
-      {"fio"      , "C",50,0},;
-      {"n_data"   , "D", 8,0},;
-      {"k_data"   , "D", 8,0},;
-      {"cena_1"   , "N",11,2},;
-      {"PZKOL"    , "N", 3,0},;
-      {"PZ"       , "N", 2,0},;
-      {"ishod"    , "N", 3,0},;
-      {"tip"      , "N", 1,0},; // 1 - обычный реестр, 2 -диспансеризация
-      {"yes_del"  , "L", 1,0},; // надо ли удалить после дополнительной проверки
-      {"PLUS"     , "L", 1,0};  // включается ли в счет
+  stat_msg('Подождите, работаю...')
+  dbcreate(cur_dir + 'tmpb', { ;
+      {'kod_tmp'  , 'N', 6, 0}, ;
+      {'kod_human', 'N', 7, 0}, ;
+      {'fio'      , 'C', 50, 0}, ;
+      {'n_data'   , 'D', 8, 0}, ;
+      {'k_data'   , 'D', 8, 0}, ;
+      {'cena_1'   , 'N', 11, 2}, ;
+      {'PZKOL'    , 'N', 3, 0}, ;
+      {'PZ'       , 'N', 3, 0}, ;
+      {'ishod'    , 'N', 3, 0}, ;
+      {'tip'      , 'N', 1, 0}, ; // 1 - обычный реестр, 2 -диспансеризация
+      {'yes_del'  , 'L', 1, 0}, ; // надо ли удалить после дополнительной проверки
+      {'PLUS'     , 'L', 1, 0} ;  // включается ли в счет
      })
-  use (cur_dir + "tmpb") new
-  index on str(kod_human,7) to (cur_dir + "tmpb")
-  adbf := {;
-      {"MIN_DATE",    "D",     8,     0},;
-      {"DNI",         "N",     3,     0},;
-      {"NYEAR",       "N",     4,     0},; // отчетный год;;
-      {"NMONTH",      "N",     2,     0},; // отчетный месяц;;
-      {"KOL",         "N",     6,     0},;
-      {"SUMMA",       "N",    15,     2},;
-      {"KOD",         "N",     6,     0}}
-  for i := 0 to 99
-    aadd(adbf,{"PZ"+lstr(i), "N",9,2})
+  use (cur_dir + 'tmpb') new
+  index on str(kod_human, 7) to (cur_dir + 'tmpb')
+
+  adbf := { ;
+      {'MIN_DATE',    'D',     8,     0}, ;
+      {'DNI',         'N',     3,     0}, ;
+      {'NYEAR',       'N',     4,     0}, ; // отчетный год;;
+      {'NMONTH',      'N',     2,     0}, ; // отчетный месяц;;
+      {'KOL',         'N',     6,     0}, ;
+      {'SUMMA',       'N',    15,     2}, ;
+      {'"KOD',         'N',     6,     0}}
+  
+  // for i := 0 to 99
+  for i := 0 to 150   // для таблицы _moXunit 03.02.23
+    aadd(adbf, {'PZ' + lstr(i), 'N', 9, 2})
   next
-  mnyear := arr_m[1] ; mnmonth := arr_m[3]
-  dbcreate(cur_dir + "tmp",adbf)
-  Use (cur_dir + "tmp") new alias TMP
+  mnyear := arr_m[1]
+  mnmonth := arr_m[3]
+  dbcreate(cur_dir + 'tmp', adbf)
+
+  Use (cur_dir + 'tmp') new alias TMP
   append blank
   replace tmp->nyear with mnyear, tmp->nmonth with mnmonth, tmp->min_date with arr_m[6]
   R_Use(dir_server + 'mo_otd', , 'OTD')
-  R_Use(dir_server + "human_", , "HUMAN_")
-  R_Use(dir_server + "human", dir_server + "humand", "HUMAN")
+  R_Use(dir_server + 'human_', , 'HUMAN_')
+  R_Use(dir_server + 'human', dir_server + 'humand', 'HUMAN')
   set relation to recno() into HUMAN_
   dbseek(dtos(arr_m[5]),.t.)
   do while human->k_data <= arr_m[6] .and. !eof()
     if ++k1 % 100 == 0
-      @ maxrow(),1 say lstr(k1) color cColorSt2Msg
-      @ row(),col() say "/" color "W/R"
-      @ row(),col() say lstr(k) color cColorStMsg
+      @ maxrow(), 1 say lstr(k1) color cColorSt2Msg
+      @ row(), col() say '/' color 'W/R'
+      @ row(), col() say lstr(k) color cColorStMsg
     endif
       OTD->(dbGoto(human->OTD))
       if ! (OTD->(eof())) .and. ! (OTD->(bof()))
@@ -98,7 +101,7 @@ Function create_reestr()
           ++k
           if ! exist_reserve_KSG(human->kod, 'HUMAN')
             tmp->kol++
-            tmp->min_date := min(tmp->min_date,human->k_data)
+            tmp->min_date := min(tmp->min_date, human->k_data)
           endif
           tmp->summa += human->cena_1
         endif
@@ -109,16 +112,16 @@ Function create_reestr()
   close databases
   if k == 0
     rest_box(buf)
-    func_error(4, "Нет пациентов для включения в реестр с датой окончания "+arr_m[4])
+    func_error(4, 'Нет пациентов для включения в реестр с датой окончания ' + arr_m[4])
   else
-    Use (cur_dir + "tmp") new
+    Use (cur_dir + 'tmp') new
     k := sys_date - tmp->min_date
-    tmp->dni := iif(between(k,1,999), k, 0)
+    tmp->dni := iif(between(k, 1, 999), k, 0)
     go top
     rest_box(buf)
-    if Alpha_Browse(T_ROW,2,T_ROW+7,77, "f1create_reestr",color0,;
-                    "Невыписанные реестры случаев", "R/BG",,,,, "f2create_reestr",,;
-                    {'═','░','═', "N/BG,W+/N,B/BG,W+/B,R/BG",.f.,180} )
+    if Alpha_Browse(T_ROW, 2, T_ROW + 7, 77, 'f1create_reestr', color0, ;
+                    'Невыписанные реестры случаев', 'R/BG', , , , , 'f2create_reestr', , ;
+                    {'═','░','═', 'N/BG,W+/N,B/BG,W+/B,R/BG', .f., 180} )
       rest_box(buf)
       // if .f.
       if sys_date < stod(strzero(tmp->nyear,4)+strzero(tmp->nmonth,2)+ "11")

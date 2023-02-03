@@ -1764,7 +1764,7 @@ Function f1_create2reestr19(_nyear,_nmonth)
   endif
   return NIL
   
-** 24.02.22
+** 03.02.23
 Function create1reestr19(_recno,_nyear,_nmonth)
   Local buf := savescreen(), s, i, j, pole
   local nameArr
@@ -1774,7 +1774,8 @@ Function create1reestr19(_recno,_nyear,_nmonth)
   p_array_PZ := &nameArr
 
 
-  for j := 0 to 99
+  // for j := 0 to 99
+  for j := 0 to 150    // для таблицы _moXunit 03.02.23
     pole := "tmp->PZ"+lstr(j)
     mpz[j+1] := oldpz[j+1] := &pole
     atip[j+1] := "-"
