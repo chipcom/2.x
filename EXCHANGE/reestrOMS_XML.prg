@@ -1768,11 +1768,15 @@ Function f1_create2reestr19(_nyear,_nmonth)
 Function create1reestr19(_recno,_nyear,_nmonth)
   Local buf := savescreen(), s, i, j, pole
   local nameArr
-  Private mpz[100], oldpz[100], atip[100], p_array_PZ
+  // Private mpz[100], oldpz[100], atip[100], p_array_PZ
+  Private mpz[151], oldpz[151], atip[151], p_array_PZ
   
   nameArr := 'glob_array_PZ_' + last_digits_year( _nyear )
   p_array_PZ := &nameArr
 
+  my_debug(,print_array(mpz))
+  my_debug(,print_array(oldpz))
+  my_debug(,print_array(atip))
 
   // for j := 0 to 99
   for j := 0 to 150    // для таблицы _moXunit 03.02.23
