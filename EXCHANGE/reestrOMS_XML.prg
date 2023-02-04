@@ -1764,7 +1764,7 @@ Function f1_create2reestr19(_nyear,_nmonth)
   endif
   return NIL
   
-** 03.02.23
+** 04.02.23
 Function create1reestr19(_recno,_nyear,_nmonth)
   Local buf := savescreen(), s, i, j, pole
   local nameArr
@@ -1773,10 +1773,6 @@ Function create1reestr19(_recno,_nyear,_nmonth)
   
   nameArr := 'glob_array_PZ_' + last_digits_year( _nyear )
   p_array_PZ := &nameArr
-
-  my_debug(,print_array(mpz))
-  my_debug(,print_array(oldpz))
-  my_debug(,print_array(atip))
 
   // for j := 0 to 99
   for j := 0 to 150    // для таблицы _moXunit 03.02.23

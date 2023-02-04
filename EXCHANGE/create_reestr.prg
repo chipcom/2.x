@@ -221,7 +221,6 @@ Function create_reestr()
               pole := "tmp->PZ"+lstr(j)
               if tmp->nyear > 2018 // 2019 год
                 nameArr := 'glob_array_PZ_' + last_digits_year(tmp->nyear)
-                // if (i := ascan(glob_array_PZ_19, {|x| x[1] == j })) > 0 .and. !empty(glob_array_PZ_19[i,5])
                 if (i := ascan(&nameArr, {|x| x[1] == j })) > 0 .and. !empty(&nameArr.[i,5])
                   &pole := &pole + 1 // учёт по случаям
                 else
@@ -229,7 +228,6 @@ Function create_reestr()
                 endif
               else
                 nameArr := 'glob_array_PZ_' + '18'  // last_digits_year(tmp->nyear)
-                // if (i := ascan(glob_array_PZ_18, {|x| x[1] == j })) > 0 .and. !empty(glob_array_PZ_18[i,5])
                 if (i := ascan(&nameArr, {|x| x[1] == j })) > 0 .and. !empty(&nameArr.[i,5])
                   &pole := &pole + 1
                 else
