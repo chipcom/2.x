@@ -65,7 +65,7 @@ function getAdditionalCriteria( dateSl )
   endif
   return retCriteria
 
-****** 06.02.22
+** 04.02.23
 function loadCriteria21(val_year)
   local fl, ar, ar1, ar2, i
   local retCriteria := {}, lSchema := .f.
@@ -83,6 +83,7 @@ function loadCriteria21(val_year)
     R_Use(exe_dir + sbaseIt1, ,'IT1')
     ('IT1')->(dbGoTop())
     do while !('IT1')->(eof())
+      lSchema := .f.
       ar := {}
       ar1 := {}
       ar2 := {}
@@ -116,20 +117,19 @@ function loadCriteria21(val_year)
         aadd(retCriteria, {it1->USL_OK, padr(it1->CODE, 6), ar, ar1, ar2, ''})
       endif
       ('IT1')->(dbskip()) 
-      lSchema := .f.
     enddo
     ('SCHEMA')->(dbCloseArea())
     ('IT1')->(dbCloseArea())
 
-    asort(retCriteria,,,{|x, y| x[2] < y[2] })
+    asort(retCriteria, , , {|x, y| x[2] < y[2] })
   else
     fl := notExistsFileNSI( exe_dir + sbaseIt1 + sdbf )
   endif
   Select(tmp_select)
-  
+
   return retCriteria
 
-****** 06.02.22
+** 06.02.22
 function loadCriteria20(val_year)
   local fl, ar, ar1, ar2, i
   local retCriteria := {}
@@ -150,19 +150,19 @@ function loadCriteria20(val_year)
       if !empty(it1->ds)
         ar := Slist2arr(it1->ds)
         for i := 1 to len(ar)
-          ar[i] := padr(ar[i],5)
+          ar[i] := padr(ar[i], 5)
         next
       endif
       if !empty(it1->ds1)
         ar1 := Slist2arr(it1->ds1)
         for i := 1 to len(ar1)
-          ar1[i] := padr(ar1[i],5)
+          ar1[i] := padr(ar1[i], 5)
         next
       endif
       if !empty(it1->ds2)
         ar2 := Slist2arr(it1->ds2)
         for i := 1 to len(ar2)
-          ar2[i] := padr(ar2[i],5)
+          ar2[i] := padr(ar2[i], 5)
         next
       endif
       aadd(retCriteria, {it1->USL_OK, padr(it1->CODE, 3), ar, ar1, ar2})
@@ -175,7 +175,7 @@ function loadCriteria20(val_year)
   Select(tmp_select)
   return retCriteria
 
-****** 06.02.22
+** 06.02.22
 function loadCriteria19(val_year)
   local retCriteria := {}
   local tmp_select := select()
@@ -194,7 +194,7 @@ function loadCriteria19(val_year)
   Select(tmp_select)
   return retCriteria
 
-****** 06.02.22
+** 06.02.22
 function loadCriteria18(val_year)
   local retCriteria := {}
   local tmp_select := select()

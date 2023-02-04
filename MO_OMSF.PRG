@@ -42,72 +42,71 @@ if lusl == 1 .and. lkdate >= d_01_08_2017
 endif
 return len(_arr) > 0
 
-***** 06.02.22
+** 04.02.23
 Function f_oms_beremenn(sdiag)
-  Static arr := {"O10","O11","O12","O13","O14","O15","O16",;
-               "O20","O21","O22","O23","O24","O25","O26","O28",;
-               "O30","O31","O32","O33","O36","O40","O41",;
-               "O43","O44","O45","O46","O47","O98","O99",;
-               "Z33","Z34","Z35","Z36"}
+  Static arr := {'O10', 'O11', 'O12', 'O13', 'O14', 'O15', 'O16', ;
+               'O20', 'O21', 'O22', 'O23', 'O24', 'O25', 'O26', 'O28', ;
+               'O30', 'O31', 'O32', 'O33', 'O36', 'O40', 'O41', ;
+               'O43', 'O44', 'O45', 'O46', 'O47', 'O98', 'O99', ;
+               'Z33', 'Z34', 'Z35', 'Z36'}
   Local k := 0, j, c, s
   local ad_criteria := getAdditionalCriteria(0d20190101)
 
   pr_ds_it := 0
-  if (c := left(sdiag,1)) == "C"
+  if (c := left(sdiag, 1)) == 'C'
     pr_ds_it := k := 3 // онкология
-  elseif c == "O" .or. c == "Z"
-    if (s := left(sdiag,3)) == "O04"
+  elseif c == 'O' .or. c == 'Z'
+    if (s := left(sdiag, 3)) == 'O04'
       k := 1 // аборт
-    elseif ascan(arr,s) > 0
+    elseif ascan(arr, s) > 0
       k := 2 // беременность
     endif
   endif
-  if pr_ds_it == 0 .and. alltrim(sdiag) == "R54"
+  if pr_ds_it == 0 .and. alltrim(sdiag) == 'R54'
     pr_ds_it := 4
   endif
-  // if pr_ds_it == 0 .and. (j := ascan(arr_ad_cr_it19,{|x| x[1] == padr(sdiag,5) })) > 0
-  if pr_ds_it == 0 .and. (j := ascan(ad_criteria, {|x| x[1] == padr(sdiag,5) })) > 0
-    // pr_ds_it := arr_ad_cr_it19[j,2]
-    pr_ds_it := ad_criteria[j,2]
+  if pr_ds_it == 0 .and. (j := ascan(ad_criteria, {|x| x[1] == padr(sdiag, 5)})) > 0
+    pr_ds_it := ad_criteria[j, 2]
   endif
-  if eq_any(k,1,2) .and. type("m1USL_OK") == "N" .and. m1USL_OK == 4 // СМП
+  if eq_any(k,1,2) .and. type('m1USL_OK') == 'N' .and. m1USL_OK == 4 // СМП
     k := 0
   endif
   return k
 
-***** 02.01.18
+** 04.02.23
 Function f_valid_beremenn(sdiag)
-Local k
-if (ibrm := f_oms_beremenn(sdiag)) > 0
-  SetPos(rdiag,26)
-  mm_prer_b := iif(ibrm == 1, mm1prer_b, iif(ibrm == 2, mm2prer_b, mm3prer_b))
-  if ibrm == 1
-    DispOut("прерывание беременности",cDataCGet)
-    if !between(m1prer_b,0,2)
-      m1prer_b := 0
+ Local k
+
+  if (ibrm := f_oms_beremenn(sdiag)) > 0
+    SetPos(rdiag, 26)
+    mm_prer_b := iif(ibrm == 1, mm1prer_b, iif(ibrm == 2, mm2prer_b, mm3prer_b))
+    if ibrm == 1
+      DispOut('прерывание беременности', cDataCGet)
+      if !between(m1prer_b, 0, 2)
+        m1prer_b := 0
+      endif
+    elseif ibrm == 2
+      DispOut('дисп.набл.за беременной', cDataCGet)
+      if !between(m1prer_b, 0, 1)
+        m1prer_b := 0
+      endif
+    elseif ibrm == 3
+      DispOut('     боли при онкологии', cDataCGet)
+      k := iif(year(mk_data) > 2018, 4, 1)
+      if !between(m1prer_b, 0, k)
+        m1prer_b := 0
+      endif
     endif
-  elseif ibrm == 2
-    DispOut("дисп.набл.за беременной",cDataCGet)
-    if !between(m1prer_b,0,1)
-      m1prer_b := 0
+    if ibrm == 1 .and. m1prer_b == 0
+      mprer_b := space(28)
+    else
+      mprer_b := inieditspr(A__MENUVERT, mm_prer_b, m1prer_b)
     endif
-  elseif ibrm == 3
-    DispOut("     боли при онкологии",cDataCGet)
-    k := iif(year(mk_data) > 2018, 4, 1)
-    if !between(m1prer_b,0,k)
-      m1prer_b := 0
-    endif
-  endif
-  if ibrm == 1 .and. m1prer_b == 0
-    mprer_b := space(28)
   else
-    mprer_b := inieditspr(A__MENUVERT, mm_prer_b, m1prer_b)
+    m1prer_b := 0
+    mprer_b := space(28)
   endif
-else
-  m1prer_b := 0
-  mprer_b := space(28)
-endif
-return update_get("mprer_b")
+  return update_get('mprer_b')
 
 ***** 11.09.14 составить усечённые массивы учреждений/отделений на конкретную дату
 Function make_arr_uch_otd(mdate,mlpu)
