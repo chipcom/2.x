@@ -44,11 +44,11 @@ Function index_work_dir(exe_dir, cur_dir)
   sbase := '_mo_mkb'
   file_index := cur_dir + sbase + sntx
   if hb_FileExists(exe_dir + sbase + sdbf)
-    if ! hb_FileExists(file_index)
+    // if ! hb_FileExists(file_index)
       R_Use(exe_dir + sbase )
       index on shifr + str(ks, 1) to (cur_dir + sbase)
       close databases
-    endif
+    // endif
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
@@ -57,11 +57,11 @@ Function index_work_dir(exe_dir, cur_dir)
   sbase := '_mo_spec'
   file_index := cur_dir + sbase + sntx
   if hb_FileExists(exe_dir + sbase + sdbf)
-    if ! hb_FileExists(file_index)
+    // if ! hb_FileExists(file_index)
       R_Use(exe_dir + sbase )
       index on shifr + str(vzros_reb, 1) + str(prvs_new, 6) to (cur_dir + sbase)
       use
-    endif
+    // endif
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
@@ -70,11 +70,11 @@ Function index_work_dir(exe_dir, cur_dir)
   sbase := '_mo_prof'
   file_index := cur_dir + sbase + sntx
   if hb_FileExists(exe_dir + sbase + sdbf)
-    if ! hb_FileExists(file_index)
+    // if ! hb_FileExists(file_index)
       R_Use(exe_dir + sbase )
       index on shifr + str(vzros_reb, 1) + str(profil, 3) to (cur_dir + sbase)
       use
-    endif
+    // endif
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
@@ -158,11 +158,11 @@ Function index_work_dir(exe_dir, cur_dir)
   sbase := '_mo_impl'
   file_index := cur_dir + sbase + sntx
   if hb_FileExists(exe_dir + sbase + sdbf)
-    if ! hb_FileExists(file_index)
+    // if ! hb_FileExists(file_index)
       R_Use(exe_dir + sbase )
       index on str(ID, 4) to (cur_dir + sbase)
       use
-    endif
+    // endif
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
@@ -171,11 +171,11 @@ Function index_work_dir(exe_dir, cur_dir)
   sbase := '_mo_ovmp'
   file_index := cur_dir + sbase + sntx
   if hb_FileExists(exe_dir + sbase + sdbf)
-    if ! hb_FileExists(file_index)
+    // if ! hb_FileExists(file_index)
       R_Use(exe_dir + sbase )
       index on str(metod, 3) to (cur_dir + sbase)
       use
-    endif
+    // endif
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
@@ -184,13 +184,13 @@ Function index_work_dir(exe_dir, cur_dir)
   sbase := '_mo_N002'
   file_index := cur_dir + sbase + sntx
   if hb_FileExists(exe_dir + sbase + sdbf)
-    if ! hb_FileExists(file_index) .or. ;
-          ! hb_FileExists(cur_dir + sbase + 'd' + sntx)
+    // if ! hb_FileExists(file_index) .or. ;
+    //       ! hb_FileExists(cur_dir + sbase + 'd' + sntx)
       R_Use(exe_dir + sbase )
       index on str(id_st, 6) to (cur_dir + sbase)
       index on ds_st + kod_st to (cur_dir + sbase + 'd')
       use
-    endif
+    // endif
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
@@ -199,13 +199,13 @@ Function index_work_dir(exe_dir, cur_dir)
   sbase := '_mo_N003'
   file_index := cur_dir + sbase + sntx
   if hb_FileExists(exe_dir + sbase + sdbf)
-    if ! hb_FileExists(file_index) .or. ;
-          ! hb_FileExists(cur_dir + sbase + 'd' + sntx)
+    // if ! hb_FileExists(file_index) .or. ;
+    //       ! hb_FileExists(cur_dir + sbase + 'd' + sntx)
       R_Use(exe_dir + sbase )
       index on str(id_t, 6) to (cur_dir + sbase)
       index on ds_t + kod_t to (cur_dir + sbase + 'd')
       use
-    endif
+    // endif
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
@@ -214,13 +214,13 @@ Function index_work_dir(exe_dir, cur_dir)
   sbase := '_mo_N004'
   file_index := cur_dir + sbase + sntx
   if hb_FileExists(exe_dir + sbase + sdbf)
-    if ! hb_FileExists(file_index) .or. ;
-          ! hb_FileExists(cur_dir + sbase + 'd' + sntx)
+    // if ! hb_FileExists(file_index) .or. ;
+    //       ! hb_FileExists(cur_dir + sbase + 'd' + sntx)
       R_Use(exe_dir + sbase )
       index on str(id_n, 6) to (cur_dir + sbase)
       index on ds_n + kod_n to (cur_dir + sbase + 'd')
       use
-    endif
+    // endif
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
@@ -229,13 +229,13 @@ Function index_work_dir(exe_dir, cur_dir)
   sbase := '_mo_N005'
   file_index := cur_dir + sbase + sntx
   if hb_FileExists(exe_dir + sbase + sdbf)
-    if ! hb_FileExists(file_index) .or. ;
-          ! hb_FileExists(cur_dir + sbase + 'd' + sntx)
+    // if ! hb_FileExists(file_index) .or. ;
+    //       ! hb_FileExists(cur_dir + sbase + 'd' + sntx)
       R_Use(exe_dir + sbase )
       index on str(id_m, 6) to (cur_dir + sbase)
       index on ds_m + kod_m to (cur_dir + sbase + 'd')
       use
-    endif
+    // endif
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
@@ -244,11 +244,11 @@ Function index_work_dir(exe_dir, cur_dir)
   sbase := '_mo_N006'
   file_index := cur_dir + sbase + sntx
   if hb_FileExists(exe_dir + sbase + sdbf)
-    if ! hb_FileExists(file_index)
+    // if ! hb_FileExists(file_index)
       R_Use(exe_dir + sbase )
       index on ds_gr + str(id_t, 6) + str(id_n, 6) + str(id_m, 6) to (cur_dir + sbase)
       use
-    endif
+    // endif
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
@@ -257,11 +257,11 @@ Function index_work_dir(exe_dir, cur_dir)
   sbase := '_mo_N007'
   file_index := cur_dir + sbase + sntx
   if hb_FileExists(exe_dir + sbase + sdbf)
-    if ! hb_FileExists(file_index)
+    // if ! hb_FileExists(file_index)
       R_Use(exe_dir + sbase )
       index on str(id_mrf, 6) to (cur_dir + sbase)
       use
-    endif
+    // endif
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
@@ -270,11 +270,11 @@ Function index_work_dir(exe_dir, cur_dir)
   sbase := '_mo_N008'
   file_index := cur_dir + sbase + sntx
   if hb_FileExists(exe_dir + sbase + sdbf)
-    if ! hb_FileExists(file_index)
+    // if ! hb_FileExists(file_index)
       R_Use(exe_dir + sbase )
       index on str(id_mrf, 6) to (cur_dir + sbase)
       use
-    endif
+    // endif
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
@@ -283,11 +283,11 @@ Function index_work_dir(exe_dir, cur_dir)
   sbase := '_mo_N010'
   file_index := cur_dir + sbase + sntx
   if hb_FileExists(exe_dir + sbase + sdbf)
-    if ! hb_FileExists(file_index)
+    // if ! hb_FileExists(file_index)
       R_Use(exe_dir + sbase )
       index on str(id_igh, 6) to (cur_dir + sbase)
       use
-    endif
+    // endif
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
@@ -296,11 +296,11 @@ Function index_work_dir(exe_dir, cur_dir)
   sbase := '_mo_N011'
   file_index := cur_dir + sbase + sntx
   if hb_FileExists(exe_dir + sbase + sdbf)
-    if ! hb_FileExists(file_index)
+    // if ! hb_FileExists(file_index)
       R_Use(exe_dir + sbase )
       index on str(id_igh, 6) to (cur_dir + sbase)
       use
-    endif
+    // endif
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
@@ -309,13 +309,13 @@ Function index_work_dir(exe_dir, cur_dir)
   sbase := '_mo_N020'
   file_index := cur_dir + sbase + sntx
   if hb_FileExists(exe_dir + sbase + sdbf)
-    if ! hb_FileExists(file_index) .or. ;
-          ! hb_FileExists(cur_dir + sbase + 'n' + sntx)
+  //   if ! hb_FileExists(file_index) .or. ;
+  //         ! hb_FileExists(cur_dir + sbase + 'n' + sntx)
       R_Use(exe_dir + sbase )
       index on id_lekp to (cur_dir + sbase)
       index on upper(mnn) to (cur_dir + sbase + 'n')
       use
-    endif
+    // endif
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
@@ -324,11 +324,11 @@ Function index_work_dir(exe_dir, cur_dir)
   sbase := '_mo_N021'
   file_index := cur_dir + sbase + sntx
   if hb_FileExists(exe_dir + sbase + sdbf)
-    if ! hb_FileExists(file_index)
+    // if ! hb_FileExists(file_index)
       R_Use(exe_dir + sbase )
       index on code_sh + id_lekp to (cur_dir + sbase)
       use
-    endif
+    // endif
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
@@ -337,11 +337,11 @@ Function index_work_dir(exe_dir, cur_dir)
   sbase := '_mo_podr'
   file_index := cur_dir + sbase + sntx
   if hb_FileExists(exe_dir + sbase + sdbf)
-    if ! hb_FileExists(file_index)
+    // if ! hb_FileExists(file_index)
       R_Use(exe_dir + sbase )
       index on codemo + padr(upper(kodotd), 25) to (cur_dir + sbase)
       use
-    endif
+    // endif
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
@@ -350,11 +350,11 @@ Function index_work_dir(exe_dir, cur_dir)
   sbase := '_mo_prprk'
   file_index := cur_dir + sbase + sntx
   if hb_FileExists(exe_dir + sbase + sdbf)
-    if ! hb_FileExists(file_index)
+    // if ! hb_FileExists(file_index)
       R_Use(exe_dir + sbase )
       index on str(profil, 3) + str(profil_k, 3) to (cur_dir + sbase)
       use
-    endif
+    // endif
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
@@ -408,11 +408,11 @@ Function index_work_dir(exe_dir, cur_dir)
     // справочник ошибок
     sbase := '_mo_t005'
     file_index := cur_dir + sbase + sntx
-    if ! hb_FileExists(file_index)
+    // if ! hb_FileExists(file_index)
       R_Use(exe_dir + sbase )
       index on str(kod, 3) to (cur_dir + sbase)
       use
-    endif
+    // endif
   endif
 
   // справочник ОКАТО
