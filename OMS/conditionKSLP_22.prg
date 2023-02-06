@@ -1,4 +1,5 @@
-#include "function.ch"
+#include 'function.ch'
+
 
 // функции проверки применимости КСЛП в 2022 году
 //
@@ -36,7 +37,7 @@ function conditionKSLP_2_22(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_di
     endif
   return fl
   
-  ***** 18.01.22 проверка условия для применения КСЛП=3 для 2022 года
+***** 18.01.22 проверка условия для применения КСЛП=3 для 2022 года
 function conditionKSLP_3_22(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration)
   local fl := .f., age
 

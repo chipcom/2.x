@@ -194,6 +194,7 @@ mo_version.prg
 .\oms\verify_1_sluch.prg
 .\oms\conditionKSLP_21.prg
 .\oms\conditionKSLP_22.prg
+.\oms\conditionKSLP_23.prg
 .\oms\diagnoze.prg
 .\oms\mo_oms131.prg
 .\oms\errorFromTFOMS.prg
