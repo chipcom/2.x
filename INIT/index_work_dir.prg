@@ -4,7 +4,7 @@
 #define NUMBER_YEAR 5 // число лет для переиндексации назад
 #define INDEX_NEED  2 // число лет обязательной переиндексации
 
-** 29.01.23 проверка и переиндексирование справочников ТФОМС
+** 07.02.23 проверка и переиндексирование справочников ТФОМС
 Function index_work_dir(exe_dir, cur_dir)
   Local fl := .t., i, arr, buf := save_maxrow()
   local arrRefFFOMS := {}, row, row_flag := .t.
@@ -149,19 +149,6 @@ Function index_work_dir(exe_dir, cur_dir)
       index on okato + smo to (cur_dir + sbase)
       index on smo to (cur_dir + sbase + '2')
       index on okato + ogrn to (cur_dir + sbase + '3')
-      use
-    // endif
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
-
-  // impl - справочник имплантантов
-  sbase := '_mo_impl'
-  file_index := cur_dir + sbase + sntx
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    // if ! hb_FileExists(file_index)
-      R_Use(exe_dir + sbase )
-      index on str(ID, 4) to (cur_dir + sbase)
       use
     // endif
   else
@@ -369,37 +356,8 @@ Function index_work_dir(exe_dir, cur_dir)
   else
     fl := notExistsFileNSI(sbase)
   endif
-  // aadd(arrRefFFOMS, {FILE_NAME_SQL, .f., FILE_NAME_SQL + ' - SQL-файл справочников системы'})
 
-  // aadd(arrRefFFOMS, {'_mo_f006', .t., 'F006 - Классификатор видов контроля (VidExp)' } )
-  // aadd(arrRefFFOMS, {'_mo_f010', .f., 'F010 - Классификатор субъектов Российской Федерации (Subekti)' } )
-  // aadd(arrRefFFOMS, {'_mo_f011', .f., 'F011 - Классификатор типов документов, удостоверяющих личность (Tipdoc)' } )
-  // aadd(arrRefFFOMS, {'_mo_o001', .f., 'O001 - Общероссийский классификатор стран мира (ОКСМ)' } )
-  // aadd(arrRefFFOMS, {'_mo_q015', .t., 'Q015 - Перечень технологических правил реализации ФЛК в ИС ведения персонифицированного учета сведений об оказанной медицинской помощи (FLK_MPF)' } )
-  // aadd(arrRefFFOMS, {'_mo_q016', .t., 'Q016 - Перечень технологических правил реализации ФЛК в ИС ведения персонифицированного учета сведений об оказанной медицинской помощи (FLK_MPF)' } )
-  // aadd(arrRefFFOMS, {'_mo_q017', .t., 'Q017 - Перечень категорий проверок ФЛК и МЭК (TEST_K)' } )
-  // aadd(arrRefFFOMS, {'_mo_v002', .f., 'V002 - Классификатор профилей оказанной медицинской помощи (Rezult)' } )
-  // aadd(arrRefFFOMS, {'_mo_v009', .f., 'V009 - Классификатор результатов обращения за медицинской помощью' } )
-  // aadd(arrRefFFOMS, {'_mo_v010', .f., 'V010 - Классификатор способов оплаты медицинской помощи (Sposob)' } )
-  // aadd(arrRefFFOMS, {'_mo_v012', .f., 'V012 - Классификатор исходов заболевания (Ishod)' } )
-  // aadd(arrRefFFOMS, {'_mo_v015', .f., 'V015 - Классификатор медицинских специальностей (Medspec)' } )
-  // aadd(arrRefFFOMS, {'_mo_v016', .f., 'V016 - Классификатор типов диспансеризации (DispT)' } )
-  // aadd(arrRefFFOMS, {'_mo_v018', .f., 'V018 - Классификатор видов высокотехнологичной медицинской помощи (HVid)' } )
-  // aadd(arrRefFFOMS, {'_mo_v019', .t., 'V019 - Классификатор методов высокотехнологичной медицинской помощи (HMet)' } )
-  // aadd(arrRefFFOMS, {'_mo_v020', .f., 'V020 - Классификатор профилей койки' } )
-  // aadd(arrRefFFOMS, {'_mo_v021', .f., 'V021 - Классификатор медицинских специальностей (должностей) (MedSpec)' } )
-  // aadd(arrRefFFOMS, {'_mo_v022', .t., 'V022 - Классификатор моделей пациента при оказании высокотехнологичной медицинской помощи (ModPac)' } )
-  // aadd(arrRefFFOMS, {'_mo_v025', .f., 'V025 - Классификатор целей посещения (KPC)' } )
-  // aadd(arrRefFFOMS, {'_mo_v030', .t., 'V030 - Схемы лечения заболевания COVID-19 (TreatReg)' } )
-  // aadd(arrRefFFOMS, {'_mo_v031', .f., 'V031 - Группы препаратов для лечения заболевания COVID-19 (GroupDrugs)' } )
-  // aadd(arrRefFFOMS, {'_mo_v032', .f., 'V032 - Сочетание схемы лечения и группы препаратов (CombTreat)' } )
-  // aadd(arrRefFFOMS, {'_mo_v033', .f., 'V033 - Соответствие кода препарата схеме лечения (DgTreatReg)' } )
-  // aadd(arrRefFFOMS, {'_mo_v034', .f., 'V034 - Единицы измерения (UnitMeas)' } )
-  // aadd(arrRefFFOMS, {'_mo_v035', .f., 'V035 - Способы введения (MethIntro)' } )
-  // aadd(arrRefFFOMS, {'_mo_v036', .f., 'V036 - Перечень услуг, требующих имплантацию медицинских изделий (ServImplDv)' } )
-  // aadd(arrRefFFOMS, {'_mo_v037', .f., 'V037 - Перечень методов ВМП, требующих имплантацию медицинских изделий' } )
-  aadd(arrRefFFOMS, {'_mo_method_inj', .f., 'OID 1.2.643.5.1.13.13.11.1468 - Методы введения лекарственных препаратов' } )
-  aadd(arrRefFFOMS, {'_mo_impl', .f., '_mo_impl - Перечень допустимых имплантантов' } )
+  // aadd(arrRefFFOMS, {FILE_NAME_SQL, .f., FILE_NAME_SQL + ' - SQL-файл справочников системы'})
   aadd(arrRefFFOMS, {'_mo_t005', .t., 'T005 - Справочник ошибок при проведении технологического контроля Реестров сведений и Реестров счетов' } )
 
   for each row in arrRefFFOMS
