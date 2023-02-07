@@ -11,6 +11,7 @@ Function index_work_dir(exe_dir, cur_dir)
   local lSchema := .f.
   local countYear
   local file_index, sbase
+  local nSize
 
   public is_otd_dep := .f., glob_otd_dep := 0, mm_otd_dep := {}
 
@@ -358,7 +359,16 @@ Function index_work_dir(exe_dir, cur_dir)
   else
     fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
-  
+
+  sbase := exe_dir + 'chip_mo.db'
+  if hb_FileExists(sbase)
+// в дальнейшем удалить
+    if (nSize := hb_vfSize(sbase)) < 3362000
+      fl := func_error('Размер файла "' + sbase + '" меньше 3362000 байт. Обратитесь к разработчикам.')
+    endif
+  else
+    fl := notExistsFileNSI(sbase)
+  endif
   // aadd(arrRefFFOMS, {FILE_NAME_SQL, .f., FILE_NAME_SQL + ' - SQL-файл справочников системы'})
 
   // aadd(arrRefFFOMS, {'_mo_f006', .t., 'F006 - Классификатор видов контроля (VidExp)' } )
