@@ -431,7 +431,7 @@ function vmp_usl_check(val_year, exe_dir, cur_dir)  // справочник соответствия у
   endif
   return fl
 
-** 29.01.23
+** 08.02.23
 function dep_index_and_fill(val_year, exe_dir, cur_dir)
   local fl := .t.
   local sbase
@@ -442,12 +442,12 @@ function dep_index_and_fill(val_year, exe_dir, cur_dir)
   sbase := prefixFileRefName(val_year) + 'dep'  // справочник отделений на конкретный год
   file_index := cur_dir + sbase + sntx
   if hb_FileExists(exe_dir + sbase + sdbf)
-    if (year(sys_date) - val_year) < INDEX_NEED
+    // if (year(sys_date) - val_year) < INDEX_NEED
       lIndex := .t.
-    endif
-    if ! hb_FileExists(file_index)
-      lIndex := .t.
-    endif
+    // endif
+    // if ! hb_FileExists(file_index)
+    //   lIndex := .t.
+    // endif
     R_Use(exe_dir + sbase, , 'DEP')
     if lIndex
       index on str(code, 3) to (cur_dir + sbase) for codem == glob_mo[_MO_KOD_TFOMS]
@@ -488,7 +488,7 @@ function dep_index_and_fill(val_year, exe_dir, cur_dir)
   endif
   return fl
 
-** 29.01.23
+** 08.02.23
 function usl_Index(val_year, exe_dir, cur_dir)
   local fl := .t.
   local sbase
@@ -498,12 +498,12 @@ function usl_Index(val_year, exe_dir, cur_dir)
   sbase := prefixFileRefName(val_year) + 'usl'  // справочник услуг ТФОМС на конкретный год
   file_index := cur_dir + sbase + sntx
   if hb_FileExists(exe_dir + sbase + sdbf)
-    if (year(sys_date) - val_year) < INDEX_NEED
+    // if (year(sys_date) - val_year) < INDEX_NEED
       lIndex := .t.
-    endif
-    if ! hb_FileExists(file_index)
-      lIndex := .t.
-    endif
+    // endif
+    // if ! hb_FileExists(file_index)
+    //   lIndex := .t.
+    // endif
     R_Use(exe_dir + sbase, ,'LUSL')
     if lIndex
       index on shifr to (cur_dir + sbase)
@@ -525,25 +525,26 @@ function usl_Index(val_year, exe_dir, cur_dir)
   endif
   return fl
   
-** 29.01.23
+** 08.02.23
 function uslc_Index(val_year, exe_dir, cur_dir)
   local fl := .t.
-  local sbase, prefix := prefixFileRefName(val_year)
+  local sbase, prefix
   local index_usl_name
   local lIndex := .f.
   local file_index
   
+  prefix := prefixFileRefName(val_year)
   sbase :=  prefix + 'uslc'  // цены на услуги на конкретный год
   index_usl_name :=  prefix + 'uslu'  // 
   file_index := cur_dir + sbase + sntx
   if hb_FileExists(exe_dir + sbase + sdbf) .and. valtype(glob_mo) == 'A'
-    if (year(sys_date) - val_year) < INDEX_NEED
+    // if (year(sys_date) - val_year) < INDEX_NEED
       lIndex := .t.
-    endif
-    if ! hb_FileExists(file_index) .or. ;
-            ! hb_FileExists(cur_dir + index_usl_name + sntx)
-      lIndex := .t.
-    endif
+    // endif
+    // if ! hb_FileExists(file_index) .or. ;
+    //         ! hb_FileExists(cur_dir + index_usl_name + sntx)
+    //   lIndex := .t.
+    // endif
     R_Use(exe_dir + sbase, , 'LUSLC')
     if lIndex
       index on shifr + str(vzros_reb, 1) + str(depart, 3) + dtos(datebeg) to (cur_dir + sbase) ;
@@ -676,7 +677,7 @@ function uslc_Index(val_year, exe_dir, cur_dir)
   
   return fl
 
-** 29.01.23
+** 08.02.23
 function uslf_Index(val_year, exe_dir, cur_dir)
   local fl := .t.
   local sbase
@@ -686,12 +687,12 @@ function uslf_Index(val_year, exe_dir, cur_dir)
   sbase := prefixFileRefName(val_year) + 'uslf'  // справочник услуг ФФОМС на конкретный год
   file_index := cur_dir + sbase + sntx
   if hb_FileExists(exe_dir + sbase + sdbf)
-    if (year(sys_date) - val_year) < INDEX_NEED
+    // if (year(sys_date) - val_year) < INDEX_NEED
       lIndex := .t.
-    endif
-    if ! hb_FileExists(file_index)
-      lIndex := .t.
-    endif
+    // endif
+    // if ! hb_FileExists(file_index)
+    //   lIndex := .t.
+    // endif
     
     if lIndex
       R_Use(exe_dir + sbase, , 'LUSLF')
@@ -703,7 +704,7 @@ function uslf_Index(val_year, exe_dir, cur_dir)
   endif
   return fl
 
-** 29.01.23
+** 08.02.23
 function unit_Index(val_year, exe_dir, cur_dir)
   local fl := .t.
   local sbase
@@ -713,12 +714,12 @@ function unit_Index(val_year, exe_dir, cur_dir)
   sbase := prefixFileRefName(val_year) + 'unit'  // план-заказ на конкретный год
   file_index := cur_dir + sbase + sntx
   if hb_FileExists(exe_dir + sbase + sdbf)
-    if (year(sys_date) - val_year) < INDEX_NEED
+    // if (year(sys_date) - val_year) < INDEX_NEED
       lIndex := .t.
-    endif
-    if ! hb_FileExists(file_index)
-      lIndex := .t.
-    endif
+    // endif
+    // if ! hb_FileExists(file_index)
+    //   lIndex := .t.
+    // endif
     if lIndex
       R_Use(exe_dir + sbase )
       index on str(code, 3) to (cur_dir + sbase)
@@ -729,7 +730,7 @@ function unit_Index(val_year, exe_dir, cur_dir)
   endif
   return fl
 
-** 29.01.23
+** 08.02.23
 function shema_index(val_year, exe_dir, cur_dir)
   local fl := .t.
   local sbase
@@ -739,12 +740,12 @@ function shema_index(val_year, exe_dir, cur_dir)
   sbase := prefixFileRefName(val_year) + 'shema'  // 
   file_index := cur_dir + sbase + sntx
   if hb_FileExists(exe_dir + sbase + sdbf)
-    if (year(sys_date) - val_year) < INDEX_NEED
+    // if (year(sys_date) - val_year) < INDEX_NEED
       lIndex := .t.
-    endif
-    if ! hb_FileExists(file_index)
-      lIndex := .t.
-    endif
+    // endif
+    // if ! hb_FileExists(file_index)
+    //   lIndex := .t.
+    // endif
 
     if lIndex
       R_Use(exe_dir + sbase )
@@ -756,7 +757,7 @@ function shema_index(val_year, exe_dir, cur_dir)
   endif
   return fl
 
-** 29.01.23
+** 08.02.23
 function k006_index(val_year, exe_dir, cur_dir)
   local fl := .t.
   local sbase
@@ -767,14 +768,14 @@ function k006_index(val_year, exe_dir, cur_dir)
   file_index := cur_dir + sbase + sntx
   if hb_FileExists(exe_dir + sbase + sdbf)
     if hb_FileExists(exe_dir + sbase + '.dbt')
-      if (year(sys_date) - val_year) < INDEX_NEED
+      // if (year(sys_date) - val_year) < INDEX_NEED
         lIndex := .t.
-      endif
-      if ! hb_FileExists(file_index) .or. ;
-            ! hb_FileExists(cur_dir + sbase + '_' + sntx) .or. ;
-            ! hb_FileExists(cur_dir + sbase + 'AD' + sntx)
-        lIndex := .t.
-      endif
+      // endif
+      // if ! hb_FileExists(file_index) .or. ;
+      //       ! hb_FileExists(cur_dir + sbase + '_' + sntx) .or. ;
+      //       ! hb_FileExists(cur_dir + sbase + 'AD' + sntx)
+      //   lIndex := .t.
+      // endif
       if lIndex
         R_Use(exe_dir + sbase)
         index on substr(shifr, 1, 2) + ds + sy + age + sex + los to (cur_dir + sbase) // по диагнозу/операции

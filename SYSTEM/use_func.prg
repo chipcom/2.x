@@ -76,7 +76,7 @@ function close_use_base(sBase)
     endcase
   return nil
 
-** 29.12.22
+** 08.02.23
 Function use_base(sBase, lalias, lExcluUse, lREADONLY)
   Local fl := .t., sind1, sind2
 
@@ -94,7 +94,7 @@ Function use_base(sBase, lalias, lExcluUse, lREADONLY)
         R_Use(exe_dir + '_mo9uslc', {cur_dir + '_mo9uslc', cur_dir + '_mo9uslu'}, sBase + '19') .and. ;
         R_Use(exe_dir + '_mo0uslc', {cur_dir + '_mo0uslc', cur_dir + '_mo0uslu'}, sBase + '20') .and. ;
         R_Use(exe_dir + '_mo1uslc', {cur_dir + '_mo1uslc', cur_dir + '_mo1uslu'}, sBase + '21') .and. ;
-        R_Use(exe_dir + '_mo2uslc', {cur_dir + '_mo3uslc', cur_dir + '_mo3uslu'}, sBase + '22') .and. ;
+        R_Use(exe_dir + '_mo2uslc', {cur_dir + '_mo2uslc', cur_dir + '_mo2uslu'}, sBase + '22') .and. ;
         R_Use(exe_dir + '_mo3uslc', {cur_dir + '_mo3uslc', cur_dir + '_mo3uslu'}, sBase)
     case sBase == 'luslf'
       fl := R_Use(exe_dir + '_mo8uslf', cur_dir + '_mo8uslf', sBase + '18') .and. ;
@@ -119,19 +119,19 @@ Function use_base(sBase, lalias, lExcluUse, lREADONLY)
       fl := G_Use(dir_server + 'mo_pers',dir_server + 'mo_pers', lalias, , lExcluUse, lREADONLY)
     case sBase == 'mo_su'
       DEFAULT lalias TO 'MOSU'
-      fl := G_Use(dir_server + 'mo_su',{dir_server + 'mo_su', ;
+      fl := G_Use(dir_server + 'mo_su', {dir_server + 'mo_su', ;
                                     dir_server + 'mo_sush', ;
                                     dir_server + 'mo_sush1'}, lalias, , lExcluUse, lREADONLY)
     case sBase == 'uslugi'
       DEFAULT lalias TO 'USL'
-      fl := G_Use(dir_server + 'uslugi',{dir_server + 'uslugi', ;
+      fl := G_Use(dir_server + 'uslugi', {dir_server + 'uslugi', ;
                                     dir_server + 'uslugish', ;
                                     dir_server + 'uslugis1', ;
                                     dir_server + 'uslugisl'}, lalias, , lExcluUse, lREADONLY)
     case sBase == 'kartotek'
       fl := G_Use(dir_server + 'kartote_', ,'KART_', , lExcluUse, lREADONLY) .and. ;
           G_Use(dir_server + 'kartote2', ,'KART2', , lExcluUse, lREADONLY) .and. ;
-          G_Use(dir_server + 'kartotek',{dir_server + 'kartotek', ;
+          G_Use(dir_server + 'kartotek', {dir_server + 'kartotek', ;
                                        dir_server + 'kartoten', ;
                                        dir_server + 'kartotep', ;
                                        dir_server + 'kartoteu', ;
@@ -144,7 +144,7 @@ Function use_base(sBase, lalias, lExcluUse, lREADONLY)
       DEFAULT lalias TO 'HUMAN'
       fl := G_Use(dir_server + 'human_', ,'HUMAN_', , lExcluUse, lREADONLY) .and. ;
           G_Use(dir_server + 'human_2', ,'HUMAN_2', , lExcluUse, lREADONLY) .and. ;
-          G_Use(dir_server + 'human',{dir_server + 'humank', ;
+          G_Use(dir_server + 'human', {dir_server + 'humank', ;
                                     dir_server + 'humankk', ;
                                     dir_server + 'humann', ;
                                     dir_server + 'humand', ;
@@ -159,7 +159,7 @@ Function use_base(sBase, lalias, lExcluUse, lREADONLY)
     case sBase == 'human_u'
       DEFAULT lalias TO 'HU'
       fl := G_Use(dir_server + 'human_u_', ,'HU_', , lExcluUse, lREADONLY) .and. ;
-          G_Use(dir_server + 'human_u',{dir_server + 'human_u', ;
+          G_Use(dir_server + 'human_u', {dir_server + 'human_u', ;
                                       dir_server + 'human_uk', ;
                                       dir_server + 'human_ud', ;
                                       dir_server + 'human_uv', ;
@@ -169,7 +169,7 @@ Function use_base(sBase, lalias, lExcluUse, lREADONLY)
       endif
     case sBase == 'mo_hu'
       DEFAULT lalias TO 'MOHU'
-      fl := G_Use(dir_server + 'mo_hu',{dir_server + 'mo_hu', ;
+      fl := G_Use(dir_server + 'mo_hu', {dir_server + 'mo_hu', ;
                                     dir_server + 'mo_huk', ;
                                     dir_server + 'mo_hud', ;
                                     dir_server + 'mo_huv', ;
@@ -183,7 +183,7 @@ Function use_base(sBase, lalias, lExcluUse, lREADONLY)
     case sBase == 'schet'
       DEFAULT lalias TO 'SCHET'
       fl := G_Use(dir_server + 'schet_', ,'SCHET_', , lExcluUse, lREADONLY) .and. ;
-          G_Use(dir_server + 'schet',{dir_server + 'schetk', ;
+          G_Use(dir_server + 'schet', {dir_server + 'schetk', ;
                                     dir_server + 'schetn', ;
                                     dir_server + 'schetp', ;
                                     dir_server + 'schetd'}, lalias, , lExcluUse, lREADONLY)
@@ -193,68 +193,68 @@ Function use_base(sBase, lalias, lExcluUse, lREADONLY)
     case sBase == 'kartdelz'
       fl := G_Use(dir_server + 'kartdelz',dir_server + 'kartdelz', ,, lExcluUse, lREADONLY)
     case sBase == 'kart_st'
-      fl := G_Use(dir_server + 'kart_st',{dir_server + 'kart_st', ;
+      fl := G_Use(dir_server + 'kart_st', {dir_server + 'kart_st', ;
                                       dir_server + 'kart_st1'}, ,, lExcluUse, lREADONLY)
     case sBase == 'humanst'
       fl := G_Use(dir_server + 'humanst',dir_server + 'humanst', ,, lExcluUse, lREADONLY)
     case sBase == 'mo_pp'
       DEFAULT lalias TO 'HU'
-      fl := G_Use(dir_server + 'mo_pp',{dir_server + 'mo_pp_k', ;
+      fl := G_Use(dir_server + 'mo_pp', {dir_server + 'mo_pp_k', ;
                                     dir_server + 'mo_pp_d', ;
                                     dir_server + 'mo_pp_r', ;
                                     dir_server + 'mo_pp_i', ;
                                     dir_server + 'mo_pp_h'}, lalias, , lExcluUse, lREADONLY)
     case sBase == 'hum_p'
       DEFAULT lalias TO 'HU'
-      fl := G_Use(dir_server + 'hum_p',{dir_server + 'hum_pkk', ;
+      fl := G_Use(dir_server + 'hum_p', {dir_server + 'hum_pkk', ;
                                     dir_server + 'hum_pn', ;
                                     dir_server + 'hum_pd', ;
                                     dir_server + 'hum_pv', ;
                                     dir_server + 'hum_pc'}, lalias, , lExcluUse, lREADONLY)
     case sBase == 'hum_p_u'
       DEFAULT lalias TO 'HU'
-      fl := G_Use(dir_server + 'hum_p_u',{dir_server + 'hum_p_u', ;
+      fl := G_Use(dir_server + 'hum_p_u', {dir_server + 'hum_p_u', ;
                                       dir_server + 'hum_p_uk', ;
                                       dir_server + 'hum_p_ud', ;
                                       dir_server + 'hum_p_uv', ;
                                       dir_server + 'hum_p_ua'}, lalias, , lExcluUse, lREADONLY)
     case sBase == 'hum_ort'
-      fl := G_Use(dir_server + 'hum_ort',{dir_server + 'hum_ortk', ;
+      fl := G_Use(dir_server + 'hum_ort', {dir_server + 'hum_ortk', ;
                                       dir_server + 'hum_ortn', ;
                                       dir_server + 'hum_ortd', ;
                                       dir_server + 'hum_orto'},'HUMAN', , lExcluUse, lREADONLY)
     case sBase == 'hum_oru'
-      fl := G_Use(dir_server + 'hum_oru',{dir_server + 'hum_oru', ;
+      fl := G_Use(dir_server + 'hum_oru', {dir_server + 'hum_oru', ;
                                       dir_server + 'hum_oruk', ;
                                       dir_server + 'hum_orud', ;
                                       dir_server + 'hum_oruv', ;
                                       dir_server + 'hum_orua'},'HU', , lExcluUse, lREADONLY)
     case sBase == 'hum_oro'
-      fl := G_Use(dir_server + 'hum_oro',{dir_server + 'hum_oro', ;
+      fl := G_Use(dir_server + 'hum_oro', {dir_server + 'hum_oro', ;
                                       dir_server + 'hum_orov', ;
                                       dir_server + 'hum_orod'},'HO', , lExcluUse, lREADONLY)
     case sBase == 'kas_pl'
-      fl := G_Use(dir_server + 'kas_pl',{dir_server + 'kas_pl1', ;
+      fl := G_Use(dir_server + 'kas_pl', {dir_server + 'kas_pl1', ;
                                      dir_server + 'kas_pl2', ;
                                      dir_server + 'kas_pl3'}, lalias, , lExcluUse, lREADONLY)
     case sBase == 'kas_pl_u'
-      fl := G_Use(dir_server + 'kas_pl_u',{dir_server + 'kas_pl1u', ;
+      fl := G_Use(dir_server + 'kas_pl_u', {dir_server + 'kas_pl1u', ;
                                        dir_server + 'kas_pl2u'}, lalias, , lExcluUse, lREADONLY)
     case sBase == 'kas_ort'
-      fl := G_Use(dir_server + 'kas_ort',{dir_server + 'kas_ort1', ;
+      fl := G_Use(dir_server + 'kas_ort', {dir_server + 'kas_ort1', ;
                                       dir_server + 'kas_ort2', ;
                                       dir_server + 'kas_ort3', ;
                                       dir_server + 'kas_ort4', ;
                                       dir_server + 'kas_ort5'}, lalias, , lExcluUse, lREADONLY)
     case sBase == 'kas_ortu'
-      fl := G_Use(dir_server + 'kas_ortu',{dir_server + 'kas_or1u', ;
+      fl := G_Use(dir_server + 'kas_ortu', {dir_server + 'kas_or1u', ;
                                        dir_server + 'kas_or2u'}, lalias, , lExcluUse, lREADONLY)
     case sBase == 'mo_kekh'
       DEFAULT lalias TO 'HU'
       fl := G_Use(dir_server + 'mo_kekh',dir_server + 'mo_kekh', lalias, , lExcluUse, lREADONLY)
     case sBase == 'mo_keke'
       DEFAULT lalias TO 'EKS'
-      fl := G_Use(dir_server + 'mo_keke',{dir_server + 'mo_keket', ;
+      fl := G_Use(dir_server + 'mo_keke', {dir_server + 'mo_keket', ;
                                       dir_server + 'mo_kekee', ;
                                       dir_server + 'mo_keked'}, lalias, , lExcluUse, lREADONLY)
     case sBase == 'mo_kekez'

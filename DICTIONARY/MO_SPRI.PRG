@@ -11,20 +11,20 @@ Local str_sem, mas_pmt, mas_msg, mas_fun, j
 DEFAULT k TO 0
 do case
   case k == 0
-    mas_pmt := {"~Услуги",;
-                "~Диагнозы",;
-                "~Персонал",;
-                "~Онкология",;
+    mas_pmt := {"~Услуги", ;
+                "~Диагнозы", ;
+                "~Персонал", ;
+                "~Онкология", ;
                 "~Другие справочники"}
-    mas_msg := {"Услуги",;
-                "Диагнозы",;
-                "Персонал",;
-                "Просмотр справочников, относящихся к Приказу ФФОМС №59 по онкологии",;
+    mas_msg := {"Услуги", ;
+                "Диагнозы", ;
+                "Персонал", ;
+                "Просмотр справочников, относящихся к Приказу ФФОМС №59 по онкологии", ;
                 "Другие справочники"}
-    mas_fun := {"o_sprav(1)",;
-                "o_sprav(2)",;
-                "o_sprav(3)",;
-                "o_sprav(4)",;
+    mas_fun := {"o_sprav(1)", ;
+                "o_sprav(2)", ;
+                "o_sprav(3)", ;
+                "o_sprav(4)", ;
                 "o_sprav(5)"}
     if mem_kodotd == 2
       aadd(mas_pmt, "Коды ~отделений")
@@ -41,17 +41,17 @@ do case
   case k == 3
     spr_personal()
   case k == 4
-    mas_pmt := {"Услуги диагностики при дообследовании на ~ЗНО",;
-                "Услуги по типам лечения ~ОНКОзаболеваний",;
-                "Обязательные типы услуг для методов ВМП",;
+    mas_pmt := {"Услуги диагностики при дообследовании на ~ЗНО", ;
+                "Услуги по типам лечения ~ОНКОзаболеваний", ;
+                "Обязательные типы услуг для методов ВМП", ;
                 "Справочники N~0..."}
-    mas_msg := {"Вывод списка услуг диагностики при дообследовании в направлениях на ЗНО",;
-                "Вывод списка услуг по типам лечения ОНКОзаболеваний",;
-                "Вывод обязательных типов услуг для каждого метода ВМП в онкологических случаях",;
+    mas_msg := {"Вывод списка услуг диагностики при дообследовании в направлениях на ЗНО", ;
+                "Вывод списка услуг по типам лечения ОНКОзаболеваний", ;
+                "Вывод обязательных типов услуг для каждого метода ВМП в онкологических случаях", ;
                 "Распечатка справочников, участвующих в заполнении контрольного листа"}
-    mas_fun := {"o_sprav(11)",;
-                "o_sprav(12)",;
-                "o_sprav(13)",;
+    mas_fun := {"o_sprav(11)", ;
+                "o_sprav(12)", ;
+                "o_sprav(13)", ;
                 "o_sprav(14)"}
     popup_prompt(T_ROW-3-len(mas_pmt),T_COL-5,sk1,mas_pmt,mas_msg,mas_fun)
   case k == 5
@@ -65,20 +65,20 @@ do case
   case k == 13 // Обязательные типы услуг для методов ВМП
     pr_sprav_onk_vmp()
   case k == 14
-    mas_pmt := {"Классификатор стадий (N00~2)",;
-                "Классификатор Tumor (N00~3)",;
-                "Классификатор Nodus (N00~4)",;
-                "Классификатор Metastasis (N00~5)",;
+    mas_pmt := {"Классификатор стадий (N00~2)", ;
+                "Классификатор Tumor (N00~3)", ;
+                "Классификатор Nodus (N00~4)", ;
+                "Классификатор Metastasis (N00~5)", ;
                 "Справочник соответствия стадий TNM (N00~6)"}
-    mas_msg := {"Распечатка классификатора стадий (N002)",;
-                "Распечатка классификатора Tumor (N003)",;
-                "Распечатка классификатора Nodus (N004)",;
-                "Распечатка классификатора Metastasis (N005)",;
+    mas_msg := {"Распечатка классификатора стадий (N002)", ;
+                "Распечатка классификатора Tumor (N003)", ;
+                "Распечатка классификатора Nodus (N004)", ;
+                "Распечатка классификатора Metastasis (N005)", ;
                 "Распечатка справочника соответствия стадий TNM (N006)"}
-    mas_fun := {"o_sprav(21)",;
-                "o_sprav(22)",;
-                "o_sprav(23)",;
-                "o_sprav(24)",;
+    mas_fun := {"o_sprav(21)", ;
+                "o_sprav(22)", ;
+                "o_sprav(23)", ;
+                "o_sprav(24)", ;
                 "o_sprav(25)"}
     popup_prompt(T_ROW,T_COL-5,sk2,mas_pmt,mas_msg,mas_fun)
   case k == 21 //
@@ -111,70 +111,70 @@ Local str_sem, mas_pmt, mas_msg, mas_fun, j, s
 DEFAULT k TO 0
 do case
   case k == 0
-    mas_pmt := {"Поиск по ~шифру",;
-                "Услуги по стандарту ~ТФОМС",;
-                "Услуги Минздрава РФ (~ФФОМС)",;
-                "Список услуг по ~ОМС",;
-                "Список ~платных услуг",;
-                "Список услуг по ~ДМС",;
-                "Услуги с ~нулевой ценой",;
+    mas_pmt := {"Поиск по ~шифру", ;
+                "Услуги по стандарту ~ТФОМС", ;
+                "Услуги Минздрава РФ (~ФФОМС)", ;
+                "Список услуг по ~ОМС", ;
+                "Список ~платных услуг", ;
+                "Список услуг по ~ДМС", ;
+                "Услуги с ~нулевой ценой", ;
                 "Печать ~комплексных услуг"}
-    mas_msg := {"Просмотр конкретной услуги с поиском по шифру",;
-                "Распечатка списка услуг с ценами ТФОМС по ОМС",;
-                "Распечатка номенклатуры медицинских услуг Минздрава РФ (ФФОМС)",;
-                "Распечатка списка услуг с ценами по ОМС",;
-                "Распечатка списка услуг с ценами на платные услуги",;
-                "Распечатка списка услуг с ценами по ДМС",;
-                "Распечатка услуг, для которых разрешается ввод нулевой цены",;
+    mas_msg := {"Просмотр конкретной услуги с поиском по шифру", ;
+                "Распечатка списка услуг с ценами ТФОМС по ОМС", ;
+                "Распечатка номенклатуры медицинских услуг Минздрава РФ (ФФОМС)", ;
+                "Распечатка списка услуг с ценами по ОМС", ;
+                "Распечатка списка услуг с ценами на платные услуги", ;
+                "Распечатка списка услуг с ценами по ДМС", ;
+                "Распечатка услуг, для которых разрешается ввод нулевой цены", ;
                 "Распечатка комплексных услуг"}
-    mas_fun := {"fspr_uslugi(1)",;
-                "fspr_uslugi(2)",;
-                "fspr_uslugi(3)",;
-                "fspr_uslugi(4)",;
-                "fspr_uslugi(5)",;
-                "fspr_uslugi(6)",;
-                "fspr_uslugi(7)",;
+    mas_fun := {"fspr_uslugi(1)", ;
+                "fspr_uslugi(2)", ;
+                "fspr_uslugi(3)", ;
+                "fspr_uslugi(4)", ;
+                "fspr_uslugi(5)", ;
+                "fspr_uslugi(6)", ;
+                "fspr_uslugi(7)", ;
                 "fspr_uslugi(8)"}
     popup_prompt(T_ROW, T_COL-5, sk, mas_pmt, mas_msg, mas_fun)
   case k == 1
     v_1usluga()
   case k == 2
-    mas_pmt := {"~Даты смены цен на услуги",;
-                "~Цены на конкретную дату",;
+    mas_pmt := {"~Даты смены цен на услуги", ;
+                "~Цены на конкретную дату", ;
                 "Услуги ТФОМС -> ~наши услуги"}
-    mas_msg := {"Вывод списка изменений ТФОМС на цены услуг по конкретным датам",;
-                "Вывод списка услуг ТФОМС с ценами на указанную Вами дату",;
+    mas_msg := {"Вывод списка изменений ТФОМС на цены услуг по конкретным датам", ;
+                "Вывод списка услуг ТФОМС с ценами на указанную Вами дату", ;
                 "Привязка Ваших услуг к услугам ТФОМС"}
-    mas_fun := {"fspr_uslugi(11)",;
-                "fspr_uslugi(12)",;
+    mas_fun := {"fspr_uslugi(11)", ;
+                "fspr_uslugi(12)", ;
                 "fspr_uslugi(13)"}
     Private su := _su
     popup_prompt(T_ROW-len(mas_pmt)-3, T_COL-5, sk1, mas_pmt, mas_msg, mas_fun)
     _su := su
   case k == 3
-    mas_pmt := {"Номенклатура медуслуг ~ФФОМС",;
-                "~Стоматологические услуги",;
-                "Услуги ~телемедицины",;
-                "Операции на ~парных органах",;
-                "Классификатор ~видов ВМП",;
-                "Классификатор ~методов ВМП",;
-                "Услуги ФФОМС -> ~наши услуги",;
+    mas_pmt := {"Номенклатура медуслуг ~ФФОМС", ;
+                "~Стоматологические услуги", ;
+                "Услуги ~телемедицины", ;
+                "Операции на ~парных органах", ;
+                "Классификатор ~видов ВМП", ;
+                "Классификатор ~методов ВМП", ;
+                "Услуги ФФОМС -> ~наши услуги", ;
                 "Список ~имплантатов"}
-    mas_msg := {"Вывод списка услуг Минздрава РФ (ФФОМС) по подразделам",;
-                "Вывод списка стоматологических услуг Минздрава РФ (ФФОМС) по группам",;
-                "Распечатка списка услуг с использованием телемедицинских технологий",;
-                "Распечатка списка операций на парных органах (частях тела)",;
-                "Распечатка классификатора видов ВМП",;
-                "Распечатка классификатора методов ВМП (с группировкой по видам ВМП)",;
-                "Привязка Ваших услуг к услугам ФФОМС",;
+    mas_msg := {"Вывод списка услуг Минздрава РФ (ФФОМС) по подразделам", ;
+                "Вывод списка стоматологических услуг Минздрава РФ (ФФОМС) по группам", ;
+                "Распечатка списка услуг с использованием телемедицинских технологий", ;
+                "Распечатка списка операций на парных органах (частях тела)", ;
+                "Распечатка классификатора видов ВМП", ;
+                "Распечатка классификатора методов ВМП (с группировкой по видам ВМП)", ;
+                "Привязка Ваших услуг к услугам ФФОМС", ;
                 "Распечатка списка имплантатов"}
-    mas_fun := {"fspr_uslugi(21)",;
-                "fspr_uslugi(22)",;
-                "fspr_uslugi(23)",;
-                "fspr_uslugi(24)",;
-                "fspr_uslugi(25)",;
-                "fspr_uslugi(26)",;
-                "fspr_uslugi(27)",;
+    mas_fun := {"fspr_uslugi(21)", ;
+                "fspr_uslugi(22)", ;
+                "fspr_uslugi(23)", ;
+                "fspr_uslugi(24)", ;
+                "fspr_uslugi(25)", ;
+                "fspr_uslugi(26)", ;
+                "fspr_uslugi(27)", ;
                 "fspr_uslugi(30)"}
     k := len(mas_pmt)
     use_base("luslc")
@@ -244,12 +244,12 @@ return NIL
 
 ** 03.01.18
 Function f4_uslugi(reg)
-Local i, s := "Список услуг ", mas[2], buf := save_maxrow(),;
-      n_file := "uslugi"+stxt, sh := 80, HH := 60, l, k, j, lshifr, lshifr1, lname
-if (j := f_alert({"Необходим вывод списка отделений,",;
-                  "в которых разрешается ввод услуги?",;
-                  ""},;
-                 {" ~Нет "," ~Да "},;
+Local i, s := "Список услуг ", mas[2], buf := save_maxrow(), ;
+      n_file := cur_dir + "uslugi" + stxt, sh := 80, HH := 60, l, k, j, lshifr, lshifr1, lname
+if (j := f_alert({"Необходим вывод списка отделений,", ;
+                  "в которых разрешается ввод услуги?", ;
+                  ""}, ;
+                 {" ~Нет "," ~Да "}, ;
                  1,"N+/BG","R/BG",17,,col1menu )) == 0
   return NIL
 endif
@@ -267,7 +267,7 @@ add_string("")
 add_string(CENTER(s,sh))
 add_string("")
 if mem_trudoem == 2
-  Private arr_title := {space(sh-15)+"УЕТ "+iif(is_oplata==7,"вр.","взр")+"│УЕТ "+iif(is_oplata==7,"асс","дет"),;
+  Private arr_title := {space(sh-15)+"УЕТ "+iif(is_oplata==7,"вр.","взр")+"│УЕТ "+iif(is_oplata==7,"асс","дет"), ;
                         space(sh-15)+"───────┴───────"}
   aeval(arr_title, {|x| add_string(x) } )
   useUch_Usl()
@@ -277,11 +277,11 @@ else
 endif
 Use_base("lusl")
 Use_base("luslc")
-R_Use(dir_server+"mo_uch",,"LPU")
-R_Use(dir_server+"mo_otd",,"OTD")
-R_Use(dir_server+"usl_otd",dir_server+"usl_otd","UO")
-R_Use(dir_server+"uslugi",,"USL")
-index on iif(kod>0,"1","0")+fsort_usl(shifr) to (cur_dir+"tmp_usl")
+R_Use(dir_server + "mo_uch",,"LPU")
+R_Use(dir_server + "mo_otd",,"OTD")
+R_Use(dir_server + "usl_otd",dir_server + "usl_otd","UO")
+R_Use(dir_server + "uslugi",,"USL")
+index on iif(kod>0,"1","0")+fsort_usl(shifr) to (cur_dir + "tmp_usl")
 go top
 do while !eof()
   lshifr := ""
@@ -326,7 +326,7 @@ do while !eof()
           endif
         endif
       endif
-      k := perenos(mas,lshifr+lname+" ["+s+"]",l," ,;")
+      k := perenos(mas,lshifr+lname+" ["+s+"]",l," , ;")
       s := padr(mas[1],l)
       if mem_trudoem == 2
         select UU
@@ -404,10 +404,10 @@ endif
 return s
 
 
-** 01.12.21
-Static Function v_1usluga()
+** 08.02.23
+Function v_1usluga()
 Local arr_usl, atf := {0,"",""}, i := 1, k, mas[2], sh := 80, HH := 60, j := 0, j1, ;
-      sb, fl, lshifr, s, n_file := "usluga_1"+stxt
+      sb, fl, lshifr, s, n_file := cur_dir + "usluga_1" + stxt
 local prefix := prefixFileRefName(WORK_YEAR)
 
 if (arr_usl := input_usluga(atf)) != NIL
@@ -419,7 +419,7 @@ if (arr_usl := input_usluga(atf)) != NIL
   R_Use(dir_exe + prefix + 'dep', cur_dir + prefix + 'dep', 'DEP')
   Use_base("lusl")
   Use_base("luslc")
-  R_Use(dir_server+"uslugi",dir_server+"uslugi","USL")
+  R_Use(dir_server + "uslugi",dir_server + "uslugi","USL")
   add_string("")
   add_string(center("ПРОСМОТР УСЛУГИ",sh))
   add_string("")
@@ -441,7 +441,7 @@ if (arr_usl := input_usluga(atf)) != NIL
       endif
       lshifr += "."
     endif
-    k := perenos(mas,lshifr+" "+alltrim(usl->name)+" ["+f42_uslugi(1,s)+"]",sh," ,;")
+    k := perenos(mas,lshifr+" "+alltrim(usl->name)+" ["+f42_uslugi(1,s)+"]",sh," , ;")
     add_string(mas[1])
     if k > 1
       add_string(padl(alltrim(mas[2]),sh))
@@ -533,37 +533,40 @@ endif
 return NIL
 
 
-**
-Static Function v_k_uslugi()
-Local sh := 80, HH := 57, n_file := "k_uslugi"+stxt
-mywait()
-fp := fcreate(n_file) ; n_list := 1 ; tek_stroke := 0
-add_string("")
-add_string(center("КОМПЛЕКСНЫЕ УСЛУГИ",sh))
-add_string("")
-R_Use(dir_server+"uslugi",dir_server+"uslugish","USL")
-R_Use(dir_server+"uslugi1k",dir_server+"uslugi1k","U1K")
-set relation to shifr1 into USL
-R_Use(dir_server+"uslugi_k",dir_server+"uslugi_k","UK")
-go top
-do while !eof()
-  verify_FF(HH-3, .t., sh)
-  add_string("")
-  add_string(uk->shifr+" "+rtrim(uk->name))
-  select U1K
-  find (uk->shifr)
-  do while u1k->shifr == uk->shifr .and. !eof()
-    verify_FF(HH, .t., sh)
-    add_string("   "+u1k->shifr1+" "+rtrim(usl->name))
+** 08.02.23
+Function v_k_uslugi()
+  Local sh := 80, HH := 57, n_file := cur_dir + 'k_uslugi' + stxt
+
+  mywait()
+  fp := fcreate(n_file)
+  n_list := 1
+  tek_stroke := 0
+  add_string('')
+  add_string(center('КОМПЛЕКСНЫЕ УСЛУГИ', sh))
+  add_string('')
+  R_Use(dir_server + 'uslugi', dir_server + 'uslugish', 'USL')
+  R_Use(dir_server + 'uslugi1k', dir_server + 'uslugi1k', 'U1K')
+  set relation to shifr1 into USL
+  R_Use(dir_server + 'uslugi_k', dir_server + 'uslugi_k', 'UK')
+  go top
+  do while !eof()
+    verify_FF(HH - 3, .t., sh)
+    add_string('')
+    add_string(uk->shifr + ' ' + rtrim(uk->name))
+    select U1K
+    find (uk->shifr)
+    do while u1k->shifr == uk->shifr .and. !eof()
+      verify_FF(HH, .t., sh)
+      add_string('   ' + u1k->shifr1 + ' ' + rtrim(usl->name))
+      skip
+    enddo
+    select UK
     skip
   enddo
-  select UK
-  skip
-enddo
-close databases
-fclose(fp)
-viewtext(n_file,,,,,,,2)
-return NIL
+  close databases
+  fclose(fp)
+  viewtext(n_file, , , , , , , 2)
+  return NIL
 
 **  31.01.23
 Function v_implantant()
@@ -598,7 +601,7 @@ Function v_implantant()
     // endif
     if verify_FF(HH, .t., sh)
     endif
-    k := perenos(mas, alltrim(arrImplantant[i, 1]), l, ' ,;')
+    k := perenos(mas, alltrim(arrImplantant[i, 1]), l, ' , ;')
     s := padr(mas[1], l)
     add_string(s)
     if k > 1
@@ -611,65 +614,68 @@ Function v_implantant()
   
 
 
-**
-Static Function v_nulusluga()
-Local mas[2], k, l, s, sh := 80, HH := 57, n_file := "n_uslugi"+stxt
-mywait()
-fp := fcreate(n_file) ; n_list := 1 ; tek_stroke := 0
-add_string("")
-add_string(center("УСЛУГИ, для которых разрешается ввод нулевой цены",sh))
-if mem_trudoem == 2
-  Private arr_title := {space(sh-15)+"УЕТ "+iif(is_oplata==7,"вр.","взр")+"│УЕТ "+iif(is_oplata==7,"асс","дет"),;
-                        space(sh-15)+"───────┴───────"}
-  aeval(arr_title, {|x| add_string(x) } )
-  useUch_Usl()
-  l := sh-16
-else
-  l := sh
-endif
-R_Use(dir_server+"uslugi",,"USL")
-for i := 1 to 2
-  add_string("")
-  add_string(center(iif(i==1,"[ ОМС ]","[ Платные услуги ]"),sh))
-  add_string("")
-  index on iif(kod>0,"1","0")+fsort_usl(shifr) to (cur_dir+"tmp_usl") ;
-        for !empty(shifr) .and. iif(i==1,is_nul,is_nulp)
-  go top
-  do while !eof()
-    if mem_trudoem == 2
-      if verify_FF(HH, .t., sh)
-        aeval(arr_title, {|x| add_string(x) } )
-      endif
-    else
-      verify_FF(HH, .t., sh)
-    endif
-    s := rtrim(usl->shifr)+" "
-    //if usl->zf == 1
-      //s += "[ЗФ] "
-    //endif
-    k := perenos(mas,s+alltrim(usl->name),l," ,;")
-    s := padr(mas[1],l)
-    if mem_trudoem == 2
-      select UU
-      find (str(usl->kod,4))
-      if is_oplata == 7
-        s += put_val_0(uu->vkoef_v,8,4)+put_val_0(uu->akoef_v,8,4)
+** 08.02.23
+Function v_nulusluga()
+  Local mas[2], k, l, s, sh := 80, HH := 57, n_file := cur_dir + 'n_uslugi' + stxt
+
+  mywait()
+  fp := fcreate(n_file)
+  n_list := 1
+  tek_stroke := 0
+  add_string('')
+  add_string(center('УСЛУГИ, для которых разрешается ввод нулевой цены', sh))
+  if mem_trudoem == 2
+    Private arr_title := {space(sh - 15) + 'УЕТ ' + iif(is_oplata == 7, 'вр.', 'взр') + '│УЕТ ' + iif(is_oplata == 7, 'асс', 'дет'), ;
+                        space(sh - 15) + '───────┴───────'}
+    aeval(arr_title, {|x| add_string(x) })
+    useUch_Usl()
+    l := sh - 16
+  else
+    l := sh
+  endif
+  R_Use(dir_server + 'uslugi', , 'USL')
+  for i := 1 to 2
+    add_string('')
+    add_string(center(iif(i == 1, '[ ОМС ]', '[ Платные услуги ]'), sh))
+    add_string('')
+    index on iif(kod > 0, '1', '0') + fsort_usl(shifr) to (cur_dir + 'tmp_usl') ;
+        for !empty(shifr) .and. iif(i == 1, is_nul, is_nulp)
+    go top
+    do while !eof()
+      if mem_trudoem == 2
+        if verify_FF(HH, .t., sh)
+          aeval(arr_title, {|x| add_string(x)})
+        endif
       else
-        s += put_val_0(uu->koef_v,8,4)+put_val_0(uu->koef_r,8,4)
+        verify_FF(HH, .t., sh)
       endif
-    endif
-    add_string(s)
-    if k > 1
-      add_string(padl(alltrim(mas[2]),l))
-    endif
-    select USL
-    skip
-  enddo
-next
-close databases
-fclose(fp)
-viewtext(n_file,,,,,,,2)
-return NIL
+      s := rtrim(usl->shifr) + ' '
+      //if usl->zf == 1
+        //s += '[ЗФ] '
+      //endif
+      k := perenos(mas, s + alltrim(usl->name), l, ' , ;')
+      s := padr(mas[1], l)
+      if mem_trudoem == 2
+        select UU
+        find (str(usl->kod, 4))
+        if is_oplata == 7
+          s += put_val_0(uu->vkoef_v, 8, 4) + put_val_0(uu->akoef_v, 8, 4)
+        else
+          s += put_val_0(uu->koef_v, 8, 4) + put_val_0(uu->koef_r, 8, 4)
+        endif
+      endif
+      add_string(s)
+      if k > 1
+        add_string(padl(alltrim(mas[2]), l))
+      endif
+      select USL
+      skip
+    enddo
+  next
+  close databases
+  fclose(fp)
+  viewtext(n_file, , , , , , , 2)
+  return NIL
 
 ** 01.12.21 даты смены цен
 Function usl1TFOMS()
@@ -678,9 +684,9 @@ Function usl1TFOMS()
   local sbase, tmpAlias
 
   mywait()
-  dbcreate(cur_dir+"tmp",{{"ibeg","N",1,0},{"iend","N",1,0},{"data","D",8,0}})
-  use (cur_dir+"tmp") new
-  index on dtos(data) to (cur_dir+"tmp")
+  dbcreate(cur_dir + "tmp",{{"ibeg","N",1,0},{"iend","N",1,0},{"data","D",8,0}})
+  use (cur_dir + "tmp") new
+  index on dtos(data) to (cur_dir + "tmp")
   use_base("luslc")
 
   for i := 2018 to WORK_YEAR
@@ -719,11 +725,11 @@ Function usl1TFOMS()
   t_arr[BR_LEFT] := T_COL-5
   t_arr[BR_RIGHT] := t_arr[BR_LEFT]+26
   t_arr[BR_COLOR] := color0
-  t_arr[BR_COLUMN] := {{ "Даты смены;   цен",{|| iif(tmp->ibeg==1,full_date(tmp->data),space(10)) } },;
+  t_arr[BR_COLUMN] := {{ "Даты смены;   цен",{|| iif(tmp->ibeg==1,full_date(tmp->data),space(10)) } }, ;
                      { "Окончание; действия;  услуг",{|| iif(tmp->iend==1,full_date(tmp->data),space(10)) } }}
   t_arr[BR_STAT_MSG] := {|| status_key("^<Esc>^ - выход;  ^<Enter>^ - выбор") }
   t_arr[BR_ENTER] := {|| ret := {tmp->data,tmp->ibeg,tmp->iend} }
-  use (cur_dir+"tmp") index (cur_dir+"tmp") new
+  use (cur_dir + "tmp") index (cur_dir + "tmp") new
   keyboard chr(K_END)
   edit_browse(t_arr)
   close databases
@@ -733,18 +739,18 @@ Function usl1TFOMS()
     dy := year(mdate)
     scode := glob_mo[_MO_KOD_TFOMS]
     mywait()
-    dbcreate(cur_dir+"tmp1",{{"shifr","C",10,0},;
-                           {"flv","L",1,0},;
-                           {"fld","L",1,0},;
-                           {"depart","N",3,0},;
-                           {"cenav","N",10,2},;
+    dbcreate(cur_dir + "tmp1",{{"shifr","C",10,0}, ;
+                           {"flv","L",1,0}, ;
+                           {"fld","L",1,0}, ;
+                           {"depart","N",3,0}, ;
+                           {"cenav","N",10,2}, ;
                            {"cenad","N",10,2}})
 
     sbase := prefixFileRefName(dy) + 'dep'
     R_Use(dir_exe + sbase, cur_dir + sbase, 'DEP')
 
-    use (cur_dir+"tmp1") new
-    index on shifr+str(depart,3) to (cur_dir+"tmp1")
+    use (cur_dir + "tmp1") new
+    index on shifr+str(depart,3) to (cur_dir + "tmp1")
     fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
     add_string(glob_mo[_MO_SHORT_NAME]+iif(valtype(ret_arr)=="A", " ("+ret_arr[2]+" - "+ret_arr[1]+")",""))
     if ret[2] == 1
@@ -787,7 +793,7 @@ Function usl1TFOMS()
       lal := create_name_alias(lal, dy)
       set relation to shifr into (lal)
 
-      index on fsort_usl(shifr) to (cur_dir+"tmp1")
+      index on fsort_usl(shifr) to (cur_dir + "tmp1")
       go top
       old := space(10)
       do while !eof()
@@ -868,7 +874,7 @@ Function usl1TFOMS()
       lal := create_name_alias(lal, dy)
       set relation to shifr into (lal)
 
-      index on fsort_usl(shifr) to (cur_dir+"tmp1")
+      index on fsort_usl(shifr) to (cur_dir + "tmp1")
       go top
       old := space(10)
       do while !eof()
@@ -951,15 +957,15 @@ return ret_arr
 ** 08.12.21
 Function usl2TFOMS()
   Static sdate
-  Local k, buf := save_maxrow(), name_file := "uslugi"+stxt, nu, ret_arr,;
-      sh := 80, HH := 60, t_arr, i, s, fl, v1, v2, mdate, fl1uslc, fl2uslc,;
+  Local k, buf := save_maxrow(), name_file := "uslugi"+stxt, nu, ret_arr, ;
+      sh := 80, HH := 60, t_arr, i, s, fl, v1, v2, mdate, fl1uslc, fl2uslc, ;
       ta[2], lyear, fl1del, fl2del, len_ksg := 10
   local arrKSLP, rowKSLP, tmpKSLP, arrKIRO, rowKIRO, tmpKIRO
   local sbase
 
   DEFAULT sdate TO sys1_date
-  mdate := input_value(20,5,22,73,color1,;
-                     "Дата, по состоянию на которую выводятся цены на услуги",;
+  mdate := input_value(20,5,22,73,color1, ;
+                     "Дата, по состоянию на которую выводятся цены на услуги", ;
                      sdate)
   if mdate == NIL
     return NIL
@@ -1028,9 +1034,9 @@ Function usl2TFOMS()
       sbase := prefixFileRefName(lyear) + 'k006'
       R_Use(exe_dir + sbase, , 'K006')
     
-      index on SHIFR+str(ns,6) to (cur_dir+"tmp_k006") unique
-      index on SHIFR+str(ns,6)+ds+sy to (cur_dir+"tmp_k006_")
-      set index to (cur_dir+"tmp_k006"),(cur_dir+"tmp_k006_")
+      index on SHIFR+str(ns,6) to (cur_dir + "tmp_k006") unique
+      index on SHIFR+str(ns,6)+ds+sy to (cur_dir + "tmp_k006_")
+      set index to (cur_dir + "tmp_k006"),(cur_dir + "tmp_k006_")
     endif
     use_base("luslc")
     use_base("lusl")
@@ -1039,9 +1045,9 @@ Function usl2TFOMS()
 
     dbSelectArea(lal)
     if t_arr[2] > 500
-      index on fsort_usl(shifr) to (cur_dir+"tmplu") for is_ksg(shifr,t_arr[2]-500) .and. datebeg >= boy(mdate)
+      index on fsort_usl(shifr) to (cur_dir + "tmplu") for is_ksg(shifr,t_arr[2]-500) .and. datebeg >= boy(mdate)
     else
-      index on fsort_usl(shifr) to (cur_dir+"tmp") for usl2arr(shifr)[1]==k .and. !is_ksg(shifr)
+      index on fsort_usl(shifr) to (cur_dir + "tmp") for usl2arr(shifr)[1]==k .and. !is_ksg(shifr)
     endif
     go top
     do while !eof()
@@ -1168,38 +1174,39 @@ Function ret_vozrast_k006(s)
 ** 08.12.21
 Function ret_duration_k006(s,s1)
   Static sd := "день", sdr := "дня", sdm := "дней"
-  Local arr := {"1-3 " + s1 + sdr,;                   //  1
-              "4 " + s1 + sdr + " и более",;          //  2
-              "1-6 " + s1 + sdm,;                     //  3
-              "7 " + s1 + sdm + " и более",;          //  4
-              "21 " + s1 + sd + " и более",;          //  5
-              "1-20 " + s1 + sdm,;                    //  6
-              "1 " + s1 + sd,;                        //  7
-              "4-7 " + s1 + sdm,;                     //  8
-              "8-10 " + s1 + sdm,;                    //  9
+  Local arr := {"1-3 " + s1 + sdr, ;                   //  1
+              "4 " + s1 + sdr + " и более", ;          //  2
+              "1-6 " + s1 + sdm, ;                     //  3
+              "7 " + s1 + sdm + " и более", ;          //  4
+              "21 " + s1 + sd + " и более", ;          //  5
+              "1-20 " + s1 + sdm, ;                    //  6
+              "1 " + s1 + sd, ;                        //  7
+              "4-7 " + s1 + sdm, ;                     //  8
+              "8-10 " + s1 + sdm, ;                    //  9
               "11 " + s1 + sdm + " и более"}          // 10
   Local i := int(val(s))
 
   return "дл-ть " + iif(between(i, 1, 10), arr[i], "")
 
-** 14.01.19
-Static Function f_ret_kz_ksg(lkz,lkslp,lkiro)
-Local s := 'коэф-т затратоёмкости '+lstr(lkz,5,2)
-if !empty(lkslp)
-  s += '; КСЛП: '+alltrim(lkslp)
-endif
-if !empty(lkiro)
-  s += '; КИРО: '+alltrim(lkiro)
-endif
-return s
+** 08.02.23
+Function f_ret_kz_ksg(lkz, lkslp, lkiro)
+  Local s := 'коэф-т затратоёмкости ' + lstr(lkz, 5, 2)
+
+  if !empty(lkslp)
+    s += '; КСЛП: ' + alltrim(lkslp)
+  endif
+  if !empty(lkiro)
+    s += '; КИРО: ' + alltrim(lkiro)
+  endif
+  return s
 
 ** 01.12.21
 Function usl3TFOMS()
-Local i, k, buf := save_maxrow(), name_file := "uslugi"+stxt,;
+Local i, k, buf := save_maxrow(), name_file := "uslugi"+stxt, ;
       sh := 85, HH := 80, mas1[5], mas2[5], arr[5], k1, k2, t_arr, mdate, lyear
 //
-if (mdate := input_value(20,5,22,74,color1,;
-                         "Введите дату, на которую необходимо получить информацию",;
+if (mdate := input_value(20,5,22,74,color1, ;
+                         "Введите дату, на которую необходимо получить информацию", ;
                          sys_date)) == NIL
   return NIL
 endif
@@ -1214,8 +1221,8 @@ if (k := popup_2array(usl9TFOMS(mdate),T_ROW,T_COL-5,su,1,@t_arr,"Выберите групп
   su := k
   mywait()
   arr_title := {;
-"──────────────────────────────────────────┬──────────────────────────────────────────",;
-" Справочник ТФОМС                         │ Наш справочник услуг                     ",;
+"──────────────────────────────────────────┬──────────────────────────────────────────", ;
+" Справочник ТФОМС                         │ Наш справочник услуг                     ", ;
 "──────────────────────────────────────────┴──────────────────────────────────────────"}
   fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
   add_string(center("Список услуг по группе",sh))
@@ -1223,9 +1230,9 @@ if (k := popup_2array(usl9TFOMS(mdate),T_ROW,T_COL-5,su,1,@t_arr,"Выберите групп
   add_string(center('по состоянию на '+date_month(mdate,.t.),sh))
   add_string("")
   aeval(arr_title, {|x| add_string(x) } )
-  dbcreate(cur_dir+"tmp",{{"shifr","C",10,0}})
-  use (cur_dir+"tmp") new
-  R_Use(dir_server+"uslugi",,"USL")
+  dbcreate(cur_dir + "tmp",{{"shifr","C",10,0}})
+  use (cur_dir + "tmp") new
+  R_Use(dir_server + "uslugi",,"USL")
   go top
   do while !eof()
     lshifr1 := opr_shifr_TFOMS(usl->shifr1,usl->kod,mdate)
@@ -1240,16 +1247,16 @@ if (k := popup_2array(usl9TFOMS(mdate),T_ROW,T_COL-5,su,1,@t_arr,"Выберите групп
   enddo
   select TMP
   set relation to recno() into USL
-  index on shifr+fsort_usl(usl->shifr) to (cur_dir+"tmp")
+  index on shifr+fsort_usl(usl->shifr) to (cur_dir + "tmp")
   use_base("lusl")
   lal := "lusl"
   lal := create_name_alias(lal, lyear)
 
   dbSelectArea(lal)
   if t_arr[2] > 500
-    index on fsort_usl(shifr) to (cur_dir+"tmplu") for is_ksg(shifr,t_arr[2]-500) .and. datebeg >= boy(mdate)
+    index on fsort_usl(shifr) to (cur_dir + "tmplu") for is_ksg(shifr,t_arr[2]-500) .and. datebeg >= boy(mdate)
   else
-    index on fsort_usl(shifr) to (cur_dir+"tmplu") for usl2arr(shifr)[1]==k .and. !is_ksg(shifr)
+    index on fsort_usl(shifr) to (cur_dir + "tmplu") for usl2arr(shifr)[1]==k .and. !is_ksg(shifr)
   endif
   go top
   do while !eof()
@@ -1297,28 +1304,28 @@ if (k := popup_2array(usl9TFOMS(mdate),T_ROW,T_COL-5,su,1,@t_arr,"Выберите групп
 endif
 return NIL
 
-** 24.11.21
-Static Function usl9TFOMS(mdate)
+** 08.11.21
+Function usl9TFOMS(mdate)
 Static sdate, sarr1
-Local arr := {{" 1. Койко-дни по профилям",1},;
-              {" 2. Врачебные приёмы по профилям",2},;
-              {" 3. Процедуры и манипуляции",3},;
-              {" 4. Лабораторные исследования",4},;
-              {" 7. Рентгенологические исследования",7},;
-              {" 8. Ультразвуковые исследования",8},;
-              {"10. Эндоскопические исследования",10},;
-              {"13. Электрокардиографические исследования",13},;
-              {"14. Реоэнцефалография",14},;
-              {"16. Прочие исследования",16},;
-              {"19. Физиотерапевтическое лечение",19},;
-              {"20. Лечебная физкультура",20},;
-              {"21. Массаж",21},;
-              {"22. Рефлексотерапия",22},;
-              {"55. Дневные стационары",55},;
-              {"56. Прочие услуги",56},;
-              {"60. Тарифы на отдельные медицинские услуги",60},;
-              {"70. Диспансеризация",70},;
-              {"71. Скорая медицинская помощь",71},;
+Local arr := {{" 1. Койко-дни по профилям",1}, ;
+              {" 2. Врачебные приёмы по профилям",2}, ;
+              {" 3. Процедуры и манипуляции",3}, ;
+              {" 4. Лабораторные исследования",4}, ;
+              {" 7. Рентгенологические исследования",7}, ;
+              {" 8. Ультразвуковые исследования",8}, ;
+              {"10. Эндоскопические исследования",10}, ;
+              {"13. Электрокардиографические исследования",13}, ;
+              {"14. Реоэнцефалография",14}, ;
+              {"16. Прочие исследования",16}, ;
+              {"19. Физиотерапевтическое лечение",19}, ;
+              {"20. Лечебная физкультура",20}, ;
+              {"21. Массаж",21}, ;
+              {"22. Рефлексотерапия",22}, ;
+              {"55. Дневные стационары",55}, ;
+              {"56. Прочие услуги",56}, ;
+              {"60. Тарифы на отдельные медицинские услуги",60}, ;
+              {"70. Диспансеризация",70}, ;
+              {"71. Скорая медицинская помощь",71}, ;
               {"72. Профилактические медицинские осмотры",72}}
 Local i, ls, sShifr, arr1 := {}, lyear, fl_delete := .t., fl_yes := .f., lal := "luslc"
 if empty(sdate) .or. sdate != mdate
@@ -1326,6 +1333,7 @@ if empty(sdate) .or. sdate != mdate
 
   Ins_Array(arr,1,{"КСГ в ДНЕВНОМ стационаре",502})
   Ins_Array(arr,1,{"КСГ в СТАЦИОНАРЕ",501})
+
   use_base("luslc")
   for i := 1 to len(arr)
     if arr[i,2] > 500
@@ -1361,175 +1369,178 @@ sdate := mdate
 sarr1 := aclone(arr1)
 return arr1
 
-** 25.02.15
-Static Function usl3FFOMS()
-// A,B - класс медуслуги
-// XX - раздел медуслуги
-Local arr := {;
-  "A01 функциональное обследование без использования приспособлений и/или приборов и выполняемое непосредственно медицинскими работниками (физикальные исследования, включая сбор жалоб, анамнеза, перкуссию, пальпацию и аускультацию)",;
-  "A02 функциональное обследование с использованием простых приспособлений, приборов, не требующее специальных навыков и помощи ассистента",;
-  "A03 визуальное обследование, требующее специальных приборов, навыков и помощи ассистента",;
-  "A04 регистрация звуковых сигналов, издаваемых или отражающихся органами или тканями с их последующей расшифровкой и описанием",;
-  "A05 регистрация электромагнитных сигналов, испускаемых или потенцированных в органах и тканях с их последующей расшифровкой и описанием",;
-  "A06 рентгенологические исследования с их последующим описанием и рентгенотерапия",;
-  "A07 исследования с помощью радионуклидов и методы радиационной терапии",;
-  "A08 морфологические исследования тканей",;
-  "A09 исследования биологических жидкостей, с помощью которых исследуются концентрации веществ в жидких средах организма и активность ферментативных систем",;
-  "A10 диагностические исследования, выполняемые в процессе лечения",;
-  "A11 специальные методы получения исследуемых образцов, доступа и введения",;
-  "A12 исследования функции органов или тканей с использованием специальных процедур, приспособлений и методик, не обозначенных в других рубриках, направленных на прямое исследование функции органов или тканей, - медикаментозные и физические пробы, исследование оседания эритроцитов, иммунные реакции, в том числе определение группы крови и резус-фактора, исследование системы гемостаза (за исключением уровня факторов свертывающей системы) и др.",;
-  "A13 исследования и воздействия на сознание и психическую сферу",;
-  "A14 уход за больными или отдельными анатомо-физиологическими элементами организма (ротовая полость, верхние дыхательные пути и т.д.)",;
-  "A15 десмургия, иммобилизация, бандажи, ортопедические пособия",;
-  "A16 оперативное лечение",;
-  "A17 электромагнитное лечебное воздействие на органы и ткани",;
-  "A18 экстракорпоральное воздействие на кровь и трансфузиологические пособия",;
-  "A19 лечебная физкультура, применяемая при заболеваниях определенных органов и систем",;
-  "A20 лечение климатическими воздействиями (вода, воздух и др.)",;
-  "A21 лечение с помощью простых физических воздействий на пациента (массаж, иглорефлексотерапия, мануальная терапия)",;
-  "A22 лечение с помощью лучевого (звукового, светового, ультрафиолетового, лазерного) воздействия",;
-  "A23 диагностика и лечение, не обозначенные в других рубриках",;
-  "A24 диагностика и лечение, основанные на тепловых эффектах",;
-  "A25 назначения",;
-  "A26 микробиологические исследования основных возбудителей инфекционных заболеваний",;
-  "B01 врачебная лечебно-диагностическая услуга",;
-  "B02 сестринский уход",;
-  "B03 сложная диагностическая услуга (методы исследования: лабораторный, функциональный, инструментальный, рентгенорадиологический и др.), формирующие диагностические комплексы",;
-  "B04 медицинские услуги по профилактике, такие как диспансерное наблюдение, вакцинация, медицинские физкультурно-оздоровительные мероприятия",;
-  "B05 медицинские услуги по медико-социальной реабилитации";
- }
-Local i
-for i := 1 to len(arr)
-  arr[i] := {arr[i],left(arr[i],3)}
-next
-return arr
+** 08.02.23
+Function usl3FFOMS()
+  // A,B - класс медуслуги
+  // XX - раздел медуслуги
+  Local arr := {;
+    "A01 функциональное обследование без использования приспособлений и/или приборов и выполняемое непосредственно медицинскими работниками (физикальные исследования, включая сбор жалоб, анамнеза, перкуссию, пальпацию и аускультацию)", ;
+    "A02 функциональное обследование с использованием простых приспособлений, приборов, не требующее специальных навыков и помощи ассистента", ;
+    "A03 визуальное обследование, требующее специальных приборов, навыков и помощи ассистента", ;
+    "A04 регистрация звуковых сигналов, издаваемых или отражающихся органами или тканями с их последующей расшифровкой и описанием", ;
+    "A05 регистрация электромагнитных сигналов, испускаемых или потенцированных в органах и тканях с их последующей расшифровкой и описанием", ;
+    "A06 рентгенологические исследования с их последующим описанием и рентгенотерапия", ;
+    "A07 исследования с помощью радионуклидов и методы радиационной терапии", ;
+    "A08 морфологические исследования тканей", ;
+    "A09 исследования биологических жидкостей, с помощью которых исследуются концентрации веществ в жидких средах организма и активность ферментативных систем", ;
+    "A10 диагностические исследования, выполняемые в процессе лечения", ;
+    "A11 специальные методы получения исследуемых образцов, доступа и введения", ;
+    "A12 исследования функции органов или тканей с использованием специальных процедур, приспособлений и методик, не обозначенных в других рубриках, направленных на прямое исследование функции органов или тканей, - медикаментозные и физические пробы, исследование оседания эритроцитов, иммунные реакции, в том числе определение группы крови и резус-фактора, исследование системы гемостаза (за исключением уровня факторов свертывающей системы) и др.", ;
+    "A13 исследования и воздействия на сознание и психическую сферу", ;
+    "A14 уход за больными или отдельными анатомо-физиологическими элементами организма (ротовая полость, верхние дыхательные пути и т.д.)", ;
+    "A15 десмургия, иммобилизация, бандажи, ортопедические пособия", ;
+    "A16 оперативное лечение", ;
+    "A17 электромагнитное лечебное воздействие на органы и ткани", ;
+    "A18 экстракорпоральное воздействие на кровь и трансфузиологические пособия", ;
+    "A19 лечебная физкультура, применяемая при заболеваниях определенных органов и систем", ;
+    "A20 лечение климатическими воздействиями (вода, воздух и др.)", ;
+    "A21 лечение с помощью простых физических воздействий на пациента (массаж, иглорефлексотерапия, мануальная терапия)", ;
+    "A22 лечение с помощью лучевого (звукового, светового, ультрафиолетового, лазерного) воздействия", ;
+    "A23 диагностика и лечение, не обозначенные в других рубриках", ;
+    "A24 диагностика и лечение, основанные на тепловых эффектах", ;
+    "A25 назначения", ;
+    "A26 микробиологические исследования основных возбудителей инфекционных заболеваний", ;
+    "B01 врачебная лечебно-диагностическая услуга", ;
+    "B02 сестринский уход", ;
+    "B03 сложная диагностическая услуга (методы исследования: лабораторный, функциональный, инструментальный, рентгенорадиологический и др.), формирующие диагностические комплексы", ;
+    "B04 медицинские услуги по профилактике, такие как диспансерное наблюдение, вакцинация, медицинские физкультурно-оздоровительные мероприятия", ;
+    "B05 медицинские услуги по медико-социальной реабилитации";
+  }
+  Local i
+
+  for i := 1 to len(arr)
+    arr[i] := {arr[i], left(arr[i], 3)}
+  next
+  return arr
 
 
-** 12.01.14
-Static Function usl4FFOMS()
-// A - класс медуслуги
-// XX - раздел медуслуги
-// XX - подраздел медуслуги (затем "001"-группа и м.б. ".001"-подгруппа)
-Local arr := {;
-  "01 Кожа, подкожно-жировая клетчатка, придатки кожи",;
-  "02 Мышечная система",                               ;
-  "03 Костная система",                                ;
-  "04 Суставы",                                        ;
-  "05 Система органов кроветворения и кровь",          ;
-  "06 Иммунная система",                               ;
-  "07 Полость рта и зубы",                             ;
-  "08 Верхние дыхательные пути",                       ;
-  "09 Нижние дыхательные пути и легочная ткань",       ;
-  "10 Сердце и перикард",                              ;
-  "11 Средостение",                                    ;
-  "12 Крупные кровеносные сосуды",                     ;
-  "13 Система микроциркуляции",                        ;
-  "14 Печень и желчевыводящие пути",                   ;
-  "15 Поджелудочная железа",                           ;
-  "16 Пищевод, желудок, двенадцатиперстная кишка",     ;
-  "17 Тонкая кишка",                                   ;
-  "18 Толстая кишка",                                  ;
-  "19 Сигмовидная и прямая кишка",                     ;
-  "20 Женские половые органы",                         ;
-  "21 Мужские половые органы",                         ;
-  "22 Железы внутренней секреции",                     ;
-  "23 Центральная нервная система и головной мозг",    ;
-  "24 Периферическая нервная система",                 ;
-  "25 Орган слуха",                                    ;
-  "26 Орган зрения",                                   ;
-  "27 Орган обоняния",                                 ;
-  "28 Почки и мочевыделительная система",              ;
-  "29 Психическая сфера",                              ;
-  "30 Прочие"                                          ;
- }
-Local i
-for i := 1 to len(arr)
-  arr[i] := {arr[i],left(arr[i],2)}
-next
-return arr
+** 18.02.23
+Function usl4FFOMS()
+  // A - класс медуслуги
+  // XX - раздел медуслуги
+  // XX - подраздел медуслуги (затем "001"-группа и м.б. ".001"-подгруппа)
+  Local arr := {;
+    "01 Кожа, подкожно-жировая клетчатка, придатки кожи", ;
+    "02 Мышечная система",                               ;
+    "03 Костная система",                                ;
+    "04 Суставы",                                        ;
+    "05 Система органов кроветворения и кровь",          ;
+    "06 Иммунная система",                               ;
+    "07 Полость рта и зубы",                             ;
+    "08 Верхние дыхательные пути",                       ;
+    "09 Нижние дыхательные пути и легочная ткань",       ;
+    "10 Сердце и перикард",                              ;
+    "11 Средостение",                                    ;
+    "12 Крупные кровеносные сосуды",                     ;
+    "13 Система микроциркуляции",                        ;
+    "14 Печень и желчевыводящие пути",                   ;
+    "15 Поджелудочная железа",                           ;
+    "16 Пищевод, желудок, двенадцатиперстная кишка",     ;
+    "17 Тонкая кишка",                                   ;
+    "18 Толстая кишка",                                  ;
+    "19 Сигмовидная и прямая кишка",                     ;
+    "20 Женские половые органы",                         ;
+    "21 Мужские половые органы",                         ;
+    "22 Железы внутренней секреции",                     ;
+    "23 Центральная нервная система и головной мозг",    ;
+    "24 Периферическая нервная система",                 ;
+    "25 Орган слуха",                                    ;
+    "26 Орган зрения",                                   ;
+    "27 Орган обоняния",                                 ;
+    "28 Почки и мочевыделительная система",              ;
+    "29 Психическая сфера",                              ;
+    "30 Прочие"                                          ;
+  }
+  Local i
+
+  for i := 1 to len(arr)
+    arr[i] := {arr[i], left(arr[i], 2)}
+  next
+  return arr
 
 
-** 12.01.14
-Static Function usl5FFOMS()
-// B - класс медуслуги
-// XX - раздел медуслуги
-// XXX - подраздел медуслуги (затем "001"-группа и м.б. ".001"-подгруппа)
-Local arr := {;
-  "001 акушерство и гинекология",;
-  "002 аллергология и иммунология",;
-  "003 анестезиология и реаниматология",;
-  "004 гастроэнтерология",;
-  "005 гематология",;
-  "006 генетика",;
-  "007 гериатрия",;
-  "008 дерматовенерология и косметология",;
-  "009 детская онкология",;
-  "010 детская хирургия",;
-  "011 детская эндокринология",;
-  "012 диабетология",;
-  "013 диетология",;
-  "014 инфекционные болезни",;
-  "015 кардиология, детская кардиология",;
-  "016 клиническая лабораторная диагностика",;
-  "017 клиническая фармакология",;
-  "018 колопроктология",;
-  "019 лабораторная генетика",;
-  "020 лечебная физкультура и спортивная медицина",;
-  "021 социальная гигиена, санитария и эпидемиология",;
-  "022 мануальная терапия",;
-  "023 неврология",;
-  "024 нейрохирургия",;
-  "025 нефрология",;
-  "026 общая врачебная практика (семейная медицина)",;
-  "027 онкология",;
-  "028 оториноларингология",;
-  "029 офтальмология",;
-  "030 патологическая анатомия",;
-  "031 педиатрия",;
-  "032 неонатология",;
-  "033 профпатология",;
-  "034 психотерапия",;
-  "035 психиатрия и судебно-психиатрическая экспертиза",;
-  "036 психиатрия-наркология",;
-  "037 пульмонология",;
-  "038 радиология и радиотерапия",;
-  "039 рентгенология",;
-  "040 ревматология",;
-  "041 рефлексотерапия",;
-  "042 сексология",;
-  "043 сердечно-сосудистая хирургия, рентгенэндоваскулярная диагностика и лечение",;
-  "044 скорая медицинская помощь",;
-  "045 судебно-медицинская экспертиза",;
-  "046 сурдология-оториноларингология",;
-  "047 терапия",;
-  "048 токсикология",;
-  "049 торакальная хирургия",;
-  "050 травматология и ортопедия",;
-  "051 трансфузиология",;
-  "052 ультразвуковая диагностика",;
-  "053 урология, детская урология-андрология",;
-  "054 физиотерапия",;
-  "055 фтизиатрия",;
-  "056 функциональная диагностика",;
-  "057 хирургия, хиругия (трансплантация органов и тканей) и комбустиология",;
-  "058 эндокринология",;
-  "059 эндоскопия",;
-  "060 бактериология",;
-  "061 вирусология",;
-  "062 эпидемиология",;
-  "063 ортодонтия",;
-  "064 стоматология и стоматология детская",;
-  "065 стоматология терапевтическая",;
-  "066 стоматология ортопедическая",;
-  "067 стоматология хирургическая",;
-  "068 челюстно-лицевая хирургия",;
-  "069 прочие";
- }
-Local i
-for i := 1 to len(arr)
-  arr[i] := {arr[i],left(arr[i],3)}
-next
-return arr
+** 08.02.23
+Function usl5FFOMS()
+  // B - класс медуслуги
+  // XX - раздел медуслуги
+  // XXX - подраздел медуслуги (затем "001"-группа и м.б. ".001"-подгруппа)
+  Local arr := { ;
+    "001 акушерство и гинекология", ;
+    "002 аллергология и иммунология", ;
+    "003 анестезиология и реаниматология", ;
+    "004 гастроэнтерология", ;
+    "005 гематология", ;
+    "006 генетика", ;
+    "007 гериатрия", ;
+    "008 дерматовенерология и косметология", ;
+    "009 детская онкология", ;
+    "010 детская хирургия", ;
+    "011 детская эндокринология", ;
+    "012 диабетология", ;
+    "013 диетология", ;
+    "014 инфекционные болезни", ;
+    "015 кардиология, детская кардиология", ;
+    "016 клиническая лабораторная диагностика", ;
+    "017 клиническая фармакология", ;
+    "018 колопроктология", ;
+    "019 лабораторная генетика", ;
+    "020 лечебная физкультура и спортивная медицина", ;
+    "021 социальная гигиена, санитария и эпидемиология", ;
+    "022 мануальная терапия", ;
+    "023 неврология", ;
+    "024 нейрохирургия", ;
+    "025 нефрология", ;
+    "026 общая врачебная практика (семейная медицина)", ;
+    "027 онкология", ;
+    "028 оториноларингология", ;
+    "029 офтальмология", ;
+    "030 патологическая анатомия", ;
+    "031 педиатрия", ;
+    "032 неонатология", ;
+    "033 профпатология", ;
+    "034 психотерапия", ;
+    "035 психиатрия и судебно-психиатрическая экспертиза", ;
+    "036 психиатрия-наркология", ;
+    "037 пульмонология", ;
+    "038 радиология и радиотерапия", ;
+    "039 рентгенология", ;
+    "040 ревматология", ;
+    "041 рефлексотерапия", ;
+    "042 сексология", ;
+    "043 сердечно-сосудистая хирургия, рентгенэндоваскулярная диагностика и лечение", ;
+    "044 скорая медицинская помощь", ;
+    "045 судебно-медицинская экспертиза", ;
+    "046 сурдология-оториноларингология", ;
+    "047 терапия", ;
+    "048 токсикология", ;
+    "049 торакальная хирургия", ;
+    "050 травматология и ортопедия", ;
+    "051 трансфузиология", ;
+    "052 ультразвуковая диагностика", ;
+    "053 урология, детская урология-андрология", ;
+    "054 физиотерапия", ;
+    "055 фтизиатрия", ;
+    "056 функциональная диагностика", ;
+    "057 хирургия, хиругия (трансплантация органов и тканей) и комбустиология", ;
+    "058 эндокринология", ;
+    "059 эндоскопия", ;
+    "060 бактериология", ;
+    "061 вирусология", ;
+    "062 эпидемиология", ;
+    "063 ортодонтия", ;
+    "064 стоматология и стоматология детская", ;
+    "065 стоматология терапевтическая", ;
+    "066 стоматология ортопедическая", ;
+    "067 стоматология хирургическая", ;
+    "068 челюстно-лицевая хирургия", ;
+    "069 прочие";
+  }
+  Local i
+
+  for i := 1 to len(arr)
+    arr[i] := {arr[i], left(arr[i], 3)}
+  next
+  return arr
 
 ** 25.11.21
 Function usl_stom_FFOMS()
@@ -1537,7 +1548,7 @@ Static arr_gr := {"Общепрофильные","Ортодонтия","Терапевтическая стоматология","
 Local i, j, k, s, buf := save_maxrow(), name_file := "uslugiS"+stxt, sh := 80, HH := 60, t_arr[2], fl
 mywait()
 R_Use_base("luslf")
-index on str(grp,1)+shifr to (cur_dir+"tmp_uslf")
+index on str(grp,1)+shifr to (cur_dir + "tmp_uslf")
 fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
 // add_string("2020 год")
 add_string(str(WORK_YEAR, 4, 0) + ' год')
@@ -1578,7 +1589,7 @@ Function usl_telemedicina()
 Local i, j, k, buf := save_maxrow(), name_file := "uslugiT"+stxt, sh := 80, HH := 60, t_arr[2], fl
 mywait()
 R_Use_base("luslf")
-index on shifr to (cur_dir+"tmp_uslf") for telemed == 1
+index on shifr to (cur_dir + "tmp_uslf") for telemed == 1
 fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
 // add_string("2020 год")
 add_string(str(WORK_YEAR, 4, 0) + ' год')
@@ -1606,7 +1617,7 @@ Function usl_par_organ()
 Local i, j, k, buf := save_maxrow(), name_file := "uslugiT"+stxt, sh := 80, HH := 60, t_arr[2], fl
 mywait()
 R_Use_base("luslf")
-index on shifr to (cur_dir+"tmp_uslf") for !empty(par_org)
+index on shifr to (cur_dir + "tmp_uslf") for !empty(par_org)
 fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
 // add_string("2020 год")
 add_string(str(WORK_YEAR, 4, 0) + ' год')
@@ -1637,9 +1648,9 @@ return NIL
 ** 25.11.21 Вывод списка услуг диагностики при дообследовании в направлениях на ЗНО
 Function usl_napr_FFOMS()
 Static arr_gr := {;
-  {"1 - лабораторная диагностика",1},;
-  {"2 - инструментальная диагностика",2},;
-  {"3 - методы лучевой диагностики, за исключением дорогостоящих",3},;
+  {"1 - лабораторная диагностика",1}, ;
+  {"2 - инструментальная диагностика",2}, ;
+  {"3 - методы лучевой диагностики, за исключением дорогостоящих",3}, ;
   {"4 - дорогостоящие методы лучевой диагностики (КТ, МРТ, ангиография)",4}}
 Local i, j, k, buf := save_maxrow(), name_file := "uslugiON"+stxt, sh := 80, HH := 60, t_arr[2], fl, ar
 if (t_arr := bit_popup(T_ROW,T_COL-5,arr_gr,,color0,1,"Метод диагностического исследования","B/BG")) == NIL
@@ -1648,7 +1659,7 @@ endif
 ar := aclone(t_arr)
 mywait()
 R_Use_base("luslf")
-index on str(onko_napr,1)+shifr to (cur_dir+"tmp_uslf")
+index on str(onko_napr,1)+shifr to (cur_dir + "tmp_uslf")
 fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
 // add_string("2020 год")
 add_string(str(WORK_YEAR, 4, 0) + ' год')
@@ -1683,11 +1694,11 @@ return NIL
 ** 25.11.21 Вывод списка услуг по типам лечения ОНКОзаболеваний
 Function usl_ksg_FFOMS()
   Static arr_gr := {;
-    {"1 - Хирургическое лечение",1},;
-    {"2 - Лекарственная противоопухолевая терапия",2},;
-    {"3 - Лучевая терапия",3},;
-    {"4 - Химиолучевая терапия",4},;
-    {"5 - Неспецифическое лечение (осложнения противоопухолевой терапии, установка/замена порт системы (катетера))",5},;
+    {"1 - Хирургическое лечение",1}, ;
+    {"2 - Лекарственная противоопухолевая терапия",2}, ;
+    {"3 - Лучевая терапия",3}, ;
+    {"4 - Химиолучевая терапия",4}, ;
+    {"5 - Неспецифическое лечение (осложнения противоопухолевой терапии, установка/замена порт системы (катетера))",5}, ;
     {"6 - Диагностика",6}}
   Local i, j, k, buf := save_maxrow(), name_file := "uslugiOK"+stxt, sh := 80, HH := 60, t_arr[2], fl, ar
 
@@ -1697,7 +1708,7 @@ Function usl_ksg_FFOMS()
   ar := aclone(t_arr)
   mywait()
   R_Use_base("luslf")
-  index on str(onko_ksg,1)+shifr to (cur_dir+"tmp_uslf")
+  index on str(onko_ksg,1)+shifr to (cur_dir + "tmp_uslf")
   fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
   // add_string("2020 год")
   add_string(str(WORK_YEAR, 4, 0) + ' год')
@@ -1736,30 +1747,30 @@ Function usl_ksg_FFOMS()
 ** 12.01.14
 Function usl1FFOMS()
 Static su := "A01", suA := "01", suB := "001"
-Local k, buf := save_maxrow(), name_file := "uslugiF"+stxt, arr[2],;
+Local k, buf := save_maxrow(), name_file := "uslugiF"+stxt, arr[2], ;
       sh := 80, HH := 60, t_arr[2], t_aA[2], t_aB[2], i, n, s, fl := .f.
-if !empty(popup_2array(usl3FFOMS(),T_ROW,T_COL-5,su,1,@t_arr,;
+if !empty(popup_2array(usl3FFOMS(),T_ROW,T_COL-5,su,1,@t_arr, ;
           "Выберите раздел номенклатуры медицинских услуг","B/W",color5))
   su := t_arr[2]
   s := su+"." ; n := 4
   if left(su,1) == "A"
-    if (i := popup_prompt(T_ROW,T_COL-5,2,;
+    if (i := popup_prompt(T_ROW,T_COL-5,2, ;
         {"В целом по разделу","По одной анатомо-функциональной области"})) == 0
       return NIL
     elseif i == 1
       fl := .t.
-    elseif !empty(popup_2array(usl4FFOMS(),T_ROW,T_COL-5,suA,1,@t_aA,;
+    elseif !empty(popup_2array(usl4FFOMS(),T_ROW,T_COL-5,suA,1,@t_aA, ;
                 "Выберите анатомо-функциональную область","B/BG",color0))
       suA := t_aA[2] ; fl := .t.
       s += suA+"." ; n := 7
     endif
   else
-    if (i := popup_prompt(T_ROW,T_COL-5,1,;
+    if (i := popup_prompt(T_ROW,T_COL-5,1, ;
           {"В целом по разделу","По одной медицинской специальности"})) == 0
       return NIL
     elseif i == 1
       fl := .t.
-    elseif !empty(popup_2array(usl5FFOMS(),T_ROW,T_COL-5,suB,1,@t_aB,;
+    elseif !empty(popup_2array(usl5FFOMS(),T_ROW,T_COL-5,suB,1,@t_aB, ;
                "Выберите медицинскую специальность","B/BG",color0))
       suB := t_aB[2] ; fl := .t.
       s += suB+"." ; n := 8
@@ -1812,15 +1823,15 @@ Local i, k, buf := save_maxrow(), name_file := "uslugiF"+stxt, sh := 85, HH := 8
 //
 mywait()
 arr_title := {;
-"───────────────────┬─────────┬───────────────────────────────────────────────────────",;
-" Шифр ФФОМС        │ Шифр МО │ Наименование услуги                                   ",;
+"───────────────────┬─────────┬───────────────────────────────────────────────────────", ;
+" Шифр ФФОМС        │ Шифр МО │ Наименование услуги                                   ", ;
 "───────────────────┴─────────┴───────────────────────────────────────────────────────"}
 fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
 add_string(center("Список услуг ФФОМС в нашем справочнике",sh))
 add_string("")
 aeval(arr_title, {|x| add_string(x) } )
 use_base("luslf")
-R_Use(dir_server+"mo_su",dir_server+"mo_sush1","MOSU")
+R_Use(dir_server + "mo_su",dir_server + "mo_sush1","MOSU")
 go top
 do while !eof()
   k := 1 ; afill(mas1,"")
@@ -1870,26 +1881,26 @@ if is_otd_dep .and. lksg == 1 .and. (ret_arr := ret_otd_dep()) == NIL
   return NIL
 endif
 mywait()
-dbcreate(cur_dir+"tmp",{;
-   {"SHIFR",      "C",     10,      0},;
-   {"NAME",       "C",    255,      0},;
-   {"CENA_V",     "C",     10,      0},;
+dbcreate(cur_dir + "tmp",{;
+   {"SHIFR",      "C",     10,      0}, ;
+   {"NAME",       "C",    255,      0}, ;
+   {"CENA_V",     "C",     10,      0}, ;
    {"CENA_D",     "C",     10,      0}})
-use (cur_dir+"tmp") new
-dbcreate(cur_dir+"tmp1",{;
-   {"SHIFR",      "C",     10,      0},;
+use (cur_dir + "tmp") new
+dbcreate(cur_dir + "tmp1",{;
+   {"SHIFR",      "C",     10,      0}, ;
    {"SHIFR1",     "C",     20,      0}})
-use (cur_dir+"tmp1") new
-index on shifr1+shifr to (cur_dir+"tmp1")
+use (cur_dir + "tmp1") new
+index on shifr1+shifr to (cur_dir + "tmp1")
 mdate := sys_date
 
 sbase := prefixFileRefName(WORK_YEAR) + 'k006'
 R_Use(exe_dir + sbase, , "K006")
 // R_Use(exe_dir+"_mo9k006",,"K006")
-index on SHIFR+SY to (cur_dir+"tmp_t009")
+index on SHIFR+SY to (cur_dir + "tmp_t009")
 use_base("luslc")
 use_base("lusl")
-index on fsort_usl(shifr) to (cur_dir+"tmp_lusl") for is_ksg(shifr,lksg) .and. datebeg >= boy(mdate)
+index on fsort_usl(shifr) to (cur_dir + "tmp_lusl") for is_ksg(shifr,lksg) .and. datebeg >= boy(mdate)
 go top
 do while !eof()
   v1 := fcena_oms(lusl->shifr,.t.,mdate,@fl1del,@fl1uslc)
@@ -1922,8 +1933,8 @@ do while !eof()
 enddo
 delFRfiles()
 dbcreate(fr_titl, {;
-  {"mo","C",90,0},;
-  {"str1","C",90,0},;
+  {"mo","C",90,0}, ;
+  {"str1","C",90,0}, ;
   {"str2","C",90,0};
  })
 use (fr_titl) new alias FRT
@@ -1939,20 +1950,20 @@ s := "[ цены по состоянию на "+date_8(mdate)+"г. ]"
 frt->str2 := s
 add_string(center(s,sh))
 add_string("")
-dbcreate(fr_data,{{"SHIFR1","C", 20,0},;
+dbcreate(fr_data,{{"SHIFR1","C", 20,0}, ;
                   {"NAME",  "C",255,0}})
 use (fr_data) new alias _d
 //
-dbcreate(fr_data+'1',{{"SHIFR1","C", 20,0},;
-                      {"SHIFR", "C", 10,0},;
-                      {"NAME",  "C",255,0},;
-                      {"CENA_V","C", 10,0},;
+dbcreate(fr_data+'1',{{"SHIFR1","C", 20,0}, ;
+                      {"SHIFR", "C", 10,0}, ;
+                      {"NAME",  "C",255,0}, ;
+                      {"CENA_V","C", 10,0}, ;
                       {"CENA_D","C", 10,0}})
 use (fr_data+'1') new alias _d1
 use_base("luslf")
 old_shifr := space(20)
 select TMP
-index on shifr to (cur_dir+"tmp")
+index on shifr to (cur_dir + "tmp")
 select TMP1
 go top
 do while !eof()
@@ -2091,19 +2102,19 @@ Function usl12FFOMS()
 **
 Function spr_other()
 Local mas_pmt, mas_msg, mas_fun, j, r, c := T_COL-5
-mas_pmt := {"~Прочие организации",;
-            "~Комитеты (МО)",;
-            "~Службы",;
+mas_pmt := {"~Прочие организации", ;
+            "~Комитеты (МО)", ;
+            "~Службы", ;
             "~Услуги без службы";
            }
-mas_msg := {"Прочие организации",;
-            "Комитеты по здравоохранению (МО)",;
-            "Список служб с возможностью распечатки услуг по конкретной службе",;
+mas_msg := {"Прочие организации", ;
+            "Комитеты по здравоохранению (МО)", ;
+            "Список служб с возможностью распечатки услуг по конкретной службе", ;
             "Распечатка услуг, у которых не проставлена служба";
            }
-mas_fun := {"f1spr_other(1)",;
-            "f1spr_other(2)",;
-            "f1spr_other(3)",;
+mas_fun := {"f1spr_other(1)", ;
+            "f1spr_other(2)", ;
+            "f1spr_other(3)", ;
             "f1spr_other(4)"}
 if (r := T_ROW-len(mas_pmt)-3) < 0
   r := 2 ; c := T_COL+10
@@ -2116,11 +2127,11 @@ Function f1spr_other(k)
 Local buf := save_maxrow(), mas1 := {}, mas2
 do case
   case k == 1
-    popup_edit(dir_server+"str_komp",T_ROW,T_COL-5,T_ROW+8,,PE_VIEW,,,,{||!between(tfoms,44,47)})
+    popup_edit(dir_server + "str_komp",T_ROW,T_COL-5,T_ROW+8,,PE_VIEW,,,,{||!between(tfoms,44,47)})
   case k == 2
-    popup_edit(dir_server+"komitet",T_ROW,T_COL-5,T_ROW+8,,PE_VIEW)
+    popup_edit(dir_server + "komitet",T_ROW,T_COL-5,T_ROW+8,,PE_VIEW)
   case k == 3
-    if R_Use(dir_server+"slugba",dir_server+"slugba","SL")
+    if R_Use(dir_server + "slugba",dir_server + "slugba","SL")
       go top
       do while Alpha_Browse(T_ROW,T_COL-5,maxrow()-2,T_COL+45,"f2spr_other",color0)
         f3spr_other(1)
@@ -2140,15 +2151,16 @@ oBrow:addColumn(TBColumnNew(center("Наименование службы",40), {|| sl->name }) )
 status_key("^<Esc>^ - выход;  ^<Enter>^ - выбор службы")
 return NIL
 
-**
-Static Function f3spr_other(reg)
-Local buf := save_maxrow(), n_file := "uslugi"+stxt, sh := 80, HH := 60, l, k,;
-      mas[2]
+** 08.02.23
+Function f3spr_other(reg)
+  Local buf := save_maxrow(), n_file := cur_dir + 'uslugi' + stxt, ;
+    sh := 80, HH := 60, l, k, mas[2]
+
 mywait()
 fp := fcreate(n_file) ; n_list := 1 ; tek_stroke := 0
 add_string("")
 if mem_trudoem == 2
-  Private arr_title := {space(sh-15)+"УЕТ "+iif(is_oplata==7,"вр.","взр")+"│УЕТ "+iif(is_oplata==7,"асс","дет"),;
+  Private arr_title := {space(sh-15)+"УЕТ "+iif(is_oplata==7,"вр.","взр")+"│УЕТ "+iif(is_oplata==7,"асс","дет"), ;
                         space(sh-15)+"───────┴───────"}
   useUch_Usl()
   l := sh-16
@@ -2157,15 +2169,15 @@ else
 endif
 Use_base("lusl")
 Use_base("luslc")
-R_Use(dir_server+"uslugi",dir_server+"uslugisl","USL")
+R_Use(dir_server + "uslugi",dir_server + "uslugisl","USL")
 if reg == 1
   add_string(CENTER("Список услуг по службе:",80))
   add_string(CENTER(lstr(sl->shifr)+". "+alltrim(sl->name),80))
   find (str(sl->shifr,3))
-  index on fsort_usl(shifr) to (cur_dir+"tmp") for kod > 0 while slugba == sl->shifr
+  index on fsort_usl(shifr) to (cur_dir + "tmp") for kod > 0 while slugba == sl->shifr
 else
   add_string(CENTER("Список услуг с непроставленной службой",80))
-  index on fsort_usl(shifr) to (cur_dir+"tmp") for f5spr_other()
+  index on fsort_usl(shifr) to (cur_dir + "tmp") for f5spr_other()
 endif
 add_string("")
 if mem_trudoem == 2
@@ -2198,7 +2210,7 @@ do while !eof()
       elseif !empty(s1)
         s += ";"+s1
       endif
-      k := perenos(mas,lshifr+alltrim(usl->name)+" ["+s+"]",l," ,;")
+      k := perenos(mas,lshifr+alltrim(usl->name)+" ["+s+"]",l," , ;")
       s := padr(mas[1],l)
       if mem_trudoem == 2
         select UU
@@ -2267,8 +2279,8 @@ add_string(center("Списочный состав персонала с табельными номерами",sh))
 add_string("")
 add_string(center(alltrim(glob_uch[2])+" ("+alltrim(glob_otd[2])+")",sh))
 add_string(padl(date_8(sys_date)+"г.",sh))
-if R_Use(dir_server+"mo_pers",,"PERSO")
-  index on upper(fio) to (cur_dir+"tmp_pers") for kod > 0
+if R_Use(dir_server + "mo_pers",,"PERSO")
+  index on upper(fio) to (cur_dir + "tmp_pers") for kod > 0
   do while !eof()
     if fl .or. tek_stroke > HH
       if !fl
@@ -2301,22 +2313,22 @@ return NIL
 
 ** список отделений с кодами
 Function spr_kod_otd()
-Local sh := 64, HH := 57, buf := save_maxrow(), n_file := "kod_otd"+stxt
+Local sh := 64, HH := 57, buf := save_maxrow(), n_file := cur_dir + "kod_otd" + stxt
 mywait()
 Private t_arr := {}, count_uch := 0
-R_Use(dir_server+"mo_uch",,"UCH")
+R_Use(dir_server + "mo_uch",,"UCH")
 dbeval({|| count_uch++, aadd(t_arr,{kod,alltrim(name)}) } )
 if count_uch == 0
   func_error(4,"База учреждений пуста!")
 else
-  R_Use(dir_server+"mo_otd",,"OTD")
-  index on str(kod_lpu,3)+upper(name) to (cur_dir+"tmp_otd") for !empty(name)
+  R_Use(dir_server + "mo_otd",,"OTD")
+  index on str(kod_lpu,3)+upper(name) to (cur_dir + "tmp_otd") for !empty(name)
   fp := fcreate(n_file) ; n_list := 1 ; tek_stroke := 0
   add_string("")
   add_string(center(expand("КОДЫ ОТДЕЛЕНИЙ"),sh))
   add_string("")
   select UCH
-  index on upper(name) to (cur_dir+"tmp_uch") for !empty(name)
+  index on upper(name) to (cur_dir + "tmp_uch") for !empty(name)
   go top
   do while !eof()
     add_string("")
@@ -2346,20 +2358,20 @@ Local str_sem, mas_pmt, mas_msg, mas_fun, j
 DEFAULT k TO 0
 do case
   case k == 0
-    mas_pmt := {"~Болезни МКБ-10",;
-                "~Группы (классы)",;
-                "~Подгруппы",;
-                "Пе~чать по группам",;
+    mas_pmt := {"~Болезни МКБ-10", ;
+                "~Группы (классы)", ;
+                "~Подгруппы", ;
+                "Пе~чать по группам", ;
                 "Печ~ать по подгруппам"}
-    mas_msg := {"Просмотр справочника МКБ-10 (поиск по шифру или наименованию)",;
-                "Просмотр справочника групп диагнозов (классов)",;
-                "Просмотр справочника подгрупп диагнозов",;
-                "Печать справочника МКБ-10 по группам",;
+    mas_msg := {"Просмотр справочника МКБ-10 (поиск по шифру или наименованию)", ;
+                "Просмотр справочника групп диагнозов (классов)", ;
+                "Просмотр справочника подгрупп диагнозов", ;
+                "Печать справочника МКБ-10 по группам", ;
                 "Печать справочника МКБ-10 по подгруппам"}
-    mas_fun := {"spr_info_diagn(1)",;
-                "spr_info_diagn(2)",;
-                "spr_info_diagn(3)",;
-                "spr_info_diagn(4)",;
+    mas_fun := {"spr_info_diagn(1)", ;
+                "spr_info_diagn(2)", ;
+                "spr_info_diagn(3)", ;
+                "spr_info_diagn(4)", ;
                 "spr_info_diagn(5)"}
     popup_prompt(T_ROW, T_COL-5, sk, mas_pmt, mas_msg, mas_fun)
   case k > 0
@@ -2379,22 +2391,22 @@ change_attr()
 do case
   case k == 1
     mywait()
-    R_Use(dir_exe+"_mo_mkb",cur_dir+"_mo_mkb","DIAG")
+    R_Use(dir_exe+"_mo_mkb",cur_dir + "_mo_mkb","DIAG")
     go top
     Alpha_Browse(2,c1,maxrow()-2,c2,"f1_10diag",color0,,,.t.,,,,"f2_10diag",,{,,,"N/BG,W+/N,B/BG,BG+/B,GR/BG,BG+/GR",.t.} )
   case k == 2
     R_Use(dir_exe+"_mo_mkbk")
-    index on sh_b+str(ks,1) to (cur_dir+"tmp")
+    index on sh_b+str(ks,1) to (cur_dir + "tmp")
     go top
     Alpha_Browse(2,0,maxrow()-2,79,"f1_10diag",color0,,,.t.,,,,,,{'═','░','═',"N/BG,W+/N,B/BG,BG+/B"})
   case k == 3
     R_Use(dir_exe+"_mo_mkbg")
-    index on sh_b+str(ks,1) to (cur_dir+"tmp")
+    index on sh_b+str(ks,1) to (cur_dir + "tmp")
     go top
     Alpha_Browse(2,c1,maxrow()-2,c2,"f1_10diag",color0,,,.t.,,,,,,{'═','░','═',"N/BG,W+/N,B/BG,BG+/B"})
   case k == 4 .or. k == 5
     R_Use(dir_exe+"_mo_mkb"+iif(pregim==4,"k","g"))
-    index on sh_b+str(ks,1) to (cur_dir+"tmp_d")
+    index on sh_b+str(ks,1) to (cur_dir + "tmp_d")
     Use
     do while .t.
       R_Use(dir_exe+"_mo_mkb"+iif(pregim==4,"k","g"))
@@ -2427,7 +2439,7 @@ do case
         Private sh := 76, HH := 77
         fp := fcreate("diagtmp.txt") ; n_list := 1 ; tek_stroke := 0
         add_string("")
-        R_Use(dir_exe+"_mo_mkb",cur_dir+"_mo_mkb","DIAG")
+        R_Use(dir_exe+"_mo_mkb",cur_dir + "_mo_mkb","DIAG")
         for k := 1 to len(arr_t)
           add_string(center(arr_t[k],sh))
         next
@@ -2537,13 +2549,13 @@ do case
     endif
   case nKey == K_F3
     Private mname := padr(alltrim(sname),30)
-    if (mname := input_value(18,4,20,75,color8,;
-                  "Введите подстроку диагноза для поиска",;
+    if (mname := input_value(18,4,20,75,color8, ;
+                  "Введите подстроку диагноза для поиска", ;
                   mname,"@K@!")) != NIL .and. !empty(mname)
       mname := alltrim(mname)
       rec := recno()
       //
-      Private i := j := 0, lshifr := "", lname := "",;
+      Private i := j := 0, lshifr := "", lname := "", ;
               tmp_mas := {}, tmp_kod := {}, t_len
       hGauge := GaugeNew(,,{color8,color1,"G+/B"},"Поиск подстроки <."+mname+".>",.t.)
       GaugeDisplay( hGauge )
@@ -2646,7 +2658,7 @@ Local buf := savescreen(), c1 := 1, c2 := 77, tmp_select := select()
 Private pregim := 1, uregim := 1
 change_attr()
 mywait()
-R_Use(dir_exe+"_mo_mkb",cur_dir+"_mo_mkb","DIAG")
+R_Use(dir_exe+"_mo_mkb",cur_dir + "_mo_mkb","DIAG")
 go top
 if srec != NIL
   goto (srec)
@@ -2814,8 +2826,8 @@ if (j := search_file("lpu"+sini,2)) != NIL
       is_0_schet := 0
     endif
   endif
-  i := GetIniVar( j, {{"lechenie","human_otd",},;
-                      {"lechenie","standart",},;
+  i := GetIniVar( j, {{"lechenie","human_otd",}, ;
+                      {"lechenie","standart",}, ;
                       {"lechenie","many_uch",}} )
   if i[1] != NIL .and. i[1] == "2"
     yes_h_otd := 2        // работаем без выбора отделений
@@ -2834,8 +2846,8 @@ if (j := search_file("lpu"+sini,2)) != NIL
     endif
   endif
   // для задачи "Платные услуги"
-  i := GetIniVar( j, {{"lpu_plat","regi_plat",},;
-                      {"lpu_plat","close",},;
+  i := GetIniVar( j, {{"lpu_plat","regi_plat",}, ;
+                      {"lpu_plat","close",}, ;
                       {"lpu_plat","kassa",}} )
   if i[1] != NIL .and. i[1] == "1"
     glob_pl_reg := 1  // вводим квитанционную книжку в задаче "Платные услуги"
@@ -2885,7 +2897,7 @@ return NIL
 
 ** 11.05.20 удалить счет(а) по одному реестру СП и ТК и по этим людям создать заново счета (м.б.другое кол-во счетов)
 Function ReCreate_some_Schet_From_FILE_SP(arr)
-Local arr_XML_info[8], cFile, arr_f, k, n, oXmlDoc, aerr := {}, t_arr[2],;
+Local arr_XML_info[8], cFile, arr_f, k, n, oXmlDoc, aerr := {}, t_arr[2], ;
       i, s, rec_schet, rec_schet_xml, go_to_schet := .f., arr_schet := {}
   
 Private name_schet, _date_schet, mXML_REESTR
@@ -2901,10 +2913,10 @@ for i := 1 to len(arr)
     return func_error(4,"Счёт "+rtrim(schet_->nschet)+" из другого реестра СП и ТК. Операция запрещена.")
   endif
   aadd(arr_schet, {;
-    arr[i],;                  // 1 - schet->(recno())
-    schet_->kod_xml,;         // 2 - ссылка на файл "mo_xml"
-    schet_->name_xml,;        // 3 - имя XML-файла без расширения (и ZIP-архива)
-    alltrim(schet_->nschet),; // 4 - номер счета
+    arr[i], ;                  // 1 - schet->(recno())
+    schet_->kod_xml, ;         // 2 - ссылка на файл "mo_xml"
+    schet_->name_xml, ;        // 3 - имя XML-файла без расширения (и ZIP-архива)
+    alltrim(schet_->nschet), ; // 4 - номер счета
     schet_->dschet ;          // 5 - дата формирования счета
    })
 next
@@ -2944,11 +2956,11 @@ if mo_Lock_Task(X_OMS) // запрет только ОМС G_SLock1Task(sem_task,sem_vagno) // 
     index_base("schet") // для составления счетов
     index_base("human") // для разноски счетов
     index_base("human_3") // двойные случаи
-    use (dir_server+"human_u") new READONLY
-    index on str(kod,7)+date_u to (dir_server+"human_u") progress
+    use (dir_server + "human_u") new READONLY
+    index on str(kod,7)+date_u to (dir_server + "human_u") progress
     use
-    Use (dir_server+"mo_hu") new READONLY
-    index on str(kod,7)+date_u to (dir_server+"mo_hu") progress
+    Use (dir_server + "mo_hu") new READONLY
+    index on str(kod,7)+date_u to (dir_server + "mo_hu") progress
     Use
     index_base("mo_refr")  // для записи причин отказов
     //
@@ -2967,7 +2979,7 @@ if mo_Lock_Task(X_OMS) // запрет только ОМС G_SLock1Task(sem_task,sem_vagno) // 
       reestr_sp_tk_tmpfile(oXmlDoc,aerr,cReadFile)
     endif
     if empty(aerr)
-      R_Use(dir_server+"mo_rees",,"REES")
+      R_Use(dir_server + "mo_rees",,"REES")
       goto (mkod_reestr)
       if !extract_reestr(rees->(recno()),rees->name_xml)
         aadd(aerr,center("Не найден ZIP-архив с РЕЕСТРом № "+lstr(mnschet)+" от "+date_8(tmp1->_DSCHET),80))
@@ -2979,9 +2991,9 @@ if mo_Lock_Task(X_OMS) // запрет только ОМС G_SLock1Task(sem_task,sem_vagno) // 
     endif
     close databases
     if empty(aerr)
-      dbcreate(cur_dir+"tmpsh",{{"kod_h","N",7,0}})
-      use (cur_dir+"tmpsh") new
-      R_Use(dir_server+"human",dir_server+"humans","HUMAN")
+      dbcreate(cur_dir + "tmpsh",{{"kod_h","N",7,0}})
+      use (cur_dir + "tmpsh") new
+      R_Use(dir_server + "human",dir_server + "humans","HUMAN")
       for i := 1 to len(arr_schet)
         find (str(arr_schet[i,1],6))
         do while human->schet == arr_schet[i,1] .and. !eof()
@@ -2993,37 +3005,37 @@ if mo_Lock_Task(X_OMS) // запрет только ОМС G_SLock1Task(sem_task,sem_vagno) // 
         enddo
       next
       select tmpsh
-      index on str(kod_h,7) to (cur_dir+"tmpsh")
-      R_Use(dir_server+"mo_rhum",,"RHUM")
-      index on str(REES_ZAP,6) to (cur_dir+"tmp_rhum") for reestr == mkod_reestr
+      index on str(kod_h,7) to (cur_dir + "tmpsh")
+      R_Use(dir_server + "mo_rhum",,"RHUM")
+      index on str(REES_ZAP,6) to (cur_dir + "tmp_rhum") for reestr == mkod_reestr
       // открыть распакованный реестр
-      use (cur_dir+"tmp_r_t1") new alias T1
-      index on str(val(n_zap),6) to (cur_dir+"tmpt1")
-      use (cur_dir+"tmp_r_t2") new alias T2
-      index on IDCASE+str(sluch,6) to (cur_dir+"tmpt2")
-      use (cur_dir+"tmp_r_t3") new alias T3
-      index on upper(ID_PAC) to (cur_dir+"tmpt3")
-      use (cur_dir+"tmp_r_t4") new alias T4
-      index on IDCASE+str(sluch,6) to (cur_dir+"tmpt4")
-      use (cur_dir+"tmp_r_t5") new alias T5
-      index on IDCASE+str(sluch,6) to (cur_dir+"tmpt5")
-      use (cur_dir+"tmp_r_t6") new alias T6
-      index on IDCASE+str(sluch,6) to (cur_dir+"tmpt6")
-      use (cur_dir+"tmp_r_t7") new alias T7
-      index on IDCASE+str(sluch,6) to (cur_dir+"tmpt7")
-      use (cur_dir+"tmp_r_t8") new alias T8
-      index on IDCASE+str(sluch,6) to (cur_dir+"tmpt8")
-      use (cur_dir+"tmp_r_t9") new alias T
-      index on IDCASE+str(sluch,6) to (cur_dir+"tmpt9")
-      use (cur_dir+"tmp_r_t10") new alias T10
-      index on IDCASE+str(sluch,6)+regnum+code_sh+date_inj to (cur_dir+"tmpt10")
-      use (cur_dir+"tmp_r_t11") new alias T11
-      index on IDCASE+str(sluch,6) to (cur_dir+"tmpt11")
-      use (cur_dir+"tmp_r_t12") new alias T12
-      index on IDCASE+str(sluch,6) to (cur_dir+"tmpt12")
-      use (cur_dir+"tmp_r_t1_1") new alias T1_1
-      index on IDCASE to (cur_dir+"tmpt1_1")
-      use (cur_dir+"tmp2file") new alias TMP2
+      use (cur_dir + "tmp_r_t1") new alias T1
+      index on str(val(n_zap),6) to (cur_dir + "tmpt1")
+      use (cur_dir + "tmp_r_t2") new alias T2
+      index on IDCASE+str(sluch,6) to (cur_dir + "tmpt2")
+      use (cur_dir + "tmp_r_t3") new alias T3
+      index on upper(ID_PAC) to (cur_dir + "tmpt3")
+      use (cur_dir + "tmp_r_t4") new alias T4
+      index on IDCASE+str(sluch,6) to (cur_dir + "tmpt4")
+      use (cur_dir + "tmp_r_t5") new alias T5
+      index on IDCASE+str(sluch,6) to (cur_dir + "tmpt5")
+      use (cur_dir + "tmp_r_t6") new alias T6
+      index on IDCASE+str(sluch,6) to (cur_dir + "tmpt6")
+      use (cur_dir + "tmp_r_t7") new alias T7
+      index on IDCASE+str(sluch,6) to (cur_dir + "tmpt7")
+      use (cur_dir + "tmp_r_t8") new alias T8
+      index on IDCASE+str(sluch,6) to (cur_dir + "tmpt8")
+      use (cur_dir + "tmp_r_t9") new alias T
+      index on IDCASE+str(sluch,6) to (cur_dir + "tmpt9")
+      use (cur_dir + "tmp_r_t10") new alias T10
+      index on IDCASE+str(sluch,6)+regnum+code_sh+date_inj to (cur_dir + "tmpt10")
+      use (cur_dir + "tmp_r_t11") new alias T11
+      index on IDCASE+str(sluch,6) to (cur_dir + "tmpt11")
+      use (cur_dir + "tmp_r_t12") new alias T12
+      index on IDCASE+str(sluch,6) to (cur_dir + "tmpt12")
+      use (cur_dir + "tmp_r_t1_1") new alias T1_1
+      index on IDCASE to (cur_dir + "tmpt1_1")
+      use (cur_dir + "tmp2file") new alias TMP2
       is_new_err := .f.  // ушли ли какие-либо случаи в ошибки (т.е. новые ошибки)
       go top
       do while !eof()
@@ -3064,18 +3076,18 @@ if mo_Lock_Task(X_OMS) // запрет только ОМС G_SLock1Task(sem_task,sem_vagno) // 
     endif
     close databases
     if empty(aerr) .and. is_new_err
-      R_Use(dir_server+"mo_otd",,"OTD")
-      G_Use(dir_server+"human_",,"HUMAN_")
-      G_Use(dir_server+"human",{dir_server+"humann",dir_server+"humans"},"HUMAN")
+      R_Use(dir_server + "mo_otd",,"OTD")
+      G_Use(dir_server + "human_",,"HUMAN_")
+      G_Use(dir_server + "human",{dir_server + "humann",dir_server + "humans"},"HUMAN")
       set order to 0 // индексы открыты для реконструкции при перезаписи ФИО
       set relation to recno() into HUMAN_, to otd into OTD
-      G_Use(dir_server+"human_3",{dir_server+"human_3",dir_server+"human_32"},"HUMAN_3")
-      G_Use(dir_server+"mo_rhum",,"RHUM")
-      index on str(REES_ZAP,6) to (cur_dir+"tmp_rhum") for reestr == mkod_reestr
-      G_Use(dir_server+"mo_refr",dir_server+"mo_refr","REFR")
-      use (cur_dir+"tmp3file") new alias TMP3
-      index on str(_n_zap,8) to (cur_dir+"tmp3")
-      use (cur_dir+"tmp2file") new alias TMP2
+      G_Use(dir_server + "human_3",{dir_server + "human_3",dir_server + "human_32"},"HUMAN_3")
+      G_Use(dir_server + "mo_rhum",,"RHUM")
+      index on str(REES_ZAP,6) to (cur_dir + "tmp_rhum") for reestr == mkod_reestr
+      G_Use(dir_server + "mo_refr",dir_server + "mo_refr","REFR")
+      use (cur_dir + "tmp3file") new alias TMP3
+      index on str(_n_zap,8) to (cur_dir + "tmp3")
+      use (cur_dir + "tmp2file") new alias TMP2
       go top
       do while !eof()
         if tmp2->_OPLATA > 1 // удаляем из счёта, удаляем из реестра, оформляем ошибку
@@ -3218,7 +3230,7 @@ if mo_Lock_Task(X_OMS) // запрет только ОМС G_SLock1Task(sem_task,sem_vagno) // 
       if empty(aerr) // если нет ошибок
         use_base("schet")
         set relation to
-        G_Use(dir_server+"mo_xml",,"MO_XML")
+        G_Use(dir_server + "mo_xml",,"MO_XML")
         // удалим старые счета
         for i := 1 to len(arr_schet)
           strfile(hb_eol()+;
@@ -3262,15 +3274,16 @@ else
 endif
 return NIL
 
-** 03.04.13 дополнить файл ofile строками из файла nfile
-Function f_append_file(ofile,nfile)
-Local s
-ft_use(nfile)
-ft_gotop()
-do while !ft_eof()
-  s := ft_ReadLn()
-  strfile(s+hb_eol(),ofile,.t.)
-  ft_skip()
-enddo
-ft_use()
-return NIL
+** 08.02.23 дополнить файл ofile строками из файла nfile
+Function f_append_file(ofile, nfile)
+  Local s
+
+  ft_use(nfile)
+  ft_gotop()
+  do while !ft_eof()
+    s := ft_ReadLn()
+    strfile(s + hb_eol(), ofile, .t.)
+    ft_skip()
+  enddo
+  ft_use()
+  return NIL
