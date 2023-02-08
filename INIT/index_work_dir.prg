@@ -4,8 +4,8 @@
 #define NUMBER_YEAR 5 // число лет для переиндексации назад
 #define INDEX_NEED  2 // число лет обязательной переиндексации
 
-** 07.02.23 проверка и переиндексирование справочников ТФОМС
-Function index_work_dir(exe_dir, cur_dir)
+** 08.02.23 проверка и переиндексирование справочников ТФОМС
+Function index_work_dir(exe_dir, cur_dir, flag)
   Local fl := .t., i, arr, buf := save_maxrow()
   local arrRefFFOMS := {}, row, row_flag := .t.
   local lSchema := .f.
@@ -24,6 +24,8 @@ Function index_work_dir(exe_dir, cur_dir)
   Public is_22_VMP := .f.     // ВМП для 22 года
   Public is_23_VMP := .f.     // ВМП для 23 года
   
+  DEFAULT flag TO .f.
+
   // справочник цен на услуги ТФОМС 2016-2017
   Public glob_MU_dializ := {}//'A18.05.002.001','A18.05.002.002','A18.05.002.003',;
                             //'A18.05.003','A18.05.003.001','A18.05.011','A18.30.001','A18.30.001.001'}
@@ -82,15 +84,15 @@ Function index_work_dir(exe_dir, cur_dir)
 
   // for countYear = WORK_YEAR - 4 to WORK_YEAR
   for countYear = WORK_YEAR - NUMBER_YEAR to WORK_YEAR
-    fl := vmp_usl_check(countYear, exe_dir, cur_dir)
-    fl := dep_index_and_fill(countYear, exe_dir, cur_dir)  // справочник отделений на countYear год
-    fl := usl_Index(countYear, exe_dir, cur_dir)    // справочник услуг ТФОМС на countYear год
-    fl := uslc_Index(countYear, exe_dir, cur_dir)   // цены на услуги на countYear год
-    fl := uslf_Index(countYear, exe_dir, cur_dir)   // справочник услуг ФФОМС countYear
-    fl := unit_Index(countYear, exe_dir, cur_dir)   // план-заказ
-    fl := shema_index(countYear, exe_dir, cur_dir)
-    // fl := it_Index(countYear, exe_dir, cur_dir)
-    fl := k006_index(countYear, exe_dir, cur_dir)
+    fl := vmp_usl_check(countYear, exe_dir, cur_dir, flag)
+    fl := dep_index_and_fill(countYear, exe_dir, cur_dir, flag)  // справочник отделений на countYear год
+    fl := usl_Index(countYear, exe_dir, cur_dir, flag)    // справочник услуг ТФОМС на countYear год
+    fl := uslc_Index(countYear, exe_dir, cur_dir, flag)   // цены на услуги на countYear год
+    fl := uslf_Index(countYear, exe_dir, cur_dir, flag)   // справочник услуг ФФОМС countYear
+    fl := unit_Index(countYear, exe_dir, cur_dir, flag)   // план-заказ
+    fl := shema_index(countYear, exe_dir, cur_dir, flag)
+    // fl := it_Index(countYear, exe_dir, cur_dir, flag)
+    fl := k006_index(countYear, exe_dir, cur_dir, flag)
   next
 
   Public is_MO_VMP := (is_ksg_VMP .or. is_12_VMP .or. is_14_VMP .or. is_ds_VMP .or. is_21_VMP .or. is_22_VMP .or. is_23_VMP)
@@ -419,11 +421,12 @@ Function index_work_dir(exe_dir, cur_dir)
 
   return nil
 
-** 29.02.22
-function vmp_usl_check(val_year, exe_dir, cur_dir)  // справочник соответствия услуг ВМП услугам ТФОМС на countYear год
+** 08.02.23
+function vmp_usl_check(val_year, exe_dir, cur_dir, flag)  // справочник соответствия услуг ВМП услугам ТФОМС на countYear год
   local fl := .t.
   local sbase := prefixFileRefName(val_year) + 'vmp_usl'  // справочник соответствия услуг ВМП услугам ТФОМС
     
+  DEFAULT flag TO .f.
   if val_year >= 2021
     if ! hb_FileExists(exe_dir + sbase + sdbf)
       fl := notExistsFileNSI(exe_dir + sbase + sdbf)
@@ -432,12 +435,13 @@ function vmp_usl_check(val_year, exe_dir, cur_dir)  // справочник соответствия у
   return fl
 
 ** 08.02.23
-function dep_index_and_fill(val_year, exe_dir, cur_dir)
+function dep_index_and_fill(val_year, exe_dir, cur_dir, flag)
   local fl := .t.
   local sbase
   local lIndex := .f.
   local file_index
   
+  DEFAULT flag TO .f.
   // is_otd_dep, glob_otd_dep, mm_otd_dep - объявлены ранее как Public
   sbase := prefixFileRefName(val_year) + 'dep'  // справочник отделений на конкретный год
   file_index := cur_dir + sbase + sntx
@@ -448,6 +452,9 @@ function dep_index_and_fill(val_year, exe_dir, cur_dir)
     // if ! hb_FileExists(file_index)
     //   lIndex := .t.
     // endif
+    if flag
+      lIndex := .t.
+    endif
     R_Use(exe_dir + sbase, , 'DEP')
     if lIndex
       index on str(code, 3) to (cur_dir + sbase) for codem == glob_mo[_MO_KOD_TFOMS]
@@ -489,12 +496,13 @@ function dep_index_and_fill(val_year, exe_dir, cur_dir)
   return fl
 
 ** 08.02.23
-function usl_Index(val_year, exe_dir, cur_dir)
+function usl_Index(val_year, exe_dir, cur_dir, flag)
   local fl := .t.
   local sbase
   local lIndex := .f.
   local file_index
 
+  DEFAULT flag TO .f.
   sbase := prefixFileRefName(val_year) + 'usl'  // справочник услуг ТФОМС на конкретный год
   file_index := cur_dir + sbase + sntx
   if hb_FileExists(exe_dir + sbase + sdbf)
@@ -504,6 +512,9 @@ function usl_Index(val_year, exe_dir, cur_dir)
     // if ! hb_FileExists(file_index)
     //   lIndex := .t.
     // endif
+    if flag
+      lIndex := .t.
+    endif
     R_Use(exe_dir + sbase, ,'LUSL')
     if lIndex
       index on shifr to (cur_dir + sbase)
@@ -526,13 +537,14 @@ function usl_Index(val_year, exe_dir, cur_dir)
   return fl
   
 ** 08.02.23
-function uslc_Index(val_year, exe_dir, cur_dir)
+function uslc_Index(val_year, exe_dir, cur_dir, flag)
   local fl := .t.
   local sbase, prefix
   local index_usl_name
   local lIndex := .f.
   local file_index
   
+  DEFAULT flag TO .f.
   prefix := prefixFileRefName(val_year)
   sbase :=  prefix + 'uslc'  // цены на услуги на конкретный год
   index_usl_name :=  prefix + 'uslu'  // 
@@ -545,6 +557,9 @@ function uslc_Index(val_year, exe_dir, cur_dir)
     //         ! hb_FileExists(cur_dir + index_usl_name + sntx)
     //   lIndex := .t.
     // endif
+    if flag
+      lIndex := .t.
+    endif
     R_Use(exe_dir + sbase, , 'LUSLC')
     if lIndex
       index on shifr + str(vzros_reb, 1) + str(depart, 3) + dtos(datebeg) to (cur_dir + sbase) ;
@@ -678,12 +693,13 @@ function uslc_Index(val_year, exe_dir, cur_dir)
   return fl
 
 ** 08.02.23
-function uslf_Index(val_year, exe_dir, cur_dir)
+function uslf_Index(val_year, exe_dir, cur_dir, flag)
   local fl := .t.
   local sbase
   local lIndex := .f.
   local file_index
   
+  DEFAULT flag TO .f.
   sbase := prefixFileRefName(val_year) + 'uslf'  // справочник услуг ФФОМС на конкретный год
   file_index := cur_dir + sbase + sntx
   if hb_FileExists(exe_dir + sbase + sdbf)
@@ -693,7 +709,9 @@ function uslf_Index(val_year, exe_dir, cur_dir)
     // if ! hb_FileExists(file_index)
     //   lIndex := .t.
     // endif
-    
+    if flag
+      lIndex := .t.
+    endif
     if lIndex
       R_Use(exe_dir + sbase, , 'LUSLF')
       index on shifr to (cur_dir + sbase)
@@ -705,12 +723,13 @@ function uslf_Index(val_year, exe_dir, cur_dir)
   return fl
 
 ** 08.02.23
-function unit_Index(val_year, exe_dir, cur_dir)
+function unit_Index(val_year, exe_dir, cur_dir, flag)
   local fl := .t.
   local sbase
   local lIndex := .f.
   local file_index
       
+  DEFAULT flag TO .f.
   sbase := prefixFileRefName(val_year) + 'unit'  // план-заказ на конкретный год
   file_index := cur_dir + sbase + sntx
   if hb_FileExists(exe_dir + sbase + sdbf)
@@ -720,6 +739,9 @@ function unit_Index(val_year, exe_dir, cur_dir)
     // if ! hb_FileExists(file_index)
     //   lIndex := .t.
     // endif
+    if flag
+      lIndex := .t.
+    endif
     if lIndex
       R_Use(exe_dir + sbase )
       index on str(code, 3) to (cur_dir + sbase)
@@ -731,12 +753,13 @@ function unit_Index(val_year, exe_dir, cur_dir)
   return fl
 
 ** 08.02.23
-function shema_index(val_year, exe_dir, cur_dir)
+function shema_index(val_year, exe_dir, cur_dir, flag)
   local fl := .t.
   local sbase
   local file_index
   local lIndex := .f.
 
+  DEFAULT flag TO .f.
   sbase := prefixFileRefName(val_year) + 'shema'  // 
   file_index := cur_dir + sbase + sntx
   if hb_FileExists(exe_dir + sbase + sdbf)
@@ -746,7 +769,9 @@ function shema_index(val_year, exe_dir, cur_dir)
     // if ! hb_FileExists(file_index)
     //   lIndex := .t.
     // endif
-
+    if flag
+      lIndex := .t.
+    endif
     if lIndex
       R_Use(exe_dir + sbase )
       index on KOD to (cur_dir + sbase) // по коду критерия
@@ -758,12 +783,13 @@ function shema_index(val_year, exe_dir, cur_dir)
   return fl
 
 ** 08.02.23
-function k006_index(val_year, exe_dir, cur_dir)
+function k006_index(val_year, exe_dir, cur_dir, flag)
   local fl := .t.
   local sbase
   local lIndex := .f.
   local file_index
 
+  DEFAULT flag TO .f.
   sbase := prefixFileRefName(val_year) + 'k006'  // 
   file_index := cur_dir + sbase + sntx
   if hb_FileExists(exe_dir + sbase + sdbf)
@@ -776,6 +802,9 @@ function k006_index(val_year, exe_dir, cur_dir)
       //       ! hb_FileExists(cur_dir + sbase + 'AD' + sntx)
       //   lIndex := .t.
       // endif
+      if flag
+        lIndex := .t.
+      endif
       if lIndex
         R_Use(exe_dir + sbase)
         index on substr(shifr, 1, 2) + ds + sy + age + sex + los to (cur_dir + sbase) // по диагнозу/операции
@@ -792,13 +821,14 @@ function k006_index(val_year, exe_dir, cur_dir)
   return fl
   
 **** 29.01.22
-// function it_Index(val_year, exe_dir, cur_dir)
+// function it_Index(val_year, exe_dir, cur_dir, flag)
 //   local fl := .t.
 //   local ar, ar1, ar2, lSchema, i
 //   local sbase := prefixFileRefName(val_year) + 'it'  //
 //   local sbaseIt1, sbaseIt, sbaseShema
 //   local arrName
 
+  // DEFAULT flag TO .f.
 //   if val_year < 2018 .or. val_year > WORK_YEAR // года не входит в рабочий диапазон
 //     return fl
 //   endif

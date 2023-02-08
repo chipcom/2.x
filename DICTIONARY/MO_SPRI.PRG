@@ -677,9 +677,9 @@ Function v_nulusluga()
   viewtext(n_file, , , , , , , 2)
   return NIL
 
-** 01.12.21 даты смены цен
+** 08.02.23 даты смены цен
 Function usl1TFOMS()
-  Local k, buf := save_maxrow(), name_file := "uslugi"+stxt, sh := 80, HH := 60, ;
+  Local k, buf := save_maxrow(), name_file := cur_dir + "uslugi" + stxt, sh := 80, HH := 60, ;
       i, s, fl, v1, v2, mdate, pole, nu, t_arr[BR_LEN], ret, ret_arr, scode, dy
   local sbase, tmpAlias
 
@@ -957,7 +957,7 @@ return ret_arr
 ** 08.12.21
 Function usl2TFOMS()
   Static sdate
-  Local k, buf := save_maxrow(), name_file := "uslugi"+stxt, nu, ret_arr, ;
+  Local k, buf := save_maxrow(), name_file := cur_dir + "uslugi" + stxt, nu, ret_arr, ;
       sh := 80, HH := 60, t_arr, i, s, fl, v1, v2, mdate, fl1uslc, fl2uslc, ;
       ta[2], lyear, fl1del, fl2del, len_ksg := 10
   local arrKSLP, rowKSLP, tmpKSLP, arrKIRO, rowKIRO, tmpKIRO
@@ -1200,9 +1200,9 @@ Function f_ret_kz_ksg(lkz, lkslp, lkiro)
   endif
   return s
 
-** 01.12.21
+** 08.02.23
 Function usl3TFOMS()
-Local i, k, buf := save_maxrow(), name_file := "uslugi"+stxt, ;
+Local i, k, buf := save_maxrow(), name_file := cur_dir + "uslugi" + stxt, ;
       sh := 85, HH := 80, mas1[5], mas2[5], arr[5], k1, k2, t_arr, mdate, lyear
 //
 if (mdate := input_value(20,5,22,74,color1, ;
@@ -1542,10 +1542,10 @@ Function usl5FFOMS()
   next
   return arr
 
-** 25.11.21
+** 08.02.23
 Function usl_stom_FFOMS()
 Static arr_gr := {"Общепрофильные","Ортодонтия","Терапевтическая стоматология","Физиотерапия","Хирургическая стоматология"}
-Local i, j, k, s, buf := save_maxrow(), name_file := "uslugiS"+stxt, sh := 80, HH := 60, t_arr[2], fl
+Local i, j, k, s, buf := save_maxrow(), name_file := cur_dir + "uslugiS" + stxt, sh := 80, HH := 60, t_arr[2], fl
 mywait()
 R_Use_base("luslf")
 index on str(grp,1)+shifr to (cur_dir + "tmp_uslf")
@@ -1584,9 +1584,9 @@ fclose(fp)
 viewtext(name_file,,,,.t.,,,2)
 return NIL
 
-** 25.11.21 Распечатка списка услуг с использованием телемедицинских технологий
+** 08.02.23 Распечатка списка услуг с использованием телемедицинских технологий
 Function usl_telemedicina()
-Local i, j, k, buf := save_maxrow(), name_file := "uslugiT"+stxt, sh := 80, HH := 60, t_arr[2], fl
+Local i, j, k, buf := save_maxrow(), name_file := cur_dir + "uslugiT" + stxt, sh := 80, HH := 60, t_arr[2], fl
 mywait()
 R_Use_base("luslf")
 index on shifr to (cur_dir + "tmp_uslf") for telemed == 1
@@ -1611,10 +1611,10 @@ fclose(fp)
 viewtext(name_file,,,,.t.,,,2)
 return NIL
 
-** 25.11.21 Распечатка списка операций на парных органах
+** 08.02.23 Распечатка списка операций на парных органах
 Function usl_par_organ()
 ** 11.01.20 Распечатка списка услуг с использованием телемедицинских технологий
-Local i, j, k, buf := save_maxrow(), name_file := "uslugiT"+stxt, sh := 80, HH := 60, t_arr[2], fl
+Local i, j, k, buf := save_maxrow(), name_file := cur_dir + "uslugiT" + stxt, sh := 80, HH := 60, t_arr[2], fl
 mywait()
 R_Use_base("luslf")
 index on shifr to (cur_dir + "tmp_uslf") for !empty(par_org)
@@ -1645,14 +1645,14 @@ fclose(fp)
 viewtext(name_file,,,,.t.,,,2)
 return NIL
 
-** 25.11.21 Вывод списка услуг диагностики при дообследовании в направлениях на ЗНО
+** 08.02.23 Вывод списка услуг диагностики при дообследовании в направлениях на ЗНО
 Function usl_napr_FFOMS()
 Static arr_gr := {;
   {"1 - лабораторная диагностика",1}, ;
   {"2 - инструментальная диагностика",2}, ;
   {"3 - методы лучевой диагностики, за исключением дорогостоящих",3}, ;
   {"4 - дорогостоящие методы лучевой диагностики (КТ, МРТ, ангиография)",4}}
-Local i, j, k, buf := save_maxrow(), name_file := "uslugiON"+stxt, sh := 80, HH := 60, t_arr[2], fl, ar
+Local i, j, k, buf := save_maxrow(), name_file := cur_dir + "uslugiON" + stxt, sh := 80, HH := 60, t_arr[2], fl, ar
 if (t_arr := bit_popup(T_ROW,T_COL-5,arr_gr,,color0,1,"Метод диагностического исследования","B/BG")) == NIL
   return NIL
 endif
@@ -1691,7 +1691,7 @@ fclose(fp)
 viewtext(name_file,,,,.t.,,,2)
 return NIL
 
-** 25.11.21 Вывод списка услуг по типам лечения ОНКОзаболеваний
+** 08.02.23 Вывод списка услуг по типам лечения ОНКОзаболеваний
 Function usl_ksg_FFOMS()
   Static arr_gr := {;
     {"1 - Хирургическое лечение",1}, ;
@@ -1700,7 +1700,7 @@ Function usl_ksg_FFOMS()
     {"4 - Химиолучевая терапия",4}, ;
     {"5 - Неспецифическое лечение (осложнения противоопухолевой терапии, установка/замена порт системы (катетера))",5}, ;
     {"6 - Диагностика",6}}
-  Local i, j, k, buf := save_maxrow(), name_file := "uslugiOK"+stxt, sh := 80, HH := 60, t_arr[2], fl, ar
+  Local i, j, k, buf := save_maxrow(), name_file := cur_dir + "uslugiOK" + stxt, sh := 80, HH := 60, t_arr[2], fl, ar
 
   if (t_arr := bit_popup(T_ROW,T_COL-5,arr_gr,,color0,1,"Тип лечения онкологических заболеваний","B/BG")) == NIL
     return NIL
@@ -1744,10 +1744,10 @@ Function usl_ksg_FFOMS()
   viewtext(name_file,,,,.t.,,,2)
   return NIL
 
-** 12.01.14
+** 08.02.23
 Function usl1FFOMS()
 Static su := "A01", suA := "01", suB := "001"
-Local k, buf := save_maxrow(), name_file := "uslugiF"+stxt, arr[2], ;
+Local k, buf := save_maxrow(), name_file := cur_dir + "uslugiF" + stxt, arr[2], ;
       sh := 80, HH := 60, t_arr[2], t_aA[2], t_aB[2], i, n, s, fl := .f.
 if !empty(popup_2array(usl3FFOMS(),T_ROW,T_COL-5,su,1,@t_arr, ;
           "Выберите раздел номенклатуры медицинских услуг","B/W",color5))
@@ -1817,9 +1817,9 @@ if fl
 endif
 return NIL
 
-** 03.01.19
+** 08.02.23
 Function usl2FFOMS()
-Local i, k, buf := save_maxrow(), name_file := "uslugiF"+stxt, sh := 85, HH := 80, mas1[5]
+Local i, k, buf := save_maxrow(), name_file := cur_dir + "uslugiF" + stxt, sh := 85, HH := 80, mas1[5]
 //
 mywait()
 arr_title := {;
@@ -1870,9 +1870,9 @@ fclose(fp)
 viewtext(name_file,,,,.t.,,,5)
 return NIL
 
-** 23.12.21
+** 08.02.23
 Function usl6FFOMS(lksg)
-Local k, buf := save_maxrow(), name_file := "usl_ksg"+stxt, nu, sh := 80, HH := 78, ;
+Local k, buf := save_maxrow(), name_file := cur_dir + "usl_ksg" + stxt, nu, sh := 80, HH := 78, ;
       t_arr, i, s, fl, v1, v2, mdate, fl1uslc, fl2uslc, ta[2], fl1del, fl2del, ret_arr
 local sbase
 
