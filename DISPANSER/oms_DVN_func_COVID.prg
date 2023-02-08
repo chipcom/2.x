@@ -785,11 +785,6 @@ function foundFFOMSUsluga(lshifr)
   MOSU->(dbCloseArea())
 
   close_use_base('luslf')
-  // luslf->(dbCloseArea())
-  // luslf18->(dbCloseArea())
-  // luslf19->(dbCloseArea())
-  // luslf20->(dbCloseArea())
-  // luslf21->(dbCloseArea())
 
   return kod_uslf
 

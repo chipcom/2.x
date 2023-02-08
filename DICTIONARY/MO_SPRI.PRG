@@ -2232,17 +2232,7 @@ do while !eof()
 enddo
 
 close_use_base('lusl')
-// lusl->(dbCloseArea())
-// lusl21->(dbCloseArea())
-// lusl20->(dbCloseArea())
-// lusl19->(dbCloseArea())
-// lusl18->(dbCloseArea())
 close_use_base('luslc')
-// luslc->(dbCloseArea())
-// luslc21->(dbCloseArea())
-// luslc20->(dbCloseArea())
-// luslc19->(dbCloseArea())
-// luslc18->(dbCloseArea())
 
 usl->(dbCloseArea())
 if mem_trudoem == 2

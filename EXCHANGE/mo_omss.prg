@@ -1911,20 +1911,10 @@ fclose(fp)
 
 rest_box(buf)
 close_use_base('lusl')
-// lusl->(dbCloseArea())
-// lusl21->(dbCloseArea())
-// lusl20->(dbCloseArea())
-// lusl19->(dbCloseArea())
-// lusl18->(dbCloseArea())
 
 lusld->(dbCloseArea())
 
 close_use_base('luslf')
-// luslf->(dbCloseArea())
-// luslf21->(dbCloseArea())
-// luslf20->(dbCloseArea())
-// luslf19->(dbCloseArea())
-// luslf18->(dbCloseArea())
 
 usl->(dbCloseArea())
 hu->(dbCloseArea())
