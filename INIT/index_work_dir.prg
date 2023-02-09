@@ -73,18 +73,15 @@ function files_NSI_exists(dir_file)
   for i := 1 to len(arr_check)
     if ! hb_FileExists(arr_check[i])
       aadd(aError, 'Отсутствует файл: ' + arr_check[i])
-      lRet := .f.
     endif
   next
 
   sbase := dir_file + 'chip_mo.db'
   if ! hb_FileExists(sbase)
     aadd(aError, sbase)
-    lRet := .f.
   else
     if (nSize := hb_vfSize(sbase)) < 3362000
       aadd(aError, 'Размер файла "' + sbase + '" меньше 3362000 байт. Обратитесь к разработчикам.')
-      lret := .f.
     endif
   endif
   if len(aError) > 0
@@ -105,6 +102,7 @@ function files_NSI_exists(dir_file)
     add_string('')
     fclose(fp)
     viewtext(n_file, , , , .t., , , 5)
+    lret := .f.
   endif
 
   return lRet
