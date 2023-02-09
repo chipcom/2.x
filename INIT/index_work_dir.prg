@@ -15,9 +15,7 @@ function files_NSI_exists(dir_file)
   local cDbt := '.dbt'
   local arr_f  := {'_okator', '_okatoo', '_okatos', '_okatoo8', '_okatos8'}
   local arr_check := {}
-
-  sbase := dir_file + 'chip_mo.db'
-  aadd(arr_check, sbase)
+  local n_file := cur_dir + 'error_init' + stxt, sh := 80, HH := 60
 
   // справочники диагнозов
   sbase := dir_file + '_mo_mkb' + cDbf
@@ -74,20 +72,41 @@ function files_NSI_exists(dir_file)
   // проверим существование файлов
   for i := 1 to len(arr_check)
     if ! hb_FileExists(arr_check[i])
-      aadd(aError, arr_check[i])
+      aadd(aError, 'Отсутствует файл: ' + arr_check[i])
       lRet := .f.
     endif
   next
-  // if ! hb_FileExists(sbase)
-  //   aadd(aError, sbase)
-  //   lRet := .f.
-  // else
-  //   if (nSize := hb_vfSize(sbase)) < 3362000
-  //     aadd(aError, 'Размер файла "' + sbase + '" меньше 3362000 байт. Обратитесь к разработчикам.')
-  //     lret := .f.
-  //   endif
-  // endif
-altd()
+
+  sbase := dir_file + 'chip_mo.db'
+  if ! hb_FileExists(sbase)
+    aadd(aError, sbase)
+    lRet := .f.
+  else
+    if (nSize := hb_vfSize(sbase)) < 3362000
+      aadd(aError, 'Размер файла "' + sbase + '" меньше 3362000 байт. Обратитесь к разработчикам.')
+      lret := .f.
+    endif
+  endif
+  if len(aError) > 0
+    aadd(aError, '')
+    aadd(aError, 'Работа невозможна!')
+    fp := fcreate(n_file)
+    n_list := 1
+    tek_stroke := 0
+    add_string('')
+    add_string(center('------ Неисправимые ошибки ------'))
+    add_string('')
+
+    for i := 1 to len(aError)
+      verify_FF(HH, .t., sh)
+      add_string(aError[i])
+    next
+
+    add_string('')
+    fclose(fp)
+    viewtext(n_file, , , , .t., , , 5)
+  endif
+
   return lRet
 
 ** 08.02.23 проверка и переиндексирование справочников ТФОМС
