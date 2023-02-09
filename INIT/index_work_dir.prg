@@ -4,6 +4,92 @@
 #define NUMBER_YEAR 5 // число лет для переиндексации назад
 #define INDEX_NEED  2 // число лет обязательной переиндексации
 
+** 09.02.23 проверка наличия справочников НСИ
+function files_NSI_exists(dir_file)
+  local lRet := .t.
+  local i
+  local sbase
+  local fl := .f.
+  local aError := {}
+  local cDbf := '.dbf'
+  local cDbt := '.dbt'
+  local arr_f  := {'_okator', '_okatoo', '_okatos', '_okatoo8', '_okatos8'}
+  local arr_check := {}
+
+  sbase := dir_file + 'chip_mo.db'
+  aadd(arr_check, sbase)
+
+  // справочники диагнозов
+  sbase := dir_file + '_mo_mkb' + cDbf
+  aadd(arr_check, sbase)
+  sbase := dir_file + '_mo_mkbg' + cDbf
+  aadd(arr_check, sbase)
+  sbase := dir_file + '_mo_mkbk' + cDbf
+  aadd(arr_check, sbase)
+
+  // услуги <-> специальности
+  sbase := dir_file + '_mo_spec' + cDbf
+  aadd(arr_check, sbase)
+
+  // услуги <-> профили
+  sbase := dir_file + '_mo_prof' + cDbf
+  aadd(arr_check, sbase)
+
+  sbase := dir_file + '_mo_t007' + cDbf
+  aadd(arr_check, sbase)
+
+  // справочник страховых компаний РФ
+  sbase := dir_file + '_mo_smo' + cDbf
+  aadd(arr_check, sbase)
+
+  // onkko_vmp
+  sbase := dir_file + '_mo_ovmp' + cDbf
+  aadd(arr_check, sbase)
+
+  // N0__
+  for i := 1 to 21
+    sbase := dir_file + '_mo_N' + StrZero(i,3) + cDbf
+    aadd(arr_check, sbase)
+  next
+
+  // справочник подразделений из паспорта ЛПУ
+  sbase := dir_file + '_mo_podr' + cDbf
+  aadd(arr_check, sbase)
+
+  // справочник соответствия профиля мед.помощи с профилем койки
+  sbase := dir_file + '_mo_prprk' + cDbf
+  aadd(arr_check, sbase)
+
+  sbase := dir_file + '_mo_t005' + cDbf
+  aadd(arr_check, sbase)
+  sbase := dir_file + '_mo_t005' + cDbt
+  aadd(arr_check, sbase)
+
+  // ОКАТО
+  for i := 1 to len(arr_f)
+    sbase := dir_file + arr_f[i] + cDbf
+    aadd(arr_check, sbase)
+  next
+
+  // проверим существование файлов
+  for i := 1 to len(arr_check)
+    if ! hb_FileExists(arr_check[i])
+      aadd(aError, arr_check[i])
+      lRet := .f.
+    endif
+  next
+  // if ! hb_FileExists(sbase)
+  //   aadd(aError, sbase)
+  //   lRet := .f.
+  // else
+  //   if (nSize := hb_vfSize(sbase)) < 3362000
+  //     aadd(aError, 'Размер файла "' + sbase + '" меньше 3362000 байт. Обратитесь к разработчикам.')
+  //     lret := .f.
+  //   endif
+  // endif
+altd()
+  return lRet
+
 ** 08.02.23 проверка и переиндексирование справочников ТФОМС
 Function index_work_dir(exe_dir, cur_dir, flag)
   Local fl := .t., i, arr, buf := save_maxrow()
