@@ -4,18 +4,28 @@
 #define NUMBER_YEAR 5 // число лет для переиндексации назад
 #define INDEX_NEED  2 // число лет обязательной переиндексации
 
-** 09.02.23 проверка наличия справочников НСИ
+** 10.02.23 проверка наличия справочников НСИ
 function files_NSI_exists(dir_file)
   local lRet := .t.
   local i
   local sbase
-  local fl := .f.
   local aError := {}
   local cDbf := '.dbf'
   local cDbt := '.dbt'
   local arr_f  := {'_okator', '_okatoo', '_okatos', '_okatoo8', '_okatos8'}
   local arr_check := {}
+  local countYear
+  local prefix
   local n_file := cur_dir + 'error_init' + stxt, sh := 80, HH := 60
+
+  sbase := dir_file + FILE_NAME_SQL // 'chip_mo.db'
+  if ! hb_FileExists(sbase)
+    aadd(aError, 'Отсутствует файл: ' + sbase)
+  else
+    if (nSize := hb_vfSize(sbase)) < 3362000
+      aadd(aError, 'Размер файла "' + sbase + '" меньше 3362000 байт. Обратитесь к разработчикам.')
+    endif
+  endif
 
   // справочники диагнозов
   sbase := dir_file + '_mo_mkb' + cDbf
@@ -69,6 +79,40 @@ function files_NSI_exists(dir_file)
     aadd(arr_check, sbase)
   next
 
+  for countYear = 2018 to WORK_YEAR
+    prefix := prefixFileRefName(countYear)
+    if countYear >= 2021
+      sbase := dir_file + prefix + 'vmp_usl' + cDbf  // справочник соответствия услуг ВМП услугам ТФОМС
+      aadd(arr_check, sbase)
+    endif
+  
+    sbase := dir_file + prefix + 'dep' + cDbf  // справочник отделений на конкретный год
+    aadd(arr_check, sbase)
+    sbase := dir_file + prefix + 'deppr' + cDbf // справочник отделения + профили  на конкретный год
+    aadd(arr_check, sbase)
+
+    sbase := dir_file + prefix + 'usl' + cDbf  // справочник услуг ТФОМС на конкретный год
+    aadd(arr_check, sbase)
+
+    sbase :=  dir_file + prefix + 'uslc' + cDbf  // цены на услуги на конкретный год
+    aadd(arr_check, sbase)
+  
+    sbase := dir_file + prefix + 'uslf' + cDbf  // справочник услуг ФФОМС на конкретный год
+    aadd(arr_check, sbase)
+
+    sbase := dir_file + prefix + 'unit' + cDbf  // план-заказ на конкретный год
+    aadd(arr_check, sbase)
+
+    sbase := dir_file + prefix + 'shema' + cDbf  // 
+    aadd(arr_check, sbase)
+
+    sbase := dir_file + prefix + 'k006' + cDbf  // 
+    aadd(arr_check, sbase)
+    sbase := dir_file + prefix + 'k006' + cDbt  // 
+    aadd(arr_check, sbase)
+
+  next
+
   // проверим существование файлов
   for i := 1 to len(arr_check)
     if ! hb_FileExists(arr_check[i])
@@ -76,38 +120,33 @@ function files_NSI_exists(dir_file)
     endif
   next
 
-  sbase := dir_file + 'chip_mo.db'
-  if ! hb_FileExists(sbase)
-    aadd(aError, sbase)
-  else
-    if (nSize := hb_vfSize(sbase)) < 3362000
-      aadd(aError, 'Размер файла "' + sbase + '" меньше 3362000 байт. Обратитесь к разработчикам.')
-    endif
-  endif
   if len(aError) > 0
-    aadd(aError, '')
+    // aadd(aError, '')
     aadd(aError, 'Работа невозможна!')
-    fp := fcreate(n_file)
-    n_list := 1
-    tek_stroke := 0
-    add_string('')
-    add_string(center('------ Неисправимые ошибки ------'))
-    add_string('')
+    // fp := fcreate(n_file)
+    // n_list := 1
+    // tek_stroke := 0
+    // add_string('')
+    // add_string(center('------ Неисправимые ошибки ------'))
+    // add_string('')
 
-    for i := 1 to len(aError)
-      verify_FF(HH, .t., sh)
-      add_string(aError[i])
-    next
+    // for i := 1 to len(aError)
+    //   verify_FF(HH, .t., sh)
+    //   add_string(aError[i])
+    // next
 
-    add_string('')
-    fclose(fp)
-    viewtext(n_file, , , , .t., , , 5)
+    // add_string('')
+    // fclose(fp)
+    // viewtext(n_file, , , , .t., , , 5)
+    f_message(aError, , 'GR+/R', 'W+/R', 13)
+    inkey(0)
+
     lret := .f.
   endif
 
   return lRet
 
-** 08.02.23 проверка и переиндексирование справочников ТФОМС
+** 10.02.23 проверка и переиндексирование справочников ТФОМС
 Function index_work_dir(exe_dir, cur_dir, flag)
   Local fl := .t., i, arr, buf := save_maxrow()
   local arrRefFFOMS := {}, row, row_flag := .t.
@@ -149,53 +188,34 @@ Function index_work_dir(exe_dir, cur_dir, flag)
   // справочник диагнозов
   sbase := '_mo_mkb'
   file_index := cur_dir + sbase + sntx
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    // if ! hb_FileExists(file_index)
-      R_Use(exe_dir + sbase )
-      index on shifr + str(ks, 1) to (cur_dir + sbase)
-      close databases
-    // endif
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
+  R_Use(exe_dir + sbase )
+  index on shifr + str(ks, 1) to (cur_dir + sbase)
+  close databases
 
   // услуги <-> специальности
   sbase := '_mo_spec'
   file_index := cur_dir + sbase + sntx
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    // if ! hb_FileExists(file_index)
-      R_Use(exe_dir + sbase )
-      index on shifr + str(vzros_reb, 1) + str(prvs_new, 6) to (cur_dir + sbase)
-      use
-    // endif
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
+  R_Use(exe_dir + sbase )
+  index on shifr + str(vzros_reb, 1) + str(prvs_new, 6) to (cur_dir + sbase)
+  use
 
   // услуги <-> профили
   sbase := '_mo_prof'
   file_index := cur_dir + sbase + sntx
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    // if ! hb_FileExists(file_index)
-      R_Use(exe_dir + sbase )
-      index on shifr + str(vzros_reb, 1) + str(profil, 3) to (cur_dir + sbase)
-      use
-    // endif
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
+  R_Use(exe_dir + sbase )
+  index on shifr + str(vzros_reb, 1) + str(profil, 3) to (cur_dir + sbase)
+  use
 
   // for countYear = WORK_YEAR - 4 to WORK_YEAR
   for countYear = WORK_YEAR - NUMBER_YEAR to WORK_YEAR
-    fl := vmp_usl_check(countYear, exe_dir, cur_dir, flag)
     fl := dep_index_and_fill(countYear, exe_dir, cur_dir, flag)  // справочник отделений на countYear год
     fl := usl_Index(countYear, exe_dir, cur_dir, flag)    // справочник услуг ТФОМС на countYear год
     fl := uslc_Index(countYear, exe_dir, cur_dir, flag)   // цены на услуги на countYear год
     fl := uslf_Index(countYear, exe_dir, cur_dir, flag)   // справочник услуг ФФОМС countYear
     fl := unit_Index(countYear, exe_dir, cur_dir, flag)   // план-заказ
     fl := shema_index(countYear, exe_dir, cur_dir, flag)
-    // fl := it_Index(countYear, exe_dir, cur_dir, flag)
     fl := k006_index(countYear, exe_dir, cur_dir, flag)
+    // fl := it_Index(countYear, exe_dir, cur_dir, flag)
   next
 
   Public is_MO_VMP := (is_ksg_VMP .or. is_12_VMP .or. is_14_VMP .or. is_ds_VMP .or. is_21_VMP .or. is_22_VMP .or. is_23_VMP)
@@ -226,318 +246,167 @@ Function index_work_dir(exe_dir, cur_dir, flag)
   Public arr_t007 := {}
   sbase := '_mo_t007'
   file_index := cur_dir + sbase + sntx
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    // if ! hb_FileExists(file_index) .or. ;
-    //     ! hb_FileExists(cur_dir + sbase + '2' + sntx)
-      R_Use(exe_dir + sbase, , 'T7')
-      index on upper(left(NAME, 50)) + str(profil_k, 3) to (cur_dir + sbase) UNIQUE
-      dbeval({|| aadd(arr_t007, {alltrim(t7->name), t7->profil_k, t7->pk_V020})})
-      index on str(profil_k, 3) + str(profil, 3) to (cur_dir + sbase)
-      index on str(pk_V020, 3) + str(profil, 3) to (cur_dir + sbase + '2')
-      use
-    // endif
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
+  R_Use(exe_dir + sbase, , 'T7')
+  index on upper(left(NAME, 50)) + str(profil_k, 3) to (cur_dir + sbase) UNIQUE
+  dbeval({|| aadd(arr_t007, {alltrim(t7->name), t7->profil_k, t7->pk_V020})})
+  index on str(profil_k, 3) + str(profil, 3) to (cur_dir + sbase)
+  index on str(pk_V020, 3) + str(profil, 3) to (cur_dir + sbase + '2')
+  use
 
   // справочник страховых компаний РФ
   sbase := '_mo_smo'
   file_index := cur_dir + sbase + sntx
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    Public glob_array_srf := {}
-    // if ! hb_FileExists(file_index) .or. ;
-    //       ! hb_FileExists(cur_dir + sbase + '2' + sntx) .or. ;
-    //       ! hb_FileExists(cur_dir + sbase + '3' + sntx)
-      R_Use(exe_dir + sbase )
-      index on okato to (cur_dir + sbase) UNIQUE
-      dbeval({|| aadd(glob_array_srf, {'', field->okato})})
-      index on okato + smo to (cur_dir + sbase)
-      index on smo to (cur_dir + sbase + '2')
-      index on okato + ogrn to (cur_dir + sbase + '3')
-      use
-    // endif
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
+  Public glob_array_srf := {}
+  R_Use(exe_dir + sbase )
+  index on okato to (cur_dir + sbase) UNIQUE
+  dbeval({|| aadd(glob_array_srf, {'', field->okato})})
+  index on okato + smo to (cur_dir + sbase)
+  index on smo to (cur_dir + sbase + '2')
+  index on okato + ogrn to (cur_dir + sbase + '3')
+  use
 
   // onkko_vmp
   sbase := '_mo_ovmp'
   file_index := cur_dir + sbase + sntx
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    // if ! hb_FileExists(file_index)
-      R_Use(exe_dir + sbase )
-      index on str(metod, 3) to (cur_dir + sbase)
-      use
-    // endif
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
+  R_Use(exe_dir + sbase )
+  index on str(metod, 3) to (cur_dir + sbase)
+  use
 
   // N002
   sbase := '_mo_N002'
   file_index := cur_dir + sbase + sntx
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    // if ! hb_FileExists(file_index) .or. ;
-    //       ! hb_FileExists(cur_dir + sbase + 'd' + sntx)
-      R_Use(exe_dir + sbase )
-      index on str(id_st, 6) to (cur_dir + sbase)
-      index on ds_st + kod_st to (cur_dir + sbase + 'd')
-      use
-    // endif
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
+  R_Use(exe_dir + sbase )
+  index on str(id_st, 6) to (cur_dir + sbase)
+  index on ds_st + kod_st to (cur_dir + sbase + 'd')
+  use
 
   // N003
   sbase := '_mo_N003'
   file_index := cur_dir + sbase + sntx
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    // if ! hb_FileExists(file_index) .or. ;
-    //       ! hb_FileExists(cur_dir + sbase + 'd' + sntx)
-      R_Use(exe_dir + sbase )
-      index on str(id_t, 6) to (cur_dir + sbase)
-      index on ds_t + kod_t to (cur_dir + sbase + 'd')
-      use
-    // endif
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
+  R_Use(exe_dir + sbase )
+  index on str(id_t, 6) to (cur_dir + sbase)
+  index on ds_t + kod_t to (cur_dir + sbase + 'd')
+  use
 
   // N004
   sbase := '_mo_N004'
   file_index := cur_dir + sbase + sntx
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    // if ! hb_FileExists(file_index) .or. ;
-    //       ! hb_FileExists(cur_dir + sbase + 'd' + sntx)
-      R_Use(exe_dir + sbase )
-      index on str(id_n, 6) to (cur_dir + sbase)
-      index on ds_n + kod_n to (cur_dir + sbase + 'd')
-      use
-    // endif
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
+  R_Use(exe_dir + sbase )
+  index on str(id_n, 6) to (cur_dir + sbase)
+  index on ds_n + kod_n to (cur_dir + sbase + 'd')
+  use
 
   // N005
   sbase := '_mo_N005'
   file_index := cur_dir + sbase + sntx
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    // if ! hb_FileExists(file_index) .or. ;
-    //       ! hb_FileExists(cur_dir + sbase + 'd' + sntx)
-      R_Use(exe_dir + sbase )
-      index on str(id_m, 6) to (cur_dir + sbase)
-      index on ds_m + kod_m to (cur_dir + sbase + 'd')
-      use
-    // endif
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
+  R_Use(exe_dir + sbase )
+  index on str(id_m, 6) to (cur_dir + sbase)
+  index on ds_m + kod_m to (cur_dir + sbase + 'd')
+  use
 
   // N006 - в 2019 году пустой
   sbase := '_mo_N006'
   file_index := cur_dir + sbase + sntx
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    // if ! hb_FileExists(file_index)
-      R_Use(exe_dir + sbase )
-      index on ds_gr + str(id_t, 6) + str(id_n, 6) + str(id_m, 6) to (cur_dir + sbase)
-      use
-    // endif
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
+  R_Use(exe_dir + sbase )
+  index on ds_gr + str(id_t, 6) + str(id_n, 6) + str(id_m, 6) to (cur_dir + sbase)
+  use
 
   // N007
   sbase := '_mo_N007'
   file_index := cur_dir + sbase + sntx
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    // if ! hb_FileExists(file_index)
-      R_Use(exe_dir + sbase )
-      index on str(id_mrf, 6) to (cur_dir + sbase)
-      use
-    // endif
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
+  R_Use(exe_dir + sbase )
+  index on str(id_mrf, 6) to (cur_dir + sbase)
+  use
 
   // N008
   sbase := '_mo_N008'
   file_index := cur_dir + sbase + sntx
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    // if ! hb_FileExists(file_index)
-      R_Use(exe_dir + sbase )
-      index on str(id_mrf, 6) to (cur_dir + sbase)
-      use
-    // endif
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
+  R_Use(exe_dir + sbase )
+  index on str(id_mrf, 6) to (cur_dir + sbase)
+  use
 
   // N010
   sbase := '_mo_N010'
   file_index := cur_dir + sbase + sntx
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    // if ! hb_FileExists(file_index)
-      R_Use(exe_dir + sbase )
-      index on str(id_igh, 6) to (cur_dir + sbase)
-      use
-    // endif
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
+  R_Use(exe_dir + sbase )
+  index on str(id_igh, 6) to (cur_dir + sbase)
+  use
 
   // N011
   sbase := '_mo_N011'
   file_index := cur_dir + sbase + sntx
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    // if ! hb_FileExists(file_index)
-      R_Use(exe_dir + sbase )
-      index on str(id_igh, 6) to (cur_dir + sbase)
-      use
-    // endif
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
+  R_Use(exe_dir + sbase )
+  index on str(id_igh, 6) to (cur_dir + sbase)
+  use
 
   // N020
   sbase := '_mo_N020'
   file_index := cur_dir + sbase + sntx
-  if hb_FileExists(exe_dir + sbase + sdbf)
-  //   if ! hb_FileExists(file_index) .or. ;
-  //         ! hb_FileExists(cur_dir + sbase + 'n' + sntx)
-      R_Use(exe_dir + sbase )
-      index on id_lekp to (cur_dir + sbase)
-      index on upper(mnn) to (cur_dir + sbase + 'n')
-      use
-    // endif
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
+  R_Use(exe_dir + sbase )
+  index on id_lekp to (cur_dir + sbase)
+  index on upper(mnn) to (cur_dir + sbase + 'n')
+  use
 
   // N021
   sbase := '_mo_N021'
   file_index := cur_dir + sbase + sntx
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    // if ! hb_FileExists(file_index)
-      R_Use(exe_dir + sbase )
-      index on code_sh + id_lekp to (cur_dir + sbase)
-      use
-    // endif
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
+  R_Use(exe_dir + sbase )
+  index on code_sh + id_lekp to (cur_dir + sbase)
+  use
 
   // справочник подразделений из паспорта ЛПУ
   sbase := '_mo_podr'
   file_index := cur_dir + sbase + sntx
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    // if ! hb_FileExists(file_index)
-      R_Use(exe_dir + sbase )
-      index on codemo + padr(upper(kodotd), 25) to (cur_dir + sbase)
-      use
-    // endif
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
+  R_Use(exe_dir + sbase )
+  index on codemo + padr(upper(kodotd), 25) to (cur_dir + sbase)
+  use
 
   // справочник соответствия профиля мед.помощи с профилем койки
   sbase := '_mo_prprk'
   file_index := cur_dir + sbase + sntx
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    // if ! hb_FileExists(file_index)
-      R_Use(exe_dir + sbase )
-      index on str(profil, 3) + str(profil_k, 3) to (cur_dir + sbase)
-      use
-    // endif
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
+  R_Use(exe_dir + sbase )
+  index on str(profil, 3) + str(profil_k, 3) to (cur_dir + sbase)
+  use
 
-  sbase := exe_dir + 'chip_mo.db'
-  if hb_FileExists(sbase)
-// в дальнейшем удалить
-    if (nSize := hb_vfSize(sbase)) < 3362000
-      fl := func_error('Размер файла "' + sbase + '" меньше 3362000 байт. Обратитесь к разработчикам.')
-    endif
-  else
-    fl := notExistsFileNSI(sbase)
-  endif
-
-  // aadd(arrRefFFOMS, {FILE_NAME_SQL, .f., FILE_NAME_SQL + ' - SQL-файл справочников системы'})
-  aadd(arrRefFFOMS, {'_mo_t005', .t., 'T005 - Справочник ошибок при проведении технологического контроля Реестров сведений и Реестров счетов' } )
-
-  for each row in arrRefFFOMS
-    sbase := row[1]
-    if ! hb_FileExists(exe_dir + sbase + sdbf)
-      row_flag := .f.
-    endif
-    if row[2]
-      if ! hb_FileExists(exe_dir + sbase + sdbt)
-        row_flag := .f.
-      endif
-    endif
-  next
-  fl := row_flag
-  if fl
-    // справочник ошибок
-    sbase := '_mo_t005'
-    file_index := cur_dir + sbase + sntx
-    // if ! hb_FileExists(file_index)
-      R_Use(exe_dir + sbase )
-      index on str(kod, 3) to (cur_dir + sbase)
-      use
-    // endif
-  endif
+  // справочник ошибок
+  sbase := '_mo_t005'
+  file_index := cur_dir + sbase + sntx
+  R_Use(exe_dir + sbase )
+  index on str(kod, 3) to (cur_dir + sbase)
+  use
 
   // справочник ОКАТО
-  if fl
-    okato_index()
-    //
-    dbcreate(cur_dir + 'tmp_srf', {{'okato', 'C', 5, 0}, {'name', 'C', 80, 0}})
-    use (cur_dir + 'tmp_srf') new alias TMP
-    R_Use(dir_exe + '_okator', cur_dir + '_okatr', 'RE')
-    R_Use(dir_exe + '_okatoo', cur_dir + '_okato', 'OB')
-    for i := 1 to len(glob_array_srf)
-      select OB
-      find (glob_array_srf[i, 2])
+  okato_index()
+  //
+  dbcreate(cur_dir + 'tmp_srf', {{'okato', 'C', 5, 0}, {'name', 'C', 80, 0}})
+  use (cur_dir + 'tmp_srf') new alias TMP
+  R_Use(dir_exe + '_okator', cur_dir + '_okatr', 'RE')
+  R_Use(dir_exe + '_okatoo', cur_dir + '_okato', 'OB')
+  for i := 1 to len(glob_array_srf)
+    select OB
+    find (glob_array_srf[i, 2])
+    if found()
+      glob_array_srf[i, 1] := rtrim(ob->name)
+    else
+      select RE
+      find (left(glob_array_srf[i, 2], 2))
       if found()
-        glob_array_srf[i, 1] := rtrim(ob->name)
-      else
-        select RE
-        find (left(glob_array_srf[i, 2], 2))
-        if found()
-          glob_array_srf[i, 1] := rtrim(re->name)
-        elseif left(glob_array_srf[i, 2], 2) == '55'
-          glob_array_srf[i, 1] := 'г.Байконур'
-        endif
+        glob_array_srf[i, 1] := rtrim(re->name)
+      elseif left(glob_array_srf[i, 2], 2) == '55'
+        glob_array_srf[i, 1] := 'г.Байконур'
       endif
-      select TMP
-      append blank
-      tmp->okato := glob_array_srf[i, 2]
-      tmp->name  := iif(substr(glob_array_srf[i, 2], 3, 1) == '0', '', '  ') + glob_array_srf[i, 1]
-    next
-    close databases
-  else
-    hard_err('delete')
-    QUIT
-  endif
+    endif
+    select TMP
+    append blank
+    tmp->okato := glob_array_srf[i, 2]
+    tmp->name  := iif(substr(glob_array_srf[i, 2], 3, 1) == '0', '', '  ') + glob_array_srf[i, 1]
+  next
+  close databases
   rest_box(buf)
 
   return nil
 
-** 08.02.23
-function vmp_usl_check(val_year, exe_dir, cur_dir, flag)  // справочник соответствия услуг ВМП услугам ТФОМС на countYear год
-  local fl := .t.
-  local sbase := prefixFileRefName(val_year) + 'vmp_usl'  // справочник соответствия услуг ВМП услугам ТФОМС
-    
-  DEFAULT flag TO .f.
-  if val_year >= 2021
-    if ! hb_FileExists(exe_dir + sbase + sdbf)
-      fl := notExistsFileNSI(exe_dir + sbase + sdbf)
-    endif
-  endif
-  return fl
-
-** 08.02.23
+** 10.02.23
 function dep_index_and_fill(val_year, exe_dir, cur_dir, flag)
   local fl := .t.
   local sbase
@@ -548,57 +417,39 @@ function dep_index_and_fill(val_year, exe_dir, cur_dir, flag)
   // is_otd_dep, glob_otd_dep, mm_otd_dep - объявлены ранее как Public
   sbase := prefixFileRefName(val_year) + 'dep'  // справочник отделений на конкретный год
   file_index := cur_dir + sbase + sntx
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    // if (year(sys_date) - val_year) < INDEX_NEED
-      lIndex := .t.
-    // endif
-    // if ! hb_FileExists(file_index)
-    //   lIndex := .t.
-    // endif
-    if flag
-      lIndex := .t.
-    endif
-    R_Use(exe_dir + sbase, , 'DEP')
-    if lIndex
+  R_Use(exe_dir + sbase, , 'DEP')
+    // if lIndex
       index on str(code, 3) to (cur_dir + sbase) for codem == glob_mo[_MO_KOD_TFOMS]
-    else
-      set index to (file_index)
-    endif
+    // else
+    //   set index to (file_index)
+    // endif
 
-    if val_year == WORK_YEAR
-      dbeval({|| aadd(mm_otd_dep, {alltrim(dep->name_short) + ' (' + alltrim(dep->name) + ')', dep->code, dep->place})})
-      if (is_otd_dep := (len(mm_otd_dep) > 0))
-        asort(mm_otd_dep, , , {|x, y| x[1] < y[1]})
-      endif
+  if val_year == WORK_YEAR
+    dbeval({|| aadd(mm_otd_dep, {alltrim(dep->name_short) + ' (' + alltrim(dep->name) + ')', dep->code, dep->place})})
+    if (is_otd_dep := (len(mm_otd_dep) > 0))
+      asort(mm_otd_dep, , , {|x, y| x[1] < y[1]})
     endif
-    use
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
   endif
+  use
   if is_otd_dep
     lIndex := .f.
     sbase := prefixFileRefName(val_year) + 'deppr' // справочник отделения + профили  на конкретный год
     file_index := cur_dir + sbase + sntx
-    if hb_FileExists(exe_dir + sbase + sdbf)
-      if (year(sys_date) - val_year) < INDEX_NEED
-        lIndex := .t.
-      endif
-      if ! hb_FileExists(file_index)
-        lIndex := .t.
-      endif
-      if lIndex
-        R_Use(exe_dir + sbase, , 'DEP')
-        index on str(code, 3) + str(pr_mp, 3) to (cur_dir + sbase) for codem == glob_mo[_MO_KOD_TFOMS]
-        use
-      endif
-
-    else
-      fl := notExistsFileNSI( exe_dir + sbase + sdbf )
+    if (year(sys_date) - val_year) < INDEX_NEED
+      lIndex := .t.
+    endif
+    if ! hb_FileExists(file_index)
+      lIndex := .t.
+    endif
+    if lIndex
+      R_Use(exe_dir + sbase, , 'DEP')
+      index on str(code, 3) + str(pr_mp, 3) to (cur_dir + sbase) for codem == glob_mo[_MO_KOD_TFOMS]
+       use
     endif
   endif
-  return fl
+  return nil
 
-** 08.02.23
+** 10.02.23
 function usl_Index(val_year, exe_dir, cur_dir, flag)
   local fl := .t.
   local sbase
@@ -608,38 +459,25 @@ function usl_Index(val_year, exe_dir, cur_dir, flag)
   DEFAULT flag TO .f.
   sbase := prefixFileRefName(val_year) + 'usl'  // справочник услуг ТФОМС на конкретный год
   file_index := cur_dir + sbase + sntx
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    // if (year(sys_date) - val_year) < INDEX_NEED
-      lIndex := .t.
+  R_Use(exe_dir + sbase, ,'LUSL')
+    // if lIndex
+  index on shifr to (cur_dir + sbase)
+    // else
+    //   set index to (file_index)
     // endif
-    // if ! hb_FileExists(file_index)
-    //   lIndex := .t.
-    // endif
-    if flag
-      lIndex := .t.
-    endif
-    R_Use(exe_dir + sbase, ,'LUSL')
-    if lIndex
-      index on shifr to (cur_dir + sbase)
-    else
-      set index to (file_index)
-    endif
-    if val_year == WORK_YEAR
-      find ('1.21.') // ВМП федеральное   // 10.02.22 замена услуг с 1.20 на 1.21 письмо 12-20-60 от 01.02.22
-      // find ('1.20.') // ВМП федеральное   // 07.02.21 замена услуг с 1.12 на 1.20 письмо 12-20-60 от 01.02.21
-      // do while left(lusl->shifr,5) == '1.20.' .and. !eof()
-      do while left(lusl->shifr,5) == '1.21.' .and. !eof()
-        aadd(arr_12_VMP,int(val(substr(lusl->shifr,6))))
-        skip
-      enddo
-    endif
-    close databases
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
+  if val_year == WORK_YEAR
+    find ('1.21.') // ВМП федеральное   // 10.02.22 замена услуг с 1.20 на 1.21 письмо 12-20-60 от 01.02.22
+    // find ('1.20.') // ВМП федеральное   // 07.02.21 замена услуг с 1.12 на 1.20 письмо 12-20-60 от 01.02.21
+    // do while left(lusl->shifr,5) == '1.20.' .and. !eof()
+    do while left(lusl->shifr,5) == '1.21.' .and. !eof()
+      aadd(arr_12_VMP,int(val(substr(lusl->shifr,6))))
+      skip
+    enddo
   endif
-  return fl
+  close databases
+  return nil
   
-** 08.02.23
+** 10.02.23
 function uslc_Index(val_year, exe_dir, cur_dir, flag)
   local fl := .t.
   local sbase, prefix
@@ -652,27 +490,17 @@ function uslc_Index(val_year, exe_dir, cur_dir, flag)
   sbase :=  prefix + 'uslc'  // цены на услуги на конкретный год
   index_usl_name :=  prefix + 'uslu'  // 
   file_index := cur_dir + sbase + sntx
-  if hb_FileExists(exe_dir + sbase + sdbf) .and. valtype(glob_mo) == 'A'
-    // if (year(sys_date) - val_year) < INDEX_NEED
-      lIndex := .t.
-    // endif
-    // if ! hb_FileExists(file_index) .or. ;
-    //         ! hb_FileExists(cur_dir + index_usl_name + sntx)
-    //   lIndex := .t.
-    // endif
-    if flag
-      lIndex := .t.
-    endif
+
     R_Use(exe_dir + sbase, , 'LUSLC')
-    if lIndex
+    // if lIndex
       index on shifr + str(vzros_reb, 1) + str(depart, 3) + dtos(datebeg) to (cur_dir + sbase) ;
               for codemo == glob_mo[_MO_KOD_TFOMS]
       index on codemo + shifr + str(vzros_reb, 1) + str(depart, 3) + dtos(datebeg) to (cur_dir + index_usl_name) ;
               for codemo == glob_mo[_MO_KOD_TFOMS] // для совместимости со старой версией справочника
-    else
-      set index to (file_index)
-      set index to (cur_dir + index_usl_name)
-    endif
+    // else
+    //   set index to (file_index)
+    //   set index to (cur_dir + index_usl_name)
+    // endif
   
     if val_year == WORK_YEAR // 2020 // 2019 // 2018
       // Медицинская реабилитация детей с нарушениями слуха без замены речевого процессора системы кохлеарной имплантации
@@ -789,13 +617,10 @@ function uslc_Index(val_year, exe_dir, cur_dir, flag)
   
     endif
     close databases
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
   
-  return fl
+  return nil
 
-** 08.02.23
+** 10.02.23
 function uslf_Index(val_year, exe_dir, cur_dir, flag)
   local fl := .t.
   local sbase
@@ -805,27 +630,12 @@ function uslf_Index(val_year, exe_dir, cur_dir, flag)
   DEFAULT flag TO .f.
   sbase := prefixFileRefName(val_year) + 'uslf'  // справочник услуг ФФОМС на конкретный год
   file_index := cur_dir + sbase + sntx
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    // if (year(sys_date) - val_year) < INDEX_NEED
-      lIndex := .t.
-    // endif
-    // if ! hb_FileExists(file_index)
-    //   lIndex := .t.
-    // endif
-    if flag
-      lIndex := .t.
-    endif
-    if lIndex
-      R_Use(exe_dir + sbase, , 'LUSLF')
-      index on shifr to (cur_dir + sbase)
-      use
-    endif
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
-  return fl
+  R_Use(exe_dir + sbase, , 'LUSLF')
+  index on shifr to (cur_dir + sbase)
+  use
+  return nil
 
-** 08.02.23
+** 10.02.23
 function unit_Index(val_year, exe_dir, cur_dir, flag)
   local fl := .t.
   local sbase
@@ -835,27 +645,12 @@ function unit_Index(val_year, exe_dir, cur_dir, flag)
   DEFAULT flag TO .f.
   sbase := prefixFileRefName(val_year) + 'unit'  // план-заказ на конкретный год
   file_index := cur_dir + sbase + sntx
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    // if (year(sys_date) - val_year) < INDEX_NEED
-      lIndex := .t.
-    // endif
-    // if ! hb_FileExists(file_index)
-    //   lIndex := .t.
-    // endif
-    if flag
-      lIndex := .t.
-    endif
-    if lIndex
-      R_Use(exe_dir + sbase )
-      index on str(code, 3) to (cur_dir + sbase)
-      use
-    endif
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
-  return fl
+  R_Use(exe_dir + sbase )
+  index on str(code, 3) to (cur_dir + sbase)
+  use
+  return nil
 
-** 08.02.23
+** 10.02.23
 function shema_index(val_year, exe_dir, cur_dir, flag)
   local fl := .t.
   local sbase
@@ -865,27 +660,12 @@ function shema_index(val_year, exe_dir, cur_dir, flag)
   DEFAULT flag TO .f.
   sbase := prefixFileRefName(val_year) + 'shema'  // 
   file_index := cur_dir + sbase + sntx
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    // if (year(sys_date) - val_year) < INDEX_NEED
-      lIndex := .t.
-    // endif
-    // if ! hb_FileExists(file_index)
-    //   lIndex := .t.
-    // endif
-    if flag
-      lIndex := .t.
-    endif
-    if lIndex
-      R_Use(exe_dir + sbase )
-      index on KOD to (cur_dir + sbase) // по коду критерия
-      use
-    endif
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
-  return fl
+  R_Use(exe_dir + sbase )
+  index on KOD to (cur_dir + sbase) // по коду критерия
+  use
+  return nil
 
-** 08.02.23
+** 10.02.23
 function k006_index(val_year, exe_dir, cur_dir, flag)
   local fl := .t.
   local sbase
@@ -893,35 +673,15 @@ function k006_index(val_year, exe_dir, cur_dir, flag)
   local file_index
 
   DEFAULT flag TO .f.
+
   sbase := prefixFileRefName(val_year) + 'k006'  // 
   file_index := cur_dir + sbase + sntx
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    if hb_FileExists(exe_dir + sbase + '.dbt')
-      // if (year(sys_date) - val_year) < INDEX_NEED
-        lIndex := .t.
-      // endif
-      // if ! hb_FileExists(file_index) .or. ;
-      //       ! hb_FileExists(cur_dir + sbase + '_' + sntx) .or. ;
-      //       ! hb_FileExists(cur_dir + sbase + 'AD' + sntx)
-      //   lIndex := .t.
-      // endif
-      if flag
-        lIndex := .t.
-      endif
-      if lIndex
-        R_Use(exe_dir + sbase)
-        index on substr(shifr, 1, 2) + ds + sy + age + sex + los to (cur_dir + sbase) // по диагнозу/операции
-        index on substr(shifr, 1, 2) + sy + ds + age + sex + los to (cur_dir + sbase + '_') // по операции/диагнозу
-        index on ad_cr to (cur_dir + sbase + 'AD') // по дополнительному критерию Байкин
-        use
-      endif
-    else
-      fl := notExistsFileNSI( exe_dir + sbase + '.dbt' )
-    endif
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif
-  return fl
+  R_Use(exe_dir + sbase)
+  index on substr(shifr, 1, 2) + ds + sy + age + sex + los to (cur_dir + sbase) // по диагнозу/операции
+  index on substr(shifr, 1, 2) + sy + ds + age + sex + los to (cur_dir + sbase + '_') // по операции/диагнозу
+  index on ad_cr to (cur_dir + sbase + 'AD') // по дополнительному критерию Байкин
+  use
+  return nil
   
 **** 29.01.22
 // function it_Index(val_year, exe_dir, cur_dir, flag)

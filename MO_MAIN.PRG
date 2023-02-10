@@ -20,7 +20,7 @@ DYNAMIC f1forma_792_MIAC
 DYNAMIC monitoring_vid_pom
 DYNAMIC b_25_perinat_2
 
-** 09.02.23
+** 10.02.23
 procedure main( ... )
   Local r, s, is_create := .f., is_copy := .f., is_index := .f.
   Local a_parol, buf, is_local_version
@@ -99,13 +99,13 @@ procedure main( ... )
   // реконструкция файлов доступа к системе
   Reconstruct_Security(is_local_version)
 
-  // a_parol := inp_password(is_local_version,is_create)
-  a_parol := inp_password_bay(is_local_version, is_create)
-
   if ! files_NSI_exists(exe_dir)
     hard_err('delete')
     QUIT
   endif
+
+  // a_parol := inp_password(is_local_version,is_create)
+  a_parol := inp_password_bay(is_local_version, is_create)
 
   index_work_dir(exe_dir, cur_dir)    // checkFilesTFOMS() переименовал
   

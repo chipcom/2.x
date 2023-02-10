@@ -45,9 +45,11 @@ inkey(0)
 return NIL*/
 
 
-** 27.01.23 переиндексировать все файлы адресного реестра ОКАТО
+** 10.02.23 переиндексировать все файлы адресного реестра ОКАТО
 Function okato_index()
-  Local i, fl_index := .f., ;
+  Local i
+  local fl_index := .f.
+  local ;
     arr_f  := {'_okator', '_okatoo', '_okatos', '_okatoo8', '_okatos8'}, ;
     arr_i1 := {'_okatr', '_okato', '_okats', '_okato8', '_okats8'}, ;
     arr_i2 := {'_okatrn', '_okaton', '_okatsn', '_okaton8', '_okatsn8'}
@@ -63,14 +65,14 @@ Function okato_index()
   next
   if fl_index
     for i := 1 to len(arr_f)
-      if hb_FileExists(dir_exe + arr_f[i] + sdbf)
+      // if hb_FileExists(dir_exe + arr_f[i] + sdbf)
         if ! hb_FileExists(cur_dir + arr_i1[i] + sntx) .or. ;
               ! hb_FileExists(cur_dir + arr_i2[i] + sntx)
           R_Use(dir_exe + arr_f[i])
           oktAdIndBase(arr_f[i])
           use
         endif
-      endif
+      // endif
     next
   endif
   return NIL
