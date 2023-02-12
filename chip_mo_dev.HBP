@@ -248,6 +248,7 @@ mo_version.prg
 .\dispanser\mo_omsna.prg
 .\dispanser\mo_r01.prg
 .\dispanser\mo_omsid.prg
+.\dispanser\disp_nab_func.prg
 
 .\EXCHANGE\reestrOMS_XML.prg
 .\EXCHANGE\create_schet19_from_XML.prg

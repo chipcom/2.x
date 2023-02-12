@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-** 25.01.23
+** 12.02.23
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
         i, j, k, c, s := ' ', a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -672,7 +672,7 @@ Function verify_1_sluch(fl_view)
         if alltrim(lshifr) == '1.11.1' .and. human_->profil == 28 .and. human_2->profil_k == 24
           // профиль 'инфекционные болезни' и профиль койки 'инфекционные'
         else // проверяем на специальность
-          UslugaAccordancePRVS(lshifr,human->vzros_reb,hu_->prvs,ta,usl->shifr,hu->kod_vr)
+          UslugaAccordancePRVS(lshifr ,human->vzros_reb, hu_->prvs,ta, usl->shifr, hu->kod_vr)
         endif
       endif
       if empty(mprofil)
@@ -912,6 +912,12 @@ Function verify_1_sluch(fl_view)
             mIDSP := 17 // Законченный случай в поликлинике
             if eq_any(alltrim_lshifr, '2.78.90', '2.78.91') .and. len(mdiagnoz) > 0 .and. left(mdiagnoz[1], 1) == 'Z'
               mpovod := 11 // 3.1 обращение с проф.целью
+            elseif alltrim_lshifr == '2.78.107' .and. (human->k_data >= 0d20230101)
+              // добавлена комплексная услуга 2.78.107 02.2023
+              mpovod := 4 // 1.3
+              if ! f_is_diag_dn(alltrim_lshifr, , human->k_data)
+                aadd(ta, 'в услуге ' + alltrim_lshifr + ' должен стоять допустимый диагноз для диспансерного наблюдения')
+              endif
             endif
           endif
           mdate_u2 := dtoc4(human->k_data)
@@ -4703,7 +4709,7 @@ Function verify_1_sluch(fl_view)
   if human_->ISHOD_NEW == 306 .and. ascan(arr,human_->RSLT_NEW) == 0
     aadd(ta, 'для исхода заболевания "306/Осмотр" некорректный результат обращения "' + ;
       inieditspr(A__MENUVERT, getV009(), human_->RSLT_NEW) + '"')
-endif
+  endif
   if !emptyany(human_->NPR_MO,human_2->NPR_DATE) .and. !empty(s := verify_dend_mo(human_->NPR_MO,human_2->NPR_DATE,.t.))
     aadd(ta, 'направившая МО: ' + s)
   endif
@@ -4772,7 +4778,8 @@ endif
   if between_shifr(alltrim_lshifr, '2.88.111', '2.88.119') .and. (human->k_data >= 0d20220201)
     arr_povod[1, 1] := 1
     human_->POVOD := iif(len(arr_povod) > 0, arr_povod[1, 1], 1)
-  endif 
+  endif
+
   if !valid_GUID(human_->ID_PAC)
     human_->ID_PAC := mo_guid(1,human_->(recno()))
   endif

@@ -1053,20 +1053,6 @@ Function f_valid_usl_tip(g, o)
   endif
   return .t.
 
-** 13.11.22
-Function is_usluga_disp_nabl(_shifr, _shifr1)
-
-  if empty(_shifr1)
-    _shifr := alltrim(_shifr)
-  else
-    _shifr := alltrim(_shifr1)
-  endif
-  return between_shifr(_shifr, '2.78.61', '2.78.86') ;
-    .or. between_shifr(_shifr, '2.88.52', '2.88.103') ;
-    .or. between_shifr(_shifr, '2.88.105', '2.88.106') ;
-    .or. between_shifr(_shifr, '2.88.120', '2.88.145') ;
-    .or. _shifr == '2.5.2'  // добавил согласно письму ТФОМС 09-30-376/1 от 09.11.22 года
-
 ** 05.09.19 является услугой телемедицины - не заполняется код врача
 Function is_telemedicina(lshifr, /*@*/fl2)
   Local fl := .f., tmp_select := select()
