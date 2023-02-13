@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-** 12.02.23
+** 13.02.23
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
         i, j, k, c, s := ' ', a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -915,7 +915,7 @@ Function verify_1_sluch(fl_view)
             elseif alltrim_lshifr == '2.78.107' .and. (human->k_data >= 0d20230101)
               // добавлена комплексная услуга 2.78.107 02.2023
               mpovod := 4 // 1.3
-              if ! f_is_diag_dn(alltrim_lshifr, , human->k_data)
+              if ! f_is_diag_dn(mdiagnoz[1], , human->k_data)
                 aadd(ta, 'в услуге ' + alltrim_lshifr + ' должен стоять допустимый диагноз для диспансерного наблюдения')
               endif
             endif
