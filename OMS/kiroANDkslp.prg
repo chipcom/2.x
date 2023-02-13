@@ -205,7 +205,7 @@ function calcKSLP(cKSLP, dateSl)
   endif
   return summ
 
-** 23.09.22
+** 13.02.23
 function defenition_KIRO(lkiro, ldnej, lrslt, lis_err, lksg)
   // lkiro - список возможных КИРО для КСГ
   // ldnej - длительность случая в койко-днях
@@ -213,52 +213,41 @@ function defenition_KIRO(lkiro, ldnej, lrslt, lis_err, lksg)
   // lis_err - ошибка (какая-то)
   // lksg - шифр КСГ
   local vkiro := 0
+  local cKSG := alltrim(LTrim(lksg))
 
-  if ldnej < 4  // длительность случая 3 койко-дня и менее
-    if ascan(lkiro, 1) > 0
-      vkiro := 1
-    elseif ascan(lkiro, 2) > 0
-      vkiro := 2
-    elseif lis_err == 1 .and. ascan(lkiro, 5) > 0 // добавляем ещё несоблюдение схемы химиотерапии (КИРО=5)
-      vkiro := 5
+  if eq_any(cKSG, 'st37.002', 'st37.003', 'st37.006', 'st37.007', 'st37.024', 'st37.025', 'st37.026')
+    // КСГ по услугам мед. реабилитации в стационаре согласно Служебная записка Мызгина от 13.02.23
+    if (cKSG == 'st37.002' .and. ldnej < 14) .or. ;
+        (cKSG == 'st37.003' .and. ldnej < 20) .or. ;
+        (cKSG == 'st37.006' .and. ldnej < 12) .or. ;
+        (cKSG == 'st37.007' .and. ldnej < 18) .or. ;
+        ((cKSG == 'st37.024' .or. cKSG == 'st37.025' .or. cKSG == 'st37.026') .and. ldnej < 30)
+      vkiro := 4
     endif
-  else          // длительность случая 4 койко-дня и более
-    if ascan({102, 105, 107, 110, 202, 205, 207}, lrslt) > 0
-      if ascan(lkiro, 3) > 0
-        vkiro := 3
-      elseif ascan(lkiro, 4) > 0
-        vkiro := 4
-      elseif lis_err == 1 .and. ascan(lkiro, 6) > 0 // добавляем ещё несоблюдение схемы химиотерапии (КИРО=6)
-        vkiro := 6
+  else  // все другое
+    if ldnej < 4  // длительность случая 3 койко-дня и менее
+      if ascan(lkiro, 1) > 0
+        vkiro := 1
+      elseif ascan(lkiro, 2) > 0
+        vkiro := 2
+      elseif lis_err == 1 .and. ascan(lkiro, 5) > 0 // добавляем ещё несоблюдение схемы химиотерапии (КИРО=5)
+        vkiro := 5
+      endif
+    else          // длительность случая 4 койко-дня и более
+      if ascan({102, 105, 107, 110, 202, 205, 207}, lrslt) > 0
+        if ascan(lkiro, 3) > 0
+          vkiro := 3
+        elseif ascan(lkiro, 4) > 0
+          vkiro := 4
+        elseif lis_err == 1 .and. ascan(lkiro, 6) > 0 // добавляем ещё несоблюдение схемы химиотерапии (КИРО=6)
+          vkiro := 6
+        endif
       endif
     endif
   endif
-
-  // это старое
-  // if ascan({102, 105, 107, 110, 202, 205, 207}, lrslt) > 0 // более 3-х дней, лечение прервано
-  //   if ascan(lkiro, 3) > 0
-  //     vkiro := 3
-  //   elseif ascan(lkiro, 4) > 0
-  //     vkiro := 4
-  //   elseif lis_err == 1 .and. ascan(lkiro, 6) > 0 // добавляем ещё несоблюдение схемы химиотерапии (КИРО=6)
-  //     vkiro := 6
-  //   endif
-  // elseif ldnej < 4 // менее 4-х дней
-  //   if ascan(lkiro, 1) > 0
-  //     vkiro := 1
-  //   elseif ascan(lkiro, 2) > 0
-  //     vkiro := 2
-  //     if lksg == 'ds02.005' //; // Экстракорпоральное оплодотворение
-  //       vkiro := 0
-  //     endif
-  //   elseif lis_err == 1 .and. ascan(lkiro, 5) > 0 // добавляем ещё несоблюдение схемы химиотерапии (КИРО=5)
-  //     vkiro := 5
-  //   endif
-  // endif
-
   return vkiro
 
-** 30.11.21 
+** 30.11.21
 Function f_cena_kiro(/*@*/_cena, lkiro, dateSl )
   // _cena - изменяемая цена
   // lkiro - уровень КИРО
