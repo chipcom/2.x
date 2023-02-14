@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-** 01.01.23 определить КСГ для 1 пациента из режима редактирования услуг
+** 14.02.23 определить КСГ для 1 пациента из режима редактирования услуг
 Function f_usl_definition_KSG(lkod, k_data2)
   Local arr, buf := save_maxrow(), lshifr, lrec, lu_kod, lcena, not_ksg := .t., ;
         mrec_hu, tmp_rec := 0, tmp_select := select(), is_usl1 := .f., ;
@@ -119,7 +119,7 @@ Function f_usl_definition_KSG(lkod, k_data2)
           lu_kod := foundOurUsluga(arr[3], human->k_data, human_->profil, human->VZROS_REB, @lcena)
           if lyear == 2023  // 23 год
             if len(arr) > 4 .and. !empty(arr[5])
-              lcena := round_5(lcena + 24322.6 * ret_koef_kslp_21(arr[5], lyear), 0)
+              lcena := round_5(lcena + 25986.7 * ret_koef_kslp_21(arr[5], lyear), 0)
             endif
             if len(arr) > 5 .and. !empty(arr[6])
               lcena := round_5(lcena*arr[6,2],0)
