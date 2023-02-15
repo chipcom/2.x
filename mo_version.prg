@@ -6,7 +6,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-static st_version := {3, 2, 2, '+'}
+static st_version := {3, 2, 2, 'a'}
 static st_date_version := _DATA_VER
 static st__s_full_name := 'ЧИП + Учёт работы Медицинской Организации'
 
@@ -46,11 +46,11 @@ function get_version_DB()
   endif
   return ver__base
 
-** 17.12.21 сохранить новое числовое значение версии БД задачи
+** 15.02.23 сохранить новое числовое значение версии БД задачи
 function save_version_DB(nVersion)
-  local nfile := "ver_base"
+  local nfile := 'ver_base'
 
-  reconstruct(dir_server + nfile, {{"version", "N", 10, 0}}, , , .t.)
+  reconstruct(dir_server + nfile, {{'version', 'N', 10, 0}}, , , .t.)
   G_Use(dir_server + nfile, , 'ver')
   if lastrec() == 0
     AddRecN()
@@ -61,7 +61,7 @@ function save_version_DB(nVersion)
   ver->(dbCloseArea())
   return .t.
 
-** 17.12.21 контроль версии базы данных
+** 15.02.23 контроль версии базы данных
 Function ControlVersion(aVersion, oldVersion)
   // aVersion - проверяемая версия
   local ver__base
@@ -78,7 +78,7 @@ Function ControlVersion(aVersion, oldVersion)
   endif
   return .f.
 
-** 28.12.21 контроль версии базы данных
+** 15.02.23 контроль версии базы данных
 Function ControlBases(type_oper,aVersion)
   // type_oper  - тип операции
   //    1 - после запуска программы считать версию БД из файла
@@ -92,7 +92,7 @@ Function ControlBases(type_oper,aVersion)
   DEFAULT sl_reconstr TO .t., sl_smena TO .f.
   do case
     case type_oper == 1
-      DEFAULT snversion TO int(aVersion[1]*10000 + aVersion[2]*100 + aVersion[3])
+      DEFAULT snversion TO int(aVersion[1] * 10000 + aVersion[2] * 100 + aVersion[3])
       if (ver__base := get_version_DB()) != 0
         if snversion < ver__base
           func_error('Вы запустили старую версию программы. Работа запрещена!')
@@ -105,21 +105,6 @@ Function ControlBases(type_oper,aVersion)
         sl_smena := .t.
       endif
       ret_value := sl_smena
-      // if hb_FileExists(dir_server+nfile+sdbf)
-      //   R_Use(dir_server+nfile)
-      //   ret_value := ver__base := FIELD->version
-      //   Use
-      //   if snversion < ver__base
-      //     func_error("Вы запустили старую версию программы. Работа запрещена!")
-      //     f_end()
-      //   else
-      //     sl_smena := (snversion != ver__base)
-      //     sl_reconstr := .T.
-      //   endif
-      // else
-      //   sl_smena := .t.
-      // endif
-      // ret_value := sl_smena
     case type_oper == 2
       if !sl_reconstr
         func_error('Вы запустили старую версию программы. Работа запрещена!')
@@ -128,14 +113,5 @@ Function ControlBases(type_oper,aVersion)
       ret_value := sl_reconstr
     case type_oper == 3 .and. sl_smena
       save_version_DB(snversion)
-      // reconstruct(dir_server+nfile,{{"version","N",10,0}},,,.t.)
-      // G_Use(dir_server+nfile)
-      // if lastrec() == 0
-      //   AddRecN()
-      // else
-      //   G_RLock(forever)
-      // endif
-      // replace version with snversion
-      // Use
   endcase
   return ret_value
