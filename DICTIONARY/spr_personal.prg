@@ -73,7 +73,7 @@ Function f1edit_pers(oBrow)
   mark_keys({'<F2>'}, 'R/BG')
   return NIL
 
-** 15.08.17
+** 27.02.23
 Function f2edit_pers(nKey, oBrow)
   Static gmenu_kateg := {{'врач                ', 1}, ;
                         {'средний мед.персонал', 2}, ;
@@ -188,7 +188,7 @@ Function f2edit_pers(nKey, oBrow)
         m1uch      := p2->uch
         m1otd      := p2->otd
         m1kateg    := p2->kateg
-        mname_dolj := p2->name_dolj
+        mname_dolj := padr(p2->name_dolj, 30)
         mstavka    := p2->stavka
         m1vid      := p2->vid
         mtab_nom   := p2->tab_nom
@@ -221,10 +221,10 @@ Function f2edit_pers(nKey, oBrow)
       mvr_kateg := inieditspr(A__MENUVERT, menu_vr_kateg, m1vr_kateg)
       msertif   := inieditspr(A__MENUVERT, mm_danet, m1sertif)
       m1prvs    := iif(empty(m1prvs), space(4), padr(lstr(m1prvs), 4))
-      mprvs     := ret_tmp_prvs(0, m1prvs)
+      mprvs     := padr(ret_tmp_prvs(0, m1prvs), 40)
 
       m1prvs_021:= iif(empty(m1prvs_021), space(4), padr(lstr(m1prvs_021), 4))
-      mprvs_021 := inieditspr(A__MENUVERT, getV021(), val(m1prvs_021))
+      mprvs_021 := padr(inieditspr(A__MENUVERT, getV021(), val(m1prvs_021)), 40)
 
       tmp_color := setcolor(cDataCScr)
       k := maxrow() - 19
@@ -241,33 +241,39 @@ Function f2edit_pers(nKey, oBrow)
       @ r, 36 say 'Сводный табельный номер' get msvod_nom picture '99999'
       @ ++r, 2 say 'Ф.И.О.' get mfio
       @ ++r, 2 say 'СНИЛС' get msnils picture picture_pf valid val_snils(msnils, 1)
-      @ ++r, 2 say 'Мед.специальность' get mPRVS ;
-                reader {|x|menu_reader(x, {{|k, r, c| fget_tmp_V015(k, r, c)}}, A__FUNCTION, , , .f.)} ;
-                valid {|g| set_prvs(g, 1)}
-      @ ++r, 2 say 'Мед.специальность V021' get mPRVS_021 ;
-                reader {|x|menu_reader(x, getV021(), A__MENUVERT_SPACE, , , .f.)} ;
-                valid {|g| set_prvs(g, 2)}
-      if fl_profil
-        @ ++r, 2 say 'Профиль' get mprofil ;
-                  reader {|x|menu_reader(x, tmp_V002, A__MENUVERT_SPACE, , , .f.)}
-      endif
       @ ++r, 2 say 'Учр-е' get much ;
                 reader {|x|menu_reader(x, {{|k, r, c| ret_uch_otd(k, r, c)}}, A__FUNCTION, , , .f.)}
       @ r, 39 say 'Отделение' get motd when .f.
-      @ ++r, 2 say 'Категория' get mkateg ;
-                reader {|x|menu_reader(x, gmenu_kateg, A__MENUVERT, , , .f.)}
-      @ ++r, 2 say 'Наименование должности' get mname_dolj
       @ ++r, 2 say 'Вид работы' get mvid ;
                 reader {|x|menu_reader(x, osn_sovm, A__MENUVERT, , , .f.)}
       @ r, 36 say 'Ставка' color color8 get mstavka picture '9.99'
+      @ ++r, 2 say 'Категория' get mkateg ;
+                reader {|x|menu_reader(x, gmenu_kateg, A__MENUVERT, , , .f.)}
+      @ ++r, 2 say 'Мед.специальность' get mPRVS ;
+                reader {|x|menu_reader(x, {{|k, r, c| fget_tmp_V015(k, r, c)}}, A__FUNCTION, , , .f.)} ;
+                valid {|g| set_prvs(g, 1)} when (m1kateg == 1 .or. m1kateg == 2)
+      @ ++r, 2 say 'Мед.специальность V021' get mPRVS_021 ;
+                reader {|x|menu_reader(x, getV021(), A__MENUVERT_SPACE, , , .f.)} ;
+                valid {|g| set_prvs(g, 2)} when (m1kateg == 1 .or. m1kateg == 2)
+      if fl_profil
+        @ ++r, 2 say 'Профиль' get mprofil ;
+                  reader {|x|menu_reader(x, tmp_V002, A__MENUVERT_SPACE, , , .f.)} ;
+                  when (m1kateg == 1 .or. m1kateg == 2)
+      endif
+      @ ++r, 2 say 'Наименование должности' get mname_dolj
       @ ++r, 2 say 'Медицинская категория' get mvr_kateg ;
-                reader {|x|menu_reader(x, menu_vr_kateg, A__MENUVERT, , , .f.)}
-      @ ++r, 2 say 'Наименование должности по мед.категории' get mDOLJKAT
-      @ ++r, 2 say 'Дата подтверждения мед.категории' get mD_KATEG
+                reader {|x|menu_reader(x, menu_vr_kateg, A__MENUVERT, , , .f.)} ;
+                when (m1kateg == 1 .or. m1kateg == 2)
+      @ ++r, 2 say 'Наименование должности по мед.категории' get mDOLJKAT ;
+                when (m1kateg == 1 .or. m1kateg == 2)
+      @ ++r, 2 say 'Дата подтверждения мед.категории' get mD_KATEG  when (m1kateg == 1 .or. m1kateg == 2)
       @ ++r, 2 say 'Наличие сертификата' get mSERTIF ;
-                reader {|x|menu_reader(x, mm_danet, A__MENUVERT, , , .f.)}
-      @ ++r, 2 say 'Дата подтверждения сертификата' get mD_SERTIF
-      @ ++r, 2 say 'Код врача для выписки рецептов по ДЛО' get mKOD_DLO pict '99999'
+                reader {|x|menu_reader(x, mm_danet, A__MENUVERT, , , .f.)} ;
+                when (m1kateg == 1 .or. m1kateg == 2)
+      @ ++r, 2 say 'Дата подтверждения сертификата' get mD_SERTIF ;
+                when (m1kateg == 1 .or. m1kateg == 2)
+      @ ++r, 2 say 'Код врача для выписки рецептов по ДЛО' get mKOD_DLO pict '99999' ;
+                when m1kateg == 1
       @ ++r, 2 say 'Дата начала работы в должности' get mDBEGIN
       @ ++r, 2 say 'Дата окончания работы' get mDEND
       status_key('^<Esc>^ - выход без записи;  ^<PgDn>^ - подтверждение ввода')
@@ -390,7 +396,7 @@ Function f2edit_pers(nKey, oBrow)
   endcase
   return ret
 
-** 12.12.22
+** 27.02.23
 function set_prvs(get, regim)
   ** regim - место вызова, (1 - выбор mprvs, 2 - выбор mprvs_021)
   local fl := .t., prvs := 0, prvs_021 := 0
@@ -398,15 +404,15 @@ function set_prvs(get, regim)
   if regim == 1
     prvs := iif(valtype(m1prvs) == 'C', val(m1prvs), m1prvs)
     m1prvs_021 := prvs_V015_to_V021(prvs)
-    mprvs_021 := inieditspr(A__MENUVERT, getV021(), m1prvs_021)
-    mname_dolj := DoljBySpec_V021(m1prvs_021)
+    mprvs_021 := padr(inieditspr(A__MENUVERT, getV021(), m1prvs_021), 40)
+    mname_dolj := padr(DoljBySpec_V021(m1prvs_021), 30)
     update_get('mprvs_021')
     update_get('mname_dolj')
   elseif regim == 2
     prvs_021 := m1prvs_021
     m1PRVS := prvs_V021_to_V015(prvs_021)
-    mprvs  := ret_tmp_prvs(0, m1prvs)
-    mname_dolj := DoljBySpec_V021(prvs_021)
+    mprvs  := padr(ret_tmp_prvs(0, m1prvs), 40)
+    mname_dolj := padr(DoljBySpec_V021(prvs_021), 30)
     update_get('mprvs')
     update_get('mname_dolj')
   endif

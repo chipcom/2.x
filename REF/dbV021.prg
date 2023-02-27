@@ -53,7 +53,7 @@ function getV021()
   endif
   return _arr
 
-** 12.12.22 вернуть массив описывающий специальность
+** 27.02.23 вернуть массив описывающий специальность
 Function DoljBySpec_V021(idspec)
   Local i, retArray := ''
   local aV021 := getV021()

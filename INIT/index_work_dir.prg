@@ -1,7 +1,7 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-#define NUMBER_YEAR 5 // число лет для переиндексации назад
+#define NUMBER_YEAR 3 // число лет для переиндексации назад
 #define INDEX_NEED  2 // число лет обязательной переиндексации
 
 ** 10.02.23 проверка наличия справочников НСИ
