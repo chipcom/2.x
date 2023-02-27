@@ -1485,6 +1485,17 @@ Function f1_create2reestr19(_nyear,_nmonth)
       if !empty(s) .and. "," $ s
         lvidpoms := s
       endif
+       // попытка правки
+      if alltrim(lshifr) == "2.78.107"
+         // терпевт + общая врачебная практика
+        if eq_any(put_prvs_to_reestr(human_->PRVS,_NYEAR),"76","39")
+          lvidpoms := "12"
+        elseif eq_any(put_prvs_to_reestr(human_->PRVS,_NYEAR),"2","17","24","25","35","41","45","46","68","71","79","84","90","92","95")
+          lvidpoms := "13"
+        endif  
+        // фельдшер
+         //lvidpoms := "11"
+      endif
       if (hu->stoim_1 > 0 .or. left(lshifr,3) == "71.") .and. (i := ret_vid_pom(1,lshifr,human->k_data)) > 0
         lvidpom := i
       endif
@@ -1560,6 +1571,15 @@ Function f1_create2reestr19(_nyear,_nmonth)
           lvidpom := 13
         endif
       endif
+    elseif eq_ascan(atmpusl,"2.78.107")
+        // терпевт + общая врачебная практика
+       if eq_any(put_prvs_to_reestr(human_->PRVS,_NYEAR),"76","39")
+         lvidpom := 12
+       elseif eq_any(put_prvs_to_reestr(human_->PRVS,_NYEAR),"2","17","24","25","35","41","45","46","68","71","79","84","90","92","95")
+         lvidpom := 13
+       endif  
+       // фельдшер
+        //lvidpoms := "11"
     endif
   endif
   select MOHU

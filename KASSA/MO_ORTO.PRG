@@ -748,7 +748,6 @@ Local adbf, buf := savescreen(), j := 0, tmp_color := setcolor(color1), ;
 mywait()
 use_base("hum_ort")
 set order to 0
-//G_Use(dir_server+"hum_ort",,"HUMAN")
 goto (mkod_human)
 //
 Private fl_found, str_find, muslovie, mvu[3,2], mcena_opl := 0, flag_1 := .t.
@@ -805,7 +804,6 @@ local tip_bank := {" бн ","МИР","VISA","MаCа"}
 
 blk_color := {|| {{1,2},{3,4},{5,6},{7,8}}[ho->tip_usl+1] }
 if glob_kassa == 1
-  //oColumn := TBColumnNew("  ",{|| iif(ho->sbank > 0, "бн","  ") })
   oColumn := TBColumnNew("     ",{|| iif(ho->sbank < 1, "    ",;
   tip_bank[ho->fr_tipkart+1]+iif(ho->sbank == ho->cena_opl," ","Н")) })
   oColumn:colorBlock := blk_color
@@ -1972,7 +1970,7 @@ do while .t.
     endif
     human->(dbUNLOCK()) //19.04
     dbCommitall()
-    G_Use(dir_server+"hum_orpl",dir_server+"hum_orpl","KPLAT")
+    G_Use(dir_server+"hum_orpl",dir_server+"hum_orpl","KPLAT") //только один индекс
     if len(alltrim(mplat_adres)) > 2 //.or. len(alltrim(mplat_pasport)) > 2
       find (str(human->(recno()),7))
       if !found()
@@ -2786,7 +2784,7 @@ return fl
 
 *
 
-*****  15.11.18
+*****  18.02.23
 Function pr_zak_nar(tip_print) //21.05.08
 Static st_tip_usl := 0
 Local i := 1, j, k, s, fl, buf := save_row(maxrow())
@@ -2834,7 +2832,8 @@ Private ;
   mvrach := massist := space(35),;
   mcena := 0, mcena_opl := 0,;
   mplat_fio, mplat_inn ,;
-  mplat_adres, mplat_pasport
+  mplat_adres, mplat_pasport,;
+  msnils := ""
   //
   MKOD_DIAG   := human->KOD_DIAG      // шифр 1-ой осн.болезни
   MKOD_DIAG2  := human->KOD_DIAG2     // шифр 2-ой осн.болезни
@@ -2878,6 +2877,9 @@ mfio        := kart->fio           // фио
 madres      := kart->adres         // адрес
 mmr_dol     := kart->mr_dol        // место работы должность
 mdate_r     := kart->date_r        // дата рождения
+if !empty(kart->SNILS)
+  msnils := transform(kart->SNILS,picture_pf)
+endif
 kart->(dbclosearea())
 R_Use(dir_server+"kartote_",,"KART_")
 goto (mkod_kart)

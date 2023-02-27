@@ -1047,7 +1047,7 @@ do while !eof()
   elseif ihuman->USL_OK == 3 .and. eq_any(ihuman->VID_AMB,1,11,2,3,4,5,6,7,22,40,41)// поликлиника
     a_vid_amb := {; // В теге <VID_AMB> проставляется вид амбулаторно-поликлинического случая, а именно:
       {1, "2.78."},; //	Обращение с лечебной целью
-      {11, "2.78."},; //	Обращение с лечебной целью
+      {11, "2.78."},; //	Обращение с лечебной целью 
       {2, "2.79."},; //	Посещение с профилактической целью
       {22, "2.79.44", "2.79.50"},; //	патронажное посещение на дому
       {3, "2.80."},; //	Посещение в неотложной форме
@@ -1175,16 +1175,23 @@ do while !eof()
         find (str(LVZROS_REB,1) +str(ihuman->PROFIL,3) +left(lshifr,5))
         do while moprof->vzros_reb == LVZROS_REB .and. moprof->profil == ihuman->PROFIL ;
                                                  .and. left(moprof->shifr,5) == left(lshifr,5) .and. !eof()
-          if iif(empty(lshifr2), .t., between_shifr(alltrim(moprof->shifr),lshifr,lshifr2))
-            fldel := .f.
-            v := fcena_oms(moprof->shifr,(LVZROS_REB==0),ihuman->DATE_2,@fldel)
-            if !fldel
-              ++iu
-              if iu == ku
-                fl := .t. ; exit
+          if alltrim(moprof->shifr) == "2.78.107" .or. alltrim(moprof->shifr) == "2.78.107" .or. ;
+             between_shifr(alltrim(moprof->shifr),"2.78.61","2.78.72") .or.;
+              between_shifr(alltrim(moprof->shifr),"2.78.74","2.78.86")             
+            // отбраковываем Диспансеризацию
+            // 2.78.61 ? 2.78.72, 2.78.74 ? 2.78.86, 2.78.106.
+          else                              
+            if iif(empty(lshifr2), .t., between_shifr(alltrim(moprof->shifr),lshifr,lshifr2))
+              fldel := .f.
+              v := fcena_oms(moprof->shifr,(LVZROS_REB==0),ihuman->DATE_2,@fldel)
+              if !fldel
+                ++iu
+                if iu == ku
+                  fl := .t. ; exit
+                endif
               endif
             endif
-          endif
+          endif  
           select MOPROF
           skip
         enddo

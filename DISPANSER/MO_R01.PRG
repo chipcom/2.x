@@ -2583,23 +2583,73 @@ return NIL
 
 ***** 17.12.19
 Function f31_view_R01(reg,s)
-Local fl := .t., buf := save_maxrow(), k := 0, n_file := pname_f+"_SPIS"+stxt
+Local fl := .t., buf := save_maxrow(), k := 0, n_file := pname_f+"_SPIS"+stxt, tt := " "
 mywait()
+arr_title := {"ÄÄÄÄÂÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ",;
+              " NN ³“/ª³  Š®¤  ³               ”.ˆ.Ž.                      ³  „ â  à. ³                   €¤à¥á                 ³                  ",;
+              "ÄÄÄÄÁÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ"}
+sh := len(arr_title[1])
 fp := fcreate(n_file) ; tek_stroke := 0 ; n_list := 1
 add_string("")
-add_string(center("‘¯¨á®ª ¯ æ¨¥­â®¢ ä ©«  "+alltrim(rees->NAME_XML)+" ®â "+date_8(rees->dschet),80))
+add_string(center("‘¯¨á®ª ¯ æ¨¥­â®¢ ä ©«  "+alltrim(rees->NAME_XML)+" ®â "+date_8(rees->dschet),120))
 if reg == 99
   s := "¢á¥ ¯ æ¨¥­âë"
 endif
-add_string(center("[ "+s+" ]",80))
+if reg == 98
+  s := "¯ æ¨¥­âë ¡¥§ ®è¨¡®ª"
+endif
+add_string(center("[ "+s+" ]",120))
 add_string("")
+aeval(arr_title, {|x| add_string(x) })
+// á®§¤ ¥¬ ¤«ï ®âç¥â 
+dbcreate(cur_dir + "_r01",{{"nyh","C",2,0},;
+                           {"kod","C",7,0},;
+                           {"fio","C",50,0},;
+                           {"date_r","C",10,0},;
+                           {"adres","C",50,0},;
+                           {"tip","C",7,0},;
+                           {"mes","C",7,0} })
+use (cur_dir + "_r01") new
+//
 R_Use(dir_server + "kartotek",,"KART")
 R_Use(dir_server + "mo_dr01k",,"RHUM")
 set relation to kod_k into KART
 index on str(rhum->R01_ZAP,6) to (cur_dir+"tmp_rhum") for reestr == rees->kod
 go top
 do while !eof()
-  if iif(reg == 99, .t., rhum->OPLATA == reg)
+  if reg == 1 //98
+    if rhum->OPLATA == 1
+    ++k
+    s := str(rhum->R01_ZAP,4)+". "
+    if empty(kart->fio)
+      s += "ã¤ «ñ­ ¤ã¡«¨ª â ¢ ª àâ®â¥ª¥ (ª®¤="+lstr(kod_k)+")"
+    else
+      if is_uchastok == 1
+        tt := padr(lstr(kart->kod_vu),7) 
+      elseif is_uchastok == 2
+        tt := padr(lstr(kart->kod),7)
+      else 
+        tt := padr(lstr(kart->kod),7)
+      endif   
+      s += padr(lstr(kart->uchast),2)+" "+tt+" "+padr(upper(kart->fio),43)+" "+full_date(kart->date_r)+" "
+    endif
+    s += padr(kart->adres,40)+" ("+iif(rhum->tip==1,"„ˆ‘","¯à®ä.")+") "+str(rhum->n_m,2)+"¬¥á."
+    select _R01
+    append blank
+    _r01->nyh    := padr(lstr(kart->uchast),2)
+    _r01->kod    := tt
+    _r01->fio    := padr(upper(kart->fio),50)
+    _r01->date_r := full_date(kart->date_r)
+    _r01->adres  := padr(kart->adres,50) 
+    _r01->tip    := iif(rhum->tip==1,"„ˆ‘","¯à®ä.")
+    _r01->mes    := str(rhum->n_m,2)+"¬¥á."
+    select RHUM
+    if verify_FF(60,.t.,120)
+       aeval(arr_title, {|x| add_string(x) } )
+    endif
+    add_string(s)
+    endif
+  elseif iif(reg == 99, .t., rhum->OPLATA == reg)
     ++k
     s := str(rhum->R01_ZAP,4)+". "
     if empty(kart->fio)
@@ -2608,8 +2658,20 @@ do while !eof()
       s += padr(upper(kart->fio),43)+" "+full_date(kart->date_r)
     endif
     s += " ("+iif(rhum->tip==1,"„ˆ‘","¯à®ä.")+") "+str(rhum->n_m,2)+"¬¥á."
-    verify_FF(60,.t.,80)
+    if verify_FF(60,.t.,120)
+      aeval(arr_title, {|x| add_string(x) } )
+    endif
     add_string(s)
+    select _R01
+    append blank
+    _r01->nyh    := padr(lstr(kart->uchast),2)
+    _r01->kod    := tt
+    _r01->fio    := padr(upper(kart->fio),50)
+    _r01->date_r := full_date(kart->date_r)
+    _r01->adres  := padr(kart->adres,50) 
+    _r01->tip    := iif(rhum->tip==1,"„ˆ‘","¯à®ä.")
+    _r01->mes    := str(rhum->n_m,2)+"¬¥á."
+    select RHUM
   endif
   select RHUM
   skip
@@ -2618,9 +2680,16 @@ add_string("")
 add_string("‚á¥£® "+lstr(k)+" ç¥«.")
 kart->(dbCloseArea())
 rhum->(dbCloseArea())
+_r01->(dbCloseArea())
 fclose(fp)
 rest_box(buf)
-viewtext(n_file,,,,.t.,,,2)
+viewtext(n_file,,,,.t.,,,6)
+n_file := "_dispr01"
+copy file (cur_dir+"_r01"+sdbf) to (cur_dir+n_file+sdbf)
+n_message({"‚ ª â «®£¥ "+upper(cur_dir),;
+           "á®§¤ ­ ä ©« "+upper(n_file+sdbf),;
+           "á® á¢¥¤¥­¨ï¬¨ ® ¯« ­ å ¤¨á¯ ­á¥à¨§ æ¨¨ ¯ æ¨¥­â®¢."},,;
+           cColorStMsg,cColorStMsg,,,cColorSt2Msg)
 return NIL
 
 ***** 18.12.19
