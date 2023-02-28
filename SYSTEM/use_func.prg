@@ -76,6 +76,59 @@ function close_use_base(sBase)
     endcase
   return nil
 
+** 28.02.23
+function use_base_new(sBase, vYear)
+  local fl := .f., fName, fIndex, fIndex_add
+
+  sBase := lower(sBase)
+  do case
+    case sBase == 'lusl'
+      fName := prefixFileRefName(vYear) + 'usl'
+      fIndex := cur_dir + fName + sntx
+      if hb_vfExists(exe_dir + fName + sdbf)
+        if ! hb_vfExists(fIndex)
+          R_Use(exe_dir + fName, , sBase)
+          index on shifr to (fIndex)
+          (sBase)->(dbCloseArea())
+        endif
+      else
+        return fl
+      endif
+      fl := R_Use(exe_dir + fName, cur_dir + fName, sBase)
+    case sBase == 'luslc'
+      fName := prefixFileRefName(vYear) + 'uslc'
+      fIndex := cur_dir + fName + sntx
+      fIndex_add :=  prefixFileRefName(vYear) + 'uslu'  // 
+      if hb_vfExists(exe_dir + fName + sdbf)
+        if (! hb_vfExists(fIndex)) .or. (! hb_vfExists(cur_dir + fIndex_add + sntx))
+          R_Use(exe_dir + fName, , sBase)
+          index on shifr + str(vzros_reb, 1) + str(depart, 3) + dtos(datebeg) to (cur_dir + sbase) ;
+              for codemo == glob_mo[_MO_KOD_TFOMS]
+          index on codemo + shifr + str(vzros_reb, 1) + str(depart, 3) + dtos(datebeg) to (cur_dir + index_usl_name) ;
+              for codemo == glob_mo[_MO_KOD_TFOMS] // для совместимости со старой версией справочника
+          (sBase)->(dbCloseArea())
+        endif
+      else
+        return fl
+      endif
+      fl := R_Use(exe_dir + fName, {fIndex, cur_dir + fIndex_add}, sBase)
+    case sBase == 'luslf'
+      fName := prefixFileRefName(vYear) + 'uslf'
+      fIndex := cur_dir + fName + sntx
+      if hb_vfExists(exe_dir + fName + sdbf)
+        if ! hb_vfExists(fIndex)
+          R_Use(exe_dir + fName, , sBase)
+          index on shifr to (cur_dir + fName)
+          (sBase)->(dbCloseArea())
+        endif
+      else
+        return fl
+      endif
+      fl := R_Use(exe_dir + fName, cur_dir + fName, sBase)
+  endcase
+
+  return fl
+
 ** 08.02.23
 Function use_base(sBase, lalias, lExcluUse, lREADONLY)
   Local fl := .t., sind1, sind2
