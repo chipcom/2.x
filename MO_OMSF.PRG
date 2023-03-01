@@ -698,7 +698,7 @@ if !fl .and. empty(val(human_->smo)) // ¥á«¨ ­¥ Œ‘
 endif
 return fl
 
-** 15.11.22 ï¢«ï¥âáï «¨ ¤ ­­ ï ãá«ã£  ãá«ã£®© ’”Œ‘
+** 01.03.23 ï¢«ï¥âáï «¨ ¤ ­­ ï ãá«ã£  ãá«ã£®© ’”Œ‘
 Function is_usluga_TFOMS(lshifr, lshifr1, ldate_usl, ;
   /*@*/arr_uet, /*@*/lbukva, /*@*/lst, /*@*/lidsp, /*@*/lvidpoms)
   Local _shifr, tmp_select := select(), fl := .f.
@@ -710,6 +710,9 @@ Function is_usluga_TFOMS(lshifr, lshifr1, ldate_usl, ;
   endif
 
   lal := create_name_alias(lal, y)
+  // if select(lal) == 0
+  //   lal := 'lusl'
+  // endif
 
   lst := 0
   lvidpoms := ''
@@ -737,7 +740,10 @@ Function is_usluga_TFOMS(lshifr, lshifr1, ldate_usl, ;
     endif
     lal := 'luslf'
     lal := create_name_alias(lal, y)
-  
+    // if select(lal) == 0
+    //   lal := 'luslf'
+    // endif
+    
     dbSelectArea(lal)
     find (padr(_shifr, 20))
     if found() //.and. between_date(luslf->datebeg,luslf->dateend,ldate_usl)

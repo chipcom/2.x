@@ -284,8 +284,8 @@ Function date_reg_schet()
 // если нет даты регистрации, берём дату счёта
 return iif(empty(schet_->dregistr), schet_->dschet, schet_->dregistr)
 
-***** 23.11.21
-Function ret_vid_pom(k,mshifr,lk_data)
+** 01.03.23
+Function ret_vid_pom(k, mshifr, lk_data)
   local svp, vp := 0, lal := 'lusl'
   local y := WORK_YEAR
 
@@ -297,6 +297,9 @@ Function ret_vid_pom(k,mshifr,lk_data)
     Use_base('lusl')
   endif
   lal := create_name_alias(lal, y)
+  // if select(lal) == 0
+  //   lal := 'lusl'
+  // endif
 
   dbSelectArea(lal)
   find (padr(mshifr, 10))
