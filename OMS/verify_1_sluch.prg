@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-** 13.02.23
+** 01.03.23
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
         i, j, k, c, s := ' ', a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -773,7 +773,7 @@ Function verify_1_sluch(fl_view)
           if !is_12_VMP
             aadd(ta, 'работа с услугой ' + alltrim_lshifr+ ' запрещена в Вашей МО')
           endif
-        elseif (left_lshifr_5 == '1.20.')   // .or. (left_lshifr_5 == '1.21.') // ВМП  // 11.02.22
+        elseif (left_lshifr_5 == '1.20.') // ВМП  // 11.02.22
           midsp := 18 // Законченный случай в круглосуточном стационаре
           kkd_1_12 += hu->kol_1
           kol_ksg += hu->kol_1
@@ -787,6 +787,14 @@ Function verify_1_sluch(fl_view)
           kol_ksg += hu->kol_1
           hu_->PZKOL := d
           if !is_22_VMP
+            aadd(ta, 'работа с услугой ' + alltrim_lshifr+ ' запрещена в Вашей МО')
+          endif
+        elseif (left_lshifr_5 == '1.22.') // ВМП  // 01.03.23
+          midsp := 18 // Законченный случай в круглосуточном стационаре
+          kkd_1_12 += hu->kol_1
+          kol_ksg += hu->kol_1
+          hu_->PZKOL := d
+          if !is_23_VMP
             aadd(ta, 'работа с услугой ' + alltrim_lshifr+ ' запрещена в Вашей МО')
           endif
         else
@@ -2262,7 +2270,7 @@ Function verify_1_sluch(fl_view)
       endif
     next
     if human_2->VMP == 1 // проверим ВМП
-      if is_12_VMP .or. is_21_VMP .or. is_22_VMP  // ВМП по-новому 08.02.21
+      if is_12_VMP .or. is_21_VMP .or. is_22_VMP .or. is_23_VMP  // ВМП по-новому 08.02.21
         // if is_12_VMP  // ВМП по-новому
         if !empty(ar_1_19_1)
           aadd(ta, 'при оказании ВМП не может быть применена услуга 1.19.1')
@@ -2293,7 +2301,7 @@ Function verify_1_sluch(fl_view)
             if !(len(mdiagnoz) == 0 .or. empty(mdiagnoz[1]))
               fl := .f. ; s := padr(mdiagnoz[1], 6)
               for j := 1 to len(arrV019[i, 3])
-                if left(s,len(arrV019[i, 3,j])) == arrV019[i, 3,j]
+                if left(s, len(arrV019[i, 3, j])) == arrV019[i, 3, j]
                   fl := .t. ; exit
                 endif
               next
@@ -2316,7 +2324,7 @@ Function verify_1_sluch(fl_view)
             if !(len(mdiagnoz) == 0 .or. empty(mdiagnoz[1]))
               fl := .f. ; s := padr(mdiagnoz[1], 6)
               for j := 1 to len(arrV019[i, 3])
-                if left(s,len(arrV019[i, 3,j])) == arrV019[i, 3,j]
+                if left(s,len(arrV019[i, 3, j])) == arrV019[i, 3, j]
                   fl := .t. ; exit
                 endif
               next

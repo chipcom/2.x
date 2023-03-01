@@ -4,7 +4,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-** 25.01.23
+** 01.03.23
 Function verify_1_sluch_18(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
       i, j, k, c, s := ' ', a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -616,12 +616,20 @@ do while hu->kod == human->kod .and. !eof()
         if !is_21_VMP
           aadd(ta,'работа с услугой '+alltrim_lshifr+' запрещена в Вашей МО')
         endif
-      elseif eq_any(left_lshifr_5,"1.21.") // ВМП
+      elseif eq_any(left_lshifr_5, "1.21.") // ВМП
         midsp := 18 // Законченный случай в круглосуточном стационаре
         kkd_1_12 += hu->kol_1
         kol_ksg += hu->kol_1
         hu_->PZKOL := d
         if !is_22_VMP
+          aadd(ta,'работа с услугой ' + alltrim_lshifr + ' запрещена в Вашей МО')
+        endif
+      elseif eq_any(left_lshifr_5, '1.22.') // ВМП
+        midsp := 18 // Законченный случай в круглосуточном стационаре
+        kkd_1_12 += hu->kol_1
+        kol_ksg += hu->kol_1
+        hu_->PZKOL := d
+        if !is_23_VMP
           aadd(ta,'работа с услугой ' + alltrim_lshifr + ' запрещена в Вашей МО')
         endif
       else
@@ -1674,7 +1682,7 @@ if human_->USL_OK == 1  // стационар
     endif
   endif
   if human_2->VMP == 1 // проверим ВМП
-    if is_12_VMP .or. is_21_VMP .or. is_22_VMP // ВМП по-новому 08.02.2021
+    if is_12_VMP .or. is_21_VMP .or. is_22_VMP .or. is_23_VMP // ВМП по-новому 08.02.21
       arrV018 := getV018(d2)
       arrV019 := getV019(d2)
       
@@ -3675,7 +3683,7 @@ if fl_view
 endif
 return (_ocenka >= 5)
 
-** 23.01.23 определение КСГ по остальным введённым полям ввода - 18 год
+** 01.03.23 определение КСГ по остальным введённым полям ввода - 18 год
 Function definition_KSG_18(par)
 // файлы "human", "human_" и "human_2" открыты и стоят на нужной записи
 //       "human" открыт для записи суммы случая
@@ -3847,8 +3855,9 @@ if lvmp > 0
   else
     // lksg := "1.12."+lstr(lvidvmp)  // 07.02.2021
     // lksg := "1.20."+lstr(lvidvmp)  // 11.02.2022
-    lksg := "1.21." + lstr(lvidvmp)
-    aadd(ars," для "+lstr(lvidvmp)+" метода ВМП введена услуга "+lksg)
+    // lksg := "1.21." + lstr(lvidvmp)  // 01.03.2023
+    lksg := '1.22.' + lstr(lvidvmp)
+    aadd(ars, ' для ' + lstr(lvidvmp) + ' метода ВМП введена услуга ' + lksg)
     lcena := ret_cena_KSG(lksg,lvr,date_usl)
     if lcena > 0
       aadd(ars," РЕЗУЛЬТАТ: выбрана услуга="+lksg+" с ценой "+lstr(lcena,11,2))

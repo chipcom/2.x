@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-** 14.02.23 определить КСГ для 1 пациента из режима редактирования услуг
+** 01.03.23 определить КСГ для 1 пациента из режима редактирования услуг
 Function f_usl_definition_KSG(lkod, k_data2)
   Local arr, buf := save_maxrow(), lshifr, lrec, lu_kod, lcena, not_ksg := .t., ;
         mrec_hu, tmp_rec := 0, tmp_select := select(), is_usl1 := .f., ;
@@ -68,10 +68,10 @@ Function f_usl_definition_KSG(lkod, k_data2)
           endif
           exit
         endif
-        if lyear > 2022 // исправить
+        if lyear == 2023
           select LUSL
           find (padr(lshifr, 10)) // длина lshifr 10 знаков
-          if found() .and. (eq_any(left(lshifr, 5), '1.21.') .or. is_ksg(lusl->shifr)) // стоит другой КСГ
+          if found() .and. (eq_any(left(lshifr, 5), '1.22.') .or. is_ksg(lusl->shifr)) // стоит другой КСГ
             lrec := tmp->(recno())
             exit
           endif
