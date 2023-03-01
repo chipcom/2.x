@@ -151,7 +151,8 @@ Local _sluch := {;
    {"KIRO",        "C",    10,     0},;
    {"KSG",         "C",    10,     0},;
    {"CENA_KSG" ,   "N",    10,     2},;
-   {"SUMV"     ,   "N",    10,     2};
+   {"SUMV"     ,   "N",    10,     2},;
+   {"PN6"      ,   "N",    1,      0};    // m1NMSE направление на МСЭ
   }
 Local _sluch_na := {; // онконаправления
    {"KOD"      ,   "N",     7,     0},; // код больного
@@ -365,6 +366,9 @@ FOR j := 1 TO Len( oXmlDoc:aItems[1]:aItems )
       ihuman->RSLT  := val(mo_read_xml_stroke(oXmlNode, "RSLT"))
       ihuman->ISHOD := val(mo_read_xml_stroke(oXmlNode, "ISHOD"))
       ihuman->PRVS  := val(mo_read_xml_stroke(oXmlNode, "PRVS", ,.f.))
+      if empty(ihuman->PN6 := val(mo_read_xml_stroke(oXmlNode, "NAPR_MSE", ,.f.)))
+        ihuman->PN6 := 0
+      endif  
       if empty(ihuman->VRACH_SDS := val(mo_read_xml_stroke(oXmlNode, "VRACH", ,.f.)))
         ihuman->VR_SNILS := charrem(" -",mo_read_xml_stroke(oXmlNode, "VRACH_SNILS", ,.f.))
       endif
@@ -1164,7 +1168,7 @@ do while !eof()
         endif
       else
         if eq_any(ihuman->VID_AMB,11) // ищем вторую услугу
-          ku := 2
+          ku := 1 // 2
         else // ищем первую услугу
           ku := 1
         endif
@@ -1174,13 +1178,13 @@ do while !eof()
         select MOPROF
         find (str(LVZROS_REB,1) +str(ihuman->PROFIL,3) +left(lshifr,5))
         do while moprof->vzros_reb == LVZROS_REB .and. moprof->profil == ihuman->PROFIL ;
-                                                 .and. left(moprof->shifr,5) == left(lshifr,5) .and. !eof()
-          if alltrim(moprof->shifr) == "2.78.107" .or. alltrim(moprof->shifr) == "2.78.107" .or. ;
+                                                 .and. left(moprof->shifr,5) == left(lshifr,5) .and. !eof()                      
+          if alltrim(moprof->shifr) == "2.78.107" .or. alltrim(moprof->shifr) == "2.78.106" .or. ;
              between_shifr(alltrim(moprof->shifr),"2.78.61","2.78.72") .or.;
               between_shifr(alltrim(moprof->shifr),"2.78.74","2.78.86")             
             // отбраковываем Диспансеризацию
             // 2.78.61 ? 2.78.72, 2.78.74 ? 2.78.86, 2.78.106.
-          else                              
+          else            
             if iif(empty(lshifr2), .t., between_shifr(alltrim(moprof->shifr),lshifr,lshifr2))
               fldel := .f.
               v := fcena_oms(moprof->shifr,(LVZROS_REB==0),ihuman->DATE_2,@fldel)
@@ -1289,6 +1293,7 @@ do while !eof()
     enddo
   endif
   //
+
   pikol[1] ++
   //if glob_mo[_MO_KOD_TFOMS] == '131940' .and. not_otd
     // в ФМБА две базы, поэтому не генерируем ошибку отсутствия кода отделения в согласовании
@@ -1703,7 +1708,7 @@ do while !eof()
       human->K_DATA     := ihuman->DATE_2
       human->CENA := human->CENA_1 := ihuman->SUMV
       human->OBRASHEN := iif(ihuman->DS_ONK == 1, '1', " ")
-
+      
       // заполним для онкологии
       private _arr_sh := ret_arr_shema(1, ihuman->DATE_2), _arr_mt := ret_arr_shema(2, ihuman->DATE_2), _arr_fr := ret_arr_shema(3, ihuman->DATE_2)
 
@@ -1782,6 +1787,7 @@ do while !eof()
         endif
       next
       put_0_human_2()
+      human_2->PN6 := ihuman->PN6
       if !empty(ihuman->VID_HMP)
         human_2->VMP := 1
         human_2->VIDVMP := ihuman->VID_HMP
