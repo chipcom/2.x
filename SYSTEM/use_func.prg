@@ -129,13 +129,59 @@ function use_base_new(sBase, vYear)
 
   return fl
 
-** 08.02.23
+** 02.03.23
 Function use_base(sBase, lalias, lExcluUse, lREADONLY)
+  static lLUSL18, lLUSL19, lLUSL20, lLUSL21, lLUSL22, lLUSL
+  static lLUSL_C18, lLUSL_C19, lLUSL_C20, lLUSL_C21, lLUSL_C22, lLUSL_C
+  static lLUSL_F18, lLUSL_F19, lLUSL_F20, lLUSL_F21, lLUSL_F22, lLUSL_F
   Local fl := .t., sind1, sind2
+  local fname
 
   sBase := lower(sBase)
   do case
     case sBase == 'lusl'
+      if hb_isnil(lLUSL)
+        fName := prefixFileRefName(2023) + 'usl'
+        lLUSL := hb_vfExists(exe_dir + fName + sdbf)
+      endif
+      if hb_isnil(lLUSL22)
+        fName := prefixFileRefName(2022) + 'usl'
+        lLUSL22 := hb_vfExists(exe_dir + fName + sdbf)
+      endif
+      if hb_isnil(lLUSL21)
+        fName := prefixFileRefName(2021) + 'usl'
+        lLUSL21 := hb_vfExists(exe_dir + fName + sdbf)
+      endif
+      if hb_isnil(lLUSL20)
+        fName := prefixFileRefName(2020) + 'usl'
+        lLUSL20 := hb_vfExists(exe_dir + fName + sdbf)
+      endif
+      if hb_isnil(lLUSL19)
+        fName := prefixFileRefName(2019) + 'usl'
+        lLUSL19 := hb_vfExists(exe_dir + fName + sdbf)
+      endif
+      if hb_isnil(lLUSL18)
+        fName := prefixFileRefName(2018) + 'usl'
+        lLUSL18 := hb_vfExists(exe_dir + fName + sdbf)
+      endif
+      // if lLUSL
+      //   fl := R_Use(exe_dir + '_mo3usl', cur_dir + '_mo3usl', sBase)
+      // endif
+      // if lLUSL22
+      //   R_Use(exe_dir + '_mo2usl', cur_dir + '_mo2usl', sBase + '22')
+      // endif
+      // if lLUSL21
+      //   R_Use(exe_dir + '_mo1usl', cur_dir + '_mo1usl', sBase + '21')
+      // endif
+      // if lLUSL20
+      //   R_Use(exe_dir + '_mo0usl', cur_dir + '_mo0usl', sBase + '20')
+      // endif
+      // if lLUSL19
+      //   R_Use(exe_dir + '_mo9usl', cur_dir + '_mo9usl', sBase + '19')
+      // endif
+      // if lLUSL18
+      //   R_Use(exe_dir + '_mo8usl', cur_dir + '_mo8usl', sBase + '18')
+      // endif
       fl := R_Use(exe_dir + '_mo8usl', cur_dir + '_mo8usl', sBase + '18') .and. ;
         R_Use(exe_dir + '_mo9usl', cur_dir + '_mo9usl', sBase + '19') .and. ;
         R_Use(exe_dir + '_mo0usl', cur_dir + '_mo0usl', sBase + '20') .and. ;
@@ -143,6 +189,48 @@ Function use_base(sBase, lalias, lExcluUse, lREADONLY)
         R_Use(exe_dir + '_mo2usl', cur_dir + '_mo2usl', sBase + '22') .and. ;
         R_Use(exe_dir + '_mo3usl', cur_dir + '_mo3usl', sBase)
     case sBase == 'luslc'
+      if hb_isnil(lLUSL_C)
+        fName := prefixFileRefName(2023) + 'uslc'
+        lLUSL_C := hb_vfExists(exe_dir + fName + sdbf)
+      endif
+      if hb_isnil(lLUSL_C22)
+        fName := prefixFileRefName(2022) + 'uslc'
+        lLUSL_C22 := hb_vfExists(exe_dir + fName + sdbf)
+      endif
+      if hb_isnil(lLUSL_C21)
+        fName := prefixFileRefName(2021) + 'uslc'
+        lLUSL_C21 := hb_vfExists(exe_dir + fName + sdbf)
+      endif
+      if hb_isnil(lLUSL_C20)
+        fName := prefixFileRefName(2020) + 'uslc'
+        lLUSL_C20 := hb_vfExists(exe_dir + fName + sdbf)
+      endif
+      if hb_isnil(lLUSL_C19)
+        fName := prefixFileRefName(2019) + 'uslc'
+        lLUSL_C19 := hb_vfExists(exe_dir + fName + sdbf)
+      endif
+      if hb_isnil(lLUSL_C18)
+        fName := prefixFileRefName(2018) + 'uslc'
+        lLUSL_C18 := hb_vfExists(exe_dir + fName + sdbf)
+      endif
+      // if lLUSL_C
+      //   fl := R_Use(exe_dir + '_mo3uslc', {cur_dir + '_mo3uslc', cur_dir + '_mo3uslu'}, sBase)
+      // endif
+      // if lLUSL_C22
+      //   R_Use(exe_dir + '_mo2uslc', {cur_dir + '_mo2uslc', cur_dir + '_mo2uslu'}, sBase + '22')
+      // endif
+      // if lLUSL_C21
+      //   R_Use(exe_dir + '_mo1uslc', {cur_dir + '_mo1uslc', cur_dir + '_mo1uslu'}, sBase + '21')
+      // endif
+      // if lLUSL_C20
+      //   R_Use(exe_dir + '_mo0uslc', {cur_dir + '_mo0uslc', cur_dir + '_mo0uslu'}, sBase + '20')
+      // endif
+      // if lLUSL_C19
+      //   R_Use(exe_dir + '_mo9uslc', {cur_dir + '_mo9uslc', cur_dir + '_mo9uslu'}, sBase + '19')
+      // endif
+      // if lLUSL_C18
+      //   R_Use(exe_dir + '_mo8uslc', {cur_dir + '_mo8uslc', cur_dir + '_mo8uslu'}', sBase + '18')
+      // endif
       fl := R_Use(exe_dir + '_mo8uslc', {cur_dir + '_mo8uslc', cur_dir + '_mo8uslu'}, sBase + '18') .and. ;
         R_Use(exe_dir + '_mo9uslc', {cur_dir + '_mo9uslc', cur_dir + '_mo9uslu'}, sBase + '19') .and. ;
         R_Use(exe_dir + '_mo0uslc', {cur_dir + '_mo0uslc', cur_dir + '_mo0uslu'}, sBase + '20') .and. ;
@@ -150,6 +238,48 @@ Function use_base(sBase, lalias, lExcluUse, lREADONLY)
         R_Use(exe_dir + '_mo2uslc', {cur_dir + '_mo2uslc', cur_dir + '_mo2uslu'}, sBase + '22') .and. ;
         R_Use(exe_dir + '_mo3uslc', {cur_dir + '_mo3uslc', cur_dir + '_mo3uslu'}, sBase)
     case sBase == 'luslf'
+      if hb_isnil(lLUSL_F)
+        fName := prefixFileRefName(2023) + 'uslf'
+        lLUSL_F := hb_vfExists(exe_dir + fName + sdbf)
+      endif
+      if hb_isnil(lLUSL_F22)
+        fName := prefixFileRefName(2022) + 'uslf'
+        lLUSL_F22 := hb_vfExists(exe_dir + fName + sdbf)
+      endif
+      if hb_isnil(lLUSL_F21)
+        fName := prefixFileRefName(2021) + 'uslf'
+        lLUSL_F21 := hb_vfExists(exe_dir + fName + sdbf)
+      endif
+      if hb_isnil(lLUSL_F20)
+        fName := prefixFileRefName(2020) + 'uslf'
+        lLUSL_F20 := hb_vfExists(exe_dir + fName + sdbf)
+      endif
+      if hb_isnil(lLUSL_F19)
+        fName := prefixFileRefName(2019) + 'uslf'
+        lLUSL_F19 := hb_vfExists(exe_dir + fName + sdbf)
+      endif
+      if hb_isnil(lLUSL_F18)
+        fName := prefixFileRefName(2018) + 'uslf'
+        lLUSL_F18 := hb_vfExists(exe_dir + fName + sdbf)
+      endif
+      // if lLUSL_F
+      //   fl := R_Use(exe_dir + '_mo3uslf', cur_dir + '_mo3uslf', sBase)
+      // endif
+      // if lLUSL_F22
+      //   R_Use(exe_dir + '_mo2uslf', cur_dir + '_mo2uslf', sBase + '22')
+      // endif
+      // if lLUSL_F21
+      //   R_Use(exe_dir + '_mo1uslf', cur_dir + '_mo1uslf', sBase + '21')
+      // endif
+      // if lLUSL_F20
+      //   R_Use(exe_dir + '_mo0uslf', cur_dir + '_mo0uslf', sBase + '20')
+      // endif
+      // if lLUSL_F19
+      //   R_Use(exe_dir + '_mo9uslf', cur_dir + '_mo9uslf', sBase + '19')
+      // endif
+      // if lLUSL_F18
+      //   R_Use(exe_dir + '_mo8uslf', cur_dir + '_mo8uslf', sBase + '18')
+      // endif
       fl := R_Use(exe_dir + '_mo8uslf', cur_dir + '_mo8uslf', sBase + '18') .and. ;
         R_Use(exe_dir + '_mo9uslf', cur_dir + '_mo9uslf', sBase + '19') .and. ;
         R_Use(exe_dir + '_mo0uslf', cur_dir + '_mo0uslf', sBase + '20') .and. ;
