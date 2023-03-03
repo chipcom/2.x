@@ -205,7 +205,7 @@ function calcKSLP(cKSLP, dateSl)
   endif
   return summ
 
-** 13.02.23
+** 03.03.23
 function defenition_KIRO(lkiro, ldnej, lrslt, lis_err, lksg)
   // lkiro - список возможных КИРО для КСГ
   // ldnej - длительность случая в койко-днях
@@ -232,6 +232,8 @@ function defenition_KIRO(lkiro, ldnej, lrslt, lis_err, lksg)
         vkiro := 2
       elseif lis_err == 1 .and. ascan(lkiro, 5) > 0 // добавляем ещё несоблюдение схемы химиотерапии (КИРО=5)
         vkiro := 5
+      elseif ascan(lkiro, 4) > 0
+        vkiro := 4
       endif
     else          // длительность случая 4 койко-дня и более
       if ascan({102, 105, 107, 110, 202, 205, 207}, lrslt) > 0
