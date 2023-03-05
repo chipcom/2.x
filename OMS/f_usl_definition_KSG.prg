@@ -3,12 +3,13 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-** 01.03.23 определить КСГ для 1 пациента из режима редактирования услуг
-Function f_usl_definition_KSG(lkod, k_data2)
+** 05.03.23 определить КСГ для 1 пациента из режима редактирования услуг
+Function f_usl_definition_KSG(lkod, k_data2, lDoubleSluch)
   Local arr, buf := save_maxrow(), lshifr, lrec, lu_kod, lcena, not_ksg := .t., ;
         mrec_hu, tmp_rec := 0, tmp_select := select(), is_usl1 := .f., ;
         ret := {}, lyear := year(human->K_DATA), i, s, sdial, fl
 
+  default lDoubleSluch to .f.
   if human_->USL_OK < 3
     mywait('Определение КСГ')
     usl->(dbCloseArea()) // переоткрыть справочник услуг
@@ -24,7 +25,7 @@ Function f_usl_definition_KSG(lkod, k_data2)
     endif
     set relation to
     if lyear > 2018
-      arr := definition_KSG(1, k_data2)
+      arr := definition_KSG(1, k_data2, lDoubleSluch)
     else
       arr := definition_KSG_18()
     endif

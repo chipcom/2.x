@@ -121,27 +121,6 @@ Function create_double_sl()
           glob_uch[2] := inieditspr(A__POPUPMENU, dir_server + 'mo_uch', human->LPU)
           fl := .f.
           use_base('lusl')
-          // R_Use(dir_server + 'uslugi', , 'USL')
-          // R_Use_base('human_u')
-          // set relation to u_kod into USL
-          // find (str(glob_perso, 7))
-          // do while hu->kod == glob_perso .and. !eof()
-          //   if empty(lshifr := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data))
-          //     lshifr := usl->shifr
-          //   endif
-          //   * реинфузия аутокрови (КСГ st36.009, выбирается по услуге A16.20.078)
-          //   * баллонная внутриаортальная контрпульсация (КСГ st36.010, выбирается по услуге A16.12.030)
-          //   * экстракорпоральная мембранная оксигенация (КСГ st36.011, выбирается по услуге A16.10.021.001)
-          //   if is_ksg(lshifr) .and. ascan({'st36.009', 'st36.010', 'st36.011'},alltrim(lshifr)) > 0
-          //     find_reserve_1 := .t.
-          //     fl := .t.
-          //     reserve_ln_data_1 := ln_data
-          //     reserve_lk_data_1 := lk_data
-          //     exit
-          //   endif
-          //   select HU
-          //   skip
-          // enddo
           fl_reserve_1 := exist_reserve_KSG(glob_perso, 'HUMAN')
           if ! fl_reserve_1
             if lk_data == ln_data
@@ -256,7 +235,6 @@ Function create_double_sl()
                 @ 3, 42 say padc('2: с ' + date_8(ln_data2)+ ' по ' + date_8(lk_data2), 35) color color8
                 if f_Esc_Enter('создания двойного случая', .t.)
                   mywait('Проверка (попытка пересчёта) цены КСГ первого случая.')
-                  // recount_double_sl(glob_perso, lk_data2)
                   recount_double_sl(glob_perso, lk_data)
                   mywait('Выполняется операция слияния двух листов учёта в двойной.')
                   use_base('human')
@@ -343,7 +321,7 @@ Function create_double_sl()
   rest_box(buf)
   return NIL
 
-** 10.10.22 Проверка (попытка пересчёта) цены КСГ первого случая
+** 05.03.23 Проверка (попытка пересчёта) цены КСГ первого случая
 Function recount_double_sl(mkod_human, k_data2)
   Local aksg, lcena, adbf := { ;
     {'KOD'      ,   'N',     7,     0}, ; // код больного
@@ -528,7 +506,7 @@ Function recount_double_sl(mkod_human, k_data2)
   set relation to otd into OTD
   go top
   if rec_ksg > 0
-    f_usl_definition_KSG(human->kod, k_data2)
+    f_usl_definition_KSG(human->kod, k_data2, .t.)
   else
     func_error(4, 'В первом случае не обнаружена КСГ!')
   endif
@@ -597,7 +575,8 @@ Function delete_double_sl()
     aadd(arr, '2-ой в отд. ' +alltrim(otd->name)+ ' на сумму ' + lstr(human->cena_1, 11, 2)+ ' руб.')
     f_message(arr, , cColorSt2Msg, cColorSt1Msg)
     s := 'Подтвердите расформирование двойного листа учёта'
-    stat_msg(s) ; mybell(1)
+    stat_msg(s)
+    mybell(1)
     if f_Esc_Enter('расформирования', .t.)
       stat_msg(s+ ' ещё раз.') ; mybell(3)
       if f_Esc_Enter('расформирования', .t.)
@@ -615,7 +594,15 @@ Function delete_double_sl()
         select HUMAN_3
         DeleteRec()  // удаляем двойной случай
         close databases
-        stat_msg('Двойной лист учёта успешно расформирован.') ; mybell(5)
+        // stat_msg('Двойной лист учёта успешно расформирован.')
+        mybell(5)
+        stat_msg('Нажмите любую клавишу.')
+        arr := {}
+        aadd(arr, 'Двойной лист учёта успешно расформирован.')
+        aadd(arr, 'Проверьте определения стоимости входивших в двойной случай')
+        aadd(arr, 'листов учета.')
+        f_message(arr, , cColorSt2Msg, cColorSt1Msg)
+        inkey(0)
       endif
     endif
     close databases

@@ -4,8 +4,8 @@
 #include 'chip_mo.ch'
  
 
-** 30.12.22 определение КСГ по остальным введённым полям ввода - 2019-22 год
-Function definition_KSG(par, k_data2)
+** 05.03.23 определение КСГ по остальным введённым полям ввода - 2019-22 год
+Function definition_KSG(par, k_data2, lDoubleSluch)
   // файлы 'human', 'human_' и 'human_2' открыты и стоят на нужной записи
   //       'human' открыт для записи суммы случая
   // выполнено use_base('human_u', 'HU') - для записи
@@ -72,6 +72,7 @@ Function definition_KSG(par, k_data2)
   local vkiro := 0
 
   DEFAULT par TO 1, sp0 TO '', sp1 TO space(1), sp6 TO space(6), sp15 TO space(20)
+  default lDoubleSluch to .f.
   Private pole
 
   if par == 1
@@ -910,7 +911,7 @@ Function definition_KSG(par, k_data2)
         s += ', цена ' + lstr(lcena, 11, 0) + 'р.)'
       endif
       if !empty(lkiro)
-        vkiro := defenition_KIRO(lkiro, ldnej, lrslt, lis_err, lksg)
+        vkiro := defenition_KIRO(lkiro, ldnej, lrslt, lis_err, lksg, lDoubleSluch)
 
         if vkiro > 0
           akiro := f_cena_kiro(@lcena, vkiro, lk_data)

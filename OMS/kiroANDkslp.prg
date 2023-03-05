@@ -205,16 +205,18 @@ function calcKSLP(cKSLP, dateSl)
   endif
   return summ
 
-** 03.03.23
-function defenition_KIRO(lkiro, ldnej, lrslt, lis_err, lksg)
+** 05.03.23
+function defenition_KIRO(lkiro, ldnej, lrslt, lis_err, lksg, lDoubleSluch)
   // lkiro - список возможных КИРО для КСГ
   // ldnej - длительность случая в койко-днях
   // lrslt - результат обращения (справочник V009)
   // lis_err - ошибка (какая-то)
   // lksg - шифр КСГ
+  // lDoubleSluch - это часть двойного случая
   local vkiro := 0
   local cKSG := alltrim(LTrim(lksg))
 
+  default lDoubleSluch to .f.
   if eq_any(cKSG, 'st37.002', 'st37.003', 'st37.006', 'st37.007', 'st37.024', 'st37.025', 'st37.026')
     // КСГ по услугам мед. реабилитации в стационаре согласно Служебная записка Мызгина от 13.02.23
     if (cKSG == 'st37.002' .and. ldnej < 14) .or. ;
@@ -223,30 +225,74 @@ function defenition_KIRO(lkiro, ldnej, lrslt, lis_err, lksg)
         (cKSG == 'st37.007' .and. ldnej < 18) .or. ;
         ((cKSG == 'st37.024' .or. cKSG == 'st37.025' .or. cKSG == 'st37.026') .and. ldnej < 30)
       vkiro := 4
-    endif
-  else  // все другое
-    if ldnej < 4  // длительность случая 3 койко-дня и менее
-      if ascan(lkiro, 1) > 0
-        vkiro := 1
-      elseif ascan(lkiro, 2) > 0
-        vkiro := 2
-      elseif lis_err == 1 .and. ascan(lkiro, 5) > 0 // добавляем ещё несоблюдение схемы химиотерапии (КИРО=5)
-        vkiro := 5
-      elseif ascan(lkiro, 4) > 0
-        vkiro := 4
-      endif
-    else          // длительность случая 4 койко-дня и более
-      if ascan({102, 105, 107, 110, 202, 205, 207}, lrslt) > 0
-        if ascan(lkiro, 3) > 0
-          vkiro := 3
-        elseif ascan(lkiro, 4) > 0
-          vkiro := 4
-        elseif lis_err == 1 .and. ascan(lkiro, 6) > 0 // добавляем ещё несоблюдение схемы химиотерапии (КИРО=6)
-          vkiro := 6
-        endif
-      endif
+      return vkiro
     endif
   endif
+
+  if lDoubleSluch // это часть двойного случая
+    if ascan(lkiro, 1) > 0
+      vkiro := 1
+    elseif ascan(lkiro, 2) > 0
+      vkiro := 2
+    elseif ascan(lkiro, 3) > 0
+      vkiro := 3
+    elseif ascan(lkiro, 4) > 0
+      vkiro := 4
+    elseif  lis_err == 1 .and. ascan(lkiro, 5) > 0
+      vkiro := 5
+    elseif  lis_err == 1 .and. ascan(lkiro, 6) > 0
+      vkiro := 6
+    endif
+  endif
+  if ldnej > 3 // количество дней лечения 4 и более дней
+    if ascan({102, 105, 107, 110, 202, 205, 207}, lrslt) > 0  // проверем результат лечения
+      if ascan(lkiro, 3) > 0
+        vkiro := 3
+      elseif ascan(lkiro, 4) > 0
+        vkiro := 4
+      elseif lis_err == 1 .and. ascan(lkiro, 6) > 0 // добавляем ещё несоблюдение схемы химиотерапии (КИРО=6)
+        vkiro := 6
+      endif
+      return vkiro
+    else
+      return vkiro
+    endif
+  else // количество дней лечения 3 и менее дней
+    if isklichenie_KSG_KIRO(cKSG)
+      return vkiro
+    endif
+    if ascan(lkiro, 1) > 0
+      vkiro := 1
+    elseif ascan(lkiro, 2) > 0
+      vkiro := 2
+    elseif ascan(lkiro, 4) > 0  // встречается в двойных случаях
+      vkiro := 4
+    elseif lis_err == 1 .and. ascan(lkiro, 5) > 0 // добавляем ещё несоблюдение схемы химиотерапии (КИРО=5)
+      vkiro := 5
+    endif
+  endif
+
+  // // else  // все другое
+  //   if ldnej < 4  // длительность случая 3 койко-дня и менее
+  //     if ascan(lkiro, 1) > 0
+  //       vkiro := 1
+  //     elseif ascan(lkiro, 2) > 0
+  //       vkiro := 2
+  //     elseif lis_err == 1 .and. ascan(lkiro, 5) > 0 // добавляем ещё несоблюдение схемы химиотерапии (КИРО=5)
+  //       vkiro := 5
+  //     endif
+  //   else          // длительность случая 4 койко-дня и более
+  //     if ascan({102, 105, 107, 110, 202, 205, 207}, lrslt) > 0
+  //       if ascan(lkiro, 3) > 0
+  //         vkiro := 3
+  //       elseif ascan(lkiro, 4) > 0
+  //         vkiro := 4
+  //       elseif lis_err == 1 .and. ascan(lkiro, 6) > 0 // добавляем ещё несоблюдение схемы химиотерапии (КИРО=6)
+  //         vkiro := 6
+  //       endif
+  //     endif
+  //   endif
+  // // endif
   return vkiro
 
 ** 30.11.21
@@ -590,3 +636,175 @@ Function ret_koef_kslp_21_XML(akslp, tKSLP, nYear)
     endif
   endif
   return k
+
+** 03.03.23
+function isklichenie_KSG_KIRO(cKSG)
+  local arrKSG := { ;
+    'st02.001', ;
+    'st02.002', ;
+    'st02.003', ;
+    'st02.004', ;
+    'st02.010', ;
+    'st02.011', ;
+    'st03.002', ;
+    'st05.008', ;
+    'st08.001', ;
+    'st08.002', ;
+    'st08.003', ;
+    'st12.010', ;
+    'st12.011', ;
+    'st14.002', ;
+    'st15.008', ;
+    'st15.009', ;
+    'st16.005', ;
+    'st19.007', ;
+    'st19.038', ;
+    'st19.125', ;
+    'st19.126', ;
+    'st19.127', ;
+    'st19.128', ;
+    'st19.129', ;
+    'st19.130', ;
+    'st19.131', ;
+    'st19.132', ;
+    'st19.133', ;
+    'st19.134', ;
+    'st19.135', ;
+    'st19.136', ;
+    'st19.137', ;
+    'st19.138', ;
+    'st19.139', ;
+    'st19.140', ;
+    'st19.141', ;
+    'st19.142', ;
+    'st19.143', ;
+    'st19.082', ;
+    'st19.090', ;
+    'st19.094', ;
+    'st19.097', ;
+    'st19.100', ;
+    'st20.005', ;
+    'st20.006', ;
+    'st20.010', ;
+    'st21.001', ;
+    'st21.002', ;
+    'st21.003', ;
+    'st21.004', ;
+    'st21.005', ;
+    'st21.006', ;
+    'st21.009', ;
+    'st25.004', ;
+    'st27.012', ;
+    'st30.006', ;
+    'st30.010', ;
+    'st30.011', ;
+    'st30.012', ;
+    'st30.014', ;
+    'st31.017', ;
+    'st32.002', ;
+    'st32.012', ;
+    'st32.016', ;
+    'st34.002', ;
+    'st36.001', ;
+    'st36.007', ;
+    'st36.009', ;
+    'st36.010', ;
+    'st36.011', ;
+    'st36.024', ;
+    'st36.025', ;
+    'st36.026', ;
+    'st36.028', ;
+    'st36.029', ;
+    'st36.030', ;
+    'st36.031', ;
+    'st36.032', ;
+    'st36.033', ;
+    'st36.034', ;
+    'st36.035', ;
+    'st36.036', ;
+    'st36.037', ;
+    'st36.038', ;
+    'st36.039', ;
+    'st36.040', ;
+    'st36.041', ;
+    'st36.042', ;
+    'st36.043', ;
+    'st36.044', ;
+    'st36.045', ;
+    'st36.046', ;
+    'st36.047', ;
+    'ds02.001', ;
+    'ds02.006', ;
+    'ds02.007', ;
+    'ds02.008', ;
+    'ds05.005', ;
+    'ds08.001', ;
+    'ds08.002', ;
+    'ds08.003', ;
+    'ds15.002', ;
+    'ds15.003', ;
+    'ds19.028', ;
+    'ds19.033', ;
+    'ds19.097', ;
+    'ds19.098', ;
+    'ds19.099', ;
+    'ds19.100', ;
+    'ds19.101', ;
+    'ds19.102', ;
+    'ds19.103', ;
+    'ds19.104', ;
+    'ds19.105', ;
+    'ds19.106', ;
+    'ds19.107', ;
+    'ds19.108', ;
+    'ds19.109', ;
+    'ds19.110', ;
+    'ds19.111', ;
+    'ds19.112', ;
+    'ds19.113', ;
+    'ds19.114', ;
+    'ds19.115', ;
+    'ds19.057', ;
+    'ds19.063', ;
+    'ds19.067', ;
+    'ds19.071', ;
+    'ds19.075', ;
+    'ds20.002', ;
+    'ds20.003', ;
+    'ds20.006', ;
+    'ds21.002', ;
+    'ds21.003', ;
+    'ds21.004', ;
+    'ds21.005', ;
+    'ds21.006', ;
+    'ds21.007', ;
+    'ds25.001', ;
+    'ds27.001', ;
+    'ds34.002', ;
+    'ds36.001', ;
+    'ds36.012', ;
+    'ds36.013', ;
+    'ds36.015', ;
+    'ds36.016', ;
+    'ds36.017', ;
+    'ds36.018', ;
+    'ds36.019', ;
+    'ds36.020', ;
+    'ds36.021', ;
+    'ds36.022', ;
+    'ds36.023', ;
+    'ds36.024', ;
+    'ds36.025', ;
+    'ds36.026', ;
+    'ds36.027', ;
+    'ds36.028', ;
+    'ds36.029', ;
+    'ds36.030', ;
+    'ds36.031', ;
+    'ds36.032', ;
+    'ds36.033', ;
+    'ds36.034', ;
+    'ds36.035' ;   
+  }
+
+  return ascan(arrKsg, cKSG) > 0
