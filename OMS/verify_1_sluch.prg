@@ -27,6 +27,7 @@ Function verify_1_sluch(fl_view)
   local aUslMedReab
   local obyaz_uslugi_med_reab, iUsluga
   local lTypeLUOnkoDisp := .f.
+  local lDoubleSluch := .f.
 
   if empty(human->k_data)
     return .t.  // не проверять
@@ -2619,10 +2620,12 @@ Function verify_1_sluch(fl_view)
       goto (human_2->pn4) // ссылка на 2-й лист учёта
       k_data2 := human->k_data // переприсваиваем дату окончания лечения
       goto (rec_human)
+      lDoubleSluch := .t.
     else
       s := ''
     endif
-    arr_ksg := definition_KSG(1,k_data2)
+altd()
+    arr_ksg := definition_KSG(1,k_data2, lDoubleSluch)
     if empty(arr_ksg[2]) // нет ошибок
       if shifr_ksg == arr_ksg[3] // КСГ определена правильно
         if !(round(cena_ksg, 2) == round(arr_ksg[4], 2)) // не та цена

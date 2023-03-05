@@ -129,6 +129,50 @@ function use_base_new(sBase, vYear)
 
   return fl
 
+  ** 05.03.23
+function existsNSIfile(sbase, vYear)
+  local fl := .f., fName, findex, fIndex_add
+
+  fName := prefixFileRefName(vYear) + substr(sbase, 2)
+  if (fl := hb_vfExists(exe_dir + fName + sdbf))
+    do case
+      case sBase == 'lusl'
+        fIndex := cur_dir + fName + sntx
+        if hb_vfExists(exe_dir + fName + sdbf)
+          if ! hb_vfExists(fIndex)
+            R_Use(exe_dir + fName, , sBase)
+            index on shifr to (fIndex)
+            (sBase)->(dbCloseArea())
+          endif
+        endif
+    case sBase == 'luslc'
+      fIndex := cur_dir + fName + sntx
+      fIndex_add :=  prefixFileRefName(vYear) + 'uslu'  // 
+      if (f := hb_vfExists(exe_dir + fName + sdbf))
+        if (! hb_vfExists(fIndex)) .or. (! hb_vfExists(cur_dir + fIndex_add + sntx))
+          R_Use(exe_dir + fName, , sBase)
+          // index on shifr + str(vzros_reb, 1) + str(depart, 3) + dtos(datebeg) to (cur_dir + sbase) ;
+          index on shifr + str(vzros_reb, 1) + str(depart, 3) + dtos(datebeg) to (findex) ;
+              for codemo == glob_mo[_MO_KOD_TFOMS]
+          index on codemo + shifr + str(vzros_reb, 1) + str(depart, 3) + dtos(datebeg) to (cur_dir + fIndex_add) ;
+              for codemo == glob_mo[_MO_KOD_TFOMS] // для совместимости со старой версией справочника
+          (sBase)->(dbCloseArea())
+        endif
+      endif
+    case sBase == 'luslf'
+      fName := prefixFileRefName(vYear) + 'uslf'
+      fIndex := cur_dir + fName + sntx
+      if (fl := hb_vfExists(exe_dir + fName + sdbf))
+        if ! hb_vfExists(fIndex)
+          R_Use(exe_dir + fName, , sBase)
+          index on shifr to (cur_dir + fName)
+          (sBase)->(dbCloseArea())
+        endif
+      endif
+    endcase
+  endif
+  return fl
+
 ** 02.03.23
 Function use_base(sBase, lalias, lExcluUse, lREADONLY)
   static lLUSL18, lLUSL19, lLUSL20, lLUSL21, lLUSL22, lLUSL
@@ -141,28 +185,22 @@ Function use_base(sBase, lalias, lExcluUse, lREADONLY)
   do case
     case sBase == 'lusl'
       if hb_isnil(lLUSL)
-        fName := prefixFileRefName(2023) + 'usl'
-        lLUSL := hb_vfExists(exe_dir + fName + sdbf)
+        lLUSL := existsNSIfile(sbase, 2023)
       endif
       if hb_isnil(lLUSL22)
-        fName := prefixFileRefName(2022) + 'usl'
-        lLUSL22 := hb_vfExists(exe_dir + fName + sdbf)
+        lLUSL22 := existsNSIfile(sbase, 2022)
       endif
       if hb_isnil(lLUSL21)
-        fName := prefixFileRefName(2021) + 'usl'
-        lLUSL21 := hb_vfExists(exe_dir + fName + sdbf)
+        lLUSL21 := existsNSIfile(sbase, 2021)
       endif
       if hb_isnil(lLUSL20)
-        fName := prefixFileRefName(2020) + 'usl'
-        lLUSL20 := hb_vfExists(exe_dir + fName + sdbf)
+        lLUSL20 := existsNSIfile(sbase, 2020)
       endif
       if hb_isnil(lLUSL19)
-        fName := prefixFileRefName(2019) + 'usl'
-        lLUSL19 := hb_vfExists(exe_dir + fName + sdbf)
+        lLUSL19 := existsNSIfile(sbase, 2019)
       endif
       if hb_isnil(lLUSL18)
-        fName := prefixFileRefName(2018) + 'usl'
-        lLUSL18 := hb_vfExists(exe_dir + fName + sdbf)
+        lLUSL18 := existsNSIfile(sbase, 2018)
       endif
       // if lLUSL
       //   fl := R_Use(exe_dir + '_mo3usl', cur_dir + '_mo3usl', sBase)
@@ -190,28 +228,22 @@ Function use_base(sBase, lalias, lExcluUse, lREADONLY)
         R_Use(exe_dir + '_mo3usl', cur_dir + '_mo3usl', sBase)
     case sBase == 'luslc'
       if hb_isnil(lLUSL_C)
-        fName := prefixFileRefName(2023) + 'uslc'
-        lLUSL_C := hb_vfExists(exe_dir + fName + sdbf)
+        lLUSL_C := existsNSIfile(sbase, 2023)
       endif
       if hb_isnil(lLUSL_C22)
-        fName := prefixFileRefName(2022) + 'uslc'
-        lLUSL_C22 := hb_vfExists(exe_dir + fName + sdbf)
+        lLUSL_C22 := existsNSIfile(sbase, 2022)
       endif
       if hb_isnil(lLUSL_C21)
-        fName := prefixFileRefName(2021) + 'uslc'
-        lLUSL_C21 := hb_vfExists(exe_dir + fName + sdbf)
+        lLUSL_C21 := existsNSIfile(sbase, 2021)
       endif
       if hb_isnil(lLUSL_C20)
-        fName := prefixFileRefName(2020) + 'uslc'
-        lLUSL_C20 := hb_vfExists(exe_dir + fName + sdbf)
+        lLUSL_C20 := existsNSIfile(sbase, 2020)
       endif
       if hb_isnil(lLUSL_C19)
-        fName := prefixFileRefName(2019) + 'uslc'
-        lLUSL_C19 := hb_vfExists(exe_dir + fName + sdbf)
+        lLUSL_C19 := existsNSIfile(sbase, 2019)
       endif
       if hb_isnil(lLUSL_C18)
-        fName := prefixFileRefName(2018) + 'uslc'
-        lLUSL_C18 := hb_vfExists(exe_dir + fName + sdbf)
+        lLUSL_C18 := existsNSIfile(sbase, 2018)
       endif
       // if lLUSL_C
       //   fl := R_Use(exe_dir + '_mo3uslc', {cur_dir + '_mo3uslc', cur_dir + '_mo3uslu'}, sBase)
@@ -239,28 +271,22 @@ Function use_base(sBase, lalias, lExcluUse, lREADONLY)
         R_Use(exe_dir + '_mo3uslc', {cur_dir + '_mo3uslc', cur_dir + '_mo3uslu'}, sBase)
     case sBase == 'luslf'
       if hb_isnil(lLUSL_F)
-        fName := prefixFileRefName(2023) + 'uslf'
-        lLUSL_F := hb_vfExists(exe_dir + fName + sdbf)
+        lLUSL_F := existsNSIfile(sbase, 2023)
       endif
       if hb_isnil(lLUSL_F22)
-        fName := prefixFileRefName(2022) + 'uslf'
-        lLUSL_F22 := hb_vfExists(exe_dir + fName + sdbf)
+        lLUSL_F22 := existsNSIfile(sbase, 2022)
       endif
       if hb_isnil(lLUSL_F21)
-        fName := prefixFileRefName(2021) + 'uslf'
-        lLUSL_F21 := hb_vfExists(exe_dir + fName + sdbf)
+        lLUSL_F21 := existsNSIfile(sbase, 2021)
       endif
       if hb_isnil(lLUSL_F20)
-        fName := prefixFileRefName(2020) + 'uslf'
-        lLUSL_F20 := hb_vfExists(exe_dir + fName + sdbf)
+        lLUSL_F20 := existsNSIfile(sbase, 2020)
       endif
       if hb_isnil(lLUSL_F19)
-        fName := prefixFileRefName(2019) + 'uslf'
-        lLUSL_F19 := hb_vfExists(exe_dir + fName + sdbf)
+        lLUSL_F19 := existsNSIfile(sbase, 2019)
       endif
       if hb_isnil(lLUSL_F18)
-        fName := prefixFileRefName(2018) + 'uslf'
-        lLUSL_F18 := hb_vfExists(exe_dir + fName + sdbf)
+        lLUSL_F18 := existsNSIfile(sbase, 2018)
       endif
       // if lLUSL_F
       //   fl := R_Use(exe_dir + '_mo3uslf', cur_dir + '_mo3uslf', sBase)
