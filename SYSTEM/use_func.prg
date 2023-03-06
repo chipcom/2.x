@@ -76,59 +76,6 @@ function close_use_base(sBase)
     endcase
   return nil
 
-** 28.02.23
-function use_base_new(sBase, vYear)
-  local fl := .f., fName, fIndex, fIndex_add
-
-  sBase := lower(sBase)
-  do case
-    case sBase == 'lusl'
-      fName := prefixFileRefName(vYear) + 'usl'
-      fIndex := cur_dir + fName + sntx
-      if hb_vfExists(exe_dir + fName + sdbf)
-        if ! hb_vfExists(fIndex)
-          R_Use(exe_dir + fName, , sBase)
-          index on shifr to (fIndex)
-          (sBase)->(dbCloseArea())
-        endif
-      else
-        return fl
-      endif
-      fl := R_Use(exe_dir + fName, cur_dir + fName, sBase)
-    case sBase == 'luslc'
-      fName := prefixFileRefName(vYear) + 'uslc'
-      fIndex := cur_dir + fName + sntx
-      fIndex_add :=  prefixFileRefName(vYear) + 'uslu'  // 
-      if hb_vfExists(exe_dir + fName + sdbf)
-        if (! hb_vfExists(fIndex)) .or. (! hb_vfExists(cur_dir + fIndex_add + sntx))
-          R_Use(exe_dir + fName, , sBase)
-          index on shifr + str(vzros_reb, 1) + str(depart, 3) + dtos(datebeg) to (cur_dir + sbase) ;
-              for codemo == glob_mo[_MO_KOD_TFOMS]
-          index on codemo + shifr + str(vzros_reb, 1) + str(depart, 3) + dtos(datebeg) to (cur_dir + index_usl_name) ;
-              for codemo == glob_mo[_MO_KOD_TFOMS] // для совместимости со старой версией справочника
-          (sBase)->(dbCloseArea())
-        endif
-      else
-        return fl
-      endif
-      fl := R_Use(exe_dir + fName, {fIndex, cur_dir + fIndex_add}, sBase)
-    case sBase == 'luslf'
-      fName := prefixFileRefName(vYear) + 'uslf'
-      fIndex := cur_dir + fName + sntx
-      if hb_vfExists(exe_dir + fName + sdbf)
-        if ! hb_vfExists(fIndex)
-          R_Use(exe_dir + fName, , sBase)
-          index on shifr to (cur_dir + fName)
-          (sBase)->(dbCloseArea())
-        endif
-      else
-        return fl
-      endif
-      fl := R_Use(exe_dir + fName, cur_dir + fName, sBase)
-  endcase
-
-  return fl
-
   ** 05.03.23
 function existsNSIfile(sbase, vYear)
   local fl := .f., fName, findex, fIndex_add
@@ -173,53 +120,23 @@ function existsNSIfile(sbase, vYear)
   endif
   return fl
 
+
 ** 02.03.23
 Function use_base(sBase, lalias, lExcluUse, lREADONLY)
-  static lLUSL18, lLUSL19, lLUSL20, lLUSL21, lLUSL22, lLUSL
-  static lLUSL_C18, lLUSL_C19, lLUSL_C20, lLUSL_C21, lLUSL_C22, lLUSL_C
-  static lLUSL_F18, lLUSL_F19, lLUSL_F20, lLUSL_F21, lLUSL_F22, lLUSL_F
+  // static  lLUSL18, lLUSL19, lLUSL20, lLUSL21, lLUSL22, lLUSL
+  // static lLUSL_C18, lLUSL_C19, lLUSL_C20, lLUSL_C21, lLUSL_C22, lLUSL_C
+  // static lLUSL_F18, lLUSL_F19, lLUSL_F20, lLUSL_F21, lLUSL_F22, lLUSL_F
   Local fl := .t., sind1, sind2
-  local fname
+  // local fname
+  local countYear, mVar
 
   sBase := lower(sBase)
   do case
     case sBase == 'lusl'
-      if hb_isnil(lLUSL)
-        lLUSL := existsNSIfile(sbase, 2023)
-      endif
-      if hb_isnil(lLUSL22)
-        lLUSL22 := existsNSIfile(sbase, 2022)
-      endif
-      if hb_isnil(lLUSL21)
-        lLUSL21 := existsNSIfile(sbase, 2021)
-      endif
-      if hb_isnil(lLUSL20)
-        lLUSL20 := existsNSIfile(sbase, 2020)
-      endif
-      if hb_isnil(lLUSL19)
-        lLUSL19 := existsNSIfile(sbase, 2019)
-      endif
-      if hb_isnil(lLUSL18)
-        lLUSL18 := existsNSIfile(sbase, 2018)
-      endif
-      // if lLUSL
-      //   fl := R_Use(exe_dir + '_mo3usl', cur_dir + '_mo3usl', sBase)
-      // endif
-      // if lLUSL22
-      //   R_Use(exe_dir + '_mo2usl', cur_dir + '_mo2usl', sBase + '22')
-      // endif
-      // if lLUSL21
-      //   R_Use(exe_dir + '_mo1usl', cur_dir + '_mo1usl', sBase + '21')
-      // endif
-      // if lLUSL20
-      //   R_Use(exe_dir + '_mo0usl', cur_dir + '_mo0usl', sBase + '20')
-      // endif
-      // if lLUSL19
-      //   R_Use(exe_dir + '_mo9usl', cur_dir + '_mo9usl', sBase + '19')
-      // endif
-      // if lLUSL18
-      //   R_Use(exe_dir + '_mo8usl', cur_dir + '_mo8usl', sBase + '18')
-      // endif
+      // for countYear := 2018 to WORK_YEAR
+      //   existsNSIfile(sbase, countYear)
+      // next
+
       fl := R_Use(exe_dir + '_mo8usl', cur_dir + '_mo8usl', sBase + '18') .and. ;
         R_Use(exe_dir + '_mo9usl', cur_dir + '_mo9usl', sBase + '19') .and. ;
         R_Use(exe_dir + '_mo0usl', cur_dir + '_mo0usl', sBase + '20') .and. ;
@@ -227,42 +144,9 @@ Function use_base(sBase, lalias, lExcluUse, lREADONLY)
         R_Use(exe_dir + '_mo2usl', cur_dir + '_mo2usl', sBase + '22') .and. ;
         R_Use(exe_dir + '_mo3usl', cur_dir + '_mo3usl', sBase)
     case sBase == 'luslc'
-      if hb_isnil(lLUSL_C)
-        lLUSL_C := existsNSIfile(sbase, 2023)
-      endif
-      if hb_isnil(lLUSL_C22)
-        lLUSL_C22 := existsNSIfile(sbase, 2022)
-      endif
-      if hb_isnil(lLUSL_C21)
-        lLUSL_C21 := existsNSIfile(sbase, 2021)
-      endif
-      if hb_isnil(lLUSL_C20)
-        lLUSL_C20 := existsNSIfile(sbase, 2020)
-      endif
-      if hb_isnil(lLUSL_C19)
-        lLUSL_C19 := existsNSIfile(sbase, 2019)
-      endif
-      if hb_isnil(lLUSL_C18)
-        lLUSL_C18 := existsNSIfile(sbase, 2018)
-      endif
-      // if lLUSL_C
-      //   fl := R_Use(exe_dir + '_mo3uslc', {cur_dir + '_mo3uslc', cur_dir + '_mo3uslu'}, sBase)
-      // endif
-      // if lLUSL_C22
-      //   R_Use(exe_dir + '_mo2uslc', {cur_dir + '_mo2uslc', cur_dir + '_mo2uslu'}, sBase + '22')
-      // endif
-      // if lLUSL_C21
-      //   R_Use(exe_dir + '_mo1uslc', {cur_dir + '_mo1uslc', cur_dir + '_mo1uslu'}, sBase + '21')
-      // endif
-      // if lLUSL_C20
-      //   R_Use(exe_dir + '_mo0uslc', {cur_dir + '_mo0uslc', cur_dir + '_mo0uslu'}, sBase + '20')
-      // endif
-      // if lLUSL_C19
-      //   R_Use(exe_dir + '_mo9uslc', {cur_dir + '_mo9uslc', cur_dir + '_mo9uslu'}, sBase + '19')
-      // endif
-      // if lLUSL_C18
-      //   R_Use(exe_dir + '_mo8uslc', {cur_dir + '_mo8uslc', cur_dir + '_mo8uslu'}', sBase + '18')
-      // endif
+      // for countYear := 2018 to WORK_YEAR
+      //   existsNSIfile(sbase, countYear)
+      // next
       fl := R_Use(exe_dir + '_mo8uslc', {cur_dir + '_mo8uslc', cur_dir + '_mo8uslu'}, sBase + '18') .and. ;
         R_Use(exe_dir + '_mo9uslc', {cur_dir + '_mo9uslc', cur_dir + '_mo9uslu'}, sBase + '19') .and. ;
         R_Use(exe_dir + '_mo0uslc', {cur_dir + '_mo0uslc', cur_dir + '_mo0uslu'}, sBase + '20') .and. ;
@@ -270,42 +154,9 @@ Function use_base(sBase, lalias, lExcluUse, lREADONLY)
         R_Use(exe_dir + '_mo2uslc', {cur_dir + '_mo2uslc', cur_dir + '_mo2uslu'}, sBase + '22') .and. ;
         R_Use(exe_dir + '_mo3uslc', {cur_dir + '_mo3uslc', cur_dir + '_mo3uslu'}, sBase)
     case sBase == 'luslf'
-      if hb_isnil(lLUSL_F)
-        lLUSL_F := existsNSIfile(sbase, 2023)
-      endif
-      if hb_isnil(lLUSL_F22)
-        lLUSL_F22 := existsNSIfile(sbase, 2022)
-      endif
-      if hb_isnil(lLUSL_F21)
-        lLUSL_F21 := existsNSIfile(sbase, 2021)
-      endif
-      if hb_isnil(lLUSL_F20)
-        lLUSL_F20 := existsNSIfile(sbase, 2020)
-      endif
-      if hb_isnil(lLUSL_F19)
-        lLUSL_F19 := existsNSIfile(sbase, 2019)
-      endif
-      if hb_isnil(lLUSL_F18)
-        lLUSL_F18 := existsNSIfile(sbase, 2018)
-      endif
-      // if lLUSL_F
-      //   fl := R_Use(exe_dir + '_mo3uslf', cur_dir + '_mo3uslf', sBase)
-      // endif
-      // if lLUSL_F22
-      //   R_Use(exe_dir + '_mo2uslf', cur_dir + '_mo2uslf', sBase + '22')
-      // endif
-      // if lLUSL_F21
-      //   R_Use(exe_dir + '_mo1uslf', cur_dir + '_mo1uslf', sBase + '21')
-      // endif
-      // if lLUSL_F20
-      //   R_Use(exe_dir + '_mo0uslf', cur_dir + '_mo0uslf', sBase + '20')
-      // endif
-      // if lLUSL_F19
-      //   R_Use(exe_dir + '_mo9uslf', cur_dir + '_mo9uslf', sBase + '19')
-      // endif
-      // if lLUSL_F18
-      //   R_Use(exe_dir + '_mo8uslf', cur_dir + '_mo8uslf', sBase + '18')
-      // endif
+      // for countYear := 2018 to WORK_YEAR
+      //   existsNSIfile(sbase, countYear)
+      // next
       fl := R_Use(exe_dir + '_mo8uslf', cur_dir + '_mo8uslf', sBase + '18') .and. ;
         R_Use(exe_dir + '_mo9uslf', cur_dir + '_mo9uslf', sBase + '19') .and. ;
         R_Use(exe_dir + '_mo0uslf', cur_dir + '_mo0uslf', sBase + '20') .and. ;

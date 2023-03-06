@@ -225,9 +225,7 @@ Function forma14_med_oms()
     })
   use (cur_dir + 'tmpf14') new alias TMPF14
   Use_base('lusl')
-  // use_base_new('lusl', arr_m[1])
   Use_base('luslf')
-  // use_base_new('luslf', arr_m[1])
   
   // sbase := prefixFileRefName(WORK_YEAR) + 'unit'
   sbase := prefixFileRefName(arr_m[1]) + 'unit'
@@ -1997,10 +1995,7 @@ Function forma14_med_oms()
   
   ret_days_for_akt_sverki(arr_m, @b1, @b2, @a1, @a2)
   Use_base('lusl')
-  // use_base_new('lusl', arr_m[1])
   Use_base('luslf')
-  // use_base_new('luslf', arr_m[1])
-// altd()
 
   R_Use(dir_server + 'mo_su', , 'MOSU')
   R_Use(dir_server + 'mo_hu', dir_server + 'mo_hu', 'MOHU')
