@@ -2624,7 +2624,6 @@ Function verify_1_sluch(fl_view)
     else
       s := ''
     endif
-altd()
     arr_ksg := definition_KSG(1,k_data2, lDoubleSluch)
     if empty(arr_ksg[2]) // нет ошибок
       if shifr_ksg == arr_ksg[3] // КСГ определена правильно

@@ -608,15 +608,21 @@ Function date2xml(mdate)
 Function xml2date(s)
   return stod(charrem('-',s))
 
-** 30.01.14 проверить наличие тэга(ов) и вернуть его(их) значение(я) в массиве
-Function mo_read_xml_array(_node, _title)
+** 06.03.23 проверить наличие тэга(ов) и вернуть его(их) значение(я) в массиве
+Function mo_read_xml_array(_node, _title) 
   Local j1, oNode2, arr := {}
 
   for j1 := 1 to len(_node:aitems)
     oNode2 := _node:aItems[j1]
     if upper(_title) == upper(oNode2:title) .and. !empty(oNode2:aItems) ;
                                           .and. valtype(oNode2:aItems[1]) == 'C'
-      aadd(arr, oNode2:aItems[1])
+      // aadd(arr, oNode2:aItems[1])
+      if type('p_xml_code_page') == 'C' .and. upper(p_xml_code_page) == 'UTF-8'
+        aadd(arr, hb_Utf8ToStr(alltrim(oNode2:aItems[1]), 'RU866'))
+      else
+        aadd(arr, hb_AnsiToOem(alltrim(oNode2:aItems[1])))
+      endif
+  
     endif
   next
   return arr
