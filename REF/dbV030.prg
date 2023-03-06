@@ -6,16 +6,12 @@
 function getV030()
   // V030.xml - Схемы лечения заболевания COVID-19 (TreatReg)
   //  1 - SCHEMCOD(C) 2 - SCHEME(C) 3 - DEGREE(N) 4 - COMMENT(M)  5 - DATEBEG(D)  6 - DATEEND(D)
-  // local dbName := "_mo_v030"
-  // Local dbAlias := 'V030'
-  // local tmp_select := select()
-  static _arr   // := {}
+  static _arr
   static time_load
   local db
   local aTable
   local nI
 
-  // if len(_arr) == 0
   if timeout_load(@time_load)
     _arr := {}
     db := openSQL_DB()
@@ -29,28 +25,17 @@ function getV030()
       'datebeg, ' + ;
       'dateend ' + ;
       'FROM v030')
-    // cmdText := 'CREATE TABLE v030(schemcode TEXT(5), scheme TEXT(15), degree INTEGER, comment BLOB, datebeg TEXT(10), dateend TEXT(10))'
     if len(aTable) > 1
       for nI := 2 to Len( aTable )
         aadd(_arr, {alltrim(aTable[nI, 2]), alltrim(aTable[nI, 1]), ;
             val(aTable[nI, 3]), alltrim(aTable[nI, 4]), ;
             ctod(aTable[nI, 5]), ctod(aTable[nI, 6]) ;
         })
-    //   aadd(_arr, { alltrim((dbAlias)->SCHEME), alltrim((dbAlias)->SCHEMCOD), (dbAlias)->DEGREE, alltrim((dbAlias)->COMMENT), (dbAlias)->DATEBEG, (dbAlias)->DATEEND })
       next
     endif
     Set(_SET_DATEFORMAT, 'dd.mm.yyyy')
     db := nil
-    // dbUseArea( .t.,, exe_dir + dbName, dbAlias, .f., .f. )
-    // (dbAlias)->(dbGoTop())
-    // do while !(dbAlias)->(EOF())
-    //   aadd(_arr, { alltrim((dbAlias)->SCHEME), alltrim((dbAlias)->SCHEMCOD), (dbAlias)->DEGREE, alltrim((dbAlias)->COMMENT), (dbAlias)->DATEBEG, (dbAlias)->DATEEND })
-    //   (dbAlias)->(dbSkip())
-    // enddo
-    // (dbAlias)->(dbCloseArea())
-    // Select(tmp_select)
   endif
-
   return _arr
 
 ****** 11.01.22 вернуть схемы лечения согласно тяжести пациента

@@ -4,15 +4,12 @@
 // возвращает массив V015
 function getV015()
   // V015.xml - Классификатор медицинских специальностей
-  // Local dbName, dbAlias := 'V015'
-  // local tmp_select := select()
-  static _arr   // := {}
+  static _arr
   static time_load
   local db
   local aTable
   local nI
   
-  // if len(_arr) == 0
   if timeout_load(@time_load)
     _arr := {}
     Set(_SET_DATEFORMAT, 'yyyy-mm-dd')
@@ -33,18 +30,6 @@ function getV015()
     endif
     Set(_SET_DATEFORMAT, 'dd.mm.yyyy')
     db := nil
-
-    // tmp_select := select()
-    // dbName := '_mo_v015'
-    // dbUseArea( .t., "DBFNTX", exe_dir + dbName, dbAlias , .t., .f. )
-    // //  1 - NAME(C)  2 - CODE(N)  3 - HIGH(C)  4 - OKSO(C)  5 - DATEBEG(D)  6 - DATEEND(D) 7 - RECID(N)
-    // (dbAlias)->(dbGoTop())
-    // do while !(dbAlias)->(EOF())
-    //   aadd(_arr, { alltrim((dbAlias)->NAME), (dbAlias)->CODE, alltrim((dbAlias)->HIGH), alltrim((dbAlias)->OKSO), (dbAlias)->DATEBEG, (dbAlias)->DATEEND, (dbAlias)->RECID })
-    //   (dbAlias)->(dbSkip())
-    // enddo
-    // (dbAlias)->(dbCloseArea())
-    // Select(tmp_select)
 
     asort(_arr, , ,{|x, y| x[2] < y[2]})
   endif

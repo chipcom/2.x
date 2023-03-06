@@ -6,16 +6,12 @@
 function getV032()
   // V032.xml - Сочетание схемы лечения и группы препаратов (CombTreat)
   //  1 - SCHEDRUG(C) 2 - NAME(C) 3 - SCHEMCOD(C)  4 - DATEBEG(D)  5 - DATEEND(D)
-  // local dbName := '_mo_v032'
-  // Local dbAlias := 'V032'
-  // local tmp_select := select()
-  static _arr   //:= {}
+  static _arr
   static time_load
   local db
   local aTable
   local nI
 
-  // if len(_arr) == 0
   if timeout_load(@time_load)
     _arr := {}
     Set(_SET_DATEFORMAT, 'yyyy-mm-dd')
@@ -29,14 +25,6 @@ function getV032()
     endif
     Set(_SET_DATEFORMAT, 'dd.mm.yyyy')
     db := nil
-    // dbUseArea( .t., , exe_dir + dbName, dbAlias, .f., .f. )
-    // (dbAlias)->(dbGoTop())
-    // do while !(dbAlias)->(EOF())
-    //   aadd(_arr, { alltrim((dbAlias)->NAME), alltrim((dbAlias)->SCHEDRUG), alltrim((dbAlias)->SCHEMCOD), (dbAlias)->DATEBEG, (dbAlias)->DATEEND })
-    //   (dbAlias)->(dbSkip())
-    // enddo
-    // (dbAlias)->(dbCloseArea())
-    // Select(tmp_select)
   endif
 
   return _arr

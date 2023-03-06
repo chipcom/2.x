@@ -5,16 +5,13 @@
 ** 26.01.23 вернуть Классификатор видов диспансеризации/профосмотров V016.xml
 function getV016()
   // V016.xml - Классификатор видов диспансеризации/профосмотров
-  // Local dbName, dbAlias := 'V016'
-  // local tmp_select := select()
-  static _arr   // := {}
+  static _arr
   static time_load
   local ar := {}
   local db
   local aTable
   local nI
 
-  // if len(_arr) == 0
   if timeout_load(@time_load)
     _arr := {}
     Set(_SET_DATEFORMAT, 'yyyy-mm-dd')
@@ -29,22 +26,6 @@ function getV016()
     endif
     Set(_SET_DATEFORMAT, 'dd.mm.yyyy')
     db := nil
-
-    // tmp_select := select()
-    // dbName := '_mo_v016'
-    // dbUseArea( .t., "DBFNTX", exe_dir + dbName, dbAlias , .t., .f. )
-
-    // //  1 - IDDT(C)  2 - DTNAME(C)  3 - RULE(C)  4 - DATEBEG(D)  5 - DATEEND(D)
-    // (dbAlias)->(dbGoTop())
-    // do while !(dbAlias)->(EOF())
-    //   ar := list2Arr((dbAlias)->RULE)
-    //   aadd(_arr, { (dbAlias)->IDDT, (dbAlias)->DTNAME, ar, (dbAlias)->DATEBEG, (dbAlias)->DATEEND })
-    //   (dbAlias)->(dbSkip())
-    // enddo
-
-    // (dbAlias)->(dbCloseArea())
-    // Select(tmp_select)
-
   endif
 
   return _arr

@@ -11,9 +11,7 @@
 ** 23.01.23 вернуть массив по справочнику ФФОМС V012.xml
 function getV012(work_date)
   // V012.xml - Классификатор исходов заболевания
-  // Local dbName, dbAlias := 'V012'
-  // local tmp_select := select()
-  static _arr   // := {}
+  static _arr
   static time_load
   local stroke := '', vid := ''
   local db

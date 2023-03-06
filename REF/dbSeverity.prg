@@ -32,21 +32,6 @@ function get_severity()
     endif
     Set(_SET_DATEFORMAT, 'dd.mm.yyyy')
     db := nil
-    // tmp_select := select()
-    // dbName := '_mo_severity'
-    // dbUseArea( .t., "DBFNTX", exe_dir + dbName, dbAlias , .t., .f. )
-
-    // //  1 - ID(N) 2 - NAME(C) 3 - SYN(C) 4 - SCTID(N) 5 - SORT(N)
-    // (dbAlias)->(dbGoTop())
-    // do while !(dbAlias)->(EOF())
-    //   if (dbAlias)->ID <= 4  // пока только до 4 степени тяжести
-    //     aadd(_arr, { alltrim((dbAlias)->NAME), (dbAlias)->ID, alltrim((dbAlias)->SYN), (dbAlias)->SCTID, (dbAlias)->SORT })
-    //   endif
-    //   (dbAlias)->(dbSkip())
-    // enddo
-
-    // (dbAlias)->(dbCloseArea())
-    // Select(tmp_select)
   endif
 
   return _arr

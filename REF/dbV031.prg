@@ -6,16 +6,12 @@
 function getV031()
   // V031.xml - Группы препаратов для лечения заболевания COVID-19 (GroupDrugs)
   //  1 - DRUGCODE(N) 2 - DRUGGRUP(C) 3 - INDMNN(N)  4 - DATEBEG(D)  5 - DATEEND(D)
-  // local dbName := "_mo_v031"
-  // Local dbAlias := 'V031'
-  // local tmp_select := select()
-  static _arr   //:= {}
+  static _arr
   static time_load
   local db
   local aTable
   local nI
 
-  // if len(_arr) == 0
   if timeout_load(@time_load)
     _arr := {}
     Set(_SET_DATEFORMAT, 'yyyy-mm-dd')
@@ -29,16 +25,7 @@ function getV031()
     endif
     Set(_SET_DATEFORMAT, 'dd.mm.yyyy')
     db := nil
-    // dbUseArea( .t.,, exe_dir + dbName, dbAlias, .f., .f. )
-    // (dbAlias)->(dbGoTop())
-    // do while !(dbAlias)->(EOF())
-    //   aadd(_arr, { (dbAlias)->DRUGCODE, alltrim((dbAlias)->DRUGGRUP), (dbAlias)->INDMNN, (dbAlias)->DATEBEG, (dbAlias)->DATEEND })
-    //   (dbAlias)->(dbSkip())
-    // enddo
-    // (dbAlias)->(dbCloseArea())
-    // Select(tmp_select)
   endif
-
   return _arr
 
 ****** 29.08.22 вернуть группу препаратов

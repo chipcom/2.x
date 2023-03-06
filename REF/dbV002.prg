@@ -11,8 +11,7 @@
 function getV002(work_date)
   // V002.dbf - Классификатор профилей оказанной медицинской помощи
   //  1 - PRNAME(C)  2 - IDPR(N)  3 - DATEBEG(D)  4 - DATEEND(D)
-  // local dbName := "_mo_V002"
-  static _arr // := {}
+  static _arr
   static time_load
   local db
   local aTable, row
@@ -37,13 +36,6 @@ function getV002(work_date)
     endif
     Set(_SET_DATEFORMAT, 'dd.mm.yyyy')
     db := nil
-    // dbUseArea( .t.,, exe_dir + dbName, dbName, .f., .f. )
-    // (dbName)->(dbGoTop())
-    // do while !(dbName)->(EOF())
-    //   aadd(_arr, { alltrim((dbName)->PRNAME), (dbName)->IDPR, (dbName)->DATEBEG, (dbName)->DATEEND })
-    //   (dbName)->(dbSkip())
-    // enddo
-    // (dbName)->(dbCloseArea())
   endif
 
   if hb_isnil(work_date)
@@ -51,12 +43,10 @@ function getV002(work_date)
   else
     ret_array := {}
     for each row in _arr
-      // if (row[3] <= work_date) .and. (empty(row[4]) .or. row[4] >= work_date)
       if correct_date_dictionary(work_date, row[3], row[4])
         aadd(ret_array, row)
       endif
     next
   endif
-  // return _arr
   return ret_array
 

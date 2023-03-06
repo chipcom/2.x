@@ -4,8 +4,6 @@
 ** 25.01.23
 // возвращает массив V018 на указанную дату
 function getV018( dateSl )
-  // Local dbName, dbAlias := 'V018'
-  // local tmp_select := select()
   local yearSl := year(dateSl)
   local _arr
   local db
@@ -45,25 +43,8 @@ function getV018( dateSl )
     Set(_SET_DATEFORMAT, 'dd.mm.yyyy')
     db := nil
     asort(_arr,,,{|x,y| x[1] < y[1] })
-
-    // tmp_select := select()
-    // dbName := '_mo_V018'
-    // dbUseArea( .t., "DBFNTX", exe_dir + dbName, dbAlias , .t., .f. )
-
-    // //  1 - IDHVID(C)  2 - HVIDNAME(C)  3 - DATEBEG(D)  4 - DATEEND(D)
-    // (dbAlias)->(dbGoTop())
-    // do while !(dbAlias)->(EOF())
-    //   if empty((dbAlias)->DATEEND) .or. between(dateSl, (dbAlias)->DATEBEG, (dbAlias)->DATEEND)
-    //     aadd(_arr, { alltrim((dbAlias)->IDHVID), alltrim((dbAlias)->HVIDNAME), ;
-    //             (dbAlias)->DATEBEG, (dbAlias)->DATEEND })
-    //   endif
-    //   (dbAlias)->(dbSkip())
-    // enddo
-    // (dbAlias)->(dbCloseArea())
-    // Select(tmp_select)
     // поместим в ХЭШ-массив
     hV018[yearSl] := _arr
-
   endif
   if empty(_arr)
     alertx('На дату ' + DToC(dateSl) + ' V018 отсутствуют!')

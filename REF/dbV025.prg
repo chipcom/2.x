@@ -5,16 +5,13 @@
 ** 26.01.23
 // вернуть массив по справочнику ФФОМС V025 Классификатор целей посещения (KPC)
 function getV025()
-  // Local dbName, dbAlias := 'V025'
-  // local tmp_select := select()
-  static _arr   // := {}
+  static _arr
   static time_load
   local i
   local db
   local aTable
   local nI
   
-  // if len(_arr) == 0
   if timeout_load(@time_load)
     _arr := {}
     db := openSQL_DB()
@@ -35,21 +32,6 @@ function getV025()
     endif
     Set(_SET_DATEFORMAT, 'dd.mm.yyyy')
     db := nil
-    // tmp_select := select()
-    // dbName := '_mo_v025'
-    // dbUseArea( .t., "DBFNTX", exe_dir + dbName, dbAlias , .t., .f. )
-
-    // i := 0
-    // //  1 - IDPC(C)  2 - N_PC(C)  3 - DATEBEG(D)  4 - DATEEND(D)
-    // (dbAlias)->(dbGoTop())
-    // do while !(dbAlias)->(EOF())
-    //   ++i
-    //   aadd(_arr, { alltrim((dbAlias)->IDPC) + '-' + alltrim((dbAlias)->N_PC), i, alltrim((dbAlias)->IDPC), (dbAlias)->DATEBEG, (dbAlias)->DATEEND })
-    //   (dbAlias)->(dbSkip())
-    // enddo
-
-    // (dbAlias)->(dbCloseArea())
-    // Select(tmp_select)
   endif
   return _arr
 
