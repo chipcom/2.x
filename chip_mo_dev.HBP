@@ -220,6 +220,7 @@ mo_version.prg
 .\reports\exportKartExcel.prg
 .\reports\create_xls_rdl.prg
 .\reports\forma14_med_oms.prg
+.\reports\forma1_ffoms.prg
 
 .\util\workWithZIP.prg
 .\util\runExternalProgram.prg
