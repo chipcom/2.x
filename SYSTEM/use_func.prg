@@ -8,8 +8,9 @@
 Function R_Use_base(sBase, lalias)
   return use_base(sBase, lalias, , .t.)
 
-** 29.12.22
+** 08.03.23
 function close_use_base(sBase)
+  local mVar, countYear, lAlias
 
   sBase := lower(sBase) // проверим, что алиас открыт и выйдем если нет
   if select(sBase) == 0
@@ -17,62 +18,96 @@ function close_use_base(sBase)
   endif
   do case
     case sBase == 'lusl'
-      if lusl18->(used())
-        lusl18->(dbCloseArea())
-      endif
-      if lusl19->(used())
-        lusl19->(dbCloseArea())
-      endif
-      if lusl20->(used())
-        lusl20->(dbCloseArea())
-      endif
-      if lusl21->(used())
-        lusl21->(dbCloseArea())
-      endif
-      if lusl22->(used())
-        lusl22->(dbCloseArea())
-      endif
-      if lusl->(used())
-        lusl->(dbCloseArea())
-      endif
+      for countYear := 2018 to WORK_YEAR
+        mVar := '__usl' + iif(countYear == WORK_YEAR, '', substr(str(countYear, 4), 3))
+        lAlias := sBase + iif(countYear == WORK_YEAR, '', substr(str(countYear, 4), 3))
+        if __mvExist(mVar)
+          if __mvGet(mVar)
+            if (lAlias)->(used())
+              (lAlias)->(dbCloseArea())
+            endif
+          endif
+        endif
+      next
+
+      // if lusl18->(used())
+      //   lusl18->(dbCloseArea())
+      // endif
+      // if lusl19->(used())
+      //   lusl19->(dbCloseArea())
+      // endif
+      // if lusl20->(used())
+      //   lusl20->(dbCloseArea())
+      // endif
+      // if lusl21->(used())
+      //   lusl21->(dbCloseArea())
+      // endif
+      // if lusl22->(used())
+      //   lusl22->(dbCloseArea())
+      // endif
+      // if lusl->(used())
+      //   lusl->(dbCloseArea())
+      // endif
     case sBase == 'luslc'
-      if luslc18->(used())
-        luslc18->(dbCloseArea())
-      endif
-      if luslc19->(used())
-        luslc19->(dbCloseArea())
-      endif
-      if luslc20->(used())
-        luslc20->(dbCloseArea())
-      endif
-      if luslc21->(used())
-        luslc21->(dbCloseArea())
-      endif
-      if luslc22->(used())
-        luslc22->(dbCloseArea())
-      endif
-      if luslc->(used())
-        luslc->(dbCloseArea())
-      endif
+      for countYear := 2018 to WORK_YEAR
+        mVar := '__uslc' + iif(countYear == WORK_YEAR, '', substr(str(countYear, 4), 3))
+        lAlias := sBase + iif(countYear == WORK_YEAR, '', substr(str(countYear, 4), 3))
+        if __mvExist(mVar)
+          if __mvGet(mVar)
+            if (lAlias)->(used())
+              (lAlias)->(dbCloseArea())
+            endif
+          endif
+        endif
+      next
+      // if luslc18->(used())
+      //   luslc18->(dbCloseArea())
+      // endif
+      // if luslc19->(used())
+      //   luslc19->(dbCloseArea())
+      // endif
+      // if luslc20->(used())
+      //   luslc20->(dbCloseArea())
+      // endif
+      // if luslc21->(used())
+      //   luslc21->(dbCloseArea())
+      // endif
+      // if luslc22->(used())
+      //   luslc22->(dbCloseArea())
+      // endif
+      // if luslc->(used())
+      //   luslc->(dbCloseArea())
+      // endif
     case sBase == 'luslf'
-      if luslf18->(used())
-        luslf18->(dbCloseArea())
-      endif
-      if luslf19->(used())
-        luslf19->(dbCloseArea())
-      endif
-      if luslf20->(used())
-        luslf20->(dbCloseArea())
-      endif
-      if luslf21->(used())
-        luslf21->(dbCloseArea())
-      endif
-      if luslf22->(used())
-        luslf22->(dbCloseArea())
-      endif
-      if luslf->(used())
-        luslf->(dbCloseArea())
-      endif
+      for countYear := 2018 to WORK_YEAR
+        mVar := '__uslf' + iif(countYear == WORK_YEAR, '', substr(str(countYear, 4), 3))
+        lAlias := sBase + iif(countYear == WORK_YEAR, '', substr(str(countYear, 4), 3))
+        if __mvExist(mVar)
+          if __mvGet(mVar)
+            if (lAlias)->(used())
+              (lAlias)->(dbCloseArea())
+            endif
+          endif
+        endif
+      next
+      // if luslf18->(used())
+      //   luslf18->(dbCloseArea())
+      // endif
+      // if luslf19->(used())
+      //   luslf19->(dbCloseArea())
+      // endif
+      // if luslf20->(used())
+      //   luslf20->(dbCloseArea())
+      // endif
+      // if luslf21->(used())
+      //   luslf21->(dbCloseArea())
+      // endif
+      // if luslf22->(used())
+      //   luslf22->(dbCloseArea())
+      // endif
+      // if luslf->(used())
+      //   luslf->(dbCloseArea())
+      // endif
     endcase
   return nil
 
@@ -121,48 +156,72 @@ function existsNSIfile(sbase, vYear)
   return fl
 
 
-** 02.03.23
+** 08.03.23
 Function use_base(sBase, lalias, lExcluUse, lREADONLY)
-  // static  lLUSL18, lLUSL19, lLUSL20, lLUSL21, lLUSL22, lLUSL
-  // static lLUSL_C18, lLUSL_C19, lLUSL_C20, lLUSL_C21, lLUSL_C22, lLUSL_C
-  // static lLUSL_F18, lLUSL_F19, lLUSL_F20, lLUSL_F21, lLUSL_F22, lLUSL_F
   Local fl := .t., sind1, sind2
-  // local fname
+  local fname, fname_add
   local countYear, mVar
 
   sBase := lower(sBase)
   do case
     case sBase == 'lusl'
-      // for countYear := 2018 to WORK_YEAR
-      //   existsNSIfile(sbase, countYear)
-      // next
-
-      fl := R_Use(exe_dir + '_mo8usl', cur_dir + '_mo8usl', sBase + '18') .and. ;
-        R_Use(exe_dir + '_mo9usl', cur_dir + '_mo9usl', sBase + '19') .and. ;
-        R_Use(exe_dir + '_mo0usl', cur_dir + '_mo0usl', sBase + '20') .and. ;
-        R_Use(exe_dir + '_mo1usl', cur_dir + '_mo1usl', sBase + '21') .and. ;
-        R_Use(exe_dir + '_mo2usl', cur_dir + '_mo2usl', sBase + '22') .and. ;
-        R_Use(exe_dir + '_mo3usl', cur_dir + '_mo3usl', sBase)
+      for countYear := 2018 to WORK_YEAR
+        mVar := '__usl' + iif(countYear == WORK_YEAR, '', substr(str(countYear, 4), 3))
+        if ! __mvExist(mVar)
+          __mvPublic(mVar)
+          __mvPut(mVar, existsNSIfile(sbase, countYear))
+        endif
+        if __mvGet(mVar)
+          fName := prefixFileRefName(countYear) + substr(sbase, 2)
+          lalias := sBase + iif(countYear == WORK_YEAR, '', substr(str(countYear, 4), 3))
+          R_Use(exe_dir + fName, cur_dir + fName, lalias)
+        endif
+      next
+      // fl := R_Use(exe_dir + '_mo8usl', cur_dir + '_mo8usl', sBase + '18') .and. ;
+      //   R_Use(exe_dir + '_mo9usl', cur_dir + '_mo9usl', sBase + '19') .and. ;
+      //   R_Use(exe_dir + '_mo0usl', cur_dir + '_mo0usl', sBase + '20') .and. ;
+      //   R_Use(exe_dir + '_mo1usl', cur_dir + '_mo1usl', sBase + '21') .and. ;
+      //   R_Use(exe_dir + '_mo2usl', cur_dir + '_mo2usl', sBase + '22') .and. ;
+      //   R_Use(exe_dir + '_mo3usl', cur_dir + '_mo3usl', sBase)
     case sBase == 'luslc'
-      // for countYear := 2018 to WORK_YEAR
-      //   existsNSIfile(sbase, countYear)
-      // next
-      fl := R_Use(exe_dir + '_mo8uslc', {cur_dir + '_mo8uslc', cur_dir + '_mo8uslu'}, sBase + '18') .and. ;
-        R_Use(exe_dir + '_mo9uslc', {cur_dir + '_mo9uslc', cur_dir + '_mo9uslu'}, sBase + '19') .and. ;
-        R_Use(exe_dir + '_mo0uslc', {cur_dir + '_mo0uslc', cur_dir + '_mo0uslu'}, sBase + '20') .and. ;
-        R_Use(exe_dir + '_mo1uslc', {cur_dir + '_mo1uslc', cur_dir + '_mo1uslu'}, sBase + '21') .and. ;
-        R_Use(exe_dir + '_mo2uslc', {cur_dir + '_mo2uslc', cur_dir + '_mo2uslu'}, sBase + '22') .and. ;
-        R_Use(exe_dir + '_mo3uslc', {cur_dir + '_mo3uslc', cur_dir + '_mo3uslu'}, sBase)
+      for countYear := 2018 to WORK_YEAR
+        mVar := '__uslc' + iif(countYear == WORK_YEAR, '', substr(str(countYear, 4), 3))
+        if ! __mvExist(mVar)
+          __mvPublic(mVar)
+          __mvPut(mVar, existsNSIfile(sbase, countYear))
+        endif
+        if __mvGet(mVar)
+          fName := prefixFileRefName(countYear) + substr(sbase, 2)
+          fname_add := prefixFileRefName(countYear) + substr(sbase, 2, 3) + 'u'
+          lalias := sBase + iif(countYear == WORK_YEAR, '', substr(str(countYear, 4), 3))
+          R_Use(exe_dir + fName, {cur_dir + fName, cur_dir + fName_add}, lalias)
+        endif
+      next
+      // fl := R_Use(exe_dir + '_mo8uslc', {cur_dir + '_mo8uslc', cur_dir + '_mo8uslu'}, sBase + '18') .and. ;
+      //   R_Use(exe_dir + '_mo9uslc', {cur_dir + '_mo9uslc', cur_dir + '_mo9uslu'}, sBase + '19') .and. ;
+      //   R_Use(exe_dir + '_mo0uslc', {cur_dir + '_mo0uslc', cur_dir + '_mo0uslu'}, sBase + '20') .and. ;
+      //   R_Use(exe_dir + '_mo1uslc', {cur_dir + '_mo1uslc', cur_dir + '_mo1uslu'}, sBase + '21') .and. ;
+      //   R_Use(exe_dir + '_mo2uslc', {cur_dir + '_mo2uslc', cur_dir + '_mo2uslu'}, sBase + '22') .and. ;
+      //   R_Use(exe_dir + '_mo3uslc', {cur_dir + '_mo3uslc', cur_dir + '_mo3uslu'}, sBase)
     case sBase == 'luslf'
-      // for countYear := 2018 to WORK_YEAR
-      //   existsNSIfile(sbase, countYear)
-      // next
-      fl := R_Use(exe_dir + '_mo8uslf', cur_dir + '_mo8uslf', sBase + '18') .and. ;
-        R_Use(exe_dir + '_mo9uslf', cur_dir + '_mo9uslf', sBase + '19') .and. ;
-        R_Use(exe_dir + '_mo0uslf', cur_dir + '_mo0uslf', sBase + '20') .and. ;
-        R_Use(exe_dir + '_mo1uslf', cur_dir + '_mo1uslf', sBase + '21') .and. ;
-        R_Use(exe_dir + '_mo2uslf', cur_dir + '_mo2uslf', sBase + '22') .and. ;
-        R_Use(exe_dir + '_mo3uslf', cur_dir + '_mo3uslf', sBase)
+      for countYear := 2018 to WORK_YEAR
+        mVar := '__uslf' + iif(countYear == WORK_YEAR, '', substr(str(countYear, 4), 3))
+        if ! __mvExist(mVar)
+          __mvPublic(mVar)
+          __mvPut(mVar, existsNSIfile(sbase, countYear))
+        endif
+        if __mvGet(mVar)
+          fName := prefixFileRefName(countYear) + substr(sbase, 2)
+          lalias := sBase + iif(countYear == WORK_YEAR, '', substr(str(countYear, 4), 3))
+          R_Use(exe_dir + fName, cur_dir + fName, lalias)
+        endif
+      next
+      // fl := R_Use(exe_dir + '_mo8uslf', cur_dir + '_mo8uslf', sBase + '18') .and. ;
+      //   R_Use(exe_dir + '_mo9uslf', cur_dir + '_mo9uslf', sBase + '19') .and. ;
+      //   R_Use(exe_dir + '_mo0uslf', cur_dir + '_mo0uslf', sBase + '20') .and. ;
+      //   R_Use(exe_dir + '_mo1uslf', cur_dir + '_mo1uslf', sBase + '21') .and. ;
+      //   R_Use(exe_dir + '_mo2uslf', cur_dir + '_mo2uslf', sBase + '22') .and. ;
+      //   R_Use(exe_dir + '_mo3uslf', cur_dir + '_mo3uslf', sBase)
     case sBase == 'organiz'
       DEFAULT lalias TO 'ORG'
       fl := G_Use(dir_server + 'organiz', , lalias, , lExcluUse, lREADONLY)
