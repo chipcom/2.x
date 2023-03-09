@@ -205,7 +205,7 @@ function calcKSLP(cKSLP, dateSl)
   endif
   return summ
 
-** 05.03.23
+** 09.03.23
 function defenition_KIRO(lkiro, ldnej, lrslt, lis_err, lksg, lDoubleSluch)
   // lkiro - список возможных КИРО для КСГ
   // ldnej - длительность случая в койко-днях
@@ -236,7 +236,7 @@ function defenition_KIRO(lkiro, ldnej, lrslt, lis_err, lksg, lDoubleSluch)
       vkiro := 2
     elseif ascan(lkiro, 3) > 0
       vkiro := 3
-    elseif ascan(lkiro, 4) > 0
+    elseif ascan(lkiro, 4) > 0 .and. ascan({102, 105, 107, 110, 202, 205, 207}, lrslt) > 0
       vkiro := 4
     elseif  lis_err == 1 .and. ascan(lkiro, 5) > 0
       vkiro := 5
