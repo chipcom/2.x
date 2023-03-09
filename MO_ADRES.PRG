@@ -45,8 +45,8 @@ inkey(0)
 return NIL*/
 
 
-** 10.02.23 переиндексировать все файлы адресного реестра ОКАТО
-Function okato_index()
+** 09.03.23 переиндексировать все файлы адресного реестра ОКАТО
+Function okato_index(flag)
   Local i
   local fl_index := .f.
   local ;
@@ -56,6 +56,8 @@ Function okato_index()
     local sbase
     local file_index
   
+  DEFAULT flag TO .f.
+
   for i := 1 to len(arr_f)
     if files_time(dir_exe + arr_f[i] + sdbf, cur_dir + arr_i1[i] + sntx) .or. ;
         files_time(dir_exe + arr_f[i] + sdbf, cur_dir + arr_i2[i] + sntx)
@@ -63,15 +65,15 @@ Function okato_index()
       exit
     endif
   next
-  if fl_index
+  if flag .or. fl_index
     for i := 1 to len(arr_f)
       // if hb_FileExists(dir_exe + arr_f[i] + sdbf)
-        if ! hb_FileExists(cur_dir + arr_i1[i] + sntx) .or. ;
-              ! hb_FileExists(cur_dir + arr_i2[i] + sntx)
+        // if ! hb_FileExists(cur_dir + arr_i1[i] + sntx) .or. ;
+        //       ! hb_FileExists(cur_dir + arr_i2[i] + sntx)
           R_Use(dir_exe + arr_f[i])
           oktAdIndBase(arr_f[i])
           use
-        endif
+        // endif
       // endif
     next
   endif

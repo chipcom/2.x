@@ -378,7 +378,7 @@ Function index_work_dir(exe_dir, cur_dir, flag)
   use
 
   // справочник ОКАТО
-  okato_index()
+  okato_index(flag)
   //
   dbcreate(cur_dir + 'tmp_srf', {{'okato', 'C', 5, 0}, {'name', 'C', 80, 0}})
   use (cur_dir + 'tmp_srf') new alias TMP
