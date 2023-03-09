@@ -895,6 +895,7 @@ aadd(first_menu, {"~Новое в программе",;
                   "Помо~щь",;
                   "~Рабочее место",;
                   "~Принтер",0,;
+                  "Периндексация рабочего каталога",;
                   "Сетевой ~монитор",;
                   "~Ошибки"})
 aadd(first_message, { ;
@@ -902,6 +903,7 @@ aadd(first_message, { ;
    "Вывод на экран экрана помощи",;
    "Настройка рабочего места",;
    "Установка кодов принтера",;
+   "Переидексирование справочников НСИ в рабочем каталоге",;
    "Режим просмотра - кто находится в задаче и в каком режиме",;
    "Просмотр файла ошибок"})
 // aadd(func_menu, {"file_Wordpad(exe_dir + cslash + 'README.RTF')",;
@@ -909,6 +911,7 @@ aadd(func_menu, {"view_file_in_Viewer(exe_dir + cslash + 'README.RTF')",;
                  "m_help()",;
                  "nastr_rab_mesto()",;
                  "ust_printer(T_ROW)",;
+                 "index_work_dir(exe_dir, cur_dir, .t.)", ;
                  "net_monitor(T_ROW,T_COL-7,(hb_user_curUser:IsAdmin()))",;
                  "view_errors()"})
 // добавим переиндексирование некоторых файлов внутри задачи
