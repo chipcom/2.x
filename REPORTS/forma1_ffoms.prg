@@ -23,7 +23,7 @@ FUNCTION forma1_ffoms()
     { 's2', 'N', 1, 0 }, ;
     { 'schet', 'N', 6, 0 }, ;
     { 'summa1', 'N', 15, 2 }, ; // за месяц
-  { 'summa2', 'N', 15, 2 } } // снг
+    { 'summa2', 'N', 15, 2 } } // снг
   dbCreate( cur_dir + 'tmp1', adbf )
   USE ( cur_dir + 'tmp1' ) new
   INDEX ON Str( smo, 5 ) + Str( s1, 1 ) + Str( s2, 1 ) to ( cur_dir + 'tmp1' )
@@ -36,11 +36,11 @@ FUNCTION forma1_ffoms()
     { 'vid', 'N', 1, 0 }, ;
     { 'schet', 'N', 6, 0 }, ;
     { 'kol1', 'N', 15, 2 }, ; // за месяц
-  { 'kol2', 'N', 15, 2 }, ; // снг
-  { 'kol3', 'N', 6, 0 }, ; // за месяц
-  { 'kol4', 'N', 6, 0 }, ; // снг
-  { 'summa1', 'N', 15, 2 }, ; // за месяц
-  { 'summa2', 'N', 15, 2 } } // снг
+    { 'kol2', 'N', 15, 2 }, ; // снг
+    { 'kol3', 'N', 6, 0 }, ; // за месяц
+    { 'kol4', 'N', 6, 0 }, ; // снг
+    { 'summa1', 'N', 15, 2 }, ; // за месяц
+    { 'summa2', 'N', 15, 2 } } // снг
   dbCreate( cur_dir + 'tmp2', adbf )
   USE ( cur_dir + 'tmp2' ) new
   INDEX ON Str( smo, 5 ) + Str( vid, 1 ) + Str( pz, 1 ) to ( cur_dir + 'tmp2' )
@@ -58,7 +58,7 @@ FUNCTION forma1_ffoms()
     { 'pz', 'N', 1, 0 }, ;
     { 'vid', 'N', 1, 0 }, ;
     { 'kol3', 'N', 6, 0 }, ; // за месяц
-  { 'kol4', 'N', 6, 0 } }  // снг
+    { 'kol4', 'N', 6, 0 } }  // снг
   dbCreate( cur_dir + 'tmp3', adbf )
   USE ( cur_dir + 'tmp3' ) new
   // index on str(smo, 5) + str(vid, 1) + str(pz, 1) + str(kod_k, 7) to (cur_dir + 'tmp3')
@@ -136,14 +136,6 @@ FUNCTION forma1_ffoms()
       ELSEIF arr_m[ 1 ] == 2023 .AND. arr_m[ 3 ] == 1
         d2 := 19
       ENDIF
-      // my_debug(,'date1_mes='+dtos(arr_m[5]))
-      // my_debug(,'date2_mes='+dtos(arr_m[6]))
-      // my_debug(,'d1='+ str(d1))
-      // my_debug(,'d2='+ str(d2))
-      // my_debug(,'date1='+dtos(boy(arr_m[5])))
-      // my_debug(,'date2='+dtos(arr_m[6] +d2))
-      // my_debug(,'a1='+ str(a1))
-      // my_debug(,'a2='+ str(a2))
 
       msmo := Int( Val( schet_->smo ) )
       fl := Between( mdate, BoY( arr_m[ 5 ] ), arr_m[ 6 ] + d2 ) ;// дата регистрации по 10 числа след.месяца
@@ -642,3 +634,273 @@ FUNCTION forma1_ffoms()
   viewtext( name_file + stxt,,,, .T.,,, 5 )
 
   RETURN NIL
+
+** 26.02.20
+Function f1forma1_ffoms(delta, arr_m, arr_smo, fl_month, _summa, _b1, _b2)
+  Local msmo, ns, ns1, mdate
+
+  DEFAULT _b1 TO 0, _b2 TO 0
+  if (msmo := int(val(schet_->smo))) == 34
+    ns := 8 + delta
+  else
+    ns := 6 + delta
+    if ascan(arr_smo, {|x| x[2] == msmo }) == 0
+      aadd(arr_smo, {'', msmo})
+    endif
+  endif
+  select TMP1
+  find (str(msmo, 5) + str(ns, 1) + str(0, 1))
+  if !found()
+    append blank
+    tmp1->smo := msmo
+    tmp1->s1  := ns
+    tmp1->s2  := 0
+  endif
+  if fl_month
+    tmp1->summa1 += _summa
+    select TMP1prot
+    find (str(msmo, 5) + str(ns, 1) + str(0, 1) + str(schet->kod, 6))
+    if !found()
+      append blank
+      tmp1prot->smo := msmo
+      tmp1prot->s1  := ns
+      tmp1prot->s2  := 0
+      tmp1prot->schet := schet->kod
+    endif
+    tmp1prot->summa1 += _summa
+  endif
+  tmp1->summa2 += _summa
+  if ns == 6 + delta .and. fl_month
+    if schet_->nyear == arr_m[1] .and. schet_->nmonth == arr_m[3]
+      ns1 := 2
+    else
+      ns1 := 1
+    endif
+    select TMP1
+    find (str(msmo, 5) + str(ns, 1) + str(ns1, 1))
+    if !found()
+      append blank
+      tmp1->smo := msmo
+      tmp1->s1  := ns
+      tmp1->s2  := ns1
+    endif
+    tmp1->summa1 += _summa
+    select TMP1prot
+    find (str(msmo, 5) + str(ns, 1) + str(ns1, 1) + str(schet->kod, 6))
+    if !found()
+      append blank
+      tmp1prot->smo := msmo
+      tmp1prot->s1  := ns
+      tmp1prot->s2  := ns1
+      tmp1prot->schet := schet->kod
+    endif
+    tmp1prot->summa1 += _summa
+  endif
+  return NIL
+  
+** 24.11.21
+Function f2forma1_ffoms(msmo, fl_month)
+  Local tfoms_pz[6, 3], mkol, ta, i, ii, j, k, lshifr, lvidpom := 1, lshifr1, j1, fl, ;
+        arr := {}, mkol_k := 0, mkol_1 := 0, mkol_2 := 0, mkol_55 := 0, lenp, ;
+        fl_T := (schet_->bukva == 'T'), fl_K := (schet_->bukva == 'K'), lalf := 'luslf'
+  
+  lalf := create_name_alias(lalf, arr_m[1])
+  
+  select HU
+  find (str(human->kod, 7))
+  do while hu->kod == human->kod .and. !eof()
+    lshifr1 := opr_shifr_TFOMS(usl->shifr1, usl->kod, human->k_data)
+    if is_usluga_TFOMS(usl->shifr, lshifr1, human->k_data)
+      lshifr := alltrim(iif(empty(lshifr1), usl->shifr, lshifr1))
+      if human_->USL_OK == 3 .and. hu->stoim_1 > 0 .and. ;  // только для п-ки
+                                    (i := ret_vid_pom(1, lshifr, human->k_data)) > 0
+        lvidpom := iif(eq_any(i, 1, 11, 12), 1, 3)
+      endif
+      fl := .f.
+      if left(lshifr, 5) == '1.11.'
+        mkol_1 += hu->kol_1
+        fl := .t.
+      elseif left(lshifr, 2) == '2.'
+        if eq_any(left(lshifr, 4), '2.4.', '2.78', '2.89', '2.90', '2.91') .or. fl_T
+          //
+        else
+          fl := .t.
+          mkol_2 += hu->kol_1
+        endif
+      elseif left(lshifr, 5) == '55.1.'
+        if lshifr == '55.1.3'
+          lvidpom := 1
+        else
+          lvidpom := 3
+        endif
+        mkol_55 += hu->kol_1
+        fl := .t.
+      elseif fl_K
+        mkol_k += hu->kol_1
+        fl := .t.
+      endif
+      if fl_month .and. fl
+        if (i := ascan(arr, {|x| x[1] == lshifr})) == 0
+          aadd(arr, {lshifr, 0})
+          i := len(arr)
+        endif
+        arr[i, 2] += hu->kol_1
+      endif
+    endif
+    select HU
+    skip
+  enddo
+  afillall(tfoms_pz, 0)
+  if human_->USL_OK == 1 // стационар
+    ii := 2
+    lvidpom := 3
+    tfoms_pz[ii, 1] := mkol_1
+  elseif human_->USL_OK == 2 // дневной стационар
+    ii := 3
+    if empty(mkol_55)
+      lvidpom := 3
+    else
+      tfoms_pz[ii, 1] := mkol_55
+    endif
+  elseif human_->USL_OK == 3 // поликлиника
+    if fl_T // стоматология
+      lvidpom := 1
+      ii := 4
+      select MOHU
+      find (str(human->kod, 7))
+      do while mohu->kod == human->kod .and. !eof()
+        dbSelectArea(lalf)
+        find (mosu->shifr1)
+        mkol := round_5(mohu->kol_1 * iif(human->vzros_reb==0, &lalf.->uetv, &lalf.->uetd), 2)
+        tfoms_pz[ii, 1] += mkol // кол-во УЕТ
+        if fl_month
+          if valtype(tfoms_pz[ii, 3]) == 'N'
+            tfoms_pz[ii, 3] := {}
+          endif
+          if (i := ascan(tfoms_pz[ii, 3], {|x| x[1] == mosu->shifr1})) == 0
+            aadd(tfoms_pz[ii, 3], {mosu->shifr1, 0})
+            i := len(tfoms_pz[ii, 3])
+          endif
+          tfoms_pz[ii, 3, i, 2] += mkol
+        endif
+        select MOHU
+        skip
+      enddo
+    elseif fl_K // отдельные услуги
+      ii := 5
+      lvidpom := 3
+      tfoms_pz[ii, 1] := mkol_k
+    else
+      ii := 1
+      tfoms_pz[ii, 1] := mkol_2 // кол-во врачебных приёмов
+    endif
+  elseif human_->USL_OK == 4 // скорая помощь
+    lvidpom := 2
+    ii := 6
+    tfoms_pz[ii, 1] := 1 // один вызов СМП
+  endif
+  tfoms_pz[ii, 2] := human->cena_1 // сумма всего случая по-новому
+  if valtype(tfoms_pz[ii, 3]) == 'N'
+    tfoms_pz[ii, 3] := aclone(arr)
+  endif
+  for ii := 1 to 6
+    if !emptyall(tfoms_pz[ii, 1], tfoms_pz[ii, 2])
+      select TMP2
+      find (str(msmo, 5) + str(lvidpom, 1) + str(ii, 1))
+      if !found()
+        append blank
+        tmp2->smo := msmo
+        tmp2->pz  := ii
+        tmp2->vid := lvidpom
+      endif
+      if fl_month
+        tmp2->kol1   += tfoms_pz[ii, 1]
+        tmp2->summa1 += tfoms_pz[ii, 2]
+        select TMP2prot
+        find (str(msmo, 5) + str(lvidpom, 1) + str(ii, 1) + str(schet->kod, 6))
+        if !found()
+          append blank
+          tmp2prot->smo := msmo
+          tmp2prot->pz  := ii
+          tmp2prot->vid := lvidpom
+          tmp2prot->schet := schet->kod
+        endif
+        tmp2prot->kol1   += tfoms_pz[ii, 1]
+        tmp2prot->summa1 += tfoms_pz[ii, 2]
+        for i := 1 to len(tfoms_pz[ii, 3])
+          if tfoms_pz[ii, 3, i, 2] > 0
+            select TMP2pr_u
+            find (str(tmp2prot->(recno()), 6) + padr(tfoms_pz[ii, 3, i, 1], 20))
+            if !found()
+              append blank
+              TMP2pr_u->kod := tmp2prot->(recno())
+              TMP2pr_u->shifr := tfoms_pz[ii, 3, i, 1]
+            endif
+            TMP2pr_u->kol += tfoms_pz[ii, 3, i, 2]
+          endif
+        next
+      endif
+      tmp2->kol2   += tfoms_pz[ii, 1]
+      tmp2->summa2 += tfoms_pz[ii, 2]
+      select TMP2
+      find (str(msmo, 5) + str(lvidpom, 1) + str(0, 1))
+      if !found()
+        append blank
+        tmp2->smo := msmo
+        tmp2->pz  := 0
+        tmp2->vid := lvidpom
+      endif
+      if fl_month
+        tmp2->kol1   += tfoms_pz[ii, 1]
+        tmp2->summa1 += tfoms_pz[ii, 2]
+        select TMP2prot
+        find (str(msmo, 5) + str(lvidpom, 1) + str(0, 1) + str(schet->kod, 6))
+        if !found()
+          append blank
+          tmp2prot->smo := msmo
+          tmp2prot->pz  := 0
+          tmp2prot->vid := lvidpom
+          tmp2prot->schet := schet->kod
+        endif
+        tmp2prot->kol1   += tfoms_pz[ii, 1]
+        tmp2prot->summa1 += tfoms_pz[ii, 2]
+      endif
+      tmp2->kol2   += tfoms_pz[ii, 1]
+      tmp2->summa2 += tfoms_pz[ii, 2]
+      //
+      if len(lenp := alltrim(kart2->kod_mis)) != 16
+        lenp := lstr(human->kod_k)
+      endif
+      select TMP3
+      //find (str(msmo,5)+str(lvidpom,1)+str(ii,1)+str(human->kod_k,7))
+      find (str(msmo, 5) + str(lvidpom, 1) + str(ii, 1) + padr(lenp, 16))
+      if !found()
+        append blank
+        tmp3->smo := msmo
+        tmp3->kod_k := human->kod_k
+        tmp3->enp := lenp
+        tmp3->pz  := ii
+        tmp3->vid := lvidpom
+      endif
+      if fl_month
+        tmp3->kol3++
+      endif
+      tmp3->kol4++
+      select TMP3
+      //find (str(msmo,5)+str(lvidpom,1)+str(0,1)+str(human->kod_k,7))
+      find (str(msmo, 5) + str(lvidpom, 1) + str(0, 1) + padr(lenp, 16))
+      if !found()
+        append blank
+        tmp3->smo := msmo
+        tmp3->kod_k := human->kod_k
+        tmp3->enp := lenp
+        tmp3->pz  := 0
+        tmp3->vid := lvidpom
+      endif
+      if fl_month
+        tmp3->kol3++
+      endif
+      tmp3->kol4++
+    endif
+  next
+  return NIL

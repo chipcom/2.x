@@ -2,7 +2,7 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-** 12.02.23
+** 10.03.23
 function get_array_PZ_2023()
   static arr := {}
 
@@ -1238,7 +1238,8 @@ FUNCTION initPZarray()
   }
    
   FOR j := 2018 TO WORK_YEAR
-      sbase :=  prefixFileRefName( j ) + 'unit'  // справочник на конкретный год
+    sbase :=  prefixFileRefName( j ) + 'unit'  // справочник на конкретный год
+    if hb_FileExists(exe_dir + sbase + sdbf)
       nameArr := 'glob_array_PZ_' + last_digits_year( j )
 
       file_index := cur_dir + sbase + sntx
@@ -1258,6 +1259,7 @@ FUNCTION initPZarray()
          ENDIF
       NEXT
       unit->( dbCloseArea() )
+    endif
    NEXT
    
    RETURN NIL

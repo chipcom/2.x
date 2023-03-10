@@ -1,4 +1,4 @@
-***** mo_omsis.prg - информация по ОМС (по счетам)
+** mo_omsis.prg - информация по ОМС (по счетам)
 #include "inkey.ch"
 #include "function.ch"
 #include "edit_spr.ch"
@@ -6,7 +6,7 @@
 
 Static lcount_uch  := 1
 
-***** 19.02.13
+** 19.02.13
 Function s3_statist(k3,k4)
 // k3 = 1 - Список счетов
 // k3 = 2 - С объединением по принадлежности
@@ -16,8 +16,9 @@ Function s3_statist(k3,k4)
 //   k4 = 2 - С разбивкой по отделениям (где оказана услуга)
 Local arr_g, buf := save_maxrow(), ind_human, ind_schet, mname,;
       i, j, s, fl, sh, HH := 57, arr_title, reg_print, ;
-      name_file := "spisok_s"+stxt, pp[8], old_smo, old_komu, old_str_crb, ;
+      name_file := cur_dir + 'spisok_s' + stxt, pp[8], old_smo, old_komu, old_str_crb, ;
       arr_bukva := {}, hGauge, cur_rec := 0, fl_exit := .f.
+
 pi4 := k3
 DEFAULT k4 TO 2
 Private ccount := 0, fl_opl
@@ -269,7 +270,7 @@ close databases
 rest_box(buf)
 return NIL
 
-*****
+**
 Static Function add_tmp_os(_sum,_kol,_sum1,_kol1)
 if !emptyall(_sum1,_kol1)
   atmp_os[5] += _sum1 ; arr_uch[5] += _sum1
@@ -279,7 +280,7 @@ atmp_os[3] += _sum ; arr_uch[3] += _sum
 atmp_os[4] += _kol ; arr_uch[4] += _kol
 return NIL
 
-*****
+**
 Static Function s31_statist(k3,k4)
 Local arr_title
 DEFAULT k4 TO 2
@@ -306,7 +307,7 @@ else
 endif
 return arr_title
 
-*****
+**
 Static Function s33_statist(k3,k4)
 Local j, arr_os := {}
 dbcreate(cur_dir + "tmp_os", {{"kod","N",3,0},{"name","C",30,0},;
@@ -329,7 +330,7 @@ else        // С разбивкой по службам
 endif
 return NIL
 
-*****
+**
 Static Function s34_statist(k3,k4)
 Local fl, js, k, p
 DEFAULT k4 TO 2
@@ -397,7 +398,7 @@ do while human->schet == schet->kod .and. !eof()
 enddo
 return NIL
 
-*****
+**
 Static Function s35_statist(k4,_1,sh,HH,arr_title)
 Local i, mname, n := 6
 select TMP_OS
@@ -427,12 +428,10 @@ if arr_uch[3] > 0
 endif
 return NIL
 
-*
-
-***** информация по конкретному счету
+** информация по конкретному счету
 Function s4_statist()
 Local buf := savescreen(), buf24 := save_maxrow(), i, j, arr_blk,;
-  sh := 108, HH := 57, reg_print := 3, name_file := "infschet"+stxt
+  sh := 108, HH := 57, reg_print := 3, name_file := cur_dir + 'infschet' + stxt
 Private atmp_os[8], arr_uch[8]
 if input_schet(0)
   WaitStatus()
@@ -501,7 +500,7 @@ endif
 restscreen(buf)
 return NIL
 
-*****
+**
 Function s41_statist(oBrow)
 Local oColumn, n := 34, blk_color := {|| iif(eq_any(human_->oplata,2,3,9), {3,4}, {1,2}) }
 oColumn := TBColumnNew(center("Ф.И.О. больного",n),{|| left(human->fio,n) })
@@ -524,7 +523,7 @@ oBrow:addColumn(oColumn)
 status_key("^<Esc>^ - выход;  ^<F9>^ - информация о счете")
 return NIL
 
-*****
+**
 Function s42_statist(nKey,oBrow)
 Local buf, rec, k := -1
 if nkey == K_F9
@@ -532,9 +531,7 @@ if nkey == K_F9
 endif
 return k
 
-*
-
-***** для ТФОМС (по ф.14)
+** для ТФОМС (по ф.14)
 Function s5_statist()
 Local si := 1
 Local begin_date, end_date, buf := save_maxrow(), arr_m, mstr_crb, ltip
@@ -629,7 +626,7 @@ endif
 close databases
 return NIL
 
-*****
+**
 Function s51statist(oBrow)
 Local oColumn, blk := {|| iif (tmp->is==1, {1,2}, {3,4}) }
 oColumn := TBColumnNew(" ", {|| if(tmp->is==1,""," ")})
@@ -650,7 +647,7 @@ oColumn:colorBlock := blk
 status_key("^<Esc>^ - выход;  ^<Enter>^ - подсчет;  ^<Ins><+><->^ - отметить СМО для подсчета")
 return NIL
 
-*****
+**
 Function s52statist(nKey,oBrow)
 Local ret := 0
 do case
@@ -671,13 +668,11 @@ do case
 endcase
 return ret
 
-*
-
-***** 18.02.14
+** 18.02.14
 Function s53statist(ltip, arr_m, begin_date, end_date)
 Local i, j, k, s, buf := save_maxrow(), arr, mstr_crb, mismo,;
       fl_exit := .f., sh := 80, HH := 59, reg_print := 2, lshifr1,;
-      arr_title, name_file := "tfomsf14"+stxt, flag_uet := .t., koef,;
+      arr_title, name_file := cur_dir + 'tfomsf14' + stxt, flag_uet := .t., koef,;
       kol_schet := 0, lreg_lech, ta, arr_name := f14tf_array(),;
       arr_lp := {}, arr_dn_st, d2_year
 WaitStatus("<Esc> - прервать поиск") ; mark_keys({"<Esc>"})
@@ -996,9 +991,7 @@ rest_box(buf)
 viewtext(name_file,,,,.t.,,,reg_print)
 return NIL
 
-*
-
-*****
+**
 Function uzkie_spec(k)
 Static si1 := 1
 Local mas_pmt, mas_msg, mas_fun, j
@@ -1023,7 +1016,7 @@ if k > 10
 endif
 return NIL
 
-*****
+**
 Function uzkie1spec()
 Local buf := savescreen(), r1 := 15, tmp_color, j
 Private mstrah := padr(glob_strah[2],30), m1strah := glob_strah[1], ;
@@ -1064,56 +1057,55 @@ restscreen(buf)
 setcolor(tmp_solor)
 return NIL
 
-*
-
-*****
+**
 Function uzkie2spec()
-Static mm_perso := {{"Персонал",1},{"Персонал+услуги",2},;
-                    {"Услуги",3},{"Услуги+персонал",4}}
-Local buf := savescreen(), r1 := 13, tmp_color, j
-Private mstrah := padr(glob_strah[2],30), m1strah := glob_strah[1], ;
-        m1usl := mm_danet[1,2], musl := mm_danet[1,1],;
-        m1period := 0, mperiod := space(10), parr_m,;
-        mprocent := 0, mperso := mm_perso[1,1], m1perso := mm_perso[1,2],;
-        msumma := 0, gl_area := {r1,0,23,79,0}, arr_usl
-arr_usl := UsllugiUzkieSpec()
-box_shadow(r1,2,22,77,color1,"Подсчет услуг",color8)
-tmp_solor := setcolor(cDataCGet)
-do while .t.
-  @ r1+2,4 say "Период времени" get mperiod ;
-         reader {|x|menu_reader(x,;
-                 {{|k,r,c| k:=year_month(r+1,c),;
-                      if(k==nil,nil,(parr_m:=aclone(k),k:={k[1],k[4]})),;
-                      k }},A__FUNCTION,,,.f.)}
-  @ r1+3,4 say "Страховая компания" get mstrah ;
-      reader {|x|menu_reader(x,glob_arr_smo,A__MENUVERT,,,.f.)}
-  @ r1+4,4 say "Разрешить исключение некоторых услуг из списка ТФОМС?" get musl ;
-      reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
-  @ r1+5,4 say "Внешний вид документа" get mperso ;
-      reader {|x|menu_reader(x,mm_perso,A__MENUVERT,,,.f.)}
-  @ r1+6,4 say "Процент для ассистента (в случае его присутствия)" get mprocent pict "99"
-  @ r1+7,4 say "Сумма для распределения" get msumma pict "99999999.99"
-  status_key("^<Esc>^ - выход;  ^<PgDn>^ - просмотр результатов подсчета")
-  myread()
-  if lastkey() == K_ESC
-    exit
-  endif
-  if empty(m1period)
-    func_error(4,"Не введен период времени")
-    loop
-  endif
-  if empty(m1strah)
-    func_error(4,"Не введена страховая компания")
-    loop
-  endif
-  glob_strah := {m1strah,alltrim(mstrah)}
-  f1uzkie2spec()
-enddo
-restscreen(buf)
-setcolor(tmp_solor)
-return NIL
+  Static mm_perso := {{'Персонал', 1}, {'Персонал+услуги', 2}, ;
+                      {'Услуги', 3}, {'Услуги+персонал', 4}}
+  Local buf := savescreen(), r1 := 13, tmp_color, j
 
-*****
+  Private mstrah := padr(glob_strah[2], 30), m1strah := glob_strah[1], ;
+        m1usl := mm_danet[1, 2], musl := mm_danet[1, 1], ;
+        m1period := 0, mperiod := space(10), parr_m, ;
+        mprocent := 0, mperso := mm_perso[1, 1], m1perso := mm_perso[1, 2], ;
+        msumma := 0, gl_area := {r1, 0, 23, 79, 0}, arr_usl
+  arr_usl := UsllugiUzkieSpec()
+  box_shadow(r1, 2, 22, 77, color1, 'Подсчет услуг', color8)
+  tmp_solor := setcolor(cDataCGet)
+  do while .t.
+    @ r1 + 2, 4 say 'Период времени' get mperiod ;
+         reader {|x|menu_reader(x, ;
+                 {{|k, r, c| k:=year_month(r + 1, c), ;
+                      if(k == nil, nil, (parr_m := aclone(k), k := {k[1], k[4]})), ;
+                      k }}, A__FUNCTION, , , .f.)}
+    @ r1 + 3, 4 say 'Страховая компания' get mstrah ;
+        reader {|x|menu_reader(x, glob_arr_smo, A__MENUVERT, , , .f.)}
+    @ r1 + 4, 4 say 'Разрешить исключение некоторых услуг из списка ТФОМС?' get musl ;
+        reader {|x|menu_reader(x, mm_danet, A__MENUVERT, , , .f.)}
+    @ r1 + 5, 4 say 'Внешний вид документа' get mperso ;
+        reader {|x|menu_reader(x, mm_perso, A__MENUVERT, , , .f.)}
+    @ r1 + 6, 4 say 'Процент для ассистента (в случае его присутствия)' get mprocent pict '99'
+    @ r1 + 7, 4 say 'Сумма для распределения' get msumma pict '99999999.99'
+    status_key('^<Esc>^ - выход;  ^<PgDn>^ - просмотр результатов подсчета')
+    myread()
+    if lastkey() == K_ESC
+      exit
+    endif
+    if empty(m1period)
+      func_error(4, 'Не введен период времени')
+      loop
+    endif
+    if empty(m1strah)
+      func_error(4, 'Не введена страховая компания')
+      loop
+    endif
+    glob_strah := {m1strah, alltrim(mstrah)}
+    f1uzkie2spec()
+  enddo
+  restscreen(buf)
+  setcolor(tmp_solor)
+  return NIL
+
+**
 Function f1uzkie2spec()
 Local fl_exit := .f., sh, HH := 60, reg_print, n_file := "_uz_spec"+stxt,;
       adbf := {}, lshifr, mkol := 0, delta, arr_fields := {}, abitusl,;
@@ -3049,7 +3041,7 @@ close databases
 restscreen(buf) ; setcolor(tmp_color)
 return NIL
 
-*****
+**
 Function write_mn_p(k)
 Local fl := .t.
 if k == 1
@@ -3063,7 +3055,7 @@ if k == 1
 endif
 return fl
 
-***** 26.02.20
+** 26.02.20
 Static Function s1_mnog_poisk(cv,cf)
 Static a_stom_vp := {{},{},{}}
 Local i, j, k, n, s, arr, fl := .t., flu := .f., mkol, mstoim := 0, fl1, fl2, vid_vp := 1,;
@@ -3869,7 +3861,7 @@ endif
 @ row(),col() say lstr(cf) color cColorStMsg
 return NIL
 
-*****
+**
 Function diag2num(ldiagnoz)
 Local i, k, c, s := ""
 ldiagnoz := upper(alltrim(ldiagnoz))
@@ -3886,7 +3878,7 @@ if right(lstr(k,15,1)) == "0"
 endif
 return k
 
-*****
+**
 Function diap_diagn(k1,k2,arr)
 Local fl := .f., i, j := 0, k
 for i := 1 to len(arr)
@@ -3899,7 +3891,7 @@ for i := 1 to len(arr)
 next
 return j
 
-*****
+**
 Function f_mn_tal_diag(k,r,c)
 Static mm_prov := {{"не проверяем",0},;
                    {"проверяем   ",1},;
@@ -3945,7 +3937,7 @@ rest_box(buf24)
 setcolor(tmp_color)
 return ret
 
-*****
+**
 Function f_put_tal_diag()
 Static mm_s := {"Характер заболевания",;
                 "Диспансерный учет"}
@@ -3964,274 +3956,7 @@ next
 return NIL
 
 
-***** 26.02.20
-Function f1forma1_ffoms(delta,arr_m,arr_smo,fl_month,_summa,_b1,_b2)
-Local msmo, ns, ns1, mdate
-DEFAULT _b1 TO 0, _b2 TO 0
-if (msmo := int(val(schet_->smo))) == 34
-  ns := 8+delta
-else
-  ns := 6+delta
-  if ascan(arr_smo, {|x| x[2] == msmo }) == 0
-    aadd(arr_smo, {"",msmo})
-  endif
-endif
-select TMP1
-find (str(msmo,5)+str(ns,1)+str(0,1))
-if !found()
-  append blank
-  tmp1->smo := msmo
-  tmp1->s1  := ns
-  tmp1->s2  := 0
-endif
-if fl_month
-  tmp1->summa1 += _summa
-  select TMP1prot
-  find (str(msmo,5)+str(ns,1)+str(0,1)+str(schet->kod,6))
-  if !found()
-    append blank
-    tmp1prot->smo := msmo
-    tmp1prot->s1  := ns
-    tmp1prot->s2  := 0
-    tmp1prot->schet := schet->kod
-  endif
-  tmp1prot->summa1 += _summa
-endif
-tmp1->summa2 += _summa
-if ns == 6+delta .and. fl_month
-  if schet_->nyear == arr_m[1] .and. schet_->nmonth == arr_m[3]
-    ns1 := 2
-  else
-    ns1 := 1
-  endif
-  select TMP1
-  find (str(msmo,5)+str(ns,1)+str(ns1,1))
-  if !found()
-    append blank
-    tmp1->smo := msmo
-    tmp1->s1  := ns
-    tmp1->s2  := ns1
-  endif
-  tmp1->summa1 += _summa
-  select TMP1prot
-  find (str(msmo,5)+str(ns,1)+str(ns1,1)+str(schet->kod,6))
-  if !found()
-    append blank
-    tmp1prot->smo := msmo
-    tmp1prot->s1  := ns
-    tmp1prot->s2  := ns1
-    tmp1prot->schet := schet->kod
-  endif
-  tmp1prot->summa1 += _summa
-endif
-return NIL
-
-***** 24.11.21
-Function f2forma1_ffoms(msmo,fl_month)
-Local tfoms_pz[6,3], mkol, ta, i, ii, j, k, lshifr, lvidpom := 1, lshifr1, j1, fl,;
-      arr := {}, mkol_k := 0, mkol_1 := 0, mkol_2 := 0, mkol_55 := 0, lenp,;
-      fl_T := (schet_->bukva == "T"), fl_K := (schet_->bukva == "K"), lalf := "luslf"
-
-  lalf := create_name_alias(lalf, arr_m[1])
-
-select HU
-find (str(human->kod,7))
-do while hu->kod == human->kod .and. !eof()
-  lshifr1 := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data)
-  if is_usluga_TFOMS(usl->shifr,lshifr1,human->k_data)
-    lshifr := alltrim(iif(empty(lshifr1), usl->shifr, lshifr1))
-    if human_->USL_OK == 3 .and. hu->stoim_1 > 0 .and. ;  // только для п-ки
-                                  (i := ret_vid_pom(1,lshifr,human->k_data)) > 0
-      lvidpom := iif(eq_any(i,1,11,12), 1, 3)
-    endif
-    fl := .f.
-    if left(lshifr,5) == "1.11."
-      mkol_1 += hu->kol_1
-      fl := .t.
-    elseif left(lshifr,2) == "2."
-      if eq_any(left(lshifr,4),"2.4.","2.78","2.89","2.90","2.91") .or. fl_T
-        //
-      else
-        fl := .t.
-        mkol_2 += hu->kol_1
-      endif
-    elseif left(lshifr,5) == "55.1."
-      if lshifr == "55.1.3"
-        lvidpom := 1
-      else
-        lvidpom := 3
-      endif
-      mkol_55 += hu->kol_1
-      fl := .t.
-    elseif fl_K
-      mkol_k += hu->kol_1
-      fl := .t.
-    endif
-    if fl_month .and. fl
-      if (i := ascan(arr, {|x| x[1] == lshifr})) == 0
-        aadd(arr, {lshifr,0}) ; i := len(arr)
-      endif
-      arr[i,2] += hu->kol_1
-    endif
-  endif
-  select HU
-  skip
-enddo
-afillall(tfoms_pz,0)
-if human_->USL_OK == 1 // стационар
-  ii := 2
-  lvidpom := 3
-  tfoms_pz[ii,1] := mkol_1
-elseif human_->USL_OK == 2 // дневной стационар
-  ii := 3
-  if empty(mkol_55)
-    lvidpom := 3
-  else
-    tfoms_pz[ii,1] := mkol_55
-  endif
-elseif human_->USL_OK == 3 // поликлиника
-  if fl_T // стоматология
-    lvidpom := 1
-    ii := 4
-    select MOHU
-    find (str(human->kod,7))
-    do while mohu->kod == human->kod .and. !eof()
-      dbSelectArea(lalf)
-      find (mosu->shifr1)
-      mkol := round_5(mohu->kol_1 * iif(human->vzros_reb==0, &lalf.->uetv, &lalf.->uetd), 2)
-      tfoms_pz[ii,1] += mkol // кол-во УЕТ
-      if fl_month
-        if valtype(tfoms_pz[ii,3]) == "N"
-          tfoms_pz[ii,3] := {}
-        endif
-        if (i := ascan(tfoms_pz[ii,3], {|x| x[1] == mosu->shifr1})) == 0
-          aadd(tfoms_pz[ii,3], {mosu->shifr1,0}) ; i := len(tfoms_pz[ii,3])
-        endif
-        tfoms_pz[ii,3,i,2] += mkol
-      endif
-      select MOHU
-      skip
-    enddo
-  elseif fl_K // отдельные услуги
-    ii := 5
-    lvidpom := 3
-    tfoms_pz[ii,1] := mkol_k
-  else
-    ii := 1
-    tfoms_pz[ii,1] := mkol_2 // кол-во врачебных приёмов
-  endif
-elseif human_->USL_OK == 4 // скорая помощь
-  lvidpom := 2
-  ii := 6
-  tfoms_pz[ii,1] := 1 // один вызов СМП
-endif
-tfoms_pz[ii,2] := human->cena_1 // сумма всего случая по-новому
-if valtype(tfoms_pz[ii,3]) == "N"
-  tfoms_pz[ii,3] := aclone(arr)
-endif
-for ii := 1 to 6
-  if !emptyall(tfoms_pz[ii,1],tfoms_pz[ii,2])
-    select TMP2
-    find (str(msmo,5)+str(lvidpom,1)+str(ii,1))
-    if !found()
-      append blank
-      tmp2->smo := msmo
-      tmp2->pz  := ii
-      tmp2->vid := lvidpom
-    endif
-    if fl_month
-      tmp2->kol1   += tfoms_pz[ii,1]
-      tmp2->summa1 += tfoms_pz[ii,2]
-      select TMP2prot
-      find (str(msmo,5)+str(lvidpom,1)+str(ii,1)+str(schet->kod,6))
-      if !found()
-        append blank
-        tmp2prot->smo := msmo
-        tmp2prot->pz  := ii
-        tmp2prot->vid := lvidpom
-        tmp2prot->schet := schet->kod
-      endif
-      tmp2prot->kol1   += tfoms_pz[ii,1]
-      tmp2prot->summa1 += tfoms_pz[ii,2]
-      for i := 1 to len(tfoms_pz[ii,3])
-        if tfoms_pz[ii,3,i,2] > 0
-          select TMP2pr_u
-          find (str(tmp2prot->(recno()),6)+padr(tfoms_pz[ii,3,i,1],20))
-          if !found()
-            append blank
-            TMP2pr_u->kod := tmp2prot->(recno())
-            TMP2pr_u->shifr := tfoms_pz[ii,3,i,1]
-          endif
-          TMP2pr_u->kol += tfoms_pz[ii,3,i,2]
-        endif
-      next
-    endif
-    tmp2->kol2   += tfoms_pz[ii,1]
-    tmp2->summa2 += tfoms_pz[ii,2]
-    select TMP2
-    find (str(msmo,5)+str(lvidpom,1)+str(0,1))
-    if !found()
-      append blank
-      tmp2->smo := msmo
-      tmp2->pz  := 0
-      tmp2->vid := lvidpom
-    endif
-    if fl_month
-      tmp2->kol1   += tfoms_pz[ii,1]
-      tmp2->summa1 += tfoms_pz[ii,2]
-      select TMP2prot
-      find (str(msmo,5)+str(lvidpom,1)+str(0,1)+str(schet->kod,6))
-      if !found()
-        append blank
-        tmp2prot->smo := msmo
-        tmp2prot->pz  := 0
-        tmp2prot->vid := lvidpom
-        tmp2prot->schet := schet->kod
-      endif
-      tmp2prot->kol1   += tfoms_pz[ii,1]
-      tmp2prot->summa1 += tfoms_pz[ii,2]
-    endif
-    tmp2->kol2   += tfoms_pz[ii,1]
-    tmp2->summa2 += tfoms_pz[ii,2]
-    //
-    if len(lenp := alltrim(kart2->kod_mis)) != 16
-      lenp := lstr(human->kod_k)
-    endif
-    select TMP3
-    //find (str(msmo,5)+str(lvidpom,1)+str(ii,1)+str(human->kod_k,7))
-    find (str(msmo,5)+str(lvidpom,1)+str(ii,1)+padr(lenp,16))
-    if !found()
-      append blank
-      tmp3->smo := msmo
-      tmp3->kod_k := human->kod_k
-      tmp3->enp := lenp
-      tmp3->pz  := ii
-      tmp3->vid := lvidpom
-    endif
-    if fl_month
-      tmp3->kol3++
-    endif
-    tmp3->kol4++
-    select TMP3
-    //find (str(msmo,5)+str(lvidpom,1)+str(0,1)+str(human->kod_k,7))
-    find (str(msmo,5)+str(lvidpom,1)+str(0,1)+padr(lenp,16))
-    if !found()
-      append blank
-      tmp3->smo := msmo
-      tmp3->kod_k := human->kod_k
-      tmp3->enp := lenp
-      tmp3->pz  := 0
-      tmp3->vid := lvidpom
-    endif
-    if fl_month
-      tmp3->kol3++
-    endif
-    tmp3->kol4++
-  endif
-next
-return NIL
-
-*****
+**
 Function ret_date_reg_otch_period()
 Static si := 1, sdate
 Local i, ldate, fl := .f.
@@ -4251,7 +3976,7 @@ else
 endif
 return fl
 
-***** 11.10.18
+** 11.10.18
 Function prikaz_848_miac()
 Static mm_poisk := {{"По дате врачебного приёма",0},;
                     {"По дате окончания лечения",1}}
@@ -4389,7 +4114,7 @@ close databases
 if k == 0
   return func_error(4,"Нет информации")
 endif
-name_file := "prik_848"+stxt ; HH := 42
+name_file := cur_dir + 'prik_848' + stxt ; HH := 42
 fp := fcreate(name_file) ; tek_stroke := 0 ; n_list := 1
 use (cur_dir + "tmp") index (cur_dir + "tmp") new
 if m1usl == 1
@@ -4899,9 +4624,7 @@ Private yes_albom := .t.
 viewtext(name_file,,,,.t.,,,2)
 return NIL
 
-*
-
-***** 28.12.17
+** 28.12.17
 Function f2_prikaz_848_miac(par,_what_if)
 Local tfoms_pz[20], a_usl := {}, i, j, lshifr1, mkol,;
       _ist_fin := f3_prikaz_848_miac(_what_if), ;
@@ -5438,7 +5161,7 @@ if is_trudosp // СПРАВОЧНО-пожилые
 endif
 return NIL
 
-***** 14.10.15
+** 14.10.15
 Function f3_prikaz_848_miac(_what_if)
 Local list_fin := I_FIN_OMS, _ist_fin, i
 if human->komu == 5
@@ -5462,7 +5185,7 @@ else
 endif
 return _ist_fin
 
-*****
+**
 Function f4_prikaz_848_miac(n,t,at)
 Local i, j, s, k := len(at)
 j := int(k/2)

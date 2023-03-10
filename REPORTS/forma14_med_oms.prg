@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-** 01.03.23 форма 14-МЕД (ОМС)
+** 10.03.23 форма 14-МЕД (ОМС)
 Function forma14_med_oms()
   Static group_ini := 'f14_med_oms'
   Local begin_date, end_date, buf := savescreen(), arr_m, i, j, k, k1, k2, ;
@@ -141,9 +141,8 @@ Function forma14_med_oms()
   *********************************************************************
   arr_m := {2022, 1, 12, 'за январь - декабрь 2022 года', 0d20220101, 0d20221231}
   *********************************************************************
-  
-  lal := 'lusl'
-  lalf := 'luslf'
+  lal := create_name_alias('lusl', arr_m[1])
+  lalf := create_name_alias('luslf', arr_m[1])
   Private mk1, mk2, mk3, mk4, md1, md11, md12, md2, md21, md22, md3, md4
   ar := GetIniSect(tmp_ini, group_ini)
   mk1 := int(val(a2default(ar, 'mk1', '0')))

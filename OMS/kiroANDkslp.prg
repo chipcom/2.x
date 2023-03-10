@@ -205,7 +205,7 @@ function calcKSLP(cKSLP, dateSl)
   endif
   return summ
 
-** 09.03.23
+** 10.03.23
 function defenition_KIRO(lkiro, ldnej, lrslt, lis_err, lksg, lDoubleSluch)
   // lkiro - список возможных КИРО для КСГ
   // ldnej - длительность случая в койко-днях
@@ -230,18 +230,19 @@ function defenition_KIRO(lkiro, ldnej, lrslt, lis_err, lksg, lDoubleSluch)
   endif
 
   if lDoubleSluch // это часть двойного случая
-    if ascan(lkiro, 1) > 0
-      vkiro := 1
-    elseif ascan(lkiro, 2) > 0
-      vkiro := 2
-    elseif ascan(lkiro, 3) > 0
+    // if ascan(lkiro, 1) > 0
+    //   vkiro := 1
+    // elseif ascan(lkiro, 2) > 0
+    //   vkiro := 2
+    // elseif ascan(lkiro, 3) > 0 .and. ascan({102, 105, 107, 110, 202, 205, 207}, lrslt) > 0
+    if ascan(lkiro, 3) > 0 .and. ascan({102, 105, 107, 110, 202, 205, 207}, lrslt) > 0
       vkiro := 3
     elseif ascan(lkiro, 4) > 0 .and. ascan({102, 105, 107, 110, 202, 205, 207}, lrslt) > 0
       vkiro := 4
-    elseif  lis_err == 1 .and. ascan(lkiro, 5) > 0
-      vkiro := 5
-    elseif  lis_err == 1 .and. ascan(lkiro, 6) > 0
-      vkiro := 6
+    // elseif  lis_err == 1 .and. ascan(lkiro, 5) > 0
+    //   vkiro := 5
+    // elseif  lis_err == 1 .and. ascan(lkiro, 6) > 0
+    //   vkiro := 6
     endif
   endif
   if ldnej > 3 // количество дней лечения 4 и более дней
