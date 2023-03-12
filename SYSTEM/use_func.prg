@@ -8,9 +8,9 @@
 Function R_Use_base(sBase, lalias)
   return use_base(sBase, lalias, , .t.)
 
-** 08.03.23
+** 12.03.23
 function close_use_base(sBase)
-  local mVar, countYear, lAlias
+  local countYear, lAlias
 
   sBase := lower(sBase) // проверим, что алиас открыт и выйдем если нет
   if select(sBase) == 0
@@ -19,13 +19,10 @@ function close_use_base(sBase)
   do case
     case sBase == 'lusl'
       for countYear := 2018 to WORK_YEAR
-        mVar := '__usl' + iif(countYear == WORK_YEAR, '', substr(str(countYear, 4), 3))
         lAlias := sBase + iif(countYear == WORK_YEAR, '', substr(str(countYear, 4), 3))
-        if __mvExist(mVar)
-          if __mvGet(mVar)
-            if (lAlias)->(used())
-              (lAlias)->(dbCloseArea())
-            endif
+        if exists_file_TFOMS(countYear, 'usl')
+          if (lAlias)->(used())
+            (lAlias)->(dbCloseArea())
           endif
         endif
       next
@@ -50,13 +47,10 @@ function close_use_base(sBase)
       // endif
     case sBase == 'luslc'
       for countYear := 2018 to WORK_YEAR
-        mVar := '__uslc' + iif(countYear == WORK_YEAR, '', substr(str(countYear, 4), 3))
         lAlias := sBase + iif(countYear == WORK_YEAR, '', substr(str(countYear, 4), 3))
-        if __mvExist(mVar)
-          if __mvGet(mVar)
-            if (lAlias)->(used())
-              (lAlias)->(dbCloseArea())
-            endif
+        if exists_file_TFOMS(countYear, 'uslc')
+          if (lAlias)->(used())
+            (lAlias)->(dbCloseArea())
           endif
         endif
       next
@@ -80,13 +74,10 @@ function close_use_base(sBase)
       // endif
     case sBase == 'luslf'
       for countYear := 2018 to WORK_YEAR
-        mVar := '__uslf' + iif(countYear == WORK_YEAR, '', substr(str(countYear, 4), 3))
         lAlias := sBase + iif(countYear == WORK_YEAR, '', substr(str(countYear, 4), 3))
-        if __mvExist(mVar)
-          if __mvGet(mVar)
-            if (lAlias)->(used())
-              (lAlias)->(dbCloseArea())
-            endif
+        if exists_file_TFOMS(countYear, 'uslf')
+          if (lAlias)->(used())
+            (lAlias)->(dbCloseArea())
           endif
         endif
       next
@@ -111,7 +102,7 @@ function close_use_base(sBase)
     endcase
   return nil
 
-  ** 05.03.23
+** 12.03.23
 function existsNSIfile(sbase, vYear)
   local fl := .f., fName, findex, fIndex_add
 
@@ -120,7 +111,7 @@ function existsNSIfile(sbase, vYear)
     do case
       case sBase == 'lusl'
         fIndex := cur_dir + fName + sntx
-        if hb_vfExists(exe_dir + fName + sdbf)
+        if (fl := hb_vfExists(exe_dir + fName + sdbf))
           if ! hb_vfExists(fIndex)
             R_Use(exe_dir + fName, , sBase)
             index on shifr to (fIndex)
@@ -130,7 +121,7 @@ function existsNSIfile(sbase, vYear)
     case sBase == 'luslc'
       fIndex := cur_dir + fName + sntx
       fIndex_add :=  prefixFileRefName(vYear) + 'uslu'  // 
-      if (f := hb_vfExists(exe_dir + fName + sdbf))
+      if (fl := hb_vfExists(exe_dir + fName + sdbf))
         if (! hb_vfExists(fIndex)) .or. (! hb_vfExists(cur_dir + fIndex_add + sntx))
           R_Use(exe_dir + fName, , sBase)
           // index on shifr + str(vzros_reb, 1) + str(depart, 3) + dtos(datebeg) to (cur_dir + sbase) ;
@@ -156,22 +147,17 @@ function existsNSIfile(sbase, vYear)
   return fl
 
 
-** 08.03.23
+** 12.03.23
 Function use_base(sBase, lalias, lExcluUse, lREADONLY)
   Local fl := .t., sind1, sind2
   local fname, fname_add
-  local countYear, mVar
+  local countYear
 
   sBase := lower(sBase)
   do case
     case sBase == 'lusl'
       for countYear := 2018 to WORK_YEAR
-        mVar := '__usl' + iif(countYear == WORK_YEAR, '', substr(str(countYear, 4), 3))
-        if ! __mvExist(mVar)
-          __mvPublic(mVar)
-          __mvPut(mVar, existsNSIfile(sbase, countYear))
-        endif
-        if __mvGet(mVar)
+        if exists_file_TFOMS(countYear, 'usl')
           fName := prefixFileRefName(countYear) + substr(sbase, 2)
           lalias := sBase + iif(countYear == WORK_YEAR, '', substr(str(countYear, 4), 3))
           R_Use(exe_dir + fName, cur_dir + fName, lalias)
@@ -185,12 +171,7 @@ Function use_base(sBase, lalias, lExcluUse, lREADONLY)
       //   R_Use(exe_dir + '_mo3usl', cur_dir + '_mo3usl', sBase)
     case sBase == 'luslc'
       for countYear := 2018 to WORK_YEAR
-        mVar := '__uslc' + iif(countYear == WORK_YEAR, '', substr(str(countYear, 4), 3))
-        if ! __mvExist(mVar)
-          __mvPublic(mVar)
-          __mvPut(mVar, existsNSIfile(sbase, countYear))
-        endif
-        if __mvGet(mVar)
+        if exists_file_TFOMS(countYear, 'uslc')
           fName := prefixFileRefName(countYear) + substr(sbase, 2)
           fname_add := prefixFileRefName(countYear) + substr(sbase, 2, 3) + 'u'
           lalias := sBase + iif(countYear == WORK_YEAR, '', substr(str(countYear, 4), 3))
@@ -205,12 +186,7 @@ Function use_base(sBase, lalias, lExcluUse, lREADONLY)
       //   R_Use(exe_dir + '_mo3uslc', {cur_dir + '_mo3uslc', cur_dir + '_mo3uslu'}, sBase)
     case sBase == 'luslf'
       for countYear := 2018 to WORK_YEAR
-        mVar := '__uslf' + iif(countYear == WORK_YEAR, '', substr(str(countYear, 4), 3))
-        if ! __mvExist(mVar)
-          __mvPublic(mVar)
-          __mvPut(mVar, existsNSIfile(sbase, countYear))
-        endif
-        if __mvGet(mVar)
+        if exists_file_TFOMS(countYear, 'uslf')
           fName := prefixFileRefName(countYear) + substr(sbase, 2)
           lalias := sBase + iif(countYear == WORK_YEAR, '', substr(str(countYear, 4), 3))
           R_Use(exe_dir + fName, cur_dir + fName, lalias)

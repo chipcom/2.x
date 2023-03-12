@@ -4,7 +4,7 @@
 #define NUMBER_YEAR 3 // число лет для переиндексации назад
 #define INDEX_NEED  2 // число лет обязательной переиндексации
 
-** 09.03.23 проверка наличия справочников НСИ
+** 12.03.23 проверка наличия справочников НСИ
 function files_NSI_exists(dir_file)
   local lRet := .t.
   local i
@@ -16,6 +16,7 @@ function files_NSI_exists(dir_file)
   local arr_check := {}
   local countYear
   local prefix
+  local arr_TFOMS
   local n_file := cur_dir + 'error_init' + stxt, sh := 80, HH := 60
 
   sbase := dir_file + FILE_NAME_SQL // 'chip_mo.db'
@@ -26,6 +27,8 @@ function files_NSI_exists(dir_file)
       aadd(aError, 'Размер файла "' + sbase + '" меньше 3362000 байт. Обратитесь к разработчикам.')
     endif
   endif
+
+  fill_exists_files_TFOMS(dir_file)
 
   // справочники диагнозов
   sbase := dir_file + '_mo_mkb' + cDbf
@@ -79,46 +82,54 @@ function files_NSI_exists(dir_file)
     aadd(arr_check, sbase)
   next
 
-  // for countYear = 2018 to WORK_YEAR
-    // prefix := prefixFileRefName(countYear)
-    // if countYear >= 2021
-    prefix := prefixFileRefName(WORK_YEAR)
-    if WORK_YEAR >= 2021
-      sbase := dir_file + prefix + 'vmp_usl' + cDbf  // справочник соответствия услуг ВМП услугам ТФОМС
-      aadd(arr_check, sbase)
-    endif
+  // // for countYear = 2018 to WORK_YEAR
+  //   // prefix := prefixFileRefName(countYear)
+  //   // if countYear >= 2021
+  //   prefix := prefixFileRefName(WORK_YEAR)
+  //   if WORK_YEAR >= 2021
+  //     sbase := dir_file + prefix + 'vmp_usl' + cDbf  // справочник соответствия услуг ВМП услугам ТФОМС
+  //     aadd(arr_check, sbase)
+  //   endif
   
-    sbase := dir_file + prefix + 'dep' + cDbf  // справочник отделений на конкретный год
-    aadd(arr_check, sbase)
-    sbase := dir_file + prefix + 'deppr' + cDbf // справочник отделения + профили  на конкретный год
-    aadd(arr_check, sbase)
+  //   sbase := dir_file + prefix + 'dep' + cDbf  // справочник отделений на конкретный год
+  //   aadd(arr_check, sbase)
+  //   sbase := dir_file + prefix + 'deppr' + cDbf // справочник отделения + профили  на конкретный год
+  //   aadd(arr_check, sbase)
 
-    sbase := dir_file + prefix + 'usl' + cDbf  // справочник услуг ТФОМС на конкретный год
-    aadd(arr_check, sbase)
+  //   sbase := dir_file + prefix + 'usl' + cDbf  // справочник услуг ТФОМС на конкретный год
+  //   aadd(arr_check, sbase)
 
-    sbase :=  dir_file + prefix + 'uslc' + cDbf  // цены на услуги на конкретный год
-    aadd(arr_check, sbase)
+  //   sbase :=  dir_file + prefix + 'uslc' + cDbf  // цены на услуги на конкретный год
+  //   aadd(arr_check, sbase)
   
-    sbase := dir_file + prefix + 'uslf' + cDbf  // справочник услуг ФФОМС на конкретный год
-    aadd(arr_check, sbase)
+  //   sbase := dir_file + prefix + 'uslf' + cDbf  // справочник услуг ФФОМС на конкретный год
+  //   aadd(arr_check, sbase)
 
-    sbase := dir_file + prefix + 'unit' + cDbf  // план-заказ на конкретный год
-    aadd(arr_check, sbase)
+  //   sbase := dir_file + prefix + 'unit' + cDbf  // план-заказ на конкретный год
+  //   aadd(arr_check, sbase)
 
-    sbase := dir_file + prefix + 'shema' + cDbf  // 
-    aadd(arr_check, sbase)
+  //   sbase := dir_file + prefix + 'shema' + cDbf  // 
+  //   aadd(arr_check, sbase)
 
-    sbase := dir_file + prefix + 'k006' + cDbf  // 
-    aadd(arr_check, sbase)
-    sbase := dir_file + prefix + 'k006' + cDbt  // 
-    aadd(arr_check, sbase)
+  //   sbase := dir_file + prefix + 'k006' + cDbf  // 
+  //   aadd(arr_check, sbase)
+  //   sbase := dir_file + prefix + 'k006' + cDbt  // 
+  //   aadd(arr_check, sbase)
 
-  // next
+  // // next
 
   // проверим существование файлов
   for i := 1 to len(arr_check)
     if ! hb_FileExists(arr_check[i])
       aadd(aError, 'Отсутствует файл: ' + arr_check[i])
+    endif
+  next
+
+  prefix := dir_file + prefixFileRefName(WORK_YEAR)
+  arr_TFOMS := array_exists_files_TFOMS(WORK_YEAR)
+  for i := 1 to len(arr_TFOMS)
+    if ! arr_TFOMS[i, 2]
+      aadd(aError, 'Отсутствует файл: ' + prefix + arr_TFOMS[i, 1] + cDbf)
     endif
   next
 

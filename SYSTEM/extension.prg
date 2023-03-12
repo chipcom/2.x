@@ -7,6 +7,58 @@
 
 #DEFINE TIMEEXISTS  600
 
+static hExistsFilesNSI  // переменная используется в exists_file_TFOMS(...), array_exists_files_TFOMS(...) и fill_exists_files_TFOMS(...)
+
+** 12.03.23
+function array_exists_files_TFOMS(nYear)
+
+  return hExistsFilesNSI[nYear]
+  
+** 12.03.23
+function exists_file_TFOMS(nYear, nameTFOMS)
+  local ret := .f., arr
+
+  if nYear >= 2018
+    arr := hExistsFilesNSI[nYear]
+    if (i := ascan(arr, {|x| x[1] == lower(alltrim(nameTFOMS))})) > 0
+      ret := arr[i, 2]
+    endif
+  endif
+  return ret
+
+** 12.03.23
+function fill_exists_files_TFOMS(cur_dir)
+  local counterYear, prefix, arr, sbase
+  local cDbf := '.dbf'
+  local cDbt := '.dbt'
+
+  if isnil(hExistsFilesNSI)
+    hExistsFilesNSI := hb_Hash()
+    for counterYear = 2018 to WORK_YEAR
+      arr := {}
+      prefix := cur_dir + prefixFileRefName(counterYear)
+      aadd(arr, {'vmp_usl', hb_FileExists(prefix + 'vmp_usl' + cDbf)})
+      aadd(arr, {'dep', hb_FileExists(prefix + 'dep' + cDbf)})
+      aadd(arr, {'deppr', hb_FileExists(prefix + 'deppr' + cDbf)})
+      aadd(arr, {'usl', hb_FileExists(prefix + 'usl' + cDbf)})
+      aadd(arr, {'uslc', hb_FileExists(prefix + 'uslc' + cDbf)})
+      aadd(arr, {'uslf', hb_FileExists(prefix + 'uslf' + cDbf)})
+      aadd(arr, {'unit', hb_FileExists(prefix + 'unit' + cDbf)})
+      aadd(arr, {'shema', hb_FileExists(prefix + 'shema' + cDbf)})
+      aadd(arr, {'k006', hb_FileExists(prefix + 'k006' + cDbf)})
+      aadd(arr, {'it', hb_FileExists(prefix + 'it' + cDbf)})
+      aadd(arr, {'it1', hb_FileExists(prefix + 'it1' + cDbf)})
+      aadd(arr, {'kiro', hb_FileExists(prefix + 'kiro' + cDbf)})
+      aadd(arr, {'kslp', hb_FileExists(prefix + 'kslp' + cDbf)})
+      aadd(arr, {'lvlpay', hb_FileExists(prefix + 'lvlpay' + cDbf)})
+      aadd(arr, {'moserv', hb_FileExists(prefix + 'moserv' + cDbf)})
+      aadd(arr, {'prices', hb_FileExists(prefix + 'prices' + cDbf)})
+      aadd(arr, {'subdiv', hb_FileExists(prefix + 'subdiv' + cDbf)})
+      hExistsFilesNSI[counterYear] := arr
+    next
+  endif
+  return nil
+
 function openSQL_DB()
 
   return sqlite3_open( exe_dir + FILE_NAME_SQL, .f. )
