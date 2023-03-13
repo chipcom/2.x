@@ -3,11 +3,12 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-** 05.03.23 определить КСГ для 1 пациента из режима редактирования услуг
+** 13.03.23 определить КСГ для 1 пациента из режима редактирования услуг
 Function f_usl_definition_KSG(lkod, k_data2, lDoubleSluch)
   Local arr, buf := save_maxrow(), lshifr, lrec, lu_kod, lcena, not_ksg := .t., ;
         mrec_hu, tmp_rec := 0, tmp_select := select(), is_usl1 := .f., ;
         ret := {}, lyear := year(human->K_DATA), i, s, sdial, fl
+  local lalias
 
   default lDoubleSluch to .f.
   if human_->USL_OK < 3
@@ -69,49 +70,64 @@ Function f_usl_definition_KSG(lkod, k_data2, lDoubleSluch)
           endif
           exit
         endif
-        if lyear == 2023
-          select LUSL
-          find (padr(lshifr, 10)) // длина lshifr 10 знаков
-          if found() .and. (eq_any(left(lshifr, 5), '1.22.') .or. is_ksg(lusl->shifr)) // стоит другой КСГ
-            lrec := tmp->(recno())
-            exit
-          endif
-        elseif lyear == 2022
-          select LUSL22
-          find (padr(lshifr, 10)) // длина lshifr 10 знаков
-          if found() .and. (eq_any(left(lshifr, 5), '1.21.') .or. is_ksg(lusl22->shifr)) // стоит другой КСГ
-            lrec := tmp->(recno())
-            exit
-          endif
-        elseif lyear == 2021
-          select LUSL21
-          find (padr(lshifr, 10)) // длина lshifr 10 знаков
-          if found() .and. (eq_any(left(lshifr, 5), '1.20.') .or. is_ksg(lusl21->shifr)) // стоит другой КСГ
-            lrec := tmp->(recno())
-            exit
-          endif
-        elseif lyear == 2020
-          select LUSL20
-          find (padr(lshifr, 10)) // длина lshifr 10 знаков
-          if found() .and. (eq_any(left(lshifr, 5), '1.12.') .or. is_ksg(lusl20->shifr)) // стоит другой КСГ
-            lrec := tmp->(recno())
-            exit
-          endif
-        elseif lyear == 2019
-          select LUSL19
-          find (padr(lshifr, 10)) // длина lshifr 10 знаков
-          if found() .and. (eq_any(left(lshifr,5), '1.12.') .or. is_ksg(lusl19->shifr)) // стоит другой КСГ
-            lrec := tmp->(recno())
-            exit
-          endif
-        else
-          select LUSL18
-          find (padr(lshifr, 10)) // длина lshifr 10 знаков
-          if found() .and. (eq_any(left(lshifr, 5), '1.12.') .or. is_ksg(lusl18->shifr)) // стоит другой КСГ
-            lrec := tmp->(recno())
-            exit
-          endif
+
+        lalias := create_name_alias('lusl', lyear)
+        dbSelectArea(lalias)
+        find (padr(lshifr, 10)) // длина lshifr 10 знаков
+        if found() .and. (eq_any(left(lshifr, 5), code_services_VMP(lyear)) .or. is_ksg((lalias)->shifr))
+          lrec := tmp->(recno())
+          exit
         endif
+
+        // if lyear == 2023
+        //   select LUSL
+        //   find (padr(lshifr, 10)) // длина lshifr 10 знаков
+        //   // if found() .and. (eq_any(left(lshifr, 5), '1.22.') .or. is_ksg(lusl->shifr)) // стоит другой КСГ
+        //   if found() .and. (eq_any(left(lshifr, 5), code_services_VMP(2023)) .or. is_ksg(lusl->shifr)) // стоит другой КСГ
+        //     lrec := tmp->(recno())
+        //     exit
+        //   endif
+        // elseif lyear == 2022
+        //   select LUSL22
+        //   find (padr(lshifr, 10)) // длина lshifr 10 знаков
+        //   // if found() .and. (eq_any(left(lshifr, 5), '1.21.') .or. is_ksg(lusl22->shifr)) // стоит другой КСГ
+        //   if found() .and. (eq_any(left(lshifr, 5), code_services_VMP(2022)) .or. is_ksg(lusl22->shifr)) // стоит другой КСГ
+        //     lrec := tmp->(recno())
+        //     exit
+        //   endif
+        // elseif lyear == 2021
+        //   select LUSL21
+        //   find (padr(lshifr, 10)) // длина lshifr 10 знаков
+        //   // if found() .and. (eq_any(left(lshifr, 5), '1.20.') .or. is_ksg(lusl21->shifr)) // стоит другой КСГ
+        //   if found() .and. (eq_any(left(lshifr, 5), code_services_VMP(2021)) .or. is_ksg(lusl21->shifr)) // стоит другой КСГ
+        //     lrec := tmp->(recno())
+        //     exit
+        //   endif
+        // elseif lyear == 2020
+        //   select LUSL20
+        //   find (padr(lshifr, 10)) // длина lshifr 10 знаков
+        //   // if found() .and. (eq_any(left(lshifr, 5), '1.12.') .or. is_ksg(lusl20->shifr)) // стоит другой КСГ
+        //   if found() .and. (eq_any(left(lshifr, 5), code_services_VMP(2020)) .or. is_ksg(lusl20->shifr)) // стоит другой КСГ
+        //     lrec := tmp->(recno())
+        //     exit
+        //   endif
+        // elseif lyear == 2019
+        //   select LUSL19
+        //   find (padr(lshifr, 10)) // длина lshifr 10 знаков
+        //   // if found() .and. (eq_any(left(lshifr,5), '1.12.') .or. is_ksg(lusl19->shifr)) // стоит другой КСГ
+        //   if found() .and. (eq_any(left(lshifr, 5), code_services_VMP(2019)) .or. is_ksg(lusl19->shifr)) // стоит другой КСГ
+        //     lrec := tmp->(recno())
+        //     exit
+        //   endif
+        // else
+        //   select LUSL18
+        //   find (padr(lshifr, 10)) // длина lshifr 10 знаков
+        //   // if found() .and. (eq_any(left(lshifr, 5), '1.12.') .or. is_ksg(lusl18->shifr)) // стоит другой КСГ
+        //   if found() .and. (eq_any(left(lshifr, 5), code_services_VMP(2018)) .or. is_ksg(lusl18->shifr)) // стоит другой КСГ
+        //     lrec := tmp->(recno())
+        //     exit
+        //   endif
+        // endif
         select TMP
         skip
       enddo
