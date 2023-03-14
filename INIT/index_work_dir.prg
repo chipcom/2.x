@@ -460,10 +460,11 @@ function dep_index_and_fill(val_year, exe_dir, cur_dir, flag)
   endif
   return nil
 
-** 09.03.23
+** 14.03.23
 function usl_Index(val_year, exe_dir, cur_dir, flag)
   local sbase
   local file_index
+  local shifrVMP
 
   DEFAULT flag TO .f.
   sbase := prefixFileRefName(val_year) + 'usl'  // справочник услуг ТФОМС на конкретный год
@@ -472,12 +473,15 @@ function usl_Index(val_year, exe_dir, cur_dir, flag)
     R_Use(exe_dir + sbase, ,'LUSL')
     index on shifr to (cur_dir + sbase)
     if val_year == WORK_YEAR
-      find ('1.22.') // ВМП федеральное   // 01.03.23 замена услуг с 1.21 на 1.22 письмо
+      shifrVMP := code_services_VMP(WORK_YEAR)
+      find (shifrVMP)
+      // find ('1.22.') // ВМП федеральное   // 01.03.23 замена услуг с 1.21 на 1.22 письмо
       // find ('1.21.') // ВМП федеральное   // 10.02.22 замена услуг с 1.20 на 1.21 письмо 12-20-60 от 01.02.22
       // find ('1.20.') // ВМП федеральное   // 07.02.21 замена услуг с 1.12 на 1.20 письмо 12-20-60 от 01.02.21
       // do while left(lusl->shifr,5) == '1.20.' .and. !eof()
       // do while left(lusl->shifr,5) == '1.21.' .and. !eof()
-      do while left(lusl->shifr, 5) == '1.22.' .and. !eof()
+      // do while left(lusl->shifr, 5) == '1.22.' .and. !eof()
+      do while left(lusl->shifr, 5) == shifrVMP .and. !eof()
         aadd(arr_12_VMP, int(val(substr(lusl->shifr, 6))))
         skip
       enddo
@@ -486,7 +490,7 @@ function usl_Index(val_year, exe_dir, cur_dir, flag)
   endif
   return nil
   
-** 09.03.23
+** 14.03.23
 function uslc_Index(val_year, exe_dir, cur_dir, flag)
   local sbase, prefix
   local index_usl_name
@@ -556,16 +560,20 @@ function uslc_Index(val_year, exe_dir, cur_dir, flag)
       endif
     //
       if val_year == WORK_YEAR
-        find (glob_mo[_MO_KOD_TFOMS] + '1.22.') // ВМП 01.03.23
+        // find (glob_mo[_MO_KOD_TFOMS] + '1.22.') // ВМП 01.03.23
+        find (glob_mo[_MO_KOD_TFOMS] + code_services_VMP(val_year)) // ВМП 01.03.23
         is_23_VMP := found()
       elseif val_year == 2022
-        find (glob_mo[_MO_KOD_TFOMS] + '1.21.') // ВМП 11.02.22
+        // find (glob_mo[_MO_KOD_TFOMS] + '1.21.') // ВМП 11.02.22
+        find (glob_mo[_MO_KOD_TFOMS] + code_services_VMP(val_year)) // ВМП 11.02.22
         is_22_VMP := found()
       elseif val_year == 2021
-        find (glob_mo[_MO_KOD_TFOMS] + '1.20.') // ВМП 07.02.21
+        // find (glob_mo[_MO_KOD_TFOMS] + '1.20.') // ВМП 07.02.21
+        find (glob_mo[_MO_KOD_TFOMS] + code_services_VMP(val_year)) // ВМП 07.02.21
         is_21_VMP := found()
       elseif val_year == 2020 .or. val_year == 2019
-        find (glob_mo[_MO_KOD_TFOMS] + '1.12.') // ВМП 2020 и 2019 года
+        // find (glob_mo[_MO_KOD_TFOMS] + '1.12.') // ВМП 2020 и 2019 года
+        find (glob_mo[_MO_KOD_TFOMS] + code_services_VMP(val_year)) // ВМП 2020 и 2019 года
         is_12_VMP := found()
       endif
     //

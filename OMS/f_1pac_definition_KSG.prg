@@ -1,9 +1,10 @@
 #include 'function.ch'
 
-** 01.03.23 определить КСГ для 1 пациента с открытием файлов
+** 14.03.23 определить КСГ для 1 пациента с открытием файлов
 // ВНИМАНИЕ! Не менять название функции, используется в PROCNAME() другой функции
 Function f_1pac_definition_KSG(lkod, is_msg)
   Local arr, i, s, buf := save_maxrow(), lshifr, lrec, lu_kod, lcena, lyear, mrec_hu, not_ksg := .t., sdial, fl
+  local lalias
 
   DEFAULT is_msg TO .t.
   mywait('Определение КСГ')
@@ -67,49 +68,58 @@ Function f_1pac_definition_KSG(lkod, is_msg)
           endif
           exit
         endif
-        if lyear == 2023 // add 01.03.23
-          select LUSL
-          find (lshifr) // длина lshifr 10 знаков
-          if found() .and. (eq_any(left(lshifr, 5), '1.22.') .or. is_ksg(lusl->shifr)) // стоит другой КСГ
-            lrec := hu->(recno())
-            exit
-          endif
-        elseif lyear == 2022 // add 11.02.22
-          select LUSL22
-          find (lshifr) // длина lshifr 10 знаков
-          if found() .and. (eq_any(left(lshifr, 5), '1.21.') .or. is_ksg(lusl->shifr)) // стоит другой КСГ
-            lrec := hu->(recno())
-            exit
-          endif
-        elseif lyear == 2021 // add 07.02.21
-          select LUSL21
-          find (lshifr) // длина lshifr 10 знаков
-          if found() .and. (eq_any(left(lshifr, 5), '1.20.') .or. is_ksg(lusl->shifr)) // стоит другой КСГ
-            lrec := hu->(recno())
-            exit
-          endif
-        elseif lyear > 2019
-          select LUSL20
-          find (lshifr) // длина lshifr 10 знаков
-          if found() .and. (eq_any(left(lshifr, 5), '1.12.') .or. is_ksg(lusl->shifr)) // стоит другой КСГ
-            lrec := hu->(recno())
-            exit
-          endif
-        elseif lyear > 2018
-          select LUSL19
-          find (lshifr) // длина lshifr 10 знаков
-          if found() .and. (eq_any(left(lshifr, 5), '1.12.') .or. is_ksg(lusl19->shifr)) // стоит другой КСГ
-            lrec := hu->(recno())
-            exit
-          endif
-        else
-          select LUSL18
-          find (lshifr) // длина lshifr 10 знаков
-          if found() .and. (eq_any(left(lshifr, 5), '1.12.') .or. is_ksg(lusl18->shifr)) // стоит другой КСГ
-            lrec := hu->(recno())
-            exit
-          endif
+
+        lalias := create_name_alias('lusl', lyear)
+        dbSelectArea(lalias)
+        find (lshifr) // длина lshifr 10 знаков
+        if found() .and. (eq_any(left(lshifr, 5), code_services_VMP(lyear)) .or. is_ksg((lalias)->shifr))
+          lrec := hu->(recno())
+          exit
         endif
+
+        // if lyear == 2023 // add 01.03.23
+        //   select LUSL
+        //   find (lshifr) // длина lshifr 10 знаков
+        //   if found() .and. (eq_any(left(lshifr, 5), '1.22.') .or. is_ksg(lusl->shifr)) // стоит другой КСГ
+        //     lrec := hu->(recno())
+        //     exit
+        //   endif
+        // elseif lyear == 2022 // add 11.02.22
+        //   select LUSL22
+        //   find (lshifr) // длина lshifr 10 знаков
+        //   if found() .and. (eq_any(left(lshifr, 5), '1.21.') .or. is_ksg(lusl->shifr)) // стоит другой КСГ
+        //     lrec := hu->(recno())
+        //     exit
+        //   endif
+        // elseif lyear == 2021 // add 07.02.21
+        //   select LUSL21
+        //   find (lshifr) // длина lshifr 10 знаков
+        //   if found() .and. (eq_any(left(lshifr, 5), '1.20.') .or. is_ksg(lusl->shifr)) // стоит другой КСГ
+        //     lrec := hu->(recno())
+        //     exit
+        //   endif
+        // elseif lyear > 2019
+        //   select LUSL20
+        //   find (lshifr) // длина lshifr 10 знаков
+        //   if found() .and. (eq_any(left(lshifr, 5), '1.12.') .or. is_ksg(lusl->shifr)) // стоит другой КСГ
+        //     lrec := hu->(recno())
+        //     exit
+        //   endif
+        // elseif lyear > 2018
+        //   select LUSL19
+        //   find (lshifr) // длина lshifr 10 знаков
+        //   if found() .and. (eq_any(left(lshifr, 5), '1.12.') .or. is_ksg(lusl19->shifr)) // стоит другой КСГ
+        //     lrec := hu->(recno())
+        //     exit
+        //   endif
+        // else
+        //   select LUSL18
+        //   find (lshifr) // длина lshifr 10 знаков
+        //   if found() .and. (eq_any(left(lshifr, 5), '1.12.') .or. is_ksg(lusl18->shifr)) // стоит другой КСГ
+        //     lrec := hu->(recno())
+        //     exit
+        //   endif
+        // endif
         select HU
         skip
       enddo

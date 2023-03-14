@@ -3382,9 +3382,14 @@ elseif x == 3
 endif
 return arr
 
-** 01.03.23
+** 14.03.23
 Function ret_kd_f14()
-  Local lshifr, mkol := 0
+  Local lshifr, mkol := 0, i
+  local arrShifr := {'1.12.', '1.13.', '1.14.', '1.15.', '1.16.', '1.17.', '1.18.'}
+
+  for i := 2020 to WORK_YEAR
+    aadd(arrShifr, code_services_VMP(i))
+  next
 
   if empty(lshifr := opr_shifr_TFOMS(usl->shifr1, usl->kod, human->k_data))
     lshifr := usl->shifr
@@ -3392,7 +3397,8 @@ Function ret_kd_f14()
   if eq_any(left(lshifr, 4), '1.7.', '1.9.') .or. left(lshifr, 5) == '1.10.' // законченный случай
     mkol := human->k_data - human->n_data
   elseif left(lshifr, 2) == '1.'  // остальные койко-дни
-    if !eq_any(left(lshifr, 5), '1.12.', '1.13.', '1.14.', '1.15.', '1.16.*', '1.17.*', '1.18.*', '1.20.*', '1.21.*', '1.22.*')  // 11.02.22
+    // if !eq_any(left(lshifr, 5), '1.12.', '1.13.', '1.14.', '1.15.', '1.16.*', '1.17.*', '1.18.*', '1.20.*', '1.21.*', '1.22.*')  // 11.02.22
+    if ascan(arrShifr, left(lshifr, 5)) == 0
       mkol := hu->kol
     endif
   endif

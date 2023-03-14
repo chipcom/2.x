@@ -174,10 +174,11 @@ Function f14tf_array()
     'Услуги, не вошедшие в 14-ю форму'}
   return arr_name
 
-** 01.03.23
+** 14.03.23
 Function f14tf_nastr(/*@*/lshifr, /*@*/lname, lyear)
   Static a_usl, a_zak_sl, syear
   Local ta := {}, i, j, k, i14 := 0, arr, shb, fl := .f., fl1 := .f., ret := {}
+  local lalias
 
   if type('apz2016') == 'A' .and. !empty(apz2016)
     // if type('is_2021') == 'L' .and. is_2021
@@ -205,7 +206,12 @@ Function f14tf_nastr(/*@*/lshifr, /*@*/lname, lyear)
     // a_usl[2,2] := {'1.12.*', '1.13.*', '1.14.*', '1.15.*', '1.16.*', '1.17.*', '1.18.*'} // исключаемые услуги 07.02.21
     // a_usl[2,2] := {'1.12.*', '1.13.*', '1.14.*', '1.15.*', '1.16.*', '1.17.*', '1.18.*', '1.20.*'} // исключаемые услуги 07.02.21
     // a_usl[2, 2] := {'1.12.*', '1.13.*', '1.14.*', '1.15.*', '1.16.*', '1.17.*', '1.18.*', '1.20.*', '1.21.*'} // исключаемые услуги 11.02.22
-    a_usl[2, 2] := {'1.12.*', '1.13.*', '1.14.*', '1.15.*', '1.16.*', '1.17.*', '1.18.*', '1.20.*', '1.21.*', '1.22.*'} // исключаемые услуги 01.03.23
+    // a_usl[2, 2] := {'1.12.*', '1.13.*', '1.14.*', '1.15.*', '1.16.*', '1.17.*', '1.18.*', '1.20.*', '1.21.*', '1.22.*'} // исключаемые услуги 01.03.23
+    a_usl[2, 2] := {'1.12.*', '1.13.*', '1.14.*', '1.15.*', '1.16.*', '1.17.*', '1.18.*'} // исключаемые услуги 01.03.23
+
+    for i := 2020 to WORK_YEAR
+      aadd(a_usl[2, 2], code_services_VMP(i))
+    next
     // дневной стационар при стационаре
     a_usl[3, 1] := {'55.1.1', '55.1.4', '55.1.5', '55.2.*', '55.5.*', '55.8.*', '60.2.9'}
     a_usl[3, 2] := {}
@@ -238,36 +244,48 @@ Function f14tf_nastr(/*@*/lshifr, /*@*/lname, lyear)
   if select('LUSL') == 0
     Use_base('lusl')
   endif
-  select LUSL
+  lalias := create_name_alias('lusl', lyear)
+  // select LUSL
+  dbSelectArea(lalias)
   find (padr(lshifr, 10))
   if found()
-    lname := lusl->name  // наименование услуги из справочника ТФОМС
+    // lname := lusl->name  // наименование услуги из справочника ТФОМС
+    lname := (lalias)->name  // наименование услуги из справочника ТФОМС
   endif
-  if lyear == 2023
-    if is_ksg(lshifr, 1) .or. left(lshifr, 5) == '1.22.' .or. left(lshifr, 7) == '60.10.3' .or. left(lshifr, 7) == '60.3.4'  // 29.12.22
-      return {{2, -1, i14}}
-    elseif is_ksg(lshifr, 2) // КСГ дневного стационара
-      return {{3, -1, i14}}
-    endif
-  elseif lyear == 2022
-    if is_ksg(lshifr, 1) .or. left(lshifr, 5) == '1.21.' .or. left(lshifr, 7) == '60.10.3' .or. left(lshifr, 7) == '60.3.4'  // 17.07.22 11.02.22
-      return {{2, -1, i14}}
-    elseif is_ksg(lshifr, 2) // КСГ дневного стационара
-      return {{3, -1, i14}}
-    endif
-  elseif lyear == 2021
-    if is_ksg(lshifr, 1) .or. left(lshifr, 5) == '1.20.'  // 07.02.21
-      return {{2, -1, i14}}
-    elseif is_ksg(lshifr, 2) // КСГ дневного стационара
-      return {{3, -1, i14}}
-    endif
-  else
-    if is_ksg(lshifr, 1) .or. left(lshifr, 5) == '1.12.'
-      return {{2, -1, i14}}
-    elseif is_ksg(lshifr, 2) // КСГ дневного стационара
-      return {{3, -1, i14}}
-    endif
+
+  if is_ksg(lshifr, 1) .or. left(lshifr, 5) == code_services_VMP(lyear) .or. left(lshifr, 7) == '60.10.3' .or. left(lshifr, 7) == '60.3.4'  // 29.12.22
+    return {{2, -1, i14}}
+  elseif is_ksg(lshifr, 2) // КСГ дневного стационара
+    return {{3, -1, i14}}
   endif
+
+
+  // if lyear == 2023
+  //   if is_ksg(lshifr, 1) .or. left(lshifr, 5) == '1.22.' .or. left(lshifr, 7) == '60.10.3' .or. left(lshifr, 7) == '60.3.4'  // 29.12.22
+  //     return {{2, -1, i14}}
+  //   elseif is_ksg(lshifr, 2) // КСГ дневного стационара
+  //     return {{3, -1, i14}}
+  //   endif
+  // elseif lyear == 2022
+  //   if is_ksg(lshifr, 1) .or. left(lshifr, 5) == '1.21.' .or. left(lshifr, 7) == '60.10.3' .or. left(lshifr, 7) == '60.3.4'  // 17.07.22 11.02.22
+  //     return {{2, -1, i14}}
+  //   elseif is_ksg(lshifr, 2) // КСГ дневного стационара
+  //     return {{3, -1, i14}}
+  //   endif
+  // elseif lyear == 2021
+  //   if is_ksg(lshifr, 1) .or. left(lshifr, 5) == '1.20.'  // 07.02.21
+  //     return {{2, -1, i14}}
+  //   elseif is_ksg(lshifr, 2) // КСГ дневного стационара
+  //     return {{3, -1, i14}}
+  //   endif
+  // else
+  //   if is_ksg(lshifr, 1) .or. left(lshifr, 5) == '1.12.'
+  //     return {{2, -1, i14}}
+  //   elseif is_ksg(lshifr, 2) // КСГ дневного стационара
+  //     return {{3, -1, i14}}
+  //   endif
+  // endif
+
   // включаемые услуги
   for j := 1 to len(a_usl)
     for i := 1 to len(a_usl[j, 1])

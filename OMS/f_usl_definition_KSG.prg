@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-** 13.03.23 определить КСГ для 1 пациента из режима редактирования услуг
+** 14.03.23 определить КСГ для 1 пациента из режима редактирования услуг
 Function f_usl_definition_KSG(lkod, k_data2, lDoubleSluch)
   Local arr, buf := save_maxrow(), lshifr, lrec, lu_kod, lcena, not_ksg := .t., ;
         mrec_hu, tmp_rec := 0, tmp_select := select(), is_usl1 := .f., ;
