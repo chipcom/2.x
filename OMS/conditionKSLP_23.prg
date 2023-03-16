@@ -33,7 +33,7 @@ function conditionKSLP_3_23(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_di
     // Не применяется при госпитализации на профильные геронтологические койки.
    return conditionKSLP_3_22(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration)
 
-** 06.02.23 проверка условия для применения КСЛП=19 для 2023 года
+** 16.03.23 проверка условия для применения КСЛП=19 для 2023 года
 function conditionKSLP_19_23(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration)
   local fl := .f.
 
@@ -56,9 +56,10 @@ function conditionKSLP_19_23(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_d
     // Все случаи с применением КСЛП19 подлежат обязательной МЭЭ и при
     // необходимости ЭКМП.
   
-   return fl
+  fl := .t. // пока так
+  return fl 
 
-** 06.02.23 проверка условия для применения КСЛП=20 для 2023 года
+** 16.03.23 проверка условия для применения КСЛП=20 для 2023 года
 function conditionKSLP_20_23(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration)
   local fl := .f.
 
@@ -71,4 +72,6 @@ function conditionKSLP_20_23(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_d
     // соответствующими клиническими рекомендациями, в рамках госпитализаций
     // в стационарных условиях по КСГ st19.084-st19.089, st19.094-st19.102,
     // st19.125-st19.143. 
-   return fl
+
+  fl := .t. // пока так
+  return fl
