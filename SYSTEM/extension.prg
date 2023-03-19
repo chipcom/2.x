@@ -90,7 +90,7 @@ function aliasIsAlreadyUse(cAlias)
   select(save_sel)
   return we_opened_it
 
-** 13.03.23 
+** 18.03.23 
 Function create_name_alias(cVarAlias, in_date)
   *** cVarAlias - строка с начальными символами алиаса
   *** in_date - дата на которую необходимо сформировать алиас
@@ -99,18 +99,22 @@ Function create_name_alias(cVarAlias, in_date)
   // проверим входные параметры
   if valtype(in_date) == 'D'
     valYear := year(in_date)
-  elseif valtype(in_date) == 'N' .and. in_date > 2010 .and. in_date <= WORK_YEAR
+  elseif valtype(in_date) == 'N' .and. in_date >= 2018 .and. in_date < WORK_YEAR
     valYear := in_date
   else
     return ret
   endif
 
-  // if valYear != WORK_YEAR .and. (WORK_YEAR - valYear) <= 5  // если рабочий год отличается от установленного в настройках
-  if valYear != WORK_YEAR .and. (valYear > 2018)  // если рабочий год отличается от установленного в настройках
-    ret += substr(str(valYear, 4), 3)
-  elseif valYear < 2018
-    ret += '18'
+  if   ((valYear == WORK_YEAR) .or. (valYear < 2018))
+    return ret
   endif
+
+  // if valYear != WORK_YEAR .and. (WORK_YEAR - valYear) <= 5  // если рабочий год отличается от установленного в настройках
+  // if valYear != WORK_YEAR .and. (valYear > 2018)  // если рабочий год отличается от установленного в настройках
+    ret += substr(str(valYear, 4), 3)
+  // elseif valYear < 2018
+    // ret += '18'
+  // endif
   return ret
 
 // 04.11.21

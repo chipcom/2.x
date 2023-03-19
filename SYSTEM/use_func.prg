@@ -5,101 +5,30 @@
 #include 'chip_mo.ch'
 
 ** 31.01.17
-Function R_Use_base(sBase, lalias)
-  return use_base(sBase, lalias, , .t.)
+Function R_Use_base(sBase, lAlias)
+  return use_base(sBase, lAlias, , .t.)
 
-** 12.03.23
+** 18.03.23 закрывает алиасы для lusl, luslc и luslf
 function close_use_base(sBase)
   local countYear, lAlias
 
-  sBase := lower(sBase) // проверим, что алиас открыт и выйдем если нет
+  sBase := lower(sBase) // проверим, что алиас открыт и выйдем если нет, пока lusl, luslc, luslf
+  if ! substr(sBase, 1, 4) == 'lusl'
+    return nil
+  endif
   if select(sBase) == 0
     return nil
   endif
-  do case
-    case sBase == 'lusl'
-      for countYear := 2018 to WORK_YEAR
-        lAlias := sBase + iif(countYear == WORK_YEAR, '', substr(str(countYear, 4), 3))
-        if exists_file_TFOMS(countYear, 'usl')
-          if (lAlias)->(used())
-            (lAlias)->(dbCloseArea())
-          endif
-        endif
-      next
 
-      // if lusl18->(used())
-      //   lusl18->(dbCloseArea())
-      // endif
-      // if lusl19->(used())
-      //   lusl19->(dbCloseArea())
-      // endif
-      // if lusl20->(used())
-      //   lusl20->(dbCloseArea())
-      // endif
-      // if lusl21->(used())
-      //   lusl21->(dbCloseArea())
-      // endif
-      // if lusl22->(used())
-      //   lusl22->(dbCloseArea())
-      // endif
-      // if lusl->(used())
-      //   lusl->(dbCloseArea())
-      // endif
-    case sBase == 'luslc'
-      for countYear := 2018 to WORK_YEAR
-        lAlias := sBase + iif(countYear == WORK_YEAR, '', substr(str(countYear, 4), 3))
-        if exists_file_TFOMS(countYear, 'uslc')
-          if (lAlias)->(used())
-            (lAlias)->(dbCloseArea())
-          endif
-        endif
-      next
-      // if luslc18->(used())
-      //   luslc18->(dbCloseArea())
-      // endif
-      // if luslc19->(used())
-      //   luslc19->(dbCloseArea())
-      // endif
-      // if luslc20->(used())
-      //   luslc20->(dbCloseArea())
-      // endif
-      // if luslc21->(used())
-      //   luslc21->(dbCloseArea())
-      // endif
-      // if luslc22->(used())
-      //   luslc22->(dbCloseArea())
-      // endif
-      // if luslc->(used())
-      //   luslc->(dbCloseArea())
-      // endif
-    case sBase == 'luslf'
-      for countYear := 2018 to WORK_YEAR
-        lAlias := sBase + iif(countYear == WORK_YEAR, '', substr(str(countYear, 4), 3))
-        if exists_file_TFOMS(countYear, 'uslf')
-          if (lAlias)->(used())
-            (lAlias)->(dbCloseArea())
-          endif
-        endif
-      next
-      // if luslf18->(used())
-      //   luslf18->(dbCloseArea())
-      // endif
-      // if luslf19->(used())
-      //   luslf19->(dbCloseArea())
-      // endif
-      // if luslf20->(used())
-      //   luslf20->(dbCloseArea())
-      // endif
-      // if luslf21->(used())
-      //   luslf21->(dbCloseArea())
-      // endif
-      // if luslf22->(used())
-      //   luslf22->(dbCloseArea())
-      // endif
-      // if luslf->(used())
-      //   luslf->(dbCloseArea())
-      // endif
-    endcase
+  for countYear := 2018 to WORK_YEAR
+    lAlias := sBase + iif(countYear == WORK_YEAR, '', substr(str(countYear, 4), 3))
+    // if exists_file_TFOMS(countYear, 'usl')
+    if exists_file_TFOMS(countYear, substr(sBase, 2))
+      if (lAlias)->(used())
+        (lAlias)->(dbCloseArea())
+      endif
+    endif
+  next
   return nil
 
 ** 12.03.23
@@ -147,8 +76,8 @@ function existsNSIfile(sbase, vYear)
   return fl
 
 
-** 12.03.23
-Function use_base(sBase, lalias, lExcluUse, lREADONLY)
+** 18.03.23
+Function use_base(sBase, lAlias, lExcluUse, lREADONLY)
   Local fl := .t., sind1, sind2
   local fname, fname_add
   local countYear
@@ -159,8 +88,11 @@ Function use_base(sBase, lalias, lExcluUse, lREADONLY)
       for countYear := 2018 to WORK_YEAR
         if exists_file_TFOMS(countYear, 'usl')
           fName := prefixFileRefName(countYear) + substr(sbase, 2)
-          lalias := sBase + iif(countYear == WORK_YEAR, '', substr(str(countYear, 4), 3))
-          R_Use(exe_dir + fName, cur_dir + fName, lalias)
+          // lAlias := sBase + iif(countYear == WORK_YEAR, '', substr(str(countYear, 4), 3))
+          lAlias := create_name_alias(sBase, countYear)          
+          if ! (lAlias)->(used())
+            R_Use(exe_dir + fName, cur_dir + fName, lAlias)
+          endif
         endif
       next
       // fl := R_Use(exe_dir + '_mo8usl', cur_dir + '_mo8usl', sBase + '18') .and. ;
@@ -174,8 +106,10 @@ Function use_base(sBase, lalias, lExcluUse, lREADONLY)
         if exists_file_TFOMS(countYear, 'uslc')
           fName := prefixFileRefName(countYear) + substr(sbase, 2)
           fname_add := prefixFileRefName(countYear) + substr(sbase, 2, 3) + 'u'
-          lalias := sBase + iif(countYear == WORK_YEAR, '', substr(str(countYear, 4), 3))
-          R_Use(exe_dir + fName, {cur_dir + fName, cur_dir + fName_add}, lalias)
+          lAlias := sBase + iif(countYear == WORK_YEAR, '', substr(str(countYear, 4), 3))
+          if ! (lAlias)->(used())
+            R_Use(exe_dir + fName, {cur_dir + fName, cur_dir + fName_add}, lAlias)
+          endif
         endif
       next
       // fl := R_Use(exe_dir + '_mo8uslc', {cur_dir + '_mo8uslc', cur_dir + '_mo8uslu'}, sBase + '18') .and. ;
@@ -188,8 +122,10 @@ Function use_base(sBase, lalias, lExcluUse, lREADONLY)
       for countYear := 2018 to WORK_YEAR
         if exists_file_TFOMS(countYear, 'uslf')
           fName := prefixFileRefName(countYear) + substr(sbase, 2)
-          lalias := sBase + iif(countYear == WORK_YEAR, '', substr(str(countYear, 4), 3))
-          R_Use(exe_dir + fName, cur_dir + fName, lalias)
+          lAlias := sBase + iif(countYear == WORK_YEAR, '', substr(str(countYear, 4), 3))
+          if ! (lAlias)->(used())
+            R_Use(exe_dir + fName, cur_dir + fName, lAlias)
+          endif
         endif
       next
       // fl := R_Use(exe_dir + '_mo8uslf', cur_dir + '_mo8uslf', sBase + '18') .and. ;
@@ -199,30 +135,30 @@ Function use_base(sBase, lalias, lExcluUse, lREADONLY)
       //   R_Use(exe_dir + '_mo2uslf', cur_dir + '_mo2uslf', sBase + '22') .and. ;
       //   R_Use(exe_dir + '_mo3uslf', cur_dir + '_mo3uslf', sBase)
     case sBase == 'organiz'
-      DEFAULT lalias TO 'ORG'
-      fl := G_Use(dir_server + 'organiz', , lalias, , lExcluUse, lREADONLY)
+      DEFAULT lAlias TO 'ORG'
+      fl := G_Use(dir_server + 'organiz', , lAlias, , lExcluUse, lREADONLY)
     case sBase == 'komitet'
-      if (fl := G_Use(dir_server + 'komitet', , lalias, , lExcluUse, lREADONLY))
+      if (fl := G_Use(dir_server + 'komitet', , lAlias, , lExcluUse, lREADONLY))
         index on str(kod, 2) to (cur_dir + 'tmp_komi')
       endif
     case sBase == 'str_komp'
-      if (fl := G_Use(dir_server + 'str_komp', , lalias, , lExcluUse, lREADONLY))
+      if (fl := G_Use(dir_server + 'str_komp', , lAlias, , lExcluUse, lREADONLY))
         index on str(kod, 2) to (cur_dir + 'tmp_strk')
       endif
     case sBase == 'mo_pers'
-      DEFAULT lalias TO 'P2'
-      fl := G_Use(dir_server + 'mo_pers',dir_server + 'mo_pers', lalias, , lExcluUse, lREADONLY)
+      DEFAULT lAlias TO 'P2'
+      fl := G_Use(dir_server + 'mo_pers',dir_server + 'mo_pers', lAlias, , lExcluUse, lREADONLY)
     case sBase == 'mo_su'
-      DEFAULT lalias TO 'MOSU'
+      DEFAULT lAlias TO 'MOSU'
       fl := G_Use(dir_server + 'mo_su', {dir_server + 'mo_su', ;
                                     dir_server + 'mo_sush', ;
-                                    dir_server + 'mo_sush1'}, lalias, , lExcluUse, lREADONLY)
+                                    dir_server + 'mo_sush1'}, lAlias, , lExcluUse, lREADONLY)
     case sBase == 'uslugi'
-      DEFAULT lalias TO 'USL'
+      DEFAULT lAlias TO 'USL'
       fl := G_Use(dir_server + 'uslugi', {dir_server + 'uslugi', ;
                                     dir_server + 'uslugish', ;
                                     dir_server + 'uslugis1', ;
-                                    dir_server + 'uslugisl'}, lalias, , lExcluUse, lREADONLY)
+                                    dir_server + 'uslugisl'}, lAlias, , lExcluUse, lREADONLY)
     case sBase == 'kartotek'
       fl := G_Use(dir_server + 'kartote_', ,'KART_', , lExcluUse, lREADONLY) .and. ;
           G_Use(dir_server + 'kartote2', ,'KART2', , lExcluUse, lREADONLY) .and. ;
@@ -236,7 +172,7 @@ Function use_base(sBase, lalias, lExcluUse, lREADONLY)
         set relation to recno() into KART_, to recno() into KART2
       endif
     case sBase == 'human'
-      DEFAULT lalias TO 'HUMAN'
+      DEFAULT lAlias TO 'HUMAN'
       fl := G_Use(dir_server + 'human_', ,'HUMAN_', , lExcluUse, lREADONLY) .and. ;
           G_Use(dir_server + 'human_2', ,'HUMAN_2', , lExcluUse, lREADONLY) .and. ;
           G_Use(dir_server + 'human', {dir_server + 'humank', ;
@@ -244,44 +180,44 @@ Function use_base(sBase, lalias, lExcluUse, lREADONLY)
                                     dir_server + 'humann', ;
                                     dir_server + 'humand', ;
                                     dir_server + 'humano', ;
-                                    dir_server + 'humans'}, lalias, , lExcluUse, lREADONLY)
+                                    dir_server + 'humans'}, lAlias, , lExcluUse, lREADONLY)
       if fl
         set relation to recno() into HUMAN_, to recno() into HUMAN_2
       endif
     case sBase == 'human_im'
-      DEFAULT lalias TO 'IMPL'
-      fl := G_Use(dir_server + 'human_im', dir_server + 'human_im', lalias, , lExcluUse, lREADONLY)
+      DEFAULT lAlias TO 'IMPL'
+      fl := G_Use(dir_server + 'human_im', dir_server + 'human_im', lAlias, , lExcluUse, lREADONLY)
     case sBase == 'human_u'
-      DEFAULT lalias TO 'HU'
+      DEFAULT lAlias TO 'HU'
       fl := G_Use(dir_server + 'human_u_', ,'HU_', , lExcluUse, lREADONLY) .and. ;
           G_Use(dir_server + 'human_u', {dir_server + 'human_u', ;
                                       dir_server + 'human_uk', ;
                                       dir_server + 'human_ud', ;
                                       dir_server + 'human_uv', ;
-                                      dir_server + 'human_ua'}, lalias, , lExcluUse, lREADONLY)
+                                      dir_server + 'human_ua'}, lAlias, , lExcluUse, lREADONLY)
       if fl
         set relation to recno() into HU_
       endif
     case sBase == 'mo_hu'
-      DEFAULT lalias TO 'MOHU'
+      DEFAULT lAlias TO 'MOHU'
       fl := G_Use(dir_server + 'mo_hu', {dir_server + 'mo_hu', ;
                                     dir_server + 'mo_huk', ;
                                     dir_server + 'mo_hud', ;
                                     dir_server + 'mo_huv', ;
-                                    dir_server + 'mo_hua'}, lalias, , lExcluUse, lREADONLY)
+                                    dir_server + 'mo_hua'}, lAlias, , lExcluUse, lREADONLY)
     case sBase == 'mo_dnab'
-      DEFAULT lalias TO 'DN'
-      fl := G_Use(dir_server + 'mo_dnab',dir_server + 'mo_dnab', lalias, , lExcluUse, lREADONLY)
+      DEFAULT lAlias TO 'DN'
+      fl := G_Use(dir_server + 'mo_dnab',dir_server + 'mo_dnab', lAlias, , lExcluUse, lREADONLY)
     case sBase == 'mo_hdisp'
-      DEFAULT lalias TO 'HDISP'
-      fl := G_Use(dir_server + 'mo_hdisp',dir_server + 'mo_hdisp', lalias, , lExcluUse, lREADONLY)
+      DEFAULT lAlias TO 'HDISP'
+      fl := G_Use(dir_server + 'mo_hdisp',dir_server + 'mo_hdisp', lAlias, , lExcluUse, lREADONLY)
     case sBase == 'schet'
-      DEFAULT lalias TO 'SCHET'
+      DEFAULT lAlias TO 'SCHET'
       fl := G_Use(dir_server + 'schet_', ,'SCHET_', , lExcluUse, lREADONLY) .and. ;
           G_Use(dir_server + 'schet', {dir_server + 'schetk', ;
                                     dir_server + 'schetn', ;
                                     dir_server + 'schetp', ;
-                                    dir_server + 'schetd'}, lalias, , lExcluUse, lREADONLY)
+                                    dir_server + 'schetd'}, lAlias, , lExcluUse, lREADONLY)
       if fl
         set relation to recno() into SCHET_
       endif
@@ -293,26 +229,26 @@ Function use_base(sBase, lalias, lExcluUse, lREADONLY)
     case sBase == 'humanst'
       fl := G_Use(dir_server + 'humanst',dir_server + 'humanst', ,, lExcluUse, lREADONLY)
     case sBase == 'mo_pp'
-      DEFAULT lalias TO 'HU'
+      DEFAULT lAlias TO 'HU'
       fl := G_Use(dir_server + 'mo_pp', {dir_server + 'mo_pp_k', ;
                                     dir_server + 'mo_pp_d', ;
                                     dir_server + 'mo_pp_r', ;
                                     dir_server + 'mo_pp_i', ;
-                                    dir_server + 'mo_pp_h'}, lalias, , lExcluUse, lREADONLY)
+                                    dir_server + 'mo_pp_h'}, lAlias, , lExcluUse, lREADONLY)
     case sBase == 'hum_p'
-      DEFAULT lalias TO 'HU'
+      DEFAULT lAlias TO 'HU'
       fl := G_Use(dir_server + 'hum_p', {dir_server + 'hum_pkk', ;
                                     dir_server + 'hum_pn', ;
                                     dir_server + 'hum_pd', ;
                                     dir_server + 'hum_pv', ;
-                                    dir_server + 'hum_pc'}, lalias, , lExcluUse, lREADONLY)
+                                    dir_server + 'hum_pc'}, lAlias, , lExcluUse, lREADONLY)
     case sBase == 'hum_p_u'
-      DEFAULT lalias TO 'HU'
+      DEFAULT lAlias TO 'HU'
       fl := G_Use(dir_server + 'hum_p_u', {dir_server + 'hum_p_u', ;
                                       dir_server + 'hum_p_uk', ;
                                       dir_server + 'hum_p_ud', ;
                                       dir_server + 'hum_p_uv', ;
-                                      dir_server + 'hum_p_ua'}, lalias, , lExcluUse, lREADONLY)
+                                      dir_server + 'hum_p_ua'}, lAlias, , lExcluUse, lREADONLY)
     case sBase == 'hum_ort'
       fl := G_Use(dir_server + 'hum_ort', {dir_server + 'hum_ortk', ;
                                       dir_server + 'hum_ortn', ;
@@ -331,30 +267,30 @@ Function use_base(sBase, lalias, lExcluUse, lREADONLY)
     case sBase == 'kas_pl'
       fl := G_Use(dir_server + 'kas_pl', {dir_server + 'kas_pl1', ;
                                      dir_server + 'kas_pl2', ;
-                                     dir_server + 'kas_pl3'}, lalias, , lExcluUse, lREADONLY)
+                                     dir_server + 'kas_pl3'}, lAlias, , lExcluUse, lREADONLY)
     case sBase == 'kas_pl_u'
       fl := G_Use(dir_server + 'kas_pl_u', {dir_server + 'kas_pl1u', ;
-                                       dir_server + 'kas_pl2u'}, lalias, , lExcluUse, lREADONLY)
+                                       dir_server + 'kas_pl2u'}, lAlias, , lExcluUse, lREADONLY)
     case sBase == 'kas_ort'
       fl := G_Use(dir_server + 'kas_ort', {dir_server + 'kas_ort1', ;
                                       dir_server + 'kas_ort2', ;
                                       dir_server + 'kas_ort3', ;
                                       dir_server + 'kas_ort4', ;
-                                      dir_server + 'kas_ort5'}, lalias, , lExcluUse, lREADONLY)
+                                      dir_server + 'kas_ort5'}, lAlias, , lExcluUse, lREADONLY)
     case sBase == 'kas_ortu'
       fl := G_Use(dir_server + 'kas_ortu', {dir_server + 'kas_or1u', ;
-                                       dir_server + 'kas_or2u'}, lalias, , lExcluUse, lREADONLY)
+                                       dir_server + 'kas_or2u'}, lAlias, , lExcluUse, lREADONLY)
     case sBase == 'mo_kekh'
-      DEFAULT lalias TO 'HU'
-      fl := G_Use(dir_server + 'mo_kekh',dir_server + 'mo_kekh', lalias, , lExcluUse, lREADONLY)
+      DEFAULT lAlias TO 'HU'
+      fl := G_Use(dir_server + 'mo_kekh',dir_server + 'mo_kekh', lAlias, , lExcluUse, lREADONLY)
     case sBase == 'mo_keke'
-      DEFAULT lalias TO 'EKS'
+      DEFAULT lAlias TO 'EKS'
       fl := G_Use(dir_server + 'mo_keke', {dir_server + 'mo_keket', ;
                                       dir_server + 'mo_kekee', ;
-                                      dir_server + 'mo_keked'}, lalias, , lExcluUse, lREADONLY)
+                                      dir_server + 'mo_keked'}, lAlias, , lExcluUse, lREADONLY)
     case sBase == 'mo_kekez'
-      DEFAULT lalias TO 'EKSZ'
-      fl := G_Use(dir_server + 'mo_kekez',dir_server + 'mo_kekez', lalias, , lExcluUse, lREADONLY)
+      DEFAULT lAlias TO 'EKSZ'
+      fl := G_Use(dir_server + 'mo_kekez',dir_server + 'mo_kekez', lAlias, , lExcluUse, lREADONLY)
     case sBase == 'lusld'
       fl := R_Use(exe_dir+'_mo_usld',cur_dir + '_mo_usld',sBase)
   endcase
@@ -414,10 +350,10 @@ Function Add1Rec(n, lExcluUse)
   return NIL
 
 ** 11.04.18 выравнивание вторичного файла базы данных до первичного
-Function dbf_equalization(lalias, lkod)
+Function dbf_equalization(lAlias, lkod)
   Local fl := .t.
 
-  dbSelectArea(lalias)
+  dbSelectArea(lAlias)
   do while lastrec() < lkod
     do while .t.
       APPEND BLANK
