@@ -1,4 +1,4 @@
-***** mo_init.prg
+** mo_init.prg
 #include "set.ch"
 #include "inkey.ch"
 #include "dbstruct.ch"
@@ -715,9 +715,7 @@ Public mm_reason_annul := {; // список причин не госпитализации пациента
 rest_box(buf)
 return NIL
 
-*
-
-***** 05.05.19 инициализация программы
+** 05.05.19 инициализация программы
 Function Init_Program()
 Public mm_kdp2 := {{"в МО",0},{"КДП2",1},{"РДЛ ",2}}
 Public mm_vokod := {{"в МО ",0},{"ВОКОД",3}}
@@ -1161,7 +1159,7 @@ Init_Program_old_func()
 return NIL
 
 
-***** 27.01.18 инициализация программы
+** 27.01.18 инициализация программы
 Function Init_Program_old_func()
 // диспансеризация взрослого населения 2013 год
 Public dvn_arr_usl13 := {; // Услуги на экран для ввода
@@ -1418,9 +1416,7 @@ aadd(nper_arr_1_etap, {0,0,17,;
                       "ООУ и ОУ НПО, ВПО, СОУ"})
 return NIL
 
-*
-
-***** 09.06.15 функция проверки лицензии на диспансеризацию/профилактику
+** 09.06.15 функция проверки лицензии на диспансеризацию/профилактику
 Function license_for_dispans(_tip,_n_data,_ta)
 // список учреждений с датой лицензии на диспансеризацию
 Static arr_date_disp := {;
@@ -1532,9 +1528,7 @@ else
 endif
 return NIL
 
-*
-
-***** 25.08.13 если услуга из 1 этапа
+** 25.08.13 если услуга из 1 этапа
 Function is_issled_PerN(ausl,_period,arr,_pol)
 // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
 Local i, s := "", fl := .f., lshifr := alltrim(ausl[1])
@@ -1556,9 +1550,7 @@ if fl .and. nper_arr_issled[i,4] < 2
 endif
 return fl
 
-*
-
-***** 19.08.13 если услуга из 1 этапа
+** 19.08.13 если услуга из 1 этапа
 Function is_1_etap_PredN(ausl,_period,_etap)
 // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
 Local i, s, fl := .f., lshifr := alltrim(ausl[1])
@@ -1579,7 +1571,7 @@ if fl
 endif
 return fl
 
-***** 13.02.17
+** 13.02.17
 Function is_osmotr_PredN(ausl,_period,arr,_etap,_pol)
 // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
 Local i, s, fl := .f., lshifr := alltrim(ausl[1])
@@ -1616,7 +1608,7 @@ if fl
 endif
 return fl
 
-***** 19.08.13
+** 19.08.13
 Function is_issled_PredN(ausl,_period,arr,_pol)
 // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
 Local i, s := "", fl := .f., lshifr := alltrim(ausl[1])
@@ -1644,9 +1636,7 @@ if fl .and. npred_arr_issled[i,4] < 2
 endif
 return fl
 
-*
-
-***** 06.11.19 если услуга из 1 этапа
+** 06.11.19 если услуга из 1 этапа
 Function is_1_etap_PN(ausl,_period,_etap)
 // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
 Local i, j, s, fl := .f., fl_profil := .f., lshifr := alltrim(ausl[1])
@@ -1681,7 +1671,7 @@ if fl
 endif
 return fl
 
-***** 06.11.19
+** 06.11.19
 Function is_osmotr_PN(ausl,_period,arr,_etap,_pol)
 // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
 Local i, j, s, fl := .f., fl_profil := .f., lshifr := alltrim(ausl[1])
@@ -1729,7 +1719,7 @@ if fl
 endif
 return fl
 
-***** 28.01.18
+** 28.01.18
 Function is_issled_PN(ausl,_period,arr,_pol)
 // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
 Local i, j, s := "", fl := .f., lshifr := alltrim(ausl[1])
@@ -1756,9 +1746,7 @@ if fl .and. np_arr_issled[i,4] < 2
 endif
 return fl
 
-*
-
-***** 14.02.16 если услуга из 1 этапа
+** 14.02.16 если услуга из 1 этапа
 Function is_1_etap_PN_17(ausl,_period,_etap)
 // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
 Local i, s, fl := .f., lshifr := alltrim(ausl[1])
@@ -1782,7 +1770,7 @@ if fl
 endif
 return fl
 
-***** 14.02.16
+** 14.02.16
 Function is_osmotr_PN_17(ausl,_period,arr,_etap,_pol)
 // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
 Local i, s, fl := .f., lshifr := alltrim(ausl[1])
@@ -1815,7 +1803,7 @@ if fl
 endif
 return fl
 
-***** 02.03.16
+** 02.03.16
 Function is_issled_PN_17(ausl,_period,arr,_pol)
 // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
 Local i, j, s := "", fl := .f., lshifr := alltrim(ausl[1])
@@ -1839,9 +1827,7 @@ if fl .and. np_arr_issled_17[i,4] < 2
 endif
 return fl
 
-*
-
-***** 20.06.19
+** 20.06.19
 Function is_usluga_dvn(ausl,_vozrast,arr,_etap,_pol,_spec_ter)
 // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
 Local i, j, s, fl := .f., as, lshifr := alltrim(ausl[1]), fl_19
@@ -1936,9 +1922,7 @@ if !fl
 endif
 return fl
 
-*
-
-***** 18.05.15
+** 18.05.15
 Function is_usluga_dvn13(ausl,_vozrast,arr,_etap,_pol,_spec_ter)
 // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
 Local i, j, s, fl := .f., as, lshifr := alltrim(ausl[1])
@@ -2024,9 +2008,7 @@ if !fl
 endif
 return fl
 
-*
-
-***** 10.05.16 является врачебным осмотром детей-сирот на первом этапе
+** 10.05.16 является врачебным осмотром детей-сирот на первом этапе
 Function is_osmotr_DDS_1_etap(ausl,_vozrast,_etap,_pol,tip_lu)
 // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
 Local i, s, fl := .f., lshifr := alltrim(ausl[1])
@@ -2050,7 +2032,7 @@ for i := 1 to count_dds_arr_osm1
 next
 return fl
 
-***** 13.02.17 является врачебным осмотром детей-сирот
+** 13.02.17 является врачебным осмотром детей-сирот
 Function is_osmotr_DDS(ausl,_vozrast,arr,_etap,_pol,tip_lu)
 // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
 Local i, j, s, fl := .f., lshifr := alltrim(ausl[1])
@@ -2110,7 +2092,7 @@ if !fl .and. _etap == 2
 endif
 return fl
 
-***** 13.05.13 является исследованием детей-сирот
+** 13.05.13 является исследованием детей-сирот
 Function is_issl_DDS(ausl,_vozrast,arr)
 // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
   Local i, s, fl := .f., lshifr := alltrim(ausl[1])
@@ -2135,7 +2117,7 @@ Function is_issl_DDS(ausl,_vozrast,arr)
   endif
   return fl
 
-***** инициализация прочих справочников
+** инициализация прочих справочников
 Function InitSpravOthers()
 /////////////////////////////////////////////////
 // glob_katl - Классификатор кодов льгот по ДЛО
@@ -2191,7 +2173,7 @@ Function InitSpravOthers()
   return NIL
 
 
-***** 23.12.21 вернуть код план-заказа по методу ВМП
+** 23.12.21 вернуть код план-заказа по методу ВМП
 Function ret_PZ_VMP(lunit)
   Local mpztip := 0
   local sbase
