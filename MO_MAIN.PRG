@@ -20,7 +20,7 @@ DYNAMIC f1forma_792_MIAC
 DYNAMIC monitoring_vid_pom
 DYNAMIC b_25_perinat_2
 
-** 10.02.23
+** 22.03.23
 procedure main( ... )
   Local r, s, is_create := .f., is_copy := .f., is_index := .f.
   Local a_parol, buf, is_local_version
@@ -82,6 +82,42 @@ procedure main( ... )
 	// объект пользователя зарегистрировавшегося в системе
 	public hb_user_curUser := nil
 
+  Public chm_help_code := 0
+  // объект организация с которой работаем
+  public hb_main_curOrg
+
+  // перенес из index_work_dir
+  public is_otd_dep := .f., glob_otd_dep := 0, mm_otd_dep := {}
+
+  Public arr_12_VMP := {}
+  Public is_napr_pol := .f., ; // работа с направлениями на госпитализацию в п-ке
+         is_napr_stac := .f., ;  // работа с направлениями на госпитализацию в стационаре
+         glob_klin_diagn := {} // работа со специальными лабораторными исследованиями
+  Public is_MO_VMP := .f.
+  Public is_ksg_VMP := .f., is_12_VMP := .f., is_14_VMP := .f., is_ds_VMP := .f.
+  Public is_21_VMP := .f.     // ВМП для 21 года
+  Public is_22_VMP := .f.     // ВМП для 22 года
+  Public is_23_VMP := .f.     // ВМП для 23 года
+
+  // справочник цен на услуги ТФОМС 2016-2017
+  Public glob_MU_dializ := {}//'A18.05.002.001','A18.05.002.002','A18.05.002.003',;
+    //'A18.05.003','A18.05.003.001','A18.05.011','A18.30.001','A18.30.001.001'}
+  Public glob_KSG_dializ := {}//'10000901','10000902','10000903','10000905','10000906','10000907','10000913',;
+     //'20000912','20000916','20000917','20000918','20000919','20000920'}
+     //'1000901','1000902','1000903','1000905','1000906','1000907','1000913',;
+     //'2000912','2000916','2000917','2000918','2000919','2000920'}
+
+  Public is_vr_pr_pp := .f., is_hemodializ := .f., is_per_dializ := .f., ;
+    is_reabil_slux := .f., is_ksg_1300098 := .f., is_dop_ob_em := .f., glob_yes_kdp2[10], ;
+    glob_menu_mz_rf := {.f., .f., .f.}
+
+  Public is_alldializ := .f.
+
+  Public arr_t007 // массив видов профилей
+  Public glob_array_srf // массив страховых компаний
+
+  // конец переноса из index_work_dir
+
   SET(_SET_DELETED, .T.)
   SETCLEARB(' ')
   is_local_version := f_first(is_create)
@@ -109,8 +145,7 @@ procedure main( ... )
 
   index_work_dir(exe_dir, cur_dir)    // checkFilesTFOMS() переименовал
   
-  // объект организация с которой работаем
-  public hb_main_curOrg := TOrganizationDB():GetOrganization() 
+  hb_main_curOrg := TOrganizationDB():GetOrganization() 
   
   if ! hb_user_curUser:IsAdmin()  // tip_polzovat != TIP_ADM
     verify_fio_polzovat := .f.
@@ -132,8 +167,6 @@ procedure main( ... )
   //
 
   checkVersionInternet( r + 3, _version() )
-
-  Public chm_help_code := 0
 
   Init_first() // начальная инициализация программы (переменных, массивов,...)
 
