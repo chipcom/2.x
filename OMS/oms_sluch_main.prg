@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-** 21.01.23 добавление или редактирование случая (листа учета)
+** 23.03.23 добавление или редактирование случая (листа учета)
 Function oms_sluch_main(Loc_kod, kod_kartotek)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -959,9 +959,9 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
       //
       if is_MO_VMP
         @ ++j, 1 say 'ВМП?' get MVMP ;
-            reader {|x|menu_reader(x,mm_danet, A__MENUVERT, , ,.f.)} ;
-            when m1usl_ok==1 .or. (m1usl_ok==2 .and. is_ds_VMP) ;
-            valid {|g,o| f_valid_vmp(g,o) } ;
+            reader {|x|menu_reader(x, mm_danet, A__MENUVERT, , , .f.)} ;
+            when m1usl_ok == 1 ;
+            valid {|g, o| f_valid_vmp(g, o) } ;
             color colget_menu
         @ j, col() + 1 say '№ талона' get mTAL_NUM PICTURE iif(MK_DATA >= 0d20220101, newPictureTalon, oldPictureTalon) ;
             valid {|g| valid_number_talon(g, mk_data, .t.)} ;

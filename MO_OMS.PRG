@@ -174,7 +174,7 @@ endif
 select (tmp_select)
 return .t.
 
-** 01.03.23 действия в ответ на выбор в меню "Условия оказания медицинской помощи"
+** 23.03.23 действия в ответ на выбор в меню "Условия оказания медицинской помощи"
 Function f_valid_usl_ok(get, old, is_input)
   Local _y, _m, s
   DEFAULT is_input TO .t.
@@ -236,8 +236,7 @@ Function f_valid_usl_ok(get, old, is_input)
       update_get('MVNR2')
       update_get('MVNR3')
     endif
-    if !((m1usl_ok == 1 .and. (is_ksg_VMP .or. is_21_VMP .or. is_12_VMP .or. is_14_VMP .or. is_22_VMP .or. is_23_VMP)) ;
-        .or. (m1usl_ok == 2 .and. is_ds_VMP))
+    if !(m1usl_ok == 1 .and. (is_ksg_VMP .or. is_21_VMP .or. is_12_VMP .or. is_22_VMP .or. is_23_VMP))
       mvmp := 'нет'
       m1vmp := 0
       MVIDVMP := space(70)

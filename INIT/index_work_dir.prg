@@ -143,7 +143,7 @@ function files_NSI_exists(dir_file)
 
   return lRet
 
-** 22.03.23 проверка и переиндексирование справочников ТФОМС
+** 23.03.23 проверка и переиндексирование справочников ТФОМС
 Function index_work_dir(exe_dir, cur_dir, flag)
   Local fl := .t., i, arr, buf := save_maxrow()
   local arrRefFFOMS := {}, row, row_flag := .t.
@@ -158,7 +158,7 @@ Function index_work_dir(exe_dir, cur_dir, flag)
   // Public is_napr_pol := .f., ; // работа с направлениями на госпитализацию в п-ке
   //        is_napr_stac := .f., ;  // работа с направлениями на госпитализацию в стационаре
   //        glob_klin_diagn := {} // работа со специальными лабораторными исследованиями
-  // Public is_ksg_VMP := .f., is_12_VMP := .f., is_14_VMP := .f., is_ds_VMP := .f.
+  // Public is_ksg_VMP := .f., is_12_VMP := .f.
   // Public is_21_VMP := .f.     // ВМП для 21 года
   // Public is_22_VMP := .f.     // ВМП для 22 года
   // Public is_23_VMP := .f.     // ВМП для 23 года
@@ -231,8 +231,8 @@ Function index_work_dir(exe_dir, cur_dir, flag)
     // fl := it_Index(WORK_YEAR, exe_dir, cur_dir, flag)
   endif
 
-  // Public is_MO_VMP := (is_ksg_VMP .or. is_12_VMP .or. is_14_VMP .or. is_ds_VMP .or. is_21_VMP .or. is_22_VMP .or. is_23_VMP)
-  is_MO_VMP := (is_ksg_VMP .or. is_12_VMP .or. is_14_VMP .or. is_ds_VMP .or. is_21_VMP .or. is_22_VMP .or. is_23_VMP)
+  // Public is_MO_VMP := (is_ksg_VMP .or. is_12_VMP .or. is_21_VMP .or. is_22_VMP .or. is_23_VMP)
+  is_MO_VMP := (is_ksg_VMP .or. is_12_VMP .or. is_21_VMP .or. is_22_VMP .or. is_23_VMP)
 
   // справочник доплат по законченным случаям (старый справочник)
   /*sbase := '_mo_usld'

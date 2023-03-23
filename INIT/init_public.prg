@@ -11,7 +11,7 @@ function init_public()
   Public is_napr_pol := .f., ; // работа с направлениями на госпитализацию в п-ке
          is_napr_stac := .f., ;  // работа с направлениями на госпитализацию в стационаре
          glob_klin_diagn := {} // работа со специальными лабораторными исследованиями
-  Public is_ksg_VMP := .f., is_12_VMP := .f., is_14_VMP := .f., is_ds_VMP := .f.
+  Public is_ksg_VMP := .f., is_12_VMP := .f.
   Public is_21_VMP := .f.     // ВМП для 21 года
   Public is_22_VMP := .f.     // ВМП для 22 года
   Public is_23_VMP := .f.     // ВМП для 23 года
@@ -29,7 +29,7 @@ function init_public()
 
   Public is_alldializ := .f.
 
-  Public is_MO_VMP := (is_ksg_VMP .or. is_12_VMP .or. is_14_VMP .or. is_ds_VMP .or. is_21_VMP .or. is_22_VMP .or. is_23_VMP)
+  Public is_MO_VMP := (is_ksg_VMP .or. is_12_VMP .or. is_21_VMP .or. is_22_VMP .or. is_23_VMP)
 
 
   afill(glob_yes_kdp2, .f.)

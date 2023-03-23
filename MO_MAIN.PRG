@@ -20,7 +20,7 @@ DYNAMIC f1forma_792_MIAC
 DYNAMIC monitoring_vid_pom
 DYNAMIC b_25_perinat_2
 
-** 22.03.23
+** 23.03.23
 procedure main( ... )
   Local r, s, is_create := .f., is_copy := .f., is_index := .f.
   Local a_parol, buf, is_local_version
@@ -94,7 +94,7 @@ procedure main( ... )
          is_napr_stac := .f., ;  // работа с направлениями на госпитализацию в стационаре
          glob_klin_diagn := {} // работа со специальными лабораторными исследованиями
   Public is_MO_VMP := .f.
-  Public is_ksg_VMP := .f., is_12_VMP := .f., is_14_VMP := .f., is_ds_VMP := .f.
+  Public is_ksg_VMP := .f., is_12_VMP := .f.
   Public is_21_VMP := .f.     // ВМП для 21 года
   Public is_22_VMP := .f.     // ВМП для 22 года
   Public is_23_VMP := .f.     // ВМП для 23 года
