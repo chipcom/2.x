@@ -4,7 +4,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-** 01.03.23
+** 23.03.23
 Function verify_1_sluch_18(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
       i, j, k, c, s := ' ', a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -599,14 +599,30 @@ do while hu->kod == human->kod .and. !eof()
         if mdate+hu->kol_1 <= d2
           mdate_u2 := dtoc4(mdate+hu->kol_1)
         endif
-      elseif eq_any(left_lshifr_5,"1.12.","1.15.","1.16.","1.17.","1.18.")
-      // elseif eq_any(left_lshifr_5,"1.20.","1.15.","1.16.","1.17.","1.18.") // ВМП
+      // elseif eq_any(left_lshifr_5,"1.12.","1.15.","1.16.","1.17.","1.18.")
+      // // elseif eq_any(left_lshifr_5,"1.20.","1.15.","1.16.","1.17.","1.18.") // ВМП
+      //   midsp := 18 // Законченный случай в круглосуточном стационаре
+      //   kkd_1_12 += hu->kol_1
+      //   kol_ksg += hu->kol_1
+      //   hu_->PZKOL := d
+      //   if !is_12_VMP
+      //     aadd(ta,'работа с услугой '+alltrim_lshifr+' запрещена в Вашей МО')
+      //   endif
+      elseif eq_any(left_lshifr_5,"1.12.","1.15.","1.16.","1.17.","1.18.") .and. (year(human->k_data) == 2019)
         midsp := 18 // Законченный случай в круглосуточном стационаре
         kkd_1_12 += hu->kol_1
         kol_ksg += hu->kol_1
         hu_->PZKOL := d
-        if !is_12_VMP
-          aadd(ta,'работа с услугой '+alltrim_lshifr+' запрещена в Вашей МО')
+        if !is_19_VMP
+          aadd(ta, 'работа с услугой ' + alltrim_lshifr + ' запрещена в Вашей МО')
+        endif
+      elseif eq_any(left_lshifr_5,"1.12.","1.15.","1.16.","1.17.","1.18.") .and. (year(human->k_data) == 2020)
+        midsp := 18 // Законченный случай в круглосуточном стационаре
+        kkd_1_12 += hu->kol_1
+        kol_ksg += hu->kol_1
+        hu_->PZKOL := d
+        if !is_20_VMP
+          aadd(ta, 'работа с услугой ' + alltrim_lshifr + ' запрещена в Вашей МО')
         endif
       elseif eq_any(left_lshifr_5, "1.20.", "1.15.", "1.16.", "1.17.", "1.18.") // ВМП
         midsp := 18 // Законченный случай в круглосуточном стационаре
@@ -1682,7 +1698,8 @@ if human_->USL_OK == 1  // стационар
     endif
   endif
   if human_2->VMP == 1 // проверим ВМП
-    if is_12_VMP .or. is_21_VMP .or. is_22_VMP .or. is_23_VMP // ВМП по-новому 08.02.21
+    // if is_12_VMP .or. is_21_VMP .or. is_22_VMP .or. is_23_VMP // ВМП по-новому 08.02.21
+    if is_19_VMP .or. is_20_VMP .or. is_21_VMP .or. is_22_VMP .or. is_23_VMP // ВМП по-новому 08.02.21
       arrV018 := getV018(d2)
       arrV019 := getV019(d2)
       

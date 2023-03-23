@@ -25,6 +25,7 @@ procedure main( ... )
   Local r, s, is_create := .f., is_copy := .f., is_index := .f.
   Local a_parol, buf, is_local_version
   local verify_fio_polzovat := .t.
+  local cVar, i
 
   FOR EACH s IN hb_AParams() // анализ входных параметров
     s := lower(s)
@@ -94,10 +95,19 @@ procedure main( ... )
          is_napr_stac := .f., ;  // работа с направлениями на госпитализацию в стационаре
          glob_klin_diagn := {} // работа со специальными лабораторными исследованиями
   Public is_MO_VMP := .f.
-  Public is_ksg_VMP := .f., is_12_VMP := .f.
-  Public is_21_VMP := .f.     // ВМП для 21 года
-  Public is_22_VMP := .f.     // ВМП для 22 года
-  Public is_23_VMP := .f.     // ВМП для 23 года
+  // Public is_ksg_VMP := .f.
+  // Public is_12_VMP := .f.     // ВМП для 19 и 20 года
+
+  // Public is_19_VMP := .f.     // ВМП для 19 года
+  // Public is_20_VMP := .f.     // ВМП для 20 года
+  // Public is_21_VMP := .f.     // ВМП для 21 года
+  // Public is_22_VMP := .f.     // ВМП для 22 года
+  // Public is_23_VMP := .f.     // ВМП для 23 года
+  for i := 2019 to WORK_YEAR  // создадим глобальные переменные для ВМП
+    cVar := 'is_' + substr(str(i, 4), 3) + '_VMP'
+    __mvPublic(cVar)
+    __mvPut(cVar, .f.)
+  next
 
   // справочник цен на услуги ТФОМС 2016-2017
   Public glob_MU_dializ := {}//'A18.05.002.001','A18.05.002.002','A18.05.002.003',;
@@ -144,7 +154,7 @@ procedure main( ... )
   a_parol := inp_password_bay(is_local_version, is_create)
 
   index_work_dir(exe_dir, cur_dir)    // checkFilesTFOMS() переименовал
-  
+
   hb_main_curOrg := TOrganizationDB():GetOrganization() 
   
   if ! hb_user_curUser:IsAdmin()  // tip_polzovat != TIP_ADM

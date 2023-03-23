@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-** 01.03.23
+** 23.03.23
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1,;
         i, j, k, c, s := ' ', a_srok_lech := {}, a_period_stac := {}, a_disp := {},;
@@ -766,12 +766,28 @@ Function verify_1_sluch(fl_view)
           if mdate+hu->kol_1 <= d2
             mdate_u2 := dtoc4(mdate+hu->kol_1)
           endif
-        elseif left_lshifr_5 == '1.12.' // ВМП
+        // elseif left_lshifr_5 == '1.12.' // ВМП
+        //   midsp := 18 // Законченный случай в круглосуточном стационаре
+        //   kkd_1_12 += hu->kol_1
+        //   kol_ksg += hu->kol_1
+        //   hu_->PZKOL := d
+        //   if !is_12_VMP
+        //     aadd(ta, 'работа с услугой ' + alltrim_lshifr+ ' запрещена в Вашей МО')
+        //   endif
+        elseif left_lshifr_5 == '1.12.' .and. (year(human->k_data) == 2019) // ВМП
           midsp := 18 // Законченный случай в круглосуточном стационаре
           kkd_1_12 += hu->kol_1
           kol_ksg += hu->kol_1
           hu_->PZKOL := d
-          if !is_12_VMP
+          if !is_19_VMP
+            aadd(ta, 'работа с услугой ' + alltrim_lshifr+ ' запрещена в Вашей МО')
+          endif
+        elseif left_lshifr_5 == '1.12.' .and. (year(human->k_data) == 2020) // ВМП
+          midsp := 18 // Законченный случай в круглосуточном стационаре
+          kkd_1_12 += hu->kol_1
+          kol_ksg += hu->kol_1
+          hu_->PZKOL := d
+          if !is_20_VMP
             aadd(ta, 'работа с услугой ' + alltrim_lshifr+ ' запрещена в Вашей МО')
           endif
         elseif (left_lshifr_5 == '1.20.') // ВМП  // 11.02.22
@@ -2271,7 +2287,8 @@ Function verify_1_sluch(fl_view)
       endif
     next
     if human_2->VMP == 1 // проверим ВМП
-      if is_12_VMP .or. is_21_VMP .or. is_22_VMP .or. is_23_VMP  // ВМП по-новому 08.02.21
+      if is_19_VMP .or. is_20_VMP .or. is_21_VMP .or. is_22_VMP .or. is_23_VMP  // ВМП по-новому 08.02.21
+        // if is_12_VMP .or. is_21_VMP .or. is_22_VMP .or. is_23_VMP  // ВМП по-новому 08.02.21
         // if is_12_VMP  // ВМП по-новому
         if !empty(ar_1_19_1)
           aadd(ta, 'при оказании ВМП не может быть применена услуга 1.19.1')

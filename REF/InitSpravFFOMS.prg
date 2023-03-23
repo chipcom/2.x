@@ -4,15 +4,13 @@
 ** 22.03.23 инициализация справочников ФФОМС
 Function InitSpravFFOMS()
   /////////////////////////////////////////////////
-
-  // load_exists_uslugi()
   initPZarray() // инициализируем массивы планов-заказа
 
   return NIL
 
-** 22.03.23
+** 23.03.23
 function load_exists_uslugi()
-  local countYear, lAlias, var
+  local countYear, lAlias, cVar
   local cSearch
   local fname, file_index
 
@@ -133,16 +131,11 @@ function load_exists_uslugi()
       endif
   
     endif
-    if countYear == 2019 .or. countYear == 2020
-      var := 'IS_12_VMP'
-    else
-      var := 'IS_' + substr(str(countYear, 4), 3) + '_VMP'
-    endif
-
+    cVar := 'is_' + substr(str(countYear, 4), 3) + '_VMP'
     (lAlias)->(dbSelectArea())
     cSearch := glob_mo[_MO_KOD_TFOMS] + code_services_VMP(countYear)
     (lAlias)->(dbSeek(cSearch))
-    __mvPut( var, (lAlias)->(found()) )
+    __mvPut( cVar, (lAlias)->(found()) )
     (lAlias)->(dbCloseArea())
     next
   return nil

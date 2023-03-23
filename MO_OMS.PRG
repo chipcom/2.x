@@ -236,7 +236,8 @@ Function f_valid_usl_ok(get, old, is_input)
       update_get('MVNR2')
       update_get('MVNR3')
     endif
-    if !(m1usl_ok == 1 .and. (is_ksg_VMP .or. is_21_VMP .or. is_12_VMP .or. is_22_VMP .or. is_23_VMP))
+    // if !(m1usl_ok == 1 .and. (is_ksg_VMP .or. is_21_VMP .or. is_12_VMP .or. is_22_VMP .or. is_23_VMP))
+    if !(m1usl_ok == 1 .and. (is_19_VMP .or. is_20_VMP .or. is_21_VMP .or. is_22_VMP .or. is_23_VMP))
       mvmp := 'нет'
       m1vmp := 0
       MVIDVMP := space(70)

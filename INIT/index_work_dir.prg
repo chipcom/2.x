@@ -231,32 +231,11 @@ Function index_work_dir(exe_dir, cur_dir, flag)
     // fl := it_Index(WORK_YEAR, exe_dir, cur_dir, flag)
   endif
 
+  load_exists_uslugi()
+
   // Public is_MO_VMP := (is_ksg_VMP .or. is_12_VMP .or. is_21_VMP .or. is_22_VMP .or. is_23_VMP)
-  is_MO_VMP := (is_ksg_VMP .or. is_12_VMP .or. is_21_VMP .or. is_22_VMP .or. is_23_VMP)
-
-  // справочник доплат по законченным случаям (старый справочник)
-  /*sbase := '_mo_usld'
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    if files_time(exe_dir + sbase + sdbf,cur_dir + sbase+sntx)
-      R_Use(exe_dir + sbase )
-      index on shifr+dtos(datebeg) to (cur_dir + sbase)
-      use
-    endif
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif*/
-  // справочник 'услуги по законченным случаям + диагнозы'
-  /*sbase := '_mo_uslz'
-  if hb_FileExists(exe_dir + sbase + sdbf)
-    if files_time(exe_dir + sbase + sdbf,cur_dir + sbase+sntx)
-      R_Use(exe_dir + sbase )
-      index on shifr+str(type_diag,1)+kod_diag to (cur_dir + sbase)
-      use
-    endif
-  else
-    fl := notExistsFileNSI( exe_dir + sbase + sdbf )
-  endif*/
-
+  // is_MO_VMP := (is_ksg_VMP .or. is_12_VMP .or. is_21_VMP .or. is_22_VMP .or. is_23_VMP)
+  is_MO_VMP := (is_19_VMP .or. is_20_VMP .or. is_21_VMP .or. is_22_VMP .or. is_23_VMP)
 
   // Public arr_t007 := {}
   arr_t007 := {}
@@ -494,7 +473,7 @@ function usl_Index(val_year, exe_dir, cur_dir, flag)
   endif
   return nil
 
-** 14.03.23
+** 23.03.23
 function uslc_Index(val_year, exe_dir, cur_dir, flag)
   local sbase, prefix
   local index_usl_name
@@ -513,124 +492,132 @@ function uslc_Index(val_year, exe_dir, cur_dir, flag)
     index on codemo + shifr + str(vzros_reb, 1) + str(depart, 3) + dtos(datebeg) to (cur_dir + index_usl_name) ;
               for codemo == glob_mo[_MO_KOD_TFOMS] // для совместимости со старой версией справочника
   
-    if val_year == WORK_YEAR // 2020 // 2019 // 2018
-      // Медицинская реабилитация детей с нарушениями слуха без замены речевого процессора системы кохлеарной имплантации
-      find (glob_mo[_MO_KOD_TFOMS] + 'st37.015')
-      if found()
-        is_reabil_slux := found()
-      endif
+  //   if val_year == WORK_YEAR // 2020 // 2019 // 2018
+  //     // Медицинская реабилитация детей с нарушениями слуха без замены речевого процессора системы кохлеарной имплантации
+  //     find (glob_mo[_MO_KOD_TFOMS] + 'st37.015')
+  //     if found()
+  //       is_reabil_slux := found()
+  //     endif
   
-      find (glob_mo[_MO_KOD_TFOMS] + '2.') // врачебные приёмы
-      do while codemo == glob_mo[_MO_KOD_TFOMS] .and. left(shifr, 2) == '2.' .and. !eof()
-        if left(shifr, 5) == '2.82.'
-          is_vr_pr_pp := .t. // врачебный прием в приёмном отделении стационара
-          if is_napr_pol
-            exit
-          endif
-        else
-          is_napr_pol := .t.
-          if is_vr_pr_pp
-            exit
-          endif
-        endif
-        skip
-      enddo
+  //     find (glob_mo[_MO_KOD_TFOMS] + '2.') // врачебные приёмы
+  //     do while codemo == glob_mo[_MO_KOD_TFOMS] .and. left(shifr, 2) == '2.' .and. !eof()
+  //       if left(shifr, 5) == '2.82.'
+  //         is_vr_pr_pp := .t. // врачебный прием в приёмном отделении стационара
+  //         if is_napr_pol
+  //           exit
+  //         endif
+  //       else
+  //         is_napr_pol := .t.
+  //         if is_vr_pr_pp
+  //           exit
+  //         endif
+  //       endif
+  //       skip
+  //     enddo
     
-    //
-      find (glob_mo[_MO_KOD_TFOMS] + '60.3.')
-      if found()
-        is_alldializ := .t.
-      endif
-    //
-      find (glob_mo[_MO_KOD_TFOMS] + '60.3.1')
-      if found()
-        is_per_dializ := .t.
-      endif
-    //
-      find (glob_mo[_MO_KOD_TFOMS] + '60.3.9')
-      if found()
-        is_hemodializ := .t.
-      else
-        find (glob_mo[_MO_KOD_TFOMS] + '60.3.10')
-        if found()
-          is_hemodializ := .t.
-        endif
-      endif
+  //   //
+  //     find (glob_mo[_MO_KOD_TFOMS] + '60.3.')
+  //     if found()
+  //       is_alldializ := .t.
+  //     endif
+  //   //
+  //     find (glob_mo[_MO_KOD_TFOMS] + '60.3.1')
+  //     if found()
+  //       is_per_dializ := .t.
+  //     endif
+  //   //
+  //     find (glob_mo[_MO_KOD_TFOMS] + '60.3.9')
+  //     if found()
+  //       is_hemodializ := .t.
+  //     else
+  //       find (glob_mo[_MO_KOD_TFOMS] + '60.3.10')
+  //       if found()
+  //         is_hemodializ := .t.
+  //       endif
+  //     endif
   
-    //
-      find (glob_mo[_MO_KOD_TFOMS] + 'st') // койко-дни
-      if (is_napr_stac := found())
-        glob_menu_mz_rf[1] := .t.
-      endif
-    //
-      if val_year == WORK_YEAR
-        // find (glob_mo[_MO_KOD_TFOMS] + '1.22.') // ВМП 01.03.23
-        find (glob_mo[_MO_KOD_TFOMS] + code_services_VMP(val_year)) // ВМП 01.03.23
-        is_23_VMP := found()
-      elseif val_year == 2022
-        // find (glob_mo[_MO_KOD_TFOMS] + '1.21.') // ВМП 11.02.22
-        find (glob_mo[_MO_KOD_TFOMS] + code_services_VMP(val_year)) // ВМП 11.02.22
-        is_22_VMP := found()
-      elseif val_year == 2021
-        // find (glob_mo[_MO_KOD_TFOMS] + '1.20.') // ВМП 07.02.21
-        find (glob_mo[_MO_KOD_TFOMS] + code_services_VMP(val_year)) // ВМП 07.02.21
-        is_21_VMP := found()
-      elseif val_year == 2020 .or. val_year == 2019
-        // find (glob_mo[_MO_KOD_TFOMS] + '1.12.') // ВМП 2020 и 2019 года
-        find (glob_mo[_MO_KOD_TFOMS] + code_services_VMP(val_year)) // ВМП 2020 и 2019 года
-        is_12_VMP := found()
-      endif
-    //
-      find (glob_mo[_MO_KOD_TFOMS] + 'ds') // дневной стационар
-      if found()
-        if !is_napr_stac
-          is_napr_stac := .t.
-        endif
-        glob_menu_mz_rf[2] := found()
-      endif
+  //   //
+  //     find (glob_mo[_MO_KOD_TFOMS] + 'st') // койко-дни
+  //     if (is_napr_stac := found())
+  //       glob_menu_mz_rf[1] := .t.
+  //     endif
+  //   //
+  //     if val_year == WORK_YEAR
+  //       // find (glob_mo[_MO_KOD_TFOMS] + '1.22.') // ВМП 01.03.23
+  //       find (glob_mo[_MO_KOD_TFOMS] + code_services_VMP(val_year)) // ВМП 01.03.23
+  //       is_23_VMP := found()
+  //     elseif val_year == 2022
+  //       // find (glob_mo[_MO_KOD_TFOMS] + '1.21.') // ВМП 11.02.22
+  //       find (glob_mo[_MO_KOD_TFOMS] + code_services_VMP(val_year)) // ВМП 11.02.22
+  //       is_22_VMP := found()
+  //     elseif val_year == 2021
+  //       // find (glob_mo[_MO_KOD_TFOMS] + '1.20.') // ВМП 07.02.21
+  //       find (glob_mo[_MO_KOD_TFOMS] + code_services_VMP(val_year)) // ВМП 07.02.21
+  //       is_21_VMP := found()
+  //     elseif val_year == 2020
+  //       // find (glob_mo[_MO_KOD_TFOMS] + '1.12.') // ВМП 2020 года
+  //       find (glob_mo[_MO_KOD_TFOMS] + code_services_VMP(val_year)) // ВМП 2020 и 2019 года
+  //       is_20_VMP := found()
+  //     elseif val_year == 2019
+  //       // find (glob_mo[_MO_KOD_TFOMS] + '1.12.') // ВМП 2019 года
+  //       find (glob_mo[_MO_KOD_TFOMS] + code_services_VMP(val_year)) // ВМП 2020 и 2019 года
+  //       is_19_VMP := found()
+  //     // elseif val_year == 2020 .or. val_year == 2019
+  //     //   // find (glob_mo[_MO_KOD_TFOMS] + '1.12.') // ВМП 2020 и 2019 года
+  //     //   find (glob_mo[_MO_KOD_TFOMS] + code_services_VMP(val_year)) // ВМП 2020 и 2019 года
+  //     //   is_12_VMP := found()
+  //     endif
+  //   //
+  //     find (glob_mo[_MO_KOD_TFOMS] + 'ds') // дневной стационар
+  //     if found()
+  //       if !is_napr_stac
+  //         is_napr_stac := .t.
+  //       endif
+  //       glob_menu_mz_rf[2] := found()
+  //     endif
     
-    //
-      tmp_stom := {'2.78.54', '2.78.55', '2.78.56', '2.78.57', '2.78.58', '2.78.59', '2.78.60'}
-      for i := 1 to len(tmp_stom)
-        find (glob_mo[_MO_KOD_TFOMS] + tmp_stom[i]) //
-        if found()
-          glob_menu_mz_rf[3] := .t.
-          exit
-        endif
-      next
+  //   //
+  //     tmp_stom := {'2.78.54', '2.78.55', '2.78.56', '2.78.57', '2.78.58', '2.78.59', '2.78.60'}
+  //     for i := 1 to len(tmp_stom)
+  //       find (glob_mo[_MO_KOD_TFOMS] + tmp_stom[i]) //
+  //       if found()
+  //         glob_menu_mz_rf[3] := .t.
+  //         exit
+  //       endif
+  //     next
     
-    //
-      find (glob_mo[_MO_KOD_TFOMS] + '4.20.702') // жидкостной цитологии
-      if found()
-        aadd(glob_klin_diagn, 1)
-      endif
-    //
-      find (glob_mo[_MO_KOD_TFOMS] + '4.15.746') // пренатального скрининга
-      if found()
-        aadd(glob_klin_diagn, 2)
-      endif
-    //
-      find (glob_mo[_MO_KOD_TFOMS] + '70.5.15') // Законченный случай диспансеризации детей-сирот (0-11 месяцев), 1 этап без гематологических исследований
-      if found()
-        glob_yes_kdp2[TIP_LU_DDS] := .t.
-      endif
-    //
-      find (glob_mo[_MO_KOD_TFOMS] + '70.6.13') // Законченный случай диспансеризации детей-сирот (0-11 месяцев), 1 этап без гематологических исследований
-      if found()
-        glob_yes_kdp2[TIP_LU_DDSOP] := .t.
-      endif
-    //
-      find (glob_mo[_MO_KOD_TFOMS] + '70.3.123') // Законченный случай диспансеризации женщин (в возрасте 21,24,27 лет), 1 этап без гематологических исследований
-      if found()
-        glob_yes_kdp2[TIP_LU_DVN] := .t.
-      endif
-          //
-      find (glob_mo[_MO_KOD_TFOMS] + '72.2.41') // Законченный случай профилактического осмотра несовершеннолетних (2 мес.) 1 этап без гематологического исследования
-      if found()
-        glob_yes_kdp2[TIP_LU_PN] := .t.
-      endif
+  //   //
+  //     find (glob_mo[_MO_KOD_TFOMS] + '4.20.702') // жидкостной цитологии
+  //     if found()
+  //       aadd(glob_klin_diagn, 1)
+  //     endif
+  //   //
+  //     find (glob_mo[_MO_KOD_TFOMS] + '4.15.746') // пренатального скрининга
+  //     if found()
+  //       aadd(glob_klin_diagn, 2)
+  //     endif
+  //   //
+  //     find (glob_mo[_MO_KOD_TFOMS] + '70.5.15') // Законченный случай диспансеризации детей-сирот (0-11 месяцев), 1 этап без гематологических исследований
+  //     if found()
+  //       glob_yes_kdp2[TIP_LU_DDS] := .t.
+  //     endif
+  //   //
+  //     find (glob_mo[_MO_KOD_TFOMS] + '70.6.13') // Законченный случай диспансеризации детей-сирот (0-11 месяцев), 1 этап без гематологических исследований
+  //     if found()
+  //       glob_yes_kdp2[TIP_LU_DDSOP] := .t.
+  //     endif
+  //   //
+  //     find (glob_mo[_MO_KOD_TFOMS] + '70.3.123') // Законченный случай диспансеризации женщин (в возрасте 21,24,27 лет), 1 этап без гематологических исследований
+  //     if found()
+  //       glob_yes_kdp2[TIP_LU_DVN] := .t.
+  //     endif
+  //         //
+  //     find (glob_mo[_MO_KOD_TFOMS] + '72.2.41') // Законченный случай профилактического осмотра несовершеннолетних (2 мес.) 1 этап без гематологического исследования
+  //     if found()
+  //       glob_yes_kdp2[TIP_LU_PN] := .t.
+  //     endif
   
-    endif
+  //   endif
     close databases
   endif
   return nil
