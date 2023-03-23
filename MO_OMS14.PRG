@@ -1699,7 +1699,8 @@ if human_->USL_OK == 1  // стационар
   endif
   if human_2->VMP == 1 // проверим ВМП
     // if is_12_VMP .or. is_21_VMP .or. is_22_VMP .or. is_23_VMP // ВМП по-новому 08.02.21
-    if is_19_VMP .or. is_20_VMP .or. is_21_VMP .or. is_22_VMP .or. is_23_VMP // ВМП по-новому 08.02.21
+    // if is_19_VMP .or. is_20_VMP .or. is_21_VMP .or. is_22_VMP .or. is_23_VMP // ВМП по-новому 08.02.21
+    if is_MO_VMP
       arrV018 := getV018(d2)
       arrV019 := getV019(d2)
       

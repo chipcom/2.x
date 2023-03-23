@@ -94,16 +94,10 @@ procedure main( ... )
   Public is_napr_pol := .f., ; // работа с направлениями на госпитализацию в п-ке
          is_napr_stac := .f., ;  // работа с направлениями на госпитализацию в стационаре
          glob_klin_diagn := {} // работа со специальными лабораторными исследованиями
-  Public is_MO_VMP := .f.
-  // Public is_ksg_VMP := .f.
-  // Public is_12_VMP := .f.     // ВМП для 19 и 20 года
 
-  // Public is_19_VMP := .f.     // ВМП для 19 года
-  // Public is_20_VMP := .f.     // ВМП для 20 года
-  // Public is_21_VMP := .f.     // ВМП для 21 года
-  // Public is_22_VMP := .f.     // ВМП для 22 года
-  // Public is_23_VMP := .f.     // ВМП для 23 года
-  for i := 2019 to WORK_YEAR  // создадим глобальные переменные для ВМП
+  // создадим глобальные переменные для ВМП
+  Public is_MO_VMP := .f.
+  for i := 2019 to WORK_YEAR
     cVar := 'is_' + substr(str(i, 4), 3) + '_VMP'
     __mvPublic(cVar)
     __mvPut(cVar, .f.)

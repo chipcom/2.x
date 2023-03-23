@@ -26,6 +26,13 @@ function exists_file_TFOMS(nYear, nameTFOMS)
   endif
   return ret
 
+** 23.03.23
+function value_public_is_VMP(nYear)
+  local cVar
+
+  cVar := 'is_' + substr(str(nYear, 4), 3) + '_VMP'
+  return __mvGet( cVar )
+
 ** 12.03.23
 function fill_exists_files_TFOMS(cur_dir)
   local counterYear, prefix, arr, sbase

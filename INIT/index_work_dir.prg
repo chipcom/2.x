@@ -151,6 +151,7 @@ Function index_work_dir(exe_dir, cur_dir, flag)
   local countYear
   local file_index, sbase
   local nSize
+  local cVar
 
   // public is_otd_dep := .f., glob_otd_dep := 0, mm_otd_dep := {}
 
@@ -233,9 +234,11 @@ Function index_work_dir(exe_dir, cur_dir, flag)
 
   load_exists_uslugi()
 
-  // Public is_MO_VMP := (is_ksg_VMP .or. is_12_VMP .or. is_21_VMP .or. is_22_VMP .or. is_23_VMP)
-  // is_MO_VMP := (is_ksg_VMP .or. is_12_VMP .or. is_21_VMP .or. is_22_VMP .or. is_23_VMP)
-  is_MO_VMP := (is_19_VMP .or. is_20_VMP .or. is_21_VMP .or. is_22_VMP .or. is_23_VMP)
+  // is_MO_VMP := (is_19_VMP .or. is_20_VMP .or. is_21_VMP .or. is_22_VMP .or. is_23_VMP)
+  for i := 2019 to WORK_YEAR
+    cVar := 'is_' + substr(str(i, 4), 3) + '_VMP'
+    is_MO_VMP := is_MO_VMP .or. __mvGet( cVar )
+  next
 
   // Public arr_t007 := {}
   arr_t007 := {}

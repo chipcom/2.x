@@ -28,6 +28,7 @@ Function verify_1_sluch(fl_view)
   local obyaz_uslugi_med_reab, iUsluga
   local lTypeLUOnkoDisp := .f.
   local lDoubleSluch := .f.
+  local iVMP
 
   if empty(human->k_data)
     return .t.  // не проверять
@@ -764,7 +765,7 @@ Function verify_1_sluch(fl_view)
           kkd_1_11 += hu->kol_1
           hu_->PZKOL := hu->kol_1
           if mdate+hu->kol_1 <= d2
-            mdate_u2 := dtoc4(mdate+hu->kol_1)
+            mdate_u2 := dtoc4(mdate + hu->kol_1)
           endif
         // elseif left_lshifr_5 == '1.12.' // ВМП
         //   midsp := 18 // Законченный случай в круглосуточном стационаре
@@ -774,48 +775,60 @@ Function verify_1_sluch(fl_view)
         //   if !is_12_VMP
         //     aadd(ta, 'работа с услугой ' + alltrim_lshifr+ ' запрещена в Вашей МО')
         //   endif
-        elseif left_lshifr_5 == '1.12.' .and. (year(human->k_data) == 2019) // ВМП
-          midsp := 18 // Законченный случай в круглосуточном стационаре
-          kkd_1_12 += hu->kol_1
-          kol_ksg += hu->kol_1
-          hu_->PZKOL := d
-          if !is_19_VMP
-            aadd(ta, 'работа с услугой ' + alltrim_lshifr+ ' запрещена в Вашей МО')
-          endif
-        elseif left_lshifr_5 == '1.12.' .and. (year(human->k_data) == 2020) // ВМП
-          midsp := 18 // Законченный случай в круглосуточном стационаре
-          kkd_1_12 += hu->kol_1
-          kol_ksg += hu->kol_1
-          hu_->PZKOL := d
-          if !is_20_VMP
-            aadd(ta, 'работа с услугой ' + alltrim_lshifr+ ' запрещена в Вашей МО')
-          endif
-        elseif (left_lshifr_5 == '1.20.') // ВМП  // 11.02.22
-          midsp := 18 // Законченный случай в круглосуточном стационаре
-          kkd_1_12 += hu->kol_1
-          kol_ksg += hu->kol_1
-          hu_->PZKOL := d
-          if !is_21_VMP
-            aadd(ta, 'работа с услугой ' + alltrim_lshifr+ ' запрещена в Вашей МО')
-          endif
-        elseif (left_lshifr_5 == '1.21.') // ВМП  // 11.02.22
-          midsp := 18 // Законченный случай в круглосуточном стационаре
-          kkd_1_12 += hu->kol_1
-          kol_ksg += hu->kol_1
-          hu_->PZKOL := d
-          if !is_22_VMP
-            aadd(ta, 'работа с услугой ' + alltrim_lshifr+ ' запрещена в Вашей МО')
-          endif
-        elseif (left_lshifr_5 == '1.22.') // ВМП  // 01.03.23
-          midsp := 18 // Законченный случай в круглосуточном стационаре
-          kkd_1_12 += hu->kol_1
-          kol_ksg += hu->kol_1
-          hu_->PZKOL := d
-          if !is_23_VMP
-            aadd(ta, 'работа с услугой ' + alltrim_lshifr+ ' запрещена в Вашей МО')
-          endif
         else
-          // ошибка
+          for iVMP := 2021 to WORK_YEAR
+            if left_lshifr_5 == code_services_VMP(nYear)
+              midsp := 18 // Законченный случай в круглосуточном стационаре
+              kkd_1_12 += hu->kol_1
+              kol_ksg += hu->kol_1
+              hu_->PZKOL := d
+              if ! value_public_is_VMP(iVMP)
+                aadd(ta, 'работа с услугой ' + alltrim_lshifr + ' запрещена в Вашей МО')
+              endif
+            endif
+          next
+        // elseif left_lshifr_5 == '1.12.' .and. (year(human->k_data) == 2019) // ВМП
+        //   midsp := 18 // Законченный случай в круглосуточном стационаре
+        //   kkd_1_12 += hu->kol_1
+        //   kol_ksg += hu->kol_1
+        //   hu_->PZKOL := d
+        //   if !is_19_VMP
+        //     aadd(ta, 'работа с услугой ' + alltrim_lshifr+ ' запрещена в Вашей МО')
+        //   endif
+        // elseif left_lshifr_5 == '1.12.' .and. (year(human->k_data) == 2020) // ВМП
+        //   midsp := 18 // Законченный случай в круглосуточном стационаре
+        //   kkd_1_12 += hu->kol_1
+        //   kol_ksg += hu->kol_1
+        //   hu_->PZKOL := d
+        //   if !is_20_VMP
+        //     aadd(ta, 'работа с услугой ' + alltrim_lshifr+ ' запрещена в Вашей МО')
+        //   endif
+        // elseif (left_lshifr_5 == '1.20.') // ВМП  // 11.02.22
+        //   midsp := 18 // Законченный случай в круглосуточном стационаре
+        //   kkd_1_12 += hu->kol_1
+        //   kol_ksg += hu->kol_1
+        //   hu_->PZKOL := d
+        //   if !is_21_VMP
+        //     aadd(ta, 'работа с услугой ' + alltrim_lshifr+ ' запрещена в Вашей МО')
+        //   endif
+        // elseif (left_lshifr_5 == '1.21.') // ВМП  // 11.02.22
+        //   midsp := 18 // Законченный случай в круглосуточном стационаре
+        //   kkd_1_12 += hu->kol_1
+        //   kol_ksg += hu->kol_1
+        //   hu_->PZKOL := d
+        //   if !is_22_VMP
+        //     aadd(ta, 'работа с услугой ' + alltrim_lshifr+ ' запрещена в Вашей МО')
+        //   endif
+        // elseif (left_lshifr_5 == '1.22.') // ВМП  // 01.03.23
+        //   midsp := 18 // Законченный случай в круглосуточном стационаре
+        //   kkd_1_12 += hu->kol_1
+        //   kol_ksg += hu->kol_1
+        //   hu_->PZKOL := d
+        //   if !is_23_VMP
+        //     aadd(ta, 'работа с услугой ' + alltrim_lshifr+ ' запрещена в Вашей МО')
+        //   endif
+        // else
+        //   // ошибка
         endif
         hu_->PZTIP := 1
       elseif left_lshifr_3 == '55.'
@@ -2287,7 +2300,8 @@ Function verify_1_sluch(fl_view)
       endif
     next
     if human_2->VMP == 1 // проверим ВМП
-      if is_19_VMP .or. is_20_VMP .or. is_21_VMP .or. is_22_VMP .or. is_23_VMP  // ВМП по-новому 08.02.21
+      if is_MO_VMP
+        // if is_19_VMP .or. is_20_VMP .or. is_21_VMP .or. is_22_VMP .or. is_23_VMP  // ВМП по-новому 08.02.21
         // if is_12_VMP .or. is_21_VMP .or. is_22_VMP .or. is_23_VMP  // ВМП по-новому 08.02.21
         // if is_12_VMP  // ВМП по-новому
         if !empty(ar_1_19_1)

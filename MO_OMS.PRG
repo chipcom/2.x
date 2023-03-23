@@ -237,7 +237,8 @@ Function f_valid_usl_ok(get, old, is_input)
       update_get('MVNR3')
     endif
     // if !(m1usl_ok == 1 .and. (is_ksg_VMP .or. is_21_VMP .or. is_12_VMP .or. is_22_VMP .or. is_23_VMP))
-    if !(m1usl_ok == 1 .and. (is_19_VMP .or. is_20_VMP .or. is_21_VMP .or. is_22_VMP .or. is_23_VMP))
+    // if !(m1usl_ok == 1 .and. (is_19_VMP .or. is_20_VMP .or. is_21_VMP .or. is_22_VMP .or. is_23_VMP))
+    if !(m1usl_ok == 1 .and. is_MO_VMP)
       mvmp := 'нет'
       m1vmp := 0
       MVIDVMP := space(70)
@@ -606,7 +607,7 @@ else
   fl := verify_1_sluch_18()
 endif
 if d_srok->(lastrec()) > 0
-  am := {"78","80","88","89"}
+  am := {"78", "80", "88", "89"}
   if fl
     uch->(dbGoto(human->LPU))
     otd->(dbGoto(human->OTD))
