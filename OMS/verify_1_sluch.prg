@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-// 25.03.23
+// 28.03.23
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1, ;
         i, j, k, c, s := ' ', a_srok_lech := {}, a_period_stac := {}, a_disp := {}, ;
@@ -2269,7 +2269,7 @@ Function verify_1_sluch(fl_view)
                 endif
               next
               if fl
-                if empty(mpztip := ret_PZ_VMP(human_2->METVMP))
+                if empty(mpztip := ret_PZ_VMP(human_2->METVMP, human->k_data))
                   mpztip := 1
                 endif
               else
@@ -2292,7 +2292,7 @@ Function verify_1_sluch(fl_view)
                 endif
               next
               if fl
-                if empty(mpztip := ret_PZ_VMP(human_2->METVMP))
+                if empty(mpztip := ret_PZ_VMP(human_2->METVMP, human->k_data))
                   mpztip := 1
                 endif
               else

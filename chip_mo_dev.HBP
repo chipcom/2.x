@@ -177,6 +177,7 @@ mo_version.prg
 .\ref\setupFFOMSref.prg
 .\ref\refPRVS.prg
 .\ref\dbQ0XX.prg
+.\ref\dbOther.prg
 
 .\oms\oms_func.prg
 .\oms\oms_double.prg
