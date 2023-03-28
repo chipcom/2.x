@@ -1013,23 +1013,27 @@ Function ret_is_zf(lshifr)
   select (tmp_select)
   return n
 
-** 22.01.19 вернуть строку парных органов
+// 28.03.23 вернуть строку парных органов
 Function ini_par_org(val, orig)
   Local i, j, a := List2Arr(orig), a1 := List2Arr(val), ret := ''
 
   for i := 1 to len(a)
-    if ascan(a1,a[i]) > 0 .and. (j := ascan(garr_par_org, {|x| x[2] == a[i]})) > 0
-      ret += garr_par_org[j, 1] + ','
+    // if ascan(a1,a[i]) > 0 .and. (j := ascan(garr_par_org, {|x| x[2] == a[i]})) > 0
+    if ascan(a1,a[i]) > 0 .and. (j := ascan(getParOrgan(), {|x| x[2] == a[i]})) > 0
+      // ret += garr_par_org[j, 1] + ','
+      ret += getParOrgan()[j, 1] + ','
     endif
   next
   return iif(empty(ret), space(10), left(ret, len(ret) - 1))
 
-***** 07.02.19 в GET'е выбор парных органов
+// 28.03.23 в GET'е выбор парных органов
 Function get_par_org(r,c,val,orig)
 Local fl := .t., i, j, a := List2Arr(orig), a1 := List2Arr(val), arr := {}, sast, ret, rets, r1, r2
 for i := 1 to len(a)
-  if (j := ascan(garr_par_org, {|x| x[2] == a[i] })) > 0
-    aadd(arr, aclone(garr_par_org[j]))
+  // if (j := ascan(garr_par_org, {|x| x[2] == a[i] })) > 0
+    // aadd(arr, aclone(garr_par_org[j]))
+  if (j := ascan(getParOrgan(), {|x| x[2] == a[i] })) > 0
+    aadd(arr, aclone(getParOrgan()[j]))
   endif
 next
 sast := array(len(arr)) ; afill(sast,.f.)

@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
     
-** 10.02.23 ввод услуг в лист учёта
+// 28.03.23 ввод услуг в лист учёта
 Function f2oms_usl_sluch(nKey, oBrow)
   Static skod_k := 0, skod_human := 0, SKOD_DIAG, SZF, ;
          st_vzrosl, st_arr_dbf, skod_vr, skod_as, aksg := {}
@@ -446,7 +446,8 @@ Function f2oms_usl_sluch(nKey, oBrow)
           tip_telemed := 1
           if tip_telemed2
             m1nmic := int(val(beforatnum(':',mzf)))
-            mnmic := inieditspr(A__MENUVERT, glob_nmic, m1nmic)
+            // mnmic := inieditspr(A__MENUVERT, glob_nmic, m1nmic)
+            mnmic := inieditspr(A__MENUVERT, getNMIC(), m1nmic)
             if m1nmic > 0
               m1nmic1 := int(val(afteratnum(':', mzf)))
               mnmic1 := inieditspr(A__MENUVERT, mm_danet, m1nmic1)
@@ -560,9 +561,10 @@ Function f2oms_usl_sluch(nKey, oBrow)
         ++ix
         row_dom := r1 + ix
         @ row_dom, 2 say 'Где оказана услуга' get mnmic ;
-            reader {|x|menu_reader(x, glob_nmic, A__MENUVERT, , , .f.)} ;
+            reader {|x|menu_reader(x, getNMIC(), A__MENUVERT, , , .f.)} ;
             when tip_telemed2 ;
             valid {|| iif(m1nmic == 0, (mnmic1 := space(10), m1nmic1 := 0), ), update_get('mnmic1') }
+        // reader {|x|menu_reader(x, glob_nmic, A__MENUVERT, , , .f.)} ;
         ++ix
         @ row_dom + 1, 2 say ' Получены ли результаты на дату окончания лечения' get mnmic1 ;
             reader {|x|menu_reader(x, mm_danet, A__MENUVERT, , , .f.)} ;

@@ -1828,7 +1828,10 @@ Function verify_1_sluch(fl_view)
         elseif !(onksl->bsa < 6)
           aadd(ta, 'слишком большая площадь поверхности тела для выбранного типа онкологического лечения')
         endif
-        arr_lek := {} ; fl := .t. ; fl_zolend := .t.
+        arr_lek := {}
+        fl := .t.
+        // fl_zolend := .t.
+        fl_zolend := .t.  // исправил 28.03.23
         Select ONKLE
         find (str(human->kod, 7))
         do while onkle->kod == human->kod .and. !eof()
@@ -1837,7 +1840,7 @@ Function verify_1_sluch(fl_view)
             fl := .f.
             exit
           else
-            if ascan({'000764', '000895', '000903', '001151', '001652'},onkle->REGNUM) == 0
+            if ascan({'000764', '000895', '000903', '001151', '001652'}, onkle->REGNUM) == 0
               fl_zolend := .f.
             endif
             if empty(onkle->CODE_SH)

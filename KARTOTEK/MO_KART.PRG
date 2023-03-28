@@ -288,7 +288,8 @@ if !is_append .and. R_Use(dir_server+"kartote_",,"KART_") ;
     if (fl_invalid := found())
       MDATE_INV := inv->DATE_INV
       M1PRICH_INV := inv->PRICH_INV
-      MPRICH_INV := inieditspr(A__MENUVERT, mm_prich_inv, M1PRICH_INV)
+      // MPRICH_INV := inieditspr(A__MENUVERT, mm_prich_inv, M1PRICH_INV)
+      MPRICH_INV := inieditspr(A__MENUVERT, getPrichInv(), M1PRICH_INV)
       mDIAG_INV := inv->DIAG_INV
     endif
   endif
@@ -1029,37 +1030,39 @@ chm_help_code := tmp_help
 restscreen(buf)
 return mkod
 
-** 20.07.17 ввод инвалидности
+// 28.03.23 ввод инвалидности
 Function f_kart_valid_inv(r)
-Local c := 2, r1, r2, buf, tmp_help, tmp_list, tmp_color, tek_sost, tmp_keys, ;
-      pic_diag := "@K@!", bg := {|o,k| get_MKB10(o,k,.t.) }
-if !between(m1invalid,1,4)
-  return .t.
-endif
-Private gl_area := {1,3,maxrow()-1,76,0}
-r2 := r-1
-r1 := r2-6
-buf := savescreen()
-SAVE GETS TO tmp_list
-tmp_keys := my_savekey()
-change_attr()
-box_shadow(r1,c,r2,77,,"Ввод информации об инвалидности","G+/B+")
-@ r1+1,c+1 say "Инвалидность" get MINVALID WHEN .F.
-@ r1+2,c+1 say "Дата первичного установления инвалидности" get MDATE_INV ;
+  Local c := 2, r1, r2, buf, tmp_help, tmp_list, tmp_color, tek_sost, tmp_keys, ;
+      pic_diag := '@K@!', bg := {|o, k| get_MKB10(o, k, .t.) }
+
+  if !between(m1invalid, 1, 4)
+    return .t.
+  endif
+  Private gl_area := {1, 3, maxrow() - 1, 76, 0}
+  r2 := r - 1
+  r1 := r2 - 6
+  buf := savescreen()
+  SAVE GETS TO tmp_list
+  tmp_keys := my_savekey()
+  change_attr()
+  box_shadow(r1, c, r2, 77, , 'Ввод информации об инвалидности', 'G+/B+')
+  @ r1 + 1, c + 1 say 'Инвалидность' get MINVALID WHEN .F.
+  @ r1 + 2, c + 1 say 'Дата первичного установления инвалидности' get MDATE_INV ;
            valid {|| !empty(MDATE_INV) .and. mdate_r < MDATE_INV .and. MDATE_INV < sys_date }
-@ r1+3,c+1 say "Причина первичного установления инвалидности"
-@ r1+4,c+3 get MPRICH_INV reader {|x|menu_reader(x,mm_prich_inv,A__MENUVERT,,,.f.)} ;
+  @ r1 + 3, c + 1 say 'Причина первичного установления инвалидности'
+  // @ r1+4,c+3 get MPRICH_INV reader {|x|menu_reader(x,mm_prich_inv,A__MENUVERT,,,.f.)} ;
+  @ r1 + 4, c + 3 get MPRICH_INV reader {|x|menu_reader(x, getPrichInv(), A__MENUVERT, , , .f.)} ;
            valid M1PRICH_INV > 0
-@ r1+5,c+1 say 'Код основного заболевания (п.4 пп."а")' get MDIAG_INV picture pic_diag ;
-                reader {|o| MyGetReader(o,bg)} ;
-                valid  val1_10diag(.t.,.f.,.f.,MDATE_INV,mpol)
-status_key("^<PgDn>^ - запись и переход в карточку пациента")
-myread()
-restscreen(buf)
-my_restkey(tmp_keys)
-setcolor(tmp_color)
-RESTORE GETS FROM tmp_list
-return .t.
+  @ r1 + 5, c + 1 say 'Код основного заболевания (п.4 пп."а")' get MDIAG_INV picture pic_diag ;
+                reader {|o| MyGetReader(o, bg)} ;
+                valid  val1_10diag(.t., .f., .f., MDATE_INV, mpol)
+  status_key('^<PgDn>^ - запись и переход в карточку пациента')
+  myread()
+  restscreen(buf)
+  my_restkey(tmp_keys)
+  setcolor(tmp_color)
+  RESTORE GETS FROM tmp_list
+  return .t.
 
 ** 27.06.14 проверка на правильность и исправление номера телефона
 Function valid_phone(get,is_mobil)

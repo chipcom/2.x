@@ -1611,39 +1611,44 @@ fclose(fp)
 viewtext(name_file,,,,.t.,,,2)
 return NIL
 
-** 08.02.23 Распечатка списка операций на парных органах
+// 28.03.23 Распечатка списка операций на парных органах
 Function usl_par_organ()
-** 11.01.20 Распечатка списка услуг с использованием телемедицинских технологий
-Local i, j, k, buf := save_maxrow(), name_file := cur_dir + "uslugiT" + stxt, sh := 80, HH := 60, t_arr[2], fl
-mywait()
-R_Use_base("luslf")
-index on shifr to (cur_dir + "tmp_uslf") for !empty(par_org)
-fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
-// add_string("2020 год")
-add_string(str(WORK_YEAR, 4, 0) + ' год')
-add_string("")
-add_string("=== Описание обозначения органа (части тела)")
-for i := 1 to len(garr_par_org)
-  add_string(" "+garr_par_org[i,1])
-next
-add_string("===")
-add_string(center("Операции на парных органах (частях тела) Минздрава РФ (ФФОМС)",sh))
-add_string("")
-go top
-do while !eof()
-  k := perenos(t_arr,alltrim(luslf->shifr)+" ("+alltrim(luslf->par_org)+") "+luslf->name,sh)
-  verify_FF(HH-k,.t.,sh)
-  add_string(t_arr[1])
-  for i := 2 to k
-    add_string(padl(alltrim(t_arr[i]),sh))
+  // 11.01.20 Распечатка списка услуг с использованием телемедицинских технологий
+  Local i, j, k, buf := save_maxrow(), name_file := cur_dir + 'uslugiT' + stxt, sh := 80, HH := 60, t_arr[2], fl
+
+  mywait()
+  R_Use_base('luslf')
+  index on shifr to (cur_dir + 'tmp_uslf') for !empty(par_org)
+  fp := fcreate(name_file)
+  n_list := 1
+  tek_stroke := 0
+  // add_string("2020 год")
+  add_string(str(WORK_YEAR, 4, 0) + ' год')
+  add_string('')
+  add_string('=== Описание обозначения органа (части тела)')
+  // for i := 1 to len(garr_par_org)
+  //   add_string(" "+garr_par_org[i,1])
+  for i := 1 to len(getParOrgan())
+    add_string(' ' + getParOrgan()[i,1])
   next
-  skip
-enddo
-close databases
-rest_box(buf)
-fclose(fp)
-viewtext(name_file,,,,.t.,,,2)
-return NIL
+  add_string('===')
+  add_string(center('Операции на парных органах (частях тела) Минздрава РФ (ФФОМС)', sh))
+  add_string('')
+  go top
+  do while !eof()
+    k := perenos(t_arr, alltrim(luslf->shifr) + ' (' + alltrim(luslf->par_org) + ') ' + luslf->name, sh)
+    verify_FF(HH - k, .t., sh)
+    add_string(t_arr[1])
+    for i := 2 to k
+      add_string(padl(alltrim(t_arr[i]), sh))
+    next
+    skip
+  enddo
+  close databases
+  rest_box(buf)
+  fclose(fp)
+  viewtext(name_file, , , , .t., , , 2)
+  return NIL
 
 ** 08.02.23 Вывод списка услуг диагностики при дообследовании в направлениях на ЗНО
 Function usl_napr_FFOMS()
