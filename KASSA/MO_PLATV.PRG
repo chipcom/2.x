@@ -2905,7 +2905,7 @@ return fl
 
 *
 
-***** 10.09.18
+***** 28.03.23
 Function vozvrat_platn(kod_human)
 Local buf := savescreen(), sotgr, str_sem, s, arr_v := {}, arr_p := {},;
       s_msg, mtitle, m1title := "", fl, tmp_s, i_m_otv := 0, j := 0,;
@@ -2943,6 +2943,10 @@ aadd(adbf, {"vz_cena","N",  9,3} )
 aadd(adbf, {"kol1",   "N",  5,0} )
 aadd(adbf, {"number", "N",  6,0} )
 aadd(adbf, {"rec_hu", "N",  7,0} )
+aadd(adbf, {"nds20",  "N",  1,0} )
+aadd(adbf,  {"nds18", "N",  1,0} )
+aadd(adbf,  {"nds10", "N",  1,0} )
+//
 dbcreate(cur_dir+"tmp_usl",adbf)
 use (cur_dir+"tmp_usl") new alias tmp
 index on str(u_kod,4)+str(kod_vr,4)+date_u to (cur_dir+"tmp1usl")
@@ -2971,6 +2975,15 @@ if (fl_found := found())
         tmp->name_u := alltrim(usl->shifr)+" "+alltrim(usl->full_name)
       else
         tmp->name_u := alltrim(usl->shifr)+" "+alltrim(usl->name)
+      endif
+      if round_5(usl->pnds,2) > 0
+        if round_5(usl->pnds,0) == 18
+          tmp->nds18 := 1
+        elseif round_5(usl->pnds,0) == 20
+          tmp->nds20 := 1
+        elseif round_5(usl->pnds,0) == 10
+          tmp->nds10 := 1
+        endif
       endif
       tmp->is_nul   := usl->is_nulp
       tmp->rec_hu   := hu->(recno())

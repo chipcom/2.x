@@ -996,7 +996,7 @@ return fl
 
 *
 
-***** 12.08.18
+***** 28.03.23
 Function vozvrat_fr(value,bn_value,/*@*/cur_chek,sekcia,tip_banka)
 Local fl := .t.,  buf := save_maxrow(), tmp_color := setcolor(color1), ;
       s_err := "", s, last_chek, fl_err_annul := .f., summa_kassa := 0,;
@@ -1064,9 +1064,13 @@ select TMP
 go top
 do while !eof()
   if fl .and. tmp->kol1 > 0
-    s_err := FRCHF_registr(tmp->vz_cena,tmp->kol1,sekcia,tmp->name_u,0,2,4,4)
-    // доработка 05.19
-    //s_err := FRCHF_registr(tmp->u_cena,tmp->kol1,sekcia,tmp->name_u,0,2,4,4)
+    t_nds := 0
+    if tmp->nds18 > 0 .or. tmp->nds20 > 0
+      t_nds := 1
+    elseif tmp->nds10 > 0
+      t_nds := 2
+    endif
+    s_err := FRCHF_registr(tmp->vz_cena,tmp->kol1,sekcia,tmp->name_u,t_nds,2,4,4) 
     if (fl := empty(s_err))
       //++cs //количество продаж
     else
