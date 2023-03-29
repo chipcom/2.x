@@ -88,7 +88,7 @@ Function edit_kartotek(mkod, _top_r, _bot_r, fl_oms, _Human_kod)
   endif
   return mkod
 
-// 28.03.23
+// 29.03.23
 Function edit_kartotek_(mkod,_top_r,_bot_r,fl_oms,_Human_kod)
 Static mm_kart_error := {{"нет замечаний",0},{"полис недействителен",-8},{"ошибки в реквизитах",-9}}
 Static mm_invalid := {{"нет",0},{"1 группа",1},{"2 группа",2},{"3 группа",3},{"дети-инвалиды",4}}
@@ -357,7 +357,8 @@ m1gragd := iif(empty(mSTRANA := getCountry(m1strana)), 1, 0)
 mgragd := inieditspr(A__MENUVERT, mm_danet, m1gragd)
 manonim := inieditspr(A__MENUVERT, mm_danet, m1anonim)
 mPENSIONER := inieditspr(A__MENUVERT, mm_danet, m1PENSIONER)
-mvid_ud  := inieditspr(A__MENUVERT, menu_vidud, m1vid_ud)
+// mvid_ud  := inieditspr(A__MENUVERT, menu_vidud, m1vid_ud)
+mvid_ud  := inieditspr(A__MENUVERT, getVidUd(), m1vid_ud)
 MKEMVYD := inieditspr(A__POPUPMENU, dir_server+"s_kemvyd", M1KEMVYD)
 mvzros_reb := inieditspr(A__MENUVERT, menu_vzros, m1vzros_reb)
 mrab_nerab := inieditspr(A__MENUVERT, menu_rab, m1rab_nerab)
@@ -507,12 +508,13 @@ do while .t.
   @ row(),30 say "==>" get mvzros_reb when .f. color cDataCSay
   @ row(),50 say "СНИЛС" get msnils pict picture_pf ;
          valid {|| val_snils(msnils,1), findKartoteka(3,@mkod) }
-  ++ix ; @ ix,1 say "Уд-ие личности:" get mvid_ud ;
-         reader {|x|menu_reader(x,menu_vidud,A__MENUVERT,,,.f.)}
-         @ ix,42 say "Серия" get mser_ud pict "@!" valid val_ud_ser(1,m1vid_ud,mser_ud)
-         @ ix,col()+1 say "№" get mnom_ud pict "@!S18" valid val_ud_nom(1,m1vid_ud,mnom_ud)
+  @ ++ix, 1 say 'Уд-ие личности:' get mvid_ud ;
+         reader {|x|menu_reader(x, getVidUd(), A__MENUVERT, , , .f.)}
+        //  reader {|x|menu_reader(x,menu_vidud,A__MENUVERT,,,.f.)}
+  @ ix, 42 say 'Серия' get mser_ud pict '@!' valid val_ud_ser(1, m1vid_ud, mser_ud)
+  @ ix, col() + 1 say '№' get mnom_ud pict '@!S18' valid val_ud_nom(1, m1vid_ud, mnom_ud)
   if !is_smp
-    ++ix ; @ ix,2 say "Место рождения" get mmesto_r pict "@S62"
+    @ ++ix, 2 say 'Место рождения' get mmesto_r pict '@S62'
   endif
   ++ix ; @ ix,2 say "Выдано" get mkogdavyd
          @ ix,col() say "," get mkemvyd ;
@@ -1088,7 +1090,7 @@ if !empty(s)
 endif
 return fl
 
-** 29.08.18 поиск пациента в картотеке во время режима добавления
+// 29.03.23 поиск пациента в картотеке во время режима добавления
 Function findKartoteka(k,/*@*/lkod_k)
 Local s, buf, rec := 0
 if lkod_k > 0 ; return .t. ; endif
@@ -1173,7 +1175,8 @@ if rec > 0
     mokato    := inieditspr(A__MENUVERT, glob_array_srf, m1okato)
     mkomu     := inieditspr(A__MENUVERT, mm_komu, m1komu)
     mismo     := init_ismo(m1ismo)
-    mvid_ud   := padr(inieditspr(A__MENUVERT, menu_vidud, m1vid_ud),23)
+    // mvid_ud   := padr(inieditspr(A__MENUVERT, menu_vidud, m1vid_ud),23)
+    mvid_ud   := padr(inieditspr(A__MENUVERT, getVidUd(), m1vid_ud), 23)
     madres_reg := ini_adres(1)
     f_valid_komu(,-1)
     if m1komu == 0
@@ -2967,8 +2970,8 @@ return NIL
 
 
 
-// 28.03.23
-Function kartotek_to_screen(r1,r2)
+// 29.03.23
+Function kartotek_to_screen(r1, r2)
 Local i, s, s1, mmo_pr, arr := {}, tmp_select := select()
 is_talon := .t. // пока так
 if is_uchastok > 0 .or. glob_mo[_MO_IS_UCH]
@@ -3020,8 +3023,9 @@ if !empty(kart->snils)
   s += space(5)+"СНИЛС: "+transform(kart->SNILS,picture_pf)
 endif
 aadd(arr,s)
-s := inieditspr(A__MENUVERT, menu_vidud, kart_->vid_ud)+;
-     space(3)+alltrim(kart_->ser_ud)+" "+alltrim(kart_->nom_ud)
+// s := inieditspr(A__MENUVERT, menu_vidud, kart_->vid_ud)+;
+s := inieditspr(A__MENUVERT, getVidUd(), kart_->vid_ud) + ;
+     space(3) + alltrim(kart_->ser_ud) + ' ' + alltrim(kart_->nom_ud)
 if !empty(kart_->kogdavyd)
   s += " выдан "+full_date(kart_->kogdavyd)+" "
   if !empty(kart_->kemvyd)
@@ -3649,7 +3653,7 @@ return flag
 
 
 
-** 09.06.17 Подготовка и создание файлов прикрепления для WQ...
+// 29.03.23 Подготовка и создание файлов прикрепления для WQ...
 Function wq_prikreplenie()
 Local i, j := 0, arr_uch := {}, fl_err := .f., buf := save_maxrow(),;
       fl := .f., filename := wq_ret_last_name()
@@ -3984,7 +3988,8 @@ if !fl_err .and. ;
       lmesto_r := charone(" ",CHARREPL("/;", lmesto_r, SPACE(2)))
       s1 += eval(blk,f_s_csv(lmesto_r))+";"
       //
-      fl := ascan(menu_vidud,{|x| x[2] == kart_->vid_ud }) == 0
+      // fl := ascan(menu_vidud,{|x| x[2] == kart_->vid_ud }) == 0
+      fl := ascan(getVidUd(), {|x| x[2] == kart_->vid_ud }) == 0
       if !fl
         if empty(kart_->nom_ud)
           fl := .t. //должно быть заполнено поле "НОМЕР удостоверения личности"

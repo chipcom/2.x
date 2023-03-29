@@ -53,7 +53,7 @@ if k > 0
 endif
 return NIL
 
-** 25.01.23
+// 29.03.23
 Function read_file_XML_SDS(n_file)
 Static cDelimiter := " , "
 Local _sluch := {;
@@ -631,8 +631,9 @@ do while !eof()
     ihuman->NPOLIS := charrem(" ",ihuman->SPOLIS) +charrem(" ",ihuman->NPOLIS)
     ihuman->SPOLIS := ""
   endif
-  Valid_SN_Polis(ihuman->vpolis,ihuman->SPOLIS,ihuman->NPOLIS,ae, ,between(ihuman->SMO, '34001', '34007'))
-  if ascan(menu_vidud,{|x| x[2] == ihuman->DOCTYPE }) == 0
+  Valid_SN_Polis(ihuman->vpolis, ihuman->SPOLIS, ihuman->NPOLIS, ae, , between(ihuman->SMO, '34001', '34007'))
+  // if ascan(menu_vidud,{|x| x[2] == ihuman->DOCTYPE }) == 0
+  if ascan(getVidUd(), {|x| x[2] == ihuman->DOCTYPE }) == 0
     if ihuman->VPOLIS < 3
       aadd(ae, 'DOCTYPE-не заполнено поле "ВИД удостоверения личности"')
     endif

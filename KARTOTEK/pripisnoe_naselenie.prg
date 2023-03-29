@@ -563,7 +563,7 @@ Function f31_view_r_pr_nas(reg,s,s1)
   viewtext(n_file,,,,.t.,,,2)
   return NIL
   
-***** 03.09.15
+// 29.03.23
 Function preparation_for_pripisnoe_naselenie()
   Local i, j, k, aerr, buf := savescreen(), blk, t_arr[BR_LEN], cur_year,;
         str_sem := "preparation_for_pripisnoe_naselenie"
@@ -715,9 +715,10 @@ Function preparation_for_pripisnoe_naselenie()
           aadd(aerr,"ª ãç áâªã "+lstr(kart->uchast)+" ­¥ ¯à¨¢ï§ ­ ãç áâª®¢ë© ¢à ç")
         endif
       endif
-      Valid_SN_Polis(kart_->vpolis,kart_->SPOLIS,kart_->NPOLIS,aerr,between(kart_->smo,'34001','34007'))
-      if ascan(menu_vidud,{|x| x[2] == kart_->vid_ud }) == 0
-        aadd(aerr,'­¥ § ¯®«­¥­® ¯®«¥ "‚ˆ„ ã¤®áâ®¢¥à¥­¨ï «¨ç­®áâ¨"')
+      Valid_SN_Polis(kart_->vpolis, kart_->SPOLIS, kart_->NPOLIS, aerr, between(kart_->smo, '34001', '34007'))
+      // if ascan(menu_vidud,{|x| x[2] == kart_->vid_ud }) == 0
+      if ascan(getVidUd(), {|x| x[2] == kart_->vid_ud }) == 0
+        aadd(aerr, '­¥ § ¯®«­¥­® ¯®«¥ "‚ˆ„ ã¤®áâ®¢¥à¥­¨ï «¨ç­®áâ¨"')
       else
         if empty(kart_->nom_ud)
           aadd(aerr,'¤®«¦­® ¡ëâì § ¯®«­¥­® ¯®«¥ "Œ… ã¤®áâ®¢¥à¥­¨ï «¨ç­®áâ¨"')
@@ -1028,7 +1029,8 @@ Function preparation_for_pripisnoe_naselenie()
             // 9 - Œ¥áâ® à®¦¤¥­¨ï § áâà å®¢ ­­®£® «¨æ 
             s := iif(eq_any(kart_->vid_ud,3,14), alltrim(del_spec_symbol(kart_->mesto_r)), "")
             s1 += eval(blk,f_s_csv(s))+";"
-            fl := ascan(menu_vidud,{|x| x[2] == kart_->vid_ud }) == 0
+            // fl := ascan(menu_vidud,{|x| x[2] == kart_->vid_ud }) == 0
+            fl := ascan(getVidUd(), {|x| x[2] == kart_->vid_ud }) == 0
             if !fl
               if empty(kart_->nom_ud)
                 fl := .t. //¤®«¦­® ¡ëâì § ¯®«­¥­® ¯®«¥ "Œ… ã¤®áâ®¢¥à¥­¨ï «¨ç­®áâ¨"
@@ -1186,8 +1188,8 @@ Function kartoteka_z_prikreplenie()
   close databases
   return NIL
   
-***** 05.03.13
-Function f1_k_z_prikreplenie(nKey,oBrow,regim)
+// 29.03.23
+Function f1_k_z_prikreplenie(nKey, oBrow, regim)
   Local j, s, ret := -1
   if regim == "edit" .and. nKey == K_F9
     if kart2->mo_pr == glob_MO[_MO_KOD_TFOMS]
@@ -1219,8 +1221,10 @@ Function f1_k_z_prikreplenie(nKey,oBrow,regim)
     frt->date_r := full_date(kart->date_r)+"£. "+alltrim(kart_->mesto_r)
     s := ""
     if kart_->vid_ud > 0
-      if (j := ascan(menu_vidud, {|x| x[2] == kart_->vid_ud})) > 0
-        s := menu_vidud[j,4]+": "
+      // if (j := ascan(menu_vidud, {|x| x[2] == kart_->vid_ud})) > 0
+      //   s := menu_vidud[j,4]+": "
+      if (j := ascan(getVidUd(), {|x| x[2] == kart_->vid_ud})) > 0
+        s := getVidUd()[j, 4] + ': '
       endif
       if !empty(kart_->ser_ud)
         s += charone(" ",alltrim(kart_->ser_ud))+" "

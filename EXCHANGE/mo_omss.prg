@@ -1443,7 +1443,7 @@ else
 endif
 return NIL
 
-** 31.10.22 печать счета
+// 29.03.23 печать счета
 Function print_schet_S(reg)
 Local adbf, j, s, ii := 0, fl_numeration := .f., buf := save_maxrow(),;
       lshifr1, ldate1, ldate2, hGauge
@@ -1662,8 +1662,10 @@ if reg > 1
       frd->date_r := full_date(human->date_r)
       frd->mesto_r := kart_->mesto_r
       s := ""
-      if (j := ascan(menu_vidud, {|x| x[2] == kart_->vid_ud})) > 0
-        s := menu_vidud[j,4]+" "
+      // if (j := ascan(menu_vidud, {|x| x[2] == kart_->vid_ud})) > 0
+      //   s := menu_vidud[j,4]+" "
+      if (j := ascan(getVidUd(), {|x| x[2] == kart_->vid_ud})) > 0
+        s := getVidUd()[j, 4] + ' '
       endif
       if !empty(kart_->ser_ud)
         s += alltrim(kart_->ser_ud)+" "

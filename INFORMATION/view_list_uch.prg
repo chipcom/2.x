@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-** 31.01.23
+// 29.03.23
 Function print_l_uch(mkod, par, regim, lnomer)
   // mkod - код больного по БД human
   Local sh := 80, HH := 77, buf := save_maxrow(), ;
@@ -97,8 +97,10 @@ Function print_l_uch(mkod, par, regim, lnomer)
   Private M1F14_RASH := int(val(substr(human_->FORMA14, 4, 1)))
   if mvid_ud > 0
     mud_lich := ''
-    if (j := ascan(menu_vidud, {|x| x[2] == mvid_ud})) > 0
-      mud_lich := menu_vidud[j, 4] + ': '
+    // if (j := ascan(menu_vidud, {|x| x[2] == mvid_ud})) > 0
+    //   mud_lich := menu_vidud[j, 4] + ': '
+    if (j := ascan(getVidUd(), {|x| x[2] == mvid_ud})) > 0
+      mud_lich := getVidUd()[j, 4] + ': '
     endif
     if !empty(mser)
       mud_lich += charone(' ', mser) + ' '
@@ -983,7 +985,7 @@ Function f4o_list_uch(nKey, oBrow)
   endif
   return k
 
-** 05.11.22 печать нескольких листов учёта
+// 29.03.23 печать нескольких листов учёта
 Function print_al_uch(arr_h, arr_m)
   Local sh := 80, HH := 77, buf := save_maxrow(), ;
         name_lpu, mvzros_reb, mreg_lech, mmest_inog, mrab_nerab, ;
@@ -1041,8 +1043,10 @@ Function print_al_uch(arr_h, arr_m)
           mnom    := kart_->nom_ud
   if mvid_ud > 0
     mud_lich := ''
-    if (j := ascan(menu_vidud, {|x| x[2] == mvid_ud})) > 0
-      mud_lich := menu_vidud[j, 4] + ': '
+    // if (j := ascan(menu_vidud, {|x| x[2] == mvid_ud})) > 0
+    //   mud_lich := menu_vidud[j, 4] + ': '
+    if (j := ascan(getVidUd(), {|x| x[2] == mvid_ud})) > 0
+      mud_lich := getVidUd()[j, 4] + ': '
     endif
     if !empty(mser)
       mud_lich += charone(' ',mser) + ' '

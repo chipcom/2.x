@@ -2782,9 +2782,7 @@ else                  // valid
 endif
 return fl
 
-*
-
-*****  18.02.23
+// 29.03.23
 Function pr_zak_nar(tip_print) //21.05.08
 Static st_tip_usl := 0
 Local i := 1, j, k, s, fl, buf := save_row(maxrow())
@@ -2902,8 +2900,10 @@ mlpu := inieditspr(A__POPUPMENU, dir_server+"mo_uch", m1lpu)
 motd := inieditspr(A__POPUPMENU, dir_server+"mo_otd", m1otd)
 mprich := inieditspr(A__POPUPMENU, dir_server+"ort_brk", m1prich)
 mvid_ud := ""
-if (j := ascan(menu_vidud, {|x| x[2] == m1vid_ud})) > 0
-  mvid_ud := menu_vidud[j,4]
+// if (j := ascan(menu_vidud, {|x| x[2] == m1vid_ud})) > 0
+//   mvid_ud := menu_vidud[j,4]
+if (j := ascan(getVidUd(), {|x| x[2] == m1vid_ud})) > 0
+  mvid_ud := getVidUd()[j, 4]
 endif
 if empty(mser) ; mser := space(10) ; endif
 if empty(mnom) ; mnom := space(10) ; endif

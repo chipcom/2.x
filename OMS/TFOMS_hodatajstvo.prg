@@ -278,7 +278,7 @@ Function f2tfoms_hodatajstvo(nKey,oBrow,regim)
   endif
   return k
   
-***** 09.04.21 á®§¤ ­¨¥ ä ©«  •Ž„€’€‰‘’‚€ ¤«ï ®âáë«ª¨ ¢ ’”ŽŒ‘
+// 29.03.23 á®§¤ ­¨¥ ä ©«  •Ž„€’€‰‘’‚€ ¤«ï ®âáë«ª¨ ¢ ’”ŽŒ‘
 Function create_file_hodatajstvo(arr_m)
   // arr_m - ¢à¥¬¥­­®© ¬ áá¨¢
   Local i, k := 0, as, fl := .f., mnn, mb, me, mfilial,;
@@ -459,8 +459,10 @@ Function create_file_hodatajstvo(arr_m)
             frd->pol := iif(human->pol=="Œ","¬ã¦","¦¥­")
             frd->date_r := full_date(human->date_r)
             frd->vid_ud := kart_->vid_ud
-            if (j := ascan(menu_vidud, {|x| x[2] == kart_->vid_ud})) > 0
-              frd->name_ud := menu_vidud[j,4]
+            // if (j := ascan(menu_vidud, {|x| x[2] == kart_->vid_ud})) > 0
+            //   frd->name_ud := menu_vidud[j,4]
+            if (j := ascan(getVidUd(), {|x| x[2] == kart_->vid_ud})) > 0
+              frd->name_ud := getVidUd()[j, 4]
             endif
             frd->ser_ud := kart_->ser_ud
             frd->nom_ud := kart_->nom_ud

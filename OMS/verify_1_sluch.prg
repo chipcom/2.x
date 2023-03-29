@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-// 28.03.23
+// 29.03.23
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1, ;
         i, j, k, c, s := ' ', a_srok_lech := {}, a_period_stac := {}, a_disp := {}, ;
@@ -30,6 +30,7 @@ Function verify_1_sluch(fl_view)
   local lDoubleSluch := .f.
   local iVMP
   local aDiagnoze_for_check := {}
+  local fl_zolend := .f.
 
   if empty(human->k_data)
     return .t.  // не проверять
@@ -432,7 +433,8 @@ Function verify_1_sluch(fl_view)
   //
   // ПРОВЕРЯЕМ УДОСТОВЕРЕНИЕ ЛИЧНОСТИ
   //
-  if ascan(menu_vidud,{|x| x[2] == kart_->vid_ud }) == 0
+  // if ascan(menu_vidud,{|x| x[2] == kart_->vid_ud }) == 0
+  if ascan(getVidUd(), {|x| x[2] == kart_->vid_ud }) == 0
     if human_->vpolis < 3
       aadd(ta, 'не заполнено поле "ВИД удостоверения личности"')
     endif
@@ -440,7 +442,8 @@ Function verify_1_sluch(fl_view)
     if empty(kart_->nom_ud)
       if human_->vpolis < 3
         aadd(ta, 'должно быть заполнено поле "НОМЕР удостоверения личности" для "' + ;
-                inieditspr(A__MENUVERT, menu_vidud, kart_->vid_ud) + '"')
+                inieditspr(A__MENUVERT, getVidUd(), kart_->vid_ud) + '"')
+                // inieditspr(A__MENUVERT, menu_vidud, kart_->vid_ud) + '"')
       endif
     //elseif !eq_any(kart_->vid_ud, 9, 18, 21, 24) .and. !ver_number(kart_->nom_ud)
       //aadd(ta, 'поле 'НОМЕР удостоверения личности' должно быть цифровым')
@@ -453,7 +456,8 @@ Function verify_1_sluch(fl_view)
     endif
     if eq_any(kart_->vid_ud, 1, 3, 14) .and. empty(kart_->ser_ud)
       aadd(ta, 'не заполнено поле "СЕРИЯ удостоверения личности" для "' + ;
-              inieditspr(A__MENUVERT, menu_vidud, kart_->vid_ud) + '"')
+              inieditspr(A__MENUVERT, getVidUd(), kart_->vid_ud) + '"')
+              // inieditspr(A__MENUVERT, menu_vidud, kart_->vid_ud) + '"')
     endif
     if human_->usl_ok < 4 .and. eq_any(kart_->vid_ud, 3, 14) .and. ;
            !empty(kart_->ser_ud) .and. empty(del_spec_symbol(kart_->mesto_r)) .and. human_->vpolis < 3
@@ -784,7 +788,7 @@ Function verify_1_sluch(fl_view)
         //   endif
         else
           for iVMP := 2021 to WORK_YEAR
-            if left_lshifr_5 == code_services_VMP(nYear)
+            if left_lshifr_5 == code_services_VMP(iVMP)
               midsp := 18 // Законченный случай в круглосуточном стационаре
               kkd_1_12 += hu->kol_1
               kol_ksg += hu->kol_1
@@ -1831,7 +1835,6 @@ Function verify_1_sluch(fl_view)
         arr_lek := {}
         fl := .t.
         // fl_zolend := .t.
-        fl_zolend := .t.  // исправил 28.03.23
         Select ONKLE
         find (str(human->kod, 7))
         do while onkle->kod == human->kod .and. !eof()
@@ -1840,9 +1843,9 @@ Function verify_1_sluch(fl_view)
             fl := .f.
             exit
           else
-            if ascan({'000764', '000895', '000903', '001151', '001652'}, onkle->REGNUM) == 0
-              fl_zolend := .f.
-            endif
+            // if ascan({'000764', '000895', '000903', '001151', '001652'}, onkle->REGNUM) == 0
+            //   fl_zolend := .f.
+            // endif
             if empty(onkle->CODE_SH)
               aadd(ta, 'не введена схема лекарственной терапии в лекарствах - отредактируйте cписок лекарственных препаратов')
               fl := .f.
@@ -1869,9 +1872,9 @@ Function verify_1_sluch(fl_view)
           if empty(arr_lek)
             aadd(ta, 'не заполнен cписок лекарственных препаратов')
           else
-            if fl_zolend
-              aadd(ta, 'в составе случая оказания химиотерапии не может быть применен ТОЛЬКО один препарат из списка (золедроновая кислота, ибандроновая кислота, памидроновая кислота, клодроновая кислота или деносумаб)')
-            endif
+            // if fl_zolend
+            //   aadd(ta, 'в составе случая оказания химиотерапии не может быть применен ТОЛЬКО один препарат из списка (золедроновая кислота, ибандроновая кислота, памидроновая кислота, клодроновая кислота или деносумаб)')
+            // endif
             if select('N20') == 0
               R_Use(exe_dir+ '_mo_N020', cur_dir + '_mo_N020', 'N20')
               set filter to between_date(datebeg,dateend,d2)

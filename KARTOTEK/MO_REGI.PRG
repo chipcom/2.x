@@ -576,8 +576,8 @@ endif*/
 restscreen(buf)
 return NIL
 
-***** 03.03.13
-Function r_list_uch(par,name_func)
+// 29.03.23
+Function r_list_uch(par, name_func)
 // 0 - "ind_karta" инд.карта или "f_f025u" форма 025
 // 1 - "list_uch" лист учета (отделение)
 // 2 - "list_uch" лист учета (первичный прием)
@@ -717,8 +717,10 @@ else
   mkategor := upper(inieditspr(A__MENUVERT, stm_kategor2, m1kategor))
 endif
 mvid_ud := ""
-if (j := ascan(menu_vidud, {|x| x[2] == m1vid_ud})) > 0
-  mvid_ud := menu_vidud[j,4]
+// if (j := ascan(menu_vidud, {|x| x[2] == m1vid_ud})) > 0
+//   mvid_ud := menu_vidud[j,4]
+if (j := ascan(getVidUd(), {|x| x[2] == m1vid_ud})) > 0
+  mvid_ud := getVidUd()[j, 4]
 endif
 if empty(mser) ; mser := space(10) ; endif
 if empty(mnom) ; mnom := space(10) ; endif
@@ -758,8 +760,8 @@ k := &name_func
 rest_box(buf)
 return NIL
 
-***** 13.11.16
-Function new_list_uch(par,name_func)
+// 29.03.23
+Function new_list_uch(par, name_func)
 // 0 - "f_f025u" форма 025/у
 // 4 - "talon025" талон амб.пациента 025-1/у
 Static sb1 := "<b><u>", sb2 := "</u></b>"
@@ -991,8 +993,10 @@ s := iif(kart->rab_nerab==0,sb1,"")+"работает - 1"+iif(kart->rab_nerab==0,sb2,""
      iif(kart->rab_nerab==1,sb1,"")+"не работает - 5"+iif(kart->rab_nerab==1,sb2,"")+",    "+;
      "прочие - 6"
 frt->zanyat := s
-if (j := ascan(menu_vidud, {|x| x[2] == kart_->vid_ud})) > 0
-  frt->name_doc := menu_vidud[j,4]
+// if (j := ascan(menu_vidud, {|x| x[2] == kart_->vid_ud})) > 0
+//   frt->name_doc := menu_vidud[j,4]
+if (j := ascan(getVidUd(), {|x| x[2] == kart_->vid_ud})) > 0
+  frt->name_doc := getVidUd()[j, 4]
 endif
 frt->ser_doc := kart_->ser_ud
 frt->nom_doc := kart_->nom_ud
@@ -2016,7 +2020,7 @@ else
 endif
 return NIL
 
-***** 14.09.21
+// 29.03.23
 Function f0_prn_kartotek(par,nuch,nsmo)
 Static si1 := 2
 Local adbf := {;
@@ -2124,7 +2128,8 @@ do case
         tmp->vpolis     := inieditspr(A__MENUVERT, mm_vid_polis, kart_->vpolis)
         tmp->polis      := ltrim(kart_->NPOLIS)
         tmp->SNILS      := iif(empty(kart->SNILS),"",transform(kart->SNILS,picture_pf))
-        tmp->vid_ud     := inieditspr(A__MENUVERT, menu_vidud, kart_->vid_ud) // вид удостоверения личности;по кодировке ФФОМС;"PKRT_VID из ""APP_BASE"""
+        // tmp->vid_ud     := inieditspr(A__MENUVERT, menu_vidud, kart_->vid_ud) // вид удостоверения личности;по кодировке ФФОМС;"PKRT_VID из ""APP_BASE"""
+        tmp->vid_ud     := inieditspr(A__MENUVERT, getVidUd(), kart_->vid_ud) // вид удостоверения личности;по кодировке ФФОМС;"PKRT_VID из ""APP_BASE"""
         tmp->ser_ud     := ltrim(kart_->ser_ud) // серия удостоверения личности;;"PKRT_SER из ""APP_BASE"""
         tmp->nom_ud     := ltrim(kart_->nom_ud) // номер удостоверения личности;;"PKRT_NOM из ""APP_BASE"""
         tmp->kemvyd     := skem->name
@@ -2200,8 +2205,9 @@ do case
         tmp->SMO        := smo_to_screen(1)
         tmp->vpolis     := inieditspr(A__MENUVERT, mm_vid_polis, kart_->vpolis)
         tmp->polis      := ltrim(kart_->NPOLIS)
-        tmp->SNILS      := iif(empty(kart->SNILS),"",transform(kart->SNILS,picture_pf))
-        tmp->vid_ud     := inieditspr(A__MENUVERT, menu_vidud, kart_->vid_ud) // вид удостоверения личности;по кодировке ФФОМС;"PKRT_VID из ""APP_BASE"""
+        tmp->SNILS      := iif(empty(kart->SNILS), '', transform(kart->SNILS, picture_pf))
+        // tmp->vid_ud     := inieditspr(A__MENUVERT, menu_vidud, kart_->vid_ud) // вид удостоверения личности;по кодировке ФФОМС;"PKRT_VID из ""APP_BASE"""
+        tmp->vid_ud     := inieditspr(A__MENUVERT, getVidUd(), kart_->vid_ud) // вид удостоверения личности;по кодировке ФФОМС;"PKRT_VID из ""APP_BASE"""
         tmp->ser_ud     := ltrim(kart_->ser_ud) // серия удостоверения личности;;"PKRT_SER из ""APP_BASE"""
         tmp->nom_ud     := ltrim(kart_->nom_ud) // номер удостоверения личности;;"PKRT_NOM из ""APP_BASE"""
         tmp->kemvyd     := skem->name
@@ -3027,8 +3033,8 @@ return NIL
 #define CSV_O_TPR   20
 #define CSV_O_DPR   21
 
-***** 05.11.15 чтение в память и анализ CSV-файла открепления
-Function read_CSV_FILE_OTKREP(cFile,aerr)
+// 29.03.23 чтение в память и анализ CSV-файла открепления
+Function read_CSV_FILE_OTKREP(cFile, aerr)
 Local i, j, s, arr_csv, kol1 := 0, md_prik, mmo1, mmo2, buf := save_maxrow()
 mmo1 := substr(cReadFile,3,6)  // предыдущее МО прикрепления
 mywait()
@@ -3173,7 +3179,8 @@ if empty(aerr)
       strfile(s+hb_eol(),cFileProtokol,.t.)
       s := space(j)+"Место рождения: "+arr_csv[i,CSV_O_MR]
       strfile(s+hb_eol(),cFileProtokol,.t.)
-      s := space(j)+inieditspr(A__MENUVERT, menu_vidud,  arr_csv[i,CSV_O_TIPD])+" "+arr_csv[i,CSV_O_SND]
+      // s := space(j)+inieditspr(A__MENUVERT, menu_vidud,  arr_csv[i,CSV_O_TIPD])+" "+arr_csv[i,CSV_O_SND]
+      s := space(j) + inieditspr(A__MENUVERT, getVidUd(),  arr_csv[i, CSV_O_TIPD]) + ' ' + arr_csv[i, CSV_O_SND]
       strfile(s+hb_eol(),cFileProtokol,.t.)
     endif
   next

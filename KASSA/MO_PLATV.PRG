@@ -284,7 +284,7 @@ endif
 mark_keys({"<Esc>","<Enter>","<Ins>","<Del>","<Ctrl+Enter>","<F3>","<F4>","<F8>","<F9>","<F10>"},"R/W")
 return NIL
 
-***** 23.06.19
+// 29.03.23
 Function f3_k_plat(nKey,oBrow)
 LOCAL j := 0, flag := -1, buf := save_row(maxrow()), buf1, fl := .f., rec, mkod,;
       tmp_color := setcolor(), r1 := 15, c1 := 2, v_summa, v_sdacha, adbf, s,;
@@ -591,8 +591,10 @@ do case
     mser     := kr1->ser_ud
     kr1->(dbCloseArea())
     mvid_ud := ""
-    if (j := ascan(menu_vidud, {|x| x[2] == m1vid_ud})) > 0
-      mvid_ud := menu_vidud[j,4]
+    // if (j := ascan(menu_vidud, {|x| x[2] == m1vid_ud})) > 0
+    //   mvid_ud := menu_vidud[j,4]
+    if (j := ascan(getVidUd(), {|x| x[2] == m1vid_ud})) > 0
+      mvid_ud := getVidUd()[j, 4]
     endif
     dog_data := human->n_data
     R_Use(dir_server+"hum_plat",dir_server+"hum_plat","KPLAT")

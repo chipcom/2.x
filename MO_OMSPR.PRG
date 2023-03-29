@@ -1266,10 +1266,8 @@ f10_diagnoz()
 set key K_CTRL_F10 to f10pr_vklad
 return NIL
 
-*
-
-***** 04.03.19 печать прочего счёта
-Function print_other_schet(is_vyp,is_usl,n_file)
+// 29.03.23 печать прочего счёта
+Function print_other_schet(is_vyp, is_usl, n_file)
 Local sh := 169, HH := 40, regim := 3, buf := save_maxrow(), ;
       tmp, tmp1, tmp2 := "", mcena_1, hGauge, lshifr1,;
       name_lpu, name_otd, mvzros_reb, mmest_inog, mrab_nerab, ;
@@ -1465,8 +1463,10 @@ do while !eof()
     if !empty(kart_->nom_ud)
       s += alltrim(kart_->nom_ud)
     endif
-    if !empty(s) .and. (k := ascan(menu_vidud, {|x| x[2] == kart_->vid_ud})) > 0
-      s := menu_vidud[k,4]+" "+s
+    // if !empty(s) .and. (k := ascan(menu_vidud, {|x| x[2] == kart_->vid_ud})) > 0
+    //   s := menu_vidud[k,4]+" "+s
+    if !empty(s) .and. (k := ascan(getVidUd(), {|x| x[2] == kart_->vid_ud})) > 0
+      s := getVidUd()[k, 4] + ' ' + s
     endif
     frd->pasport := s
     if !empty(kart->snils)

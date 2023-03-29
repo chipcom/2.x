@@ -1085,11 +1085,12 @@ elseif arr_pac[LIS_VPOLIS] == 3
 endif
 return NIL
 
-** 15.01.17 проверить паспорт при импорте из ЛИС
+// 29.03.23 проверить паспорт при импорте из ЛИС
 Function f_LIS_pasport()
 Local i, _sl, _sr
 arr_pac[LIS_VID_UD] := int(val(arr_pac[LIS_VID_UD]))
-if ascan(menu_vidud,{|x| x[2] == arr_pac[LIS_VID_UD] }) == 0
+// if ascan(menu_vidud,{|x| x[2] == arr_pac[LIS_VID_UD] }) == 0
+if ascan(getVidUd(), {|x| x[2] == arr_pac[LIS_VID_UD] }) == 0
   arr_pac[LIS_VID_UD] := iif(arr_pac[LIS_VPOLIS] < 3, 14, 0)
 endif
 if arr_pac[LIS_VID_UD] == 0 // ели новый полис и нет документа, очистим серию и номер документа
@@ -1226,7 +1227,7 @@ if !empty(full_dbf)
 endif
 return NIL
 
-** 05.11.22
+// 29.03.23
 Function f1_import_sluch_OMS()
 Local _lpu := {;
    {"KOD",     "N",  3, 0},; // ваш код учреждения
@@ -1393,10 +1394,11 @@ if fl
       strfile("_SLUCH: запись № "+lstr(ihuman->(recno()))+;
               ', DS1="'+ihuman->DS1+'"-несовместимость диагноза по полу'+hb_eol(),cFileProtokol,.t.)
     endif
-    if ascan(menu_vidud,{|x| x[2] == ihuman->DOCTYPE }) == 0
+    // if ascan(menu_vidud,{|x| x[2] == ihuman->DOCTYPE }) == 0
+    if ascan(getVidUd(), {|x| x[2] == ihuman->DOCTYPE }) == 0
       fl := .f.
-      strfile("_SLUCH: запись № "+lstr(ihuman->(recno()))+;
-              ', DOCTYPE-не заполнено поле "ВИД удостоверения личности"'+hb_eol(),cFileProtokol,.t.)
+      strfile('_SLUCH: запись № ' + lstr(ihuman->(recno())) + ;
+              ', DOCTYPE-не заполнено поле "ВИД удостоверения личности"' + hb_eol(), cFileProtokol, .t.)
     else
       if empty(ihuman->DOCNUM)
         fl := .f.

@@ -430,10 +430,8 @@ elseif k == 2
 endif
 return NIL
 
-*
-
-***** 03.03.13
-Function kassa_r_list_uch(par,name_func)
+// 29.03.23
+Function kassa_r_list_uch(par, name_func)
 // 1 - платные услуги
 // 2 - ортопедические услуги
 Local i := 1, j, k, s, fl, buf := save_row(maxrow())
@@ -509,8 +507,10 @@ else
   mkategor := upper(inieditspr(A__MENUVERT, stm_kategor2, m1kategor))
 endif
 mvid_ud := ""
-if (j := ascan(menu_vidud, {|x| x[2] == m1vid_ud})) > 0
-  mvid_ud := menu_vidud[j,4]
+// if (j := ascan(menu_vidud, {|x| x[2] == m1vid_ud})) > 0
+  // mvid_ud := menu_vidud[j,4]
+if (j := ascan(getVidUd(), {|x| x[2] == m1vid_ud})) > 0
+  mvid_ud := getVidUd()[j, 4]
 endif
 if empty(mser) ; mser := space(10) ; endif
 if empty(mnom) ; mnom := space(10) ; endif

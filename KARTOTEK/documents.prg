@@ -183,30 +183,32 @@ Function val_ud_ser(par, k, s, /*@*/msg)
   endif
   return fl
   
-** проверка на правильность номера удостоверения личности
+// проверка на правильность номера удостоверения личности
 Function val_ud_nom(par, k, s, /*@*/msg)
-  Static arr_d := {;
-   { 1,6  },;
-   { 3,6  },;
-   { 4,7  },;
-   { 6,6  },;
-   { 7,6,7},;
-   { 8,7  },;
-   {14,6,7},;
-   {15,7  },;
-   {16,6,7},;
-   {17,6  }}
+  Static arr_d := { ;
+   { 1, 6  }, ;
+   { 3, 6  }, ;
+   { 4, 7  }, ;
+   { 6, 6  }, ;
+   { 7, 6, 7}, ;
+   { 8, 7  }, ;
+   {14, 6, 7}, ;
+   {15, 7  }, ;
+   {16, 6, 7}, ;
+   {17, 6  }}
   Local fl := .t., d1, d2
   DEFAULT msg TO ''
   s := alltrim(s)
   if (j := ascan(arr_d, {|x| x[1] == k })) > 0
     if !yes_number(s)
-       msg := 'недопустимый символ в номере уд.личности "' + inieditspr(A__MENUVERT, menu_vidud, k) + '"'
+      // msg := 'недопустимый символ в номере уд.личности "' + inieditspr(A__MENUVERT, menu_vidud, k) + '"'
+      msg := 'недопустимый символ в номере уд.личности "' + inieditspr(A__MENUVERT, getVidUd(), k) + '"'
     else
       d1 := arr_d[j, 2]
       d2 := iif(len(arr_d[j]) == 2, d1, arr_d[j, 3])
       if !between(len(s), d1, d2)
-        msg := 'неверное кол-во цифр в номере уд.личности "' + inieditspr(A__MENUVERT, menu_vidud, k) + '"'
+        // msg := 'неверное кол-во цифр в номере уд.личности "' + inieditspr(A__MENUVERT, menu_vidud, k) + '"'
+        msg := 'неверное кол-во цифр в номере уд.личности "' + inieditspr(A__MENUVERT, getVidUd(), k) + '"'
       endif
     endif
   endif

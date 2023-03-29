@@ -4,7 +4,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-*****
+// 29.03.23
 Function pr_gurnal_pp()
 Static spar := 1, spar2 := 1
 Local par, par2, arr_m, i, j, k, arr, begin_date, end_date, s, ;
@@ -125,9 +125,11 @@ do while !eof()
       s := full_date(kart->date_r)+" "+count_ymd(kart->date_r,hu->N_DATA)
       k04 := perenos(a04,s,sh04)
       // 5 - паспорт и полис
-      s := ""
-      if (i := ascan(menu_vidud, {|x| x[2] == kart_->vid_ud})) > 0
-        s := menu_vidud[i,4]
+      s := ''
+      // if (i := ascan(menu_vidud, {|x| x[2] == kart_->vid_ud})) > 0
+      //   s := menu_vidud[i,4]
+      if (i := ascan(getVidUd(), {|x| x[2] == kart_->vid_ud})) > 0
+        s := getVidUd()[i, 4]
       endif
       s += " " + alltrim(kart_->ser_ud)
       s += " " + alltrim(kart_->nom_ud)+"; "
@@ -1863,7 +1865,7 @@ enddo
 restscreen(buf)
 return NIL
 
-***** 02.11.20 Просмотр/печать журнала регистрации стационарных больных по запросу
+// 29.03.23 Просмотр/печать журнала регистрации стационарных больных по запросу
 Function z_gurnal_pp()
 Static mm_forma := {{"Полная форма",1},;
                     {"Сокращенная форма",2}}
@@ -2207,9 +2209,11 @@ if k > 0
         s := full_date(kart->date_r)+" "+count_ymd(kart->date_r,hu->N_DATA)
         k04 := perenos(a04,s,sh04)
         // 5 - паспорт и полис
-        s := ""
-        if (i := ascan(menu_vidud, {|x| x[2] == kart_->VID_UD})) > 0
-          s := menu_vidud[i,4]
+        s := ''
+        // if (i := ascan(menu_vidud, {|x| x[2] == kart_->VID_UD})) > 0
+        //   s := menu_vidud[i,4]
+        if (i := ascan(getVidUd(), {|x| x[2] == kart_->VID_UD})) > 0
+          s := getVidUd()[i, 4]
         endif
         s += " " + alltrim(kart_->SER_UD)
         s += " " + alltrim(kart_->NOM_UD)+"; "
