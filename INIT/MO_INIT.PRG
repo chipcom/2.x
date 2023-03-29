@@ -2164,14 +2164,14 @@ Function is_issl_DDS(ausl,_vozrast,arr)
 //   return NIL
 
 
-// 28.12.21 вернуть код план-заказа по методу ВМП
+// 29.12.21 вернуть код план-заказа по методу ВМП
 Function ret_PZ_VMP(lunit, kDate)
   Local mpztip := 0
   local sbase, nYear := WORK_YEAR
 
   hb_default( @kDate, WORK_YEAR )
 
-  if valtype(in_date) == 'D'
+  if valtype(kDate) == 'D'
     nYear := year(kDate)
   elseif valtype(kDate) == 'N' .and. kDate >= 2018
     nYear := kDate

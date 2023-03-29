@@ -716,12 +716,12 @@ else
   m1kategor := kart_->kategor2
   mkategor := upper(inieditspr(A__MENUVERT, stm_kategor2, m1kategor))
 endif
-mvid_ud := ""
+// mvid_ud := ""
 // if (j := ascan(menu_vidud, {|x| x[2] == m1vid_ud})) > 0
 //   mvid_ud := menu_vidud[j,4]
-if (j := ascan(getVidUd(), {|x| x[2] == m1vid_ud})) > 0
-  mvid_ud := getVidUd()[j, 4]
-endif
+// endif
+mvid_ud :=  get_Name_Vid_Ud(m1vid_ud)
+
 if empty(mser) ; mser := space(10) ; endif
 if empty(mnom) ; mnom := space(10) ; endif
 //
@@ -995,9 +995,8 @@ s := iif(kart->rab_nerab==0,sb1,"")+"работает - 1"+iif(kart->rab_nerab==0,sb2,""
 frt->zanyat := s
 // if (j := ascan(menu_vidud, {|x| x[2] == kart_->vid_ud})) > 0
 //   frt->name_doc := menu_vidud[j,4]
-if (j := ascan(getVidUd(), {|x| x[2] == kart_->vid_ud})) > 0
-  frt->name_doc := getVidUd()[j, 4]
-endif
+// endif
+frt->name_doc := get_Name_Vid_Ud(kart_->vid_ud)
 frt->ser_doc := kart_->ser_ud
 frt->nom_doc := kart_->nom_ud
 //

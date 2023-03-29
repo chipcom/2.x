@@ -1661,14 +1661,13 @@ if reg > 1
       frd->pol := iif(human->pol=="М","муж","жен")
       frd->date_r := full_date(human->date_r)
       frd->mesto_r := kart_->mesto_r
-      s := ""
+      // s := ""
       // if (j := ascan(menu_vidud, {|x| x[2] == kart_->vid_ud})) > 0
       //   s := menu_vidud[j,4]+" "
-      if (j := ascan(getVidUd(), {|x| x[2] == kart_->vid_ud})) > 0
-        s := getVidUd()[j, 4] + ' '
-      endif
+      // endif
+      s :=  get_Name_Vid_Ud(kart_->vid_ud, , ' ')
       if !empty(kart_->ser_ud)
-        s += alltrim(kart_->ser_ud)+" "
+        s += alltrim(kart_->ser_ud) + ' '
       endif
       if !empty(kart_->nom_ud)
         s += alltrim(kart_->nom_ud)

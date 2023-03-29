@@ -590,12 +590,11 @@ do case
     mnom     := kr1->nom_ud
     mser     := kr1->ser_ud
     kr1->(dbCloseArea())
-    mvid_ud := ""
+    // mvid_ud := ""
     // if (j := ascan(menu_vidud, {|x| x[2] == m1vid_ud})) > 0
     //   mvid_ud := menu_vidud[j,4]
-    if (j := ascan(getVidUd(), {|x| x[2] == m1vid_ud})) > 0
-      mvid_ud := getVidUd()[j, 4]
-    endif
+    // endif
+    mvid_ud := get_Name_Vid_Ud(m1vid_ud)
     dog_data := human->n_data
     R_Use(dir_server+"hum_plat",dir_server+"hum_plat","KPLAT")
     find (str(human->(recno()),7))

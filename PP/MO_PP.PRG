@@ -2293,9 +2293,8 @@ if pp_regim == 1 .and. eq_any(nkey,K_F5,K_F6,K_F7,K_F8,K_F9,K_F10,K_F12)
   endif
   // if (j := ascan(menu_vidud, {|x| x[2] == kart_->vid_ud})) > 0
   //   frd->name_doc := menu_vidud[j,4]
-  if (j := ascan(getVidUd(), {|x| x[2] == kart_->vid_ud})) > 0
-    frd->name_doc := getVidUd()[j, 4]
-  endif
+  // endif
+  frd->name_doc := get_Name_Vid_Ud(kart_->vid_ud)
   frd->ser_doc := kart_->ser_ud
   frd->nom_doc := kart_->nom_ud
   s := iif(kart->rab_nerab==0,sb1,"")+"работает - 1"+iif(kart->rab_nerab==0,sb2,"")+",    "+;
@@ -2417,9 +2416,8 @@ if pp_regim == 1 .and. eq_any(nkey,K_F5,K_F6,K_F7,K_F8,K_F9,K_F10,K_F12)
   endif
   // if (j := ascan(menu_vidud, {|x| x[2] == kart_->vid_ud})) > 0
   //   frd->vid_ud := menu_vidud[j,4]
-  if (j := ascan(getVidUd(), {|x| x[2] == kart_->vid_ud})) > 0
-    frd->vid_ud := getVidUd()[j, 4]
-  endif
+  // endif
+  frd->vid_ud := get_Name_Vid_Ud(kart_->vid_ud)
   frd->ser := alltrim(kart_->ser_ud)
   frd->nom := alltrim(kart_->nom_ud)
   frd->kogdavyd := kart_->kogdavyd

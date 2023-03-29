@@ -125,14 +125,13 @@ do while !eof()
       s := full_date(kart->date_r)+" "+count_ymd(kart->date_r,hu->N_DATA)
       k04 := perenos(a04,s,sh04)
       // 5 - паспорт и полис
-      s := ''
+      // s := ''
       // if (i := ascan(menu_vidud, {|x| x[2] == kart_->vid_ud})) > 0
       //   s := menu_vidud[i,4]
-      if (i := ascan(getVidUd(), {|x| x[2] == kart_->vid_ud})) > 0
-        s := getVidUd()[i, 4]
-      endif
-      s += " " + alltrim(kart_->ser_ud)
-      s += " " + alltrim(kart_->nom_ud)+"; "
+      // endif
+      s := get_Name_Vid_Ud(kart_->vid_ud)
+      s += ' ' + alltrim(kart_->ser_ud)
+      s += ' ' + alltrim(kart_->nom_ud) + '; '
       if !empty(kart->polis)
         s += "полис: "+make_polis(kart_->spolis,kart_->npolis)+" "
       endif
@@ -2209,14 +2208,13 @@ if k > 0
         s := full_date(kart->date_r)+" "+count_ymd(kart->date_r,hu->N_DATA)
         k04 := perenos(a04,s,sh04)
         // 5 - паспорт и полис
-        s := ''
+        // s := ''
         // if (i := ascan(menu_vidud, {|x| x[2] == kart_->VID_UD})) > 0
         //   s := menu_vidud[i,4]
-        if (i := ascan(getVidUd(), {|x| x[2] == kart_->VID_UD})) > 0
-          s := getVidUd()[i, 4]
-        endif
-        s += " " + alltrim(kart_->SER_UD)
-        s += " " + alltrim(kart_->NOM_UD)+"; "
+        // endif
+        s := get_Name_Vid_Ud(kart_->vid_ud)
+        s += ' ' + alltrim(kart_->SER_UD)
+        s += ' ' + alltrim(kart_->NOM_UD) + '; '
         if !empty(kart->polis)
           s += "полис: "+make_polis(kart_->spolis,kart_->npolis)+" "
         endif

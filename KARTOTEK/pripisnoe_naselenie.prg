@@ -1219,13 +1219,12 @@ Function f1_k_z_prikreplenie(nKey, oBrow, regim)
     frt->fam_io := fam_i_o(kart->fio)
     frt->pol := iif(kart->pol=="М", "мужской", "женский")
     frt->date_r := full_date(kart->date_r)+"г. "+alltrim(kart_->mesto_r)
-    s := ""
+    s := ''
     if kart_->vid_ud > 0
       // if (j := ascan(menu_vidud, {|x| x[2] == kart_->vid_ud})) > 0
       //   s := menu_vidud[j,4]+": "
-      if (j := ascan(getVidUd(), {|x| x[2] == kart_->vid_ud})) > 0
-        s := getVidUd()[j, 4] + ': '
-      endif
+      // endif
+      s := get_Name_Vid_Ud(kart_->vid_ud, , ': ')
       if !empty(kart_->ser_ud)
         s += charone(" ",alltrim(kart_->ser_ud))+" "
       endif

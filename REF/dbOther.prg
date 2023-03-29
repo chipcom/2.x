@@ -155,3 +155,17 @@ function getVidUd()
   endif
   
   return arr
+
+// 29.03.23
+function get_Name_Vid_Ud(vid_doc, lFull, delimiter)
+  local ret := '', j
+
+	HB_Default( @vid_doc, 0 ) 
+	HB_Default( @lFull, .f. ) 
+	HB_Default( @delimiter, '' ) 
+
+  if (j := ascan(getVidUd(), {|x| x[2] == vid_doc})) > 0
+    ret := getVidUd()[j, iif(lFull, 1, 4)] + delimiter
+  endif
+
+  return ret

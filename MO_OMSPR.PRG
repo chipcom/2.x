@@ -1465,9 +1465,9 @@ do while !eof()
     endif
     // if !empty(s) .and. (k := ascan(menu_vidud, {|x| x[2] == kart_->vid_ud})) > 0
     //   s := menu_vidud[k,4]+" "+s
-    if !empty(s) .and. (k := ascan(getVidUd(), {|x| x[2] == kart_->vid_ud})) > 0
-      s := getVidUd()[k, 4] + ' ' + s
-    endif
+    // endif
+    s := get_Name_Vid_Ud(kart_->vid_ud) + ' ' + s
+
     frd->pasport := s
     if !empty(kart->snils)
       frd->snils := transform(kart->SNILS,picture_pf)
