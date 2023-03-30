@@ -1414,10 +1414,11 @@ elseif napr->TIP_ANNUL == 3
 endif
 return s
 
-** 06.11.22
-Function f2_263_s_annul(nKey,oBrow,regim)
-Local ret := -1, rec, i, k, s, tmp_color, buf, s_error := "",;
-      tmp_V006 := {{"Стационар",1},{"Дневной стационар",2}}
+// 30.03.23
+Function f2_263_s_annul(nKey, oBrow, regim)
+Local ret := -1, rec, i, k, s, tmp_color, buf, s_error := '', ;
+      tmp_V006 := {{'Стационар', 1}, {'Дневной стационар', 2}}
+
 do case
   case regim == "open"
     select NAPR
@@ -1461,7 +1462,8 @@ do case
       mforma := inieditspr(A__MENUVERT,getV014(), m1forma)
       mprofil_k := inieditspr(A__MENUVERT, arr_t007, M1PROFIL_K)
       mprofil := inieditspr(A__MENUVERT, getV002(), M1PROFIL)
-      mrea_annul := inieditspr(A__MENUVERT, mm_reason_annul, m1rea_annul)
+      // mrea_annul := inieditspr(A__MENUVERT, mm_reason_annul, m1rea_annul)
+      mrea_annul := inieditspr(A__MENUVERT, get_reason_annul(), m1rea_annul)
       if !empty(m1pol_mo)
         if m1pol_mo == glob_mo[_MO_KOD_TFOMS]
           mpol_mo := "Поликлиника нашего МО"
@@ -1496,9 +1498,11 @@ do case
           ++i ; @ i,1 say "       будет госпитализирован в отделение" get motd when .f.
           endif
         endif*/
-        ++i ; @ i,1 say "Причина аннулирования" get mrea_annul ;
-                    reader {|x|menu_reader(x,mm_reason_annul,A__MENUVERT,,,.f.)}
-        ++i ; @ i,1 say "Дата аннулирования" get mdate_3
+        // ++i ; @ i,1 say "Причина аннулирования" get mrea_annul ;
+        //   reader {|x|menu_reader(x,mm_reason_annul,A__MENUVERT,,,.f.)}
+        @ ++i, 1 say 'Причина аннулирования' get mrea_annul ;
+                    reader {|x|menu_reader(x, get_reason_annul(), A__MENUVERT, , , .f.)}
+        @ ++i, 1 say 'Дата аннулирования' get mdate_3
         if napr->KOD_F_3in > 0 .or. napr->KOD_F_3out > 0 .or. eq_any(napr->TIP_ANNUL,1,3)
           s_msg := ""
           s := "Направление аннулировано в "

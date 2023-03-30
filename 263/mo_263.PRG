@@ -289,9 +289,7 @@ if valtype(ret_arr) == "A"
 endif
 return ret
 
-*
-
-***** 18.02.18 Проверка информации перед отправкой в ТФОМС
+// 30.03.23 Проверка информации перед отправкой в ТФОМС
 Function _263_to_proverka(yes_msg,/*@*/yes_I07)
 Local i, j, s, ikol := 0, lkod_k, ldate, buf := save_maxrow(), k1, k2,;
       arr_i01 := {}, arr_i03 := {}, arr_i04 := {}, arr_i05 := {}, arr_i06 := {}, ;
@@ -308,7 +306,7 @@ set relation to recno() into KART_
 G_Use(dir_server+"mo_nnapr",,"NAPR")
 set relation to kod_k into KART
 index on str(kod_k,7) to (cur_dir+"tmp_naprkodk")
-// I01
+// I01
 select NAPR
 index on kod to (cur_dir+"tmp_napr") ;
       for n_napr > 0 .and. empty(KOD_F_1out)
@@ -481,7 +479,7 @@ for i := 1 to len(arr_i01)
     endif
   next
 next
-// I03
+// I03
 select NAPR
 index on kod to (cur_dir+"tmp_napr") ;
       for n_napr > 0 .and. KOD_F_1out > 0 .and. TIP_ANNUL == 3 .and. empty(KOD_F_3out)
@@ -527,8 +525,9 @@ for i := 1 to len(arr_i03)
       //aadd(ta,"дата госпитализации меньше даты аннулирования "+full_date(napr->date_3))
     elseif _263_verify_year(napr->date_3,ta)
     endif
-    if ascan(mm_reason_annul, {|x| x[2] == napr->REA_ANNUL} ) == 0
-      aadd(ta,"не указана причина аннулирования")
+    // if ascan(mm_reason_annul, {|x| x[2] == napr->REA_ANNUL} ) == 0
+    if ascan(get_reason_annul(), {|x| x[2] == napr->REA_ANNUL} ) == 0
+      aadd(ta, 'не указана причина аннулирования')
     endif
     if !empty(napr->date_h_4)
       if empty(napr->CODEM_FROM)
@@ -2091,10 +2090,11 @@ G_SUnLock(str_sem)
 rest_box(buf)
 return NIL
 
-** 21.10.22
-Function f2_263_to_I03(nKey,oBrow,regim)
-Local lkod, buf, r1, rec, i, ret := -1, arr, lcodem, n1, n2, ;
-      n_file := "I03"+stxt, sh := 80, HH := 60, t_arr[4], s1, s2, s3, s4
+// 30.03.23
+Function f2_263_to_I03(nKey, oBrow, regim)
+  Local lkod, buf, r1, rec, i, ret := -1, arr, lcodem, n1, n2, ;
+      n_file := cur_dir + 'I03' + stxt, sh := 80, HH := 60, t_arr[4], s1, s2, s3, s4
+
 if regim == "edit"
   do case
     case nKey == K_F5
@@ -2182,10 +2182,11 @@ if regim == "edit"
         endif
         add_string(space(3)+alltrim(_kart->fio)+", д.р."+full_date(_kart->date_r))
         add_string(space(3) + 'форма оказания медицинской помощи - ' + inieditspr(A__MENUVERT, getV014(), napr->F_MEDC_1))
-        add_string(space(3)+inieditspr(A__MENUVERT, arr_t007, napr->PROFIL_K_1)+;
-                                     " ("+inieditspr(A__MENUVERT, getV002(), napr->PROFIL_1)+")")
-        add_string(space(3)+"причина аннулирования: "+inieditspr(A__MENUVERT, mm_reason_annul, napr->rea_annul))
-        add_string(space(3)+"дата аннулирования "+full_date(napr->date_3))
+        add_string(space(3) + inieditspr(A__MENUVERT, arr_t007, napr->PROFIL_K_1) + ;
+                                     ' (' + inieditspr(A__MENUVERT, getV002(), napr->PROFIL_1) + ')')
+        // add_string(space(3)+"причина аннулирования: "+inieditspr(A__MENUVERT, mm_reason_annul, napr->rea_annul))
+        add_string(space(3) + 'причина аннулирования: ' + inieditspr(A__MENUVERT, get_reason_annul(), napr->rea_annul))
+        add_string(space(3) + 'дата аннулирования ' + full_date(napr->date_3))
         select NFN
         find (str(napr->kod,6))
         if found() .and. nfn->OSHIB > 0
@@ -2640,7 +2641,7 @@ Function _263_to_nastr()
   close databases
   return NIL
 
-** 13.05.22 Получение из ТФОМС файлов обмена (информационных пакетов)
+// 30.03.23 Получение из ТФОМС файлов обмена (информационных пакетов)
 Function _263_from_read()
 Static nerrf := 999
 Local i, j, k, n, s, af := {}, arr_f := {}, aerr := {}, blk := {|x| aadd(af,x) }, ii, ;
@@ -3188,8 +3189,10 @@ for ii := 1 to len(arr_f)
                         s+=space(7)+"планируемая дата госпитализации (стац) - "+full_date(napr->DATE_H_2)+hb_eol()+;
                            space(7)+"(дата госпитализации введена в стационаре - "+full_date(napr->DATE_2)+")"+hb_eol()
                       endif*/
-                      s += space(7)+"причина аннулирования: "+inieditspr(A__MENUVERT, mm_reason_annul, tmp2->REASON_REF)+hb_eol()+;
-                           space(7)+"дата аннулирования "+full_date(tmp2->DATE_REF)+hb_eol()
+                      // s += space(7)+"причина аннулирования: "+inieditspr(A__MENUVERT, mm_reason_annul, tmp2->REASON_REF)+hb_eol()+;
+                      //   space(7)+"дата аннулирования "+full_date(tmp2->DATE_REF)+hb_eol()
+                      s += space(7) + 'причина аннулирования: ' + inieditspr(A__MENUVERT, get_reason_annul(), tmp2->REASON_REF) + hb_eol() + ;
+                           space(7) + 'дата аннулирования ' + full_date(tmp2->DATE_REF) + hb_eol()
                       if empty(napr->DATE_3)
                         napr->DATE_3 := tmp2->DATE_REF // дата аннулирования
                         napr->TIP_ANNUL := tmp2->TYPE_S  // где ануллировано
@@ -3206,8 +3209,10 @@ for ii := 1 to len(arr_f)
                           s += "поликлинике"
                         endif
                         s += hb_eol()
-                        s += space(8)+"причина аннулирования: "+inieditspr(A__MENUVERT, mm_reason_annul, napr->rea_annul)+hb_eol()+;
-                             space(8)+"дата аннулирования "+full_date(napr->date_3)+hb_eol()
+                        // s += space(8)+"причина аннулирования: "+inieditspr(A__MENUVERT, mm_reason_annul, napr->rea_annul)+hb_eol()+;
+                        //      space(8)+"дата аннулирования "+full_date(napr->date_3)+hb_eol()
+                        s += space(8) + 'причина аннулирования: ' + inieditspr(A__MENUVERT, get_reason_annul(), napr->rea_annul) + hb_eol() + ;
+                             space(8) + 'дата аннулирования ' + full_date(napr->date_3) + hb_eol()
                       endif
                       if empty(napr->KOD_F_3in)
                         napr->KOD_F_3in := nf->KOD // код файла - по файлу mo_nfile

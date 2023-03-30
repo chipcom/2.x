@@ -546,10 +546,11 @@ elseif napr->TIP_ANNUL == 2
 endif
 return s
 
-** 06.11.22
-Function f2_263_p_annul(nKey,oBrow,regim)
-Local ret := -1, rec, i, k, s, tmp_color, buf, s_error := "",;
+// 30.03.23
+Function f2_263_p_annul(nKey, oBrow, regim)
+  Local ret := -1, rec, i, k, s, tmp_color, buf, s_error := '', ;
       tmp_V006 := {{"Стационар",1},{"Дневной стационар",2}}
+
 do case
   case regim == "open"
     select NAPR
@@ -598,7 +599,8 @@ do case
       mprofil_k := inieditspr(A__MENUVERT, arr_t007, M1PROFIL_K)
       mprofil := inieditspr(A__MENUVERT, getV002(), M1PROFIL)
       mstac_mo := ret_mo(m1stac_mo)[_MO_SHORT_NAME]
-      mrea_annul := inieditspr(A__MENUVERT, mm_reason_annul, m1rea_annul)
+      // mrea_annul := inieditspr(A__MENUVERT, mm_reason_annul, m1rea_annul)
+      mrea_annul := inieditspr(A__MENUVERT, get_reason_annul(), m1rea_annul)
       if m1vrach > 0
         R_Use(dir_server + 'mo_pers', , 'P2')
         goto (m1vrach)
@@ -614,28 +616,30 @@ do case
       endif
       do while .t.
         setcolor(cDataCGet)
-        ClrLines(r1,maxrow()-1)
-        @ r1-1,0 say padc("Аннулирование направления на госпитализацию",80) color "B/B*"
+        ClrLines(r1, maxrow() - 1)
+        @ r1 - 1, 0 say padc('Аннулирование направления на госпитализацию', 80) color 'B/B*'
         i := r1
-        ++i ; @ i,1 say "Пациент" get mfio when .f.
-              @ row(),col()+2 say "Дата р." get mdate_r when .f.
-        ++i ; @ i,1 say "направление: №" get mn_napr when .f. pict "999999"
-              @ row(),col()+3 say "дата" get md_napr when .f.
-        ++i ; @ i,1 say "Условия оказания, в которые направляется пациент" get musl_ok when .f.
-        ++i ; @ i,1 say "Диагноз направившего учреждения" get mkod_diag when .f. picture "@K@!"
-        ++i ; @ i,1 say "Направил на госпитализацию врач" get MTAB_NOM when .f. pict "99999"
-        @ row(),col()+1 get mvrach when .f. color color14
+        @ ++i, 1 say 'Пациент' get mfio when .f.
+        @ row(), col() + 2 say 'Дата р.' get mdate_r when .f.
+        @ ++i, 1 say 'направление: №' get mn_napr when .f. pict '999999'
+        @ row(), col() + 3 say 'дата' get md_napr when .f.
+        @ ++i, 1 say 'Условия оказания, в которые направляется пациент' get musl_ok when .f.
+        @ ++i, 1 say 'Диагноз направившего учреждения' get mkod_diag when .f. picture '@K@!'
+        @ ++i, 1 say 'Направил на госпитализацию врач' get MTAB_NOM when .f. pict '99999'
+        @ row(), col() + 1 get mvrach when .f. color color14
         if work_otd_263 == 1
-        ++i ; @ i,1 say "                   из отделения" get motd when .f.
+          @ ++i, 1 say '                   из отделения' get motd when .f.
         endif
-        ++i ; @ i,1 say "Форма оказания медицинской помощи" get mforma when .f.
-        ++i ; @ i,1 say "Планируемая дата госпитализации" get mdate_hosp when .f.
-        ++i ; @ i,1 say "Направляется в стационар" get mstac_mo when .f.
-        ++i ; @ i,1 say "Профиль койки" get mprofil_k when .f.
-        ++i ; @ i,1 say "Профиль медицинской помощи" get mprofil when .f.
-        ++i ; @ i,1 say "Причина аннулирования" get mrea_annul ;
-                    reader {|x|menu_reader(x,mm_reason_annul,A__MENUVERT,,,.f.)}
-        ++i ; @ i,1 say "Дата аннулирования" get mdate_3
+        @ ++i, 1 say 'Форма оказания медицинской помощи' get mforma when .f.
+        @ ++i, 1 say 'Планируемая дата госпитализации' get mdate_hosp when .f.
+        @ ++i, 1 say 'Направляется в стационар' get mstac_mo when .f.
+        @ ++i, 1 say 'Профиль койки' get mprofil_k when .f.
+        @ ++i, 1 say 'Профиль медицинской помощи' get mprofil when .f.
+        // ++i ; @ i,1 say "Причина аннулирования" get mrea_annul ;
+        //             reader {|x|menu_reader(x,mm_reason_annul,A__MENUVERT,,,.f.)}
+        @ ++i, 1 say 'Причина аннулирования' get mrea_annul ;
+                    reader {|x|menu_reader(x, get_reason_annul(), A__MENUVERT, , , .f.)}
+        @ ++i, 1 say 'Дата аннулирования' get mdate_3
         if napr->KOD_F_3in > 0 .or. napr->KOD_F_3out > 0 .or. eq_any(napr->TIP_ANNUL,1,2)
           s_msg := ""
           s := "Направление аннулировано в "
