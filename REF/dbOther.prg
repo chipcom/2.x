@@ -1,4 +1,5 @@
 #include 'function.ch'
+#include 'common.ch'
 
 #require 'hbsqlit3'
 
@@ -25,6 +26,29 @@ function getDLO_lgota()
     db := nil
   endif
   return _arr
+
+// 30.03.23
+function get_err_csv_prik()
+  static arr
+  static time_load
+  local db
+  local aTable
+  local nI
+
+  if timeout_load(@time_load)
+    arr := {}
+    db := openSQL_DB()
+    aTable := sqlite3_get_table(db, 'SELECT kod, name FROM err_csv_prik')
+    
+    if len(aTable) > 1
+      for nI := 2 to Len( aTable )
+        aadd(arr, {alltrim(aTable[nI, 2]), val(aTable[nI, 1])})
+      next
+    endif
+    db := nil
+  endif
+
+  return arr
 
 // 30.03.23
 function getNMIC()
@@ -223,3 +247,4 @@ function get_bukva()
   endif
 
   return arr
+

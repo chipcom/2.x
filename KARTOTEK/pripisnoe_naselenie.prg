@@ -290,10 +290,10 @@ Function f2_view_r_pr_nas(nKey,oBrow)
   restscreen(buf)
   return ret
   
-***** 24.10.18
+// 30.03.23
 Function f3_view_r_pr_nas(oBrow)
-  Static si := 1, snfile := "", sarr_mo, sarr_err, sjmo, sjerr
-  Local i, j, r := row(), r1, r2, buf := save_maxrow(), fl := .f., ii,;
+  Static si := 1, snfile := '', sarr_mo, sarr_err, sjmo, sjerr
+  Local i, j, r := row(), r1, r2, buf := save_maxrow(), fl := .f., ii, ;
         mm_func := {-1}, mm_menu
 
   Private fl_csv := .f., mm_err := {}
@@ -374,7 +374,8 @@ Function f3_view_r_pr_nas(oBrow)
         if ascan(mm_err,{|x| x[2] == sarr_err[j]}) > 0
           sarr_err[j] := str(sarr_err[j],3)+" "+inieditspr(A__MENUVERT,mm_err,sarr_err[j])
         else
-          sarr_err[j] := str(sarr_err[j],3)+" "+inieditspr(A__MENUVERT,mm_err_csv_prik,sarr_err[j])
+          // sarr_err[j] := str(sarr_err[j],3)+" "+inieditspr(A__MENUVERT,mm_err_csv_prik,sarr_err[j])
+          sarr_err[j] := str(sarr_err[j], 3) + ' ' + inieditspr(A__MENUVERT, get_err_csv_prik(), sarr_err[j])
         endif
       next
       asort(sarr_mo)
@@ -539,8 +540,10 @@ Function f31_view_r_pr_nas(reg,s,s1)
         select KRTE
         find (str(krtp->REES_ZAP,6))
         do while krtp->REES_ZAP == krte->REES_ZAP .and. !eof()
-          s := space(len(lstr(krtp->REES_ZAP))+2)+lstr(krte->REFREASON)+" "+;
-               inieditspr(A__MENUVERT,mm_err_csv_prik,krte->REFREASON)
+          // s := space(len(lstr(krtp->REES_ZAP))+2)+lstr(krte->REFREASON)+" "+;
+          //      inieditspr(A__MENUVERT,mm_err_csv_prik,krte->REFREASON)
+          s := space(len(lstr(krtp->REES_ZAP)) + 2) + lstr(krte->REFREASON) + ' ' + ;
+            inieditspr(A__MENUVERT, get_err_csv_prik(), krte->REFREASON)
           verify_FF(60,.t.,80)
           add_string(s)
           skip

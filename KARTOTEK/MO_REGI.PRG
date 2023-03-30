@@ -2634,7 +2634,7 @@ return NIL
 #define CSV_A_ENP    2
 #define CSV_A_CERR   3
 
-***** 23.07.15 чтение и анализ CSV-файла ответа на новый файл прикрепления
+// 30.03.23 чтение и анализ CSV-файла ответа на новый файл прикрепления
 Function read_CSV_FILE_PRIK_FLK_ANS(cFile,aerr,nTypeFile,nkod_reestr,nkod_file)
 Local i, j, k, jp := 0, je := 0, s, arr_csv, buf := save_maxrow()
 mywait()
@@ -2740,9 +2740,12 @@ if empty(aerr)
           krte->REFREASON := arr_csv[i,CSV_A_CERR,j]
           dbUnLock()
         endif
-        strfile(space(len(lstr(arr_csv[i,CSV_A_NREC]))+2)+lstr(krte->REFREASON)+" "+;
-                inieditspr(A__MENUVERT,mm_err_csv_prik,krte->REFREASON)+;
-                hb_eol(),cFileProtokol,.t.)
+        // strfile(space(len(lstr(arr_csv[i,CSV_A_NREC]))+2)+lstr(krte->REFREASON)+" "+;
+        //         inieditspr(A__MENUVERT,mm_err_csv_prik,krte->REFREASON)+;
+        //         hb_eol(),cFileProtokol,.t.)
+        strfile(space(len(lstr(arr_csv[i, CSV_A_NREC])) + 2) + lstr(krte->REFREASON) + ' ' + ;
+                inieditspr(A__MENUVERT, get_err_csv_prik(), krte->REFREASON) + ;
+                hb_eol(), cFileProtokol, .t.)
       next
     endif
   next
@@ -2776,9 +2779,12 @@ if empty(aerr)
             krte->REFREASON := 99
             dbUnLock()
           endif
-          strfile(space(len(lstr(krtp->REES_ZAP))+2)+lstr(krte->REFREASON)+" "+;
-                  inieditspr(A__MENUVERT,mm_err_csv_prik,krte->REFREASON)+;
-                  hb_eol(),cFileProtokol,.t.)
+          // strfile(space(len(lstr(krtp->REES_ZAP))+2)+lstr(krte->REFREASON)+" "+;
+          //         inieditspr(A__MENUVERT,mm_err_csv_prik,krte->REFREASON)+;
+          //         hb_eol(),cFileProtokol,.t.)
+          strfile(space(len(lstr(krtp->REES_ZAP)) + 2) + lstr(krte->REFREASON) + ' ' + ;
+            inieditspr(A__MENUVERT, get_err_csv_prik(), krte->REFREASON) + ;
+            hb_eol(), cFileProtokol, .t.)
         endif
         select KRTP
         skip
@@ -2809,9 +2815,10 @@ return NIL
 #define CSV_A_STATUS 7
 #define CSV_A_CERR   8
 
-***** 05.08.18 чтение в память и анализ CSV-файла ответа на файл прикрепления
-Function read_CSV_FILE_ANSWER(cFile,aerr,nkod_reestr)
-Local i, j, s, arr_csv, kol1 := 0, mmo_pr, md_prik, ar[2], fl_et, buf := save_maxrow()
+// 30.03.23 чтение в память и анализ CSV-файла ответа на файл прикрепления
+Function read_CSV_FILE_ANSWER(cFile, aerr, nkod_reestr)
+  Local i, j, s, arr_csv, kol1 := 0, mmo_pr, md_prik, ar[2], fl_et, buf := save_maxrow()
+
 stat_msg("Чтение файла "+upper(StripPath(cFile)))
 fp := fcreate(cFileProtokol) ; tek_stroke := 0 ; n_list := 1
 add_string(space(10)+"Протокол обработки файла "+upper(StripPath(cFile)))
@@ -2969,7 +2976,8 @@ if empty(aerr)
         endif
         krte->KOD_K := krtp->KOD_K
         dbUnLock()
-        s := lstr(krte->REFREASON)+" "+rtrim(inieditspr(A__MENUVERT,mm_err_csv_prik,krte->REFREASON))
+        // s := lstr(krte->REFREASON)+" "+rtrim(inieditspr(A__MENUVERT,mm_err_csv_prik,krte->REFREASON))
+        s := lstr(krte->REFREASON) + ' ' + rtrim(inieditspr(A__MENUVERT, get_err_csv_prik(), krte->REFREASON))
         if krte->REFREASON == 525
           s += " ("+alltrim(arr_csv[i,CSV_A_ENP])+")"
         elseif krte->REFREASON == 704 // Дата прикрепления больше даты смерти
@@ -3202,10 +3210,11 @@ return NIL
 #define CSV_A_DT_MO  9
 #define CSV_A_CERR  10
 
-***** 15.10.17 чтение в память и анализ CSV-файла ответа на запрос для сверки
-Function read_CSV_FILE_SVERKAO(cFile,aerr,nkod_reestr)
-Local i, j, k1, k, s, arr_csv, te := {}, kol1 := 0, kol2 := 0, kol3 := kol4 := 0,;
+// 30.03.23 чтение в память и анализ CSV-файла ответа на запрос для сверки
+Function read_CSV_FILE_SVERKAO(cFile, aerr, nkod_reestr)
+  Local i, j, k1, k, s, arr_csv, te := {}, kol1 := 0, kol2 := 0, kol3 := kol4 := 0, ;
       fl_et, au := {}, mmo_pr, md_prik, buf := save_maxrow()
+  
 stat_msg("Предварительная обработка")
 strfile(space(10)+"Протокол обработки для файла ответа на запрос по сверке"+;
         hb_eol()+hb_eol(),cFileProtokol,.t.)
@@ -3437,9 +3446,10 @@ if empty(aerr)
     if ascan(mm_err,{|x| x[2] == te[j1,1]}) > 0
       s := inieditspr(A__MENUVERT,mm_err,te[j1,1])
     else
-      s := inieditspr(A__MENUVERT,mm_err_csv_prik,te[j1,1])
+      // s := inieditspr(A__MENUVERT,mm_err_csv_prik,te[j1,1])
+      s := inieditspr(A__MENUVERT, get_err_csv_prik(), te[j1, 1])
     endif
-    strfile(str(te[j1,2],6)+" чел. - "+str(te[j1,1],3)+" "+s+hb_eol(),cFileProtokol,.t.)
+    strfile(str(te[j1, 2], 6) + ' чел. - ' + str(te[j1, 1], 3) + ' ' + s + hb_eol(), cFileProtokol, .t.)
   next
 endif
 rest_box(buf)
