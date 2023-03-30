@@ -6,7 +6,7 @@
 
 Static lcount_uch  := 1
 
-** 19.02.13
+// 30.03.23
 Function s3_statist(k3,k4)
 // k3 = 1 - Список счетов
 // k3 = 2 - С объединением по принадлежности
@@ -159,27 +159,29 @@ if R_Use(dir_server + "human_",,"HUMAN_") .and. ;
                        put_val(pp[4],6)+put_kopE(pp[3],13)+;
                        put_val(pp[6],6)+put_kopE(pp[5],13))
             if !empty(old_smo)
-              asort(arr_bukva,,,{|x,y| x[2] < y[2] })
+              asort(arr_bukva, , , {|x, y| x[2] < y[2] })
               fl := .t.
               for i := 1 to len(arr_bukva)
-                if arr_bukva[i,7] == old_smo
+                if arr_bukva[i, 7] == old_smo
                   if fl
-                    add_string(replicate("-",sh))
+                    add_string(replicate('-', sh))
                   endif
-                  s := padl(iif(fl,"в т.ч. ",""),30)+;
-                       put_val(arr_bukva[i,4],6)+put_kopE(arr_bukva[i,3],13)+;
-                       put_val(arr_bukva[i,6],6)+put_kopE(arr_bukva[i,5],13)+" "
-                  if (j := ascan(mm_bukva,{|x| x[2] == arr_bukva[i,2]})) > 0
-                    s += mm_bukva[j,1]
+                  s := padl(iif(fl, 'в т.ч. ', ''), 30) + ;
+                       put_val(arr_bukva[i, 4], 6) + put_kopE(arr_bukva[i, 3], 13) + ;
+                       put_val(arr_bukva[i, 6], 6) + put_kopE(arr_bukva[i, 5], 13) + ' '
+                  // if (j := ascan(mm_bukva,{|x| x[2] == arr_bukva[i,2]})) > 0
+                  //   s += mm_bukva[j,1]
+                  if (j := ascan(get_bukva(), {|x| x[2] == arr_bukva[i, 2]})) > 0
+                    s += get_bukva()[j, 1]
                   else
-                    s += arr_bukva[i,2]
+                    s += arr_bukva[i, 2]
                   endif
                   add_string(s)
                   fl := .f.
                 endif
               next
             endif
-            add_string("")
+            add_string('')
           endif
           pj := 0 ; afill(pp,0)
         endif
@@ -207,27 +209,29 @@ if R_Use(dir_server + "human_",,"HUMAN_") .and. ;
                  put_val(pp[4],6)+put_kopE(pp[3],13)+;
                  put_val(pp[6],6)+put_kopE(pp[5],13))
       if !empty(old_smo)
-        asort(arr_bukva,,,{|x,y| x[2] < y[2] })
+        asort(arr_bukva, , , {|x, y| x[2] < y[2] })
         fl := .t.
         for i := 1 to len(arr_bukva)
-          if arr_bukva[i,7] == old_smo
+          if arr_bukva[i, 7] == old_smo
             if fl
-              add_string(replicate("-",sh))
+              add_string(replicate('-', sh))
             endif
-            s := padl(iif(fl,"в т.ч. ",""),30)+;
-                 put_val(arr_bukva[i,4],6)+put_kopE(arr_bukva[i,3],13)+;
-                 put_val(arr_bukva[i,6],6)+put_kopE(arr_bukva[i,5],13)+" "
-            if (j := ascan(mm_bukva,{|x| x[2] == arr_bukva[i,2]})) > 0
-              s += mm_bukva[j,1]
+            s := padl(iif(fl, 'в т.ч. ', ''), 30) + ;
+                 put_val(arr_bukva[i, 4], 6) + put_kopE(arr_bukva[i, 3], 13) + ;
+                 put_val(arr_bukva[i, 6], 6) + put_kopE(arr_bukva[i, 5], 13) + ' '
+            // if (j := ascan(mm_bukva,{|x| x[2] == arr_bukva[i,2]})) > 0
+            //   s += mm_bukva[j,1]
+            if (j := ascan(get_bukva(), {|x| x[2] == arr_bukva[i, 2]})) > 0
+              s += get_bukva()[j, 1]
             else
-              s += arr_bukva[i,2]
+              s += arr_bukva[i, 2]
             endif
             add_string(s)
             fl := .f.
           endif
         next
       endif
-      add_string("")
+      add_string('')
     endif
   endif
   if k3 > 2  // разбивка по отд. и службам
@@ -244,17 +248,19 @@ if R_Use(dir_server + "human_",,"HUMAN_") .and. ;
       asort(arr_bukva,,,{|x,y| x[2] < y[2] })
       fl := .t.
       for i := 1 to len(arr_bukva)
-        if empty(arr_bukva[i,7])
+        if empty(arr_bukva[i, 7])
           if fl
-            add_string(replicate("-",sh))
+            add_string(replicate('-', sh))
           endif
-          s := padl(iif(fl,"в т.ч. ",""),30)+;
-               put_val(arr_bukva[i,4],6)+put_kopE(arr_bukva[i,3],13)+;
-               put_val(arr_bukva[i,6],6)+put_kopE(arr_bukva[i,5],13)+" "
-          if (j := ascan(mm_bukva,{|x| x[2] == arr_bukva[i,2]})) > 0
-            s += mm_bukva[j,1]
+          s := padl(iif(fl, 'в т.ч. ', ''), 30) + ;
+               put_val(arr_bukva[i, 4], 6) + put_kopE(arr_bukva[i, 3], 13) + ;
+               put_val(arr_bukva[i, 6], 6) + put_kopE(arr_bukva[i, 5], 13) + ' '
+          // if (j := ascan(mm_bukva,{|x| x[2] == arr_bukva[i,2]})) > 0
+          //   s += mm_bukva[j,1]
+          if (j := ascan(get_bukva(),{|x| x[2] == arr_bukva[i, 2]})) > 0
+            s += get_bukva()[j, 1]
           else
-            s += arr_bukva[i,2]
+            s += arr_bukva[i, 2]
           endif
           add_string(s)
           fl := .f.

@@ -1228,36 +1228,39 @@ elseif len(lval) == 18
 endif
 return s
 
-** 22.12.15 выбор нескольких типов счёта
-Function inp_bit_tip_schet(k,r,c)
-Local mlen, t_mas := {}, buf := savescreen(), ret, ;
-      i, tmp_color := setcolor(), m1var := "", s := "", r1, r2, ;
-      top_bottom := (r < maxrow()/2)
-mywait()
-aeval(mm_bukva, {|x| aadd(t_mas,iif(x[2] $ k," * ", "   ")+x[1]) })
-mlen := len(t_mas)
-i := 1
-status_key("^<Esc>^ - отказ; ^<Enter>^ - подтверждение; ^<Ins,+,->^ - смена выбора типа счёта")
-if top_bottom     // сверху вниз
-  r1 := r+1
-  if (r2 := r1+mlen+1) > maxrow()-2
-    r2 := maxrow()-2
-  endif
-else
-  r2 := r-1
-  if (r1 := r2-mlen-1) < 2
-    r1 := 2
-  endif
-endif
-if (ret := popup(r1, 2,r2, 77,t_mas,i,color0,.t.,"fmenu_reader",, ;
-                 "Выбор одного/нескольких/всех типов счетов", "B/BG")) > 0
-  for i := 1 to mlen
-    if "*" == substr(t_mas[i], 2, 1)
-      m1var += mm_bukva[i, 2]
+// 30.03.23 выбор нескольких типов счёта
+Function inp_bit_tip_schet(k, r, c)
+  Local mlen, t_mas := {}, buf := savescreen(), ret, ;
+      i, tmp_color := setcolor(), m1var := '', s := '', r1, r2, ;
+      top_bottom := (r < maxrow() / 2)
+
+  mywait()
+  // aeval(mm_bukva, {|x| aadd(t_mas,iif(x[2] $ k," * ", "   ")+x[1]) })
+  aeval(get_bukva(), {|x| aadd(t_mas, iif(x[2] $ k, ' * ', '   ') + x[1]) })
+  mlen := len(t_mas)
+  i := 1
+  status_key('^<Esc>^ - отказ; ^<Enter>^ - подтверждение; ^<Ins,+,->^ - смена выбора типа счёта')
+  if top_bottom     // сверху вниз
+    r1 := r + 1
+    if (r2 := r1 + mlen + 1) > maxrow() - 2
+      r2 := maxrow() - 2
     endif
-  next
-  s := ini_ed_tip_schet(m1var)
-endif
-restscreen(buf)
-setcolor(tmp_color)
-return iif(ret==0, NIL, {m1var,s})
+  else
+    r2 := r - 1
+    if (r1 := r2 - mlen - 1) < 2
+      r1 := 2
+    endif
+  endif
+  if (ret := popup(r1, 2, r2, 77, t_mas, i, color0, .t., 'fmenu_reader', , ;
+                 'Выбор одного/нескольких/всех типов счетов', 'B/BG')) > 0
+    for i := 1 to mlen
+      if '*' == substr(t_mas[i], 2, 1)
+        // m1var += mm_bukva[i, 2]
+        m1var += get_bukva()[i, 2]
+      endif
+    next
+    s := ini_ed_tip_schet(m1var)
+  endif
+  restscreen(buf)
+  setcolor(tmp_color)
+  return iif(ret == 0, NIL, {m1var, s})

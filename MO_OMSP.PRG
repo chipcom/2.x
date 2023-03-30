@@ -730,10 +730,11 @@ if popup_2array(arr,r,c,si,1,@ret_arr) > 0 .and. valtype(ret_arr) == "A"
 endif
 return ret
 
-***** 16.12.13 список платёжных поручений
+// 30.03.23 список платёжных поручений
 Function i_list_of_pd()
-Local buf := save_maxrow(), lsmo := {}, arr_smo, lmenu, i, j, k, s, t_arr[2], ;
-      fl, arr_m, name_file := "spis_pd", sh := 80, HH := 60
+  Local buf := save_maxrow(), lsmo := {}, arr_smo, lmenu, i, j, k, s, t_arr[2], ;
+      fl, arr_m, name_file := cur_dir + 'spis_pd', sh := 80, HH := 60
+
 if (lmenu := ret_menu_rpd_schet()) == NIL
   return NIL
 endif
@@ -856,11 +857,14 @@ do while !eof()
 enddo
 arr_bukva := {}
 select TMP1
-find (str(0,1))
+find (str(0, 1))
 do while tmp1->tip == 0 .and. !eof()
-  if !empty(bukva) .and. ascan(arr_bukva,{|x| x[2] == tmp1->bukva}) == 0 ;
-                 .and. (j := ascan(mm_bukva,{|x| x[2] == tmp1->bukva})) > 0
-    aadd(arr_bukva,{mm_bukva[j,1],mm_bukva[j,2],0})
+  // if !empty(bukva) .and. ascan(arr_bukva,{|x| x[2] == tmp1->bukva}) == 0 ;
+  //                .and. (j := ascan(mm_bukva,{|x| x[2] == tmp1->bukva})) > 0
+  //   aadd(arr_bukva,{mm_bukva[j,1],mm_bukva[j,2],0})
+  if !empty(bukva) .and. ascan(arr_bukva, {|x| x[2] == tmp1->bukva}) == 0 ;
+      .and. (j := ascan(get_bukva(), {|x| x[2] == tmp1->bukva})) > 0
+        aadd(arr_bukva, {get_bukva()[j, 1], get_bukva()[j, 2], 0})
   endif
   skip
 enddo
@@ -1546,24 +1550,27 @@ if !empty(s)
 endif
 return s
 
-***** 22.12.15 Распечатка информации по выставленным счетам, снятиям по ним, оплате и долге
+// 30.03.23 Распечатка информации по выставленным счетам, снятиям по ним, оплате и долге
 Function pr1_oborot_schet()
-Static arr_smo
-Static mm_poisk := {{"по дате отчётного периода",0},;
+  Static arr_smo
+  Static mm_poisk := {{"по дате отчётного периода",0},;
                     {"по дате выставления счета",1},;
                     {"по дате регистрации счета",2}}
-Static mm_dolg := {{"все строки",0},;
+  Static mm_dolg := {{"все строки",0},;
                    {"только строки с долгом",1}}
-Static mm_schet := {{"итого по СМО",0},;
+  Static mm_schet := {{"итого по СМО",0},;
                     {"итого по учреждениям/отделениям",1},;
                     {"итого по типам счетов",2},;
                     {"отдельно по каждому счёту",3}}
-Static s1poisk := 0, s1schet := 3, s1dolg := 0, s1smo := 0, s1bukva := ""
-Local buf := savescreen(), i, ar, s, r := 13
+  Static s1poisk := 0, s1schet := 3, s1dolg := 0, s1smo := 0, s1bukva := ""
+  Local buf := savescreen(), i, ar, s, r := 13
+
 if empty(s1bukva)
-  s1bukva := ""
-  for i := 1 to len(mm_bukva)
-    s1bukva += mm_bukva[i,2]
+  s1bukva := ''
+  // for i := 1 to len(mm_bukva)
+  //   s1bukva += mm_bukva[i,2]
+  for i := 1 to len(get_bukva())
+    s1bukva += get_bukva()[i, 2]
   next
 endif
 if arr_smo == NIL
@@ -1652,8 +1659,8 @@ enddo
 restscreen(buf)
 return NIL
 
-***** 13.02.19
-Function f1pr1_oborot_schet(asmo,ssmo)
+// 30.03.23
+Function f1pr1_oborot_schet(asmo, ssmo)
 Local adbf, i, n, arr_title, n_file := "oborot1"+stxt, sh, HH := 60, buf := save_maxrow()
 mywait()
 adbf := {{"nschet","C",15,0},;
@@ -1909,17 +1916,19 @@ do case
       skip
     enddo
   case m1schet == 2 // по типам счетов
-    for i := 1 to len(mm_bukva)
-      find (mm_bukva[i,2])
+    for i := 1 to len(get_bukva()) // len(mm_bukva)
+      // find (mm_bukva[i, 2])
+      find (get_bukva()[i, 2])
       if found()
-        add_string(padr(mm_bukva[i,1],n)+put_kop(tmp1->summa1,15,2)+;
-                   put_kopE(tmp1->sum_sn,12,2)+put_kopE(tmp1->sum_op,15,2)+;
-                   put_kopE(tmp1->summa1-tmp1->sum_sn-tmp1->sum_op,15,2))
+        // add_string(padr(mm_bukva[i,1],n)+put_kop(tmp1->summa1,15,2)+;
+        add_string(padr(get_bukva()[i, 1], n) + put_kop(tmp1->summa1, 15, 2) + ;
+                   put_kopE(tmp1->sum_sn, 12, 2) + put_kopE(tmp1->sum_op, 15, 2) + ;
+                   put_kopE(tmp1->summa1 - tmp1->sum_sn - tmp1->sum_op, 15, 2))
         s1 += tmp1->summa1
         s2 += tmp1->sum_sn
         s3 += tmp1->sum_op
         if !empty(tmp1->penalty)
-          add_string(put_kop(tmp1->penalty,n+15+12,2)+"(штраф)")
+          add_string(put_kop(tmp1->penalty, n + 15 + 12, 2) + '(штраф)')
           spenalty += tmp1->penalty
         endif
       endif

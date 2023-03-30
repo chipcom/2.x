@@ -1025,7 +1025,7 @@ else
 endif
 return _ist_fin
 
-***** 21.02.22
+// 30.03.23
 Function f3pr_inog_inostr(j,arr_m)
 Static sprofil := "терапии"
 Static mm_vid := {"медицинская помощь, оказанная в стационарных условиях",;
@@ -1094,7 +1094,8 @@ if j == 1 .or. j == 2
         endif
         frd->ist_fin := mm_ist_fin[tmp_kart->ist_fin]
         frd->region := inieditspr(A__MENUVERT, getO001(), tmp_kart->region)
-        frd->osnov := inieditspr(A__MENUVERT, menu_osn_preb_RF, tmp_kart->osnov)
+        // frd->osnov := inieditspr(A__MENUVERT, menu_osn_preb_RF, tmp_kart->osnov)
+        frd->osnov := inieditspr(A__MENUVERT, get_osn_preb_RF(), tmp_kart->osnov)
         frd->fio := kart->fio
         frd->kols += tmp_kart->kols
         frd->vozr := tmp_kart->vozr
@@ -1162,7 +1163,8 @@ else
       frd->region := charrem("*",name)
     else
       frd->region := inieditspr(A__MENUVERT, getO001(), tmp1->region)
-      frd->osnov := inieditspr(A__MENUVERT, menu_osn_preb_RF, tmp1->osnov)
+      // frd->osnov := inieditspr(A__MENUVERT, menu_osn_preb_RF, tmp1->osnov)
+      frd->osnov := inieditspr(A__MENUVERT, get_osn_preb_RF(), tmp1->osnov)
     endif
     frd->kols := tmp1->kols
     frd->kol := tmp1->kol

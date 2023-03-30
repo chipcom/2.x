@@ -88,7 +88,7 @@ Function edit_kartotek(mkod, _top_r, _bot_r, fl_oms, _Human_kod)
   endif
   return mkod
 
-// 29.03.23
+// 30.03.23
 Function edit_kartotek_(mkod,_top_r,_bot_r,fl_oms,_Human_kod)
 Static mm_kart_error := {{"нет замечаний",0},{"полис недействителен",-8},{"ошибки в реквизитах",-9}}
 Static mm_invalid := {{"нет",0},{"1 группа",1},{"2 группа",2},{"3 группа",3},{"дети-инвалиды",4}}
@@ -368,7 +368,8 @@ mkategor2  := inieditspr(A__MENUVERT, stm_kategor2, m1kategor2)
 mKOD_LGOT  := inieditspr(A__MENUVERT, getDLO_lgota(), m1KOD_LGOT)
 mkomu      := inieditspr(A__MENUVERT, mm_komu, m1komu)
 minvalid   := inieditspr(A__MENUVERT, mm_invalid, m1invalid)
-mosn_preb  := inieditspr(A__MENUVERT, menu_osn_preb_RF, m1osn_preb)
+// mosn_preb  := inieditspr(A__MENUVERT, menu_osn_preb_RF, m1osn_preb)
+mosn_preb  := inieditspr(A__MENUVERT, get_osn_preb_RF(), m1osn_preb)
 madres_reg := ini_adres(1)
 madres_pre := ini_adres(2)
 if empty(m1namesmo := int(val(msmo)))
@@ -1208,45 +1209,41 @@ if rec > 0 .and. lkod_k == rec
 endif
 return .t.
 
-** 11.09.18
+// 30.03.23
 Function get_oksm(r)
   Local c := 7, r1, r2, buf, tmp_help, tmp_list, tmp_color, tmp_cursor, tek_sost, tmp_keys
 
-  if r < int(maxrow()/2)
-    r1 := r+1
-    r2 := r1+8
+  if r < int(maxrow() / 2)
+    r1 := r + 1
+    r2 := r1 + 8
   else
-    r2 := r-1
-    r1 := r2-8
+    r2 := r - 1
+    r1 := r2 - 8
   endif
   buf := savescreen()
-  //tmp_help := help_code
   SAVE GETS TO tmp_list
-  //help_code := H_Inostr
-  tmp_color := setcolor(color0+",,,B/BG")
+  tmp_color := setcolor(color0 + ' , , , B/BG')
   tmp_cursor := setcursor(0)
-  //tek_sost := CSETALL()
   tmp_keys := my_savekey()
   change_attr()
-  box_shadow(r1,c,r2,77,,"Ввод дополнительных сведений по иностранцу","GR+/BG")
+  box_shadow(r1, c, r2, 77, , 'Ввод дополнительных сведений по иностранцу', 'GR+/BG')
   setcursor()
-  @ r1+1,c+2 say "Страна" get mstrana ;
-             reader {|x|menu_reader(x,{{|k,r,c|f1get_oksm(k,r,c)}},A__FUNCTION,,,.f.)}
-  @ r1+2,c+2 say "Основание пребывания в РФ" get mosn_preb ;
-             reader {|x|menu_reader(x,menu_osn_preb_RF,A__MENUVERT,,,.f.)}
-  @ r1+3,c+2 say "Адрес проживания в Волгоградской области"
-  @ r1+4,c+3 get MADRES_PRO
-  @ r1+5,c+2 say "Миграционная карта" get MMIGR_KARTA
-  @ r1+6,c+2 say "Дата пересечения границы" get MDATE_P_G
-  @ r1+7,c+2 say "Дата регистрации в миграционной службе" get MDATE_R_M
-  status_key("^<PgDn>^ - запись и переход в карточку пациента")
+  @ r1 + 1, c + 2 say 'Страна' get mstrana ;
+             reader {|x|menu_reader(x, {{|k, r, c| f1get_oksm(k, r, c)}}, A__FUNCTION, , , .f.)}
+  @ r1 + 2, c + 2 say 'Основание пребывания в РФ' get mosn_preb ;
+             reader {|x|menu_reader(x, get_osn_preb_RF(), A__MENUVERT, , , .f.)}
+              // reader {|x|menu_reader(x,menu_osn_preb_RF,A__MENUVERT,,,.f.)}
+  @ r1 + 3, c + 2 say 'Адрес проживания в Волгоградской области'
+  @ r1 + 4, c + 3 get MADRES_PRO
+  @ r1 + 5, c + 2 say 'Миграционная карта' get MMIGR_KARTA
+  @ r1 + 6, c + 2 say 'Дата пересечения границы' get MDATE_P_G
+  @ r1 + 7, c + 2 say 'Дата регистрации в миграционной службе' get MDATE_R_M
+  status_key('^<PgDn>^ - запись и переход в карточку пациента')
   myread()
   restscreen(buf)
   my_restkey(tmp_keys)
   setcolor(tmp_color)
-  //help_code := tmp_help
   RESTORE GETS FROM tmp_list
-  //CSETALL(tek_sost)
   if tmp_cursor != 0
     setcursor()
   endif
