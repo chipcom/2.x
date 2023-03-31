@@ -1443,7 +1443,7 @@ else
 endif
 return NIL
 
-// 29.03.23 печать счета
+// 31.03.23 печать счета
 Function print_schet_S(reg)
 Local adbf, j, s, ii := 0, fl_numeration := .f., buf := save_maxrow(),;
       lshifr1, ldate1, ldate2, hGauge
@@ -1500,8 +1500,10 @@ frt->k_schet := org->k_schet
 frt->ispolnit := org->ispolnit
 frt->date_podp := full_date(sys_date)+" г."
 s := ""
-if (j := ascan(arr_rekv_smo,{|x| x[1]==schet_->SMO})) > 0
-  s := arr_rekv_smo[j,2]
+// if (j := ascan(arr_rekv_smo,{|x| x[1]==schet_->SMO})) > 0
+//   s := arr_rekv_smo[j,2]
+if (j := ascan(get_rekv_SMO(), {|x| x[1] == schet_->SMO})) > 0
+  s := get_rekv_SMO()[j, 2]
   if reg == 2 .and. int(val(schet_->SMO)) == 34 // иногородние !
     reg := 3
   endif
@@ -1827,30 +1829,38 @@ next
 add_string("Расчетный счет: "+alltrim(sr_schet)+", БИК: "+alltrim(sbik))
 add_string("")
 add_string("")
-if (j := ascan(arr_rekv_smo,{|x| x[1]==schet_->SMO})) == 0
-  j := len(arr_rekv_smo) // если не нашли - печатаем реквизиты ТФОМС
+// if (j := ascan(arr_rekv_smo,{|x| x[1]==schet_->SMO})) == 0
+//   j := len(arr_rekv_smo) // если не нашли - печатаем реквизиты ТФОМС
+// endif
+// k := perenos(t_arr,arr_rekv_smo[j,2],sh-12)
+if (j := ascan(get_rekv_SMO(), {|x| x[1] == schet_->SMO})) == 0
+  j := len(get_rekv_SMO()) // если не нашли - печатаем реквизиты ТФОМС
 endif
-k := perenos(t_arr,arr_rekv_smo[j,2],sh-12)
-add_string("Плательщик: "+t_arr[1])
+k := perenos(t_arr, get_rekv_SMO()[j, 2], sh - 12)
+add_string('Плательщик: ' + t_arr[1])
 for i := 2 to k
   add_string(space(12)+t_arr[2])
 next
-add_string("ИНН: "+arr_rekv_smo[j,3]+", КПП: "+arr_rekv_smo[j,4])
-k := perenos(t_arr,arr_rekv_smo[j,6],sh-7)
-add_string("Адрес: "+t_arr[1])
+// add_string("ИНН: "+arr_rekv_smo[j,3]+", КПП: "+arr_rekv_smo[j,4])
+// k := perenos(t_arr,arr_rekv_smo[j,6],sh-7)
+add_string('ИНН: ' + get_rekv_SMO()[j, 3] + ', КПП: ' + get_rekv_SMO()[j, 4])
+k := perenos(t_arr, get_rekv_SMO()[j, 6], sh - 7)
+add_string('Адрес: ' + t_arr[1])
 for i := 2 to k
   add_string(space(7)+t_arr[2])
 next
-k := perenos(t_arr,arr_rekv_smo[j,7],sh-18)
+// k := perenos(t_arr,arr_rekv_smo[j,7],sh-18)
+k := perenos(t_arr, get_rekv_SMO()[j, 7], sh - 18)
 add_string("Банк плательщика: "+t_arr[1])
 for i := 2 to k
   add_string(space(18)+t_arr[2])
 next
-add_string("Расчетный счет: "+alltrim(arr_rekv_smo[j,8])+", БИК: "+alltrim(arr_rekv_smo[j,9]))
-add_string("")
-add_string("")
-add_string(center("Реестр счета № "+alltrim(schet_->nschet)+" от "+full_date(schet_->dschet)+" г.",sh))
-add_string("")
+// add_string("Расчетный счет: "+alltrim(arr_rekv_smo[j,8])+", БИК: "+alltrim(arr_rekv_smo[j,9]))
+add_string('Расчетный счет: ' + alltrim(get_rekv_SMO()[j, 8]) + ', БИК: ' + alltrim(get_rekv_SMO()[j, 9]))
+add_string('')
+add_string('')
+add_string(center('Реестр счета № ' + alltrim(schet_->nschet) + ' от ' + full_date(schet_->dschet) + ' г.', sh))
+add_string('')
 aeval(arr_title, {|x| add_string(x) } )
 select SCHET
 fl_numeration := emptyany(schet_->nyear,schet_->nmonth)

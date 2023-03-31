@@ -50,6 +50,29 @@ function get_err_csv_prik()
 
   return arr
 
+// 31.03.23
+function get_rekv_SMO()
+  static arr
+  static time_load
+  local db
+  local aTable
+  local nI
+
+  if timeout_load(@time_load)
+    arr := {}
+    db := openSQL_DB()
+    aTable := sqlite3_get_table(db, 'SELECT kod, name, inn, kpp, ogrn, addres FROM rekv_smo')
+    if len(aTable) > 1
+      for nI := 2 to Len( aTable )
+        aadd(arr, {aTable[nI, 1], alltrim(aTable[nI, 2]), aTable[nI, 3], aTable[nI, 4], ;
+          aTable[nI, 5], alltrim(aTable[nI, 6]), '', '', ''})
+      next
+    endif
+    db := nil
+  endif
+
+  return arr
+
 // 30.03.23
 function getNMIC()
   static arr

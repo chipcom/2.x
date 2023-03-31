@@ -1390,7 +1390,7 @@ endif
 close databases
 return NIL
 
-** 21.01.23
+// 31.03.23
 Function SchetUzkieSpec()
 Local sh:=84, HH:=60, reg_print:=2, i, j, k, s, t_arr[2], n_file := "_schet.txt"
 //
@@ -1421,23 +1421,32 @@ enddo
 add_string("")
 add_string(center("СЧЕТ № "+alltrim(mnomer)+" от "+date_month(mdate),sh))
 add_string("")
-if (j := ascan(arr_rekv_smo,{|x| int(val(x[1]))==glob_strah[1]})) == 0
-  j := len(arr_rekv_smo) // если не нашли - печатаем реквизиты ТФОМС
+// if (j := ascan(arr_rekv_smo,{|x| int(val(x[1]))==glob_strah[1]})) == 0
+//   j := len(arr_rekv_smo) // если не нашли - печатаем реквизиты ТФОМС
+// endif
+// k := perenos(t_arr,arr_rekv_smo[j,2],sh-17)
+if (j := ascan(get_rekv_SMO(), {|x| int(val(x[1])) == glob_strah[1]})) == 0
+  j := len(get_rekv_SMO()) // если не нашли - печатаем реквизиты ТФОМС
 endif
-k := perenos(t_arr,arr_rekv_smo[j,2],sh-17)
+k := perenos(t_arr, get_rekv_SMO()[j, 2], sh - 17)
 add_string(padr("Плательщик:",17)+t_arr[1])
 for i := 2 to k
   add_string(space(17)+t_arr[2])
 next
-k := perenos(t_arr,arr_rekv_smo[j,6],sh-17)
-add_string(padr("Адрес:",17)+t_arr[1])
+// k := perenos(t_arr,arr_rekv_smo[j,6],sh-17)
+k := perenos(t_arr, get_rekv_SMO()[j, 6], sh - 17)
+add_string(padr('Адрес:', 17) + t_arr[1])
 for i := 2 to k
-  add_string(space(17)+t_arr[2])
+  add_string(space(17) + t_arr[2])
 next
-add_string("Расчетный счет:  "+alltrim(arr_rekv_smo[j,8])+" "+alltrim(arr_rekv_smo[j,7]))
-add_string("БИК:             "+arr_rekv_smo[j,9])
-add_string("Город:           "+"")
-add_string("ИНН:             "+alltrim(arr_rekv_smo[j,3])+iif(empty(arr_rekv_smo[j,4]),"","/"+arr_rekv_smo[j,4]))
+// add_string("Расчетный счет:  "+alltrim(arr_rekv_smo[j,8])+" "+alltrim(arr_rekv_smo[j,7]))
+// add_string("БИК:             "+arr_rekv_smo[j,9])
+// add_string("Город:           "+"")
+// add_string("ИНН:             "+alltrim(arr_rekv_smo[j,3])+iif(empty(arr_rekv_smo[j,4]),"","/"+arr_rekv_smo[j,4]))
+add_string('Расчетный счет:  ' + alltrim(get_rekv_SMO()[j, 8]) + ' ' + alltrim(get_rekv_SMO()[j, 7]))
+add_string('БИК:             ' + get_rekv_SMO()[j, 9])
+add_string('Город:           ' + '')
+add_string('ИНН:             ' + alltrim(get_rekv_SMO()[j, 3]) + iif(empty(get_rekv_SMO()[j, 4]), '', '/' + get_rekv_SMO()[j, 4]))
 add_string("Код по ОКОНХ:    "+"")
 add_string("Код по ОКПО:     "+"")
 add_string("")
