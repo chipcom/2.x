@@ -372,166 +372,100 @@ Public mm1ist_fin :=  {{"бюджет",      I_FIN_BUD},;   // 1
                        {"за свой счёт",I_FIN_OWN}}    // 4
 Public mm_ist_fin := aclone(mm1ist_fin)
 Ins_Array(mm_ist_fin,1,{"ОМС",         I_FIN_OMS})
-// прочие компании
-Public gmenu_strah := {}
-aadd(gmenu_strah, {"name","C",30,0,NIL,NIL,;
-                   space(30),NIL,"Название"})
-aadd(gmenu_strah, {"fname","C",70,0,NIL,NIL,;
-                   space(70),NIL,"Полное наименование"})
-aadd(gmenu_strah, {"inn","C",20,0,NIL,NIL,;
-                   space(20),NIL,"ИНН/КПП"})
-aadd(gmenu_strah, {"adres","C",50,0,NIL,NIL,;
-                   space(50),NIL,"Адрес"})
-aadd(gmenu_strah, {"telefon","C",8,0,NIL,NIL,;
-                   "  -  -  ",NIL,"Телефон"})
-aadd(gmenu_strah, {"bank","C",70,0,NIL,NIL,;
-                   space(70),NIL,"Банк"})
-aadd(gmenu_strah, {"smfo","C",10,0,NIL,NIL,space(10),NIL,;
-                   "БИК"})
-aadd(gmenu_strah, {"r_schet","C",45,0,NIL,NIL,space(45),NIL,;
-                   "Расчетный счет"})
-aadd(gmenu_strah, {"k_schet","C",20,0,NIL,NIL,space(20),NIL,;
-                   "Корр.счет"})
-aadd(gmenu_strah, {"okonh","C",15,0,NIL,NIL,space(15),NIL,;
-                   "Код по ОКОНХ"})
-aadd(gmenu_strah, {"okpo","C",15,0,NIL,NIL,space(15),NIL,;
-                   "Код по ОКПО"})
-aadd(gmenu_strah, {"tfoms","N",2,0,NIL,NIL,0,NIL,;
-                   "Код ТФОМС",,{||.f.}})
-aadd(gmenu_strah, {"parakl","N",1,0,NIL,;
-                   {|x|menu_reader(x,mm_danet,A__MENUVERT)},;
-                   0,{|x|inieditspr(A__MENUVERT,mm_danet,x)},;
-                   'Включать ПАРАКЛИНИКУ в сумму счета по данной компании:'})
-aadd(gmenu_strah, {"ist_fin","N",1,0,NIL,;
-                   {|x|menu_reader(x,mm1ist_fin,A__MENUVERT)},;
-                   0,{|x|inieditspr(A__MENUVERT,mm1ist_fin,x)},;
-                  'Источник финансирования:'})
-// комитеты/МО
-Public gmenu_komit := {}
-aadd(gmenu_komit, {"name","C",30,0,NIL,NIL,;
-                   space(30),NIL,"Название"})
-aadd(gmenu_komit, {"fname","C",70,0,NIL,NIL,;
-                   space(70),NIL,"Полное наименование"})
-aadd(gmenu_komit, {"inn","C",20,0,NIL,NIL,;
-                   space(20),NIL,"ИНН/КПП"})
-aadd(gmenu_komit, {"adres","C",50,0,NIL,NIL,;
-                   space(50),NIL,"Адрес"})
-aadd(gmenu_komit, {"telefon","C",8,0,NIL,NIL,;
-                   "  -  -  ",NIL,"Телефон"})
-aadd(gmenu_komit, {"bank","C",70,0,NIL,NIL,;
-                   space(70),NIL,"Банк"})
-aadd(gmenu_komit, {"smfo","C",10,0,NIL,NIL,space(10),NIL,;
-                   "БИК"})
-aadd(gmenu_komit, {"r_schet","C",45,0,NIL,NIL,space(45),NIL,;
-                   "Расчетный счет"})
-aadd(gmenu_komit, {"k_schet","C",20,0,NIL,NIL,space(20),NIL,;
-                   "Корр.счет"})
-aadd(gmenu_komit, {"okonh","C",15,0,NIL,NIL,space(15),NIL,;
-                   "Код по ОКОНХ"})
-aadd(gmenu_komit, {"okpo","C",15,0,NIL,NIL,space(15),NIL,;
-                   "Код по ОКПО"})
-aadd(gmenu_komit, {"parakl","N",1,0,NIL,;
-                   {|x|menu_reader(x,mm_danet,A__MENUVERT)},;
-                   0,{|x|inieditspr(A__MENUVERT,mm_danet,x)},;
-                   'Включать ПАРАКЛИНИКУ в сумму счета по данному комитету (МО):'})
-aadd(gmenu_komit, {"ist_fin","N",1,0,NIL,;
-                   {|x|menu_reader(x,mm1ist_fin,A__MENUVERT)},;
-                   0,{|x|inieditspr(A__MENUVERT,mm1ist_fin,x)},;
-                   'Источник финансирования:'})
 // ДСМО и предприятия по взаимозачёту для платных услуг
-Public gmenu_pl_d_smo := {}
-aadd(gmenu_pl_d_smo, {"name","C",30,0,NIL,NIL,;
-                      space(30),NIL,"Название"})
-aadd(gmenu_pl_d_smo, {"fname","C",70,0,NIL,NIL,;
-                      space(70),NIL,"Полное наименование"})
-aadd(gmenu_pl_d_smo, {"inn","C",20,0,NIL,NIL,;
-                      space(20),NIL,"ИНН/КПП"})
-aadd(gmenu_pl_d_smo, {"adres","C",100,0,NIL,NIL,;
-                      space(100),NIL,"Адрес"})
-aadd(gmenu_pl_d_smo, {"telefon","C",8,0,NIL,NIL,;
-                      "  -  -  ",NIL,"Телефон"})
-aadd(gmenu_pl_d_smo, {"bank","C",100,0,NIL,NIL,;
-                      space(100),NIL,"Банк"})
-aadd(gmenu_pl_d_smo, {"smfo","C",10,0,NIL,NIL,space(10),NIL,;
-                      "БИК"})
-aadd(gmenu_pl_d_smo, {"r_schet","C",45,0,NIL,NIL,space(45),NIL,;
-                      "Расчетный счет"})
-aadd(gmenu_pl_d_smo, {"k_schet","C",20,0,NIL,NIL,space(20),NIL,;
-                      "Корр.счет"})
-aadd(gmenu_pl_d_smo, {"n_dog","C",30,0,NIL,NIL,space(30),NIL,;
-                      "Номер договора"})
-aadd(gmenu_pl_d_smo, {"d_dog","D",8,0,NIL,NIL,ctod(""),NIL,;
-                      "Дата договора"})
+// Public gmenu_pl_d_smo := {}
+// aadd(gmenu_pl_d_smo, {"name","C",30,0,NIL,NIL,;
+//                       space(30),NIL,"Название"})
+// aadd(gmenu_pl_d_smo, {"fname","C",70,0,NIL,NIL,;
+//                       space(70),NIL,"Полное наименование"})
+// aadd(gmenu_pl_d_smo, {"inn","C",20,0,NIL,NIL,;
+//                       space(20),NIL,"ИНН/КПП"})
+// aadd(gmenu_pl_d_smo, {"adres","C",100,0,NIL,NIL,;
+//                       space(100),NIL,"Адрес"})
+// aadd(gmenu_pl_d_smo, {"telefon","C",8,0,NIL,NIL,;
+//                       "  -  -  ",NIL,"Телефон"})
+// aadd(gmenu_pl_d_smo, {"bank","C",100,0,NIL,NIL,;
+//                       space(100),NIL,"Банк"})
+// aadd(gmenu_pl_d_smo, {"smfo","C",10,0,NIL,NIL,space(10),NIL,;
+//                       "БИК"})
+// aadd(gmenu_pl_d_smo, {"r_schet","C",45,0,NIL,NIL,space(45),NIL,;
+//                       "Расчетный счет"})
+// aadd(gmenu_pl_d_smo, {"k_schet","C",20,0,NIL,NIL,space(20),NIL,;
+//                       "Корр.счет"})
+// aadd(gmenu_pl_d_smo, {"n_dog","C",30,0,NIL,NIL,space(30),NIL,;
+//                       "Номер договора"})
+// aadd(gmenu_pl_d_smo, {"d_dog","D",8,0,NIL,NIL,ctod(""),NIL,;
+//                       "Дата договора"})
+public mm_filial_tf := {{'Волгоградский', 1}, ;
+                        {'Заволжский', 2}, ;
+                        {'Северный', 3}, ;
+                        {'Медведицкий', 4}, ;
+                        {'Хопёрский', 5}, ;
+                        {'Южный', 6}}
 // Ваша организация
-Public gmenu_organ := {},;
-       mm_filial_tf := {{"Волгоградский",1},;
-                        {"Заволжский",2},;
-                        {"Северный",3},;
-                        {"Медведицкий",4},;
-                        {"Хопёрский",5},;
-                        {"Южный",6}}
-aadd(gmenu_organ, {"kod_tfoms","C",8,0,NIL,NIL,;
-                   space(8),NIL,;
-                   'Регистрационный код МО в ТФОМС',;
-                   {|g| valid_kod_tfoms(g) },;
-                   {|| hb_user_curUser:IsAdmin()}})
-aadd(gmenu_organ, {"name_tfoms","C",60,0,NIL,,'',,'Наименование (в ТФОМС)',,{||.f.}})
-aadd(gmenu_organ, {"uroven","N",1,0,NIL,,0,,'Уровень цен Вашей МО',,{||.f.}})
-aadd(gmenu_organ, {"name","C",130,0,NIL,NIL,;
-                   space(130),NIL,"Название"})
-aadd(gmenu_organ, {"name_schet","C",130,0,NIL,NIL,;
-                   space(130),NIL,"Название для счёта"})
-aadd(gmenu_organ, {"name_xml","C",255,0,NIL,NIL,;
-                   space(255),NIL,"Название для портала МЗ РФ"})
-aadd(gmenu_organ, {"inn","C",20,0,NIL,NIL,;
-                   space(20),NIL,"ИНН/КПП"})
-aadd(gmenu_organ, {"adres","C",70,0,NIL,NIL,;
-                   space(70),NIL,"Адрес"})
-aadd(gmenu_organ, {"telefon","C",20,0,NIL,NIL,;
-                   space(20),NIL,"Телефон"})
-aadd(gmenu_organ, {"bank","C",130,0,NIL,NIL,;
-                   space(130),NIL,"Банк"})
-aadd(gmenu_organ, {"smfo","C",10,0,NIL,NIL,space(10),NIL,;
-                   "БИК"})
-aadd(gmenu_organ, {"r_schet","C",45,0,NIL,NIL,space(45),NIL,;
-                   "Расчетный счет"})
-aadd(gmenu_organ, {"k_schet","C",20,0,NIL,NIL,space(20),NIL,;
-                   "Корр.счет"})
-aadd(gmenu_organ, {"okonh","C",15,0,NIL,NIL,space(15),NIL,;
-                   "Код по ОКОНХ"})
-aadd(gmenu_organ, {"okpo","C",15,0,NIL,NIL,space(15),NIL,;
-                   "Код по ОКПО"})
-aadd(gmenu_organ, {"e_1","C",1,0,NIL,NIL,;
-                   space(1),NIL,"Банковские реквизиты для перечисления доплат из средств субсидий ФФОМС:",,;
-                   {||.f.}})
-aadd(gmenu_organ, {"name2","C",130,0,NIL,NIL,;
-                   space(130),NIL,space(5)+"- название"})
-aadd(gmenu_organ, {"bank2","C",130,0,NIL,NIL,;
-                   space(130),NIL,space(5)+"- банк"})
-aadd(gmenu_organ, {"smfo2","C",10,0,NIL,NIL,space(10),NIL,;
-                   space(5)+"- БИК"})
-aadd(gmenu_organ, {"r_schet2","C",45,0,NIL,NIL,space(45),NIL,;
-                   space(5)+"- расчетный счет"})
-aadd(gmenu_organ, {"k_schet2","C",20,0,NIL,NIL,space(20),NIL,;
-                   space(5)+"- корр.счет"})
-aadd(gmenu_organ, {"ogrn","C",15,0,,,space(15),,;
-                   "ОГРН ЛПУ"})
-aadd(gmenu_organ, {"ruk_fio","C",60,0,,,space(60),,;
-                   "Ф.И.О. главного врача"})
-aadd(gmenu_organ, {"ruk","C",20,0,,,space(20),,;
-                   "Фамилия и инициалы главного врача (им.падеж)"})
-aadd(gmenu_organ, {"ruk_r","C",20,0,,,space(20),,;
-                   "Фамилия и инициалы главного врача (род.падеж)"})
-aadd(gmenu_organ, {"bux","C",20,0,,,space(20),,;
-                   "Фамилия и инициалы главного бухгалтера"})
-aadd(gmenu_organ, {"ispolnit","C",20,0,,,space(20),,;
-                   "Ф.И.О. исполнителя для счетов ОМС"})
-aadd(gmenu_organ, {"name_d","C",32,0,,,space(32),,;
-                   "Наименование орг-ии (для договора)"})
-aadd(gmenu_organ, {"filial_h","N",1,0,NIL,;
-                   {|x|menu_reader(x,mm_filial_tf,A__MENUVERT)},;
-                   0,{|x|inieditspr(A__MENUVERT,mm_filial_tf,x)},;
-                   "Филиал ТФОМС, в который отправляется файл с ходатайствами"})
+// Public gmenu_organ := {},
+  // aadd(gmenu_organ, {"kod_tfoms","C",8,0,NIL,NIL,;
+//                    space(8),NIL,;
+//                    'Регистрационный код МО в ТФОМС',;
+//                    {|g| valid_kod_tfoms(g) },;
+//                    {|| hb_user_curUser:IsAdmin()}})
+// aadd(gmenu_organ, {"name_tfoms","C",60,0,NIL,,'',,'Наименование (в ТФОМС)',,{||.f.}})
+// aadd(gmenu_organ, {"uroven","N",1,0,NIL,,0,,'Уровень цен Вашей МО',,{||.f.}})
+// aadd(gmenu_organ, {"name","C",130,0,NIL,NIL,;
+//                    space(130),NIL,"Название"})
+// aadd(gmenu_organ, {"name_schet","C",130,0,NIL,NIL,;
+//                    space(130),NIL,"Название для счёта"})
+// aadd(gmenu_organ, {"name_xml","C",255,0,NIL,NIL,;
+//                    space(255),NIL,"Название для портала МЗ РФ"})
+// aadd(gmenu_organ, {"inn","C",20,0,NIL,NIL,;
+//                    space(20),NIL,"ИНН/КПП"})
+// aadd(gmenu_organ, {"adres","C",70,0,NIL,NIL,;
+//                    space(70),NIL,"Адрес"})
+// aadd(gmenu_organ, {"telefon","C",20,0,NIL,NIL,;
+//                    space(20),NIL,"Телефон"})
+// aadd(gmenu_organ, {"bank","C",130,0,NIL,NIL,;
+//                    space(130),NIL,"Банк"})
+// aadd(gmenu_organ, {"smfo","C",10,0,NIL,NIL,space(10),NIL,;
+//                    "БИК"})
+// aadd(gmenu_organ, {"r_schet","C",45,0,NIL,NIL,space(45),NIL,;
+//                    "Расчетный счет"})
+// aadd(gmenu_organ, {"k_schet","C",20,0,NIL,NIL,space(20),NIL,;
+//                    "Корр.счет"})
+// aadd(gmenu_organ, {"okonh","C",15,0,NIL,NIL,space(15),NIL,;
+//                    "Код по ОКОНХ"})
+// aadd(gmenu_organ, {"okpo","C",15,0,NIL,NIL,space(15),NIL,;
+//                    "Код по ОКПО"})
+// aadd(gmenu_organ, {"e_1","C",1,0,NIL,NIL,;
+//                    space(1),NIL,"Банковские реквизиты для перечисления доплат из средств субсидий ФФОМС:",,;
+//                    {||.f.}})
+// aadd(gmenu_organ, {"name2","C",130,0,NIL,NIL,;
+//                    space(130),NIL,space(5)+"- название"})
+// aadd(gmenu_organ, {"bank2","C",130,0,NIL,NIL,;
+//                    space(130),NIL,space(5)+"- банк"})
+// aadd(gmenu_organ, {"smfo2","C",10,0,NIL,NIL,space(10),NIL,;
+//                    space(5)+"- БИК"})
+// aadd(gmenu_organ, {"r_schet2","C",45,0,NIL,NIL,space(45),NIL,;
+//                    space(5)+"- расчетный счет"})
+// aadd(gmenu_organ, {"k_schet2","C",20,0,NIL,NIL,space(20),NIL,;
+//                    space(5)+"- корр.счет"})
+// aadd(gmenu_organ, {"ogrn","C",15,0,,,space(15),,;
+//                    "ОГРН ЛПУ"})
+// aadd(gmenu_organ, {"ruk_fio","C",60,0,,,space(60),,;
+//                    "Ф.И.О. главного врача"})
+// aadd(gmenu_organ, {"ruk","C",20,0,,,space(20),,;
+//                    "Фамилия и инициалы главного врача (им.падеж)"})
+// aadd(gmenu_organ, {"ruk_r","C",20,0,,,space(20),,;
+//                    "Фамилия и инициалы главного врача (род.падеж)"})
+// aadd(gmenu_organ, {"bux","C",20,0,,,space(20),,;
+//                    "Фамилия и инициалы главного бухгалтера"})
+// aadd(gmenu_organ, {"ispolnit","C",20,0,,,space(20),,;
+//                    "Ф.И.О. исполнителя для счетов ОМС"})
+// aadd(gmenu_organ, {"name_d","C",32,0,,,space(32),,;
+//                    "Наименование орг-ии (для договора)"})
+// aadd(gmenu_organ, {"filial_h","N",1,0,NIL,;
+//                    {|x|menu_reader(x,mm_filial_tf,A__MENUVERT)},;
+//                    0,{|x|inieditspr(A__MENUVERT,mm_filial_tf,x)},;
+//                    "Филиал ТФОМС, в который отправляется файл с ходатайствами"})
 R_Use(dir_server+"organiz",,"ORG")
 fl := (fieldnum("name_xml") == 0)
 use

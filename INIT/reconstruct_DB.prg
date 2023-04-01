@@ -1,6 +1,6 @@
 #include 'chip_mo.ch'
 
-***** 21.12.21 реконстукция подсистемы паролей
+// 21.12.21 реконстукция подсистемы паролей
 function Reconstruct_Security(is_local_version)
   Local base1 := {;
      {"P1",      "C",  20,   0},; // Ф.И.О.
@@ -56,7 +56,7 @@ function Reconstruct_Security(is_local_version)
   
   return nil
 
-** 02.03.23 реконстукция баз данных
+// 01.04.23 реконстукция баз данных
 Function Reconstruct_DB(is_local_version,is_create)
   Local base1 := {;
      {"P1",      "C",  20,   0},; // Ф.И.О.
@@ -1618,8 +1618,10 @@ Function Reconstruct_DB(is_local_version,is_create)
   reconstruct(dir_server+"payer",_payer,"index_base('payer')",,.t.)
   reconstruct(dir_server+"pu_cena",pu_cena,"index_base('pu_cena')",,.t.)
   reconstruct(dir_server+"pu_date",{{"data","D",8,0}},"index_base('pu_date')",,.t.)
-  init_base(dir_server+"p_pr_vz",,gmenu_pl_d_smo,0,,.t.)
-  init_base(dir_server+"p_d_smo",,gmenu_pl_d_smo,0,,.t.)
+  // init_base(dir_server+"p_pr_vz",,gmenu_pl_d_smo,0,,.t.)
+  // init_base(dir_server+"p_d_smo",,gmenu_pl_d_smo,0,,.t.)
+  init_base(dir_server + "p_pr_vz", , get_DMS(), 0, , .t.)
+  init_base(dir_server + "p_d_smo", , get_DMS(), 0, , .t.)
   //
   reconstruct(dir_server+"ortoped",{{"NAME","C",80,0},;
                                     {"kod" ,"N", 1,0},;
@@ -1650,9 +1652,12 @@ Function Reconstruct_DB(is_local_version,is_create)
   reconstruct(dir_server+"mo_kekh",kek_h,"index_base('mo_kekh')","экспертизам2",.t.)
   reconstruct(dir_server+"mo_keke",kek_eks,"index_base('mo_keke')","экспертизам3",.t.)
   //
-  init_base(dir_server+"komitet",,gmenu_komit,2,,.t.)
-  init_base(dir_server+"str_komp",,gmenu_strah,2,,.t.)
-  init_base(dir_server+"organiz",,gmenu_organ,0,,.t.)
+  // init_base(dir_server+"komitet",,gmenu_komit,2,,.t.)
+  init_base(dir_server + "komitet", , get_komitet(), 2, , .t.)
+  // init_base(dir_server+"str_komp",,gmenu_strah,2,,.t.)
+  init_base(dir_server + "str_komp", , get_strah(), 2, , .t.)
+  // init_base(dir_server+"organiz",,gmenu_organ,0,,.t.)
+  init_base(dir_server + "organiz", , get_struct_organiz(), 0, , .t.)
   use_base("organiz")
   if lastrec() == 0
     AddRecN()

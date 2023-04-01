@@ -1234,7 +1234,7 @@ Function fs_opl_72(arr)
   endif
   return NIL
 
-** редактирование справочников персонала, отделений, учреждений, организации
+// 01.04.23 редактирование справочников персонала, отделений, учреждений, организации
 Function spr_struct_org(k)
   Static sk := 1
   Local str_sem, mas_pmt, mas_msg, mas_fun, j
@@ -1269,9 +1269,11 @@ Function spr_struct_org(k)
     case k == 4
       str_sem := 'Редактирование реквизитов организации'
       if G_SLock(str_sem)
-        f_edit_spr(A__EDIT, gmenu_organ, 'реквизитам Вашей организации', ;
-                 'use_base("organiz")', 0, 1)
-        G_SUnLock(str_sem)
+        // f_edit_spr(A__EDIT, gmenu_organ, 'реквизитам Вашей организации', ;
+        //          'use_base("organiz")', 0, 1)
+        f_edit_spr(A__EDIT, get_struct_organiz(), 'реквизитам Вашей организации', ;
+          'use_base("organiz")', 0, 1)
+         G_SUnLock(str_sem)
         reRead_glob_MO() // перечитать массив glob_MO
       else
         func_error(4, err_slock)
@@ -1770,13 +1772,14 @@ Function fdel_uch(k)
   select (tmp_select)
   return _fl
 
-** редактирование справочника прочих компаний
+// 01.04.23 редактирование справочника прочих компаний
 Function edit_strah()
   Static mas_edit := { '~Просмотр', ;
                       '~Редактирование', ;
                       '~Добавление', ;
                       '~Удаление'}
-  Local arr := aclone(gmenu_strah)
+  // Local arr := aclone(gmenu_strah)
+  Local arr := aclone(get_strah())
   Local i := 1, k, buf := savescreen(), str_sem := 'Редактирование прочих компаний'
 
   if !G_SLock(str_sem)
@@ -1803,7 +1806,7 @@ Function edit_strah()
   restscreen(buf)
   return NIL
 
-** редактирование справочника комитетов (МО)
+// редактирование справочника комитетов (МО)
 Function edit_komit(d)
   Static mas_edit := { '~Просмотр', ;
                       '~Редактирование', ;
@@ -1816,15 +1819,19 @@ Function edit_komit(d)
   endif
   do while i > 0
     if (i := popup_prompt(T_ROW, T_COL + 5, i, mas_edit, , , , .f.)) == A__APPEND
-      if (k := f_edit_spr(A__APPEND, gmenu_komit, 'комитету (МО)', ;
+      // if (k := f_edit_spr(A__APPEND, gmenu_komit, 'комитету (МО)', ;
+      //                   'use_base("komitet")', 2, , , , , , 'f_emp_strah')) > 0
+      if (k := f_edit_spr(A__APPEND, get_komitet(), 'комитету (МО)', ;
                         'use_base("komitet")', 2, , , , , , 'f_emp_strah')) > 0
-        glob_komitet[1] := k
+          glob_komitet[1] := k
       endif
     elseif i != 0 .and. ;
           (k := popup_edit(dir_server + 'komitet', T_ROW + i + 1, T_COL + 5, ;
                           T_ROW + i + 7, glob_komitet[1], PE_RETURN)) != NIL
       glob_komitet := k
-      f_edit_spr(i, gmenu_komit, 'комитету (МО)', ;
+      // f_edit_spr(i, gmenu_komit, 'комитету (МО)', ;
+      //   'use_base("komitet")', 2, k[1], , 'fdel_komit', , , 'f_emp_strah')
+      f_edit_spr(i, get_komitet(), 'комитету (МО)', ;
               'use_base("komitet")', 2, k[1], , 'fdel_komit', , , 'f_emp_strah')
     endif
   enddo

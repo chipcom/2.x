@@ -343,32 +343,35 @@ do case
 endcase
 return ret
 
-*
-
-***** 03.10.17
+// 01.04.23
 Function edit_pr_vz()
-Static mas_edit := { "~Просмотр",;
-                     "~Редактирование",;
-                     "~Добавление",;
-                     "~Удаление"}
-Local i := 1, k, buf := savescreen(), str_sem := "Редактирование предприятий по взаимозачету"
-if !G_SLock(str_sem)
-  return func_error(4,err_slock)
-endif
-do while i > 0
-  if (i := popup_prompt(T_ROW, T_COL-5, i, mas_edit,,,,.f.)) == A__APPEND
-    if (k := f_edit_spr(A__APPEND,gmenu_pl_d_smo,"предприятию по взаимозачету",;
-                        "G_Use(dir_server+'p_pr_vz')",0,,,,,,"f_emp_strah")) > 0
-      glob_pr_vz[1] := k
-    endif
-  elseif i != 0 .and. input_pr_vz(T_ROW+i+1,T_COL-10)
-    f_edit_spr(i,gmenu_pl_d_smo,"предприятию по взаимозачету",;
-               "G_Use(dir_server+'p_pr_vz')",0,glob_pr_vz[1],,"fdel_pr_vz",,,"f_emp_strah")
+  Static mas_edit := { '~Просмотр', ;
+                      '~Редактирование', ;
+                      '~Добавление', ;
+                      '~Удаление'}
+  Local i := 1, k, buf := savescreen(), str_sem := 'Редактирование предприятий по взаимозачету'
+
+  if !G_SLock(str_sem)
+    return func_error(4, err_slock)
   endif
-enddo
-G_SUnLock(str_sem)
-restscreen(buf)
-return NIL
+  do while i > 0
+    if (i := popup_prompt(T_ROW, T_COL - 5, i, mas_edit, , , , .f.)) == A__APPEND
+      // if (k := f_edit_spr(A__APPEND,gmenu_pl_d_smo,"предприятию по взаимозачету",;
+      //                     "G_Use(dir_server+'p_pr_vz')",0,,,,,,"f_emp_strah")) > 0
+      if (k := f_edit_spr(A__APPEND, get_DMS(), 'предприятию по взаимозачету', ;
+                          "G_Use(dir_server + 'p_pr_vz')", 0, , , , , , 'f_emp_strah')) > 0
+        glob_pr_vz[1] := k
+      endif
+    elseif i != 0 .and. input_pr_vz(T_ROW + i + 1, T_COL - 10)
+      // f_edit_spr(i,gmenu_pl_d_smo,"предприятию по взаимозачету",;
+      //            "G_Use(dir_server+'p_pr_vz')",0,glob_pr_vz[1],,"fdel_pr_vz",,,"f_emp_strah")
+      f_edit_spr(i, get_DMS(), 'предприятию по взаимозачету', ;
+        "G_Use(dir_server + 'p_pr_vz')", 0, glob_pr_vz[1], , 'fdel_pr_vz', , , 'f_emp_strah')
+    endif
+  enddo
+  G_SUnLock(str_sem)
+  restscreen(buf)
+  return NIL
 
 *****
 Function input_pr_vz(r,c)
@@ -397,32 +400,35 @@ endif
 rest_box(buf)
 return fl
 
-*
-
-***** 03.10.17
+// 01.04.23
 Function edit_d_smo()
-Static mas_edit := { "~Просмотр",;
-                     "~Редактирование",;
-                     "~Добавление",;
-                     "~Удаление"}
-Local i := 1, k, buf := savescreen(), str_sem := "Редактирование добровольных СМО"
-if !G_SLock(str_sem)
-  return func_error(4,err_slock)
-endif
-do while i > 0
-  if (i := popup_prompt(T_ROW, T_COL-5, i, mas_edit,,,,.f.)) == A__APPEND
-    if (k := f_edit_spr(A__APPEND,gmenu_pl_d_smo,"добровольному СМО",;
-                        "G_Use(dir_server+'p_d_smo')",0,,,,,,"f_emp_strah")) > 0
-      glob_d_smo[1] := k
-    endif
-  elseif i != 0 .and. input_d_smo(T_ROW+i+1,T_COL-10)
-    f_edit_spr(i,gmenu_pl_d_smo,"добровольному СМО",;
-               "G_Use(dir_server+'p_d_smo')",0,glob_d_smo[1],,"fdel_d_smo",,,"f_emp_strah")
+  Static mas_edit := {  '~Просмотр', ;
+                        '~Редактирование', ;
+                        '~Добавление', ;
+                        '~Удаление'}
+  Local i := 1, k, buf := savescreen(), str_sem := 'Редактирование добровольных СМО'
+
+  if !G_SLock(str_sem)
+    return func_error(4,err_slock)
   endif
-enddo
-G_SUnLock(str_sem)
-restscreen(buf)
-return NIL
+  do while i > 0
+    if (i := popup_prompt(T_ROW, T_COL - 5, i, mas_edit, , , , .f.)) == A__APPEND
+      // if (k := f_edit_spr(A__APPEND,gmenu_pl_d_smo,"добровольному СМО",;
+      //                   "G_Use(dir_server+'p_d_smo')",0,,,,,,"f_emp_strah")) > 0
+      if (k := f_edit_spr(A__APPEND, gmenu_pl_d_smo, 'добровольному СМО', ;
+                          "G_Use(dir_server + 'p_d_smo')", 0, , , , , ,'f_emp_strah')) > 0
+        glob_d_smo[1] := k
+      endif
+    elseif i != 0 .and. input_d_smo(T_ROW + i + 1, T_COL - 10)
+      // f_edit_spr(i,gmenu_pl_d_smo,"добровольному СМО",;
+      //          "G_Use(dir_server+'p_d_smo')",0,glob_d_smo[1],,"fdel_d_smo",,,"f_emp_strah")
+      f_edit_spr(i, gmenu_pl_d_smo, 'добровольному СМО', ;
+        "G_Use(dir_server + 'p_d_smo')", 0, glob_d_smo[1], , 'fdel_d_smo', , , 'f_emp_strah')
+    endif
+  enddo
+  G_SUnLock(str_sem)
+  restscreen(buf)
+  return NIL
 
 *****
 Function input_d_smo(r,c)
