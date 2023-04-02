@@ -192,7 +192,6 @@ function exist_reserve_KSG(kod_pers, aliasHUMAN)
 
   aliasIsUseHU := aliasIsAlreadyUse('__HU')
   if ! aliasIsUseHU
-    // R_Use_base(dir_server+"human_u","__HU")
     G_Use(dir_server + 'human_u', {dir_server + 'human_u', ;
         dir_server + 'human_uk', ;
         dir_server + 'human_ud', ;
@@ -226,3 +225,798 @@ function exist_reserve_KSG(kod_pers, aliasHUMAN)
   endif
   Select(oldSelect)
   return ret
+
+// 06.11.19
+Function is_osmotr_PN(ausl, _period, arr, _etap, _pol)
+  // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
+
+  Local i, j, s, fl := .f., fl_profil := .f., lshifr := alltrim(ausl[1])
+
+  if eq_any(left(lshifr, 4), '2.3.', '2.91')
+    fl_profil := .t.
+  elseif _etap == 1
+    if (i := ascan(np_arr_not_zs, {|x| x[2] == lshifr})) > 0
+      lshifr := np_arr_not_zs[i, 1]
+    endif
+  elseif (i := ascan(np_arr_osmotr_KDP2, {|x| x[2] == lshifr})) > 0
+    lshifr := np_arr_osmotr_KDP2[i, 1]
+  endif
+  for i := 1 to count_pn_arr_osm
+    if _etap == 1 .or. fl_profil
+      if valtype(np_arr_osmotr[i, 4]) == 'N'
+        if np_arr_osmotr[i, 4] == ausl[3]
+          lshifr := np_arr_osmotr[i, 1] // искусственно
+          fl := .t.
+          exit
+        endif
+      elseif (j := ascan(np_arr_osmotr[i, 4], ausl[3])) > 0
+        lshifr := np_arr_osmotr[i, 1] // искусственно
+        fl := .t.
+        exit
+      endif
+    else
+      if np_arr_osmotr[i, 1] == lshifr
+        fl := .t.
+        exit
+      endif
+    endif
+  next
+  if fl
+    s := '"' + lshifr + '.' + np_arr_osmotr[i, 3] + '"'
+    if _etap == 1 .and. ascan(np_arr_1_etap[_period, 4], lshifr) == 0
+      aadd(arr, 'Некорректный возрастной период пациента для ' + s)
+    endif
+    if !empty(np_arr_osmotr[i, 2]) .and. !(np_arr_osmotr[i, 2] == _pol)
+      aadd(arr, 'Несовместимость по полу в услуге ' + s)
+    endif
+    if valtype(np_arr_osmotr[i, 4]) == 'N'
+      if np_arr_osmotr[i, 4] != ausl[3]
+        aadd(arr, 'Не тот профиль в услуге ' + s)
+      endif
+    elseif (j := ascan(np_arr_osmotr[i, 4], ausl[3])) == 0
+      aadd(arr, 'Не тот профиль в услуге ' + s)
+    endif
+  endif
+  return fl
+
+// 28.01.18
+Function is_issled_PN(ausl, _period, arr, _pol)
+  // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
+  Local i, j, s := '', fl := .f., lshifr := alltrim(ausl[1])
+
+  if (i := ascan(np_arr_not_zs, {|x| x[2] == lshifr})) > 0
+    lshifr := np_arr_not_zs[i, 1]
+  endif
+  for i := 1 to count_pn_arr_iss
+    if np_arr_issled[i, 1] == lshifr
+      s := '"' + lshifr + '.' + np_arr_issled[i, 3] + '"'
+      if valtype(np_arr_issled[i, 2]) == 'C' .and. !(np_arr_issled[i, 2] == _pol)
+        aadd(arr, 'Несовместимость по полу в услуге ' + s)
+      endif
+      fl := .t.
+      exit
+    endif
+  next
+  if fl .and. np_arr_issled[i, 4] < 2
+    if ascan(np_arr_1_etap[_period, 5], lshifr) == 0
+      aadd(arr, 'Некорректный возрастной период пациента для ' + s)
+    endif
+    if valtype(np_arr_issled[i, 5]) == 'N' .and. np_arr_issled[i, 5] != ausl[3]
+      aadd(arr, 'Не тот профиль в иссл-ии ' + s)
+    endif
+  endif
+  return fl
+
+// 14.02.16 если услуга из 1 этапа
+Function is_1_etap_PN_17(ausl, _period, _etap)
+  // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
+  Local i, s, fl := .f., lshifr := alltrim(ausl[1])
+
+  if _etap == 2 .and. (i := ascan(np_arr_osmotr_KDP2_17, {|x| x[2] == lshifr})) > 0
+    lshifr := np_arr_osmotr_KDP2_17[i, 1]
+  endif
+  for i := 1 to count_pn_arr_osm_17
+    if _etap == 1
+      if np_arr_osmotr_17[i, 4] == ausl[3]
+        lshifr := np_arr_osmotr_17[i, 1] // искусственно
+        fl := .t.
+        exit
+      endif
+    else
+      if np_arr_osmotr_17[i, 1] == lshifr
+        fl := .t.
+        exit
+      endif
+    endif
+  next
+  if fl
+    fl := (ascan(np_arr_1_etap_17[_period, 4], lshifr) > 0)
+  endif
+  return fl
+
+// 14.02.16
+Function is_osmotr_PN_17(ausl, _period, arr, _etap, _pol)
+  // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
+  Local i, s, fl := .f., lshifr := alltrim(ausl[1])
+
+  if _etap == 2 .and. (i := ascan(np_arr_osmotr_KDP2_17, {|x| x[2] == lshifr})) > 0
+    lshifr := np_arr_osmotr_KDP2_17[i, 1]
+  endif
+  for i := 1 to count_pn_arr_osm_17
+    if _etap == 1
+      if np_arr_osmotr_17[i, 4] == ausl[3]
+        lshifr := np_arr_osmotr_17[i, 1] // искусственно
+        fl := .t.
+        exit
+      endif
+    else
+      if np_arr_osmotr_17[i, 1] == lshifr
+        fl := .t.
+        exit
+      endif
+    endif
+  next
+  if fl
+    s := '"' + lshifr + '.' + np_arr_osmotr_17[i, 3] + '"'
+    if _etap == 1 .and. ascan(np_arr_1_etap_17[_period, 4], lshifr) == 0
+      aadd(arr, 'Некорректный возрастной период пациента для ' + s)
+    endif
+    if !empty(np_arr_osmotr_17[i, 2]) .and. !(np_arr_osmotr_17[i, 2] == _pol)
+      aadd(arr, 'Несовместимость по полу в услуге ' + s)
+    endif
+    if np_arr_osmotr_17[i, 4] != ausl[3]
+      aadd(arr, 'Не тот профиль в услуге ' + s)
+    endif
+  endif
+  return fl
+
+// 02.03.16
+Function is_issled_PN_17(ausl, _period, arr, _pol)
+  // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
+  Local i, j, s := '', fl := .f., lshifr := alltrim(ausl[1])
+
+  for i := 1 to count_pn_arr_iss_17
+    if np_arr_issled_17[i, 1] == lshifr
+      s := '"' + lshifr + '.' + np_arr_issled_17[i, 3] + '"'
+      if valtype(np_arr_issled_17[i, 2]) == 'C' .and. !(np_arr_issled_17[i, 2] == _pol)
+        aadd(arr, 'Несовместимость по полу в услуге ' + s)
+      endif
+      fl := .t.
+      exit
+    endif
+  next
+  if fl .and. np_arr_issled_17[i, 4] < 2
+    if ascan(np_arr_1_etap_17[_period, 5], lshifr) == 0
+      aadd(arr, 'Некорректный возрастной период пациента для ' + s)
+    endif
+    if valtype(np_arr_issled_17[i, 5]) == 'N' .and. np_arr_issled_17[i, 5] != ausl[3]
+      aadd(arr, 'Не тот профиль в иссл-ии ' + s)
+    endif
+  endif
+  return fl
+
+// 20.06.19
+Function is_usluga_dvn(ausl, _vozrast, arr, _etap, _pol, _spec_ter)
+  // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
+  Local i, j, s, fl := .f., as, lshifr := alltrim(ausl[1]), fl_19
+
+  fl_19 := (type('is_disp_19') == 'L' .and. is_disp_19)
+  if !fl_19 .and. ((lshifr == '2.3.3' .and. ausl[3] == 3) .or. ; // акушерскому делу
+                  (lshifr == '2.3.1' .and. ausl[3] == 136))   // акушерству и гинекологии
+      //.and. (i := ascan(dvn_arr_usl, {|x| valtype(x[2])=="C" .and. x[2]=="4.20.1"})) > 0
+    if ((lshifr == '2.3.3' .and. eq_any(ret_old_prvs(ausl[4]), 2003, 2002)) .or. ;
+      (lshifr == '2.3.1' .and. ret_old_prvs(ausl[4]) == 1101))
+    else
+      aadd(arr, 'не та специальность врача в случае невозможности использования услуги:')
+      aadd(arr, ' "4.1.12.Осмотр акушеркой, взятие мазка (соскоба)"')
+    endif
+    fl := .t.
+  endif
+  if !fl
+    for i := 1 to count_dvn_arr_umolch
+      if dvn_arr_umolch[i, 2] == lshifr
+        fl := .t.
+        exit
+      endif
+    next
+  endif
+  if !fl
+    DEFAULT _spec_ter to 0
+    for i := 1 to count_dvn_arr_usl
+      if valtype(dvn_arr_usl[i, 2]) == 'C'
+        if dvn_arr_usl[i, 2] == '4.20.1' .and. lshifr == '4.20.2'
+          fl := .t.
+        elseif dvn_arr_usl[i, 2] == lshifr
+          fl := .t.
+        endif
+      endif
+      if !fl .and. len(dvn_arr_usl[i]) > 11 .and. valtype(dvn_arr_usl[i, 12]) == 'A'
+        if ascan(dvn_arr_usl[i, 12], {|x| x[1] == lshifr .and. x[2] == ausl[3]}) > 0
+          fl := .t.
+        endif
+      endif
+      if fl
+        s := '"' + lshifr + '.' + dvn_arr_usl[i, 1] + '"'
+        if eq_any(_etap, 1, 4, 5)
+          j := iif(_pol == 'М', 6, 7)
+          if _etap > 1 .and. len(dvn_arr_usl[i]) > 12
+            j := iif(_pol == 'М', 13, 14)
+          endif
+          if valtype(dvn_arr_usl[i, j]) == 'N'
+            if dvn_arr_usl[i, j] == 0
+              aadd(arr, 'несовместимость по полу в услуге ' + s)
+            endif
+          else
+            if ascan(dvn_arr_usl[i, j], _vozrast) == 0
+              aadd(arr, 'некорректный возраст пациента для услуги ' + s)
+            endif
+          endif
+        else
+          j := iif(_pol == 'М', 8, 9)
+          if valtype(dvn_arr_usl[i, j]) == 'N'
+            if dvn_arr_usl[i, j] == 0
+              aadd(arr, 'несовместимость по полу в услуге ' + s)
+            endif
+          elseif type('is_disp_19') == 'L' .and. is_disp_19
+            if ascan(dvn_arr_usl[i, j], _vozrast) == 0
+              aadd(arr,'некорректный возраст пациента для услуги ' + s)
+            endif
+          else
+            if !between(_vozrast, dvn_arr_usl[i, j, 1], dvn_arr_usl[i, j, 2])
+              aadd(arr, 'некорректный возраст пациента для услуги ' + s)
+            endif
+          endif
+        endif
+        if valtype(dvn_arr_usl[i, 10]) == 'N'
+          if ret_profil_dispans(dvn_arr_usl[i, 10], ausl[4]) != ausl[3]
+          //if dvn_arr_usl[i, 10] != ausl[3]
+            aadd(arr, 'не тот профиль в услуге ' + s)
+          endif
+        else
+          if ascan(dvn_arr_usl[i, 10], ausl[3]) == 0
+            aadd(arr,'не тот профиль в услуге ' + s)
+          endif
+        endif
+        as := aclone(dvn_arr_usl[i, 11])
+        // "Измерение внутриглазного давления","3.4.9"
+        if _etap == 1 .and. as[1] == 1112 .and. _spec_ter > 0
+          aadd(as, _spec_ter) // добавить спец-ть терапевта
+        endif
+        /*if ascan(as, ausl[4]) == 0
+          aadd(arr,'Не та специальность врача в услуге ' + s)
+          aadd(arr, ' у Вас: ' + lstr(ausl[4]) + ', разрешено: ' + print_array(as))
+        endif*/
+        exit
+      endif
+    next
+  endif
+  return fl
+
+// 18.05.15
+Function is_usluga_dvn13(ausl, _vozrast, arr, _etap, _pol, _spec_ter)
+  // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
+  Local i, j, s, fl := .f., as, lshifr := alltrim(ausl[1])
+
+  if ((lshifr == '2.3.3' .and. ausl[3] == 3) .or. ; // акушерскому делу
+        (lshifr == '2.3.1' .and. ausl[3] == 136))   // акушерству и гинекологии
+        //.and. (i := ascan(dvn_arr_usl, {|x| valtype(x[2])=="C" .and. x[2]=="4.20.1"})) > 0
+    if ((lshifr == '2.3.3' .and. eq_any(ret_old_prvs(ausl[4]), 2003, 2002)) .or. ;
+          (lshifr == '2.3.1' .and. ret_old_prvs(ausl[4]) == 1101))
+    else
+      aadd(arr, 'Не та специальность врача в случае невозможности использования услуги:')
+      aadd(arr, ' "4.1.12.Осмотр акушеркой, взятие мазка (соскоба)"')
+    endif
+    fl := .t.
+  endif
+  if !fl
+    for i := 1 to count_dvn_arr_umolch13
+      if dvn_arr_umolch13[i, 2] == lshifr
+        fl := .t.
+        exit
+      endif
+    next
+  endif
+  if !fl
+    DEFAULT _spec_ter to 0
+    for i := 1 to count_dvn_arr_usl13
+      if len(dvn_arr_usl13[i]) < 12 .and. valtype(dvn_arr_usl13[i, 2]) == 'C'
+        if dvn_arr_usl13[i, 2] == '4.20.1' .and. lshifr == '4.20.2'
+          fl := .t.
+        elseif dvn_arr_usl13[i, 2] == lshifr
+          fl := .t.
+        endif
+      elseif len(dvn_arr_usl13[i]) > 11
+        if ascan(dvn_arr_usl13[i, 12], {|x| x[1] == lshifr .and. x[2] == ausl[3]}) > 0
+          fl := .t.
+        endif
+      endif
+      if fl
+        s := '"' + lshifr + '.' + dvn_arr_usl13[i, 1] + '"'
+        if _etap == 1
+          j := iif(_pol == 'М', 6, 7)
+          if valtype(dvn_arr_usl13[i, j]) == 'N'
+            if dvn_arr_usl13[i, j] == 0
+              aadd(arr, 'Несовместимость по полу в услуге ' + s)
+            endif
+          else
+            if ascan(dvn_arr_usl13[i, j], _vozrast) == 0
+              aadd(arr, 'Некорректный возраст пациента для услуги ' + s)
+            endif
+          endif
+        else
+          j := iif(_pol == 'М', 8, 9)
+          if valtype(dvn_arr_usl13[i, j]) == 'N'
+            if dvn_arr_usl13[i, j] == 0
+              aadd(arr, 'Несовместимость по полу в услуге ' + s)
+            endif
+          else
+            if !between(_vozrast, dvn_arr_usl13[i, j, 1], dvn_arr_usl13[i, j, 2])
+              aadd(arr, 'Некорректный возраст пациента для услуги ' + s)
+            endif
+          endif
+        endif
+        if valtype(dvn_arr_usl13[i, 10]) == 'N'
+          if ret_profil_dispans(dvn_arr_usl13[i, 10], ausl[4]) != ausl[3]
+          //if dvn_arr_usl13[i, 10] != ausl[3]
+            aadd(arr, 'Не тот профиль в услуге ' + s)
+          endif
+        else
+          if ascan(dvn_arr_usl13[i, 10], ausl[3]) == 0
+            aadd(arr, 'Не тот профиль в услуге ' + s)
+          endif
+        endif
+        as := aclone(dvn_arr_usl13[i, 11])
+        // "Измерение внутриглазного давления","3.4.9"
+        if _etap == 1 .and. as[1] == 1112 .and. _spec_ter > 0
+          aadd(as, _spec_ter) // добавить спец-ть терапевта
+        endif
+        /*if ascan(as,ausl[4]) == 0
+          aadd(arr,'Не та специальность врача в услуге ' + s)
+          aadd(arr,' у Вас: '+lstr(ausl[4])+', разрешено: '+print_array(as))
+        endif*/
+        exit
+      endif
+    next
+  endif
+  return fl
+
+// 10.05.16 является врачебным осмотром детей-сирот на первом этапе
+Function is_osmotr_DDS_1_etap(ausl, _vozrast, _etap, _pol, tip_lu)
+  // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
+  Local i, s, fl := .f., lshifr := alltrim(ausl[1])
+
+  // вместо услуг "2.87.*" сделаем "2.83.*"
+  if tip_lu == TIP_LU_DDSOP .and. left(lshifr, 5) == '2.87.'
+    lshifr := '2.83.' + substr(lshifr, 6)
+  endif
+  for i := 1 to count_dds_arr_osm1
+    if iif(empty(dds_arr_osm1[i, 2]), .t., dds_arr_osm1[i, 2] == mpol) .and. ;
+                           between(_vozrast, dds_arr_osm1[i, 3], dds_arr_osm1[i, 4])
+      if _etap == 1
+        if ascan(dds_arr_osm1[i, 5], ausl[3]) > 0
+          fl := .t.
+          exit
+        endif
+      else
+        if ascan(dds_arr_osm1[i, 7], lshifr) > 0
+          fl := .t.
+          exit
+        endif
+      endif
+    endif
+  next
+  return fl
+
+// 13.02.17 является врачебным осмотром детей-сирот
+Function is_osmotr_DDS(ausl, _vozrast, arr, _etap, _pol, tip_lu)
+  // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
+  Local i, j, s, fl := .f., lshifr := alltrim(ausl[1])
+
+  // вместо услуг "2.87.*" сделаем "2.83.*"
+  if tip_lu == TIP_LU_DDSOP .and. left(lshifr, 5) == '2.87.'
+    lshifr := '2.83.' + substr(lshifr, 6)
+  endif
+  if _etap == 2 .and. (j := ascan(dds_arr_osmotr_KDP2, {|x| x[2] == lshifr})) > 0
+    lshifr := dds_arr_osmotr_KDP2[j, 1]
+  endif
+  for i := 1 to count_dds_arr_osm1
+    if _etap == 1
+      if ascan(dds_arr_osm1[i, 5], ausl[3]) > 0
+        fl := .t.
+        exit
+      endif
+    else
+      if ascan(dds_arr_osm1[i, 7], lshifr) > 0
+        fl := .t.
+        exit
+      endif
+    endif
+  next
+  if fl
+    s := '"' + lshifr + '.' + dds_arr_osm1[i, 1] + '"'
+    /*if !between(_vozrast,dds_arr_osm1[i, 3],dds_arr_osm1[i, 4])
+      aadd(arr,'Некорректный возраст пациента для услуги ' + s)
+    endif*/
+    if !empty(dds_arr_osm1[i, 2]) .and. !(dds_arr_osm1[i, 2] == _pol)
+      aadd(arr, 'Несовместимость по полу в услуге ' + s)
+    endif
+    if ascan(dds_arr_osm1[i, 5], ausl[3]) == 0
+      aadd(arr, 'Не тот профиль в услуге ' + s)
+    endif
+    /*if ascan(dds_arr_osm1[i, 6],ausl[4]) == 0
+      aadd(arr,'Не та специальность врача в услуге ' + s)
+      aadd(arr,' у Вас: '+lstr(ausl[4])+', разрешено: '+print_array(dds_arr_osm1[i, 6]))
+    endif*/
+  endif
+  if !fl .and. _etap == 2
+    for i := 1 to count_dds_arr_osm2
+      if ascan(dds_arr_osm2[i, 7], lshifr) > 0 .and. ascan(dds_arr_osm2[i, 5], ausl[3]) > 0
+        fl := .t.
+        exit
+      endif
+    next
+    if fl
+      s := '"' + lshifr + '.' + dds_arr_osm2[i, 1] + '"'
+      if !between(_vozrast, dds_arr_osm2[i, 3], dds_arr_osm2[i, 4])
+        aadd(arr, 'Некорректный возраст пациента для услуги ' + s)
+      endif
+      if ascan(dds_arr_osm2[i, 5], ausl[3]) == 0
+        aadd(arr, 'Не тот профиль в услуге ' + s)
+      endif
+      /*if ascan(dds_arr_osm2[i, 6],ausl[4]) == 0
+        aadd(arr,'Не та специальность врача в услуге ' + s)
+        aadd(arr,' у Вас: '+lstr(ausl[4])+', разрешено: '+print_array(dds_arr_osm2[i, 6]))
+      endif*/
+    endif
+  endif
+  return fl
+
+** 13.05.13 является исследованием детей-сирот
+Function is_issl_DDS(ausl, _vozrast, arr)
+// ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
+  Local i, s, fl := .f., lshifr := alltrim(ausl[1])
+
+  for i := 1 to count_dds_arr_iss
+    if ascan(dds_arr_iss[i, 7], lshifr) > 0
+      fl := .t.
+      exit
+    endif
+  next
+  if fl .and. valtype(_vozrast) == 'N'
+    s := '"' + lshifr + '.' + dds_arr_iss[i, 1] + '"'
+    if !between(_vozrast, dds_arr_iss[i, 3], dds_arr_iss[i, 4])
+      aadd(arr, 'Некорректный возраст пациента для услуги ' + s)
+    endif
+    if ascan(dds_arr_iss[i, 5],ausl[3]) == 0
+      aadd(arr, 'Не тот профиль в услуге ' + s)
+    endif
+    /*if ascan(dds_arr_iss[i, 6],ausl[4]) == 0
+      aadd(arr,'Не та специальность врача в услуге ' + s)
+      aadd(arr,' у Вас: '+lstr(ausl[4])+', разрешено: '+print_array(dds_arr_iss[i, 6]))
+    endif*/
+  endif
+  return fl
+
+
+// 09.06.15 функция проверки лицензии на диспансеризацию/профилактику
+Function license_for_dispans(_tip, _n_data, _ta)
+  // список учреждений с датой лицензии на диспансеризацию
+  Static arr_date_disp := { ;
+    {101003, 1, 0, 20130726}, ;  // 101003;ГБУЗ "ВОКБ № 3";+;;26.07.2013
+    {114504, 1, 0, 20130705}, ;  // 114504;ГУЗ "Поликлиника № 4";+;;05.07.2013
+    {114506, 1, 0, 20130704}, ;  // 114506;ГУЗ "Поликлиника № 6";+;;04.07.2013
+    {115506, 0, 1, 20130718}, ;  // 115506;ГУЗ "Детская поликлиника № 6";;+;18.07.2013
+    {115510, 0, 1, 20130719}, ;  // 115510;ГУЗ "ДП № 10";;+;19.07.2013
+    {121018, 1, 1, 20130806}, ;  // 121018;ГУЗ "Больница № 18";+;+;06.08.2013
+    {124501, 1, 1, 20130829}, ;  // 124501;ГУЗ "Гумракская амбулатория";+;+;29.08.2013
+    {124528, 1, 1, 20130805}, ;  // 124528;ГУЗ "Клиническая поликлиника № 28";+;+;05.08.2013
+    {124530, 1, 1, 20130703}, ;  // 124530;ГУЗ "Поликлиника № 30";+;+;03.07.2013
+    {125505, 0, 1, 20130719}, ;  // 125505;ГУЗ "Детская поликлиника № 5";;+;19.07.2013
+    {131020, 0, 1, 20130718}, ;  // 131020;ГУЗ "КДЦ для детей № 1";;+;18.07.2013
+    {134505, 1, 0, 20130719}, ;  // 134505;ГУЗ "Поликлиника № 5";+;;19.07.2013
+    {134510, 1, 0, 20130729}, ;  // 134510;ГУЗ "Поликлиника № 10";+;;29.07.2013
+    {135509, 0, 1, 20130805}, ;  // 135509;ГУЗ "Детская поликлиника № 9";;+;05.08.2013
+    {141016, 1, 0, 20130725}, ;  // 141016;ГУЗ "Больница № 16";+;;25.07.2013
+    {141022, 1, 0, 20130726}, ;  // 141022;ГУЗ "Больница №22";+;;26.07.2013
+    {141023, 1, 0, 20130712}, ;  // 141023;ГУЗ "КБСМП № 15";+;;12.07.2013
+    {141024, 1, 0, 20130712}, ;  // 141024;ГУЗ "Больница № 24";+;;12.07.2013
+    {145516, 0, 1, 20130729}, ;  // 145516;ГУЗ "Детская поликлиника № 16";;+;29.07.2013
+    {145526, 0, 1, 20130727}, ;  // 145526;ГУЗ "Детская поликлиника № 26";;+;27.07.2013
+    {154602, 1, 0, 20130701}, ;  // 154602;ГУЗ "Поликлиника № 2";+;;01.07.2013
+    {154608, 1, 0, 20130729}, ;  // 154608;ГУЗ "Поликлиника № 8";+;;29.07.2013
+    {154620, 1, 0, 20130802}, ;  // 154620;ГУЗ "Поликлиника № 20";+;;02.08.2013
+    {155502, 0, 1, 20130730}, ;  // 155502;ГУЗ "Детская поликлиника № 2";;+;30.07.2013
+    {155601, 0, 1, 20130729}, ;  // 155601;ГУЗ "Детская поликлиника № 1";;+;29.07.2013
+    {161007, 1, 0, 20130725}, ;  // 161007;ГУЗ "КБ СМП № 7";+;;25.07.2013
+    {161015, 1, 0, 20130801}, ;  // 161015;ГУЗ "Клиническая больница № 11";+;;01.08.2013
+    {165525, 0, 1, 20130802}, ;  // 165525;ГУЗ "Детская поликлиника № 25";;+;02.08.2013
+    {165531, 0, 1, 20130801}, ;  // 165531;ГУЗ "ДКП № 31";;+;01.08.2013
+    {174601, 1, 0, 20130718}, ;  // 174601;ГУЗ КП № 1;+;;18.07.2013
+    {175603, 0, 1, 20130725}, ;  // 175603;ГУЗ "Детская поликлиника № 3";;+;25.07.2013
+    {175617, 0, 1, 20130729}, ;  // 175617;ГУЗ "ДП № 17";;+;29.07.2013
+    {175627, 0, 1, 20130806}, ;  // 175627;ГУЗ "Детская поликлиника № 27";;+;06.08.2013
+    {175709, 1, 0, 20130624}, ;  // 175709;ГУЗ "Клиническая поликлиника № 9";+;;24.06.2013
+    {184512, 1, 0, 20130701}, ;  // 184512;ГУЗ "Клиническая поликлиника № 12";+;;01.07.2013
+    {184603, 1, 0, 20130701}, ;  // 184603;ГУЗ "Клиническая поликлиника №3";+;;01.07.2013
+    {185515, 0, 1, 20130730}, ;  // 185515;ГУЗ "ДКП № 15";;+;30.07.2013
+    {251001, 1, 1, 20130713}, ;  // 251001;ГБУЗ "ГКБ № 1 им. С.З.Фишера";+;;13.07.2013
+    {251002, 1, 0, 20130705}, ;  // 251002;ГБУЗ "ГКБ №3";+;;05.07.2013
+    {251003, 1, 0, 20130730}, ;  // 251003;ГБУЗ "Городская больница № 2";+;;30.07.2013
+    {251008, 0, 1, 20130805}, ;  // 251008;ГБУЗ "Городская детская больница";;+;05.08.2013
+    {254504, 1, 0, 20130705}, ;  // 254504;ГБУЗ "Поликлиника № 4";+;;05.07.2013
+    {254505, 1, 0, 20130711}, ;  // 254505;ГБУЗ "Городская поликлиника №5";+;;11.07.2013
+    {254506, 0, 1, 20130809}, ;  // 254506;ГБУЗ "Городская поликлиника № 6";;+;09.08.2013
+    {255601, 0, 1, 20130802}, ;  // 255601;ГБУЗ "ГДП № 1";;+;02.08.2013
+    {255627, 0, 1, 20130730}, ;  // 255627;ГБУЗ "ГДП №2";;+;30.07.2013
+    {255802, 1, 0, 20130703}, ;  // 255802;ГБУЗ "Городская поликлиника № 3";+;;03.07.2013
+    {301001, 1, 1, 20130730}, ;  // 301001;ГБУЗ "Алексеевская ЦРБ";+;+;30.07.2013
+    {311001, 1, 1, 20130813}, ;  // 311001;ГБУЗ "Быковская ЦРБ";+;+;13.08.2013
+    {321001, 1, 1, 20130802}, ;  // 321001;ГБУЗ "Городищенская ЦРБ";+;+;02.08.2013
+    {331001, 1, 1, 20130709}, ;  // 331001;ГБУЗ "Даниловская ЦРБ";+;+;09.07.2013
+    {341001, 1, 1, 20130802}, ;  // 341001;ГБУЗ "ЦРБ Дубовского муниципального района";+;+;02.08.2013
+    {351001, 1, 1, 20130730}, ;  // 351001;ГБУЗ Еланская ЦРБ;+;+;30.07.2013
+    {361001, 1, 1, 20130801}, ;  // 361001;ГУЗ "Жирновская ЦРБ";+;+;01.08.2013
+    {371001, 1, 1, 20130805}, ;  // 371001;ГБУЗ "Иловлинская ЦРБ";+;+;05.08.2013
+    {381001, 1, 1, 20130829}, ;  // 381001;ГБУЗ "Калачевская ЦРБ";+;+;29.08.2013
+    {391001, 1, 0, 20130802}, ;  // 391001;ГБУЗ г.Камышина "Городская больница № 1";+;;02.08.2013
+    {391002, 1, 0, 20130802}, ;  // 391002;ГБУЗ ЦГБ;+;;02.08.2013
+    {391003, 0, 1, 20130805}, ;  // 391003;ГБУЗ "КДГБ";;+;05.08.2013
+    {391015, 0, 1, 20131114}, ;  //+391015;ЦРБ Камышинского р-на;;+;14.11.2013
+    {395501, 0, 1, 20130809}, ;  // 395501;ГБУЗ "Детская поликлиника Камышинского муниципального района Волгоградской области
+    {401001, 1, 1, 20130801}, ;  // 401001;ГБУЗ "Киквидзенская ЦРБ";+;+;01.08.2013
+    {411001, 1, 1, 20130713}, ;  // 411001;ГБУЗ "ЦРБ Клетского муниципального района";+;+;13.07.2013
+    {421001, 1, 1, 20130806}, ;  // 421001;ГБУЗ "Котельниковская ЦРБ";+;+;06.08.2013
+    {431001, 1, 1, 20130809}, ;  // 431001;ГБУЗ ЦРБ Котовского муниципального района;+;+;09.08.2013
+    {441001, 1, 1, 20130809}, ;  // 441001;ГБУЗ "Ленинская ЦРБ";+;+;09.08.2013
+    {451001, 1, 0, 20130805}, ;  // 451001;ГБУЗ "МЦРБ";+;;05.08.2013
+    {451002, 0, 1, 20130717}, ;  // 451002;ГБУЗ "МГДБ";;+;17.07.2013
+    {461001, 1, 1, 20130718}, ;  // 461001;ГБУЗ "Нехаевская ЦРБ";+;+;18.07.2013
+    {471001, 1, 1, 20130717}, ;  // 471001;ГБУЗ "Николаевская ЦРБ";+;+;17.07.2013
+    {481001, 1, 1, 20130801}, ;  // 481001;ГБУЗ "Новоаннинская ЦРБ";+;+;01.08.2013
+    {491001, 1, 1, 20130802}, ;  // 491001;ГБУЗ "Новониколаевская ЦРБ";+;+;02.08.2013
+    {501001, 1, 1, 20130806}, ;  // 501001;ГБУЗ "Октябрьская ЦРБ";+;+;06.08.2013
+    {511001, 1, 1, 20130809}, ;  // 511001;ГБУЗ "ЦРБ Ольховского муниципального района";+;+;09.08.2013
+    {521001, 1, 1, 20130716}, ;  // 521001;ГБУЗ "Палласовская ЦРБ";+;+;16.07.2013
+    {531001, 1, 1, 20130724}, ;  // 531001;ГБУЗ "Кумылженская ЦРБ";+;+;24.07.2013
+    {541001, 1, 1, 20130813}, ;  // 541001;ГБУ "ЦРБ Руднянского муниципального района";+;+;13.08.2013
+    {551001, 1, 1, 20130809}, ;  // 551001;ГБУЗ "Светлоярская ЦРБ";+;+;09.08.2013
+    {561001, 1, 1, 20130717}, ;  // 561001;ГБУЗ "Серафимовичская ЦРБ";+;+;17.07.2013
+    {571001, 1, 1, 20130802}, ;  // 571001;ГБУЗ "Среднеахтубинская ЦРБ";+;+;02.08.2013
+    {571002, 1, 0, 20130829}, ;  // 571002;ГБУЗ "Краснослободская городская больница";+;;29.08.2013
+    {581001, 1, 1, 20130711}, ;  // 581001;ГБУЗ "Старополтавская ЦРБ";+;+;11.07.2013
+    {591001, 1, 1, 20130730}, ;  // 591001;ГБУЗ "ЦРБ Суровикинского муниципального района";+;+;30.07.2013
+    {601001, 1, 1, 20130809}, ;  // 601001;ГБУЗ Урюпинская ЦРБ;+;+;09.08.2013
+    {611001, 1, 1, 20130802}, ;  // 611001;ГБУЗ "Фроловская ЦРБ";+;+;02.08.2013
+    {621001, 1, 1, 20130805}, ;  // 621001;ГБУЗ "Чернышковская ЦРБ";+;+;05.08.2013
+    {711001, 1, 0, 20130731};   // 711001;НУЗ "Отделенческая клиническая больница на ст. Волгоград-1 ОАО "РЖД";+;;31.07.2013
+   }
+  Static mm_tip := {'диспансеризацию/профилактику взрослых', ;
+                    'профилактику несовершеннолетних'}
+  Local i
+
+  if valtype(arr_date_disp[1, 1]) == 'N' // для первого запуска
+    for i := 1 to len(arr_date_disp)
+      arr_date_disp[i, 1] := lstr(arr_date_disp[i, 1])
+      arr_date_disp[i, 4] := stod(lstr(arr_date_disp[i, 4]))
+    next
+  endif
+  if (i := ascan(arr_date_disp, {|x| x[1] == glob_mo[_MO_KOD_TFOMS] })) > 0
+    if arr_date_disp[i, _tip + 1] == 0
+      aadd(_ta, 'У Вашей МО нет лицензии на ' + mm_tip[_tip])
+    elseif arr_date_disp[i, 4] > _n_data
+      aadd(_ta, 'У Вашей МО лицензия на ' + mm_tip[_tip] + ' с ' + date_8(arr_date_disp[i, 4]) + 'г.')
+    endif
+  else
+    aadd(_ta, 'У Вашей МО нет лицензии на ' + mm_tip[_tip])
+  endif
+  return NIL
+  
+// 25.08.13 если услуга из 1 этапа
+Function is_issled_PerN(ausl, _period, arr, _pol)
+  // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
+  Local i, s := '', fl := .f., lshifr := alltrim(ausl[1])
+
+  for i := 1 to count_pern_arr_iss
+    if nper_arr_issled[i, 1] == lshifr
+      s := '"' + lshifr + '.' + nper_arr_issled[i, 3] + '"'
+      fl := .t.
+      exit
+    endif
+  next
+  if fl .and. nper_arr_issled[i, 4] < 2
+    if nper_arr_issled[i, 5] != ausl[3]
+      aadd(arr, 'Не тот профиль в иссл-ии ' + s)
+    endif
+    /*if ascan(nper_arr_issled[i, 6],ausl[4]) == 0
+      aadd(arr, 'Не та специальность врача в иссл-ии ' + s)
+      aadd(arr, ' у Вас: '+lstr(ausl[4])+', разрешено: '+print_array(nper_arr_issled[i, 6]))
+    endif*/
+  endif
+  return fl
+  
+// 19.08.13 если услуга из 1 этапа
+Function is_1_etap_PredN(ausl, _period, _etap)
+  // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
+  Local i, s, fl := .f., lshifr := alltrim(ausl[1])
+
+  for i := 1 to count_predn_arr_osm
+    if _etap == 1
+      if npred_arr_osmotr[i, 4] == ausl[3]
+        lshifr := npred_arr_osmotr[i, 1] // искусственно
+        fl := .t.
+        exit
+      endif
+    else
+      if npred_arr_osmotr[i, 1] == lshifr
+        fl := .t.
+        exit
+      endif
+    endif
+  next
+  if fl
+    fl := (ascan(npred_arr_1_etap[_period, 4], lshifr) > 0)
+  endif
+  return fl
+  
+// 13.02.17
+Function is_osmotr_PredN(ausl, _period, arr, _etap, _pol)
+  // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
+  Local i, s, fl := .f., lshifr := alltrim(ausl[1])
+  
+  if _etap == 2 .and. (j := ascan(npred_arr_osmotr_KDP2, {|x| x[2] == lshifr})) > 0
+    lshifr := npred_arr_osmotr_KDP2[j, 1]
+  endif
+  for i := 1 to count_predn_arr_osm
+    if _etap == 1
+      if npred_arr_osmotr[i, 4] == ausl[3]
+        lshifr := npred_arr_osmotr[i, 1] // искусственно
+        fl := .t.
+        exit
+      endif
+    else
+      if npred_arr_osmotr[i, 1] == lshifr
+        fl := .t.
+        exit
+      endif
+    endif
+  next
+  if fl
+    s := '"' + lshifr + '.' + npred_arr_osmotr[i, 3] + '"'
+    if _etap == 1 .and. ascan(npred_arr_1_etap[_period, 4], lshifr) == 0
+      aadd(arr, 'Некорректный возрастной период пациента для ' + s)
+    endif
+    if !empty(npred_arr_osmotr[i, 2]) .and. !(npred_arr_osmotr[i, 2] == _pol)
+      aadd(arr, 'Несовместимость по полу в услуге ' + s)
+    endif
+    if npred_arr_osmotr[i, 4] != ausl[3]
+      aadd(arr, 'Не тот профиль в услуге ' + s)
+    endif
+    /*if ascan(npred_arr_osmotr[i, 5],ausl[4]) == 0
+      aadd(arr,'Не та специальность врача в услуге ' + s)
+      aadd(arr,' у Вас: '+lstr(ausl[4])+', разрешено: '+print_array(npred_arr_osmotr[i, 5]))
+    endif*/
+  endif
+  return fl
+  
+// 19.08.13
+Function is_issled_PredN(ausl, _period, arr, _pol)
+  // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
+  Local i, s := '', fl := .f., lshifr := alltrim(ausl[1])
+
+  for i := 1 to count_predn_arr_iss
+    if npred_arr_issled[i, 1] == lshifr
+      s := '"' + lshifr + '.' + npred_arr_issled[i, 3] + '"'
+      if valtype(npred_arr_issled[i, 2]) == 'C' .and. !(npred_arr_issled[i, 2] == _pol)
+        aadd(arr, 'Несовместимость по полу в услуге ' + s)
+      endif
+      fl := .t.
+      exit
+    endif
+  next
+  if fl .and. npred_arr_issled[i, 4] < 2
+    if ascan(npred_arr_1_etap[_period, 5], lshifr) == 0
+      aadd(arr, 'Некорректный возрастной период пациента для ' + s)
+    endif
+    if npred_arr_issled[i, 5] != ausl[3]
+      aadd(arr, 'Не тот профиль в иссл-ии ' + s)
+    endif
+    /*if ascan(npred_arr_issled[i, 6],ausl[4]) == 0
+      aadd(arr,'Не та специальность врача в иссл-ии ' + s)
+      aadd(arr,' у Вас: '+lstr(ausl[4])+', разрешено: '+print_array(npred_arr_issled[i, 6]))
+    endif*/
+  endif
+  return fl
+  
+// 06.11.19 если услуга из 1 этапа
+Function is_1_etap_PN(ausl, _period, _etap)
+  // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
+  Local i, j, s, fl := .f., fl_profil := .f., lshifr := alltrim(ausl[1])
+
+  if eq_any(left(lshifr, 4), '2.3.', '2.91')
+    fl_profil := .t.
+  elseif _etap == 1
+    if (i := ascan(np_arr_not_zs, {|x| x[2] == lshifr})) > 0
+      lshifr := np_arr_not_zs[i, 1]
+    endif
+  elseif (i := ascan(np_arr_osmotr_KDP2, {|x| x[2] == lshifr})) > 0
+    lshifr := np_arr_osmotr_KDP2[i, 1]
+  endif
+  for i := 1 to count_pn_arr_osm
+    if _etap == 1 .or. fl_profil
+      if valtype(np_arr_osmotr[i, 4]) == 'N'
+        if np_arr_osmotr[i, 4] == ausl[3]
+          lshifr := np_arr_osmotr[i, 1] // искусственно
+          fl := .t.
+          exit
+        endif
+      elseif (j := ascan(np_arr_osmotr[i, 4], ausl[3])) > 0
+        lshifr := np_arr_osmotr[i, 1] // искусственно
+        fl := .t.
+        exit
+      endif
+    else
+      if np_arr_osmotr[i, 1] == lshifr
+        fl := .t.
+        exit
+      endif
+    endif
+  next
+  if fl
+    fl := (ascan(np_arr_1_etap[_period, 4], lshifr) > 0)
+  endif
+  return fl
+  
+// инициализация прочих справочников
+// Function InitSpravOthers()
+// /////////////////////////////////////////////////
+// // glob_katl - Классификатор кодов льгот по ДЛО
+// //  1 - NAME(C)  2 - KOD(C)
+//   Public glob_katl := {}
+
+//   aadd(glob_katl, {"000 --- без льготы ---","   "})
+//   aadd(glob_katl, {"010 Инвалиды войны","010"})
+//   aadd(glob_katl, {"011 Участники Великой Отечественной войны, ставшие инвалидами","011"})
+//   aadd(glob_katl, {"012 Военнослужащие органов внутренних дел, Государственной противопожарной службы, учреждений и органов уголовно-исполнительной системы, ставших инвалидами вследствие ранения, контузии или увечья, полученных при исполнении обязанностей военной службы","012"})
+//   aadd(glob_katl, {"020 Участники Великой Отечественной войны","020"})
+//   aadd(glob_katl, {"030 Ветераны боевых действий","030"})
+//   aadd(glob_katl, {"040 Военнослужащие, проходившие военную службу в воинских частях, не входивших в состав действующей армии, в период с 22 июня 1941 года по 3 сентября 1945 года не менее шести месяцев, военнослужащие, награжденные орденами или медалями СССР","040"})
+//   aadd(glob_katl, {'050 Лица, награжденные знаком "Жителю блокадного Ленинграда"',"050"})
+//   aadd(glob_katl, {"060 Члены семей погибших (умерших) инвалидов войны, участников Великой Отечественной войны и ветеранов боевых действий","060"})
+//   aadd(glob_katl, {"061 Члены семей погибших в Великой Отечественной войне лиц из числа личного состава групп самозащиты объектовых и аварийных команд местной противовоздушной обороны, а также члены семей погибших работников госпиталей и больниц города Ленинграда","061"})
+//   aadd(glob_katl, {"062 Члены семей военнослужащих органов внутренних дел, Государственной противопожарной службы, учреждений и органов уголовно-исполнительной системы и органов государственной безопасности, погибших при исполнении обязанностей военной службы","062"})
+//   aadd(glob_katl, {"063 Члены семей военнослужащих, погибших в плену, признанных в установленном порядке пропавшими без вести в районах боевых действий","063"})
+//   aadd(glob_katl, {"081 Инвалиды I степени","081"})
+//   aadd(glob_katl, {"082 Инвалиды II степени","082"})
+//   aadd(glob_katl, {"083 Инвалиды III степени","083"})
+//   aadd(glob_katl, {"084 Дети-инвалиды","084"})
+//   aadd(glob_katl, {"085 Инвалиды, не имеющие степени ограничения способности к трудовой деятельности","085"})
+//   aadd(glob_katl, {"091 Граждане, получившие или перенесшие лучевую болезнь и другие заболевания, связанные с радиационным воздействием вследствие чернобыльской катастрофы или с работами по ликвидации последствий катастрофы на Чернобыльской АЭС","091"})
+//   aadd(glob_katl, {"092 Инвалиды вследствие чернобыльской катастрофы","092"})
+//   aadd(glob_katl, {"093 Граждане, принимавшие в 1986-1987 годах участие в работах по ликвидации последствий чернобыльской катастрофы","093"})
+//   aadd(glob_katl, {"094 Граждане, принимавшие участие в 1988-90гг. участие в работах по ликвидации последствий чернобыльской катастрофы","094"})
+//   aadd(glob_katl, {"095 Граждане, постоянно проживающие (работающие) на территории зоны проживания с правом на отселение","095"})
+//   aadd(glob_katl, {"096 Граждане, постоянно проживающие (работающие) на территории зоны проживания с льготным социально-экономическим статусом","096"})
+//   aadd(glob_katl, {"097 Граждане, постоянно проживающие (работающие) в зоне отселения до их переселения в другие районы","097"})
+//   aadd(glob_katl, {"098 Граждане, эвакуированные (в том числе выехавшие добровольно) в 1986 году из зоны отчуждения","098"})
+//   aadd(glob_katl, {"099 Дети и подростки в возрасте до 18 лет, проживающие в зоне отселения и зоне проживания с правом на отселение, эвакуированные и переселенные из зон отчуждения, отселения, проживания с правом на отселение","099"})
+//   aadd(glob_katl, {"100 Дети и подростки в возрасте до 18 лет, постоянно проживающие в зоне с льготным социально-экономическим статусом","100"})
+//   aadd(glob_katl, {"101 Дети и подростки, страдающие болезнями вследствие чернобыльской катастрофы, ставшие инвалидами","101"})
+//   aadd(glob_katl, {"102 Дети и подростки, страдающие болезнями вследствие чернобыльской катастрофы","102"})
+//   aadd(glob_katl, {"111 Граждане, получившие суммарную (накопительную) эффективную дозу облучения, превышающую 25 сЗв (бэр)","111"})
+//   aadd(glob_katl, {"112 Граждане, получившие суммарную (накопительную) эффективную дозу облучения более 5 сЗв (бэр), но не превышающую 25 сЗв (бэр)","112"})
+//   aadd(glob_katl, {"113 Дети в возрасте до 18 лет первого и второго поколения граждан, получившие суммарную (накопительную) эффективную дозу облучения более 5 сЗв (бэр), страдающих заболеваниями вследствие радиационного воздействия на одного из родителей","113"})
+//   aadd(glob_katl, {"120 Лица, работавшие в период Великой Отечественной войны на объектах противовоздушной обороны, на строительстве оборонительных сооружений, военно-морских баз, аэродромов и других военных объектов","120"})
+//   aadd(glob_katl, {'121 Граждане, получившие лучевую болезнь, обусловленную воздействием радиации вследствие аварии в 1957 году на производственном объединении "Маяк" и сбросов радиоактивных отходов в реку Теча',"121"})
+//   aadd(glob_katl, {'122 Граждане, ставшие инвалидами в результате воздействия радиации вследствие аварии в 1957 году на производственном объединении "Маяк" и сбросов радиоактивных отходов в реку Теча',"122"})
+//   aadd(glob_katl, {'123 Граждане, принимавшие в 1957-58гг. участие в работах по ликвидации последствий аварии в 1957 году на производственном объединении "Маяк", а также граждане, занятые на работах по проведению мероприятий вдоль реки Теча в 1949-56гг.',"123"})
+//   aadd(glob_katl, {'124 Граждане, принимавшие в 1959-61гг. участие в работах по ликвидации последствий аварии в 1957 году на производственном объединении "Маяк", а также граждане, занятые на работах по проведению мероприятий вдоль реки Теча в 1957-62гг.',"124"})
+//   aadd(glob_katl, {'125 Граждане, проживающие в населенных пунктах, подвергшихся радиоактивному загрязнению вследствие аварии в 1957 году на производственном объединении "Маяк" и сбросов радиоактивных отходов в реку Теча',"125"})
+//   aadd(glob_katl, {'128 Граждане, эвакуированные из населенных пунктов, подвергшихся радиоактивному загрязнению вследствие аварии в 1957 году на производственном объединении "Маяк" и сбросов радиоактивных отходов в реку Теча',"128"})
+//   aadd(glob_katl, {"129 Дети первого и второго поколения граждан, указанных в статье 1 Федерального закона от 26.11.98 № 175-ФЗ, страдающие заболеваниями вследствие воздействия радиации на их родителей","129"})
+//   aadd(glob_katl, {"131 Граждане из подразделений особого риска, не имеющие инвалидности","131"})
+//   aadd(glob_katl, {"132 Граждане из подразделений особого риска, имеющие инвалидность","132"})
+//   aadd(glob_katl, {"140 Бывшие несовершеннолетние узники концлагерей, признанные инвалидами вследствие общего заболевания, трудового увечья и других причин (за исключением лиц, инвалидность которых наступила вследствие их противоправных действий)","140"})
+//   aadd(glob_katl, {"141 Рабочие и служащие, а также военнослужащих органов внутренних дел, Государственной противопожарной службы, получившие профессиональные заболевания, связанные с лучевым воздействием на работах в зоне отчуждения","141"})
+//   aadd(glob_katl, {"142 Рабочие и служащие, а также военнослужащие органов внутренних дел, Государственной противопожарной службы, получивших профессиональные заболевания, связанные с лучевым воздействием на работах в зоне отчуждения, ставшие инвалидами","142"})
+//   aadd(glob_katl, {"150 Бывшие несовершеннолетние узники концлагерей","150"})
+//   return NIL
