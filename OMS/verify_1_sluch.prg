@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-// 29.03.23
+// 04.04.23
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1, ;
         i, j, k, c, s := ' ', a_srok_lech := {}, a_period_stac := {}, a_disp := {}, ;
@@ -31,6 +31,7 @@ Function verify_1_sluch(fl_view)
   local iVMP
   local aDiagnoze_for_check := {}
   local fl_zolend := .f.
+  local header_error
 
   if empty(human->k_data)
     return .t.  // не проверять
@@ -56,7 +57,15 @@ Function verify_1_sluch(fl_view)
     UnLock
   endif
 
+  uch->(dbGoto(human->LPU))
   otd->(dbGoto(human->OTD))
+
+  header_error := fio_plus_novor() + ' ' + alltrim(human->kod_diag) + ' ' + ;
+             date_8(human->n_data) + '-' + date_8(human->k_data) + ;
+             ' (' +count_ymd(human->date_r,human->n_data) + ')' + hb_eol()
+  header_error += alltrim(uch->name) + '/' + alltrim(otd->name) + '/профиль по "' + ;
+                 alltrim(inieditspr(A__MENUVERT, getV002(), human_->profil)) + '"'
+
   lTypeLUOnkoDisp := (otd->tiplu == TIP_LU_ONKO_DISP)
 
   if ! lTypeLUOnkoDisp
@@ -608,6 +617,32 @@ Function verify_1_sluch(fl_view)
 
   select HU
   find (str(human->kod, 7))
+
+  if ! found()
+    add_string(header_error)
+    aadd(ta, 'для случая отсутствует список оказанных услуг')
+    // verify_FF(80 - len(ta) - 3, .t., 80)
+    // add_string('')
+    // uch->(dbGoto(human->LPU))
+    // otd->(dbGoto(human->OTD))
+    // add_string(fio_plus_novor() + ' ' + alltrim(human->kod_diag) + ' ' +;
+    //            date_8(human->n_data) + '-' + date_8(human->k_data) +;
+    //            ' (' +count_ymd(human->date_r,human->n_data) + ')')
+    // Ins_Array(ta, 1, alltrim(uch->name) + '/' + alltrim(otd->name) + '/профиль по "' + ;
+    //                alltrim(inieditspr(A__MENUVERT, getV002(), human_->profil)) + '"')
+    for i := 1 to len(ta)
+      for j := 1 to perenos(t_arr, ta[i], 78)
+        if j == 1
+          add_string(iif(i == 1, ' ', '- ') + t_arr[j])
+        else
+          add_string(padl(alltrim(t_arr[j]), 80))
+        endif
+      next
+    next
+    return .f.
+    // altd()
+  endif
+
   do while hu->kod == human->kod .and. !eof()
     lshifr1 := opr_shifr_TFOMS(usl->shifr1, usl->kod, human->k_data)
     if is_usluga_TFOMS(usl->shifr, lshifr1, human->k_data, @auet, @lbukva, @lst, @lidsp, @s)
@@ -4564,8 +4599,10 @@ Function verify_1_sluch(fl_view)
       endif
       old_npr_mo := human_->NPR_MO
     endif
-    verify_FF(80-len(ta)-3,.t., 80)
+    verify_FF(80 - len(ta) - 3, .t., 80)
     add_string('')
+    // add_string(header_error)
+
     uch->(dbGoto(human->LPU))
     otd->(dbGoto(human->OTD))
     add_string(fio_plus_novor() + ' ' + alltrim(human->kod_diag) + ' ' +;
@@ -4608,9 +4645,10 @@ Function verify_1_sluch(fl_view)
     human_->PZTIP := mpztip
     human_->PZKOL := iif(mpzkol > 0, mpzkol, 1)
   endif
+
   if between_shifr(alltrim_lshifr, '2.88.111', '2.88.119') .and. (human->k_data >= 0d20220201)
     arr_povod[1, 1] := 1
-    human_->POVOD := iif(len(arr_povod) > 0, arr_povod[1, 1], 1)
+    human_->POVOD := arr_povod[1, 1]
   endif
 
   if !valid_GUID(human_->ID_PAC)
