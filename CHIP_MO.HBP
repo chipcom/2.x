@@ -192,7 +192,6 @@ mo_version.prg
 .\oms\kiroANDkslp.prg
 .\oms\f_1pac_definition_KSG.prg
 .\oms\Change_Cena_OMS.prg
-.\oms\verify_1_sluch.prg
 .\oms\conditionKSLP_21.prg
 .\oms\conditionKSLP_22.prg
 .\oms\conditionKSLP_23.prg
@@ -200,7 +199,6 @@ mo_version.prg
 .\oms\mo_oms131.prg
 .\oms\errorFromTFOMS.prg
 .\oms\TFOMS_hodatajstvo.prg
-.\oms\verifyOMS.prg
 .\oms\oms_lek_preparat.prg
 .\oms\oms_implantant.prg
 .\oms\oms_ser_number.prg
@@ -210,6 +208,9 @@ mo_version.prg
 .\oms\oms_sluch_dializ.prg
 .\oms\oms_sluch_onko_disp.prg
 .\oms\oms_sluch_smp.prg
+.\oms\verify_func.prg
+.\oms\verify_oms.prg
+.\oms\verify_sluch.prg
 
 .\personal\personal_func.prg
 
