@@ -3024,7 +3024,12 @@ if f_Esc_Enter("возврата",.t.)
     sum_nal   := summa_oplat - summa_oplat_bn
     sum_bank  := p_summa - sum_nal
   endif
-
+// корректировка
+if sum_nal < 0 .and. sum_bank > 0
+   // были предыдущие возвраты
+  sum_nal := 0
+  sum_bank := p_summa
+endif
   fl := vozvrat_fr(sum_nal,sum_bank,@ln_chek,1,tip_banka)
   // сам чек
   if fl
@@ -3052,7 +3057,7 @@ if f_Esc_Enter("возврата",.t.)
     hu->(dbCloseArea())
     select HUMAN
     G_RLock(forever)
-    replace human->date_voz with dtoc4(date()), human->sum_voz with p_summa
+    replace human->date_voz with dtoc4(date()), human->sum_voz with (p_summa+human->sum_voz) 
     UnLock
     human->(dbCommit())
     stat_msg("Сумма возврата записана!") ; mybell(1,OK)
