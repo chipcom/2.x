@@ -859,9 +859,6 @@ arr_bukva := {}
 select TMP1
 find (str(0, 1))
 do while tmp1->tip == 0 .and. !eof()
-  // if !empty(bukva) .and. ascan(arr_bukva,{|x| x[2] == tmp1->bukva}) == 0 ;
-  //                .and. (j := ascan(mm_bukva,{|x| x[2] == tmp1->bukva})) > 0
-  //   aadd(arr_bukva,{mm_bukva[j,1],mm_bukva[j,2],0})
   if !empty(bukva) .and. ascan(arr_bukva, {|x| x[2] == tmp1->bukva}) == 0 ;
       .and. (j := ascan(get_bukva(), {|x| x[2] == tmp1->bukva})) > 0
         aadd(arr_bukva, {get_bukva()[j, 1], get_bukva()[j, 2], 0})
@@ -1567,8 +1564,6 @@ Function pr1_oborot_schet()
 
 if empty(s1bukva)
   s1bukva := ''
-  // for i := 1 to len(mm_bukva)
-  //   s1bukva += mm_bukva[i,2]
   for i := 1 to len(get_bukva())
     s1bukva += get_bukva()[i, 2]
   next
@@ -1916,11 +1911,9 @@ do case
       skip
     enddo
   case m1schet == 2 // по типам счетов
-    for i := 1 to len(get_bukva()) // len(mm_bukva)
-      // find (mm_bukva[i, 2])
+    for i := 1 to len(get_bukva())
       find (get_bukva()[i, 2])
       if found()
-        // add_string(padr(mm_bukva[i,1],n)+put_kop(tmp1->summa1,15,2)+;
         add_string(padr(get_bukva()[i, 1], n) + put_kop(tmp1->summa1, 15, 2) + ;
                    put_kopE(tmp1->sum_sn, 12, 2) + put_kopE(tmp1->sum_op, 15, 2) + ;
                    put_kopE(tmp1->summa1 - tmp1->sum_sn - tmp1->sum_op, 15, 2))

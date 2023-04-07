@@ -442,7 +442,6 @@ Function oms_sluch_SMP(Loc_kod, kod_kartotek, tip_lu)
     endif
   endif
   if mem_smp_input == 1
-    // mvid_ud := inieditspr(A__MENUVERT, menu_vidud, m1vid_ud)
     mvid_ud := inieditspr(A__MENUVERT, getVidUd(), m1vid_ud)
     madres_reg := ini_adres(1)
   endif
@@ -545,7 +544,6 @@ Function oms_sluch_SMP(Loc_kod, kod_kartotek, tip_lu)
 
     @ ++j, 1 say 'Уд-ие личности:' get mvid_ud ;
            reader {|x|menu_reader(x, getVidUd(), A__MENUVERT, , ,.f.)}
-            // reader {|x|menu_reader(x,menu_vidud,A__MENUVERT, , ,.f.)}
     @ j, 42 say 'Серия' get mser_ud pict '@!' valid val_ud_ser(1, m1vid_ud, mser_ud)
     @ j,col()+1 say '№' get mnom_ud pict '@!S18' valid val_ud_nom(1, m1vid_ud, mnom_ud)
     if tip_lu == TIP_LU_NMP

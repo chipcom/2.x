@@ -1500,8 +1500,6 @@ frt->k_schet := org->k_schet
 frt->ispolnit := org->ispolnit
 frt->date_podp := full_date(sys_date)+" г."
 s := ""
-// if (j := ascan(arr_rekv_smo,{|x| x[1]==schet_->SMO})) > 0
-//   s := arr_rekv_smo[j,2]
 if (j := ascan(get_rekv_SMO(), {|x| x[1] == schet_->SMO})) > 0
   s := get_rekv_SMO()[j, 2]
   if reg == 2 .and. int(val(schet_->SMO)) == 34 // иногородние !
@@ -1663,10 +1661,6 @@ if reg > 1
       frd->pol := iif(human->pol=="М","муж","жен")
       frd->date_r := full_date(human->date_r)
       frd->mesto_r := kart_->mesto_r
-      // s := ""
-      // if (j := ascan(menu_vidud, {|x| x[2] == kart_->vid_ud})) > 0
-      //   s := menu_vidud[j,4]+" "
-      // endif
       s :=  get_Name_Vid_Ud(kart_->vid_ud, , ' ')
       if !empty(kart_->ser_ud)
         s += alltrim(kart_->ser_ud) + ' '
@@ -1829,10 +1823,6 @@ next
 add_string("Расчетный счет: "+alltrim(sr_schet)+", БИК: "+alltrim(sbik))
 add_string("")
 add_string("")
-// if (j := ascan(arr_rekv_smo,{|x| x[1]==schet_->SMO})) == 0
-//   j := len(arr_rekv_smo) // если не нашли - печатаем реквизиты ТФОМС
-// endif
-// k := perenos(t_arr,arr_rekv_smo[j,2],sh-12)
 if (j := ascan(get_rekv_SMO(), {|x| x[1] == schet_->SMO})) == 0
   j := len(get_rekv_SMO()) // если не нашли - печатаем реквизиты ТФОМС
 endif
@@ -1841,21 +1831,17 @@ add_string('Плательщик: ' + t_arr[1])
 for i := 2 to k
   add_string(space(12)+t_arr[2])
 next
-// add_string("ИНН: "+arr_rekv_smo[j,3]+", КПП: "+arr_rekv_smo[j,4])
-// k := perenos(t_arr,arr_rekv_smo[j,6],sh-7)
 add_string('ИНН: ' + get_rekv_SMO()[j, 3] + ', КПП: ' + get_rekv_SMO()[j, 4])
 k := perenos(t_arr, get_rekv_SMO()[j, 6], sh - 7)
 add_string('Адрес: ' + t_arr[1])
 for i := 2 to k
   add_string(space(7)+t_arr[2])
 next
-// k := perenos(t_arr,arr_rekv_smo[j,7],sh-18)
 k := perenos(t_arr, get_rekv_SMO()[j, 7], sh - 18)
 add_string("Банк плательщика: "+t_arr[1])
 for i := 2 to k
   add_string(space(18)+t_arr[2])
 next
-// add_string("Расчетный счет: "+alltrim(arr_rekv_smo[j,8])+", БИК: "+alltrim(arr_rekv_smo[j,9]))
 add_string('Расчетный счет: ' + alltrim(get_rekv_SMO()[j, 8]) + ', БИК: ' + alltrim(get_rekv_SMO()[j, 9]))
 add_string('')
 add_string('')

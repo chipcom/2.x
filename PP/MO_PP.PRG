@@ -2291,9 +2291,6 @@ if pp_regim == 1 .and. eq_any(nkey,K_F5,K_F6,K_F7,K_F8,K_F9,K_F10,K_F12)
                                          .and. between(stm_kategor[i,3],1,9)
     frd->kod_lgot := lstr(stm_kategor[i,3])
   endif
-  // if (j := ascan(menu_vidud, {|x| x[2] == kart_->vid_ud})) > 0
-  //   frd->name_doc := menu_vidud[j,4]
-  // endif
   frd->name_doc := get_Name_Vid_Ud(kart_->vid_ud)
   frd->ser_doc := kart_->ser_ud
   frd->nom_doc := kart_->nom_ud
@@ -2414,9 +2411,6 @@ if pp_regim == 1 .and. eq_any(nkey,K_F5,K_F6,K_F7,K_F8,K_F9,K_F10,K_F12)
   else
     frd->kategor := inieditspr(A__MENUVERT, stm_kategor2, kart_->kategor2)
   endif
-  // if (j := ascan(menu_vidud, {|x| x[2] == kart_->vid_ud})) > 0
-  //   frd->vid_ud := menu_vidud[j,4]
-  // endif
   frd->vid_ud := get_Name_Vid_Ud(kart_->vid_ud)
   frd->ser := alltrim(kart_->ser_ud)
   frd->nom := alltrim(kart_->nom_ud)

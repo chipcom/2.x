@@ -1462,7 +1462,6 @@ do case
       mforma := inieditspr(A__MENUVERT,getV014(), m1forma)
       mprofil_k := inieditspr(A__MENUVERT, arr_t007, M1PROFIL_K)
       mprofil := inieditspr(A__MENUVERT, getV002(), M1PROFIL)
-      // mrea_annul := inieditspr(A__MENUVERT, mm_reason_annul, m1rea_annul)
       mrea_annul := inieditspr(A__MENUVERT, get_reason_annul(), m1rea_annul)
       if !empty(m1pol_mo)
         if m1pol_mo == glob_mo[_MO_KOD_TFOMS]
@@ -1498,8 +1497,6 @@ do case
           ++i ; @ i,1 say "       будет госпитализирован в отделение" get motd when .f.
           endif
         endif*/
-        // ++i ; @ i,1 say "Причина аннулирования" get mrea_annul ;
-        //   reader {|x|menu_reader(x,mm_reason_annul,A__MENUVERT,,,.f.)}
         @ ++i, 1 say 'Причина аннулирования' get mrea_annul ;
                     reader {|x|menu_reader(x, get_reason_annul(), A__MENUVERT, , , .f.)}
         @ ++i, 1 say 'Дата аннулирования' get mdate_3

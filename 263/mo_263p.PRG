@@ -599,7 +599,6 @@ do case
       mprofil_k := inieditspr(A__MENUVERT, arr_t007, M1PROFIL_K)
       mprofil := inieditspr(A__MENUVERT, getV002(), M1PROFIL)
       mstac_mo := ret_mo(m1stac_mo)[_MO_SHORT_NAME]
-      // mrea_annul := inieditspr(A__MENUVERT, mm_reason_annul, m1rea_annul)
       mrea_annul := inieditspr(A__MENUVERT, get_reason_annul(), m1rea_annul)
       if m1vrach > 0
         R_Use(dir_server + 'mo_pers', , 'P2')
@@ -635,8 +634,6 @@ do case
         @ ++i, 1 say 'Направляется в стационар' get mstac_mo when .f.
         @ ++i, 1 say 'Профиль койки' get mprofil_k when .f.
         @ ++i, 1 say 'Профиль медицинской помощи' get mprofil when .f.
-        // ++i ; @ i,1 say "Причина аннулирования" get mrea_annul ;
-        //             reader {|x|menu_reader(x,mm_reason_annul,A__MENUVERT,,,.f.)}
         @ ++i, 1 say 'Причина аннулирования' get mrea_annul ;
                     reader {|x|menu_reader(x, get_reason_annul(), A__MENUVERT, , , .f.)}
         @ ++i, 1 say 'Дата аннулирования' get mdate_3

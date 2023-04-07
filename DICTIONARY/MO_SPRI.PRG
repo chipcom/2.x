@@ -1626,8 +1626,6 @@ Function usl_par_organ()
   add_string(str(WORK_YEAR, 4, 0) + ' год')
   add_string('')
   add_string('=== Описание обозначения органа (части тела)')
-  // for i := 1 to len(garr_par_org)
-  //   add_string(" "+garr_par_org[i,1])
   for i := 1 to len(getParOrgan())
     add_string(' ' + getParOrgan()[i,1])
   next

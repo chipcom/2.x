@@ -525,7 +525,6 @@ for i := 1 to len(arr_i03)
       //aadd(ta,"дата госпитализации меньше даты аннулирования "+full_date(napr->date_3))
     elseif _263_verify_year(napr->date_3,ta)
     endif
-    // if ascan(mm_reason_annul, {|x| x[2] == napr->REA_ANNUL} ) == 0
     if ascan(get_reason_annul(), {|x| x[2] == napr->REA_ANNUL} ) == 0
       aadd(ta, 'не указана причина аннулирования')
     endif
@@ -2184,7 +2183,6 @@ if regim == "edit"
         add_string(space(3) + 'форма оказания медицинской помощи - ' + inieditspr(A__MENUVERT, getV014(), napr->F_MEDC_1))
         add_string(space(3) + inieditspr(A__MENUVERT, arr_t007, napr->PROFIL_K_1) + ;
                                      ' (' + inieditspr(A__MENUVERT, getV002(), napr->PROFIL_1) + ')')
-        // add_string(space(3)+"причина аннулирования: "+inieditspr(A__MENUVERT, mm_reason_annul, napr->rea_annul))
         add_string(space(3) + 'причина аннулирования: ' + inieditspr(A__MENUVERT, get_reason_annul(), napr->rea_annul))
         add_string(space(3) + 'дата аннулирования ' + full_date(napr->date_3))
         select NFN
@@ -3189,8 +3187,6 @@ for ii := 1 to len(arr_f)
                         s+=space(7)+"планируемая дата госпитализации (стац) - "+full_date(napr->DATE_H_2)+hb_eol()+;
                            space(7)+"(дата госпитализации введена в стационаре - "+full_date(napr->DATE_2)+")"+hb_eol()
                       endif*/
-                      // s += space(7)+"причина аннулирования: "+inieditspr(A__MENUVERT, mm_reason_annul, tmp2->REASON_REF)+hb_eol()+;
-                      //   space(7)+"дата аннулирования "+full_date(tmp2->DATE_REF)+hb_eol()
                       s += space(7) + 'причина аннулирования: ' + inieditspr(A__MENUVERT, get_reason_annul(), tmp2->REASON_REF) + hb_eol() + ;
                            space(7) + 'дата аннулирования ' + full_date(tmp2->DATE_REF) + hb_eol()
                       if empty(napr->DATE_3)
@@ -3209,8 +3205,6 @@ for ii := 1 to len(arr_f)
                           s += "поликлинике"
                         endif
                         s += hb_eol()
-                        // s += space(8)+"причина аннулирования: "+inieditspr(A__MENUVERT, mm_reason_annul, napr->rea_annul)+hb_eol()+;
-                        //      space(8)+"дата аннулирования "+full_date(napr->date_3)+hb_eol()
                         s += space(8) + 'причина аннулирования: ' + inieditspr(A__MENUVERT, get_reason_annul(), napr->rea_annul) + hb_eol() + ;
                              space(8) + 'дата аннулирования ' + full_date(napr->date_3) + hb_eol()
                       endif

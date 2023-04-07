@@ -374,7 +374,6 @@ Function f3_view_r_pr_nas(oBrow)
         if ascan(mm_err,{|x| x[2] == sarr_err[j]}) > 0
           sarr_err[j] := str(sarr_err[j],3)+" "+inieditspr(A__MENUVERT,mm_err,sarr_err[j])
         else
-          // sarr_err[j] := str(sarr_err[j],3)+" "+inieditspr(A__MENUVERT,mm_err_csv_prik,sarr_err[j])
           sarr_err[j] := str(sarr_err[j], 3) + ' ' + inieditspr(A__MENUVERT, get_err_csv_prik(), sarr_err[j])
         endif
       next
@@ -540,10 +539,8 @@ Function f31_view_r_pr_nas(reg,s,s1)
         select KRTE
         find (str(krtp->REES_ZAP,6))
         do while krtp->REES_ZAP == krte->REES_ZAP .and. !eof()
-          // s := space(len(lstr(krtp->REES_ZAP))+2)+lstr(krte->REFREASON)+" "+;
-          //      inieditspr(A__MENUVERT,mm_err_csv_prik,krte->REFREASON)
           s := space(len(lstr(krtp->REES_ZAP)) + 2) + lstr(krte->REFREASON) + ' ' + ;
-            inieditspr(A__MENUVERT, get_err_csv_prik(), krte->REFREASON)
+                  inieditspr(A__MENUVERT, get_err_csv_prik(), krte->REFREASON)
           verify_FF(60,.t.,80)
           add_string(s)
           skip
@@ -719,7 +716,6 @@ Function preparation_for_pripisnoe_naselenie()
         endif
       endif
       Valid_SN_Polis(kart_->vpolis, kart_->SPOLIS, kart_->NPOLIS, aerr, between(kart_->smo, '34001', '34007'))
-      // if ascan(menu_vidud,{|x| x[2] == kart_->vid_ud }) == 0
       if ascan(getVidUd(), {|x| x[2] == kart_->vid_ud }) == 0
         aadd(aerr, '­¥ § ¯®«­¥­® ¯®«¥ "‚ˆ„ ã¤®áâ®¢¥à¥­¨ï «¨ç­®áâ¨"')
       else
@@ -1032,7 +1028,6 @@ Function preparation_for_pripisnoe_naselenie()
             // 9 - Œ¥áâ® à®¦¤¥­¨ï § áâà å®¢ ­­®£® «¨æ 
             s := iif(eq_any(kart_->vid_ud,3,14), alltrim(del_spec_symbol(kart_->mesto_r)), "")
             s1 += eval(blk,f_s_csv(s))+";"
-            // fl := ascan(menu_vidud,{|x| x[2] == kart_->vid_ud }) == 0
             fl := ascan(getVidUd(), {|x| x[2] == kart_->vid_ud }) == 0
             if !fl
               if empty(kart_->nom_ud)
@@ -1224,9 +1219,6 @@ Function f1_k_z_prikreplenie(nKey, oBrow, regim)
     frt->date_r := full_date(kart->date_r)+"£. "+alltrim(kart_->mesto_r)
     s := ''
     if kart_->vid_ud > 0
-      // if (j := ascan(menu_vidud, {|x| x[2] == kart_->vid_ud})) > 0
-      //   s := menu_vidud[j,4]+": "
-      // endif
       s := get_Name_Vid_Ud(kart_->vid_ud, , ': ')
       if !empty(kart_->ser_ud)
         s += charone(" ",alltrim(kart_->ser_ud))+" "

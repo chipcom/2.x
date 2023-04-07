@@ -201,13 +201,11 @@ Function val_ud_nom(par, k, s, /*@*/msg)
   s := alltrim(s)
   if (j := ascan(arr_d, {|x| x[1] == k })) > 0
     if !yes_number(s)
-      // msg := 'недопустимый символ в номере уд.личности "' + inieditspr(A__MENUVERT, menu_vidud, k) + '"'
       msg := 'недопустимый символ в номере уд.личности "' + inieditspr(A__MENUVERT, getVidUd(), k) + '"'
     else
       d1 := arr_d[j, 2]
       d2 := iif(len(arr_d[j]) == 2, d1, arr_d[j, 3])
       if !between(len(s), d1, d2)
-        // msg := 'неверное кол-во цифр в номере уд.личности "' + inieditspr(A__MENUVERT, menu_vidud, k) + '"'
         msg := 'неверное кол-во цифр в номере уд.личности "' + inieditspr(A__MENUVERT, getVidUd(), k) + '"'
       endif
     endif

@@ -446,7 +446,6 @@ Function f2oms_usl_sluch(nKey, oBrow)
           tip_telemed := 1
           if tip_telemed2
             m1nmic := int(val(beforatnum(':',mzf)))
-            // mnmic := inieditspr(A__MENUVERT, glob_nmic, m1nmic)
             mnmic := inieditspr(A__MENUVERT, getNMIC(), m1nmic)
             if m1nmic > 0
               m1nmic1 := int(val(afteratnum(':', mzf)))
@@ -564,7 +563,6 @@ Function f2oms_usl_sluch(nKey, oBrow)
             reader {|x|menu_reader(x, getNMIC(), A__MENUVERT, , , .f.)} ;
             when tip_telemed2 ;
             valid {|| iif(m1nmic == 0, (mnmic1 := space(10), m1nmic1 := 0), ), update_get('mnmic1') }
-        // reader {|x|menu_reader(x, glob_nmic, A__MENUVERT, , , .f.)} ;
         ++ix
         @ row_dom + 1, 2 say ' Получены ли результаты на дату окончания лечения' get mnmic1 ;
             reader {|x|menu_reader(x, mm_danet, A__MENUVERT, , , .f.)} ;

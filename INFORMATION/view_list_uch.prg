@@ -96,10 +96,6 @@ Function print_l_uch(mkod, par, regim, lnomer)
   Private M1F14_VSKR := int(val(substr(human_->FORMA14, 3, 1)))
   Private M1F14_RASH := int(val(substr(human_->FORMA14, 4, 1)))
   if mvid_ud > 0
-    // mud_lich := ''
-    // if (j := ascan(menu_vidud, {|x| x[2] == mvid_ud})) > 0
-    //   mud_lich := menu_vidud[j, 4] + ': '
-    // endif
     mud_lich := get_Name_Vid_Ud(mvid_ud, , ': ')
     if !empty(mser)
       mud_lich += charone(' ', mser) + ' '
@@ -1041,10 +1037,6 @@ Function print_al_uch(arr_h, arr_m)
           mser    := kart_->ser_ud, ;
           mnom    := kart_->nom_ud
   if mvid_ud > 0
-    // mud_lich := ''
-    // if (j := ascan(menu_vidud, {|x| x[2] == mvid_ud})) > 0
-    //   mud_lich := menu_vidud[j, 4] + ': '
-    // endif
     mud_lich := get_Name_Vid_Ud(mvid_ud, , ': ')
     if !empty(mser)
       mud_lich += charone(' ',mser) + ' '

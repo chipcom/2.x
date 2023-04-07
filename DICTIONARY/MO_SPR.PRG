@@ -1269,8 +1269,6 @@ Function spr_struct_org(k)
     case k == 4
       str_sem := 'Редактирование реквизитов организации'
       if G_SLock(str_sem)
-        // f_edit_spr(A__EDIT, gmenu_organ, 'реквизитам Вашей организации', ;
-        //          'use_base("organiz")', 0, 1)
         f_edit_spr(A__EDIT, get_struct_organiz(), 'реквизитам Вашей организации', ;
           'use_base("organiz")', 0, 1)
          G_SUnLock(str_sem)

@@ -125,10 +125,6 @@ do while !eof()
       s := full_date(kart->date_r)+" "+count_ymd(kart->date_r,hu->N_DATA)
       k04 := perenos(a04,s,sh04)
       // 5 - паспорт и полис
-      // s := ''
-      // if (i := ascan(menu_vidud, {|x| x[2] == kart_->vid_ud})) > 0
-      //   s := menu_vidud[i,4]
-      // endif
       s := get_Name_Vid_Ud(kart_->vid_ud)
       s += ' ' + alltrim(kart_->ser_ud)
       s += ' ' + alltrim(kart_->nom_ud) + '; '
@@ -2208,10 +2204,6 @@ if k > 0
         s := full_date(kart->date_r)+" "+count_ymd(kart->date_r,hu->N_DATA)
         k04 := perenos(a04,s,sh04)
         // 5 - паспорт и полис
-        // s := ''
-        // if (i := ascan(menu_vidud, {|x| x[2] == kart_->VID_UD})) > 0
-        //   s := menu_vidud[i,4]
-        // endif
         s := get_Name_Vid_Ud(kart_->vid_ud)
         s += ' ' + alltrim(kart_->SER_UD)
         s += ' ' + alltrim(kart_->NOM_UD) + '; '

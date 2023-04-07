@@ -506,10 +506,6 @@ else
   m1kategor := kart_->kategor2
   mkategor := upper(inieditspr(A__MENUVERT, stm_kategor2, m1kategor))
 endif
-// mvid_ud := ""
-// if (j := ascan(menu_vidud, {|x| x[2] == m1vid_ud})) > 0
-  // mvid_ud := menu_vidud[j,4]
-// endif
 mvid_ud := get_Name_Vid_Ud(m1vid_ud)
 if empty(mser) ; mser := space(10) ; endif
 if empty(mnom) ; mnom := space(10) ; endif

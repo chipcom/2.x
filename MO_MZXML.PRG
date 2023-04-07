@@ -1094,7 +1094,6 @@ if j == 1 .or. j == 2
         endif
         frd->ist_fin := mm_ist_fin[tmp_kart->ist_fin]
         frd->region := inieditspr(A__MENUVERT, getO001(), tmp_kart->region)
-        // frd->osnov := inieditspr(A__MENUVERT, menu_osn_preb_RF, tmp_kart->osnov)
         frd->osnov := inieditspr(A__MENUVERT, get_osn_preb_RF(), tmp_kart->osnov)
         frd->fio := kart->fio
         frd->kols += tmp_kart->kols
@@ -1163,7 +1162,6 @@ else
       frd->region := charrem("*",name)
     else
       frd->region := inieditspr(A__MENUVERT, getO001(), tmp1->region)
-      // frd->osnov := inieditspr(A__MENUVERT, menu_osn_preb_RF, tmp1->osnov)
       frd->osnov := inieditspr(A__MENUVERT, get_osn_preb_RF(), tmp1->osnov)
     endif
     frd->kols := tmp1->kols

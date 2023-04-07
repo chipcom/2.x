@@ -1089,7 +1089,6 @@ return NIL
 Function f_LIS_pasport()
 Local i, _sl, _sr
 arr_pac[LIS_VID_UD] := int(val(arr_pac[LIS_VID_UD]))
-// if ascan(menu_vidud,{|x| x[2] == arr_pac[LIS_VID_UD] }) == 0
 if ascan(getVidUd(), {|x| x[2] == arr_pac[LIS_VID_UD] }) == 0
   arr_pac[LIS_VID_UD] := iif(arr_pac[LIS_VPOLIS] < 3, 14, 0)
 endif
@@ -1394,7 +1393,6 @@ if fl
       strfile("_SLUCH: запись № "+lstr(ihuman->(recno()))+;
               ', DS1="'+ihuman->DS1+'"-несовместимость диагноза по полу'+hb_eol(),cFileProtokol,.t.)
     endif
-    // if ascan(menu_vidud,{|x| x[2] == ihuman->DOCTYPE }) == 0
     if ascan(getVidUd(), {|x| x[2] == ihuman->DOCTYPE }) == 0
       fl := .f.
       strfile('_SLUCH: запись № ' + lstr(ihuman->(recno())) + ;

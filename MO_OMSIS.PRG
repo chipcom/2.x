@@ -169,8 +169,6 @@ if R_Use(dir_server + "human_",,"HUMAN_") .and. ;
                   s := padl(iif(fl, 'в т.ч. ', ''), 30) + ;
                        put_val(arr_bukva[i, 4], 6) + put_kopE(arr_bukva[i, 3], 13) + ;
                        put_val(arr_bukva[i, 6], 6) + put_kopE(arr_bukva[i, 5], 13) + ' '
-                  // if (j := ascan(mm_bukva,{|x| x[2] == arr_bukva[i,2]})) > 0
-                  //   s += mm_bukva[j,1]
                   if (j := ascan(get_bukva(), {|x| x[2] == arr_bukva[i, 2]})) > 0
                     s += get_bukva()[j, 1]
                   else
@@ -219,8 +217,6 @@ if R_Use(dir_server + "human_",,"HUMAN_") .and. ;
             s := padl(iif(fl, 'в т.ч. ', ''), 30) + ;
                  put_val(arr_bukva[i, 4], 6) + put_kopE(arr_bukva[i, 3], 13) + ;
                  put_val(arr_bukva[i, 6], 6) + put_kopE(arr_bukva[i, 5], 13) + ' '
-            // if (j := ascan(mm_bukva,{|x| x[2] == arr_bukva[i,2]})) > 0
-            //   s += mm_bukva[j,1]
             if (j := ascan(get_bukva(), {|x| x[2] == arr_bukva[i, 2]})) > 0
               s += get_bukva()[j, 1]
             else
@@ -255,8 +251,6 @@ if R_Use(dir_server + "human_",,"HUMAN_") .and. ;
           s := padl(iif(fl, 'в т.ч. ', ''), 30) + ;
                put_val(arr_bukva[i, 4], 6) + put_kopE(arr_bukva[i, 3], 13) + ;
                put_val(arr_bukva[i, 6], 6) + put_kopE(arr_bukva[i, 5], 13) + ' '
-          // if (j := ascan(mm_bukva,{|x| x[2] == arr_bukva[i,2]})) > 0
-          //   s += mm_bukva[j,1]
           if (j := ascan(get_bukva(),{|x| x[2] == arr_bukva[i, 2]})) > 0
             s += get_bukva()[j, 1]
           else
@@ -1421,10 +1415,6 @@ enddo
 add_string("")
 add_string(center("СЧЕТ № "+alltrim(mnomer)+" от "+date_month(mdate),sh))
 add_string("")
-// if (j := ascan(arr_rekv_smo,{|x| int(val(x[1]))==glob_strah[1]})) == 0
-//   j := len(arr_rekv_smo) // если не нашли - печатаем реквизиты ТФОМС
-// endif
-// k := perenos(t_arr,arr_rekv_smo[j,2],sh-17)
 if (j := ascan(get_rekv_SMO(), {|x| int(val(x[1])) == glob_strah[1]})) == 0
   j := len(get_rekv_SMO()) // если не нашли - печатаем реквизиты ТФОМС
 endif
@@ -1433,16 +1423,11 @@ add_string(padr("Плательщик:",17)+t_arr[1])
 for i := 2 to k
   add_string(space(17)+t_arr[2])
 next
-// k := perenos(t_arr,arr_rekv_smo[j,6],sh-17)
 k := perenos(t_arr, get_rekv_SMO()[j, 6], sh - 17)
 add_string(padr('Адрес:', 17) + t_arr[1])
 for i := 2 to k
   add_string(space(17) + t_arr[2])
 next
-// add_string("Расчетный счет:  "+alltrim(arr_rekv_smo[j,8])+" "+alltrim(arr_rekv_smo[j,7]))
-// add_string("БИК:             "+arr_rekv_smo[j,9])
-// add_string("Город:           "+"")
-// add_string("ИНН:             "+alltrim(arr_rekv_smo[j,3])+iif(empty(arr_rekv_smo[j,4]),"","/"+arr_rekv_smo[j,4]))
 add_string('Расчетный счет:  ' + alltrim(get_rekv_SMO()[j, 8]) + ' ' + alltrim(get_rekv_SMO()[j, 7]))
 add_string('БИК:             ' + get_rekv_SMO()[j, 9])
 add_string('Город:           ' + '')

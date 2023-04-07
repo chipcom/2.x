@@ -459,9 +459,6 @@ Function create_file_hodatajstvo(arr_m)
             frd->pol := iif(human->pol == 'М', 'муж', 'жен')
             frd->date_r := full_date(human->date_r)
             frd->vid_ud := kart_->vid_ud
-            // if (j := ascan(menu_vidud, {|x| x[2] == kart_->vid_ud})) > 0
-            //   frd->name_ud := menu_vidud[j,4]
-            // endif
             frd->name_ud := get_Name_Vid_Ud(kart_->vid_ud)
             frd->ser_ud := kart_->ser_ud
             frd->nom_ud := kart_->nom_ud

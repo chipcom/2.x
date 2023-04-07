@@ -288,7 +288,6 @@ if !is_append .and. R_Use(dir_server+"kartote_",,"KART_") ;
     if (fl_invalid := found())
       MDATE_INV := inv->DATE_INV
       M1PRICH_INV := inv->PRICH_INV
-      // MPRICH_INV := inieditspr(A__MENUVERT, mm_prich_inv, M1PRICH_INV)
       MPRICH_INV := inieditspr(A__MENUVERT, getPrichInv(), M1PRICH_INV)
       mDIAG_INV := inv->DIAG_INV
     endif
@@ -357,18 +356,15 @@ m1gragd := iif(empty(mSTRANA := getCountry(m1strana)), 1, 0)
 mgragd := inieditspr(A__MENUVERT, mm_danet, m1gragd)
 manonim := inieditspr(A__MENUVERT, mm_danet, m1anonim)
 mPENSIONER := inieditspr(A__MENUVERT, mm_danet, m1PENSIONER)
-// mvid_ud  := inieditspr(A__MENUVERT, menu_vidud, m1vid_ud)
 mvid_ud  := inieditspr(A__MENUVERT, getVidUd(), m1vid_ud)
 MKEMVYD := inieditspr(A__POPUPMENU, dir_server+"s_kemvyd", M1KEMVYD)
 mvzros_reb := inieditspr(A__MENUVERT, menu_vzros, m1vzros_reb)
 mrab_nerab := inieditspr(A__MENUVERT, menu_rab, m1rab_nerab)
 mkategor   := inieditspr(A__MENUVERT, stm_kategor, m1kategor)
 mkategor2  := inieditspr(A__MENUVERT, stm_kategor2, m1kategor2)
-// mKOD_LGOT  := inieditspr(A__MENUVERT, glob_katl, m1KOD_LGOT)
 mKOD_LGOT  := inieditspr(A__MENUVERT, getDLO_lgota(), m1KOD_LGOT)
 mkomu      := inieditspr(A__MENUVERT, mm_komu, m1komu)
 minvalid   := inieditspr(A__MENUVERT, mm_invalid, m1invalid)
-// mosn_preb  := inieditspr(A__MENUVERT, menu_osn_preb_RF, m1osn_preb)
 mosn_preb  := inieditspr(A__MENUVERT, get_osn_preb_RF(), m1osn_preb)
 madres_reg := ini_adres(1)
 madres_pre := ini_adres(2)
@@ -511,7 +507,6 @@ do while .t.
          valid {|| val_snils(msnils,1), findKartoteka(3,@mkod) }
   @ ++ix, 1 say 'Уд-ие личности:' get mvid_ud ;
          reader {|x|menu_reader(x, getVidUd(), A__MENUVERT, , , .f.)}
-        //  reader {|x|menu_reader(x,menu_vidud,A__MENUVERT,,,.f.)}
   @ ix, 42 say 'Серия' get mser_ud pict '@!' valid val_ud_ser(1, m1vid_ud, mser_ud)
   @ ix, col() + 1 say '№' get mnom_ud pict '@!S18' valid val_ud_nom(1, m1vid_ud, mnom_ud)
   if !is_smp
@@ -1053,7 +1048,6 @@ Function f_kart_valid_inv(r)
   @ r1 + 2, c + 1 say 'Дата первичного установления инвалидности' get MDATE_INV ;
            valid {|| !empty(MDATE_INV) .and. mdate_r < MDATE_INV .and. MDATE_INV < sys_date }
   @ r1 + 3, c + 1 say 'Причина первичного установления инвалидности'
-  // @ r1+4,c+3 get MPRICH_INV reader {|x|menu_reader(x,mm_prich_inv,A__MENUVERT,,,.f.)} ;
   @ r1 + 4, c + 3 get MPRICH_INV reader {|x|menu_reader(x, getPrichInv(), A__MENUVERT, , , .f.)} ;
            valid M1PRICH_INV > 0
   @ r1 + 5, c + 1 say 'Код основного заболевания (п.4 пп."а")' get MDIAG_INV picture pic_diag ;
@@ -1176,7 +1170,6 @@ if rec > 0
     mokato    := inieditspr(A__MENUVERT, glob_array_srf, m1okato)
     mkomu     := inieditspr(A__MENUVERT, mm_komu, m1komu)
     mismo     := init_ismo(m1ismo)
-    // mvid_ud   := padr(inieditspr(A__MENUVERT, menu_vidud, m1vid_ud),23)
     mvid_ud   := padr(inieditspr(A__MENUVERT, getVidUd(), m1vid_ud), 23)
     madres_reg := ini_adres(1)
     f_valid_komu(,-1)
@@ -1232,7 +1225,6 @@ Function get_oksm(r)
              reader {|x|menu_reader(x, {{|k, r, c| f1get_oksm(k, r, c)}}, A__FUNCTION, , , .f.)}
   @ r1 + 2, c + 2 say 'Основание пребывания в РФ' get mosn_preb ;
              reader {|x|menu_reader(x, get_osn_preb_RF(), A__MENUVERT, , , .f.)}
-              // reader {|x|menu_reader(x,menu_osn_preb_RF,A__MENUVERT,,,.f.)}
   @ r1 + 3, c + 2 say 'Адрес проживания в Волгоградской области'
   @ r1 + 4, c + 3 get MADRES_PRO
   @ r1 + 5, c + 2 say 'Миграционная карта' get MMIGR_KARTA
@@ -3020,7 +3012,6 @@ if !empty(kart->snils)
   s += space(5)+"СНИЛС: "+transform(kart->SNILS,picture_pf)
 endif
 aadd(arr,s)
-// s := inieditspr(A__MENUVERT, menu_vidud, kart_->vid_ud)+;
 s := inieditspr(A__MENUVERT, getVidUd(), kart_->vid_ud) + ;
      space(3) + alltrim(kart_->ser_ud) + ' ' + alltrim(kart_->nom_ud)
 if !empty(kart_->kogdavyd)
@@ -3985,7 +3976,6 @@ if !fl_err .and. ;
       lmesto_r := charone(" ",CHARREPL("/;", lmesto_r, SPACE(2)))
       s1 += eval(blk,f_s_csv(lmesto_r))+";"
       //
-      // fl := ascan(menu_vidud,{|x| x[2] == kart_->vid_ud }) == 0
       fl := ascan(getVidUd(), {|x| x[2] == kart_->vid_ud }) == 0
       if !fl
         if empty(kart_->nom_ud)

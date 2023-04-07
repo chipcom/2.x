@@ -292,7 +292,6 @@ for i := 1 to len(mdiagnoz3)
     aadd(ta,"не найден диагноз "+alltrim(mdiagnoz3[i])+" в справочнике МКБ-10")
   endif
 next
-// if ascan(menu_vidud,{|x| x[2] == kart_->vid_ud }) == 0
 if ascan(getVidUd(),{|x| x[2] == kart_->vid_ud }) == 0
   if human_->vpolis < 3
     aadd(ta,'не заполнено поле "ВИД удостоверения личности"')
@@ -302,7 +301,6 @@ else
     if human_->vpolis < 3
       aadd(ta,'должно быть заполнено поле "НОМЕР удостоверения личности" для "' + ;
               inieditspr(A__MENUVERT, getVidUd(), kart_->vid_ud) + '"')
-      // inieditspr(A__MENUVERT, menu_vidud, kart_->vid_ud)+'"')
     endif
   //elseif !eq_any(kart_->vid_ud,9,18,21,24) .and. !ver_number(kart_->nom_ud)
     //aadd(ta,'поле "НОМЕР удостоверения личности" должно быть цифровым')
@@ -316,7 +314,6 @@ else
   if eq_any(kart_->vid_ud, 1, 3, 14) .and. empty(kart_->ser_ud)
     aadd(ta, 'не заполнено поле "СЕРИЯ удостоверения личности" для "' + ;
             inieditspr(A__MENUVERT, getVidUd(), kart_->vid_ud) + '"')
-    // inieditspr(A__MENUVERT, menu_vidud, kart_->vid_ud)+'"')
   endif
   if human_->usl_ok < 4 .and. eq_any(kart_->vid_ud,3,14) .and. ;
          !empty(kart_->ser_ud) .and. empty(del_spec_symbol(kart_->mesto_r)) .and. human_->vpolis < 3

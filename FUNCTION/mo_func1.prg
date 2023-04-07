@@ -1235,7 +1235,6 @@ Function inp_bit_tip_schet(k, r, c)
       top_bottom := (r < maxrow() / 2)
 
   mywait()
-  // aeval(mm_bukva, {|x| aadd(t_mas,iif(x[2] $ k," * ", "   ")+x[1]) })
   aeval(get_bukva(), {|x| aadd(t_mas, iif(x[2] $ k, ' * ', '   ') + x[1]) })
   mlen := len(t_mas)
   i := 1
@@ -1255,7 +1254,6 @@ Function inp_bit_tip_schet(k, r, c)
                  'Выбор одного/нескольких/всех типов счетов', 'B/BG')) > 0
     for i := 1 to mlen
       if '*' == substr(t_mas[i], 2, 1)
-        // m1var += mm_bukva[i, 2]
         m1var += get_bukva()[i, 2]
       endif
     next

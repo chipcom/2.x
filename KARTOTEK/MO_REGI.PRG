@@ -716,10 +716,6 @@ else
   m1kategor := kart_->kategor2
   mkategor := upper(inieditspr(A__MENUVERT, stm_kategor2, m1kategor))
 endif
-// mvid_ud := ""
-// if (j := ascan(menu_vidud, {|x| x[2] == m1vid_ud})) > 0
-//   mvid_ud := menu_vidud[j,4]
-// endif
 mvid_ud :=  get_Name_Vid_Ud(m1vid_ud)
 
 if empty(mser) ; mser := space(10) ; endif
@@ -993,9 +989,6 @@ s := iif(kart->rab_nerab==0,sb1,"")+"работает - 1"+iif(kart->rab_nerab==0,sb2,""
      iif(kart->rab_nerab==1,sb1,"")+"не работает - 5"+iif(kart->rab_nerab==1,sb2,"")+",    "+;
      "прочие - 6"
 frt->zanyat := s
-// if (j := ascan(menu_vidud, {|x| x[2] == kart_->vid_ud})) > 0
-//   frt->name_doc := menu_vidud[j,4]
-// endif
 frt->name_doc := get_Name_Vid_Ud(kart_->vid_ud)
 frt->ser_doc := kart_->ser_ud
 frt->nom_doc := kart_->nom_ud
@@ -2127,7 +2120,6 @@ do case
         tmp->vpolis     := inieditspr(A__MENUVERT, mm_vid_polis, kart_->vpolis)
         tmp->polis      := ltrim(kart_->NPOLIS)
         tmp->SNILS      := iif(empty(kart->SNILS),"",transform(kart->SNILS,picture_pf))
-        // tmp->vid_ud     := inieditspr(A__MENUVERT, menu_vidud, kart_->vid_ud) // вид удостоверения личности;по кодировке ФФОМС;"PKRT_VID из ""APP_BASE"""
         tmp->vid_ud     := inieditspr(A__MENUVERT, getVidUd(), kart_->vid_ud) // вид удостоверения личности;по кодировке ФФОМС;"PKRT_VID из ""APP_BASE"""
         tmp->ser_ud     := ltrim(kart_->ser_ud) // серия удостоверения личности;;"PKRT_SER из ""APP_BASE"""
         tmp->nom_ud     := ltrim(kart_->nom_ud) // номер удостоверения личности;;"PKRT_NOM из ""APP_BASE"""
@@ -2205,7 +2197,6 @@ do case
         tmp->vpolis     := inieditspr(A__MENUVERT, mm_vid_polis, kart_->vpolis)
         tmp->polis      := ltrim(kart_->NPOLIS)
         tmp->SNILS      := iif(empty(kart->SNILS), '', transform(kart->SNILS, picture_pf))
-        // tmp->vid_ud     := inieditspr(A__MENUVERT, menu_vidud, kart_->vid_ud) // вид удостоверения личности;по кодировке ФФОМС;"PKRT_VID из ""APP_BASE"""
         tmp->vid_ud     := inieditspr(A__MENUVERT, getVidUd(), kart_->vid_ud) // вид удостоверения личности;по кодировке ФФОМС;"PKRT_VID из ""APP_BASE"""
         tmp->ser_ud     := ltrim(kart_->ser_ud) // серия удостоверения личности;;"PKRT_SER из ""APP_BASE"""
         tmp->nom_ud     := ltrim(kart_->nom_ud) // номер удостоверения личности;;"PKRT_NOM из ""APP_BASE"""
@@ -2740,9 +2731,6 @@ if empty(aerr)
           krte->REFREASON := arr_csv[i,CSV_A_CERR,j]
           dbUnLock()
         endif
-        // strfile(space(len(lstr(arr_csv[i,CSV_A_NREC]))+2)+lstr(krte->REFREASON)+" "+;
-        //         inieditspr(A__MENUVERT,mm_err_csv_prik,krte->REFREASON)+;
-        //         hb_eol(),cFileProtokol,.t.)
         strfile(space(len(lstr(arr_csv[i, CSV_A_NREC])) + 2) + lstr(krte->REFREASON) + ' ' + ;
                 inieditspr(A__MENUVERT, get_err_csv_prik(), krte->REFREASON) + ;
                 hb_eol(), cFileProtokol, .t.)
@@ -2779,9 +2767,6 @@ if empty(aerr)
             krte->REFREASON := 99
             dbUnLock()
           endif
-          // strfile(space(len(lstr(krtp->REES_ZAP))+2)+lstr(krte->REFREASON)+" "+;
-          //         inieditspr(A__MENUVERT,mm_err_csv_prik,krte->REFREASON)+;
-          //         hb_eol(),cFileProtokol,.t.)
           strfile(space(len(lstr(krtp->REES_ZAP)) + 2) + lstr(krte->REFREASON) + ' ' + ;
             inieditspr(A__MENUVERT, get_err_csv_prik(), krte->REFREASON) + ;
             hb_eol(), cFileProtokol, .t.)
@@ -2976,7 +2961,6 @@ if empty(aerr)
         endif
         krte->KOD_K := krtp->KOD_K
         dbUnLock()
-        // s := lstr(krte->REFREASON)+" "+rtrim(inieditspr(A__MENUVERT,mm_err_csv_prik,krte->REFREASON))
         s := lstr(krte->REFREASON) + ' ' + rtrim(inieditspr(A__MENUVERT, get_err_csv_prik(), krte->REFREASON))
         if krte->REFREASON == 525
           s += " ("+alltrim(arr_csv[i,CSV_A_ENP])+")"
@@ -3186,7 +3170,6 @@ if empty(aerr)
       strfile(s+hb_eol(),cFileProtokol,.t.)
       s := space(j)+"Место рождения: "+arr_csv[i,CSV_O_MR]
       strfile(s+hb_eol(),cFileProtokol,.t.)
-      // s := space(j)+inieditspr(A__MENUVERT, menu_vidud,  arr_csv[i,CSV_O_TIPD])+" "+arr_csv[i,CSV_O_SND]
       s := space(j) + inieditspr(A__MENUVERT, getVidUd(),  arr_csv[i, CSV_O_TIPD]) + ' ' + arr_csv[i, CSV_O_SND]
       strfile(s+hb_eol(),cFileProtokol,.t.)
     endif
@@ -3446,7 +3429,6 @@ if empty(aerr)
     if ascan(mm_err,{|x| x[2] == te[j1,1]}) > 0
       s := inieditspr(A__MENUVERT,mm_err,te[j1,1])
     else
-      // s := inieditspr(A__MENUVERT,mm_err_csv_prik,te[j1,1])
       s := inieditspr(A__MENUVERT, get_err_csv_prik(), te[j1, 1])
     endif
     strfile(str(te[j1, 2], 6) + ' чел. - ' + str(te[j1, 1], 3) + ' ' + s + hb_eol(), cFileProtokol, .t.)

@@ -1463,9 +1463,6 @@ do while !eof()
     if !empty(kart_->nom_ud)
       s += alltrim(kart_->nom_ud)
     endif
-    // if !empty(s) .and. (k := ascan(menu_vidud, {|x| x[2] == kart_->vid_ud})) > 0
-    //   s := menu_vidud[k,4]+" "+s
-    // endif
     s := get_Name_Vid_Ud(kart_->vid_ud) + ' ' + s
 
     frd->pasport := s
