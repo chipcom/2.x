@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-** 10.03.23 форма 14-МЕД (ОМС)
+** 09.04.23 форма 14-МЕД (ОМС)
 Function forma14_med_oms()
   Static group_ini := 'f14_med_oms'
   Local begin_date, end_date, buf := savescreen(), arr_m, i, j, k, k1, k2, ;
@@ -15,7 +15,7 @@ Function forma14_med_oms()
         cFileProtokol := cur_dir + 'tmp' + stxt, arr_prof := {}, arr_usl, au, ii, ;
         filetmp14 := cur_dir + 'tmp14' + stxt, sum_k := 0, sum_ki := 0, sum_kd := 0, sum_kt := 0, kol_d := 0 , sum_d := 0
   Local arr_skor[81, 2], arr_eko[2, 2], arr_profil := {}, arr_dn_stac := {}, arrDdn_stac[4], fl_pol1[15], ;
-        arr_pol[32], arr_pol1[15, 5], arr_pril5[31, 3], ifff := 0, kol_stom_pos := 0, ;
+        arr_pol[32], arr_pol1[15, 5], arr_pril5[32, 3], ifff := 0, kol_stom_pos := 0, ;
         arr_pol3000[29, 6], vr_rec := 0, arr_full_usl, ;
         fl_pol3000_PROF, fl_pol3000_DVN2 := .T.
   
@@ -115,6 +115,7 @@ Function forma14_med_oms()
   arr_pril5[ 8, 1] := 'Всего посещений'
   arr_pril5[ 9, 1] := 'Всего расходов на амб.помощь'
   arr_pril5[10, 1] := 'Число обращений по поводу заболевания'
+  arr_pril5[32, 1] := 'Число обращений по поводу Диспансерного наблюдения' 
   arr_pril5[11, 1] := 'Число посещений с проф.(иной) целью'
   arr_pril5[12, 1] := 'руб.'
   arr_pril5[13, 1] := 'Число посещений по неотл.мед.помощи'
@@ -139,7 +140,7 @@ Function forma14_med_oms()
 
   
   *********************************************************************
-  arr_m := {2022, 1, 12, 'за январь - декабрь 2022 года', 0d20220101, 0d20221231}
+  arr_m := {2023, 1, 12, 'за январь - март 2023 года', 0d20230101, 0d20230331}
   *********************************************************************
   lal := create_name_alias('lusl', arr_m[1])
   lalf := create_name_alias('luslf', arr_m[1])
@@ -246,8 +247,7 @@ Function forma14_med_oms()
   set relation to recno() into HUMAN_, to recno() into HUMAN_2, to kod_k into KART
   //
   *********************************************************************
-  mdate_rak := arr_m[6] + 19 // по какую дату РАК сумма к оплате 19.01.23
-  //mdate_rak := arr_m[6] + 18 // по какую дату РАК сумма к оплате 18.01.21
+  mdate_rak := arr_m[6] + 13 // по какую дату РАК сумма к оплате 13.04.23
   *********************************************************************
   R_Use(dir_server + 'mo_xml', , 'MO_XML')
   R_Use(dir_server + 'mo_rak', , 'RAK')
@@ -272,9 +272,8 @@ Function forma14_med_oms()
       // дата отчетного периода
       mdate1 := stod(strzero(schet_->nyear, 4) + strzero(schet_->nmonth, 2) + '25') // !!! 
       //
-      *** 2022 год
-      //k := 15 // дата регистрации по 15.01.21
-      k := 14 // дата регистрации по 14.01.23
+      *** 2023 год
+        k := 7 // дата регистрации по 7.04.23
       ***
       fl := between(mdate, arr_m[5], arr_m[6] + k) .and. between(mdate1, arr_m[5], arr_m[6]) // !!отч.период 2022 год
     endif
@@ -527,6 +526,7 @@ Function forma14_med_oms()
           is_ekstra := .f.
           is_centr_z := .f.
           is_s_obsh := .f.
+          is_disp_nabluden := .f.
           is_kt := .f.
           is_prvs_206 := (ret_new_prvs(human_->prvs) == 206) // лечебное дело
           kol_2_3 := kol_2_6 := kol_2_60 := kol_sr := kol_2_sr := 0
@@ -624,18 +624,23 @@ Function forma14_med_oms()
                   lvidpom := i
                 endif
               elseif eq_any(left(lshifr, 5), '2.78.', '2.89.') // обращения с лечебной целью
-                vid_vp := 2 // обращения с лечебной целью
-                if lshifr == '2.78.2'
-                  is_s_obsh := .t. // врачи общей практики
-                elseif eq_any(lshifr, '2.78.36', '2.78.39', '2.78.40')
-                  kol_sr += hu->kol_1
-                endif
-                if left(lshifr, 5) == '2.89.'
-                  ds_spec := 1 // первичная специализированная
-                  is_reabili := .t.
-                elseif !eq_any(human_->PROFIL, 97, 57, 68, 3, 42, 85, 87)
-                  ds_spec := 1
-                endif
+                if  left(lshifr, 8) =='2.78.107'
+                 // диспансерное наблюдение  
+                 is_disp_nabluden := .t.
+                endif 
+                  vid_vp := 2 // обращения с лечебной целью
+                  if lshifr == '2.78.2'
+                    is_s_obsh := .t. // врачи общей практики
+                  elseif eq_any(lshifr, '2.78.36', '2.78.39', '2.78.40')
+                    kol_sr += hu->kol_1
+                  endif
+                  if left(lshifr, 5) == '2.89.'
+                    ds_spec := 1 // первичная специализированная
+                    is_reabili := .t.
+                  elseif !eq_any(human_->PROFIL, 97, 57, 68, 3, 42, 85, 87)
+                    ds_spec := 1
+                  endif
+                
                 // признак онкологии
                 //if eq_any(lshifr, '2.78.19', '2.78.45', '2.78.87', '2.78.90', '2.78.91')
                 //
@@ -968,41 +973,45 @@ Function forma14_med_oms()
                 endif
               elseif vid_vp == 2 // по поводу заболевания
                 fl_pol1[13] := -1
-                arr_pril5[10,igs] += tfoms_pz[2, 1] // 'Число обращений по поводу заболевания'
-                aadd(ta, {27, tfoms_pz[2, 1], tfoms_pz[2, 1], iif(ds_spec == 1, tfoms_pz[2, 1], 0), tfoms_pz[2, 3], tfoms_pz[2, 3], iif(ds_spec == 1.or.ds1_spec==1, tfoms_pz[2, 3], 0)})
-                if fl
-                  arr_pol[27] += tfoms_pz[2, 3]
-                endif
-                if is_s_obsh
-                  aadd(ta, {28, tfoms_pz[2, 1], tfoms_pz[2, 1], iif(ds_spec == 1, tfoms_pz[2, 1], 0), tfoms_pz[2, 3], tfoms_pz[2, 3], iif(ds_spec == 1.or.ds1_spec==1, tfoms_pz[2, 3], 0)})
+                if is_disp_nabluden
+                  arr_pril5[32,igs] += tfoms_pz[2, 1] // 'Число обращений по поводу заболевания'
+                else  
+                  arr_pril5[10,igs] += tfoms_pz[2, 1] // 'Число обращений по поводу заболевания'
+                  aadd(ta, {27, tfoms_pz[2, 1], tfoms_pz[2, 1], iif(ds_spec == 1, tfoms_pz[2, 1], 0), tfoms_pz[2, 3], tfoms_pz[2, 3], iif(ds_spec == 1.or.ds1_spec==1, tfoms_pz[2, 3], 0)})
                   if fl
-                    arr_pol[28] += tfoms_pz[2, 3]
+                    arr_pol[27] += tfoms_pz[2, 3]
                   endif
-                endif
-                if is_rebenok
-                  aadd(ta, {29, tfoms_pz[2, 1], tfoms_pz[2, 1], iif(ds_spec == 1, tfoms_pz[2, 1], 0), tfoms_pz[2, 3], tfoms_pz[2, 3], iif(ds_spec == 1.or.ds1_spec==1, tfoms_pz[2, 3], 0)})
-                  if fl
-                    arr_pol[29] += tfoms_pz[2, 3]
+                  if is_s_obsh
+                    aadd(ta, {28, tfoms_pz[2, 1], tfoms_pz[2, 1], iif(ds_spec == 1, tfoms_pz[2, 1], 0), tfoms_pz[2, 3], tfoms_pz[2, 3], iif(ds_spec == 1.or.ds1_spec==1, tfoms_pz[2, 3], 0)})
+                    if fl
+                      arr_pol[28] += tfoms_pz[2, 3]
+                    endif
                   endif
-                endif
-                if is_trudosp
-                  aadd(ta, {30, tfoms_pz[2, 1], tfoms_pz[2, 1], iif(ds_spec == 1, tfoms_pz[2, 1], 0), tfoms_pz[2, 3], tfoms_pz[2, 3], iif(ds_spec == 1.or.ds1_spec==1, tfoms_pz[2, 3], 0)})
-                  if fl
-                    arr_pol[30] += tfoms_pz[2, 3]
+                  if is_rebenok
+                    aadd(ta, {29, tfoms_pz[2, 1], tfoms_pz[2, 1], iif(ds_spec == 1, tfoms_pz[2, 1], 0), tfoms_pz[2, 3], tfoms_pz[2, 3], iif(ds_spec == 1.or.ds1_spec==1, tfoms_pz[2, 3], 0)})
+                    if fl
+                      arr_pol[29] += tfoms_pz[2, 3]
+                    endif
                   endif
-                endif
-                if is_reabili
-                  aadd(ta, {31, tfoms_pz[2, 1], tfoms_pz[2, 1], iif(ds_spec == 1, tfoms_pz[2, 1], 0), tfoms_pz[2, 3], tfoms_pz[2, 3], iif(ds_spec == 1.or.ds1_spec==1, tfoms_pz[2, 3], 0)})
-                  if fl
-                    arr_pol[31] += tfoms_pz[2, 3]
+                  if is_trudosp
+                    aadd(ta, {30, tfoms_pz[2, 1], tfoms_pz[2, 1], iif(ds_spec == 1, tfoms_pz[2, 1], 0), tfoms_pz[2, 3], tfoms_pz[2, 3], iif(ds_spec == 1.or.ds1_spec==1, tfoms_pz[2, 3], 0)})
+                    if fl
+                      arr_pol[30] += tfoms_pz[2, 3]
+                    endif
+                 endif
+                  if is_reabili
+                    aadd(ta, {31, tfoms_pz[2, 1], tfoms_pz[2, 1], iif(ds_spec == 1, tfoms_pz[2, 1], 0), tfoms_pz[2, 3], tfoms_pz[2, 3], iif(ds_spec == 1.or.ds1_spec==1, tfoms_pz[2, 3], 0)})
+                    if fl
+                      arr_pol[31] += tfoms_pz[2, 3]
+                    endif
                   endif
-                endif
-                if is_inogoro
-                  aadd(ta, {32, tfoms_pz[2, 1], tfoms_pz[2, 1], iif(ds_spec == 1, tfoms_pz[2, 1], 0), tfoms_pz[2, 3], tfoms_pz[2, 3], iif(ds_spec == 1.or.ds1_spec==1, tfoms_pz[2, 3], 0)})
-                  if fl
-                    arr_pol[32] += tfoms_pz[2, 3]
+                  if is_inogoro
+                    aadd(ta, {32, tfoms_pz[2, 1], tfoms_pz[2, 1], iif(ds_spec == 1, tfoms_pz[2, 1], 0), tfoms_pz[2, 3], tfoms_pz[2, 3], iif(ds_spec == 1.or.ds1_spec==1, tfoms_pz[2, 3], 0)})
+                    if fl
+                     arr_pol[32] += tfoms_pz[2, 3]
+                     endif
                   endif
-                endif
+                endif  
               elseif vid_vp == 0 // профилактика
                 tfoms_pz[2, 2] := tfoms_pz[2, 7] := tfoms_pz[2, 9] := tfoms_pz[2, 5] := 0 // обнулим количество приемов
                 if eq_any(schet_->BUKVA,'O','F','R','D','U','W','Y') // диспансеризация и профосмотры + углубленная 23.01.23 
@@ -1178,14 +1187,7 @@ Function forma14_med_oms()
               // СТАВИМ НОООЛЬ
               // 'Посещения при оказании помощи в неотложной форме, всего'
               // 'из строки 21 - посещения по специальности 'стоматология''
-            //  if ret_tip == 3
-            //    arr_pol3000[ 19, 4] := round(human->cena_1 * koef, 2)
-            //    arr_pol3000[ 19, 2] := ret_kol
-            //    if is_inogoro
-            //      arr_pol3000[ 19, 5] := round(human->cena_1 * koef, 2)
-            //      arr_pol3000[ 19, 3] := ret_kol
-            //    endif
-            //  endif
+              // 
               // 'Посещения, включенные в обращение в связи с заболеваниями'
               // 'из строки 25 - посещения по специальности 'стоматология''
               if ret_tip == 1
@@ -1642,13 +1644,20 @@ Function forma14_med_oms()
   '─────────────────────────────────────────┬────────────┬────────────┬────────────' + hb_eol() + ;
   '                                         │   всего    │городские ж.│сельские жит' + hb_eol() + ;
   '─────────────────────────────────────────┴────────────┴────────────┴────────────' + hb_eol(), cFileProtokol, .t.)
-    for i := 1 to len(arr_pril5)
+    for i := 1 to (len(arr_pril5)-1)
       if !empty(arr_pril5[i, 2] +arr_pril5[i, 3])
         strfile(padr(arr_pril5[i, 1], 39) + str(i, 2) + ;
                 padl(alltrim(put_val_0(arr_pril5[i, 2] + arr_pril5[i, 3], 13, 2)), 13) + ;
                 padl(alltrim(put_val_0(arr_pril5[i, 2], 13, 2)), 13) + ;
                 padl(alltrim(put_val_0(arr_pril5[i, 3], 13, 2)), 13) + ;
                 hb_eol(), cFileProtokol, .t.)
+        if i == 10
+          strfile(padr(arr_pril5[32, 1], 39) + str(10, 2) + ;
+            padl(alltrim(put_val_0(arr_pril5[32, 2] + arr_pril5[32, 3], 13, 2)), 13) + ;
+            padl(alltrim(put_val_0(arr_pril5[32, 2], 13, 2)), 13) + ;
+            padl(alltrim(put_val_0(arr_pril5[32, 3], 13, 2)), 13) + ;
+            hb_eol(), cFileProtokol, .t.)
+        endif  
       endif
     next
   endif

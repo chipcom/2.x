@@ -755,9 +755,9 @@ for i := 1 to len(ar)
 next
 return ret_arr
 
-***** 29.09.20 Создание отчётов по иногородним / иностранцам для КЗВО
+***** 08.04.23 Создание отчётов по иногородним / иностранцам для КЗВО
 Function pr_inog_inostr()
-Local arr_m, fl_exit := .f., buf := save_maxrow(), kh := 0, jh := 0
+Local arr_m, fl_exit := .f., buf := save_maxrow(), kh := 0, jh := 0, mm_p_per := 0
 if (arr_m := year_month()) == NIL
   return NIL
 endif
@@ -770,7 +770,10 @@ dbcreate(cur_dir+"tmp_kart",{{"kod","N",7,0},;
                              {"osnov","N",2,0},;
                              {"kols","N",6,0},;
                              {"ist_fin","N",1,0},;
-                             {"summa","N",10,2}})
+                             {"summa","N",10,2},;
+                             {"k_day","N",5,0},;
+                             {"d_begin","C",10,0},;
+                             {"forma","N",1,0} })
 use (cur_dir+"tmp_kart") new
 index on str(kod,7)+str(vid,1)+str(profil,3)+region+str(osnov,2)+str(ist_fin,1) to (cur_dir+"tmp_kart")
 //
@@ -828,8 +831,29 @@ do while human->k_data <= arr_m[6] .and. !eof()
         if found()
           msumma := human_3->CENA_1
           mn_data := human_3->N_DATA
+          mm_p_per := human_3->p_per
         endif
       endif
+      // добавка для КБ25
+      sum_koiko_den := 0
+      lshifr := ""
+      select HU
+      find (str(human->kod,7))
+      do while human->kod == hu->kod .and. !eof()
+        usl->(dbGoto(hu->u_kod))
+        if empty(lshifr := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data))
+          lshifr := usl->shifr
+        endif
+        lshifr := alltrim(lshifr)
+        my_debug(,lshifr)
+        if lshifr == "1.11.1"  
+          sum_koiko_den += hu->kol
+          my_debug(,sum_koiko_den) 
+        endif
+        select HU
+        skip
+      enddo  
+      //
       select TMP_KART
       find (str(human->kod_k,7)+str(lvid,1)+str(lprofil,3)+lregion+str(losnov,2)+str(list_fin,1))
       if !found()
@@ -840,10 +864,13 @@ do while human->k_data <= arr_m[6] .and. !eof()
         tmp_kart->region := lregion
         tmp_kart->osnov := losnov
         tmp_kart->ist_fin := list_fin
+        tmp_kart->d_begin := full_date(human->n_data)
+        tmp_kart->forma := mm_p_per  
       endif
       tmp_kart->kols ++
       tmp_kart->vozr := f0pr_inog_inostr(human->date_r,mn_data)
       tmp_kart->summa += msumma
+      tmp_kart->k_day += sum_koiko_den
       ++jh
     endif
   endif
@@ -959,7 +986,8 @@ else
                             {"Приложение ~1 - список иностранцев",;
                              "Приложение ~2 - список иногородних",;
                              "Приложение ~3 - сводная информация по иностранцам",;
-                             "Приложение ~4 - сводная информация по иногородним"})) > 0
+                             "Приложение ~4 - сводная информация по иногородним",;
+                             "Расширенный Список ~Иностранцев"})) > 0
     f3pr_inog_inostr(j,arr_m)
   enddo
 endif
@@ -1025,7 +1053,7 @@ else
 endif
 return _ist_fin
 
-// 30.03.23
+// 08.04.23
 Function f3pr_inog_inostr(j,arr_m)
 Static sprofil := "терапии"
 Static mm_vid := {"медицинская помощь, оказанная в стационарных условиях",;
@@ -1052,18 +1080,21 @@ dbcreate(fr_data,{;
         {"kol","N",6,0},;
         {"kols","N",6,0},;
         {"vozr","N",2,0},;
-        {"summa","N",15,2}})
+        {"summa","N",15,2},;
+        {"k_day","N",5,0},;
+        {"d_begin","C",10,0},;
+        {"forma","C",60,0}})
 use (fr_data) new alias FRD
 R_Use(dir_exe+"_okator",cur_dir+"_okatr","REGION")
 R_Use(dir_server+"kartotek",,"KART")
 use (cur_dir+"tmp_kart") new
-if j == 1 .or. j == 2
+if j == 1 .or. j == 2 .or. j == 5
   set relation to kod into KART
   index on upper(kart->fio)+str(kart->kod,7)+str(vid,1)+str(profil,3)+region+str(osnov,2)+str(ist_fin,1) to (cur_dir+"tmp_kart")
 else
   index on region+str(osnov,2)+str(ist_fin,1)+str(vid,1)+str(profil,3) to (cur_dir+"tmp_kart")
 endif
-if j == 1 .or. j == 2
+if j == 1 .or. j == 2 .or. j == 5
   select TMP_KART
   go top
   do while !eof()
@@ -1083,6 +1114,9 @@ if j == 1 .or. j == 2
         frd->kols += tmp_kart->kols
         frd->vozr := tmp_kart->vozr
         frd->summa := tmp_kart->summa
+        frd->k_day := tmp_kart->k_day
+        frd->d_begin := tmp_kart->d_begin
+        frd->forma := iif(tmp_kart->forma == 2,"Доставлен СП","Плановая")
       endif
     else
       if tmp_kart->osnov >= 0
@@ -1099,6 +1133,9 @@ if j == 1 .or. j == 2
         frd->kols += tmp_kart->kols
         frd->vozr := tmp_kart->vozr
         frd->summa := tmp_kart->summa
+        frd->k_day := tmp_kart->k_day
+        frd->d_begin := tmp_kart->d_begin
+        frd->forma := iif(tmp_kart->forma == 2,"Доставлен СП","Плановая")
       endif
     endif
     select TMP_KART
