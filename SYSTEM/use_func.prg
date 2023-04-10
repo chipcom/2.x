@@ -76,9 +76,9 @@ function existsNSIfile(sbase, vYear)
   return fl
 
 
-** 18.03.23
+// 10.04.23
 Function use_base(sBase, lAlias, lExcluUse, lREADONLY)
-  Local fl := .t., sind1, sind2
+  Local fl := .t., sind1 := '', sind2 := ''
   local fname, fname_add
   local countYear
 
@@ -88,10 +88,15 @@ Function use_base(sBase, lAlias, lExcluUse, lREADONLY)
       for countYear := 2018 to WORK_YEAR
         if exists_file_TFOMS(countYear, 'usl')
           fName := prefixFileRefName(countYear) + substr(sbase, 2)
-          // lAlias := sBase + iif(countYear == WORK_YEAR, '', substr(str(countYear, 4), 3))
           lAlias := create_name_alias(sBase, countYear)          
           if ! (lAlias)->(used())
-            R_Use(exe_dir + fName, cur_dir + fName, lAlias)
+            sind1 := cur_dir + fName + sntx
+            if ! hb_vfExists(sind1)
+              R_Use(exe_dir + fName, , lAlias)
+              index on shifr to (sind1)
+            else
+              R_Use(exe_dir + fName, sind1, lAlias)
+            endif
           endif
         endif
       next
@@ -108,7 +113,17 @@ Function use_base(sBase, lAlias, lExcluUse, lREADONLY)
           fname_add := prefixFileRefName(countYear) + substr(sbase, 2, 3) + 'u'
           lAlias := sBase + iif(countYear == WORK_YEAR, '', substr(str(countYear, 4), 3))
           if ! (lAlias)->(used())
-            R_Use(exe_dir + fName, {cur_dir + fName, cur_dir + fName_add}, lAlias)
+            sind1 := cur_dir + fName + sntx
+            sind2 := cur_dir + fname_add + sntx
+            if ! (hb_vfExists(sind1) .or. hb_vfExists(sind2))
+              R_Use(exe_dir + fName, , lAlias)
+              index on shifr + str(vzros_reb, 1) + str(depart, 3) + dtos(datebeg) to (sind1) ;
+                for codemo == glob_mo[_MO_KOD_TFOMS]
+              index on codemo + shifr + str(vzros_reb, 1) + str(depart, 3) + dtos(datebeg) to (sind2) ;
+                for codemo == glob_mo[_MO_KOD_TFOMS] // для совместимости со старой версией справочника
+            else
+              R_Use(exe_dir + fName, {cur_dir + fName, cur_dir + fName_add}, lAlias)
+            endif
           endif
         endif
       next
@@ -124,7 +139,13 @@ Function use_base(sBase, lAlias, lExcluUse, lREADONLY)
           fName := prefixFileRefName(countYear) + substr(sbase, 2)
           lAlias := sBase + iif(countYear == WORK_YEAR, '', substr(str(countYear, 4), 3))
           if ! (lAlias)->(used())
-            R_Use(exe_dir + fName, cur_dir + fName, lAlias)
+            sind1 := cur_dir + fName + sntx
+            if ! hb_vfExists(sind1)
+              R_Use(exe_dir + fName, , lAlias)
+              index on shifr to (sind1)
+            else
+              R_Use(exe_dir + fName, cur_dir + fName, lAlias)
+            endif
           endif
         endif
       next
@@ -368,4 +389,3 @@ Function dbf_equalization(lAlias, lkod)
     G_RLock(forever)
   endif
   return NIL
-

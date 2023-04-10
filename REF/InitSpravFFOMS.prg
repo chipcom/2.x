@@ -1,30 +1,31 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-** 22.03.23 инициализация справочников ФФОМС
+// 22.03.23 инициализация справочников ФФОМС
 Function InitSpravFFOMS()
   /////////////////////////////////////////////////
   initPZarray() // инициализируем массивы планов-заказа
 
   return NIL
 
-** 23.03.23
+// 10.04.23
 function load_exists_uslugi()
   local countYear, lAlias, cVar
   local cSearch
   local fname, file_index
 
-  for countYear := 2019 to WORK_YEAR
+  use_base('luslc')
+  for countYear := 2018 to WORK_YEAR
     lAlias := 'luslc' + iif(countYear == WORK_YEAR, '', substr(str(countYear, 4), 3))
-    fName := prefixFileRefName(countYear) + substr('luslc', 2)
-
-    file_index := prefixFileRefName(countYear) + substr('luslc', 2, 3) + 'u'
+    set order to 2  // uslcu.ntx
+    // fName := prefixFileRefName(countYear) + substr('luslc', 2)
+    // file_index := prefixFileRefName(countYear) + substr('luslc', 2, 3) + 'u'
 
     if ! exists_file_TFOMS(countYear, 'uslc')
       loop
     endif
 
-    R_Use(exe_dir + fname, cur_dir + file_index, lAlias)
+    // R_Use(exe_dir + fname, cur_dir + file_index, lAlias)
 
     if select(lAlias) == 0
       loop
