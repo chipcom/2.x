@@ -20,7 +20,7 @@ DYNAMIC f1forma_792_MIAC
 DYNAMIC monitoring_vid_pom
 DYNAMIC b_25_perinat_2
 
-// 10.04.23
+// 11.04.23
 procedure main( ... )
   Local r, s, is_create := .f., is_copy := .f., is_index := .f.
   Local a_parol, buf, is_local_version
@@ -44,10 +44,10 @@ procedure main( ... )
   Public kod_LIS   := {'125901', '805965'}
   //
   Public DELAY_SPRD := 0 // время задержки для разворачивания строк
-  Public sdbf := '.dbf', sntx := '.ntx', stxt := '.txt', szip := '.zip', ;
-    smem := '.mem', srar := '.rar', sxml := '.xml', sini := '.ini', ;
-    sfr3 := '.fr3', sfrm := '.frm', spdf := '.pdf', scsv := '.csv', ;
-    sxls := '.xls', schip := '.chip', sdbt := ".dbt"
+  Public sdbf := ".DBF", sntx := ".NTX", stxt := ".TXT", szip := ".ZIP",;
+    smem := ".MEM", srar := ".RAR", sxml := ".XML", sini := ".INI",;
+    sfr3 := ".FR3", sfrm := ".FRM", spdf := ".PDF", scsv := ".CSV",;
+    sxls := ".xls", schip := ".CHIP", sdbt := ".dbt"
   public cslash := hb_ps()    // '\'
     
   PUBLIC public_mouse := .f., pravo_write := .t., pravo_read := .t., ;
