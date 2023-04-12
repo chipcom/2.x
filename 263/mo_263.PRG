@@ -290,474 +290,127 @@ Function f_get_profil(k, r, c, lprofil_k)
 
 // 30.03.23 Проверка информации перед отправкой в ТФОМС
 Function _263_to_proverka(yes_msg, /*@*/yes_I07)
-Local i, j, s, ikol := 0, lkod_k, ldate, buf := save_maxrow(), k1, k2, ;
+  Local i, j, s, ikol := 0, lkod_k, ldate, buf := save_maxrow(), k1, k2, ;
       arr_i01 := {}, arr_i03 := {}, arr_i04 := {}, arr_i05 := {}, arr_i06 := {}, ;
       ldate_h_1, max_date, ta, arr_error := {}
-yes_I07 := .f.
-DEFAULT yes_msg TO .t.
-mywait('Проверка перед составлением...')
-R_Use(dir_exe + '_mo_mkb', cur_dir + '_mo_mkb','MKB_10')
-R_Use(dir_exe + '_mo_smo', cur_dir + '_mo_smo2','SMO')
-R_Use(dir_server + 'mo_pers', ,'P2')
-R_Use(dir_server + 'kartote_', ,'KART_')
-R_Use(dir_server + 'kartotek', ,'KART')
-set relation to recno() into KART_
-G_Use(dir_server + 'mo_nnapr', ,'NAPR')
-set relation to kod_k into KART
-index on str(kod_k, 7) to (cur_dir + 'tmp_naprkodk')
-// I01
-select NAPR
-index on kod to (cur_dir + 'tmp_napr') ;
+
+  yes_I07 := .f.
+  DEFAULT yes_msg TO .t.
+  mywait('Проверка перед составлением...')
+  R_Use(dir_exe + '_mo_mkb', cur_dir + '_mo_mkb', 'MKB_10')
+  R_Use(dir_exe + '_mo_smo', cur_dir + '_mo_smo2', 'SMO')
+  R_Use(dir_server + 'mo_pers', , 'P2')
+  R_Use(dir_server + 'kartote_', , 'KART_')
+  R_Use(dir_server + 'kartotek', , 'KART')
+  set relation to recno() into KART_
+  G_Use(dir_server + 'mo_nnapr', , 'NAPR')
+  set relation to kod_k into KART
+  index on str(kod_k, 7) to (cur_dir + 'tmp_naprkodk')
+  // I01
+  select NAPR
+  index on kod to (cur_dir + 'tmp_napr') ;
       for n_napr > 0 .and. empty(KOD_F_1out)
-go top
-do while !eof()
-  if (i := ascan(arr_i01, {|x| x[1] == napr->DATE_D })) == 0
-    aadd(arr_i01, {napr->DATE_D, {}}) ; i := len(arr_i01)
-  endif
-  aadd(arr_i01[i, 2],napr->kod)
-  select NAPR
-  skip
-enddo
-for i := 1 to len(arr_i01)
-  DEFAULT max_date TO boy(sys_date)
-  max_date := max(max_date,arr_i01[i, 1])
-  for j := 1 to len(arr_i01[i, 2])
-    ta := {} ; ++ikol
+  go top
+  do while !eof()
+    if (i := ascan(arr_i01, {|x| x[1] == napr->DATE_D })) == 0
+      aadd(arr_i01, {napr->DATE_D, {}})
+      i := len(arr_i01)
+    endif
+    aadd(arr_i01[i, 2], napr->kod)
     select NAPR
-    goto (arr_i01[i, 2,j])
-    lkod_k := napr->kod_k ; lnomer := napr->N_NAPR
-    ldate := napr->date_d ; ldate_h_1 := napr->date_h_1
-    if !valid_GUID(napr->ID_1)
-      G_RLock(forever)
-      napr->ID_1 := mo_guid(1,napr->kod)
-      UnLock
-    endif
-    if empty(napr->num_d)
-      aadd(ta, 'не введён номер направления')
-    endif
-    if empty(napr->date_d)
-      aadd(ta, 'не введена дата направления')
-    elseif napr->date_d > sys_date
-      aadd(ta, 'дата направления больше системной даты ' + full_date(napr->date_d))
-    elseif napr->date_d < sys_date - 180
-      aadd(ta, 'дата направления НЕКОРРЕКТНА ' + full_date(napr->date_d))
-    elseif _263_verify_year(napr->date_d,ta)
-    endif
-    if emptyany(napr->S_MCOD,napr->S_CODEM)
-      aadd(ta, 'не введён код стационара для госпитализации')
-    endif
-    if empty(napr->PROFIL_K_1)
-      aadd(ta, 'не введён профиль койки')
-    endif
-    if empty(napr->PROFIL_1)
-      aadd(ta, 'не введён профиль медицинской помощи')
-    endif
-    if empty(napr->DS_1)
-      aadd(ta, 'не введён диагноз поликлиники')
-    else
-      select MKB_10
-      find (padr(napr->DS_1, 6))
-      if found()
-        if !between_date(mkb_10->dbegin,mkb_10->dend,napr->date_d)
-          aadd(ta, 'диагноз поликлиники не входит в ОМС')
-        endif
-        if !empty(mkb_10->pol) .and. !(mkb_10->pol == kart->pol)
-          aadd(ta, 'несовместимость диагноза поликлиники по полу '+alltrim(napr->DS_1))
-        endif
-      else
-        aadd(ta, 'не найден диагноз поликлиники '+alltrim(napr->DS_1)+' в справочнике МКБ-10')
+    skip
+  enddo
+  for i := 1 to len(arr_i01)
+    DEFAULT max_date TO boy(sys_date)
+    max_date := max(max_date, arr_i01[i, 1])
+    for j := 1 to len(arr_i01[i, 2])
+      ta := {}
+      ++ikol
+      select NAPR
+      goto (arr_i01[i, 2, j])
+      lkod_k := napr->kod_k
+      lnomer := napr->N_NAPR
+      ldate := napr->date_d
+      ldate_h_1 := napr->date_h_1
+      if !valid_GUID(napr->ID_1)
+        G_RLock(forever)
+        napr->ID_1 := mo_guid(1, napr->kod)
+        UnLock
       endif
-    endif
-    if empty(napr->F_MEDC_1)
-      aadd(ta, 'не введена форма оказания мед.помощи')
-    endif
-    if empty(napr->VRACH_1)
-      aadd(ta, 'не введен врач, выписавший направление')
-    else
-      select P2
-      goto (napr->VRACH_1)
-      mvrach := fam_i_o(p2->fio)+' [' + lstr(p2->tab_nom)+']'
-      if empty(p2->snils)
-        aadd(ta, 'не введен СНИЛС у врача - '+mvrach)
+      if empty(napr->num_d)
+        aadd(ta, 'не введён номер направления')
+      endif
+      if empty(napr->date_d)
+        aadd(ta, 'не введена дата направления')
+      elseif napr->date_d > sys_date
+        aadd(ta, 'дата направления больше системной даты ' + full_date(napr->date_d))
+      elseif napr->date_d < sys_date - 180
+        aadd(ta, 'дата направления НЕКОРРЕКТНА ' + full_date(napr->date_d))
+      elseif _263_verify_year(napr->date_d, ta)
+      endif
+      if emptyany(napr->S_MCOD, napr->S_CODEM)
+        aadd(ta, 'не введён код стационара для госпитализации')
+      endif
+      if empty(napr->PROFIL_K_1)
+        aadd(ta, 'не введён профиль койки')
+      endif
+      if empty(napr->PROFIL_1)
+        aadd(ta, 'не введён профиль медицинской помощи')
+      endif
+      if empty(napr->DS_1)
+        aadd(ta, 'не введён диагноз поликлиники')
       else
-        s := space(80)
-        if !val_snils(p2->snils, 2,@s)
-          aadd(ta,s+' у врача - '+mvrach)
+        select MKB_10
+        find (padr(napr->DS_1, 6))
+        if found()
+          if !between_date(mkb_10->dbegin, mkb_10->dend, napr->date_d)
+            aadd(ta, 'диагноз поликлиники не входит в ОМС')
+          endif
+          if !empty(mkb_10->pol) .and. !(mkb_10->pol == kart->pol)
+            aadd(ta, 'несовместимость диагноза поликлиники по полу ' + alltrim(napr->DS_1))
+          endif
+        else
+          aadd(ta, 'не найден диагноз поликлиники ' + alltrim(napr->DS_1) + ' в справочнике МКБ-10')
         endif
       endif
-    endif
-    if empty(napr->DATE_H_1)
-      aadd(ta, 'не введена дата госпитализации')
-    elseif napr->DATE_H_1 - napr->date_d > 30
-      aadd(ta, 'дата госпитализации ' + full_date(napr->DATE_H_1)+' более 30 дней от даты направления ' + full_date(napr->date_d))
-    endif
-    val_fio(retFamImOt(1,.f.),ta)
-    if year(kart->date_r) < 1900
-      aadd(ta, 'дата рождения: ' + full_date(kart->date_r)+' ( < 1900г.)')
-    endif
-    if kart->date_r > napr->date_d
-      aadd(ta, 'дата рождения: ' + full_date(kart->date_r)+;
+      if empty(napr->F_MEDC_1)
+        aadd(ta, 'не введена форма оказания мед.помощи')
+      endif
+      if empty(napr->VRACH_1)
+        aadd(ta, 'не введен врач, выписавший направление')
+      else
+        select P2
+        goto (napr->VRACH_1)
+        mvrach := fam_i_o(p2->fio) + ' [' + lstr(p2->tab_nom) + ']'
+        if empty(p2->snils)
+          aadd(ta, 'не введен СНИЛС у врача - ' + mvrach)
+        else
+          s := space(80)
+          if !val_snils(p2->snils, 2, @s)
+            aadd(ta,s+' у врача - ' + mvrach)
+          endif
+        endif
+      endif
+      if empty(napr->DATE_H_1)
+        aadd(ta, 'не введена дата госпитализации')
+      elseif napr->DATE_H_1 - napr->date_d > 30
+        aadd(ta, 'дата госпитализации ' + full_date(napr->DATE_H_1) + ' более 30 дней от даты направления ' + full_date(napr->date_d))
+      endif
+      val_fio(retFamImOt(1, .f.), ta)
+      if year(kart->date_r) < 1900
+        aadd(ta, 'дата рождения: ' + full_date(kart->date_r) + ' ( < 1900г.)')
+      endif
+      if kart->date_r > napr->date_d
+        aadd(ta, 'дата рождения: ' + full_date(kart->date_r) + ;
                 ' > даты направления: ' + full_date(napr->date_d))
-    endif
-    if !empty(kart->snils)
-      s := space(80)
-      if !val_snils(kart->snils, 2,@s)
-        aadd(ta,s+' у пациента')
       endif
-    endif
-    Valid_SN_Polis(kart_->vpolis,kart_->SPOLIS,kart_->NPOLIS,ta,between(kart_->smo,'34001','34007'))
-    select SMO
-    if alltrim(kart_->smo) == '34'
-      if empty(kart_->KVARTAL_D)
-        aadd(ta, 'не введён субъект РФ, в котором застрахован пациент')
-      elseif empty(ret_inogSMO_name(1))
-        aadd(ta, 'не введена иногородняя страховая компания')
-      endif
-    else
-      select SMO
-      find (kart_->smo)
-      if !found()
-        aadd(ta, 'не найдена СМО с кодом "' + kart_->smo + '"')
-      endif
-    endif
-    if emptyall(kart_->PHONE_M, kart_->PHONE_H, kart_->PHONE_W)
-      aadd(ta, 'не введён ни один телефон')
-    else
-      if !empty(kart_->PHONE_M)
-        _263_valid_phone(1,kart_->PHONE_M,ta)
-      endif
-      if !empty(kart_->PHONE_H)
-        _263_valid_phone(2,kart_->PHONE_H,ta)
-      endif
-      if !empty(kart_->PHONE_W)
-        _263_valid_phone(3,kart_->PHONE_W,ta)
-      endif
-    endif
-    select NAPR
-    set index to (cur_dir + 'tmp_naprkodk')
-    find (str(lkod_k, 7))
-    do while napr->kod_k == lkod_k .and. !eof()
-      if napr->kod == arr_i01[i, 2,j] .or. napr->KOD_F_3in > 0 .or. napr->KOD_F_3out > 0
-        // текущую запись или аннулирования пропустим
-      elseif !empty(napr->date_h_4)
-        fl := .f.
-        if empty(napr->CODEM_FROM)
-          if napr->TYPE_H_4 == 4 .and. napr->KOD_F_4out == -99 // не наша госпитализация
-            s := ret_mo(napr->S_CODEM)[_MO_SHORT_NAME]
-          else
-            s := 'нашем стационаре'
-            fl := .t.
-          endif
-        else
-          s := ret_mo(napr->CODEM_FROM)[_MO_SHORT_NAME]
-          fl := (napr->CODEM_FROM == glob_mo[_MO_KOD_TFOMS])
-        endif
-        if empty(napr->date_6)
-          if fl
-            aadd(ta, 'у пациента выписано направление №' + lstr(lnomer)+' от ' + full_date(ldate)+',')
-            aadd(ta, ' но он уже госпитализирован в '+s+' ' + full_date(napr->date_h_4)+' и ещё не выписан')
-          endif
-        elseif ldate_h_1 > napr->DATE_H_4 .and. ldate < napr->DATE_6
-          if fl
-            aadd(ta, 'у пациента выписано направление №' + lstr(lnomer)+' от ' + full_date(ldate)+',')
-            aadd(ta, ' по текущему направлению планируемая дата госпитализации ' + full_date(ldate_h_1))
-            aadd(ta, ' пересекается с госпитализацией в '+s+' ' + full_date(napr->date_h_4)+'-' + full_date(napr->date_6))
-          endif
-        endif
-      else
-        if abs(ldate - napr->date_d) < 20 .or. abs(ldate_h_1 - napr->date_h_1) < 20 //;
-               //.or. (!empty(napr->date_h_2) .and. abs(ldate_h_1 - napr->date_h_2) < 20)
-          aadd(ta, 'у пациента 2 направления: №' + lstr(lnomer)+' от ' + full_date(ldate)+;
-                  ' и №' + lstr(napr->N_NAPR)+' от ' + full_date(napr->date_d))
+      if !empty(kart->snils)
+        s := space(80)
+        if !val_snils(kart->snils, 2, @s)
+          aadd(ta, s + ' у пациента')
         endif
       endif
-      skip
-    enddo
-    if !empty(ta)
-      aadd(arr_error, {1,arr_i01[i, 2,j],aclone(ta)} )
-    endif
-  next
-next
-// I03
-select NAPR
-index on kod to (cur_dir + 'tmp_napr') ;
-      for n_napr > 0 .and. KOD_F_1out > 0 .and. TIP_ANNUL == 3 .and. empty(KOD_F_3out)
-go top
-do while !eof()
-  if (i := ascan(arr_i03, {|x| x[1] == napr->DATE_3 })) == 0
-    aadd(arr_i03, {napr->DATE_3, {}}) ; i := len(arr_i03)
-  endif
-  aadd(arr_i03[i, 2],napr->kod)
-  select NAPR
-  skip
-enddo
-index on kod to (cur_dir + 'tmp_napr') ;
-      for (KOD_F_1in > 0 .or. (T_ANS_1 == 1 .and. CODEM_1 == glob_mo[_MO_KOD_TFOMS])) ;
-          .and. TIP_ANNUL == 2 .and. empty(KOD_F_3out)
-go top
-do while !eof()
-  if (i := ascan(arr_i03, {|x| x[1] == napr->DATE_3 })) == 0
-    aadd(arr_i03, {napr->DATE_3, {}}) ; i := len(arr_i03)
-  endif
-  aadd(arr_i03[i, 2],napr->kod)
-  select NAPR
-  skip
-enddo
-for i := 1 to len(arr_i03)
-  DEFAULT max_date TO boy(sys_date)
-  max_date := max(max_date,arr_i03[i, 1])
-  for j := 1 to len(arr_i03[i, 2])
-    ta := {} ; ++ikol
-    select NAPR
-    goto (arr_i03[i, 2,j])
-    lkod_k := napr->kod_k
-    if !valid_GUID(napr->ID_1, 2)
-      aadd(ta, 'некорректное поле ID_D (GUID направления)')
-    endif
-    if napr->date_d > napr->date_3
-      aadd(ta, 'дата аннулирования меньше даты направления ' + full_date(napr->date_3))
-    elseif napr->date_3 > sys_date
-      aadd(ta, 'дата аннулирования больше системной даты ' + full_date(napr->date_3))
-    elseif napr->date_3 > napr->DATE_H_1
-      aadd(ta, 'дата госпитализации меньше даты аннулирования ' + full_date(napr->date_3))
-    //elseif !empty(napr->DATE_H_2) .and. napr->date_3 > napr->DATE_H_2
-      //aadd(ta, 'дата госпитализации меньше даты аннулирования ' + full_date(napr->date_3))
-    elseif _263_verify_year(napr->date_3,ta)
-    endif
-    if ascan(get_reason_annul(), {|x| x[2] == napr->REA_ANNUL} ) == 0
-      aadd(ta, 'не указана причина аннулирования')
-    endif
-    if !empty(napr->date_h_4)
-      if empty(napr->CODEM_FROM)
-        s := 'нашем стационаре'
-      else
-        s := ret_mo(napr->CODEM_FROM)[_MO_SHORT_NAME]
-      endif
-      aadd(ta, 'пациент уже госпитализирован в '+s+' ' + full_date(napr->date_h_4))
-    endif
-    if !empty(ta)
-      aadd(arr_error, {3,arr_i03[i, 2,j],aclone(ta)} )
-    endif
-  next
-next
-// I04
-select NAPR
-index on kod to (cur_dir + 'tmp_napr') for between(TYPE_H_4, 1, 3) .and. empty(KOD_F_4out)
-go top
-do while !eof()
-  if (i := ascan(arr_i04, {|x| x[1] == napr->DATE_H_4 })) == 0
-    aadd(arr_i04, {napr->DATE_H_4, {}}) ; i := len(arr_i04)
-  endif
-  aadd(arr_i04[i, 2],napr->kod)
-  select NAPR
-  skip
-enddo
-for i := 1 to len(arr_i04)
-  DEFAULT max_date TO boy(sys_date)
-  max_date := max(max_date,arr_i04[i, 1])
-  for j := 1 to len(arr_i04[i, 2])
-    ta := {} ; ++ikol
-    select NAPR
-    goto (arr_i04[i, 2,j])
-    lkod_k := napr->kod_k ; ldate := napr->DATE_H_4
-    if !valid_GUID(napr->ID_4)
-      G_RLock(forever)
-      napr->ID_4 := mo_guid(1,napr->kod)
-      UnLock
-    endif
-    if napr->TYPE_H_4 == 1 .and. !valid_GUID(napr->ID_1, 2)
-      aadd(ta, 'некорректное поле ID_D (GUID направления)')
-    endif
-    if empty(napr->CODEM_FROM)
-      aadd(ta, 'не введён код направившего учреждения')
-    endif
-    if empty(napr->DATE_H_4)
-      aadd(ta, 'не введена дата госпитализации')
-    elseif napr->date_h_4 > sys_date
-      aadd(ta, 'дата госпитализации больше системной даты ' + full_date(napr->date_h_4))
-    elseif napr->date_h_4 < sys_date - 180
-      aadd(ta, 'дата госпитализации НЕКОРРЕКТНА ' + full_date(napr->date_h_4))
-    elseif !between(int(val(left(napr->TIME_H_4, 2))), 0, 23) .or. !between(int(val(right(napr->TIME_H_4, 2))), 0, 59)
-      aadd(ta, 'время госпитализации НЕКОРРЕКТНО '+napr->TIME_H_4)
-    elseif _263_verify_year(napr->date_h_4,ta)
-    endif
-    if empty(napr->TIME_H_4)
-      aadd(ta, 'не введено время госпитализации')
-    endif
-    if empty(napr->DS_4)
-      aadd(ta, 'не введён диагноз приёмного покоя')
-    else
-      select MKB_10
-      find (padr(napr->DS_4, 6))
-      if found()
-        if !between_date(mkb_10->dbegin,mkb_10->dend,napr->DATE_H_4)
-          aadd(ta, 'диагноз приёмного покоя не входит в ОМС')
-        endif
-        if !empty(mkb_10->pol) .and. !(mkb_10->pol == kart->pol)
-          aadd(ta, 'несовместимость диагноза приёмного покоя по полу '+alltrim(napr->DS_4))
-        endif
-      else
-        aadd(ta, 'не найден диагноз приёмного покоя '+alltrim(napr->DS_4)+' в справочнике МКБ-10')
-      endif
-    endif
-    if empty(napr->F_MEDC_4)
-      aadd(ta, 'не введена форма оказания мед.помощи')
-    endif
-    if empty(napr->PROFIL_K_4)
-      aadd(ta, 'не введён профиль койки')
-    endif
-    if empty(napr->PROFIL_4)
-      aadd(ta, 'не введён профиль медицинской помощи')
-    endif
-    if empty(napr->NUM_HIST_4)
-      aadd(ta, 'не введен номер истории болезни')
-    endif
-    val_fio(retFamImOt(1,.f.),ta)
-    if year(kart->date_r) < 1900
-      aadd(ta, 'дата рождения: ' + full_date(kart->date_r)+' ( < 1900г.)')
-    endif
-    if kart->date_r > napr->DATE_H_4
-      aadd(ta, 'дата рождения: ' + full_date(kart->date_r)+' > даты госпитализации: ' + full_date(napr->DATE_H_4))
-    endif
-    if !empty(kart->snils)
-      s := space(80)
-      if !val_snils(kart->snils, 2,@s)
-        aadd(ta,s)
-      endif
-    endif
-    Valid_SN_Polis(kart_->vpolis,kart_->SPOLIS,kart_->NPOLIS,ta,between(kart_->smo,'34001','34007'))
-    select SMO
-    if alltrim(kart_->smo) == '34'
-      if empty(kart_->KVARTAL_D)
-        aadd(ta, 'не введён субъект РФ, в котором застрахован пациент')
-      elseif empty(ret_inogSMO_name(1))
-        aadd(ta, 'не введена иногородняя страховая компания')
-      endif
-    else
-      select SMO
-      find (kart_->smo)
-      if !found()
-        aadd(ta, 'не найдена СМО с кодом "' + kart_->smo + '"')
-      endif
-    endif
-    select NAPR
-    set index to (cur_dir + 'tmp_naprkodk')
-    find (str(lkod_k, 7))
-    do while napr->kod_k == lkod_k .and. !eof()
-      if napr->kod == arr_i04[i, 2,j]
-        // текущую запись пропустим
-      elseif !empty(napr->DATE_H_4)
-        fl := .f.
-        if empty(napr->CODEM_FROM)
-          if napr->TYPE_H_4 == 4 .and. napr->KOD_F_4out == -99 // не наша госпитализация
-            fl := (napr->S_CODEM == glob_mo[_MO_KOD_TFOMS])
-          else
-            fl := .t. // наша госпитализация
-          endif
-        else
-          fl := (napr->CODEM_FROM == glob_mo[_MO_KOD_TFOMS])
-        endif
-        if !empty(napr->DATE_6) // если уже выписан
-          if ldate > napr->DATE_H_4 .and. ldate < napr->DATE_6
-            if fl
-              aadd(ta, 'у данного пациента обнаружена госпитализация с ' + full_date(napr->DATE_H_4)+' по ' + full_date(napr->DATE_6))
-            endif
-          endif
-        else
-          if fl
-            aadd(ta, 'у данного пациента обнаружена незавершённая госпитализация от ' + full_date(napr->DATE_H_4))
-          endif
-        endif
-      endif
-      skip
-    enddo
-    if !empty(ta)
-      aadd(arr_error, {4,arr_i04[i, 2,j],aclone(ta)} )
-    endif
-  next
-next
-// I05
-select NAPR
-index on kod to (cur_dir + 'tmp_napr') for TYPE_H_4 == 4 .and. empty(KOD_F_4out)
-go top
-do while !eof()
-  if (i := ascan(arr_i05, {|x| x[1] == napr->DATE_H_4 })) == 0
-    aadd(arr_i05, {napr->DATE_H_4, {}}) ; i := len(arr_i05)
-  endif
-  aadd(arr_i05[i, 2],napr->kod)
-  select NAPR
-  skip
-enddo
-for i := 1 to len(arr_i05)
-  DEFAULT max_date TO boy(sys_date)
-  max_date := max(max_date,arr_i05[i, 1])
-  for j := 1 to len(arr_i05[i, 2])
-    ta := {} ; ++ikol
-    select NAPR
-    goto (arr_i05[i, 2,j])
-    lkod_k := napr->kod_k ; ldate := napr->DATE_H_4
-    if !valid_GUID(napr->ID_4)
-      G_RLock(forever)
-      napr->ID_4 := mo_guid(1,napr->kod)
-      UnLock
-    endif
-    if empty(napr->DATE_H_4)
-      aadd(ta, 'не введена дата госпитализации')
-    elseif napr->date_h_4 > sys_date
-      aadd(ta, 'дата госпитализации больше системной даты ' + full_date(napr->date_h_4))
-    elseif napr->date_h_4 < sys_date - 180
-      aadd(ta, 'дата госпитализации НЕКОРРЕКТНА ' + full_date(napr->date_h_4))
-    elseif !between(int(val(left(napr->TIME_H_4, 2))), 0, 23) .or. !between(int(val(right(napr->TIME_H_4, 2))), 0, 59)
-      aadd(ta, 'время госпитализации НЕКОРРЕКТНО '+napr->TIME_H_4)
-    elseif _263_verify_year(napr->date_h_4,ta)
-    endif
-    if empty(napr->TIME_H_4)
-      aadd(ta, 'не введено время госпитализации')
-    endif
-    if empty(napr->DS_4)
-      aadd(ta, 'не введён диагноз приёмного покоя')
-    else
-      select MKB_10
-      find (padr(napr->DS_4, 6))
-      if found()
-        if !between_date(mkb_10->dbegin,mkb_10->dend,napr->DATE_H_4)
-          aadd(ta, 'диагноз приёмного покоя не входит в ОМС')
-        endif
-        if !empty(mkb_10->pol) .and. !(mkb_10->pol == kart->pol)
-          aadd(ta, 'несовместимость диагноза приёмного покоя по полу '+alltrim(napr->DS_4))
-        endif
-      else
-        aadd(ta, 'не найден диагноз приёмного покоя '+alltrim(napr->DS_4)+' в справочнике МКБ-10')
-      endif
-    endif
-    if empty(napr->F_MEDC_4)
-      aadd(ta, 'не введена форма оказания мед.помощи')
-    endif
-    if empty(napr->PROFIL_K_4)
-      aadd(ta, 'не введён профиль койки')
-    endif
-    if empty(napr->PROFIL_4)
-      aadd(ta, 'не введён профиль медицинской помощи')
-    endif
-    if empty(napr->NUM_HIST_4)
-      aadd(ta, 'не введен номер истории болезни')
-    endif
-    val_fio(retFamImOt(1,.f.),ta)
-    if year(kart->date_r) < 1900
-      aadd(ta, 'дата рождения: ' + full_date(kart->date_r)+' ( < 1900г.)')
-    endif
-    if kart->date_r > napr->DATE_H_4
-      aadd(ta, 'дата рождения: ' + full_date(kart->date_r)+;
-                ' > даты госпитализации: ' + full_date(napr->DATE_H_4))
-    endif
-    if !empty(kart->snils)
-      s := space(80)
-      if !val_snils(kart->snils, 2,@s)
-        aadd(ta,s)
-      endif
-    endif
-    if !empty(kart_->NPOLIS)
-      Valid_SN_Polis(kart_->vpolis,kart_->SPOLIS,kart_->NPOLIS,ta,between(kart_->smo,'34001','34007'))
+      Valid_SN_Polis(kart_->vpolis, kart_->SPOLIS, kart_->NPOLIS, ta, between(kart_->smo, '34001', '34007'))
       select SMO
       if alltrim(kart_->smo) == '34'
         if empty(kart_->KVARTAL_D)
@@ -772,223 +425,589 @@ for i := 1 to len(arr_i05)
           aadd(ta, 'не найдена СМО с кодом "' + kart_->smo + '"')
         endif
       endif
-    endif
-    select NAPR
-    set index to (cur_dir + 'tmp_naprkodk')
-    find (str(lkod_k, 7))
-    do while napr->kod_k == lkod_k .and. !eof()
-      if napr->kod == arr_i05[i, 2,j]
-        // текущую запись пропустим
-      elseif !empty(napr->DATE_H_4)
-        fl := .f.
-        if empty(napr->CODEM_FROM)
-          if napr->TYPE_H_4 == 4 .and. napr->KOD_F_4out == -99 // не наша госпитализация
-            fl := (napr->S_CODEM == glob_mo[_MO_KOD_TFOMS])
-          else
-            fl := .t. // наша госпитализация
-          endif
-        else
-          fl := (napr->CODEM_FROM == glob_mo[_MO_KOD_TFOMS])
+      if emptyall(kart_->PHONE_M, kart_->PHONE_H, kart_->PHONE_W)
+        aadd(ta, 'не введён ни один телефон')
+      else
+        if !empty(kart_->PHONE_M)
+          _263_valid_phone(1, kart_->PHONE_M, ta)
         endif
-        if !empty(napr->DATE_6) // если уже выписан
-          if ldate > napr->DATE_H_4 .and. ldate < napr->DATE_6
+        if !empty(kart_->PHONE_H)
+          _263_valid_phone(2, kart_->PHONE_H, ta)
+        endif
+        if !empty(kart_->PHONE_W)
+          _263_valid_phone(3, kart_->PHONE_W, ta)
+        endif
+      endif
+      select NAPR
+      set index to (cur_dir + 'tmp_naprkodk')
+      find (str(lkod_k, 7))
+      do while napr->kod_k == lkod_k .and. !eof()
+        if napr->kod == arr_i01[i, 2, j] .or. napr->KOD_F_3in > 0 .or. napr->KOD_F_3out > 0
+          // текущую запись или аннулирования пропустим
+        elseif !empty(napr->date_h_4)
+          fl := .f.
+          if empty(napr->CODEM_FROM)
+            if napr->TYPE_H_4 == 4 .and. napr->KOD_F_4out == -99 // не наша госпитализация
+              s := ret_mo(napr->S_CODEM)[_MO_SHORT_NAME]
+            else
+              s := 'нашем стационаре'
+              fl := .t.
+            endif
+          else
+            s := ret_mo(napr->CODEM_FROM)[_MO_SHORT_NAME]
+            fl := (napr->CODEM_FROM == glob_mo[_MO_KOD_TFOMS])
+          endif
+          if empty(napr->date_6)
             if fl
-              aadd(ta, 'у данного пациента обнаружена госпитализация с ' + full_date(napr->DATE_H_4)+' по ' + full_date(napr->DATE_6))
+              aadd(ta, 'у пациента выписано направление №' + lstr(lnomer) + ' от ' + full_date(ldate) + ',')
+              aadd(ta, ' но он уже госпитализирован в ' + s + ' ' + full_date(napr->date_h_4) + ' и ещё не выписан')
+            endif
+          elseif ldate_h_1 > napr->DATE_H_4 .and. ldate < napr->DATE_6
+            if fl
+              aadd(ta, 'у пациента выписано направление №' + lstr(lnomer) + ' от ' + full_date(ldate) + ',')
+              aadd(ta, ' по текущему направлению планируемая дата госпитализации ' + full_date(ldate_h_1))
+              aadd(ta, ' пересекается с госпитализацией в '+s+' ' + full_date(napr->date_h_4) + '-' + full_date(napr->date_6))
             endif
           endif
         else
-          if fl
-            aadd(ta, 'у данного пациента обнаружена незавершённая госпитализация от ' + full_date(napr->DATE_H_4))
+          if abs(ldate - napr->date_d) < 20 .or. abs(ldate_h_1 - napr->date_h_1) < 20 //;
+               //.or. (!empty(napr->date_h_2) .and. abs(ldate_h_1 - napr->date_h_2) < 20)
+            aadd(ta, 'у пациента 2 направления: №' + lstr(lnomer) + ' от ' + full_date(ldate) + ;
+                  ' и №' + lstr(napr->N_NAPR) + ' от ' + full_date(napr->date_d))
           endif
         endif
+        skip
+      enddo
+      if !empty(ta)
+        aadd(arr_error, {1, arr_i01[i, 2, j], aclone(ta)} )
       endif
-      skip
-    enddo
-    if !empty(ta)
-      aadd(arr_error, {5,arr_i05[i, 2,j],aclone(ta)} )
-    endif
+    next
   next
-next
-// I06
-select NAPR
-index on kod to (cur_dir + 'tmp_napr') ;
-      for KOD_F_4out > 0 .and. T_ANS_4 == 1 .and. !empty(DATE_6) .and. empty(KOD_F_6out)
-go top
-do while !eof()
-  if (i := ascan(arr_i06, {|x| x[1] == napr->DATE_6 })) == 0
-    aadd(arr_i06, {napr->DATE_6, {}}) ; i := len(arr_i06)
-  endif
-  aadd(arr_i06[i, 2],napr->kod)
+  // I03
   select NAPR
-  skip
-enddo
-for i := 1 to len(arr_i06)
-  DEFAULT max_date TO boy(sys_date)
-  max_date := max(max_date,arr_i06[i, 1])
-  for j := 1 to len(arr_i06[i, 2])
-    ta := {} ; ++ikol
+  index on kod to (cur_dir + 'tmp_napr') ;
+      for n_napr > 0 .and. KOD_F_1out > 0 .and. TIP_ANNUL == 3 .and. empty(KOD_F_3out)
+  go top
+  do while !eof()
+    if (i := ascan(arr_i03, {|x| x[1] == napr->DATE_3 })) == 0
+      aadd(arr_i03, {napr->DATE_3, {}})
+      i := len(arr_i03)
+    endif
+    aadd(arr_i03[i, 2], napr->kod)
     select NAPR
-    goto (arr_i06[i, 2,j])
-    if !valid_GUID(napr->ID_6)
-      G_RLock(forever)
-      napr->ID_6 := mo_guid(1,napr->kod)
-      UnLock
+    skip
+  enddo
+  index on kod to (cur_dir + 'tmp_napr') ;
+      for (KOD_F_1in > 0 .or. (T_ANS_1 == 1 .and. CODEM_1 == glob_mo[_MO_KOD_TFOMS])) ;
+          .and. TIP_ANNUL == 2 .and. empty(KOD_F_3out)
+  go top
+  do while !eof()
+    if (i := ascan(arr_i03, {|x| x[1] == napr->DATE_3 })) == 0
+      aadd(arr_i03, {napr->DATE_3, {}})
+      i := len(arr_i03)
     endif
-    if empty(napr->DATE_H_4)
-      aadd(ta, 'не введена дата госпитализации')
-    endif
-    if empty(napr->DATE_6)
-      aadd(ta, 'не введена дата выбытия')
-    elseif napr->date_6 < napr->date_h_4
-      aadd(ta, 'дата выбытия меньше даты госпитализации ' + full_date(napr->date_6)+' < ' + full_date(napr->date_h_4))
-    elseif napr->date_6 > napr->date_h_4 + 180
-      aadd(ta, 'дата выбытия НЕКОРРЕКТНА ' + full_date(napr->date_6))
-    endif
-    if empty(napr->F_MEDC_4)
-      aadd(ta, 'не введена форма оказания мед.помощи')
-    endif
-    if empty(napr->PROFIL_K_4)
-      aadd(ta, 'не введён профиль койки')
-    endif
-    if empty(napr->PROFIL_4)
-      aadd(ta, 'не введён профиль медицинской помощи')
-    endif
-    if empty(napr->NUM_HIST_4)
-      aadd(ta, 'не введен номер истории болезни')
-    endif
-    if napr->TYPE_H_4 == 1
+    aadd(arr_i03[i, 2], napr->kod)
+    select NAPR
+    skip
+  enddo
+  for i := 1 to len(arr_i03)
+    DEFAULT max_date TO boy(sys_date)
+    max_date := max(max_date, arr_i03[i, 1])
+    for j := 1 to len(arr_i03[i, 2])
+      ta := {}
+      ++ikol
+      select NAPR
+      goto (arr_i03[i, 2, j])
+      lkod_k := napr->kod_k
       if !valid_GUID(napr->ID_1, 2)
+        aadd(ta, 'некорректное поле ID_D (GUID направления)')
+      endif
+      if napr->date_d > napr->date_3
+        aadd(ta, 'дата аннулирования меньше даты направления ' + full_date(napr->date_3))
+      elseif napr->date_3 > sys_date
+        aadd(ta, 'дата аннулирования больше системной даты ' + full_date(napr->date_3))
+      elseif napr->date_3 > napr->DATE_H_1
+        aadd(ta, 'дата госпитализации меньше даты аннулирования ' + full_date(napr->date_3))
+      //elseif !empty(napr->DATE_H_2) .and. napr->date_3 > napr->DATE_H_2
+        //aadd(ta, 'дата госпитализации меньше даты аннулирования ' + full_date(napr->date_3))
+      elseif _263_verify_year(napr->date_3, ta)
+      endif
+      if ascan(get_reason_annul(), {|x| x[2] == napr->REA_ANNUL} ) == 0
+        aadd(ta, 'не указана причина аннулирования')
+      endif
+      if !empty(napr->date_h_4)
+        if empty(napr->CODEM_FROM)
+          s := 'нашем стационаре'
+        else
+          s := ret_mo(napr->CODEM_FROM)[_MO_SHORT_NAME]
+        endif
+        aadd(ta, 'пациент уже госпитализирован в ' + s + ' ' + full_date(napr->date_h_4))
+      endif
+      if !empty(ta)
+        aadd(arr_error, {3, arr_i03[i, 2, j], aclone(ta)} )
+      endif
+    next
+  next
+  // I04
+  select NAPR
+  index on kod to (cur_dir + 'tmp_napr') for between(TYPE_H_4, 1, 3) .and. empty(KOD_F_4out)
+  go top
+  do while !eof()
+    if (i := ascan(arr_i04, {|x| x[1] == napr->DATE_H_4 })) == 0
+      aadd(arr_i04, {napr->DATE_H_4, {}})
+      i := len(arr_i04)
+    endif
+    aadd(arr_i04[i, 2], napr->kod)
+    select NAPR
+    skip
+  enddo
+  for i := 1 to len(arr_i04)
+    DEFAULT max_date TO boy(sys_date)
+    max_date := max(max_date, arr_i04[i, 1])
+    for j := 1 to len(arr_i04[i, 2])
+      ta := {}
+      ++ikol
+      select NAPR
+      goto (arr_i04[i, 2, j])
+      lkod_k := napr->kod_k
+      ldate := napr->DATE_H_4
+      if !valid_GUID(napr->ID_4)
+        G_RLock(forever)
+        napr->ID_4 := mo_guid(1, napr->kod)
+        UnLock
+      endif
+      if napr->TYPE_H_4 == 1 .and. !valid_GUID(napr->ID_1, 2)
         aadd(ta, 'некорректное поле ID_D (GUID направления)')
       endif
       if empty(napr->CODEM_FROM)
         aadd(ta, 'не введён код направившего учреждения')
       endif
-    endif
-    if empty(napr->NUM_HIST_4)
-      aadd(ta, 'не введен номер истории болезни')
-    endif
-    if year(kart->date_r) < 1900
-      aadd(ta, 'дата рождения: ' + full_date(kart->date_r)+' ( < 1900г.)')
-    endif
-    if kart->date_r > napr->date_6
-      aadd(ta, 'дата рождения: ' + full_date(kart->date_r)+' > даты выбытия: ' + full_date(napr->DATE_6))
-    endif
-    if !empty(ta)
-      aadd(arr_error, {6,arr_i06[i, 2,j],aclone(ta)} )
-    endif
-  next
-next
-// I07
-if is_napr_stac
-  ta1 := {}
-  R_Use(dir_server + 'mo_n7d', ,'D7')
-  if lastrec() > 0 .and. !empty(d7->DATE_R_EDI)
-    if !emptyany(d7->DATE_R_EDI,d7->DATE_R_OUT,d7->DATE_OUT) .and. ;
-                            d7->DATE_R_EDI == d7->DATE_R_OUT .and. d7->DATE_OUT == sys_date
-      // ничего не делаем, т.к. уже сегодня отправили
-    elseif empty(d7->END_EDIT)
-      if !empty(d7->DATE_R_OUT)
-        aadd(ta1,'не подтверждено окончание редактирования')
+      if empty(napr->DATE_H_4)
+        aadd(ta, 'не введена дата госпитализации')
+      elseif napr->date_h_4 > sys_date
+        aadd(ta, 'дата госпитализации больше системной даты ' + full_date(napr->date_h_4))
+      elseif napr->date_h_4 < sys_date - 180
+        aadd(ta, 'дата госпитализации НЕКОРРЕКТНА ' + full_date(napr->date_h_4))
+      elseif !between(int(val(left(napr->TIME_H_4, 2))), 0, 23) .or. !between(int(val(right(napr->TIME_H_4, 2))), 0, 59)
+        aadd(ta, 'время госпитализации НЕКОРРЕКТНО ' + napr->TIME_H_4)
+      elseif _263_verify_year(napr->date_h_4, ta)
       endif
-    else
-      if !emptyany(d7->DATE_R_EDI,d7->DATE_R_OUT,d7->DATE_OUT) .and. ;
-                              d7->DATE_R_EDI == d7->DATE_R_OUT .and. d7->DATE_OUT < sys_date
-        aadd(ta1,'после последней отправки в ТФОМС не было входа в редактирование')
+      if empty(napr->TIME_H_4)
+        aadd(ta, 'не введено время госпитализации')
       endif
-      if d7->DATE_R_EDI > sys_date
-        aadd(ta1,'отчётная дата больше системной даты ' + full_date(d7->DATE_R_EDI))
-      elseif d7->DATE_R_EDI < sys_date - 60
-        aadd(ta1,'отчётная дата НЕКОРРЕКТНА ' + full_date(d7->DATE_R_EDI))
-      elseif _263_verify_year(d7->DATE_R_EDI,ta1)
+      if empty(napr->DS_4)
+        aadd(ta, 'не введён диагноз приёмного покоя')
+      else
+        select MKB_10
+        find (padr(napr->DS_4, 6))
+        if found()
+          if !between_date(mkb_10->dbegin, mkb_10->dend, napr->DATE_H_4)
+            aadd(ta, 'диагноз приёмного покоя не входит в ОМС')
+          endif
+          if !empty(mkb_10->pol) .and. !(mkb_10->pol == kart->pol)
+            aadd(ta, 'несовместимость диагноза приёмного покоя по полу ' + alltrim(napr->DS_4))
+          endif
+        else
+          aadd(ta, 'не найден диагноз приёмного покоя ' + alltrim(napr->DS_4) + ' в справочнике МКБ-10')
+        endif
       endif
-      G_Use(dir_server + 'mo_n7out', ,'N7')
-      index on padr(inieditspr(A__MENUVERT, arr_t007, n7->PROFIL_K), 60)+str(n7->PROFIL_K, 3)+;
-               padr(inieditspr(A__MENUVERT, getV002(), n7->PROFIL), 20)+str(n7->PROFIL, 3) to (cur_dir + 'tmp_n7')
-      go top
-      if !eof()
-        do while !eof()
-          yes_I07 := .t.
-          ta := {}
-          if n7->QUANTITY == 0
-            aadd(ta, '-не введено количество коек')
-          else
-            k1 := n7->QUANTITY - (n7->Q_P + n7->Q_AP - n7->Q_DP + n7->Q_HP)
-            k2 := n7->PF_M + n7->PF_W + n7->PF_C
-            if n7->PLACE_FREE < 0
-              aadd(ta, '-количество свободных коек меньше нуля')
-            elseif k1 == k2
-              if k1 != n7->PLACE_FREE
-                G_RLock(forever)
-                n7->PLACE_FREE := k1
-                UnLock
-                Commit
-              endif
+      if empty(napr->F_MEDC_4)
+        aadd(ta, 'не введена форма оказания мед.помощи')
+      endif
+      if empty(napr->PROFIL_K_4)
+        aadd(ta, 'не введён профиль койки')
+      endif
+      if empty(napr->PROFIL_4)
+        aadd(ta, 'не введён профиль медицинской помощи')
+      endif
+      if empty(napr->NUM_HIST_4)
+        aadd(ta, 'не введен номер истории болезни')
+      endif
+      val_fio(retFamImOt(1, .f.), ta)
+      if year(kart->date_r) < 1900
+        aadd(ta, 'дата рождения: ' + full_date(kart->date_r) + ' ( < 1900г.)')
+      endif
+      if kart->date_r > napr->DATE_H_4
+        aadd(ta, 'дата рождения: ' + full_date(kart->date_r) + ' > даты госпитализации: ' + full_date(napr->DATE_H_4))
+      endif
+      if !empty(kart->snils)
+        s := space(80)
+        if !val_snils(kart->snils, 2, @s)
+          aadd(ta, s)
+        endif
+      endif
+      Valid_SN_Polis(kart_->vpolis, kart_->SPOLIS, kart_->NPOLIS, ta, between(kart_->smo, '34001', '34007'))
+      select SMO
+      if alltrim(kart_->smo) == '34'
+        if empty(kart_->KVARTAL_D)
+          aadd(ta, 'не введён субъект РФ, в котором застрахован пациент')
+        elseif empty(ret_inogSMO_name(1))
+          aadd(ta, 'не введена иногородняя страховая компания')
+        endif
+      else
+        select SMO
+        find (kart_->smo)
+        if !found()
+          aadd(ta, 'не найдена СМО с кодом "' + kart_->smo + '"')
+        endif
+      endif
+      select NAPR
+      set index to (cur_dir + 'tmp_naprkodk')
+      find (str(lkod_k, 7))
+      do while napr->kod_k == lkod_k .and. !eof()
+        if napr->kod == arr_i04[i, 2, j]
+          // текущую запись пропустим
+        elseif !empty(napr->DATE_H_4)
+          fl := .f.
+          if empty(napr->CODEM_FROM)
+            if napr->TYPE_H_4 == 4 .and. napr->KOD_F_4out == -99 // не наша госпитализация
+              fl := (napr->S_CODEM == glob_mo[_MO_KOD_TFOMS])
             else
-              aadd(ta, '-количество свободных коек по разным формулам: ' + lstr(k1)+' != ' + lstr(k2))
+              fl := .t. // наша госпитализация
+            endif
+          else
+            fl := (napr->CODEM_FROM == glob_mo[_MO_KOD_TFOMS])
+          endif
+          if !empty(napr->DATE_6) // если уже выписан
+            if ldate > napr->DATE_H_4 .and. ldate < napr->DATE_6
+              if fl
+                aadd(ta, 'у данного пациента обнаружена госпитализация с ' + full_date(napr->DATE_H_4) + ' по ' + full_date(napr->DATE_6))
+              endif
+            endif
+          else
+            if fl
+              aadd(ta, 'у данного пациента обнаружена незавершённая госпитализация от ' + full_date(napr->DATE_H_4))
             endif
           endif
-          if !empty(ta)
-            Ins_Array(ta, 1,alltrim(inieditspr(A__MENUVERT, arr_t007, n7->PROFIL_K))+;
-                           ' ('+alltrim(inieditspr(A__MENUVERT, getV002(), n7->PROFIL))+')')
-            aadd(arr_error, {7, 0,aclone(ta)} )
-          endif
-          select N7
-          skip
-        enddo
+        endif
+        skip
+      enddo
+      if !empty(ta)
+        aadd(arr_error, {4, arr_i04[i, 2, j], aclone(ta)} )
       endif
-    endif
-  endif
-  if !empty(ta1)
-    aadd(arr_error, {7, 0,aclone(ta1)} )
-  endif
-endif
-if len(arr_error) == 0
-  if yes_msg
-    stat_msg('Проверено пациентов - ' + lstr(ikol)+'. Ошибок не обнаружено!') ; mybell(4,OK)
-  endif
-else
-  name_file := '263error'+stxt
-  fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
-  add_string(full_date(sys_date)+' '+hour_min(seconds()))
-  add_string('')
-  add_string(center('Список обнаруженных ошибок', 80))
-  select NAPR
-  set index to
-  for i := 1 to len(arr_error)
-    do case
-      case arr_error[i, 1] == 1
-        s := 'Поликлиника/Направления'
-      case arr_error[i, 1] == 3
-        s := 'Поликлиника(Стационар)/Аннулирование'
-      case arr_error[i, 1] == 4 .or. arr_error[i, 1] == 5
-        s := 'Стационар/Госпитализация'
-      case arr_error[i, 1] == 6
-        s := 'Стационар/Выбытие'
-      case arr_error[i, 1] == 7
-        s := 'Стационар/Свободные койки'
-    endcase
-    verify_FF(76,.t., 80)
-    add_string('')
-    add_string('пакет I0' + lstr(arr_error[i, 1]) + '... режим "' + s + '"')
-    if arr_error[i, 1] < 7
-      goto (arr_error[i, 2])
-      add_string(alltrim(kart->fio)+' д.р.' + full_date(kart->date_r))
-    endif
-    for j := 1 to len(arr_error[i, 3])
-      verify_FF(80,.t., 80)
-      add_string('- '+arr_error[i, 3,j])
     next
   next
-  fclose(fp)
+  // I05
+  select NAPR
+  index on kod to (cur_dir + 'tmp_napr') for TYPE_H_4 == 4 .and. empty(KOD_F_4out)
+  go top
+  do while !eof()
+    if (i := ascan(arr_i05, {|x| x[1] == napr->DATE_H_4 })) == 0
+      aadd(arr_i05, {napr->DATE_H_4, {}})
+      i := len(arr_i05)
+    endif
+    aadd(arr_i05[i, 2], napr->kod)
+    select NAPR
+    skip
+  enddo
+  for i := 1 to len(arr_i05)
+    DEFAULT max_date TO boy(sys_date)
+    max_date := max(max_date, arr_i05[i, 1])
+    for j := 1 to len(arr_i05[i, 2])
+      ta := {}
+      ++ikol
+      select NAPR
+      goto (arr_i05[i, 2, j])
+      lkod_k := napr->kod_k
+      ldate := napr->DATE_H_4
+      if !valid_GUID(napr->ID_4)
+        G_RLock(forever)
+        napr->ID_4 := mo_guid(1, napr->kod)
+        UnLock
+      endif
+      if empty(napr->DATE_H_4)
+        aadd(ta, 'не введена дата госпитализации')
+      elseif napr->date_h_4 > sys_date
+        aadd(ta, 'дата госпитализации больше системной даты ' + full_date(napr->date_h_4))
+      elseif napr->date_h_4 < sys_date - 180
+        aadd(ta, 'дата госпитализации НЕКОРРЕКТНА ' + full_date(napr->date_h_4))
+      elseif !between(int(val(left(napr->TIME_H_4, 2))), 0, 23) .or. !between(int(val(right(napr->TIME_H_4, 2))), 0, 59)
+        aadd(ta, 'время госпитализации НЕКОРРЕКТНО ' + napr->TIME_H_4)
+      elseif _263_verify_year(napr->date_h_4, ta)
+      endif
+      if empty(napr->TIME_H_4)
+        aadd(ta, 'не введено время госпитализации')
+      endif
+      if empty(napr->DS_4)
+        aadd(ta, 'не введён диагноз приёмного покоя')
+      else
+        select MKB_10
+        find (padr(napr->DS_4, 6))
+        if found()
+          if !between_date(mkb_10->dbegin,mkb_10->dend, napr->DATE_H_4)
+            aadd(ta, 'диагноз приёмного покоя не входит в ОМС')
+          endif
+          if !empty(mkb_10->pol) .and. !(mkb_10->pol == kart->pol)
+            aadd(ta, 'несовместимость диагноза приёмного покоя по полу ' + alltrim(napr->DS_4))
+          endif
+        else
+          aadd(ta, 'не найден диагноз приёмного покоя ' + alltrim(napr->DS_4) + ' в справочнике МКБ-10')
+        endif
+      endif
+      if empty(napr->F_MEDC_4)
+        aadd(ta, 'не введена форма оказания мед.помощи')
+      endif
+      if empty(napr->PROFIL_K_4)
+        aadd(ta, 'не введён профиль койки')
+      endif
+      if empty(napr->PROFIL_4)
+        aadd(ta, 'не введён профиль медицинской помощи')
+      endif
+      if empty(napr->NUM_HIST_4)
+        aadd(ta, 'не введен номер истории болезни')
+      endif
+      val_fio(retFamImOt(1, .f.), ta)
+      if year(kart->date_r) < 1900
+        aadd(ta, 'дата рождения: ' + full_date(kart->date_r) + ' ( < 1900г.)')
+      endif
+      if kart->date_r > napr->DATE_H_4
+        aadd(ta, 'дата рождения: ' + full_date(kart->date_r)+ ;
+                ' > даты госпитализации: ' + full_date(napr->DATE_H_4))
+      endif
+      if !empty(kart->snils)
+        s := space(80)
+        if !val_snils(kart->snils, 2, @s)
+          aadd(ta, s)
+        endif
+      endif
+      if !empty(kart_->NPOLIS)
+        Valid_SN_Polis(kart_->vpolis, kart_->SPOLIS, kart_->NPOLIS, ta, between(kart_->smo, '34001', '34007'))
+        select SMO
+        if alltrim(kart_->smo) == '34'
+          if empty(kart_->KVARTAL_D)
+            aadd(ta, 'не введён субъект РФ, в котором застрахован пациент')
+          elseif empty(ret_inogSMO_name(1))
+            aadd(ta, 'не введена иногородняя страховая компания')
+          endif
+        else
+          select SMO
+          find (kart_->smo)
+          if !found()
+            aadd(ta, 'не найдена СМО с кодом "' + kart_->smo + '"')
+          endif
+        endif
+      endif
+      select NAPR
+      set index to (cur_dir + 'tmp_naprkodk')
+      find (str(lkod_k, 7))
+      do while napr->kod_k == lkod_k .and. !eof()
+        if napr->kod == arr_i05[i, 2, j]
+          // текущую запись пропустим
+        elseif !empty(napr->DATE_H_4)
+          fl := .f.
+          if empty(napr->CODEM_FROM)
+            if napr->TYPE_H_4 == 4 .and. napr->KOD_F_4out == -99 // не наша госпитализация
+              fl := (napr->S_CODEM == glob_mo[_MO_KOD_TFOMS])
+            else
+              fl := .t. // наша госпитализация
+            endif
+          else
+            fl := (napr->CODEM_FROM == glob_mo[_MO_KOD_TFOMS])
+          endif
+          if !empty(napr->DATE_6) // если уже выписан
+            if ldate > napr->DATE_H_4 .and. ldate < napr->DATE_6
+              if fl
+                aadd(ta, 'у данного пациента обнаружена госпитализация с ' + full_date(napr->DATE_H_4) + ' по ' + full_date(napr->DATE_6))
+              endif
+            endif
+          else
+            if fl
+              aadd(ta, 'у данного пациента обнаружена незавершённая госпитализация от ' + full_date(napr->DATE_H_4))
+            endif
+          endif
+        endif
+        skip
+      enddo
+      if !empty(ta)
+        aadd(arr_error, {5,arr_i05[i, 2, j], aclone(ta)} )
+      endif
+    next
+  next
+  // I06
+  select NAPR
+  index on kod to (cur_dir + 'tmp_napr') ;
+      for KOD_F_4out > 0 .and. T_ANS_4 == 1 .and. !empty(DATE_6) .and. empty(KOD_F_6out)
+  go top
+  do while !eof()
+    if (i := ascan(arr_i06, {|x| x[1] == napr->DATE_6 })) == 0
+      aadd(arr_i06, {napr->DATE_6, {}})
+      i := len(arr_i06)
+    endif
+    aadd(arr_i06[i, 2], napr->kod)
+    select NAPR
+    skip
+  enddo
+  for i := 1 to len(arr_i06)
+    DEFAULT max_date TO boy(sys_date)
+    max_date := max(max_date, arr_i06[i, 1])
+    for j := 1 to len(arr_i06[i, 2])
+      ta := {}
+      ++ikol
+      select NAPR
+      goto (arr_i06[i, 2, j])
+      if !valid_GUID(napr->ID_6)
+        G_RLock(forever)
+        napr->ID_6 := mo_guid(1, napr->kod)
+        UnLock
+      endif
+      if empty(napr->DATE_H_4)
+        aadd(ta, 'не введена дата госпитализации')
+      endif
+      if empty(napr->DATE_6)
+        aadd(ta, 'не введена дата выбытия')
+      elseif napr->date_6 < napr->date_h_4
+        aadd(ta, 'дата выбытия меньше даты госпитализации ' + full_date(napr->date_6) + ' < ' + full_date(napr->date_h_4))
+      elseif napr->date_6 > napr->date_h_4 + 180
+        aadd(ta, 'дата выбытия НЕКОРРЕКТНА ' + full_date(napr->date_6))
+      endif
+      if empty(napr->F_MEDC_4)
+        aadd(ta, 'не введена форма оказания мед.помощи')
+      endif
+      if empty(napr->PROFIL_K_4)
+        aadd(ta, 'не введён профиль койки')
+      endif
+      if empty(napr->PROFIL_4)
+        aadd(ta, 'не введён профиль медицинской помощи')
+      endif
+      if empty(napr->NUM_HIST_4)
+        aadd(ta, 'не введен номер истории болезни')
+      endif
+      if napr->TYPE_H_4 == 1
+        if !valid_GUID(napr->ID_1, 2)
+          aadd(ta, 'некорректное поле ID_D (GUID направления)')
+        endif
+        if empty(napr->CODEM_FROM)
+          aadd(ta, 'не введён код направившего учреждения')
+        endif
+      endif
+      if empty(napr->NUM_HIST_4)
+        aadd(ta, 'не введен номер истории болезни')
+      endif
+      if year(kart->date_r) < 1900
+        aadd(ta, 'дата рождения: ' + full_date(kart->date_r) + ' ( < 1900г.)')
+      endif
+      if kart->date_r > napr->date_6
+        aadd(ta, 'дата рождения: ' + full_date(kart->date_r) + ' > даты выбытия: ' + full_date(napr->DATE_6))
+      endif
+      if !empty(ta)
+        aadd(arr_error, {6, arr_i06[i, 2, j], aclone(ta)} )
+      endif
+    next
+  next
+  // I07
+  if is_napr_stac
+    ta1 := {}
+    R_Use(dir_server + 'mo_n7d', , 'D7')
+    if lastrec() > 0 .and. !empty(d7->DATE_R_EDI)
+      if !emptyany(d7->DATE_R_EDI, d7->DATE_R_OUT, d7->DATE_OUT) .and. ;
+                            d7->DATE_R_EDI == d7->DATE_R_OUT .and. d7->DATE_OUT == sys_date
+        // ничего не делаем, т.к. уже сегодня отправили
+      elseif empty(d7->END_EDIT)
+        if !empty(d7->DATE_R_OUT)
+          aadd(ta1, 'не подтверждено окончание редактирования')
+        endif
+      else
+        if !emptyany(d7->DATE_R_EDI, d7->DATE_R_OUT, d7->DATE_OUT) .and. ;
+                              d7->DATE_R_EDI == d7->DATE_R_OUT .and. d7->DATE_OUT < sys_date
+          aadd(ta1, 'после последней отправки в ТФОМС не было входа в редактирование')
+        endif
+        if d7->DATE_R_EDI > sys_date
+          aadd(ta1, 'отчётная дата больше системной даты ' + full_date(d7->DATE_R_EDI))
+        elseif d7->DATE_R_EDI < sys_date - 60
+          aadd(ta1, 'отчётная дата НЕКОРРЕКТНА ' + full_date(d7->DATE_R_EDI))
+        elseif _263_verify_year(d7->DATE_R_EDI, ta1)
+        endif
+        G_Use(dir_server + 'mo_n7out', , 'N7')
+        index on padr(inieditspr(A__MENUVERT, arr_t007, n7->PROFIL_K), 60) + str(n7->PROFIL_K, 3) + ;
+               padr(inieditspr(A__MENUVERT, getV002(), n7->PROFIL), 20) + str(n7->PROFIL, 3) to (cur_dir + 'tmp_n7')
+        go top
+        if !eof()
+          do while !eof()
+            yes_I07 := .t.
+            ta := {}
+            if n7->QUANTITY == 0
+              aadd(ta, '-не введено количество коек')
+            else
+              k1 := n7->QUANTITY - (n7->Q_P + n7->Q_AP - n7->Q_DP + n7->Q_HP)
+              k2 := n7->PF_M + n7->PF_W + n7->PF_C
+              if n7->PLACE_FREE < 0
+                aadd(ta, '-количество свободных коек меньше нуля')
+              elseif k1 == k2
+                if k1 != n7->PLACE_FREE
+                  G_RLock(forever)
+                  n7->PLACE_FREE := k1
+                  UnLock
+                  Commit
+                endif
+              else
+                aadd(ta, '-количество свободных коек по разным формулам: ' + lstr(k1) + ' != ' + lstr(k2))
+              endif
+            endif
+            if !empty(ta)
+              Ins_Array(ta, 1, alltrim(inieditspr(A__MENUVERT, arr_t007, n7->PROFIL_K)) + ;
+                           ' (' + alltrim(inieditspr(A__MENUVERT, getV002(), n7->PROFIL)) + ')')
+              aadd(arr_error, {7, 0, aclone(ta)} )
+            endif
+            select N7
+            skip
+          enddo
+        endif
+      endif
+    endif
+    if !empty(ta1)
+      aadd(arr_error, {7, 0, aclone(ta1)} )
+    endif
+  endif
+  if len(arr_error) == 0
+    if yes_msg
+      stat_msg('Проверено пациентов - ' + lstr(ikol) + '. Ошибок не обнаружено!')
+      mybell(4, OK)
+    endif
+  else
+    name_file := cur_dir + '263error' + stxt
+    fp := fcreate(name_file)
+    n_list := 1
+    tek_stroke := 0
+    add_string(full_date(sys_date) + ' '+hour_min(seconds()))
+    add_string('')
+    add_string(center('Список обнаруженных ошибок', 80))
+    select NAPR
+    set index to
+    for i := 1 to len(arr_error)
+      do case
+        case arr_error[i, 1] == 1
+          s := 'Поликлиника/Направления'
+        case arr_error[i, 1] == 3
+          s := 'Поликлиника(Стационар)/Аннулирование'
+        case arr_error[i, 1] == 4 .or. arr_error[i, 1] == 5
+          s := 'Стационар/Госпитализация'
+        case arr_error[i, 1] == 6
+          s := 'Стационар/Выбытие'
+        case arr_error[i, 1] == 7
+          s := 'Стационар/Свободные койки'
+      endcase
+      verify_FF(76, .t., 80)
+      add_string('')
+      add_string('пакет I0' + lstr(arr_error[i, 1]) + '... режим "' + s + '"')
+      if arr_error[i, 1] < 7
+        goto (arr_error[i, 2])
+        add_string(alltrim(kart->fio) + ' д.р.' + full_date(kart->date_r))
+      endif
+      for j := 1 to len(arr_error[i, 3])
+        verify_FF(80, .t., 80)
+        add_string('- ' + arr_error[i, 3, j])
+      next
+    next
+    fclose(fp)
+    close databases
+    viewtext(name_file, , , , .t., , , 5)
+  endif
   close databases
-  viewtext(name_file, ,, ,.t., ,, 5)
-endif
-close databases
-rest_box(buf)
-return len(arr_error) == 0
+  rest_box(buf)
+  return len(arr_error) == 0
 
 // 13.12.21 проверить год, если вдруг 'сбита' системная дата в компьютере
-Static Function _263_verify_year(mdate, arr)
+Function _263_verify_year(mdate, arr)
   local end_year := WORK_YEAR + iif(month(sys_date) == 12, 1, 0)
 
   if !between(year(mdate), 2019, end_year)
@@ -1020,34 +1039,36 @@ Function _263_valid_phone(k, s, ta)
 
 // 15.01.19 Составление информационных пакетов для отправкой в ТФОМС
 Function _263_to_sostavlenie()
-Local i, j, k, mnn, nfile,  arr_f := {}, name_txt, file_error, buf := save_maxrow(), ;
+  Local i, j, k, mnn, nfile,  arr_f := {}, name_txt, file_error, buf := save_maxrow(), ;
       arr_i01 := {}, arr_i03 := {}, arr_i04 := {}, arr_i05 := {}, arr_i06 := {}, ;
       fl_error := .f., yes_i07 := .f.
-if empty(dir_263_to)
-  return func_error(4, 'Не настроен каталог обмена в режиме "Настройка каталогов"')
-endif
-if !_263_to_proverka(.f.,@yes_i07)
-  return NIL
-endif
-if !mo_Lock_Task(X_263)
-  return NIL
-endif
-mywait()
-//
-Private cFileProtokol := 'tmp'+stxt, cTimeBegin := hour_min(seconds())
-name_txt := dtos(sys_date)+'_'+charrem(':',padr(sectotime(seconds()), 8))+stxt
-//
-R_Use(dir_server + 'mo_pers', ,'P2')
-R_Use(dir_server + 'kartote2', ,'KART2')
-R_Use(dir_server + 'kartote_', ,'KART_')
-R_Use(dir_server + 'kartotek', ,'KART')
-set relation to recno() into KART_, to recno() into KART2
-G_Use(dir_server + 'mo_nfina', ,'NFN')
-G_Use(dir_server + 'mo_nfile', ,'NF')
-index on str(tip_f, 1)+dtos(date_r)+str(in_out, 1)+str(nn, 4) to (cur_dir + 'tmp_nf')
-G_Use(dir_server + 'mo_nnapr', ,'NAPR')
-set relation to kod_k into KART
-// I01
+
+  if empty(dir_263_to)
+    return func_error(4, 'Не настроен каталог обмена в режиме "Настройка каталогов"')
+  endif
+  if !_263_to_proverka(.f., @yes_i07)
+    return NIL
+  endif
+  if !mo_Lock_Task(X_263)
+    return NIL
+  endif
+  mywait()
+  //
+  Private cFileProtokol := cur_dir + 'tmp' + stxt, cTimeBegin := hour_min(seconds())
+  name_txt := dtos(sys_date) + '_' + charrem(':', padr(sectotime(seconds()), 8)) + stxt
+  //
+  R_Use(dir_server + 'mo_pers', , 'P2')
+  R_Use(dir_server + 'kartote2', , 'KART2')
+  R_Use(dir_server + 'kartote_', , 'KART_')
+  R_Use(dir_server + 'kartotek', , 'KART')
+  set relation to recno() into KART_, to recno() into KART2
+  G_Use(dir_server + 'mo_nfina', , 'NFN')
+  G_Use(dir_server + 'mo_nfile', , 'NF')
+  index on str(tip_f, 1) + dtos(date_r) + str(in_out, 1) + str(nn, 4) to (cur_dir + 'tmp_nf')
+  G_Use(dir_server + 'mo_nnapr', , 'NAPR')
+  set relation to kod_k into KART
+  
+  // I01
 select NAPR
 index on kod to (cur_dir + 'tmp_napr') for n_napr > 0 .and. empty(KOD_F_1out)
 go top
@@ -1055,23 +1076,23 @@ do while !eof()
   if (i := ascan(arr_i01, {|x| x[1] == napr->DATE_D })) == 0
     aadd(arr_i01, {napr->DATE_D, {}}) ; i := len(arr_i01)
   endif
-  aadd(arr_i01[i, 2],napr->kod)
+  aadd(arr_i01[i, 2], napr->kod)
   select NAPR
   skip
 enddo
 for i := 1 to len(arr_i01)
   mnn := 0
   select NF
-  find ('1'+dtos(arr_i01[i, 1])+'1')
+  find ('1'+dtos(arr_i01[i, 1]) + '1')
   do while nf->tip_f==1 .and. nf->date_r==arr_i01[i, 1] .and. nf->in_out==1 .and. !eof()
     mnn := nf->nn
     skip
   enddo
   ++mnn // номер пакета
-  nfile := 'I01T34M'+glob_mo[_MO_KOD_TFOMS]+'_'+;
-           right(str(year(arr_i01[i, 1]), 4), 2)+;
-           strzero(month(arr_i01[i, 1]), 2)+;
-           strzero(day(arr_i01[i, 1]), 2)+;
+  nfile := 'I01T34M'+glob_mo[_MO_KOD_TFOMS]+'_'+ ;
+           right(str(year(arr_i01[i, 1]), 4), 2)+ ;
+           strzero(month(arr_i01[i, 1]), 2)+ ;
+           strzero(day(arr_i01[i, 1]), 2)+ ;
            lstr(mnn)
   select NF
   AddRec(1)
@@ -1108,7 +1129,7 @@ for i := 1 to len(arr_i01)
     napr->T_ANS_1 := 0
     napr->DATE_R := kart->date_r // дата рождения
     napr->SEX := iif(kart->pol=='М', 1, 2) // пол
-    napr->ENP := iif(kart_->VPOLIS==3,kart_->NPOLIS,'') // единый номер полиса ОМС
+    napr->ENP := iif(kart_->VPOLIS==3, kart_->NPOLIS,'') // единый номер полиса ОМС
     p2->(dbGoto(napr->VRACH_1))
     //
     select NFN
@@ -1128,7 +1149,7 @@ for i := 1 to len(arr_i01)
      mo_add_xml_stroke(oDir,'MO_H', napr->S_MCOD)
      mo_add_xml_stroke(oDir,'LPU_H', napr->S_CODEM)
      mo_add_xml_stroke(oDir,'USL_OK', lstr(iif(napr->usl_ok_1==2, 2, 1)))
-     ar := _263_pr_prk(napr->PROFIL_K_1,napr->PROFIL_1,nf->DATE_R)
+     ar := _263_pr_prk(napr->PROFIL_K_1, napr->PROFIL_1,nf->DATE_R)
      mo_add_xml_stroke(oDir,'PROFIL', ar[1])
      mo_add_xml_stroke(oDir,'PROFIL_K', ar[2])
      mo_add_xml_stroke(oDir,'DS', napr->DS_1)
@@ -1149,14 +1170,14 @@ for i := 1 to len(arr_i01)
       endif
       mo_add_xml_stroke(oPAC,'TYPE_P', lstr(kart_->VPOLIS))
       if !empty(kart_->SPOLIS)
-        mo_add_xml_stroke(oPAC,'SER_P',kart_->SPOLIS)
+        mo_add_xml_stroke(oPAC,'SER_P', kart_->SPOLIS)
       endif
-      mo_add_xml_stroke(oPAC,'NUM_P',kart_->NPOLIS)
+      mo_add_xml_stroke(oPAC,'NUM_P', kart_->NPOLIS)
       if kart_->VPOLIS == 3
-        mo_add_xml_stroke(oPAC,'ENP',kart_->NPOLIS)
+        mo_add_xml_stroke(oPAC,'ENP', kart_->NPOLIS)
       endif
       if empty(cSMOname)
-        mo_add_xml_stroke(oPAC,'SMO' ,kart_->smo)
+        mo_add_xml_stroke(oPAC,'SMO' , kart_->smo)
       else
         mo_add_xml_stroke(oPAC,'NAME_SMO',cSMOname)
       endif
@@ -1167,12 +1188,12 @@ for i := 1 to len(arr_i01)
       mo_add_xml_stroke(oPAC,'REG_OMS',mokato)
       oCon := oPAC:Add( HXMLNode():New( 'CONTACT' ) )
       if !empty(kart_->PHONE_M)
-        mo_add_xml_stroke(oCon,'TEL_M',left(kart_->PHONE_M, 1)+'-'+substr(kart_->PHONE_M, 2, 3)+'-'+substr(kart_->PHONE_M, 5))
+        mo_add_xml_stroke(oCon,'TEL_M',left(kart_->PHONE_M, 1) + '-'+substr(kart_->PHONE_M, 2, 3) + '-'+substr(kart_->PHONE_M, 5))
       endif
       if !empty(kart_->PHONE_H)
-        mo_add_xml_stroke(oCon,'TEL_F',left(kart_->PHONE_H, 1)+'-'+substr(kart_->PHONE_H, 2, 4)+'-'+substr(kart_->PHONE_H, 6))
+        mo_add_xml_stroke(oCon,'TEL_F',left(kart_->PHONE_H, 1) + '-'+substr(kart_->PHONE_H, 2, 4) + '-'+substr(kart_->PHONE_H, 6))
       elseif !empty(kart_->PHONE_W)
-        mo_add_xml_stroke(oCon,'TEL_F',left(kart_->PHONE_W, 1)+'-'+substr(kart_->PHONE_W, 2, 4)+'-'+substr(kart_->PHONE_W, 6))
+        mo_add_xml_stroke(oCon,'TEL_F',left(kart_->PHONE_W, 1) + '-'+substr(kart_->PHONE_W, 2, 4) + '-'+substr(kart_->PHONE_W, 6))
       endif
   next
   oXmlDoc:Save(nfile+sxml)
@@ -1206,23 +1227,23 @@ for k := 2 to 3
       if (i := ascan(arr_i03, {|x| x[1] == napr->DATE_3 })) == 0
         aadd(arr_i03, {napr->DATE_3, {}}) ; i := len(arr_i03)
       endif
-      aadd(arr_i03[i, 2],napr->kod)
+      aadd(arr_i03[i, 2], napr->kod)
       select NAPR
       skip
     enddo
     for i := 1 to len(arr_i03)
       mnn := 0
       select NF
-      find ('3'+dtos(arr_i03[i, 1])+'1')
+      find ('3'+dtos(arr_i03[i, 1]) + '1')
       do while nf->tip_f==3 .and. nf->date_r==arr_i03[i, 1] .and. nf->in_out==1 .and. !eof()
         mnn := nf->nn
         skip
       enddo
       ++mnn // номер пакета
-      nfile := 'I03T34M'+glob_mo[_MO_KOD_TFOMS]+'_'+;
-               right(str(year(arr_i03[i, 1]), 4), 2)+;
-               strzero(month(arr_i03[i, 1]), 2)+;
-               strzero(day(arr_i03[i, 1]), 2)+;
+      nfile := 'I03T34M'+glob_mo[_MO_KOD_TFOMS]+'_'+ ;
+               right(str(year(arr_i03[i, 1]), 4), 2)+ ;
+               strzero(month(arr_i03[i, 1]), 2)+ ;
+               strzero(day(arr_i03[i, 1]), 2)+ ;
                lstr(mnn)
       select NF
       AddRec(1)
@@ -1295,23 +1316,23 @@ if !fl_error
     if (i := ascan(arr_i04, {|x| x[1] == napr->DATE_H_4 })) == 0
       aadd(arr_i04, {napr->DATE_H_4, {}}) ; i := len(arr_i04)
     endif
-    aadd(arr_i04[i, 2],napr->kod)
+    aadd(arr_i04[i, 2], napr->kod)
     select NAPR
     skip
   enddo
   for i := 1 to len(arr_i04)
     mnn := 0
     select NF
-    find ('4'+dtos(arr_i04[i, 1])+'1')
+    find ('4'+dtos(arr_i04[i, 1]) + '1')
     do while nf->tip_f==4 .and. nf->date_r==arr_i04[i, 1] .and. nf->in_out==1 .and. !eof()
       mnn := nf->nn
       skip
     enddo
     ++mnn // номер пакета
-    nfile := 'I04T34M'+glob_mo[_MO_KOD_TFOMS]+'_'+;
-             right(str(year(arr_i04[i, 1]), 4), 2)+;
-             strzero(month(arr_i04[i, 1]), 2)+;
-             strzero(day(arr_i04[i, 1]), 2)+;
+    nfile := 'I04T34M'+glob_mo[_MO_KOD_TFOMS]+'_'+ ;
+             right(str(year(arr_i04[i, 1]), 4), 2)+ ;
+             strzero(month(arr_i04[i, 1]), 2)+ ;
+             strzero(day(arr_i04[i, 1]), 2)+ ;
              lstr(mnn)
     select NF
     AddRec(1)
@@ -1348,7 +1369,7 @@ if !fl_error
       napr->T_ANS_4 := 0
       napr->DATE_R := kart->date_r // дата рождения
       napr->SEX := iif(kart->pol=='М', 1, 2) // пол
-      napr->ENP := iif(kart_->VPOLIS==3,kart_->NPOLIS,'') // единый номер полиса ОМС
+      napr->ENP := iif(kart_->VPOLIS==3, kart_->NPOLIS,'') // единый номер полиса ОМС
       //
       select NFN
       append blank
@@ -1370,10 +1391,10 @@ if !fl_error
        mo_add_xml_stroke(oDir,'MO_D', ret_mo(napr->CODEM_FROM)[_MO_KOD_FFOMS])
        mo_add_xml_stroke(oDir,'LPU_D', napr->CODEM_FROM)
        mo_add_xml_stroke(oDir,'DATE_H', date2xml(napr->DATE_H_4))
-       mo_add_xml_stroke(oDir,'TIME_H', charrepl(':',napr->TIME_H_4,'-'))
+       mo_add_xml_stroke(oDir,'TIME_H', charrepl(':', napr->TIME_H_4,'-'))
        mo_add_xml_stroke(oDir,'DS', napr->DS_4)
        mo_add_xml_stroke(oDir,'F_MEDC', lstr(napr->F_MEDC_4))
-       ar := _263_pr_prk(napr->PROFIL_K_4,napr->PROFIL_4,nf->DATE_R)
+       ar := _263_pr_prk(napr->PROFIL_K_4, napr->PROFIL_4,nf->DATE_R)
        mo_add_xml_stroke(oDir,'PROFIL', ar[1])
        mo_add_xml_stroke(oDir,'PROFIL_K', ar[2])
        mo_add_xml_stroke(oDir,'NUM_HIST', napr->NUM_HIST_4)
@@ -1390,14 +1411,14 @@ if !fl_error
         endif
         mo_add_xml_stroke(oPAC,'TYPE_P', lstr(kart_->VPOLIS))
         if !empty(kart_->SPOLIS)
-          mo_add_xml_stroke(oPAC,'SER_P',kart_->SPOLIS)
+          mo_add_xml_stroke(oPAC,'SER_P', kart_->SPOLIS)
         endif
-        mo_add_xml_stroke(oPAC,'NUM_P',kart_->NPOLIS)
+        mo_add_xml_stroke(oPAC,'NUM_P', kart_->NPOLIS)
         if kart_->VPOLIS == 3
-          mo_add_xml_stroke(oPAC,'ENP',kart_->NPOLIS)
+          mo_add_xml_stroke(oPAC,'ENP', kart_->NPOLIS)
         endif
         if empty(cSMOname)
-          mo_add_xml_stroke(oPAC,'SMO' ,kart_->smo)
+          mo_add_xml_stroke(oPAC,'SMO' , kart_->smo)
         else
           mo_add_xml_stroke(oPAC,'NAME_SMO',cSMOname)
         endif
@@ -1430,23 +1451,23 @@ if !fl_error
     if (i := ascan(arr_i05, {|x| x[1] == napr->DATE_H_4 })) == 0
       aadd(arr_i05, {napr->DATE_H_4, {}}) ; i := len(arr_i05)
     endif
-    aadd(arr_i05[i, 2],napr->kod)
+    aadd(arr_i05[i, 2], napr->kod)
     select NAPR
     skip
   enddo
   for i := 1 to len(arr_i05)
     mnn := 0
     select NF
-    find ('5'+dtos(arr_i05[i, 1])+'1')
+    find ('5'+dtos(arr_i05[i, 1]) + '1')
     do while nf->tip_f==5 .and. nf->date_r==arr_i05[i, 1] .and. nf->in_out==1 .and. !eof()
       mnn := nf->nn
       skip
     enddo
     ++mnn // номер пакета
-    nfile := 'I05T34M'+glob_mo[_MO_KOD_TFOMS]+'_'+;
-             right(str(year(arr_i05[i, 1]), 4), 2)+;
-             strzero(month(arr_i05[i, 1]), 2)+;
-             strzero(day(arr_i05[i, 1]), 2)+;
+    nfile := 'I05T34M'+glob_mo[_MO_KOD_TFOMS]+'_'+ ;
+             right(str(year(arr_i05[i, 1]), 4), 2)+ ;
+             strzero(month(arr_i05[i, 1]), 2)+ ;
+             strzero(day(arr_i05[i, 1]), 2)+ ;
              lstr(mnn)
     select NF
     AddRec(1)
@@ -1483,7 +1504,7 @@ if !fl_error
       napr->T_ANS_4 := 0
       napr->DATE_R := kart->date_r // дата рождения
       napr->SEX := iif(kart->pol=='М', 1, 2) // пол
-      napr->ENP := iif(kart_->VPOLIS==3,kart_->NPOLIS,'') // единый номер полиса ОМС
+      napr->ENP := iif(kart_->VPOLIS==3, kart_->NPOLIS,'') // единый номер полиса ОМС
       //
       select NFN
       append blank
@@ -1498,10 +1519,10 @@ if !fl_error
       oDir := oMo_d:Add( HXMLNode():New( 'HOSP' ) )
        mo_add_xml_stroke(oDir,'ID_H', napr->id_4)
        mo_add_xml_stroke(oDir,'DATE_H', date2xml(napr->DATE_H_4))
-       mo_add_xml_stroke(oDir,'TIME_H', charrepl(':',napr->TIME_H_4,'-'))
+       mo_add_xml_stroke(oDir,'TIME_H', charrepl(':', napr->TIME_H_4,'-'))
        mo_add_xml_stroke(oDir,'DS', napr->DS_4)
        mo_add_xml_stroke(oDir,'F_MEDC', lstr(napr->F_MEDC_4))
-       ar := _263_pr_prk(napr->PROFIL_K_4,napr->PROFIL_4,nf->DATE_R)
+       ar := _263_pr_prk(napr->PROFIL_K_4, napr->PROFIL_4,nf->DATE_R)
        mo_add_xml_stroke(oDir,'PROFIL', ar[1])
        mo_add_xml_stroke(oDir,'PROFIL_K', ar[2])
        mo_add_xml_stroke(oDir,'NUM_HIST', napr->NUM_HIST_4)
@@ -1519,17 +1540,17 @@ if !fl_error
         if !empty(kart_->NPOLIS)
           mo_add_xml_stroke(oPAC,'TYPE_P', lstr(kart_->VPOLIS))
           if !empty(kart_->SPOLIS)
-            mo_add_xml_stroke(oPAC,'SER_P',kart_->SPOLIS)
+            mo_add_xml_stroke(oPAC,'SER_P', kart_->SPOLIS)
           endif
-          mo_add_xml_stroke(oPAC,'NUM_P',kart_->NPOLIS)
+          mo_add_xml_stroke(oPAC,'NUM_P', kart_->NPOLIS)
           if empty(cSMOname)
-            mo_add_xml_stroke(oPAC,'SMO' ,kart_->smo)
+            mo_add_xml_stroke(oPAC,'SMO' , kart_->smo)
             if kart_->VPOLIS == 3
-              mo_add_xml_stroke(oPAC,'ENP',kart_->NPOLIS)
+              mo_add_xml_stroke(oPAC,'ENP', kart_->NPOLIS)
             endif
           else
             if kart_->VPOLIS == 3
-              mo_add_xml_stroke(oPAC,'ENP',kart_->NPOLIS)
+              mo_add_xml_stroke(oPAC,'ENP', kart_->NPOLIS)
             endif
             mo_add_xml_stroke(oPAC,'NAME_SMO',cSMOname)
           endif
@@ -1564,23 +1585,23 @@ if !fl_error
     if (i := ascan(arr_i06, {|x| x[1] == napr->DATE_6 })) == 0
       aadd(arr_i06, {napr->DATE_6, {}}) ; i := len(arr_i06)
     endif
-    aadd(arr_i06[i, 2],napr->kod)
+    aadd(arr_i06[i, 2], napr->kod)
     select NAPR
     skip
   enddo
   for i := 1 to len(arr_i06)
     mnn := 0
     select NF
-    find ('6'+dtos(arr_i06[i, 1])+'1')
+    find ('6'+dtos(arr_i06[i, 1]) + '1')
     do while nf->tip_f==6 .and. nf->date_r==arr_i06[i, 1] .and. nf->in_out==1 .and. !eof()
       mnn := nf->nn
       skip
     enddo
     ++mnn // номер пакета
-    nfile := 'I06T34M'+glob_mo[_MO_KOD_TFOMS]+'_'+;
-             right(str(year(arr_i06[i, 1]), 4), 2)+;
-             strzero(month(arr_i06[i, 1]), 2)+;
-             strzero(day(arr_i06[i, 1]), 2)+;
+    nfile := 'I06T34M'+glob_mo[_MO_KOD_TFOMS]+'_'+ ;
+             right(str(year(arr_i06[i, 1]), 4), 2)+ ;
+             strzero(month(arr_i06[i, 1]), 2)+ ;
+             strzero(day(arr_i06[i, 1]), 2)+ ;
              lstr(mnn)
     select NF
     AddRec(1)
@@ -1627,7 +1648,7 @@ if !fl_error
        mo_add_xml_stroke(oDir,'DATE_H', date2xml(napr->DATE_H_4))
        mo_add_xml_stroke(oDir,'DATE_D', date2xml(napr->DATE_6))
        mo_add_xml_stroke(oDir,'F_MEDC', lstr(napr->F_MEDC_4))
-       ar := _263_pr_prk(napr->PROFIL_K_4,napr->PROFIL_4,nf->DATE_R)
+       ar := _263_pr_prk(napr->PROFIL_K_4, napr->PROFIL_4,nf->DATE_R)
        mo_add_xml_stroke(oDir,'PROFIL', ar[1])
        mo_add_xml_stroke(oDir,'PROFIL_K', ar[2])
        mo_add_xml_stroke(oDir,'USL_OK', lstr(iif(napr->usl_ok_4==2, 2, 1)))
@@ -1638,12 +1659,12 @@ if !fl_error
        endif
        mo_add_xml_stroke(oDir,'NUM_HIST', napr->NUM_HIST_4)
        oPAC := oDir:Add( HXMLNode():New( 'PATIENT' ) )
-        mo_add_xml_stroke(oPAC,'BIRTHDAY',date2xml(iif(empty(napr->DATE_R),kart->date_r,napr->DATE_R)))
+        mo_add_xml_stroke(oPAC,'BIRTHDAY',date2xml(iif(empty(napr->DATE_R),kart->date_r, napr->DATE_R)))
         mo_add_xml_stroke(oPAC,'SEX',iif(empty(napr->SEX),iif(kart->pol=='М','1','2'), lstr(napr->SEX)))
         if !empty(napr->ENP)
-          mo_add_xml_stroke(oPAC,'ENP',napr->ENP)
+          mo_add_xml_stroke(oPAC,'ENP', napr->ENP)
         elseif kart_->VPOLIS == 3
-          mo_add_xml_stroke(oPAC,'ENP',kart_->NPOLIS)
+          mo_add_xml_stroke(oPAC,'ENP', kart_->NPOLIS)
         endif
     next
     oXmlDoc:Save(nfile+sxml)
@@ -1678,9 +1699,9 @@ if !fl_error .and. yes_i07
     G_RLock(.t.,forever) // бесконечная попытка добавить запись
     nf->KOD := recno()            // код файла
   endif
-  nfile += '_'+right(str(year(d7->DATE_R_EDI), 4), 2)+;
-           strzero(month(d7->DATE_R_EDI), 2)+;
-           strzero(day(d7->DATE_R_EDI), 2)+'1'
+  nfile += '_'+right(str(year(d7->DATE_R_EDI), 4), 2)+ ;
+           strzero(month(d7->DATE_R_EDI), 2)+ ;
+           strzero(day(d7->DATE_R_EDI), 2) + '1'
   nf->DATE_F := sys_date        // дата файла
   nf->NAME_F := nfile           // имя файла без расширения (и ZIP-архива)
   nf->DATE_R := d7->DATE_R_EDI  // отчётная дата
@@ -1707,7 +1728,7 @@ if !fl_error .and. yes_i07
     mo_add_xml_stroke(oMo_d,'LPU', glob_mo[_MO_KOD_TFOMS])
   //
   G_Use(dir_server + 'mo_n7out', ,'N7')
-  index on padr(inieditspr(A__MENUVERT, arr_t007, n7->PROFIL_K), 60)+str(n7->PROFIL_K, 3)+;
+  index on padr(inieditspr(A__MENUVERT, arr_t007, n7->PROFIL_K), 60)+str(n7->PROFIL_K, 3)+ ;
            padr(inieditspr(A__MENUVERT, getV002(), n7->PROFIL), 20)+str(n7->PROFIL, 3) to (cur_dir + 'tmp_n7')
   _263_put_10_days(nf->DATE_R)
   select N7
@@ -1780,29 +1801,29 @@ if fl_error
   Commit
 endif
 if len(arr_f) > 0 .or. fl_error
-  strfile(space(10)+'Протокол создания информационных пакетов для ТФОМС'+;
+  strfile(space(10) + 'Протокол создания информационных пакетов для ТФОМС'+ ;
           hb_eol(),cFileProtokol)
-  strfile(space(10)+full_date(sys_date)+'г. '+cTimeBegin+;
+  strfile(space(10)+full_date(sys_date) + 'г. '+cTimeBegin+ ;
           hb_eol(),cFileProtokol,.t.)
   if len(arr_f) > 0
     asort(arr_f, ,, {|x,y| x[1] < y[1] })
     for i := 1 to len(arr_f)
       chip_copy_zipXML(dir_server+dir_NAPR_MO+cslash+arr_f[i, 1]+szip, left(dir_263_to,len(dir_263_to)-1))
-      strfile(hb_eol()+;
-              'Создан файл пакета '+arr_f[i, 1]+iif(arr_f[i, 2]==0,'',' - ' + lstr(arr_f[i, 2])+' чел.')+;
+      strfile(hb_eol()+ ;
+              'Создан файл пакета '+arr_f[i, 1]+iif(arr_f[i, 2]==0,'',' - ' + lstr(arr_f[i, 2]) + ' чел.')+ ;
               hb_eol(),cFileProtokol,.t.)
     next
   endif
   if fl_error
-    strfile(hb_eol()+;
-            'Произошла ошибка при создании файла пакета '+file_error+hb_eol()+;
-            'Обратитесь к разработчикам!'+;
+    strfile(hb_eol()+ ;
+            'Произошла ошибка при создании файла пакета '+file_error+hb_eol()+ ;
+            'Обратитесь к разработчикам!'+ ;
             hb_eol(),cFileProtokol,.t.)
   endif
   if len(arr_f) > 0
-    strfile(hb_eol()+;
-            'Все файлы информационных пакетов записаны в каталог обмена'+hb_eol()+;
-            dir_263_to+' для отправки в ТФОМС'+;
+    strfile(hb_eol()+ ;
+            'Все файлы информационных пакетов записаны в каталог обмена'+hb_eol()+ ;
+            dir_263_to+' для отправки в ТФОМС'+ ;
             hb_eol(),cFileProtokol,.t.)
     copy file (cFileProtokol) to (name_txt)
     // запишем файл протокола записи
@@ -1829,7 +1850,7 @@ use (cur_dir + 'tmp') new
 blk := {|x| s := Name_Without_Ext(StripPath(x)), ;
             dbAppend(), ;
             tmp->named := stod(left(s, 8)), ;
-            tmp->namet := left(right(s, 6), 2)+':'+left(right(s, 4), 2)+':'+right(s, 2), ;
+            tmp->namet := left(right(s, 6), 2) + ':'+left(right(s, 4), 2) + ':'+right(s, 2), ;
             tmp->txt_f := s }
 scandirfiles(dir_server+dir_NAPR_MO+cslash, '*'+stxt, blk )
 if lastrec() == 0
@@ -1923,7 +1944,7 @@ elseif k == 1
 elseif k == 2
   rest_box(buf)
 elseif k == 3
-  s := date_8(nf->dwork)+' '+nf->twork1
+  s := date_8(nf->dwork) + ' '+nf->twork1
   if empty(nf->TWORK2)
     s += ' ЗАПИСЬ НЕ ЗАВЕРШЕНА'
   elseif nf->T_ANS == 0
@@ -1950,8 +1971,8 @@ if regim == 'edit'
       if empty(nf->TWORK2)
         buf := savescreen()
         arr := {}
-        aadd(arr,'Файл '+alltrim(nf->name_f)+', отчётная дата ' + full_date(nf->date_r)+'г.')
-        aadd(arr,'количество пациентов ' + lstr(nf->kol)+' чел.')
+        aadd(arr,'Файл ' + alltrim(nf->name_f) + ', отчётная дата ' + full_date(nf->date_r) + 'г.')
+        aadd(arr,'количество пациентов ' + lstr(nf->kol) + ' чел.')
         aadd(arr,'')
         aadd(arr,'Аннулируется НЕЗАПИСАННЫЙ информационный пакет I01')
         aadd(arr,'')
@@ -1987,7 +2008,7 @@ if regim == 'edit'
       mywait()
       fp := fcreate(n_file) ; tek_stroke := 0 ; n_list := 1
       add_string('')
-      add_string('Файл '+alltrim(nf->name_f)+', отчётная дата ' + full_date(nf->date_r)+'г.')
+      add_string('Файл ' + alltrim(nf->name_f) + ', отчётная дата ' + full_date(nf->date_r) + 'г.')
       if empty(nf->TWORK2)
         add_string('ЗАПИСЬ НЕ ЗАВЕРШЕНА')
       elseif nf->T_ANS == 0
@@ -1995,7 +2016,7 @@ if regim == 'edit'
       elseif nf->T_ANS == 2
         add_string('ответ из ТФОМС получен - ОШИБКА')
       endif
-      add_string('количество пациентов ' + lstr(nf->kol)+' чел.')
+      add_string('количество пациентов ' + lstr(nf->kol) + ' чел.')
       add_string('')
       add_string('Это информационный пакет со сведениями о выписанных в поликлинике направлениях')
       R_Use(dir_server + 'kartote_', ,'_KART_')
@@ -2011,27 +2032,27 @@ if regim == 'edit'
       do while !eof()
         verify_FF(HH-5,.t.,sh)
         add_string('')
-        add_string(lstr(++i)+'. Направление № '+alltrim(napr->NUM_D)+' от '+date_8(napr->DATE_D))
+        add_string(lstr(++i) + '. Направление № ' + alltrim(napr->NUM_D) + ' от '+date_8(napr->DATE_D))
         if napr->S_CODEM == glob_mo[_MO_KOD_TFOMS]
-          add_string(space(3)+'в стационар нашего МО')
+          add_string(space(3) + 'в стационар нашего МО')
         else
-          add_string(space(3)+'в стационар МО '+ret_mo(napr->S_CODEM)[_MO_SHORT_NAME])
+          add_string(space(3) + 'в стационар МО '+ret_mo(napr->S_CODEM)[_MO_SHORT_NAME])
         endif
-        add_string(space(3)+alltrim(_kart->fio)+', д.р.' + full_date(_kart->date_r))
-        add_string(space(3)+'планируемая дата госпитализации '+date_8(napr->DATE_H_1)+' по диагнозу '+alltrim(napr->DS_1))
-        add_string(space(3)+inieditspr(A__MENUVERT, arr_t007, napr->PROFIL_K_1)+;
-                                     ' ('+inieditspr(A__MENUVERT, getV002(), napr->PROFIL_1)+')')
+        add_string(space(3)+alltrim(_kart->fio) + ', д.р.' + full_date(_kart->date_r))
+        add_string(space(3) + 'планируемая дата госпитализации '+date_8(napr->DATE_H_1) + ' по диагнозу ' + alltrim(napr->DS_1))
+        add_string(space(3)+inieditspr(A__MENUVERT, arr_t007, napr->PROFIL_K_1)+ ;
+                                     ' ('+inieditspr(A__MENUVERT, getV002(), napr->PROFIL_1) + ')')
         select NFN
         find (str(napr->kod, 6))
         if found() .and. nfn->OSHIB > 0
           s := space(3) + 'ОШИБКА ' + lstr(nfn->OSHIB) + ' - ' + inieditspr(A__MENUVERT, getT008(), nfn->OSHIB)
           if !empty(nfn->IM_POL)
-            s += ' (в поле '+alltrim(nfn->IM_POL)+')'
+            s += ' (в поле ' + alltrim(nfn->IM_POL) + ')'
           endif
           add_string(s)
         endif
         if napr->t_ans_1 == 2
-          add_string(space(3)+'ответ из ТФОМС получен - ОШИБКА ещё не отредактирована')
+          add_string(space(3) + 'ответ из ТФОМС получен - ОШИБКА ещё не отредактирована')
         endif
         select NAPR
         skip
@@ -2099,8 +2120,8 @@ if regim == 'edit'
       if empty(nf->TWORK2)
         buf := savescreen()
         arr := {}
-        aadd(arr,'Файл '+alltrim(nf->name_f)+', отчётная дата ' + full_date(nf->date_r)+'г.')
-        aadd(arr,'количество пациентов ' + lstr(nf->kol)+' чел.')
+        aadd(arr,'Файл ' + alltrim(nf->name_f) + ', отчётная дата ' + full_date(nf->date_r) + 'г.')
+        aadd(arr,'количество пациентов ' + lstr(nf->kol) + ' чел.')
         aadd(arr,'')
         aadd(arr,'Аннулируется НЕЗАПИСАННЫЙ информационный пакет I03')
         aadd(arr,'')
@@ -2136,7 +2157,7 @@ if regim == 'edit'
       mywait()
       fp := fcreate(n_file) ; tek_stroke := 0 ; n_list := 1
       add_string('')
-      add_string('Файл '+alltrim(nf->name_f)+', отчётная дата ' + full_date(nf->date_r)+'г.')
+      add_string('Файл ' + alltrim(nf->name_f) + ', отчётная дата ' + full_date(nf->date_r) + 'г.')
       if empty(nf->TWORK2)
         add_string('ЗАПИСЬ НЕ ЗАВЕРШЕНА')
       elseif nf->T_ANS == 0
@@ -2144,7 +2165,7 @@ if regim == 'edit'
       elseif nf->T_ANS == 2
         add_string('ответ из ТФОМС получен - ОШИБКА')
       endif
-      add_string('количество пациентов ' + lstr(nf->kol)+' чел.')
+      add_string('количество пациентов ' + lstr(nf->kol) + ' чел.')
       add_string('')
       add_string('Это информационный пакет с аннулированными направлениями')
       R_Use(dir_server + 'kartote_', ,'_KART_')
@@ -2160,23 +2181,23 @@ if regim == 'edit'
       do while !eof()
         verify_FF(HH-5,.t.,sh)
         add_string('')
-        add_string(lstr(++i)+'. Направление № '+alltrim(napr->NUM_D)+' от '+date_8(napr->DATE_D))
+        add_string(lstr(++i) + '. Направление № ' + alltrim(napr->NUM_D) + ' от '+date_8(napr->DATE_D))
         if napr->TIP_ANNUL == 3
           if napr->S_CODEM == glob_mo[_MO_KOD_TFOMS]
-            add_string(space(3)+'в стационар нашего МО')
+            add_string(space(3) + 'в стационар нашего МО')
           else
-            add_string(space(3)+'в стационар МО '+ret_mo(napr->S_CODEM)[_MO_SHORT_NAME])
+            add_string(space(3) + 'в стационар МО '+ret_mo(napr->S_CODEM)[_MO_SHORT_NAME])
           endif
-          add_string(space(3)+'направление аннулировано в нашей ПОЛИКЛИНИКЕ')
+          add_string(space(3) + 'направление аннулировано в нашей ПОЛИКЛИНИКЕ')
         else
           if napr->CODEM_1 == glob_mo[_MO_KOD_TFOMS]
-            add_string(space(3)+'из поликлиники нашего МО')
+            add_string(space(3) + 'из поликлиники нашего МО')
           else
-            add_string(space(3)+'из поликлиники МО '+ret_mo(napr->CODEM_1)[_MO_SHORT_NAME])
+            add_string(space(3) + 'из поликлиники МО '+ret_mo(napr->CODEM_1)[_MO_SHORT_NAME])
           endif
-          add_string(space(3)+'направление аннулировано в нашем СТАЦИОНАРЕ')
+          add_string(space(3) + 'направление аннулировано в нашем СТАЦИОНАРЕ')
         endif
-        add_string(space(3)+alltrim(_kart->fio)+', д.р.' + full_date(_kart->date_r))
+        add_string(space(3)+alltrim(_kart->fio) + ', д.р.' + full_date(_kart->date_r))
         add_string(space(3) + 'форма оказания медицинской помощи - ' + inieditspr(A__MENUVERT, getV014(), napr->F_MEDC_1))
         add_string(space(3) + inieditspr(A__MENUVERT, arr_t007, napr->PROFIL_K_1) + ;
                                      ' (' + inieditspr(A__MENUVERT, getV002(), napr->PROFIL_1) + ')')
@@ -2187,12 +2208,12 @@ if regim == 'edit'
         if found() .and. nfn->OSHIB > 0
           s := space(3) + 'ОШИБКА ' + lstr(nfn->OSHIB) + ' - ' + inieditspr(A__MENUVERT, getT008(), nfn->OSHIB)
           if !empty(nfn->IM_POL)
-            s += ' (в поле '+alltrim(nfn->IM_POL)+')'
+            s += ' (в поле ' + alltrim(nfn->IM_POL) + ')'
           endif
           add_string(s)
         endif
         if napr->t_ans_3 == 2
-          add_string(space(3)+'ответ из ТФОМС получен - ОШИБКА ещё не отредактирована')
+          add_string(space(3) + 'ответ из ТФОМС получен - ОШИБКА ещё не отредактирована')
         endif
         select NAPR
         skip
@@ -2225,13 +2246,13 @@ go top
 if eof()
   close databases
   G_SUnLock(str_sem)
-  return func_error(4,'Пока не было записи пакетов I0' + lstr(ppaket)+' в ТФОМС')
+  return func_error(4,'Пока не было записи пакетов I0' + lstr(ppaket) + ' в ТФОМС')
 endif
 t_arr[BR_TOP] := T_ROW
 t_arr[BR_BOTTOM] := maxrow()-1
 t_arr[BR_LEFT] := 0
 t_arr[BR_RIGHT] := 79
-t_arr[BR_TITUL] := 'Информационные пакеты I0' + lstr(ppaket)+', отправленные в ТФОМС'
+t_arr[BR_TITUL] := 'Информационные пакеты I0' + lstr(ppaket) + ', отправленные в ТФОМС'
 t_arr[BR_TITUL_COLOR] := 'B/BG'
 t_arr[BR_COLOR] := color0
 t_arr[BR_ARR_BROWSE] := {'═','░','═','N/BG,W+/N,B/BG,W+/B,RB/BG,W+/RB,R/BG,W+/R',.t.}
@@ -2260,8 +2281,8 @@ if regim == 'edit'
       if empty(nf->TWORK2)
         buf := savescreen()
         arr := {}
-        aadd(arr,'Файл '+alltrim(nf->name_f)+', отчётная дата ' + full_date(nf->date_r)+'г.')
-        aadd(arr,'количество пациентов ' + lstr(nf->kol)+' чел.')
+        aadd(arr,'Файл ' + alltrim(nf->name_f) + ', отчётная дата ' + full_date(nf->date_r) + 'г.')
+        aadd(arr,'количество пациентов ' + lstr(nf->kol) + ' чел.')
         aadd(arr,'')
         aadd(arr,'Аннулируется НЕЗАПИСАННЫЙ информационный пакет I0' + lstr(ppaket))
         aadd(arr,'')
@@ -2297,7 +2318,7 @@ if regim == 'edit'
       mywait()
       fp := fcreate(n_file) ; tek_stroke := 0 ; n_list := 1
       add_string('')
-      add_string('Файл '+alltrim(nf->name_f)+', отчётная дата ' + full_date(nf->date_r)+'г.')
+      add_string('Файл ' + alltrim(nf->name_f) + ', отчётная дата ' + full_date(nf->date_r) + 'г.')
       if empty(nf->TWORK2)
         add_string('ЗАПИСЬ НЕ ЗАВЕРШЕНА')
       elseif nf->T_ANS == 0
@@ -2305,7 +2326,7 @@ if regim == 'edit'
       elseif nf->T_ANS == 2
         add_string('ответ из ТФОМС получен - ОШИБКА')
       endif
-      add_string('количество пациентов ' + lstr(nf->kol)+' чел.')
+      add_string('количество пациентов ' + lstr(nf->kol) + ' чел.')
       add_string('')
       if ppaket == 4
         add_string('Это информационный пакет с госпитализациями по направлениям')
@@ -2325,7 +2346,7 @@ if regim == 'edit'
       do while !eof()
         verify_FF(HH-5,.t.,sh)
         add_string('')
-        add_string(lstr(++i)+'. '+alltrim(_kart->fio)+', д.р.' + full_date(_kart->date_r))
+        add_string(lstr(++i) + '. ' + alltrim(_kart->fio) + ', д.р.' + full_date(_kart->date_r))
         do case
           case napr->TYPE_H_4 == 1
             s := 'Направлен из '
@@ -2335,30 +2356,30 @@ if regim == 'edit'
               s += ret_mo(napr->CODEM_1)[_MO_SHORT_NAME]
             endif
             add_string(space(3)+s)
-            add_string(space(3)+'направление: № '+alltrim(napr->NUM_D)+' от ' + full_date(napr->DATE_D))
+            add_string(space(3) + 'направление: № ' + alltrim(napr->NUM_D) + ' от ' + full_date(napr->DATE_D))
           case napr->TYPE_H_4 == 2
-            add_string(space(3)+'Переведён из '+ret_mo(napr->CODEM_FROM)[_MO_SHORT_NAME])
+            add_string(space(3) + 'Переведён из '+ret_mo(napr->CODEM_FROM)[_MO_SHORT_NAME])
           case napr->TYPE_H_4 == 3
-            add_string(space(3)+'Переведён внутри МО из стационарного отделения в стационарное отделение')
+            add_string(space(3) + 'Переведён внутри МО из стационарного отделения в стационарное отделение')
         endcase
-        add_string(space(3)+'Дата фактической госпитализации ' + full_date(napr->DATE_H_4)+;
-                            ', время '+napr->TIME_H_4)
-        add_string(space(3)+'Диагноз приёмного отделения '+alltrim(napr->DS_4))
-        add_string(space(3)+inieditspr(A__MENUVERT, arr_t007, napr->PROFIL_K_4)+;
-                                     ' ('+inieditspr(A__MENUVERT, getV002(), napr->PROFIL_4)+')')
+        add_string(space(3) + 'Дата фактической госпитализации ' + full_date(napr->DATE_H_4)+ ;
+                            ', время ' + napr->TIME_H_4)
+        add_string(space(3) + 'Диагноз приёмного отделения ' + alltrim(napr->DS_4))
+        add_string(space(3)+inieditspr(A__MENUVERT, arr_t007, napr->PROFIL_K_4)+ ;
+                                     ' ('+inieditspr(A__MENUVERT, getV002(), napr->PROFIL_4) + ')')
         add_string(space(3) + 'Форма оказания медицинской помощи - ' + inieditspr(A__MENUVERT, getV014(), napr->F_MEDC_4))
-        add_string(space(3)+'Номер истории болезни - '+alltrim(napr->NUM_HIST_4))
+        add_string(space(3) + 'Номер истории болезни - ' + alltrim(napr->NUM_HIST_4))
         select NFN
         find (str(napr->kod, 6))
         if found() .and. nfn->OSHIB > 0
           s := space(3) + 'ОШИБКА ' + lstr(nfn->OSHIB) + ' - ' + inieditspr(A__MENUVERT, getT008(), nfn->OSHIB)
           if !empty(nfn->IM_POL)
-            s += ' (в поле '+alltrim(nfn->IM_POL)+')'
+            s += ' (в поле ' + alltrim(nfn->IM_POL) + ')'
           endif
           add_string(s)
         endif
         if napr->t_ans_4 == 2
-          add_string(space(3)+'ответ из ТФОМС получен - ОШИБКА ещё не отредактирована')
+          add_string(space(3) + 'ответ из ТФОМС получен - ОШИБКА ещё не отредактирована')
         endif
         select NAPR
         skip
@@ -2426,8 +2447,8 @@ if regim == 'edit'
       if empty(nf->TWORK2)
         buf := savescreen()
         arr := {}
-        aadd(arr,'Файл '+alltrim(nf->name_f)+', отчётная дата ' + full_date(nf->date_r)+'г.')
-        aadd(arr,'количество пациентов ' + lstr(nf->kol)+' чел.')
+        aadd(arr,'Файл ' + alltrim(nf->name_f) + ', отчётная дата ' + full_date(nf->date_r) + 'г.')
+        aadd(arr,'количество пациентов ' + lstr(nf->kol) + ' чел.')
         aadd(arr,'')
         aadd(arr,'Аннулируется НЕЗАПИСАННЫЙ информационный пакет I06')
         aadd(arr,'')
@@ -2463,7 +2484,7 @@ if regim == 'edit'
       mywait()
       fp := fcreate(n_file) ; tek_stroke := 0 ; n_list := 1
       add_string('')
-      add_string('Файл '+alltrim(nf->name_f)+', отчётная дата ' + full_date(nf->date_r)+'г.')
+      add_string('Файл ' + alltrim(nf->name_f) + ', отчётная дата ' + full_date(nf->date_r) + 'г.')
       if empty(nf->TWORK2)
         add_string('ЗАПИСЬ НЕ ЗАВЕРШЕНА')
       elseif nf->T_ANS == 0
@@ -2471,7 +2492,7 @@ if regim == 'edit'
       elseif nf->T_ANS == 2
         add_string('ответ из ТФОМС получен - ОШИБКА')
       endif
-      add_string('количество пациентов ' + lstr(nf->kol)+' чел.')
+      add_string('количество пациентов ' + lstr(nf->kol) + ' чел.')
       add_string('')
       add_string('Это информационный пакет с выписанными пациентами')
       R_Use(dir_server + 'kartote_', ,'_KART_')
@@ -2487,7 +2508,7 @@ if regim == 'edit'
       do while !eof()
         verify_FF(HH-5,.t.,sh)
         add_string('')
-        add_string(lstr(++i)+'. '+alltrim(_kart->fio)+', д.р.' + full_date(_kart->date_r))
+        add_string(lstr(++i) + '. ' + alltrim(_kart->fio) + ', д.р.' + full_date(_kart->date_r))
         do case
           case napr->TYPE_H_4 == 1
             s := 'Направлен из '
@@ -2497,32 +2518,32 @@ if regim == 'edit'
               s += ret_mo(napr->CODEM_1)[_MO_SHORT_NAME]
             endif
             add_string(space(3)+s)
-            add_string(space(3)+'направление: № '+alltrim(napr->NUM_D)+' от ' + full_date(napr->DATE_D))
+            add_string(space(3) + 'направление: № ' + alltrim(napr->NUM_D) + ' от ' + full_date(napr->DATE_D))
           case napr->TYPE_H_4 == 2
-            add_string(space(3)+'Переведён из '+ret_mo(napr->CODEM_FROM)[_MO_SHORT_NAME])
+            add_string(space(3) + 'Переведён из '+ret_mo(napr->CODEM_FROM)[_MO_SHORT_NAME])
           case napr->TYPE_H_4 == 3
-            add_string(space(3)+'Переведён внутри МО из стационарного отделения в стационарное отделение')
+            add_string(space(3) + 'Переведён внутри МО из стационарного отделения в стационарное отделение')
         endcase
-        add_string(space(3)+'Дата фактической госпитализации ' + full_date(napr->DATE_H_4)+;
-                            ', время '+napr->TIME_H_4)
-        add_string(space(3)+'Диагноз приёмного отделения '+alltrim(napr->DS_4))
-        add_string(space(3)+inieditspr(A__MENUVERT, arr_t007, napr->PROFIL_K_4)+;
-                                     ' ('+inieditspr(A__MENUVERT, getV002(), napr->PROFIL_4)+')')
+        add_string(space(3) + 'Дата фактической госпитализации ' + full_date(napr->DATE_H_4)+ ;
+                            ', время ' + napr->TIME_H_4)
+        add_string(space(3) + 'Диагноз приёмного отделения ' + alltrim(napr->DS_4))
+        add_string(space(3)+inieditspr(A__MENUVERT, arr_t007, napr->PROFIL_K_4)+ ;
+                                     ' ('+inieditspr(A__MENUVERT, getV002(), napr->PROFIL_4) + ')')
         add_string(space(3) + 'Форма оказания медицинской помощи - ' + inieditspr(A__MENUVERT, getV014(), napr->F_MEDC_4))
-        add_string(space(3)+'Номер истории болезни - '+alltrim(napr->NUM_HIST_4))
-        add_string(space(3)+'Тип выбытия - '+inieditspr(A__MENUVERT,mm_tip_vyb,napr->type_6))
-        add_string(space(3)+'Дата выбытия - ' + full_date(napr->date_6))
+        add_string(space(3) + 'Номер истории болезни - ' + alltrim(napr->NUM_HIST_4))
+        add_string(space(3) + 'Тип выбытия - '+inieditspr(A__MENUVERT,mm_tip_vyb, napr->type_6))
+        add_string(space(3) + 'Дата выбытия - ' + full_date(napr->date_6))
         select NFN
         find (str(napr->kod, 6))
         if found() .and. nfn->OSHIB > 0
           s := space(3) + 'ОШИБКА ' + lstr(nfn->OSHIB) + ' - ' + inieditspr(A__MENUVERT, getT008(), nfn->OSHIB)
           if !empty(nfn->IM_POL)
-            s += ' (в поле '+alltrim(nfn->IM_POL)+')'
+            s += ' (в поле ' + alltrim(nfn->IM_POL) + ')'
           endif
           add_string(s)
         endif
         if napr->t_ans_6 == 2
-          add_string(space(3)+'ответ из ТФОМС получен - ОШИБКА ещё не отредактирована')
+          add_string(space(3) + 'ответ из ТФОМС получен - ОШИБКА ещё не отредактирована')
         endif
         select NAPR
         skip
@@ -2671,9 +2692,9 @@ for i := 1 to len(af)
   endif
 next
 Private cFileProtokol := 'tmp'+stxt, cTimeBegin := hour_min(seconds())
-strfile(space(10)+'Протокол чтения информационных пакетов из ТФОМС'+hb_eol(),cFileProtokol)
-strfile(space(10)+full_date(sys_date)+'г. '+cTimeBegin+hb_eol(),cFileProtokol,.t.)
-name_txt := dtos(sys_date)+'_'+charrem(':',padr(sectotime(seconds()), 8))+stxt
+strfile(space(10) + 'Протокол чтения информационных пакетов из ТФОМС'+hb_eol(),cFileProtokol)
+strfile(space(10)+full_date(sys_date) + 'г. '+cTimeBegin+hb_eol(),cFileProtokol,.t.)
+name_txt := dtos(sys_date) + '_'+charrem(':',padr(sectotime(seconds()), 8))+stxt
 //
 G_Use(dir_server + 'mo_kfio', ,'KFIO')
 index on str(kod, 7) to (cur_dir + 'tmp_kfio')
@@ -2701,7 +2722,7 @@ for ii := 1 to len(arr_f)
     endif
   endif
   if empty(aerr)
-    strfile(hb_eol()+'Чтение файла '+cName+hb_eol(),cFileProtokol,.t.)
+    strfile(hb_eol() + 'Чтение файла '+cName+hb_eol(),cFileProtokol,.t.)
     stat_msg('Обрабатывается файл '+cName)
     if left(cName, 1) == 'R' //  протокол ответа на наш пакет
       type_paket := int(val(substr(cName, 4, 1)))
@@ -2709,8 +2730,8 @@ for ii := 1 to len(arr_f)
       index on upper(name_f) to (cur_dir + 'tmp_nf') for in_out == 1
       find (padr(substr(upper(cName), 2), 26)) // поиск нашего первичного пакета
       if found()
-        strfile(space(5)+'обрабатывается ПРОТОКОЛ обработки информационного пакета'+hb_eol()+;
-                space(5)+alltrim(nf->NAME_F)+' от '+date_8(nf->DATE_F)+'г. (отчётная дата '+date_8(nf->DATE_R)+'г.)'+;
+        strfile(space(5) + 'обрабатывается ПРОТОКОЛ обработки информационного пакета'+hb_eol()+ ;
+                space(5)+alltrim(nf->NAME_F) + ' от '+date_8(nf->DATE_F) + 'г. (отчётная дата '+date_8(nf->DATE_R) + 'г.)'+ ;
                 hb_eol(),cFileProtokol,.t.)
         if emptyany(nf->d_ans,nf->t_ans) // если ответа ещё не было
           is_read := .t.
@@ -2723,7 +2744,7 @@ for ii := 1 to len(arr_f)
           //
           if tmp1->OSHIB == 0 // файл уже был загружен в ТФОМС
             // ???????????????nf->T_ANS := 2  // тип ответа (2-ошибка)
-            aadd(aerr,'Файл '+alltrim(nf->NAME_F)+sxml+' уже был загружен в ТФОМС (а у нас нет информации об этом)?')
+            aadd(aerr,'Файл ' + alltrim(nf->NAME_F)+sxml+' уже был загружен в ТФОМС (а у нас нет информации об этом)?')
           elseif is_err // ошибки
             if tmp1->kol2 == 0
               select TMP2
@@ -2732,7 +2753,7 @@ for ii := 1 to len(arr_f)
                       space(5) + '- ' + lstr(tmp2->OSHIB) + ' - ' + inieditspr(A__MENUVERT, getT008(), tmp2->OSHIB) + ;
                       hb_eol(), cFileProtokol, .t.)
             else
-              strfile(space(5)+'обнаружены ошибки:'+hb_eol(),cFileProtokol,.t.)
+              strfile(space(5) + 'обнаружены ошибки:'+hb_eol(),cFileProtokol,.t.)
             endif
             do case
               case nf->TIP_F == 1
@@ -2800,7 +2821,7 @@ for ii := 1 to len(arr_f)
                       goto (napr->KOD_K)
                       strfile(space(5) + '- ' + alltrim(kart->fio) + ' д.р.' + full_date(kart->DATE_R) + hb_eol() + ;
                               space(7) + lstr(tmp2->OSHIB) + ' - ' + inieditspr(A__MENUVERT, getT008(), tmp2->OSHIB) + hb_eol() + ;
-                              space(7)+'ошибка в поле ' + tmp2->IM_POL + hb_eol() + ;
+                              space(7) + 'ошибка в поле ' + tmp2->IM_POL + hb_eol() + ;
                               hb_eol(), cFileProtokol, .t.)
                       nerr := 2
                       select NFN
@@ -2935,7 +2956,7 @@ for ii := 1 to len(arr_f)
             endcase
             nf->T_ANS := 2  // тип ответа (2-ошибка)
           else // нет ошибок
-            strfile(space(5)+'ошибок не обнаружено'+;
+            strfile(space(5) + 'ошибок не обнаружено'+ ;
                     hb_eol(),cFileProtokol,.t.)
             do case
               case nf->TIP_F == 1
@@ -2991,12 +3012,12 @@ for ii := 1 to len(arr_f)
           tmp2->(dbCloseArea())
           tmp1->(dbCloseArea())
         else
-          strfile(space(5)+'данный файл уже был прочитан (дата протокола ответа из ТФОМС '+date_8(nf->d_ans)+'г.)'+hb_eol()+;
-                  space(5)+iif(nf->t_ans==1, 'ошибок не обнаружено', 'обнаружены ошибки')+;
+          strfile(space(5) + 'данный файл уже был прочитан (дата протокола ответа из ТФОМС '+date_8(nf->d_ans) + 'г.)'+hb_eol()+ ;
+                  space(5)+iif(nf->t_ans==1, 'ошибок не обнаружено', 'обнаружены ошибки')+ ;
                   hb_eol(),cFileProtokol,.t.)
         endif
       elseif type_paket != 7
-        strfile(space(5)+'мы не отправляли в ТФОМС пакет '+substr(cName, 2)+;
+        strfile(space(5) + 'мы не отправляли в ТФОМС пакет '+substr(cName, 2)+ ;
                 hb_eol(),cFileProtokol,.t.)
         if '_' $ cName
           s := right(beforatnum('_',cName), 6)
@@ -3014,8 +3035,8 @@ for ii := 1 to len(arr_f)
       index on upper(name_f) to (cur_dir + 'tmp_nf') for in_out == 2
       find (padr(upper(cName), 26)) // поиск, м.б. уже читали?
       if found()
-        strfile(space(5)+'данный файл уже был прочитан '+date_8(nf->DWORK)+'г. в '+nf->TWORK2+;
-                iif(nf->kol==0, '', hb_eol()+space(5)+'количество пациентов - ' + lstr(nf->kol))+;
+        strfile(space(5) + 'данный файл уже был прочитан '+date_8(nf->DWORK) + 'г. в '+nf->TWORK2+ ;
+                iif(nf->kol==0, '', hb_eol()+space(5) + 'количество пациентов - ' + lstr(nf->kol))+ ;
                 hb_eol(),cFileProtokol,.t.)
       else
         s := substr(cName, 5, 6)
@@ -3084,18 +3105,18 @@ for ii := 1 to len(arr_f)
                   select TMP2
                   go top
                   do while !eof()
-                    mfio := alltrim(alltrim(tmp2->SURNAME)+' '+alltrim(tmp2->NAME)+' '+alltrim(tmp2->PATRONYMIC))
-                    strfile(space(5)+'- обрабатывается направление № '+alltrim(tmp2->NUM_D)+;
-                                     ' от '+date_8(tmp2->DATE_D)+hb_eol()+;
-                            space(7)+mfio+' д.р.' + full_date(tmp2->BIRTHDAY)+hb_eol()+;
-                            space(7)+'Условия оказания, в которые направляется пациент: '+;
-                                     iif(tmp2->usl_ok==2,'дневной ','')+'стационар'+hb_eol()+;
-                            space(7)+'Направление выдано по результатам диспансеризации/профосмотра взрослых: '+;
-                                     iif(tmp2->disp==1,'нет','да')+hb_eol()+;
-                            space(7)+'планируемая дата госпитализации '+date_8(tmp2->DATE_HOSP)+;
-                                     ' по диагнозу '+alltrim(tmp2->DS)+hb_eol()+;
-                            space(7)+inieditspr(A__MENUVERT, arr_t007, tmp2->PROFIL_K)+;
-                                     ' ('+inieditspr(A__MENUVERT, getV002(), tmp2->PROFIL)+')'+;
+                    mfio := alltrim(alltrim(tmp2->SURNAME) + ' ' + alltrim(tmp2->NAME) + ' ' + alltrim(tmp2->PATRONYMIC))
+                    strfile(space(5) + '- обрабатывается направление № ' + alltrim(tmp2->NUM_D)+ ;
+                                     ' от '+date_8(tmp2->DATE_D)+hb_eol()+ ;
+                            space(7)+mfio+' д.р.' + full_date(tmp2->BIRTHDAY)+hb_eol()+ ;
+                            space(7) + 'Условия оказания, в которые направляется пациент: '+ ;
+                                     iif(tmp2->usl_ok==2,'дневной ','') + 'стационар'+hb_eol()+ ;
+                            space(7) + 'Направление выдано по результатам диспансеризации/профосмотра взрослых: '+ ;
+                                     iif(tmp2->disp==1,'нет','да')+hb_eol()+ ;
+                            space(7) + 'планируемая дата госпитализации '+date_8(tmp2->DATE_HOSP)+ ;
+                                     ' по диагнозу ' + alltrim(tmp2->DS)+hb_eol()+ ;
+                            space(7)+inieditspr(A__MENUVERT, arr_t007, tmp2->PROFIL_K)+ ;
+                                     ' ('+inieditspr(A__MENUVERT, getV002(), tmp2->PROFIL) + ')'+ ;
                             hb_eol(),cFileProtokol,.t.)
                     m1kod_k := 0
                     select NAPR
@@ -3107,7 +3128,7 @@ for ii := 1 to len(arr_f)
                       endif
                     else
                       if sFrom == glob_mo[_MO_KOD_TFOMS] // направление из нашей п-ки
-                        strfile(space(7)+'это наше направление - почему-то не найдено в отправленных - добавляем'+;
+                        strfile(space(7) + 'это наше направление - почему-то не найдено в отправленных - добавляем'+ ;
                                 hb_eol(),cFileProtokol,.t.)
                       endif
                       G_RLock(.t.,forever) // бесконечная попытка добавить запись
@@ -3177,12 +3198,12 @@ for ii := 1 to len(arr_f)
                       kart->(dbGoto(napr->KOD_K))
                       mfio := alltrim(kart->fio)
                       //
-                      s := space(5)+'- обрабатывается направление № '+alltrim(napr->NUM_D)+' от '+date_8(napr->DATE_D)+hb_eol()+;
-                           space(7)+mfio+' д.р.' + full_date(kart->date_r)+hb_eol()+;
-                           space(7)+'планируемая дата госпитализации (п-ка) - ' + full_date(napr->DATE_H_1)+hb_eol()
+                      s := space(5) + '- обрабатывается направление № ' + alltrim(napr->NUM_D) + ' от '+date_8(napr->DATE_D)+hb_eol()+ ;
+                           space(7)+mfio+' д.р.' + full_date(kart->date_r)+hb_eol()+ ;
+                           space(7) + 'планируемая дата госпитализации (п-ка) - ' + full_date(napr->DATE_H_1)+hb_eol()
                       /*if !empty(napr->DATE_H_2)
-                        s+=space(7)+'планируемая дата госпитализации (стац) - ' + full_date(napr->DATE_H_2)+hb_eol()+;
-                           space(7)+'(дата госпитализации введена в стационаре - ' + full_date(napr->DATE_2)+')'+hb_eol()
+                        s+=space(7) + 'планируемая дата госпитализации (стац) - ' + full_date(napr->DATE_H_2)+hb_eol()+ ;
+                           space(7) + '(дата госпитализации введена в стационаре - ' + full_date(napr->DATE_2) + ')'+hb_eol()
                       endif*/
                       s += space(7) + 'причина аннулирования: ' + inieditspr(A__MENUVERT, get_reason_annul(), tmp2->REASON_REF) + hb_eol() + ;
                            space(7) + 'дата аннулирования ' + full_date(tmp2->DATE_REF) + hb_eol()
@@ -3193,7 +3214,7 @@ for ii := 1 to len(arr_f)
                       elseif !(napr->DATE_3    == tmp2->DATE_REF .and. ;
                                napr->TIP_ANNUL == tmp2->TYPE_S   .and. ;
                                napr->rea_annul == tmp2->REASON_REF)
-                        s += space(8)+'у нас УЖЕ ЗАНЕСЕНО аннулирование в '
+                        s += space(8) + 'у нас УЖЕ ЗАНЕСЕНО аннулирование в '
                         if napr->TIP_ANNUL == 1
                           s += 'СМО'
                         elseif napr->TIP_ANNUL == 2
@@ -3213,7 +3234,7 @@ for ii := 1 to len(arr_f)
                       endif
                       strfile(s+hb_eol(),cFileProtokol,.t.)
                     else
-                      strfile(space(5)+'- не найдено направление с ID_D='+alltrim(tmp2->ID_D)+;
+                      strfile(space(5) + '- не найдено направление с ID_D=' + alltrim(tmp2->ID_D)+ ;
                               hb_eol(),cFileProtokol,.t.)
                     endif
                     //
@@ -3254,7 +3275,7 @@ for ii := 1 to len(arr_f)
                   select TMP2
                   go top
                   do while !eof()
-                    mfio := alltrim(alltrim(tmp2->SURNAME)+' '+alltrim(tmp2->NAME)+' '+alltrim(tmp2->PATRONYMIC))
+                    mfio := alltrim(alltrim(tmp2->SURNAME) + ' ' + alltrim(tmp2->NAME) + ' ' + alltrim(tmp2->PATRONYMIC))
                     s := '- обрабатывается госпитализация '
                     s1 := iif(empty(tmp2->LPU_D) .or. tmp2->TYPE_H == 3, '', 'из '+ret_mo(tmp2->LPU_D)[_MO_SHORT_NAME])
                     do case
@@ -3267,24 +3288,24 @@ for ii := 1 to len(arr_f)
                       case tmp2->TYPE_H == 4
                         s += 'по неотложным или экстренным показаниям'
                     endcase
-                    strfile(space(5)+s+hb_eol()+;
-                            iif(empty(s1), '', space(7)+s1+hb_eol())+;
-                            space(7)+mfio+' д.р.' + full_date(tmp2->BIRTHDAY)+hb_eol()+;
-                            space(7)+'условия оказания медицинской помощи: '+;
-                                     iif(tmp2->usl_ok==2,'дневной ','')+'стационар'+hb_eol(),cFileProtokol,.t.)
+                    strfile(space(5)+s+hb_eol()+ ;
+                            iif(empty(s1), '', space(7)+s1+hb_eol())+ ;
+                            space(7)+mfio+' д.р.' + full_date(tmp2->BIRTHDAY)+hb_eol()+ ;
+                            space(7) + 'условия оказания медицинской помощи: '+ ;
+                                     iif(tmp2->usl_ok==2,'дневной ','') + 'стационар'+hb_eol(),cFileProtokol,.t.)
                     if sFrom == glob_mo[_MO_KOD_TFOMS] // если пациент лёг в наш стационар
                       select NAPR
                       find (upper(tmp2->ID_H)) // ищем GUID госпитализации
                       if found()
                         if tmp2->TYPE_H == 1 .and. !empty(napr->NUM_D)
-                          strfile(space(7)+'направление № '+alltrim(napr->NUM_D)+' от '+date_8(napr->DATE_D)+;
+                          strfile(space(7) + 'направление № ' + alltrim(napr->NUM_D) + ' от '+date_8(napr->DATE_D)+ ;
                                   hb_eol(),cFileProtokol,.t.)
                         endif
                         G_RLock(forever)
                         napr->KOD_F_4in := nf->KOD // код файла - по файлу mo_nfile
                         UnLock
                       else
-                        strfile(space(7)+'это наша госпитализация - почему-то не найдена в отправленных ?'+;
+                        strfile(space(7) + 'это наша госпитализация - почему-то не найдена в отправленных ?'+ ;
                                 hb_eol(),cFileProtokol,.t.)
                       endif
                     else // из другого стационара к нам в п-ку пришло уведомление
@@ -3294,7 +3315,7 @@ for ii := 1 to len(arr_f)
                         find (upper(tmp2->ID_D))
                         if found()
                           if tmp2->TYPE_H == 1 .and. !empty(napr->NUM_D)
-                            strfile(space(7)+'направление № '+alltrim(napr->NUM_D)+' от '+date_8(napr->DATE_D)+;
+                            strfile(space(7) + 'направление № ' + alltrim(napr->NUM_D) + ' от '+date_8(napr->DATE_D)+ ;
                                     hb_eol(),cFileProtokol,.t.)
                           endif
                           G_RLock(forever)
@@ -3316,12 +3337,12 @@ for ii := 1 to len(arr_f)
                           endif
                           UnLock
                         else
-                          strfile(space(7)+'это наше направление - почему-то не найдено в отправленных ?'+;
+                          strfile(space(7) + 'это наше направление - почему-то не найдено в отправленных ?'+ ;
                                   hb_eol(),cFileProtokol,.t.)
                         endif
                         set order to 1
                       elseif empty(tmp2->BIRTHDAY) // нет даты рождения
-                        strfile(space(7)+'нет даты рождения, поэтому не добавляем к себе в базу данных'+;
+                        strfile(space(7) + 'нет даты рождения, поэтому не добавляем к себе в базу данных'+ ;
                                 hb_eol(),cFileProtokol,.t.)
                       else
                         if (m1kod_k := _263_add_kart(0,mfio,cFileProtokol,.f.)) > 0
@@ -3356,7 +3377,7 @@ for ii := 1 to len(arr_f)
                           napr->ENP    := tmp2->ENP
                           UnLock
                         else
-                          strfile(space(7)+'по ФИО и дате рождения пациент не найден в нашей картотеке - не добавляем'+;
+                          strfile(space(7) + 'по ФИО и дате рождения пациент не найден в нашей картотеке - не добавляем'+ ;
                                   hb_eol(),cFileProtokol,.t.)
                         endif
                       endif
@@ -3400,12 +3421,12 @@ for ii := 1 to len(arr_f)
                   select TMP2
                   go top
                   do while !eof()
-                    strfile(space(5)+'- обрабатывается выбытие из стационара'+hb_eol()+;
-                            space(7)+'госпитализация - '+date_8(tmp2->DATE_H)+', выбытие '+date_8(tmp2->DATE_D)+hb_eol()+;
-                            space(7)+iif(tmp2->SEX==1,'мужчина','женщина')+' д.р.' + full_date(tmp2->BIRTHDAY)+;
-                                     iif(empty(tmp2->ENP), '', ' полис '+tmp2->ENP)+hb_eol()+;
-                            space(7)+'условия оказания медицинской помощи: '+;
-                                     iif(tmp2->usl_ok==2,'дневной ','')+'стационар'+hb_eol(),cFileProtokol,.t.)
+                    strfile(space(5) + '- обрабатывается выбытие из стационара'+hb_eol()+ ;
+                            space(7) + 'госпитализация - '+date_8(tmp2->DATE_H) + ', выбытие '+date_8(tmp2->DATE_D)+hb_eol()+ ;
+                            space(7)+iif(tmp2->SEX==1,'мужчина','женщина') + ' д.р.' + full_date(tmp2->BIRTHDAY)+ ;
+                                     iif(empty(tmp2->ENP), '', ' полис '+tmp2->ENP)+hb_eol()+ ;
+                            space(7) + 'условия оказания медицинской помощи: '+ ;
+                                     iif(tmp2->usl_ok==2,'дневной ','') + 'стационар'+hb_eol(),cFileProtokol,.t.)
                     if sFrom == glob_mo[_MO_KOD_TFOMS] // если пациент лежал в нашем стационар
                       select NAPR
                       set order to 1
@@ -3413,11 +3434,11 @@ for ii := 1 to len(arr_f)
                       if found()
                         if napr->kod_k > 0
                           kart->(dbGoto(napr->kod_k))
-                          strfile(space(7)+kart->fio+;
+                          strfile(space(7)+kart->fio+ ;
                                   hb_eol(),cFileProtokol,.t.)
                         endif
                         if !empty(napr->NUM_D)
-                          strfile(space(7)+'направление № '+alltrim(napr->NUM_D)+' от '+date_8(napr->DATE_D)+;
+                          strfile(space(7) + 'направление № ' + alltrim(napr->NUM_D) + ' от '+date_8(napr->DATE_D)+ ;
                                   hb_eol(),cFileProtokol,.t.)
                         endif
                         G_RLock(forever)
@@ -3427,7 +3448,7 @@ for ii := 1 to len(arr_f)
                         endif
                         UnLock
                       else
-                        strfile(space(7)+'это наша госпитализация/выбытие - почему-то не найдена в отправленных ?'+;
+                        strfile(space(7) + 'это наша госпитализация/выбытие - почему-то не найдена в отправленных ?'+ ;
                                 hb_eol(),cFileProtokol,.t.)
                       endif
                     else // из другого стационара к нам в п-ку пришло уведомление
@@ -3438,11 +3459,11 @@ for ii := 1 to len(arr_f)
                         if found()
                           if napr->kod_k > 0
                             kart->(dbGoto(napr->kod_k))
-                            strfile(space(7)+kart->fio+;
+                            strfile(space(7)+kart->fio+ ;
                                     hb_eol(),cFileProtokol,.t.)
                           endif
                           if !empty(napr->NUM_D)
-                            strfile(space(7)+'направление № '+alltrim(napr->NUM_D)+' от '+date_8(napr->DATE_D)+;
+                            strfile(space(7) + 'направление № ' + alltrim(napr->NUM_D) + ' от '+date_8(napr->DATE_D)+ ;
                                     hb_eol(),cFileProtokol,.t.)
                           endif
                           G_RLock(forever)
@@ -3453,7 +3474,7 @@ for ii := 1 to len(arr_f)
                           endif
                           UnLock
                         else
-                          strfile(space(7)+'это наше направление - почему-то не найдено в отправленных ?'+;
+                          strfile(space(7) + 'это наше направление - почему-то не найдено в отправленных ?'+ ;
                                   hb_eol(),cFileProtokol,.t.)
                         endif
                       else
@@ -3467,7 +3488,7 @@ for ii := 1 to len(arr_f)
                             if tmp2->BIRTHDAY == iif(empty(napr->DATE_R), kart->DATE_R, napr->DATE_R)
                               if upper(tmp2->NUM_HIST) == upper(napr->NUM_HIST_4)
                                 fl := .t.
-                                strfile(space(7)+kart->fio+;
+                                strfile(space(7)+kart->fio+ ;
                                         hb_eol(),cFileProtokol,.t.)
                                 select NAPR
                                 G_RLock(forever)
@@ -3485,7 +3506,7 @@ for ii := 1 to len(arr_f)
                           skip
                         enddo
                         if !fl
-                          strfile(space(7)+'данная госпитализация не найдена в нашей базе данных ?'+;
+                          strfile(space(7) + 'данная госпитализация не найдена в нашей базе данных ?'+ ;
                                   hb_eol(),cFileProtokol,.t.)
                         endif
                       endif
@@ -3509,7 +3530,7 @@ for ii := 1 to len(arr_f)
                   lrec_nf := nf->kod
                   if nf->DATE_R > ldate
                     fl := .f.
-                    strfile(space(5)+'у нас уже прочитан более поздний файл от '+date_8(nf->DATE_R)+;
+                    strfile(space(5) + 'у нас уже прочитан более поздний файл от '+date_8(nf->DATE_R)+ ;
                             hb_eol(),cFileProtokol,.t.)
                   endif
                 endif
@@ -3648,14 +3669,14 @@ if empty(aerr)
     chip_copy_zipXML(name_txt,dir_server+dir_NAPR_TF,.t.)
   endif
   if !empty(dir_263_copy)
-    strfile(hb_eol()+'Перезапись прочитанных файлов в каталог '+dir_263_copy+hb_eol()+;
-                     'и удаление прочитанных файлов из каталога '+dir_263_from+;
+    strfile(hb_eol() + 'Перезапись прочитанных файлов в каталог '+dir_263_copy+hb_eol()+ ;
+                     'и удаление прочитанных файлов из каталога '+dir_263_from+ ;
             hb_eol(),cFileProtokol,.t.)
     for ii := 1 to len(arr_f)
       name_zip := StripPath(arr_f[ii])  // имя файла без пути
       copy file (arr_f[ii]) to (dir_263_copy+name_zip)
       delete file (arr_f[ii])
-      strfile('- '+name_zip+' переписан'+;
+      strfile('- '+name_zip+' переписан'+ ;
               hb_eol(),cFileProtokol,.t.)
     next ii
   endif
@@ -3678,7 +3699,7 @@ use (cur_dir + 'tmp') new
 blk := {|x| s := Name_Without_Ext(StripPath(x)), ;
             dbAppend(), ;
             tmp->named := stod(left(s, 8)), ;
-            tmp->namet := left(right(s, 6), 2)+':'+left(right(s, 4), 2)+':'+right(s, 2), ;
+            tmp->namet := left(right(s, 6), 2) + ':'+left(right(s, 4), 2) + ':'+right(s, 2), ;
             tmp->txt_f := s }
 scandirfiles(dir_server+dir_NAPR_TF+cslash, '*'+stxt, blk )
 if lastrec() == 0
@@ -3771,7 +3792,7 @@ elseif k == 1
 elseif k == 2
   rest_box(buf)
 elseif k == 3
-  return date_8(nf->dwork)+' '+nf->twork1+iif(empty(nf->TWORK2), ' ЧТЕНИЕ НЕ ЗАВЕРШЕНО', '')
+  return date_8(nf->dwork) + ' '+nf->twork1+iif(empty(nf->TWORK2), ' ЧТЕНИЕ НЕ ЗАВЕРШЕНО', '')
 endif
 return NIL
 
@@ -3785,8 +3806,8 @@ if regim == 'edit'
       if empty(nf->TWORK2)
         buf := savescreen()
         arr := {}
-        aadd(arr,'Файл '+alltrim(nf->name_f)+', отчётная дата ' + full_date(nf->date_r)+'г.')
-        aadd(arr,'количество пациентов ' + lstr(nf->kol)+' чел.')
+        aadd(arr,'Файл ' + alltrim(nf->name_f) + ', отчётная дата ' + full_date(nf->date_r) + 'г.')
+        aadd(arr,'количество пациентов ' + lstr(nf->kol) + ' чел.')
         aadd(arr,'')
         aadd(arr,'Аннулируется НЕДОЧИТАННЫЙ информационный пакет I01')
         aadd(arr,'')
@@ -3825,8 +3846,8 @@ if regim == 'edit'
       mywait()
       fp := fcreate(n_file) ; tek_stroke := 0 ; n_list := 1
       add_string('')
-      add_string('Файл '+alltrim(nf->name_f)+', отчётная дата ' + full_date(nf->date_r)+'г.')
-      add_string('количество пациентов ' + lstr(nf->kol)+' чел.')
+      add_string('Файл ' + alltrim(nf->name_f) + ', отчётная дата ' + full_date(nf->date_r) + 'г.')
+      add_string('количество пациентов ' + lstr(nf->kol) + ' чел.')
       add_string('')
       add_string('Это информационный пакет со сведениями о выписанных в поликлинике направлениях')
       add_string('от МО ' + charone('"', ret_mo(substr(nf->name_f, 12, 6))[_MO_SHORT_NAME]))
@@ -3842,13 +3863,13 @@ if regim == 'edit'
       do while !eof()
         verify_FF(HH-5,.t.,sh)
         add_string('')
-        add_string(lstr(++i)+'. Направление № '+alltrim(napr->NUM_D)+' от '+date_8(napr->DATE_D))
-        add_string(space(3)+alltrim(_kart->fio)+', д.р.' + full_date(_kart->date_r))
-        add_string(space(3)+'Условия оказания, в которые направляется пациент: '+iif(napr->usl_ok_1==2,'дневной ','')+'стационар')
-        add_string(space(3)+'Направление выдано по результатам диспансеризации/профосмотра взрослых: '+iif(napr->disp_1==1,'нет','да'))
-        add_string(space(3)+'планируемая дата госпитализации '+date_8(napr->DATE_H_1)+' по диагнозу '+alltrim(napr->DS_1))
-        add_string(space(3)+inieditspr(A__MENUVERT, arr_t007, napr->PROFIL_K_1)+;
-                                     ' ('+inieditspr(A__MENUVERT, getV002(), napr->PROFIL_1)+')')
+        add_string(lstr(++i) + '. Направление № ' + alltrim(napr->NUM_D) + ' от '+date_8(napr->DATE_D))
+        add_string(space(3)+alltrim(_kart->fio) + ', д.р.' + full_date(_kart->date_r))
+        add_string(space(3) + 'Условия оказания, в которые направляется пациент: '+iif(napr->usl_ok_1==2,'дневной ','') + 'стационар')
+        add_string(space(3) + 'Направление выдано по результатам диспансеризации/профосмотра взрослых: '+iif(napr->disp_1==1,'нет','да'))
+        add_string(space(3) + 'планируемая дата госпитализации '+date_8(napr->DATE_H_1) + ' по диагнозу ' + alltrim(napr->DS_1))
+        add_string(space(3)+inieditspr(A__MENUVERT, arr_t007, napr->PROFIL_K_1)+ ;
+                                     ' ('+inieditspr(A__MENUVERT, getV002(), napr->PROFIL_1) + ')')
         select NAPR
         skip
       enddo
@@ -3907,8 +3928,8 @@ if empty(lkod_k)
 else
   goto (lkod_k)
   if !(mfio == upper(kart->fio) .and. tmp2->BIRTHDAY == kart->DATE_R)
-    strfile(space(7)+'в нашей картотеке данный пациент записан как:'+;
-            space(9)+alltrim(kart->fio)+' д.р.' + full_date(kart->DATE_R)+;
+    strfile(space(7) + 'в нашей картотеке данный пациент записан как:'+ ;
+            space(9)+alltrim(kart->fio) + ' д.р.' + full_date(kart->DATE_R)+ ;
             hb_eol(),cFileProtokol,.t.)
     lkod_k := 0
   endif
@@ -3917,7 +3938,7 @@ select KART
 set order to 1
 if empty(lkod_k)
   if yes_append
-    strfile(space(7)+'добавляем этого пациента в нашу картотеку как нового'+;
+    strfile(space(7) + 'добавляем этого пациента в нашу картотеку как нового'+ ;
             hb_eol(),cFileProtokol,.t.)
     Add1Rec(7)
     lkod_k := kart->kod := recno()
@@ -3927,7 +3948,7 @@ if empty(lkod_k)
     return lkod_k
   endif
 else
-  strfile(space(7)+'данный пациент найден в нашей картотеке'+;
+  strfile(space(7) + 'данный пациент найден в нашей картотеке'+ ;
           hb_eol(),cFileProtokol,.t.)
   goto (lkod_k)
   G_RLock(forever)
