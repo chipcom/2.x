@@ -186,3 +186,21 @@ function checkNTXFile( cSource, cDest )
   endif
 
   return fl
+
+// 14.04.23
+function chip_CurrPath()
+
+  local cPrefix
+
+#ifdef __PLATFORM__UNIX
+  cPrefix := '/'
+#else
+  cPrefix := hb_curDrive() + ':\'
+#endif
+
+  RETURN cPrefix + CurDir() + hb_ps()
+
+// 14.04.23
+function chip_ExePath()
+
+  return upper(beforatnum(hb_ps(), exename())) + hb_ps()

@@ -1,9 +1,9 @@
-***** mo_main.prg - главный модуль
-*******************************************************************************
+// mo_main.prg - главный модуль
+//////////////////////////////
 * Функции для plug-in'ов
-*******************************************************************************
+//////////////////////////////
 * my_mo_begin_task()
-*******************************************************************************
+//////////////////////////////
 #include 'set.ch'
 #include 'inkey.ch'
 #include 'function.ch'
@@ -44,10 +44,10 @@ procedure main( ... )
   Public kod_LIS   := {'125901', '805965'}
   //
   Public DELAY_SPRD := 0 // время задержки для разворачивания строк
-  Public sdbf := ".DBF", sntx := ".NTX", stxt := ".TXT", szip := ".ZIP",;
-    smem := ".MEM", srar := ".RAR", sxml := ".XML", sini := ".INI",;
-    sfr3 := ".FR3", sfrm := ".FRM", spdf := ".PDF", scsv := ".CSV",;
-    sxls := ".xls", schip := ".CHIP", sdbt := ".dbt"
+  Public sdbf := '.DBF', sntx := '.NTX', stxt := '.TXT', szip := '.ZIP', ;
+    smem := '.MEM', srar := '.RAR', sxml := '.XML', sini := '.INI', ;
+    sfr3 := '.FR3', sfrm := '.FRM', spdf := '.PDF', scsv := '.CSV', ;
+    sxls := '.xls', schip := '.CHIP', sdbt := '.dbt'
   public cslash := hb_ps()    // '\'
     
   PUBLIC public_mouse := .f., pravo_write := .t., pravo_read := .t., ;
@@ -104,11 +104,11 @@ procedure main( ... )
   next
 
   // справочник цен на услуги ТФОМС 2016-2017
-  Public glob_MU_dializ := {}//'A18.05.002.001','A18.05.002.002','A18.05.002.003',;
+  Public glob_MU_dializ := {}//'A18.05.002.001','A18.05.002.002','A18.05.002.003', ;
     //'A18.05.003','A18.05.003.001','A18.05.011','A18.30.001','A18.30.001.001'}
-  Public glob_KSG_dializ := {}//'10000901','10000902','10000903','10000905','10000906','10000907','10000913',;
+  Public glob_KSG_dializ := {}//'10000901','10000902','10000903','10000905','10000906','10000907','10000913', ;
      //'20000912','20000916','20000917','20000918','20000919','20000920'}
-     //'1000901','1000902','1000903','1000905','1000906','1000907','1000913',;
+     //'1000901','1000902','1000903','1000905','1000906','1000907','1000913', ;
      //'2000912','2000916','2000917','2000918','2000919','2000920'}
 
   Public is_vr_pr_pp := .f., is_hemodializ := .f., is_per_dializ := .f., ;
@@ -128,7 +128,7 @@ procedure main( ... )
   put_icon(__s_full_name() + __s_version(), 'MAIN_ICON')
   set key K_F1 to f_help()
   hard_err('create')
-  FillScreen(p_char_screen, p_color_screen) //FillScreen("█","N+/N")
+  FillScreen(p_char_screen, p_color_screen) //FillScreen('█','N+/N')
   cur_year := STR(YEAR(sys_date), 4)
   new_dir = ''
   SETCOLOR(color1)
@@ -213,36 +213,36 @@ procedure main( ... )
 
   return
 
-***** 17.05.21
+// 17.05.21
 Function f_main(r0, is_local_version, a_parol)
   Static arr1 := {;
-    {"Регистратура поликлиники"            ,X_REGIST,,.t.,"РЕГИСТРАТУРА"},;
-    {"Приёмный покой стационара"           ,X_PPOKOJ,,.t.,"ПРИЁМНЫЙ ПОКОЙ"},;
-    {"Обязательное медицинское страхование",X_OMS   ,,.t.,"ОМС"},;
-    {"Учёт направлений на госпитализацию"  ,X_263   ,,.F.,"ГОСПИТАЛИЗАЦИЯ"},;
-    {"Платные услуги"                      ,X_PLATN ,,.t.,"ПЛАТНЫЕ УСЛУГИ"},;
-    {"Ортопедические услуги в стоматологии",X_ORTO  ,,.t.,"ОРТОПЕДИЯ"},;
-    {"Касса медицинской организации"       ,X_KASSA ,,.t.,"КАССА"},;
-    {"КЭК медицинской организации"         ,X_KEK   ,,.F.,"КЭК"};
+    {'Регистратура поликлиники'            , X_REGIST, , .t., 'РЕГИСТРАТУРА'}, ;
+    {'Приёмный покой стационара'           , X_PPOKOJ, , .t., 'ПРИЁМНЫЙ ПОКОЙ'}, ;
+    {'Обязательное медицинское страхование', X_OMS   , , .t., 'ОМС'}, ;
+    {'Учёт направлений на госпитализацию'  , X_263   , , .f., 'ГОСПИТАЛИЗАЦИЯ'}, ;
+    {'Платные услуги'                      , X_PLATN , , .t., 'ПЛАТНЫЕ УСЛУГИ'}, ;
+    {'Ортопедические услуги в стоматологии', X_ORTO  , , .t., 'ОРТОПЕДИЯ'}, ;
+    {'Касса медицинской организации'       , X_KASSA , , .t., 'КАССА'}, ;
+    {'КЭК медицинской организации'         , X_KEK   , , .f., 'КЭК'} ;
   }
   Static arr2 := {;
-    {"Редактирование справочников"         ,X_SPRAV ,,.t.},;
-    {"Сервисы и настройки"                 ,X_SERVIS,,.t.},;
-    {"Резервное копирование базы данных"   ,X_COPY  ,,.t.},;
-    {"Переиндексирование базы данных"      ,X_INDEX ,,.t.};
+    {'Редактирование справочников'         , X_SPRAV , , .t.}, ;
+    {'Сервисы и настройки'                 , X_SERVIS, , .t.}, ;
+    {'Резервное копирование базы данных'   , X_COPY  , , .t.}, ;
+    {'Переиндексирование базы данных'      , X_INDEX , , .t.} ;
   }
   Local i, lens := 0, r, c, oldTfoms, arr, ar, k, fl_exit := .t.
   local buf
 
   PUBLIC array_tasks := {}, sem_vagno_task[24]
-  afill(sem_vagno_task,"")
+  afill(sem_vagno_task,'')
   for i := 1 to len(arr1)
     aadd(array_tasks,arr1[i])
-    sem_vagno_task[arr1[i,2]] := 'Важный режим в задаче "'+arr1[i,5]+'"'
+    sem_vagno_task[arr1[i, 2]] := 'Важный режим в задаче "' + arr1[i, 5] + '"'
   next
 
   if glob_mo[_MO_KOD_TFOMS] == kod_VOUNC
-    aadd(array_tasks, {"ВОУНЦ - трансплантированные",X_MO,"TABLET_ICON",.T.})
+    aadd(array_tasks, {'ВОУНЦ - трансплантированные',X_MO,'TABLET_ICON', .t.})
   endif
 
   for i := 1 to len(arr2)
@@ -251,52 +251,52 @@ Function f_main(r0, is_local_version, a_parol)
   //
   arr := {}
   for i := 1 to len(array_tasks)
-    if (k := array_tasks[i,2]) < 10  // код задачи
-      array_tasks[i,4] := (substr(glob_mo[_MO_PROD],k,1)=='1')
-      if array_tasks[i,4]
+    if (k := array_tasks[i, 2]) < 10  // код задачи
+      array_tasks[i, 4] := (substr(glob_mo[_MO_PROD], k, 1) == '1')
+      if array_tasks[i, 4]
         fl_exit := .f.
       endif
     endif
     // Учёт направлений на госпитализацию
     if k == X_263 .and. (is_napr_pol .or. is_napr_stac)
-      array_tasks[i,4] := .t.
+      array_tasks[i, 4] := .t.
       fl_exit := .f.
     endif
     if is_local_version
-      if array_tasks[i,4]
+      if array_tasks[i, 4]
         aadd(arr,array_tasks[i])
-        lens := max(lens,len(array_tasks[i,1]))
+        lens := max(lens,len(array_tasks[i, 1]))
       endif
     else
-      if array_tasks[i,4] .and. hb_user_curUser:IsAllowedTask( i )
+      if array_tasks[i, 4] .and. hb_user_curUser:IsAllowedTask( i )
         aadd(arr,array_tasks[i])
-        lens := max(lens,len(array_tasks[i,1]))
+        lens := max(lens,len(array_tasks[i, 1]))
       endif
     endif
   next
-  Public glob_task, blk_ekran, g_arr_stand := {},;
-       main_menu, main_message, first_menu,;
+  Public glob_task, blk_ekran, g_arr_stand := {}, ;
+       main_menu, main_message, first_menu, ;
        first_message, func_menu, cmain_menu
   if fl_exit
-    func_error(4,"Нет разрешения на работу ни в одной задаче!")
+    func_error(4,'Нет разрешения на работу ни в одной задаче!')
   else
     // вывести верхние строки главного экрана
     r0 := main_up_screen()
     // вывести центральные строки главного экрана
     main_center_screen(r0,a_parol)
     if hb_user_curUser:IsAdmin()
-      find_unfinished_reestr_sp_tk(.f.,.t.)
+      find_unfinished_reestr_sp_tk(.f., .t.)
       find_time_limit_human_reestr_sp_tk()
       find_unfinished_R01()
       find_unfinished_R11()
     endif
     //
-    r := int((maxrow()-r0-len(arr))/2)-1
-    c := int((maxcol()+1-lens)/2)-1
-    ar := GetIniSect(tmp_ini,"task")
-    k := i := int(val(a2default(ar,"current_task",lstr(X_OMS))))
+    r := int((maxrow() - r0 - len(arr)) / 2) - 1
+    c := int((maxcol() + 1 - lens) / 2) - 1
+    ar := GetIniSect(tmp_ini, 'task')
+    k := i := int(val(a2default(ar, 'current_task', lstr(X_OMS))))
     do while .t.
-      if (i := popup_2array(arr,r+r0,c,i,,,"Выбор задачи","B+/W","N+/W,W+/N*")) == 0
+      if (i := popup_2array(arr, r + r0, c, i, , , 'Выбор задачи', 'B+/W', 'N+/W, W+/N*')) == 0
         exit
       endif
       oldTfoms := glob_mo[_MO_KOD_TFOMS]
@@ -313,91 +313,91 @@ Function f_main(r0, is_local_version, a_parol)
       endif
       change_sys_date() // перечитать системную дату
       put_icon(__s_full_name() + __s_version(), 'MAIN_ICON') // перевывести заголовок окна
-      @ r0,0 say full_date(sys_date) color "W+/N" // перевывести дату
-      @ r0,maxcol()-4 say hour_min(seconds()) color "W+/N" // перевывести время
+      @ r0, 0 say full_date(sys_date) color 'W+/N' // перевывести дату
+      @ r0, maxcol() - 4 say hour_min(seconds()) color 'W+/N' // перевывести время
     enddo
-    SetIniSect(tmp_ini,"task",{{"current_task",lstr(k)}})
+    SetIniSect(tmp_ini, 'task', {{'current_task', lstr(k)}})
   endif
   return NIL
 
-***** вывести верхние строки главного экрана
+// вывести верхние строки главного экрана
 Function main_up_screen()
   Local i, k, s, arr[2]
 
-  FillScreen(p_char_screen,p_color_screen) //FillScreen("█","N+/N")
-  s := "Код "+iif(glob_mo[_MO_IS_MAIN],"МО","обособленного подразделения")+;
-     ", присвоенный ТФОМС: "+glob_mo[_MO_KOD_TFOMS]+;
-     " (реестровый № "+glob_mo[_MO_KOD_FFOMS]+")"
-  @ 0,0 say padc(s,maxcol()+1) color "W+/N"
-  s := iif(glob_mo[_MO_IS_MAIN],"","Обособленное подразделение: ")+;
+  FillScreen(p_char_screen, p_color_screen) //FillScreen('█','N+/N')
+  s := 'Код ' + iif(glob_mo[_MO_IS_MAIN],'МО','обособленного подразделения') + ;
+     ', присвоенный ТФОМС: ' + glob_mo[_MO_KOD_TFOMS] + ;
+     ' (реестровый № ' + glob_mo[_MO_KOD_FFOMS] + ')'
+  @ 0, 0 say padc(s, maxcol() + 1) color 'W+/N'
+  s := iif(glob_mo[_MO_IS_MAIN], '', 'Обособленное подразделение: ') + ;
      glob_mo[_MO_FULL_NAME]
-  k := perenos(arr,s,maxcol()+1)
+  k := perenos(arr, s, maxcol() + 1)
   for i := 1 to k
-    @ i,0 say padc(alltrim(arr[i]),maxcol()+1) color "GR+/N"
+    @ i, 0 say padc(alltrim(arr[i]), maxcol() + 1) color 'GR+/N'
   next
   i := get_uroven()
-  if between(i,1,3)
-    s := "Уровень цен на медицинские услуги: "+lstr(i)
+  if between(i, 1, 3)
+    s := 'Уровень цен на медицинские услуги: ' + lstr(i)
   else
-    s := "Индивидуальные тарифы на медицинские услуги"
+    s := 'Индивидуальные тарифы на медицинские услуги'
   endif
-  @ k+1,0 say space(maxcol()+1) color "G+/N"
-  @ k+1,0 say full_date(sys_date) color "W+/N"
-  @ k+1,maxcol()-4 say hour_min(seconds()) color "W+/N"
-  return k+1
+  @ k + 1, 0 say space(maxcol() + 1) color 'G+/N'
+  @ k + 1, 0 say full_date(sys_date) color 'W+/N'
+  @ k + 1, maxcol() - 4 say hour_min(seconds()) color 'W+/N'
+  return k + 1
 
-***** вывести центральные строки главного экрана
-Function main_center_screen(r0,a_parol)
+// вывести центральные строки главного экрана
+Function main_center_screen(r0, a_parol)
   Static nLen := 11
-  Static arr_name := {"инфаркт", "инсульт", "ЧМТ", "онкология",;
-                    "пневмония", "язва", "родовая травма",;
-                    "новорожденный с низкой массой тела",;
-                    "астма", "диабет","панкреатит"}
-  Local s, i, c, k, t_arr, r1, buf, mst := ""
+  Static arr_name := {'инфаркт', 'инсульт', 'ЧМТ', 'онкология', ;
+                    'пневмония', 'язва', 'родовая травма', ;
+                    'новорожденный с низкой массой тела', ;
+                    'астма', 'диабет','панкреатит'}
+  Local s, i, c, k, t_arr, r1, buf, mst := ''
 
   g_arr_stand := {}
-  if valtype(glob_mo[_MO_STANDART]) == "A"
+  if valtype(glob_mo[_MO_STANDART]) == 'A'
     for k := 1 to len(glob_mo[_MO_STANDART])
-      t_arr := {glob_mo[_MO_STANDART,k,1],{}}
-      mst := padr(glob_mo[_MO_STANDART,k,2],nLen)
+      t_arr := {glob_mo[_MO_STANDART,k, 1], {}}
+      mst := padr(glob_mo[_MO_STANDART,k, 2], nLen)
       for i := 1 to nLen
-        c := substr(mst,i,1)
-        if c == "1"
-          aadd(t_arr[2],i)
+        c := substr(mst, i, 1)
+        if c == '1'
+          aadd(t_arr[2], i)
         endif
       next
       aadd(g_arr_stand,aclone(t_arr))
     next
   endif
   if .t.//empty(mst)
-    if valtype(a_parol) == "A" .and. (k := len(a_parol)) > 0
-      r1 := r0+int((maxrow()-r0-k)/2)-1
-      n_message(a_parol,,"W+/W*","R/W*",r1,,"N+/W*")
+    if valtype(a_parol) == 'A' .and. (k := len(a_parol)) > 0
+      r1 := r0 + int((maxrow() - r0 - k) / 2) - 1
+      n_message(a_parol, , 'W+/W*', 'R/W*', r1, , 'N+/W*')
     endif
   else
-    s := "Нозологические формы, по которым МО участвует в выполнении стандартов:"
+    s := 'Нозологические формы, по которым МО участвует в выполнении стандартов:'
     for i := 1 to nLen
-      c := substr(mst,i,1)
-      if eq_any(c,"1","2")
-        s += " "+arr_name[i]
-        if c == "2"
-          s += "[*]"
+      c := substr(mst, i, 1)
+      if eq_any(c, '1', '2')
+        s += ' ' + arr_name[i]
+        if c == '2'
+          s += '[*]'
         endif
-        s += ","
+        s += ','
       endif
     next
-    s := left(s,len(s)-1)
+    s := left(s, len(s) - 1)
     t_arr := array(2)
-    k := perenos(t_arr,s,64)
-    r1 := r0+int((maxrow()-r0-k)/2)-1
+    k := perenos(t_arr, s, 64)
+    r1 := r0+int((maxrow() - r0 - k) / 2) - 1
     if (k := len(a_parol)) > 0
-      if r1-r0 < k+4
-        r1 := r0+k+4
+      if r1 - r0 < k + 4
+        r1 := r0 + k + 4
       endif
-      buf := save_box(r1-k-4,0,r1-1,maxcol())
-      f_message(a_parol,,"W+/W*","R/W*",r1-k-3)
+      buf := save_box(r1 - k - 4, 0, r1 - 1, maxcol())
+      f_message(a_parol, , 'W+/W*', 'R/W*', r1 - k - 3)
     endif
-    n_message(t_arr,,"W/W","N/W",r1,,"N+/W")
+    n_message(t_arr, , 'W/W', 'N/W', r1, , 'N+/W')
     if buf != NIL
       rest_box(buf)
     endif
@@ -405,7 +405,7 @@ Function main_center_screen(r0,a_parol)
   return NIL
 
 
-*****
+//
 Function m_help()
   Local tmp_help, pt
 
@@ -415,17 +415,17 @@ Function m_help()
   chm_help_code := tmp_help
   return NIL
 
-***** 24.10.17
+// 14.04.23
 FUNCTION f_first(is_create)
   Local is_local_version := .t.
 
   REQUEST HB_CODEPAGE_RU866
-  HB_CDPSELECT("RU866")
+  HB_CDPSELECT('RU866')
   REQUEST HB_LANG_RU866
-  HB_LANGSELECT("RU866")
+  HB_LANGSELECT('RU866')
 
   REQUEST DBFNTX
-  RDDSETDEFAULT("DBFNTX")
+  RDDSETDEFAULT('DBFNTX')
 
   //SET(_SET_EVENTMASK,INKEY_KEYBOARD)
   SET SCOREBOARD OFF
@@ -441,85 +441,88 @@ FUNCTION f_first(is_create)
 
   PUBLIC yes_color := .t.
 
-  PUBLIC color0, color1, cColorWait, cColorSt2Msg, cColorStMsg,;
-       cCalcMain, cHelpCMain, cColorText,;
-       cHelpCTitle, cHelpCStatus, cDataCScr, cDataCGet, cDataCSay,;
-       cDataCMenu, color13, color14, cColorSt1Msg, cDataPgDn, col_tit_popup,;
-       color5, color8, col1menu := "", col2menu := "",;
+  PUBLIC color0, color1, cColorWait, cColorSt2Msg, cColorStMsg, ;
+       cCalcMain, cHelpCMain, cColorText, ;
+       cHelpCTitle, cHelpCStatus, cDataCScr, cDataCGet, cDataCSay, ;
+       cDataCMenu, color13, color14, cColorSt1Msg, cDataPgDn, col_tit_popup, ;
+       color5, color8, col1menu := '', col2menu := '', ;
        color_uch, col_tit_uch
   Public n_list := 1, tek_stroke := 0, fp
-  Public p_color_screen := "W/N*", p_char_screen := " " // заполнение экрана
-  Public c__cw := "N+/N" // цвет теней
+  Public p_color_screen := 'W/N*', p_char_screen := ' ' // заполнение экрана
+  Public c__cw := 'N+/N' // цвет теней
   //
-  color0 := "N/BG,W+/N"
-  color1 := "W+/B,W+/R"
-  color_uch := "B/BG,W+/B" ; col_tit_uch := "B+/BG"
-  col1menu := color0+",B/BG,BG+/N"
-  col2menu := color0+",B/BG,BG+/N"
-  col_tit_popup := "B/BG"
+  color0 := 'N/BG, W+/N'
+  color1 := 'W+/B, W+/R'
+  color_uch := 'B/BG, W+/B' ; col_tit_uch := 'B+/BG'
+  col1menu := color0 + ', B/BG, BG+/N'
+  col2menu := color0 + ', B/BG, BG+/N'
+  col_tit_popup := 'B/BG'
   //
-  cColorStMsg := "W+/R,,,,B/W"                 //    Stat_msg
-  cColorSt1Msg := "W+/R,,,,B/W"                //    Stat_msg
-  cColorSt2Msg := "GR+/R,,,,B/W"               //    Stat_msg
-  cColorWait := "W+/R*,,,,B/W"                 //    Ждите
+  cColorStMsg := 'W+/R, , , , B/W'                 //    Stat_msg
+  cColorSt1Msg := 'W+/R, , , , B/W'                //    Stat_msg
+  cColorSt2Msg := 'GR+/R, , , , B/W'               //    Stat_msg
+  cColorWait := 'W+/R*, , , , B/W'                 //    Ждите
   //
-  cCalcMain := "N/W,GR+/R"                     //    Калькулятор
+  cCalcMain := 'N/W, GR+/R'                     //    Калькулятор
   //
-  cColorText := "W+/N,BG+/N,,,B/W"
+  cColorText := 'W+/N, BG+/N, , , B/W'
   //
-  cHelpCMain := "W+/RB,W+/N,,,B/W"             //    Помощь
-  cHelpCTitle := "G+/RB"
-  cHelpCStatus := "BG+/RB"
+  cHelpCMain := 'W+/RB, W+/N, , , B/W'             //    Помощь
+  cHelpCTitle := 'G+/RB'
+  cHelpCStatus := 'BG+/RB'
   //                                           //     Ввод данных
-  cDataCScr  := "W+/B,B/BG"
-  cDataCGet  := "W+/B,W+/R,,,BG+/B"
-  cDataCSay  := "BG+/B,W+/R,,,BG+/B"
-  cDataCMenu := "N/BG,W+/N,,,B/W"
-  cDataPgDn  := "BG/B"
-  color5     := "N/W,GR+/R,,,B/W"
-  color8     := "GR+/B,W+/R"
-  color13    := "W/B,W+/R,,,BG+/B"             // некотоpое выделение
-  color14    := "G+/B,W+/R"
+  cDataCScr  := 'W+/B, B/BG'
+  cDataCGet  := 'W+/B, W+/R, , , BG+/B'
+  cDataCSay  := 'BG+/B, W+/R, , , BG+/B'
+  cDataCMenu := 'N/BG, W+/N, , , B/W'
+  cDataPgDn  := 'BG/B'
+  color5     := 'N/W, GR+/R, , , B/W'
+  color8     := 'GR+/B, W+/R'
+  color13    := 'W/B, W+/R, , , BG+/B'             // некотоpое выделение
+  color14    := 'G+/B, W+/R'
   //
   delete file ttt.ttt
   //
   Public cur_drv := DISKNAME()
-  Public cur_dir := cur_drv + ":" + DIRNAME(cur_drv) + cslash
-  Public dir_server := "", p_name_comp := ""
-  Public dir_exe := upper(beforatnum(cslash, exename())) + cslash
+  // Public cur_dir := cur_drv + ':' + DIRNAME(cur_drv) + cslash
+  Public cur_dir := chip_CurrPath()
+  Public dir_server := '', p_name_comp := ''
+  // Public dir_exe := upper(beforatnum(cslash, exename())) + cslash
+  Public dir_exe := chip_ExePath()
   Public exe_dir := dir_exe
-  // проверить, запущена ли уже данная задача, если "да" - выход из задачи
+  
+  // проверить, запущена ли уже данная задача, если 'да' - выход из задачи
   verify_1_task()
   //
-  if hb_FileExists("server.mem")
-    ft_use("server.mem")
+  if hb_FileExists('server.mem')
+    ft_use('server.mem')
     dir_server := alltrim(ft_readln())
     if !ft_eof()
       ft_skip()
       p_name_comp := alltrim(ft_readln())
       if cslash $ p_name_comp
-        p_name_comp := ""
+        p_name_comp := ''
       endif
     endif
     if len(p_name_comp) < 2
-      p_name_comp := alltrim(netname())+cslash+hb_username()
+      p_name_comp := alltrim(netname()) + cslash + hb_username()
     endif
     ft_use()
     is_local_version := .f.
   else // иначе = текущий каталог
     dir_server := cur_dir
   endif
-  if right(dir_server,1) != cslash
+  if right(dir_server, 1) != cslash
     dir_server += cslash
   endif
-  is_server(dir_server,cur_dir)
-  if !is_create .and. !hb_FileExists(dir_server+"human"+sdbf)
-    func_error("Не обнаружены файлы базы данных! Обратитесь к системному администратору.")
+  is_server(dir_server, cur_dir)
+  if !is_create .and. !hb_FileExists(dir_server + 'human' + sdbf)
+    func_error('Не обнаружены файлы базы данных! Обратитесь к системному администратору.')
     QUIT
   endif
   //
-  if hb_FileExists(dir_server+"plat.dbf")
-    func_error("Вероятнее всего, Вы запускаете программу в каталоге СЧЕТА. Это недопустимо!")
+  if hb_FileExists(dir_server + 'plat.dbf')
+    func_error('Вероятнее всего, Вы запускаете программу в каталоге СЧЕТА. Это недопустимо!')
     QUIT
   endif
   SET KEY K_ALT_F3 TO calendar
@@ -527,59 +530,59 @@ FUNCTION f_first(is_create)
   SET KEY K_ALT_X  TO f_end
   Public flag_chip := .f.
   READINSERT(.T.) // режим редактирования по умолчанию Insert
-  KEYBOARD ""
+  KEYBOARD ''
   ksetnum(.t.)    // включить NumLock
   SETCURSOR(0)
   SET COLOR TO
   RETURN is_local_version
 
-***** 02.11.15
+// 02.11.15
 Function hard_err(p)
 // k = 1 - проверка диска на наличие временного файла hard_err.meh
 //         и, если он есть, вывод текста о необходимости переиндексирования;
-//         создание временного файла hard_err.meh "CREATE"
-// k = 2 - удаление временного файла hard_err.meh "DELETE"
+//         создание временного файла hard_err.meh 'CREATE'
+// k = 2 - удаление временного файла hard_err.meh 'DELETE'
   Local k := 3, arr := {}
 
-  if valtype(p) == "N"
+  if valtype(p) == 'N'
     k := p
-  elseif valtype(p) == "C"
+  elseif valtype(p) == 'C'
     p := upper(p)
     do case
-      case p == "CREATE"
+      case p == 'CREATE'
         k := 1
-      case p == "DELETE"
+      case p == 'DELETE'
         k := 2
     endcase
   endif
   do case
     case k == 1
-      if file("hard_err.meh")
-        FillScreen(p_char_screen,p_color_screen)
-        aadd(arr,"Последний раз при выходе из задачи был сбой по питанию.")
-        aadd(arr,". . .")
-        aadd(arr,"Поэтому Вам настоятельно рекомендуется выполнить")
+      if file('hard_err.meh')
+        FillScreen(p_char_screen, p_color_screen)
+        aadd(arr,'Последний раз при выходе из задачи был сбой по питанию.')
+        aadd(arr,'. . .')
+        aadd(arr,'Поэтому Вам настоятельно рекомендуется выполнить')
         aadd(arr,'режим "Переиндексирование", т.к. вполне вероятно, что')
-        aadd(arr,"некоторые индексные файлы были испорчены или разрушены.")
-        keyboard ""
-        f_message(arr,,color1,color8,,,color1)
-        if f_alert({padc("Выберите действие",60,".")},;
-               {" Выход из задачи "," Продолжение работы "},;
-               1,"W+/N","N+/N",20,,"W+/N,N/BG" ) != 2
+        aadd(arr,'некоторые индексные файлы были испорчены или разрушены.')
+        keyboard ''
+        f_message(arr, , color1, color8, , , color1)
+        if f_alert({padc('Выберите действие', 60, '.')}, ;
+               {' Выход из задачи ', ' Продолжение работы '}, ;
+               1, 'W+/N', 'N+/N', 20, , 'W+/N, N/BG' ) != 2
           SET COLOR TO
           SET CURSOR ON
           CLS
           QUIT
         endif
-        FillScreen(p_char_screen,p_color_screen)
+        FillScreen(p_char_screen, p_color_screen)
       endif
-      strfile("hard_error","hard_err.meh")
+      strfile('hard_error', 'hard_err.meh')
     case k == 2
       delete file hard_err.meh
   endcase
   return NIL
 
-** 13.06.22
+// 13.06.22
 FUNCTION f_end(yes_copy)
   Static group_ini := 'RAB_MESTO'
   Local i, spath := '', bSaveHandler := ERRORBLOCK( {|x| BREAK(x)} )
@@ -616,15 +619,15 @@ FUNCTION f_end(yes_copy)
 	  filedelete(cur_dir + 'tmp*.ntx')
 	  filedelete(_tmp_dir1 + '*.*')
 	  if hb_DirExists(cur_dir + _tmp_dir) .and. hb_DirDelete(cur_dir + _tmp_dir) != 0
-		  //func_error(4, "Не могу удалить каталог "'+'cur_dir'+'_tmp_dir)
+		  //func_error(4, 'Не могу удалить каталог ''+'cur_dir'+'_tmp_dir)
 	  endif
 	  filedelete(_tmp2dir1 + '*.*')
 	  if hb_DirExists(cur_dir + _tmp2dir) .and. hb_DirDelete(cur_dir + _tmp2dir) != 0
-		  //func_error(4, "Не могу удалить каталог " + cur_dir + _tmp2dir)
+		  //func_error(4, 'Не могу удалить каталог ' + cur_dir + _tmp2dir)
 	  endif
   endif
   // удалим файлы отчетов в формате '*.HTML' из временной директории
-  filedelete( HB_DirTemp() + '*.HTML')
+  filedelete( HB_DirTemp() + '*.html')
   SET KEY K_ALT_F3 TO
   SET KEY K_ALT_F2 TO
   SET KEY K_ALT_X  TO
@@ -634,12 +637,13 @@ FUNCTION f_end(yes_copy)
   QUIT
   RETURN NIL
 
-** 03.12.13
+// 03.12.13
 Function f_err_sem_vagno_task(n_Task)
+
   return func_error(4, 'В задаче "' + array_tasks[ind_task(n_Task), 5] + ;
                     '" выполняется ОТВЕТСТВЕННАЯ операция. Доступ временно запрещён!')
 
-** 03.12.13
+// 03.12.13
 Function mo_Lock_Task(n_Task)
   Local i, fl := .t., n := 0
 
@@ -653,11 +657,12 @@ Function mo_Lock_Task(n_Task)
   endif
   return fl
 
-** 03.12.13
+// 03.12.13
 Function mo_UnLock_Task(n_Task)
+
   return G_SUnLock(sem_vagno_task[n_Task])
 
-** вернуть имя задачи по цифровому коду
+// вернуть имя задачи по цифровому коду
 Function f_name_task(n_Task)
   Local it, s
 
@@ -668,7 +673,7 @@ Function f_name_task(n_Task)
   endif
   return s
 
-** проверить, доступна ли данному МО конкретная задача
+// проверить, доступна ли данному МО конкретная задача
 Function is_task(n_Task)
   Local it
 
@@ -681,7 +686,7 @@ Function is_task(n_Task)
   endif
   return array_tasks[it, 4]
 
-** вернуть индекс массива конкретной задачи
+// вернуть индекс массива конкретной задачи
 Function ind_task(n_Task)
   Local it
 
@@ -691,7 +696,7 @@ Function ind_task(n_Task)
   endif
   return it
 
-** 14.06.21
+// 14.06.21
 Function find_unfinished_reestr_sp_tk(is_oper, is_count)
   Static max_rec := 9900000 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   Local fl := .t., s, buf := save_maxrow(), arr, rech := 0, af := {}, bSaveHandler
@@ -707,10 +712,10 @@ Function find_unfinished_reestr_sp_tk(is_oper, is_count)
       rech := lastrec()
       Use
     endif
-    R_Use(dir_server + "mo_rees", , "REES")
-    R_Use(dir_server + "mo_xml", , "MO_XML")
+    R_Use(dir_server + 'mo_rees', , 'REES')
+    R_Use(dir_server + 'mo_xml', , 'MO_XML')
     set relation to REESTR into REES
-    index on FNAME to (cur_dir + "tmp_xml") for TIP_IN == _XML_FILE_SP .and. empty(TWORK2)
+    index on FNAME to (cur_dir + 'tmp_xml') for TIP_IN == _XML_FILE_SP .and. empty(TWORK2)
     go top
     do while !eof()
       aadd(af, {rtrim(mo_xml->FNAME), lstr(rees->NSCHET)})
@@ -720,23 +725,23 @@ Function find_unfinished_reestr_sp_tk(is_oper, is_count)
     rest_box(buf)
     if (fl := (len(af) > 0 .or. rech > max_rec))
       if rech > max_rec
-        arr := {"До исчерпания лимита базы данных у Вас", ;
-              "осталась возможность добавить " + lstr(10000000 - rech) + " листов учёта."}
+        arr := {'До исчерпания лимита базы данных у Вас', ;
+              'осталась возможность добавить ' + lstr(10000000 - rech) + ' листов учёта.'}
       endif
       if len(af) > 0
-        s := "Не завершено чтение "
+        s := 'Не завершено чтение '
         if len(af) == 1
-          s += "реестра СП и ТК " + af[1, 1] + " (реестр " + af[1, 2] + ")"
+          s += 'реестра СП и ТК ' + af[1, 1] + ' (реестр ' + af[1, 2] + ')'
         else
-          s += lstr(len(af)) + " реестров СП и ТК"
+          s += lstr(len(af)) + ' реестров СП и ТК'
         endif
-        arr := {"", s}
+        arr := {'', s}
       endif
       if is_oper
-        aadd(arr, "")
-        aadd(arr, "Операция запрещена!")
+        aadd(arr, '')
+        aadd(arr, 'Операция запрещена!')
       endif
-      n_message(arr, {"", "Обратитесь к разработчикам"}, "GR+/R", "W+/R", , , "G+/R")
+      n_message(arr, {'', 'Обратитесь к разработчикам'}, 'GR+/R', 'W+/R', , , 'G+/R')
     endif
   RECOVER USING error
     close databases
@@ -745,27 +750,27 @@ Function find_unfinished_reestr_sp_tk(is_oper, is_count)
   ERRORBLOCK(bSaveHandler)
   return fl
 
-** 10.06.21 проверить, есть ли неотосланные просроченные листы учёта
+// 10.06.21 проверить, есть ли неотосланные просроченные листы учёта
 Function find_time_limit_human_reestr_sp_tk()
-  Local buf := savescreen(), arr[10, 2], i, mas_pmt, r, c, n, d := sys_date-23
+  Local buf := savescreen(), arr[10, 2], i, mas_pmt, r, c, n, d := sys_date - 23
   Local fl := .f., bSaveHandler := ERRORBLOCK( {|x| BREAK(x)} )
 
   mywait('Подождите, проверяем просроченные случаи (неотправленные в ТФОМС)...')
   BEGIN SEQUENCE
-    dbcreate(cur_dir + "tmp_tl", {{"kod_h", "N", 8, 0}, ;
-                             {"kod_xml", "N", 6, 0}, ;
-                             {"dni","N", 2, 0}})
-    use (cur_dir + "tmp_tl") new
-    R_Use(dir_server + "human_", , "HUMAN_")
-    R_Use(dir_server + "human", , "HUMAN")
+    dbcreate(cur_dir + 'tmp_tl', {{'kod_h', 'N', 8, 0}, ;
+                                  {'kod_xml', 'N', 6, 0}, ;
+                                  {'dni','N', 2, 0}})
+    use (cur_dir + 'tmp_tl') new
+    R_Use(dir_server + 'human_', , 'HUMAN_')
+    R_Use(dir_server + 'human', , 'HUMAN')
     set relation to recno() into HUMAN_
-    R_Use(dir_server + "mo_refr", dir_server + "mo_refr", "REFR")
-    R_Use(dir_server + "mo_xml", , "MO_XML")
-    R_Use(dir_server + "mo_rees", , "REES")
+    R_Use(dir_server + 'mo_refr', dir_server + 'mo_refr', 'REFR')
+    R_Use(dir_server + 'mo_xml', , 'MO_XML')
+    R_Use(dir_server + 'mo_rees', , 'REES')
     set relation to KOD_XML into MO_XML
-    R_Use(dir_server + "mo_rhum", , "RHUM")
+    R_Use(dir_server + 'mo_rhum', , 'RHUM')
     set relation to reestr into REES
-    index on str(reestr, 6) to (cur_dir + "tmp_rhum") for OPLATA == 2 .and. d < rees->DSCHET
+    index on str(reestr, 6) to (cur_dir + 'tmp_rhum') for OPLATA == 2 .and. d < rees->DSCHET
     go top
     do while !eof()
       if (r := sys_date - rees->DSCHET) <= 0
@@ -802,13 +807,13 @@ Function find_time_limit_human_reestr_sp_tk()
   if fl
     close databases
     restscreen(buf)
-    return func_error(4, "Непонятная ошибка. Выполните переиндексирование в подзадаче ОМС")
+    return func_error(4, 'Непонятная ошибка. Выполните переиндексирование в подзадаче ОМС')
   endif
   select TMP_TL
   if lastrec() > 0
-    afillall(arr,0)
+    afillall(arr, 0)
     i := 0
-    index on dni to (cur_dir + "tmp_tl") unique
+    index on dni to (cur_dir + 'tmp_tl') unique
     go top
     if tmp_tl->dni <= 10 // не более 10 дней просрочено, иначе не выводим
       do while !eof()
@@ -836,9 +841,9 @@ Function find_time_limit_human_reestr_sp_tk()
         if emptyany(arr[i, 1], arr[i, 2])
           exit
         elseif arr[i, 1] == -1
-          aadd(mas_pmt, lstr(arr[i, 2]) + " чел. - просрочено более " + lstr(arr[9, 1]) + " дн.")
+          aadd(mas_pmt, lstr(arr[i, 2]) + ' чел. - просрочено более ' + lstr(arr[9, 1]) + ' дн.')
         else
-          aadd(mas_pmt, lstr(arr[i, 2]) + " чел. - просрочено " + lstr(arr[i, 1]) + " дн.")
+          aadd(mas_pmt, lstr(arr[i, 2]) + ' чел. - просрочено ' + lstr(arr[i, 1]) + ' дн.')
         endif
         n := max(n, len(atail(mas_pmt)))
       next
@@ -846,8 +851,8 @@ Function find_time_limit_human_reestr_sp_tk()
         i := 1
         r := maxrow() - len(mas_pmt) - 4
         c := int((80 - n - 3) / 2)
-        status_key("^<Esc>^ выход из режима и вход в задачу  ^<Enter>^ просмотр просроченных случаев")
-        str_center(r - 1, "Обнаружены просроченные случаи:", "W+/N*")
+        status_key('^<Esc>^ выход из режима и вход в задачу  ^<Enter>^ просмотр просроченных случаев')
+        str_center(r - 1, 'Обнаружены просроченные случаи:', 'W+/N*')
         do while (i := popup_prompt(r, c, i, mas_pmt)) > 0
           f1find_time_limit_human_reestr_sp_tk(i, arr)
         enddo
@@ -858,38 +863,40 @@ Function find_time_limit_human_reestr_sp_tk()
   restscreen(buf)
   return NIL
 
-**
+//
 Function f1find_time_limit_human_reestr_sp_tk(i, arr)
-  Local n_file := "time_lim" + stxt, sh := 80, HH := 60
+  Local n_file := cur_dir + 'time_lim' + stxt, sh := 80, HH := 60
 
-  fp := fcreate(n_file) ; n_list := 1 ; tek_stroke := 0
-  add_string("")
-  add_string(center("Список случаев, вернувшихся с ошибкой и ещё не отосланных в ТФОМС", sh))
+  fp := fcreate(n_file)
+  n_list := 1
+  tek_stroke := 0
+  add_string('')
+  add_string(center('Список случаев, вернувшихся с ошибкой и ещё не отосланных в ТФОМС', sh))
   if i == 10
-    add_string(center("(просрочено более " + lstr(arr[9, 1]) + " дн.)", sh))
+    add_string(center('(просрочено более ' + lstr(arr[9, 1]) + ' дн.)', sh))
   else
-    add_string(center("(просрочено " + lstr(arr[i, 1]) + " дн.)", sh))
+    add_string(center('(просрочено ' + lstr(arr[i, 1]) + ' дн.)', sh))
   endif
-  add_string(center("по состоянию на " + full_date(sys_date) + " " + hour_min(seconds()), sh))
-  add_string("")
-  R_Use(dir_server + "mo_otd", , "OTD")
-  R_Use(dir_server + "human_", , "HUMAN_")
-  R_Use(dir_server + "human", , "HUMAN")
+  add_string(center('по состоянию на ' + full_date(sys_date) + ' ' + hour_min(seconds()), sh))
+  add_string('')
+  R_Use(dir_server + 'mo_otd', , 'OTD')
+  R_Use(dir_server + 'human_', , 'HUMAN_')
+  R_Use(dir_server + 'human', , 'HUMAN')
   set relation to recno() into HUMAN_, to otd into OTD
-  use (cur_dir + "tmp_tl") new
+  use (cur_dir + 'tmp_tl') new
   set relation to kod_h into HUMAN
   if i == 10
-    index on upper(human->fio) to (cur_dir + "tmp_tl") for dni > arr[9, 1]
+    index on upper(human->fio) to (cur_dir + 'tmp_tl') for dni > arr[9, 1]
   else
-    index on upper(human->fio) to (cur_dir + "tmp_tl") for dni == arr[i, 1]
+    index on upper(human->fio) to (cur_dir + 'tmp_tl') for dni == arr[i, 1]
   endif
   i := 0
   go top
   do while !eof()
     verify_FF(HH, .t., sh)
-    add_string(lstr(++i) + ". " + alltrim(human->fio) + ", " + full_date(human->date_r) + ;
-             iif(empty(otd->SHORT_NAME), "", " [" + alltrim(otd->SHORT_NAME) + "]") + ;
-             " " + date_8(human->n_data) + "-" + date_8(human->k_data))
+    add_string(lstr(++i) + '. ' + alltrim(human->fio) + ', ' + full_date(human->date_r) + ;
+             iif(empty(otd->SHORT_NAME), '', ' [' + alltrim(otd->SHORT_NAME) + ']') + ;
+             ' ' + date_8(human->n_data) + '-' + date_8(human->k_data))
     select TMP_TL
     skip
   enddo
@@ -898,7 +905,7 @@ Function f1find_time_limit_human_reestr_sp_tk(i, arr)
   viewtext(n_file, , , , .f., , , 2)
   return NIL
 
-***
+//
 Function my_mo_begin_task()
   Local fl := .t.
 
