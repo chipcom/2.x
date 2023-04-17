@@ -268,7 +268,7 @@ Function f_get_profil(k, r, c, lprofil_k)
   if empty(lprofil_k)
     return NIL
   endif
-  R_Use(exe_dir+'_mo_t007', cur_dir + '_mo_t007', 'T7')
+  R_Use(exe_dir + '_mo_t007', cur_dir + '_mo_t007', 'T7')
   find (str(lprofil_k, 3))
   do while lprofil_k == t7->profil_k .and. !eof()
     aadd(arr, {inieditspr(A__MENUVERT, getV002(), t7->PROFIL), t7->profil})
@@ -1114,10 +1114,10 @@ for i := 1 to len(arr_i01)
   oXmlDoc := HXMLDoc():New()
   oXmlDoc:Add( HXMLNode():New( 'ZL_LIST') )
    oXmlNode := oXmlDoc:aItems[1]:Add( HXMLNode():New( 'ZGLV' ) )
-    mo_add_xml_stroke(oXmlNode,'VERSION', '2.0')
-    mo_add_xml_stroke(oXmlNode,'DATE_F', date2xml(nf->DATE_F))
-    mo_add_xml_stroke(oXmlNode,'NAME_F', nf->NAME_F)
-    mo_add_xml_stroke(oXmlNode,'DATE_R', date2xml(nf->DATE_R))
+    mo_add_xml_stroke(oXmlNode, 'VERSION', '2.0')
+    mo_add_xml_stroke(oXmlNode, 'DATE_F', date2xml(nf->DATE_F))
+    mo_add_xml_stroke(oXmlNode, 'NAME_F', nf->NAME_F)
+    mo_add_xml_stroke(oXmlNode, 'DATE_R', date2xml(nf->DATE_R))
    oMo_d := oXmlDoc:aItems[1]:Add( HXMLNode():New( 'MO_D' ) )
     mo_add_xml_stroke(oMo_d,'MO', glob_mo[_MO_KOD_FFOMS])
     mo_add_xml_stroke(oMo_d,'LPU', glob_mo[_MO_KOD_TFOMS])
@@ -1265,10 +1265,10 @@ for k := 2 to 3
       oXmlDoc := HXMLDoc():New()
       oXmlDoc:Add( HXMLNode():New( 'ZL_LIST') )
        oXmlNode := oXmlDoc:aItems[1]:Add( HXMLNode():New( 'ZGLV' ) )
-        mo_add_xml_stroke(oXmlNode,'VERSION', '2.0')
-        mo_add_xml_stroke(oXmlNode,'DATE_F', date2xml(nf->DATE_F))
-        mo_add_xml_stroke(oXmlNode,'NAME_F', nf->NAME_F)
-        mo_add_xml_stroke(oXmlNode,'DATE_R', date2xml(nf->DATE_R))
+        mo_add_xml_stroke(oXmlNode, 'VERSION', '2.0')
+        mo_add_xml_stroke(oXmlNode, 'DATE_F', date2xml(nf->DATE_F))
+        mo_add_xml_stroke(oXmlNode, 'NAME_F', nf->NAME_F)
+        mo_add_xml_stroke(oXmlNode, 'DATE_R', date2xml(nf->DATE_R))
        oMo_d := oXmlDoc:aItems[1]:Add( HXMLNode():New( 'SOURCE' ) )
         mo_add_xml_stroke(oMo_d,'TYPE_S', lstr(k))
         mo_add_xml_stroke(oMo_d,'CODE', glob_mo[_MO_KOD_FFOMS])
@@ -1354,10 +1354,10 @@ if !fl_error
     oXmlDoc := HXMLDoc():New()
     oXmlDoc:Add( HXMLNode():New( 'ZL_LIST') )
      oXmlNode := oXmlDoc:aItems[1]:Add( HXMLNode():New( 'ZGLV' ) )
-      mo_add_xml_stroke(oXmlNode,'VERSION', '2.0')
-      mo_add_xml_stroke(oXmlNode,'DATE_F', date2xml(nf->DATE_F))
-      mo_add_xml_stroke(oXmlNode,'NAME_F', nf->NAME_F)
-      mo_add_xml_stroke(oXmlNode,'DATE_R', date2xml(nf->DATE_R))
+      mo_add_xml_stroke(oXmlNode, 'VERSION', '2.0')
+      mo_add_xml_stroke(oXmlNode, 'DATE_F', date2xml(nf->DATE_F))
+      mo_add_xml_stroke(oXmlNode, 'NAME_F', nf->NAME_F)
+      mo_add_xml_stroke(oXmlNode, 'DATE_R', date2xml(nf->DATE_R))
      oMo_d := oXmlDoc:aItems[1]:Add( HXMLNode():New( 'MO_HOSP' ) )
       mo_add_xml_stroke(oMo_d,'MO', glob_mo[_MO_KOD_FFOMS])
       mo_add_xml_stroke(oMo_d,'LPU', glob_mo[_MO_KOD_TFOMS])
@@ -1489,10 +1489,10 @@ if !fl_error
     oXmlDoc := HXMLDoc():New()
     oXmlDoc:Add( HXMLNode():New( 'ZL_LIST') )
      oXmlNode := oXmlDoc:aItems[1]:Add( HXMLNode():New( 'ZGLV' ) )
-      mo_add_xml_stroke(oXmlNode,'VERSION', '2.0')
-      mo_add_xml_stroke(oXmlNode,'DATE_F', date2xml(nf->DATE_F))
-      mo_add_xml_stroke(oXmlNode,'NAME_F', nf->NAME_F)
-      mo_add_xml_stroke(oXmlNode,'DATE_R', date2xml(nf->DATE_R))
+      mo_add_xml_stroke(oXmlNode, 'VERSION', '2.0')
+      mo_add_xml_stroke(oXmlNode, 'DATE_F', date2xml(nf->DATE_F))
+      mo_add_xml_stroke(oXmlNode, 'NAME_F', nf->NAME_F)
+      mo_add_xml_stroke(oXmlNode, 'DATE_R', date2xml(nf->DATE_R))
      oMo_d := oXmlDoc:aItems[1]:Add( HXMLNode():New( 'MO_EXTR' ) )
       mo_add_xml_stroke(oMo_d,'MO', glob_mo[_MO_KOD_FFOMS])
       mo_add_xml_stroke(oMo_d,'LPU', glob_mo[_MO_KOD_TFOMS])
@@ -1623,10 +1623,10 @@ if !fl_error
     oXmlDoc := HXMLDoc():New()
     oXmlDoc:Add( HXMLNode():New( 'ZL_LIST') )
      oXmlNode := oXmlDoc:aItems[1]:Add( HXMLNode():New( 'ZGLV' ) )
-      mo_add_xml_stroke(oXmlNode,'VERSION', '2.0')
-      mo_add_xml_stroke(oXmlNode,'DATE_F', date2xml(nf->DATE_F))
-      mo_add_xml_stroke(oXmlNode,'NAME_F', nf->NAME_F)
-      mo_add_xml_stroke(oXmlNode,'DATE_R', date2xml(nf->DATE_R))
+      mo_add_xml_stroke(oXmlNode, 'VERSION', '2.0')
+      mo_add_xml_stroke(oXmlNode, 'DATE_F', date2xml(nf->DATE_F))
+      mo_add_xml_stroke(oXmlNode, 'NAME_F', nf->NAME_F)
+      mo_add_xml_stroke(oXmlNode, 'DATE_R', date2xml(nf->DATE_R))
      oMo_d := oXmlDoc:aItems[1]:Add( HXMLNode():New( 'MO_DC' ) )
       mo_add_xml_stroke(oMo_d,'MO', glob_mo[_MO_KOD_FFOMS])
       mo_add_xml_stroke(oMo_d,'LPU', glob_mo[_MO_KOD_TFOMS])
@@ -1694,7 +1694,7 @@ if !fl_error .and. yes_i07
   if found()
     G_RLock(forever) // бесконечная попытка блокировать запись
     // удалим предыдущий XML-файл
-    delete file (dir_server + dir_NAPR_MO + cslash+alltrim(nf->NAME_F) + szip)
+    delete file (dir_server + dir_NAPR_MO + cslash+ alltrim(nf->NAME_F) + szip)
   else
     G_RLock(.t., forever) // бесконечная попытка добавить запись
     nf->KOD := recno()            // код файла
@@ -1719,10 +1719,10 @@ if !fl_error .and. yes_i07
   oXmlDoc := HXMLDoc():New()
   oXmlDoc:Add( HXMLNode():New( 'ZL_LIST') )
    oXmlNode := oXmlDoc:aItems[1]:Add( HXMLNode():New( 'ZGLV' ) )
-    mo_add_xml_stroke(oXmlNode,'VERSION', '2.0')
-    mo_add_xml_stroke(oXmlNode,'DATE_F', date2xml(nf->DATE_F))
-    mo_add_xml_stroke(oXmlNode,'NAME_F', nf->NAME_F)
-    mo_add_xml_stroke(oXmlNode,'DATE_R', date2xml(nf->DATE_R))
+    mo_add_xml_stroke(oXmlNode, 'VERSION', '2.0')
+    mo_add_xml_stroke(oXmlNode, 'DATE_F', date2xml(nf->DATE_F))
+    mo_add_xml_stroke(oXmlNode, 'NAME_F', nf->NAME_F)
+    mo_add_xml_stroke(oXmlNode, 'DATE_R', date2xml(nf->DATE_R))
    oMo_d := oXmlDoc:aItems[1]:Add( HXMLNode():New( 'MO_PLACE' ) )
     mo_add_xml_stroke(oMo_d,'MO', glob_mo[_MO_KOD_FFOMS])
     mo_add_xml_stroke(oMo_d,'LPU', glob_mo[_MO_KOD_TFOMS])
@@ -1753,11 +1753,11 @@ if !fl_error .and. yes_i07
          mo_add_xml_stroke(oZAP,'DATE_PL', date2xml(d))
          pole := iif(ifp==0, 'n7->PLACE_FREE', 'n7->PLACE' + lstr(ifp))
          mo_add_xml_stroke(oZAP,'PLACE_FREE', lstr(&pole))
-         pole := 'n7->PF_M'+iif(ifp==0, '', lstr(ifp))
+         pole := 'n7->PF_M' + iif(ifp==0, '', lstr(ifp))
          mo_add_xml_stroke(oZAP,'PF_M', lstr(&pole))
-         pole := 'n7->PF_W'+iif(ifp==0, '', lstr(ifp))
+         pole := 'n7->PF_W' + iif(ifp==0, '', lstr(ifp))
          mo_add_xml_stroke(oZAP,'PF_W', lstr(&pole))
-         pole := 'n7->PF_C'+iif(ifp==0, '', lstr(ifp))
+         pole := 'n7->PF_C' + iif(ifp==0, '', lstr(ifp))
          mo_add_xml_stroke(oZAP,'PF_C', lstr(&pole))
          if ++ifp > 10
            exit
@@ -2763,7 +2763,7 @@ Function _263_from_read()
         find (padr(substr(upper(cName), 2), 26)) // поиск нашего первичного пакета
         if found()
           strfile(space(5) + 'обрабатывается ПРОТОКОЛ обработки информационного пакета' + hb_eol() + ;
-                space(5) +alltrim(nf->NAME_F) + ' от ' + date_8(nf->DATE_F) + 'г. (отчётная дата ' + date_8(nf->DATE_R) + 'г.)' + ;
+                space(5) + alltrim(nf->NAME_F) + ' от ' + date_8(nf->DATE_F) + 'г. (отчётная дата ' + date_8(nf->DATE_R) + 'г.)' + ;
                 hb_eol(), cFileProtokol, .t.)
           if emptyany(nf->d_ans,nf->t_ans) // если ответа ещё не было
             is_read := .t.
@@ -3724,199 +3724,208 @@ Function _263_from_read()
 
 // 22.07.14 Просмотр протоколов чтения информационных пакетов из ТФОМС
 Function _263_from_protokol()
-Local i, d, s, blk, t_arr[BR_LEN], buf := save_maxrow()
-mywait()
-dbcreate(cur_dir + 'tmp', {{'named','D', 8, 0}, ;
-                        {'namet','C', 9, 0}, ;
-                        {'txt_f','C', 15, 0}})
-use (cur_dir + 'tmp') new
-blk := {|x| s := Name_Without_Ext(StripPath(x)), ;
+  Local i, d, s, blk, t_arr[BR_LEN], buf := save_maxrow()
+
+  mywait()
+  dbcreate(cur_dir + 'tmp', {{'named','D', 8, 0}, ;
+                            {'namet','C', 9, 0}, ;
+                            {'txt_f','C', 15, 0}})
+  use (cur_dir + 'tmp') new
+  blk := {|x| s := Name_Without_Ext(StripPath(x)), ;
             dbAppend(), ;
             tmp->named := stod(left(s, 8)), ;
-            tmp->namet := left(right(s, 6), 2) + ':'+left(right(s, 4), 2) + ':'+right(s, 2), ;
+            tmp->namet := left(right(s, 6), 2) + ':'+left(right(s, 4), 2) + ':' + right(s, 2), ;
             tmp->txt_f := s }
-scandirfiles(dir_server + dir_NAPR_TF + cslash, '*' + stxt, blk )
-if lastrec() == 0
+  scandirfiles(dir_server + dir_NAPR_TF + cslash, '*' + stxt, blk )
+  if lastrec() == 0
+    close databases
+    rest_box(buf)
+    return func_error(4, 'Пока ещё не читали информационные пакеты из ТФОМС')
+  endif
+  index on descend(txt_f) to (cur_dir + 'tmp')
+  go top
+  t_arr[BR_TOP] := T_ROW
+  t_arr[BR_BOTTOM] := maxrow() - 2
+  t_arr[BR_LEFT] := T_COL - 5
+  t_arr[BR_RIGHT] := t_arr[BR_LEFT] + 23
+  t_arr[BR_COLOR] := color0
+  t_arr[BR_ARR_BROWSE] := {'═', '░', '═', , .t.}
+  blk := nil
+  t_arr[BR_COLUMN] := {{'   Дата', {|| full_date(tmp->named) }, blk }, ;
+                       {' Время', {|| tmp->namet }, blk }}
+  t_arr[BR_STAT_MSG] := {|| status_key('^<Esc>^ - выход;  ^<Enter>^ - просмотр файла протокола чтения') }
+  t_arr[BR_EDIT] := {|nk, ob| f2_263_from_protokol(nk, ob, 'edit') }
+  edit_browse(t_arr)
   close databases
   rest_box(buf)
-  return func_error(4, 'Пока ещё не читали информационные пакеты из ТФОМС')
-endif
-index on descend(txt_f) to (cur_dir + 'tmp')
-go top
-t_arr[BR_TOP] := T_ROW
-t_arr[BR_BOTTOM] := maxrow()-2
-t_arr[BR_LEFT] := T_COL-5
-t_arr[BR_RIGHT] := t_arr[BR_LEFT]+23
-t_arr[BR_COLOR] := color0
-t_arr[BR_ARR_BROWSE] := {'═','░','═', , .t.}
-blk := nil
-t_arr[BR_COLUMN] := {{'   Дата', {|| full_date(tmp->named) }, blk }, ;
-                     {' Время', {|| tmp->namet }, blk }}
-t_arr[BR_STAT_MSG] := {|| status_key('^<Esc>^ - выход;  ^<Enter>^ - просмотр файла протокола чтения') }
-t_arr[BR_EDIT] := {|nk, ob| f2_263_from_protokol(nk, ob, 'edit') }
-edit_browse(t_arr)
-close databases
-rest_box(buf)
-return NIL
+  return NIL
 
 // 22.07.14
 Function f2_263_from_protokol(nKey, oBrow, regim)
-Local ret := -1
-do case
-  case regim == 'edit'
-    if nKey == K_ENTER
-      viewtext(Devide_Into_Pages(dir_server + dir_NAPR_TF + cslash+tmp->txt_f + stxt, 60, 80), , , , .t., , , 2)
-    else
-      keyboard ''
-    endif
-endcase
-return ret
+  Local ret := -1
+
+  do case
+    case regim == 'edit'
+      if nKey == K_ENTER
+        viewtext(Devide_Into_Pages(dir_server + dir_NAPR_TF + cslash+tmp->txt_f + stxt, 60, 80), , , , .t., , , 2)
+      else
+        keyboard ''
+      endif
+  endcase
+  return ret
 
 // 26.08.14 Список информационных пакетов с полученными направлениями от поликлиник
 Function _263_from_I01()
-Static str_sem := '263_from_I01'
-Local buf := save_maxrow(), blk, t_arr[BR_LEN]
-if !G_SLock(str_sem)
-  return func_error(4, err_slock)
-endif
-G_Use(dir_server + 'mo_nfile', , 'NF')
-index on dtos(date_r) +upper(name_f) to (cur_dir + 'tmp_nf') ;
+  Static str_sem := '263_from_I01'
+  Local buf := save_maxrow(), blk, t_arr[BR_LEN]
+
+  if !G_SLock(str_sem)
+    return func_error(4, err_slock)
+  endif
+  G_Use(dir_server + 'mo_nfile', , 'NF')
+  index on dtos(date_r) +upper(name_f) to (cur_dir + 'tmp_nf') ;
       for in_out == 2 .and. tip_f == 1 DESCENDING
-go top
-if eof()
+  go top
+  if eof()
+    close databases
+    G_SUnLock(str_sem)
+    return func_error(4, 'Пока не было чтения информационных пакетов I01 из ТФОМС')
+  endif
+  t_arr[BR_TOP] := T_ROW
+  t_arr[BR_BOTTOM] := maxrow() - 5
+  t_arr[BR_LEFT] := 0
+  t_arr[BR_RIGHT] := 79
+  t_arr[BR_TITUL] := 'Информационные пакеты I01, полученные из ТФОМС'
+  t_arr[BR_TITUL_COLOR] := 'B/BG'
+  t_arr[BR_COLOR] := color0
+  t_arr[BR_ARR_BROWSE] := {'═', '░', '═', 'N/BG, W+/N, B/BG, W+/B, R/BG, W+/R', .t.}
+  blk := {|| iif(empty(nf->TWORK2), {5, 6}, ;
+          iif(substr(nf->name_f, 12, 6) == glob_mo[_MO_KOD_TFOMS], {3, 4}, {1, 2})) }
+  t_arr[BR_COLUMN] := {{' Имя файла', {|| nf->name_f }, blk }, ;
+                       {' Отч.дата', {|| full_date(nf->date_r) }, blk }, ;
+                       {' Кол.', {|| str(nf->kol, 5) }, blk }, ;
+                       {'Дата и время чтения', {|| padr(f1_263_from_I01(3), 34) }, blk }}
+  t_arr[BR_STEP_FUNC] := {|| f1_263_from_I01(1) }
+  t_arr[BR_STAT_MSG] := {|| status_key('^<Esc>^ выход  ^<Enter>^ просмотр') }
+  t_arr[BR_EDIT] := {|nk, ob| f2_263_from_I01(nk, ob, 'edit') }
+  f1_263_from_I01(0)
+  edit_browse(t_arr)
+  f1_263_from_I01(2)
   close databases
   G_SUnLock(str_sem)
-  return func_error(4, 'Пока не было чтения информационных пакетов I01 из ТФОМС')
-endif
-t_arr[BR_TOP] := T_ROW
-t_arr[BR_BOTTOM] := maxrow()-5
-t_arr[BR_LEFT] := 0
-t_arr[BR_RIGHT] := 79
-t_arr[BR_TITUL] := 'Информационные пакеты I01, полученные из ТФОМС'
-t_arr[BR_TITUL_COLOR] := 'B/BG'
-t_arr[BR_COLOR] := color0
-t_arr[BR_ARR_BROWSE] := {'═','░','═','N/BG,W+/N,B/BG,W+/B,R/BG,W+/R', .t.}
-blk := {|| iif(empty(nf->TWORK2), {5, 6}, ;
-          iif(substr(nf->name_f, 12, 6)==glob_mo[_MO_KOD_TFOMS], {3, 4}, {1, 2})) }
-t_arr[BR_COLUMN] := {{' Имя файла', {|| nf->name_f }, blk }, ;
-                     {' Отч.дата', {|| full_date(nf->date_r) }, blk }, ;
-                     {' Кол.', {|| str(nf->kol, 5) }, blk }, ;
-                     {'Дата и время чтения', {|| padr(f1_263_from_I01(3), 34) }, blk }}
-t_arr[BR_STEP_FUNC] := {|| f1_263_from_I01(1) }
-t_arr[BR_STAT_MSG] := {|| status_key('^<Esc>^ выход  ^<Enter>^ просмотр') }
-t_arr[BR_EDIT] := {|nk, ob| f2_263_from_I01(nk, ob, 'edit') }
-f1_263_from_I01(0)
-edit_browse(t_arr)
-f1_263_from_I01(2)
-close databases
-G_SUnLock(str_sem)
-rest_box(buf)
-return NIL
+  rest_box(buf)
+  return NIL
 
 // 26.08.14
 Function f1_263_from_I01(k)
-Static buf
-Local ta[2], k1, k2
-if k == 0
-  buf := box_shadow(maxrow()-4, 0,maxrow() - 1, 79,color1,'Полное наименование направившей поликлиники','B+/B')
-elseif k == 1
-  perenos(ta,ret_mo(substr(nf->name_f, 12, 6))[_MO_FULL_NAME], 78)
-  @ maxrow()-3, 1 say padc(alltrim(ta[1]), 78) color color14
-  @ maxrow()-2, 1 say padc(alltrim(ta[2]), 78) color color14
-elseif k == 2
-  rest_box(buf)
-elseif k == 3
-  return date_8(nf->dwork) + ' '+nf->twork1+iif(empty(nf->TWORK2), ' ЧТЕНИЕ НЕ ЗАВЕРШЕНО', '')
-endif
-return NIL
+  Static buf
+  Local ta[2], k1, k2
+
+  if k == 0
+    buf := box_shadow(maxrow() - 4, 0,maxrow() - 1, 79, color1, 'Полное наименование направившей поликлиники', 'B+/B')
+  elseif k == 1
+    perenos(ta, ret_mo(substr(nf->name_f, 12, 6))[_MO_FULL_NAME], 78)
+    @ maxrow() - 3, 1 say padc(alltrim(ta[1]), 78) color color14
+    @ maxrow() - 2, 1 say padc(alltrim(ta[2]), 78) color color14
+  elseif k == 2
+    rest_box(buf)
+  elseif k == 3
+    return date_8(nf->dwork) + ' ' + nf->twork1 + iif(empty(nf->TWORK2), ' ЧТЕНИЕ НЕ ЗАВЕРШЕНО', '')
+  endif
+  return NIL
 
 // 26.08.14
 Function f2_263_from_I01(nKey, oBrow, regim)
-Local lkod, buf, r1, rec, i, ret := -1, arr, lcodem, n1, n2, ;
-      n_file := 'i01' + stxt, sh := 80, HH := 60, t_arr[4], s1, s2, s3, s4
-if regim == 'edit'
-  do case
-    case nKey == K_CTRL_F12
-      if empty(nf->TWORK2)
-        buf := savescreen()
-        arr := {}
-        aadd(arr, 'Файл ' + alltrim(nf->name_f) + ', отчётная дата ' + full_date(nf->date_r) + 'г.')
-        aadd(arr, 'количество пациентов ' + lstr(nf->kol) + ' чел.')
-        aadd(arr, '')
-        aadd(arr, 'Аннулируется НЕДОЧИТАННЫЙ информационный пакет I01')
-        aadd(arr, '')
-        aadd(arr, 'После подтверждения аннулирования все последствия чтения данного')
-        aadd(arr, 'файла, а также сам файл, будут удалены.')
-        f_message(arr, ,cColorSt2Msg, cColorSt1Msg)
-        s := 'Подтвердите аннулирование информационного пакета I01'
-        stat_msg(s) ; mybell(1)
-        if f_Esc_Enter('аннулирования', .t.)
-          mywait()
-          G_Use(dir_server + 'mo_nnapr', , 'NAPR')
-          index on kod to (cur_dir + 'tmp_napr') for KOD_F_1in == nf->kod
-          arr := {} ; dbeval({|| aadd(arr, napr->(recno())) })
-          set index to
-          for i := 1 to len(arr)
-            if napr->CODEM_1 == napr->S_CODEM // код поликлиники == код стационара
-              G_RLock(forever)
-              napr->KOD_F_1in := 0 // код файла - по файлу mo_nfile
-            else
-              DeleteRec(.t.)
-            endif
-          next
-          napr->(dbCloseArea())
-          select NF
-          DeleteRec()
-          stat_msg('Аннулирование завершено! Можете прочитать файл снова') ; mybell(2)
-          go top
-          ret := 1
+  Local lkod, buf, r1, rec, i, ret := -1, arr, lcodem, n1, n2, ;
+        n_file := cur_dir + 'i01' + stxt, sh := 80, HH := 60, t_arr[4], s1, s2, s3, s4
+
+  if regim == 'edit'
+    do case
+      case nKey == K_CTRL_F12
+        if empty(nf->TWORK2)
+          buf := savescreen()
+          arr := {}
+          aadd(arr, 'Файл ' + alltrim(nf->name_f) + ', отчётная дата ' + full_date(nf->date_r) + 'г.')
+          aadd(arr, 'количество пациентов ' + lstr(nf->kol) + ' чел.')
+          aadd(arr, '')
+          aadd(arr, 'Аннулируется НЕДОЧИТАННЫЙ информационный пакет I01')
+          aadd(arr, '')
+          aadd(arr, 'После подтверждения аннулирования все последствия чтения данного')
+          aadd(arr, 'файла, а также сам файл, будут удалены.')
+          f_message(arr, , cColorSt2Msg, cColorSt1Msg)
+          s := 'Подтвердите аннулирование информационного пакета I01'
+          stat_msg(s) ; mybell(1)
+          if f_Esc_Enter('аннулирования', .t.)
+            mywait()
+            G_Use(dir_server + 'mo_nnapr', , 'NAPR')
+            index on kod to (cur_dir + 'tmp_napr') for KOD_F_1in == nf->kod
+            arr := {}
+            dbeval({|| aadd(arr, napr->(recno())) })
+            set index to
+            for i := 1 to len(arr)
+              if napr->CODEM_1 == napr->S_CODEM // код поликлиники == код стационара
+                G_RLock(forever)
+                napr->KOD_F_1in := 0 // код файла - по файлу mo_nfile
+              else
+                DeleteRec(.t.)
+              endif
+            next
+            napr->(dbCloseArea())
+            select NF
+            DeleteRec()
+            stat_msg('Аннулирование завершено! Можете прочитать файл снова')
+            mybell(2)
+            go top
+            ret := 1
+          endif
+          restscreen(buf)
+        else
+          func_error(4, 'Данный файл был успешно прочитан. Аннулирование запрещено!')
         endif
-        restscreen(buf)
-      else
-        func_error(4, 'Данный файл был успешно прочитан. Аннулирование запрещено!')
-      endif
-    case nKey == K_ENTER
-      buf := save_maxrow()
-      mywait()
-      fp := fcreate(n_file) ; tek_stroke := 0 ; n_list := 1
-      add_string('')
-      add_string('Файл ' + alltrim(nf->name_f) + ', отчётная дата ' + full_date(nf->date_r) + 'г.')
-      add_string('количество пациентов ' + lstr(nf->kol) + ' чел.')
-      add_string('')
-      add_string('Это информационный пакет со сведениями о выписанных в поликлинике направлениях')
-      add_string('от МО ' + charone('"', ret_mo(substr(nf->name_f, 12, 6))[_MO_SHORT_NAME]))
-      R_Use(dir_server + 'kartote_', , '_KART_')
-      R_Use(dir_server + 'kartotek', , '_KART')
-      set relation to kod into _KART_
-      R_Use(dir_server + 'mo_nnapr', , 'NAPR')
-      set relation to kod_k into _KART
-      index on upper(_kart->fio) + str(_kart->kod, 7) to (cur_dir + 'tmp_napr') ;
-               for KOD_F_1in == nf->kod
-      i := 0
-      go top
-      do while !eof()
-        verify_FF(HH - 5, .t., sh)
+      case nKey == K_ENTER
+        buf := save_maxrow()
+        mywait()
+        fp := fcreate(n_file)
+        tek_stroke := 0
+        n_list := 1
         add_string('')
-        add_string(lstr(++i) + '. Направление № ' + alltrim(napr->NUM_D) + ' от ' + date_8(napr->DATE_D))
-        add_string(space(3) +alltrim(_kart->fio) + ', д.р.' + full_date(_kart->date_r))
-        add_string(space(3) + 'Условия оказания, в которые направляется пациент: '+iif(napr->usl_ok_1==2,'дневной ','') + 'стационар')
-        add_string(space(3) + 'Направление выдано по результатам диспансеризации/профосмотра взрослых: '+iif(napr->disp_1==1,'нет','да'))
-        add_string(space(3) + 'планируемая дата госпитализации ' + date_8(napr->DATE_H_1) + ' по диагнозу ' + alltrim(napr->DS_1))
-        add_string(space(3) + inieditspr(A__MENUVERT, arr_t007, napr->PROFIL_K_1) + ;
+        add_string('Файл ' + alltrim(nf->name_f) + ', отчётная дата ' + full_date(nf->date_r) + 'г.')
+        add_string('количество пациентов ' + lstr(nf->kol) + ' чел.')
+        add_string('')
+        add_string('Это информационный пакет со сведениями о выписанных в поликлинике направлениях')
+        add_string('от МО ' + charone('"', ret_mo(substr(nf->name_f, 12, 6))[_MO_SHORT_NAME]))
+        R_Use(dir_server + 'kartote_', , '_KART_')
+        R_Use(dir_server + 'kartotek', , '_KART')
+        set relation to kod into _KART_
+        R_Use(dir_server + 'mo_nnapr', , 'NAPR')
+        set relation to kod_k into _KART
+        index on upper(_kart->fio) + str(_kart->kod, 7) to (cur_dir + 'tmp_napr') ;
+                 for KOD_F_1in == nf->kod
+        i := 0
+        go top
+        do while !eof()
+          verify_FF(HH - 5, .t., sh)
+          add_string('')
+          add_string(lstr(++i) + '. Направление № ' + alltrim(napr->NUM_D) + ' от ' + date_8(napr->DATE_D))
+          add_string(space(3) + alltrim(_kart->fio) + ', д.р.' + full_date(_kart->date_r))
+          add_string(space(3) + 'Условия оказания, в которые направляется пациент: ' + iif(napr->usl_ok_1==2,'дневной ','') + 'стационар')
+          add_string(space(3) + 'Направление выдано по результатам диспансеризации/профосмотра взрослых: ' + iif(napr->disp_1==1,'нет','да'))
+          add_string(space(3) + 'планируемая дата госпитализации ' + date_8(napr->DATE_H_1) + ' по диагнозу ' + alltrim(napr->DS_1))
+          add_string(space(3) + inieditspr(A__MENUVERT, arr_t007, napr->PROFIL_K_1) + ;
                                      ' (' + inieditspr(A__MENUVERT, getV002(), napr->PROFIL_1) + ')')
-        select NAPR
-        skip
-      enddo
-      fclose(fp)
-      _kart->(dbCloseArea())
-      _kart_->(dbCloseArea())
-      napr->(dbCloseArea())
-      rest_box(buf)
-      viewtext(n_file, , , , .t., , , 2)
-      select NF
-  endcase
-endif
-return ret
+          select NAPR
+          skip
+        enddo
+        fclose(fp)
+        _kart->(dbCloseArea())
+        _kart_->(dbCloseArea())
+        napr->(dbCloseArea())
+        rest_box(buf)
+        viewtext(n_file, , , , .t., , , 2)
+        select NF
+    endcase
+  endif
+  return ret
 
 // Список информационных пакетов с аннулированными направлениями
 Function _263_from_I03()
@@ -3950,771 +3959,780 @@ Function _263_from_I07()
 
 // 20.01.16 добавим или перезапишем запись в картотеке
 Function _263_add_kart(lkod_k, lfio, cFileProtokol, yes_append)
-Local s, fl_nameismo := .f., mfio := padr(upper(lfio), 50)
-DEFAULT yes_append TO .t.
-select KART
-if empty(lkod_k)
-  set order to 2
-  find ('1'+mfio+dtos(tmp2->BIRTHDAY))
-  if found()
-    lkod_k := kart->kod
-  endif
-else
-  goto (lkod_k)
-  if !(mfio == upper(kart->fio) .and. tmp2->BIRTHDAY == kart->DATE_R)
-    strfile(space(7) + 'в нашей картотеке данный пациент записан как:' + ;
-            space(9) +alltrim(kart->fio) + ' д.р.' + full_date(kart->DATE_R) + ;
-            hb_eol(), cFileProtokol, .t.)
-    lkod_k := 0
-  endif
-endif
-select KART
-set order to 1
-if empty(lkod_k)
-  if yes_append
-    strfile(space(7) + 'добавляем этого пациента в нашу картотеку как нового' + ;
-            hb_eol(), cFileProtokol, .t.)
-    Add1Rec(7)
-    lkod_k := kart->kod := recno()
-    kart->FIO    := lfio
-    kart->DATE_R := tmp2->BIRTHDAY
+  Local s, fl_nameismo := .f., mfio := padr(upper(lfio), 50)
+
+  DEFAULT yes_append TO .t.
+  select KART
+  if empty(lkod_k)
+    set order to 2
+    find ('1' + mfio + dtos(tmp2->BIRTHDAY))
+    if found()
+      lkod_k := kart->kod
+    endif
   else
-    return lkod_k
+    goto (lkod_k)
+    if !(mfio == upper(kart->fio) .and. tmp2->BIRTHDAY == kart->DATE_R)
+      strfile(space(7) + 'в нашей картотеке данный пациент записан как:' + ;
+            space(9) + alltrim(kart->fio) + ' д.р.' + full_date(kart->DATE_R) + ;
+            hb_eol(), cFileProtokol, .t.)
+      lkod_k := 0
+    endif
   endif
-else
-  strfile(space(7) + 'данный пациент найден в нашей картотеке' + ;
+  select KART
+  set order to 1
+  if empty(lkod_k)
+    if yes_append
+      strfile(space(7) + 'добавляем этого пациента в нашу картотеку как нового' + ;
+              hb_eol(), cFileProtokol, .t.)
+      Add1Rec(7)
+      lkod_k := kart->kod := recno()
+      kart->FIO    := lfio
+      kart->DATE_R := tmp2->BIRTHDAY
+    else
+      return lkod_k
+    endif
+  else
+    strfile(space(7) + 'данный пациент найден в нашей картотеке' + ;
           hb_eol(), cFileProtokol, .t.)
-  goto (lkod_k)
-  G_RLock(forever)
-endif
-Private mdate_r := kart->DATE_R, m1VZROS_REB := 0, M1NOVOR := 0
-fv_date_r()
-kart->pol       := iif(tmp2->SEX==1, 'М','Ж')
-kart->VZROS_REB := m1VZROS_REB
-kart->POLIS     := make_polis(tmp2->SER_P,tmp2->NUM_P)
-kart->snils     := charrem('- ',tmp2->SS)
-if TwoWordFamImOt(tmp2->SURNAME) .or. TwoWordFamImOt(tmp2->NAME) ;
+    goto (lkod_k)
+    G_RLock(forever)
+  endif
+  Private mdate_r := kart->DATE_R, m1VZROS_REB := 0, M1NOVOR := 0
+  fv_date_r()
+  kart->pol       := iif(tmp2->SEX==1, 'М','Ж')
+  kart->VZROS_REB := m1VZROS_REB
+  kart->POLIS     := make_polis(tmp2->SER_P, tmp2->NUM_P)
+  kart->snils     := charrem('- ', tmp2->SS)
+  if TwoWordFamImOt(tmp2->SURNAME) .or. TwoWordFamImOt(tmp2->NAME) ;
                                  .or. TwoWordFamImOt(tmp2->PATRONYMIC)
-  kart->MEST_INOG := 9
-else
-  kart->MEST_INOG := 0
-endif
-select KART_
-do while kart_->(lastrec()) < lkod_k
-  APPEND BLANK
-enddo
-goto (lkod_k)
-G_RLock(forever)
-kart_->VPOLIS    := tmp2->TYPE_P
-kart_->SPOLIS    := tmp2->SER_P
-kart_->NPOLIS    := tmp2->NUM_P
-kart_->SMO       := tmp2->SMO
-kart_->KVARTAL_D := tmp2->REG_OMS // ОКАТО субъекта РФ территории страхования
-if !empty(tmp2->TEL_M)
-  kart_->PHONE_M := charrem('-',tmp2->TEL_M)
-endif
-if !empty(tmp2->TEL_F)
-  kart_->PHONE_H := charrem('-',tmp2->TEL_F)
-endif
-//
-select KART2
-do while kart2->(lastrec()) < lkod_k
-  APPEND BLANK
-enddo
-if !empty(tmp2->ENP)
+    kart->MEST_INOG := 9
+  else
+    kart->MEST_INOG := 0
+  endif
+  select KART_
+  do while kart_->(lastrec()) < lkod_k
+    APPEND BLANK
+  enddo
   goto (lkod_k)
   G_RLock(forever)
-  kart2->kod_mis := tmp2->ENP
-endif
-//
-select KFIO
-find (str(lkod_k, 7))
-if found()
-  if kart->MEST_INOG == 9
+  kart_->VPOLIS    := tmp2->TYPE_P
+  kart_->SPOLIS    := tmp2->SER_P
+  kart_->NPOLIS    := tmp2->NUM_P
+  kart_->SMO       := tmp2->SMO
+  kart_->KVARTAL_D := tmp2->REG_OMS // ОКАТО субъекта РФ территории страхования
+  if !empty(tmp2->TEL_M)
+    kart_->PHONE_M := charrem('-', tmp2->TEL_M)
+  endif
+  if !empty(tmp2->TEL_F)
+    kart_->PHONE_H := charrem('-', tmp2->TEL_F)
+  endif
+  //
+  select KART2
+  do while kart2->(lastrec()) < lkod_k
+    APPEND BLANK
+  enddo
+  if !empty(tmp2->ENP)
+    goto (lkod_k)
     G_RLock(forever)
-    kfio->FAM := tmp2->SURNAME
-    kfio->IM  := tmp2->NAME
-    kfio->OT  := tmp2->PATRONYMIC
+    kart2->kod_mis := tmp2->ENP
+  endif
+  //
+  select KFIO
+  find (str(lkod_k, 7))
+  if found()
+    if kart->MEST_INOG == 9
+      G_RLock(forever)
+      kfio->FAM := tmp2->SURNAME
+      kfio->IM  := tmp2->NAME
+      kfio->OT  := tmp2->PATRONYMIC
+    else
+      DeleteRec(.t.)
+    endif
   else
-    DeleteRec(.t.)
+    if kart->MEST_INOG == 9
+      AddRec(7)
+      kfio->kod := lkod_k
+      kfio->FAM := tmp2->SURNAME
+      kfio->IM  := tmp2->NAME
+      kfio->OT  := tmp2->PATRONYMIC
+    endif
   endif
-else
-  if kart->MEST_INOG == 9
-    AddRec(7)
-    kfio->kod := lkod_k
-    kfio->FAM := tmp2->SURNAME
-    kfio->IM  := tmp2->NAME
-    kfio->OT  := tmp2->PATRONYMIC
+  if empty(tmp2->SMO) .and. !empty(tmp2->NAME_SMO)
+    fl_nameismo := .t.
   endif
-endif
-if empty(tmp2->SMO) .and. !empty(tmp2->NAME_SMO)
-  fl_nameismo := .t.
-endif
-select KSN
-find (str(lkod_k, 7))
-if found()
-  if fl_nameismo
-    G_RLock(forever)
-    ksn->smo_name := tmp2->NAME_SMO
+  select KSN
+  find (str(lkod_k, 7))
+  if found()
+    if fl_nameismo
+      G_RLock(forever)
+      ksn->smo_name := tmp2->NAME_SMO
+    else
+      DeleteRec(.t.)
+    endif
   else
-    DeleteRec(.t.)
+    if fl_nameismo
+      AddRec(7)
+      ksn->kod := lkod_k
+      ksn->smo_name := tmp2->NAME_SMO
+    endif
   endif
-else
-  if fl_nameismo
-    AddRec(7)
-    ksn->kod := lkod_k
-    ksn->smo_name := tmp2->NAME_SMO
-  endif
-endif
-return lkod_k
+  return lkod_k
 
 // 14.07.14 зачитать протокол обработки информационного пакета (любого)
 Function _263_protokol_tmpfile(nfile, aerr)
-Local adbf, j, oXmlDoc, oXmlNode, is_err_FLK := .f.
-adbf := { ;
- {'NAME_F', 'C', 26, 0}, ;
- {'DATE_F', 'D',  8, 0}, ;
- {'OSHIB',  'N',  3, 0}, ;  // код ошибки T008 для всего файла
- {'KOL2',   'N',  6, 0} ;   // кол-во ошибок
-}
-dbcreate(cur_dir + 'tmp1file',adbf, , .t.,'TMP1')
-append blank
-tmp1->OSHIB := -1
-//
-adbf := { ; // элементы PR
- {'OSHIB',      'N',  3, 0}, ;  // код ошибки  T008
- {'IM_POL',     'C', 20, 0}, ;  // имя поля, в котором ошибка
- {'BAS_EL',     'C', 20, 0}, ;  // имя базового элемента
- {'ID_BAS',     'C', 36, 0}, ;  // GUID базового элемента
- {'KOD_NAPR',   'N',  6, 0} ;   // код по БД направлений
-}
-dbcreate(cur_dir + 'tmp2file',adbf, , .t.,'TMP2')  // элементы PR
-if upper(right(nfile, 4)) == sxml
-  // читаем файл в память
-  oXmlDoc := HXMLDoc():Read(_tmp_dir1+nfile)
-  is_err_FLK := (oXmlDoc == NIL)
-endif
-if !is_err_FLK
-  FOR j := 1 TO Len( oXmlDoc:aItems[1]:aItems )
-    oXmlNode := oXmlDoc:aItems[1]:aItems[j]
-    do case
-      case 'NAME_F' == oXmlNode:title
-        tmp1->NAME_F := mo_read_xml_tag(oXmlNode, aerr, .t.)
-      case 'DATE_F' == oXmlNode:title
-        tmp1->DATE_F := xml2date(mo_read_xml_tag(oXmlNode, aerr, .t.))
-      case 'PR' == oXmlNode:title
-        select TMP2
-        append blank
-        tmp2->OSHIB := val(mo_read_xml_stroke(oXmlNode,'OSHIB', aerr))
-        if tmp2->OSHIB == 0
-          tmp1->OSHIB := 0
-        else
-          is_err_FLK := .t.
-        endif
-        tmp2->IM_POL := mo_read_xml_stroke(oXmlNode,'IM_POL', aerr, .f.)
-        tmp2->BAS_EL := mo_read_xml_stroke(oXmlNode,'BAS_EL', aerr, .f.)
-        tmp2->ID_BAS := mo_read_xml_stroke(oXmlNode,'ID_BAS', aerr, .f.)
-        if !empty(tmp2->BAS_EL) .and. !empty(tmp2->ID_BAS)
-          tmp1->KOL2 ++
-        endif
-    endcase
-  NEXT j
-endif
-select TMP2
-index on upper(ID_BAS) to (cur_dir + 'tmp2file')
-commit
-return is_err_FLK
+  Local adbf, j, oXmlDoc, oXmlNode, is_err_FLK := .f.
+
+  adbf := { ;
+          {'NAME_F', 'C', 26, 0}, ;
+          {'DATE_F', 'D',  8, 0}, ;
+          {'OSHIB',  'N',  3, 0}, ;  // код ошибки T008 для всего файла
+          {'KOL2',   'N',  6, 0} ;   // кол-во ошибок
+  }
+  dbcreate(cur_dir + 'tmp1file', adbf, , .t., 'TMP1')
+  append blank
+  tmp1->OSHIB := -1
+  //
+  adbf := { ; // элементы PR
+          {'OSHIB',      'N',  3, 0}, ;  // код ошибки  T008
+          {'IM_POL',     'C', 20, 0}, ;  // имя поля, в котором ошибка
+          {'BAS_EL',     'C', 20, 0}, ;  // имя базового элемента
+          {'ID_BAS',     'C', 36, 0}, ;  // GUID базового элемента
+          {'KOD_NAPR',   'N',  6, 0} ;   // код по БД направлений
+  }
+  dbcreate(cur_dir + 'tmp2file', adbf, , .t., 'TMP2')  // элементы PR
+  if upper(right(nfile, 4)) == sxml
+    // читаем файл в память
+    oXmlDoc := HXMLDoc():Read(_tmp_dir1 + nfile)
+    is_err_FLK := (oXmlDoc == NIL)
+  endif
+  if !is_err_FLK
+    FOR j := 1 TO Len( oXmlDoc:aItems[1]:aItems )
+      oXmlNode := oXmlDoc:aItems[1]:aItems[j]
+      do case
+        case 'NAME_F' == oXmlNode:title
+          tmp1->NAME_F := mo_read_xml_tag(oXmlNode, aerr, .t.)
+        case 'DATE_F' == oXmlNode:title
+          tmp1->DATE_F := xml2date(mo_read_xml_tag(oXmlNode, aerr, .t.))
+        case 'PR' == oXmlNode:title
+          select TMP2
+          append blank
+          tmp2->OSHIB := val(mo_read_xml_stroke(oXmlNode, 'OSHIB', aerr))
+          if tmp2->OSHIB == 0
+            tmp1->OSHIB := 0
+          else
+            is_err_FLK := .t.
+          endif
+          tmp2->IM_POL := mo_read_xml_stroke(oXmlNode, 'IM_POL', aerr, .f.)
+          tmp2->BAS_EL := mo_read_xml_stroke(oXmlNode, 'BAS_EL', aerr, .f.)
+          tmp2->ID_BAS := mo_read_xml_stroke(oXmlNode, 'ID_BAS', aerr, .f.)
+          if !empty(tmp2->BAS_EL) .and. !empty(tmp2->ID_BAS)
+            tmp1->KOL2 ++
+          endif
+      endcase
+    NEXT j
+  endif
+  select TMP2
+  index on upper(ID_BAS) to (cur_dir + 'tmp2file')
+  commit
+  return is_err_FLK
 
 // 15.01.19 зачитать информационный пакет I01
 Function _263_I01_tmpfile(nfile, aerr)
-Local _table1 := { ;
-   {'VERSION',   'C',  5, 0}, ; // версия взаимодействия
-   {'DATE_F',    'D',  8, 0}, ; // дата формирования файла
-   {'NAME_F',    'C', 26, 0}, ; // имя файла
-   {'DATE_R',    'D',  8, 0}, ; // отчетная дата
-   {'KOL',       'N',  6, 0} ;  // кол-во направлений в файле
-  }
-Local _table2 := { ;
-   {'MO',        'C',  6, 0}, ; // mcod п-ки
-   {'LPU',       'C',  6, 0}, ; // codem п-ки
-   {'ID_D',      'C', 36, 0}, ; //
-   {'NUM_D',     'C', 15, 0}, ; // номер направления
-   {'DATE_D',    'D',  8, 0}, ; // дата направления
-   {'MO_H',      'C',  6, 0}, ; // mcod стационара
-   {'LPU_H',     'C',  6, 0}, ; // codem стационара
-   {'USL_OK',    'N',  1, 0}, ; //
-   {'DISP',      'N',  1, 0}, ; //
-   {'PROFIL',    'N',  3, 0}, ; // профиль медпомощи
-   {'PROFIL_K',  'N',  3, 0}, ; // профиль койки
-   {'DS',        'C',  6, 0}, ; // диагноз
-   {'IDDOKT',    'C', 16, 0}, ; // код медработника
-   {'F_MEDC',    'N',  1, 0}, ; // форма оказания медпомощи
-   {'DATE_HOSP', 'D',  8, 0}, ; // планируемая дата госпитализации
-   {'COMMENT_D', 'C', 250, 0}, ; //
-   {'SURNAME',   'C', 40, 0}, ; //
-   {'NAME',      'C', 40, 0}, ; //
-   {'PATRONYMIC','C', 40, 0}, ; //
-   {'BIRTHDAY',  'D',  8, 0}, ; //
-   {'SEX',       'N',  1, 0}, ; //
-   {'SS',        'C', 14, 0}, ; //
-   {'TYPE_P',    'N',  1, 0}, ; //
-   {'SER_P',     'C', 10, 0}, ; //
-   {'NUM_P',     'C', 20, 0}, ; //
-   {'ENP',       'C', 16, 0}, ; //
-   {'SMO',       'C',  5, 0}, ; //
-   {'NAME_SMO',  'C', 100, 0}, ; //
-   {'REG_OMS',   'C',  5, 0}, ; //
-   {'COMMENT_P', 'C', 250, 0}, ; //
-   {'TEL_M',     'C', 13, 0}, ; //
-   {'TEL_F',     'C', 13, 0} ;  //
-  }
-Local arr_f, ii, oXmlDoc, j, j1, _ar, buf := save_maxrow(), fl := .f., ;
-      sMO, sLPU, oNode1, oNode2, oNode3
-//
-dbcreate(cur_dir + 'tmp1file',_table1, , .t.,'TMP1')
-append blank
-dbcreate(cur_dir + 'tmp2file',_table2, , .t.,'TMP2')
-if upper(right(nfile, 4)) == sxml
-  fl := .t.
-  // читаем файл в память
-  oXmlDoc := HXMLDoc():Read(_tmp_dir1+nfile)
-  if oXmlDoc == NIL
-    fl := func_error(4, 'Ошибка в чтении файла '+nfile)
-  endif
-endif
-if fl
-  FOR j := 1 TO Len( oXmlDoc:aItems[1]:aItems )
-    if Empty( oXmlDoc:aItems )
-      fl := func_error(4, 'Ошибка в чтении файла '+nfile)
-      exit
+  Local _table1 := { ;
+                    {'VERSION',   'C',  5, 0}, ; // версия взаимодействия
+                    {'DATE_F',    'D',  8, 0}, ; // дата формирования файла
+                    {'NAME_F',    'C', 26, 0}, ; // имя файла
+                    {'DATE_R',    'D',  8, 0}, ; // отчетная дата
+                    {'KOL',       'N',  6, 0} ;  // кол-во направлений в файле
+                  }
+  Local _table2 := { ;
+                    {'MO',        'C',  6, 0}, ; // mcod п-ки
+                    {'LPU',       'C',  6, 0}, ; // codem п-ки
+                    {'ID_D',      'C', 36, 0}, ; //
+                    {'NUM_D',     'C', 15, 0}, ; // номер направления
+                    {'DATE_D',    'D',  8, 0}, ; // дата направления
+                    {'MO_H',      'C',  6, 0}, ; // mcod стационара
+                    {'LPU_H',     'C',  6, 0}, ; // codem стационара
+                    {'USL_OK',    'N',  1, 0}, ; //
+                    {'DISP',      'N',  1, 0}, ; //
+                    {'PROFIL',    'N',  3, 0}, ; // профиль медпомощи
+                    {'PROFIL_K',  'N',  3, 0}, ; // профиль койки
+                    {'DS',        'C',  6, 0}, ; // диагноз
+                    {'IDDOKT',    'C', 16, 0}, ; // код медработника
+                    {'F_MEDC',    'N',  1, 0}, ; // форма оказания медпомощи
+                    {'DATE_HOSP', 'D',  8, 0}, ; // планируемая дата госпитализации
+                    {'COMMENT_D', 'C', 250, 0}, ; //
+                    {'SURNAME',   'C', 40, 0}, ; //
+                    {'NAME',      'C', 40, 0}, ; //
+                    {'PATRONYMIC','C', 40, 0}, ; //
+                    {'BIRTHDAY',  'D',  8, 0}, ; //
+                    {'SEX',       'N',  1, 0}, ; //
+                    {'SS',        'C', 14, 0}, ; //
+                    {'TYPE_P',    'N',  1, 0}, ; //
+                    {'SER_P',     'C', 10, 0}, ; //
+                    {'NUM_P',     'C', 20, 0}, ; //
+                    {'ENP',       'C', 16, 0}, ; //
+                    {'SMO',       'C',  5, 0}, ; //
+                    {'NAME_SMO',  'C', 100, 0}, ; //
+                    {'REG_OMS',   'C',  5, 0}, ; //
+                    {'COMMENT_P', 'C', 250, 0}, ; //
+                    {'TEL_M',     'C', 13, 0}, ; //
+                    {'TEL_F',     'C', 13, 0} ;  //
+                  }
+  Local arr_f, ii, oXmlDoc, j, j1, _ar, buf := save_maxrow(), fl := .f., ;
+        sMO, sLPU, oNode1, oNode2, oNode3
+
+  //
+  dbcreate(cur_dir + 'tmp1file', _table1, , .t., 'TMP1')
+  append blank
+  dbcreate(cur_dir + 'tmp2file', _table2, , .t., 'TMP2')
+  if upper(right(nfile, 4)) == sxml
+    fl := .t.
+    // читаем файл в память
+    oXmlDoc := HXMLDoc():Read(_tmp_dir1 + nfile)
+    if oXmlDoc == NIL
+      fl := func_error(4, 'Ошибка в чтении файла ' + nfile)
     endif
-    oXmlNode := oXmlDoc:aItems[1]:aItems[j]
-    if 'ZGLV' == oXmlNode:title
-      tmp1->VERSION :=          mo_read_xml_stroke(oXmlNode,'VERSION', aerr)
-      tmp1->DATE_F  := xml2date(mo_read_xml_stroke(oXmlNode,'DATE_F', aerr))
-      tmp1->NAME_F  :=          mo_read_xml_stroke(oXmlNode,'NAME_F', aerr)
-      tmp1->DATE_R  := xml2date(mo_read_xml_stroke(oXmlNode,'DATE_R', aerr))
-      tmp1->KOL     := 0
-    elseif 'MO_D' == oXmlNode:title
-      sMO  := mo_read_xml_stroke(oXmlNode,'MO', aerr, .f.)
-      sLPU := mo_read_xml_stroke(oXmlNode,'LPU', aerr)
-      if !empty(sLPU) .and. empty(sMO)
-        sMO  := ret_mo(sLPU)[_MO_KOD_FFOMS]
+  endif
+  if fl
+    FOR j := 1 TO Len( oXmlDoc:aItems[1]:aItems )
+      if Empty( oXmlDoc:aItems )
+        fl := func_error(4, 'Ошибка в чтении файла ' + nfile)
+        exit
       endif
-      for j1 := 1 to len(oXmlNode:aitems) // последовательный просмотр
-        oNode2 := oXmlNode:aItems[j1]     // т.к. направлений м.б. несколько
-        if valtype(oNode2) != 'C' .AND. oNode2:title == 'DIR'
-          tmp1->KOL ++
-          select TMP2
-          append blank
-          tmp2->MO       := sMO
-          tmp2->LPU      := sLPU
-          tmp2->ID_D     :=          mo_read_xml_stroke(oNode2,'ID_D', aerr)
-          tmp2->NUM_D    :=          mo_read_xml_stroke(oNode2,'NUM_D', aerr)
-          tmp2->DATE_D   := xml2date(mo_read_xml_stroke(oNode2,'DATE_D', aerr))
-          tmp2->MO_H     :=          mo_read_xml_stroke(oNode2,'MO_H', aerr)
-          tmp2->LPU_H    :=          mo_read_xml_stroke(oNode2,'LPU_H', aerr)
-          tmp2->DISP     :=      val(mo_read_xml_stroke(oNode2,'DISP', aerr, .f.))
-          tmp2->USL_OK   :=      val(mo_read_xml_stroke(oNode2,'USL_OK', aerr, .f.))
-          if empty(tmp2->USL_OK) // для файлов старой версии
-            tmp2->USL_OK := 1
-          endif
-          tmp2->PROFIL   :=      val(mo_read_xml_stroke(oNode2,'PROFIL', aerr))
-          tmp2->PROFIL_K := f_profil_k_v020_t007(mo_read_xml_stroke(oNode2,'PROFIL_K', aerr),tmp2->PROFIL,tmp1->DATE_R)
-          tmp2->DS       :=          mo_read_xml_stroke(oNode2,'DS', aerr)
-          tmp2->IDDOKT   :=          mo_read_xml_stroke(oNode2,'IDDOKT', aerr, .f.)
-          tmp2->F_MEDC   :=      val(mo_read_xml_stroke(oNode2,'F_MEDC', aerr))
-          tmp2->DATE_HOSP:= xml2date(mo_read_xml_stroke(oNode2,'DATE_HOSP', aerr))
-          tmp2->COMMENT_D:=          mo_read_xml_stroke(oNode2,'COMMENT_D', aerr, .f.)
-          if (oNode1 := oNode2:Find('PATIENT')) != NIL
-            tmp2->SURNAME   :=          mo_read_xml_stroke(oNode1,'SURNAME', aerr)
-            tmp2->NAME      :=          mo_read_xml_stroke(oNode1,'NAME', aerr)
-            tmp2->PATRONYMIC:=          mo_read_xml_stroke(oNode1,'PATRONYMIC', aerr, .f.)
-            tmp2->BIRTHDAY  := xml2date(mo_read_xml_stroke(oNode1,'BIRTHDAY', aerr))
-            tmp2->SEX       :=      val(mo_read_xml_stroke(oNode1,'SEX', aerr))
-            tmp2->SS        :=          mo_read_xml_stroke(oNode1,'SS', aerr, .f.)
-            tmp2->TYPE_P    :=      val(mo_read_xml_stroke(oNode1,'TYPE_P', aerr))
-            tmp2->SER_P     :=          mo_read_xml_stroke(oNode1,'SER_P', aerr, .f.)
-            tmp2->NUM_P     :=          mo_read_xml_stroke(oNode1,'NUM_P', aerr)
-            tmp2->ENP       :=          mo_read_xml_stroke(oNode1,'ENP', aerr, .f.)
-            tmp2->SMO       :=          mo_read_xml_stroke(oNode1,'SMO', aerr, .f.)
-            tmp2->NAME_SMO  :=          mo_read_xml_stroke(oNode1,'NAME_SMO', aerr, .f.)
-            tmp2->REG_OMS   :=          mo_read_xml_stroke(oNode1,'REG_OMS', aerr)
-            tmp2->COMMENT_P :=          mo_read_xml_stroke(oNode1,'COMMENT_P', aerr, .f.)
-            if (oNode3 := oNode1:Find('CONTACT')) != NIL
-              tmp2->TEL_M := mo_read_xml_stroke(oNode3,'TEL_M', aerr, .f.)
-              tmp2->TEL_F := mo_read_xml_stroke(oNode3,'TEL_F', aerr, .f.)
+      oXmlNode := oXmlDoc:aItems[1]:aItems[j]
+      if 'ZGLV' == oXmlNode:title
+        tmp1->VERSION :=          mo_read_xml_stroke(oXmlNode, 'VERSION', aerr)
+        tmp1->DATE_F  := xml2date(mo_read_xml_stroke(oXmlNode, 'DATE_F', aerr))
+        tmp1->NAME_F  :=          mo_read_xml_stroke(oXmlNode, 'NAME_F', aerr)
+        tmp1->DATE_R  := xml2date(mo_read_xml_stroke(oXmlNode, 'DATE_R', aerr))
+        tmp1->KOL     := 0
+      elseif 'MO_D' == oXmlNode:title
+        sMO  := mo_read_xml_stroke(oXmlNode, 'MO', aerr, .f.)
+        sLPU := mo_read_xml_stroke(oXmlNode, 'LPU', aerr)
+        if !empty(sLPU) .and. empty(sMO)
+          sMO  := ret_mo(sLPU)[_MO_KOD_FFOMS]
+        endif
+        for j1 := 1 to len(oXmlNode:aitems) // последовательный просмотр
+          oNode2 := oXmlNode:aItems[j1]     // т.к. направлений м.б. несколько
+          if valtype(oNode2) != 'C' .AND. oNode2:title == 'DIR'
+            tmp1->KOL ++
+            select TMP2
+            append blank
+            tmp2->MO       := sMO
+            tmp2->LPU      := sLPU
+            tmp2->ID_D     :=          mo_read_xml_stroke(oNode2, 'ID_D', aerr)
+            tmp2->NUM_D    :=          mo_read_xml_stroke(oNode2, 'NUM_D', aerr)
+            tmp2->DATE_D   := xml2date(mo_read_xml_stroke(oNode2, 'DATE_D', aerr))
+            tmp2->MO_H     :=          mo_read_xml_stroke(oNode2, 'MO_H', aerr)
+            tmp2->LPU_H    :=          mo_read_xml_stroke(oNode2, 'LPU_H', aerr)
+            tmp2->DISP     :=      val(mo_read_xml_stroke(oNode2, 'DISP', aerr, .f.))
+            tmp2->USL_OK   :=      val(mo_read_xml_stroke(oNode2, 'USL_OK', aerr, .f.))
+            if empty(tmp2->USL_OK) // для файлов старой версии
+              tmp2->USL_OK := 1
+            endif
+            tmp2->PROFIL   :=      val(mo_read_xml_stroke(oNode2, 'PROFIL', aerr))
+            tmp2->PROFIL_K := f_profil_k_v020_t007(mo_read_xml_stroke(oNode2, 'PROFIL_K', aerr), tmp2->PROFIL, tmp1->DATE_R)
+            tmp2->DS       :=          mo_read_xml_stroke(oNode2, 'DS', aerr)
+            tmp2->IDDOKT   :=          mo_read_xml_stroke(oNode2, 'IDDOKT', aerr, .f.)
+            tmp2->F_MEDC   :=      val(mo_read_xml_stroke(oNode2, 'F_MEDC', aerr))
+            tmp2->DATE_HOSP:= xml2date(mo_read_xml_stroke(oNode2, 'DATE_HOSP', aerr))
+            tmp2->COMMENT_D:=          mo_read_xml_stroke(oNode2, 'COMMENT_D', aerr, .f.)
+            if (oNode1 := oNode2:Find('PATIENT')) != NIL
+              tmp2->SURNAME   :=          mo_read_xml_stroke(oNode1, 'SURNAME', aerr)
+              tmp2->NAME      :=          mo_read_xml_stroke(oNode1, 'NAME', aerr)
+              tmp2->PATRONYMIC:=          mo_read_xml_stroke(oNode1, 'PATRONYMIC', aerr, .f.)
+              tmp2->BIRTHDAY  := xml2date(mo_read_xml_stroke(oNode1, 'BIRTHDAY', aerr))
+              tmp2->SEX       :=      val(mo_read_xml_stroke(oNode1, 'SEX', aerr))
+              tmp2->SS        :=          mo_read_xml_stroke(oNode1, 'SS', aerr, .f.)
+              tmp2->TYPE_P    :=      val(mo_read_xml_stroke(oNode1, 'TYPE_P', aerr))
+              tmp2->SER_P     :=          mo_read_xml_stroke(oNode1, 'SER_P', aerr, .f.)
+              tmp2->NUM_P     :=          mo_read_xml_stroke(oNode1, 'NUM_P', aerr)
+              tmp2->ENP       :=          mo_read_xml_stroke(oNode1, 'ENP', aerr, .f.)
+              tmp2->SMO       :=          mo_read_xml_stroke(oNode1, 'SMO', aerr, .f.)
+              tmp2->NAME_SMO  :=          mo_read_xml_stroke(oNode1, 'NAME_SMO', aerr, .f.)
+              tmp2->REG_OMS   :=          mo_read_xml_stroke(oNode1, 'REG_OMS', aerr)
+              tmp2->COMMENT_P :=          mo_read_xml_stroke(oNode1, 'COMMENT_P', aerr, .f.)
+              if (oNode3 := oNode1:Find('CONTACT')) != NIL
+                tmp2->TEL_M := mo_read_xml_stroke(oNode3, 'TEL_M', aerr, .f.)
+                tmp2->TEL_F := mo_read_xml_stroke(oNode3, 'TEL_F', aerr, .f.)
+              endif
             endif
           endif
-        endif
-      next j1
-    endif
-  next j
-endif
-rest_box(buf)
-return fl .and. empty(aerr)
+        next j1
+      endif
+    next j
+  endif
+  rest_box(buf)
+  return fl .and. empty(aerr)
 
 // 19.02.17 зачитать информационный пакет I03
 Function _263_I03_tmpfile(nfile, aerr)
-Local _table1 := { ;
-   {'VERSION',   'C',  5, 0}, ; // версия взаимодействия
-   {'DATE_F',    'D',  8, 0}, ; // дата формирования файла
-   {'NAME_F',    'C', 26, 0}, ; // имя файла
-   {'DATE_R',    'D',  8, 0}, ; // отчетная дата
-   {'KOL',       'N',  6, 0} ;  // кол-во направлений в файле
-  }
-Local _table2 := { ;
-   {'TYPE_S',    'N',  1, 0}, ; // тип отправителя: 1-СМО, 2-стационар, 3-поликлиника
-   {'CODE',      'C',  6, 0}, ; // регистрационный код отправителя
-   {'ID_D',      'C', 36, 0}, ; // код записи направления
-   {'MO_D',      'C',  6, 0}, ; // mcod п-ки
-   {'LPU_D',     'C',  6, 0}, ; // codem п-ки
-   {'DATE_REF',  'D',  8, 0}, ; // дата аннулирования
-   {'REASON_REF','N',  6, 0} ;  // (от 1 до 9) причина аннулирования
-  }
-Local arr_f, ii, oXmlDoc, j, j1, _ar, buf := save_maxrow(), fl := .f., ;
+  Local _table1 := { ;
+                    {'VERSION',   'C',  5, 0}, ; // версия взаимодействия
+                    {'DATE_F',    'D',  8, 0}, ; // дата формирования файла
+                    {'NAME_F',    'C', 26, 0}, ; // имя файла
+                    {'DATE_R',    'D',  8, 0}, ; // отчетная дата
+                    {'KOL',       'N',  6, 0} ;  // кол-во направлений в файле
+                  }
+  Local _table2 := { ;
+                    {'TYPE_S',    'N',  1, 0}, ; // тип отправителя: 1-СМО, 2-стационар, 3-поликлиника
+                    {'CODE',      'C',  6, 0}, ; // регистрационный код отправителя
+                    {'ID_D',      'C', 36, 0}, ; // код записи направления
+                    {'MO_D',      'C',  6, 0}, ; // mcod п-ки
+                    {'LPU_D',     'C',  6, 0}, ; // codem п-ки
+                    {'DATE_REF',  'D',  8, 0}, ; // дата аннулирования
+                    {'REASON_REF','N',  6, 0} ;  // (от 1 до 9) причина аннулирования
+                  }
+  Local arr_f, ii, oXmlDoc, j, j1, _ar, buf := save_maxrow(), fl := .f., ;
       sMO, sLPU, oNode1, oNode2, oNode3
-//
-dbcreate(cur_dir + 'tmp1file',_table1, , .t.,'TMP1')
-append blank
-dbcreate(cur_dir + 'tmp2file',_table2, , .t.,'TMP2')
-if upper(right(nfile, 4)) == sxml
-  fl := .t.
-  // читаем файл в память
-  oXmlDoc := HXMLDoc():Read(_tmp_dir1+nfile)
-  if oXmlDoc == NIL
-    fl := func_error(4, 'Ошибка в чтении файла '+nfile)
+
+  //
+  dbcreate(cur_dir + 'tmp1file', _table1, , .t., 'TMP1')
+  append blank
+  dbcreate(cur_dir + 'tmp2file', _table2, , .t., 'TMP2')
+  if upper(right(nfile, 4)) == sxml
+    fl := .t.
+    // читаем файл в память
+    oXmlDoc := HXMLDoc():Read(_tmp_dir1 + nfile)
+    if oXmlDoc == NIL
+      fl := func_error(4, 'Ошибка в чтении файла ' + nfile)
+    endif
   endif
-endif
-if fl
-  FOR j := 1 TO Len( oXmlDoc:aItems[1]:aItems )
-    if Empty( oXmlDoc:aItems )
-      fl := func_error(4, 'Ошибка в чтении файла '+nfile)
-      exit
-    endif
-    oXmlNode := oXmlDoc:aItems[1]:aItems[j]
-    if 'ZGLV' == oXmlNode:title
-      tmp1->VERSION :=          mo_read_xml_stroke(oXmlNode,'VERSION', aerr)
-      tmp1->DATE_F  := xml2date(mo_read_xml_stroke(oXmlNode,'DATE_F', aerr))
-      tmp1->NAME_F  :=          mo_read_xml_stroke(oXmlNode,'NAME_F', aerr)
-      tmp1->DATE_R  := xml2date(mo_read_xml_stroke(oXmlNode,'DATE_R', aerr))
-      tmp1->KOL     := 0
-    elseif 'SOURCE' == oXmlNode:title
-      sTYPE_S := int(val(mo_read_xml_stroke(oXmlNode,'TYPE_S', aerr)))
-      sCODE   :=         mo_read_xml_stroke(oXmlNode,'CODE', aerr)
-      for j1 := 1 to len(oXmlNode:aitems) // последовательный просмотр
-        oNode2 := oXmlNode:aItems[j1]     // т.к. направлений м.б. несколько
-        if valtype(oNode2) != 'C' .AND. oNode2:title == 'REF_HOSP'
-          tmp1->KOL ++
-          select TMP2
-          append blank
-          tmp2->TYPE_S     := sTYPE_S
-          tmp2->CODE       := sCODE
-          tmp2->ID_D       :=          mo_read_xml_stroke(oNode2,'ID_D', aerr)
-          tmp2->MO_D       :=          mo_read_xml_stroke(oNode2,'MO_D', aerr)
-          tmp2->LPU_D      :=          mo_read_xml_stroke(oNode2,'LPU_D', aerr)
-          tmp2->DATE_REF   := xml2date(mo_read_xml_stroke(oNode2,'DATE_REF', aerr))
-          tmp2->REASON_REF :=      val(mo_read_xml_stroke(oNode2,'REASON_REF', aerr))
-        endif
-      next j1
-    endif
-  next j
-endif
-rest_box(buf)
-return fl .and. empty(aerr)
+  if fl
+    FOR j := 1 TO Len( oXmlDoc:aItems[1]:aItems )
+      if Empty( oXmlDoc:aItems )
+        fl := func_error(4, 'Ошибка в чтении файла ' + nfile)
+        exit
+      endif
+      oXmlNode := oXmlDoc:aItems[1]:aItems[j]
+      if 'ZGLV' == oXmlNode:title
+        tmp1->VERSION :=          mo_read_xml_stroke(oXmlNode, 'VERSION', aerr)
+        tmp1->DATE_F  := xml2date(mo_read_xml_stroke(oXmlNode, 'DATE_F', aerr))
+        tmp1->NAME_F  :=          mo_read_xml_stroke(oXmlNode, 'NAME_F', aerr)
+        tmp1->DATE_R  := xml2date(mo_read_xml_stroke(oXmlNode, 'DATE_R', aerr))
+        tmp1->KOL     := 0
+      elseif 'SOURCE' == oXmlNode:title
+        sTYPE_S := int(val(mo_read_xml_stroke(oXmlNode, 'TYPE_S', aerr)))
+        sCODE   :=         mo_read_xml_stroke(oXmlNode, 'CODE', aerr)
+        for j1 := 1 to len(oXmlNode:aitems) // последовательный просмотр
+          oNode2 := oXmlNode:aItems[j1]     // т.к. направлений м.б. несколько
+          if valtype(oNode2) != 'C' .AND. oNode2:title == 'REF_HOSP'
+            tmp1->KOL ++
+            select TMP2
+            append blank
+            tmp2->TYPE_S     := sTYPE_S
+            tmp2->CODE       := sCODE
+            tmp2->ID_D       :=          mo_read_xml_stroke(oNode2, 'ID_D', aerr)
+            tmp2->MO_D       :=          mo_read_xml_stroke(oNode2, 'MO_D', aerr)
+            tmp2->LPU_D      :=          mo_read_xml_stroke(oNode2, 'LPU_D', aerr)
+            tmp2->DATE_REF   := xml2date(mo_read_xml_stroke(oNode2, 'DATE_REF', aerr))
+            tmp2->REASON_REF :=      val(mo_read_xml_stroke(oNode2, 'REASON_REF', aerr))
+          endif
+        next j1
+      endif
+    next j
+  endif
+  rest_box(buf)
+  return fl .and. empty(aerr)
 
 // 15.01.19 зачитать информационный пакет I04 или I05
 Function _263_I04_tmpfile(nfile, aerr)
-Local _table1 := { ;
-   {'VERSION',   'C',  5, 0}, ; // версия взаимодействия
-   {'DATE_F',    'D',  8, 0}, ; // дата формирования файла
-   {'NAME_F',    'C', 26, 0}, ; // имя файла
-   {'DATE_R',    'D',  8, 0}, ; // отчетная дата
-   {'KOL',       'N',  6, 0} ;  // кол-во направлений в файле
-  }
-Local _table2 := { ;
-   {'MO',        'C',  6, 0}, ; // mcod п-ки
-   {'LPU',       'C',  6, 0}, ; // codem п-ки
-   {'ID_H',      'C', 36, 0}, ; //
-   {'TYPE_H',    'N',  1, 0}, ; //
-   {'ID_D',      'C', 36, 0}, ; //
-   {'MO_D',      'C',  6, 0}, ; // mcod
-   {'LPU_D',     'C',  6, 0}, ; // codem
-   {'DATE_H',    'D',  8, 0}, ; // дата госпитализации
-   {'TIME_H',    'C',  5, 0}, ; // время госпитализации
-   {'USL_OK',    'N',  1, 0}, ; //
-   {'PROFIL',    'N',  3, 0}, ; // профиль медпомощи
-   {'PROFIL_K',  'N',  3, 0}, ; // профиль койки
-   {'DS',        'C',  6, 0}, ; // диагноз
-   {'F_MEDC',    'N',  1, 0}, ; // форма оказания медпомощи
-   {'NUM_HIST',  'C', 50, 0}, ; //
-   {'COMMENT',   'C', 250, 0}, ; //
-   {'SURNAME',   'C', 40, 0}, ; //
-   {'NAME',      'C', 40, 0}, ; //
-   {'PATRONYMIC','C', 40, 0}, ; //
-   {'BIRTHDAY',  'D',  8, 0}, ; //
-   {'SEX',       'N',  1, 0}, ; //
-   {'SS',        'C', 14, 0}, ; //
-   {'TYPE_P',    'N',  1, 0}, ; //
-   {'SER_P',     'C', 10, 0}, ; //
-   {'NUM_P',     'C', 20, 0}, ; //
-   {'ENP',       'C', 16, 0}, ; //
-   {'SMO',       'C',  5, 0}, ; //
-   {'NAME_SMO',  'C', 100, 0}, ; //
-   {'REG_OMS',   'C',  5, 0}, ; //
-   {'COMMENT_P', 'C', 250, 0}, ; //
-   {'TEL_M',     'C', 13, 0}, ; //
-   {'TEL_F',     'C', 13, 0} ;  //
-  }
-Local arr_f, ii, oXmlDoc, j, j1, _ar, buf := save_maxrow(), fl := .f., sMO, sLPU, oNode1, oNode2, oNode3
-//
-dbcreate(cur_dir + 'tmp1file',_table1, , .t.,'TMP1')
-append blank
-dbcreate(cur_dir + 'tmp2file',_table2, , .t.,'TMP2')
-if upper(right(nfile, 4)) == sxml
-  fl := .t.
-  // читаем файл в память
-  oXmlDoc := HXMLDoc():Read(_tmp_dir1+nfile)
-  if oXmlDoc == NIL
-    fl := func_error(4, 'Ошибка в чтении файла '+nfile)
+  Local _table1 := { ;
+                    {'VERSION',   'C',  5, 0}, ; // версия взаимодействия
+                    {'DATE_F',    'D',  8, 0}, ; // дата формирования файла
+                    {'NAME_F',    'C', 26, 0}, ; // имя файла
+                    {'DATE_R',    'D',  8, 0}, ; // отчетная дата
+                    {'KOL',       'N',  6, 0} ;  // кол-во направлений в файле
+                  }
+  Local _table2 := { ;
+                    {'MO',        'C',  6, 0}, ; // mcod п-ки
+                    {'LPU',       'C',  6, 0}, ; // codem п-ки
+                    {'ID_H',      'C', 36, 0}, ; //
+                    {'TYPE_H',    'N',  1, 0}, ; //
+                    {'ID_D',      'C', 36, 0}, ; //
+                    {'MO_D',      'C',  6, 0}, ; // mcod
+                    {'LPU_D',     'C',  6, 0}, ; // codem
+                    {'DATE_H',    'D',  8, 0}, ; // дата госпитализации
+                    {'TIME_H',    'C',  5, 0}, ; // время госпитализации
+                    {'USL_OK',    'N',  1, 0}, ; //
+                    {'PROFIL',    'N',  3, 0}, ; // профиль медпомощи
+                    {'PROFIL_K',  'N',  3, 0}, ; // профиль койки
+                    {'DS',        'C',  6, 0}, ; // диагноз
+                    {'F_MEDC',    'N',  1, 0}, ; // форма оказания медпомощи
+                    {'NUM_HIST',  'C', 50, 0}, ; //
+                    {'COMMENT',   'C', 250, 0}, ; //
+                    {'SURNAME',   'C', 40, 0}, ; //
+                    {'NAME',      'C', 40, 0}, ; //
+                    {'PATRONYMIC','C', 40, 0}, ; //
+                    {'BIRTHDAY',  'D',  8, 0}, ; //
+                    {'SEX',       'N',  1, 0}, ; //
+                    {'SS',        'C', 14, 0}, ; //
+                    {'TYPE_P',    'N',  1, 0}, ; //
+                    {'SER_P',     'C', 10, 0}, ; //
+                    {'NUM_P',     'C', 20, 0}, ; //
+                    {'ENP',       'C', 16, 0}, ; //
+                    {'SMO',       'C',  5, 0}, ; //
+                    {'NAME_SMO',  'C', 100, 0}, ; //
+                    {'REG_OMS',   'C',  5, 0}, ; //
+                    {'COMMENT_P', 'C', 250, 0}, ; //
+                    {'TEL_M',     'C', 13, 0}, ; //
+                    {'TEL_F',     'C', 13, 0} ;  //
+                  }
+  Local arr_f, ii, oXmlDoc, j, j1, _ar, buf := save_maxrow(), fl := .f., sMO, ;
+      sLPU, oNode1, oNode2, oNode3
+  
+  //
+  dbcreate(cur_dir + 'tmp1file', _table1, , .t., 'TMP1')
+  append blank
+  dbcreate(cur_dir + 'tmp2file', _table2, , .t., 'TMP2')
+  if upper(right(nfile, 4)) == sxml
+    fl := .t.
+    // читаем файл в память
+    oXmlDoc := HXMLDoc():Read(_tmp_dir1 + nfile)
+    if oXmlDoc == NIL
+      fl := func_error(4, 'Ошибка в чтении файла ' + nfile)
+    endif
   endif
-endif
-if fl
-  FOR j := 1 TO Len( oXmlDoc:aItems[1]:aItems )
-    if Empty( oXmlDoc:aItems )
-      fl := func_error(4, 'Ошибка в чтении файла '+nfile)
-      exit
-    endif
-    oXmlNode := oXmlDoc:aItems[1]:aItems[j]
-    if 'ZGLV' == oXmlNode:title
-      tmp1->VERSION :=          mo_read_xml_stroke(oXmlNode,'VERSION', aerr)
-      tmp1->DATE_F  := xml2date(mo_read_xml_stroke(oXmlNode,'DATE_F', aerr))
-      tmp1->NAME_F  :=          mo_read_xml_stroke(oXmlNode,'NAME_F', aerr)
-      tmp1->DATE_R  := xml2date(mo_read_xml_stroke(oXmlNode,'DATE_R', aerr))
-      tmp1->KOL     := 0
-    elseif eq_any(oXmlNode:title,'MO_HOSP','MO_EXTR')
-      sMO  := mo_read_xml_stroke(oXmlNode,'MO', aerr, .f.)
-      sLPU := mo_read_xml_stroke(oXmlNode,'LPU', aerr)
-      if !empty(sLPU) .and. empty(sMO)
-        sMO  := ret_mo(sLPU)[_MO_KOD_FFOMS]
+  if fl
+    FOR j := 1 TO Len( oXmlDoc:aItems[1]:aItems )
+      if Empty( oXmlDoc:aItems )
+        fl := func_error(4, 'Ошибка в чтении файла ' + nfile)
+        exit
       endif
-      for j1 := 1 to len(oXmlNode:aitems) // последовательный просмотр
-        oNode2 := oXmlNode:aItems[j1]     // т.к. направлений м.б. несколько
-        if valtype(oNode2) != 'C' .AND. oNode2:title == 'HOSP'
-          tmp1->KOL ++
-          select TMP2
-          append blank
-          tmp2->MO       := sMO
-          tmp2->LPU      := sLPU
-          tmp2->ID_H     :=          mo_read_xml_stroke(oNode2,'ID_H', aerr)
-          tmp2->TYPE_H   :=      val(mo_read_xml_stroke(oNode2,'TYPE_H', aerr, .f.))
-          tmp2->USL_OK   :=      val(mo_read_xml_stroke(oNode2,'USL_OK', aerr, .f.))
-          if empty(tmp2->USL_OK) // для файлов старой версии / или пакет I05
-            tmp2->USL_OK := 1
-          endif
-          if empty(tmp2->TYPE_H)
-            tmp2->TYPE_H := 4 // т.е. это информационный пакет I05
-          endif
-          tmp2->ID_D     :=          mo_read_xml_stroke(oNode2,'ID_D', aerr, .f.)
-          tmp2->MO_D     :=          mo_read_xml_stroke(oNode2,'MO_D', aerr, .f.)
-          tmp2->LPU_D    :=          mo_read_xml_stroke(oNode2,'LPU_D', aerr, .f.)
-          tmp2->DATE_H   := xml2date(mo_read_xml_stroke(oNode2,'DATE_H', aerr))
-          tmp2->TIME_H   :=          mo_read_xml_stroke(oNode2,'TIME_H', aerr)
-          if '-' $ tmp2->TIME_H
-            tmp2->TIME_H := charrepl('-',tmp2->TIME_H,':') // время в моём формате
-          endif
-          tmp2->DS       :=          mo_read_xml_stroke(oNode2,'DS', aerr)
-          tmp2->F_MEDC   :=      val(mo_read_xml_stroke(oNode2,'F_MEDC', aerr))
-          tmp2->PROFIL   :=      val(mo_read_xml_stroke(oNode2,'PROFIL', aerr))
-          tmp2->PROFIL_K := f_profil_k_v020_t007(mo_read_xml_stroke(oNode2,'PROFIL_K', aerr),tmp2->PROFIL,tmp1->DATE_R)
-          tmp2->NUM_HIST :=          mo_read_xml_stroke(oNode2,'NUM_HIST', aerr)
-          tmp2->COMMENT  :=          mo_read_xml_stroke(oNode2,'COMMENT', aerr, .f.)
-          if (oNode1 := oNode2:Find('PATIENT')) != NIL
-            tmp2->SURNAME   :=          mo_read_xml_stroke(oNode1,'SURNAME', aerr)
-            tmp2->NAME      :=          mo_read_xml_stroke(oNode1,'NAME', aerr)
-            tmp2->PATRONYMIC:=          mo_read_xml_stroke(oNode1,'PATRONYMIC', aerr, .f.)
-            tmp2->BIRTHDAY  := xml2date(mo_read_xml_stroke(oNode1,'BIRTHDAY', aerr, .f.))
-            tmp2->SEX       :=      val(mo_read_xml_stroke(oNode1,'SEX', aerr))
-            tmp2->SS        :=          mo_read_xml_stroke(oNode1,'SS', aerr, .f.)
-            tmp2->TYPE_P    :=      val(mo_read_xml_stroke(oNode1,'TYPE_P', aerr, .f.))
-            tmp2->SER_P     :=          mo_read_xml_stroke(oNode1,'SER_P', aerr, .f.)
-            tmp2->NUM_P     :=          mo_read_xml_stroke(oNode1,'NUM_P', aerr, .f.)
-            tmp2->ENP       :=          mo_read_xml_stroke(oNode1,'ENP', aerr, .f.)
-            tmp2->SMO       :=          mo_read_xml_stroke(oNode1,'SMO', aerr, .f.)
-            tmp2->NAME_SMO  :=          mo_read_xml_stroke(oNode1,'NAME_SMO', aerr, .f.)
-            tmp2->REG_OMS   :=          mo_read_xml_stroke(oNode1,'REG_OMS', aerr, .f.)
-            tmp2->COMMENT_P :=          mo_read_xml_stroke(oNode1,'COMMENT_P', aerr, .f.)
-          endif
+      oXmlNode := oXmlDoc:aItems[1]:aItems[j]
+      if 'ZGLV' == oXmlNode:title
+        tmp1->VERSION :=          mo_read_xml_stroke(oXmlNode, 'VERSION', aerr)
+        tmp1->DATE_F  := xml2date(mo_read_xml_stroke(oXmlNode, 'DATE_F', aerr))
+        tmp1->NAME_F  :=          mo_read_xml_stroke(oXmlNode, 'NAME_F', aerr)
+        tmp1->DATE_R  := xml2date(mo_read_xml_stroke(oXmlNode, 'DATE_R', aerr))
+        tmp1->KOL     := 0
+      elseif eq_any(oXmlNode:title,'MO_HOSP','MO_EXTR')
+        sMO  := mo_read_xml_stroke(oXmlNode, 'MO', aerr, .f.)
+        sLPU := mo_read_xml_stroke(oXmlNode, 'LPU', aerr)
+        if !empty(sLPU) .and. empty(sMO)
+          sMO  := ret_mo(sLPU)[_MO_KOD_FFOMS]
         endif
-      next j1
-    endif
-  next j
-endif
-rest_box(buf)
-return fl .and. empty(aerr)
+        for j1 := 1 to len(oXmlNode:aitems) // последовательный просмотр
+          oNode2 := oXmlNode:aItems[j1]     // т.к. направлений м.б. несколько
+          if valtype(oNode2) != 'C' .AND. oNode2:title == 'HOSP'
+            tmp1->KOL ++
+            select TMP2
+            append blank
+            tmp2->MO       := sMO
+            tmp2->LPU      := sLPU
+            tmp2->ID_H     :=          mo_read_xml_stroke(oNode2, 'ID_H', aerr)
+            tmp2->TYPE_H   :=      val(mo_read_xml_stroke(oNode2, 'TYPE_H', aerr, .f.))
+            tmp2->USL_OK   :=      val(mo_read_xml_stroke(oNode2, 'USL_OK', aerr, .f.))
+            if empty(tmp2->USL_OK) // для файлов старой версии / или пакет I05
+              tmp2->USL_OK := 1
+            endif
+            if empty(tmp2->TYPE_H)
+              tmp2->TYPE_H := 4 // т.е. это информационный пакет I05
+            endif
+            tmp2->ID_D     :=          mo_read_xml_stroke(oNode2, 'ID_D', aerr, .f.)
+            tmp2->MO_D     :=          mo_read_xml_stroke(oNode2, 'MO_D', aerr, .f.)
+            tmp2->LPU_D    :=          mo_read_xml_stroke(oNode2, 'LPU_D', aerr, .f.)
+            tmp2->DATE_H   := xml2date(mo_read_xml_stroke(oNode2, 'DATE_H', aerr))
+            tmp2->TIME_H   :=          mo_read_xml_stroke(oNode2, 'TIME_H', aerr)
+            if '-' $ tmp2->TIME_H
+              tmp2->TIME_H := charrepl('-', tmp2->TIME_H,':') // время в моём формате
+            endif
+            tmp2->DS       :=          mo_read_xml_stroke(oNode2, 'DS', aerr)
+            tmp2->F_MEDC   :=      val(mo_read_xml_stroke(oNode2, 'F_MEDC', aerr))
+            tmp2->PROFIL   :=      val(mo_read_xml_stroke(oNode2, 'PROFIL', aerr))
+            tmp2->PROFIL_K := f_profil_k_v020_t007(mo_read_xml_stroke(oNode2, 'PROFIL_K', aerr), tmp2->PROFIL, tmp1->DATE_R)
+            tmp2->NUM_HIST :=          mo_read_xml_stroke(oNode2, 'NUM_HIST', aerr)
+            tmp2->COMMENT  :=          mo_read_xml_stroke(oNode2, 'COMMENT', aerr, .f.)
+            if (oNode1 := oNode2:Find('PATIENT')) != NIL
+              tmp2->SURNAME   :=          mo_read_xml_stroke(oNode1, 'SURNAME', aerr)
+              tmp2->NAME      :=          mo_read_xml_stroke(oNode1, 'NAME', aerr)
+              tmp2->PATRONYMIC:=          mo_read_xml_stroke(oNode1, 'PATRONYMIC', aerr, .f.)
+              tmp2->BIRTHDAY  := xml2date(mo_read_xml_stroke(oNode1, 'BIRTHDAY', aerr, .f.))
+              tmp2->SEX       :=      val(mo_read_xml_stroke(oNode1, 'SEX', aerr))
+              tmp2->SS        :=          mo_read_xml_stroke(oNode1, 'SS', aerr, .f.)
+              tmp2->TYPE_P    :=      val(mo_read_xml_stroke(oNode1, 'TYPE_P', aerr, .f.))
+              tmp2->SER_P     :=          mo_read_xml_stroke(oNode1, 'SER_P', aerr, .f.)
+              tmp2->NUM_P     :=          mo_read_xml_stroke(oNode1, 'NUM_P', aerr, .f.)
+              tmp2->ENP       :=          mo_read_xml_stroke(oNode1, 'ENP', aerr, .f.)
+              tmp2->SMO       :=          mo_read_xml_stroke(oNode1, 'SMO', aerr, .f.)
+              tmp2->NAME_SMO  :=          mo_read_xml_stroke(oNode1, 'NAME_SMO', aerr, .f.)
+              tmp2->REG_OMS   :=          mo_read_xml_stroke(oNode1, 'REG_OMS', aerr, .f.)
+              tmp2->COMMENT_P :=          mo_read_xml_stroke(oNode1, 'COMMENT_P', aerr, .f.)
+            endif
+          endif
+        next j1
+      endif
+    next j
+  endif
+  rest_box(buf)
+  return fl .and. empty(aerr)
 
 // 15.01.19 зачитать информационный пакет I06
 Function _263_I06_tmpfile(nfile, aerr)
-Local _table1 := { ;
-   {'VERSION',   'C',  5, 0}, ; // версия взаимодействия
-   {'DATE_F',    'D',  8, 0}, ; // дата формирования файла
-   {'NAME_F',    'C', 26, 0}, ; // имя файла
-   {'DATE_R',    'D',  8, 0}, ; // отчетная дата
-   {'KOL',       'N',  6, 0} ;  // кол-во направлений в файле
-  }
-Local _table2 := { ;
-   {'MO',        'C',  6, 0}, ; // mcod п-ки
-   {'LPU',       'C',  6, 0}, ; // codem п-ки
-   {'ID_DISCH',  'C', 36, 0}, ; //
-   {'ID_D',      'C', 36, 0}, ; //
-   {'MO_D',      'C',  6, 0}, ; // mcod
-   {'LPU_D',     'C',  6, 0}, ; // codem
-   {'DATE_H',    'D',  8, 0}, ; // дата госпитализации
-   {'DATE_D',    'D',  8, 0}, ; // дата госпитализации
-   {'USL_OK',    'N',  1, 0}, ; //
-   {'PROFIL',    'N',  3, 0}, ; // профиль медпомощи
-   {'PROFIL_K',  'N',  3, 0}, ; // профиль койки
-   {'F_MEDC',    'N',  1, 0}, ; // форма оказания медпомощи
-   {'NUM_HIST',  'C', 50, 0}, ; //
-   {'COMMENT',   'C', 250, 0}, ; //
-   {'BIRTHDAY',  'D',  8, 0}, ; //
-   {'SEX',       'N',  1, 0}, ; //
-   {'ENP',       'C', 16, 0} ;  //
-  }
-Local arr_f, ii, oXmlDoc, j, j1, _ar, buf := save_maxrow(), fl := .f., sMO, sLPU, oNode1, oNode2, oNode3
-//
-dbcreate(cur_dir + 'tmp1file',_table1, , .t.,'TMP1')
-append blank
-dbcreate(cur_dir + 'tmp2file',_table2, , .t.,'TMP2')
-if upper(right(nfile, 4)) == sxml
-  fl := .t.
-  // читаем файл в память
-  oXmlDoc := HXMLDoc():Read(_tmp_dir1+nfile)
-  if oXmlDoc == NIL
-    fl := func_error(4, 'Ошибка в чтении файла '+nfile)
+  Local _table1 := { ;
+                    {'VERSION',   'C',  5, 0}, ; // версия взаимодействия
+                    {'DATE_F',    'D',  8, 0}, ; // дата формирования файла
+                    {'NAME_F',    'C', 26, 0}, ; // имя файла
+                    {'DATE_R',    'D',  8, 0}, ; // отчетная дата
+                    {'KOL',       'N',  6, 0} ;  // кол-во направлений в файле
+                  }
+  Local _table2 := { ;
+                    {'MO',        'C',  6, 0}, ; // mcod п-ки
+                    {'LPU',       'C',  6, 0}, ; // codem п-ки
+                    {'ID_DISCH',  'C', 36, 0}, ; //
+                    {'ID_D',      'C', 36, 0}, ; //
+                    {'MO_D',      'C',  6, 0}, ; // mcod
+                    {'LPU_D',     'C',  6, 0}, ; // codem
+                    {'DATE_H',    'D',  8, 0}, ; // дата госпитализации
+                    {'DATE_D',    'D',  8, 0}, ; // дата госпитализации
+                    {'USL_OK',    'N',  1, 0}, ; //
+                    {'PROFIL',    'N',  3, 0}, ; // профиль медпомощи
+                    {'PROFIL_K',  'N',  3, 0}, ; // профиль койки
+                    {'F_MEDC',    'N',  1, 0}, ; // форма оказания медпомощи
+                    {'NUM_HIST',  'C', 50, 0}, ; //
+                    {'COMMENT',   'C', 250, 0}, ; //
+                    {'BIRTHDAY',  'D',  8, 0}, ; //
+                    {'SEX',       'N',  1, 0}, ; //
+                    {'ENP',       'C', 16, 0} ;  //
+                  }
+  Local arr_f, ii, oXmlDoc, j, j1, _ar, buf := save_maxrow(), fl := .f., sMO, sLPU, ;
+        oNode1, oNode2, oNode3
+
+  //
+  dbcreate(cur_dir + 'tmp1file', _table1, , .t., 'TMP1')
+  append blank
+  dbcreate(cur_dir + 'tmp2file', _table2, , .t., 'TMP2')
+  if upper(right(nfile, 4)) == sxml
+    fl := .t.
+    // читаем файл в память
+    oXmlDoc := HXMLDoc():Read(_tmp_dir1 + nfile)
+    if oXmlDoc == NIL
+      fl := func_error(4, 'Ошибка в чтении файла ' + nfile)
+    endif
   endif
-endif
-if fl
-  FOR j := 1 TO Len( oXmlDoc:aItems[1]:aItems )
-    if Empty( oXmlDoc:aItems )
-      fl := func_error(4, 'Ошибка в чтении файла '+nfile)
-      exit
-    endif
-    oXmlNode := oXmlDoc:aItems[1]:aItems[j]
-    if 'ZGLV' == oXmlNode:title
-      tmp1->VERSION :=          mo_read_xml_stroke(oXmlNode,'VERSION', aerr)
-      tmp1->DATE_F  := xml2date(mo_read_xml_stroke(oXmlNode,'DATE_F', aerr))
-      tmp1->NAME_F  :=          mo_read_xml_stroke(oXmlNode,'NAME_F', aerr)
-      tmp1->DATE_R  := xml2date(mo_read_xml_stroke(oXmlNode,'DATE_R', aerr))
-      tmp1->KOL     := 0
-    elseif oXmlNode:title == 'MO_DC'
-      sMO  := mo_read_xml_stroke(oXmlNode,'MO', aerr, .f.)
-      sLPU := mo_read_xml_stroke(oXmlNode,'LPU', aerr)
-      if !empty(sLPU) .and. empty(sMO)
-        sMO  := ret_mo(sLPU)[_MO_KOD_FFOMS]
+  if fl
+    FOR j := 1 TO Len( oXmlDoc:aItems[1]:aItems )
+      if Empty( oXmlDoc:aItems )
+        fl := func_error(4, 'Ошибка в чтении файла ' + nfile)
+        exit
       endif
-      for j1 := 1 to len(oXmlNode:aitems) // последовательный просмотр
-        oNode2 := oXmlNode:aItems[j1]     // т.к. направлений м.б. несколько
-        if valtype(oNode2) != 'C' .AND. oNode2:title == 'DISCH'
-          tmp1->KOL ++
-          select TMP2
-          append blank
-          tmp2->MO       := sMO
-          tmp2->LPU      := sLPU
-          tmp2->ID_DISCH :=          mo_read_xml_stroke(oNode2,'ID_DISCH', aerr)
-          tmp2->DATE_H   := xml2date(mo_read_xml_stroke(oNode2,'DATE_H', aerr))
-          tmp2->DATE_D   := xml2date(mo_read_xml_stroke(oNode2,'DATE_D', aerr))
-          tmp2->F_MEDC   :=      val(mo_read_xml_stroke(oNode2,'F_MEDC', aerr))
-          tmp2->USL_OK   :=      val(mo_read_xml_stroke(oNode2,'USL_OK', aerr, .f.))
-          if empty(tmp2->USL_OK) // для файлов старой версии
-            tmp2->USL_OK := 1
-          endif
-          tmp2->PROFIL   :=      val(mo_read_xml_stroke(oNode2,'PROFIL', aerr))
-          tmp2->PROFIL_K := f_profil_k_v020_t007(mo_read_xml_stroke(oNode2,'PROFIL_K', aerr),tmp2->PROFIL,tmp1->DATE_R)
-          tmp2->ID_D     :=          mo_read_xml_stroke(oNode2,'ID_D', aerr, .f.)
-          tmp2->MO_D     :=          mo_read_xml_stroke(oNode2,'MO_D', aerr, .f.)
-          tmp2->LPU_D    :=          mo_read_xml_stroke(oNode2,'LPU_D', aerr, .f.)
-          tmp2->NUM_HIST :=          mo_read_xml_stroke(oNode2,'NUM_HIST', aerr)
-          tmp2->COMMENT  :=          mo_read_xml_stroke(oNode2,'COMMENT', aerr, .f.)
-          if (oNode1 := oNode2:Find('PATIENT')) != NIL
-            tmp2->BIRTHDAY  := xml2date(mo_read_xml_stroke(oNode1,'BIRTHDAY', aerr))
-            tmp2->SEX       :=      val(mo_read_xml_stroke(oNode1,'SEX', aerr))
-            tmp2->ENP       :=          mo_read_xml_stroke(oNode1,'ENP', aerr, .f.)
-          endif
+      oXmlNode := oXmlDoc:aItems[1]:aItems[j]
+      if 'ZGLV' == oXmlNode:title
+        tmp1->VERSION :=          mo_read_xml_stroke(oXmlNode, 'VERSION', aerr)
+        tmp1->DATE_F  := xml2date(mo_read_xml_stroke(oXmlNode, 'DATE_F', aerr))
+        tmp1->NAME_F  :=          mo_read_xml_stroke(oXmlNode, 'NAME_F', aerr)
+        tmp1->DATE_R  := xml2date(mo_read_xml_stroke(oXmlNode, 'DATE_R', aerr))
+        tmp1->KOL     := 0
+      elseif oXmlNode:title == 'MO_DC'
+        sMO  := mo_read_xml_stroke(oXmlNode, 'MO', aerr, .f.)
+        sLPU := mo_read_xml_stroke(oXmlNode, 'LPU', aerr)
+        if !empty(sLPU) .and. empty(sMO)
+          sMO  := ret_mo(sLPU)[_MO_KOD_FFOMS]
         endif
-      next j1
-    endif
-  next j
-endif
-rest_box(buf)
-return fl .and. empty(aerr)
+        for j1 := 1 to len(oXmlNode:aitems) // последовательный просмотр
+          oNode2 := oXmlNode:aItems[j1]     // т.к. направлений м.б. несколько
+          if valtype(oNode2) != 'C' .AND. oNode2:title == 'DISCH'
+            tmp1->KOL ++
+            select TMP2
+            append blank
+            tmp2->MO       := sMO
+            tmp2->LPU      := sLPU
+            tmp2->ID_DISCH :=          mo_read_xml_stroke(oNode2, 'ID_DISCH', aerr)
+            tmp2->DATE_H   := xml2date(mo_read_xml_stroke(oNode2, 'DATE_H', aerr))
+            tmp2->DATE_D   := xml2date(mo_read_xml_stroke(oNode2, 'DATE_D', aerr))
+            tmp2->F_MEDC   :=      val(mo_read_xml_stroke(oNode2, 'F_MEDC', aerr))
+            tmp2->USL_OK   :=      val(mo_read_xml_stroke(oNode2, 'USL_OK', aerr, .f.))
+            if empty(tmp2->USL_OK) // для файлов старой версии
+              tmp2->USL_OK := 1
+            endif
+            tmp2->PROFIL   :=      val(mo_read_xml_stroke(oNode2, 'PROFIL', aerr))
+            tmp2->PROFIL_K := f_profil_k_v020_t007(mo_read_xml_stroke(oNode2, 'PROFIL_K', aerr), tmp2->PROFIL, tmp1->DATE_R)
+            tmp2->ID_D     :=          mo_read_xml_stroke(oNode2, 'ID_D', aerr, .f.)
+            tmp2->MO_D     :=          mo_read_xml_stroke(oNode2, 'MO_D', aerr, .f.)
+            tmp2->LPU_D    :=          mo_read_xml_stroke(oNode2, 'LPU_D', aerr, .f.)
+            tmp2->NUM_HIST :=          mo_read_xml_stroke(oNode2, 'NUM_HIST', aerr)
+            tmp2->COMMENT  :=          mo_read_xml_stroke(oNode2, 'COMMENT', aerr, .f.)
+            if (oNode1 := oNode2:Find('PATIENT')) != NIL
+              tmp2->BIRTHDAY  := xml2date(mo_read_xml_stroke(oNode1, 'BIRTHDAY', aerr))
+              tmp2->SEX       :=      val(mo_read_xml_stroke(oNode1, 'SEX', aerr))
+              tmp2->ENP       :=          mo_read_xml_stroke(oNode1, 'ENP', aerr, .f.)
+            endif
+          endif
+        next j1
+      endif
+    next j
+  endif
+  rest_box(buf)
+  return fl .and. empty(aerr)
 
 // 15.01.19 зачитать информационный пакет I07
 Function _263_I07_tmpfile(nfile, aerr)
-Local _table1 := { ;
-   {'VERSION',   'C',  5, 0}, ; // версия взаимодействия
-   {'DATE_F',    'D',  8, 0}, ; // дата формирования файла
-   {'NAME_F',    'C', 26, 0}, ; // имя файла
-   {'DATE_R',    'D',  8, 0}, ; // отчетная дата
-   {'KOL',       'N',  6, 0} ;  // кол-во учреждений в файле
-  }
-Local _table2 := { ;
-   {'MO',        'C',  6, 0}, ; // mcod п-ки
-   {'LPU',       'C',  6, 0}, ; // codem п-ки
-   {'ID_PL',     'C', 36, 0}, ; // GUID записи
-   {'USL_OK',    'N',  1, 0}, ; //
-   {'PROFIL_K',  'N',  3, 0}, ; // профиль койки
-   {'PROFIL',    'N',  3, 0}, ; // профиль мед.помощи
-   {'QUANTITY',  'N',  3, 0}, ; // количество коек
-   {'Q_P',       'N',  3, 0}, ; // состояло пациентов на начало пред.суток
-   {'Q_AP',      'N',  3, 0}, ; // поступило пациентов за пред.сутки
-   {'Q_DP',      'N',  3, 0}, ; // выбыло пациентов за пред.сутки
-   {'Q_HP',      'N',  3, 0}, ; // запланировано госпитализаций на тек.день
-   {'PLACE_FREE','N',  3, 0}, ; // количество свободных мест
-   {'PF_M',      'N',  3, 0}, ; // --''-- для мужчин
-   {'PF_W',      'N',  3, 0}, ; // --''-- для женщин
-   {'PF_C',      'N',  3, 0}, ; // --''-- для детей
-   {'PLACE1',      'N', 3, 0}, ; // количество свободных мест
-   {'PF_M1',       'N', 3, 0}, ; // --''-- для мужчин
-   {'PF_W1',       'N', 3, 0}, ; // --''-- для женщин
-   {'PF_C1',       'N', 3, 0}, ; // --''-- для детей
-   {'PLACE2',      'N', 3, 0}, ; // количество свободных мест
-   {'PF_M2',       'N', 3, 0}, ; // --''-- для мужчин
-   {'PF_W2',       'N', 3, 0}, ; // --''-- для женщин
-   {'PF_C2',       'N', 3, 0}, ; // --''-- для детей
-   {'PLACE3',      'N', 3, 0}, ; // количество свободных мест
-   {'PF_M3',       'N', 3, 0}, ; // --''-- для мужчин
-   {'PF_W3',       'N', 3, 0}, ; // --''-- для женщин
-   {'PF_C3',       'N', 3, 0}, ; // --''-- для детей
-   {'PLACE4',      'N', 3, 0}, ; // количество свободных мест
-   {'PF_M4',       'N', 3, 0}, ; // --''-- для мужчин
-   {'PF_W4',       'N', 3, 0}, ; // --''-- для женщин
-   {'PF_C4',       'N', 3, 0}, ; // --''-- для детей
-   {'PLACE5',      'N', 3, 0}, ; // количество свободных мест
-   {'PF_M5',       'N', 3, 0}, ; // --''-- для мужчин
-   {'PF_W5',       'N', 3, 0}, ; // --''-- для женщин
-   {'PF_C5',       'N', 3, 0}, ; // --''-- для детей
-   {'PLACE6',      'N', 3, 0}, ; // количество свободных мест
-   {'PF_M6',       'N', 3, 0}, ; // --''-- для мужчин
-   {'PF_W6',       'N', 3, 0}, ; // --''-- для женщин
-   {'PF_C6',       'N', 3, 0}, ; // --''-- для детей
-   {'PLACE7',      'N', 3, 0}, ; // количество свободных мест
-   {'PF_M7',       'N', 3, 0}, ; // --''-- для мужчин
-   {'PF_W7',       'N', 3, 0}, ; // --''-- для женщин
-   {'PF_C7',       'N', 3, 0}, ; // --''-- для детей
-   {'PLACE8',      'N', 3, 0}, ; // количество свободных мест
-   {'PF_M8',       'N', 3, 0}, ; // --''-- для мужчин
-   {'PF_W8',       'N', 3, 0}, ; // --''-- для женщин
-   {'PF_C8',       'N', 3, 0}, ; // --''-- для детей
-   {'PLACE9',      'N', 3, 0}, ; // количество свободных мест
-   {'PF_M9',       'N', 3, 0}, ; // --''-- для мужчин
-   {'PF_W9',       'N', 3, 0}, ; // --''-- для женщин
-   {'PF_C9',       'N', 3, 0}, ; // --''-- для детей
-   {'PLACE10',     'N', 3, 0}, ; // количество свободных мест
-   {'PF_M10',      'N', 3, 0}, ; // --''-- для мужчин
-   {'PF_W10',      'N', 3, 0}, ; // --''-- для женщин
-   {'PF_C10',      'N', 3, 0}, ; // --''-- для детей
-   {'COMMENT',   'C', 250, 0}, ; //
-   {'V_H34001',  'N', 15, 0}, ; // количество госпитализаций реабилитаций СНГ
-   {'V_H34002',  'N', 15, 0}, ; // количество госпитализаций реабилитаций СНГ
-   {'V_H34006',  'N', 15, 0}, ; // количество госпитализаций реабилитаций СНГ
-   {'V_H34007',  'N', 15, 0} ; // количество госпитализаций реабилитаций СНГ
-  }
-Local arr_f, ii, oXmlDoc, j, j1, j2, ifp, d, _ar, buf := save_maxrow(), fl := .f., ;
+  Local _table1 := { ;
+                    {'VERSION',   'C',  5, 0}, ; // версия взаимодействия
+                    {'DATE_F',    'D',  8, 0}, ; // дата формирования файла
+                    {'NAME_F',    'C', 26, 0}, ; // имя файла
+                    {'DATE_R',    'D',  8, 0}, ; // отчетная дата
+                    {'KOL',       'N',  6, 0} ;  // кол-во учреждений в файле
+                  }
+  Local _table2 := { ;
+                    {'MO',        'C',  6, 0}, ; // mcod п-ки
+                    {'LPU',       'C',  6, 0}, ; // codem п-ки
+                    {'ID_PL',     'C', 36, 0}, ; // GUID записи
+                    {'USL_OK',    'N',  1, 0}, ; //
+                    {'PROFIL_K',  'N',  3, 0}, ; // профиль койки
+                    {'PROFIL',    'N',  3, 0}, ; // профиль мед.помощи
+                    {'QUANTITY',  'N',  3, 0}, ; // количество коек
+                    {'Q_P',       'N',  3, 0}, ; // состояло пациентов на начало пред.суток
+                    {'Q_AP',      'N',  3, 0}, ; // поступило пациентов за пред.сутки
+                    {'Q_DP',      'N',  3, 0}, ; // выбыло пациентов за пред.сутки
+                    {'Q_HP',      'N',  3, 0}, ; // запланировано госпитализаций на тек.день
+                    {'PLACE_FREE','N',  3, 0}, ; // количество свободных мест
+                    {'PF_M',      'N',  3, 0}, ; // --''-- для мужчин
+                    {'PF_W',      'N',  3, 0}, ; // --''-- для женщин
+                    {'PF_C',      'N',  3, 0}, ; // --''-- для детей
+                    {'PLACE1',      'N', 3, 0}, ; // количество свободных мест
+                    {'PF_M1',       'N', 3, 0}, ; // --''-- для мужчин
+                    {'PF_W1',       'N', 3, 0}, ; // --''-- для женщин
+                    {'PF_C1',       'N', 3, 0}, ; // --''-- для детей
+                    {'PLACE2',      'N', 3, 0}, ; // количество свободных мест
+                    {'PF_M2',       'N', 3, 0}, ; // --''-- для мужчин
+                    {'PF_W2',       'N', 3, 0}, ; // --''-- для женщин
+                    {'PF_C2',       'N', 3, 0}, ; // --''-- для детей
+                    {'PLACE3',      'N', 3, 0}, ; // количество свободных мест
+                    {'PF_M3',       'N', 3, 0}, ; // --''-- для мужчин
+                    {'PF_W3',       'N', 3, 0}, ; // --''-- для женщин
+                    {'PF_C3',       'N', 3, 0}, ; // --''-- для детей
+                    {'PLACE4',      'N', 3, 0}, ; // количество свободных мест
+                    {'PF_M4',       'N', 3, 0}, ; // --''-- для мужчин
+                    {'PF_W4',       'N', 3, 0}, ; // --''-- для женщин
+                    {'PF_C4',       'N', 3, 0}, ; // --''-- для детей
+                    {'PLACE5',      'N', 3, 0}, ; // количество свободных мест
+                    {'PF_M5',       'N', 3, 0}, ; // --''-- для мужчин
+                    {'PF_W5',       'N', 3, 0}, ; // --''-- для женщин
+                    {'PF_C5',       'N', 3, 0}, ; // --''-- для детей
+                    {'PLACE6',      'N', 3, 0}, ; // количество свободных мест
+                    {'PF_M6',       'N', 3, 0}, ; // --''-- для мужчин
+                    {'PF_W6',       'N', 3, 0}, ; // --''-- для женщин
+                    {'PF_C6',       'N', 3, 0}, ; // --''-- для детей
+                    {'PLACE7',      'N', 3, 0}, ; // количество свободных мест
+                    {'PF_M7',       'N', 3, 0}, ; // --''-- для мужчин
+                    {'PF_W7',       'N', 3, 0}, ; // --''-- для женщин
+                    {'PF_C7',       'N', 3, 0}, ; // --''-- для детей
+                    {'PLACE8',      'N', 3, 0}, ; // количество свободных мест
+                    {'PF_M8',       'N', 3, 0}, ; // --''-- для мужчин
+                    {'PF_W8',       'N', 3, 0}, ; // --''-- для женщин
+                    {'PF_C8',       'N', 3, 0}, ; // --''-- для детей
+                    {'PLACE9',      'N', 3, 0}, ; // количество свободных мест
+                    {'PF_M9',       'N', 3, 0}, ; // --''-- для мужчин
+                    {'PF_W9',       'N', 3, 0}, ; // --''-- для женщин
+                    {'PF_C9',       'N', 3, 0}, ; // --''-- для детей
+                    {'PLACE10',     'N', 3, 0}, ; // количество свободных мест
+                    {'PF_M10',      'N', 3, 0}, ; // --''-- для мужчин
+                    {'PF_W10',      'N', 3, 0}, ; // --''-- для женщин
+                    {'PF_C10',      'N', 3, 0}, ; // --''-- для детей
+                    {'COMMENT',   'C', 250, 0}, ; //
+                    {'V_H34001',  'N', 15, 0}, ; // количество госпитализаций реабилитаций СНГ
+                    {'V_H34002',  'N', 15, 0}, ; // количество госпитализаций реабилитаций СНГ
+                    {'V_H34006',  'N', 15, 0}, ; // количество госпитализаций реабилитаций СНГ
+                    {'V_H34007',  'N', 15, 0} ; // количество госпитализаций реабилитаций СНГ
+                    }
+  Local arr_f, ii, oXmlDoc, j, j1, j2, ifp, d, _ar, buf := save_maxrow(), fl := .f., ;
       sMO, sLPU, oNode1, oNode2, oNode3, oNode4, ssmo, arr
-//
-dbcreate(cur_dir + 'tmp1file',_table1, , .t.,'TMP1')
-append blank
-dbcreate(cur_dir + 'tmp2file',_table2, , .t.,'TMP2')
-if upper(right(nfile, 4)) == sxml
-  fl := .t.
-  // читаем файл в память
-  oXmlDoc := HXMLDoc():Read(_tmp_dir1+nfile)
-  if oXmlDoc == NIL
-    fl := func_error(4, 'Ошибка в чтении файла '+nfile)
+
+  //
+  dbcreate(cur_dir + 'tmp1file', _table1, , .t., 'TMP1')
+  append blank
+  dbcreate(cur_dir + 'tmp2file', _table2, , .t., 'TMP2')
+  if upper(right(nfile, 4)) == sxml
+    fl := .t.
+    // читаем файл в память
+    oXmlDoc := HXMLDoc():Read(_tmp_dir1 + nfile)
+    if oXmlDoc == NIL
+      fl := func_error(4, 'Ошибка в чтении файла ' + nfile)
+    endif
   endif
-endif
-if fl
-  FOR j := 1 TO Len( oXmlDoc:aItems[1]:aItems )
-    if Empty( oXmlDoc:aItems )
-      fl := func_error(4, 'Ошибка в чтении файла '+nfile)
-      exit
-    endif
-    oXmlNode := oXmlDoc:aItems[1]:aItems[j]
-    if 'ZGLV' == oXmlNode:title
-      tmp1->VERSION := mo_read_xml_stroke(oXmlNode,'VERSION', aerr)
-      tmp1->DATE_F := xml2date(mo_read_xml_stroke(oXmlNode,'DATE_F', aerr))
-      tmp1->NAME_F :=          mo_read_xml_stroke(oXmlNode,'NAME_F', aerr)
-      tmp1->DATE_R := xml2date(mo_read_xml_stroke(oXmlNode,'DATE_R', aerr))
-      tmp1->KOL    := 0
-    elseif oXmlNode:title == 'MO_PLACE'
-      sMO  := mo_read_xml_stroke(oXmlNode,'MO', aerr, .f.)
-      sLPU := mo_read_xml_stroke(oXmlNode,'LPU', aerr)
-      if !empty(sLPU) .and. empty(sMO)
-        sMO  := ret_mo(sLPU)[_MO_KOD_FFOMS]
+  if fl
+    FOR j := 1 TO Len( oXmlDoc:aItems[1]:aItems )
+      if Empty( oXmlDoc:aItems )
+        fl := func_error(4, 'Ошибка в чтении файла ' + nfile)
+        exit
       endif
-      for j1 := 1 to len(oXmlNode:aitems) // последовательный просмотр
-        oNode2 := oXmlNode:aItems[j1]     // т.к. профилей больше одного
-        if valtype(oNode2) != 'C' .AND. oNode2:title == 'PLACES'
-          select TMP2
-          append blank
-          tmp2->MO       := sMO
-          tmp2->LPU      := sLPU
-          tmp2->ID_PL    :=     mo_read_xml_stroke(oNode2,'ID_PL', aerr)
-          tmp2->USL_OK   := val(mo_read_xml_stroke(oNode2,'USL_OK', aerr, .f.))
-          if empty(tmp2->USL_OK) // для файлов старой версии
-            tmp2->USL_OK := 1
-          endif
-          tmp2->PROFIL   := val(mo_read_xml_stroke(oNode2,'PROFIL', aerr))
-          tmp2->PROFIL_K := f_profil_k_v020_t007(mo_read_xml_stroke(oNode2,'PROFIL_K', aerr),tmp2->PROFIL,tmp1->DATE_R)
-          tmp2->QUANTITY := val(mo_read_xml_stroke(oNode2,'QUANTITY', aerr))
-          tmp2->Q_P      := val(mo_read_xml_stroke(oNode2,'Q_P', aerr))
-          tmp2->Q_AP     := val(mo_read_xml_stroke(oNode2,'Q_AP', aerr))
-          tmp2->Q_DP     := val(mo_read_xml_stroke(oNode2,'Q_DP', aerr))
-          tmp2->Q_HP     := val(mo_read_xml_stroke(oNode2,'Q_HP', aerr))
-          if (oNode3 := oNode2:Find('FREE_PLACES')) != NIL
-            arr := {}
-            for j2 := 1 TO Len( oNode3:aItems )
-              oNode4 := oNode3:aItems[j2]
-              if 'ZAP' == oNode4:title
-                d := xml2date(mo_read_xml_stroke(oNode4, 'DATE_PL', aerr))
-                v1 := val(mo_read_xml_stroke(oNode4, 'PLACE_FREE', aerr))
-                v2 := val(mo_read_xml_stroke(oNode4, 'PF_M', aerr))
-                v3 := val(mo_read_xml_stroke(oNode4, 'PF_W', aerr))
-                v4 := val(mo_read_xml_stroke(oNode4, 'PF_C', aerr))
-                aadd(arr, {v1,v2,v3,v4,d})
-              endif
-            next j2
-            asort(arr, , , {|x,y| x[5] < y[5]}) // если у других не отсортированы даты
-            for j2 := 1 to min(11,len(arr))
-              ifp := j2-1
-              pole := iif(ifp==0, 'tmp2->PLACE_FREE', 'tmp2->PLACE' + lstr(ifp))
-              &pole := arr[j2, 1]
-              pole := 'tmp2->PF_M'+iif(ifp==0, '', lstr(ifp))
-              &pole := arr[j2, 2]
-              pole := 'tmp2->PF_W'+iif(ifp==0, '', lstr(ifp))
-              &pole := arr[j2, 3]
-              pole := 'tmp2->PF_C'+iif(ifp==0, '', lstr(ifp))
-              &pole := arr[j2, 4]
-            next j2
-          endif
-          tmp2->COMMENT := mo_read_xml_stroke(oNode2,'COMMENT', aerr, .f.)
-          for j2 := 1 to len(oNode2:aitems) // последовательный просмотр
-            oNode3 := oNode2:aItems[j2]     // т.к. СМО м.б. несколько
-            if valtype(oNode3) != 'C' .AND. oNode3:title == 'SMO_V'
-              ssmo := alltrim(mo_read_xml_stroke(oNode3,'SMO', aerr))
-              if eq_any(ssmo,'34001','34002','34006','34007')
-                &('tmp2->V_H'+ssmo) := val(mo_read_xml_stroke(oNode3,'V_H', aerr))
-              endif
-            endif
-          next j2
+      oXmlNode := oXmlDoc:aItems[1]:aItems[j]
+      if 'ZGLV' == oXmlNode:title
+        tmp1->VERSION := mo_read_xml_stroke(oXmlNode, 'VERSION', aerr)
+        tmp1->DATE_F := xml2date(mo_read_xml_stroke(oXmlNode, 'DATE_F', aerr))
+        tmp1->NAME_F :=          mo_read_xml_stroke(oXmlNode, 'NAME_F', aerr)
+        tmp1->DATE_R := xml2date(mo_read_xml_stroke(oXmlNode, 'DATE_R', aerr))
+        tmp1->KOL    := 0
+      elseif oXmlNode:title == 'MO_PLACE'
+        sMO  := mo_read_xml_stroke(oXmlNode, 'MO', aerr, .f.)
+        sLPU := mo_read_xml_stroke(oXmlNode, 'LPU', aerr)
+        if !empty(sLPU) .and. empty(sMO)
+          sMO  := ret_mo(sLPU)[_MO_KOD_FFOMS]
         endif
-      next j1
-    endif
-  next j
-endif
-rest_box(buf)
-return fl .and. empty(aerr)
+        for j1 := 1 to len(oXmlNode:aitems) // последовательный просмотр
+          oNode2 := oXmlNode:aItems[j1]     // т.к. профилей больше одного
+          if valtype(oNode2) != 'C' .AND. oNode2:title == 'PLACES'
+            select TMP2
+            append blank
+            tmp2->MO       := sMO
+            tmp2->LPU      := sLPU
+            tmp2->ID_PL    :=     mo_read_xml_stroke(oNode2, 'ID_PL', aerr)
+            tmp2->USL_OK   := val(mo_read_xml_stroke(oNode2, 'USL_OK', aerr, .f.))
+            if empty(tmp2->USL_OK) // для файлов старой версии
+              tmp2->USL_OK := 1
+            endif
+            tmp2->PROFIL   := val(mo_read_xml_stroke(oNode2, 'PROFIL', aerr))
+            tmp2->PROFIL_K := f_profil_k_v020_t007(mo_read_xml_stroke(oNode2, 'PROFIL_K', aerr), tmp2->PROFIL, tmp1->DATE_R)
+            tmp2->QUANTITY := val(mo_read_xml_stroke(oNode2, 'QUANTITY', aerr))
+            tmp2->Q_P      := val(mo_read_xml_stroke(oNode2, 'Q_P', aerr))
+            tmp2->Q_AP     := val(mo_read_xml_stroke(oNode2, 'Q_AP', aerr))
+            tmp2->Q_DP     := val(mo_read_xml_stroke(oNode2, 'Q_DP', aerr))
+            tmp2->Q_HP     := val(mo_read_xml_stroke(oNode2, 'Q_HP', aerr))
+            if (oNode3 := oNode2:Find('FREE_PLACES')) != NIL
+              arr := {}
+              for j2 := 1 TO Len( oNode3:aItems )
+                oNode4 := oNode3:aItems[j2]
+                if 'ZAP' == oNode4:title
+                  d := xml2date(mo_read_xml_stroke(oNode4, 'DATE_PL', aerr))
+                  v1 := val(mo_read_xml_stroke(oNode4, 'PLACE_FREE', aerr))
+                  v2 := val(mo_read_xml_stroke(oNode4, 'PF_M', aerr))
+                  v3 := val(mo_read_xml_stroke(oNode4, 'PF_W', aerr))
+                  v4 := val(mo_read_xml_stroke(oNode4, 'PF_C', aerr))
+                  aadd(arr, {v1, v2, v3, v4, d})
+                endif
+              next j2
+              asort(arr, , , {|x, y| x[5] < y[5]}) // если у других не отсортированы даты
+              for j2 := 1 to min(11, len(arr))
+                ifp := j2 - 1
+                pole := iif(ifp == 0, 'tmp2->PLACE_FREE', 'tmp2->PLACE' + lstr(ifp))
+                &pole := arr[j2, 1]
+                pole := 'tmp2->PF_M' + iif(ifp == 0, '', lstr(ifp))
+                &pole := arr[j2, 2]
+                pole := 'tmp2->PF_W' + iif(ifp == 0, '', lstr(ifp))
+                &pole := arr[j2, 3]
+                pole := 'tmp2->PF_C' + iif(ifp == 0, '', lstr(ifp))
+                &pole := arr[j2, 4]
+              next j2
+            endif
+            tmp2->COMMENT := mo_read_xml_stroke(oNode2, 'COMMENT', aerr, .f.)
+            for j2 := 1 to len(oNode2:aitems) // последовательный просмотр
+              oNode3 := oNode2:aItems[j2]     // т.к. СМО м.б. несколько
+              if valtype(oNode3) != 'C' .AND. oNode3:title == 'SMO_V'
+                ssmo := alltrim(mo_read_xml_stroke(oNode3, 'SMO', aerr))
+                if eq_any(ssmo, '34001', '34002', '34006', '34007')
+                  &('tmp2->V_H'+ssmo) := val(mo_read_xml_stroke(oNode3, 'V_H', aerr))
+                endif
+              endif
+            next j2
+          endif
+        next j1
+      endif
+    next j
+  endif
+  rest_box(buf)
+  return fl .and. empty(aerr)
 
 // 11.02.19 вернуть профиль и профиль койки в виде строк в массиве
 Function _263_pr_prk(lprk, lpr, ldate_r)
@@ -4726,48 +4744,50 @@ Function _263_pr_prk(lprk, lpr, ldate_r)
 
 // 11.02.19 профиль койки из t007 в v020 и в строку
 Function f_profil_k_t007_v020(lprk, /*@*/lpr, ldate_r)
-Local i, lprk20 := lprk
-if ldate_r > 0d20190115 // с 16 января
-  if select('T7') > 0
-    t7->(dbCloseArea())
-  endif
-  R_Use(exe_dir+'_mo_t007', cur_dir + '_mo_t007','T7')
-  find (str(lprk, 3) + str(lpr, 3))
-  if found()
-    lprk20 := t7->pk_V020
-  else
-    find (str(lprk, 3))
+  Local i, lprk20 := lprk
+
+  if ldate_r > 0d20190115 // с 16 января
+    if select('T7') > 0
+      t7->(dbCloseArea())
+    endif
+    R_Use(exe_dir + '_mo_t007', cur_dir + '_mo_t007', 'T7')
+    find (str(lprk, 3) + str(lpr, 3))
     if found()
       lprk20 := t7->pk_V020
+    else
+      find (str(lprk, 3))
+      if found()
+        lprk20 := t7->pk_V020
+      endif
+    endif
+    t7->(dbCloseArea())
+    if lprk20 == 50
+      lpr := 162
+    elseif lprk20 == 51
+      lpr := 163
     endif
   endif
-  t7->(dbCloseArea())
-  if lprk20 == 50
-    lpr := 162
-  elseif lprk20 == 51
-    lpr := 163
-  endif
-endif
-return lstr(lprk20)
+  return lstr(lprk20)
 
 // 21.01.19 профиль койки из строки в число, затем из v020 в t007
 Function f_profil_k_v020_t007(sprk20, lpr, ldate_r)
-Local i, lprk, lprk20 := int(val(sprk20))
-lprk := lprk20
-if ldate_r > 0d20190115 // с 16 января
-  if select('T7') > 0
-    t7->(dbCloseArea())
-  endif
-  R_Use(exe_dir+'_mo_t007', cur_dir + '_mo_t0072','T7')
-  find (str(lprk20, 3) + str(lpr, 3))
-  if found()
-    lprk := t7->profil_k
-  else
-    find (str(lprk20, 3))
+  Local i, lprk, lprk20 := int(val(sprk20))
+
+  lprk := lprk20
+  if ldate_r > 0d20190115 // с 16 января
+    if select('T7') > 0
+      t7->(dbCloseArea())
+    endif
+    R_Use(exe_dir + '_mo_t007', cur_dir + '_mo_t0072', 'T7')
+    find (str(lprk20, 3) + str(lpr, 3))
     if found()
       lprk := t7->profil_k
+    else
+      find (str(lprk20, 3))
+      if found()
+        lprk := t7->profil_k
+      endif
     endif
+    t7->(dbCloseArea())
   endif
-  t7->(dbCloseArea())
-endif
-return lprk
+  return lprk

@@ -204,3 +204,8 @@ function chip_CurrPath()
 function chip_ExePath()
 
   return upper(beforatnum(hb_ps(), exename())) + hb_ps()
+
+// 17.04.23
+function check_extension_file(fileName, sExt)
+
+  return lower(right(fileName, len(sExt))) == lower(sExt)
