@@ -1,10 +1,10 @@
-***** mo_mzxml.prg создание XML-файлов для загрузки на портал МинЗдрава РФ
+// mo_mzxml.prg создание XML-файлов для загрузки на портал МинЗдрава РФ
 #include "inkey.ch"
 #include "function.ch"
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 25.05.20 создать XML-файл по несовершеннолетним
+// 25.05.20 создать XML-файл по несовершеннолетним
 Function mo_mzxml_N(_regim,n_file,stitle,lvozrast)
 Static oXmlDoc, _kol, sname_xml, ;
        arr_np := {0,1,2,3,4,5,6,7,8,9,10,11,12,15,18,24,36,48,60,72,84,96,108,120,132,144,156,168,180,192,204}
@@ -745,7 +745,7 @@ else
 endif
 return NIL
 
-***** 25.11.13
+// 25.11.13
 Static Function make_unique_arr5(ar)
 Local i, ret_arr := {}
 for i := 1 to len(ar)
@@ -755,7 +755,7 @@ for i := 1 to len(ar)
 next
 return ret_arr
 
-***** 08.04.23 Создание отчётов по иногородним / иностранцам для КЗВО
+// 18.04.23 Создание отчётов по иногородним / иностранцам для КЗВО
 Function pr_inog_inostr()
 Local arr_m, fl_exit := .f., buf := save_maxrow(), kh := 0, jh := 0, mm_p_per := 0
 if (arr_m := year_month()) == NIL
@@ -831,7 +831,7 @@ do while human->k_data <= arr_m[6] .and. !eof()
         if found()
           msumma := human_3->CENA_1
           mn_data := human_3->N_DATA
-          mm_p_per := human_3->p_per
+          mm_p_per := human_2->p_per
         endif
       endif
       // добавка для КБ25
@@ -993,12 +993,12 @@ else
 endif
 return NIL
 
-***** 12.08.18
+// 12.08.18
 Function f0pr_inog_inostr(ldate_r,_data)
 Local cy := count_years(ldate_r,_data)
 return iif(cy < 100, cy, 99)
 
-***** 28.09.20
+// 28.09.20
 Function f1pr_inog_inostr(par,lkod,/*@*/lregion,/*@*/losnov,arr_m)
 Local rec
 select KART
@@ -1029,7 +1029,7 @@ if empty(lregion) .and. !eq_any(left(kart_->okatog,2),'  ','00','18')
 endif
 return !empty(lregion)
 
-***** 14.11.19
+// 14.11.19
 Function f2pr_inog_inostr(_what_if)
 Local list_fin := I_FIN_OMS, _ist_fin, i
 if human->komu == 5
@@ -1213,7 +1213,7 @@ rest_box(buf)
 call_fr(name_fr+lstr(j))
 return NIL
 
-***** 28.11.19 для ФГБУ "НМИЦ онкологии им.Н.Н.Петрова"
+// 28.11.19 для ФГБУ "НМИЦ онкологии им.Н.Н.Петрова"
 Function ot_nmic_petrova()
 Local buf := save_maxrow()
 Private arr_m
