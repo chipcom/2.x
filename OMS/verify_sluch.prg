@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-// 04.04.23
+// 19.04.23
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1, ;
         i, j, k, c, s := ' ', a_srok_lech := {}, a_period_stac := {}, a_disp := {}, ;
@@ -32,6 +32,7 @@ Function verify_1_sluch(fl_view)
   local aDiagnoze_for_check := {}
   local fl_zolend := .f.
   local header_error
+  local vozrast
 
   if empty(human->k_data)
     return .t.  // не проверять
@@ -44,11 +45,16 @@ Function verify_1_sluch(fl_view)
 
   arrUslugi := collect_uslugi(rec_human)   // выберем все коды услуг случая
 
+
   if human_->NOVOR > 0
     m1novor := 1 // для переопределения M1VZROS_REB
     mDATE_R2 := human_->DATE_R2
     mpol := human_->POL2
   endif
+
+  // определяем возраст, если 0 то возраст до года
+  vozrast := count_years(iif(human_->NOVOR == 0, human->DATE_R, human_->DATE_R2), human->N_DATA)
+
   fv_date_r(human->n_data) // переопределение M1VZROS_REB
   m1novor := human_->NOVOR // для запрета пересечения детей по номеру
   if M1VZROS_REB != human->VZROS_REB  // если неверно,
@@ -62,7 +68,7 @@ Function verify_1_sluch(fl_view)
 
   header_error := fio_plus_novor() + ' ' + alltrim(human->kod_diag) + ' ' + ;
              date_8(human->n_data) + '-' + date_8(human->k_data) + ;
-             ' (' +count_ymd(human->date_r,human->n_data) + ')' + hb_eol()
+             ' (' +count_ymd(human->date_r, human->n_data) + ')' + hb_eol()
   header_error += alltrim(uch->name) + '/' + alltrim(otd->name) + '/профиль по "' + ;
                  alltrim(inieditspr(A__MENUVERT, getV002(), human_->profil)) + '"'
 
@@ -73,7 +79,9 @@ Function verify_1_sluch(fl_view)
   endif
   //
   glob_kartotek := human->kod_k
-  d1 := human->n_data ; d2 := human->k_data ; cuch_doc := human->uch_doc
+  d1 := human->n_data
+  d2 := human->k_data
+  cuch_doc := human->uch_doc
 
   arrV018 := getV018(human->k_data)
   arrV019 := getV019(human->k_data)
@@ -322,6 +330,14 @@ Function verify_1_sluch(fl_view)
   mdiagnoz := diag_to_array(, , , , .t.)
   if len(mdiagnoz) == 0 .or. empty(mdiagnoz[1])
     aadd(ta, 'не заполнено поле "ОСНОВНОЙ ДИАГНОЗ"')
+  endif
+
+  if mdiagnoz[1] == 'Z00.2' .and. !(vozrast >= 1 .and. vozrast < 14)
+    aadd(ta, 'основной диагноз Z00.2 допустим только для возраста от года до 14 лет')
+  elseif mdiagnoz[1] == 'Z00.3' .and. !(vozrast >= 14 .and. vozrast < 18)
+    aadd(ta, 'основной диагноз Z00.3 допустим только для возраста от 14 до 18 лет')
+  elseif mdiagnoz[1] == 'Z00.1' .and. (vozrast >= 1)
+    aadd(ta, 'основной диагноз Z00.1 допустим только для возраста до года')
   endif
   
   if len(aDiagnoze_for_check := dublicate_diagnoze(fill_array_diagnoze())) > 0
