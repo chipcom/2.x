@@ -264,7 +264,6 @@ mo_version.prg
 
 .\SYSTEM\use_func.prg
 .\SYSTEM\extension.prg
-.\SYSTEM\hashMD5.prg
 
 .\TUNING\ret_days_for_akt_sverki.prg
 .\TUNING\initPZarray.prg
