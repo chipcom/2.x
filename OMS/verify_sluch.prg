@@ -150,7 +150,7 @@ Function verify_1_sluch(fl_view)
       reserveKSG_2 := exist_reserve_KSG(human->kod, 'HUMAN')
 
       fl1 := (left(dtos(human->k_data), 6) == ym2)   // один и тот же месяц окончания лечения
-      fl2 := overlap_diapazon(human->n_data, human->k_data,d1,d2) // перекрывается диапазон лечения
+      fl2 := overlap_diapazon(human->n_data, human->k_data, d1, d2) // перекрывается диапазон лечения
       fl3 := .t.
       k := 0
       if is_alldializ .and. (fl1 .or. fl2) .and. year(human->k_data) > 2018 // прошлый год не смотрим вообще
@@ -434,9 +434,9 @@ Function verify_1_sluch(fl_view)
 
   s := ''
   if len(mdiagnoz) > 0 .and. f_oms_beremenn(mdiagnoz[1]) == 3 .and. between(human_2->pn2, 1, 4)
-    s := 'R52.' +{'0', '1', '2', '9'}[human_2->pn2]
+    s := 'R52.' + {'0', '1', '2', '9'}[human_2->pn2]
   endif
-  if !emptyall(s,ar)
+  if !emptyall(s, ar)
     if empty(ar)
       human_2->OSL3 := s
     else
@@ -601,7 +601,7 @@ Function verify_1_sluch(fl_view)
               '21.1.1', '21.1.2', '21.1.3', '21.1.4', '21.1.5', '21.2.1', ;
               '22.1.1', '22.1.2', '22.1.3'}
   //
-  f_put_glob_podr(human_->USL_OK,d2, ta) // заполнить код подразделения
+  f_put_glob_podr(human_->USL_OK, d2, ta) // заполнить код подразделения
   musl_ok := 3  // п-ка по умолчанию 
   ldnej := 0
   pr_amb_reab := .f.
@@ -771,7 +771,7 @@ Function verify_1_sluch(fl_view)
       left_lshifr_3 := left(lshifr, 3)
       left_lshifr_4 := left(lshifr, 4)
       left_lshifr_5 := left(lshifr, 5)
-      if hu->kol_1 > 1 .and. ascan(arr_lfk,alltrim_lshifr) > 0
+      if hu->kol_1 > 1 .and. ascan(arr_lfk, alltrim_lshifr) > 0
         mdate_u2 := dtoc4(mdate + hu->kol_1 - 1)
       endif
       // проверяем на профиль
@@ -1001,7 +1001,7 @@ Function verify_1_sluch(fl_view)
           mIDSP := 12 // Комплексная услуга центра здоровья
         elseif left_lshifr_5 == '2.78.'
           mpovod := 10 // 3.0 обращение по заболеванию
-          d_sroks := AfterAtNum('.',alltrim_lshifr)
+          d_sroks := AfterAtNum('.', alltrim_lshifr)
           if between_shifr(alltrim_lshifr, '2.78.54', '2.78.60')
             fl_stom := .t.
             mpztip := 4
@@ -1021,7 +1021,7 @@ Function verify_1_sluch(fl_view)
           endif
           mdate_u2 := dtoc4(human->k_data)
         elseif left_lshifr_5 == '2.79.'
-          d_sroks := AfterAtNum('.',alltrim_lshifr)
+          d_sroks := AfterAtNum('.', alltrim_lshifr)
           if between_shifr(alltrim_lshifr, '2.79.44', '2.79.50')
             mpovod := 8 // 2.5 - патронаж
           else
@@ -1039,7 +1039,7 @@ Function verify_1_sluch(fl_view)
             endif
           endif
         elseif left_lshifr_5 == '2.80.'
-          d_sroks := AfterAtNum('.',alltrim_lshifr)
+          d_sroks := AfterAtNum('.', alltrim_lshifr)
           mpovod := 2 // 1.1
           if between_shifr(alltrim_lshifr, '2.80.34', '2.80.38')
             fl_stom := .t.
@@ -1079,7 +1079,7 @@ Function verify_1_sluch(fl_view)
           is_2_87 := .t.
           is_exist_Prescription := .t.
         elseif left_lshifr_5 == '2.88.'
-          d_sroks := AfterAtNum('.',alltrim_lshifr)
+          d_sroks := AfterAtNum('.', alltrim_lshifr)
           mpovod := 1 // 1.0
           if between_shifr(alltrim_lshifr, '2.88.46', '2.88.51')
             fl_stom := .t.
@@ -1099,7 +1099,7 @@ Function verify_1_sluch(fl_view)
           ++kvp_2_89
           is_2_89 := .t.
           i := 3
-          k := int(val(AfterAtNum('.',alltrim_lshifr)))
+          k := int(val(AfterAtNum('.', alltrim_lshifr)))
           if     eq_any(k, 1, 13)
             i := 1  // оп.двиг.аппарат
           elseif eq_any(k, 3, 14)
@@ -1194,7 +1194,7 @@ Function verify_1_sluch(fl_view)
         if is_disp_DDS .or. is_disp_DVN .or. is_prof_PN .or. is_disp_DVN_COVID
           //
         elseif mpovod > 0 .and. ascan(arr_povod, {|x| x[1] == mpovod }) == 0
-          aadd(arr_povod, {mpovod,alltrim_lshifr})
+          aadd(arr_povod, {mpovod, alltrim_lshifr})
         endif
       elseif !(hu->date_u==mdate_u1) .and. len(au_lu) == 1
         aadd(ta, 'дата услуги ' + alltrim_lshifr+ ' должна равняться дате начала лечения')
@@ -1349,7 +1349,7 @@ Function verify_1_sluch(fl_view)
     endif
   else
     for i := 1 to len(au_lu)
-      if !between(au_lu[i, 2],d1,d2)
+      if !between(au_lu[i, 2], d1, d2)
         aadd(ta, 'услуга ' + au_lu[i, 5] + '(' + date_8(au_lu[i, 2]) + ') не попадает в диапазон лечения')
       endif
     next
@@ -1396,7 +1396,7 @@ Function verify_1_sluch(fl_view)
                  '', ;
                  onkna->(recno()), ;
                  onkna->KOD_VR })
-      if !between(onkna->NAPR_DATE,d1,d2)
+      if !between(onkna->NAPR_DATE, d1, d2)
         aadd(ta, 'дата направления должна быть внутри сроков лечения (направление ' + lstr(i) + ')')
       elseif !empty(s := verify_dend_mo(onkna->NAPR_MO,onkna->NAPR_DATE))
         aadd(ta, 'онконаправление в МО: ' + s)
@@ -1469,7 +1469,7 @@ Function verify_1_sluch(fl_view)
       aadd(ta, 'не заполнено поле "Количество услуг" для "' + s + '"')
     endif
     mdate := c4tod(mohu->date_u)
-    if !between(mdate,d1,d2)
+    if !between(mdate, d1, d2)
       if usl_found .and. &lalf.->telemed == 1 .and. mdate < d1
         // разерешается оказывать раньше
       elseif eq_any(left(lshifr, 4), 'A06.', 'A12.', 'B01.', 'B03.')
@@ -1694,7 +1694,7 @@ Function verify_1_sluch(fl_view)
       endif
       select N12
       dbeval({|| aadd(ar_N012, {'',n12->id_igh, {}}) }, ;
-             {|| between_date(n12->datebeg,n12->dateend,d2) .and. padr(mdiagnoz[1], 3) == n12->ds_igh })
+             {|| between_date(n12->datebeg,n12->dateend, d2) .and. padr(mdiagnoz[1], 3) == n12->ds_igh })
       if is_mgi
         if (i := ascan(glob_MGI, {|x| x[1] == shifr_mgi })) > 0 // услуга входит в список ТФОМС
           if (j := ascan(ar_N012, {|x| x[2] == glob_MGI[i, 2] })) > 0 // по данному диагнозу присутствует необходимый маркер
@@ -1794,7 +1794,7 @@ Function verify_1_sluch(fl_view)
         aadd(ta, 'Некорректно записано противопоказание к проведению (отказ от проведения)')
       elseif onkpr->D_PROT > d2
         n1->(dbGoto(onkpr->PROT))
-        aadd(ta,alltrim(lower(n1->prot_name)) + ' - дата регистрации больше даты окончания лечения')
+        aadd(ta, alltrim(lower(n1->prot_name)) + ' - дата регистрации больше даты окончания лечения')
       endif
       select ONKPR
       skip
@@ -1909,7 +1909,7 @@ Function verify_1_sluch(fl_view)
               aadd(ta, 'не введена дата введения препарата - отредактируйте cписок лекарственных препаратов')
               fl := .f.
               exit
-            elseif !between(onkle->DATE_INJ,d1,d2)
+            elseif !between(onkle->DATE_INJ, d1, d2)
               aadd(ta, 'дата введения препарата выходит за сроки лечения - отредактируйте cписок лекарственных препаратов')
               fl := .f.
               exit
@@ -1927,11 +1927,11 @@ Function verify_1_sluch(fl_view)
             // endif
             if select('N20') == 0
               R_Use(exe_dir+ '_mo_N020', cur_dir + '_mo_N020', 'N20')
-              set filter to between_date(datebeg,dateend,d2)
+              set filter to between_date(datebeg, dateend, d2)
             endif
             if select('N21') == 0
               R_Use(exe_dir+ '_mo_N021', cur_dir + '_mo_N021', 'N21')
-              set filter to between_date(datebeg,dateend,d2)
+              set filter to between_date(datebeg, dateend, d2)
             endif
             select N21
             find (onksl->crit)
@@ -2089,7 +2089,7 @@ Function verify_1_sluch(fl_view)
   endif
   if fl_stom
     mpzkol := 1
-    if f_vid_p_stom(au_lu, ta, , ,d2, @ltip, @lkol, @is_2_88,au_flu)
+    if f_vid_p_stom(au_lu, ta, , , d2, @ltip, @lkol, @is_2_88, au_flu)
       do case
         case ltip == 1 // с лечебной целью
           mpztip := 65
@@ -2301,12 +2301,12 @@ Function verify_1_sluch(fl_view)
         endif
         if empty(human_2->TAL_D)
           aadd(ta, 'ВМП оказана, но не введена дата выдачи талона на ВМП')
-        elseif !eq_any(year(human_2->TAL_D),d2_year-1,d2_year,d2_year+1)
+        elseif !eq_any(year(human_2->TAL_D), d2_year-1, d2_year, d2_year+1)
           aadd(ta, 'дата выдачи талона на ВМП (' + date_8(human_2->TAL_D) + ') должна быть в текущем или прошлом году')
         endif
         if empty(human_2->TAL_P)
           aadd(ta, 'ВМП оказана, но не введена дата планируемой госпитализации в соответствии с талоном на ВМП')
-        elseif !eq_any(year(human_2->TAL_P),d2_year-1,d2_year,d2_year+1)
+        elseif !eq_any(year(human_2->TAL_P), d2_year-1, d2_year, d2_year+1)
           aadd(ta, 'дата планируемой госпитализации в соответствии с талоном на ВМП (' + date_8(human_2->TAL_P) + ') должна быть в текущем или прошлом году')
         endif
         if empty(human_2->VIDVMP)
@@ -2810,13 +2810,13 @@ Function verify_1_sluch(fl_view)
     endif
     arr_profil := {human_->profil}
     for i := 1 to len(au_lu)
-      if au_lu[i, 10] >= 0 .and. ascan(arr_profil,au_lu[i, 3]) == 0
-        aadd(arr_profil,au_lu[i, 3])
+      if au_lu[i, 10] >= 0 .and. ascan(arr_profil, au_lu[i, 3]) == 0
+        aadd(arr_profil, au_lu[i, 3])
       endif
     next
     for i := 1 to len(au_flu)
-      if ascan(arr_profil,au_flu[i, 3]) == 0
-        aadd(arr_profil,au_flu[i, 3])
+      if ascan(arr_profil, au_flu[i, 3]) == 0
+        aadd(arr_profil, au_flu[i, 3])
       endif
     next
     if len(arr_profil) > 1
@@ -2837,13 +2837,13 @@ Function verify_1_sluch(fl_view)
     else
       arr_prvs := {human_->PRVS}
       for i := 1 to len(au_lu)
-        if au_lu[i, 10] >= 0 .and. ascan(arr_prvs,au_lu[i, 4]) == 0
-          aadd(arr_prvs,au_lu[i, 4])
+        if au_lu[i, 10] >= 0 .and. ascan(arr_prvs, au_lu[i, 4]) == 0
+          aadd(arr_prvs, au_lu[i, 4])
         endif
       next
       for i := 1 to len(au_flu)
-        if ascan(arr_prvs,au_flu[i, 4]) == 0
-          aadd(arr_prvs,au_flu[i, 4])
+        if ascan(arr_prvs, au_flu[i, 4]) == 0
+          aadd(arr_prvs, au_flu[i, 4])
         endif
       next
       if len(arr_prvs) > 1 .and. !is_gisto
@@ -3373,9 +3373,9 @@ Function verify_1_sluch(fl_view)
       if !between(j, 1, 2)
         j := 1
       endif
-      if overlap_diapazon(a_dializ[i, 1],a_dializ[i, 2],d1,d2) .or. eq_any(d1,a_dializ[i, 1],a_dializ[i, 2]) ;
-                                                             .or. eq_any(d2,a_dializ[i, 1],a_dializ[i, 2])
-        aadd(ta, 'услуга диализа в стационаре пересекается со случаем ' +{'гемо', 'перитонеального '}[j] + 'диализа ' + date_8(a_dializ[i, 1]) + '-' + date_8(a_dializ[i, 2]))
+      if overlap_diapazon(a_dializ[i, 1], a_dializ[i, 2], d1, d2) .or. eq_any(d1, a_dializ[i, 1], a_dializ[i, 2]) ;
+                                                             .or. eq_any(d2, a_dializ[i, 1], a_dializ[i, 2])
+        aadd(ta, 'услуга диализа в стационаре пересекается со случаем ' + {'гемо', 'перитонеального '}[j] + 'диализа ' + date_8(a_dializ[i, 1]) + '-' + date_8(a_dializ[i, 2]))
       endif
     next
     for i := 1 to len(a_srok_lech)
@@ -3679,7 +3679,7 @@ Function verify_1_sluch(fl_view)
                     fl := .t. // услуга оказана (нашли по профилю)
                     exit
                   endif
-                elseif ascan(np_arr_osmotr[j, 4],au_lu[k, 3]) > 0
+                elseif ascan(np_arr_osmotr[j, 4], au_lu[k, 3]) > 0
                   fl := .t. // услуга оказана (нашли по профилю)
                   exit
                 endif
@@ -3760,7 +3760,7 @@ Function verify_1_sluch(fl_view)
     if between(m1napr_v_mo, 1, 2) .and. !empty(arr_mo_spec) // {{'-- нет --', 0}, {'в нашу МО', 1}, {'в иную МО', 2}}, ;
       aadd(arr_nazn, {m1napr_v_mo, {}}) ; j := len(arr_nazn)
       for i := 1 to min(3,len(arr_mo_spec))
-        aadd(arr_nazn[j, 2],arr_mo_spec[i])
+        aadd(arr_nazn[j, 2], arr_mo_spec[i])
       next
     endif
     if between(m1napr_stac, 1, 2) .and. m1profil_stac > 0 // {{'--- нет ---', 0}, {'в стационар', 1}, {'в дн. стац.', 2}}, ;
@@ -3800,7 +3800,7 @@ Function verify_1_sluch(fl_view)
           s := 2 // взят на диспансерное наблюдение
         endif
       endif
-      if !empty(arr_diag[1]) .and. ascan(sadiag1,arr_diag[1]) > 0
+      if !empty(arr_diag[1]) .and. ascan(sadiag1, arr_diag[1]) > 0
         if empty(arr_diag[4])
           if s == 2
             aadd(ta, 'не введена дата следующего визита для ' + arr_diag[1])
@@ -3828,7 +3828,7 @@ Function verify_1_sluch(fl_view)
     metap := 3
     if between(human->ishod, 201, 205)
       metap := human->ishod - 200
-      license_for_dispans(1,d1, ta)
+      license_for_dispans(1, d1, ta)
     else
       aadd(ta, 'диспансеризацию/профилактику взрослых надо вводить через специальный экран ввода')
     endif
@@ -3836,7 +3836,7 @@ Function verify_1_sluch(fl_view)
       if metap == 3
         aadd(ta, 'профилактику взрослых не проводят ветеранам ВОВ (блокадникам)')
       else
-        mdvozrast := ret_vozr_DVN_veteran(mdvozrast,d2)
+        mdvozrast := ret_vozr_DVN_veteran(mdvozrast, d2)
       endif
     endif
     is_prof_disp := .f.
@@ -3847,7 +3847,7 @@ Function verify_1_sluch(fl_view)
     endif
     for i := 1 to len(a_disp)
       // {human->ishod-200, human->n_data, human->k_data, human_->RSLT_NEW}
-      if overlap_diapazon(a_disp[i, 2],a_disp[i, 3],d1,d2)
+      if overlap_diapazon(a_disp[i, 2], a_disp[i, 3], d1, d2)
         aadd(ta, 'пересечение с ' + iif(a_disp[i, 1]==3, 'профилактикой ', 'диспансеризацией ') + ;
                 date_8(a_disp[i, 2]) + '-' + date_8(a_disp[i, 3]))
       endif
@@ -3959,9 +3959,9 @@ Function verify_1_sluch(fl_view)
       for i := 1 to len(au_lu)
         lshifr := alltrim(au_lu[i, 1])
         for j := 1 to len(dvn_2_etap)
-          if ascan(dvn_2_etap[j, 1], lshifr) > 0 .and. between(mdvozrast,dvn_2_etap[j, 3],dvn_2_etap[j, 4])
+          if ascan(dvn_2_etap[j, 1], lshifr) > 0 .and. between(mdvozrast, dvn_2_etap[j, 3], dvn_2_etap[j, 4])
             ar[j, 1] := 1
-          elseif ascan(dvn_2_etap[j, 2], lshifr) > 0 .and. between(mdvozrast,dvn_2_etap[j, 3],dvn_2_etap[j, 4])
+          elseif ascan(dvn_2_etap[j, 2], lshifr) > 0 .and. between(mdvozrast, dvn_2_etap[j, 3], dvn_2_etap[j, 4])
             ar[j, 2] := 1
           endif
         next
