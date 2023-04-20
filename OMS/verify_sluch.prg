@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-// 19.04.23
+// 20.04.23
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1, ;
         i, j, k, c, s := ' ', a_srok_lech := {}, a_period_stac := {}, a_disp := {}, ;
@@ -3396,7 +3396,7 @@ Function verify_1_sluch(fl_view)
       aadd(ta, 'дата начала и окончания случая должны быть в одном году')
     endif
     if eq_any(human->ishod, 101, 102)
-      metap := human->ishod-100
+      metap := human->ishod - 100
       read_arr_DDS(human->kod)
     else
       aadd(ta, 'диспансеризацию детей-сирот надо вводить через специальный экран ввода')
@@ -3827,7 +3827,7 @@ Function verify_1_sluch(fl_view)
     next
     metap := 3
     if between(human->ishod, 201, 205)
-      metap := human->ishod-200
+      metap := human->ishod - 200
       license_for_dispans(1,d1, ta)
     else
       aadd(ta, 'диспансеризацию/профилактику взрослых надо вводить через специальный экран ввода')
@@ -4363,6 +4363,21 @@ Function verify_1_sluch(fl_view)
         endif
       next
     endif
+  endif
+
+  //
+  // ПРОВЕРКА ДЛЯ СЛУЧАЕВ ДИАГНОЗОВ Z00-Z99 в поликлинике
+  //
+  if human_->USL_OK == 3 .and. between_diag(mdiagnoz[1], 'Z00', 'Z99') ;
+          .and. alltrim(mdiagnoz[1]) != 'Z92.2' .and. alltrim(mdiagnoz[1]) != 'Z92.4'
+
+    if human_->RSLT_NEW != 314
+      aadd(ta, 'для диагноза "' + mdiagnoz[1] + '" результат обращения должен быть "314-динамическое наблюдение"')
+    endif
+    if human_->ISHOD_NEW != 304 .and. human_->ISHOD_NEW != 306
+      aadd(ta, 'для диагноза "' + mdiagnoz[1] + '" исход заболевания должен быть "304-без перемен" или "306-осмотр"')
+    endif
+
   endif
 
   //
