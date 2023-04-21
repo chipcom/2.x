@@ -1,11 +1,11 @@
-***** setupFFOMSref.prg - настройка используемых справочников ФФОМС
-#include "set.ch"
-#include "inkey.ch"
-#include "function.ch"
-#include "edit_spr.ch"
-#include "chip_mo.ch"
+// setupFFOMSref.prg - настройка используемых справочников ФФОМС
+#include 'set.ch'
+#include 'inkey.ch'
+#include 'function.ch'
+#include 'edit_spr.ch'
+#include 'chip_mo.ch'
 
-***** 24.01.22 Настройка справочников ФФОМС
+// 24.01.22 Настройка справочников ФФОМС
 Function nastr_sprav_FFOMS(k)
   Static arr_spr, arr_spr_name, sk := 1
   static arr_ref, arr_name
@@ -15,76 +15,72 @@ Function nastr_sprav_FFOMS(k)
   do case
     case k == 0
       if ! hb_user_curUser:IsAdmin()
-        return func_error(4,err_admin)
+        return func_error(4, err_admin)
       endif
       arr_ref := {'V002', 'V020', 'V006', 'V034', 'MethodINJ', 'Implantant'}
       arr_name := {'ПРОФИЛЕЙ оказанной медицинской помощи', 'ПРОФИЛЕЙ КОЙКИ', ;
           'УСЛОВИЙ оказания медицинской помощи', 'ЕДИНИЦ ИЗМЕРЕНИЯ', ;
           'ПУТЕЙ ВВЕДЕНИЯ', 'ИМПЛАНТАНТОВ'}
-      arr_spr_name := {;
-        'Классификатор ПРОФИЛЕЙ оказанной медицинской помощи',;
-        'Классификатор ПРОФИЛЕЙ КОЙКИ',;
-        'Классификатор УСЛОВИЙ оказания медицинской помощи',;
-        'Классификатор ЕДИНИЦ ИЗМЕРЕНИЯ',;
-        'Классификатор ПУТЕЙ ВВЕДЕНИЯ лекарственных препаратов',;
+      arr_spr_name := { ;
+        'Классификатор ПРОФИЛЕЙ оказанной медицинской помощи', ;
+        'Классификатор ПРОФИЛЕЙ КОЙКИ', ;
+        'Классификатор УСЛОВИЙ оказания медицинской помощи', ;
+        'Классификатор ЕДИНИЦ ИЗМЕРЕНИЯ', ;
+        'Классификатор ПУТЕЙ ВВЕДЕНИЯ лекарственных препаратов', ;
         'Классификатор ИМПЛАНТАНТОВ для использования'}
         
       arr_spr := arr_name   // подставим имена пунктов меню
       for j := 1 to len(arr_spr)
-        aadd(mas_pmt, "Настройка "+arr_spr[j])
+        aadd(mas_pmt, 'Настройка ' + arr_spr[j])
         aadd(mas_msg, arr_spr_name[j])
-        aadd(mas_fun, "nastr_sprav_FFOMS("+lstr(j)+")")
+        aadd(mas_fun, 'nastr_sprav_FFOMS(' + lstr(j) + ')')
       next
-      popup_prompt(T_ROW, T_COL+5, sk, mas_pmt, mas_msg, mas_fun)
+      popup_prompt(T_ROW, T_COL + 5, sk, mas_pmt, mas_msg, mas_fun)
     case k > 0
-      str_sem := "Настройка "+arr_spr[k]
+      str_sem := 'Настройка ' + arr_spr[k]
       arr_spr := arr_ref  // подставим имена справочников
       if G_SLock(str_sem)
-        fnastr_sprav_FFOMS(0,arr_spr[k],arr_spr_name[k])
+        fnastr_sprav_FFOMS(0, arr_spr[k], arr_spr_name[k])
         G_SUnLock(str_sem)
       else
-        func_error(4,err_slock)
+        func_error(4, err_slock)
       endif
       arr_spr := arr_name   // подставим имена пунктов меню
   endcase
   if k > 0
     sk := k
   endif
-  return NIL
+  return nil
   
-*****
-Function fnastr_sprav_FFOMS(k,_n,_m)
+//
+Function fnastr_sprav_FFOMS(k, _n, _m)
   Static sk := 1, _name, _msg
   Local str_sem, mas_pmt, mas_msg, mas_fun, j
+
   DEFAULT k TO 0
-  // ЧТО-БЫ не делать PUBLIC
-  // Private glob_V034 := get_ed_izm()
-  // Private glob_methodinj := getMethodINJ()
-  // private glob_implantant := get_implantant()
-  //
   do case
     case k == 0
       _name := _n ; _msg := _m
-      mas_pmt := {"~По организации",;
-                  "По ~учреждению",;
-                  "По ~отделению"}
-      mas_msg := {"Настройка содержания классификатора "+_name+" в целом по организации",;
-                  "Уточнение настройки классификатора "+_name+" по учреждению",;
-                  "Уточнение настройки классификатора "+_name+" по отделению"}
-      mas_fun := {"fnastr_sprav_FFOMS(1)",;
-                  "fnastr_sprav_FFOMS(2)",;
-                  "fnastr_sprav_FFOMS(3)"}
-      popup_prompt(T_ROW, T_COL+5, sk, mas_pmt, mas_msg, mas_fun)
+      mas_pmt := {'~По организации', ;
+                  'По ~учреждению', ;
+                  'По ~отделению'}
+      mas_msg := {'Настройка содержания классификатора ' + _name + ' в целом по организации', ;
+                  'Уточнение настройки классификатора ' +_name + ' по учреждению', ;
+                  'Уточнение настройки классификатора ' + _name + ' по отделению'}
+      mas_fun := {'fnastr_sprav_FFOMS(1)', ;
+                  'fnastr_sprav_FFOMS(2)', ;
+                  'fnastr_sprav_FFOMS(3)'}
+      popup_prompt(T_ROW, T_COL + 5, sk, mas_pmt, mas_msg, mas_fun)
     case k == 1
-      f1nastr_sprav_FFOMS(0,_name,_msg)
+      f1nastr_sprav_FFOMS(0, _name, _msg)
     case k == 2
-      if input_uch(T_ROW-1,T_COL+5,sys_date) != NIL
-        f1nastr_sprav_FFOMS(1,_name,_msg)
+      if input_uch(T_ROW - 1, T_COL + 5, sys_date) != nil
+        f1nastr_sprav_FFOMS(1, _name, _msg)
       endif
     case k == 3
-      if input_uch(T_ROW-1,T_COL+5,sys_date) != NIL .and. ;
-                   input_otd(T_ROW-1,T_COL+5,sys_date) != NIL
-        f1nastr_sprav_FFOMS(2,_name,_msg)
+      if input_uch(T_ROW - 1, T_COL + 5, sys_date) != NIL .and. ;
+                   input_otd(T_ROW - 1, T_COL + 5, sys_date) != NIL
+        f1nastr_sprav_FFOMS(2, _name, _msg)
       endif
   endcase
   if k > 0
@@ -92,19 +88,19 @@ Function fnastr_sprav_FFOMS(k,_n,_m)
   endif
   return NIL
   
-** 18.10.22
+// 21.04.23
 Function f1nastr_sprav_FFOMS(reg, _name, _msg)
   Local buf, t_arr[BR_LEN], blk, len1, sKey, i, s, arr, arr1, arr2, fl := .t.
-  // Private name_arr := 'glob_' + _name + '()', ob_kol, p_blk
+  
   Private name_arr := 'get' + _name + '()', ob_kol, p_blk
-
   if upper(_name) == 'V034'
     name_arr := 'get_ed_izm()'
   elseif upper(_name) == 'IMPLANTANT'
     name_arr := 'get_implantant()'
   endif
   
-  if !init_tmp_glob_array(, &name_arr, sys_date, _name=='V002')
+  // if !init_tmp_glob_array(, &name_arr, sys_date, _name == 'V002')
+  if !init_tmp_glob_array(, &name_arr, sys_date, .f.)
     return NIL
   endif
   use (cur_dir + 'tmp_ga') new
@@ -123,7 +119,7 @@ Function f1nastr_sprav_FFOMS(reg, _name, _msg)
   endcase
   //
   if (fl := Semaphor_Tools_Ini(1))
-    arr := GetIniVar(tools_ini,{{_name, '0', ''}})
+    arr := GetIniVar(tools_ini, {{_name, '0', ''}})
     arr := list2arr(arr[1])
     if len(arr) > 0
       ob_kol := len(arr)
@@ -182,7 +178,7 @@ Function f1nastr_sprav_FFOMS(reg, _name, _msg)
   t_arr[BR_TITUL_COLOR] := 'B/BG'
   t_arr[BR_FL_NOCLEAR] := .t.
   t_arr[BR_ARR_BROWSE] := { , , , 'N/BG,W+/N,B/BG,W+/B', .t.}
-  t_arr[BR_COLUMN] := {{ ' ', {|| iif(tmp_ga->is, '', ' ') }, blk },;
+  t_arr[BR_COLUMN] := {{ ' ', {|| iif(tmp_ga->is, '', ' ') }, blk }, ;
                        { center(s, len1), {|| padr(tmp_ga->name, len1) }, blk }}
   t_arr[BR_EDIT] := {|nk, ob| f2nastr_sprav_FFOMS(nk, ob, 'edit') }
   t_arr[BR_STAT_MSG] := {|| status_key('^<Esc>^ - выход;  ^<+,-,Ins>^ - отметить;  ^<F2>^ - поиск по подстроке') }
@@ -201,13 +197,14 @@ Function f1nastr_sprav_FFOMS(reg, _name, _msg)
   restscreen(buf)
   return NIL
   
-*****
-Function f2nastr_sprav_FFOMS(nKey,oBrow,regim)
+//
+Function f2nastr_sprav_FFOMS(nKey, oBrow, regim)
   Local k := -1, rec, fl
-  if regim == "edit"
+
+  if regim == 'edit'
     do case
       case nKey == K_F2
-        k := f1get_tmp_ga(nKey,oBrow,regim)
+        k := f1get_tmp_ga(nKey, oBrow, regim)
       case nkey == K_INS
         replace tmp_ga->is with !tmp_ga->is
         if tmp_ga->is
@@ -234,11 +231,11 @@ Function f2nastr_sprav_FFOMS(nKey,oBrow,regim)
   endif
   return k
   
-** 18.10.22 сформировать справочник по настройке организации/учреждения/отделения
+// 18.10.22 сформировать справочник по настройке организации/учреждения/отделения
 Function create_classif_FFOMS(reg, _name)
   // reg - возврат кслассификатора для 0-организации/1-учреждения/2-отделения
   Local i, k, arr, arr1, arr2, fl := .t., ret := {}, ret1
-  // Private name_arr := 'glob_' + _name + '()'
+  
   Private name_arr := 'get' + _name + '()'
   //
   if upper(_name) == 'V034'
@@ -288,7 +285,5 @@ Function create_classif_FFOMS(reg, _name)
   else
     ret1 := cut_glob_array(&name_arr, sys_date)
   endif
-  asort(ret1,,,{|x,y| upper(x[1]) < upper(y[1]) })
+  asort(ret1, , , {|x, y| upper(x[1]) < upper(y[1]) })
   return ret1
-  
-  

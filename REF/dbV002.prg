@@ -30,14 +30,12 @@ function getV002(work_date)
         'FROM v002')
     if len(aTable) > 1
       for nI := 2 to Len( aTable )
-        // aadd(_arr, {alltrim(aTable[nI, 2]), val(aTable[nI, 1]), ctod(aTable[nI, 3]), ctod(aTable[nI, 4])})
         aadd(_arr, {alltrim(aTable[nI, V002_PRNAME]), val(aTable[nI, V002_IDPR]), ctod(aTable[nI, V002_DATEBEG]), ctod(aTable[nI, V002_DATEEND])})
       next
     endif
     Set(_SET_DATEFORMAT, 'dd.mm.yyyy')
     db := nil
   endif
-
   if hb_isnil(work_date)
     return _arr
   else

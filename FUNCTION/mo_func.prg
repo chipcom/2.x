@@ -1,10 +1,10 @@
-** различные функции общего пользования - mo_func.prg
+// различные функции общего пользования - mo_func.prg
 #include 'inkey.ch'
 #include 'function.ch'
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
  
-** 21.08.17
+// 21.08.17
 Function run_my_hrb(name_hrb, name_func)
   Local x, handle, n_file := dir_exe + name_hrb + '.hrb'
 
@@ -17,7 +17,7 @@ Function run_my_hrb(name_hrb, name_func)
   endif
   return Nil
 
-** записать объём работы операторов
+// записать объём работы операторов
 Function write_work_oper(_pt, _tp, _ae, _kk, _kp, _open)
   // {"PD",      'C',   4,   0}, ; // дата ввода c4tod(pd)
   // {"PO",      'C',   1,   0}, ; // код оператора asc(po)
@@ -55,7 +55,7 @@ Function write_work_oper(_pt, _tp, _ae, _kk, _kp, _open)
   endif
   return NIL
 
-** проверить, более одного ли слова отдельно в фамилии, имени и отчестве
+// проверить, более одного ли слова отдельно в фамилии, имени и отчестве
 Function TwoWordFamImOt(s)
   Static arr_char := {' ', '-', '.', "'", '"'}
   Local i, fl := .f.
@@ -69,7 +69,7 @@ Function TwoWordFamImOt(s)
   next
   return fl
 
-** проверить отдельно фамилию, имя и отчество в GET'ах
+// проверить отдельно фамилию, имя и отчество в GET'ах
 Function valFamImOt(ltip, s, par, /*@*/msg)
   Static arr_pole := {'Фамилия', 'Имя', 'Отчество'}
   Static arr_char := {' ', '-', '.', "'", '"'}
@@ -124,7 +124,7 @@ Function valFamImOt(ltip, s, par, /*@*/msg)
   endif
   return fl
 
-** 02.09.15 вернуть отдельно фамилию, имя и отчество в массиве
+// 02.09.15 вернуть отдельно фамилию, имя и отчество в массиве
 Function retFamImOt(ltip, fl_no, is_open_kfio)
   Static cDelimiter := ' .'
   Local i, k := 0, s := '', s1, mfio, tmp_select, ret_arr := {'', '', ''}
@@ -177,7 +177,7 @@ Function retFamImOt(ltip, fl_no, is_open_kfio)
   endif
   return ret_arr
 
-** 26.10.14 проверка на правильность введённого ФИО
+// 26.10.14 проверка на правильность введённого ФИО
 Function val_fio(afio, aerr)
   Local i, k := 0, msg
 
@@ -191,7 +191,7 @@ Function val_fio(afio, aerr)
   next
   return (k == 0)
 
-** 26.08.14 вернуть иногороднюю СМО
+// 26.08.14 вернуть иногороднюю СМО
 Function ret_inogSMO_name(ltip, /*@*/rec, fl_close)
   Local s := space(100), fl := .f., tmp_select := select()
 
@@ -213,7 +213,7 @@ Function ret_inogSMO_name(ltip, /*@*/rec, fl_close)
   select (tmp_select)
   return s
 
-** 22.05.15 СМО на экран (печать)
+// 22.05.15 СМО на экран (печать)
 Function smo_to_screen(ltip)
   Local s := '', s1 := '', lsmo, nsmo, lokato
 
@@ -236,7 +236,7 @@ Function smo_to_screen(ltip)
   endif
   return s
 
-** 15.10.14 проверка корректности GUID
+// 15.10.14 проверка корректности GUID
 Function valid_GUID(s, par)
   // par = 1 - GUID из моей программы
   // par = 2 - GUID из чужой программы
@@ -254,7 +254,7 @@ Function valid_GUID(s, par)
   endif
   return fl
 
-** составить GUID
+// составить GUID
 Function mo_guid(par1, par2)
   // par1 - от 1 до 3
   //        .XXXXX...... для par1 = 1
@@ -274,7 +274,7 @@ Function mo_guid(par1, par2)
   k := {6, 9, 12, 11}[par1] - l + 1 // номер позиции, с которой будем замещать
   return s + stuff(s1, k, l, s2)
 
-**
+//
 Static Function f1CreateGUID(tmpLength)
   Static strValid := '0123456789ABCDEF'
   Local tmpCounter, tmpGUID := ''
@@ -284,7 +284,7 @@ Static Function f1CreateGUID(tmpLength)
   Next
   return tmpGUID
 
-** 21.01.17 определить диапазоны номеров пакетов
+// 21.01.17 определить диапазоны номеров пакетов
 Function f_mb_me_nsh(_nyear, /*@*/mb, /*@*/me)
 
   if mem_bnn13rees <= 0 .or. mem_enn13rees <= 0
@@ -306,7 +306,7 @@ Function f_mb_me_nsh(_nyear, /*@*/mb, /*@*/me)
 
 
 
-** проверить, существует файл nfile, и попытаться удалить его
+// проверить, существует файл nfile, и попытаться удалить его
 Function myFileDeleted(nfile)
   Static sn := 100 // делаем 100 попыток
   Local i := 0, fl := .f.
@@ -325,7 +325,7 @@ Function myFileDeleted(nfile)
   endif
   return fl
 
-** 15.12.13 корректен ли период для информации "по отчётному периоду"
+// 15.12.13 корректен ли период для информации "по отчётному периоду"
 Function is_otch_period(arr_m)
   Local fl := .t.
 
@@ -334,7 +334,7 @@ Function is_otch_period(arr_m)
   endif
   return fl
 
-** попадает ли отч.период (_YEAR,_MONTH) в диапазон с _begin_date по _end_date
+// попадает ли отч.период (_YEAR,_MONTH) в диапазон с _begin_date по _end_date
 Function between_otch_period(_date, _YEAR, _MONTH, _begin_date, _end_date)
   Local mdate
 
@@ -345,7 +345,7 @@ Function between_otch_period(_date, _YEAR, _MONTH, _begin_date, _end_date)
   endif
   return between(mdate, _begin_date, _end_date)
 
-** 21.10.13 проверить перекрытие диапазонов p1-p2 с d1-d2 для стационара
+// 21.10.13 проверить перекрытие диапазонов p1-p2 с d1-d2 для стационара
 Function overlap_diapazon(p1, p2, d1, d2)
   Local fl := .f.
 
@@ -368,7 +368,7 @@ Function overlap_diapazon(p1, p2, d1, d2)
   endif
   return fl
 
-** сделать из глобального массива укороченный (отсечь по дате действия)
+// сделать из глобального массива укороченный (отсечь по дате действия)
 Function cut_glob_array(_glob_array, _date)
   Local i, tmp_array := {}
 
@@ -379,7 +379,7 @@ Function cut_glob_array(_glob_array, _date)
   next
   return tmp_array
 
-** создать (name_base).DBF из глобального массива (укороченную) (отсечь по дате действия)
+// создать (name_base).DBF из глобального массива (укороченную) (отсечь по дате действия)
 FUNCTION init_tmp_glob_array(name_base, _glob_array, _date, is_all)
   Local i, len1, len2, f2type, fl_is, tmp_select
 
@@ -418,7 +418,7 @@ FUNCTION init_tmp_glob_array(name_base, _glob_array, _date, is_all)
   select (tmp_select)
   return .t.
 
-** 04.05.13 в GET'е выбрать значение из TMP_GA.DBF (глобального массива) с поиском по подстроке
+// 04.05.13 в GET'е выбрать значение из TMP_GA.DBF (глобального массива) с поиском по подстроке
 Function fget_tmp_ga(k, r, c, name_base, browTitle, is_F2, sTitle)
   Local ret, fl, cRec, kolRec, nRec, len1, len2, f2type, tmp_select, blk, t_arr[BR_LEN]
 
@@ -500,7 +500,7 @@ Function fget_tmp_ga(k, r, c, name_base, browTitle, is_F2, sTitle)
   select (tmp_select)
   return ret
 
-** 23.01.17
+// 23.01.17
 Function f1get_tmp_ga(nKey, oBrow, regim, arr)
   Static tmp := ''
   Local ret := -1, buf, buf1, tmp1, rec1 := recno()
@@ -562,7 +562,7 @@ Function f1get_tmp_ga(nKey, oBrow, regim, arr)
   endif
   return ret
 
-**
+//
 Function is_up_usl(arr_usl, mkod)
   Local i := 0, tmp_select := select()
 
@@ -583,7 +583,7 @@ Function is_up_usl(arr_usl, mkod)
   endif
   return ( ascan(arr_usl, usl->kod) > 0 )
 
-** 03.01.19
+// 03.01.19
 Function input_usluga(arr_tfoms)
   Local ar, musl, arr_usl, buf, fl_tfoms := (valtype(arr_tfoms) == 'A')
 
@@ -621,7 +621,7 @@ Function input_usluga(arr_tfoms)
   endif
   return arr_usl
 
-**
+//
 Function ret_1st_otd(lkod_uch)
   Local k, tmp_select := select()
 
@@ -638,7 +638,7 @@ Function ret_1st_otd(lkod_uch)
   endif
   return k
 
-** вернуть процент выполнения плана
+// вернуть процент выполнения плана
 Function ret_trudoem(lkod_vr, ltrudoem, kol_mes, arr_m, /*@*/plan)
   Local i := 0, trd := 0, ltrud, tmp_select := select()
 
@@ -668,7 +668,7 @@ Function ret_trudoem(lkod_vr, ltrudoem, kol_mes, arr_m, /*@*/plan)
   select (tmp_select)
   return trd
 
-** 13.02.14
+// 13.02.14
 FUNCTION input_uch(r, c, date1, date2)
   Local ret, k, fl_is, tmp_select := select()
 
@@ -720,11 +720,11 @@ FUNCTION input_uch(r, c, date1, date2)
   endif
   return ret
 
-**
+//
 Function inputE_otd(r1, c1, r2)
   return input_otd(r1, c1, sys_date)
 
-** 13.02.14
+// 13.02.14
 FUNCTION input_otd(r, c, date1, date2, nTask)
   Local ret, k, fl_is, tmp_select := select()
 
@@ -782,7 +782,7 @@ FUNCTION input_otd(r, c, date1, date2, nTask)
   endif
   return ret
 
-** 29.10.18
+// 29.10.18
 Function input_perso(r, c, is_null, is_rab)
   Static si := 1
   Local fl := .f., fl1 := .f., mas_pmt, s_input, s_glob, s_pict, tmp_help := 0, ;
@@ -862,7 +862,7 @@ Function input_perso(r, c, is_null, is_rab)
   rest_box(buf)
   return fl1
 
-** 29.10.18
+// 29.10.18
 Function f1inp_perso(oBrow)
   Local oColumn
 
@@ -876,7 +876,7 @@ Function f1inp_perso(oBrow)
   oBrow:addColumn(oColumn)
   return NIL
 
-** вернуть учреждение и отделение в GET'е
+// вернуть учреждение и отделение в GET'е
 FUNCTION ret_uch_otd(k, r, c, date1, date2, nTask)
   Local ret, n := 1
 
@@ -901,7 +901,7 @@ FUNCTION ret_uch_otd(k, r, c, date1, date2, nTask)
   endif
   return ret
 
-** удаление данных по зубной формуле в HUMANST (для платных услуг)
+// удаление данных по зубной формуле в HUMANST (для платных услуг)
 Function STdelHuman(ltip, lrec)
 
   select HUMANST
@@ -914,7 +914,7 @@ Function STdelHuman(ltip, lrec)
   enddo
   return NIL
 
-** удаление данных по зубной формуле в картотеке
+// удаление данных по зубной формуле в картотеке
 Function STdelKart(ltip, lrec)
 
   select KART_ST
@@ -928,7 +928,7 @@ Function STdelKart(ltip, lrec)
   enddo
   return NIL
 
-** добавление данных по зубной формуле
+// добавление данных по зубной формуле
 Function STappend(ltip, lrec, lkod_k, ldate_u, lu_kod, lkod_vr, _zf, _diag)
   Local i, arr_zf := STretArrZF(_zf)
 
@@ -963,7 +963,7 @@ Function STappend(ltip, lrec, lkod_k, ldate_u, lu_kod, lkod_vr, _zf, _diag)
   endif
   return NIL
 
-** 17.12.18 добавление удалённого зуба
+// 17.12.18 добавление удалённого зуба
 Function STappendDelZ(lkod_k, _zf, ldate_u, lu_kod)
   Static arr_STdelzub
   Local i, arr_zf := STretArrZF(_zf)
@@ -990,7 +990,7 @@ Function STappendDelZ(lkod_k, _zf, ldate_u, lu_kod)
   endif
   return NIL
 
-** 17.12.18 удаление удалённого зуба
+// 17.12.18 удаление удалённого зуба
 Function STDelDelZ(lkod_k, _zf, lu_kod)
   Static arr_STdelzub
   Local i, arr_zf := STretArrZF(_zf)
@@ -1007,7 +1007,7 @@ Function STDelDelZ(lkod_k, _zf, lu_kod)
   endif
   return NIL
 
-** 11.12.18 вернуть массив с кодами услуг удаления зуба
+// 11.12.18 вернуть массив с кодами услуг удаления зуба
 Function ret_arr_STdelzub()
   Static arr := { ;
     {'A16.07.030.001', 'Удаление временного зуба'}, ;
@@ -1049,7 +1049,7 @@ Function ret_arr_STdelzub()
   endif*/
   return akod
 
-** 17.12.18 проверка, не удалён ли зуб
+// 17.12.18 проверка, не удалён ли зуб
 Function STverDelZub(lkod_k, arr_zf, ldate_u, ltip, lrec, /*@*/amsg)
   Static arr_STdelzub
   Local i
@@ -1081,7 +1081,7 @@ Function STverDelZub(lkod_k, arr_zf, ldate_u, ltip, lrec, /*@*/amsg)
   endif*/
   return NIL
 
-** 16.01.19 проверка правильности ввода зубной формулы
+// 16.01.19 проверка правильности ввода зубной формулы
 Function STVerifyKolZf(arr_zf, mkol, /*@*/amsg, lshifr)
 
   if valtype(arr_zf) == 'A' .and. valtype(mkol) == 'N'
@@ -1094,7 +1094,7 @@ Function STVerifyKolZf(arr_zf, mkol, /*@*/amsg, lshifr)
   endif
   return !empty(amsg)
 
-** 31.01.19 проверка правильности ввода зубной формулы
+// 31.01.19 проверка правильности ввода зубной формулы
 Function STverifyZF(_zf, _date_r, _sys_date, /*@*/amsg, lshifr)
   Static fz := {{11, 18}, {21, 28}, {31, 38}, {41, 48},{51, 55}, {61, 65}, {71, 75}, {81, 85}}
   //               возраст больного с 14 лет   |       возраст до 5 лет
@@ -1121,7 +1121,7 @@ Function STverifyZF(_zf, _date_r, _sys_date, /*@*/amsg, lshifr)
   endif
   return arr_zf
 
-** 16.01.19 синтаксический анализ зубной формулы, возврат массива зубов
+// 16.01.19 синтаксический анализ зубной формулы, возврат массива зубов
 Function STretArrZF(_zf, /*@*/amsg, lshifr)
   //Static ssymb := "12345678,-МДВЖН", nsymb := 15  так было у Демиденко Татьяны
   Static ssymb := '12345678,-', nsymb := 10
@@ -1154,11 +1154,11 @@ Function STretArrZF(_zf, /*@*/amsg, lshifr)
   next
   return arr_zf
 
-** 16.01.19 является ли случай стоматологическим для ввода зубной формулы
+// 16.01.19 является ли случай стоматологическим для ввода зубной формулы
 Function STisZF(_USL_OK, _PROFIL)
   return (_USL_OK == 3 .and. eq_any(_PROFIL, 85, 86, 87, 88, 89, 90, 140, 171))
 
-** ввод фразы для места работы из списка
+// ввод фразы для места работы из списка
 Function v_vvod_mr()
 Local k, nrow := row(), ncol := col(), fl := .f., tmp_keys, tmp_gets
 tmp_keys := my_savekey()
@@ -1179,7 +1179,7 @@ endif
 my_restkey(tmp_keys)
 return NIL
 
-** выбор фразы для места работы
+// выбор фразы для места работы
 Function input_s_mr()
 Local t_arr[BR_LEN], tmp_select := select(), buf := savescreen(), ret := ""
 t_arr[BR_TOP] := 2
@@ -1202,7 +1202,7 @@ endif
 restscreen(buf)
 return ret
 
-**
+//
 Function f1_s_mr(nKey,oBrow,regim)
 Static tmp := ' '
 Local ret := -1, j := 0, flag := -1, buf := save_maxrow(), buf1, ;
@@ -1274,7 +1274,7 @@ do case
 endcase
 return ret
 
-** 07.02.13 ввод фразы для адреса из списка
+// 07.02.13 ввод фразы для адреса из списка
 Function v_vvod_adres()
   Local k, nrow := row(), ncol := col(), fl := .f., tmp_keys, tmp_gets
 
@@ -1296,7 +1296,7 @@ Function v_vvod_adres()
   my_restkey(tmp_keys)
   return NIL
 
-** выбор фразы для адреса
+// выбор фразы для адреса
 Function input_s_adres()
   Local t_arr[BR_LEN], tmp_select := select(), buf := savescreen(), ret := ''
 
@@ -1319,7 +1319,7 @@ Function input_s_adres()
   restscreen(buf)
   return ret
 
-** форма настройки включаемых/исключаемых услуг
+// форма настройки включаемых/исключаемых услуг
 Function forma_nastr(s_titul, arr_strok, nfile, arr, fl)
   Local i, j, r := 2, tmp_color := setcolor(cDataCGet)
   Local buf := savescreen(), blk := {|| f9_f_nastr(s_titul, arr_strok)}
@@ -1371,7 +1371,7 @@ Function forma_nastr(s_titul, arr_strok, nfile, arr, fl)
   restscreen(buf)
   return arr
 
-**
+//
 Function f9_f_nastr(l_titul, a_strok)
   Local sh := 80, HH := 77, buf := save_maxrow(), n_file := cur_dir + 'frm_nast' + stxt
   Local i, k, nrow := row(), ncol := col(), tmp_keys, tmp_gets, ta := {}
@@ -1420,7 +1420,7 @@ Function f9_f_nastr(l_titul, a_strok)
   setcursor()
   return NIL
 
-**
+//
 Function ret_f_nastr(a_usl, lshifr)
   Local i, shb, fl := .f.
 
@@ -1452,7 +1452,7 @@ Function ret_f_nastr(a_usl, lshifr)
   endif
   return fl
 
-**
+//
 Function _f_usl_danet(a_da, a_net)
   Local fl, i, shb
 
@@ -1491,7 +1491,7 @@ Function _f_usl_danet(a_da, a_net)
   endif
   return fl
 
-** 28.01.20 вывести строку в отладочный массив о КСГ
+// 28.01.20 вывести строку в отладочный массив о КСГ
 Function f_put_debug_KSG(k, arr, ars)
   // k = 1 - терапевтическая
   // k = 2 - хирургическая
@@ -1554,7 +1554,7 @@ Function f_put_debug_KSG(k, arr, ars)
   aadd(ars, s)
   return len(arr1)
 
-** 20.01.14 вернуть цену КСГ
+// 20.01.14 вернуть цену КСГ
 Function ret_cena_KSG(lshifr, lvr, ldate, ta)
   Local fl_del := .f., fl_uslc := .f., v := 0
 
@@ -1573,7 +1573,7 @@ Function ret_cena_KSG(lshifr, lvr, ldate, ta)
   endif
   return v
 
-** 28.01.14 вывести в центре экрана протокол определения КСГ
+// 28.01.14 вывести в центре экрана протокол определения КСГ
 Function f_put_arr_ksg(cLine)
   Local buf := savescreen(), i, nLLen := 0, mc := maxcol() - 1, ;
         nLCol, nRCol, nTRow, nBRow, nNumRows := len(cLine)
@@ -1599,7 +1599,7 @@ Function f_put_arr_ksg(cLine)
   restscreen(buf)
   return NIL
 
-// ** 26.01.18 тест определения КСГ
+// // 26.01.18 тест определения КСГ
 // Function test_definition_KSG()
 // Local arr, buf := save_maxrow(), lshifr, lrec, lu_kod, lcena, lyear, mrec_hu, not_ksg := .t.
 // stat_msg("Определение КСГ")
