@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-// 20.04.23
+// 21.04.23
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1, ;
         i, j, k, c, s := ' ', a_srok_lech := {}, a_period_stac := {}, a_disp := {}, ;
@@ -532,7 +532,7 @@ Function verify_1_sluch(fl_view)
   endif
   human_->SPOLIS := val_polis(human_->SPOLIS)
   human_->NPOLIS := val_polis(human_->NPOLIS)
-  Valid_SN_Polis(human_->vpolis, human_->SPOLIS, human_->NPOLIS, ta,between(human_->smo,'34001','34007'))
+  Valid_SN_Polis(human_->vpolis, human_->SPOLIS, human_->NPOLIS, ta,between(human_->smo, '34001', '34007'))
   //
   if select('SMO') == 0
     R_Use(dir_exe + '_mo_smo', cur_dir + '_mo_smo2', 'SMO')
@@ -1398,7 +1398,7 @@ Function verify_1_sluch(fl_view)
                  onkna->KOD_VR })
       if !between(onkna->NAPR_DATE, d1, d2)
         aadd(ta, 'дата направления должна быть внутри сроков лечения (направление ' + lstr(i) + ')')
-      elseif !empty(s := verify_dend_mo(onkna->NAPR_MO,onkna->NAPR_DATE))
+      elseif !empty(s := verify_dend_mo(onkna->NAPR_MO, onkna->NAPR_DATE))
         aadd(ta, 'онконаправление в МО: ' + s)
       endif
       if onkna->NAPR_V == 3
@@ -2047,7 +2047,7 @@ Function verify_1_sluch(fl_view)
       aadd(ta,s)
     endif
   endif
-  if human_->USL_OK == 1 .and. substr(human_->FORMA14, 1, 1)=='0'
+  if human_->USL_OK == 1 .and. substr(human_->FORMA14, 1, 1) == '0'
     if empty(human_->NPR_MO)
       aadd(ta, 'при ПЛАНОВОЙ госпитализации должно быть заполнено поле "Направившая МО"')
     elseif empty(human_2->NPR_DATE)
@@ -4362,6 +4362,16 @@ Function verify_1_sluch(fl_view)
           endif
         endif
       next
+    endif
+  endif
+
+  //
+  // ПРОВЕРКА НАПРАВИВШИХ МЕД. УЧРЕЖДЕНИЙ, ОШИБКА 348
+  //
+  if ((substr(human_->OKATO, 1, 2) != '34') .and. (human_->USL_OK == 1 .or. human_->USL_OK == 2)  ;
+            .and. substr(human_->FORMA14, 1, 1) == '0')
+    if  substr(ret_mo(human_->NPR_MO)[_MO_KOD_FFOMS], 1, 2) == '34'
+      aadd(ta, 'для плановой госпитализации иногородних пациентов требуется направление от медицинского учреждения другого региона')
     endif
   endif
 
