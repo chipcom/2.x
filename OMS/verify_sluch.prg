@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-// 21.04.23
+// 24.04.23
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1, ;
         i, j, k, c, s := ' ', a_srok_lech := {}, a_period_stac := {}, a_disp := {}, ;
@@ -32,7 +32,7 @@ Function verify_1_sluch(fl_view)
   local aDiagnoze_for_check := {}
   local fl_zolend := .f.
   local header_error
-  local vozrast
+  local vozrast, lu_type
 
   if empty(human->k_data)
     return .t.  // не проверять
@@ -62,6 +62,7 @@ Function verify_1_sluch(fl_view)
 
   uch->(dbGoto(human->LPU))
   otd->(dbGoto(human->OTD))
+  lu_type := otd->TIPLU
 
   header_error := fio_plus_novor() + ' ' + alltrim(human->kod_diag) + ' ' + ;
              date_8(human->n_data) + '-' + date_8(human->k_data) + ;
@@ -280,7 +281,7 @@ Function verify_1_sluch(fl_view)
     aadd(ta, 'не заполнен номер ' + s + ': ' +human->uch_doc)
   else
     for i := 1 to len(human->uch_doc)
-      c := substr(human->uch_doc,i, 1)
+      c := substr(human->uch_doc, i, 1)
       if between(c,'0','9')
         // цифры,
       elseif ISLETTER(c)
@@ -380,7 +381,7 @@ Function verify_1_sluch(fl_view)
   select MKB_10
   for i := 1 to len(mdiagnoz3)
     if left(mdiagnoz3[i], 3) == 'R52'
-      aadd(ar,i)
+      aadd(ar, i)
     endif
     mdiagnoz3[i] := padr(mdiagnoz3[i], 6)
     find (mdiagnoz3[i])
@@ -676,7 +677,7 @@ Function verify_1_sluch(fl_view)
       if lst == 1
         k := 0 ; lstshifr := '' ; lstkol := hu->kol_1
         for i := 1 to len(lshifr)
-          if !empty(c := substr(lshifr,i, 1))
+          if !empty(c := substr(lshifr, i, 1))
             lstshifr += c
             if c == '.' ; ++k ; endif
             if k == 2 ; exit ; endif // две точки в шифре услуги
@@ -721,7 +722,7 @@ Function verify_1_sluch(fl_view)
           aadd(ta, 'не заполнено поле "Врач, оказавший услугу ' + alltrim(usl->shifr) + '"')
         endif
       else
-        if empty(mvrach) .and. !(ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil, 6, 34))
+        if empty(mvrach) .and. !(ascan(kod_LIS, glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil, 6, 34))
           mvrach := hu->kod_vr
         endif
         pers->(dbGoto(hu->kod_vr))
@@ -1253,11 +1254,11 @@ Function verify_1_sluch(fl_view)
     select HU
     skip
   enddo
-  if !is_mgi .and. ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0
+  if !is_mgi .and. ascan(kod_LIS, glob_mo[_MO_KOD_TFOMS]) > 0
     if eq_any(human_->profil, 6, 34)
       human->KOD_DIAG := 'Z01.7' // всегда
     endif
-    mdiagnoz := diag_to_array(, , , ,.t.)
+    mdiagnoz := diag_to_array(, , , , .t.)
     select HU
     find (str(human->kod, 7))
     do while hu->kod == human->kod .and. !eof()
@@ -1495,7 +1496,7 @@ Function verify_1_sluch(fl_view)
 
       arr_perso := addKodDoctorToArray(arr_perso, mohu->kod_vr)
 
-      if empty(mvrach) .and. !(ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil, 6, 34))
+      if empty(mvrach) .and. !(ascan(kod_LIS, glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil, 6, 34))
         mvrach := mohu->kod_vr
       endif
       pers->(dbGoto(mohu->kod_vr))
@@ -1989,13 +1990,13 @@ Function verify_1_sluch(fl_view)
       aadd(ta, 'для диагноза ' + alltrim(mdiagnoz[1]) + ' (искусственное прерывание беременности по медицинским показаниям) не указан сопутствующий диагноз')
     endif
   endif
-  if empty(human_->VRACH) .and. !(ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil, 6, 34))
+  if empty(human_->VRACH) .and. !(ascan(kod_LIS, glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil, 6, 34))
     human_->VRACH := mvrach // врача из первой услуги
   endif
-  if ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil, 6, 34)
+  if ascan(kod_LIS, glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil, 6, 34)
     mpzkol := len(au_lu)
   endif
-  if ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil, 6, 34)
+  if ascan(kod_LIS, glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil, 6, 34)
     if !empty(human_2->PN3)
       human->UCH_DOC := lstr(human_2->PN3) // ORDER по ЛИС перезаписываем (вдруг исправили)
     endif
@@ -2574,7 +2575,7 @@ Function verify_1_sluch(fl_view)
             if (left(lshifr, 2)=='2.' .or. eq_any(left(lshifr, 3), '60.', '70.', '71.', '72.')) ;
                             .and. !(left(lshifr, 5)=='60.3.') ;
                             .and. !(left(lshifr, 6)=='60.10.') ;
-                            .and. is_2_stomat(lshifr, ,.t.) == 0 // не стоматология
+                            .and. is_2_stomat(lshifr, , .t.) == 0 // не стоматология
               otd->(dbGoto(u_other[i, 8]))
               aadd(ta, 'услуга ' + alltrim(usl->shifr) + ' от ' + date_8(mdate) + ' в случае ' + ;
                    date_8(u_other[i, 6]) + '-' + date_8(u_other[i, 7]) + ;
@@ -2622,7 +2623,7 @@ Function verify_1_sluch(fl_view)
   if human_->USL_OK == 3 .and. human->ishod < 101 ;// не диспансеризация
                           .and. m1novor == human_->NOVOR ;
                            .and. !(is_2_80 .or. is_2_82) ;// не неотложная помощь
-                            .and. !(ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil, 6, 34)) ; // не КДП2
+                            .and. !(ascan(kod_LIS, glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil, 6, 34)) ; // не КДП2
                              .and. kkt == 0 ; // не отдельно стоящая иссл.процедура
                               .and. len(a_period_amb) > 0
     for i := 1 to len(a_period_amb)
@@ -2832,7 +2833,7 @@ Function verify_1_sluch(fl_view)
       aadd(ta, 'в случае не проставлен профиль')
     endif
     //
-    if ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil, 6, 34)
+    if ascan(kod_LIS, glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil, 6, 34)
       // не проверять
     else
       arr_prvs := {human_->PRVS}
@@ -3752,8 +3753,8 @@ Function verify_1_sluch(fl_view)
     if m1dopo_na > 0
       aadd(arr_nazn, {3, {}}) ; j := len(arr_nazn)
       for i := 1 to 4
-        if isbit(m1dopo_na,i)
-          aadd(arr_nazn[j, 2],i)
+        if isbit(m1dopo_na, i)
+          aadd(arr_nazn[j, 2], i)
         endif
       next
     endif
@@ -4256,7 +4257,7 @@ Function verify_1_sluch(fl_view)
     if metap != 3 .and. eq_any(human_->RSLT_NEW, 317, 318, 355, 356)
       adiag_talon := array(16)
       for i := 1 to 16
-        adiag_talon[i] := int(val(substr(human_->DISPANS,i, 1)))
+        adiag_talon[i] := int(val(substr(human_->DISPANS, i, 1)))
       next
       am := {}
       for i := 1 to len(mdiagnoz)
@@ -4368,23 +4369,23 @@ Function verify_1_sluch(fl_view)
   //
   // ПРОВЕРКА НАПРАВИВШИХ МЕД. УЧРЕЖДЕНИЙ, ОШИБКА 348
   //
-  if ((substr(human_->OKATO, 1, 2) != '34') .and. (human_->USL_OK == 1 .or. human_->USL_OK == 2)  ;
-            .and. substr(human_->FORMA14, 1, 1) == '0')
-    if  substr(ret_mo(human_->NPR_MO)[_MO_KOD_FFOMS], 1, 2) == '34'
-      aadd(ta, 'для плановой госпитализации иногородних пациентов требуется направление от медицинского учреждения другого региона')
-    endif
-  endif
+  // if ((substr(human_->OKATO, 1, 2) != '34') .and. (human_->USL_OK == 1 .or. human_->USL_OK == 2)  ;
+  //           .and. substr(human_->FORMA14, 1, 1) == '0')
+  //   if  substr(ret_mo(human_->NPR_MO)[_MO_KOD_FFOMS], 1, 2) == '34'
+  //     aadd(ta, 'для плановой госпитализации иногородних пациентов требуется направление от медицинского учреждения другого региона')
+  //   endif
+  // endif
 
   //
   // ПРОВЕРКА ДЛЯ СЛУЧАЕВ ДИАГНОЗОВ Z00-Z99 в поликлинике
   //
   if human_->USL_OK == 3 .and. between_diag(mdiagnoz[1], 'Z00', 'Z99') ;
           .and. alltrim(mdiagnoz[1]) != 'Z92.2' .and. alltrim(mdiagnoz[1]) != 'Z92.4'
-
-    if human_->RSLT_NEW != 314
+    
+    if lu_type == TIP_LU_STD .and. human_->RSLT_NEW != 314
       aadd(ta, 'для диагноза "' + mdiagnoz[1] + '" результат обращения должен быть "314-динамическое наблюдение"')
     endif
-    if human_->ISHOD_NEW != 304 .and. human_->ISHOD_NEW != 306
+    if lu_type == TIP_LU_STD .and. human_->ISHOD_NEW != 304 .and. human_->ISHOD_NEW != 306
       aadd(ta, 'для диагноза "' + mdiagnoz[1] + '" исход заболевания должен быть "304-без перемен" или "306-осмотр"')
     endif
 
