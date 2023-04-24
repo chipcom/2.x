@@ -199,7 +199,7 @@ Function verify_1_sluch(fl_view)
                             human_->ISHOD_NEW, ;
                             k})
       // поликлиника
-      elseif human_->USL_OK == 3 .and. human->ishod < 101 ;
+      elseif human_->USL_OK == USL_OK_POLYCLINIC .and. human->ishod < 101 ;
                .and. !(human_->profil == 60 .and. glob_mo[_MO_KOD_TFOMS] == '103001') // не онкология
         is_period_amb := .t.
       endif
@@ -270,7 +270,7 @@ Function verify_1_sluch(fl_view)
 
   s += date_8(human->n_data) + '-' + date_8(human->k_data)
   @ maxrow(), 0 say padr(' ' + s, 50) color 'G+/R'
-  if human_->usl_ok == 3
+  if human_->usl_ok == USL_OK_POLYCLINIC
     s := 'амбулаторной карты'
   elseif human_->usl_ok == 4
     s := 'карты вызова'
@@ -713,7 +713,7 @@ Function verify_1_sluch(fl_view)
         elseif pr_amb_reab .and. left(lshifr, 2)=='4.' .and. (left(hu_->zf, 6)=='999999' .or. left(hu_->zf, 6)!=glob_mo[_MO_KOD_TFOMS])
           // не заполняется код врача
         elseif hu->is_edit == -1
-          if human_->USL_OK == 3
+          if human_->USL_OK == USL_OK_POLYCLINIC
             hu_->PRVS := iif(hu_->profil == 34, -13, -54)
           else
             aadd(ta, 'лабораторная услуга "' + alltrim(usl->shifr) + '" может быть оказана только в поликлинике')
@@ -1304,7 +1304,7 @@ Function verify_1_sluch(fl_view)
       endif
       if is_disp_DDS .or. is_disp_DVN .or. is_prof_PN .or. is_disp_DVN_COVID
         //
-      elseif human_->usl_ok == 3 .and. len(mdiagnoz) > 0
+      elseif human_->usl_ok == USL_OK_POLYCLINIC .and. len(mdiagnoz) > 0
         if len(a_idsp) == 1 .and. a_idsp[1, 1] != 28 // т.е. idsp не равно 'за медицинскую услугу в поликлинике'
           if eq_any(arr_povod[1, 1], 1, 2, 4, 10) // 1.0, 1.1, 1.3, 3.0
             if !between(left(mdiagnoz[1], 1),'A','U')
@@ -1559,7 +1559,7 @@ Function verify_1_sluch(fl_view)
           if &lalf.->tip == 2
             aadd(ta, 'услуга ' + s + ' относится к стоматологическим')
           endif
-        case human_->usl_ok == 3
+        case human_->usl_ok == USL_OK_POLYCLINIC
           if fl_stom
             if empty(&lalf.->tip)
               aadd(ta, 'услуга ' + s + ' не относится к стоматологическим')
@@ -2042,7 +2042,7 @@ Function verify_1_sluch(fl_view)
   elseif mUSL_OK > 0 .and. human_->USL_OK != mUSL_OK
     aadd(ta, 'в поле "Условия оказания" должно быть "' + inieditspr(A__MENUVERT, getV006(), mUSL_OK) + '"')
   endif
-  if human_->USL_OK == 3 // для поликлиники
+  if human_->USL_OK == USL_OK_POLYCLINIC // для поликлиники
     s := space(80)
     if !vr_pr_1_den(2, @s,u_other)
       aadd(ta,s)
@@ -2525,10 +2525,10 @@ Function verify_1_sluch(fl_view)
          //
          //
         if ascan(au_lu, {|x| alltrim(x[1]) == '55.1.3'}) > 0
-          lvidpoms := ret_vidpom_st_dom_licensia(human_->USL_OK,lvidpoms,lprofil)
+          lvidpoms := ret_vidpom_st_dom_licensia(human_->USL_OK, lvidpoms, lprofil)
         endif
       else // только для дн.стационара при стационаре смотрим лицензию
-        lvidpoms := ret_vidpom_licensia(human_->USL_OK,lvidpoms)
+        lvidpoms := ret_vidpom_licensia(human_->USL_OK, lvidpoms)
       endif
       if ',' $ lvidpoms
         if ascan(au_lu, {|x| alltrim(x[1]) == '55.1.1'}) > 0 .or. ;
@@ -2620,7 +2620,7 @@ Function verify_1_sluch(fl_view)
     endif
   endif
   // проверим период, если лечился амбулаторно
-  if human_->USL_OK == 3 .and. human->ishod < 101 ;// не диспансеризация
+  if human_->USL_OK == USL_OK_POLYCLINIC .and. human->ishod < 101 ;// не диспансеризация
                           .and. m1novor == human_->NOVOR ;
                            .and. !(is_2_80 .or. is_2_82) ;// не неотложная помощь
                             .and. !(ascan(kod_LIS, glob_mo[_MO_KOD_TFOMS]) > 0 .and. eq_any(human_->profil, 6, 34)) ; // не КДП2
@@ -3156,7 +3156,7 @@ Function verify_1_sluch(fl_view)
     if !emptyall(kkd, kds, kvp, ksmp)
       aadd(ta, 'кроме услуг 60.* в листе учета не должно быть других услуг ТФОМС')
     endif
-    if human_->USL_OK != 3
+    if human_->USL_OK != USL_OK_POLYCLINIC
       aadd(ta, 'в поле "Условия оказания" должно быть "Поликлиника"')
     endif
     if is_kt
@@ -4318,7 +4318,7 @@ Function verify_1_sluch(fl_view)
     if (human_->USL_OK == 1) .and. (human->k_data >= 0d20220101)
       flLekPreparat := (human_->PROFIL != 158) .and. (human_->VIDPOM != 32) ;
           .and. (lower(alltrim(human_2->PC3)) != 'stt5')
-    elseif (human_->USL_OK == 3) .and. (human->k_data >= d_01_04_2022)
+    elseif (human_->USL_OK == USL_OK_POLYCLINIC) .and. (human->k_data >= d_01_04_2022)
       flLekPreparat := (human_->PROFIL != 158) .and. (human_->VIDPOM != 32) ;
          .and. (get_IDPC_from_V025_by_number(human_->povod) == '3.0')
     endif
@@ -4379,11 +4379,12 @@ Function verify_1_sluch(fl_view)
   //
   // ПРОВЕРКА ДЛЯ СЛУЧАЕВ ДИАГНОЗОВ Z00-Z99 в поликлинике
   //
-  if human_->USL_OK == 3 .and. between_diag(mdiagnoz[1], 'Z00', 'Z99') ;
+  if human_->USL_OK == USL_OK_POLYCLINIC .and. between_diag(mdiagnoz[1], 'Z00', 'Z99') ;
           .and. alltrim(mdiagnoz[1]) != 'Z92.2' .and. alltrim(mdiagnoz[1]) != 'Z92.4'
     
-    if lu_type == TIP_LU_STD .and. human_->RSLT_NEW != 314
-      aadd(ta, 'для диагноза "' + mdiagnoz[1] + '" результат обращения должен быть "314-динамическое наблюдение"')
+    if lu_type == TIP_LU_STD .and. human_->RSLT_NEW != 314 .and. human_->RSLT_NEW != 308 .and. human_->RSLT_NEW != 309 ;
+      .and. human_->RSLT_NEW != 311 .and. human_->RSLT_NEW != 315 .and. human_->RSLT_NEW != 305 .and. human_->RSLT_NEW != 306
+      aadd(ta, 'для диагноза "' + mdiagnoz[1] + '" результат обращения должен быть 314 или 308 или 309 или 311 или 315 или 305 или 306')
     endif
     if lu_type == TIP_LU_STD .and. human_->ISHOD_NEW != 304 .and. human_->ISHOD_NEW != 306
       aadd(ta, 'для диагноза "' + mdiagnoz[1] + '" исход заболевания должен быть "304-без перемен" или "306-осмотр"')
