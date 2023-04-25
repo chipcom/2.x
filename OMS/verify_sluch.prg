@@ -102,12 +102,12 @@ Function verify_1_sluch(fl_view)
   gusl_ok := human_->usl_ok
   Private is_disp_19 := !(d2 < d_01_05_2019)
   //
-  if gusl_ok == 4 // если 'скорая помощь'
+  if gusl_ok == USL_OK_AMBULANCE // 4 - если 'скорая помощь'
     select HUMAN
     set order to 3
     find (dtos(d2) +cuch_doc)
     do while human->k_data == d2 .and. cuch_doc == human->uch_doc .and. !eof()
-      fl := human_->usl_ok == 4 .and. glob_kartotek == human->kod_k .and. rec_human != human->(recno())
+      fl := human_->usl_ok == USL_OK_AMBULANCE .and. glob_kartotek == human->kod_k .and. rec_human != human->(recno())
       if fl .and. human->schet > 0 .and. eq_any(human_->oplata, 2, 9)
         fl := .f. // лист учёта снят по акту или выставлен повторно
       endif
@@ -134,7 +134,7 @@ Function verify_1_sluch(fl_view)
           .and. gusl_ok == human_->usl_ok ; // если те же условия оказания помощи
           .and. !empty(gkod_diag) .and. left(gkod_diag, 3) == left(human->kod_diag, 3)  // тот же основной диагноз
       if (k := d1 - human->k_data) >= 0 // и случай оказан раньше проверяемого
-        if gusl_ok == 4 // скорая помощь
+        if gusl_ok == USL_OK_AMBULANCE  // 4 - скорая помощь
           if k < 2
             aadd(a_rec_ffoms, {human->(recno()), 0, k})
           endif
@@ -146,7 +146,7 @@ Function verify_1_sluch(fl_view)
       endif
     endif
     // если диапазон лечения перекрывается в стационаре и дневном стационаре
-    if fl .and. eq_any(human_->USL_OK, 1, 2)
+    if fl .and. eq_any(human_->USL_OK, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL)
 
       reserveKSG_2 := exist_reserve_KSG(human->kod, 'HUMAN')
 
@@ -162,7 +162,7 @@ Function verify_1_sluch(fl_view)
           if is_usluga_TFOMS(usl->shifr, lshifr1, human->k_data)
             lshifr := alltrim(iif(empty(lshifr1), usl->shifr, lshifr1))
             if left(lshifr, 5) == '60.3.' .or. left(lshifr, 6) == '60.10.' // диализ
-              if human_->USL_OK == 2 // диализ в дневном стационаре
+              if human_->USL_OK == USL_OK_DAY_HOSPITAL  // 2 - диализ в дневном стационаре
                 fl3 := .f.
                 if fl1
                   k := 2
@@ -188,7 +188,7 @@ Function verify_1_sluch(fl_view)
     if fl .and. human->n_data <= d2 .and. d1 <= human->k_data
       is_period_amb := .f.
       // стационар
-      if human_->USL_OK == 1
+      if human_->USL_OK == USL_OK_HOSPITAL  // 1
         aadd(a_period_stac, {human->n_data, ;
                             human->k_data, ;
                             human_->USL_OK, ;
@@ -272,7 +272,7 @@ Function verify_1_sluch(fl_view)
   @ maxrow(), 0 say padr(' ' + s, 50) color 'G+/R'
   if human_->usl_ok == USL_OK_POLYCLINIC
     s := 'амбулаторной карты'
-  elseif human_->usl_ok == 4
+  elseif human_->usl_ok == USL_OK_AMBULANCE // 4
     s := 'карты вызова'
   else
     s := 'истории болезни'
@@ -393,7 +393,7 @@ Function verify_1_sluch(fl_view)
       aadd(ta, 'не найден диагноз ' + alltrim(mdiagnoz3[i]) + ' в справочнике МКБ-10')
     endif
   next
-  if human_->USL_OK == 1 ; // стационар
+  if human_->USL_OK == USL_OK_HOSPITAL ; // 1 - стационар
        .and. (ascan(mdiagnoz, {|x| left(x, 3) == 'P07' }) > 0 .or. ascan(mdiagnoz3, {|x| left(x, 3) == 'P07' }) > 0) ;
              .and. mvozrast == 0 .and. human_2->VNR == 0
     aadd(ta, 'для диагноза P07.* не указан вес недоношенного (маловесного) ребёнка')
@@ -401,7 +401,7 @@ Function verify_1_sluch(fl_view)
   if mvozrast > 0 .and. len(mdiagnoz) > 0 .and. left(mdiagnoz[1], 1) == 'P'
     aadd(ta, 'для основного диагноза ' + mdiagnoz[1] + ' возраст должен быть меньше года')
   endif
-  if human_->USL_OK == 1 ; // стационар
+  if human_->USL_OK == USL_OK_HOSPITAL ; // 1 - стационар
       .and. (mdiagnoz[1] = 'U07.1' .or. mdiagnoz[1] = 'U07.2') ;  // проверим что диагноз COVID-19
       .and. empty(HUMAN_2->PC4) ;                                 // вес отсутствует
       .and. (count_years(human->DATE_R, human->k_data) >= 18) ;   // проверим что возраст больше 18 лет
@@ -484,7 +484,7 @@ Function verify_1_sluch(fl_view)
       aadd(ta, 'не заполнено поле "СЕРИЯ удостоверения личности" для "' + ;
               inieditspr(A__MENUVERT, getVidUd(), kart_->vid_ud) + '"')
     endif
-    if human_->usl_ok < 4 .and. eq_any(kart_->vid_ud, 3, 14) .and. ;
+    if human_->usl_ok < USL_OK_AMBULANCE .and. eq_any(kart_->vid_ud, 3, 14) .and. ;
            !empty(kart_->ser_ud) .and. empty(del_spec_symbol(kart_->mesto_r)) .and. human_->vpolis < 3
       aadd(ta,iif(kart_->vid_ud == 3, 'для свид-ва о рождении', 'для паспорта РФ') + ;
               ' обязательно заполнение поля "Место рождения"')
@@ -495,7 +495,7 @@ Function verify_1_sluch(fl_view)
         aadd(ta,s)
       endif
     endif
-    if human_->usl_ok < 4 .and. human_->vpolis < 3 .and. !eq_any(left(human_->OKATO, 2), '  ', '18') // иногородние
+    if human_->usl_ok < USL_OK_AMBULANCE .and. human_->vpolis < 3 .and. !eq_any(left(human_->OKATO, 2), '  ', '18') // иногородние
       if empty(kart_->kogdavyd)
         aadd(ta, 'для иногородних без нового полиса обязательно заполнение поля "Дата выдачи документа, удостоверяющего личность"')
       endif
@@ -603,10 +603,10 @@ Function verify_1_sluch(fl_view)
               '22.1.1', '22.1.2', '22.1.3'}
   //
   f_put_glob_podr(human_->USL_OK, d2, ta) // заполнить код подразделения
-  musl_ok := 3  // п-ка по умолчанию 
+  musl_ok := USL_OK_POLYCLINIC  // 3 - п-ка по умолчанию
   ldnej := 0
   pr_amb_reab := .f.
-  if human_->USL_OK < 4
+  if human_->USL_OK < USL_OK_AMBULANCE  // 4
     select HU
     find (str(human->kod, 7))
     do while hu->kod == human->kod .and. !eof()
@@ -777,7 +777,7 @@ Function verify_1_sluch(fl_view)
       endif
       // проверяем на профиль
       lprofil := UslugaAccordanceProfil(lshifr, human->vzros_reb, hu_->profil, ta, usl->shifr)
-      if human_->USL_OK == 4 .and. lprofil != hu_->profil
+      if human_->USL_OK == USL_OK_AMBULANCE .and. lprofil != hu_->profil
         hu_->profil := lprofil
       endif
       dbSelectArea(lal)
@@ -812,15 +812,15 @@ Function verify_1_sluch(fl_view)
       endif
       if !empty(kodKSG) // КСГ
         if left(kodKSG, 2) == 'st'
-          musl_ok := 1  // стационар
+          musl_ok := USL_OK_HOSPITAL  // 1 - стационар
           midsp := 33
         else
-          musl_ok := 2  // дневной стационар
+          musl_ok := USL_OK_DAY_HOSPITAL  // 2 - дневной стационар
           midsp := 33
         endif
         mdate_u2 := dtoc4(human->k_data)
       elseif left_lshifr_2 == '1.'
-        musl_ok := 1  // стационар
+        musl_ok := USL_OK_HOSPITAL  // 1 - стационар
         mdate_u2 := dtoc4(human->k_data)
         if left_lshifr_5 == '1.11.'
           kkd += hu->kol_1
@@ -894,14 +894,14 @@ Function verify_1_sluch(fl_view)
         endif
         hu_->PZTIP := 1
       elseif left_lshifr_3 == '55.'
-        musl_ok := 2  // дн.стационар
+        musl_ok := USL_OK_DAY_HOSPITAL  // 2  // дн.стационар
         mdate_u2 := dtoc4(human->k_data)
         if left_lshifr_5 == '55.1.' // кол-во пациенто-дней
           kds += hu->kol_1
           kol_55_1 += hu->kol_1
           hu_->PZKOL := hu->kol_1
-          if mdate+hu->kol_1-1 <= d2
-            mdate_u2 := dtoc4(mdate+hu->kol_1-1)
+          if mdate + hu->kol_1-1 <= d2
+            mdate_u2 := dtoc4(mdate + hu->kol_1 - 1)
           endif
         else
           // ошибка
@@ -923,7 +923,7 @@ Function verify_1_sluch(fl_view)
         kkt += hu->kol_1
         hu_->PZTIP := 5
         hu_->PZKOL := hu->kol_1
-        musl_ok := 3  // п-ка
+        musl_ok := USL_OK_POLYCLINIC  // 3 - п-ка
         if left_lshifr_5 == '60.4.'
           is_kt := .t.
         elseif left_lshifr_5 == '60.5.'
@@ -950,17 +950,17 @@ Function verify_1_sluch(fl_view)
         mdate_u2 := dtoc4(human->k_data)
         if eq_any(alltrim_lshifr, '60.3.1', '60.3.12', '60.3.13')  // 04.12.22
           mpovod := 10 // 3.0
-          musl_ok := 3  // п-ка
+          musl_ok := USL_OK_POLYCLINIC  // 3 - п-ка
           is_perito := .t.
         elseif eq_any(alltrim_lshifr, '60.3.9', '60.3.10', '60.3.11') //01.12.21 
-          musl_ok := 2  // дневной стационар
+          musl_ok := USL_OK_DAY_HOSPITAL  // 2 - дневной стационар
           is_dializ := .t.
         else
-          musl_ok := 1  // стационар
+          musl_ok := USL_OK_HOSPITAL  // 1 - стационар
           is_s_dializ := .t.
         endif
       elseif eq_any(left_lshifr_5, '71.1.', '71.2.', '71.3.')  // скорая помощь
-        musl_ok := 4  // СМП
+        musl_ok := USL_OK_AMBULANCE // 4 - СМП
         mIDSP := 24 // Вызов скорой медицинской помощи
         if left_lshifr_5 == '71.1.'
           is_71_1 := .t.
@@ -983,9 +983,10 @@ Function verify_1_sluch(fl_view)
           m1lis := hu->is_edit
         endif
       else
-        musl_ok := 3  // п-ка
+        musl_ok := USL_OK_POLYCLINIC  // 3 - п-ка
         mIDSP := 1 // Посещение в поликлинике
-        mpztip := 3 ; mpzkol := hu->kol_1
+        mpztip := 3
+        mpzkol := hu->kol_1
         if hu->KOL_RCP < 0
           is_dom := .t.
         endif
@@ -1191,7 +1192,7 @@ Function verify_1_sluch(fl_view)
         hu_->PZTIP := mPZTIP
         hu_->PZKOL := mPZKOL
       endif
-      if musl_ok == 3
+      if musl_ok == USL_OK_POLYCLINIC // 3
         if is_disp_DDS .or. is_disp_DVN .or. is_prof_PN .or. is_disp_DVN_COVID
           //
         elseif mpovod > 0 .and. ascan(arr_povod, {|x| x[1] == mpovod }) == 0
@@ -1354,7 +1355,7 @@ Function verify_1_sluch(fl_view)
         aadd(ta, 'услуга ' + au_lu[i, 5] + '(' + date_8(au_lu[i, 2]) + ') не попадает в диапазон лечения')
       endif
     next
-    if human_->usl_ok < 4 .and. fl .and. !(human->OBRASHEN == '1')
+    if human_->usl_ok < USL_OK_AMBULANCE .and. fl .and. !(human->OBRASHEN == '1')
       if is_oncology > 0 // онкология - направления
         aadd(ta, 'основной (или сопутствующий) диагноз Z03.1 "наблюдение при подозрении на злокачественную опухоль", но лист учёта и так онкологический')
       else
@@ -1551,11 +1552,11 @@ Function verify_1_sluch(fl_view)
       endif
       ltip_onko := &lalf.->onko_ksg
       do case
-        case human_->usl_ok == 1
+        case human_->usl_ok == USL_OK_HOSPITAL  // 1
           if &lalf.->tip == 2
             aadd(ta, 'услуга ' + s + ' относится к стоматологическим')
           endif
-        case human_->usl_ok == 2
+        case human_->usl_ok == USL_OK_DAY_HOSPITAL  // 2
           if &lalf.->tip == 2
             aadd(ta, 'услуга ' + s + ' относится к стоматологическим')
           endif
@@ -1578,7 +1579,7 @@ Function verify_1_sluch(fl_view)
               'A23.30.023','A09.05.051.001','A04.10.002','A06.09.005','A04.12.006.002')
             aadd(ta, 'услугу ' + s + ' нельзя вводить для амбулаторной помощи')
           endif
-        case human_->usl_ok == 4
+        case human_->usl_ok == USL_OK_AMBULANCE // 4
           if &lalf.->telemed == 0
             aadd(ta, 'услугу ' + s + ' нельзя вводить для скорой помощи')
           endif
@@ -1801,7 +1802,7 @@ Function verify_1_sluch(fl_view)
       skip
     enddo
     // услуга обязательна для стационара и дневного стационара при проведении противоопухолевого лечения
-    if human_->usl_ok < 3
+    if human_->usl_ok < USL_OK_POLYCLINIC // 3
       arr_onk_usl := {}
       select ONKUS
       find (str(human->kod, 7))
@@ -2048,7 +2049,7 @@ Function verify_1_sluch(fl_view)
       aadd(ta,s)
     endif
   endif
-  if human_->USL_OK == 1 .and. substr(human_->FORMA14, 1, 1) == '0'
+  if human_->USL_OK == USL_OK_HOSPITAL .and. substr(human_->FORMA14, 1, 1) == '0'
     if empty(human_->NPR_MO)
       aadd(ta, 'при ПЛАНОВОЙ госпитализации должно быть заполнено поле "Направившая МО"')
     elseif empty(human_2->NPR_DATE)
@@ -2063,7 +2064,7 @@ Function verify_1_sluch(fl_view)
       aadd(ta, 'Направлению на госпитализацию больше двух месяцев')
     endif
   endif
-  if eq_any(human_->USL_OK, 1, 2)
+  if eq_any(human_->USL_OK, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL)
     i := human_2->p_per
     if !between(human_2->p_per, 1, 4) // если не вводили
       i := iif(substr(human_->FORMA14, 2, 1) == '1', 2, 1)
@@ -2078,7 +2079,7 @@ Function verify_1_sluch(fl_view)
       human_2->p_per := i
     endif
   endif
-  if kkt == 0 .and. eq_any(human_->USL_OK, 1, 2) .and. len(a_srok_lech) > 0
+  if kkt == 0 .and. eq_any(human_->USL_OK, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL) .and. len(a_srok_lech) > 0
     for i := 1 to len(a_srok_lech)
       otd->(dbGoto(a_srok_lech[i, 4]))
       if a_srok_lech[i, 5] == 0
@@ -2128,7 +2129,7 @@ Function verify_1_sluch(fl_view)
       endif
     endif
   endif
-  if human_->USL_OK == 1  // стационар
+  if human_->USL_OK == USL_OK_HOSPITAL  // 1 - стационар
     if human_2->VNR > 0 .and. !between(human_2->VNR, 301, 2499)
       aadd(ta, 'вес недоношенного ребёнка должен быть более 300 г и менее 2500 г')
     endif
@@ -2382,7 +2383,7 @@ Function verify_1_sluch(fl_view)
                         human_->RSLT_NEW, ;
                         human_->ISHOD_NEW, ;
                         iif(is_s_dializ, 1, 0)})
-  elseif human_->USL_OK == 2 .and. kol_ksg > 0 // дневной стационар
+  elseif human_->USL_OK == USL_OK_DAY_HOSPITAL .and. kol_ksg > 0 // дневной стационар
     if kol_ksg > 1
       aadd(ta, 'введено более одной КСГ')
     endif
@@ -2592,7 +2593,7 @@ Function verify_1_sluch(fl_view)
     select HU
     set relation to recno() into HU_, to u_kod into USL
   endif
-  if eq_any(human_->USL_OK, 1, 2) .and. kol_ksg > 0 .and. human_2->VMP == 0 // не ВМП
+  if eq_any(human_->USL_OK, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL) .and. kol_ksg > 0 .and. human_2->VMP == 0 // не ВМП
     k_data2 := human->k_data
     if human->ishod == 88
       s := 'это двойной случай - он закачивается ' + date_8(k_data2) + '; '
@@ -2722,7 +2723,7 @@ Function verify_1_sluch(fl_view)
   endif
   if empty(human_->PROFIL)
     aadd(ta, 'не заполнено поле "Профиль"')
-  elseif eq_any(human_->USL_OK, 1, 2)
+  elseif eq_any(human_->USL_OK, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL)
     if empty(human_2->profil_k)
       aadd(ta, 'в случае не проставлен профиль койки')
     else
@@ -2821,7 +2822,7 @@ Function verify_1_sluch(fl_view)
       endif
     next
     if len(arr_profil) > 1
-      if human_->USL_OK == 4  // если скорая помощь
+      if human_->USL_OK == USL_OK_AMBULANCE // 4 - если скорая помощь
         human_->profil := au_lu[1, 3]
       else
         aadd(ta, 'в случае использован профиль по: ' + inieditspr(A__MENUVERT, getV002(), arr_profil[1]))
@@ -3272,7 +3273,7 @@ Function verify_1_sluch(fl_view)
     if len(au_lu) > 1
       aadd(ta, 'кроме услуги 71.* в листе учета не должно быть других услуг ТФОМС')
     endif
-    if human_->USL_OK != 4
+    if human_->USL_OK != USL_OK_AMBULANCE // 4
       aadd(ta, 'для услуги СМП условия должны быть "Скорая помощь"')
     endif
     if human_->IDSP != 24
@@ -4315,7 +4316,7 @@ Function verify_1_sluch(fl_view)
   //
   if eq_any(alltrim(mdiagnoz[1]), 'U07.1', 'U07.2') .and. (count_years(human->DATE_R, human->k_data) >= 18) ;
         .and. !check_diag_pregant()
-    if (human_->USL_OK == 1) .and. (human->k_data >= 0d20220101)
+    if (human_->USL_OK == USL_OK_HOSPITAL) .and. (human->k_data >= 0d20220101)
       flLekPreparat := (human_->PROFIL != 158) .and. (human_->VIDPOM != 32) ;
           .and. (lower(alltrim(human_2->PC3)) != 'stt5')
     elseif (human_->USL_OK == USL_OK_POLYCLINIC) .and. (human->k_data >= d_01_04_2022)
@@ -4369,7 +4370,7 @@ Function verify_1_sluch(fl_view)
   //
   // ПРОВЕРКА НАПРАВИВШИХ МЕД. УЧРЕЖДЕНИЙ, ОШИБКА 348
   //
-  // if ((substr(human_->OKATO, 1, 2) != '34') .and. (human_->USL_OK == 1 .or. human_->USL_OK == 2)  ;
+  // if ((substr(human_->OKATO, 1, 2) != '34') .and. (human_->USL_OK == USL_OK_HOSPITAL .or. human_->USL_OK == USL_OK_DAY_HOSPITAL)  ;
   //           .and. substr(human_->FORMA14, 1, 1) == '0')
   //   if  substr(ret_mo(human_->NPR_MO)[_MO_KOD_FFOMS], 1, 2) == '34'
   //     aadd(ta, 'для плановой госпитализации иногородних пациентов требуется направление от медицинского учреждения другого региона')
@@ -4462,7 +4463,7 @@ Function verify_1_sluch(fl_view)
       aadd(ta, 'в листе учета пренатальной диагностики лишние услуги: ' + oth_usl)
     endif
   endif
-  if human_->USL_OK == 4 .and. !(is_71_1 .or. is_71_2 .or. is_71_3)
+  if human_->USL_OK == USL_OK_AMBULANCE .and. !(is_71_1 .or. is_71_2 .or. is_71_3)
     aadd(ta, 'для условия "Скорая помощь" не введены услуги СМП')
   endif
   if !empty(u_1_stom)
@@ -4528,7 +4529,7 @@ Function verify_1_sluch(fl_view)
     s := ''
     i := 1
     asort(a_rec_ffoms, , , {|x, y| x[3] < y[3] })
-    if gusl_ok == 3     // поликлиника
+    if gusl_ok == USL_OK_POLYCLINIC // 3 - поликлиника
       if is_2_78
         ltip := 1
       elseif is_2_80
