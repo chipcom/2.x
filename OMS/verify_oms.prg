@@ -5,7 +5,7 @@
 
 #define max_rec_reestr 9999
 
-// 15.09.22
+// 27.04.23
 Function verify_OMS(arr_m, fl_view)
   Local ii := 0, iprov := 0, inprov := 0, ko := 2, fl, name_file := cur_dir + 'err_sl' + stxt, ;
         name_file2, name_file3, kr_unlock, i, ;
@@ -276,11 +276,11 @@ Function verify_OMS(arr_m, fl_view)
       frd->srok := full_date(human->n_data) + ' - ' + full_date(human->k_data)
       if d_srok->tip > 0
         frd->tip := '( 2.' + am[d_srok->tip] + '.' + d_srok->tips + ' )'
-      elseif human_->usl_ok == 1
+      elseif human_->usl_ok == USL_OK_HOSPITAL  //  1
         frd->tip := '( стац. )'
-      elseif human_->usl_ok == 2
+      elseif human_->usl_ok == USL_OK_DAY_HOSPITAL  //  2
         frd->tip := '( дн.ст. )'
-      elseif human_->usl_ok == 4
+      elseif human_->usl_ok == USL_OK_AMBULANCE //  4
         frd->tip := '( скорая )'
       endif
       uch->(dbGoto(human->LPU))
@@ -296,11 +296,11 @@ Function verify_OMS(arr_m, fl_view)
       frd->srok1 := full_date(human->n_data) + ' - ' + full_date(human->k_data)
       if d_srok->tip1 > 0
         frd->tip1 := '( 2.' + am[d_srok->tip1] + '.' + d_srok->tip1s + ' )'
-      elseif human_->usl_ok == 1
+      elseif human_->usl_ok == USL_OK_HOSPITAL  //  1
         frd->tip1 := '( стац. )'
-      elseif human_->usl_ok == 2
+      elseif human_->usl_ok == USL_OK_DAY_HOSPITAL  // 2
         frd->tip1 := '( дн.ст. )'
-      elseif human_->usl_ok == 4
+      elseif human_->usl_ok == USL_OK_AMBULANCE //  4
         frd->tip1 := '( скорая )'
       endif
       uch->(dbGoto(human->LPU))
