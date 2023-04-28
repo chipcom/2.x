@@ -3,7 +3,7 @@
 
 // функции проверки применимости КСЛП в 2022 году
 //
-***** 18.01.22 проверка услувия для применения КСЛП=1 для 2022 года
+// 18.01.22 проверка услувия для применения КСЛП=1 для 2022 года
 function conditionKSLP_1_22(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration)
   local fl := .f., y
 
@@ -17,10 +17,10 @@ function conditionKSLP_1_22(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_di
     // старше 4 лет, осуществляется при наличии медицинских показаний и оформляется 
     // протоколом врачебной комиссии с обязательным указанием в первичной медицинской документации.
     fl := .t.
-    endif
+  endif
   return fl
 
-***** 18.01.22 проверка услувия для применения КСЛП=2 для 2022 года
+// 18.01.22 проверка услувия для применения КСЛП=2 для 2022 года
 function conditionKSLP_2_22(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration)
   local fl := .f., y
   
@@ -34,10 +34,10 @@ function conditionKSLP_2_22(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_di
     // старше 4 лет, осуществляется при наличии медицинских показаний и оформляется 
     // протоколом врачебной комиссии с обязательным указанием в первичной медицинской документации.
     fl := .t.
-    endif
+  endif
   return fl
   
-***** 18.01.22 проверка условия для применения КСЛП=3 для 2022 года
+// 18.01.22 проверка условия для применения КСЛП=3 для 2022 года
 function conditionKSLP_3_22(aKSLP, DOB, n_date, profil, lshifr, lpar_org, arr_diag, duration)
   local fl := .f., age
 

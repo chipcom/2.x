@@ -16,7 +16,7 @@ function buildStringKSLP(row)
   ret := str(row[ CODE_KSLP ], 2) + '.' + row[ NAME_KSLP ]
   return ret
 
-// 01.02.23
+// 28.04.23
 // функция выбора состава КСЛП, возвращает { маска,строка количества КСЛП }, или nil
 function selectKSLP( lkslp, savedKSLP, dateBegin, dateEnd, DOB, mdiagnoz )
   // lkslp - значение КСЛП (выбранные КСЛП)
@@ -119,6 +119,59 @@ function selectKSLP( lkslp, savedKSLP, dateBegin, dateEnd, DOB, mdiagnoz )
       strArr := sBlank
       strArr += buildStringKSLP(row)
       aadd(t_mas, { strArr, isPermissible, row[ CODE_KSLP ] })
+    elseif (row[ CODE_KSLP ] == 21 .and. year(dateEnd) == 2023 .and. dateEnd >= 0d20230501) .and. isPermissible   // развертывание индивидуального поста
+      strArr := sBlank
+      strArr += buildStringKSLP(row)
+      aadd(t_mas, { strArr, isPermissible, row[ CODE_KSLP ] })
+    elseif (row[ CODE_KSLP ] == 22 .and. year(dateEnd) == 2023 .and. dateEnd >= 0d20230501) .and. isPermissible   // наличие у пациента тяжелой сопутствующей
+                                                                                      // патологии, требующей оказания медицинской
+                                                                                      // помощи в период госпитализации
+      strArr := sBlank
+      strArr += buildStringKSLP(row)
+      aadd(t_mas, { strArr, isPermissible, row[ CODE_KSLP ] })
+    elseif (row[ CODE_KSLP ] == 23 .and. year(dateEnd) == 2023 .and. dateEnd >= 0d20230501) .and. isPermissible   // проведение сочетанных хирургических
+                                                                                      // вмешательств или проведение 
+                                                                                      // однотипных операций на парных органах (уровень 1)
+      strArr := sBlank
+      strArr += buildStringKSLP(row)
+      aadd(t_mas, { strArr, isPermissible, row[ CODE_KSLP ] })
+    elseif (row[ CODE_KSLP ] == 24 .and. year(dateEnd) == 2023 .and. dateEnd >= 0d20230501) .and. isPermissible   // проведение сочетанных хирургических
+                                                                                      // вмешательств или проведение 
+                                                                                      // однотипных операций на парных органах (уровень 2)
+      strArr := sBlank
+      strArr += buildStringKSLP(row)
+      aadd(t_mas, { strArr, isPermissible, row[ CODE_KSLP ] })
+    elseif (row[ CODE_KSLP ] == 25 .and. year(dateEnd) == 2023 .and. dateEnd >= 0d20230501) .and. isPermissible   // проведение сочетанных хирургических
+                                                                                      // вмешательств или проведение 
+                                                                                      // однотипных операций на парных органах (уровень 3)
+      strArr := sBlank
+      strArr += buildStringKSLP(row)
+      aadd(t_mas, { strArr, isPermissible, row[ CODE_KSLP ] })
+    elseif (row[ CODE_KSLP ] == 26 .and. year(dateEnd) == 2023 .and. dateEnd >= 0d20230501) .and. isPermissible   // проведение сочетанных хирургических
+                                                                                      // вмешательств или проведение 
+                                                                                      // однотипных операций на парных органах (уровень 4)
+      strArr := sBlank
+      strArr += buildStringKSLP(row)
+      aadd(t_mas, { strArr, isPermissible, row[ CODE_KSLP ] })
+    elseif (row[ CODE_KSLP ] == 27 .and. year(dateEnd) == 2023 .and. dateEnd >= 0d20230501) .and. isPermissible   // проведение сочетанных хирургических
+                                                                                      // вмешательств или проведение 
+                                                                                      // однотипных операций на парных органах (уровень 5)
+      strArr := sBlank
+      strArr += buildStringKSLP(row)
+      aadd(t_mas, { strArr, isPermissible, row[ CODE_KSLP ] })
+    elseif (row[ CODE_KSLP ] == 28 .and. year(dateEnd) == 2023 .and. dateEnd >= 0d20230501) .and. isPermissible   // проведение сопроводительной
+                                                                                      // лекарственной терапии при злокачественных
+                                                                                      // новообразованиях у взрослых в условиях дневного
+                                                                                      // стационара в соответствии с клиническими рекомендациями
+      strArr := sBlank
+      strArr += buildStringKSLP(row)
+      aadd(t_mas, { strArr, isPermissible, row[ CODE_KSLP ] })
+    elseif (row[ CODE_KSLP ] == 29 .and. year(dateEnd) == 2023 .and. dateEnd >= 0d20230501) .and. isPermissible   // проведение тестирования на выявление
+                                                                                      // респираторных вирусных заболеваний (гриппа,
+                                                                                      // новой коронавирусной инфекции COVID-19) в период госпитализации
+      strArr := sBlank
+      strArr += buildStringKSLP(row)
+      aadd(t_mas, { strArr, isPermissible, row[ CODE_KSLP ] })
     else
       strArr += buildStringKSLP(row)
       aadd(t_mas, { strArr, isPermissible, row[ CODE_KSLP ] })
@@ -130,7 +183,6 @@ function selectKSLP( lkslp, savedKSLP, dateBegin, dateEnd, DOB, mdiagnoz )
   mlen := len(t_mas)
 
   // используем popupN из библиотеки FunLib
-    // if (ret := popupN(5,10,15,71,t_mas,i,color0,.t.,'fmenu_readerN',,;
   if (ret := popupN(5, 10, 5 + mlen + 1, 71, t_mas, i, color0, .t., 'fmenu_readerN', , ;
       'Отметьте КСЛП', col_tit_popup,, strStatus)) > 0
     for i := 1 to mlen
@@ -148,7 +200,7 @@ function selectKSLP( lkslp, savedKSLP, dateBegin, dateEnd, DOB, mdiagnoz )
   Select(tmp_select)
   Return s
 
-** 13.01.22 если надо, перезаписать значения КСЛП и КИРО в HUMAN_2
+// 13.01.22 если надо, перезаписать значения КСЛП и КИРО в HUMAN_2
 Function put_str_kslp_kiro(arr,fl)
   Local lpc1 := '', lpc2 := ''
 
@@ -186,7 +238,7 @@ Function put_str_kslp_kiro(arr,fl)
   endif
   return NIL
 
-** 04.02.21
+// 04.02.21
 // возвращает сумму итогового КСЛП по маске КСЛП и дате случая
 function calcKSLP(cKSLP, dateSl)
   // cKSLP - строка выбранных КСЛП
@@ -205,7 +257,7 @@ function calcKSLP(cKSLP, dateSl)
   endif
   return summ
 
-** 10.03.23
+// 10.03.23
 function defenition_KIRO(lkiro, ldnej, lrslt, lis_err, lksg, lDoubleSluch)
   // lkiro - список возможных КИРО для КСГ
   // ldnej - длительность случая в койко-днях
@@ -296,7 +348,7 @@ function defenition_KIRO(lkiro, ldnej, lrslt, lis_err, lksg, lDoubleSluch)
   // // endif
   return vkiro
 
-** 30.11.21
+// 30.11.21
 Function f_cena_kiro(/*@*/_cena, lkiro, dateSl )
   // _cena - изменяемая цена
   // lkiro - уровень КИРО
@@ -316,7 +368,7 @@ Function f_cena_kiro(/*@*/_cena, lkiro, dateSl )
   _cena := round_5(_cena * _akiro[2], 0)  // округление до рублей с 2019 года
   return _akiro
 
-** 01.02.23 определить коэф-т сложности лечения пациента и пересчитать цену
+// 01.02.23 определить коэф-т сложности лечения пациента и пересчитать цену
 Function f_cena_kslp(/*@*/_cena, _lshifr, _date_r, _n_data, _k_data, lkslp, arr_usl, lPROFIL_K, arr_diag, lpar_org, lad_cr)
   Static s_1_may := 0d20160430, s_18 := 0d20171231, s_19 := 0d20181231
   static s_20 := 0d20201231
@@ -569,7 +621,7 @@ Function f_cena_kslp(/*@*/_cena, _lshifr, _date_r, _n_data, _k_data, lkslp, arr_
   endif
   return _akslp
   
-** 23.01.19 вернуть итоговый КСЛП
+// 23.01.19 вернуть итоговый КСЛП
 Function ret_koef_kslp(akslp)
   Local k := 1
   if valtype(akslp) == 'A' .and. len(akslp) >= 2
@@ -580,9 +632,7 @@ Function ret_koef_kslp(akslp)
   endif
   return k
   
-  
-//** 08.02.22 вернуть итоговый КСЛП для 21 года
-** 01.02.23 вернуть итоговый КСЛП для 21 года
+// 01.02.23 вернуть итоговый КСЛП для 21 года
 Function ret_koef_kslp_21(akslp, nYear)
   Local k := 1  // КСЛП равен 1
 
@@ -612,7 +662,7 @@ Function ret_koef_kslp_21(akslp, nYear)
   endif
   return k
 
-** 01.02.23 вернуть итоговый КСЛП для конкретного года
+// 01.02.23 вернуть итоговый КСЛП для конкретного года
 Function ret_koef_kslp_21_XML(akslp, tKSLP, nYear)
   Local k := 1  // КСЛП равен 1
   local iAKSLP
@@ -638,7 +688,7 @@ Function ret_koef_kslp_21_XML(akslp, tKSLP, nYear)
   endif
   return k
 
-** 03.03.23
+// 03.03.23
 function isklichenie_KSG_KIRO(cKSG)
   local arrKSG := { ;
     'st02.001', ;
