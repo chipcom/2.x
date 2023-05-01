@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-// 24.04.23
+// 30.04.23
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1, ;
         i, j, k, c, s := ' ', a_srok_lech := {}, a_period_stac := {}, a_disp := {}, ;
@@ -33,6 +33,8 @@ Function verify_1_sluch(fl_view)
   local fl_zolend := .f.
   local header_error
   local vozrast, lu_type
+  local kol_dney
+  local is_2_92_ := .f., kol_2_93_1 := 0  // школа диабета, письмо 12-20-154 от 28.04.23
 
   if empty(human->k_data)
     return .t.  // не проверять
@@ -79,6 +81,7 @@ Function verify_1_sluch(fl_view)
   glob_kartotek := human->kod_k
   d1 := human->n_data
   d2 := human->k_data
+  kol_dney := human->k_data - human->n_data
   cuch_doc := human->uch_doc
 
   arrV018 := getV018(human->k_data)
@@ -998,6 +1001,15 @@ Function verify_1_sluch(fl_view)
           kol_2_60++
         elseif eq_any(alltrim_lshifr, '2.4.1', '2.4.2')
           kol_2_4++
+        elseif eq_any(alltrim_lshifr, '2.92.1', '2.92.2', '2.92.3')
+          is_2_92_ := .t.
+          if vozrast >= 18 .and. alltrim_lshifr == '2.92.3'
+            aadd(ta, 'услуга 2.92.3 оказывается только детям или подросткам')
+          elseif vozrast < 18 .and. eq_any(alltrim_lshifr, '2.92.1', '2.92.2')
+            aadd(ta, 'услуга ' + alltrim_lshifr + ' оказывается только взрослым')
+          endif
+        elseif alltrim_lshifr == '2.93.1'
+          kol_2_93_1++
         elseif left_lshifr_5 == '2.76.'
           mpovod := 7 // 2.3
           mIDSP := 12 // Комплексная услуга центра здоровья
@@ -2856,19 +2868,40 @@ Function verify_1_sluch(fl_view)
   if lstkol > 0
     lstshifr += '*'
     if lstkol > 1
-      aadd(ta, 'кол-во услуг ' +lstshifr+ ' (' + lstr(lstkol) + ') более 1')
+      aadd(ta, 'кол-во услуг ' + lstshifr + ' (' + lstr(lstkol) + ') более 1')
     endif
     if len(au_lu) > 1 .and. kol_ksg == 0
-      if is_2_78 .or. is_2_89 .or. is_70_5 .or. is_70_6 .or. is_70_3 .or. is_72_2
+      if is_2_78 .or. is_2_89 .or. is_70_5 .or. is_70_6 .or. is_70_3 .or. is_72_2 .or. is_2_92_
         //
       else
-        aadd(ta, 'кроме услуги ' +lstshifr+ ' в листе учета не должно быть других услуг ТФОМС')
+        aadd(ta, 'кроме услуги ' + lstshifr + ' в листе учета не должно быть других услуг ТФОМС')
       endif
+    endif
+    if is_2_92_
+      if alltrim_lshifr == '2.92.3'
+        aadd(ta, 'услуга 2.92.3 оказывается только детям или подросткам')
+      elseif eq_any(alltrim_lshifr, '2.92.1', '2.92.2')
+        aadd(ta, 'услуга ' + alltrim_lshifr + ' оказывается только взрослым')
+      endif
+
+      if alltrim_lshifr == '2.92.3' .and. kol_2_93_1 < 10
+        aadd(ta, 'услуга 2.92.3 оказывается не менее 10 раз')
+      elseif eq_any(alltrim_lshifr, '2.92.1', '2.92.2') .and. kol_2_93_1 < 5
+        aadd(ta, 'услуга ' + alltrim_lshifr + ' оказывается не менее 5 раз')
+      endif
+      if alltrim_lshifr == '2.92.3' .and. kol_dney < 10
+        aadd(ta, 'услуга 2.92.3 оказывается не менее 10 дней')
+      elseif eq_any(alltrim_lshifr, '2.92.1', '2.92.2') .and. kol_dney < 5
+        aadd(ta, 'услуга ' + alltrim_lshifr + ' оказывается не менее 5 дней')
+      endif
+      
     endif
   endif
   s := '2.60.*'
   if is_2_78
-    is_1_den := is_last_den := .f. ; zs := oth_usl := 0 ; am := {}
+    is_1_den := is_last_den := .f.
+    zs := oth_usl := 0
+    am := {}
     for i := 1 to len(au_lu)
       if left(au_lu[i, 1], 5) == '2.78.'
         ++zs
@@ -2898,7 +2931,7 @@ Function verify_1_sluch(fl_view)
       aadd(ta, 'в листе учета более одной услуги "законченный случай"')
     endif
     if oth_usl > 0
-      aadd(ta, 'кроме услуги ' +lstshifr+ ' и ' + s + ' в листе учета не должно быть других услуг')
+      aadd(ta, 'кроме услуги ' + lstshifr + ' и ' + s + ' в листе учета не должно быть других услуг')
     endif
     if kol_2_60 == 0
       aadd(ta, 'не оказано ни одной услуги ' + s)
