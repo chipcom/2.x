@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-// 30.04.23
+// 02.05.23
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1, ;
         i, j, k, c, s := ' ', a_srok_lech := {}, a_period_stac := {}, a_disp := {}, ;
@@ -2878,23 +2878,31 @@ Function verify_1_sluch(fl_view)
       endif
     endif
     if is_2_92_
-      if alltrim_lshifr == '2.92.3'
+      if alltrim_lshifr == '2.92.3' .and. vozrast >= 18
         aadd(ta, 'услуга 2.92.3 оказывается только детям или подросткам')
-      elseif eq_any(alltrim_lshifr, '2.92.1', '2.92.2')
+      elseif eq_any(alltrim_lshifr, '2.92.1', '2.92.2') .and. vozrast < 18
         aadd(ta, 'услуга ' + alltrim_lshifr + ' оказывается только взрослым')
       endif
 
-      if alltrim_lshifr == '2.92.3' .and. kol_2_93_1 < 10
-        aadd(ta, 'услуга 2.92.3 оказывается не менее 10 раз')
-      elseif eq_any(alltrim_lshifr, '2.92.1', '2.92.2') .and. kol_2_93_1 < 5
-        aadd(ta, 'услуга ' + alltrim_lshifr + ' оказывается не менее 5 раз')
+      if !eq_any(human_->RSLT_NEW, 314)
+        aadd(ta, 'в поле "Результат обращения" должно быть "314 Динамическое наблюдение"')
       endif
-      if alltrim_lshifr == '2.92.3' .and. kol_dney < 10
-        aadd(ta, 'услуга 2.92.3 оказывается не менее 10 дней')
-      elseif eq_any(alltrim_lshifr, '2.92.1', '2.92.2') .and. kol_dney < 5
-        aadd(ta, 'услуга ' + alltrim_lshifr + ' оказывается не менее 5 дней')
+      if !eq_any(human_->ISHOD_NEW, 304)
+        aadd(ta, 'в поле "Исход заболевания" должно быть "304 Без перемен"')
       endif
-      
+  
+      s := 'услуга 2.93.1 оказывается не менее '
+      if vozrast < 18 .and. kol_2_93_1 < 10
+        aadd(ta, s + ' 10 раз')
+      elseif vozrast >= 18 .and. kol_2_93_1 < 5
+        aadd(ta, s + ' 5 раз')
+      endif
+      if vozrast < 18 .and. kol_dney < 10
+        aadd(ta, s + ' 10 дней')
+      elseif vozrast >= 18 .and. kol_dney < 5
+        aadd(ta, s + ' 5 дней')
+      endif
+
     endif
   endif
   s := '2.60.*'
