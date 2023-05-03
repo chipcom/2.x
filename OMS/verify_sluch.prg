@@ -1003,6 +1003,7 @@ Function verify_1_sluch(fl_view)
           kol_2_4++
         elseif eq_any(alltrim_lshifr, '2.92.1', '2.92.2', '2.92.3')
           is_2_92_ := .t.
+          mpovod := 10 // 3.0
           if vozrast >= 18 .and. alltrim_lshifr == '2.92.3'
             aadd(ta, 'услуга 2.92.3 оказывается только детям или подросткам')
           elseif vozrast < 18 .and. eq_any(alltrim_lshifr, '2.92.1', '2.92.2')
