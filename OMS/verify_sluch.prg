@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-// 02.05.23
+// 03.05.23
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1, ;
         i, j, k, c, s := ' ', a_srok_lech := {}, a_period_stac := {}, a_disp := {}, ;
@@ -81,7 +81,7 @@ Function verify_1_sluch(fl_view)
   glob_kartotek := human->kod_k
   d1 := human->n_data
   d2 := human->k_data
-  kol_dney := human->k_data - human->n_data
+  kol_dney := kol_dney_lecheniya(human->n_data, human->k_data, human_->usl_ok)
   cuch_doc := human->uch_doc
 
   arrV018 := getV018(human->k_data)
