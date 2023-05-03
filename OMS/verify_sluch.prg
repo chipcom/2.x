@@ -2878,12 +2878,18 @@ Function verify_1_sluch(fl_view)
         aadd(ta, 'кроме услуги ' + lstshifr + ' в листе учета не должно быть других услуг ТФОМС')
       endif
     endif
+
+    // проверка школы диабета
+    if kol_2_93_1 > 0 .and. ! is_2_92_
+      aadd(ta, 'в случае небходима ' + iif(vozrast < 18, 'услуга 2.92.3', 'одна из услуг 2.92.1 или 2.92.2'))
+    endif
+
     if is_2_92_
-      if alltrim_lshifr == '2.92.3' .and. vozrast >= 18
-        aadd(ta, 'услуга 2.92.3 оказывается только детям или подросткам')
-      elseif eq_any(alltrim_lshifr, '2.92.1', '2.92.2') .and. vozrast < 18
-        aadd(ta, 'услуга ' + alltrim_lshifr + ' оказывается только взрослым')
-      endif
+      // if alltrim_lshifr == '2.92.3' .and. vozrast >= 18
+      //   aadd(ta, 'услуга 2.92.3 оказывается только детям или подросткам')
+      // elseif eq_any(alltrim_lshifr, '2.92.1', '2.92.2') .and. vozrast < 18
+      //   aadd(ta, 'услуга ' + alltrim_lshifr + ' оказывается только взрослым')
+      // endif
 
       if !eq_any(human_->RSLT_NEW, 314)
         aadd(ta, 'в поле "Результат обращения" должно быть "314 Динамическое наблюдение"')
@@ -2903,7 +2909,7 @@ Function verify_1_sluch(fl_view)
       elseif vozrast >= 18 .and. kol_dney < 5
         aadd(ta, s + ' 5 дней')
       endif
-
+      // конец проверки школы диабета
     endif
   endif
   s := '2.60.*'
