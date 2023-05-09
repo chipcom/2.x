@@ -1211,8 +1211,8 @@ Function verify_1_sluch(fl_view)
         elseif mpovod > 0 .and. ascan(arr_povod, {|x| x[1] == mpovod }) == 0
           aadd(arr_povod, {mpovod, alltrim_lshifr})
         endif
-      elseif !(hu->date_u==mdate_u1) .and. len(au_lu) == 1
-        aadd(ta, 'дата услуги ' + alltrim_lshifr+ ' должна равняться дате начала лечения')
+      elseif !(hu->date_u == mdate_u1) .and. len(au_lu) == 1
+        aadd(ta, 'дата услуги ' + alltrim_lshifr + ' должна равняться дате начала лечения')
       endif
       hu_->date_u2 := mdate_u2
       if empty(hu_->kod_diag) .and. len(mdiagnoz) > 0
