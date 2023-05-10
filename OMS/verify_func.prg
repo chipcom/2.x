@@ -3,6 +3,11 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+// 03.05.23
+function kol_dney_lecheniya(dBegin, dEnd, usl_ok)
+
+  return dEnd - dBegin + iif(usl_ok == USL_OK_HOSPITAL, 0, 1)
+
 // 25.02.21
 // Проверка соответствия результата случая исходу обращения
 function checkRSLT_ISHOD(result, ishod, arr)
