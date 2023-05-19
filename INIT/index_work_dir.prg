@@ -4,7 +4,7 @@
 #define NUMBER_YEAR 3 // число лет для переиндексации назад
 #define INDEX_NEED  2 // число лет обязательной переиндексации
 
-** 12.03.23 проверка наличия справочников НСИ
+// 19.05.23 проверка наличия справочников НСИ
 function files_NSI_exists(dir_file)
   local lRet := .t.
   local i
@@ -68,10 +68,10 @@ function files_NSI_exists(dir_file)
   sbase := dir_file + '_mo_prprk' + cDbf
   aadd(arr_check, sbase)
 
-  sbase := dir_file + '_mo_t005' + cDbf
-  aadd(arr_check, sbase)
-  sbase := dir_file + '_mo_t005' + cDbt
-  aadd(arr_check, sbase)
+  // sbase := dir_file + '_mo_t005' + cDbf
+  // aadd(arr_check, sbase)
+  // sbase := dir_file + '_mo_t005' + cDbt
+  // aadd(arr_check, sbase)
 
   sbase := dir_file + '_mo_t007' + cDbf
   aadd(arr_check, sbase)
@@ -143,7 +143,7 @@ function files_NSI_exists(dir_file)
 
   return lRet
 
-** 23.03.23 проверка и переиндексирование справочников ТФОМС
+// 19.05.23 проверка и переиндексирование справочников ТФОМС
 Function index_work_dir(exe_dir, cur_dir, flag)
   Local fl := .t., i, arr, buf := save_maxrow()
   local arrRefFFOMS := {}, row, row_flag := .t.
@@ -368,11 +368,11 @@ Function index_work_dir(exe_dir, cur_dir, flag)
   use
 
   // справочник ошибок
-  sbase := '_mo_t005'
-  file_index := cur_dir + sbase + sntx
-  R_Use(exe_dir + sbase )
-  index on str(kod, 3) to (cur_dir + sbase)
-  use
+  // sbase := '_mo_t005'
+  // file_index := cur_dir + sbase + sntx
+  // R_Use(exe_dir + sbase )
+  // index on str(kod, 3) to (cur_dir + sbase)
+  // use
 
   // справочник ОКАТО
   okato_index(flag)
@@ -405,7 +405,7 @@ Function index_work_dir(exe_dir, cur_dir, flag)
 
   return nil
 
-** 09.03.23
+// 09.03.23
 function dep_index_and_fill(val_year, exe_dir, cur_dir, flag)
   local sbase
   local file_index
@@ -446,7 +446,7 @@ function dep_index_and_fill(val_year, exe_dir, cur_dir, flag)
   endif
   return nil
 
-** 14.03.23
+// 14.03.23
 function usl_Index(val_year, exe_dir, cur_dir, flag)
   local sbase
   local file_index
@@ -476,7 +476,7 @@ function usl_Index(val_year, exe_dir, cur_dir, flag)
   endif
   return nil
 
-** 23.03.23
+// 23.03.23
 function uslc_Index(val_year, exe_dir, cur_dir, flag)
   local sbase, prefix
   local index_usl_name
@@ -625,7 +625,7 @@ function uslc_Index(val_year, exe_dir, cur_dir, flag)
   endif
   return nil
 
-** 09.03.23
+// 09.03.23
 function uslf_Index(val_year, exe_dir, cur_dir, flag)
   local sbase
   local lIndex := .f.
@@ -641,7 +641,7 @@ function uslf_Index(val_year, exe_dir, cur_dir, flag)
   endif
   return nil
 
-** 09.03.23
+// 09.03.23
 function unit_Index(val_year, exe_dir, cur_dir, flag)
   local sbase
   local file_index
@@ -656,7 +656,7 @@ function unit_Index(val_year, exe_dir, cur_dir, flag)
   endif
   return nil
 
-** 09.03.23
+// 09.03.23
 function shema_index(val_year, exe_dir, cur_dir, flag)
   local sbase
   local file_index
@@ -671,7 +671,7 @@ function shema_index(val_year, exe_dir, cur_dir, flag)
   endif
   return nil
 
-** 09.03.23
+// 09.03.23
 function k006_index(val_year, exe_dir, cur_dir, flag)
   local sbase
   local file_index
@@ -689,7 +689,7 @@ function k006_index(val_year, exe_dir, cur_dir, flag)
   endif
   return nil
   
-**** 29.01.22
+// 29.01.22
 // function it_Index(val_year, exe_dir, cur_dir, flag)
 //   local fl := .t.
 //   local ar, ar1, ar2, lSchema, i
