@@ -2159,7 +2159,8 @@ if regim == "edit"
             m1tip_eksp := 3
           endif
           if (m1error := mo_os->REFREASON) > 0
-            merror := inieditspr(A__POPUPMENU, dir_exe+"_mo_t005", m1error)
+            // merror := inieditspr(A__POPUPMENU, dir_exe+"_mo_t005", m1error)
+            merror := inieditspr(A__POPUPMENU, loadT005(), m1error)
           endif
         endif
       endif
@@ -2185,9 +2186,12 @@ if regim == "edit"
       @ r+9,1 say "Вид экспертизы" get mtip_eksp ;
               reader {|x|menu_reader(x,mm_eksp,A__MENUVERT,,,.f.)} ;
               when m1oplata > 1
-      @ r+10,1 say "Код дефекта" get merror ;
-             reader {|x|menu_reader(x,{dir_exe+"_mo_t005"},A__POPUPEDIT,,,.f.)} ;
-             when m1oplata > 1
+      // @ r+10,1 say "Код дефекта" get merror ;
+      //        reader {|x|menu_reader(x,{dir_exe+"_mo_t005"},A__POPUPEDIT,,,.f.)} ;
+      //        when m1oplata > 1
+      @ r + 10, 1 say "Код дефекта" get merror ;
+                reader {|x|menu_reader(x, {loadT005()}, A__POPUPEDIT, , , .f.)} ;
+                when m1oplata > 1
       @ r+11,1 say "Выставить случай повторно?" get mrepeat ;
               reader {|x|menu_reader(x,mm_repeat,A__MENUVERT,,,.f.)} ;
               when m1oplata == 2
