@@ -245,125 +245,129 @@ return NIL
 
 // 03.01.18
 Function f4_uslugi(reg)
-Local i, s := "Список услуг ", mas[2], buf := save_maxrow(), ;
+  Local i, s := 'Список услуг ', mas[2], buf := save_maxrow(), ;
       n_file := cur_dir + 'uslugi' + stxt, sh := 80, HH := 60, l, k, j, lshifr, lshifr1, lname
-if (j := f_alert({"Необходим вывод списка отделений,", ;
-                  "в которых разрешается ввод услуги?", ;
-                  ""}, ;
-                 {" ~Нет "," ~Да "}, ;
-                 1,"N+/BG","R/BG", 17,,col1menu )) == 0
-  return NIL
-endif
-mywait()
-do case
-  case reg == 1
-    s += "с ценами по ОМС"
-  case reg == 2
-    s := "Список платных услуг"
-  case reg == 3
-    s += "с ценами по ДМС"
-endcase
-fp := fcreate(n_file) ; n_list := 1 ; tek_stroke := 0
-add_string("")
-add_string(CENTER(s, sh))
-add_string("")
-if mem_trudoem == 2
-  Private arr_title := {space(sh-15)+"УЕТ "+iif(is_oplata==7,"вр.","взр")+"│УЕТ "+iif(is_oplata==7,"асс","дет"), ;
-                        space(sh-15)+"───────┴───────"}
-  aeval(arr_title, {|x| add_string(x) } )
-  useUch_Usl()
-  l := sh-16
-else
-  l := sh
-endif
-Use_base('lusl')
-Use_base('luslc')
-R_Use(dir_server + 'mo_uch', , 'LPU')
-R_Use(dir_server + 'mo_otd', , 'OTD')
-R_Use(dir_server + 'usl_otd', dir_server + 'usl_otd', 'UO')
-R_Use(dir_server + 'uslugi',, 'USL')
-index on iif(kod > 0, '1', '0') + fsort_usl(shifr) to (cur_dir + 'tmp_usl')
-go top
-do while !eof()
-  lshifr := ""
-  if !empty(usl->shifr)
-    s := usl->shifr
-    lname := alltrim(usl->name)
-    lshifr += alltrim(usl->shifr)
-    lshifr1 := opr_shifr_TFOMS(usl->shifr1,usl->kod)
-    if reg == 1 .and. !empty(lshifr1) .and. !(usl->shifr==lshifr1)
-      s := lshifr1
-      lshifr += "("+alltrim(lshifr1)+")"
-    endif
-    lshifr += "."
-    //if usl->zf == 1
-      //lshifr += " [ЗФ] "
-    //endif
-    s := f42_uslugi(reg,s)
-    if !empty(s)
-      if mem_trudoem == 2
-        if verify_FF(HH, .t., sh)
-          aeval(arr_title, {|x| add_string(x) } )
-        endif
-      else
-        verify_FF(HH, .t., sh)
+  local tmpAlias
+
+  if (j := f_alert({'Необходим вывод списка отделений,', ;
+                  'в которых разрешается ввод услуги?', ;
+                  ''}, ;
+                 {' ~Нет ', ' ~Да '}, ;
+                 1, 'N+/BG', 'R/BG', 17, , col1menu )) == 0
+    return NIL
+  endif
+  mywait()
+  do case
+    case reg == 1
+      s += 'с ценами по ОМС'
+    case reg == 2
+      s := 'Список платных услуг'
+    case reg == 3
+      s += 'с ценами по ДМС'
+  endcase
+  fp := fcreate(n_file)
+  n_list := 1
+  tek_stroke := 0
+  add_string('')
+  add_string(CENTER(s, sh))
+  add_string('')
+  if mem_trudoem == 2
+    Private arr_title := {space(sh - 15) + 'УЕТ ' + iif(is_oplata == 7, 'вр.', 'взр') + '│УЕТ ' + iif(is_oplata == 7, 'асс', 'дет'), ;
+                        space(sh - 15) + '───────┴───────'}
+    aeval(arr_title, {|x| add_string(x) } )
+    useUch_Usl()
+    l := sh - 16
+  else
+    l := sh
+  endif
+  Use_base('lusl')
+  Use_base('luslc')
+  R_Use(dir_server + 'mo_uch', , 'LPU')
+  R_Use(dir_server + 'mo_otd', , 'OTD')
+  R_Use(dir_server + 'usl_otd', dir_server + 'usl_otd', 'UO')
+  R_Use(dir_server + 'uslugi',, 'USL')
+  index on iif(kod > 0, '1', '0') + fsort_usl(shifr) to (cur_dir + 'tmp_usl')
+  go top
+  do while !eof()
+    lshifr := ''
+    if !empty(usl->shifr)
+      s := usl->shifr
+      lname := alltrim(usl->name)
+      lshifr += alltrim(usl->shifr)
+      lshifr1 := opr_shifr_TFOMS(usl->shifr1, usl->kod)
+      if reg == 1 .and. !empty(lshifr1) .and. !(usl->shifr == lshifr1)
+        s := lshifr1
+        lshifr += '(' + alltrim(lshifr1) + ')'
       endif
-      if empty(lshifr1) .or. lshifr1 == usl->shifr
-        select LUSL
-        find (usl->shifr)
-        if found()
-          lname := alltrim(lusl->name)
+      lshifr += '.'
+      //if usl->zf == 1
+        //lshifr += " [ЗФ] "
+      //endif
+      s := f42_uslugi(reg, s)
+      if !empty(s)
+        if mem_trudoem == 2
+          if verify_FF(HH, .t., sh)
+            aeval(arr_title, {|x| add_string(x) } )
+          endif
         else
-          select LUSL19
+          verify_FF(HH, .t., sh)
+        endif
+        if empty(lshifr1) .or. lshifr1 == usl->shifr
+          select LUSL
           find (usl->shifr)
           if found()
-            lname := alltrim(lusl19->name)
+            lname := alltrim(lusl->name)
           else
-            select LUSL18
+            select LUSL19
             find (usl->shifr)
             if found()
-              lname := alltrim(lusl18->name)
+              lname := alltrim(lusl19->name)
+            else
+              select LUSL18
+              find (usl->shifr)
+              if found()
+                lname := alltrim(lusl18->name)
+              endif
             endif
           endif
         endif
-      endif
-      k := perenos(mas,lshifr+lname+" ["+s+"]",l," , ;")
-      s := padr(mas[1],l)
-      if mem_trudoem == 2
-        select UU
-        find (str(usl->kod, 4))
-        if is_oplata == 7
-          s += put_val_0(uu->vkoef_v, 8, 4)+put_val_0(uu->akoef_v, 8, 4)
-        else
-          s += put_val_0(uu->koef_v, 8, 4)+put_val_0(uu->koef_r, 8, 4)
+        k := perenos(mas, lshifr + lname + ' [' + s + ']', l, ' , ;')
+        s := padr(mas[1], l)
+        if mem_trudoem == 2
+          select UU
+          find (str(usl->kod, 4))
+          if is_oplata == 7
+            s += put_val_0(uu->vkoef_v, 8, 4) + put_val_0(uu->akoef_v, 8, 4)
+          else
+           s += put_val_0(uu->koef_v, 8, 4)+ put_val_0(uu->koef_r, 8, 4)
+          endif
         endif
-      endif
-      add_string(s)
-      for i := 2 to k
-        add_string(padl(alltrim(mas[i]),l))
-      next
-      if j == 2
-        select UO
-        find (str(usl->kod, 4))
-        if found()
-          k := 1
-          do while !(substr(uo->otdel,k, 1) == chr(0))
-            otd->(dbGoto(asc(substr(uo->otdel,k, 1))))
-            lpu->(dbGoto(otd->kod_lpu))
-            add_string(space(18)+"= "+alltrim(otd->name)+" ["+alltrim(lpu->name)+"]")
-            ++k
-          enddo
+        add_string(s)
+        for i := 2 to k
+          add_string(padl(alltrim(mas[i]), l))
+        next
+        if j == 2
+          select UO
+          find (str(usl->kod, 4))
+          if found()
+            k := 1
+            do while !(substr(uo->otdel,k, 1) == chr(0))
+              otd->(dbGoto(asc(substr(uo->otdel, k, 1))))
+              lpu->(dbGoto(otd->kod_lpu))
+              add_string(space(18) + '= ' + alltrim(otd->name) + ' [' + alltrim(lpu->name) + ']')
+              ++k
+            enddo
+          endif
         endif
       endif
     endif
-  endif
-  select USL
-  skip
-enddo
-close databases
-fclose(fp)
-viewtext(n_file,,,,,,, 2)
-RETURN NIL
+    select USL
+    skip
+  enddo
+  close databases
+  fclose(fp)
+  viewtext(n_file, , , , , , , 2)
+  RETURN NIL
 
 //
 Function f42_uslugi(reg,_shifr)
@@ -1572,7 +1576,7 @@ for j := 1 to len(arr_gr)
       fl := .f.
     endif
     verify_FF(HH-k, .t., sh)
-    add_string(padr(t_arr[1], sh-12)+put_val_0(luslf->uetv, 6, 2)+put_val_0(luslf->uetd, 6, 2))
+    add_string(padr(t_arr[1], sh-12)+ put_val_0(luslf->uetv, 6, 2)+ put_val_0(luslf->uetd, 6, 2))
     for i := 2 to k
       add_string(padl(alltrim(t_arr[i]), sh-12))
     next
@@ -2236,9 +2240,9 @@ do while !eof()
         select UU
         find (str(usl->kod, 4))
         if is_oplata == 7
-          s += put_val_0(uu->vkoef_v, 8, 4)+put_val_0(uu->akoef_v, 8, 4)
+          s += put_val_0(uu->vkoef_v, 8, 4)+ put_val_0(uu->akoef_v, 8, 4)
         else
-          s += put_val_0(uu->koef_v, 8, 4)+put_val_0(uu->koef_r, 8, 4)
+          s += put_val_0(uu->koef_v, 8, 4)+ put_val_0(uu->koef_r, 8, 4)
         endif
       endif
       add_string(s)

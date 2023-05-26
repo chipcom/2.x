@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 29.03.23
+// 26.05.23
 Function print_l_uch(mkod, par, regim, lnomer)
   // mkod - код больного по БД human
   Local sh := 80, HH := 77, buf := save_maxrow(), ;
@@ -20,7 +20,7 @@ Function print_l_uch(mkod, par, regim, lnomer)
   local arrKSLP, akslp, len_akslp, arrKIRO, akiro
   local k_kslp, tmp_kslp := {}
   local k_kiro, tmp_kiro := {}
-  local mas[2]
+  local mas[2], lname
 
   DEFAULT par TO 1, regim TO 1, lnomer TO 0
   mywait()
@@ -406,23 +406,32 @@ Function print_l_uch(mkod, par, regim, lnomer)
       Select USL
       goto (hu->u_kod)
       lname := usl->name
-      select LUSL
-      find (padr(usl->shifr, 10))
-      if found()
-        lname := lusl->name  // наименование услуги из справочника ТФОМС
-      else
-        select LUSL19
+
+      tmpAlias := create_name_alias('LUSL',  year(human->k_data))
+      if (tmpAlias)->(used())
+        select (tmpAlias)
         find (padr(usl->shifr, 10))
         if found()
-          lname := lusl19->name  // наименование услуги из справочника ТФОМС
-        else
-          select LUSL18
-          find (padr(usl->shifr, 10))
-          if found()
-            lname := lusl18->name  // наименование услуги из справочника ТФОМС
-          endif
+          lname := (tmpAlias)->name  // наименование услуги из справочника ТФОМС
         endif
       endif
+      // select LUSL 
+      // find (padr(usl->shifr, 10))
+      // if found()
+      //   lname := lusl->name  // наименование услуги из справочника ТФОМС
+      // else
+      //   select LUSL19
+      //   find (padr(usl->shifr, 10))
+      //   if found()
+      //     lname := lusl19->name  // наименование услуги из справочника ТФОМС
+      //   else
+      //     select LUSL18
+      //     find (padr(usl->shifr, 10))
+      //     if found()
+      //       lname := lusl18->name  // наименование услуги из справочника ТФОМС
+      //     endif
+      //   endif
+      // endif
       lshifr1 := opr_shifr_TFOMS(usl->shifr1, usl->kod, human->k_data)
       select TMP1
       append blank
