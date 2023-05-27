@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-** 23.03.23 добавление или редактирование случая (листа учета)
+// 27.05.23 добавление или редактирование случая (листа учета)
 Function oms_sluch_main(Loc_kod, kod_kartotek)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -457,7 +457,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
 
     mWeight := iif(empty(human_2->PC4),  0, val(human_2->PC4))
 
-    if (ibrm := f_oms_beremenn(mkod_diag)) > 0
+    if (ibrm := f_oms_beremenn(mkod_diag, MK_DATA)) > 0
       m1prer_b := human_2->PN2
     endif
     if alltrim(msmo) == '34'
@@ -800,9 +800,9 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
       @ j, 1 say 'Основной диагноз' get mkod_diag picture pic_diag ;
           reader {|o| MyGetReader(o, bg)} ;
           when when_diag() ;
-          valid {|| val1_10diag(.t.,.t.,.t.,mk_data,iif(m1novor==0,mpol,mpol2)),  f_valid_beremenn(mkod_diag) }
+          valid {|| val1_10diag(.t., .t., .t., mk_data, iif(m1novor == 0, mpol, mpol2)),  f_valid_beremenn(mkod_diag, mk_data)}
 
-      if (ibrm := f_oms_beremenn(mkod_diag)) == 1
+      if (ibrm := f_oms_beremenn(mkod_diag, MK_DATA)) == 1
         @ j, 26 say 'прерывание беременности'
       elseif ibrm == 2
         @ j, 26 say 'дисп.набл.за беременной'
@@ -811,7 +811,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
       endif
       @ j, 51 get mprer_b ;
           reader {|x| menu_reader(x,mm_prer_b, A__MENUVERT, , ,.f.)} ;
-          when {|| ibrm := f_oms_beremenn(mkod_diag), ;
+          when {|| ibrm := f_oms_beremenn(mkod_diag, MK_DATA), ;
             mm_prer_b := iif(ibrm == 1, mm1prer_b, iif(ibrm == 2, mm2prer_b, mm3prer_b)), ;
             (ibrm > 0) }
       //
@@ -2152,7 +2152,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
       if is_reabil_slux .and. eq_any(m1usl_ok, 1, 2) .and. m1profil == 158
         human_2->PN1 := m1vid_reab
       endif
-      human_2->PN2 := iif(f_oms_beremenn(mkod_diag) > 0, m1prer_b, 0)
+      human_2->PN2 := iif(f_oms_beremenn(mkod_diag, MK_DATA) > 0, m1prer_b, 0)
 
       // if year(mk_data)  == 2021 .and. !empty(m1KSLP)  // учет КСЛП
       //   human_2->PC1 := m1KSLP // список КСЛП

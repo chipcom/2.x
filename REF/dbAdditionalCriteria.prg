@@ -26,7 +26,6 @@ function getAdditionalCriteria( dateSl )
   local yearSl := year(dateSl)
 
   static hCriteria, lHashCriteria := .f.
-
   // при отсутствии ХЭШ-массива создадим его
   if !lHashCriteria
     hCriteria := hb_Hash()

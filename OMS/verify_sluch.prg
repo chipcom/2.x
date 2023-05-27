@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-// 03.05.23
+// 27.05.23
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1, ;
         i, j, k, c, s := ' ', a_srok_lech := {}, a_period_stac := {}, a_disp := {}, ;
@@ -437,7 +437,7 @@ Function verify_1_sluch(fl_view)
   endif
 
   s := ''
-  if len(mdiagnoz) > 0 .and. f_oms_beremenn(mdiagnoz[1]) == 3 .and. between(human_2->pn2, 1, 4)
+  if len(mdiagnoz) > 0 .and. f_oms_beremenn(mdiagnoz[1], human->k_data) == 3 .and. between(human_2->pn2, 1, 4)
     s := 'R52.' + {'0', '1', '2', '9'}[human_2->pn2]
   endif
   if !emptyall(s, ar)
@@ -659,7 +659,6 @@ Function verify_1_sluch(fl_view)
       next
     next
     return .f.
-    // altd()
   endif
 
   do while hu->kod == human->kod .and. !eof()

@@ -6,7 +6,7 @@
 
 Static sadiag1 := {}
 
-// 15.11.22 создание XML-файлов реестра
+// 27.05.23 создание XML-файлов реестра
 Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
   //
@@ -909,7 +909,7 @@ Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
         endif
         //
         j := 0
-        if (ibrm := f_oms_beremenn(mdiagnoz[1])) == 1 .and. eq_any(human_->profil, 136, 137) // акушерству и гинекологии
+        if (ibrm := f_oms_beremenn(mdiagnoz[1], human->K_DATA)) == 1 .and. eq_any(human_->profil, 136, 137) // акушерству и гинекологии
           j := iif(human_2->pn2 == 1, 4, 3)
         elseif ibrm == 2 .and. human_->USL_OK == 3 // поликлиника
           j := iif(human_2->pn2 == 1, 5, 6)
