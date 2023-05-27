@@ -106,144 +106,145 @@ Function o_sprav(k)
 
 // 02.02.22
 Function fspr_uslugi(k)
-Static _su := 110
-Static sk := 1, sk1 := 1, sk2 := 1
-Local str_sem, mas_pmt, mas_msg, mas_fun, j, s
-DEFAULT k TO 0
-do case
-  case k == 0
-    mas_pmt := {"Поиск по ~шифру", ;
-                "Услуги по стандарту ~ТФОМС", ;
-                "Услуги Минздрава РФ (~ФФОМС)", ;
-                "Список услуг по ~ОМС", ;
-                "Список ~платных услуг", ;
-                "Список услуг по ~ДМС", ;
-                "Услуги с ~нулевой ценой", ;
-                "Печать ~комплексных услуг"}
-    mas_msg := {"Просмотр конкретной услуги с поиском по шифру", ;
-                "Распечатка списка услуг с ценами ТФОМС по ОМС", ;
-                "Распечатка номенклатуры медицинских услуг Минздрава РФ (ФФОМС)", ;
-                "Распечатка списка услуг с ценами по ОМС", ;
-                "Распечатка списка услуг с ценами на платные услуги", ;
-                "Распечатка списка услуг с ценами по ДМС", ;
-                "Распечатка услуг, для которых разрешается ввод нулевой цены", ;
-                "Распечатка комплексных услуг"}
-    mas_fun := {"fspr_uslugi(1)", ;
-                "fspr_uslugi(2)", ;
-                "fspr_uslugi(3)", ;
-                "fspr_uslugi(4)", ;
-                "fspr_uslugi(5)", ;
-                "fspr_uslugi(6)", ;
-                "fspr_uslugi(7)", ;
-                "fspr_uslugi(8)"}
-    popup_prompt(T_ROW, T_COL-5, sk, mas_pmt, mas_msg, mas_fun)
-  case k == 1
-    v_1usluga()
-  case k == 2
-    mas_pmt := {"~Даты смены цен на услуги", ;
-                "~Цены на конкретную дату", ;
-                "Услуги ТФОМС -> ~наши услуги"}
-    mas_msg := {"Вывод списка изменений ТФОМС на цены услуг по конкретным датам", ;
-                "Вывод списка услуг ТФОМС с ценами на указанную Вами дату", ;
-                "Привязка Ваших услуг к услугам ТФОМС"}
-    mas_fun := {"fspr_uslugi(11)", ;
-                "fspr_uslugi(12)", ;
-                "fspr_uslugi(13)"}
-    Private su := _su
-    popup_prompt(T_ROW-len(mas_pmt)-3, T_COL-5, sk1, mas_pmt, mas_msg, mas_fun)
-    _su := su
-  case k == 3
-    mas_pmt := {"Номенклатура медуслуг ~ФФОМС", ;
-                "~Стоматологические услуги", ;
-                "Услуги ~телемедицины", ;
-                "Операции на ~парных органах", ;
-                "Классификатор ~видов ВМП", ;
-                "Классификатор ~методов ВМП", ;
-                "Услуги ФФОМС -> ~наши услуги", ;
-                "Список ~имплантатов"}
-    mas_msg := {"Вывод списка услуг Минздрава РФ (ФФОМС) по подразделам", ;
-                "Вывод списка стоматологических услуг Минздрава РФ (ФФОМС) по группам", ;
-                "Распечатка списка услуг с использованием телемедицинских технологий", ;
-                "Распечатка списка операций на парных органах (частях тела)", ;
-                "Распечатка классификатора видов ВМП", ;
-                "Распечатка классификатора методов ВМП (с группировкой по видам ВМП)", ;
-                "Привязка Ваших услуг к услугам ФФОМС", ;
-                "Распечатка списка имплантатов"}
-    mas_fun := {"fspr_uslugi(21)", ;
-                "fspr_uslugi(22)", ;
-                "fspr_uslugi(23)", ;
-                "fspr_uslugi(24)", ;
-                "fspr_uslugi(25)", ;
-                "fspr_uslugi(26)", ;
-                "fspr_uslugi(27)", ;
-                "fspr_uslugi(30)"}
-    k := len(mas_pmt)
-    use_base('luslc')
-    set order to 2
-    find (glob_mo[_MO_KOD_TFOMS]+"ds")
-    if found()
-      aadd(mas_pmt, "Услуги + КСГ (~дневной стационар)")
-      aadd(mas_msg, "Вывод списка разрешённых услуг ФФОМС вместе с КСГ дневного стационара")
-      aadd(mas_fun, "fspr_uslugi(28)")
-    endif
-    k := len(mas_pmt)
-    find (glob_mo[_MO_KOD_TFOMS]+"st")
-    if found()
-      aadd(mas_pmt, "Услуги + ~КСГ (стационар)")
-      aadd(mas_msg, "Вывод списка разрешённых услуг ФФОМС вместе с КСГ стационара")
-      aadd(mas_fun, "fspr_uslugi(29)")
-    endif
-    close databases
-    popup_prompt(T_ROW-len(mas_pmt)-3, T_COL-5, sk2, mas_pmt, mas_msg, mas_fun)
-  case k == 4
-    f4_uslugi(1)
-  case k == 5
-    f4_uslugi(2)
-  case k == 6
-    f4_uslugi(3)
-  case k == 7
-    v_nulusluga()
-  case k == 8
-    v_k_uslugi()
-  case k == 11
-    usl1TFOMS()
-  case k == 12
-    usl2TFOMS()
-  case k == 13
-    usl3TFOMS()
-  case k == 21
-    usl1FFOMS()
-  case k == 22
-    usl_stom_FFOMS()
-  case k == 23
-    usl_telemedicina()
-  case k == 24
-    usl_par_organ()
-  case k == 25
-    usl11FFOMS()
-  case k == 26
-    usl12FFOMS()
-  case k == 27
-    usl2FFOMS()
-  case k == 28
-    usl6FFOMS(2)
-  case k == 29
-    usl6FFOMS(1)
-  case k == 30 
-    v_implantant()
-endcase
-if k > 0
-  if k > 20
-    sk2 := k-20
-  elseif k > 10
-    sk1 := k-10
-  else
-    sk := k
-  endif
-endif
-return NIL
+  Static _su := 110
+  Static sk := 1, sk1 := 1, sk2 := 1
+  Local str_sem, mas_pmt, mas_msg, mas_fun, j, s
 
-// 03.01.18
+  DEFAULT k TO 0
+  do case
+    case k == 0
+      mas_pmt := {'Поиск по ~шифру', ;
+                  'Услуги по стандарту ~ТФОМС', ;
+                  'Услуги Минздрава РФ (~ФФОМС)', ;
+                  'Список услуг по ~ОМС', ;
+                  'Список ~платных услуг', ;
+                  'Список услуг по ~ДМС', ;
+                  'Услуги с ~нулевой ценой', ;
+                  'Печать ~комплексных услуг'}
+      mas_msg := {'Просмотр конкретной услуги с поиском по шифру', ;
+                  'Распечатка списка услуг с ценами ТФОМС по ОМС', ;
+                  'Распечатка номенклатуры медицинских услуг Минздрава РФ (ФФОМС)', ;
+                  'Распечатка списка услуг с ценами по ОМС', ;
+                  'Распечатка списка услуг с ценами на платные услуги', ;
+                  'Распечатка списка услуг с ценами по ДМС', ;
+                  'Распечатка услуг, для которых разрешается ввод нулевой цены', ;
+                  'Распечатка комплексных услуг'}
+      mas_fun := {'fspr_uslugi(1)', ;
+                  'fspr_uslugi(2)', ;
+                  'fspr_uslugi(3)', ;
+                  'fspr_uslugi(4)', ;
+                  'fspr_uslugi(5)', ;
+                  'fspr_uslugi(6)', ;
+                  'fspr_uslugi(7)', ;
+                  'fspr_uslugi(8)'}
+      popup_prompt(T_ROW, T_COL - 5, sk, mas_pmt, mas_msg, mas_fun)
+    case k == 1
+        v_1usluga()
+    case k == 2
+      mas_pmt := {'~Даты смены цен на услуги', ;
+                  '~Цены на конкретную дату', ;
+                  'Услуги ТФОМС -> ~наши услуги'}
+      mas_msg := {'Вывод списка изменений ТФОМС на цены услуг по конкретным датам', ;
+                  'Вывод списка услуг ТФОМС с ценами на указанную Вами дату', ;
+                  'Привязка Ваших услуг к услугам ТФОМС'}
+      mas_fun := {'fspr_uslugi(11)', ;
+                  'fspr_uslugi(12)', ;
+                  'fspr_uslugi(13)'}
+      Private su := _su
+      popup_prompt(T_ROW - len(mas_pmt) - 3, T_COL - 5, sk1, mas_pmt, mas_msg, mas_fun)
+      _su := su
+    case k == 3
+      mas_pmt := {'Номенклатура медуслуг ~ФФОМС', ;
+                  '~Стоматологические услуги', ;
+                  'Услуги ~телемедицины', ;
+                  'Операции на ~парных органах', ;
+                  'Классификатор ~видов ВМП', ;
+                  'Классификатор ~методов ВМП', ;
+                  'Услуги ФФОМС -> ~наши услуги', ;
+                  'Список ~имплантатов'}
+      mas_msg := {'Вывод списка услуг Минздрава РФ (ФФОМС) по подразделам', ;
+                  'Вывод списка стоматологических услуг Минздрава РФ (ФФОМС) по группам', ;
+                  'Распечатка списка услуг с использованием телемедицинских технологий', ;
+                  'Распечатка списка операций на парных органах (частях тела)', ;
+                  'Распечатка классификатора видов ВМП', ;
+                  'Распечатка классификатора методов ВМП (с группировкой по видам ВМП)', ;
+                  'Привязка Ваших услуг к услугам ФФОМС', ;
+                  'Распечатка списка имплантатов'}
+      mas_fun := {'fspr_uslugi(21)', ;
+                  'fspr_uslugi(22)', ;
+                  'fspr_uslugi(23)', ;
+                  'fspr_uslugi(24)', ;
+                  'fspr_uslugi(25)', ;
+                  'fspr_uslugi(26)', ;
+                  'fspr_uslugi(27)', ;
+                  'fspr_uslugi(30)'}
+      k := len(mas_pmt)
+      use_base('luslc')
+      set order to 2
+      find (glob_mo[_MO_KOD_TFOMS] + 'ds')
+      if found()
+        aadd(mas_pmt, 'Услуги + КСГ (~дневной стационар)')
+        aadd(mas_msg, 'Вывод списка разрешённых услуг ФФОМС вместе с КСГ дневного стационара')
+        aadd(mas_fun, 'fspr_uslugi(28)')
+      endif
+      k := len(mas_pmt)
+      find (glob_mo[_MO_KOD_TFOMS] + 'st')
+      if found()
+        aadd(mas_pmt, 'Услуги + ~КСГ (стационар)')
+        aadd(mas_msg, 'Вывод списка разрешённых услуг ФФОМС вместе с КСГ стационара')
+        aadd(mas_fun, 'fspr_uslugi(29)')
+      endif
+      close databases
+      popup_prompt(T_ROW - len(mas_pmt) - 3, T_COL - 5, sk2, mas_pmt, mas_msg, mas_fun)
+    case k == 4
+      f4_uslugi(1)
+    case k == 5
+      f4_uslugi(2)
+    case k == 6
+      f4_uslugi(3)
+    case k == 7
+      v_nulusluga()
+    case k == 8
+      v_k_uslugi()
+    case k == 11
+      usl1TFOMS()
+    case k == 12
+      usl2TFOMS()
+    case k == 13
+      usl3TFOMS()
+    case k == 21
+      usl1FFOMS()
+    case k == 22
+      usl_stom_FFOMS()
+    case k == 23
+      usl_telemedicina()
+    case k == 24
+      usl_par_organ()
+    case k == 25
+      usl11FFOMS()
+    case k == 26
+      usl12FFOMS()
+    case k == 27
+      usl2FFOMS()
+    case k == 28
+      usl6FFOMS(2)
+    case k == 29
+      usl6FFOMS(1)
+    case k == 30 
+      v_implantant()
+  endcase
+  if k > 0
+    if k > 20
+      sk2 := k - 20
+    elseif k > 10
+      sk1 := k - 10
+    else
+      sk := k
+    endif
+  endif
+  return NIL
+
+// 26.05.23
 Function f4_uslugi(reg)
   Local i, s := 'Список услуг ', mas[2], buf := save_maxrow(), ;
       n_file := cur_dir + 'uslugi' + stxt, sh := 80, HH := 60, l, k, j, lshifr, lshifr1, lname
@@ -317,19 +318,20 @@ Function f4_uslugi(reg)
           find (usl->shifr)
           if found()
             lname := alltrim(lusl->name)
-          else
-            select LUSL19
-            find (usl->shifr)
-            if found()
-              lname := alltrim(lusl19->name)
-            else
-              select LUSL18
-              find (usl->shifr)
-              if found()
-                lname := alltrim(lusl18->name)
-              endif
-            endif
           endif
+          // else
+          //   select LUSL19
+          //   find (usl->shifr)
+          //   if found()
+          //     lname := alltrim(lusl19->name)
+          //   else
+          //     select LUSL18
+          //     find (usl->shifr)
+          //     if found()
+          //       lname := alltrim(lusl18->name)
+          //     endif
+          //   endif
+          // endif
         endif
         k := perenos(mas, lshifr + lname + ' [' + s + ']', l, ' , ;')
         s := padr(mas[1], l)
@@ -409,133 +411,133 @@ endif
 return s
 
 
-// 08.02.23
+// 26.05.23
 Function v_1usluga()
-Local arr_usl, atf := {0,"",""}, i := 1, k, mas[2], sh := 80, HH := 60, j := 0, j1, ;
-      sb, fl, lshifr, s, n_file := cur_dir + "usluga_1" + stxt
-local prefix := prefixFileRefName(WORK_YEAR)
+  Local arr_usl, atf := {0, '', ''}, i := 1, k, mas[2], sh := 80, HH := 60, j := 0, j1, ;
+      sb, fl, lshifr, s, n_file := cur_dir + 'usluga_1' + stxt
+  local prefix := prefixFileRefName(WORK_YEAR)
 
-if (arr_usl := input_usluga(atf)) != NIL
-  mywait()
-  fp := fcreate(n_file)
-  n_list := 1
-  tek_stroke := 0
+  if (arr_usl := input_usluga(atf)) != NIL
+    mywait()
+    fp := fcreate(n_file)
+    n_list := 1
+    tek_stroke := 0
 
-  R_Use(dir_exe + prefix + 'dep', cur_dir + prefix + 'dep', 'DEP')
-  Use_base('lusl')
-  Use_base('luslc')
-  R_Use(dir_server + 'uslugi', dir_server + 'uslugi', 'USL')
-  add_string("")
-  add_string(center("ПРОСМОТР УСЛУГИ", sh))
-  add_string("")
-  add_string(center("(по нашему справочнику)", sh))
-  add_string("")
-  if arr_usl[1] == 0
-    add_string("НЕ НАЙДЕНА!")
-  else
-    select USL
-    find (str(arr_usl[1], 4))
-    lshifr := ""
-    if !empty(usl->shifr)
-      s := usl->shifr
-      lshifr += alltrim(usl->shifr)
-      lshifr1 := opr_shifr_TFOMS(usl->shifr1,usl->kod)
-      if !empty(lshifr1) .and. !(usl->shifr==lshifr1)
-        lshifr += "("+alltrim(lshifr1)+")"
-        s := lshifr1
-      endif
-      lshifr += "."
-    endif
-    k := perenos(mas,lshifr+" "+alltrim(usl->name)+" ["+f42_uslugi(1,s)+"]", sh," , ;")
-    add_string(mas[1])
-    if k > 1
-      add_string(padl(alltrim(mas[2]), sh))
-    endif
-    if !emptyall(usl->pcena,usl->pcena_d,usl->dms_cena)
-      add_string("")
-      add_string(SPACE(2)+"* Цена платной услуги"+" ["+f42_uslugi(23)+"]")
-    endif
-    if mem_trudoem == 2
-      useUch_Usl()
-      select UU
+    R_Use(dir_exe + prefix + 'dep', cur_dir + prefix + 'dep', 'DEP')
+    Use_base('lusl')
+    Use_base('luslc')
+    R_Use(dir_server + 'uslugi', dir_server + 'uslugi', 'USL')
+    add_string('')
+    add_string(center('ПРОСМОТР УСЛУГИ', sh))
+    add_string('')
+    add_string(center('(по нашему справочнику)', sh))
+    add_string('')
+    if arr_usl[1] == 0
+      add_string('НЕ НАЙДЕНА!')
+    else
+      select USL
       find (str(arr_usl[1], 4))
-      add_string("")
-      if is_oplata == 7
-        if !emptyall(uu->koef_v,uu->vkoef_v,uu->akoef_v)
-          s := "  УЕТ для взрослых "+str_0(uu->koef_v, 7, 4)+;
-               " [врач "+alltrim(str_0(uu->vkoef_v, 7, 4))+", асс. "+alltrim(str_0(uu->akoef_v, 7, 4))+"]"
-          add_string(s)
+      lshifr := ''
+      if !empty(usl->shifr)
+        s := usl->shifr
+        lshifr += alltrim(usl->shifr)
+        lshifr1 := opr_shifr_TFOMS(usl->shifr1, usl->kod)
+        if !empty(lshifr1) .and. !(usl->shifr == lshifr1)
+          lshifr += '('+ alltrim(lshifr1) + ')'
+          s := lshifr1
         endif
-        if !emptyall(uu->koef_r,uu->vkoef_r,uu->akoef_r)
-          s := "  УЕТ для детей    "+str_0(uu->koef_r, 7, 4)+;
-               " [врач "+alltrim(str_0(uu->vkoef_r, 7, 4))+", асс. "+alltrim(str_0(uu->akoef_r, 7, 4))+"]"
-          add_string(s)
-        endif
-      else
-        if !empty(uu->koef_v)
-          add_string("  УЕТ для взрослых "+str_0(uu->koef_v, 7, 4))
-        endif
-        if !empty(uu->koef_r)
-          add_string("  УЕТ для детей    "+str_0(uu->koef_r, 7, 4))
+        lshifr += '.'
+      endif
+      k := perenos(mas, lshifr + ' ' + alltrim(usl->name) + ' [' + f42_uslugi(1, s) + ']', sh, ' , ;')
+      add_string(mas[1])
+      if k > 1
+        add_string(padl(alltrim(mas[2]), sh))
+      endif
+      if !emptyall(usl->pcena, usl->pcena_d, usl->dms_cena)
+        add_string('')
+        add_string(SPACE(2) + '* Цена платной услуги' + ' [' + f42_uslugi(23) + ']')
+      endif
+      if mem_trudoem == 2
+        useUch_Usl()
+        select UU
+        find (str(arr_usl[1], 4))
+        add_string('')
+        if is_oplata == 7
+          if !emptyall(uu->koef_v, uu->vkoef_v, uu->akoef_v)
+            s := '  УЕТ для взрослых ' + str_0(uu->koef_v, 7, 4) + ;
+               ' [врач ' + alltrim(str_0(uu->vkoef_v, 7, 4)) + ', асс. ' + alltrim(str_0(uu->akoef_v, 7, 4)) + ']'
+            add_string(s)
+          endif
+          if !emptyall(uu->koef_r, uu->vkoef_r, uu->akoef_r)
+            s := '  УЕТ для детей    ' + str_0(uu->koef_r, 7, 4) + ;
+               ' [врач ' + alltrim(str_0(uu->vkoef_r, 7, 4)) + ', асс. ' + alltrim(str_0(uu->akoef_r, 7, 4)) + ']'
+            add_string(s)
+          endif
+        else
+          if !empty(uu->koef_v)
+            add_string('  УЕТ для взрослых ' + str_0(uu->koef_v, 7, 4))
+          endif
+          if !empty(uu->koef_r)
+            add_string('  УЕТ для детей    ' + str_0(uu->koef_r, 7, 4))
+          endif
         endif
       endif
     endif
-  endif
-  add_string("")
-  add_string(replicate("-", sh))
-  add_string("")
-  add_string(center("(по справочнику ТФОМС)", sh))
-  add_string("")
-  if atf[1] == 0
-    add_string("НЕ НАЙДЕНА!")
-  else
-    k := perenos(mas,atf[2], sh)
-    add_string(mas[1])
-    for i := 2 to k
-      add_string(padl(alltrim(mas[i]), sh))
-    next
-    select LUSLC19
-    set order to 1
-    find (atf[3])
-    do while luslc19->shifr == atf[3] .and. !eof()
-      s := space(2)+"c "+date_8(luslc19->datebeg)+" по "+date_8(luslc19->dateend)+": ЦЕНА "+;
-           iif(luslc19->VZROS_REB==0,'взрослая=','детская =')+dellastnul(luslc19->cena)
-      if is_otd_dep .and. luslc19->depart > 0
-        select DEP
-        find (str(luslc19->depart, 3))
-        if found()
-          s += "  ("+alltrim(dep->name_short)+")"
-        endif
-      endif
-      verify_FF(HH)
-      add_string(s)
-      select LUSLC19
-      skip
-    enddo
-    select LUSLC
-    set order to 1
-    find (atf[3])
-    do while luslc->shifr == atf[3] .and. !eof()
-      s := space(2)+"c "+date_8(luslc->datebeg)+" по "+date_8(luslc->dateend)+": ЦЕНА "+;
-           iif(luslc->VZROS_REB==0,'взрослая=','детская =')+dellastnul(luslc->cena)
-      if is_otd_dep .and. luslc->depart > 0
-        select DEP
-        find (str(luslc->depart, 3))
-        if found()
-          s += "  ("+alltrim(dep->name_short)+")"
-        endif
-      endif
-      verify_FF(HH)
-      add_string(s)
+    add_string('')
+    add_string(replicate('-', sh))
+    add_string('')
+    add_string(center('(по справочнику ТФОМС)', sh))
+    add_string('')
+    if atf[1] == 0
+      add_string('НЕ НАЙДЕНА!')
+    else
+      k := perenos(mas, atf[2], sh)
+      add_string(mas[1])
+      for i := 2 to k
+        add_string(padl(alltrim(mas[i]), sh))
+      next
+      // select LUSLC19
+      // set order to 1
+      // find (atf[3])
+      // do while luslc19->shifr == atf[3] .and. !eof()
+      //   s := space(2) + 'c ' + date_8(luslc19->datebeg) + ' по ' + date_8(luslc19->dateend) + ': ЦЕНА ' + ;
+      //      iif(luslc19->VZROS_REB == 0, 'взрослая=', 'детская =') + dellastnul(luslc19->cena)
+      //   if is_otd_dep .and. luslc19->depart > 0
+      //     select DEP
+      //     find (str(luslc19->depart, 3))
+      //     if found()
+      //       s += '  (' + alltrim(dep->name_short) + ')'
+      //     endif
+      //   endif
+      //   verify_FF(HH)
+      //   add_string(s)
+      //   select LUSLC19
+      //   skip
+      // enddo
       select LUSLC
-      skip
-    enddo
+      set order to 1
+      find (atf[3])
+      do while luslc->shifr == atf[3] .and. !eof()
+        s := space(2) + 'c ' + date_8(luslc->datebeg) + ' по ' + date_8(luslc->dateend) + ': ЦЕНА ' + ;
+           iif(luslc->VZROS_REB == 0, 'взрослая=', 'детская =') + dellastnul(luslc->cena)
+        if is_otd_dep .and. luslc->depart > 0
+          select DEP
+          find (str(luslc->depart, 3))
+          if found()
+            s += '  (' + alltrim(dep->name_short) + ')'
+          endif
+        endif
+        verify_FF(HH)
+        add_string(s)
+        select LUSLC
+        skip
+      enddo
+    endif
+    close databases
+    fclose(fp)
+    viewtext(n_file, , , , , , , 2)
   endif
-  close databases
-  fclose(fp)
-  viewtext(n_file,,,,,,, 2)
-endif
-return NIL
+  return NIL
 
 
 // 08.02.23
@@ -1003,7 +1005,7 @@ Function usl2TFOMS()
     add_string(glob_mo[_MO_SHORT_NAME]+iif(valtype(ret_arr)=="A", " ("+ret_arr[1]+")",""))
     add_string('')
     add_string(center("Список услуг по группе", sh))
-    add_string(center('"'+alltrim(t_arr[1])+'"', sh))
+    add_string(center('"'+ alltrim(t_arr[1])+'"', sh))
     add_string(center("[ цены по состоянию на "+date_8(mdate)+"г. ]", sh))
     add_string("")
     if t_arr[2] > 500
@@ -1099,13 +1101,13 @@ Function usl2TFOMS()
                 endif
                 if ++i == 1
                   if !empty(k006->DS1)
-                    s += "СОПУТ.Диагноз "+alltrim(k006->DS1)+"; "
+                    s += "СОПУТ.Диагноз "+ alltrim(k006->DS1)+"; "
                   endif
                   if !empty(k006->DS2)
-                    s += "Диагноз ОСЛОЖНЕНИЯ "+alltrim(k006->DS2)+"; "
+                    s += "Диагноз ОСЛОЖНЕНИЯ "+ alltrim(k006->DS2)+"; "
                   endif
                   if !empty(k006->SY)
-                    s += "УСЛУГА "+alltrim(k006->sy)+"; "
+                    s += "УСЛУГА "+ alltrim(k006->sy)+"; "
                   endif
                   if !empty(k006->AGE)
                     s += "ВОЗРАСТ "+ret_vozrast_k006(k006->AGE)+"; "
@@ -1117,13 +1119,13 @@ Function usl2TFOMS()
                     s += ret_duration_k006(k006->LOS,iif(left(&lal.->shifr, 1)=='1',"койко","пациенто")+"-")+"; "
                   endif
                   if k006->(fieldpos("RSLT")) > 0 .and. !empty(k006->RSLT)
-                    s += "РЕЗУЛЬТАТ "+alltrim(k006->RSLT)+"; "
+                    s += "РЕЗУЛЬТАТ "+ alltrim(k006->RSLT)+"; "
                   endif
                   if k006->(fieldpos("AD_CR")) > 0 .and. !empty(k006->AD_CR)
-                    s += "ДОП.КРИТЕРИЙ "+alltrim(k006->AD_CR)+"; "
+                    s += "ДОП.КРИТЕРИЙ "+ alltrim(k006->AD_CR)+"; "
                   endif
                   if k006->(fieldpos("AD_CR1")) > 0 .and. !empty(k006->AD_CR1)
-                    s += "ИНОЙ КРИТЕРИЙ "+alltrim(k006->AD_CR1)+"; "
+                    s += "ИНОЙ КРИТЕРИЙ "+ alltrim(k006->AD_CR1)+"; "
                   endif
                 endif
                 skip
@@ -1231,7 +1233,7 @@ if (k := popup_2array(usl9TFOMS(mdate),T_ROW,T_COL-5,su, 1,@t_arr,"Выберите груп
 "──────────────────────────────────────────┴──────────────────────────────────────────"}
   fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
   add_string(center("Список услуг по группе", sh))
-  add_string(center('"'+alltrim(t_arr[1])+'"', sh))
+  add_string(center('"'+ alltrim(t_arr[1])+'"', sh))
   add_string(center('по состоянию на '+date_month(mdate, .t.), sh))
   add_string("")
   aeval(arr_title, {|x| add_string(x) } )
@@ -1837,7 +1839,7 @@ Function usl1FFOMS()
   endif
   return NIL
 
-// 08.02.23
+// 27.05.23
 Function usl2FFOMS()
   Local i, k, buf := save_maxrow(), name_file := cur_dir + 'uslugiF' + stxt, sh := 85, HH := 80, mas1[5]
   //
@@ -1858,7 +1860,7 @@ Function usl2FFOMS()
   do while !eof()
     k := 1
     afill(mas1, '')
-    if mosu->tip == 5
+    if mosu->tip == 5 .and. LUSLF18->(used())
       select LUSLF18
       find (mosu->shifr1)
       if found()
@@ -1869,7 +1871,7 @@ Function usl2FFOMS()
       find (mosu->shifr1)
       if found()
         k := perenos(mas1, luslf->name, 55)
-      else
+      elseif  LUSLF18->(used())
         select LUSLF18
         find (mosu->shifr1)
         if found()
@@ -2196,7 +2198,7 @@ Use_base('luslc')
 R_Use(dir_server + 'uslugi', dir_server + "uslugisl", 'USL')
 if reg == 1
   add_string(CENTER("Список услуг по службе:", 80))
-  add_string(CENTER(lstr(sl->shifr)+". "+alltrim(sl->name), 80))
+  add_string(CENTER(lstr(sl->shifr)+". "+ alltrim(sl->name), 80))
   find (str(sl->shifr, 3))
   index on fsort_usl(shifr) to (cur_dir + "tmp") for kod > 0 while slugba == sl->shifr
 else
@@ -2216,7 +2218,7 @@ do while !eof()
     lshifr1 := opr_shifr_TFOMS(usl->shifr1,usl->kod)
     if !empty(lshifr1) .and. !(usl->shifr==lshifr1)
       s := lshifr1
-      lshifr += "("+alltrim(lshifr1)+")"
+      lshifr += "("+ alltrim(lshifr1)+")"
     endif
     lshifr += "."
     s := f42_uslugi(1,s)
@@ -2234,7 +2236,7 @@ do while !eof()
       elseif !empty(s1)
         s += ";"+s1
       endif
-      k := perenos(mas,lshifr+alltrim(usl->name)+" ["+s+"]",l," , ;")
+      k := perenos(mas,lshifr+ alltrim(usl->name)+" ["+s+"]",l," , ;")
       s := padr(mas[1],l)
       if mem_trudoem == 2
         select UU
@@ -2291,7 +2293,7 @@ fp := fcreate("spisok"+stxt) ; n_list := 1 ; tek_stroke := 0
 add_string("")
 add_string(center("Списочный состав персонала с табельными номерами", sh))
 add_string("")
-add_string(center(alltrim(glob_uch[2])+" ("+alltrim(glob_otd[2])+")", sh))
+add_string(center(alltrim(glob_uch[2])+" ("+ alltrim(glob_otd[2])+")", sh))
 add_string(padl(date_8(sys_date)+"г.", sh))
 if R_Use(dir_server + "mo_pers",,"PERSO")
   index on upper(fio) to (cur_dir + "tmp_pers") for kod > 0
@@ -2437,7 +2439,7 @@ do case
         enddo
         i := recno()
         if pregim == 4
-          aadd(arr_t, "Класс "+alltrim(klass))
+          aadd(arr_t, "Класс "+ alltrim(klass))
         endif
         msh_b := sh_b ; msh_e := sh_e
         do while sh_e == msh_e
@@ -2446,9 +2448,9 @@ do case
         enddo
         Use
         if msh_b == msh_e
-          aadd(arr_t, "( "+alltrim(msh_b)+" )")
+          aadd(arr_t, "( "+ alltrim(msh_b)+" )")
         else
-          aadd(arr_t, "( "+alltrim(msh_b)+" - "+alltrim(msh_e)+" )")
+          aadd(arr_t, "( "+ alltrim(msh_b)+" - "+ alltrim(msh_e)+" )")
         endif
         Private sh := 76, HH := 77
         fp := fcreate("diagtmp.txt") ; n_list := 1 ; tek_stroke := 0
@@ -2998,7 +3000,7 @@ if mo_Lock_Task(X_OMS) // запрет только ОМС G_SLock1Task(sem_task,sem_vagno) // 
       if !extract_reestr(rees->(recno()),rees->name_xml)
         aadd(aerr,center("Не найден ZIP-архив с РЕЕСТРом № "+lstr(mnschet)+" от "+date_8(tmp1->_DSCHET), 80))
         aadd(aerr,"")
-        aadd(aerr,center(dir_server+dir_XML_MO+cslash+alltrim(rees->name_xml)+szip, 80))
+        aadd(aerr,center(dir_server+dir_XML_MO+cslash+ alltrim(rees->name_xml)+szip, 80))
         aadd(aerr,"")
         aadd(aerr,center("Без данного архива дальнейшая работа НЕВОЗМОЖНА!", 80))
       endif
@@ -3182,9 +3184,9 @@ if mo_Lock_Task(X_OMS) // запрет только ОМС G_SLock1Task(sem_task,sem_vagno) // 
           if is_2 > 0
             lal += "_3"
           endif
-          strfile("!!! "+alltrim(human->fio)+", "+full_date(human->date_r)+;
-                       iif(empty(otd->SHORT_NAME), "", " ["+alltrim(otd->SHORT_NAME)+"]")+;
-                       " "+alltrim(human->KOD_DIAG)+;
+          strfile("!!! "+ alltrim(human->fio)+", "+full_date(human->date_r)+;
+                       iif(empty(otd->SHORT_NAME), "", " ["+ alltrim(otd->SHORT_NAME)+"]")+;
+                       " "+ alltrim(human->KOD_DIAG)+;
                        " "+date_8(&lal.->n_data)+"-"+date_8(&lal.->k_data)+;
                        hb_eol(),cFileProtokol, .t.)
           select REFR

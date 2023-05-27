@@ -37,16 +37,17 @@ Function fbp_mz_rf(r,c)
   endif
   return a
 
-***** 30.08.16
-Function obF2_statist(k,serv_arr)
-Local i, j, arr[2], begin_date, end_date, bk := 1, ek := 99, al,;
+// 27.05.23
+Function obF2_statist(k, serv_arr)
+  Local i, j, arr[2], begin_date, end_date, bk := 1, ek := 99, al,;
       fl_exit := .f., sh := 80, HH := 57, regim := 2, s, fl_1_list := .t.,;
       len_n, pkol, pkol1, ptrud, old_perso, old_vr_as, old_usl,;
       old_fio, arr_otd := {}, md, mkol, mkol1, arr_kd := {}, len_kd := 0,;
       xx, yy, pole_va, lrec, t_date1, t_date2, arr_title, msum, msum_opl,;
       musluga, mperso := {}, mkod_perso, arr_usl := {}, adbf1, adbf2, ;
       arr_svod_nom := {}, arr_m, lshifr1
-Private is_all := .t., ret_mz_rf
+
+  Private is_all := .t., ret_mz_rf
 Private skol := {0,0}, skol1 := {0,0}, strud := {0,0}
 if eq_any(k,2,3,4,8,9)  // по отделению
   if (st_a_otd := inputN_otd(T_ROW,T_COL-5,.f.,.f.,,@lcount_otd)) == NIL
@@ -653,13 +654,14 @@ else
           find (usl->shifr1)
           if found()
             lname := luslf->name
-          else
-            select LUSLF18
-            find (usl->shifr1)
-            if found()
-              lname := luslf18->name
-            endif
           endif
+          // else
+          //   select LUSLF18
+          //   find (usl->shifr1)
+          //   if found()
+          //     lname := luslf18->name
+          //   endif
+          // endif
           tmp->u_shifr := usl->shifr1
           s := ""
           if !empty(usl->shifr)
@@ -994,32 +996,32 @@ else
 endif
 return NIL
 
-*
+// 27.05.23
+Function _f_trud_F(lu_kod, lkol, lvzros_reb, lkod_vr, lkod_as)
+  Local mtrud := {0, 0, 0}
 
-***** 29.01.17
-Function _f_trud_F(lu_kod,lkol,lvzros_reb,lkod_vr,lkod_as)
-Local mtrud := {0,0,0}
-select USL
-goto (lu_kod)
-if !eof() .and. !empty(usl->shifr1)
-  if year(human->k_data) > 2018
-    select LUSLF
-    find (usl->shifr1)
-    mtrud[1] := mtrud[2] := mtrud[3] := round_5(lkol * iif(lvzros_reb==0, luslf->uetv, luslf->uetd), 2)
-  else
-    select LUSLF18
-    find (usl->shifr1)
-    mtrud[1] := mtrud[2] := mtrud[3] := round_5(lkol * iif(lvzros_reb==0, luslf18->uetv, luslf18->uetd), 2)
+  select USL
+  goto (lu_kod)
+  if !eof() .and. !empty(usl->shifr1)
+    if year(human->k_data) > 2018
+      select LUSLF
+      find (usl->shifr1)
+      mtrud[1] := mtrud[2] := mtrud[3] := round_5(lkol * iif(lvzros_reb == 0, luslf->uetv, luslf->uetd), 2)
+    endif
+    // else
+    //   select LUSLF18
+    //   find (usl->shifr1)
+    //   mtrud[1] := mtrud[2] := mtrud[3] := round_5(lkol * iif(lvzros_reb == 0, luslf18->uetv, luslf18->uetd), 2)
+    // endif
+    if lkod_vr > 0 .and. lkod_as == 0
+      mtrud[3] := 0
+      mtrud[2] := mtrud[1]
+    elseif lkod_vr == 0 .and. lkod_as > 0
+      mtrud[2] := 0
+      mtrud[3] := mtrud[1]
+    endif
   endif
-  if lkod_vr > 0 .and. lkod_as == 0
-    mtrud[3] := 0
-    mtrud[2] := mtrud[1]
-  elseif lkod_vr == 0 .and. lkod_as > 0
-    mtrud[2] := 0
-    mtrud[3] := mtrud[1]
-  endif
-endif
-return mtrud
+  return mtrud
 
 ***** 30.08.16
 Static Function obF3_statist(k, arr_otd, serv_arr, mkod_perso)

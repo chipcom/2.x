@@ -1899,13 +1899,14 @@ Function pz1statist(par,par2)
           find (padr(usl->shifr,10))
           if found()
             lname := lusl->name  // наименование услуги из справочника ТФОМС
-          else
-            select LUSL19
-            find (padr(usl->shifr,10))
-            if found()
-              lname := lusl19->name  // наименование услуги из справочника ТФОМС
-            endif
           endif
+          // else
+          //   select LUSL19
+          //   find (padr(usl->shifr,10))
+          //   if found()
+          //     lname := lusl19->name  // наименование услуги из справочника ТФОМС
+          //   endif
+          // endif
           k := perenos(as,alltrim(usl->shifr) + ' ' + alltrim(lname),n1-2)
           s := '  ' +padr(as[1],n1-2)
           if fl_plan

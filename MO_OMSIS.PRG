@@ -3055,7 +3055,7 @@ if k == 1
 endif
 return fl
 
-** 26.02.20
+** 27.05.23
 Static Function s1_mnog_poisk(cv,cf)
 Static a_stom_vp := {{},{},{}}
 Local i, j, k, n, s, arr, fl := .t., flu := .f., mkol, mstoim := 0, fl1, fl2, vid_vp := 1,;
@@ -3752,15 +3752,15 @@ if fl
             if year(human->k_data) > 2018
               select LUSLF
               find (mosu->shifr1)
-              muet += round_5(mohu->kol_1 * iif(human->vzros_reb==0, luslf->uetv, luslf->uetd), 4)
-            else
+              muet += round_5(mohu->kol_1 * iif(human->vzros_reb == 0, luslf->uetv, luslf->uetd), 4)
+            elseif LUSLF18->(used())
               select LUSLF18
               find (mosu->shifr1)
-              muet += round_5(mohu->kol_1 * iif(human->vzros_reb==0, luslf18->uetv, luslf18->uetd), 4)
+              muet += round_5(mohu->kol_1 * iif(human->vzros_reb == 0, luslf18->uetv, luslf18->uetd), 4)
             endif
           endif
         endif
-        if mn->kol_pos == 2 .and. eq_any(human_->USL_OK,2,3) .and. au[iau,1] == 1
+        if mn->kol_pos == 2 .and. eq_any(human_->USL_OK, 2, 3) .and. au[iau,1] == 1
           i := au[iau,3]
           lshifr := au_lu[i,1]
           if human_->USL_OK == 2 // дневной стационар

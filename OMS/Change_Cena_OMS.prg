@@ -38,7 +38,6 @@ Function Change_Cena_OMS()
       use_base("luslf")
       Use_base("mo_su")
       set order to 0
-    //dbselectarea("luslc20")
   
       G_Use(dir_server+"uslugi",{dir_server+"uslugish",;
                                  dir_server+"uslugi"},"USL")
