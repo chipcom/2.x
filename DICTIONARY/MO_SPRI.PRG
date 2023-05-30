@@ -684,22 +684,25 @@ Function v_nulusluga()
   viewtext(n_file, , , , , , , 2)
   return NIL
 
-// 08.02.23 даты смены цен
+// 30.05.23 даты смены цен
 Function usl1TFOMS()
   Local k, buf := save_maxrow(), name_file := cur_dir + 'uslugi' + stxt, sh := 80, HH := 60, ;
       i, s, fl, v1, v2, mdate, pole, nu, t_arr[BR_LEN], ret, ret_arr, scode, dy
   local sbase, tmpAlias
 
   mywait()
-  dbcreate(cur_dir + "tmp",{{"ibeg","N", 1, 0},{"iend","N", 1, 0},{"data","D", 8, 0}})
-  use (cur_dir + "tmp") new
-  index on dtos(data) to (cur_dir + "tmp")
+  dbcreate(cur_dir + 'tmp', {{'ibeg', 'N', 1, 0}, {'iend', 'N', 1, 0}, {'data', 'D', 8, 0}})
+  use (cur_dir + 'tmp') new
+  index on dtos(data) to (cur_dir + 'tmp')
   use_base('luslc')
 
   for i := 2018 to WORK_YEAR
     tmpAlias := create_name_alias('LUSLC', i)
+    if ! (tmpAlias)->(used())
+      loop
+    endif
     select (tmpAlias)
-    index on datebeg to (cur_dir + "tmp_" + tmpAlias) for !empty(datebeg) .and. codemo == glob_mo[_MO_KOD_TFOMS] unique
+    index on datebeg to (cur_dir + 'tmp_' + tmpAlias) for !empty(datebeg) .and. codemo == glob_mo[_MO_KOD_TFOMS] unique
     go top
     do while !eof()
       select TMP
@@ -710,7 +713,7 @@ Function usl1TFOMS()
       skip
     enddo
     select (tmpAlias)
-    index on dateend to (cur_dir + "tmp_" + tmpAlias) for !empty(dateend) .and. codemo == glob_mo[_MO_KOD_TFOMS] unique
+    index on dateend to (cur_dir + 'tmp_' + tmpAlias) for !empty(dateend) .and. codemo == glob_mo[_MO_KOD_TFOMS] unique
     go top
     do while !eof()
       select TMP
@@ -728,15 +731,15 @@ Function usl1TFOMS()
 
   rest_box(buf)
   t_arr[BR_TOP] := T_ROW
-  t_arr[BR_BOTTOM] := maxrow()-2
-  t_arr[BR_LEFT] := T_COL-5
-  t_arr[BR_RIGHT] := t_arr[BR_LEFT]+26
+  t_arr[BR_BOTTOM] := maxrow() - 2
+  t_arr[BR_LEFT] := T_COL - 5
+  t_arr[BR_RIGHT] := t_arr[BR_LEFT] + 26
   t_arr[BR_COLOR] := color0
-  t_arr[BR_COLUMN] := {{ "Даты смены;   цен",{|| iif(tmp->ibeg==1,full_date(tmp->data),space(10)) } }, ;
-                     { "Окончание; действия;  услуг",{|| iif(tmp->iend==1,full_date(tmp->data),space(10)) } }}
-  t_arr[BR_STAT_MSG] := {|| status_key("^<Esc>^ - выход;  ^<Enter>^ - выбор") }
-  t_arr[BR_ENTER] := {|| ret := {tmp->data,tmp->ibeg,tmp->iend} }
-  use (cur_dir + "tmp") index (cur_dir + "tmp") new
+  t_arr[BR_COLUMN] := {{ 'Даты смены;   цен', {|| iif(tmp->ibeg == 1, full_date(tmp->data), space(10))}}, ;
+                     {'Окончание; действия;  услуг', {|| iif(tmp->iend == 1, full_date(tmp->data), space(10))}}}
+  t_arr[BR_STAT_MSG] := {|| status_key('^<Esc>^ - выход;  ^<Enter>^ - выбор')}
+  t_arr[BR_ENTER] := {|| ret := {tmp->data, tmp->ibeg, tmp->iend}}
+  use (cur_dir + 'tmp') index (cur_dir + 'tmp') new
   keyboard chr(K_END)
   edit_browse(t_arr)
   close databases
@@ -746,25 +749,27 @@ Function usl1TFOMS()
     dy := year(mdate)
     scode := glob_mo[_MO_KOD_TFOMS]
     mywait()
-    dbcreate(cur_dir + "tmp1",{{"shifr","C", 10, 0}, ;
-                           {"flv","L", 1, 0}, ;
-                           {"fld","L", 1, 0}, ;
-                           {"depart","N", 3, 0}, ;
-                           {"cenav","N", 10, 2}, ;
-                           {"cenad","N", 10, 2}})
+    dbcreate(cur_dir + 'tmp1', {{'shifr',   'C', 10, 0}, ;
+                                {'flv',     'L', 1, 0}, ;
+                                {'fld',     'L', 1, 0}, ;
+                                {'depart',  'N', 3, 0}, ;
+                                {'cenav',   'N', 10, 2}, ;
+                                {'cenad',   'N', 10, 2}})
 
     sbase := prefixFileRefName(dy) + 'dep'
     R_Use(dir_exe + sbase, cur_dir + sbase, 'DEP')
 
-    use (cur_dir + "tmp1") new
-    index on shifr+str(depart, 3) to (cur_dir + "tmp1")
-    fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
-    add_string(glob_mo[_MO_SHORT_NAME]+iif(valtype(ret_arr)=="A", " ("+ret_arr[2]+" - "+ret_arr[1]+")",""))
+    use (cur_dir + 'tmp1') new
+    index on shifr + str(depart, 3) to (cur_dir + 'tmp1')
+    fp := fcreate(name_file)
+    n_list := 1
+    tek_stroke := 0
+    add_string(glob_mo[_MO_SHORT_NAME] + iif(valtype(ret_arr) == 'A', ' (' + ret_arr[2] + ' - ' + ret_arr[1] + ')', ''))
     if ret[2] == 1
-      add_string("")
-      add_string(center("Список цен на услуги", sh))
-      add_string(center("[ цены установлены "+date_8(mdate)+"г. ]", sh))
-      add_string("")
+      add_string('')
+      add_string(center('Список цен на услуги', sh))
+      add_string(center('[ цены установлены '+ date_8(mdate) + 'г. ]', sh))
+      add_string('')
       use_base('luslc')
       tmpAlias := create_name_alias('LUSLC', dy)
       select (tmpAlias)
@@ -775,7 +780,7 @@ Function usl1TFOMS()
       do while !eof()
         if (tmpAlias)->datebeg == mdate
           select TMP1
-          find ((tmpAlias)->shifr+str((tmpAlias)->depart, 3))
+          find ((tmpAlias)->shifr + str((tmpAlias)->depart, 3))
           if !found()
             append blank
             tmp1->shifr := (tmpAlias)->shifr
@@ -800,38 +805,38 @@ Function usl1TFOMS()
       lal := create_name_alias(lal, dy)
       set relation to shifr into (lal)
 
-      index on fsort_usl(shifr) to (cur_dir + "tmp1")
+      index on fsort_usl(shifr) to (cur_dir + 'tmp1')
       go top
       old := space(10)
       do while !eof()
         n := iif(empty(tmp1->depart), 50, 70)
-        k := perenos(t_arr,if(len(alltrim(tmp1->shifr))==10," ","")+&lal.->name,n)
+        k := perenos(t_arr, if(len(alltrim(tmp1->shifr)) == 10, ' ', '') + &lal.->name, n)
         if empty(tmp1->depart)
-          s := tmp1->shifr+padr(t_arr[1],n)
-          if emptyall(tmp1->cenav,tmp1->cenad)
-            s += iif(tmp1->flv,put_kop(tmp1->cenav, 10),space(10))
-            s += iif(tmp1->fld,put_kop(tmp1->cenad, 10),space(10))
+          s := tmp1->shifr+padr(t_arr[1], n)
+          if emptyall(tmp1->cenav, tmp1->cenad)
+            s += iif(tmp1->flv, put_kop(tmp1->cenav, 10), space(10))
+            s += iif(tmp1->fld, put_kop(tmp1->cenad, 10), space(10))
           else
-            s += put_kopE(tmp1->cenav, 10)+put_kopE(tmp1->cenad, 10)
+            s += put_kopE(tmp1->cenav, 10) + put_kopE(tmp1->cenad, 10)
           endif
           verify_FF(HH-k, .t., sh)
           add_string(s)
           for i := 2 to k
-            add_string(space(10)+t_arr[i])
+            add_string(space(10) + t_arr[i])
           next
         endif
         if !empty(tmp1->depart)
           if !(old == tmp1->shifr)
-            verify_FF(HH-k-1, .t., sh)
+            verify_FF(HH - k - 1, .t., sh)
             for i := 1 to k
-              add_string(iif(i==1,tmp1->shifr,space(10))+t_arr[i])
+              add_string(iif(i == 1, tmp1->shifr, space(10)) + t_arr[i])
             next
           endif
           select DEP
           find (str(tmp1->depart, 3))
           if found()
             s := padl(alltrim(dep->name_short), 60)
-            s += put_kopE(tmp1->cenav, 10)+put_kopE(tmp1->cenad, 10)
+            s += put_kopE(tmp1->cenav, 10) + put_kopE(tmp1->cenad, 10)
             verify_FF(HH, .t., sh)
             add_string(s)
           endif
@@ -842,10 +847,10 @@ Function usl1TFOMS()
       enddo
     endif
     if ret[3] == 1
-      add_string("")
-      add_string(center("Список услуг, закончивших действие", sh))
+      add_string('')
+      add_string(center('Список услуг, закончивших действие', sh))
       add_string(center(date_month(mdate, .t.), sh))
-      add_string("")
+      add_string('')
       use_base('luslc')
       tmpAlias := create_name_alias('LUSLC', dy)
       select (tmpAlias)
@@ -856,7 +861,7 @@ Function usl1TFOMS()
       do while !eof()
         if !empty((tmpAlias)->dateend) .and. (tmpAlias)->dateend == mdate
           select TMP1
-          find ((tmpAlias)->shifr+str((tmpAlias)->depart, 3))
+          find ((tmpAlias)->shifr + str((tmpAlias)->depart, 3))
           if !found()
             append blank
             tmp1->shifr := (tmpAlias)->shifr
@@ -874,45 +879,44 @@ Function usl1TFOMS()
         skip
       enddo
 
-
       use_base('lusl')
       lal := 'lusl'
       select TMP1
       lal := create_name_alias(lal, dy)
       set relation to shifr into (lal)
 
-      index on fsort_usl(shifr) to (cur_dir + "tmp1")
+      index on fsort_usl(shifr) to (cur_dir + 'tmp1')
       go top
       old := space(10)
       do while !eof()
         n := iif(empty(tmp1->depart), 50, 70)
-        k := perenos(t_arr,&lal.->name,n)
+        k := perenos(t_arr, &lal.->name, n)
         if empty(tmp1->depart)
-          s := tmp1->shifr+padr(t_arr[1],n)
-          if emptyall(tmp1->cenav,tmp1->cenad)
-            s += iif(tmp1->flv,put_kop(tmp1->cenav, 10),space(10))
-            s += iif(tmp1->fld,put_kop(tmp1->cenad, 10),space(10))
+          s := tmp1->shifr + padr(t_arr[1], n)
+          if emptyall(tmp1->cenav, tmp1->cenad)
+            s += iif(tmp1->flv, put_kop(tmp1->cenav, 10), space(10))
+            s += iif(tmp1->fld, put_kop(tmp1->cenad, 10), space(10))
           else
-            s += put_kopE(tmp1->cenav, 10)+put_kopE(tmp1->cenad, 10)
+            s += put_kopE(tmp1->cenav, 10) + put_kopE(tmp1->cenad, 10)
           endif
-          verify_FF(HH-k, .t., sh)
+          verify_FF(HH - k, .t., sh)
           add_string(s)
           for i := 2 to k
-            add_string(space(10)+t_arr[i])
+            add_string(space(10) + t_arr[i])
           next
         endif
         if !empty(tmp1->depart)
           if !(old == tmp1->shifr)
-            verify_FF(HH-k-1, .t., sh)
+            verify_FF(HH - k - 1, .t., sh)
             for i := 1 to k
-              add_string(iif(i==1,tmp1->shifr,space(10))+t_arr[i])
+              add_string(iif(i == 1, tmp1->shifr, space(10)) + t_arr[i])
             next
           endif
           select DEP
           find (str(tmp1->depart, 3))
           if found()
             s := padl(alltrim(dep->name_short), 60)
-            s += put_kopE(tmp1->cenav, 10)+put_kopE(tmp1->cenad, 10)
+            s += put_kopE(tmp1->cenav, 10) + put_kopE(tmp1->cenad, 10)
             verify_FF(HH, .t., sh)
             add_string(s)
           endif
@@ -925,7 +929,7 @@ Function usl1TFOMS()
     close databases
     rest_box(buf)
     fclose(fp)
-    viewtext(name_file,,,, .t.,,, 2)
+    viewtext(name_file, , , , .t., , , 2)
   endif
   return NIL
 
@@ -1006,7 +1010,7 @@ Function usl2TFOMS()
     add_string('')
     add_string(center("Список услуг по группе", sh))
     add_string(center('"'+ alltrim(t_arr[1])+'"', sh))
-    add_string(center("[ цены по состоянию на "+date_8(mdate)+"г. ]", sh))
+    add_string(center("[ цены по состоянию на "+ date_8(mdate)+"г. ]", sh))
     add_string("")
     if t_arr[2] > 500
       arrKSLP := getKSLPtable( mdate )
@@ -1072,8 +1076,8 @@ Function usl2TFOMS()
           add_string(replicate("─", sh))
         endif
         add_string(&lal.->shifr+ta[1]+;
-                 iif(fl1del,"      -   ",put_kop(v1, 10))+;
-                 iif(fl2del,"      -   ",put_kop(v2, 10)))
+                 iif(fl1del,"      -   ", put_kop(v1, 10))+;
+                 iif(fl2del,"      -   ", put_kop(v2, 10)))
         s := space(10)+padr(ta[2], 50)
         if !empty(s)
           add_string(s)
@@ -1138,7 +1142,7 @@ Function usl2TFOMS()
               k := perenos(ta,s, 70)
               for i := 1 to k
                 verify_FF(HH, .t., sh)
-                add_string(iif(i==1,space(8)+"- ",space(10))+ta[i])
+                add_string(iif(i==1, space(8)+"- ", space(10))+ta[i])
               next
               select K006
               goto (lrec)
@@ -2998,7 +3002,7 @@ if mo_Lock_Task(X_OMS) // запрет только ОМС G_SLock1Task(sem_task,sem_vagno) // 
       R_Use(dir_server + "mo_rees",,"REES")
       goto (mkod_reestr)
       if !extract_reestr(rees->(recno()),rees->name_xml)
-        aadd(aerr,center("Не найден ZIP-архив с РЕЕСТРом № "+lstr(mnschet)+" от "+date_8(tmp1->_DSCHET), 80))
+        aadd(aerr,center("Не найден ZIP-архив с РЕЕСТРом № "+lstr(mnschet)+" от "+ date_8(tmp1->_DSCHET), 80))
         aadd(aerr,"")
         aadd(aerr,center(dir_server+dir_XML_MO+cslash+ alltrim(rees->name_xml)+szip, 80))
         aadd(aerr,"")
@@ -3187,7 +3191,7 @@ if mo_Lock_Task(X_OMS) // запрет только ОМС G_SLock1Task(sem_task,sem_vagno) // 
           strfile("!!! "+ alltrim(human->fio)+", "+full_date(human->date_r)+;
                        iif(empty(otd->SHORT_NAME), "", " ["+ alltrim(otd->SHORT_NAME)+"]")+;
                        " "+ alltrim(human->KOD_DIAG)+;
-                       " "+date_8(&lal.->n_data)+"-"+date_8(&lal.->k_data)+;
+                       " "+ date_8(&lal.->n_data)+"-"+ date_8(&lal.->k_data)+;
                        hb_eol(),cFileProtokol, .t.)
           select REFR
           do while .t.

@@ -1,4 +1,4 @@
-** spr_uslugi.prg - Работа со справочниками услуг
+// spr_uslugi.prg - Работа со справочниками услуг
 #include 'set.ch'
 #include 'getexit.ch'
 #include 'inkey.ch'
@@ -6,7 +6,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-** Редактирование справочника услуг
+// Редактирование справочника услуг
 Function edit_spr_uslugi(k)
   Static sk := 1
   Local str_sem, mas_pmt, mas_msg, mas_fun, j
@@ -69,7 +69,7 @@ Function edit_spr_uslugi(k)
   endif
   return NIL
 
-** 02.12.21
+// 30.05.23
 FUNCTION f1_uslugi()
   Local arr_block, buf := savescreen(), str_sem := 'Редактирование услуг'
   local tmpAlias, i
@@ -94,6 +94,9 @@ FUNCTION f1_uslugi()
     Public arr_date_usl := {}
     for i := 2018 to WORK_YEAR
       tmpAlias := create_name_alias('LUSLC', i)
+      if ! (tmpAlias)->(used())
+        loop
+      endif
       select (tmpAlias)
       index on dtos(datebeg) to (cur_dir + 'tmp1') unique
       dbeval({|| aadd(arr_date_usl, (tmpAlias)->datebeg)})
@@ -136,7 +139,7 @@ FUNCTION f1_uslugi()
   restscreen(buf)
   return NIL
   
-**
+//
 Function f1_es_uslugi(oBrow)
   Local n := 56
   Local oColumn, blk := {|_c| _c := f0_es_uslugi(), {{1, 2}, {3, 4}, {5, 6}, {7, 8}, {9, 10}}[_c]}
@@ -158,7 +161,7 @@ Function f1_es_uslugi(oBrow)
   status_key('^<Esc>^ выход ^<Enter>^ редактирование ^<Ins>^ добавление ^<F4>^ копирование ^<Del>^ удаление ^<F2>^ поиск')
   return NIL
   
-**
+//
 Function f2_es_uslugi(nKey, oBrow)
   Static sshifr := '          '
   LOCAL j := 0, k := -1, buf := save_maxrow(), buf1, fl := .f., rec, ;
@@ -281,7 +284,7 @@ Function f2_es_uslugi(nKey, oBrow)
   rest_box(buf)
   return k
   
-** 22.12.22
+// 22.12.22
 Function f3_es_uslugi(nKey)
   Static menu_nul := {{'нет', .f.}, {'да', .t.}}
   Local tmp_help := chm_help_code, buf := savescreen(), r, r1 := maxrow() - 11, ;
@@ -499,7 +502,7 @@ Function f3_es_uslugi(nKey)
   set order to 1
   Return ret
   
-** 22.12.22
+// 22.12.22
 Function f4_es_uslugi(k, fl_poisk, nKey)
   Local fl, v1, v2, s, rec, fl1del, fl2del
 
@@ -565,7 +568,7 @@ Function f4_es_uslugi(k, fl_poisk, nKey)
   endif
   return update_gets()
   
-** 15.01.19
+// 15.01.19
 Function f0_es_uslugi()
   Local k := 3, v1, v2, fl1del, fl2del, s := iif(empty(usl->shifr1), usl->shifr, usl->shifr1)
 
@@ -587,7 +590,7 @@ Function f0_es_uslugi()
   select USL
   return k
   
-**
+//
 Function f0_e_uslugi1(lkod, ldate, is_base)
   Local s := '', tmp_select := select()
 
@@ -626,7 +629,7 @@ Function f0_e_uslugi1(lkod, ldate, is_base)
   select (tmp_select)
   return s
   
-**
+//
 Function f1_e_uslugi1(k, r, c)
   Local t_arr := array(BR_LEN), tmp_select := select(), ret := {space(10), space(10)}
 
@@ -657,7 +660,7 @@ Function f1_e_uslugi1(k, r, c)
   select (tmp_select)
   return ret
   
-**
+//
 Function f2_e_uslugi1(nKey, oBrow, regim)
   Local ret := -1, buf, fl := .f., rec, rec1, r1, r2, tmp_color
 
@@ -723,7 +726,7 @@ Function f2_e_uslugi1(nKey, oBrow, regim)
   endcase
   return ret
   
-**
+//
 Function f3_e_uslugi1(get, ldate)
   Local i := 1, fl := .t.
 
@@ -745,7 +748,7 @@ Function f3_e_uslugi1(get, ldate)
   endif
   return fl
   
-** 16.01.13
+// 16.01.13
 Function f4_e_uslugi1(get)
   Local fl := .t., fl1del, fl2del
 
@@ -767,10 +770,8 @@ Function f4_e_uslugi1(get)
     endif
   endif
   return fl
-  
     
-******************************************************************************************************  
-**
+//
 Function spr_uslugi_FFOMS()
   Static menu_nul := {{'нет', .f.}, {'да', .t.}}
   Local arr_block, buf := savescreen(),  str_sem
@@ -811,7 +812,7 @@ Function spr_uslugi_FFOMS()
   restscreen(buf)
   return NIL
 
-** 05.08.16
+// 05.08.16
 Function f1_FF_uslugi(oBrow)
   Local n := 46, oColumn, blk
 
@@ -833,7 +834,7 @@ Function f1_FF_uslugi(oBrow)
   status_key('^<Esc>^ выход ^<Enter>^ редактирование ^<Ins>^ добавление ^<Del>^ удаление ^<F2>^ поиск')
   return NIL
   
-** 09.09.18
+// 09.09.18
 Function f2_FF_uslugi(nKey, oBrow)
   Static sshifr := '          '
   LOCAL j := 0, k := -1, buf := save_maxrow(), buf1, fl := .f., rec, ;
@@ -900,7 +901,7 @@ Function f2_FF_uslugi(nKey, oBrow)
   rest_box(buf)
   return k
   
-** 31.01.17
+// 31.01.17
 Function f3_FF_uslugi(nKey)
   Static menu_nul := {{'нет', .f.}, {'да', .t.}}
   Local buf := savescreen(), r1 := maxrow() - 9, ;
@@ -986,7 +987,7 @@ Function f3_FF_uslugi(nKey)
   set order to 1
   Return ret
   
-** 31.01.17
+// 31.01.17
 Function f4_FF_uslugi(k, nKey)
   Local fl := .t., rec, v1
 
@@ -1070,8 +1071,7 @@ Function f4_FF_uslugi(k, nKey)
   goto (rec)
   return fl
   
-*********************************************************************************************************  
-** Редактирование справочника комплексных услуг (для удобства ввода данных)
+// Редактирование справочника комплексных услуг (для удобства ввода данных)
 Function f_k_uslugi(r1)
   Local str_sem := 'Редактирование комплексных услуг'
 
@@ -1093,7 +1093,7 @@ Function f_k_uslugi(r1)
   G_SUnLock(str_sem)
   return NIL
 
-**
+//
 Function f1_k_uslugi(oBrow)
   Local oColumn, n := 49
 
@@ -1112,7 +1112,7 @@ Function f1_k_uslugi(oBrow)
   endif
   return NIL
   
-**
+//
 Function f2_k_uslugi(nKey, oBrow)
   Local buf, fl := .f., rec, rec1, k := -1, r := maxrow() - 9, tmp_color
 
@@ -1239,7 +1239,7 @@ Function f2_k_uslugi(nKey, oBrow)
   endcase
   return k
   
-**
+//
 Function f3_k_uslugi()
   Local buf := savescreen(), adbf
 
@@ -1287,7 +1287,7 @@ Function f3_k_uslugi()
   restscreen(buf)
   return NIL
   
-**
+//
 Function f4_k_uslugi(oBrow)
   Local oColumn
 
@@ -1298,7 +1298,7 @@ Function f4_k_uslugi(oBrow)
   status_key('^<Esc>^ - выход;  ^<Ins>^ - добавление;  ^<Del>^ - удаление')
   return NIL
   
-**
+//
 Function f5_k_uslugi(nKey, oBrow)
   LOCAL j := 0, k := -1, buf := save_maxrow(), buf1, fl := .f., rec, ;
         tmp_color := setcolor(), r1 := maxrow() - 9, c1 := 2, ;
@@ -1371,7 +1371,7 @@ Function f5_k_uslugi(nKey, oBrow)
   endcase
   return k
   
-**
+//
 Function f6_k_uslugi()
   Local fl := valid_shifr()
 
@@ -1387,8 +1387,7 @@ Function f6_k_uslugi()
   return fl
 
 
-***********************************************************************************
-** Редактирование коэффициентов трудоёмкости услуг (УЕТ)
+// Редактирование коэффициентов трудоёмкости услуг (УЕТ)
 Function f_trkoef()
   Local uslugi := {{'kod',    'N', 4, 0}, ;
                    {'name',   'C', 65, 0}, ;
@@ -1468,7 +1467,7 @@ Function f_trkoef()
   G_SUnLock(str_sem)
   return NIL
 
-**
+//
 Function f1_trkoef(oBrow)
   Local k := 51, oColumn, ;
       blk := {|| if(tmp->koef_v > 0 .and. tmp->koef_r > 0, {1, 2}, ;
@@ -1507,7 +1506,7 @@ Function f1_trkoef(oBrow)
   status_key('^<Esc>^ - выход;  ^<Enter>^ - редактирование коэффициентов;  ^<F2>^ - поиск по шифру')
   return NIL
 
-**
+//
 Function f2_trkoef(nKey, oBrow)
   Static sshifr := '          '
   LOCAL flag := -1, buf := save_maxrow(), tmp_color := setcolor(), mshifr, rec
@@ -1554,7 +1553,7 @@ Function f2_trkoef(nKey, oBrow)
   endif
   return flag
 
-**
+//
 Function f2_e_trk()
   Local rec := 0
 
@@ -1567,7 +1566,7 @@ Function f2_e_trk()
   select UU
   return rec
 
-**
+//
 Function f3_e_trk(r)
   Local t_arr := array(BR_LEN), ret
 
@@ -1616,7 +1615,7 @@ Function f3_e_trk(r)
   select UU
   return f2_e_trk()
 
-**
+//
 Function f4_e_trk(nKey, oBrow, regim)
   Local ret := -1
   Local buf, fl := .f., rec, rec1, r1, r2, tmp_color
@@ -1708,9 +1707,7 @@ Function f4_e_trk(nKey, oBrow, regim)
   endcase
   return ret
 
-
-*******************************************************************************************
-** плановая месячная трудоемкость персонала
+// плановая месячная трудоемкость персонала
 Function f_trpers()
   Static si := 1
   Local i, arr_m, mtitle, k1, k2, buf := save_maxrow(), ;
@@ -1787,7 +1784,7 @@ Function f_trpers()
   G_SUnLock(str_sem)
   return NIL
 
-**
+//
 Function f1_trpers(oBrow)
   Local oColumn, blk := {|| if(uchp->m_trud > 0, {1, 2}, {3, 4} ) }
   oColumn := TBColumnNew('Таб.№', ;
@@ -1803,7 +1800,7 @@ Function f1_trpers(oBrow)
   status_key('^<Esc>^ - выход;  ^<Enter>^ - редактирование плановых УЕТ')
   return NIL
   
-**
+//
 Function f2_trpers(nKey,oBrow)
   LOCAL flag := -1, buf := save_maxrow(), tmp_color := setcolor(), ;
         mshifr, rec
@@ -1833,9 +1830,7 @@ Function f2_trpers(nKey,oBrow)
   endif
   return flag
   
-  
-******************************************************************************************
-** Редактирование справочника услуг, которые не должны быть оказаны в один день
+// Редактирование справочника услуг, которые не должны быть оказаны в один день
 Function f_ns_uslugi()
   Local str_sem, r1 := T_ROW
 
@@ -1857,7 +1852,7 @@ Function f_ns_uslugi()
   G_SUnLock(str_sem)
   return NIL
 
-**
+//
 Function f2_ns_uslugi(nKey,oBrow)
   Local buf, fl := .f., rec, rec1, k := -1, r := maxrow()-7, tmp_color
   Local sh := 80, HH := 57
@@ -1958,7 +1953,7 @@ Function f2_ns_uslugi(nKey,oBrow)
   endcase
   return k
   
-  **
+  //
   Function f3_ns_uslugi()
   Local buf := savescreen(), adbf
   Private fl_found
@@ -2001,7 +1996,7 @@ Function f2_ns_uslugi(nKey,oBrow)
   restscreen(buf)
   return NIL
   
-  **
+  //
   Function f4_ns_uslugi(oBrow)
   Local oColumn
   oColumn := TBColumnNew('   Шифр', {|| tmp->shifr })
@@ -2011,7 +2006,7 @@ Function f2_ns_uslugi(nKey,oBrow)
   status_key('^<Esc>^ - выход;  ^<Ins>^ - добавление;  ^<Del>^ - удаление')
   return NIL
   
-  **
+  //
   Function f5_ns_uslugi(nKey,oBrow)
   LOCAL j := 0, k := -1, buf := save_maxrow(), buf1, fl := .f., rec, ;
         tmp_color := setcolor(), r1 := maxrow()-10, c1 := 2, ;
@@ -2080,7 +2075,7 @@ Function f2_ns_uslugi(nKey,oBrow)
   endcase
   return k
   
-  **
+  //
   Function f6_ns_uslugi()
   Local fl := valid_shifr()
   if fl
@@ -2096,8 +2091,7 @@ Function f2_ns_uslugi(nKey,oBrow)
   return fl
   
   
-*********************************************************************************************
-** Ввод/редактирование услуг, у которых не вводится врач (ассистент)
+// Ввод/редактирование услуг, у которых не вводится врач (ассистент)
 Function f_usl_uva()
   Local t_arr[BR_LEN], mtitle := 'Услуги, где не вводится врач (асс.)'
 
@@ -2113,14 +2107,14 @@ Function f_usl_uva()
   t_arr[BR_TITUL_COLOR] := 'B/BG'
   t_arr[BR_ARR_BROWSE] := { , , , , .t.}
   t_arr[BR_COLUMN] := {{ '   Шифр', {|| dbf1->shifr } }, ;
-            { 'Врача нет?', {|| padc(if(dbf1->kod_vr == 1, '**', ''), 10) } }, ;
-            { 'Асс-та нет?', {|| padc(if(dbf1->kod_as == 1, '**', ''), 12) } }}
+            { 'Врача нет?', {|| padc(if(dbf1->kod_vr == 1, '//', ''), 10) } }, ;
+            { 'Асс-та нет?', {|| padc(if(dbf1->kod_as == 1, '//', ''), 12) } }}
   t_arr[BR_EDIT] := {|nk, ob| f1_usl_uva(nk, ob, 'edit') }
   edit_browse(t_arr)
   return NIL
 
 
-**
+//
 Function f1_usl_uva(nKey,oBrow,regim,lrec)
   Local ret := -1, mm_da_net := {{'да ', 0}, {'НЕТ', 1}}
   Local buf, fl := .f., rec, rec1, k := maxrow()-7, tmp_color
@@ -2189,7 +2183,7 @@ Function f1_usl_uva(nKey,oBrow,regim,lrec)
   endcase
   return ret
   
-  **
+  //
   Function f2_usl_diag(get,nKey)
   Local fl := .t., rec := 0
   mshifr := transform_shifr(mshifr)
@@ -2206,8 +2200,7 @@ Function f1_usl_uva(nKey,oBrow,regim,lrec)
   endif
   return fl
   
-  *************************************************************************************
-** Ввод/редактирование услуг, которые могут быть оказаны человеку только раз в году
+// Ввод/редактирование услуг, которые могут быть оказаны человеку только раз в году
 Function f_usl_raz()
   Local buf := savescreen(), adbf, i, n_file := dir_server + 'usl1year' + smem
 
@@ -2258,7 +2251,7 @@ Function f_usl_raz()
   close databases
   return NIL
 
-**
+//
 Function f1_usl_raz(nKey, oBrow)
   LOCAL j := 0, k := -1, buf := save_maxrow(), buf1, fl := .f., rec, ;
         tmp_color := setcolor(), r1 := maxrow() - 10, c1 := 2, ;
@@ -2320,8 +2313,7 @@ Function f1_usl_raz(nKey, oBrow)
   endcase
   return k
   
-**************************************************************************************
-** 08.11.22
+// 08.11.22
 Function f5_uslugi(r1, c1)
   Local c2 := c1 + 50, str_sem := 'Редактирование служб'
 
@@ -2350,7 +2342,7 @@ Function f5_uslugi(r1, c1)
   G_SUnLock(str_sem)
   return NIL
 
-**
+//
 Function f51_uslugi(oBrow)
   Local oColumn
 
@@ -2365,7 +2357,7 @@ Function f51_uslugi(oBrow)
   endif
   return NIL
   
-  **
+  //
   Function f52_uslugi(nKey, oBrow)
   Local buf, fl := .f., rec, rec1, k := maxrow() - 7, tmp_color
   do case
