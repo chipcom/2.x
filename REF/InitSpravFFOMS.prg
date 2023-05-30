@@ -8,7 +8,7 @@ Function InitSpravFFOMS()
 
   return NIL
 
-// 10.04.23
+// 30.05.23
 function load_exists_uslugi()
   local countYear, lAlias, cVar
   local cSearch
@@ -21,7 +21,7 @@ function load_exists_uslugi()
     // fName := prefixFileRefName(countYear) + substr('luslc', 2)
     // file_index := prefixFileRefName(countYear) + substr('luslc', 2, 3) + 'u'
 
-    if ! exists_file_TFOMS(countYear, 'uslc')
+    if ! exists_file_TFOMS(countYear, 'luslc')
       loop
     endif
 
