@@ -146,8 +146,13 @@ do while !eof()
       if !empty(hu->kem_napr)
         s += ret_mo(hu->kem_napr)[_MO_SHORT_NAME]
       endif
-      s += iif(empty(s), "", ", ")+;
-           alltrim(inieditspr(A__MENUVERT, mmpp_kem_dost, hu->KEM_DOST))
+      if glob_mo[_MO_KOD_TFOMS] == '711001' // РЖД
+        s += iif(empty(s), "", ", ")+;
+           alltrim(inieditspr(A__MENUVERT, mmpp_kem1dost, hu->KEM_DOST))
+      else
+        s += iif(empty(s), "", ", ")+;
+          alltrim(inieditspr(A__MENUVERT, mmpp_kem_dost, hu->KEM_DOST))
+      endif
       k07 := perenos(a07,s,sh07)
       // 8 - отделение, в которое помещен больной
       s := "№ "+alltrim(hu->UCH_DOC)+"; "
@@ -1944,10 +1949,17 @@ aadd(mm_tmp, {"company","N",5,0,NIL,;
               {|x|menu_reader(x,mm_company,A__MENUVERT)},;
               0,{|| space(10) },;
               "  ==>",,{||eq_any(m1komu,0,1,3)}})
-aadd(mm_tmp, {"kem_dost","N",2,0,NIL,;
+if glob_mo[_MO_KOD_TFOMS] == '711001' // РЖД
+  aadd(mm_tmp, {"kem_dost","N",2,0,NIL,;
+    {|x|menu_reader(x,mmpp_kem_dost,A__MENUVERT)},;
+    -1,{|| space(10) },;
+    "Кем направлен?"})
+else  
+  aadd(mm_tmp, {"kem_dost","N",2,0,NIL,;
               {|x|menu_reader(x,mmpp_kem_dost,A__MENUVERT)},;
               -1,{|| space(10) },;
               "Кем доставлен?"})
+endif
 aadd(mm_tmp, {"polis","N",2,0,NIL,;
               {|x|menu_reader(x,mm_danet,A__MENUVERT)},;
               -1,{|| space(3) },;
@@ -2092,7 +2104,11 @@ if k > 0
     endif
   endif
   if mn->kem_dost >= 0
-    add_string("- кем доставлен: "+inieditspr(A__MENUVERT, mmpp_kem_dost, mn->kem_dost))
+    if glob_mo[_MO_KOD_TFOMS] == '711001' // РЖД
+      add_string("- кем направлен: "+inieditspr(A__MENUVERT, mmpp_kem1dost, mn->kem_dost))
+    else 
+      add_string("- кем доставлен: "+inieditspr(A__MENUVERT, mmpp_kem_dost, mn->kem_dost))
+    endif
   endif
   if mn->polis >= 0
     add_string("- полис "+iif(mn->polis==1,"ВВЕДЕН","НЕ ВВЕДЕН"))
@@ -2225,8 +2241,13 @@ if k > 0
         if !empty(hu->kem_napr)
           s += ret_mo(hu->kem_napr)[_MO_SHORT_NAME]
         endif
-        s += iif(empty(s), "", ", ")+;
+        if glob_mo[_MO_KOD_TFOMS] == '711001' // РЖД
+          s += iif(empty(s), "", ", ")+;
+            alltrim(inieditspr(A__MENUVERT, mmpp_kem1dost, hu->KEM_DOST))
+        else  
+         s += iif(empty(s), "", ", ")+;
              alltrim(inieditspr(A__MENUVERT, mmpp_kem_dost, hu->KEM_DOST))
+        endif
         k07 := perenos(a07,s,sh07)
         // 8 - отделение, в которое помещен больной
         s := "№ "+alltrim(hu->UCH_DOC)+"; "

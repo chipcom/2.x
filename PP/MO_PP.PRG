@@ -810,7 +810,11 @@ mvid_opl   := inieditspr(A__MENUBIT, menu_vid_opl, m1vid_opl)
 mpprab_nerab := inieditspr(A__MENUBIT, mmpp_rab, m1pprab_nerab)
 mreg_lech  := inieditspr(A__MENUVERT, mmpp_regim, m1reg_lech)
 mkategor   := inieditspr(A__MENUVERT, mmpp_kategor, m1kategor)
-MKEM_DOST  := inieditspr(A__MENUVERT, mmpp_kem_dost, M1KEM_DOST)
+if glob_mo[_MO_KOD_TFOMS] == '711001' // РЖД
+  MKEM_DOST  := inieditspr(A__MENUVERT, mmpp_kem1dost, M1KEM_DOST)
+else
+  MKEM_DOST  := inieditspr(A__MENUVERT, mmpp_kem_dost, M1KEM_DOST)
+endif
 mis_gospit := inieditspr(A__MENUVERT, mm_gospit, m1is_gospit)
 mpr_gospit := inieditspr(A__MENUVERT, mmpp_pr_gospit, m1pr_gospit)
 msost_op   := inieditspr(A__MENUVERT, menu_sost_op, m1sost_op)
@@ -904,8 +908,13 @@ do while .t.
            reader {|x|menu_reader(x,mm_company,A__MENUVERT,,,.f.)} ;
            when eq_any(m1komu,1,3)
   //
-  ++j ; @ j,1 SAY "Кем доставлен" GET mkem_dost ;
-             reader {|x|menu_reader(x,mmpp_kem_dost,A__MENUVERT,,,.f.)}
+  if glob_mo[_MO_KOD_TFOMS] == '711001' // РЖД
+    ++j ; @ j,1 SAY "Кем направлен" GET mkem_dost ;
+             reader {|x|menu_reader(x,mmpp_kem1dost,A__MENUVERT,,,.f.)}
+  else
+    ++j ; @ j,1 SAY "Кем доставлен" GET mkem_dost ;
+      reader {|x|menu_reader(x,mmpp_kem_dost,A__MENUVERT,,,.f.)}
+  endif  
   ++j ; @ j,1 say "Направившая МО" get mkem_napr ;
             reader {|x|menu_reader(x,{{|k,r,c|f_get_mo(k,r,c)}},A__FUNCTION,,,.f.)}
   ++j ; @ j,1 SAY "Диагноз направившей МО :" GET MDIAG_NAPR pict "@S52"
@@ -2071,9 +2080,13 @@ if pp_regim == 1 .and. eq_any(nkey,K_F5,K_F6,K_F7,K_F8,K_F9,K_F10,K_F12)
     {"regim_lu",   "C", 80, 0},;
     {"regim_66",   "C", 80, 0},;
     {"regim_ib",   "C", 80, 0},;
+    {"regim_llu",  "C", 60, 0},; 
+    {"regim_l2u",  "C",200, 0},; 
+    {"regim_l3u",  "C",200, 0},; 
     {"vidpolis",   "C", 12, 0},;
     {"mesto_rog",  "C",100, 0},;
     {"gorod_selo", "C", 20, 0},;
+    {"gorodselo", "C", 100, 0},;  
     {"fio",        "C",130, 0},;
     {"fio1",       "C",130, 0},;
     {"polis",      "C", 25, 0},;
@@ -2081,6 +2094,7 @@ if pp_regim == 1 .and. eq_any(nkey,K_F5,K_F6,K_F7,K_F8,K_F9,K_F10,K_F12)
     {"srok_polis", "C", 10, 0},;
     {"snils",      "C", 14, 0},;
     {"pol",        "C",  1, 0},;     //ВНИМАНИЕ 50
+    {"poll",       "C", 15, 0},;
     {"date_r",     "D",  8, 0},;     //c10
     {"count_ymd",  "C", 90, 0},;
     {"kategor",    "C", 40, 0},;
@@ -2126,6 +2140,8 @@ if pp_regim == 1 .and. eq_any(nkey,K_F5,K_F6,K_F7,K_F8,K_F9,K_F10,K_F12)
     {"phone_rod2", "C", 90, 0},;
     {"travma",     "C", 90, 0},;
     {"vid_opl",    "C", 60, 0},;
+    {"vid_opl1",   "C", 60, 0},;
+    {"vid_opl2",   "C",255, 0},;
     {"pp_status",  "C", 60, 0},;
     {"pp_kategor", "C", 60, 0},;
     {"vrach",      "C", 60, 0},;
@@ -2178,8 +2194,11 @@ if pp_regim == 1 .and. eq_any(nkey,K_F5,K_F6,K_F7,K_F8,K_F9,K_F10,K_F12)
     {"bukva",      "C",  1, 0},;
     {"uchast",     "C",  2, 0},;
     {"kod_vu",     "C",  5, 0},;
-    {"kod_kart",   "C",  7, 0};
-    })
+    {"kod_kart",   "C",  7, 0},;
+    {"strana",     "C", 50, 0},;
+    {"shapka",     "C", 150,0},;
+    {"mestnost",   "C", 100,0};
+     })
 
   //
   select KART2
@@ -2187,6 +2206,13 @@ if pp_regim == 1 .and. eq_any(nkey,K_F5,K_F6,K_F7,K_F8,K_F9,K_F10,K_F12)
   //
   use (fr_data) new alias FRD
   append blank
+  //
+  if alltrim(kart_->strana) == "643" .or. alltrim(kart_->strana) == "" 
+    frd->strana := "Российская Федерация"
+  else
+    frd->strana := ""  
+  endif  
+  s3 := ""
   //
   frd->name_org := frd->org_name
   s1 := full_date(sys_date)
@@ -2198,7 +2224,6 @@ if pp_regim == 1 .and. eq_any(nkey,K_F5,K_F6,K_F7,K_F8,K_F9,K_F10,K_F12)
   frd->d_dr := substr(mdate_r,1,2)
   frd->m_dr := substr(mdate_r,4,2)
   frd->y_dr := substr(mdate_r,7,4)
-
   //
   lnomer := l1nomer := lstr(kart->kod)
   muchastok := put_val(kart->uchast,2)
@@ -2245,10 +2270,11 @@ if pp_regim == 1 .and. eq_any(nkey,K_F5,K_F6,K_F7,K_F8,K_F9,K_F10,K_F12)
   frd->gorod  := arr[3]
   frd->nas_p  := arr[4]
   if f_is_selo()
-    frd->gorod_selo := "городская - 1, "+sb1+"сельская - 2"+sb2
+    s4 := "городская - 1, "+sb1+"сельская - 2"+sb2
   else
-    frd->gorod_selo := sb1+"городская - 1"+sb2+", сельская - 2"
+    s4 := sb1+"городская - 1"+sb2+", сельская - 2"
   endif
+  frd->gorod_selo := s4
   if empty(kart->adres)
     s := "улица"+space(30)+" дом"+space(5)+" квартира"+space(5)
   else
@@ -2291,10 +2317,11 @@ if pp_regim == 1 .and. eq_any(nkey,K_F5,K_F6,K_F7,K_F8,K_F9,K_F10,K_F12)
                                          .and. between(stm_kategor[i,3],1,9)
     frd->kod_lgot := lstr(stm_kategor[i,3])
   endif
+
   frd->name_doc := get_Name_Vid_Ud(kart_->vid_ud)
   frd->ser_doc := kart_->ser_ud
   frd->nom_doc := kart_->nom_ud
-  s := iif(kart->rab_nerab==0,sb1,"")+"работает - 1"+iif(kart->rab_nerab==0,sb2,"")+",    "+;
+  s := "Занятость: "+iif(kart->rab_nerab==0,sb1,"")+"работает - 1"+iif(kart->rab_nerab==0,sb2,"")+",    "+;
        "проходит военную службу и приравненную к ней службу - 2;    "+;
        iif(kart_->PENSIONER==1,sb1,"")+"пенсионер(ка) - 3"+iif(kart_->PENSIONER==1,sb2,"")+",    "+;
        iif(kart->rab_nerab==2,sb1,"")+"студент(ка) - 4"+iif(kart->rab_nerab==2,sb2,"")+",    "+;
@@ -2363,29 +2390,80 @@ if pp_regim == 1 .and. eq_any(nkey,K_F5,K_F6,K_F7,K_F8,K_F9,K_F10,K_F12)
     frd->travma := inieditspr(A__MENUVERT, mmpp_travma, hu->travma)
   endif
   frd->vid_opl    := inieditspr(2, menu_vid_opl, hu->vid_opl)
+  frd->vid_opl1    := inieditspr(2, menu_vid_opl, hu->vid_opl)
+  if hu->vid_opl == 1
+    frd->vid_opl1 := "обязательного"
+    ss := sb1+ "обязательное   медицинское   страхование - 1"+sb2+" ,   средства    бюджета  (всех    уровней) - 2, "
+    ss += "платные медицинские услуги - 3, в том числе добровольное медицинское страхование  - 4, другое - 5"
+  elseif hu->vid_opl == 2
+    ss := "обязательное   медицинское   страхование - 1"+sb1+" ,   средства    бюджета  (всех    уровней) - 2,"+sb2+ " "
+    ss += "платные медицинские услуги - 3, в том числе добровольное медицинское страхование  - 4, другое - 5"
+  elseif hu->vid_opl == 3
+    ss := "обязательное   медицинское   страхование - 1,   средства    бюджета  (всех    уровней) - 2, "
+    ss += sb1+"платные медицинские услуги - 3"+sb2+", в том числе добровольное медицинское страхование  - 4, другое - 5"
+  elseif hu->vid_opl == 4
+    frd->vid_opl1 := "добровольного"
+    ss := "обязательное   медицинское   страхование - 1,   средства    бюджета  (всех    уровней) - 2, "
+    ss += "платные медицинские услуги - 3"+sb1+", в том числе добровольное медицинское страхование  - 4 "+sb2+", другое - 5"
+  else
+    ss := "обязательное   медицинское   страхование - 1,   средства    бюджета  (всех    уровней) - 2, "
+    ss += "платные медицинские услуги - 3, в том числе добровольное медицинское страхование  - 4 "+sb1+", другое - 5" +sb2+ " "
+  endif
+  frd->vid_opl2 := ss
   frd->pp_status  := inieditspr(2, mmpp_rab,     hu->rab_nerab)
   frd->pp_kategor := inieditspr(1, mmpp_kategor, hu->kategor)
-  frd->kem_dost   := inieditspr(1, mmpp_kem_dost, hu->kem_dost)
+  if glob_mo[_MO_KOD_TFOMS] == '711001' // РЖД
+    frd->kem_dost   := inieditspr(1, mmpp_kem1dost, hu->kem_dost)
+  else  
+    frd->kem_dost   := inieditspr(1, mmpp_kem_dost, hu->kem_dost)
+  endif
   frd->sost_op    := inieditspr(1, menu_sost_op, hu->sost_op)
   frd->reg_lech := hu->reg_lech
+  s1 := "Поступил в "
   do case
     case hu->reg_lech == 1
       frd->regim_lu := "СТАЦИОНАРНОГО БОЛЬНОГО"
       frd->regim_66 := "ВЫБЫВШЕГО ИЗ СТАЦИОНАРА КРУГЛОСУТОЧНОГО ПРЕБЫВАНИЯ"
       frd->regim_ib := "СТАЦИОНАРНОГО БОЛЬНОГО"
+      frd->shapka   := 'МЕДИЦИНСКАЯ КАРТА ПАЦИЕНТА, ПОЛУЧАЮЩЕГО МЕДИЦИНСКУЮ ПОМОЩЬ В <b>СТАЦИОНАРНЫХ УСЛОВИЯХ</b>, В УСЛОВИЯХ ДНЕВНОГО СТАЦИОНАРА'
+      frd->regim_llu :=  "<b>в стационар - 1</b>, в дневной стационар - 2 (указать): "
+      s := "Направлен  в  <b> стационар </b> (дневной  стационар): " 
+      s1 +=  " <b> стационар </b> (дневной стационар) "
     case hu->reg_lech == 2
       frd->regim_lu := "БОЛЬНОГО ДНЕВНОГО СТАЦИОНАРА ПРИ БОЛЬНИЧНОМ УЧРЕЖДЕНИИ"
       frd->regim_66 := "ВЫБЫВШЕГО ИЗ ДНЕВНОГО СТАЦИОНАРА ПРИ БОЛЬНИЧНОМ УЧРЕЖДЕНИИ"
       frd->regim_ib := "БОЛЬНОГО ДНЕВНОГО СТАЦИОНАРА"
+      frd->shapka   := 'МЕДИЦИНСКАЯ КАРТА ПАЦИЕНТА, ПОЛУЧАЮЩЕГО МЕДИЦИНСКУЮ ПОМОЩЬ В СТАЦИОНАРНЫХ УСЛОВИЯХ, В УСЛОВИЯХ <b> ДНЕВНОГО СТАЦИОНАРА</b>'
+      frd->regim_llu :=  "в стационар - 1, <b>в дневной стационар - 2 </b>(указать): "
+      s := "Направлен  в стационар  <b>(дневной  стационар): </b> " 
+      s1 +=  " стационар <b> (дневной стационар) </b> "
     case hu->reg_lech == 3
       frd->regim_lu := "БОЛЬНОГО ДНЕВНОГО СТАЦИОНАРА ПРИ ПОЛИКЛИНИКЕ"
       frd->regim_66 := "ВЫБЫВШЕГО ИЗ ДНЕВНОГО СТАЦИОНАРА ПРИ АМБУЛАТОРНО-ПОЛИКЛИНИЧЕСКОМ УЧРЕЖДЕНИИ"
       frd->regim_ib := "БОЛЬНОГО ДНЕВНОГО СТАЦИОНАРА"
+      frd->shapka   := 'МЕДИЦИНСКАЯ КАРТА ПАЦИЕНТА, ПОЛУЧАЮЩЕГО МЕДИЦИНСКУЮ ПОМОЩЬ В СТАЦИОНАРНЫХ УСЛОВИЯХ, В УСЛОВИЯХ <b> ДНЕВНОГО СТАЦИОНАРА</b>'
+      frd->regim_llu :=  "в стационар - 1, <b>в дневной стационар - 2 </b>(указать): "
+      s := "Направлен  в стационар  <b>(дневной  стационар): </b> " 
+      s1 +=  " стационар <b> (дневной стационар) </b> "
     case hu->reg_lech == 4
       frd->regim_lu := "БОЛЬНОГО СТАЦИОНАРА НА ДОМУ"
       frd->regim_66 := "ВЫБЫВШЕГО ИЗ СТАЦИОНАРА НА ДОМУ"
       frd->regim_ib := "БОЛЬНОГО ДНЕВНОГО СТАЦИОНАРА"
+      frd->shapka   := 'МЕДИЦИНСКАЯ КАРТА ПАЦИЕНТА, ПОЛУЧАЮЩЕГО МЕДИЦИНСКУЮ ПОМОЩЬ В СТАЦИОНАРНЫХ УСЛОВИЯХ, В УСЛОВИЯХ <b> ДНЕВНОГО СТАЦИОНАРА</b>'
+      frd->regim_llu :=  "в стационар - 1, <b>в дневной стационар - 2 </b>(указать): "
+      s := "Направлен  в стационар  <b>(дневной  стационар): </b> " 
+      s1 +=  " стационар <b> (дневной стационар) </b> "
   endcase
+  //
+  frd->gospit0   := inieditspr(A__MENUVERT, menu0gospit, hu->gospit0)
+  if hu->IS_GOSPIT == 1 //не госпитализирован 02.05.18
+    frd->gospit0 := ""
+  endif
+  //
+  //<b> поликлиникой  - 1 </b>, выездной бригадой   скорой   медицинской   помощи  -  2,  полицией  -  3,  обратился самостоятельно - 4, другое - 5 (указать) ____________________________________________
+  s1 := s1 + " для оказания медицинской  помощи в текущем году: по поводу  основного   заболевания, указанного в диагнозе при поступлении:"
+  frd->regim_l3u := s1 + " <b> "+alltrim(frd->gospit0)+" </b> "
+  frd->regim_l2u := s+" <b> "+inieditspr(1, mmpp_kem1dost, hu->kem_dost)+ "</b> "
   // не госпитализирован и оказана амбулаторная помощь в приёмном покое
   if hu->IS_GOSPIT == 1 .and. hu->PR_GOSPIT == 99
     frd->regim_lu := "АМБУЛАТОРНОГО БОЛЬНОГО"
@@ -2402,6 +2480,11 @@ if pp_regim == 1 .and. eq_any(nkey,K_F5,K_F6,K_F7,K_F8,K_F9,K_F10,K_F12)
     frd->snils := transform(kart->SNILS,picture_pf)
   endif
   frd->pol := kart->pol
+  if frd->pol == "Ж"
+    frd->poll := "ЖЕНСКИЙ -  2"
+  else
+    frd->poll := "МУЖСКОЙ - 1"
+  endif    
   frd->date_r := kart->date_r
   frd->count_ymd := count_ymd(kart->date_r,hu->N_DATA)
   frd->HEIGHT := iif(empty(kart_->HEIGHT), "_______", lstr(kart_->HEIGHT)+" см")
@@ -2572,12 +2655,15 @@ if pp_regim == 1 .and. eq_any(nkey,K_F5,K_F6,K_F7,K_F8,K_F9,K_F10,K_F12)
       s := ret_inogSMO_name(1)
       mkomu += iif(empty(s), "ТФОМС (иногородние)", s)
       frd->mest_inog := "Регион финансирования: "+inieditspr(A__MENUVERT,glob_array_srf,kart_->KVARTAL_D) // ОКАТО субъекта РФ территории страхования
+      frd->mestnost := s4 + ", область 3," + sb1+" иногородние -4," + sb2+ "иностранцы -5"
     elseif left(kart_->SMO,2) == '34'
       mkomu += alltrim(inieditspr(A__MENUVERT, glob_arr_smo, int(val(kart_->smo))))
       //frd->mest_inog := "Регион финансирования: "+'Волгоградская область'
+      frd->mestnost := s4 + ", область 3, иногородние -4, иностранцы -5"
     elseif !empty(kart_->SMO)
       mkomu += init_ismo(kart_->SMO)
       frd->mest_inog := "Регион финансирования: "+inieditspr(A__MENUVERT,glob_array_srf,kart_->KVARTAL_D) // ОКАТО субъекта РФ территории страхования
+      frd->mestnost := s4 + ", область 3," + sb1+" иногородние -4," + sb2+ "иностранцы -5"
     endif
   else
     mkomu := ""
