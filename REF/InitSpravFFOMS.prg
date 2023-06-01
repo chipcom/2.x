@@ -21,7 +21,7 @@ function load_exists_uslugi()
     // fName := prefixFileRefName(countYear) + substr('luslc', 2)
     // file_index := prefixFileRefName(countYear) + substr('luslc', 2, 3) + 'u'
 
-    if ! exists_file_TFOMS(countYear, 'luslc')
+    if ! exists_file_TFOMS(countYear, 'uslc')
       loop
     endif
 
