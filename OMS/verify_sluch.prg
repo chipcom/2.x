@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-// 27.05.23
+// 01.06.23
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1, ;
         i, j, k, c, s := ' ', a_srok_lech := {}, a_period_stac := {}, a_disp := {}, ;
@@ -345,11 +345,13 @@ Function verify_1_sluch(fl_view)
   elseif mdiagnoz[1] == 'Z00.1' .and. (vozrast >= 1)
     aadd(ta, 'основной диагноз Z00.1 допустим только для возраста до года')
   endif
-  
-  if len(aDiagnoze_for_check := dublicate_diagnoze(fill_array_diagnoze())) > 0
-    for i := 1 to len(aDiagnoze_for_check)
-      aadd(ta, 'совпадающий диагноз ' + aDiagnoze_for_check[i, 2] + aDiagnoze_for_check[i, 1])
-    next
+
+  if glob_otd[4] != TIP_LU_DVN_COVID
+    if len(aDiagnoze_for_check := dublicate_diagnoze(fill_array_diagnoze())) > 0
+      for i := 1 to len(aDiagnoze_for_check)
+        aadd(ta, 'совпадающий диагноз ' + aDiagnoze_for_check[i, 2] + aDiagnoze_for_check[i, 1])
+      next
+    endif
   endif
 
   if select('MKB_10') == 0
