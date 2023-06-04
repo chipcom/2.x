@@ -244,7 +244,7 @@ Function f_valid_profil_k(get, old)
   endif
   return .t.
 
-// 02.07.14 в GET-е вернуть профиль койки из Т007
+// 04.06.23 в GET-е вернуть профиль койки из Т007
 Function f_get_profil_k(k, r, c)
   Static sprofil_k := 0
   Local ret, ret_arr
@@ -252,7 +252,7 @@ Function f_get_profil_k(k, r, c)
   if empty(k)
     k := sprofil_k
   endif
-  popup_2array(arr_t007, -r, c, k, 1, @ret_arr, 'Выбор профиля койки', 'B/BG')
+  popup_2array(arr_t007(), -r, c, k, 1, @ret_arr, 'Выбор профиля койки', 'B/BG')
   if valtype(ret_arr) == 'A'
     ret := array(2)
     sprofil_k := ret_arr[2]
@@ -288,7 +288,7 @@ Function f_get_profil(k, r, c, lprofil_k)
   endif
   return ret
 
-// 30.03.23 Проверка информации перед отправкой в ТФОМС
+// 04.06.23 Проверка информации перед отправкой в ТФОМС
 Function _263_to_proverka(yes_msg, /*@*/yes_I07)
   Local i, j, s, ikol := 0, lkod_k, ldate, buf := save_maxrow(), k1, k2, ;
       arr_i01 := {}, arr_i03 := {}, arr_i04 := {}, arr_i05 := {}, arr_i06 := {}, ;
@@ -918,7 +918,7 @@ Function _263_to_proverka(yes_msg, /*@*/yes_I07)
         elseif _263_verify_year(d7->DATE_R_EDI, ta1)
         endif
         G_Use(dir_server + 'mo_n7out', , 'N7')
-        index on padr(inieditspr(A__MENUVERT, arr_t007, n7->PROFIL_K), 60) + str(n7->PROFIL_K, 3) + ;
+        index on padr(inieditspr(A__MENUVERT, arr_t007(), n7->PROFIL_K), 60) + str(n7->PROFIL_K, 3) + ;
                padr(inieditspr(A__MENUVERT, getV002(), n7->PROFIL), 20) + str(n7->PROFIL, 3) to (cur_dir + 'tmp_n7')
         go top
         if !eof()
@@ -944,7 +944,7 @@ Function _263_to_proverka(yes_msg, /*@*/yes_I07)
               endif
             endif
             if !empty(ta)
-              Ins_Array(ta, 1, alltrim(inieditspr(A__MENUVERT, arr_t007, n7->PROFIL_K)) + ;
+              Ins_Array(ta, 1, alltrim(inieditspr(A__MENUVERT, arr_t007(), n7->PROFIL_K)) + ;
                            ' (' + alltrim(inieditspr(A__MENUVERT, getV002(), n7->PROFIL)) + ')')
               aadd(arr_error, {7, 0, aclone(ta)} )
             endif
@@ -1037,7 +1037,7 @@ Function _263_valid_phone(k, s, ta)
   endif
   return NIL
 
-// 15.01.19 Составление информационных пакетов для отправкой в ТФОМС
+// 04.06.23 Составление информационных пакетов для отправкой в ТФОМС
 Function _263_to_sostavlenie()
   Local i, j, k, mnn, nfile,  arr_f := {}, name_txt, file_error, buf := save_maxrow(), ;
       arr_i01 := {}, arr_i03 := {}, arr_i04 := {}, arr_i05 := {}, arr_i06 := {}, ;
@@ -1209,7 +1209,7 @@ for i := 1 to len(arr_i01)
   dbUnLockAll()
   Commit
 next
-// I03
+// I03
 for k := 2 to 3
   if !fl_error
     arr_i03 := {}
@@ -1307,7 +1307,7 @@ for k := 2 to 3
     next
   endif
 next
-// I04
+// I04
 if !fl_error
   select NAPR
   index on kod to (cur_dir + 'tmp_napr') for between(TYPE_H_4, 1, 3) .and. empty(KOD_F_4out)
@@ -1442,7 +1442,7 @@ if !fl_error
     Commit
   next
 endif
-// I05
+// I05
 if !fl_error
   select NAPR
   index on kod to (cur_dir + 'tmp_napr') for TYPE_H_4 == 4 .and. empty(KOD_F_4out)
@@ -1575,7 +1575,7 @@ if !fl_error
     Commit
   next
 endif
-// I06
+// I06
 if !fl_error
   select NAPR
   index on kod to (cur_dir + 'tmp_napr') ;
@@ -1681,7 +1681,7 @@ if !fl_error
     Commit
   next
 endif
-// I07
+// I07
 if !fl_error .and. yes_i07
   kart_->(dbCloseArea())
   kart->(dbCloseArea())
@@ -1728,7 +1728,7 @@ if !fl_error .and. yes_i07
     mo_add_xml_stroke(oMo_d,'LPU', glob_mo[_MO_KOD_TFOMS])
   //
   G_Use(dir_server + 'mo_n7out', ,'N7')
-  index on padr(inieditspr(A__MENUVERT, arr_t007, n7->PROFIL_K), 60) + str(n7->PROFIL_K, 3) + ;
+  index on padr(inieditspr(A__MENUVERT, arr_t007(), n7->PROFIL_K), 60) + str(n7->PROFIL_K, 3) + ;
            padr(inieditspr(A__MENUVERT, getV002(), n7->PROFIL), 20) + str(n7->PROFIL, 3) to (cur_dir + 'tmp_n7')
   _263_put_10_days(nf->DATE_R)
   select N7
@@ -1962,7 +1962,7 @@ Function f1_263_to_I01(k)
   endif
   return nil
 
-// 13.05.22
+// 04.06.23
 Function f2_263_to_I01(nKey, oBrow, regim)
   Local lkod, buf, r1, rec, i, ret := -1, arr, lcodem, n1, n2, ;
       n_file := cur_dir + 'i01' + stxt, sh := 80, HH := 60, t_arr[4], s, s1, s2, s3, s4
@@ -2049,7 +2049,7 @@ Function f2_263_to_I01(nKey, oBrow, regim)
           endif
           add_string(space(3) + alltrim(_kart->fio) + ', д.р.' + full_date(_kart->date_r))
           add_string(space(3) + 'планируемая дата госпитализации ' + date_8(napr->DATE_H_1) + ' по диагнозу ' + alltrim(napr->DS_1))
-          add_string(space(3) + inieditspr(A__MENUVERT, arr_t007, napr->PROFIL_K_1) + ;
+          add_string(space(3) + inieditspr(A__MENUVERT, arr_t007(), napr->PROFIL_K_1) + ;
                                      ' (' + inieditspr(A__MENUVERT, getV002(), napr->PROFIL_1) + ')')
           select NFN
           find (str(napr->kod, 6))
@@ -2117,7 +2117,7 @@ Function _263_to_I03()
   rest_box(buf)
   return NIL
 
-// 30.03.23
+// 04.06.23
 Function f2_263_to_I03(nKey, oBrow, regim)
   Local lkod, buf, r1, rec, i, ret := -1, arr, lcodem, n1, n2, ;
       n_file := cur_dir + 'I03' + stxt, sh := 80, HH := 60, t_arr[4], s1, s2, s3, s4
@@ -2214,7 +2214,7 @@ Function f2_263_to_I03(nKey, oBrow, regim)
           endif
           add_string(space(3) + alltrim(_kart->fio) + ', д.р.' + full_date(_kart->date_r))
           add_string(space(3) + 'форма оказания медицинской помощи - ' + inieditspr(A__MENUVERT, getV014(), napr->F_MEDC_1))
-          add_string(space(3) + inieditspr(A__MENUVERT, arr_t007, napr->PROFIL_K_1) + ;
+          add_string(space(3) + inieditspr(A__MENUVERT, arr_t007(), napr->PROFIL_K_1) + ;
                                      ' (' + inieditspr(A__MENUVERT, getV002(), napr->PROFIL_1) + ')')
           add_string(space(3) + 'причина аннулирования: ' + inieditspr(A__MENUVERT, get_reason_annul(), napr->rea_annul))
           add_string(space(3) + 'дата аннулирования ' + full_date(napr->date_3))
@@ -2285,7 +2285,7 @@ Function _263_to_I04(k)
   rest_box(buf)
   return NIL
 
-// 06.11.22
+// 04.06.23
 Function f2_263_to_I04(nKey, oBrow, regim)
   Local lkod, buf, r1, rec, i, ret := -1, arr, lcodem, n1, n2, s1, s2, s3, s4, ;
       n_file := cur_dir + 'i0' + lstr(ppaket) + stxt, sh := 80, HH := 60, t_arr[4]
@@ -2387,7 +2387,7 @@ Function f2_263_to_I04(nKey, oBrow, regim)
           add_string(space(3) + 'Дата фактической госпитализации ' + full_date(napr->DATE_H_4) + ;
                             ', время ' + napr->TIME_H_4)
           add_string(space(3) + 'Диагноз приёмного отделения ' + alltrim(napr->DS_4))
-          add_string(space(3) + inieditspr(A__MENUVERT, arr_t007, napr->PROFIL_K_4) + ;
+          add_string(space(3) + inieditspr(A__MENUVERT, arr_t007(), napr->PROFIL_K_4) + ;
                                      ' (' + inieditspr(A__MENUVERT, getV002(), napr->PROFIL_4) + ')')
           add_string(space(3) + 'Форма оказания медицинской помощи - ' + inieditspr(A__MENUVERT, getV014(), napr->F_MEDC_4))
           add_string(space(3) + 'Номер истории болезни - ' + alltrim(napr->NUM_HIST_4))
@@ -2459,7 +2459,7 @@ Function _263_to_I06()
   rest_box(buf)
   return NIL
 
-// 06.11.22
+// 04.06.23
 Function f2_263_to_I06(nKey, oBrow, regim)
   Local lkod, buf, r1, rec, i, ret := -1, arr, lcodem, n1, n2, s1, s2, s3, s4, ;
       n_file := cur_dir + 'i06' + stxt, sh := 80, HH := 60, t_arr[4]
@@ -2557,7 +2557,7 @@ Function f2_263_to_I06(nKey, oBrow, regim)
           add_string(space(3) + 'Дата фактической госпитализации ' + full_date(napr->DATE_H_4) + ;
                             ', время ' + napr->TIME_H_4)
           add_string(space(3) + 'Диагноз приёмного отделения ' + alltrim(napr->DS_4))
-          add_string(space(3) + inieditspr(A__MENUVERT, arr_t007, napr->PROFIL_K_4) + ;
+          add_string(space(3) + inieditspr(A__MENUVERT, arr_t007(), napr->PROFIL_K_4) + ;
                                      ' (' + inieditspr(A__MENUVERT, getV002(), napr->PROFIL_4) + ')')
           add_string(space(3) + 'Форма оказания медицинской помощи - ' + inieditspr(A__MENUVERT, getV014(), napr->F_MEDC_4))
           add_string(space(3) + 'Номер истории болезни - ' + alltrim(napr->NUM_HIST_4))
@@ -2688,7 +2688,7 @@ Function _263_to_nastr()
   close databases
   return NIL
 
-// 30.03.23 Получение из ТФОМС файлов обмена (информационных пакетов)
+// 04.06.23 Получение из ТФОМС файлов обмена (информационных пакетов)
 Function _263_from_read()
   Static nerrf := 999
   Local i, j, k, n, s, af := {}, arr_f := {}, aerr := {}, blk := {|x| aadd(af,x) }, ii, ;
@@ -3147,7 +3147,7 @@ Function _263_from_read()
                                      iif(tmp2->disp == 1, 'нет', 'да') + hb_eol() + ;
                             space(7) + 'планируемая дата госпитализации ' + date_8(tmp2->DATE_HOSP) + ;
                                      ' по диагнозу ' + alltrim(tmp2->DS) + hb_eol() + ;
-                            space(7) + inieditspr(A__MENUVERT, arr_t007, tmp2->PROFIL_K) + ;
+                            space(7) + inieditspr(A__MENUVERT, arr_t007(), tmp2->PROFIL_K) + ;
                                      ' (' + inieditspr(A__MENUVERT, getV002(), tmp2->PROFIL) + ')' + ;
                             hb_eol(), cFileProtokol, .t.)
                       m1kod_k := 0
@@ -3834,7 +3834,7 @@ Function f1_263_from_I01(k)
   endif
   return NIL
 
-// 26.08.14
+// 04.06.23
 Function f2_263_from_I01(nKey, oBrow, regim)
   Local lkod, buf, r1, rec, i, ret := -1, arr, lcodem, n1, n2, ;
         n_file := cur_dir + 'i01' + stxt, sh := 80, HH := 60, t_arr[4], s1, s2, s3, s4
@@ -3911,7 +3911,7 @@ Function f2_263_from_I01(nKey, oBrow, regim)
           add_string(space(3) + 'Условия оказания, в которые направляется пациент: ' + iif(napr->usl_ok_1==2,'дневной ','') + 'стационар')
           add_string(space(3) + 'Направление выдано по результатам диспансеризации/профосмотра взрослых: ' + iif(napr->disp_1==1,'нет','да'))
           add_string(space(3) + 'планируемая дата госпитализации ' + date_8(napr->DATE_H_1) + ' по диагнозу ' + alltrim(napr->DS_1))
-          add_string(space(3) + inieditspr(A__MENUVERT, arr_t007, napr->PROFIL_K_1) + ;
+          add_string(space(3) + inieditspr(A__MENUVERT, arr_t007(), napr->PROFIL_K_1) + ;
                                      ' (' + inieditspr(A__MENUVERT, getV002(), napr->PROFIL_1) + ')')
           select NAPR
           skip

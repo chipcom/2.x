@@ -20,7 +20,7 @@ DYNAMIC f1forma_792_MIAC
 DYNAMIC monitoring_vid_pom
 DYNAMIC b_25_perinat_2
 
-// 11.04.23
+// 04.06.23
 procedure main( ... )
   Local r, s, is_create := .f., is_copy := .f., is_index := .f.
   Local a_parol, buf, is_local_version
@@ -117,7 +117,7 @@ procedure main( ... )
 
   Public is_alldializ := .f.
 
-  Public arr_t007 // массив видов профилей
+  // Public arr_t007 // массив видов профилей
   Public glob_array_srf // массив страховых компаний
 
   // конец переноса из index_work_dir

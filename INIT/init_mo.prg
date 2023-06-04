@@ -1,12 +1,12 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-** 26.01.23 инициализация массива МО, запрос кода МО (при необходимости)
+// 26.01.23 инициализация массива МО, запрос кода МО (при необходимости)
 Function init_mo()
   Local fl := .t., i, arr, arr1, cCode := '', buf := save_maxrow()
 
 //   local aaa
-//   aaa := get_array_PZ_2023()
+//   aaa := arrT007()
 // altd()
 
   mywait()

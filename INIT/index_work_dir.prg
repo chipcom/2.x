@@ -4,7 +4,7 @@
 #define NUMBER_YEAR 3 // число лет для переиндексации назад
 #define INDEX_NEED  2 // число лет обязательной переиндексации
 
-// 19.05.23 проверка наличия справочников НСИ
+// 04.06.23 проверка наличия справочников НСИ
 function files_NSI_exists(dir_file)
   local lRet := .t.
   local i
@@ -73,8 +73,8 @@ function files_NSI_exists(dir_file)
   // sbase := dir_file + '_mo_t005' + cDbt
   // aadd(arr_check, sbase)
 
-  sbase := dir_file + '_mo_t007' + cDbf
-  aadd(arr_check, sbase)
+  // sbase := dir_file + '_mo_t007' + cDbf
+  // aadd(arr_check, sbase)
 
   // ОКАТО
   for i := 1 to len(arr_f)
@@ -143,7 +143,7 @@ function files_NSI_exists(dir_file)
 
   return lRet
 
-// 19.05.23 проверка и переиндексирование справочников ТФОМС
+// 04.06.23 проверка и переиндексирование справочников ТФОМС
 Function index_work_dir(exe_dir, cur_dir, flag)
   Local fl := .t., i, arr, buf := save_maxrow()
   local arrRefFFOMS := {}, row, row_flag := .t.
@@ -241,12 +241,12 @@ Function index_work_dir(exe_dir, cur_dir, flag)
   next
 
   // Public arr_t007 := {}
-  arr_t007 := {}
+  // arr_t007 := {}
   sbase := '_mo_t007'
   file_index := cur_dir + sbase + sntx
   R_Use(exe_dir + sbase, , 'T7')
   index on upper(left(NAME, 50)) + str(profil_k, 3) to (cur_dir + sbase) UNIQUE
-  dbeval({|| aadd(arr_t007, {alltrim(t7->name), t7->profil_k, t7->pk_V020})})
+  // dbeval({|| aadd(arr_t007, {alltrim(t7->name), t7->profil_k, t7->pk_V020})})
   index on str(profil_k, 3) + str(profil, 3) to (cur_dir + sbase)
   index on str(pk_V020, 3) + str(profil, 3) to (cur_dir + sbase + '2')
   use

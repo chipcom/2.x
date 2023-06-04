@@ -35,8 +35,8 @@ function loadT007()
   endif
   return _arr
 
-// 02.06.23 массив T007 для выбора
-function arrT007()
+// 04.06.23 массив T007 для выбора
+function arr_t007() 
   static arr
   static time_load
   local arrT007 := loadT007()
@@ -45,7 +45,9 @@ function arrT007()
   if timeout_load(@time_load)
     arr := {}
     for each row in arrT007
-      aadd(arr, {alltrim(row[4]), row[1], row[2]})
+      if AScan(arr, {|x| x[2] == row[1]}) == 0
+        aadd(arr, {alltrim(row[4]), row[1], row[2]})
+      endif
     next
   endif
   return arr

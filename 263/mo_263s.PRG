@@ -1,15 +1,15 @@
-***** mo_263s.prg - режимы стационара для задачи по приказу 263-ФФОМС
+// mo_263s.prg - режимы стационара для задачи по приказу 263-ФФОМС
 #include "inkey.ch"
 #include "function.ch"
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 01.08.14 Проверка того, что ещё не сделано в стационаре
+// 01.08.14 Проверка того, что ещё не сделано в стационаре
 Function _263_s_proverka()
 ne_real()
 return NIL
 
-***** 08.03.17 добавление / редактирование госпитализаций в стационаре
+// 08.03.17 добавление / редактирование госпитализаций в стационаре
 Function for_263_s_gospit()
 Local fl := (KOD_F_4out >= 0 .and. TYPE_H_4 > 0)
 if fl
@@ -20,7 +20,7 @@ if fl .and. not_out
 endif
 return fl
 
-***** 08.03.17 добавление / редактирование госпитализаций в стационаре
+// 08.03.17 добавление / редактирование госпитализаций в стационаре
 Function _263_s_gospit()
 Static str_sem := "_263_s_gospit", si := 2
 Local buf := save_maxrow(), blk, t_arr[BR_LEN], fl, i, n
@@ -49,11 +49,11 @@ elseif si == 2
   endif
 endif
 mywait()
-R_Use(dir_server+"kartotek",,"_KART")
-R_Use(dir_server+"mo_nfile",,"NF")
-G_Use(dir_server+"mo_nnapr",,"NAPR")
+R_Use(dir_server + "kartotek",,"_KART")
+R_Use(dir_server + "mo_nfile",,"NF")
+G_Use(dir_server + "mo_nnapr",,"NAPR")
 set relation to kod_k into _KART, to KOD_F_4out into NF
-index on upper(_kart->fio)+str(_kart->kod,7) to (cur_dir+"tmp_napr") ;
+index on upper(_kart->fio)+str(_kart->kod,7) to (cur_dir + "tmp_napr") ;
       for for_263_s_gospit()
 go top
 if eof()
@@ -90,9 +90,7 @@ G_SUnLock(str_sem)
 rest_box(buf)
 return NIL
 
-*
-
-** 06.11.22
+// 06.11.22
 Function f0_263_s_gospit()
   Local s := ''
 
@@ -117,7 +115,7 @@ Function f0_263_s_gospit()
   endcase
   return s
 
-***** 19.02.17
+// 19.02.17
 Function f1_263_s_gospit()
 Local s := "ошибка"
 if empty(napr->KOD_F_4out)
@@ -140,7 +138,7 @@ return s
 
 *
 
-***** 19.02.17
+// 19.02.17
 Function f2_263_s_gospit(nKey,oBrow,regim)
 Local ret := -1, fl, rec
 do case
@@ -232,7 +230,7 @@ do case
 endcase
 return ret
 
-** 06.11.22 работа с направлениями на госпитализацию в стационаре
+// 04.06.23 работа с направлениями на госпитализацию в стационаре
 Function _263_edit_s_gospit(nKey)
 Static sk := 1
 Local bg := {|o,k| get_MKB10(o,k) }
@@ -271,7 +269,7 @@ if nKey == K_INS
   do case
     case sk == 1 // на основании направления
       if (mkod := _263_input_napr()) > 0
-        R_Use(dir_server+"mo_nnapr",,"NAPR")
+        R_Use(dir_server + "mo_nnapr",,"NAPR")
         goto (mkod)
         m1kod_k := napr->kod_k
         mnum_d := napr->NUM_D
@@ -315,7 +313,7 @@ if nKey == K_INS
   close databases // если вдруг вышли из картотеки по <Esc>
   //
   if m1kod_k > 0
-    R_Use(dir_server+"kartotek",,"_KART")
+    R_Use(dir_server + "kartotek",,"_KART")
     goto (m1kod_k)
     mfio    := _kart->fio
     mdate_r := _kart->date_r
@@ -339,7 +337,7 @@ if flag
   endif
   mUSL_OK := inieditspr(A__MENUVERT, tmp_V006, m1USL_OK)
   mforma := inieditspr(A__MENUVERT, getV014(), m1forma)
-  mprofil_k := inieditspr(A__MENUVERT, arr_t007, M1PROFIL_K)
+  mprofil_k := inieditspr(A__MENUVERT, arr_t007(), M1PROFIL_K)
   mprofil := inieditspr(A__MENUVERT, getV002(), M1PROFIL)
   if work_otd_263 == 1
     Private pr_arr := {}, pr_arr_otd := {}, pr1arr_otd := {}
@@ -353,8 +351,8 @@ if flag
   if nKey == K_INS
     flag := .f.
   elseif napr->t_ans_4 == 2
-    R_Use(dir_server+"mo_nfina",,"NFN")
-    index on str(kod_n,6) to (cur_dir+"tmp_nfn") for kod_f == napr->KOD_F_4out
+    R_Use(dir_server + "mo_nfina",,"NFN")
+    index on str(kod_n,6) to (cur_dir + "tmp_nfn") for kod_f == napr->KOD_F_4out
     find (str(napr->kod,6))
     if found()
       s_error := "ошибка " + lstr(nfn->OSHIB) + " - " + inieditspr(A__MENUVERT, getT008(), nfn->OSHIB)
@@ -484,7 +482,7 @@ if flag
         loop
       endif
       if nKey == K_INS
-        G_Use(dir_server+"mo_nnapr",,"NAPR")
+        G_Use(dir_server + "mo_nnapr",,"NAPR")
         if mTYPE_H_4 == 1
           goto (mkod)
           G_RLock(forever)
@@ -534,11 +532,11 @@ setcolor(tmp_color)
 restscreen(buf)
 return flag
 
-***** 14.09.16 подставить срок лечения по умолчанию для конкретного профиля
+// 14.09.16 подставить срок лечения по умолчанию для конкретного профиля
 Function f1_263_edit_s_gospit()
 Local tmp_select := select()
 if m1profil_k > 0 .and. m1profil > 0 .and. mDNEJ_H_4 <= 0 
-  R_Use(dir_server+"mo_n7out",,"N7")
+  R_Use(dir_server + "mo_n7out",,"N7")
   index on str(profil_k,3)+str(profil,3) to tmpn7 memory
   find (str(m1profil_k,3)+str(m1profil,3))
   if found() .and. n7->kol_kd > 0
@@ -551,7 +549,7 @@ return .t.
 
 *
 
-***** 08.03.17
+// 08.03.17
 Function for_263_input_napr()
 Local fl := !empty(NUM_D)
 if fl
@@ -574,7 +572,7 @@ if fl .and. is_annul
 endif
 return fl  
 
-****** 08.03.17 выбор фильтра направлений для госпитализации
+//* 08.03.17 выбор фильтра направлений для госпитализации
 Function f1_263_input_napr()
 Static s_arr := {}, si := 2
 Local fl, i, y, arr_p := {}, sast, a
@@ -614,7 +612,7 @@ else
 endif
 return fl      
 
-****** 08.03.17 выбор направления для госпитализации
+//* 08.03.17 выбор направления для госпитализации
 Function _263_input_napr()
 Local lkod := 0, buf := save_maxrow(), i, y, blk, t_arr[BR_LEN]
 Private arr_year, is_annul
@@ -622,10 +620,10 @@ if !f1_263_input_napr()
   return lkod
 endif
 mywait()
-R_Use(dir_server+"kartotek",,"_KART")
-G_Use(dir_server+"mo_nnapr",,"NAPR")
+R_Use(dir_server + "kartotek",,"_KART")
+G_Use(dir_server + "mo_nnapr",,"NAPR")
 set relation to kod_k into _KART
-index on upper(_kart->fio)+str(_kart->kod,7) to (cur_dir+"tmp_napr") ;
+index on upper(_kart->fio)+str(_kart->kod,7) to (cur_dir + "tmp_napr") ;
       for for_263_input_napr()
 go top
 if eof()
@@ -669,7 +667,7 @@ return lkod
 
 *
 
-***** 16.03.17 выписка (выбытие) пациента из стационара
+// 16.03.17 выписка (выбытие) пациента из стационара
 Function _263_s_vybytie()
 Static str_sem := "_263_s_vybytie", si := 3
 Local buf := save_maxrow(), blk, t_arr[BR_LEN], fl, i
@@ -689,18 +687,18 @@ if (si := i) > 1 .and. (arr_m := year_month(T_ROW,T_COL+5)) == NIL
   return NIL
 endif
 mywait()
-R_Use(dir_server+"kartotek",,"_KART")
-R_Use(dir_server+"mo_nfile",,"NF")
-G_Use(dir_server+"mo_nnapr",,"NAPR")
+R_Use(dir_server + "kartotek",,"_KART")
+R_Use(dir_server + "mo_nfile",,"NF")
+G_Use(dir_server + "mo_nnapr",,"NAPR")
 set relation to kod_k into _KART, to KOD_F_6out into NF
 if si == 1
-  index on upper(_kart->fio)+str(_kart->kod,7) to (cur_dir+"tmp_napr") ;
+  index on upper(_kart->fio)+str(_kart->kod,7) to (cur_dir + "tmp_napr") ;
         for KOD_F_4out > 0 .and. T_ANS_4 == 1 .and. empty(DATE_6)
 elseif si == 2
-  index on upper(_kart->fio)+str(_kart->kod,7) to (cur_dir+"tmp_napr") ;
+  index on upper(_kart->fio)+str(_kart->kod,7) to (cur_dir + "tmp_napr") ;
         for KOD_F_4out > 0 .and. T_ANS_4 == 1 .and. between(date_h_4,arr_m[5],arr_m[6])
 else
-  index on upper(_kart->fio)+str(_kart->kod,7) to (cur_dir+"tmp_napr") ;
+  index on upper(_kart->fio)+str(_kart->kod,7) to (cur_dir + "tmp_napr") ;
         for KOD_F_4out > 0 .and. T_ANS_4 == 1 .and. between(date_6,arr_m[5],arr_m[6])
 endif
 go top
@@ -710,14 +708,14 @@ if eof()
   rest_box(buf)
   return func_error(4,"Не обнаружено госпитализаций по запрашиваемому условию")
 endif
-dbcreate(cur_dir+"tmp",{{"kod","N",6,0}})
-use (cur_dir+"tmp") new
+dbcreate(cur_dir + "tmp",{{"kod","N",6,0}})
+use (cur_dir + "tmp") new
 napr->(dbeval({|| dbselectarea("TMP"), dbappend(), tmp->kod := napr->kod }))
 select NAPR
 set index to
 select TMP
 set relation to kod into NAPR
-index on upper(_kart->fio)+str(_kart->kod,7) to (cur_dir+"tmp")
+index on upper(_kart->fio)+str(_kart->kod,7) to (cur_dir + "tmp")
 go top
 t_arr[BR_TOP] := T_ROW
 t_arr[BR_BOTTOM] := maxrow()-1
@@ -746,7 +744,7 @@ return NIL
 
 *
 
-***** 19.02.17
+// 19.02.17
 Function f1_263_s_vybytie()
 Local s := "ошибка"
 if empty(napr->KOD_F_6out)
@@ -758,7 +756,7 @@ elseif napr->t_ans_6 == 1
 endif
 return s
 
-** 06.11.22
+// 04.06.23
 Function f2_263_s_vybytie(nKey,oBrow,regim)
 Local ret := -1, rec, i, k, r1, tmp_color, buf, fl, s_error := "",;
       n_file := "spisokne"+stxt, sh := 84, HH := 80, t_arr[3], s1
@@ -783,7 +781,7 @@ do case
           s1 := padr(lstr(++k)+". "+alltrim(_kart->fio),41)+" "
           s1 += napr->ds_4+" "+date_8(napr->DATE_H_4)+" "
           s1 += iif(napr->usl_ok_4==2,"дн","ст")+" "
-          s1 += inieditspr(A__MENUVERT, arr_t007, napr->PROFIL_K_4)
+          s1 += inieditspr(A__MENUVERT, arr_t007(), napr->PROFIL_K_4)
           if verify_FF(HH-2,.t.,sh)
             aeval(arr_title, {|x| add_string(x) } )
           endif
@@ -817,7 +815,7 @@ do case
               gl_area := {1,0,23,79,0}
       mtip := inieditspr(A__MENUVERT,mm_tip_vyb,m1tip)
       mforma := inieditspr(A__MENUVERT, getV014(), m1forma)
-      mprofil_k := inieditspr(A__MENUVERT, arr_t007, M1PROFIL_K)
+      mprofil_k := inieditspr(A__MENUVERT, arr_t007(), M1PROFIL_K)
       mprofil := inieditspr(A__MENUVERT, getV002(), M1PROFIL)
       if empty(m1CODEM_FROM)
         mCODEM_FROM := space(10)
@@ -829,8 +827,8 @@ do case
         endif
       endif
       if napr->t_ans_6 == 2
-        R_Use(dir_server+"mo_nfina",,"NFN")
-        index on str(kod_n,6) to (cur_dir+"tmp_nfn") for kod_f == napr->KOD_F_6out
+        R_Use(dir_server + "mo_nfina",,"NFN")
+        index on str(kod_n,6) to (cur_dir + "tmp_nfn") for kod_f == napr->KOD_F_6out
         find (str(napr->kod,6))
         if found()
           s_error := "ошибка " + lstr(nfn->OSHIB) + " - " + inieditspr(A__MENUVERT, getT008(), nfn->OSHIB)
@@ -963,7 +961,7 @@ return ret
 
 *
 
-***** 08.03.17
+// 08.03.17
 Function for_263_s_napr()
 Local fl := .t.
 if KOD_F_1in > 0
@@ -981,7 +979,7 @@ if fl
 endif  
 return fl
 
-***** 08.03.17 работа с направлениями на госпитализацию в стационаре
+// 08.03.17 работа с направлениями на госпитализацию в стационаре
 Function _263_s_napr()
 Static str_sem := "_263_s_napr", si := 1
 Local buf := save_maxrow(), blk, t_arr[BR_LEN], fl, i, n
@@ -1003,23 +1001,23 @@ if /*eq_any(i,2,3) .and.*/ (arr_m := year_month(T_ROW,T_COL+5)) == NIL
   return NIL
 endif
 mywait()
-R_Use(dir_server+"kartotek",,"_KART")
-R_Use(dir_server+"mo_nfile",,"NF")
-G_Use(dir_server+"mo_nnapr",,"NAPR")
+R_Use(dir_server + "kartotek",,"_KART")
+R_Use(dir_server + "mo_nfile",,"NF")
+G_Use(dir_server + "mo_nnapr",,"NAPR")
 set relation to kod_k into _KART//, to KOD_F_2out into NF
-index on upper(_kart->fio)+str(_kart->kod,7) to (cur_dir+"tmp_napr") ;
+index on upper(_kart->fio)+str(_kart->kod,7) to (cur_dir + "tmp_napr") ;
       for for_263_s_napr()
 /*if si == 1
-  index on upper(_kart->fio)+str(_kart->kod,7) to (cur_dir+"tmp_napr") ;
+  index on upper(_kart->fio)+str(_kart->kod,7) to (cur_dir + "tmp_napr") ;
         for KOD_F_1in > 0 .and. empty(DATE_H_2)
 elseif si == 2
-  index on upper(_kart->fio)+str(_kart->kod,7) to (cur_dir+"tmp_napr") ;
+  index on upper(_kart->fio)+str(_kart->kod,7) to (cur_dir + "tmp_napr") ;
         for KOD_F_1in > 0 .and. between(date_h_2,arr_m[5],arr_m[6])
 elseif si == 3
-  index on upper(_kart->fio)+str(_kart->kod,7) to (cur_dir+"tmp_napr") ;
+  index on upper(_kart->fio)+str(_kart->kod,7) to (cur_dir + "tmp_napr") ;
         for KOD_F_1in > 0 .and. between(date_2,arr_m[5],arr_m[6])
 else
-  index on upper(_kart->fio)+str(_kart->kod,7) to (cur_dir+"tmp_napr") ;
+  index on upper(_kart->fio)+str(_kart->kod,7) to (cur_dir + "tmp_napr") ;
         for KOD_F_1in > 0 .and. t_ans_2 == 2
 endif*/
 go top
@@ -1029,14 +1027,14 @@ if eof()
   rest_box(buf)
   return func_error(4,"Не обнаружено направлений "+arr_m[4])
 endif
-dbcreate(cur_dir+"tmp",{{"kod","N",6,0}})
-use (cur_dir+"tmp") new
+dbcreate(cur_dir + "tmp",{{"kod","N",6,0}})
+use (cur_dir + "tmp") new
 napr->(dbeval({|| dbselectarea("TMP"), dbappend(), tmp->kod := napr->kod }))
 select NAPR
 set index to
 select TMP
 set relation to kod into NAPR
-index on upper(_kart->fio)+str(_kart->kod,7) to (cur_dir+"tmp")
+index on upper(_kart->fio)+str(_kart->kod,7) to (cur_dir + "tmp")
 go top
 t_arr[BR_TOP] := T_ROW
 t_arr[BR_BOTTOM] := maxrow()-1
@@ -1068,7 +1066,7 @@ G_SUnLock(str_sem)
 rest_box(buf)
 return NIL
 
-** 13.05.22
+// 13.05.22
 Function f1_263_s_napr()
   Local s := " направлено в стационар"
   
@@ -1081,7 +1079,7 @@ Function f1_263_s_napr()
   endif
   return s
 
-** 06.11.22
+// 04.06.23
 Function f2_263_s_napr(nKey,oBrow,regim)
 Static s_arr
 Local ret := -1, rec, i, k, tmp_color, buf, s_error := "", arr_p := {}, sast := {}, a, fl,;
@@ -1099,7 +1097,7 @@ do case
       do while !eof()
         if iif(k==2, .t., !(napr->KOD_F_3in > 0 .or. napr->KOD_F_3out > 0)) .and. ; 
                                     ascan(arr_p, {|x| x[2] == napr->PROFIL_K_1 }) == 0
-          aadd(arr_p, {inieditspr(A__MENUVERT, arr_t007, napr->PROFIL_K_1),;
+          aadd(arr_p, {inieditspr(A__MENUVERT, arr_t007(), napr->PROFIL_K_1),;
                        napr->PROFIL_K_1} )
         endif
         skip
@@ -1153,7 +1151,7 @@ do case
           s3 += padr(t_arr[3],23)
           s := rtrim(napr->ds_1) + ' ' + ;
             inieditspr(A__MENUVERT, getV014(), napr->F_MEDC_1) + ' ' + ;
-            inieditspr(A__MENUVERT, arr_t007, napr->PROFIL_K_1) + ' (' + ;
+            inieditspr(A__MENUVERT, arr_t007(), napr->PROFIL_K_1) + ' (' + ;
             inieditspr(A__MENUVERT, getV002(), napr->PROFIL_1) + ')'
           perenos(t_arr, s, 23)
           s1 += padr(t_arr[1],24)+date_8(napr->DATE_H_1)
@@ -1202,7 +1200,7 @@ do case
         endif
       endif
       mforma := inieditspr(A__MENUVERT, getV014(), m1forma)
-      mprofil_k := inieditspr(A__MENUVERT, arr_t007, M1PROFIL_K)
+      mprofil_k := inieditspr(A__MENUVERT, arr_t007(), M1PROFIL_K)
       mprofil := inieditspr(A__MENUVERT, getV002(), M1PROFIL)
       mUSL_OK := inieditspr(A__MENUVERT, tmp_V006, m1USL_OK)
       if !empty(m1pol_mo)
@@ -1213,8 +1211,8 @@ do case
         endif
       endif
       if napr->t_ans_2 == 2
-        R_Use(dir_server+"mo_nfina",,"NFN")
-        index on str(kod_n,6) to (cur_dir+"tmp_nfn") for kod_f == napr->KOD_F_2out
+        R_Use(dir_server + "mo_nfina",,"NFN")
+        index on str(kod_n,6) to (cur_dir + "tmp_nfn") for kod_f == napr->KOD_F_2out
         find (str(napr->kod,6))
         if found()
           s_error := "ошибка " + lstr(nfn->OSHIB) + " - " + inieditspr(A__MENUVERT, getT008(), nfn->OSHIB)
@@ -1292,7 +1290,7 @@ do case
 endcase
 return ret
 
-***** 08.03.17
+// 08.03.17
 Function for_263_s_annul()
 Local fl := (S_CODEM == glob_mo[_MO_KOD_TFOMS])
 if KOD_F_1in > 0
@@ -1310,7 +1308,7 @@ if fl
 endif
 return fl      
 
-***** 21.02.17 Аннулирование направлений, поступивших из поликлиник через ТФОМС
+// 21.02.17 Аннулирование направлений, поступивших из поликлиник через ТФОМС
 Function _263_s_annul()
 Static str_sem := "_263_s_annul", si := 1
 Local buf := save_maxrow(), blk, t_arr[BR_LEN], fl, i, n
@@ -1330,24 +1328,24 @@ if /*(si := i) > 1 .and.*/ (arr_m := year_month(T_ROW,T_COL+5)) == NIL
   return NIL
 endif
 mywait()
-R_Use(dir_server+"kartote_",,"_KART_")
-R_Use(dir_server+"kartotek",,"_KART")
+R_Use(dir_server + "kartote_",,"_KART_")
+R_Use(dir_server + "kartotek",,"_KART")
 set relation to kod into _KART_
-R_Use(dir_server+"mo_nfile",,"NF")
-G_Use(dir_server+"mo_nnapr",,"NAPR")
+R_Use(dir_server + "mo_nfile",,"NF")
+G_Use(dir_server + "mo_nnapr",,"NAPR")
 set relation to kod_k into _KART, to KOD_F_3out into NF
-index on upper(_kart->fio)+str(_kart->kod,7) to (cur_dir+"tmp_napr") ;
+index on upper(_kart->fio)+str(_kart->kod,7) to (cur_dir + "tmp_napr") ;
       for for_263_s_annul()
 /*if si == 1
-  index on upper(_kart->fio)+str(_kart->kod,7) to (cur_dir+"tmp_napr") ;
+  index on upper(_kart->fio)+str(_kart->kod,7) to (cur_dir + "tmp_napr") ;
         for KOD_F_1in > 0 .and. empty(DATE_H_2) .and. ;
             (!empty(napr->date_3) .or. empty(KOD_F_4out)) // и не госпитализирован
 elseif si == 2
-  index on upper(_kart->fio)+str(_kart->kod,7) to (cur_dir+"tmp_napr") ;
+  index on upper(_kart->fio)+str(_kart->kod,7) to (cur_dir + "tmp_napr") ;
         for KOD_F_1in > 0 .and. between(date_h_2,arr_m[5],arr_m[6]) .and. ;
             (!empty(napr->date_3) .or. empty(KOD_F_4out)) // и не госпитализирован
 else
-  index on upper(_kart->fio)+str(_kart->kod,7) to (cur_dir+"tmp_napr") ;
+  index on upper(_kart->fio)+str(_kart->kod,7) to (cur_dir + "tmp_napr") ;
         for KOD_F_1in > 0 .and. between(date_2,arr_m[5],arr_m[6]) .and. ;
             (!empty(napr->date_3) .or. empty(KOD_F_4out)) // и не госпитализирован
 endif*/
@@ -1388,7 +1386,7 @@ G_SUnLock(str_sem)
 rest_box(buf)
 return NIL
 
-***** 08.03.17
+// 08.03.17
 Function f1_263_s_annul()
 Local s := "ошибка"
 if empty(napr->date_3)
@@ -1414,7 +1412,7 @@ elseif napr->TIP_ANNUL == 3
 endif
 return s
 
-// 30.03.23
+// 04.06.23
 Function f2_263_s_annul(nKey, oBrow, regim)
 Local ret := -1, rec, i, k, s, tmp_color, buf, s_error := '', ;
       tmp_V006 := {{'Стационар', 1}, {'Дневной стационар', 2}}
@@ -1460,7 +1458,7 @@ do case
       endif
       mUSL_OK := inieditspr(A__MENUVERT, tmp_V006, m1USL_OK)
       mforma := inieditspr(A__MENUVERT,getV014(), m1forma)
-      mprofil_k := inieditspr(A__MENUVERT, arr_t007, M1PROFIL_K)
+      mprofil_k := inieditspr(A__MENUVERT, arr_t007(), M1PROFIL_K)
       mprofil := inieditspr(A__MENUVERT, getV002(), M1PROFIL)
       mrea_annul := inieditspr(A__MENUVERT, get_reason_annul(), m1rea_annul)
       if !empty(m1pol_mo)
@@ -1598,16 +1596,14 @@ do case
 endcase
 return ret
 
-*
-
-***** 19.02.17 Ввод / редактирование количества свободных коек по профилям в стационаре
+// 04.06.23 Ввод / редактирование количества свободных коек по профилям в стационаре
 Function _263_s_svob_kojki()
 Static str_sem := "_263_s_svob_kojki"
 Local buf, blk, t_arr[BR_LEN], fl := .t., k := 0
 if !G_SLock(str_sem)
   return func_error(4,err_slock)
 endif
-G_Use(dir_server+"mo_n7d",,"D7")
+G_Use(dir_server + "mo_n7d",,"D7")
 if lastrec() == 0
   append blank
   UnLock
@@ -1624,7 +1620,7 @@ endif
 @ T_ROW+3,4 say "Последний раз данные редактировались "+date_8(d7->DATE_E)+"г. в "+d7->TIME_E+;
                 " - "+iif(d7->END_EDIT==1,"", "не ")+"завершено"
 if d7->KOD_OPER > 0
-  R_Use(dir_server+"base1",,"base1")
+  R_Use(dir_server + "base1",,"base1")
   goto (d7->KOD_OPER)
   @ T_ROW+4,4 say "Данные редактировал пользователь: "+crypt(base1->p1,gpasskod)
   base1->(dbCloseArea())
@@ -1655,9 +1651,9 @@ if mdate_r != d7->DATE_R_EDI
   UnLock
   Commit
 endif
-G_Use(dir_server+"mo_n7out",,"N7")
-index on padr(inieditspr(A__MENUVERT, arr_t007, n7->PROFIL_K),60)+str(PROFIL_K,3)+str(usl_ok,1)+;
-         padr(inieditspr(A__MENUVERT, getV002(), n7->PROFIL),20)+str(PROFIL,3) to (cur_dir+"tmp_n7")
+G_Use(dir_server + "mo_n7out",,"N7")
+index on padr(inieditspr(A__MENUVERT, arr_t007(), n7->PROFIL_K),60)+str(PROFIL_K,3)+str(usl_ok,1)+;
+         padr(inieditspr(A__MENUVERT, getV002(), n7->PROFIL),20)+str(PROFIL,3) to (cur_dir + "tmp_n7")
 go top
 //
 box_shadow(0,0,4,79,color1,"Редактирование количества свободных коек по профилям в стационаре",color14)
@@ -1678,7 +1674,7 @@ t_arr[BR_OPEN] := {|| f2_263_s_svob_kojki(,,"open") }
 t_arr[BR_ARR_BROWSE] := {'═','░','═',"N/BG,W+/N,B/BG,W+/B,R/BG,W+/R",.t.}
 blk := {|| f0_263_s_svob_kojki() }
 t_arr[BR_COLUMN] := {{" ", {|| iif(n7->usl_ok==2,"д","с") }, blk },;
-                     {" Профиль койки", {|| padr(inieditspr(A__MENUVERT,arr_T007,n7->PROFIL_K),16) }, blk },;
+                     {" Профиль койки", {|| padr(inieditspr(A__MENUVERT, arr_t007(), n7->PROFIL_K), 16) }, blk }, ;
                      {"Профиль м/пом.", {|| padr(inieditspr(A__MENUVERT,getV002(),n7->PROFIL),14) }, blk },;
                      {"сро;леч;к/д", {|| put_val(n7->kol_kd,3) }, {|| {5,5}} },; // 
                      {"Кол.;коек", {|| put_val(n7->QUANTITY,4) }, blk },; // количество коек
@@ -1716,7 +1712,7 @@ G_SUnLock(str_sem)
 restscreen(buf)
 return NIL
 
-***** 24.08.14
+// 24.08.14
 Function f0_263_s_svob_kojki()
 Local k1, k2
 if n7->QUANTITY == 0
@@ -1739,21 +1735,21 @@ else
 endif
 return {1,2}
 
-***** 21.08.14
+// 04.06.23
 Function f1_263_s_svob_kojki(k)
 Static buf
 Local ta[2], k1, k2
 if k == 0
   buf := box_shadow(maxrow()-4,0,maxrow()-1,79,color1,"Профиль койки и профиль медицинской помощи","B+/B")
 elseif k == 1
-  @ maxrow()-3,1 say padc(alltrim(inieditspr(A__MENUVERT, arr_t007, n7->PROFIL_K)),78) color color14
+  @ maxrow()-3,1 say padc(alltrim(inieditspr(A__MENUVERT, arr_t007(), n7->PROFIL_K)),78) color color14
   @ maxrow()-2,1 say padc(alltrim(inieditspr(A__MENUVERT, getV002(), n7->PROFIL)),78) color color14
 elseif k == 2
   rest_box(buf)
 endif
 return NIL
 
-***** 19.02.17
+// 04.06.23
 Function f2_263_s_svob_kojki(nKey,oBrow,regim)
 Local lkod, buf, r1, rec, i, ret := -1, lcodem, n1, n2, tmp_color, arr_p := {},;
       n_file := "sv_kojki"+stxt, sh := 80, HH := 80, t_arr[4], s1, s2, s3, s4,;
@@ -1786,7 +1782,7 @@ elseif regim == "edit"
         mPF_C       := iif(nKey == K_INS, 0, n7->PF_C      ),;
         gl_area := {1,0,23,79,0}, mPLACE_FREE2
       mUSL_OK := inieditspr(A__MENUVERT, tmp_V006, m1USL_OK)
-      mprofil_k := inieditspr(A__MENUVERT, arr_t007, M1PROFIL_K)
+      mprofil_k := inieditspr(A__MENUVERT, arr_t007(), M1PROFIL_K)
       mprofil := inieditspr(A__MENUVERT, getV002(), M1PROFIL)
       mPLACE_FREE2 := mPF_M + mPF_W + mPF_C
       tmp_color := setcolor()
@@ -1903,7 +1899,7 @@ elseif regim == "edit"
       do while !eof()
         s1 := iif(n7->usl_ok==2, "дн", "ст")+" "
         s2 := s3 := s4 := space(3)
-        perenos(t_arr,inieditspr(A__MENUVERT,arr_T007,n7->PROFIL_K),n1-1)
+        perenos(t_arr, inieditspr(A__MENUVERT, arr_t007(), n7->PROFIL_K), n1 - 1)
         s1 += padr(t_arr[1],n1)
         s2 += padr(t_arr[2],n1)
         s3 += padr(t_arr[3],n1)
@@ -1948,14 +1944,14 @@ elseif regim == "edit"
 endif
 return ret
 
-***** 24.08.14
+// 24.08.14
 Static Function count_place_free()
 mplace_free := mQUANTITY - (mQ_P + mQ_AP - mQ_DP + mQ_HP)
 mPLACE_FREE2 := mPF_M + mPF_W + mPF_C
 update_get("mplace_free")
 return update_get("mplace_free2")
 
-***** 19.02.17
+// 19.02.17
 Function _263_put_10_days(mdate)
 Local i := 0, j, d := mdate, d2, arr[10,4]
 afillall(arr,0)
@@ -1967,10 +1963,10 @@ do while .t.
     endif
   endif
 enddo
-R_Use(dir_server+"kartotek",,"KART")
-R_Use(dir_server+"mo_nnapr",,"NAPR")
+R_Use(dir_server + "kartotek",,"KART")
+R_Use(dir_server + "mo_nnapr",,"NAPR")
 set relation to kod_k into KART
-index on str(profil_k_4,3)+str(profil_4,3)+str(usl_ok_4,1) to (cur_dir+"tmp_napr") ;
+index on str(profil_k_4,3)+str(profil_4,3)+str(usl_ok_4,1) to (cur_dir + "tmp_napr") ;
       for empty(TIP_ANNUL) .and. KOD_F_4out >= 0 .and. TYPE_H_4 > 0 .and. !empty(date_h_4) .and. empty(date_6)
 select N7
 go top
