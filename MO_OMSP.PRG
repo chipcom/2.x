@@ -1,10 +1,10 @@
-***** mo_omsp.prg - работа с платёжными документами в задаче ОМС
+// mo_omsp.prg - работа с платёжными документами в задаче ОМС
 #include "inkey.ch"
 #include "function.ch"
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 19.02.20 прочитать и "разнести" по базам данных РПД
+// 19.02.20 прочитать и "разнести" по базам данных РПД
 Function read_XML_FILE_RPD(arr_XML_info,aerr)
 Local fl_PD, fl_schet, blk_PD, blk_schet, i, k, s, s1, arr_s := {}, t_arr[2], ssum,;
       arr, apd := {}, no_write := .t.
@@ -270,7 +270,7 @@ return NIL
 
 *
 
-***** 10.02.17 зачитать Реестр Платёжных Документов во временные файлы
+// 10.02.17 зачитать Реестр Платёжных Документов во временные файлы
 Function reestr_rpd_tmpfile(oXmlDoc,aerr,mname_xml)
 Local j, j1, oXmlNode, oNode1, oNode2, buf := save_maxrow()
 DEFAULT aerr TO {}, mname_xml TO ""
@@ -386,7 +386,7 @@ return NIL
 
 *
 
-***** 17.03.13
+// 17.03.13
 Function view_pd()
 G_Use(dir_server+"mo_xml",,"MO_XML")
 index on dtos(DFILE) to (cur_dir+"tmp_xml") for tip_in==_XML_FILE_RPD DESCENDING
@@ -400,7 +400,7 @@ endif
 close databases
 return NIL
 
-***** 17.03.13
+// 17.03.13
 Function f1_view_rpd(oBrow)
 Local oColumn, blk := {|| iif(empty(mo_xml->TWORK2), {5,6}, {1,2}) }
 oColumn := TBColumnNew("Наименование файла;реестра плат.документов",{|| padr(mo_xml->FNAME,23) })
@@ -427,7 +427,7 @@ oBrow:addColumn(oColumn)
 status_key("^<Esc>^ выход; ^<Enter>^ просмотр платёжных документов; ^<F3>^ протокол чтения файла")
 return NIL
 
-***** 17.03.13
+// 17.03.13
 Function f2_view_rpd(nKey,oBrow)
 Local ret := -1, rec := mo_xml->(recno()), buf := savescreen()
 do case
@@ -451,7 +451,7 @@ restscreen(buf)
 return ret
 
 
-***** 21.12.21
+// 21.12.21
 Function delete_rpd(lrec,lname,not_end)
 Local ret := 0, fl, ia, is, ih
 if not_end .or. hb_user_curUser:IsAdmin()
@@ -508,7 +508,7 @@ return ret
 
 *
 
-***** 17.03.13
+// 17.03.13
 Function view_rpd_pd(lrec)
 Local blk, blk_t_pd, t_arr[BR_LEN]
 R_Use(dir_server+"mo_rpd",,"RPD")
@@ -534,7 +534,7 @@ t_arr[BR_EDIT] := {|nk,ob| f1_view_rpd_pd(nk,ob,"edit") }
 edit_browse(t_arr)
 return NIL
 
-***** 17.03.13
+// 17.03.13
 Function f1_view_rpd_pd(nk,ob,regim)
 Local ret := -1, rec
 if regim == "edit" .and. nk == K_ENTER
@@ -550,7 +550,7 @@ return ret
 
 *
 
-***** 17.03.13
+// 17.03.13
 Function view_rpd_pd_schet(lpd)
 Local blk, t_arr[BR_LEN]
 R_Use(dir_server+"schet_",,"SCHET_")
@@ -581,7 +581,7 @@ t_arr[BR_EDIT] := {|nk,ob| f1_view_rpd_pd_schet(nk,ob,"edit") }
 edit_browse(t_arr)
 return NIL
 
-***** 20.03.13
+// 20.03.13
 Function f1_view_rpd_pd_schet(nk,ob,regim)
 Local ret := -1, rec
 if regim == "edit" .and. nk == K_ENTER
@@ -600,7 +600,7 @@ return ret
 
 *
 
-***** 20.03.13
+// 20.03.13
 Function view_rpd_pd_schet_human(lkod_rpds,is_equal)
 Local blk, t_arr[BR_LEN]
 R_Use(dir_server+"human_",,"HUMAN_")
@@ -637,7 +637,7 @@ t_arr[BR_STAT_MSG] := {|| status_key("^<Esc>^ - выход;  ^<Enter>^ - просмотр опл
 edit_browse(t_arr)
 return NIL
 
-***** 20.03.13
+// 20.03.13
 Function f1_view_rpd_pd_schet_human(par,nk,regim)
 Local ret := -1, c := " ", rec, lkod, sumr := 0, i, n, r1, r2, ar := {}, buf
 if par == 2 .and. !(regim == "edit" .and. nk == K_ENTER)
@@ -714,7 +714,7 @@ return iif(par==1, c, ret)
 
 *
 
-***** 15.12.13
+// 15.12.13
 Function ret_menu_rpd_schet(r,c)
 Static si := 4,;
        arr := {{"по дате отчётного периода",1},;
@@ -1219,27 +1219,36 @@ do while .t.
 enddo
 return NIL
 
-***** 14.09.21 вернуть вид экспертизы
+// 05.06.23 вернуть вид экспертизы
 Function ret_vid_eks()
-Local i
-if rak->TYPEK > 0
-  i := rak->SKONT // до 2019 года
-elseif rak->kont < 4    // далее работаем по F006
-  i := rak->kont-1    // 1,2,3
-elseif rak->kont < 20
-  i := 0 // МЭК
-elseif rak->kont < 30
-  i := 1 // МЭЭ
-elseif rak->kont < 50
-  i := 2 // ЭКМП
-elseif rak->kont < 70  //c 25.05.2021 МЭЭ
-  i := 1 // МЭЭ
-else      //  c 25.05.2021  до 86
-  i := 2 // ЭКМП
-endif
-return i
+  Local i
 
-** 28.06.22 Акты сверки по СМО
+  if rak->TYPEK > 0
+    i := rak->SKONT // до 2019 года
+  elseif rak->kont < 4    // далее работаем по F006
+    i := rak->kont - 1    // 1,2,3
+  elseif rak->kont < 20
+    i := 0 // МЭК
+  elseif rak->kont < 30
+    i := 1 // МЭЭ
+  elseif rak->kont < 50
+    i := 2 // ЭКМП
+  elseif rak->kont < 70  //c 25.05.2021 МЭЭ
+    i := 1 // МЭЭ
+  elseif rak->kont < 88  //  c 05.06.2023  до 87
+    i := 2 // ЭКМП
+  elseif rak->kont == 88 
+    i := 1 // МЭЭ
+  elseif rak->kont == 89
+    i := 2 // ЭКМП
+  elseif rak->kont < 94
+    i := 1 // МЭЭ
+  else      //
+    i := 2 // ЭКМП
+  endif
+  return i
+
+// 28.06.22 Акты сверки по СМО
 Function akt_sverki_smo()
 Static sitog := {;
   "2. Общая сумма средств на оплату по зарег.счетам за месяц",;
@@ -1506,7 +1515,7 @@ rest_box(buf)
 viewtext(name_file+stxt,,,,.t.,,,2)
 return NIL
 
-***** 14.02.19
+// 14.02.19
 Function f1akt_sverki_smo(k,s,hitog)
 Local i, s1
 if !empty(s)
@@ -1962,14 +1971,14 @@ return NIL
 
 *
 
-***** Составление оборотной ведомости
+// Составление оборотной ведомости
 Function pr2_oborot_schet()
 ne_real()
 return NIL
 
 *
 
-***** Ввод входящего сальдо для корректного формирования оборотной ведомости
+// Ввод входящего сальдо для корректного формирования оборотной ведомости
 Function saldo_oborot_schet()
 ne_real()
 return NIL
