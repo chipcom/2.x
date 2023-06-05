@@ -261,21 +261,24 @@ Function f_get_profil_k(k, r, c)
   endif
   return ret
 
-// 02.07.14 в GET-е вернуть строку из getV002()
+// 05.06.23 в GET-е вернуть строку из getV002()
 Function f_get_profil(k, r, c, lprofil_k)
-  Local arr := {}, i, ret, ret_arr, tmp_select := select()
+  Local arr := {}, i, ret, ret_arr
+  // local tmp_select := select()
 
   if empty(lprofil_k)
     return NIL
   endif
-  R_Use(exe_dir + '_mo_t007', cur_dir + '_mo_t007', 'T7')
-  find (str(lprofil_k, 3))
-  do while lprofil_k == t7->profil_k .and. !eof()
-    aadd(arr, {inieditspr(A__MENUVERT, getV002(), t7->PROFIL), t7->profil})
-    skip
-  enddo
-  t7->(dbCloseArea())
-  select (tmp_select)
+  // R_Use(exe_dir + '_mo_t007', cur_dir + '_mo_t007', 'T7')
+  // find (str(lprofil_k, 3))
+  // do while lprofil_k == t7->profil_k .and. !eof()
+  //   aadd(arr, {inieditspr(A__MENUVERT, getV002(), t7->PROFIL), t7->profil})
+  //   skip
+  // enddo
+  // t7->(dbCloseArea())
+  // select (tmp_select)
+
+  arr := ret_arr_V002_profil_k_t007(lprofil_k)
   if empty(arr)
     func_error(4, 'В справочнике T007 не найдено профилей мед.помощи для данного профиля койки')
     return NIL
@@ -4722,7 +4725,7 @@ Function _263_I07_tmpfile(nfile, aerr)
               if valtype(oNode3) != 'C' .AND. oNode3:title == 'SMO_V'
                 ssmo := alltrim(mo_read_xml_stroke(oNode3, 'SMO', aerr))
                 if eq_any(ssmo, '34001', '34002', '34006', '34007')
-                  &('tmp2->V_H'+ssmo) := val(mo_read_xml_stroke(oNode3, 'V_H', aerr))
+                  &('tmp2->V_H' + ssmo) := val(mo_read_xml_stroke(oNode3, 'V_H', aerr))
                 endif
               endif
             next j2
@@ -4742,25 +4745,45 @@ Function _263_pr_prk(lprk, lpr, ldate_r)
   ar[1] := lstr(lpr)
   return ar
 
-// 11.02.19 профиль койки из t007 в v020 и в строку
+// 05.06.23 профиль койки из t007 в v020 и в строку
 Function f_profil_k_t007_v020(lprk, /*@*/lpr, ldate_r)
-  Local i, lprk20 := lprk
+  Local lprk20 := lprk
+  local arrT007 := loadT007()
+  local row := {}, lFound := .f.
 
   if ldate_r > 0d20190115 // с 16 января
-    if select('T7') > 0
-      t7->(dbCloseArea())
-    endif
-    R_Use(exe_dir + '_mo_t007', cur_dir + '_mo_t007', 'T7')
-    find (str(lprk, 3) + str(lpr, 3))
-    if found()
-      lprk20 := t7->pk_V020
-    else
-      find (str(lprk, 3))
-      if found()
-        lprk20 := t7->pk_V020
+    // if select('T7') > 0
+    //   t7->(dbCloseArea())
+    // endif
+    // R_Use(exe_dir + '_mo_t007', cur_dir + '_mo_t007', 'T7')
+    // find (str(lprk, 3) + str(lpr, 3))
+    // if found()
+    //   lprk20 := t7->pk_V020
+    // else
+    //   find (str(lprk, 3))
+    //   if found()
+    //     lprk20 := t7->pk_V020
+    //   endif
+    // endif
+    // t7->(dbCloseArea())
+
+    for each row in arrT007
+      if row[1] == lprk .and. row[3] == lpr
+        lprk20 := row[2]
+        lFound := .t.
+        exit
       endif
+    next
+    if ! lFound
+      for each row in arrT007
+        if row[1] == lprk
+          lprk20 := row[2]
+          exit
+        endif
+      next
     endif
-    t7->(dbCloseArea())
+  
+
     if lprk20 == 50
       lpr := 162
     elseif lprk20 == 51
@@ -4769,25 +4792,44 @@ Function f_profil_k_t007_v020(lprk, /*@*/lpr, ldate_r)
   endif
   return lstr(lprk20)
 
-// 21.01.19 профиль койки из строки в число, затем из v020 в t007
+// 05.06.23 профиль койки из строки в число, затем из v020 в t007
 Function f_profil_k_v020_t007(sprk20, lpr, ldate_r)
-  Local i, lprk, lprk20 := int(val(sprk20))
+  Local lprk, lprk20 := int(val(sprk20))
+  local arrT007 := loadT007()
+  local row := {}, lFound := .f.
 
   lprk := lprk20
   if ldate_r > 0d20190115 // с 16 января
-    if select('T7') > 0
-      t7->(dbCloseArea())
-    endif
-    R_Use(exe_dir + '_mo_t007', cur_dir + '_mo_t0072', 'T7')
-    find (str(lprk20, 3) + str(lpr, 3))
-    if found()
-      lprk := t7->profil_k
-    else
-      find (str(lprk20, 3))
-      if found()
-        lprk := t7->profil_k
+    // if select('T7') > 0
+    //   t7->(dbCloseArea())
+    // endif
+    // R_Use(exe_dir + '_mo_t007', cur_dir + '_mo_t0072', 'T7')
+    // find (str(lprk20, 3) + str(lpr, 3))
+    // if found()
+    //   lprk := t7->profil_k
+    // else
+    //   find (str(lprk20, 3))
+    //   if found()
+    //     lprk := t7->profil_k
+    //   endif
+    // endif
+    // t7->(dbCloseArea())
+
+    for each row in arrT007
+      if row[2] == lprk20 .and. row[3] == lpr
+        lprk := row[1]
+        lFound := .t.
+        exit
       endif
+    next
+    if ! lFound
+      for each row in arrT007
+        if row[2] == lprk20
+          lprk := row[1]
+          exit
+        endif
+      next
     endif
-    t7->(dbCloseArea())
+  
   endif
   return lprk
