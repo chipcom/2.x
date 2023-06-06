@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 26.05.23
+// 06.06.23
 Function print_l_uch(mkod, par, regim, lnomer)
   // mkod - код больного по БД human
   Local sh := 80, HH := 77, buf := save_maxrow(), ;
@@ -379,6 +379,12 @@ Function print_l_uch(mkod, par, regim, lnomer)
       next
     endif
   endif
+
+  if HUMAN_2->PN6 == 1
+    add_string('')
+    add_string('  Пациент направлен на МСЭ в бюро медико-социальной экспертизы')
+  endif
+  
   if !empty(mlech_vr)
     add_string('  Лечащий врач : ' + mlech_vr)
   endif
