@@ -5,7 +5,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-#define MONTH_UPLOAD 6 //МЕСЯЦ для выгрузки R11
+#define MONTH_UPLOAD 7 //МЕСЯЦ для выгрузки R11
 
 Static lcount_uch  := 1
 Static mas1pmt := {"~все оказанные случаи",;
