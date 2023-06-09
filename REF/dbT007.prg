@@ -1,5 +1,6 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
+#include 'edit_spr.ch'
 
 #require 'hbsqlit3'
 
