@@ -2571,7 +2571,11 @@ if pp_regim == 1 .and. eq_any(nkey,K_F5,K_F6,K_F7,K_F8,K_F9,K_F10,K_F12)
   frd->name_otd := inieditspr(6,dir_server+"mo_otd",hu->OTD)
   //02.05.18
   //frd->dost_skor := iif(hu->GOSPIT1==1 .and. hu->KEM_DOST==1, "„€", "…’")
-  frd->dost_skor := iif(hu->KEM_DOST==1, "„€", "…’")
+  if glob_mo[_MO_KOD_TFOMS] == '711001' // †„
+    frd->dost_skor := iif(hu->KEM_DOST==2, "„€", "…’")
+  else  
+    frd->dost_skor := iif(hu->KEM_DOST==1, "„€", "…’")
+  endif  
   if !empty(hu->kem_napr)
     arr := ret_mo(hu->kem_napr)
     frd->kem_napr := alltrim(arr[_MO_SHORT_NAME])+" ("+arr[_MO_KOD_TFOMS]+" / "+arr[_MO_KOD_FFOMS]+")"
