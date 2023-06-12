@@ -92,3 +92,98 @@ Function init_mo()
   endif
 
   return main_up_screen()
+
+// 11.06.23
+function delete_base_dict(dir_exe, dir_cur)
+  local aDbf := { ;
+      dir_exe + '_mo_mo.dbb', ;
+      dir_exe + '_mo_o001.dbf', ;
+      dir_exe + '_mo_q015.dbf', ;
+      dir_exe + '_mo_q016.dbf', ;
+      dir_exe + '_mo_q017.dbf', ;
+      dir_exe + '_mo_f006.dbf', ;
+      dir_exe + '_mo_f010.dbf', ;
+      dir_exe + '_mo_f014.dbf', ;
+      dir_exe + 'not_lev.dbf', ;
+      dir_exe + 'not_usl.dbf', ;
+      dir_exe + '_mo_v002.dbf', ;
+      dir_exe + '_mo_v009.dbf', ;
+      dir_exe + '_mo_v010.dbf', ;
+      dir_exe + '_mo_v012.dbf', ;
+      dir_exe + '_mo_v015.dbf', ;
+      dir_exe + '_mo_v016.dbf', ;
+      dir_exe + '_mo_v017.dbf', ;
+      dir_exe + '_mo_v018.dbf', ;
+      dir_exe + '_mo_v019.dbf', ;
+      dir_exe + '_mo_v020.dbf', ;
+      dir_exe + '_mo_v021.dbf', ;
+      dir_exe + '_mo_v022.dbf', ;
+      dir_exe + '_mo_v025.dbf', ;
+      dir_exe + '_mo_v030.dbf', ;
+      dir_exe + '_mo_v031.dbf', ;
+      dir_exe + '_mo_v032.dbf', ;
+      dir_exe + '_mo_v033.dbf', ;
+      dir_exe + '_mo_v036.dbf', ;
+      dir_exe + '_mo_ed_izm.dbf', ;
+      dir_exe + '_mo_impl.dbf', ;
+      dir_exe + '_mo_method_inj.dbf', ;
+      dir_exe + '_mo_severity.dbf', ;
+      dir_exe + '_mo_t005.dbf', ;
+      dir_exe + '_mo_t006.dbf', ;
+      dir_exe + '_mo_t007.dbf', ;
+      dir_exe + '_mo_unit.dbf', ;
+      dir_exe + '_mo_usl.dbf', ;
+      dir_exe + '_mo_uslc.dbf', ;
+      dir_exe + '_mo5k006.dbf', ;
+      dir_exe + '_mo5t006.dbf', ;
+      dir_exe + '_mo5uslc.dbf', ;
+      dir_exe + '_mo5uslf.dbf', ;
+      dir_exe + '_mo6k006.dbf', ;
+      dir_exe + '_mo6t006.dbf', ;
+      dir_exe + '_mo6uslc.dbf', ;
+      dir_exe + '_mo6uslf.dbf', ;
+      dir_exe + '_mo7k006.dbf', ;
+      dir_exe + '_mo7t006.dbf', ;
+      dir_exe + '_mo7uslc.dbf', ;
+      dir_exe + '_mo7uslf.dbf', ;
+      dir_exe + 't006_2.dbf', ;
+      dir_exe + 't006_d.dbf', ;
+      dir_exe + 't006_u.dbf', ;
+      dir_exe + 'telemed.dbf', ;
+      dir_exe + 'v001.dbf', ;
+      dir_exe + '_mo_t005.dbt', ;
+      dir_exe + '_mo_v019.dbt', ;
+      dir_exe + '_mo_v020.dbt', ;
+      dir_exe + '_mo_v030.dbt', ;
+      dir_exe + '_mo0k006.dbt', ;
+      dir_exe + '_mo1k006.dbt', ;
+      dir_exe + '_mo8k006.dbt', ;
+      dir_exe + '_mo9k006.dbt', ;
+      dir_exe + 't006_2.dbt', ;
+      dir_exe + '_mo_q015.dbt', ;
+      dir_exe + '_mo_q016.dbt', ;
+      dir_exe + '_mo_q017.dbt', ;
+      dir_exe + '_mo_f006.dbt', ;
+      dir_exe + '_mo_f014.dbt' ;
+    }
+  local aNtx := { ;
+      dir_cur + '_mo_t005.ntx', ;
+      dir_cur + '_mo_t007.ntx', ;
+      dir_cur + '_mo_t0072.ntx', ;
+      dir_cur + '_mo_impl.ntx' ;
+    }
+  local row
+
+  for each row in aDbf
+    if hb_vfExists(row)
+      hb_vfErase(row)
+    endif
+  next
+
+  for each row in aNtx
+    if hb_vfExists(row)
+      hb_vfErase(row)
+    endif
+  next
+
+  return nil

@@ -213,7 +213,7 @@ procedure main( ... )
 
   return
 
-// 17.05.21
+// 11.06.23
 Function f_main(r0, is_local_version, a_parol)
   Static arr1 := {;
     {'Регистратура поликлиники'            , X_REGIST, , .t., 'РЕГИСТРАТУРА'}, ;
@@ -280,6 +280,7 @@ Function f_main(r0, is_local_version, a_parol)
   if fl_exit
     func_error(4,'Нет разрешения на работу ни в одной задаче!')
   else
+    delete_base_dict(exe_dir, cur_dir)
     // вывести верхние строки главного экрана
     r0 := main_up_screen()
     // вывести центральные строки главного экрана
