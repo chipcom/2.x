@@ -1,7 +1,7 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-** 01.11.22
+// 01.11.22
 function getInfoKSLP(dateSl, code)
   local row := {}
   local tmpArray := getKSLPtable(dateSl)
@@ -13,7 +13,7 @@ function getInfoKSLP(dateSl, code)
   next
   return row
 
-** 01.11.22
+// 01.11.22
 function getInfoKIRO(dateSl, code)
   local row := {}
   local tmpArray := getKIROtable(dateSl)
@@ -50,7 +50,7 @@ function getKSLPtable(dateSl)
     tmp_select := select()
     dbName := prefixFileRefName(dateSl) + 'kslp'
 
-    dbUseArea( .t., "DBFNTX", exe_dir + dbName, dbAlias , .t., .f. )
+    dbUseArea( .t., 'DBFNTX', exe_dir + dbName, dbAlias , .t., .f. )
     (dbAlias)->(dbGoTop())
     do while !(dbAlias)->(EOF())
       aadd(aKSLP, { (dbAlias)->CODE, alltrim((dbAlias)->NAME), alltrim((dbAlias)->NAME_F), (dbAlias)->COEFF, (dbAlias)->DATEBEG, (dbAlias)->DATEEND })
@@ -76,7 +76,7 @@ function getKSLPtable(dateSl)
   endif
   return retKSLP
 
-***** 18.01.22 
+// 18.01.22
 // возвращает массив КИРО на указанную дату
 function getKIROtable( dateSl )
   Local dbName, dbAlias := 'KIRO_'
@@ -101,7 +101,7 @@ function getKIROtable( dateSl )
     tmp_select := select()
     dbName := prefixFileRefName(dateSl) + 'kiro'
 
-    dbUseArea( .t., "DBFNTX", exe_dir + dbName, dbAlias , .t., .f. )
+    dbUseArea( .t., 'DBFNTX', exe_dir + dbName, dbAlias , .t., .f. )
     (dbAlias)->(dbGoTop())
     do while !(dbAlias)->(EOF())
       aadd(aKIRO, { (dbAlias)->CODE, alltrim((dbAlias)->NAME), alltrim((dbAlias)->NAME_F), (dbAlias)->COEFF, (dbAlias)->DATEBEG, (dbAlias)->DATEEND })

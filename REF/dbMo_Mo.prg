@@ -2,11 +2,11 @@
 #include 'chip_mo.ch'
 
 
-***** 14.06.21
+// 14.06.21
 Function create_mo_add()
   local sbase := 'mo_add'
 
-  if !hb_FileExists(dir_server+sbase+sdbf)
+  if !hb_FileExists(dir_server + sbase + sdbf)
     adbf := {;
      { 'MCOD',      'C',   6, 0 }, ; // 
      { 'CODEM',     'C',   6, 0 }, ; // 
@@ -15,13 +15,13 @@ Function create_mo_add()
      { 'ADRES',     'C', 250, 0 }, ; // 
      { 'DEND',      'D',   8, 0 } ; // 
     }
-    reconstruct(dir_server + sbase, adbf, "index_base('mo_add')", , .t.)
+    reconstruct(dir_server + sbase, adbf, 'index_base('mo_add')', , .t.)
     fill_mo_add(sbase)
 
   endif
   return nil
 
-***** 14.06.21
+// 14.06.21
 Function fill_mo_add(sbase)
   local aa := { ;
     {'080044','999919','БУ р.Калмыкия "Республиканский детский мед.центр им.Манджиевой Валентины Джамаловны"','БУ р.Калмыкия "Республиканский детский мед.центр им.Манджиевой Валентины Джамало"','','20251231'}, ;
@@ -60,19 +60,19 @@ Function fill_mo_add(sbase)
   if G_Use(dir_server + sbase, dir_server + sbase, sbase, , .t.,)
     for i := 1 to len(aa)
       (sbase)->(dbappend())
-      (sbase)->MCOD := aa[i,1]
-      (sbase)->CODEM := aa[i,2]
-      (sbase)->NAMEF := aa[i,3]
-      (sbase)->NAMES := aa[i,4]
-      (sbase)->ADRES := aa[i,5]
-      (sbase)->DEND := hb_SToD(aa[i,6])
+      (sbase)->MCOD := aa[i, 1]
+      (sbase)->CODEM := aa[i, 2]
+      (sbase)->NAMEF := aa[i, 3]
+      (sbase)->NAMES := aa[i, 4]
+      (sbase)->ADRES := aa[i, 5]
+      (sbase)->DEND := hb_SToD(aa[i, 6])
     next
     (sbase)->(dbCloseArea())
   endif
 
   return nil
 
-****** 13.06.21  вернуть массив _mo_dbb.dbb
+// 13.06.21  вернуть массив _mo_dbb.dbb
 function getMo_mo(nfile)
   local i, arr, arr1
   local ret_arr := {}
@@ -81,21 +81,21 @@ function getMo_mo(nfile)
   for i := 1 to len(arr1)
     arr := array(_MO_LEN_ARR)
     if !(valtype(arr1[i]) == 'A') .or. len(arr1[i]) < 12
-      func_error(4,'Разрушен файл '+upper(nfile))
+      func_error(4,'Разрушен файл ' + upper(nfile))
       loop
     endif
-    arr[_MO_KOD_FFOMS]  := crypt(arr1[i,1],gpasskod)
-    arr[_MO_KOD_TFOMS]  := crypt(arr1[i,2],gpasskod)
-    arr[_MO_FULL_NAME]  := crypt(arr1[i,3],gpasskod)
-    arr[_MO_SHORT_NAME] := crypt(arr1[i,4],gpasskod)
-    arr[_MO_ADRES]      := crypt(arr1[i,5],gpasskod)
-    arr[_MO_PROD]       := crypt(arr1[i,9],gpasskod)
-    arr[_MO_DEND]       := ctod(crypt(arr1[i,10],gpasskod))
-    arr[_MO_STANDART]   := arr1[i,11]
-    arr[_MO_UROVEN]     := arr1[i,12]
-    arr[_MO_IS_MAIN]    := (arr1[i,6]=='1')
-    arr[_MO_IS_UCH]     := (arr1[i,7]=='1')
-    arr[_MO_IS_SMP]     := (arr1[i,8]=='1')
+    arr[_MO_KOD_FFOMS]  := crypt(arr1[i, 1], gpasskod)
+    arr[_MO_KOD_TFOMS]  := crypt(arr1[i, 2], gpasskod)
+    arr[_MO_FULL_NAME]  := crypt(arr1[i, 3], gpasskod)
+    arr[_MO_SHORT_NAME] := crypt(arr1[i, 4], gpasskod)
+    arr[_MO_ADRES]      := crypt(arr1[i, 5], gpasskod)
+    arr[_MO_PROD]       := crypt(arr1[i, 9], gpasskod)
+    arr[_MO_DEND]       := ctod(crypt(arr1[i, 10], gpasskod))
+    arr[_MO_STANDART]   := arr1[i, 11]
+    arr[_MO_UROVEN]     := arr1[i, 12]
+    arr[_MO_IS_MAIN]    := (arr1[i, 6] == '1')
+    arr[_MO_IS_UCH]     := (arr1[i, 7] == '1')
+    arr[_MO_IS_SMP]     := (arr1[i, 8] == '1')
     if valtype(arr[_MO_UROVEN]) != 'A'
       arr[_MO_UROVEN] := {}
     endif
@@ -104,7 +104,7 @@ function getMo_mo(nfile)
 
   return ret_arr
 
-* 13.06.21 вернуть массив _mo_dbb.dbf
+// 13.06.21 вернуть массив _mo_dbb.dbf
 function getMo_mo_New(dbName, reload)
   // reload - флаг указывающий на перезагрузку справочника, .T. - перезагрузить, .F. - нет
   
@@ -187,7 +187,4 @@ function getMo_mo_New(dbName, reload)
       (sbase)->(dbCloseArea())
       endif
   endif
-
-  
   return _arr
-

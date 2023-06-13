@@ -6,7 +6,7 @@
 
 #include 'tbox.ch'
 
-* 20.01.21 {_MO_KOD_TFOMS,_MO_SHORT_NAME}
+// 20.01.21 {_MO_KOD_TFOMS,_MO_SHORT_NAME}
 Function viewF003()
 
   local nTop, nLeft, nBottom, nRight
@@ -19,7 +19,7 @@ Function viewF003()
   local lFileCreated := .f.
   local retMCOD := { '', space(10) }
   local ar_f010 := getf010()
-  local selectedRegion := "34"
+  local selectedRegion := '34'
   local sbase := 'mo_add'
   local prev_codem := 0, cur_codem := 0
 
@@ -30,13 +30,13 @@ Function viewF003()
 
   ar := {}
   for i := 1 to len(ar_f010)
-    aadd(ar, ar_f010[i,1])
+    aadd(ar, ar_f010[i, 1])
     l := max(l,len(ar[i]))
   next
 
-  dbUseArea( .t., "DBFNTX", exe_dir + dbName, dbName, .t., .f. )
+  dbUseArea( .t., 'DBFNTX', exe_dir + dbName, dbName, .t., .f. )
   aStruct := (dbName)->(dbStruct())
-  (dbName)->(dbCreateIndex( indexName, "substr(MCOD,1,2)", , NIL ))
+  (dbName)->(dbCreateIndex( indexName, 'substr(MCOD,1,2)', , NIL ))
 
   nTop := 4
   nLeft := 3
@@ -64,14 +64,14 @@ Function viewF003()
   oBoxRegion:MessageLine := '^^ или нач.буква - просмотр;  ^<Esc>^ - выход;  ^<Enter>^ - выбор'
   oBoxRegion:Save := .t.
   oBoxRegion:View()
-  nRegion := AChoice( oBoxRegion:Top+1, oBoxRegion:Left+1, oBoxRegion:Bottom-1, oBoxRegion:Right-1, ar, , , 34 )
+  nRegion := AChoice( oBoxRegion:Top + 1, oBoxRegion:Left + 1, oBoxRegion:Bottom - 1, oBoxRegion:Right - 1, ar, , , 34 )
   if nRegion == 0
     (dbName)->(dbCloseArea())
     (tmpAlias)->(dbCloseArea())
     select (tmp_select)
     return retMCOD
   else
-    selectedRegion  := ar_f010[nRegion,2]
+    selectedRegion  := ar_f010[nRegion, 2]
   endif
   fl_other_region := .f.
 
@@ -81,7 +81,7 @@ Function viewF003()
         
   (dbName)->(dbGoTop())
   (dbName)->(dbSeek(selectedRegion))
-  do while substr((dbName)->MCOD,1,2) == selectedRegion
+  do while substr((dbName)->MCOD, 1, 2) == selectedRegion
     (tmpAlias)->(dbAppend())
     (tmpAlias)->MCOD := (dbName)->MCOD
     (tmpAlias)->NAMEMOK := (dbName)->NAMEMOK
@@ -94,12 +94,12 @@ Function viewF003()
                 
   oBox:Caption := 'Выбор направившей организации'
   oBox:View()
-  dbCreateIndex( tmpName, "NAMEMOK", , NIL )
+  dbCreateIndex( tmpName, 'NAMEMOK', , NIL )
 
   (tmpAlias)->(dbGoTop())
-  if fl := Alpha_Browse(oBox:Top+1,oBox:Left+1,oBox:Bottom-5,oBox:Right-1,"ColumnF003",color0,,,,,,"ViewRecordF003","controlF003",,{"═","░","═","N/BG,W+/N,B/BG,BG+/B"} )
+  if fl := Alpha_Browse(oBox:Top + 1, oBox:Left + 1, oBox:Bottom - 5, oBox:Right - 1, 'ColumnF003', color0, , , , , , 'ViewRecordF003', 'controlF003', , {'═', '░', '═', 'N/BG, W+/N, B/BG, BG+/B'} )
     // проверяем выбор
-    if (ifi := hb_ascan(glob_arr_mo,{|x| x[_MO_KOD_FFOMS] == (tmpAlias)->MCOD },,,.t.) ) > 0
+    if (ifi := hb_ascan(glob_arr_mo, {|x| x[_MO_KOD_FFOMS] == (tmpAlias)->MCOD }, , , .t.) ) > 0
       // нашли в файле
       alert('Медицинское учреждение уже добавлено в справочник!')
     else
@@ -136,22 +136,22 @@ Function viewF003()
   select (tmp_select)
   return retMCOD
 
-* 15.10.21
-Function controlF003(nkey,oBrow)
+// 15.10.21
+Function controlF003(nkey, oBrow)
   Local ret := -1, cCode, rec
 
   return ret
     
-***** 15.10.21
+// 15.10.21
 Function ColumnF003(oBrow)
   Local oColumn
   
-  oColumn := TBColumnNew(center("Наименование",50), {|| left((tmpAlias)->NAMEMOK,50) })
+  oColumn := TBColumnNew(center('Наименование', 50), {|| left((tmpAlias)->NAMEMOK, 50)})
   oBrow:addColumn(oColumn)
   status_key('^<Esc>^ - выход; ^<Enter>^ - выбор')
   return nil
 
-***** 21.01.21
+// 21.01.21
 Function ViewRecordF003()
   Local i, arr := {}, count
 
@@ -166,24 +166,24 @@ Function ViewRecordF003()
   count := iif(len(arr) > oBoxCompany:Height, oBoxCompany:Height, len(arr))
 
   for i := 1 to count
-    @ oBoxCompany:Top+i-1,oBoxCompany:Left+1 say arr[i]
+    @ oBoxCompany:Top + i - 1, oBoxCompany:Left + 1 say arr[i]
   next
   
   return nil
 
-***** 15.10.21
+// 15.10.21
 Function getF003mo(mCode)
   // mCode - код МО по F003
   Local arr, dbName := '_mo_f003', indexName := cur_dir + dbName + 'cod'
   local tmp_select := Select()
   Local i // возьмём первое по порядку МО
 
-  if SubStr(mCode,1,2) != "34"
+  if SubStr(mCode,1,2) != '34'
 
     arr := aclone(glob_arr_mo[1])
     if empty(mCode) .or. (Len(mCode) != 6)
       for i := 1 to len(arr)
-        if valtype(arr[i]) == "C"
+        if valtype(arr[i]) == 'C'
           arr[i] := space(6) // и очистим строковые элементы
         endif
       next
@@ -193,8 +193,8 @@ Function getF003mo(mCode)
 
     arr := array(_MO_LEN_ARR)
 
-    dbUseArea( .t., "DBFNTX", exe_dir + dbName, dbName, .t., .f. )
-    (dbName)->(dbCreateIndex( indexName, "MCOD", , NIL ))
+    dbUseArea( .t., 'DBFNTX', exe_dir + dbName, dbName, .t., .f. )
+    (dbName)->(dbCreateIndex( indexName, 'MCOD', , NIL ))
 
     (dbName)->(dbGoTop())
     if (dbName)->(dbSeek(mCode))
@@ -215,7 +215,7 @@ Function getF003mo(mCode)
   else
     arr := aclone(glob_arr_mo[1])
     for i := 1 to len(arr)
-      if valtype(arr[i]) == "C"
+      if valtype(arr[i]) == 'C'
         arr[i] := space(6) // и очистим строковые элементы
       endif
     next

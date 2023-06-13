@@ -1,4 +1,4 @@
-* 07.01.22 вернуть массив по справочнику ФФОМС N020.xml - 
+// 07.01.22 вернуть массив по справочнику ФФОМС N020.xml - 
 function loadN020()
   Local dbName, dbAlias := 'N020'
   local tmp_select := select()
@@ -8,7 +8,7 @@ function loadN020()
     _N020 := hb_hash()
     tmp_select := select()
     dbName := '_mo_n020'
-    dbUseArea( .t., "DBFNTX", exe_dir + dbName, dbAlias , .t., .f. )
+    dbUseArea( .t., 'DBFNTX', exe_dir + dbName, dbAlias , .t., .f. )
 
     //  1 - ID_LEKP(C)  2 - MNN(C)  3 - DATEBEG(D)  4 - DATEEND(D)
     (dbAlias)->(dbGoTop())
@@ -23,7 +23,7 @@ function loadN020()
 
   return _N020
 
-* 07.01.22 вернуть МНН лекарственного препарата
+// 07.01.22 вернуть МНН лекарственного препарата
 function get_Lek_pr_By_ID(id_lekp)
   local arr := loadN020()
   local ret

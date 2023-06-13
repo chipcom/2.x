@@ -1,5 +1,5 @@
 
-* 17.02.21 вернуть массив справочнику ТФОМС F015.xml
+// 17.02.21 вернуть массив справочнику ТФОМС F015.xml
 function getF015()
   // F015.xml - Классификатор федеральных округов
   //  1 - OKRNAME(C)  2 - KOD_OK(N)  3 - DATEBEG(D)  4 - DATEEND(D)
@@ -19,4 +19,3 @@ function getF015()
   endif
 
   return _arr
-
