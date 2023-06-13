@@ -15,7 +15,7 @@ Function create_mo_add()
      { 'ADRES',     'C', 250, 0 }, ; // 
      { 'DEND',      'D',   8, 0 } ; // 
     }
-    reconstruct(dir_server + sbase, adbf, 'index_base('mo_add')', , .t.)
+    reconstruct(dir_server + sbase, adbf, 'index_base("mo_add")', , .t.)
     fill_mo_add(sbase)
 
   endif
