@@ -2,7 +2,7 @@
 
 #require 'hbsqlit3'
 
-** 26.01.23 вернуть массив по справочнику ФФОМС V031.xml
+// 26.01.23 вернуть массив по справочнику ФФОМС V031.xml
 function getV031()
   // V031.xml - Группы препаратов для лечения заболевания COVID-19 (GroupDrugs)
   //  1 - DRUGCODE(N) 2 - DRUGGRUP(C) 3 - INDMNN(N)  4 - DATEBEG(D)  5 - DATEEND(D)
@@ -28,7 +28,7 @@ function getV031()
   endif
   return _arr
 
-****** 29.08.22 вернуть группу препаратов
+// 29.08.22 вернуть группу препаратов
 function get_group_prep_by_kod(_code, ldate)
   local _arr, row, code
 

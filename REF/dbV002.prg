@@ -7,7 +7,7 @@
 #define V002_DATEBEG  3
 #define V002_DATEEND  4
 
-** 23.01.23 вернуть массив по справочнику регионов ТФОМС V002.xml
+// 23.01.23 вернуть массив по справочнику регионов ТФОМС V002.xml
 function getV002(work_date)
   // V002.dbf - Классификатор профилей оказанной медицинской помощи
   //  1 - PRNAME(C)  2 - IDPR(N)  3 - DATEBEG(D)  4 - DATEEND(D)
@@ -47,4 +47,3 @@ function getV002(work_date)
     next
   endif
   return ret_array
-

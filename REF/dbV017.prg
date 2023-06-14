@@ -2,7 +2,7 @@
 
 #require 'hbsqlit3'
 
-** 26.01.23 вернуть Классификатор результатов диспансеризации (DispR) V017.xml
+// 26.01.23 вернуть Классификатор результатов диспансеризации (DispR) V017.xml
 function getV017()
   // V017.xml - Классификатор результатов диспансеризации (DispR)
   static _arr
@@ -27,7 +27,7 @@ function getV017()
   endif
   return _arr
 
-***** 13.12.21 вернуть список результатов диспансеризации на дату в соответствии со списком кодов
+// 13.12.21 вернуть список результатов диспансеризации на дату в соответствии со списком кодов
 function get_list_DispR(mdate, arrDR)
   local _arr := {}, code, i
   local tmpArr := getV017()
@@ -42,5 +42,3 @@ function get_list_DispR(mdate, arrDR)
   next
 
   return _arr
-
-  // ssssss := get_list_DispR(sys_date, get_type_DispT(sys_date, 'ОПВ')[3])

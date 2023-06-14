@@ -2,7 +2,7 @@
 
 #require 'hbsqlit3'
 
-** 26.01.23 вернуть массив по справочнику ФФОМС V030.xml
+// 26.01.23 вернуть массив по справочнику ФФОМС V030.xml
 function getV030()
   // V030.xml - Схемы лечения заболевания COVID-19 (TreatReg)
   //  1 - SCHEMCOD(C) 2 - SCHEME(C) 3 - DEGREE(N) 4 - COMMENT(M)  5 - DATEBEG(D)  6 - DATEEND(D)
@@ -38,7 +38,7 @@ function getV030()
   endif
   return _arr
 
-****** 11.01.22 вернуть схемы лечения согласно тяжести пациента
+// 11.01.22 вернуть схемы лечения согласно тяжести пациента
 function get_schemas_lech(_degree, ldate)
   local _arr := {}, row
 
@@ -55,7 +55,7 @@ function get_schemas_lech(_degree, ldate)
   next
   return _arr
 
-***** 07.01.22 вернуть наименование схемы
+// 07.01.22 вернуть наименование схемы
 Function ret_schema_V030(s_code)
   // s_code - код схемы
   Local i, ret := ''

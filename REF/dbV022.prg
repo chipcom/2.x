@@ -2,10 +2,9 @@
 
 #require 'hbsqlit3'
 
-** 26.01.23
-// возвращает массив V022
+// 26.01.23 возвращает массив V022
 function getV022()
-  static _arr   // := {}
+  static _arr
   static time_load
   local db
   local aTable, stmt
@@ -35,23 +34,12 @@ function getV022()
   endif
   return _arr
 
-***** 11.02.21 вернуть строку модели пациента ВМП
-Function ret_V022(idmpac,lk_data)
+// 11.02.21 вернуть строку модели пациента ВМП
+Function ret_V022(idmpac, lk_data)
   Local i, s := space(10)
   local aV022 := getV022()
 
   if !empty(idmpac) .and. ((i := ascan(aV022, {|x| x[1] == idmpac })) > 0)
-    s := aV022[i,2]
+    s := aV022[i, 2]
   endif
   return s
-
-***** 11.02.21 действия в ответ на выбор в меню "Вид модели пациента ВМП"
-// Function f_valid_mmodpac(get,old)
-//   if empty(m1modpac)
-//     mmodpac := space(67) ; m1modpac := 0
-//     update_get("mmodpac")
-//   elseif !(m1modpac == old) .and. old != NIL .and. get != NIL
-//     mmodpac := space(67) ; m1modpac := 0
-//     update_get("mmodpac")
-//   endif
-//   return .t.

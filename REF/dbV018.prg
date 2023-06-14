@@ -1,8 +1,9 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-** 25.01.23
-// возвращает массив V018 на указанную дату
+#require 'hbsqlit3'
+
+// 25.01.23 возвращает массив V018 на указанную дату
 function getV018( dateSl )
   local yearSl := year(dateSl)
   local _arr

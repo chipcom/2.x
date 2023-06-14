@@ -8,7 +8,7 @@
 #define V009_DATEBEG  4
 #define V009_DATEEND  5
 
-** 23.01.23 вернуть массив по справочнику ТФОМС V009.xml
+// 23.01.23 вернуть массив по справочнику ТФОМС V009.xml
 function getV009(work_date)
   // V009.xml - Классификатор результатов обращения за медицинской помощью
   static _arr
@@ -19,7 +19,6 @@ function getV009(work_date)
   local nI
   local ret_array
 
-  // if len(_arr) == 0
   if timeout_load(@time_load)
     _arr := {}
     Set(_SET_DATEFORMAT, 'yyyy-mm-dd')
@@ -62,7 +61,7 @@ function getV009(work_date)
   endif
   return ret_array
 
-** 04.11.22 вернуть результат обращения за медицинской помощью по коду
+// 04.11.22 вернуть результат обращения за медицинской помощью по коду
 function getRSLT_V009(result)
   local ret := NIL
   local i
@@ -72,15 +71,14 @@ function getRSLT_V009(result)
   endif
   return ret
 
-** 23.01.23 вернуть результат обращения по условию оказания и дате
+// 23.01.23 вернуть результат обращения по условию оказания и дате
 function getRSLT_usl_date(uslovie, date)
   local ret := {}
   local row
 
   for each row in getV009(date)
-      if uslovie == row[5]
-        aadd(ret, row)
-      endif
-    // endif
+    if uslovie == row[5]
+      aadd(ret, row)
+    endif
   next
   return ret

@@ -40,40 +40,6 @@ function loadT005()
   endif
   return _arr
 
-// 04.08.21 вернуть массив ошибок ТФОМС T005.dbf
-function loadT005_1()
-  // возвращает массив
-  static _T005 := {}
-  Local dbName, dbAlias := 'T005'
-  local tmp_select := select()
-  local row
-
-  // T005.dbf - Перечень ошибок ТФОМС
-  //  1 - KOD(3)  2 - NAME(C) 3 - OPIS(M)
-  if len(_T005) == 0
-    dbName := '_mo_T005'
-    tmp_select := select()
-    dbUseArea( .t., "DBFNTX", exe_dir + dbName, dbAlias , .t., .f. )
-
-    (dbAlias)->(dbGoTop())
-    do while !(dbAlias)->(EOF())
-      AAdd(_T005, {(dbAlias)->KOD, alltrim((dbAlias)->NAME), alltrim((dbAlias)->OPIS)} )
-
-      (dbAlias)->(dbSkip())
-    enddo
-    (dbAlias)->(dbCloseArea())
-    Select(tmp_select)
-
-    // добавим из справочника _mo_f014.dbf
-    for each row in getF014()
-      if (j := ascan(_T005, {|x| x[1] == row[1] })) == 0
-        AAdd(_T005, {row[1], alltrim(row[2]), alltrim(row[3])} )
-      endif
-    next
-  endif
-
-  return _T005
-
 // 04.08.21 вернуть строку для кода дефекта с описанием ошибки ТФОМС из справочника T005.dbf
 Function ret_t005(lkod)
   local arrErrors := loadT005()

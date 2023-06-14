@@ -2,7 +2,7 @@
 
 #require 'hbsqlit3'
 
-** 26.01.23 вернуть массив по справочнику ФФОМС V021.xml
+// 26.01.23 вернуть массив по справочнику ФФОМС V021.xml
 function getV021()
   // V021.xml - Классификатор медицинских специальностей (должностей) (MedSpec)
   //  1 - SPECNAME(C)  2 - IDSPEC(N)  3 - DATEBEG(D)  4 - DATEEND(D)  5 - POSTNAME(C)  6 - IDPOST_MZ(C)
@@ -35,7 +35,7 @@ function getV021()
   endif
   return _arr
 
-** 27.02.23 вернуть массив описывающий специальность
+// 27.02.23 вернуть массив описывающий специальность
 Function DoljBySpec_V021(idspec)
   Local i, retArray := ''
   local aV021 := getV021()

@@ -1,6 +1,6 @@
 #require 'hbsqlit3'
 
-** 12.05.22 вернуть массив ФФОМС O001.xml
+// 12.05.22 вернуть массив ФФОМС O001.xml
 function getO001()
   // O001 - Общероссийский классификатор стран мира (ОКСМ)
   // KOD,     "C",    3,      0 // Цифровой код
@@ -39,4 +39,3 @@ Function getCountry(lstrana)
     s := getO001()[i, 1]
   endif
   return s
-  

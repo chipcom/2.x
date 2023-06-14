@@ -1,8 +1,9 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-** 25.01.23
-// возвращает массив V019
+#require 'hbsqlit3'
+
+// 25.01.23 возвращает массив V019
 function getV019( dateSl )
   local yearSl := year(dateSl)
   local _arr
@@ -50,10 +51,7 @@ function getV019( dateSl )
     endif
     Set(_SET_DATEFORMAT, 'dd.mm.yyyy')
     db := nil
-    asort(_arr,,,{|x,y| x[1] < y[1] })
+    asort(_arr, , , {|x, y| x[1] < y[1] })
     hV019[yearSl] := _arr
   endif
-  // if empty(_arr)
-    // alertx('На дату ' + DToC(dateSl) + ' V019 отсутствуют!')
-  // endif
   return _arr

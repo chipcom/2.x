@@ -3,7 +3,7 @@
  
 #require 'hbsqlit3'
 
-** 26.12.22 вернуть описание ошибки из Классификатора ошибок ИСОМП ISDErr.xml
+// 26.12.22 вернуть описание ошибки из Классификатора ошибок ИСОМП ISDErr.xml
 function getError_T012(code)
   static arr
   local db
