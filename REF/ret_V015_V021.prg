@@ -1,6 +1,6 @@
 #include 'hbhash.ch'
 
-** 21.11.22
+// 21.11.22
 function ret_V015_V021()
   static _hash_table
 
@@ -271,5 +271,4 @@ function ret_V015_V021()
     hb_hSet(_hash_table, 3201, 97) //    Медицинская биохимия
 
   endif
-
   return _hash_table

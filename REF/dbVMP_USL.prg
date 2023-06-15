@@ -1,8 +1,7 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-** 30.12.22
-// возвращает шифр услуги соответствующий виду и методу ВМП и диагнозу
+// 30.12.22 возвращает шифр услуги соответствующий виду и методу ВМП и диагнозу
 function getServiceForVMP(lvidvmp, dateSl, hVid, hMethod, model, sDiag)
   // hVid - вид ВМП (строка)
   // hMethod - метод ВМП (целое)
@@ -24,8 +23,7 @@ function getServiceForVMP(lvidvmp, dateSl, hVid, hMethod, model, sDiag)
   next
   return ret
 
-** 01.12.21
-// возвращает массив соответствия видов и методов ВМП услугам ФФОС
+// 01.12.21 возвращает массив соответствия видов и методов ВМП услугам ФФОС
 function getVMP_USL( dateSl)
   static arrVMP_USL := {}
 

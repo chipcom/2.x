@@ -2,7 +2,7 @@
 
 #require 'hbsqlit3'
 
-** 26.01.23 вернуть массив по справочнику ФФОМС V036.xml
+// 26.01.23 вернуть массив по справочнику ФФОМС V036.xml
 function getV036()
   // V036.xml - Перечень услуг, требующих имплантацию медицинских изделий (ServImplDv)
   //  1 - S_CODE(C) 2 - NAME(C) 3 - PARAM(N) 4 - COMMENT(C) 5 - DATEBEG(D) 6 - DATEEND(D)

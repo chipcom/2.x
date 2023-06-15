@@ -2,7 +2,7 @@
 #include 'chip_mo.ch'
 #include 'hbhash.ch'
 
-** 04.12.22 вернуть код специальности из справочника V015 по коду из справочника V004
+// 04.12.22 вернуть код специальности из справочника V015 по коду из справочника V004
 Function ret_V004_V015(_PRVS)
   Local i, ret := 0
   local arr_conv := conversion_V004_V015()
@@ -11,7 +11,7 @@ Function ret_V004_V015(_PRVS)
   endif
   return ret
   
-** 06.12.22 вернуть значение специальности из кодировки справочника V015 в кодировке справочника V021
+// 06.12.22 вернуть значение специальности из кодировки справочника V015 в кодировке справочника V021
 Function ret_prvs_V015toV021(lkod)
   Local i, new_kod := 76 // по умолчанию - терапия
   local arr_conv_V015_V021 := conversion_V015_V021()
@@ -21,7 +21,7 @@ Function ret_prvs_V015toV021(lkod)
   endif
   return new_kod
   
-** 04.12.22 вернуть код новой медицинской специальности в кодировке справочника V015
+// 04.12.22 вернуть код новой медицинской специальности в кодировке справочника V015
 Function ret_new_spec(old_spec, new_spec)
   Local i, lkod := 0
   local arr_conv := conversion_V004_V015()
@@ -35,7 +35,7 @@ Function ret_new_spec(old_spec, new_spec)
   endif
   return lkod
   
-** 04.12.22 вернуть значение специальности в кодировке справочника V004
+// 04.12.22 вернуть значение специальности в кодировке справочника V004
 Function ret_old_prvs(new_kod)
   Local i, old_kod := new_kod
   local arr_conv := conversion_V015_V004()
@@ -51,7 +51,7 @@ Function ret_old_prvs(new_kod)
   endif
   return old_kod
   
-** 26.05.22 вернуть значение специальности в кодировке справочника V015
+// 26.05.22 вернуть значение специальности в кодировке справочника V015
 Function ret_new_prvs(_prvs)
   Local new_kod
 
@@ -62,7 +62,7 @@ Function ret_new_prvs(_prvs)
   endif
   return new_kod
   
-** 06.12.22 вернуть значение специальности из кодировки справочника V015 в кодировке справочника V021
+// 06.12.22 вернуть значение специальности из кодировки справочника V015 в кодировке справочника V021
 Function ret_prvs_V021(_prvs)
   Local i, new_kod := 76, ; // по умолчанию - терапия
         lkod := ret_new_prvs(_prvs) // в кодировке справочника V015
@@ -73,7 +73,7 @@ Function ret_prvs_V021(_prvs)
   endif
   return new_kod
   
-** 26.05.22 перевести специальность из кодировки справочника V021 в V015
+// 26.05.22 перевести специальность из кодировки справочника V021 в V015
 Function prvs_V021_to_V015(_prvs)
   Local i, new_kod := 27 // по умолчанию - терапия
   local arr_conv_V015_V021 := conversion_V015_V021()
@@ -86,7 +86,7 @@ Function prvs_V021_to_V015(_prvs)
   endif
   return new_kod
   
-** 07.12.22 перевести специальность из кодировки справочника V015 в V021
+// 07.12.22 перевести специальность из кодировки справочника V015 в V021
 Function prvs_V015_to_V021(_prvs)
   Local i, new_kod := 76 // по умолчанию - терапия
   local arr_conv_V015_V021 := conversion_V015_V021()
@@ -99,7 +99,7 @@ Function prvs_V015_to_V021(_prvs)
   endif
   return new_kod
   
-** 04.12.22 вернуть массив соответствий специальности V015 специальностям V0004
+// 04.12.22 вернуть массив соответствий специальности V015 специальностям V0004
 Function ret_arr_new_olds_prvs()
   Local i, j, np, op, arr := {}
   local arr_conv := conversion_V015_V004()
@@ -125,7 +125,7 @@ Function ret_arr_new_olds_prvs()
   next
   return asort(arr, , , {|x, y| x[1] < y[1] })
   
-** 26.05.22 вернуть значение специальности для XML-файла реестра
+// 26.05.22 вернуть значение специальности для XML-файла реестра
 Function put_prvs_to_reestr(_PRVS, _YEAR)
   Local k := _PRVS
 
@@ -142,7 +142,7 @@ Function put_prvs_to_reestr(_PRVS, _YEAR)
   endif
   return lstr(k)
   
-** 04.11.22 вернуть медицинскую специальность из tmp-файла
+// 04.11.22 вернуть медицинскую специальность из tmp-файла
 Function ret_tmp_prvs(kod_old, kod_new)
   Local i, k, tmp_select := select(), ret := space(10)
   local arr_conv_V004_V015 := conversion_V004_V015()
@@ -195,7 +195,7 @@ Function ret_tmp_prvs(kod_old, kod_new)
   select (tmp_select)
   return ret
 
-** 06.11.22 инициализировать tmp-файл БД медицинский специальностей
+// 06.11.22 инициализировать tmp-файл БД медицинский специальностей
 Function init_tmp_prvs(_date, is_all)
   Local i, s, len1, fl_is, rec, tmp_select := select()
 
@@ -300,7 +300,7 @@ Function init_tmp_prvs(_date, is_all)
   select (tmp_select)
   return NIL
 
-** 27.02.23 соответствие справочника V015 -> V021
+// 27.02.23 соответствие справочника V015 -> V021
 function conversion_V015_V021()
   static arr
 
@@ -573,7 +573,7 @@ function conversion_V015_V021()
 
   return arr
 
-** 24.11.22 соответствие справочника V004 -> V015
+// 24.11.22 соответствие справочника V004 -> V015
 function conversion_V004_V015()
   static arr
 
@@ -816,7 +816,7 @@ function conversion_V004_V015()
 
   return arr
 
-** 24.11.22 соответствие справочника V015 -> V004
+// 24.11.22 соответствие справочника V015 -> V004
 function conversion_V015_V004()
   static arr
 

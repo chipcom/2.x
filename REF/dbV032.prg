@@ -2,7 +2,7 @@
 
 #require 'hbsqlit3'
 
-* 26.01.22 вернуть массив по справочнику ФФОМС V032.xml
+// 26.01.22 вернуть массив по справочнику ФФОМС V032.xml
 function getV032()
   // V032.xml - Сочетание схемы лечения и группы препаратов (CombTreat)
   //  1 - SCHEDRUG(C) 2 - NAME(C) 3 - SCHEMCOD(C)  4 - DATEBEG(D)  5 - DATEEND(D)
@@ -29,7 +29,7 @@ function getV032()
 
   return _arr
 
-****** 04.01.22 вернуть сочетание схемы и группы препаратов
+// 04.01.22 вернуть сочетание схемы и группы препаратов
 function get_group_by_schema_lech(_scheme, ldate)
   local _arr := {}, row
 
@@ -40,7 +40,7 @@ function get_group_by_schema_lech(_scheme, ldate)
   next
   return _arr
 
-***** 08.01.22 вернуть наименование кода схемы
+// 08.01.22 вернуть наименование кода схемы
 Function ret_schema_V032(s_code)
   // s_code - код схемы
   Local i, ret := ''

@@ -2,7 +2,7 @@
 
 #require 'hbsqlit3'
 
-** 26.01.23 вернуть массив по справочнику ФФОМС V033.xml
+// 26.01.23 вернуть массив по справочнику ФФОМС V033.xml
 function getV033()
   // V033.xml - Соответствие кода препарата схеме лечения (DgTreatReg)
   //  1 - SCHEDRUG(C) 2 - DRUGCODE(C)  3 - DATEBEG(D)  4 - DATEEND(D)
@@ -29,7 +29,7 @@ function getV033()
 
   return _arr
 
-****** 04.01.22 вернуть соответствие кода препарата схеме лечения
+// 04.01.22 вернуть соответствие кода препарата схеме лечения
 function get_drugcode_by_schema_lech(_schemeDrug, ldate)
   local _arr := {}, row
 
