@@ -153,17 +153,6 @@ Function index_work_dir(exe_dir, cur_dir, flag)
   local nSize
   local cVar
 
-  // public is_otd_dep := .f., glob_otd_dep := 0, mm_otd_dep := {}
-
-  // Public arr_12_VMP := {}
-  // Public is_napr_pol := .f., ; // работа с направлениями на госпитализацию в п-ке
-  //        is_napr_stac := .f., ;  // работа с направлениями на госпитализацию в стационаре
-  //        glob_klin_diagn := {} // работа со специальными лабораторными исследованиями
-  // Public is_ksg_VMP := .f., is_12_VMP := .f.
-  // Public is_21_VMP := .f.     // ВМП для 21 года
-  // Public is_22_VMP := .f.     // ВМП для 22 года
-  // Public is_23_VMP := .f.     // ВМП для 23 года
-  
   DEFAULT flag TO .f.
 
   // // справочник цен на услуги ТФОМС 2016-2017

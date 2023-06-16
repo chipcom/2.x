@@ -18,15 +18,41 @@ Function put_0_human_2()
   human_2->PN1 := human_2->PN2 := human_2->PN3 := human_2->PN4 := human_2->PN5 := human_2->PN6 := 0
   return NIL
 
-// 15.01.18 заполнить код подразделения/отделения
+// 16.06.23 проверка отключения подразделений
+function disable_podr(lkdate)
+  local ret := .f.
+  local aCodem := { ;
+    '101001', ;
+    '103001', ;
+    '121125', ;
+    '141023', ;
+    '161007', ;
+    '171004', ;
+    '151005', ;
+    '101201', ;
+    '131001' ;
+  }
+
+  // В соответствии с решением Комиссии от 13.06.2023 с 01.06.2023 изменены уровни оплаты для ряда МО.
+  if ascan(aCodem, hb_main_curOrg:Kod_Tfoms) != 0 .and. lkdate >= 0d20230601
+    ret := .t.
+  endif
+
+  return ret
+
+// 16.06.23 заполнить код подразделения/отделения
 Function f_put_glob_podr(lusl, lkdate, _arr)
+
   DEFAULT _arr TO {}
 
-  glob_podr := ''
+  glob_podr := '' 
   glob_otd_dep := 0
   if lusl == 1 .and. lkdate >= d_01_08_2017
     if year(lkdate) > 2017
       if is_otd_dep
+        if disable_podr(lkdate)
+          return .f.
+        endif
         glob_otd_dep := otd->CODE_DEP // код отделения по кодировке ТФОМС из справочника SprDep - 18 год
         if empty(glob_otd_dep)
           // базы отделения и учреждения открыты и стоят на нужной записи
