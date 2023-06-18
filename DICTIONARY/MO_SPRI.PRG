@@ -972,7 +972,7 @@ Function usl2TFOMS()
   sdate := mdate
   if (k := popup_2array(usl9TFOMS(mdate), T_ROW, T_COL - 5, su, 1, @t_arr, 'Выберите группу услуг', 'B/BG', color0)) > 0
     glob_podr := ''
-    if is_otd_dep .and. t_arr[2] == 501 .and. ! disable_podr(mdate)
+    if is_otd_dep .and. t_arr[2] == 501 .and. ! disable_podrazdelenie_TFOMS(mdate)
       if (ret_arr := ret_otd_dep()) == NIL
         return NIL
       endif
