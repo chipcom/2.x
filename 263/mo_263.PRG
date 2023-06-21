@@ -2691,7 +2691,7 @@ Function _263_to_nastr()
   close databases
   return NIL
 
-// 04.06.23 Получение из ТФОМС файлов обмена (информационных пакетов)
+// 21.06.23 Получение из ТФОМС файлов обмена (информационных пакетов)
 Function _263_from_read()
   Static nerrf := 999
   Local i, j, k, n, s, af := {}, arr_f := {}, aerr := {}, blk := {|x| aadd(af,x) }, ii, ;
@@ -3087,7 +3087,7 @@ Function _263_from_read()
             elseif c == 'S'
               s := substr(s, 2)
               if s == '34007'
-                s := 'от СМО ООО "Капитал МС"'
+                s := 'от АСП ООО "Капитал МС"'
               elseif s == '34002'
                 s := 'от СМО "Согаз"'
               elseif s == '34001'
