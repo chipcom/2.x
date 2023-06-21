@@ -98,9 +98,6 @@ function delete_base_dict(dir_exe, dir_cur)
   local aDbf := { ;
       dir_exe + '_mo_mo.dbb', ;
       dir_exe + '_mo_o001.dbf', ;
-      dir_exe + '_mo_q015.dbf', ;
-      dir_exe + '_mo_q016.dbf', ;
-      dir_exe + '_mo_q017.dbf', ;
       dir_exe + '_mo_f006.dbf', ;
       dir_exe + '_mo_f010.dbf', ;
       dir_exe + '_mo_f014.dbf', ;
@@ -160,13 +157,16 @@ function delete_base_dict(dir_exe, dir_cur)
       dir_exe + '_mo8k006.dbt', ;
       dir_exe + '_mo9k006.dbt', ;
       dir_exe + 't006_2.dbt', ;
-      dir_exe + '_mo_q015.dbt', ;
-      dir_exe + '_mo_q016.dbt', ;
-      dir_exe + '_mo_q017.dbt', ;
       dir_exe + '_mo_f006.dbt', ;
       dir_exe + '_mo_f014.dbt' ;
     }
-  local aNtx := { ;
+    // dir_exe + '_mo_q015.dbf', ;
+    // dir_exe + '_mo_q016.dbf', ;
+    // dir_exe + '_mo_q017.dbf', ;
+    // dir_exe + '_mo_q015.dbt', ;
+    // dir_exe + '_mo_q016.dbt', ;
+    // dir_exe + '_mo_q017.dbt', ;
+    local aNtx := { ;
       dir_cur + '_mo_t005.ntx', ;
       dir_cur + '_mo_t007.ntx', ;
       dir_cur + '_mo_t0072.ntx', ;
