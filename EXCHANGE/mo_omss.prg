@@ -257,149 +257,151 @@ elseif go_to_rpd // если приняты платёжки
 endif
 return NIL
 
-** 13.05.22 прочитать реестр ФЛК
-Function read_XML_FILE_FLK(arr_XML_info,aerr)
-Local ii, pole, i, k, t_arr[2], adbf, ar
-mkod_reestr := arr_XML_info[7]
-use (cur_dir + "tmp1file") new alias TMP1
-R_Use(dir_server + "mo_rees",,"REES")
-goto (arr_XML_info[7])
-strfile("Обрабатывается ответ ТФОМС на реестр № "+;
+// 22.06.23 прочитать реестр ФЛК
+Function read_XML_FILE_FLK(arr_XML_info, aerr)
+  Local ii, pole, i, k, t_arr[2], adbf, ar
+
+  mkod_reestr := arr_XML_info[7]
+  use (cur_dir + "tmp1file") new alias TMP1
+  R_Use(dir_server + "mo_rees",,"REES")
+  goto (arr_XML_info[7])
+  strfile("Обрабатывается ответ ТФОМС на реестр № "+;
         lstr(rees->NSCHET)+" от "+full_date(rees->DSCHET)+"г. ("+;
         lstr(rees->KOL)+" чел.)"+;
         hb_eol(),cFileProtokol,.t.)
-if !emptyany(rees->nyear,rees->nmonth)
-  strfile("выставленный за "+;
+  if !emptyany(rees->nyear,rees->nmonth)
+    strfile("выставленный за "+;
           mm_month[rees->nmonth]+str(rees->nyear,5)+" года"+;
           hb_eol(),cFileProtokol,.t.)
-endif
-use (cur_dir + "tmp2file") new alias TMP2
-index on str(tip,1)+str(oshib,3)+soshib to (cur_dir + "tmp2")
-if is_err_FLK
-  if !extract_reestr(rees->(recno()),rees->name_xml)
-    aadd(aerr,center("Не найден ZIP-архив с РЕЕСТРом № "+lstr(rees->nschet)+" от "+date_8(rees->DSCHET),80))
-    aadd(aerr,"")
-    aadd(aerr,center(dir_server+dir_XML_MO+cslash+alltrim(rees->name_xml)+szip,80))
-    aadd(aerr,"")
-    aadd(aerr,center("Без данного архива дальнейшая работа НЕВОЗМОЖНА!",80))
-    close databases
-    return .f.
   endif
-  use (cur_dir + "tmp_r_t1") new alias T1
-  index on upper(ID_PAC) to (cur_dir + "tmp_r_t1")
-  use (cur_dir + "tmp_r_t2") new alias T2
-  use (cur_dir + "tmp_r_t3") new alias T3
-  use (cur_dir + "tmp_r_t4") new alias T4
-  use (cur_dir + "tmp_r_t5") new alias T5
-  use (cur_dir + "tmp_r_t6") new alias T6
-  use (cur_dir + "tmp_r_t7") new alias T7
-  use (cur_dir + "tmp_r_t8") new alias T8
-  // заполнить поле "N_ZAP" в файле "tmp2"
-  fill_tmp2_file_flk()
-  R_Use(dir_server + "mo_otd",,"OTD")
-  G_Use(dir_server + "human_",,"HUMAN_")
-  G_Use(dir_server + "human",,"HUMAN")
-  set relation to recno() into HUMAN_, to otd into OTD
-  G_Use(dir_server + "mo_rhum",,"RHUM")
-  index on str(REES_ZAP,6) to (cur_dir + "tmp_rhum") for reestr == mkod_reestr
-  select TMP2 // сначала проверка
-  go top
-  do while !eof()
-    select RHUM
-    find (str(tmp2->N_ZAP,6))
-    if found()
-      human->(dbGoto(rhum->KOD_HUM))
-      if rhum->OPLATA > 0
-        aadd(aerr,"Пациент с REES_ZAP="+lstr(rhum->REES_ZAP)+" был прочитан в реестре СП и ТК")
-        if !empty(human->fio)
-          aadd(aerr,"└─>(ФИО пациента = "+alltrim(human->fio)+")")
-        endif
-      endif
-      if !(rhum->REES_ZAP == human_->REES_ZAP)
-        aadd(aerr,"Не равен параметр REES_ZAP: "+lstr(rhum->REES_ZAP)+" != "+lstr(human_->REES_ZAP))
-      endif
-    else
-      aadd(aerr,"Не найден случай с N_ZAP="+lstr(tmp2->N_ZAP))
+  use (cur_dir + "tmp2file") new alias TMP2
+  index on str(tip,1)+str(oshib,3)+soshib to (cur_dir + "tmp2")
+  if is_err_FLK
+    if !extract_reestr(rees->(recno()),rees->name_xml)
+      aadd(aerr,center("Не найден ZIP-архив с РЕЕСТРом № "+lstr(rees->nschet)+" от "+date_8(rees->DSCHET),80))
+      aadd(aerr,"")
+      aadd(aerr,center(dir_server+dir_XML_MO+cslash+alltrim(rees->name_xml)+szip,80))
+      aadd(aerr,"")
+      aadd(aerr,center("Без данного архива дальнейшая работа НЕВОЗМОЖНА!",80))
+      close databases
+      return .f.
     endif
-    select TMP2
-    skip
-  enddo
-  if !empty(aerr)
-    close databases
-    return .f.
-  endif
-endif
-for ii := 1 to 2
-  pole := "tmp1->fname"+lstr(ii)
-  strfile(hb_eol()+"Обработан файл "+&pole+hb_eol(),cFileProtokol,.t.)
-  select TMP2
-  find (str(ii,1))
-  if found()
-    strfile("  Список ошибок:"+hb_eol(),cFileProtokol,.t.)
-    do while tmp2->tip == ii .and. !eof()
-      if empty(tmp2->SOSHIB)
-        s := "код ошибки = "+lstr(tmp2->OSHIB)+" "
-        if (i := ascan(getF012(),{|x| x[2] == tmp2->OSHIB})) > 0
-          s += '"'+getF012()[i,5]+'"'
-        endif
-      else
-        s := "код ошибки = "+tmp2->SOSHIB+" "
-        s += '"' + getCategoryCheckErrorByID_Q017(left(tmp2->SOSHIB,4))[2] + '" '
-        s += alltrim(inieditspr(A__POPUPMENU, dir_exe+"_mo_Q015", tmp2->SOSHIB))
-      endif
-      if !empty(tmp2->IM_POL)
-        s += ", имя поля = "+alltrim(tmp2->IM_POL)
-      endif
-      if !empty(tmp2->BAS_EL)
-        s += ", имя базового элемента = "+alltrim(tmp2->BAS_EL)
-      endif
-      if !empty(tmp2->ID_BAS)
-        s += ", GUID базового элемента = "+alltrim(tmp2->ID_BAS)
-      endif
-      if !empty(tmp2->COMMENT)
-        s += ", описание ошибки = "+alltrim(tmp2->COMMENT)
-      endif
-      if !empty(tmp2->BAS_EL) .and. !empty(tmp2->ID_BAS)
-        if empty(tmp2->N_ZAP)
-          s += ", СЛУЧАЙ НЕ НАЙДЕН!"
-        else
-          select RHUM
-          find (str(tmp2->N_ZAP,6))
-          G_RLock(forever)
-          rhum->OPLATA := 2
-          tmp2->kod_human := rhum->KOD_HUM
-          select HUMAN
-          goto (rhum->KOD_HUM)
-          if human_->REESTR == mkod_reestr
-            G_RLock(forever)
-            human_->(G_RLock(forever))
-            human_->OPLATA := 2
-            human_->REESTR := 0 // направляется на дальнейшее редактирование
-            human_->ST_VERIFY := 0 // снова ещё не проверен
-            if human_->REES_NUM > 0
-              human_->REES_NUM := human_->REES_NUM-1
-            endif
-            UnLock
-            s += ", "+alltrim(human->fio)+", "+full_date(human->date_r)+;
-                 iif(empty(otd->SHORT_NAME), "", " ["+alltrim(otd->SHORT_NAME)+"]")+;
-                 " "+date_8(human->n_data)+"-"+date_8(human->k_data)
+    use (cur_dir + "tmp_r_t1") new alias T1
+    index on upper(ID_PAC) to (cur_dir + "tmp_r_t1")
+    use (cur_dir + "tmp_r_t2") new alias T2
+    use (cur_dir + "tmp_r_t3") new alias T3
+    use (cur_dir + "tmp_r_t4") new alias T4
+    use (cur_dir + "tmp_r_t5") new alias T5
+    use (cur_dir + "tmp_r_t6") new alias T6
+    use (cur_dir + "tmp_r_t7") new alias T7
+    use (cur_dir + "tmp_r_t8") new alias T8
+    // заполнить поле "N_ZAP" в файле "tmp2"
+    fill_tmp2_file_flk()
+    R_Use(dir_server + "mo_otd",,"OTD")
+    G_Use(dir_server + "human_",,"HUMAN_")
+    G_Use(dir_server + "human",,"HUMAN")
+    set relation to recno() into HUMAN_, to otd into OTD
+    G_Use(dir_server + "mo_rhum",,"RHUM")
+    index on str(REES_ZAP,6) to (cur_dir + "tmp_rhum") for reestr == mkod_reestr
+    select TMP2 // сначала проверка
+    go top
+    do while !eof()
+      select RHUM
+      find (str(tmp2->N_ZAP,6))
+      if found()
+        human->(dbGoto(rhum->KOD_HUM))
+        if rhum->OPLATA > 0
+          aadd(aerr,"Пациент с REES_ZAP="+lstr(rhum->REES_ZAP)+" был прочитан в реестре СП и ТК")
+          if !empty(human->fio)
+            aadd(aerr,"└─>(ФИО пациента = "+alltrim(human->fio)+")")
           endif
         endif
+        if !(rhum->REES_ZAP == human_->REES_ZAP)
+          aadd(aerr,"Не равен параметр REES_ZAP: "+lstr(rhum->REES_ZAP)+" != "+lstr(human_->REES_ZAP))
+        endif
+      else
+        aadd(aerr,"Не найден случай с N_ZAP="+lstr(tmp2->N_ZAP))
       endif
-      k := perenos(t_arr,s,75)
-      strfile(hb_eol(),cFileProtokol,.t.)
-      for i := 1 to k
-        strfile(space(5)+t_arr[i]+hb_eol(),cFileProtokol,.t.)
-      next
       select TMP2
       skip
     enddo
-  else
-    strfile("-- Ошибок не обнаружено -- "+hb_eol(),cFileProtokol,.t.)
+    if !empty(aerr)
+      close databases
+      return .f.
+    endif
   endif
-next
-close databases
-return .t.
+  for ii := 1 to 2
+    pole := "tmp1->fname"+lstr(ii)
+    strfile(hb_eol()+"Обработан файл "+&pole+hb_eol(),cFileProtokol,.t.)
+    select TMP2
+    find (str(ii,1))
+    if found()
+      strfile("  Список ошибок:"+hb_eol(),cFileProtokol,.t.)
+      do while tmp2->tip == ii .and. !eof()
+        if empty(tmp2->SOSHIB)
+          s := "код ошибки = "+lstr(tmp2->OSHIB)+" "
+          if (i := ascan(getF012(),{|x| x[2] == tmp2->OSHIB})) > 0
+            s += '"'+getF012()[i,5]+'"'
+          endif
+        else
+          s := "код ошибки = "+tmp2->SOSHIB+" "
+          s += '"' + getCategoryCheckErrorByID_Q017(left(tmp2->SOSHIB, 4))[2] + '" '
+          // s += alltrim(inieditspr(A__POPUPMENU, dir_exe+"_mo_Q015", tmp2->SOSHIB))
+          s += alltrim(inieditspr(A__MENUVERT, loadQ015(), tmp3->SREFREASON))
+        endif
+        if !empty(tmp2->IM_POL)
+          s += ", имя поля = "+alltrim(tmp2->IM_POL)
+        endif
+        if !empty(tmp2->BAS_EL)
+          s += ", имя базового элемента = "+alltrim(tmp2->BAS_EL)
+        endif
+        if !empty(tmp2->ID_BAS)
+          s += ", GUID базового элемента = "+alltrim(tmp2->ID_BAS)
+        endif
+        if !empty(tmp2->COMMENT)
+          s += ", описание ошибки = "+alltrim(tmp2->COMMENT)
+        endif
+        if !empty(tmp2->BAS_EL) .and. !empty(tmp2->ID_BAS)
+          if empty(tmp2->N_ZAP)
+            s += ", СЛУЧАЙ НЕ НАЙДЕН!"
+          else
+            select RHUM
+            find (str(tmp2->N_ZAP,6))
+            G_RLock(forever)
+            rhum->OPLATA := 2
+            tmp2->kod_human := rhum->KOD_HUM
+            select HUMAN
+            goto (rhum->KOD_HUM)
+            if human_->REESTR == mkod_reestr
+              G_RLock(forever)
+              human_->(G_RLock(forever))
+              human_->OPLATA := 2
+              human_->REESTR := 0 // направляется на дальнейшее редактирование
+              human_->ST_VERIFY := 0 // снова ещё не проверен
+              if human_->REES_NUM > 0
+                human_->REES_NUM := human_->REES_NUM-1
+              endif
+              UnLock
+              s += ", "+alltrim(human->fio)+", "+full_date(human->date_r)+;
+                 iif(empty(otd->SHORT_NAME), "", " ["+alltrim(otd->SHORT_NAME)+"]")+;
+                 " "+date_8(human->n_data)+"-"+date_8(human->k_data)
+            endif
+          endif
+        endif
+        k := perenos(t_arr,s,75)
+        strfile(hb_eol(),cFileProtokol,.t.)
+        for i := 1 to k
+          strfile(space(5)+t_arr[i]+hb_eol(),cFileProtokol,.t.)
+        next
+        select TMP2
+        skip
+      enddo
+    else
+      strfile("-- Ошибок не обнаружено -- "+hb_eol(),cFileProtokol,.t.)
+    endif
+  next
+  close databases
+  return .t.
 
 ***** 22.01.19 заполнить поле "N_ZAP" в файле "tmp2"
 Function fill_tmp2_file_flk()
@@ -494,8 +496,8 @@ if i > 0
 endif
 return NIL
 
-***** 21.01.22 прочитать и "разнести" по базам данных реестр СП и ТК
-Function read_XML_FILE_SP(arr_XML_info,aerr,/*@*/current_i2)
+// 22.06.23 прочитать и "разнести" по базам данных реестр СП и ТК
+Function read_XML_FILE_SP(arr_XML_info, aerr, /*@*/current_i2)
   Local count_in_schet := 0, mnschet, bSaveHandler, ii1, ii2, i, k, t_arr[2],;
       ldate_sptk, s, fl_589, mANSREESTR
 
@@ -955,10 +957,11 @@ if empty(aerr)
                 endif
               endif
             else
-              s := "код ошибки = "+tmp3->SREFREASON+" "
+              s := 'код ошибки = ' + tmp3->SREFREASON + ' '
               s += '"' + getCategoryCheckErrorByID_Q017(left(tmp3->SREFREASON,4))[2] + '" '
-              s += alltrim(inieditspr(A__POPUPMENU, dir_exe+"_mo_Q015", tmp3->SREFREASON))
-              k := perenos(t_arr,s,75)
+              // s += alltrim(inieditspr(A__POPUPMENU, dir_exe+"_mo_Q015", tmp3->SREFREASON))
+              s += alltrim(inieditspr(A__MENUVERT, loadQ015(), tmp3->SREFREASON))
+              k := perenos(t_arr, s, 75)
               for i := 1 to k
                 strfile(space(5)+t_arr[i]+hb_eol(),cFileProtokol,.t.)
               next

@@ -52,6 +52,43 @@ function getCategoryCheckErrorByID_Q017(idCategory)
 
   return aRet
 
+// 22.06.23
+function loadQ015()
+  // Q015 - Перечень технологических правил реализации ФЛК в ИС ведения персонифицированного учета сведений об оказанной медицинской помощи (FLK_MPF)
+  static _arr
+  static time_load
+  local db
+  local aTable, row
+  local nI
+
+  if timeout_load(@time_load)
+    _arr := {}
+    Set(_SET_DATEFORMAT, 'yyyy-mm-dd')
+    db := openSQL_DB()
+    aTable := sqlite3_get_table(db, 'SELECT ' + ;
+        'id_test, ' + ;
+        'id_el, ' + ;
+        'nsi_obj, ' + ;
+        'nsi_el, ' + ;
+        'usl_test, ' + ;
+        'val_el, ' + ;
+        'comment, ' + ;
+        'datebeg, ' + ;
+        'dateend ' + ;
+        'FROM q015')
+    if len(aTable) > 1
+      for nI := 2 to Len( aTable )
+        aadd(_arr, {alltrim(aTable[nI, 2]), alltrim(aTable[nI, 1]), alltrim(aTable[nI, 3]), ;
+            alltrim(aTable[nI, 4]), alltrim(aTable[nI, 5]), alltrim(aTable[nI, 6]), ;
+            alltrim(aTable[nI, 7]), ctod(aTable[nI, 8]), ctod(aTable[nI,9])})
+      next
+    endif
+    Set(_SET_DATEFORMAT, 'dd.mm.yyyy')
+    db := nil
+
+  endif
+  return _arr
+
 // 22.12.22 вернуть массив с описанием технологиеского правила реализации ФЛК из справочника ФФОМС Q015.xml
 function getRuleCheckErrorByID_Q015(idRule)
   // idRule - идентификатор правила проверки

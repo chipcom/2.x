@@ -2898,7 +2898,7 @@ Public is_r_mu := .f.
 Public gpath_reg := "" // путь к файлам R_MU.DBF
 return NIL
 
-// 11.05.20 удалить счет(а) по одному реестру СП и ТК и по этим людям создать заново счета (м.б.другое кол-во счетов)
+// 22.06.23 удалить счет(а) по одному реестру СП и ТК и по этим людям создать заново счета (м.б.другое кол-во счетов)
 Function ReCreate_some_Schet_From_FILE_SP(arr)
 Local arr_XML_info[8], cFile, arr_f, k, n, oXmlDoc, aerr := {}, t_arr[2], ;
       i, s, rec_schet, rec_schet_xml, go_to_schet := .f., arr_schet := {}
@@ -3196,12 +3196,13 @@ if mo_Lock_Task(X_OMS) // запрет только ОМС G_SLock1Task(sem_task,sem_vagno) // 
             refr->SREFREASON := tmp3->SREFREASON
             if empty(refr->SREFREASON)
               if empty(s := ret_t005(refr->REFREASON))
-                s := lstr(refr->REFREASON)+" неизвестная причина отказа"
+                s := lstr(refr->REFREASON) + ' неизвестная причина отказа'
               endif
             else
-              s := "код ошибки = "+tmp3->SREFREASON+" "
+              s := 'код ошибки = ' + tmp3->SREFREASON + ' '
               s += '"' + getCategoryCheckErrorByID_Q017(left(tmp3->SREFREASON, 4))[2] + '" '
-              s += alltrim(inieditspr(A__POPUPMENU, dir_exe+"_mo_Q015", tmp3->SREFREASON))
+              // s += alltrim(inieditspr(A__POPUPMENU, dir_exe+"_mo_Q015", tmp3->SREFREASON))
+              s += alltrim(inieditspr(A__MENUVERT, loadQ015(), tmp3->SREFREASON))
             endif
             k := perenos(t_arr,s, 75)
             for i := 1 to k

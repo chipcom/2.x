@@ -5,9 +5,9 @@
 Function init_mo()
   Local fl := .t., i, arr, arr1, cCode := '', buf := save_maxrow()
 
-//   local aaa
-//   aaa := arrT007()
-// altd()
+//    local aaa
+//    aaa := loadQ015()
+//  altd()
 
   mywait()
   Public oper_parol := 30  // пароль для фискального регистратора
