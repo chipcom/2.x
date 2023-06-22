@@ -88,7 +88,7 @@ return NIL
 ** 09.12.20 Диспансерное наблюдение
 Function disp_nabludenie(k)
 Static S_sem := "disp_nabludenie"
-Static si1 := 2, si2 := 1, si3 := 2, si4 := 1, si5 := 1
+Static si1 := 2, si2 := 1, si3 := 2, si4 := 1, si5 := 1, si6 := 1
 Local mas_pmt, mas_msg, mas_fun, j, buf, fl_umer := .f., zaplatka_D01 := .F.,;
       zaplatka_D02 := .F.
 DEFAULT k TO 1
@@ -614,24 +614,9 @@ do case
   case k == 43
     f_inf_dop_disp_nabl()
     //pac_disp_nabl()
-    /*mas_pmt := {"~Не было л/у с диспансерным наблюдением",;
-                "~Были л/у с диспансерным наблюдением",;
-                "Были ~другие л/у с диагнозом из списка"}
-    mas_msg := {"Список пациентов, по которым не было л/у с диспансерным наблюдением",;
-                "Список пациентов, по которым были л/у с диспансерным наблюдением",;
-                "Список пациентов, по которым были другие листы учёта с диагнозом из списка"}
-    mas_fun := {"disp_nabludenie(41)",;
-                "disp_nabludenie(42)",;
-                "disp_nabludenie(43)"}
-    popup_prompt(T_ROW,T_COL-5,si4,mas_pmt,mas_msg,mas_fun)
-  case k == 41
-    f_inf_disp_nabl(1)
-  case k == 42
-    f_inf_disp_nabl(2)
-  case k == 43
-    f_inf_disp_nabl(3)*/
   case k == 31
-    f_create_D01()
+     ne_real()
+    //f_create_D01()
   case k == 32
     f_view_D01()
   case k == 51
@@ -639,7 +624,23 @@ do case
   case k == 52
     vvodP_disp_nabl()
   case k == 12
-    ne_real()
+    mas_pmt := {"~Не было л/у с диспансерным наблюдением",;
+                "~Были л/у с диспансерным наблюдением"}
+                //"Были ~другие л/у с диагнозом из списка"}
+    mas_msg := {"Список пациентов, по которым не было л/у с диспансерным наблюдением",;
+                "Список пациентов, по которым были л/у с диспансерным наблюдением"}
+                //"Список пациентов, по которым были другие листы учёта с диагнозом из списка"}
+    mas_fun := {"disp_nabludenie(61)",;
+                "disp_nabludenie(62)"}
+                //"disp_nabludenie(63)"}
+    popup_prompt(T_ROW,T_COL-5,si6,mas_pmt,mas_msg,mas_fun)
+    //ne_real()
+  case k == 61
+    f_inf_disp_nabl(1)
+  case k == 62
+    f_inf_disp_nabl(2)
+  case k == 63
+  //  f_inf_disp_nabl(3)
 endcase
 if k > 10
   j := int(val(right(lstr(k),1)))
@@ -1075,44 +1076,24 @@ return ret
 
  
 
-** 23.08.19 14.12.20 Список пациентов, по которым были л/у с диспансерным наблюдением
+** 23.08.19 14.12.20 22.06.23 Список пациентов, по которым были л/у с диспансерным наблюдением
 Function f_inf_disp_nabl(par)
+ // 1 -  "~Не было л/у с диспансерным наблюдением",;
+ // 2 -  "~Были л/у с диспансерным наблюдением"
 Local arr, adiagnoz, sh := 80, HH := 60, buf := save_maxrow(), name_file := "disp_nabl"+stxt,;
-      ii1 := 0, ii2 := 0, ii3 := 0, s, name_dbf := "___DN"+sdbf
+      ii1 := 0, ii2 := 0, ii3 := 0, s, name_dbf := "___DN"+sdbf, arr_fl
 stat_msg("Поиск информации...")
 fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
+arr_title := {;
+  "─────────────────────────────────────────────┬────┬──────────┬───────────────────────────",;
+  "                                             │  № │   Дата   │ Диагнозы для диспансерного",;
+  "  ФИО пациента                               │уч-к│ рождения │ наблюдения                ",;
+  "─────────────────────────────────────────────┴────┴──────────┴───────────────────────────"}
+sh := len(arr_title[1])
 if par == 1
-  arr_title := {;
-    "─────────────────────────────────────────────┬──────────┬───────────────────────────",;
-    "                                             │   Дата   │ Диагнозы для диспансерного",;
-    "  ФИО пациента                               │ рождения │ наблюдения                ",;
-    "─────────────────────────────────────────────┴──────────┴───────────────────────────"}
-  sh := len(arr_title[1])
-  s := "Список пациентов, по которым не было л/у с диспансерным наблюдением"
-elseif par == 2
-  arr_title := {;
-    "─────────────────────────────────────────────┬──────────┬────────┬─────┬─────┬────────┬────────",;
-    "                                             │   Дата   │Дата по-│ Таб.│Диаг-│  Шифр  │ Сумма  ",;
-    "  ФИО пациента                               │ рождения │сещения │номер│ноз  │ услуги │ случая ",;
-    "─────────────────────────────────────────────┴──────────┴────────┴─────┴─────┴────────┴────────"}
-  sh := len(arr_title[1])
-  s := "Список пациентов, по которым были л/у с диспансерным наблюдением"
+  s := "Список пациентов, состоящих на ДН, по которым не было л/у с диспансерным наблюдением"
 else
-  s := "Список пациентов, по которым были другие листы учёта с диагнозом из списка"
-  dbcreate(cur_dir+name_dbf,{;
-    {"nn","N",6,0},;
-    {"UCHAST"   ,   "N",     2,     0},; // номер участка
-    {"fio","C",50,0},;
-    {"date_rogd","C",10,0},;
-    {"date_lech","C",50,0},;
-    {"summa","C",10,0},;
-    {"diadnoz","C",35,0},;
-    {"shifr_usl","C",10,0},;
-    {"vrach","C",5,0},;
-    {"number_sch","C",15,0},;
-    {"date_sch","C",10,0},;
-    {"nomer_posi","C",6,0}})
-  use (cur_dir+name_dbf) new alias TMP
+  s := "Список пациентов, состоящих на ДН, присутствуют л/у с диспансерным наблюдением"
 endif
 add_string("")
 add_string(center(s,sh))
@@ -1134,7 +1115,7 @@ set relation to vrach into PERS
 R_Use(dir_server + "human",dir_server + "humankk","HUMAN")
 set relation to recno() into HUMAN_
 index on str(kod_k,7)+dtos(k_data) to (cur_dir + "tmp_humankk") ;
-      for human_->USL_OK == 3 .and. human->k_data >= 0d20220101 ; // т.е. последний год ЮЮ
+      for human_->USL_OK == 3 .and. human->k_data >= 0d20230101 ; // т.е. текущий год
       progress
 //
 R_Use(dir_server + "mo_d01d",,"DD")
@@ -1145,62 +1126,88 @@ set relation to kod_k into KART
 index on upper(kart->fio)+dtos(kart->date_r)+str(kart->kod,7) to (cur_dir + "tmp_rhum") ;
       for kart->kod > 0 .and. rhum->oplata == 1
 go top
-do while !eof()
+do while !eof()  // цикл по всей базе картотеки ДИСПАНСЕРНОГО НАБЛЮДЕНИЯ
   arr := {}
+  arr_fl := {}
   select DD
   find (str(rhum->(recno()),6))
+  // если человек стоит на Д-учете - создаем массив его Д диагнозов
   do while dd->kod_d == rhum->(recno()) .and. !eof()
-    aadd(arr,dd->kod_diag)
+    if dd->next_data >= 0d20230101 // !!!!!!! ВНИМАНИЕ год
+      aadd(arr,dd->kod_diag)
+      aadd(arr_fl, .f.)  
+    endif  
     skip
   enddo
   if len(arr) > 0
+    // есть ДД
     fl1 := .f.
     select HUMAN
     find (str(kart->kod,7))
     do while human->kod_k == kart->kod .and. !eof()
-      fl := .f. ; ar := {}
-      adiagnoz := diag_to_array()
-      for i := 1 to len(adiagnoz)
-        if !empty(adiagnoz[i])
-          s := padr(adiagnoz[i],5)
-          if ascan(arr,s) > 0
-            aadd(ar,s)
-            fl := .t.
-          endif
+      if human->k_data >= 0d20230101 // !!!!!!! ВНИМАНИЕ год
+        // проверяем только по основному диагнозу
+        fl := .f. ; ar := {}; zz := 0
+        s := padr(human->kod_diag,5)
+        if (zz := ascan(arr,s)) > 0
+          fl := .t.
         endif
-      next i
-      if fl // либо основной, либо сопутствующие диагнозы из списка
-        fl1 := .t.
-        fl_disp := .f. ; ausl := {}
-        select HU
-        find (str(human->kod,7))
-        do while hu->kod == human->kod .and. !eof()
-          lshifr1 := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data)
-          if is_usluga_TFOMS(usl->shifr,lshifr1,human->k_data)
-            lshifr := alltrim(iif(empty(lshifr1), usl->shifr, lshifr1))
-            left_lshifr_5 := left(lshifr,5)
-            if left_lshifr_5 == "2.88."
-              aadd(ausl,lshifr)
-              if is_usluga_disp_nabl(lshifr)
-                fl_disp := .t.
-              endif
-            elseif left_lshifr_5 == "2.79."
-              if ascan(ausl,lshifr) == 0
-                aadd(ausl,lshifr)
+        //
+        if fl // либо основной, либо сопутствующие диагнозы из списка
+          fl1 := .t.
+          fl_disp := .f. ; ausl := {}
+          select HU
+          find (str(human->kod,7))
+          do while hu->kod == human->kod .and. !eof()
+            // отсекаем только текущий год
+            lshifr1 := opr_shifr_TFOMS(usl->shifr1,usl->kod,human->k_data)
+            if is_usluga_TFOMS(usl->shifr,lshifr1,human->k_data)
+              lshifr := alltrim(iif(empty(lshifr1), usl->shifr, lshifr1))
+              left_lshifr_8 := left(lshifr,8)
+              left_lshifr_6 := left(lshifr,7)
+              if left_lshifr_8 == "2.78.107" .or. left_lshifr_6 == "2.78.6" .or. left_lshifr_6 == "2.78.7".or. left_lshifr_6 == "2.78.8" //(2.78.61__2.78.86)
+                // пока только эту  
+                fl_disp := .t. 
+                arr_fl[zz] := .T.
               endif
             endif
-          endif
-          select HU
-          skip
-        enddo
-        if fl_disp .and. par == 2
-          if verify_FF(HH,.t.,sh)
-            aeval(arr_title, {|x| add_string(x) } )
-          endif
-          add_string(padr(lstr(++ii2)+". "+kart->fio,45)+" "+full_date(kart->date_r)+" "+date_8(human->k_data)+;
-                     str(pers->tab_nom,6)+" "+padr(Arr2SList(ar),5)+" "+padr(ausl[1],8)+str(human->cena_1,9,2))
+            select HU
+            skip
+          enddo
         endif
-        if !fl_disp .and. par == 3 .and. len(ausl) > 0
+      endif  
+      select HUMAN
+      skip
+    enddo
+    if par == 1 // Не было л/у с диспансерным наблюдением при наличии ДД
+      if verify_FF(HH,.t.,sh)
+        aeval(arr_title, {|x| add_string(x) } )
+      endif
+      for i := 1 to len(arr)
+        if !arr_fl[i]
+          add_string(padr(lstr(++ii2)+". "+kart->fio,45)+" "+padl(lstr(kart->uchast),4) +" "+full_date(kart->date_r) +" "+padr(Arr[i],5))
+        endif  
+      next
+    endif
+    if par == 2 // Были л/у с диспансерным наблюдением при наличии ДД
+      if verify_FF(HH,.t.,sh)
+        aeval(arr_title, {|x| add_string(x) } )
+      endif
+      for i := 1 to len(arr)
+        if arr_fl[i]
+          add_string(padr(lstr(++ii2)+". "+kart->fio,45)+" "+padl(lstr(kart->uchast),4) +" "+full_date(kart->date_r) +" "+padr(Arr[i],5))
+        endif  
+      next
+    endif 
+  endif
+  select RHUM
+  skip
+enddo // kartotek
+close databases
+fclose(fp)
+rest_box(buf)
+viewtext(name_file,,,,(sh>80),,,2)
+/*if !fl_disp .and. par == 3 .and. len(ausl) > 0
           select TMP
           append blank
           tmp->nn := ++ii3
@@ -1219,34 +1226,7 @@ do while !eof()
             tmp->date_sch := full_date(schet_->dschet)
             tmp->nomer_posi := str(human_->schet_zap,6)
           endif
-        endif
-      endif
-      select HUMAN
-      skip
-    enddo
-    if !fl1 .and. par == 1
-      if verify_FF(HH,.t.,sh)
-        aeval(arr_title, {|x| add_string(x) } )
-      endif
-      add_string(padr(lstr(++ii1)+". "+kart->fio,45)+" "+full_date(kart->date_r)+" "+Arr2SList(arr))
-    endif
-  endif
-  @ maxrow(),1 say lstr({ii1,ii2,ii3}[par]) color cColorStMsg
-  select RHUM
-  skip
-enddo
-close databases
-fclose(fp)
-rest_box(buf)
-if par == 3
-  if ii3 == 0
-    func_error(4,"Не найдено пациентов, по которым были другие листы учёта с диагнозом из списка")
-  else
-    n_message({"Создан файл для загрузки в Excel: "+name_dbf},,cColorStMsg,cColorStMsg,,,cColorSt2Msg)
-  endif
-else
-  viewtext(name_file,,,,(sh>80),,,2)
-endif
+        endif*/
 return NIL
 
  
