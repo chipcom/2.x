@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-** 06.09.21 ввод направлений при подозрении на ЗНО - профосмотры несовершеннолетних
+// 06.09.21 ввод направлений при подозрении на ЗНО - профосмотры несовершеннолетних
 Function fget_napr_PN(k, r, c)
   Local r1, r2, n := 4, buf, tmp_keys, tmp_list, tmp_color
   local strNeedTabNumber := 'Необходимо указать табельный направившего врача'
@@ -98,7 +98,7 @@ Function fget_napr_PN(k, r, c)
   set key K_F5
 
   // select TPERS
-  // if TPERS->(dbSeek(str(mTab_Number,5)))
+  // if TPERS->(dbSeek(str(mTab_Number, 5)))
   //   recNumberDoctor := TPERS->(recno())
   // else
   //   recNumberDoctor := 0
@@ -136,7 +136,7 @@ Function fget_napr_PN(k, r, c)
   restscreen(buf)
   return {0, 'Количество направлений - ' + lstr(count_napr)}
 
-** 06.09.21 редактировать другое направление (№...)
+// 06.09.21 редактировать другое направление (№...)
 Function change_num_napr()
   Local r, n, fl := .f., tmp_keys, tmp_gets, buf, tmp_color := setcolor()
   local recNumberDoctor := 0
@@ -159,7 +159,7 @@ Function change_num_napr()
       cur_napr := 1
     endif
     // select TPERS
-    // if TPERS->(dbSeek(str(mTab_Number,5)))
+    // if TPERS->(dbSeek(str(mTab_Number, 5)))
     //   recNumberDoctor := TPERS->(recno())
     // else
       recNumberDoctor := get_kod_vrach_by_tabnom(MTAB_NOM_NAPR) //0
@@ -233,7 +233,7 @@ Function change_num_napr()
   setcursor()
   return update_gets()
   
-** 31.07.21 блок направлений после диспансеризации
+// 31.07.21 блок направлений после диспансеризации
 function dispans_napr(mk_data, /*@*/j, lAdult)
   // mk_data - дата окончания случая диспансеризации
   // j - счетчик строк на экране
@@ -245,7 +245,7 @@ function dispans_napr(mk_data, /*@*/j, lAdult)
 
   if mk_data >= 0d20210801  // по новому ПУМП
     @ j, 74 say 'Врач'
-    @ ++j, 1 say replicate('─',78) color color1
+    @ ++j, 1 say replicate('─', 78) color color1
 // направление на дополниельное обследование
     mdopo_na := iif(len(mdopo_na)>0, substr(mdopo_na, 1, 31), '')
     @ ++j, 1 say 'Направлен на дополнительное обследование' get mdopo_na ;
@@ -339,7 +339,7 @@ function dispans_napr(mk_data, /*@*/j, lAdult)
   endif
   return nil
 
-** 31.08.21
+// 31.08.21
 function testingTabNumberDoctor(mk_data, lAdult)
   local ret := .t.
 
