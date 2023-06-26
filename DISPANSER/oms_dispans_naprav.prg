@@ -67,30 +67,30 @@ Function fget_napr_PN(k, r, c)
   @ j, col() say ')'
   @ j, 29 say '(<F5> - добавление/редактирование направления №...)' color 'G/B'
   @ ++j, 3 say 'Дата направления' get mNAPR_DATE ;
-            valid {|| iif(empty(mNAPR_DATE) .or. between(mNAPR_DATE, mn_data, mk_data), .t., ;
-            func_error(4, 'Дата направления должна быть внутри сроков лечения')) }
+        valid {|| iif(empty(mNAPR_DATE) .or. between(mNAPR_DATE, mn_data, mk_data), .t., ;
+        func_error(4, 'Дата направления должна быть внутри сроков лечения')) }
   @ ++j, 3 say 'Табельный номер направившего врача' get mTab_Number pict '99999' ;
-            valid {|g| iif(!v_kart_vrach(g), func_error(4, strNeedTabNumber), .t.) }
+        valid {|g| iif(!v_kart_vrach(g), func_error(4, strNeedTabNumber), .t.) }
   @ ++j, 3 say 'В какую МО направлен' get mnapr_mo ;
-            reader {|x|menu_reader(x,{{|k, r, c|f_get_mo(k, r, c)}} ,A__FUNCTION, , , .f.)}
+        reader {|x|menu_reader(x,{{|k, r, c|f_get_mo(k, r, c)}} ,A__FUNCTION, , , .f.)}
   @ ++j, 3 say 'Вид направления' get mnapr_v ;
-            reader {|x|menu_reader(x, mm_napr_v, A__MENUVERT, , , .f.)} //; color colget_menu
+        reader {|x|menu_reader(x, mm_napr_v, A__MENUVERT, , , .f.)} //; color colget_menu
   @ ++j, 5 say 'Метод диагностического исследования' get mmet_issl ;
-            reader {|x|menu_reader(x, mm_met_issl, A__MENUVERT, , , .f.)} ;
-            when m1napr_v == 3 //; color colget_menu
+        reader {|x|menu_reader(x, mm_met_issl, A__MENUVERT, , , .f.)} ;
+        when m1napr_v == 3 //; color colget_menu
   @ ++j, 5 say 'Медицинская услуга' get mshifr pict '@!' ;
-            when {|g| m1napr_v == 3 .and. m1MET_ISSL > 0 } ;
-            valid {|g|
-                        Local fl := f5editkusl(g, 2, 2)
-                        if empty(mshifr)
-                          mu_kod  := 0
-                          mname_u := space(65)
-                          mshifr1 := mshifr
-                        elseif fl .and. tip_onko_napr > 0 .and. tip_onko_napr != m1MET_ISSL
-                          func_error(4, 'Тип медуслуги не соответствует методу диагностического исследования')
-                        endif
-                        return fl
-                   }
+        when {|g| m1napr_v == 3 .and. m1MET_ISSL > 0 } ;
+        valid {|g|
+                Local fl := f5editkusl(g, 2, 2)
+                if empty(mshifr)
+                  mu_kod  := 0
+                  mname_u := space(65)
+                  mshifr1 := mshifr
+                elseif fl .and. tip_onko_napr > 0 .and. tip_onko_napr != m1MET_ISSL
+                  func_error(4, 'Тип медуслуги не соответствует методу диагностического исследования')
+                endif
+                return fl
+              }
   @ ++j, 7 say 'Услуга' get mname_u when .f. color color14
   //
   set key K_F5 TO change_num_napr
@@ -264,12 +264,12 @@ function dispans_napr(mk_data, /*@*/j, lAdult)
     //     when m1napr_v_mo > 0
     if lAdult
       @ j, col() + 1 say 'к специалистам' get ma_mo_spec ;
-              reader {|x|menu_reader(x, {{|k, r, c| fget_spec_DVN(k, r, c, arr_mo_spec)}}, A__FUNCTION, , , .f.)} ;
-              when m1napr_v_mo > 0
+          reader {|x|menu_reader(x, {{|k, r, c| fget_spec_DVN(k, r, c, arr_mo_spec)}}, A__FUNCTION, , , .f.)} ;
+          when m1napr_v_mo > 0
     else
       @ j, col() + 1 say 'к специалистам' get ma_mo_spec ;
-              reader {|x|menu_reader(x, {{|k, r, c| fget_spec_deti(k, r, c, arr_mo_spec)}}, A__FUNCTION, , , .f.)} ;
-              when m1napr_v_mo > 0
+          reader {|x|menu_reader(x, {{|k, r, c| fget_spec_deti(k, r, c, arr_mo_spec)}}, A__FUNCTION, , , .f.)} ;
+          when m1napr_v_mo > 0
     endif
     @ j, 73 get mtab_v_mo pict '99999' ;
         valid {|g| iif((mtab_v_mo == 0) .and. v_kart_vrach(g), func_error(4, strNeedTabNumber), .t.) } ;
