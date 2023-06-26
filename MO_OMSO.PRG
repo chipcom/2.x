@@ -2591,8 +2591,10 @@ rest_box(buf)
 viewtext(n_file,,,,.f.,,, 2)
 return NIL
 
-// 19.05.23 суммы снятий по актам
-Function akt_summa_of_refusal()
+// 25.06.23 суммы снятий по актам
+Function akt_summa_of_refusal(tip)
+  // 1 - по дате АКТА в РАК
+  // 2  - по дате РАК
   Local buf := save_maxrow(), arr_m, n_file := cur_dir + 'sum_RAK' + stxt, sh, HH := 40, arr_smo := aclone(glob_arr_smo)
 
   if (arr_m := year_month(T_ROW, T_COL - 5)) == NIL
@@ -2620,60 +2622,120 @@ Function akt_summa_of_refusal()
   R_Use(dir_server + 'mo_raks', , 'RAKS')
   index on str(akt, 6) to (cur_dir + 'tmpraks')
   R_Use(dir_server + 'mo_rak', , 'RAK')
-  index on dtos(dakt) to (cur_dir + 'tmprak') for between(dakt, arr_m[5], arr_m[6])
-  go top
-  do while !eof()
-    @ maxrow(), 0 say padr(date_8(rak->dakt), 80) color 'W/R'
-    vid_eks := ret_vid_eks()
-    select RAKS
-    find (str(rak->akt, 6))
-    do while rak->akt == raks->akt .and. !eof()
-      select RAKSH
-      find (str(raks->kod_raks, 6))
-      do while raks->kod_raks == raksh->kod_raks .and. !eof()
-        s := raksh->SANK_MEK + raksh->SANK_MEE + raksh->SANK_EKMP
-        if raksh->REFREASON > 0 .and. !emptyall(s, raksh->penalty)
-          select TMP
-          for i := 1 to 2
-            lsmo := {space(5), raks->plat}[i]
-            for k := 1 to 2
-              lrefr := {0, raksh->REFREASON}[k]
-              find (lsmo+str(lrefr, 3))
-              if !found()
-                append blank
-                tmp->REFREASON := lrefr
-                tmp->smo := lsmo
-              endif
-              if !empty(s)
-                tmp->kol ++
-                tmp->summa += s
-              endif
-              if vid_eks == 2 .or. !empty(raksh->SANK_EKMP)
-                tmp->kol3 ++
-                tmp->summa3 += s
-              elseif vid_eks == 1 .or. !empty(raksh->SANK_MEE)
-                tmp->kol2 ++
-                tmp->summa2 += s
-              else
-                tmp->kol1 ++
-                tmp->summa1 += s
-              endif
-              if !empty(raksh->penalty)
-                tmp->kol4 ++
-                tmp->summa4 += raksh->penalty
-              endif
-            next k
-          next i
-        endif
+  if TIP == 1 // дата АКТА
+    index on dtos(dakt) to (cur_dir + 'tmprak') for between(dakt, arr_m[5], arr_m[6])
+    go top
+    do while !eof()
+      @ maxrow(), 0 say padr(date_8(rak->dakt), 80) color 'W/R'
+      vid_eks := ret_vid_eks()
+      select RAKS
+      find (str(rak->akt, 6))
+      do while rak->akt == raks->akt .and. !eof()
         select RAKSH
+        find (str(raks->kod_raks, 6))
+        do while raks->kod_raks == raksh->kod_raks .and. !eof()
+          s := raksh->SANK_MEK + raksh->SANK_MEE + raksh->SANK_EKMP
+          if raksh->REFREASON > 0 .and. !emptyall(s, raksh->penalty)
+            select TMP
+            for i := 1 to 2
+              lsmo := {space(5), raks->plat}[i]
+              for k := 1 to 2
+                lrefr := {0, raksh->REFREASON}[k]
+                find (lsmo+str(lrefr, 3))
+                if !found()
+                  append blank
+                  tmp->REFREASON := lrefr
+                  tmp->smo := lsmo
+                endif
+                if !empty(s)
+                  tmp->kol ++
+                  tmp->summa += s
+                endif
+                if vid_eks == 2 .or. !empty(raksh->SANK_EKMP)
+                  tmp->kol3 ++
+                  tmp->summa3 += s
+                elseif vid_eks == 1 .or. !empty(raksh->SANK_MEE)
+                  tmp->kol2 ++
+                  tmp->summa2 += s
+                else
+                  tmp->kol1 ++
+                  tmp->summa1 += s
+                endif
+                if !empty(raksh->penalty)
+                  tmp->kol4 ++
+                  tmp->summa4 += raksh->penalty
+                endif
+              next k
+            next i
+          endif
+          select RAKSH
+          skip
+        enddo
+        select RAKS
         skip
       enddo
-      select RAKS
+      select RAK
       skip
     enddo
+  else
+    R_Use(dir_server + 'mo_XML', , 'MO_XML')
     select RAK
-    skip
-  enddo
+    set relation to kod_xml into MO_XML
+    index on dtos(dakt) to (cur_dir + 'tmprak') for between(mo_xml->dfile, arr_m[5], arr_m[6])
+    go top
+    do while !eof()
+      @ maxrow(), 0 say padr(date_8(rak->dakt), 80) color 'W/R'
+      vid_eks := ret_vid_eks()
+      select RAKS
+      find (str(rak->akt, 6))
+      do while rak->akt == raks->akt .and. !eof()
+        select RAKSH
+        find (str(raks->kod_raks, 6))
+        do while raks->kod_raks == raksh->kod_raks .and. !eof()
+          s := raksh->SANK_MEK + raksh->SANK_MEE + raksh->SANK_EKMP
+          if raksh->REFREASON > 0 .and. !emptyall(s, raksh->penalty)
+            select TMP
+            for i := 1 to 2
+              lsmo := {space(5), raks->plat}[i]
+              for k := 1 to 2
+                lrefr := {0, raksh->REFREASON}[k]
+                find (lsmo+str(lrefr, 3))
+                if !found()
+                  append blank
+                  tmp->REFREASON := lrefr
+                  tmp->smo := lsmo
+                endif
+                if !empty(s)
+                  tmp->kol ++
+                  tmp->summa += s
+                endif
+                if vid_eks == 2 .or. !empty(raksh->SANK_EKMP)
+                  tmp->kol3 ++
+                  tmp->summa3 += s
+                elseif vid_eks == 1 .or. !empty(raksh->SANK_MEE)
+                  tmp->kol2 ++
+                  tmp->summa2 += s
+                else
+                  tmp->kol1 ++
+                  tmp->summa1 += s
+                endif
+                if !empty(raksh->penalty)
+                  tmp->kol4 ++
+                  tmp->summa4 += raksh->penalty
+                endif
+              next k
+            next i
+          endif
+          select RAKSH
+          skip
+        enddo
+        select RAKS
+        skip
+      enddo
+      select RAK
+      skip
+    enddo
+  endif  
   arr_title := { ;
     '______________________________________________________________________________________________', ;
     'код       |кол-во|сумма отказа |______________________в_том_числе_____________________________', ;
@@ -2689,7 +2751,11 @@ Function akt_summa_of_refusal()
   add_string('')
   add_string(center('Структура нарушений по результатам контроля объемов, сроков, качества и условий', sh))
   add_string(center('предоставления медицинской помощи по обязательному медицинскому страхованию', sh))
-  add_string(center('даты актов контроля - ' + arr_m[4], sh))
+  if TIP == 1
+    add_string(center('даты актов контроля - ' + arr_m[4], sh))
+  else
+    add_string(center('даты РЕЕСТРОВ АКТОВ КОНТРОЛЯ - ' + arr_m[4], sh))
+  endif  
   aeval(arr_title, {|x| add_string(x) } )
   // R_Use(exe_dir + '_mo_t005', cur_dir + '_mo_t005', 'T5')
   select TMP

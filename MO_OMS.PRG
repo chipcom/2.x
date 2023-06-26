@@ -1946,7 +1946,7 @@ else
 endif
 return NIL
 
-** 04.04.23
+** 25.06.23
 Function f2ret_oms_human(nkey)
 Static tmp := " "
 Local buf := savescreen(), buf1, rec1 := recno(), fl := -1, ss := 0, ;
@@ -2114,6 +2114,8 @@ if type("p_del_error") == "A" .and. p_del_error[2] > 0
   elseif nkey == K_CTRL_F9
     mywait()
     sh := 110
+    fl_povtor := .T.
+    fl_povtor1 := .T.
     fp := fcreate(n_file) ; tek_stroke := 0 ; n_list := 1
     add_string("")
     add_string(center("Сведения об отклоненных от оплаты случаях и стоимости медицинской помощи",sh))
@@ -2133,9 +2135,11 @@ if type("p_del_error") == "A" .and. p_del_error[2] > 0
     //afill(mas_otch,0)
     //arr_iss := array(1,9) ; afillall(arr_iss,0)
     //
-    
+   
     go top
     do while !eof()
+      fl_povtor := .T.
+      fl_povtor1 := .T.
       verify_FF(HH-3,.f.,sh)
       //
       flag_covid := .F.
@@ -2362,11 +2366,17 @@ if type("p_del_error") == "A" .and. p_del_error[2] > 0
                 mas_otch[14,1] += hu->stoim
                 //
                 if human->vzros_reb == 0 //взрослый
-                  mas_otchet[17,1] += 1 
-                  mas_otchet[17,2] += human->cena_1
+                  if fl_povtor1 
+                    mas_otchet[17,1] += 1 
+                    fl_povtor1 := .F.  
+                  endif  
+                  mas_otchet[17,2] += hu->stoim //human->cena_1
                 else
-                  mas_otchet[17,3] += 1 
-                  mas_otchet[17,4] += human->cena_1
+                  if fl_povtor1 
+                    mas_otchet[17,3] += 1 
+                    fl_povtor1 := .F.
+                  endif   
+                  mas_otchet[17,4] += hu->stoim //human->cena_1
                 endif  
               endif
               if padr(lshifr,4) == "60.5" //МРТ
@@ -2526,11 +2536,17 @@ if type("p_del_error") == "A" .and. p_del_error[2] > 0
               // отсекаем нулевки
               if hu->stoim > 0
                 if human->vzros_reb == 0 //взрослый
-                  mas_otchet[11,1] += 1 
-                  mas_otchet[11,2] += human->cena_1
+                  if fl_povtor 
+                    mas_otchet[11,1] += 1 
+                    fl_povtor := .F.
+                  endif  
+                  mas_otchet[11,2] += hu->stoim //human->cena_1
                 else
-                  mas_otchet[11,3] += 1 
-                  mas_otchet[11,4] += human->cena_1
+                  if fl_povtor 
+                    mas_otchet[11,3] += 1 
+                    fl_povtor := .F.
+                  endif  
+                  mas_otchet[11,4] += hu->stoim //human->cena_1
                 endif    
               endif 
             endif
@@ -2853,8 +2869,10 @@ return alltrim(human->fio)+;
 ***** 05.04.23
 Function prn_novor(mas_otchet,pozic)       
 Local c  
-   c := padl(lstr(mas_otchet[pozic,1]),8)+padl(lstr(mas_otchet[pozic,3]),9)+;
+   c := padl(lstr(mas_otchet[pozic,1]),8)+;
+        padl(lstr(mas_otchet[pozic,3]),9)+;
         padl(lstr(mas_otchet[pozic,1]+mas_otchet[pozic,3]),9)+"  сумма:" +;
-        put_kop(mas_otchet[pozic,2],10)+put_kop(mas_otchet[pozic,3],11)+;
+        put_kop(mas_otchet[pozic,2],10)+;
+        put_kop(mas_otchet[pozic,4],11)+;
         put_kop(mas_otchet[pozic,2]+mas_otchet[pozic,4],11)
 return C
