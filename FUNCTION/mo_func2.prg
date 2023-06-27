@@ -1,4 +1,4 @@
-** mo_func2.prg
+// mo_func2.prg
 #include 'set.ch'
 #include 'getexit.ch'
 #include 'inkey.ch'
@@ -6,11 +6,11 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-** 14.02.17 вернуть код СМО из наименования файла РАК (т.е. чей РАК)
+// 14.02.17 вернуть код СМО из наименования файла РАК (т.е. чей РАК)
 Function ret_owner_rak(fname)
   return padr(BeforAtNum('M', substr(fname, 3), 1), 5)
 
-** 09.02.15 ищем в массиве (1-ый параметр) любое вхождение со 2-го параметра и т.д.
+// 09.02.15 ищем в массиве (1-ый параметр) любое вхождение со 2-го параметра и т.д.
 Function eq_ascan( ... )
   Local fl := .f., i, arr := hb_aParams()
 
@@ -24,7 +24,7 @@ Function eq_ascan( ... )
   endif
   return fl
 
-** 06.04.15 сделать усечённое меню, если третий параметр больше 0
+// 06.04.15 сделать усечённое меню, если третий параметр больше 0
 Function mo_cut_menu(old_menu)
   Local i, new_menu := {}
 
@@ -35,7 +35,7 @@ Function mo_cut_menu(old_menu)
   next
   return new_menu
 
-** 22.09.15 вернуть коэф-т оплаты случая из РАК-ов
+// 22.09.15 вернуть коэф-т оплаты случая из РАК-ов
 Function ret_koef_from_RAK(lkod)
   Local koef := 1, k := 0 // по умолчанию оплачен, если даже нет РАКа
   if select('RAKSH') == 0
@@ -56,7 +56,7 @@ Function ret_koef_from_RAK(lkod)
   endif
   return koef
 
-** 24.04.13 вернуть действующую СМО
+// 24.04.13 вернуть действующую СМО
 Function ret_actual_smo(r, c)
   Static si := 34007
   Local i, arr := {}, ret, ret_arr
@@ -75,7 +75,7 @@ Function ret_actual_smo(r, c)
   endif
   return ret
 
-** вернуть уникальное значение CODE (N8) для XML-файлов
+// вернуть уникальное значение CODE (N8) для XML-файлов
 Function ret_unique_code(_kod, nlen)
   Static strValid := '0123456789'
   Local i, n, s := ''
@@ -91,7 +91,7 @@ Function ret_unique_code(_kod, nlen)
   enddo
   return val(s)
 
-  ***** 19.01.23 определить лицо старше трудоспособного возраста
+  ////* 19.01.23 определить лицо старше трудоспособного возраста
 Function f_starshe_trudosp(_pol,_date_r,_data,par)
   Local v
   DEFAULT par TO 1
@@ -106,7 +106,7 @@ Function f_starshe_trudosp(_pol,_date_r,_data,par)
   endif
   return count_years(_date_r,_data) >= v
 
-** 04.01.22
+// 04.01.22
 Function arr_plan_zakaz(ly)
   Local i, apz := {}
   local nameArr
@@ -124,7 +124,7 @@ Function arr_plan_zakaz(ly)
   next
   return apz
 
-** 23.12.21 по шифру услуги у году вернуть номер элемента массива 'arr_plan_zakaz' для года
+// 23.12.21 по шифру услуги у году вернуть номер элемента массива 'arr_plan_zakaz' для года
 Function f_arr_plan_zakaz(lshifr, lyear)
   Local i, j, c, k := 0, shb, i16 := 0
   local sbase, sAlias, sAliasUnit
@@ -158,7 +158,7 @@ Function f_arr_plan_zakaz(lshifr, lyear)
   endif
   return i16
 
-** 26.02.13
+// 26.02.13
 Function f14tf_array()
   Static arr_name := { ;
     'Количество амбулаторно-поликлинических посещений', ; // 1
@@ -174,7 +174,7 @@ Function f14tf_array()
     'Услуги, не вошедшие в 14-ю форму'}
   return arr_name
 
-** 14.03.23
+// 14.03.23
 Function f14tf_nastr(/*@*/lshifr, /*@*/lname, lyear)
   Static a_usl, a_zak_sl, syear
   Local ta := {}, i, j, k, i14 := 0, arr, shb, fl := .f., fl1 := .f., ret := {}
@@ -331,7 +331,7 @@ Function f14tf_nastr(/*@*/lshifr, /*@*/lname, lyear)
   endif
   return ret
 
-** подменить услуги по по законченным случаям на обычные койко-дни
+// подменить услуги по по законченным случаям на обычные койко-дни
 Function ChangeUslugiZakSluch()
   Local arr := {}
 
@@ -474,10 +474,10 @@ Function ChangeUslugiZakSluch()
   aadd(arr,{'1.10.58', '1.1.5'})  // (терапия)
   return arr
 
-** Перечень кодов мед.услуг, используемых при определении размера финансирования
-** медицинских организаций, участвующих в мероприятиях по повышению доступности
-** амбулаторной медицинской помощи, проводимых в рамках Программа модернизации
-** здравоохранения Волгоградской области на 2011-2012 годы
+// Перечень кодов мед.услуг, используемых при определении размера финансирования
+// медицинских организаций, участвующих в мероприятиях по повышению доступности
+// амбулаторной медицинской помощи, проводимых в рамках Программа модернизации
+// здравоохранения Волгоградской области на 2011-2012 годы
 Function UsllugiUzkieSpec()
   Local arr := {}
 
@@ -620,7 +620,7 @@ Function UsllugiUzkieSpec()
   aadd(arr,{'57.1.50', 'Посещение зубным врачом на дому'})
   return arr
 
-** 12.07.17
+// 12.07.17
 Function func_f14_stom(s, ltip, lkol, is_2_88, is_rebenok, is_trudosp, is_inogoro, is_sred)
   Local i, k, al := 'TMP_STOM'
 
