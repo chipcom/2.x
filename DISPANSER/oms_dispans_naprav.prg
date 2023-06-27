@@ -339,37 +339,33 @@ function dispans_napr(mk_data, /*@*/j, lAdult)
   endif
   return nil
 
-// 31.08.21
-function testingTabNumberDoctor(mk_data, lAdult)
+// 27.06.23
+function checkTabNumberDoctor(mk_data, lAdult)
   local ret := .t.
+  local sBeginMsg := 'Не заполнен табельный номер врача направившего '
 
   Default lAdult TO .f.
 
   if mk_data >= 0d20210801
     if (m1dopo_na > 0) .and. (mtab_v_dopo_na == 0)
-      func_error(4, 'Не заполнен табельный номер врача направившего на дополнительное обследование')
+      func_error(4, sBeginMsg + 'на дополнительное обследование')
       ret := .f.
-      // loop
     endif
     if (m1napr_v_mo > 0) .and. (mtab_v_mo == 0)
-      func_error(4, 'Не заполнен табельный номер врача направившего к специалистам')
+      func_error(4, sBeginMsg + 'к специалистам')
       ret := .f.
-      // loop
     endif
     if (m1napr_stac > 0) .and. (mtab_v_stac == 0)
-      func_error(4, 'Не заполнен табельный номер врача направившего на лечение')
+      func_error(4, sBeginMsg + 'на лечение')
       ret := .f.
-      // loop
     endif
     if (m1napr_reab > 0) .and. (mtab_v_reab == 0)
-      func_error(4, 'Не заполнен табельный номер врача направившего на реабилитацию')
+      func_error(4, sBeginMsg + 'на реабилитацию')
       ret := .f.
-      // loop
     endif
     if lAdult .and. (m1sank_na > 0) .and. (mtab_v_sanat == 0)
-        func_error(4, 'Не заполнен табельный номер врача направившего на санаторно-курортное лечение')
+        func_error(4, sBeginMsg + 'на санаторно-курортное лечение')
         ret := .f.
-        // loop
     endif
   endif
   return ret

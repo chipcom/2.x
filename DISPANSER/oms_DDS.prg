@@ -3,7 +3,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 01.02.20 ДДС - добавление или редактирование случая (листа учета)
+// 27.06.23 ДДС - добавление или редактирование случая (листа учета)
 Function oms_sluch_DDS(tip_lu,Loc_kod,kod_kartotek,f_print)
   // tip_lu - TIP_LU_DDS или TIP_LU_DDSOP
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -1460,7 +1460,7 @@ Function oms_sluch_DDS(tip_lu,Loc_kod,kod_kartotek,f_print)
         func_error(4,"Не введены отклонения массы тела или роста.")
         loop
       endif
-      if ! testingTabNumberDoctor(mk_data, .f.)
+      if ! checkTabNumberDoctor(mk_data, .f.)
         loop
       endif
       if mvozrast < 1

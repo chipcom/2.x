@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 06.09.21 ПН - добавление или редактирование случая (листа учета)
+// 27.06.23 ПН - добавление или редактирование случая (листа учета)
 Function oms_sluch_PN(Loc_kod, kod_kartotek, f_print)
   // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -1401,7 +1401,7 @@ Function oms_sluch_PN(Loc_kod, kod_kartotek, f_print)
         func_error(4, 'Не введены отклонения массы тела или роста.')
         loop
       endif
-      if ! testingTabNumberDoctor(mk_data, .f.)
+      if ! checkTabNumberDoctor(mk_data, .f.)
         loop
       endif
       if mvozrast < 1
