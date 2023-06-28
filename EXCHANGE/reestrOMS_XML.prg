@@ -6,7 +6,7 @@
 
 Static sadiag1 := {}
 
-// 22.06.23 создание XML-файлов реестра
+// 28.06.23 создание XML-файлов реестра
 Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
   //
@@ -471,7 +471,8 @@ Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
         mo_add_xml_stroke(oSL, 'METOD_HMP', lstr(human_2->METVMP))
       endif
       otd->(dbGoto(human->OTD))
-      if human->K_DATA < 0d20230601 .and. human_->USL_OK == 1 .and. is_otd_dep
+      // if human->K_DATA < 0d20230601 .and. human_->USL_OK == 1 .and. is_otd_dep
+      if human_->USL_OK == 1 .and. is_otd_dep .and. (! disable_podrazdelenie_TFOMS(human->K_DATA))
         f_put_glob_podr(human_->USL_OK, human->K_DATA) // заполнить код подразделения
         if (i := ascan(mm_otd_dep, {|x| x[2] == glob_otd_dep})) == 0
           i := 1
@@ -983,7 +984,8 @@ Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
             endif
           endif
           if p_tip_reestr == 1
-            if human->K_DATA < 0d20230601 .and. human_->USL_OK == 1 .and. is_otd_dep
+            // if human->K_DATA < 0d20230601 .and. human_->USL_OK == 1 .and. is_otd_dep
+            if human_->USL_OK == 1 .and. is_otd_dep .and. (! disable_podrazdelenie_TFOMS(human->K_DATA))
               otd->(dbGoto(hu->OTD))
               f_put_glob_podr(human_->USL_OK, human->K_DATA) // заполнить код подразделения
               if (i := ascan(mm_otd_dep, {|x| x[2] == glob_otd_dep})) == 0
@@ -1106,7 +1108,8 @@ Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
           mo_add_xml_stroke(oUSL, 'IDSERV'  , lstr(mohu->REES_ZAP))
           mo_add_xml_stroke(oUSL, 'ID_U'    , mohu->ID_U)
           mo_add_xml_stroke(oUSL, 'LPU'     , CODE_LPU)
-          if human->K_DATA < 0d20230601 .and. human_->USL_OK == 1 .and. is_otd_dep
+          // if human->K_DATA < 0d20230601 .and. human_->USL_OK == 1 .and. is_otd_dep
+          if human_->USL_OK == 1 .and. is_otd_dep .and. (! disable_podrazdelenie_TFOMS(human->K_DATA))
             otd->(dbGoto(mohu->OTD))
             f_put_glob_podr(human_->USL_OK, human->K_DATA) // заполнить код подразделения
             if (i := ascan(mm_otd_dep, {|x| x[2] == glob_otd_dep})) == 0
