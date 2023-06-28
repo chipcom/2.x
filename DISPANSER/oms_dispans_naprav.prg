@@ -3,18 +3,17 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 06.09.21 ввод направлений при подозрении на ЗНО - профосмотры несовершеннолетних
+// 28.06.23 ввод направлений при подозрении на ЗНО - профосмотры несовершеннолетних
 Function fget_napr_PN(k, r, c)
   Local r1, r2, n := 4, buf, tmp_keys, tmp_list, tmp_color
   local strNeedTabNumber := 'Необходимо указать табельный направившего врача'
   local recNumberDoctor := 0
-
+  
   buf := savescreen()
   change_attr()
   tmp_keys := my_savekey()
   save gets to tmp_list
   //
-  // use_base('mo_pers', 'TPERS')
   use_base('luslf')
   Use_base('mo_su')
   use (cur_dir + 'tmp_onkna') new alias TNAPR
@@ -23,13 +22,6 @@ Function fget_napr_PN(k, r, c)
   if cur_napr > 0 .and. cur_napr <= count_napr
     goto (cur_napr) // номер текущего направления
     mNAPR_DATE := tnapr->NAPR_DATE
-    // select TPERS
-    // TPERS->(dbGoto(tnapr->KOD_VR))
-    // if !(TPERS->(eof())) .and. !(TPERS->(bof()))
-    //   mTab_Number := TPERS->TAB_NOM
-    // else
-    //   mTab_Number := 0
-    // endif
     mTab_Number := get_tabnom_vrach_by_kod(tnapr->KOD_VR)
     select TNAPR
     m1NAPR_MO := tnapr->NAPR_MO
@@ -97,12 +89,6 @@ Function fget_napr_PN(k, r, c)
   myread()
   set key K_F5
 
-  // select TPERS
-  // if TPERS->(dbSeek(str(mTab_Number, 5)))
-  //   recNumberDoctor := TPERS->(recno())
-  // else
-  //   recNumberDoctor := 0
-  // endif
   recNumberDoctor := get_kod_vrach_by_tabnom(mTab_Number)
 
   close databases
@@ -158,12 +144,7 @@ Function change_num_napr()
     if cur_napr == 0
       cur_napr := 1
     endif
-    // select TPERS
-    // if TPERS->(dbSeek(str(mTab_Number, 5)))
-    //   recNumberDoctor := TPERS->(recno())
-    // else
-      recNumberDoctor := get_kod_vrach_by_tabnom(MTAB_NOM_NAPR) //0
-    // endif
+    recNumberDoctor := get_kod_vrach_by_tabnom(MTAB_NOM_NAPR) //0
 
     if select('TNAPR') == 0
       use (cur_dir + 'tmp_onkna') new alias TNAPR
@@ -192,14 +173,6 @@ Function change_num_napr()
       goto (cur_napr) // номер текущего направления
       mNAPR_DATE := tnapr->NAPR_DATE
 
-      // select TPERS
-      // TPERS->(dbGoto(tnapr->KOD_VR))
-      // if !(TPERS->(eof())) .and. !(TPERS->(bof()))
-      //   mTab_Number := TPERS->TAB_NOM
-      // else
-      //   mTab_Number := 0
-      // endif
-      // select TNAPR
       mTab_Number := get_tabnom_vrach_by_kod(tnapr->KOD_VR)
 
       m1NAPR_MO := tnapr->NAPR_MO
