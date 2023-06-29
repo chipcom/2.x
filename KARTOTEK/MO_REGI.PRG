@@ -3102,7 +3102,7 @@ if empty(aerr)
     s := upper(left(mfio,20))
     find ("1"+s)
     do while s == upper(left(kart->fio,20)) .and. !eof()
-      if upper(mfio)==upper(kart->fio) .and. arr_csv[i,CSV_O_DR]==kart->DATE_R
+      if upper(left(mfio,50))==upper(left(kart->fio,50)) .and. arr_csv[i,CSV_O_DR]==kart->DATE_R
         lkod_k := kart->kod ; exit
       endif
       skip
@@ -3157,7 +3157,7 @@ if empty(aerr)
         kart_etk->PRIOR := 0
         dbUnLock()
       endif
-      f_put_date_prik(lKOD_K,arr_csv[i,CSV_O_PID],arr_csv[i,CSV_O_ENP],4)
+      f_put_date_prik(lKOD_K,arr_csv[i,CSV_O_PID],arr_csv[i,CSV_O_ENP],4)  
     else
       j := len(lstr(i))+2
       s := space(j)+"!!! данный пациент не найден в нашей картотеке по ключу ФИО+дата рождения"
@@ -3487,17 +3487,19 @@ Function f_put_date_prik(lkod_k,lpid,lenp,ltip_pr,ldeath,_n_del,lprik_mo,ldate_p
 Static j := 0
 Local old_pr, arr := {}
 DEFAULT _n_del TO 0, lprik_mo TO "", ldate_prik_mo TO ctod("")
+
 select KARTP
 find (str(lkod_k,7))
 do while kartp->KOD_K == lkod_k .and. !eof()
   aadd(arr,{kartp->MO_PR,;
             kartp->D_PRIK,;
             kartp->SNILS_VR,;
-            iif(empty(kartp->DFILE),kartp->D_PRIK,kartp->DFILE);
+            iif(empty(kartp->DFILE),kartp->D_PRIK,IIF(kartp->D_PRIK > kartp->DFILE,kartp->D_PRIK,kartp->DFILE));
            };
       )
   skip
 enddo
+
 select KART2
 do while kart2->(lastrec()) < lkod_k
   G_RLock(.t.,forever) // бесконечная попытка добавить запись
