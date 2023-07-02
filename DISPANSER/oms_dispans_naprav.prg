@@ -10,7 +10,7 @@ Function fget_napr_PN(k, r, c)
   local recNumberDoctor := 0
   
   buf := savescreen()
-  change_attr()
+  change_attr() // сделать область экрана "бледной"
   tmp_keys := my_savekey()
   save gets to tmp_list
   //
