@@ -247,7 +247,7 @@ mo_version.prg
 .\dispanser\oms_DDS_func.prg
 .\dispanser\oms_PN.prg
 .\dispanser\oms_PN_func.prg
-.\dispanser\oms_dispans_naprav.prg
+.\dispanser\oms_naprav_zno.prg
 .\dispanser\oms_dispans_diagnoze.prg
 .\dispanser\oms_dispans_func.prg
 .\dispanser\mo_omsna.prg

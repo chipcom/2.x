@@ -3,7 +3,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-// 27.06.23 ДВН - добавление или редактирование случая (листа учета)
+// 04.07.23 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_DVN(Loc_kod,kod_kartotek,f_print)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -1048,13 +1048,13 @@ Function oms_sluch_DVN(Loc_kod,kod_kartotek,f_print)
           // ++j
         endif
       endif
-      ++j; @ j,1 say "Признак подозрения на злокачественное новообразование" get mDS_ONK ;
-                 reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
-      ++j; @ j,1 say "Направления при подозрении на ЗНО" get mnapr_onk ;
-                 reader {|x|menu_reader(x,{{|k,r,c| fget_napr_PN(k,r,c)}},A__FUNCTION,,,.f.)} ;
+      @ ++j, 1 say 'Признак подозрения на злокачественное новообразование' get mDS_ONK ;
+                 reader {|x|menu_reader(x, mm_danet, A__MENUVERT, , , .f.)}
+      @ ++j, 1 say 'Направления при подозрении на ЗНО' get mnapr_onk ;
+                 reader {|x|menu_reader(x, {{|k, r, c| fget_napr_ZNO(k, r, c)}}, A__FUNCTION, , ,.f.)} ;
                  when m1ds_onk == 1
-      ++j; @ j,1 say "Назначено лечение (для ф.131)" get mnazn_l ;
-                 reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,,.f.)}
+      @ ++j, 1 say 'Назначено лечение (для ф.131)' get mnazn_l ;
+                 reader {|x|menu_reader(x, mm_danet, A__MENUVERT, , , .f.)}
 
       dispans_napr(mk_data, @j, .t.)  // вызов заполнения блока направлений
 

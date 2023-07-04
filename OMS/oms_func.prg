@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-** 26.05.22 проверка на соответствие услуги профилю
+// 26.05.22 проверка на соответствие услуги профилю
 Function UslugaAccordanceProfil(lshifr, lvzros_reb, lprofil, ta, short_shifr)
   Local s := '', s1 := ''
 
@@ -39,7 +39,7 @@ Function UslugaAccordanceProfil(lshifr, lvzros_reb, lprofil, ta, short_shifr)
   endif
   return lprofil
   
-** 12.02.23 проверка на соответствие услуги специальности
+// 12.02.23 проверка на соответствие услуги специальности
 Function UslugaAccordancePRVS(lshifr, lvzros_reb, lprvs, ta, short_shifr, lvrach)
   Local s := '', s1 := '', s2, i, k
   local arr_conv_V015_V021 := conversion_V015_V021()
@@ -84,7 +84,7 @@ Function UslugaAccordancePRVS(lshifr, lvzros_reb, lprvs, ta, short_shifr, lvrach
   endif
   return nil
   
-** 26.05.22 собрать шифры услуг в случае
+// 26.05.22 собрать шифры услуг в случае
 function collect_uslugi(rec_human)
   local human_number, human_uslugi, mohu_usluga
   local tmp_select := select()
@@ -115,7 +115,7 @@ function collect_uslugi(rec_human)
   select(tmp_select)
   return arrUslugi
 
-** 26.05.22 собрать даты оказания услуг в случае
+// 26.05.22 собрать даты оказания услуг в случае
 function collect_date_uslugi(rec_human)
   local human_number, human_uslugi, mohu_usluga
   local tmp_select := select()
@@ -158,23 +158,7 @@ function collect_date_uslugi(rec_human)
   select(tmp_select)
   return aSortDate
 
-** 27.05.22 - возврат структуры временного файла для направлений на онкологию
-function create_struct_temporary_onkna()
-  return { ; // онконаправления
-    {'KOD'      , 'N',  7, 0}, ; // код больного
-    {'NAPR_DATE', 'D',  8, 0}, ; // Дата направления
-    {'NAPR_MO'  , 'C',  6, 0}, ; // код другого МО, куда выписано направление
-    {'NAPR_V'   , 'N',  1, 0}, ; // Вид направления:1-к онкологу,2-на биопсию,3-на дообследование,4-для опр.тактики лечения
-    {'MET_ISSL' , 'N',  1, 0}, ; // Метод диагностического исследования(при NAPR_V=3):1-лаб.диагностика;2-инстр.диагностика;3-луч.диагностика;4-КТ, МРТ, ангиография
-    {'SHIFR'    , 'C', 20, 0}, ;
-    {'SHIFR_U'  , 'C', 20, 0}, ;
-    {'SHIFR1'   , 'C', 20, 0}, ;
-    {'NAME_U'   , 'C', 65, 0}, ;
-    {'U_KOD'    , 'N',  6, 0}, ; // код услуги
-    {'KOD_VR'   , 'N',  5, 0} ;  // код врача (справочник mo_pers)
-  }
-
-** 11.10.21
+// 11.10.21
 function exist_reserve_KSG(kod_pers, aliasHUMAN)
   local aliasIsUseHU, aliasIsUseUSL
   local oldSelect, ret := .f.
@@ -671,7 +655,7 @@ Function is_osmotr_DDS(ausl, _vozrast, arr, _etap, _pol, tip_lu)
   endif
   return fl
 
-** 13.05.13 является исследованием детей-сирот
+// 13.05.13 является исследованием детей-сирот
 Function is_issl_DDS(ausl, _vozrast, arr)
 // ausl := {lshifr,mdate,hu_->profil,hu_->PRVS}
   Local i, s, fl := .f., lshifr := alltrim(ausl[1])
