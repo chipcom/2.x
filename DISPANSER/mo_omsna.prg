@@ -1080,15 +1080,16 @@ return ret
 Function f_inf_disp_nabl(par)
  // 1 -  "~¥ ¡ë«® «/ã á ¤¨á¯ ­á¥à­ë¬ ­ ¡«î¤¥­¨¥¬",;
  // 2 -  "~ë«¨ «/ã á ¤¨á¯ ­á¥à­ë¬ ­ ¡«î¤¥­¨¥¬"
-Local arr, adiagnoz, sh := 80, HH := 60, buf := save_maxrow(), name_file := "disp_nabl"+stxt,;
-      ii1 := 0, ii2 := 0, ii3 := 0, s, name_dbf := "___DN"+sdbf, arr_fl
+Local arr, adiagnoz, sh := 120, HH := 60, buf := save_maxrow(), name_file := "disp_nabl"+stxt,;
+      ii1 := 0, ii2 := 0, ii3 := 0, s, name_dbf := "___DN"+sdbf, arr_fl, fl_prikrep := space(6), kol_kartotek := 0,;
+      t_kartotek := 0
 stat_msg("®¨áª ¨­ä®à¬ æ¨¨...")
 fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
 arr_title := {;
-  "ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ",;
-  "                                             ³  ü ³   „ â    ³ „¨ £­®§ë ¤«ï ¤¨á¯ ­á¥à­®£®",;
-  "  ”ˆŽ ¯ æ¨¥­â                                ³ãç-ª³ à®¦¤¥­¨ï ³ ­ ¡«î¤¥­¨ï                ",;
-  "ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ"}
+  "ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ",;
+  "                                             ³  ü ³   „ â    ³„¨ £­®§³  ŒŽ   ³                                     ",;
+  "              ”ˆŽ ¯ æ¨¥­â                    ³ãç-ª³ à®¦¤¥­¨ï ³  „   ³¯à¨ªà¥¯³             €¤à¥á                   ",;
+  "ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ"}
 sh := len(arr_title[1])
 if par == 1
   s := "‘¯¨á®ª ¯ æ¨¥­â®¢, á®áâ®ïé¨å ­  „, ¯® ª®â®àë¬ ­¥ ¡ë«® «/ã á ¤¨á¯ ­á¥à­ë¬ ­ ¡«î¤¥­¨¥¬"
@@ -1121,6 +1122,7 @@ index on str(kod_k,7)+dtos(k_data) to (cur_dir + "tmp_humankk") ;
 R_Use(dir_server + "mo_d01d",,"DD")
 index on str(kod_d,6) to (cur_dir + "tmp_dd")
 R_Use(dir_server + "kartotek",,"KART")
+R_Use(dir_server + "kartote2",,"KART2")
 R_Use(dir_server + "mo_d01k",,"RHUM")
 set relation to kod_k into KART
 index on upper(kart->fio)+dtos(kart->date_r)+str(kart->kod,7) to (cur_dir + "tmp_rhum") ;
@@ -1142,10 +1144,22 @@ do while !eof()  // æ¨ª« ¯® ¢á¥© ¡ §¥ ª àâ®â¥ª¨ „ˆ‘€‘…ŽƒŽ €‹ž„…ˆŸ
   if len(arr) > 0
     // ¥áâì „„
     fl1 := .f.
+    // ¯à®¢¥àï¥¬ ¯ æ¨¥­â  ­  ¯à¨ªà¥¯«¥­¨¥
+    fl_prikrep := space(6)
+    select KART2
+    goto kart->kod
+//    my_debug(,"KART2 == "+kart2->mo_pr+" "+glob_mo[_MO_KOD_TFOMS] )
+    if kart2->mo_pr != glob_mo[_MO_KOD_TFOMS] 
+      fl_prikrep := kart2->mo_pr 
+    endif  
+    if left(kart2->PC2,1) == "1"
+      fl_prikrep := " “Œ… "
+     // my_debug(,kart->kod )
+    endif  
     select HUMAN
     find (str(kart->kod,7))
     do while human->kod_k == kart->kod .and. !eof()
-      if human->k_data >= 0d20230101 // !!!!!!! ‚ˆŒ€ˆ… £®¤
+     if human->k_data >= 0d20230101 // !!!!!!! ‚ˆŒ€ˆ… £®¤
         // ¯à®¢¥àï¥¬ â®«ìª® ¯® ®á­®¢­®¬ã ¤¨ £­®§ã
         fl := .f. ; ar := {}; zz := 0
         s := padr(human->kod_diag,5)
@@ -1180,22 +1194,32 @@ do while !eof()  // æ¨ª« ¯® ¢á¥© ¡ §¥ ª àâ®â¥ª¨ „ˆ‘€‘…ŽƒŽ €‹ž„…ˆŸ
       skip
     enddo
     if par == 1 // ¥ ¡ë«® «/ã á ¤¨á¯ ­á¥à­ë¬ ­ ¡«î¤¥­¨¥¬ ¯à¨ ­ «¨ç¨¨ „„
-      if verify_FF(HH,.t.,sh)
-        aeval(arr_title, {|x| add_string(x) } )
-      endif
       for i := 1 to len(arr)
         if !arr_fl[i]
-          add_string(padr(lstr(++ii2)+". "+kart->fio,45)+" "+padl(lstr(kart->uchast),4) +" "+full_date(kart->date_r) +" "+padr(Arr[i],5))
+          if verify_FF(HH,.t.,sh)
+            aeval(arr_title, {|x| add_string(x) } )
+          endif
+          add_string(padr(lstr(++ii2)+". "+kart->fio,45)+" "+padl(lstr(kart->uchast),4) +" "+full_date(kart->date_r) +"  "+padr(Arr[i],5)+"   "+fl_prikrep+" "+;
+                     padr(kart->adres,40))
+          if t_kartotek != kart->kod
+            t_kartotek := kart->kod
+            kol_kartotek ++
+          endif 
         endif  
       next
     endif
     if par == 2 // ë«¨ «/ã á ¤¨á¯ ­á¥à­ë¬ ­ ¡«î¤¥­¨¥¬ ¯à¨ ­ «¨ç¨¨ „„
-      if verify_FF(HH,.t.,sh)
-        aeval(arr_title, {|x| add_string(x) } )
-      endif
       for i := 1 to len(arr)
+        if verify_FF(HH,.t.,sh)
+          aeval(arr_title, {|x| add_string(x) } )
+        endif
         if arr_fl[i]
-          add_string(padr(lstr(++ii2)+". "+kart->fio,45)+" "+padl(lstr(kart->uchast),4) +" "+full_date(kart->date_r) +" "+padr(Arr[i],5))
+          add_string(padr(lstr(++ii2)+". "+kart->fio,45)+" "+padl(lstr(kart->uchast),4) +" "+full_date(kart->date_r) +"  "+padr(Arr[i],5)+"   "+fl_prikrep+" "+;
+                     padr(kart->adres,40))
+          if t_kartotek != kart->kod
+            t_kartotek := kart->kod
+            kol_kartotek ++
+          endif 
         endif  
       next
     endif 
@@ -1204,9 +1228,10 @@ do while !eof()  // æ¨ª« ¯® ¢á¥© ¡ §¥ ª àâ®â¥ª¨ „ˆ‘€‘…ŽƒŽ €‹ž„…ˆŸ
   skip
 enddo // kartotek
 close databases
+add_string(" ˆâ®£® ç¥«®¢¥ª: "+lstr(kol_kartotek))
 fclose(fp)
 rest_box(buf)
-viewtext(name_file,,,,(sh>80),,,2)
+viewtext(name_file,,,,(sh>80),,,3)
 /*if !fl_disp .and. par == 3 .and. len(ausl) > 0
           select TMP
           append blank
