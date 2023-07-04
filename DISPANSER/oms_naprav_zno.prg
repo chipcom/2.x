@@ -122,7 +122,7 @@ Function fget_napr_ZNO(k, r, c)
   restscreen(buf)
   return {0, 'Количество направлений - ' + lstr(count_napr)}
 
-// 06.09.21 редактировать другое направление (№...)
+// 04.07.23 редактировать другое направление (№...)
 Function change_num_napr()
   Local r, n, fl := .f., tmp_keys, tmp_gets, buf, tmp_color := setcolor()
   local recNumberDoctor := 0
@@ -144,7 +144,7 @@ Function change_num_napr()
     if cur_napr == 0
       cur_napr := 1
     endif
-    recNumberDoctor := get_kod_vrach_by_tabnom(MTAB_NOM_NAPR) //0
+    recNumberDoctor := get_kod_vrach_by_tabnom(mTab_Number) //0
 
     if select('TNAPR') == 0
       use (cur_dir + 'tmp_onkna') new alias TNAPR
@@ -358,3 +358,44 @@ return { ; // онконаправления
   {'U_KOD'    , 'N',  6, 0}, ; // код услуги
   {'KOD_VR'   , 'N',  5, 0} ;  // код врача (справочник mo_pers)
 }
+
+// 04.07.23
+function collect_napr_zno(Loc_kod)
+local count_napr := 0, tmp_select := select()
+local lAlias
+
+use (cur_dir + 'tmp_onkna') new alias TNAPR
+lAlias := 'MOSU'
+if !(lAlias)->(used())
+  R_Use(dir_server + 'mo_su', , 'MOSU')
+endif
+lAlias := 'NAPR'
+if (lAlias)->(used())
+  (lAlias)->(dbSelectArea())
+else
+  R_Use(dir_server + 'mo_onkna', dir_server + 'mo_onkna', 'NAPR') // онконаправления
+endif
+set relation to u_kod into MOSU
+find (str(Loc_kod, 7))
+do while napr->kod == Loc_kod .and. !eof()
+  // cur_napr := 1 // при ред-ии - сначала первое направление текущее
+  ++count_napr
+  select TNAPR
+  append blank
+  tnapr->NAPR_DATE := napr->NAPR_DATE
+  tnapr->KOD_VR    := napr->KOD_VR
+  tnapr->NAPR_MO   := napr->NAPR_MO
+  tnapr->NAPR_V    := napr->NAPR_V
+  tnapr->MET_ISSL  := napr->MET_ISSL
+  tnapr->U_KOD     := napr->U_KOD
+  tnapr->shifr_u   := iif(empty(mosu->shifr), mosu->shifr1, mosu->shifr)
+  tnapr->shifr1    := mosu->shifr1
+  tnapr->name_u    := mosu->name
+  select NAPR
+  skip
+enddo
+// if count_napr > 0
+//   mnapr_onk := "Количество направлений - "+lstr(count_napr)
+// endif
+select(tmp_select)
+return count_napr

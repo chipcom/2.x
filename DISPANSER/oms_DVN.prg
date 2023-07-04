@@ -174,21 +174,6 @@ Function oms_sluch_DVN(Loc_kod,kod_kartotek,f_print)
 
   private mtab_v_dopo_na := mtab_v_mo := mtab_v_stac := mtab_v_reab := mtab_v_sanat := 0
 
-  //
-  // dbcreate(cur_dir+"tmp_onkna", {; // онконаправления
-  //    {"KOD"      ,   "N",     7,     0},; // код больного
-  //    {"NAPR_DATE",   "D",     8,     0},; // Дата направления
-  //    {"NAPR_MO",     "C",     6,     0},; // код другого МО, куда выписано направление
-  //    {"NAPR_V"  ,    "N",     1,     0},; // Вид направления:1-к онкологу,2-на биопсию,3-на дообследование,4-для опр.тактики лечения
-  //    {"MET_ISSL" ,   "N",     1,     0},; // Метод диагностического исследования(при NAPR_V=3):1-лаб.диагностика;2-инстр.диагностика;3-луч.диагностика;4-КТ, МРТ, ангиография
-  //    {"shifr"  ,     "C",    20,     0},;
-  //    {"shifr_u"  ,   "C",    20,     0},;
-  //    {"shifr1"   ,   "C",    20,     0},;
-  //    {"name_u"   ,   "C",    65,     0},;
-  //    {"U_KOD"    ,   "N",     6,     0},;  // код услуги
-  //    {"KOD_VR"   ,   "N",     5,     0};  // код врача (справочник mo_pers)
-  //   })
-  dbcreate(cur_dir+"tmp_onkna", create_struct_temporary_onkna())
 
   Private m1NAPR_MO, mNAPR_MO, mNAPR_DATE, mNAPR_V, m1NAPR_V, mMET_ISSL, m1MET_ISSL, ;
           mshifr, mshifr1, mname_u, mU_KOD, cur_napr := 0, count_napr := 0, tip_onko_napr := 0, ;
@@ -588,30 +573,34 @@ Function oms_sluch_DVN(Loc_kod,kod_kartotek,f_print)
       next j
     endif
     if .t.
-      use (cur_dir+"tmp_onkna") new alias TNAPR
-      R_Use(dir_server+"mo_su",,"MOSU")
-      R_Use(dir_server+"mo_onkna",dir_server+"mo_onkna","NAPR") // онконаправления
-      set relation to u_kod into MOSU
-      find (str(Loc_kod,7))
-      do while napr->kod == Loc_kod .and. !eof()
+      dbcreate(cur_dir+"tmp_onkna", create_struct_temporary_onkna())
+
+      // use (cur_dir+"tmp_onkna") new alias TNAPR
+      // R_Use(dir_server+"mo_su",,"MOSU")
+      // R_Use(dir_server+"mo_onkna",dir_server+"mo_onkna","NAPR") // онконаправления
+      // set relation to u_kod into MOSU
+      // find (str(Loc_kod,7))
+      // do while napr->kod == Loc_kod .and. !eof()
         cur_napr := 1 // при ред-ии - сначала первое направление текущее
-        ++count_napr
-        select TNAPR
-        append blank
-        tnapr->NAPR_DATE := napr->NAPR_DATE
-        tnapr->KOD_VR    := napr->KOD_VR
-        tnapr->NAPR_MO   := napr->NAPR_MO
-        tnapr->NAPR_V    := napr->NAPR_V
-        tnapr->MET_ISSL  := napr->MET_ISSL
-        tnapr->U_KOD     := napr->U_KOD
-        tnapr->shifr_u   := iif(empty(mosu->shifr),mosu->shifr1,mosu->shifr)
-        tnapr->shifr1    := mosu->shifr1
-        tnapr->name_u    := mosu->name
-        select NAPR
-        skip
-      enddo
+      //   ++count_napr
+      //   select TNAPR
+      //   append blank
+      //   tnapr->NAPR_DATE := napr->NAPR_DATE
+      //   tnapr->KOD_VR    := napr->KOD_VR
+      //   tnapr->NAPR_MO   := napr->NAPR_MO
+      //   tnapr->NAPR_V    := napr->NAPR_V
+      //   tnapr->MET_ISSL  := napr->MET_ISSL
+      //   tnapr->U_KOD     := napr->U_KOD
+      //   tnapr->shifr_u   := iif(empty(mosu->shifr),mosu->shifr1,mosu->shifr)
+      //   tnapr->shifr1    := mosu->shifr1
+      //   tnapr->name_u    := mosu->name
+      //   select NAPR
+      //   skip
+      // enddo
+      count_napr := collect_napr_zno(Loc_kod)
       if count_napr > 0
-        mnapr_onk := "Количество направлений - "+lstr(count_napr)
+        // mnapr_onk := "Количество направлений - "+lstr(count_napr)
+        mnapr_onk := 'Количество направлений - ' + lstr(count_napr)
       endif
     endif
     for i := 1 to 5
