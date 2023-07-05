@@ -4,15 +4,16 @@
 #include 'chip_mo.ch'
 #include 'tbox.ch'
 
-// 04.07.23 ввод направлений при подозрении на ЗНО - профосмотры несовершеннолетних
+// 05.07.23 ввод направлений при подозрении на ЗНО - профосмотры несовершеннолетних
 Function fget_napr_ZNO(k, r, c)
-  Local r1, r2, n := 4, buf, tmp_keys, tmp_list, tmp_color
+  Local r1, r2, n := 4, tmp_keys, tmp_list
   local strNeedTabNumber := 'Необходимо указать табельный направившего врача'
   local recNumberDoctor := 0
   local oBox
+  // Local buf, tmp_color
   
-  buf := savescreen()
-  change_attr() // сделать область экрана "бледной"
+  // buf := savescreen()
+  // change_attr() // сделать область экрана "бледной"
   tmp_keys := my_savekey()
   save gets to tmp_list
   //
@@ -57,6 +58,7 @@ Function fget_napr_ZNO(k, r, c)
   j := r - 9
 
   oBox := TBox():New( j, 0, j + 9, maxcol() - 2, .t. )
+  oBox:ChangeAttr := .t.
 	oBox:CaptionColor := color8
 	oBox:Caption := 'Ввод направлений при подозрении на ЗНО'
 	// oBox:Color := color1
@@ -157,10 +159,10 @@ Function fget_napr_ZNO(k, r, c)
     count_napr := lastrec()
     use
   endif
-  setcolor(tmp_color)
+  // setcolor(tmp_color)
   restore gets from tmp_list
   my_restkey(tmp_keys)
-  restscreen(buf)
+  // restscreen(buf)
   return {0, 'Количество направлений - ' + lstr(count_napr)}
 
 // 04.07.23 редактировать другое направление (№...)
