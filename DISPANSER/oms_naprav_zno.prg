@@ -2,12 +2,14 @@
 #include 'function.ch'
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
+#include 'tbox.ch'
 
 // 04.07.23 ввод направлений при подозрении на ЗНО - профосмотры несовершеннолетних
 Function fget_napr_ZNO(k, r, c)
   Local r1, r2, n := 4, buf, tmp_keys, tmp_list, tmp_color
   local strNeedTabNumber := 'Необходимо указать табельный направившего врача'
   local recNumberDoctor := 0
+  local oBox
   
   buf := savescreen()
   change_attr() // сделать область экрана "бледной"
@@ -26,9 +28,9 @@ Function fget_napr_ZNO(k, r, c)
     select TNAPR
     m1NAPR_MO := tnapr->NAPR_MO
     if empty(m1NAPR_MO)
-      mNAPR_MO := space(60)
+      mNAPR_MO := space(56)
     else
-      mNAPR_MO := ret_mo(m1NAPR_MO)[_MO_SHORT_NAME]
+      mNAPR_MO := left(ret_mo(m1NAPR_MO)[_MO_SHORT_NAME], 56)
     endif
     m1NAPR_V := tnapr->NAPR_V
     m1MET_ISSL := tnapr->MET_ISSL
@@ -41,7 +43,7 @@ Function fget_napr_ZNO(k, r, c)
     mNAPR_DATE := ctod('')
     mTab_Number := 0
     m1NAPR_MO := space(6)
-    mNAPR_MO := space(60)
+    mNAPR_MO := space(56)
     m1NAPR_V := 0
     m1MET_ISSL := 0
     mu_kod := 0
@@ -53,24 +55,62 @@ Function fget_napr_ZNO(k, r, c)
   mMET_ISSL := inieditspr(A__MENUVERT, mm_MET_ISSL, m1MET_ISSL)
   tip_onko_napr := 0
   j := r - 9
-  box_shadow(j, 0, j + 9, maxcol() - 2, color1, 'Ввод направлений при подозрении на ЗНО', color8)
-  @ ++j, 1 say 'НАПРАВЛЕНИЕ №' get cur_napr pict '99' when .f.
-  @ j, col() say '(из' get count_napr pict '99' when .f.
-  @ j, col() say ')'
-  @ j, 29 say '(<F5> - добавление/редактирование направления №...)' color 'G/B'
-  @ ++j, 3 say 'Дата направления' get mNAPR_DATE ;
+
+  oBox := TBox():New( j, 0, j + 9, maxcol() - 2, .t. )
+	oBox:CaptionColor := color8
+	oBox:Caption := 'Ввод направлений при подозрении на ЗНО'
+	// oBox:Color := color1
+  oBox:Save := .t.
+  oBox:View()
+
+  // box_shadow(j, 0, j + 9, maxcol() - 2, color1, 'Ввод направлений при подозрении на ЗНО', color8)
+  // @ ++j, 1 say 'НАПРАВЛЕНИЕ №' get cur_napr pict '99' when .f.
+  // @ j, col() say '(из' get count_napr pict '99' when .f.
+  // @ j, col() say ')'
+  // @ j, 29 say '(<F5> - добавление/редактирование направления №...)' color 'G/B'
+  // @ ++j, 3 say 'Дата направления' get mNAPR_DATE ;
+  //       valid {|| iif(empty(mNAPR_DATE) .or. between(mNAPR_DATE, mn_data, mk_data), .t., ;
+  //       func_error(4, 'Дата направления должна быть внутри сроков лечения')) }
+  // @ ++j, 3 say 'Табельный номер направившего врача' get mTab_Number pict '99999' ;
+  //       valid {|g| iif(!v_kart_vrach(g), func_error(4, strNeedTabNumber), .t.) }
+  // @ ++j, 3 say 'В какую МО направлен' get mnapr_mo ;
+  //       reader {|x|menu_reader(x,{{|k, r, c| f_get_mo(k, r, c)}} ,A__FUNCTION, , , .f.)}
+  // @ ++j, 3 say 'Вид направления' get mnapr_v ;
+  //       reader {|x|menu_reader(x, mm_napr_v, A__MENUVERT, , , .f.)} //; color colget_menu
+  // @ ++j, 5 say 'Метод диагностического исследования' get mmet_issl ;
+  //       reader {|x|menu_reader(x, mm_met_issl, A__MENUVERT, , , .f.)} ;
+  //       when m1napr_v == 3 //; color colget_menu
+  // @ ++j, 5 say 'Медицинская услуга' get mshifr pict '@!' ;
+  //       when {|g| m1napr_v == 3 .and. m1MET_ISSL > 0 } ;
+  //       valid {|g|
+  //           Local fl := f5editkusl(g, 2, 2)
+  //           if empty(mshifr)
+  //             mu_kod  := 0
+  //             mname_u := space(65)
+  //             mshifr1 := mshifr
+  //           elseif fl .and. tip_onko_napr > 0 .and. tip_onko_napr != m1MET_ISSL
+  //             func_error(4, 'Тип медуслуги не соответствует методу диагностического исследования')
+  //           endif
+  //           return fl
+  //         }
+  // @ ++j, 7 say 'Услуга' get mname_u when .f. color color14
+  @ 1, 1 TBOX oBox say 'НАПРАВЛЕНИЕ №' get cur_napr pict '99' when .f.
+  @ 1, col() TBOX oBox say '(из' get count_napr pict '99' when .f.
+  @ 1, col() TBOX oBox say ')'
+  @ 1, 29 TBOX oBox say '(<F5> - добавление/редактирование направления №...)' color 'G/B'
+  @ 2, 3 TBOX oBox say 'Дата направления' get mNAPR_DATE ;
         valid {|| iif(empty(mNAPR_DATE) .or. between(mNAPR_DATE, mn_data, mk_data), .t., ;
         func_error(4, 'Дата направления должна быть внутри сроков лечения')) }
-  @ ++j, 3 say 'Табельный номер направившего врача' get mTab_Number pict '99999' ;
+  @ 3, 3 TBOX oBox say 'Табельный номер направившего врача' get mTab_Number pict '99999' ;
         valid {|g| iif(!v_kart_vrach(g), func_error(4, strNeedTabNumber), .t.) }
-  @ ++j, 3 say 'В какую МО направлен' get mnapr_mo ;
-        reader {|x|menu_reader(x,{{|k, r, c|f_get_mo(k, r, c)}} ,A__FUNCTION, , , .f.)}
-  @ ++j, 3 say 'Вид направления' get mnapr_v ;
+  @ 4, 3 TBOX oBox say 'В какую МО направлен' get mnapr_mo pict '@S56';
+        reader {|x|menu_reader(x, {{|k, r, c| f_get_mo(k, r, c)}} ,A__FUNCTION, , , .f.)}
+  @ 5, 3 TBOX oBox say 'Вид направления' get mnapr_v ;
         reader {|x|menu_reader(x, mm_napr_v, A__MENUVERT, , , .f.)} //; color colget_menu
-  @ ++j, 5 say 'Метод диагностического исследования' get mmet_issl ;
+  @ 6, 5 TBOX oBox say 'Метод диагностического исследования' get mmet_issl ;
         reader {|x|menu_reader(x, mm_met_issl, A__MENUVERT, , , .f.)} ;
         when m1napr_v == 3 //; color colget_menu
-  @ ++j, 5 say 'Медицинская услуга' get mshifr pict '@!' ;
+  @ 7, 5 TBOX oBox say 'Медицинская услуга' get mshifr pict '@!' ;
         when {|g| m1napr_v == 3 .and. m1MET_ISSL > 0 } ;
         valid {|g|
                 Local fl := f5editkusl(g, 2, 2)
@@ -83,11 +123,12 @@ Function fget_napr_ZNO(k, r, c)
                 endif
                 return fl
               }
-  @ ++j, 7 say 'Услуга' get mname_u when .f. color color14
+  @ 8, 7 TBOX oBox say 'Услуга' get mname_u when .f. color color14
   //
   set key K_F5 TO change_num_napr
   myread()
   set key K_F5
+  oBox := nil
 
   recNumberDoctor := get_kod_vrach_by_tabnom(mTab_Number)
 
@@ -187,7 +228,7 @@ Function change_num_napr()
       mNAPR_DATE := ctod('')
       mTab_Number := 0
       m1NAPR_MO := space(6)
-      mNAPR_MO := space(60)
+      mNAPR_MO := space(56)
       m1NAPR_V := 0
       m1MET_ISSL := 0
       mu_kod := 0

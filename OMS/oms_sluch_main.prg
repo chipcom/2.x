@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 04.07.23 добавление или редактирование случая (листа учета)
+// 05.07.23 добавление или редактирование случая (листа учета)
 Function oms_sluch_main(Loc_kod, kod_kartotek)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -147,7 +147,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
                  {'Перевод внутри МО', 4}}
   Private mm_prer_b := mm2prer_b
 
-  private MTAB_NOM_NAPR := 0
+  private mTab_Number := 0
   private mNMSE, m1NMSE := 0  // направление на МСЭ
 
   if mem_zav_l == 1  // да
@@ -459,29 +459,36 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
     if is_oncology > 0 // онкология - направления
       dbcreate(cur_dir + 'tmp_onkna',  create_struct_temporary_onkna())
 
-      use (cur_dir + 'tmp_onkna') new alias TNAPR
-      R_Use(dir_server + 'mo_su', , 'MOSU')
-      R_Use(dir_server + 'mo_onkna', dir_server + 'mo_onkna',  'NAPR') // онконаправления
-      set relation to u_kod into MOSU
-      find (str(Loc_kod, 7))
-      do while napr->kod == Loc_kod .and. !eof()
+      // use (cur_dir + 'tmp_onkna') new alias TNAPR
+      // R_Use(dir_server + 'mo_su', , 'MOSU')
+      // R_Use(dir_server + 'mo_onkna', dir_server + 'mo_onkna',  'NAPR') // онконаправления
+      // set relation to u_kod into MOSU
+      // find (str(Loc_kod, 7))
+      // do while napr->kod == Loc_kod .and. !eof()
+      //   old_oncology := .t.
+      //   cur_napr := 1 // при ред-ии - сначала первое направление текущее
+      //   ++count_napr
+      //   select TNAPR
+      //   append blank
+      //   tnapr->NAPR_DATE := napr->NAPR_DATE
+      //   tnapr->NAPR_MO   := napr->NAPR_MO
+      //   tnapr->NAPR_V    := napr->NAPR_V
+      //   tnapr->MET_ISSL  := napr->MET_ISSL
+      //   tnapr->U_KOD     := napr->U_KOD
+      //   tnapr->KOD_VR    := napr->KOD_VR
+      //   tnapr->shifr_u   := iif(empty(mosu->shifr), mosu->shifr1,mosu->shifr)
+      //   tnapr->shifr1    := mosu->shifr1
+      //   tnapr->name_u    := mosu->name
+      //   select NAPR
+      //   skip
+      // enddo
+
+      count_napr := collect_napr_zno(Loc_kod)
+      if count_napr > 0
         old_oncology := .t.
         cur_napr := 1 // при ред-ии - сначала первое направление текущее
-        ++count_napr
-        select TNAPR
-        append blank
-        tnapr->NAPR_DATE := napr->NAPR_DATE
-        tnapr->NAPR_MO   := napr->NAPR_MO
-        tnapr->NAPR_V    := napr->NAPR_V
-        tnapr->MET_ISSL  := napr->MET_ISSL
-        tnapr->U_KOD     := napr->U_KOD
-        tnapr->KOD_VR    := napr->KOD_VR
-        tnapr->shifr_u   := iif(empty(mosu->shifr), mosu->shifr1,mosu->shifr)
-        tnapr->shifr1    := mosu->shifr1
-        tnapr->name_u    := mosu->name
-        select NAPR
-        skip
-      enddo
+      endif
+
       R_Use(dir_server + 'mo_onkco', dir_server + 'mo_onkco',  'CO')
       find (str(Loc_kod, 7))
       if found()
@@ -1039,7 +1046,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
         mNAPR_DATE := tnapr->NAPR_DATE
         m1NAPR_MO := tnapr->NAPR_MO
 
-        MTAB_NOM_NAPR := get_tabnom_vrach_by_kod(tnapr->KOD_VR)
+        mTab_Number := get_tabnom_vrach_by_kod(tnapr->KOD_VR)
 
         if empty(m1NAPR_MO)
           mNAPR_MO := space(60)
@@ -1513,8 +1520,8 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
                             return fl
                        }
         @ ++j, 7 say 'Услуга' get mname_u when .f. color color14
-        @ ++j, 3 say 'Табельный номер направившего врача' get MTAB_NOM_NAPR pict '99999' ;
-              valid {|g| iif((m1napr_v != 0) .and. (MTAB_NOM_NAPR == 0) .and. v_kart_vrach(g),  func_error(4, 'Необходимо указать табельный направившего врача'), .t.) }
+        @ ++j, 3 say 'Табельный номер направившего врача' get mTab_Number pict '99999' ;
+              valid {|g| iif((m1napr_v != 0) .and. (mTab_Number == 0) .and. v_kart_vrach(g),  func_error(4, 'Необходимо указать табельный направившего врача'), .t.) }
       endif
 
       if is_oncology == 2
@@ -1742,11 +1749,11 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
       set key K_F5 TO change_num_napr
     endif
 //
-    count_edit += myread(,@pos_read)
+    count_edit += myread(, @pos_read)
     close databases
     if num_screen == 2
       set key K_F5 TO
-      if !(emptyany(mNAPR_DATE,m1NAPR_V) .and. count_napr == 0)
+      if !(emptyany(mNAPR_DATE, m1NAPR_V) .and. count_napr == 0)
         if cur_napr == 0
           cur_napr := 1
         endif
@@ -1766,7 +1773,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
         tnapr->shifr1 := iif(m1NAPR_V == 3, mshifr1, '')
         tnapr->name_u := iif(m1NAPR_V == 3, mname_u, '')
 
-        tnapr->KOD_VR:= get_kod_vrach_by_tabnom(MTAB_NOM_NAPR)
+        tnapr->KOD_VR:= get_kod_vrach_by_tabnom(mTab_Number)
 
         cur_napr := recno()
       endif
