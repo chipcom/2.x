@@ -4,7 +4,7 @@
 #include 'chip_mo.ch'
 #include 'tbox.ch'
 
-// 05.07.23 ввод направлений при подозрении на ЗНО - профосмотры несовершеннолетних
+// 06.07.23 ввод направлений при подозрении на ЗНО - профосмотры несовершеннолетних
 Function fget_napr_ZNO(k, r, c)
   Local r1, r2, n := 4, tmp_keys, tmp_list
   local strNeedTabNumber := 'Необходимо указать табельный направившего врача'
@@ -139,36 +139,127 @@ Function fget_napr_ZNO(k, r, c)
     if cur_napr == 0
       cur_napr := 1
     endif
-    use (cur_dir + 'tmp_onkna') new alias TNAPR
-    count_napr := lastrec()
-    if cur_napr <= count_napr
-      goto (cur_napr) // номер текущего направления
-    else
-      append blank
-    endif
-    tnapr->NAPR_DATE := mNAPR_DATE
-    tnapr->KOD_VR := recNumberDoctor
-    tnapr->NAPR_MO := m1NAPR_MO
-    tnapr->NAPR_V := m1NAPR_V
-    tnapr->MET_ISSL := iif(m1NAPR_V == 3, m1MET_ISSL, 0)
-    tnapr->U_KOD := iif(m1NAPR_V == 3, mu_kod, 0)
-    tnapr->shifr_u := iif(m1NAPR_V == 3, mshifr, '')
-    tnapr->shifr1 := iif(m1NAPR_V == 3, mshifr1, '')
-    tnapr->name_u := iif(m1NAPR_V == 3, mname_u, '')
-    cur_napr := recno()
-    count_napr := lastrec()
-    use
+    // use (cur_dir + 'tmp_onkna') new alias TNAPR
+    // count_napr := lastrec()
+    // if cur_napr <= count_napr
+    //   goto (cur_napr) // номер текущего направления
+    // else
+    //   append blank
+    // endif
+    // tnapr->NAPR_DATE := mNAPR_DATE
+    // tnapr->KOD_VR := recNumberDoctor
+    // tnapr->NAPR_MO := m1NAPR_MO
+    // tnapr->NAPR_V := m1NAPR_V
+    // tnapr->MET_ISSL := iif(m1NAPR_V == 3, m1MET_ISSL, 0)
+    // tnapr->U_KOD := iif(m1NAPR_V == 3, mu_kod, 0)
+    // tnapr->shifr_u := iif(m1NAPR_V == 3, mshifr, '')
+    // tnapr->shifr1 := iif(m1NAPR_V == 3, mshifr1, '')
+    // tnapr->name_u := iif(m1NAPR_V == 3, mname_u, '')
+    // cur_napr := recno()
+    // count_napr := lastrec()
+    // use
   endif
+
+  count_napr := save_onko_napr(@cur_napr, ;
+    mNAPR_DATE, ;
+    recNumberDoctor, ;
+    m1NAPR_MO, ;
+    m1NAPR_V, ;
+    iif(m1NAPR_V == 3, m1MET_ISSL, 0), ;
+    iif(m1NAPR_V == 3, mu_kod, 0), ;
+    iif(m1NAPR_V == 3, mshifr, ''), ;
+    iif(m1NAPR_V == 3, mshifr1, ''), ;
+    iif(m1NAPR_V == 3, mname_u, ''))
+
   // setcolor(tmp_color)
   restore gets from tmp_list
   my_restkey(tmp_keys)
   // restscreen(buf)
   return {0, 'Количество направлений - ' + lstr(count_napr)}
 
-// 04.07.23 редактировать другое направление (№...)
+// 06.07.23
+function get_onko_napr(/*@*/n_napr)
+  local count_napr, lAlias, tmp_alias := select(), lOpened := .f., cur_napr := 0
+  local ret_arr := {}
+
+  lAlias := 'TNAPR'
+  if !(lAlias)->(used())
+    use (cur_dir + 'tmp_onkna') new alias TNAPR
+    lOpened := .t.
+  endif
+  count_napr := (lAlias)->(lastrec())
+
+  if n_napr <= count_napr
+    cur_napr := n_napr
+    goto (cur_napr) // номер текущего направления
+    aadd(ret_arr, (lAlias)->NAPR_DATE)
+    aadd(ret_arr, get_tabnom_vrach_by_kod((lAlias)->KOD_VR))
+    aadd(ret_arr, (lAlias)->NAPR_MO)
+    aadd(ret_arr, (lAlias)->NAPR_V)
+    aadd(ret_arr, iif((lAlias)->NAPR_V == 3, (lAlias)->MET_ISSL, 0))
+    aadd(ret_arr, iif((lAlias)->NAPR_V == 3, (lAlias)->U_KOD, 0))
+    aadd(ret_arr, iif((lAlias)->NAPR_V == 3, (lAlias)->shifr_u, space(20)))
+    aadd(ret_arr, iif((lAlias)->NAPR_V == 3, (lAlias)->shifr1, space(20)))
+    aadd(ret_arr, iif((lAlias)->NAPR_V == 3, (lAlias)->name_u, space(65)))
+  else
+    cur_napr := count_napr + 1
+    aadd(ret_arr, ctod(''))
+    aadd(ret_arr, 0)
+    aadd(ret_arr, space(6))
+    aadd(ret_arr, 0)
+    aadd(ret_arr, 0)
+    aadd(ret_arr, 0)
+    aadd(ret_arr, space(20))
+    aadd(ret_arr, space(20))
+    aadd(ret_arr, space(65))
+  endif
+  n_napr := cur_napr
+
+  if lOpened
+    (lAlias)->(dbCloseArea())
+    select(tmp_alias)
+  endif
+  return ret_arr
+
+// 06.07.23
+function save_onko_napr(/*@*/cur_napr, date_napr, vr_napr, mo_napr, v_napr, met_napr, u_kod, shifr_u, shifr1, name_u)
+  local count_napr := 0, lAlias, tmp_alias := select(), lOpened := .f.
+
+  lAlias := 'TNAPR'
+  if !(lAlias)->(used())
+    use (cur_dir + 'tmp_onkna') new alias TNAPR
+    lOpened := .t.
+  endif
+  count_napr := (lAlias)->(lastrec())
+  if cur_napr <= count_napr
+    goto (cur_napr) // номер текущего направления
+  else
+    (lAlias)->(dbAppend())
+    // append blank
+  endif
+  (lAlias)->NAPR_DATE := date_napr
+  (lAlias)->KOD_VR := vr_napr
+  (lAlias)->NAPR_MO := mo_napr
+  (lAlias)->NAPR_V := v_napr
+  (lAlias)->MET_ISSL := met_napr
+  (lAlias)->U_KOD := u_kod
+  (lAlias)->shifr_u := shifr_u
+  (lAlias)->shifr1 := shifr1
+  (lAlias)->name_u := name_u
+  cur_napr := (lAlias)->(recno())
+
+  count_napr := (lAlias)->(lastrec())
+  if lOpened
+    (lAlias)->(dbCloseArea())
+    select(tmp_alias)
+  endif
+  return count_napr
+
+// 06.07.23 редактировать другое направление (№...)
 Function change_num_napr()
   Local r, n, fl := .f., tmp_keys, tmp_gets, buf, tmp_color := setcolor()
   local recNumberDoctor := 0
+  local arr_napr
 
   if emptyany(mNAPR_DATE, m1NAPR_V)
     func_error(4, 'Ещё не заполнено направление № ' + lstr(cur_napr))
@@ -210,7 +301,30 @@ Function change_num_napr()
     tnapr->name_u := mname_u
     tnapr->KOD_VR := recNumberDoctor
     count_napr := lastrec()
-    //
+
+    // count_napr := save_onko_napr(@cur_napr, ;
+    //   mNAPR_DATE, ;
+    //   recNumberDoctor, ;
+    //   m1NAPR_MO, ;
+    //   m1NAPR_V, ;
+    //   m1MET_ISSL, ;
+    //   mu_kod, ;
+    //   mshifr, ;
+    //   mshifr1, ;
+    //   mname_u)
+
+    // //
+    // arr_napr := get_onko_napr(@n)
+    // mNAPR_DATE := arr_napr[1]
+    // mTab_Number := arr_napr[2]
+    // m1NAPR_MO := arr_napr[3]
+    // m1NAPR_V := arr_napr[4]
+    // m1MET_ISSL := arr_napr[5]
+    // mu_kod := arr_napr[6]
+    // mshifr := arr_napr[7]
+    // mshifr1 := arr_napr[8]
+    // mname_u := arr_napr[9]
+
     if n <= count_napr
       cur_napr := n
       goto (cur_napr) // номер текущего направления
@@ -238,10 +352,18 @@ Function change_num_napr()
       mshifr1 := space(20)
       mname_u := space(65)
     endif
+    
+    // if empty(m1NAPR_MO)
+    //   mNAPR_MO := space(56)
+    // else
+    //   mNAPR_MO := left(ret_mo(m1NAPR_MO)[_MO_SHORT_NAME], 56)
+    // endif
+
     mNAPR_V := padr(inieditspr(A__MENUVERT, mm_napr_v, m1napr_v), 30)
     mMET_ISSL := padr(inieditspr(A__MENUVERT, mm_MET_ISSL, m1MET_ISSL), 45)
     tip_onko_napr := 0
   endif
+
   restscreen(buf)
   restore gets from tmp_gets
   my_restkey(tmp_keys)
