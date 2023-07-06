@@ -1,6 +1,7 @@
 #include 'function.ch'
+#include 'chip_mo.ch'
 
-** 14.03.23 определить КСГ для 1 пациента с открытием файлов
+// 06.07.23 определить КСГ для 1 пациента с открытием файлов
 // ВНИМАНИЕ! Не менять название функции, используется в PROCNAME() другой функции
 Function f_1pac_definition_KSG(lkod, is_msg)
   Local arr, i, s, buf := save_maxrow(), lshifr, lrec, lu_kod, lcena, lyear, mrec_hu, not_ksg := .t., sdial, fl
@@ -31,7 +32,8 @@ Function f_1pac_definition_KSG(lkod, is_msg)
     else
       arr := definition_KSG_18()
     endif
-    sdial := 0 ; fl := .t.
+    sdial := 0
+    fl := .t.
     if len(arr) == 7
       if valtype(arr[7]) == 'N'
         sdial := arr[7] // для 2019 года и позже
@@ -76,50 +78,6 @@ Function f_1pac_definition_KSG(lkod, is_msg)
           lrec := hu->(recno())
           exit
         endif
-
-        // if lyear == 2023 // add 01.03.23
-        //   select LUSL
-        //   find (lshifr) // длина lshifr 10 знаков
-        //   if found() .and. (eq_any(left(lshifr, 5), '1.22.') .or. is_ksg(lusl->shifr)) // стоит другой КСГ
-        //     lrec := hu->(recno())
-        //     exit
-        //   endif
-        // elseif lyear == 2022 // add 11.02.22
-        //   select LUSL22
-        //   find (lshifr) // длина lshifr 10 знаков
-        //   if found() .and. (eq_any(left(lshifr, 5), '1.21.') .or. is_ksg(lusl->shifr)) // стоит другой КСГ
-        //     lrec := hu->(recno())
-        //     exit
-        //   endif
-        // elseif lyear == 2021 // add 07.02.21
-        //   select LUSL21
-        //   find (lshifr) // длина lshifr 10 знаков
-        //   if found() .and. (eq_any(left(lshifr, 5), '1.20.') .or. is_ksg(lusl->shifr)) // стоит другой КСГ
-        //     lrec := hu->(recno())
-        //     exit
-        //   endif
-        // elseif lyear > 2019
-        //   select LUSL20
-        //   find (lshifr) // длина lshifr 10 знаков
-        //   if found() .and. (eq_any(left(lshifr, 5), '1.12.') .or. is_ksg(lusl->shifr)) // стоит другой КСГ
-        //     lrec := hu->(recno())
-        //     exit
-        //   endif
-        // elseif lyear > 2018
-        //   select LUSL19
-        //   find (lshifr) // длина lshifr 10 знаков
-        //   if found() .and. (eq_any(left(lshifr, 5), '1.12.') .or. is_ksg(lusl19->shifr)) // стоит другой КСГ
-        //     lrec := hu->(recno())
-        //     exit
-        //   endif
-        // else
-        //   select LUSL18
-        //   find (lshifr) // длина lshifr 10 знаков
-        //   if found() .and. (eq_any(left(lshifr, 5), '1.12.') .or. is_ksg(lusl18->shifr)) // стоит другой КСГ
-        //     lrec := hu->(recno())
-        //     exit
-        //   endif
-        // endif
         select HU
         skip
       enddo
@@ -128,8 +86,12 @@ Function f_1pac_definition_KSG(lkod, is_msg)
           lu_kod := foundOurUsluga(arr[3], human->k_data, human_->profil, human->VZROS_REB, @lcena)
           if lyear > 2018  // округление до рублей с 2019 года
             if len(arr) > 4 .and. !empty(arr[5])
-              if lyear > 2022
-                lcena := round_5(lcena + 25986.7 * ret_koef_kslp_21(arr[5], year(human->k_data)), 0)
+              if lyear == 2023
+                if human_->USL_OK == USL_OK_HOSPITAL
+                  lcena := round_5(lcena + 25986.7 * ret_koef_kslp_21(arr[5], year(human->k_data)), 0)
+                elseif human_->USL_OK == USL_OK_DAY_HOSPITAL
+                  lcena := round_5(lcena + 15029.1 * ret_koef_kslp_21(arr[5], year(human->k_data)), 0)
+                endif
               else
                 lcena := round_5(lcena * ret_koef_kslp(arr[5]), 0)
               endif
@@ -172,7 +134,7 @@ Function f_1pac_definition_KSG(lkod, is_msg)
             goto (mrec_hu)
             G_RLock(forever)
             if lrec == 0 .or. !valid_GUID(hu_->ID_U)
-              hu_->ID_U := mo_guid(3,hu_->(recno()))
+              hu_->ID_U := mo_guid(3, hu_->(recno()))
             endif
             hu_->PROFIL := human_->PROFIL
             hu_->PRVS   := human_->PRVS
@@ -187,13 +149,13 @@ Function f_1pac_definition_KSG(lkod, is_msg)
       elseif lrec > 0 // не удалось определить КСГ
         select HU
         goto (lrec)
-        DeleteRec(.t.,.f.)  // очистка записи без пометки на удаление
+        DeleteRec(.t., .f.)  // очистка записи без пометки на удаление
         lcena := 0
       endif
-      if !(round(human->CENA_1, 2) == round(lcena+sdial, 2))
+      if !(round(human->CENA_1, 2) == round(lcena + sdial, 2))
         select HUMAN
         G_RLock(forever)
-        human->CENA := human->CENA_1 := lcena+sdial // перезапишем стоимость лечения
+        human->CENA := human->CENA_1 := lcena + sdial // перезапишем стоимость лечения
         UnLock
       endif
       put_str_kslp_kiro(arr)
