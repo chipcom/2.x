@@ -1,14 +1,13 @@
 #include 'function.ch'
+#include 'chip_mo.ch'
+#include 'tbox.ch'
 
 #define CODE_KSLP   1
 #define NAME_KSLP   2
 #define NAMEF_KSLP  3
 #define COEF_KSLP   4
 
-#include 'tbox.ch'
-
 // 27.02.21
-//
 function buildStringKSLP(row)
   // row - одномерный массив описывающий КСЛП
   local ret
@@ -16,8 +15,7 @@ function buildStringKSLP(row)
   ret := str(row[ CODE_KSLP ], 2) + '.' + row[ NAME_KSLP ]
   return ret
 
-// 28.04.23
-// функция выбора состава КСЛП, возвращает { маска,строка количества КСЛП }, или nil
+// 28.04.23 функция выбора состава КСЛП, возвращает { маска,строка количества КСЛП }, или nil
 function selectKSLP( lkslp, savedKSLP, dateBegin, dateEnd, DOB, mdiagnoz )
   // lkslp - значение КСЛП (выбранные КСЛП)
   // savedKSLP - сохраненное в HUMAN_2 КСЛП или пусто
@@ -238,8 +236,7 @@ Function put_str_kslp_kiro(arr,fl)
   endif
   return NIL
 
-// 04.02.21
-// возвращает сумму итогового КСЛП по маске КСЛП и дате случая
+// 04.02.21 возвращает сумму итогового КСЛП по маске КСЛП и дате случая
 function calcKSLP(cKSLP, dateSl)
   // cKSLP - строка выбранных КСЛП
   // dateSl - дата законченного случая
@@ -368,7 +365,7 @@ Function f_cena_kiro(/*@*/_cena, lkiro, dateSl )
   _cena := round_5(_cena * _akiro[2], 0)  // округление до рублей с 2019 года
   return _akiro
 
-// 01.02.23 определить коэф-т сложности лечения пациента и пересчитать цену
+// 06.07.23 определить коэф-т сложности лечения пациента и пересчитать цену
 Function f_cena_kslp(/*@*/_cena, _lshifr, _date_r, _n_data, _k_data, lkslp, arr_usl, lPROFIL_K, arr_diag, lpar_org, lad_cr)
   Static s_1_may := 0d20160430, s_18 := 0d20171231, s_19 := 0d20181231
   static s_20 := 0d20201231
@@ -437,7 +434,12 @@ Function f_cena_kslp(/*@*/_cena, _lshifr, _date_r, _n_data, _k_data, lkslp, arr_
       elseif year(_k_data) == 2023  // сообщил Мызгин 01.02.23
         // на 2023 базовая ставка стационарного случая 25986,7 руб
         // на 2023 базовая ставка для случая дневного стационара 15029,1 руб 
-        _cena := round_5(_cena + 25986.7 * ret_koef_kslp_21(_akslp, year(_k_data)), 0)
+        if human_->USL_OK == USL_OK_HOSPITAL
+          _cena := round_5(_cena + 25986.7 * ret_koef_kslp_21(_akslp, year(_k_data)), 0)
+        elseif human_->USL_OK == USL_OK_DAY_HOSPITAL
+          _cena := round_5(_cena + 15029.1 * ret_koef_kslp_21(_akslp, year(_k_data)), 0)
+        endif
+
       endif
       
       if year(_k_data) >= 2021
