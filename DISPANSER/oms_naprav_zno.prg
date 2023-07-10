@@ -33,31 +33,31 @@ Function fget_napr_ZNO(k, r, c)
     select TNAPR
     m1NAPR_MO := tnapr->NAPR_MO
     if empty(m1NAPR_MO)
-      mNAPR_MO := space(56)
+      mNAPR_MO := space(52)
     else
-      mNAPR_MO := left(ret_mo(m1NAPR_MO)[_MO_SHORT_NAME], 56)
+      mNAPR_MO := left(ret_mo(m1NAPR_MO)[_MO_SHORT_NAME], 52)
     endif
     m1NAPR_V := tnapr->NAPR_V
     m1MET_ISSL := tnapr->MET_ISSL
     mu_kod := iif(m1napr_v == 3, tnapr->U_KOD, 0)
     mshifr := iif(m1napr_v == 3, tnapr->shifr_u, space(20))
     mshifr1 := iif(m1napr_v == 3, tnapr->shifr1, space(20))
-    mname_u := iif(m1napr_v == 3, tnapr->name_u, space(65))
+    mname_u := iif(m1napr_v == 3, tnapr->name_u, space(52))
   else
     cur_napr := 1
     mNAPR_DATE := ctod('')
     mTab_Number := 0
     m1NAPR_MO := space(6)
-    mNAPR_MO := space(56)
+    mNAPR_MO := space(52)
     m1NAPR_V := 0
     m1MET_ISSL := 0
     mu_kod := 0
     mshifr := space(20)
     mshifr1 := space(20)
-    mname_u := space(65)
+    mname_u := space(52)
   endif
   mNAPR_V := inieditspr(A__MENUVERT, mm_napr_v, m1napr_v)
-  mMET_ISSL := inieditspr(A__MENUVERT, mm_MET_ISSL, m1MET_ISSL)
+  mMET_ISSL := padr(inieditspr(A__MENUVERT, mm_MET_ISSL, m1MET_ISSL), 35)
   tip_onko_napr := 0
   if r > 12
     j := r - 9
@@ -107,17 +107,17 @@ Function fget_napr_ZNO(k, r, c)
   @ 1, 1 TBOX oBox say 'НАПРАВЛЕНИЕ №' get cur_napr pict '99' when .f.
   @ 1, col() TBOX oBox say '(из' get count_napr pict '99' when .f.
   @ 1, col() TBOX oBox say ')'
-  @ 1, 29 TBOX oBox say '(<F5> - добавление/редактирование направления №...)' color 'G/B'
+  @ 1, col() + 1 TBOX oBox say '(<F5> - добавление/редактирование направления №...)' color 'G/B'
   @ 2, 3 TBOX oBox say 'Дата направления' get mNAPR_DATE ;
         valid {|| iif(empty(mNAPR_DATE) .or. between(mNAPR_DATE, mn_data, mk_data), .t., ;
         func_error(4, 'Дата направления должна быть внутри сроков лечения')) }
   @ 3, 3 TBOX oBox say 'Табельный номер направившего врача' get mTab_Number pict '99999' ;
         valid {|g| iif(!v_kart_vrach(g), func_error(4, strNeedTabNumber), .t.) }
-  @ 4, 3 TBOX oBox say 'В какую МО направлен' get mnapr_mo pict '@S56';
+  @ 4, 3 TBOX oBox say 'В какую МО направлен' get mnapr_mo pict '@S52' ;
         reader {|x|menu_reader(x, {{|k, r, c| f_get_mo(k, r, c)}} ,A__FUNCTION, , , .f.)}
   @ 5, 3 TBOX oBox say 'Вид направления' get mnapr_v ;
         reader {|x|menu_reader(x, mm_napr_v, A__MENUVERT, , , .f.)} //; color colget_menu
-  @ 6, 5 TBOX oBox say 'Метод диагностического исследования' get mmet_issl ;
+  @ 6, 5 TBOX oBox say 'Метод диагностического исследования' get mmet_issl pict '@S35' ;
         reader {|x|menu_reader(x, mm_met_issl, A__MENUVERT, , , .f.)} ;
         when m1napr_v == 3 //; color colget_menu
   @ 7, 5 TBOX oBox say 'Медицинская услуга' get mshifr pict '@!' ;
@@ -126,14 +126,14 @@ Function fget_napr_ZNO(k, r, c)
                 Local fl := f5editkusl(g, 2, 2)
                 if empty(mshifr)
                   mu_kod  := 0
-                  mname_u := space(65)
+                  mname_u := space(52)
                   mshifr1 := mshifr
                 elseif fl .and. tip_onko_napr > 0 .and. tip_onko_napr != m1MET_ISSL
                   func_error(4, 'Тип медуслуги не соответствует методу диагностического исследования')
                 endif
                 return fl
               }
-  @ 8, 7 TBOX oBox say 'Услуга' get mname_u when .f. color color14
+  @ 8, 7 TBOX oBox say 'Услуга' get mname_u  pict '@S52' when .f. color color14
   //
   set key K_F5 TO change_num_napr
   myread()
@@ -352,13 +352,13 @@ Function change_num_napr()
       mNAPR_DATE := ctod('')
       mTab_Number := 0
       m1NAPR_MO := space(6)
-      mNAPR_MO := space(56)
+      mNAPR_MO := space(52)
       m1NAPR_V := 0
       m1MET_ISSL := 0
       mu_kod := 0
       mshifr := space(20)
       mshifr1 := space(20)
-      mname_u := space(65)
+      mname_u := space(52)
     endif
     
     // if empty(m1NAPR_MO)
@@ -368,7 +368,7 @@ Function change_num_napr()
     // endif
 
     mNAPR_V := padr(inieditspr(A__MENUVERT, mm_napr_v, m1napr_v), 30)
-    mMET_ISSL := padr(inieditspr(A__MENUVERT, mm_MET_ISSL, m1MET_ISSL), 45)
+    mMET_ISSL := padr(inieditspr(A__MENUVERT, mm_MET_ISSL, m1MET_ISSL), 35)
     tip_onko_napr := 0
   endif
 

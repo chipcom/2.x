@@ -736,18 +736,18 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
       @ row(), col()+2 say 'Отделение' get motd when .f. color cDataCSay
       //
       @ ++j, 1 say 'ФИО' get mfio_kart ;
-          reader {|x| menu_reader(x, {{|k,r,c| get_fio_kart(k,r,c)}}, A__FUNCTION, , ,.f.)} ;
+          reader {|x| menu_reader(x, {{|k,r,c| get_fio_kart(k,r,c)}}, A__FUNCTION, , , .f.)} ;
           valid {|g,o| update_get('mkomu'), update_get('mcompany'), ;
             update_get('mspolis'), update_get('mnpolis'), ;
             update_get('mvidpolis') }
       //
       @ ++j, 1 say 'Направление: дата' get mNPR_DATE
       @ j, col() + 1 say 'из МО' get mNPR_MO ;
-          reader {|x|menu_reader(x, {{|k,r,c|f_get_mo(k,r,c)}}, A__FUNCTION, , ,.f.)} ;
+          reader {|x|menu_reader(x, {{|k,r,c|f_get_mo(k,r,c)}}, A__FUNCTION, , , .f.)} ;
           color colget_menu
       //
       @ ++j, 1 say 'Новорожденный?' get mnovor ;
-          reader {|x|menu_reader(x,mm_danet, A__MENUVERT, , ,.f.)} ;
+          reader {|x|menu_reader(x,mm_danet, A__MENUVERT, , , .f.)} ;
           valid {|g,o| f_valid_novor(g,o) } ;
           color colget_menu
       @ row(), col()+3 say '№/пп ребёнка' get mcount_reb pict '99' range 1,99 ;
@@ -755,7 +755,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
       @ row(), col()+3 say 'Д.р. ребёнка' get mdate_r2 when (m1novor == 1)
       if mem_pol == 1
         @ row(), col()+3 say 'Пол ребёнка' get mpol2 ;
-            reader {|x|menu_reader(x,menupol, A__MENUVERT, , ,.f.)} ;
+            reader {|x|menu_reader(x,menupol, A__MENUVERT, , , .f.)} ;
             when (m1novor == 1)
       else
         @ row(), col()+3 say 'Пол ребёнка' get mpol2 pict '@!' ;
@@ -769,7 +769,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
       if yes_vypisan == B_END
         @ row(), col()+5 say ' Лечение завершено?' color 'G+/B'
         @ row(), col() + 1 get m_l_z ;
-            reader {|x|menu_reader(x,mm_danet, A__MENUVERT, , ,.f.)} ;
+            reader {|x|menu_reader(x,mm_danet, A__MENUVERT, , , .f.)} ;
             color 'GR+/B'
       endif
       //
@@ -783,7 +783,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
         valid {| g | check_edit_field(g, 2, 1) }
       @ j, col() + 1 say 'кг.'
 
-      @ j, col() + 5 say 'Первичный диагноз' get mkod_diag0 picture pic_diag reader {|o| MyGetReader(o, bg)} valid val1_10diag(.t.,.f.,.t.,mk_data,iif(m1novor==0,mpol,mpol2)) ;
+      @ j, col() + 5 say 'Первичный диагноз' get mkod_diag0 picture pic_diag reader {|o| MyGetReader(o, bg)} valid val1_10diag(.t., .f.,.t.,mk_data,iif(m1novor==0,mpol,mpol2)) ;
           when diag_screen(2) .and. when_diag()
       
       //if yes_bukva // если в настройке для отделения - работа со статусом стом.больного
@@ -806,7 +806,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
         @ j, 26 say '     боли при онкологии'
       endif
       @ j, 51 get mprer_b ;
-          reader {|x| menu_reader(x,mm_prer_b, A__MENUVERT, , ,.f.)} ;
+          reader {|x| menu_reader(x,mm_prer_b, A__MENUVERT, , , .f.)} ;
           when {|| ibrm := f_oms_beremenn(mkod_diag, MK_DATA), ;
             mm_prer_b := iif(ibrm == 1, mm1prer_b, iif(ibrm == 2, mm2prer_b, mm3prer_b)), ;
             (ibrm > 0) }
@@ -828,9 +828,9 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
       // @ j, 70 say ',' get msoput_b4  picture pic_diag reader {|o|MyGetReader(o, bg)} when when_diag() valid val1_10diag(.t., .t., .t., mk_data, iif(m1novor == 0, mpol, mpol2))
 
       ++j
-      @ j, 1 say 'Диагнозы осложнения   ' get mosl1 picture pic_diag reader {|o|MyGetReader(o, bg)} when when_diag() valid val1_10diag(.t.,.f.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
-      @ row(), col() say ','            get mosl2 picture pic_diag reader {|o|MyGetReader(o, bg)} when when_diag() valid val1_10diag(.t.,.f.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
-      @ row(), col() say ','            get mosl3 picture pic_diag reader {|o|MyGetReader(o, bg)} when when_diag() valid val1_10diag(.t.,.f.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
+      @ j, 1 say 'Диагнозы осложнения   ' get mosl1 picture pic_diag reader {|o|MyGetReader(o, bg)} when when_diag() valid val1_10diag(.t., .f.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
+      @ row(), col() say ','            get mosl2 picture pic_diag reader {|o|MyGetReader(o, bg)} when when_diag() valid val1_10diag(.t., .f.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
+      @ row(), col() say ','            get mosl3 picture pic_diag reader {|o|MyGetReader(o, bg)} when when_diag() valid val1_10diag(.t., .f.,.t.,mk_data,iif(m1novor==0,mpol,mpol2))
       //
       @ ++j, 1 say 'Принадлежность счёта' get mkomu ;
           reader {|x|menu_reader(x, mm_komu, A__MENUVERT, , , .f.)} ;
@@ -851,7 +851,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
       ++j
       rpp := j
       @ j, 1 say 'Мед.помощь: условия оказания' get MUSL_OK ;
-          reader {|x|menu_reader(x,tmp_V006, A__MENUVERT, , ,.f.)} ;
+          reader {|x|menu_reader(x,tmp_V006, A__MENUVERT, , , .f.)} ;
           when diag_screen(2) ;
           valid {|g,o| iif(eq_any(m1usl_ok, 1, 2), ;
             (SetPos(rpp, 40),  DispOut('признак', cDataCGet)), ;
@@ -861,54 +861,54 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
         @ j, 40 say 'признак'
       endif
       @ j, 48 get mp_per ;
-          reader {|x| menu_reader(x,mm_p_per, A__MENUVERT, , ,.f.)} ;
+          reader {|x| menu_reader(x,mm_p_per, A__MENUVERT, , , .f.)} ;
           when eq_any(m1usl_ok, 1, 2)
       if is_dop_ob_em
         @ ++j, 3 say 'вид объёмов специализированной медицинской помощи' get mreg_lech ;
-            reader {|x|menu_reader(x,mm_reg_lech, A__MENUVERT, , ,.f.)} ;
+            reader {|x|menu_reader(x,mm_reg_lech, A__MENUVERT, , , .f.)} ;
             when eq_any(m1usl_ok, 1, 2)
       endif
       @ ++j, 3 say 'профиль мед.помощи' get MPROFIL ;
-          reader {|x|menu_reader(x,tmp_V002, A__MENUVERT, , ,.f.)} ;
+          reader {|x|menu_reader(x,tmp_V002, A__MENUVERT, , , .f.)} ;
           valid f_valid2ad_cr(MK_DATA)
       @ ++j, 3 say 'профиль койки' get MPROFIL_K ;
-          reader {|x|menu_reader(x,tmp_V020, A__MENUVERT, , ,.f.)} ;
+          reader {|x|menu_reader(x,tmp_V020, A__MENUVERT, , , .f.)} ;
           when eq_any(m1usl_ok, 1, 2)
       if is_reabil_slux
         @ ++j, 3 say 'вид мед.реабилитации' get mvid_reab ;
-            reader {|x|menu_reader(x,mm_vid_reab, A__MENUVERT, , ,.f.)} ;
+            reader {|x|menu_reader(x,mm_vid_reab, A__MENUVERT, , , .f.)} ;
             when eq_any(m1usl_ok, 1, 2) .and. m1profil == 158
       endif
       //
       @ ++j, 1 say 'Результат обращения' get mrslt ;
-          reader {|x|menu_reader(x,mm_rslt, A__MENUVERT, , ,.f.)} ;
+          reader {|x|menu_reader(x,mm_rslt, A__MENUVERT, , , .f.)} ;
           valid {|g,o| f_valid_rslt(g,o) }
       //
       @ ++j, 1 say 'Исход заболевания' get mishod ;
-          reader {|x|menu_reader(x,mm_ishod, A__MENUVERT, , ,.f.)}
+          reader {|x|menu_reader(x,mm_ishod, A__MENUVERT, , , .f.)}
 
       @ j, 42 say 'Направление на МСЭ' get mNMSE ;
-        reader {|x|menu_reader(x, mm_da_net, A__MENUVERT, , ,.f.)} ;
+        reader {|x|menu_reader(x, mm_da_net, A__MENUVERT, , , .f.)} ;
         color colget_menu
 
       //
       @ ++j, 1 say 'Госпитализирован' get MF14_EKST ;
-          reader {|x|menu_reader(x,mm_ekst, A__MENUVERT, , ,.f.)} ;
+          reader {|x|menu_reader(x,mm_ekst, A__MENUVERT, , , .f.)} ;
           valid {|g,o| f_valid_f14_ekst(g,o) }
       @ row(), col()+3 say 'Доставлен скорой помощью' get MF14_SKOR ;
-          reader {|x|menu_reader(x,mm_danet, A__MENUVERT, , ,.f.)} ;
+          reader {|x|menu_reader(x,mm_danet, A__MENUVERT, , , .f.)} ;
           when M1F14_EKST == 1
       @ ++j, 3 say 'вскрытие' get MF14_VSKR ;
-          reader {|x|menu_reader(x,mm_vskrytie, A__MENUVERT, , ,.f.)} ;
+          reader {|x|menu_reader(x,mm_vskrytie, A__MENUVERT, , , .f.)} ;
           when is_death(m1RSLT)
       @ row(), col()+3 say 'установлено расхождение диагнозов' get MF14_RASH ;
-          reader {|x|menu_reader(x,mm_danet, A__MENUVERT, , ,.f.)} ;
+          reader {|x|menu_reader(x,mm_danet, A__MENUVERT, , , .f.)} ;
           when M1F14_VSKR > 0
       /*++j
       if is_talon
         if mem_st_pov == 1
           @ j, 1 say 'Повод обращения' get mpovod ;
-              reader {|x|menu_reader(x,stm_povod, A__MENUVERT, , ,.f.)} ;
+              reader {|x|menu_reader(x,stm_povod, A__MENUVERT, , , .f.)} ;
               color colget_menu
         else
           @ j, 1 say 'Повод обращения' get m1povod pict '9' ;
@@ -918,7 +918,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
         if .t.//is_travma // если в настройке для отделения - работа с травмой
           if mem_st_trav == 1
             @ j, 43 say 'Вид травмы' get mtravma ;
-                reader {|x|menu_reader(x,stm_travma, A__MENUVERT, , ,.f.)} ;
+                reader {|x|menu_reader(x,stm_travma, A__MENUVERT, , , .f.)} ;
                 color colget_menu
           else
             @ j, 43 say 'Вид травмы' get m1travma pict '99' ;
@@ -970,15 +970,15 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
             valid {|g,o| f_valid_vidvmp(g,o) } ;
             color colget_menu
         @ ++j, 1 say ' модель' get mmodpac ;
-            reader {|x|menu_reader(x, {{|k,r,c|f_get_mmodpac(k,r,c, m1vidvmp, mkod_diag)}}, A__FUNCTION, , ,.f.)} ;
+            reader {|x|menu_reader(x, {{|k,r,c|f_get_mmodpac(k,r,c, m1vidvmp, mkod_diag)}}, A__FUNCTION, , , .f.)} ;
             when m1vmp == 1 ;
             color colget_menu
             // valid {|g,o| f_valid_mmodpac(g,o) } ;
         @ ++j, 1 say ' метод ВМП' get mmetvmp ;
-            reader {|x|menu_reader(x, {{|k,r,c|f_get_metvmp(k,r,c, m1vidvmp,m1modpac)}}, A__FUNCTION, , ,.f.)} ;
+            reader {|x|menu_reader(x, {{|k,r,c|f_get_metvmp(k,r,c, m1vidvmp,m1modpac)}}, A__FUNCTION, , , .f.)} ;
             when m1vmp == 1 .and. !empty(m1vidvmp) ;  //   valid {|| f_valid_metvmp(m1metvmp) } ;
             color colget_menu
-            // reader {|x|menu_reader(x, {{|k,r,c|f_get_metvmp(k,r,c,m1vidvmp, mkod_diag)}}, A__FUNCTION, , ,.f.)} ;
+            // reader {|x|menu_reader(x, {{|k,r,c|f_get_metvmp(k,r,c,m1vidvmp, mkod_diag)}}, A__FUNCTION, , , .f.)} ;
         /*++j ; p_nstr_stent := j
         if year(mk_data) == 2017
           p_str_stent := '   число стентов, установленных в коронарные артерии'
@@ -990,7 +990,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
       endif
       //
       @ ++j, 1 say 'Больничный' get mbolnich ;
-          reader {|x|menu_reader(x,menu_bolnich, A__MENUVERT, , ,.f.)} ;
+          reader {|x|menu_reader(x,menu_bolnich, A__MENUVERT, , , .f.)} ;
           color colget_menu ;
           valid {|g,o| f_valid_bolnich(g,o) }
       @ row(),  col() + 1 say '==> с' get mdate_b_1 when m1bolnich > 0
@@ -998,7 +998,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
       @ row(),  col() + 1 say 'Д.р.родителя' get mrodit_dr when m1bolnich == 2
       if mem_pol == 1
         @ row(),  col() + 1 say 'Пол' get mrodit_pol ;
-            reader {|x|menu_reader(x,menupol, A__MENUVERT, , ,.f.)} ;
+            reader {|x|menu_reader(x,menupol, A__MENUVERT, , , .f.)} ;
             when m1bolnich == 2
       else
         @ row(), col() + 1 say 'Пол' get mrodit_pol pict '@!' ;
@@ -1006,7 +1006,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
             when m1bolnich == 2
       endif
       @ maxrow() - 1, 1 say 'Признак подозрения на ЗНО' get mDS_ONK ;
-          reader {|x|menu_reader(x,mm_danet, A__MENUVERT, , ,.f.)} ;
+          reader {|x|menu_reader(x,mm_danet, A__MENUVERT, , , .f.)} ;
           when {|| when_ds_onk() } ;
           color colget_menu
       @ maxrow() - 1, 55 say 'Сумма лечения' color color1
@@ -1041,41 +1041,41 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
     elseif num_screen == 2
       use_base('luslf')
       Use_base('mo_su')
-      use (cur_dir + 'tmp_onkna') new alias TNAPR
-      count_napr := lastrec()
-      mNAPR_MO := space(6)
-      if cur_napr > 0 .and. cur_napr <= count_napr
-        goto (cur_napr) // номер текущего направления
-        mNAPR_DATE := tnapr->NAPR_DATE
-        m1NAPR_MO := tnapr->NAPR_MO
+      // use (cur_dir + 'tmp_onkna') new alias TNAPR
+      // count_napr := lastrec()
+      // mNAPR_MO := space(6)
+      // if cur_napr > 0 .and. cur_napr <= count_napr
+      //   goto (cur_napr) // номер текущего направления
+      //   mNAPR_DATE := tnapr->NAPR_DATE
+      //   m1NAPR_MO := tnapr->NAPR_MO
 
-        mTab_Number := get_tabnom_vrach_by_kod(tnapr->KOD_VR)
+      //   mTab_Number := get_tabnom_vrach_by_kod(tnapr->KOD_VR)
 
-        if empty(m1NAPR_MO)
-          mNAPR_MO := space(60)
-        else
-          mNAPR_MO := ret_mo(m1NAPR_MO)[_MO_SHORT_NAME]
-        endif
-        m1NAPR_V := tnapr->NAPR_V
-        m1MET_ISSL := tnapr->MET_ISSL
-        mu_kod := iif(m1napr_v == 3, tnapr->U_KOD, 0)
-        mshifr := iif(m1napr_v == 3, tnapr->shifr_u, space(20))
-        mshifr1 := iif(m1napr_v == 3, tnapr->shifr1, space(20))
-        mname_u := iif(m1napr_v == 3, tnapr->name_u, space(65))
-      else
-        cur_napr := 1
-        mNAPR_DATE := ctod('')
-        m1NAPR_MO := space(6)
-        mNAPR_MO := space(60)
-        m1NAPR_V := 0
-        m1MET_ISSL := 0
-        mu_kod := 0
-        mshifr := space(20)
-        mshifr1 := space(20)
-        mname_u := space(65)
-      endif
-      mNAPR_V := inieditspr(A__MENUVERT, mm_napr_v, m1napr_v)
-      mMET_ISSL := inieditspr(A__MENUVERT, mm_MET_ISSL, m1MET_ISSL)
+      //   if empty(m1NAPR_MO)
+      //     mNAPR_MO := space(60)
+      //   else
+      //     mNAPR_MO := ret_mo(m1NAPR_MO)[_MO_SHORT_NAME]
+      //   endif
+      //   m1NAPR_V := tnapr->NAPR_V
+      //   m1MET_ISSL := tnapr->MET_ISSL
+      //   mu_kod := iif(m1napr_v == 3, tnapr->U_KOD, 0)
+      //   mshifr := iif(m1napr_v == 3, tnapr->shifr_u, space(20))
+      //   mshifr1 := iif(m1napr_v == 3, tnapr->shifr1, space(20))
+      //   mname_u := iif(m1napr_v == 3, tnapr->name_u, space(65))
+      // else
+      //   cur_napr := 1
+      //   mNAPR_DATE := ctod('')
+      //   m1NAPR_MO := space(6)
+      //   mNAPR_MO := space(60)
+      //   m1NAPR_V := 0
+      //   m1MET_ISSL := 0
+      //   mu_kod := 0
+      //   mshifr := space(20)
+      //   mshifr1 := space(20)
+      //   mname_u := space(65)
+      // endif
+      // mNAPR_V := inieditspr(A__MENUVERT, mm_napr_v, m1napr_v)
+      // mMET_ISSL := inieditspr(A__MENUVERT, mm_MET_ISSL, m1MET_ISSL)
       tip_onko_napr := 0
       if is_oncology == 2
         is_mgi := .f. ; lshifr := ''
@@ -1494,71 +1494,71 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
 
       // направления на доп. исследования
       if ! only_control_onko(mNPR_MO, mNPR_DATE, m1rslt, m1ishod)
-        // @ ++j, 1 say 'Направления при подозрении на ЗНО' get mnapr_onk ;
-        //   reader {|x|menu_reader(x, {{|k, r, c| fget_napr_ZNO(k, r, c)}}, A__FUNCTION, , , .f.)}
-        // ++j
+        @ ++j, 1 say 'Направления на доп. исследования' get mnapr_onk ;
+          reader {|x|menu_reader(x, {{|k, r, c| fget_napr_ZNO(k, r, c)}}, A__FUNCTION, , , .f.)}
+        ++j
 
-        @ ++j, 1 say 'НАПРАВЛЕНИЕ №' get cur_napr pict '99' when .f. 
-        @ j, col() say '(из' get count_napr pict '99' when .f.
-        @ j, col() say ')'
-        @ j, 29 say '(<F5> - добавление/редактирование направления №...)' color 'G/B'
+        // @ ++j, 1 say 'НАПРАВЛЕНИЕ №' get cur_napr pict '99' when .f. 
+        // @ j, col() say '(из' get count_napr pict '99' when .f.
+        // @ j, col() say ')'
+        // @ j, 29 say '(<F5> - добавление/редактирование направления №...)' color 'G/B'
 
-        @ ++j, 3 say 'Дата направления' get mNAPR_DATE ;
-                valid {|| iif(empty(mNAPR_DATE) .or. between(mNAPR_DATE,mn_data,mk_data),  .t., ;
-                              func_error(4, 'Дата направления должна быть внутри сроков лечения')) }
-        @ ++j, 3 say 'В какую МО направлен' get mnapr_mo ;
-                reader {|x|menu_reader(x, {{|k,r,c|f_get_mo(k,r,c)}}, A__FUNCTION, , ,.f.)}
-        @ ++j, 3 say 'Вид направления' get mnapr_v ;
-                reader {|x|menu_reader(x,mm_napr_v, A__MENUVERT, , ,.f.)} //; color colget_menu
-        @ ++j, 5 say 'Метод диагностического исследования' get mmet_issl ;
-                reader {|x|menu_reader(x,mm_met_issl, A__MENUVERT, , ,.f.)} ;
-                when m1napr_v == 3 //; color colget_menu
-        @ ++j, 5 say 'Медицинская услуга' get mshifr pict '@!' ;
-                when {|g| m1napr_v == 3 .and. m1MET_ISSL > 0 } ;
-                valid {|g|
-                            Local fl := f5editkusl(g, 2, 2)
-                            if empty(mshifr)
-                              mu_kod  := 0
-                              mname_u := space(65)
-                              mshifr1 := mshifr
-                            elseif fl .and. tip_onko_napr > 0 .and. tip_onko_napr != m1MET_ISSL
-                              func_error(4, 'Тип медуслуги не соответствует методу диагностического исследования')
-                            endif
-                            return fl
-                       }
-        @ ++j, 7 say 'Услуга' get mname_u when .f. color color14
-        @ ++j, 3 say 'Табельный номер направившего врача' get mTab_Number pict '99999' ;
-              valid {|g| iif((m1napr_v != 0) .and. (mTab_Number == 0) .and. v_kart_vrach(g),  func_error(4, 'Необходимо указать табельный направившего врача'), .t.) }
+        // @ ++j, 3 say 'Дата направления' get mNAPR_DATE ;
+        //         valid {|| iif(empty(mNAPR_DATE) .or. between(mNAPR_DATE,mn_data,mk_data), .t., ;
+        //                       func_error(4, 'Дата направления должна быть внутри сроков лечения')) }
+        // @ ++j, 3 say 'В какую МО направлен' get mnapr_mo ;
+        //         reader {|x|menu_reader(x, {{|k,r,c|f_get_mo(k,r,c)}}, A__FUNCTION, , , .f.)}
+        // @ ++j, 3 say 'Вид направления' get mnapr_v ;
+        //         reader {|x|menu_reader(x,mm_napr_v, A__MENUVERT, , , .f.)} //; color colget_menu
+        // @ ++j, 5 say 'Метод диагностического исследования' get mmet_issl ;
+        //         reader {|x|menu_reader(x,mm_met_issl, A__MENUVERT, , , .f.)} ;
+        //         when m1napr_v == 3 //; color colget_menu
+        // @ ++j, 5 say 'Медицинская услуга' get mshifr pict '@!' ;
+        //         when {|g| m1napr_v == 3 .and. m1MET_ISSL > 0 } ;
+        //         valid {|g|
+        //                     Local fl := f5editkusl(g, 2, 2)
+        //                     if empty(mshifr)
+        //                       mu_kod  := 0
+        //                       mname_u := space(65)
+        //                       mshifr1 := mshifr
+        //                     elseif fl .and. tip_onko_napr > 0 .and. tip_onko_napr != m1MET_ISSL
+        //                       func_error(4, 'Тип медуслуги не соответствует методу диагностического исследования')
+        //                     endif
+        //                     return fl
+        //                }
+        // @ ++j, 7 say 'Услуга' get mname_u when .f. color color14
+        // @ ++j, 3 say 'Табельный номер направившего врача' get mTab_Number pict '99999' ;
+        //       valid {|g| iif((m1napr_v != 0) .and. (mTab_Number == 0) .and. v_kart_vrach(g),  func_error(4, 'Необходимо указать табельный направившего врача'), .t.) }
       endif
 
       if is_oncology == 2
         // описание состояния при онкологии
         @ ++j, 1 say 'СВЕДЕНИЯ О СЛУЧАЕ ЛЕЧЕНИЯ ОНКОЛОГИЧЕСКОГО ЗАБОЛЕВАНИЯ'
         @ ++j, 3 say 'Повод обращения' get mDS1_T ;
-                 reader {|x|menu_reader(x,lmm_DS1_T, A__MENUVERT, , ,.f.)} ;
+                 reader {|x|menu_reader(x,lmm_DS1_T, A__MENUVERT, , , .f.)} ;
                  color colget_menu
         @ ++j, 3 say 'Стадия заболевания:' get mSTAD ;
-                 reader {|x|menu_reader(x,mm_N002, A__MENUVERT, , ,.f.)} ;
-                 valid {|g| f_valid_tnm(g),  mSTAD:=padr(mSTAD, 5),  .t.} ;
+                 reader {|x|menu_reader(x,mm_N002, A__MENUVERT, , , .f.)} ;
+                 valid {|g| f_valid_tnm(g),  mSTAD:=padr(mSTAD, 5), .t.} ;
                  when between(m1ds1_t, 0, 4) ;
                  color colget_menu
         @ j, col() say ' Tumor' get mONK_T ;
-                 reader {|x|menu_reader(x,mm_N003, A__MENUVERT, , ,.f.)} ;
-                 valid {|g| f_valid_tnm(g),  mONK_T:=padr(mONK_T, 5),  .t.} ;
+                 reader {|x|menu_reader(x,mm_N003, A__MENUVERT, , , .f.)} ;
+                 valid {|g| f_valid_tnm(g),  mONK_T:=padr(mONK_T, 5), .t.} ;
                  when m1ds1_t == 0 .and. m1vzros_reb == 0 ;
                  color colget_menu
         @ j, col() say ' Nodus' get mONK_N ;
-                 reader {|x|menu_reader(x,mm_N004, A__MENUVERT, , ,.f.)} ;
-                 valid {|g| f_valid_tnm(g),  mONK_N:=padr(mONK_N, 5),  .t.} ;
+                 reader {|x|menu_reader(x,mm_N004, A__MENUVERT, , , .f.)} ;
+                 valid {|g| f_valid_tnm(g),  mONK_N:=padr(mONK_N, 5), .t.} ;
                  when m1ds1_t == 0 .and. m1vzros_reb == 0 ;
                  color colget_menu
         @ j, col() say ' Metastasis' get mONK_M ;
-                 reader {|x|menu_reader(x,mm_N005, A__MENUVERT, , ,.f.)} ;
-                 valid {|g| f_valid_tnm(g),  mONK_M:=padr(mONK_M, 5),  .t.} ;
+                 reader {|x|menu_reader(x,mm_N005, A__MENUVERT, , , .f.)} ;
+                 valid {|g| f_valid_tnm(g),  mONK_M:=padr(mONK_M, 5), .t.} ;
                  when m1ds1_t == 0 .and. m1vzros_reb == 0 ;
                  color colget_menu
         @ ++j, 5 say 'Наличие отдаленных метастазов (при рецидиве или прогрессировании)' get mMTSTZ ;
-                 reader {|x|menu_reader(x,mm_danet, A__MENUVERT, , ,.f.)} ;
+                 reader {|x|menu_reader(x,mm_danet, A__MENUVERT, , , .f.)} ;
                  when eq_any(m1DS1_T, 1, 2) ;
                  color colget_menu
 
@@ -1567,13 +1567,13 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
           if len(mm_N009) == 0 .and. len(mm_N012) == 0
             if is_gisto
               @ ++j, 3 say 'Результаты гистологии' get mrez_gist ;
-                   reader {|x|menu_reader(x, {{|k,r,c| get_rez_gist(k,r,c)}}, A__FUNCTION, , ,.f.)}
+                   reader {|x|menu_reader(x, {{|k,r,c| get_rez_gist(k,r,c)}}, A__FUNCTION, , , .f.)}
             else
               @ ++j, 3 say 'Гистология / иммуногистохимия: не нужно для ' +iif(is_mgi, 'МГИ',  mkod_diag)
             endif
           else
             @ ++j, 3 say 'Гистология / иммуногистохимия' get mB_DIAG ;
-                   reader {|x|menu_reader(x,mmb_diag, A__MENUVERT, , ,.f.)}
+                   reader {|x|menu_reader(x,mmb_diag, A__MENUVERT, , , .f.)}
             @ ++j, 3 say 'Дата взятия материала' get mDIAG_DATE ;
                    when eq_any(m1b_diag,97,98) ;
                    valid {|| iif(empty(mDIAG_DATE) .or. mDIAG_DATE <= mk_data, .t., ;
@@ -1582,12 +1582,12 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
               @ ++j, 3 say 'Гистология: не нужно для ' +iif(is_mgi, 'МГИ',  mkod_diag)
             else
               @ ++j, 3 say mm_N009[1, 1] get mgist1 ;
-                   reader {|x|menu_reader(x,mm_N009[1, 3], A__MENUVERT, , ,.f.)} ;
+                   reader {|x|menu_reader(x,mm_N009[1, 3], A__MENUVERT, , , .f.)} ;
                    when m1b_diag == 98 ;
                    color colget_menu
               if len(mm_N009) >= 2
                 @ ++j, 3 say mm_N009[2, 1] get mgist2 ;
-                   reader {|x|menu_reader(x,mm_N009[2, 3], A__MENUVERT, , ,.f.)} ;
+                   reader {|x|menu_reader(x,mm_N009[2, 3], A__MENUVERT, , , .f.)} ;
                    when m1b_diag == 98 ;
                    color colget_menu
               endif
@@ -1596,30 +1596,30 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
               @ ++j, 3 say 'Иммуногистохимия: не нужно для ' +iif(is_mgi, 'МГИ',  mkod_diag)
             else
               @ ++j, 3 say mm_N012[1, 1] get mmark1 ;
-                   reader {|x|menu_reader(x,mm_N012[1, 3], A__MENUVERT, , ,.f.)} ;
+                   reader {|x|menu_reader(x,mm_N012[1, 3], A__MENUVERT, , , .f.)} ;
                    when m1b_diag == 98 ;
                    color colget_menu
               if len(mm_N012) >= 2
                 @ ++j, 3 say mm_N012[2, 1] get mmark2 ;
-                   reader {|x|menu_reader(x,mm_N012[2, 3], A__MENUVERT, , ,.f.)} ;
+                   reader {|x|menu_reader(x,mm_N012[2, 3], A__MENUVERT, , , .f.)} ;
                    when m1b_diag == 98 ;
                    color colget_menu
               endif
               if len(mm_N012) >= 3
                 @ ++j, 3 say mm_N012[3, 1] get mmark3 ;
-                   reader {|x|menu_reader(x,mm_N012[3, 3], A__MENUVERT, , ,.f.)} ;
+                   reader {|x|menu_reader(x,mm_N012[3, 3], A__MENUVERT, , , .f.)} ;
                    when m1b_diag == 98 ;
                    color colget_menu
               endif
               if len(mm_N012) >= 4
                 @ ++j, 3 say mm_N012[4, 1] get mmark4 ;
-                   reader {|x|menu_reader(x,mm_N012[4, 3], A__MENUVERT, , ,.f.)} ;
+                   reader {|x|menu_reader(x,mm_N012[4, 3], A__MENUVERT, , , .f.)} ;
                    when m1b_diag == 98 ;
                    color colget_menu
               endif
               if len(mm_N012) >= 5
                 @ ++j, 3 say mm_N012[5, 1] get mmark5 ;
-                   reader {|x|menu_reader(x,mm_N012[5, 3], A__MENUVERT, , ,.f.)} ;
+                   reader {|x|menu_reader(x,mm_N012[5, 3], A__MENUVERT, , , .f.)} ;
                    when m1b_diag == 98 ;
                    color colget_menu
               endif
@@ -1630,10 +1630,10 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
         // проведение консилиума
         if ! only_control_onko(mNPR_MO, mNPR_DATE, m1rslt, m1ishod)
           @ ++j, 3 say 'Консилиум: дата' get mDT_CONS ;
-            valid {|| iif(empty(mDT_CONS) .or. between(mDT_CONS,mn_data,mk_data),  .t., ;
+            valid {|| iif(empty(mDT_CONS) .or. between(mDT_CONS,mn_data,mk_data), .t., ;
                           func_error(4, 'Дата консилиума должна быть внутри сроков лечения')) }
           @ j, col() + 1 say 'проведение' get mPR_CONS ;
-            reader {|x|menu_reader(x,mm_PR_CONS, A__MENUVERT, , ,.f.)} ;
+            reader {|x|menu_reader(x,mm_PR_CONS, A__MENUVERT, , , .f.)} ;
             when !empty(mDT_CONS) ;
             color colget_menu
         endif
@@ -1641,17 +1641,17 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
         // проведение лечения
         if m1usl_ok < 3
           @ ++j, 3 say 'Проведённое лечение' get musl_tip ;
-                 reader {|x|menu_reader(x,mm_usl_tip, A__MENUVERT, , ,.f.)} ;
+                 reader {|x|menu_reader(x,mm_usl_tip, A__MENUVERT, , , .f.)} ;
                  when len(mm_usl_tip) > 1 ;
                  valid {|g,o| f_valid_usl_tip(g,o) } ;
                  color colget_menu
           @ ++j, 5 get lstr1 color color1 when .f.
           @ j, col() + 1 get musl_tip1 ;
-                 reader {|x|menu_reader(x, mm_usl_tip1, A__MENUVERT, , ,.f.)} ;
+                 reader {|x|menu_reader(x, mm_usl_tip1, A__MENUVERT, , , .f.)} ;
                  when between(m1usl_tip, 1, 4)
           @ ++j, 5 get lstr2 color color1 when .f.
           @ j, col() + 1 get musl_tip2 ;
-                 reader {|x|menu_reader(x, mm_usl_tip2, A__MENUVERT, , ,.f.)} ;
+                 reader {|x|menu_reader(x, mm_usl_tip2, A__MENUVERT, , , .f.)} ;
                  when m1usl_tip == 2
           if fl_3_4
             @ ++j, 5 get lstr_sod color color1 when .f.
@@ -1668,12 +1668,12 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
             @ j, col() + 1 get mbsa when eq_any(m1usl_tip, 2, 4)
             @ ++j, 5 get lstr_err color color1 when .f.
             @ j, col() + 1 get mis_err ;
-                reader {|x|menu_reader(x, mm_shema_err, A__MENUVERT, , ,.f.)} ;
+                reader {|x|menu_reader(x, mm_shema_err, A__MENUVERT, , , .f.)} ;
                 when m1usl_tip == 2
             @ ++j, 5 get lstr_she color color1 when .f.
 
             @ j, col() + 1 get mcrit ;
-                reader {|x| menu_reader(x, mm_shema_usl, A__MENUVERT, , ,.f.)} ;
+                reader {|x| menu_reader(x, mm_shema_usl, A__MENUVERT, , , .f.)} ;
                 when eq_any(m1usl_tip, 2, 4)
             @ ++j, 5 get lstr_lek color color1 when .f.
             @ j, col() + 1 get mlek ;
@@ -1681,7 +1681,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
                 when !empty(m1crit) .and. eq_any(m1usl_tip, 2, 4)
             @ ++j, 5 get lstr_ptr color color1 when .f.
             @ j, col() + 1 get mpptr ;
-                reader {|x| menu_reader(x, mm_danet, A__MENUVERT, , ,.f.)} ;
+                reader {|x| menu_reader(x, mm_danet, A__MENUVERT, , , .f.)} ;
                 when eq_any(m1usl_tip, 2, 4)
           endif
           if is_onko_VMP .and. mtipvmp == 1 // две услуги
@@ -1689,10 +1689,10 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
                 color colget_menu
             @ ++j, 5 get lstr_vmp1 color color1 when .f.
             @ j, col() + 1 get musl_vmp1 ;
-                reader {|x|menu_reader(x,mm_usl_vmp1, A__MENUVERT, , ,.f.)}
+                reader {|x|menu_reader(x,mm_usl_vmp1, A__MENUVERT, , , .f.)}
             @ ++j, 5 get lstr_vmp2 color color1 when .f.
             @ j, col() + 1 get musl_vmp2 ;
-                reader {|x|menu_reader(x,mm_usl_vmp2, A__MENUVERT, , ,.f.)} ;
+                reader {|x|menu_reader(x,mm_usl_vmp2, A__MENUVERT, , , .f.)} ;
                 when m1usl_vmp == 2
             if fl2_3_4
               @ ++j, 5 get lstr_vmpsod color color1 when .f.
@@ -1709,11 +1709,11 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
               @ j, col() + 1 get mbsa when eq_any(m1usl_vmp, 2, 4)
               @ ++j, 5 get lstr_vmperr color color1 when .f.
               @ j, col() + 1 get mis_err ;
-                  reader {|x|menu_reader(x,mm_shema_err, A__MENUVERT, , ,.f.)} ;
+                  reader {|x|menu_reader(x,mm_shema_err, A__MENUVERT, , , .f.)} ;
                   when m1usl_vmp == 2
               @ ++j, 5 get lstr_vmpshe color color1 when .f.
               @ j, col() + 1 get mcrit ;
-                  reader {|x| menu_reader(x,mm_shema_usl, A__MENUVERT, , ,.f.)} ;
+                  reader {|x| menu_reader(x,mm_shema_usl, A__MENUVERT, , , .f.)} ;
                   when eq_any(m1usl_vmp, 2, 4)
               @ ++j, 5 get lstr_vmplek color color1 when .f.
               @ j, col() + 1 get mlek ;
@@ -1721,7 +1721,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
                   when !empty(m1crit) .and. eq_any(m1usl_vmp, 2, 4)
               @ ++j, 5 get lstr_vmpptr color color1 when .f.
               @ j, col() + 1 get mpptr ;
-                  reader {|x| menu_reader(x,mm_danet, A__MENUVERT, , ,.f.)} ;
+                  reader {|x| menu_reader(x,mm_danet, A__MENUVERT, , , .f.)} ;
                   when eq_any(m1usl_vmp, 2, 4)
             endif
           endif
@@ -1733,7 +1733,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
             mval := 'mprot' + lstr(i)
             mdval := 'mdprot' + lstr(i)
             @ ++j, 5 say arr[i] get &mval ;
-                reader {|x|menu_reader(x,mm_danet, A__MENUVERT, , ,.f.)} ;
+                reader {|x|menu_reader(x,mm_danet, A__MENUVERT, , , .f.)} ;
                 color colget_menu
             @ j, 53 get &mdval
           next i
@@ -1743,7 +1743,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
             mval := 'mprot' + lstr(i)
             mdval := 'mdprot' + lstr(i)
             @ ++j, 5 say arr[i-3] get &mval ;
-                reader {|x|menu_reader(x,mm_danet, A__MENUVERT, , ,.f.)} ;
+                reader {|x|menu_reader(x,mm_danet, A__MENUVERT, , , .f.)} ;
                 color colget_menu
             @ j, 53 get &mdval
           next i
