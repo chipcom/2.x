@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-// 07.07.23
+// 10.07.23
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1, ;
         i, j, k, c, s := ' ', a_srok_lech := {}, a_period_stac := {}, a_disp := {}, ;
@@ -2980,9 +2980,10 @@ Function verify_1_sluch(fl_view)
       elseif human_2->NPR_DATE + 60 < d1
         aadd(ta, 'Направлению на лечение больше двух месяцев')
       endif
-      if !(eq_any(glob_mo[_MO_KOD_TFOMS], '103001', '104401') .or. ret_mo(human_->NPR_MO)[_MO_IS_UCH])
-        aadd(ta, 'введена "Направившая МО", которая не имеет право прикреплять пациентов')
-      endif
+      // 10.07.23 после звонка Мызгину
+      // if !(eq_any(glob_mo[_MO_KOD_TFOMS], '103001', '104401') .or. ret_mo(human_->NPR_MO)[_MO_IS_UCH])
+      //   aadd(ta, 'введена "Направившая МО", которая не имеет право прикреплять пациентов')
+      // endif
     endif
     aps := {} // сочетание профиля и специальности
     human_->profil := 158  // медицинской реабилитации
