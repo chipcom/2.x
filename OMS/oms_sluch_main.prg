@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 05.07.23 добавление или редактирование случая (листа учета)
+// 10.07.23 добавление или редактирование случая (листа учета)
 Function oms_sluch_main(Loc_kod, kod_kartotek)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -149,6 +149,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
 
   private mTab_Number := 0
   private mNMSE, m1NMSE := 0  // направление на МСЭ
+  private mnapr_onk := space(10), m1napr_onk := 0
 
   if mem_zav_l == 1  // да
     m1_l_z := 1   // да
@@ -487,6 +488,8 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
       if count_napr > 0
         old_oncology := .t.
         cur_napr := 1 // при ред-ии - сначала первое направление текущее
+
+        mnapr_onk := 'Количество направлений - ' + lstr(count_napr)
       endif
 
       R_Use(dir_server + 'mo_onkco', dir_server + 'mo_onkco',  'CO')
@@ -1491,7 +1494,11 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
 
       // направления на доп. исследования
       if ! only_control_onko(mNPR_MO, mNPR_DATE, m1rslt, m1ishod)
-        @ ++j, 1 say 'НАПРАВЛЕНИЕ №' get cur_napr pict '99' when .f.
+        // @ ++j, 1 say 'Направления при подозрении на ЗНО' get mnapr_onk ;
+        //   reader {|x|menu_reader(x, {{|k, r, c| fget_napr_ZNO(k, r, c)}}, A__FUNCTION, , , .f.)}
+        // ++j
+
+        @ ++j, 1 say 'НАПРАВЛЕНИЕ №' get cur_napr pict '99' when .f. 
         @ j, col() say '(из' get count_napr pict '99' when .f.
         @ j, col() say ')'
         @ j, 29 say '(<F5> - добавление/редактирование направления №...)' color 'G/B'

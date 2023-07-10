@@ -4,12 +4,12 @@
 #include 'chip_mo.ch'
 #include 'tbox.ch'
 
-// 06.07.23 ввод направлений при подозрении на ЗНО - профосмотры несовершеннолетних
+// 10.07.23 ввод направлений при подозрении на ЗНО - профосмотры несовершеннолетних
 Function fget_napr_ZNO(k, r, c)
-  Local r1, r2, n := 4, tmp_keys, tmp_list
+  Local r1, r2, n := 4, tmp_keys, tmp_list, j
   local strNeedTabNumber := 'Необходимо указать табельный направившего врача'
   local recNumberDoctor := 0
-  local oBox
+  local oBox, lAlias
   // Local buf, tmp_color
   
   // buf := savescreen()
@@ -18,7 +18,11 @@ Function fget_napr_ZNO(k, r, c)
   save gets to tmp_list
   //
   use_base('luslf')
-  Use_base('mo_su')
+  lAlias := 'MOSU'
+  if !(lAlias)->(used())
+    Use_base('mo_su')
+  endif
+  
   use (cur_dir + 'tmp_onkna') new alias TNAPR
   count_napr := lastrec()
   mNAPR_MO := space(6)
@@ -55,7 +59,11 @@ Function fget_napr_ZNO(k, r, c)
   mNAPR_V := inieditspr(A__MENUVERT, mm_napr_v, m1napr_v)
   mMET_ISSL := inieditspr(A__MENUVERT, mm_MET_ISSL, m1MET_ISSL)
   tip_onko_napr := 0
-  j := r - 9
+  if r > 12
+    j := r - 9
+  else
+    j := r
+  endif
 
   oBox := TBox():New( j, 0, j + 9, maxcol() - 2, .t. )
   oBox:ChangeAttr := .t.
