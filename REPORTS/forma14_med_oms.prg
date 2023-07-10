@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-** 09.04.23 форма 14-МЕД (ОМС)
+** 09.07.23 форма 14-МЕД (ОМС)
 Function forma14_med_oms()
   Static group_ini := 'f14_med_oms'
   Local begin_date, end_date, buf := savescreen(), arr_m, i, j, k, k1, k2, ;
@@ -12,7 +12,7 @@ Function forma14_med_oms()
         sh, HH := 80, reg_print := 5, is_trudosp, is_rebenok, is_inogoro, is_onkologia, ;
         is_reabili, is_ekstra, lshifr1, koef, vid_vp, r1 := 9, fl_exit := .f., ;
         is_vmp, d2_year, ar, arr_excel := {}, fl_error := .f., is_z_sl, ;
-        cFileProtokol := cur_dir + 'tmp' + stxt, arr_prof := {}, arr_usl, au, ii, ;
+        cFileProtokol := cur_dir + 'tmp' + stxt, arr_prof := {}, arr_usl, au, ii, is_school,;
         filetmp14 := cur_dir + 'tmp14' + stxt, sum_k := 0, sum_ki := 0, sum_kd := 0, sum_kt := 0, kol_d := 0 , sum_d := 0
   Local arr_skor[81, 2], arr_eko[2, 2], arr_profil := {}, arr_dn_stac := {}, arrDdn_stac[4], fl_pol1[15], ;
         arr_pol[32], arr_pol1[15, 5], arr_pril5[32, 3], ifff := 0, kol_stom_pos := 0, ;
@@ -140,7 +140,7 @@ Function forma14_med_oms()
 
   
   *********************************************************************
-  arr_m := {2023, 1, 12, 'за январь - март 2023 года', 0d20230101, 0d20230331}
+  arr_m := {2023, 1, 12, 'за январь - июнь 2023 года', 0d20230101, 0d20230630}
   *********************************************************************
   lal := create_name_alias('lusl', arr_m[1])
   lalf := create_name_alias('luslf', arr_m[1])
@@ -247,7 +247,7 @@ Function forma14_med_oms()
   set relation to recno() into HUMAN_, to recno() into HUMAN_2, to kod_k into KART
   //
   *********************************************************************
-  mdate_rak := arr_m[6] + 13 // по какую дату РАК сумма к оплате 13.04.23
+  mdate_rak := arr_m[6] + 13 // по какую дату РАК сумма к оплате 13.07.23
   *********************************************************************
   R_Use(dir_server + 'mo_xml', , 'MO_XML')
   R_Use(dir_server + 'mo_rak', , 'RAK')
@@ -273,7 +273,7 @@ Function forma14_med_oms()
       mdate1 := stod(strzero(schet_->nyear, 4) + strzero(schet_->nmonth, 2) + '25') // !!! 
       //
       *** 2023 год
-        k := 7 // дата регистрации по 7.04.23
+        k := 7 // дата регистрации по 7.07.23
       ***
       fl := between(mdate, arr_m[5], arr_m[6] + k) .and. between(mdate1, arr_m[5], arr_m[6]) // !!отч.период 2022 год
     endif
@@ -330,7 +330,7 @@ Function forma14_med_oms()
         if koef > 0
           afill(fl_pol1, 0)
           is_vmp := (human_2->VMP == 1)
-          is_trudosp := f_starshe_trudosp(human->POL, human->DATE_R, human->n_data, 3) // настроен на 2022 год
+          is_trudosp := f_starshe_trudosp(human->POL, human->DATE_R, human->n_data, 4) // настроен на 2023-2024 год
           is_reabili := (human_->PROFIL == 158)
           is_rebenok := (human->VZROS_REB > 0)
           is_inogoro := (int(val(schet_->smo)) == 34)
@@ -528,6 +528,7 @@ Function forma14_med_oms()
           is_s_obsh := .f.
           is_disp_nabluden := .f.
           is_kt := .f.
+          is_school := .f.
           is_prvs_206 := (ret_new_prvs(human_->prvs) == 206) // лечебное дело
           kol_2_3 := kol_2_6 := kol_2_60 := kol_sr := kol_2_sr := 0
           isp := 1
@@ -576,16 +577,16 @@ Function forma14_med_oms()
                     // j1 := glob_array_PZ_21[i16, 1]
                     nameArr := 'glob_array_PZ_' + last_digits_year(human->k_data)
                     j1 := &nameArr.[i16, 1]
-                    if eq_any(j1, 68, 75)
+                    if eq_any(j1, 68)  // 75 убрал - это бывшая стом //09.07.23
                       vid_vp := 0 // Посещение профилактическое
-                    elseif eq_any(j1, 69, 76)
+                    elseif eq_any(j1, 69) // 76 убрал - это бывшая стом//09.07.23
                       vid_vp := 1 // в неотложной форме
-                    elseif eq_any(j1, 70, 77, 91, 92)
+                    elseif eq_any(j1, 70, 91, 92)  // 77 убрал - это бывшая стом //09.07.23
                       vid_vp := 2 // обращения с лечебной целью
                     elseif j1 == 71
                       is_centr_z := .t.
                       vid_vp := 0 // Посещение профилактическое Центра здоровья
-                    elseif eq_any(j1, 73, 74, 87, 88, 89, 90, 59)  // т.е. 261, 262, 318, 319, 320, 321, 511   //23.01.23
+                    elseif eq_any(j1, 73, 74, 87, 88, 89, 90, 59, 78)  // т.е. 261, 262, 318, 319, 320, 321, 511, 513   //09.07.23
                       vid_vp := 0 // комплексное посещение при диспансеризации
                       is_z_sl := .t.
                       fl_pol3000_DVN2 := .F.
@@ -601,6 +602,10 @@ Function forma14_med_oms()
                       vid_vp := 2 // с лечебной целью
                     elseif eq_any(j1, 63, 65, 67)
                       is_dializ := .t.
+                    // elseif   57 - реабилитация
+                    elseif j1 == 58 // 583 - школа сах диабета - посещение профилактическое
+                      vid_vp := 0 // Посещение профилактическое
+                      is_school := .t.
                     endif
                   endif
                 endif
@@ -624,7 +629,7 @@ Function forma14_med_oms()
                   lvidpom := i
                 endif
               elseif eq_any(left(lshifr, 5), '2.78.', '2.89.') // обращения с лечебной целью
-                if  left(lshifr, 8) =='2.78.107'
+                if  left(lshifr, 8) =='2.78.107' // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                  // диспансерное наблюдение  
                  is_disp_nabluden := .t.
                 endif 
@@ -715,6 +720,15 @@ Function forma14_med_oms()
                           arr_pol3000[ 11, 5] := round(human->cena_1 * koef, 2)
                           arr_pol3000[ 11, 3] := 1
                         endif
+                      elseif left(lshifr, 5) == '2.92.' // школа сахарного диабета
+                        vid_vp := 0 // Посещение профилактическое
+                        //!!!
+                        arr_pol3000[ 11, 4] := round(human->cena_1 * koef, 2)
+                        arr_pol3000[ 11, 2] := 1
+                        if is_inogoro
+                          arr_pol3000[ 11, 5] := round(human->cena_1 * koef, 2)
+                          arr_pol3000[ 11, 3] := 1
+                        endif 
                       elseif left(lshifr, 5) == '2.79.' // посещение с профилактической целью
                         vid_vp := 0 // Посещение профилактическое
                         if !eq_any(human_->PROFIL, 97, 57, 68, 3, 42, 85, 87)
