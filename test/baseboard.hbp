@@ -1,0 +1,14 @@
+-L..\..\LIB
+-lMyLib_HBT
+-lhblibxlsxwriter
+-lhbct
+-mt
+-inc
+-i..\..\include\libxlsxwriter\include
+-i..\..\include
+xhb.hbc
+
+-workdir=d:\_MO\TEMP\TEMPDEV
+-obaseboard
+
+baseboard.prg

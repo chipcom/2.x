@@ -1,0 +1,32 @@
+
+Drive Diskette de 3?":
+
+Unidades de CD instaladas en el equipo:
+
+Fecha de Instalaci?n de Windows XP:
+20200624010705.000000+180
+
+Directorios:
+Windows en: C:\WINDOWS, Sistema en: C:\WINDOWS\system32
+
+Sistemas operativos instalados en el PC:
+?????????? Windows 10 Pro 10.0.19045
+
+Dominio / Grupo:
+Grupo de Trabajo: WORKGROUP
+
+Tipo de MainBoard:
+Tipo : H11H4-AI(KBL), Serie: DBVQE11003810002A69100
+
+Seriales del MainBoard de F?brica:
+Serial  0: Z9APNBPZ
+
+Lista de Drivers UUID
+ nombre x : Veriton ES2710G UUID x : 6991C694-5D82-1820-0410-160024000000
+
+Seriales:
+Serial  1:
+Serial  2:
+Serial  3:
+Serial  4:
+Serial  5:
