@@ -4,6 +4,66 @@
 #include 'chip_mo.ch'
 #include 'tbox.ch'
 
+// 12.07.23 функция для when и valid при вводе услуг в лист учёта
+Function f5editusl_napr(get, when_valid, k)
+  Local fl := .t., fl1
+
+  if when_valid == 1    // when
+    if k == 2     // Шифр услуги
+      if !empty(mshifr)
+        fl := .f.
+      endif
+    endif
+  else  // valid
+    if k == 2 // Шифр услуги
+      if !empty(mshifr) .and. !(mshifr == get:original)
+        mshifr := transform_shifr(mshifr)
+        // сначала проверим на код операции ФФОМС
+        fl1 := .f.
+        select LUSLF
+        find (padr(mshifr, 20))
+        if found() .and. alltrim(mshifr) == alltrim(luslf->shifr)
+          is_usluga_zf := luslf->zf
+          tip_onko_napr:= luslf->onko_napr
+          tip_onko_ksg := luslf->onko_ksg
+          // if (tip_telemed := luslf->telemed) == 1
+          //   tip_telemed2 := (left(mshifr, 4) == 'B01.')
+          // endif
+          // tip_par_org := luslf->par_org
+          fl1 := .t.
+          mname_u := left(luslf->name, 52)
+          mshifr1 := mshifr
+        endif
+        if type('is_oncology') == 'N'
+          if !fl1
+            fl := func_error(4, 'Шифра ' + alltrim(mshifr) + ' нет в базе данных федеральных услуг.')
+          endif
+          return fl
+        elseif fl1
+        //  mn_base := 1
+        //  mstoim_1 := mu_cena := 0
+        //  if type('tip_telemed2') == 'L' .and. is_telemedicina(mshifr1, @tip_telemed2) // является услугой телемедицины - не заполняется код врача
+        //    tip_telemed := 1
+        //    mis_edit := -1
+        //  endif
+        //  mis_nul := .t.
+        //  mkol := mkol_1 := 1
+        //  verify_uva(2)
+        //  update_gets()
+        //  return fl  // !!!!!!!!!!!!!!!!!!!!!
+        endif
+      endif
+    endif
+
+    if !fl
+      &(readvar()) := get:original
+    else
+      update_gets()
+      return fl
+    endif
+  endif
+  return fl
+
 // 10.07.23 ввод направлений при подозрении на ЗНО - профосмотры несовершеннолетних
 Function fget_napr_ZNO(k, r, c)
   Local r1, r2, n := 4, tmp_keys, tmp_list, j
@@ -39,6 +99,10 @@ Function fget_napr_ZNO(k, r, c)
     endif
     m1NAPR_V := tnapr->NAPR_V
     m1MET_ISSL := tnapr->MET_ISSL
+    // mu_kod := tnapr->U_KOD
+    // mshifr := tnapr->shifr_u
+    // mshifr1 := tnapr->shifr1
+    // mname_u := tnapr->name_u
     mu_kod := iif(m1napr_v == 3, tnapr->U_KOD, 0)
     mshifr := iif(m1napr_v == 3, tnapr->shifr_u, space(20))
     mshifr1 := iif(m1napr_v == 3, tnapr->shifr1, space(20))
@@ -93,7 +157,7 @@ Function fget_napr_ZNO(k, r, c)
   // @ ++j, 5 say 'Медицинская услуга' get mshifr pict '@!' ;
   //       when {|g| m1napr_v == 3 .and. m1MET_ISSL > 0 } ;
   //       valid {|g|
-  //           Local fl := f5editkusl(g, 2, 2)
+  //           Local fl := f5editusl_napr(g, 2, 2)
   //           if empty(mshifr)
   //             mu_kod  := 0
   //             mname_u := space(65)
@@ -123,7 +187,7 @@ Function fget_napr_ZNO(k, r, c)
   @ 7, 5 TBOX oBox say 'Медицинская услуга' get mshifr pict '@!' ;
         when {|g| m1napr_v == 3 .and. m1MET_ISSL > 0 } ;
         valid {|g|
-                Local fl := f5editkusl(g, 2, 2)
+                Local fl := f5editusl_napr(g, 2, 2)
                 if empty(mshifr)
                   mu_kod  := 0
                   mname_u := space(52)
@@ -178,6 +242,11 @@ Function fget_napr_ZNO(k, r, c)
     iif(m1NAPR_V == 3, mshifr, ''), ;
     iif(m1NAPR_V == 3, mshifr1, ''), ;
     iif(m1NAPR_V == 3, mname_u, ''))
+    // m1MET_ISSL, ;
+    // mu_kod, ;
+    // mshifr, ;
+    // mshifr1, ;
+    // mname_u)
 
   // setcolor(tmp_color)
   restore gets from tmp_list
@@ -204,11 +273,16 @@ function get_onko_napr(/*@*/n_napr)
     aadd(ret_arr, get_tabnom_vrach_by_kod((lAlias)->KOD_VR))
     aadd(ret_arr, (lAlias)->NAPR_MO)
     aadd(ret_arr, (lAlias)->NAPR_V)
-    aadd(ret_arr, iif((lAlias)->NAPR_V == 3, (lAlias)->MET_ISSL, 0))
-    aadd(ret_arr, iif((lAlias)->NAPR_V == 3, (lAlias)->U_KOD, 0))
-    aadd(ret_arr, iif((lAlias)->NAPR_V == 3, (lAlias)->shifr_u, space(20)))
-    aadd(ret_arr, iif((lAlias)->NAPR_V == 3, (lAlias)->shifr1, space(20)))
-    aadd(ret_arr, iif((lAlias)->NAPR_V == 3, (lAlias)->name_u, space(65)))
+    aadd(ret_arr, (lAlias)->MET_ISSL)
+    aadd(ret_arr, (lAlias)->U_KOD)
+    aadd(ret_arr, (lAlias)->shifr_u)
+    aadd(ret_arr, (lAlias)->shifr1)
+    aadd(ret_arr, (lAlias)->name_u)
+    // aadd(ret_arr, iif((lAlias)->NAPR_V == 3, (lAlias)->MET_ISSL, 0))
+    // aadd(ret_arr, iif((lAlias)->NAPR_V == 3, (lAlias)->U_KOD, 0))
+    // aadd(ret_arr, iif((lAlias)->NAPR_V == 3, (lAlias)->shifr_u, space(20)))
+    // aadd(ret_arr, iif((lAlias)->NAPR_V == 3, (lAlias)->shifr1, space(20)))
+    // aadd(ret_arr, iif((lAlias)->NAPR_V == 3, (lAlias)->name_u, space(65)))
   else
     cur_napr := count_napr + 1
     aadd(ret_arr, ctod(''))
@@ -342,6 +416,11 @@ Function change_num_napr()
 
       m1NAPR_MO := tnapr->NAPR_MO
       m1NAPR_V := tnapr->NAPR_V
+      // m1MET_ISSL := tnapr->MET_ISSL
+      // mu_kod := tnapr->U_KOD
+      // mshifr := tnapr->shifr_u
+      // mshifr1 := tnapr->shifr1
+      // mname_u := tnapr->name_u
       m1MET_ISSL := iif(m1napr_v == 3, tnapr->MET_ISSL, 0)
       mu_kod := iif(m1napr_v == 3, tnapr->U_KOD, 0)
       mshifr := iif(m1napr_v == 3, tnapr->shifr_u, space(20))
