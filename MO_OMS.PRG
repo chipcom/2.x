@@ -2116,6 +2116,9 @@ if type("p_del_error") == "A" .and. p_del_error[2] > 0
     sh := 110
     fl_povtor := .T.
     fl_povtor1 := .T.
+    fl_povtor2 := .T.
+    fl_povtor3 := .T.
+    fl_povtor4 := .T.
     fp := fcreate(n_file) ; tek_stroke := 0 ; n_list := 1
     add_string("")
     add_string(center("Сведения об отклоненных от оплаты случаях и стоимости медицинской помощи",sh))
@@ -2140,6 +2143,9 @@ if type("p_del_error") == "A" .and. p_del_error[2] > 0
     do while !eof()
       fl_povtor := .T.
       fl_povtor1 := .T.
+      fl_povtor2 := .T.
+      fl_povtor3 := .T.
+      fl_povtor4 := .T.
       verify_FF(HH-3,.f.,sh)
       //
       flag_covid := .F.
@@ -2381,29 +2387,47 @@ if type("p_del_error") == "A" .and. p_del_error[2] > 0
               endif
               if padr(lshifr,4) == "60.5" //МРТ
                 if human->vzros_reb == 0 //взрослый
-                  mas_otchet[18,1] += 1 
-                  mas_otchet[18,2] += human->cena_1
+                  if fl_povtor2 
+                    mas_otchet[18,1] += 1 
+                    fl_povtor2 := .F.
+                  endif
+                  mas_otchet[18,2] += hu->stoim // human->cena_1
                 else  
-                  mas_otchet[18,3] += 1 
-                  mas_otchet[18,4] += human->cena_1
+                  if fl_povtor2 
+                    mas_otchet[18,3] += 1 
+                    fl_povtor2 := .F.
+                  ENDIF
+                  mas_otchet[18,4] += hu->stoim //human->cena_1
                 endif  
               endif
               if padr(lshifr,4) == "60.6" //CCC
                 if human->vzros_reb == 0 //взрослый
-                  mas_otchet[19,1] += 1 
-                  mas_otchet[19,2] += human->cena_1
+                  if fl_povtor3  
+                    mas_otchet[19,1] += 1 
+                    fl_povtor3 := .F.
+                  endif
+                  mas_otchet[19,2] +=  hu->stoim //human->cena_1
                 else
-                  mas_otchet[19,3] += 1 
-                  mas_otchet[19,4] += human->cena_1
+                  if fl_povtor3 
+                    mas_otchet[19,3] += 1 
+                    fl_povtor3 := .F.
+                  endif
+                  mas_otchet[19,4] += hu->stoim //human->cena_1
                 endif   
               endif
               if padr(lshifr,4) == "60.7" //эндоскопические диагностические исследования
                 if human->vzros_reb == 0 //взрослый
-                  mas_otchet[20,1] += 1 
-                  mas_otchet[20,2] += human->cena_1
+                  if fl_povtor4 
+                    mas_otchet[20,1] += 1 
+                    fl_povtor4 := .F.
+                  endif
+                  mas_otchet[20,2] += hu->stoim //human->cena_1
                 else
-                  mas_otchet[20,3] += 1 
-                  mas_otchet[20,4] += human->cena_1
+                  if fl_povtor4 
+                    mas_otchet[20,3] += 1 
+                    fl_povtor4 := .F.
+                  endif
+                  mas_otchet[20,4] += hu->stoim // human->cena_1
                 endif    
               endif
               if padr(lshifr,4) == "60.8" //патанатомия
