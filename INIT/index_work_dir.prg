@@ -660,7 +660,7 @@ function shema_index(val_year, exe_dir, cur_dir, flag)
   endif
   return nil
 
-// 09.03.23
+// 14.07.23
 function k006_index(val_year, exe_dir, cur_dir, flag)
   local sbase
   local file_index
@@ -668,7 +668,7 @@ function k006_index(val_year, exe_dir, cur_dir, flag)
   DEFAULT flag TO .f.
 
   sbase := prefixFileRefName(val_year) + 'k006'  // 
-  if hb_vfExists(exe_dir + sbase + sdbf)
+  if hb_vfExists(exe_dir + sbase + sdbf) .and. hb_vfExists(exe_dir + sbase + sdbt)
     file_index := cur_dir + sbase + sntx
     R_Use(exe_dir + sbase)
     index on substr(shifr, 1, 2) + ds + sy + age + sex + los to (cur_dir + sbase) // по диагнозу/операции
