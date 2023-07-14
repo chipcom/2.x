@@ -4,7 +4,7 @@
 #include 'chip_mo.ch'
 #include 'tbox.ch'
 
-// 12.07.23 функция для when и valid при вводе услуг в лист учёта
+// 14.07.23 функция для when и valid при вводе услуг в лист учёта
 Function f5editusl_napr(get, when_valid, k)
   Local fl := .t., fl1
 
@@ -31,8 +31,26 @@ Function f5editusl_napr(get, when_valid, k)
           // endif
           // tip_par_org := luslf->par_org
           fl1 := .t.
-          mname_u := left(luslf->name, 52)
-          mshifr1 := mshifr
+          select MOSU
+          set order to 3
+          find (padr(mshifr, 20)) // поищем федеральный код операции ФФОМС
+          if found()
+            if mosu->tip == 0 // проверяем, что ЭТО НЕ стоматология 2016 (удалённая)
+              mu_kod  := mosu->kod
+              mname_u := mosu->name
+              mshifr1 := mosu->shifr1
+              if !empty(mosu->profil)
+                m1PROFIL := mosu->profil
+                mPROFIL := padr(inieditspr(A__MENUVERT, getV002(), m1PROFIL), 69)
+              endif
+            else // Старая стоматология 2016
+              fl1 := .f.
+            endif
+          else
+            mu_kod  := 0
+            mname_u := left(luslf->name, 52)
+            mshifr1 := mshifr
+          endif
         endif
         if type('is_oncology') == 'N'
           if !fl1
