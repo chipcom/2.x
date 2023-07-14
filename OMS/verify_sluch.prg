@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-// 10.07.23
+// 14.07.23
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1, ;
         i, j, k, c, s := ' ', a_srok_lech := {}, a_period_stac := {}, a_disp := {}, ;
@@ -338,12 +338,14 @@ Function verify_1_sluch(fl_view)
     aadd(ta, 'не заполнено поле "ОСНОВНОЙ ДИАГНОЗ"')
   endif
 
-  if mdiagnoz[1] == 'Z00.2' .and. !(vozrast >= 1 .and. vozrast < 14)
-    aadd(ta, 'основной диагноз Z00.2 допустим только для возраста от года до 14 лет')
-  elseif mdiagnoz[1] == 'Z00.3' .and. !(vozrast >= 14 .and. vozrast < 18)
-    aadd(ta, 'основной диагноз Z00.3 допустим только для возраста от 14 до 18 лет')
-  elseif mdiagnoz[1] == 'Z00.1' .and. (vozrast >= 1)
-    aadd(ta, 'основной диагноз Z00.1 допустим только для возраста до года')
+  if len(mdiagnoz) > 0
+    if mdiagnoz[1] == 'Z00.2' .and. !(vozrast >= 1 .and. vozrast < 14)
+      aadd(ta, 'основной диагноз Z00.2 допустим только для возраста от года до 14 лет')
+    elseif mdiagnoz[1] == 'Z00.3' .and. !(vozrast >= 14 .and. vozrast < 18)
+      aadd(ta, 'основной диагноз Z00.3 допустим только для возраста от 14 до 18 лет')
+    elseif mdiagnoz[1] == 'Z00.1' .and. (vozrast >= 1)
+      aadd(ta, 'основной диагноз Z00.1 допустим только для возраста до года')
+    endif
   endif
 
   if glob_otd[4] != TIP_LU_DVN_COVID
@@ -407,6 +409,7 @@ Function verify_1_sluch(fl_view)
     aadd(ta, 'для основного диагноза ' + mdiagnoz[1] + ' возраст должен быть меньше года')
   endif
   if human_->USL_OK == USL_OK_HOSPITAL ; // 1 - стационар
+      .and. len(mdiagnoz) > 0 ;
       .and. (mdiagnoz[1] = 'U07.1' .or. mdiagnoz[1] = 'U07.2') ;  // проверим что диагноз COVID-19
       .and. empty(HUMAN_2->PC4) ;                                 // вес отсутствует
       .and. (count_years(human->DATE_R, human->k_data) >= 18) ;   // проверим что возраст больше 18 лет
@@ -1027,7 +1030,7 @@ Function verify_1_sluch(fl_view)
             mIDSP := 17 // Законченный случай в поликлинике
             if eq_any(alltrim_lshifr, '2.78.90', '2.78.91') .and. len(mdiagnoz) > 0 .and. left(mdiagnoz[1], 1) == 'Z'
               mpovod := 11 // 3.1 обращение с проф.целью
-            elseif alltrim_lshifr == '2.78.107' .and. (human->k_data >= 0d20230101)
+            elseif len(mdiagnoz) > 0 .and. alltrim_lshifr == '2.78.107' .and. (human->k_data >= 0d20230101)
               // добавлена комплексная услуга 2.78.107 02.2023
               mpovod := 4 // 1.3
               if ! f_is_diag_dn(mdiagnoz[1], , human->k_data)
@@ -1278,7 +1281,7 @@ Function verify_1_sluch(fl_view)
     find (str(human->kod, 7))
     do while hu->kod == human->kod .and. !eof()
       hu_->(G_RLock(forever))
-      if eq_any(human_->profil, 6, 34)
+      if len(mdiagnoz) > 0 .and. eq_any(human_->profil, 6, 34)
         hu_->kod_diag := mdiagnoz[1]
       endif
       skip
@@ -1331,7 +1334,7 @@ Function verify_1_sluch(fl_view)
             endif
           endif
         endif
-        if arr_povod[1, 1] == 4  .and. (left(mdiagnoz[1], 1) == 'C' .or. between(left(mdiagnoz[1], 3), 'D00', 'D09') .or. between(left(mdiagnoz[1], 3), 'D45', 'D47'))
+        if arr_povod[1, 1] == 4 .and. len(mdiagnoz) > 0 .and. (left(mdiagnoz[1], 1) == 'C' .or. between(left(mdiagnoz[1], 3), 'D00', 'D09') .or. between(left(mdiagnoz[1], 3), 'D45', 'D47'))
           k := ret_prvs_V021(human_->PRVS)
           if !eq_any(k, 9, 19, 41)  // как исключение добавил гематологов, специальность - 9
             aadd(ta, 'диспансерное наблюдение при ЗНО осуществляют только врачи-онкологи (детские онкологи), а в листе учёта стоит специальность "' + inieditspr(A__MENUVERT, getV021(), k) + '"')
@@ -1341,7 +1344,7 @@ Function verify_1_sluch(fl_view)
     endif
   endif
   //
-  if human->OBRASHEN == '1'
+  if len(mdiagnoz) > 0 .and. human->OBRASHEN == '1'
     for i := 1 to len(mdiagnoz)
       if left(mdiagnoz[i], 1) == 'C' .or. between(left(mdiagnoz[i], 3), 'D00', 'D09') .or. between(left(mdiagnoz[i], 3), 'D45', 'D47')
         aadd(ta, alltrim(mdiagnoz[i]) + ' основной (или сопутствующий) диагноз - онкология, поэтому в поле "подозрение на ЗНО" не должно стоять "да"')
@@ -1645,7 +1648,7 @@ Function verify_1_sluch(fl_view)
       UnLock
     endif
     fl := .t.
-    if between(onksl->ds1_t, 0, 4)
+    if len(mdiagnoz) > 0 .and. between(onksl->ds1_t, 0, 4)
       if empty(onksl->STAD)
         aadd(ta, 'онкология: не введена стадия заболевания')
       else
@@ -1658,7 +1661,7 @@ Function verify_1_sluch(fl_view)
     if len(arr_povod) > 0 .and. arr_povod[1, 1] == 4 .and. onksl->ds1_t != 4
       aadd(ta, 'онкология: в случае диспансерного наблюдения в поле "Повод обращения" должно быть проставлено "диспансерное наблюдение"')
     endif
-    if onksl->ds1_t == 0 .and. human->vzros_reb == 0
+    if len(mdiagnoz) > 0 .and. onksl->ds1_t == 0 .and. human->vzros_reb == 0
       if empty(onksl->ONK_T)
         fl := .f. ; aadd(ta, 'онкология: не введена стадия заболевания T')
       endif
@@ -1693,7 +1696,7 @@ Function verify_1_sluch(fl_view)
       // при составлении реестра самостоятельно дополнить блок противопоказаний id_prot = 8
     elseif onksl->b_diag == -1 // выполнено (до 1 сентября 2018 года)
       // при составлении реестра блок B_DIAG не заполняется
-    elseif eq_any(onksl->b_diag, 97, 98) // выполнено
+    elseif len(mdiagnoz) > 0 .and. eq_any(onksl->b_diag, 97, 98) // выполнено
       ar_N009 := {}
       if select('N9') == 0
         R_Use(dir_exe + '_mo_N009', , 'N9')
@@ -1709,8 +1712,8 @@ Function verify_1_sluch(fl_view)
         R_Use(dir_exe + '_mo_N012', , 'N12')
       endif
       select N12
-      dbeval({|| aadd(ar_N012, {'',n12->id_igh, {}}) }, ;
-             {|| between_date(n12->datebeg,n12->dateend, d2) .and. padr(mdiagnoz[1], 3) == n12->ds_igh })
+      dbeval({|| aadd(ar_N012, {'', n12->id_igh, {}}) }, ;
+             {|| between_date(n12->datebeg, n12->dateend, d2) .and. padr(mdiagnoz[1], 3) == n12->ds_igh })
       if is_mgi
         if (i := ascan(glob_MGI, {|x| x[1] == shifr_mgi })) > 0 // услуга входит в список ТФОМС
           if (j := ascan(ar_N012, {|x| x[2] == glob_MGI[i, 2] })) > 0 // по данному диагнозу присутствует необходимый маркер
