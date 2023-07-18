@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 04.07.23 ПН - добавление или редактирование случая (листа учета)
+// 18.07.23 ПН - добавление или редактирование случая (листа учета)
 Function oms_sluch_PN(Loc_kod, kod_kartotek, f_print)
   // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -2132,74 +2132,77 @@ Function oms_sluch_PN(Loc_kod, kod_kartotek, f_print)
         UNLOCK
       next
       if i2 < i1
-        for i := i2+1 to i1
+        for i := i2 + 1 to i1
           select HU
           goto (arr_usl[i])
           DeleteRec(.t., .f.)  // очистка записи без пометки на удаление
         next
       endif
       save_arr_PN(mkod)
+
       // направления при подозрении на ЗНО
-      cur_napr := 0
-      arr := {}
-      G_Use(dir_server + 'mo_onkna', dir_server + 'mo_onkna', 'NAPR') // онконаправления
-      find (str(mkod, 7))
-      do while napr->kod == mkod .and. !eof()
-        aadd(arr,recno())
-        skip
-      enddo
+      // cur_napr := 0
+      // arr := {}
+      // G_Use(dir_server + 'mo_onkna', dir_server + 'mo_onkna', 'NAPR') // онконаправления
+      // find (str(mkod, 7))
+      // do while napr->kod == mkod .and. !eof()
+      //   aadd(arr,recno())
+      //   skip
+      // enddo
       if m1step2 == 2 ; // направлен и отказался от 2-го этапа
                .and. m1ds_onk == 1 // подозрение на злокачественное новообразование
-        Use_base('mo_su')
-        use (cur_dir + 'tmp_onkna') new alias TNAPR
-        select TNAPR
-        go top
-        do while !eof()
-          if !emptyany(tnapr->NAPR_DATE, tnapr->NAPR_V)
-            if tnapr->U_KOD == 0 // добавляем в свой справочник федеральную услугу
-              select MOSU
-              set order to 3
-              find (tnapr->shifr1)
-              if found()  // наверное, добавили только что
-                tnapr->U_KOD := mosu->kod
-              else
-                set order to 1
-                FIND (STR(-1, 6))
-                if found()
-                  G_RLock(forever)
-                else
-                  AddRec(6)
-                endif
-                tnapr->U_KOD := mosu->kod := recno()
-                mosu->name   := tnapr->name_u
-                mosu->shifr1 := tnapr->shifr1
-              endif
-            endif
-            select NAPR
-            if ++cur_napr > len(arr)
-              AddRec(7)
-              napr->kod := mkod
-            else
-              goto (arr[cur_napr])
-              G_RLock(forever)
-            endif
-            napr->NAPR_DATE := tnapr->NAPR_DATE
-            napr->KOD_VR := tnapr->KOD_VR
-            napr->NAPR_MO := tnapr->NAPR_MO
-            napr->NAPR_V := tnapr->NAPR_V
-            napr->MET_ISSL := iif(tnapr->NAPR_V == 3, tnapr->MET_ISSL, 0)
-            napr->U_KOD := iif(tnapr->NAPR_V == 3, tnapr->U_KOD, 0)
-          endif
-          select TNAPR
-          skip
-        enddo
+        save_mo_onkna(mkod)               
+        
+        // Use_base('mo_su')
+        // use (cur_dir + 'tmp_onkna') new alias TNAPR
+        // select TNAPR
+        // go top
+        // do while !eof()
+        //   if !emptyany(tnapr->NAPR_DATE, tnapr->NAPR_V)
+        //     if tnapr->U_KOD == 0 // добавляем в свой справочник федеральную услугу
+        //       select MOSU
+        //       set order to 3
+        //       find (tnapr->shifr1)
+        //       if found()  // наверное, добавили только что
+        //         tnapr->U_KOD := mosu->kod
+        //       else
+        //         set order to 1
+        //         FIND (STR(-1, 6))
+        //         if found()
+        //           G_RLock(forever)
+        //         else
+        //           AddRec(6)
+        //         endif
+        //         tnapr->U_KOD := mosu->kod := recno()
+        //         mosu->name   := tnapr->name_u
+        //         mosu->shifr1 := tnapr->shifr1
+        //       endif
+        //     endif
+        //     select NAPR
+        //     if ++cur_napr > len(arr)
+        //       AddRec(7)
+        //       napr->kod := mkod
+        //     else
+        //       goto (arr[cur_napr])
+        //       G_RLock(forever)
+        //     endif
+        //     napr->NAPR_DATE := tnapr->NAPR_DATE
+        //     napr->KOD_VR := tnapr->KOD_VR
+        //     napr->NAPR_MO := tnapr->NAPR_MO
+        //     napr->NAPR_V := tnapr->NAPR_V
+        //     napr->MET_ISSL := iif(tnapr->NAPR_V == 3, tnapr->MET_ISSL, 0)
+        //     napr->U_KOD := iif(tnapr->NAPR_V == 3, tnapr->U_KOD, 0)
+        //   endif
+        //   select TNAPR
+        //   skip
+        // enddo
       endif
-      select NAPR
-      do while ++cur_napr <= len(arr)
-        goto (arr[cur_napr])
-        DeleteRec(.t.)
-      enddo
-      write_work_oper(glob_task,OPER_LIST, iif(Loc_kod == 0, 1, 2), 1,count_edit)
+      // select NAPR
+      // do while ++cur_napr <= len(arr)
+      //   goto (arr[cur_napr])
+      //   DeleteRec(.t.)
+      // enddo
+      write_work_oper(glob_task, OPER_LIST, iif(Loc_kod == 0, 1, 2), 1, count_edit)
       fl_write_sluch := .t.
       close databases
       stat_msg('Запись завершена!', .f.)
