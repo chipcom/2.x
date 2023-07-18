@@ -355,6 +355,77 @@ function save_onko_napr(/*@*/cur_napr, date_napr, vr_napr, mo_napr, v_napr, met_
   endif
   return count_napr
 
+// 18.07.23
+function save_mo_onkna(mkod)
+  local lAlias, tmp_alias := select(), lOpened := .f.
+  local cur_napr, arr
+
+  arr := {}
+  Use_base('mo_su')
+  use (cur_dir + 'tmp_onkna') new alias TNAPR
+  G_Use(dir_server + 'mo_onkna', dir_server + 'mo_onkna',  'NAPR') // онконаправления
+  find (str(mkod, 7))
+  do while napr->kod == mkod .and. !eof()
+    aadd(arr, recno())
+    skip
+  enddo
+  cur_napr := 0
+  select TNAPR
+  go top
+  do while !eof()
+    if !emptyany(tnapr->NAPR_DATE, tnapr->NAPR_V)
+      if tnapr->U_KOD == 0 // добавляем в свой справочник федеральную услугу
+        select MOSU
+        set order to 3
+        find (tnapr->shifr1)
+        if found()  // наверное, добавили только что
+          tnapr->U_KOD := mosu->kod
+        else
+          set order to 1
+          FIND (STR(-1, 6))
+          if found()
+            G_RLock(forever)
+          else
+            AddRec(6)
+          endif
+          tnapr->U_KOD := mosu->kod := recno()
+          mosu->name   := tnapr->name_u
+          mosu->shifr1 := tnapr->shifr1
+        endif
+      endif
+      select NAPR
+      if ++cur_napr > len(arr)
+        AddRec(7)
+        napr->kod := mkod
+      else
+        goto (arr[cur_napr])
+        G_RLock(forever)
+      endif
+      napr->NAPR_DATE := tnapr->NAPR_DATE
+      napr->NAPR_MO := tnapr->NAPR_MO
+      napr->NAPR_V := tnapr->NAPR_V
+      napr->MET_ISSL := iif(tnapr->NAPR_V == 3, tnapr->MET_ISSL, 0)
+      napr->U_KOD := iif(tnapr->NAPR_V == 3, tnapr->U_KOD, 0)
+      napr->KOD_VR := tnapr->KOD_VR
+    endif
+    select TNAPR
+    skip
+  enddo
+  select NAPR
+  do while ++cur_napr <= len(arr)
+    goto (arr[cur_napr])
+    DeleteRec(.t.)
+  enddo
+
+  // if lOpened
+    tnapr->(dbCloseArea())
+    MOSU->(dbCloseArea())
+    NAPR->(dbCloseArea())
+    // select(tmp_alias)
+  // endif
+
+  return nil
+
 // 06.07.23 редактировать другое направление (№...)
 Function change_num_napr()
   Local r, n, fl := .f., tmp_keys, tmp_gets, buf, tmp_color := setcolor()

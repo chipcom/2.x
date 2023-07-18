@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-** 04.02.22
+// 04.02.22
 Function ret_arr_shema(k, k_data) 
   // возвращает схемы лекарственных терапий для онкологии на дату
   Static ashema := {{}, {}, {}}
@@ -24,15 +24,16 @@ Function ret_arr_shema(k, k_data)
     dbeval({|| aadd(ashema[3], {it->kod + left(it->name, 68), it->kod, 0, 0}) })
     use
     for i := 1 to len(ashema[3])
-      ashema[3,i,3] := int(val(substr(ashema[3,i,1],3,2)))
-      ashema[3,i,4] := int(val(substr(ashema[3,i,1],6,2)))
+      ashema[3, i, 3] := int(val(substr(ashema[3, i, 1], 3, 2)))
+      ashema[3, i, 4] := int(val(substr(ashema[3, i, 1], 6, 2)))
     next
   endif
   return ashema[k]
 
-** 15.02.20
+// 15.02.20
 Function f_is_oncology(r, /*@*/_onk_smp)
   Local i, k, mdiagnoz, lusl_ok, lprofil, lzno := 0, lyear, lk_data
+  
   if r == 1
     lk_data := human->k_data
     lyear := year(human->k_data)
@@ -54,7 +55,7 @@ Function f_is_oncology(r, /*@*/_onk_smp)
     aadd(mdiagnoz, space(6))
   endif
   k := lzno
-  if lyear >= 2021 .and. (left(mdiagnoz[1],1) == 'C' .or. between(left(mdiagnoz[1], 3), 'D00', 'D09') ;
+  if lyear >= 2021 .and. (left(mdiagnoz[1], 1) == 'C' .or. between(left(mdiagnoz[1], 3), 'D00', 'D09') ;
           .or. between(left(mdiagnoz[1], 3), 'D45', 'D47')) // согласно письму 04-18-05 от 12.02.21
     k := 2
   elseif lyear >= 2019 .and. (left(mdiagnoz[1], 1) == 'C' .or. between(left(mdiagnoz[1], 3), 'D00', 'D09'))
@@ -63,7 +64,7 @@ Function f_is_oncology(r, /*@*/_onk_smp)
     k := 2
   elseif left(mdiagnoz[1], 3) == 'D70' .and. lk_data < 0d20200401 // только до 1 апреля 2020 года
     for i := 2 to len(mdiagnoz)
-      if left(mdiagnoz[i],1) == 'C'
+      if left(mdiagnoz[i], 1) == 'C'
         if between(left(mdiagnoz[i], 3), 'C00', 'C80') .or. left(mdiagnoz[i], 3) == 'C97'
           k := 2
         endif
@@ -72,7 +73,8 @@ Function f_is_oncology(r, /*@*/_onk_smp)
   endif
   if k == 2
     yes_oncology := .t.
-    m1ds_onk := 0 ; mds_onk := inieditspr(A__MENUVERT, mm_danet, m1ds_onk)
+    m1ds_onk := 0
+    mds_onk := inieditspr(A__MENUVERT, mm_danet, m1ds_onk)
     if lprofil == 158
       _onk_smp := k := 1
     endif
@@ -83,17 +85,19 @@ Function f_is_oncology(r, /*@*/_onk_smp)
   endif
   return k
 
-** 19.08.18
+// 19.08.18
 Function when_ds_onk()
+
   Private yes_oncology := .f.
   f_is_oncology(2)
   return !yes_oncology
   
-** 29.01.19
+// 29.01.19
 Function is_lymphoid(_diag) // ЗНО кроветворной или лимфоидной тканей
+  
   return !empty(_diag) .and. between(left(_diag, 3), 'C81', 'C96')
   
-** 02.02.19
+// 02.02.19
 Function ret_str_onc(k, par)
   Static arr := { ;
     'Суммарная очаговая доза (в Греях)', ;  // 1 lstr_sod
