@@ -66,7 +66,7 @@ Function append_kart()
     if mem_kodkrt == 2 .and. !(is_uchastok == 1)
       f_message({"", ;
           "Регистрационный номер добавленного больного - "+lstr(k),""}, ;
-          "W",,, 16)
+          "W", , , 16)
       if glob_task == X_REGIST // регистратура
         keyboard chr(K_UP)+chr(K_ENTER)
       endif
@@ -88,49 +88,50 @@ Function edit_kartotek(mkod, _top_r, _bot_r, fl_oms, _Human_kod)
   endif
   return mkod
 
-// 30.03.23
-Function edit_kartotek_(mkod,_top_r,_bot_r,fl_oms,_Human_kod)
-Static mm_kart_error := {{"нет замечаний", 0},{"полис недействителен",-8},{"ошибки в реквизитах",-9}}
-Static mm_invalid := {{"нет", 0},{"1 группа", 1},{"2 группа", 2},{"3 группа", 3},{"дети-инвалиды", 4}}
-Static mm_where_kart := {{"в регистратуре", 0},{"у врача", 1},{"на руках", 2}}
-Static st_rab_nerab := 0
-Local tmp_color := setcolor(), tmp_help := chm_help_code, buf := savescreen(), ;
+// 19.07.23
+Function edit_kartotek_(mkod, _top_r, _bot_r, fl_oms, _Human_kod)
+  Static mm_kart_error := {{'нет замечаний', 0}, {'полис недействителен', -8}, {'ошибки в реквизитах', -9}}
+  Static mm_invalid := {{'нет', 0}, {'1 группа', 1}, {'2 группа', 2}, {'3 группа', 3}, {'дети-инвалиды', 4}}
+  Static mm_where_kart := {{'в регистратуре', 0}, {'у врача', 1}, {'на руках', 2}}
+  Static st_rab_nerab := 0
+  Local tmp_color := setcolor(), tmp_help := chm_help_code, buf := savescreen(), ;
       i, c, arr, arr1, dolya := 1, lapp_edit, llen, ldec, in_array, out_array, ;
       is_append := (mkod == 0), old_arr_kart, flag_DVN, ;
       pos_read := 0, k_read := 0, count_edit := 0, ;
       count_row := 0, title_top, fl_mr_dol := .f., fl_kis := .f.
-DEFAULT fl_oms TO .f., _Human_kod TO 0
-change_attr()
-if !(type("_task_263_") == "L")
-  Private _task_263_ := .f.
-endif
-Private is_smp := fl_oms .and. ((type("m1usl_ok")=="N" .and. m1usl_ok==4) .or.;
+
+  DEFAULT fl_oms TO .f., _Human_kod TO 0
+  change_attr()
+  if !(type('_task_263_') == 'L')
+    Private _task_263_ := .f.
+  endif
+  Private is_smp := fl_oms .and. ((type('m1usl_ok') == 'N' .and. m1usl_ok == 4) .or. ;
                                 (len(glob_otd) > 2 .and. glob_otd[3] == 4))
-Private M1NOVOR := 0 // определить новое значение и "скрыть" старое
-Private is_talon := ret_is_talon()
-Private mbukva := " ", muchast := 0, mkod_vu := 0, mkod_AK := space(6), ;
+  Private M1NOVOR := 0 // определить новое значение и "скрыть" старое
+  Private is_talon := ret_is_talon()
+  Private mbukva := ' ', muchast := 0, mkod_vu := 0, mkod_AK := space(6), ;
     mkart_error, m1kart_error := 0, ;
     MFIO        := space(50)         , ; // Ф.И.О. больного
     mfam := space(40), mim := space(40), mot := space(40), ;
-    mpol        := "М"            , ;
-    mdate_r     := boy(addmonth(sys_date,-12*30)) , ;
+    mpol        := 'М'            , ;
+    mdate_r     := boy(addmonth(sys_date, -12 * 30)) , ;
     MANONIM, M1ANONIM := 0, ;
     MVZROS_REB, M1VZROS_REB := 0, ;
     MADRES      := space(50)         , ; // адрес больного
     MMR_DOL     := space(50)         , ; // место работы или причина безработности
     MRAB_NERAB, M1RAB_NERAB := st_rab_nerab, ; // 0-работающий, 1 -неработающий
     m1MEST_INOG := 0, newMEST_INOG := 0, ;
-    s_prim1     := ""                , ;
+    s_prim1     := ''                , ;
     MVID_UD                          , ; // вид удостоверения
     M1VID_UD    := 14                , ; // 1-18
     mser_ud := space(10), mnom_ud := space(20), ;
-    MKEMVYD, M1KEMVYD := 0, MKOGDAVYD := ctod(""), ; // кем и когда выдан паспорт
+    MKEMVYD, M1KEMVYD := 0, MKOGDAVYD := ctod(''), ; // кем и когда выдан паспорт
     mspolis := space(10), mnpolis := space(20), msmo := space(5), ;
     mnamesmo, m1namesmo, ;
     m1company := 0, mcompany, mm_company, ;
     m1KOMU := 0, MKOMU, M1STR_CRB := 0, ;
-    mBEG_POLIS := ctod(""), MSROK_POLIS := ctod(""), ; // срок действия страхового полиса
-    mSTRANA := space(10), m1strana := "", ;
+    mBEG_POLIS := ctod(''), MSROK_POLIS := ctod(''), ; // срок действия страхового полиса
+    mSTRANA := space(10), m1strana := '', ;
     mosn_preb, m1osn_preb := 0, ;
     mvidpolis, m1vidpolis := 1, mmesto_r := space(100), ;
     mgragd, m1gragd, ;
@@ -138,29 +139,29 @@ Private mbukva := " ", muchast := 0, mkod_vu := 0, mkod_AK := space(6), ;
     m1gorod_selo := 1, mgorod_selo, ;
     mkategor, m1kategor := atail(stm_kategor)[2], ;  // т.е. прочие
     mkategor2, m1kategor2 := 0, ;
-    mokatog := padr(alltrim(okato_umolch), 11,"0"), mokatop := space(11), madresp := space(50), ;
+    mokatog := padr(alltrim(okato_umolch), 11, '0'), mokatop := space(11), madresp := space(50), ;
     m1adres_reg := 1, madres_reg, ;
     m1adres_pre := 1, madres_pre, ;
     mPHONE_H := space(11), mPHONE_M := space(11), mPHONE_W := space(11), ;
     m1KOD_LGOT := space(3), mKOD_LGOT, ;
     m1PENSIONER := 0, mPENSIONER, ;
     fl_invalid := .f., m1INVALID := 0, mINVALID, mINVALID_ST := 0, ;
-    MDATE_INV := CTOD(""), ; // дата первичного установления инвалидности
+    MDATE_INV := CTOD(''), ; // дата первичного установления инвалидности
     MPRICH_INV := SPACE(10), M1PRICH_INV := 0, ; // причина первичного установления инвалидности
     mDIAG_INV := space(5), ;  //
-    mBLOOD_G := 0, mBLOOD_R := " ", mWEIGHT := 0, mHEIGHT := 0, ;
+    mBLOOD_G := 0, mBLOOD_R := ' ', mWEIGHT := 0, mHEIGHT := 0, ;
     m1WHERE_KART := 0, mWHERE_KART, rec_inogSMO := 0, ;
-    mokato, m1okato := "", mismo, m1ismo := "", mnameismo := space(100), ;
+    mokato, m1okato := '', mismo, m1ismo := '', mnameismo := space(100), ;
     MADRES_PRO := space(60)          , ; // адрес проживания в Волг.обл.
     MMIGR_KARTA := space(20)         , ; // данные миграционной карты
-    MDATE_P_G := ctod("")            , ; // дата пересечения границы
-    MDATE_R_M := ctod("")            , ; // дата регистрации в миграционной службе
+    MDATE_P_G := ctod('')            , ; // дата пересечения границы
+    MDATE_R_M := ctod('')            , ; // дата регистрации в миграционной службе
     MKOL_PRED := 0, ;
     MFIO_PR1 := space(50), ;
     M1STATUS_PR1 := 0, ;
     M1IS_UHOD_PR1 := 0, ;
     M1IS_FOOD_PR1 := 0, ;
-    MDATE_R_PR1 := ctod(""), ;
+    MDATE_R_PR1 := ctod(''), ;
     MADRES_PR1 := space(50), ;
     MMR_DOL_PR1 := space(50), ;
     MPHONE_PR1 := space(11), ;
@@ -168,375 +169,377 @@ Private mbukva := " ", muchast := 0, mkod_vu := 0, mkod_AK := space(6), ;
     MPOLIS_PR1 := space(25), ;
     MFIO_PR2 := space(50), ;
     M1STATUS_PR2 := 0, ;
-    MDATE_R_PR2 := ctod(""), ;
+    MDATE_R_PR2 := ctod(''), ;
     MADRES_PR2 := space(50), ;
     MMR_DOL_PR2 := space(50), ;
     MPHONE_PR2 := space(11), ;
     MPASPORT_PR2 := space(15), ;
     MPOLIS_PR2 := space(25), ;
-    mmo_pr := "", ;
-    gl_area := {1, 0,maxrow()-1, 79, 0}
-//
-if !is_append .and. R_Use(dir_server + "kartote_",,"KART_") ;
-              .and. R_Use(dir_server + "kartote2",,"KART2") ;
-              .and. R_Use(dir_server + "kartotek",,"KART")
-  select KART
-  goto (mkod)
-  in_array := get_field()
-  m1kart_error := kart->ZA_SMO
-  mFIO        := kart->FIO
-  mpol        := kart->pol
-  mDATE_R     := kart->DATE_R
-  m1VZROS_REB := kart->VZROS_REB
-  mADRES      := kart->ADRES
-  mMR_DOL     := kart->MR_DOL
-  msrok_polis := c4tod(kart->srok_polis)
-  m1RAB_NERAB := kart->RAB_NERAB
-  msnils      := kart->snils
-  if kart->MI_GIT == 9
-    m1KOMU    := kart->KOMU
-    M1STR_CRB := kart->STR_CRB
-  endif
-  if kart->MEST_INOG == 8 // т.е. аноним
-    if eq_any(glob_task,X_PLATN,X_KASSA) .and. mem_anonim == 1
-      M1ANONIM := 1
+    mmo_pr := '', ;
+    gl_area := {1, 0, maxrow() - 1, 79, 0}
+  //
+  if !is_append .and. R_Use(dir_server + 'kartote_', , 'KART_') ;
+              .and. R_Use(dir_server + 'kartote2', , 'KART2') ;
+              .and. R_Use(dir_server + 'kartotek', , 'KART')
+    select KART
+    goto (mkod)
+    in_array := get_field()
+    m1kart_error := kart->ZA_SMO
+    mFIO        := kart->FIO
+    mpol        := kart->pol
+    mDATE_R     := kart->DATE_R
+    m1VZROS_REB := kart->VZROS_REB
+    mADRES      := kart->ADRES
+    mMR_DOL     := kart->MR_DOL
+    msrok_polis := c4tod(kart->srok_polis)
+    m1RAB_NERAB := kart->RAB_NERAB
+    msnils      := kart->snils
+    if kart->MI_GIT == 9
+      m1KOMU    := kart->KOMU
+      M1STR_CRB := kart->STR_CRB
     endif
-  elseif kart->MEST_INOG == 9 // т.е. отдельно занесены Ф.И.О.
-    m1MEST_INOG := kart->MEST_INOG
-  endif
-  if is_uchastok > 0
-    mbukva  := kart->bukva
-    muchast := kart->uchast
-    mkod_vu := kart->kod_vu
-  endif
-  select KART2
-  goto (mkod)
-  if !eof()
-    if is_uchastok == 3
-      mkod_AK := left(kart2->kod_AK, 6)
+    if kart->MEST_INOG == 8 // т.е. аноним
+      if eq_any(glob_task, X_PLATN, X_KASSA) .and. mem_anonim == 1
+        M1ANONIM := 1
+      endif
+    elseif kart->MEST_INOG == 9 // т.е. отдельно занесены Ф.И.О.
+      m1MEST_INOG := kart->MEST_INOG
     endif
-    if glob_mo[_MO_IS_UCH]
-      if left(kart2->PC2, 1) == "1"
-        mmo_pr := "По информации из ТФОМС пациент У_М_Е_Р"
-      elseif kart2->MO_PR == glob_mo[_MO_KOD_TFOMS]
-        mmo_pr := "Прикреплён "
-        if !empty(kart2->pc4)
-          mmo_pr += "с "+alltrim(kart2->pc4)+" "
-        elseif !empty(kart2->DATE_PR)
-          mmo_pr += "с "+date_8(kart2->DATE_PR)+" "
-        endif
-        mmo_pr += "к нашей МО"
-      else
-        s := alltrim(inieditspr(A__MENUVERT,glob_arr_mo,kart2->mo_pr))
-        if empty(s)
-          mmo_pr := "Прикрепление --- неизвестно ---"
-        else
-          mmo_pr := ""
+    if is_uchastok > 0
+      mbukva  := kart->bukva
+      muchast := kart->uchast
+      mkod_vu := kart->kod_vu
+    endif
+    select KART2
+    goto (mkod)
+    if !eof()
+      if is_uchastok == 3
+        mkod_AK := left(kart2->kod_AK, 6)
+      endif
+      if glob_mo[_MO_IS_UCH]
+        if left(kart2->PC2, 1) == '1'
+          mmo_pr := 'По информации из ТФОМС пациент У_М_Е_Р'
+        elseif kart2->MO_PR == glob_mo[_MO_KOD_TFOMS]
+          mmo_pr := 'Прикреплён '
           if !empty(kart2->pc4)
-            mmo_pr += "с "+alltrim(kart2->pc4)+" "
+            mmo_pr += 'с ' + alltrim(kart2->pc4) + ' '
           elseif !empty(kart2->DATE_PR)
-            mmo_pr += "с "+date_8(kart2->DATE_PR)+" "
+            mmo_pr += 'с ' + date_8(kart2->DATE_PR) + ' '
           endif
-          mmo_pr += "прикреплён к " + s
+          mmo_pr += 'к нашей МО'
+        else
+          s := alltrim(inieditspr(A__MENUVERT, glob_arr_mo, kart2->mo_pr))
+          if empty(s)
+            mmo_pr := 'Прикрепление --- неизвестно ---'
+          else
+            mmo_pr := ''
+            if !empty(kart2->pc4)
+              mmo_pr += 'с ' + alltrim(kart2->pc4) + ' '
+            elseif !empty(kart2->DATE_PR)
+              mmo_pr += 'с ' + date_8(kart2->DATE_PR) + ' '
+            endif
+            mmo_pr += 'прикреплён к ' + s
+          endif
         endif
       endif
     endif
-  endif
-  select KART_
-  goto (mkod)
-  m1vidpolis  := kart_->VPOLIS // вид полиса (от 1 до 3);1-старый, 2-врем., 3-новый
-  mspolis     := kart_->SPOLIS // серия полиса
-  mnpolis     := kart_->NPOLIS // номер полиса
-  msmo        := kart_->SMO    // реестровый номер СМО
-  mBEG_POLIS  := c4tod(kart_->beg_polis) // дата начала действия полиса
-  m1strana    := kart_->strana // гражданство пациента (страна)
-  m1gorod_selo:= kart_->gorod_selo // житель?;1-город, 2-село, 3-рабочий поселок
-  m1vid_ud    := kart_->vid_ud   // вид удостоверения личности
-  mser_ud     := kart_->ser_ud   // серия удостоверения личности
-  mnom_ud     := kart_->nom_ud   // номер удостоверения личности
-  m1kemvyd    := kart_->kemvyd   // кем выдан документ
-  mkogdavyd   := kart_->kogdavyd // когда выдан документ
-  m1kategor   := kart_->kategor  // категория пациента
-  m1kategor2  := kart_->kategor2 // категория пациента (собственная для МО)
-  mmesto_r    := kart_->mesto_r      // место рождения;;
-  mokatog     := kart_->okatog       // код места жительства по ОКАТО
-  mokatop     := kart_->okatop       // код места пребывания по ОКАТО
-  madresp     := kart_->adresp       // адрес места пребывания
-  mPHONE_H    := kart_->PHONE_H      // телефон домашний;;
-  mPHONE_M    := kart_->PHONE_M      // телефон мобильный;;
-  mPHONE_W    := kart_->PHONE_W      // телефон рабочий;;
-  m1KOD_LGOT  := kart_->KOD_LGOT     // код льготы про ДЛО;;
-  m1PENSIONER := kart_->PENSIONER    // является пенсионером?;0-нет, 1-да;
-  m1INVALID   := kart_->INVALID      // инвалидность;0-нет, 1, 2, 3-группа, 4-дети-инвалиды;
-  mINVALID_ST := kart_->INVALID_ST   // степень инвалидности;1 или 2;
-  mBLOOD_G    := kart_->BLOOD_G      // группа крови;от 1 до 4;
-  mBLOOD_R    := kart_->BLOOD_R      // резус-фактор;"+" или "-";
-  mWEIGHT     := kart_->WEIGHT       // вес в кг;;
-  mHEIGHT     := kart_->HEIGHT       // рост в см;;
-  m1WHERE_KART:= kart_->WHERE_KART   // где амбулаторная карта;0-в регистратуре, 1-у врача, 2-на руках;
-  m1okato     := kart_->KVARTAL_D    // ОКАТО субъекта РФ территории страхования
-  //
-  arr := retFamImOt(1, .f.)
-  mfam := padr(arr[1], 40)
-  mim  := padr(arr[2], 40)
-  mot  := padr(arr[3], 40)
-  //
-  if between(m1invalid, 1, 4)
-    R_Use(dir_server + "kart_inv",,"INV")
-    index on str(kod, 7) to (cur_dir + "tmp_inv")
+    select KART_
+    goto (mkod)
+    m1vidpolis  := kart_->VPOLIS // вид полиса (от 1 до 3);1-старый, 2-врем., 3-новый
+    mspolis     := kart_->SPOLIS // серия полиса
+    mnpolis     := kart_->NPOLIS // номер полиса
+    msmo        := kart_->SMO    // реестровый номер СМО
+    mBEG_POLIS  := c4tod(kart_->beg_polis) // дата начала действия полиса
+    m1strana    := kart_->strana // гражданство пациента (страна)
+    m1gorod_selo:= kart_->gorod_selo // житель?;1-город, 2-село, 3-рабочий поселок
+    m1vid_ud    := kart_->vid_ud   // вид удостоверения личности
+    mser_ud     := kart_->ser_ud   // серия удостоверения личности
+    mnom_ud     := kart_->nom_ud   // номер удостоверения личности
+    m1kemvyd    := kart_->kemvyd   // кем выдан документ
+    mkogdavyd   := kart_->kogdavyd // когда выдан документ
+    m1kategor   := kart_->kategor  // категория пациента
+    m1kategor2  := kart_->kategor2 // категория пациента (собственная для МО)
+    mmesto_r    := kart_->mesto_r      // место рождения;;
+    mokatog     := kart_->okatog       // код места жительства по ОКАТО
+    mokatop     := kart_->okatop       // код места пребывания по ОКАТО
+    madresp     := kart_->adresp       // адрес места пребывания
+    mPHONE_H    := kart_->PHONE_H      // телефон домашний;;
+    mPHONE_M    := kart_->PHONE_M      // телефон мобильный;;
+    mPHONE_W    := kart_->PHONE_W      // телефон рабочий;;
+    m1KOD_LGOT  := kart_->KOD_LGOT     // код льготы про ДЛО;;
+    m1PENSIONER := kart_->PENSIONER    // является пенсионером?;0-нет, 1-да;
+    m1INVALID   := kart_->INVALID      // инвалидность;0-нет, 1, 2, 3-группа, 4-дети-инвалиды;
+    mINVALID_ST := kart_->INVALID_ST   // степень инвалидности;1 или 2;
+    mBLOOD_G    := kart_->BLOOD_G      // группа крови;от 1 до 4;
+    mBLOOD_R    := kart_->BLOOD_R      // резус-фактор;"+" или "-";
+    mWEIGHT     := kart_->WEIGHT       // вес в кг;;
+    mHEIGHT     := kart_->HEIGHT       // рост в см;;
+    m1WHERE_KART:= kart_->WHERE_KART   // где амбулаторная карта;0-в регистратуре, 1-у врача, 2-на руках;
+    m1okato     := kart_->KVARTAL_D    // ОКАТО субъекта РФ территории страхования
+    //
+    arr := retFamImOt(1, .f.)
+    mfam := padr(arr[1], 40)
+    mim  := padr(arr[2], 40)
+    mot  := padr(arr[3], 40)
+    //
+    if between(m1invalid, 1, 4)
+      R_Use(dir_server + 'kart_inv', , 'INV')
+      index on str(kod, 7) to (cur_dir + 'tmp_inv')
+      find (str(mkod, 7))
+      if (fl_invalid := found())
+        MDATE_INV := inv->DATE_INV
+        M1PRICH_INV := inv->PRICH_INV
+        MPRICH_INV := inieditspr(A__MENUVERT, getPrichInv(), M1PRICH_INV)
+        mDIAG_INV := inv->DIAG_INV
+      endif
+    endif
+    R_Use(dir_server + 'k_prim1', dir_server + 'k_prim1', 'K_PRIM1')
     find (str(mkod, 7))
-    if (fl_invalid := found())
-      MDATE_INV := inv->DATE_INV
-      M1PRICH_INV := inv->PRICH_INV
-      MPRICH_INV := inieditspr(A__MENUVERT, getPrichInv(), M1PRICH_INV)
-      mDIAG_INV := inv->DIAG_INV
+    do while k_prim1->kod == mkod .and. !eof()
+      s_prim1 += rtrim(k_prim1->name) + hb_eol()
+      skip
+    enddo
+    if alltrim(msmo) == '34'
+      mnameismo := ret_inogSMO_name(1, @rec_inogSMO, .t.)
+    elseif left(msmo, 2) == '34'
+      // Волгоградская область
+    elseif !empty(msmo)
+      m1ismo := msmo ; msmo := '34'
+    endif
+    R_Use(dir_server + 'mo_kinos', dir_server + 'mo_kinos', 'KIS')
+    find (str(mkod, 7))
+    if found()
+      fl_kis := .t.
+      m1osn_preb  := kis->osn_preb   // основание пребывания в РФ
+      MADRES_PRO  := kis->ADRES_PRO  // адрес проживания в Волг.обл.
+      MMIGR_KARTA := kis->MIGR_KARTA // данные миграционной карты
+      MDATE_P_G   := kis->DATE_P_G   // дата пересечения границы
+      MDATE_R_M   := kis->DATE_R_M   // дата регистрации в миграционной службе
+    endif
+    R_Use(dir_server + 'mo_kpred', dir_server + 'mo_kpred', 'KPR')
+    find (str(mkod, 7))
+    do while mkod == kpr->kod .and. !eof()
+      if kpr->nn == 1
+        ++mkol_pred
+        m1is_uhod_pr1 := kpr->is_uhod
+        m1is_food_pr1 := kpr->is_food
+        mFIO_PR1 := kpr->fio
+        mDATE_R_PR1 := kpr->DATE_R
+        m1status_PR1 := kpr->STATUS
+        mADRES_PR1 := kpr->ADRES
+        mMR_DOL_PR1 := kpr->MR_DOL
+        mphone_PR1 := kpr->PHONE
+        mpasport_PR1 := kpr->PASPORT
+        mpolis_PR1 := kpr->POLIS
+      elseif kpr->nn == 2
+        ++mkol_pred
+        mFIO_PR2 := kpr->fio
+        mDATE_R_PR2 := kpr->DATE_R
+        m1status_pr2 := kpr->STATUS
+        mADRES_PR2 := kpr->ADRES
+        mMR_DOL_PR2 := kpr->MR_DOL
+        mphone_PR2 := kpr->PHONE
+        mpasport_PR2 := kpr->PASPORT
+        mpolis_PR2 := kpr->POLIS
+      endif
+      skip
+    enddo
+  endif
+  close databases
+  fv_date_r()
+  mkart_error := inieditspr(A__MENUVERT, mm_kart_error, m1kart_error)
+  mwhere_kart := inieditspr(A__MENUVERT, mm_where_kart, m1where_kart)
+  mokato := inieditspr(A__MENUVERT, glob_array_srf, m1okato)
+  mismo := init_ismo(m1ismo)
+  mvidpolis := inieditspr(A__MENUVERT, mm_vid_polis, m1vidpolis)
+  mgorod_selo := inieditspr(A__MENUVERT, mm_gorod_selo, m1gorod_selo)
+  m1gragd := iif(empty(mSTRANA := getCountry(m1strana)), 1, 0)
+  mgragd := inieditspr(A__MENUVERT, mm_danet, m1gragd)
+  manonim := inieditspr(A__MENUVERT, mm_danet, m1anonim)
+  mPENSIONER := inieditspr(A__MENUVERT, mm_danet, m1PENSIONER)
+  mvid_ud  := inieditspr(A__MENUVERT, getVidUd(), m1vid_ud)
+  MKEMVYD := inieditspr(A__POPUPMENU, dir_server + 's_kemvyd', M1KEMVYD)
+  mvzros_reb := inieditspr(A__MENUVERT, menu_vzros, m1vzros_reb)
+  mrab_nerab := inieditspr(A__MENUVERT, menu_rab, m1rab_nerab)
+  mkategor   := inieditspr(A__MENUVERT, stm_kategor, m1kategor)
+  mkategor2  := inieditspr(A__MENUVERT, stm_kategor2, m1kategor2)
+  mKOD_LGOT  := inieditspr(A__MENUVERT, getDLO_lgota(), m1KOD_LGOT)
+  mkomu      := inieditspr(A__MENUVERT, mm_komu, m1komu)
+  minvalid   := inieditspr(A__MENUVERT, mm_invalid, m1invalid)
+  mosn_preb  := inieditspr(A__MENUVERT, get_osn_preb_RF(), m1osn_preb)
+  madres_reg := ini_adres(1)
+  madres_pre := ini_adres(2)
+  if empty(m1namesmo := int(val(msmo)))
+    m1namesmo := glob_arr_smo[1, 2] // по умолчанию = КапиталЪ Медстрах
+  endif
+  mnamesmo := inieditspr(A__MENUVERT, glob_arr_smo, m1namesmo)
+  if m1namesmo == 34
+    if !empty(mismo)
+      mnamesmo := padr(mismo, 41)
+    elseif !empty(mnameismo)
+      mnamesmo := padr(mnameismo, 41)
     endif
   endif
-  R_Use(dir_server + "k_prim1",dir_server + "k_prim1","K_PRIM1")
-  find (str(mkod, 7))
-  do while k_prim1->kod == mkod .and. !eof()
-    s_prim1 += rtrim(k_prim1->name) + eos
-    skip
-  enddo
-  if alltrim(msmo) == '34'
-    mnameismo := ret_inogSMO_name(1,@rec_inogSMO, .t.)
-  elseif left(msmo, 2) == '34'
-    // Волгоградская область
-  elseif !empty(msmo)
-    m1ismo := msmo ; msmo := '34'
+  f_valid_komu(, -1)
+  if eq_any(m1komu, 1, 3)
+    m1company := m1str_crb
   endif
-  R_Use(dir_server + "mo_kinos",dir_server + "mo_kinos","KIS")
-  find (str(mkod, 7))
-  if found()
-    fl_kis := .t.
-    m1osn_preb  := kis->osn_preb   // основание пребывания в РФ
-    MADRES_PRO  := kis->ADRES_PRO  // адрес проживания в Волг.обл.
-    MMIGR_KARTA := kis->MIGR_KARTA // данные миграционной карты
-    MDATE_P_G   := kis->DATE_P_G   // дата пересечения границы
-    MDATE_R_M   := kis->DATE_R_M   // дата регистрации в миграционной службе
-  endif
-  R_Use(dir_server + "mo_kpred",dir_server + "mo_kpred","KPR")
-  find (str(mkod, 7))
-  do while mkod == kpr->kod .and. !eof()
-    if kpr->nn == 1
-      ++mkol_pred
-      m1is_uhod_pr1 := kpr->is_uhod
-      m1is_food_pr1 := kpr->is_food
-      mFIO_PR1 := kpr->fio
-      mDATE_R_PR1 := kpr->DATE_R
-      m1status_PR1 := kpr->STATUS
-      mADRES_PR1 := kpr->ADRES
-      mMR_DOL_PR1 := kpr->MR_DOL
-      mphone_PR1 := kpr->PHONE
-      mpasport_PR1 := kpr->PASPORT
-      mpolis_PR1 := kpr->POLIS
-    elseif kpr->nn == 2
-      ++mkol_pred
-      mFIO_PR2 := kpr->fio
-      mDATE_R_PR2 := kpr->DATE_R
-      m1status_pr2 := kpr->STATUS
-      mADRES_PR2 := kpr->ADRES
-      mMR_DOL_PR2 := kpr->MR_DOL
-      mphone_PR2 := kpr->PHONE
-      mpasport_PR2 := kpr->PASPORT
-      mpolis_PR2 := kpr->POLIS
-    endif
-    skip
-  enddo
-endif
-close databases
-fv_date_r()
-mkart_error := inieditspr(A__MENUVERT, mm_kart_error, m1kart_error)
-mwhere_kart := inieditspr(A__MENUVERT, mm_where_kart, m1where_kart)
-mokato := inieditspr(A__MENUVERT, glob_array_srf, m1okato)
-mismo := init_ismo(m1ismo)
-mvidpolis := inieditspr(A__MENUVERT, mm_vid_polis, m1vidpolis)
-mgorod_selo := inieditspr(A__MENUVERT, mm_gorod_selo, m1gorod_selo)
-m1gragd := iif(empty(mSTRANA := getCountry(m1strana)), 1, 0)
-mgragd := inieditspr(A__MENUVERT, mm_danet, m1gragd)
-manonim := inieditspr(A__MENUVERT, mm_danet, m1anonim)
-mPENSIONER := inieditspr(A__MENUVERT, mm_danet, m1PENSIONER)
-mvid_ud  := inieditspr(A__MENUVERT, getVidUd(), m1vid_ud)
-MKEMVYD := inieditspr(A__POPUPMENU, dir_server + "s_kemvyd", M1KEMVYD)
-mvzros_reb := inieditspr(A__MENUVERT, menu_vzros, m1vzros_reb)
-mrab_nerab := inieditspr(A__MENUVERT, menu_rab, m1rab_nerab)
-mkategor   := inieditspr(A__MENUVERT, stm_kategor, m1kategor)
-mkategor2  := inieditspr(A__MENUVERT, stm_kategor2, m1kategor2)
-mKOD_LGOT  := inieditspr(A__MENUVERT, getDLO_lgota(), m1KOD_LGOT)
-mkomu      := inieditspr(A__MENUVERT, mm_komu, m1komu)
-minvalid   := inieditspr(A__MENUVERT, mm_invalid, m1invalid)
-mosn_preb  := inieditspr(A__MENUVERT, get_osn_preb_RF(), m1osn_preb)
-madres_reg := ini_adres(1)
-madres_pre := ini_adres(2)
-if empty(m1namesmo := int(val(msmo)))
-  m1namesmo := glob_arr_smo[1, 2] // по умолчанию = КапиталЪ Медстрах
-endif
-mnamesmo := inieditspr(A__MENUVERT,glob_arr_smo,m1namesmo)
-if m1namesmo == 34
-  if !empty(mismo)
-    mnamesmo := padr(mismo, 41)
-  elseif !empty(mnameismo)
-    mnamesmo := padr(mnameismo, 41)
-  endif
-endif
-f_valid_komu(,-1)
-if eq_any(m1komu, 1, 3)
-  m1company := m1str_crb
-endif
-mcompany := inieditspr(A__MENUVERT, mm_company, m1company)
-chm_help_code := 3001
-// подсчет кол-ва строк
-if eq_any(glob_task,X_PLATN,X_KASSA) .and. mem_anonim == 1
-  ++count_row // Аноним
-endif
-if !is_append .and. hb_user_curUser:IsAdmin() .and. mem_kart_error == 1
-  ++count_row
-endif
-if glob_task != X_PPOKOJ .and. (is_uchastok > 0 .or. !empty(mmo_pr)) .and. !is_smp
-  ++count_row
-endif
-count_row += 2 // Ф.И.О.
-++count_row // Дата рождения
-++count_row // Удостоверение личности: вид, серия и номер
-if !is_smp
-  ++count_row // Место рождения
-endif
-++count_row // Кем и когда выдано
-++count_row // Адрес регистрации
-if !is_smp
-  ++count_row // Адрес пребывания
-endif
-++count_row // Полис ОМС: серия
-++count_row // СМО
-if eq_any(glob_task,X_REGIST,X_OMS,X_PPOKOJ,X_PLATN,X_ORTO)
-  ++count_row // Принадлежность счёта
-endif
-flag_DVN := (type("oms_sluch_DVN") == "L" .and. oms_sluch_DVN)
-if eq_any(glob_task,X_REGIST,X_OMS,X_PPOKOJ,X_MO) .or. flag_DVN
-  if is_talon .or. flag_DVN
-    ++count_row // Категория по стат.талону
-  endif
-  if !empty(stm_kategor2)
-    ++count_row // Категория МО
-  endif
-  ++count_row // Работающий?
-endif
-if eq_any(glob_task,X_REGIST,X_PLATN,X_ORTO,X_KASSA,X_PPOKOJ,X_MO)
-  ++count_row // Место работы, должность
-endif
-++count_row // телефоны
-if !eq_any(glob_task,X_PLATN,X_ORTO,X_KASSA,X_MO)
-  ++count_row // инвалидность
-endif
-if eq_any(glob_task,X_MO)
-  ++count_row // льгота по ДЛО
-endif
-++count_row // Житель:город/село + Гражданин РФ?
-if eq_any(glob_task,X_PPOKOJ)
-  ++count_row // рост и вес
-endif
-if (title_top := (_top_r == NIL))
-  DEFAULT _bot_r TO maxrow()-1
-  if (_top_r := _bot_r - count_row - 1) < 0
-    _top_r := 0
-  endif
-else
-  if (_bot_r := _top_r + count_row + 1) > maxrow()-1
-    _bot_r := maxrow()-1
-    _top_r := _bot_r - count_row - 1
-  endif
-endif
-do while .t.
-  setcolor(cDataCGet)
-  ClrLines(_top_r,maxrow()-1)
-  if title_top
-    @ _top_r, 0 say padc(iif(mkod==0,"Добавление в картотеку","Редактирование картотеки"), 80) color "B/B*"
-  else
-    @ _top_r, 0 say padc("Изменение реквизитов пациента в картотеке", 80) color "B/B*"
-    @ _bot_r, 0 say replicate(" ", 80) color "B/B*"
-  endif
-  ix := _top_r
-  if eq_any(glob_task,X_PLATN,X_KASSA) .and. mem_anonim == 1
-    ++ix ; @ ix, 50 say "Аноним?" get manonim ;
-          reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,, .f.)}
-    keyboard chr(K_TAB)
+  mcompany := inieditspr(A__MENUVERT, mm_company, m1company)
+  chm_help_code := 3001
+  // подсчет кол-ва строк
+  if eq_any(glob_task, X_PLATN, X_KASSA) .and. mem_anonim == 1
+    ++count_row // Аноним
   endif
   if !is_append .and. hb_user_curUser:IsAdmin() .and. mem_kart_error == 1
-    ++ix ; @ ix, 50 say "Статус" get mkart_error ;
-          reader {|x|menu_reader(x,mm_kart_error,A__MENUVERT,,, .f.)}
-    keyboard chr(K_TAB)
-  elseif m1kart_error < 0
-    n_message({"Внимание!", ;
-               "Для карточки пациента установлен статус", ;
-               '" '+upper(mkart_error)+' "'},,"GR+/R","W+/R",ix+2,,"G+/R")
+    ++count_row
   endif
   if glob_task != X_PPOKOJ .and. (is_uchastok > 0 .or. !empty(mmo_pr)) .and. !is_smp
-    ++ix ; c := 1
-    if is_uchastok > 0
-      @ ix,c say "Тип" get mbukva pict "@!"
-      @ ix,col()+3 say "Участок" get muchast pict "99" ;
-                      valid {|g| e_k_uchast(g) }
-      if is_uchastok == 1
-        @ ix,col()+3 say "Код в участке" get mkod_vu pict "99999" ;
-                        when e_k_kod_vu()
-      elseif is_uchastok == 3
-        @ ix,col()+3 say "Номер АК МИС" get mkod_AK pict "999999"
-      endif
-      c := col()+3
+    ++count_row
+  endif
+  count_row += 2 // Ф.И.О.
+  ++count_row // Дата рождения
+  ++count_row // Удостоверение личности: вид, серия и номер
+  if !is_smp
+    ++count_row // Место рождения
+  endif
+  ++count_row // Кем и когда выдано
+  ++count_row // Адрес регистрации
+  if !is_smp
+    ++count_row // Адрес пребывания
+  endif
+  ++count_row // Полис ОМС: серия
+  ++count_row // СМО
+  if eq_any(glob_task, X_REGIST, X_OMS, X_PPOKOJ, X_PLATN, X_ORTO)
+    ++count_row // Принадлежность счёта
+  endif
+  flag_DVN := (type('oms_sluch_DVN') == 'L' .and. oms_sluch_DVN)
+  if eq_any(glob_task, X_REGIST, X_OMS, X_PPOKOJ, X_MO) .or. flag_DVN
+    if is_talon .or. flag_DVN
+      ++count_row // Категория по стат.талону
     endif
-    if !empty(mmo_pr)
-      @ ix,c say mmo_pr color color8
+    if !empty(stm_kategor2)
+      ++count_row // Категория МО
+    endif
+    ++count_row // Работающий?
+  endif
+  if eq_any(glob_task, X_REGIST, X_PLATN, X_ORTO, X_KASSA, X_PPOKOJ, X_MO)
+    ++count_row // Место работы, должность
+  endif
+  ++count_row // телефоны
+  if !eq_any(glob_task, X_PLATN, X_ORTO, X_KASSA, X_MO)
+    ++count_row // инвалидность
+  endif
+  if eq_any(glob_task, X_MO)
+    ++count_row // льгота по ДЛО
+  endif
+  ++count_row // Житель:город/село + Гражданин РФ?
+  if eq_any(glob_task, X_PPOKOJ)
+    ++count_row // рост и вес
+  endif
+  if (title_top := (_top_r == NIL))
+    DEFAULT _bot_r TO maxrow() - 1
+    if (_top_r := _bot_r - count_row - 1) < 0
+      _top_r := 0
+    endif
+  else
+    if (_bot_r := _top_r + count_row + 1) > maxrow() - 1
+      _bot_r := maxrow() - 1
+      _top_r := _bot_r - count_row - 1
     endif
   endif
-  ++ix ; @ ix, 1 say "Фамилия" get mfam pict "@S33" ;
-                valid {|g| lastkey()==K_UP .or. m1anonim==1 .or. valFamImOt(1,mfam) }
-    @ row(),col()+1 say "Имя" get mim pict "@S32" ;
-                valid {|g| m1anonim==1 .or. valFamImOt(2,mim) }
-  ++ix ; @ ix, 1 say "Отчество" get mot ;
-                valid {|g| m1anonim==1 .or. valFamImOt(3,mot) }
+  do while .t.
+    setcolor(cDataCGet)
+    ClrLines(_top_r, maxrow() - 1)
+    if title_top
+      @ _top_r, 0 say padc(iif(mkod == 0, 'Добавление в картотеку', 'Редактирование картотеки'), 80) color 'B/B*'
+    else
+      @ _top_r, 0 say padc('Изменение реквизитов пациента в картотеке', 80) color 'B/B*'
+      @ _bot_r, 0 say replicate(' ', 80) color 'B/B*'
+    endif
+    ix := _top_r
+    if eq_any(glob_task, X_PLATN, X_KASSA) .and. mem_anonim == 1
+      @ ++ix, 50 say 'Аноним?' get manonim ;
+          reader {|x|menu_reader(x, mm_danet, A__MENUVERT, , , .f.)}
+      keyboard chr(K_TAB)
+    endif
+    if !is_append .and. hb_user_curUser:IsAdmin() .and. mem_kart_error == 1
+      @ ++ix, 50 say 'Статус' get mkart_error ;
+          reader {|x|menu_reader(x, mm_kart_error, A__MENUVERT, , , .f.)}
+      keyboard chr(K_TAB)
+    elseif m1kart_error < 0
+      n_message({'Внимание!', ;
+               'Для карточки пациента установлен статус', ;
+               '" ' + upper(mkart_error) + ' "'}, , 'GR+/R', 'W+/R', ix + 2, , 'G+/R')
+    endif
+    if glob_task != X_PPOKOJ .and. (is_uchastok > 0 .or. !empty(mmo_pr)) .and. !is_smp
+      ++ix
+      c := 1
+      if is_uchastok > 0
+        @ ix, c say 'Тип' get mbukva pict '@!'
+        @ ix, col() + 3 say 'Участок' get muchast pict '99' ;
+                      valid {|g| e_k_uchast(g) }
+        if is_uchastok == 1
+          @ ix, col() + 3 say 'Код в участке' get mkod_vu pict '99999' ;
+                        when e_k_kod_vu()
+        elseif is_uchastok == 3
+          @ ix, col() + 3 say 'Номер АК МИС' get mkod_AK pict '999999'
+        endif
+        c := col() + 3
+      endif
+      if !empty(mmo_pr)
+        @ ix, c say mmo_pr color color8
+      endif
+    endif
+    @ ++ix, 1 say 'Фамилия' get mfam pict '@S33' ;
+                valid {|g| lastkey() == K_UP .or. m1anonim==1 .or. valFamImOt(1, mfam) }
+    @ row(), col() + 1 say 'Имя' get mim pict '@S32' ;
+                valid {|g| m1anonim == 1 .or. valFamImOt(2, mim) }
+    @ ++ix, 1 say 'Отчество' get mot ;
+                valid {|g| m1anonim == 1 .or. valFamImOt(3, mot) }
   if mem_pol == 1
     @ row(), 70 say "Пол" get mpol ;
-            reader {|x|menu_reader(x,menupol,A__MENUVERT,,, .f.)}
+            reader {|x|menu_reader(x,menupol, A__MENUVERT, , , .f.)}
   else
     @ row(), 70 say "Пол" get mpol pict "@!" valid {|g| mpol $ "МЖ" }
   endif
-  ++ix ; @ ix, 1 say "Дата рождения" get mdate_r ;
-         valid {|g| iif(mdate_r==g:original, .t., fv_date_r()), findKartoteka(1,@mkod) }
-  @ row(), 30 say "==>" get mvzros_reb when .f. color cDataCSay
-  @ row(), 50 say "СНИЛС" get msnils pict picture_pf ;
-         valid {|| val_snils(msnils, 1), findKartoteka(3,@mkod) }
+  @ ++ix, 1 say 'Дата рождения' get mdate_r ;
+         valid {|g| iif(mdate_r == g:original, .t., fv_date_r()), findKartoteka(1, @mkod)}
+  @ row(), 30 say '==>' get mvzros_reb when .f. color cDataCSay
+  @ row(), 50 say 'СНИЛС' get msnils pict picture_pf ;
+         valid {|| val_snils(msnils, 1), findKartoteka(3, @mkod) }
   @ ++ix, 1 say 'Уд-ие личности:' get mvid_ud ;
          reader {|x|menu_reader(x, getVidUd(), A__MENUVERT, , , .f.)}
-  @ ix, 42 say 'Серия' get mser_ud pict '@!' valid val_ud_ser(1, m1vid_ud, mser_ud)
+  // @ ix, 42 say 'Серия' get mser_ud pict '@!' valid val_ud_ser(1, m1vid_ud, mser_ud)
+  @ ix, 42 say 'Серия' get mser_ud pict '@!' valid {| oGet | checkDocumentSeries( oGet, m1vid_ud )}
   @ ix, col() + 1 say '№' get mnom_ud pict '@!S18' valid val_ud_nom(1, m1vid_ud, mnom_ud)
   if !is_smp
     @ ++ix, 2 say 'Место рождения' get mmesto_r pict '@S62'
   endif
   ++ix ; @ ix, 2 say "Выдано" get mkogdavyd
          @ ix,col() say "," get mkemvyd ;
-        reader {|x|menu_reader(x,{{|k,r,c|get_s_kemvyd(k,r,c)}},A__FUNCTION,,, .f.)}
+        reader {|x|menu_reader(x,{{|k,r,c|get_s_kemvyd(k,r,c)}},A__FUNCTION, , , .f.)}
   ++ix ; @ ix, 1 say "Адрес регистрации" get madres_reg ;
-        reader {|x| menu_reader(x,{{|k,r,c| get_adres(1,k,r,c)}},A__FUNCTION,,, .f.)}
+        reader {|x| menu_reader(x,{{|k,r,c| get_adres(1,k,r,c)}},A__FUNCTION, , , .f.)}
   if !is_smp
     ++ix ; @ ix, 1 say "Адрес пребывания" get madres_pre ;
-          reader {|x| menu_reader(x,{{|k,r,c| get_adres(2,k,r,c)}},A__FUNCTION,,, .f.)}
+          reader {|x| menu_reader(x,{{|k,r,c| get_adres(2,k,r,c)}},A__FUNCTION, , , .f.)}
   endif
   ++ix ; @ ix, 1 say "Полис ОМС: серия" get mspolis
        @ row(),col()+3 say "номер" get mnpolis valid {|| findKartoteka(2,@mkod) }
        @ row(),col()+3 say "вид" get mvidpolis ;
-                    reader {|x|menu_reader(x,mm_vid_polis,A__MENUVERT,,, .f.)} ;
+                    reader {|x|menu_reader(x,mm_vid_polis, A__MENUVERT, , , .f.)} ;
                     valid func_valid_polis(m1vidpolis,mspolis,mnpolis)
   ++ix ; @ ix, 1 say "СМО" get mnamesmo ;
-                    reader {|x|menu_reader(x,glob_arr_smo,A__MENUVERT,,, .f.)} ;
+                    reader {|x|menu_reader(x,glob_arr_smo, A__MENUVERT, , , .f.)} ;
                     valid {|g| func_valid_ismo(g, 0, 41,"namesmo") }
        @ row(), 47 say "полис с" get mbeg_polis
        @ row(),col()+1 say "по" get msrok_polis
   if eq_any(glob_task,X_REGIST,X_OMS,X_PPOKOJ,X_PLATN,X_ORTO)
     ++ix ; @ ix, 1 SAY "Принадлежность счета" GET mkomu ;
-               reader {|x|menu_reader(x,mm_komu,A__MENUVERT,,, .f.)} ;
+               reader {|x|menu_reader(x,mm_komu, A__MENUVERT, , , .f.)} ;
                valid {|g,o| f_valid_komu(g,o) }
          @ row(),col()+1 say "==>" get mcompany ;
-             reader {|x|menu_reader(x,mm_company,A__MENUVERT,,, .f.)} ;
+             reader {|x|menu_reader(x,mm_company, A__MENUVERT, , , .f.)} ;
              when eq_any(m1komu, 1, 3)
   endif
   if eq_any(glob_task,X_REGIST,X_OMS,X_PPOKOJ,X_MO) .or. flag_DVN
@@ -545,7 +548,7 @@ do while .t.
       c := col()+1
       if .t.//mem_st_kat == 1
         @ ix,c get mkategor ;
-                   reader {|x|menu_reader(x,mo_cut_menu(stm_kategor),A__MENUVERT,,, .f.)}
+                   reader {|x|menu_reader(x,mo_cut_menu(stm_kategor), A__MENUVERT, , , .f.)}
         c += 24
       else
         @ ix,c get m1kategor pict "99" ;
@@ -556,12 +559,12 @@ do while .t.
     endif
     if !empty(stm_kategor2)
       ++ix ; @ ix,c say "Категория МО" get mkategor2 ;
-                 reader {|x|menu_reader(x,stm_kategor2,A__MENUVERT,,, .f.)}
+                 reader {|x|menu_reader(x,stm_kategor2, A__MENUVERT, , , .f.)}
     endif
     ++ix ; @ ix, 1 say "Работающий?" get mrab_nerab ;
-          reader {|x|menu_reader(x,menu_rab,A__MENUVERT,,, .f.)}
+          reader {|x|menu_reader(x,menu_rab, A__MENUVERT, , , .f.)}
     @ row(),col()+5 say "Пенсионер?" get mpensioner ;
-       reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,, .f.)}
+       reader {|x|menu_reader(x, mm_danet, A__MENUVERT, , , .f.)}
   endif
   if eq_any(glob_task,X_REGIST,X_PLATN,X_ORTO,X_KASSA,X_PPOKOJ,X_MO)
     fl_mr_dol := .t.
@@ -572,18 +575,18 @@ do while .t.
        @ row(),col()+1 say   ", рабочий" get mPHONE_W valid {|g| valid_phone(g) }
   if !eq_any(glob_task,X_PLATN,X_ORTO,X_KASSA) // инвалидность
     ++ix ; @ ix, 1 SAY "Инвалидность" GET minvalid ;
-                  reader {|x| menu_reader(x,mm_invalid,A__MENUVERT,,, .f.)} ;
+                  reader {|x| menu_reader(x,mm_invalid, A__MENUVERT, , , .f.)} ;
                   valid {|| f_kart_valid_inv(ix) }
   endif
   if eq_any(glob_task,X_MO)
     @ ++ix, 1 say 'Льгота по ДЛО' get mKOD_LGOT ;
           reader {|x|menu_reader(x, getDLO_lgota(), A__MENUVERT, , , .f.)}
-          // reader {|x|menu_reader(x,glob_katl,A__MENUVERT,,, .f.)}
+          // reader {|x|menu_reader(x,glob_katl, A__MENUVERT, , , .f.)}
   endif
   ++ix ; @ ix, 1 say "Житель:" GET mgorod_selo ;
-               reader {|x| menu_reader(x,mm_gorod_selo,A__MENUVERT,,, .f.)}
+               reader {|x| menu_reader(x,mm_gorod_selo, A__MENUVERT, , , .f.)}
          @ ix,col()+6 say "Гражданин РФ?" get mgragd ;
-               reader {|x| menu_reader(x,mm_danet,A__MENUVERT,,, .f.)} ;
+               reader {|x| menu_reader(x, mm_danet, A__MENUVERT, , , .f.)} ;
                valid {|| iif(m1gragd==1, .t., get_oksm(ix) ) }
          @ ix,col()+5 get mstrana when .f. color color14
   if eq_any(glob_task,X_PPOKOJ)
@@ -1373,8 +1376,8 @@ Local c := 2, r1, r2, buf, tmp_help, tmp_list, tmp_color, h := 7, ;
 if mkol_pred == 0
   return .t.
 endif
-Private MIS_UHOD_PR1 := inieditspr(A__MENUVERT,mm_danet,M1IS_UHOD_PR1), ;
-        MIS_FOOD_PR1 := inieditspr(A__MENUVERT,mm_danet,M1IS_FOOD_PR1), ;
+Private MIS_UHOD_PR1 := inieditspr(A__MENUVERT, mm_danet,M1IS_UHOD_PR1), ;
+        MIS_FOOD_PR1 := inieditspr(A__MENUVERT, mm_danet,M1IS_FOOD_PR1), ;
         mstatus_PR1 := inieditspr(A__MENUVERT,menu_predst,m1status_PR1), ;
         mstatus_pr2 := inieditspr(A__MENUVERT,menu_predst,m1status_pr2), ;
         gl_area := {1, 0,maxrow()-1, 79, 0}
@@ -1406,13 +1409,13 @@ box_shadow(r1,c,r2, 77,,"Ввод информации о представителях","G+/B+")
 @ r1+2,c+3 say "ФИО" get MFIO_PR1
 @ row(),col()+3 say "Д.р." get MDATE_R_PR1
 @ r1+3,c+3 say "Статус" get MSTATUS_PR1 ;
-         reader {|x|menu_reader(x,menu_predst,A__MENUVERT,,, .f.)}
+         reader {|x|menu_reader(x,menu_predst, A__MENUVERT, , , .f.)}
 @ row(), 23 say "Госпитализирован?" get MIS_UHOD_PR1 ;
-         reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,, .f.)} ;
+         reader {|x|menu_reader(x, mm_danet, A__MENUVERT, , , .f.)} ;
          valid {|| iif(M1IS_UHOD_PR1==0,(MIS_FOOD_PR1:="нет",M1IS_FOOD_PR1:=0),nil), ;
                    update_get("MIS_FOOD_PR1") }
 @ row(), 48 say "С питанием?" get MIS_FOOD_PR1 ;
-         reader {|x|menu_reader(x,mm_danet,A__MENUVERT,,, .f.)} ;
+         reader {|x|menu_reader(x, mm_danet, A__MENUVERT, , , .f.)} ;
          when M1IS_UHOD_PR1==1
 @ r1+4,c+3 say "Адрес" get MADRES_PR1
 @ r1+5,c+3 say "Место работы" get MMR_DOL_PR1
@@ -1425,7 +1428,7 @@ if mkol_pred == 2
   @ r1+2,c+3 say "ФИО" get MFIO_PR2
   @ row(),col()+3 say "Д.р." get MDATE_R_PR2
   @ r1+3,c+3 say "Статус" get MSTATUS_PR2 ;
-           reader {|x|menu_reader(x,menu_predst,A__MENUVERT,,, .f.)}
+           reader {|x|menu_reader(x,menu_predst, A__MENUVERT, , , .f.)}
   @ r1+4,c+3 say "Адрес" get MADRES_PR2
   @ r1+5,c+3 say "Место работы" get MMR_DOL_PR2
   @ r1+6,c+3 say "Контактный телефон" get MPHONE_PR2
@@ -1929,7 +1932,7 @@ if found()
       aadd(mes_arr, alltrim(inieditspr(A__POPUPMENU,dir_server + "p_priem",arr[1, 4])))
     endif
   elseif len(arr) > 1
-    asort(arr,,,{|x,y| iif(x[1]==y[1], x[2] < y[2], x[1] < y[1]) })
+    asort(arr, , ,{|x,y| iif(x[1]==y[1], x[2] < y[2], x[1] < y[1]) })
     aadd(mes_arr, "Последние посещения:")
     for i := 1 to len(arr)
       s := date_8(c4tod(arr[i, 1]))+"г."
@@ -1982,7 +1985,7 @@ if p_regim == 1 .and. is_task(X_REGIST) // если есть задача "Регистратура"
         else
           if input_uch(0, 44,sys_date) != NIL .and. ;
                (fr := popup_edit(dir_server + "p_priem", 0, 49, 12,glob_priem[1], ;
-                   PE_RETURN,color5,,,,,,,"Первичные приемы",col_tit_popup)) != NIL
+                   PE_RETURN,color5, , ,, , ,,"Первичные приемы",col_tit_popup)) != NIL
             glob_priem := fr
             new_list_uch(4,"f_talon025")
           endif
@@ -2013,7 +2016,7 @@ if p_regim == 1 .and. is_task(X_REGIST) // если есть задача "Регистратура"
       else
         if input_uch(0, 44,sys_date) != NIL .and. ;
              (fr := popup_edit(dir_server + "p_priem", 0, 49, 12,glob_priem[1], ;
-                 PE_RETURN,color5,,,,,,,"Первичные приемы",col_tit_popup)) != NIL
+                 PE_RETURN,color5, , ,, , ,,"Первичные приемы",col_tit_popup)) != NIL
           glob_priem := fr
           r_list_uch(2,tmp)
         endif
@@ -2345,7 +2348,7 @@ use (cur_dir + "tmpitg") new
 R_Use(dir_server + "kartote2",,"KART2")
 //
 status_key("^<Esc>^ - прервать поиск")
-hGauge := GaugeNew(,,,"Поиск дублирующихся записей", .t.)
+hGauge := GaugeNew(, , ,"Поиск дублирующихся записей", .t.)
 GaugeDisplay( hGauge )
 if i == 1
   arr_title := {"────┬─────────────────────────────────────────────┬────────┬──────", ;
@@ -2690,7 +2693,7 @@ CloseGauge(hGauge)
 if k == 0
   func_error(4,"Не найдено дублирующихся записей!")
 else
-  viewtext(name_file,,,, .t.,,,reg_print)
+  viewtext(name_file, , ,, .t., , ,reg_print)
 endif
 return NIL
 
@@ -2709,7 +2712,7 @@ str_center(20,"удаляемая запись выделяется красным цветом.")
 mark_keys({"удаляемая запись выделяется"},"R/BG")
 mark_keys({"красным цветом"},"W+/R")
 RunStr("Нажмите любую клавишу", 21, 3, 76,"W+/BG")
-box_shadow(0, 2, 0, 77,color1,,, 0)
+box_shadow(0, 2, 0, 77,color1, , , 0)
 str_center(0,"Удаление дублирующихся записей в картотеке",color8)
 if view_kart(3) .and. dubl1_kart > 0 .and. dubl2_kart > 0
   mywait()
@@ -3110,7 +3113,7 @@ scandirfiles(dir_server, ;
              "mo_wq*"+sdbf, ;
              {|x| aadd(arr_f,Name_Without_Ext(StripPath(x))) })
 if !empty(arr_f)
-  asort(arr_f,,,{|x,y| iif(substr(x, 6, 6) == substr(y, 6, 6), ;
+  asort(arr_f, , ,{|x,y| iif(substr(x, 6, 6) == substr(y, 6, 6), ;
                              val(substr(x, 12)) < val(substr(y, 12)), ;
                            substr(x, 6, 6) < substr(y, 6, 6)) } )
   s := atail(arr_f)
@@ -3141,7 +3144,7 @@ return fl
 Function wq_import()
 Local adbf, cName, i, s, buf, arr, arr_f, fbase
 Private p_var_manager := "Read_WQ_TFOMS", full_zip
-if !empty(full_zip := manager(T_ROW,T_COL+5,maxrow()-2,, .t., 1,,,,"WQ2*"+szip))
+if !empty(full_zip := manager(T_ROW,T_COL+5,maxrow()-2,, .t., 1, , ,,"WQ2*"+szip))
   name_zip := StripPath(full_zip)  // имя файла без пути
   cName := Name_Without_Ext(name_zip)
   fbase := "mo_wq"+substr(cName, 10)
@@ -3469,7 +3472,7 @@ if !empty(full_zip := manager(T_ROW,T_COL+5,maxrow()-2,, .t., 1,,,,"WQ2*"+szip))
             rest_box(buf)
             n_message({"Чтение файла "+cName+" завершено!", ;
                        "Найдено в картотеке - "+lstr(i1)+" чел.", ;
-                       "Импортировано - "+lstr(i2)+" чел."},,"W/G","N/G",,,"GR/G")
+                       "Импортировано - "+lstr(i2)+" чел."},,"W/G","N/G", , ,"GR/G")
             keyboard chr(K_TAB)+chr(K_ENTER)
           endif
           close databases
@@ -3520,7 +3523,7 @@ enddo
 fclose(fp)
 close databases
 rest_box(buf)
-viewtext(name_file,,,, .t.,,, 6)
+viewtext(name_file, , ,, .t., , , 6)
 return NIL
 
 
@@ -3554,7 +3557,7 @@ if ku == 0
 endif
 go top
 Alpha_Browse(2, 0, 23, 79,"f1_wq_edit_uchast",color0,"Редактирование участков в файле "+fname+" ("+lstr(ku)+" чел.)","BG+/GR", ;
-             .t., .t.,,,"f2_wq_edit_uchast",, ;
+             .t., .t., , ,"f2_wq_edit_uchast",, ;
              {"═","░","═","N/BG,W+/N,B/BG,W+/B,R/BG,BG/R", .t., 180,"*+"} )
 close databases
 restscreen(buf)
@@ -3612,7 +3615,7 @@ do case
     enddo
     fclose(fp)
     rest_box(buf)
-    viewtext(name_file,,,, .t.,,, 6)
+    viewtext(name_file, , ,, .t., , , 6)
     goto (rec)
     flag := 0
   case nKey == K_ENTER
@@ -4207,7 +4210,7 @@ do while !eof()
   skip
 enddo
 close databases
-asort(arr,,,{|x,y| iif(x[5, 1, 1]==y[5, 1, 1], x[5, 1, 2]<y[5, 1, 2], x[5, 1, 1]<y[5, 1, 1]) })
+asort(arr, , ,{|x,y| iif(x[5, 1, 1]==y[5, 1, 1], x[5, 1, 2]<y[5, 1, 2], x[5, 1, 1]<y[5, 1, 1]) })
 rest_box(buf)
 arr_title := {;
 "──────┬─────┬───────────────────────────────────────────┬──────────────────────", ;
@@ -4258,7 +4261,7 @@ for i := 1 to len(arr)
   endif
 next
 fclose(fp)
-viewtext(name_file,,,, .t.,,, 2)
+viewtext(name_file, , ,, .t., , , 2)
 return NIL
 
 // 28.09.15 вернуть массив участковых врачей
@@ -4286,7 +4289,7 @@ enddo
 close databases
 for i := 1 to len(arr)
   ar := aclone(arr[i, 5])
-  asort(ar,,,{|x,y| iif(x[1] == y[1], x[2] < y[2], x[1] < y[1]) })
+  asort(ar, , ,{|x,y| iif(x[1] == y[1], x[2] < y[2], x[1] < y[1]) })
   for j := 1 to len(ar)
     arr[i, 6] += lstr(ar[j, 1])
     if ar[j, 2] > 0
