@@ -1067,34 +1067,34 @@ Function f_kart_valid_inv(r)
 // 19.07.23 проверка на правильность номера телефона .. и исправление
 Function valid_phone(get, is_mobil)
   Local fl := .t.
-  local phoneTemplate := '^(\s*)?(\+)?([- _():=+]?\d[- _():=+]?){10,14}(\s*)?$'
-  // Local s, s1
+  Local s, s1
+  // local phoneTemplate := '^(\s*)?(\+)?([- _():=+]?\d[- _():=+]?){10,14}(\s*)?$'
 
-  // Private tmp := readvar()
-  // s := &tmp
-  // if !empty(s)
-  //   s := charrem('-', s)
-  //   s := charrem(' ', s)
-  //   s1 := CHARREPL('0123456789', s, SPACE(10))
-  //   if !empty(s1) .or. !(left(s, 1) == '8')
-  //     DEFAULT is_mobil TO .f.
-  //     if is_mobil
-  //       fl := func_error(4, 'Правильный номер мобильного телефона: "8"+ещё 10 цифр')
-  //     else
-  //       fl := func_error(4, 'Правильный номер телефона: "8"+"код города"+"цифры" (всего 11 цифр)')
-  //     endif
-  //   endif
-  //   if fl .and. len(s) < 11
-  //     fl := func_error(4, 'В номере телефона должно быть 11 знаков')
-  //   endif
-  //   &tmp := padr(s, 11)
-  // endif
-	is_mobil := alltrim(is_mobil)
-	fl := hb_RegexLike(phoneTemplate, is_mobil) .or. empty(is_mobil)
-	if ! fl
-    fl := func_error(4, 'Не верный формат телефона')
-    // hb_Alert( 'Не верный формат телефона или E-mail адреса!', , , 4 )
-	endif
+  Private tmp := readvar()
+  s := &tmp
+  if !empty(s)
+    s := charrem('-', s)
+    s := charrem(' ', s)
+    s1 := CHARREPL('0123456789', s, SPACE(10))
+    if !empty(s1) .or. !(left(s, 1) == '8')
+      DEFAULT is_mobil TO .f.
+      if is_mobil
+        fl := func_error(4, 'Правильный номер мобильного телефона: "8"+ещё 10 цифр')
+      else
+        fl := func_error(4, 'Правильный номер телефона: "8"+"код города"+"цифры" (всего 11 цифр)')
+      endif
+    endif
+    if fl .and. len(s) < 11
+      fl := func_error(4, 'В номере телефона должно быть 11 знаков')
+    endif
+    &tmp := padr(s, 11)
+  endif
+	// is_mobil := alltrim(is_mobil)
+	// fl := hb_RegexLike(phoneTemplate, is_mobil) .or. empty(is_mobil)
+	// if ! fl
+  //   fl := func_error(4, 'Не верный формат телефона')
+  //   // hb_Alert( 'Не верный формат телефона или E-mail адреса!', , , 4 )
+	// endif
   return fl
 
 // 29.03.23 поиск пациента в картотеке во время режима добавления
