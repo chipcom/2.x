@@ -68,6 +68,7 @@ mo_oms14.prg
 .\KARTOTEK\pripisnoe_naselenie.prg
 .\KARTOTEK\documents.prg
 .\KARTOTEK\prikreplenie.prg
+.\KARTOTEK\delete_dubl_pacient.prg
 mo_sds.prg
 mo_serv.prg
 mo_st39.prg
