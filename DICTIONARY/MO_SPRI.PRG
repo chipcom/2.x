@@ -2271,12 +2271,12 @@ if fl
 endif
 return fl
 
-//* 07.03.21
+// 07.03.21
 // список персонала
 Function spr_personal()
 Local k, sh := 80, HH := 57, fl := .t., s
 mywait()
-fp := fcreate("spisok"+stxt) ; n_list := 1 ; tek_stroke := 0
+fp := fcreate(cur_dir + "spisok" + stxt) ; n_list := 1 ; tek_stroke := 0
 add_string("")
 add_string(center("Списочный состав персонала с табельными номерами", sh))
 add_string("")
@@ -2386,96 +2386,101 @@ endif
 return NIL
 
 
-// 05.04.20
+// 26.07.23
 Function f_10diag(k)
-Local buf := savescreen(), i := 1, c1 := 1, c2 := 77, msh_b, msh_e, arr_t, s, s1
-Private pregim := k, uregim := 1
-change_attr()
-do case
-  case k == 1
-    mywait()
-    R_Use(dir_exe+"_mo_mkb", cur_dir + "_mo_mkb","DIAG")
-    go top
-    Alpha_Browse(2,c1,maxrow()-2,c2,"f1_10diag",color0,,, .t.,,,,"f2_10diag",,{,,,"N/BG,W+/N,B/BG,BG+/B,GR/BG,BG+/GR", .t.} )
-  case k == 2
-    R_Use(dir_exe+"_mo_mkbk")
-    index on sh_b+str(ks, 1) to (cur_dir + "tmp")
-    go top
-    Alpha_Browse(2, 0,maxrow()-2, 79,"f1_10diag",color0,,, .t.,,,,,,{'═','░','═',"N/BG,W+/N,B/BG,BG+/B"})
-  case k == 3
-    R_Use(dir_exe+"_mo_mkbg")
-    index on sh_b+str(ks, 1) to (cur_dir + "tmp")
-    go top
-    Alpha_Browse(2,c1,maxrow()-2,c2,"f1_10diag",color0,,, .t.,,,,,,{'═','░','═',"N/BG,W+/N,B/BG,BG+/B"})
-  case k == 4 .or. k == 5
-    R_Use(dir_exe+"_mo_mkb"+iif(pregim==4,"k","g"))
-    index on sh_b+str(ks, 1) to (cur_dir + "tmp_d")
-    Use
-    do while .t.
-      R_Use(dir_exe+"_mo_mkb"+iif(pregim==4,"k","g"))
-      set index to "tmp_d"
-      goto (i)
-      if pregim == 4
-        c1 := 0 ; c2 := 79
-      endif
-      if Alpha_Browse(2,c1,maxrow()-2,c2,"f1_10diag",color0,,, .t.,,,,,,{'═','░','═',"N/BG,W+/N,B/BG,BG+/B"})
-        mywait()
-        arr_t := {}
-        do while ks > 0
-          skip -1
-        enddo
-        i := recno()
+  Local buf := savescreen(), i := 1, c1 := 1, c2 := 77, msh_b, msh_e, arr_t, s, s1
+  
+  Private pregim := k, uregim := 1
+  change_attr()
+  do case
+    case k == 1
+      mywait()
+      R_Use(dir_exe + '_mo_mkb', cur_dir + '_mo_mkb', 'DIAG')
+      go top
+      Alpha_Browse( 2, c1, maxrow() - 2, c2, 'f1_10diag', color0, , , .t., , , , 'f2_10diag', , {, , , 'N/BG, W+/N, B/BG, BG+/B, GR/BG, BG+/GR', .t.})
+    case k == 2
+      R_Use(dir_exe + '_mo_mkbk')
+      index on sh_b + str(ks, 1) to (cur_dir + 'tmp')
+      go top
+      Alpha_Browse(2, 0, maxrow() - 2, 79, 'f1_10diag', color0, , , .t., , , , , , {'═', '░', '═', 'N/BG, W+/N, B/BG, BG+/B'})
+    case k == 3
+      R_Use(dir_exe + '_mo_mkbg')
+      index on sh_b + str(ks, 1) to (cur_dir + 'tmp')
+      go top
+      Alpha_Browse(2, c1, maxrow() - 2, c2, 'f1_10diag', color0, , , .t., , , , , , {'═', '░', '═', 'N/BG, W+/N, B/BG, BG+/B'})
+    case k == 4 .or. k == 5
+      R_Use(dir_exe + '_mo_mkb' + iif(pregim == 4, 'k', 'g'))
+      index on sh_b + str(ks, 1) to (cur_dir + 'tmp_d')
+      Use
+      do while .t.
+        R_Use(dir_exe + '_mo_mkb' + iif(pregim == 4, 'k', 'g'))
+        set index to 'tmp_d'
+        goto (i)
         if pregim == 4
-          aadd(arr_t, "Класс "+ alltrim(klass))
+          c1 := 0
+          c2 := 79
         endif
-        msh_b := sh_b ; msh_e := sh_e
-        do while sh_e == msh_e
-          aadd(arr_t, alltrim(name))
-          skip
-        enddo
-        Use
-        if msh_b == msh_e
-          aadd(arr_t, "( "+ alltrim(msh_b)+" )")
+        if Alpha_Browse(2, c1, maxrow() - 2, c2, 'f1_10diag', color0, , , .t., , , , , , {'═', '░', '═', 'N/BG, W+/N, B/BG, BG+/B'})
+          mywait()
+          arr_t := {}
+          do while ks > 0
+            skip -1
+          enddo
+          i := recno()
+          if pregim == 4
+            aadd(arr_t, 'Класс ' + alltrim(klass))
+          endif
+          msh_b := sh_b
+          msh_e := sh_e
+          do while sh_e == msh_e
+            aadd(arr_t, alltrim(name))
+            skip
+          enddo
+          Use
+          if msh_b == msh_e
+            aadd(arr_t, '( ' + alltrim(msh_b) + ' )')
+          else
+            aadd(arr_t, '( ' + alltrim(msh_b) + ' - ' + alltrim(msh_e) + ' )')
+          endif
+          Private sh := 76, HH := 77
+          fp := fcreate(cur_dir + 'diagtmp.txt')
+          n_list := 1
+          tek_stroke := 0
+          add_string('')
+          R_Use(dir_exe + '_mo_mkb', cur_dir + '_mo_mkb', 'DIAG')
+          for k := 1 to len(arr_t)
+            add_string(center(arr_t[k], sh))
+          next
+          add_string('')
+          add_string(center('[ знаком "-" перед шифром отмечены диагнозы, не входящие в ОМС ]', sh))
+          add_string('')
+          dbseek(padr(msh_b, 5), .t.)
+          do while left(shifr, 3) <= msh_e .and. !eof()
+            if ks == 0
+              verify_FF(HH, .t., sh)
+            endif
+            if !('.' $ shifr) .and. ks == 0
+              add_string('')
+            endif
+            s1 := iif(ks == 0 .and. !empty(diag->pol), iif(diag->pol == 'М', '<муж.>', '<жен.>'), space(6))
+            s := iif('.' $ shifr, s1, '')
+            s += iif(ks == 0 .and. !between_date_new(diag->dbegin, diag->dend) , '-', ' ')
+            s += padr(if(ks == 0, shifr, ''), 6)
+            s += ' ' + rtrim(name)
+            add_string(s)
+            skip
+          enddo
+          close databases
+          fclose(fp)
+          viewtext('diagtmp.txt', , , , , , , 5)
         else
-          aadd(arr_t, "( "+ alltrim(msh_b)+" - "+ alltrim(msh_e)+" )")
+          exit
         endif
-        Private sh := 76, HH := 77
-        fp := fcreate("diagtmp.txt") ; n_list := 1 ; tek_stroke := 0
-        add_string("")
-        R_Use(dir_exe+"_mo_mkb", cur_dir + "_mo_mkb","DIAG")
-        for k := 1 to len(arr_t)
-          add_string(center(arr_t[k], sh))
-        next
-        add_string("")
-        add_string(center('[ знаком "-" перед шифром отмечены диагнозы, не входящие в ОМС ]', sh))
-        add_string("")
-        dbseek(padr(msh_b, 5), .t.)
-        do while left(shifr, 3) <= msh_e .and. !eof()
-          if ks == 0
-            verify_FF(HH, .t., sh)
-          endif
-          if !("." $ shifr) .and. ks == 0
-            add_string("")
-          endif
-          s1 := iif(ks==0 .and. !empty(diag->pol),iif(diag->pol=="М","<муж.>","<жен.>"), space(6))
-          s := iif("." $ shifr, s1, "")
-          s += iif(ks==0 .and. !between_date(diag->dbegin,diag->dend) , "-", " ")
-          s += padr(if(ks == 0, shifr, ""), 6)
-          s += " "+rtrim(name)
-          add_string(s)
-          skip
-        enddo
-        close databases
-        fclose(fp)
-        viewtext("diagtmp.txt",,,,,,, 5)
-      else
-        exit
-      endif
-    enddo
-endcase
-close databases
-restscreen(buf)
-return NIL
+      enddo
+  endcase
+  close databases
+  restscreen(buf)
+  return NIL
 
 // 13.04.21
 Function f1_10diag(oBrow)
@@ -2631,7 +2636,7 @@ Local rec, i
 if nKey == K_F9
   rec := recno()
   Private sh := 76, HH := 77
-  fp := fcreate("diagtmp.txt") ; n_list := 1 ; tek_stroke := 0
+  fp := fcreate(cur_dir + "diagtmp.txt") ; n_list := 1 ; tek_stroke := 0
   add_string("")
   add_string(center("Результат поиска по подстроке: "+mname, sh))
   add_string("")
@@ -2661,7 +2666,7 @@ Local buf := savescreen(), c1 := 1, c2 := 77, tmp_select := select()
 Private pregim := 1, uregim := 1
 change_attr()
 mywait()
-R_Use(dir_exe+"_mo_mkb", cur_dir + "_mo_mkb","DIAG")
+R_Use(dir_exe + "_mo_mkb", cur_dir + "_mo_mkb","DIAG")
 go top
 if srec != NIL
   goto (srec)
@@ -3201,7 +3206,7 @@ if mo_Lock_Task(X_OMS) // запрет только ОМС G_SLock1Task(sem_task,sem_vagno) // 
             else
               s := 'код ошибки = ' + tmp3->SREFREASON + ' '
               s += '"' + getCategoryCheckErrorByID_Q017(left(tmp3->SREFREASON, 4))[2] + '" '
-              // s += alltrim(inieditspr(A__POPUPMENU, dir_exe+"_mo_Q015", tmp3->SREFREASON))
+              // s += alltrim(inieditspr(A__POPUPMENU, dir_exe + "_mo_Q015", tmp3->SREFREASON))
               s += alltrim(inieditspr(A__MENUVERT, loadQ015(), tmp3->SREFREASON))
             endif
             k := perenos(t_arr,s, 75)

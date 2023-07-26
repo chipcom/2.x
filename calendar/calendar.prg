@@ -1,6 +1,6 @@
 #include 'function.ch'
 
-***** 31.12.20 определить, является ли данный день рабочим днём
+////* 31.12.20 определить, является ли данный день рабочим днём
 Function is_work_day(mdate)
     Local iy, im, m, d, y, am, fl := .t.
     Static arr_holiday := {;
@@ -172,12 +172,31 @@ Function is_work_day(mdate)
     endif
     return fl
 
-** 20.01.23 проверяем дату во вхождение в период, допустимо пустое значение конечной даты
+// 20.01.23 проверяем дату во вхождение в период, допустимо пустое значение конечной даты
 function correct_date_dictionary(dt, date_begin, date_end)
 
   return ((date_begin <= dt) .and. (empty(date_end) .or. date_end >= dt))
 
-** попадает ли date1 (диапазон date1-date2) в диапазон _begin_date-_end_date
+// 26.07.23
+function between_date_new(_begin_date, _end_date, date1)
+  local fl := .f.
+
+  DEFAULT date1 TO sys_date  // по умолчанию проверяем на сегодняшний момент
+  if empty(_begin_date) .and. empty(_end_date)
+    return fl
+  endif
+
+  if ! empty(_begin_date) .and. empty(_end_date) .and. (_begin_date < date1)
+    fl := .t.
+  endif
+
+  if (! empty(_begin_date)) .and. (! empty(_end_date)) .and. (_begin_date <= date1) .and. (_end_date >= date1)
+    fl := .t.
+  endif
+  
+  return fl
+
+// попадает ли date1 (диапазон date1-date2) в диапазон _begin_date-_end_date
 Function between_date(_begin_date,_end_date,date1,date2, impossiblyEmptyRange)
   // _begin_date - начало действия
   // _end_date   - окончание действия
@@ -210,11 +229,11 @@ Function between_date(_begin_date,_end_date,date1,date2, impossiblyEmptyRange)
   endif
   return fl
 
-***** 20.04.21 определить лицо старше указанного возраста
+////* 20.04.21 определить лицо старше указанного возраста
 Function ageIsMoreThan(age, DOB, dataCalc)
   return count_years(DOB, dataCalc) >= age
 
-***** 23.12.18 количество лет, месяцев и дней в строке
+////* 23.12.18 количество лет, месяцев и дней в строке
 Function count_ymd(_mdate, _sys_date, /*@*/y, /*@*/m, /*@*/d)
   // _mdate    - дата для определения количества лет, месяцев и дней
   // _sys_date - "системная" дата
@@ -253,7 +272,7 @@ Function count_ymd(_mdate, _sys_date, /*@*/y, /*@*/m, /*@*/d)
   endif
   return rtrim(ret_s)
   
-***** 23.12.18 определение количества месяцев по дате (возврат числа)
+////* 23.12.18 определение количества месяцев по дате (возврат числа)
 Function count_months(_mdate,_sys_date)
   // _mdate    - дата для определения количества лет
   // _sys_date - "системная" дата
@@ -268,7 +287,7 @@ Function count_months(_mdate,_sys_date)
   endif
   return k
   
-***** 22.07.18 определение количества лет по дате (возврат числа)
+////* 22.07.18 определение количества лет по дате (возврат числа)
 Function count_years(_mdate,_sys_date)
   // _mdate    - дата для определения количества лет
   // _sys_date - "системная" дата
@@ -283,7 +302,7 @@ Function count_years(_mdate,_sys_date)
   endif
   return k
   
-***** 14.06.13 определение количества лет по дате (возврат строки)
+////* 14.06.13 определение количества лет по дате (возврат строки)
 Function ccount_years(_mdate,_sys_date)
   // _mdate    - дата для определения количества полных лет
   // _sys_date - "системная" дата
@@ -293,7 +312,7 @@ Function ccount_years(_mdate,_sys_date)
   endif
   return ret_s
   
-***** 23.12.18 лицо считается достигшим определённого возраста не в день рождения, а начиная со следующих суток
+////* 23.12.18 лицо считается достигшим определённого возраста не в день рождения, а начиная со следующих суток
 Function correct_count_ym(_mdate,_sys_date,y_m)
   Local s1 := right(dtos(_mdate),4), s2 := right(dtos(_sys_date),4), fl := .f.
   DEFAULT y_m TO 1
@@ -306,7 +325,7 @@ Function correct_count_ym(_mdate,_sys_date,y_m)
   endif
   return fl
 
-***** 28.07.16 обновить системную дату (для работающих по ночам травмпунктов)
+////* 28.07.16 обновить системную дату (для работающих по ночам травмпунктов)
 Function change_sys_date()
   sys_date := DATE()
   sys1_date := sys_date

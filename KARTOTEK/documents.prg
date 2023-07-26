@@ -346,7 +346,7 @@ function checkDocumentSeries( oGet, vid_ud )
 					( empty( _sr ) .or. len( _sr ) != 2 .or. ! allCharIsDigit( _sr ) )
 				msg := 'серия паспорта РФ должна состоять из двух двузначных чисел'
 			else
-				oGet:buffer := _sl + ' ' + _sr
+				oGet:buffer := _sl + ' ' + left(_sr, 2)
 				oGet:assign()
 			endif
 		endif
@@ -370,7 +370,7 @@ function checkDocumentSeries( oGet, vid_ud )
 		elseif empty( _sr ) .or. len( _sr ) != 2 .or. !allCharIsCyrillic( _sr )
 			msg := 'после разделителя "-" должны быть ДВЕ pусcкие заглавные буквы'
     else
-      oGet:buffer := _sl + '-' + _sr
+      oGet:buffer := _sl + '-' + left(_sr, 2)
       oGet:assign()
     endif
 	endif
