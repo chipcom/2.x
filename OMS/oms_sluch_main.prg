@@ -180,6 +180,8 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
     mHEI := space(3), ; // рост в см	Обязательно для заполнения при проведении лекарственной или химиолучевой терапии (USL_TIP=2 или USL_TIP=4)
     mBSA := space(4)   // площадь поверхности тела в кв.м.	Обязательно для заполнения при проведении лекарственной или химиолучевой терапии (USL_TIP=2 или USL_TIP=4)
 
+    dbcreate(cur_dir + 'tmp_onkna',  create_struct_temporary_onkna())
+
   Private m1NAPR_MO, mNAPR_MO, mNAPR_DATE, mNAPR_V, m1NAPR_V, mMET_ISSL, m1MET_ISSL, ;
     mshifr, mshifr1, mname_u, mU_KOD, cur_napr := 0, count_napr := 0, tip_onko_napr := 0
   Private mm_napr_v := {{'нет', 0}, ;
@@ -458,7 +460,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
     endif
     is_oncology := f_is_oncology(2)
     if is_oncology > 0 // онкология - направления
-      dbcreate(cur_dir + 'tmp_onkna',  create_struct_temporary_onkna())
+      // dbcreate(cur_dir + 'tmp_onkna',  create_struct_temporary_onkna())
 
       // use (cur_dir + 'tmp_onkna') new alias TNAPR
       // R_Use(dir_server + 'mo_su', , 'MOSU')
@@ -488,9 +490,8 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
       if count_napr > 0
         old_oncology := .t.
         cur_napr := 1 // при ред-ии - сначала первое направление текущее
-
-        mnapr_onk := 'Количество направлений - ' + lstr(count_napr)
       endif
+      mnapr_onk := 'Количество направлений - ' + lstr(count_napr)
 
       R_Use(dir_server + 'mo_onkco', dir_server + 'mo_onkco',  'CO')
       find (str(Loc_kod, 7))
@@ -1765,9 +1766,9 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
           cur_napr := 1
         endif
 
-        count_napr := save_onko_napr(@cur_napr, mNAPR_DATE, ;
-            get_kod_vrach_by_tabnom(mTab_Number), m1NAPR_MO, m1NAPR_V, ;
-            m1MET_ISSL, mu_kod, mshifr, mshifr1, mname_u)
+        // count_napr := save_onko_napr(@cur_napr, mNAPR_DATE, ;
+        //     get_kod_vrach_by_tabnom(mTab_Number), m1NAPR_MO, m1NAPR_V, ;
+        //     m1MET_ISSL, mu_kod, mshifr, mshifr1, mname_u)
 
         // use (cur_dir + 'tmp_onkna') new alias TNAPR
         // count_napr := lastrec()
