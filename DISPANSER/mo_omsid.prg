@@ -2829,6 +2829,11 @@ do case
       aadd(mas_msg, "Аннулирование недописанного пакета R11")
       aadd(mas_fun, "delete_reestr_R11()")
     endif
+    if glob_mo[_MO_KOD_TFOMS] == '161015' // КБ-11
+      aadd(mas_pmt, "~Повторный подбор пациентов")
+      aadd(mas_msg, "Повторный подбор пациентов")
+      aadd(mas_fun, "find_new_R00()")
+    endif
     set key K_CTRL_F10 to delete_month_R11()
     popup_prompt(T_ROW,T_COL-5,si7,mas_pmt,mas_msg,mas_fun)
     set key K_CTRL_F10 to
@@ -9227,6 +9232,7 @@ if fl_1 .or. code_lpu == "321001"// не первый раз
   for j := 1 to 5
     skol[j] := ames[SMONTH,j,1]
   next
+// my_debug(,print_array(skol))
 
   afill(ame,0)
   //
@@ -9238,10 +9244,13 @@ if fl_1 .or. code_lpu == "321001"// не первый раз
     index on kod to (cur_dir+"tmp_dr00") for reestr == 0 .and. kod > 0
     go top
     do while !eof()
+      //my_debug(,tmp->kod)
       kart->(dbGoto(tmp->kod))
       ar := f0_create_R11(sgod)
-      if !(tmp->tip == ar[1] .and. tmp->tip1 == ar[2] .and. tmp->voz == ar[3])
-        tmp->tip := 0
+      if glob_mo[_MO_KOD_TFOMS] != '161015' // КБ-11
+        if !(tmp->tip == ar[1] .and. tmp->tip1 == ar[2] .and. tmp->voz == ar[3])
+          tmp->tip := 0
+        endif
       endif
       j := tmp->tip
       j1 := tmp->tip1
@@ -9253,6 +9262,7 @@ if fl_1 .or. code_lpu == "321001"// не первый раз
           mkol[j] ++ // подсчёт оставшегося кол-ва в пуле пациентов
         endif
       endif
+     // my_debug(,print_array(mkol))
       skip
     enddo
     commit
@@ -9288,7 +9298,7 @@ if fl_1 .or. code_lpu == "321001"// не первый раз
       for j := 1 to 5
         if mkol[j] < skol[j]
           s := {"диспансеризаций","профосмотров","дисп.пенсионеров","дисп.65 лет","дисп.66 лет и старше"}[j]
-          fl := func_error(4,"Не хватает "+lstr(skol[j]-mkol[j])+" чел. в картотеке для профосмотров")
+          fl := func_error(4,"Не хватает "+lstr(skol[j]-mkol[j])+" чел. в картотеке " + s)
         endif
       next
     endif
