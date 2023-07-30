@@ -3530,3 +3530,97 @@ Local fl := .t., fl1, skol := 0, mkol := 0, arr := {}, rec, fl_date := .t.
     endif
   endif
   return NIL
+
+
+Function find_new_R00()  
+  Private c_view := 0, c_found := 0, sgod := 2023, CODE_LPU := glob_mo[_MO_KOD_TFOMS]
+  Private _arr_vozrast_DVN := ret_arr_vozrast_DVN(0d20221201), mkol := {0,0,0,0,0}
+
+  Status_Key("^<Esc>^ - прервать поиск")
+  hGauge := GaugeNew(,,,"Поиск пациентов, подлежащих дисп-ии/профосмотрам",.t.)
+  GaugeDisplay( hGauge )
+  G_Use (dir_server + "mo_dr00",,"TMP")
+  index on str(kod,7) to tmp2 
+  R_Use(dir_server + "kartote2",,"KART2")
+  R_Use(dir_server + "kartote_",,"KART_")
+  R_Use(dir_server + "kartotek",,"KART")
+  set relation to recno() into KART_, recno() into KART2
+  go top
+  do while !eof()
+    GaugeUpdate( hGauge, recno()/lastrec() )
+    if inkey() == K_ESC
+      fl_exit := .t. ; exit
+    endif
+    if kart->kod > 0
+      select tmp
+      find(str(kart->kod,7))
+      if !found()
+        f0_create_new_R01(sgod,@c_view,@c_found)
+      endif  
+    endif
+    select KART
+    skip
+  enddo
+  close databases
+  CloseGauge(hGauge)
+  func_error(4,"Поиск закончен!")
+return NIL
+
+***** 26.07.23
+Static Function f0_create_new_R01(sgod,cv,cf)
+  Local fl, v, ltip, ltip1, lvoz, ag, lgod_r, s
+  ++cv
+  if (fl := (kart2->MO_PR == CODE_LPU)) // прикреплён к нашей МО
+    lgod_r := year(kart->date_r)
+    v := sgod - lgod_r
+    if (fl := (v > 17)) // только взрослое население
+      if fl
+        lvoz := 4
+        ltip1 := 0
+        if ascan(_arr_vozrast_DVN,v) > 0
+          ltip := 1 // диспансеризация
+          // 1-65 лет, 2-66 лет и старше, 3-пенсионер, 4-прочие
+          if v >= iif(kart->POL == "М", 60, 55)
+            lvoz := 3
+            ltip1 := 1
+            if v == 65
+              lvoz := 1
+              ltip1 := 2
+            elseif v > 65
+              lvoz := 2
+              ltip1 := 3
+            endif
+          endif
+        else
+          ltip := 2 // профосмотры
+        endif
+      endif
+    endif
+  endif
+  if fl // За исключением умерших (по сведению ТФОМС) и моложе 100 лет
+    fl := !(left(kart2->PC2,1) == "1") .or. v < 100
+  endif
+  if fl
+    select TMP
+    append blank
+    tmp->kod := kart->kod
+    tmp->tip := ltip
+    tmp->tip1 := ltip1
+    tmp->voz := lvoz
+    my_debug(,ltip)
+    my_debug(,kart->kod)
+    my_debug(,tmp->kod)
+    my_debug(,tmp->(recno()))
+    if between(ltip1,1,3)
+      //++mkol[ltip1+2]
+    else
+      //++mkol[ltip]
+    endif
+    if ++cf % 500 == 0
+      tmp->(dbCommit())
+    endif
+  endif
+  @ maxrow(),1 say lstr(cv) color cColorSt2Msg
+  @ row(),col() say "/" color "W/R"
+  @ row(),col() say lstr(cf) color cColorStMsg
+  return NIL
