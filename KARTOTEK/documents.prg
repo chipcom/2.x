@@ -323,7 +323,7 @@ FUNCTION gniDIGTORIM(_s, _c1, _c2, _c3)
   ENDCASE
   RETURN _c
 
-// 28.07.23  проверка на правильность серии удостоверения личности
+// 02.08.23  проверка на правильность серии удостоверения личности
 function checkDocumentSeries( oGet, vid_ud )
 	local fl := .t., i, c, _sl, _sr, _n
 	local msg, ser_ud
@@ -354,7 +354,7 @@ function checkDocumentSeries( oGet, vid_ud )
 		_sl := alltrim( token( ser_ud, '-', 1 ) )
 		// _sl := convertNumberLatinCharInCyrillicChar( _sl )
 		_sl := convertNumberCyrillicCharInLatinChar( _sl )
-		_sr := left(alltrim( token( ser_ud, '-', 2)), 2)
+		_sr := alltrim( token( ser_ud, '-', 2))
 		if _n == 0 .or. _n == 1
 			msg := 'серия документа состоит из цифровой и символьной частей, разделенных символом "-"'
 		elseif _n > 2 // 1
@@ -368,9 +368,9 @@ function checkDocumentSeries( oGet, vid_ud )
 		// 	msg := 'некорректно введена числовая часть серии'
 		elseif empty( _sr ) .or. len( _sr ) != 2 .or. !allCharIsCyrillic( _sr )
 			msg := 'после разделителя "-" должны быть ДВЕ pусcкие заглавные буквы'
-    else
-      oGet:buffer := _sl + '-' + _sr
-      oGet:assign()
+    // else
+    //   oGet:buffer := _sl + '-' + _sr
+    //   oGet:assign()
     endif
 	endif
 	if !empty( msg )
