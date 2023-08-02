@@ -3,20 +3,21 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-** 03.02.15
+// 03.02.15
 Function f_d_dializ()
   if !(left(dtos(mn_data), 6) == left(dtos(mk_data), 6))
     func_error(4, 'Даты начала и окончания процедур не в одном отчётном месяце.')
   endif
   return .t.
   
-** 28.11.22 гемодиализ (1) и перитонеальный диализ (2)
+// 28.11.22 гемодиализ (1) и перитонеальный диализ (2)
 Function oms_sluch_dializ(par, Loc_kod, kod_kartotek)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
   Static SKOD_DIAG := 'N18.5', st_N_DATA, st_K_DATA, st_vrach := 0
   // Local top2 := {2, 11}[par]
-  Local top2 := {1, 11}[par]
+  // Local top2 := {1, 11}[par]
+  Local top2 := {1, 7}[par]
   Local bg := {|o, k| get_MKB10(o, k, .t.)}, ;
         buf := savescreen(), tmp_color := setcolor(), a_smert := {}, ;
         p_uch_doc := '@!', pic_diag := '@K@!', ;
@@ -233,14 +234,14 @@ Function oms_sluch_dializ(par, Loc_kod, kod_kartotek)
         valid {|g, o| f_valid_komu(g, o)} ;
         color colget_menu
     @ row(), col() + 1 say '==>' get mcompany ;
-        reader {|x|menu_reader(x, mm_company,A__MENUVERT, , , .f.)} ;
+        reader {|x|menu_reader(x, mm_company, A__MENUVERT, , , .f.)} ;
         when diag_screen(2) .and. m1komu < 5 ;
         valid {|g| func_valid_ismo(g, m1komu, 38)}
     //
     @ ++j, 1 say 'Полис ОМС: серия' get mspolis when m1komu == 0
     @ row(), col() + 3 say 'номер'  get mnpolis when m1komu == 0
     @ row(), col() + 3 say 'вид'    get mvidpolis ;
-        reader {|x|menu_reader(x, mm_vid_polis,A__MENUVERT, , , .f.)} ;
+        reader {|x|menu_reader(x, mm_vid_polis, A__MENUVERT, , , .f.)} ;
         when diag_screen(2) .and. m1komu == 0 ;
         valid func_valid_polis(m1vidpolis, mspolis, mnpolis)
     //
@@ -275,9 +276,13 @@ Function oms_sluch_dializ(par, Loc_kod, kod_kartotek)
         @ ++j, 1 say 'Количество диализов с автоматизированными технологиями (А18.30.001.002)' get mkol_proc5 pict '99'
         @ ++j, 1 say 'Количество диализов при нарушении ультрафильтрации (А18.30.001.003)' get mkol_proc6 pict '99'
       endif
+    elseif par == 2
+      @ ++j, 1 say 'Количество дней обмена перитонеального диализа (A18.30.001)' get mkol_proc4 pict '99'
+      @ ++j, 1 say 'Количество диализов с автоматизированными технологиями (А18.30.001.002)' get mkol_proc5 pict '99'
+      @ ++j, 1 say 'Количество диализов при нарушении ультрафильтрации (А18.30.001.003)' get mkol_proc6 pict '99'
     endif
     @ ++j, 1 say 'Результат обращения' get mrslt ;
-        reader {|x|menu_reader(x, mm_rslt,A__MENUVERT, , , .f.)} ;
+        reader {|x|menu_reader(x, mm_rslt, A__MENUVERT, , , .f.)} ;
         valid {|g, o| f_valid_rslt(g, o)}
     //
     @ ++j, 1 say 'Исход заболевания' get mishod ;
@@ -395,7 +400,16 @@ Function oms_sluch_dializ(par, Loc_kod, kod_kartotek)
           aadd(arr_usl, {'60.3.16', 0, 0, mkol_proc6})
         endif
       else
-        aadd(arr_usl, {'60.3.1', 0, 0, ldnej})
+        // aadd(arr_usl, {'60.3.1', 0, 0, ldnej})
+        if mkol_proc4 > 0
+          aadd(arr_usl, {'60.3.1', 0, 0, mkol_proc4})
+        endif
+        if mkol_proc5 > 0
+          aadd(arr_usl, {'60.3.12', 0, 0, mkol_proc5})
+        endif
+        if mkol_proc6 > 0
+          aadd(arr_usl, {'60.3.13', 0, 0, mkol_proc6})
+        endif
       endif
       fv_date_r(mn_data) // переопределение M1VZROS_REB
       Use_base('lusl')
