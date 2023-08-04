@@ -238,7 +238,7 @@ mo_version.prg
 
 .\mo\external_mo.prg
 
-.\dispanser\mo_oms2.prg
+.\dispanser\oms_DVN_setup.prg
 .\dispanser\oms_DVN_COVID.prg
 .\dispanser\oms_DVN_func_COVID.prg
 .\dispanser\oms_DVN.prg

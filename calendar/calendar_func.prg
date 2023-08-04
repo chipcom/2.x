@@ -5,7 +5,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 18.02.20
+////* 18.02.20
 Function year_month(rr,cc,za_v,kmp,ch_mm,ret_time)
   // kmp = от 1 до 4(5) или массив {3,4}
   // za_v = .t. - строка в винит.падеже
@@ -221,7 +221,7 @@ Function year_month(rr,cc,za_v,kmp,ch_mm,ret_time)
               {"s1time",s1time},{"s2time",s2time}})
   return {ret_year, k1, k2, s_mes_god, c4tod(begin_date), c4tod(end_date), begin_date, end_date}
   
-***** 26.09.13 запрос года
+////* 26.09.13 запрос года
 Function input_year()
   Local ky, begin_date, end_date, r1, c1, r2, c2
   
@@ -236,11 +236,11 @@ Function input_year()
   end_date := dtoc4(eom(c4tod(end_date)))
   return {ky, 1, 12, "за"+str(ky,5)+" год", c4tod(begin_date), c4tod(end_date), begin_date, end_date}
   
-***** 18.01.22 функция выбора используемых дат из диапазона
+////* 18.01.22 функция выбора используемых дат из диапазона
 function select_arr_days(begin_date, end_date)
-**** begin_date: начало диапазона
-**** end_date: конец диапазона
-**** возвращаемое значение: двумерный массив выбранных дат (1 колонка-дата в формате строки, 2 колонка-дата в формате даты), или NIL
+//// begin_date: начало диапазона
+//// end_date: конец диапазона
+//// возвращаемое значение: двумерный массив выбранных дат (1 колонка-дата в формате строки, 2 колонка-дата в формате даты), или NIL
   local arr, arr1
   local d, r
   
@@ -256,7 +256,7 @@ function select_arr_days(begin_date, end_date)
   endif
   return arr
 
-** 24.05.22 количество дней между датами
+// 24.05.22 количество дней между датами
 function count_days(d1, d2)
   local mdni
 
@@ -264,3 +264,8 @@ function count_days(d1, d2)
     mdni := d2 - d1 + 1
   endif
   return mdni
+
+// 16.02.2020 является ли выходным (праздничным) днём проведения диспансеризации
+Function f_is_prazdnik_DVN(_n_data)
+  return !is_work_day(_n_data)
+

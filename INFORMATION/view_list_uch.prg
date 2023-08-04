@@ -1316,3 +1316,433 @@ Function print_al_uch(arr_h, arr_m)
   rest_box(buf)
   viewtext(n_file, , , ,.f., , ,5)
   return NIL
+
+// 27.11.14
+Function create_FR_file_for_spravkaOMS()
+  dbCloseAll()
+  delFRfiles()
+  dbcreate(fr_titl, {{'name', 'C', 255, 0}, ;
+                    {'adres', 'C', 255, 0}, ;
+                    {'data', 'D', 8, 0}, ;
+                    {'data1', 'D', 8, 0}, ;
+                    {'data2', 'D', 8, 0}, ;
+                    {'fio', 'C', 60, 0}})
+  use (fr_titl) new alias FRT
+  append blank
+  frt->name := glob_mo[_MO_FULL_NAME]
+  frt->adres := glob_mo[_MO_ADRES]
+  dbcreate(fr_data, {{'name', 'C', 255, 0}, ;
+                    {'name1', 'C', 55, 0}, ;
+                    {'shifr', 'C', 10, 0}, ;
+                    {'kol', 'N', 4, 0}, ;
+                    {'cena', 'N', 11, 2}, ;
+                    {'summa', 'N', 11, 2}})
+  use (fr_data) new alias FRD
+  index on shifr to (cur_dir + 'tmp1')
+  return NIL
+
+// 12.12.14 печать справки ОМС по готовому листу учёта
+Function print_spravka_OMS(mkod)
+  // mkod - код больного по БД human
+  Local r1, c1, r2, c2, mdate, buf := save_maxrow(), msumma := 0, lshifr
+
+  get_row_col_max(18, 4, @r1, @c1, @r2, @c2)
+  if (mdate := input_value(r1, c1, r2, c2, color1, ;
+        'Введите дату выдачи справки о стоимости мед.помощи по ОМС', ;
+        sys_date)) == NIL
+    return NIL
+  endif
+  mywait()
+  create_FR_file_for_spravkaOMS()
+  Use_base('lusl')
+  Use_base('luslf')
+  R_Use(dir_server + 'uslugi1', {dir_server + 'uslugi1', ;
+                              dir_server + 'uslugi1s'}, 'USL1')
+  R_Use(dir_server + 'uslugi', , 'USL')
+  R_Use(dir_server + 'human_u', dir_server + 'human_u', 'HU')
+  R_Use(dir_server + 'human_', , 'HUMAN_')
+  goto (mkod)
+  R_Use(dir_server + 'human', , 'HUMAN')
+  goto (mkod)
+  if mdate < human->k_data
+    rest_box(buf)
+    close databases
+    return func_error(4, 'Дата выдачи справки меньше даты окончания лечения!')
+  endif
+  frt->data := mdate
+  frt->data1 := human->n_data
+  frt->data2 := human->k_data
+  frt->fio := human->fio
+  Select HU
+  find (str(mkod, 7))
+  do while hu->kod == mkod .and. !eof()
+    if !emptyany(hu->kol_1, hu->stoim_1)
+      usl->(dbGoto(hu->u_kod))
+      lshifr := opr_shifr_TFOMS(usl->shifr1, usl->kod, human->k_data)
+      if is_usluga_TFOMS(usl->shifr,lshifr, human->k_data)
+        lshifr := iif(empty(lshifr), usl->shifr, lshifr)
+        select LUSL
+        find (padr(lshifr, 10))
+        Select FRD
+        find (padr(lshifr, 10))
+        if !found()
+          append blank
+          frd->shifr := lshifr
+          frd->name := lusl->name  // наименование услуги из справочника ТФОМС
+          frd->cena := hu->stoim_1 / hu->kol_1
+        endif
+        frd->kol += hu->kol_1
+        frd->summa += hu->stoim_1
+        msumma += hu->stoim_1
+      endif
+    endif
+    select HU
+    Skip
+  enddo
+  Select FRD
+  go top
+  do while !eof()
+    if frd->kol > 1
+      frd->name1 := ' (в количестве ' + lstr(frd->kol) + ')'
+    endif
+    Skip
+  enddo
+  index on str(summa, 11, 2) to (fr_data) descending
+  G_Use(dir_server + 'mo_sprav', , 'SPR_OMS')
+  Locate for kod_h == mkod
+  if found()
+    G_RLock(forever)
+  else
+    append blank
+    spr_oms->KOD_H  := mkod
+    spr_oms->KOD_K  := 0
+  endif
+  spr_oms->FIO    := human->FIO
+  spr_oms->DATE_R := human->DATE_R
+  spr_oms->DATA   := mdate
+  spr_oms->N_DATA := human->n_data
+  spr_oms->K_DATA := human->k_data
+  if human_->USL_OK == 1
+    spr_oms->TIP := 2  // стационар
+  elseif human_->USL_OK == 2
+    spr_oms->TIP := 3  // дневной стационар
+  else
+    spr_oms->TIP := 1  // амбулаторно
+  endif
+  spr_oms->STOIM  := human->CENA_1
+  close databases
+  rest_box(buf)
+  call_fr('mo_spravkaOMS')
+  return NIL
+
+// 27.11.14 Ввод и распечатка справки о стоимости оказанной медицинской помощи в сфере ОМС')
+Function f_spravka_OMS()
+  Local i, j, k, k1, buf := savescreen(), rec_spr_oms := 0
+
+  k1 := polikl1_kart()
+  close databases // если вдруг вышли по <Esc>
+  //
+  Private mfio := space(50), mdate_r := ctod(''), ;
+        mdate := sys_date, mn_data := sys_date, mk_data := sys_date, ;
+        mstoim := 0, m1usl := 1, musl := ' ', parr_usl := {}, ;
+        p_box_buf, gl_area := {1, 0, 23, 79, 0}
+
+  if k1 > 0
+    R_Use(dir_server + 'kartotek', , 'KART')
+    goto (glob_kartotek)
+    mfio    := kart->fio
+    mdate_r := kart->date_r
+    close databases
+  endif
+  Private r1 := maxrow() - 18
+  do while .t.
+    setcolor(cDataCGet)
+    ClrLines(r1, maxrow() - 1)
+    @ r1 - 1, 0 say padc('Справка ОМС', 80) color 'B/B*'
+    if p_box_buf != NIL
+      rest_box(p_box_buf)
+    endif
+    i := r1 + 1
+    if k1 == 0
+      @ i, 1 say 'Пациент' get mfio pict '@!'
+      @ row(), col() + 2 say 'Дата р.' get mdate_r
+    else
+      @ i, 1 say 'Пациент' color 'G+/B' get mfio when .f.
+      @ row(), col() + 2 say 'Дата р.' color 'G+/B' get mdate_r when .f.
+    endif
+    @ ++i, 1 say 'Сроки лечения: с' get mn_data
+    @ row(), col() + 1 say 'по' get mk_data
+    @ row(), col() + 7 say 'Дата выдачи справки' get mdate ;
+                        valid {|| __keyboard(CHR(K_ENTER)), .t. }
+    @ ++i, 1 say 'Оказанные услуги:' color color8 get musl ;
+              reader {|x|menu_reader(x, {{|k, r, c| fu_spravka_OMS(r, c)}}, A__FUNCTION,,, .f.)}
+    status_key('^<Esc>^ - выход для печати')
+    myread()
+    do while (k := f_alert({padc('Выберите действие', 60, '.')}, ;
+              {' Выход ', ' Печать справки ', ' Возврат в редактирование '}, ;
+              2, 'W+/N', 'N+/N', maxrow() - 2, , 'W+/N, N/BG' )) == 0
+    enddo
+    if k == 1
+      exit
+    elseif k == 2
+      if empty(mfio)
+        func_error(4, 'Не введены Ф.И.О.')
+        loop
+      endif
+      if empty(mdate)
+        func_error(4, 'Не введена дата выдачи справки.')
+        loop
+      endif
+      if empty(mn_data)
+        func_error(4, 'Не введена дата начала лечения.')
+        loop
+      endif
+      if empty(mk_data)
+        func_error(4, 'Не введена дата окончания лечения.')
+        loop
+      endif
+      if mdate < mk_data
+        func_error(4, 'Дата выдачи справки меньше даты окончания лечения.')
+        loop
+      endif
+      if mk_data < mn_data
+        func_error(4, 'Дата окончания лечения меньше даты начала лечения.')
+        loop
+      endif
+      mstoim := 0 ; mtip := 2 // стационар
+      for i := 1 to len(parr_usl)
+        mstoim += parr_usl[i, 2] * parr_usl[i, 3]
+        if left(parr_usl[i, 5], 3) == '55.'
+          mtip := 3  // дневной стационар
+          exit
+        elseif left(parr_usl[i, 5], 2) == '2.' .or. eq_any(left(parr_usl[i, 5], 3), '57.', '60.', '70.', '72.')
+          mtip := 1  // амбулаторно
+          exit
+        endif
+      next
+      if empty(mstoim)
+        func_error(4, 'Не введены услуги.')
+        loop
+      endif
+      create_FR_file_for_spravkaOMS()
+      Use_base('lusl')
+      frt->data := mdate
+      frt->data1 := mn_data
+      frt->data2 := mk_data
+      frt->fio := mfio
+      for i := 1 to len(parr_usl)
+        if !emptyany(parr_usl[i, 2], parr_usl[i, 3])
+          select LUSL
+          find (padr(parr_usl[i, 5], 10))
+          Select FRD
+          find (padr(parr_usl[i, 5], 10))
+          if !found()
+            append blank
+            frd->shifr := parr_usl[i, 5]
+            frd->name := lusl->name  // наименование услуги из справочника ТФОМС
+            frd->cena := parr_usl[i, 3]
+          endif
+          frd->kol += parr_usl[i, 2]
+          frd->summa += parr_usl[i, 2] * parr_usl[i, 3]
+        endif
+      next
+      Select FRD
+      go top
+      do while !eof()
+        if frd->kol > 1
+          frd->name1 := ' (в количестве ' + lstr(frd->kol) + ')'
+        endif
+        Skip
+      enddo
+      index on str(summa, 11, 2) to (fr_data) descending
+      G_Use(dir_server + 'mo_sprav', , 'SPR_OMS')
+      if rec_spr_oms == 0
+        append blank
+        spr_oms->KOD_H  := 0
+        spr_oms->KOD_K  := iif(k1 > 0, glob_kartotek, 0)
+        rec_spr_oms := recno()
+      else
+        goto (rec_spr_oms)
+        G_RLock(forever)
+      endif
+      spr_oms->FIO    := mFIO
+      spr_oms->DATE_R := mDATE_R
+      spr_oms->DATA   := mdate
+      spr_oms->N_DATA := mn_data
+      spr_oms->K_DATA := mk_data
+      spr_oms->TIP    := mtip
+      spr_oms->STOIM  := mstoim
+      close databases
+      call_fr('mo_spravkaOMS')
+    endif
+  enddo
+  restscreen(buf)
+  return NIL
+
+// 27.11.14
+Function fu_spravka_OMS(r, c)
+  Local arr_title := {{1,' Шифр усл.'}, ;
+                      {2,'Кол'}, ;
+                      {3,'   Цена   '}, ;
+                      {4,' Наименование услуги'}}
+  local mpic := {, {3, 0}, {10, 2}}, tmp_color := setcolor('W+/B, W+/RB'), i
+  local blk := {|b, ar, nDim, nElem, nKey| fu2spravka_OMS(b, ar, nDim, nElem, nKey)}
+
+  if emptyany(mdate_r, mn_data, mk_data)
+    func_error(4, 'Проверьте правильность ввода даты рождения и сроков лечения')
+  else
+    @ r, c say space(10) color 'B/B'
+    Private mvzros_reb := iif(count_years(mdate_r, mn_data) < 18, 1, 0)
+    if len(parr_usl) == 0
+      aadd(parr_usl, {space(10), 1, 0, space(40), ''})
+    endif
+    Use_base('lusl')
+    Use_base('luslc')
+    R_Use(dir_server + 'uslugi', dir_server + 'uslugish', 'USL')
+    Arrn_Browse(r + 1, 2, maxrow() - 2, 77, parr_usl, arr_title, 1, , , , , .t., , mpic,blk, {.t., .t., .t.})
+    p_box_buf := save_box(r + 1, 0, maxrow() - 1, 79)
+    close databases
+  endif
+  setcolor(tmp_color)
+  return {1, ' '}
+
+// 27.11.14
+Function fu2spravka_OMS(b, ar, nDim, nElem, nKey)
+  LOCAL nRow := ROW(), nCol := COL(), i, j, flag := .f., fl, lshifr, lshifr1
+
+  DO CASE
+    CASE nKey == K_DOWN .or. nKey == K_INS
+      b:panHome()
+    CASE nKey == K_LEFT
+      b:left()
+    CASE nKey == K_RIGHT
+      if nDim == 1
+        b:right()
+      endif
+    OTHERWISE
+      if (nKey == K_ENTER .or. between(nKey, 48, 57)) .and. nDim < 3
+        if nDim == 1 .and. empty(parr[nElem, nDim])
+          if between(nKey, 48, 57)
+            keyboard chr(nKey)
+          endif
+          Private mshifr := space(10)
+          @ nRow, nCol GET mshifr picture '@!' valid valid_shifr()
+          myread()
+          if lastkey() != K_ESC
+            lshifr := mname := ''
+            select USL
+            find (mshifr)
+            if found()
+              mname := usl->name
+              lshifr1 := opr_shifr_TFOMS(usl->shifr1, usl->kod, mk_data)
+              if is_usluga_TFOMS(usl->shifr, lshifr1, mk_data)
+                lshifr := iif(empty(lshifr1), usl->shifr, lshifr1)
+              else
+                func_error(4, 'Это не услуга ТФОМС: ' + lshifr1)
+              endif
+            else
+              select LUSL
+              find (mshifr)
+              if found()
+                lshifr := lusl->shifr
+                mname := lusl->name
+              else
+                func_error(4, 'Это не услуга ТФОМС: '+mshifr)
+              endif
+            endif
+            if !empty(lshifr)
+              fl_del := fl_uslc := .f.
+              glob_podr := ''
+              glob_otd_dep := 0
+              v := fcena_oms(lshifr, ;
+                           (mvzros_reb == 0), ;
+                           mk_data, ;
+                           @fl_del, ;
+                           @fl_uslc)
+              if fl_uslc  // если нашли в справочнике ТФОМС
+                if fl_del
+                  func_error(4, 'Цена на услугу ' + rtrim(lshifr) + ' отсутствует в справочнике ТФОМС')
+                else
+                  fl := .t.
+                  parr[nElem, 1] := mshifr
+                  if empty(parr[nElem, 2])
+                    parr[nElem, 2] := 1
+                  endif
+                  parr[nElem, 3] := v
+                  parr[nElem, 4] := left(mname, 40)
+                  parr[nElem, 5] := lshifr
+                  b:right()
+                  b:refreshAll() ; flag := .t.
+                endif
+              else
+                func_error(4, 'Не найдена услуга в справочнике ТФОМС: '+lshifr)
+              endif
+            endif
+          endif
+        elseif nDim == 2
+          if between(nKey, 48, 57)
+            keyboard chr(nKey)
+          endif
+          Private mkol := parr[nElem, nDim]
+          @ nRow, nCol GET mkol picture '999'
+          myread()
+          if lastkey() != K_ESC .and. mkol >= 0
+            parr[nElem, 2] := mkol
+            flag := .t.
+          endif
+        endif
+      else
+        keyboard ''
+      endif
+  ENDCASE
+  @ nRow, nCol SAY ''
+  return flag
+
+// 27.11.14 Отчёт о количестве выданных справок ОМС
+Function f_otchet_spravka_OMS()
+  Local arr_m, buf := save_maxrow(), as := {0, 0, 0}, sh := 80, HH := 80, ;
+      i, n_file := cur_dir + 'o_sprOMS' + stxt
+
+  if (arr_m := year_month()) != NIL
+    mywait()
+    R_Use(dir_server + 'mo_sprav', , 'SPR_OMS')
+    index on data to (cur_dir + 'tmp') for between(data, arr_m[5], arr_m[6])
+    go top
+    do while !eof()
+      i := 1
+      if between(spr_oms->TIP, 1, 3)
+        i := spr_oms->TIP
+      endif
+      as[i] ++
+      skip
+    enddo
+    Use
+    fp := fcreate(n_file)
+    n_list := 1
+    tek_stroke := 0
+    add_string(glob_mo[_MO_SHORT_NAME])
+    add_string(padl('Приложение 3', sh))
+    add_string(padl('к Приказу МЗВО и ТФОМС', sh))
+    add_string(padl('№2841/758 от 29.10.2014г.', sh))
+    add_string('')
+    add_string(center('Отчёт', sh))
+    add_string(center('О количестве справок о стоимости оказанной медицинской помощи в', sh))
+    add_string(center('сфере ОМС, выданных застрахованным лицам в медицинских организациях', sh))
+    add_string(center(arr_m[4], sh))
+    add_string('')
+    add_string('────────────────────────────────────────────────────────────────────────────────')
+    add_string('      Количество проинформированных пациентов с выдачей справок о стоимости     ')
+    add_string('                      медицинской помощи в сфере ОМС                            ')
+    add_string('──────────────────────────┬──────────────────────────┬──────────────────────────')
+    add_string(' в амбулаторно-поликлини- │  в условиях стационара   │     в условиях дневного  ')
+    add_string('     ческих условиях      │                          │         стационара       ')
+    add_string('──────────────────────────┴──────────────────────────┴──────────────────────────')
+    add_string('')
+    add_string(padc(lstr(as[1]), 26) + ' ' + padc(lstr(as[2]), 26) + ' ' + padc(lstr(as[3]), 26))
+    add_string('')
+    add_string('────────────────────────────────────────────────────────────────────────────────')
+    fclose(fp)
+    rest_box(buf)
+    viewtext(n_file, , , , .f., , , 2)
+  endif
+  return NIL
