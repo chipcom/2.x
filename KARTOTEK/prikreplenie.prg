@@ -614,7 +614,7 @@ Function wq_prikreplenie()
   if fl_err
     if !empty(arr_uch)
       mywait()
-      cFileProtokol := 'prot' + stxt
+      cFileProtokol := cur_dir + 'prot' + stxt
       strfile(space(5) + 'Список пациентов из файла ' + filename + sdbf + ' без участка' + hb_eol() + hb_eol(), cFileProtokol)
       for i := 1 to len(arr_uch)
         strfile(lstr(i) + '. ' + arr_uch[i] + hb_eol(), cFileProtokol, .t.)
@@ -660,8 +660,8 @@ Function wq_prikreplenie()
   if empty(arr_uch)
     return func_error(4, 'Не найдено прикреплённых пациентов с участками, не отправленных в ТФОМС')
   endif
-  asort(arr_uch, , , {|x,y| x[1] < y[1] })
-  cFileProtokol := 'prot' + stxt
+  asort(arr_uch, , , {|x, y| x[1] < y[1] })
+  cFileProtokol := cur_dir + 'prot' + stxt
   strfile(space(5) + 'Список участков' + hb_eol() + hb_eol(), cFileProtokol)
   R_Use(dir_server + 'mo_otd', , 'OTD')
   R_Use(dir_server + 'mo_pers', , 'P2')
@@ -988,31 +988,41 @@ Function wq_prikreplenie()
   endif
   return NIL
 
-// 19.07.23
+// 03.08.23
+function text_error_to_file(cFileProtokol)
+  strfile('!ОШИБКА!' + hb_eol(), cFileProtokol, .t.)
+  return nil
+
+// 03.08.23
 Function f1_wq_prikreplenie(cFileProtokol, /*@*/is_err)
   Local s
 
   if p2->kateg != 1
     is_err := .t.
+    text_error_to_file(cFileProtokol)
     strfile(space(5) + '!ОШИБКА! у специалиста в справочнике персонала категория должна быть ВРАЧ' + hb_eol(), cFileProtokol, .t.)
   elseif empty(p2->snils)
     is_err := .t.
+    text_error_to_file(cFileProtokol)
     strfile(space(5) + '!ОШИБКА! не введен СНИЛС у врача в справочнике персонала' + hb_eol(), cFileProtokol, .t.)
   else
     s := space(80)
     if !val_snils(p2->snils, 2, @s)
       is_err := .t.
+      text_error_to_file(cFileProtokol)
       strfile(space(5) + '!ОШИБКА! '+s+' у врача в справочнике персонала' + hb_eol(), cFileProtokol, .t.)
     endif
   endif
   if empty(p2->otd)
     is_err := .t.
+    text_error_to_file(cFileProtokol)
     strfile(space(5) + '!ОШИБКА! не проставлено отделение у врача в справочнике персонала' + hb_eol(), cFileProtokol, .t.)
   else
     select OTD
     goto (p2->otd)
     if empty(otd->kod_podr)
       is_err := .t.
+      text_error_to_file(cFileProtokol)
       strfile(space(5) + '!ОШИБКА! в отд."' + alltrim(otd->name) + '" не проставлен код подразделения' + hb_eol(), cFileProtokol, .t.)
     endif
   endif
