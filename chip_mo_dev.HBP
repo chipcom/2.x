@@ -212,6 +212,8 @@ mo_version.prg
 .\oms\oms_sluch_dializ.prg
 .\oms\oms_sluch_onko_disp.prg
 .\oms\oms_sluch_smp.prg
+.\oms\oms_sluch_PrenD.prg
+.\oms\oms_sluch_g_cit.prg
 .\oms\verify_func.prg
 .\oms\verify_oms.prg
 .\oms\verify_sluch.prg

@@ -530,8 +530,9 @@ if emptyall(ekol[1],ekol[2])
     tmp1->kol13 += d
     ekol[5] += d
   endif
+  */
 endif
-*/
+
 if emptyall(ekol[1],ekol[2])
   for i := 1 to 12
     goto (i)
