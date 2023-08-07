@@ -254,6 +254,7 @@ mo_version.prg
 .\dispanser\oms_dispans_func.prg
 .\dispanser\mo_omsna.prg
 .\dispanser\mo_r01.prg
+.\dispanser\mo_r11.prg
 .\dispanser\mo_omsid.prg
 .\dispanser\disp_nab_func.prg
 
