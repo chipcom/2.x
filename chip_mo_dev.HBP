@@ -214,6 +214,8 @@ mo_version.prg
 .\oms\oms_sluch_smp.prg
 .\oms\oms_sluch_PrenD.prg
 .\oms\oms_sluch_g_cit.prg
+.\oms\oms_sluch_PREDN.prg
+.\oms\oms_sluch_PerN.prg
 .\oms\verify_func.prg
 .\oms\verify_oms.prg
 .\oms\verify_sluch.prg

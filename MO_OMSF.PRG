@@ -418,10 +418,6 @@ Function ZakSluchAccordanceDiagnoz(lshifr, mdiagnoz, ta)
   endif
   return NIL
 
-// проверка, умер ли пациент
-Function is_death(_rslt)
-  return eq_any(_rslt, 105, 106, 205, 206, 313, 405, 406, 411) // по результату лечения
-
 // врачебных приемов не должно быть более одного в один день
 Function vr_pr_1_den(par, /*@*/msg, in_arr)
   Local tmp_select := select(), lshifr, i, j, k, fl, s, arr_usl := {}, ;

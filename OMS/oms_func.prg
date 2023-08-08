@@ -1004,3 +1004,29 @@ Function is_1_etap_PN(ausl, _period, _etap)
 //   aadd(glob_katl, {"142 Рабочие и служащие, а также военнослужащие органов внутренних дел, Государственной противопожарной службы, получивших профессиональные заболевания, связанные с лучевым воздействием на работах в зоне отчуждения, ставшие инвалидами","142"})
 //   aadd(glob_katl, {"150 Бывшие несовершеннолетние узники концлагерей","150"})
 //   return NIL
+
+// проверка, умер ли пациент
+Function is_death(_rslt)
+  return eq_any(_rslt, 105, 106, 205, 206, 313, 405, 406, 411) // по результату лечения
+
+
+// 08.08.23
+// проверка исхода = СМЕРТЬ 
+function result_is_death(mkod_k, Loc_kod)
+  local a_smert := {}
+
+  select HUMAN
+  set index to (dir_server + 'humankk')
+  find (str(mkod_k, 7))
+  do while human->kod_k == mkod_k .and. !eof()
+    if recno() != Loc_kod .and. is_death(human_->RSLT_NEW) .and. ;
+                                  human_->oplata != 9 .and. human_->NOVOR == 0
+      a_smert := {'Данный больной умер!', ;
+                    'Лечение с ' + full_date(human->N_DATA) + ;
+                          ' по ' + full_date(human->K_DATA)}
+      exit
+    endif
+    skip
+  enddo
+  set index to
+  return a_smert

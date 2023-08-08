@@ -91,21 +91,22 @@ Function oms_sluch_g_cit(Loc_kod, kod_kartotek)
     if alltrim(msmo) == '34'
       mnameismo := ret_inogSMO_name(1, , .t.) // открыть и закрыть
     endif
-    // проверка исхода = СМЕРТЬ
-    select HUMAN
-    set index to (dir_server + 'humankk')
-    find (str(mkod_k, 7))
-    do while human->kod_k == mkod_k .and. !eof()
-      if recno() != Loc_kod .and. is_death(human_->RSLT_NEW) .and. ;
-                                    human_->oplata != 9 .and. human_->NOVOR == 0
-        a_smert := {'Данный больной умер!', ;
-                      'Лечение с ' + full_date(human->N_DATA) + ;
-                            ' по ' + full_date(human->K_DATA)}
-        exit
-      endif
-      skip
-    enddo
-    set index to
+    // проверка исхода = СМЕРТЬ 
+    // select HUMAN
+    // set index to (dir_server + 'humankk')
+    // find (str(mkod_k, 7))
+    // do while human->kod_k == mkod_k .and. !eof()
+    //   if recno() != Loc_kod .and. is_death(human_->RSLT_NEW) .and. ;
+    //                                 human_->oplata != 9 .and. human_->NOVOR == 0
+    //     a_smert := {'Данный больной умер!', ;
+    //                   'Лечение с ' + full_date(human->N_DATA) + ;
+    //                         ' по ' + full_date(human->K_DATA)}
+    //     exit
+    //   endif
+    //   skip
+    // enddo
+    // set index to
+    a_smert := result_is_death(mkod_k, Loc_kod)
   endif
   if Loc_kod > 0
     select HUMAN
