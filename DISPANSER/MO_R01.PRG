@@ -235,7 +235,7 @@ endif
 close databases
 return NIL
 
-***** 18.12.22 Создание файла обмена R05...
+***** 00.08.23 Создание файла обмена R05...
 Function f_create_R05()
 Local buf := save_maxrow(), i, fl
 Private mdate, mkol1 := 0, mkol2 := 0, mkol11 := 0, mkol12 := 0, mkol13 := 0,;
@@ -247,12 +247,14 @@ G_Use(dir_server + "mo_dr05p",,"R05p")
 if lastrec() == 0
   G_RLock(.t.,forever) // добавить 2-ую запись
 endif
-mrec := 1 // пока так
+mrec := 2 // пока так
 goto (mrec)
 if empty(r05p->n_y)
-  mdate := r05p->D_KZ := 0d20221214
+  //mdate := r05p->D_KZ := 0d20221214
+  mdate := r05p->D_KZ := 0d20230810
   r05p->N_Y := sgod // год для диспансеризации
-  r05p->TYPEOFREC := 0 // 0-первично представленная запись, 1-актуализированная запись
+  //r05p->TYPEOFREC := 0 // 0-первично представленная запись, 1-актуализированная запись
+  r05p->TYPEOFREC := 1
   r05p->KOL1 := 0 // количество пациентов для диспансеризации на год
   r05p->KOL2 := 0 // количество пациентов для профосмотров на год
 else
@@ -361,10 +363,10 @@ rest_box(buf)
 rest_box(buf24)
 return NIL
 
-***** 18.12.22 Ввод/редактирование плана-графика с разбивкой по месяцам
+***** 00.08.23 Ввод/редактирование плана-графика с разбивкой по месяцам
 Function f_pereschet_R05
 Local buf := save_maxrow(), nrow := row(), ncol := col(), icurs := setcursor(0), s,;
-      _arr_vozrast_DVN := ret_arr_vozrast_DVN(0d20221201)
+      _arr_vozrast_DVN := ret_arr_vozrast_DVN(0d20221201) //ret_arr_vozrast_DVN(0d20221201)
 mywait("Ждите! Производится подсчёт прикреплённого взрослого населения.")
 skol1 := skol2 := skol11 := skol12 := skol13 := 0
 R_Use(dir_server + "kartote2",,"KART2")
@@ -448,13 +450,13 @@ for i := 1 to 12
 //  tekol[5] += tmp1->kol13
 next
 //
-/*if emptyall(ekol[1],ekol[2])
-// записываем в запись 2 из записи 1 два месяца
+if emptyall(ekol[1],ekol[2])
+// записываем в запись 2 из записи 1 два месяца (теперь 8 месяцев)
 // первичное заполнение
   select R05P
   goto (1)
   select TMP1
-  for i := 1 to 2
+  for i := 1 to 8
     goto (i)
     tmp1->kol1 := &("r05p->kol1_"+strzero(i,2))
     tmp1->kol2 := &("r05p->kol2_"+strzero(i,2))
@@ -476,7 +478,7 @@ next
   goto (mrec)
   select TMP1
   //
-  for i := 3 to 12
+  for i := 9 to 12
     goto (i)
     tmp1->kol1 := round((skol[1]-tekol[1])/10,0)
     ekol[1] += tmp1->kol1
@@ -528,8 +530,9 @@ next
     tmp1->kol13 += d
     ekol[5] += d
   endif
+  */
 endif
-*/
+
 if emptyall(ekol[1],ekol[2])
   for i := 1 to 12
     goto (i)

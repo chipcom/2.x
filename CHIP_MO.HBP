@@ -210,6 +210,10 @@ mo_version.prg
 .\oms\oms_sluch_dializ.prg
 .\oms\oms_sluch_onko_disp.prg
 .\oms\oms_sluch_smp.prg
+.\oms\oms_sluch_PrenD.prg
+.\oms\oms_sluch_g_cit.prg
+.\oms\oms_sluch_PREDN.prg
+.\oms\oms_sluch_PerN.prg
 .\oms\verify_func.prg
 .\oms\verify_oms.prg
 .\oms\verify_sluch.prg
@@ -252,6 +256,7 @@ mo_version.prg
 .\dispanser\oms_dispans_func.prg
 .\dispanser\mo_omsna.prg
 .\dispanser\mo_r01.prg
+.\dispanser\mo_r11.prg
 .\dispanser\mo_omsid.prg
 .\dispanser\disp_nab_func.prg
 
