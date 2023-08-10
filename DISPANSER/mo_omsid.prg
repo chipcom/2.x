@@ -2785,7 +2785,8 @@ do case
                 "inf_DVN(52)"}
     popup_prompt(T_ROW,T_COL-5,si5,mas_pmt,mas_msg,mas_fun)
   case k == 42
-    mas_pmt := {"~Создание файлов обмена",;
+    ne_real()
+    /*mas_pmt := {"~Создание файлов обмена",;
                 "~Просмотр файлов обмена"}
     mas_msg := {"Создание файлов обмена R01... по всем месяцам",;
                 "Просмотр файлов обмена R01... и результатов работы с ними"}
@@ -2799,7 +2800,7 @@ do case
     //set key K_CTRL_F10 to delete_month_R01()
     popup_prompt(T_ROW,T_COL-5,si6,mas_pmt,mas_msg,mas_fun)
     //set key K_CTRL_F10 to
-
+*/
   case k == 21
     if (j := popup_prompt(T_ROW,T_COL-5,1,mas1pmt)) > 0
       f21_inf_DVN(j)
@@ -2817,8 +2818,8 @@ do case
   case k == 62
     f_view_R01()
   case k == 43
-   // ne_real()
-    mas_pmt := {"~Создание файлов обмена",;
+    ne_real()
+   /* mas_pmt := {"~Создание файлов обмена",;
                 "~Просмотр файлов обмена"}
     mas_msg := {"Создание файлов обмена R11... за конкретный месяц",;
                 "Просмотр файлов обмена R11... и результатов работы с ними"}
@@ -2837,7 +2838,7 @@ do case
     set key K_CTRL_F10 to delete_month_R11()
     popup_prompt(T_ROW,T_COL-5,si7,mas_pmt,mas_msg,mas_fun)
     set key K_CTRL_F10 to
-    
+    */
   case k == 71
     f_create_R11()
   case k == 72

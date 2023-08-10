@@ -244,14 +244,15 @@ Private sgod := 2023
 
 //
 G_Use(dir_server + "mo_dr05p",,"R05p")
-if lastrec() == 0
+if lastrec() == 1
+  //append blank
   G_RLock(.t.,forever) // добавить 2-ую запись
 endif
 mrec := 2 // пока так
 goto (mrec)
 if empty(r05p->n_y)
   //mdate := r05p->D_KZ := 0d20221214
-  mdate := r05p->D_KZ := 0d20230810
+  mdate := r05p->D_KZ := 0d20230809
   r05p->N_Y := sgod // год для диспансеризации
   //r05p->TYPEOFREC := 0 // 0-первично представленная запись, 1-актуализированная запись
   r05p->TYPEOFREC := 1
@@ -295,7 +296,7 @@ Private skol1 := 0, skol2 := 0, skol11 := 0, skol12 := 0, skol13 := 0
 buf := box_shadow(r1,2,maxrow()-2,77,,"План-график на "+lstr(sgod)+" год",color8)
 do while .t.
   @ r1+1,54 say "| прикреплённое" color color14
-  @ r1+2,4 say "Приказ КЗ ВО №3630 от" get mdate when .f.
+  @ r1+2,4 say "Письмо ТФОМС 09-20-354 от" get mdate when .f.
    @ row(),col()+12 say "_план_|_количество___" color color14
   @ r1+3,4 say "Численность лиц для диспансеризации (всего)" get mkol1  pict "99999"
    @ row(),col()+1 say "|" color color14 get skol1 color color8 pict "99999" when .f.
@@ -414,7 +415,7 @@ Function f2_create_R05()
 Local buf := savescreen(), tmp_color, t_arr[BR_LEN], blk, blk1, i, d, tekol[5]
 Private skol[5], ekol[5]
 afill(ekol,0)
-//afill(tekol,0)
+afill(tekol,0)
 tmp_color := setcolor(color5)
 R_Use(dir_server + "mo_dr05p",,"R05p")
 goto (mrec)
@@ -454,9 +455,9 @@ if emptyall(ekol[1],ekol[2])
 // записываем в запись 2 из записи 1 два месяца (теперь 8 месяцев)
 // первичное заполнение
   select R05P
-  goto (1)
+  goto (1) // берем из первой записи
   select TMP1
-  for i := 1 to 8
+  for i := 1 to 12
     goto (i)
     tmp1->kol1 := &("r05p->kol1_"+strzero(i,2))
     tmp1->kol2 := &("r05p->kol2_"+strzero(i,2))
@@ -478,7 +479,8 @@ if emptyall(ekol[1],ekol[2])
   goto (mrec)
   select TMP1
   //
-  for i := 9 to 12
+  // первичное заполнение не пересчитываем - все берем идентично декабрю
+  /*for i := 9 to 12
     goto (i)
     tmp1->kol1 := round((skol[1]-tekol[1])/10,0)
     ekol[1] += tmp1->kol1
@@ -490,7 +492,7 @@ if emptyall(ekol[1],ekol[2])
     ekol[4] += tmp1->kol12
     tmp1->kol13 := round((skol[5]-tekol[5])/10,0)
     ekol[5] += tmp1->kol13
-  next
+  next*/
 /*  for i := 1 to 12
     goto (i)
     tmp1->kol1 := round(skol[1]/12,0)
@@ -671,9 +673,12 @@ endif
 return flag
 */
 
-***** 23.12.19
+***** 10.08.23
 Function ver_f2_create_R05(lmes)
 Local fl := .t.
+if glob_mo[_MO_KOD_TFOMS] == '371001' .or. glob_mo[_MO_KOD_TFOMS] == '461001'
+  return .T.
+endif  
 if tmp1->kol1 >= tmp1->kol11
   if tmp1->kol11 >= tmp1->kol12
     if tmp1->kol11 >= tmp1->kol13
@@ -845,7 +850,7 @@ endif
 if fl
   // !!! ВНИМАНИЕ
 
-  for i := 1 to 12 //3
+  for i := 9 to 12 // коррекция 3
     if ames[i,1] >= ames[i,3]
       if ames[i,3] >= ames[i,4]
         if ames[i,3] >= ames[i,5]
@@ -872,6 +877,10 @@ if fl
     endif
   next
 endif
+if glob_mo[_MO_KOD_TFOMS] == '371001' .or. glob_mo[_MO_KOD_TFOMS] == '461001'
+  fl := .T.
+endif
+
 if fl
   waitstatus("Работа с участками...")
   R_use_base("kartotek")
@@ -906,7 +915,7 @@ if fl
     endif
   next
 // !!! ВНИМАНИЕ
-  for i := 1 to 12  //3
+  for i := 9 to 12  //3 норма 1
     for j := 1 to 5
       aumes[i,j] := f1_f3_create_R05(ames[i,j],k)
     next
@@ -915,7 +924,7 @@ if fl
 
   if f_Esc_Enter("создания файла R05")
 // !!! ВНИМАНИЕ
-    mmes := 1  // менял 3
+    mmes := 9  // менял 3 - норма 1
     nsh := 3
     R_Use(dir_server + "mo_dr05p",,"R05p")
     goto (mrec)
@@ -1620,7 +1629,7 @@ return NIL
 Function verify_packet_R05(par,arr,/*@*/ret_nn)
 Local fl := .t.
 is_reestr := .f.
-ret_nn := 0 // !!! ВНИМАНИЕ  0
+ret_nn := 10 // !!! ВНИМАНИЕ  0
 R_Use(dir_server + "mo_dr05e",,"REFR")
 R_Use(dir_server + "mo_xml",,"MO_XML")
 index on str(reestr,6) to (cur_dir+"tmp_xml") for tip_in == _XML_FILE_R06 .and. empty(TIP_OUT)
