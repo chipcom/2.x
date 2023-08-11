@@ -450,6 +450,31 @@ for i := 1 to 12
 //  tekol[4] += tmp1->kol12
 //  tekol[5] += tmp1->kol13
 next
+// принудительно всегда - потом убрать
+/*select R05P
+goto (1) // берем из первой записи
+select TMP1
+for i := 1 to 8
+  goto (i)
+  tmp1->kol1 := &("r05p->kol1_"+strzero(i,2))
+  tmp1->kol2 := &("r05p->kol2_"+strzero(i,2))
+  tmp1->kol11 := &("r05p->kol11_"+strzero(i,2))
+  tmp1->kol12 := &("r05p->kol12_"+strzero(i,2))
+  tmp1->kol13 := &("r05p->kol13_"+strzero(i,2))
+  ekol[1] += tmp1->kol1
+  ekol[2] += tmp1->kol2
+  ekol[3] += tmp1->kol11
+  ekol[4] += tmp1->kol12
+  ekol[5] += tmp1->kol13
+  tekol[1] += tmp1->kol1
+  tekol[2] += tmp1->kol2
+  tekol[3] += tmp1->kol11
+  tekol[4] += tmp1->kol12
+  tekol[5] += tmp1->kol13
+next
+select R05P
+goto (mrec)
+select TMP1*/
 //
 if emptyall(ekol[1],ekol[2])
 // записываем в запись 2 из записи 1 два месяца (теперь 8 месяцев)
@@ -1648,7 +1673,7 @@ if found()
       fl := .f.
       write_reestr := .t.
       aadd(arr,"В ответе PR05 на файл обмена R05 присутствуют ошибки")
-      if refr->r05_zap == 0 .and. refr->kod_err == 510
+      if refr->r05_zap == 0 .and. (refr->kod_err == 510  .or. refr->kod_err == 508)
         aadd(arr,"Ошибка 510 - отредактируйте плановое количество за год и по месяцам")
         is_reestr := .f.
       endif
