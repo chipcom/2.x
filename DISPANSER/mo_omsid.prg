@@ -2818,8 +2818,8 @@ do case
   case k == 62
     f_view_R01()
   case k == 43
-    ne_real()
-    /*mas_pmt := {"~Создание файлов обмена",;
+    //ne_real()
+    mas_pmt := {"~Создание файлов обмена",;
                 "~Просмотр файлов обмена"}
     mas_msg := {"Создание файлов обмена R11... за конкретный месяц",;
                 "Просмотр файлов обмена R11... и результатов работы с ними"}
@@ -2830,15 +2830,17 @@ do case
       aadd(mas_msg, "Аннулирование недописанного пакета R11")
       aadd(mas_fun, "delete_reestr_R11()")
     endif
+    /*
     if glob_mo[_MO_KOD_TFOMS] == '161015' // КБ-11
       aadd(mas_pmt, "~Повторный подбор пациентов")
       aadd(mas_msg, "Повторный подбор пациентов")
       aadd(mas_fun, "find_new_R00()")
     endif
+    */
     set key K_CTRL_F10 to delete_month_R11()
     popup_prompt(T_ROW,T_COL-5,si7,mas_pmt,mas_msg,mas_fun)
     set key K_CTRL_F10 to
-    */
+    
   case k == 71
     f_create_R11()
   case k == 72
