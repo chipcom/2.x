@@ -158,7 +158,8 @@ Local mo_dr05p := {; // план-график
    {"KOL13_10",  "N", 6,0},; //
    {"KOL13_11",  "N", 6,0},; //
    {"KOL13_12",  "N", 6,0},; //
-   {"D_KZ",     "D", 8,0};  // дата приказа КЗ ВО
+   {"D_KZ",     "D", 8,0},; // дата приказа КЗ ВО
+   {"priz",     "N", 1,0};  
   }
 Local mo_dr05e := {; // список ошибок в реестрах будущих диспансеризаций
    {"REESTR",   "N", 6,0},; // код реестра;по файлу "mo_dr05"
@@ -181,7 +182,7 @@ Locate for n_y < 2023  // ЮЮ 12.12.22
 fl := found()
 Use
 if fl
-  f_zap_all_mo_dr()
+ // f_zap_all_mo_dr()
 endif
 return NIL
 
@@ -225,11 +226,38 @@ return NIL
 Function fff_init_r01()
 Local buf := save_maxrow()
 R_Use(dir_server + "mo_dr05p",,"R05p")
-if fieldnum("KOL11") == 0
+/*if fieldnum("KOL11") == 0
   close databases
   myWait()
   f_init_r01() // инициализация всех файлов инф.сопровождения по диспансеризации
   close databases
+  rest_box(buf)
+endif*/
+if fieldnum("priz") == 0
+  close databases
+  myWait()
+  // освобождаем R01 за 9-12 месяц
+  Status_Key("^<Esc>^ - прервать поиск")
+  hGauge := GaugeNew(,,,"Поиск пациентов, подлежащих дисп-ии/профосмотрам",.t.)
+  GaugeDisplay( hGauge )
+  G_Use (dir_server + "mo_dr00",,"TMP")
+  go top
+  do while !eof()
+    if tmp->n_m > 8  
+      G_RLock(forever)
+      tmp->n_q := 0
+      tmp->n_m := 0
+      tmp->reestr := 0
+      UnLock
+    endif
+    skip
+  enddo
+  CloseGauge(hGauge)
+  close databases
+  // подбор новых пациентов
+  find_new_R00()
+  close databases
+  f_init_r01()
   rest_box(buf)
 endif
 close databases
@@ -1694,11 +1722,11 @@ else
 endif
 return fl
 
-***** 18.12.22 Создание файла обмена R01...
+***** 15.08.22 Создание файла обмена R01...
 Function f_create_R01()
 Local buf := save_maxrow(), i, j, ir, s := "", arr := {}, fl := .t., fl1 := .f., a_reestr := {},;
       azip := {}, aerr := {}, full_zip, name_zip, cFile, cName, oXmlDoc, lgod_r
-Private SMONTH := 1, mdate := sys_date, mrec := 1
+Private SMONTH := 9, mdate := sys_date, mrec := 10 // было 1
 // !!! ВНИМАНИЕ
 Private c_view := 0, c_found := 0, fl_exit := .f., pj, arr_rees := {},;
         pkol := 0, CODE_LPU := glob_mo[_MO_KOD_TFOMS], CODE_MO := glob_mo[_MO_KOD_FFOMS],;
@@ -1742,8 +1770,8 @@ if (fl := verify_packet_R05(1,arr))
   do while !eof()
     fl1 := .t.
     if rees->kol_err < 0
-      //fl := func_error(4,"В файле R02 за "+lstr(rees->NMONTH)+"-й месяц "+;
-      //                   lstr(sgod)+"г. ошибки на уровне файла! Операция запрещена")
+      fl := func_error(4,"В файле R02 за "+lstr(rees->NMONTH)+"-й месяц "+;
+                         lstr(sgod)+"г. ошибки на уровне файла! Операция запрещена")
     elseif empty(rees->answer)
       fl := func_error(4,"Файл PR01 за "+lstr(rees->NMONTH)+"-й месяц "+;
                          lstr(sgod)+" года не был прочитан! Операция запрещена")
@@ -3644,10 +3672,10 @@ Static Function f0_create_new_R01(sgod,cv,cf)
     tmp->tip := ltip
     tmp->tip1 := ltip1
     tmp->voz := lvoz
-    my_debug(,ltip)
-    my_debug(,kart->kod)
-    my_debug(,tmp->kod)
-    my_debug(,tmp->(recno()))
+    //my_debug(,ltip)
+    //my_debug(,kart->kod)
+    //my_debug(,tmp->kod)
+    //my_debug(,tmp->(recno()))
     if between(ltip1,1,3)
       //++mkol[ltip1+2]
     else
