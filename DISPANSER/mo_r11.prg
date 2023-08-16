@@ -11,7 +11,7 @@
 ** 18.01.23 Создание файла обмена R11...
 Function f_create_R11()
   Local buf := save_maxrow(), i, j, ir, s := "", arr := {}, fl := .t., fl1 := .f., a_reestr := {}, ar
-  Private SMONTH := 1, mdate := sys_date, mrec := 1
+  Private SMONTH := 1, mdate := sys_date, mrec := 2
   Private c_view := 0, c_found := 0, fl_exit := .f., pj, arr_rees := {},;
           pkol := 0, CODE_LPU := glob_mo[_MO_KOD_TFOMS], CODE_MO := glob_mo[_MO_KOD_FFOMS],;
           mkol := {0,0,0,0,0}, skol[5], ames[12,5], ame[12], bm := SMONTH,; // начальный месяц минус один
