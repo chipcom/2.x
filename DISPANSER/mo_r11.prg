@@ -65,7 +65,7 @@ Function f_create_R11()
     return NIL
   endif
   
-  if fl_1 .or. code_lpu == "321001"// не первый раз
+  if fl_1 .or. code_lpu == "321001" .or. code_lpu == "461001" // не первый раз
     R_Use(dir_server+"mo_dr05p",,"R05p")
     goto (mrec)
     skol[1] := r05p->KOL1
@@ -238,7 +238,7 @@ Function f_create_R11()
     endif
     //quit
   else // первый раз
-  /*  select REES
+   /* select REES
     index on str(NMONTH,2)+str(nn,3) to (cur_dir+"tmp_dr01") for NYEAR == sgod .and. tip == 0
     find (str(lm,2))
     do while lm == rees->NMONTH .and. !eof()
@@ -272,8 +272,8 @@ Function f_create_R11()
         select RHUM
         skip
       enddo
-    next */
-  
+    next 
+  */
     //
     select REES
     index on str(NMONTH,2)+str(nn,3) to (cur_dir+"tmp_dr01") for NYEAR == sgod .and. tip == 0
