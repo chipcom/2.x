@@ -36,7 +36,6 @@ Function f_create_R11()
   index on str(nn,3) to (cur_dir+"tmp_dr01") for NYEAR == sgod .and. eq_any(NMONTH,SMONTH-1,SMONTH) .and. tip == 1
   go top
   do while !eof()
-  
     if rees->kol_err < 0
       fl := func_error(4,"В файле PR11 за "+lstr(rees->NMONTH)+"-й месяц "+;
                          lstr(sgod)+"г. ошибки на уровне файла! Операция запрещена")
@@ -65,7 +64,8 @@ Function f_create_R11()
     return NIL
   endif
   
-  if fl_1 .or. code_lpu == "321001" .or. code_lpu == "461001" // не первый раз
+  //if fl_1 .or. code_lpu == "321001" .or. code_lpu == "461001" // не первый раз
+  // все считаем не первый раз
     R_Use(dir_server+"mo_dr05p",,"R05p")
     goto (mrec)
     skol[1] := r05p->KOL1
@@ -91,8 +91,7 @@ Function f_create_R11()
     for j := 1 to 5
       skol[j] := ames[SMONTH,j,1]
     next
-  // my_debug(,print_array(skol))
-  
+   my_debug(,print_array(skol))
     afill(ame,0)
     //
     if fl
@@ -106,11 +105,11 @@ Function f_create_R11()
         //my_debug(,tmp->kod)
         kart->(dbGoto(tmp->kod))
         ar := f0_create_R11(sgod)
-        if glob_mo[_MO_KOD_TFOMS] != '161015' // КБ-11
+        //if glob_mo[_MO_KOD_TFOMS] != '161015' // КБ-11
           if !(tmp->tip == ar[1] .and. tmp->tip1 == ar[2] .and. tmp->voz == ar[3])
             tmp->tip := 0
           endif
-        endif
+        //endif
         j := tmp->tip
         j1 := tmp->tip1
         tmp->n_m := tmp->n_q := 0 // если уже заходили в режим и не подтвердили создание XML
@@ -121,11 +120,12 @@ Function f_create_R11()
             mkol[j] ++ // подсчёт оставшегося кол-ва в пуле пациентов
           endif
         endif
-       // my_debug(,print_array(mkol))
+        my_debug(,print_array(mkol))
         skip
       enddo
       commit
-  
+      my_debug(,print_array(ames))
+      my_debug(,print_array(skol))
       index on str(reestr,6) to (cur_dir+"tmp_dr00")
       for ir := 1 to len(arr_rees)
         select R01k
@@ -237,7 +237,7 @@ Function f_create_R11()
       enddo
     endif
     //quit
-  else // первый раз
+  //else // первый раз
    /* select REES
     index on str(NMONTH,2)+str(nn,3) to (cur_dir+"tmp_dr01") for NYEAR == sgod .and. tip == 0
     find (str(lm,2))
@@ -275,7 +275,7 @@ Function f_create_R11()
     next 
   */
     //
-    select REES
+   /* select REES
     index on str(NMONTH,2)+str(nn,3) to (cur_dir+"tmp_dr01") for NYEAR == sgod .and. tip == 0
     find (str(lm,2))
     do while lm == rees->NMONTH .and. !eof()
@@ -306,7 +306,7 @@ Function f_create_R11()
         skip
       enddo
     next
-  endif
+  endif*/
   
   close databases
   if fl
@@ -350,11 +350,11 @@ Function f_create_R11()
   if !f_Esc_Enter("создания файла R11",.t.)
     return NIL
   endif
-  if eq_any(CODE_LPU,'124528','184603','141016') .and. hb_fileExists(dir_server+"b18"+sdbf)
-    lnn := 100 // специально для 28-ой п-ки после объединения с 18-ой б-цей
+  //if eq_any(CODE_LPU,'124528','184603','141016') .and. hb_fileExists(dir_server+"b18"+sdbf)
+  //  lnn := 100 // специально для 28-ой п-ки после объединения с 18-ой б-цей
                // или для 3-ей п-ки после объединения с 12-ой п-кой
                // или для Б16 после обьединения с Б24
-  endif
+  //endif
   G_Use(dir_server+"mo_dr01m",,"RM")
   AddRecN()
   rm->DWORK := sys_date
@@ -867,7 +867,9 @@ Function f32_view_R11(lm)
   select REES
   go top
   do while !eof()
-    aadd(arr_rees,rees->kod)
+    if rees->nmonth == lm  
+      aadd(arr_rees,rees->kod)
+    endif  
     skip
   enddo
 
