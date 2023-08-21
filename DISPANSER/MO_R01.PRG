@@ -903,7 +903,7 @@ endif
 if fl
   // !!! ┌█┬▄─█┬┘
 
-  for i := 9 to 12 // ╙╝ЮЮ╔╙Ф╗О 3
+  for i := 10 to 12 // ╙╝ЮЮ╔╙Ф╗О 3
     if ames[i,1] >= ames[i,3]
       if ames[i,3] >= ames[i,4]
         if ames[i,3] >= ames[i,5]
@@ -1726,7 +1726,7 @@ return fl
 Function f_create_R01()
 Local buf := save_maxrow(), i, j, ir, s := "", arr := {}, fl := .t., fl1 := .f., a_reestr := {},;
       azip := {}, aerr := {}, full_zip, name_zip, cFile, cName, oXmlDoc, lgod_r
-Private SMONTH := 9, mdate := sys_date, mrec := 10 // ║К╚╝ 1
+Private SMONTH := 11, mdate := sys_date, mrec := 2 // ║К╚╝ 1
 // !!! ┌█┬▄─█┬┘
 Private c_view := 0, c_found := 0, fl_exit := .f., pj, arr_rees := {},;
         pkol := 0, CODE_LPU := glob_mo[_MO_KOD_TFOMS], CODE_MO := glob_mo[_MO_KOD_FFOMS],;
@@ -1769,10 +1769,10 @@ if (fl := verify_packet_R05(1,arr))
   go top
   do while !eof()
     fl1 := .t.
-    if rees->kol_err < 0
+    if rees->kol_err < 0 .and. rees->NMONTH > 9
       fl := func_error(4,"┌ Д═╘╚╔ R02 ╖═ "+lstr(rees->NMONTH)+"-╘ ╛╔АОФ "+;
                          lstr(sgod)+"ё. ╝Х╗║╙╗ ╜═ ЦЮ╝╒╜╔ Д═╘╚═! ▌╞╔Ю═Ф╗О ╖═╞Ю╔И╔╜═")
-    elseif empty(rees->answer)
+    elseif empty(rees->answer) .and. rees->NMONTH > 9
       fl := func_error(4,"■═╘╚ PR01 ╖═ "+lstr(rees->NMONTH)+"-╘ ╛╔АОФ "+;
                          lstr(sgod)+" ё╝╓═ ╜╔ ║К╚ ╞Ю╝Г╗Б═╜! ▌╞╔Ю═Ф╗О ╖═╞Ю╔И╔╜═")
     else
@@ -2212,7 +2212,7 @@ set relation to recno() into KART_, recno() into KART2
 G_Use(dir_server + "mo_dr00",,"TMP")
 set relation to kod into KART
 index on str(n_m,2)+upper(kart->fio)+dtos(kart->date_r) to (cur_dir+"tmp_dr00")
-for SMONTH := 1 to 12
+for SMONTH := 10 to 12   // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   if empty(ame[SMONTH])
     loop
   endif
@@ -2599,7 +2599,7 @@ Local i, r := row(), r1, r2, buf := save_maxrow(), fl, s,;
 mywait()
 select MO_XML
 index on FNAME to (cur_dir+"tmp_xml") ;
-      for reestr == rees->kod .and. tip_in == ptip_f+1 .and. empty(TIP_OUT)
+      for reestr == rees->kod .and. tip_in == ptip_f+1 .and. empty(TIP_OUT) .and. dtos(dfile) > "20221201"
 go top
 do while !eof()
   aadd(mm_func, -1)
@@ -2646,13 +2646,13 @@ endif
 select REES
 return NIL
 
-***** 17.12.19
+***** 17.08.23
 Function f31_view_R01(reg,s)
 Local fl := .t., buf := save_maxrow(), k := 0, n_file := pname_f+"_SPIS"+stxt, tt := " "
 mywait()
-arr_title := {"ддддбдддбдддддддбдддддддддддддддддддддддддддддддддддддддддддбддддддддддбдддддддддддддддддддддддддддддддддддддддддбдддддддддддддддддд",;
-              " NN Ё⌠/╙Ё  ┼╝╓  Ё               ■.┬.▌.                      Ё  └═Б═ Ю. Ё                   ─╓Ю╔А                 Ё                  ",;
-              "ддддадддадддддддадддддддддддддддддддддддддддддддддддддддддддаддддддддддадддддддддддддддддддддддддддддддддддддддддадддддддддддддддддд"}
+arr_title := {"дддддбдддддддддддддддддддддддддддддддддддддддддддбддддддддддбдддддддддддддддддддддддддддддддддддддддддбдддддддддддддддддд",;
+              "  NN Ё               ■.┬.▌.                      Ё  └═Б═ Ю. Ё                   ─╓Ю╔А                 Ё                  ",;
+              "дддддадддддддддддддддддддддддддддддддддддддддддддаддддддддддадддддддддддддддддддддддддддддддддддддддддадддддддддддддддддд"}
 sh := len(arr_title[1])
 fp := fcreate(n_file) ; tek_stroke := 0 ; n_list := 1
 add_string("")

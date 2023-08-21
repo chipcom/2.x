@@ -8,7 +8,7 @@
 #define MONTH_UPLOAD 9 //МЕСЯЦ для выгрузки R11
 
 
-** 18.01.23 Создание файла обмена R11...
+** 21.08.23 Создание файла обмена R11...
 Function f_create_R11()
   Local buf := save_maxrow(), i, j, ir, s := "", arr := {}, fl := .t., fl1 := .f., a_reestr := {}, ar
   Private SMONTH := 1, mdate := sys_date, mrec := 2
@@ -64,8 +64,8 @@ Function f_create_R11()
     return NIL
   endif
   
-  //if fl_1 .or. code_lpu == "321001" .or. code_lpu == "461001" // не первый раз
-  // все считаем не первый раз
+  if fl_1 //.or. code_lpu == "321001" .or. code_lpu == "461001" // не первый раз
+    // все считаем не первый раз
     R_Use(dir_server+"mo_dr05p",,"R05p")
     goto (mrec)
     skol[1] := r05p->KOL1
@@ -91,7 +91,7 @@ Function f_create_R11()
     for j := 1 to 5
       skol[j] := ames[SMONTH,j,1]
     next
-   my_debug(,print_array(skol))
+   //my_debug(,print_array(skol))
     afill(ame,0)
     //
     if fl
@@ -305,8 +305,8 @@ Function f_create_R11()
         select RHUM
         skip
       enddo
-    next
-  endif*/
+    next*/
+  endif
   
   close databases
   if fl
