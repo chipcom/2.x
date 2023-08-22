@@ -58,7 +58,7 @@ mo_omsfo.prg
 mo_omso.prg
 mo_omsp.prg
 mo_omspr.prg
-mo_oms14.prg
+#mo_oms14.prg
 .\PP\mo_pp.prg
 .\PP\mo_ppi.prg
 .\KARTOTEK\mo_kart.prg

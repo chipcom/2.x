@@ -1,7 +1,7 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-***** 23.10.19 Изменение цен на услуги в соответствии со справочником услуг ТФОМС
+// 22.08.23 Изменение цен на услуги в соответствии со справочником услуг ТФОМС
 Function Change_Cena_OMS()
   Local buf := save_maxrow(), lshifr1, fl, lrec, rec_human, k_data2, kod_ksg, begin_date := addmonth(sys_date,-3)
   Local fl_ygl_disp := .F.
@@ -127,7 +127,7 @@ Function Change_Cena_OMS()
             if year(human->k_data) > 2018
               arr_ksg := definition_KSG(1,k_data2)
             else
-              arr_ksg := definition_KSG_18()
+              arr_ksg := definition_KSG(1,k_data2)  // definition_KSG_18() просто подменил
             endif
             fl1 := .t.
             if len(arr_ksg) == 7
