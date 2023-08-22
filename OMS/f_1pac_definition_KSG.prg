@@ -1,7 +1,7 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-// 06.07.23 определить КСГ для 1 пациента с открытием файлов
+// 22.08.23 определить КСГ для 1 пациента с открытием файлов
 // ВНИМАНИЕ! Не менять название функции, используется в PROCNAME() другой функции
 Function f_1pac_definition_KSG(lkod, is_msg)
   Local arr, i, s, buf := save_maxrow(), lshifr, lrec, lu_kod, lcena, lyear, mrec_hu, not_ksg := .t., sdial, fl
@@ -30,7 +30,7 @@ Function f_1pac_definition_KSG(lkod, is_msg)
     if lyear > 2018
       arr := definition_KSG()
     else
-      arr := definition_KSG_18()
+      arr := definition_KSG()     // definition_KSG_18()  просто подменил
     endif
     sdial := 0
     fl := .t.

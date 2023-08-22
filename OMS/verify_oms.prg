@@ -12,10 +12,18 @@ Function verify_OMS(arr_m, fl_view)
         mas_pmt := {'Список обнаруженных ошибок в результате проверки'}, mas_file := {}
 
   aadd(mas_file, name_file)
+
   DEFAULT arr_m TO year_month(T_ROW, T_COL + 5, , 3), fl_view TO .t.
+
   if arr_m == NIL
     return NIL
   endif
+
+  if arr_m[1] <= 2018
+    func_error(4, 'Случай ранее 2019 года.')
+    return nil
+  endif
+
   if fl_view .and. (ko := popup_prompt(T_ROW, T_COL + 5, 1, ;
                                        {'Проверять ~всех пациентов', ;
                                         'Не проверять вернувшихся из ТФОМС с ~ошибкой'})) == 0
@@ -116,8 +124,8 @@ Function verify_OMS(arr_m, fl_view)
       else
         if arr_m[1] > 2018
           fl := verify_1_sluch(fl_view)
-        else
-          fl := verify_1_sluch_18(fl_view)
+        // else
+        //   fl := verify_1_sluch_18(fl_view)
         endif
         if fl
           ++iprov

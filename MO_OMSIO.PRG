@@ -2464,7 +2464,7 @@ close databases
 restscreen(buf) ; setcolor(tmp_color)
 return NIL
 
-***** 08.12.21
+// 22.08.23
 Function f1proch_proverka(jt)
 Local i, j, k, k1, ju, fl_tmp, fl_next, arr_usl := {}, srok_l, mvid_ud, ;
       arr, s, arr_date, bd1, bd2, y, lshifr, u_1_stom := "", not_ksg := .t.
@@ -2476,7 +2476,7 @@ if human_->oplata < 9 .and. f_is_uch(st_a_uch,human->lpu)
     if (y := year(human->K_DATA)) > 2018
       arr := definition_KSG()
     else
-      arr := definition_KSG_18()
+      arr := definition_KSG()   // definition_KSG_18() просто подменил
     endif
     if select("K006") > 0
       k006->(dbCloseArea())

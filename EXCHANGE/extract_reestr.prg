@@ -3,8 +3,8 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** 19.03.22 вынуть реестр из XML-файлов и записать во временные DBF-файлы
-Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
+// 22.08.23 вынуть реестр из XML-файлов и записать во временные DBF-файлы
+Function extract_reestr(mkod, mname_xml, flag_tmp1, is_all, goal_dir)
   local p_tip_reestr
   local tmpSelect
   Local _table1 := {;
@@ -814,7 +814,7 @@ Function extract_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
       endif
     next ii
     if is_old
-      fl := extract_old_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
+      // fl := extract_old_reestr(mkod,mname_xml,flag_tmp1,is_all,goal_dir)
     endif
     t1->(dbCloseArea())
     t1_1->(dbCloseArea())
