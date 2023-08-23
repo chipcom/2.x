@@ -1737,6 +1737,9 @@ Private sgod := 2023
 //
 f00_create_R01()
 //
+my_debug(,print_array(mkol))
+my_debug(,print_array(skol))
+my_debug(,"00000000000000000000000000000")
 mywait()
 if (fl := verify_packet_R05(1,arr))
   R_Use(dir_server + "mo_dr05p",,"R05p")
@@ -1762,6 +1765,19 @@ if (fl := verify_packet_R05(1,arr))
   next
   afill(ame,0)
   //
+  if CODE_LPU == '161015'
+    skol[4] := 6
+  endif  
+  if CODE_LPU == '571001' .or. CODE_LPU == '521001'
+    skol[2] := 10
+  endif  
+  
+  //
+  my_debug(,print_array(ames))
+  //
+  my_debug(,print_array(mkol))
+  my_debug(,print_array(skol))
+  my_debug(,"1111111111111111111111111111111")
   select MO_XML
   index on str(reestr,6) to (cur_dir+"tmp_xml") for tip_in == _XML_FILE_R02 .and. empty(TIP_OUT)
   R_Use(dir_server + "mo_dr01",,"REES")
@@ -1791,6 +1807,11 @@ if (fl := verify_packet_R05(1,arr))
     skip
   enddo
   //
+  my_debug(,print_array(mkol))
+  my_debug(,print_array(skol))
+  my_debug(,"22222222222222222222222222222")
+
+
   if fl
     if fl1 // не первый раз составляется реестр в отчётном году
       R_Use(dir_server + "mo_dr01k",,"R01k")
@@ -1812,7 +1833,9 @@ if (fl := verify_packet_R05(1,arr))
         skip
       enddo
       commit
-      //
+     //
+      my_debug(,print_array(mkol))
+      my_debug(,print_array(skol))
       index on str(reestr,6) to (cur_dir+"tmp_dr00")
       for ir := 1 to len(arr_rees)
         select TMP
@@ -1849,6 +1872,10 @@ if (fl := verify_packet_R05(1,arr))
         enddo
         if !fl ; exit ; endif
     next ir
+    my_debug(,"33333333333333333333333333333333")
+    my_debug(,print_array(mkol))
+    my_debug(,print_array(skol))
+
       if emptyall(skol[1],skol[2],skol[3],skol[4],skol[5])
         fl := func_error(4,"Более не требуется создания файлов обмена!")
       else
@@ -1858,7 +1885,13 @@ if (fl := verify_packet_R05(1,arr))
             fl := func_error(4,"Не хватает "+lstr(skol[j]-mkol[j])+" чел. в картотеке для "+s)
           endif
         next
+     
       endif
+
+ //  if eq_any(CODE_LPU,'161015')
+ //         fl := .T.
+ //  endif
+
     else // первый раз составляется реестр в отчётном году
       Status_Key("^<Esc>^ - прервать поиск")
       hGauge := GaugeNew(,,,"Поиск пациентов, подлежащих дисп-ии/профосмотрам",.t.)
@@ -1893,6 +1926,10 @@ if (fl := verify_packet_R05(1,arr))
     endif
   endif
   //
+  my_debug(,"4444444444444444444444444444444444")
+  my_debug(,print_array(mkol))
+  my_debug(,print_array(skol))
+
   if fl
     mywait()
     // ставим принудительную заплатку на 3-й месяц
@@ -1913,19 +1950,35 @@ if (fl := verify_packet_R05(1,arr))
       next
     endif */
     // конец
+    my_debug(,"55555555555555555555555555555")
+    my_debug(,print_array(mkol))
+    my_debug(,print_array(skol))
+
+
     for v := 1 to 5
+      my_debug(,"Точка -1")
+      my_debug(,v)
       j := {2,4,5,3,1}[v]
+      my_debug(,j)
       // порядок: 2-профосмотр, 4-65 лет, 5-66 и старше, 3-пенсионеры, 1-остальная дисп-ия
       if empty(skol[j])
         loop
       endif
+      my_debug(,"Точка -2")
+      
       pj := j
       d := koef := int(mkol[j] / skol[j]) + 1 // через сколько записей прыгаем
       if d > 50
         d := koef := 33
       endif
       i := 0
+      my_debug(,"Точка -22  " +str(skol[j]) +"  "+str(j))
+     
       do while skol[j] > 0
+        
+        my_debug(,"Точка -23  " +str(skol[j]) +"  "+str(j))
+        
+        
         select TMP
         if j == 2 // профосмотр
           index on kod to (cur_dir+"tmp_dr00") for tmp->tip == 2 .and. tmp->n_q == 0 DESCENDING
@@ -1937,20 +1990,28 @@ if (fl := verify_packet_R05(1,arr))
           // затем остатки песионеров
           index on kod to (cur_dir+"tmp_dr00") for eq_any(tmp->tip,1,2) .and. tmp->tip1 == pj-2 .and. tmp->n_q == 0 DESCENDING
         endif
+        my_debug(,"Точка -3")
+      
         go top
         do while !eof()
           if d == koef
             if i >= 12  // месяцы
               i := 0
             endif
-            do while i < 12
+            do while i < 12 
               ++i
-              if ames[i,j,1] > ames[i,j,2] // если ещё не набрали месяц
-                tmp->n_m := i
-                ames[i,j,2] ++
-                skol[j] --
+              if i > 9  // 2023
+                if ames[i,j,1] > ames[i,j,2] // если ещё не набрали месяц
+                  tmp->n_m := i
+                  ames[i,j,2] ++
+                  skol[j] --
+                  exit
+                endif
+              else  // делаем - месяц набран
+                skol[j] := skol[j] - (ames[i,j,1] - ames[i,j,2]) 
+                ames[i,j,2] := ames[i,j,1]
                 exit
-              endif
+              endif    
             enddo
             d := 0
           endif
@@ -1960,6 +2021,8 @@ if (fl := verify_packet_R05(1,arr))
           endif
           skip
         enddo
+        my_debug(,"Точка -4")
+        
         //
         select TMP
         if j == 2
@@ -1969,6 +2032,9 @@ if (fl := verify_packet_R05(1,arr))
         else
           index on kod to (cur_dir+"tmp_dr00") for eq_any(tmp->tip,1,2) .and. tmp->tip1 == pj-2 .and. tmp->n_m > 0
         endif
+        my_debug(,"Точка -5")
+        
+
         go top
         do while !eof()
           if tmp->n_q == 0 .and. between(tmp->n_m,1,12)
@@ -1980,16 +2046,26 @@ if (fl := verify_packet_R05(1,arr))
         //
       enddo
     next v
+    my_debug(,"666666666666666666666666666")
+    my_debug(,print_array(mkol))
+    my_debug(,print_array(skol))
   endif
 else
   func_error(4,arr[1])
 endif
 close databases
-rest_box(buf)
+//rest_box(buf) временно
+
+my_debug(,"777777777777777777777777777777")
+my_debug(,print_array(mkol))
+my_debug(,print_array(skol))
+
+
 if fl
   if fl1
     if emptyall(ame[1],ame[2],ame[3],ame[4],ame[5],ame[6],ame[7],ame[8],ame[9],ame[10],ame[11],ame[12])
       func_error(4,"Больше нет необходимости создавать файлы R01 за "+lstr(sgod)+" год")
+      //f1_create_R01()
     else
       f1_create_R01()
     endif

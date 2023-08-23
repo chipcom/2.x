@@ -64,7 +64,7 @@ Function f_create_R11()
     return NIL
   endif
   
-  if fl_1 //.or. code_lpu == "321001" .or. code_lpu == "461001" // не первый раз
+  //if fl_1 //.or. code_lpu == "321001" .or. code_lpu == "461001" // не первый раз
     // все считаем не первый раз
     R_Use(dir_server+"mo_dr05p",,"R05p")
     goto (mrec)
@@ -306,7 +306,7 @@ Function f_create_R11()
         skip
       enddo
     next*/
-  endif
+  //endif
   
   close databases
   if fl
