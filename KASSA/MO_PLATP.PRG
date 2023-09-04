@@ -11430,12 +11430,12 @@ return NIL
 *
 
 
-***** 30.06.19
+***** 03.09.23
 Function pl_priemshk()
 Local fl := .t., buf := save_row(maxrow()), sm2 := 0, HH := 52,;
       n_file := "platn.txt", arr_m, sh, krvz, arr_dms,;
       mas_op1 := {}, mas_op2 := {}, mas_op3 := {}, i, arr[2], sm_bn := 0,;
-      t_hum_rec, kart_kod, t_k_data, nom_prihod := 0
+      t_hum_rec, kart_kod, t_k_data, nom_prihod := 0, sm_n := 0
 
 Local arr_title := {;
   "ÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÂÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ",;
@@ -11475,7 +11475,8 @@ dbcreate(cur_dir+"tmp", {{"kod",     "N",  4,  0},;
                          {"summa",   "N", 12,  2},;
                          {"kod_vr",  "N",  4,  0},;
                          {"fio_vr",  "C", 60,  0},;
-                         {"summa_bn","N", 12,  2}})
+                         {"summa_bn","N", 12,  2},;
+                         {"summa_n", "N", 12,  2}})
 use (cur_dir+"tmp") new
 if yes_parol
   R_Use(dir_server+"base1",,"BASE1")
@@ -11502,6 +11503,7 @@ do while hum->fr_data <= arr_m[8] .and. !eof()
     tmp->fr_time  := hum->fr_time
     tmp->summa    := hum->cena
     tmp->summa_bn := hum->sbank
+    tmp->summa_n  := hum->cena - hum->sbank
     tmp->operat   := hum->kod_oper
     tmp->dogovor  := lstr(hum->kod_k)
     if glob_mo[_MO_KOD_TFOMS] == '171004' // Š-4
@@ -11639,8 +11641,9 @@ if bkol_oper > 0
                    iif(tmp->t_flag==1,"*"," "))
       endif
     endif
-    sm2 += tmp->summa
+    sm2   += tmp->summa
     sm_bn += tmp->summa_bn
+    sm_n  += tmp->summa_n
     skip
   enddo
   add_string(replicate("Ä",sh))
@@ -11654,9 +11657,15 @@ if bkol_oper > 0
     add_string(arr[i])
   next
   if meK_bank == 1
-    for i := 1 to perenos(arr,"¨§ ­¨å ¢ ª ááã: "+srub_kop(sm2-sm_bn,.t.),sh)
-      add_string(arr[i])
-    next
+    if glob_mo[_MO_KOD_TFOMS] == '103001'
+      for i := 1 to perenos(arr,"¨§ ­¨å ¢ ª ááã: "+srub_kop(sm_n,.t.),sh)
+        add_string(arr[i])
+      next
+    else  
+      for i := 1 to perenos(arr,"¨§ ­¨å ¢ ª ááã: "+srub_kop(sm2-sm_bn,.t.),sh)
+        add_string(arr[i])
+      next
+    endif
   endif
   add_string("")
   add_string("            ‘¤ « "+padr(alltrim(mas_op3[bkol_oper])+":",21)+"                    /"+alltrim(mas_op2[bkol_oper])+"/")
