@@ -7,8 +7,8 @@
 
 // =========== N001 ===================
 //
-// 27.08.23 вернуть массив ФФОМС N001.xml
-function loadN001()
+// 05.09.23 вернуть массив ФФОМС N001.xml
+function getN001()
   // возвращает массив N001
   static _arr
   static time_load
@@ -32,7 +32,7 @@ function loadN001()
         'FROM n001')
     if len(aTable) > 1
       for nI := 2 to Len( aTable )
-        aadd(_arr, {val(aTable[nI, 1]), alltrim(aTable[nI, 2])}) //, val(aTable[nI, 3]), alltrim(aTable[nI, 4])})
+        aadd(_arr, {alltrim(aTable[nI, 2]), val(aTable[nI, 1])}) //, val(aTable[nI, 3]), alltrim(aTable[nI, 4])})
       next
     endif
     db := nil
