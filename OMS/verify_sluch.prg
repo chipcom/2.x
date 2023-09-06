@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-// 15.07.23
+// 05.09.23
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1, ;
         i, j, k, c, s := ' ', a_srok_lech := {}, a_period_stac := {}, a_disp := {}, ;
@@ -1827,7 +1827,7 @@ Function verify_1_sluch(fl_view)
     select ONKPR
     find (str(human->kod, 7))
     do while onkpr->kod == human->kod .and. !eof()
-      if !between(onkpr->PROT, 0, 8)
+      if !between(onkpr->PROT, 0, 8)  // цифры взяты из справочника N001.xml
         aadd(ta, 'Некорректно записано противопоказание к проведению (отказ от проведения)')
       elseif onkpr->D_PROT > d2
         // n1->(dbGoto(onkpr->PROT))
