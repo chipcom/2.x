@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 16.09.18 просмотр/печать общих справочников
+// 07.09.23 просмотр/печать общих справочников
 Function o_sprav(k)
   Static sk := 1, sk1 := 1, sk2 := 1
   Local str_sem, mas_pmt, mas_msg, mas_fun, j
@@ -83,13 +83,17 @@ Function o_sprav(k)
                   'o_sprav(25)'}
       popup_prompt(T_ROW, T_COL - 5, sk2, mas_pmt, mas_msg, mas_fun)
     case k == 21 //
-      pr_sprav_N002(2)
+      // pr_sprav_N002(2)
+      pr_sprav_onko(2)
     case k == 22 //
-      pr_sprav_N002(3)
+      // pr_sprav_N002(3)
+      pr_sprav_onko(3)
     case k == 23 //
-      pr_sprav_N002(4)
+      // pr_sprav_N002(4)
+      pr_sprav_onko(4)
     case k == 24 //
-      pr_sprav_N002(5)
+      // pr_sprav_N002(5)
+      pr_sprav_onko(5)
     case k == 25 // Справочник соответствия стадий TNM
       pr_sprav_N006()
   endcase

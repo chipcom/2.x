@@ -1,10 +1,12 @@
-** mo_omsi.prg - информация по ОМС
+// mo_omsi.prg - информация по ОМС
+#include 'common.ch'
 #include 'inkey.ch'
 #include 'function.ch'
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
+#include 'tfile.ch'
 
-** вместо иногородней СМО подставить код ТФОМС
+// вместо иногородней СМО подставить код ТФОМС
 Function cut_code_smo(_smo)
   Local s := space(5)
 
@@ -17,7 +19,7 @@ Function cut_code_smo(_smo)
   endif
   return s
 
-** 19.12.13
+// 19.12.13
 Function menu_schet_akt(r,c)
 Static mas_pmt := {'По ~всем выставленным случаям',;
                    'За вычетом всех снятых по ~актам',;
@@ -33,7 +35,7 @@ endif
 rest_box(buf)
 return j
 
-** 19.12.13
+// 19.12.13
 Function title_schet_akt(sh)
 if glob_schet_akt == 2
   add_string(center('[ за вычетом снятых по актам ]', sh))
@@ -42,7 +44,7 @@ elseif glob_schet_akt == 3
 endif
 return NIL
 
-** 19.12.13
+// 19.12.13
 Function f_usl_schet_akt(loplata)
 Local fl := .t.
 if glob_schet_akt == 2
@@ -52,7 +54,7 @@ elseif glob_schet_akt == 3
 endif
 return fl
 
-** 25.06.23 статистика
+// 25.06.23 статистика
 Function e_statist(k)
 Static si1 := 1, si2 := 3, si3 := 1, si4 := 1, si5 := 1, si6 := 1, ;
        si7 := 1, si8 := 1, si9 := 1, si61 := 1, si12 := 1, si13 := 1,;
@@ -555,7 +557,7 @@ endif
 return NIL
 
 
-** 24.02.22 восстановление объёмов
+// 24.02.22 восстановление объёмов
 Function vosst_ob_em_RAK()
 Static arr_smo, mm_pz
 Static mm_poisk := {{'По дате РАК (XML-файла)',0},;
@@ -653,7 +655,7 @@ enddo
 restscreen(buf)
 return NIL
 
-** 02.10.19 функция для списка для восстановления объёмов
+// 02.10.19 функция для списка для восстановления объёмов
 Function f1vosst_ob_em_RAK(asmo,ssmo,mm_pz)
 Local adbf, i, nkvartal, n_file := 'v_ob_em' +stxt, HH := 60, sh := 80, buf := save_maxrow(), t_arr[2]
 mywait()
@@ -841,7 +843,7 @@ close databases
 rest_box(buf)
 return NIL
 
-** объем работ персонала (по оказанным услуга)
+// объем работ персонала (по оказанным услуга)
 Function ob1_statist(k,k1)
 Static si0 := 1, si1 := 1, si2 := 1, si3 := 1, si4 := 1, si5 := 1,;
        si6 := 1, si_slugba
@@ -952,7 +954,7 @@ do case
                 'ob1_statist(52)',;
                 'ob1_statist(53)'}
     popup_prompt(T_ROW,T_COL-5,si5,mas_pmt,mas_msg,mas_fun)
-*** отделения
+//* отделения
   case k == 21    // список отделений
     ob2_statist(1)
   case k == 22    // отделение + персонал
@@ -967,7 +969,7 @@ do case
     ob2_statist(8)
   case k == 27    // отделение + персонал + больные
     ob2_statist(9)
-*** службы
+//* службы
   case k == 31    // службы + отделения
     ob2_statist(0)
   case k == 32    // отделения + службы
@@ -992,7 +994,7 @@ do case
     endif
   case k == 35    // отделение + службы + услуги
     ob2_statist(110)
-*** персонал
+//* персонал
   case k == 41    // конкретный работающий + услуги
     ob2_statist(5)
   case k == 42    // конкретный работающий + услуги + больные
@@ -1003,7 +1005,7 @@ do case
     ob2_statist(5,{1})
   case k == 45    // весь персонал + услуги
     ob2_statist(5,{2})
-*** услуги
+//* услуги
   case k == 51    // список услуг
     ob2_statist(6)
   case k == 52    // все услуги
@@ -1026,7 +1028,7 @@ if k > 10
 endif
 return NIL
 
-** 12.03.14 объем работ персонала (по номенклатуре ФФОМС)
+// 12.03.14 объем работ персонала (по номенклатуре ФФОМС)
 Function obF_statist(k,k1)
 Static si0 := 1, si1 := 1, si2 := 1, si3 := 1, si4 := 1, si5 := 1, si6 := 1
 Local mas_pmt, mas_msg, mas_fun, j, fl
@@ -1114,7 +1116,7 @@ do case
                 'obF_statist(52)',;
                 'obF_statist(53)'}
     popup_prompt(T_ROW,T_COL-5,si5,mas_pmt,mas_msg,mas_fun)
-*** отделения
+//* отделения
   case k == 21    // список отделений
     obF2_statist(1)
   case k == 22    // отделение + персонал
@@ -1129,7 +1131,7 @@ do case
     obF2_statist(8)
   case k == 27    // отделение + персонал + больные
     obF2_statist(9)
-*** персонал
+//* персонал
   case k == 41    // конкретный работающий + услуги
     obF2_statist(5)
   case k == 42    // конкретный работающий + услуги + больные
@@ -1140,7 +1142,7 @@ do case
     obF2_statist(5,{1})
   case k == 45    // весь персонал + услуги
     obF2_statist(5,{2})
-*** услуги
+//* услуги
   case k == 51    // список услуг
     obF2_statist(6)
   case k == 52    // все услуги
@@ -1163,7 +1165,7 @@ if k > 10
 endif
 return NIL
 
-** статистика по план-заказу
+// статистика по план-заказу
 Function pz_statist(k)
 Static si1 := 2
 Local mas_pmt, mas_msg, mas_fun, j
@@ -1205,7 +1207,7 @@ if k > 10
 endif
 return NIL
 
-** 17.08.22
+// 17.08.22
 Function pz1statist(par,par2)
   Static _su := 2
   Local buf := savescreen(), fl_exit := .f., fl := .t., a_otd := {},;
@@ -1953,7 +1955,7 @@ Function pz1statist(par,par2)
   endif
   return NIL
 
-** 05.01.22
+// 05.01.22
 Function f1pz1statist(arr_otd,par)
 Local lreg_lech := {0,0,0,0,0}, s, lkod, lshifr, ta, i, j, k, mkol1,;
       mkol, muet, msum, koef := 1, lshifr1, fl := .t., arr_dn_st := {'', '',0},;
@@ -2276,7 +2278,7 @@ endif
 return NIL
 
 
-**
+//
 Function ret_g_o_i(r,c)
 Static sast := {.t.,.f.},;
        sarr := {{'город+область',1},;
@@ -2293,7 +2295,7 @@ if (a := bit_popup(T_ROW,T_COL-5,sarr,sast)) != NIL
 endif
 return ret
 
-**
+//
 Function ret_z_n(r,c)
 Static sast := {.t.,.t.},;
        sarr := {{'не закончившие лечение',B_END},;
@@ -2310,7 +2312,7 @@ if (a := bit_popup(T_ROW,T_COL-5,sarr,sast)) != NIL
 endif
 return ret
 
-**
+//
 Function ret_reestr_no(r,c)
 Static sast := {.t.,.t.},;
        sarr := {{'не попавшие в реестры',1},;
@@ -2327,7 +2329,7 @@ if (a := bit_popup(T_ROW,T_COL-5,sarr,sast)) != NIL
 endif
 return ret
 
-** 19.02.13
+// 19.02.13
 Function pz2statist(arr_m,par2)
 Local begin_date, end_date, buf := save_maxrow(), fl := .f., mstr_crb, mismo
 begin_date := arr_m[7]
@@ -2456,7 +2458,7 @@ close databases
 rest_box(buf)
 return fl
 
-**
+//
 Function pz21statist(oBrow)
 Local oColumn, blk := {|| iif (tmp->is==1, {1,2}, {3,4}) }
 oColumn := TBColumnNew(' ', {|| if(tmp->is==1, '', ' ')})
@@ -2477,7 +2479,7 @@ oColumn:colorBlock := blk
 status_key('^<Esc>^ - выход;  ^<Enter>^ - подсчет;  ^<Ins><+><->^ - отметить СМО для подсчета')
 return NIL
 
-**
+//
 Function pz22statist(nKey,oBrow)
 Local ret := 0
 do case
@@ -2498,7 +2500,7 @@ do case
 endcase
 return ret
 
-** 27.09.13 Расчёт потребности в финансовом обеспечении выполнения объёмов мед.помощи
+// 27.09.13 Расчёт потребности в финансовом обеспечении выполнения объёмов мед.помощи
 Function pz_raschet_potr()
 Local buf := savescreen(), fl_exit := .f., i, j, k, lreg_lech[9], ;
       name_file := 'pz_r_p' +stxt, arr_m, ta[2], arr_title, lshifr, ;
@@ -2754,7 +2756,7 @@ viewtext(name_file, , , ,(sh>80), , ,reg_print)
 return NIL
 
 
-** 28.12.21 статистика по работе операторов
+// 28.12.21 статистика по работе операторов
 Function st_operator()
 Local i, j, k, mdate, buf24, sh := 0, arr_oper := {}, arr_g,;
       s0, s1, s2, s3, s4, buf, name_file := 'operator' +stxt, ;
@@ -3113,7 +3115,7 @@ rest_box(buf24)
 viewtext(Devide_Into_Pages(name_file,60,80), , , ,.t., , ,2)
 return NIL
 
-**
+//
 Function fst_operator(get)
 Local mvar := readvar(), s := 'Допустимый диапазон для данного коэффициента трудоемкости '
 if mvar == 'KOEF1' .and. !between(&mvar,15,99)
@@ -3131,7 +3133,7 @@ endif
 return .t.
 
 
-**
+//
 Function put_dec_oper(v, l, fl_plus)
   Local s := put_val_0(v, l, 2)
 
@@ -3139,7 +3141,7 @@ Function put_dec_oper(v, l, fl_plus)
   return padl(if(empty(s) .or. ! fl_plus, '', ' + ') + alltrim(s), l)
 
 
-** 08.06.22 печать бланков
+// 08.06.22 печать бланков
 Function prn_blank(k)
 Static si1 := 1, si2 := 1, si3 := 1, si4 := 1, si5 := 1, si6 := 1, si7 := 1
 Local mas_pmt, mas_msg, mas_fun, j
@@ -3320,7 +3322,7 @@ endif
 return NIL
 
 
-** 05.05.19
+// 05.05.19
 FUNCTION pr_sprav_onk_vmp()
 Static mm_usl_tip := {'"Хирургическое лечение"',;
                       '"Лекарственная противоопухолевая терапия"',;
@@ -3331,7 +3333,7 @@ Static mm_usl_tip := {'"Хирургическое лечение"',;
 Local buf := save_maxrow(), name_file := 'metodVMPonko' +stxt, sh := 80, HH := 60, t_arr[2], i, s
 mywait()
 fp := fcreate(name_file) ; n_list := 1 ; tek_stroke := 0
-R_Use(exe_dir+ '_mo_ovmp',cur_dir + '_mo_ovmp', 'OVMP')
+R_Use(exe_dir+ '_mo_ovmp', cur_dir + '_mo_ovmp', 'OVMP')
 add_string('')
 add_string(center('Классификатор методов ВМП по онкозаболеваниям с указанием типов лечения', sh))
 add_string('')
@@ -3352,8 +3354,66 @@ viewtext(name_file, , , ,.t., , ,2)
 close databases
 return NIL
 
+// 07.09.23
+function pr_sprav_onko(n)
+  local ft, aTmp
+  local nSize, nFile
+  local name_file := cur_dir + 'n00' + lstr(n) + '.txt', i, j, reg_print := 2
+  local nameFunc := 'getDS_N00' + lstr(n) + '()'
+  local aStadii, fl, t_arr, k
 
-** 16.08.18
+  aStadii := &nameFunc
+  R_Use(dir_exe+ '_mo_mkb', cur_dir + '_mo_mkb', 'DIAG')
+
+  ft := TFileText():New(name_file, , .t., , .t.)
+  // ft:TableHeader := arr_title
+  // ft:EnableTableHeader := .t.
+  // ft:printTableHeader()
+  ft:add_string('')
+  ft:add_string('Классификатор ' + {'', 'стадий', 'Tumor', 'Nodus', 'Metastasis'}[n] + ' N00' + lstr(n), FILE_CENTER, ' ')
+  ft:add_string('')
+
+  for i := 1 to len(aStadii)
+    ft:add_string(replicate('-', ft:Width))
+    if empty(aStadii[i, 1])
+      ft:add_string('Прочие диагнозы')
+      ft:add_string(replicate('-', ft:Width))
+    else
+      select DIAG
+      find (aStadii[i, 1])
+      do while alltrim(diag->shifr) == alltrim(aStadii[i, 1]) .and. !eof()
+        if diag->ks == 0
+          ft:add_string(padr(aStadii[i, 1], 10) + space(6) + diag->name)
+        else
+          ft:add_string(space(16) + diag->name)
+        endif
+        skip
+      enddo
+      ft:add_string(replicate('-', ft:Width))
+      ft:add_string(space(5) + padl({'', 'Стадия', 'Tumor', 'Nodus', 'Metastasis'}[n], 15) + space(10) + iif(n > 2, 'Наименование', ''))
+      ft:add_string(replicate('-', ft:Width))
+    endif
+    for j := 2 to len(aStadii[i])
+      aTmp := aStadii[i, j]
+      // k := perenos(t_arr, iif(n > 2, aTmp[j, 1], ''), 55)
+      // ft:add_string(space(5) + padl(aTmp[j, 1], 15) + t_arr[1])
+      k := perenos(t_arr, iif(n > 2, aTmp[3], ''), 55)
+      ft:add_string(space(5) + padl(aTmp[2], 15) + iif(isnil(t_arr), '', t_arr[1]))
+      if ! isnil(t_arr)
+        for j := 2 to k
+          ft:add_string(space(20) + t_arr[j])
+        next
+      endif
+    next
+  next
+
+  nFile := ft:NameFile
+  ft := nil
+  DIAG->(dbCloseArea())
+  viewtext(name_file, , , , .t., , , reg_print)
+  return nil
+
+// 16.08.18
 Function pr_sprav_N002(n)
 Local sh := 75, HH := 60, reg_print := 2, name_file := 'n00' + lstr(n) + '.txt', i, ad := {},;
       as_ := {'', 'st', 't', 'n', 'm'}, poled, polen, polek, lal, j, k, t_arr[2]
@@ -3361,7 +3421,7 @@ lal := 'N' + lstr(n)
 poled := lal+ '->ds_' + as_[n]
 polek := lal+ '->kod_' + as_[n]
 polen := lal+ '->' + as_[n] + '_name'
-R_Use(dir_exe+ '_mo_mkb',cur_dir + '_mo_mkb', 'DIAG')
+R_Use(dir_exe+ '_mo_mkb', cur_dir + '_mo_mkb', 'DIAG')
 R_Use(dir_exe+ '_mo_N00' + lstr(n), , 'N' + lstr(n))
 do case
   case n == 2
@@ -3426,10 +3486,10 @@ viewtext(name_file, , , ,.t., , ,reg_print)
 return NIL
 
 
-** 16.08.18
+// 16.08.18
 FUNCTION pr_sprav_N006()
 Local sh := 75, HH := 60, reg_print := 2, name_file := 'n006.txt', i, ad := {}
-R_Use(dir_exe+ '_mo_mkb',cur_dir + '_mo_mkb', 'DIAG')
+R_Use(dir_exe+ '_mo_mkb', cur_dir + '_mo_mkb', 'DIAG')
 R_Use(dir_exe+ '_mo_N002', , 'N2')
 index on str(id_st,6) to tmp_n2 memory
 R_Use(dir_exe+ '_mo_N003', , 'N3')
@@ -3479,7 +3539,7 @@ viewtext(name_file, , , ,.t., , ,reg_print)
 return NIL
 
 
-** 05.11.19
+// 05.11.19
 FUNCTION f_blank_usl_pn()
 Static arrv := {;
   {'Новорожденный',1},;
@@ -3564,14 +3624,14 @@ restscreen(buf)
 return NIL
 
 
-**
+//
 FUNCTION ne_real()
 Local c := cColorStMsg, c1 := cColorSt2Msg
 n_message({'Приносим извинения.',;
            'В данный момент функция не реализована.'}, ,c,c, , ,c1 )
 return NIL
 
-** 24.01.19 отчёт Ф-МПП
+// 24.01.19 отчёт Ф-МПП
 Function report_f_mpp()
 Local begin_date, end_date, buf := savescreen(), arr_m, i, j, k, k1, k2, is_rebenok, is_inogoro,;
       lshifr1, koef, mvid, mour, fl_exit := .f., mkol, musl, d2_year, ar, arr_profil, ii, fl_K
@@ -3597,7 +3657,7 @@ dbcreate(cur_dir + 'tmp1',{;
 use (cur_dir + 'tmp1') new
 index on str(usl_ok,1) +str(profil,3) +str(is_our,1) +str(vid,1) +str(vz_reb,1) to (cur_dir + 'tmp1')
 Use_base('lusl')
-R_Use(dir_exe+ '_mo9unit',cur_dir + '_mo9unit', 'MOUNIT')
+R_Use(dir_exe+ '_mo9unit', cur_dir + '_mo9unit', 'MOUNIT')
 R_Use(dir_server + 'uslugi', , 'USL')
 R_Use(dir_server + 'human_u_', , 'HU_')
 R_Use(dir_server + 'human_u',dir_server + 'human_u', 'HU')
@@ -3610,12 +3670,12 @@ R_Use(dir_server + 'human_', , 'HUMAN_')
 R_Use(dir_server + 'human',dir_server + 'humans', 'HUMAN')
 set relation to recno() into HUMAN_, to recno() into HUMAN_2, to kod_k into KART
 //
-**
+//
 mdate_rak := arr_m[6] +iif(arr_m[3]==12,22,10) // по какую дату РАК сумма к оплате 10.04.18
 if arr_m[3] == 12 .and. glob_mo[_MO_KOD_TFOMS] == '134505'
   mdate_rak := 23
 endif
-**
+//
 R_Use(dir_server + 'mo_xml', , 'MO_XML')
 R_Use(dir_server + 'mo_rak', , 'RAK')
 set relation to kod_xml into MO_XML
@@ -3639,12 +3699,12 @@ do while !eof()
     // дата отчетного периода
     mdate1 := stod(strzero(schet_->nyear,4) +strzero(schet_->nmonth,2) + '15')
     //
-    *** 18 год
+    //* 18 год
     k := iif(arr_m[3]==12,21,10) // дата регистрации по 10.04.18
     if arr_m[3] == 12 .and. glob_mo[_MO_KOD_TFOMS] == '134505'
       k := 23
     endif
-    ***
+    //*
     fl := between(mdate,arr_m[5],arr_m[6] +k) ;
             .and. between(mdate1,arr_m[5],arr_m[6]) // !!отч.период 18 год
   endif
@@ -3999,7 +4059,7 @@ close databases
 restscreen(buf)
 return NIL
 
-** 29.12.22
+// 29.12.22
 Function pril_5_6_62()
 Local begin_date, end_date, buf := savescreen(), i, j, k, k1, k2,;
       t_arr[10], t_arr1[10], name_file := 'f14med' +stxt, tfoms_pz[5,11],;
@@ -4092,9 +4152,9 @@ if arr_m[1] == 2023 .and. arr_m[3] == 1 // проверить
   kds := 14 // дата регистрации по 7.07.23
   kdr := 20 // по какую дату РАК сумма к оплате 2
 endif
-**
+//
 mdate_rak := arr_m[6] +kdr
-**
+//
 R_Use(dir_server + 'mo_xml', , 'MO_XML')
 R_Use(dir_server + 'mo_rak', , 'RAK')
 set relation to kod_xml into MO_XML
@@ -4345,8 +4405,8 @@ fill_in_Excel_Book(dir_exe+ 'mo_pr6_62' +sxls,;
                    'присланный из ТФОМС')
 return NIL
 
-** 07.07.20 Мониторинг состояния здоровья населения в части заболеваний, состояний, факторов риска,
-** связанных с несоблюдением здорового образа жизни
+// 07.07.20 Мониторинг состояния здоровья населения в части заболеваний, состояний, факторов риска,
+// связанных с несоблюдением здорового образа жизни
 Function monitoring_zog()
 Static sad := {'R73.9', 'E10', 'E11', 'E12', 'E13', 'E14', 'R63.5', 'E66', 'K25', 'K26', 'K29', 'E78',;
                'K70', 'K71', 'K72', 'K73', 'K74', 'K85', 'K86'}
@@ -4523,7 +4583,7 @@ if (par := popup_prompt(T_ROW,T_COL-5,1,mas1pmt)) > 0 .and. ;
 endif
 return NIL
 
-** 07.07.20
+// 07.07.20
 Function f1monitoring_zog(ldiag)
 Local fl := .f.
 if len(ldiag) == 3
