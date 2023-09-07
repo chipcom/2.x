@@ -75,6 +75,15 @@ function loadN002()
   endif
   return _arr
 
+// 07.09.23
+function getN002()
+  local aRet := {}, row
+
+  for each row in loadN002()
+    aadd(aRet, {row[3], row[1], row[2], row[4], row[5]})
+  next
+  return aRet
+
 // 06.09.23
 function getDS_N002()
   static aStadii
@@ -134,6 +143,15 @@ function loadN003()
     db := nil
   endif
   return _arr
+
+// 07.09.23
+function getN003()
+  local aRet := {}, row
+
+  for each row in loadN003()
+    aadd(aRet, {row[3], row[1], row[2], row[4], row[5], row[6]})
+  next
+  return aRet
 
 // 07.09.23
 function getDS_N003()
@@ -196,6 +214,15 @@ function loadN004()
   return _arr
 
 // 07.09.23
+function getN004()
+  local aRet := {}, row
+
+  for each row in loadN004()
+    aadd(aRet, {row[3], row[1], row[2], row[4], row[5], row[6]})
+  next
+  return aRet
+
+// 07.09.23
 function getDS_N004()
   static aNodus
   static time_load
@@ -254,6 +281,15 @@ function loadN005()
     db := nil
   endif
   return _arr
+
+// 07.09.23
+function getN005()
+  local aRet := {}, row
+
+  for each row in loadN005()
+    aadd(aRet, {row[3], row[1], row[2], row[4], row[5], row[6]})
+  next
+  return aRet
 
 // 07.09.23
 function getDS_N005()

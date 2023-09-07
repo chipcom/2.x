@@ -1222,7 +1222,7 @@ rest_box(buf)
 call_fr(name_fr+ lstr(j))
 return NIL
 
-// 28.11.19 для ФГБУ 'НМИЦ онкологии им.Н.Н.Петрова'
+// 07.09.23 для ФГБУ 'НМИЦ онкологии им.Н.Н.Петрова'
 Function ot_nmic_petrova()
 Local buf := save_maxrow()
 Private arr_m
@@ -1264,7 +1264,7 @@ R_Use(dir_server + 'mo_onkpr',dir_server + 'mo_onkpr', 'ONKPR') // Сведения об и
 R_Use(dir_server + 'mo_onkus',dir_server + 'mo_onkus', 'ONKUS')
 R_Use(dir_server + 'mo_onkco',dir_server + 'mo_onkco', 'ONKCO')
 R_Use(dir_server + 'mo_onkle',dir_server + 'mo_onkle', 'ONKLE')
-R_Use(exe_dir+'_mo_N002',cur_dir + '_mo_N002', 'N2')
+// R_Use(exe_dir+'_mo_N002',cur_dir + '_mo_N002', 'N2')
 R_Use(exe_dir+'_mo_N003',cur_dir + '_mo_N003', 'N3')
 R_Use(exe_dir+'_mo_N004',cur_dir + '_mo_N004', 'N4')
 R_Use(exe_dir+'_mo_N005',cur_dir + '_mo_N005', 'N5')
@@ -1393,10 +1393,11 @@ do while human->k_data <= arr_m[6] .and. !eof()
     else
       nmic->VISIT_PURP := 'нет'
     endif
-    if onksl->STAD > 0
-      select N2
-      find (str(onksl->STAD, 6))
-      nmic->STAD := n2->kod_st
+    if onksl->STAD > 0 
+      // select N2
+      // find (str(onksl->STAD, 6))
+      // nmic->STAD := n2->kod_st
+      nmic->STAD := inieditspr(A__MENUVERT, getN002(), onksl->STAD)
     endif
     if onksl->ONK_T > 0
       select N3
