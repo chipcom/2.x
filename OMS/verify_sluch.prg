@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-// 15.07.23
+// 05.09.23
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1, ;
         i, j, k, c, s := ' ', a_srok_lech := {}, a_period_stac := {}, a_disp := {}, ;
@@ -1821,17 +1821,18 @@ Function verify_1_sluch(fl_view)
       endif
     endif
     //
-    if select('N1') == 0
-      R_Use(dir_exe + '_mo_N001', , 'N1')
-    endif
+    // if select('N1') == 0
+    //   R_Use(dir_exe + '_mo_N001', , 'N1')
+    // endif
     select ONKPR
     find (str(human->kod, 7))
     do while onkpr->kod == human->kod .and. !eof()
-      if !between(onkpr->PROT, 0, 8)
+      if !between(onkpr->PROT, 0, 8)  // цифры взяты из справочника N001.xml
         aadd(ta, 'Некорректно записано противопоказание к проведению (отказ от проведения)')
       elseif onkpr->D_PROT > d2
-        n1->(dbGoto(onkpr->PROT))
-        aadd(ta, alltrim(lower(n1->prot_name)) + ' - дата регистрации больше даты окончания лечения')
+        // n1->(dbGoto(onkpr->PROT))
+        // aadd(ta, alltrim(lower(n1->prot_name)) + ' - дата регистрации больше даты окончания лечения')
+        aadd(ta, alltrim(lower(inieditspr(A__MENUVERT, getN001(), n1->prot_name))) + ' - дата регистрации больше даты окончания лечения')
       endif
       select ONKPR
       skip

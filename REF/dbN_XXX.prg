@@ -7,8 +7,8 @@
 
 // =========== N001 ===================
 //
-// 27.08.23 вернуть массив ФФОМС N001.xml
-function loadN001()
+// 05.09.23 вернуть массив ФФОМС N001.xml
+function getN001()
   // возвращает массив N001
   static _arr
   static time_load
@@ -32,7 +32,7 @@ function loadN001()
         'FROM n001')
     if len(aTable) > 1
       for nI := 2 to Len( aTable )
-        aadd(_arr, {val(aTable[nI, 1]), alltrim(aTable[nI, 2])}) //, val(aTable[nI, 3]), alltrim(aTable[nI, 4])})
+        aadd(_arr, {alltrim(aTable[nI, 2]), val(aTable[nI, 1])}) //, val(aTable[nI, 3]), alltrim(aTable[nI, 4])})
       next
     endif
     db := nil
@@ -75,6 +75,37 @@ function loadN002()
   endif
   return _arr
 
+// 07.09.23
+function getN002()
+  local aRet := {}, row
+
+  for each row in loadN002()
+    aadd(aRet, {row[3], row[1], row[2], row[4], row[5]})
+  next
+  return aRet
+
+// 06.09.23
+function getDS_N002()
+  static aStadii
+  static time_load
+  local row, it
+
+  if timeout_load(@time_load)
+    aStadii := {}
+    for each row in loadN002()
+      if ! empty(row[5])
+        loop
+      endif
+      if (it := ascan(aStadii, {|x| x[1] == row[2]})) > 0
+        aadd(aStadii[it], {row[1], row[3]})
+      else
+        aadd(aStadii, {row[2], {row[1], row[3]}})
+      endif
+    next
+    asort(aStadii, , , {|x, y| x[1] < y[1]})
+  endif
+  return aStadii
+
 // =========== N003 ===================
 //
 // 27.08.23 вернуть массив ФФОМС N003.xml
@@ -112,6 +143,37 @@ function loadN003()
     db := nil
   endif
   return _arr
+
+// 07.09.23
+function getN003()
+  local aRet := {}, row
+
+  for each row in loadN003()
+    aadd(aRet, {row[3], row[1], row[2], row[4], row[5], row[6]})
+  next
+  return aRet
+
+// 07.09.23
+function getDS_N003()
+  static aTumor
+  static time_load
+  local row, it
+
+  if timeout_load(@time_load)
+    aTumor := {}
+    for each row in loadN003()
+      if ! empty(row[6])
+        loop
+      endif
+      if (it := ascan(aTumor, {|x| x[1] == row[2]})) > 0
+        aadd(aTumor[it], {row[1], row[3], row[4]})
+      else
+        aadd(aTumor, {row[2], {row[1], row[3], row[4]}})
+      endif
+    next
+    asort(aTumor, , , {|x, y| x[1] < y[1]})
+  endif
+  return aTumor
 
 // =========== N004 ===================
 //
@@ -151,6 +213,37 @@ function loadN004()
   endif
   return _arr
 
+// 07.09.23
+function getN004()
+  local aRet := {}, row
+
+  for each row in loadN004()
+    aadd(aRet, {row[3], row[1], row[2], row[4], row[5], row[6]})
+  next
+  return aRet
+
+// 07.09.23
+function getDS_N004()
+  static aNodus
+  static time_load
+  local row, it
+
+  if timeout_load(@time_load)
+    aNodus := {}
+    for each row in loadN004()
+      if ! empty(row[6])
+        loop
+      endif
+      if (it := ascan(aNodus, {|x| x[1] == row[2]})) > 0
+        aadd(aNodus[it], {row[1], row[3], row[4]})
+      else
+        aadd(aNodus, {row[2], {row[1], row[3], row[4]}})
+      endif
+    next
+    asort(aNodus, , , {|x, y| x[1] < y[1]})
+  endif
+  return aNodus
+
 // =========== N005 ===================
 //
 // 27.08.23 вернуть массив ФФОМС N005.xml
@@ -188,6 +281,37 @@ function loadN005()
     db := nil
   endif
   return _arr
+
+// 07.09.23
+function getN005()
+  local aRet := {}, row
+
+  for each row in loadN005()
+    aadd(aRet, {row[3], row[1], row[2], row[4], row[5], row[6]})
+  next
+  return aRet
+
+// 07.09.23
+function getDS_N005()
+  static aMetastasis
+  static time_load
+  local row, it
+
+  if timeout_load(@time_load)
+    aMetastasis := {}
+    for each row in loadN005()
+      if ! empty(row[6])
+        loop
+      endif
+      if (it := ascan(aMetastasis, {|x| x[1] == row[2]})) > 0
+        aadd(aMetastasis[it], {row[1], row[3], row[4]})
+      else
+        aadd(aMetastasis, {row[2], {row[1], row[3], row[4]}})
+      endif
+    next
+    asort(aMetastasis, , , {|x, y| x[1] < y[1]})
+  endif
+  return aMetastasis
 
 // =========== N006 ===================
 //
