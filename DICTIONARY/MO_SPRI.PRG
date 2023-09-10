@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 07.09.23 просмотр/печать общих справочников
+// 08.09.23 просмотр/печать общих справочников
 Function o_sprav(k)
   Static sk := 1, sk1 := 1, sk2 := 1
   Local str_sem, mas_pmt, mas_msg, mas_fun, j
@@ -69,18 +69,18 @@ Function o_sprav(k)
       mas_pmt := {'Классификатор стадий (N00~2)', ;
                   'Классификатор Tumor (N00~3)', ;
                   'Классификатор Nodus (N00~4)', ;
-                  'Классификатор Metastasis (N00~5)', ;
-                  'Справочник соответствия стадий TNM (N00~6)'}
+                  'Классификатор Metastasis (N00~5)'} //, ;
+                  // 'Справочник соответствия стадий TNM (N00~6)'}
       mas_msg := {'Распечатка классификатора стадий (N002)', ;
                   'Распечатка классификатора Tumor (N003)', ;
                   'Распечатка классификатора Nodus (N004)', ;
-                  'Распечатка классификатора Metastasis (N005)', ;
-                  'Распечатка справочника соответствия стадий TNM (N006)'}
+                  'Распечатка классификатора Metastasis (N005)'}  //, ;
+                  // 'Распечатка справочника соответствия стадий TNM (N006)'}
       mas_fun := {'o_sprav(21)', ;
                   'o_sprav(22)', ;
                   'o_sprav(23)', ;
-                  'o_sprav(24)', ;
-                  'o_sprav(25)'}
+                  'o_sprav(24)'}  //, ;
+                  // 'o_sprav(25)'}
       popup_prompt(T_ROW, T_COL - 5, sk2, mas_pmt, mas_msg, mas_fun)
     case k == 21 //
       // pr_sprav_N002(2)
@@ -94,8 +94,8 @@ Function o_sprav(k)
     case k == 24 //
       // pr_sprav_N002(5)
       pr_sprav_onko(5)
-    case k == 25 // Справочник соответствия стадий TNM
-      pr_sprav_N006()
+    // case k == 25 // Справочник соответствия стадий TNM
+    //   pr_sprav_N006()
   endcase
   if k > 0
     if k > 20

@@ -800,6 +800,33 @@ Function ret_kod_usl_lek_ter(lVZROS_REB)
   endif
   return lkod
 
+// 09.09.23 функция определения массива в ф-ии редактирования листа учёта
+function f_define_tnm_1(n, ldiag)
+  Local aRet := {}, sd, fl := .f.
+  local aTmp, it
+  local nameFunc := 'getDS_N00' + lstr(n) + '()'
+
+  aTmp := &nameFunc
+  sd := padr(ldiag, 5)
+  if (it := ascan(aTmp, {|x| padr(x[1], 5) == sd})) > 0
+    aRet := aclone(aTmp[it, 2])
+    fl := .t.
+  endif
+  if ! fl
+    sd := padr(ldiag, 3)
+    if (it := ascan(aTmp, {|x| padr(x[1], 3) == sd})) > 0
+      aRet := aclone(aTmp[it, 2])
+      fl := .t.
+    endif
+  endif
+  if ! fl
+    sd := space(5)
+    if (it := ascan(aTmp, {|x| padr(x[1], 5) == sd})) > 0
+      aRet := aclone(aTmp[it, 2])
+    endif
+  endif
+  return aRet
+
 // 13.11.22 функция определения массива в ф-ии редактирования листа учёта
 Function f_define_tnm(n, ldiag)
   Local ar, sn := lstr(n), sd := padr(ldiag, 5)

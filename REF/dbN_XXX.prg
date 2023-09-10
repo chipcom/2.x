@@ -41,16 +41,16 @@ function getN001()
 
 // =========== N002 ===================
 //
-// 27.08.23 вернуть массив ФФОМС N002.xml
-function loadN002()
-  // возвращает массив N002
+// 09.09.23 вернуть массив ФФОМС N002.xml
+function getN002()
+  // возвращает массив N002 Классификатор стадий (OnkStad)
   static _arr
   static time_load
   local db
   local aTable, row
   local nI
 
-  // N002 - Перечень
+  // N002 - Классификатор стадий (OnkStad)
   // ID_St,      'N',  4 // Идентификатор стадии
   // DS_St,      'C',  5 // Диагноз по МКБ
   // KOD_St,     'C',  5 // Стадия
@@ -68,56 +68,54 @@ function loadN002()
         'FROM n002')
     if len(aTable) > 1
       for nI := 2 to Len( aTable )
-        aadd(_arr, {val(aTable[nI, 1]), alltrim(aTable[nI, 2]), alltrim(aTable[nI, 3]), ctod(aTable[nI, 4]), ctod(aTable[nI, 5])})
+        aadd(_arr, {alltrim(aTable[nI, 3]), val(aTable[nI, 1]), alltrim(aTable[nI, 2]), ctod(aTable[nI, 4]), ctod(aTable[nI, 5])})
       next
     endif
     db := nil
   endif
   return _arr
 
-// 07.09.23
-function getN002()
-  local aRet := {}, row
-
-  for each row in loadN002()
-    aadd(aRet, {row[3], row[1], row[2], row[4], row[5]})
-  next
-  return aRet
-
-// 06.09.23
+// 09.09.23
 function getDS_N002()
   static aStadii
   static time_load
-  local row, it
+  local row, it, i := 0
 
   if timeout_load(@time_load)
     aStadii := {}
-    for each row in loadN002()
+    for each row in getN002()
       if ! empty(row[5])
         loop
       endif
-      if (it := ascan(aStadii, {|x| x[1] == row[2]})) > 0
-        aadd(aStadii[it], {row[1], row[3]})
+      if (it := ascan(aStadii, {|x| x[1] == row[3]})) > 0
+        // aadd(aStadii[it], {row[1], row[2]})
+        aadd(aStadii[it, 2], {row[1], row[2]})
       else
-        aadd(aStadii, {row[2], {row[1], row[3]}})
+        // aadd(aStadii, {row[3], {row[1], row[2]}})
+        aadd(aStadii, {row[3], {}})
+        i++
+        aadd(aStadii[i, 2], {row[1], row[2]})
       endif
     next
-    asort(aStadii, , , {|x, y| x[1] < y[1]})
+    for i := 1 to len(aStadii)
+      asort(aStadii[i, 2], , , {|x, y| x[1] < y[1]})
+    next
+    // asort(aStadii, , , {|x, y| x[1] < y[1]})
   endif
   return aStadii
 
 // =========== N003 ===================
 //
-// 27.08.23 вернуть массив ФФОМС N003.xml
-function loadN003()
-  // возвращает массив N003
+// 09.09.23 вернуть массив ФФОМС N003.xml
+function getN003()
+  // возвращает массив N003 Классификатор Tumor (OnkT)
   static _arr
   static time_load
   local db
   local aTable, row
   local nI
 
-  // N003 - Перечень
+  // N003 - Классификатор Tumor (OnkT)
   // ID_T,       'N',  4  // Идентификатор T
   // DS_T,       'C',  5  // Диагноз по МКБ
   // KOD_T,      'C',  5  // Обозначение T для диагноза
@@ -137,56 +135,55 @@ function loadN003()
         'FROM n003')
     if len(aTable) > 1
       for nI := 2 to Len( aTable )
-        aadd(_arr, {val(aTable[nI, 1]), alltrim(aTable[nI, 2]), alltrim(aTable[nI, 3]), alltrim(aTable[nI, 4]), ctod(aTable[nI, 5]), ctod(aTable[nI, 6])})
+        aadd(_arr, {alltrim(aTable[nI, 3]), val(aTable[nI, 1]), alltrim(aTable[nI, 2]), alltrim(aTable[nI, 4]), ctod(aTable[nI, 5]), ctod(aTable[nI, 6])})
       next
     endif
     db := nil
   endif
   return _arr
 
-// 07.09.23
-function getN003()
-  local aRet := {}, row
-
-  for each row in loadN003()
-    aadd(aRet, {row[3], row[1], row[2], row[4], row[5], row[6]})
-  next
-  return aRet
-
-// 07.09.23
+// 09.09.23
 function getDS_N003()
   static aTumor
   static time_load
-  local row, it
+  local row, it, i := 0
 
   if timeout_load(@time_load)
     aTumor := {}
-    for each row in loadN003()
+    for each row in getN003()
       if ! empty(row[6])
         loop
       endif
-      if (it := ascan(aTumor, {|x| x[1] == row[2]})) > 0
-        aadd(aTumor[it], {row[1], row[3], row[4]})
+      // if (it := ascan(aTumor, {|x| x[1] == row[2]})) > 0
+      if (it := ascan(aTumor, {|x| x[1] == row[3]})) > 0
+        // aadd(aTumor[it], {row[1], row[3], row[4]})
+        aadd(aTumor[it, 2], {row[1], row[2], row[4]})
       else
-        aadd(aTumor, {row[2], {row[1], row[3], row[4]}})
+        // aadd(aTumor, {row[2], {row[1], row[3], row[4]}})
+        aadd(aTumor, {row[3], {}})
+        i++
+        aadd(aTumor[i, 2], {row[1], row[2], row[4]})
       endif
     next
-    asort(aTumor, , , {|x, y| x[1] < y[1]})
+    for i := 1 to len(aTumor)
+      asort(aTumor[i, 2], , , {|x, y| x[1] < y[1]})
+    next
+    // asort(aTumor, , , {|x, y| x[1] < y[1]})
   endif
   return aTumor
 
 // =========== N004 ===================
 //
-// 27.08.23 вернуть массив ФФОМС N004.xml
-function loadN004()
-  // возвращает массив N004
+// 09.09.23 вернуть массив ФФОМС N004.xml
+function getN004()
+  // возвращает массив N004 Классификатор Nodus (OnkN)
   static _arr
   static time_load
   local db
   local aTable, row
   local nI
 
-  // N004 - Перечень
+  // N004 - Классификатор Nodus (OnkN)
   // ID_N,       'N',  4 // Идентификатор N
   // DS_N,       'C',  5 // Диагноз по МКБ
   // KOD_N,      'C',  5 // Обозначение N для диагноза
@@ -206,56 +203,55 @@ function loadN004()
         'FROM n004')
     if len(aTable) > 1
       for nI := 2 to Len( aTable )
-        aadd(_arr, {val(aTable[nI, 1]), alltrim(aTable[nI, 2]), alltrim(aTable[nI, 3]), alltrim(aTable[nI, 4]), ctod(aTable[nI, 5]), ctod(aTable[nI, 6])})
+        aadd(_arr, {alltrim(aTable[nI, 3]), val(aTable[nI, 1]), alltrim(aTable[nI, 2]), alltrim(aTable[nI, 4]), ctod(aTable[nI, 5]), ctod(aTable[nI, 6])})
       next
     endif
     db := nil
   endif
   return _arr
 
-// 07.09.23
-function getN004()
-  local aRet := {}, row
-
-  for each row in loadN004()
-    aadd(aRet, {row[3], row[1], row[2], row[4], row[5], row[6]})
-  next
-  return aRet
-
-// 07.09.23
+// 09.09.23
 function getDS_N004()
   static aNodus
   static time_load
-  local row, it
+  local row, it, i := 0
 
   if timeout_load(@time_load)
     aNodus := {}
-    for each row in loadN004()
+    for each row in getN004()
       if ! empty(row[6])
         loop
       endif
-      if (it := ascan(aNodus, {|x| x[1] == row[2]})) > 0
-        aadd(aNodus[it], {row[1], row[3], row[4]})
+      // if (it := ascan(aNodus, {|x| x[1] == row[2]})) > 0
+      if (it := ascan(aNodus, {|x| x[1] == row[3]})) > 0
+        // aadd(aNodus[it], {row[1], row[3], row[4]})
+        aadd(aNodus[it, 2], {row[1], row[2], row[4]})
       else
-        aadd(aNodus, {row[2], {row[1], row[3], row[4]}})
+        // aadd(aNodus, {row[2], {row[1], row[3], row[4]}})
+        aadd(aNodus, {row[3], {}})
+        i++
+        aadd(aNodus[i, 2], {row[1], row[2], row[4]})
       endif
     next
-    asort(aNodus, , , {|x, y| x[1] < y[1]})
+    for i := 1 to len(aNodus)
+      asort(aNodus[i, 2], , , {|x, y| x[1] < y[1]})
+    next
+    // asort(aNodus, , , {|x, y| x[1] < y[1]})
   endif
   return aNodus
 
 // =========== N005 ===================
 //
-// 27.08.23 вернуть массив ФФОМС N005.xml
-function loadN005()
-  // возвращает массив N005
+// 09.09.23 вернуть массив ФФОМС N005.xml
+function getN005()
+  // возвращает массив N005 Классификатор Metastasis (OnkM)
   static _arr
   static time_load
   local db
   local aTable, row
   local nI
 
-  // N005 - Перечень
+  // N005 - Классификатор Metastasis (OnkM)
   // ID_M,       'N',  4 // Идентификатор M
   // DS_M,       'C',  5 // Диагноз по МКБ
   // KOD_M,      'C',  5 // Обозначение M для диагноза
@@ -275,41 +271,40 @@ function loadN005()
         'FROM n005')
     if len(aTable) > 1
       for nI := 2 to Len( aTable )
-        aadd(_arr, {val(aTable[nI, 1]), alltrim(aTable[nI, 2]), alltrim(aTable[nI, 3]), alltrim(aTable[nI, 4]), ctod(aTable[nI, 5]), ctod(aTable[nI, 6])})
+        aadd(_arr, {alltrim(aTable[nI, 3]), val(aTable[nI, 1]), alltrim(aTable[nI, 2]), alltrim(aTable[nI, 4]), ctod(aTable[nI, 5]), ctod(aTable[nI, 6])})
       next
     endif
     db := nil
   endif
   return _arr
 
-// 07.09.23
-function getN005()
-  local aRet := {}, row
-
-  for each row in loadN005()
-    aadd(aRet, {row[3], row[1], row[2], row[4], row[5], row[6]})
-  next
-  return aRet
-
-// 07.09.23
+// 09.09.23
 function getDS_N005()
   static aMetastasis
   static time_load
-  local row, it
+  local row, it, i := 0
 
   if timeout_load(@time_load)
     aMetastasis := {}
-    for each row in loadN005()
+    for each row in getN005()
       if ! empty(row[6])
         loop
       endif
-      if (it := ascan(aMetastasis, {|x| x[1] == row[2]})) > 0
-        aadd(aMetastasis[it], {row[1], row[3], row[4]})
+      // if (it := ascan(aMetastasis, {|x| x[1] == row[2]})) > 0
+      if (it := ascan(aMetastasis, {|x| x[1] == row[3]})) > 0
+        // aadd(aMetastasis[it], {row[1], row[3], row[4]})
+        aadd(aMetastasis[it, 2], {row[1], row[2], row[4]})
       else
-        aadd(aMetastasis, {row[2], {row[1], row[3], row[4]}})
+        // aadd(aMetastasis, {row[2], {row[1], row[3], row[4]}})
+        aadd(aMetastasis, {row[3], {}})
+        i++
+        aadd(aMetastasis[i, 2], {row[1], row[2], row[4]})
       endif
     next
-    asort(aMetastasis, , , {|x, y| x[1] < y[1]})
+    for i := 1 to len(aMetastasis)
+      asort(aMetastasis[i, 2], , , {|x, y| x[1] < y[1]})
+    next
+    // asort(aMetastasis, , , {|x, y| x[1] < y[1]})
   endif
   return aMetastasis
 
