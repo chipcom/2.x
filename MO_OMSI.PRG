@@ -3357,7 +3357,7 @@ FUNCTION pr_sprav_onk_vmp()
   close databases
   return NIL
 
-// 07.09.23
+// 09.09.23
 function pr_sprav_onko(n)
   local ft, aTmp
   local nSize, nFile
@@ -3396,10 +3396,10 @@ function pr_sprav_onko(n)
       ft:add_string(space(5) + padl({'', 'Стадия', 'Tumor', 'Nodus', 'Metastasis'}[n], 15) + space(10) + iif(n > 2, 'Наименование', ''))
       ft:add_string(replicate('─', ft:Width))
     endif
-    for j := 2 to len(aStadii[i])
-      aTmp := aStadii[i, j]
+    for j := 1 to len(aStadii[i, 2])
+      aTmp := aStadii[i, 2, j]
       k := perenos(t_arr, iif(n > 2, aTmp[3], ''), 55)
-      ft:add_string(space(5) + padl(aTmp[2], 15) + iif(isnil(t_arr), '', t_arr[1]))
+      ft:add_string(space(5) + padl(aTmp[1], 15) + iif(isnil(t_arr), '', t_arr[1]))
       if ! isnil(t_arr)
         for j := 2 to k
           ft:add_string(space(20) + t_arr[j])

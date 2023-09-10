@@ -1222,7 +1222,7 @@ rest_box(buf)
 call_fr(name_fr+ lstr(j))
 return NIL
 
-// 07.09.23 ¤«ï ”ƒ“ 'Œˆ– ®­ª®«®£¨¨ ¨¬...¥âà®¢ '
+// 09.09.23 ¤«ï ”ƒ“ 'Œˆ– ®­ª®«®£¨¨ ¨¬...¥âà®¢ '
 Function ot_nmic_petrova()
 Local buf := save_maxrow()
 Private arr_m
@@ -1265,9 +1265,9 @@ R_Use(dir_server + 'mo_onkus',dir_server + 'mo_onkus', 'ONKUS')
 R_Use(dir_server + 'mo_onkco',dir_server + 'mo_onkco', 'ONKCO')
 R_Use(dir_server + 'mo_onkle',dir_server + 'mo_onkle', 'ONKLE')
 // R_Use(exe_dir+'_mo_N002',cur_dir + '_mo_N002', 'N2')
-R_Use(exe_dir+'_mo_N003',cur_dir + '_mo_N003', 'N3')
-R_Use(exe_dir+'_mo_N004',cur_dir + '_mo_N004', 'N4')
-R_Use(exe_dir+'_mo_N005',cur_dir + '_mo_N005', 'N5')
+// R_Use(exe_dir+'_mo_N003',cur_dir + '_mo_N003', 'N3')
+// R_Use(exe_dir+'_mo_N004',cur_dir + '_mo_N004', 'N4')
+// R_Use(exe_dir+'_mo_N005',cur_dir + '_mo_N005', 'N5')
 R_Use(dir_exe+'_mo_N009', , 'N9')
 R_Use(dir_exe+'_mo_N012', , 'N12')
 R_Use(exe_dir+'_mo_N007', , 'N7')
@@ -1400,19 +1400,22 @@ do while human->k_data <= arr_m[6] .and. !eof()
       nmic->STAD := inieditspr(A__MENUVERT, getN002(), onksl->STAD)
     endif
     if onksl->ONK_T > 0
-      select N3
-      find (str(onksl->ONK_T, 6))
-      nmic->T := n3->kod_t
+      // select N3
+      // find (str(onksl->ONK_T, 6))
+      // nmic->T := n3->kod_t
+      nmic->T := inieditspr(A__MENUVERT, getN003(), onksl->ONK_T)
     endif
     if onksl->ONK_N > 0
-      select N4
-      find (str(onksl->ONK_N, 6))
-      nmic->N := n4->kod_n
+      // select N4
+      // find (str(onksl->ONK_N, 6))
+      // nmic->N := n4->kod_n
+      nmic->N := inieditspr(A__MENUVERT, getN004(), onksl->ONK_N)
     endif
     if onksl->ONK_M > 0
-      select N5
-      find (str(onksl->ONK_M, 6))
-      nmic->M := n5->kod_m
+      // select N5
+      // find (str(onksl->ONK_M, 6))
+      // nmic->M := n5->kod_m
+      nmic->M := inieditspr(A__MENUVERT, getN005(), onksl->ONK_M)
     endif
     nmic->ISP_PROTIV := '0'
     select ONKUS
