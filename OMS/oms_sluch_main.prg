@@ -1125,10 +1125,10 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
         if ascan(lmm_DS1_T, {|x| x[2] == m1DS1_T}) == 0
           m1DS1_T := lmm_DS1_T[1, 2]
         endif
-        mm_N002 := f_define_tnm(2,mkod_diag)
-        mm_N003 := f_define_tnm(3,mkod_diag)
-        mm_N004 := f_define_tnm(4,mkod_diag)
-        mm_N005 := f_define_tnm(5,mkod_diag)
+        mm_N002 := f_define_tnm(2, mkod_diag)
+        mm_N003 := f_define_tnm(3, mkod_diag)
+        mm_N004 := f_define_tnm(4, mkod_diag)
+        mm_N005 := f_define_tnm(5, mkod_diag)
         mDS1_T := inieditspr(A__MENUVERT, mm_DS1_T, m1DS1_T)
         mMTSTZ := inieditspr(A__MENUVERT, mm_danet, m1MTSTZ)
         if len(mm_N002) == 1

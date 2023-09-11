@@ -801,7 +801,7 @@ Function ret_kod_usl_lek_ter(lVZROS_REB)
   return lkod
 
 // 09.09.23 функция определения массива в ф-ии редактирования листа учёта
-function f_define_tnm_1(n, ldiag)
+function f_define_tnm(n, ldiag)
   Local aRet := {}, sd, fl := .f.
   local aTmp, it
   local nameFunc := 'getDS_N00' + lstr(n) + '()'
@@ -827,45 +827,45 @@ function f_define_tnm_1(n, ldiag)
   endif
   return aRet
 
-// 13.11.22 функция определения массива в ф-ии редактирования листа учёта
-Function f_define_tnm(n, ldiag)
-  Local ar, sn := lstr(n), sd := padr(ldiag, 5)
+// // 13.11.22 функция определения массива в ф-ии редактирования листа учёта
+// Function f_define_tnm_old(n, ldiag)
+//   Local ar, sn := lstr(n), sd := padr(ldiag, 5)
 
-  Local lal := 'n' + sn, polek, poled, polei, s := {'', 'ST', 'T', 'N', 'M'}[n]
-  polek := lal + '->kod_' + s
-  poled := lal + '->ds_' + s
-  polei := lal + '->id_' + s
-  if select(lal) == 0
-    R_Use(exe_dir + '_mo_N00' + sn, {cur_dir + '_mo_N00' + sn, cur_dir + '_mo_N00' + sn + 'd'}, lal)
-  endif
-  dbSelectArea(lal) // встать на справочник N0...
-  set order to 2
-  find (sd)
-  if found()
-    ar := f1_define_tnm(sd, 5, polek, poled, polei)
-  else
-    sd := padr(ldiag, 3)
-    find (sd)
-    if found() .and. sd == alltrim(&poled)
-      ar := f1_define_tnm(sd, 3, polek, poled, polei)
-    else
-      find (space(5))
-      ar := f1_define_tnm(space(5), 5, polek, poled, polei)
-    endif
-  endif
-  return ar
+//   Local lal := 'n' + sn, polek, poled, polei, s := {'', 'ST', 'T', 'N', 'M'}[n]
+//   polek := lal + '->kod_' + s
+//   poled := lal + '->ds_' + s
+//   polei := lal + '->id_' + s
+//   if select(lal) == 0
+//     R_Use(exe_dir + '_mo_N00' + sn, {cur_dir + '_mo_N00' + sn, cur_dir + '_mo_N00' + sn + 'd'}, lal)
+//   endif
+//   dbSelectArea(lal) // встать на справочник N0...
+//   set order to 2
+//   find (sd)
+//   if found()
+//     ar := f1_define_tnm(sd, 5, polek, poled, polei)
+//   else
+//     sd := padr(ldiag, 3)
+//     find (sd)
+//     if found() .and. sd == alltrim(&poled)
+//       ar := f1_define_tnm(sd, 3, polek, poled, polei)
+//     else
+//       find (space(5))
+//       ar := f1_define_tnm(space(5), 5, polek, poled, polei)
+//     endif
+//   endif
+//   return ar
 
-// 13.11.22
-Function f1_define_tnm(s, n, polek, poled, polei)
-  Local arr := {}
+// // 13.11.22
+// Function f1_define_tnm(s, n, polek, poled, polei)
+//   Local arr := {}
 
-  do while left(&poled, n) == s .and. !eof()
-    if empty(s) .or. alltrim(&poled) == alltrim(s)
-      aadd(arr, {&polek, &polei})
-    endif
-    skip
-  enddo
-  return arr
+//   do while left(&poled, n) == s .and. !eof()
+//     if empty(s) .or. alltrim(&poled) == alltrim(s)
+//       aadd(arr, {&polek, &polei})
+//     endif
+//     skip
+//   enddo
+//   return arr
 
 // 22.10.19 проверка правильности соответствующей стадии по соответствующему справочнику
 Function f_verify_tnm(n, lkod, ldiag, ar)
