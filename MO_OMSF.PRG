@@ -867,8 +867,51 @@ function f_define_tnm(n, ldiag)
 //   enddo
 //   return arr
 
-// 22.10.19 проверка правильности соответствующей стадии по соответствующему справочнику
+// 11.09.23 проверка правильности соответствующей стадии по соответствующему справочнику
 Function f_verify_tnm(n, lkod, ldiag, ar)
+  Local sn := lstr(n)
+  local sd
+  Local fl := .t., lal := 'n' + sn
+  local s := {'', 'ST', 'T', 'N', 'M'}[n]
+  local s1 := {' противопоказаний и отказов', 'стадия заболевания', 'Tumor', 'Nodus', 'Metastasis'}[n]
+  Local smsg := 'онкология: в справочнике N00' + sn + ' не найдена стадия заболевания ' + s + '=' + lstr(lkod) + ' для диагноза ' + ldiag
+  local aTmp, it, aTmpDS
+  local nameFunc := 'getN00' + lstr(n) + '()'
+  local nameFuncDS := 'getDS_N00' + lstr(n) + '()'
+
+  aTmp := &nameFunc
+  if (it := ascan(aTmp, {|x| x[2] == lkod})) > 0
+    if empty(aTmp[it, 3])
+      aTmpDS := &nameFuncDS
+      sd := padr(ldiag, 5)
+      if (it := ascan(aTmpDS, {|x| padr(x[1], 5) == sd})) > 0
+        fl := .f.
+        aadd(ar, smsg)
+      else
+        sd := padr(ldiag, 3)
+        if (it := ascan(aTmpDS, {|x| padr(x[1], 5) == sd})) > 0
+          fl := .f.
+          aadd(ar, smsg)
+        endif
+  
+      endif
+    elseif len(alltrim(aTmp[it, 3])) == 5
+      if !(left(ldiag, 5) == aTmp[it, 3])
+        fl := .f.
+        aadd(ar, smsg)
+      endif
+    else
+      if !(left(ldiag, 3) == alltrim(aTmp[it, 3]))
+        fl := .f.
+        aadd(ar, smsg)
+      endif
+    endif
+  endif
+
+  return fl
+
+// 22.10.19 проверка правильности соответствующей стадии по соответствующему справочнику
+Function f_verify_tnm_old(n, lkod, ldiag, ar)
   Local sn := lstr(n), sd
   Local fl := .t., lal := 'n' + sn, polek, poled, s := {'', 'ST', 'T', 'N', 'M'}[n]
   Local smsg := 'онкология: в справочнике N00' + sn + ' не найдена стадия заболевания ' + s + '=' + lstr(lkod) + ' для диагноза ' + ldiag
