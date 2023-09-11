@@ -353,7 +353,7 @@ function loadN006()
 // =========== N007 ===================
 //
 // 27.08.23 вернуть массив ФФОМС N007.xml Классификатор гистологических признаков (OnkMrf)
-function loadN007()
+function getN007()
   // возвращает массив N007 гистологических признаков (OnkMrf)
   static _arr
   static time_load
@@ -377,7 +377,7 @@ function loadN007()
         'FROM n007')
     if len(aTable) > 1
       for nI := 2 to Len( aTable )
-        aadd(_arr, {val(aTable[nI, 1]), alltrim(aTable[nI, 2])}) //, val(aTable[nI, 3]), alltrim(aTable[nI, 4])})
+        aadd(_arr, {alltrim(aTable[nI, 2]), val(aTable[nI, 1])})
       next
     endif
     db := nil
@@ -387,7 +387,7 @@ function loadN007()
 // =========== N008 ===================
 //
 // 27.08.23 вернуть массив ФФОМС N008.xml Классификатор результатов гистологических исследований (OnkMrfRt)
-function loadN008()
+function getN008()
   // возвращает массив N008 результатов гистологических исследований (OnkMrfRt)
   static _arr
   static time_load
@@ -423,7 +423,7 @@ function loadN008()
 // =========== N009 ===================
 //
 // 27.08.23 вернуть массив ФФОМС N009.xml Классификатор соответствия гистологических признаков диагнозам (OnkMrtDS)
-function loadN009()
+function getN009()
   // возвращает массив N009 соответствия гистологических признаков диагнозам (OnkMrtDS)
   static _arr
   static time_load

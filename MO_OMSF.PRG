@@ -906,56 +906,59 @@ Function f_verify_tnm(n, lkod, ldiag, ar)
         aadd(ar, smsg)
       endif
     endif
-  endif
-
-  return fl
-
-// 22.10.19 проверка правильности соответствующей стадии по соответствующему справочнику
-Function f_verify_tnm_old(n, lkod, ldiag, ar)
-  Local sn := lstr(n), sd
-  Local fl := .t., lal := 'n' + sn, polek, poled, s := {'', 'ST', 'T', 'N', 'M'}[n]
-  Local smsg := 'онкология: в справочнике N00' + sn + ' не найдена стадия заболевания ' + s + '=' + lstr(lkod) + ' для диагноза ' + ldiag
-
-  polek := lal + '->kod_' + s
-  poled := lal + '->ds_' + s
-  if select(lal) == 0
-    R_Use(exe_dir + '_mo_N00' + sn, {cur_dir + '_mo_N00' + sn, cur_dir + '_mo_N00' + sn + 'd'}, lal)
-  endif
-  dbSelectArea(lal) // встать на справочник N0...
-  set order to 1    // переключиться на индекс по коду
-  find (str(lkod, 6))
-  if found()
-    if empty(&poled) // если не заполнено поле диагноза
-      sd := padr(ldiag, 5)
-      set order to 2 // переключиться на индекс по диагнозу
-      find (sd)      // поиск пятизначного диагноза
-      if found()     // если нашли - ошибка
-        fl := .f.
-        aadd(ar, smsg)
-      else
-        sd := padr(ldiag, 3)
-        find (sd)    // поиск трёхзначного диагноза
-        if found() .and. sd == alltrim(&poled)  // если нашли - ошибка
-          fl := .f.
-          aadd(ar,smsg)
-        endif
-      endif
-    elseif len(alltrim(&poled)) == 5
-      if !(left(ldiag, 5) == &poled)
-        fl := .f.
-        aadd(ar,smsg)
-      endif
-    else
-      if !(left(ldiag, 3) == alltrim(&poled))
-        fl := .f.
-        aadd(ar,smsg)
-      endif
-    endif
   else
     fl := .f.
     aadd(ar, smsg)
   endif
+
   return fl
+
+// // 22.10.19 проверка правильности соответствующей стадии по соответствующему справочнику
+// Function f_verify_tnm_old(n, lkod, ldiag, ar)
+//   Local sn := lstr(n), sd
+//   Local fl := .t., lal := 'n' + sn, polek, poled, s := {'', 'ST', 'T', 'N', 'M'}[n]
+//   Local smsg := 'онкология: в справочнике N00' + sn + ' не найдена стадия заболевания ' + s + '=' + lstr(lkod) + ' для диагноза ' + ldiag
+
+//   polek := lal + '->kod_' + s
+//   poled := lal + '->ds_' + s
+//   if select(lal) == 0
+//     R_Use(exe_dir + '_mo_N00' + sn, {cur_dir + '_mo_N00' + sn, cur_dir + '_mo_N00' + sn + 'd'}, lal)
+//   endif
+//   dbSelectArea(lal) // встать на справочник N0...
+//   set order to 1    // переключиться на индекс по коду
+//   find (str(lkod, 6))
+//   if found()
+//     if empty(&poled) // если не заполнено поле диагноза
+//       sd := padr(ldiag, 5)
+//       set order to 2 // переключиться на индекс по диагнозу
+//       find (sd)      // поиск пятизначного диагноза
+//       if found()     // если нашли - ошибка
+//         fl := .f.
+//         aadd(ar, smsg)
+//       else
+//         sd := padr(ldiag, 3)
+//         find (sd)    // поиск трёхзначного диагноза
+//         if found() .and. sd == alltrim(&poled)  // если нашли - ошибка
+//           fl := .f.
+//           aadd(ar,smsg)
+//         endif
+//       endif
+//     elseif len(alltrim(&poled)) == 5
+//       if !(left(ldiag, 5) == &poled)
+//         fl := .f.
+//         aadd(ar,smsg)
+//       endif
+//     else
+//       if !(left(ldiag, 3) == alltrim(&poled))
+//         fl := .f.
+//         aadd(ar,smsg)
+//       endif
+//     endif
+//   else
+//     fl := .f.
+//     aadd(ar, smsg)
+//   endif
+//   return fl
 
 // 14.01.19 проверка правильности введённых стадий по справочнику N006 в get'e
 Function f_valid_tnm(g)

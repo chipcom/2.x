@@ -260,58 +260,58 @@ Function index_work_dir(exe_dir, cur_dir, flag)
   index on str(metod, 3) to (cur_dir + sbase)
   use
 
-  // N002
-  sbase := '_mo_N002'
-  file_index := cur_dir + sbase + sntx
-  R_Use(exe_dir + sbase )
-  index on str(id_st, 6) to (cur_dir + sbase)
-  index on ds_st + kod_st to (cur_dir + sbase + 'd')
-  use
+  // // N002
+  // sbase := '_mo_N002'
+  // file_index := cur_dir + sbase + sntx
+  // R_Use(exe_dir + sbase )
+  // index on str(id_st, 6) to (cur_dir + sbase)
+  // index on ds_st + kod_st to (cur_dir + sbase + 'd')
+  // use
 
   // N003
-  sbase := '_mo_N003'
-  file_index := cur_dir + sbase + sntx
-  R_Use(exe_dir + sbase )
-  index on str(id_t, 6) to (cur_dir + sbase)
-  index on ds_t + kod_t to (cur_dir + sbase + 'd')
-  use
+  // sbase := '_mo_N003'
+  // file_index := cur_dir + sbase + sntx
+  // R_Use(exe_dir + sbase )
+  // index on str(id_t, 6) to (cur_dir + sbase)
+  // index on ds_t + kod_t to (cur_dir + sbase + 'd')
+  // use
 
   // N004
-  sbase := '_mo_N004'
-  file_index := cur_dir + sbase + sntx
-  R_Use(exe_dir + sbase )
-  index on str(id_n, 6) to (cur_dir + sbase)
-  index on ds_n + kod_n to (cur_dir + sbase + 'd')
-  use
+  // sbase := '_mo_N004'
+  // file_index := cur_dir + sbase + sntx
+  // R_Use(exe_dir + sbase )
+  // index on str(id_n, 6) to (cur_dir + sbase)
+  // index on ds_n + kod_n to (cur_dir + sbase + 'd')
+  // use
 
   // N005
-  sbase := '_mo_N005'
-  file_index := cur_dir + sbase + sntx
-  R_Use(exe_dir + sbase )
-  index on str(id_m, 6) to (cur_dir + sbase)
-  index on ds_m + kod_m to (cur_dir + sbase + 'd')
-  use
+  // sbase := '_mo_N005'
+  // file_index := cur_dir + sbase + sntx
+  // R_Use(exe_dir + sbase )
+  // index on str(id_m, 6) to (cur_dir + sbase)
+  // index on ds_m + kod_m to (cur_dir + sbase + 'd')
+  // use
 
   // N006 - в 2019 году пустой
-  sbase := '_mo_N006'
-  file_index := cur_dir + sbase + sntx
-  R_Use(exe_dir + sbase )
-  index on ds_gr + str(id_t, 6) + str(id_n, 6) + str(id_m, 6) to (cur_dir + sbase)
-  use
+  // sbase := '_mo_N006'
+  // file_index := cur_dir + sbase + sntx
+  // R_Use(exe_dir + sbase )
+  // index on ds_gr + str(id_t, 6) + str(id_n, 6) + str(id_m, 6) to (cur_dir + sbase)
+  // use
 
   // N007
-  sbase := '_mo_N007'
-  file_index := cur_dir + sbase + sntx
-  R_Use(exe_dir + sbase )
-  index on str(id_mrf, 6) to (cur_dir + sbase)
-  use
+  // sbase := '_mo_N007'
+  // file_index := cur_dir + sbase + sntx
+  // R_Use(exe_dir + sbase )
+  // index on str(id_mrf, 6) to (cur_dir + sbase)
+  // use
 
   // N008
-  sbase := '_mo_N008'
-  file_index := cur_dir + sbase + sntx
-  R_Use(exe_dir + sbase )
-  index on str(id_mrf, 6) to (cur_dir + sbase)
-  use
+  // sbase := '_mo_N008'
+  // file_index := cur_dir + sbase + sntx
+  // R_Use(exe_dir + sbase )
+  // index on str(id_mrf, 6) to (cur_dir + sbase)
+  // use
 
   // N010
   sbase := '_mo_N010'

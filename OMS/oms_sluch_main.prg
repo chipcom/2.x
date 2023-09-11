@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 18.07.23 добавление или редактирование случая (листа учета)
+// 11.09.23 добавление или редактирование случая (листа учета)
 Function oms_sluch_main(Loc_kod, kod_kartotek)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -22,7 +22,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
   local oldPictureTalon := '@S12'
   local newPictureTalon := '@S 99.9999.99999.999'
   local mm_da_net := {{'нет', 0}, {'да ', 1}}
-  local j
+  local j, i_n007, aN007 := getN007(), i_n008, aN008 := getN008(), i_n009, aN009 := getN009()
 
   Default st_N_DATA TO sys_date, st_K_DATA TO sys_date
   Default Loc_kod TO 0, kod_kartotek TO 0
@@ -208,22 +208,31 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
 
   if empty(st_rez_gist) // для гистологии в поликлинике
     st_rez_gist := {}
-    R_Use(exe_dir+ '_mo_N008', cur_dir + '_mo_N008',  'N8')
-    R_Use(exe_dir+ '_mo_N007', cur_dir + '_mo_N007',  'N7')
-    go top
-    do while !eof()
-      aadd(st_rez_gist, {n7->mrf_name,n7->id_mrf, {}, 0}) ; i := len(st_rez_gist)
-      select N8
-      find (str(n7->id_mrf, 6))
-      do while n8->id_mrf == n7->id_mrf .and. !eof()
-        aadd(st_rez_gist[i, 3], {alltrim(n8->r_m_name), n8->id_r_m})
-        skip
-      enddo
-      select N7
-      skip
-    enddo
-    n7->(dbCloseArea())
-    n8->(dbCloseArea())
+    // R_Use(exe_dir+ '_mo_N008', cur_dir + '_mo_N008',  'N8')
+    // R_Use(exe_dir+ '_mo_N007', cur_dir + '_mo_N007',  'N7')
+    // go top
+    // do while !eof()
+    //   aadd(st_rez_gist, {n7->mrf_name,n7->id_mrf, {}, 0}) ; i := len(st_rez_gist)
+    //   select N8
+    //   find (str(n7->id_mrf, 6))
+    //   do while n8->id_mrf == n7->id_mrf .and. !eof()
+    //     aadd(st_rez_gist[i, 3], {alltrim(n8->r_m_name), n8->id_r_m})
+    //     skip
+    //   enddo
+    //   select N7
+    //   skip
+    // enddo
+    // n7->(dbCloseArea())
+    // n8->(dbCloseArea())
+    for i_n007 := 1 to len(aN007)
+      aadd(st_rez_gist, {aN007[i_n007, 1], aN007[i_n007, 2], {}, 0})
+      i := len(st_rez_gist)
+      for i_n008 := 1 to len(aN008)
+        if aN007[i_n007, 2] == aN008[i_n008, 2]
+          aadd(st_rez_gist[i, 3], {alltrim(aN008[i_n008, 3]), aN008[i_n008, 1]})
+        endif
+      next
+    next
   endif
 
   Private mdiag_date := ctod(''),  mgist1, mgist2, m1gist1 := 0, m1gist2 := 0, ;
@@ -1152,38 +1161,56 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
           m1ONK_T := m1ONK_N := m1ONK_M := 0
         endif
         //
-        R_Use(exe_dir+ '_mo_N006', cur_dir + '_mo_N006',  'N6')
+        // R_Use(exe_dir+ '_mo_N006', cur_dir + '_mo_N006',  'N6')
         // гистология
         mm_N009 := {}
         if !is_mgi // для МГИ гистология не вводится
-          R_Use(exe_dir+ '_mo_N009', , 'N9')
-          dbeval({|| aadd(mm_N009, {'', n9->id_mrf, {}}) }, ;
-                 {|| between_date(n9->datebeg,n9->dateend,mk_data) .and. left(mkod_diag, 3) == n9->ds_mrf })
-          asort(mm_N009, , , {|x,y| x[2] < y[2] })
+          // R_Use(exe_dir+ '_mo_N009', , 'N9')
+          // dbeval({|| aadd(mm_N009, {'', n9->id_mrf, {}}) }, ;
+          //        {|| between_date(n9->datebeg,n9->dateend,mk_data) .and. left(mkod_diag, 3) == n9->ds_mrf })
+          // asort(mm_N009, , , {|x,y| x[2] < y[2] })
+          for i_n009 := 1 to len(aN009)
+            if between_date(aN009[i_n009, 4], aN009[i_n009, 5], mk_data) .and. left(mkod_diag, 3) == left(aN009[i_n009, 2], 3)
+              aadd(mm_N009, {'', aN009[i_n009, 3], {}})
+            endif
+          next
+          asort(mm_N009, , , {|x, y| x[2] < y[2] })
         endif
         if len(mm_N009) > 0
-          R_Use(exe_dir+ '_mo_N007', cur_dir + '_mo_N007',  'N7')
-          R_Use(exe_dir+ '_mo_N008', cur_dir + '_mo_N008',  'N8')
-          for i := 1 to min(2,len(mm_N009))
-            select N7
-            find (str(mm_N009[i, 2], 6))
-            if found()
-              mm_N009[i, 1] := alltrim(n7->mrf_name)
+          // R_Use(exe_dir+ '_mo_N007', cur_dir + '_mo_N007',  'N7')
+          // R_Use(exe_dir+ '_mo_N008', cur_dir + '_mo_N008',  'N8')
+          for i := 1 to min(2, len(mm_N009))
+            // select N7
+            // find (str(mm_N009[i, 2], 6))
+            // if found()
+            //   mm_N009[i, 1] := alltrim(n7->mrf_name)
+            // else
+            //   func_error(4, 'Не найден гистологический признак ID_MRF=' + lstr(mm_N009[i, 2]) + ' для ' + mkod_diag)
+            // endif
+            if (i_n007 := ascan(aN007, {|x| x[2] == mm_N009[i, 2]})) > 0
+              mm_N009[i, 1] := alltrim(aN007[i_n007, 1])
             else
-              func_error(4, 'Не найден гистологический признак ID_MRF=' + lstr(mm_N009[i, 2])+ ' для ' +mkod_diag)
+              func_error(4, 'Не найден гистологический признак ID_MRF=' + lstr(mm_N009[i, 2]) + ' для ' + mkod_diag)
             endif
-            select N8
-            find (str(mm_N009[i, 2], 6))
-            do while n8->id_mrf == mm_N009[i, 2] .and. !eof()
-              aadd(mm_N009[i, 3], {alltrim(n8->r_m_name), n8->id_r_m})
-              skip
-            enddo
+            // select N8
+            // find (str(mm_N009[i, 2], 6))
+            // do while n8->id_mrf == mm_N009[i, 2] .and. !eof()
+            //   aadd(mm_N009[i, 3], {alltrim(n8->r_m_name), n8->id_r_m})
+            //   skip
+            // enddo
+            for i_n008 := 1 to len(aN008)
+              if mm_N009[i, 2] == aN008[i_n008, 2]
+                aadd(mm_N009[i, 3], {alltrim(aN008[i_n008, 3]), aN008[i_n008, 1]})
+              endif
+            next
+
             if ascan(mm_N009[i, 3], {|x| x[2] == &('m1gist' + lstr(i)) }) == 0
               &('m1gist' + lstr(i)) := 0
             endif
             &('mgist' + lstr(i)) := inieditspr(A__MENUVERT, mm_N009[i, 3], &('m1gist' + lstr(i)))
           next
         endif
+
         // Иммуногистохимия
         mm_N012 := {}
         R_Use(exe_dir+ '_mo_N012', , 'N12')

@@ -36,6 +36,7 @@ Function verify_1_sluch(fl_view)
   local kol_dney
   local is_2_92_ := .f., kol_2_93_1 := 0  // школа диабета, письмо 12-20-154 от 28.04.23
   local l_mdiagnoz_fill := .f.  // в массиве диагнозов есть элементы
+  local i_n009, aN009 := getN009()
 
   if empty(human->k_data)
     return .t.  // не проверять
@@ -1716,13 +1717,18 @@ Function verify_1_sluch(fl_view)
     // elseif len(mdiagnoz) > 0 .and. eq_any(onksl->b_diag, 97, 98) // выполнено
     elseif l_mdiagnoz_fill .and. eq_any(onksl->b_diag, 97, 98) // выполнено
       ar_N009 := {}
-      if select('N9') == 0
-        R_Use(dir_exe + '_mo_N009', , 'N9')
-      endif
+      // if select('N9') == 0
+      //   R_Use(dir_exe + '_mo_N009', , 'N9')
+      // endif
       if !is_mgi
-        select N9
-        dbeval({|| aadd(ar_N009, {'', n9->id_mrf, {}}) }, ;
-               {|| between_date(n9->datebeg, n9->dateend, d2) .and. padr(mdiagnoz[1], 3) == n9->ds_mrf })
+        // select N9
+        // dbeval({|| aadd(ar_N009, {'', n9->id_mrf, {}}) }, ;
+        //        {|| between_date(n9->datebeg, n9->dateend, d2) .and. padr(mdiagnoz[1], 3) == n9->ds_mrf })
+        for i_n009 := 1 to len(aN009)
+          if between_date(aN009[i_n009, 4], aN009[i_n009, 5], mk_data) .and. left(mkod_diag, 3) == left(aN009[i_n009, 2], 3)
+            aadd(mm_N009, {'', aN009[i_n009, 3], {}})
+          endif
+        next
       endif
       // Иммуногистохимия/маркеры
       ar_N012 := {}
