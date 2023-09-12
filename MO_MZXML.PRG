@@ -1271,7 +1271,7 @@ R_Use(dir_server + 'mo_onkle',dir_server + 'mo_onkle', 'ONKLE')
 // R_Use(dir_exe+'_mo_N009', , 'N9')
 R_Use(dir_exe+'_mo_N012', , 'N12')
 // R_Use(exe_dir+'_mo_N007', , 'N7')
-R_Use(exe_dir+'_mo_N008', , 'N8')
+// R_Use(exe_dir+'_mo_N008', , 'N8')
 R_Use(exe_dir+'_mo_N010', , 'N10')
 R_Use(exe_dir+'_mo_N011', , 'N11')
 R_Use(exe_dir+'_mo_N020',{cur_dir + '_mo_N020',cur_dir + '_mo_N020n'}, 'N20')
@@ -1318,10 +1318,11 @@ do while human->k_data <= arr_m[6] .and. !eof()
             //goto (onkdi->DIAG_CODE)
             //sgist += alltrim(n7->mrf_name) + '-'
           //endif
-          select N8
-          goto (onkdi->DIAG_RSLT)
-          sgist += alltrim(n8->r_m_name)
 
+          // select N8
+          // goto (onkdi->DIAG_RSLT)
+          // sgist += alltrim(n8->r_m_name)
+          sgist += alltrim(inieditspr(A__MENUVERT, getN008(), onkdi->DIAG_RSLT))
         elseif onkdi->DIAG_TIP == 2
           ldate_mark := date_8(onkdi->DIAG_DATE)
           if !empty(smark)

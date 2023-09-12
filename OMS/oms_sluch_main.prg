@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 11.09.23 добавление или редактирование случая (листа учета)
+// 12.09.23 добавление или редактирование случая (листа учета)
 Function oms_sluch_main(Loc_kod, kod_kartotek)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -22,7 +22,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
   local oldPictureTalon := '@S12'
   local newPictureTalon := '@S 99.9999.99999.999'
   local mm_da_net := {{'нет', 0}, {'да ', 1}}
-  local j, i_n007, aN007 := getN007(), i_n008, aN008 := getN008(), i_n009, aN009 := getN009()
+  local j, i_n007, aN007 := getN007(), i_n008, aN008 := loadN008(), i_n009, aN009 := getN009()
 
   Default st_N_DATA TO sys_date, st_K_DATA TO sys_date
   Default Loc_kod TO 0, kod_kartotek TO 0

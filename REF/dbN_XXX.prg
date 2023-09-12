@@ -386,8 +386,8 @@ function getN007()
 
 // =========== N008 ===================
 //
-// 27.08.23 вернуть массив ФФОМС N008.xml Классификатор результатов гистологических исследований (OnkMrfRt)
-function getN008()
+// 12.09.23 вернуть массив ФФОМС N008.xml Классификатор результатов гистологических исследований (OnkMrfRt)
+function loadN008()
   // возвращает массив N008 результатов гистологических исследований (OnkMrfRt)
   static _arr
   static time_load
@@ -419,6 +419,16 @@ function getN008()
     db := nil
   endif
   return _arr
+
+// 12.09.23
+function getN008()
+  local arr := {}
+  local row
+
+  for each row in loadN008()
+    aadd(arr, {row[3], row[2]})
+  next
+  return arr
 
 // =========== N009 ===================
 //
