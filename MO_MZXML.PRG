@@ -1222,7 +1222,7 @@ rest_box(buf)
 call_fr(name_fr+ lstr(j))
 return NIL
 
-// 09.09.23 для ФГБУ 'НМИЦ онкологии им.Н.Н.Петрова'
+// 12.09.23 для ФГБУ 'НМИЦ онкологии им.Н.Н.Петрова'
 Function ot_nmic_petrova()
 Local buf := save_maxrow()
 Private arr_m
@@ -1269,10 +1269,10 @@ R_Use(dir_server + 'mo_onkle',dir_server + 'mo_onkle', 'ONKLE')
 // R_Use(exe_dir+'_mo_N004',cur_dir + '_mo_N004', 'N4')
 // R_Use(exe_dir+'_mo_N005',cur_dir + '_mo_N005', 'N5')
 // R_Use(dir_exe+'_mo_N009', , 'N9')
-R_Use(dir_exe+'_mo_N012', , 'N12')
+// R_Use(dir_exe+'_mo_N012', , 'N12')
 // R_Use(exe_dir+'_mo_N007', , 'N7')
 // R_Use(exe_dir+'_mo_N008', , 'N8')
-R_Use(exe_dir+'_mo_N010', , 'N10')
+// R_Use(exe_dir+'_mo_N010', , 'N10')
 R_Use(exe_dir+'_mo_N011', , 'N11')
 R_Use(exe_dir+'_mo_N020',{cur_dir + '_mo_N020',cur_dir + '_mo_N020n'}, 'N20')
 R_Use(exe_dir+'_mo_N021',cur_dir + '_mo_N021', 'N21')

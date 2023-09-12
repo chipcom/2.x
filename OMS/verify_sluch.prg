@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-// 05.09.23
+// 12.09.23
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1, ;
         i, j, k, c, s := ' ', a_srok_lech := {}, a_period_stac := {}, a_disp := {}, ;
@@ -37,6 +37,7 @@ Function verify_1_sluch(fl_view)
   local is_2_92_ := .f., kol_2_93_1 := 0  // школа диабета, письмо 12-20-154 от 28.04.23
   local l_mdiagnoz_fill := .f.  // в массиве диагнозов есть элементы
   local i_n009, aN009 := getN009()
+  local i_n012, aN012_DS := getDS_N012(), ar_N012 := {}, it
 
   if empty(human->k_data)
     return .t.  // не проверять
@@ -1732,12 +1733,18 @@ Function verify_1_sluch(fl_view)
       endif
       // Иммуногистохимия/маркеры
       ar_N012 := {}
-      if select('N12') == 0
-        R_Use(dir_exe + '_mo_N012', , 'N12')
+      // if select('N12') == 0
+      //   R_Use(dir_exe + '_mo_N012', , 'N12')
+      // endif
+      // select N12
+      // dbeval({|| aadd(ar_N012, {'', n12->id_igh, {}}) }, ;
+      //        {|| between_date(n12->datebeg, n12->dateend, d2) .and. padr(mdiagnoz[1], 3) == n12->ds_igh })
+      if (it := ascan(aN012_DS, {|x| left(x[1], 3) == padr(mdiagnoz[1], 3)})) > 0
+        ar_N012 := aclone(aN012_DS[it, 2])
+        for i_n012 := 1 to len(ar_N012)
+          aadd(mm_N012, {'', ar_N012[i_n012], {}})
+        next
       endif
-      select N12
-      dbeval({|| aadd(ar_N012, {'', n12->id_igh, {}}) }, ;
-             {|| between_date(n12->datebeg, n12->dateend, d2) .and. padr(mdiagnoz[1], 3) == n12->ds_igh })
       if is_mgi
         if (i := ascan(glob_MGI, {|x| x[1] == shifr_mgi })) > 0 // услуга входит в список ТФОМС
           if (j := ascan(ar_N012, {|x| x[2] == glob_MGI[i, 2] })) > 0 // по данному диагнозу присутствует необходимый маркер

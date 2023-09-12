@@ -576,6 +576,32 @@ function loadN012()
   endif
   return _arr
 
+// 12.09.23
+function getDS_N012()
+  static OnkIghDS
+  static time_load
+  local row, it, i := 0
+
+  if timeout_load(@time_load)
+    OnkIghDS := {}
+    for each row in loadN012()
+      if ! empty(row[5])
+        loop
+      endif
+      if (it := ascan(OnkIghDS, {|x| x[1] == row[2]})) > 0
+        aadd(OnkIghDS[it, 2], {row[3]}) // {row[1], row[3]}
+      else
+        aadd(OnkIghDS, {row[2], {}})
+        i++
+        aadd(OnkIghDS[i, 2], {row[3]})  // {row[1], row[3]}
+      endif
+    next
+    // for i := 1 to len(OnkIghDS)
+    //   asort(OnkIghDS[i, 2], , , {|x, y| x[1] < y[1]})
+    // next
+  endif
+  return OnkIghDS
+
 // =========== N013 ===================
 //
 // 28.08.23 вернуть массив ФФОМС N013.xml Классификатор типов лечения (OnkLech)

@@ -1,11 +1,11 @@
-** mo_serv.prg - сервисы и настройки
+// mo_serv.prg - сервисы и настройки
 #include "set.ch"
 #include "inkey.ch"
 #include "function.ch"
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-** 08.01.17
+// 08.01.17
 Function f_import(k)
 Static si1 := 1, sds := 1, ssp := 1
 Local mas_pmt, mas_msg, mas_fun, j
@@ -40,7 +40,7 @@ if k > 10
 endif
 return NIL
 
-** 23.12.17
+// 23.12.17
 Function import_from_LIS()
 Local full_o79
 Private p_var_manager := "Read_from_LIS", cFileProtokol := "protokol"+stxt
@@ -63,7 +63,7 @@ if !empty(full_o79) .and. hb_FileExists(full_o79)
 endif
 return NIL
 
-** 28.04.20
+// 12.09.23
 Function f1_impXML_from_LIS(name_file)
 Local buf := save_maxrow(), aerr := {}, arr, fl_exit := .f., fl := .f., i, j, t1, t2, s, s1
 if !hb_FileExists(dir_server + "mo_flis"+sdbf)
@@ -117,7 +117,7 @@ if fl .and. f_Esc_Enter("чтения файла из ЛИС")
   R_Use(dir_exe+"_mo_prof",cur_dir + "_mo_prof","MOPROF")
   R_Use(dir_server + "uslugi1",{dir_server + "uslugi1",;
                               dir_server + "uslugi1s"},"USL1")
-  R_Use(dir_exe+"_mo_N012",,"N12")
+  // R_Use(dir_exe+"_mo_N012",,"N12")
   G_Use(dir_server + "mo_onkco",dir_server + "mo_onkco","CO")
   G_Use(dir_server + "mo_onksl",dir_server + "mo_onksl","SL")
   G_Use(dir_server + "mo_onkdi",dir_server + "mo_onkdi","DIAG") // Диагностический блок
@@ -237,7 +237,7 @@ close databases
 rest_box(buf)
 return NIL
 
-** 03.05.17
+// 03.05.17
 Function f1_import_from_LIS(name_file)
 Local buf := save_maxrow(), aerr := {}, arr, fl_exit, fl := .f., i, j, t1, t2, s, s1, iencode
 if !hb_FileExists(dir_server + "mo_flis"+sdbf)
@@ -408,7 +408,7 @@ close databases
 rest_box(buf)
 return NIL
 
-** 02.01.17
+// 02.01.17
 Static Function Utf82Oem(s)
 return hb_Utf8ToStr(s,"RU866")
 
@@ -446,7 +446,7 @@ return hb_Utf8ToStr(s,"RU866")
 #define LISU_ID        8
 #define LISU_D_RSLT    9
 
-** 28.04.20
+// 28.04.20
 Function f2_impXML_from_LIS(ta)
 Static arr[LISU_D_RSLT]
 Local i, j := 1, s
@@ -495,7 +495,7 @@ for i := 2 to len(ta)
 next j
 return f2_import_from_LIS(2)
 
-** 28.04.20
+// 28.04.20
 Function f2_import_from_LIS(par)
 Static siu := 0, jsiu := 0
 Local i, j, k, fl, afio[3], mfio, aerr := {}, tmp_arr := {}, arr_unit, lvzros_reb, i_738, i_739
@@ -981,39 +981,45 @@ if siu > 500
 endif
 return aerr
 
-** 28.04.20 записать онкологическую добавку по МГИ
+// 12.09.23 записать онкологическую добавку по МГИ
 Function f_LIS_mgi(mkod,ao)
-Local i, ar_N012 := {}
-select CO
-AddRec(7)
-co->kod := mkod
-co->PR_CONS := 0
-co->DT_CONS := ctod("")
-//
-select SL
-AddRec(7)
-sl->kod := mkod
-sl->DS1_T := 5
-sl->b_diag := 98 // выполнено (результат получен)
-//
-if (i := ascan(glob_MGI,{|x| x[1] == ao[LISS_USL,1,LISU_SHIFR] })) > 0 // услуга входит в список ТФОМС
-  select N12
-  dbeval({|| aadd(ar_N012,n12->id_igh) }, ;
-         {|| between_date(n12->datebeg,n12->dateend,ao[LISS_USL,1,LISU_DATE]) .and. left(human->KOD_DIAG,3) == n12->ds_igh })
-  if ascan(ar_N012,glob_MGI[i,2]) > 0 // по данному диагнозу присутствует необходимый маркер
-    select DIAG
-    AddRec(7)
-    diag->kod       := mkod
-    diag->DIAG_DATE := ao[LISS_USL,1,LISU_DATE]
-    diag->DIAG_TIP  := 2
-    diag->DIAG_CODE := glob_MGI[i,2]
-    diag->DIAG_RSLT := iif(ao[LISS_USL,1,LISU_D_RSLT] == '1', glob_MGI[i,4], glob_MGI[i,3])
-    diag->REC_RSLT  := 1
-  endif
-endif
-return NIL
+  Local i, ar_N012 := {}
+  local aN012_DS := getDS_N012(), it
 
-** 14.01.17 проверить отдельно фамилию, имя или отчество при импорте из ЛИС
+  select CO
+  AddRec(7)
+  co->kod := mkod
+  co->PR_CONS := 0
+  co->DT_CONS := ctod('')
+  //
+  select SL
+  AddRec(7)
+  sl->kod := mkod
+  sl->DS1_T := 5
+  sl->b_diag := 98 // выполнено (результат получен)
+  //
+  if (i := ascan(glob_MGI, {|x| x[1] == ao[LISS_USL, 1, LISU_SHIFR] })) > 0 // услуга входит в список ТФОМС
+    // select N12
+    // dbeval({|| aadd(ar_N012, n12->id_igh) }, ;
+    //      {|| between_date(n12->datebeg, n12->dateend, ao[LISS_USL, 1, LISU_DATE]) .and. left(human->KOD_DIAG,3) == n12->ds_igh })
+    if (it := ascan(aN012_DS, {|x| left(x[1], 3) == left(human->KOD_DIAG, 3)})) > 0
+      ar_N012 := aclone(aN012_DS[it, 2])
+    endif
+
+    if ascan(ar_N012, glob_MGI[i, 2]) > 0 // по данному диагнозу присутствует необходимый маркер
+      select DIAG
+      AddRec(7)
+      diag->kod       := mkod
+      diag->DIAG_DATE := ao[LISS_USL, 1, LISU_DATE]
+      diag->DIAG_TIP  := 2
+      diag->DIAG_CODE := glob_MGI[i, 2]
+      diag->DIAG_RSLT := iif(ao[LISS_USL, 1, LISU_D_RSLT] == '1', glob_MGI[i, 4], glob_MGI[i, 3])
+      diag->REC_RSLT  := 1
+    endif
+  endif
+  return NIL
+
+// 14.01.17 проверить отдельно фамилию, имя или отчество при импорте из ЛИС
 Function f_LIS_fio(s,n)
 Static arr_char := {" ","-",".","'",'"'} // разрешённые спецсимволы
 Local i, c, s1 := ""
@@ -1039,7 +1045,7 @@ for i := 1 to len(s)
 next
 return s1
 
-** 15.01.17 проверить полис при импорте из ЛИС
+// 15.01.17 проверить полис при импорте из ЛИС
 Function f_LIS_polis()
 Local n
 if empty(arr_pac[LIS_OKATO]) .or. mo_nodigit(arr_pac[LIS_OKATO]) // пустое или не цифры
@@ -1131,7 +1137,7 @@ else
 endif
 return NIL
 
-** 03.05.17
+// 03.05.17
 Function f_define_LIS_coding(name_file)
 Local arr_pac, a1[3], a2[3], fl[3], i, j := 0, ret := {.t.,.t.}
 //my_debug(,name_file)
@@ -1184,7 +1190,7 @@ else
 endif
 return j
 
-** Импорт случаев ОМС (листов учёта) из других программ (по-старому)
+// Импорт случаев ОМС (листов учёта) из других программ (по-старому)
 Function import_sluch_OMS()
 Local full_dbf, name_dbf, i, s := "", fl := .t.
 Private arr_f := {"_lpu","_otd","_sluch","_sluch_u"}, ;
@@ -2395,7 +2401,7 @@ endif
 rest_box(buf)
 return fl
 
-**
+//
 Function import_verify_okato(s)
 Local fl := .t.
 if right(s,9) == replicate('0',9)
@@ -2415,7 +2421,7 @@ return fl
 
 *
 
-** Импорт данных из программы "Флюоротека" фирмы "ЧИП плюс"
+// Импорт данных из программы "Флюоротека" фирмы "ЧИП плюс"
 Function import_fluoroteka()
 Local full_zip, buf, k, str_sem := "Импорт флюоротеки"
 if G_SLock(str_sem)
@@ -2489,7 +2495,7 @@ else
 endif
 return NIL
 
-** 07.11.22
+// 07.11.22
 Function f_export(k)
 Static si1 := 1, sds := 1, ssp := 1
 Local mas_pmt, mas_msg, mas_fun, j
@@ -2594,12 +2600,12 @@ if k > 10
 endif
 return NIL
 
-** 08.05.17 Создание файла для ЛИС из БД КДП2 (пациенты с кодом ЛИС и, возможно, изменёнными реквизитами)
+// 08.05.17 Создание файла для ЛИС из БД КДП2 (пациенты с кодом ЛИС и, возможно, изменёнными реквизитами)
 Function export_to_LIS()
 create_DBF_for_LIS(2)
 return NIL
 
-** 20.11.16
+// 20.11.16
 Function create_file_export_military()
 if !hb_FileExists(dir_server+sbase+sdbf)
   adbf := {;
@@ -2616,7 +2622,7 @@ if !hb_FileExists(dir_server+sbase+sdbf)
 endif
 return NIL
 
-** 20.11.16
+// 20.11.16
 Function export_military()
 Local adbf, buf := savescreen()
 if !G_SLock(Svoenn_sem)
@@ -2637,7 +2643,7 @@ G_SUnLock(Svoenn_sem)
 restscreen(buf)
 return NIL
 
-** 20.11.16
+// 20.11.16
 Function f1_export_military(oBrow)
 Local oColumn, ;
       blk := {|| iif(hb_fileExists(goal_dir+alltrim(voen->FNAME)+sxls), ;
@@ -2661,7 +2667,7 @@ oBrow:addColumn(oColumn)
 status_key("^<Esc>^ выход;  ^<F5>^ запись файла для ТФОМС;  ^<Del>^ удалить ещё не записанный файл")
 return NIL
 
-**
+//
 Static Function f11_export_military()
 Local s := ""
 if !hb_fileExists(goal_dir+alltrim(voen->FNAME)+sxls)
@@ -2673,7 +2679,7 @@ else
 endif
 return padr(s,10)
 
-** 20.11.16
+// 20.11.16
 Function f2_export_military(nKey,oBrow)
 Local ret := -1, s, buf := savescreen()
 do case
@@ -2729,7 +2735,7 @@ endcase
 restscreen(buf)
 return ret
 
-** 20.11.16
+// 20.11.16
 Function VoenList2arr(sList)
 Local i, j, s, arr := {}, ar
 if !empty(sList)
@@ -2744,7 +2750,7 @@ if !empty(sList)
 endif
 return arr
 
-** 20.11.16
+// 20.11.16
 Function f_create_military()
 Local fl := .f., k, buf24 := save_maxrow(), t_arr[BR_LEN], blk, arr := {}, arr_m
 if !myFileDeleted(cur_dir + "tmp"+sdbf)
@@ -2970,7 +2976,7 @@ G_SUnLock(Svoenn_sem)
 rest_box(buf24)
 return NIL
 
-** 20.11.16
+// 20.11.16
 Function f1create_military(nKey,oBrow,regim)
 Local k := -1, rec, fl
 if regim == "edit"
@@ -2988,7 +2994,7 @@ if regim == "edit"
 endif
 return k
 
-** 14.07.19 создать файл счетов в Облздрав
+// 14.07.19 создать файл счетов в Облздрав
 Function create_schets_OBLSDRAV()
 Local arr_f, ar, hZip, i, cPassword, fl := .t., hGauge, s, y, cFile, buf := savescreen()
 f_message({"Ждите! Создаётся архив счетов",;
@@ -3054,7 +3060,7 @@ delete file (zip_file)
 restscreen(buf)
 return NIL
 
-** 29.03.21 создать файл приписного населения в Облздрав
+// 29.03.21 создать файл приписного населения в Облздрав
 Function pripisnoe_naselenie_create_VOMIAC()
   local name_file := 'Пациенты старше 60 лет'
   local name_file_full := name_file + '.xlsx'
@@ -3073,7 +3079,7 @@ Function pripisnoe_naselenie_create_VOMIAC()
 
   return nil
 
-** 16.11.18 создать файл приписного населения в Облздрав
+// 16.11.18 создать файл приписного населения в Облздрав
 Function pripisnoe_naselenie_create_OBLSDRAV()
 Local buf := savescreen(),  arr_fio, pr_date, name_file, name_zip
 Local mo_bars :=  {;
@@ -3214,7 +3220,7 @@ else
 endif
 return NIL
 
-** Общие настройки каждой задачи
+// Общие настройки каждой задачи
 Function nastr_all(k,nTask)
 Static sk := 1, mas_pmt
 Local str_sem, mas_msg, mas_fun, j, n
@@ -3261,7 +3267,7 @@ return NIL
 
 *
 
-** 09.12.18 Общие настройки каждой задачи
+// 09.12.18 Общие настройки каждой задачи
 Function f1nastr_all(nameTask,nTask)
 Local mm_tmp := {}, ctitle
 Local str_sem := "Редактирование общих настроек задачи "+lstr(nTask)
@@ -3897,7 +3903,7 @@ return NIL
 
 *
 
-** сделать копию tools.ini с сервера в локальный каталог с именем loctools.ini
+// сделать копию tools.ini с сервера в локальный каталог с именем loctools.ini
 Function copy_Tools_Ini()
 LOCAL i := 0, fl := .f., bSaveHandler
 if !hb_FileExists(tools_ini) // если ни разу не заходили в режим настроек
@@ -3930,7 +3936,7 @@ if (fl := Semaphor_Tools_Ini(1))
 endif
 return fl
 
-**
+//
 Function Semaphor_Tools_Ini(k)
 Static sem_tools := "Semaphor_Tools"
 Local i := 0, buf, fl := .t.
@@ -3956,7 +3962,7 @@ return fl
 
 *
 
-** 09.12.18
+// 09.12.18
 Function Tools_Ini_OMS(reg,k1,k2,fll)
 Static arr := {{"okato_umolch",  "C"},;
                {"mem_smp_input", "N"},;
@@ -4067,7 +4073,7 @@ return fl
 
 *
 
-**
+//
 Function Tools_Ini_PP(reg,k1,k2,fll)
 Static arr := {{"pp_NOVOR",    "N"},;
                {"pp_KEM_NAPR", "C"},;
@@ -4103,7 +4109,7 @@ return fl
 
 *
 
-**
+//
 Function Tools_Ini_Platn(reg,k1,k2,fll)
 Static arr := {{"mem_anonim", "N"},;
                {"mem_naprvr", "N"},;
@@ -4147,7 +4153,7 @@ return fl
 
 *
 
-**
+//
 Function Tools_Ini_Orto(reg,k1,k2,fll)
 Static arr := {{"mem_ort_na", "C"},;
                {"mem_edit_s", "N"},;
@@ -4191,12 +4197,12 @@ return fl
 
 *
 
-** настройки по вводу данных в каждой задаче
+// настройки по вводу данных в каждой задаче
 Function nastr_input(k,nTask)
 return NIL
 
 
-** 01.12.16 настройка рабочего места
+// 01.12.16 настройка рабочего места
 Function nastr_rab_mesto()
 Static group_ini := "RAB_MESTO"
 Static mm_wdir := {{'в папку рабочего каталога "OwnChipArchiv"',0},;
@@ -4319,7 +4325,7 @@ return NIL
 #define SW_HIDE 0
 #define SW_SHOWNORMAL 1
 
-**
+//
 Function f_read_sc_reader()
 Static max_seconds := 20
 Static name_ini := "SCreader.ini", group_ini := "SCreader"
@@ -4372,7 +4378,7 @@ endif
 rest_box(buf)
 return .t.
 
-**
+//
 Function f_read_sc_polis()
 Static max_seconds := 20
 Static name_ini := "SCreader.ini", group_ini := "SCreader"
@@ -4446,7 +4452,7 @@ endif
 rest_box(buf)
 return fl
 
-** 14.03.16
+// 14.03.16
 Function mo_read_el_polis(/*@*/k)
 Local fl := .f., rec := 0, mfio, mdate_r, arr, buf := savescreen()
 Private arr_epolis[_EP_LEN]
@@ -4563,7 +4569,7 @@ return fl
 
 *
 
-** 08.11.20 создание первичной БД из реестров
+// 08.11.20 создание первичной БД из реестров
 Function create_main_base_from_reestrs()
 Local full_zip, name_zip, i, k, n, fl := .t., buf := save_maxrow(),;
       arr_r := {}, arr_rsptk := {}, arr_s := {}, a_reestr := {},;
@@ -4757,7 +4763,7 @@ return NIL
 *
 
 
-** 22.11.19
+// 22.11.19
 Function f1_create_main_base_from_reestrs(a_reestr)
 Local aerr, oXmlDoc, oXmlNode, oNode1, oNode2, cFile, old_sys_date,;
       i, j, n, s, arr_XML_info[7], fl := .t., arr_f, nCountWithErr
@@ -4933,7 +4939,7 @@ return fl
 
 *
 
-** 11.04.19
+// 11.04.19
 Function f2_create_main_base_from_reestrs(mname_xml)
 Local fl := .t., auch_otd, _tip_lu
 use (cur_dir + "tmp_r_t1") new alias T1
@@ -5613,7 +5619,7 @@ return fl
 
 *
 
-** 11.04.19 перезаписать лист учёта, если таковой уже есть в БД
+// 11.04.19 перезаписать лист учёта, если таковой уже есть в БД
 Function f3_create_main_base_from_reestrs()
 Local i, j, k, arr_hu, ta, arr_ne, fl
 select KART
@@ -6258,7 +6264,7 @@ return NIL
 
 *
 
-** 10.04.19 поискать врача по СНИЛС и, м.б., по специальности
+// 10.04.19 поискать врача по СНИЛС и, м.б., по специальности
 Function ret_perso_with_tab_nom(lsnils,lprvs)
 Static aprvs
 Local i, j, lvrach := 0
@@ -6289,7 +6295,7 @@ return lvrach
 *
 
 
-** 10.04.19 поискать отделение по типу л/у (и м.б.по профилю) (и м.б. по врачу)
+// 10.04.19 поискать отделение по типу л/у (и м.б.по профилю) (и м.б. по врачу)
 Static Function ret_otd_with_lu_prof(lpodr,lump,llu,lprof,lvrach)
 // lpodr  - код подразделения
 // lump   - условия оказания мед.помощи

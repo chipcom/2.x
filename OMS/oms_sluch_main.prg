@@ -23,6 +23,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
   local newPictureTalon := '@S 99.9999.99999.999'
   local mm_da_net := {{'нет', 0}, {'да ', 1}}
   local j, i_n007, aN007 := getN007(), i_n008, aN008 := loadN008(), i_n009, aN009 := getN009()
+  local i_n012, aN012_DS := getDS_N012(), ar_N012 := {}, it
 
   Default st_N_DATA TO sys_date, st_K_DATA TO sys_date
   Default Loc_kod TO 0, kod_kartotek TO 0
@@ -1213,9 +1214,16 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
 
         // Иммуногистохимия
         mm_N012 := {}
-        R_Use(exe_dir+ '_mo_N012', , 'N12')
-        dbeval({|| aadd(mm_N012, {'', n12->id_igh, {}}) }, ;
-               {|| between_date(n12->datebeg,n12->dateend,mk_data) .and. left(mkod_diag, 3) == n12->ds_igh })
+        // R_Use(exe_dir+ '_mo_N012', , 'N12')
+        // dbeval({|| aadd(mm_N012, {'', n12->id_igh, {}}) }, ;
+        //        {|| between_date(n12->datebeg, n12->dateend, mk_data) .and. left(mkod_diag, 3) == n12->ds_igh })
+
+        if (it := ascan(aN012_DS, {|x| left(x[1], 3) == left(mkod_diag, 3)})) > 0
+          ar_N012 := aclone(aN012_DS[it, 2])
+          for i_n012 := 1 to len(ar_N012)
+            aadd(mm_N012, {'', ar_N012[i_n012], {}})
+          next
+        endif
         asort(mm_N012, , , {|x,y| x[2] < y[2] })
         if len(mm_N012) > 0 .and. is_mgi
           if (i := ascan(glob_MGI, {|x| x[1] == lshifr })) > 0 // услуга входит в список ТФОМС
@@ -1233,11 +1241,11 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
         if len(mm_N012) > 0
           R_Use(exe_dir+ '_mo_N010', cur_dir + '_mo_N010',  'N10')
           R_Use(exe_dir+ '_mo_N011', cur_dir + '_mo_N011',  'N11')
-          for i := 1 to min(5,len(mm_N012))
+          for i := 1 to min(5, len(mm_N012))
             select N10
             find (str(mm_N012[i, 2], 6))
             do while n10->id_igh == mm_N012[i, 2] .and. !eof()
-              if between_date(n10->datebeg,n10->dateend,mk_data)
+              if between_date(n10->datebeg, n10->dateend, mk_data)
                 mm_N012[i, 1] := alltrim(n10->igh_name)
                 exit
               endif
