@@ -540,6 +540,16 @@ function loadN011()
   endif
   return _arr
 
+// 13.09.23
+function getN011()
+  local arr := {}
+  local row
+
+  for each row in loadN011()
+    aadd(arr, {row[4], row[2]})
+  next
+  return arr
+
 // =========== N012 ===================
 //
 // 28.08.23 вернуть массив ФФОМС N012.xml Классификатор соответствия маркёров диагнозам (OnkIghDS)

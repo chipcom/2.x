@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 12.09.23 добавление или редактирование случая (листа учета)
+// 13.09.23 добавление или редактирование случая (листа учета)
 Function oms_sluch_main(Loc_kod, kod_kartotek)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -22,8 +22,10 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
   local oldPictureTalon := '@S12'
   local newPictureTalon := '@S 99.9999.99999.999'
   local mm_da_net := {{'нет', 0}, {'да ', 1}}
-  local j, i_n007, aN007 := getN007(), i_n008, aN008 := loadN008(), i_n009, aN009 := getN009()
-  local i_n012, aN012_DS := getDS_N012(), ar_N012 := {}, it
+  local j, it
+  local i_n007, aN007 := getN007(), i_n008, aN008 := loadN008(), i_n009, aN009 := getN009()
+  local i_n012, aN012_DS := getDS_N012(), ar_N012 := {}
+  local i_n010, aN010 := loadN010(), i_n011, aN011 := loadN011()
 
   Default st_N_DATA TO sys_date, st_K_DATA TO sys_date
   Default Loc_kod TO 0, kod_kartotek TO 0
@@ -1239,29 +1241,44 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
           endif
         endif
         if len(mm_N012) > 0
-          R_Use(exe_dir+ '_mo_N010', cur_dir + '_mo_N010',  'N10')
-          R_Use(exe_dir+ '_mo_N011', cur_dir + '_mo_N011',  'N11')
+          // R_Use(exe_dir+ '_mo_N010', cur_dir + '_mo_N010',  'N10')
+          // R_Use(exe_dir+ '_mo_N011', cur_dir + '_mo_N011',  'N11')
           for i := 1 to min(5, len(mm_N012))
-            select N10
-            find (str(mm_N012[i, 2], 6))
-            do while n10->id_igh == mm_N012[i, 2] .and. !eof()
-              if between_date(n10->datebeg, n10->dateend, mk_data)
-                mm_N012[i, 1] := alltrim(n10->igh_name)
-                exit
+            // select N10
+            // find (str(mm_N012[i, 2], 6))
+            // do while n10->id_igh == mm_N012[i, 2] .and. !eof()
+            //   if between_date(n10->datebeg, n10->dateend, mk_data)
+            //     mm_N012[i, 1] := alltrim(n10->igh_name)
+            //     exit
+            //   endif
+            //   skip
+            // enddo
+            for i_n010 := 1 to len(aN010)
+              if aN010[i_n010, 1] == mm_N012[i, 2]
+                if between_date(aN010[i_n010, 4], aN010[i_n010, 5], mk_data)
+                  mm_N012[i, 1] := alltrim(aN010[i_n010, 3])
+                endif
               endif
-              skip
-            enddo
+            next
             if empty(mm_N012[i, 1])
-              func_error(4, 'Не найден признак иммуногистохимии ID_IGH=' + lstr(mm_N012[i, 2])+ ' для ' +mkod_diag)
+              func_error(4, 'Не найден признак иммуногистохимии ID_IGH=' + lstr(mm_N012[i, 2]) + ' для ' +mkod_diag)
             endif
-            select N11
-            find (str(mm_N012[i, 2], 6))
-            do while n11->id_igh == mm_N012[i, 2] .and. !eof()
-              if between_date(n11->datebeg,n11->dateend,mk_data)
-                aadd(mm_N012[i, 3], {alltrim(n11->kod_r_i), n11->id_r_i})
+            // select N11
+            // find (str(mm_N012[i, 2], 6))
+            // do while n11->id_igh == mm_N012[i, 2] .and. !eof()
+            //   if between_date(n11->datebeg,n11->dateend,mk_data)
+            //     aadd(mm_N012[i, 3], {alltrim(n11->kod_r_i), n11->id_r_i})
+            //   endif
+            //   skip
+            // enddo
+            for i_n011 := 1 to len(aN011)
+              if aN011[i_n011, 2] == mm_N012[i, 2]
+                if between_date(aN011[i_n011, 5], aN011[i_n011, 6], mk_data)
+                  mm_N012[i, 3] := alltrim(aN011[i_n011, 3])
+                  aadd(mm_N012[i, 3], {aN011[i_n011, 3], aN011[i_n011, 1]})
+                endif
               endif
-              skip
-            enddo
+            next
             if ascan(mm_N012[i, 3], {|x| x[2] == &('m1mark' + lstr(i)) }) == 0
               &('m1mark' + lstr(i)) := 0
             endif

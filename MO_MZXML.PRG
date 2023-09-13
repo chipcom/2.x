@@ -1222,7 +1222,7 @@ rest_box(buf)
 call_fr(name_fr+ lstr(j))
 return NIL
 
-// 12.09.23 ¤«ï ”ƒ“ 'Œˆ– ®­ª®«®£¨¨ ¨¬...¥âà®¢ '
+// 13.09.23 ¤«ï ”ƒ“ 'Œˆ– ®­ª®«®£¨¨ ¨¬...¥âà®¢ '
 Function ot_nmic_petrova()
 Local buf := save_maxrow()
 Private arr_m
@@ -1273,7 +1273,7 @@ R_Use(dir_server + 'mo_onkle',dir_server + 'mo_onkle', 'ONKLE')
 // R_Use(exe_dir+'_mo_N007', , 'N7')
 // R_Use(exe_dir+'_mo_N008', , 'N8')
 // R_Use(exe_dir+'_mo_N010', , 'N10')
-R_Use(exe_dir+'_mo_N011', , 'N11')
+// R_Use(exe_dir+'_mo_N011', , 'N11')
 R_Use(exe_dir+'_mo_N020',{cur_dir + '_mo_N020',cur_dir + '_mo_N020n'}, 'N20')
 R_Use(exe_dir+'_mo_N021',cur_dir + '_mo_N021', 'N21')
 use_base('lusl')
@@ -1331,9 +1331,10 @@ do while human->k_data <= arr_m[6] .and. !eof()
           //select N10
           //goto (onkdi->DIAG_CODE)
           //smark += alltrim(n10->igh_name) + '-'
-          select N11
-          goto (onkdi->DIAG_RSLT)
-          smark += alltrim(n11->r_i_name)
+          // select N11
+          // goto (onkdi->DIAG_RSLT)
+          // smark += alltrim(n11->r_i_name)
+          smark += alltrim(inieditspr(A__MENUVERT, getN011(), onkdi->DIAG_RSLT))
         endif
         select ONKDI
         skip

@@ -313,19 +313,19 @@ Function index_work_dir(exe_dir, cur_dir, flag)
   // index on str(id_mrf, 6) to (cur_dir + sbase)
   // use
 
-  // N010
-  sbase := '_mo_N010'
-  file_index := cur_dir + sbase + sntx
-  R_Use(exe_dir + sbase )
-  index on str(id_igh, 6) to (cur_dir + sbase)
-  use
+  // // N010
+  // sbase := '_mo_N010'
+  // file_index := cur_dir + sbase + sntx
+  // R_Use(exe_dir + sbase )
+  // index on str(id_igh, 6) to (cur_dir + sbase)
+  // use
 
-  // N011
-  sbase := '_mo_N011'
-  file_index := cur_dir + sbase + sntx
-  R_Use(exe_dir + sbase )
-  index on str(id_igh, 6) to (cur_dir + sbase)
-  use
+  // // N011
+  // sbase := '_mo_N011'
+  // file_index := cur_dir + sbase + sntx
+  // R_Use(exe_dir + sbase )
+  // index on str(id_igh, 6) to (cur_dir + sbase)
+  // use
 
   // N020
   sbase := '_mo_N020'
