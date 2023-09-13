@@ -13,6 +13,8 @@ Function init_mo()
   Public oper_parol := 30  // пароль для фискального регистратора
   Public oper_frparol := 30 // пароль для фискального регистратора ОТЧЕТ
   Public oper_fr_inn  := '' // ИНН кассира
+  Public oper_dov_date   := date()  // дата доверенности
+  Public oper_dov_nomer  := space(20)  //номер доверенности
   Public glob_arr_mo := {}, glob_mo, glob_podr := '', glob_podr_2 := ''
   Public is_adres_podr := .f., glob_adres_podr := {;
     {'103001',{{'103001',1,'г.Волгоград, ул.Землячки, д.78'},;

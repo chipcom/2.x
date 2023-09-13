@@ -33,13 +33,13 @@ CREATE CLASS TUserDB	INHERIT	TBaseObjectDB
 		METHOD FillFromHash( hbArray )
 END CLASS
 
-***********************************
+//
 
 METHOD New() CLASS TUserDB
 	return self
 
-***** поиск объекта TUserDB по паролю
-*
+// поиск объекта TUserDB по паролю
+//
 METHOD getByPassword ( cPass )		 CLASS TUserDB
 	local cOldArea, user
 	local ret := nil
@@ -71,8 +71,8 @@ METHOD getByPassword ( cPass )		 CLASS TUserDB
 	endif
 	return ret
 
-***** получить пользователя по ID
-*
+// получить пользователя по ID
+//
 METHOD getByID ( nID )		 CLASS TUserDB
 	local ret := nil, hArray := nil
 	
@@ -81,8 +81,8 @@ METHOD getByID ( nID )		 CLASS TUserDB
 	endif
 	return ret
 
-****** получить список пользователей системы
-*	
+// получить список пользователей системы
+//	
 METHOD getList ( )		 CLASS TUserDB
 	local aUser := {}
 	local xValue := nil
@@ -114,8 +114,8 @@ METHOD Delete( oUser ) CLASS TUserDB
 	endif
 	return ret
 
-* Сохранить объект TUserDB
-*
+// Сохранить объект TUserDB
+//
 METHOD Save( oUser ) CLASS TUserDB
 	local ret := .f.
 	local aHash := nil
@@ -132,8 +132,11 @@ METHOD Save( oUser ) CLASS TUserDB
 		hb_hSet(aHash, 'P6',		oUser:KEK )
 		hb_hSet(aHash, 'P7',		crypt( str( oUser:PasswordFR, 10 ), ::cryptoKey() ) )
 		hb_hSet(aHash, 'P8',		crypt( str( oUser:PasswordFRSuper, 10 ), ::cryptoKey() ) )
-		hb_hSet(aHash, 'INN',		oUser:INN )
+		hb_hSet(aHash, 'INN',		crypt( oUser:INN, ::cryptoKey() ) )
+		// hb_hSet(aHash, 'INN',		oUser:INN )
 		hb_hSet(aHash, 'IDROLE',	oUser:IDRole )
+		hb_hSet(aHash, 'DOV_DATA', dtos(crypt( oUser:Dov_Date, ::cryptoKey())))
+		hb_hSet(aHash, 'DOV_NOM',	crypt( oUser:Dov_Nom, ::cryptoKey() ) )
 		
 		hb_hSet(aHash, 'ID',		oUser:ID )
 		hb_hSet(aHash, 'REC_NEW',	oUser:IsNew )
@@ -145,8 +148,8 @@ METHOD Save( oUser ) CLASS TUserDB
 	endif
 	return ret
 
-***** составить ключ для шифрования (расшифровки)
-*
+// составить ключ для шифрования (расшифровки)
+//
 METHOD cryptoKey()		 CLASS TUserDB
 	local i, s := ""
 	
@@ -158,7 +161,7 @@ METHOD cryptoKey()		 CLASS TUserDB
 	next
 	return s
 	
-***** вернуть в массиве мой пароль в русской и английской раскладке
+// вернуть в массиве мой пароль в русской и английской раскладке
 METHOD InnerPassword( k )		 CLASS TUserDB
 	local ret := {"вЕ█╞Eg▒├","jS╟У╢╬i"}
 	
@@ -186,5 +189,8 @@ METHOD FillFromHash( hbArray )     CLASS TUserDB
 			hbArray[ 'REC_NEW' ], ;
 			hbArray[ 'DELETED' ] ;
 			)
-	obj:INN := hbArray[ 'INN' ]
+	// obj:INN := hbArray[ 'INN' ]
+	obj:INN := crypt( hbArray[ 'INN' ], ::cryptoKey() )
+	obj:Dov_Date := stod(crypt( hbArray[ 'DOV_DATA' ], ::cryptoKey() ))
+	obj:Dov_Nom := crypt( hbArray[ 'DOV_NOM' ], ::cryptoKey() )
 	return obj

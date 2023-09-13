@@ -1,12 +1,12 @@
-* Users.prg - работа с пользователями системы
-*******************************************************************************
-* 04.11.18 edit_Users_bay() - редактирование списка пользователей
-* 20.10.18 editUser( oBrowse, aObjects, object, nKey ) - редактирование объекта 'пользователь'
-* 28.12.21 inp_password_bay( is_local_version, is_create ) - запрос и проверка пароля
-* 20.10.18 get_parol_bay( r1, c1, r2, c2, ltip, color_say, color_get ) - функция окна ввода пароля
-* 11.07.17 layoutUser( oBrow, aList ) - формирование колонок для отображения списка пользователей
-* 01.09.16 PassExist( obj, aObjects, pass ) - проверка существования пользователя с указанным паролем
-*******************************************************************************
+// Users.prg - работа с пользователями системы
+//////////////////////////////
+// 04.11.18 edit_Users_bay() - редактирование списка пользователей
+// 20.10.18 editUser( oBrowse, aObjects, object, nKey ) - редактирование объекта 'пользователь'
+// 28.12.21 inp_password_bay( is_local_version, is_create ) - запрос и проверка пароля
+// 20.10.18 get_parol_bay( r1, c1, r2, c2, ltip, color_say, color_get ) - функция окна ввода пароля
+// 11.07.17 layoutUser( oBrow, aList ) - формирование колонок для отображения списка пользователей
+// 01.09.16 PassExist( obj, aObjects, pass ) - проверка существования пользователя с указанным паролем
+//////////////////////////////
 #include 'hbthread.ch'
 #include 'common.ch'
 #include 'set.ch'
@@ -16,7 +16,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-* 28.12.21 ввод пароля
+// 13.09.23 ввод пароля
 function inp_password_bay( is_local_version, is_create )
 	local strPassword := space( 10 )
 	local i_p := 0, ta := {}
@@ -52,6 +52,12 @@ function inp_password_bay( is_local_version, is_create )
 				tip_polzovat	:= oUser:Access
 				dolj_polzovat	:= alltrim( oUser:Position )
 				grup_polzovat	:= oUser:KEK
+
+				oper_parol := oUser:PasswordFR	// int(val(s))
+				oper_frparol := oUser:PasswordFRSuper	// oper_parol
+				oper_fr_inn := oUser:INN
+				oper_dov_date   := oUser:Dov_Date // stod(crypt(base1->dov_date,gpasskod))
+				oper_dov_nomer  := oUser:Dov_nom	//alltrim(crypt(base->dov_nomer,gpasskod))
 			else
 				if i_p < 3  // до 3х попыток
 					hb_Alert( aMessageRepeat, , , 4 )
@@ -74,7 +80,7 @@ function inp_password_bay( is_local_version, is_create )
 	endif
 	return ta
 
-***** 20.10.18 функция окна ввода пароля
+// 20.10.18 функция окна ввода пароля
 function get_parol_bay()
 	local s := space( 10 )
 	local color_say := 'N/W', color_get := 'W/N*'
@@ -94,7 +100,7 @@ function get_parol_bay()
 	set confirm off
 	return s
 	
-* 04.11.18 редактирование списка пользователей
+// 04.11.18 редактирование списка пользователей
 function edit_Users_bay()
 	local blkEditObject
 	local oBox, aEdit := {}
@@ -136,7 +142,7 @@ function edit_Users_bay()
 	endif
 	return nil
 
-* 20.10.18 редактирование объекта пользователя
+// 20.10.18 редактирование объекта пользователя
 static function editUser( oBrowse, aObjects, oUser, nKey )
 	local fl := .f.
 	local r1 := maxrow() - 11, r2 := maxrow() - 3, i
@@ -227,10 +233,10 @@ static function editUser( oBrowse, aObjects, oUser, nKey )
 	endif
 	return fl
 
-***** 01.09.16 проверка существования пользователя с указанным паролем
-* obj	- объект пользователя не участвующего в проверке
-* aObjects	- список пользователей
-* pass	- строка пароля
+// 01.09.16 проверка существования пользователя с указанным паролем
+// obj	- объект пользователя не участвующего в проверке
+// aObjects	- список пользователей
+// pass	- строка пароля
 function PassExist( obj, aObjects, pass )
 	local ret := .f., oUser := nil
 
@@ -243,4 +249,3 @@ function PassExist( obj, aObjects, pass )
 		endif
 	next
 	return ret
-

@@ -25,6 +25,9 @@ CREATE CLASS TUser	INHERIT	TBaseObjectBLL
 		PROPERTY PasswordFRSuper WRITE setPasswordFRSuper INIT 0	//	{"P8", "C", 10, 0};  // пароль2 для фискального регистратора
 		PROPERTY INN AS STRING READ getINN WRITE setINN
 		PROPERTY IDRole WRITE setIDRole INIT 0						//	{"IDROLE", "N",  4, 0},; // ID группы пользователей
+
+		PROPERTY Dov_Date READ getDov_Date WRITE setDov_Date
+		PROPERTY Dov_Nom READ getDov_Nom WRITE setDov_Nom
 		
 		PROPERTY Name READ getName WRITE setFIO
 		PROPERTY Name1251 READ getName1251
@@ -62,6 +65,8 @@ CREATE CLASS TUser	INHERIT	TBaseObjectBLL
 		DATA FACLTask			INIT space( 255 )	//	доступ к задачам, по умолчанию '*' все
 		DATA FINN					INIT space( 12 )
 		DATA FSuper				INIT .f.					// установить(получить), что это суперпользователь
+		DATA FDov_Nom			INIT space(20)
+		DATA FDov_Date		INIT ctod('')
 		
 		VAR _department	 		AS CHARACTER	INIT chr( 0 )		//	{"P4", "C",  1, 0},; // код отделения [ chr(kod) ]
 		
@@ -79,6 +84,10 @@ CREATE CLASS TUser	INHERIT	TBaseObjectBLL
 		METHOD getDepartment
 		METHOD getINN
 		METHOD setINN( param )
+		METHOD getDov_Date
+		METHOD setDov_Date( param )
+		METHOD getDov_Nom
+		METHOD setDov_Nom( param )
 		METHOD getSuperUser
 		METHOD setSuperUser( param )
 		
@@ -103,6 +112,26 @@ METHOD procedure setINN( param )	CLASS TUser
 
 	if ischaracter( param )
 		::FINN := param
+	endif
+	return
+
+METHOD function getDov_Date()			CLASS TUser
+	return ::FDov_Date
+
+METHOD procedure setDov_Date( param )	CLASS TUser
+
+	if isdate( param )
+		::FDov_Date := param
+	endif
+	return
+
+METHOD function getDov_Nom()			CLASS TUser
+	return ::FDov_Nom
+
+METHOD procedure setDov_Nom( param )	CLASS TUser
+
+	if ischaracter( param )
+		::FDov_Nom := param
 	endif
 	return
 
