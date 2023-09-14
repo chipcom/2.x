@@ -201,6 +201,7 @@ mo_version.prg
 .\util\backup.prg
 .\util\BrowseListObjects.prg
 .\util\inp_bit_task_bay
+.\util\inp_bit_dep_bay
 .\util\HasNumberInString.prg
 
 .\menu\f1main.prg

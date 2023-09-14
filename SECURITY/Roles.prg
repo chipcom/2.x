@@ -84,9 +84,13 @@ function editRole( oBrowse, aObjects, oRole, nKey )
 		
 		rowBeg++
 		@ ++rowBeg, colBeg + 3 say 'Название роли' get oRole:Name valid func_empty( oRole:Name )
-		// @ ++rowBeg, colBeg + 3 say 'Разрешенные отделения для работы' ;
-		// 					get motdel reader { | x | menu_reader( x, ;
-		// 					{ { | k, r, c | inp_bit_dep_bay( k, r, c ) } }, A__FUNCTION, , , .f. ) }
+		if glob_mo[_MO_KOD_TFOMS] == '102604'	// Для ВОККВД
+			aadd(array_tasks, {'ВОУНЦ - трансплантированные',X_MO,'TABLET_ICON', .t.})
+			@ ++rowBeg, colBeg + 3 say 'Разрешенные отделения для работы' ;
+					get motdel reader { | x | menu_reader( x, ;
+					{ { | k, r, c | inp_bit_dep_bay( k, r, c ) } }, A__FUNCTION, , , .f. ) }
+		endif
+		
 		@ ++rowBeg, colBeg + 3 say 'Разрешенные задачи для работы' ;
 							get mtask reader { | x | menu_reader( x, ;
 							{ { | k, r, c | inp_bit_task_bay( k, r, c ) } }, A__FUNCTION, , , .f. ) }
@@ -104,14 +108,16 @@ function editRole( oBrowse, aObjects, oRole, nKey )
 		endif
 		oBox := nil	// очистим объект TBox
 	elseif nKey == K_DEL
-		// // Производится проверка на допустимость удаления данной группы
-		// if len( TUserDB():GetListUsersByRole( oRole:ID() ) ) > 0
-		// 	hb_alert( 'Данная группа используется справочнике пользователей. Удаление запрещено!', , , 4 )
-		// 	fl := .f.
-		// else
-		// 	TRoleUserDB():Delete( oRole )
-		// 	fl := .t.
-		// endif
+		if glob_mo[_MO_KOD_TFOMS] == '102604'	// Для ВОККВД
+			// Производится проверка на допустимость удаления данной группы
+			if len( TUserDB():GetListUsersByRole( oRole:ID() ) ) > 0
+				hb_alert( 'Данная группа используется справочнике пользователей. Удаление запрещено!', , , 4 )
+				fl := .f.
+			else
+				TRoleUserDB():Delete( oRole )
+				fl := .t.
+			endif
+		endif
 	else
 		return fl
 	endif
