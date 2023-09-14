@@ -202,6 +202,8 @@ Function print_l_uch(mkod, par, regim, lnomer)
   add_string('')
   add_string('  Ф.И.О.: ' + human->fio + '          Пол: ' + human->pol)
   add_string('  Дата рождения: ' + full_date(human->date_r) + '  (' + mvzros_reb + ')')
+  add_string('  СНИЛС: ' + transform(kart->SNILS, picture_pf))
+
   if !empty(mud_lich)
     k := perenos(tmp, mud_lich, sh - 2)
     add_string('  ' + tmp[1])
@@ -247,7 +249,7 @@ Function print_l_uch(mkod, par, regim, lnomer)
     endif
   endif
   add_string('  Принадлежность счета: ' + mkomu)
-  add_string('                     Серия и номер страхового полиса: ' + mpolis)
+  add_string('  Серия и номер страхового полиса: ' + mpolis)
   if M1F14_EKST == 1
     s := '  Госпитализирован по экстренным показаниям'
     if M1F14_SKOR == 1
@@ -1076,6 +1078,8 @@ Function print_al_uch(arr_h, arr_m)
   add_string('')
   add_string('  Ф.И.О.: ' + human->fio+ '          Пол: ' + human->pol)
   add_string('  Дата рождения: ' + full_date(human->date_r) + '  [ ' +mvzros_reb+ ' ]')
+  add_string('  СНИЛС: ' + transform(kart->SNILS, picture_pf))
+
   if !empty(mud_lich)
     k := perenos(tmp, mud_lich, sh-2)
     add_string('  ' + tmp[1])
@@ -1089,7 +1093,8 @@ Function print_al_uch(arr_h, arr_m)
   endif
   add_string('  Статус пациента: ' + mrab_nerab)
   add_string('  Принадлежность счета: ' + mkomu)
-  add_string('  Полис: ' + mpolis)
+  // add_string('  Полис: ' + mpolis)
+  add_string('  Серия и номер страхового полиса: ' + mpolis)
   //
   R_Use(dir_server + 'mo_uch', , 'UCH')
   R_Use(dir_server + 'mo_otd', , 'OTD')
