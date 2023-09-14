@@ -3,6 +3,7 @@
 #include 'common.ch'
 #include 'property.ch'
 #include 'function.ch'
+#include 'chip_mo.ch'
 
 // ΰ¥δ¨ªαλ ¨¬¥­
 // c - αβΰ®ª 
@@ -132,8 +133,11 @@ METHOD Save( oUser ) CLASS TUserDB
 		hb_hSet(aHash, 'P6',		oUser:KEK )
 		hb_hSet(aHash, 'P7',		crypt( str( oUser:PasswordFR, 10 ), ::cryptoKey() ) )
 		hb_hSet(aHash, 'P8',		crypt( str( oUser:PasswordFRSuper, 10 ), ::cryptoKey() ) )
-		hb_hSet(aHash, 'INN',		crypt( oUser:INN, ::cryptoKey() ) )
-		// hb_hSet(aHash, 'INN',		oUser:INN )
+		if glob_mo[_MO_KOD_TFOMS] == '102604'	// „«ο ‚‚„
+			hb_hSet(aHash, 'INN',		oUser:INN )
+		else
+			hb_hSet(aHash, 'INN',		crypt( oUser:INN, ::cryptoKey() ) )
+		endif
 		hb_hSet(aHash, 'IDROLE',	oUser:IDRole )
 		hb_hSet(aHash, 'DOV_DATA', dtos(crypt( oUser:Dov_Date, ::cryptoKey())))
 		hb_hSet(aHash, 'DOV_NOM',	crypt( oUser:Dov_Nom, ::cryptoKey() ) )
@@ -189,8 +193,11 @@ METHOD FillFromHash( hbArray )     CLASS TUserDB
 			hbArray[ 'REC_NEW' ], ;
 			hbArray[ 'DELETED' ] ;
 			)
-	// obj:INN := hbArray[ 'INN' ]
-	obj:INN := crypt( hbArray[ 'INN' ], ::cryptoKey() )
+	if glob_mo[_MO_KOD_TFOMS] == '102604'	// „«ο ‚‚„
+		obj:INN := hbArray[ 'INN' ]
+	else
+		obj:INN := crypt( hbArray[ 'INN' ], ::cryptoKey() )
+	endif
 	obj:Dov_Date := stod(crypt( hbArray[ 'DOV_DATA' ], ::cryptoKey() ))
 	obj:Dov_Nom := crypt( hbArray[ 'DOV_NOM' ], ::cryptoKey() )
 	return obj
