@@ -528,8 +528,11 @@ do case
             mplat_pasport := space(15)  // документ плательщика
     Private lnomer, l1nomer, muchastok
     Private okato_adresr, okato_adresg
+    Private mdov_date, mdov_nomer   // дата и номер довернности
     buf := savescreen()
     ClrLine(23,color0)
+    mdov_date  :=  oper_dov_date  
+    mdov_nomer :=  oper_dov_nomer
     t_hum_rec := human->(recno())
     kart_kod := human->kod_k
     t_k_data := year(human->k_data)

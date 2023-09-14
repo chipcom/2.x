@@ -171,9 +171,9 @@ static function editUser( oBrowse, aObjects, oUser, nKey )
 			return .t.
 		endif
 	elseif nKey == K_F9 .and. glob_mo[_MO_KOD_TFOMS] == '102604'	// „«ï ‚ŽŠŠ‚„
-		hb_threadStart( HB_THREAD_INHERIT_PUBLIC, @printUserList(), aObjects )
-		WaitingReport( 3 )
-		return .t.
+		// hb_threadStart( HB_THREAD_INHERIT_PUBLIC, @printUserList(), aObjects )
+		// WaitingReport( 3 )
+		// return .t.
 	elseif nKey == K_INS .OR. nKey == K_ENTER
 		m1tip := oUser:Access
 		mtip := inieditspr( A__MENUVERT, TUser():aMenuType, m1tip )
