@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-// 12.09.23
+// 15.09.23
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1, ;
         i, j, k, c, s := ' ', a_srok_lech := {}, a_period_stac := {}, a_disp := {}, ;
@@ -1726,7 +1726,7 @@ Function verify_1_sluch(fl_view)
         // dbeval({|| aadd(ar_N009, {'', n9->id_mrf, {}}) }, ;
         //        {|| between_date(n9->datebeg, n9->dateend, d2) .and. padr(mdiagnoz[1], 3) == n9->ds_mrf })
         for i_n009 := 1 to len(aN009)
-          if between_date(aN009[i_n009, 4], aN009[i_n009, 5], mk_data) .and. left(mkod_diag, 3) == left(aN009[i_n009, 2], 3)
+          if between_date(aN009[i_n009, 4], aN009[i_n009, 5], d2) .and. left(mkod_diag, 3) == left(aN009[i_n009, 2], 3)
             aadd(mm_N009, {'', aN009[i_n009, 3], {}})
           endif
         next
