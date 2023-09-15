@@ -224,7 +224,7 @@ function create_xls_rdl(name, arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd)
         lxw_worksheet_write_number(worksheetError, iRow, 6, FRD->CENA_1, format_text3)
       endif
       if !empty(FRD->napr_uch)
-        lxw_worksheet_write_number(worksheetError, iRow, 7, FRD->napr_uch, format_text)
+        lxw_worksheet_write_string(worksheetError, iRow, 7, FRD->napr_uch, format_text)
       endif
       
       ++iRow
