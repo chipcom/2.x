@@ -2129,12 +2129,14 @@ Function f2ret_oms_human(nkey)
                   {'kol_usl', 'N', 10, 0}, ;    // кол-во услуг
                   {'cena_1', 'N', 11, 2}, ;
                   {'otd', 'C', 42, 0}, ;
-                  {'otd_kod', 'N', 3, 0}}     
+                  {'otd_kod', 'N', 3, 0}, ;
+                  {'napr_uch', 'C', 6, 0}  }     
         dbcreate(cur_dir + 'tmp_err', adbf1)
         // dbcreate(fr_data + '3', adbf1)
         use (cur_dir + fr_data + '2') new alias FRD2
         // use (fr_data + '3') new alias FRD3
         use (cur_dir + 'tmp_err') new alias FRD3
+        
         Private ii_otd  
         for ii_otd:= 1 to 4
           select frd2
@@ -2201,6 +2203,7 @@ Function f2ret_oms_human(nkey)
             frd3->fio        := frd2->fio
             frd3->otd        := frd2->otd   
             frd3->NUMORDER   := frd2->NUMORDER
+            frd3->napr_uch   := frd2->napr_uch
             select frd2
             skip
           enddo

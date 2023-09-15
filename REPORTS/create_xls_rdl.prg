@@ -3,7 +3,7 @@
 #include 'function.ch'
 #include 'hblibxlsxwriter.ch'
 
-** 06.09.22
+// 15.09.23
 function create_xls_rdl(name, arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd)
   local workbook, worksheet, format_top1, format_top2
   local worksheetError
@@ -191,6 +191,7 @@ function create_xls_rdl(name, arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd)
     lxw_worksheet_write_string(worksheetError, iRow, 4, 'ФИО', format_header)
     lxw_worksheet_write_string(worksheetError, iRow, 5, 'Кол-во услуг', format_header)
     lxw_worksheet_write_string(worksheetError, iRow, 6, 'Стоимость услуг', format_header)
+    lxw_worksheet_write_string(worksheetError, iRow, 7, 'Направившая МО', format_header)
 
     /* Установить ширину колонок */
     lxw_worksheet_set_column(worksheetError, 0, 0, 8.0)
@@ -200,6 +201,7 @@ function create_xls_rdl(name, arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd)
     lxw_worksheet_set_column(worksheetError, 4, 4, 50.0)
     lxw_worksheet_set_column(worksheetError, 5, 5, 8.0)
     lxw_worksheet_set_column(worksheetError, 6, 6, 25.0)
+    lxw_worksheet_set_column(worksheetError, 7, 7, 8.0)
 
     iRow++
     do while ! FRD->(eof())
@@ -221,7 +223,10 @@ function create_xls_rdl(name, arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd)
       if FRD->cena_1 != 0
         lxw_worksheet_write_number(worksheetError, iRow, 6, FRD->CENA_1, format_text3)
       endif
-
+      if !empty(FRD->napr_uch)
+        lxw_worksheet_write_number(worksheetError, iRow, 7, FRD->napr_uch, format_text)
+      endif
+      
       ++iRow
       FRD->(dbSkip())
     end

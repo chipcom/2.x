@@ -82,7 +82,8 @@ Function f3oms_edit()
            {"cena_1","N",11,2},;
            {"otd","C",42,0},;
            {"otd_kod","N",3,0},; 
-           {"smo_kod","C",5,0}}
+           {"smo_kod","C",5,0},;
+           {"napr_uch","C",6,0}} 
       dbcreate(cur_dir + fr_data + '2', adbf)
       use (cur_dir + fr_data + '2') new alias FRD2
       // база готова
@@ -111,6 +112,7 @@ Function f3oms_edit()
           select human_
           goto tmp_h->kod
           frd2->smo_kod   := human_->smo
+          frd2->napr_uch  := human_->NPR_MO
           //
           musl := transform_shifr(frd2->shifr_usl)
           select lusl
