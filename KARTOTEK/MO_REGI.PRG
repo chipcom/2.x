@@ -1643,7 +1643,7 @@ Function prn_kartoteka(k)
   endif
   return NIL
 
-// 17.03.20
+// 15.09.23
 Function pr_invalid()
   Static suchast := 0, sinvalid := 0, sprik := 1, sspisok := 1, ;
        mm_invalid := {{'все', 0}, {'1 группа', 1}, {'2 группа', 2}, {'3 группа', 3}, {'дети-инвалиды', 4}}, ;
@@ -1717,9 +1717,7 @@ Function pr_invalid()
     j := tmp->(lastrec())
     close databases
     if j == 0
-      if !fl_exit
-        func_error(4, 'Нет сведений!')
-      endif
+      func_error(4, 'Нет сведений!')
     else
       fp := fcreate(name_file)
       n_list := 1
