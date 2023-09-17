@@ -1,66 +1,72 @@
 #include 'inkey.ch'
 #include 'chip_mo.ch'
 #include 'function.ch'
-#include 'hblibxlsxwriter.ch'
+#include 'hbxlsxwriter.ch'
 
-// 15.09.23
+// 16.09.23
 function create_xls_rdl(name, arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd)
   local workbook, worksheet, format_top1, format_top2
   local worksheetError
   local format_header_main
   local format_header, format_header2
-  local format_text, format_text2, format_text3
+  local format_text, format_text2, format_text3, format_text_center
   local error
   local name_file := name + '.xlsx'
   local iRow := 1
   local tmpAlias
 
   tmpAlias := select()
-  lxw_init()
 
   /* Создадим новую книгу. */
-  workbook   = lxw_workbook_new(name_file)
+  workbook   = WORKBOOK_NEW(name_file)
 
   /* Конфигурируем формат для шапки. */
-  format_header_main    = lxw_workbook_add_format(workbook)
-  lxw_format_set_align(format_header_main, LXW_ALIGN_CENTER)
-  lxw_format_set_align(format_header_main, LXW_ALIGN_VERTICAL_CENTER)
-  lxw_format_set_font_size(format_header_main, 14)
+  format_header_main    = WORKBOOK_ADD_FORMAT(workbook)
+  FORMAT_SET_ALIGN(format_header_main, LXW_ALIGN_CENTER)
+  FORMAT_SET_ALIGN(format_header_main, LXW_ALIGN_VERTICAL_CENTER)
+  FORMAT_SET_FONT_SIZE(format_header_main, 14)
 
-  format_header    = lxw_workbook_add_format(workbook)
-  lxw_format_set_align(format_header, LXW_ALIGN_CENTER)
-  lxw_format_set_align(format_header, LXW_ALIGN_VERTICAL_CENTER)
-  lxw_format_set_font_size(format_header, 12)
-  lxw_format_set_text_wrap(format_header)
-  lxw_format_set_border(format_header, LXW_BORDER_THIN)
+  format_header    = WORKBOOK_ADD_FORMAT(workbook)
+  FORMAT_SET_ALIGN(format_header, LXW_ALIGN_CENTER)
+  FORMAT_SET_ALIGN(format_header, LXW_ALIGN_VERTICAL_CENTER)
+  FORMAT_SET_FONT_SIZE(format_header, 12)
+  FORMAT_SET_TEXT_WRAP(format_header)
+  FORMAT_SET_BORDER(format_header, LXW_BORDER_THIN)
 
   /* Конфигурируем формат для ntrcnf. */
-  format_text    = lxw_workbook_add_format(workbook)
-  lxw_format_set_align(format_text, LXW_ALIGN_LEFT)
-  lxw_format_set_align(format_text, LXW_ALIGN_VERTICAL_CENTER)
-  lxw_format_set_font_size(format_text, 11)
-  lxw_format_set_text_wrap(format_text)
-  lxw_format_set_border(format_text, LXW_BORDER_THIN)
+  format_text    = WORKBOOK_ADD_FORMAT(workbook)
+  FORMAT_SET_ALIGN(format_text, LXW_ALIGN_LEFT)
+  FORMAT_SET_ALIGN(format_text, LXW_ALIGN_VERTICAL_CENTER)
+  FORMAT_SET_FONT_SIZE(format_text, 11)
+  FORMAT_SET_TEXT_WRAP(format_text)
+  FORMAT_SET_BORDER(format_text, LXW_BORDER_THIN)
 
-  format_text3    = lxw_workbook_add_format(workbook)
-  lxw_format_set_align(format_text3, LXW_ALIGN_VERTICAL_CENTER)
-  lxw_format_set_font_size(format_text3, 11)
-  lxw_format_set_border(format_text3, LXW_BORDER_THIN)
+  format_text3    = WORKBOOK_ADD_FORMAT(workbook)
+  FORMAT_SET_ALIGN(format_text3, LXW_ALIGN_VERTICAL_CENTER)
+  FORMAT_SET_FONT_SIZE(format_text3, 11)
+  FORMAT_SET_BORDER(format_text3, LXW_BORDER_THIN)
+
+  format_text_center    = WORKBOOK_ADD_FORMAT(workbook)
+  FORMAT_SET_ALIGN(format_text_center, LXW_ALIGN_CENTER)
+  FORMAT_SET_ALIGN(format_text_center, LXW_ALIGN_VERTICAL_CENTER)
+  FORMAT_SET_FONT_SIZE(format_text_center, 11)
+  FORMAT_SET_TEXT_WRAP(format_text_center)
+  FORMAT_SET_BORDER(format_text_center, LXW_BORDER_THIN)
 
   if hb_FileExists(cur_dir + 'tmp_xls' + sdbf)
     /* Добавим лист в книгу. */
-    worksheet = lxw_workbook_add_worksheet(workbook, 'План-заказ')
+    worksheet = WORKBOOK_ADD_WORKSHEET(workbook, 'План-заказ')
 
     /* Установить ширину колонок */
-    lxw_worksheet_set_column(worksheet, 0, 0, 3.0)
+    WORKSHEET_SET_COLUMN(worksheet, 0, 0, 3.0)
   
-    lxw_worksheet_set_column(worksheet, 1, 1, 8.0)
-    lxw_worksheet_set_column(worksheet, 2, 2, 8.0)
-    lxw_worksheet_set_column(worksheet, 3, 3, 9.86)
-    lxw_worksheet_set_column(worksheet, 4, 4, 3.0)
-    lxw_worksheet_set_column(worksheet, 5, 5, 5.43)
-    lxw_worksheet_set_column(worksheet, 6, 6, 3.0)
-    lxw_worksheet_set_column(worksheet, 7, 7, 7.14)
+    WORKSHEET_SET_COLUMN(worksheet, 1, 1, 8.0)
+    WORKSHEET_SET_COLUMN(worksheet, 2, 2, 8.0)
+    WORKSHEET_SET_COLUMN(worksheet, 3, 3, 9.86)
+    WORKSHEET_SET_COLUMN(worksheet, 4, 4, 3.0)
+    WORKSHEET_SET_COLUMN(worksheet, 5, 5, 5.43)
+    WORKSHEET_SET_COLUMN(worksheet, 6, 6, 3.0)
+    WORKSHEET_SET_COLUMN(worksheet, 7, 7, 7.14)
 
     //   adbf := {{'kod','N',4,0},;
     //     {'kod1','N',4,0},;
@@ -75,12 +81,12 @@ function create_xls_rdl(name, arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd)
     FRD->(dbGoTop())
     do while ! FRD->(eof())
 
-      lxw_worksheet_set_row(worksheet, iRow, 30.0)
+      WORKSHEET_SET_ROW(worksheet, iRow, 30.0)
 
-      lxw_worksheet_write_string(worksheet, iRow, 0, hb_StrToUtf8( alltrim(FRD->SHIFR) ), format_text)
-      lxw_worksheet_write_string(worksheet, iRow, 1, hb_StrToUtf8( alltrim(FRD->U_NAME) ), format_text)
-      lxw_worksheet_write_number(worksheet, iRow, 2, FRD->KOL, format_text3)
-      lxw_worksheet_write_number(worksheet, iRow, 3, FRD->SUM, format_text3)
+      WORKSHEET_WRITE_STRING(worksheet, iRow, 0, hb_StrToUtf8( alltrim(FRD->SHIFR) ), format_text)
+      WORKSHEET_WRITE_STRING(worksheet, iRow, 1, hb_StrToUtf8( alltrim(FRD->U_NAME) ), format_text)
+      WORKSHEET_WRITE_NUMBER(worksheet, iRow, 2, FRD->KOL, format_text3)
+      WORKSHEET_WRITE_NUMBER(worksheet, iRow, 3, FRD->SUM, format_text3)
 
       ++iRow
       FRD->(dbSkip())
@@ -106,57 +112,57 @@ function create_xls_rdl(name, arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd)
     use (cur_dir + '_data3') new  alias FRD
     FRD->(dbGoTop())
     /* Добавим лист "Снятия" в книгу. */
-    worksheetError = lxw_workbook_add_worksheet(workbook, 'Снятия')
+    worksheetError = WORKBOOK_ADD_WORKSHEET(workbook, 'Снятия')
 
     iRow := 0
     // шапка таблицы
-    lxw_worksheet_merge_range(worksheetError, iRow, 0, iRow++, 9, 'Список снятий по актам контроля', format_header_main)
-    lxw_worksheet_merge_range(worksheetError, iRow, 0, iRow++, 9, hb_StrToUtf8( alltrim(arr_m[4]) ), format_header_main)  // вывод временного периода
-    lxw_worksheet_merge_range(worksheetError, iRow, 0, iRow++, 9, '( по дате отчётного периода / все случаи снятия )', format_header_main)
-    lxw_worksheet_merge_range(worksheetError, iRow, 0, iRow++, 9, '(ТФОМС (иногородние)', format_header_main)
-    lxw_worksheet_merge_range(worksheetError, iRow, 0, iRow++, 9, hb_StrToUtf8(string_selected_uch(st_a_uch, lcount_uch)), format_header_main)
+    WORKSHEET_MERGE_RANGE(worksheetError, iRow, 0, iRow++, 9, 'Список снятий по актам контроля', format_header_main)
+    WORKSHEET_MERGE_RANGE(worksheetError, iRow, 0, iRow++, 9, hb_StrToUtf8( alltrim(arr_m[4]) ), format_header_main)  // вывод временного периода
+    WORKSHEET_MERGE_RANGE(worksheetError, iRow, 0, iRow++, 9, '( по дате отчётного периода / все случаи снятия )', format_header_main)
+    WORKSHEET_MERGE_RANGE(worksheetError, iRow, 0, iRow++, 9, '(ТФОМС (иногородние)', format_header_main)
+    WORKSHEET_MERGE_RANGE(worksheetError, iRow, 0, iRow++, 9, hb_StrToUtf8(string_selected_uch(st_a_uch, lcount_uch)), format_header_main)
     if len(st_a_uch) == 1
-      lxw_worksheet_merge_range(worksheetError, iRow, 0, iRow++, 9, hb_StrToUtf8(string_selected_otd(st_a_otd, lcount_otd)), format_header_main)
+      WORKSHEET_MERGE_RANGE(worksheetError, iRow, 0, iRow++, 9, hb_StrToUtf8(string_selected_otd(st_a_otd, lcount_otd)), format_header_main)
     endif
       
-    lxw_worksheet_write_string(worksheetError, iRow, 0, '№ п/п', format_header)
-    lxw_worksheet_write_string(worksheetError, iRow, 1, 'ОШИБКА', format_header)
-    lxw_worksheet_write_string(worksheetError, iRow, 2, 'КОД', format_header)
-    lxw_worksheet_write_string(worksheetError, iRow, 3, 'Наименование', format_header)
-    lxw_worksheet_write_string(worksheetError, iRow, 4, 'Номер заявки', format_header)
-    lxw_worksheet_write_string(worksheetError, iRow, 5, 'ФИО', format_header)
-    lxw_worksheet_write_string(worksheetError, iRow, 6, 'Дата рождения', format_header)
-    lxw_worksheet_write_string(worksheetError, iRow, 7, 'Кол-во услуг', format_header)
-    lxw_worksheet_write_string(worksheetError, iRow, 8, 'Стоимость услуг', format_header)
-    lxw_worksheet_write_string(worksheetError, iRow, 9, 'Отделение', format_header)
+    WORKSHEET_WRITE_STRING(worksheetError, iRow, 0, '№ п/п', format_header)
+    WORKSHEET_WRITE_STRING(worksheetError, iRow, 1, 'ОШИБКА', format_header)
+    WORKSHEET_WRITE_STRING(worksheetError, iRow, 2, 'КОД', format_header)
+    WORKSHEET_WRITE_STRING(worksheetError, iRow, 3, 'Наименование', format_header)
+    WORKSHEET_WRITE_STRING(worksheetError, iRow, 4, 'Номер заявки', format_header)
+    WORKSHEET_WRITE_STRING(worksheetError, iRow, 5, 'ФИО', format_header)
+    WORKSHEET_WRITE_STRING(worksheetError, iRow, 6, 'Дата рождения', format_header)
+    WORKSHEET_WRITE_STRING(worksheetError, iRow, 7, 'Кол-во услуг', format_header)
+    WORKSHEET_WRITE_STRING(worksheetError, iRow, 8, 'Стоимость услуг', format_header)
+    WORKSHEET_WRITE_STRING(worksheetError, iRow, 9, 'Отделение', format_header)
 
     /* Установить ширину колонок */
-    lxw_worksheet_set_column(worksheetError, 0, 0, 8.0)
-    lxw_worksheet_set_column(worksheetError, 1, 1, 10.0)
-    lxw_worksheet_set_column(worksheetError, 2, 2, 8.0)
-    lxw_worksheet_set_column(worksheetError, 3, 3, 50.0)
-    lxw_worksheet_set_column(worksheetError, 4, 4, 8.0)
-    lxw_worksheet_set_column(worksheetError, 5, 5, 25.0)
-    lxw_worksheet_set_column(worksheetError, 6, 6, 12.0)
-    lxw_worksheet_set_column(worksheetError, 7, 7, 7.14)
-    lxw_worksheet_set_column(worksheetError, 8, 8, 12.0)
-    lxw_worksheet_set_column(worksheetError, 9, 9, 12.0)
-    lxw_worksheet_set_column(worksheetError, 10, 10, 7.14)
+    WORKSHEET_SET_COLUMN(worksheetError, 0, 0, 8.0)
+    WORKSHEET_SET_COLUMN(worksheetError, 1, 1, 10.0)
+    WORKSHEET_SET_COLUMN(worksheetError, 2, 2, 8.0)
+    WORKSHEET_SET_COLUMN(worksheetError, 3, 3, 50.0)
+    WORKSHEET_SET_COLUMN(worksheetError, 4, 4, 8.0)
+    WORKSHEET_SET_COLUMN(worksheetError, 5, 5, 25.0)
+    WORKSHEET_SET_COLUMN(worksheetError, 6, 6, 12.0)
+    WORKSHEET_SET_COLUMN(worksheetError, 7, 7, 7.14)
+    WORKSHEET_SET_COLUMN(worksheetError, 8, 8, 12.0)
+    WORKSHEET_SET_COLUMN(worksheetError, 9, 9, 12.0)
+    WORKSHEET_SET_COLUMN(worksheetError, 10, 10, 7.14)
 
     iRow++
     do while ! FRD->(eof())
-      lxw_worksheet_write_string(worksheetError, iRow, 0, hb_StrToUtf8( alltrim(FRD->NUM_USL) ), format_text)
-      lxw_worksheet_write_string(worksheetError, iRow, 1, hb_StrToUtf8( alltrim(FRD->REFREASON) ), format_text)
-      lxw_worksheet_write_string(worksheetError, iRow, 2, hb_StrToUtf8( alltrim(FRD->SHIFR_USL) ), format_text)
-      lxw_worksheet_write_string(worksheetError, iRow, 3, hb_StrToUtf8( alltrim(FRD->NAME_USL) ), format_text)
+      WORKSHEET_WRITE_STRING(worksheetError, iRow, 0, hb_StrToUtf8( alltrim(FRD->NUM_USL) ), format_text)
+      WORKSHEET_WRITE_STRING(worksheetError, iRow, 1, hb_StrToUtf8( alltrim(FRD->REFREASON) ), format_text)
+      WORKSHEET_WRITE_STRING(worksheetError, iRow, 2, hb_StrToUtf8( alltrim(FRD->SHIFR_USL) ), format_text)
+      WORKSHEET_WRITE_STRING(worksheetError, iRow, 3, hb_StrToUtf8( alltrim(FRD->NAME_USL) ), format_text)
       if FRD->NUMORDER != 0
-        lxw_worksheet_write_number(worksheetError, iRow, 4, FRD->NUMORDER, format_text3)
+        WORKSHEET_WRITE_NUMBER(worksheetError, iRow, 4, FRD->NUMORDER, format_text3)
       endif
-      lxw_worksheet_write_string(worksheetError, iRow, 5, hb_StrToUtf8( alltrim(FRD->FIO) ), format_text)
-      lxw_worksheet_write_string(worksheetError, iRow, 6, hb_StrToUtf8( alltrim(FRD->DATE_R) ), format_text)
-      lxw_worksheet_write_number(worksheetError, iRow, 7, FRD->KOL_USL, format_text3)
-      lxw_worksheet_write_number(worksheetError, iRow, 8, FRD->SUM_SN, format_text3)
-      lxw_worksheet_write_string(worksheetError, iRow, 9, hb_StrToUtf8( alltrim(FRD->OTD) ), format_text)
+      WORKSHEET_WRITE_STRING(worksheetError, iRow, 5, hb_StrToUtf8( alltrim(FRD->FIO) ), format_text)
+      WORKSHEET_WRITE_STRING(worksheetError, iRow, 6, hb_StrToUtf8( alltrim(FRD->DATE_R) ), format_text)
+      WORKSHEET_WRITE_NUMBER(worksheetError, iRow, 7, FRD->KOL_USL, format_text3)
+      WORKSHEET_WRITE_NUMBER(worksheetError, iRow, 8, FRD->SUM_SN, format_text3)
+      WORKSHEET_WRITE_STRING(worksheetError, iRow, 9, hb_StrToUtf8( alltrim(FRD->OTD) ), format_text)
 
       ++iRow
       FRD->(dbSkip())
@@ -180,51 +186,51 @@ function create_xls_rdl(name, arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd)
     use (cur_dir + 'tmp_err') new  alias FRD
     FRD->(dbGoTop())
     /* Добавим лист "Ошибки из ТФОМС" книгу. */
-    worksheetError = lxw_workbook_add_worksheet(workbook, 'Ошибки из ТФОМС')
+    worksheetError = WORKBOOK_ADD_WORKSHEET(workbook, 'Ошибки из ТФОМС')
 
     iRow := 0
       
-    lxw_worksheet_write_string(worksheetError, iRow, 0, '№ п/п', format_header)
-    lxw_worksheet_write_string(worksheetError, iRow, 1, 'Шифр', format_header)
-    lxw_worksheet_write_string(worksheetError, iRow, 2, 'Наименование услуги', format_header)
-    lxw_worksheet_write_string(worksheetError, iRow, 3, 'Номер заявки', format_header)
-    lxw_worksheet_write_string(worksheetError, iRow, 4, 'ФИО', format_header)
-    lxw_worksheet_write_string(worksheetError, iRow, 5, 'Кол-во услуг', format_header)
-    lxw_worksheet_write_string(worksheetError, iRow, 6, 'Стоимость услуг', format_header)
-    lxw_worksheet_write_string(worksheetError, iRow, 7, 'Направившая МО', format_header)
+    WORKSHEET_WRITE_STRING(worksheetError, iRow, 0, '№ п/п', format_header)
+    WORKSHEET_WRITE_STRING(worksheetError, iRow, 1, 'Шифр', format_header)
+    WORKSHEET_WRITE_STRING(worksheetError, iRow, 2, 'Наименование услуги', format_header)
+    WORKSHEET_WRITE_STRING(worksheetError, iRow, 3, 'Номер заявки', format_header)
+    WORKSHEET_WRITE_STRING(worksheetError, iRow, 4, 'ФИО', format_header)
+    WORKSHEET_WRITE_STRING(worksheetError, iRow, 5, 'Кол-во услуг', format_header)
+    WORKSHEET_WRITE_STRING(worksheetError, iRow, 6, 'Стоимость услуг', format_header)
+    WORKSHEET_WRITE_STRING(worksheetError, iRow, 7, 'Направившая МО', format_header)
 
     /* Установить ширину колонок */
-    lxw_worksheet_set_column(worksheetError, 0, 0, 8.0)
-    lxw_worksheet_set_column(worksheetError, 1, 1, 8.0)
-    lxw_worksheet_set_column(worksheetError, 2, 2, 50.0)
-    lxw_worksheet_set_column(worksheetError, 3, 3, 10.0)
-    lxw_worksheet_set_column(worksheetError, 4, 4, 50.0)
-    lxw_worksheet_set_column(worksheetError, 5, 5, 8.0)
-    lxw_worksheet_set_column(worksheetError, 6, 6, 25.0)
-    lxw_worksheet_set_column(worksheetError, 7, 7, 8.0)
+    WORKSHEET_SET_COLUMN(worksheetError, 0, 0, 8.0)
+    WORKSHEET_SET_COLUMN(worksheetError, 1, 1, 8.0)
+    WORKSHEET_SET_COLUMN(worksheetError, 2, 2, 50.0)
+    WORKSHEET_SET_COLUMN(worksheetError, 3, 3, 10.0)
+    WORKSHEET_SET_COLUMN(worksheetError, 4, 4, 50.0)
+    WORKSHEET_SET_COLUMN(worksheetError, 5, 5, 8.0)
+    WORKSHEET_SET_COLUMN(worksheetError, 6, 6, 25.0)
+    WORKSHEET_SET_COLUMN(worksheetError, 7, 7, 20.0)
 
     iRow++
     do while ! FRD->(eof())
       if (FRD->NUMORDER != 0) .or. (FRD->KOL_USL != 0)
-        lxw_worksheet_write_string(worksheetError, iRow, 0, hb_StrToUtf8(alltrim(FRD->NUM_USL)), format_text)
-        lxw_worksheet_write_string(worksheetError, iRow, 1, hb_StrToUtf8(alltrim(FRD->SHIFR_USL)), format_text)
-        lxw_worksheet_write_string(worksheetError, iRow, 2, hb_StrToUtf8(alltrim(FRD->NAME_USL)), format_text)
+        WORKSHEET_WRITE_STRING(worksheetError, iRow, 0, hb_StrToUtf8(alltrim(FRD->NUM_USL)), format_text)
+        WORKSHEET_WRITE_STRING(worksheetError, iRow, 1, hb_StrToUtf8(alltrim(FRD->SHIFR_USL)), format_text)
+        WORKSHEET_WRITE_STRING(worksheetError, iRow, 2, hb_StrToUtf8(alltrim(FRD->NAME_USL)), format_text)
 
         if (FRD->NUMORDER != 0)
-          lxw_worksheet_write_number(worksheetError, iRow, 3, FRD->NUMORDER, format_text3)
+          WORKSHEET_WRITE_NUMBER(worksheetError, iRow, 3, FRD->NUMORDER, format_text3)
         else
-          lxw_worksheet_write_string(worksheetError, iRow, 3, '', format_text)
+          WORKSHEET_WRITE_STRING(worksheetError, iRow, 3, '', format_text)
         endif
       endif
-      lxw_worksheet_write_string(worksheetError, iRow, 4, hb_StrToUtf8( alltrim(FRD->FIO) ), format_text)
+      WORKSHEET_WRITE_STRING(worksheetError, iRow, 4, hb_StrToUtf8( alltrim(FRD->FIO) ), format_text)
       if FRD->KOL_USL != 0
-        lxw_worksheet_write_number(worksheetError, iRow, 5, FRD->KOL_USL, format_text3)
+        WORKSHEET_WRITE_NUMBER(worksheetError, iRow, 5, FRD->KOL_USL, format_text3)
       endif
       if FRD->cena_1 != 0
-        lxw_worksheet_write_number(worksheetError, iRow, 6, FRD->CENA_1, format_text3)
+        WORKSHEET_WRITE_NUMBER(worksheetError, iRow, 6, FRD->CENA_1, format_text3)
       endif
       if !empty(FRD->napr_uch)
-        lxw_worksheet_write_string(worksheetError, iRow, 7, FRD->napr_uch, format_text)
+        WORKSHEET_WRITE_STRING(worksheetError, iRow, 7, FRD->napr_uch, format_text_center)
       endif
       
       ++iRow
@@ -235,7 +241,7 @@ function create_xls_rdl(name, arr_m, st_a_uch, lcount_uch, st_a_otd, lcount_otd)
   endif
 
   /* Закрыть книгу, записать файл и освободить память. */
-  error = lxw_workbook_close(workbook)
+  error = WORKBOOK_CLOSE(workbook)
   /* Проверить наличие ошибки при создании xlsx файла. */
   if !EMPTY(error)
     alertx(hb_Utf8ToStr(sprintf('Ошибка в workbook_close().\n' + ;
