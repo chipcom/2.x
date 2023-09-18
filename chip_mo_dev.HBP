@@ -3,8 +3,8 @@
 -L..\LIB
 -lMyLib_HBT
 -lFunLib
-#-lhblibxlsxwriter
--lhbxlsxwriter
+-lhblibxlsxwriter
+#-lhbxlsxwriter
 
 -lhbxpp
 -lhbct
