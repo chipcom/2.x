@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-// 15.09.23
+// 18.09.23
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1, ;
         i, j, k, c, s := ' ', a_srok_lech := {}, a_period_stac := {}, a_disp := {}, ;
@@ -1732,6 +1732,7 @@ Function verify_1_sluch(fl_view)
         next
       endif
       // Иммуногистохимия/маркеры
+      mm_N012 := {}
       ar_N012 := {}
       // if select('N12') == 0
       //   R_Use(dir_exe + '_mo_N012', , 'N12')

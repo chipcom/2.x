@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 13.09.23 добавление или редактирование случая (листа учета)
+// 18.09.23 добавление или редактирование случая (листа учета)
 Function oms_sluch_main(Loc_kod, kod_kartotek)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -1219,11 +1219,10 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
         // R_Use(exe_dir+ '_mo_N012', , 'N12')
         // dbeval({|| aadd(mm_N012, {'', n12->id_igh, {}}) }, ;
         //        {|| between_date(n12->datebeg, n12->dateend, mk_data) .and. left(mkod_diag, 3) == n12->ds_igh })
-
         if (it := ascan(aN012_DS, {|x| left(x[1], 3) == left(mkod_diag, 3)})) > 0
           ar_N012 := aclone(aN012_DS[it, 2])
           for i_n012 := 1 to len(ar_N012)
-            aadd(mm_N012, {'', ar_N012[i_n012], {}})
+            aadd(mm_N012, {'', ar_N012[i_n012, 1], {}})
           next
         endif
         asort(mm_N012, , , {|x, y| x[1] < y[1] })
@@ -1274,7 +1273,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
             for i_n011 := 1 to len(aN011)
               if aN011[i_n011, 2] == mm_N012[i, 2]
                 if between_date(aN011[i_n011, 5], aN011[i_n011, 6], mk_data)
-                  mm_N012[i, 3] := alltrim(aN011[i_n011, 3])
+                  // mm_N012[i, 3] := alltrim(aN011[i_n011, 3])
                   aadd(mm_N012[i, 3], {aN011[i_n011, 3], aN011[i_n011, 1]})
                 endif
               endif
