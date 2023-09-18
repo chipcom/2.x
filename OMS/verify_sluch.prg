@@ -1727,7 +1727,7 @@ Function verify_1_sluch(fl_view)
         //        {|| between_date(n9->datebeg, n9->dateend, d2) .and. padr(mdiagnoz[1], 3) == n9->ds_mrf })
         for i_n009 := 1 to len(aN009)
           if between_date(aN009[i_n009, 4], aN009[i_n009, 5], d2) .and. padr(mdiagnoz[1], 3) == left(aN009[i_n009, 2], 3)
-            aadd(mm_N009, {'', aN009[i_n009, 3], {}})
+            aadd(ar_N009, {'', aN009[i_n009, 3], {}})
           endif
         next
       endif
