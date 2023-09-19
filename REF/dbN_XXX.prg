@@ -639,7 +639,7 @@ function getN013()
         'FROM n013')
     if len(aTable) > 1
       for nI := 2 to Len( aTable )
-        aadd(_arr, {alltrim(aTable[nI, 2]), val(aTable[nI, 1]), ctod(aTable[nI, 3]), ctod(aTable[nI, 4])})
+        aadd(_arr, {alltrim(aTable[nI, 2]), val(aTable[nI, 1])}) //, ctod(aTable[nI, 3]), ctod(aTable[nI, 4])})
       next
     endif
     db := nil
@@ -648,8 +648,8 @@ function getN013()
 
 // =========== N014 ===================
 //
-// 28.08.23 вернуть массив ФФОМС N014.xml Классификатор типов хирургического лечения (OnkHir)
-function loadN014()
+// 19.09.23 вернуть массив ФФОМС N014.xml Классификатор типов хирургического лечения (OnkHir)
+function getN014()
   // возвращает массив N014 типов хирургического лечения (OnkHir)
   static _arr
   static time_load
@@ -673,7 +673,7 @@ function loadN014()
         'FROM n014')
     if len(aTable) > 1
       for nI := 2 to Len( aTable )
-        aadd(_arr, {val(aTable[nI, 1]), alltrim(aTable[nI, 2]), ctod(aTable[nI, 3]), ctod(aTable[nI, 4])})
+        aadd(_arr, {alltrim(aTable[nI, 2]), val(aTable[nI, 1]), ctod(aTable[nI, 3]), ctod(aTable[nI, 4])})
       next
     endif
     db := nil
