@@ -1,4 +1,4 @@
-** view_lists_uch.prg - просмотр листов учета по ОМС
+// view_lists_uch.prg - просмотр листов учета по ОМС
 #include 'inkey.ch'
 #include 'function.ch'
 #include 'edit_spr.ch'
@@ -736,21 +736,21 @@ Function print_l_uch(mkod, par, regim, lnomer)
   viewtext(n_file, , , , .f., , , 5)
   return NIL
 
-**
+//
 Function header_implantant(w1)
   add_string('────────┬────────────────────────────────────────┬──────────────────────────────')
   add_string('  Дата  │Наименование имплантанта                │Серийный номер')
   add_string('────────┴────────────────────────────────────────┴──────────────────────────────')
   return NIL
 
-**
+//
 Function header_lek_preparat(w1)
   add_string('────────┬─────────────────────────────────┬──────┬───────┬───────────────┬──────')
   add_string('  Дата  │Наименование препарата или группы│Доз-ка│Единица│Способ введения│Кол-во')
   add_string('────────┴─────────────────────────────────┴──────┴───────┴───────────────┴──────')
   return NIL
   
-**
+//
 Function header_uslugi(w1)
   add_string('────────┬─────┬─────┬' +replicate('─', w1)              + '┬─────┬─────┬───┬────────')
   add_string('  Дата  │ Отд.│МКБ10│' +padc('Наименование услуги', w1) + '│ Врач│ Асс.│Кол│ Сумма  ')
@@ -758,7 +758,7 @@ Function header_uslugi(w1)
   return NIL
 
 
-** 02.11.22 печать доп.заголовка, если это лист учёта диспансеризации/профилактики
+// 02.11.22 печать доп.заголовка, если это лист учёта диспансеризации/профилактики
 Function print_l_uch_disp(sh)
   Local s := ''
 
@@ -789,7 +789,7 @@ Function print_l_uch_disp(sh)
   endif
   return NIL
 
-** 02.11.22 добовка по онкологии к листу учёта
+// 19.09.23 добавка по онкологии к листу учёта
 Function print_luch_onk(sh)
   Static mm_DS1_T := {{'первичное лечение', 0}, ;  // N019
                       {'лечение при рецидиве', 1}, ;
@@ -798,12 +798,13 @@ Function print_luch_onk(sh)
                       {'диспансерное наблюдение (здоров/ремиссия)', 4}, ;
                       {'диагностика (без специфического лечения)', 5}, ;
                       {'симптоматическое лечение', 6}}
-  Static mm_usl_tip := {{'Хирургическое лечение', 1}, ;
-                      {'Лекарственная противоопухолевая терапия', 2}, ;
-                      {'Лучевая терапия', 3}, ;
-                      {'Химиолучевая терапия', 4}, ;
-                      {'Неспецифическое лечение (катетер, прочее)', 5}, ;
-                      {'Диагностика', 6}}
+  // Static mm_usl_tip := {{'Хирургическое лечение', 1}, ;
+  //                     {'Лекарственная противоопухолевая терапия', 2}, ;
+  //                     {'Лучевая терапия', 3}, ;
+  //                     {'Химиолучевая терапия', 4}, ;
+  //                     {'Неспецифическое лечение (катетер, прочее)', 5}, ;
+  //                     {'Диагностика', 6}}
+  local mm_usl_tip := getN013()
 
   if f_is_oncology(1) == 2 .and. human_->USL_OK < 3
     add_string('  Онкология:')
@@ -829,7 +830,7 @@ Function print_luch_onk(sh)
   endif
   return NIL
 
-** 29.10.22 просмотр/печать листов учёта
+// 29.10.22 просмотр/печать листов учёта
 Function o_list_uch()
   Local j := 0, buf := savescreen(), mtitul, func_step := '', r2 := maxrow() - 2
 
@@ -881,7 +882,7 @@ Function o_list_uch()
   restscreen(buf)
   return NIL
 
-** 02.11.11
+// 02.11.11
 Function f1o_list_uch(oBrow)
   Local oColumn, blk := {|_i| _i := iif(between(human->tip_h, 1, 6), human->tip_h, 2), ;
                             {{1, 2}, {3, 4}, {5, 6}, {7, 8}, {9, 10}, {11, 12}}[_i] }
@@ -908,7 +909,7 @@ Function f1o_list_uch(oBrow)
   status_key('^<Esc>^ выход ^<Enter>^ печать л/у ^<F9>^ печать свода л/у ^<F10>^ печать справки ОМС')
   return NIL
 
-**
+//
 Function f2o_list_uch(k)
 Static arr := {'лечится', ;
                'не закончено лечение', ;
@@ -929,7 +930,7 @@ Static arr := {'лечится', ;
   endif
   return s
 
-** 12.05.2019
+// 12.05.2019
 Function f3o_list_uch()
 Local s := 'Добавление ' + date_8(c4tod(human->date_e)) + 'г. '
 
@@ -957,7 +958,7 @@ Local s := 'Добавление ' + date_8(c4tod(human->date_e)) + 'г. '
   select HUMAN
   return NIL
 
-** 31.10.22
+// 31.10.22
 Function f4o_list_uch(nKey, oBrow)
   Local buf, rec, k := -1, fl := .f., arr_m, arr_rec := {}
 

@@ -3322,15 +3322,19 @@ endif
 return NIL
 
 
-// 05.05.19
+// 19.09.23
 FUNCTION pr_sprav_onk_vmp()
-  Static mm_usl_tip := {'"Хирургическое лечение"', ;
-                      '"Лекарственная противоопухолевая терапия"', ;
-                      '"Лучевая терапия"', ;
-                      '', ;
-                      '"Неспецифическое лечение"', ;
-                      '"Диагностика"'}
   Local buf := save_maxrow(), name_file := cur_dir + 'metodVMPonko' + stxt, sh := 80, HH := 60, t_arr[2], i, s
+  // Static mm_usl_tip := {'"Хирургическое лечение"', ;
+  //                     '"Лекарственная противоопухолевая терапия"', ;
+  //                     '"Лучевая терапия"', ;
+  //                     '', ;
+  //                     '"Неспецифическое лечение"', ;
+  //                     '"Диагностика"'}
+  local row, mm_usl_tip := {}
+  for each row in getN013()
+    aadd(mm_usl_tip, row[1])
+  next
 
   mywait()
   fp := fcreate(name_file)

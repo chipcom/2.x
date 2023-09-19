@@ -614,8 +614,8 @@ function getDS_N012()
 
 // =========== N013 ===================
 //
-// 28.08.23 вернуть массив ФФОМС N013.xml Классификатор типов лечения (OnkLech)
-function loadN013()
+// 19.09.23 вернуть массив ФФОМС N013.xml Классификатор типов лечения (OnkLech)
+function getN013()
   // возвращает массив N013 типов лечения (OnkLech)
   static _arr
   static time_load
@@ -639,7 +639,7 @@ function loadN013()
         'FROM n013')
     if len(aTable) > 1
       for nI := 2 to Len( aTable )
-        aadd(_arr, {val(aTable[nI, 1]), alltrim(aTable[nI, 2]), ctod(aTable[nI, 3]), ctod(aTable[nI, 4])})
+        aadd(_arr, {alltrim(aTable[nI, 2]), val(aTable[nI, 1]), ctod(aTable[nI, 3]), ctod(aTable[nI, 4])})
       next
     endif
     db := nil
