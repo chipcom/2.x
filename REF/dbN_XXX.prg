@@ -682,8 +682,8 @@ function getN014()
 
 // =========== N015 ===================
 //
-// 28.08.23 вернуть массив ФФОМС N015.xml Классификатор линий лекарственной терапии (OnkLek_L)
-function loadN015()
+// 19.09.23 вернуть массив ФФОМС N015.xml Классификатор линий лекарственной терапии (OnkLek_L)
+function getN015()
   // возвращает массив N015 линий лекарственной терапии (OnkLek_L)
   static _arr
   static time_load
@@ -707,7 +707,7 @@ function loadN015()
         'FROM n015')
     if len(aTable) > 1
       for nI := 2 to Len( aTable )
-        aadd(_arr, {val(aTable[nI, 1]), alltrim(aTable[nI, 2]), ctod(aTable[nI, 3]), ctod(aTable[nI, 4])})
+        aadd(_arr, {alltrim(aTable[nI, 2]), val(aTable[nI, 1])})  //, ctod(aTable[nI, 3]), ctod(aTable[nI, 4])})
       next
     endif
     db := nil
@@ -716,8 +716,8 @@ function loadN015()
 
 // =========== N016 ===================
 //
-// 28.08.23 вернуть массив ФФОМС N016.xml Классификатор циклов лекарственной терапии (OnkLek_V)
-function loadN016()
+// 19.09.23 вернуть массив ФФОМС N016.xml Классификатор циклов лекарственной терапии (OnkLek_V)
+function getN016()
   // возвращает массив N016 циклов лекарственной терапии (OnkLek_V)
   static _arr
   static time_load
@@ -741,7 +741,7 @@ function loadN016()
         'FROM n016')
     if len(aTable) > 1
       for nI := 2 to Len( aTable )
-        aadd(_arr, {val(aTable[nI, 1]), alltrim(aTable[nI, 2]), ctod(aTable[nI, 3]), ctod(aTable[nI, 4])})
+        aadd(_arr, {alltrim(aTable[nI, 2]), val(aTable[nI, 1])})  //, ctod(aTable[nI, 3]), ctod(aTable[nI, 4])})
       next
     endif
     db := nil
@@ -750,8 +750,8 @@ function loadN016()
 
 // =========== N017 ===================
 //
-// 28.08.23 вернуть массив ФФОМС N017.xml Классификатор типов лучевой терапии (OnkLuch)
-function loadN017()
+// 19.09.23 вернуть массив ФФОМС N017.xml Классификатор типов лучевой терапии (OnkLuch)
+function getN017()
   // возвращает массив N017 типов лучевой терапии (OnkLuch)
   static _arr
   static time_load
@@ -775,7 +775,7 @@ function loadN017()
         'FROM n017')
     if len(aTable) > 1
       for nI := 2 to Len( aTable )
-        aadd(_arr, {val(aTable[nI, 1]), alltrim(aTable[nI, 2]), ctod(aTable[nI, 3]), ctod(aTable[nI, 4])})
+        aadd(_arr, {alltrim(aTable[nI, 2]), val(aTable[nI, 1])})  //, ctod(aTable[nI, 3]), ctod(aTable[nI, 4])})
       next
     endif
     db := nil
@@ -784,8 +784,8 @@ function loadN017()
 
 // =========== N018 ===================
 //
-// 28.08.23 вернуть массив ФФОМС N018.xml Классификатор поводов обращения (OnkReas)
-function loadN018()
+// 19.09.23 вернуть массив ФФОМС N018.xml Классификатор поводов обращения (OnkReas)
+function getN018()
   // возвращает массив N018 поводов обращения (OnkReas)
   static _arr
   static time_load
@@ -809,7 +809,7 @@ function loadN018()
         'FROM n018')
     if len(aTable) > 1
       for nI := 2 to Len( aTable )
-        aadd(_arr, {val(aTable[nI, 1]), alltrim(aTable[nI, 2]), ctod(aTable[nI, 3]), ctod(aTable[nI, 4])})
+        aadd(_arr, {alltrim(aTable[nI, 2]), val(aTable[nI, 1])})  //, ctod(aTable[nI, 3]), ctod(aTable[nI, 4])})
       next
     endif
     db := nil
@@ -818,8 +818,8 @@ function loadN018()
 
 // =========== N019 ===================
 //
-// 28.08.23 вернуть массив ФФОМС N019.xml Классификатор целей консилиума (OnkCons)
-function loadN019()
+// 19.09.23 вернуть массив ФФОМС N019.xml Классификатор целей консилиума (OnkCons)
+function getN019()
   // возвращает массив N019 целей консилиума (OnkCons)
   static _arr
   static time_load
@@ -843,7 +843,7 @@ function loadN019()
         'FROM n019')
     if len(aTable) > 1
       for nI := 2 to Len( aTable )
-        aadd(_arr, {val(aTable[nI, 1]), alltrim(aTable[nI, 2]), ctod(aTable[nI, 3]), ctod(aTable[nI, 4])})
+        aadd(_arr, {alltrim(aTable[nI, 2]), val(aTable[nI, 1])})  //, ctod(aTable[nI, 3]), ctod(aTable[nI, 4])})
       next
     endif
     db := nil
