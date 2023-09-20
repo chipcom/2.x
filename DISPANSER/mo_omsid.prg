@@ -3745,6 +3745,7 @@ return f3_inf_DDS_karta({{"да - 1",1},{"нет - 2",0}},k,";  ",sb1,sb2,.f.)
 ** 03.09.20 Приложение к Приказу ГБУЗ "ВОМИАЦ" от 12.05.2017г. №1615
 Function f21_inf_DVN(par) // свод
 Local arr_m, buf := save_maxrow(), s, as := {}, as1[14], i, j, k, n, ar, at, ii, g1, sh := 65, fl, mdvozrast, adbf
+local kol_2_year_dvn := 0, kol_2_year_prof := 0
 if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
               .and. (arr_m := year_month(,,,5)) != NIL .and. f0_inf_DVN(arr_m,par > 1,par == 3,.t.)
   Private arr_usl_bio := {{;
@@ -4045,6 +4046,50 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
     skip
   enddo
   close databases
+  // проверим посещения 2 года назад
+  mywait("Проверка на посещение учреждения в ближайшие 2 года")
+  R_Use(dir_server+"human",,"HUMAN")
+  index on str(KOD_k,7)+dtos(n_data) to (cur_dir+"tmp_2year") for n_data > (date()- 800)
+  use (cur_dir+"tmp") index (cur_dir+"tmp") new
+  ii := 0
+  go top
+  do while !eof()
+    @ maxrow(),0 say str(++ii/tmp->(lastrec())*100,6,2)+"%" color cColorWait
+    if !empty(tmp->kod4h) // Диспансеризация 1 раз в 2 года
+      //
+    elseif emptyall(tmp->kod1h,tmp->kod2h) // профилактика
+      select human
+      human->(dbGoto(tmp->kod3h))
+      t_kod_k :=  human->kod_k
+      t_date  :=  human->n_data
+      skip -1
+      if human->kod_k == t_kod_k
+        if ((t_date - human->n_data) > 730)    
+          kol_2_year_prof ++
+        endif  
+      else  
+        kol_2_year_prof ++
+      endif   
+    else// диспансеризация
+     if (tmp->kod1h > 0)
+      select human
+      human->(dbGoto(tmp->kod1h))
+      t_kod_k :=  human->kod_k
+      t_date  :=  human->n_data
+      skip -1
+      if human->kod_k == t_kod_k
+        if ((t_date - human->n_data) > 730)    
+          kol_2_year_dvn ++
+        endif  
+      else  
+        kol_2_year_dvn ++
+      endif   
+     endif
+    endif
+    select TMP
+    skip
+  enddo
+  close databases
   dbcreate(cur_dir+"tmp3",{{"et2","N",1,0},;
                    {"gr1","N",1,0},;
                    {"gr2","N",1,0},;
@@ -4094,6 +4139,9 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
   print_shablon("svod_dvn",{arr_21,at,ar},"tmp1.txt",.f.)
   fp := fcreate("tmp2.txt") ; n_list := 1 ; tek_stroke := 0
   fl := f_error_DVN(3,60,80)
+  strfile("Лица прошедшие диспансеризацию/профосмотр, ранее не посещавшие учреждение более 2-х лет"+eos,"tmp1.txt",.t.)
+  strfile(" Диспансеризация == "+lstr(kol_2_year_dvn)+" чел."+eos,"tmp1.txt",.t.)  								
+  strfile(" Профосмотр      == "+lstr(kol_2_year_prof)+" чел."+eos,"tmp1.txt",.t.)
   fclose(fp)
   if fl
     strfile("FF","tmp1.txt",.t.)
