@@ -925,3 +925,14 @@ function loadN021()
   endif
   return _arr
 
+// 20.09.23
+function getN021_by_date(dk)
+  local arr := {}, row
+
+  for each row in loadN021()
+    if between_date(row[4], row[5], dk)
+      aadd(arr, row)
+    endif
+  next
+
+  return arr
