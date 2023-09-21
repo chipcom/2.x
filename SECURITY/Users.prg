@@ -142,10 +142,10 @@ function edit_Users_bay()
 	endif
 	return nil
 
-// 20.10.18 редактирование объекта пользователя
+// 21.09.23 редактирование объекта пользователя
 static function editUser( oBrowse, aObjects, oUser, nKey )
 	local fl := .f.
-	local r1 := maxrow() - 11, r2 := maxrow() - 3, i
+	local r1 := maxrow() - 12, r2 := maxrow() - 3, i
 	local c_1 := T_COL + 5, c_2 := c_1 + 62
 	local oBox
 	
@@ -199,8 +199,13 @@ static function editUser( oBrowse, aObjects, oUser, nKey )
 		oBox:Color := cDataCGet
 		oBox:View()
 		
-		@ r1 + 1, c_1 + 3 say 'Ф.И.О. пользователя' get oUser:FIO valid func_empty( oUser:FIO )
-		@ r1 + 2, c_1 + 3 say 'ИНН пользователя' get oUser:INN picture '999999999999'
+    if is_task(X_PLATN) .or. is_task(X_ORTO) .or. is_task(X_KASSA)
+			@ r1 + 2, c_1 + 3 say 'Ф.И.О. пользователя' get oUser:FIO valid func_empty( oUser:FIO )
+			@ r1 + 2, c_1 + 44 say 'ИНН пользователя' get oUser:INN picture '999999999999'
+    else
+			@ r1 + 2, c_1 + 3 say 'Ф.И.О. пользователя' get oUser:FIO valid func_empty( oUser:FIO )
+    endif
+
 		@ r1 + 3, c_1 + 3 say 'Учреждение' get mDepartment ;
 								READER { | x | menu_reader( x, TDepartmentDB():MenuDepartments(), A__MENUVERT, , , .f. ) }
 		@ r1 + 4, c_1 + 3 say 'Должность' get oUser:Position
@@ -217,6 +222,9 @@ static function editUser( oBrowse, aObjects, oUser, nKey )
 		if is_task( X_PLATN ) .or. is_task( X_ORTO ) .or. is_task( X_KASSA )
 			++i
 			@ r1 + i, c_1 + 3 say 'Пароль для фискального регистратора' get oUser:PasswordFR picture '99999999'
+			++i
+      @ r1 + i, c_1 + 3 say 'N доверен-ти' get oUser:Dov_Nom
+      @ r1 + i, c_1 + 36 say 'Дата доверен-ти' get oUser:Dov_Date
 		endif
 		myread()
 		if lastkey() != K_ESC .and. f_Esc_Enter( 1 )

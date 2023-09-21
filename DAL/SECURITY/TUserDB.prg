@@ -202,6 +202,13 @@ METHOD FillFromHash( hbArray )     CLASS TUserDB
 	else
 		obj:INN := crypt( hbArray[ 'INN' ], ::cryptoKey() )
 	endif
-	obj:Dov_Date := stod(crypt( hbArray[ 'DOV_DATA' ], ::cryptoKey() ))
+
+	if glob_mo[_MO_KOD_TFOMS] == '102604'	// „«ï ‚ŽŠŠ‚„
+		obj:Dov_Date := stod(hbArray[ 'DOV_DATA' ])
+	else
+		// hb_hSet(aHash, 'DOV_DATA', dtos(crypt( oUser:Dov_Date, ::cryptoKey())))
+		obj:Dov_Date := stod(crypt( hbArray[ 'DOV_DATA' ], ::cryptoKey() ))
+	endif
+
 	obj:Dov_Nom := crypt( hbArray[ 'DOV_NOM' ], ::cryptoKey() )
 	return obj
