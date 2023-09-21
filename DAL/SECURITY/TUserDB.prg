@@ -139,7 +139,11 @@ METHOD Save( oUser ) CLASS TUserDB
 			hb_hSet(aHash, 'INN',		crypt( oUser:INN, ::cryptoKey() ) )
 		endif
 		hb_hSet(aHash, 'IDROLE',	oUser:IDRole )
-		hb_hSet(aHash, 'DOV_DATA', dtos(crypt( oUser:Dov_Date, ::cryptoKey())))
+		if glob_mo[_MO_KOD_TFOMS] == '102604'	// „«ï ‚ŽŠŠ‚„
+			hb_hSet(aHash, 'DOV_DATA', dtos(oUser:Dov_Date))
+		else
+			hb_hSet(aHash, 'DOV_DATA', dtos(crypt( oUser:Dov_Date, ::cryptoKey())))
+		endif
 		hb_hSet(aHash, 'DOV_NOM',	crypt( oUser:Dov_Nom, ::cryptoKey() ) )
 		
 		hb_hSet(aHash, 'ID',		oUser:ID )
