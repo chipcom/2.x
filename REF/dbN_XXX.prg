@@ -927,12 +927,42 @@ function loadN021()
 
 // 20.09.23
 function getN021_by_date(dk)
-  local arr := {}, row
+  // local arr := {}, row
 
-  for each row in loadN021()
-    if between_date(row[4], row[5], dk)
-      aadd(arr, row)
-    endif
-  next
+  local _arr
+  local db
+  local aTable, row
+  local nI, dBeg, dEnd
 
-  return arr
+  // for each row in loadN021()
+  //   if between_date(row[4], row[5], dk)
+  //     aadd(arr, row)
+  //   endif
+  // next
+
+  _arr := {}
+  db := openSQL_DB()
+  aTable := sqlite3_get_table(db, 'SELECT ' + ;
+      'id_zap, ' + ;
+      'code_sh, ' + ;
+      'id_lekp, ' + ;
+      'datebeg, ' + ;
+      'dateend ' + ;
+      'FROM n021 ' + ;
+      'WHERE "2023-06-01 00:00:00" BETWEEN datebeg and dateend)')
+  // 'WHERE (datebeg >= "2023-06-01 00:00:00" and dateend >= "2023-06-01 00:00:00")')
+  if len(aTable) > 1
+    for nI := 2 to Len( aTable )
+      Set( _SET_DATEFORMAT, 'yyyy-mm-dd' )
+      dBeg := ctod(aTable[nI, 4])
+      dEnd := ctod(aTable[nI, 5])
+      Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
+
+      // aadd(_arr, {val(aTable[nI, 1]), alltrim(aTable[nI, 2]), alltrim(aTable[nI, 3]), ctod(aTable[nI, 4]), ctod(aTable[nI, 5])})
+      aadd(_arr, {val(aTable[nI, 1]), alltrim(aTable[nI, 2]), alltrim(aTable[nI, 3]), dBeg, dEnd})
+    next
+  endif
+  db := nil
+
+  // return arr
+  return _arr

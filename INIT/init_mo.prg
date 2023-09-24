@@ -6,7 +6,7 @@ Function init_mo()
   Local fl := .t., i, arr, arr1, cCode := '', buf := save_maxrow()
 
 //    local aaa
-//    aaa := getDS_N004()
+//    aaa := getN021_by_date()
 //  altd()
 
   mywait()
