@@ -19,6 +19,7 @@ Function ret_arr_shema_new(k, dk)
   endif
 
   if isnil(stYear) .or. empty(ashema[1]) .or. year_dk != stYear
+    ashema := {{}, {}, {}}
     arr := getV024(dk)
     aadd(ashema[1], {'-----     без схемы лекарственной терапии', padr('нет', 10)})
     aeval(arr, {|x, j| iif(left(x[1], 2) == 'sh', aadd(ashema[1], {padr(x[1], 10) + left(x[2], 68), padr(x[1], 10)}), '')})
