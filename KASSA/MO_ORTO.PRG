@@ -2831,7 +2831,7 @@ Private ;
   mcena := 0, mcena_opl := 0,;
   mplat_fio, mplat_inn ,;
   mplat_adres, mplat_pasport,;
-  msnils := ""
+  msnils := "", mphone_m
   //
   MKOD_DIAG   := human->KOD_DIAG      // шифр 1-ой осн.болезни
   MKOD_DIAG2  := human->KOD_DIAG2     // шифр 2-ой осн.болезни
@@ -2884,7 +2884,9 @@ goto (mkod_kart)
 m1vid_ud := kart_->vid_ud
 mnom     := kart_->nom_ud
 mser     := kart_->ser_ud
+mphone_m := kart_->phone_m
 kart_->(dbCloseArea())
+mphone_m := TransformPhone( mphone_m )
 //
 R_Use(dir_server+"mo_pers",,"PERSO")
 goto (mkod_vr)
@@ -2910,6 +2912,7 @@ adbf := dbstruct()
 aadd(adbf, {"date_u1","D", 8,0} )
 aadd(adbf, {"shifr_u","C",10,0} )
 aadd(adbf, {"name_u", "C",65,0} )
+aadd(adbf, {"full_name", "C",255,0} )
 aadd(adbf, {"number", "N", 3,0} )
 aadd(adbf, {"rec_hu", "N", 7,0} )
 dbcreate(cur_dir+"tmp_usl",adbf)
@@ -2932,6 +2935,7 @@ if (fl_found := found())
     tmp->date_u1 := c4tod(hu->date_u)
     tmp->shifr_u := usl->shifr
     tmp->name_u := usl->name
+    tmp->full_name := usl->full_name
     tmp->rec_hu := hu->(recno())
     select HU
     skip

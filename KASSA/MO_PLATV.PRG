@@ -521,18 +521,15 @@ do case
     restscreen(buf)
   case nKey == K_F9 //.and. human->cena > 0
     // печать договора
-    Private pac_FIO, pac_adres, pac_data, dog_data, pac_kod, pac_1FIO, pac_kvit
+    Private pac_FIO, pac_adres, pac_data, dog_data, pac_kod, pac_1FIO, pac_kvit, phone_m
     Private m1vid_ud, mnom, MSER, MVID_UD, mregistrator := alltrim(fio_polzovat)
     Private mplat_fio := human->plat_fio, mplat_inn := human->plat_inn, nom_prihod := 0
     Private mplat_adres  := space(50),; // адрес плательщика
             mplat_pasport := space(15)  // документ плательщика
     Private lnomer, l1nomer, muchastok
     Private okato_adresr, okato_adresg
-    Private mdov_date, mdov_nomer   // дата и номер довернности
     buf := savescreen()
     ClrLine(23,color0)
-    mdov_date  :=  oper_dov_date  
-    mdov_nomer :=  oper_dov_nomer
     t_hum_rec := human->(recno())
     kart_kod := human->kod_k
     t_k_data := year(human->k_data)
@@ -602,7 +599,13 @@ do case
       mplat_pasport := KPLAT->PASPORT
     endif
     KPLAT->(dbCloseArea())
-    //
+     // поиск телефона
+     R_Use(dir_server+"kartote_",,"KR_")
+     goto(human->kod_k)
+     mphone_m := kr_->phone_m
+     kr_->(dbCloseArea())
+     phone_m := TransformPhone( mphone_m )
+     //
     R_Use(dir_server+"uslugi",,"USL")
     R_Use(dir_server+"hum_p_u",dir_server+"hum_p_u","HU")
     set relation to u_kod into USL
