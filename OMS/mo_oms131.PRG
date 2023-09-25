@@ -55,6 +55,10 @@ do while !eof()
     elseif r01->n_m <= max_mes_R11 .and. rr->tip == 1
       fl := .t.
     endif
+    // заплатка 2023
+    if r01->n_m > 9 .and. rr->dschet < stod("20230101")
+      fl := .F. 
+    endif  
     if fl
       select KART
       goto (r01->kod_k)
@@ -96,6 +100,10 @@ do while !eof()
       fl := .t.
     elseif r01->n_m == 3 .and. rr->tip == 1
       fl := .t.
+    endif
+     // заплатка 2023
+    if r01->n_m > 9 .and. rr->dschet < stod("20230101")
+      fl := .F. 
     endif
     if fl
       select KART
