@@ -5,9 +5,11 @@
 Function init_mo()
   Local fl := .t., i, arr, arr1, cCode := '', buf := save_maxrow()
 
-//    local aaa
-//    aaa := getN021_by_date(ctod('01-06-2023'))
-//  altd()
+  //  local aaa
+  //  aaa := getN021_by_date(ctod('01-06-2023'))
+  //  aaa := ret_arr_shema_new(1, ctod('01-06-2023'))
+  //  aaa := ret_arr_shema_new(1, 2021)
+  //  altd()
 
   mywait()
   Public oper_parol := 30  // пароль для фискального регистратора

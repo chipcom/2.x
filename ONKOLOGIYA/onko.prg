@@ -1,7 +1,36 @@
 #include 'inkey.ch'
+#include 'common.ch'
 #include 'function.ch'
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
+
+// 25.09.23
+Function ret_arr_shema_new(k, dk) 
+  // возвращает схемы лекарственных терапий для онкологии на дату
+  Static ashema := {{}, {}, {}}
+  static stYear
+  Local i, db, aTable, row, arr := {}
+  local year_dk, dBeg, dEnd
+
+  if ValType(dk) == 'N'
+    year_dk := dk
+  elseif ValType(dk) == 'D'
+    year_dk := year(dk)
+  endif
+
+  if isnil(stYear) .or. empty(ashema[1]) .or. year_dk != stYear
+    arr := getV024(dk)
+    aadd(ashema[1], {'-----     без схемы лекарственной терапии', padr('нет', 10)})
+    aeval(arr, {|x, j| iif(left(x[1], 2) == 'sh', aadd(ashema[1], {padr(x[1], 10) + left(x[2], 68), padr(x[1], 10)}), '')})
+    aeval(arr, {|x, j| iif(left(x[1], 2) == 'mt', aadd(ashema[2], {padr(x[1], 10) + left(x[2], 68), padr(x[1], 10)}), '')})
+    aeval(arr, {|x, j| iif(left(x[1], 2) == 'fr', aadd(ashema[3], {padr(x[1], 10) + left(x[2], 68), padr(x[1], 10), 0, 0}), '')})
+    for i := 1 to len(ashema[3])
+      ashema[3, i, 3] := int(val(substr(ashema[3, i, 1], 3, 2)))
+      ashema[3, i, 4] := int(val(substr(ashema[3, i, 1], 6, 2)))
+    next
+    stYear := _data
+  endif
+  return ashema[k]
 
 // 04.02.22
 Function ret_arr_shema(k, k_data) 

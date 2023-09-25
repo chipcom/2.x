@@ -1228,3 +1228,48 @@ function getV036()
     db := nil
   endif
   return _arr
+
+// =========== V024 ===================
+//
+// 25.09.23 вернуть массив по справочнику ФФОМС V036.xml
+function getV024(dk)
+  // V024.xml - Классификатор классификационных критериев (DopKr)
+  //  1 - IDDKK(C) 2 - DKKNAME(C) 3 - DATEBEG(D) 4 - DATEEND(D)
+  local arr
+  local db
+  local aTable
+  local nI
+  local dBeg, dEnd
+
+  arr := {}
+  if ValType(dk) == 'N'
+    dBeg := "'" + str(dk, 4) + "-01-01 00:00:00'"
+    dEnd := "'" + str(dk, 4) + "-12-31 00:00:00'"
+  elseif ValType(dk) == 'D'
+    Set( _SET_DATEFORMAT, 'yyyy-mm-dd' )
+    dBeg := "'" + dtos(dk) + "-01-01 00:00:00'"
+    dEnd := "'" + dtos(dk) + "-12-31 00:00:00'"
+    Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
+  endif
+
+  db := openSQL_DB()
+  aTable := sqlite3_get_table(db, "SELECT " + ;
+      "iddkk, " + ;
+      "dkkname, " + ;
+      "datebeg, " + ;
+      "dateend " + ;
+      "FROM v024 " + ;
+      "WHERE datebeg <= " + dBeg + ;
+      "AND dateend >= " + dEnd)
+  if len(aTable) > 1
+    for nI := 2 to Len( aTable )
+      Set( _SET_DATEFORMAT, 'yyyy-mm-dd' )
+      dBeg := ctod(aTable[nI, 3])
+      dEnd := ctod(aTable[nI, 4])
+      Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
+
+      aadd(arr, {aTable[nI, 1], aTable[nI, 2], dBeg, dEnd})
+    next
+  endif
+  db := nil
+  return arr
