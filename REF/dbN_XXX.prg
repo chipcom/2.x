@@ -925,33 +925,46 @@ function loadN021()
   endif
   return _arr
 
-// 20.09.23
+// 25.09.23
 function getN021_by_date(dk)
   // local arr := {}, row
-
-  local _arr
-  local db
-  local aTable, row
-  local nI, dBeg, dEnd
 
   // for each row in loadN021()
   //   if between_date(row[4], row[5], dk)
   //     aadd(arr, row)
   //   endif
   // next
+  // return arr
 
-  _arr := {}
+  local _arr := {}
+  local db
+  local aTable, row
+  local nI, dBeg, dEnd
+
+  if ValType(dk) == 'N'
+    dBeg := "'" + str(dk, 4) + "-01-01 00:00:00'"
+    dEnd := "'" + str(dk, 4) + "-12-31 00:00:00'"
+  elseif ValType(dk) == 'D'
+    Set( _SET_DATEFORMAT, 'yyyy-mm-dd' )
+    dBeg := "'" + dtos(dk) + "-01-01 00:00:00'"
+    dEnd := "'" + dtos(dk) + "-12-31 00:00:00'"
+    Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
+  else
+    return _arr
+  endif
   db := openSQL_DB()
-  aTable := sqlite3_get_table(db, 'SELECT ' + ;
-      'id_zap, ' + ;
-      'code_sh, ' + ;
-      'id_lekp, ' + ;
-      'datebeg, ' + ;
-      'dateend ' + ;
-      'FROM n021 ' + ;
-      'WHERE "2023-06-01 00:00:00" BETWEEN datebeg and dateend)')
-  // 'WHERE (datebeg >= "2023-06-01 00:00:00" and dateend >= "2023-06-01 00:00:00")')
-  if len(aTable) > 1
+  aTable := sqlite3_get_table(db, "SELECT " + ;
+      "id_zap, " + ;
+      "code_sh, " + ;
+      "id_lekp, " + ;
+      "datebeg, " + ;
+      "dateend " + ;
+      "FROM n021 " + ;
+      "WHERE datebeg <= " + dBeg + ;
+      "AND dateend >= " + dEnd)
+  // "WHERE datebeg <= '2022-06-01 00:00:00' " + ;
+  //   "AND dateend >= '2022-06-01 00:00:00'")
+if len(aTable) > 1
     for nI := 2 to Len( aTable )
       Set( _SET_DATEFORMAT, 'yyyy-mm-dd' )
       dBeg := ctod(aTable[nI, 4])
@@ -964,5 +977,4 @@ function getN021_by_date(dk)
   endif
   db := nil
 
-  // return arr
   return _arr
