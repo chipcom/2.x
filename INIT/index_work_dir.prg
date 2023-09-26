@@ -4,7 +4,7 @@
 #define NUMBER_YEAR 3 // число лет для переиндексации назад
 #define INDEX_NEED  2 // число лет обязательной переиндексации
 
-// 04.06.23 проверка наличия справочников НСИ
+// 26.09.23 проверка наличия справочников НСИ
 function files_NSI_exists(dir_file)
   local lRet := .t.
   local i
@@ -55,7 +55,8 @@ function files_NSI_exists(dir_file)
   aadd(arr_check, sbase)
 
   // N0__
-  for i := 1 to 21
+  // for i := 1 to 21
+  for i := 20 to 21
     sbase := dir_file + '_mo_N' + StrZero(i, 3) + cDbf
     aadd(arr_check, sbase)
   next
@@ -143,7 +144,7 @@ function files_NSI_exists(dir_file)
 
   return lRet
 
-// 05.06.23 проверка и переиндексирование справочников ТФОМС
+// 26.09.23 проверка и переиндексирование справочников ТФОМС
 Function index_work_dir(exe_dir, cur_dir, flag)
   Local fl := .t., i, arr, buf := save_maxrow()
   local arrRefFFOMS := {}, row, row_flag := .t.
@@ -206,7 +207,7 @@ Function index_work_dir(exe_dir, cur_dir, flag)
       fl := uslc_Index(countYear, exe_dir, cur_dir, flag)   // цены на услуги на countYear год
       fl := uslf_Index(countYear, exe_dir, cur_dir, flag)   // справочник услуг ФФОМС countYear
       fl := unit_Index(countYear, exe_dir, cur_dir, flag)   // план-заказ
-      fl := shema_index(countYear, exe_dir, cur_dir, flag)
+      // fl := shema_index(countYear, exe_dir, cur_dir, flag)
       fl := k006_index(countYear, exe_dir, cur_dir, flag)
       // fl := it_Index(countYear, exe_dir, cur_dir, flag)
     next
@@ -216,7 +217,7 @@ Function index_work_dir(exe_dir, cur_dir, flag)
     fl := uslc_Index(WORK_YEAR, exe_dir, cur_dir, flag)   // цены на услуги на countYear год
     fl := uslf_Index(WORK_YEAR, exe_dir, cur_dir, flag)   // справочник услуг ФФОМС countYear
     fl := unit_Index(WORK_YEAR, exe_dir, cur_dir, flag)   // план-заказ
-    fl := shema_index(WORK_YEAR, exe_dir, cur_dir, flag)
+    // fl := shema_index(WORK_YEAR, exe_dir, cur_dir, flag)
     fl := k006_index(WORK_YEAR, exe_dir, cur_dir, flag)
     // fl := it_Index(WORK_YEAR, exe_dir, cur_dir, flag)
   endif
@@ -646,19 +647,19 @@ function unit_Index(val_year, exe_dir, cur_dir, flag)
   return nil
 
 // 09.03.23
-function shema_index(val_year, exe_dir, cur_dir, flag)
-  local sbase
-  local file_index
+// function shema_index(val_year, exe_dir, cur_dir, flag)
+//   local sbase
+//   local file_index
 
-  DEFAULT flag TO .f.
-  sbase := prefixFileRefName(val_year) + 'shema'  // 
-  if hb_vfExists(exe_dir + sbase + sdbf)
-    file_index := cur_dir + sbase + sntx
-    R_Use(exe_dir + sbase )
-    index on KOD to (cur_dir + sbase) // по коду критерия
-    use
-  endif
-  return nil
+//   DEFAULT flag TO .f.
+//   sbase := prefixFileRefName(val_year) + 'shema'  // 
+//   if hb_vfExists(exe_dir + sbase + sdbf)
+//     file_index := cur_dir + sbase + sntx
+//     R_Use(exe_dir + sbase )
+//     index on KOD to (cur_dir + sbase) // по коду критерия
+//     use
+//   endif
+//   return nil
 
 // 14.07.23
 function k006_index(val_year, exe_dir, cur_dir, flag)

@@ -3,13 +3,13 @@
 
 // 26.01.23 инициализация массива МО, запрос кода МО (при необходимости)
 Function init_mo()
-  Local fl := .t., i, arr, arr1, cCode := '', buf := save_maxrow()
+  Local fl := .t., i, cCode := '', buf := save_maxrow()
+  // Local arr, arr1
 
   //  local aaa
-  //  aaa := getN021_by_date(ctod('01-06-2023'))
-  //  aaa := ret_arr_shema_new(1, ctod('01-06-2023'))
-  //  aaa := ret_arr_shema_new(1, 2021)
+  //  aaa := loadCriteria21_new(2023)
   //  altd()
+  //  aaa := loadCriteria21(2023)
 
   mywait()
   Public oper_parol := 30  // пароль для фискального регистратора

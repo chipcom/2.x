@@ -5,7 +5,7 @@
 #include 'chip_mo.ch'
 
 // 25.09.23
-Function ret_arr_shema_new(k, dk) 
+Function ret_arr_shema(k, dk) 
   // возвращает схемы лекарственных терапий для онкологии на дату
   Static ashema := {{}, {}, {}}
   static stYear
@@ -29,12 +29,12 @@ Function ret_arr_shema_new(k, dk)
       ashema[3, i, 3] := int(val(substr(ashema[3, i, 1], 3, 2)))
       ashema[3, i, 4] := int(val(substr(ashema[3, i, 1], 6, 2)))
     next
-    stYear := _data
+    stYear := year_dk
   endif
   return ashema[k]
 
 // 04.02.22
-Function ret_arr_shema(k, k_data) 
+Function ret_arr_shema_old(k, k_data) 
   // возвращает схемы лекарственных терапий для онкологии на дату
   Static ashema := {{}, {}, {}}
   Local i
