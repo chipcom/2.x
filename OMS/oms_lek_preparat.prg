@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-** 15.01.23
+// 15.01.23
 // Function init_lek_pr(_usl_tip, _crit)
 Function init_lek_pr()
   Local s, n
@@ -21,7 +21,7 @@ Function init_lek_pr()
   return s
 
 
-** 29.03.22 проверка на необходимость ввода лекарственных препаратов
+// 29.03.22 проверка на необходимость ввода лекарственных препаратов
 function check_oms_sluch_lek_pr(mkod_human)
   // mkod_human - код по БД human
 
@@ -67,7 +67,7 @@ function check_oms_sluch_lek_pr(mkod_human)
   return retFl
 
 
-** 08.04.22 ввода лекарственных препаратов
+// 08.04.22 ввода лекарственных препаратов
 function oms_sluch_lek_pr(mkod_human, mkod_kartotek, fl_edit)
   // mkod_human - код по БД human
   // mkod_kartotek - код по БД kartotek
@@ -178,7 +178,7 @@ function oms_sluch_lek_pr(mkod_human, mkod_kartotek, fl_edit)
   verify_OMS_sluch(mkod_human)
   return nil
 
-** 08.01.22
+// 08.01.22
 Function f_oms_sluch_lek_pr(oBrow)
   Local oColumn, blk_color
 
@@ -225,12 +225,12 @@ Function f_oms_sluch_lek_pr(oBrow)
   status_key('^<Esc>^ выход; ^<Enter>^ ред-ие; ^<Ins>^ добавление; ^<Del>^ удаление')
   return NIL
   
-***** 06.01.22
+////* 06.01.22
 Function f1oms_sluch_lek_pr()
   LOCAL nRow := ROW(), nCol := COL()
   return NIL
 
-** 08.04.22
+// 08.04.22
 function add_lek_pr(dateInjection, nKey)
 
   if ValType(dateInjection) == 'C'
@@ -282,7 +282,7 @@ function add_lek_pr(dateInjection, nKey)
   select tmp
   return nil
 
-** 18.10.22
+// 18.10.22
 function f2oms_sluch_lek_pr(nKey,oBrow)
 
   LOCAL flag := -1, buf := savescreen(), k_read := 0, count_edit := 0
@@ -458,7 +458,7 @@ function f2oms_sluch_lek_pr(nKey,oBrow)
   restscreen(buf)
   return flag
 
-** 29.03.22 функция для when и valid при вводе услуг в лист учёта
+// 29.03.22 функция для when и valid при вводе услуг в лист учёта
 Function f5editpreparat(get, nKey, when_valid, k)
   Local fl := .t., arr, row
   local arrN020 := {}, tmpSelect
@@ -619,7 +619,7 @@ Function f5editpreparat(get, nKey, when_valid, k)
   endif
   return fl
 
-******* 06.03.22
+//////* 06.03.22
 function collect_lek_pr(mkod_human)
   local retArr := {}
   local existAlias := .f.
@@ -648,7 +648,7 @@ function collect_lek_pr(mkod_human)
 
   return retArr
 
-***** 10.01.22 функция для when и valid при вводе различных полей
+////* 10.01.22 функция для when и valid при вводе различных полей
 Function check_edit_field(get, when_valid, k)
   Local fl := .t.
   local arrN020 := {}, tmpSelect
@@ -673,9 +673,11 @@ Function check_edit_field(get, when_valid, k)
   endif
   return fl
 
-** 15.01.23
+// 15.01.23
 Function get_lek_pr(k, r, c, _crit)
   Local i, j, nrec, t_arr := array(BR_LEN), ret := {space(10), space(10)}
+
+  // local aN021 := getN021(mk_data), it
 
   Private arr_lek_pr := {}, yes_crit
   dbcreate(cur_dir + 'tmp', {{'id_lekp', 'C', 6, 0}, ;
@@ -685,8 +687,14 @@ Function get_lek_pr(k, r, c, _crit)
   index on id_lekp to (cur_dir + 'tmp')
   R_Use(exe_dir + '_mo_N020', {cur_dir + '_mo_N020', cur_dir + '_mo_N020n'}, 'N20')
   set filter to between_date(datebeg, dateend, mk_data)
+
   R_Use(exe_dir + '_mo_N021', cur_dir + '_mo_N021', 'N21')
   set filter to between_date(datebeg, dateend, mk_data)
+
+  // if (it := ascan(aN021, {|x| x[2] + x[3] == _crit})) == 0
+  //   yes_crit := .t.
+  // endif
+
   find (_crit)
   yes_crit := found()
   use (cur_dir + 'tmp_onkle') new alias TMPLE
@@ -802,7 +810,7 @@ Function get_lek_pr(k, r, c, _crit)
   n21->(dbCloseArea())
   return ret
 
-** 31.01.19 выбор нескольких дат
+// 31.01.19 выбор нескольких дат
 Function f1_get_lek_pr(nKey, oBrow, regim, get_row)
   Local mlen, t_mas := {}, buf := savescreen(), i, j, d, tmp_color := setcolor(), ;
         k, n, r1, r2, top_bottom, r := row(), ret := -1
@@ -869,7 +877,7 @@ Function f1_get_lek_pr(nKey, oBrow, regim, get_row)
   setcolor(tmp_color)
   return ret
   
-** 31.01.19
+// 31.01.19
 Function f2_get_lek_pr(r)
   Static srec := 0
   Local ret, t_arr[BR_LEN]
@@ -897,7 +905,7 @@ Function f2_get_lek_pr(r)
   edit_browse(t_arr)
   return ret
   
-** 31.01.19
+// 31.01.19
 Function f3_get_lek_pr(nk, ob)
   Local ret := -1, rec
   if nk == K_F2
@@ -908,7 +916,7 @@ Function f3_get_lek_pr(nk, ob)
   endif
   return ret
   
-** 31.01.19
+// 31.01.19
 Function f4_get_lek_pr(ret_rec, obrow)
   Static stmp1 := ''
   Local rec1 := recno(), buf := savescreen(), tmp_color, ret := -1, j, r1 := pr2 - 6, r2 := pr2 - 1

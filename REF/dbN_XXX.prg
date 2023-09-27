@@ -890,7 +890,7 @@ function get_Lek_pr_By_ID(id_lekp)
 
 // =========== N021 ===================
 //
-// 28.08.23 вернуть массив ФФОМС N021.xml
+// 27.09.23 вернуть массив ФФОМС N021.xml
 // Классификатор соответствия лекарственного препарата схеме лекарственной терапии (OnkLpsh)
 function loadN021()
   // возвращает массив N021 соответствия лекарственного препарата схеме лекарственной терапии (OnkLpsh)
@@ -898,7 +898,7 @@ function loadN021()
   static time_load
   local db
   local aTable, row
-  local nI
+  local nI, dBeg, dEnd
 
   // N021 - Перечень соответствия лекарственного препарата схеме лекарственной терапии (OnkLpsh)
   // ID_ZAP,     N,   4 // Идентификатор записи (в описании Char 15)
@@ -918,15 +918,20 @@ function loadN021()
         'FROM n021')
     if len(aTable) > 1
       for nI := 2 to Len( aTable )
-        aadd(_arr, {val(aTable[nI, 1]), alltrim(aTable[nI, 2]), alltrim(aTable[nI, 3]), ctod(aTable[nI, 4]), ctod(aTable[nI, 5])})
+        Set( _SET_DATEFORMAT, 'yyyy-mm-dd' )
+        dBeg := ctod(aTable[nI, 4])
+        dEnd := ctod(aTable[nI, 5])
+        Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
+        // aadd(_arr, {val(aTable[nI, 1]), alltrim(aTable[nI, 2]), alltrim(aTable[nI, 3]), ctod(aTable[nI, 4]), ctod(aTable[nI, 5])})
+        aadd(_arr, {val(aTable[nI, 1]), alltrim(aTable[nI, 2]), alltrim(aTable[nI, 3]), dBeg, dEnd})
       next
     endif
     db := nil
   endif
   return _arr
 
-// 25.09.23
-function getN021_by_date(dk)
+// 27.09.23
+function getN021(dk)
   // local arr := {}, row
 
   // for each row in loadN021()
@@ -972,7 +977,7 @@ if len(aTable) > 1
       Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
 
       // aadd(_arr, {val(aTable[nI, 1]), alltrim(aTable[nI, 2]), alltrim(aTable[nI, 3]), ctod(aTable[nI, 4]), ctod(aTable[nI, 5])})
-      aadd(_arr, {val(aTable[nI, 1]), alltrim(aTable[nI, 2]), alltrim(aTable[nI, 3]), dBeg, dEnd})
+      aadd(_arr, {val(aTable[nI, 1]), padr(aTable[nI, 2], 10), padr(aTable[nI, 3], 6), dBeg, dEnd})
     next
   endif
   db := nil
