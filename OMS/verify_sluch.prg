@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-// 18.09.23
+// 27.09.23
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1, ;
         i, j, k, c, s := ' ', a_srok_lech := {}, a_period_stac := {}, a_disp := {}, ;
@@ -38,6 +38,7 @@ Function verify_1_sluch(fl_view)
   local l_mdiagnoz_fill := .f.  // в массиве диагнозов есть элементы
   local i_n009, aN009 := getN009()
   local i_n012, aN012_DS := getDS_N012(), ar_N012 := {}, it
+  local aN021, l_n021
 
   if empty(human->k_data)
     return .t.  // не проверять
@@ -1981,25 +1982,45 @@ Function verify_1_sluch(fl_view)
               R_Use(exe_dir+ '_mo_N020', cur_dir + '_mo_N020', 'N20')
               set filter to between_date(datebeg, dateend, d2)
             endif
-            if select('N21') == 0
-              R_Use(exe_dir+ '_mo_N021', cur_dir + '_mo_N021', 'N21')
-              set filter to between_date(datebeg, dateend, d2)
-            endif
-            select N21
-            find (onksl->crit)
-            if found()
-              n := 0
-              do while n21->code_sh == onksl->crit .and. !eof()
-                if (i := ascan(arr_lek, {|x| x[1] == n21->id_lekp })) > 0
+            // if select('N21') == 0
+            //   R_Use(exe_dir+ '_mo_N021', cur_dir + '_mo_N021', 'N21')
+            //   set filter to between_date(datebeg, dateend, d2)
+            // endif
+            // select N21
+            // find (onksl->crit)
+            // if found()
+            //   n := 0
+            //   do while n21->code_sh == onksl->crit .and. !eof()
+            //     if (i := ascan(arr_lek, {|x| x[1] == n21->id_lekp })) > 0
+            //       ++n
+            //     //elseif onksl->is_err == 0
+            //       //aadd(ta, 'не по всем препаратам введены даты - отредактируйте cписок лекарственных препаратов')
+            //       //fl := .f.
+            //       //exit
+            //     endif
+            //     select N21
+            //     skip
+            //   enddo
+            //   if n != len(arr_lek)
+            //     aadd(ta, 'отредактируйте cписок лекарственных препаратов')
+            //   endif
+            // endif
+            aN021 := getN021(d2)
+            n := 0
+            l_n021 := .f.
+            for each row in aN021
+              if row[2] == onksl->crit
+                l_n021 := .t.
+                if (i := ascan(arr_lek, {|x| x[1] == row[3] })) > 0
                   ++n
                 //elseif onksl->is_err == 0
                   //aadd(ta, 'не по всем препаратам введены даты - отредактируйте cписок лекарственных препаратов')
                   //fl := .f.
                   //exit
                 endif
-                select N21
-                skip
-              enddo
+              endif
+            next
+            if l_n021
               if n != len(arr_lek)
                 aadd(ta, 'отредактируйте cписок лекарственных препаратов')
               endif

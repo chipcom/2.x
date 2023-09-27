@@ -144,7 +144,7 @@ function files_NSI_exists(dir_file)
 
   return lRet
 
-// 26.09.23 проверка и переиндексирование справочников ТФОМС
+// 29.09.23 проверка и переиндексирование справочников ТФОМС
 Function index_work_dir(exe_dir, cur_dir, flag)
   Local fl := .t., i, arr, buf := save_maxrow()
   local arrRefFFOMS := {}, row, row_flag := .t.
@@ -337,11 +337,11 @@ Function index_work_dir(exe_dir, cur_dir, flag)
   use
 
   // N021
-  sbase := '_mo_N021'
-  file_index := cur_dir + sbase + sntx
-  R_Use(exe_dir + sbase )
-  index on code_sh + id_lekp to (cur_dir + sbase)
-  use
+  // sbase := '_mo_N021'
+  // file_index := cur_dir + sbase + sntx
+  // R_Use(exe_dir + sbase )
+  // index on code_sh + id_lekp to (cur_dir + sbase)
+  // use
 
   // справочник подразделений из паспорта ЛПУ
   sbase := '_mo_podr'

@@ -673,11 +673,11 @@ Function check_edit_field(get, when_valid, k)
   endif
   return fl
 
-// 15.01.23
+// 27.09.23
 Function get_lek_pr(k, r, c, _crit)
   Local i, j, nrec, t_arr := array(BR_LEN), ret := {space(10), space(10)}
 
-  // local aN021 := getN021(mk_data), it
+  local aN021 := getN021(mk_data), it, row
 
   Private arr_lek_pr := {}, yes_crit
   dbcreate(cur_dir + 'tmp', {{'id_lekp', 'C', 6, 0}, ;
@@ -688,44 +688,69 @@ Function get_lek_pr(k, r, c, _crit)
   R_Use(exe_dir + '_mo_N020', {cur_dir + '_mo_N020', cur_dir + '_mo_N020n'}, 'N20')
   set filter to between_date(datebeg, dateend, mk_data)
 
-  R_Use(exe_dir + '_mo_N021', cur_dir + '_mo_N021', 'N21')
-  set filter to between_date(datebeg, dateend, mk_data)
+  // R_Use(exe_dir + '_mo_N021', cur_dir + '_mo_N021', 'N21')
+  // set filter to between_date(datebeg, dateend, mk_data)
 
-  // if (it := ascan(aN021, {|x| x[2] + x[3] == _crit})) == 0
-  //   yes_crit := .t.
-  // endif
+  if (it := ascan(aN021, {|x| x[2] + x[3] == _crit})) == 0
+    yes_crit := .t.
+  endif
 
-  find (_crit)
-  yes_crit := found()
+  // find (_crit)
+  // yes_crit := found()
+
   use (cur_dir + 'tmp_onkle') new alias TMPLE
   index on REGNUM + dtos(DATE_INJ) to (cur_dir + 'tmp_onkle') UNIQUE
+
   if yes_crit // по данному критерию есть препараты в схеме
-    select N21
-    // find (padr(_crit, 10))
-    find(_crit)
-    do while alltrim(n21->code_sh) == alltrim(_crit) .and. !eof()
-      select TMP
-      append blank
-      tmp->id_lekp := n21->id_lekp
-      aadd(arr_lek_pr, {tmp->id_lekp, tmp->(recno()), {}})
-      i := len(arr_lek_pr)
-      select N20
-      find (n21->id_lekp)
-      if found()
-        tmp->mnn := n20->mnn
-      else
-        tmp->mnn := 'Препарат ' + n21->id_lekp + ' не найден в справочнике N020'
+    // select N21
+    // // find (padr(_crit, 10))
+    // find(_crit)
+    // do while alltrim(n21->code_sh) == alltrim(_crit) .and. !eof()
+    //   select TMP
+    //   append blank
+    //   tmp->id_lekp := n21->id_lekp
+    //   aadd(arr_lek_pr, {tmp->id_lekp, tmp->(recno()), {}})
+    //   i := len(arr_lek_pr)
+    //   select N20
+    //   find (n21->id_lekp)
+    //   if found()
+    //     tmp->mnn := n20->mnn
+    //   else
+    //     tmp->mnn := 'Препарат ' + n21->id_lekp + ' не найден в справочнике N020'
+    //   endif
+    //   select TMPLE
+    //   find (tmp->id_lekp)
+    //   do while tmp->id_lekp == tmple->REGNUM .and. !eof()
+    //     aadd(arr_lek_pr[i, 3], tmple->DATE_INJ)
+    //     skip
+    //   enddo
+    //   tmp->kol := len(arr_lek_pr[i, 3])
+    //   select N21
+    //   skip
+    // enddo
+    for each row in aN021
+      if alltrim(row[2]) == alltrim(_crit)
+        select TMP
+        append blank
+        tmp->id_lekp := row[3]
+        aadd(arr_lek_pr, {tmp->id_lekp, tmp->(recno()), {}})
+        i := len(arr_lek_pr)
+        select N20
+        find (row[3])
+        if found()
+          tmp->mnn := n20->mnn
+        else
+          tmp->mnn := 'Препарат ' + row[3] + ' не найден в справочнике N020'
+        endif
+        select TMPLE
+        find (tmp->id_lekp)
+        do while tmp->id_lekp == tmple->REGNUM .and. !eof()
+          aadd(arr_lek_pr[i, 3], tmple->DATE_INJ)
+          skip
+        enddo
+        tmp->kol := len(arr_lek_pr[i, 3])
       endif
-      select TMPLE
-      find (tmp->id_lekp)
-      do while tmp->id_lekp == tmple->REGNUM .and. !eof()
-        aadd(arr_lek_pr[i, 3], tmple->DATE_INJ)
-        skip
-      enddo
-      tmp->kol := len(arr_lek_pr[i, 3])
-      select N21
-      skip
-    enddo
+    next
   else // по данному критерию нет препаратов в схеме
     select TMPLE
     go top
@@ -807,7 +832,7 @@ Function get_lek_pr(k, r, c, _crit)
   tmp->(dbCloseArea())
   tmple->(dbCloseArea())
   n20->(dbCloseArea())
-  n21->(dbCloseArea())
+  // n21->(dbCloseArea())
   return ret
 
 // 31.01.19 выбор нескольких дат

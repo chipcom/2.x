@@ -941,15 +941,18 @@ function getN021(dk)
   // next
   // return arr
 
-  local _arr := {}
+  static stYear
+  static _arr
   local db
   local aTable, row
-  local nI, dBeg, dEnd
+  local nI, dBeg, dEnd, year_dk
 
   if ValType(dk) == 'N'
     dBeg := "'" + str(dk, 4) + "-01-01 00:00:00'"
     dEnd := "'" + str(dk, 4) + "-12-31 00:00:00'"
+    year_dk := dk
   elseif ValType(dk) == 'D'
+    year_dk := year(dk)
     Set( _SET_DATEFORMAT, 'yyyy-mm-dd' )
     dBeg := "'" + dtos(dk) + "-01-01 00:00:00'"
     dEnd := "'" + dtos(dk) + "-12-31 00:00:00'"
@@ -957,29 +960,34 @@ function getN021(dk)
   else
     return _arr
   endif
-  db := openSQL_DB()
-  aTable := sqlite3_get_table(db, "SELECT " + ;
-      "id_zap, " + ;
-      "code_sh, " + ;
-      "id_lekp, " + ;
-      "datebeg, " + ;
-      "dateend " + ;
-      "FROM n021 " + ;
-      "WHERE datebeg <= " + dBeg + ;
-      "AND dateend >= " + dEnd)
-  // "WHERE datebeg <= '2022-06-01 00:00:00' " + ;
-  //   "AND dateend >= '2022-06-01 00:00:00'")
-if len(aTable) > 1
-    for nI := 2 to Len( aTable )
-      Set( _SET_DATEFORMAT, 'yyyy-mm-dd' )
-      dBeg := ctod(aTable[nI, 4])
-      dEnd := ctod(aTable[nI, 5])
-      Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
 
-      // aadd(_arr, {val(aTable[nI, 1]), alltrim(aTable[nI, 2]), alltrim(aTable[nI, 3]), ctod(aTable[nI, 4]), ctod(aTable[nI, 5])})
-      aadd(_arr, {val(aTable[nI, 1]), padr(aTable[nI, 2], 10), padr(aTable[nI, 3], 6), dBeg, dEnd})
-    next
+  if isnil(stYear) .or. empty(_arr) .or. year_dk != stYear
+    _arr := {}
+    db := openSQL_DB()
+    aTable := sqlite3_get_table(db, "SELECT " + ;
+        "id_zap, " + ;
+        "code_sh, " + ;
+        "id_lekp, " + ;
+        "datebeg, " + ;
+        "dateend " + ;
+        "FROM n021 " + ;
+        "WHERE datebeg <= " + dBeg + ;
+        "AND dateend >= " + dEnd)
+    // "WHERE datebeg <= '2022-06-01 00:00:00' " + ;
+    //   "AND dateend >= '2022-06-01 00:00:00'")
+    if len(aTable) > 1
+      for nI := 2 to Len( aTable )
+        Set( _SET_DATEFORMAT, 'yyyy-mm-dd' )
+        dBeg := ctod(aTable[nI, 4])
+        dEnd := ctod(aTable[nI, 5])
+        Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
+
+        // aadd(_arr, {val(aTable[nI, 1]), alltrim(aTable[nI, 2]), alltrim(aTable[nI, 3]), ctod(aTable[nI, 4]), ctod(aTable[nI, 5])})
+        aadd(_arr, {val(aTable[nI, 1]), padr(aTable[nI, 2], 10), padr(aTable[nI, 3], 6), dBeg, dEnd})
+      next
+    endif
+    stYear := year_dk
+    db := nil
   endif
-  db := nil
 
   return _arr
