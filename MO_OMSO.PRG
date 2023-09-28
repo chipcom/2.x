@@ -2834,11 +2834,12 @@ Function akt_summa_of_refusal(tip)
   viewtext(n_file, , , , .t., , , 1)
   return NIL
 
-// 14.12.15 список снятий по актам (дефекты)
+// 28.10.2315 список снятий по актам (дефекты)
 Function akt_list_of_refusal_defect()
 Static arr_smo
 Static mm_poisk := {{"По дате РАК (XML-файла)", 0}, ;
-                    {"По дате акта контроля ", 1}}
+                    {"По дате акта контроля ", 1},;
+                    {"По дате СЧЁТА ", 2} }
 Static mm_akt := {{"отдельно по каждому акту   ", 0}, ;
                   {"объединять акты (как счета)", 1}}
 Static mm_schet := {{"отдельно по каждому счёту      ", 0}, ;
@@ -2884,7 +2885,7 @@ str_center(r, " Список снятий по актам (подготовка информации) ",color14)
 do while .t.
   @ r+2, 2 say "Страховая(ые) компания(и)" get msmo ;
           reader {|x|menu_reader(x,arr_smo,A__MENUBIT,,,.f.)}
-  @ r+3, 2 say "Как подсчитывать (РАК/акты)" get mpoisk ;
+  @ r+3, 2 say "Как подсчитывать (РАК/акты/СЧЁТ)" get mpoisk ;
           reader {|x|menu_reader(x,mm_poisk,A__MENUVERT,,,.f.)}
   @ r+4, 2 say "Период времени" get mdate ;
           reader {|x| menu_reader(x,{{|k,r,c| ;
@@ -2924,7 +2925,7 @@ enddo
 restscreen(buf)
 return NIL
 
-// 19.05.23 функция для списка снятий по актам (дефекты)
+// 19.10.23 функция для списка снятий по актам (дефекты)
 Function f1akt_list_of_refusal_defect(asmo,ssmo)
   Local adbf, s, otch_period, n_file := cur_dir + 'sp_sn' + stxt, HH := 60, buf := save_maxrow()
 
@@ -2963,6 +2964,7 @@ Function f1akt_list_of_refusal_defect(asmo,ssmo)
   R_Use(dir_server + "mo_xml",, "MO_XML")
   index on dfile to tmp_xml for TIP_IN == _XML_FILE_RAK memory
   go top
+  // доработка - если
   do while !eof()
     if iif(m1poisk == 0, between(mo_xml->DFILE,pdate[5],pdate[6]), .t.)
       select RAK
@@ -2975,47 +2977,49 @@ Function f1akt_list_of_refusal_defect(asmo,ssmo)
           do while rak->akt == raks->akt .and. !eof()
             if ascan(asmo,raks->plat) > 0
               schet_->(dbGoto(raks->schet))
-              otch_period := str(schet_->NYEAR, 4) + strzero(schet_->NMONTH, 2)
-              select RAKSH
-              find (str(raks->kod_raks, 6))
-              do while raks->kod_raks == raksh->kod_raks .and. !eof()
-                human->(dbGoto(raksh->KOD_H))
-                s := raksh->SANK_MEK + raksh->SANK_MEE + raksh->SANK_EKMP
-                ssh := raksh->penalty
-                fl := .f.
-                if m1eks == 0
-                  fl := .t.
-                elseif vid_eks == 2 .or. !empty(raksh->SANK_EKMP)
-                  fl := (m1eks == 3)
-                elseif vid_eks == 1 .or. !empty(raksh->SANK_MEE)
-                  fl := (m1eks == 2)
-                else
-                  fl := (m1eks == 1)
-                endif
-                if !fl
-                  s := ssh := 0
-                endif
-                if raksh->REFREASON > 0 .and. !emptyall(s,ssh)
-                  select TMP
-                  append blank
-                  tmp->nrak := alltrim(mo_xml->FNAME)
-                  tmp->drak := mo_xml->DFILE
-                  tmp->rak := mo_xml->kod
-                  tmp->nakt := alltrim(rak->nakt)
-                  tmp->dakt := rak->dakt
-                  tmp->akt := rak->akt
-                  tmp->nschet := alltrim(schet_->nschet)
-                  tmp->dschet := schet_->dschet
-                  tmp->schet := raks->KOD_RAKS
-                  tmp->op := otch_period
-                  tmp->sum_sn := s
-                  tmp->penalty := ssh
-                  tmp->REFREASON := raksh->REFREASON
-                  tmp->otd := human->otd
-                endif
+              if iif(m1poisk == 2, between(schet_->dschet,pdate[5],pdate[6]), .t.)
+                otch_period := str(schet_->NYEAR, 4) + strzero(schet_->NMONTH, 2)
+                select RAKSH
+                find (str(raks->kod_raks, 6))
+                do while raks->kod_raks == raksh->kod_raks .and. !eof()
+                  human->(dbGoto(raksh->KOD_H))
+                  s := raksh->SANK_MEK + raksh->SANK_MEE + raksh->SANK_EKMP
+                  ssh := raksh->penalty
+                  fl := .f.
+                  if m1eks == 0
+                    fl := .t.
+                  elseif vid_eks == 2 .or. !empty(raksh->SANK_EKMP)
+                    fl := (m1eks == 3)
+                  elseif vid_eks == 1 .or. !empty(raksh->SANK_MEE)
+                    fl := (m1eks == 2)
+                  else
+                    fl := (m1eks == 1)
+                  endif
+                  if !fl
+                    s := ssh := 0
+                  endif
+                  if raksh->REFREASON > 0 .and. !emptyall(s,ssh)
+                    select TMP
+                    append blank
+                    tmp->nrak := alltrim(mo_xml->FNAME)
+                    tmp->drak := mo_xml->DFILE
+                    tmp->rak := mo_xml->kod
+                    tmp->nakt := alltrim(rak->nakt)
+                    tmp->dakt := rak->dakt
+                    tmp->akt := rak->akt
+                    tmp->nschet := alltrim(schet_->nschet)
+                    tmp->dschet := schet_->dschet
+                    tmp->schet := raks->KOD_RAKS
+                    tmp->op := otch_period
+                    tmp->sum_sn := s
+                    tmp->penalty := ssh
+                    tmp->REFREASON := raksh->REFREASON
+                    tmp->otd := human->otd
+                  endif
                 select RAKSH
                 skip
-              enddo
+                enddo
+              endif  
             endif
             select RAKS
             skip

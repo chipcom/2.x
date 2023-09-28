@@ -6373,9 +6373,15 @@ dbcreate(cur_dir+"tmp", {{"kod_k", "N", 7,0},; // код больного по картотеке
 use (cur_dir+"tmp")
 G_Use(dir_server+"hum_p_u",dir_server+"hum_p_u","HPU")
 G_Use(dir_server+"hum_p",,"HP")
+if glob_mo[_MO_KOD_TFOMS] == '114504' // Поликлиника 4
 index on n_kvit to (cur_dir+"tmp_hp") ;
       for f_is_uch(st_a_uch,hp->lpu) .and. left(hp->pdate,2) == slyear ;
-          .and. ascan(arr_kv, {|x| between(hp->kv_cia,x[1],x[2]) } ) > 0
+          .and. ascan(arr_kv, {|x| between(hp->N_kvit,x[1],x[2]) } ) > 0
+else          
+  index on n_kvit to (cur_dir+"tmp_hp") ;
+    for f_is_uch(st_a_uch,hp->lpu) .and. left(hp->pdate,2) == slyear ;
+        .and. ascan(arr_kv, {|x| between(hp->kv_cia,x[1],x[2]) } ) > 0
+endif          
 WaitStatus("<Esc> - прервать поиск") ; mark_keys({"<Esc>"})
 go top
 min_date := max_date := hp->pdate
