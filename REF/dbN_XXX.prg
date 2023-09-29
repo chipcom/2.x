@@ -914,6 +914,55 @@ function get_Lek_pr_By_ID(id_lekp)
   endif
   return ret
 
+// 29.09.23
+function getN020(dk)
+  static stYear
+  static _arr
+  local db
+  local aTable, row
+  local nI, dBeg, dEnd, year_dk
+
+  if ValType(dk) == 'N'
+    dBeg := "'" + str(dk, 4) + "-01-01 00:00:00'"
+    dEnd := "'" + str(dk, 4) + "-12-31 00:00:00'"
+    year_dk := dk
+  elseif ValType(dk) == 'D'
+    year_dk := year(dk)
+    Set( _SET_DATEFORMAT, 'yyyy-mm-dd' )
+    dBeg := "'" + dtos(dk) + "-01-01 00:00:00'"
+    dEnd := "'" + dtos(dk) + "-12-31 00:00:00'"
+    Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
+  else
+    return {}
+  endif
+
+  if isnil(stYear) .or. empty(_arr) .or. year_dk != stYear
+    _arr := {}
+    db := openSQL_DB()
+    aTable := sqlite3_get_table(db, "SELECT " + ;
+        'id_lekp, ' + ;
+        'mnn, ' + ;
+        "datebeg, " + ;
+        "dateend " + ;
+        "FROM n020 " + ;
+        "WHERE datebeg <= " + dBeg + ;
+        "AND dateend >= " + dEnd)
+    if len(aTable) > 1
+      for nI := 2 to Len( aTable )
+        Set( _SET_DATEFORMAT, 'yyyy-mm-dd' )
+        dBeg := ctod(aTable[nI, 3])
+        dEnd := ctod(aTable[nI, 4])
+        Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
+
+        aadd(_arr, {padr(aTable[nI, 1], 6), alltrim(aTable[nI, 2]), dBeg, dEnd})
+      next
+    endif
+    stYear := year_dk
+    db := nil
+  endif
+
+  return _arr  
+
 // =========== N021 ===================
 //
 // 27.09.23 вернуть массив ФФОМС N021.xml
@@ -948,7 +997,6 @@ function loadN021()
         dBeg := ctod(aTable[nI, 4])
         dEnd := ctod(aTable[nI, 5])
         Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
-        // aadd(_arr, {val(aTable[nI, 1]), alltrim(aTable[nI, 2]), alltrim(aTable[nI, 3]), ctod(aTable[nI, 4]), ctod(aTable[nI, 5])})
         aadd(_arr, {val(aTable[nI, 1]), alltrim(aTable[nI, 2]), alltrim(aTable[nI, 3]), dBeg, dEnd})
       next
     endif
@@ -956,7 +1004,7 @@ function loadN021()
   endif
   return _arr
 
-// 27.09.23
+// 29.09.23
 function getN021(dk)
   // local arr := {}, row
 
@@ -971,7 +1019,8 @@ function getN021(dk)
   static _arr
   local db
   local aTable, row
-  local nI, dBeg, dEnd, year_dk
+  local nI, dBeg, dEnd
+  local year_dk
 
   if ValType(dk) == 'N'
     dBeg := "'" + str(dk, 4) + "-01-01 00:00:00'"
@@ -984,9 +1033,8 @@ function getN021(dk)
     dEnd := "'" + dtos(dk) + "-12-31 00:00:00'"
     Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
   else
-    return _arr
+    return {}
   endif
-
   if isnil(stYear) .or. empty(_arr) .or. year_dk != stYear
     _arr := {}
     db := openSQL_DB()
@@ -999,21 +1047,16 @@ function getN021(dk)
         "FROM n021 " + ;
         "WHERE datebeg <= " + dBeg + ;
         "AND dateend >= " + dEnd)
-    // "WHERE datebeg <= '2022-06-01 00:00:00' " + ;
-    //   "AND dateend >= '2022-06-01 00:00:00'")
     if len(aTable) > 1
       for nI := 2 to Len( aTable )
         Set( _SET_DATEFORMAT, 'yyyy-mm-dd' )
         dBeg := ctod(aTable[nI, 4])
         dEnd := ctod(aTable[nI, 5])
         Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
-
-        // aadd(_arr, {val(aTable[nI, 1]), alltrim(aTable[nI, 2]), alltrim(aTable[nI, 3]), ctod(aTable[nI, 4]), ctod(aTable[nI, 5])})
         aadd(_arr, {val(aTable[nI, 1]), padr(aTable[nI, 2], 10), padr(aTable[nI, 3], 6), dBeg, dEnd})
       next
     endif
-    stYear := year_dk
     db := nil
+    stYear := year_dk
   endif
-
   return _arr
