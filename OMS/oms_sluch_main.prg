@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 19.09.23 добавление или редактирование случая (листа учета)
+// 30.09.23 добавление или редактирование случая (листа учета)
 Function oms_sluch_main(Loc_kod, kod_kartotek)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -1229,7 +1229,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
             aadd(mm_N012, {'', ar_N012[i_n012, 1], {}})
           next
         endif
-        asort(mm_N012, , , {|x, y| x[1] < y[1] })
+        asort(mm_N012, , , {|x, y| x[2] < y[2] })
         if len(mm_N012) > 0 .and. is_mgi
           if (i := ascan(glob_MGI, {|x| x[1] == lshifr })) > 0 // услуга входит в список ТФОМС
             if (j := ascan(mm_N012, {|x| x[2] == glob_MGI[i, 2] })) > 0 // по данному диагнозу присутствует необходимый маркер
