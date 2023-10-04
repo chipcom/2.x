@@ -1023,14 +1023,14 @@ function getN021(dk)
   local year_dk
 
   if ValType(dk) == 'N'
-    dBeg := "'" + str(dk, 4) + "-01-01 00:00:00'"
-    dEnd := "'" + str(dk, 4) + "-12-31 00:00:00'"
+    dBeg := "'" + str(dk, 4) + "-01-01'"// 00:00:00'"
+    dEnd := "'" + str(dk, 4) + "-12-31'"// 00:00:00'"
     year_dk := dk
   elseif ValType(dk) == 'D'
     year_dk := year(dk)
     Set( _SET_DATEFORMAT, 'yyyy-mm-dd' )
-    dBeg := "'" + dtos(dk) + "-01-01 00:00:00'"
-    dEnd := "'" + dtos(dk) + "-12-31 00:00:00'"
+    dBeg := "'" + dtos(dk) + "'"  //"-01-01 00:00:00'"
+    dEnd := "'" + dtos(dk) + "'"  // "-12-31 00:00:00'"
     Set( _SET_DATEFORMAT, 'dd.mm.yyyy' )
   else
     return {}
@@ -1045,8 +1045,10 @@ function getN021(dk)
         "datebeg, " + ;
         "dateend " + ;
         "FROM n021 " + ;
-        "WHERE datebeg <= " + dBeg + ;
-        "AND dateend >= " + dEnd)
+        "WHERE DATE(datebeg) <= " + dBeg + ;
+        "AND DATE(dateend) >= " + dEnd)
+        // "WHERE datebeg <= " + dBeg + ;
+        // "AND dateend >= " + dEnd)
     if len(aTable) > 1
       for nI := 2 to Len( aTable )
         Set( _SET_DATEFORMAT, 'yyyy-mm-dd' )
