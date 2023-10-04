@@ -8,8 +8,47 @@ Function init_mo()
 
   //  local aaa
   //  aaa := loadCriteria21_new(2023)
+  // aaa := hb_TSToStr( hb_DateTime(), .f. )
   //  altd()
   //  aaa := loadCriteria21(2023)
+  // HB_DATETIME() -> <tTimeStamp>
+  // HB_CTOD( <cDate> [, <cDateFormat> ] ) -> <dDate>
+  // HB_DTOC( <dDate> [, <cDateFormat> ] ) -> <cDate>
+  // HB_NTOT( <nValue> ) -> <tTimeStamp>
+  // HB_TTON( <tTimeStamp> ) -> <nValue>
+  // HB_TTOC( <tTimeStamp>, [ <cDateFormat> ] [, <cTimeFormat> ] ) ->
+  //                                                       <cTimeStamp>
+  // HB_CTOT( <cTimeStamp>, [ <cDateFormat> ] [, <cTimeFormat> ] ) ->
+  //                                                       <tTimeStamp>
+  // HB_TTOS( <tTimeStamp> ) -> <cYYYYMMDDHHMMSSFFF>
+  // HB_STOT( <cDateTime> ) -> <tTimeStamp>
+  //    <cDateTime> should be in one of the above form:
+  //       - "YYYYMMDDHHMMSSFFF"
+  //       - "YYYYMMDDHHMMSSFF"
+  //       - "YYYYMMDDHHMMSSF"
+  //       - "YYYYMMDDHHMMSS"
+  //       - "YYYYMMDDHHMM"
+  //       - "YYYYMMDDHH"
+  //       - "YYYYMMDD"
+  //       - "HHMMSSFFF"
+  //       - "HHMMSSF"
+  //       - "HHMMSS"
+  //       - "HHMM"
+  //       - "HH"
+  //    Important is number of digits.
+  // HB_TSTOSTR( <tTimeStamp> [, <lShorten> ] ) -> <cTimeStamp> // YYYY-MM-DD HH:MM:SS.fff
+  // HB_STRTOTS( <cTimeStamp> ) -> <tTimeStamp>
+  //    <cTimeStamp> should be in one of the above form:
+  //       YYYY-MM-DD [H[H][:M[M][:S[S][.f[f[f[f]]]]]]] [PM|AM]
+  //       YYYY-MM-DDT[H[H][:M[M][:S[S][.f[f[f[f]]]]]]] [PM|AM]
+  //    The folowing characters can be used as date delimiters: "-", "/", "."
+  //    T - is literal "T" - it's for XML timestamp format
+  //    if PM or AM is used HH is in range < 1 : 12 > otherwise
+  //    in range < 0 : 23 >
+  // HB_HOUR( <tTimeStamp> ) -> <nHour>
+  // HB_MINUTE( <tTimeStamp> ) -> <nMinute>
+  // HB_SEC( <tTimeStamp> ) -> <nSeconds>   // with milliseconds
+
 
   mywait()
   Public oper_parol := 30  // пароль для фискального регистратора
