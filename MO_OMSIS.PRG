@@ -1543,6 +1543,7 @@ Function s_mnog_poisk()
   if yes_parol
     aadd(arr_doc, 'Дата ввода')
   endif
+  aadd(arr_doc, 'Номера Тел.')
   if (st_a_uch := inputN_uch(T_ROW, T_COL - 5, , , @lcount_uch)) == NIL
     return NIL
   endif
@@ -2281,6 +2282,12 @@ if k > 0
       arr_title[3] += "│                        "
       arr_title[4] += "┴────────────────────────"
     endif
+    if isbit(mn->vid_doc,12)
+      arr_title[1] += "┬──────────"
+      arr_title[2] += "│   Номера "
+      arr_title[3] += "│ телефонов"
+      arr_title[4] += "┴──────────"
+    endif
     if isbit(mn->vid_doc,3)
       arr_title[1] += "┬──────────"
       arr_title[2] += "│  N карты "
@@ -2773,7 +2780,14 @@ if k > 0
         perenos(a_diagnoz,ret_okato_ulica(kart->adres,kart_->okatog,0,2),24)
         s1 += " "+padr(alltrim(a_diagnoz[1]),24)
         s2 += " "+padr(alltrim(a_diagnoz[2]),24)
-        s3 += " "+padr(alltrim(a_diagnoz[3]),24)
+        s3 += " "+padr(alltrim(a_diagnoz[3]),24) 
+      endif
+      //
+      if isbit(mn->vid_doc,12) // телефоны
+        KART->(dbselectarea(human->kod_k ))
+        s1 += " "+padr(alltrim(kart_->Phone_h),10)
+        s2 += " "+padr(alltrim(kart_->Phone_m),10)
+        s3 += " "+padr(alltrim(kart_->Phone_w),10) 
       endif
        //
        if isbit(mn->vid_doc,3) // номер карты
