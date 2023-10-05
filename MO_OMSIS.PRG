@@ -2359,6 +2359,26 @@ if k > 0
     if yes_parol
       R_Use(dir_server + "base1",,"BASE1")
     endif
+    dbcreate(cur_dir + "_MNPOISK",{{"dd0", "C",100,0},; // ФИО.
+                                   {"dd00", "C", 20,0},;
+                                   {"dd01", "C", 150,0},;
+                                   {"dd02", "C", 30,0},;
+                                   {"dd1", "C", 10,0},; // Дата рожд.
+                                   {"dd2", "C", 50,0},; // Адрес
+                                   {"dd12","C", 35,0},; // Телефон
+                                   {"dd3", "C", 10,0},; // Номер карты
+                                   {"dd4", "C", 35,0},; // Сроки леч.
+                                   {"dd5", "C", 40,0},; // Диагноз
+                                   {"dd6", "C", 30,0},; // Счет
+                                   {"dd60", "C", 30,0},;
+                                   {"dd61","C",  6,0},;  // CМО  
+                                   {"dd62","C",  6,0},;  // N в счете
+                                   {"dd7", "C", 30,0},; // РАК 
+                                   {"dd8", "C", 40,0},; // Лечащий врач
+                                   {"dd9", "C", 80,0},; // услуги
+                                   {"dd10","C", 50,0},; // Доп.критерий
+                                   {"dd11","C", 10,0}}) // Дата ввода
+    use _MNPOISK new alias VIGRUZKA
     R_Use(dir_server + "mo_pers",,"PERSO")
     R_Use(dir_server + "kartote2",,"KART2")
     R_Use(dir_server + "kartote_",,"KART_")
@@ -2697,6 +2717,9 @@ if k > 0
       if verify_FF(HH,.t.,sh)
         aeval(arr_title, {|x| add_string(x) } )
       endif
+      select VIGRUZKA
+      append blank
+      //
       select ONKSL
       find (str(human->kod,7))
       is_oncology := f_is_oncology(1)
@@ -2766,21 +2789,28 @@ if k > 0
       endif
       s3 := padr(s3,50)
       //
+      VIGRUZKA->dd0  := s1
+      VIGRUZKA->dd00  := str(tmp->stoim,10,2)
       s1 += str(tmp->stoim,10,2)
       ssumma += tmp->stoim
       ++skol_lu
+      //
+      VIGRUZKA->dd01 := s2
+      VIGRUZKA->dd02 := s3
       //
       if isbit(mn->vid_doc,1)
         s1 += " "+date_8(human->date_r)
         s2 += space(9)
         s3 += space(9)
+        VIGRUZKA->dd1 := full_date(human->date_r)
       endif
       //
       if isbit(mn->vid_doc,2) // адрес
         perenos(a_diagnoz,ret_okato_ulica(kart->adres,kart_->okatog,0,2),24)
         s1 += " "+padr(alltrim(a_diagnoz[1]),24)
         s2 += " "+padr(alltrim(a_diagnoz[2]),24)
-        s3 += " "+padr(alltrim(a_diagnoz[3]),24) 
+        s3 += " "+padr(alltrim(a_diagnoz[3]),24)
+        VIGRUZKA->dd2 := ret_okato_ulica(kart->adres,kart_->okatog,0,2)
       endif
       //
       if isbit(mn->vid_doc,12) // телефоны
@@ -2788,21 +2818,25 @@ if k > 0
         s1 += " "+padr(alltrim(kart_->Phone_h),10)
         s2 += " "+padr(alltrim(kart_->Phone_m),10)
         s3 += " "+padr(alltrim(kart_->Phone_w),10) 
+        VIGRUZKA->dd12 := alltrim(kart_->Phone_h)+" "+alltrim(kart_->Phone_m)+" "+alltrim(kart_->Phone_w)
       endif
        //
        if isbit(mn->vid_doc,3) // номер карты
         s1 += space(11)
         s2 += " "+human->uch_doc
         s3 += space(11)
+        VIGRUZKA->dd3 := human->uch_doc
       endif
       //
       if isbit(mn->vid_doc,4)
         if mn_data == human->k_data
           s1 += " "+date_8(human->k_data)
           s2 += space(9)
+          VIGRUZKA->dd4 := date_8(human->k_data)
         else
           s1 += " с"+left(date_8(mn_data),5)+"по"
           s2 += " "+date_8(human->k_data)
+          VIGRUZKA->dd4 := " с"+left(date_8(mn_data),5)+"по"+" "+date_8(human->k_data)
         endif
         s3 += space(9)
       endif
@@ -2831,6 +2865,7 @@ if k > 0
         if k_diagnoz > 3
           tt_diagnoz := aclone(a_diagnoz)
         endif
+        VIGRUZKA->dd5 := tmp1
       endif
       //
       if isbit(mn->vid_doc,6)
@@ -2839,11 +2874,15 @@ if k > 0
           goto (human->schet)
           s1 += " "+padc(alltrim(schet_->nschet),15)
           s2 += " "+padc(date_8(schet_->dschet)+"г.",15)
+          VIGRUZKA->dd6 := alltrim(schet_->nschet) 
+          VIGRUZKA->dd60 := full_date(schet_->dschet)
         else
           s1 += " "+padc("-",15)
           s2 += space(16)
         endif
         s3 += space(16)
+        VIGRUZKA->dd62 := lstr(HUMAN_->schet_zap)
+        VIGRUZKA->dd61 := schet_->smo
       endif
       //
       if isbit(mn->vid_doc,7)
@@ -2851,23 +2890,27 @@ if k > 0
           s1 += " "+padc("оплачи-",9)
           s2 += " "+padc("вается",9)
           s3 += space(10)
+          VIGRUZKA->dd7 := "оплачивается"
         else
           s1 += " "+padr("снят "+lstr(tmp->rak_p)+"%",9)
           if human_->oplata == 9
             s2 += " "+padc("перевыс-",9)
             s3 += " "+padc("тавлен",9)
+            VIGRUZKA->dd7 :="снят "+lstr(tmp->rak_p)+"% "+"перевыставлен"
           else
             s2 += " "+padc(lstr(tmp->rak_s,9,2),9)
             s3 += space(10)
+            VIGRUZKA->dd7 := "снят "+lstr(tmp->rak_p)+"% "+ lstr(tmp->rak_s,9,2)
           endif
         endif
-      endif
+       endif
       //
       if isbit(mn->vid_doc,8)
         if human_->vrach > 0
           select PERSO
           goto (human_->vrach)
           s1 += put_val(perso->tab_nom,6)
+          VIGRUZKA->dd8 := put_val(perso->tab_nom,6)
         else
           s1 += space(6)
         endif
@@ -2955,6 +2998,7 @@ if k > 0
         if k_usl > 3
           tt_usl := aclone(a_diagnoz)
         endif
+        VIGRUZKA->dd9 := tmp1
       endif
       //
       if isbit(mn->vid_doc,10)
@@ -2972,6 +3016,7 @@ if k > 0
         s1 += " "+padc(a_diagnoz[1],8)
         s2 += " "+padc(a_diagnoz[2],8)
         s3 += " "+padc(a_diagnoz[3],8)
+        VIGRUZKA->dd10 := a_diagnoz[1] +" "+a_diagnoz[2]+" "+a_diagnoz[3]
       endif
       if yes_parol
         if isbit(mn->vid_doc,11)
@@ -2981,9 +3026,11 @@ if k > 0
             goto (asc(human->kod_p))
             if !eof() .and. !empty(base1->p1)
               s2 += " "+left(crypt(base1->p1,gpasskod),10)
+              VIGRUZKA->dd11 := date_8(c4tod(human->date_e))+"г. "+crypt(base1->p1,gpasskod)
             endif
           elseif human_2->PN3 > 0
             s2 += " ИМПОРТ"
+            VIGRUZKA->dd11 := date_8(c4tod(human->date_e))+"г. "+" ИМПОРТ"
           endif
         endif
       endif
@@ -3022,6 +3069,8 @@ if k > 0
       endif
       if is_2
         add_string(space(5)+"! Это двойной случай !")
+        VIGRUZKA->(dbappend())
+        VIGRUZKA->dd2 := space(5)+"! Это двойной случай !"
       endif
       select TMP
       skip
