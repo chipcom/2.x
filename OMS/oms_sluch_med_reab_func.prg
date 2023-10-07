@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-** 20.05.22
+// 20.05.22
 function defenition_usluga_med_reab(lkod, vid, shrm)
   Local arr, i, s, lshifr, lrec, lu_kod, lcena, lyear, mrec_hu, fl
   local buf := save_maxrow()
@@ -115,7 +115,7 @@ function defenition_usluga_med_reab(lkod, vid, shrm)
   rest_box(buf)
   return nil
 
-** 19.05.22
+// 19.05.22
 function type_reabilitacia()
   static ret := {}
 
@@ -131,7 +131,7 @@ function type_reabilitacia()
   endif
   return ret
 
-** 18.05.22
+// 18.05.22
 function type_shrm_reabilitacia()
   static ret := {}
 
@@ -142,7 +142,7 @@ function type_shrm_reabilitacia()
   endif
   return ret
 
-** 21.05.22
+// 21.05.22
 function ret_array_med_reab(vid, shrm)
   static arr_uslugi_med_reab := { ;
     { ;   // заболевания опорно-двигательного аппарата
@@ -407,7 +407,7 @@ function ret_array_med_reab(vid, shrm)
     endif
   return ret
 
-** 21.05.22
+// 21.05.22
 function ret_usluga_med_reab(shifr_usl, vid, shrm)
   local ret, i
 
@@ -417,14 +417,14 @@ function ret_usluga_med_reab(shifr_usl, vid, shrm)
   endif
   return ret
 
-** 21.05.22
+// 21.05.22
 function is_lu_med_reab()
   local ret := .f.
 
   ret := (glob_otd[4] > 0 .and. glob_otd[4] == TIP_LU_MED_REAB)
   return ret
 
-** 23.05.22 обязательные услуги
+// 23.05.22 обязательные услуги
 function compulsory_services(vid, shrm)
   local aRet := {}, row
 
@@ -435,6 +435,6 @@ function compulsory_services(vid, shrm)
   next
   return aRet
 
-** 29.05.22
+// 29.05.22
 function mnogo_uslug_med_reab()
   return {'19.', '20.', '21.', '22.'}
