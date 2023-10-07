@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-** 20.05.22
+// 20.05.22
 function defenition_usluga_med_reab(lkod, vid, shrm)
   Local arr, i, s, lshifr, lrec, lu_kod, lcena, lyear, mrec_hu, fl
   local buf := save_maxrow()
@@ -115,7 +115,7 @@ function defenition_usluga_med_reab(lkod, vid, shrm)
   rest_box(buf)
   return nil
 
-** 19.05.22
+// 19.05.22
 function type_reabilitacia()
   static ret := {}
 
@@ -131,7 +131,7 @@ function type_reabilitacia()
   endif
   return ret
 
-** 18.05.22
+// 18.05.22
 function type_shrm_reabilitacia()
   static ret := {}
 
@@ -142,8 +142,9 @@ function type_shrm_reabilitacia()
   endif
   return ret
 
-** 21.05.22
-function ret_array_med_reab(vid, shrm)
+// 07.10.23
+function ret_array_med_reab(vid, shrm, adult)
+  // adult .t. - взрослый, .f. другое
   static arr_uslugi_med_reab := { ;
     { ;   // заболевания опорно-двигательного аппарата
       {'2.6.15',	.t.,	1,	.t.,	1,	.t.,	1}, ;
@@ -396,8 +397,18 @@ function ret_array_med_reab(vid, shrm)
     //   {'20.2.5',	.f.,	7,	.f.,	9,	.f.,	11} ;
     // }, ;
     local ret := {}, row
-
+altd()
+    default adult to .t.
     for each row in arr_uslugi_med_reab[vid]
+      if adult // удаляем услуги педиатра
+        if row[1] == '2.6.19' .or. row[1] == '2.6.20'
+          loop
+        endif
+      else // удаляем услуги терапевта
+        if row[1] == '2.6.17' .or. row[1] == '2.6.18'
+          loop
+        endif
+      endif
       if row[2 * shrm] != nil
         aadd(ret, {row[1], row[2 * shrm], row[2 * shrm + 1] })
       endif
@@ -407,34 +418,35 @@ function ret_array_med_reab(vid, shrm)
     endif
   return ret
 
-** 21.05.22
-function ret_usluga_med_reab(shifr_usl, vid, shrm)
+// 07.10.23
+function ret_usluga_med_reab(shifr_usl, vid, shrm, adult)
   local ret, i
 
+  default adult to .t.
   shifr_usl := Lower(alltrim(shifr_usl))
-  if !empty(shifr_usl) .and. ((i := ascan(ret_array_med_reab(vid, shrm), {|x| Lower(alltrim(x[1])) == shifr_usl })) > 0)
-    ret := ret_array_med_reab(vid, shrm)[i]
+  if !empty(shifr_usl) .and. ((i := ascan(ret_array_med_reab(vid, shrm, adult), {|x| Lower(alltrim(x[1])) == shifr_usl })) > 0)
+    ret := ret_array_med_reab(vid, shrm, adult)[i]
   endif
   return ret
 
-** 21.05.22
+// 21.05.22
 function is_lu_med_reab()
   local ret := .f.
 
   ret := (glob_otd[4] > 0 .and. glob_otd[4] == TIP_LU_MED_REAB)
   return ret
 
-** 23.05.22 обязательные услуги
-function compulsory_services(vid, shrm)
+// 07.10.23 обязательные услуги
+function compulsory_services(vid, shrm, adult)
   local aRet := {}, row
 
-  for each row in ret_array_med_reab(vid, shrm)
+  for each row in ret_array_med_reab(vid, shrm, adult)
     if row[2]
       aadd(aRet, row[1])
     endif
   next
   return aRet
 
-** 29.05.22
+// 29.05.22
 function mnogo_uslug_med_reab()
   return {'19.', '20.', '21.', '22.'}

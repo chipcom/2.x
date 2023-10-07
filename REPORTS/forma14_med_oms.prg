@@ -1,10 +1,10 @@
-** информация по форма 14-МЕД ОМС (по счетам)
+// информация по форма 14-МЕД ОМС (по счетам)
 #include 'inkey.ch'
 #include 'function.ch'
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-** 09.07.23 форма 14-МЕД (ОМС)
+// 06.10.23 форма 14-МЕД (ОМС)
 Function forma14_med_oms()
   Static group_ini := 'f14_med_oms'
   Local begin_date, end_date, buf := savescreen(), arr_m, i, j, k, k1, k2, ;
@@ -139,9 +139,9 @@ Function forma14_med_oms()
   arr_pril5[31, 1] := 'Стац - стентирование иногородние, единиц' 
 
   
-  *********************************************************************
-  arr_m := {2023, 1, 12, 'за январь - июнь 2023 года', 0d20230101, 0d20230630}
-  *********************************************************************
+  ////////////////////////////////////////////////////////////////////
+  arr_m := {2023, 1, 12, 'за январь - сентябрь 2023 года', 0d20230101, 0d20230930}
+  ////////////////////////////////////////////////////////////////////
   lal := create_name_alias('lusl', arr_m[1])
   lalf := create_name_alias('luslf', arr_m[1])
   Private mk1, mk2, mk3, mk4, md1, md11, md12, md2, md21, md22, md3, md4
@@ -246,9 +246,9 @@ Function forma14_med_oms()
   R_Use(dir_server + 'human', dir_server + 'humans', 'HUMAN')
   set relation to recno() into HUMAN_, to recno() into HUMAN_2, to kod_k into KART
   //
-  *********************************************************************
-  mdate_rak := arr_m[6] + 13 // по какую дату РАК сумма к оплате 13.07.23
-  *********************************************************************
+  ////////////////////////////////////////////////////////////////////
+  mdate_rak := arr_m[6] + 12 // по какую дату РАК сумма к оплате 12.09.23
+  ////////////////////////////////////////////////////////////////////
   R_Use(dir_server + 'mo_xml', , 'MO_XML')
   R_Use(dir_server + 'mo_rak', , 'RAK')
   set relation to kod_xml into MO_XML
@@ -272,9 +272,9 @@ Function forma14_med_oms()
       // дата отчетного периода
       mdate1 := stod(strzero(schet_->nyear, 4) + strzero(schet_->nmonth, 2) + '25') // !!! 
       //
-      *** 2023 год
-        k := 7 // дата регистрации по 7.07.23
-      ***
+      // 2023 год
+        k := 6 // дата регистрации по 6.10.23
+      //
       fl := between(mdate, arr_m[5], arr_m[6] + k) .and. between(mdate1, arr_m[5], arr_m[6]) // !!отч.период 2022 год
     endif
     if fl

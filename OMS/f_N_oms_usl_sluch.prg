@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
     
-// 28.03.23 ввод услуг в лист учёта
+// 07.10.23 ввод услуг в лист учёта
 Function f2oms_usl_sluch(nKey, oBrow)
   Static skod_k := 0, skod_human := 0, SKOD_DIAG, SZF, ;
          st_vzrosl, st_arr_dbf, skod_vr, skod_as, aksg := {}
@@ -547,7 +547,7 @@ Function f2oms_usl_sluch(nKey, oBrow)
             when {|g| f5editkusl(g, 1, 2) } ;
             valid {|g| f5editkusl(g, 2, 2, lTypeLUMedReab, ;
               iif(empty(human_2->PC5), nil, list2arr(human_2->PC5)[1]), ;
-              iif(empty(human_2->PC5), nil, list2arr(human_2->PC5)[2])) }
+              iif(empty(human_2->PC5), nil, list2arr(human_2->PC5)[2]), human->vzros_reb == 0) }
 
         @ row(), 35 say 'Цена услуги' get mu_cena pict pict_cena ;
             when .f. color color14
@@ -665,8 +665,7 @@ Function f2oms_usl_sluch(nKey, oBrow)
             loop
           endif
           if lTypeLUMedReab .and. (ascan(mnogo_uslug_med_reab(), left(mshifr1, 3)) > 0)   // left(mshifr1, 5) != '2.89.'
-        // aaaa := compulsory_services(list2arr(human_2->PC5)[1], list2arr(human_2->PC5)[2])
-            aUslMedReab := ret_usluga_med_reab(mshifr, list2arr(human_2->PC5)[1], list2arr(human_2->PC5)[2])
+            aUslMedReab := ret_usluga_med_reab(mshifr, list2arr(human_2->PC5)[1], list2arr(human_2->PC5)[2], human->vzros_reb == 0)
             if (!empty(mdate_end))
               if mdate_end < mdate_u1
                 func_error(4, 'Введенная дата окончания многократной услуги меньше даты начала оказания услуги!')

@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-// 27.09.23
+// 07.10.23
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1, ;
         i, j, k, c, s := ' ', a_srok_lech := {}, a_period_stac := {}, a_disp := {}, ;
@@ -3104,7 +3104,7 @@ Function verify_1_sluch(fl_view)
         //
         fl_not_2_89 := .f.
         if lTypeLUMedReab
-          obyaz_uslugi_med_reab := compulsory_services(list2arr(human_2->PC5)[1], list2arr(human_2->PC5)[2])
+          obyaz_uslugi_med_reab := compulsory_services(list2arr(human_2->PC5)[1], list2arr(human_2->PC5)[2], M1VZROS_REB == 0)
           for each row in arrUslugi // проверим все услуги случая
             if (iUsluga := ascan(obyaz_uslugi_med_reab, {|x| alltrim(x) == alltrim(row) })) > 0
               hb_ADel(obyaz_uslugi_med_reab, iUsluga, .t.)
@@ -3116,7 +3116,7 @@ Function verify_1_sluch(fl_view)
             next
           endif
 
-          aUslMedReab := ret_usluga_med_reab(alltrim_lshifr, list2arr(human_2->PC5)[1], list2arr(human_2->PC5)[2])
+          aUslMedReab := ret_usluga_med_reab(alltrim_lshifr, list2arr(human_2->PC5)[1], list2arr(human_2->PC5, M1VZROS_REB == 0)[2])
           if aUslMedReab != nil .and. len(aUslMedReab) != 0
             if aUslMedReab[3] > au_lu[i, 6]
               aadd(ta, 'для услуги ' + alltrim_lshifr + ' требуется минимум ' + lstr(aUslMedReab[3]) + ' предоставлений!')
