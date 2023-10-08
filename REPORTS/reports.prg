@@ -11,8 +11,7 @@ Function kartotekToExcel()
   Local strStatus := '^<Esc>^ - отказ; ^<Enter>^ - подтверждение; ^<Ins>^ - отметить / снять отметку'
   local sAsterisk := ' * ', sBlank := '   '
 
-  // local name_file := 'Пациенты_' + hb_TSToStr( hb_DateTime(), .t. )
-  local name_file := 'Пациенты_' + HB_TTOS(hb_DateTime())
+  local name_file := 'Пациенты_' + suffixFileTimestamp()
   local name_file_full := name_file + '.xlsx'
   local aFilter
 

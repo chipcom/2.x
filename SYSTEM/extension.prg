@@ -209,3 +209,10 @@ function chip_ExePath()
 function check_extension_file(fileName, sExt)
 
   return lower(right(fileName, len(sExt))) == lower(sExt)
+
+// 08.10.23
+function suffixFileTimestamp()
+  local cRet
+
+  cRet := hb_StrReplace(hb_strShrink(HB_TSTOSTR(hb_DateTime(), .f.), 4 ), ' :', '__')
+  return cRet
