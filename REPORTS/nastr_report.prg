@@ -2,10 +2,12 @@
 #include 'function.ch'
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
+// #include 'hblibxlsxwriter.ch'
+#include 'hbxlsxwriter.ch'
 
 Static lcount_uch  := 1
 
-// 05.11.22 ¬­®£®¢ à¨ ­â­ë© ¯®¨áª
+// 09.10.23 ¬­®£®¢ à¨ ­â­ë© ¯®¨áª
 Function s_mnog_poisk()
   Static mm_rak := { ;
     {'¢á¥ á«ãç ¨', 0}, ;
@@ -47,7 +49,7 @@ Function s_mnog_poisk()
   Static mm_dvojn := {{'¢á¥ á«ãç ¨', 1}, {'â®«ìª® ¤¢®©­ë¥ á«ãç ¨', 2}, {'¢á¥, ªà®¬¥ ¤¢®©­ëå á«ãç ¥¢', 3}}
   Local mm_tmp := {}, k, adiag_talon[16]
   Local buf := savescreen(), tmp_color := setcolor(cDataCGet), ;
-        tmp_help := help_code, hGauge, name_file := cur_dir + 'in_boln' + stxt, ;
+        tmp_help := help_code, hGauge, name_file := cur_dir + 'report' + stxt, ;
         sh := 80, HH := 77, i, a_diagnoz[10], ;
         mm_da_net := {{'­¥â', 1}, {'¤  ', 2}}, lvid_doc := 0, ;
         menu_bolnich := {{'­¥â', 1}, {'¤ ', 2}, {'à®¤¨â¥«¨', 3}}, ;
@@ -60,6 +62,16 @@ Function s_mnog_poisk()
         tmp_file := cur_dir + 'tmp_mn_p' + sdbf, ;
         k_diagnoz, k_usl, tt_diagnoz[10], tt_usl[10]
   local nameArr
+  local name_fileXLS := 'Report_' + suffixFileTimestamp()
+  local name_fileXLS_full := name_fileXLS + '.xlsx'
+  local lExcel := .t., used_column := 0
+  local workbook
+  local header, header_wrap
+  local worksheet
+  local formatDate
+  local fmtCellNumber, fmtCellString, fmtCellStringCenter, fmtCellNumberRub
+  local row, column
+  local s1, s2, s3
 
   if mem_dom_aktiv == 1
     aadd(mm_dom, {'­  ¤®¬ã-€Š’ˆ‚', 3})
@@ -807,6 +819,58 @@ Function s_mnog_poisk()
       endif
     else
       mywait()
+      if lExcel
+        workbook  := WORKBOOK_NEW(name_fileXLS_full)
+        worksheet := WORKBOOK_ADD_WORKSHEET(workbook, 'Report' )
+        formatDate := WORKBOOK_ADD_FORMAT(workbook)
+        FORMAT_SET_NUM_FORMAT(formatDate, 'dd/mm/yyyy')
+        FORMAT_SET_ALIGN(formatDate, LXW_ALIGN_CENTER)
+        FORMAT_SET_ALIGN(formatDate, LXW_ALIGN_VERTICAL_CENTER)
+        FORMAT_SET_BORDER(formatDate, LXW_BORDER_THIN)
+      
+        header = WORKBOOK_ADD_FORMAT(workbook)
+        FORMAT_SET_ALIGN(header, LXW_ALIGN_CENTER)
+        FORMAT_SET_ALIGN(header, LXW_ALIGN_VERTICAL_CENTER)
+        FORMAT_SET_FG_COLOR(header, 0xD7E4BC)
+        FORMAT_SET_BOLD(header)
+        FORMAT_SET_BORDER(header, LXW_BORDER_THIN)
+      
+        header_wrap = WORKBOOK_ADD_FORMAT(workbook)
+        FORMAT_SET_ALIGN(header_wrap, LXW_ALIGN_CENTER)
+        FORMAT_SET_ALIGN(header_wrap, LXW_ALIGN_VERTICAL_CENTER)
+        FORMAT_SET_FG_COLOR(header_wrap, 0xD7E4BC)
+        FORMAT_SET_BOLD(header_wrap)
+        FORMAT_SET_BORDER(header_wrap, LXW_BORDER_THIN)
+        FORMAT_SET_TEXT_WRAP(header_wrap)
+      
+        fmtCellNumber := WORKBOOK_ADD_FORMAT(workbook)
+        FORMAT_SET_ALIGN(fmtCellNumber, LXW_ALIGN_CENTER)
+        FORMAT_SET_ALIGN(fmtCellNumber, LXW_ALIGN_VERTICAL_CENTER)
+        FORMAT_SET_BORDER(fmtCellNumber, LXW_BORDER_THIN)
+
+        fmtCellNumberRub := WORKBOOK_ADD_FORMAT(workbook)
+        FORMAT_SET_ALIGN(fmtCellNumberRub, LXW_ALIGN_CENTER)
+        FORMAT_SET_ALIGN(fmtCellNumberRub, LXW_ALIGN_VERTICAL_CENTER)
+        FORMAT_SET_BORDER(fmtCellNumberRub, LXW_BORDER_THIN)
+        FORMAT_SET_NUM_FORMAT(fmtCellNumberRub, '#,##0.00')
+        
+        fmtCellString := WORKBOOK_ADD_FORMAT(workbook)
+        FORMAT_SET_ALIGN(fmtCellString, LXW_ALIGN_LEFT)
+        FORMAT_SET_ALIGN(fmtCellString, LXW_ALIGN_VERTICAL_CENTER)
+        FORMAT_SET_TEXT_WRAP(fmtCellString)
+        FORMAT_SET_BORDER(fmtCellString, LXW_BORDER_THIN)
+      
+        fmtCellStringCenter := WORKBOOK_ADD_FORMAT(workbook)
+        FORMAT_SET_ALIGN(fmtCellStringCenter, LXW_ALIGN_CENTER)
+        FORMAT_SET_ALIGN(fmtCellStringCenter, LXW_ALIGN_VERTICAL_CENTER)
+        FORMAT_SET_TEXT_WRAP(fmtCellStringCenter)
+        FORMAT_SET_BORDER(fmtCellStringCenter, LXW_BORDER_THIN)
+
+        row := 0
+        column := 0
+        /* ‡ ¬®à®§¨¬ ¢¥àå­îî áâà®ªã ­  § ª« ¤ª¥. */
+        // WORKSHEET_FREEZE_PANES(worksheet, row, 0)
+      endif
       use (tmp_file) new alias MN
       s1 := if(fl_summa, '  ‘ã¬¬   ', '‘â®¨¬®áâì')
       s2 := if(fl_summa, ' «¥ç¥­¨ï ', '  ãá«ã£  ')
@@ -815,47 +879,81 @@ Function s_mnog_poisk()
         '             ”.ˆ.Ž. ¡®«ì­®£®            ³'+ s1     , ;
         '                                        ³'+ s2     , ;
         'ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄ'}
+      if lExcel
+        WORKSHEET_SET_COLUMN(worksheet, row, column, 100, nil)
+        WORKSHEET_WRITE_STRING(worksheet, row, column++, hb_StrToUtf8('”.ˆ.Ž. ¡®«ì­®£®'), header)
+        WORKSHEET_SET_COLUMN(worksheet, row, column, 10.0)
+        WORKSHEET_WRITE_STRING(worksheet, row, column++, hb_StrToUtf8(iif(fl_summa, '‘ã¬¬  «¥ç¥­¨ï', '‘â®¨¬®áâì ãá«ã£')), header_wrap)
+      endif
       if isbit(mn->vid_doc, 1)
         arr_title[1] += 'ÂÄÄÄÄÄÄÄÄ'
         arr_title[2] += '³  „ â   '
         arr_title[3] += '³à®¦¤¥­¨ï'
         arr_title[4] += 'ÁÄÄÄÄÄÄÄÄ'
+        if lExcel
+          WORKSHEET_SET_COLUMN(worksheet, row, column, 10.0)
+          WORKSHEET_WRITE_STRING(worksheet, row, column++, hb_StrToUtf8('„ â  à®¦¤¥­¨ï'), header_wrap)
+        endif
       endif
       if isbit(mn->vid_doc, 2)
         arr_title[1] += 'ÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ'
         arr_title[2] += '³         €¤à¥á          '
         arr_title[3] += '³                        '
         arr_title[4] += 'ÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ'
+        if lExcel
+          WORKSHEET_SET_COLUMN(worksheet, row, column, 10.0)
+          WORKSHEET_WRITE_STRING(worksheet, row, column++, hb_StrToUtf8('€¤à¥á'), header)
+        endif
       endif
       if isbit(mn->vid_doc, 12)
         arr_title[1] += 'ÂÄÄÄÄÄÄÄÄÄÄ'
         arr_title[2] += '³   ®¬¥à  '
         arr_title[3] += '³ â¥«¥ä®­®¢'
         arr_title[4] += 'ÁÄÄÄÄÄÄÄÄÄÄ'
+        if lExcel
+          WORKSHEET_SET_COLUMN(worksheet, row, column, 10.0)
+          WORKSHEET_WRITE_STRING(worksheet, row, column++, hb_StrToUtf8('®¬¥à  â¥«¥ä®­®¢'), header_wrap)
+        endif
       endif
       if isbit(mn->vid_doc, 3)
         arr_title[1] += 'ÂÄÄÄÄÄÄÄÄÄÄ'
         arr_title[2] += '³  N ª àâë '
         arr_title[3] += '³          '
         arr_title[4] += 'ÁÄÄÄÄÄÄÄÄÄÄ'
+        if lExcel
+          WORKSHEET_SET_COLUMN(worksheet, row, column, 10.0)
+          WORKSHEET_WRITE_STRING(worksheet, row, column++, hb_StrToUtf8('N ª àâë'), header)
+        endif
       endif
       if isbit(mn->vid_doc, 4)
         arr_title[1] += 'ÂÄÄÄÄÄÄÄÄ'
         arr_title[2] += '³ ‘à®ª¨  '
         arr_title[3] += '³«¥ç¥­¨ï '
         arr_title[4] += 'ÁÄÄÄÄÄÄÄÄ'
+        if lExcel
+          WORKSHEET_SET_COLUMN(worksheet, row, column, 10.0)
+          WORKSHEET_WRITE_STRING(worksheet, row, column++, hb_StrToUtf8('‘à®ª¨ «¥ç¥­¨ï'), header_wrap)
+        endif
       endif
       if isbit(mn->vid_doc, 5)
         arr_title[1] += 'ÂÄÄÄÄÄÄÄÄÄÄÄÄÄ'
         arr_title[2] += '³   „¨ £­®§   '
         arr_title[3] += '³             '
         arr_title[4] += 'ÁÄÄÄÄÄÄÄÄÄÄÄÄÄ'
+        if lExcel
+          WORKSHEET_SET_COLUMN(worksheet, row, column, 10.0)
+          WORKSHEET_WRITE_STRING(worksheet, row, column++, hb_StrToUtf8('„¨ £­®§'), header)
+        endif
       endif
       if isbit(mn->vid_doc, 6)
         arr_title[1] += 'ÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ'
         arr_title[2] += '³ ®¬¥à ¨ ¤ â   '
         arr_title[3] += '³    áç¥â       '
         arr_title[4] += 'ÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ'
+        if lExcel
+          WORKSHEET_SET_COLUMN(worksheet, row, column, 10.0)
+          WORKSHEET_WRITE_STRING(worksheet, row, column++, hb_StrToUtf8('®¬¥à ¨ ¤ â  áç¥â '), header_wrap)
+        endif
       endif
       if isbit(mn->vid_doc, 7)
         arr_title[1] += 'ÂÄÄÄÄÄÄÄÄÄ'
@@ -863,24 +961,40 @@ Function s_mnog_poisk()
         arr_title[3] += '³         '
         arr_title[4] += 'ÁÄÄÄÄÄÄÄÄÄ'
         R_Use(dir_server + 'mo_raksh', cur_dir + 'tmp_raksh', 'RAKSH')
+        if lExcel
+          WORKSHEET_SET_COLUMN(worksheet, row, column, 10.0)
+          WORKSHEET_WRITE_STRING(worksheet, row, column++, hb_StrToUtf8('€Š'), header_wrap)
+        endif
       endif
       if isbit(mn->vid_doc, 8)
         arr_title[1] += 'ÂÄÄÄÄÄ'
         arr_title[2] += '³ ‹¥ç.'
         arr_title[3] += '³ ¢à ç'
         arr_title[4] += 'ÁÄÄÄÄÄ'
+        if lExcel
+          WORKSHEET_SET_COLUMN(worksheet, row, column, 10.0)
+          WORKSHEET_WRITE_STRING(worksheet, row, column++, hb_StrToUtf8('‹¥ç. ¢à ç'), header_wrap)
+        endif
       endif
       if isbit(mn->vid_doc, 9)
         arr_title[1] += 'ÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ'
         arr_title[2] += '³                       '
         arr_title[3] += '³     ‘¯¨á®ª ãá«ã£      '
         arr_title[4] += 'ÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ'
+        if lExcel
+          WORKSHEET_SET_COLUMN(worksheet, row, column, 10.0)
+          WORKSHEET_WRITE_STRING(worksheet, row, column++, hb_StrToUtf8('‘¯¨á®ª ãá«ã£'), header_wrap)
+        endif
       endif
       if isbit(mn->vid_doc, 10)
         arr_title[1] += 'ÂÄÄÄÄÄÄÄÄ'
         arr_title[2] += '³„®¯®«­¨â'
         arr_title[3] += '³ªà¨â¥à¨©'
         arr_title[4] += 'ÁÄÄÄÄÄÄÄÄ'
+        if lExcel
+          WORKSHEET_SET_COLUMN(worksheet, row, column, 10.0)
+          WORKSHEET_WRITE_STRING(worksheet, row, column++, hb_StrToUtf8('„®¯®«­¨â. ªà¨â¥à¨©'), header_wrap)
+        endif
       endif
       if yes_parol
         if isbit(mn->vid_doc, 11)
@@ -888,6 +1002,10 @@ Function s_mnog_poisk()
           arr_title[2] += '³„ â  ¢¢®¤ '
           arr_title[3] += '³¨ ®¯¥à â®à'
           arr_title[4] += 'ÁÄÄÄÄÄÄÄÄÄÄ'
+          if lExcel
+            WORKSHEET_SET_COLUMN(worksheet, row, column, 10.0)
+            WORKSHEET_WRITE_STRING(worksheet, row, column++, hb_StrToUtf8('„ â  ¢¢®¤  ¨ ®¯¥à â®à'), header_wrap)
+          endif
         endif
       endif
       reg_print := f_reg_print(arr_title, @sh, 2)
@@ -1264,6 +1382,9 @@ Function s_mnog_poisk()
           fl_exit := .t.
           exit
         endif
+        row++
+        used_column := column + 1
+        column := 0
         if verify_FF(HH, .t., sh)
           aeval(arr_title, {|x| add_string(x) } )
         endif
@@ -1292,6 +1413,9 @@ Function s_mnog_poisk()
         endif
         //
         s1 := left(human->fio, 40)
+        if lExcel
+          WORKSHEET_WRITE_STRING(worksheet, row, column++, hb_StrToUtf8(human->fio), fmtCellString)
+        endif
         kart->(dbGoto(human->kod_k))
         if mem_kodkrt == 2
           s2 := ' ['
@@ -1344,6 +1468,9 @@ Function s_mnog_poisk()
         VIGRUZKA->dd0  := s1
         VIGRUZKA->dd00  := str(tmp->stoim, 10, 2)
         s1 += str(tmp->stoim, 10, 2)
+        if lExcel
+          WORKSHEET_WRITE_NUMBER(worksheet, row, column++, tmp->stoim, fmtCellNumberRub)
+        endif
         ssumma += tmp->stoim
         ++skol_lu
         //
@@ -1375,9 +1502,12 @@ Function s_mnog_poisk()
          //
          if isbit(mn->vid_doc, 3) // ­®¬¥à ª àâë
           s1 += space(11)
-          s2 += ' '+human->uch_doc
+          s2 += ' ' + human->uch_doc
           s3 += space(11)
           VIGRUZKA->dd3 := human->uch_doc
+          if lExcel
+            WORKSHEET_WRITE_STRING(worksheet, row, column++, hb_StrToUtf8(human->uch_doc), fmtCellString)
+          endif
         endif
         //
         if isbit(mn->vid_doc, 4)
@@ -1416,6 +1546,11 @@ Function s_mnog_poisk()
           s3 += ' ' + padc(alltrim(a_diagnoz[3]), 13)
           if k_diagnoz > 3
             tt_diagnoz := aclone(a_diagnoz)
+          endif
+          if lExcel
+            if lExcel
+              WORKSHEET_WRITE_STRING(worksheet, row, column++, hb_StrToUtf8(tmp1), fmtCellString)
+            endif
           endif
           VIGRUZKA->dd5 := tmp1
         endif
@@ -1660,6 +1795,10 @@ Function s_mnog_poisk()
       fclose(fp)
       close databases
       viewtext(name_file, , , , .t., , , reg_print)
+      if lExcel
+        WORKBOOK_CLOSE(workbook)
+        SaveTo(cur_dir + name_fileXLS_full)
+      endif
     endif
   endif
   close databases
