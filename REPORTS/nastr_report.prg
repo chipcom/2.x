@@ -7,7 +7,7 @@
 
 Static lcount_uch  := 1
 
-// 09.10.23 многовариантный поиск
+// 10.10.23 многовариантный поиск
 Function s_mnog_poisk()
   Static mm_rak := { ;
     {'все случаи', 0}, ;
@@ -67,7 +67,7 @@ Function s_mnog_poisk()
   local lExcel := .t., used_column := 0
   local workbook
   local header, header_wrap
-  local worksheet
+  local worksheet, wsCommon
   local formatDate
   local fmtCellNumber, fmtCellString, fmtCellStringCenter, fmtCellNumberRub
   local row, column
@@ -821,7 +821,8 @@ Function s_mnog_poisk()
       mywait()
       if lExcel
         workbook  := WORKBOOK_NEW(name_fileXLS_full)
-        worksheet := WORKBOOK_ADD_WORKSHEET(workbook, 'Report' )
+        worksheet := WORKBOOK_ADD_WORKSHEET(workbook, hb_StrToUtf8('Список пациентов'))
+        wsCommon := WORKBOOK_ADD_WORKSHEET(workbook, hb_StrToUtf8('Описание'))
         formatDate := WORKBOOK_ADD_FORMAT(workbook)
         FORMAT_SET_NUM_FORMAT(formatDate, 'dd/mm/yyyy')
         FORMAT_SET_ALIGN(formatDate, LXW_ALIGN_CENTER)
@@ -849,7 +850,7 @@ Function s_mnog_poisk()
         FORMAT_SET_BORDER(fmtCellNumber, LXW_BORDER_THIN)
 
         fmtCellNumberRub := WORKBOOK_ADD_FORMAT(workbook)
-        FORMAT_SET_ALIGN(fmtCellNumberRub, LXW_ALIGN_CENTER)
+        FORMAT_SET_ALIGN(fmtCellNumberRub, LXW_ALIGN_RIGHT)
         FORMAT_SET_ALIGN(fmtCellNumberRub, LXW_ALIGN_VERTICAL_CENTER)
         FORMAT_SET_BORDER(fmtCellNumberRub, LXW_BORDER_THIN)
         FORMAT_SET_NUM_FORMAT(fmtCellNumberRub, '#,##0.00')
@@ -880,9 +881,14 @@ Function s_mnog_poisk()
         '                                        │'+ s2     , ;
         '────────────────────────────────────────┴─────────'}
       if lExcel
-        WORKSHEET_SET_COLUMN(worksheet, row, column, 100, nil)
+        // WORKSHEET_SET_COLUMN(worksheet, row, column, 100, nil)
+        WORKSHEET_SET_COLUMN(worksheet, column, column, 35, nil)
         WORKSHEET_WRITE_STRING(worksheet, row, column++, hb_StrToUtf8('Ф.И.О. больного'), header)
-        WORKSHEET_SET_COLUMN(worksheet, row, column, 10.0)
+        WORKSHEET_SET_COLUMN(worksheet, column, column, 22, nil)
+        WORKSHEET_WRITE_STRING(worksheet, row, column++, hb_StrToUtf8('СМО'), header)
+        WORKSHEET_SET_COLUMN(worksheet, column, column, 15, nil)
+        WORKSHEET_WRITE_STRING(worksheet, row, column++, hb_StrToUtf8('СНИЛС'), header)
+        WORKSHEET_SET_COLUMN(worksheet, column, column, 11, nil)
         WORKSHEET_WRITE_STRING(worksheet, row, column++, hb_StrToUtf8(iif(fl_summa, 'Сумма лечения', 'Стоимость услуг')), header_wrap)
       endif
       if isbit(mn->vid_doc, 1)
@@ -891,7 +897,7 @@ Function s_mnog_poisk()
         arr_title[3] += '│рождения'
         arr_title[4] += '┴────────'
         if lExcel
-          WORKSHEET_SET_COLUMN(worksheet, row, column, 10.0)
+          WORKSHEET_SET_COLUMN(worksheet, column, column, 10.0, nil)
           WORKSHEET_WRITE_STRING(worksheet, row, column++, hb_StrToUtf8('Дата рождения'), header_wrap)
         endif
       endif
@@ -901,7 +907,7 @@ Function s_mnog_poisk()
         arr_title[3] += '│                        '
         arr_title[4] += '┴────────────────────────'
         if lExcel
-          WORKSHEET_SET_COLUMN(worksheet, row, column, 10.0)
+          WORKSHEET_SET_COLUMN(worksheet, column, column, 22.0, nil)
           WORKSHEET_WRITE_STRING(worksheet, row, column++, hb_StrToUtf8('Адрес'), header)
         endif
       endif
@@ -911,7 +917,7 @@ Function s_mnog_poisk()
         arr_title[3] += '│ телефонов'
         arr_title[4] += '┴──────────'
         if lExcel
-          WORKSHEET_SET_COLUMN(worksheet, row, column, 10.0)
+          WORKSHEET_SET_COLUMN(worksheet, column, column, 11.0, nil)
           WORKSHEET_WRITE_STRING(worksheet, row, column++, hb_StrToUtf8('Номера телефонов'), header_wrap)
         endif
       endif
@@ -921,7 +927,7 @@ Function s_mnog_poisk()
         arr_title[3] += '│          '
         arr_title[4] += '┴──────────'
         if lExcel
-          WORKSHEET_SET_COLUMN(worksheet, row, column, 10.0)
+          WORKSHEET_SET_COLUMN(worksheet, column, column, 10.0, nil)
           WORKSHEET_WRITE_STRING(worksheet, row, column++, hb_StrToUtf8('N карты'), header)
         endif
       endif
@@ -931,7 +937,7 @@ Function s_mnog_poisk()
         arr_title[3] += '│лечения '
         arr_title[4] += '┴────────'
         if lExcel
-          WORKSHEET_SET_COLUMN(worksheet, row, column, 10.0)
+          WORKSHEET_SET_COLUMN(worksheet, column, column, 10.0, nil)
           WORKSHEET_WRITE_STRING(worksheet, row, column++, hb_StrToUtf8('Сроки лечения'), header_wrap)
         endif
       endif
@@ -941,7 +947,7 @@ Function s_mnog_poisk()
         arr_title[3] += '│             '
         arr_title[4] += '┴─────────────'
         if lExcel
-          WORKSHEET_SET_COLUMN(worksheet, row, column, 10.0)
+          WORKSHEET_SET_COLUMN(worksheet, column, column, 11, nil)
           WORKSHEET_WRITE_STRING(worksheet, row, column++, hb_StrToUtf8('Диагноз'), header)
         endif
       endif
@@ -951,7 +957,7 @@ Function s_mnog_poisk()
         arr_title[3] += '│    счета      '
         arr_title[4] += '┴───────────────'
         if lExcel
-          WORKSHEET_SET_COLUMN(worksheet, row, column, 10.0)
+          WORKSHEET_SET_COLUMN(worksheet, column, column, 19.0, nil)
           WORKSHEET_WRITE_STRING(worksheet, row, column++, hb_StrToUtf8('Номер и дата счета'), header_wrap)
         endif
       endif
@@ -962,7 +968,7 @@ Function s_mnog_poisk()
         arr_title[4] += '┴─────────'
         R_Use(dir_server + 'mo_raksh', cur_dir + 'tmp_raksh', 'RAKSH')
         if lExcel
-          WORKSHEET_SET_COLUMN(worksheet, row, column, 10.0)
+          WORKSHEET_SET_COLUMN(worksheet, column, column, 13.0, nil)
           WORKSHEET_WRITE_STRING(worksheet, row, column++, hb_StrToUtf8('РАК'), header_wrap)
         endif
       endif
@@ -972,7 +978,7 @@ Function s_mnog_poisk()
         arr_title[3] += '│ врач'
         arr_title[4] += '┴─────'
         if lExcel
-          WORKSHEET_SET_COLUMN(worksheet, row, column, 10.0)
+          WORKSHEET_SET_COLUMN(worksheet, column, column, 10.0, nil)
           WORKSHEET_WRITE_STRING(worksheet, row, column++, hb_StrToUtf8('Леч. врач'), header_wrap)
         endif
       endif
@@ -982,7 +988,7 @@ Function s_mnog_poisk()
         arr_title[3] += '│     Список услуг      '
         arr_title[4] += '┴───────────────────────'
         if lExcel
-          WORKSHEET_SET_COLUMN(worksheet, row, column, 10.0)
+          WORKSHEET_SET_COLUMN(worksheet, column, column, 10.0, nil)
           WORKSHEET_WRITE_STRING(worksheet, row, column++, hb_StrToUtf8('Список услуг'), header_wrap)
         endif
       endif
@@ -992,7 +998,7 @@ Function s_mnog_poisk()
         arr_title[3] += '│критерий'
         arr_title[4] += '┴────────'
         if lExcel
-          WORKSHEET_SET_COLUMN(worksheet, row, column, 10.0)
+          WORKSHEET_SET_COLUMN(worksheet, column, column, 10.0, nil)
           WORKSHEET_WRITE_STRING(worksheet, row, column++, hb_StrToUtf8('Дополнит. критерий'), header_wrap)
         endif
       endif
@@ -1003,7 +1009,7 @@ Function s_mnog_poisk()
           arr_title[3] += '│и оператор'
           arr_title[4] += '┴──────────'
           if lExcel
-            WORKSHEET_SET_COLUMN(worksheet, row, column, 10.0)
+            WORKSHEET_SET_COLUMN(worksheet, column, column, 10.0, nil)
             WORKSHEET_WRITE_STRING(worksheet, row, column++, hb_StrToUtf8('Дата ввода и оператор'), header_wrap)
           endif
         endif
@@ -1436,6 +1442,11 @@ Function s_mnog_poisk()
         endif
         if mn->komu < 0
           s2 += f4_view_list_schet(human->komu, cut_code_smo(human_->smo), human->str_crb)
+          if lExcel
+            WORKSHEET_WRITE_STRING(worksheet, row, column++, hb_StrToUtf8(f4_view_list_schet(human->komu, cut_code_smo(human_->smo), human->str_crb)), fmtCellString)
+          endif
+        else
+          column++
         endif
         if yes_bukva .and. !empty(human_->status_st)
           tmp1 := ' ' + alltrim(human_->status_st)
@@ -1446,6 +1457,11 @@ Function s_mnog_poisk()
         s3 := iif(mem_kodkrt == 2, space(1), space(7))
         if !empty(kart->SNILS)
           s3 += transform(kart->SNILS, picture_pf) + ' '
+          if lExcel
+            WORKSHEET_WRITE_STRING(worksheet, row, column++, transform(kart->SNILS, picture_pf), fmtCellString)
+          endif
+        else
+          column++
         endif
         if mn->invalid == 9
           if kart_->INVALID == 1
@@ -1482,6 +1498,9 @@ Function s_mnog_poisk()
           s2 += space(9)
           s3 += space(9)
           VIGRUZKA->dd1 := full_date(human->date_r)
+          if lExcel
+            WORKSHEET_WRITE_STRING(worksheet, row, column++, date_8(human->date_r), fmtCellStringCenter)
+          endif
         endif
         //
         if isbit(mn->vid_doc, 2) // адрес
@@ -1490,6 +1509,9 @@ Function s_mnog_poisk()
           s2 += ' ' + padr(alltrim(a_diagnoz[2]), 24)
           s3 += ' ' + padr(alltrim(a_diagnoz[3]), 24)
           VIGRUZKA->dd2 := ret_okato_ulica(kart->adres, kart_->okatog, 0, 2)
+          if lExcel
+            WORKSHEET_WRITE_STRING(worksheet, row, column++, hb_StrToUtf8(ret_okato_ulica(kart->adres, kart_->okatog, 0, 2)), fmtCellString)
+          endif
         endif
         //
         if isbit(mn->vid_doc, 12) // телефоны
@@ -1498,6 +1520,9 @@ Function s_mnog_poisk()
           s2 += ' ' + padr(alltrim(kart_->Phone_m), 10)
           s3 += ' ' + padr(alltrim(kart_->Phone_w), 10) 
           VIGRUZKA->dd12 := alltrim(kart_->Phone_h) + ' ' + alltrim(kart_->Phone_m) + ' ' + alltrim(kart_->Phone_w)
+          if lExcel
+            WORKSHEET_WRITE_STRING(worksheet, row, column++, hb_StrToUtf8(alltrim(kart_->Phone_h) + ' ' + alltrim(kart_->Phone_m) + ' ' + alltrim(kart_->Phone_w)), fmtCellString)
+          endif
         endif
          //
          if isbit(mn->vid_doc, 3) // номер карты
@@ -1521,6 +1546,9 @@ Function s_mnog_poisk()
             VIGRUZKA->dd4 := ' с' + left(date_8(mn_data), 5) + 'по'+' ' + date_8(human->k_data)
           endif
           s3 += space(9)
+          if lExcel
+            WORKSHEET_WRITE_STRING(worksheet, row, column++, hb_StrToUtf8(iif(mn_data == human->k_data, date_8(human->k_data), 'с ' + left(date_8(mn_data), 5) + ' по ' + date_8(human->k_data))), fmtCellString)
+          endif
         endif
         //
         if isbit(mn->vid_doc, 5)
@@ -1548,9 +1576,7 @@ Function s_mnog_poisk()
             tt_diagnoz := aclone(a_diagnoz)
           endif
           if lExcel
-            if lExcel
               WORKSHEET_WRITE_STRING(worksheet, row, column++, hb_StrToUtf8(tmp1), fmtCellString)
-            endif
           endif
           VIGRUZKA->dd5 := tmp1
         endif
@@ -1570,6 +1596,9 @@ Function s_mnog_poisk()
           s3 += space(16)
           VIGRUZKA->dd62 := lstr(HUMAN_->schet_zap)
           VIGRUZKA->dd61 := schet_->smo
+          if lExcel
+              WORKSHEET_WRITE_STRING(worksheet, row, column++, hb_StrToUtf8(iif(human->tip_h >= B_SCHET .and. human->schet > 0, alltrim(schet_->nschet) + ' ' + date_8(schet_->dschet) + 'г.', padc('-', 8))), fmtCellString)
+          endif
         endif
         //
         if isbit(mn->vid_doc, 7)
@@ -1590,6 +1619,17 @@ Function s_mnog_poisk()
               VIGRUZKA->dd7 := 'снят ' + lstr(tmp->rak_p) + '% '+ lstr(tmp->rak_s, 9, 2)
             endif
           endif
+          if lExcel
+            if tmp->rak_p == 0
+              WORKSHEET_WRITE_STRING(worksheet, row, column++, hb_StrToUtf8('оплачивается'), fmtCellString)
+            else
+              if human_->oplata == 9
+                WORKSHEET_WRITE_STRING(worksheet, row, column++, hb_StrToUtf8('снят ' + lstr(tmp->rak_p) + '% ' + 'перевыставлен'), fmtCellString)
+              else
+                WORKSHEET_WRITE_STRING(worksheet, row, column++, hb_StrToUtf8('снят ' + lstr(tmp->rak_p) + '% '+ lstr(tmp->rak_s, 9, 2)), fmtCellString)
+              endif
+            endif
+          endif
          endif
         //
         if isbit(mn->vid_doc, 8)
@@ -1603,6 +1643,9 @@ Function s_mnog_poisk()
           endif
           s2 += space(6)
           s3 += space(6)
+          if lExcel
+              WORKSHEET_WRITE_STRING(worksheet, row, column++, hb_StrToUtf8(put_val(perso->tab_nom, 6)), fmtCellString)
+          endif
         endif
         //
         if isbit(mn->vid_doc, 9)
@@ -1695,6 +1738,9 @@ Function s_mnog_poisk()
             tt_usl := aclone(a_diagnoz)
           endif
           VIGRUZKA->dd9 := tmp1
+          if lExcel
+              WORKSHEET_WRITE_STRING(worksheet, row, column++, hb_StrToUtf8(tmp1), fmtCellString)
+          endif
         endif
         //
         if isbit(mn->vid_doc, 10)
@@ -1714,6 +1760,9 @@ Function s_mnog_poisk()
           s2 += ' ' + padc(a_diagnoz[2], 8)
           s3 += ' ' + padc(a_diagnoz[3], 8)
           VIGRUZKA->dd10 := a_diagnoz[1] + ' ' + a_diagnoz[2] + ' ' + a_diagnoz[3]
+          if lExcel
+              WORKSHEET_WRITE_STRING(worksheet, row, column++, hb_StrToUtf8(a_diagnoz[1] + ' ' + a_diagnoz[2] + ' ' + a_diagnoz[3]), fmtCellString)
+          endif
         endif
         if yes_parol
           if isbit(mn->vid_doc, 11)
@@ -1728,6 +1777,13 @@ Function s_mnog_poisk()
             elseif human_2->PN3 > 0
               s2 += ' ИМПОРТ'
               VIGRUZKA->dd11 := date_8(c4tod(human->date_e)) + 'г. ' + ' ИМПОРТ'
+            endif
+            if lExcel
+              if asc(human->kod_p) > 0
+                WORKSHEET_WRITE_STRING(worksheet, row, column++, hb_StrToUtf8(date_8(c4tod(human->date_e)) + 'г. '+crypt(base1->p1, gpasskod)), fmtCellString)
+              elseif human_2->PN3 > 0
+                WORKSHEET_WRITE_STRING(worksheet, row, column++, hb_StrToUtf8(date_8(c4tod(human->date_e)) + 'г. ' + ' ИМПОРТ'), fmtCellString)
+              endif
             endif
           endif
         endif
