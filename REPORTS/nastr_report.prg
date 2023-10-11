@@ -822,7 +822,7 @@ Function s_mnog_poisk()
       if lExcel
         workbook  := WORKBOOK_NEW(name_fileXLS_full)
         worksheet := WORKBOOK_ADD_WORKSHEET(workbook, hb_StrToUtf8('Список пациентов'))
-        wsCommon := WORKBOOK_ADD_WORKSHEET(workbook, hb_StrToUtf8('Описание'))
+        // wsCommon := WORKBOOK_ADD_WORKSHEET(workbook, hb_StrToUtf8('Описание'))
         formatDate := WORKBOOK_ADD_FORMAT(workbook)
         FORMAT_SET_NUM_FORMAT(formatDate, 'dd/mm/yyyy')
         FORMAT_SET_ALIGN(formatDate, LXW_ALIGN_CENTER)
