@@ -6,7 +6,7 @@
 
 Static sadiag1 := {}
 
-// 28.06.23 создание XML-файлов реестра
+// 11.10.23 создание XML-файлов реестра
 Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
   //
@@ -522,10 +522,10 @@ Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
         endif
       endif
       // подменим диагноз если необходимо для генно-инженерных препаратов или
-      // операции по поводу грыж, взрослые (уровень 4)
+      // операции по поводу грыж, взрослые (уровень 4), для случаев проведения
+      // антимикробной терапии инфекций, вызванных полирезистентными микроорганизмами
       lReplaceDiagnose := .f.
-      // if endDateZK >= 0d20220101 .and. alltrim(mdiagnoz[1]) == 'Z92.2'
-      if endDateZK >= 0d20220101 .and. eq_any(alltrim(mdiagnoz[1]), 'Z92.2', 'Z92.4')
+      if endDateZK >= 0d20220101 .and. eq_any(alltrim(mdiagnoz[1]), 'Z92.2', 'Z92.4', 'Z92.8')
         mdiagnoz[1] := mdiagnoz[2]
         diagnoz_replace := mdiagnoz[2]
         mdiagnoz[2] := ''
@@ -1018,9 +1018,8 @@ Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
           endif
           if p_tip_reestr == 1
             // подменим диагноз если необходимо для генно-инженерных препаратов или
-            // операции по поводу грыж, взрослые (уровень 4)
-            // if endDateZK >= 0d20220101 .and. alltrim(hu_->kod_diag) == 'Z92.2'
-            // if endDateZK >= 0d20220101 .and. eq_any(alltrim(hu_->kod_diag), 'Z92.2', 'Z92.4')
+            // операции по поводу грыж, взрослые (уровень 4), для случаев проведения
+            // антимикробной терапии инфекций, вызванных полирезистентными микроорганизмами
             if lReplaceDiagnose
               mo_add_xml_stroke(oUSL, 'DS', diagnoz_replace)
             else
@@ -1127,9 +1126,8 @@ Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
           mo_add_xml_stroke(oUSL, 'DATE_OUT', date2xml(c4tod(mohu->DATE_U2)))
           if p_tip_reestr == 1
             // подменим диагноз если необходимо для генно-инженерных препаратов или
-            // операции по поводу грыж, взрослые (уровень 4)
-            // if endDateZK >= 0d20220101 .and. alltrim(mohu->kod_diag) == 'Z92.2'
-            // if endDateZK >= 0d20220101 .and. eq_any(mohu->kod_diag, 'Z92.2', 'Z92.4')
+            // операции по поводу грыж, взрослые (уровень 4), для случаев проведения
+            // антимикробной терапии инфекций, вызванных полирезистентными микроорганизмами
             if lReplaceDiagnose
               mo_add_xml_stroke(oUSL, 'DS', diagnoz_replace)
             else

@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-// 07.10.23
+// 11.10.23
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1, ;
         i, j, k, c, s := ' ', a_srok_lech := {}, a_period_stac := {}, a_disp := {}, ;
@@ -4504,7 +4504,7 @@ Function verify_1_sluch(fl_view)
   // Ž‚…Š€ „‹Ÿ ‘‹“—€…‚ „ˆ€ƒŽ‡Ž‚ Z00-Z99 ¢ ¯®«¨ª«¨­¨ª¥
   //
   if human_->USL_OK == USL_OK_POLYCLINIC .and. between_diag(mdiagnoz[1], 'Z00', 'Z99') ;
-          .and. alltrim(mdiagnoz[1]) != 'Z92.2' .and. alltrim(mdiagnoz[1]) != 'Z92.4'
+          .and. alltrim(mdiagnoz[1]) != 'Z92.2' .and. alltrim(mdiagnoz[1]) != 'Z92.4' .and. alltrim(mdiagnoz[1]) != 'Z92.8'
     
     if lu_type == TIP_LU_STD .and. human_->RSLT_NEW != 314 .and. human_->RSLT_NEW != 308 .and. human_->RSLT_NEW != 309 ;
       .and. human_->RSLT_NEW != 311 .and. human_->RSLT_NEW != 315 .and. human_->RSLT_NEW != 305 .and. human_->RSLT_NEW != 306

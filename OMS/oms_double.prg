@@ -1,10 +1,10 @@
-** режимы ввода данных для задачи ОМС (продолжение) - mo_oms3.prg
+// режимы ввода данных для задачи ОМС (продолжение) - mo_oms3.prg
 #include 'inkey.ch'
 #include 'function.ch'
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-** 10.10.22 работа с двойными случаями
+// 10.10.22 работа с двойными случаями
 Function oms_double(k)
   Static sk := 1
   Local mas_pmt, mas_msg, mas_fun, j
@@ -34,14 +34,15 @@ Function oms_double(k)
   endif
   return NIL
 
-** 14.02.23 склеить два случая
+// 14.02.23 склеить два случая
 Function create_double_sl()
   Local buf, str_sem, str_sem2, i, d, fl, lshifr, arr_m, mas_pmt, buf24, buf_scr, srec, old_yes_h_otd := yes_h_otd
   // local find_reserve_1 := find_reserve_2 := .f.  // если в случае присутствуют 
   local fl_reserve_1, fl_reserve_2  // если в случае присутствуют 
                             // {'st36.009 - A16.20.078',
                             // 'st36.010 - A16.12.030',
-                            // 'st36.011 - A16.10.021.001'}
+                            // 'st36.011 - A16.10.021.001',
+                            // 'st36.013', 'st36.014', 'st36.015'}
   local rslt_sl1, rslt_sl2, rslt_fl1 := .f., rslt_fl2 := .f.
   local rslt_kiro := {102, 105, 107, 110, 202, 205, 207}  // взято из правил применения КСГ
 
@@ -321,7 +322,7 @@ Function create_double_sl()
   rest_box(buf)
   return NIL
 
-** 05.03.23 Проверка (попытка пересчёта) цены КСГ первого случая
+// 05.03.23 Проверка (попытка пересчёта) цены КСГ первого случая
 Function recount_double_sl(mkod_human, k_data2)
   Local aksg, lcena, adbf := { ;
     {'KOD'      ,   'N',     7,     0}, ; // код больного
@@ -514,7 +515,7 @@ Function recount_double_sl(mkod_human, k_data2)
   is_zf_stomat := old_is_zf_stomat
   return NIL
 
-** 10.10.22 просмотр двойных случаев
+// 10.10.22 просмотр двойных случаев
 Function view_double_sl()
   Local k, s, buf, arr := {}
 
@@ -551,7 +552,7 @@ Function view_double_sl()
   endif
   return NIL
 
-** 10.10.22 снова разделить два случая
+// 10.10.22 снова разделить два случая
 Function delete_double_sl()
   Local k, s, buf, arr := {}, str_sem := 'Расформирование двойного листа учёта'
 
@@ -611,7 +612,7 @@ Function delete_double_sl()
   endif
   return NIL
 
-** 10.10.22
+// 10.10.22
 Function input_double_sl(par)
   Static srec := 0
   Local buf, i, arr_m, buf24, blk, t_arr[BR_LEN], ret
@@ -661,7 +662,7 @@ Function input_double_sl(par)
   endif
   return ret
 
-** 10.10.22
+// 10.10.22
 Function f1_input_double_sl()
   Local fl, rec, rec3
 
