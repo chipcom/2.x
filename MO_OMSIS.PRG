@@ -1548,24 +1548,6 @@ rest_box(buf24)
 setcolor(tmp_color)
 return ret
 
-**
-Function f_put_tal_diag()
-Static mm_s := {"Характер заболевания",;
-                "Диспансерный учет"}
-Local i, s
-for i := 1 to 2
-  if arr_tal_diag[i,3] == 2
-    add_string(mm_s[i]+": не введён")
-  elseif arr_tal_diag[i,1] > 0
-    s := mm_s[i]+": "+lstr(arr_tal_diag[i,1])
-    if arr_tal_diag[i,1] != arr_tal_diag[i,2]
-      s += " - "+lstr(arr_tal_diag[i,2])
-    endif
-    add_string(s)
-  endif
-next
-return NIL
-
 
 **
 Function ret_date_reg_otch_period()
