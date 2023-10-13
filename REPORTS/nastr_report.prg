@@ -7,7 +7,7 @@
 
 Static lcount_uch  := 1
 
-// 12.10.23 многовариантный поиск
+// 13.10.23 многовариантный поиск
 Function s_mnog_poisk()
   Static mm_rak := { ;
     {'все случаи', 0}, ;
@@ -72,7 +72,7 @@ Function s_mnog_poisk()
   local fmtCellNumber, fmtCellString, fmtCellStringCenter, fmtCellNumberRub
   local row, column, rowWS, columnWS
   local s1, s2, s3
-  local merge_format, merge_format_header
+  local wsCommon_format, wsCommon_format_header, wsCommon_format_wrap, wsCommon_Number, wsCommon_Number_Rub
 
   if mem_dom_aktiv == 1
     aadd(mm_dom, {'на дому-АКТИВ', 3})
@@ -824,16 +824,30 @@ Function s_mnog_poisk()
         workbook  := WORKBOOK_NEW(name_fileXLS_full)
         wsCommon := WORKBOOK_ADD_WORKSHEET(workbook, hb_StrToUtf8('Описание'))
         WORKSHEET_SET_COLUMN(wsCommon, 7, 7, 15, nil)
-        merge_format := WORKBOOK_ADD_FORMAT(workbook)
-        format_set_align(merge_format, LXW_ALIGN_CENTER)
-        format_set_align(merge_format, LXW_ALIGN_VERTICAL_CENTER)
-        FORMAT_SET_BOLD(merge_format)
+        wsCommon_format := WORKBOOK_ADD_FORMAT(workbook)
+        format_set_align(wsCommon_format, LXW_ALIGN_CENTER)
+        format_set_align(wsCommon_format, LXW_ALIGN_VERTICAL_CENTER)
+        FORMAT_SET_BOLD(wsCommon_format)
 
-        merge_format_header := WORKBOOK_ADD_FORMAT(workbook)
-        format_set_align(merge_format_header, LXW_ALIGN_CENTER)
-        format_set_align(merge_format_header, LXW_ALIGN_VERTICAL_CENTER)
-        FORMAT_SET_BOLD(merge_format_header)
-        FORMAT_SET_FONT_SIZE(merge_format_header, 20)
+        wsCommon_format_wrap := WORKBOOK_ADD_FORMAT(workbook)
+        format_set_align(wsCommon_format_wrap, LXW_ALIGN_LEFT)
+        format_set_align(wsCommon_format_wrap, LXW_ALIGN_VERTICAL_CENTER)
+        format_set_text_wrap(wsCommon_format_wrap)
+
+        wsCommon_format_header := WORKBOOK_ADD_FORMAT(workbook)
+        format_set_align(wsCommon_format_header, LXW_ALIGN_CENTER)
+        format_set_align(wsCommon_format_header, LXW_ALIGN_VERTICAL_CENTER)
+        FORMAT_SET_BOLD(wsCommon_format_header)
+        FORMAT_SET_FONT_SIZE(wsCommon_format_header, 20)
+
+        wsCommon_Number := WORKBOOK_ADD_FORMAT(workbook)
+        FORMAT_SET_ALIGN(wsCommon_Number, LXW_ALIGN_CENTER)
+        FORMAT_SET_ALIGN(wsCommon_Number, LXW_ALIGN_VERTICAL_CENTER)
+
+        wsCommon_Number_Rub := WORKBOOK_ADD_FORMAT(workbook)
+        FORMAT_SET_ALIGN(wsCommon_Number_Rub, LXW_ALIGN_RIGHT)
+        FORMAT_SET_ALIGN(wsCommon_Number_Rub, LXW_ALIGN_VERTICAL_CENTER)
+        FORMAT_SET_NUM_FORMAT(wsCommon_Number_Rub, '#,##0.00')
         
         worksheet := WORKBOOK_ADD_WORKSHEET(workbook, hb_StrToUtf8('Список пациентов'))
         formatDate := WORKBOOK_ADD_FORMAT(workbook)
@@ -1086,12 +1100,12 @@ Function s_mnog_poisk()
       add_string(' == ПАРАМЕТРЫ ПОИСКА ==')
 
       if lExcel
-        WORKSHEET_MERGE_RANGE(wsCommon, rowWS, columnWS, rowWS, 12, '', merge_format_header)
-        WORKSHEET_WRITE_STRING(wsCommon, rowWS++, columnWS, hb_StrToUtf8(expand('РЕЗУЛЬТАТ МНОГОВАРИАНТНОГО ПОИСКА')), merge_format_header)
+        WORKSHEET_MERGE_RANGE(wsCommon, rowWS, columnWS, rowWS, 12, '', wsCommon_format_header)
+        WORKSHEET_WRITE_STRING(wsCommon, rowWS++, columnWS, hb_StrToUtf8(expand('РЕЗУЛЬТАТ МНОГОВАРИАНТНОГО ПОИСКА')), wsCommon_format_header)
         titleN_uchEXCEL(wsCommon, rowWS++, columnWS, st_a_uch, sh, lcount_uch)
         rowWS++
-        WORKSHEET_MERGE_RANGE(wsCommon, rowWS, columnWS, rowWS, 12, '', merge_format)
-        WORKSHEET_WRITE_STRING(wsCommon, rowWS++, columnWS, hb_StrToUtf8('== ПАРАМЕТРЫ ПОИСКА =='), merge_format)
+        WORKSHEET_MERGE_RANGE(wsCommon, rowWS, columnWS, rowWS, 12, '', wsCommon_format)
+        WORKSHEET_WRITE_STRING(wsCommon, rowWS++, columnWS, hb_StrToUtf8('== ПАРАМЕТРЫ ПОИСКА =='), wsCommon_format)
       endif
 
       if mn->date_lech > 0
@@ -1565,7 +1579,13 @@ Function s_mnog_poisk()
         verify_FF(HH - 1, .t., sh)
         add_string(padr('Оказанные услуги (ТФОМС):', l + 13) + '|Кол-во|  Ст-ть   '+iif(fl_rak_usl,'| Снято РАК', ''))
         if lExcel
-          WORKSHEET_WRITE_STRING(wsCommon, rowWS++, columnWS, hb_StrToUtf8(padr('Оказанные услуги (ТФОМС):', l + 13) + '|Кол-во|  Ст-ть   '+iif(fl_rak_usl,'| Снято РАК', '')), nil)
+          WORKSHEET_MERGE_RANGE(wsCommon, rowWS, 0, rowWS, 5, hb_StrToUtf8('Оказанные услуги (ТФОМС)'), wsCommon_format)
+          WORKSHEET_WRITE_STRING(wsCommon, rowWS, 6, hb_StrToUtf8('Кол-во'), wsCommon_format)
+          WORKSHEET_WRITE_STRING(wsCommon, rowWS, 7, hb_StrToUtf8('Стоимость'), wsCommon_format)
+          if fl_rak_usl
+            WORKSHEET_WRITE_STRING(wsCommon, rowWS, 8, hb_StrToUtf8('Снято РАК'), wsCommon_format)
+          endif
+          rowWS++
         endif
         for i := 1 to len(arr_usl)
           verify_FF(HH, .t., sh)
@@ -1575,17 +1595,21 @@ Function s_mnog_poisk()
           k += arr_usl[i, 4]
           s += arr_usl[i, 5]
           if lExcel
-            WORKSHEET_WRITE_STRING(wsCommon, rowWS++, columnWS, hb_StrToUtf8( ;
-                '  ' + arr_usl[i, 2] + ' ' + ;
-                padr(arr_usl[i, 3], l) + '|' + put_val(arr_usl[i, 4], 5) + ' |' + put_kopE(arr_usl[i, 5], 10) + ;
-                iif(fl_rak_usl .and. left(arr_usl[i, 2], 3) == '71.', '|' + put_kopE(arr_usl[i, 6], 10), '') ;
-             ), nil)
+            WORKSHEET_MERGE_RANGE(wsCommon, rowWS, 0, rowWS, 5, hb_StrToUtf8('  ' + arr_usl[i, 2] + ' ' + padr(arr_usl[i, 3], l)), wsCommon_format_wrap)
+            WORKSHEET_WRITE_NUMBER(wsCommon, rowWS, 6, arr_usl[i, 4], wsCommon_Number)
+            WORKSHEET_WRITE_NUMBER(wsCommon, rowWS, 7, arr_usl[i, 5], wsCommon_Number_Rub)
+            if fl_rak_usl .and. left(arr_usl[i, 2], 3) == '71.'
+              WORKSHEET_WRITE_NUMBER(wsCommon, rowWS, 8, arr_usl[i, 6], wsCommon_Number_Rub)
+            endif
+            rowWS++
           endif
         next
         add_string('  ИТОГО:     Оказано услуг ' + lstr(k) + ' на сумму ' + lstr(s, 12, 2) + 'р.')
         if lExcel
-          WORKSHEET_WRITE_STRING(wsCommon, rowWS++, columnWS, hb_StrToUtf8('  ИТОГО:     Оказано услуг ' + lstr(k) + ' на сумму ' + lstr(s, 12, 2) + 'р.'), nil)
-        endif
+          WORKSHEET_WRITE_STRING(wsCommon, rowWS, 1, hb_StrToUtf8('ИТОГО:'), nil)
+          WORKSHEET_WRITE_NUMBER(wsCommon, rowWS, 6, k, wsCommon_Number)
+          WORKSHEET_WRITE_NUMBER(wsCommon, rowWS++, 7, s, wsCommon_Number_Rub)
+      endif
       endif
       if mn->uslugiF > 0
         l := s := k := 0
@@ -1593,7 +1617,9 @@ Function s_mnog_poisk()
         verify_FF(HH - 1, .t., sh)
         add_string(padr('Оказанные услуги (ФФОМС):', l + 23) + '|Кол-во')
         if lExcel
-          WORKSHEET_WRITE_STRING(wsCommon, rowWS++, columnWS, hb_StrToUtf8(padr('Оказанные услуги (ФФОМС):', l + 23) + '|Кол-во'), nil)
+          rowWS++
+          WORKSHEET_MERGE_RANGE(wsCommon, rowWS, 0, rowWS, 5, hb_StrToUtf8('Оказанные услуги (ФФОМС)'), wsCommon_format)
+          WORKSHEET_WRITE_STRING(wsCommon, rowWS++, 6, hb_StrToUtf8('Кол-во'), wsCommon_Number)
         endif
         for i := 1 to len(arr_uslF)
           verify_FF(HH, .t., sh)
@@ -1601,15 +1627,14 @@ Function s_mnog_poisk()
                    padr(arr_uslF[i, 3], l) + '|' + put_val(arr_uslF[i, 4], 5))
           k += arr_uslF[i, 4]
           if lExcel
-            WORKSHEET_WRITE_STRING(wsCommon, rowWS++, columnWS, hb_StrToUtf8( ;
-                '  ' + arr_uslF[i, 2] + ' ' + ;
-                padr(arr_uslF[i, 3], l) + '|' + put_val(arr_uslF[i, 4], 5) ;
-             ), nil)
+            WORKSHEET_MERGE_RANGE(wsCommon, rowWS, 0, rowWS, 5, hb_StrToUtf8(arr_uslF[i, 2] + ' ' + padr(arr_uslF[i, 3], l)), wsCommon_format_wrap)
+            WORKSHEET_WRITE_NUMBER(wsCommon, rowWS++, 6, arr_uslF[i, 4], wsCommon_Number)
           endif
         next
         add_string('  ИТОГО:     Оказано услуг ' + lstr(k))
         if lExcel
-          WORKSHEET_WRITE_STRING(wsCommon, rowWS++, columnWS, hb_StrToUtf8('  ИТОГО:     Оказано услуг ' + lstr(k)), nil)
+          WORKSHEET_WRITE_STRING(wsCommon, rowWS, 1, hb_StrToUtf8('ИТОГО:'), nil)
+          WORKSHEET_WRITE_NUMBER(wsCommon, rowWS++, 6, k, nil)
         endif
       endif
       use (cur_dir + 'tmp_bbuk') index (cur_dir + 'tmp_bbuk') new
@@ -1627,9 +1652,9 @@ Function s_mnog_poisk()
       add_string(' == РЕЗУЛЬТАТЫ ПОИСКА ==')
       if lExcel
         rowWS++
-        WORKSHEET_MERGE_RANGE(wsCommon, rowWS, columnWS, rowWS, 12, '', merge_format)
-        WORKSHEET_WRITE_STRING(wsCommon, rowWS++, columnWS, hb_StrToUtf8('== РЕЗУЛЬТАТЫ ПОИСКА =='), merge_format)
-        WORKSHEET_MERGE_RANGE(wsCommon, rowWS, columnWS, rowWS, 12, '', merge_format)
+        WORKSHEET_MERGE_RANGE(wsCommon, rowWS, columnWS, rowWS, 12, '', wsCommon_format)
+        WORKSHEET_WRITE_STRING(wsCommon, rowWS++, columnWS, hb_StrToUtf8('== РЕЗУЛЬТАТЫ ПОИСКА =='), wsCommon_format)
+        WORKSHEET_MERGE_RANGE(wsCommon, rowWS, columnWS, rowWS, 12, '', wsCommon_format)
         WORKSHEET_WRITE_STRING(wsCommon, rowWS++, columnWS, hb_StrToUtf8('(см. на листе "Список пациентов")'), nil)
         rowWS++
       endif
@@ -1653,14 +1678,12 @@ Function s_mnog_poisk()
         endif
         add_string(s)
         if lExcel
-          // WORKSHEET_WRITE_STRING(wsCommon, rowWS++, columnWS, hb_StrToUtf8('Итого количество больных: ' + lstr(tmp_k->(lastrec())) + ' чел.'), nil)
           WORKSHEET_WRITE_STRING(wsCommon, rowWS, columnWS, hb_StrToUtf8('Итого количество больных (чел.):'), nil)
           WORKSHEET_WRITE_NUMBER(wsCommon, rowWS++, 7, tmp_k->(lastrec()), nil)
-          // WORKSHEET_WRITE_STRING(wsCommon, rowWS++, columnWS, hb_StrToUtf8(s), nil)
           WORKSHEET_WRITE_STRING(wsCommon, rowWS, columnWS, hb_StrToUtf8('Итого листов учета:'), nil)
           WORKSHEET_WRITE_NUMBER(wsCommon, rowWS++, 7, tmp_k->(lastrec()), nil)
           WORKSHEET_WRITE_STRING(wsCommon, rowWS, 1, hb_StrToUtf8('на сумму (руб.):'), nil)
-          WORKSHEET_WRITE_NUMBER(wsCommon, rowWS, 7, ssumma, fmtCellNumberRub)
+          WORKSHEET_WRITE_NUMBER(wsCommon, rowWS, 7, ssumma, wsCommon_Number_Rub)
           if suet > 0
             WORKSHEET_WRITE_STRING(wsCommon, rowWS, 8, hb_StrToUtf8('(' + alltrim(str_0(suet, 15, 4)) + ' УЕТ)'), nil)
           endif
@@ -1670,7 +1693,6 @@ Function s_mnog_poisk()
       if !empty(srak_s)
         add_string('Сумма, снятая актами контроля ' + lput_kop(srak_s, .t.) + ' руб.')
         if lExcel
-          // WORKSHEET_WRITE_STRING(wsCommon, rowWS++, columnWS, hb_StrToUtf8('Сумма, снятая актами контроля ' + lput_kop(srak_s, .t.) + ' руб.'), nil)
           WORKSHEET_WRITE_STRING(wsCommon, rowWS, columnWS, hb_StrToUtf8('Сумма, снятая актами контроля (руб.)'), nil)
           WORKSHEET_WRITE_NUMBER(wsCommon, rowWS++, 7, srak_s, nil)
         endif
@@ -1686,19 +1708,15 @@ Function s_mnog_poisk()
         //add_string('Количество посещений (сколько дней пациенты заходили в МО): ' + lstr(tmp_kp->(lastrec())))
         if lExcel
           WORKSHEET_WRITE_STRING(wsCommon, rowWS, 1, hb_StrToUtf8('Количество амбулаторных посещений:'), nil)
-          // WORKSHEET_WRITE_STRING(wsCommon, rowWS++, 7, hb_StrToUtf8(lstr(kol_pos_amb)), nil)
           WORKSHEET_WRITE_NUMBER(wsCommon, rowWS++, 7, kol_pos_amb, nil)
           WORKSHEET_WRITE_STRING(wsCommon, rowWS, 1, hb_StrToUtf8('Количество стоматологических посещений всего:'), nil)
-          // WORKSHEET_WRITE_STRING(wsCommon, rowWS++, 7, hb_StrToUtf8(lstr(pol_pos_stom1 + pol_pos_stom2 + pol_pos_stom3)), nil)
           WORKSHEET_WRITE_NUMBER(wsCommon, rowWS++, 7, pol_pos_stom1 + pol_pos_stom2 + pol_pos_stom3, nil)
-          WORKSHEET_WRITE_STRING(wsCommon, rowWS, 1, hb_StrToUtf8('в том числе с лечебной целью:'), nil)
-          // WORKSHEET_WRITE_STRING(wsCommon, rowWS++, 7, hb_StrToUtf8(lstr(pol_pos_stom1)), nil)
+          WORKSHEET_WRITE_STRING(wsCommon, rowWS, 1, hb_StrToUtf8('в том числе'), nil)
+          WORKSHEET_WRITE_STRING(wsCommon, rowWS, 3, hb_StrToUtf8('с лечебной целью:'), nil)
           WORKSHEET_WRITE_NUMBER(wsCommon, rowWS++, 7, pol_pos_stom1, nil)
-          WORKSHEET_WRITE_STRING(wsCommon, rowWS, 1, hb_StrToUtf8('с профилактической целью:'), nil)
-          // WORKSHEET_WRITE_STRING(wsCommon, rowWS++, 7, hb_StrToUtf8(lstr(pol_pos_stom2)), nil)
+          WORKSHEET_WRITE_STRING(wsCommon, rowWS, 3, hb_StrToUtf8('с профилактической целью:'), nil)
           WORKSHEET_WRITE_NUMBER(wsCommon, rowWS++, 7, pol_pos_stom2, nil)
-          WORKSHEET_WRITE_STRING(wsCommon, rowWS, 1, hb_StrToUtf8('при оказании неотложной помощи:'), nil)
-          // WORKSHEET_WRITE_STRING(wsCommon, rowWS++, 7, hb_StrToUtf8(lstr(pol_pos_stom3)), nil)
+          WORKSHEET_WRITE_STRING(wsCommon, rowWS, 3, hb_StrToUtf8('при оказании неотложной помощи:'), nil)
           WORKSHEET_WRITE_NUMBER(wsCommon, rowWS++, 7, pol_pos_stom3, nil)
         endif
       endif
