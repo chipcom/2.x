@@ -4,6 +4,16 @@
 #include 'chip_mo.ch'
 
 // 16.10.23
+function diagnosis_for_replacement(diag)
+  local aDiag := {'Z92.2', ;
+                  'Z92.4', ;
+                  'Z92.8' ;
+                 }
+  local cDiag := alltrim(diag)
+
+  return ascan(aDiag, alltrim(cDiag)) > 0
+
+// 16.10.23
 function combined_KSG(cShifr)
     // реинфузия аутокрови (КСГ st36.009, выбирается по услуге A16.20.078)
     // баллонная внутриаортальная контрпульсация (КСГ st36.010, выбирается по услуге A16.12.030)
