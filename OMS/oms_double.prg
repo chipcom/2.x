@@ -37,12 +37,11 @@ Function oms_double(k)
 // 14.02.23 склеить два случая
 Function create_double_sl()
   Local buf, str_sem, str_sem2, i, d, fl, lshifr, arr_m, mas_pmt, buf24, buf_scr, srec, old_yes_h_otd := yes_h_otd
-  // local find_reserve_1 := find_reserve_2 := .f.  // если в случае присутствуют 
   local fl_reserve_1, fl_reserve_2  // если в случае присутствуют 
-                            // {'st36.009 - A16.20.078',
-                            // 'st36.010 - A16.12.030',
-                            // 'st36.011 - A16.10.021.001',
-                            // 'st36.013', 'st36.014', 'st36.015'}
+                                    // {'st36.009 - A16.20.078',
+                                    // 'st36.010 - A16.12.030',
+                                    // 'st36.011 - A16.10.021.001',
+                                    // 'st36.013', 'st36.014', 'st36.015'}
   local rslt_sl1, rslt_sl2, rslt_fl1 := .f., rslt_fl2 := .f.
   local rslt_kiro := {102, 105, 107, 110, 202, 205, 207}  // взято из правил применения КСГ
 
