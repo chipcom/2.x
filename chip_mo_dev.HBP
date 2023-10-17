@@ -51,9 +51,6 @@ mo_mzxml.prg
 mo_oms.prg
 mo_oms1.prg
 mo_omsi.prg
-mo_omsio.prg
-mo_omsis.prg
-mo_omsit.prg
 mo_omsif.prg
 mo_omsf.prg
 mo_omsfo.prg
@@ -198,6 +195,9 @@ mo_version.prg
 .\reports\forma14_med_oms.prg
 .\reports\forma1_ffoms.prg
 .\reports\nastr_report.prg
+.\reports\mo_omsio.prg
+.\reports\mo_omsis.prg
+.\reports\mo_omsit.prg
 
 .\util\workWithZIP.prg
 .\util\runExternalProgram.prg
