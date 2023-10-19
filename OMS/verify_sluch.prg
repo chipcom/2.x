@@ -5,7 +5,7 @@
 
 Static sadiag1 := {}
 
-// 16.10.23
+// 19.10.23
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1, ;
         i, j, k, c, s := ' ', a_srok_lech := {}, a_period_stac := {}, a_disp := {}, ;
@@ -3439,7 +3439,7 @@ Function verify_1_sluch(fl_view)
         human_2->NPR_DATE := d1
         human_2->(dbunlock())
       endif
-    else
+    elseif ! glob_mo[_MO_KOD_TFOMS] == '141023' // не больница 15, временно пока не разберемся
       human_->NPR_MO := glob_mo[_MO_KOD_TFOMS] // безусловно проставляем направившую МО
       human_2->(G_RLock(forever))
       human_2->NPR_DATE := d1
