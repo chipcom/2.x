@@ -804,203 +804,201 @@ Function pr_inog_inostr()
   set relation to kod_k into KART, to recno() into HUMAN_, to recno() into HUMAN_2
   dbseek(dtos(arr_m[5]), .t.)
   
-do while human->k_data <= arr_m[6] .and. !eof()
-  @ maxrow(), 71 say date_8(human->k_data) color 'W/R'
-  @ maxrow(), 1 say lstr(++kh) color cColorSt2Msg
-  if jh > 0
-    @ row(),col() say '/' color 'W/R'
-    @ row(),col() say lstr(jh) color cColorStMsg
-  endif
-  UpdateStatus()
-  if inkey() == K_ESC
-    fl_exit := .t. ; exit
-  endif
-  if human_->oplata < 9 .and. human->ishod != 88
-    lregion := space(3) ; losnov := 0
-    if human->CENA_1 > 0 .and. f1pr_inog_inostr(1, human->kod_k,@lregion,@losnov, arr_m)
-      lprofil := human_->profil
-      lvid := 2
-      do case
-        case human_->USL_OK == 1
-          lvid := 1
-        case human_->USL_OK == 2
-          lvid := 4
-        case human_->USL_OK == 3
-          lvid := 2
-        case human_->USL_OK == 4
-          lvid := 3
-      endcase
-      list_fin := f2pr_inog_inostr(_what_if)
-      mn_data := human->N_DATA
-      msumma := human->CENA_1
-      if human->ishod == 89
-        select HUMAN_3
-        set order to 2 // встать на индекс по 2-му случаю
-        find (str(human->kod, 7))
-        if found()
-          msumma := human_3->CENA_1
-          mn_data := human_3->N_DATA
-          mm_p_per := human_2->p_per
+  do while human->k_data <= arr_m[6] .and. !eof()
+    @ maxrow(), 71 say date_8(human->k_data) color 'W/R'
+    @ maxrow(), 1 say lstr(++kh) color cColorSt2Msg
+    if jh > 0
+      @ row(),col() say '/' color 'W/R'
+      @ row(),col() say lstr(jh) color cColorStMsg
+    endif
+    UpdateStatus()
+    if inkey() == K_ESC
+      fl_exit := .t. ; exit
+    endif
+    if human_->oplata < 9 .and. human->ishod != 88
+      lregion := space(3) ; losnov := 0
+      if human->CENA_1 > 0 .and. f1pr_inog_inostr(1, human->kod_k,@lregion,@losnov, arr_m)
+        lprofil := human_->profil
+        lvid := 2
+        do case
+          case human_->USL_OK == 1
+            lvid := 1
+          case human_->USL_OK == 2
+            lvid := 4
+          case human_->USL_OK == 3
+            lvid := 2
+          case human_->USL_OK == 4
+            lvid := 3
+        endcase
+        list_fin := f2pr_inog_inostr(_what_if)
+        mn_data := human->N_DATA
+        msumma := human->CENA_1
+        if human->ishod == 89
+          select HUMAN_3
+          set order to 2 // встать на индекс по 2-му случаю
+          find (str(human->kod, 7))
+          if found()
+            msumma := human_3->CENA_1
+            mn_data := human_3->N_DATA
+            mm_p_per := human_2->p_per
+          endif
         endif
-      endif
-      // добавка для КБ25
-      sum_koiko_den := 0
-      lshifr := ''
-      select HU
-      find (str(human->kod, 7))
-      do while human->kod == hu->kod .and. !eof()
-        usl->(dbGoto(hu->u_kod))
-        if empty(lshifr := opr_shifr_TFOMS(usl->shifr1,usl->kod, human->k_data))
-          lshifr := usl->shifr
-        endif
-        lshifr := alltrim(lshifr)
-        my_debug(,lshifr)
-        if lshifr == '1.11.1'  
-          sum_koiko_den += hu->kol
-          my_debug(, sum_koiko_den) 
-        endif
+        // добавка для КБ25
+        sum_koiko_den := 0
+        lshifr := ''
         select HU
-        skip
-      enddo  
-      //
-      select TMP_KART
-      find (str(human->kod_k, 7) + str(lvid, 1) + str(lprofil, 3)+lregion+str(losnov, 2) + str(list_fin, 1))
-      if !found()
-        append blank
-        tmp_kart->kod := human->kod_k
-        tmp_kart->vid := lvid
-        tmp_kart->profil := lprofil
-        tmp_kart->region := lregion
-        tmp_kart->osnov := losnov
-        tmp_kart->ist_fin := list_fin
-        tmp_kart->d_begin := full_date(human->n_data)
-        tmp_kart->forma := mm_p_per  
+        find (str(human->kod, 7))
+        do while human->kod == hu->kod .and. !eof()
+          usl->(dbGoto(hu->u_kod))
+          if empty(lshifr := opr_shifr_TFOMS(usl->shifr1,usl->kod, human->k_data))
+            lshifr := usl->shifr
+          endif
+          lshifr := alltrim(lshifr)
+          if lshifr == '1.11.1'  
+            sum_koiko_den += hu->kol
+          endif
+          select HU
+          skip
+        enddo  
+        //
+        select TMP_KART
+        find (str(human->kod_k, 7) + str(lvid, 1) + str(lprofil, 3)+lregion+str(losnov, 2) + str(list_fin, 1))
+        if !found()
+          append blank
+          tmp_kart->kod := human->kod_k
+          tmp_kart->vid := lvid
+          tmp_kart->profil := lprofil
+          tmp_kart->region := lregion
+          tmp_kart->osnov := losnov
+          tmp_kart->ist_fin := list_fin
+          tmp_kart->d_begin := full_date(human->n_data)
+          tmp_kart->forma := mm_p_per  
+        endif
+        tmp_kart->kols ++
+        tmp_kart->vozr := f0pr_inog_inostr(human->date_r, mn_data)
+        tmp_kart->summa += msumma
+        tmp_kart->k_day += sum_koiko_den
+        ++jh
       endif
-      tmp_kart->kols ++
-      tmp_kart->vozr := f0pr_inog_inostr(human->date_r, mn_data)
-      tmp_kart->summa += msumma
-      tmp_kart->k_day += sum_koiko_den
-      ++jh
     endif
+    select HUMAN
+    skip
+  enddo
+  if is_task(X_PLATN)
+    WaitStatus('Платные услуги')
+    R_Use(dir_server + 'hum_p',dir_server + 'hum_pd', 'HUMP')
+    set relation to kod_k into KART
+    dbseek(dtos(arr_m[5]), .t.)
+    do while hump->k_data <= arr_m[6] .and. !eof()
+      @ maxrow(), 71 say date_8(hump->k_data) color 'W/R'
+      @ maxrow(), 1 say lstr(++kh) color cColorSt2Msg
+      if jh > 0
+        @ row(),col() say '/' color 'W/R'
+        @ row(),col() say lstr(jh) color cColorStMsg
+      endif
+      UpdateStatus()
+      if inkey() == K_ESC
+        fl_exit := .t. ; exit
+      endif
+      lregion := space(3) ; losnov := 0
+      if hump->CENA > 0 .and. f1pr_inog_inostr(2,hump->kod_k,@lregion,@losnov, arr_m)
+        lprofil := 97 // терапии
+        lvid := 2     // амбулаторно
+        if hump->otd > 0
+          otd->(dbGoto(hump->otd))
+          if !empty(otd->profil)
+            lprofil := otd->profil
+          endif
+          if otd->IDUMP == 1
+            lvid := 1
+          endif
+        endif
+        list_fin := iif(hump->tip_usl == 1, 2, 1)
+        select TMP_KART
+        find (str(hump->kod_k, 7) + str(lvid, 1) + str(lprofil, 3)+lregion+str(losnov, 2) + str(list_fin, 1))
+        if !found()
+          append blank
+          tmp_kart->kod := hump->kod_k
+          tmp_kart->vid := lvid
+          tmp_kart->profil := lprofil
+          tmp_kart->region := lregion
+          tmp_kart->osnov := losnov
+          tmp_kart->ist_fin := list_fin
+        endif
+        kart->(dbGoto(hump->kod_k))
+        tmp_kart->kols ++
+        tmp_kart->vozr := f0pr_inog_inostr(kart->date_r,hump->n_data)
+        tmp_kart->summa += hump->CENA
+        ++jh
+      endif
+      select HUMP
+      skip
+    enddo
   endif
-  select HUMAN
-  skip
-enddo
-if is_task(X_PLATN)
-  WaitStatus('Платные услуги')
-  R_Use(dir_server + 'hum_p',dir_server + 'hum_pd', 'HUMP')
-  set relation to kod_k into KART
-  dbseek(dtos(arr_m[5]), .t.)
-  do while hump->k_data <= arr_m[6] .and. !eof()
-    @ maxrow(), 71 say date_8(hump->k_data) color 'W/R'
-    @ maxrow(), 1 say lstr(++kh) color cColorSt2Msg
-    if jh > 0
-      @ row(),col() say '/' color 'W/R'
-      @ row(),col() say lstr(jh) color cColorStMsg
-    endif
-    UpdateStatus()
-    if inkey() == K_ESC
-      fl_exit := .t. ; exit
-    endif
-    lregion := space(3) ; losnov := 0
-    if hump->CENA > 0 .and. f1pr_inog_inostr(2,hump->kod_k,@lregion,@losnov, arr_m)
-      lprofil := 97 // терапии
-      lvid := 2     // амбулаторно
-      if hump->otd > 0
-        otd->(dbGoto(hump->otd))
-        if !empty(otd->profil)
-          lprofil := otd->profil
+  if is_task(X_ORTO)
+    WaitStatus('Ортопедия')
+    R_Use(dir_server + 'hum_ort',dir_server + 'hum_ortd', 'HUMO')
+    set relation to kod_k into KART
+    dbseek(dtos(arr_m[5]), .t.)
+    do while humo->k_data <= arr_m[6] .and. !eof()
+      @ maxrow(), 71 say date_8(humo->k_data) color 'W/R'
+      @ maxrow(), 1 say lstr(++kh) color cColorSt2Msg
+      if jh > 0
+        @ row(),col() say '/' color 'W/R'
+        @ row(),col() say lstr(jh) color cColorStMsg
+      endif
+      UpdateStatus()
+      if inkey() == K_ESC
+        fl_exit := .t. ; exit
+      endif
+      lregion := space(3) ; losnov := 0
+      if humo->CENA > 0 .and. f1pr_inog_inostr(2,humo->kod_k,@lregion,@losnov, arr_m)
+        lprofil := 88 // стоматологии ортопедической
+        lvid := 2     // амбулаторно
+        if humo->tip_usl == 1
+          list_fin := 4
+        elseif humo->tip_usl == 3
+          list_fin := 2
+        else
+          list_fin := 1
         endif
-        if otd->IDUMP == 1
-          lvid := 1
+        select TMP_KART
+        find (str(humo->kod_k, 7) + str(lvid, 1) + str(lprofil, 3)+lregion+str(losnov, 2) + str(list_fin, 1))
+        if !found()
+          append blank
+          tmp_kart->kod := humo->kod_k
+          tmp_kart->vid := lvid
+          tmp_kart->profil := lprofil
+          tmp_kart->region := lregion
+          tmp_kart->osnov := losnov
+          tmp_kart->ist_fin := list_fin
         endif
+        kart->(dbGoto(humo->kod_k))
+        tmp_kart->kols ++
+        tmp_kart->vozr := f0pr_inog_inostr(kart->date_r,humo->n_data)
+        tmp_kart->summa += humo->CENA
+        ++jh
       endif
-      list_fin := iif(hump->tip_usl == 1, 2, 1)
-      select TMP_KART
-      find (str(hump->kod_k, 7) + str(lvid, 1) + str(lprofil, 3)+lregion+str(losnov, 2) + str(list_fin, 1))
-      if !found()
-        append blank
-        tmp_kart->kod := hump->kod_k
-        tmp_kart->vid := lvid
-        tmp_kart->profil := lprofil
-        tmp_kart->region := lregion
-        tmp_kart->osnov := losnov
-        tmp_kart->ist_fin := list_fin
-      endif
-      kart->(dbGoto(hump->kod_k))
-      tmp_kart->kols ++
-      tmp_kart->vozr := f0pr_inog_inostr(kart->date_r,hump->n_data)
-      tmp_kart->summa += hump->CENA
-      ++jh
-    endif
-    select HUMP
-    skip
-  enddo
-endif
-if is_task(X_ORTO)
-  WaitStatus('Ортопедия')
-  R_Use(dir_server + 'hum_ort',dir_server + 'hum_ortd', 'HUMO')
-  set relation to kod_k into KART
-  dbseek(dtos(arr_m[5]), .t.)
-  do while humo->k_data <= arr_m[6] .and. !eof()
-    @ maxrow(), 71 say date_8(humo->k_data) color 'W/R'
-    @ maxrow(), 1 say lstr(++kh) color cColorSt2Msg
-    if jh > 0
-      @ row(),col() say '/' color 'W/R'
-      @ row(),col() say lstr(jh) color cColorStMsg
-    endif
-    UpdateStatus()
-    if inkey() == K_ESC
-      fl_exit := .t. ; exit
-    endif
-    lregion := space(3) ; losnov := 0
-    if humo->CENA > 0 .and. f1pr_inog_inostr(2,humo->kod_k,@lregion,@losnov, arr_m)
-      lprofil := 88 // стоматологии ортопедической
-      lvid := 2     // амбулаторно
-      if humo->tip_usl == 1
-        list_fin := 4
-      elseif humo->tip_usl == 3
-        list_fin := 2
-      else
-        list_fin := 1
-      endif
-      select TMP_KART
-      find (str(humo->kod_k, 7) + str(lvid, 1) + str(lprofil, 3)+lregion+str(losnov, 2) + str(list_fin, 1))
-      if !found()
-        append blank
-        tmp_kart->kod := humo->kod_k
-        tmp_kart->vid := lvid
-        tmp_kart->profil := lprofil
-        tmp_kart->region := lregion
-        tmp_kart->osnov := losnov
-        tmp_kart->ist_fin := list_fin
-      endif
-      kart->(dbGoto(humo->kod_k))
-      tmp_kart->kols ++
-      tmp_kart->vozr := f0pr_inog_inostr(kart->date_r,humo->n_data)
-      tmp_kart->summa += humo->CENA
-      ++jh
-    endif
-    select HUMO
-    skip
-  enddo
-endif
-rest_box(buf)
-close databases
-if jh == 0
-  func_error(4, 'Не обнаружено информации по иногородним и иностранцам за указанный период')
-else
-  j := 0
-  do while (j := popup_prompt(T_ROW,T_COL-5,j, ;
-                            {'Приложение ~1 - список иностранцев', ;
-                             'Приложение ~2 - список иногородних', ;
-                             'Приложение ~3 - сводная информация по иностранцам', ;
-                             'Приложение ~4 - сводная информация по иногородним', ;
-                             'Расширенный Список ~Иностранцев'})) > 0
-    f3pr_inog_inostr(j, arr_m)
-  enddo
-endif
-return NIL
+      select HUMO
+      skip
+    enddo
+  endif
+  rest_box(buf)
+  close databases
+  if jh == 0
+    func_error(4, 'Не обнаружено информации по иногородним и иностранцам за указанный период')
+  else
+    j := 0
+    do while (j := popup_prompt(T_ROW,T_COL-5,j, ;
+                              {'Приложение ~1 - список иностранцев', ;
+                              'Приложение ~2 - список иногородних', ;
+                              'Приложение ~3 - сводная информация по иностранцам', ;
+                              'Приложение ~4 - сводная информация по иногородним', ;
+                              'Расширенный Список ~Иностранцев'})) > 0
+      f3pr_inog_inostr(j, arr_m)
+    enddo
+  endif
+  return NIL
 
 // 12.08.18
 Function f0pr_inog_inostr(ldate_r, _data)
@@ -1008,442 +1006,446 @@ Function f0pr_inog_inostr(ldate_r, _data)
   return iif(cy < 100, cy, 99)
 
 // 28.09.20
-Function f1pr_inog_inostr(par,lkod,/*@*/lregion,/*@*/losnov, arr_m)
-Local rec
-select KART
-goto (lkod)
-if !empty(kart_->strana) .and. ascan(getO001(), {|x| x[2] == kart_->strana }) > 0
-  lregion := kart_->strana
-  select KIS
-  find (str(lkod, 7))
-  if found()
-    losnov := kis->osn_preb
-  endif
-endif
-if lregion == '643'
-  lregion := space(3) ; losnov := 0
-endif
-if empty(lregion) .and. !eq_any(left(kart_->okatog, 2), '  ', '00', '18')
-  select REGION
-  find (left(kart_->okatog, 2))
-  if found()
-    lregion := left(kart_->okatog, 2) + ' '
-    losnov := -1
-  endif
-  if par == 1 .and. !empty(lregion) // иногородний?
-    if human->komu == 0 .and. val(human_->smo) > 34000 .and. val(human_->smo) < 35000 // полис Волгоградский
-      lregion := space(3) ; losnov := 0                                               // не учитываем
+Function f1pr_inog_inostr(par, lkod, /*@*/lregion, /*@*/losnov, arr_m)
+  Local rec
+
+  select KART
+  goto (lkod)
+  if !empty(kart_->strana) .and. ascan(getO001(), {|x| x[2] == kart_->strana }) > 0
+    lregion := kart_->strana
+    select KIS
+    find (str(lkod, 7))
+    if found()
+      losnov := kis->osn_preb
     endif
   endif
-endif
-return !empty(lregion)
+  if lregion == '643'
+    lregion := space(3) ; losnov := 0
+  endif
+  if empty(lregion) .and. !eq_any(left(kart_->okatog, 2), '  ', '00', '18')
+    select REGION
+    find (left(kart_->okatog, 2))
+    if found()
+      lregion := left(kart_->okatog, 2) + ' '
+      losnov := -1
+    endif
+    if par == 1 .and. !empty(lregion) // иногородний?
+      if human->komu == 0 .and. val(human_->smo) > 34000 .and. val(human_->smo) < 35000 // полис Волгоградский
+        lregion := space(3) ; losnov := 0                                               // не учитываем
+      endif
+    endif
+  endif
+  return !empty(lregion)
 
 // 14.11.19
 Function f2pr_inog_inostr(_what_if)
-Local list_fin := I_FIN_OMS, _ist_fin, i
-if human->komu == 5
-  list_fin := I_FIN_PLAT // личный счет = платные услуги
-elseif eq_any(human->komu, 1, 3)
-  if (i := ascan(_what_if[2], {|x| x[1]==human->komu .and. x[2]==human->str_crb})) > 0
-    list_fin := _what_if[2,i, 3]
+  Local list_fin := I_FIN_OMS, _ist_fin, i
+
+  if human->komu == 5
+    list_fin := I_FIN_PLAT // личный счет = платные услуги
+  elseif eq_any(human->komu, 1, 3)
+    if (i := ascan(_what_if[2], {|x| x[1]==human->komu .and. x[2]==human->str_crb})) > 0
+      list_fin := _what_if[2,i, 3]
+    endif
   endif
-endif
-// 1-пл., 2-ДМС, 3-ОМС, 4-бюджет, 5-средства МО, 6-средства субъекта РФ
-if list_fin == I_FIN_OMS
-  _ist_fin := 3
-elseif list_fin == I_FIN_PLAT
-  _ist_fin := 1
-elseif list_fin == I_FIN_DMS
-  _ist_fin := 2
-elseif list_fin == I_FIN_LPU
-  _ist_fin := 5
-else
-  _ist_fin := 6
-endif
-return _ist_fin
+  // 1-пл., 2-ДМС, 3-ОМС, 4-бюджет, 5-средства МО, 6-средства субъекта РФ
+  if list_fin == I_FIN_OMS
+    _ist_fin := 3
+  elseif list_fin == I_FIN_PLAT
+    _ist_fin := 1
+  elseif list_fin == I_FIN_DMS
+    _ist_fin := 2
+  elseif list_fin == I_FIN_LPU
+    _ist_fin := 5
+  else
+    _ist_fin := 6
+  endif
+  return _ist_fin
 
 // 08.04.23
 Function f3pr_inog_inostr(j, arr_m)
-Static sprofil := 'терапии'
-Static mm_vid := {'медицинская помощь, оказанная в стационарных условиях', ;
-                  'медицинская помощь, оказанная в амбулаторных условиях', ;
-                  'Экстренная медицинская помощь', ;
-                  'медицинская помощь в условиях дневного стационара'}
-Static mm_ist_fin := {'Личные средства гражданина', 'ДМС', 'ОМС', 'средства фед.бюджета', 'средства МО', 'средства субъекта РФ'}
-Local name_fr := 'mo_iipr', buf := save_maxrow()
-mywait()
-delFRfiles()
-dbcreate(fr_titl, {{'name', 'C', 255, 0}, ;
-                   {'period', 'C', 255, 0}})
-use (fr_titl) new alias FRT
-append blank
-frt->name := glob_mo[_MO_FULL_NAME]
-frt->period := arr_m[4]
-dbcreate(fr_data,{;
-        {'vid', 'C', 60, 0}, ;
-        {'profil', 'C', 255, 0}, ;
-        {'region', 'C', 255, 0}, ;
-        {'ist_fin', 'C', 30, 0}, ;
-        {'osnov', 'C', 50, 0}, ;
-        {'fio', 'C', 60, 0}, ;
-        {'kol', 'N', 6, 0}, ;
-        {'kols', 'N', 6, 0}, ;
-        {'vozr', 'N', 2, 0}, ;
-        {'summa', 'N', 15, 2}, ;
-        {'k_day', 'N', 5, 0}, ;
-        {'d_begin', 'C', 10, 0}, ;
-        {'forma', 'C', 60, 0}})
-use (fr_data) new alias FRD
-R_Use(dir_exe+'_okator',cur_dir + '_okatr', 'REGION')
-R_Use(dir_server + 'kartotek', , 'KART')
-use (cur_dir + 'tmp_kart') new
-if j == 1 .or. j == 2 .or. j == 5
-  set relation to kod into KART
-  index on upper(kart->fio) + str(kart->kod, 7) + str(vid, 1) + str(profil, 3)+region+str(osnov, 2) + str(ist_fin, 1) to (cur_dir + 'tmp_kart')
-else
-  index on region+str(osnov, 2) + str(ist_fin, 1) + str(vid, 1) + str(profil, 3) to (cur_dir + 'tmp_kart')
-endif
-if j == 1 .or. j == 2 .or. j == 5
-  select TMP_KART
-  go top
-  do while !eof()
-    if j == 2
-      if tmp_kart->osnov < 0
-        select FRD
-        append blank
-        frd->vid := mm_vid[tmp_kart->vid]
-        if empty(frd->profil := inieditspr(A__MENUVERT, getV002(), tmp_kart->PROFIL))
-          frd->profil := sprofil
-        endif
-        frd->ist_fin := mm_ist_fin[tmp_kart->ist_fin]
-        select REGION
-        find (left(tmp_kart->region, 2))
-        frd->region := charrem('*',name)
-        frd->fio := kart->fio
-        frd->kols += tmp_kart->kols
-        frd->vozr := tmp_kart->vozr
-        frd->summa := tmp_kart->summa
-        frd->k_day := tmp_kart->k_day
-        frd->d_begin := tmp_kart->d_begin
-        frd->forma := iif(tmp_kart->forma == 2, 'Доставлен СП', 'Плановая')
-      endif
-    else
-      if tmp_kart->osnov >= 0
-        select FRD
-        append blank
-        frd->vid := mm_vid[tmp_kart->vid]
-        if empty(frd->profil := inieditspr(A__MENUVERT, getV002(), tmp_kart->PROFIL))
-          frd->profil := sprofil
-        endif
-        frd->ist_fin := mm_ist_fin[tmp_kart->ist_fin]
-        frd->region := inieditspr(A__MENUVERT, getO001(), tmp_kart->region)
-        frd->osnov := inieditspr(A__MENUVERT, get_osn_preb_RF(), tmp_kart->osnov)
-        frd->fio := kart->fio
-        frd->kols += tmp_kart->kols
-        frd->vozr := tmp_kart->vozr
-        frd->summa := tmp_kart->summa
-        frd->k_day := tmp_kart->k_day
-        frd->d_begin := tmp_kart->d_begin
-        frd->forma := iif(tmp_kart->forma == 2, 'Доставлен СП', 'Плановая')
-      endif
-    endif
+  Static sprofil := 'терапии'
+  Static mm_vid := {'медицинская помощь, оказанная в стационарных условиях', ;
+                    'медицинская помощь, оказанная в амбулаторных условиях', ;
+                    'Экстренная медицинская помощь', ;
+                    'медицинская помощь в условиях дневного стационара'}
+  Static mm_ist_fin := {'Личные средства гражданина', 'ДМС', 'ОМС', 'средства фед.бюджета', 'средства МО', 'средства субъекта РФ'}
+  Local name_fr := 'mo_iipr', buf := save_maxrow()
+
+  mywait()
+  delFRfiles()
+  dbcreate(fr_titl, {{'name', 'C', 255, 0}, ;
+                     {'period', 'C', 255, 0}})
+  use (fr_titl) new alias FRT
+  append blank
+  frt->name := glob_mo[_MO_FULL_NAME]
+  frt->period := arr_m[4]
+  dbcreate(fr_data,{;
+          {'vid', 'C', 60, 0}, ;
+          {'profil', 'C', 255, 0}, ;
+          {'region', 'C', 255, 0}, ;
+          {'ist_fin', 'C', 30, 0}, ;
+          {'osnov', 'C', 50, 0}, ;
+          {'fio', 'C', 60, 0}, ;
+          {'kol', 'N', 6, 0}, ;
+          {'kols', 'N', 6, 0}, ;
+          {'vozr', 'N', 2, 0}, ;
+          {'summa', 'N', 15, 2}, ;
+          {'k_day', 'N', 5, 0}, ;
+          {'d_begin', 'C', 10, 0}, ;
+          {'forma', 'C', 60, 0}})
+  use (fr_data) new alias FRD
+  R_Use(dir_exe+'_okator',cur_dir + '_okatr', 'REGION')
+  R_Use(dir_server + 'kartotek', , 'KART')
+  use (cur_dir + 'tmp_kart') new
+  if j == 1 .or. j == 2 .or. j == 5
+    set relation to kod into KART
+    index on upper(kart->fio) + str(kart->kod, 7) + str(vid, 1) + str(profil, 3)+region+str(osnov, 2) + str(ist_fin, 1) to (cur_dir + 'tmp_kart')
+  else
+    index on region+str(osnov, 2) + str(ist_fin, 1) + str(vid, 1) + str(profil, 3) to (cur_dir + 'tmp_kart')
+  endif
+  if j == 1 .or. j == 2 .or. j == 5
     select TMP_KART
-    skip
-  enddo
-else
-  dbcreate(cur_dir + 'tmp1',{{'vid', 'N', 1, 0}, ;
-                           {'profil', 'N', 3, 0}, ;
-                           {'region', 'C', 3, 0}, ;
-                           {'osnov', 'N', 2, 0}, ;
-                           {'ist_fin', 'N', 1, 0}, ;
-                           {'kol', 'N', 6, 0}, ;
-                           {'kols', 'N', 6, 0}, ;
-                           {'summa', 'N', 15, 2}})
-  use (cur_dir + 'tmp1') new
-  index on region+str(osnov, 2) + str(ist_fin, 1) + str(vid, 1) + str(profil, 3) to (cur_dir + 'tmp1')
-  select TMP_KART
-  go top
-  do while !eof()
-    fl := .f.
-    if j == 4
-      if tmp_kart->osnov < 0
-        fl := .t.
+    go top
+    do while !eof()
+      if j == 2
+        if tmp_kart->osnov < 0
+          select FRD
+          append blank
+          frd->vid := mm_vid[tmp_kart->vid]
+          if empty(frd->profil := inieditspr(A__MENUVERT, getV002(), tmp_kart->PROFIL))
+            frd->profil := sprofil
+          endif
+          frd->ist_fin := mm_ist_fin[tmp_kart->ist_fin]
+          select REGION
+          find (left(tmp_kart->region, 2))
+          frd->region := charrem('*',name)
+          frd->fio := kart->fio
+          frd->kols += tmp_kart->kols
+          frd->vozr := tmp_kart->vozr
+          frd->summa := tmp_kart->summa
+          frd->k_day := tmp_kart->k_day
+          frd->d_begin := tmp_kart->d_begin
+          frd->forma := iif(tmp_kart->forma == 2, 'Доставлен СП', 'Плановая')
+        endif
+      else
+        if tmp_kart->osnov >= 0
+          select FRD
+          append blank
+          frd->vid := mm_vid[tmp_kart->vid]
+          if empty(frd->profil := inieditspr(A__MENUVERT, getV002(), tmp_kart->PROFIL))
+            frd->profil := sprofil
+          endif
+          frd->ist_fin := mm_ist_fin[tmp_kart->ist_fin]
+          frd->region := inieditspr(A__MENUVERT, getO001(), tmp_kart->region)
+          frd->osnov := inieditspr(A__MENUVERT, get_osn_preb_RF(), tmp_kart->osnov)
+          frd->fio := kart->fio
+          frd->kols += tmp_kart->kols
+          frd->vozr := tmp_kart->vozr
+          frd->summa := tmp_kart->summa
+          frd->k_day := tmp_kart->k_day
+          frd->d_begin := tmp_kart->d_begin
+          frd->forma := iif(tmp_kart->forma == 2, 'Доставлен СП', 'Плановая')
+        endif
       endif
-    else
-      if tmp_kart->osnov >= 0
-        fl := .t.
-      endif
-    endif
-    if fl
-      select TMP1
-      find (tmp_kart->region+str(tmp_kart->osnov, 2) + str(tmp_kart->ist_fin, 1) + str(tmp_kart->vid, 1) + str(tmp_kart->profil, 3))
-      if !found()
-        append blank
-        tmp1->vid := tmp_kart->vid
-        tmp1->profil := tmp_kart->profil
-        tmp1->region := tmp_kart->region
-        tmp1->osnov := tmp_kart->osnov
-        tmp1->ist_fin := tmp_kart->ist_fin
-      endif
-      tmp1->kol ++
-      tmp1->kols += tmp_kart->kols
-      tmp1->summa += tmp_kart->summa
-    endif
+      select TMP_KART
+      skip
+    enddo
+  else
+    dbcreate(cur_dir + 'tmp1',{{'vid', 'N', 1, 0}, ;
+                             {'profil', 'N', 3, 0}, ;
+                             {'region', 'C', 3, 0}, ;
+                             {'osnov', 'N', 2, 0}, ;
+                             {'ist_fin', 'N', 1, 0}, ;
+                             {'kol', 'N', 6, 0}, ;
+                             {'kols', 'N', 6, 0}, ;
+                             {'summa', 'N', 15, 2}})
+    use (cur_dir + 'tmp1') new
+    index on region+str(osnov, 2) + str(ist_fin, 1) + str(vid, 1) + str(profil, 3) to (cur_dir + 'tmp1')
     select TMP_KART
-    skip
-  enddo
-  select TMP1
-  go top
-  do while !eof()
-    select FRD
-    append blank
-    frd->vid := mm_vid[tmp1->vid]
-    if empty(frd->profil := inieditspr(A__MENUVERT, getV002(), tmp1->PROFIL))
-      frd->profil := sprofil
-    endif
-    frd->ist_fin := mm_ist_fin[tmp1->ist_fin]
-    if tmp1->osnov < 0
-      select REGION
-      find (left(tmp1->region, 2))
-      frd->region := charrem('*',name)
-    else
-      frd->region := inieditspr(A__MENUVERT, getO001(), tmp1->region)
-      frd->osnov := inieditspr(A__MENUVERT, get_osn_preb_RF(), tmp1->osnov)
-    endif
-    frd->kols := tmp1->kols
-    frd->kol := tmp1->kol
-    frd->summa := tmp1->summa
+    go top
+    do while !eof()
+      fl := .f.
+      if j == 4
+        if tmp_kart->osnov < 0
+          fl := .t.
+        endif
+      else
+        if tmp_kart->osnov >= 0
+          fl := .t.
+        endif
+      endif
+      if fl
+        select TMP1
+        find (tmp_kart->region+str(tmp_kart->osnov, 2) + str(tmp_kart->ist_fin, 1) + str(tmp_kart->vid, 1) + str(tmp_kart->profil, 3))
+        if !found()
+          append blank
+          tmp1->vid := tmp_kart->vid
+          tmp1->profil := tmp_kart->profil
+          tmp1->region := tmp_kart->region
+          tmp1->osnov := tmp_kart->osnov
+          tmp1->ist_fin := tmp_kart->ist_fin
+        endif
+        tmp1->kol ++
+        tmp1->kols += tmp_kart->kols
+        tmp1->summa += tmp_kart->summa
+      endif
+      select TMP_KART
+      skip
+    enddo
     select TMP1
-    skip
-  enddo
-endif
-close databases
-rest_box(buf)
-call_fr(name_fr+ lstr(j))
-return NIL
+    go top
+    do while !eof()
+      select FRD
+      append blank
+      frd->vid := mm_vid[tmp1->vid]
+      if empty(frd->profil := inieditspr(A__MENUVERT, getV002(), tmp1->PROFIL))
+        frd->profil := sprofil
+      endif
+      frd->ist_fin := mm_ist_fin[tmp1->ist_fin]
+      if tmp1->osnov < 0
+        select REGION
+        find (left(tmp1->region, 2))
+        frd->region := charrem('*',name)
+      else
+        frd->region := inieditspr(A__MENUVERT, getO001(), tmp1->region)
+        frd->osnov := inieditspr(A__MENUVERT, get_osn_preb_RF(), tmp1->osnov)
+      endif
+      frd->kols := tmp1->kols
+      frd->kol := tmp1->kol
+      frd->summa := tmp1->summa
+      select TMP1
+      skip
+    enddo
+  endif
+  close databases
+  rest_box(buf)
+  call_fr(name_fr + lstr(j))
+  return NIL
 
 // 13.09.23 для ФГБУ 'НМИЦ онкологии им.Н.Н.Петрова'
 Function ot_nmic_petrova()
-Local buf := save_maxrow()
-Private arr_m
-if (arr_m := year_month(, ,, 4)) == NIL
-  return NIL
-endif
-WaitStatus('Сбор информации')
-adbf := {{'MP', 'C', 25, 0}, ;
-         {'POLIS', 'C', 25, 0}, ;
-         {'SNILS', 'C', 11, 0}, ;
-         {'W', 'C', 1, 0}, ;
-         {'DR1', 'C', 10, 0}, ;
-         {'DATE_1', 'C', 10, 0}, ;
-         {'DATE_2', 'C', 10, 0}, ;
-         {'DS1', 'C', 6, 0}, ;
-         {'NHYSTORY', 'C', 10, 0}, ;
-         {'VMP_KIND', 'C', 12, 0}, ;
-         {'VMP_METHOD', 'C', 10, 0}, ;
-         {'VISIT_PURP', 'C', 30, 0}, ;
-         {'STAD', 'C', 10, 0}, ;
-         {'T', 'C', 10, 0}, ;
-         {'N', 'C', 10, 0}, ;
-         {'M', 'C', 10, 0}, ;
-         {'ISP_PROTIV', 'C', 1, 0}, ;
-         {'GIST_D', 'C', 10, 0}, ;
-         {'RESULT_G', 'C', 255, 0}, ;
-         {'MARK_D', 'C', 10, 0}, ;
-         {'RESULT_M', 'C', 255, 0}, ;
-         {'KSG_CODE', 'C', 10, 0}, ;
-         {'SCHEMA', 'C', 10, 0}, ;
-         {'LEK_PR', 'C', 255, 0}, ;
-         {'LEKP', 'C', 255, 0}}
-dbcreate(cur_dir + 'nmic',adbf)
-use (cur_dir + 'nmic') new
-R_Use(dir_server + 'mo_onkna',dir_server + 'mo_onkna', 'ONKNA') // онконаправления
-R_Use(dir_server + 'mo_onksl',dir_server + 'mo_onksl', 'ONKSL') // Сведения о случае лечения онкологического заболевания
-R_Use(dir_server + 'mo_onkdi',dir_server + 'mo_onkdi', 'ONKDI') // Диагностический блок
-R_Use(dir_server + 'mo_onkpr',dir_server + 'mo_onkpr', 'ONKPR') // Сведения об имеющихся противопоказаниях
-R_Use(dir_server + 'mo_onkus',dir_server + 'mo_onkus', 'ONKUS')
-R_Use(dir_server + 'mo_onkco',dir_server + 'mo_onkco', 'ONKCO')
-R_Use(dir_server + 'mo_onkle',dir_server + 'mo_onkle', 'ONKLE')
-// R_Use(exe_dir+'_mo_N002',cur_dir + '_mo_N002', 'N2')
-// R_Use(exe_dir+'_mo_N003',cur_dir + '_mo_N003', 'N3')
-// R_Use(exe_dir+'_mo_N004',cur_dir + '_mo_N004', 'N4')
-// R_Use(exe_dir+'_mo_N005',cur_dir + '_mo_N005', 'N5')
-// R_Use(dir_exe+'_mo_N009', , 'N9')
-// R_Use(dir_exe+'_mo_N012', , 'N12')
-// R_Use(exe_dir+'_mo_N007', , 'N7')
-// R_Use(exe_dir+'_mo_N008', , 'N8')
-// R_Use(exe_dir+'_mo_N010', , 'N10')
-// R_Use(exe_dir+'_mo_N011', , 'N11')
-R_Use(exe_dir+'_mo_N020',{cur_dir + '_mo_N020',cur_dir + '_mo_N020n'}, 'N20')
-// R_Use(exe_dir+'_mo_N021',cur_dir + '_mo_N021', 'N21')
-use_base('lusl')
-R_Use(dir_server + 'uslugi', , 'USL')
-R_Use_base('human_u')
-set relation to u_kod into USL additive
-R_Use(dir_server + 'kartotek', , 'KART')
-R_Use(dir_server + 'human_2', , 'HUMAN_2')
-R_Use(dir_server + 'human_', , 'HUMAN_')
-R_Use(dir_server + 'human',dir_server + 'humand', 'HUMAN')
-set relation to recno() into HUMAN_, to recno() into HUMAN_2, to kod_k into KART
-dbseek(dtos(arr_m[5]), .t.)
-do while human->k_data <= arr_m[6] .and. !eof()
-  if human->schet > 0 .and. human_->oplata != 9 .and. human_->usl_ok < 3 .and. f_is_oncology(1) == 2
-    date_24(human->k_data)
-    ldate_gist := sgist := ldate_mark := smark := sksg := ''
-    select HU
-    find (str(human->kod, 7))
-    do while hu->kod == human->kod .and. !eof()
-      if empty(lshifr := opr_shifr_TFOMS(usl->shifr1,usl->kod, human->k_data))
-        lshifr := usl->shifr
-      endif
-      if is_ksg(lshifr)
-        sksg := lshifr ; exit
-      endif
-      select HU
-      skip
-    enddo
-    select ONKSL
-    find (str(human->kod, 7))
-    if eq_any(onksl->b_diag, 97, 98) // выполнено
-      select ONKDI
-      find (str(human->kod, 7))
-      do while onkdi->kod == human->kod .and. !eof()
-        if onkdi->DIAG_TIP == 1
-          ldate_gist := date_8(onkdi->DIAG_DATE)
-          if !empty(sgist)
-            sgist += ';'
-          endif
-          //if onkdi->DIAG_CODE == 3
-            //select N7
-            //goto (onkdi->DIAG_CODE)
-            //sgist += alltrim(n7->mrf_name) + '-'
-          //endif
+  Local buf := save_maxrow()
 
-          // select N8
-          // goto (onkdi->DIAG_RSLT)
-          // sgist += alltrim(n8->r_m_name)
-          sgist += alltrim(inieditspr(A__MENUVERT, getN008(), onkdi->DIAG_RSLT))
-        elseif onkdi->DIAG_TIP == 2
-          ldate_mark := date_8(onkdi->DIAG_DATE)
-          if !empty(smark)
-            smark += ';'
-          endif
-          //select N10
-          //goto (onkdi->DIAG_CODE)
-          //smark += alltrim(n10->igh_name) + '-'
-          // select N11
-          // goto (onkdi->DIAG_RSLT)
-          // smark += alltrim(n11->r_i_name)
-          smark += alltrim(inieditspr(A__MENUVERT, getN011(), onkdi->DIAG_RSLT))
+  Private arr_m
+  if (arr_m := year_month(, ,, 4)) == NIL
+    return NIL
+  endif
+  WaitStatus('Сбор информации')
+  adbf := {{'MP', 'C', 25, 0}, ;
+           {'POLIS', 'C', 25, 0}, ;
+           {'SNILS', 'C', 11, 0}, ;
+           {'W', 'C', 1, 0}, ;
+           {'DR1', 'C', 10, 0}, ;
+           {'DATE_1', 'C', 10, 0}, ;
+           {'DATE_2', 'C', 10, 0}, ;
+           {'DS1', 'C', 6, 0}, ;
+           {'NHYSTORY', 'C', 10, 0}, ;
+           {'VMP_KIND', 'C', 12, 0}, ;
+           {'VMP_METHOD', 'C', 10, 0}, ;
+           {'VISIT_PURP', 'C', 30, 0}, ;
+           {'STAD', 'C', 10, 0}, ;
+           {'T', 'C', 10, 0}, ;
+           {'N', 'C', 10, 0}, ;
+           {'M', 'C', 10, 0}, ;
+           {'ISP_PROTIV', 'C', 1, 0}, ;
+           {'GIST_D', 'C', 10, 0}, ;
+           {'RESULT_G', 'C', 255, 0}, ;
+           {'MARK_D', 'C', 10, 0}, ;
+           {'RESULT_M', 'C', 255, 0}, ;
+           {'KSG_CODE', 'C', 10, 0}, ;
+           {'SCHEMA', 'C', 10, 0}, ;
+           {'LEK_PR', 'C', 255, 0}, ;
+           {'LEKP', 'C', 255, 0}}
+  dbcreate(cur_dir + 'nmic',adbf)
+  use (cur_dir + 'nmic') new
+  R_Use(dir_server + 'mo_onkna',dir_server + 'mo_onkna', 'ONKNA') // онконаправления
+  R_Use(dir_server + 'mo_onksl',dir_server + 'mo_onksl', 'ONKSL') // Сведения о случае лечения онкологического заболевания
+  R_Use(dir_server + 'mo_onkdi',dir_server + 'mo_onkdi', 'ONKDI') // Диагностический блок
+  R_Use(dir_server + 'mo_onkpr',dir_server + 'mo_onkpr', 'ONKPR') // Сведения об имеющихся противопоказаниях
+  R_Use(dir_server + 'mo_onkus',dir_server + 'mo_onkus', 'ONKUS')
+  R_Use(dir_server + 'mo_onkco',dir_server + 'mo_onkco', 'ONKCO')
+  R_Use(dir_server + 'mo_onkle',dir_server + 'mo_onkle', 'ONKLE')
+  // R_Use(exe_dir+'_mo_N002',cur_dir + '_mo_N002', 'N2')
+  // R_Use(exe_dir+'_mo_N003',cur_dir + '_mo_N003', 'N3')
+  // R_Use(exe_dir+'_mo_N004',cur_dir + '_mo_N004', 'N4')
+  // R_Use(exe_dir+'_mo_N005',cur_dir + '_mo_N005', 'N5')
+  // R_Use(dir_exe+'_mo_N009', , 'N9')
+  // R_Use(dir_exe+'_mo_N012', , 'N12')
+  // R_Use(exe_dir+'_mo_N007', , 'N7')
+  // R_Use(exe_dir+'_mo_N008', , 'N8')
+  // R_Use(exe_dir+'_mo_N010', , 'N10')
+  // R_Use(exe_dir+'_mo_N011', , 'N11')
+  R_Use(exe_dir+'_mo_N020',{cur_dir + '_mo_N020',cur_dir + '_mo_N020n'}, 'N20')
+  // R_Use(exe_dir+'_mo_N021',cur_dir + '_mo_N021', 'N21')
+  use_base('lusl')
+  R_Use(dir_server + 'uslugi', , 'USL')
+  R_Use_base('human_u')
+  set relation to u_kod into USL additive
+  R_Use(dir_server + 'kartotek', , 'KART')
+  R_Use(dir_server + 'human_2', , 'HUMAN_2')
+  R_Use(dir_server + 'human_', , 'HUMAN_')
+  R_Use(dir_server + 'human',dir_server + 'humand', 'HUMAN')
+  set relation to recno() into HUMAN_, to recno() into HUMAN_2, to kod_k into KART
+  dbseek(dtos(arr_m[5]), .t.)
+  do while human->k_data <= arr_m[6] .and. !eof()
+    if human->schet > 0 .and. human_->oplata != 9 .and. human_->usl_ok < 3 .and. f_is_oncology(1) == 2
+      date_24(human->k_data)
+      ldate_gist := sgist := ldate_mark := smark := sksg := ''
+      select HU
+      find (str(human->kod, 7))
+      do while hu->kod == human->kod .and. !eof()
+        if empty(lshifr := opr_shifr_TFOMS(usl->shifr1,usl->kod, human->k_data))
+          lshifr := usl->shifr
         endif
-        select ONKDI
+        if is_ksg(lshifr)
+          sksg := lshifr ; exit
+        endif
+        select HU
         skip
       enddo
-    endif
-    slekp := ''
-    arr_lek := {}
-    Select ONKLE
-    find (str(human->kod, 7))
-    do while onkle->kod == human->kod .and. !eof()
-      if !emptyany(onkle->REGNUM,onkle->DATE_INJ)
-        if (i := ascan(arr_lek,{|x| x[1] == onkle->REGNUM } )) == 0
-          aadd(arr_lek,{onkle->REGNUM,{}}) ; i := len(arr_lek)
-        endif
-        aadd(arr_lek[i, 2],onkle->DATE_INJ)
+      select ONKSL
+      find (str(human->kod, 7))
+      if eq_any(onksl->b_diag, 97, 98) // выполнено
+        select ONKDI
+        find (str(human->kod, 7))
+        do while onkdi->kod == human->kod .and. !eof()
+          if onkdi->DIAG_TIP == 1
+            ldate_gist := date_8(onkdi->DIAG_DATE)
+            if !empty(sgist)
+              sgist += ';'
+            endif
+            //if onkdi->DIAG_CODE == 3
+              //select N7
+              //goto (onkdi->DIAG_CODE)
+              //sgist += alltrim(n7->mrf_name) + '-'
+            //endif
+
+            // select N8
+            // goto (onkdi->DIAG_RSLT)
+            // sgist += alltrim(n8->r_m_name)
+            sgist += alltrim(inieditspr(A__MENUVERT, getN008(), onkdi->DIAG_RSLT))
+          elseif onkdi->DIAG_TIP == 2
+            ldate_mark := date_8(onkdi->DIAG_DATE)
+            if !empty(smark)
+              smark += ';'
+            endif
+            //select N10
+            //goto (onkdi->DIAG_CODE)
+            //smark += alltrim(n10->igh_name) + '-'
+            // select N11
+            // goto (onkdi->DIAG_RSLT)
+            // smark += alltrim(n11->r_i_name)
+            smark += alltrim(inieditspr(A__MENUVERT, getN011(), onkdi->DIAG_RSLT))
+          endif
+          select ONKDI
+          skip
+        enddo
       endif
+      slekp := ''
+      arr_lek := {}
       Select ONKLE
-      skip
-    enddo
-    if len(arr_lek) > 0
-      for i := 1 to len(arr_lek)
-        if !empty(slekp)
-          slekp += '; '
+      find (str(human->kod, 7))
+      do while onkle->kod == human->kod .and. !eof()
+        if !emptyany(onkle->REGNUM,onkle->DATE_INJ)
+          if (i := ascan(arr_lek,{|x| x[1] == onkle->REGNUM } )) == 0
+            aadd(arr_lek,{onkle->REGNUM,{}}) ; i := len(arr_lek)
+          endif
+          aadd(arr_lek[i, 2],onkle->DATE_INJ)
         endif
-        for j := 1 to len(arr_lek[i, 2])
-          slekp += left(date_8(arr_lek[i, 2,j]), 5)
-          if j < len(arr_lek[i, 2])
-            slekp += ', '
+        Select ONKLE
+        skip
+      enddo
+      if len(arr_lek) > 0
+        for i := 1 to len(arr_lek)
+          if !empty(slekp)
+            slekp += '; '
+          endif
+          for j := 1 to len(arr_lek[i, 2])
+            slekp += left(date_8(arr_lek[i, 2,j]), 5)
+            if j < len(arr_lek[i, 2])
+              slekp += ', '
+            endif
+          next
+          select N20
+          find (arr_lek[i, 1])
+          if found() // найден препарат в справочнике
+            slekp += ' '+alltrim(n20->mnn)
           endif
         next
-        select N20
-        find (arr_lek[i, 1])
-        if found() // найден препарат в справочнике
-          slekp += ' '+alltrim(n20->mnn)
-        endif
-      next
-    endif
-    select NMIC
-    append blank
-    nmic->MP := iif(human_->usl_ok == 1, 'Круглосуточный стационар', 'Дневной стационар')
-    nmic->POLIS := human->POLIS
-    nmic->SNILS := kart->snils
-    nmic->W := lower(human->pol)
-    nmic->DR1 := full_date(human->date_r)
-    nmic->DATE_1 := date_8(human->n_data)
-    nmic->DATE_2 := date_8(human->k_data)
-    nmic->DS1 := human->kod_diag
-    nmic->NHYSTORY := human->uch_doc
-    if human_2->vmp == 1
-      nmic->VMP_KIND := human_2->vidvmp
-      nmic->VMP_METHOD := lstr(human_2->metvmp)
-    else
-      nmic->VMP_KIND := 'нет'
-      nmic->VMP_METHOD := 'нет'
-    endif
-    if between(onksl->DS1_T, 0, 6)
-      nmic->VISIT_PURP := {'Первичное лечение', 'Лечение при рецидиве', 'Лечение при прогрессировании', ;
-         'Динамическое наблюдение', 'Диспансерное наблюдение', 'Диагностика', 'Симптоматическое лечение'}[onksl->DS1_T+1]
-    else
-      nmic->VISIT_PURP := 'нет'
-    endif
-    if onksl->STAD > 0 
-      // select N2
-      // find (str(onksl->STAD, 6))
-      // nmic->STAD := n2->kod_st
-      nmic->STAD := inieditspr(A__MENUVERT, getN002(), onksl->STAD)
-    endif
-    if onksl->ONK_T > 0
-      // select N3
-      // find (str(onksl->ONK_T, 6))
-      // nmic->T := n3->kod_t
-      nmic->T := inieditspr(A__MENUVERT, getN003(), onksl->ONK_T)
-    endif
-    if onksl->ONK_N > 0
-      // select N4
-      // find (str(onksl->ONK_N, 6))
-      // nmic->N := n4->kod_n
-      nmic->N := inieditspr(A__MENUVERT, getN004(), onksl->ONK_N)
-    endif
-    if onksl->ONK_M > 0
-      // select N5
-      // find (str(onksl->ONK_M, 6))
-      // nmic->M := n5->kod_m
-      nmic->M := inieditspr(A__MENUVERT, getN005(), onksl->ONK_M)
-    endif
-    nmic->ISP_PROTIV := '0'
-    select ONKUS
-    find (str(human->kod, 7))
-    do while onkus->kod == human->kod .and. !eof()
-      if onkus->pptr == 1
-        nmic->ISP_PROTIV := '1'
       endif
-      skip
-    enddo
-    nmic->GIST_D := ldate_gist
-    nmic->RESULT_G := sgist
-    nmic->MARK_D := ldate_mark
-    nmic->RESULT_M := smark
-    nmic->KSG_CODE := sksg
-    nmic->SCHEMA := onksl->crit
-    if eq_any(left(onksl->crit, 2), 'sh', 'mt')
-      nmic->LEK_PR := inieditspr(A__POPUPEDIT,exe_dir+'_mo9shema',onksl->crit)
+      select NMIC
+      append blank
+      nmic->MP := iif(human_->usl_ok == 1, 'Круглосуточный стационар', 'Дневной стационар')
+      nmic->POLIS := human->POLIS
+      nmic->SNILS := kart->snils
+      nmic->W := lower(human->pol)
+      nmic->DR1 := full_date(human->date_r)
+      nmic->DATE_1 := date_8(human->n_data)
+      nmic->DATE_2 := date_8(human->k_data)
+      nmic->DS1 := human->kod_diag
+      nmic->NHYSTORY := human->uch_doc
+      if human_2->vmp == 1
+        nmic->VMP_KIND := human_2->vidvmp
+        nmic->VMP_METHOD := lstr(human_2->metvmp)
+      else
+        nmic->VMP_KIND := 'нет'
+        nmic->VMP_METHOD := 'нет'
+      endif
+      if between(onksl->DS1_T, 0, 6)
+        nmic->VISIT_PURP := {'Первичное лечение', 'Лечение при рецидиве', 'Лечение при прогрессировании', ;
+           'Динамическое наблюдение', 'Диспансерное наблюдение', 'Диагностика', 'Симптоматическое лечение'}[onksl->DS1_T+1]
+      else
+        nmic->VISIT_PURP := 'нет'
+      endif
+      if onksl->STAD > 0 
+        // select N2
+        // find (str(onksl->STAD, 6))
+        // nmic->STAD := n2->kod_st
+        nmic->STAD := inieditspr(A__MENUVERT, getN002(), onksl->STAD)
+      endif
+      if onksl->ONK_T > 0
+        // select N3
+        // find (str(onksl->ONK_T, 6))
+        // nmic->T := n3->kod_t
+        nmic->T := inieditspr(A__MENUVERT, getN003(), onksl->ONK_T)
+      endif
+      if onksl->ONK_N > 0
+        // select N4
+        // find (str(onksl->ONK_N, 6))
+        // nmic->N := n4->kod_n
+        nmic->N := inieditspr(A__MENUVERT, getN004(), onksl->ONK_N)
+      endif
+      if onksl->ONK_M > 0
+        // select N5
+        // find (str(onksl->ONK_M, 6))
+        // nmic->M := n5->kod_m
+        nmic->M := inieditspr(A__MENUVERT, getN005(), onksl->ONK_M)
+      endif
+      nmic->ISP_PROTIV := '0'
+      select ONKUS
+      find (str(human->kod, 7))
+      do while onkus->kod == human->kod .and. !eof()
+        if onkus->pptr == 1
+          nmic->ISP_PROTIV := '1'
+        endif
+        skip
+      enddo
+      nmic->GIST_D := ldate_gist
+      nmic->RESULT_G := sgist
+      nmic->MARK_D := ldate_mark
+      nmic->RESULT_M := smark
+      nmic->KSG_CODE := sksg
+      nmic->SCHEMA := onksl->crit
+      if eq_any(left(onksl->crit, 2), 'sh', 'mt')
+        nmic->LEK_PR := inieditspr(A__POPUPEDIT,exe_dir+'_mo9shema',onksl->crit)
+      endif
+      nmic->LEKP := slekp
     endif
-    nmic->LEKP := slekp
-  endif
-  select HUMAN
-  skip
-enddo
-close databases
-rest_box(buf)
-n_message({'Создан файл для загрузки в Excel: '+cur_dir + 'nmic.dbf'}, ,cColorStMsg,cColorStMsg, ,,cColorSt2Msg)
-return NIL
+    select HUMAN
+    skip
+  enddo
+  close databases
+  rest_box(buf)
+  n_message({'Создан файл для загрузки в Excel: ' + cur_dir + 'nmic.dbf'}, , cColorStMsg, cColorStMsg, , , cColorSt2Msg)
+  return NIL
