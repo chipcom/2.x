@@ -3463,7 +3463,7 @@ Function verify_1_sluch(fl_view)
         human_2->NPR_DATE := d1
         human_2->(dbunlock())
       endif
-    else
+    elseif ! glob_mo[_MO_KOD_TFOMS] == '141023' // не больница 15, временно пока не разберемся
       human_->NPR_MO := glob_mo[_MO_KOD_TFOMS] // безусловно проставляем направившую МО
       human_2->(G_RLock(forever))
       human_2->NPR_DATE := d1
@@ -3481,16 +3481,12 @@ Function verify_1_sluch(fl_view)
         human_2->NPR_DATE := d1
         human_2->(dbunlock())
       endif
-    else
+    elseif ! glob_mo[_MO_KOD_TFOMS] == '141023' // не больница 15, временно пока не разберемся
       human_->NPR_MO := glob_mo[_MO_KOD_TFOMS] // безусловно проставляем направившую МО
       human_2->(G_RLock(forever))
       human_2->NPR_DATE := d1
       human_2->(dbunlock())
     endif
-    //human_->NPR_MO := glob_mo[_MO_KOD_TFOMS] // безусловно проставляем направившую МО
-    //human_2->(G_RLock(forever))
-    //human_2->NPR_DATE := d1
-    //human_2->(dbunlock())
     mpztip := 54 // 54, 'случай ЗПТ', 'случай ЗПТ'}, ;
     mpzkol := kkt
     for i := 1 to len(a_dializ)
