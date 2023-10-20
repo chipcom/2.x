@@ -284,7 +284,7 @@ endif
 mark_keys({"<Esc>","<Enter>","<Ins>","<Del>","<Ctrl+Enter>","<F3>","<F4>","<F8>","<F9>","<F10>"},"R/W")
 return NIL
 
-// 29.03.23
+// 20.10.23
 Function f3_k_plat(nKey,oBrow)
 LOCAL j := 0, flag := -1, buf := save_row(maxrow()), buf1, fl := .f., rec, mkod,;
       tmp_color := setcolor(), r1 := 15, c1 := 2, v_summa, v_sdacha, adbf, s,;
@@ -528,8 +528,11 @@ do case
             mplat_pasport := space(15)  // документ плательщика
     Private lnomer, l1nomer, muchastok
     Private okato_adresr, okato_adresg
+    Private mdov_date, mdov_nomer   //
     buf := savescreen()
     ClrLine(23,color0)
+    mdov_date  :=  oper_dov_date  
+    mdov_nomer :=  oper_dov_nomer
     t_hum_rec := human->(recno())
     kart_kod := human->kod_k
     t_k_data := year(human->k_data)
