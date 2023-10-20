@@ -397,7 +397,6 @@ function ret_array_med_reab(vid, shrm, adult)
     //   {'20.2.5',	.f.,	7,	.f.,	9,	.f.,	11} ;
     // }, ;
     local ret := {}, row
-altd()
     default adult to .t.
     for each row in arr_uslugi_med_reab[vid]
       if adult // удаляем услуги педиатра
