@@ -6,18 +6,11 @@ xmlparse.c
 hxmldoc.prg
 mo_adres.prg
 mo_main.prg
-mo_moder.prg
-mo_oms.prg
-mo_oms1.prg
 mo_omsi.prg
 mo_omsif.prg
-mo_omsf.prg
-mo_omsfo.prg
 mo_omso.prg
 mo_omsp.prg
 mo_omspr.prg
-mo_sds.prg
-mo_serv.prg
 mo_st39.prg
 mo_vounc.prg
 Errorsys.prg
@@ -150,6 +143,9 @@ mo_version.prg
 .\oms\verify_func.prg
 .\oms\verify_oms.prg
 .\oms\verify_sluch.prg
+.\oms\mo_oms.prg
+.\oms\mo_oms1.prg
+.\oms\mo_omsf.prg
 
 .\personal\personal_func.prg
 
@@ -166,6 +162,7 @@ mo_version.prg
 .\reports\mo_omsio.prg
 .\reports\mo_omsis.prg
 .\reports\mo_omsit.prg
+.\reports\mo_omsfo.prg
 
 .\util\workWithZIP.prg
 .\util\runExternalProgram.prg
@@ -217,6 +214,9 @@ mo_version.prg
 .\SYSTEM\extension.prg
 
 .\OTHER\mo_mzxml.prg
+.\OTHER\mo_serv.prg
+.\OTHER\mo_sds.prg
+.\OTHER\mo_moder.prg
 
 .\TUNING\ret_days_for_akt_sverki.prg
 .\TUNING\initPZarray.prg
