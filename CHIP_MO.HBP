@@ -221,3 +221,5 @@ mo_version.prg
 .\TUNING\ret_days_for_akt_sverki.prg
 .\TUNING\initPZarray.prg
 .\TUNING\codeVMP.prg
+
+.\ORGANIZATION\dbOrg.prg

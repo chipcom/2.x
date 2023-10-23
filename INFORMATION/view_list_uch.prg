@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 16.10.23
+// 23.10.23
 Function print_l_uch(mkod, par, regim, lnomer)
   // mkod - код больного по БД human
   Local sh := 80, HH := 77, buf := save_maxrow(), ;
@@ -163,7 +163,8 @@ Function print_l_uch(mkod, par, regim, lnomer)
     endif
     add_string('')
   endif
-  name_lpu := rtrim(inieditspr(A__POPUPMENU, dir_server + 'mo_uch', human->lpu))
+  // name_lpu := rtrim(inieditspr(A__POPUPMENU, dir_server + 'mo_uch', human->lpu))
+  name_lpu := rtrim(inieditspr(A__MENUVERT, getUCH(), human->lpu))
   name_otd := '  [ ' + alltrim(otd->name) + ' ]'
   lTypeLUMedReab := (otd->tiplu == TIP_LU_MED_REAB)
 
@@ -1000,7 +1001,7 @@ Function f4o_list_uch(nKey, oBrow)
   endif
   return k
 
-// 16.10.23 печать нескольких листов учёта
+// 23.10.23 печать нескольких листов учёта
 Function print_al_uch(arr_h, arr_m)
   Local sh := 80, HH := 77, buf := save_maxrow(), ;
         name_lpu, mvzros_reb, mreg_lech, mmest_inog, mrab_nerab, ;
@@ -1099,7 +1100,7 @@ Function print_al_uch(arr_h, arr_m)
   // add_string('  Полис: ' + mpolis)
   add_string('  Серия и номер страхового полиса: ' + mpolis)
   //
-  R_Use(dir_server + 'mo_uch', , 'UCH')
+  // R_Use(dir_server + 'mo_uch', , 'UCH')
   R_Use(dir_server + 'mo_otd', , 'OTD')
   R_Use(dir_server + 'uslugi', , 'USL')
   R_Use(dir_server + 'mo_pers', , 'PERSO')
@@ -1137,12 +1138,13 @@ Function print_al_uch(arr_h, arr_m)
     print_l_uch_disp(sh)
     add_string('')
     add_string(padc(' Срок лечения с ' + full_date(human->n_data) + ' по ' + full_date(human->k_data) + ' ', sh, '─'))
-    uch->(dbGoto(human->lpu))
+    // uch->(dbGoto(human->lpu))
     otd->(dbGoto(human->otd))
     add_string('  Условия: ' + ;
       inieditspr(A__MENUVERT, getV006(), human_->USL_OK) + ', ' + ;
-      alltrim(otd->name) + ' [' + alltrim(uch->name) + ']')
-  s := '  '
+      alltrim(otd->name) + ' [' + alltrim(getUCH_Name(human->lpu)) + ']')
+      // alltrim(otd->name) + ' [' + alltrim(uch->name) + ']')
+    s := '  '
     if !empty(human_->KOD_DIAG0)
       s := padr('  Первичный диагноз: ' + human_->KOD_DIAG0, 40)
     endif
