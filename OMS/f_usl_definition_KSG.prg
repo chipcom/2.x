@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 22.08.23 определить КСГ для 1 пациента из режима редактирования услуг
+// 24.10.23 определить КСГ для 1 пациента из режима редактирования услуг
 Function f_usl_definition_KSG(lkod, k_data2, lDoubleSluch)
   Local arr, buf := save_maxrow(), lshifr, lrec, lu_kod, lcena, not_ksg := .t., ;
         mrec_hu, tmp_rec := 0, tmp_select := select(), is_usl1 := .f., ;
@@ -87,7 +87,11 @@ Function f_usl_definition_KSG(lkod, k_data2, lDoubleSluch)
           if lyear == 2023  // 23 год
             if len(arr) > 4 .and. !empty(arr[5])
               if human_->USL_OK == USL_OK_HOSPITAL
-                lcena := round_5(lcena + 25986.7 * ret_koef_kslp_21(arr[5], lyear), 0)
+                if human->k_data < ctod('01/10/2023')  // до 01.10.2023
+                  lcena := round_5(lcena + 25986.7 * ret_koef_kslp_21(arr[5], lyear), 0)
+                else  // после 01.10.2023
+                  lcena := round_5(lcena + 29995.8 * ret_koef_kslp_21(arr[5], lyear), 0)
+                endif
               elseif human_->USL_OK == USL_OK_DAY_HOSPITAL
                 lcena := round_5(lcena + 15029.1 * ret_koef_kslp_21(arr[5], lyear), 0)
               endif

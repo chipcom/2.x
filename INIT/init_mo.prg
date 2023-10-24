@@ -7,8 +7,7 @@ Function init_mo()
   // Local arr, arr1
 
   //  local aaa
-  //  aaa := loadCriteria21_new(2023)
-  // aaa := hb_TSToStr( hb_DateTime(), .f. )
+  //  aaa := ctod('31/10/2023')
   //  altd()
   //  aaa := loadCriteria21(2023)
   // HB_DATETIME() -> <tTimeStamp>
