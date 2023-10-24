@@ -104,3 +104,28 @@ function getOTD()
   endif
 
   return arr
+
+// 24.10.23
+function getOTD_Name(kod)
+  local cName := ''
+  local i, arr := getOTD()
+
+  if kod > 0 .and. kod <= len(arr)
+    if (i := hb_Ascan(arr, {|x| x[2] == kod})) > 0
+      cName := arr[i, 1]
+    endif
+  endif
+  return cName
+
+// 24.10.23
+function getOTD_record(kod)
+  local retArr := {}
+  local i, arr := getOTD()
+
+  if kod > 0 .and. kod <= len(arr)
+    if (i := hb_Ascan(arr, {|x| x[2] == kod})) > 0
+      retArr := arr[i]
+    endif
+  endif
+  return retArr
+
