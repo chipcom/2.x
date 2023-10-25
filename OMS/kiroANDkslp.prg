@@ -365,7 +365,7 @@ Function f_cena_kiro(/*@*/_cena, lkiro, dateSl )
   _cena := round_5(_cena * _akiro[2], 0)  // округление до рублей с 2019 года
   return _akiro
 
-// 24.10.23 определить коэф-т сложности лечения пациента и пересчитать цену
+// 25.10.23 определить коэф-т сложности лечения пациента и пересчитать цену
 Function f_cena_kslp(/*@*/_cena, _lshifr, _date_r, _n_data, _k_data, lkslp, arr_usl, lPROFIL_K, arr_diag, lpar_org, lad_cr)
   Static s_1_may := 0d20160430, s_18 := 0d20171231, s_19 := 0d20181231
   static s_20 := 0d20201231
@@ -430,20 +430,22 @@ Function f_cena_kslp(/*@*/_cena, _lshifr, _date_r, _n_data, _k_data, lkslp, arr_
       elseif year(_k_data) == 2022
         // на 2022 базовая ставка стационарного случая 24322,6 руб
         // на 2022 базовая ставка для случая дневного стационара 13915,7 руб
-        _cena := round_5(_cena + 24322.6 * ret_koef_kslp_21(_akslp, year(_k_data)), 0)
+        // _cena := round_5(_cena + 24322.6 * ret_koef_kslp_21(_akslp, year(_k_data)), 0)
+        _cena := round_5(_cena + baseRate(human->k_data, human_->USL_OK) * ret_koef_kslp_21(_akslp, year(_k_data)), 0)
       elseif year(_k_data) == 2023  // сообщил Мызгин 01.02.23
         // на 2023 после 01.10.2023 базовая ставка стационарного случая 29995.8 руб
         // на 2023 до 01.10.2023 базовая ставка стационарного случая 25986,7 руб
         // на 2023 базовая ставка для случая дневного стационара 15029,1 руб 
-        if human_->USL_OK == USL_OK_HOSPITAL
-          if human->k_data < ctod('01/10/2023')  // до 01.10.2023
-            _cena := round_5(_cena + 25986.7 * ret_koef_kslp_21(_akslp, year(_k_data)), 0)
-          else  // после 01.10.2023
-            _cena := round_5(_cena + 29995.8 * ret_koef_kslp_21(_akslp, year(_k_data)), 0)
-          endif
-        elseif human_->USL_OK == USL_OK_DAY_HOSPITAL
-          _cena := round_5(_cena + 15029.1 * ret_koef_kslp_21(_akslp, year(_k_data)), 0)
-        endif
+        // if human_->USL_OK == USL_OK_HOSPITAL
+        //   if human->k_data < ctod('01/10/2023')  // до 01.10.2023
+        //     _cena := round_5(_cena + 25986.7 * ret_koef_kslp_21(_akslp, year(_k_data)), 0)
+        //   else  // после 01.10.2023
+        //     _cena := round_5(_cena + 29995.8 * ret_koef_kslp_21(_akslp, year(_k_data)), 0)
+        //   endif
+        // elseif human_->USL_OK == USL_OK_DAY_HOSPITAL
+        //   _cena := round_5(_cena + 15029.1 * ret_koef_kslp_21(_akslp, year(_k_data)), 0)
+        // endif
+        _cena := round_5(_cena + baseRate(human->k_data, human_->USL_OK) * ret_koef_kslp_21(_akslp, year(_k_data)), 0)
       endif
       
       if year(_k_data) >= 2021

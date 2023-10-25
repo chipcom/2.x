@@ -1,7 +1,7 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-// 24.10.23 определить КСГ для 1 пациента с открытием файлов
+// 25.10.23 определить КСГ для 1 пациента с открытием файлов
 // ВНИМАНИЕ! Не менять название функции, используется в PROCNAME() другой функции
 Function f_1pac_definition_KSG(lkod, is_msg)
   Local arr, i, s, buf := save_maxrow(), lshifr, lrec, lu_kod, lcena, lyear, mrec_hu, not_ksg := .t., sdial, fl
@@ -87,15 +87,16 @@ Function f_1pac_definition_KSG(lkod, is_msg)
           if lyear > 2018  // округление до рублей с 2019 года
             if len(arr) > 4 .and. !empty(arr[5])
               if lyear == 2023 
-                if human_->USL_OK == USL_OK_HOSPITAL
-                  if human->k_data < ctod('01/10/2023')  // до 01.10.2023
-                    lcena := round_5(lcena + 25986.7 * ret_koef_kslp_21(arr[5], year(human->k_data)), 0)
-                  else  // после 01.10.2023
-                    lcena := round_5(lcena + 29995.8 * ret_koef_kslp_21(arr[5], year(human->k_data)), 0)
-                  endif
-                elseif human_->USL_OK == USL_OK_DAY_HOSPITAL
-                  lcena := round_5(lcena + 15029.1 * ret_koef_kslp_21(arr[5], year(human->k_data)), 0)
-                endif
+                // if human_->USL_OK == USL_OK_HOSPITAL
+                //   if human->k_data < ctod('01/10/2023')  // до 01.10.2023
+                //     lcena := round_5(lcena + 25986.7 * ret_koef_kslp_21(arr[5], year(human->k_data)), 0)
+                //   else  // после 01.10.2023
+                //     lcena := round_5(lcena + 29995.8 * ret_koef_kslp_21(arr[5], year(human->k_data)), 0)
+                //   endif
+                // elseif human_->USL_OK == USL_OK_DAY_HOSPITAL
+                //   lcena := round_5(lcena + 15029.1 * ret_koef_kslp_21(arr[5], year(human->k_data)), 0)
+                // endif
+                lcena := round_5(lcena + baseRate(human->k_data, human_->USL_OK) * ret_koef_kslp_21(arr[5], year(human->k_data)), 0)
               else
                 lcena := round_5(lcena * ret_koef_kslp(arr[5]), 0)
               endif
