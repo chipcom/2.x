@@ -1,3 +1,4 @@
+#include 'common.ch'
 #include 'inkey.ch'
 #include 'function.ch'
 #include 'edit_spr.ch'
@@ -92,27 +93,27 @@ Function definition_KSG(par, k_data2, lDoubleSluch)
     lusl    := human_->USL_OK
     ldate_r := iif(human_->NOVOR > 0, human_->date_r2, human->date_r)
     lpol    := iif(human_->NOVOR > 0, human_->pol2,    human->pol)
-    lvr     := iif(human->VZROS_REB==0, 0, 1) // 0-взрослый, 1-ребенок
+    lvr     := iif(human->VZROS_REB == 0, 0, 1) // 0-взрослый, 1-ребенок
     lprofil := human_->profil
     lprofil_k := human_2->profil_k
     lrslt   := human_->rslt_new
     // массив диагнозов (минимум два)
-    mdiagnoz := diag_to_array(,,,,.t.)
+    mdiagnoz := diag_to_array(, , , , .t.)
     if len(mdiagnoz) > 0
       osn_diag := mdiagnoz[1]
       if len(mdiagnoz) > 1
         sop_diag := aclone(mdiagnoz)
-        Del_Array(sop_diag,1) // начиная со 2-го - сопутствующие диагнозы
+        Del_Array(sop_diag, 1) // начиная со 2-го - сопутствующие диагнозы
       endif
     endif
     if !empty(human_2->OSL1)
-      aadd(osl_diag,human_2->OSL1)
+      aadd(osl_diag, human_2->OSL1)
     endif
     if !empty(human_2->OSL2)
-      aadd(osl_diag,human_2->OSL2)
+      aadd(osl_diag, human_2->OSL2)
     endif
     if !empty(human_2->OSL3)
-      aadd(osl_diag,human_2->OSL3)
+      aadd(osl_diag, human_2->OSL3)
     endif
 
     if lusl < 3 .and. lVMP == 0 .and. f_is_oncology(1) == 2 .and. empty(lad_cr)
@@ -120,7 +121,7 @@ Function definition_KSG(par, k_data2, lDoubleSluch)
         G_Use(dir_server + 'mo_onksl', dir_server + 'mo_onksl', 'ONKSL') // Сведения о случае лечения онкологического заболевания
       endif
       select ONKSL
-      find (str(human->kod,7))
+      find (str(human->kod, 7))
       lad_cr := alltrim(onksl->crit)
       if lad_cr == 'нет'
         lad_cr := ''
@@ -149,7 +150,7 @@ Function definition_KSG(par, k_data2, lDoubleSluch)
     ldate_r := iif(ihuman->NOVOR > 0, ihuman->reb_dr,  ihuman->dr)
     lpol    := iif(ihuman->NOVOR > 0, ihuman->reb_pol, ihuman->w)
     lpol    := iif(lpol == 1, 'М', 'Ж')
-    lvr     := iif(m1VZROS_REB==0, 0, 1) // 0-взрослый, 1-ребенок
+    lvr     := iif(m1VZROS_REB == 0, 0, 1) // 0-взрослый, 1-ребенок
     lprofil := ihuman->profil
     lprofil_k := ihuman->profil_k
     lrslt   := ihuman->rslt
@@ -187,7 +188,6 @@ Function definition_KSG(par, k_data2, lDoubleSluch)
       aadd(osl_diag, padr(ihuman->DS3_3, 6))
     endif
   endif
-
   //
   lyear := year(lk_data)
   if eq_any(lad_cr, '60', '61')
@@ -203,16 +203,16 @@ Function definition_KSG(par, k_data2, lDoubleSluch)
     endif
   endif
   aadd(ars, lfio + ' ' + date_8(ln_data) + '-' + date_8(lk_data) + ' (' + lstr(ldnej) + 'дн.)')
-  s := iif(lVMP==1, 'ВМП ', ' ')
+  s := iif(lVMP == 1, 'ВМП ', ' ')
   if par == 1
     s += alltrim(uch->name) + '/' + alltrim(otd->name) + '/'
   endif
   s += 'профиль "' + inieditspr(A__MENUVERT, getV002(), lprofil) + '"'
   aadd(ars, s)
-  aadd(ars, ' д.р.' + full_date(ldate_r) + iif(lvr==0, '(взр.', '(реб.') + '), ' + iif(lpol == 'М', 'муж.', 'жен.') +;
-           ', осн.диаг.' + osn_diag +;
-           iif(empty(sop_diag), '', ', соп.диаг.' + charrem(' ', print_array(sop_diag))) +;
-           iif(empty(osl_diag), '', ', диаг.осл.' + charrem(' ', print_array(osl_diag))))
+  aadd(ars, ' д.р.' + full_date(ldate_r) + iif(lvr==0, '(взр.', '(реб.') + '), ' + ;
+          iif(lpol == 'М', 'муж.', 'жен.') + ', осн.диаг.' + osn_diag + ;
+          iif(empty(sop_diag), '', ', соп.диаг.' + charrem(' ', print_array(sop_diag))) + ;
+          iif(empty(osl_diag), '', ', диаг.осл.' + charrem(' ', print_array(osl_diag))))
   if empty(osn_diag)
     aadd(arerr, ' не введён основной диагноз')
     return {ars, arerr, lksg, lcena, {}, {}}
@@ -259,7 +259,7 @@ Function definition_KSG(par, k_data2, lDoubleSluch)
       if ascan(ahu, lshifr) == 0
         aadd(ahu, lshifr)
       endif
-      if lusl == 2 .and. left(lshifr, 5)=='55.1.'
+      if lusl == 2 .and. left(lshifr, 5) == '55.1.'
         ldnej += hu->kol_1
       endif
       select HU
@@ -305,7 +305,7 @@ Function definition_KSG(par, k_data2, lDoubleSluch)
         if left(ihu->CODE_USL, 5) == '60.3.'
           s_dializ += ihu->SUMV_USL
         endif
-        if lusl == 2 .and. left(ihu->CODE_USL, 5)=='55.1.'
+        if lusl == 2 .and. left(ihu->CODE_USL, 5) == '55.1.'
           ldnej += ihu->KOL_USL
         endif
       endif
@@ -343,9 +343,9 @@ Function definition_KSG(par, k_data2, lDoubleSluch)
     endif
   endif
   ars[1] := lfio + ' ' + date_8(ln_data) + '-' + date_8(lk_data) + ' (' + lstr(ldnej) + 'дн.)'
-  ars[3] := ' д.р.' + full_date(ldate_r) + '(' +s+ '), ' + iif(lpol == 'М', 'муж.', 'жен.') +;
-            ', осн.диаг.' + osn_diag +;
-            iif(empty(sop_diag), '', ', соп.диаг.' + charrem(' ',print_array(sop_diag))) +;
+  ars[3] := ' д.р.' + full_date(ldate_r) + '(' + s + '), ' + iif(lpol == 'М', 'муж.', 'жен.') + ;
+            ', осн.диаг.' + osn_diag + ;
+            iif(empty(sop_diag), '', ', соп.диаг.' + charrem(' ',print_array(sop_diag))) + ;
             iif(empty(osl_diag), '', ', диаг.осл.' + charrem(' ',print_array(osl_diag)))
   lsex := iif(lpol == 'М', '1', '2')
 
@@ -436,7 +436,6 @@ Function definition_KSG(par, k_data2, lDoubleSluch)
                 &lal.->kslps, ; // 14
                 k006->ad_cr1}) // 15
       endif
-
       K006->(dbSkip())
     enddo
   else
@@ -773,22 +772,19 @@ Function definition_KSG(par, k_data2, lDoubleSluch)
     for j := 2 to len(aHirKSG)
       aadd(ars, '   ║     ' +print_array(aHirKSG[j]))
     next*/
-    if (kol_hir := f_put_debug_KSG(0, aHirKSG,ars)) > 1
+    if (kol_hir := f_put_debug_KSG(0, aHirKSG, ars)) > 1
       aadd(ars, ' └─> выбираем КСГ=' + rtrim(aHirKSG[1, 1]) + ' [КЗ=' + lstr(aHirKSG[1, 3]) + ']')
     endif
   endif
   if kol_ter > 0 .and. kol_hir > 0
     aTerKSG[1, 1] := alltrim(aTerKSG[1, 1])
     aHirKSG[1, 1] := alltrim(aHirKSG[1, 1])
-    //i := int(val(substr(aTerKSG[1,1],2,3)))
-    //j := int(val(substr(aHirKSG[1,1],2,3)))
     if !empty(aTerKSG[1, 6]) // т.е. диагноз + услуга
       lksg  := aTerKSG[1, 1]
       lcena := aTerKSG[1, 2]
       lkiro := list2arr(aTerKSG[1, 4])
       lkslp := aTerKSG[1, 14]
       aadd(ars, ' выбираем КСГ=' + lksg + ' (осн.диагноз+услуга ' + rtrim(aTerKSG[1, 6]) + ')')
-    //elseif ascan(a_iskl_1, {|x| x[1]==j .and. eq_any(x[2],0,i) .and. lusl==x[3] }) > 0 // исключение из правил №1
     elseif ascan(a_iskl_1, {|x| x[1] == aHirKSG[1, 1] .and. (empty(x[2]) .or. x[2] == aTerKSG[1, 1])}) > 0 // исключение из правил №1
       lksg  := aHirKSG[1, 1]
       lcena := aHirKSG[1, 2]
@@ -835,7 +831,7 @@ Function definition_KSG(par, k_data2, lDoubleSluch)
       aadd(arerr, s)
     else
       s += ', цена ' + lstr(lcena, 11, 0) + 'р. '
-      aadd(ars,s)
+      aadd(ars, s)
       s := ''
       if lksg == 'st38.001' .and. lbartell == '61' // Старческая астения (это правило уже устарело и не применяется)
         lkslp := ''                                // т.к. у данной КСГ нет КСЛП
@@ -855,8 +851,6 @@ Function definition_KSG(par, k_data2, lDoubleSluch)
           // запомним КСЛП
           tmSel := select('HUMAN_2')
           if (tmSel)->(dbRlock())
-            // G_RLock(forever)
-            // HUMAN_2->PC1 := m1KSLP
             HUMAN_2->PC1 := lkslp
             (tmSel)->(dbRUnlock())
           endif
@@ -904,10 +898,6 @@ Function definition_KSG(par, k_data2, lDoubleSluch)
           endif
           s += str(akslp[iKSLP + 1 ], 4, 2)
         next
-        // s += '  (КСЛП = ' +str(akslp[2],4,2)
-        // if len(akslp) >= 4
-        //   s += ' + ' +str(akslp[4],4,2)
-        // endif
         s += ', цена ' + lstr(lcena, 11, 0) + 'р.)'
       endif
       if !empty(lkiro)
