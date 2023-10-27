@@ -1,1194 +1,45 @@
 // mo_serv.prg - сервисы и настройки
+#include 'common.ch'
 #include "set.ch"
 #include "inkey.ch"
 #include "function.ch"
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-// 08.01.17
+// 27.10.23
 Function f_import(k)
-Static si1 := 1, sds := 1, ssp := 1
-Local mas_pmt, mas_msg, mas_fun, j
-DEFAULT k TO 1
-if ascan(kod_LIS,glob_mo[_MO_KOD_TFOMS]) > 0 // КДП-2
-  import_from_LIS()
-else
-  do case
-    case k == 1
-      mas_pmt := {"Импорт ~случаев ОМС",;
-                  "Инте~грация с SDS",;
-                  "Импорт из ~флюоротеки"}
-      mas_msg := {"Импорт случаев ОМС (листов учёта) из других программ (в формате ЧИП плюс)",;
-                  "Интеграция с программой Smart Delta Systems",;
-                  'Импорт данных из программы "Флюоротека" фирмы "ЧИП плюс"'}
-      mas_fun := {"f_import(11)",;
-                  "f_import(12)",;
-                  "f_import(13)"}
-      popup_prompt(T_ROW,T_COL+5,si1,mas_pmt,mas_msg,mas_fun)
-    case k == 11
-      import_sluch_OMS()
-    case k == 12
-      integration_SDS()
-    case k == 13
-      import_fluoroteka()
-  endcase
-endif
-if k > 10
-  if between(k,11,19)
-    si1 := int(val(right(lstr(k),1)))
-  endif
-endif
-return NIL
+  Static si1 := 1, sds := 1, ssp := 1
+  Local mas_pmt, mas_msg, mas_fun, j
 
-// 23.12.17
-Function import_from_LIS()
-Local full_o79
-Private p_var_manager := "Read_from_LIS", cFileProtokol := "protokol"+stxt
-//full_o79 := manager(T_ROW,T_COL+5,maxrow()-2,,.t.,1,,,,"export*.o79")
-full_o79 := manager(T_ROW,T_COL+5,maxrow()-2,,.t.,1,,,,"*.?79")
-if !empty(full_o79) .and. hb_FileExists(full_o79)
-  delete file (cur_dir+cFileProtokol)
-  G_SPlus(f_name_task(X_OMS)) // плюс 1 пользователь зашёл в задачу ОМС
-  if G_SIsLock(sem_vagno_task[X_OMS])
-    f_err_sem_vagno_task(X_OMS)
-  elseif lower(right(full_o79,3)) == "x79" // XML-файл
-    f1_impXML_from_LIS(full_o79)
-  elseif lower(right(full_o79,3)) == "o79" // текстовый файл с разделителями
-    f1_import_from_LIS(full_o79)
-  endif
-  G_SMinus(f_name_task(X_OMS))  // минус 1 пользователь (вышел из задачи ОМС)
-  if hb_FileExists(cur_dir+cFileProtokol)
-    viewtext(Devide_Into_Pages(cur_dir+cFileProtokol,60,80),,,,.t.,,,2)
-  endif
-endif
-return NIL
-
-// 12.09.23
-Function f1_impXML_from_LIS(name_file)
-Local buf := save_maxrow(), aerr := {}, arr, fl_exit := .f., fl := .f., i, j, t1, t2, s, s1
-if !hb_FileExists(dir_server + "mo_flis"+sdbf)
-  dbcreate(dir_server + "mo_flis", {; // Список принятых файлов из ЛИС
-    {"KOD",         "N", 6,0},; // код;номер записи
-    {"FNAME",       "C",50,0},; // имя файла
-    {"DREAD",       "D", 8,0},; // дата чтения
-    {"TREAD1",      "C", 5,0},; // время начала чтения
-    {"TREAD2",      "C", 5,0},; // время окончания чтения
-    {"KOLP",        "N", 6,0},; // количество пациентов
-    {"KOLS",        "N", 6,0},; // количество случаев
-    {"KOLU",        "N", 6,0};  // количество услуг
-  })
-endif
-sname := StripPath(name_file)
-G_Use(dir_server + "mo_flis",,"FL")
-index on upper(fname) to tmp_fl
-find (padr(upper(sname),50))
-if found()
-  if empty(fl->tread2)
-    fl := f_alert({'Файл "'+alltrim(sname)+'".',;
-                   "Чтение начато "+date_8(fl->dread)+" в "+fl->tread1+" и не было завершено.",;
-                   "",;
-                   "Выберите действие:"},;
-                  {" Выход "," Попытка повторного чтения "},;
-                  1,"GR+/R","W+/R",,,"GR+/R,N/BG") == 2
+  DEFAULT k TO 1
+  if ascan(kod_LIS, glob_mo[_MO_KOD_TFOMS]) > 0 // КДП-2
+    import_from_LIS()
   else
-    func_error(4,"Файл "+alltrim(sname)+" уже был прочитан "+date_8(fl->dread)+" в "+fl->tread2)
+    do case
+      case k == 1
+        mas_pmt := {"Импорт ~случаев ОМС",;
+                    "Инте~грация с SDS"}
+        mas_msg := {"Импорт случаев ОМС (листов учёта) из других программ (в формате ЧИП плюс)",;
+                    "Интеграция с программой Smart Delta Systems"}
+        mas_fun := {"f_import(11)",;
+                    "f_import(12)"}
+        popup_prompt(T_ROW, T_COL + 5, si1, mas_pmt, mas_msg, mas_fun)
+      case k == 11
+        import_sluch_OMS()
+      case k == 12
+        integration_SDS()
+    endcase
   endif
-else
-  fl := .t.
-endif
-if fl .and. f_Esc_Enter("чтения файла из ЛИС")
-  select FL
-  G_RLock(!found(),forever) // добавить ИЛИ заблокировать запись
-  fl->KOD := recno()
-  fl->FNAME := upper(sname)
-  fl->DREAD := sys_date
-  fl->TREAD1 := hour_min(seconds())
-  fl->TREAD2 := ""
-  fl->KOLP := fl->KOLS := fl->KOLU := 0
-  UnLock
-  Commit
-  //
-  t1 := seconds()
-  @ maxrow(),0 say padl(sname,80) color "W/R"
-  R_Use(dir_exe+"_mo_mkb",cur_dir + "_mo_mkb","MKB_10")
-  use_base("lusl")
-  use_base("luslc")
-  Use_base("uslugi")
-  R_Use(dir_exe+"_mo_prof",cur_dir + "_mo_prof","MOPROF")
-  R_Use(dir_server + "uslugi1",{dir_server + "uslugi1",;
-                              dir_server + "uslugi1s"},"USL1")
-  // R_Use(dir_exe+"_mo_N012",,"N12")
-  G_Use(dir_server + "mo_onkco",dir_server + "mo_onkco","CO")
-  G_Use(dir_server + "mo_onksl",dir_server + "mo_onksl","SL")
-  G_Use(dir_server + "mo_onkdi",dir_server + "mo_onkdi","DIAG") // Диагностический блок
-  G_Use(dir_server + "human_u_",,"HU_")
-  index on padr(zf,30) to (cur_dir + "tmp_hu_") progress
-  set order to 0
-  G_Use(dir_server + "human_u",{dir_server + "human_u",;
-                              dir_server + "human_uk",;
-                              dir_server + "human_ud",;
-                              dir_server + "human_uv",;
-                              dir_server + "human_ua"},"HU")
-  G_Use(dir_server + "human_",,"HUMAN_")
-  G_Use(dir_server + "human_2",,"HUMAN_2")
-  //index on str(pn3,10) to (cur_dir + "tmp_human2") progress
-  G_Use(dir_server + "human",{dir_server + "humank",;
-                            dir_server + "humankk",;
-                            dir_server + "humann",;
-                            dir_server + "humand",;
-                            dir_server + "humano",;
-                            dir_server + "humans"},"HUMAN")
-  G_Use(dir_server + "mo_pers",,"PERSO")
-  index on snils to (cur_dir + "tmp_pers")
-  set index to (cur_dir + "tmp_pers"),(dir_server + "mo_pers")
-  G_Use(dir_server + "mo_kfio",,"KFIO")
-  index on str(kod,7) to (cur_dir + "tmp_kfio")
-  G_Use(dir_server + "mo_kismo",,"KSN")
-  index on str(kod,7) to (cur_dir + "tmpkismo")
-  G_Use(dir_server + "mo_hismo",,"HSN")
-  index on str(kod,7) to (cur_dir + "tmphismo")
-  G_Use(dir_server + "kartote_",,"KART_")
-  G_Use(dir_server + "kartote2",,"KART2")
-  index on kod_AK to (cur_dir + "tmp_kart2") progress
-  G_Use(dir_server + "kartotek",{dir_server + "kartotek",;
-                               dir_server + "kartoten",;
-                               dir_server + "kartotep",;
-                               dir_server + "kartoteu",;
-                               dir_server + "kartotes"},"KART")
-  Private such := 1, sotd := 1,; // код отделения "Лаборатория-ЛИС на Ангарском"
-          sotd2 := 3 // код отделения "ЛИС в Краснооктябрьском р-не"
-          //sotd4 := 4   // код отделения "ЛИС на Елецкой"
-  Private _arr_otd := {{"MIH",1},{"ANG",2},{"MET",3},{"ELE",4}}
-  for i := 1 to len(_arr_otd)
-    if _arr_otd[i,1] $ upper(name_file)
-      sotd2 := i
-      exit
-    endif
-  next
-  dbcreate("ttmp",{;
-    {"nn","N",6,0},;
-    {"ko","N",6,0},;
-    {"ko1","N",6,0},;
-    {"ku","N",6,0},;
-    {"ku1","N",6,0},;
-    {"t2","N",7,3},;
-    {"t3","N",7,3},;
-    {"t4","N",7,3},;
-    {"fc","C",1,0}})
-  use ttmp new alias TMP
-  Private arr_pac[15], arr_order, arr_usl := {}, ip := 0, is := 0, isp := 0, iu := 0
-  glob_podr := "" ; glob_otd_dep := 0
-  fl_exit := .f.
-  // читаем XML-файл
-  lfp := fopen(name_file)
-  do while !feof(lfp)
-    s := Utf82Oem(fReadLn(lfp))
-    if "<PAT " $ s
-      arr := {s}
-      do while !feof(lfp)
-        s := fReadLn(lfp)
-        aadd(arr,s)
-        if "</PAT>" $ s
-          exit
-        endif
-      enddo
-      if !empty(aerr := f2_impXML_from_LIS(arr))
-        fl_exit := .t.
-        exit
-      endif
-    endif
-    if inkey() == K_ESC
-      fl_exit := .t.
-      exit
-    endif
-  enddo
-  fclose(lfp)
-  if !fl_exit
-    select FL
-    G_RLock(forever) // заблокировать запись
-    fl->TREAD2 := hour_min(seconds())
-    fl->KOLP := ip
-    fl->KOLS := is
-    fl->KOLU := iu
-  endif
-  dbUnlockAll()
-  dbCommitAll()
-  close databases
-  keyboard ""
-  t2 := seconds() - t1
-  rest_box(buf)
-  if fl_exit
-    arr := aclone(aerr)
-    if !empty(arr)
-      Ins_Array(arr,1,'Ошибка в файле "'+alltrim(sname)+'":')
-    endif
-    aadd(arr,"")
-    aadd(arr,"Операция импорта прервана!")
-  else
-    arr := {'Файл "'+alltrim(sname)+'" импортирован.',;
-            "",;
-            "Время работы - "+sectotime(t2)+".",;
-            "",;
-            "Пациентов "+lstr(ip)+", случаев "+lstr(is)+iif(isp==0,""," (в т.ч.повторно "+lstr(isp)+")")+", услуг "+lstr(iu)+"."}
-  endif
-  n_message(arr,,"GR+/R","W+/R",,,"G+/R")
-endif
-close databases
-rest_box(buf)
-return NIL
-
-// 03.05.17
-Function f1_import_from_LIS(name_file)
-Local buf := save_maxrow(), aerr := {}, arr, fl_exit, fl := .f., i, j, t1, t2, s, s1, iencode
-if !hb_FileExists(dir_server + "mo_flis"+sdbf)
-  dbcreate(dir_server + "mo_flis", {; // Список принятых файлов из ЛИС
-    {"KOD",         "N", 6,0},; // код;номер записи
-    {"FNAME",       "C",50,0},; // имя файла
-    {"DREAD",       "D", 8,0},; // дата чтения
-    {"TREAD1",      "C", 5,0},; // время начала чтения
-    {"TREAD2",      "C", 5,0},; // время окончания чтения
-    {"KOLP",        "N", 6,0},; // количество пациентов
-    {"KOLS",        "N", 6,0},; // количество случаев
-    {"KOLU",        "N", 6,0};  // количество услуг
-  })
-endif
-sname := StripPath(name_file)
-G_Use(dir_server + "mo_flis",,"FL")
-index on upper(fname) to tmp_fl
-find (padr(upper(sname),50))
-if found()
-  if empty(fl->tread2)
-    fl := f_alert({'Файл "'+alltrim(sname)+'".',;
-                   "Чтение начато "+date_8(fl->dread)+" в "+fl->tread1+" и не было завершено.",;
-                   "",;
-                   "Выберите действие:"},;
-                  {" Выход "," Попытка повторного чтения "},;
-                  1,"GR+/R","W+/R",,,"GR+/R,N/BG") == 2
-  else
-    func_error(4,"Файл "+alltrim(sname)+" уже был прочитан "+date_8(fl->dread)+" в "+fl->tread2)
-  endif
-else
-  fl := .t.
-endif
-if fl .and. f_Esc_Enter("чтения файла из ЛИС") .and. (iencode := f_define_LIS_coding(name_file)) > 0
-  G_RLock(!found(),forever) // добавить ИЛИ заблокировать запись
-  fl->KOD := recno()
-  fl->FNAME := upper(sname)
-  fl->DREAD := sys_date
-  fl->TREAD1 := hour_min(seconds())
-  fl->TREAD2 := ""
-  fl->KOLP := fl->KOLS := fl->KOLU := 0
-  UnLock
-  Commit
-  //
-  t1 := seconds()
-  @ maxrow(),0 say padl(sname,80) color "W/R"
-  R_Use(dir_exe+"_mo_mkb",cur_dir + "_mo_mkb","MKB_10")
-  use_base("lusl")
-  use_base("luslc")
-  Use_base("uslugi")
-  R_Use(dir_exe+"_mo_prof",cur_dir + "_mo_prof","MOPROF")
-  R_Use(dir_server + "uslugi1",{dir_server + "uslugi1",;
-                              dir_server + "uslugi1s"},"USL1")
-  Use_base("human_u")
-  G_Use(dir_server + "human_",,"HUMAN_")
-  G_Use(dir_server + "human_2",,"HUMAN_2")
-  index on str(pn3,10) to (cur_dir + "tmp_human2")
-  G_Use(dir_server + "human",{dir_server + "humank",;
-                            dir_server + "humankk",;
-                            dir_server + "humann",;
-                            dir_server + "humand",;
-                            dir_server + "humano",;
-                            dir_server + "humans"},"HUMAN")
-  G_Use(dir_server + "mo_pers",,"PERSO")
-  index on snils to (cur_dir + "tmp_pers")
-  set index to (cur_dir + "tmp_pers"),(dir_server + "mo_pers")
-  G_Use(dir_server + "mo_kfio",,"KFIO")
-  index on str(kod,7) to (cur_dir + "tmp_kfio")
-  G_Use(dir_server + "mo_kismo",,"KSN")
-  index on str(kod,7) to (cur_dir + "tmpkismo")
-  G_Use(dir_server + "mo_hismo",,"HSN")
-  index on str(kod,7) to (cur_dir + "tmphismo")
-  G_Use(dir_server + "kartote_",,"KART_")
-  G_Use(dir_server + "kartote2",,"KART2")
-  index on kod_AK to (cur_dir + "tmp_kart2")
-  G_Use(dir_server + "kartotek",{dir_server + "kartotek",;
-                               dir_server + "kartoten",;
-                               dir_server + "kartotep",;
-                               dir_server + "kartoteu",;
-                               dir_server + "kartotes"},"KART")
-  Private such := 1, sotd := 1 // код отделения "Лаборатория-ЛИС на Ангарском"
-  if left(fl->FNAME,4) == "LAB2"
-    sotd := 3 // код отделения "ЛИС в Краснооктябрьском р-не"
-  endif
-  Private arr_pac := {}, arr_order := {}, arr_usl := {}, ip := 0, is := 0, isp := 0, iu := 0
-  glob_podr := "" ; glob_otd_dep := 0
-  fl_exit := .f.
-  ft_use(name_file)
-  ft_gotop()
-  do while !ft_eof()
-    if !empty( s := ft_ReadLn() )
-      if iencode == 1
-        s := hb_AnsiToOem(s)
-      else
-        s := Utf82Oem(s)
-      endif
-      if upper(left(s,3)) == "PAT"
-        if !empty(arr_pac)
-          if !empty(aerr := f2_import_from_LIS(1))
-            fl_exit := .t.
-            exit
-          endif
-          arr_pac := {}
-          arr_order := {}
-        endif
-        for i := 2 to numtoken(s,";",1)
-          s1 := alltrim(token(s,";",i,1))
-          aadd(arr_pac,s1)
-        next
-        do while len(arr_pac) < 15 // добавим пустые поля (вдруг что-то не так со строкой)
-          aadd(arr_pac, " ")
-        enddo
-      elseif upper(left(s,5)) == "ORDER"
-        aadd(arr_order, {}) ; j := len(arr_order)
-        for i := 2 to numtoken(s,";",1)
-          s1 := alltrim(token(s,";",i,1))
-          aadd(arr_order[j],s1)
-        next
-        do while len(arr_order[j]) < 6 // 5 И 6 ЭЛЕМЕНТЫ ДЛЯ СРОКОВ ЛЕЧЕНИЯ
-          aadd(arr_order[j], " ")
-        enddo
-        arr_order[j,4] := {} // для занесения услуг
-      elseif upper(left(s,4)) == "EXAM" .and. len(arr_order) > 0
-        arr := {}
-        for i := 2 to numtoken(s,";",1)
-          s1 := alltrim(token(s,";",i,1))
-          aadd(arr,s1)
-        next
-        do while len(arr) < 7
-          aadd(arr, " ")
-        enddo
-        aadd(arr_order[j,4],aclone(arr))
-      endif
-    endif
-    ft_skip()
-  enddo
-  ft_use()
-  if !fl_exit .and. !empty(arr_pac) .and. !empty(aerr := f2_import_from_LIS(1))
-    fl_exit := .t.
-  endif
-  if !fl_exit
-    select FL
-    G_RLock(forever) // заблокировать запись
-    fl->TREAD2 := hour_min(seconds())
-    fl->KOLP := ip
-    fl->KOLS := is
-    fl->KOLU := iu
-  endif
-  dbUnlockAll()
-  dbCommitAll()
-  close databases
-  t2 := seconds() - t1
-  rest_box(buf)
-  if fl_exit
-    arr := aclone(aerr)
-    Ins_Array(arr,1,'Ошибка в файле "'+alltrim(sname)+'":')
-    aadd(arr,"")
-    aadd(arr,"Операция импорта прервана!")
-  else
-    arr := {'Файл "'+alltrim(sname)+'" импортирован.',;
-            "",;
-            "Время работы - "+sectotime(t2)+".",;
-            "",;
-            "Пациентов "+lstr(ip)+", случаев "+lstr(is)+iif(isp==0,""," (в т.ч.повторно "+lstr(isp)+")")+", услуг "+lstr(iu)+"."}
-  endif
-  n_message(arr,,"GR+/R","W+/R",,,"G+/R")
-endif
-close databases
-rest_box(buf)
-return NIL
-
-// 02.01.17
-Static Function Utf82Oem(s)
-return hb_Utf8ToStr(s,"RU866")
-
-#define LIS_KOD_AK     1
-#define LIS_FAM        2
-#define LIS_IMA        3
-#define LIS_OTS        4
-#define LIS_DATE_R     5
-#define LIS_POL        6
-#define LIS_VPOLIS     7
-#define LIS_SPOLIS     8
-#define LIS_NPOLIS     9
-#define LIS_OKATO     10
-#define LIS_VID_UD    11
-#define LIS_SER_UD    12
-#define LIS_NOM_UD    13
-#define LIS_MESTO_R   14
-#define LIS_SNILS     15
-//
-#define LISS_KOD       1
-#define LISS_DIAG      2
-#define LISS_MO        3
-#define LISS_USL       4
-#define LISS_NDATA     5
-#define LISS_KDATA     6
-#define LISS_OTD       7
-//
-#define LISU_SHIFR     1
-#define LISU_DATE      2
-#define LISU_SPEC      3
-#define LISU_SNILS     4
-#define LISU_KODU      5
-#define LISU_CENA      6
-#define LISU_UNIT      7
-#define LISU_ID        8
-#define LISU_D_RSLT    9
-
-// 28.04.20
-Function f2_impXML_from_LIS(ta)
-Static arr[LISU_D_RSLT]
-Local i, j := 1, s
-s := afteratnum('Pat_code="',ta[1]) ; arr_pac[LIS_KOD_AK ] := beforatnum('"',s,1)
-s := afteratnum('Last_name="',s)    ; arr_pac[LIS_FAM    ] := beforatnum('"',s,1)
-s := afteratnum('First_name="',s)   ; arr_pac[LIS_IMA    ] := beforatnum('"',s,1)
-s := afteratnum('Father_name="',s)  ; arr_pac[LIS_OTS    ] := beforatnum('"',s,1)
-s := afteratnum('Birth_date="',s)   ; arr_pac[LIS_DATE_R ] := beforatnum('"',s,1)
-s := afteratnum('Sex="',s)          ; arr_pac[LIS_POL    ] := beforatnum('"',s,1)
-s := afteratnum('OMS_type="',s)     ; arr_pac[LIS_VPOLIS ] := beforatnum('"',s,1)
-s := afteratnum('OMS_series="',s)   ; arr_pac[LIS_SPOLIS ] := beforatnum('"',s,1)
-s := afteratnum('OMS_number="',s)   ; arr_pac[LIS_NPOLIS ] := beforatnum('"',s,1)
-s := afteratnum('Ins_OKATO="',s)    ; arr_pac[LIS_OKATO  ] := beforatnum('"',s,1)
-s := afteratnum('UDL_type="',s)     ; arr_pac[LIS_VID_UD ] := beforatnum('"',s,1)
-s := afteratnum('UDL_series="',s)   ; arr_pac[LIS_SER_UD ] := beforatnum('"',s,1)
-s := afteratnum('UDL_number="',s)   ; arr_pac[LIS_NOM_UD ] := beforatnum('"',s,1)
-s := afteratnum('Birth_place="',s)  ; arr_pac[LIS_MESTO_R] := beforatnum('"',s,1)
-s := afteratnum('SNILS="',s)        ; arr_pac[LIS_SNILS  ] := beforatnum('"',s,1)
-arr_order := {}
-for i := 2 to len(ta)
-  ta[i] := ltrim(ta[i])
-  if left(ta[i],7) == "<ORDER "
-    aadd(arr_order, {}) ; j := len(arr_order)
-    s := afteratnum('Number="',ta[i])  ; aadd(arr_order[j],beforatnum('"',s,1))
-    s := afteratnum('DS="',s)          ; aadd(arr_order[j],beforatnum('"',s,1))
-    s := afteratnum('Sender_code="',s) ; aadd(arr_order[j],beforatnum('"',s,1))
-    aadd(arr_order[j],{}) // для занесения услуг
-    aadd(arr_order[j]," ") // 5 И 6 ЭЛЕМЕНТЫ ДЛЯ СРОКОВ ЛЕЧЕНИЯ
-    aadd(arr_order[j]," ")
-    aadd(arr_order[j],sotd)
-  endif
-  if left(ta[i],6) == "<EXAM "
-    afill(arr,"")
-    s := afteratnum('ExamID="',ta[i]) ; arr[LISU_ID   ] := beforatnum('"',s,1)
-    s := afteratnum('Exam_code="',s)  ; arr[LISU_SHIFR] := beforatnum('"',s,1)
-    s := afteratnum('Exec_date="',s)  ; arr[LISU_DATE ] := beforatnum('"',s,1)
-    s := afteratnum('Doc_spec="',s)   ; arr[LISU_SPEC ] := beforatnum('"',s,1)
-    s := afteratnum('Doc_SNILS="',s)  ; arr[LISU_SNILS] := beforatnum('"',s,1)
-    if 'Diag_rslt' $ s
-      s := afteratnum('Diag_rslt="',s) ; arr[LISU_D_RSLT] := beforatnum('"',s,1)
-    endif
-    if j <= len(arr_order)
-      aadd(arr_order[j,4],aclone(arr))
-    endif
-  endif
-next j
-return f2_import_from_LIS(2)
-
-// 28.04.20
-Function f2_import_from_LIS(par)
-Static siu := 0, jsiu := 0
-Local i, j, k, fl, afio[3], mfio, aerr := {}, tmp_arr := {}, arr_unit, lvzros_reb, i_738, i_739
-Local t1, t2, t3, t4, ku := 0, ku1 := 0, is_mgi, ko := len(arr_order)
-t1 := seconds()
-++ip
-afio[1] := f_LIS_fio(arr_pac[LIS_FAM],1)
-afio[2] := f_LIS_fio(arr_pac[LIS_IMA],2)
-afio[3] := f_LIS_fio(arr_pac[LIS_OTS],3)
-mfio := afio[1]+" "+afio[2]+" "+afio[3]
-if empty(int(val(arr_pac[LIS_KOD_AK])))
-  aadd(aerr, "Некорректный код PAT у пациента - "+mfio)
-  return aerr
-endif
-if !val_fio(afio,aerr)
-  aadd(aerr,"PAT="+arr_pac[LIS_KOD_AK]+' "'+mfio+'"')
-  return aerr
-endif
-arr_pac[LIS_DATE_R] := ctod(arr_pac[LIS_DATE_R])
-if empty(arr_pac[LIS_DATE_R])
-  aadd(aerr,"Некорректная дата рождения у пациента")
-  aadd(aerr,"PAT="+arr_pac[LIS_KOD_AK]+' "'+mfio+'"')
-  return aerr
-endif
-//my_debug(ip < 1000,"1"+print_array(arr_pac))
-arr_pac[LIS_POL] := iif(arr_pac[LIS_POL]=="M", "М", "Ж")
-f_LIS_polis()
-f_LIS_pasport()
-arr_pac[LIS_SNILS] := charrem("- ",arr_pac[LIS_SNILS])
-//my_debug(ip < 1000,"2"+print_array(arr_pac))
-for j := 1 to len(arr_order)
-  arr_order[j,LISS_KOD] := int(val(arr_order[j,LISS_KOD]))
-  if empty(arr_order[j,LISS_KOD])
-    aadd(aerr,"Некорректный ORDER у пациента")
-    aadd(aerr,"PAT="+arr_pac[LIS_KOD_AK]+' "'+mfio+'"')
-    return aerr
-  endif
-  if empty(arr_order[j,LISS_MO])
-    aadd(aerr,"Не заполнена направляющая мед.организация у пациента")
-    aadd(aerr,"PAT="+arr_pac[LIS_KOD_AK]+' "'+mfio+'" (ORDER='+lstr(arr_order[j,LISS_KOD])+')')
-    return aerr
-  elseif (i := ascan(glob_arr_mo, {|x| x[_MO_KOD_FFOMS] == arr_order[j,LISS_MO] })) == 0
-    aadd(aerr,"В справочнике МО не найдена направляющая мед.организация "+arr_order[j,LISS_MO]+" у пациента")
-    aadd(aerr,"PAT="+arr_pac[LIS_KOD_AK]+' "'+mfio+'" (ORDER='+lstr(arr_order[j,LISS_KOD])+')')
-    return aerr
-  else
-    arr_order[j,LISS_MO] := ret_mo(arr_order[j,LISS_MO])[_MO_KOD_TFOMS]
-  endif
-  //asort(arr_order[j,LISS_USL],,,{|x,y| iif(x[2] == y[2], fsort_usl(x[1]) < fsort_usl(y[1]), x[2] < y[2])})
-  i_738 := i_739 := 0
-  if len(arr_order[j,LISS_USL]) == 0
-    aadd(aerr,"Не введены услуги у пациента")
-    aadd(aerr,"PAT="+arr_pac[LIS_KOD_AK]+' "'+mfio+'" (ORDER='+lstr(arr_order[j,LISS_KOD])+')')
-    return aerr
-  endif
-  for i := 1 to len(arr_order[j,LISS_USL])
-    ++iu
-    ++ku
-    if empty(arr_order[j,LISS_USL,i,LISU_SHIFR])
-      aadd(aerr, "Не введена услуга у пациента")
-      aadd(aerr,"PAT="+arr_pac[LIS_KOD_AK]+' "'+mfio+'" (ORDER='+lstr(arr_order[j,LISS_KOD])+')')
-      return aerr
-    endif
-    if par == 2 // по-новому / из XML-файла / ключевое поле - ID услуги
-      if empty(arr_order[j,LISS_USL,i,LISU_ID])
-        aadd(aerr,"Некорректное значение ExamID в услуге "+arr_order[j,LISS_USL,i,LISU_SHIFR]+" у пациента")
-        aadd(aerr,"PAT="+arr_pac[LIS_KOD_AK]+' "'+mfio+'" (ORDER='+lstr(arr_order[j,LISS_KOD])+')')
-        return aerr
-      endif
-      //if eq_any(left(arr_order[j,LISS_USL,i,LISU_SHIFR],5),"4.16.","4.17.")
-        //arr_order[j,LISS_OTD] := sotd2 // код отделения в Краснооктябрьском р-не
-      //endif
-    endif
-    select LUSL
-    find (padr(arr_order[j,LISS_USL,i,LISU_SHIFR],10))
-    if found()
-      arr_order[j,LISS_USL,i,LISU_UNIT] := lusl->unit_code
-    else
-      aadd(aerr, "В справочнике не найдена услуга "+arr_order[j,LISS_USL,i,LISU_SHIFR]+" у пациента")
-      aadd(aerr,"PAT="+arr_pac[LIS_KOD_AK]+' "'+mfio+'" (ORDER='+lstr(arr_order[j,LISS_KOD])+')')
-      return aerr
-    endif
-    if left(arr_order[j,LISS_USL,i,LISU_SHIFR],5) == "60.9." .and. !(left(arr_order[j,LISS_DIAG],1) == "C")
-      aadd(aerr, "Для МГИ диагноз должен быыть ОНКОЛОГИЯ у пациента")
-      aadd(aerr,"PAT="+arr_pac[LIS_KOD_AK]+' "'+mfio+'" (ORDER='+lstr(arr_order[j,LISS_KOD])+')')
-      return aerr
-    endif
-    if arr_order[j,LISS_USL,i,LISU_SHIFR] == "4.11.738"
-      i_738 := i
-    elseif arr_order[j,LISS_USL,i,LISU_SHIFR] == "4.11.739"
-      i_739 := i
-    endif
-    arr_order[j,LISS_USL,i,LISU_DATE] := ctod(arr_order[j,LISS_USL,i,LISU_DATE])
-    if empty(arr_order[j,LISS_USL,i,LISU_DATE])
-      aadd(aerr, "Некорректная дата услуги у пациента")
-      aadd(aerr,"PAT="+arr_pac[LIS_KOD_AK]+' "'+mfio+'" (ORDER='+lstr(arr_order[j,LISS_KOD])+')')
-      return aerr
-    endif
-    if empty(arr_order[j,LISS_NDATA])
-      arr_order[j,LISS_NDATA] := arr_order[j,LISS_KDATA] := arr_order[j,LISS_USL,i,LISU_DATE]
-    else
-      arr_order[j,LISS_NDATA] := min(arr_order[j,LISS_NDATA],arr_order[j,LISS_USL,i,LISU_DATE])
-      arr_order[j,LISS_KDATA] := max(arr_order[j,LISS_KDATA],arr_order[j,LISS_USL,i,LISU_DATE])
-    endif
-    arr_order[j,LISS_USL,i,LISU_SPEC] := int(val(arr_order[j,LISS_USL,i,LISU_SPEC]))
-    if ascan(getV004(), {|x| x[2] == arr_order[j, LISS_USL, i, LISU_SPEC] }) == 0
-      arr_order[j, LISS_USL, i, LISU_SPEC] := 1107 // Клиническая лабораторная диагностика
-    endif
-    arr_order[j,LISS_USL,i,LISU_SNILS] := charrem("- ",arr_order[j,LISS_USL,i,LISU_SNILS])
-    if empty(arr_order[j,LISS_USL,i,LISU_SNILS])
-      arr_order[j,LISS_USL,i,LISU_SNILS] := 0
-    else
-      select PERSO
-      set order to 1
-      find (padr(arr_order[j,LISS_USL,i,LISU_SNILS],11))
-      if !found()
-        set order to 2
-        AddRec(5)
-        perso->kod := recno()
-        perso->tab_nom := -perso->kod
-        perso->fio  := "Сотрудник с кодом "+lstr(perso->kod)
-        perso->uch  := such
-        perso->otd  := sotd2
-        //if par == 1
-          //perso->otd := sotd
-        //else
-          //perso->otd := arr_order[j,LISS_OTD]
-        //endif
-        perso->prvs := arr_order[j,LISS_USL,i,LISU_SPEC]
-        perso->snils := arr_order[j,LISS_USL,i,LISU_SNILS]
-      endif
-      arr_order[j,LISS_USL,i,LISU_SPEC] := perso->prvs
-      arr_order[j,LISS_USL,i,LISU_SNILS] := perso->kod
-    endif
-  next i
-  if i_738 > 0 .and. i_739 > 0 // если встречаются в одном случае "4.11.738" и "4.11.739"
-    Del_Array(arr_order[j,LISS_USL],i_738) // то удаляем "4.11.738" (она дешевле)
-  endif
-  //my_debug(ip < 100,"  "+print_array({arr_order[j,1],arr_order[j,2],arr_order[j,3],arr_order[j,5],arr_order[j,6]}))
-  //for i := 1 to len(arr_order[j,LISS_USL])
-    //my_debug(ip < 100,"    "+print_array(arr_order[j,4,i]))
-  //next
-next
-t2 := seconds()
-Private mdate_r, m1vzros_reb := 0, M1NOVOR := 0, mprofil
-select KART2
-set order to 1
-find (padr(arr_pac[LIS_KOD_AK],10))
-if found()
-  lkod_k := recno()
-  select KART
-  set order to 0
-  goto (lkod_k)
-  select KART_
-  goto (lkod_k)
-else
-  select KART
-  set order to 1
-  Add1Rec(7)
-  lkod_k := kart->kod := recno()
-  kart->FIO := mfio
-  kart->DATE_R := arr_pac[LIS_DATE_R]
-  mdate_r := kart->DATE_R
-  fv_date_r()
-  kart->pol := arr_pac[LIS_POL]
-  kart->VZROS_REB := m1VZROS_REB
-  kart->POLIS := make_polis(arr_pac[LIS_SPOLIS],arr_pac[LIS_NPOLIS])
-  kart->snils := arr_pac[LIS_SNILS]
-  if TwoWordFamImOt(afio[1]) .or. TwoWordFamImOt(afio[2]) .or. TwoWordFamImOt(afio[3])
-    kart->MEST_INOG := 9
-  else
-    kart->MEST_INOG := 0
-  endif
-  //
-  dbf_equalization("KART_",lkod_k)
-  kart_->VPOLIS := arr_pac[LIS_VPOLIS]
-  kart_->SPOLIS := arr_pac[LIS_SPOLIS]
-  kart_->NPOLIS := arr_pac[LIS_NPOLIS]
-  kart_->vid_ud := arr_pac[LIS_VID_UD]
-  kart_->ser_ud := arr_pac[LIS_SER_UD]
-  kart_->nom_ud := arr_pac[LIS_NOM_UD]
-  kart_->mesto_r:= arr_pac[LIS_MESTO_R]
-  kart_->okatog := arr_pac[LIS_OKATO]
-  kart_->okatop := kart_->okatog
-  if left(kart_->okatog,2) == "18" // Волгоградская область
-    kart_->SMO := "34007" // ООО "РГС-Медицина"
-  else
-    kart_->SMO := "34"    // ТФОМС
-    kart_->KVARTAL_D := left(kart_->okatog,5) // ОКАТО субъекта РФ территории страхования
-  endif
-  //
-  select KART2
-  set order to 0
-  dbf_equalization("KART2",lkod_k)
-  kart2->kod_tf := 0
-  kart2->kod_mis := ""
-  kart2->kod_AK := arr_pac[LIS_KOD_AK]  // ключевое поле !!!
-  kart2->MO_PR := ""
-  kart2->TIP_PR := 0
-  kart2->DATE_PR := ctod("")
-  kart2->SNILS_VR := "" // уч.врач ещё не привязан
-  kart2->PC1 := kod_polzovat+c4sys_date+hour_min(seconds())
-  kart2->PC2 := ""
-  kart2->PC3 := ""
-  kart2->PC4 := ""
-  //
-  select KFIO
-  find (str(lkod_k,7))
-  if found()
-    if kart->MEST_INOG == 9
-      G_RLock(forever)
-      kfio->FAM := afio[1]
-      kfio->IM  := afio[2]
-      kfio->OT  := afio[3]
-    else
-      DeleteRec(.t.)
-    endif
-  else
-    if kart->MEST_INOG == 9
-      AddRec(7)
-      kfio->kod := lkod_k
-      kfio->FAM := afio[1]
-      kfio->IM  := afio[2]
-      kfio->OT  := afio[3]
-    endif
-  endif
-endif
-if par == 1 // по-старому / из текстового файла / ключевое поле - номер наряда-заказа
-  for j := 1 to len(arr_order)
-    select HUMAN_2
-    set order to 1
-    find (str(arr_order[j,LISS_KOD],10))
-    if found()
-      arr_order[j,LISS_KOD] := 0 // т.е. данный случай заносили
-    endif
-  next
-endif
-for j := 1 to len(arr_order) // разбивка случаев по план-заказу
-  arr_unit := {}
-  for i := 1 to len(arr_order[j,LISS_USL])
-    if ascan(arr_unit,arr_order[j,LISS_USL,i,LISU_UNIT]) == 0
-      aadd(arr_unit,arr_order[j,LISS_USL,i,LISU_UNIT])
-    endif
-  next
-  if len(arr_unit) > 1
-    //my_debug(ip < 100,"    unit"+print_array(arr_unit))
-    for k := 1 to len(arr_unit)
-      //my_debug(ip < 100,"    unit="+lstr(arr_unit[k]))
-      if par == 1
-        aadd(tmp_arr,{arr_order[j,1],arr_order[j,2],arr_order[j,3],{},ctod(""),ctod("")})
-      else
-        aadd(tmp_arr,{arr_order[j,1],arr_order[j,2],arr_order[j,3],{},ctod(""),ctod(""),arr_order[j,7]})
-      endif
-      n := len(tmp_arr)
-      //my_debug(ip < 100,"    tmp_arr"+print_array(tmp_arr[n]))
-      for i := 1 to len(arr_order[j,LISS_USL])
-        if arr_unit[k] == arr_order[j,LISS_USL,i,LISU_UNIT]
-          aadd(tmp_arr[n,LISS_USL],aclone(arr_order[j,LISS_USL,i]))
-          //my_debug(ip < 100,"    1tmp_arr"+print_array(tmp_arr[n]))
-          if empty(tmp_arr[n,LISS_NDATA])
-            tmp_arr[n,LISS_NDATA] := tmp_arr[n,LISS_KDATA] := arr_order[j,LISS_USL,i,LISU_DATE]
-          else
-            tmp_arr[n,LISS_NDATA] := min(tmp_arr[n,LISS_NDATA],arr_order[j,LISS_USL,i,LISU_DATE])
-            tmp_arr[n,LISS_KDATA] := max(tmp_arr[n,LISS_KDATA],arr_order[j,LISS_USL,i,LISU_DATE])
-          endif
-        endif
-      next
-    next
-  else
-    aadd(tmp_arr,aclone(arr_order[j]))
-  endif
-next
-arr_order := aclone(tmp_arr) ; tmp_arr := nil
-t3 := seconds()
-if par == 2 // по-новому / из XML-файла / ключевое поле - ID услуги
-  select HU_
-  set order to 1
-  for j := 1 to len(arr_order)
-    for i := 1 to len(arr_order[j,LISS_USL])
-      find (padr(arr_order[j,LISS_USL,i,LISU_ID],30))
-      if found() // данную услугу уже заносили
-        arr_order[j,LISS_KOD] := 0 // значит считаем, что данный случай также заносили
-        exit
-      endif
-    next i
-  next j
-  set order to 0
-endif
-select HUMAN
-set order to 1
-select HUMAN_2
-set order to 0
-aat := {}
-for j := 1 to len(arr_order)
-  ++is
-  //my_debug(ip < 100,"  *"+lstr(j)+print_array({arr_order[j,1],arr_order[j,2],arr_order[j,3],arr_order[j,5],arr_order[j,6]}))
-  //for i := 1 to len(arr_order[j,LISS_USL])
-    //my_debug(ip < 100,"    *"+print_array(arr_order[j,4,i]))
-  //next
-  if arr_order[j,LISS_KOD] == 0 .or. len(arr_order[j,LISS_USL]) == 0
-    ++isp
-  else // т.е. данный случай ещё не заносили
-    lvzros_reb := 1 // ребенок по умолчанию
-    if (k := count_years(kart->DATE_R,arr_order[j,LISS_NDATA])) < 14
-      m1vzros_reb := 1  // ребенок
-    elseif k < 18
-      m1vzros_reb := 2  // подросток
-    else
-      lvzros_reb := m1vzros_reb := 0  // взрослый
-    endif
-    mprofil := 34
-    select MOPROF
-    find (padr(arr_order[j,LISS_USL,1,LISU_SHIFR],20)+str(lvzros_reb,1))
-    if found()
-      mprofil := moprof->profil
-    endif
-    is_mgi := (left(arr_order[j,LISS_USL,1,LISU_SHIFR],5) == "60.9.")
-    if is_mgi
-      //
-    else
-      arr_order[j,LISS_DIAG] := "Z01.7" // всегда
-    endif
-    select HUMAN
-    Add1Rec(7)
-    mkod := human->kod := recno()
-    dbf_equalization("HUMAN_",mkod)
-    dbf_equalization("HUMAN_2",mkod)
-    //
-    human->kod_k      := lkod_k
-    human->TIP_H      := B_STANDART
-    human->FIO        := kart->FIO          // Ф.И.О. больного
-    human->POL        := kart->POL          // пол
-    human->DATE_R     := kart->DATE_R       // дата рождения больного
-    human->VZROS_REB  := M1VZROS_REB        // 0-взрослый, 1-ребенок, 2-подросток
-    human->KOD_DIAG   := arr_order[j,LISS_DIAG]
-    human->KOD_DIAG2  := human->KOD_DIAG3 := human->KOD_DIAG4 := ""
-    human->SOPUT_B1   := human->SOPUT_B2 := human->SOPUT_B3 := human->SOPUT_B4 := ""
-    if len(arr_order[j,LISS_DIAG]) == 6
-      human->diag_plus := padr(right(arr_order[j,LISS_DIAG],1),8)
-    endif
-    human->KOMU       := 0
-    human->POLIS      := kart->polis
-    human->LPU        := such
-    human->OTD        := sotd2
-    //if par == 1
-      //human->OTD      := sotd
-    //else
-      //human->OTD      := arr_order[j,LISS_OTD]
-    //endif
-    human->UCH_DOC    := lstr(arr_order[j,LISS_KOD]) // ORDER по ЛИС
-    human->N_DATA     := arr_order[j,LISS_NDATA]
-    human->K_DATA     := arr_order[j,LISS_KDATA]
-    //
-    human_->SMO       := kart_->SMO
-    human_->VPOLIS    := kart_->VPOLIS
-    human_->SPOLIS    := kart_->SPOLIS
-    human_->NPOLIS    := kart_->NPOLIS
-    if alltrim(human_->smo) == '34'
-      human_->OKATO   := kart_->KVARTAL_D
-    endif
-    human_->NOVOR     := 0
-    human_->DATE_R2   := ctod("")
-    human_->POL2      := ""
-    human_->USL_OK    := 3  // амбулаторно
-    human_->VIDPOM    := 13 // первичная специализированная
-    human_->PROFIL    := mprofil // клиническая лабораторная диагностика или бактериология
-    human_->IDSP      := 4  // лечебно-диагностическая процедура
-    human_->NPR_MO    := arr_order[j,LISS_MO]
-    human_->KOD_DIAG0 := ""
-    human_->RSLT_NEW  := 314 // динамическое наблюдение
-    human_->ISHOD_NEW := 304 // без перемен
-    human_->VRACH     := 0
-    human_->PRVS      := iif(mprofil == 34, -13, -54) // Клиническая лабораторная диагностика
-    human_->OPLATA    := 0 // уберём "2", если отредактировали запись из реестра СП и ТК
-    human_->ST_VERIFY := 0 // снова ещё не проверен
-    human_->ID_PAC    := mo_guid(1,human_->(recno()))
-    human_->ID_C      := mo_guid(2,human_->(recno()))
-    human_->SUMP      := 0
-    human_->OPLATA    := 0
-    human_->SANK_MEK  := 0
-    human_->SANK_MEE  := 0
-    human_->SANK_EKMP := 0
-    human_->REESTR    := 0
-    human_->REES_ZAP  := 0
-    human->schet      := 0
-    human_->SCHET_ZAP := 0
-    human->kod_p   := chr(0)
-    human->date_e  := ''
-    //
-    human_2->NPR_DATE := human->N_DATA
-    human_2->OSL1 := human_2->OSL2 := human_2->OSL3 := ""
-    human_2->VMP := 0
-    human_2->VIDVMP := ""
-    human_2->METVMP := 0
-    human_2->VNR := human_2->VNR1 := human_2->VNR2 := human_2->VNR3 := 0
-    human_2->PC1 := human_2->PC2 := human_2->PC3 := ""
-    human_2->PN1 := human_2->PN2 := 0
-    human_2->PN3 := arr_order[j,LISS_KOD] // ключевое поле
-    sstoim := 0
-    for i := 1 to len(arr_order[j,LISS_USL])
-      if (n := ascan(arr_usl, {|x| x[1]==arr_order[j,LISS_USL,i,LISU_SHIFR] .and. x[4]==lvzros_reb})) == 0
-        ++ku1
-        arr_order[j,LISS_USL,i,LISU_CENA] := 0
-        arr_order[j,LISS_USL,i,LISU_KODU] := foundOurUsluga(arr_order[j,LISS_USL,i,LISU_SHIFR],;
-                                                            arr_order[j,LISS_KDATA],;
-                                                            mprofil,;
-                                                            m1VZROS_REB,;
-                                                            @arr_order[j,LISS_USL,i,LISU_CENA],1,.f.)
-        aadd(arr_usl,{arr_order[j,LISS_USL,i,LISU_SHIFR],;
-                      arr_order[j,LISS_USL,i,LISU_KODU],;
-                      arr_order[j,LISS_USL,i,LISU_CENA],;
-                      lvzros_reb})
-      else
-        arr_order[j,LISS_USL,i,LISU_KODU] := arr_usl[n,2]
-        arr_order[j,LISS_USL,i,LISU_CENA] := arr_usl[n,3]
-      endif
-      sstoim += arr_order[j,LISS_USL,i,LISU_CENA]
-      select HU
-      Add1Rec(7)
-      hu->kod     := human->kod
-      hu->kod_vr  := arr_order[j,LISS_USL,i,LISU_SNILS]
-      hu->kod_as  := 0
-      hu->u_koef  := 1
-      hu->u_kod   := arr_order[j,LISS_USL,i,LISU_KODU]
-      hu->u_cena  := arr_order[j,LISS_USL,i,LISU_CENA]
-      hu->is_edit := 0
-      hu->date_u  := dtoc4(arr_order[j,LISS_USL,i,LISU_DATE])
-      hu->otd     := human->OTD
-      hu->kol := hu->kol_1 := 1
-      hu->stoim := hu->stoim_1 := arr_order[j,LISS_USL,i,LISU_CENA]
-      hu->KOL_RCP := 0
-      //
-      dbf_equalization("HU_",hu->(recno()))
-      hu_->ID_U := mo_guid(3,hu_->(recno()))
-      hu_->PROFIL := human_->PROFIL
-      hu_->PRVS   := arr_order[j,LISS_USL,i,LISU_SPEC]
-      hu_->kod_diag := human->KOD_DIAG
-      if par == 2 // по-новому / из XML-файла / ключевое поле - ID услуги
-        hu_->zf := arr_order[j,LISS_USL,i,LISU_ID]
-      else
-        hu_->zf := ""
-      endif
-      ++siu
-    next
-    human->CENA := human->CENA_1 := sstoim
-    if is_mgi
-      human_->VRACH := hu->kod_vr
-      f_LIS_mgi(human->kod,arr_order[j])
-    endif
-    aadd(aat,{seconds(),len(arr_order[j,LISS_USL])})
-  endif
-next
-t4 := seconds()
-/*select TMP
-append blank
-tmp->nn := ip
-tmp->ko := ko
-tmp->ko1 := len(arr_order)
-tmp->ku := ku
-tmp->ku1 := ku1
-tmp->t2 := t2-t1
-tmp->t3 := t3-t1
-tmp->t4 := t4-t1
-if tmp->t4 > 5
-  k := t3
-  for i := 1 to len(aat)
-    aat[i,1] -= k
-    k += aat[i,1]
-  next
-  my_debug(,lstr(ip)+print_array(aat))
-endif*/
-@ maxrow(),0 say "пациентов "+lstr(ip) color "G+/R"
-@ row(),col() say "/" color "W/R"
-@ row(),col() say "случаев "+lstr(is)+iif(isp==0,""," (повтор "+lstr(isp)+")") color cColorSt2Msg
-@ row(),col() say "/" color "W/R"
-@ row(),col() say "услуг "+lstr(iu) color cColorStMsg
-if siu > 500
-  //tmp->fc := "t"
-  @ maxrow(),0 say "запись... " color "W/R"
-  dbUnlockAll()
-  dbCommitAll()
-  siu := 0
-endif
-return aerr
-
-// 12.09.23 записать онкологическую добавку по МГИ
-Function f_LIS_mgi(mkod,ao)
-  Local i, ar_N012 := {}
-  local aN012_DS := getDS_N012(), it
-
-  select CO
-  AddRec(7)
-  co->kod := mkod
-  co->PR_CONS := 0
-  co->DT_CONS := ctod('')
-  //
-  select SL
-  AddRec(7)
-  sl->kod := mkod
-  sl->DS1_T := 5
-  sl->b_diag := 98 // выполнено (результат получен)
-  //
-  if (i := ascan(glob_MGI, {|x| x[1] == ao[LISS_USL, 1, LISU_SHIFR] })) > 0 // услуга входит в список ТФОМС
-    // select N12
-    // dbeval({|| aadd(ar_N012, n12->id_igh) }, ;
-    //      {|| between_date(n12->datebeg, n12->dateend, ao[LISS_USL, 1, LISU_DATE]) .and. left(human->KOD_DIAG,3) == n12->ds_igh })
-    if (it := ascan(aN012_DS, {|x| left(x[1], 3) == left(human->KOD_DIAG, 3)})) > 0
-      ar_N012 := aclone(aN012_DS[it, 2])
-    endif
-
-    if ascan(ar_N012, glob_MGI[i, 2]) > 0 // по данному диагнозу присутствует необходимый маркер
-      select DIAG
-      AddRec(7)
-      diag->kod       := mkod
-      diag->DIAG_DATE := ao[LISS_USL, 1, LISU_DATE]
-      diag->DIAG_TIP  := 2
-      diag->DIAG_CODE := glob_MGI[i, 2]
-      diag->DIAG_RSLT := iif(ao[LISS_USL, 1, LISU_D_RSLT] == '1', glob_MGI[i, 4], glob_MGI[i, 3])
-      diag->REC_RSLT  := 1
+  if k > 10
+    if between(k, 11, 19)
+      si1 := int(val(right(lstr(k), 1)))
     endif
   endif
   return NIL
 
-// 14.01.17 проверить отдельно фамилию, имя или отчество при импорте из ЛИС
-Function f_LIS_fio(s,n)
-Static arr_char := {" ","-",".","'",'"'} // разрешённые спецсимволы
-Local i, c, s1 := ""
-s := alltrim(s) // убрать пробелы
-for i := 1 to len(arr_char)
-  s := charone(arr_char[i],s) // оставить 1 спецсимвол подряд
-next
-s := lat_rus(s)  // заменить латинские символы на соответствующие русские (если встретились)
-s1 := charrem("0123456789",s) // убрать цифры
-if empty(s1) .and. n < 3 // если в фамилии или имени были только цифры, - оставить их
-  s1 := s
-endif
-s := s1 ; s1 := ""
-for i := 1 to len(s)
-  c := substr(s,i,1)
-  if isralpha(c) // буква
-    s1 += c
-  elseif ascan(arr_char,c) > 0 // разрешённый спецсимвол
-    s1 += c
-  elseif between(asc(c),48,57) // в фамилии или имени были только цифры
-    s1 += c
-  endif
-next
-return s1
-
-// 15.01.17 проверить полис при импорте из ЛИС
-Function f_LIS_polis()
-Local n
-if empty(arr_pac[LIS_OKATO]) .or. mo_nodigit(arr_pac[LIS_OKATO]) // пустое или не цифры
-  arr_pac[LIS_OKATO] := "18"
-endif
-arr_pac[LIS_OKATO] := padr(arr_pac[LIS_OKATO],11,"0")
-if ascan(glob_array_srf, {|x| x[2] == left(arr_pac[LIS_OKATO],2) }) == 0
-  arr_pac[LIS_OKATO] := padr("18",11,"0")
-endif
-//
-arr_pac[LIS_VPOLIS] := int(val(arr_pac[LIS_VPOLIS]))
-if !between(arr_pac[LIS_VPOLIS],1,3)
-  arr_pac[LIS_VPOLIS] := 3
-endif
-arr_pac[LIS_SPOLIS] := val_polis(arr_pac[LIS_SPOLIS])
-arr_pac[LIS_NPOLIS] := val_polis(arr_pac[LIS_NPOLIS])
-if !empty(arr_pac[LIS_SPOLIS]) .and. !mo_nodigit(arr_pac[LIS_SPOLIS]) // цифры в серии полиса
-  arr_pac[LIS_NPOLIS] := arr_pac[LIS_SPOLIS] + arr_pac[LIS_NPOLIS] // склеим серию и номер = получим номер
-  arr_pac[LIS_SPOLIS] := ""
-endif
-n := len(arr_pac[LIS_NPOLIS])
-if n == 9 .and. empty(arr_pac[LIS_SPOLIS])
-  arr_pac[LIS_VPOLIS] := 2  // то пусть это будет временный полис
-endif
-if n == 16 .and. !empty(arr_pac[LIS_SPOLIS])
-  arr_pac[LIS_SPOLIS] := ""  // то очистим - какой-то мусор
-endif
-if arr_pac[LIS_VPOLIS] == 1
-  if left(arr_pac[LIS_OKATO],2) == "18" .and. empty(arr_pac[LIS_SPOLIS]) .and. n != 16
-    arr_pac[LIS_NPOLIS] := padr(arr_pac[LIS_NPOLIS],16,"0")
-  endif
-elseif arr_pac[LIS_VPOLIS] == 2
-  if n != 9
-    arr_pac[LIS_NPOLIS] := padr(arr_pac[LIS_NPOLIS],9,"0")
-  endif
-elseif arr_pac[LIS_VPOLIS] == 3
-  if n != 16
-    arr_pac[LIS_NPOLIS] := padr(arr_pac[LIS_NPOLIS],16,"0")
-  endif
-  if !f_checksum_polis(arr_pac[LIS_NPOLIS]) // если неверная контрольная сумма в новом полисе
-    arr_pac[LIS_VPOLIS] := 1  // то пусть это будет старый полис
-  endif
-endif
-return NIL
-
-// 29.03.23 проверить паспорт при импорте из ЛИС
-Function f_LIS_pasport()
-Local i, _sl, _sr
-arr_pac[LIS_VID_UD] := int(val(arr_pac[LIS_VID_UD]))
-if ascan(getVidUd(), {|x| x[2] == arr_pac[LIS_VID_UD] }) == 0
-  arr_pac[LIS_VID_UD] := iif(arr_pac[LIS_VPOLIS] < 3, 14, 0)
-endif
-if arr_pac[LIS_VID_UD] == 0 // ели новый полис и нет документа, очистим серию и номер документа
-  arr_pac[LIS_SER_UD] := ""
-  arr_pac[LIS_NOM_UD] := ""
-else
-  arr_pac[LIS_SER_UD] := upper(arr_pac[LIS_SER_UD])
-  if eq_any(arr_pac[LIS_VID_UD],1,3) // "Паспорт гражд.СССР" или "Свид-во о рождении"
-    if "-" $ arr_pac[LIS_SER_UD]
-      _sl := ALLTRIM(TOKEN(arr_pac[LIS_SER_UD], "-", 1))
-      _sr := ALLTRIM(TOKEN(arr_pac[LIS_SER_UD], "-", 2))
-      arr_pac[LIS_SER_UD] := _sl+"-"+lat_rus(_sr) // латынь -> в русский
-    else
-      if !mo_nodigit(charrem(" ",arr_pac[LIS_SER_UD])) // если только цифры в серии
-        arr_pac[LIS_VID_UD] := 14 // то это паспорт РФ
-      else
-        arr_pac[LIS_VID_UD] := 18 // иначе "Иные документы"
-      endif
-    endif
-  endif
-  if arr_pac[LIS_VID_UD] == 14 .and. !(" " $ arr_pac[LIS_SER_UD]) // если серия в виде "1803" - без пробела
-    arr_pac[LIS_SER_UD] := left(arr_pac[LIS_SER_UD],2)+" "+substr(arr_pac[LIS_SER_UD],3)
-  endif
-  if mo_nodigit(arr_pac[LIS_NOM_UD]) // не цифры
-    arr_pac[LIS_VID_UD] := 18 // "Иные документы"
-  else
-    if (eq_any(arr_pac[LIS_VID_UD],1,3) .and. len(arr_pac[LIS_NOM_UD]) != 6) .or. ;
-             (arr_pac[LIS_VID_UD] == 14 .and. !eq_any(len(arr_pac[LIS_NOM_UD]),6,7))
-      arr_pac[LIS_NOM_UD] := padr(arr_pac[LIS_NOM_UD],6,"9") // т.е. делаем 6 знаков в длину
-    endif
-  endif
-  if eq_any(arr_pac[LIS_VID_UD],3,14)
-    if empty(arr_pac[LIS_MESTO_R])
-      arr_pac[LIS_MESTO_R] := "г.Волгоград"
-    else
-      arr_pac[LIS_MESTO_R] := del_spec_symbol(arr_pac[LIS_MESTO_R])
-    endif
-  endif
-endif
-return NIL
-
-// 03.05.17
-Function f_define_LIS_coding(name_file)
-Local arr_pac, a1[3], a2[3], fl[3], i, j := 0, ret := {.t.,.t.}
-//my_debug(,name_file)
-ft_use(name_file)
-ft_gotop()
-do while !ft_eof()
-  if !empty( s := ft_ReadLn() )
-    if upper(left(s,3)) == "PAT"
-      arr_pac := {}
-      for i := 3 to numtoken(s,";",1)
-        s1 := alltrim(token(s,";",i,1))
-        aadd(arr_pac,s1)
-        if len(arr_pac) == 3 ; exit ; endif
-      next
-      for i := 1 to 3
-        a1[i] := hb_AnsiToOem(arr_pac[i])
-        a2[i] := hb_OemToAnsi(a1[i])
-        fl[i] := (arr_pac[i] == a2[i])
-        if !fl[i]
-          ret[1] := .f.
-        endif
-      next
-      /*my_debug(,"Ansi"+print_array(fl))
-      if fl[1]
-        my_debug(,print_array(a1))
-      endif*/
-      for i := 1 to 3
-        a1[i] := hb_Utf8ToStr(arr_pac[i],"RU866")
-        a2[i] := hb_StrToUtf8(a1[i],"RU866")
-        fl[i] := (arr_pac[i] == a2[i])
-        if !fl[i]
-          ret[2] := .f.
-        endif
-      next
-      /*my_debug(,"Utf8"+print_array(fl))
-      if fl[1]
-        my_debug(,print_array(a1))
-      endif*/
-      if ++j == 5 ; exit ; endif
-    endif
-  endif
-  ft_skip()
-enddo
-ft_use()
-j := 0
-if ret[1] == ret[2]
-  func_error(4,"Не удалось автоматически определить кодировку файла "+StripPath(name_file))
-else
-  j := iif(ret[1], 1, 2)
-endif
-return j
+// 27.10.23
+Function Utf82Oem(s)
+  return hb_Utf8ToStr(s, 'RU866')
 
 // Импорт случаев ОМС (листов учёта) из других программ (по-старому)
 Function import_sluch_OMS()
@@ -1196,7 +47,7 @@ Local full_dbf, name_dbf, i, s := "", fl := .t.
 Private arr_f := {"_lpu","_otd","_sluch","_sluch_u"}, ;
         cFileProtokol := "protokol"+stxt
 Private p_var_manager := "Read_sluch_OMS"
-full_dbf := manager(T_ROW,T_COL+5,maxrow()-2,,.t.,1,,,,"*"+sdbf)
+full_dbf := manager(T_ROW, T_COL + 5,maxrow()-2,,.t., 1,,,,"*"+sdbf)
 if !empty(full_dbf)
   name_dbf := StripPath(full_dbf)
   Private name_path := KeepPath(full_dbf)+cslash
@@ -1227,7 +78,7 @@ if !empty(full_dbf)
   if hb_FileExists(cFileProtokol)
     //copy file (cFileProtokol) to (hb_OemToAnsi(name_path)+cFileProtokol)
     copy file (cFileProtokol) to (name_path+cFileProtokol)
-    viewtext(Devide_Into_Pages(cFileProtokol,60,80),,,,.t.,,,2)
+    viewtext(Devide_Into_Pages(cFileProtokol, 60, 80),,,,.t.,,, 2)
   endif
 endif
 return NIL
@@ -1336,17 +187,17 @@ for i := 1 to len(arr_f)
   //use (hb_OemToAnsi(name_path)+arr_f[i]) new alias TMP
   use (name_path+arr_f[i]) new alias TMP
   for j := 1 to len(a_struct[i])
-    cName := a_struct[i,j,1]
+    cName := a_struct[i,j, 1]
     if (k := fieldpos(cName)) == 0
       fl := .f.
       strfile(upper(arr_f[i])+": не обнаружено поле "+cName+hb_eol(),cFileProtokol,.t.)
     else
       pole := "tmp->"+cName
       cType := valtype(&pole)
-      if !(cType == a_struct[i,j,2])
+      if !(cType == a_struct[i,j, 2])
         fl := .f.
         strfile(upper(arr_f[i])+", тип поля "+cName+": "+cType+;
-                ", а должно быть "+a_struct[i,j,2]+hb_eol(),cFileProtokol,.t.)
+                ", а должно быть "+a_struct[i,j, 2]+hb_eol(),cFileProtokol,.t.)
       endif
     endif
   next
@@ -1378,18 +229,18 @@ if fl
   //
   R_Use(exe_dir+"_mo_smo",{cur_dir + "_mo_smo",cur_dir + "_mo_smo2"},"SMO")
   use (name_path+"_lpu") new alias ILPU
-  index on str(kod,3) to (cur_dir + "tmp_ilpu")
+  index on str(kod, 3) to (cur_dir + "tmp_ilpu")
   use (name_path+"_otd") new alias IOTD
-  index on str(kod,3) to (cur_dir + "tmp_iotd")
+  index on str(kod, 3) to (cur_dir + "tmp_iotd")
   use (name_path+"_sluch_u") new alias IHU
-  index on str(kod,10) to (cur_dir + "tmp_ihu")
+  index on str(kod, 10) to (cur_dir + "tmp_ihu")
   use (name_path+"_sluch") new alias IHUMAN
-  index on str(kod,10) to (cur_dir + "tmp_ihum")
+  index on str(kod, 10) to (cur_dir + "tmp_ihum")
   go top
   do while !eof()
     select MKB_10
-    find (padr(ihuman->ds1,6))
-    if !between_date(mkb_10->dbegin,mkb_10->dend,ihuman->DATE_2)
+    find (padr(ihuman->ds1, 6))
+    if !between_date(mkb_10->dbegin,mkb_10->dend, ihuman->DATE_2)
       fl := .f.
       strfile("_SLUCH: запись № "+lstr(ihuman->(recno()))+;
               ', DS1="'+ihuman->DS1+'"-основной диагноз не входит в ОМС'+hb_eol(),cFileProtokol,.t.)
@@ -1415,20 +266,20 @@ if fl
       endif
       if !empty(ihuman->DOCNUM)
         s := space(80)
-        if !val_ud_nom(2,ihuman->DOCTYPE,ihuman->DOCNUM,@s)
+        if !val_ud_nom(2, ihuman->DOCTYPE, ihuman->DOCNUM,@s)
           fl := .f.
           strfile("_SLUCH: запись № "+lstr(ihuman->(recno()))+;
                   ', DOCNUM-'+s+hb_eol(),cFileProtokol,.t.)
         endif
       endif
-      if eq_any(ihuman->DOCTYPE,1,3,14) .and. empty(ihuman->DOCSER)
+      if eq_any(ihuman->DOCTYPE, 1, 3, 14) .and. empty(ihuman->DOCSER)
         fl := .f.
         strfile("_SLUCH: запись № "+lstr(ihuman->(recno()))+;
               ', DOCSER-должно быть заполнено поле "СЕРИЯ удостоверения личности"'+hb_eol(),cFileProtokol,.t.)
       endif
       if !empty(ihuman->DOCSER)
         s := space(80)
-        if !val_ud_ser(2,ihuman->DOCTYPE,ihuman->DOCSER,@s)
+        if !val_ud_ser(2, ihuman->DOCTYPE, ihuman->DOCSER,@s)
           fl := .f.
           strfile("_SLUCH: запись № "+lstr(ihuman->(recno()))+;
                   ', DOCSER-'+s+hb_eol(),cFileProtokol,.t.)
@@ -1447,7 +298,7 @@ if fl
       k := 0 ; s := ""
       mfio := alltrim(ihuman->fio)
       for i := 1 to numtoken(mfio," .")
-        s1 := alltrim(token(mfio," .",i))
+        s1 := alltrim(token(mfio," .", i))
         if !empty(s1)
           ++k
           if k < 3
@@ -1469,7 +320,7 @@ if fl
     endif
     if !empty(ihuman->SNILS)
       s := space(80)
-      if !val_snils(ihuman->snils,2,@s)
+      if !val_snils(ihuman->snils, 2,@s)
         fl := .f.
         strfile("_SLUCH: запись № "+lstr(ihuman->(recno()))+;
                 ', SNILS="'+ihuman->SNILS+'"-'+s+hb_eol(),cFileProtokol,.t.)
@@ -1581,10 +432,10 @@ if fl
               ", поле OTD = "+lstr(ihuman->otd)+hb_eol(),cFileProtokol,.t.)
     else
       select IOTD
-      find (str(ihuman->otd,3))
+      find (str(ihuman->otd, 3))
       if found()
         select ILPU
-        find (str(iotd->kod_lpu,3))
+        find (str(iotd->kod_lpu, 3))
         if !found()
           fl := .f.
           strfile("_OTD: запись № "+lstr(iotd->(recno()))+;
@@ -1606,25 +457,25 @@ if fl
       fv_date_r(ihuman->DATE_1)
       s := 0
       select IHU
-      find (str(ihuman->kod,10))
+      find (str(ihuman->kod, 10))
       do while ihu->kod == ihuman->kod .and. !eof()
-        if !between(ihu->DATE_IN,ihuman->date_1,ihuman->date_2)
+        if !between(ihu->DATE_IN, ihuman->date_1, ihuman->date_2)
           fl := .f.
           strfile("_SLUCH_U: запись № "+lstr(ihu->(recno()))+;
                   ", дата услуги "+full_date(ihu->DATE_IN)+" не попадает в диапазон лечения: "+;
                   full_date(ihuman->date_1)+"-"+full_date(ihuman->date_2)+hb_eol(),cFileProtokol,.t.)
         endif
         select LUSLF
-        find (padr(ihu->CODE_USL,20))
+        find (padr(ihu->CODE_USL, 20))
         if !found()
           select LUSL
-          find (padr(ihu->CODE_USL,10))
+          find (padr(ihu->CODE_USL, 10))
           if found()
             if (v := f1cena_oms(ihu->CODE_USL,;
                                 '',;
                                 (m1vzros_reb==0),;
                                 ihuman->date_2)) != NIL .and. ;
-                             !(round(ihu->TARIF,2) == round(v,2))
+                             !(round(ihu->TARIF, 2) == round(v, 2))
               fl := .f.
               strfile("_SLUCH_U: запись № "+lstr(ihu->(recno()))+;
                       ", "+alltrim(ihu->CODE_USL)+" цена "+;
@@ -1637,7 +488,7 @@ if fl
                     " не найдена услуга в справочниках ТФОМС (ФФОМС)"+hb_eol(),cFileProtokol,.t.)
           endif
         endif
-        if !(round(ihu->TARIF*ihu->KOL_USL,2) == round(ihu->SUMV_USL,2))
+        if !(round(ihu->TARIF*ihu->KOL_USL, 2) == round(ihu->SUMV_USL, 2))
           fl := .f.
           strfile("_SLUCH_U: запись № "+lstr(ihu->(recno()))+;
                   ", "+alltrim(ihu->CODE_USL)+" "+;
@@ -1648,7 +499,7 @@ if fl
         select IHU
         skip
       enddo
-      if !(round(s,2) == round(ihuman->SUMV,2))
+      if !(round(s, 2) == round(ihuman->SUMV, 2))
         fl := .f.
         strfile("_SLUCH: запись № "+lstr(ihuman->(recno()))+;
                 ", SUMV = "+lstr(ihuman->sumv)+" != "+lstr(s)+hb_eol(),cFileProtokol,.t.)
@@ -1665,7 +516,7 @@ if fl
           elseif empty(ihuman->METOD_HMP)
             s := 'ВМП оказана, введён вид ВМП, но не введён метод ВМП'
           elseif (i := ascan(arrV019, {|x| x[1] == ihuman->METOD_HMP })) > 0
-            if arrV019[i,4] == ihuman->VID_HMP
+            if arrV019[i, 4] == ihuman->VID_HMP
               if ascan(arrV019[i, 3], {|x| left(ihuman->ds1, len(x))==x }) == 0
                 s := 'основной диагноз не соответствует методу ВМП'
               endif
@@ -1684,7 +535,7 @@ if fl
         endif
       endif
       if empty(ihuman->SUMV)
-        if eq_any(ihuman->USL_OK,1,2) // стационар и дневной стационар
+        if eq_any(ihuman->USL_OK, 1, 2) // стационар и дневной стационар
           arr_ksg := definition_KSG(2) // уже 18 год
           if len(arr_ksg) == 7 // диализ
             //
@@ -1733,10 +584,10 @@ if fl
               ", поле OTD = "+lstr(ihu->otd)+hb_eol(),cFileProtokol,.t.)
     else
       select IOTD
-      find (str(ihu->otd,3))
+      find (str(ihu->otd, 3))
       if found()
         select ILPU
-        find (str(iotd->kod_lpu,3))
+        find (str(iotd->kod_lpu, 3))
         if !found()
           fl := .f.
           strfile("_OTD: запись № "+lstr(iotd->(recno()))+;
@@ -1754,7 +605,7 @@ if fl
               ", поле KOD = "+lstr(ihu->kod)+hb_eol(),cFileProtokol,.t.)
     else
       select IHUMAN
-      find (str(ihu->kod,10))
+      find (str(ihu->kod, 10))
       if !found()
         fl := .f.
         strfile("_SLUCH_U: запись № "+lstr(ihu->(recno()))+;
@@ -1768,14 +619,14 @@ if fl
     iz := ip := 0
     lOldDeleted := SET(_SET_DELETED, .F.)
     select TMP_KSG
-    index on str(rec,7) to (cur_dir + "tmp_ksg")
+    index on str(rec, 7) to (cur_dir + "tmp_ksg")
     G_Use(dir_server + "mo_pers",dir_server + "mo_pers","PERSO")
     G_Use(dir_server + "mo_kfio",,"KFIO")
-    index on str(kod,7) to (cur_dir + "tmp_kfio")
+    index on str(kod, 7) to (cur_dir + "tmp_kfio")
     G_Use(dir_server + "mo_kismo",,"KSN")
-    index on str(kod,7) to (cur_dir + "tmpkismo")
+    index on str(kod, 7) to (cur_dir + "tmpkismo")
     G_Use(dir_server + "mo_hismo",,"HSN")
-    index on str(kod,7) to (cur_dir + "tmphismo")
+    index on str(kod, 7) to (cur_dir + "tmphismo")
     Use_base("kartotek")
     select IHUMAN
     go top
@@ -1792,7 +643,7 @@ if fl
         k := 0 ; s := ""
         mfio := alltrim(ihuman->fio)
         for i := 1 to numtoken(mfio," .")
-          s1 := alltrim(token(mfio," .",i))
+          s1 := alltrim(token(mfio," .", i))
           if !empty(s1)
             ++k
             if k < 3
@@ -1804,7 +655,7 @@ if fl
         next
         afio[3] := alltrim(s)
       endif
-      lkod_k := 0 ; mfio := padr(mfio,50)
+      lkod_k := 0 ; mfio := padr(mfio, 50)
       select KART
       set order to 2
       find ("1"+upper(mfio)+dtos(ihuman->dr))
@@ -1825,7 +676,7 @@ if fl
       fv_date_r()
       kart->pol       := iif(ihuman->W==1, "М","Ж")
       kart->VZROS_REB := m1VZROS_REB
-      kart->POLIS     := make_polis(ihuman->spolis,ihuman->npolis)
+      kart->POLIS     := make_polis(ihuman->spolis, ihuman->npolis)
       kart->snils     := ihuman->snils
       if !empty(ihuman->adres)
         kart->adres := ihuman->adres
@@ -1864,7 +715,7 @@ if fl
       endif
       //
       select KFIO
-      find (str(lkod_k,7))
+      find (str(lkod_k, 7))
       if found()
         if kart->MEST_INOG == 9
           G_RLock(forever)
@@ -1889,7 +740,7 @@ if fl
         kart_->KVARTAL_D := ihuman->SMO_OK // ОКАТО субъекта РФ территории страхования
       endif
       select KSN
-      find (str(lkod_k,7))
+      find (str(lkod_k, 7))
       if found()
         if fl_nameismo
           G_RLock(forever)
@@ -1907,7 +758,7 @@ if fl
       UnLock
       //
       select TMP_KSG
-      find (str(ihuman->(recno()),7))
+      find (str(ihuman->(recno()), 7))
       if found()
         ihuman->KSG := tmp_ksg->CODE_USL
         ihuman->CENA_KSG := tmp_ksg->TARIF
@@ -1916,35 +767,35 @@ if fl
       fl_povtor := .f.
       select HUMAN
       set order to 2
-      find (str(lkod_k,7))
+      find (str(lkod_k, 7))
       do while human->kod_k == lkod_k .and. !eof()
         v1 := iif(tmp_ksg->(found()), tmp_ksg->TARIF, ihuman->SUMV)
         if human->K_DATA == ihuman->DATE_2 .and. ;
-           upper(human->uch_doc) == upper(padr(ihuman->NHISTORY,10)) .and. ;
-           round(human->CENA_1,2) == round(v1,2)
+           upper(human->uch_doc) == upper(padr(ihuman->NHISTORY, 10)) .and. ;
+           round(human->CENA_1, 2) == round(v1, 2)
           //
           ausl_i := {}
           select IHU
-          find (str(ihuman->kod,10))
+          find (str(ihuman->kod, 10))
           do while ihu->kod == ihuman->kod .and. !eof()
-            aadd(ausl_i,{padr(ihu->CODE_USL,20),ihu->PROFIL})
+            aadd(ausl_i,{padr(ihu->CODE_USL, 20), ihu->PROFIL})
             skip
           enddo
           if tmp_ksg->(found()) // добавим в массив услугу КСГ
-            aadd(ausl_i,{padr(tmp_ksg->CODE_USL,20),ihuman->PROFIL})
+            aadd(ausl_i,{padr(tmp_ksg->CODE_USL, 20), ihuman->PROFIL})
           endif
           asort(ausl_i,,,{|x,y| fsort_usl(x[1]) < fsort_usl(y[1]) })
           //
           ausl_o := {}
           select HU
-          find (str(human->kod,7))
+          find (str(human->kod, 7))
           do while hu->kod == human->kod .and. !eof()
             usl->(dbGoto(hu->u_kod))
-            aadd(ausl_o,{padr(usl->shifr,20),hu_->PROFIL})
+            aadd(ausl_o,{padr(usl->shifr, 20),hu_->PROFIL})
             skip
           enddo
           select MOHU
-          find (str(human->kod,7))
+          find (str(human->kod, 7))
           do while mohu->kod == human->kod .and. !eof()
             mosu->(dbGoto(mohu->u_kod))
             aadd(ausl_o,{mosu->shifr1,hu_->PROFIL})
@@ -1952,8 +803,8 @@ if fl
           enddo
           asort(ausl_o,,,{|x,y| fsort_usl(x[1]) < fsort_usl(y[1]) })
           //
-          if !emptyany(ausl_i,ausl_o) .and. ausl_i[1,1] == ausl_o[1,1] ;
-                                      .and. ausl_i[1,2] == ausl_o[1,2]
+          if !emptyany(ausl_i,ausl_o) .and. ausl_i[1, 1] == ausl_o[1, 1] ;
+                                      .and. ausl_i[1, 2] == ausl_o[1, 2]
             strfile("запись № "+lstr(ihuman->(recno()))+;
                 "(KOD = "+lstr(ihuman->kod)+;
                 ") повторная: "+rtrim(ihuman->fio)+hb_eol(),cFileProtokol,.t.)
@@ -1969,7 +820,7 @@ if fl
       else
         ++iz
         select IOTD
-        find (str(ihuman->otd,3))
+        find (str(ihuman->otd, 3))
         select OTD
         do while otd->(lastrec()) < ihuman->otd
           append blank
@@ -1993,7 +844,7 @@ if fl
         UnLock
         //
         select ILPU
-        find (str(iotd->kod_lpu,3))
+        find (str(iotd->kod_lpu, 3))
         select LPU
         do while lpu->(lastrec()) < iotd->kod_lpu
           append blank
@@ -2018,7 +869,7 @@ if fl
         lvrach := 0
         if ihuman->VRACH > 0
           select PERSO
-          find (str(ihuman->VRACH,5))
+          find (str(ihuman->VRACH, 5))
           if found()
             G_RLock(forever)
           else
@@ -2072,7 +923,7 @@ if fl
         next
         human->KOMU       := 0
         human_->SMO       := ihuman->smo
-        human->POLIS      := make_polis(ihuman->spolis,ihuman->npolis)
+        human->POLIS      := make_polis(ihuman->spolis, ihuman->npolis)
         human->LPU        := iotd->kod_lpu
         human->OTD        := ihuman->otd
         human->UCH_DOC    := ihuman->NHISTORY
@@ -2107,11 +958,11 @@ if fl
         human_->IDSP      := ihuman->IDSP
         human_->NPR_MO    := ihuman->NPR_MO
         if ihuman->USL_OK == 1
-          v := iif(between(ihuman->EXTR,1,2), ihuman->EXTR, 1)
-          human_->FORMA14 := str(v-1,1)+"000"
+          v := iif(between(ihuman->EXTR, 1, 2), ihuman->EXTR, 1)
+          human_->FORMA14 := str(v-1, 1)+"000"
         elseif ihuman->USL_OK == 4
-          v := iif(between(ihuman->F_SP,1,2), ihuman->F_SP, 1)
-          human_->FORMA14 := str(v-1,1)+"000"
+          v := iif(between(ihuman->F_SP, 1, 2), ihuman->F_SP, 1)
+          human_->FORMA14 := str(v-1, 1)+"000"
         endif
         human_->KOD_DIAG0 := ihuman->ds0
         human_->RSLT_NEW  := ihuman->rslt
@@ -2149,7 +1000,7 @@ if fl
           human_2->METVMP := ihuman->METOD_HMP
         endif
         select HSN
-        find (str(mkod,7))
+        find (str(mkod, 7))
         if found()
           if fl_nameismo
             G_RLock(forever)
@@ -2200,10 +1051,10 @@ if fl
         endif
         //
         select IHU
-        find (str(ihuman->kod,10))
+        find (str(ihuman->kod, 10))
         do while ihu->kod == ihuman->kod .and. !eof()
           select IOTD
-          find (str(ihu->otd,3))
+          find (str(ihu->otd, 3))
           select OTD
           do while otd->(lastrec()) < ihu->otd
             append blank
@@ -2229,7 +1080,7 @@ if fl
           lvrach := 0
           if ihu->VRACH > 0
             select PERSO
-            find (str(ihu->VRACH,5))
+            find (str(ihu->VRACH, 5))
             if found()
               G_RLock(forever)
             else
@@ -2249,7 +1100,7 @@ if fl
                           .and. ihu->(fieldtype("assis")) == "N" ;
                           .and. !empty(ihu->assis)
             select PERSO
-            find (str(ihu->assis,5))
+            find (str(ihu->assis, 5))
             if found()
               G_RLock(forever)
             else
@@ -2272,16 +1123,16 @@ if fl
           if len(alltrim(ihu->CODE_USL)) > 9
             select MOSU
             set order to 3 // по шифру ФФОМС
-            find (padr(ihu->CODE_USL,20))
+            find (padr(ihu->CODE_USL, 20))
             if found()
               kod_uslf := mosu->kod
             else
               select LUSLF
-              find (padr(ihu->CODE_USL,20))
+              find (padr(ihu->CODE_USL, 20))
               if found()
                 select MOSU
                 set order to 1
-                FIND (STR(-1,6))
+                FIND (STR(-1, 6))
                 if found()
                   G_RLock(forever)
                 else
@@ -2318,13 +1169,13 @@ if fl
           if empty(kod_uslf)
             select USL
             set order to 2
-            find (padr(ihu->CODE_USL,10))
+            find (padr(ihu->CODE_USL, 10))
             if found()
               kod_usl := usl->kod
             else
               v1 := v2 := 0 ; mname := ""
               select LUSL
-              find (padr(ihu->CODE_USL,10))
+              find (padr(ihu->CODE_USL, 10))
               if found()
                 mname := lusl->name
                 v1 := fcena_oms(lusl->shifr,.t.,sys_date)
@@ -2332,7 +1183,7 @@ if fl
               endif
               select USL
               set order to 1
-              FIND (STR(-1,4))
+              FIND (STR(-1, 4))
               if found()
                 G_RLock(forever)
               else
@@ -2356,7 +1207,7 @@ if fl
             hu->u_kod   := kod_usl
             if ihu->(fieldpos("dom")) > 0 ;
                           .and. ihu->(fieldtype("dom")) == "N" ;
-                          .and. eq_any(ihu->dom,1,2)
+                          .and. eq_any(ihu->dom, 1, 2)
               hu->KOL_RCP := -ihu->dom
             endif
             hu->u_cena  := ihu->tarif
@@ -2404,13 +1255,13 @@ return fl
 //
 Function import_verify_okato(s)
 Local fl := .t.
-if right(s,9) == replicate('0',9)
+if right(s, 9) == replicate('0', 9)
   select REGION
-  find (left(s,2))
+  find (left(s, 2))
   fl := found()
-elseif right(s,6) == replicate('0',6)
+elseif right(s, 6) == replicate('0', 6)
   select OBLAST
-  find (left(s,5))
+  find (left(s, 5))
   fl := found()
 else
   select SELO
@@ -2419,81 +1270,6 @@ else
 endif
 return fl
 
-*
-
-// Импорт данных из программы "Флюоротека" фирмы "ЧИП плюс"
-Function import_fluoroteka()
-Local full_zip, buf, k, str_sem := "Импорт флюоротеки"
-if G_SLock(str_sem)
-  Private p_var_manager := str_sem
-  buf := box_shadow(T_ROW-2,T_COL+5,T_ROW-2,T_COL+5+26+28,color1,"Выбор архива REGI_FL.ZIP",,0)
-  full_zip := manager(T_ROW,T_COL+5,maxrow()-2,,.t.,1,,,,"*"+szip)
-  if !empty(full_zip) .and. ;
-      (arr_f := Extract_Zip_XML(KeepPath(full_zip),StripPath(full_zip))) != NIL
-    rest_box(buf)
-    if ascan(arr_f,{|x| upper(x) == "_REG.D"}) == 0
-      func_error(4,"В архиве REGI_FL.ZIP нет необходимых файлов")
-    else
-      hGauge := GaugeNew(,,,"Синхронизация флюоротеки с картотекой",.t.)
-      GaugeDisplay( hGauge )
-      Use (_tmp_dir1+"_reg.d") new alias RG
-      index on upper(fio)+dtos(data_r) to (cur_dir + "tmp_r") progress
-      G_Use(dir_server + "kartote_",,"KART_")
-      R_Use(dir_server + "kartotek",,"KART")
-      go top
-      do while !eof()
-        GaugeUpdate( hGauge, recno()/lastrec() )
-        select KART_
-        if kart_->(lastrec()) < kart->(lastrec())
-          k := 0 // Добавляем записи
-          do while kart_->(lastrec()) < kart->(lastrec())
-            append blank
-            if ++k % 4000 == 0
-              commit
-            endif
-          enddo
-          Commit
-        endif
-        if len(alltrim(kart->fio)) > 5
-          kart_->(dbGoto(kart->(recno())))
-          select RG
-          find (upper(kart->fio)+dtos(kart->date_r))
-          if found()
-            if !(kart_->date_fl == dtoc4(rg->data_i) .and. kart_->gr_risk == rg->gr_risk)
-              select KART_
-              G_RLock(forever)
-              kart_->date_fl := dtoc4(rg->data_i)
-              kart_->gr_risk := rg->gr_risk
-              dbUnLock()
-            endif
-          else
-            if !(kart_->date_fl == space(4) .and. kart_->gr_risk == 0)
-              // очищаем
-              select KART_
-              G_RLock(forever)
-              kart_->date_fl := ""
-              kart_->gr_risk := 0
-              dbUnLock()
-            endif
-          endif
-        endif
-        select KART
-        if recno() % 4000 == 0
-          commit
-        endif
-        skip
-      enddo
-      CloseGauge(hGauge)
-      close databases
-      n_message({"","Прием данных завершен"})
-    endif
-  endif
-  G_SUnLock(str_sem)
-  rest_box(buf)
-else
-  func_error(4,"Ошибка! Импорт флюоротеки производит другой пользователь.")
-endif
-return NIL
 
 // 07.11.22
 Function f_export(k)
@@ -2528,7 +1304,7 @@ do case
         aadd(mas_fun, "f_export(15)")
       endif
     endif
-    popup_prompt(T_ROW,T_COL+5,si1,mas_pmt,mas_msg,mas_fun)
+    popup_prompt(T_ROW, T_COL + 5,si1,mas_pmt,mas_msg,mas_fun)
   case k == 11
     mas_pmt := {"~Просмотр/запись",;
                 "~Создать файл отправки"}
@@ -2539,7 +1315,7 @@ do case
     Private sbase := "mo_voen", goal_dir := dir_server+dir_XML_MO+cslash,;
             Svoenn_sem := "Работа с военнослужащими",;
             Svoenn_err := "В данный момент с военнослужащими работает другой пользователь"
-    popup_prompt(T_ROW-len(mas_pmt)-3,T_COL+5,1,mas_pmt,mas_msg,mas_fun)
+    popup_prompt(T_ROW-len(mas_pmt)-3, T_COL + 5, 1,mas_pmt,mas_msg,mas_fun)
   case k == 12
     // if hb_user_curUser:IsAdmin()
     //   str_sem := "Создание файла отправки в систему БАРС"
@@ -2594,8 +1370,8 @@ do case
     f_create_military()
 endcase
 if k > 10
-  if between(k,11,19)
-    si1 := int(val(right(lstr(k),1)))
+  if between(k, 11, 19)
+    si1 := int(val(right(lstr(k), 1)))
   endif
 endif
 return NIL
@@ -2609,14 +1385,14 @@ return NIL
 Function create_file_export_military()
 if !hb_FileExists(dir_server+sbase+sdbf)
   adbf := {;
-   {"period",      "C", 26,0},; // отчетный период
-   {"KOL",         "N",  6,0},; // количество пациентов
-   {"FNAME",       "C", 18,0},; // имя файла без расширения
-   {"DFILE",       "D",  8,0},; // дата создания файла
-   {"TFILE",       "C",  5,0},; // время создания файла
-   {"DATE_OUT",    "D",  8,0},; // дата отправки в ТФОМС
-   {"NUMB_OUT",    "N",  2,0},; // номер отправки в ТФОМС;сколько раз всего записывали файл на носитель;
-   {"company",     "C",255,0};  // список компаний
+   {"period",      "C", 26, 0},; // отчетный период
+   {"KOL",         "N",  6, 0},; // количество пациентов
+   {"FNAME",       "C", 18, 0},; // имя файла без расширения
+   {"DFILE",       "D",  8, 0},; // дата создания файла
+   {"TFILE",       "C",  5, 0},; // время создания файла
+   {"DATE_OUT",    "D",  8, 0},; // дата отправки в ТФОМС
+   {"NUMB_OUT",    "N",  2, 0},; // номер отправки в ТФОМС;сколько раз всего записывали файл на носитель;
+   {"company",     "C", 255, 0};  // список компаний
   }
   reconstruct(dir_server+sbase,adbf,,,.t.)
 endif
@@ -2635,8 +1411,8 @@ go top
 if eof()
   keyboard chr(K_END)+chr(K_ENTER)
 else
-  Alpha_Browse(T_ROW,2,22,77,"f1_export_military",color0,,,,,,,;
-               "f2_export_military",,{'═','░','═',"N/BG,W+/N,B/BG,BG+/B,R/BG,W+/R",.t.,180} )
+  Alpha_Browse(T_ROW, 2, 22, 77,"f1_export_military",color0,,,,,,,;
+               "f2_export_military",,{'═','░','═',"N/BG,W+/N,B/BG,BG+/B,R/BG,W+/R",.t., 180} )
 endif
 close databases
 G_SUnLock(Svoenn_sem)
@@ -2647,8 +1423,8 @@ return NIL
 Function f1_export_military(oBrow)
 Local oColumn, ;
       blk := {|| iif(hb_fileExists(goal_dir+alltrim(voen->FNAME)+sxls), ;
-                     iif(empty(voen->date_out), {3,4}, {1,2}),;
-                     {5,6}) }
+                     iif(empty(voen->date_out), {3, 4}, {1, 2}),;
+                     {5, 6}) }
 oColumn := TBColumnNew("Наименование файла",{|| voen->FNAME })
 oColumn:colorBlock := blk
 oBrow:addColumn(oColumn)
@@ -2658,7 +1434,7 @@ oBrow:addColumn(oColumn)
 oColumn := TBColumnNew(" за период",{|| voen->period })
 oColumn:colorBlock := blk
 oBrow:addColumn(oColumn)
-oColumn := TBColumnNew("Кол-во", {|| put_val(voen->kol,6) })
+oColumn := TBColumnNew("Кол-во", {|| put_val(voen->kol, 6) })
 oColumn:colorBlock := blk
 oBrow:addColumn(oColumn)
 oColumn := TBColumnNew("Примечание",{|| f11_export_military() })
@@ -2677,7 +1453,7 @@ elseif empty(voen->date_out)
 else
   s := "зап. "+lstr(voen->NUMB_OUT)+" раз"
 endif
-return padr(s,10)
+return padr(s, 10)
 
 // 20.11.16
 Function f2_export_military(nKey,oBrow)
@@ -2686,7 +1462,7 @@ do case
   case nKey == K_F5
     if f_Esc_Enter("записи файла за "+date_8(voen->dfile))
       Private p_var_manager := "copy_schet"
-      s := manager(T_ROW,T_COL+5,maxrow()-2,,.t.,2,.f.,,,) // "norton" для выбора каталога
+      s := manager(T_ROW, T_COL + 5,maxrow()-2,,.t., 2,.f.,,,) // "norton" для выбора каталога
       if !empty(s)
         if upper(s) == upper(goal_dir)
           func_error(4,"Вы выбрали каталог, в котором уже записан целевой файл! Это недопустимо.")
@@ -2740,7 +1516,7 @@ Function VoenList2arr(sList)
 Local i, j, s, arr := {}, ar
 if !empty(sList)
   for i := 1 to numtoken(sList,";")
-    s := alltrim(token(sList,";",i))
+    s := alltrim(token(sList,";", i))
     ar := {}
     for j := 1 to numtoken(s,",")
       aadd(ar, int(val(alltrim(token(s,",",j)))) )
@@ -2774,10 +1550,10 @@ if fl
   G_SUnLock(Svoenn_sem)
   return func_error(4,"Уже создан файл экспорта с датой "+full_date(sys_date)+"г.")
 endif
-dbcreate(cur_dir + "tmp",{{"kod","N",4,0},;
-                        {"tip","N",1,0},;
-                        {"name","C",30,0},;
-                        {"is","L",1,0}})
+dbcreate(cur_dir + "tmp",{{"kod","N", 4, 0},;
+                        {"tip","N", 1, 0},;
+                        {"name","C", 30, 0},;
+                        {"is","L", 1, 0}})
 use (cur_dir + "tmp") new
 R_Use(dir_server + "komitet",,"KOM")
 go top
@@ -2794,7 +1570,7 @@ enddo
 R_Use(dir_server + "str_komp",,"SK")
 go top
 do while !eof()
-  if !between(sk->tfoms,44,47)
+  if !between(sk->tfoms, 44, 47)
     select TMP
     append blank
     replace kod with sk->kod,;
@@ -2823,12 +1599,12 @@ else
   t_arr[BR_TITUL] := "Выбор компаний (военнослужащих)"
   t_arr[BR_TITUL_COLOR] := "B/BG"
   t_arr[BR_ARR_BROWSE] := {'═','░','═',"N/BG,W+/N,B/BG,W+/B",.t.}
-  blk := {|| iif(tmp->is, {1,2}, {3,4}) }
+  blk := {|| iif(tmp->is, {1, 2}, {3, 4}) }
   t_arr[BR_COLUMN] := {{ ' ', {|| iif(tmp->is, '', ' ') },blk },;
                        { " Наименование", {|| tmp->name },blk },;
                        { " ",{|| iif(tmp->tip==3," комитет","компания") },blk }}
   t_arr[BR_EDIT] := {|nk,ob| f1create_military(nk,ob,"edit") }
-  t_arr[BR_STAT_MSG] := {|| status_key("^<Esc>^ выход;  ^<+,-,Ins>^ отметить компанию для отправки военнослужащих в ТФОМС") }
+  t_arr[BR_STAT_MSG] := {|| status_key("^<Esc>^ выход;  ^<+,-, ins>^ отметить компанию для отправки военнослужащих в ТФОМС") }
   go top
   edit_browse(t_arr)
   arr := {}
@@ -2844,7 +1620,7 @@ else
 endif
 if k == 0
   func_error(4,"Не выбрано ни одной компании")
-elseif (arr_m := year_month(T_ROW,T_COL+5)) != NIL
+elseif (arr_m := year_month(T_ROW, T_COL + 5)) != NIL
   mywait()
   dbcreate(cur_dir + "tmp1",{;
     {"KOD"      ,   "N",     7,     0},; // код человека по kartotek.dbf
@@ -2858,9 +1634,9 @@ elseif (arr_m := year_month(T_ROW,T_COL+5)) != NIL
     {"IM"       ,   "C",    40,     0},;
     {"OT"       ,   "C",    40,     0}})
   use (cur_dir + "tmp1") new
-  index on str(kod,7) to (cur_dir + "tmp1")
+  index on str(kod, 7) to (cur_dir + "tmp1")
   R_Use(dir_server + "mo_kfio",,"KFIO")
-  index on str(kod,7) to (cur_dir + "tmp_kfio")
+  index on str(kod, 7) to (cur_dir + "tmp_kfio")
   R_Use(dir_server + "kartotek",,"KART")
   R_Use(dir_server + "human",dir_server + "humand","HUMAN")
   set relation to kod_k into KART
@@ -2869,21 +1645,21 @@ elseif (arr_m := year_month(T_ROW,T_COL+5)) != NIL
   do while human->k_data <= arr_m[6] .and. !eof()
     if old != human->k_data
       old := human->k_data
-      @ maxrow(),0 say date_8(old) color "W/R"
+      @ maxrow(), 0 say date_8(old) color "W/R"
     endif
     if human->komu > 0 .and. (k := ascan(arr,{|x| x[1] == human->komu .and. x[2] == human->STR_CRB })) > 0
       arr_fio := retFamImOt(2,.f.,.t.)
       select TMP1
-      find (str(human->kod_k,7))
+      find (str(human->kod_k, 7))
       if !found()
         append blank
         tmp1->KOD := human->kod_k
         tmp1->DATE_R := kart->date_r
-        tmp1->KOMU := arr[k,1]
-        tmp1->STR_CRB := arr[k,2]
+        tmp1->KOMU := arr[k, 1]
+        tmp1->STR_CRB := arr[k, 2]
         tmp1->N_DATA := human->n_data
         tmp1->K_DATA := human->k_data
-        tmp1->name := arr[k,3]
+        tmp1->name := arr[k, 3]
         tmp1->FAM := arr_fio[1]
         tmp1->IM  := arr_fio[2]
         tmp1->OT  := arr_fio[3]
@@ -2901,10 +1677,10 @@ elseif (arr_m := year_month(T_ROW,T_COL+5)) != NIL
                   '',;
                   'Выберите действие:'},;
                  {" Отказ "," Создание файла Excel "},;
-                 2,"GR+/R","W+/R",16,,"GR+/R,N/BG") == 2
+                 2,"GR+/R","W+/R", 16,,"GR+/R,N/BG") == 2
     s := ""
     for k := 1 to len(arr)
-      s += lstr(arr[k,1])+","+lstr(arr[k,2])
+      s += lstr(arr[k, 1])+","+lstr(arr[k, 2])
       if k < len(arr)
         s += ";"
       endif
@@ -2912,11 +1688,11 @@ elseif (arr_m := year_month(T_ROW,T_COL+5)) != NIL
     n_file := "V_"+glob_mo[_MO_KOD_TFOMS]+"_"+dtos(sys_date)
     delete file (n_file+sxls)
     delFRfiles()
-    adbf := {{"name_f","C",30,0},;
-             {"codemo","C",6,0},;
-             {"name","C",60,0},;
-             {"period","C",60,0},;
-             {"data","C",10,0}}
+    adbf := {{"name_f","C", 30, 0},;
+             {"codemo","C", 6, 0},;
+             {"name","C", 60, 0},;
+             {"period","C", 60, 0},;
+             {"data","C", 10, 0}}
     dbcreate(fr_titl, adbf)
     use (fr_titl) new alias FRT
     append blank
@@ -2925,14 +1701,14 @@ elseif (arr_m := year_month(T_ROW,T_COL+5)) != NIL
     frt->name   := glob_mo[_MO_SHORT_NAME]
     frt->data   := full_date(sys_date)
     frt->period := arr_m[4]
-    adbf := {{"nomer","N",4,0},;
-             {"fam","C",50,0},;
-             {"im","C",50,0},;
-             {"ot","C",50,0},;
-             {"date_r","C",10,0},;
-             {"N_DATA","C",10,0},; // дата начала лечения
-             {"K_DATA","C",10,0},; // дата окончания лечения
-             {"name","C",40,0}}
+    adbf := {{"nomer","N", 4, 0},;
+             {"fam","C", 50, 0},;
+             {"im","C", 50, 0},;
+             {"ot","C", 50, 0},;
+             {"date_r","C", 10, 0},;
+             {"N_DATA","C", 10, 0},; // дата начала лечения
+             {"K_DATA","C", 10, 0},; // дата окончания лечения
+             {"name","C", 40, 0}}
     dbcreate(fr_data,adbf)
     use (fr_data) new alias FRD
     select TMP1
@@ -2954,7 +1730,7 @@ elseif (arr_m := year_month(T_ROW,T_COL+5)) != NIL
       skip
     enddo
     close databases
-    call_fr("mo_voenn",3,n_file+sxls,,.f.)
+    call_fr("mo_voenn", 3,n_file+sxls,,.f.)
     G_Use(dir_server+sbase,,"VOEN")
     AddRecN()
     voen->period := arr_m[4]
@@ -3001,7 +1777,7 @@ f_message({"Ждите! Создаётся архив счетов",;
            "за отчётный период январь 2018 - июнь 2019 года.",;
            "",;
            "Ни в коем случае не прерывайте процесс",;
-           "во избежание нежелательных последствий!"},,"GR+/R","W+/R",12)
+           "во избежание нежелательных последствий!"},,"GR+/R","W+/R", 12)
 zip_file := "СОМП_"+alltrim(glob_mo[_MO_SHORT_NAME])
 zip_file := charrem('№",',zip_file)
 zip_file := charone(" ",zip_file)
@@ -3012,7 +1788,7 @@ zip_file += szip
 arr_f := {}
 G_Use(dir_server + "schet_",,"SCHET_")
 index on dtos(schet_->dschet) to (cur_dir + "tmp_sch") ;
-      for schet_->nyear == 2018 .or. (schet_->nyear == 2019 .and. between(schet_->nmonth,1,6))
+      for schet_->nyear == 2018 .or. (schet_->nyear == 2019 .and. between(schet_->nmonth, 1, 6))
 go top
 do while !eof()
   cFile := dir_server+dir_XML_MO+cslash+alltrim(schet_->name_xml)+szip
@@ -3043,7 +1819,7 @@ else
 endif
 restscreen(buf)
 if fl
-  s := manager(T_ROW,T_COL+5,maxrow()-2,,.f.,2) // "norton" для выбора каталога
+  s := manager(T_ROW, T_COL + 5,maxrow()-2,,.f., 2) // "norton" для выбора каталога
   if !empty(s)
     mywait('Копирование "'+zip_file+'" в каталог "'+s+'"')
     delete file (s+zip_file)
@@ -3122,11 +1898,11 @@ R_Use(dir_server + "s_kemvyd",,"VID")
 R_Use(exe_dir+"_mo_smo",cur_dir + "_mo_smo2","SMO")
 //index on smo to (cur_dir+sbase+'2')
 //G_Use(dir_server + "mo_krtr",,"KRTR")
-//index on str(kod,6) to (cur_dir + "tmp_krtr")
+//index on str(kod, 6) to (cur_dir + "tmp_krtr")
 //G_Use(dir_server + "mo_krtf",,"KRTF")
-//index on str(kod,6) to (cur_dir + "tmp_krtf")
+//index on str(kod, 6) to (cur_dir + "tmp_krtf")
 //G_Use(dir_server + "mo_krtp",,"KRTP")
-//index on str(reestr,6) to (cur_dir + "tmp_k")
+//index on str(reestr, 6) to (cur_dir + "tmp_k")
 //R_Use(dir_server + "mo_kfio",cur_dir + "tmp_kfio","KFIO")
 R_Use_base("kartotek")
 set order to 0
@@ -3143,7 +1919,7 @@ do while  !eof()
     bars->FAM          := arr_fio[1]                //Да
     bars->NAME         := arr_fio[2]                //Да
     bars->OTCH         := arr_fio[3]                //Да
-    bars->POL          := iif(kart->pol == "М",1,2)   //Да
+    bars->POL          := iif(kart->pol == "М", 1, 2)   //Да
     bars->DATE_R       := kart->DATE_R              //Да
     bars->MESTO_R      := kart_->mesto_r            //У
     if len(alltrim(kart_->okatop)) > 1
@@ -3153,7 +1929,7 @@ do while  !eof()
       bars->OKATOP     := kart_->okatog             //Да
       bars->ADRESP     := kart->adres               //Да
     endif
-    bars->RABOTA       := iif(kart->rab_nerab == 0,1,0)//У
+    bars->RABOTA       := iif(kart->rab_nerab == 0, 1, 0)//У
     //bars->BEG_POLIS",  "D",      8,      0},; //У
     bars->END_POLIS    := c4tod(kart->srok_polis)   //У
     // 1 старый 2 - врем 3 новый == 1 новый 2 врем 3 старый
@@ -3182,7 +1958,7 @@ do while  !eof()
     bars->MO_PR        := glob_MO[_MO_KOD_TFOMS]    //Да
     pr_date := date()
     if !empty(kart2->pc4)
-      pr_date := ctod(alltrim(left(kart2->pc4,6)+"20"+substr(kart2->pc4,7)))
+      pr_date := ctod(alltrim(left(kart2->pc4, 6)+"20"+substr(kart2->pc4, 7)))
     elseif !empty(kart2->DATE_PR)
       pr_date := kart2->DATE_PR
     endif
@@ -3191,7 +1967,7 @@ do while  !eof()
       bars->SNILS_VR     := transform(kart2->snils_vr,picture_pf) //У XXX-XXX-XXX XX
     endif
     if bars->(recno()) % 100 == 0
-      @ maxrow(),1 say lstr(bars->(recno())) color color0
+      @ maxrow(), 1 say lstr(bars->(recno())) color color0
       if bars->(recno()) % 2000 == 0
         Commit
       endif
@@ -3232,24 +2008,24 @@ do case
     endif
     mas_pmt := {"Общие настройки"}
     mas_msg := {"Общие настройки работы с программой"}
-    mas_fun := {"nastr_all(1,0)"}
+    mas_fun := {"nastr_all(1, 0)"}
     n := 1
     if is_task(X_PPOKOJ)
       ++n
-      aadd(mas_pmt,array_tasks[ind_task(X_PPOKOJ),1])
-      aadd(mas_msg,'Общие настройки задачи "'+array_tasks[ind_task(X_PPOKOJ),1]+'"')
+      aadd(mas_pmt,array_tasks[ind_task(X_PPOKOJ), 1])
+      aadd(mas_msg,'Общие настройки задачи "'+array_tasks[ind_task(X_PPOKOJ), 1]+'"')
       aadd(mas_fun,'nastr_all('+lstr(n)+','+lstr(X_PPOKOJ)+')')
     endif
     if is_task(X_PLATN) .or. is_task(X_KASSA)
       ++n
-      aadd(mas_pmt,array_tasks[ind_task(X_PLATN),1])
-      aadd(mas_msg,'Общие настройки задачи "'+array_tasks[ind_task(X_PLATN),1]+'"')
+      aadd(mas_pmt,array_tasks[ind_task(X_PLATN), 1])
+      aadd(mas_msg,'Общие настройки задачи "'+array_tasks[ind_task(X_PLATN), 1]+'"')
       aadd(mas_fun,'nastr_all('+lstr(n)+','+lstr(X_PLATN)+')')
     endif
     if is_task(X_ORTO)
       ++n
-      aadd(mas_pmt,array_tasks[ind_task(X_ORTO),1])
-      aadd(mas_msg,'Общие настройки задачи "'+array_tasks[ind_task(X_ORTO),1]+'"')
+      aadd(mas_pmt,array_tasks[ind_task(X_ORTO), 1])
+      aadd(mas_msg,'Общие настройки задачи "'+array_tasks[ind_task(X_ORTO), 1]+'"')
       aadd(mas_fun,'nastr_all('+lstr(n)+','+lstr(X_ORTO)+')')
     endif
     if n == 1
@@ -3265,287 +2041,285 @@ if k > 0
 endif
 return NIL
 
-*
-
 // 09.12.18 Общие настройки каждой задачи
 Function f1nastr_all(nameTask,nTask)
 Local mm_tmp := {}, ctitle
 Local str_sem := "Редактирование общих настроек задачи "+lstr(nTask)
 if G_SLock(str_sem)
-  Private mm_uchastok := {{'Не работаем с участком',0},;
-                          {'буква + № участка + № в участке "У25/123"',1},;
-                          {'буква + № участка + код пациента "У25/456789"',2},;
-                          {'буква + № участка + номер АК МИС "У25/765432"',3}}
-  Private mm_oplata := {{"в зависимости от цены услуги (!рекомендуется!)",5},;
+  Private mm_uchastok := {{'Не работаем с участком', 0},;
+                          {'буква + № участка + № в участке "У25/123"', 1},;
+                          {'буква + № участка + код пациента "У25/456789"', 2},;
+                          {'буква + № участка + номер АК МИС "У25/765432"', 3}}
+  Private mm_oplata := {{"в зависимости от цены услуги (!рекомендуется!)", 5},;
                         {"в зависимости от стоимости УЕТ",                6},;
                         {"% от услуги + зависимость от стоимости УЕТ",    7}}
-  Private mm_h_otd := {{"с выбором отделения",1},;
-                       {"без выбора отделения",2}}
-  Private mm_close := {{"платные, ДМС и в/зачет вручную",1},;
-                       {"платные и в/зачет вручную, ДМС по оплате",0}}
-  Private mm_many_uch := {{"из списка отделений выбранного учреждения",1},;
-                          {"из списка отделений всех доступных учреждений",2}}
-  Private mm_num_lu := {{"не работаем с номерами листов учета",0},;
-                        {"сквозной номер л/у равен номеру записи",1}}
-  Private mm_kassa := {{"Нет кассового аппарата",0},;
-                       {"Кассовый аппарат: Штрих-ФР-Ф",1}}
-  Private mm_pol    := {{'Выбор из меню',1},{'Ввод буквы вручную',2}}
-  Private mm_ordusl := {{"По дате",1},{"По шифру услуги",2}}
-  Private mm_kodkrt := {{"Не выводить",1},{"Выводить",2}}
-  Private mm_otdusl := {{"Ввод отделения вручную",1},;
-                        {"Автоматический выбор отделения по месту работы персонала",2}}
-  Private mm_stalon := {{'Выбор из меню',1},{'Ввод числового значения',2}}
-  Private mm_zav_l  := {{"да",1},{"нет",2},{"запоминать предыдущий",3}}
-  Private mm_da_net := {{"нет",1},{"да ",2}}
-  Private mm_otdort := {{"Ввод отделения вручную",1},;
-                        {"Использовать отделение по УМОЛЧАНИЮ",2}}
-  Private mm_ort_f39 := {{"Три диагноза + итого протезов",0},;
-                         {"Семь диагнозов + уточнение типов протезов",1}}
-  Private mm_v_034 := {{"краткое наименование",0},;
-                         {"полное наименование",1}}               
-  Private mm_v_methodinj := {{"на русском",0},;
-                         {"на английском",1}}                          
+  Private mm_h_otd := {{"с выбором отделения", 1},;
+                       {"без выбора отделения", 2}}
+  Private mm_close := {{"платные, ДМС и в/зачет вручную", 1},;
+                       {"платные и в/зачет вручную, ДМС по оплате", 0}}
+  Private mm_many_uch := {{"из списка отделений выбранного учреждения", 1},;
+                          {"из списка отделений всех доступных учреждений", 2}}
+  Private mm_num_lu := {{"не работаем с номерами листов учета", 0},;
+                        {"сквозной номер л/у равен номеру записи", 1}}
+  Private mm_kassa := {{"Нет кассового аппарата", 0},;
+                       {"Кассовый аппарат: Штрих-ФР-Ф", 1}}
+  Private mm_pol    := {{'Выбор из меню', 1},{'Ввод буквы вручную', 2}}
+  Private mm_ordusl := {{"По дате", 1},{"По шифру услуги", 2}}
+  Private mm_kodkrt := {{"Не выводить", 1},{"Выводить", 2}}
+  Private mm_otdusl := {{"Ввод отделения вручную", 1},;
+                        {"Автоматический выбор отделения по месту работы персонала", 2}}
+  Private mm_stalon := {{'Выбор из меню', 1},{'Ввод числового значения', 2}}
+  Private mm_zav_l  := {{"да", 1},{"нет", 2},{"запоминать предыдущий", 3}}
+  Private mm_da_net := {{"нет", 1},{"да ", 2}}
+  Private mm_otdort := {{"Ввод отделения вручную", 1},;
+                        {"Использовать отделение по УМОЛЧАНИЮ", 2}}
+  Private mm_ort_f39 := {{"Три диагноза + итого протезов", 0},;
+                         {"Семь диагнозов + уточнение типов протезов", 1}}
+  Private mm_v_034 := {{"краткое наименование", 0},;
+                         {"полное наименование", 1}}               
+  Private mm_v_methodinj := {{"на русском", 0},;
+                         {"на английском", 1}}                          
   delete file tmp.dbf
   do case
-    case nTask == 0 .and. Tools_Ini_OMS(1,0,0,.t.) // настройка на все задачи
+    case nTask == 0 .and. Tools_Ini_OMS(1, 0, 0,.t.) // настройка на все задачи
       ctitle := "настройке на все задачи"
-      aadd(mm_tmp, {"_okato","C",11,0,NIL,;
+      aadd(mm_tmp, {"_okato","C", 11, 0,NIL,;
                     {|x|menu_reader(x,;
                       {{ |k,r,c| get_okato_ulica(k,r,c,{k,m_okato,}) }},A__FUNCTION)},;
                     space(11),{|x| ret_okato_ulica('',x)},;
                     'ОКАТО по умолчанию'})
-      aadd(mm_tmp, {"a_sound","N",1,0,NIL,;
+      aadd(mm_tmp, {"a_sound","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_da_net,A__MENUVERT)},;
                     2,{|x|inieditspr(A__MENUVERT,mm_da_net,x)},;
                     'Использовать при работе программы звуковое сопровождение'})
-      aadd(mm_tmp, {"a_pol","N",1,0,NIL,;
+      aadd(mm_tmp, {"a_pol","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_pol,A__MENUVERT)},;
                     1,{|x|inieditspr(A__MENUVERT,mm_pol,x)},;
                     'Каким образом вводится поле "Пол больного"'})
-      aadd(mm_tmp, {"a_smp_inp","N",1,0,NIL,;
+      aadd(mm_tmp, {"a_smp_inp","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_danet,A__MENUVERT)},;
                     0,{|x|inieditspr(A__MENUVERT,mm_danet,x)},;
                     'Для СМП реквизиты пациента редактируются внутри листа учета?'})
-      aadd(mm_tmp, {"a_smp_tel","N",1,0,NIL,;
+      aadd(mm_tmp, {"a_smp_tel","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_danet,A__MENUVERT)},;
                     0,{|x|inieditspr(A__MENUVERT,mm_danet,x)},;
                     'В специализированном листе учёта по СМП вводим услуги телемедицины?'})
-      aadd(mm_tmp, {"a_dom_akt","N",1,0,NIL,;
+      aadd(mm_tmp, {"a_dom_akt","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_danet,A__MENUVERT)},;
                     0,{|x|inieditspr(A__MENUVERT,mm_danet,x)},;
                     'Работаем с активными посещениями на дому (дом-АКТИВ)?'})
-      aadd(mm_tmp, {"a_diagno","N",1,0,NIL,;
+      aadd(mm_tmp, {"a_diagno","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_da_net,A__MENUVERT)},;
                     1,{|x|inieditspr(A__MENUVERT,mm_da_net,x)},;
                     'Выводить наименование диагнозов при вводе листа учета?'})
-      aadd(mm_tmp, {"a_diag4","N",1,0,NIL,;
+      aadd(mm_tmp, {"a_diag4","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_da_net,A__MENUVERT)},;
                     1,{|x|inieditspr(A__MENUVERT,mm_da_net,x)},;
                     'Проверять обязательность ввода четырехзначного диагноза?'})
       if yes_parol
-        aadd(mm_tmp, {"a_op_out","N",1,0,NIL,;
+        aadd(mm_tmp, {"a_op_out","N", 1, 0,NIL,;
                       {|x|menu_reader(x,mm_da_net,A__MENUVERT)},;
                       1,{|x|inieditspr(A__MENUVERT,mm_da_net,x)},;
                       'Выводить Ф.И.О. оператора при записи листа учета?'})
       endif
-      aadd(mm_tmp, {"a_ordusl","N",1,0,NIL,;
+      aadd(mm_tmp, {"a_ordusl","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_ordusl,A__MENUVERT)},;
                     1,{|x|inieditspr(A__MENUVERT,mm_ordusl,x)},;
                     "Порядок сортировки при редактировании услуг"})
-      aadd(mm_tmp, {"a_ordu_1","N",1,0,NIL,;
+      aadd(mm_tmp, {"a_ordu_1","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_da_net,A__MENUVERT)},;
                     1,{|x|inieditspr(A__MENUVERT,mm_da_net,x)},;
                     "Включать сортировку при добавлении услуг?"})
-      aadd(mm_tmp, {"a_por_vr","N",1,0,NIL,;
+      aadd(mm_tmp, {"a_por_vr","N", 1, 0,NIL,;
                     nil,;
                     0,nil,;
                     'Порядок расположения полей при вводе услуги: "код врача"     '})
-      aadd(mm_tmp, {"a_por_ass","N",1,0,NIL,;
+      aadd(mm_tmp, {"a_por_ass","N", 1, 0,NIL,;
                     nil,;
                     0,nil,;
                     '                                             "код ассистента"'})
-      aadd(mm_tmp, {"a_por_kol","N",1,0,NIL,;
+      aadd(mm_tmp, {"a_por_kol","N", 1, 0,NIL,;
                     nil,;
                     0,nil,;
                     '                                             "кол-во услуг"  '})
-      aadd(mm_tmp, {"a_vv_v_a","N",1,0,NIL,;
+      aadd(mm_tmp, {"a_vv_v_a","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_da_net,A__MENUVERT)},;
                     1,{|x|inieditspr(A__MENUVERT,mm_da_net,x)},;
                     'Допускается не вводить и код врача и код ассистента?'})
-      aadd(mm_tmp, {"a_pom_va","N",1,0,NIL,;
+      aadd(mm_tmp, {"a_pom_va","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_da_net,A__MENUVERT)},;
                     1,{|x|inieditspr(A__MENUVERT,mm_da_net,x)},;
                     'Запоминать последние коды врача и ассистента для ввода в след.услуге?'})
-      aadd(mm_tmp, {"a_coplec","N",1,0,NIL,;
+      aadd(mm_tmp, {"a_coplec","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_da_net,A__MENUVERT)},;
                     1,{|x|inieditspr(A__MENUVERT,mm_da_net,x)},;
                     "Копировать лечащего врача в первую услугу?"})
-      aadd(mm_tmp, {"a_date_1","D",8,0,NIL,;
+      aadd(mm_tmp, {"a_date_1","D", 8, 0,NIL,;
                     nil,;
                     ctod(""),nil,;
                     "Допустимая наименьшая дата для ввода информации"})
-      aadd(mm_tmp, {"a_date_2","D",8,0,NIL,;
+      aadd(mm_tmp, {"a_date_2","D", 8, 0,NIL,;
                     nil,;
                     ctod(""),nil,;
                     "Допустимая наибольшая дата для ввода информации"})
-      aadd(mm_tmp, {"a_kodkrt","N",1,0,NIL,;
+      aadd(mm_tmp, {"a_kodkrt","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_kodkrt,A__MENUVERT)},;
                     1,{|x|inieditspr(A__MENUVERT,mm_kodkrt,x)},;
                     "Выводить ли в меню код больного по картотеке?"})
-      aadd(mm_tmp, {"a_trudoem","N",1,0,NIL,;
+      aadd(mm_tmp, {"a_trudoem","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_da_net,A__MENUVERT)},;
                     1,{|x|inieditspr(A__MENUVERT,mm_da_net,x)},;
                     "Работать ли с коэффициентом трудоемкости услуги (УЕТ)?"})
-      aadd(mm_tmp, {"a_tr_plan","N",1,0,NIL,;
+      aadd(mm_tmp, {"a_tr_plan","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_da_net,A__MENUVERT)},;
                     1,{|x|inieditspr(A__MENUVERT,mm_da_net,x)},;
                     "Подсчитывать процент выполнения плана по УЕТ?"})
-      aadd(mm_tmp, {"a_kodotd","N",1,0,NIL,;
+      aadd(mm_tmp, {"a_kodotd","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_da_net,A__MENUVERT)},;
                     1,{|x|inieditspr(A__MENUVERT,mm_da_net,x)},;
                     "Работать ли с кодами отделений?"})
-      aadd(mm_tmp, {"e_2","C",1,0,NIL,;
+      aadd(mm_tmp, {"e_2","C", 1, 0,NIL,;
                     nil,;
                     " ",nil,;
                     "Ввод поля ОТДЕЛЕНИЕ, ГДЕ ОКАЗАНА УСЛУГА при вводе услуг",,{||.f.}})
-      aadd(mm_tmp, {"a_otdusl","N",1,0,NIL,;
+      aadd(mm_tmp, {"a_otdusl","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_otdusl,A__MENUVERT)},;
                     1,{|x|inieditspr(A__MENUVERT,mm_otdusl,x)},;
                     "  для больного"})
-      aadd(mm_tmp, {"e_15","C",1,0,NIL,;
+      aadd(mm_tmp, {"e_15","C", 1, 0,NIL,;
                     nil,;
                     " ",nil,;
                     "Проверять при вводе услуг врача(ассистента) на соответствие категории",,{||.f.}})
-      aadd(mm_tmp, {"a_kat_va","N",1,0,NIL,;
+      aadd(mm_tmp, {"a_kat_va","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_da_net,A__MENUVERT)},;
                     1,{|x|inieditspr(A__MENUVERT,mm_da_net,x)},;
                     "  врач(ср.мед.персонал) по штатному расписанию?"})
-      aadd(mm_tmp, {"schet_nul","N",1,0,NIL,;
+      aadd(mm_tmp, {"schet_nul","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_danet,A__MENUVERT)},;
                     0,{|x|inieditspr(A__MENUVERT,mm_danet,x)},;
                     'Разрешается выписывать счета с нулевой суммой (по параклинике):'})
-      aadd(mm_tmp, {"kart_error","N",1,0,NIL,;
+      aadd(mm_tmp, {"kart_error","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_danet,A__MENUVERT)},;
                     0,{|x|inieditspr(A__MENUVERT,mm_danet,x)},;
                     'Разрешается администратору устанавливать статус карточки пациента:'})
-      aadd(mm_tmp, {"uchastok","N",1,0,,;
+      aadd(mm_tmp, {"uchastok","N", 1, 0,,;
                     {|x|menu_reader(x,mm_uchastok,A__MENUVERT)},;
                     0,{|x|inieditspr(A__MENUVERT,mm_uchastok,x)},;
                     'Работа с УЧАСТКАМИ:'})
-      aadd(mm_tmp, {"a_edit_ist","N",1,0,NIL,;
+      aadd(mm_tmp, {"a_edit_ist","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_da_net,A__MENUVERT)},;
                     1,{|x|inieditspr(A__MENUVERT,mm_da_net,x)},;
                     'Разрешается редактировать поле "№ амб.карты (истории болезни)"?'})
-      aadd(mm_tmp, {"a_e_istbol","N",1,0,NIL,;
+      aadd(mm_tmp, {"a_e_istbol","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_da_net,A__MENUVERT)},;
                     1,{|x|inieditspr(A__MENUVERT,mm_da_net,x)},;
                     'Редактировать номер истории болезни, присвоенный в задаче "Приёмный покой"'})
-      aadd(mm_tmp, {"is_zf","N",1,0,NIL,;
+      aadd(mm_tmp, {"is_zf","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_danet,A__MENUVERT)},;
                     0,{|x|inieditspr(A__MENUVERT,mm_danet,x)},;
                     'Работа с зубной формулой:'})
-      aadd(mm_tmp, {"bukva","C",20,0,"@!",;
+      aadd(mm_tmp, {"bukva","C", 20, 0,"@!",;
                     NIL,;
                     "",NIL,;
                     'Разрешённые БУКВЫ в поле "Стоматологический статус":'})
-      aadd(mm_tmp, {"oplata","N",1,0,NIL,;
+      aadd(mm_tmp, {"oplata","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_oplata,A__MENUVERT)},;
                     0,{|x|inieditspr(A__MENUVERT,mm_oplata,x)},;
                     'Режим ОПЛАТЫ по труду:'})
-      aadd(mm_tmp, {"h_otd","N",1,0,NIL,;
+      aadd(mm_tmp, {"h_otd","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_h_otd,A__MENUVERT)},;
                     0,{|x|inieditspr(A__MENUVERT,mm_h_otd,x)},;
                     'Режим редактирования листа учета:'})
-      aadd(mm_tmp, {"standart","N",1,0,NIL,;
+      aadd(mm_tmp, {"standart","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_da_net,A__MENUVERT)},;
                     0,{|x|inieditspr(A__MENUVERT,mm_da_net,x)},;
                     'Работа с режимом НЕЗАВЕРШЕННОГО лечения:'})
-      aadd(mm_tmp, {"v_zav_l","N",1,0,NIL,;
+      aadd(mm_tmp, {"v_zav_l","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_zav_l,A__MENUVERT)},;
                     1,{|x|inieditspr(A__MENUVERT,mm_zav_l,x)},;
                     '- вид поля "Лечение завершено" по умолчанию:'})
-      aadd(mm_tmp, {"e_1","C",1,0,NIL,;
+      aadd(mm_tmp, {"e_1","C", 1, 0,NIL,;
                     NIL,;
                     "",NIL,;
                     'При вводе оказанных услуг из какого СПИСКА выбирается',,;
                     {||.f.} })
-      aadd(mm_tmp, {"many_uch","N",1,0,NIL,;
+      aadd(mm_tmp, {"many_uch","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_many_uch,A__MENUVERT)},;
                     0,{|x|inieditspr(A__MENUVERT,mm_many_uch,x)},;
                     ' отделение:'})
-      aadd(mm_tmp, {"e_2","C",1,0,NIL,;
+      aadd(mm_tmp, {"e_2","C", 1, 0,NIL,;
                     NIL,;
                     "",NIL,;
                     'При добавлении листа учета необходимо запоминать ПОРЯДКОВЫЙ НОМЕР последнего',,;
                     {||.f.} })
-      aadd(mm_tmp, {"num_lu","N",1,0,NIL,;
+      aadd(mm_tmp, {"num_lu","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_num_lu,A__MENUVERT)},;
                     0,{|x|inieditspr(A__MENUVERT,mm_num_lu,x)},;
                     ' листа учета:'})
-      aadd(mm_tmp, {"st_kat","N",1,0,NIL,;
+      aadd(mm_tmp, {"st_kat","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_stalon,A__MENUVERT)},;
                     1,{|x|inieditspr(A__MENUVERT,mm_stalon,x)},;
                     'Каким образом вводится поле "Категория"'})
-      aadd(mm_tmp, {"st_pov","N",1,0,NIL,;
+      aadd(mm_tmp, {"st_pov","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_stalon,A__MENUVERT)},;
                     1,{|x|inieditspr(A__MENUVERT,mm_stalon,x)},;
                     'Каким образом вводится поле "Повод обращения"'})
-      aadd(mm_tmp, {"st_trav","N",1,0,NIL,;
+      aadd(mm_tmp, {"st_trav","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_stalon,A__MENUVERT)},;
                     1,{|x|inieditspr(A__MENUVERT,mm_stalon,x)},;
                     'Каким образом вводится поле "Вид травмы"'})
-      aadd(mm_tmp, {"ls_parakl","N",1,0,NIL,;
+      aadd(mm_tmp, {"ls_parakl","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_danet,A__MENUVERT)},;
                     0,{|x|inieditspr(A__MENUVERT,mm_danet,x)},;
                     'Включать ПАРАКЛИНИКУ в сумму ЛИЧНОГО СЧЁТА:'})
-      aadd(mm_tmp, {"path_rab","C",70,0,NIL,;
+      aadd(mm_tmp, {"path_rab","C", 70, 0,NIL,;
                     NIL,;
                     "",NIL,;
                     'Рабочий каталог:',,;
                     {||.f.} })
-      aadd(mm_tmp, {"path_exe","C",70,0,NIL,;
+      aadd(mm_tmp, {"path_exe","C", 70, 0,NIL,;
                     NIL,;
                     "",NIL,;
                     'Каталог запуска задачи:',,;
                     {||.f.} })
-      aadd(mm_tmp, {"path_dbf","C",70,0,NIL,;
+      aadd(mm_tmp, {"path_dbf","C", 70, 0,NIL,;
                     NIL,;
                     "",NIL,;
                     'Каталог баз данных:',,;
                     {||.f.} })
-      aadd(mm_tmp, {"ls_v034","N",1,0,NIL,;
+      aadd(mm_tmp, {"ls_v034","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_v_034,A__MENUVERT)},;
                     0,{|x|inieditspr(A__MENUVERT,mm_v_034,x)},;
                     'Выводить Справочник ФФОМС V034:'})             
-      aadd(mm_tmp, {"ls_method","N",1,0,NIL,;
+      aadd(mm_tmp, {"ls_method","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_v_methodinj,A__MENUVERT)},;
                     0,{|x|inieditspr(A__MENUVERT,mm_v_methodinj,x)},;
                     'Выводить Справочник ФФОМС ПУТИ ВВЕДЕНИЯ:'})                
-      aadd(mm_tmp, {"beg_rees","N",6,0,NIL,;
+      aadd(mm_tmp, {"beg_rees","N", 6, 0,NIL,;
                     nil,;
                     1,nil,;
                     "Допустимый наименьший номер реестра случаев",;
                     {|| mbeg_rees > 0 .and. mbeg_rees < mend_rees}})
-      aadd(mm_tmp, {"end_rees","N",6,0,NIL,;
+      aadd(mm_tmp, {"end_rees","N", 6, 0,NIL,;
                     nil,;
                     999999,nil,;
                     "Допустимый наибольший номер реестра случаев",;
                     {|| mend_rees > 0 .and. mbeg_rees < mend_rees}})
-      aadd(mm_tmp, {"bnn_rees","N",3,0,NIL,;
+      aadd(mm_tmp, {"bnn_rees","N", 3, 0,NIL,;
                     nil,;
                     1,nil,;
                     "Допустимый наименьший порядковый номер пакета в ТФОМС",;
                     {|| mbnn_rees > 0 .and. mbnn_rees < menn_rees}})
-      aadd(mm_tmp, {"enn_rees","N",3,0,NIL,;
+      aadd(mm_tmp, {"enn_rees","N", 3, 0,NIL,;
                     nil,;
                     999,nil,;
                     "Допустимый наибольший порядковый номер пакета в ТФОМС",;
                     {|| menn_rees > 0 .and. mbnn_rees < menn_rees}})
-      aadd(mm_tmp, {"date_edit","D",8,0,NIL,;
+      aadd(mm_tmp, {"date_edit","D", 8, 0,NIL,;
                     NIL,;
                     ctod(""),NIL,;
                     "По какую дату (включительно) разрешается редактировать информацию"})
-      init_base(cur_dir + "tmp",,mm_tmp,0)
+      init_base(cur_dir + "tmp",,mm_tmp, 0)
       f_mb_me_nsh(2013)
       use (cur_dir + "tmp") new
       append blank
@@ -3609,39 +2383,39 @@ if G_SLock(str_sem)
     case nTask == X_PPOKOJ //  Приёмный покой
       ctitle := "настройке приёмного покоя"
       _pp_nastr(0) // проверить, а создан ли файл "pp_nastr.dbf"
-      aadd(mm_tmp, {"ist_bol","N",1,0,NIL,;
+      aadd(mm_tmp, {"ist_bol","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_danet,A__MENUVERT)},;
                     0,{|x|inieditspr(A__MENUVERT,mm_danet,x)},;
                     'Вести сквозную нумерацию истории болезни'})
-      aadd(mm_tmp, {"n_ist_bol","N",6,0,NIL,;
+      aadd(mm_tmp, {"n_ist_bol","N", 6, 0,NIL,;
                     NIL,;
                     0,NIL,;
                     "Номер последней введенной истории болезни"})
-      aadd(mm_tmp, {"file_6","C",8,0,"@!",;
+      aadd(mm_tmp, {"file_6","C", 8, 0,"@!",;
                     NIL,;
                     "",NIL,;
                     "Имя файла шаблона согласия на обр-ку перс.данных (по <F6>)"})
-      aadd(mm_tmp, {"file_7","C",12,0,"@!",;
+      aadd(mm_tmp, {"file_7","C", 12, 0,"@!",;
                     NIL,;
                     "",NIL,;
                     "Имя файла шаблона листа учета................... (по <F7>)"})
-      aadd(mm_tmp, {"file_8","C",12,0,"@!",;
+      aadd(mm_tmp, {"file_8","C", 12, 0,"@!",;
                     NIL,;
                     "",NIL,;
                     "Имя файла шаблона истории болезни............... (по <F8>)"})
-      aadd(mm_tmp, {"file_9","C",12,0,"@!",;
+      aadd(mm_tmp, {"file_9","C", 12, 0,"@!",;
                     NIL,;
                     "",NIL,;
                     "Имя файла шаблона стат.карты (форма 066)........ (по <F9>)"})
-      aadd(mm_tmp, {"file_12","C",12,0,"@!",;
+      aadd(mm_tmp, {"file_12","C", 12, 0,"@!",;
                     NIL,;
                     "",NIL,;
                     "Наименование файла шаблона индивидуальной карты (по <F12>)"})
-      aadd(mm_tmp, {"file_xx","C",3,0,"@!",;
+      aadd(mm_tmp, {"file_xx","C", 3, 0,"@!",;
                     NIL,;
                     "",NIL,;
                     "Расширение прочих файлов шаблонов организации... (по <F5>)"})
-      init_base(cur_dir + "tmp",,mm_tmp,0)
+      init_base(cur_dir + "tmp",,mm_tmp, 0)
       R_Use(dir_server + "pp_nastr",,"MV")
       use (cur_dir + "tmp") new
       append blank
@@ -3654,53 +2428,53 @@ if G_SLock(str_sem)
       tmp->FILE_12   := mv->FILE_12
       tmp->FILE_XX   := mv->FILE_XX
       close databases
-    case nTask == X_PLATN .and. Tools_Ini_Platn(1,0,0,.t.) //  Платные услуги
+    case nTask == X_PLATN .and. Tools_Ini_Platn(1, 0, 0,.t.) //  Платные услуги
       ctitle := "настройке платных услуг"
-      aadd(mm_tmp, {"anonim","N",1,0,NIL,;
+      aadd(mm_tmp, {"anonim","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_danet,A__MENUVERT)},;
                     0,{|x|inieditspr(A__MENUVERT,mm_danet,x)},;
                     'Разрешается работать с АНОНИМами?'})
-      aadd(mm_tmp, {"a_naprvr","N",1,0,NIL,;
+      aadd(mm_tmp, {"a_naprvr","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_da_net,A__MENUVERT)},;
                     1,{|x|inieditspr(A__MENUVERT,mm_da_net,x)},;
                     'Работать с кодом направившего врача?'})
-      aadd(mm_tmp, {"a_plsoput","N",1,0,NIL,;
+      aadd(mm_tmp, {"a_plsoput","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_da_net,A__MENUVERT)},;
                     1,{|x|inieditspr(A__MENUVERT,mm_da_net,x)},;
                     'Работать с сопутствующими заболеваниями?'})
-      aadd(mm_tmp, {"a_edit_s","N",1,0,NIL,;
+      aadd(mm_tmp, {"a_edit_s","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_da_net,A__MENUVERT)},;
                     1,{|x|inieditspr(A__MENUVERT,mm_da_net,x)},;
                     'Редактировать поле "Стоимость услуги"?'})
-      aadd(mm_tmp, {"a_dogovor","C",12,0,"@!",;
+      aadd(mm_tmp, {"a_dogovor","C", 12, 0,"@!",;
                     nil,;
                     space(12),nil,;
                     'Файл шаблона договора на платные услуги'})
-      aadd(mm_tmp, {"a_proc_ms","N",5,2,NIL,;
+      aadd(mm_tmp, {"a_proc_ms","N", 5, 2,NIL,;
                     nil,;
                     0,nil,;
                     "Процент оплаты МЕДСЕСТРАМ (от ст-ти услуги)"})
-      aadd(mm_tmp, {"a_proc_sn","N",5,2,NIL,;
+      aadd(mm_tmp, {"a_proc_sn","N", 5, 2,NIL,;
                     nil,;
                     0,nil,;
                     "Процент оплаты САНИТАРКАМ (от ст-ти услуги)"})
-      aadd(mm_tmp, {"a_mfile8","C",12,0,"@!",;
+      aadd(mm_tmp, {"a_mfile8","C", 12, 0,"@!",;
                     nil,;
                     space(12),nil,;
                     'Наименование файла шаблона индивидуальной карты (по <F8>)'})
-      aadd(mm_tmp, {"pl_reg","N",1,0,NIL,;
+      aadd(mm_tmp, {"pl_reg","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_danet,A__MENUVERT)},;
                     0,{|x|inieditspr(A__MENUVERT,mm_danet,x)},;
                     'Вводим квитанционную книжку:'})
-      aadd(mm_tmp, {"a_close","N",1,0,NIL,;
+      aadd(mm_tmp, {"a_close","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_close,A__MENUVERT)},;
                     0,{|x|inieditspr(A__MENUVERT,mm_close,x)},;
                     'Закрытие листа учета:'})
-      aadd(mm_tmp, {"kassa","N",1,0,NIL,;
+      aadd(mm_tmp, {"kassa","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_kassa,A__MENUVERT)},;
                     0,{|x|inieditspr(A__MENUVERT,mm_kassa,x)},;
                     'Работа через кассовый аппарат:'})
-      init_base(cur_dir + "tmp",,mm_tmp,0)
+      init_base(cur_dir + "tmp",,mm_tmp, 0)
       use (cur_dir + "tmp") new
       append blank
       tmp->anonim    := mem_anonim
@@ -3715,69 +2489,69 @@ if G_SLock(str_sem)
       tmp->pl_reg    := glob_pl_reg
       tmp->kassa     := glob_kassa
       close databases
-    case nTask == X_ORTO .and. Tools_Ini_Orto(1,0,0,.t.) // Ортопедические услуги в стоматологии
+    case nTask == X_ORTO .and. Tools_Ini_Orto(1, 0, 0,.t.) // Ортопедические услуги в стоматологии
       ctitle := "настройке ортопедии"
-      aadd(mm_tmp, {"ort_f39","N",1,0,NIL,;
+      aadd(mm_tmp, {"ort_f39","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_ort_f39,A__MENUVERT)},;
                     0,{|x|inieditspr(A__MENUVERT,mm_ort_f39,x)},;
                     'Кол-во заполняемых полей'})
-      aadd(mm_tmp, {"a_orto_na","C",10,0,NIL,;
+      aadd(mm_tmp, {"a_orto_na","C", 10, 0,NIL,;
                     nil,;
                     space(10),nil,;
                     'Шаблон для услуг "НАПЫЛЕНИЕ"'})
-      aadd(mm_tmp, {"a_orto_sl","C",10,0,NIL,;
+      aadd(mm_tmp, {"a_orto_sl","C", 10, 0,NIL,;
                     nil,;
                     space(10),nil,;
                     'Шаблон для услуг "СЛЕПКИ"'})
-      aadd(mm_tmp, {"a_orto_ysl","N",1,0,NIL,;
+      aadd(mm_tmp, {"a_orto_ysl","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_da_net,A__MENUVERT)},;
                     1,{|x|inieditspr(A__MENUVERT,mm_da_net,x)},;
                     'Разрешается добавлять услуги в режиме "Открытие наряда"?'})
-      aadd(mm_tmp, {"a_ortootd","N",3,0,NIL,;
+      aadd(mm_tmp, {"a_ortootd","N", 3, 0,NIL,;
                     {|x|menu_reader(x,{dir_server + "mo_otd",,},A__POPUPEDIT)},;
                     0,{|x|inieditspr(A__POPUPEDIT,dir_server + "mo_otd",x)},;
                     'Отделение по умолчанию при вводе услуг'})
-      aadd(mm_tmp, {"e_12","C",1,0,NIL,;
+      aadd(mm_tmp, {"e_12","C", 1, 0,NIL,;
                     nil,;
                     " ",nil,;
                     'Каким образом вводится поле "ОТДЕЛЕНИЕ, ГДЕ ОКАЗАНА УСЛУГА"',,{||.f.}})
-      aadd(mm_tmp, {"a_ort1otd","N",1,0,NIL,;
+      aadd(mm_tmp, {"a_ort1otd","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_otdort,A__MENUVERT)},;
                     1,{|x|inieditspr(A__MENUVERT,mm_otdort,x)},;
                     ' при вводе услуг'})
-      aadd(mm_tmp, {"a_edit_s","N",1,0,NIL,;
+      aadd(mm_tmp, {"a_edit_s","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_da_net,A__MENUVERT)},;
                     1,{|x|inieditspr(A__MENUVERT,mm_da_net,x)},;
                     'Редактировать поле "Стоимость услуги"?'})
-      aadd(mm_tmp, {"a_orto_ms","N",1,0,NIL,;
+      aadd(mm_tmp, {"a_orto_ms","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_da_net,A__MENUVERT)},;
                     1,{|x|inieditspr(A__MENUVERT,mm_da_net,x)},;
                     'Необходим ввод медсестры в ортопедических услугах?'})
-      aadd(mm_tmp, {"a_orto_pl","C",12,0,"@!",;
+      aadd(mm_tmp, {"a_orto_pl","C", 12, 0,"@!",;
                     nil,;
                     space(12),nil,;
                     'Наименование файла шаблона для платного наряда-заказа'})
-      aadd(mm_tmp, {"a_orto_bp","C",12,0,"@!",;
+      aadd(mm_tmp, {"a_orto_bp","C", 12, 0,"@!",;
                     nil,;
                     space(12),nil,;
                     'Наименование файла шаблона для бесплатного наряда-заказа'})
-      aadd(mm_tmp, {"a_orto_dog","C",3,0,"@!",; //16.04.08
+      aadd(mm_tmp, {"a_orto_dog","C", 3, 0,"@!",; //16.04.08
                     nil,;
                     space(12),nil,;
                     'Расширение файлов-шаблонов для печати договоров'})
-      aadd(mm_tmp, {"a_orto_dat","N",1,0,NIL,;
+      aadd(mm_tmp, {"a_orto_dat","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_da_net,A__MENUVERT)},;
                     1,{|x|inieditspr(A__MENUVERT,mm_da_net,x)},;
                     'Дата открытия наряда равна дате начала лечения ?'})
-      aadd(mm_tmp, {"a_mfile8","C",12,0,"@!",;
+      aadd(mm_tmp, {"a_mfile8","C", 12, 0,"@!",;
                     nil,;
                     space(12),nil,;
                     'Наименование файла шаблона индивидуальной карты (по <F8>)'})
-      aadd(mm_tmp, {"kassa","N",1,0,NIL,;
+      aadd(mm_tmp, {"kassa","N", 1, 0,NIL,;
                     {|x|menu_reader(x,mm_kassa,A__MENUVERT)},;
                     0,{|x|inieditspr(A__MENUVERT,mm_kassa,x)},;
                     'Работа через кассовый аппарат:'})
-      init_base(cur_dir + "tmp",,mm_tmp,0)
+      init_base(cur_dir + "tmp",,mm_tmp, 0)
       use (cur_dir + "tmp") new
       append blank
       tmp->ort_f39    := mem_ort_f39
@@ -3796,7 +2570,7 @@ if G_SLock(str_sem)
       tmp->kassa      := glob_kassa
       close databases
   endcase
-  if f_edit_spr(A__EDIT,mm_tmp,ctitle,"g_use(cur_dir+'tmp',,,.t.,.t.)",0,1) > 0
+  if f_edit_spr(A__EDIT,mm_tmp,ctitle,"g_use(cur_dir+'tmp',,,.t.,.t.)", 0, 1) > 0
     use (cur_dir + "tmp") new
     do case
       case nTask == 0
@@ -3851,7 +2625,7 @@ if G_SLock(str_sem)
         public_date := tmp->date_edit
         mem_n_V034  := tmp->ls_v034  
         mem_methodinj := tmp->ls_method 
-        Tools_Ini_OMS(2,0,0)
+        Tools_Ini_OMS(2, 0, 0)
       case nTask == X_PPOKOJ //  Приёмный покой
         G_Use(dir_server + "pp_nastr",,"MV")
         G_RLock(forever)
@@ -3875,7 +2649,7 @@ if G_SLock(str_sem)
         glob_close  := tmp->a_close
         glob_pl_reg := tmp->pl_reg
         glob_kassa  := tmp->kassa
-        Tools_Ini_Platn(2,0,0)
+        Tools_Ini_Platn(2, 0, 0)
       case nTask == X_ORTO
         mem_edit_s  := tmp->a_edit_s
         mem_ort_na  := tmp->a_orto_na
@@ -3891,7 +2665,7 @@ if G_SLock(str_sem)
         mem_ort_f8  := tmp->a_mfile8
         mem_ort_f39 := tmp->ort_f39
         glob_kassa  := tmp->kassa
-        Tools_Ini_Orto(2,0,0)
+        Tools_Ini_Orto(2, 0, 0)
     endcase
   endif
   close databases
@@ -3900,8 +2674,6 @@ else
   func_error(4,err_slock)
 endif
 return NIL
-
-*
 
 // сделать копию tools.ini с сервера в локальный каталог с именем loctools.ini
 Function copy_Tools_Ini()
@@ -3959,8 +2731,6 @@ else
   G_SUnLock(sem_tools)
 endif
 return fl
-
-*
 
 // 09.12.18
 Function Tools_Ini_OMS(reg,k1,k2,fll)
@@ -4023,15 +2793,15 @@ if (fl := iif(fll, Semaphor_Tools_Ini(1), .t.))
   if reg == 1 // чтение
     ta := GetIniSect(iif(fll,tools_ini,local_tools_ini), name_section) // вернуть двумерный массив содержимого секции {{"наим.","знач."},...}
     for j := 1 to len(ta)
-      if (i := ascan(arr, {|x| upper(x[1]) == ta[j,1] })) > 0
-        if arr[i,2] == "C"
-          &(arr[i,1]) := ta[j,2]
-        elseif arr[i,2] == "N"
-          &(arr[i,1]) := int(val(ta[j,2]))
-        elseif arr[i,2] == "L"
-          &(arr[i,1]) := (ta[j,2]=='1')
-        elseif arr[i,2] == "D"
-          &(arr[i,1]) := stod(ta[j,2])
+      if (i := ascan(arr, {|x| upper(x[1]) == ta[j, 1] })) > 0
+        if arr[i, 2] == "C"
+          &(arr[i, 1]) := ta[j, 2]
+        elseif arr[i, 2] == "N"
+          &(arr[i, 1]) := int(val(ta[j, 2]))
+        elseif arr[i, 2] == "L"
+          &(arr[i, 1]) := (ta[j, 2]=='1')
+        elseif arr[i, 2] == "D"
+          &(arr[i, 1]) := stod(ta[j, 2])
         endif
       endif
     next
@@ -4039,7 +2809,7 @@ if (fl := iif(fll, Semaphor_Tools_Ini(1), .t.))
     mem_ff_lu := iif(_upr_yes_FF(), 1, 2)
     yes_bukva := .f.
     for i := 1 to len(yes_d_plus)
-      if asc(substr(yes_d_plus,i,1)) > 64
+      if asc(substr(yes_d_plus, i, 1)) > 64
         yes_bukva := .t. ; exit
       endif
     next
@@ -4052,15 +2822,15 @@ if (fl := iif(fll, Semaphor_Tools_Ini(1), .t.))
     endif
   else // запись
     for i := 1 to len(arr)
-      v := &(arr[i,1])
-      if arr[i,2] == "C"
-        aadd(ta, {arr[i,1], v})
-      elseif arr[i,2] == "N"
-        aadd(ta, {arr[i,1], lstr(v)})
-      elseif arr[i,2] == "L"
-        aadd(ta, {arr[i,1], iif(v,'1','0')})
-      elseif arr[i,2] == "D"
-        aadd(ta, {arr[i,1], dtos(v)})
+      v := &(arr[i, 1])
+      if arr[i, 2] == "C"
+        aadd(ta, {arr[i, 1], v})
+      elseif arr[i, 2] == "N"
+        aadd(ta, {arr[i, 1], lstr(v)})
+      elseif arr[i, 2] == "L"
+        aadd(ta, {arr[i, 1], iif(v,'1','0')})
+      elseif arr[i, 2] == "D"
+        aadd(ta, {arr[i, 1], dtos(v)})
       endif
     next
     SetIniSect(tools_ini, name_section, ta) // запись секции в ini.файл
@@ -4070,8 +2840,6 @@ if (fl := iif(fll, Semaphor_Tools_Ini(1), .t.))
   endif
 endif
 return fl
-
-*
 
 //
 Function Tools_Ini_PP(reg,k1,k2,fll)
@@ -4089,15 +2857,15 @@ if (fl := iif(fll, Semaphor_Tools_Ini(1), .t.))
   if reg == 1 // чтение
     ta := GetIniSect(iif(fll,tools_ini,local_tools_ini), name_section) // вернуть двумерный массив содержимого секции {{"наим.","знач."},...}
     for j := 1 to len(ta)
-      if (i := ascan(arr, {|x| upper(x[1]) == ta[j,1] })) > 0
-        &(arr[i,1]) := iif(arr[i,2]=="C", ta[j,2], int(val(ta[j,2])))
+      if (i := ascan(arr, {|x| upper(x[1]) == ta[j, 1] })) > 0
+        &(arr[i, 1]) := iif(arr[i, 2]=="C", ta[j, 2], int(val(ta[j, 2])))
       endif
     next
     mem_ortfflu := iif(_upr_yes_FF(), 1, 2)
   else // запись
     for i := 1 to len(arr)
-      v := &(arr[i,1])
-      aadd(ta, {arr[i,1], iif(arr[i,2]=="C", v, lstr(v))})
+      v := &(arr[i, 1])
+      aadd(ta, {arr[i, 1], iif(arr[i, 2]=="C", v, lstr(v))})
     next
     SetIniSect(tools_ini, name_section, ta) // запись секции в ini.файл
   endif
@@ -4106,8 +2874,6 @@ if (fl := iif(fll, Semaphor_Tools_Ini(1), .t.))
   endif
 endif
 return fl
-
-*
 
 //
 Function Tools_Ini_Platn(reg,k1,k2,fll)
@@ -4130,18 +2896,18 @@ if (fl := iif(fll, Semaphor_Tools_Ini(1), .t.))
   if reg == 1 // чтение
     ta := GetIniSect(iif(fll,tools_ini,local_tools_ini), name_section) // вернуть двумерный массив содержимого секции {{"наим.","знач."},...}
     for j := 1 to len(ta)
-      if (i := ascan(arr, {|x| upper(x[1]) == ta[j,1] })) > 0
-        &(arr[i,1]) := iif(arr[i,2]=="C", ta[j,2], val(ta[j,2]))
-        if arr[i,2]=="N" .and. len(arr[i]) == 2
-          &(arr[i,1]) := int(val(ta[j,2]))
+      if (i := ascan(arr, {|x| upper(x[1]) == ta[j, 1] })) > 0
+        &(arr[i, 1]) := iif(arr[i, 2]=="C", ta[j, 2], val(ta[j, 2]))
+        if arr[i, 2]=="N" .and. len(arr[i]) == 2
+          &(arr[i, 1]) := int(val(ta[j, 2]))
         endif
       endif
     next
     mem_ortfflu := iif(_upr_yes_FF(), 1, 2)
   else // запись
     for i := 1 to len(arr)
-      v := &(arr[i,1])
-      aadd(ta, {arr[i,1], iif(arr[i,2]=="C", v, lstr(v))})
+      v := &(arr[i, 1])
+      aadd(ta, {arr[i, 1], iif(arr[i, 2]=="C", v, lstr(v))})
     next
     SetIniSect(tools_ini, name_section, ta) // запись секции в ini.файл
   endif
@@ -4150,8 +2916,6 @@ if (fl := iif(fll, Semaphor_Tools_Ini(1), .t.))
   endif
 endif
 return fl
-
-*
 
 //
 Function Tools_Ini_Orto(reg,k1,k2,fll)
@@ -4177,15 +2941,15 @@ if (fl := iif(fll, Semaphor_Tools_Ini(1), .t.))
   if reg == 1 // чтение
     ta := GetIniSect(iif(fll,tools_ini,local_tools_ini), name_section) // вернуть двумерный массив содержимого секции {{"наим.","знач."},...}
     for j := 1 to len(ta)
-      if (i := ascan(arr, {|x| upper(x[1]) == ta[j,1] })) > 0
-        &(arr[i,1]) := iif(arr[i,2]=="C", ta[j,2], int(val(ta[j,2])))
+      if (i := ascan(arr, {|x| upper(x[1]) == ta[j, 1] })) > 0
+        &(arr[i, 1]) := iif(arr[i, 2]=="C", ta[j, 2], int(val(ta[j, 2])))
       endif
     next
     mem_ortfflu := iif(_upr_yes_FF(), 1, 2)
   else // запись
     for i := 1 to len(arr)
-      v := &(arr[i,1])
-      aadd(ta, {arr[i,1], iif(arr[i,2]=="C", v, lstr(v))})
+      v := &(arr[i, 1])
+      aadd(ta, {arr[i, 1], iif(arr[i, 2]=="C", v, lstr(v))})
     next
     SetIniSect(tools_ini, name_section, ta) // запись секции в ini.файл
   endif
@@ -4195,20 +2959,18 @@ if (fl := iif(fll, Semaphor_Tools_Ini(1), .t.))
 endif
 return fl
 
-*
-
 // настройки по вводу данных в каждой задаче
-Function nastr_input(k,nTask)
-return NIL
+Function nastr_input(k, nTask)
+  return NIL
 
 
 // 01.12.16 настройка рабочего места
 Function nastr_rab_mesto()
 Static group_ini := "RAB_MESTO"
-Static mm_wdir := {{'в папку рабочего каталога "OwnChipArchiv"',0},;
-                   {"в другое место",1}}
-Static mm_wokato := {{'использовать значение из "Общих настроек"',0},;
-                     {"своя настройка на данном рабочем месте",1}}
+Static mm_wdir := {{'в папку рабочего каталога "OwnChipArchiv"', 0},;
+                   {"в другое место", 1}}
+Static mm_wokato := {{'использовать значение из "Общих настроек"', 0},;
+                     {"своя настройка на данном рабочем месте", 1}}
 Local ar, sr, mm_tmp := {}
 delete file tmp.dbf
 //
@@ -4224,68 +2986,68 @@ Private mm_oms_pole := {"сроки лечения",;    //  1
 ar := GetIniSect(tmp_ini,group_ini)
 sr := a2default(ar,"sc_reader")
 if !empty(sr)
-  mm_reader[2,1] := sr
-  mm_reader[2,2] := padr(sr,50)
+  mm_reader[2, 1] := sr
+  mm_reader[2, 2] := padr(sr, 50)
 endif
-aadd(mm_tmp, {"sc_reader","C",50,0,NIL,;
+aadd(mm_tmp, {"sc_reader","C", 50, 0,NIL,;
               {|x|menu_reader(x,mm_reader,A__MENUVERT)},;
               "",{|x|inieditspr(A__MENUVERT,mm_reader,x)},;
               'Устройство чтения смарт-карт (для эл.полиса)',;
               {|| iif(empty(m1sc_reader), .t., f_read_sc_reader()) },;
               {|| hb_user_curUser:IsAdmin() }})
-aadd(mm_tmp, {"base_copy","N",1,0,NIL,;
+aadd(mm_tmp, {"base_copy","N", 1, 0,NIL,;
               {|x|menu_reader(x,mm_danet,A__MENUVERT)},;
               1,{|x|inieditspr(A__MENUVERT,mm_danet,x)},;
               'Выполнять автоматическое резервное копирование при выходе из программы',,;
               {|| hb_user_curUser:IsAdmin() }})
-aadd(mm_tmp, {"wdir","N",1,0,NIL,;
+aadd(mm_tmp, {"wdir","N", 1, 0,NIL,;
               {|x|menu_reader(x,mm_wdir,A__MENUVERT)},;
               0,{|x|inieditspr(A__MENUVERT,mm_wdir,x)},;
               '└> куда выполняется копирование',;
               {|| iif(empty(m1wdir), (mpath_copy:=m1path_copy:=space(100),update_get("mpath_copy")), .t.) },;
               {|| hb_user_curUser:IsAdmin() .and. m1base_copy == 1 }})
-aadd(mm_tmp, {"path_copy","C",100,0,NIL,;
+aadd(mm_tmp, {"path_copy","C", 100, 0,NIL,;
               {|x| menu_reader(x,{{|k,r,c| mng_dir(k,r,c,"path_copy") }},A__FUNCTION)},;
               " ",{|x| x },;
               ' └> каталог для копирования',,;
               {|| hb_user_curUser:IsAdmin() .and. m1base_copy == 1 .and. m1wdir == 1 }})
-aadd(mm_tmp, {"kart_polis","N",1,0,NIL,;
+aadd(mm_tmp, {"kart_polis","N", 1, 0,NIL,;
               {|x|menu_reader(x,mm_danet,A__MENUVERT)},;
               1,{|x|inieditspr(A__MENUVERT,mm_danet,x)},;
               'В режиме добавления в картотеку производить поиск пациента по полису'})
-aadd(mm_tmp, {"e_1","C",1,0,NIL,,"",,;
+aadd(mm_tmp, {"e_1","C", 1, 0,NIL,,"",,;
               'Какие поля запоминать и переносить в следующий добавляемый случай при вводе',,;
               {|| .f. }})
-aadd(mm_tmp, {"oms_pole","N",15,0,NIL,;
+aadd(mm_tmp, {"oms_pole","N", 15, 0,NIL,;
               {|x|menu_reader(x,mm_oms_pole,A__MENUBIT)},;
               0,{|x|inieditspr(A__MENUBIT,mm_oms_pole,x)},;
               'л/у ОМС:'})
-aadd(mm_tmp, {"wokato","N",1,0,NIL,;
+aadd(mm_tmp, {"wokato","N", 1, 0,NIL,;
               {|x|menu_reader(x,mm_wokato,A__MENUVERT)},;
               0,{|x|inieditspr(A__MENUVERT,mm_wokato,x)},;
               'Какое ОКАТО по умолчанию использовать',;
               {|| iif(empty(m1wokato), (m_okato:=space(70),m1_okato:=space(11),update_get("m_okato")), .t.) }})
-aadd(mm_tmp, {"_okato","C",11,0,NIL,;
+aadd(mm_tmp, {"_okato","C", 11, 0,NIL,;
               {|x|menu_reader(x,{{ |k,r,c| get_okato_ulica(k,r,c,{k,m_okato,}) }},A__FUNCTION)},;
               space(11),{|x| ret_okato_ulica('',x)},;
               '└> ОКАТО по умолчанию',,;
               {|| m1wokato == 1 }})
 if is_obmen_sds()
-  aadd(mm_tmp, {"e_2","C",1,0,NIL,,"",,;
+  aadd(mm_tmp, {"e_2","C", 1, 0,NIL,,"",,;
                 'Каталоги для обмена информацией с программой Smart Delta Systems:',,;
                 {|| .f. }})
-  aadd(mm_tmp, {"path1_sds","C",100,0,NIL,;
+  aadd(mm_tmp, {"path1_sds","C", 100, 0,NIL,;
                 {|x| menu_reader(x,{{|k,r,c| mng_dir(k,r,c,"path1_sds") }},A__FUNCTION)},;
                 " ",{|x| x },;
                 '==> для импорта картотеки',,;
                 {|| hb_user_curUser:IsAdmin() }})
-  aadd(mm_tmp, {"path2_sds","C",100,0,NIL,;
+  aadd(mm_tmp, {"path2_sds","C", 100, 0,NIL,;
                 {|x| menu_reader(x,{{|k,r,c| mng_dir(k,r,c,"path2_sds") }},A__FUNCTION)},;
                 " ",{|x| x },;
                 '==> для обработанных файлов',,;
                 {|| hb_user_curUser:IsAdmin() }})
 endif
-init_base(cur_dir + "tmp",,mm_tmp,0)
+init_base(cur_dir + "tmp",,mm_tmp, 0)
 use (cur_dir + "tmp") new
 append blank
 tmp->sc_reader := sr
@@ -4301,7 +3063,7 @@ if is_obmen_sds()
   tmp->path2_sds := a2default(ar,"path2_sds","")
 endif
 close databases
-if f_edit_spr(A__EDIT,mm_tmp,"настройке рабочего места","g_use(cur_dir+'tmp',,,.t.,.t.)",0,1) > 0
+if f_edit_spr(A__EDIT,mm_tmp,"настройке рабочего места","g_use(cur_dir+'tmp',,,.t.,.t.)", 0, 1) > 0
   use (cur_dir + "tmp") new
   mm_tmp := {;
              {group_ini,"sc_reader",   tmp->sc_reader},;
@@ -4319,8 +3081,6 @@ if f_edit_spr(A__EDIT,mm_tmp,"настройке рабочего места","g_use(cur_dir+'tmp',,,.
 endif
 close databases
 return NIL
-
-*
 
 #define SW_HIDE 0
 #define SW_SHOWNORMAL 1
@@ -4356,9 +3116,9 @@ if hb_FileExists(dir_exe+task_polis)
         if !empty(sr)
           fl := .t.
           msc_reader := m1sc_reader := sr
-          mm_reader[2,1] := mm_reader[2,2] := sr
+          mm_reader[2, 1] := mm_reader[2, 2] := sr
         else
-          fl := func_error(4,iif(empty(se),smsg+".",se))
+          fl := func_error(4, iif(empty(se),smsg+".",se))
         endif
         exit
       endif
@@ -4431,10 +3191,10 @@ endif
 if fl
   if emptyall(arr_epolis[_EP_OGRN],arr_epolis[_EP_OKATO],arr_epolis[_EP_FAM],;
               arr_epolis[_EP_IM],arr_epolis[_EP_NPOLIS])
-    fl := func_error(4,iif(empty(se),smsg+".",se))
+    fl := func_error(4, iif(empty(se),smsg+".",se))
   else
     R_Use(exe_dir+"_mo_smo",cur_dir + "_mo_smo3","_SMO")
-    find (arr_epolis[_EP_OKATO]+padr(arr_epolis[_EP_OGRN],13))
+    find (arr_epolis[_EP_OKATO]+padr(arr_epolis[_EP_OGRN], 13))
     if found()
       arr_epolis[_EP_SMO] := _smo->smo
       arr_epolis[_EP_NAMESMO] := alltrim(_smo->name)
@@ -4463,11 +3223,11 @@ if f_read_sc_polis()
           alltrim(arr_epolis[_EP_OT])
   mdate_r := arr_epolis[_EP_DR]
   R_Use(dir_server + "kartotek",dir_server + "kartotep","KART")
-  find ("1"+padr(arr_epolis[_EP_NPOLIS],17))
+  find ("1"+padr(arr_epolis[_EP_NPOLIS], 17))
   if found()
     rec := recno()
   else
-    mfio := padr(upper(mfio),50)
+    mfio := padr(upper(mfio), 50)
     set index to (dir_server + "kartoten")
     find ("1"+mfio+dtos(mdate_r))
     if found()
@@ -4479,29 +3239,29 @@ if f_read_sc_polis()
     goto (rec)
     R_Use(dir_server + "kartote_",,"KART_")
     goto (rec)
-    kartotek_to_screen(1,8)
-    @ 0,0 to 9,79 color "G+/B"
+    kartotek_to_screen(1, 8)
+    @ 0, 0 to 9, 79 color "G+/B"
     str_center(0," В картотеке найден пациент ","G+/RB")
   endif
-  ClrLines(10,19,color1)
-  @ 11,2 say "Ф.И.О.: "+padr(mfio,50)+space(7)+iif(arr_epolis[_EP_W]=="М","мужчина","женщина") color color8
-  @ 12,2 say "Дата рождения: "+full_date(arr_epolis[_EP_DR]) color color8
-  @ 13,2 say "СНИЛС: "+transform(arr_epolis[_EP_SNILS],picture_pf) color color8
-  @ 14,2 say "Место рождения: "+alltrim(arr_epolis[_EP_MR]) color color8
-  @ 15,2 say "Полис ОМС: "+alltrim(arr_epolis[_EP_NPOLIS]) color color8
-  @ 16,2 say "           действителен с "+full_date(arr_epolis[_EP_D_BEGIN])+" по "+full_date(arr_epolis[_EP_D_END]) color color8
-  @ 17,2 say "СМО: "+iif(empty(arr_epolis[_EP_NAMESMO]), "не найдена, ОГРН: "+arr_epolis[_EP_OGRN], alltrim(arr_epolis[_EP_NAMESMO])) color color8
-  @ 18,2 say "Субъект РФ территории страхования: "+inieditspr(A__MENUVERT, glob_array_srf, arr_epolis[_EP_OKATO]) color color8
-  @ 10,0 to 19,79 double color color8
+  ClrLines(10, 19,color1)
+  @ 11, 2 say "Ф.И.О.: "+padr(mfio, 50)+space(7)+iif(arr_epolis[_EP_W]=="М","мужчина","женщина") color color8
+  @ 12, 2 say "Дата рождения: "+full_date(arr_epolis[_EP_DR]) color color8
+  @ 13, 2 say "СНИЛС: "+transform(arr_epolis[_EP_SNILS],picture_pf) color color8
+  @ 14, 2 say "Место рождения: "+alltrim(arr_epolis[_EP_MR]) color color8
+  @ 15, 2 say "Полис ОМС: "+alltrim(arr_epolis[_EP_NPOLIS]) color color8
+  @ 16, 2 say "           действителен с "+full_date(arr_epolis[_EP_D_BEGIN])+" по "+full_date(arr_epolis[_EP_D_END]) color color8
+  @ 17, 2 say "СМО: "+iif(empty(arr_epolis[_EP_NAMESMO]), "не найдена, ОГРН: "+arr_epolis[_EP_OGRN], alltrim(arr_epolis[_EP_NAMESMO])) color color8
+  @ 18, 2 say "Субъект РФ территории страхования: "+inieditspr(A__MENUVERT, glob_array_srf, arr_epolis[_EP_OKATO]) color color8
+  @ 10, 0 to 19, 79 double color color8
   str_center(10," Информация с электронного полиса ","GR+/R")
-  FillScrArea(20,0,24,79,"░",color1)
+  FillScrArea(20, 0, 24, 79,"░",color1)
   close databases
   k := 2 ; arr := {" Отказ от записи "," Добавить в картотеку "}
   if rec > 0
     k := 3 ; aadd(arr, " Перезаписать ")
   endif
-  k := f_alert({padc("Выберите действие",60,".")},arr,;
-                k,"W+/N","N+/N",20,,"W+/N,N/BG" )
+  k := f_alert({padc("Выберите действие", 60,".")},arr,;
+                k,"W+/N","N+/N", 20,,"W+/N,N/BG" )
   if k > 1
     if k == 2 // при добавлении
       rec := 0 // обнуляем значение номера записи
@@ -4546,8 +3306,8 @@ if f_read_sc_polis()
     kart_->KVARTAL_D := arr_epolis[_EP_OKATO]
     if newMEST_INOG == 9
       G_Use(dir_server + "mo_kfio",,"KFIO")
-      index on str(kod,7) to (cur_dir + "tmp_kfio")
-      find (str(glob_kartotek,7))
+      index on str(kod, 7) to (cur_dir + "tmp_kfio")
+      find (str(glob_kartotek, 7))
       if found()
         G_RLock(forever)
       else
@@ -4566,9 +3326,6 @@ endif
 restscreen(buf)
 return fl
 
-
-*
-
 // 08.11.20 создание первичной БД из реестров
 Function create_main_base_from_reestrs()
 Local full_zip, name_zip, i, k, n, fl := .t., buf := save_maxrow(),;
@@ -4586,7 +3343,7 @@ elseif k > 0 // иначе работаем только с пустой БД листов учёта
 endif
 Private cImportProtokol := "protokol"+stxt, pr_array_schet := {}
 Private p_var_manager := "Read_reestrs"
-full_zip := manager(T_ROW,T_COL+5,maxrow()-2,,.t.,1,,,,"*"+szip)
+full_zip := manager(T_ROW, T_COL + 5,maxrow()-2,,.t., 1,,,,"*"+szip)
 if !empty(full_zip)
   mywait()
   strfile(space(10)+"Протокол создания БД из реестров ТФОМС "+;
@@ -4609,13 +3366,13 @@ if !empty(full_zip)
   endif
   // реестры
   for i := 1 to len(arr_r)
-    s := substr(StripPath(arr_r[i]),4,6)
+    s := substr(StripPath(arr_r[i]), 4, 6)
     if s == glob_MO[_MO_KOD_TFOMS]
       s := Name_Without_Ext(arr_r[i])
       if chip_copy_zipXML(arr_r[i],dir_server+dir_XML_MO)
         if extract_reestr(1,s,.t.,.f.)
           use (cur_dir + "tmp1file") new alias TMP1
-          s1 := substr(afteratnum("_",Name_Without_Ext(StripPath(arr_r[i]))),5)
+          s1 := substr(afteratnum("_",Name_Without_Ext(StripPath(arr_r[i]))), 5)
           n := int(val(s1))
           aadd(a_reestr,{arr_r[i],;       // 1
                          tmp1->_CODE,;    // 2
@@ -4641,23 +3398,23 @@ if !empty(full_zip)
     endif
   next
   // счета
-  dbcreate(cur_dir + "tmp_s_id",{{"KOD",    "N", 6,0},;
-                               {"NIDCASE","N",12,0},;
-                               {"IDCASE", "C",12,0},;
-                               {"ID_C",   "C",36,0}})
+  dbcreate(cur_dir + "tmp_s_id",{{"KOD",    "N", 6, 0},;
+                               {"NIDCASE","N", 12, 0},;
+                               {"IDCASE", "C", 12, 0},;
+                               {"ID_C",   "C", 36, 0}})
   for i := 1 to len(arr_s)
-    s := substr(StripPath(arr_s[i]),3,6)
+    s := substr(StripPath(arr_s[i]), 3, 6)
     if s == glob_MO[_MO_KOD_TFOMS]
       s := Name_Without_Ext(arr_s[i])
       if chip_copy_zipXML(arr_s[i],dir_server+dir_XML_MO)
         k := len(pr_array_schet)+1
         if extract_reestr(k,s,.t.,.t.)
           use (cur_dir + "tmp1file") new alias TMP1
-          s1 := substr(afteratnum("_",Name_Without_Ext(StripPath(arr_s[i]))),5)
+          s1 := substr(afteratnum("_",Name_Without_Ext(StripPath(arr_s[i]))), 5)
           n := int(val(s1))
           cbukva := " "
-          if asc(right(alltrim(tmp1->_NSCHET),1)) >= 65 // т.е. "A" и т.д.
-            cbukva := right(alltrim(tmp1->_NSCHET),1)
+          if asc(right(alltrim(tmp1->_NSCHET), 1)) >= 65 // т.е. "A" и т.д.
+            cbukva := right(alltrim(tmp1->_NSCHET), 1)
           endif
           aadd(pr_array_schet,{s,;              // 1 имя файла
                                n,;              // 2 номер пакета
@@ -4697,14 +3454,14 @@ if !empty(full_zip)
   // реестры СП и ТК
   for i := 1 to len(arr_rsptk)
     s := afteratnum("_",StripPath(arr_rsptk[i]))
-    if left(s,1) == "M"
-      s := substr(s,2)
+    if left(s, 1) == "M"
+      s := substr(s, 2)
     else
       strfile(arr_rsptk[i]+": неверная буква в обозначении получателя"+hb_eol(),cImportProtokol,.t.)
       fl := .f. ; exit
     endif
     if fl
-      s := left(s,6)
+      s := left(s, 6)
       if s == glob_MO[_MO_KOD_TFOMS]
         if Extract_Zip_XML(KeepPath(arr_rsptk[i]),StripPath(arr_rsptk[i])) != NIL
           s := Name_Without_Ext(arr_rsptk[i])
@@ -4714,12 +3471,12 @@ if !empty(full_zip)
           reestr_sp_tk_tmpfile(oXmlDoc,,cFile)
           n := int(val(tmp1->_NSCHET))  // в число (отрезать всё, что после "-")
           if (k := ascan(a_reestr, {|x| x[3] == n .and. x[5] == tmp1->_YEAR})) > 0
-            n := int(val(substr(afteratnum("_",Name_Without_Ext(StripPath(arr_rsptk[i]))),12))) // номер пакета
-            if empty(a_reestr[k,8])
-              a_reestr[k,8] := n
+            n := int(val(substr(afteratnum("_",Name_Without_Ext(StripPath(arr_rsptk[i]))), 12))) // номер пакета
+            if empty(a_reestr[k, 8])
+              a_reestr[k, 8] := n
             endif
-            a_reestr[k,8] := min(a_reestr[k,8],n)
-            aadd(a_reestr[k,7], {arr_rsptk[i],tmp1->_NSCHET,tmp1->_DSCHET,n})
+            a_reestr[k, 8] := min(a_reestr[k, 8],n)
+            aadd(a_reestr[k, 7], {arr_rsptk[i],tmp1->_NSCHET,tmp1->_DSCHET,n})
           endif
           close databases
         endif
@@ -4731,8 +3488,8 @@ if !empty(full_zip)
   next
   if fl
     for i := 1 to len(a_reestr)
-      if empty(a_reestr[i,8])  // если ещё не было реестров СП и ТК,
-        a_reestr[i,8] := 1000  // то данный реестр обрабатывается последним
+      if empty(a_reestr[i, 8])  // если ещё не было реестров СП и ТК,
+        a_reestr[i, 8] := 1000  // то данный реестр обрабатывается последним
       endif
     next
     // реестры сортируем: отчётный период + min номер пакета реестров СП и ТК
@@ -4742,12 +3499,12 @@ if !empty(full_zip)
                                     x[6] < y[6]),;
                                 x[5] < y[5]) })
     for i := 1 to len(a_reestr)
-      strfile(a_reestr[i,1]+", "+lstr(a_reestr[i,3])+", "+;
-              dtoc(a_reestr[i,4])+", "+lstr(a_reestr[i,8])+hb_eol(),cImportProtokol,.t.)
+      strfile(a_reestr[i, 1]+", "+lstr(a_reestr[i, 3])+", "+;
+              dtoc(a_reestr[i, 4])+", "+lstr(a_reestr[i, 8])+hb_eol(),cImportProtokol,.t.)
       // реестры СП и ТК сортируем по номеру пакета СП и ТК
-      asort(a_reestr[i,7],,,{|x,y| x[4] < y[4] })
-      for k := 1 to len(a_reestr[i,7])
-        strfile(" "+print_array(a_reestr[i,7,k])+hb_eol(),cImportProtokol,.t.)
+      asort(a_reestr[i, 7],,,{|x,y| x[4] < y[4] })
+      for k := 1 to len(a_reestr[i, 7])
+        strfile(" "+print_array(a_reestr[i, 7,k])+hb_eol(),cImportProtokol,.t.)
       next
     next
     use (cur_dir + "tmp_s_id") new alias TS
@@ -4755,13 +3512,10 @@ if !empty(full_zip)
     use
     fl := f1_create_main_base_from_reestrs(a_reestr)
   endif
-  viewtext(Devide_Into_Pages(cImportProtokol,60,80),,,,.t.,,,2)
+  viewtext(Devide_Into_Pages(cImportProtokol, 60, 80),,,,.t.,,, 2)
   rest_box(buf)
 endif
 return NIL
-
-*
-
 
 // 22.11.19
 Function f1_create_main_base_from_reestrs(a_reestr)
@@ -4773,9 +3527,9 @@ arr_XML_info[3] := glob_MO[_MO_KOD_TFOMS]
 Private cReadFile, cTimeBegin, mkod_reestr, mdate_schet, is_err_FLK, cFileProtokol, full_zip, mXML_REESTR
 glob_podr := "" ; glob_otd_dep := 0 // пока без кода подразделения
 for i := 1 to len(a_reestr)
-  if chip_copy_zipXML(a_reestr[i,1],dir_server+dir_XML_MO)
-    strfile(StripPath(a_reestr[i,1])+": обработка реестра № "+lstr(a_reestr[i,3])+hb_eol(),cImportProtokol,.t.)
-    s := Name_Without_Ext(a_reestr[i,1])
+  if chip_copy_zipXML(a_reestr[i, 1],dir_server+dir_XML_MO)
+    strfile(StripPath(a_reestr[i, 1])+": обработка реестра № "+lstr(a_reestr[i, 3])+hb_eol(),cImportProtokol,.t.)
+    s := Name_Without_Ext(a_reestr[i, 1])
     if extract_reestr(1,s,.t.)
       if (fl := f2_create_main_base_from_reestrs(s))
         //s := "P"+s // до 1 ноября
@@ -4785,9 +3539,9 @@ for i := 1 to len(a_reestr)
           strfile(" "+StripPath(full_zip)+": обработка протокола ФЛК"+hb_eol(),cImportProtokol,.t.)
           if (arr_f := Extract_Zip_XML(KeepPath(full_zip),s+szip)) != NIL
             if (n := ascan(arr_f,{|x| upper(Name_Without_Ext(x)) == upper(s)})) > 0
-              arr_XML_info[4] := a_reestr[i,5]
-              arr_XML_info[5] := a_reestr[i,6]
-              arr_XML_info[6] := a_reestr[i,9]
+              arr_XML_info[4] := a_reestr[i, 5]
+              arr_XML_info[5] := a_reestr[i, 6]
+              arr_XML_info[6] := a_reestr[i, 9]
               arr_XML_info[7] := mkod_reestr
               // читаем файл в память
               cFile := arr_f[n]
@@ -4801,13 +3555,13 @@ for i := 1 to len(a_reestr)
               is_err_FLK := protokol_flk_tmpfile(arr_f,aerr)
               close databases
               if !empty(aerr)
-                Ins_Array(aerr,1,"")
-                Ins_Array(aerr,1,center("Ошибки в чтении файла "+cFile,80))
+                Ins_Array(aerr, 1,"")
+                Ins_Array(aerr, 1,center("Ошибки в чтении файла "+cFile, 80))
                 aeval(aerr,{|x| strfile(x+hb_eol(),cImportProtokol,.t.) })
                 fl := .f. ; exit
               endif
               old_sys_date := sys_date
-              sys_date := a_reestr[i,4]
+              sys_date := a_reestr[i, 4]
               //
               cReadFile := Name_Without_Ext(cFile)
               cTimeBegin := hour_min(seconds())
@@ -4839,8 +3593,8 @@ for i := 1 to len(a_reestr)
                 chip_copy_zipXML(cFileProtokol,dir_server+dir_XML_TF)
                 delete file (cFileProtokol)
               else
-                Ins_Array(aerr,1,"")
-                Ins_Array(aerr,1,center("Ошибки в чтении файла "+cFile,80))
+                Ins_Array(aerr, 1,"")
+                Ins_Array(aerr, 1,center("Ошибки в чтении файла "+cFile, 80))
                 aeval(aerr,{|x| strfile(x+hb_eol(),cImportProtokol,.t.) })
                 fl := .f. ; exit
               endif
@@ -4852,25 +3606,25 @@ for i := 1 to len(a_reestr)
             endif
           endif
         endif
-        for j := 1 to len(a_reestr[i,7])
-          s := Name_Without_Ext(a_reestr[i,7,j,1])
-          arr_XML_info[6] := a_reestr[i,7,j,4]
+        for j := 1 to len(a_reestr[i, 7])
+          s := Name_Without_Ext(a_reestr[i, 7,j, 1])
+          arr_XML_info[6] := a_reestr[i, 7,j, 4]
           arr_XML_info[7] := 0
-          if (arr_f := Extract_Zip_XML(KeepPath(a_reestr[i,7,j,1]),s+szip)) != NIL
+          if (arr_f := Extract_Zip_XML(KeepPath(a_reestr[i, 7,j, 1]),s+szip)) != NIL
             if (n := ascan(arr_f,{|x| upper(Name_Without_Ext(x)) == upper(s)})) > 0
               cFile := arr_f[n]
               // читаем XML-файл в память
               oXmlDoc := HXMLDoc():Read(_tmp_dir1+cFile)
               if oXmlDoc == NIL .or. empty( oXmlDoc:aItems )
-                strfile(a_reestr[i,7,j,1]+": ошибка в чтении файла"+hb_eol(),cImportProtokol,.t.)
+                strfile(a_reestr[i, 7,j, 1]+": ошибка в чтении файла"+hb_eol(),cImportProtokol,.t.)
                 fl := .f. ; exit
               endif
               aerr := {}
               reestr_sp_tk_tmpfile(oXmlDoc,aerr,cFile)
               close databases
               if !empty(aerr)
-                Ins_Array(aerr,1,"")
-                Ins_Array(aerr,1,center("Ошибки в чтении файла "+cFile,80))
+                Ins_Array(aerr, 1,"")
+                Ins_Array(aerr, 1,center("Ошибки в чтении файла "+cFile, 80))
                 aeval(aerr,{|x| strfile(x+hb_eol(),cImportProtokol,.t.) })
                 fl := .f. ; exit
               endif
@@ -4878,8 +3632,8 @@ for i := 1 to len(a_reestr)
               use (cur_dir + "tmp1file") new alias TMP1
               sys_date := tmp1->_DSCHET
               use
-              full_zip := a_reestr[i,7,j,1]
-              strfile(" "+StripPath(a_reestr[i,7,j,1])+": обработка реестра СП и ТК "+a_reestr[i,7,j,2]+hb_eol(),cImportProtokol,.t.)
+              full_zip := a_reestr[i, 7,j, 1]
+              strfile(" "+StripPath(a_reestr[i, 7,j, 1])+": обработка реестра СП и ТК "+a_reestr[i, 7,j, 2]+hb_eol(),cImportProtokol,.t.)
               cReadFile := Name_Without_Ext(cFile)
               cTimeBegin := hour_min(seconds())
               cFileProtokol := cReadFile+stxt
@@ -4904,40 +3658,38 @@ for i := 1 to len(a_reestr)
                 delete file (cFileProtokol)
               endif
               if !empty(aerr)
-                Ins_Array(aerr,1,"")
-                Ins_Array(aerr,1,center("Ошибки в чтении файла "+cFile,80))
+                Ins_Array(aerr, 1,"")
+                Ins_Array(aerr, 1,center("Ошибки в чтении файла "+cFile, 80))
                 aeval(aerr,{|x| strfile(x+hb_eol(),cImportProtokol,.t.) })
                 fl := .f. ; exit
               endif
               sys_date := old_sys_date
             else
-              strfile(a_reestr[i,7,j,1]+": нет файла "+s+sxml+hb_eol(),cImportProtokol,.t.)
+              strfile(a_reestr[i, 7,j, 1]+": нет файла "+s+sxml+hb_eol(),cImportProtokol,.t.)
               fl := .f. ; exit
             endif
           else
-            strfile(a_reestr[i,7,j,1]+": ошибка Extract_Zip_XML "+s+sxml+hb_eol(),cImportProtokol,.t.)
+            strfile(a_reestr[i, 7,j, 1]+": ошибка Extract_Zip_XML "+s+sxml+hb_eol(),cImportProtokol,.t.)
             fl := .f. ; exit
           endif
           close databases
         next
       else
-        strfile(a_reestr[i,1]+": ошибка f2_create_main_base_from_reestrs"+hb_eol(),cImportProtokol,.t.)
+        strfile(a_reestr[i, 1]+": ошибка f2_create_main_base_from_reestrs"+hb_eol(),cImportProtokol,.t.)
         exit
       endif
     else
-      strfile(a_reestr[i,1]+": не удалось открыть реестр"+hb_eol(),cImportProtokol,.t.)
+      strfile(a_reestr[i, 1]+": не удалось открыть реестр"+hb_eol(),cImportProtokol,.t.)
       fl := .f. ; exit
     endif
   else
-    strfile(a_reestr[i,1]+": ошибка записи реестра в XML_MO"+hb_eol(),cImportProtokol,.t.)
+    strfile(a_reestr[i, 1]+": ошибка записи реестра в XML_MO"+hb_eol(),cImportProtokol,.t.)
     fl := .f. ; exit
   endif
   close databases
 next
 close databases
 return fl
-
-*
 
 // 11.04.19
 Function f2_create_main_base_from_reestrs(mname_xml)
@@ -4954,7 +3706,7 @@ index on IDCASE to (cur_dir + "tmp_t4")
 mkod_reestr := 0
 G_Use(dir_server + "mo_rees",,"REES")
 if flag_is_lu
-  Locate for NAME_XML == padr(mname_xml,26)
+  Locate for NAME_XML == padr(mname_xml, 26)
   if found()
     mkod_reestr := recno()
     close databases
@@ -4967,7 +3719,7 @@ rees->NSCHET   := int(val(tmp1->_NSCHET))
 rees->DSCHET   := tmp1->_DSCHET
 rees->NYEAR    := tmp1->_YEAR
 rees->NMONTH   := tmp1->_MONTH
-rees->NN       := val(substr(afteratnum("_",mname_xml),5))
+rees->NN       := val(substr(afteratnum("_",mname_xml), 5))
 rees->NAME_XML := mname_xml
 rees->SUMMA    := tmp1->_SUMMAV
 rees->CODE     := tmp1->_CODE
@@ -4979,7 +3731,7 @@ G_Use(dir_server + "mo_xml",,"MO_XML")
 AddRecN()
 mo_xml->KOD    := recno()
 mo_xml->FNAME  := mname_xml
-mo_xml->FNAME2 := "L"+substr(mname_xml,2)
+mo_xml->FNAME2 := "L"+substr(mname_xml, 2)
 mo_xml->DFILE  := rees->DSCHET
 mo_xml->TIP_OUT := _XML_FILE_REESTR // тип высылаемого файла;1-реестр
 mo_xml->REESTR := mkod_reestr
@@ -4994,25 +3746,25 @@ use_base("luslc")
 use_base("luslf")
 G_Use(dir_server + "mo_rhum",,"RHUM")
 G_Use(dir_server + "mo_pers",,"PERSO")
-index on snils+str(prvs_new,4) to (cur_dir + "tmppsnils")
-index on snils+str(prvs,9) to (cur_dir + "tmppsnils1")
+index on snils + str(prvs_new, 4) to (cur_dir + "tmppsnils")
+index on snils + str(prvs, 9) to (cur_dir + "tmppsnils1")
 set index to (cur_dir + "tmppsnils"),(cur_dir + "tmppsnils1")
 Use_base("mo_su")
 Use_base("uslugi")
 R_Use(dir_server + "uslugi1",{dir_server + "uslugi1",;
                             dir_server + "uslugi1s"},"USL1")
 G_Use(dir_server + "mo_kfio",,"KFIO")
-index on str(kod,7) to (cur_dir + "tmp_kfio")
+index on str(kod, 7) to (cur_dir + "tmp_kfio")
 G_Use(dir_server + "mo_kismo",,"KSN")
-index on str(kod,7) to (cur_dir + "tmpkismo")
+index on str(kod, 7) to (cur_dir + "tmpkismo")
 G_Use(dir_server + "mo_hismo",,"HSN")
-index on str(kod,7) to (cur_dir + "tmphismo")
+index on str(kod, 7) to (cur_dir + "tmphismo")
 R_Use(dir_server + "mo_otd",,"OTD")
-index on str(tiplu,2)+str(kod_lpu,3) to (cur_dir + "tmpotd1") ;
+index on str(tiplu, 2) + str(kod_lpu, 3) to (cur_dir + "tmpotd1") ;
       for empty(dend) .and. kod > 0 .and. kod_lpu > 0
-index on str(profil,3)+str(idump,2)+str(kod_lpu,3) to (cur_dir + "tmpotd2") ;
+index on str(profil, 3) + str(idump, 2) + str(kod_lpu, 3) to (cur_dir + "tmpotd2") ;
       for empty(dend) .and. kod > 0 .and. kod_lpu > 0
-index on str(code_dep,3)+str(idump,2)+str(kod_lpu,3) to (cur_dir + "tmpotd3") ;
+index on str(code_dep, 3) + str(idump, 2) + str(kod_lpu, 3) to (cur_dir + "tmpotd3") ;
       for empty(dend) .and. kod > 0 .and. kod_lpu > 0
 set index to (cur_dir + "tmpotd1"),(cur_dir + "tmpotd2"),(cur_dir + "tmpotd3")
 Use_base("kartotek")
@@ -5029,12 +3781,12 @@ go top
 do while !eof()
   pkol++
   is_zak_sl := .f. ; a_usl := {}
-  @ maxrow(),1 say lstr(pkol) color cColorSt2Msg
+  @ maxrow(), 1 say lstr(pkol) color cColorSt2Msg
   select T3
   find (upper(t1->ID_PAC))
   if found()
     afio := array(3)
-    if left(t1->NOVOR,1) == '0' .or. empty(t3->FAM_P)
+    if left(t1->NOVOR, 1) == '0' .or. empty(t3->FAM_P)
       afio[1] := t3->fam
       afio[2] := t3->im
       afio[3] := t3->ot
@@ -5047,10 +3799,10 @@ do while !eof()
       mpol    := t3->W_P
       mdate_r := t3->DR_P
     endif
-    mfio := padr(alltrim(afio[1])+" "+alltrim(afio[2])+" "+alltrim(afio[3]),50)
+    mfio := padr(alltrim(afio[1])+" "+alltrim(afio[2])+" "+alltrim(afio[3]), 50)
     mpol := iif(mpol=='1',"М","Ж")
     mdate_r := xml2date(mdate_r)
-    mpolis := padr(make_polis(t1->spolis,t1->npolis),17)
+    mpolis := padr(make_polis(t1->spolis,t1->npolis), 17)
     if empty(mfio)
 my_debug(,"реестр="+lstr(mkod_reestr)+", запись="+t1->IDCASE)
 my_debug(,"|NOVOR|"+t1->NOVOR)
@@ -5083,13 +3835,12 @@ my_debug(,"|полис|"+rtrim(mpolis))
         endif
       endif
       select KART
-      set order to 1 // index on str(kod,7) to (dir_server + "kartotek") progress
+      set order to 1 // index on str(kod, 7) to (dir_server + "kartotek") progress
       if empty(lkod_k)
         Add1Rec(7)
         lkod_k := kart->kod := recno()
-my_debug(,print_array({"добавление",lkod_k,mfio}))
       else
-        find (str(lkod_k,7))
+        find (str(lkod_k, 7))
         G_RLock(forever)
       endif
       if !empty(mfio)
@@ -5128,7 +3879,7 @@ my_debug(,print_array({"добавление",lkod_k,mfio}))
       kart_->KVARTAL_D := t1->SMO_OK // ОКАТО субъекта РФ территории страхования
       //
       select KFIO
-      find (str(lkod_k,7))
+      find (str(lkod_k, 7))
       if found()
         if kart->MEST_INOG == 9
           G_RLock(forever)
@@ -5153,7 +3904,7 @@ my_debug(,print_array({"добавление",lkod_k,mfio}))
         kart_->SMO := "34"
       endif
       select KSN
-      find (str(lkod_k,7))
+      find (str(lkod_k, 7))
       if found()
         if fl_nameismo
           G_RLock(forever)
@@ -5188,7 +3939,7 @@ my_debug(,print_array({"добавление",lkod_k,mfio}))
       endif
       //
       mDATE_R2 := ctod("")
-      if (M1NOVOR := int(val(left(t1->NOVOR,1)))) > 0
+      if (M1NOVOR := int(val(left(t1->NOVOR, 1)))) > 0
         mDATE_R2 := mdate_r
       endif
       fv_date_r(xml2date(t1->DATE_1))
@@ -5230,10 +3981,10 @@ my_debug(,"  "+rtrim(human->fio)+"=второй раз в реестре="+lstr(mkod_reestr))
       human->DATE_R     := kart->DATE_R // дата рождения больного
       human->VZROS_REB  := M1VZROS_REB  // 0-взрослый, 1-ребенок, 2-подросток
       human->KOD_DIAG   := t1->ds1
-      s := right(t1->ds1,1)
+      s := right(t1->ds1, 1)
       for i := 1 to 7
         pole := "t1->DS2"+iif(i==1, "", "_"+lstr(i))
-        s += right(&pole,1)
+        s += right(&pole, 1)
         if !empty(&pole)
           poleh := {"KOD_DIAG2","KOD_DIAG3","KOD_DIAG4",;
                     "SOPUT_B1","SOPUT_B2","SOPUT_B3","SOPUT_B4"}[i]
@@ -5259,8 +4010,8 @@ my_debug(,"  "+rtrim(human->fio)+"=второй раз в реестре="+lstr(mkod_reestr))
         human_->DATE_R2 := ctod("")
         human_->POL2    := ""
       else
-        human_->NOVOR   := val(right(t1->NOVOR,2))
-        human_->DATE_R2 := stod("20"+substr(t1->NOVOR,6,2)+substr(t1->NOVOR,4,2)+substr(t1->NOVOR,2,2))
+        human_->NOVOR   := val(right(t1->NOVOR, 2))
+        human_->DATE_R2 := stod("20"+substr(t1->NOVOR, 6, 2)+substr(t1->NOVOR, 4, 2)+substr(t1->NOVOR, 2, 2))
         human_->POL2    := iif(M1NOVOR==1,"М","Ж")
       endif
       human_->USL_OK    := val(t1->USL_OK)
@@ -5298,20 +4049,20 @@ my_debug(,"  "+rtrim(human->fio)+"=второй раз в реестре="+lstr(mkod_reestr))
         human_2->pc3 := t1->CRIT
       endif
       if t1->SL_K == '1'
-        s := lstr(int(val(t1->kod_kslp)))+","+lstr(val(t1->koef_kslp),5,2)
+        s := lstr(int(val(t1->kod_kslp)))+","+lstr(val(t1->koef_kslp), 5, 2)
         if !empty(t1->kod_kslp2)
-          s += ","+lstr(int(val(t1->kod_kslp2)))+","+lstr(val(t1->koef_kslp2),5,2)
+          s += ","+lstr(int(val(t1->kod_kslp2)))+","+lstr(val(t1->koef_kslp2), 5, 2)
         endif
         human_2->pc1 := s
       endif
       if !empty(t1->CODE_KIRO)
-        human_2->pc2 := lstr(int(val(t1->CODE_KIRO)))+","+lstr(val(t1->VAL_K),5,2)
+        human_2->pc2 := lstr(int(val(t1->CODE_KIRO)))+","+lstr(val(t1->VAL_K), 5, 2)
       endif
       _tip_lu := 0
       // проверяем диспансеризацию
       m1veteran := m1gruppa := m1etap := 0
       k := int(val(t1->COMENTSL))
-      if eq_any(k,4,5)
+      if eq_any(k, 4, 5)
         human_2->PN2 := 1
       elseif k == 20
         human->RAB_NERAB := 0
@@ -5354,7 +4105,7 @@ my_debug(,"  "+rtrim(human->fio)+"=второй раз в реестре="+lstr(mkod_reestr))
             m1etap := 1
             human->ishod := 101
             human->ZA_SMO := 1
-            if between(human_->RSLT_NEW,321,325) // TIP_LU_DDS
+            if between(human_->RSLT_NEW, 321, 325) // TIP_LU_DDS
               _tip_lu := TIP_LU_DDS
               m1gruppa := human_->RSLT_NEW - 321 + 1
             endif
@@ -5362,35 +4113,35 @@ my_debug(,"  "+rtrim(human->fio)+"=второй раз в реестре="+lstr(mkod_reestr))
             m1etap := 2
             human->ishod := 102
             human->ZA_SMO := 1
-            if between(human_->RSLT_NEW,321,325) // TIP_LU_DDS
+            if between(human_->RSLT_NEW, 321, 325) // TIP_LU_DDS
               _tip_lu := TIP_LU_DDS
               m1gruppa := human_->RSLT_NEW - 321 + 1
             endif
           case t1->DISP == "ДУ1" //"Диспансеризация детей-сирот и детей, оставшихся без попечения родителей, в том числе усыновленных (удочеренных), принятых под опеку (попечительство) в приемную или патронатную семью  (состоящая из 1 этапа)",stod("2017-01-01")})
             m1etap := 1
             human->ishod := 101
-            if between(human_->RSLT_NEW,347,351) // TIP_LU_DDSOP
+            if between(human_->RSLT_NEW, 347, 351) // TIP_LU_DDSOP
               _tip_lu := TIP_LU_DDSOP
               m1gruppa := human_->RSLT_NEW - 347 + 1
             endif
           case t1->DISP == "ДУ2" //"Диспансеризация детей-сирот и детей, оставшихся без попечения родителей, в том числе усыновленных (удочеренных), принятых под опеку (попечительство) в приемную или патронатную семью  (состоящая из 2-х этапов)",stod("2017-01-01")})
             m1etap := 2
             human->ishod := 102
-            if between(human_->RSLT_NEW,347,351) // TIP_LU_DDSOP
+            if between(human_->RSLT_NEW, 347, 351) // TIP_LU_DDSOP
               _tip_lu := TIP_LU_DDSOP
               m1gruppa := human_->RSLT_NEW - 347 + 1
             endif
           case t1->DISP == "ОН1" //"Медицинские осмотры несовершеннолетних, в том числе при поступлении в образовательные учреждения и в период обучения в них (профилактические) (состоящие из 1 этапа)",stod("2017-01-01")})
             m1etap := 1
             human->ishod := 301
-            if between(human_->RSLT_NEW,332,336) // ПН - TIP_LU_PN
+            if between(human_->RSLT_NEW, 332, 336) // ПН - TIP_LU_PN
               _tip_lu := TIP_LU_PN
               m1gruppa := human_->RSLT_NEW - 332 + 1
             endif
           case t1->DISP == "ОН2" //"Медицинские осмотры несовершеннолетних, в том числе при поступлении в образовательные учреждения и в период обучения в них (профилактические) (состоящие из 2-х этапов)",stod("2017-01-01")})
             m1etap := 2
             human->ishod := 302
-            if between(human_->RSLT_NEW,332,336) // ПН - TIP_LU_PN
+            if between(human_->RSLT_NEW, 332, 336) // ПН - TIP_LU_PN
               _tip_lu := TIP_LU_PN
               m1gruppa := human_->RSLT_NEW - 332 + 1
             endif
@@ -5431,7 +4182,7 @@ my_debug(,"  "+rtrim(human->fio)+"=второй раз в реестре="+lstr(mkod_reestr))
         human_2->VNR3 := val(t1->VNOV_M_3)
       endif
       select HSN
-      find (str(mkod,7))
+      find (str(mkod, 7))
       if found()
         if fl_nameismo
           G_RLock(forever)
@@ -5511,16 +4262,16 @@ my_debug(,"  "+rtrim(human->fio)+"=второй раз в реестре="+lstr(mkod_reestr))
         if len(alltrim(t2->CODE_USL)) > 9
           select MOSU
           set order to 3 // по шифру ФФОМС
-          find (padr(t2->CODE_USL,20))
+          find (padr(t2->CODE_USL, 20))
           if found()
             kod_uslf := mosu->kod
           else
             select LUSLF
-            find (padr(t2->CODE_USL,20))
+            find (padr(t2->CODE_USL, 20))
             if found()
               select MOSU
               set order to 1
-              FIND (STR(-1,6))
+              FIND (STR(-1, 6))
               if found()
                 G_RLock(forever)
               else
@@ -5617,8 +4368,6 @@ rees->KOL := pkol
 close databases
 return fl
 
-*
-
 // 11.04.19 перезаписать лист учёта, если таковой уже есть в БД
 Function f3_create_main_base_from_reestrs()
 Local i, j, k, arr_hu, ta, arr_ne, fl
@@ -5660,7 +4409,7 @@ kart_->okatop := iif(t3->OKATOG == t3->OKATOP, "", t3->OKATOP)
 kart_->KVARTAL_D := t1->SMO_OK // ОКАТО субъекта РФ территории страхования
 //
 select KFIO
-find (str(lkod_k,7))
+find (str(lkod_k, 7))
 if found()
   if kart->MEST_INOG == 9
     G_RLock(forever)
@@ -5685,7 +4434,7 @@ if fl_nameismo
   kart_->SMO := "34"
 endif
 select KSN
-find (str(lkod_k,7))
+find (str(lkod_k, 7))
 if found()
   if fl_nameismo
     G_RLock(forever)
@@ -5720,7 +4469,7 @@ if empty(lvrach) .and. len(alltrim(t1->IDDOKT)) == 11
 endif
 //
 mDATE_R2 := ctod("")
-if (M1NOVOR := int(val(left(t1->NOVOR,1)))) > 0
+if (M1NOVOR := int(val(left(t1->NOVOR, 1)))) > 0
   mDATE_R2 := mdate_r
 endif
 fv_date_r(xml2date(t1->DATE_1))
@@ -5749,10 +4498,10 @@ human->POL       := kart->POL    // пол
 human->DATE_R    := kart->DATE_R // дата рождения больного
 human->VZROS_REB := M1VZROS_REB  // 0-взрослый, 1-ребенок, 2-подросток
 human->KOD_DIAG  := t1->ds1
-s := right(t1->ds1,1)
+s := right(t1->ds1, 1)
 for i := 1 to 7
   pole := "t1->DS2"+iif(i==1, "", "_"+lstr(i))
-  s += right(&pole,1)
+  s += right(&pole, 1)
   if !empty(&pole)
     poleh := {"KOD_DIAG2","KOD_DIAG3","KOD_DIAG4","SOPUT_B1","SOPUT_B2","SOPUT_B3","SOPUT_B4"}[i]
     poleh := "human->"+poleh
@@ -5783,8 +4532,8 @@ if M1NOVOR == 0
   human_->DATE_R2 := ctod("")
   human_->POL2    := ""
 else
-  human_->NOVOR   := val(right(t1->NOVOR,2))
-  human_->DATE_R2 := stod("20"+substr(t1->NOVOR,6,2)+substr(t1->NOVOR,4,2)+substr(t1->NOVOR,2,2))
+  human_->NOVOR   := val(right(t1->NOVOR, 2))
+  human_->DATE_R2 := stod("20"+substr(t1->NOVOR, 6, 2)+substr(t1->NOVOR, 4, 2)+substr(t1->NOVOR, 2, 2))
   human_->POL2    := iif(M1NOVOR==1,"М","Ж")
 endif
 human_->USL_OK := val(t1->USL_OK)
@@ -5820,21 +4569,21 @@ if !empty(t1->CRIT)  // потом добавим t1->CRIT2 и онкологию
   human_2->pc3 := t1->CRIT
 endif
 if t1->SL_K == '1'
-  s := lstr(int(val(t1->kod_kslp)))+","+lstr(val(t1->koef_kslp),5,2)
+  s := lstr(int(val(t1->kod_kslp)))+","+lstr(val(t1->koef_kslp), 5, 2)
   if !empty(t1->kod_kslp2)
-    s += ","+lstr(int(val(t1->kod_kslp2)))+","+lstr(val(t1->koef_kslp2),5,2)
+    s += ","+lstr(int(val(t1->kod_kslp2)))+","+lstr(val(t1->koef_kslp2), 5, 2)
   endif
   human_2->pc1 := s
 endif
 if !empty(t1->CODE_KIRO)
-  human_2->pc2 := lstr(int(val(t1->CODE_KIRO)))+","+lstr(val(t1->VAL_K),5,2)
+  human_2->pc2 := lstr(int(val(t1->CODE_KIRO)))+","+lstr(val(t1->VAL_K), 5, 2)
 endif
 //human->kod_p  := chr(0) // данное поле заполнено
 //human->date_e := ''     // данное поле заполнено
 // проверяем диспансеризацию
 m1veteran := m1gruppa := m1etap := 0
 k := int(val(t1->COMENTSL))
-if eq_any(k,4,5)
+if eq_any(k, 4, 5)
   human_2->PN2 := 1
 elseif k == 20
   human->RAB_NERAB := 0
@@ -5868,7 +4617,7 @@ if !empty(t1->DISP)
     case t1->DISP == "ОПВ" //"Профилактические медицинские осмотры взрослого населения",stod("2013-12-26")})
       m1etap := 3
       human->ishod := 203
-      if between(human_->RSLT_NEW,343,345) // ДВН(проф.) - TIP_LU_DVN
+      if between(human_->RSLT_NEW, 343, 345) // ДВН(проф.) - TIP_LU_DVN
         _tip_lu := TIP_LU_DVN
         m1gruppa := human_->RSLT_NEW - 343 + 1
       endif
@@ -5880,7 +4629,7 @@ if !empty(t1->DISP)
       m1etap := 1
       human->ishod := 101
       human->ZA_SMO := 1
-      if between(human_->RSLT_NEW,321,325) // TIP_LU_DDS
+      if between(human_->RSLT_NEW, 321, 325) // TIP_LU_DDS
         _tip_lu := TIP_LU_DDS
         m1gruppa := human_->RSLT_NEW - 321 + 1
       endif
@@ -5888,35 +4637,35 @@ if !empty(t1->DISP)
       m1etap := 2
       human->ishod := 102
       human->ZA_SMO := 1
-      if between(human_->RSLT_NEW,321,325) // TIP_LU_DDS
+      if between(human_->RSLT_NEW, 321, 325) // TIP_LU_DDS
         _tip_lu := TIP_LU_DDS
         m1gruppa := human_->RSLT_NEW - 321 + 1
       endif
     case t1->DISP == "ДУ1" //"Диспансеризация детей-сирот и детей, оставшихся без попечения родителей, в том числе усыновленных (удочеренных), принятых под опеку (попечительство) в приемную или патронатную семью  (состоящая из 1 этапа)",stod("2017-01-01")})
       m1etap := 1
       human->ishod := 101
-      if between(human_->RSLT_NEW,347,351) // TIP_LU_DDSOP
+      if between(human_->RSLT_NEW, 347, 351) // TIP_LU_DDSOP
         _tip_lu := TIP_LU_DDSOP
         m1gruppa := human_->RSLT_NEW - 347 + 1
       endif
     case t1->DISP == "ДУ2" //"Диспансеризация детей-сирот и детей, оставшихся без попечения родителей, в том числе усыновленных (удочеренных), принятых под опеку (попечительство) в приемную или патронатную семью  (состоящая из 2-х этапов)",stod("2017-01-01")})
       m1etap := 2
       human->ishod := 102
-      if between(human_->RSLT_NEW,347,351) // TIP_LU_DDSOP
+      if between(human_->RSLT_NEW, 347, 351) // TIP_LU_DDSOP
         _tip_lu := TIP_LU_DDSOP
         m1gruppa := human_->RSLT_NEW - 347 + 1
       endif
     case t1->DISP == "ОН1" //"Медицинские осмотры несовершеннолетних, в том числе при поступлении в образовательные учреждения и в период обучения в них (профилактические) (состоящие из 1 этапа)",stod("2017-01-01")})
       m1etap := 1
       human->ishod := 301
-      if between(human_->RSLT_NEW,332,336) // ПН - TIP_LU_PN
+      if between(human_->RSLT_NEW, 332, 336) // ПН - TIP_LU_PN
         _tip_lu := TIP_LU_PN
         m1gruppa := human_->RSLT_NEW - 332 + 1
       endif
     case t1->DISP == "ОН2" //"Медицинские осмотры несовершеннолетних, в том числе при поступлении в образовательные учреждения и в период обучения в них (профилактические) (состоящие из 2-х этапов)",stod("2017-01-01")})
       m1etap := 2
       human->ishod := 302
-      if between(human_->RSLT_NEW,332,336) // ПН - TIP_LU_PN
+      if between(human_->RSLT_NEW, 332, 336) // ПН - TIP_LU_PN
         _tip_lu := TIP_LU_PN
         m1gruppa := human_->RSLT_NEW - 332 + 1
       endif
@@ -5948,7 +4697,7 @@ if !empty(t1->VNOV_M_3)
   human_2->VNR3 := val(t1->VNOV_M_3)
 endif
 select HSN
-find (str(mkod,7))
+find (str(mkod, 7))
 if found()
   if fl_nameismo
     G_RLock(forever)
@@ -5967,7 +4716,7 @@ UnLock
 //
 arr_hu := {}
 select HU
-find (str(mkod,7))
+find (str(mkod, 7))
 do while hu->kod == mkod .and. !eof()
   aadd(arr_hu, {hu->(recno()),;      // номер записи
                 "",;                 // занесём шифр услуги
@@ -5978,7 +4727,7 @@ do while hu->kod == mkod .and. !eof()
 enddo
 arr_mohu := {}
 select MOHU
-find (str(mkod,7))
+find (str(mkod, 7))
 do while mohu->kod == mkod .and. !eof()
   aadd(arr_mohu, {mohu->(recno()),;      // номер записи
                   "",;                   // занесём шифр услуги
@@ -5995,10 +4744,10 @@ do while t1->IDCASE == t2->IDCASE .and. !eof()
     fl := .t.
     for i := 1 to len(arr_hu)
       select HU
-      goto (arr_hu[i,1])
+      goto (arr_hu[i, 1])
       if upper(t2->ID_U) == upper(hu_->ID_U)
-        arr_hu[i,2] := alltrim(t2->CODE_USL)
-        arr_hu[i,3] := t2->(recno())
+        arr_hu[i, 2] := alltrim(t2->CODE_USL)
+        arr_hu[i, 3] := t2->(recno())
         fl := .f.
         exit
       endif
@@ -6006,10 +4755,10 @@ do while t1->IDCASE == t2->IDCASE .and. !eof()
     if fl
       for i := 1 to len(arr_mohu)
         select MOHU
-        goto (arr_mohu[i,1])
+        goto (arr_mohu[i, 1])
         if upper(t2->ID_U) == upper(mohu->ID_U)
-          arr_mohu[i,2] := alltrim(t2->CODE_USL)
-          arr_mohu[i,3] := t2->(recno())
+          arr_mohu[i, 2] := alltrim(t2->CODE_USL)
+          arr_mohu[i, 3] := t2->(recno())
           fl := .f.
           exit
         endif
@@ -6034,9 +4783,9 @@ if fl
   ta := foundAllShifrTF(s,human->k_data)
   if len(ta) > 0 // попытаемся найти в массиве необходимый код услуг
     for i := 1 to len(arr_hu)
-      if empty(arr_hu[i,3]) .and. ascan(ta,arr_hu[i,4]) > 0
-        arr_hu[i,2] := alltrim(s)
-        arr_hu[i,3] := -1
+      if empty(arr_hu[i, 3]) .and. ascan(ta,arr_hu[i, 4]) > 0
+        arr_hu[i, 2] := alltrim(s)
+        arr_hu[i, 3] := -1
         exit
       endif
     next
@@ -6072,13 +4821,13 @@ if fl
   endif
 endif
 for i := 1 to len(arr_hu)
-  if empty(arr_hu[i,3]) // услуга есть в нашей БД, но нет в реестре
+  if empty(arr_hu[i, 3]) // услуга есть в нашей БД, но нет в реестре
     select HU
-    goto (arr_hu[i,1])
+    goto (arr_hu[i, 1])
     DeleteRec(.t.,.f.)  // очистка записи без пометки на удаление
   else // услуга есть и в нашей БД, и в реестре
     select HU
-    goto (arr_hu[i,1])
+    goto (arr_hu[i, 1])
     G_RLock(forever)
     select HU_
     do while hu_->(lastrec()) < hu->(recno())
@@ -6086,7 +4835,7 @@ for i := 1 to len(arr_hu)
     enddo
     goto (hu->(recno()))
     G_RLock(forever)
-    if arr_hu[i,3] < 0 // код законченного случая
+    if arr_hu[i, 3] < 0 // код законченного случая
       hu->u_cena  := val(t1->TARIF)
       hu->date_u  := dtoc4(human->N_DATA)
       hu->kol := hu->kol_1 := 1
@@ -6100,7 +4849,7 @@ for i := 1 to len(arr_hu)
       hu_->kod_diag := t1->ds1
     else
       select T2
-      goto (arr_hu[i,3])
+      goto (arr_hu[i, 3])
       hu->u_cena  := val(t2->TARIF)
       hu->date_u  := dtoc4(xml2date(t2->DATE_IN))
       hu->kol := hu->kol_1 := val(t2->KOL_USL)
@@ -6114,7 +4863,7 @@ for i := 1 to len(arr_hu)
         if t2->PODR == '0' .and. hu->KOL_RCP >= 0
           hu->KOL_RCP := -1 // на дому
         endif
-        if !(alltrim(arr_hu[i,2]) == "4.20.2")
+        if !(alltrim(arr_hu[i, 2]) == "4.20.2")
           if (j := ascan({'125901','805965','103001'},t2->LPU)) > 0
             hu->is_edit := j
           endif
@@ -6133,16 +4882,16 @@ for i := 1 to len(arr_hu)
   endif
 next
 for i := 1 to len(arr_mohu)
-  if empty(arr_mohu[i,3]) // услуга есть в нашей БД, но нет в реестре
+  if empty(arr_mohu[i, 3]) // услуга есть в нашей БД, но нет в реестре
     select MOHU
-    goto (arr_mohu[i,1])
+    goto (arr_mohu[i, 1])
     DeleteRec(.t.,.f.)  // очистка записи без пометки на удаление
   else // услуга есть и в нашей БД, и в реестре
     select MOHU
-    goto (arr_mohu[i,1])
+    goto (arr_mohu[i, 1])
     G_RLock(forever)
     select T2
-    goto (arr_mohu[i,3])
+    goto (arr_mohu[i, 3])
     mohu->u_cena  := val(t2->TARIF)
     mohu->date_u  := dtoc4(xml2date(t2->DATE_IN))
     mohu->kol_1 := val(t2->KOL_USL)
@@ -6190,16 +4939,16 @@ for i := 1 to len(arr_ne)
   if len(alltrim(t2->CODE_USL)) > 9
     select MOSU
     set order to 3 // по шифру ФФОМС
-    find (padr(t2->CODE_USL,20))
+    find (padr(t2->CODE_USL, 20))
     if found()
       kod_uslf := mosu->kod
     else
       select LUSLF
-      find (padr(t2->CODE_USL,20))
+      find (padr(t2->CODE_USL, 20))
       if found()
         select MOSU
         set order to 1
-        FIND (STR(-1,6))
+        FIND (STR(-1, 6))
         if found()
           G_RLock(forever)
         else
@@ -6262,98 +5011,66 @@ for i := 1 to len(arr_ne)
 next
 return NIL
 
-*
-
-// 10.04.19 поискать врача по СНИЛС и, м.б., по специальности
-Function ret_perso_with_tab_nom(lsnils,lprvs)
-Static aprvs
-Local i, j, lvrach := 0
-DEFAULT aprvs TO ret_arr_new_olds_prvs() // массив соответствий специальности V015 специальностям V004
-select PERSO
-set order to 1
-find (padr(lsnils,11)+str(lprvs,4)) // ищем по коду специальности V015
-if found()
-  lvrach := perso->kod
-elseif (j := ascan(aprvs,{|x| x[1] == lprvs })) > 0
-  set order to 2
-  for i := 1 to len(aprvs[j,2])
-    find (padr(lsnils,11)+str(aprvs[j,2,i],9))  // ищем по коду старой специальности
-    if found()
-      lvrach := perso->kod
-      exit
-    endif
-  next
-endif
-if empty(lvrach)
-  find (padr(lsnils,11))  // ищем просто по СНИЛС
-  if found()
-    lvrach := perso->kod
-  endif
-endif
-return lvrach
-
-*
-
-
 // 10.04.19 поискать отделение по типу л/у (и м.б.по профилю) (и м.б. по врачу)
-Static Function ret_otd_with_lu_prof(lpodr,lump,llu,lprof,lvrach)
-// lpodr  - код подразделения
-// lump   - условия оказания мед.помощи
-// llu    - тип листа учёта
-// lprof  - профиль
-// lvrach - врач
-Static such_otd := {1,2} // для Калачевской ЦРБ
-Local uch_otd := {0,0}
-select OTD
-if llu > 0
-  set order to 1
-  find (str(llu,2))
-  if found()
-    uch_otd := {otd->kod_lpu,otd->kod}
-  endif
-elseif lpodr > 0
-  set order to 3
-  find (str(lpodr,3)+str(lump,2))
-  if found()
-    uch_otd := {otd->kod_lpu,otd->kod}
-  else
-    find (str(lpodr,3))
+Static Function ret_otd_with_lu_prof(lpodr, lump, llu, lprof, lvrach)
+  // lpodr  - код подразделения
+  // lump   - условия оказания мед.помощи
+  // llu    - тип листа учёта
+  // lprof  - профиль
+  // lvrach - врач
+  Static such_otd := {1, 2} // для Калачевской ЦРБ
+  Local uch_otd := {0, 0}
+
+  select OTD
+  if llu > 0
+    set order to 1
+    find (str(llu, 2))
     if found()
-      uch_otd := {otd->kod_lpu,otd->kod}
+      uch_otd := {otd->kod_lpu, otd->kod}
     endif
-  endif
-elseif lvrach > 0 // в справочнике персонала стоит учреждение + отделение
-  perso->(dbGoto(lvrach))
-  if emptyany(perso->uch,perso->otd)
-    if lprof > 0
-      select OTD
-      set order to 2
-      find (str(lprof,3)+str(lump,2))
+  elseif lpodr > 0
+    set order to 3
+    find (str(lpodr, 3) + str(lump, 2))
+    if found()
+      uch_otd := {otd->kod_lpu, otd->kod}
+    else
+      find (str(lpodr, 3))
       if found()
-        uch_otd := {otd->kod_lpu,otd->kod}
-      else
-        find (str(lprof,3))
-        if found()
-          uch_otd := {otd->kod_lpu,otd->kod}
-        endif
+        uch_otd := {otd->kod_lpu, otd->kod}
       endif
     endif
-  else
-    uch_otd := {perso->uch,perso->otd}
-  endif
-elseif lprof > 0
-  set order to 2
-  find (str(lprof,3)+str(lump,2))
-  if found()
-    uch_otd := {otd->kod_lpu,otd->kod}
-  else
-    find (str(lprof,3))
+  elseif lvrach > 0 // в справочнике персонала стоит учреждение + отделение
+    perso->(dbGoto(lvrach))
+    if emptyany(perso->uch, perso->otd)
+      if lprof > 0
+        select OTD
+        set order to 2
+        find (str(lprof, 3) + str(lump, 2))
+        if found()
+          uch_otd := {otd->kod_lpu, otd->kod}
+        else
+          find (str(lprof, 3))
+          if found()
+            uch_otd := {otd->kod_lpu, otd->kod}
+          endif
+        endif
+      endif
+    else
+      uch_otd := {perso->uch, perso->otd}
+    endif
+  elseif lprof > 0
+    set order to 2
+    find (str(lprof, 3) + str(lump, 2))
     if found()
-      uch_otd := {otd->kod_lpu,otd->kod}
+      uch_otd := {otd->kod_lpu, otd->kod}
+    else
+      find (str(lprof, 3))
+      if found()
+        uch_otd := {otd->kod_lpu, otd->kod}
+      endif
     endif
   endif
-endif
-if emptyany(uch_otd[1],uch_otd[2])
-  uch_otd := aclone(such_otd)
-endif
-return uch_otd
+  if emptyany(uch_otd[1], uch_otd[2])
+    uch_otd := aclone(such_otd)
+  endif
+  return uch_otd
