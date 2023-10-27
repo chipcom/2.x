@@ -6262,39 +6262,6 @@ for i := 1 to len(arr_ne)
 next
 return NIL
 
-*
-
-// 10.04.19 поискать врача по СНИЛС и, м.б., по специальности
-Function ret_perso_with_tab_nom(lsnils,lprvs)
-Static aprvs
-Local i, j, lvrach := 0
-DEFAULT aprvs TO ret_arr_new_olds_prvs() // массив соответствий специальности V015 специальностям V004
-select PERSO
-set order to 1
-find (padr(lsnils,11)+str(lprvs,4)) // ищем по коду специальности V015
-if found()
-  lvrach := perso->kod
-elseif (j := ascan(aprvs,{|x| x[1] == lprvs })) > 0
-  set order to 2
-  for i := 1 to len(aprvs[j,2])
-    find (padr(lsnils,11)+str(aprvs[j,2,i],9))  // ищем по коду старой специальности
-    if found()
-      lvrach := perso->kod
-      exit
-    endif
-  next
-endif
-if empty(lvrach)
-  find (padr(lsnils,11))  // ищем просто по СНИЛС
-  if found()
-    lvrach := perso->kod
-  endif
-endif
-return lvrach
-
-*
-
-
 // 10.04.19 поискать отделение по типу л/у (и м.б.по профилю) (и м.б. по врачу)
 Static Function ret_otd_with_lu_prof(lpodr,lump,llu,lprof,lvrach)
 // lpodr  - код подразделения
