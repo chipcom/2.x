@@ -1,19 +1,11 @@
 
 chip_mo.rc
-cpru866m.c
-cpru1251m.c
-xmlparse.c
-hxmldoc.prg
 mo_adres.prg
 mo_main.prg
 mo_omsi.prg
 mo_omsif.prg
-mo_omso.prg
-mo_omsp.prg
-mo_omspr.prg
 mo_st39.prg
 mo_vounc.prg
-Errorsys.prg
 mo_version.prg
 
 .\DAL\TBaseObjectDB.prg
@@ -210,8 +202,17 @@ mo_version.prg
 .\pp\mo_pp.prg
 .\pp\mo_ppi.prg
 
+.\SYSTEM\cpru866m.c
+.\SYSTEM\cpru1251m.c
+.\SYSTEM\Errorsys.prg
+.\SYSTEM\xmlparse.c
+.\SYSTEM\hxmldoc.prg
 .\SYSTEM\use_func.prg
 .\SYSTEM\extension.prg
+
+.\ORDER\mo_omso.prg
+.\ORDER\mo_omsp.prg
+.\ORDER\mo_omspr.prg
 
 .\OTHER\mo_mzxml.prg
 .\OTHER\mo_serv.prg
