@@ -2,7 +2,9 @@
 #include 'chip_mo.ch'
 
 procedure main( ... )
-    
+
+  local fedUslugi, mainDiag, aDiagAdd, aDiagOsl, aAdCrit, aFr
+
   REQUEST HB_CODEPAGE_RU866
   HB_CDPSELECT('RU866')
   REQUEST HB_LANG_RU866
@@ -27,11 +29,22 @@ procedure main( ... )
   cColorSt1Msg:= 'W+/R,,,,B/W'                //    Stat_msg
   cColorSt2Msg:= 'GR+/R,,,,B/W'                //    Stat_msg
   cColorWait  := 'W+/R*,,,,B/W'                 //    †¤¨β¥
+
+  public Err_version := '’¥αβ ‘ƒ ®β '
+  public fio_polzovat := ''
+
   
   // R_Use('d:\_mo\chip\exe\_mo3k006', {'d:\_mo\chip\work\_mo3k006', 'd:\_mo\chip\work\_mo3k006_', 'd:\_mo\chip\work\_mo3k006AD'}, 'K006')
   R_Use('d:\_mo\chip\exe\_mo3k006', , 'K006')
 
-  defenitionKSG( ctod('01/08/2023'), 2, , , USL_OK_HOSPITAL )
+  mainDiag := ''  // 'n82.9'
+  fedUslugi := {'A06.04.018'}
+  aDiagAdd := {}
+  aDiagOsl := {}
+  aAdCrit := {}
+  aFr := {}
+
+  defenitionKSG( ctod('01/08/2023'), 2, , , USL_OK_HOSPITAL, mainDiag, aDiagAdd, aDiagOsl, fedUslugi, aAdCrit, aFr )
 
   k006->(dbCloseArea())
   return
