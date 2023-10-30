@@ -61,12 +61,17 @@ function defenitionKSG(DOB, gender, dBegSl, dEndSl, uslOK, mDiag, aDiagAdd, aDia
     durationSl := 1
   endif
 
-  dbcreate('d:\_mo\2.x\test_ksg\tmp_u', _mo_usl)
-  G_Use( 'd:\_mo\2.x\test_ksg\tmp_u', , aliasTMP, , .t.,  )
+  // dbcreate('d:\_mo\2.x\test_ksg\tmp_u', _mo_usl)
+  // G_Use( 'd:\_mo\2.x\test_ksg\tmp_u', , aliasTMP, , .t.,  )
 
-
-  (aliasK006)->(dbGoTop())
-  do while !(aliasK006)->(Eof())
+  // (aliasK006)->(dbGoTop())
+  // do while !(aliasK006)->(Eof())
+altd()
+  (aliasK006)->(dbSelectArea())
+  set order to 1
+  // find (cUslOk + padr(mDiag, 6))
+  (aliasK006)->(dbSeek(cUslOk + padr(mDiag, 6)))
+  do while left((aliasK006)->SHIFR, 2) == cUslOk .and. k006->DS == padr(mDiag, 6) .and. !eof()
 
     if ! between_date((aliasK006)->DATEBEG, (aliasK006)->DATEEND, dEndSl) // услуга доступна по дате
       (aliasK006)->(dbSkip())
@@ -110,22 +115,39 @@ function defenitionKSG(DOB, gender, dBegSl, dEndSl, uslOK, mDiag, aDiagAdd, aDia
     //   loop
     // endif
 
-    (aliasTMP)->(dbAppend())
-    (aliasTMP)->shifr := (aliasK006)->shifr
-    (aliasTMP)->kz := (aliasK006)->kz
-    (aliasTMP)->PROFIL := (aliasK006)->PROFIL
-    (aliasTMP)->DS := (aliasK006)->DS
-    (aliasTMP)->DS1 := (aliasK006)->DS1
-    (aliasTMP)->DS2 := (aliasK006)->DS2
-    (aliasTMP)->SY := (aliasK006)->SY
-    (aliasTMP)->AGE := (aliasK006)->AGE
-    (aliasTMP)->SEX := (aliasK006)->SEX
-    (aliasTMP)->LOS := (aliasK006)->LOS //
-    (aliasTMP)->AD_CR := (aliasK006)->AD_CR
-    (aliasTMP)->AD_CR1 := (aliasK006)->AD_CR1
-    (aliasTMP)->DATEBEG := (aliasK006)->DATEBEG
-    (aliasTMP)->DATEEND := (aliasK006)->DATEEND
-    (aliasTMP)->NS := (aliasK006)->NS
+    // (aliasTMP)->(dbAppend())
+    // (aliasTMP)->shifr := (aliasK006)->shifr
+    // (aliasTMP)->kz := (aliasK006)->kz
+    // (aliasTMP)->PROFIL := (aliasK006)->PROFIL
+    // (aliasTMP)->DS := (aliasK006)->DS
+    // (aliasTMP)->DS1 := (aliasK006)->DS1
+    // (aliasTMP)->DS2 := (aliasK006)->DS2
+    // (aliasTMP)->SY := (aliasK006)->SY
+    // (aliasTMP)->AGE := (aliasK006)->AGE
+    // (aliasTMP)->SEX := (aliasK006)->SEX
+    // (aliasTMP)->LOS := (aliasK006)->LOS //
+    // (aliasTMP)->AD_CR := (aliasK006)->AD_CR
+    // (aliasTMP)->AD_CR1 := (aliasK006)->AD_CR1
+    // (aliasTMP)->DATEBEG := (aliasK006)->DATEBEG
+    // (aliasTMP)->DATEEND := (aliasK006)->DATEEND
+    // (aliasTMP)->NS := (aliasK006)->NS
+
+    aadd(aRet, {(aliasK006)->SHIFR, ; //  1
+                0, ;                  //  2
+                (aliasK006)->KZ, ;              //  3
+                '', ;             // &lal.->kiros, ;       //  4
+                (aliasK006)->DS, ;  // mDiag, ;              //  5
+                (aliasK006)->SY, ;    //  6
+                (aliasK006)->AGE, ;   //  7
+                (aliasK006)->SEX, ;   //  8
+                (aliasK006)->LOS, ;   //  9
+                alltrim((aliasK006)->AD_CR), ; // 10
+                alltrim((aliasK006)->DS1), ;   // 11
+                alltrim((aliasK006)->DS2), ;   // 12
+                0, ;                // j, ;                  // 13
+                '', ;              // &lal.->kslps, ;       // 14
+                alltrim((aliasK006)->AD_CR1) ;  // 15
+                })
 
     ++i
     (aliasK006)->(dbSkip())
@@ -140,7 +162,6 @@ function vidAge(DOB, dBegSl, dEndSl)
   local ldni, y, m, d, s
   local vid := '0'
 
-  altd()
   ldni := dBegSl - DOB // для ребёнка возраст в днях
   count_ymd(DOB, dBegSl, @y, @m, @d)
 

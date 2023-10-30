@@ -34,8 +34,8 @@ procedure main( ... )
   public fio_polzovat := ''
 
   
-  // R_Use('d:\_mo\chip\exe\_mo3k006', {'d:\_mo\chip\work\_mo3k006', 'd:\_mo\chip\work\_mo3k006_', 'd:\_mo\chip\work\_mo3k006AD'}, 'K006')
-  R_Use('d:\_mo\chip\exe\_mo3k006', , 'K006')
+  R_Use('d:\_mo\chip\exe\_mo3k006', {'d:\_mo\chip\work\_mo3k006', 'd:\_mo\chip\work\_mo3k006_', 'd:\_mo\chip\work\_mo3k006AD'}, 'K006')
+  // R_Use('d:\_mo\chip\exe\_mo3k006', , 'K006')
 
   mainDiag := 'i83.9'  // 'n82.9'
   fedUslugi := {'A16.12.006.001'} // {'A06.04.018'}
