@@ -3,7 +3,7 @@
 
 procedure main( ... )
 
-  local fedUslugi, mainDiag, aDiagAdd, aDiagOsl, aAdCrit, aFr
+  local fedUslugi, mainDiag, aDiagAdd, aDiagOsl, aAdCrit, cFr
 
   REQUEST HB_CODEPAGE_RU866
   HB_CDPSELECT('RU866')
@@ -30,21 +30,21 @@ procedure main( ... )
   cColorSt2Msg:= 'GR+/R,,,,B/W'                //    Stat_msg
   cColorWait  := 'W+/R*,,,,B/W'                 //    †¤¨β¥
 
-  public Err_version := '’¥αβ ‘ƒ ®β '
+  public Err_version := '’¥αβ ‘ƒ ÿβ '
   public fio_polzovat := ''
 
   
   // R_Use('d:\_mo\chip\exe\_mo3k006', {'d:\_mo\chip\work\_mo3k006', 'd:\_mo\chip\work\_mo3k006_', 'd:\_mo\chip\work\_mo3k006AD'}, 'K006')
   R_Use('d:\_mo\chip\exe\_mo3k006', , 'K006')
 
-  mainDiag := ''  // 'n82.9'
-  fedUslugi := {'A06.04.018'}
+  mainDiag := 'i83.9'  // 'n82.9'
+  fedUslugi := {'A16.12.006.001'} // {'A06.04.018'}
   aDiagAdd := {}
   aDiagOsl := {}
   aAdCrit := {}
-  aFr := {}
+  cFr := ''
 
-  defenitionKSG( ctod('01/08/2023'), 2, , , USL_OK_HOSPITAL, mainDiag, aDiagAdd, aDiagOsl, fedUslugi, aAdCrit, aFr )
+  defenitionKSG( ctod('01/08/2023'), 2, , , USL_OK_HOSPITAL, mainDiag, aDiagAdd, aDiagOsl, fedUslugi, aAdCrit, cFr )
 
   k006->(dbCloseArea())
   return

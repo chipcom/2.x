@@ -1,7 +1,7 @@
 #include 'common.ch'
 #include 'chip_mo.ch'
 
-function defenitionKSG(DOB, gender, dBegSl, dEndSl, uslOK, mDiag, aDiagAdd, aDiagOsl, aFedUsluga, aAdCrit, aFr)
+function defenitionKSG(DOB, gender, dBegSl, dEndSl, uslOK, mDiag, aDiagAdd, aDiagOsl, aFedUsluga, aAdCrit, cFr)
   // DOB - дата рождения пациента
   // gender - пол пациента (1-мужской, 2-женский)
   // dBegSl - дата начала случая
@@ -12,7 +12,7 @@ function defenitionKSG(DOB, gender, dBegSl, dEndSl, uslOK, mDiag, aDiagAdd, aDia
   // aDiagOsl - список по МКБ-10 диагнозов осложнений
   // aFedUsluga - список из номенклатуры федеральных услуг
   // aAdCrit - список дополнительных критериев
-  // aFr - диапазон фракций
+  // cFr - диапазон фракций
   Local _mo_usl := { ;
       {'SHIFR',      'C',     10,      0}, ;
       {'kz',         'N',      7,      3}, ;
@@ -34,7 +34,8 @@ function defenitionKSG(DOB, gender, dBegSl, dEndSl, uslOK, mDiag, aDiagAdd, aDia
     }
   local aRet := {}
   local aliasK006 := 'K006', aliasTMP := '__T'
-  local cUslOk, vid_age, cGender, cDiag, iScan, i := 0
+  local cUslOk, vid_age, cGender, cDiag, iScan, durationSl
+  local i := 0
 
   default DOB to date()
   default gender to 1
@@ -56,12 +57,21 @@ function defenitionKSG(DOB, gender, dBegSl, dEndSl, uslOK, mDiag, aDiagAdd, aDia
   cGender := iif(gender == 1, '1', '2')
   mDiag := upper(mDiag)
   cDiag := substr(mDiag, 1, 3)
+  if (durationSl := dEndSl - dBegSl) == 0
+    durationSl := 1
+  endif
+
   dbcreate('d:\_mo\2.x\test_ksg\tmp_u', _mo_usl)
   G_Use( 'd:\_mo\2.x\test_ksg\tmp_u', , aliasTMP, , .t.,  )
 
 
   (aliasK006)->(dbGoTop())
   do while !(aliasK006)->(Eof())
+
+    if ! between_date((aliasK006)->DATEBEG, (aliasK006)->DATEEND, dEndSl) // услуга доступна по дате
+      (aliasK006)->(dbSkip())
+      loop
+    endif
 
     if substr((aliasK006)->shifr, 1, 2) != cUslOk // отбираем по условию оказания мед. помощи
       (aliasK006)->(dbSkip())
@@ -86,6 +96,20 @@ function defenitionKSG(DOB, gender, dBegSl, dEndSl, uslOK, mDiag, aDiagAdd, aDia
       (aliasK006)->(dbSkip())
       loop
     endif
+
+    if !empty((aliasK006)->AD_CR) .and. (iScan := ascan(aAdCrit, alltrim((aliasK006)->AD_CR)) == 0)     // выборка по группе дополнительных критериев
+      (aliasK006)->(dbSkip())
+      loop
+    endif
+    if !empty((aliasK006)->AD_CR1) .and. (alltrim((aliasK006)->AD_CR1) != cFr)     // выборка по количеству фракций
+      (aliasK006)->(dbSkip())
+      loop
+    endif
+    // if !empty((aliasK006)->LOS) .and. (val((aliasK006)->LOS) != 1) .and. (val((aliasK006)->LOS) != durationSl)     // выборка по длительности случая
+    //   (aliasK006)->(dbSkip())
+    //   loop
+    // endif
+
     (aliasTMP)->(dbAppend())
     (aliasTMP)->shifr := (aliasK006)->shifr
     (aliasTMP)->kz := (aliasK006)->kz
@@ -96,7 +120,7 @@ function defenitionKSG(DOB, gender, dBegSl, dEndSl, uslOK, mDiag, aDiagAdd, aDia
     (aliasTMP)->SY := (aliasK006)->SY
     (aliasTMP)->AGE := (aliasK006)->AGE
     (aliasTMP)->SEX := (aliasK006)->SEX
-    (aliasTMP)->LOS := (aliasK006)->LOS
+    (aliasTMP)->LOS := (aliasK006)->LOS //
     (aliasTMP)->AD_CR := (aliasK006)->AD_CR
     (aliasTMP)->AD_CR1 := (aliasK006)->AD_CR1
     (aliasTMP)->DATEBEG := (aliasK006)->DATEBEG
