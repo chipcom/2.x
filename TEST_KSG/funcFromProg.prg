@@ -86,3 +86,18 @@ Function between_date(_begin_date,_end_date,date1,date2, impossiblyEmptyRange)
   endif
   return fl
 
+// 04.11.21
+// ¢¥à­ãâì ¯à¥ä¨ªá á¯à ¢®ç­®£® ä ©«  ¤«ï £®¤ 
+function prefixFileRefName(in_date)
+  local valYear
+
+  // ¯à®¢¥à¨¬ ¢å®¤­ë¥ ¯ à ¬¥âàë
+  if valtype(in_date) == 'D'
+    valYear := year(in_date)
+  elseif valtype(in_date) == 'N' .and. in_date >= 2018 .and. in_date <= WORK_YEAR
+    valYear := in_date
+  else
+    valYear := WORK_YEAR
+  endif
+
+  return '_mo' + substr(str(valYear, 4, 0), 4, 1)

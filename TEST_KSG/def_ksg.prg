@@ -13,28 +13,10 @@ function defenitionKSG(DOB, gender, dBegSl, dEndSl, uslOK, mDiag, aDiagAdd, aDia
   // aFedUsluga - список из номенклатуры федеральных услуг
   // aAdCrit - список дополнительных критериев
   // cFr - диапазон фракций
-  Local _mo_usl := { ;
-      {'SHIFR',      'C',     10,      0}, ;
-      {'kz',         'N',      7,      3}, ;
-      {'PROFIL',     'N',      2,      0}, ;
-      {'DS',         'C',      6,      0}, ;
-      {'DS1',        'M',     10,      0}, ;
-      {'DS2',        'M',     10,      0}, ;
-      {'SY',         'C',     20,      0}, ;
-      {'AGE',        'C',      1,      0}, ;
-      {'SEX',        'C',      1,      0}, ;
-      {'LOS',        'C',      2,      0}, ;
-      {'AD_CR',      'C',     20,      0}, ;
-      {'AD_CR1',     'C',     20,      0}, ;
-      {'DATEBEG',    'D',      8,      0}, ;
-      {'DATEEND',    'D',      8,      0}, ;
-      {'NS',         'N',      6,      0}, ;
-      {'PRIOR',      'N',      6,      0}, ;
-      {'ZATR',       'N',      6,      0} ;
-    }
   local aRet := {}
-  local aliasK006 := 'K006', aliasTMP := '__T'
+  local aliasK006 := 'K006'
   local cUslOk, vid_age, cGender, cDiag, iScan, durationSl
+  local tmpSelect, lOpenK006 := .f., nfile, sp6 := space(6)
   local i := 0
 
   default DOB to date()
@@ -55,33 +37,47 @@ function defenitionKSG(DOB, gender, dBegSl, dEndSl, uslOK, mDiag, aDiagAdd, aDia
   vid_age := vidAge(DOB, dBegSl, dEndSl)
   cUslOk := iif(uslOK == USL_OK_HOSPITAL, 'st', 'ds')
   cGender := iif(gender == 1, '1', '2')
-  mDiag := upper(mDiag)
+  mDiag := padr(upper(mDiag), 6)
   cDiag := substr(mDiag, 1, 3)
   if (durationSl := dEndSl - dBegSl) == 0
     durationSl := 1
   endif
 
-  // dbcreate('d:\_mo\2.x\test_ksg\tmp_u', _mo_usl)
-  // G_Use( 'd:\_mo\2.x\test_ksg\tmp_u', , aliasTMP, , .t.,  )
+altd()
+  tmpSelect := select()
+  lOpenK006 := (select(aliasK006) != 0)
+  nfile := prefixFileRefName(dEndSl) + 'k006'
+  if ! lOpenK006  // проверим что область K006 уже открыта
+    // R_Use(exe_dir + nfile, {cur_dir + nfile, cur_dir + nfile + '_', cur_dir + nfile + 'AD'}, 'K006')
+    R_Use('d:\_mo\chip\exe\' + nfile, {'d:\_mo\chip\work\' + nfile, 'd:\_mo\chip\work\' + nfile + '_', 'd:\_mo\chip\work\' + nfile + 'AD'}, 'K006')
+  endif
 
   // (aliasK006)->(dbGoTop())
   // do while !(aliasK006)->(Eof())
-altd()
   (aliasK006)->(dbSelectArea())
   set order to 1
   // find (cUslOk + padr(mDiag, 6))
-  (aliasK006)->(dbSeek(cUslOk + padr(mDiag, 6)))
-  do while left((aliasK006)->SHIFR, 2) == cUslOk .and. k006->DS == padr(mDiag, 6) .and. !eof()
+  (aliasK006)->(dbSeek(cUslOk + mDiag))
+  do while ! eof() .and. left((aliasK006)->SHIFR, 2) == cUslOk .and. k006->DS == mDiag
+  // (aliasK006)->(dbSeek(cUslOk + space(6)))
+  // do while left((aliasK006)->SHIFR, 2) == cUslOk .and. k006->DS == space(6) .and. !eof()
+  // (aliasK006)->(dbSeek(cUslOk))
+  // do while left((aliasK006)->SHIFR, 2) == cUslOk .and. !eof()
+  // (aliasK006)->(dbSeek(cUslOk))
+  // do while ! eof() .and. left((aliasK006)->SHIFR, 2) == cUslOk //.and. ((aliasK006)->DS == mDiag) ;
+    // .and. between_date((aliasK006)->DATEBEG, (aliasK006)->DATEEND, dEndSl)
+  // do while left((aliasK006)->SHIFR, 2) == cUslOk .and. ((aliasK006)->DS == mDiag .or. empty((aliasK006)->DS)) ;
+  //     .and. between_date((aliasK006)->DATEBEG, (aliasK006)->DATEEND, dEndSl) .and. !eof()
 
-    if ! between_date((aliasK006)->DATEBEG, (aliasK006)->DATEEND, dEndSl) // услуга доступна по дате
-      (aliasK006)->(dbSkip())
-      loop
-    endif
+    // if ! between_date((aliasK006)->DATEBEG, (aliasK006)->DATEEND, dEndSl) // услуга доступна по дате
+    //   (aliasK006)->(dbSkip())
+    //   loop
+    // endif
 
-    if substr((aliasK006)->shifr, 1, 2) != cUslOk // отбираем по условию оказания мед. помощи
-      (aliasK006)->(dbSkip())
-      loop
-    endif
+    // if substr((aliasK006)->shifr, 1, 2) != cUslOk // отбираем по условию оказания мед. помощи
+    //   (aliasK006)->(dbSkip())
+    //   loop
+    // endif
     if !empty((aliasK006)->AGE) .and. ((aliasK006)->AGE != vid_age)     // выборка по группе возраста
       (aliasK006)->(dbSkip())
       loop
@@ -90,47 +86,31 @@ altd()
       (aliasK006)->(dbSkip())
       loop
     endif
-    if !empty((aliasK006)->DS) .and. ((aliasK006)->DS != mDiag) .and. ((aliasK006)->DS != cDiag)  // выборка по основному диагнозу
-      (aliasK006)->(dbSkip())
-      loop
-    endif
+    // if !empty((aliasK006)->DS) .and. ((aliasK006)->DS != mDiag) .and. ((aliasK006)->DS != cDiag)  // выборка по основному диагнозу
+    //   (aliasK006)->(dbSkip())
+    //   loop
+    // endif
     // добавить фильтр по доп. диагнозам и диагнозам осложнений
     //
     //
-    if !empty((aliasK006)->SY) .and. (iScan := ascan(aFedUsluga, alltrim((aliasK006)->SY)) == 0)     // выборка по группе федеральным услугам
-      (aliasK006)->(dbSkip())
-      loop
-    endif
 
-    if !empty((aliasK006)->AD_CR) .and. (iScan := ascan(aAdCrit, alltrim((aliasK006)->AD_CR)) == 0)     // выборка по группе дополнительных критериев
-      (aliasK006)->(dbSkip())
-      loop
-    endif
-    if !empty((aliasK006)->AD_CR1) .and. (alltrim((aliasK006)->AD_CR1) != cFr)     // выборка по количеству фракций
-      (aliasK006)->(dbSkip())
-      loop
-    endif
-    // if !empty((aliasK006)->LOS) .and. (val((aliasK006)->LOS) != 1) .and. (val((aliasK006)->LOS) != durationSl)     // выборка по длительности случая
+    // if !empty((aliasK006)->SY) .and. empty((aliasK006)->DS) .and. (iScan := ascan(aFedUsluga, alltrim((aliasK006)->SY)) == 0)     // выборка по группе федеральным услугам
     //   (aliasK006)->(dbSkip())
     //   loop
     // endif
 
-    // (aliasTMP)->(dbAppend())
-    // (aliasTMP)->shifr := (aliasK006)->shifr
-    // (aliasTMP)->kz := (aliasK006)->kz
-    // (aliasTMP)->PROFIL := (aliasK006)->PROFIL
-    // (aliasTMP)->DS := (aliasK006)->DS
-    // (aliasTMP)->DS1 := (aliasK006)->DS1
-    // (aliasTMP)->DS2 := (aliasK006)->DS2
-    // (aliasTMP)->SY := (aliasK006)->SY
-    // (aliasTMP)->AGE := (aliasK006)->AGE
-    // (aliasTMP)->SEX := (aliasK006)->SEX
-    // (aliasTMP)->LOS := (aliasK006)->LOS //
-    // (aliasTMP)->AD_CR := (aliasK006)->AD_CR
-    // (aliasTMP)->AD_CR1 := (aliasK006)->AD_CR1
-    // (aliasTMP)->DATEBEG := (aliasK006)->DATEBEG
-    // (aliasTMP)->DATEEND := (aliasK006)->DATEEND
-    // (aliasTMP)->NS := (aliasK006)->NS
+    // if !empty((aliasK006)->AD_CR) .and. (iScan := ascan(aAdCrit, alltrim((aliasK006)->AD_CR)) == 0)     // выборка по группе дополнительных критериев
+    //   (aliasK006)->(dbSkip())
+    //   loop
+    // endif
+    // if !empty((aliasK006)->AD_CR1) .and. (alltrim((aliasK006)->AD_CR1) != cFr)     // выборка по количеству фракций
+    //   (aliasK006)->(dbSkip())
+    //   loop
+    // endif
+    // if !empty((aliasK006)->LOS) .and. (val((aliasK006)->LOS) != 1) .and. (val((aliasK006)->LOS) != durationSl)     // выборка по длительности случая
+    //   (aliasK006)->(dbSkip())
+    //   loop
+    // endif
 
     aadd(aRet, {(aliasK006)->SHIFR, ; //  1
                 0, ;                  //  2
@@ -155,7 +135,12 @@ altd()
 
   // hb_Alert('Defention KSG function')
 
-  altd()
+altd()
+  if ! lOpenK006  // закрываем если открывали внутри функции
+    (aliasK006)->(dbCloseArea())
+  endif
+  select(tmpSelect)
+
   return aRet
 
 function vidAge(DOB, dBegSl, dEndSl)

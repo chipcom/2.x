@@ -34,7 +34,7 @@ procedure main( ... )
   public fio_polzovat := ''
 
   
-  R_Use('d:\_mo\chip\exe\_mo3k006', {'d:\_mo\chip\work\_mo3k006', 'd:\_mo\chip\work\_mo3k006_', 'd:\_mo\chip\work\_mo3k006AD'}, 'K006')
+  // R_Use('d:\_mo\chip\exe\_mo3k006', {'d:\_mo\chip\work\_mo3k006', 'd:\_mo\chip\work\_mo3k006_', 'd:\_mo\chip\work\_mo3k006AD'}, 'K006')
   // R_Use('d:\_mo\chip\exe\_mo3k006', , 'K006')
 
   mainDiag := 'i83.9'  // 'n82.9'
@@ -46,6 +46,6 @@ procedure main( ... )
 
   defenitionKSG( ctod('01/08/2023'), 2, , , USL_OK_HOSPITAL, mainDiag, aDiagAdd, aDiagOsl, fedUslugi, aAdCrit, cFr )
 
-  k006->(dbCloseArea())
+  // k006->(dbCloseArea())
   return
 
