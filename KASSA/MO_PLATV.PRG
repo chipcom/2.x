@@ -289,7 +289,7 @@ Function f3_k_plat(nKey,oBrow)
 LOCAL j := 0, flag := -1, buf := save_row(maxrow()), buf1, fl := .f., rec, mkod,;
       tmp_color := setcolor(), r1 := 15, c1 := 2, v_summa, v_sdacha, adbf, s,;
       ln_chek := 0, t_hum_rec := 0, kart_kod, t_k_data, lnds, fr_zavodnomer := "",;
-      mi_post, mphone_m, maddress, tip_kart := 2,;
+      mi_post, mphone_m, maddress, tip_kart := 2, mkod_kem_vid,;
       err_close := "Лист учета ЗАКРЫТ. Доступ разрешён только администратору системы!"
 Private ldate_voz, lsum_voz, lfr_data, lfr_time
 do case
@@ -528,11 +528,15 @@ do case
             mplat_pasport := space(15)  // документ плательщика
     Private lnomer, l1nomer, muchastok
     Private okato_adresr, okato_adresg
-    Private mdov_date, mdov_nomer   //
+    Private mdov_date, mdov_nomer, mdov_dolgn   //
+    Private mmesto_r,;       // место рождения
+            mvidan_ud,;      // документ выдан
+            mdata_vidan_ud   // дата выдачи удостоверения
     buf := savescreen()
     ClrLine(23,color0)
-    mdov_date  :=  oper_dov_date  
-    mdov_nomer :=  oper_dov_nomer
+    mdov_date  := oper_dov_date  
+    mdov_nomer := oper_dov_nomer
+    mdov_dolgn := dolj_polzovat
     t_hum_rec := human->(recno())
     kart_kod := human->kod_k
     t_k_data := year(human->k_data)
@@ -585,15 +589,27 @@ do case
     pac_data  := full_date(kr->date_r)
     pac_kod   := lstr(kr->kod)
     kr->(dbCloseArea())
-    R_Use(dir_server+"kartote_",,"KR1")
+    R_Use(dir_server+"kartote_",,"KR_")
     goto (human->kod_k)
-    okato_adresg := ret_okato_ulica("",kr1->okatog,1,2)
-    okato_adresr := ret_okato_ulica("",kr1->okatop,1,2)
-    m1vid_ud := kr1->vid_ud
-    mnom     := kr1->nom_ud
-    mser     := kr1->ser_ud
-    kr1->(dbCloseArea())
+    okato_adresg := ret_okato_ulica("",kr_->okatog,1,2)
+    okato_adresr := ret_okato_ulica("",kr_->okatop,1,2)
+    m1vid_ud := kr_->vid_ud
+    mnom     := kr_->nom_ud
+    mser     := kr_->ser_ud
+    mmesto_r := kr_->mesto_r
+    mphone_m := kr_->phone_m
+    mkod_kem_vid := kr_->kemvyd
+    mdata_vidan_ud := kr_->kogdavyd 
+    kr_->(dbCloseArea())
+    phone_m := TransformPhone( mphone_m)
     mvid_ud := get_Name_Vid_Ud(m1vid_ud)
+    //
+    if mkod_kem_vid > 0
+      R_Use(dir_server+"s_kemvyd",,"VYD")
+      goto (mkod_kem_vid)
+      mvidan_ud := vyd->name
+      vyd->(dbCloseArea())
+    endif  
     dog_data := human->n_data
     R_Use(dir_server+"hum_plat",dir_server+"hum_plat","KPLAT")
     find (str(human->(recno()),7))
@@ -602,13 +618,7 @@ do case
       mplat_pasport := KPLAT->PASPORT
     endif
     KPLAT->(dbCloseArea())
-     // поиск телефона
-     R_Use(dir_server+"kartote_",,"KR_")
-     goto(human->kod_k)
-     mphone_m := kr_->phone_m
-     kr_->(dbCloseArea())
-     phone_m := TransformPhone( mphone_m )
-     //
+    //
     R_Use(dir_server+"uslugi",,"USL")
     R_Use(dir_server+"hum_p_u",dir_server+"hum_p_u","HU")
     set relation to u_kod into USL
