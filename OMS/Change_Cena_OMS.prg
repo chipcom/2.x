@@ -1,7 +1,7 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-// 22.08.23 Изменение цен на услуги в соответствии со справочником услуг ТФОМС
+// 02.11.23 Изменение цен на услуги в соответствии со справочником услуг ТФОМС
 Function change_cena_oms()
 
   Local buf := save_maxrow(), lshifr1, fl, lrec, rec_human, k_data2, kod_ksg, begin_date := AddMonth( sys_date, -3 )
@@ -161,12 +161,18 @@ Function change_cena_oms()
             tmpSelect := Select()
             nCena1 := human->cena
             rec_human := human->( RecNo() )
+            human_->( g_rlock( forever ) )
+            human_->ST_VERIFY := 5
+            human_->( dbRUnlock() )
             Select HUMAN_3
             If ! Eof() .and. ! Bof()
               Select human
               Goto ( human_3->kod )
               nCena2 := human->cena
-              Goto ( rec_human )
+              human_->( g_rlock( forever ) )
+              human_->ST_VERIFY := 5
+              human_->( dbRUnlock() )
+                Goto ( rec_human )
               human_3->( g_rlock( forever ) )
               human_3->CENA_1 := nCena1 + nCena2
               human_3->( dbRUnlock() )
