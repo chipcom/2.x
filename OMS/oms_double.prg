@@ -21,7 +21,7 @@ Function oms_double(k)
       mas_fun := {'oms_double(1)', ;
                 'oms_double(2)', ;
                 'oms_double(3)'}
-      popup_prompt(T_ROW,T_COL+5,sk,mas_pmt,mas_msg,mas_fun)
+      popup_prompt(T_ROW, T_COL + 5,sk,mas_pmt,mas_msg,mas_fun)
     case k == 1
       create_double_sl()
     case k == 2
@@ -52,7 +52,7 @@ Function create_double_sl()
   endif
   buf := box_shadow(0, 41, 4, 77, color13)
   @ 1, 42 say padc('Выберите первый случай', 35) color color14
-  if (arr_m := year_month(T_ROW,T_COL+5, , 3)) != NIL
+  if (arr_m := year_month(T_ROW, T_COL + 5, , 3)) != NIL
     buf24 := save_maxrow()
     mywait()
     dbcreate(cur_dir + 'tmp_h',{{'kod', 'N', 7, 0}})
@@ -83,7 +83,7 @@ Function create_double_sl()
     close databases
     rest_box(buf24)
     if i == 0
-      func_error(4, 'В данный момент нет стационарных пациентов с датой окончания ' +arr_m[4])
+      func_error(4, 'В данный момент нет стационарных пациентов с датой окончания ' + arr_m[4])
     else
       Private mr1 := T_ROW, regim_vyb := 2
       R_Use(dir_server + 'mo_otd', , 'OTD')
@@ -532,12 +532,12 @@ Function view_double_sl()
     aadd(arr, 'Двойной лист учёта по пациенту: ' +alltrim(k[2]))
     aadd(arr, 'на сумму ' + lstr(human_3->cena_1, 11, 2)+ ' руб.')
     aadd(arr, '1-ый в отд. ' +alltrim(otd->name)+ ' на сумму ' + lstr(human->cena_1, 11, 2)+ ' руб.')
-    aadd(arr, 'c ' + date_8(human->n_data)+ ' по ' + date_8(human->k_data)+iif(human_->ST_VERIFY == 5, '', ' (с ошибкой)'))
+    aadd(arr, 'c ' + date_8(human->n_data)+ ' по ' + date_8(human->k_data)+ iif(human_->ST_VERIFY == 5, '', ' (с ошибкой)'))
     fl := (human_->ST_VERIFY < 5)
     select HUMAN
     goto (human_3->kod2)
     aadd(arr, '2-ой в отд. ' +alltrim(otd->name)+ ' на сумму ' + lstr(human->cena_1, 11, 2)+ ' руб.')
-    aadd(arr, 'c ' + date_8(human->n_data)+ ' по ' + date_8(human->k_data)+iif(human_->ST_VERIFY == 5, '', ' (с ошибкой)'))
+    aadd(arr, 'c ' + date_8(human->n_data)+ ' по ' + date_8(human->k_data)+ iif(human_->ST_VERIFY == 5, '', ' (с ошибкой)'))
     if !fl
       fl := (human_->ST_VERIFY < 5)
     endif
@@ -617,7 +617,7 @@ Function input_double_sl(par)
   Static srec := 0
   Local buf, i, arr_m, buf24, blk, t_arr[BR_LEN], ret
 
-  if (arr_m := year_month(T_ROW,T_COL+5, , 3)) != NIL
+  if (arr_m := year_month(T_ROW, T_COL + 5, , 3)) != NIL
     buf24 := save_maxrow()
     mywait()
     R_Use(dir_server + 'human_3', dir_server + 'human_32', 'HUMAN_3')
@@ -630,7 +630,7 @@ Function input_double_sl(par)
         for ishod == 89 .and. schet < 1 .and. human_->reestr == 0
     go top
     if eof()
-      func_error(4, 'Не найдено двойных случаев ' +arr_m[4])
+      func_error(4, 'Не найдено двойных случаев ' + arr_m[4])
     else
       if srec > 0
         Locate for kod == srec
@@ -643,15 +643,15 @@ Function input_double_sl(par)
       t_arr[BR_LEFT] := 2
       t_arr[BR_RIGHT] := 77
       t_arr[BR_COLOR] := color0
-      t_arr[BR_TITUL] := 'Двойные случаи ' +arr_m[4]
+      t_arr[BR_TITUL] := 'Двойные случаи ' + arr_m[4]
       t_arr[BR_TITUL_COLOR] := 'B/BG'
       t_arr[BR_ARR_BROWSE] := {'═', '░', '═', 'N/BG,W+/N,R/BG,W+/R', .f.}
       blk := {|| iif(f1_input_double_sl(), {1, 2}, {3, 4}) }
       t_arr[BR_COLUMN] := {{ center('ФИО', 42), {|| padr(human->fio, 42) },blk }, ;
                          { '  Сроки лечения',{|| date_8(human_3->N_DATA)+ '-' + date_8(human_3->K_DATA) },blk }, ;
                          { '   Сумма',{|| put_kop(human_3->CENA_1, 11) },blk }}
-      t_arr[BR_STAT_MSG] := {|| status_key('^<Esc>^ - выход;  ^<Enter>^ - выбор двойного случая для ' +iif(par==2, 'расформирования', 'просмотра')) }
-      t_arr[BR_ENTER] := {|| ret := {human_3->kod,human->fio} }
+      t_arr[BR_STAT_MSG] := {|| status_key('^<Esc>^ - выход;  ^<Enter>^ - выбор двойного случая для ' + iif(par == 2, 'расформирования', 'просмотра')) }
+      t_arr[BR_ENTER] := {|| ret := {human_3->kod, human->fio} }
       edit_browse(t_arr)
       if valtype(ret) == 'A'
         srec := ret[1]
