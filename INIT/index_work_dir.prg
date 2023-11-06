@@ -675,7 +675,7 @@ function k006_index(val_year, exe_dir, cur_dir, flag)
     index on substr(shifr, 1, 2) + ds + sy + age + sex + los to (cur_dir + sbase) // по диагнозу/операции
     index on substr(shifr, 1, 2) + sy + ds + age + sex + los to (cur_dir + sbase + '_') // по операции/диагнозу
     index on ad_cr to (cur_dir + sbase + 'AD') // по дополнительному критерию Байкин
-    index on ad_cr1 to (cur_dir + sbase + 'AD1') // по диапазону фракций
+    // index on ad_cr1 to (cur_dir + sbase + 'AD1') // по диапазону фракций, на будующее
     use
   endif
   return nil
