@@ -1,3 +1,4 @@
+#include 'common.ch'
 #include "inkey.ch"
 #include "function.ch"
 #include "edit_spr.ch"
@@ -121,16 +122,18 @@ Function fillzip( arr_f, sFileName )
 
   Return sFileName
 
-// 06.11.23
+// 07.11.23
 Function create_zip( par, dir_archiv )
   Static sast := '*', sfile_begin := '_begin.txt', sfile_end := '_end.txt'
   Local arr_f, ar
-  Local blk := {| x | f_aadd_copy_db( arr_f, x ) }
+  // Local blk := {| x | f_aadd_copy_db( arr_f, x ) }
+  Local blk := {| x | AAdd( arr_f, x ) }
   Local hZip, i, cPassword, fl := .t., aGauge, s, y
   Local cFile, nLen
   Local zip_file
   Local buf := SaveScreen()
   Local zip_xml_mo, zip_xml_tf, zip_napr_mo, zip_napr_tf
+  local afterDate := BoY(AddMonth(date(), -(12 * YEAR_COMPRESSION)))
 
   // Local time_zip := 0, t1
 
@@ -164,30 +167,30 @@ Function create_zip( par, dir_archiv )
 
     //
     arr_f := {}
-    scandirfiles_for_backup( dir_server + dir_XML_MO + cslash, sast + szip, blk, AddMonth(date(), -(12 * YEAR_COMPRESSION)) )
-    scandirfiles_for_backup( dir_server + dir_XML_MO + cslash, sast + scsv, blk, AddMonth(date(), -(12 * YEAR_COMPRESSION)) )
+    scandirfiles_for_backup( dir_server + dir_XML_MO + cslash, sast + szip, blk, afterDate )
+    scandirfiles_for_backup( dir_server + dir_XML_MO + cslash, sast + scsv, blk, afterDate )
 
     zip_xml_mo := fillzip( arr_f, zip_xml_mo )
 
     //
     arr_f := {}
-    scandirfiles_for_backup( dir_server + dir_XML_TF + cslash, sast + szip, blk, AddMonth(date(), -(12 * YEAR_COMPRESSION)) )
-    scandirfiles_for_backup( dir_server + dir_XML_TF + cslash, sast + scsv, blk, AddMonth(date(), -(12 * YEAR_COMPRESSION)) )
-    scandirfiles_for_backup( dir_server + dir_XML_TF + cslash, sast + stxt, blk, AddMonth(date(), -(12 * YEAR_COMPRESSION)) )
+    scandirfiles_for_backup( dir_server + dir_XML_TF + cslash, sast + szip, blk, afterDate )
+    scandirfiles_for_backup( dir_server + dir_XML_TF + cslash, sast + scsv, blk, afterDate )
+    scandirfiles_for_backup( dir_server + dir_XML_TF + cslash, sast + stxt, blk, afterDate )
 
     zip_xml_tf := fillzip( arr_f, zip_xml_tf )
 
     //
     arr_f := {}
-    scandirfiles_for_backup( dir_server + dir_NAPR_MO + cslash, sast + szip, blk, AddMonth(date(), -(12 * YEAR_COMPRESSION)) )
-    scandirfiles_for_backup( dir_server + dir_NAPR_MO + cslash, sast + stxt, blk, AddMonth(date(), -(12 * YEAR_COMPRESSION)) )
+    scandirfiles_for_backup( dir_server + dir_NAPR_MO + cslash, sast + szip, blk, afterDate )
+    scandirfiles_for_backup( dir_server + dir_NAPR_MO + cslash, sast + stxt, blk, afterDate )
 
     zip_napr_mo := fillzip( arr_f, zip_napr_mo )
 
     //
     arr_f := {}
-    scandirfiles_for_backup( dir_server + dir_NAPR_TF + cslash, sast + szip, blk, AddMonth(date(), -(12 * YEAR_COMPRESSION)) )
-    scandirfiles_for_backup( dir_server + dir_NAPR_TF + cslash, sast + stxt, blk, AddMonth(date(), -(12 * YEAR_COMPRESSION)) )
+    scandirfiles_for_backup( dir_server + dir_NAPR_TF + cslash, sast + szip, blk, afterDate )
+    scandirfiles_for_backup( dir_server + dir_NAPR_TF + cslash, sast + stxt, blk, afterDate )
 
     zip_napr_tf := fillzip( arr_f, zip_napr_tf )
 
@@ -224,7 +227,7 @@ Function create_zip( par, dir_archiv )
     arr_f := {}
     y := Year( sys_date )
     // только текущий год
-    scandirfiles_for_backup( dir_server, 'mo_wq' + SubStr( Str( y, 4 ), 3 ) + '*' + sdbf, {| x | AAdd( arr_f, x ) }, AddMonth(date(), -(12 * YEAR_COMPRESSION)) )
+    scandirfiles_for_backup( dir_server, 'mo_wq' + SubStr( Str( y, 4 ), 3 ) + '*' + sdbf, {| x | AAdd( arr_f, x ) }, afterDate )
     For i := 1 To Len( arr_f )
       AAdd( ar, arr_f[ i ] )
     Next
@@ -282,36 +285,50 @@ Function create_zip( par, dir_archiv )
 
   Return zip_file
 
-// 04.05.21
-Function f_aadd_copy_db( arr_f, x )
+// 07.11.23
+// Function f_aadd_copy_db( arr_f, x )
 
-  Local fl := .t., s, y
+  // static curYear
+  // Local fl := .t., s, y
 
-  x := Upper( x )
-  If eq_any( Right( x, 4 ), szip, stxt )
-    s := strippath( x )
-    // реестры, ФЛК и счета
-    If eq_any( Left( s, 3 ), 'FRM', 'HRM' ) .or. eq_any( Left( s, 4 ), 'PFRM', 'PHRM' ) ;
-        .or. eq_any( Left( s, 2 ), 'I0', 'FM', 'HM', 'AT', 'AS', 'DT', 'DS' )
-      y := Int( Val( Left( AfterAtNum( '_', s ), 2 ) ) )
-      fl := ( y > 19 )  // с 2020 года
-    Elseif eq_any( Left( s, 3 ), 'FRT', 'HRT' )
-      y := Int( Val( SubStr( s, 14, 2 ) ) )
-      fl := ( y > 19 )  // с 2020 года
-    Endif
-  Endif
-  If fl
-    AAdd( arr_f, x )
-  Endif
+  // if isnil(curYear)
+  //   curYear := Year(date()) - 2000
+  // Endif
 
-  Return Nil
+  // x := Upper( x )
+  // If eq_any( Right( x, 4 ), szip, stxt )
+  //   s := strippath( x )
+  //   // реестры, ФЛК и счета
+  //   If eq_any( Left( s, 3 ), 'FRM', 'HRM' ) .or. eq_any( Left( s, 4 ), 'PFRM', 'PHRM' ) ;
+  //       .or. eq_any( Left( s, 2 ), 'I0', 'FM', 'HM', 'AT', 'AS', 'DT', 'DS' )
+  //     y := Int( Val( Left( AfterAtNum( '_', s ), 2 ) ) )
+  //     fl := ( y > 19 )  // с 2020 года
+  //   Elseif eq_any( Left( s, 3 ), 'FRT', 'HRT' )
+  //     y := Int( Val( SubStr( s, 14, 2 ) ) )
+  //     fl := ( y > 19 )  // с 2020 года
+  //   elseif eq_any( left( lower(s), 3), 'r01', 'r05', 'd01')
+  //     y := Int( Val( Left( AfterAtNum( '_', s ), 2 ) ) )
+  //     fl := ( y > (curYear - 2) )  // за послудние 2 года
+  //   elseif left( lower(s), 3) == 'r11'
+  //     y := Int( Val( Left( AfterAtNum( '_', s ), 2 ) ) )
+  //     fl := ( y > (curYear - 1) )  // за послудние 1 год
+  //   elseif left( lower(s), 2) == 'sz'
+  //     y := Int( Val( SubStr( s, 12, 2 ) ) )
+  //     fl := ( y > (curYear - 2) )  // за послудние 2 года
+  //   Endif
+  // Endif
+  // If fl
+    // AAdd( arr_f, x )
+  // Endif
+
+  // Return Nil
 
 // 06.11.23 то же, что и ScanFiles, но по одной директории cPath
 FUNCTION scandirfiles_for_backup(cPath, cFilespec, blk, afterDate)
   LOCAL cFile
 
   DEFAULT cPath TO '', cFilespec TO '*.*'
-  default afterDate to AddMonth(date(), -12)  //один год
+  default afterDate to BoY(AddMonth(date(), -12))  //один год
   cFile := FILESEEK(cPath + cFileSpec , 32)
   DO WHILE !EMPTY(cFile)
     if FileDate() >= afterDate
