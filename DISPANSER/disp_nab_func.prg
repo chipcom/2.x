@@ -4,7 +4,26 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-** 02.03.23
+
+// 08.11.23 Загрузка диагнозов диспансерного учёта
+Function load_diagnoze_disp_nabl_from_file()
+  Local diag := {}, lfp, s, file_form := exe_dir + 'DISP_NAB' + sfrm
+  
+  if hb_vfExists(file_form)
+    lfp := FOpen( file_form )
+    Do While ! feof( lfp )
+      s := freadln( lfp )
+      If !Empty( s )
+        AAdd( diag, AllTrim( s ) )
+      Endif
+    Enddo
+    FClose( lfp )
+  else
+    func_error(4, 'Не обнаружен файл ' + file_form)
+  endif
+  Return diag
+
+// 02.03.23
 Function is_usluga_disp_nabl(_shifr, _shifr1)
 
   if empty(_shifr1)
@@ -21,7 +40,7 @@ Function is_usluga_disp_nabl(_shifr, _shifr1)
     .or. _shifr == '2.78.107'  // добавил согласно письму ТФОМС 09-20-46 от 13.02.23 года
 
 
-** 12.02.23 проверить дагноз для диспансерного наблюдения
+// 12.02.23 проверить диагноз для диспансерного наблюдения
 // Function f_is_diag_dn(ldiag, /*@*/arr_dn, pr_168)
 Function f_is_diag_dn(ldiag, /*@*/arr_dn, dUsluga)
   Static sarr_dn, narr_dn
