@@ -1,12 +1,13 @@
 // реестры/счета с 2019 года
+#include 'common.ch'
 #include 'inkey.ch'
 #include 'function.ch'
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-Static sadiag1 := {}
+Static sadiag1  // := {}
 
-// 16.10.23 создание XML-файлов реестра
+// 08.11.23 создание XML-файлов реестра
 Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
   //
@@ -24,13 +25,16 @@ Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
 
   //
   close databases
-  if empty(sadiag1)
-    Private file_form, diag1 := {}, len_diag := 0
-    if (file_form := search_file('DISP_NAB' + sfrm)) == NIL
-      return func_error(4, 'Не обнаружен файл DISP_NAB' + sfrm)
-    endif
-    f2_vvod_disp_nabl('A00')
-    sadiag1 := diag1
+  // if empty(sadiag1)
+  //   Private file_form, diag1 := {}, len_diag := 0
+  //   if (file_form := search_file('DISP_NAB' + sfrm)) == NIL
+  //     return func_error(4, 'Не обнаружен файл DISP_NAB' + sfrm)
+  //   endif
+  //   f2_vvod_disp_nabl('A00')
+  //   sadiag1 := diag1
+  // endif
+  if isnil(sadiag1)
+    sadiag1 := load_diagnoze_disp_nabl_from_file()
   endif
   for i := 1 to 5
     sk := lstr(i)
