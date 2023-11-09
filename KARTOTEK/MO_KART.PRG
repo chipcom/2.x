@@ -523,13 +523,11 @@ Function edit_kartotek_(mkod, _top_r, _bot_r, fl_oms, _Human_kod)
           reader {|x| menu_reader(x, {{|k, r, c| get_adres(2, k, r, c)}}, A__FUNCTION, , , .f.)}
     endif
 
-    // @ ++ix, 1 say 'Полис ОМС: серия' get mspolis
-    // @ row(), col() + 3 say 'номер' get mnpolis valid {|| findKartoteka(2, @mkod) }
-    // @ row(), col() + 3 say 'вид' get mvidpolis ;
-    //                 reader {|x|menu_reader(x, mm_vid_polis, A__MENUVERT, , , .f.)} ;
-    //                 valid func_valid_polis(m1vidpolis, mspolis, mnpolis)
-
-    input_polis_OMS(++ix, mkod)
+    @ ++ix, 1 say 'Полис ОМС: серия' get mspolis
+    @ row(), col() + 3 say 'номер' get mnpolis valid {|| findKartoteka(2, @mkod) }
+    @ row(), col() + 3 say 'вид' get mvidpolis ;
+                    reader {|x|menu_reader(x, mm_vid_polis, A__MENUVERT, , , .f.)} ;
+                    valid func_valid_polis(m1vidpolis, mspolis, mnpolis)
 
     @ ++ix, 1 say 'СМО' get mnamesmo ;
                     reader {|x|menu_reader(x, glob_arr_smo, A__MENUVERT, , , .f.)} ;
