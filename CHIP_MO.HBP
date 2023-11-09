@@ -64,6 +64,7 @@ mo_version.prg
 .\KARTOTEK\documents.prg
 .\KARTOTEK\prikreplenie.prg
 .\KARTOTEK\delete_dubl_pacient.prg
+.\KARTOTEK\func_kartotek.prg
 
 .\KASSA\mo_fr.prg
 .\KASSA\mo_kassa.prg
