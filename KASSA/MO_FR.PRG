@@ -100,10 +100,9 @@ if k == 1
          meK_pr_FIO := 1,;
          MEK_KASSIR := space(20),;
          mek_chek   := 1,;
-         mek_bnbank := 2
-         //meK_sdacha := 1,;
-         //meK_w_sdac := 1,;
-
+         mek_bnbank := 2,;
+         mek_kod_usl := 1
+         
   if file("_kassa_.mem")
     restore from _kassa_ additive
   else
@@ -125,7 +124,6 @@ if k == 1
 elseif k == 2
   ***************
   buf := box_shadow(1,0,22,78,"B+/B")
-
   // Настройки убраны
   //mek_nkassa := 1 //Работаем ТОЛЬКО через драйвер
   meK_lof_fi := 2 // для СОМ
@@ -138,17 +136,15 @@ elseif k == 2
           mnkassa := space(10), m1nkassa := 0,;
           mkassir := mek_kassir,;
           mmek_chek := m1mek_chek := mek_chek,;
-          mmeK_bnbank, m1meK_bnbank := meK_bnbank
-         // mmeK_otrez, m1meK_otrez := meK_otrez,;
-         //mmeK_lof_fi, m1meK_lof_fi := meK_lof_fi,;
-
-
+          mmeK_bnbank, m1meK_bnbank := meK_bnbank,;
+          mmek_kod_usl, m1mek_kod_usl := mek_kod_usl
+         
   mmeK_bank   := inieditspr(A__MENUVERT,mm_da_net,m1meK_bank)
   mmeK_bnbank   := inieditspr(A__MENUVERT,mm_da_net,m1meK_bnbank)
   mmeK_kassa  := inieditspr(A__MENUVERT,mm_da_net,m1meK_kassa)
-  //mmeK_otrez  := inieditspr(A__MENUVERT,mm_da_net,m1meK_otrez)
   mmek_pr_fio := inieditspr(A__MENUVERT,mm_da_net,m1mek_pr_fio)
   mmek_chek   := inieditspr(A__MENUVERT,mm_chek,m1mek_chek)
+  mmek_kod_usl := inieditspr(A__MENUVERT,mm_da_net,m1mek_kod_usl)
 
     setcolor(cDataCGet)
     ix := 3
@@ -160,25 +156,18 @@ elseif k == 2
                 reader {|x|menu_reader(x,{{||FR_draiver()}},A__FUNCTION,,,.f.)}
     endif
     @ ++ix,3 say "Сумма денег, внесенная в кассу УТРОМ" get mostatok  pict "999999.99"
-//      ++ix
-//    @ ++ix,3 say "Запрашивать вносимую покупателем сумму и подсчитывать сдачу?" get msdacha ;
-//                reader {|x|menu_reader(x,mm_da_net,A__MENUVERT,,,.f.)}
-//    @ ++ix,3 say "Печатать вносимую покупателем сумму и сдачу в чек?" get mw_sdacha ;
-//                reader {|x|menu_reader(x,mm_da_net,A__MENUVERT,,,.f.)}
     if hb_user_curUser:IsAdmin()
       ++ix
       @ ++ix,3 say "Учреждение принимает оплату банковскими переводами ?" get mmeK_bnbank ;
                   reader {|x|menu_reader(x,mm_da_net,A__MENUVERT,,,.f.)}
-//      ++ix
       @ ++ix,3 say "Работать с банковскими картами ?" get mmeK_bank ;
                   reader {|x|menu_reader(x,mm_da_net,A__MENUVERT,,,.f.)}
-//      ++ix
       @ ++ix,3 say "Это рабочее место кассира ?" get mmeK_kassa ;
                   reader {|x|menu_reader(x,mm_da_net,A__MENUVERT,,,.f.)}
-//      @ ++ix,3 say "Проводить программную отрезку чека?" get mmeK_otrez ;
-//                  reader {|x|menu_reader(x,mm_da_net,A__MENUVERT,,,.f.)}
       @ ++ix,3 say "Печатать ФИО пациента/плательщика в чеке?" get mmek_pr_fio ;
                   reader {|x|menu_reader(x,mm_da_net,A__MENUVERT,,,.f.)}
+      @ ++ix,3 say "Печатать код услуги учреждения в чеке?" get mmek_kod_usl ;
+        reader {|x|menu_reader(x,mm_da_net,A__MENUVERT,,,.f.)} 
       @ ++ix,3 say "ФИО кассира" get mkassir
     endif
     status_key("^<Esc>^ - выход без записи;  ^<PgDn>^ - подтверждение ввода")
@@ -191,18 +180,17 @@ elseif k == 2
     meK_ostato := mostatok
     mek_kassir := mkassir
     if hb_user_curUser:IsAdmin()
-      mek_bank   := m1mek_bank
-      mek_bnbank := m1mek_bnbank
-      mek_kassa  := m1mek_kassa
-//      meK_otrez  := m1meK_otrez
-      mek_pr_fio := m1mek_pr_fio
-      mek_chek   := m1mek_chek
+      mek_bank    := m1mek_bank
+      mek_bnbank  := m1mek_bnbank
+      mek_kassa   := m1mek_kassa
+      mek_pr_fio  := m1mek_pr_fio
+      mek_chek    := m1mek_chek
+      mek_kod_usl := m1mek_kod_usl
     endif
     save all like meK_* to _kassa_
   endif
   rest_box(buf)
 endif
-//FR_LOG_FLAG := (meK_lof_fi == 1)   // !!!!!!!!!!!!
 return NIL
 
 

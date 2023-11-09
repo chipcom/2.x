@@ -938,13 +938,22 @@ do while .t.
       append blank
       select USL
       goto (tmp_usl->U_KOD)
-      //tmp->name := alltrim(tmp_usl->shifr_u)+" "+alltrim(tmp_usl->name_u)
-      if len(alltrim(usl->full_name)) > 3
-        tmp->name_u := alltrim(usl->shifr)+" "+alltrim(usl->full_name)
-        tmp->name := alltrim(usl->shifr)+" "+alltrim(usl->full_name)
-      else
-        tmp->name_u := alltrim(usl->shifr)+" "+alltrim(usl->name)
-        tmp->name := alltrim(usl->shifr)+" "+alltrim(usl->name)
+      if mek_kod_usl > 1 
+        if len(alltrim(usl->full_name)) > 3
+          tmp->name_u := alltrim(usl->full_name)
+          tmp->name := alltrim(usl->full_name)
+        else
+          tmp->name_u := alltrim(usl->name)
+          tmp->name := alltrim(usl->name)
+        endif
+      else  
+        if len(alltrim(usl->full_name)) > 3
+          tmp->name_u := alltrim(usl->shifr)+" "+alltrim(usl->full_name)
+          tmp->name := alltrim(usl->shifr)+" "+alltrim(usl->full_name)
+        else
+          tmp->name_u := alltrim(usl->shifr)+" "+alltrim(usl->name)
+          tmp->name := alltrim(usl->shifr)+" "+alltrim(usl->name)
+        endif
       endif
       select TMP
       if tmp_usl->kod_vr > 0 .and. fl

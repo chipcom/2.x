@@ -2040,13 +2040,16 @@ do case
 *****************
   case eq_any(k,11,13)
     is_open := (k == 11)
-    mas_pmt := {"Объем работ по ~врачам",;
+    mas_pmt := {"Объем ~работ",;
+                "Объем работ по ~врачам",;
                 "Объем работ по ~больным",;
                 "Поступление ~денежных средств"}
-    mas_msg := {"Статистика по лечащим врачам",;
+    mas_msg := {"Статистика по объему работ персонала",;
+                "Статистика по лечащим врачам",;
                 "Статистика по пролеченным больным [+ по лечащим врачам]",;
                 "Статистика по поступлению денежных средств"}
-    mas_fun := {"Oo_statist(21)",;
+    mas_fun := {"Oo_statist(131)",;    // 06.10.23
+                "Oo_statist(21)",;
                 "Oo_statist(22)",;
                 "Oo_statist(23)"}
     if k == 11
@@ -2137,8 +2140,10 @@ do case
     pl_or2dogovor(1) //  24.06.08
   case k == 28
     pl_or2dogovor(2) //  24.06.08
+ 
 *****************
   case k == 31
+    Private ptip_date := 1 // закрытые наряды - по умолчанию
     mas_pmt := {"По ~персоналу",;
                 "По ~услугам"}
     mas_msg := {"Статистика по объему работ персонала",;
@@ -2298,12 +2303,48 @@ do case
     forma_30_na(1)
   case k == 124
     forma_30_na(2)
+    *****************
+  case k == 131
+      Private ptip_date := 2 //не закрытые наряды
+      mas_pmt := {"По ~персоналу",;
+                  "По ~услугам"}
+      mas_msg := {"Предварительная Статистика по объему работ персонала",;
+                  "Предварительная Статистика по оказанным услугам"}
+      mas_fun := {"Oo_statist(132)",;
+                  "Oo_statist(133)"}
+  case k == 132
+    mas_pmt := {"По ~врачам",;
+                "По ~зубным техникам",;
+                "По ~медсестрам"}
+    mas_msg := {"врачи",;
+                "зуб.техники",;
+                "медсестры"}
+    aeval(mas_msg, {|x,i| mas_msg[i] := "Статистика по персоналу ["+x+"]" })
+    mas_fun := {"Oo_statist(71)",;
+                "Oo_statist(72)",;
+                "Oo_statist(73)"}
+    popup_prompt(T_ROW,T_COL-5,si7,mas_pmt,mas_msg,mas_fun)
+  case k == 133
+    mas_pmt := {"Список ~услуг",;
+                "~Врачи + услуги",;
+                "~Зуб.техники + услуги",;
+                "~Медсестры + услуги"}
+    mas_msg := {"Статистика по оказанным услугам",;
+                "Статистика по услугам + врачи",;
+                "Статистика по услугам + зубные техники",;
+                "Статистика по услугам + медсестры"}
+    mas_fun := {"Oo_statist(81)",;
+                "Oo_statist(82)",;
+                "Oo_statist(83)",;
+                "Oo_statist(84)"}
+    popup_prompt(T_ROW,T_COL-5,si8,mas_pmt,mas_msg,mas_fun)
+*****************
 endcase
 if k > 10
   j := int(val(right(lstr(k),1)))
   if between(k,11,19)
     si1 := j
-  elseif between(k,21,29)
+  elseif between(k,21,29) .or. k == 131
     si2 := j
   elseif between(k,31,39)
     si3 := j
@@ -2325,6 +2366,8 @@ if k > 10
     si11 := j
   elseif between(k,121,129)
     si12 := j
+  elseif between(k,131,139)
+    si13 := j
   endif
 endif
 return NIL
@@ -2335,10 +2378,11 @@ return NIL
 Function Oob_statist(par1,par2,par3)
 Local arr, arr_title, reg_print := 2, sh, HH := 58, s, s1, s2, s3, fl,;
       begin_date, end_date, fl_exit := .f., name_file := "orto_st"+stxt,;
-      tip_tit, s4
+      tip_tit, s4, parametr4 := 1 // по умолчанию 
 Local reg, reg1, mperso, musluga, mkod, buf := save_row(maxrow())
 Local msl1usluga, msl2usluga, l_delen, mslusluga
 DEFAULT par1 TO "", par2 TO "", par3 TO ""
+parametr4 := ptip_date // по дате окончания или без оной
 if !(par3 == "summa") .and. (pr_pl_bes := O_ret_pl_b()) == 0
   return NIL
 endif
@@ -2431,9 +2475,14 @@ if reg == 2 .or. par3 == "summa"
   set relation to u_kod into USL
 endif
 R_Use(dir_server+"kartotek",,"KART")
-R_Use(dir_server+"hum_ort",dir_server+"hum_ortd","HUMAN")
-dbseek(dtos(begin_date),.t.)
-do while human->k_data <= end_date .and. !eof()
+if parametr4 == 1
+  R_Use(dir_server+"hum_ort",dir_server+"hum_ortd","HUMAN")
+  dbseek(dtos(begin_date),.t.)
+else
+  R_Use(dir_server+"hum_ort",dir_server+"hum_orto","HUMAN")
+  dbseek(dtos(begin_date),.t.)
+endif   
+do while iif(parametr4 == 1,human->k_data,human->data) <= end_date .and. !eof()
   UpdateStatus()
   if inkey() == K_ESC
     fl_exit := .t. ; exit

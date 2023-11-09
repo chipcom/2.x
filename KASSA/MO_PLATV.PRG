@@ -313,92 +313,7 @@ do case
     rest_box(buf) ; flag := 0
   case nKey == K_F10 .and. glob_kassa == 1 .and. human->is_kas == 2 .and. human->cena > 0
     buf := savescreen()
-    if glob_mo[_MO_KOD_TFOMS] == '175303' //ксп-3
-      if human->cena >= 3000 .and.;
-         human->n_data > stod("20190604") .and.; //!!!!тест
-         human->n_data < stod("20190801")
-         // начинаем проверку на 3000 надо удалить 1000
-         // запрос
-         if !ret_zapros3000()
-           // ничего не делаем
-         else
-           // удаляем услуги
-           R_Use(dir_server+"uslugi",,"USL")
-           R_Use(dir_server+"hum_p_u",,"HU")
-           set relation to u_kod into USL
-           select HU
-           set order to 0
-           index on u_cena to ("tmp_3000") for (kod==human->(recno()) .and.;
-                                                padr(alltrim(usl->shifr),2)!= "31") progress
-           Private sm_3000 := 0, mas_ydal := {}, sm_old_3000 := human->cena
-           go top
-           // проверим нет-ли услуги 1000-1100 руб
-           do while !eof()
-             if sm_3000 < 1000
-               for iii := 1 to hu->kol
-                 if hu->u_cena >= 1000 .and. hu->u_cena <= 1100
-                   sm_3000 := sm_3000 + hu->u_cena
-                   aadd(mas_ydal,hu->(recno()))
-                   if sm_3000 >= 1000
-                     exit
-                   endif
-                 endif
-               next
-               //sm_3000 := sm_3000 + hu->stoim
-               //aadd(mas_ydal,hu->(recno()))
-             endif
-             select HU
-             skip
-           enddo
-           //
-           go top
-           do while !eof()
-             if sm_3000 < 1000
-               for iii := 1 to hu->kol
-                 sm_3000 := sm_3000 + hu->u_cena
-                 aadd(mas_ydal,hu->(recno()))
-                 if sm_3000 >= 1000
-                   exit
-                 endif
-               next
-               //sm_3000 := sm_3000 + hu->stoim
-               //aadd(mas_ydal,hu->(recno()))
-             endif
-             select HU
-             skip
-           enddo
-           //
-           hu->(dbCloseArea())
-           //
-           if sm_3000 > 1300
-             ret_soob_3000(2, sm_old_3000, sm_3000)
-           else
-             use_base("hum_p_u",,.T.)
-             for iii := 1 to len(mas_ydal)
-               goto mas_ydal[iii]
-               if hu->kol == 1
-                 DeleteRec(.t.,.f.)  // очистка записи без пометки на удаление
-               else
-                 G_RLock(forever)
-                 hu->kol := hu->kol-1
-                 hu->stoim := hu->kol*hu->u_cena
-                 UNLOCK
-               endif
-             next
-             select HUMAN
-             G_RLock(forever)
-             human->cena := (human->cena - sm_3000)
-             human->vzfr_tip := 1
-             UNLOCK
-             hu->(dbCloseArea())
-             COMMIT
-             //
-             ret_soob_3000(1, sm_old_3000, sm_3000)
-           endif
-           usl->(dbCloseArea())
-         endif
-      endif
-    endif
+    // убрал спецдобавку для КСП3
     ClrLine(maxrow()-1,color0)
     // поиск номера или эл.почты
     t_hum_rec := human->(recno())
@@ -459,12 +374,20 @@ do case
         append blank
         if glob_mo[_MO_KOD_TFOMS] == '171004' // КБ-4
           tmp->name := alltrim(usl->name)+" "+alltrim(usl->full_name)
-        else
-          if len(alltrim(usl->full_name)) > 3
-             tmp->name := alltrim(usl->shifr)+" "+alltrim(usl->full_name)
-          else
-            tmp->name := alltrim(usl->shifr)+" "+alltrim(usl->name)
-          endif
+        else 
+          if mek_kod_usl > 1 
+            if len(alltrim(usl->full_name)) > 3
+              tmp->name := alltrim(usl->full_name)
+            else
+              tmp->name := alltrim(usl->name)
+            endif
+          else  
+            if len(alltrim(usl->full_name)) > 3
+               tmp->name := alltrim(usl->shifr)+" "+alltrim(usl->full_name)
+            else
+               tmp->name := alltrim(usl->shifr)+" "+alltrim(usl->name)
+            endif
+          endif  
         endif
         if hu->kod_vr > 0 .and. fl
           perso->(dbGoto(hu->kod_vr))
