@@ -218,7 +218,7 @@ mo_version.prg
 .\OTHER\mo_mzxml.prg
 .\OTHER\mo_serv.prg
 .\OTHER\mo_sds.prg
-.\OTHER\mo_moder.prg
+#.\OTHER\mo_moder.prg
 
 .\TUNING\ret_days_for_akt_sverki.prg
 .\TUNING\initPZarray.prg
