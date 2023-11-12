@@ -921,6 +921,12 @@ if eq_any(glob_task,X_PPOKOJ,X_OMS,X_PLATN,X_ORTO,X_KASSA,X_KEK,X_263)
   aadd(atail(first_message),'Переиндексирование части базы данных для задачи "'+array_tasks[ind_task(),5]+'"')
   aadd(atail(func_menu),"pereindex_task()")
 endif
+// работа с Plugins
+aadd(atail(first_menu),0)
+aadd(atail(first_menu),"Дополнительные возможности")
+aadd(atail(first_message),'Запуск Plugins')
+aadd(atail(func_menu),"plugins()")
+
 if fl
   G_SPlus(f_name_task())   // плюс 1 пользователь зашёл в задачу
   func_main(.t.,blk_ekran)

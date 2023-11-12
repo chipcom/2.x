@@ -209,6 +209,7 @@ mo_version.prg
 .\SYSTEM\hxmldoc.prg
 .\SYSTEM\use_func.prg
 .\SYSTEM\extension.prg
+.\SYSTEM\plugins.prg
 
 .\ORDER\mo_omso.prg
 .\ORDER\mo_omsp.prg
