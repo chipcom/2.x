@@ -416,7 +416,7 @@ Function m_help()
   chm_help_code := tmp_help
   return NIL
 
-// 14.04.23
+// 12.09.23
 FUNCTION f_first(is_create)
   Local is_local_version := .t.
 
@@ -488,10 +488,9 @@ FUNCTION f_first(is_create)
   // Public cur_dir := cur_drv + ':' + DIRNAME(cur_drv) + cslash
   Public cur_dir := chip_CurrPath()
   Public dir_server := '', p_name_comp := ''
-  // Public dir_exe := upper(beforatnum(cslash, exename())) + cslash
-  Public dir_exe := chip_ExePath()
+  Public dir_exe := HB_DirBase()
   Public exe_dir := dir_exe
-  
+
   // проверить, запущена ли уже данная задача, если 'да' - выход из задачи
   verify_1_task()
   //

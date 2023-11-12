@@ -201,9 +201,9 @@ function chip_CurrPath()
   RETURN cPrefix + CurDir() + hb_ps()
 
 // 14.04.23
-function chip_ExePath()
+// function chip_ExePath()
 
-  return upper(beforatnum(hb_ps(), exename())) + hb_ps()
+//   return upper(beforatnum(hb_ps(), exename())) + hb_ps()
 
 // 17.04.23
 function check_extension_file(fileName, sExt)
