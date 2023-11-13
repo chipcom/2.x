@@ -149,7 +149,7 @@ Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
   G_Use(dir_server + 'human_', , 'HUMAN_')
   R_Use(dir_server + 'human', , 'HUMAN')
   set relation to recno() into HUMAN_, to recno() into HUMAN_2, to kod_k into KART
-  R_Use(exe_dir + '_mo_t2_v1', , 'T21')
+  R_Use(dir_exe + '_mo_t2_v1', , 'T21')
   index on shifr to (cur_dir + 'tmp_t21')
   use (cur_dir + 'tmpb') new
   if reg_sort == 1

@@ -25,7 +25,7 @@ function load_exists_uslugi()
       loop
     endif
 
-    // R_Use(exe_dir + fname, cur_dir + file_index, lAlias)
+    // R_Use(dir_exe + fname, cur_dir + file_index, lAlias)
 
     if select(lAlias) == 0
       loop

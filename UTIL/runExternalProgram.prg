@@ -29,7 +29,7 @@
 Function f_help()
   Local spar := ''
   local error
-  local cFile := exe_dir + cslash + 'CHIP_MO.CHM'
+  local cFile := dir_exe + cslash + 'CHIP_MO.CHM'
   
   if chm_help_code >= 0
     spar := '-mapid ' + lstr(chm_help_code) + ' '

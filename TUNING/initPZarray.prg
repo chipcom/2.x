@@ -636,9 +636,9 @@ function fill_PZ_array_from_file(work_year, arr)
   file_index := cur_dir + sbase + sntx
 
   if hb_FileExists(file_index)
-    G_Use( exe_dir + sbase, cur_dir + sbase, 'UNIT' )
+    G_Use( dir_exe + sbase, cur_dir + sbase, 'UNIT' )
   else
-    G_Use( exe_dir + sbase, , 'UNIT' )
+    G_Use( dir_exe + sbase, , 'UNIT' )
     index on str(code, 3) to (cur_dir + sbase)
   endif
   for i := 1 to Len(arr)
@@ -1244,12 +1244,12 @@ FUNCTION initPZarray()
 
       file_index := cur_dir + sbase + sntx
       if hb_FileExists(file_index)
-        G_Use( exe_dir + sbase, cur_dir + sbase, 'UNIT' )
+        G_Use( dir_exe + sbase, cur_dir + sbase, 'UNIT' )
       else
-        G_Use( exe_dir + sbase, , 'UNIT' )
+        G_Use( dir_exe + sbase, , 'UNIT' )
         index on str(code, 3) to (cur_dir + sbase)
       endif
-      // G_Use( exe_dir + sbase, cur_dir + sbase, 'UNIT' )
+      // G_Use( dir_exe + sbase, cur_dir + sbase, 'UNIT' )
       FOR i := 1 TO Len( &nameArr )
          find ( Str( &nameArr.[ i, 2 ], 3 ) )
          IF Found() .AND. !( unit->pz == &nameArr.[ i, 1 ] .AND. unit->ii == i )

@@ -139,7 +139,7 @@ procedure main( ... )
   // реконструкция файлов доступа к системе
   Reconstruct_Security(is_local_version)
 
-  if ! files_NSI_exists(exe_dir)
+  if ! files_NSI_exists(dir_exe)
     hard_err('delete')
     QUIT
   endif
@@ -147,7 +147,7 @@ procedure main( ... )
   // a_parol := inp_password(is_local_version,is_create)
   a_parol := inp_password_bay(is_local_version, is_create)
 
-  index_work_dir(exe_dir, cur_dir)    // checkFilesTFOMS() переименовал
+  index_work_dir(dir_exe, cur_dir)    // checkFilesTFOMS() переименовал
 
   hb_main_curOrg := TOrganizationDB():GetOrganization() 
   
@@ -280,7 +280,7 @@ Function f_main(r0, is_local_version, a_parol)
   if fl_exit
     func_error(4,'Нет разрешения на работу ни в одной задаче!')
   else
-    delete_base_dict(exe_dir, cur_dir)
+    delete_base_dict(dir_exe, cur_dir)
     // вывести верхние строки главного экрана
     r0 := main_up_screen()
     // вывести центральные строки главного экрана
@@ -485,11 +485,9 @@ FUNCTION f_first(is_create)
   delete file ttt.ttt
   //
   Public cur_drv := DISKNAME()
-  // Public cur_dir := cur_drv + ':' + DIRNAME(cur_drv) + cslash
   Public cur_dir := chip_CurrPath()
   Public dir_server := '', p_name_comp := ''
   Public dir_exe := HB_DirBase()
-  Public exe_dir := dir_exe
 
   // проверить, запущена ли уже данная задача, если 'да' - выход из задачи
   verify_1_task()

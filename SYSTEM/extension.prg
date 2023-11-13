@@ -68,7 +68,7 @@ function fill_exists_files_TFOMS(cur_dir)
 
 function openSQL_DB()
 
-  return sqlite3_open( exe_dir + FILE_NAME_SQL, .f. )
+  return sqlite3_open( dir_exe + FILE_NAME_SQL, .f. )
 
 // 19.01.23
 function timeout_load(/*@*/time_load)

@@ -38,7 +38,7 @@ Function viewF003()
     l := max(l,len(ar[i]))
   next
 
-  dbUseArea( .t., 'DBFNTX', exe_dir + dbName, dbName, .t., .f. )
+  dbUseArea( .t., 'DBFNTX', dir_exe + dbName, dbName, .t., .f. )
   aStruct := (dbName)->(dbStruct())
   (dbName)->(dbCreateIndex( indexName, 'substr(MCOD,1,2)', , NIL ))
 
@@ -197,7 +197,7 @@ Function getF003mo(mCode)
 
     arr := array(_MO_LEN_ARR)
 
-    dbUseArea( .t., 'DBFNTX', exe_dir + dbName, dbName, .t., .f. )
+    dbUseArea( .t., 'DBFNTX', dir_exe + dbName, dbName, .t., .f. )
     (dbName)->(dbCreateIndex( indexName, 'MCOD', , NIL ))
 
     (dbName)->(dbGoTop())
@@ -367,8 +367,8 @@ function getf010()
     endif
     db := nil
     aadd(_arr, {'Федерального подчинения', '99', 0})
-    if hb_FileExists(exe_dir + 'f010' + sdbf)
-      FErase(exe_dir + 'f010' + sdbf)
+    if hb_FileExists(dir_exe + 'f010' + sdbf)
+      FErase(dir_exe + 'f010' + sdbf)
     endif
     Set(_SET_DATEFORMAT, 'dd.mm.yyyy')
   endif

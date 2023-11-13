@@ -631,22 +631,21 @@ Function disp_nabludenie( k )
     vvodp_disp_nabl()
   Case k == 12
     mas_pmt := { "~Не было л/у с диспансерным наблюдением", ;
-      "~Были л/у с диспансерным наблюдением" }
-    // "Были ~другие л/у с диагнозом из списка"}
+      "~Были л/у с диспансерным наблюдением" ,;
+      "Были л/у у пациентов с ~СС ДН"}
     mas_msg := { "Список пациентов, по которым не было л/у с диспансерным наблюдением", ;
-      "Список пациентов, по которым были л/у с диспансерным наблюдением" }
-    // "Список пациентов, по которым были другие листы учёта с диагнозом из списка"}
+      "Список пациентов, по которым были л/у с диспансерным наблюдением" ,;
+      " Были л/у у пациентов с СС ДН "}
     mas_fun := { "disp_nabludenie(61)", ;
-      "disp_nabludenie(62)" }
-    // "disp_nabludenie(63)"}
+                 "disp_nabludenie(62)" ,;
+                 "disp_nabludenie(63)"}
     popup_prompt( T_ROW, T_COL - 5, si6, mas_pmt, mas_msg, mas_fun )
-    // ne_real()
   Case k == 61
     f_inf_disp_nabl( 1 )
   Case k == 62
     f_inf_disp_nabl( 2 )
   Case k == 63
-    // f_inf_disp_nabl(3)
+    f_inf_disp_nabl( 3 )
   Endcase
   If k > 10
     j := Int( Val( Right( lstr( k ), 1 ) ) )
@@ -1103,6 +1102,7 @@ Function f_inf_disp_nabl( par )
 
   // 1 -  "~Не было л/у с диспансерным наблюдением",;
   // 2 -  "~Были л/у с диспансерным наблюдением"
+  // 3 -    Сердечники
   Local arr, adiagnoz, sh := 120, HH := 60, buf := save_maxrow(), name_file := "disp_nabl" + stxt, ;
     ii1 := 0, ii2 := 0, ii3 := 0, s, name_dbf := "___DN" + sdbf, arr_fl, fl_prikrep := Space( 6 ), kol_kartotek := 0, ;
     t_kartotek := 0
@@ -1116,16 +1116,16 @@ Function f_inf_disp_nabl( par )
   sh := Len( arr_title[ 1 ] )
   If par == 1
     s := "Список пациентов, состоящих на ДН, по которым не было л/у с диспансерным наблюдением"
-  Else
+  Elseif par == 2
     s := "Список пациентов, состоящих на ДН, присутствуют л/у с диспансерным наблюдением"
-  Endif
+  else
+    s := "Список пациентов, состоящих на ДН c XXX, присутствуют л/у с диспансерным наблюдением" 
+  endif
   add_string( "" )
   add_string( Center( s, sh ) )
   add_string( "" )
-  If par < 3
-    AEval( arr_title, {| x| add_string( x ) } )
-  Endif
-  //
+  AEval( arr_title, {| x| add_string( x ) } )
+    //
   use_base( "lusl" )
   r_use( dir_server + "uslugi",, "USL" )
   r_use( dir_server + "mo_pers",, "PERS" )
@@ -1159,8 +1159,18 @@ Function f_inf_disp_nabl( par )
     // если человек стоит на Д-учете - создаем массив его Д диагнозов
     Do While dd->kod_d == rhum->( RecNo() ) .and. !Eof()
       If dd->next_data >= 0d20230101 // !!!!!!! ВНИМАНИЕ год
-        AAdd( arr, dd->kod_diag )
-        AAdd( arr_fl, .f. )
+        if par == 3
+          //проверяем массив диагнозов 
+          if f_is_diag_dn_serdce(dd->kod_diag)
+            aadd(arr,dd->kod_diag)
+            aadd(arr_fl, .f.) 
+            //my_debug(,dd->kod_diag)
+          endif  
+        else  
+          aadd(arr,dd->kod_diag)
+          aadd(arr_fl, .f.)  
+        endif
+        //my_debug(,print_array(arr))
       Endif
       Skip
     Enddo
@@ -1246,6 +1256,22 @@ Function f_inf_disp_nabl( par )
           Endif
         Next
       Endif
+      If par == 3 // Сердечники Были л/у с диспансерным наблюдением при наличии ДД
+        For i := 1 To Len( arr )
+          If verify_ff( HH, .t., sh )
+            AEval( arr_title, {| x| add_string( x ) } )
+          Endif
+          If arr_fl[ i ]
+            add_string( PadR( lstr( ++ii2 ) + ". " + kart->fio, 45 ) + " " + PadL( lstr( kart->uchast ), 4 ) + " " + full_date( kart->date_r ) + "  " + PadR( Arr[ i ], 5 ) + "   " + fl_prikrep + " " + ;
+              PadR( kart->adres, 40 ) )
+            If t_kartotek != kart->kod
+              t_kartotek := kart->kod
+              kol_kartotek++
+            Endif
+          Endif
+        Next
+      Endif
+
     Endif
     Select RHUM
     Skip

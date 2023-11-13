@@ -213,8 +213,8 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
 
   if empty(st_rez_gist) // для гистологии в поликлинике
     st_rez_gist := {}
-    // R_Use(exe_dir+ '_mo_N008', cur_dir + '_mo_N008',  'N8')
-    // R_Use(exe_dir+ '_mo_N007', cur_dir + '_mo_N007',  'N7')
+    // R_Use(dir_exe+ '_mo_N008', cur_dir + '_mo_N008',  'N8')
+    // R_Use(dir_exe+ '_mo_N007', cur_dir + '_mo_N007',  'N7')
     // go top
     // do while !eof()
     //   aadd(st_rez_gist, {n7->mrf_name,n7->id_mrf, {}, 0}) ; i := len(st_rez_gist)
@@ -1168,11 +1168,11 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
           m1ONK_T := m1ONK_N := m1ONK_M := 0
         endif
         //
-        // R_Use(exe_dir+ '_mo_N006', cur_dir + '_mo_N006',  'N6')
+        // R_Use(dir_exe+ '_mo_N006', cur_dir + '_mo_N006',  'N6')
         // гистология
         mm_N009 := {}
         if !is_mgi // для МГИ гистология не вводится
-          // R_Use(exe_dir+ '_mo_N009', , 'N9')
+          // R_Use(dir_exe+ '_mo_N009', , 'N9')
           // dbeval({|| aadd(mm_N009, {'', n9->id_mrf, {}}) }, ;
           //        {|| between_date(n9->datebeg,n9->dateend,mk_data) .and. left(mkod_diag, 3) == n9->ds_mrf })
           // asort(mm_N009, , , {|x,y| x[2] < y[2] })
@@ -1184,8 +1184,8 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
           asort(mm_N009, , , {|x, y| x[2] < y[2] })
         endif
         if len(mm_N009) > 0
-          // R_Use(exe_dir+ '_mo_N007', cur_dir + '_mo_N007',  'N7')
-          // R_Use(exe_dir+ '_mo_N008', cur_dir + '_mo_N008',  'N8')
+          // R_Use(dir_exe+ '_mo_N007', cur_dir + '_mo_N007',  'N7')
+          // R_Use(dir_exe+ '_mo_N008', cur_dir + '_mo_N008',  'N8')
           for i := 1 to min(2, len(mm_N009))
             // select N7
             // find (str(mm_N009[i, 2], 6))
@@ -1220,7 +1220,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
 
         // Иммуногистохимия
         mm_N012 := {}
-        // R_Use(exe_dir+ '_mo_N012', , 'N12')
+        // R_Use(dir_exe+ '_mo_N012', , 'N12')
         // dbeval({|| aadd(mm_N012, {'', n12->id_igh, {}}) }, ;
         //        {|| between_date(n12->datebeg, n12->dateend, mk_data) .and. left(mkod_diag, 3) == n12->ds_igh })
         if (it := ascan(aN012_DS, {|x| left(x[1], 3) == left(mkod_diag, 3)})) > 0
@@ -1244,8 +1244,8 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
           endif
         endif
         if len(mm_N012) > 0
-          // R_Use(exe_dir+ '_mo_N010', cur_dir + '_mo_N010',  'N10')
-          // R_Use(exe_dir+ '_mo_N011', cur_dir + '_mo_N011',  'N11')
+          // R_Use(dir_exe+ '_mo_N010', cur_dir + '_mo_N010',  'N10')
+          // R_Use(dir_exe+ '_mo_N011', cur_dir + '_mo_N011',  'N11')
           for i := 1 to min(5, len(mm_N012))
             // select N10
             // find (str(mm_N012[i, 2], 6))
@@ -1290,7 +1290,7 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
         endif
         is_onko_VMP := .f. ; musl1vmp := musl2vmp := mtipvmp := 0
         if m1usl_ok < 3 .and. m1vmp == 1 .and. m1metvmp > 0
-          R_Use(exe_dir+ '_mo_ovmp', cur_dir + '_mo_ovmp',  'OVMP')
+          R_Use(dir_exe+ '_mo_ovmp', cur_dir + '_mo_ovmp',  'OVMP')
           find (str(m1metvmp, 3)) // номер метода ВМП
           if found()
             is_onko_VMP := .t.
@@ -1311,15 +1311,15 @@ Function oms_sluch_main(Loc_kod, kod_kartotek)
         // }
         mm_N014 := getN014()
         // mm_N015 := {}
-        // R_Use(exe_dir+ '_mo_N015', , 'N15')
+        // R_Use(dir_exe+ '_mo_N015', , 'N15')
         // dbeval({|| aadd(mm_N015, {alltrim(n15->tlek_namel), n15->id_tlek_l}) })
         mm_N015 := getN015()
         // mm_N016 := {}
-        // R_Use(exe_dir+ '_mo_N016', , 'N16')
+        // R_Use(dir_exe+ '_mo_N016', , 'N16')
         // dbeval({|| aadd(mm_N016, {alltrim(n16->tlek_namev), n16->id_tlek_v}) })
         mm_N016 := getN016()
         // mm_N017 := {}
-        // R_Use(exe_dir+ '_mo_N017', , 'N17')
+        // R_Use(dir_exe+ '_mo_N017', , 'N17')
         // dbeval({|| aadd(mm_N017, {alltrim(n17->tluch_name), n17->id_tluch}) })
         mm_N017 := getN017()
         mm_str1 := {'',  'Тип лечения',  'Цикл терапии',  'Тип терапии',  'Тип терапии',  ''}

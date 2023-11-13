@@ -906,12 +906,12 @@ aadd(first_message, { ;
    "Переидексирование справочников НСИ в рабочем каталоге",;
    "Режим просмотра - кто находится в задаче и в каком режиме",;
    "Просмотр файла ошибок"})
-// aadd(func_menu, {"file_Wordpad(exe_dir + cslash + 'README.RTF')",;
-aadd(func_menu, {"view_file_in_Viewer(exe_dir + cslash + 'README.RTF')",;
+// aadd(func_menu, {"file_Wordpad(dir_exe + cslash + 'README.RTF')",;
+aadd(func_menu, {"view_file_in_Viewer(dir_exe + cslash + 'README.RTF')",;
                  "m_help()",;
                  "nastr_rab_mesto()",;
                  "ust_printer(T_ROW)",;
-                 "index_work_dir(exe_dir, cur_dir, .t.)", ;
+                 "index_work_dir(dir_exe, cur_dir, .t.)", ;
                  "net_monitor(T_ROW,T_COL-7,(hb_user_curUser:IsAdmin()))",;
                  "view_errors()"})
 // добавим переиндексирование некоторых файлов внутри задачи

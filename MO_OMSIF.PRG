@@ -71,7 +71,7 @@ Private adiag_talon[16], arr_v := {{0,14},{0,3},{15,17},{18,999}}, ;
         GOD_PENSIONEROV   
 afill(p_is_voz, .f.)
 
-file_form := exe_dir+"_mo_form"+sdbf
+file_form := dir_exe+"_mo_form"+sdbf
 if !hb_FileExists(file_form)
   return func_error(4,"Не обнаружен файл настройки статистических форм _MO_FORM"+sdbf)
 endif
@@ -8458,7 +8458,7 @@ Local begin_date, end_date, pole, file_form, yes_god
 Local i, j, k, buf := save_maxrow(), adbf, lfp, t_arr1[20], t_arr2[20], ;
       fl_exit := .f., jh := 0, jt := 0, mshifr, mvozrast, d1, d2, ;
       arr_stroke := {{},{},{}}, fl, s, arr, bbuf, blk_usl, ab := {}
-file_form := exe_dir+"_mo_form"+sdbf
+file_form := dir_exe+"_mo_form"+sdbf
 if !hb_FileExists(file_form)
   return func_error(4,"Не обнаружен файл настройки статистических форм "+upper(file_form))
 endif

@@ -50,7 +50,7 @@ function getKSLPtable(dateSl)
     tmp_select := select()
     dbName := prefixFileRefName(dateSl) + 'kslp'
 
-    dbUseArea( .t., 'DBFNTX', exe_dir + dbName, dbAlias , .t., .f. )
+    dbUseArea( .t., 'DBFNTX', dir_exe + dbName, dbAlias , .t., .f. )
     (dbAlias)->(dbGoTop())
     do while !(dbAlias)->(EOF())
       aadd(aKSLP, { (dbAlias)->CODE, alltrim((dbAlias)->NAME), alltrim((dbAlias)->NAME_F), (dbAlias)->COEFF, (dbAlias)->DATEBEG, (dbAlias)->DATEEND })
@@ -101,7 +101,7 @@ function getKIROtable( dateSl )
     tmp_select := select()
     dbName := prefixFileRefName(dateSl) + 'kiro'
 
-    dbUseArea( .t., 'DBFNTX', exe_dir + dbName, dbAlias , .t., .f. )
+    dbUseArea( .t., 'DBFNTX', dir_exe + dbName, dbAlias , .t., .f. )
     (dbAlias)->(dbGoTop())
     do while !(dbAlias)->(EOF())
       aadd(aKIRO, { (dbAlias)->CODE, alltrim((dbAlias)->NAME), alltrim((dbAlias)->NAME_F), (dbAlias)->COEFF, (dbAlias)->DATEBEG, (dbAlias)->DATEEND })

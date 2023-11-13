@@ -34,7 +34,7 @@ function getVMP_USL( dateSl)
     dbName := prefixFileRefName(dateSl) + 'vmp_usl'
 
     tmp_select := select()
-    dbUseArea(.t., 'DBFNTX', exe_dir + dbName, dbAlias , .t., .f.)
+    dbUseArea(.t., 'DBFNTX', dir_exe + dbName, dbAlias , .t., .f.)
   
     //  1 - SHIFR(C)  2 - HVID(C)  3 - HMETHOD(N) 4 - MODEL(N) 5 - DIAGNOZIS(C)
     (dbAlias)->(dbGoTop())
