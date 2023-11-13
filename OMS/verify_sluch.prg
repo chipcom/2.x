@@ -1979,11 +1979,11 @@ Function verify_1_sluch(fl_view)
             //   aadd(ta, 'в составе случая оказания химиотерапии не может быть применен ТОЛЬКО один препарат из списка (золедроновая кислота, ибандроновая кислота, памидроновая кислота, клодроновая кислота или деносумаб)')
             // endif
             if select('N20') == 0
-              R_Use(exe_dir+ '_mo_N020', cur_dir + '_mo_N020', 'N20')
+              R_Use(dir_exe+ '_mo_N020', cur_dir + '_mo_N020', 'N20')
               set filter to between_date(datebeg, dateend, d2)
             endif
             // if select('N21') == 0
-            //   R_Use(exe_dir+ '_mo_N021', cur_dir + '_mo_N021', 'N21')
+            //   R_Use(dir_exe+ '_mo_N021', cur_dir + '_mo_N021', 'N21')
             //   set filter to between_date(datebeg, dateend, d2)
             // endif
             // select N21

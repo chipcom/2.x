@@ -1376,7 +1376,7 @@ if fl
   Use_base("human_u")
   Use_base("human")
   //
-  R_Use(exe_dir+"_mo_smo",{cur_dir + "_mo_smo",cur_dir + "_mo_smo2"},"SMO")
+  R_Use(dir_exe+"_mo_smo",{cur_dir + "_mo_smo",cur_dir + "_mo_smo2"},"SMO")
   use (name_path+"_lpu") new alias ILPU
   index on str(kod,3) to (cur_dir + "tmp_ilpu")
   use (name_path+"_otd") new alias IOTD
@@ -3119,7 +3119,7 @@ hGauge := GaugeNew(,,,"‘®αβ Ά«¥­¨¥ δ ©«  ¤«ο ‚€–",.t.)
 GaugeDisplay( hGauge )
 curr := 0
 R_Use(dir_server + "s_kemvyd",,"VID")
-R_Use(exe_dir+"_mo_smo",cur_dir + "_mo_smo2","SMO")
+R_Use(dir_exe+"_mo_smo",cur_dir + "_mo_smo2","SMO")
 //index on smo to (cur_dir+sbase+'2')
 //G_Use(dir_server + "mo_krtr",,"KRTR")
 //index on str(kod,6) to (cur_dir + "tmp_krtr")
@@ -4433,7 +4433,7 @@ if fl
               arr_epolis[_EP_IM],arr_epolis[_EP_NPOLIS])
     fl := func_error(4,iif(empty(se),smsg+".",se))
   else
-    R_Use(exe_dir+"_mo_smo",cur_dir + "_mo_smo3","_SMO")
+    R_Use(dir_exe+"_mo_smo",cur_dir + "_mo_smo3","_SMO")
     find (arr_epolis[_EP_OKATO]+padr(arr_epolis[_EP_OGRN],13))
     if found()
       arr_epolis[_EP_SMO] := _smo->smo

@@ -7,7 +7,7 @@
 
 // 08.11.23 Загрузка диагнозов диспансерного учёта
 Function load_diagnoze_disp_nabl_from_file()
-  Local diag := {}, lfp, s, file_form := exe_dir + 'DISP_NAB' + sfrm
+  Local diag := {}, lfp, s, file_form := dir_exe + 'DISP_NAB' + sfrm
   
   if hb_vfExists(file_form)
     lfp := FOpen( file_form )

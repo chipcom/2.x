@@ -809,7 +809,7 @@ Function ret_kod_usl_lek_ter(lVZROS_REB)
 //   poled := lal + '->ds_' + s
 //   polei := lal + '->id_' + s
 //   if select(lal) == 0
-//     R_Use(exe_dir + '_mo_N00' + sn, {cur_dir + '_mo_N00' + sn, cur_dir + '_mo_N00' + sn + 'd'}, lal)
+//     R_Use(dir_exe + '_mo_N00' + sn, {cur_dir + '_mo_N00' + sn, cur_dir + '_mo_N00' + sn + 'd'}, lal)
 //   endif
 //   dbSelectArea(lal) // встать на справочник N0...
 //   set order to 2

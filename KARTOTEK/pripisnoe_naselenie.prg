@@ -817,7 +817,7 @@ Function preparation_for_pripisnoe_naselenie()
         mywait()
         s += glob_mo[_MO_KOD_TFOMS]+dtos(sys_date)
         n_file := s+scsv
-        R_Use(exe_dir+"_mo_podr",cur_dir+"_mo_podr","PODR")
+        R_Use(dir_exe+"_mo_podr",cur_dir+"_mo_podr","PODR")
         find (glob_mo[_MO_KOD_TFOMS])
         loidmo := alltrim(podr->oidmo)
         select KRTR
