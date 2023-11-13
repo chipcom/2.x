@@ -36,13 +36,13 @@ function existsNSIfile(sbase, vYear)
   local fl := .f., fName, findex, fIndex_add
 
   fName := prefixFileRefName(vYear) + substr(sbase, 2)
-  if (fl := hb_vfExists(exe_dir + fName + sdbf))
+  if (fl := hb_vfExists(dir_exe + fName + sdbf))
     do case
       case sBase == 'lusl'
         fIndex := cur_dir + fName + sntx
-        if (fl := hb_vfExists(exe_dir + fName + sdbf))
+        if (fl := hb_vfExists(dir_exe + fName + sdbf))
           if ! hb_vfExists(fIndex)
-            R_Use(exe_dir + fName, , sBase)
+            R_Use(dir_exe + fName, , sBase)
             index on shifr to (fIndex)
             (sBase)->(dbCloseArea())
           endif
@@ -50,9 +50,9 @@ function existsNSIfile(sbase, vYear)
     case sBase == 'luslc'
       fIndex := cur_dir + fName + sntx
       fIndex_add :=  prefixFileRefName(vYear) + 'uslu'  // 
-      if (fl := hb_vfExists(exe_dir + fName + sdbf))
+      if (fl := hb_vfExists(dir_exe + fName + sdbf))
         if (! hb_vfExists(fIndex)) .or. (! hb_vfExists(cur_dir + fIndex_add + sntx))
-          R_Use(exe_dir + fName, , sBase)
+          R_Use(dir_exe + fName, , sBase)
           // index on shifr + str(vzros_reb, 1) + str(depart, 3) + dtos(datebeg) to (cur_dir + sbase) ;
           index on shifr + str(vzros_reb, 1) + str(depart, 3) + dtos(datebeg) to (findex) ;
               for codemo == glob_mo[_MO_KOD_TFOMS]
@@ -64,9 +64,9 @@ function existsNSIfile(sbase, vYear)
     case sBase == 'luslf'
       fName := prefixFileRefName(vYear) + 'uslf'
       fIndex := cur_dir + fName + sntx
-      if (fl := hb_vfExists(exe_dir + fName + sdbf))
+      if (fl := hb_vfExists(dir_exe + fName + sdbf))
         if ! hb_vfExists(fIndex)
-          R_Use(exe_dir + fName, , sBase)
+          R_Use(dir_exe + fName, , sBase)
           index on shifr to (cur_dir + fName)
           (sBase)->(dbCloseArea())
         endif
@@ -92,20 +92,20 @@ Function use_base(sBase, lAlias, lExcluUse, lREADONLY)
           if ! (lAlias)->(used())
             sind1 := cur_dir + fName + sntx
             if ! hb_vfExists(sind1)
-              R_Use(exe_dir + fName, , lAlias)
+              R_Use(dir_exe + fName, , lAlias)
               index on shifr to (sind1)
             else
-              R_Use(exe_dir + fName, sind1, lAlias)
+              R_Use(dir_exe + fName, sind1, lAlias)
             endif
           endif
         endif
       next
-      // fl := R_Use(exe_dir + '_mo8usl', cur_dir + '_mo8usl', sBase + '18') .and. ;
-      //   R_Use(exe_dir + '_mo9usl', cur_dir + '_mo9usl', sBase + '19') .and. ;
-      //   R_Use(exe_dir + '_mo0usl', cur_dir + '_mo0usl', sBase + '20') .and. ;
-      //   R_Use(exe_dir + '_mo1usl', cur_dir + '_mo1usl', sBase + '21') .and. ;
-      //   R_Use(exe_dir + '_mo2usl', cur_dir + '_mo2usl', sBase + '22') .and. ;
-      //   R_Use(exe_dir + '_mo3usl', cur_dir + '_mo3usl', sBase)
+      // fl := R_Use(dir_exe + '_mo8usl', cur_dir + '_mo8usl', sBase + '18') .and. ;
+      //   R_Use(dir_exe + '_mo9usl', cur_dir + '_mo9usl', sBase + '19') .and. ;
+      //   R_Use(dir_exe + '_mo0usl', cur_dir + '_mo0usl', sBase + '20') .and. ;
+      //   R_Use(dir_exe + '_mo1usl', cur_dir + '_mo1usl', sBase + '21') .and. ;
+      //   R_Use(dir_exe + '_mo2usl', cur_dir + '_mo2usl', sBase + '22') .and. ;
+      //   R_Use(dir_exe + '_mo3usl', cur_dir + '_mo3usl', sBase)
     case sBase == 'luslc'
       for countYear := 2018 to WORK_YEAR
         if exists_file_TFOMS(countYear, 'uslc')
@@ -116,23 +116,23 @@ Function use_base(sBase, lAlias, lExcluUse, lREADONLY)
             sind1 := cur_dir + fName + sntx
             sind2 := cur_dir + fname_add + sntx
             if ! (hb_vfExists(sind1) .or. hb_vfExists(sind2))
-              R_Use(exe_dir + fName, , lAlias)
+              R_Use(dir_exe + fName, , lAlias)
               index on shifr + str(vzros_reb, 1) + str(depart, 3) + dtos(datebeg) to (sind1) ;
                 for codemo == glob_mo[_MO_KOD_TFOMS]
               index on codemo + shifr + str(vzros_reb, 1) + str(depart, 3) + dtos(datebeg) to (sind2) ;
                 for codemo == glob_mo[_MO_KOD_TFOMS] // для совместимости со старой версией справочника
             else
-              R_Use(exe_dir + fName, {cur_dir + fName, cur_dir + fName_add}, lAlias)
+              R_Use(dir_exe + fName, {cur_dir + fName, cur_dir + fName_add}, lAlias)
             endif
           endif
         endif
       next
-      // fl := R_Use(exe_dir + '_mo8uslc', {cur_dir + '_mo8uslc', cur_dir + '_mo8uslu'}, sBase + '18') .and. ;
-      //   R_Use(exe_dir + '_mo9uslc', {cur_dir + '_mo9uslc', cur_dir + '_mo9uslu'}, sBase + '19') .and. ;
-      //   R_Use(exe_dir + '_mo0uslc', {cur_dir + '_mo0uslc', cur_dir + '_mo0uslu'}, sBase + '20') .and. ;
-      //   R_Use(exe_dir + '_mo1uslc', {cur_dir + '_mo1uslc', cur_dir + '_mo1uslu'}, sBase + '21') .and. ;
-      //   R_Use(exe_dir + '_mo2uslc', {cur_dir + '_mo2uslc', cur_dir + '_mo2uslu'}, sBase + '22') .and. ;
-      //   R_Use(exe_dir + '_mo3uslc', {cur_dir + '_mo3uslc', cur_dir + '_mo3uslu'}, sBase)
+      // fl := R_Use(dir_exe + '_mo8uslc', {cur_dir + '_mo8uslc', cur_dir + '_mo8uslu'}, sBase + '18') .and. ;
+      //   R_Use(dir_exe + '_mo9uslc', {cur_dir + '_mo9uslc', cur_dir + '_mo9uslu'}, sBase + '19') .and. ;
+      //   R_Use(dir_exe + '_mo0uslc', {cur_dir + '_mo0uslc', cur_dir + '_mo0uslu'}, sBase + '20') .and. ;
+      //   R_Use(dir_exe + '_mo1uslc', {cur_dir + '_mo1uslc', cur_dir + '_mo1uslu'}, sBase + '21') .and. ;
+      //   R_Use(dir_exe + '_mo2uslc', {cur_dir + '_mo2uslc', cur_dir + '_mo2uslu'}, sBase + '22') .and. ;
+      //   R_Use(dir_exe + '_mo3uslc', {cur_dir + '_mo3uslc', cur_dir + '_mo3uslu'}, sBase)
     case sBase == 'luslf'
       for countYear := 2018 to WORK_YEAR
         if exists_file_TFOMS(countYear, 'uslf')
@@ -141,20 +141,20 @@ Function use_base(sBase, lAlias, lExcluUse, lREADONLY)
           if ! (lAlias)->(used())
             sind1 := cur_dir + fName + sntx
             if ! hb_vfExists(sind1)
-              R_Use(exe_dir + fName, , lAlias)
+              R_Use(dir_exe + fName, , lAlias)
               index on shifr to (sind1)
             else
-              R_Use(exe_dir + fName, cur_dir + fName, lAlias)
+              R_Use(dir_exe + fName, cur_dir + fName, lAlias)
             endif
           endif
         endif
       next
-      // fl := R_Use(exe_dir + '_mo8uslf', cur_dir + '_mo8uslf', sBase + '18') .and. ;
-      //   R_Use(exe_dir + '_mo9uslf', cur_dir + '_mo9uslf', sBase + '19') .and. ;
-      //   R_Use(exe_dir + '_mo0uslf', cur_dir + '_mo0uslf', sBase + '20') .and. ;
-      //   R_Use(exe_dir + '_mo1uslf', cur_dir + '_mo1uslf', sBase + '21') .and. ;
-      //   R_Use(exe_dir + '_mo2uslf', cur_dir + '_mo2uslf', sBase + '22') .and. ;
-      //   R_Use(exe_dir + '_mo3uslf', cur_dir + '_mo3uslf', sBase)
+      // fl := R_Use(dir_exe + '_mo8uslf', cur_dir + '_mo8uslf', sBase + '18') .and. ;
+      //   R_Use(dir_exe + '_mo9uslf', cur_dir + '_mo9uslf', sBase + '19') .and. ;
+      //   R_Use(dir_exe + '_mo0uslf', cur_dir + '_mo0uslf', sBase + '20') .and. ;
+      //   R_Use(dir_exe + '_mo1uslf', cur_dir + '_mo1uslf', sBase + '21') .and. ;
+      //   R_Use(dir_exe + '_mo2uslf', cur_dir + '_mo2uslf', sBase + '22') .and. ;
+      //   R_Use(dir_exe + '_mo3uslf', cur_dir + '_mo3uslf', sBase)
     case sBase == 'organiz'
       DEFAULT lAlias TO 'ORG'
       fl := G_Use(dir_server + 'organiz', , lAlias, , lExcluUse, lREADONLY)
@@ -313,7 +313,7 @@ Function use_base(sBase, lAlias, lExcluUse, lREADONLY)
       DEFAULT lAlias TO 'EKSZ'
       fl := G_Use(dir_server + 'mo_kekez',dir_server + 'mo_kekez', lAlias, , lExcluUse, lREADONLY)
     case sBase == 'lusld'
-      fl := R_Use(exe_dir+'_mo_usld',cur_dir + '_mo_usld',sBase)
+      fl := R_Use(dir_exe+'_mo_usld',cur_dir + '_mo_usld',sBase)
   endcase
   return fl
 

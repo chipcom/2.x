@@ -3280,8 +3280,8 @@ do case
   case k == 61 // Контрольный лист учёта ЗНО
     call_fr('mo_onko_KL')
   case k == 62 // Правила заполнения контрольного листа учёта ЗНО
-    // file_Wordpad(exe_dir + cslash + 'RULE_KL.RTF')
-    view_file_in_Viewer(exe_dir + cslash + 'RULE_KL.RTF')
+    // file_Wordpad(dir_exe + cslash + 'RULE_KL.RTF')
+    view_file_in_Viewer(dir_exe + cslash + 'RULE_KL.RTF')
   case k == 71
     call_fr('mo_y1dvn')
   case k == 72
@@ -3340,7 +3340,7 @@ FUNCTION pr_sprav_onk_vmp()
   fp := fcreate(name_file)
   n_list := 1
   tek_stroke := 0
-  R_Use(exe_dir + '_mo_ovmp', cur_dir + '_mo_ovmp', 'OVMP')
+  R_Use(dir_exe + '_mo_ovmp', cur_dir + '_mo_ovmp', 'OVMP')
   add_string('')
   add_string(center('Классификатор методов ВМП по онкозаболеваниям с указанием типов лечения', sh))
   add_string('')

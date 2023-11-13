@@ -864,7 +864,7 @@ function loadN020()
   //   _N020 := hb_hash()
   //   tmp_select := select()
   //   dbName := '_mo_n020'
-  //   dbUseArea( .t., 'DBFNTX', exe_dir + dbName, dbAlias , .t., .f. )
+  //   dbUseArea( .t., 'DBFNTX', dir_exe + dbName, dbAlias , .t., .f. )
 
   //   //  1 - ID_LEKP(C)  2 - MNN(C)  3 - DATEBEG(D)  4 - DATEEND(D)
   //   (dbAlias)->(dbGoTop())

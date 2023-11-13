@@ -115,7 +115,7 @@ function f_define_tnm(n, ldiag)
 //   polek := lal + '->kod_' + s
 //   poled := lal + '->ds_' + s
 //   if select(lal) == 0
-//     R_Use(exe_dir + '_mo_N00' + sn, {cur_dir + '_mo_N00' + sn, cur_dir + '_mo_N00' + sn + 'd'}, lal)
+//     R_Use(dir_exe + '_mo_N00' + sn, {cur_dir + '_mo_N00' + sn, cur_dir + '_mo_N00' + sn + 'd'}, lal)
 //   endif
 //   dbSelectArea(lal) // встать на справочник N0...
 //   set order to 1    // переключиться на индекс по коду
@@ -223,7 +223,7 @@ Function ret_arr_shema_old(k, k_data)
   _data := k_data
 
   if empty(ashema[1])
-    R_Use(exe_dir + prefixFileRefName(_data) + 'shema', , 'IT')
+    R_Use(dir_exe + prefixFileRefName(_data) + 'shema', , 'IT')
     aadd(ashema[1], {'-----     без схемы лекарственной терапии', padr('нет', 10)})
     index on kod to (cur_dir + 'tmp_schema') for left(kod, 2) == 'sh' .and. between_date(it->datebeg, it->dateend, _data)
     dbeval({|| aadd(ashema[1], {it->kod + left(it->name, 68), it->kod}) })

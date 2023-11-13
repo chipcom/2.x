@@ -2831,7 +2831,7 @@ Function akt_summa_of_refusal(tip)
     add_string(center('¤ βλ ……‘’‚ €’‚ ’‹ - ' + arr_m[4], sh))
   endif  
   aeval(arr_title, {|x| add_string(x) } )
-  // R_Use(exe_dir + '_mo_t005', cur_dir + '_mo_t005', 'T5')
+  // R_Use(dir_exe + '_mo_t005', cur_dir + '_mo_t005', 'T5')
   select TMP
   go top 
   do while !eof()
@@ -3203,7 +3203,7 @@ Function f1akt_list_of_refusal_defect(asmo, ssmo)
   add_string(center("‘: " +ssmo, sh))
   add_string(center("¤ βλ " + iif(m1poisk == 0, "€ - ", " ªβ®Ά ª®­βΰ®«ο - ")+pdate[4], sh))
   aeval(arr_title, {|x| add_string(x) } )
-  // R_Use(exe_dir + '_mo_t005', cur_dir + '_mo_t005', 'T5')
+  // R_Use(dir_exe + '_mo_t005', cur_dir + '_mo_t005', 'T5')
   ssum := skol := sum_rak := kol_rak := 0
   n := 20
   ssump := skolp := sump_rak := kolp_rak := 0

@@ -586,7 +586,7 @@ Use_base("mo_su")
 Use_base("uslugi")
 R_Use(dir_server + "uslugi1",{dir_server + "uslugi1",;
                             dir_server + "uslugi1s"}, "USL1")
-R_Use(exe_dir+"_mo_smo",{cur_dir + "_mo_smo", cur_dir + "_mo_smo2"}, "SMO")
+R_Use(dir_exe+"_mo_smo",{cur_dir + "_mo_smo", cur_dir + "_mo_smo2"}, "SMO")
 //
 select IHUMAN
 go top

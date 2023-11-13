@@ -1031,7 +1031,7 @@ Function usl2TFOMS()
       next
 
       sbase := prefixFileRefName(lyear) + 'k006'
-      R_Use(exe_dir + sbase, , 'K006')
+      R_Use(dir_exe + sbase, , 'K006')
     
       index on SHIFR + str(ns, 6) to (cur_dir + 'tmp_k006') unique
       index on SHIFR + str(ns, 6)+ds+sy to (cur_dir + 'tmp_k006_')
@@ -1911,7 +1911,7 @@ Function usl6FFOMS(lksg)
   mdate := sys_date
 
   sbase := prefixFileRefName(WORK_YEAR) + 'k006'
-  R_Use(exe_dir + sbase, , 'K006')
+  R_Use(dir_exe + sbase, , 'K006')
   index on SHIFR + SY to (cur_dir + 'tmp_t009')
   use_base('luslc')
   use_base('lusl')

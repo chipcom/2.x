@@ -27,7 +27,7 @@ Function begin_task_263()
     work_otd_263 := int(val(a2default(ar, 'work_otd', lstr(work_otd_263))))
 
     sbase := prefixFileRefName(WORK_YEAR) + 'uslc'
-    R_Use(exe_dir + sbase, , 'USLC')
+    R_Use(dir_exe + sbase, , 'USLC')
 
     index on codemo to (cur_dir + 'tmp_uslc') ;
         for datebeg == 0d20190101 .and. eq_any(left(shifr, 5), '1.11.', '55.1.') ;
@@ -269,7 +269,7 @@ Function f_get_profil(k, r, c, lprofil_k)
   if empty(lprofil_k)
     return NIL
   endif
-  // R_Use(exe_dir + '_mo_t007', cur_dir + '_mo_t007', 'T7')
+  // R_Use(dir_exe + '_mo_t007', cur_dir + '_mo_t007', 'T7')
   // find (str(lprofil_k, 3))
   // do while lprofil_k == t7->profil_k .and. !eof()
   //   aadd(arr, {inieditspr(A__MENUVERT, getV002(), t7->PROFIL), t7->profil})
@@ -4755,7 +4755,7 @@ Function f_profil_k_t007_v020(lprk, /*@*/lpr, ldate_r)
     // if select('T7') > 0
     //   t7->(dbCloseArea())
     // endif
-    // R_Use(exe_dir + '_mo_t007', cur_dir + '_mo_t007', 'T7')
+    // R_Use(dir_exe + '_mo_t007', cur_dir + '_mo_t007', 'T7')
     // find (str(lprk, 3) + str(lpr, 3))
     // if found()
     //   lprk20 := t7->pk_V020
@@ -4803,7 +4803,7 @@ Function f_profil_k_v020_t007(sprk20, lpr, ldate_r)
     // if select('T7') > 0
     //   t7->(dbCloseArea())
     // endif
-    // R_Use(exe_dir + '_mo_t007', cur_dir + '_mo_t0072', 'T7')
+    // R_Use(dir_exe + '_mo_t007', cur_dir + '_mo_t0072', 'T7')
     // find (str(lprk20, 3) + str(lpr, 3))
     // if found()
     //   lprk := t7->profil_k

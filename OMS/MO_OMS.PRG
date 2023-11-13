@@ -578,7 +578,7 @@ Static Function when_ismo(get, old)
   endif
   mm_ismo := {}
   if !empty(m1okato)
-    R_Use(exe_dir+'_mo_smo', cur_dir + '_mo_smo', 'SMO')
+    R_Use(dir_exe+'_mo_smo', cur_dir + '_mo_smo', 'SMO')
     find (m1okato)
     do while smo->okato == m1okato .and. !eof()
       s := alltrim(smo->name)
