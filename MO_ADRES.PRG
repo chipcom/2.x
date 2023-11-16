@@ -501,11 +501,12 @@ Static Function val_AdGetSt(get, old, regim)
   eval(blk_s_adrs)
   return update_gets()
 
-// вернуть адрес в строке
+// 16.11.23 вернуть адрес в строке
 Static Function oktAdRetS(kod11, is_region, open_base)
   // is_region = 0 - не выводить нашу область
   // is_region = 1 - не выводить нашу область для Волгограда
   // is_region = 2 - выводить область
+  // is_region = 3 - выводить область с сокращенным наименованием
   Local lregion, lnas_punkt, loblast, tmp_select := select()
 
   DEFAULT is_region TO 0, open_base TO .t.
@@ -538,6 +539,12 @@ Static Function oktAdRetS(kod11, is_region, open_base)
   endif
   if left(kod11, 2) == '18' .and. is_region == 0
     lregion := '' // не выводим наименование Волгоградской области
+  elseif left(kod11, 2) == '18' .and. is_region == 3
+    if left(kod11, 5) == '18401'
+      lregion := '' // для Волгограда не выводим наименование области
+    else  
+      lregion := "Волгогр. обл." // выводить область с сокращенным наименованием, а для Волгограда - не выводим
+    endif
   elseif left(kod11, 5) == '18401' .and. is_region == 1
     lregion := '' // для Волгограда не выводим наименование области
   endif
