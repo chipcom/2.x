@@ -542,6 +542,7 @@ do case
     endif
     KPLAT->(dbCloseArea())
     //
+    Use_base("humanst",,,.T.) // только для чтения
     R_Use(dir_server+"uslugi",,"USL")
     R_Use(dir_server+"hum_p_u",dir_server+"hum_p_u","HU")
     set relation to u_kod into USL
@@ -557,7 +558,9 @@ do case
              {"vrach",     "C", 50, 0},;
              {"nds20",     "N",  1, 0},;
              {"nds18",     "N",  1, 0},;
-             {"nds10",     "N",  1, 0}}
+             {"nds10",     "N",  1, 0},;
+             {"kod_diag",  "C",  6, 0},; 
+             {"zf",        "C",  20,0} }
     dbcreate(cur_dir+"tmp",adbf)
     use (cur_dir+"tmp") new
     select HU
@@ -589,11 +592,19 @@ do case
       elseif lnds == 20
         tmp->nds20 := 1
       endif
+      // зубная формула
+      select HUMANST
+      find (str(2,1)+str(hu->(recno()),8))
+      if found()
+        tmp->KOD_DIAG  := humanst->KOD_DIAG
+        tmp->ZF        := humanst->ZF
+      endif
       select HU
       skip
     enddo
     usl->(dbCloseArea())
     hu->(dbCloseArea())
+    HUMANST->(dbCloseArea())
     select TMP
     index on fsort_usl(shifr) to (cur_dir+"tmp")
     Private p_summa := round_5(human->cena,2)

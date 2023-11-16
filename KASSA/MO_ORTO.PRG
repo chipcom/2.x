@@ -950,7 +950,7 @@ do case
       colorwin(6,0,6,79,"B/B","W+/W")
       colorwin(6,0,6,79,"B/B","W+/BG")
       colorwin(6,0,6,79,"B/B","W+/G")
-      colorwin(6,0,6,79,"B/B","W+/GR")
+      colorwin(6,0,6,79,"B/B","W+/GR") 
     endif
     Private mtip_opl, m1tip_opl := if(nKey == K_INS, 0, ho->tip_opl),;
             mtip_usl, m1tip_usl := if(nKey == K_INS, human->tip_usl, ho->tip_usl),;
@@ -2788,7 +2788,9 @@ Static st_tip_usl := 0
 Local i := 1, j, k, s, fl, buf := save_row(maxrow())
 Local luchast := "", arr, mfam1, mima1, mots1, m1vid_ud,;
       m1kategor := atail(stm_kategor)[2]  // т.е. прочие (последнее значение)
-Private file_sh1
+Local lnomer , l1nomer
+Private file_sh1, mLnomer
+Private okato_adresr, okato_adresg, m1fio
 if human->tip_usl == OU_B_PLAT  // бесплатно
   file_sh1 := mem_ort_bp
 else
@@ -2872,12 +2874,41 @@ R_Use(dir_server+"kartotek",,"KART")
 goto (mkod_kart)
 muchast     := kart->uchast
 mfio        := kart->fio           // фио
+m1fio       := kart->fio
 madres      := kart->adres         // адрес
 mmr_dol     := kart->mr_dol        // место работы должность
 mdate_r     := kart->date_r        // дата рождения
 if !empty(kart->SNILS)
   msnils := transform(kart->SNILS,picture_pf)
 endif
+// Номер карты
+lnomer := l1nomer := lstr(kart->kod)
+if is_uchastok == 1
+  if !emptyall(kart->bukva, kart->uchast, kart->kod_vu)
+    lnomer := ''
+    if !empty(kart->bukva)
+      lnomer += kart->bukva
+    endif
+    lnomer += lstr(kart->uchast, 2)
+    if kart->kod_vu > 0
+      lnomer += '/' + lstr(kart->kod_vu)
+    endif
+    l1nomer := lnomer
+  endif
+elseif eq_any(is_uchastok, 2, 3)
+  if !emptyall(kart->bukva, kart->uchast)
+    luchast := ' [уч-к '
+    if !empty(kart->bukva)
+      luchast += kart->bukva
+    endif
+    luchast += lstr(kart->uchast, 2)
+    luchast += '] '
+  endif
+  if is_uchastok == 3
+    luchast += alltrim(kart2->kod_AK)
+  endif
+endif
+mlnomer := lnomer + luchast
 kart->(dbclosearea())
 R_Use(dir_server+"kartote_",,"KART_")
 goto (mkod_kart)
@@ -2885,6 +2916,8 @@ m1vid_ud := kart_->vid_ud
 mnom     := kart_->nom_ud
 mser     := kart_->ser_ud
 mphone_m := kart_->phone_m
+okato_adresg := ret_okato_ulica("",kart_->okatog,1,2)
+okato_adresr := ret_okato_ulica("",kart_->okatop,1,2)
 kart_->(dbCloseArea())
 mphone_m := TransformPhone( mphone_m )
 //
