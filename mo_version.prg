@@ -9,7 +9,6 @@
 static st_version := {3, 11, 1, '+++'}
 static st_date_version := _DATA_VER
 static st__s_full_name := 'ЧИП + Учёт работы Медицинской Организации'
-static st_s_short_name := '[ЧИП + Учёт работы МО]'
 
 // 24.06.21 возврат номера версии
 function _version()
@@ -29,16 +28,6 @@ function __s_full_name()
 // 23.06.21 возврат строкового представления версии
 function __s_version()
   return '  в. ' + fs_version(_version()) + ' от ' + _date_version() + ' тел.(8442)23-69-56'
-
-// 16.11.23
-function full_name_version()
-
-  return __s_full_name() + __s_version()
-
-// 16.11.23
-function short_name_version()
-
-  return st_s_short_name + __s_version()
 
 // вернуть строку с номером версии
 Function fs_version(aVersion)
