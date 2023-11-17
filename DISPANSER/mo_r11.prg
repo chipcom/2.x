@@ -236,7 +236,6 @@ Function f_create_R11()
         skip
       enddo
     endif
-    //quit
   //else // первый раз
    /* select REES
     index on str(NMONTH,2)+str(nn,3) to (cur_dir+"tmp_dr01") for NYEAR == sgod .and. tip == 0

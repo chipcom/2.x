@@ -4547,7 +4547,6 @@ add_string("85- Направлен на реабилитацию                   = "+ padl(lstr(mas_n
 endif
 rest_box(buf)
 close databases
-//quit
 return NIL
 
 
