@@ -1,7 +1,7 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
-// 26.01.23 инициализация массива МО, запрос кода МО (при необходимости)
+// 17.11.23 инициализация массива МО, запрос кода МО (при необходимости)
 Function init_mo()
   Local fl := .t., i, cCode := '', buf := save_maxrow()
   // Local arr, arr1
@@ -130,7 +130,7 @@ Function init_mo()
 
   if ! fl
     hard_err('delete')
-    QUIT
+    full_end()
   endif
 
   return main_up_screen()

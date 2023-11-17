@@ -2462,7 +2462,6 @@ endif
 //
 //
 close databases
-//quit
 rest_box(buf)
 if fl_exit ; return NIL ; endif
 //

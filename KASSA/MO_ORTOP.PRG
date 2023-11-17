@@ -3308,7 +3308,6 @@ for prr := 1 to len(mm_orto_mat)
         skip
       enddo
     next
-    //quit
     // Итого по техникам
     // пересчет в материал
     j := tmp_it->(lastrec())

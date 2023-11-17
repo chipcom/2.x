@@ -912,7 +912,6 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL .and. (arr_m := 
       skip
     enddo
     use
- //   quit
  /*   verify_FF(HH-40, .t., sh)
     add_string(center("Сведения об установленных предварительных диагнозах (случаев)",sh))
     add_string("")
