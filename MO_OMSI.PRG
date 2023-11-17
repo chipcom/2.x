@@ -4317,7 +4317,6 @@ do while !eof()
   select PR
   skip
 enddo
-//quit
 select PR
 go top
 do while !eof()
@@ -4343,7 +4342,6 @@ do while !eof()
 enddo
 select TMP
 index on str(usl_ok, 1) +stroke to (cur_dir + 'tmp')
-//quit
 for i := 1 to 2
   ar := {}
   bk := {4, 5}[i] ; j := 0

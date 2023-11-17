@@ -326,7 +326,6 @@ Function forma14_med_oms()
             skip
           enddo
         endif
-        //quit 
         if koef > 0
           afill(fl_pol1, 0)
           is_vmp := (human_2->VMP == 1)
@@ -1454,7 +1453,6 @@ Function forma14_med_oms()
     select SCHET
     skip
   enddo
-  //quit
   delete file (filetmp14)
   if !fl_exit .and. tmpf14->(lastrec()) > 0
     HH := 80

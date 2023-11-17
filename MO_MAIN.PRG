@@ -16,7 +16,7 @@ Dynamic f1forma_792_MIAC
 Dynamic monitoring_vid_pom
 Dynamic b_25_perinat_2
 
-// 04.06.23
+// 17.11.23
 Procedure Main( ... )
   Local r, s, is_create := .f., is_copy := .f., is_index := .f.
   Local a_parol, buf, is_local_version
@@ -138,7 +138,7 @@ Procedure Main( ... )
 
   If ! files_nsi_exists( dir_exe )
     hard_err( 'delete' )
-    Quit
+    full_end()
   Endif
 
   // a_parol := inp_password(is_local_version,is_create)
@@ -496,10 +496,7 @@ Function f_first( is_create )
   // verify_1_task()
   If isexerunning( nameTask ) // проверить, запущена ли уже данная задача, если 'да' - выход из задачи
     func_error( 10, 'Программа "' + Upper( nameTask ) + '" уже запущена. Запуск второй копии не разрешён!' )
-    Set Color To
-    Set Cursor On
-    CLS
-    Quit
+    full_end()
   Endif
   //
   If hb_FileExists( 'server.mem' )
@@ -526,12 +523,12 @@ Function f_first( is_create )
   is_server( dir_server, cur_dir )
   If !is_create .and. !hb_FileExists( dir_server + 'human' + sdbf )
     func_error( 'Не обнаружены файлы базы данных! Обратитесь к системному администратору.' )
-    Quit
+    full_end()
   Endif
   //
   If hb_FileExists( dir_server + 'plat.dbf' )
     func_error( 'Вероятнее всего, Вы запускаете программу в каталоге СЧЕТА. Это недопустимо!' )
-    Quit
+    full_end()
   Endif
   Set Key K_ALT_F3 To calendar
   Set Key K_ALT_F2 To calc
@@ -545,7 +542,7 @@ Function f_first( is_create )
 
   Return is_local_version
 
-// 02.11.15
+// 17.11.23
 Function hard_err( p )
   // k = 1 - проверка диска на наличие временного файла hard_err.meh
   // и, если он есть, вывод текста о необходимости переиндексирования;
@@ -578,10 +575,7 @@ Function hard_err( p )
       If f_alert( { PadC( 'Выберите действие', 60, '.' ) }, ;
           { ' Выход из задачи ', ' Продолжение работы ' }, ;
           1, 'W+/N', 'N+/N', 20, , 'W+/N, N/BG' ) != 2
-        Set Color To
-        Set Cursor On
-        CLS
-        Quit
+        full_end()
       Endif
       fillscreen( p_char_screen, p_color_screen )
     Endif
@@ -589,62 +583,6 @@ Function hard_err( p )
   Case k == 2
     Delete file hard_err.meh
   Endcase
-
-  Return Nil
-
-// 13.06.22
-Function f_end( yes_copy )
-  Static group_ini := 'RAB_MESTO'
-  Local i, spath := '', bSaveHandler := ErrorBlock( {| x| Break( x ) } )
-
-  Begin Sequence
-    write_rest_pp() // записать незаписанные истории болезней из приёмного покоя
-    Close All
-    Default yes_copy To .t.
-    If yes_copy
-      i := getinivar( tmp_ini, { { group_ini, 'base_copy', '1' }, ;
-        { group_ini, 'path_copy', '' } } )
-      If i[ 1 ] != Nil .and. i[ 1 ] == '1' .and. g_slock1task( sem_task, sem_vagno )
-        If Len( i ) > 1 .and. i[ 2 ] != Nil .and. !Empty( i[ 2 ] )
-          spath := i[ 2 ]
-        Endif
-        m_copy_db_from_end( .f., spath ) // резервное копирование
-        g_sunlock( sem_vagno ) // разрешение доступа всем
-      Endif
-    Endif
-  RECOVER USING error
-    //
-  End
-  //
-  Begin Sequence
-    g_sclose( sem_task ) // удалить все семафоры для данной задачи
-  RECOVER USING error
-    //
-  End
-  ErrorBlock( bSaveHandler )
-  //
-  hard_err( 'delete' )
-  If __mvExist( 'cur_dir' )
-    FileDelete( cur_dir + 'tmp*.dbf' )
-    FileDelete( cur_dir + 'tmp*.ntx' )
-    FileDelete( _tmp_dir1 + '*.*' )
-    If hb_DirExists( cur_dir + _tmp_dir ) .and. hb_DirDelete( cur_dir + _tmp_dir ) != 0
-      // func_error(4, 'Не могу удалить каталог ''+'cur_dir'+'_tmp_dir)
-    Endif
-    FileDelete( _tmp2dir1 + '*.*' )
-    If hb_DirExists( cur_dir + _tmp2dir ) .and. hb_DirDelete( cur_dir + _tmp2dir ) != 0
-      // func_error(4, 'Не могу удалить каталог ' + cur_dir + _tmp2dir)
-    Endif
-  Endif
-  // удалим файлы отчетов в формате '*.HTML' из временной директории
-  FileDelete( hb_DirTemp() + '*.html' )
-  Set Key K_ALT_F3 To
-  Set Key K_ALT_F2 To
-  Set Key K_ALT_X  To
-  Set Color To
-  Set Cursor On
-  CLS
-  Quit
 
   Return Nil
 
@@ -932,3 +870,64 @@ Function my_mo_begin_task()
   Endif
 
   Return fl
+
+// 17.11.23
+function full_end()
+
+  Set Key K_ALT_F3 To
+  Set Key K_ALT_F2 To
+  Set Key K_ALT_X  To
+  Set Color To
+  Set Cursor On
+  CLS
+  Quit
+  return nil
+
+// 17.11.23
+Function f_end( yes_copy )
+  Static group_ini := 'RAB_MESTO'
+  Local i, spath := '', bSaveHandler := ErrorBlock( {| x| Break( x ) } )
+
+  Begin Sequence
+    write_rest_pp() // записать незаписанные истории болезней из приёмного покоя
+    Close All
+    Default yes_copy To .t.
+    If yes_copy
+      i := getinivar( tmp_ini, { { group_ini, 'base_copy', '1' }, ;
+        { group_ini, 'path_copy', '' } } )
+      If i[ 1 ] != Nil .and. i[ 1 ] == '1' .and. g_slock1task( sem_task, sem_vagno )
+        If Len( i ) > 1 .and. i[ 2 ] != Nil .and. !Empty( i[ 2 ] )
+          spath := i[ 2 ]
+        Endif
+        m_copy_db_from_end( .f., spath ) // резервное копирование
+        g_sunlock( sem_vagno ) // разрешение доступа всем
+      Endif
+    Endif
+  RECOVER USING error
+    //
+  End
+  //
+  Begin Sequence
+    g_sclose( sem_task ) // удалить все семафоры для данной задачи
+  RECOVER USING error
+    //
+  End
+  ErrorBlock( bSaveHandler )
+  //
+  hard_err( 'delete' )
+  If __mvExist( 'cur_dir' )
+    FileDelete( cur_dir + 'tmp*.dbf' )
+    FileDelete( cur_dir + 'tmp*.ntx' )
+    FileDelete( _tmp_dir1 + '*.*' )
+    If hb_DirExists( cur_dir + _tmp_dir ) .and. hb_DirDelete( cur_dir + _tmp_dir ) != 0
+      // func_error(4, 'Не могу удалить каталог ''+'cur_dir'+'_tmp_dir)
+    Endif
+    FileDelete( _tmp2dir1 + '*.*' )
+    If hb_DirExists( cur_dir + _tmp2dir ) .and. hb_DirDelete( cur_dir + _tmp2dir ) != 0
+      // func_error(4, 'Не могу удалить каталог ' + cur_dir + _tmp2dir)
+    Endif
+  Endif
+  // удалим файлы отчетов в формате '*.HTML' из временной директории
+  FileDelete( hb_DirTemp() + '*.html' )
+  full_end()
+  Return Nil
