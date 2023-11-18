@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 23.10.23
+// 18.11.23
 Function print_l_uch(mkod, par, regim, lnomer)
   // mkod - код больного по БД human
   Local sh := 80, HH := 77, buf := save_maxrow(), ;
@@ -418,30 +418,15 @@ Function print_l_uch(mkod, par, regim, lnomer)
       lname := usl->name
 
       tmpAlias := create_name_alias('LUSL',  year(human->k_data))
-      if (tmpAlias)->(used())
+      if check_files_TFOMS(year(human->k_data))
         select (tmpAlias)
         find (padr(usl->shifr, 10))
         if found()
           lname := (tmpAlias)->name  // наименование услуги из справочника ТФОМС
         endif
+      else
+        func_error(4, 'Отсутствуют справочники ТФОМС за ' + str(year(human->k_data), 4) +' год.' )
       endif
-      // select LUSL 
-      // find (padr(usl->shifr, 10))
-      // if found()
-      //   lname := lusl->name  // наименование услуги из справочника ТФОМС
-      // else
-      //   select LUSL19
-      //   find (padr(usl->shifr, 10))
-      //   if found()
-      //     lname := lusl19->name  // наименование услуги из справочника ТФОМС
-      //   else
-      //     select LUSL18
-      //     find (padr(usl->shifr, 10))
-      //     if found()
-      //       lname := lusl18->name  // наименование услуги из справочника ТФОМС
-      //     endif
-      //   endif
-      // endif
       lshifr1 := opr_shifr_TFOMS(usl->shifr1, usl->kod, human->k_data)
       select TMP1
       append blank
@@ -455,10 +440,12 @@ Function print_l_uch(mkod, par, regim, lnomer)
       tmp1->kod_diag := hu_->KOD_DIAG
       tmp1->dom := iif(between(hu->kol_rcp, -2, -1), -hu->kol_rcp, 0)
       tmp1->otd := otd->short_name
-      if human->k_data < 0d20120301
-        tmp1->plus := !f_paraklinika(usl->shifr, lshifr1, c4tod(hu->date_u))
-      else
-        tmp1->plus := !f_paraklinika(usl->shifr, lshifr1, human->k_data)
+      if check_files_TFOMS(year(human->k_data))
+        if human->k_data < 0d20120301
+          tmp1->plus := !f_paraklinika(usl->shifr, lshifr1, c4tod(hu->date_u))
+        else
+          tmp1->plus := !f_paraklinika(usl->shifr, lshifr1, human->k_data)
+        endif
       endif
       tmp1->profil := hu_->profil
       tmp1->is_edit := hu->is_edit
@@ -479,11 +466,13 @@ Function print_l_uch(mkod, par, regim, lnomer)
       Select MOSU
       goto (mohu->u_kod)
       lname := mosu->name
-      tmpAlias := create_name_alias('LUSLF',  year(human->k_data))
-      select (tmpAlias)
-      find (padr(mosu->shifr1, 20))
-      if found()
-        lname := (tmpAlias)->name  // наименование услуги из справочника ТФОМС
+      if check_files_TFOMS(year(human->k_data))
+        tmpAlias := create_name_alias('LUSLF',  year(human->k_data))
+        select (tmpAlias)
+        find (padr(mosu->shifr1, 20))
+        if found()
+          lname := (tmpAlias)->name  // наименование услуги из справочника ТФОМС
+        endif
       endif
 
       select TMP1
@@ -631,7 +620,6 @@ Function print_l_uch(mkod, par, regim, lnomer)
           next
         endif
     // elseif human_->USL_OK == 1 // стационар
-      //   altd()
       //   s := iif(empty(tmp1->shifr1), tmp1->shifr, tmp1->shifr1)
       //   if human_->USL_OK < 3 .and. !empty(human_2->pc1)
       //     akslp := List2Arr(human_2->pc1)
@@ -1007,7 +995,7 @@ Function print_al_uch(arr_h, arr_m)
         name_lpu, mvzros_reb, mreg_lech, mmest_inog, mrab_nerab, ;
         mkomu, name_org, mlech_vr := '', mishod, mprodol, msumma := 0, mmi_git, ;
         mud_lich := '', arr, n_file := cur_dir + 'list_uch' + stxt, adiag_talon[16], ;
-        i := 1, j, k, tmp[2], tmp1, w1 := 65, s, mnum_lu, fl_parakl, lshifr1
+        i := 1, ii, j, k, tmp[2], tmp1, w1 := 65, s, mnum_lu, fl_parakl, lshifr1
   local diagVspom := '', diagMemory := '', add_criteria
   
   mywait()
@@ -1174,16 +1162,6 @@ Function print_al_uch(arr_h, arr_m)
     endif
     tmp1 := ''
   
-    // if len(arr) > 0
-    //   add_string('  Шифр основного заболевания: ' + arr[1])
-    //   if len(arr) > 1
-    //     tmp1 := '  Шифры сопутствующих заболеваний:'
-    //     for j := 2 to len(arr)
-    //       tmp1 += ' ' + arr[j]
-    //     next
-    //     add_string(tmp1)
-    //   endif
-    // endif
     verify_FF(HH - 6, .t., sh)
     if human_->PROFIL > 0
       add_string('  Профиль: ' + inieditspr(A__MENUVERT, getV002(), human_->PROFIL))
@@ -1218,10 +1196,12 @@ Function print_al_uch(arr_h, arr_m)
         tmp1->rec_hu := hu->(recno())
         tmp1->kod_diag := hu_->KOD_DIAG
         tmp1->otd := otd->short_name
-        if human->k_data < 0d20120301
-          tmp1->plus := !f_paraklinika(usl->shifr, lshifr1, c4tod(hu->date_u))
-        else
-          tmp1->plus := !f_paraklinika(usl->shifr, lshifr1, human->k_data)
+        if check_files_TFOMS(year(human->k_data))
+          if human->k_data < 0d20120301
+            tmp1->plus := !f_paraklinika(usl->shifr, lshifr1, c4tod(hu->date_u))
+          else
+            tmp1->plus := !f_paraklinika(usl->shifr, lshifr1, human->k_data)
+          endif
         endif
         tmp1->is_edit := hu->is_edit
         tmp1->kod_vr := hu->kod_vr
@@ -1321,7 +1301,7 @@ Function print_al_uch(arr_h, arr_m)
       s := alltrim(s) + ' (+ ' + lput_kop(mpsumma, .t.) + ')'
     endi
     add_string(padl(s, sh))
-  next ii
+  next  // ii
   close databases
   fclose(fp)
   rest_box(buf)
@@ -1352,10 +1332,11 @@ Function create_FR_file_for_spravkaOMS()
   index on shifr to (cur_dir + 'tmp1')
   return NIL
 
-// 12.12.14 печать справки ОМС по готовому листу учёта
+// 18.11.23 печать справки ОМС по готовому листу учёта
 Function print_spravka_OMS(mkod)
   // mkod - код больного по БД human
   Local r1, c1, r2, c2, mdate, buf := save_maxrow(), msumma := 0, lshifr
+  local tmpAlias
 
   get_row_col_max(18, 4, @r1, @c1, @r2, @c2)
   if (mdate := input_value(r1, c1, r2, c2, color1, ;
@@ -1380,6 +1361,11 @@ Function print_spravka_OMS(mkod)
     close databases
     return func_error(4, 'Дата выдачи справки меньше даты окончания лечения!')
   endif
+  tmpAlias := create_name_alias('LUSL',  year(human->k_data))
+  if ! check_files_TFOMS(year(human->k_data))
+    func_error(4, 'Отсутствуют справочники ТФОМС за ' + str(year(human->k_data), 4) +' год.' )
+  endif
+
   frt->data := mdate
   frt->data1 := human->n_data
   frt->data2 := human->k_data
@@ -1390,22 +1376,37 @@ Function print_spravka_OMS(mkod)
     if !emptyany(hu->kol_1, hu->stoim_1)
       usl->(dbGoto(hu->u_kod))
       lshifr := opr_shifr_TFOMS(usl->shifr1, usl->kod, human->k_data)
-      if is_usluga_TFOMS(usl->shifr,lshifr, human->k_data)
+      if check_files_TFOMS(year(human->k_data))
+        if is_usluga_TFOMS(usl->shifr,lshifr, human->k_data)
+          lshifr := iif(empty(lshifr), usl->shifr, lshifr)
+          select LUSL
+          find (padr(lshifr, 10))
+          Select FRD
+          find (padr(lshifr, 10))
+          if !found()
+            append blank
+            frd->shifr := lshifr
+            frd->name := lusl->name  // наименование услуги из справочника ТФОМС
+            frd->cena := hu->stoim_1 / hu->kol_1
+          endif
+          frd->kol += hu->kol_1
+          frd->summa += hu->stoim_1
+          msumma += hu->stoim_1
+        endif
+      else
         lshifr := iif(empty(lshifr), usl->shifr, lshifr)
-        select LUSL
-        find (padr(lshifr, 10))
         Select FRD
         find (padr(lshifr, 10))
         if !found()
           append blank
           frd->shifr := lshifr
-          frd->name := lusl->name  // наименование услуги из справочника ТФОМС
+          frd->name := 'Отсутствуют справочники ТФОМС за ' + str(year(human->k_data), 4) +' год.'
           frd->cena := hu->stoim_1 / hu->kol_1
         endif
         frd->kol += hu->kol_1
         frd->summa += hu->stoim_1
         msumma += hu->stoim_1
-      endif
+    endif
     endif
     select HU
     Skip
