@@ -124,8 +124,6 @@ Function verify_OMS(arr_m, fl_view)
       else
         if arr_m[1] > 2018
           fl := verify_1_sluch(fl_view)
-        // else
-        //   fl := verify_1_sluch_18(fl_view)
         endif
         if fl
           ++iprov
