@@ -6,322 +6,326 @@
 Static Sreestr_sem := "Работа с реестрами"
 Static Sreestr_err := "В данный момент с реестрами работает другой пользователь."
 
-** 03.02.23
+// 03.02.23
 Function create_reestr()
-  Local buf := save_maxrow(), i, j, k := 0, k1 := 0, arr, bSaveHandler, fl, rec, pole, arr_m
-  local nameArr
-  local tip_lu
 
-  if ! hb_user_curUser:IsAdmin()
-    return func_error(4, err_admin)
-  endif
-  if find_unfinished_reestr_sp_tk()
-    return func_error(4, 'Попытайтесь снова')
-  endif
-  if (arr_m := year_month(T_ROW, T_COL + 5, , 3)) == NIL
-    return NIL
-  endif
-  //!!! ВНИМАНИЕ
-  if DONT_CREATE_REESTR_YEAR == arr_m[1]
-    return func_error(4, 'Реестры за ' + str(DONT_CREATE_REESTR_YEAR, 4) + ' год недоступны')
-  endif
-  if !myFileDeleted(cur_dir + 'tmpb' + sdbf)
-    return NIL
-  endif
-  if !myFileDeleted(cur_dir + 'tmp' + sdbf)
-    return NIL
-  endif
-  arr := {'Предупреждение!', ;
-          '', ;
-          'Во время составления реестра', ;
-          'никто не должен работать в задаче ОМС'}
-  n_message(arr, , 'GR+/R', 'W+/R', , , 'G+/R')
+  Local buf := save_maxrow(), i, j, k := 0, k1 := 0, arr, bSaveHandler, fl, rec, pole, arr_m
+  Local nameArr
+  Local tip_lu
+
+  If ! hb_user_curUser:isadmin()
+    Return func_error( 4, err_admin )
+  Endif
+  If find_unfinished_reestr_sp_tk()
+    Return func_error( 4, 'Попытайтесь снова' )
+  Endif
+  If ( arr_m := year_month( T_ROW, T_COL + 5, , 3 ) ) == NIL
+    Return Nil
+  Endif
+  // !!! ВНИМАНИЕ
+  If DONT_CREATE_REESTR_YEAR == arr_m[ 1 ]
+    Return func_error( 4, 'Реестры за ' + Str( DONT_CREATE_REESTR_YEAR, 4 ) + ' год недоступны' )
+  Endif
+  If !myfiledeleted( cur_dir + 'tmpb' + sdbf )
+    Return Nil
+  Endif
+  If !myfiledeleted( cur_dir + 'tmp' + sdbf )
+    Return Nil
+  Endif
+  arr := { 'Предупреждение!', ;
+    '', ;
+    'Во время составления реестра', ;
+    'никто не должен работать в задаче ОМС' }
+  n_message( arr, , 'GR+/R', 'W+/R', , , 'G+/R' )
   Private pkol := 0, psumma := 0, ;
-          CODE_LPU := glob_mo[_MO_KOD_TFOMS], ;
-          CODE_MO  := glob_mo[_MO_KOD_FFOMS]
-  stat_msg('Подождите, работаю...')
-  dbcreate(cur_dir + 'tmpb', { ;
-      {'kod_tmp'  , 'N', 6, 0}, ;
-      {'kod_human', 'N', 7, 0}, ;
-      {'fio'      , 'C', 50, 0}, ;
-      {'n_data'   , 'D', 8, 0}, ;
-      {'k_data'   , 'D', 8, 0}, ;
-      {'cena_1'   , 'N', 11, 2}, ;
-      {'PZKOL'    , 'N', 3, 0}, ;
-      {'PZ'       , 'N', 3, 0}, ;
-      {'ishod'    , 'N', 3, 0}, ;
-      {'tip'      , 'N', 1, 0}, ; // 1 - обычный реестр, 2 -диспансеризация
-      {'yes_del'  , 'L', 1, 0}, ; // надо ли удалить после дополнительной проверки
-      {'PLUS'     , 'L', 1, 0} ;  // включается ли в счет
-     })
-  use (cur_dir + 'tmpb') new
-  index on str(kod_human, 7) to (cur_dir + 'tmpb')
+    CODE_LPU := glob_mo[ _MO_KOD_TFOMS ], ;
+    CODE_MO  := glob_mo[ _MO_KOD_FFOMS ]
+  stat_msg( 'Подождите, работаю...' )
+  dbCreate( cur_dir + 'tmpb', { ;
+    { 'kod_tmp', 'N', 6, 0 }, ;
+    { 'kod_human', 'N', 7, 0 }, ;
+    { 'fio', 'C', 50, 0 }, ;
+    { 'n_data', 'D', 8, 0 }, ;
+    { 'k_data', 'D', 8, 0 }, ;
+    { 'cena_1', 'N', 11, 2 }, ;
+    { 'PZKOL', 'N', 3, 0 }, ;
+    { 'PZ', 'N', 3, 0 }, ;
+    { 'ishod', 'N', 3, 0 }, ;
+    { 'tip', 'N', 1, 0 }, ; // 1 - обычный реестр, 2 -диспансеризация
+    { 'yes_del', 'L', 1, 0 }, ; // надо ли удалить после дополнительной проверки
+    { 'PLUS', 'L', 1, 0 } ;  // включается ли в счет
+  } )
+  Use ( cur_dir + 'tmpb' ) new
+  Index On Str( kod_human, 7 ) to ( cur_dir + 'tmpb' )
 
   adbf := { ;
-      {'MIN_DATE',    'D',     8,     0}, ;
-      {'DNI',         'N',     3,     0}, ;
-      {'NYEAR',       'N',     4,     0}, ; // отчетный год;;
-      {'NMONTH',      'N',     2,     0}, ; // отчетный месяц;;
-      {'KOL',         'N',     6,     0}, ;
-      {'SUMMA',       'N',    15,     2}, ;
-      {'"KOD',         'N',     6,     0}}
-  
-  // for i := 0 to 99
-  for i := 0 to 150   // для таблицы _moXunit 03.02.23
-    aadd(adbf, {'PZ' + lstr(i), 'N', 9, 2})
-  next
-  mnyear := arr_m[1]
-  mnmonth := arr_m[3]
-  dbcreate(cur_dir + 'tmp', adbf)
+    { 'MIN_DATE',    'D',     8,     0 }, ;
+    { 'DNI',         'N',     3,     0 }, ;
+    { 'NYEAR',       'N',     4,     0 }, ; // отчетный год;;
+    { 'NMONTH',      'N',     2,     0 }, ; // отчетный месяц;;
+    { 'KOL',         'N',     6,     0 }, ;
+    { 'SUMMA',       'N',    15,     2 }, ;
+    { 'KOD',         'N',     6,     0 } }
 
-  Use (cur_dir + 'tmp') new alias TMP
-  append blank
-  replace tmp->nyear with mnyear, tmp->nmonth with mnmonth, tmp->min_date with arr_m[6]
-  R_Use(dir_server + 'mo_otd', , 'OTD')
-  R_Use(dir_server + 'human_', , 'HUMAN_')
-  R_Use(dir_server + 'human', dir_server + 'humand', 'HUMAN')
-  set relation to recno() into HUMAN_
-  dbseek(dtos(arr_m[5]),.t.)
-  do while human->k_data <= arr_m[6] .and. !eof()
-    if ++k1 % 100 == 0
-      @ maxrow(), 1 say lstr(k1) color cColorSt2Msg
-      @ row(), col() say '/' color 'W/R'
-      @ row(), col() say lstr(k) color cColorStMsg
-    endif
-      OTD->(dbGoto(human->OTD))
-      if ! (OTD->(eof())) .and. ! (OTD->(bof()))
-        tip_lu := OTD->TIPLU
-      else
-        tip_lu := 0
-      endif
-      if human->tip_h == B_STANDART .and. emptyall(human_->reestr, human->schet) ;
-                                  .and. (human->cena_1 > 0 .or. human_->USL_OK == 4 .or. tip_lu == TIP_LU_ONKO_DISP) ;
-                                  .and. val(human_->smo) > 0 .and. human_->ST_VERIFY >= 5 // и проверили 
-        if tmp->kol < 999999
-          ++k
-          if ! exist_reserve_KSG(human->kod, 'HUMAN')
-            tmp->kol++
-            tmp->min_date := min(tmp->min_date, human->k_data)
-          endif
-          tmp->summa += human->cena_1
-        endif
-      endif
-    select HUMAN
-    skip
-  enddo
-  close databases
-  if k == 0
-    rest_box(buf)
-    func_error(4, 'Нет пациентов для включения в реестр с датой окончания ' + arr_m[4])
-  else
-    Use (cur_dir + 'tmp') new
+  // for i := 0 to 99
+  For i := 0 To 150   // для таблицы _moXunit 03.02.23
+    AAdd( adbf, { 'PZ' + lstr( i ), 'N', 9, 2 } )
+  Next
+  mnyear := arr_m[ 1 ]
+  mnmonth := arr_m[ 3 ]
+  dbCreate( cur_dir + 'tmp', adbf )
+
+  Use ( cur_dir + 'tmp' ) New Alias TMP
+  Append Blank
+  Replace tmp->nyear With mnyear, tmp->nmonth With mnmonth, tmp->min_date With arr_m[ 6 ]
+  r_use( dir_server + 'mo_otd', , 'OTD' )
+  r_use( dir_server + 'human_', , 'HUMAN_' )
+  r_use( dir_server + 'human', dir_server + 'humand', 'HUMAN' )
+  Set Relation To RecNo() into HUMAN_
+  dbSeek( DToS( arr_m[ 5 ] ), .t. )
+  Do While human->k_data <= arr_m[ 6 ] .and. !Eof()
+    If++k1 % 100 == 0
+      @ MaxRow(), 1 Say lstr( k1 ) Color cColorSt2Msg
+      @ Row(), Col() Say '/' Color 'W/R'
+      @ Row(), Col() Say lstr( k ) Color cColorStMsg
+    Endif
+    OTD->( dbGoto( human->OTD ) )
+    If ! ( OTD->( Eof() ) ) .and. ! ( OTD->( Bof() ) )
+      tip_lu := OTD->TIPLU
+    Else
+      tip_lu := 0
+    Endif
+    If human->tip_h == B_STANDART .and. emptyall( human_->reestr, human->schet ) ;
+        .and. ( human->cena_1 > 0 .or. human_->USL_OK == 4 .or. tip_lu == TIP_LU_ONKO_DISP ) ;
+        .and. Val( human_->smo ) > 0 .and. human_->ST_VERIFY >= 5 // и проверили
+      If tmp->kol < 999999
+        ++k
+        If ! exist_reserve_ksg( human->kod, 'HUMAN' )
+          tmp->kol++
+          tmp->min_date := Min( tmp->min_date, human->k_data )
+        Endif
+        tmp->summa += human->cena_1
+      Endif
+    Endif
+    Select HUMAN
+    Skip
+  Enddo
+  Close databases
+  If k == 0
+    rest_box( buf )
+    func_error( 4, 'Нет пациентов для включения в реестр с датой окончания ' + arr_m[ 4 ] )
+  Else
+    Use ( cur_dir + 'tmp' ) new
     k := sys_date - tmp->min_date
-    tmp->dni := iif(between(k, 1, 999), k, 0)
-    go top
-    rest_box(buf)
-    if Alpha_Browse(T_ROW, 2, T_ROW + 7, 77, 'f1create_reestr', color0, ;
-                    'Невыписанные реестры случаев', 'R/BG', , , , , 'f2create_reestr', , ;
-                    {'═','░','═', 'N/BG,W+/N,B/BG,W+/B,R/BG', .f., 180} )
-      rest_box(buf)
+    tmp->dni := iif( Between( k, 1, 999 ), k, 0 )
+    Go Top
+    rest_box( buf )
+    If alpha_browse( T_ROW, 2, T_ROW + 7, 77, 'f1create_reestr', color0, ;
+        'Невыписанные реестры случаев', 'R/BG', , , , , 'f2create_reestr', , ;
+        { '═', '░', '═', 'N/BG,W+/N,B/BG,W+/B,R/BG', .f., 180 } )
+      rest_box( buf )
       // if .f.
-      if sys_date < stod(strzero(tmp->nyear,4)+strzero(tmp->nmonth,2)+ "11")
-        func_error(10, "Сегодня "+date_8(sys_date)+ ", а реестры разрешается отсылать с 11 числа")
-      elseif mo_Lock_Task(X_OMS)
-        close databases
+      If sys_date < SToD( StrZero( tmp->nyear, 4 ) + StrZero( tmp->nmonth, 2 ) + "11" )
+        func_error( 10, "Сегодня " + date_8( sys_date ) + ", а реестры разрешается отсылать с 11 числа" )
+      Elseif mo_lock_task( X_OMS )
+        Close databases
         fl := .t.
-        bSaveHandler := ERRORBLOCK( {|x| BREAK(x)} )
-        BEGIN SEQUENCE
-          R_Use(dir_server + "human")
-          index on str(schet,6)+str(tip_h,1)+upper(substr(fio,1,20)) to (dir_server + "humans") progress
-          index on str(if(kod>0,kod_k,0),7)+str(tip_h,1) to (dir_server + "humankk") progress
-          index on dtos(k_data)+uch_doc to (dir_server + "humand") progress
+        bSaveHandler := ErrorBlock( {| x| Break( x ) } )
+        Begin Sequence
+          r_use( dir_server + "human" )
+          Index On Str( schet, 6 ) + Str( tip_h, 1 ) + Upper( SubStr( fio, 1, 20 ) ) to ( dir_server + "humans" ) progress
+          Index On Str( if( kod > 0, kod_k, 0 ), 7 ) + Str( tip_h, 1 ) to ( dir_server + "humankk" ) progress
+          Index On DToS( k_data ) + uch_doc to ( dir_server + "humand" ) progress
           Use
-          R_Use(dir_server + "human_u")
-          index on str(kod,7)+date_u to (dir_server + "human_u") progress
+          r_use( dir_server + "human_u" )
+          Index On Str( kod, 7 ) + date_u to ( dir_server + "human_u" ) progress
           Use
-          R_Use(dir_server + "mo_hu")
-          index on str(kod,7)+date_u to (dir_server + "mo_hu") progress
+          r_use( dir_server + "mo_hu" )
+          Index On Str( kod, 7 ) + date_u to ( dir_server + "mo_hu" ) progress
           Use
-          R_Use(dir_server + "human_3")
-          index on str(kod,7) to (dir_server + "human_3") progress
-          index on str(kod2,7) to (dir_server + "human_32") progress
+          r_use( dir_server + "human_3" )
+          Index On Str( kod, 7 ) to ( dir_server + "human_3" ) progress
+          Index On Str( kod2, 7 ) to ( dir_server + "human_32" ) progress
           Use
-          R_Use(dir_server + "mo_onkna")
-          index on str(kod,7) to (dir_server + "mo_onkna") progress
-          R_Use(dir_server + "mo_onksl")
-          index on str(kod,7) to (dir_server + "mo_onksl") progress
-          R_Use(dir_server + "mo_onkco")
-          index on str(kod,7) to (dir_server + "mo_onkco") progress
-          R_Use(dir_server + "mo_onkdi")
-          index on str(kod,7)+str(diag_tip,1)+str(diag_code,3) to (dir_server + "mo_onkdi") progress
-          R_Use(dir_server + "mo_onkpr")
-          index on str(kod,7)+str(prot,1) to (dir_server + "mo_onkpr") progress
-          R_Use(dir_server + "mo_onkus")
-          index on str(kod,7)+str(usl_tip,1) to (dir_server + "mo_onkus") progress
-          R_Use(dir_server + "mo_onkle")
-          index on str(kod,7)+regnum+code_sh+dtos(date_inj) to (dir_server + "mo_onkle") progress
+          r_use( dir_server + "mo_onkna" )
+          Index On Str( kod, 7 ) to ( dir_server + "mo_onkna" ) progress
+          r_use( dir_server + "mo_onksl" )
+          Index On Str( kod, 7 ) to ( dir_server + "mo_onksl" ) progress
+          r_use( dir_server + "mo_onkco" )
+          Index On Str( kod, 7 ) to ( dir_server + "mo_onkco" ) progress
+          r_use( dir_server + "mo_onkdi" )
+          Index On Str( kod, 7 ) + Str( diag_tip, 1 ) + Str( diag_code, 3 ) to ( dir_server + "mo_onkdi" ) progress
+          r_use( dir_server + "mo_onkpr" )
+          Index On Str( kod, 7 ) + Str( prot, 1 ) to ( dir_server + "mo_onkpr" ) progress
+          r_use( dir_server + "mo_onkus" )
+          Index On Str( kod, 7 ) + Str( usl_tip, 1 ) to ( dir_server + "mo_onkus" ) progress
+          r_use( dir_server + "mo_onkle" )
+          Index On Str( kod, 7 ) + regnum + code_sh + DToS( date_inj ) to ( dir_server + "mo_onkle" ) progress
           Use
         RECOVER USING error
-          fl := func_error(10, "Возникла непредвиденная ошибка при переиндексировании!")
-        END
-        ERRORBLOCK(bSaveHandler)
-        close databases
-        if fl
+          fl := func_error( 10, "Возникла непредвиденная ошибка при переиндексировании!" )
+        End
+        ErrorBlock( bSaveHandler )
+        Close databases
+        If fl
           Private kol_1r := 0, kol_2r := 0, p_tip_reestr := 1
-          verify_OMS(arr_m, .f.)
-          ClrLine(maxrow(), color0)
-          if kol_1r == 0 .and. kol_2r == 0
+          verify_oms( arr_m, .f. )
+          clrline( MaxRow(), color0 )
+          If kol_1r == 0 .and. kol_2r == 0
             //
-          elseif kol_1r > 0 .and. kol_2r == 0
+          Elseif kol_1r > 0 .and. kol_2r == 0
             p_tip_reestr := 1
-          elseif kol_1r == 0 .and. kol_2r > 0
+          Elseif kol_1r == 0 .and. kol_2r > 0
             p_tip_reestr := 2
-          elseif f_alert({"",;
-                          padc("Выберите тип реестра случаев для отправки в ТФОМС",70, "."),;
-                          ""},;
-                         {" Реестр ~обычный("+lstr(kol_1r)+ ")", " Реестр по ~диспансеризации("+lstr(kol_2r)+ ")"},;
-                         1, "W/RB", "G+/RB",maxrow()-6,, "BG+/RB,W+/R,W+/RB,GR+/R" ) == 2
+          Elseif f_alert( { "", ;
+              PadC( "Выберите тип реестра случаев для отправки в ТФОМС", 70, "." ), ;
+              "" }, ;
+              { " Реестр ~обычный(" + lstr( kol_1r ) + ")", " Реестр по ~диспансеризации(" + lstr( kol_2r ) + ")" }, ;
+              1, "W/RB", "G+/RB", MaxRow() -6,, "BG+/RB,W+/R,W+/RB,GR+/R" ) == 2
             p_tip_reestr := 2
-          endif
+          Endif
           mywait()
-          use (cur_dir + "tmp") new
+          Use ( cur_dir + "tmp" ) new
           _k := tmp->kol
           tmp->kol := 0
           tmp->summa := 0
-          tmp->min_date := stod(strzero(tmp->nyear,4)+strzero(tmp->nmonth,2)+ "01")
-          for i := 0 to 99
-            pole := "tmp->PZ"+lstr(i)
+          tmp->min_date := SToD( StrZero( tmp->nyear, 4 ) + StrZero( tmp->nmonth, 2 ) + "01" )
+          For i := 0 To 99
+            pole := "tmp->PZ" + lstr( i )
             &pole := 0
-          next
-          R_Use(dir_server + "human_3",{dir_server + "human_3",dir_server + "human_32"}, "HUMAN_3")
-          set order to 2
-          R_Use(dir_server + "human_",, "HUMAN_")
-          R_Use(dir_server + "human",, "HUMAN")
-          use (cur_dir + "tmpb") new
-          set relation to kod_human into HUMAN, to kod_human into HUMAN_
-          go top
-          do while !eof()
-            if human_->ST_VERIFY >= 5 .and. tmpb->tip == p_tip_reestr
+          Next
+          r_use( dir_server + "human_3", { dir_server + "human_3", dir_server + "human_32" }, "HUMAN_3" )
+          Set Order To 2
+          r_use( dir_server + "human_",, "HUMAN_" )
+          r_use( dir_server + "human",, "HUMAN" )
+          Use ( cur_dir + "tmpb" ) new
+          Set Relation To kod_human into HUMAN, To kod_human into HUMAN_
+          Go Top
+          Do While !Eof()
+            If human_->ST_VERIFY >= 5 .and. tmpb->tip == p_tip_reestr
               tmp->kol++
-              if tmpb->ishod == 89
-                select HUMAN_3
-                find (str(human->kod,7))
+              If tmpb->ishod == 89
+                Select HUMAN_3
+                find ( Str( human->kod, 7 ) )
                 tmp->summa += human_3->cena_1
-                tmp->min_date := min(tmp->min_date,human_3->k_data)
+                tmp->min_date := Min( tmp->min_date, human_3->k_data )
                 k := human_3->PZKOL
-                select TMPB
-              else
+                Select TMPB
+              Else
                 tmp->summa += human->cena_1
-                tmp->min_date := min(tmp->min_date,human->k_data)
+                tmp->min_date := Min( tmp->min_date, human->k_data )
                 k := human_->PZKOL
-              endif
+              Endif
               j := human_->PZTIP
               tmpb->fio := human->fio
               tmpb->PZ := j
-              pole := "tmp->PZ"+lstr(j)
-              if tmp->nyear > 2018 // 2019 год
-                nameArr := 'glob_array_PZ_' + last_digits_year(tmp->nyear)
-                if (i := ascan(&nameArr, {|x| x[1] == j })) > 0 .and. !empty(&nameArr.[i,5])
+              pole := "tmp->PZ" + lstr( j )
+              If tmp->nyear > 2018 // 2019 год
+                nameArr := 'glob_array_PZ_' + last_digits_year( tmp->nyear )
+                If ( i := AScan( &nameArr, {| x| x[ 1 ] == j } ) ) > 0 .and. !Empty( &nameArr.[ i, 5 ] )
                   &pole := &pole + 1 // учёт по случаям
-                else
+                Else
                   &pole := &pole + k // учёт по единицам план-заказа
-                endif
-              else
+                Endif
+              Else
                 nameArr := 'glob_array_PZ_' + '18'  // last_digits_year(tmp->nyear)
-                if (i := ascan(&nameArr, {|x| x[1] == j })) > 0 .and. !empty(&nameArr.[i,5])
+                If ( i := AScan( &nameArr, {| x| x[ 1 ] == j } ) ) > 0 .and. !Empty( &nameArr.[ i, 5 ] )
                   &pole := &pole + 1
-                else
+                Else
                   &pole := &pole + human_->PZKOL
-                endif
-              endif
-            else
+                Endif
+              Endif
+            Else
               tmpb->yes_del := .t. // удалить после дополнительной проверки
-            endif
-            skip
-          enddo
-          if tmp->kol == 0
-            func_error(4, "После дополнительной проверки некого включать в реестр")
-          else
-            if _k != tmp->kol
-              select TMPB
-              delete for yes_del
-              pack
-            endif
-            if tmp->nyear > 2018 // 2019 год
-              create1reestr19(tmp->(recno()), tmp->nyear, tmp->nmonth)
-            else
+            Endif
+            Skip
+          Enddo
+          If tmp->kol == 0
+            func_error( 4, "После дополнительной проверки некого включать в реестр" )
+          Else
+            If _k != tmp->kol
+              Select TMPB
+              Delete For yes_del
+              Pack
+            Endif
+            If tmp->nyear > 2018 // 2019 год
+              create1reestr19( tmp->( RecNo() ), tmp->nyear, tmp->nmonth )
+            Else
               // см. файл not_use/create1reestr17.prg
-              func_error(10, 'Реестр ранее 2019 года не формируется!')
-            endif
-          endif
-        endif
-        mo_UnLock_Task(X_OMS)
-      endif
-    endif
-    rest_box(buf)
-  endif
-  close databases
-  return NIL
-  
-** 10.06.22
-Function f1create_reestr(oBrow)
+              func_error( 10, 'Реестр ранее 2019 года не формируется!' )
+            Endif
+          Endif
+        Endif
+        mo_unlock_task( X_OMS )
+      Endif
+    Endif
+    rest_box( buf )
+  Endif
+  Close databases
+
+  Return Nil
+
+// 10.06.22
+Function f1create_reestr( oBrow )
+
   Local oColumn, n := 36, n1 := 20, blk
 
-  oColumn := TBColumnNew('Отчетный год', {|| str(tmp->nyear, 4) })
+  oColumn := TBColumnNew( 'Отчетный год', {|| Str( tmp->nyear, 4 ) } )
   oColumn:colorBlock := blk
-  oBrow:addColumn(oColumn)
-  oColumn := TBColumnNew('Отчетный месяц', {|| str(tmp->nmonth, 2) })
+  oBrow:addcolumn( oColumn )
+  oColumn := TBColumnNew( 'Отчетный месяц', {|| Str( tmp->nmonth, 2 ) } )
   oColumn:colorBlock := blk
-  oBrow:addColumn(oColumn)
-  oColumn := TBColumnNew('Дни max', {|| put_val(tmp->dni, 3) })
-  oColumn:defColor := {5,5}
-  oColumn:colorBlock := {|| {5, 5} }
-  oBrow:addColumn(oColumn)
-  oColumn := TBColumnNew('Кол-во больных', {|| str(tmp->kol, 10) })
+  oBrow:addcolumn( oColumn )
+  oColumn := TBColumnNew( 'Дни max', {|| put_val( tmp->dni, 3 ) } )
+  oColumn:defColor := { 5, 5 }
+  oColumn:colorBlock := {|| { 5, 5 } }
+  oBrow:addcolumn( oColumn )
+  oColumn := TBColumnNew( 'Кол-во больных', {|| Str( tmp->kol, 10 ) } )
   oColumn:colorBlock := blk
-  oBrow:addColumn(oColumn)
-  oColumn := TBColumnNew('Сумма случаев', {|| str(tmp->summa, 15, 2) })
+  oBrow:addcolumn( oColumn )
+  oColumn := TBColumnNew( 'Сумма случаев', {|| Str( tmp->summa, 15, 2 ) } )
   oColumn:colorBlock := blk
-  oBrow:addColumn(oColumn)
-  status_key('^<Esc>^ выход;  ^<Enter>^ составить реестр случаев;  ^<F9>^ печать списка пациентов')
-  return NIL
-  
-** 10.06.22
-Function f2create_reestr(nKey, oBrow)
-  Local buf, rec, k := -1, sh := 80, HH := 60, nfile := 'spisok' + stxt, j := 0
-  do case
-    case nkey == K_F9
-      buf := save_maxrow()
-      mywait()
-      rec := tmp->(recno())
-      fp := fcreate(nfile)
-      n_list := 1
-      tek_stroke := 0
-      add_string('')
-      add_string(center('Список пациентов за отчётный период ' + str(tmp->nyear, 4) + '/' + strzero(tmp->nmonth, 2), sh))
-      add_string('')
-      R_Use(dir_server + 'mo_otd', , 'OTD')
-      R_Use(dir_server + 'human', , 'HUMAN')
-      set relation to otd into OTD
-      use (cur_dir + 'tmpb') new
-      set relation to kod_human into HUMAN
-      index on upper(human->fio) + dtos(human->k_data) to (cur_dir + 'tmpb') for kod_tmp == rec
-      go top
-      do while !eof()
-        verify_FF(HH, .t., sh)
-        add_string(str(++j, 5) + '. ' + padr(human->fio, 47) + date_8(human->n_data) + '-' + ;
-                   date_8(human->k_data) + ' [' + otd->short_name + ']')
-        skip
-      enddo
-      fclose(fp)
-      otd->(dbCloseArea())
-      human->(dbCloseArea())
-      tmpb->(dbCloseArea())
-      select TMP
-      rest_box(buf)
-      viewtext(nfile, , , , , , , 2)
-  endcase
-  return k
-  
-  
-  
+  oBrow:addcolumn( oColumn )
+  status_key( '^<Esc>^ выход;  ^<Enter>^ составить реестр случаев;  ^<F9>^ печать списка пациентов' )
+
+  Return Nil
+
+// 19.11.23
+Function f2create_reestr( nKey, oBrow )
+
+  Local buf, rec, k := -1, sh := 80, HH := 60, nfile := cur_dir + 'spisok' + stxt, j := 0
+
+  Do Case
+  Case nkey == K_F9
+    buf := save_maxrow()
+    mywait()
+    rec := tmp->( RecNo() )
+    fp := FCreate( nfile )
+    n_list := 1
+    tek_stroke := 0
+    add_string( '' )
+    add_string( Center( 'Список пациентов за отчётный период ' + Str( tmp->nyear, 4 ) + '/' + StrZero( tmp->nmonth, 2 ), sh ) )
+    add_string( '' )
+    r_use( dir_server + 'mo_otd', , 'OTD' )
+    r_use( dir_server + 'human', , 'HUMAN' )
+    Set Relation To otd into OTD
+    Use ( cur_dir + 'tmpb' ) new
+    Set Relation To kod_human into HUMAN
+    Index On Upper( human->fio ) + DToS( human->k_data ) to ( cur_dir + 'tmpb' ) For kod_tmp == rec
+    Go Top
+    Do While !Eof()
+      verify_ff( HH, .t., sh )
+      add_string( Str( ++j, 5 ) + '. ' + PadR( human->fio, 47 ) + date_8( human->n_data ) + '-' + ;
+        date_8( human->k_data ) + ' [' + otd->short_name + ']' )
+      Skip
+    Enddo
+    FClose( fp )
+    otd->( dbCloseArea() )
+    human->( dbCloseArea() )
+    tmpb->( dbCloseArea() )
+    Select TMP
+    rest_box( buf )
+    viewtext( nfile, , , , , , , 2 )
+  Endcase
+
+  Return k
