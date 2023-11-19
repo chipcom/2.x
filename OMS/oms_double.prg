@@ -683,3 +683,90 @@ Function f1_input_double_sl()
     goto (rec)
   endif
   return fl
+
+// 19.11.23
+function combined_KSG(cShifr)
+  // реинфузия аутокрови (КСГ st36.009, выбирается по услуге A16.20.078)
+  // баллонная внутриаортальная контрпульсация (КСГ st36.010, выбирается по услуге A16.12.030)
+  // экстракорпоральная мембранная оксигенация (КСГ st36.011, выбирается по услуге A16.10.021.001)
+  // Проведение антимикробной терапии инфекций, вызванных полирезистентными микроорганизмами (уровень 1) (КСГ st36.013)
+  // Проведение антимикробной терапии инфекций, вызванных полирезистентными микроорганизмами (уровень 2) (КСГ st36.014)
+  // Проведение антимикробной терапии инфекций, вызванных полирезистентными микроорганизмами (уровень 3) (КСГ st36.015)
+  // Проведение иммунизации против респираторно-синцитиальной вирусной инфекции (КСГ st36.025, st36.026)
+  local aKSG := { 'st36.009', ; // A16.20.078
+                  'st36.010', ; // A16.12.030
+                  'st36.011', ; // A16.10.021.001
+                  'st36.013', ;
+                  'st36.014', ;
+                  'st36.015', ;
+                  'st36.025', ;
+                  'st36.026' ;
+               }
+  return ascan(aKSG, alltrim(cShifr)) > 0
+
+// 19.11.23
+function exist_reserve_KSG(kod_pers, aliasHUMAN)
+  local aliasIsUseHU, aliasIsUseUSL
+  local oldSelect, ret := .f.
+  local lshifr
+
+  if kod_pers == 0
+    return ret
+  endif
+
+  aliasIsUseUSL := aliasIsAlreadyUse('__USL')
+  if ! aliasIsUseUSL
+    oldSelect := Select()
+    R_Use(dir_server + 'uslugi', , '__USL')
+  endif
+
+  aliasIsUseHU := aliasIsAlreadyUse('__HU')
+  if ! aliasIsUseHU
+    G_Use(dir_server + 'human_u', {dir_server + 'human_u', ;
+        dir_server + 'human_uk', ;
+        dir_server + 'human_ud', ;
+        dir_server + 'human_uv', ;
+        dir_server + 'human_ua'}, '__HU', , .f., .t.)
+  endif
+  set relation to u_kod into __USL
+  find (str(kod_pers,7))
+
+  do while __HU->kod == kod_pers .and. !eof()
+    if empty(lshifr := opr_shifr_TFOMS(__USL->shifr1, __USL->kod, (aliasHUMAN)->k_data))
+      lshifr := __USL->shifr
+    endif
+    // реинфузия аутокрови (КСГ st36.009, выбирается по услуге A16.20.078)
+    // баллонная внутриаортальная контрпульсация (КСГ st36.010, выбирается по услуге A16.12.030)
+    // экстракорпоральная мембранная оксигенация (КСГ st36.011, выбирается по услуге A16.10.021.001)
+    // Проведение антимикробной терапии инфекций, вызванных полирезистентными микроорганизмами (уровень 1) (КСГ st36.013)
+    // Проведение антимикробной терапии инфекций, вызванных полирезистентными микроорганизмами (уровень 2) (КСГ st36.014)
+    // Проведение антимикробной терапии инфекций, вызванных полирезистентными микроорганизмами (уровень 3) (КСГ st36.015)
+    // Проведение иммунизации против респираторно-синцитиальной вирусной инфекции (КСГ st36.025, st36.026)
+    if is_ksg(lshifr) .and. combined_KSG(lshifr)
+      ret := .t.
+      exit
+    endif
+    select __HU
+    skip
+  enddo
+
+  if ! aliasIsUseUSL
+    __USL->(dbCloseArea())
+  endif
+
+  if ! aliasIsUseHU
+    __HU->(dbCloseArea())
+  endif
+  Select(oldSelect)
+  return ret
+
+  // 19.11.23
+function diagnosis_for_replacement(cDiag)
+  local aDiag := {'Z92.2', ;
+                  'Z92.4', ;
+                  'Z92.8', ;
+                  'Z25.8' ;
+                 }
+
+  return ascan(aDiag, alltrim(cDiag)) > 0
+
