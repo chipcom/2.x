@@ -31,7 +31,7 @@ Function f2oms_usl_sluch(nKey, oBrow)
   endif
   Private r1 := 10, mrec_hu := tmp->rec_hu
   do case
-    case nKey == K_F6 .and. (HUMAN->K_DATA >= d_01_01_2022) .and. service_requires_implants(tmp->shifr_u, tmp->date_u1)
+    case nKey == K_F6 .and. (HUMAN->K_DATA >= 0d20220101) .and. service_requires_implants(tmp->shifr_u, tmp->date_u1)
       view_implantant(collect_implantant(glob_perso, tmp->rec_hu), new_date_usl, (new_date_usl != old_date_usl))
 
       blk_col := {|| iif( ! service_requires_implants(tmp->shifr_u, tmp->DATE_U), {1, 2}, ;

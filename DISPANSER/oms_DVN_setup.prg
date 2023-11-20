@@ -327,7 +327,7 @@ Function ret_vozr_DVN_veteran(_dvozrast, _data)
 // 15.06.19 вернуть массив возрастов дисп-ии для старого или нового Приказов МЗ РФ
 Function ret_arr_vozrast_DVN(_data)
   Static sp := 0, arr := {}
-  Local i, p := iif(_data < d_01_05_2019, 1, 2)
+  Local i, p := iif(_data < 0d20190501, 1, 2)
 
   if p != sp
     arr := aclone(arr_vozrast_DVN) // по старому Приказу МЗ РФ
@@ -345,8 +345,8 @@ Function ret_arr_vozrast_DVN(_data)
 Function ret_ndisp(lkod_h, lkod_k, /*@*/new_etap, /*@*/msg)
   Local i, i1, i2, i3, i4, i5, s, s1, is_disp, ar, fl := .t.
 
-  is_disp_19 := !(mk_data < d_01_05_2019)
-  is_disp_21 := !(mk_data < d_01_01_2021)
+  is_disp_19 := !(mk_data < 0d20190501)
+  is_disp_21 := !(mk_data < 0d20210101)
   ret_arrays_disp(is_disp_19, is_disp_21)
   msg := ' '
   new_etap := metap
@@ -497,7 +497,7 @@ Function ret_etap_DVN(lkod_h, lkod_k)
       i := human->ishod - 200
       if year(human->n_data) == d1 // текущий год
         aadd(ae[1], {i, human->k_data, human_->RSLT_NEW})
-      //elseif i >= 3 .and. mk_data < d_01_05_2019 .and. year(human->n_data) == d1-1 // профилактика прошлый год ???
+      //elseif i >= 3 .and. mk_data < 0d20190501 .and. year(human->n_data) == d1-1 // профилактика прошлый год ???
         //aadd(ae[2], {i,human->k_data,human_->RSLT_NEW})
       endif
     endif

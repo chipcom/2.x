@@ -1523,7 +1523,7 @@ for i := 1 to 5
       for j := 1 to len(r)
         fl := between(d,r[j,1],r[j,2])
         if fl .and. len(arr_5000[n]) > 4 // надо проверить стадию
-          if human->k_data < d_01_04_2015
+          if human->k_data < 0d20150401 // до 01.04.2015
             fl := (&pole_1stadia == 0) // ранняя      !!!!!
           else
             fl := (&pole_1stadia < 3) // 1 и 2 стадия !!!!!
@@ -1964,7 +1964,7 @@ for i := 1 to 5
       for j := 1 to len(r)
         fl := between(d,r[j,1],r[j,2])
         if fl .and. len(arr_5001[n]) > 4 // надо проверить стадию
-          if human->k_data < d_01_04_2015
+          if human->k_data < 0d20150401 // до 01.04.2015
             fl := (&pole_1stadia == 0) // ранняя      !!!!!
           else
             fl := (&pole_1stadia < 3) // 1 и 2 стадия !!!!!

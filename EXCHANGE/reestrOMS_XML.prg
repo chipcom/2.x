@@ -879,7 +879,7 @@ Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
           if (human_->USL_OK == 1) .and. (human->k_data >= 0d20220101)
             flLekPreparat := (human_->PROFIL != 158) .and. (human_->VIDPOM != 32) ;
                 .and. (lower(alltrim(human_2->PC3)) != 'stt5')
-          elseif (human_->USL_OK == 3) .and. (human->k_data >= d_01_04_2022)
+          elseif (human_->USL_OK == 3) .and. (human->k_data >= 0d20220401)
             flLekPreparat := (human_->PROFIL != 158) .and. (human_->VIDPOM != 32) ;
                 .and. (get_IDPC_from_V025_by_number(human_->povod) == '3.0')
           endif
@@ -1035,8 +1035,8 @@ Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
           mo_add_xml_stroke(oUSL, 'SUMV_USL', lstr(hu->STOIM_1, 10, 2))
 
           if (human->k_data >= 0d20210801 .and. p_tip_reestr == 2) ;      // правила заполнения с 01.08.21 письмо № 04-18-13 от 20.07.21
-              .or. (endDateZK >= d_01_01_2022 .and. p_tip_reestr == 1)  // правила заполнения с 01.01.22 письмо № 04-18?17 от 28.12.2021
-              // .or. (human->k_data >= d_01_01_2022 .and. p_tip_reestr == 1)  // правила заполнения с 01.01.22 письмо № 04-18?17 от 28.12.2021
+              .or. (endDateZK >= 0d20220101 .and. p_tip_reestr == 1)  // правила заполнения с 01.01.22 письмо № 04-18?17 от 28.12.2021
+              // .or. (human->k_data >= 0d20220101 .and. p_tip_reestr == 1)  // правила заполнения с 01.01.22 письмо № 04-18?17 от 28.12.2021
               
             if between_date(human->n_data, human->k_data, c4tod(hu->DATE_U))
               oMR_USL_N := oUSL:Add( HXMLNode():New( 'MR_USL_N' ) )
@@ -1079,7 +1079,7 @@ Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
           mo_add_xml_stroke(oUSL, 'SUMV_USL', lstr(a_otkaz[j, 6], 10, 2))
 
           if human->k_data >= 0d20210801 .and. p_tip_reestr == 2 ; // новые правила заполнения с 01.08.21 письмо № 04-18-13 от 20.07.21
-              .or. (endDateZK >= d_01_01_2022 .and. p_tip_reestr == 1)  // правила заполнения с 01.01.22 письмо № 04-18?17 от 28.12.2021
+              .or. (endDateZK >= 0d20220101 .and. p_tip_reestr == 1)  // правила заполнения с 01.01.22 письмо № 04-18?17 от 28.12.2021
             // Закомментировал после разъяснения Л.А.Антоновой 18.08.21
             // oMR_USL_N := oUSL:Add( HXMLNode():New( 'MR_USL_N' ) )
             // mo_add_xml_stroke(oMR_USL_N, 'MR_N', lstr(1))   // уточнить
@@ -1155,7 +1155,7 @@ Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
             mo_add_xml_stroke(oUSL, 'CODE_MD', '0')
           else
             if (human->k_data >= 0d20210801 .and. p_tip_reestr == 2) ;      // правила заполнения с 01.08.21 письмо № 04-18-13 от 20.07.21
-                .or. (human->k_data >= d_01_01_2022 .and. p_tip_reestr == 1)  // правила заполнения с 01.01.22 письмо № 04-18?17 от 28.12.2021
+                .or. (human->k_data >= 0d20220101 .and. p_tip_reestr == 1)  // правила заполнения с 01.01.22 письмо № 04-18?17 от 28.12.2021
               // if (p_tip_reestr == 1) .and. ((aImpl := ret_impl_V036(lshifr, c4tod(hu_->DATE_U2))) != NIL)
               //   // проверим наличие имплантантов
               //   IMPL->(dbSeek(str(human->kod, 7), .t.))
@@ -1187,7 +1187,7 @@ Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
                 p2->(dbGoto(mohu->kod_vr))
                 mo_add_xml_stroke(oMR_USL_N, 'CODE_MD', p2->snils)
               endif
-            else  //if human->k_data < d_01_01_2022 .and. p_tip_reestr == 1
+            else  //if human->k_data < 0d20220101 .and. p_tip_reestr == 1
               mo_add_xml_stroke(oUSL, 'PRVS', put_prvs_to_reestr(mohu->PRVS, _NYEAR))  // добавил 04.08.21
               p2->(dbGoto(mohu->kod_vr))                                            // добавил 04.08.21
               mo_add_xml_stroke(oUSL, 'CODE_MD', p2->snils)                          // добавил 04.08.21

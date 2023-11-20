@@ -107,7 +107,7 @@ Function verify_1_sluch(fl_view)
   gnot_disp := (human->ishod < 100)
   gkod_diag := human->kod_diag
   gusl_ok := human_->usl_ok
-  Private is_disp_19 := !(d2 < d_01_05_2019)
+  Private is_disp_19 := !(d2 < 0d20190501)
   //
   if gusl_ok == USL_OK_AMBULANCE // 4 - если 'скорая помощь'
     select HUMAN
@@ -3807,7 +3807,7 @@ Function verify_1_sluch(fl_view)
               endif
             next k
           endif
-          if !fl .and. d2 < d_01_11_2019
+          if !fl .and. d2 < 0d20191101
             if mperiod == 16 .and. np_arr_osmotr[j, 1] == '2.4.2' // 2 года
               fl := .t. // услуга не должна быть оказана
             elseif mperiod == 20 .and. np_arr_osmotr[j, 1] == '2.85.24' // 6 лет
@@ -4438,7 +4438,7 @@ Function verify_1_sluch(fl_view)
     if (human_->USL_OK == USL_OK_HOSPITAL) .and. (human->k_data >= 0d20220101)
       flLekPreparat := (human_->PROFIL != 158) .and. (human_->VIDPOM != 32) ;
           .and. (lower(alltrim(human_2->PC3)) != 'stt5')
-    elseif (human_->USL_OK == USL_OK_POLYCLINIC) .and. (human->k_data >= d_01_04_2022)
+    elseif (human_->USL_OK == USL_OK_POLYCLINIC) .and. (human->k_data >= 0d20220401)
       flLekPreparat := (human_->PROFIL != 158) .and. (human_->VIDPOM != 32) ;
          .and. (get_IDPC_from_V025_by_number(human_->povod) == '3.0')
     endif
