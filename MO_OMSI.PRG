@@ -4474,7 +4474,7 @@ if (par := popup_prompt(T_ROW,T_COL-5, 1,mas1pmt)) > 0 .and. ;
         next
       next
       if (is_disp := between(human->ishod, 201, 204))
-        is_disp_19 := !(human->k_data < d_01_05_2019)
+        is_disp_19 := !(human->k_data < 0d20190501)
         read_arr_DVN(human->kod)
         if m1glukozadn == 1 .or. mglukoza > 6.1
           aadd(ad, 'R73.9')

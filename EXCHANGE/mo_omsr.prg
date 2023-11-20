@@ -219,7 +219,7 @@ Static a_new_1st_stom16 := {"B01.063.001","B01.064.003","B01.065.001","B01.065.0
 Local a_stom, a_stom16_2, i, j, jm, k := 0, n := 0, lshifr, s := "", y, is_new, lshifr2 := ""
 if valtype(lk_data) == "D" .and. (y := year(lk_data)) > 2015 // 2016 £®¤
   jm := 0 ; ret_tip := 0 ; ret_kol := 0 ; is_2_88 := .f.
-  is_new := (lk_data >= d_01_08_2016)
+  is_new := (lk_data >= 0d20160801)
   if is_new // α 1  Ά£γαβ  2016 £®¤ 
     a_stom16_2 := a_new_stom16_2
   else

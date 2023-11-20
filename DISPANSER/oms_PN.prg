@@ -453,7 +453,7 @@ Function oms_sluch_PN(Loc_kod, kod_kartotek, f_print)
     mcena_1    := human->CENA_1
     metap      := human->ishod - 300
     mGRUPPA    := human_->RSLT_NEW - L_BEGIN_RSLT
-    is_disp_19 := !(mk_data < d_01_11_2019)
+    is_disp_19 := !(mk_data < 0d20191101)
     if metap == 2
       m1step2 := 1
     endif
@@ -779,7 +779,7 @@ Function oms_sluch_PN(Loc_kod, kod_kartotek, f_print)
     @ j, 0 say 'Экран ' + lstr(num_screen) color color8
     if num_screen > 1
       s1 := ' '
-      is_disp_19 := !(mk_data < d_01_11_2019)
+      is_disp_19 := !(mk_data < 0d20191101)
       mperiod := ret_period_PN(mdate_r, mn_data, mk_data, @s1)
       s := alltrim(mfio)
       if mperiod > 0
@@ -935,10 +935,10 @@ Function oms_sluch_PN(Loc_kod, kod_kartotek, f_print)
           if fl
             fl := (ascan(ar[4], np_arr_osmotr[i, 1]) > 0)
           endif
-          if fl .and. mperiod == 16 .and. mk_data < d_01_11_2019 .and. np_arr_osmotr[i, 1] == '2.4.2' // 2 года
+          if fl .and. mperiod == 16 .and. mk_data < 0d20191101 .and. np_arr_osmotr[i, 1] == '2.4.2' // 2 года
             fl := .f.
           endif
-          if fl .and. mperiod == 20 .and. mk_data < d_01_11_2019 .and. np_arr_osmotr[i, 1] == '2.85.24' // 6 лет
+          if fl .and. mperiod == 20 .and. mk_data < 0d20191101 .and. np_arr_osmotr[i, 1] == '2.85.24' // 6 лет
             fl := .f.
           endif
           if fl
@@ -1506,10 +1506,10 @@ Function oms_sluch_PN(Loc_kod, kod_kartotek, f_print)
         if _fl_
           _fl_ := (!empty(ar[4]) .and. ascan(ar[4], np_arr_osmotr[i, 1]) > 0)
         endif
-        if _fl_ .and. mperiod == 16 .and. mk_data < d_01_11_2019 .and. np_arr_osmotr[i, 1] == '2.4.2' // 2 года
+        if _fl_ .and. mperiod == 16 .and. mk_data < 0d20191101 .and. np_arr_osmotr[i, 1] == '2.4.2' // 2 года
           _fl_ := .f.
         endif
-        if _fl_ .and. mperiod == 20 .and. mk_data < d_01_11_2019 .and. np_arr_osmotr[i, 1] == '2.85.24' // 6 лет
+        if _fl_ .and. mperiod == 20 .and. mk_data < 0d20191101 .and. np_arr_osmotr[i, 1] == '2.85.24' // 6 лет
           _fl_ := .f.
         endif
         if _fl_

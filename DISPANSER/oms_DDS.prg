@@ -395,7 +395,7 @@ Function oms_sluch_DDS(tip_lu,Loc_kod,kod_kartotek,f_print)
     mcena_1    := human->CENA_1
     metap      := human->ishod-100
     mGRUPPA    := human_->RSLT_NEW-L_BEGIN_RSLT
-    is_disp_19 := !(mk_data < d_01_11_2019)
+    is_disp_19 := !(mk_data < 0d20191101)
     //
     larr := array(3,count_dds_arr_osm2) ; afillall(larr,0)
     mdate1 := mdate2 := ctod("")
@@ -621,7 +621,7 @@ Function oms_sluch_DDS(tip_lu,Loc_kod,kod_kartotek,f_print)
     endif
     @ j,0 say "Экран "+lstr(num_screen) color color8
     if num_screen > 1
-      is_disp_19 := !(mk_data < d_01_11_2019)
+      is_disp_19 := !(mk_data < 0d20191101)
       s := alltrim(mfio)+" ("+lstr(mvozrast)+" "+s_let(mvozrast)+")"
       @ j,wS-len(s) say s color color14
     endif

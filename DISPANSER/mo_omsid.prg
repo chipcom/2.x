@@ -3098,8 +3098,8 @@ if regim == "edit" .and. nKey == K_ENTER
   M1RAB_NERAB := human->RAB_NERAB
   mn_data := human->n_data
   mk_data := mk_data1 := human->k_data
-  Private is_disp_19 := !(mk_data < d_01_05_2019)
-  Private is_disp_21 := !(mk_data < d_01_01_2021)
+  Private is_disp_19 := !(mk_data < 0d20190501)
+  Private is_disp_21 := !(mk_data < 0d20210101)
   mdate_r := full_date(human->date_r)
   read_arr_DVN(human->kod)
   ret_arr_vozrast_DVN(mk_data)
@@ -3432,7 +3432,7 @@ if regim == "edit" .and. nKey == K_ENTER
     human->(dbGoto(tmp->kod2h))
     M1RAB_NERAB := human->RAB_NERAB
     mk_data := human->k_data
-    is_disp_19 := !(mk_data < d_01_05_2019)
+    is_disp_19 := !(mk_data < 0d20190501)
     m1GRUPPA := ret_gruppa_DVN(human_->RSLT_NEW)
     if !between(m1gruppa, 1, 4)
       m1GRUPPA := 0 ; func_error(4,s_smg)
@@ -3694,7 +3694,7 @@ if regim == "edit" .and. nKey == K_ENTER
         for j := 1 to len(r)
           fl := between(d,r[j, 1],r[j, 2])
           if fl .and. len(arr_12[n]) > 4 // надо проверить стадию
-            if human->k_data < d_01_04_2015
+            if human->k_data < 0d20150401 // до 1.04.2015
               fl := (&pole_1stadia == 0) // ранняя
             else
               fl := (&pole_1stadia < 3) // 1 и 2 стадия
@@ -4006,7 +4006,7 @@ if (st_a_uch := inputN_uch(T_ROW,T_COL-5,,,@lcount_uch)) != NIL ;
         else
           arr_21[33] ++
         endif
-        if human->pol == "Ж" .and. human->k_data < d_01_05_2019 .and. ascan(arr2g_vozrast_DVN,mdvozrast) > 0
+        if human->pol == "Ж" .and. human->k_data < 0d20190501 .and. ascan(arr2g_vozrast_DVN,mdvozrast) > 0
           arr_21[34] ++
         else
           arr_21[35] ++
@@ -5561,8 +5561,8 @@ goto (kod_h)
 mpol    := human->pol
 mn_data := human->n_data
 mk_data := human->k_data
-is_2018 := p := (mk_data < d_01_05_2019)
-is_2021 := p := (mk_data < d_01_01_2021)
+is_2018 := p := (mk_data < 0d20190501)
+is_2021 := p := (mk_data < 0d20210101)
 is_2019 := !is_2018
 ret_arr_vozrast_DVN(mk_data)
 ret_arrays_disp(is_2019,is_2021)

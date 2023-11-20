@@ -55,7 +55,7 @@ function check_oms_sluch_lek_pr(mkod_human)
   if eq_any(human_kod_diag, 'U07.1', 'U07.2') .and. mvozrast >= 18 .and. !check_diag_pregant()
     if (M1USL_OK == 1) .and. (d2 >= 0d20220101)
       retFl := (M1PROFIL != 158) .and. (vidPom != 32) .and. (ad_cr != 'stt5')
-    elseif (M1USL_OK == 3) .and. (d2 >= d_01_04_2022)
+    elseif (M1USL_OK == 3) .and. (d2 >= 0d20220401)
       retFl := (M1PROFIL != 158) .and. (vidPom != 32) .and. (p_cel == '3.0')
     endif
   endif
