@@ -47,7 +47,7 @@ Function f_put_glob_podr(lusl, lkdate, _arr)
 
   glob_podr := '' 
   glob_otd_dep := 0
-  if lusl == 1 .and. lkdate >= d_01_08_2017
+  if lusl == 1 .and. lkdate >= 0d20170801
     if year(lkdate) > 2017
       if is_otd_dep
         if disable_podrazdelenie_TFOMS(lkdate)

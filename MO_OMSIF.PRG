@@ -4407,7 +4407,7 @@ for i := 1 to len(arr)
         if alltrim(lshifr) == "60.2.9" // Проведение гемодиализа
           lkd[1] += hu->kol
         elseif left(lshifr,3) == "55."
-          if human->k_data < d_01_04_2013 // дневной стационар до 1 апреля
+          if human->k_data < 0d20130401 // дневной стационар до 1 апреля 2013
             j := int(val(substr(lshifr,4,1)))
             n := j-4 // 1 квартал 2013 года
             if between(n,1,3)

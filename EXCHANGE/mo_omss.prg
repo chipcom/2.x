@@ -1640,7 +1640,7 @@ Function print_schet_S(reg)
                 is_zak_sl := .t.
                 mcena := hu->u_cena
               elseif left(lshifr, 3) == '55.'
-                if human->k_data < d_01_04_2013 // дневной стационар до 1 апреля
+                if human->k_data < 0d20130401 // дневной стационар до 1 апреля 2013
                   is_zak_sl_d := .t.
                 endif
                 mcena := hu->u_cena

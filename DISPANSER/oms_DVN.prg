@@ -392,9 +392,9 @@ Function oms_sluch_DVN(Loc_kod, kod_kartotek, f_print)
     m1rslt     := human_->RSLT_NEW
     //
     is_prazdnik := f_is_prazdnik_DVN(mn_data)
-    is_disp_19 := !(mk_data < d_01_05_2019)
+    is_disp_19 := !(mk_data < 0d20190501)
     //
-    is_disp_21 := !(mk_data < d_01_01_2021)
+    is_disp_21 := !(mk_data < 0d20210101)
     //
     ret_arr_vozrast_DVN(mk_data)
     /// !!!!
@@ -406,11 +406,11 @@ Function oms_sluch_DVN(Loc_kod, kod_kartotek, f_print)
       // если это профосмотр
       if metap == 3 .and. ascan(ret_arr_vozrast_DVN(mk_data), mdvozrast) > 0 // а возраст диспансеризации
         metap := 1 // превращаем в диспансеризацию
-        if mk_data < d_01_11_2019 .and. m1rslt == 345
+        if mk_data < 0d20191101 .and. m1rslt == 345
           m1rslt := 355
-        elseif mk_data >= d_01_11_2019 .and. m1rslt == 373
+        elseif mk_data >= 0d20191101 .and. m1rslt == 373
           m1rslt := 355
-        elseif mk_data >= d_01_11_2019 .and. m1rslt == 374
+        elseif mk_data >= 0d20191101 .and. m1rslt == 374
           m1rslt := 356
         elseif m1rslt == 344
           m1rslt := 318
@@ -940,7 +940,7 @@ Function oms_sluch_DVN(Loc_kod, kod_kartotek, f_print)
     elseif num_screen == 3 //
       mm_gruppa := {mm_gruppaD1, mm_gruppaD2, mm_gruppaP, mm_gruppaD4, mm_gruppaD2}[metap]
       if metap == 3
-        if mk_data < d_01_11_2019
+        if mk_data < 0d20191101
           mm_gruppa := mm_gruppaP_old
         else
           mm_gruppa := mm_gruppaP_new
@@ -1501,7 +1501,7 @@ Function oms_sluch_DVN(Loc_kod, kod_kartotek, f_print)
       endif
       mm_gruppa := {mm_gruppaD1, mm_gruppaD2, mm_gruppaP, mm_gruppaD4, mm_gruppaD2}[metap]
       if metap == 3
-        if mk_data < d_01_11_2019
+        if mk_data < 0d20191101
           mm_gruppa := mm_gruppaP_old
         else
           mm_gruppa := mm_gruppaP_new
@@ -1651,7 +1651,7 @@ Function oms_sluch_DVN(Loc_kod, kod_kartotek, f_print)
                   arr_osm1[i, 5] := '2.3.2' // шифр услуги приёма терапевта для профосмотра
                 endif
                 metap := 3
-                if eq_any(m1rslt, 355, 356, 357, 358) .and. mk_data < d_01_11_2019 // III группа
+                if eq_any(m1rslt, 355, 356, 357, 358) .and. mk_data < 0d20191101 // III группа
                   m1rslt := 345
                   m1gruppa := 3
                 elseif eq_any(m1rslt, 355, 357) // IIIа группа

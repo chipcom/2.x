@@ -755,7 +755,7 @@ Function extract_reestr(mkod, mname_xml, flag_tmp1, is_all, goal_dir)
                             t2->PRVS  := mo_read_xml_stroke(oNode100,"PRVS")
                             t2->CODE_MD  := mo_read_xml_stroke(oNode100,"CODE_MD",,.f.)
                           endif
-                        elseif p_tip_reestr == 1 .and. (xml2date(t1->DATE_Z_2) >= d_01_01_2022) // добавил по новому ПУМП от 11.01.22
+                        elseif p_tip_reestr == 1 .and. (xml2date(t1->DATE_Z_2) >= 0d20220101) // добавил по новому ПУМП от 11.01.22
                           if (oNode100 := oNode2:Find("MR_USL_N")) != NIL
                             // пока только 1 врач
                             t2->PRVS     := mo_read_xml_stroke(oNode100,"PRVS")
