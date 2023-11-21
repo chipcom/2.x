@@ -50,8 +50,8 @@ Local adbf := {;
    {"POL"    ,   "C",  1,0},; // пол
    {"DATE_R"   , "C", 10,0},; // дата рождения пациента
    {"LET"    ,   "N",  2,0},; // сколько лет в этом году
-   {"ADRESR"  ,  "C", 50,0},; // адрес пациента
-   {"ADRESP"  ,  "C", 50,0},; // адрес пациента
+   {"ADRESR"  ,  "C", 100,0},; // адрес пациента
+   {"ADRESP"  ,  "C", 100,0},; // адрес пациента
    {"RABOTA" ,   "C", 12,0},; // 0-работ,1-нераб
    {"POLIS",     "C", 17,0},; // полис
    {"KOD_SMO",   "C",  5,0},; // реестровый номер СМО
@@ -465,8 +465,8 @@ if k > 0
       dvn->DATE_R := full_date(kart->date_r)
       k_adr := perenos(tt_adr,ltrim(kart->adres),35)
       s1 += padr(tt_adr[1],36)
-      dvn->ADRESR := ltrim(kart->adres)
-      dvn->ADRESP := ltrim(kart_->adresp)
+      dvn->ADRESR := AllTrim( ret_okato_ulica( "", kart_->okatog, 3, 2 ) )+" "+ltrim(kart->adres)
+      dvn->ADRESP := AllTrim( ret_okato_ulica( "", kart_->okatop, 3, 2 ) )+" "+ltrim(kart_->adresp)
       dvn->RABOTA := inieditspr(A__MENUVERT, menu_rab, kart->RAB_NERAB)
       dvn->POLIS := ltrim(kart_->NPOLIS)
       dvn->KOD_SMO := kart_->smo

@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 18.11.23
+// 21.11.23
 Function print_l_uch(mkod, par, regim, lnomer)
   // mkod - код больного по БД human
   Local sh := 80, HH := 77, buf := save_maxrow(), ;
@@ -163,7 +163,6 @@ Function print_l_uch(mkod, par, regim, lnomer)
     endif
     add_string('')
   endif
-  // name_lpu := rtrim(inieditspr(A__POPUPMENU, dir_server + 'mo_uch', human->lpu))
   name_lpu := rtrim(inieditspr(A__MENUVERT, getUCH(), human->lpu))
   name_otd := '  [ ' + alltrim(otd->name) + ' ]'
   lTypeLUMedReab := (otd->tiplu == TIP_LU_MED_REAB)
@@ -291,7 +290,6 @@ Function print_l_uch(mkod, par, regim, lnomer)
   arr := diag_to_array( , .t., .t., .t., .t., adiag_talon)
   if len(arr) > 0
     if diagnosis_for_replacement(arr[1])
-    // if eq_any(alltrim(arr[1]), 'Z92.2', 'Z92.4', 'Z92.8')
       diagVspom := alltrim(arr[1])
       diagMemory := alltrim(arr[2])
     endif
@@ -301,11 +299,15 @@ Function print_l_uch(mkod, par, regim, lnomer)
       add_string('  Дополнительный критерий : ')
       add_criteria := getArrayCriteria(human->K_DATA, human_2->pc3)
       if ! empty(add_criteria)
+        if year(human->k_data) >= 2021
           k := perenos(tmp, alltrim(human_2->pc3) + ' - ' + alltrim(add_criteria[6]), sh - 3)
           for i := 1 to k
             add_string(space(3) + tmp[i])
           next
+        else
+          add_string(space(3) + alltrim(human_2->pc3))
         endif
+      endif
     endif
     if len(arr) > 1
       tmp1 := '  Сопутствующие диагнозы:'
