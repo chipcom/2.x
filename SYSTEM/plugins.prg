@@ -1,11 +1,16 @@
 #include 'common.ch'
 #include 'hbhash.ch'
+#include 'tbox.ch'
+#include 'chip_mo.ch'
 
+//
 FUNCTION Plugins()
 
   LOCAL aMenu := {}, i
-  LOCAL aPlugins := ReadIni( edi_FindPath( "hbedit.ini" ) )
+  LOCAL aPlugins := ReadIni( edi_FindPath( 'hbedit.ini' ) )
   LOCAL aMenu1 := {}
+	local color_say := 'N/W', color_get := 'W/N*'
+  local oBox
 
   FOR i := 1 TO Len( aPlugins )
      IF Empty( aPlugins[i, 3] )
@@ -15,14 +20,24 @@ FUNCTION Plugins()
   NEXT
 
   IF !Empty( aMenu1 )
-  //    IF ( i := FMenu( oHbc, aMenu, oPane:y1+1, oPane:x1+1,,, FilePane():aClrMenu[1], FilePane():aClrMenu[2] ) ) > 0
-    if (i := AChoice( 5, 10, 15, 20, aMenu1)) > 0   //, , , 34 )
+    oBox := NIL // уничтожим окно
+    oBox := TBox():New( 2, 10, 22, 70 )
+    oBox:Color := color_say + ',' + color_get
+    oBox:Frame := BORDER_DOUBLE
+    oBox:MessageLine := '^^ или нач.буква - просмотр;  ^<Esc>^ - выход;  ^<Enter>^ - выбор'
+    oBox:Save := .t.
+  
+    oBox:Caption := 'Выбор внешней обработки'
+    oBox:View()
+
+    // if (i := AChoice( 5, 10, 15, 20, aMenu1)) > 0   //, , , 34 )
+    if (i := AChoice( oBox:Top + 1, oBox:Left + 1, oBox:Bottom - 1, oBox:Right - 1, aMenu1 )) > 0
         i := aMenu[i, 3]
-  //       edi_RunPlugin( oPane, aPlugins, i )
         edi_RunPlugin( aPlugins, i )
     ENDIF
   ENDIF
 
+  oBox := nil
   RETURN Nil
 
   // FUNCTION edi_RunPlugin( oEdit, aPlugins, xPlugin, aParams )
