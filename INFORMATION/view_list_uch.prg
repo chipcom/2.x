@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 18.11.23
+// 21.11.23 
 Function print_l_uch(mkod, par, regim, lnomer)
   // mkod - код больного по БД human
   Local sh := 80, HH := 77, buf := save_maxrow(), ;
@@ -21,6 +21,7 @@ Function print_l_uch(mkod, par, regim, lnomer)
   local k_kslp, tmp_kslp := {}
   local k_kiro, tmp_kiro := {}
   local mas[2], lname
+  local lExistFilesTFOMS
 
   DEFAULT par TO 1, regim TO 1, lnomer TO 0
   mywait()
@@ -163,7 +164,6 @@ Function print_l_uch(mkod, par, regim, lnomer)
     endif
     add_string('')
   endif
-  // name_lpu := rtrim(inieditspr(A__POPUPMENU, dir_server + 'mo_uch', human->lpu))
   name_lpu := rtrim(inieditspr(A__MENUVERT, getUCH(), human->lpu))
   name_otd := '  [ ' + alltrim(otd->name) + ' ]'
   lTypeLUMedReab := (otd->tiplu == TIP_LU_MED_REAB)
@@ -176,6 +176,11 @@ Function print_l_uch(mkod, par, regim, lnomer)
     mnum_lu += ' [' + lstr(human->kod) + ']'
   endif
   //
+  if ! (lExistFilesTFOMS := check_files_TFOMS(year(human->k_data)))  // проверим наличие справочников ТФОМС
+    func_error(4, 'Отсутствуют справочники ТФОМС за ' + str(year(human->k_data), 4) +' год.' )
+  endif
+
+
   for i := 1 to perenos(tmp, name_org, sh)
     add_string(center(alltrim(tmp[i]), sh))
   next
@@ -291,7 +296,6 @@ Function print_l_uch(mkod, par, regim, lnomer)
   arr := diag_to_array( , .t., .t., .t., .t., adiag_talon)
   if len(arr) > 0
     if diagnosis_for_replacement(arr[1])
-    // if eq_any(alltrim(arr[1]), 'Z92.2', 'Z92.4', 'Z92.8')
       diagVspom := alltrim(arr[1])
       diagMemory := alltrim(arr[2])
     endif
@@ -299,13 +303,21 @@ Function print_l_uch(mkod, par, regim, lnomer)
     if year(human->k_data) > 2017 .and. !empty(human_2->pc3)
       k := 0
       add_string('  Дополнительный критерий : ')
-      add_criteria := getArrayCriteria(human->K_DATA, human_2->pc3)
-      if ! empty(add_criteria)
-          k := perenos(tmp, alltrim(human_2->pc3) + ' - ' + alltrim(add_criteria[6]), sh - 3)
-          for i := 1 to k
-            add_string(space(3) + tmp[i])
-          next
+      if lExistFilesTFOMS
+        add_criteria := getArrayCriteria(human->K_DATA, human_2->pc3)
+        if ! empty(add_criteria)
+          if year(human->k_data) >= 2021
+            k := perenos(tmp, alltrim(human_2->pc3) + ' - ' + alltrim(add_criteria[6]), sh - 3)
+            for i := 1 to k
+              add_string(space(3) + tmp[i])
+            next
+          else
+            add_string(space(3) + alltrim(human_2->pc3))
+          endif
         endif
+      else
+        add_string(space(3) + alltrim(human_2->pc3))
+      endif
     endif
     if len(arr) > 1
       tmp1 := '  Сопутствующие диагнозы:'
@@ -370,17 +382,19 @@ Function print_l_uch(mkod, par, regim, lnomer)
     if !empty(human_2->TAL_NUM)
       add_string('  Номер талона на ВМП: ' + human_2->TAL_NUM)
     endif
-    k := perenos(tmp, ret_V018(human_2->VIDVMP, human->k_data), sh - 11)
-    add_string('  Вид ВМП: ' + tmp[1])
-    for i := 2 to k
-      add_string(space(11) + tmp[i])
-    next
-    if !empty(human_2->METVMP)
-      k := perenos(tmp, ret_V019(human_2->METVMP, human_2->VIDVMP, human->k_data), sh - 14)
-      add_string('   метод ВМП: ' + tmp[1])
+    if lExistFilesTFOMS
+      k := perenos(tmp, ret_V018(human_2->VIDVMP, human->k_data), sh - 11)
+      add_string('  Вид ВМП: ' + tmp[1])
       for i := 2 to k
-        add_string(space(14) + tmp[i])
+        add_string(space(11) + tmp[i])
       next
+      if !empty(human_2->METVMP)
+        k := perenos(tmp, ret_V019(human_2->METVMP, human_2->VIDVMP, human->k_data), sh - 14)
+        add_string('   метод ВМП: ' + tmp[1])
+        for i := 2 to k
+          add_string(space(14) + tmp[i])
+        next
+      endif
     endif
   endif
 
@@ -418,14 +432,12 @@ Function print_l_uch(mkod, par, regim, lnomer)
       lname := usl->name
 
       tmpAlias := create_name_alias('LUSL',  year(human->k_data))
-      if check_files_TFOMS(year(human->k_data))
+      if lExistFilesTFOMS
         select (tmpAlias)
         find (padr(usl->shifr, 10))
         if found()
           lname := (tmpAlias)->name  // наименование услуги из справочника ТФОМС
         endif
-      else
-        func_error(4, 'Отсутствуют справочники ТФОМС за ' + str(year(human->k_data), 4) +' год.' )
       endif
       lshifr1 := opr_shifr_TFOMS(usl->shifr1, usl->kod, human->k_data)
       select TMP1
@@ -440,7 +452,7 @@ Function print_l_uch(mkod, par, regim, lnomer)
       tmp1->kod_diag := hu_->KOD_DIAG
       tmp1->dom := iif(between(hu->kol_rcp, -2, -1), -hu->kol_rcp, 0)
       tmp1->otd := otd->short_name
-      if check_files_TFOMS(year(human->k_data))
+      if lExistFilesTFOMS
         if human->k_data < 0d20120301
           tmp1->plus := !f_paraklinika(usl->shifr, lshifr1, c4tod(hu->date_u))
         else
@@ -466,7 +478,7 @@ Function print_l_uch(mkod, par, regim, lnomer)
       Select MOSU
       goto (mohu->u_kod)
       lname := mosu->name
-      if check_files_TFOMS(year(human->k_data))
+      if lExistFilesTFOMS
         tmpAlias := create_name_alias('LUSLF',  year(human->k_data))
         select (tmpAlias)
         find (padr(mosu->shifr1, 20))
@@ -570,99 +582,72 @@ Function print_l_uch(mkod, par, regim, lnomer)
     endif
     //
     if tmp1->summa > 0 .and. is_ksg(tmp1->shifr)
-      if year(human->k_data) > 2017
-        s1 := ''
-        if !empty(human_2->pc1)
-          akslp := List2Arr(human_2->pc1)
-          if len(akslp) > 0
-            s1 += '(с учётом КСЛП='
-            if year(human->k_data) >= 2021
-              for i := 1 to len(akslp)  // возможно несколько КСЛП для КСГ
-                arrKSLP := getInfoKSLP(human->k_data, akslp[i])
-                s1 += alltrim(str(arrKSLP[1])) + '. ' + arrKSLP[3] + ', коэф.=' + str(arrKSLP[4], 4, 2) + ') '
-              next
-            else
-              len_akslp := len(akslp) / 2
-              for i := 1 to len_akslp
-                arrKSLP := getInfoKSLP(human->k_data, akslp[i * 2 - 1])
-                s1 += alltrim(str(arrKSLP[1])) + '. ' + arrKSLP[3] + ', коэф.=' + str(arrKSLP[4], 4, 2) + ') '
-              next
-            endif
-            k_kslp := perenos(tmp_kslp, s1, w1)
-          endif
-        endif
-        if !empty(human_2->pc2)
+        if year(human->k_data) > 2017
           s1 := ''
-          akiro := List2Arr(human_2->pc2)
-          if len(akiro) > 1
-            s1 += '(с учётом КИРО='
-            arrKIRO := getInfoKIRO(human->k_data, akiro[1])
-            s1 += alltrim(str(arrKIRO[1])) + '. ' + arrKIRO[3] + ', коэф.=' + str(arrKIRO[4], 4, 2) + ') '
-            k_kiro := perenos(tmp_kiro, s1, w1)
+          if !empty(human_2->pc1)
+            akslp := List2Arr(human_2->pc1)
+            if len(akslp) > 0
+              s1 += '(с учётом КСЛП='
+              if year(human->k_data) >= 2021
+                for i := 1 to len(akslp)  // возможно несколько КСЛП для КСГ
+                  if lExistFilesTFOMS
+                    arrKSLP := getInfoKSLP(human->k_data, akslp[i])
+                    s1 += alltrim(str(arrKSLP[1])) + '. ' + arrKSLP[3] + ', коэф.=' + str(arrKSLP[4], 4, 2) + ') '
+                  else
+                    //
+                  endif
+                next
+              else
+                len_akslp := len(akslp) / 2
+                for i := 1 to len_akslp
+                  if lExistFilesTFOMS
+                    arrKSLP := getInfoKSLP(human->k_data, akslp[i * 2 - 1])
+                    s1 += alltrim(str(arrKSLP[1])) + '. ' + arrKSLP[3] + ', коэф.=' + str(arrKSLP[4], 4, 2) + ') '
+                  else
+                    //
+                  endif
+                next
+              endif
+              k_kslp := perenos(tmp_kslp, s1, w1)
+            endif
+          endif
+          if !empty(human_2->pc2)
+            s1 := ''
+            akiro := List2Arr(human_2->pc2)
+            if len(akiro) > 1
+              s1 += '(с учётом КИРО='
+              if lExistFilesTFOMS
+                arrKIRO := getInfoKIRO(human->k_data, akiro[1])
+                s1 += alltrim(str(arrKIRO[1])) + '. ' + arrKIRO[3] + ', коэф.=' + str(arrKIRO[4], 4, 2) + ') '
+              else
+                //
+              endif
+              k_kiro := perenos(tmp_kiro, s1, w1)
+            endif
+          endif
+          if !empty(tmp_kslp)
+            for i := 1 to k_kslp
+              if i == 1
+                add_string(space(21) + tmp_kslp[i])
+              else
+                add_string(space(21) + padl(rtrim(tmp_kslp[i]), w1))
+              endif
+            next
+          endif
+          if !empty(tmp_kiro)
+            for i := 1 to k_kiro
+              if i == 1
+                add_string(space(21) + tmp_kiro[i])
+              else
+                add_string(space(21) + padl(rtrim(tmp_kiro[i]), w1))
+              endif
+            next
           endif
         endif
-        if !empty(tmp_kslp)
-          for i := 1 to k_kslp
-            if i == 1
-              add_string(space(21) + tmp_kslp[i])
-            else
-              add_string(space(21) + padl(rtrim(tmp_kslp[i]), w1))
-            endif
-          next
-        endif
-        if !empty(tmp_kiro)
-          for i := 1 to k_kiro
-            if i == 1
-              add_string(space(21) + tmp_kiro[i])
-            else
-              add_string(space(21) + padl(rtrim(tmp_kiro[i]), w1))
-            endif
-          next
-        endif
-    // elseif human_->USL_OK == 1 // стационар
-      //   s := iif(empty(tmp1->shifr1), tmp1->shifr, tmp1->shifr1)
-      //   if human_->USL_OK < 3 .and. !empty(human_2->pc1)
-      //     akslp := List2Arr(human_2->pc1)
-      //     if len(akslp) > 1 .and. valtype(akslp) == 'N'
-      //       arrKSLP := getKSLPtable(human->k_data)
-      //       // s1 += '(с учётом КСЛП=' + str(akslp[2], 4, 2) + ')'
-      //       s1 += '(с учётом КСЛП='
-      //       if year(human->k_data) >= 2021
-      //         for i := 1 to len(akslp)
-      //           arrKSLP := getInfoKSLP(human->k_data, akslp[i])
-      //           s1 += arrKSLP[3] + ', коэф.=' + str(arrKSLP[4], 4, 2) + ') '
-      //         next
-      //       else
-      //         len_akslp := len(akslp) / 2
-      //         for i := 1 to len_akslp
-      //           arrKSLP := getInfoKSLP(human->k_data, akslp[i * 2 - 1])
-      //           s1 += arrKSLP[3] + ', коэф.=' + str(arrKSLP[4], 4, 2) + ') '
-      //         next
-      //         k_kslp := perenos(tmp_kslp, s1, w1)
-      //       endif
-      //     endif
-      //   endif
-      endif
     endif
     if eq_any(human->ishod, 401, 402 ) .and. tmp1->kod_vr == 0 
       // УГЛУБЛЕННАЯ дисп-ия взрослого населения
     else
-      // for i := 2 to k
-      //   add_string(space(21) + padl(rtrim(tmp[i]), w1))
-      // next
-      // if !empty(tmp_kslp)
-      //   // add_string(space(21) + s1)
-      //   add_string(space(21) + tmp_kslp[1])
-      //   for i := 2 to k_kslp
-      //     add_string(space(21) + padl(rtrim(tmp_kslp[i]), w1))
-      //   next
-      // endif
-      // if !empty(tmp_kiro)
-      //   add_string(space(21) + tmp_kiro[1])
-      //   for i := 2 to k_kiro
-      //     add_string(space(21) + padl(rtrim(tmp_kiro[i]), w1))
-      //   next
-      // endif
     endif
     select TMP1
     skip
@@ -1332,11 +1317,12 @@ Function create_FR_file_for_spravkaOMS()
   index on shifr to (cur_dir + 'tmp1')
   return NIL
 
-// 18.11.23 печать справки ОМС по готовому листу учёта
+// 21.11.23 печать справки ОМС по готовому листу учёта
 Function print_spravka_OMS(mkod)
   // mkod - код больного по БД human
   Local r1, c1, r2, c2, mdate, buf := save_maxrow(), msumma := 0, lshifr
   local tmpAlias
+  local lExistFilesTFOMS
 
   get_row_col_max(18, 4, @r1, @c1, @r2, @c2)
   if (mdate := input_value(r1, c1, r2, c2, color1, ;
@@ -1362,7 +1348,7 @@ Function print_spravka_OMS(mkod)
     return func_error(4, 'Дата выдачи справки меньше даты окончания лечения!')
   endif
   tmpAlias := create_name_alias('LUSL',  year(human->k_data))
-  if ! check_files_TFOMS(year(human->k_data))
+  if ! (lExistFilesTFOMS := check_files_TFOMS(year(human->k_data)))  // проверим наличие справочников ТФОМС
     func_error(4, 'Отсутствуют справочники ТФОМС за ' + str(year(human->k_data), 4) +' год.' )
   endif
 
@@ -1376,7 +1362,7 @@ Function print_spravka_OMS(mkod)
     if !emptyany(hu->kol_1, hu->stoim_1)
       usl->(dbGoto(hu->u_kod))
       lshifr := opr_shifr_TFOMS(usl->shifr1, usl->kod, human->k_data)
-      if check_files_TFOMS(year(human->k_data))
+      if lExistFilesTFOMS
         if is_usluga_TFOMS(usl->shifr,lshifr, human->k_data)
           lshifr := iif(empty(lshifr), usl->shifr, lshifr)
           select LUSL
