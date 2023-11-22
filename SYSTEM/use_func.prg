@@ -8,10 +8,14 @@
 
 static exists_year_tfoms
 
-// 18.11.23 - функция проверяющая наличие справочников ТФОМС на конкретный год.
-// Вызов ТОЛЬКО после использования use_base('lusl')
+// 21.11.23 - функция проверяющая наличие справочников ТФОМС на конкретный год.
 function check_files_TFOMS(nYear)
   local lRet := .f.
+
+  if isnil(exists_year_tfoms) // вспомогательно, если доэтого не использовался use_base('lusl')
+    use_base('lusl')
+    close_use_base('lusl')    
+  endif
 
   if hb_hHaskey(exists_year_tfoms, nYear)
     lRet := exists_year_tfoms[nYear]
