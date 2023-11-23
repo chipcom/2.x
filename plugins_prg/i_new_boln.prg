@@ -4,7 +4,7 @@
 #include 'chip_mo.ch'
 
 // 22.11.23 Журнал регистрации новых больных
-Function plug_alert( oEdit )
+Function i_new_boln( oEdit )
   Local arr_m, fl, ldate, buf := save_maxrow()
 
   If ( arr_m := year_month() ) != NIL

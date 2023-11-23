@@ -7,7 +7,7 @@
 FUNCTION Plugins()
 
   LOCAL aMenu := {}, i
-  LOCAL aPlugins := ReadIni( edi_FindPath( 'hbedit.ini' ) )
+  LOCAL aPlugins := ReadIni( edi_FindPath( 'chip_plugin.ini' ) )
   LOCAL aMenu1 := {}
 	local color_say := 'N/W', color_get := 'W/N*'
   local oBox
@@ -84,35 +84,45 @@ FUNCTION edi_FindPath( cFile )
  
   RETURN Nil
    
+// 23.11.23
+STATIC FUNCTION ReadIni( cIniName )
 
-  STATIC FUNCTION ReadIni( cIniName )
+  LOCAL hIni := edi_iniRead( cIniName ), aSect, arr, i, cTmp, s, nPos, n
+  LOCAL aPanes := { Nil, Nil }, cp, lPalette := .F.
+  LOCAL aPlugins := {}
+  local cPodrazdel
 
-    LOCAL hIni := edi_iniRead( cIniName ), aSect, arr, i, cTmp, s, nPos, n
-    LOCAL aPanes := { Nil, Nil }, cp, lPalette := .F.
-    LOCAL aPlugins := {}
+  Do Case
+  Case glob_task == X_REGIST //
+    cPodrazdel := 'PLUGINS_REGIST'
+  Case glob_task == X_OMS  //
+    cPodrazdel := 'PLUGINS_OMS'
+  otherwise
+    cPodrazdel := 'PLUGINS'
+  Endcase
 
-    IF !Empty( hIni )
-       hb_hCaseMatch( hIni, .F. )
+  IF !Empty( hIni )
+    hb_hCaseMatch( hIni, .F. )
  
-       IF hb_hHaskey( hIni, cTmp := 'PLUGINS' ) .AND. !Empty( aSect := hIni[ cTmp ] )
-          hb_hCaseMatch( aSect, .F. )
-          arr := hb_hKeys( aSect )
-          FOR i := 1 TO Len( arr )
-             s := aSect[ arr[i] ]
-             IF ( n := At( ',', s ) ) > 0
-                cTmp := AllTrim( Left( s, n - 1 ) )
-                IF !Empty( edi_FindPath( 'plugins' + hb_ps() + cTmp ) )
-                   s := Substr( s, n + 1 )
-                   IF ( n := At( ',', s ) ) > 0
-                      Aadd( aPlugins, { cTmp, Substr( s, n + 1 ), AllTrim(Left( s, n - 1 )), Nil, Nil } )
-                   ENDIF
-                ENDIF
-             ENDIF
-          NEXT
-       ENDIF
-    endif
- 
-    RETURN aPlugins
+    IF hb_hHaskey( hIni, cTmp := cPodrazdel ) .AND. !Empty( aSect := hIni[ cTmp ] )
+      hb_hCaseMatch( aSect, .F. )
+      arr := hb_hKeys( aSect )
+      FOR i := 1 TO Len( arr )
+        s := aSect[ arr[i] ]
+        IF ( n := At( ',', s ) ) > 0
+          cTmp := AllTrim( Left( s, n - 1 ) )
+          IF !Empty( edi_FindPath( 'plugins' + hb_ps() + cTmp ) )
+            s := Substr( s, n + 1 )
+            IF ( n := At( ',', s ) ) > 0
+              Aadd( aPlugins, { cTmp, Substr( s, n + 1 ), AllTrim(Left( s, n - 1 )), Nil, Nil } )
+            ENDIF
+          ENDIF
+        ENDIF
+      NEXT
+    ENDIF
+  endif
+
+  RETURN aPlugins
  
 FUNCTION edi_IniRead( cFileName )
 
