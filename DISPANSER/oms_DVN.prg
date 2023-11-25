@@ -1,14 +1,15 @@
+#include 'common.ch'
 #include 'inkey.ch'
 #include 'function.ch'
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 18.07.23 ДВН - добавление или редактирование случая (листа учета)
+// 08.11.23 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_DVN(Loc_kod, kod_kartotek, f_print)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
   // f_print - наименование функции для печати
-  Static sadiag1 := {}
+  Static sadiag1  // := {}
   Static st_N_DATA, st_K_DATA, s1dispans := 1
   Local bg := {|o, k| get_MKB10(o, k, .t.) }, arr_del := {}, mrec_hu := 0, ;
         buf := savescreen(), tmp_color := setcolor(), a_smert := {}, ;
@@ -35,13 +36,16 @@ Function oms_sluch_DVN(Loc_kod, kod_kartotek, f_print)
       return func_error(4, 'Это случай диспансеризации ранее 2018 года')
     endif
   endif
-  if empty(sadiag1)
-    Private file_form, diag1 := {}, len_diag := 0
-    if (file_form := search_file('DISP_NAB' + sfrm)) == NIL
-      func_error(4, 'Не обнаружен файл DISP_NAB' + sfrm)
-    endif
-    f2_vvod_disp_nabl('A00')
-    sadiag1 := diag1
+  // if empty(sadiag1)
+  //   Private file_form, diag1 := {}, len_diag := 0
+  //   if (file_form := search_file('DISP_NAB' + sfrm)) == NIL
+  //     func_error(4, 'Не обнаружен файл DISP_NAB' + sfrm)
+  //   endif
+  //   f2_vvod_disp_nabl('A00')
+  //   sadiag1 := diag1
+  // endif
+  if isnil(sadiag1)
+    sadiag1 := load_diagnoze_disp_nabl_from_file()
   endif
   chm_help_code := 3002
   Private mfio := space(50), mpol, mdate_r, madres, mvozrast, mdvozrast, ;

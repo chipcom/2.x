@@ -1,11 +1,12 @@
+#include 'common.ch'
 #include 'inkey.ch'
 #include 'function.ch'
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-Static sadiag1 := {}
+Static sadiag1  // := {}
 
-// 19.10.23
+// 08.11.23
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1, ;
         i, j, k, c, s := ' ', a_srok_lech := {}, a_period_stac := {}, a_disp := {}, ;
@@ -3841,13 +3842,16 @@ Function verify_1_sluch(fl_view)
     ret_arr_vozrast_DVN(d2)
     ret_arrays_disp(is_disp_19)
     m1g_cit := m1veteran := m1dispans := 0 ; is_prazdnik := f_is_prazdnik_DVN(d1)
-    if empty(sadiag1)
-      Private file_form, diag1 := {}, len_diag := 0
-      if (file_form := search_file('DISP_NAB' + sfrm)) == NIL
-        aadd(ta, 'Не обнаружен файл DISP_NAB' + sfrm)
-      endif
-      f2_vvod_disp_nabl('A00')
-      sadiag1 := diag1
+    // if empty(sadiag1)
+    //   Private file_form, diag1 := {}, len_diag := 0
+    //   if (file_form := search_file('DISP_NAB' + sfrm)) == NIL
+    //     aadd(ta, 'Не обнаружен файл DISP_NAB' + sfrm)
+    //   endif
+    //   f2_vvod_disp_nabl('A00')
+    //   sadiag1 := diag1
+    // endif
+    if isnil(sadiag1)
+      sadiag1 := load_diagnoze_disp_nabl_from_file()
     endif
     for i := 1 to 5
       sk := lstr(i)

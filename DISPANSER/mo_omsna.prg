@@ -1535,34 +1535,30 @@ Function f1_vvod_disp_nabl( nKey, oBrow, regim )
 
   Return ret
 
+// // 09.12.18 Информация по первичному вводу сведений о состоящих на диспансерном учёте
+// Function f2_vvod_disp_nabl( ldiag )
 
+//   Local fl := .f., lfp, i, s, d1, d2
 
-// 09.12.18 Информация по первичному вводу сведений о состоящих на диспансерном учёте
-Function f2_vvod_disp_nabl( ldiag )
+//   If len_diag == 0
+//     lfp := FOpen( file_form )
+//     Do While !feof( lfp )
+//       s := freadln( lfp )
+// /*for i := 1 to len(s) // проверка на русские буквы в диагнозах
+//   if ISRALPHA(substr(s,i,1))
+//     strfile(s+eos,"ttt.ttt",.t.)
+//     exit
+//   endif
+// next*/
+//       If !Empty( s )
+//         AAdd( diag1, AllTrim( s ) )
+//       Endif
+//     Enddo
+//     FClose( lfp )
+//     len_diag := Len( diag1 )
+//   Endif
 
-  Local fl := .f., lfp, i, s, d1, d2
-
-  If len_diag == 0
-    lfp := FOpen( file_form )
-    Do While !feof( lfp )
-      s := freadln( lfp )
-/*for i := 1 to len(s) // проверка на русские буквы в диагнозах
-  if ISRALPHA(substr(s,i,1))
-    strfile(s+eos,"ttt.ttt",.t.)
-    exit
-  endif
-next*/
-      If !Empty( s )
-        AAdd( diag1, AllTrim( s ) )
-      Endif
-    Enddo
-    FClose( lfp )
-    len_diag := Len( diag1 )
-  Endif
-
-  Return AScan( diag1, AllTrim( ldiag ) ) > 0
-
-
+//   Return AScan( diag1, AllTrim( ldiag ) ) > 0
 
 // 12.09.22 Информация по первичному вводу сведений о состоящих на диспансерном учёте
 Function inf_disp_nabl()

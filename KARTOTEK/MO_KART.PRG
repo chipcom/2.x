@@ -89,7 +89,7 @@ Function edit_kartotek(mkod, _top_r, _bot_r, fl_oms, _Human_kod)
   endif
   return mkod
 
-// 19.07.23
+// 09.11.23
 Function edit_kartotek_(mkod, _top_r, _bot_r, fl_oms, _Human_kod)
   Static mm_kart_error := {{'нет замечаний', 0}, {'полис недействителен', -8}, {'ошибки в реквизитах', -9}}
   Static mm_invalid := {{'нет', 0}, {'1 группа', 1}, {'2 группа', 2}, {'3 группа', 3}, {'дети-инвалиды', 4}}
@@ -134,7 +134,7 @@ Function edit_kartotek_(mkod, _top_r, _bot_r, fl_oms, _Human_kod)
     mBEG_POLIS := ctod(''), MSROK_POLIS := ctod(''), ; // срок действия страхового полиса
     mSTRANA := space(10), m1strana := '', ;
     mosn_preb, m1osn_preb := 0, ;
-    mvidpolis, m1vidpolis := 1, mmesto_r := space(100), ;
+    mvidpolis, m1vidpolis := 3, mmesto_r := space(100), ;
     mgragd, m1gragd, ;
     msnils := space(11), ;
     m1gorod_selo := 1, mgorod_selo, ;
@@ -522,11 +522,13 @@ Function edit_kartotek_(mkod, _top_r, _bot_r, fl_oms, _Human_kod)
       @ ++ix, 1 say 'Адрес пребывания' get madres_pre ;
           reader {|x| menu_reader(x, {{|k, r, c| get_adres(2, k, r, c)}}, A__FUNCTION, , , .f.)}
     endif
+
     @ ++ix, 1 say 'Полис ОМС: серия' get mspolis
     @ row(), col() + 3 say 'номер' get mnpolis valid {|| findKartoteka(2, @mkod) }
     @ row(), col() + 3 say 'вид' get mvidpolis ;
                     reader {|x|menu_reader(x, mm_vid_polis, A__MENUVERT, , , .f.)} ;
                     valid func_valid_polis(m1vidpolis, mspolis, mnpolis)
+
     @ ++ix, 1 say 'СМО' get mnamesmo ;
                     reader {|x|menu_reader(x, glob_arr_smo, A__MENUVERT, , , .f.)} ;
                     valid {|g| func_valid_ismo(g, 0, 41, 'namesmo') }
