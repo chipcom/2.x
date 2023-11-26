@@ -20,28 +20,31 @@ FUNCTION Plugins()
   NEXT
 
   IF !Empty( aMenu1 )
-    oBox := NIL // уничтожим окно
-    oBox := TBox():New( 2, 10, 22, 70 )
-    oBox:Color := color_say + ',' + color_get
-    oBox:Frame := BORDER_DOUBLE
-    oBox:MessageLine := '^^ или нач.буква - просмотр;  ^<Esc>^ - выход;  ^<Enter>^ - выбор'
-    oBox:Save := .t.
+    do while .t.
+      oBox := NIL // уничтожим окно
+      oBox := TBox():New( 2, 10, 22, 70 )
+      oBox:Color := color_say + ',' + color_get
+      oBox:Frame := BORDER_DOUBLE
+      oBox:MessageLine := '^<Esc>^ - выход;  ^<Enter>^ - выбор'
+      oBox:Save := .t.
   
-    oBox:Caption := 'Выбор внешней обработки'
-    oBox:View()
+      oBox:Caption := 'Выбор внешней обработки'
+      oBox:View()
 
-    // if (i := AChoice( 5, 10, 15, 20, aMenu1)) > 0   //, , , 34 )
-    if (i := AChoice( oBox:Top + 1, oBox:Left + 1, oBox:Bottom - 1, oBox:Right - 1, aMenu1 )) > 0
+      if (i := AChoice( oBox:Top + 1, oBox:Left + 1, oBox:Bottom - 1, oBox:Right - 1, aMenu1 )) > 0
+        oBox := nil
         i := aMenu[i, 3]
         edi_RunPlugin( aPlugins, i )
-    ENDIF
+      else
+        exit
+      ENDIF
+    enddo
   ENDIF
 
   oBox := nil
   RETURN Nil
 
-  // FUNCTION edi_RunPlugin( oEdit, aPlugins, xPlugin, aParams )
-  FUNCTION edi_RunPlugin( aPlugins, xPlugin, aParams )
+FUNCTION edi_RunPlugin( aPlugins, xPlugin, aParams )
 
   LOCAL i, cPlugin, cFullPath
  
@@ -156,4 +159,3 @@ FUNCTION edi_IniRead( cFileName )
   NEXT
    
   RETURN hIni
-   
