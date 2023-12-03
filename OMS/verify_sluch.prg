@@ -6,7 +6,7 @@
 
 Static sadiag1  // := {}
 
-// 08.11.23
+// 01.12.23
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1, ;
         i, j, k, c, s := ' ', a_srok_lech := {}, a_period_stac := {}, a_disp := {}, ;
@@ -722,8 +722,8 @@ Function verify_1_sluch(fl_view)
         endif
         hu_->profil := lprofil
       endif
-      if left(lshifr, 5) == '60.8.'
-        hu_->profil := 15   // гистология
+      if left(lshifr, 5) == '60.8.' .and. hb_main_curOrg:Kod_Tfoms != '805903'
+        hu_->profil := 15   // гистология за исключение "Волгамедлаб"
         mprvs := hu_->PRVS := -13 // Клиническая лабораторная диагностика
       elseif empty(hu->kod_vr)
         if eq_any(alltrim(lshifr), '4.20.2')

@@ -3,12 +3,6 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-** 29.07.22 проходит только КТ, УЗИ диагностика при онкологии
-function only_control_onko(napr, date, rslt, ishod)
-  // napr - наравившее МО
-  // date - дата направления
-  return !empty(napr) .and. !empty(date) .and. rslt == 314 .and. ishod == 304
-
 ** 02.08.22 добавление или редактирование случая (листа учета)
 Function oms_sluch(Loc_kod, kod_kartotek)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
