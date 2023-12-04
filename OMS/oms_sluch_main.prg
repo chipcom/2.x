@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 30.09.23 добавление или редактирование случая (листа учета)
+// 04.12.23 добавление или редактирование случая (листа учета)
 Function oms_sluch_main( Loc_kod, kod_kartotek )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -1090,7 +1090,8 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       // mNAPR_V := inieditspr(A__MENUVERT, mm_napr_v, m1napr_v)
       // mMET_ISSL := inieditspr(A__MENUVERT, mm_MET_ISSL, m1MET_ISSL)
       tip_onko_napr := 0
-      If is_oncology == 2 .or. hb_main_curOrg:Kod_Tfoms == '805903'
+      // If is_oncology == 2 .or. hb_main_curOrg:Kod_Tfoms == '805903'
+      If is_oncology == 2 .or. is_VOLGOMEDLAB()
         is_mgi := .f.
         lshifr := ''
         If Loc_kod > 0 // редактирование
@@ -1572,8 +1573,9 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       @ ++j, 1 Say 'ФИО' Get mfio_kart When .f.
       @ j, 57 Get mn_data When .f.
       @ Row(), Col() + 1 Say '-' Get mk_data When .f.
+      
       // направления на доп. исследования
-      If ! only_control_onko( mNPR_MO, mNPR_DATE, m1rslt, m1ishod )
+      If ! only_control_onko( mNPR_MO, mNPR_DATE, m1rslt, m1ishod ) .and. ! is_VOLGOMEDLAB()
         @ ++j, 1 Say 'Направления на доп. исследования' Get mnapr_onk ;
           reader {| x| menu_reader( x, { {| k, r, c| fget_napr_zno( k, r, c ) } }, A__FUNCTION, , , .f. ) }
         ++j
@@ -1609,39 +1611,43 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         // @ ++j, 7 say 'Услуга' get mname_u when .f. color color14
         // @ ++j, 3 say 'Табельный номер направившего врача' get mTab_Number pict '99999' ;
         // valid {|g| iif((m1napr_v != 0) .and. (mTab_Number == 0) .and. v_kart_vrach(g),  func_error(4, 'Необходимо указать табельный направившего врача'), .t.) }
+      else
+        j++
       Endif
 
-      If is_oncology == 2 .or. hb_main_curOrg:Kod_Tfoms == '805903'
+      // If is_oncology == 2 .or. hb_main_curOrg:Kod_Tfoms == '805903'
+      If is_oncology == 2 .or. is_VOLGOMEDLAB()
         // описание состояния при онкологии
-        @ ++j, 1 Say 'СВЕДЕНИЯ О СЛУЧАЕ ЛЕЧЕНИЯ ОНКОЛОГИЧЕСКОГО ЗАБОЛЕВАНИЯ'
+        @ ++j, 1 Say iif( is_VOLGOMEDLAB(), 'СВЕДЕНИЯ О ПРОВЕДЕНИИ ГИСТОЛОГИИ', 'СВЕДЕНИЯ О СЛУЧАЕ ЛЕЧЕНИЯ ОНКОЛОГИЧЕСКОГО ЗАБОЛЕВАНИЯ')
         @ ++j, 3 Say 'Повод обращения' Get mDS1_T ;
           reader {| x| menu_reader( x, lmm_DS1_T, A__MENUVERT, , , .f. ) } ;
           Color colget_menu
-        @ ++j, 3 Say 'Стадия заболевания:' Get mSTAD ;
-          reader {| x| menu_reader( x, mm_N002, A__MENUVERT, , , .f. ) } ;
-          valid {| g| f_valid_tnm( g ),  mSTAD := PadR( mSTAD, 5 ), .t. } ;
-          When Between( m1ds1_t, 0, 4 ) ;
-          Color colget_menu
-        @ j, Col() Say ' Tumor' Get mONK_T ;
-          reader {| x| menu_reader( x, mm_N003, A__MENUVERT, , , .f. ) } ;
-          valid {| g| f_valid_tnm( g ),  mONK_T := PadR( mONK_T, 5 ), .t. } ;
-          When m1ds1_t == 0 .and. m1vzros_reb == 0 ;
-          Color colget_menu
-        @ j, Col() Say ' Nodus' Get mONK_N ;
-          reader {| x| menu_reader( x, mm_N004, A__MENUVERT, , , .f. ) } ;
-          valid {| g| f_valid_tnm( g ),  mONK_N := PadR( mONK_N, 5 ), .t. } ;
-          When m1ds1_t == 0 .and. m1vzros_reb == 0 ;
-          Color colget_menu
-        @ j, Col() Say ' Metastasis' Get mONK_M ;
-          reader {| x| menu_reader( x, mm_N005, A__MENUVERT, , , .f. ) } ;
-          valid {| g| f_valid_tnm( g ),  mONK_M := PadR( mONK_M, 5 ), .t. } ;
-          When m1ds1_t == 0 .and. m1vzros_reb == 0 ;
-          Color colget_menu
-        @ ++j, 5 Say 'Наличие отдаленных метастазов (при рецидиве или прогрессировании)' Get mMTSTZ ;
-          reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
-          When eq_any( m1DS1_T, 1, 2 ) ;
-          Color colget_menu
-
+        if ! is_VOLGOMEDLAB()
+          @ ++j, 3 Say 'Стадия заболевания:' Get mSTAD ;
+            reader {| x| menu_reader( x, mm_N002, A__MENUVERT, , , .f. ) } ;
+            valid {| g| f_valid_tnm( g ),  mSTAD := PadR( mSTAD, 5 ), .t. } ;
+            When Between( m1ds1_t, 0, 4 ) ;
+            Color colget_menu
+          @ j, Col() Say ' Tumor' Get mONK_T ;
+            reader {| x| menu_reader( x, mm_N003, A__MENUVERT, , , .f. ) } ;
+            valid {| g| f_valid_tnm( g ),  mONK_T := PadR( mONK_T, 5 ), .t. } ;
+            When m1ds1_t == 0 .and. m1vzros_reb == 0 ;
+            Color colget_menu
+          @ j, Col() Say ' Nodus' Get mONK_N ;
+            reader {| x| menu_reader( x, mm_N004, A__MENUVERT, , , .f. ) } ;
+            valid {| g| f_valid_tnm( g ),  mONK_N := PadR( mONK_N, 5 ), .t. } ;
+            When m1ds1_t == 0 .and. m1vzros_reb == 0 ;
+            Color colget_menu
+          @ j, Col() Say ' Metastasis' Get mONK_M ;
+            reader {| x| menu_reader( x, mm_N005, A__MENUVERT, , , .f. ) } ;
+            valid {| g| f_valid_tnm( g ),  mONK_M := PadR( mONK_M, 5 ), .t. } ;
+            When m1ds1_t == 0 .and. m1vzros_reb == 0 ;
+            Color colget_menu
+          @ ++j, 5 Say 'Наличие отдаленных метастазов (при рецидиве или прогрессировании)' Get mMTSTZ ;
+            reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
+            When eq_any( m1DS1_T, 1, 2 ) ;
+            Color colget_menu
+        endif
 
         // проведение гистологии или иммуногистохимии
         If ! only_control_onko( mNPR_MO, mNPR_DATE, m1rslt, m1ishod )
@@ -1710,7 +1716,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         Endif
 
         // проведение консилиума
-        If ! only_control_onko( mNPR_MO, mNPR_DATE, m1rslt, m1ishod )
+        If ! only_control_onko( mNPR_MO, mNPR_DATE, m1rslt, m1ishod ) .and. ! is_VOLGOMEDLAB()
           @ ++j, 3 Say 'Консилиум: дата' Get mDT_CONS ;
             valid {|| iif( Empty( mDT_CONS ) .or. Between( mDT_CONS, mn_data, mk_data ), .t., ;
             func_error( 4, 'Дата консилиума должна быть внутри сроков лечения' ) ) }

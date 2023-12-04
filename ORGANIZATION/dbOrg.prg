@@ -5,6 +5,12 @@
 
 // #require 'hbsqlit3'
 
+// 04.12.23
+// это МО "Волгомедлаб"
+function is_VOLGOMEDLAB()
+
+  return hb_main_curOrg:Kod_Tfoms == VOLGOMEDLAB
+
 // 23.10.23
 function getUCH()
   static arr

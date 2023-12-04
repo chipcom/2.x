@@ -722,7 +722,8 @@ Function verify_1_sluch(fl_view)
         endif
         hu_->profil := lprofil
       endif
-      if left(lshifr, 5) == '60.8.' .and. hb_main_curOrg:Kod_Tfoms != '805903'
+      // if left(lshifr, 5) == '60.8.' .and. hb_main_curOrg:Kod_Tfoms != '805903'
+      if left(lshifr, 5) == '60.8.' .and. ! is_VOLGOMEDLAB()
         hu_->profil := 15   // гистология за исключение "Волгамедлаб"
         mprvs := hu_->PRVS := -13 // Клиническая лабораторная диагностика
       elseif empty(hu->kod_vr)
