@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 04.12.23 добавление или редактирование случая (листа учета)
+// 05.12.23 добавление или редактирование случая (листа учета)
 Function oms_sluch_main( Loc_kod, kod_kartotek )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -1091,7 +1091,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       // mMET_ISSL := inieditspr(A__MENUVERT, mm_MET_ISSL, m1MET_ISSL)
       tip_onko_napr := 0
       // If is_oncology == 2 .or. hb_main_curOrg:Kod_Tfoms == '805903'
-      If is_oncology == 2 .or. is_VOLGOMEDLAB()
+      If is_oncology == 2 .or. is_VOLGAMEDLAB()
         is_mgi := .f.
         lshifr := ''
         If Loc_kod > 0 // редактирование
@@ -1575,7 +1575,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       @ Row(), Col() + 1 Say '-' Get mk_data When .f.
       
       // направления на доп. исследования
-      If ! only_control_onko( mNPR_MO, mNPR_DATE, m1rslt, m1ishod ) .and. ! is_VOLGOMEDLAB()
+      If ! only_control_onko( mNPR_MO, mNPR_DATE, m1rslt, m1ishod ) .and. ! is_VOLGAMEDLAB()
         @ ++j, 1 Say 'Направления на доп. исследования' Get mnapr_onk ;
           reader {| x| menu_reader( x, { {| k, r, c| fget_napr_zno( k, r, c ) } }, A__FUNCTION, , , .f. ) }
         ++j
@@ -1616,13 +1616,13 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       Endif
 
       // If is_oncology == 2 .or. hb_main_curOrg:Kod_Tfoms == '805903'
-      If is_oncology == 2 .or. is_VOLGOMEDLAB()
+      If is_oncology == 2 .or. is_VOLGAMEDLAB()
         // описание состояния при онкологии
-        @ ++j, 1 Say iif( is_VOLGOMEDLAB(), 'СВЕДЕНИЯ О ПРОВЕДЕНИИ ГИСТОЛОГИИ', 'СВЕДЕНИЯ О СЛУЧАЕ ЛЕЧЕНИЯ ОНКОЛОГИЧЕСКОГО ЗАБОЛЕВАНИЯ')
+        @ ++j, 1 Say iif( is_VOLGAMEDLAB(), 'СВЕДЕНИЯ О ПРОВЕДЕНИИ ГИСТОЛОГИИ', 'СВЕДЕНИЯ О СЛУЧАЕ ЛЕЧЕНИЯ ОНКОЛОГИЧЕСКОГО ЗАБОЛЕВАНИЯ')
         @ ++j, 3 Say 'Повод обращения' Get mDS1_T ;
           reader {| x| menu_reader( x, lmm_DS1_T, A__MENUVERT, , , .f. ) } ;
           Color colget_menu
-        if ! is_VOLGOMEDLAB()
+        if ! is_VOLGAMEDLAB()
           @ ++j, 3 Say 'Стадия заболевания:' Get mSTAD ;
             reader {| x| menu_reader( x, mm_N002, A__MENUVERT, , , .f. ) } ;
             valid {| g| f_valid_tnm( g ),  mSTAD := PadR( mSTAD, 5 ), .t. } ;
@@ -1716,7 +1716,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         Endif
 
         // проведение консилиума
-        If ! only_control_onko( mNPR_MO, mNPR_DATE, m1rslt, m1ishod ) .and. ! is_VOLGOMEDLAB()
+        If ! only_control_onko( mNPR_MO, mNPR_DATE, m1rslt, m1ishod ) .and. ! is_VOLGAMEDLAB()
           @ ++j, 3 Say 'Консилиум: дата' Get mDT_CONS ;
             valid {|| iif( Empty( mDT_CONS ) .or. Between( mDT_CONS, mn_data, mk_data ), .t., ;
             func_error( 4, 'Дата консилиума должна быть внутри сроков лечения' ) ) }
