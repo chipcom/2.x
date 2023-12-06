@@ -11496,7 +11496,7 @@ index on fr_data  to (cur_dir+"tmp_uu") for !empty(fr_data)
 //go top
 dbseek(arr_m[7],.t.)
 do while hum->fr_data <= arr_m[8] .and. !eof()
-  if (hum->kod_oper == asc(kod_polzovat) .or. hb_user_curUser:IsAdmin()) .and.;
+  if (hum->kod_oper == asc(kod_polzovat) .or. hb_user_curUser:IsAdmin() .or. hb_user_curUser:IsKontroler()) .and.;
       ascan(krvz,hum->tip_usl) > 0
     select KART
     goto (hum->kod_k)
@@ -11647,9 +11647,9 @@ if bkol_oper > 0
                    iif(tmp->t_flag==1,"*"," "))
       endif
     endif
-    sm2   += tmp->summa
-    sm_bn += tmp->summa_bn
-    sm_n  += tmp->summa_n
+    sm2   := sm2 + tmp->summa
+    sm_bn := sm_bn + tmp->summa_bn
+    sm_n  := sm_n + tmp->summa_n
     skip
   enddo
   add_string(replicate("Ä",sh))

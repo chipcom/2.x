@@ -872,7 +872,7 @@ return NIL
 
 *
 
-***** 31.03.14
+***** 31.11.23
 Function f_p_kart(nKey)
 Static st_n_kvit := 0
 Static st_tip_usl := 0
