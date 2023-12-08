@@ -101,7 +101,6 @@ Procedure Main( ... )
 
   Public is_alldializ := .f.
 
-  // Public arr_t007 // массив видов профилей
   Public glob_array_srf // массив страховых компаний
 
   // конец переноса из index_work_dir
@@ -109,7 +108,6 @@ Procedure Main( ... )
   Set( _SET_DELETED, .t. )
   SetClearB( ' ' )
   is_local_version := f_first( is_create )
-  // put_icon(__s_full_name() + __s_version(), 'MAIN_ICON')
   put_icon( full_name_version(), 'MAIN_ICON' )
   Set Key K_F1 To f_help()
   hard_err( 'create' )
@@ -299,7 +297,6 @@ Function f_main( r0, is_local_version, a_parol )
         main_center_screen( r0 )
       Endif
       change_sys_date() // перечитать системную дату
-      // put_icon(__s_full_name() + __s_version(), 'MAIN_ICON') // перевывести заголовок окна
       put_icon( full_name_version(), 'MAIN_ICON' ) // перевывести заголовок окна
       @ r0, 0 Say full_date( sys_date ) Color 'W+/N' // перевывести дату
       @ r0, MaxCol() -4 Say hour_min( Seconds() ) Color 'W+/N' // перевывести время
@@ -481,7 +478,6 @@ Function f_first( is_create )
   Delete file ttt.ttt
   //
 
-  // verify_1_task()
   If isexerunning( nameTask ) // проверить, запущена ли уже данная задача, если 'да' - выход из задачи
     func_error( 10, 'Программа "' + Upper( nameTask ) + '" уже запущена. Запуск второй копии не разрешён!' )
     full_end()
