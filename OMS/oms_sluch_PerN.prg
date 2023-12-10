@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 13.02.17 ПерН - добавление или редактирование случая (листа учета)
+// 09.12.23 ПерН - добавление или редактирование случая (листа учета)
 Function oms_sluch_PerN(Loc_kod, kod_kartotek, f_print)
   // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -58,7 +58,7 @@ Function oms_sluch_PerN(Loc_kod, kod_kartotek, f_print)
     M1VRACH := 0, MTAB_NOM := 0, m1prvs := 0, ; // код, таб.№ и спец-ть лечащего врача
     m1povod  := 4, ;   // Профилактический
     m1travma := 0, ;
-    m1USL_OK :=  3, ; // поликлиника
+    m1USL_OK := USL_OK_POLYCLINIC, ; // поликлиника
     m1VIDPOM :=  1, ; // первичная
     m1PROFIL := 68, ; // педиатрия
     m1IDSP   := 17   // законченный случай в п-ке

@@ -10,7 +10,7 @@ Function f_d_dializ()
   endif
   return .t.
   
-// 28.11.22 гемодиализ (1) и перитонеальный диализ (2)
+// 09.12.23 гемодиализ (1) и перитонеальный диализ (2)
 Function oms_sluch_dializ(par, Loc_kod, kod_kartotek)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -87,12 +87,12 @@ Function oms_sluch_dializ(par, Loc_kod, kod_kartotek)
   //
   Private mm_rslt := {}, mm_ishod := {}
   if par == 1 // гемодиализ (1)
-    m1USL_OK := 2
+    m1USL_OK := USL_OK_DAY_HOSPITAL
     aeval(getV009(), {|x| iif(x[5] == m1usl_ok, aadd(mm_rslt, x), nil)})
     m1rslt := 201
     m1ishod := 203
   else // перитонеальный диализ (2)
-    m1USL_OK := 3
+    m1USL_OK := USL_OK_POLYCLINIC
     aeval(getV009(), {|x| iif(x[5] == m1usl_ok .and. x[2] < 316, aadd(mm_rslt, x), nil)})
     m1rslt := 314
     m1ishod := 304
@@ -267,11 +267,11 @@ Function oms_sluch_dializ(par, Loc_kod, kod_kartotek)
       next
       @ ++j, 1 say 'Количество НИЗКОпоточных процедур' get mkol_proc pict '99'
       @ ++j, 1 say 'Количество ВЫСОКОпоточных процедур' get mkol_proc1 pict '99'
-      if m1USL_OK == 2
+      if m1USL_OK == USL_OK_DAY_HOSPITAL
         @ ++j, 1 say 'Гемодиафильтрация (A18.05.011)' get mkol_proc2 pict '99'
       endif
       // @ ++j, 1 say 'Количество диализов при нарушении ультрафильтрации (А18.30.001.003)' get mkol_proc3 pict '99'
-      if m1USL_OK == 1
+      if m1USL_OK == USL_OK_HOSPITAL
         @ ++j, 1 say 'Количество дней обмена перитонеального диализа (A18.30.001)' get mkol_proc4 pict '99'
         @ ++j, 1 say 'Количество диализов с автоматизированными технологиями (А18.30.001.002)' get mkol_proc5 pict '99'
         @ ++j, 1 say 'Количество диализов при нарушении ультрафильтрации (А18.30.001.003)' get mkol_proc6 pict '99'

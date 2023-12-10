@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 05.12.23 добавление или редактирование случая (листа учета)
+// 09.12.23 добавление или редактирование случая (листа учета)
 Function oms_sluch_main( Loc_kod, kod_kartotek )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -467,7 +467,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
     If AllTrim( msmo ) == '34'
       mnameismo := ret_inogsmo_name( 2, @rec_inogSMO, .t. ) // открыть и закрыть
     Endif
-    If eq_any( m1usl_ok, 1, 2 ) .and. is_task( X_PPOKOJ ) ;
+    If eq_any( m1usl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL ) .and. is_task( X_PPOKOJ ) ;
         .and. !Empty( mUCH_DOC ) .and. mem_e_istbol == 1
       r_use( dir_server + 'mo_pp', dir_server + 'mo_pp_h',  'PP' )
       find ( Str( Loc_kod, 7 ) )
@@ -544,7 +544,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
           mBSA := PadR( AllTrim( str_0( sl->BSA, 4, 2 ) ), 4 )
         Endif
       Endif
-      is_gisto := ( m1usl_ok == 3 .and. m1profil == 15 )  // поликлиника + профиль = гистология
+      is_gisto := ( m1usl_ok == USL_OK_POLYCLINIC .and. m1profil == 15 )  // поликлиника + профиль = гистология
       i := j := 0
       Use ( cur_dir + 'tmp_onkdi' ) New Alias TDIAG
       r_use( dir_server + 'mo_onkdi', dir_server + 'mo_onkdi',  'DIAG' ) // Диагностический блок
@@ -652,10 +652,10 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
   MFIO_KART := _f_fio_kart()
   mvzros_reb := inieditspr( A__MENUVERT, menu_vzros, m1vzros_reb )
   If Empty( m1USL_OK )
-    m1USL_OK := 1
+    m1USL_OK := USL_OK_HOSPITAL
   Endif // на всякий случай
   mUSL_OK   := inieditspr( A__MENUVERT, getv006(), m1USL_OK )
-  If eq_any( m1usl_ok, 1, 2 )
+  If eq_any( m1usl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )
     If !Between( m1p_per, 1, 4 )
       m1p_per := 1
     Endif
@@ -866,31 +866,31 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       @ j, 1 Say 'Мед.помощь: условия оказания' Get MUSL_OK ;
         reader {| x| menu_reader( x, tmp_V006, A__MENUVERT, , , .f. ) } ;
         When diag_screen( 2 ) ;
-        valid {| g, o| iif( eq_any( m1usl_ok, 1, 2 ), ;
+        valid {| g, o| iif( eq_any( m1usl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL ), ;
         ( SetPos( rpp, 40 ),  DispOut( 'признак', cDataCGet ) ), ;
         ( mp_per := Space( 25 ), m1p_per := 0 ) ), ;
         update_get( 'mp_per' ),  f_valid_usl_ok( g, o )  }
-      If eq_any( m1usl_ok, 1, 2 )
+      If eq_any( m1usl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )
         @ j, 40 Say 'признак'
       Endif
       @ j, 48 Get mp_per ;
         reader {| x| menu_reader( x, mm_p_per, A__MENUVERT, , , .f. ) } ;
-        When eq_any( m1usl_ok, 1, 2 )
+        When eq_any( m1usl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )
       If is_dop_ob_em
         @ ++j, 3 Say 'вид объёмов специализированной медицинской помощи' Get mreg_lech ;
           reader {| x| menu_reader( x, mm_reg_lech, A__MENUVERT, , , .f. ) } ;
-          When eq_any( m1usl_ok, 1, 2 )
+          When eq_any( m1usl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )
       Endif
       @ ++j, 3 Say 'профиль мед.помощи' Get MPROFIL ;
         reader {| x| menu_reader( x, tmp_V002, A__MENUVERT, , , .f. ) } ;
         Valid f_valid2ad_cr( MK_DATA )
       @ ++j, 3 Say 'профиль койки' Get MPROFIL_K ;
         reader {| x| menu_reader( x, tmp_V020, A__MENUVERT, , , .f. ) } ;
-        When eq_any( m1usl_ok, 1, 2 )
+        When eq_any( m1usl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )
       If is_reabil_slux
         @ ++j, 3 Say 'вид мед.реабилитации' Get mvid_reab ;
           reader {| x| menu_reader( x, mm_vid_reab, A__MENUVERT, , , .f. ) } ;
-          When eq_any( m1usl_ok, 1, 2 ) .and. m1profil == 158
+          When eq_any( m1usl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL ) .and. m1profil == 158
       Endif
       //
       @ ++j, 1 Say 'Результат обращения' Get mrslt ;
@@ -969,7 +969,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       If is_MO_VMP
         @ ++j, 1 Say 'ВМП?' Get MVMP ;
           reader {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) } ;
-          When m1usl_ok == 1 ;
+          When m1usl_ok == USL_OK_HOSPITAL ;
           valid {| g, o| f_valid_vmp( g, o ) } ;
           Color colget_menu
         @ j, Col() + 1 Say '№ талона' Get mTAL_NUM Picture iif( MK_DATA >= 0d20220101, newPictureTalon, oldPictureTalon ) ;
@@ -1129,7 +1129,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         mPR_CONS := inieditspr( A__MENUVERT, mm_PR_CONS, m1PR_CONS )
         //
         lmm_DS1_T := AClone( mm_DS1_T )
-        If m1usl_ok < 3
+        If eq_any( m1usl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL ) // m1usl_ok < 3
           del_array( lmm_DS1_T, 5 ) // удалим диспансерное наблюдение
           del_array( lmm_DS1_T, 4 ) // удалим динамическое наблюдение
         Else
@@ -1162,7 +1162,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         mONK_T := PadR( inieditspr( A__MENUVERT, mm_N003, m1ONK_T ), 5 )
         mONK_N := PadR( inieditspr( A__MENUVERT, mm_N004, m1ONK_N ), 5 )
         mONK_M := PadR( inieditspr( A__MENUVERT, mm_N005, m1ONK_M ), 5 )
-        If m1usl_ok == 3
+        If m1usl_ok == USL_OK_POLYCLINIC
           mONK_T := mONK_N := mONK_M := Space( 5 )
           m1ONK_T := m1ONK_N := m1ONK_M := 0
         Endif
@@ -1288,7 +1288,8 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
           Next
         Endif
         is_onko_VMP := .f. ; musl1vmp := musl2vmp := mtipvmp := 0
-        If m1usl_ok < 3 .and. m1vmp == 1 .and. m1metvmp > 0
+        // If m1usl_ok < 3 .and. m1vmp == 1 .and. m1metvmp > 0
+        if eq_any( m1usl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL ) .and. m1vmp == 1 .and. m1metvmp > 0
           r_use( dir_exe + '_mo_ovmp', cur_dir + '_mo_ovmp',  'OVMP' )
           find ( Str( m1metvmp, 3 ) ) // номер метода ВМП
           If Found()
@@ -1379,7 +1380,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         //
         k := 16
         If Len( mm_N009 ) == 0 .and. Len( mm_N012 ) == 0
-          If ( is_gisto := ( m1usl_ok == 3 .and. m1profil == 15 ) )  // поликлиника + профиль = гистология
+          If ( is_gisto := ( m1usl_ok == USL_OK_POLYCLINIC .and. m1profil == 15 ) )  // поликлиника + профиль = гистология
             AEval( arr_rez_gist, {| x| iif( x[ 4 ] > 0, ++kg, ) } )
             m1rez_gist := iif( kg > 0, 1, 0 )
             mrez_gist := 'количество гистологий - ' + lstr( kg )
@@ -1403,7 +1404,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         Endif
         fl_2_4 := fl_3_4 := .f.
         fl2_2_4 := fl2_3_4 := .f.
-        If m1usl_ok < 3 // стационар или дневной стационар
+        If eq_any( m1usl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL ) // m1usl_ok < 3 // стационар или дневной стационар
           If is_onko_VMP
             k += 14
             m1USL_TIP := musl1vmp
@@ -1727,7 +1728,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         Endif
 
         // проведение лечения
-        If m1usl_ok < 3
+        If eq_any( m1usl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL ) // m1usl_ok < 3
           @ ++j, 3 Say 'Проведённое лечение' Get musl_tip ;
             reader {| x| menu_reader( x, mm_usl_tip, A__MENUVERT, , , .f. ) } ;
             When Len( mm_usl_tip ) > 1 ;
@@ -2223,7 +2224,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
       human_2->OSL3   := MOSL3
       human_2->NPR_DATE := mNPR_DATE
       human_2->PROFIL_K := m1PROFIL_K
-      human_2->p_per  := iif( eq_any( m1USL_OK, 1, 2 ),  m1p_per, 0 )
+      human_2->p_per  := iif( eq_any( m1USL_OK, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL ),  m1p_per, 0 )
       human_2->VMP    := M1VMP
       human_2->TAL_NUM  := mTAL_NUM
       human_2->TAL_D  := mTAL_D
@@ -2242,7 +2243,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
 
       human_2->PC4    := iif( mWeight != 0, Str( mWeight, 5, 1 ),  Space( 10 ) )
 
-      If is_reabil_slux .and. eq_any( m1usl_ok, 1, 2 ) .and. m1profil == 158
+      If is_reabil_slux .and. eq_any( m1usl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL ) .and. m1profil == 158
         human_2->PN1 := m1vid_reab
       Endif
       human_2->PN2 := iif( f_oms_beremenn( mkod_diag, MK_DATA ) > 0, m1prer_b, 0 )
@@ -2687,7 +2688,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
   RestScreen( buf )
   chm_help_code := tmp_help
   If fl_write_sluch // если записали
-    If eq_any( m1USL_OK, 1, 2 )
+    If eq_any( m1USL_OK, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )
       f_1pac_definition_ksg( mkod )
     Endif
     If Type( 'fl_edit_oper' ) == 'L' // если находимся в режиме добавления случая

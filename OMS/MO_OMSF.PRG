@@ -71,7 +71,7 @@ Function f_put_glob_podr(lusl, lkdate, _arr)
   endif
   return len(_arr) > 0
 
-// 27.05.23
+// 09.12.23
 Function f_oms_beremenn(sdiag, dateSL)
   Static arr := {'O10', 'O11', 'O12', 'O13', 'O14', 'O15', 'O16', ;
                'O20', 'O21', 'O22', 'O23', 'O24', 'O25', 'O26', 'O28', ;
@@ -105,7 +105,7 @@ Function f_oms_beremenn(sdiag, dateSL)
     endif
   endif
 
-  if eq_any(k, 1, 2) .and. type('m1USL_OK') == 'N' .and. m1USL_OK == 4 // ëåè
+  if eq_any(k, 1, 2) .and. type('m1USL_OK') == 'N' .and. m1USL_OK == USL_OK_AMBULANCE // ëåè
     k := 0
   endif
   return k

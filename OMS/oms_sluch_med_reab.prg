@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-** 07.09.22 амбулаторная медицинская реабилитация - добавление или редактирование случая (листа учета)
+// 09.12.23 амбулаторная медицинская реабилитация - добавление или редактирование случая (листа учета)
 function oms_sluch_MED_REAB(Loc_kod, kod_kartotek, f_print)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -30,7 +30,7 @@ function oms_sluch_MED_REAB(Loc_kod, kod_kartotek, f_print)
   buf := savescreen()
 
   Private mm_rslt, mm_ishod, rslt_umolch := 0, ishod_umolch := 0, ;
-    m1USL_OK := 3, mUSL_OK, ;    // только амбулаторно
+    m1USL_OK := USL_OK_POLYCLINIC, mUSL_OK, ;    // только амбулаторно
     m1PROFIL := 158, mPROFIL     // медицинская реабилитация
 
   Private mkod := Loc_kod, ;

@@ -4,7 +4,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-// 08.11.23 ДВН - добавление или редактирование случая (листа учета)
+// 09.12.23 ДВН - добавление или редактирование случая (листа учета)
 Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -86,9 +86,9 @@ Function oms_sluch_DVN_COVID(Loc_kod,kod_kartotek,f_print)
     MK_DATA := st_K_DATA         ,; // дата окончания лечения
     MVRACH := space(10)         ,; // фамилия и инициалы лечащего врача
     M1VRACH := 0, MTAB_NOM := 0, m1prvs := 0,; // код, таб.№ и спец-ть лечащего врача
-    m1povod  := 4,;   // Профилактический
+    m1povod  := 4, ;   // Профилактический
     m1travma := 0, ;
-    m1USL_OK :=  3,; // поликлиника
+    m1USL_OK := USL_OK_POLYCLINIC,; // поликлиника
     m1VIDPOM :=  1,; // первичная
     m1PROFIL := 97,; // 97-терапия,57-общая врач.практика (семейн.мед-а),42-лечебное дело
     m1IDSP   := 11,; // доп.диспансеризация

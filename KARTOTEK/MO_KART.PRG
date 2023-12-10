@@ -89,7 +89,7 @@ Function edit_kartotek(mkod, _top_r, _bot_r, fl_oms, _Human_kod)
   endif
   return mkod
 
-// 09.11.23
+// 09.12.23
 Function edit_kartotek_(mkod, _top_r, _bot_r, fl_oms, _Human_kod)
   Static mm_kart_error := {{'нет замечаний', 0}, {'полис недействителен', -8}, {'ошибки в реквизитах', -9}}
   Static mm_invalid := {{'нет', 0}, {'1 группа', 1}, {'2 группа', 2}, {'3 группа', 3}, {'дети-инвалиды', 4}}
@@ -106,7 +106,9 @@ Function edit_kartotek_(mkod, _top_r, _bot_r, fl_oms, _Human_kod)
   if !(type('_task_263_') == 'L')
     Private _task_263_ := .f.
   endif
-  Private is_smp := fl_oms .and. ((type('m1usl_ok') == 'N' .and. m1usl_ok == 4) .or. ;
+  // Private is_smp := fl_oms .and. ((type('m1usl_ok') == 'N' .and. m1usl_ok == 4) .or. ;
+  //   (len(glob_otd) > 2 .and. glob_otd[3] == 4))
+  Private is_smp := fl_oms .and. ((type('m1usl_ok') == 'N' .and. m1usl_ok == USL_OK_AMBULANCE) .or. ;
                                 (len(glob_otd) > 2 .and. glob_otd[3] == 4))
   Private M1NOVOR := 0 // определить новое значение и 'скрыть' старое
   Private is_talon := ret_is_talon()

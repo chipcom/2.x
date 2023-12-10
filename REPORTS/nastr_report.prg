@@ -472,7 +472,7 @@ Function s_mnog_poisk()
               {|x| menu_reader(x, mm_dom, A__MENUVERT)}, ;
               0, {|x| inieditspr(A__MENUVERT, mm_dom, x)}, ;
               'Где оказана услуга', , ;
-              {|| m1usl_ok == 3 }})
+              {|| m1usl_ok == USL_OK_POLYCLINIC }})
   aadd(mm_tmp, {'otd_usl', 'N', 3, 0, NIL, ;
               {|x| menu_reader(x, { { |k, r, c| get_otd(k,r + 1, c) }}, A__FUNCTION)}, ;
               0, {|| space(10) }, ;

@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 27.05.23 СМП - добавление или редактирование случая (листа учета)
+// 09.12.23 СМП - добавление или редактирование случая (листа учета)
 Function oms_sluch_SMP(Loc_kod, kod_kartotek, tip_lu)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -240,7 +240,7 @@ Function oms_sluch_SMP(Loc_kod, kod_kartotek, tip_lu)
     musluga, m1usluga := 0, ;
     mm_usluga := {{'А05.10.004.001 Расшифровка ЭКГ', 1}, ;
                   {'В01.015.007 Консультация кардиолога', 2}}, ;
-    m1USL_OK := iif(tip_lu == TIP_LU_SMP, 4, 3), ;
+    m1USL_OK := iif(tip_lu == TIP_LU_SMP, USL_OK_AMBULANCE, USL_OK_POLYCLINIC), ;
     m1VIDPOM := iif(tip_lu == TIP_LU_SMP, 21, 11), ;
     m1PROFIL := iif(tip_lu == TIP_LU_SMP, 84, 160), ;
     m1IDSP   := iif(tip_lu == TIP_LU_SMP, 24, 41)

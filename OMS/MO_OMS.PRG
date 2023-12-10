@@ -192,14 +192,14 @@ Function f_valid_komu(get, old)
   select (tmp_select)
   return .t.
 
-// 23.03.23 действия в ответ на выбор в меню 'Условия оказания медицинской помощи'
+// 09.12.23 действия в ответ на выбор в меню 'Условия оказания медицинской помощи'
 Function f_valid_usl_ok(get, old, is_input)
   Local _y, _m, s
   DEFAULT is_input TO .t.
 
   if m1usl_ok != old .and. m1usl_ok > 0 .and. old != NIL
     mm_rslt := {}
-    if m1usl_ok == 3 .and. is_input // поликлиника - убираем диспансеризацию
+    if m1usl_ok == USL_OK_POLYCLINIC .and. is_input // поликлиника - убираем диспансеризацию
       aeval(tmp_V009, {|x| iif(x[5] == m1usl_ok .and. x[2] < 316, aadd(mm_rslt, x), nil)})
     else
       aeval(tmp_V009, {|x| iif(x[5] == m1usl_ok, aadd(mm_rslt, x), nil)})
@@ -228,7 +228,7 @@ Function f_valid_usl_ok(get, old, is_input)
   if is_input .and. type('p_nstr_vnr') == 'N'
     s := ''
     input_vnr := input_vnrm := .f.
-    if m1usl_ok == 1 // стационар
+    if m1usl_ok == USL_OK_HOSPITAL // стационар
       count_ymd(iif(M1NOVOR == 1, mdate_r2, mdate_r), mn_data, @_y, @_m,)
       //if _y == 0 .and. _m < 7 // ребёнок не старше 6 месяцев
       if _y == 0 // ребёнок до года
@@ -256,7 +256,7 @@ Function f_valid_usl_ok(get, old, is_input)
     endif
     // if !(m1usl_ok == 1 .and. (is_ksg_VMP .or. is_21_VMP .or. is_12_VMP .or. is_22_VMP .or. is_23_VMP))
     // if !(m1usl_ok == 1 .and. (is_19_VMP .or. is_20_VMP .or. is_21_VMP .or. is_22_VMP .or. is_23_VMP))
-    if !(m1usl_ok == 1 .and. is_MO_VMP)
+    if !(m1usl_ok == USL_OK_HOSPITAL .and. is_MO_VMP)
       mvmp := 'нет'
       m1vmp := 0
       MVIDVMP := space(70)
