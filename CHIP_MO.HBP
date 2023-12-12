@@ -3,7 +3,6 @@ chip_mo.rc
 mo_adres.prg
 mo_main.prg
 mo_omsi.prg
-mo_omsif.prg
 mo_st39.prg
 mo_vounc.prg
 mo_version.prg
@@ -139,6 +138,7 @@ mo_version.prg
 .\oms\mo_oms.prg
 .\oms\mo_oms1.prg
 .\oms\mo_omsf.prg
+.\oms\disability_certificate.prg
 
 .\personal\personal_func.prg
 
@@ -156,6 +156,12 @@ mo_version.prg
 .\reports\mo_omsis.prg
 .\reports\mo_omsit.prg
 .\reports\mo_omsfo.prg
+.\reports\forma_12.prg
+.\reports\forma_14.prg
+.\reports\forma_16.prg
+.\reports\forma_30.prg
+.\reports\forma_39.prg
+.\reports\forma_57.prg
 
 .\util\workWithZIP.prg
 .\util\runExternalProgram.prg
