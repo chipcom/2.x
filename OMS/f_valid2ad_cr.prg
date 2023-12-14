@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-** 08.02.23
+// 09.12.23
 Function f_valid2ad_cr(k_date)
   Static mm_bartel := { ;
     {'индекс Бартела 60 баллов и менее', '60'}, ;
@@ -63,11 +63,12 @@ Function f_valid2ad_cr(k_date)
 
   input_ad_cr := .f.
   mm_ad_cr := {}
-  if m1usl_ok < 3 .and. m1vmp == 0
+  // if m1usl_ok < 3 .and. m1vmp == 0
+  if eq_any( m1usl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL ) .and. m1vmp == 0
     if m1profil == 158 // реабилитация
       input_ad_cr := .t.
       aadd(mm_ad_cr, mm_rb[1])
-      if m1usl_ok == 1
+      if m1usl_ok == USL_OK_HOSPITAL
         aadd(mm_ad_cr, mm_rb[3])
         aadd(mm_ad_cr, mm_rb[4])
         aadd(mm_ad_cr, mm_rb[5])
@@ -93,7 +94,7 @@ Function f_valid2ad_cr(k_date)
           next
         endif
       endif
-    elseif m1usl_ok == 1 .and. !empty(MKOD_DIAG)
+    elseif m1usl_ok == USL_OK_HOSPITAL .and. !empty(MKOD_DIAG)
       // заполним массивы arr_sop, arr_osl сопутствующими диагнозами и осложнениями
       if !empty(MKOD_DIAG2)
         aadd(arr_sop, padr(MKOD_DIAG2, 5))
@@ -163,20 +164,20 @@ Function f_valid2ad_cr(k_date)
           endif
         endif
       next
-    elseif m1usl_ok == 2 .and. m1profil == 137  // ЭКО дневной стационар
+    elseif m1usl_ok == USL_OK_DAY_HOSPITAL .and. m1profil == 137  // ЭКО дневной стационар
       for i := 1 to len(arr_ad_criteria) 
         if m1usl_ok == arr_ad_criteria[i, 1] .and. lower(substr(arr_ad_criteria[i, 2], 1, 3)) == 'ivf'
           aadd(mm_ad_cr, {alltrim(arr_ad_criteria[i, 2]) + ' ' + arr_ad_criteria[i, 6], arr_ad_criteria[i, 2]})
         endif
       next
-    elseif m1usl_ok == 2 .and. !empty(MKOD_DIAG)
+    elseif m1usl_ok == USL_OK_DAY_HOSPITAL .and. !empty(MKOD_DIAG)
       for i := 1 to len(arr_ad_criteria)
         
         if m1usl_ok == arr_ad_criteria[i, 1] .and. ascan(arr_ad_criteria[i, 3], padr(MKOD_DIAG, 5)) > 0
           aadd(mm_ad_cr, {alltrim(arr_ad_criteria[i, 2]) + ' ' + arr_ad_criteria[i, 6], arr_ad_criteria[i, 2]})
         endif
       next
-    elseif eq_any(pr_ds_it, 1, 2) .and. m1usl_ok == 1
+    elseif eq_any(pr_ds_it, 1, 2) .and. m1usl_ok == USL_OK_HOSPITAL
       aadd(mm_ad_cr,mm_it[1])
       aadd(mm_ad_cr, mm_it[pr_ds_it + 1])
     elseif pr_ds_it == 4
@@ -221,7 +222,7 @@ Function f_valid2ad_cr(k_date)
       next
       Ins_Array(mm_ad_cr, 1, mm_mgi[1])
     endif
-    if !input_ad_cr .and. m1usl_ok == 2 // безусловно добавим МГИ для дневного стационара
+    if !input_ad_cr .and. m1usl_ok == USL_OK_DAY_HOSPITAL // безусловно добавим МГИ для дневного стационара
       input_ad_cr := .t.
       aadd(mm_ad_cr, mm_mgi[1])
       aadd(mm_ad_cr, mm_mgi[2])

@@ -10,44 +10,6 @@ Function init_mo()
   //  aaa := ctod('31/10/2023')
   //  altd()
   //  aaa := loadCriteria21(2023)
-  // HB_DATETIME() -> <tTimeStamp>
-  // HB_CTOD( <cDate> [, <cDateFormat> ] ) -> <dDate>
-  // HB_DTOC( <dDate> [, <cDateFormat> ] ) -> <cDate>
-  // HB_NTOT( <nValue> ) -> <tTimeStamp>
-  // HB_TTON( <tTimeStamp> ) -> <nValue>
-  // HB_TTOC( <tTimeStamp>, [ <cDateFormat> ] [, <cTimeFormat> ] ) ->
-  //                                                       <cTimeStamp>
-  // HB_CTOT( <cTimeStamp>, [ <cDateFormat> ] [, <cTimeFormat> ] ) ->
-  //                                                       <tTimeStamp>
-  // HB_TTOS( <tTimeStamp> ) -> <cYYYYMMDDHHMMSSFFF>
-  // HB_STOT( <cDateTime> ) -> <tTimeStamp>
-  //    <cDateTime> should be in one of the above form:
-  //       - "YYYYMMDDHHMMSSFFF"
-  //       - "YYYYMMDDHHMMSSFF"
-  //       - "YYYYMMDDHHMMSSF"
-  //       - "YYYYMMDDHHMMSS"
-  //       - "YYYYMMDDHHMM"
-  //       - "YYYYMMDDHH"
-  //       - "YYYYMMDD"
-  //       - "HHMMSSFFF"
-  //       - "HHMMSSF"
-  //       - "HHMMSS"
-  //       - "HHMM"
-  //       - "HH"
-  //    Important is number of digits.
-  // HB_TSTOSTR( <tTimeStamp> [, <lShorten> ] ) -> <cTimeStamp> // YYYY-MM-DD HH:MM:SS.fff
-  // HB_STRTOTS( <cTimeStamp> ) -> <tTimeStamp>
-  //    <cTimeStamp> should be in one of the above form:
-  //       YYYY-MM-DD [H[H][:M[M][:S[S][.f[f[f[f]]]]]]] [PM|AM]
-  //       YYYY-MM-DDT[H[H][:M[M][:S[S][.f[f[f[f]]]]]]] [PM|AM]
-  //    The folowing characters can be used as date delimiters: "-", "/", "."
-  //    T - is literal "T" - it's for XML timestamp format
-  //    if PM or AM is used HH is in range < 1 : 12 > otherwise
-  //    in range < 0 : 23 >
-  // HB_HOUR( <tTimeStamp> ) -> <nHour>
-  // HB_MINUTE( <tTimeStamp> ) -> <nMinute>
-  // HB_SEC( <tTimeStamp> ) -> <nSeconds>   // with milliseconds
-
 
   mywait()
   Public oper_parol := 30  // пароль для фискального регистратора
@@ -135,7 +97,7 @@ Function init_mo()
 
   return main_up_screen()
 
-// 11.06.23
+// 07.12.23
 function delete_base_dict(dir_exe, dir_cur)
   local aDbf := { ;
       dir_exe + '_mo_mo.dbb', ;
@@ -190,6 +152,12 @@ function delete_base_dict(dir_exe, dir_cur)
       dir_exe + 't006_u.dbf', ;
       dir_exe + 'telemed.dbf', ;
       dir_exe + 'v001.dbf', ;
+    dir_exe + '_mo_q015.dbf', ;
+    dir_exe + '_mo_q016.dbf', ;
+    dir_exe + '_mo_q017.dbf', ;
+    dir_exe + '_mo_q015.dbt', ;
+    dir_exe + '_mo_q016.dbt', ;
+    dir_exe + '_mo_q017.dbt', ;
       dir_exe + '_mo_t005.dbt', ;
       dir_exe + '_mo_v019.dbt', ;
       dir_exe + '_mo_v020.dbt', ;
@@ -202,12 +170,6 @@ function delete_base_dict(dir_exe, dir_cur)
       dir_exe + '_mo_f006.dbt', ;
       dir_exe + '_mo_f014.dbt' ;
     }
-    // dir_exe + '_mo_q015.dbf', ;
-    // dir_exe + '_mo_q016.dbf', ;
-    // dir_exe + '_mo_q017.dbf', ;
-    // dir_exe + '_mo_q015.dbt', ;
-    // dir_exe + '_mo_q016.dbt', ;
-    // dir_exe + '_mo_q017.dbt', ;
     local aNtx := { ;
       dir_cur + '_mo_t005.ntx', ;
       dir_cur + '_mo_t007.ntx', ;

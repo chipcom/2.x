@@ -7168,7 +7168,7 @@ do while !eof()
     select KART
     goto (human->kod_k)
     select TMP
-    if ho->kod_reg == asc(kod_polzovat) .or. hb_user_curUser:IsAdmin()
+    if ho->kod_reg == asc(kod_polzovat) .or. hb_user_curUser:IsAdmin() .or. hb_user_curUser:IsKontroler()
       append blank
       tmp->fio      := kart->fio
       tmp->chek     := ho->kv_cia

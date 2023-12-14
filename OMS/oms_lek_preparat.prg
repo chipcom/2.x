@@ -21,7 +21,7 @@ Function init_lek_pr()
   return s
 
 
-// 29.03.22 проверка на необходимость ввода лекарственных препаратов
+// 09.12.23 проверка на необходимость ввода лекарственных препаратов
 function check_oms_sluch_lek_pr(mkod_human)
   // mkod_human - код по БД human
 
@@ -53,9 +53,9 @@ function check_oms_sluch_lek_pr(mkod_human)
   p_cel := get_IDPC_from_V025_by_number(human_->povod)
 
   if eq_any(human_kod_diag, 'U07.1', 'U07.2') .and. mvozrast >= 18 .and. !check_diag_pregant()
-    if (M1USL_OK == 1) .and. (d2 >= 0d20220101)
+    if (M1USL_OK == USL_OK_HOSPITAL) .and. (d2 >= 0d20220101)
       retFl := (M1PROFIL != 158) .and. (vidPom != 32) .and. (ad_cr != 'stt5')
-    elseif (M1USL_OK == 3) .and. (d2 >= 0d20220401)
+    elseif (M1USL_OK == USL_OK_POLYCLINIC) .and. (d2 >= 0d20220401)
       retFl := (M1PROFIL != 158) .and. (vidPom != 32) .and. (p_cel == '3.0')
     endif
   endif

@@ -3,7 +3,7 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-// 27.06.23 ДДС - добавление или редактирование случая (листа учета)
+// 09.12.23 ДДС - добавление или редактирование случая (листа учета)
 Function oms_sluch_DDS(tip_lu,Loc_kod,kod_kartotek,f_print)
   // tip_lu - TIP_LU_DDS или TIP_LU_DDSOP
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -60,7 +60,7 @@ Function oms_sluch_DDS(tip_lu,Loc_kod,kod_kartotek,f_print)
     M1VRACH := 0, MTAB_NOM := 0, m1prvs := 0,; // код, таб.№ и спец-ть лечащего врача
     m1povod  := 4,;   // Профилактический
     m1travma := 0, ;
-    m1USL_OK :=  3,; // поликлиника
+    m1USL_OK :=  USL_OK_POLYCLINIC, ; // поликлиника
     m1VIDPOM :=  1,; // первичная
     m1PROFIL := 68,; // педиатрия
     m1IDSP   := 11   // диспансеризация

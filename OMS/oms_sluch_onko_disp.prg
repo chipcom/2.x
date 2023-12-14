@@ -3,11 +3,11 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-** согласно письму ТФОМС 09-30-276 от 29.08.22 года - отменено
-** согласно письму ТФОМС 09-30-376/1 от 09.11.22 года
+// согласно письму ТФОМС 09-30-276 от 29.08.22 года - отменено
+// согласно письму ТФОМС 09-30-376/1 от 09.11.22 года
 #define CHILD_EXIST .f. // учитывать несовершеннолетних или нет
 
-** 21.01.23 добавление или редактирование случая (листа учета)
+// 09.12.23 добавление или редактирование случая (листа учета)
 function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -89,7 +89,7 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
     MCENA_1     := 0                 , ; // стоимость лечения
     MVRACH      := space(10)         , ; // фамилия и инициалы лечащего врача
     M1VRACH := st_vrach, MTAB_NOM := 0, m1prvs := 0, ; // код, таб.№ и спец-ть лечащего врача
-    m1USL_OK := 3, mUSL_OK, ;             // амбулаторно
+    m1USL_OK := USL_OK_POLYCLINIC, mUSL_OK, ;             // амбулаторно
     m1PROFIL := st_profil, mPROFIL, ;
     m1PROFIL_K := st_profil_k, mPROFIL_K, ;
     m1IDSP   := 29, ;                     // за посещение
@@ -289,7 +289,7 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
   MFIO_KART := _f_fio_kart()
   mvzros_reb := inieditspr(A__MENUVERT, menu_vzros, m1vzros_reb)
   if empty(m1USL_OK)
-    m1USL_OK := 3
+    m1USL_OK := USL_OK_POLYCLINIC
   endif // на всякий случай
   mishod    := inieditspr(A__MENUVERT, getV012(), m1ishod)
   mvidpolis := inieditspr(A__MENUVERT, mm_vid_polis, m1vidpolis)
@@ -552,7 +552,7 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
         human_->date_e2 := c4sys_date
       endif
       human_2->PROFIL_K := m1PROFIL_K
-      human_2->p_per  := iif(eq_any(m1USL_OK, 1, 2),  m1p_per, 0)
+      human_2->p_per  := iif(eq_any(m1USL_OK, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL),  m1p_per, 0)
 
       use_base('human_u')
       select HU

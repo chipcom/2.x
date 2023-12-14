@@ -23,7 +23,6 @@ Function f1main( n_Task )
   first_message := {}
   func_menu := {}
   cmain_menu := {}
-  // put_icon(array_tasks[it,1] + ' [—ˆ + “çñâ à ¡®âë Œ]' + __s_version(), cNameIcon)
   put_icon( array_tasks[ it, 1 ] + ' ' + short_name_version(), cNameIcon )
   SetColor( color1 )
   fillscreen( p_char_screen, p_color_screen )
