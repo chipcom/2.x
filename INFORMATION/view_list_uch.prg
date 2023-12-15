@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 21.11.23 
+// 15.12.23 
 Function print_l_uch(mkod, par, regim, lnomer)
   // mkod - код больного по БД human
   Local sh := 80, HH := 77, buf := save_maxrow(), ;
@@ -295,7 +295,7 @@ Function print_l_uch(mkod, par, regim, lnomer)
   endif
   arr := diag_to_array( , .t., .t., .t., .t., adiag_talon)
   if len(arr) > 0
-    if diagnosis_for_replacement(arr[1])
+    if eq_any( human_->USL_OK, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL ) .and. diagnosis_for_replacement(arr[1])
       diagVspom := alltrim(arr[1])
       diagMemory := alltrim(arr[2])
     endif
@@ -350,7 +350,7 @@ Function print_l_uch(mkod, par, regim, lnomer)
       add_string(padl(alltrim(tmp[i]), sh))
     next
   endif
-  if human_2->PROFIL_K > 0 .and. human_->USL_OK < 3
+  if human_2->PROFIL_K > 0 .and. eq_any( human_->USL_OK, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )
     k := perenos(tmp, 'профиль койки: ' +inieditspr(A__MENUVERT, getV020(), human_2->PROFIL_K), sh - 4)
     add_string(space(4) + tmp[1])
     for i := 2 to k
@@ -764,7 +764,7 @@ Function print_l_uch_disp(sh)
   endif
   return NIL
 
-// 19.09.23 добавка по онкологии к листу учёта
+// 15.12.23 добавка по онкологии к листу учёта
 Function print_luch_onk(sh)
   // Static mm_DS1_T := {{'первичное лечение', 0}, ;  // N018
   //                     {'лечение при рецидиве', 1}, ;
@@ -782,7 +782,7 @@ Function print_luch_onk(sh)
   //                     {'Диагностика', 6}}
   local mm_usl_tip := getN013()
 
-  if f_is_oncology(1) == 2 .and. human_->USL_OK < 3
+  if f_is_oncology(1) == 2 .and. eq_any( human_->USL_OK, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )
     add_string('  Онкология:')
     R_Use(dir_server + 'mo_onksl', dir_server + 'mo_onksl', 'ONKSL') // Сведения о случае лечения онкологического заболевания
     find (str(human->kod, 7))
@@ -1317,7 +1317,7 @@ Function create_FR_file_for_spravkaOMS()
   index on shifr to (cur_dir + 'tmp1')
   return NIL
 
-// 21.11.23 печать справки ОМС по готовому листу учёта
+// 15.12.23 печать справки ОМС по готовому листу учёта
 Function print_spravka_OMS(mkod)
   // mkod - код больного по БД human
   Local r1, c1, r2, c2, mdate, buf := save_maxrow(), msumma := 0, lshifr
@@ -1420,9 +1420,9 @@ Function print_spravka_OMS(mkod)
   spr_oms->DATA   := mdate
   spr_oms->N_DATA := human->n_data
   spr_oms->K_DATA := human->k_data
-  if human_->USL_OK == 1
+  if human_->USL_OK == USL_OK_HOSPITAL
     spr_oms->TIP := 2  // стационар
-  elseif human_->USL_OK == 2
+  elseif human_->USL_OK == USL_OK_DAY_HOSPITAL
     spr_oms->TIP := 3  // дневной стационар
   else
     spr_oms->TIP := 1  // амбулаторно
