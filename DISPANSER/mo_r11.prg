@@ -5,13 +5,12 @@
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-#define MONTH_UPLOAD 9 //МЕСЯЦ для выгрузки R11
+#define MONTH_UPLOAD 1 //МЕСЯЦ для выгрузки R11
 
-
-** 21.08.23 Создание файла обмена R11...
+** 18.01.23 Создание файла обмена R11...
 Function f_create_R11()
   Local buf := save_maxrow(), i, j, ir, s := "", arr := {}, fl := .t., fl1 := .f., a_reestr := {}, ar
-  Private SMONTH := 1, mdate := sys_date, mrec := 2
+  Private SMONTH := 1, mdate := sys_date, mrec := 1
   Private c_view := 0, c_found := 0, fl_exit := .f., pj, arr_rees := {},;
           pkol := 0, CODE_LPU := glob_mo[_MO_KOD_TFOMS], CODE_MO := glob_mo[_MO_KOD_FFOMS],;
           mkol := {0,0,0,0,0}, skol[5], ames[12,5], ame[12], bm := SMONTH,; // начальный месяц минус один
@@ -36,6 +35,7 @@ Function f_create_R11()
   index on str(nn,3) to (cur_dir+"tmp_dr01") for NYEAR == sgod .and. eq_any(NMONTH,SMONTH-1,SMONTH) .and. tip == 1
   go top
   do while !eof()
+  
     if rees->kol_err < 0
       fl := func_error(4,"В файле PR11 за "+lstr(rees->NMONTH)+"-й месяц "+;
                          lstr(sgod)+"г. ошибки на уровне файла! Операция запрещена")
@@ -64,8 +64,7 @@ Function f_create_R11()
     return NIL
   endif
   
-  //if fl_1 //.or. code_lpu == "321001" .or. code_lpu == "461001" // не первый раз
-    // все считаем не первый раз
+  if fl_1 .or. code_lpu == "321001"// не первый раз
     R_Use(dir_server+"mo_dr05p",,"R05p")
     goto (mrec)
     skol[1] := r05p->KOL1
@@ -91,7 +90,7 @@ Function f_create_R11()
     for j := 1 to 5
       skol[j] := ames[SMONTH,j,1]
     next
-   //my_debug(,print_array(skol))
+  
     afill(ame,0)
     //
     if fl
@@ -102,14 +101,11 @@ Function f_create_R11()
       index on kod to (cur_dir+"tmp_dr00") for reestr == 0 .and. kod > 0
       go top
       do while !eof()
-        //my_debug(,tmp->kod)
         kart->(dbGoto(tmp->kod))
         ar := f0_create_R11(sgod)
-        //if glob_mo[_MO_KOD_TFOMS] != '161015' // КБ-11
-          if !(tmp->tip == ar[1] .and. tmp->tip1 == ar[2] .and. tmp->voz == ar[3])
-            tmp->tip := 0
-          endif
-        //endif
+        if !(tmp->tip == ar[1] .and. tmp->tip1 == ar[2] .and. tmp->voz == ar[3])
+          tmp->tip := 0
+        endif
         j := tmp->tip
         j1 := tmp->tip1
         tmp->n_m := tmp->n_q := 0 // если уже заходили в режим и не подтвердили создание XML
@@ -120,12 +116,10 @@ Function f_create_R11()
             mkol[j] ++ // подсчёт оставшегося кол-ва в пуле пациентов
           endif
         endif
-        my_debug(,print_array(mkol))
         skip
       enddo
       commit
-      my_debug(,print_array(ames))
-      my_debug(,print_array(skol))
+  
       index on str(reestr,6) to (cur_dir+"tmp_dr00")
       for ir := 1 to len(arr_rees)
         select R01k
@@ -157,7 +151,7 @@ Function f_create_R11()
         for j := 1 to 5
           if mkol[j] < skol[j]
             s := {"диспансеризаций","профосмотров","дисп.пенсионеров","дисп.65 лет","дисп.66 лет и старше"}[j]
-            fl := func_error(4,"Не хватает "+lstr(skol[j]-mkol[j])+" чел. в картотеке " + s)
+            fl := func_error(4,"Не хватает "+lstr(skol[j]-mkol[j])+" чел. в картотеке для профосмотров")
           endif
         next
       endif
@@ -236,8 +230,9 @@ Function f_create_R11()
         skip
       enddo
     endif
-  //else // первый раз
-   /* select REES
+    //quit
+  else // первый раз
+  /*  select REES
     index on str(NMONTH,2)+str(nn,3) to (cur_dir+"tmp_dr01") for NYEAR == sgod .and. tip == 0
     find (str(lm,2))
     do while lm == rees->NMONTH .and. !eof()
@@ -271,10 +266,10 @@ Function f_create_R11()
         select RHUM
         skip
       enddo
-    next 
-  */
+    next */
+  
     //
-   /* select REES
+    select REES
     index on str(NMONTH,2)+str(nn,3) to (cur_dir+"tmp_dr01") for NYEAR == sgod .and. tip == 0
     find (str(lm,2))
     do while lm == rees->NMONTH .and. !eof()
@@ -304,8 +299,8 @@ Function f_create_R11()
         select RHUM
         skip
       enddo
-    next*/
-  //endif
+    next
+  endif
   
   close databases
   if fl
@@ -314,7 +309,7 @@ Function f_create_R11()
   return NIL
   
   ** 09.02.20 переопределить все три первичных ключа в картотеке
-  Static Function f0_create_R11(sgod)
+Static Function f0_create_R11(sgod)
   Local fl, v, ltip := 0, ltip1 := 0, lvoz := 0, ag, lgod_r
   if !emptyany(kart->kod,kart->fio,kart->date_r) // данную запись в картотеке недавно удалили
     lgod_r := year(kart->date_r)
@@ -343,17 +338,17 @@ Function f_create_R11()
   endif
   return {ltip,ltip1,lvoz}
   
-  ** 22.10.21
-  Function f1_create_R11(lm,fl_dr00)
+** 22.10.21
+Function f1_create_R11(lm,fl_dr00)
   Local nsh := 3, smsg, lnn := 0 ,buf := save_maxrow()
   if !f_Esc_Enter("создания файла R11",.t.)
     return NIL
   endif
-  //if eq_any(CODE_LPU,'124528','184603','141016') .and. hb_fileExists(dir_server+"b18"+sdbf)
-  //  lnn := 100 // специально для 28-ой п-ки после объединения с 18-ой б-цей
+  if eq_any(CODE_LPU,'124528','184603','141016') .and. hb_fileExists(dir_server+"b18"+sdbf)
+    lnn := 100 // специально для 28-ой п-ки после объединения с 18-ой б-цей
                // или для 3-ей п-ки после объединения с 12-ой п-кой
                // или для Б16 после обьединения с Б24
-  //endif
+  endif
   G_Use(dir_server+"mo_dr01m",,"RM")
   AddRecN()
   rm->DWORK := sys_date
@@ -570,7 +565,7 @@ Function f_create_R11()
   return NIL
   
   ** 28.12.21
-  Function delete_reestr_R11()
+Function delete_reestr_R11()
   Local t_arr[BR_LEN], blk
   if ! hb_user_curUser:IsAdmin()
     return func_error(4,err_admin)
@@ -649,8 +644,9 @@ Function f_create_R11()
   endif
   return ret
   
-  ** 09.02.20 аннулировать чтение реестра R11
-  Function f2_delete_reestr_R11(rec_m)
+  
+** 09.02.20 аннулировать чтение реестра R11
+Function f2_delete_reestr_R11(rec_m)
   Local ir, mkod_reestr
   G_Use(dir_server+"mo_xml",,"MO_XML")
   G_Use(dir_server+"mo_dr00",,"TMP")
@@ -702,7 +698,7 @@ Function f_create_R11()
   return NIL
   
   ** 13.02.20 удаление всех пакетов R11(PR11) за конкретный месяц
-  Function delete_month_R11()
+Function delete_month_R11()
   Local pss := space(10), tmp_pss := my_parol()
   Local i, lm, mkod_reestr, ar_m := {}, buf
   if select("MO_XML") > 0
@@ -760,7 +756,8 @@ Function f_create_R11()
   rest_box(buf)
   close databases
   return NIL
-** 28.02.21 удаление всех пакетов R01(PR01) за конкретный месяц
+
+  ** 28.02.21 удаление всех пакетов R01(PR01) за конкретный месяц
 /*
 Function delete_month_R01()
 Local pss := space(10), tmp_pss := my_parol()
@@ -822,7 +819,6 @@ close databases
 return NIL
 */
 
-
 ** 25.02.21
 Function f32_view_R11(lm)
   Local fl := .t., buf := save_maxrow(), k := 0, skol[5,3], ames[12,5,3], mrec := 2, n_file := "r11_itog"+stxt,;
@@ -866,9 +862,7 @@ Function f32_view_R11(lm)
   select REES
   go top
   do while !eof()
-    if rees->nmonth == lm  
-      aadd(arr_rees,rees->kod)
-    endif  
+    aadd(arr_rees,rees->kod)
     skip
   enddo
 
@@ -942,4 +936,5 @@ Function f32_view_R11(lm)
   rest_box(buf)
   viewtext(n_file,,,,.t.,,,2)
   return NIL
+
   
