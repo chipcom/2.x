@@ -4439,7 +4439,7 @@ Function verify_1_sluch(fl_view)
   // ‚…Š€ ‹…Š€‘’‚…›• …€€’‚
   //
   if eq_any(alltrim(mdiagnoz[1]), 'U07.1', 'U07.2') .and. (count_years(human->DATE_R, human->k_data) >= 18) ;
-        .and. !check_diag_pregant()
+        .and. !check_diag_pregant() .and. empty(human_->DATE_R2)
     if (human_->USL_OK == USL_OK_HOSPITAL) .and. (human->k_data >= 0d20220101)
       flLekPreparat := (human_->PROFIL != 158) .and. (human_->VIDPOM != 32) ;
           .and. (lower(alltrim(human_2->PC3)) != 'stt5')

@@ -55,7 +55,7 @@ Function check_oms_sluch_lek_pr( mkod_human )
 
   p_cel := get_idpc_from_v025_by_number( human_->povod )
 
-  If eq_any( human_kod_diag, 'U07.1', 'U07.2' ) .and. mvozrast >= 18 .and. !check_diag_pregant()
+  If eq_any( human_kod_diag, 'U07.1', 'U07.2' ) .and. mvozrast >= 18 .and. !check_diag_pregant() .and. empty(human_->DATE_R2)
     If ( M1USL_OK == USL_OK_HOSPITAL ) .and. ( d2 >= 0d20220101 )
       retFl := ( M1PROFIL != 158 ) .and. ( vidPom != 32 ) .and. ( ad_cr != 'stt5' )
     Elseif ( M1USL_OK == USL_OK_POLYCLINIC ) .and. ( d2 >= 0d20220401 )
