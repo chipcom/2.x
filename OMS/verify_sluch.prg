@@ -412,14 +412,10 @@ Function verify_1_sluch(fl_view)
              .and. mvozrast == 0 .and. human_2->VNR == 0
     aadd(ta, 'для диагноза P07.* не указан вес недоношенного (маловесного) ребёнка')
   endif
-  // if mvozrast > 0 .and. len(mdiagnoz) > 0 .and. left(mdiagnoz[1], 1) == 'P'
   if mvozrast > 0 .and. l_mdiagnoz_fill .and. left(mdiagnoz[1], 1) == 'P'
     aadd(ta, 'для основного диагноза ' + mdiagnoz[1] + ' возраст должен быть меньше года')
   endif
-  // if human_->USL_OK == USL_OK_HOSPITAL ; // 1 - стационар
-  //     .and. len(mdiagnoz) > 0 ;
-  if l_mdiagnoz_fill .and. ;
-      human_->USL_OK == USL_OK_HOSPITAL ; // 1 - стационар
+  if l_mdiagnoz_fill .and. human_->USL_OK == USL_OK_HOSPITAL ; // 1 - стационар
       .and. (mdiagnoz[1] = 'U07.1' .or. mdiagnoz[1] = 'U07.2') ;  // проверим что диагноз COVID-19
       .and. empty(HUMAN_2->PC4) ;                                 // вес отсутствует
       .and. (count_years(human->DATE_R, human->k_data) >= 18) ;   // проверим что возраст больше 18 лет
@@ -452,7 +448,6 @@ Function verify_1_sluch(fl_view)
   endif
 
   s := ''
-  // if len(mdiagnoz) > 0 .and. f_oms_beremenn(mdiagnoz[1], human->k_data) == 3 .and. between(human_2->pn2, 1, 4)
   if l_mdiagnoz_fill .and. f_oms_beremenn(mdiagnoz[1], human->k_data) == 3 .and. between(human_2->pn2, 1, 4)
     s := 'R52.' + {'0', '1', '2', '9'}[human_2->pn2]
   endif
@@ -1042,7 +1037,6 @@ Function verify_1_sluch(fl_view)
             mIDSP := 17 // Законченный случай в поликлинике
             if eq_any(alltrim_lshifr, '2.78.90', '2.78.91') .and. len(mdiagnoz) > 0 .and. left(mdiagnoz[1], 1) == 'Z'
               mpovod := 11 // 3.1 обращение с проф.целью
-            // elseif len(mdiagnoz) > 0 .and. alltrim_lshifr == '2.78.107' .and. (human->k_data >= 0d20230101)
             elseif l_mdiagnoz_fill .and. alltrim_lshifr == '2.78.107' .and. (human->k_data >= 0d20230101)
               // добавлена комплексная услуга 2.78.107 02.2023
               mpovod := 4 // 1.3
@@ -1232,7 +1226,6 @@ Function verify_1_sluch(fl_view)
         aadd(ta, 'дата услуги ' + alltrim_lshifr + ' должна равняться дате начала лечения')
       endif
       hu_->date_u2 := mdate_u2
-      // if empty(hu_->kod_diag) .and. len(mdiagnoz) > 0
       if empty(hu_->kod_diag) .and. l_mdiagnoz_fill
         hu_->kod_diag := mdiagnoz[1]
       endif
@@ -1295,14 +1288,12 @@ Function verify_1_sluch(fl_view)
     find (str(human->kod, 7))
     do while hu->kod == human->kod .and. !eof()
       hu_->(G_RLock(forever))
-      // if len(mdiagnoz) > 0 .and. eq_any(human_->profil, 6, 34)
       if l_mdiagnoz_fill .and. eq_any(human_->profil, 6, 34)
         hu_->kod_diag := mdiagnoz[1]
       endif
       skip
     enddo
   elseif is_covid
-    // if len(mdiagnoz) > 0 .and. !(padr(mdiagnoz[1], 5) == 'Z01.7')
     if l_mdiagnoz_fill .and. !(padr(mdiagnoz[1], 5) == 'Z01.7')
       aadd(ta, 'для услуги 4.17.785 основной диагноз должен быть Z01.7')
     endif
@@ -1338,7 +1329,6 @@ Function verify_1_sluch(fl_view)
       endif
       if is_disp_DDS .or. is_disp_DVN .or. is_prof_PN .or. is_disp_DVN_COVID
         //
-      // elseif human_->usl_ok == USL_OK_POLYCLINIC .and. len(mdiagnoz) > 0
       elseif human_->usl_ok == USL_OK_POLYCLINIC .and. l_mdiagnoz_fill
         if len(a_idsp) == 1 .and. a_idsp[1, 1] != 28 // т.е. idsp не равно 'за медицинскую услугу в поликлинике'
           if eq_any(arr_povod[1, 1], 1, 2, 4, 10) // 1.0, 1.1, 1.3, 3.0
@@ -1351,7 +1341,6 @@ Function verify_1_sluch(fl_view)
             endif
           endif
         endif
-        // if arr_povod[1, 1] == 4 .and. len(mdiagnoz) > 0 .and. (left(mdiagnoz[1], 1) == 'C' .or. between(left(mdiagnoz[1], 3), 'D00', 'D09') .or. between(left(mdiagnoz[1], 3), 'D45', 'D47'))
         if arr_povod[1, 1] == 4 .and. l_mdiagnoz_fill .and. (left(mdiagnoz[1], 1) == 'C' .or. between(left(mdiagnoz[1], 3), 'D00', 'D09') .or. between(left(mdiagnoz[1], 3), 'D45', 'D47'))
           k := ret_prvs_V021(human_->PRVS)
           if !eq_any(k, 9, 19, 41)  // как исключение добавил гематологов, специальность - 9
@@ -1362,7 +1351,6 @@ Function verify_1_sluch(fl_view)
     endif
   endif
   //
-  // if len(mdiagnoz) > 0 .and. human->OBRASHEN == '1'
   if l_mdiagnoz_fill .and. human->OBRASHEN == '1'
     for i := 1 to len(mdiagnoz)
       if left(mdiagnoz[i], 1) == 'C' .or. between(left(mdiagnoz[i], 3), 'D00', 'D09') .or. between(left(mdiagnoz[i], 3), 'D45', 'D47')
@@ -1627,7 +1615,6 @@ Function verify_1_sluch(fl_view)
       mohu->ID_U := mo_guid(4,mohu->(recno()))
     endif
     mohu->date_u2 := mohu->date_u
-    // if empty(mohu->kod_diag) .and. len(mdiagnoz) > 0
     if empty(mohu->kod_diag) .and. l_mdiagnoz_fill
       mohu->kod_diag := mdiagnoz[1]
     endif
@@ -1668,7 +1655,6 @@ Function verify_1_sluch(fl_view)
       UnLock
     endif
     fl := .t.
-    // if len(mdiagnoz) > 0 .and. between(onksl->ds1_t, 0, 4)
     if l_mdiagnoz_fill .and. between(onksl->ds1_t, 0, 4)
       if empty(onksl->STAD)
         aadd(ta, 'онкология: не введена стадия заболевания')
@@ -1682,7 +1668,6 @@ Function verify_1_sluch(fl_view)
     if len(arr_povod) > 0 .and. arr_povod[1, 1] == 4 .and. onksl->ds1_t != 4
       aadd(ta, 'онкология: в случае диспансерного наблюдения в поле "Повод обращения" должно быть проставлено "диспансерное наблюдение"')
     endif
-    // if len(mdiagnoz) > 0 .and. onksl->ds1_t == 0 .and. human->vzros_reb == 0
     if l_mdiagnoz_fill .and. onksl->ds1_t == 0 .and. human->vzros_reb == 0
       if empty(onksl->ONK_T)
         fl := .f. ; aadd(ta, 'онкология: не введена стадия заболевания T')
@@ -1718,7 +1703,6 @@ Function verify_1_sluch(fl_view)
       // при составлении реестра самостоятельно дополнить блок противопоказаний id_prot = 8
     elseif onksl->b_diag == -1 // выполнено (до 1 сентября 2018 года)
       // при составлении реестра блок B_DIAG не заполняется
-    // elseif len(mdiagnoz) > 0 .and. eq_any(onksl->b_diag, 97, 98) // выполнено
     elseif l_mdiagnoz_fill .and. eq_any(onksl->b_diag, 97, 98) // выполнено
       ar_N009 := {}
       // if select('N9') == 0
@@ -2032,7 +2016,6 @@ Function verify_1_sluch(fl_view)
       endif
     endif
   endif
-  // if is_mgi .and. len(mdiagnoz) > 0 .and. !(left(mdiagnoz[1], 1) == 'C')
   if is_mgi .and. l_mdiagnoz_fill .and. !(left(mdiagnoz[1], 1) == 'C')
     aadd(ta, 'для листа учёта по молекулярной генетике основной диагноз должен быть C00-C97')
   endif
@@ -2058,7 +2041,6 @@ Function verify_1_sluch(fl_view)
   if !empty(human_->profil) .and. human_->profil != correct_profil(human_->profil)
     human_->profil := correct_profil(human_->profil)
   endif
-  // if len(mdiagnoz) > 0 .and. left(mdiagnoz[1], 3) == 'O04' .and. eq_any(human_->profil, 136, 137) // акушерству и гинекологии
   if l_mdiagnoz_fill .and. left(mdiagnoz[1], 3) == 'O04' .and. eq_any(human_->profil, 136, 137) // акушерству и гинекологии
     if !between(human_2->pn2, 1, 2)
       aadd(ta, 'для диагноза ' + alltrim(mdiagnoz[1]) + ' обязательно заполнять, искусственное прерывание беременности проводилось по медицинским показаниям или нет')
@@ -2297,7 +2279,6 @@ Function verify_1_sluch(fl_view)
       next
       fl := .f.
       for i := 1 to len(a_1_11)
-        // if len(mdiagnoz) > 0 .and. alltrim(mdiagnoz[1]) == a_1_11[i, 1] .and. human_->PRVS == a_1_11[i, 3]
         if l_mdiagnoz_fill .and. alltrim(mdiagnoz[1]) == a_1_11[i, 1] .and. human_->PRVS == a_1_11[i, 3]
           fl := .t.
           exit
@@ -2325,7 +2306,6 @@ Function verify_1_sluch(fl_view)
       next
       fl := .f.
       for i := 1 to len(a_1_11)
-        // if len(mdiagnoz) > 0 .and. alltrim(mdiagnoz[1]) == a_1_11[i, 1] .and. ;
         if l_mdiagnoz_fill .and. alltrim(mdiagnoz[1]) == a_1_11[i, 1] .and. ;
                 human_->profil == a_1_11[i, 2] .and. human_->PRVS == a_1_11[i, 3]
           if a_1_11[i, 2] == 158
@@ -2341,7 +2321,6 @@ Function verify_1_sluch(fl_view)
     ar_1_19_1 := {} ; fl_19 := .f.
     for i := 1 to len(au_lu)
       if left(au_lu[i, 1], 5) == '1.19.'
-        // if len(mdiagnoz) > 0 .and. alltrim(mdiagnoz[1]) == alltrim(au_lu[i, 8]) .and. ;
         if l_mdiagnoz_fill .and. alltrim(mdiagnoz[1]) == alltrim(au_lu[i, 8]) .and. ;
                 human_->profil == au_lu[i, 3] .and. human_->PRVS == au_lu[i, 4]
           fl_19 := .t.
@@ -2398,7 +2377,6 @@ Function verify_1_sluch(fl_view)
           aadd(ta, 'ВМП оказана, введён вид ВМП, но не введён метод ВМП')
         elseif ((i := ascan(arrV019, {|x| x[1] == human_2->METVMP})) > 0) .and. (year(human->k_data)==2020)
           if arrV019[i, 4] == alltrim(human_2->VIDVMP)
-            // if !(len(mdiagnoz) == 0 .or. empty(mdiagnoz[1]))
             if !( ! (l_mdiagnoz_fill) .or. empty(mdiagnoz[1]))
               fl := .f.
               s := padr(mdiagnoz[1], 6)
@@ -2424,7 +2402,6 @@ Function verify_1_sluch(fl_view)
         elseif ((i := ascan(arrV019, {|x| x[1] == human_2->METVMP .and. x[8] == human_2->PN5 .and. x[4] == alltrim(human_2->VIDVMP) })) > 0) .and. (year(human->k_data)>=2021)
           if (arrV019[i, 4] == alltrim(human_2->VIDVMP)) //.or. (arrV019[i, 4] == '26' .and. alltrim(human_2->VIDVMP) == '27')
 
-            // if !(len(mdiagnoz) == 0 .or. empty(mdiagnoz[1]))
             if !( !(l_mdiagnoz_fill) .or. empty(mdiagnoz[1]))
               fl := .f. ; s := padr(mdiagnoz[1], 6)
               for j := 1 to len(arrV019[i, 3])
@@ -2571,7 +2548,6 @@ Function verify_1_sluch(fl_view)
       next
       fl := .f.
       for i := 1 to len(a_1_11)
-        // if len(mdiagnoz) > 0 .and. alltrim(mdiagnoz[1]) == a_1_11[i, 1] .and. human_->PRVS == a_1_11[i, 3]
         if l_mdiagnoz_fill .and. alltrim(mdiagnoz[1]) == a_1_11[i, 1] .and. human_->PRVS == a_1_11[i, 3]
           fl := .t.
           exit
@@ -2596,7 +2572,6 @@ Function verify_1_sluch(fl_view)
       next
       fl := .f.
       for i := 1 to len(a_1_11)
-        // if len(mdiagnoz) > 0 .and. alltrim(mdiagnoz[1]) == a_1_11[i, 1] .and. ;
         if l_mdiagnoz_fill .and. alltrim(mdiagnoz[1]) == a_1_11[i, 1] .and. ;
                 human_->profil == a_1_11[i, 2] .and. human_->PRVS == a_1_11[i, 3]
           fl := .t.
@@ -2801,7 +2776,6 @@ Function verify_1_sluch(fl_view)
   endif
   if is_disp_DDS .or. is_disp_DVN .or. is_prof_PN .or. is_disp_DVN_COVID
     //
-  // elseif len(mdiagnoz) > 0 .and. ascan(adiag, mdiagnoz[1]) == 0
   elseif l_mdiagnoz_fill .and. ascan(adiag, mdiagnoz[1]) == 0
     aadd(ta, 'основной диагноз ' + rtrim(mdiagnoz[1]) + ' не встречается ни в одной услуге')
   endif
@@ -3080,7 +3054,6 @@ Function verify_1_sluch(fl_view)
       if !between(au_lu[i, 2], d1, d2)
         aadd(ta, 'дата услуги ' + alltrim_lshifr + ' вне диапазона лечения (' + date_8(au_lu[i, 2]) + ')')
       endif
-      // if len(mdiagnoz) > 0 .and. !(alltrim(mdiagnoz[1]) == alltrim(au_lu[i, 8]))
       if l_mdiagnoz_fill .and. !(alltrim(mdiagnoz[1]) == alltrim(au_lu[i, 8]))
         aadd(ta, 'в услуге ' + alltrim_lshifr + ' должен стоять основной диагноз')
       endif
