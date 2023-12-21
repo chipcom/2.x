@@ -2768,7 +2768,7 @@ do case
                 "inf_DVN(43)"}
     str_sem := "ИСОМП"
     if G_SLock(str_sem)
-      //fff_init_r01() //открыл
+      fff_init_r01() //открыл
       popup_prompt(T_ROW-len(mas_pmt)-3,T_COL-5,si4,mas_pmt,mas_msg,mas_fun)
       G_SUnLock(str_sem)
     else
@@ -2777,8 +2777,7 @@ do case
   case k == 17
     inf_YDVN()
   case k == 41
-    ne_real()
-    /*
+    //ne_real()
     mas_pmt := {"~Создание плана-графика", ;
                 "~Просмотр файлов обмена"}
     mas_msg := {"Создание файла обмена R05... с планом-графиком по месяцам", ;
@@ -2786,10 +2785,9 @@ do case
     mas_fun := {"inf_DVN(51)", ;
                 "inf_DVN(52)"}
     popup_prompt(T_ROW,T_COL-5,si5,mas_pmt,mas_msg,mas_fun)
-    */
   case k == 42
-    ne_real()
-    /*mas_pmt := {"~Создание файлов обмена", ;
+    //ne_real()
+    mas_pmt := {"~Создание файлов обмена", ;
                 "~Просмотр файлов обмена"}
     mas_msg := {"Создание файлов обмена R01... по всем месяцам", ;
                 "Просмотр файлов обмена R01... и результатов работы с ними"}
@@ -2799,11 +2797,11 @@ do case
       aadd(mas_pmt, "~Аннулирование пакета")
       aadd(mas_msg, "Аннулирование недописанного пакета файлов R01")
       aadd(mas_fun, "delete_reestr_R01()")
-    endif*/
+    endif
+    
     //et key K_CTRL_F10 to delete_month_R01()
-   // popup_prompt(T_ROW,T_COL-5,si6,mas_pmt,mas_msg,mas_fun)
+    popup_prompt(T_ROW,T_COL-5,si6,mas_pmt,mas_msg,mas_fun)
     //set key K_CTRL_F10 to
-
   case k == 21
     if (j := popup_prompt(T_ROW,T_COL-5, 1,mas1pmt)) > 0
       f21_inf_DVN(j)
@@ -2817,6 +2815,7 @@ do case
   case k == 52
     f_view_R05()
   case k == 61
+    my_debug(,"00000000")
     f_create_R01()
   case k == 62
     f_view_R01()
