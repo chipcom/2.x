@@ -13,6 +13,7 @@
 #include 'common.ch'
 #include 'error.ch'
 #include 'inkey.ch'
+#include 'hbver.ch'
 
 // put messages to STDERR
 #command ? <list,...>   =>  ?? Chr(13) + Chr(10) ; ?? <list>
@@ -194,11 +195,13 @@ function __errMessage( arr_error )
 	&& endif
 	cMessage += eos
 	
+	cMessage += '->OS: ' + OS() + eos
 	cMessage += '->Computer Name: ' + GetEnv( 'COMPUTERNAME' ) + eos
 	cMessage += '->User Name: '     + GetEnv( 'USERNAME' ) + eos
 	cMessage += '->Logon Server: '  + Substr( GetEnv( 'LOGONSERVER' ), 2 ) + eos
 	cMessage += '->Client Name: '   + GetEnv( 'CLIENTNAME' ) + eos
 	cMessage += '->User Domain: '   + GetEnv( 'USERDOMAIN' ) + eos
+
 	aeval( arr_error, { | x | cMessage += x + eos } )
 	cMessage += replicate( '*', 79 ) + eos
 	return cMessage
