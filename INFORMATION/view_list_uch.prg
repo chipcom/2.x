@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 15.12.23 
+// 22.12.23 
 Function print_l_uch(mkod, par, regim, lnomer)
   // mkod - код больного по БД human
   Local sh := 80, HH := 77, buf := save_maxrow(), ;
@@ -295,7 +295,7 @@ Function print_l_uch(mkod, par, regim, lnomer)
   endif
   arr := diag_to_array( , .t., .t., .t., .t., adiag_talon)
   if len(arr) > 0
-    if eq_any( human_->USL_OK, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL ) .and. diagnosis_for_replacement(arr[1])
+    if eq_any( human_->USL_OK, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL ) .and. diagnosis_for_replacement(arr[1], human_->USL_OK)
       diagVspom := alltrim(arr[1])
       diagMemory := alltrim(arr[2])
     endif
@@ -974,7 +974,7 @@ Function f4o_list_uch(nKey, oBrow)
   endif
   return k
 
-// 23.10.23 печать нескольких листов учёта
+// 22.12.23 печать нескольких листов учёта
 Function print_al_uch(arr_h, arr_m)
   Local sh := 80, HH := 77, buf := save_maxrow(), ;
         name_lpu, mvzros_reb, mreg_lech, mmest_inog, mrab_nerab, ;
@@ -1130,8 +1130,7 @@ Function print_al_uch(arr_h, arr_m)
     diagVspom := ''
     arr := diag_to_array( , .t., .t., .t., .t., adiag_talon)
     if len(arr) > 0
-      if diagnosis_for_replacement(arr[1])
-      // if eq_any(alltrim(arr[1]), 'Z92.2', 'Z92.4', 'Z92.8')
+      if diagnosis_for_replacement(arr[1], human_->USL_OK)
         diagVspom := alltrim(arr[1])
         diagMemory := alltrim(arr[2])
       endif
