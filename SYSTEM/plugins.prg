@@ -3,11 +3,11 @@
 #include 'tbox.ch'
 #include 'chip_mo.ch'
 
-//
+// 14.12.23
 FUNCTION Plugins()
 
   LOCAL aMenu := {}, i
-  LOCAL aPlugins := ReadIni( edi_FindPath( 'chip_plugin.ini' ) )
+  LOCAL aPlugins := ReadIni( edi_FindPath( PLUGINIFILE ) )
   LOCAL aMenu1 := {}
 	local color_say := 'N/W', color_get := 'W/N*'
   local oBox
@@ -70,6 +70,7 @@ FUNCTION edi_RunPlugin( aPlugins, xPlugin, aParams )
   RETURN .F.
  
 FUNCTION edi_FindPath( cFile )
+// возвращает полный путь к файлу или NIL, если файл не существует
 
   LOCAL cFullPath
 
@@ -87,7 +88,40 @@ FUNCTION edi_FindPath( cFile )
  
   RETURN Nil
    
-// 23.11.23
+// 14.12.23
+static function create_podrazdel()
+  local cRet := ''
+
+  Do Case
+  Case glob_task == X_REGIST //
+    cRet := 'PLUGINS_REGIST'
+  Case glob_task == X_OMS  //
+    cRet := 'PLUGINS_OMS'
+  Case glob_task == X_PPOKOJ  //
+    cRet := 'PLUGINS_PPKOJ'
+  otherwise
+    cRet := 'PLUGINS'
+  Endcase
+  return cRet
+
+// 14.12.23
+function control_podrazdel_ini( cIniName )
+  local lRet := .f.
+  LOCAL hIni := edi_iniRead( cIniName ), aSect, arr, i, cTmp, s, nPos, n
+  local cPodrazdel
+
+  cPodrazdel := create_podrazdel()
+
+  IF !Empty( hIni )
+    hb_hCaseMatch( hIni, .F. )
+ 
+    IF hb_hHaskey( hIni, cTmp := cPodrazdel ) .AND. ! Empty( aSect := hIni[ cTmp ] )
+      lRet := .t.
+    endif
+  endif
+  return lRet
+
+// 14.12.23
 STATIC FUNCTION ReadIni( cIniName )
 
   LOCAL hIni := edi_iniRead( cIniName ), aSect, arr, i, cTmp, s, nPos, n
@@ -95,14 +129,7 @@ STATIC FUNCTION ReadIni( cIniName )
   LOCAL aPlugins := {}
   local cPodrazdel
 
-  Do Case
-  Case glob_task == X_REGIST //
-    cPodrazdel := 'PLUGINS_REGIST'
-  Case glob_task == X_OMS  //
-    cPodrazdel := 'PLUGINS_OMS'
-  otherwise
-    cPodrazdel := 'PLUGINS'
-  Endcase
+  cPodrazdel := create_podrazdel()
 
   IF !Empty( hIni )
     hb_hCaseMatch( hIni, .F. )

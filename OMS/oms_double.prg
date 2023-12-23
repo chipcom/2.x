@@ -34,7 +34,7 @@ Function oms_double(k)
   endif
   return NIL
 
-// 16.10.23 склеить два случая
+// 22.12.23 склеить два случая
 Function create_double_sl()
   Local buf, str_sem, str_sem2, i, d, fl, lshifr, arr_m, mas_pmt, buf24, buf_scr, srec, old_yes_h_otd := yes_h_otd
   local fl_reserve_1, fl_reserve_2  // если в случае присутствуют 
@@ -184,7 +184,7 @@ Function create_double_sl()
               if (glob_perso2 := tmp_h->kod) == 0
                 func_error(4, 'Не найдено нужных записей!')
               // elseif !(ldiag == human->kod_diag)
-              elseif !(ldiag == human->kod_diag) .and. ! (diagnosis_for_replacement(ldiag) .or. diagnosis_for_replacement(human->kod_diag))
+              elseif !(ldiag == human->kod_diag) .and. ! (diagnosis_for_replacement(ldiag, human_->USL_OK) .or. diagnosis_for_replacement(human->kod_diag, human_->USL_OK))
                 func_error(4, 'Основной диагноз в обоих случаях должен совпадать!')
               elseif lprofil != human_->profil
                 func_error(4, 'Профиль медицинской помощи в обоих случаях должен совпадать!')
@@ -760,13 +760,19 @@ function exist_reserve_KSG(kod_pers, aliasHUMAN)
   Select(oldSelect)
   return ret
 
-  // 19.11.23
-function diagnosis_for_replacement(cDiag)
+// 22.12.23
+function diagnosis_for_replacement(cDiag, nUsl_ok)
   local aDiag := {'Z92.2', ;
                   'Z92.4', ;
-                  'Z92.8', ;
-                  'Z25.8' ;
-                 }
+                  'Z92.8' ;
+                }
+                //   'Z25.8' ;
+                //  }
+
+  DEFAULT nUsl_ok TO USL_OK_POLYCLINIC
+  if eq_any( nUsl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )
+    aadd( aDiag, 'Z25.8' )
+  endif
 
   return ascan(aDiag, alltrim(cDiag)) > 0
 

@@ -1463,7 +1463,7 @@ Function print_schet(oBrow)
   endif
   return NIL
 
-// 16.10.23 печать счета
+// 22.12.23 печать счета
 Function print_schet_S(reg)
   Local adbf, j, s, ii := 0, fl_numeration := .f., buf := save_maxrow(), ;
       lshifr1, ldate1, ldate2, hGauge
@@ -1709,8 +1709,7 @@ Function print_schet_S(reg)
         endif
         frd->polis := alltrim(alltrim(human_->SPOLIS) + ' ' + human_->NPOLIS)
         frd->vid_pom := lstr(lvidpom)
-        if diagnosis_for_replacement(a_diag[1])
-        // if eq_any(alltrim(a_diag[1]), 'Z92.2', 'Z92.4', 'Z92.8')
+        if diagnosis_for_replacement(a_diag[1], human_->USL_OK)
           frd->diagnoz := a_diag[2]
         else
           frd->diagnoz := a_diag[1]

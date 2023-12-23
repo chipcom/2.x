@@ -7,7 +7,7 @@
 
 Static sadiag1  // := {}
 
-// 08.11.23 создание XML-файлов реестра
+// 22.12.23 создание XML-файлов реестра
 Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
   Local mnn, mnschet := 1, fl, mkod_reestr, name_zip, arr_zip := {}, lst, lshifr1, code_reestr, mb, me, nsh
   //
@@ -530,7 +530,7 @@ Function create2reestr19(_recno, _nyear, _nmonth, reg_sort)
       // антимикробной терапии инфекций, вызванных полирезистентными микроорганизмами,
       // проведение иммунизации против респираторно-синцитиальной вирусной инфекции
       lReplaceDiagnose := .f.
-      if endDateZK >= 0d20220101 .and. diagnosis_for_replacement(mdiagnoz[1])
+      if endDateZK >= 0d20220101 .and. diagnosis_for_replacement(mdiagnoz[1], human_->USL_OK)
         mdiagnoz[1] := mdiagnoz[2]
         diagnoz_replace := mdiagnoz[2]
         mdiagnoz[2] := ''

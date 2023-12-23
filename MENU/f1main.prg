@@ -1,10 +1,11 @@
+#include "common.ch"
 #include "set.ch"
 #include "inkey.ch"
 #include "function.ch"
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-// 16.11.23
+// 14.12.23
 Function f1main( n_Task )
   Local it, s, k, fl := .t., cNameIcon
 
@@ -73,6 +74,12 @@ Function f1main( n_Task )
       "prn_kartoteka()", ;
       "ne_real()" ;
       } )
+
+    // if ( ! isnil( edi_FindPath( PLUGINIFILE ) ) ) .and. ( control_podrazdel_ini( edi_FindPath( PLUGINIFILE ) ) )
+    //   AAdd( first_menu[ 4 ], "Дополнительные возможности" )
+    //   AAdd( first_message[ 4 ], "Дополнительные возможности" )
+    //   AAdd( func_menu[ 4 ], "Plugins()" )
+    // endif
     //
     AAdd( cmain_menu, 51 )
     AAdd( main_menu, " ~Справочники " )
@@ -270,6 +277,13 @@ Function f1main( n_Task )
       AAdd( first_message[ 4 ], "Статистика по работе операторов за день и за месяц" )
       AAdd( func_menu[ 4 ], "st_operator()" )
     Endif
+
+    if ( ! isnil( edi_FindPath( PLUGINIFILE ) ) ) .and. ( control_podrazdel_ini( edi_FindPath( PLUGINIFILE ) ) )
+      AAdd( first_menu[ 4 ], "Дополнительные возможности" )
+      AAdd( first_message[ 4 ], "Дополнительные возможности" )
+      AAdd( func_menu[ 4 ], "Plugins()" )
+    endif
+    
     //
     AAdd( cmain_menu, cmain_next_pos( 3 ) )
     AAdd( main_menu, " ~Диспансеризация " )

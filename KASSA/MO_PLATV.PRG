@@ -1,10 +1,10 @@
-***** mo_platv.prg
+// mo_platv.prg
 #include "inkey.ch"
 #include "function.ch"
 #include "edit_spr.ch"
 #include "chip_mo.ch"
 
-***** вернуть тип услуги (тип больного)
+// вернуть тип услуги (тип больного)
 Function f_p_tip_usl(r,c)
 Static sk := PU_PLAT
 Local out_arr
@@ -15,7 +15,7 @@ if out_arr != NIL
 endif
 return out_arr
 
-***** вернуть тип услуги (bit-овый вариант)
+// вернуть тип услуги (bit-овый вариант)
 Function fbp_tip_usl(r,c,ret_arr)
 Static sast := {.t.,.f.,.f.}
 Local i, j, a, out_arr
@@ -38,9 +38,9 @@ if (a := bit_popup(r,c,menu_kb,sast)) != NIL
 endif
 return out_arr
 
-*
 
-*****
+
+//
 Function tit_tip_usl(k,a_dms,sh)
 Local i, s := "[ "
 if len(k) < 3
@@ -63,9 +63,9 @@ if len(k) < 3
 endif
 return NIL
 
-*
 
-*****
+
+//
 Function ret_arr_dms(r1,c1)
 Static sa
 Local r2, c2, nr := 0, arr := {}, t_mas := {}, buf, buf1, i, ret
@@ -110,9 +110,9 @@ rest_box(buf)
 rest_box(buf1)
 return ret
 
-*
 
-*****
+
+//
 Function ret_arr_vz(r1,c1)
 Static sa
 Local r2, c2, nr := 0, arr := {}, t_mas := {}, buf, buf1, i, ret
@@ -157,9 +157,9 @@ rest_box(buf)
 rest_box(buf1)
 return ret
 
-*
 
-***** 02.07.18
+
+// 02.07.18
 Function kart_plat()
 Local buf, str_sem
 if polikl1_kart() > 0
@@ -200,9 +200,9 @@ if polikl1_kart() > 0
 endif
 return NIL
 
-*
 
-***** 08.10.17
+
+// 08.10.17
 Function f2_k_plat(oBrow)
 Local oColumn, s, blk := {|| iif(human->is_kas==2, {5,6}, iif(human->cena > 0, {1,2}, {3,4})) }
 Local tip_bank := {"бн","МИ","VI","MC","БАНК"}
@@ -448,12 +448,13 @@ do case
     Private m1vid_ud, mnom, MSER, MVID_UD, mregistrator := alltrim(fio_polzovat)
     Private mplat_fio := human->plat_fio, mplat_inn := human->plat_inn, nom_prihod := 0
     Private mplat_adres  := space(50),; // адрес плательщика
-            mplat_pasport := space(15)  // документ плательщика
+            mplat_pasport := space(15),;  // документ плательщика
+            mplat_data_ud := date(), mplat_vidan_ud := " "   
     Private lnomer, l1nomer, muchastok
     Private okato_adresr, okato_adresg
     Private mdov_date, mdov_nomer, mdov_dolgn   //
     Private mmesto_r,;       // место рождения
-            mvidan_ud,;      // документ выдан
+            m,;      // документ выдан
             mdata_vidan_ud   // дата выдачи удостоверения
     buf := savescreen()
     ClrLine(23,color0)
@@ -539,6 +540,13 @@ do case
     if found()
       mplat_adres   := KPLAT->ADRES
       mplat_pasport := KPLAT->PASPORT
+      mplat_data_ud := KPLAT->kogdavyd
+      if KPLAT->kemvyd > 0
+        R_Use(dir_server+"s_kemvyd",,"VYD")
+        goto (KPLAT->kemvyd)
+        mplat_vidan_ud := vyd->name
+        vyd->(dbCloseArea())
+      endif  
     endif
     KPLAT->(dbCloseArea())
     //
@@ -744,7 +752,7 @@ do case
 endcase
 return flag
 
-*****
+//
 Function ret_zapros3000()
 Local buf, r1 := 12, r2 := 18, i, tmp_color := setcolor(color1)
 buf := box_shadow(r1,10,r2,69,,"РАБОТА со СКИДОЧНЫМИ картами","W/R+")
@@ -761,7 +769,7 @@ setcolor(tmp_color)
 rest_box(buf)
 return (i == 2)
 
-*****
+//
 Function ret_soob_3000(tip, sum_1, sum_2)
 Local buf, r1 := 12, r2 := 18, i, tmp_color := setcolor(color1)
 if tip == 1
@@ -789,7 +797,7 @@ endif
 return NIL
 
 
-*****
+//
 Function view_p_kvit(nkey)
 Local sh := 80, HH := 57, reg_print := 2, buf := save_row(maxrow()), i, ;
       name_file := "tmp"+stxt, j := 0, tmp_select := select(), arr_lpu := {}, ;
@@ -870,9 +878,9 @@ else
 endif
 return NIL
 
-*
 
-***** 31.11.23
+
+// 18.12.23
 Function f_p_kart(nKey)
 Static st_n_kvit := 0
 Static st_tip_usl := 0
@@ -912,7 +920,8 @@ Private ;
     mGP2NOMER := space(16), mGP2DATE := ctod(""),;
     mplat_fio := space(40), mplat_inn := space(12),;
     mplat_adres := space(50),; // адрес плательщика
-    mplat_pasport := space(15)  // документ плательщика
+    mplat_pasport := space(15),;  // документ плательщика
+    MKEMVYD, M1KEMVYD := 0, MKOGDAVYD := ctod('') // кем и когда выдан паспорт ПЛАТЕЛЬЩИКА
 Private is_kassa := .t.
 if nKey == K_ENTER
   if human->is_kas == 1
@@ -937,6 +946,7 @@ if nKey == K_ENTER
   if m1tip_usl == 0
     mplat_fio := human->plat_fio
     mplat_inn := human->plat_inn
+
   else
     m1pr_smo := human->pr_smo
     mpolis := human->d_polis
@@ -957,12 +967,15 @@ find (str(human->(recno()),7))
 if found()
   mplat_adres   := KPLAT->ADRES
   mplat_pasport := KPLAT->PASPORT
+  m1kemvyd  := Kplat->kemvyd   // кем выдан документ ПЛАТЕЛЬЩИКА
+  mkogdavyd := kplat->kogdavyd // когда выдан документ ПЛАТЕЛЬЩИКА
 endif
 KPLAT->(dbCloseArea())
 //
 mtip_usl := inieditspr(A__MENUVERT, menu_kb, m1tip_usl)
 mlpu := inieditspr(A__POPUPMENU, dir_server+"mo_uch", m1lpu)
 motd := inieditspr(A__POPUPMENU, dir_server+"mo_otd", m1otd)
+MKEMVYD := inieditspr(A__POPUPMENU, dir_server + 's_kemvyd', M1KEMVYD)
 if m1tip_usl == PU_D_SMO
   mpr_smo := inieditspr(A__POPUPMENU, dir_server+"p_d_smo", m1pr_smo)
 elseif m1tip_usl == PU_PR_VZ
@@ -1051,7 +1064,7 @@ do while .t.
         human->pr_smo := 0
         human->plat_fio := mplat_fio
         human->plat_inn := mplat_inn
-      else
+       else
         human->pr_smo := m1pr_smo
         human->d_polis := mpolis
         human->GP_NOMER := mGP_NOMER
@@ -1073,6 +1086,8 @@ do while .t.
         KPLAT->kod     := human->(recno())
         KPLAT->ADRES   := mplat_adres
         KPLAT->PASPORT := mplat_pasport
+        KPLAT->kemvyd := m1kemvyd     // кем выдан документ ПЛАТЕЛЬЩИКА
+        KPLAT->kogdavyd := mkogdavyd  // когда выдан документ ПЛАТЕЛЬЩИКА
       else
         find (str(human->(recno()),7))
         if found()
@@ -1098,9 +1113,9 @@ restscreen(buf)
 help_code := tmp_help
 return ret
 
-*
 
-*****
+
+//
 Function val_tip_usl(get,old)
 Local fl := .t.
 if m1tip_usl == 0
@@ -1112,9 +1127,9 @@ if old != NIL .and. old != m1tip_usl
 endif
 return fl
 
-*
 
-***** 31.03.14
+
+// 31.03.14
 Function get1_p_kart()  // остальные Get'ы
 Local bg := {|o,k| get_MKB10(o,k) }, j := r1+3,  pic_diag := "@K@!"
 asize(GetList,3)   // берем первые 3 элемента
@@ -1189,8 +1204,8 @@ if glob_pl_reg == 1 .or. glob_kassa == 1
                     update_get() } ;
           when is_kassa
   ++j
-  @ j,2 say "Дата начала лечения" get mn_data valid {|g|f_k_data(g,1)}
-  @ row(),col()+2 say "Дата окончания лечения" get mk_data valid {|g|f_k_data(g,2)}
+  @ j,2 say "Дата начала лечения" get mn_data //valid {|g|f_k_data(g,1)}
+  @ row(),col()+2 say "Дата окончания лечения" get mk_data //valid {|g|f_k_data(g,2)}
 else
   ++j
   @ j,2 say "Дата начала лечения" get mn_data valid {|g|f_k_data(g,1)}
@@ -1204,14 +1219,17 @@ if m1tip_usl == PU_PLAT
   ++j
   @ j,2 say "Адрес" get mplat_adres pict "@S45"
   @ j,col() say ", № док." get mplat_pasport
+  ++j
+  @ j, 2 say 'Выдано' get mkogdavyd
+  @ j, col() say ',' get mkemvyd reader {|x|menu_reader(x, {{|k, r, c|get_s_kemvyd(k, r, c)}}, A__FUNCTION, , , .f.)}
 endif
 ++j
 @ j,50 say "Стоимость лечения "+lstr(mcena,11,2) color "GR+/B"
 return NIL
 
-*
 
-*****
+
+//
 Function f5e_p_kusl(get,when_valid,k)
 Local fl := .t., s, i, j, old_kod, mvar, amsg, arr_zf,;
       msg1_err := "Код врача равен коду ассистента! Это недопустимо.",;
@@ -1472,9 +1490,9 @@ else                  // valid
 endif
 return fl
 
-*
 
-***** 16.10.18
+
+// 16.10.18
 Function poisk_plat()
 Static sdate, sn_kvit := 0, skv1 := 0, skv2 := 0
 Local buf := savescreen(), tmp_color := setcolor(cDataCGet),;
@@ -1651,7 +1669,7 @@ endif
 restscreen(buf)
 return NIL
 
-***** 05.10.17
+// 05.10.17
 Function f1_po_plat(oBrow)
 Local oColumn, blk := {|| iif(tmp->fl_edit, {5,6}, iif(tmp->fl_data, {1,2}, {3,4})) }
 //
@@ -1710,12 +1728,12 @@ oBrow:addColumn(oColumn)
 status_key("^<Esc>^ - выход;  ^<Enter>^ - редактирование;  ^<Ctrl+Enter>^ - редактирование услуг")
 return NIL
 
-*****
+//
 Function f2_po_plat()
 @ maxrow()-3,4 say tmp->fio color color1
 return NIL
 
-***** 05.10.17
+// 05.10.17
 Function f3_po_plat(nKey,oBrow)
 LOCAL j := 0, flag := -1, buf := save_row(maxrow()), buf1, fl := .f., rec, mkod,;
       rec1, llpu, tmp_color := setcolor(), r, str_sem, is_ed_date
@@ -1914,7 +1932,7 @@ else
 endif
 return flag
 
-*****
+//
 Function val_pl_otd(get)
 Local i, fl := .t.
 if (i := ascan(pr_arr, {|x| x[1] == motd } )) == 0
@@ -1923,9 +1941,9 @@ if (i := ascan(pr_arr, {|x| x[1] == motd } )) == 0
 endif
 return fl
 
-*
 
-*****
+
+//
 Function close_lu(k)
 Static si1 := 2, si2 := 1
 Local mas_pmt, mas_msg, mas_fun, j
@@ -1962,9 +1980,9 @@ if k > 10
 endif
 return NIL
 
-*
 
-*****
+
+//
 Function f1close_lu(par)
 Local buf, str_sem
 Private atip_usl, mtitle, p_regim := par, mdate, arr_m
@@ -2014,9 +2032,9 @@ close databases
 G_SUnLock(str_sem)
 return NIL
 
-*
 
-*****
+
+//
 Function f2close_lu()
 Local buf := savescreen(), j, fl
 mywait()
@@ -2181,9 +2199,9 @@ else
 endif
 return NIL
 
-*
 
-*****
+
+//
 Function f2_k_close(oBrow)
 Local oColumn, n := 37, s, blk := {|| iif(hu->cena > 0, {1,2}, {5,6}) }
 if p_regim > 1
@@ -2220,7 +2238,7 @@ s += " ^<F3>^ просмотр"
 status_key(s)
 return NIL
 
-*****
+//
 Function f3_k_close(nKey,oBrow)
 LOCAL j := 0, ret := -1, buf := save_row(maxrow()), buf1, fl := .f., tmp_rec, ;
       tmp_color := setcolor(), j1,;
@@ -2413,9 +2431,9 @@ do case
 endcase
 return ret
 
-*
 
-*****
+
+//
 Function f1CloseDms()
 mywait()
 //
@@ -2536,7 +2554,7 @@ stat_msg("Операция завершена!") ; mybell(2,OK)
 return NIL
 
 
-*****
+//
 Function f_usl_date()
 Local t_arr[BR_LEN], buf := savescreen(), blk
 t_arr[BR_TOP] := T_ROW
@@ -2560,7 +2578,7 @@ edit_browse(t_arr)
 restscreen(buf)
 return NIL
 
-*****
+//
 Function f1_usl_date(nKey,oBrow,cregim)
 Local ret := -1, r := row(), c := col(), buf, fl := .f., rec := 0, k := 19
 do case
@@ -2628,9 +2646,9 @@ endcase
 @ r,c say ""
 return ret
 
-*
 
-*****
+
+//
 Function f2_usl_date(rec)
 Local arr[2], s, i, k, buf := save_row(maxrow()), ;
       sh := 80, HH := 60, name_file := "pl_cena"+stxt
@@ -2666,7 +2684,7 @@ fclose(fp)
 viewtext(name_file,,,,.f.,,,2)
 return NIL
 
-*****
+//
 Function f3_usl_date(rec)
 Local buf := savescreen(), adbf
 Private fl_found, prec := rec
@@ -2715,7 +2733,7 @@ select PUD
 restscreen(buf)
 return NIL
 
-*****
+//
 Function f4_usl_date(oBrow)
 Local oColumn, n := 40
 oColumn := TBColumnNew("   Шифр", {|| tmp->shifr })
@@ -2731,7 +2749,7 @@ oBrow:addColumn(oColumn)
 status_key("^<Esc>^ - выход;  ^<Ins>^ - добавление;  ^<Enter>^ - ред-ие цен;  ^<Del>^ - удаление")
 return NIL
 
-*****
+//
 Function f5_usl_date(nKey,oBrow)
 LOCAL j := 0, k := -1, buf := save_row(maxrow()), buf1, fl := .f., rec,;
       tmp_color := setcolor(), r1 := 12, c1 := 2,;
@@ -2821,7 +2839,7 @@ do case
 endcase
 return k
 
-*****
+//
 Function f6_usl_date()
 Local fl := valid_shifr(), rec, ar
 if fl
@@ -2851,11 +2869,11 @@ endif
 return fl
 
 
-*
 
-*
 
-***** 28.03.23
+
+
+// 28.03.23
 Function vozvrat_platn(kod_human)
 Local buf := savescreen(), sotgr, str_sem, s, arr_v := {}, arr_p := {},;
       s_msg, mtitle, m1title := "", fl, tmp_s, i_m_otv := 0, j := 0,;
@@ -3019,7 +3037,7 @@ tmp->(dbCloseArea())
 restscreen(buf)
 return NIL
 
-*****  10.09.18
+//  10.09.18
 Function f1v_vozvrat(oBrow)
 Local n, oColumn, blk := {|| if(tmp->kol1 > 0, {3,4}, {5,6} ) }
 //
@@ -3056,7 +3074,7 @@ status_key("^<Esc>^ - выход для записи;  ^<Enter>^ - редактирование количества;"
 return NIL
 
 
-***** 10.09.18
+// 10.09.18
 Function f2v_vozvrat(nKey,oBrow)
 Local j := 0, flag := -1, buf := save_row(24), buf1, fl := .f., t_rec,;
       nr := row(), c1, rec, mkod, buf0, tmp_color := setcolor(), ;
@@ -3105,7 +3123,7 @@ endcase
 return flag
 
 
-*****
+//
 Function f3v_vozvrat(get)
 Local lkol1
 Private mvar := readvar()

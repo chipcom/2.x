@@ -2777,6 +2777,7 @@ do case
   case k == 17
     inf_YDVN()
   case k == 41
+    //ne_real()
     mas_pmt := {"~Создание плана-графика", ;
                 "~Просмотр файлов обмена"}
     mas_msg := {"Создание файла обмена R05... с планом-графиком по месяцам", ;
@@ -2797,10 +2798,10 @@ do case
       aadd(mas_msg, "Аннулирование недописанного пакета файлов R01")
       aadd(mas_fun, "delete_reestr_R01()")
     endif
+    
     //et key K_CTRL_F10 to delete_month_R01()
     popup_prompt(T_ROW,T_COL-5,si6,mas_pmt,mas_msg,mas_fun)
     //set key K_CTRL_F10 to
-
   case k == 21
     if (j := popup_prompt(T_ROW,T_COL-5, 1,mas1pmt)) > 0
       f21_inf_DVN(j)
@@ -2814,12 +2815,13 @@ do case
   case k == 52
     f_view_R05()
   case k == 61
+    my_debug(,"00000000")
     f_create_R01()
   case k == 62
     f_view_R01()
   case k == 43
-    //ne_real()
-    mas_pmt := {"~Создание файлов обмена", ;
+    ne_real()
+   /* mas_pmt := {"~Создание файлов обмена", ;
                 "~Просмотр файлов обмена"}
     mas_msg := {"Создание файлов обмена R11... за конкретный месяц", ;
                 "Просмотр файлов обмена R11... и результатов работы с ними"}
@@ -2829,7 +2831,7 @@ do case
       aadd(mas_pmt, "~Аннулирование пакета")
       aadd(mas_msg, "Аннулирование недописанного пакета R11")
       aadd(mas_fun, "delete_reestr_R11()")
-    endif
+    endif*/
     /*
     if glob_mo[_MO_KOD_TFOMS] == '161015' // КБ-11
       aadd(mas_pmt, "~Повторный подбор пациентов")
@@ -2837,9 +2839,9 @@ do case
       aadd(mas_fun, "find_new_R00()")
     endif
     */
-    set key K_CTRL_F10 to delete_month_R11()
-    popup_prompt(T_ROW,T_COL-5,si7,mas_pmt,mas_msg,mas_fun)
-    set key K_CTRL_F10 to
+    //set key K_CTRL_F10 to delete_month_R11()
+    //popup_prompt(T_ROW,T_COL-5,si7,mas_pmt,mas_msg,mas_fun)
+    //set key K_CTRL_F10 to
     
   case k == 71
     f_create_R11()
