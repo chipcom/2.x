@@ -1119,13 +1119,11 @@ Function f_inf_disp_nabl( par )
           If f_is_diag_dn_serdce( dd->kod_diag,,, .f. )
             AAdd( arr, dd->kod_diag )
             AAdd( arr_fl, .f. )
-            // my_debug(,dd->kod_diag)
           Endif
         Else
           AAdd( arr, dd->kod_diag )
           AAdd( arr_fl, .f. )
         Endif
-        // my_debug(,print_array(arr))
       Endif
       Skip
     Enddo
@@ -1136,13 +1134,11 @@ Function f_inf_disp_nabl( par )
       fl_prikrep := Space( 6 )
       Select KART2
       Goto kart->kod
-      // my_debug(,"KART2 == "+kart2->mo_pr+" "+glob_mo[_MO_KOD_TFOMS] )
       If kart2->mo_pr != glob_mo[ _MO_KOD_TFOMS ]
         fl_prikrep := kart2->mo_pr
       Endif
       If Left( kart2->PC2, 1 ) == "1"
         fl_prikrep := " УМЕР "
-        // my_debug(,kart->kod )
       Endif
       Select HUMAN
       find ( Str( kart->kod, 7 ) )
@@ -1507,7 +1503,8 @@ Function inf_disp_nabl()
   Local buf := SaveScreen(), r := 12, sh, HH := 60, name_file := cur_dir + "info_dn" + stxt, ru := 0, ;
     rd := 0, rd1 := 0, rpr := 0, ro_f := .f., ro := 0, rod := 0
   Local mas_tip_dz := { 0, 0, 0, 0, 0 }, mas_tip_pc := { 0, 0, 0, 0, 0, 0 }, fl_1 := 0, fl_2 := 0, fl_3 := 0, fl_4 := 0, ;
-    fl_5 := 0, fl_31 := 0, fl_32 := 0, fl_33 := 0, fl_umer := .t.
+    fl_5 := 0, fl_31 := 0, fl_32 := 0, fl_33 := 0, fl_umer := .t., otvet := "      ", fl_prinet := .F.,;
+    mas_tip_prin := { 0, 0, 0, 0, 0, 0 }  
 
   SetColor( cDataCGet )
   myclear( r )
@@ -1590,11 +1587,11 @@ Function inf_disp_nabl()
     sdiag := mkod_diag
     //
     arr_title := { ;
-      "──────────────────────────────────────┬──────────┬──────┬──┬─────┬─────┬────────┬────────┬────────────────", ;
-      "                                      │   Дата   │  МО  │Уч│ Таб.│Диаг-│Дата по-│Дата по-│_Следующий_визит", ;
-      "  ФИО пациента                        │ рождения │прик-я│ас│номер│ноз  │следнего│становки│        │через N", ;
-      "                                      │   Дата   │      │то│врача│     │   ЛУ   │на учёт │  дата  │месяцев", ;
-      "──────────────────────────────────────┴──────────┴──────┴──┴─────┴─────┴────────┴────────┴────────┴───────" }
+      "──────┬──────────────────────────────────────┬──────────┬──────┬──┬─────┬─────┬────────┬────────┬────────────────", ;
+      " Ответ│                                      │   Дата   │  МО  │Уч│ Таб.│Диаг-│Дата по-│Дата по-│_Следующий_визит", ;
+      "      │        ФИО пациента                  │ рождения │прик-я│ас│номер│ноз  │следнего│становки│        │через N", ;
+      " ТФОМС│                                      │   Дата   │      │то│врача│     │   ЛУ   │на учёт │  дата  │месяцев", ;
+      "──────┴──────────────────────────────────────┴──────────┴──────┴──┴─────┴─────┴────────┴────────┴────────┴───────" }
     sh := Len( arr_title[ 1 ] )
     mywait()
     fp := FCreate( name_file ) ; tek_stroke := 0 ; n_list := 1
@@ -1602,7 +1599,11 @@ Function inf_disp_nabl()
     add_string( Center( "Список пациентов, состоящих на диспансерном учёте", sh ) )
     add_string( "" )
     AEval( arr_title, {| x| add_string( x ) } )
-    r_use( dir_server + "mo_pers",, "PERS" )
+    r_use( dir_server + "mo_D01",,   "D01" )  //реестры
+    r_use( dir_server + "mo_D01K",,  "D01K" ) // пациенты в реестрах
+    index on str(reestr,6)+str(kod_k,7) to (cur_dir +"tmp_D01")
+   // r_use( dir_server + "mo_D01D",,  "D01D" ) // диагнозы у пациентов   
+    r_use( dir_server + "mo_pers",,  "PERS" )
     r_use( dir_server + "kartote2",, "KART2" )
     r_use( dir_server + "kartote_",, "KART_" )
     r_use( dir_server + "kartotek",, "KART" )
@@ -1616,6 +1617,7 @@ Function inf_disp_nabl()
     Go Top
     Do While !Eof()
       updatestatus()
+      otvet := "       "
       ro_f := .f.
       fl := .t.
       fl_umer := .t.
@@ -1660,6 +1662,7 @@ Function inf_disp_nabl()
             s := Space( 38 ) + Space( 1 + 10 + 3 + 7 )
           Endif
         Else
+          fl_prinet := .F. // по умолчанию - не принят
           If !Empty( sadres )
             add_string( "  " + sadres )
           Endif
@@ -1706,6 +1709,32 @@ Function inf_disp_nabl()
         If f_is_diag_dn_neobez( dn->kod_diag )
           s += " **"
         Endif
+        //
+        If old != dn->kod_k
+          select D01
+          go top
+          do while !eof()
+            if D01->NYEAR == 2023
+              select D01K
+              find (str(d01->kod,6)+str(dn->kod_k,7))  
+              if found()     
+                if d01k->OPLATA == 1 
+                  fl_prinet := .T.
+                  otvet  := "принят " 
+                elseif d01k->OPLATA == 0    
+                  otvet  := "       "
+                else 
+                  otvet  := "ОШИБКА " 
+                endif
+              endif 
+            endif
+            select D01
+            skip 
+          enddo
+          select DN 
+        endif  
+        s := otvet + s
+        //
         If dn->next_data < 0d20240101  // ЮЮ
           ++rd
         Endif
@@ -1715,9 +1744,6 @@ Function inf_disp_nabl()
         If verify_ff( HH, .t., sh )
           AEval( arr_title, {| x| add_string( x ) } )
         Endif
-       // my_debug(,dn->(recno()))
-       // my_debug(,m1umer)
-       // my_debug(,fl_umer)
         if m1umer == 1
           add_string( s )
         else
@@ -1730,17 +1756,22 @@ Function inf_disp_nabl()
         If !ro_f
           ++rod
         Endif
-        // my_debug(,dn->(recno()))
         // Выборки по отдельным группам ДИАГНОЗОВ
         If !Empty( kart2->mo_pr )
           If glob_mo[ _MO_KOD_TFOMS ] == kart2->mo_pr .and. dn->next_data > 0d20240101
             If fl_33 != dn->kod_k
               mas_tip_pc[ 6 ] := mas_tip_pc[ 6 ] + 1
+              if fl_prinet 
+                mas_tip_prin[ 6 ] := mas_tip_prin[ 6 ] + 1
+              endif  
               fl_33  := dn->kod_k
             Endif
             // только данное МО и ЖИВЫЕ
             If fl_3 != dn->kod_k
               mas_tip_pc[ 3 ] := mas_tip_pc[ 3 ] + 1
+              if fl_prinet 
+                mas_tip_prin[ 3 ] := mas_tip_prin[ 3 ] + 1
+              endif  
               fl_3 := dn->kod_k
             Endif
             mas_tip_dz[ 3 ] := mas_tip_dz[ 3 ] + 1
@@ -1749,10 +1780,16 @@ Function inf_disp_nabl()
               mas_tip_dz[ 3 ] := mas_tip_dz[ 3 ] -1
               If fl_4 != dn->kod_k
                 mas_tip_pc[ 4 ] := mas_tip_pc[ 4 ] + 1
+                if fl_prinet 
+                  mas_tip_prin[ 4 ] := mas_tip_prin[ 4 ] + 1
+                endif  
                 fl_4 := dn->kod_k
               Endif
               If fl_31 != dn->kod_k
                 mas_tip_pc[ 3 ] := mas_tip_pc[ 3 ] -1
+                if fl_prinet 
+                  mas_tip_prin[ 3 ] := mas_tip_prin[ 3 ] - 1
+                endif  
                 fl_31 := dn->kod_k
               Endif
             Endif
@@ -1760,6 +1797,9 @@ Function inf_disp_nabl()
               mas_tip_dz[ 5 ] := mas_tip_dz[ 5 ] + 1
               If fl_5 != dn->kod_k
                 mas_tip_pc[ 5 ] := mas_tip_pc[ 5 ] + 1
+                if fl_prinet 
+                  mas_tip_prin[ 5 ] := mas_tip_prin[ 5 ] + 1
+                endif  
                 fl_5 := dn->kod_k
               Endif
             Endif
@@ -1769,6 +1809,9 @@ Function inf_disp_nabl()
                 mas_tip_dz[ 1 ] := mas_tip_dz[ 1 ] + 1
                 If fl_1 != dn->kod_k
                   mas_tip_pc[ 1 ] := mas_tip_pc[ 1 ] + 1
+                  if fl_prinet 
+                    mas_tip_prin[ 1 ] := mas_tip_prin[ 1 ] + 1
+                  endif  
                   fl_1 := dn->kod_k
                 Endif
               Endif
@@ -1778,10 +1821,16 @@ Function inf_disp_nabl()
               mas_tip_dz[ 3 ] := mas_tip_dz[ 3 ] -1
               If fl_2 != dn->kod_k
                 mas_tip_pc[ 2 ] := mas_tip_pc[ 2 ] + 1
+                if fl_prinet 
+                  mas_tip_prin[ 2 ] := mas_tip_prin[ 2 ] + 1
+                endif  
                 fl_2 := dn->kod_k
               Endif
               If fl_32 != dn->kod_k
                 mas_tip_pc[ 3 ] := mas_tip_pc[ 3 ] -1
+                if fl_prinet 
+                  mas_tip_prin[ 3 ] := mas_tip_prin[ 3 ] - 1
+                endif  
                 fl_32 := dn->kod_k
               Endif
             Endif
@@ -1803,11 +1852,11 @@ Function inf_disp_nabl()
       add_string( "=== пациентов прикрепленных не к нашему МО - " + lstr( rpr ) + " чел. ===" )
       add_string( "    ТФОМСом вероятно приняты не будут " )
       add_string( "=== Вероятно будут приняты: пациентов - " + lstr( mas_tip_pc[ 6 ] ) )
-      add_string( "===   диагнозов БСК              - " + PadL( lstr( mas_tip_dz[ 1 ] ), 8 ) + " пациентов - " + lstr( mas_tip_pc[ 1 ] ) )
-      add_string( "===   диагнозов МКБ-10 С00-D09   - " + PadL( lstr( mas_tip_dz[ 2 ] ), 8 ) + " пациентов - " + lstr( mas_tip_pc[ 2 ] ) )
-      add_string( "===   диагнозов по приказу №168н - " + PadL( lstr( mas_tip_dz[ 3 ] ), 8 ) + " пациентов - " + lstr( mas_tip_pc[ 3 ] ) )
-      add_string( "===   диагнозов МКБ-10 E10       - " + PadL( lstr( mas_tip_dz[ 4 ] ), 8 ) + " пациентов - " + lstr( mas_tip_pc[ 4 ] ) )
-      add_string( "===   диагнозов МКБ-10 E11       - " + PadL( lstr( mas_tip_dz[ 5 ] ), 8 ) + " пациентов - " + lstr( mas_tip_pc[ 5 ] ) )
+      add_string( "===   диагнозов БСК              - " + PadL( lstr( mas_tip_dz[ 1 ] ), 8 ) + " пациентов - " + padl(lstr( mas_tip_pc[ 1 ] ),8)+ " из них принято " +padl(lstr( mas_tip_prin[ 1 ] ),8) )
+      add_string( "===   диагнозов МКБ-10 С00-D09   - " + PadL( lstr( mas_tip_dz[ 2 ] ), 8 ) + " пациентов - " + padl(lstr( mas_tip_pc[ 2 ] ),8)+ " из них принято " +padl(lstr( mas_tip_prin[ 2 ] ),8))
+      add_string( "===   диагнозов по приказу №168н - " + PadL( lstr( mas_tip_dz[ 3 ] ), 8 ) + " пациентов - " + padl(lstr( mas_tip_pc[ 3 ] ),8)+ " из них принято " +padl(lstr( mas_tip_prin[ 3 ] ),8) )
+      add_string( "===   диагнозов МКБ-10 E10       - " + PadL( lstr( mas_tip_dz[ 4 ] ), 8 ) + " пациентов - " + padl(lstr( mas_tip_pc[ 4 ] ),8)+ " из них принято " +padl(lstr( mas_tip_prin[ 4 ] ),8) )
+      add_string( "===   диагнозов МКБ-10 E11       - " + PadL( lstr( mas_tip_dz[ 5 ] ), 8 ) + " пациентов - " + padl(lstr( mas_tip_pc[ 5 ] ),8)+ " из них принято " +padl(lstr( mas_tip_prin[ 5 ] ),8) )
       add_string( "** Обоснованность постановки на ДН с такими диагнозами необходимо проверить врачу, т.к. " )
       add_string( "данный диагноз не является строго обязательным для постановки на Диспансерное наблюдение" )
     Endif
