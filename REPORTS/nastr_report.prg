@@ -2,12 +2,11 @@
 #include 'function.ch'
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
-// #include 'hblibxlsxwriter.ch'
 #include 'hbxlsxwriter.ch'
 
 Static lcount_uch  := 1
 
-// 13.10.23 многовариантный поиск
+// 25.12.23 многовариантный поиск
 Function s_mnog_poisk()
   Static mm_rak := { ;
     {'все случаи', 0}, ;
@@ -61,7 +60,7 @@ Function s_mnog_poisk()
                     {'не прикреплён к нашей МО', 2}}, ;
         tmp_file := cur_dir + 'tmp_mn_p' + sdbf, ;
         k_diagnoz, k_usl, tt_diagnoz[10], tt_usl[10]
-  local nameArr
+  local nameArr, funcGetPZ
   local name_fileXLS := 'Report_' + suffixFileTimestamp()
   local name_fileXLS_full := name_fileXLS + '.xlsx'
   local lExcel := .t., used_column := 0
@@ -112,12 +111,18 @@ Function s_mnog_poisk()
   Private pr_arr := {}, pr_arr_otd := {}, is_talon := ret_is_talon(), arr_tal_diag[2, 3], mm_pz := {}
   afillall(arr_tal_diag, 0)
 
-  nameArr := 'glob_array_PZ_' + '19'    //last_digits_year(ly)
+  // nameArr := 'glob_array_PZ_' + '19'    //last_digits_year(ly)
   // for i := 1 to len(glob_array_PZ_19)
   //   aadd(mm_pz, {glob_array_PZ_19[i, 3],glob_array_PZ_19[i, 1]})
-  for i := 1 to len(&nameArr)
-    aadd(mm_pz, {&nameArr.[i, 3], &nameArr.[i, 1]})
+  // for i := 1 to len(&nameArr)
+  //   aadd(mm_pz, {&nameArr.[i, 3], &nameArr.[i, 1]})
+  // next
+  funcGetPZ := 'get_array_PZ_19()'
+  nameArr := &funcGetPZ
+  for i := 1 to len(nameArr)
+    aadd(mm_pz, {nameArr[i, 3], nameArr[i, 1]})
   next
+
   if is_talon
     is_kategor2 := !empty(stm_kategor2)
   endif

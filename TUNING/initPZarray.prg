@@ -3,7 +3,7 @@
 #include 'chip_mo.ch'
 
 // 25.12.23
-function get_array_PZ_2024()
+function get_array_PZ_24()
   static arr := {}
 
   if len(arr) == 0
@@ -121,7 +121,7 @@ function get_array_PZ_2024()
   return arr
 
 // 13.03.23
-function get_array_PZ_2023()
+function get_array_PZ_23()
   static arr := {}
 
   if len(arr) == 0
@@ -239,7 +239,7 @@ function get_array_PZ_2023()
   return arr
 
 // 27.01.23
-function get_array_PZ_2022()
+function get_array_PZ_22()
   static arr := {}
 
   if len(arr) == 0
@@ -349,7 +349,7 @@ function get_array_PZ_2022()
   return arr
 
 // 27.01.23
-function get_array_PZ_2021()
+function get_array_PZ_21()
   static arr := {}
 
   if len(arr) == 0
@@ -459,7 +459,7 @@ function get_array_PZ_2021()
   return arr
 
 // 27.01.23
-function get_array_PZ_2020()
+function get_array_PZ_20()
   static arr := {}
 
   if len(arr) == 0
@@ -564,7 +564,7 @@ function get_array_PZ_2020()
   return arr
 
 // 27.01.23
-function get_array_PZ_2019()
+function get_array_PZ_19()
   static arr := {}
 
   if len(arr) == 0
@@ -657,7 +657,7 @@ function get_array_PZ_2019()
   return arr
 
 // 27.01.23
-function get_array_PZ_2018()
+function get_array_PZ_18()
   static arr := {}
 
   if len(arr) == 0
@@ -753,21 +753,24 @@ function fill_PZ_array_from_file(work_year, arr)
   sbase :=  prefixFileRefName(work_year) + 'unit'  // справочник на конкретный год
   file_index := cur_dir + sbase + sntx
 
-  if hb_FileExists(file_index)
-    G_Use( dir_exe + sbase, cur_dir + sbase, 'UNIT' )
-  else
-    G_Use( dir_exe + sbase, , 'UNIT' )
-    index on str(code, 3) to (cur_dir + sbase)
-  endif
-  for i := 1 to Len(arr)
-    find (Str(arr[i, 2], 3))
-    if Found() .and. !(unit->pz == arr[i, 1] .and. unit->ii == i)
-      G_RLock( forever )
-      unit->pz := arr[i, 1]
-      unit->ii := i
+  if exists_file_TFOMS(work_year, 'unit')
+    if hb_FileExists(file_index)
+      G_Use( dir_exe + sbase, cur_dir + sbase, 'UNIT' )
+    else
+      G_Use( dir_exe + sbase, , 'UNIT' )
+      index on str(code, 3) to (cur_dir + sbase)
     endif
-  next
-  unit->( dbCloseArea() )
+
+    for i := 1 to Len(arr)
+      find (Str(arr[i, 2], 3))
+      if Found() .and. !(unit->pz == arr[i, 1] .and. unit->ii == i)
+        G_RLock( forever )
+        unit->pz := arr[i, 1]
+        unit->ii := i
+      endif
+    next
+    unit->( dbCloseArea() )
+  endif
 
   return nil
 

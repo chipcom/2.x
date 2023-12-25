@@ -106,29 +106,41 @@ Function f_starshe_trudosp(_pol,_date_r,_data,par)
   endif
   return count_years(_date_r,_data) >= v
 
-// 04.01.22
+// 25.12.23
 Function arr_plan_zakaz(ly)
   Local i, apz := {}
-  local nameArr
+  local nameArr, funcGetPZ
 
   DEFAULT ly TO WORK_YEAR
-  nameArr := 'glob_array_PZ_' + last_digits_year(ly)
-  for i := 1 to len(&nameArr)
-    aadd(apz, {&nameArr.[i,3], ;
-                &nameArr.[i,1], ;
+  // nameArr := 'glob_array_PZ_' + last_digits_year(ly)
+  funcGetPZ := 'get_array_PZ_' + last_digits_year(ly) + '()'
+  nameArr := &funcGetPZ
+
+  // for i := 1 to len(&nameArr)
+  //   aadd(apz, {&nameArr.[i,3], ;
+  //               &nameArr.[i,1], ;
+  //               0, ;
+  //               &nameArr.[i,6], ;
+  //               &nameArr.[i,5], ;
+  //               {} ;
+  //             })
+  // next
+  for i := 1 to len(nameArr)
+    aadd(apz, {nameArr[i, 3], ;
+                nameArr[i, 1], ;
                 0, ;
-                &nameArr.[i,6], ;
-                &nameArr.[i,5], ;
+                nameArr[i, 6], ;
+                nameArr[i, 5], ;
                 {} ;
               })
   next
   return apz
 
-// 23.12.21 по шифру услуги у году вернуть номер элемента массива 'arr_plan_zakaz' для года
+// 25.12.23 по шифру услуги у году вернуть номер элемента массива 'arr_plan_zakaz' для года
 Function f_arr_plan_zakaz(lshifr, lyear)
   Local i, j, c, k := 0, shb, i16 := 0
   local sbase, sAlias, sAliasUnit
-  local nameArrayPZ
+  local nameArrayPZ, funcGetPZ
 
   if select('LUSL') == 0
     Use_base('lusl')
@@ -153,8 +165,12 @@ Function f_arr_plan_zakaz(lshifr, lyear)
     endif
   endif
   if k > 0 .and. empty(i16)
-    nameArrayPZ := 'glob_array_PZ_' + last_digits_year(lyear)
-    i16 := ascan(&nameArrayPZ, {|x| x[1] == k })
+    // nameArrayPZ := 'glob_array_PZ_' + last_digits_year(lyear)
+    // i16 := ascan(&nameArrayPZ, {|x| x[1] == k })
+    funcGetPZ := 'get_array_PZ_' + last_digits_year(lyear) + '()'
+    nameArrayPZ := &funcGetPZ
+
+    i16 := ascan(nameArrayPZ, {|x| x[1] == k })
   endif
   return i16
 

@@ -570,7 +570,7 @@ Function e_statist( k )
   Return Nil
 
 
-// 24.02.22 восстановление объёмов
+// 25.12.23 восстановление объёмов
 Function vosst_ob_em_rak()
 
   Static arr_smo, mm_pz
@@ -579,7 +579,7 @@ Function vosst_ob_em_rak()
   Static mm_eks := { { 'все ', 0 }, { 'МЭК ', 1 }, { 'МЭЭ ', 2 }, { 'ЭКМП', 3 } }
   Static s1eks := 0, s1smo := 0, s1pz := 0, s1poisk := 0
   Local buf := SaveScreen(), i, ar, s, r := 14
-  Local nameArr
+  Local nameArr, funcGetPZ
 
   If arr_smo == NIL
     arr_smo := mo_cut_menu( glob_arr_smo )
@@ -592,13 +592,20 @@ Function vosst_ob_em_rak()
     Endif
     mm_pz := { { 'все', 0 } }
 
-    nameArr := 'glob_array_PZ_' + '19'  // last_digits_year(ly)
+    // nameArr := 'glob_array_PZ_' + '19'  // last_digits_year(ly)
 
     // for i := 1 to len(glob_array_PZ_19)
     // aadd(mm_pz, {glob_array_PZ_19[i, 3],glob_array_PZ_19[i, 1]})
-    For i := 1 To Len( &nameArr )
-      AAdd( mm_pz, { &nameArr.[ i, 3 ], &nameArr.[ i, 1 ] } )
+    // For i := 1 To Len( &nameArr )
+    //   AAdd( mm_pz, { &nameArr.[ i, 3 ], &nameArr.[ i, 1 ] } )
+    // Next
+
+    funcGetPZ := 'get_array_PZ_19()'
+    nameArr := &funcGetPZ
+    For i := 1 To Len( nameArr )
+      AAdd( mm_pz, { nameArr[ i, 3 ], nameArr[ i, 1 ] } )
     Next
+  
   Endif
   If Empty( s1smo )
     s1smo := 0
