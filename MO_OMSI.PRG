@@ -1242,7 +1242,7 @@ Function pz_statist( k )
 
   Return Nil
 
-// 17.08.22
+// 26.12.23
 Function pz1statist( par, par2 )
 
   Static _su := 2
@@ -1261,8 +1261,8 @@ Function pz1statist( par, par2 )
   If par > 1 .and. ( arr_goi := ret_g_o_i( T_ROW, T_COL - 5 ) ) == NIL
     Return Nil
   Endif
-  Private v_deti := 1, apf := {},   apz2016 := {}, luapz2016 := {}, ;
-    is_2019 := .f., is_2020 := .f., is_2021 := .f., is_2022 := .f., is_2023 := .f.
+  Private v_deti := 1, apf := {},   apz2016 := {}, luapz2016 := {}  //, ;
+    // is_2019 := .f., is_2020 := .f., is_2021 := .f., is_2022 := .f., is_2023 := .f.
   If ( v_deti := popup_prompt( T_ROW, T_COL - 5, 1, { 'по ~всем пациентам', 'по ~детям' }, , , 'N/G*,W+/B,B/G*,BG+/B' ) ) == 0
     RestScreen( buf )
     Return Nil
@@ -1327,23 +1327,23 @@ Function pz1statist( par, par2 )
     RestScreen( buf )
     Return Nil
   Endif
-  _su := su
+  _su := su 
   If Between( par, 2, 3 ) .and. eq_any( su, 1, 2, 5 )
     sbase := prefixfilerefname( arr_m[ 1 ] ) + 'unit'
     r_use( dir_exe + sbase, , 'MOUNIT' )
     Index On Str( ii, 3 ) to ( cur_dir + 'tmp_unitii' )
     Set Index to ( cur_dir + sbase ), ( cur_dir + 'tmp_unitii' )
-    If arr_m[ 1 ] == 2023
-      is_2023 := .t.
-    Elseif arr_m[ 1 ] == 2022
-      is_2022 := .t.
-    Elseif arr_m[ 1 ] == 2021
-      is_2021 := .t.
-    Elseif arr_m[ 1 ] == 2020
-      is_2020 := .t.
-    Elseif arr_m[ 1 ] == 2019
-      is_2019 := .t.
-    Endif
+    // If arr_m[ 1 ] == 2023
+    //   is_2023 := .t.
+    // Elseif arr_m[ 1 ] == 2022
+    //   is_2022 := .t.
+    // Elseif arr_m[ 1 ] == 2021
+    //   is_2021 := .t.
+    // Elseif arr_m[ 1 ] == 2020
+    //   is_2020 := .t.
+    // Elseif arr_m[ 1 ] == 2019
+    //   is_2019 := .t.
+    // Endif
 
     apz2016 := arr_plan_zakaz( arr_m[ 1 ] )
     luapz2016 := arr_plan_zakaz( arr_m[ 1 ] )
@@ -1993,7 +1993,7 @@ Function pz1statist( par, par2 )
 
   Return Nil
 
-// 05.01.22
+// 26.12.23
 Function f1pz1statist( arr_otd, par )
 
   Local lreg_lech := { 0, 0, 0, 0, 0 }, s, lkod, lshifr, ta, i, j, k, mkol1, ;
@@ -2190,17 +2190,17 @@ Function f1pz1statist( arr_otd, par )
               // apz2016[i16, 3] += muet
               // endif
             Elseif i16 > 0
-              If is_2023
+              // If is_2023
                 lalunit := 'MOUNIT'   // 29.12.2022
-              Elseif is_2022
-                lalunit := 'MOUNIT22'   // 05.01.2022
-              Elseif is_2021
-                lalunit := 'MOUNIT21'
-              Elseif is_2020
-                lalunit := 'MOUNIT20'
-              Elseif is_2019
-                lalunit := 'MOUNIT19'
-              Endif
+              // Elseif is_2022
+              //   lalunit := 'MOUNIT22'   // 05.01.2022
+              // Elseif is_2021
+              //   lalunit := 'MOUNIT21'
+              // Elseif is_2020
+              //   lalunit := 'MOUNIT20'
+              // Elseif is_2019
+              //   lalunit := 'MOUNIT19'
+              // Endif
               dbSelectArea( lalunit )
               Set Order To 2  // 2 23.12.21 == 1
               // find (str(i16, 3))
