@@ -106,15 +106,16 @@ Function f_starshe_trudosp(_pol,_date_r,_data,par)
   endif
   return count_years(_date_r,_data) >= v
 
-// 25.12.23
+// 26.12.23
 Function arr_plan_zakaz(ly)
   Local i, apz := {}
-  local nameArr, funcGetPZ
+  local nameArr //, funcGetPZ
 
   DEFAULT ly TO WORK_YEAR
   // nameArr := 'glob_array_PZ_' + last_digits_year(ly)
-  funcGetPZ := 'get_array_PZ_' + last_digits_year(ly) + '()'
-  nameArr := &funcGetPZ
+  // funcGetPZ := 'get_array_PZ_' + last_digits_year(ly) + '()'
+  // nameArr := &funcGetPZ
+  nameArr := get_array_PZ( ly )
 
   // for i := 1 to len(&nameArr)
   //   aadd(apz, {&nameArr.[i,3], ;
@@ -136,11 +137,11 @@ Function arr_plan_zakaz(ly)
   next
   return apz
 
-// 25.12.23 по шифру услуги у году вернуть номер элемента массива 'arr_plan_zakaz' для года
+// 26.12.23 по шифру услуги у году вернуть номер элемента массива 'arr_plan_zakaz' для года
 Function f_arr_plan_zakaz(lshifr, lyear)
   Local i, j, c, k := 0, shb, i16 := 0
   local sbase, sAlias, sAliasUnit
-  local nameArrayPZ, funcGetPZ
+  local nameArrayPZ //, funcGetPZ
 
   if select('LUSL') == 0
     Use_base('lusl')
@@ -167,8 +168,9 @@ Function f_arr_plan_zakaz(lshifr, lyear)
   if k > 0 .and. empty(i16)
     // nameArrayPZ := 'glob_array_PZ_' + last_digits_year(lyear)
     // i16 := ascan(&nameArrayPZ, {|x| x[1] == k })
-    funcGetPZ := 'get_array_PZ_' + last_digits_year(lyear) + '()'
-    nameArrayPZ := &funcGetPZ
+    // funcGetPZ := 'get_array_PZ_' + last_digits_year(lyear) + '()'
+    // nameArrayPZ := &funcGetPZ
+    nameArrayPZ := get_array_PZ( lyear )
 
     i16 := ascan(nameArrayPZ, {|x| x[1] == k })
   endif

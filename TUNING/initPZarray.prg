@@ -2,6 +2,14 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
+// 26.12.23
+function get_array_PZ(nyear)
+  local nameArr, funcGetPZ
+
+  funcGetPZ := 'get_array_PZ_' + last_digits_year( nyear ) + '()'
+  nameArr := &funcGetPZ
+  return nameArr
+
 // 25.12.23
 function get_array_PZ_24()
   static arr := {}

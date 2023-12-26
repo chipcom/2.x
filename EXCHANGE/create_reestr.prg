@@ -10,7 +10,7 @@ Static Sreestr_err := "В данный момент с реестрами работает другой пользователь.
 Function create_reestr()
 
   Local buf := save_maxrow(), i, j, k := 0, k1 := 0, arr, bSaveHandler, fl, rec, pole, arr_m
-  Local nameArr, funcGetPZ
+  Local nameArr //, funcGetPZ
   Local tip_lu
 
   If ! hb_user_curUser:isadmin()
@@ -223,8 +223,8 @@ Function create_reestr()
               // If tmp->nyear > 2018 // 2019 год
                 // nameArr := 'glob_array_PZ_' + last_digits_year( tmp->nyear )
                 // If ( i := AScan( &nameArr, {| x| x[ 1 ] == j } ) ) > 0 .and. !Empty( &nameArr.[ i, 5 ] )
-                funcGetPZ := 'get_array_PZ_' + last_digits_year( tmp->nyear ) + '()'
-                nameArr := &funcGetPZ
+                // funcGetPZ := 'get_array_PZ_' + last_digits_year( tmp->nyear ) + '()'
+                nameArr := get_array_PZ( tmp->nyear )
                 If ( i := AScan( nameArr, {| x| x[ 1 ] == j } ) ) > 0 .and. !Empty( nameArr[ i, 5 ] )
                   &pole := &pole + 1 // учёт по случаям
                 Else

@@ -6,7 +6,7 @@
 
 Static lcount_uch  := 1
 
-// 25.12.23 многовариантный поиск
+// 26.12.23 многовариантный поиск
 Function s_mnog_poisk()
   Static mm_rak := { ;
     {'все случаи', 0}, ;
@@ -60,7 +60,7 @@ Function s_mnog_poisk()
                     {'не прикреплён к нашей МО', 2}}, ;
         tmp_file := cur_dir + 'tmp_mn_p' + sdbf, ;
         k_diagnoz, k_usl, tt_diagnoz[10], tt_usl[10]
-  local nameArr, funcGetPZ
+  local nameArr //, funcGetPZ
   local name_fileXLS := 'Report_' + suffixFileTimestamp()
   local name_fileXLS_full := name_fileXLS + '.xlsx'
   local lExcel := .t., used_column := 0
@@ -117,8 +117,9 @@ Function s_mnog_poisk()
   // for i := 1 to len(&nameArr)
   //   aadd(mm_pz, {&nameArr.[i, 3], &nameArr.[i, 1]})
   // next
-  funcGetPZ := 'get_array_PZ_19()'
-  nameArr := &funcGetPZ
+  // funcGetPZ := 'get_array_PZ_19()'
+  // nameArr := &funcGetPZ
+  nameArr := get_array_PZ( 2019 )
   for i := 1 to len(nameArr)
     aadd(mm_pz, {nameArr[i, 3], nameArr[i, 1]})
   next

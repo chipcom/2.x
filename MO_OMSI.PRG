@@ -570,7 +570,7 @@ Function e_statist( k )
   Return Nil
 
 
-// 25.12.23 восстановление объёмов
+// 26.12.23 восстановление объёмов
 Function vosst_ob_em_rak()
 
   Static arr_smo, mm_pz
@@ -579,7 +579,7 @@ Function vosst_ob_em_rak()
   Static mm_eks := { { 'все ', 0 }, { 'МЭК ', 1 }, { 'МЭЭ ', 2 }, { 'ЭКМП', 3 } }
   Static s1eks := 0, s1smo := 0, s1pz := 0, s1poisk := 0
   Local buf := SaveScreen(), i, ar, s, r := 14
-  Local nameArr, funcGetPZ
+  Local nameArr //, funcGetPZ
 
   If arr_smo == NIL
     arr_smo := mo_cut_menu( glob_arr_smo )
@@ -600,8 +600,9 @@ Function vosst_ob_em_rak()
     //   AAdd( mm_pz, { &nameArr.[ i, 3 ], &nameArr.[ i, 1 ] } )
     // Next
 
-    funcGetPZ := 'get_array_PZ_19()'
-    nameArr := &funcGetPZ
+    // funcGetPZ := 'get_array_PZ_19()'
+    // nameArr := &funcGetPZ
+    nameArr := get_array_PZ( 2019 )
     For i := 1 To Len( nameArr )
       AAdd( mm_pz, { nameArr[ i, 3 ], nameArr[ i, 1 ] } )
     Next

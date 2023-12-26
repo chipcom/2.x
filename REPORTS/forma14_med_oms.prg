@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 25.12.23 форма 14-МЕД (ОМС)
+// 26.12.23 форма 14-МЕД (ОМС)
 Function forma14_med_oms()
   Static group_ini := 'f14_med_oms'
   Local begin_date, end_date, buf := savescreen(), arr_m, i, j, k, k1, k2, ;
@@ -21,7 +21,7 @@ Function forma14_med_oms()
   
   local sbase
   local lal, lalf
-  local nameArr, funcGetPZ
+  local nameArr //, funcGetPZ
   
   old5 := old2 := 0
   afillall(arr_skor, 0)
@@ -575,9 +575,9 @@ Function forma14_med_oms()
                   if (i16 := mounit->ii) > 0
                     // j1 := glob_array_PZ_21[i16, 1] 
                     // nameArr := 'glob_array_PZ_' + last_digits_year(human->k_data)
-                    funcGetPZ := 'get_array_PZ_' + last_digits_year(human->k_data) + '()'
-                    nameArr := &funcGetPZ
                     // j1 := &nameArr.[i16, 1]
+                    // funcGetPZ := 'get_array_PZ_' + last_digits_year(human->k_data) + '()'
+                    nameArr := get_array_PZ( human->k_data )
                     j1 := nameArr[i16, 1]
 
                     if eq_any(j1, 68)  // 75 убрал - это бывшая стом //09.07.23
