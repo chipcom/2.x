@@ -760,8 +760,8 @@ function exist_reserve_KSG(kod_pers, aliasHUMAN)
   Select(oldSelect)
   return ret
 
-// 22.12.23
-function diagnosis_for_replacement(cDiag, nUsl_ok)
+// 26.12.23
+function diagnosis_for_replacement( cDiag, nUsl_ok, double_sl )
   local aDiag := {'Z92.2', ;
                   'Z92.4', ;
                   'Z92.8' ;
@@ -770,7 +770,8 @@ function diagnosis_for_replacement(cDiag, nUsl_ok)
                 //  }
 
   DEFAULT nUsl_ok TO USL_OK_POLYCLINIC
-  if eq_any( nUsl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL )
+  default double_sl to .f.
+  if eq_any( nUsl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL ) .and. double_sl
     aadd( aDiag, 'Z25.8' )
   endif
 
