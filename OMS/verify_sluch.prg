@@ -6,7 +6,7 @@
 
 Static sadiag1  // := {}
 
-// 22.12.23
+// 27.12.23
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1, ;
         i, j, k, c, s := ' ', a_srok_lech := {}, a_period_stac := {}, a_disp := {}, ;
@@ -1756,12 +1756,12 @@ Function verify_1_sluch(fl_view)
         if empty(onkdi->DIAG_DATE)
           aadd(arr_onkdi0, .f.)
         else
-          if is_gisto .and. onkdi->DIAG_DATE != d1
-            aadd(ta, 'для гистологии дата взятия материала ' + date_8(onkdi->DIAG_DATE) + 'г. не равняется дате начала лечения ' + date_8(d1) + 'г.')
-          elseif onkdi->DIAG_DATE < 0d20180901
-            fl_krit_date := .t.
-            //aadd(ta, 'Дата взятия материала ' + date_8(onkdi->DIAG_DATE) + 'г. меньше КРИТИЧЕСКОЙ даты')
-          endif
+          // if is_gisto .and. onkdi->DIAG_DATE != d1
+          //   aadd(ta, 'для гистологии дата взятия материала ' + date_8(onkdi->DIAG_DATE) + 'г. не равняется дате начала лечения ' + date_8(d1) + 'г.')
+          // elseif onkdi->DIAG_DATE < 0d20180901
+          //   fl_krit_date := .t.
+          //   //aadd(ta, 'Дата взятия материала ' + date_8(onkdi->DIAG_DATE) + 'г. меньше КРИТИЧЕСКОЙ даты')
+          // endif
         endif
         do while onkdi->kod == human->kod .and. !eof()
           if onkdi->DIAG_TIP == 1

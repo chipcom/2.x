@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 09.12.23 добавление или редактирование случая (листа учета)
+// 27.12.23 добавление или редактирование случая (листа учета)
 Function oms_sluch_main( Loc_kod, kod_kartotek )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -1664,9 +1664,9 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
             @ ++j, 3 Say 'Гистология / иммуногистохимия' Get mB_DIAG ;
               reader {| x| menu_reader( x, mmb_diag, A__MENUVERT, , , .f. ) }
             @ ++j, 3 Say 'Дата взятия материала' Get mDIAG_DATE ;
-              When eq_any( m1b_diag, 97, 98 ) ;
-              valid {|| iif( Empty( mDIAG_DATE ) .or. mDIAG_DATE <= mk_data, .t., ;
-              func_error( 4, 'Дата взятия материала больше даты окончания лечения' ) ) }
+              When eq_any( m1b_diag, 97, 98 ) // ;
+              // valid {|| iif( Empty( mDIAG_DATE ) .or. mDIAG_DATE <= mk_data, .t., ;
+              // func_error( 4, 'Дата взятия материала больше даты окончания лечения' ) ) }
             If Len( mm_N009 ) == 0
               @ ++j, 3 Say 'Гистология: не нужно для ' + iif( is_mgi, 'МГИ',  mkod_diag )
             Else
