@@ -1793,7 +1793,7 @@ Function verify_1_sluch(fl_view)
         if len(arr_onkdi0) > 0
           aadd(ta, 'не заполнена дата взятия материала')
         endif
-        if is_gisto .and. emptyall(len(ar_N009),len(ar_N012))  // взятие гистологии и справочники пустые
+        if is_gisto .and. emptyall( len( ar_N009 ), len( ar_N012 ) ) .and. ( onksl->DS1_T != 5 )  // взятие гистологии и справочники пустые
           if empty(ngist)
             aadd(ta, 'для амбулаторного случая по взятию гистологического материала обязательно заполнение поля "Результаты гистологии"')
           endif
@@ -1802,7 +1802,7 @@ Function verify_1_sluch(fl_view)
             if len(arr_onkdi1) > 0
               aadd(ta, 'для листа учёта по молекулярной генетике не должна заполняться таблица гистологий')
             endif
-          elseif len(arr_onkdi1) != len(ar_N009)
+          elseif len(arr_onkdi1) != len(ar_N009)  .and. ( onksl->DS1_T != 5 )
             aadd(ta, 'ошибки заполнения таблицы гистологий')
           endif
           if len(arr_onkdi2) != len(ar_N012)

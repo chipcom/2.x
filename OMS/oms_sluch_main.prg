@@ -1653,7 +1653,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         // проведение гистологии или иммуногистохимии
         If ! only_control_onko( mNPR_MO, mNPR_DATE, m1rslt, m1ishod )
         // If only_control_onko( mNPR_MO, mNPR_DATE, m1rslt, m1ishod )
-          If Len( mm_N009 ) == 0 .and. Len( mm_N012 ) == 0
+          If Len( mm_N009 ) == 0 .and. Len( mm_N012 ) == 0 .and. m1DS1_T != 5
             If is_gisto
               @ ++j, 3 Say 'Результаты гистологии' Get mrez_gist ;
                 reader {| x| menu_reader( x, { {| k, r, c| get_rez_gist( k, r, c ) } }, A__FUNCTION, , , .f. ) }
@@ -1882,6 +1882,16 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         Use ( cur_dir + 'tmp_onkdi' ) New Alias TDIAG
         Zap
         If eq_any( m1B_DIAG, 97, 98 ) // гистология:98-сделана, 97-нет результата
+
+          if m1DS1_T == 5 .and. Len( mm_N009 ) == 0 .and. Len( mm_N012 ) == 0
+            Append Blank
+            tdiag->DIAG_DATE := mDIAG_DATE
+            tdiag->DIAG_TIP := 1 // 1 - гистологический признак
+            tdiag->DIAG_CODE := 0
+            tdiag->DIAG_RSLT := 0
+            tdiag->REC_RSLT := 1
+          endif
+          
           If Len( mm_N009 ) > 0
             For i := 1 To Min( 2, Len( mm_N009 ) )
               Append Blank
