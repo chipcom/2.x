@@ -236,7 +236,7 @@ Function create_double_sl()
                 @ 3, 42 say padc('2: с ' + date_8(ln_data2)+ ' по ' + date_8(lk_data2), 35) color color8
                 if f_Esc_Enter('создания двойного случая', .t.)
                   mywait('Проверка (попытка пересчёта) цены КСГ первого случая.')
-                  recount_double_sl(glob_perso, lk_data)
+                  recount_double_sl(glob_perso, lk_data2)
                   mywait('Выполняется операция слияния двух листов учёта в двойной.')
                   use_base('human')
                   goto (glob_perso)
@@ -750,7 +750,7 @@ function exist_reserve_KSG(kod_pers, aliasHUMAN)
     // Проведение антимикробной терапии инфекций, вызванных полирезистентными микроорганизмами (уровень 2) (КСГ st36.014)
     // Проведение антимикробной терапии инфекций, вызванных полирезистентными микроорганизмами (уровень 3) (КСГ st36.015)
     // Проведение иммунизации против респираторно-синцитиальной вирусной инфекции (КСГ st36.025, st36.026)
-    if is_ksg(lshifr) .and. combined_KSG(lshifr)
+    if is_ksg( lshifr ) .and. combined_KSG( lshifr, isPartDoubleSl( 'HUMAN' ) )
       ret := .t.
       exit
     endif
@@ -785,3 +785,6 @@ function diagnosis_for_replacement( cDiag, nUsl_ok, double_sl )
 
   return ascan(aDiag, alltrim(cDiag)) > 0
 
+function isPartDoubleSl( aliasHUMAN )
+
+  return ( (aliasHUMAN)->ishod == 89 .or. (aliasHUMAN)->ishod == 88)
