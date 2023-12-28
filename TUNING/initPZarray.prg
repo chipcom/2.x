@@ -756,8 +756,9 @@ function get_array_PZ_18()
 
 function fill_PZ_array_from_file(work_year, arr)
   local file_index
-  local i, sbase
+  local i, sbase, oldSelect
 
+  oldSelect := select()
   sbase :=  prefixFileRefName(work_year) + 'unit'  // справочник на конкретный год
   file_index := cur_dir + sbase + sntx
 
@@ -779,6 +780,8 @@ function fill_PZ_array_from_file(work_year, arr)
     next
     unit->( dbCloseArea() )
   endif
+
+  select( oldSelect )
 
   return nil
 

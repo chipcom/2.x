@@ -98,9 +98,9 @@ Function create_reestr()
     If human->tip_h == B_STANDART .and. emptyall( human_->reestr, human->schet ) ;
         .and. ( human->cena_1 > 0 .or. human_->USL_OK == 4 .or. tip_lu == TIP_LU_ONKO_DISP ) ;
         .and. Val( human_->smo ) > 0 .and. human_->ST_VERIFY >= 5 // и проверили
-      If tmp->kol < 999999
+      If tmp->kol < 999999 
         ++k
-        If ! exist_reserve_ksg( human->kod, 'HUMAN' )
+        If ! exist_reserve_ksg( human->kod, 'HUMAN', (HUMAN->ishod == 89 .or. HUMAN->ishod == 88) )
           tmp->kol++
           tmp->min_date := Min( tmp->min_date, human->k_data )
         Endif

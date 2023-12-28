@@ -34,7 +34,7 @@ Function oms_double(k)
   endif
   return NIL
 
-// 22.12.23 склеить два случая
+// 28.12.23 склеить два случая
 Function create_double_sl()
   Local buf, str_sem, str_sem2, i, d, fl, lshifr, arr_m, mas_pmt, buf24, buf_scr, srec, old_yes_h_otd := yes_h_otd
   local fl_reserve_1, fl_reserve_2  // если в случае присутствуют 
@@ -121,7 +121,7 @@ Function create_double_sl()
           glob_uch[2] := inieditspr(A__POPUPMENU, dir_server + 'mo_uch', human->LPU)
           fl := .f.
           use_base('lusl')
-          fl_reserve_1 := exist_reserve_KSG(glob_perso, 'HUMAN')
+          fl_reserve_1 := exist_reserve_KSG(glob_perso, 'HUMAN', (HUMAN->ishod == 89 .or. HUMAN->ishod == 88) )
           if ! fl_reserve_1
             if lk_data == ln_data
               func_error(4, 'Дата начала не может равняться дате окончания лечения!')
@@ -191,7 +191,7 @@ Function create_double_sl()
               // elseif (lk_data != human->n_data) .and. !find_reserve_1
               //   func_error(4, 'Дата начала 2-го случая должна быть равна дате окончания 1-го случая!')
               else
-                fl_reserve_2 := exist_reserve_KSG(glob_perso2, 'HUMAN')
+                fl_reserve_2 := exist_reserve_KSG(glob_perso2, 'HUMAN', (HUMAN->ishod == 89 .or. HUMAN->ishod == 88) )
                 if (lk_data != human->n_data) .and. ! fl_reserve_1 .and. ! fl_reserve_2
                   func_error(4, 'Дата начала 2-го случая должна быть равна дате окончания 1-го случая!')
                 else
@@ -684,8 +684,8 @@ Function f1_input_double_sl()
   endif
   return fl
 
-// 19.11.23
-function combined_KSG(cShifr)
+// 28.12.23
+function combined_KSG(cShifr, double_sl)
   // реинфузия аутокрови (КСГ st36.009, выбирается по услуге A16.20.078)
   // баллонная внутриаортальная контрпульсация (КСГ st36.010, выбирается по услуге A16.12.030)
   // экстракорпоральная мембранная оксигенация (КСГ st36.011, выбирается по услуге A16.10.021.001)
@@ -698,10 +698,18 @@ function combined_KSG(cShifr)
                   'st36.011', ; // A16.10.021.001
                   'st36.013', ;
                   'st36.014', ;
-                  'st36.015', ;
-                  'st36.025', ;
-                  'st36.026' ;
-               }
+                  'st36.015' ;  //, ;
+                }
+              //     'st36.025', ;
+              //     'st36.026' ;
+              //  }
+
+  default double_sl to .f.
+  if double_sl
+    aadd( aKsg, 'st36.025' )
+    aadd( aKsg, 'st36.026' )
+  endif
+
   return ascan(aKSG, alltrim(cShifr)) > 0
 
 // 19.11.23

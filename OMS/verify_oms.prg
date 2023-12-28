@@ -5,7 +5,7 @@
 
 #define max_rec_reestr 9999
 
-// 27.04.23
+// 28.12.23
 Function verify_OMS(arr_m, fl_view)
   Local ii := 0, iprov := 0, inprov := 0, ko := 2, fl, name_file := cur_dir + 'err_sl' + stxt, ;
         name_file2, name_file3, kr_unlock, i, ;
@@ -127,7 +127,7 @@ Function verify_OMS(arr_m, fl_view)
         endif
         if fl
           ++iprov
-          if !fl_view .and. human->ishod != 88 .and. ! exist_reserve_KSG(human->kod, 'HUMAN') // это не 1-ый л/у в двойном случае
+          if !fl_view .and. human->ishod != 88 .and. ! exist_reserve_KSG(human->kod, 'HUMAN', (HUMAN->ishod == 89 .or. HUMAN->ishod == 88) ) // это не 1-ый л/у в двойном случае
             select TMPB
             find (str(human->kod, 7))
             if !found()
@@ -203,7 +203,7 @@ Function verify_OMS(arr_m, fl_view)
         select HUMAN
         goto (human_3->kod)
         if human_->ST_VERIFY >= 5 // если 1-ый л/у также прошёл проверку
-          if !exist_reserve_KSG(HUMAN->kod, 'HUMAN')
+          if !exist_reserve_KSG(HUMAN->kod, 'HUMAN', (HUMAN->ishod == 89 .or. HUMAN->ishod == 88) )
             ln_data := human->n_data
           endif
           lcena += human->cena_1

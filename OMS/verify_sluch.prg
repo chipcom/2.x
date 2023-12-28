@@ -6,7 +6,7 @@
 
 Static sadiag1  // := {}
 
-// 27.12.23
+// 28.12.23
 Function verify_1_sluch(fl_view)
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1, ;
         i, j, k, c, s := ' ', a_srok_lech := {}, a_period_stac := {}, a_disp := {}, ;
@@ -92,7 +92,7 @@ Function verify_1_sluch(fl_view)
   arrV018 := getV018(human->k_data)
   arrV019 := getV019(human->k_data)
 
-  reserveKSG_1 := exist_reserve_KSG(human->kod, 'HUMAN')
+  reserveKSG_1 := exist_reserve_KSG(human->kod, 'HUMAN', (HUMAN->ishod == 89 .or. HUMAN->ishod == 88) )
 
   ym2 := left(dtos(d2), 6)
   d1_year := year(d1)
@@ -156,7 +156,7 @@ Function verify_1_sluch(fl_view)
     // если диапазон лечения перекрывается в стационаре и дневном стационаре
     if fl .and. eq_any(human_->USL_OK, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL)
 
-      reserveKSG_2 := exist_reserve_KSG(human->kod, 'HUMAN')
+      reserveKSG_2 := exist_reserve_KSG(human->kod, 'HUMAN', (HUMAN->ishod == 89 .or. HUMAN->ishod == 88) )
 
       fl1 := (left(dtos(human->k_data), 6) == ym2)   // один и тот же месяц окончания лечения
       fl2 := overlap_diapazon(human->n_data, human->k_data, d1, d2) // перекрывается диапазон лечения
