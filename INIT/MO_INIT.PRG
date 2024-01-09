@@ -6,15 +6,6 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// ** 06.08.17 условное индексирование цен на услуги в 2017 году
-// Function f_index_uslc()
-//   if is_adres_podr
-//     return (codemo == glob_mo[_MO_KOD_TFOMS] .or. codemo == glob_podr_2)
-//   else
-//     return (codemo == glob_mo[_MO_KOD_TFOMS])
-//   endif
-//   return .t.
-
 // 21.06.23 начальная инициализация программы (до входа в Reconstruct_BD)
 Function Init_first()
   Local buf := save_maxrow()
@@ -280,7 +271,7 @@ Function Init_first()
   rest_box(buf)
   return NIL
 
-** 05.05.19 инициализация программы
+// 09.01.24 инициализация программы
 Function Init_Program()
 Public mm_kdp2 := {{"в МО", 0}, {"КДП2", 1}, {"РДЛ ", 2}}
 Public mm_vokod := {{"в МО ", 0}, {"ВОКОД", 3}}
@@ -306,7 +297,7 @@ Public glob_arr_usl_LIS := { ;
   "4.14.76" , ;//   "кортизол (гормон)"
   "4.14.77" ; //   "тестостерон (гормон)"
 } 
-InitSpravFFOMS()
+
 // инициализация справочника специальностей в виде DBF-файла
 init_tmp_prvs(,.t.)
 // InitSpravOthers()
