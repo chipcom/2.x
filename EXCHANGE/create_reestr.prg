@@ -6,12 +6,14 @@
 Static Sreestr_sem := "Работа с реестрами"
 Static Sreestr_err := "В данный момент с реестрами работает другой пользователь."
 
-// 26.12.23
+// 10.01.24
 Function create_reestr()
 
-  Local buf := save_maxrow(), i, j, k := 0, k1 := 0, arr, bSaveHandler, fl, rec, pole, arr_m
+  Local buf := save_maxrow(), i, j, k := 0, k1 := 0, arr, bSaveHandler, fl, pole, arr_m
   Local nameArr //, funcGetPZ
   Local tip_lu
+
+  local lenPZ := 0  // кол-во строк план заказа на год составления реестра
 
   If ! hb_user_curUser:isadmin()
     Return func_error( 4, err_admin )
@@ -32,6 +34,7 @@ Function create_reestr()
   If !myfiledeleted( cur_dir + 'tmp' + sdbf )
     Return Nil
   Endif
+
   arr := { 'Предупреждение!', ;
     '', ;
     'Во время составления реестра', ;
@@ -67,12 +70,21 @@ Function create_reestr()
     { 'SUMMA',       'N',    15,     2 }, ;
     { 'KOD',         'N',     6,     0 } }
 
-  // for i := 0 to 99
-  For i := 0 To 150   // для таблицы _moXunit 03.02.23
-    AAdd( adbf, { 'PZ' + lstr( i ), 'N', 9, 2 } )
-  Next
   mnyear := arr_m[ 1 ]
   mnmonth := arr_m[ 3 ]
+  
+  private p_array_PZ
+
+// перенесено из reestrOMS_XML
+  p_array_PZ := get_array_pz( mnyear )  // получим массив план-заказа на год составления реестра
+  lenPZ := len( p_array_PZ )
+// конец перенесено
+
+//  For i := 0 To 150   // для таблицы _moXunit 03.02.23
+  For i := 0 To lenPZ   // для таблицы _moXunit 03.02.23
+    AAdd( adbf, { 'PZ' + lstr( i ), 'N', 9, 2 } )
+  Next
+
   dbCreate( cur_dir + 'tmp', adbf )
 
   Use ( cur_dir + 'tmp' ) New Alias TMP
