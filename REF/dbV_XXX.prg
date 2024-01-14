@@ -1039,12 +1039,49 @@ function getV030()
 function get_schemas_lech(_degree, ldate)
   local _arr := {}, row
 
+//  local db
+//  local stmt
+//  local d1, d2
+
   if ValType(_degree) == 'C' .and. empty(_degree)
     return _arr
   endif
   if ValType(_degree) == 'N' .and. _degree == 0
     return _arr
   endif
+
+//  db := openSQL_DB()
+//  Set(_SET_DATEFORMAT, 'yyyy-mm-dd')
+///  stmt := sqlite3_prepare( db, 'SELECT ' + ;
+//    'schemcode, ' + ;
+//    'scheme, ' + ;
+//    'degree, ' + ;
+//    'comment, ' + ;
+//    'datebeg, ' + ;
+//    'dateend ' + ;
+//    'FROM v030 WHERE ( degree = :degree )' )
+//    // 'FROM v030 WHERE ( degree = :degree ) AND ( DATE(:l_date) BETWEEN dategeg AND dateend)' )
+
+//  sqlite3_reset( stmt )  
+//  if sqlite3_bind_int( stmt, 1, _degree ) == SQLITE_OK
+//    // .AND. sqlite3_bind_text( stmt, 2, dtoc( ldate ) ) == SQLITE_OK
+//    do while sqlite3_step( stmt ) == SQLITE_ROW
+//      d1 := ctod(sqlite3_column_text( stmt, 5 ))
+//      d2 := ctod(sqlite3_column_text( stmt, 6 ))
+//      if between_date(d1, d2, ldate)
+//        aadd(_arr, {alltrim(sqlite3_column_text( stmt, 2 )), alltrim(sqlite3_column_text( stmt, 1 )), ;
+//          sqlite3_column_int( stmt, 3 ), alltrim( hb_Utf8ToStr( sqlite3_column_blob( stmt, 4 ), 'RU866' ) ), ;
+//          d1, d2 ;
+//        })
+//      endif
+//    enddo
+//  endif
+
+//  sqlite3_clear_bindings( stmt )
+//  sqlite3_finalize( stmt )
+//  Set(_SET_DATEFORMAT, 'dd.mm.yyyy')
+//  db := nil
+
   for each row in getV030()
     if (row[3] == _degree) .and. between_date(row[5], row[6], ldate)
       aadd(_arr, { row[1], row[2], row[3], row[4], row[5], row[6] })

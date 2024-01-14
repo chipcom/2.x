@@ -2,32 +2,31 @@
 
 #require 'hbsqlit3'
 
-// 26.01.23 вернуть массив по справочнику Минздрава по Степень тяжести состояния пациента OID 1.2.643.5.1.13.13.11.1006.xml
+// 13.01.24 вернуть массив по справочнику Минздрава по Степень тяжести состояния пациента OID 1.2.643.5.1.13.13.11.1006.xml
 function get_severity()
-  // Local dbName, dbAlias := 'sev'
-  // local tmp_select := select()
-  static _arr   // := {}
+  static _arr
   static time_load
   local db
-  local aTable, row
+  local aTable
   local nI
 
   if timeout_load(@time_load)
     _arr := {}
     Set(_SET_DATEFORMAT, 'yyyy-mm-dd')
     db := openSQL_DB()
+    // выбираем только до 4 степени тяжести по приказу
     aTable := sqlite3_get_table(db, 'SELECT ' + ;
         'id, ' + ;
         'name, ' + ;
         'syn, ' + ;
         'sctid, ' + ;
         'sort ' + ;
-        'FROM Severity')
+        'FROM Severity ' + ;
+        'WHERE id <= 4' ;
+    )
     if len(aTable) > 1
       for nI := 2 to Len( aTable )
-        if val(aTable[nI, 1]) <= 4  // пока только до 4 степени тяжести
-          aadd(_arr, {alltrim(aTable[nI, 2]), val(aTable[nI, 1]), alltrim(aTable[nI, 3]), val(aTable[nI, 4]), val(aTable[nI, 5])})
-        endif
+        aadd(_arr, {alltrim(aTable[nI, 2]), val(aTable[nI, 1]), alltrim(aTable[nI, 3]), val(aTable[nI, 4]), val(aTable[nI, 5])})
       next
     endif
     Set(_SET_DATEFORMAT, 'dd.mm.yyyy')
