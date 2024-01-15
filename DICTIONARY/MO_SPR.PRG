@@ -1812,7 +1812,7 @@ Function ini_kod_podr( lkod )
 
   Return s
 
-// редактирование справочника учреждений
+// 15.01.24 редактирование справочника учреждений
 Function edit_uch()
 
   Local blk, arr[ US_LEN ]
@@ -1832,6 +1832,7 @@ Function edit_uch()
   arr[ US_EDIT_SPR ] := { { 'name', 'C', 30, 0, , , Space( 30 ), , 'Наименование учреждения' }, ;
     { 'short_name', 'C', 5, 0, , , Space( 5 ), , 'Сокращённое наименование' }, ;
     { 'ADDRESS', 'C', 150, 0, , , Space( 150 ), , 'Адрес' }, ;
+    { 'IDCHIEF', 'N', 4, 0, , , , , 'Таб.№ руководителя (временно код из MO_PERS)' }, ;
     { 'is_talon', 'N', 1, 0, , ;
     {| x| menu_reader( x, mm_danet, A__MENUVERT, , , .f. ) }, ;
     0, {| x| inieditspr( A__MENUVERT, mm_danet, x ) }, ;
