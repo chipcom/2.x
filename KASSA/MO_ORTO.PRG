@@ -890,7 +890,7 @@ Function f3e_o_kopl()
 @ 23,2 say padl("Итого: "+lstr(mcena_opl,11,2),20) color "W+/N"
 return NIL
 
-***** 19.02.19
+***** 15.01.24
 Function f2e_o_kopl(nKey,oBrow)
 Static skod_vr := 0, sn_kvit := 0
 LOCAL flag := -1, buf := savescreen(), fl := .f., rec, ;
@@ -1203,6 +1203,10 @@ do case
     endif
     Private p_summa := round_5(ho->cena_opl,2), fl_sdacha := .f.,;
             mplat_fio := "", mplat_inn := ""
+    if glob_mo[_MO_KOD_TFOMS] == '605301' // ЗАО "Стоматолог"
+       mplat_fio := if(nKey == K_INS, space(40), human->plat_fio)
+       mplat_inn := if(nKey == K_INS, space(12), human->plat_inn)
+    endif  
     v_summa := v_sdacha := v_bank := 0
     if yes_chek(@v_summa,@v_sdacha,@v_bank,,@maddress,@tip_kart) .and.;
       chek_fr(round_5(v_summa,2),v_sdacha,@ln_chek,round_5(v_bank,2),2,@fr_zavodnomer,maddress,tip_kart,tip_oplatFR)
