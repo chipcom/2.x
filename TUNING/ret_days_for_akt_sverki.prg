@@ -1,17 +1,18 @@
-#include "inkey.ch"
-#include "function.ch"
-#include "edit_spr.ch"
-#include "chip_mo.ch"
+#include 'hbhash.ch' 
+#include 'common.ch' 
+#include 'inkey.ch'
+#include 'function.ch'
+#include 'edit_spr.ch'
+#include 'chip_mo.ch'
 
 //  16.01.24 график регистрации счетов, включаемых в акт сверки на 2023 год
 //             в соответствии с письмом ТФОМС от 27.12.2022г. №03-30/385
 // !!! ВНИМАНИЕ
-FUNCTION ret_days_for_akt_sverki( arr_m, /*@*/b1,/*@*/b2,/*@*/a1,/*@*/a2)
+FUNCTION ret_days_for_akt_sverki( arr_m, /*@*/b1, /*@*/b2, /*@*/a1, /*@*/a2 )
    // b1 - период регистрации счетов - начало
    // b2 - период регистрации счетов - окончание
    // a1 - период регистрации РАК - начало
    // a2 - период регистрации РАК - окончание
-
 
    STATIC sd16 :=  { 12, 4, 7, 6, 7, 7, 5, 7, 7, 8, 7, 19 }
    STATIC sd17 :=  { 9, 7, 7, 5, 7, 7, 7, 7, 6, 8, 7, 18 }
@@ -31,19 +32,48 @@ FUNCTION ret_days_for_akt_sverki( arr_m, /*@*/b1,/*@*/b2,/*@*/a1,/*@*/a2)
    STATIC sd24 :=  { 7,  7,  5,  8,  7,  5,  7,  6,  7,  7,  6, 14 }
    STATIC sad24 := { 13, 14, 11, 15, 14, 11, 13, 12, 11, 13, 12, 16 }
    
+//   static arr
 
    LOCAL y := arr_m[ 1 ], m := arr_m[ 2 ]
 
+//   local aa, aSd, aSad
+
    b1 := b2 := a1 := a2 := 0
 
+//   if isnil( arr )
+//      arr := hb_hash()
+//      hb_hSet( arr, 2017, { 19, 2, sd17, sad17 } )
+//      hb_hSet( arr, 2018, { 24, 25, sd18, sad18 } )
+//      hb_hSet( arr, 2019, { 21, 22, sd19, sad19 } )
+//      hb_hSet( arr, 2020, { 17, 20, sd20, sad20 } )
+//      hb_hSet( arr, 2021, { 27, 18, sd21, sad21 } )
+//      hb_hSet( arr, 2022, { 27, 18, sd22, sad22 } )
+//      hb_hSet( arr, 2023, { 21, 21, sd23, sad23 } )
+//      hb_hSet( arr, 2024, { 31, 31, sd24, sad24 } )
+//   endif
+
+//   if hb_hHaskey( arr, y )
+//      aa := hb_hGet( arr, y )
+//      b1 := aa[ 1 ]
+//      a1 := aa[ 2 ]
+//      aSd := aa[ 3 ]
+//      aSad := aa[ 4 ]
+//      if m > 1
+//         b1 := aSd[ m - 1 ]
+//         a1 := aSad[ m - 1 ]
+//      endif
+//      b2 := aSd[ m ]
+//      a2 := aSad[ m ]  
+//   endif
+
    IF y == 2024
-   b1 := 31 ; a1 := 31  // поставил 31.01 всместо 01.02  - начало регистрации
-   IF m > 1
-      b1 := sd24[ m - 1 ]
-      a1 := sad24[ m - 1 ]
-   ENDIF
-   b2 := sd24[ m ]
-   a2 := sad24[ m ]  
+      b1 := 31 ; a1 := 31  // поставил 31.01 всместо 01.02  - начало регистрации
+      IF m > 1
+         b1 := sd24[ m - 1 ]
+         a1 := sad24[ m - 1 ]
+      ENDIF
+      b2 := sd24[ m ]
+      a2 := sad24[ m ]  
    ELSEIF y == 2023
       b1 := 21 ; a1 := 21  // проверить
       IF m > 1
