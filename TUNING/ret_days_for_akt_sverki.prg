@@ -5,7 +5,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-//  16.01.24 график регистрации счетов, включаемых в акт сверки на 2023 год
+// 17.01.24 график регистрации счетов, включаемых в акт сверки на 2023 год
 //             в соответствии с письмом ТФОМС от 27.12.2022г. №03-30/385
 // !!! ВНИМАНИЕ
 FUNCTION ret_days_for_akt_sverki( arr_m, /*@*/b1, /*@*/b2, /*@*/a1, /*@*/a2 )
@@ -27,117 +27,122 @@ FUNCTION ret_days_for_akt_sverki( arr_m, /*@*/b1, /*@*/b2, /*@*/a1, /*@*/a2 )
    STATIC sad21 := { 8, 9, 8, 11, 8, 13, 12, 13, 13, 15, 13, 20 }
    STATIC sd22 :=  { 15, 5, 7, 12, 7, 7, 5, 7, 7, 10, 7, 13 }
    STATIC sad22 := { 17, 14, 13, 18, 14, 13, 11, 13, 13, 14, 13, 19 }
-   STATIC sd23 :=  { 14,  7,  7, 10,  7,  7,  7,  7,  6,  8,  7, 15 }
-   STATIC sad23 := { 14, 14, 13, 16, 14, 13, 11, 13, 12, 14, 13, 17 }
-   STATIC sd24 :=  { 7,  7,  5,  8,  7,  5,  7,  6,  7,  7,  6, 14 }
-   STATIC sad24 := { 13, 14, 11, 15, 14, 11, 13, 12, 11, 13, 12, 16 }
+//   STATIC sd23 :=  { 14,  7,  7, 10,  7,  7,  7,  7,  6,  8,  7, 15 }
+//   STATIC sad23 := { 14, 14, 13, 16, 14, 13, 11, 13, 12, 14, 13, 17 }
+//   STATIC sd24 :=  { 7,  7,  5,  8,  7,  5,  7,  6,  7,  7,  6, 14 }
+//   STATIC sad24 := { 13, 14, 11, 15, 14, 11, 13, 12, 11, 13, 12, 16 }
    
-//   static arr
+   static hArr // Хэш массив, ключ - год, значение массив структуры:
+               // [1] - период регистрации счетов - начало,
+               // [2] - период регистрации счетов - окончание,
+               // [3] - период регистрации РАК по месяцам - начало,
+               // [4] - период регистрации РАК по месяцам - окончание
 
    LOCAL y := arr_m[ 1 ], m := arr_m[ 2 ]
-
-//   local aa, aSd, aSad
+   local aa, aSd, aSad
 
    b1 := b2 := a1 := a2 := 0
 
-//   if isnil( arr )
-//      arr := hb_hash()
-//      hb_hSet( arr, 2017, { 19, 2, sd17, sad17 } )
-//      hb_hSet( arr, 2018, { 24, 25, sd18, sad18 } )
-//      hb_hSet( arr, 2019, { 21, 22, sd19, sad19 } )
-//      hb_hSet( arr, 2020, { 17, 20, sd20, sad20 } )
-//      hb_hSet( arr, 2021, { 27, 18, sd21, sad21 } )
-//      hb_hSet( arr, 2022, { 27, 18, sd22, sad22 } )
-//      hb_hSet( arr, 2023, { 21, 21, sd23, sad23 } )
-//      hb_hSet( arr, 2024, { 31, 31, sd24, sad24 } )
-//   endif
+   if isnil( hArr )
+      hArr := hb_hash()
+      hb_hSet( hArr, 2017, { 19, 2, sd17, sad17 } )
+      hb_hSet( hArr, 2018, { 24, 25, sd18, sad18 } )
+      hb_hSet( hArr, 2019, { 21, 22, sd19, sad19 } )
+      hb_hSet( hArr, 2020, { 17, 20, sd20, sad20 } )
+      hb_hSet( hArr, 2021, { 27, 18, sd21, sad21 } )
+      hb_hSet( hArr, 2022, { 27, 18, sd22, sad22 } )
+      hb_hSet( hArr, 2023, { 21, 21, { 14,  7,  7, 10,  7,  7,  7,  7,  6,  8,  7, 15 }, ;
+                                    { 14, 14, 13, 16, 14, 13, 11, 13, 12, 14, 13, 17 } } )
+      hb_hSet( hArr, 2024, { 31, 31, { 7,  7,  5,  8,  7,  5,  7,  6,  7,  7,  6, 14 }, ;
+                                    { 13, 14, 11, 15, 14, 11, 13, 12, 11, 13, 12, 16 } } )
+   endif
 
-//   if hb_hHaskey( arr, y )
-//      aa := hb_hGet( arr, y )
-//      b1 := aa[ 1 ]
-//      a1 := aa[ 2 ]
-//      aSd := aa[ 3 ]
-//      aSad := aa[ 4 ]
-//      if m > 1
-//         b1 := aSd[ m - 1 ]
-//         a1 := aSad[ m - 1 ]
-//      endif
-//      b2 := aSd[ m ]
-//      a2 := aSad[ m ]  
-//   endif
+   if hb_hHaskey( hArr, y )
+      aa := hb_hGet( hArr, y )
+      b1 := aa[ 1 ]
+      a1 := aa[ 2 ]
+      aSd := aa[ 3 ]
+      aSad := aa[ 4 ]
+      if m > 1
+         b1 := aSd[ m - 1 ]
+         a1 := aSad[ m - 1 ]
+      endif
+      b2 := aSd[ m ]
+      a2 := aSad[ m ]  
+   endif
 
-   IF y == 2024
-      b1 := 31 ; a1 := 31  // поставил 31.01 всместо 01.02  - начало регистрации
-      IF m > 1
-         b1 := sd24[ m - 1 ]
-         a1 := sad24[ m - 1 ]
-      ENDIF
-      b2 := sd24[ m ]
-      a2 := sad24[ m ]  
-   ELSEIF y == 2023
-      b1 := 21 ; a1 := 21  // проверить
-      IF m > 1
-         b1 := sd23[ m - 1 ]
-         a1 := sad23[ m - 1 ]
-      ENDIF
-      b2 := sd23[ m ]
-      a2 := sad23[ m ]
-   ELSEIF y == 2022
-      b1 := 27 ; a1 := 18
-      IF m > 1
-         b1 := sd22[ m - 1 ]
-         a1 := sad22[ m - 1 ]
-      ENDIF
-      b2 := sd22[ m ]
-      a2 := sad22[ m ]
-   ELSEIF y == 2021
-      b1 := 27 ; a1 := 18
-      IF m > 1
-         b1 := sd21[ m - 1 ]
-         a1 := sad21[ m - 1 ]
-      ENDIF
-      b2 := sd21[ m ]
-      a2 := sad21[ m ]
-   ELSEIF y == 2020
-      b1 := 17 ; a1 := 20
-      IF m > 1
-         b1 := sd20[ m - 1 ]
-         a1 := sad20[ m - 1 ]
-      ENDIF
-      b2 := sd20[ m ]
-      a2 := sad20[ m ]
-   ELSEIF y == 2019
-      b1 := 21 ; a1 := 22
-      IF m > 1
-         b1 := sd19[ m - 1 ]
-         a1 := sad19[ m - 1 ]
-      ENDIF
-      b2 := sd19[ m ]
-      a2 := sad19[ m ]
-   ELSEIF y == 2018
-      b1 := 24 ; a1 := 25
-      IF m > 1
-         b1 := sd18[ m - 1 ]
-         a1 := sad18[ m - 1 ]
-      ENDIF
-      b2 := sd18[ m ]
-      a2 := sad18[ m ]
-      IF m == 12 .AND. glob_mo[ _MO_KOD_TFOMS ] == '134505'
-         b2 := a2 := 23
-      ENDIF
-   ELSEIF y == 2017
-      b1 := 19 ; a1 := 2
-      IF m > 1
-         b1 := sd17[ m - 1 ]
-         a1 := sad17[ m - 1 ]
-      ENDIF
-      b2 := sd17[ m ]
-      a2 := sad17[ m ]
-   ELSEIF y == 2016
-      IF m > 1
-         a1 := b1 := sd16[ m - 1 ]
-      ENDIF
-      a2 := b2 := sd16[ m ]
-   ENDIF
+//   IF y == 2024
+//      b1 := 31 ; a1 := 31  // поставил 31.01 всместо 01.02  - начало регистрации
+//      IF m > 1
+//         b1 := sd24[ m - 1 ]
+//         a1 := sad24[ m - 1 ]
+//      ENDIF
+//      b2 := sd24[ m ]
+//      a2 := sad24[ m ]  
+//   ELSEIF y == 2023
+//      b1 := 21 ; a1 := 21  // проверить
+//      IF m > 1
+//         b1 := sd23[ m - 1 ]
+//         a1 := sad23[ m - 1 ]
+//      ENDIF
+//      b2 := sd23[ m ]
+//      a2 := sad23[ m ]
+//   ELSEIF y == 2022
+//      b1 := 27 ; a1 := 18
+//      IF m > 1
+//         b1 := sd22[ m - 1 ]
+//         a1 := sad22[ m - 1 ]
+//      ENDIF
+//      b2 := sd22[ m ]
+//      a2 := sad22[ m ]
+//   ELSEIF y == 2021
+//      b1 := 27 ; a1 := 18
+//      IF m > 1
+//         b1 := sd21[ m - 1 ]
+//         a1 := sad21[ m - 1 ]
+//      ENDIF
+//      b2 := sd21[ m ]
+//      a2 := sad21[ m ]
+//   ELSEIF y == 2020
+//      b1 := 17 ; a1 := 20
+//      IF m > 1
+//         b1 := sd20[ m - 1 ]
+//         a1 := sad20[ m - 1 ]
+//      ENDIF
+//      b2 := sd20[ m ]
+//      a2 := sad20[ m ]
+//   ELSEIF y == 2019
+//      b1 := 21 ; a1 := 22
+//      IF m > 1
+//         b1 := sd19[ m - 1 ]
+//         a1 := sad19[ m - 1 ]
+//      ENDIF
+//      b2 := sd19[ m ]
+//      a2 := sad19[ m ]
+//   ELSEIF y == 2018
+//      b1 := 24 ; a1 := 25
+//      IF m > 1
+//         b1 := sd18[ m - 1 ]
+//         a1 := sad18[ m - 1 ]
+//      ENDIF
+//      b2 := sd18[ m ]
+//      a2 := sad18[ m ]
+//      IF m == 12 .AND. glob_mo[ _MO_KOD_TFOMS ] == '134505'
+//         b2 := a2 := 23
+//      ENDIF
+//   ELSEIF y == 2017
+//      b1 := 19 ; a1 := 2
+//      IF m > 1
+//         b1 := sd17[ m - 1 ]
+//         a1 := sad17[ m - 1 ]
+//      ENDIF
+//      b2 := sd17[ m ]
+//      a2 := sad17[ m ]
+//   ELSEIF y == 2016
+//      IF m > 1
+//         a1 := b1 := sd16[ m - 1 ]
+//      ENDIF
+//      a2 := b2 := sd16[ m ]
+//   ENDIF
 
    RETURN NIL
