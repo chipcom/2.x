@@ -414,7 +414,7 @@ Function dbf_equalization( lAlias, lkod )
   Return Nil
 
 // открытие файла базы данных в сети ТОЛЬКО ДЛЯ ЧТЕНИЯ
-Function r_use( cFile, cIndices, cAlias, lTryForever, lExcluUse )
+Function r_use_1( cFile, cIndices, cAlias, lTryForever, lExcluUse )
   Return g_use( cFile, cIndices, cAlias, lTryForever, lExcluUse, .t. )
 
 // монопольное открытие файла базы данных
@@ -459,6 +459,62 @@ Function g_use( cFile, cIndices, cAlias, lTryForever, lExcluUse, lREADONLY )
         cAlias, ;      // alias
         !lExcluUse, ;  // if(<.sh.> .or. <.ex.>, !<.ex.>, NIL)
         lREADONLY, ;   // readonly
+        'RU866' )
+      If !NetErr()
+        If Empty( cIndices )  // нет индексов при вызове ф-ии
+          lRetValue := .t.
+          dbClearIndex()  // все равно закрыть - для FOXPRO
+        Elseif !( lRetValue := g_index( cIndices ) )
+          Use  // закрыть БД при отсутствии индекса(ов)
+        Endif
+      Else
+        If !lTryForever
+          cMessage := 'Невозможно открыть файл ' + UpcFile
+          cMessage += ';Он занят другим пользователем'
+          cArray := AClone( c1Array )
+          AAdd( cArray, 'Завершить' )
+          If Alert( cMessage, cArray, color0 ) != 1
+            lRetValue := .f.
+          Endif
+        Endif
+      Endif
+    Enddo
+  Endif
+
+  Return ( lRetValue )
+
+// 18.01.24 открытие файла базы данных в сети
+Function r_use( cFile, cIndices, cAlias, lTryForever, lExcluUse )
+
+  // cFile - файл БД
+  // cIndices - список индексов (или строка в случае одного индекса)
+  // cAlias - строка алиаса
+  // lTryForever - логическая величина (.T. - пытаться бесконечно)
+  // lExcluUse - логическая величина (.T. - монопольное открытие БД)
+  Local cMessage, lRetValue, UpcFile, c1Array := { 'Попытаться снова' }, cArray
+
+  If '.DBF' == Upper( Right( cFile, 4 ) )
+    cFile := SubStr( cFile, 1, Len( cFile ) - 4 )
+  Endif
+  UpcFile := strippath( cFile )
+
+  Default cIndices TO {}, cAlias To UpcFile, lTryForever To .f., ;
+    lExcluUse To .f.
+  
+  If !File( cFile + '.DBF' ) // проверка на наличие файла
+    cMessage := 'ОШИБКА: Файл ' + UpcFile + ' не существует!'
+    cMessage += ';Операция прекращена'
+    Alert( cMessage, { 'Завершить' }, color0 )
+    lRetValue := .f.
+  Else
+    // Попытки открытия базы данных до успеха или отказа
+    Do While lRetValue == NIL
+      dbUseArea( .t., ;          // new
+        , ;            // rdd
+        cFile, ;       // db
+        cAlias, ;      // alias
+        !lExcluUse, ;  // if(<.sh.> .or. <.ex.>, !<.ex.>, NIL)
+        .t., ;   // readonly
         'RU866' )
       If !NetErr()
         If Empty( cIndices )  // нет индексов при вызове ф-ии
