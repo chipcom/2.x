@@ -788,7 +788,7 @@ function fill_PZ_array_from_file(work_year, arr)
 // 25.12.23
 FUNCTION initPZarray()
 
-  LOCAL nameArray
+  LOCAL nameArr
   LOCAL i, j, sbase, file_index
 
   PUBLIC glob_array_PZ_18 := { ;

@@ -234,3 +234,6 @@ mo_version.prg
 .\TUNING\codeVMP.prg
 
 .\ORGANIZATION\dbOrg.prg
+
+.\PLAN_ZAKAZ\pz_report.prg
+.\PLAN_ZAKAZ\pz_func.prg
