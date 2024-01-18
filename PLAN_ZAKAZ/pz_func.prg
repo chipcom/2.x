@@ -74,3 +74,27 @@ Function f_arr_plan_zakaz( lshifr, lyear )
     i := ascan( nameArrayPZ, { | x | x[ 1 ] == k } )
   endif
   return i
+
+// 29.12.21 вернуть код план-заказа по методу ВМП
+Function ret_PZ_VMP( lunit, kDate )
+  Local mpztip := 0
+  local sbase, nYear := WORK_YEAR
+
+  hb_default( @kDate, WORK_YEAR )
+
+  if valtype( kDate ) == 'D'
+    nYear := year( kDate )
+  elseif valtype( kDate ) == 'N' .and. kDate >= 2018
+    nYear := kDate
+  endif
+
+  if select( 'MOUNIT' ) == 0
+    sbase := prefixFileRefName( nYear ) + 'unit'
+    R_Use( dir_exe + sbase, cur_dir + sbase, 'MOUNIT' )
+  endif
+  select MOUNIT
+  find ( str( lunit, 3 ) )
+  if found() .and. mounit->pz > 0
+    mpztip := mounit->pz
+  endif
+  return mpztip
