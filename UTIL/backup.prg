@@ -7,12 +7,44 @@
 #define COMPRESSION 3
 #define YEAR_COMPRESSION 2
 
+// 20.01.24 резервное копирование файла ошибок на FTP
+function errorFileToFTP()
+
+  local nLen, aGauge, lCompress, fl := .f., zip_file
+  local ar := {}
+  
+  zip_file := cur_dir + 'mo' + AllTrim( glob_mo[ _MO_KOD_TFOMS ] ) + '_error' + Lower( szip )
+  ar := AAdd( ar, dir_server + 'error.txt' )
+
+  nLen := Len( ar )
+  aGauge := gaugenew( , , { 'R/BG*', 'R/BG*', 'R/BG*' }, 'Создание архива ' + zip_file, .t. )
+
+  lCompress := hb_ZipFile( zip_file, ar, COMPRESSION, ;
+    {| cFile, nPos | gaugedisplay( aGauge ), stat_msg( 'Добавление в архив файла ' + hb_FNameNameExt( cFile ) + ' ( ' + AllTrim( lstr( nPos ) ) + ' из ' + AllTrim( lstr( nLen ) ) + ' )' ) }, ;
+    .t., , .f., , {| nPos, nLen | gaugeupdate( aGauge, nPos / nLen ) } )
+  closegauge( aGauge ) // Закроем окно отображения бегунка
+
+  If ! lCompress
+    func_error( 4, 'Возникла ошибка при архивировании файла ошибок.' )
+  else
+    mywait( 'Отправка "' + zip_file + '" на FTP-сервер службы поддержки' )
+    If filetoftp( zip_file, .t. )
+      stat_msg( 'Файл ' + zip_file + ' успешно отправлен на сервер!' )
+      fl := .t.
+    Else
+      stat_msg( 'Ошибка отпрвки файла ' + zip_file + ' на сервер!' )
+    Endif
+    hb_vfErase( zip_file )
+  Endif
+
+  return fl
+
 // 05.05.21 запуск режима резервного копирования из меню
 Function m_copy_db( par )
   // par - 1 - резервная копия на диск
   // 2 - резервная копия на FTP-сервер
   // 3 - авторезервирование
-  Local s, zip_file
+  Local zip_file
 
   If ( zip_file := create_zip( par, '' ) ) == nil
     Return Nil
@@ -97,7 +129,7 @@ Function m_copy_db_from_end( del_last, spath )
 
 // 20.11.21
 Function fillzip( arr_f, sFileName )
-  Local hZip, aGauge, cFile
+  Local aGauge, cFile
   Local lCompress, nLen
 
   If Empty( arr_f )
@@ -128,12 +160,12 @@ Function create_zip( par, dir_archiv )
   Local arr_f, ar
   // Local blk := {| x | f_aadd_copy_db( arr_f, x ) }
   Local blk := {| x | AAdd( arr_f, x ) }
-  Local hZip, i, cPassword, fl := .t., aGauge, s, y
+  Local i, fl := .t., aGauge, y
   Local cFile, nLen
-  Local zip_file
+  Local zip_file, lCompress
   Local buf := SaveScreen()
   Local zip_xml_mo, zip_xml_tf, zip_napr_mo, zip_napr_tf
-  local afterDate := BoY(AddMonth(date(), -(12 * YEAR_COMPRESSION)))
+  local afterDate := BoY( AddMonth( date(), - ( 12 * YEAR_COMPRESSION ) ) )
 
   // Local time_zip := 0, t1
 
@@ -324,15 +356,15 @@ Function create_zip( par, dir_archiv )
   // Return Nil
 
 // 06.11.23 то же, что и ScanFiles, но по одной директории cPath
-FUNCTION scandirfiles_for_backup(cPath, cFilespec, blk, afterDate)
+FUNCTION scandirfiles_for_backup( cPath, cFilespec, blk, afterDate )
   LOCAL cFile
 
   DEFAULT cPath TO '', cFilespec TO '*.*'
-  default afterDate to BoY(AddMonth(date(), -12))  //один год
-  cFile := FILESEEK(cPath + cFileSpec , 32)
-  DO WHILE !EMPTY(cFile)
+  default afterDate to BoY( AddMonth( date(), -12 ) )  //один год
+  cFile := FILESEEK( cPath + cFileSpec , 32 )
+  DO WHILE !EMPTY( cFile )
     if FileDate() >= afterDate
-      eval(blk, cPath + cFile)         // вызов блока кода для каждого файла
+      eval( blk, cPath + cFile )         // вызов блока кода для каждого файла
     endif
     cFile := FILESEEK()              // следующий файл
   ENDDO
