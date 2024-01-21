@@ -7,14 +7,21 @@
 #define COMPRESSION 3
 #define YEAR_COMPRESSION 2
 
-// 20.01.24 резервное копирование файла ошибок на FTP
+// 21.01.24 резервное копирование файла ошибок на FTP
 function errorFileToFTP()
 
   local nLen, aGauge, lCompress, fl := .f., zip_file
-  local ar := {}
+  local ar := Array( 2 ), name_file, ft
   
+  // создадим файл с названием медицинской организации
+  name_file := cur_dir + 'Название_МО' + stxt
+  ft := tfiletext():new( name_file, , , , )
+  ft:add_string( hb_main_curOrg:Name_Tfoms )
+  ft := nil
+
   zip_file := cur_dir + 'mo' + AllTrim( glob_mo[ _MO_KOD_TFOMS ] ) + '_error' + Lower( szip )
-  ar := AAdd( ar, dir_server + 'error.txt' )
+  ar[ 1 ] := dir_server + 'error.txt'
+  ar[ 2 ] :=  name_file
 
   nLen := Len( ar )
   aGauge := gaugenew( , , { 'R/BG*', 'R/BG*', 'R/BG*' }, 'Создание архива ' + zip_file, .t. )
