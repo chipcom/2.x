@@ -2825,30 +2825,33 @@ Function inf_dvn( k )
     inf_ydvn()
   Case k == 41
     // ne_real()
-    mas_pmt := { "~Создание плана-графика", ;
-      "~Просмотр файлов обмена" }
-    mas_msg := { "Создание файла обмена R05... с планом-графиком по месяцам", ;
-      "Просмотр файлов обмена R05... и результатов работы с ними" }
-    mas_fun := { "inf_DVN(51)", ;
-      "inf_DVN(52)" }
-    popup_prompt( T_ROW, T_COL - 5, si5, mas_pmt, mas_msg, mas_fun )
+    if glob_mo[_MO_KOD_TFOMS] == '711001' // ЖД-больница
+      mas_pmt := { "~Создание плана-графика", ;
+                   "~Просмотр файлов обмена" }
+      mas_msg := { "Создание файла обмена R05... с планом-графиком по месяцам", ;
+                   "Просмотр файлов обмена R05... и результатов работы с ними" }
+      mas_fun := { "inf_DVN(51)", ;
+                   "inf_DVN(52)" }
+      popup_prompt( T_ROW, T_COL - 5, si5, mas_pmt, mas_msg, mas_fun )
+    endif  
   Case k == 42
     // ne_real()
-    mas_pmt := { "~Создание файлов обмена", ;
-      "~Просмотр файлов обмена" }
-    mas_msg := { "Создание файлов обмена R01... по всем месяцам", ;
-      "Просмотр файлов обмена R01... и результатов работы с ними" }
-    mas_fun := { "inf_DVN(61)", ;
-      "inf_DVN(62)" }
-    If need_delete_reestr_r01()
-      AAdd( mas_pmt, "~Аннулирование пакета" )
-      AAdd( mas_msg, "Аннулирование недописанного пакета файлов R01" )
-      AAdd( mas_fun, "delete_reestr_R01()" )
-    Endif
-
-    // et key K_CTRL_F10 to delete_month_R01()
-    popup_prompt( T_ROW, T_COL - 5, si6, mas_pmt, mas_msg, mas_fun )
-    // set key K_CTRL_F10 to
+    if glob_mo[_MO_KOD_TFOMS] == '711001' // ЖД-больница
+      mas_pmt := { "~Создание файлов обмена", ;
+                   "~Просмотр файлов обмена" }
+      mas_msg := { "Создание файлов обмена R01... по всем месяцам", ;
+                   "Просмотр файлов обмена R01... и результатов работы с ними" }
+      mas_fun := { "inf_DVN(61)", ;
+                   "inf_DVN(62)" }
+      If need_delete_reestr_r01()
+        AAdd( mas_pmt, "~Аннулирование пакета" )
+        AAdd( mas_msg, "Аннулирование недописанного пакета файлов R01" )
+        AAdd( mas_fun, "delete_reestr_R01()" )
+      Endif
+      // set key K_CTRL_F10 to delete_month_R01()
+      popup_prompt( T_ROW, T_COL - 5, si6, mas_pmt, mas_msg, mas_fun )
+      // set key K_CTRL_F10 to
+    endif
   Case k == 21
     If ( j := popup_prompt( T_ROW, T_COL - 5, 1, mas1pmt ) ) > 0
       f21_inf_dvn( j )
@@ -2867,29 +2870,30 @@ Function inf_dvn( k )
   Case k == 62
     f_view_r01()
   Case k == 43
-    ne_real()
-   /* mas_pmt := {"~Создание файлов обмена", ;
-                "~Просмотр файлов обмена"}
-    mas_msg := {"Создание файлов обмена R11... за конкретный месяц", ;
-                "Просмотр файлов обмена R11... и результатов работы с ними"}
-    mas_fun := {"inf_DVN(71)", ;
-                "inf_DVN(72)"}
-    if need_delete_reestr_R01()
-      aadd(mas_pmt, "~Аннулирование пакета")
-      aadd(mas_msg, "Аннулирование недописанного пакета R11")
-      aadd(mas_fun, "delete_reestr_R11()")
-    endif*/
-    /*
-    if glob_mo[_MO_KOD_TFOMS] == '161015' // КБ-11
-      aadd(mas_pmt, "~Повторный подбор пациентов")
-      aadd(mas_msg, "Повторный подбор пациентов")
-      aadd(mas_fun, "find_new_R00()")
-    endif
-    */
-    // set key K_CTRL_F10 to delete_month_R11()
-    // popup_prompt(T_ROW,T_COL-5,si7,mas_pmt,mas_msg,mas_fun)
-    // set key K_CTRL_F10 to
-
+    //ne_real()
+    if glob_mo[_MO_KOD_TFOMS] == '711001' // ЖД-больница
+      mas_pmt := {"~Создание файлов обмена", ;
+                  "~Просмотр файлов обмена"}
+      mas_msg := {"Создание файлов обмена R11... за конкретный месяц", ;
+                  "Просмотр файлов обмена R11... и результатов работы с ними"}
+      mas_fun := {"inf_DVN(71)", ;
+                  "inf_DVN(72)"}
+      if need_delete_reestr_R01()
+        aadd(mas_pmt, "~Аннулирование пакета")
+        aadd(mas_msg, "Аннулирование недописанного пакета R11")
+        aadd(mas_fun, "delete_reestr_R11()")
+      endif
+      /*
+      if glob_mo[_MO_KOD_TFOMS] == '161015' // КБ-11
+        aadd(mas_pmt, "~Повторный подбор пациентов")
+        aadd(mas_msg, "Повторный подбор пациентов")
+        aadd(mas_fun, "find_new_R00()")
+      endif
+      */
+      // set key K_CTRL_F10 to delete_month_R11()
+      popup_prompt(T_ROW,T_COL-5,si7,mas_pmt,mas_msg,mas_fun)
+      // set key K_CTRL_F10 to
+    endif  
   Case k == 71
     f_create_r11()
   Case k == 72

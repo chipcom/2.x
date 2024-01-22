@@ -7,16 +7,16 @@
 
 #define MONTH_UPLOAD 1 //МЕСЯЦ для выгрузки R11
 
-** 18.01.23 Создание файла обмена R11...
+** 22.01.24 Создание файла обмена R11...
 Function f_create_R11()
   Local buf := save_maxrow(), i, j, ir, s := "", arr := {}, fl := .t., fl1 := .f., a_reestr := {}, ar
   Private SMONTH := 1, mdate := sys_date, mrec := 1
   Private c_view := 0, c_found := 0, fl_exit := .f., pj, arr_rees := {},;
           pkol := 0, CODE_LPU := glob_mo[_MO_KOD_TFOMS], CODE_MO := glob_mo[_MO_KOD_FFOMS],;
           mkol := {0,0,0,0,0}, skol[5], ames[12,5], ame[12], bm := SMONTH,; // начальный месяц минус один
-          _arr_vozrast_DVN := ret_arr_vozrast_DVN(0d20221201)
+          _arr_vozrast_DVN := ret_arr_vozrast_DVN(0d20231201)
   
-  Private sgod := 2023
+  Private sgod := 2024
   //
   mywait()
   fl := .t.
@@ -64,7 +64,7 @@ Function f_create_R11()
     return NIL
   endif
   
-  if fl_1 .or. code_lpu == "321001"// не первый раз
+  if fl_1 //.or. code_lpu == "321001"// не первый раз
     R_Use(dir_server+"mo_dr05p",,"R05p")
     goto (mrec)
     skol[1] := r05p->KOL1
@@ -343,11 +343,6 @@ Function f1_create_R11(lm,fl_dr00)
   Local nsh := 3, smsg, lnn := 0 ,buf := save_maxrow()
   if !f_Esc_Enter("создания файла R11",.t.)
     return NIL
-  endif
-  if eq_any(CODE_LPU,'124528','184603','141016') .and. hb_fileExists(dir_server+"b18"+sdbf)
-    lnn := 100 // специально для 28-ой п-ки после объединения с 18-ой б-цей
-               // или для 3-ей п-ки после объединения с 12-ой п-кой
-               // или для Б16 после обьединения с Б24
   endif
   G_Use(dir_server+"mo_dr01m",,"RM")
   AddRecN()

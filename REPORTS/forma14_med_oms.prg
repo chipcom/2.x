@@ -4,7 +4,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 26.12.23 форма 14-МЕД (ОМС)
+// 22.01.24 форма 14-МЕД (ОМС)
 Function forma14_med_oms()
   Static group_ini := 'f14_med_oms'
   Local begin_date, end_date, buf := savescreen(), arr_m, i, j, k, k1, k2, ;
@@ -140,7 +140,7 @@ Function forma14_med_oms()
 
   
   ////////////////////////////////////////////////////////////////////
-  arr_m := {2023, 1, 12, 'за январь - сентябрь 2023 года', 0d20230101, 0d20230930}
+  arr_m := {2023, 1, 12, 'за январь - декабрь 2023 года', 0d20230101, 0d20231231}  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ////////////////////////////////////////////////////////////////////
   lal := create_name_alias('lusl', arr_m[1])
   lalf := create_name_alias('luslf', arr_m[1])
@@ -247,7 +247,7 @@ Function forma14_med_oms()
   set relation to recno() into HUMAN_, to recno() into HUMAN_2, to kod_k into KART
   //
   ////////////////////////////////////////////////////////////////////
-  mdate_rak := arr_m[6] + 12 // по какую дату РАК сумма к оплате 12.09.23
+  mdate_rak := arr_m[6] + 17 // по какую дату РАК сумма к оплате 17.01.24      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ////////////////////////////////////////////////////////////////////
   R_Use(dir_server + 'mo_xml', , 'MO_XML')
   R_Use(dir_server + 'mo_rak', , 'RAK')
@@ -273,9 +273,10 @@ Function forma14_med_oms()
       mdate1 := stod(strzero(schet_->nyear, 4) + strzero(schet_->nmonth, 2) + '25') // !!! 
       //
       // 2023 год
-        k := 6 // дата регистрации по 6.10.23
+        k := 17 // дата регистрации по 17.01.24 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       //
-      fl := between(mdate, arr_m[5], arr_m[6] + k) .and. between(mdate1, arr_m[5], arr_m[6]) // !!отч.период 2022 год
+      fl := between(mdate, arr_m[5], arr_m[6] + k) .and. between(mdate1, arr_m[5], arr_m[6]) // !!отч.период 2023 год
+     // @ 10,30 say mdate1
     endif
     if fl
       select HUMAN
