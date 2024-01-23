@@ -6,32 +6,42 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 26.12.23
+// 23.01.24
 Function arr_plan_zakaz( ly )
   Local i, apz := {}
   local nameArr //, funcGetPZ
+  local aValues
 
   DEFAULT ly TO WORK_YEAR
-  // nameArr := 'glob_array_PZ_' + last_digits_year(ly)
-  // funcGetPZ := 'get_array_PZ_' + last_digits_year(ly) + '()'
-  // nameArr := &funcGetPZ
   nameArr := get_array_PZ( ly )
 
-  // for i := 1 to len(&nameArr)
-  //   aadd(apz, {&nameArr.[i,3], ;
-  //               &nameArr.[i,1], ;
-  //               0, ;
-  //               &nameArr.[i,6], ;
-  //               &nameArr.[i,5], ;
-  //               {} ;
-  //             })
-  // next
-  for i := 1 to len( nameArr )
-    aadd( apz, { nameArr[ i, 3 ], ;
-                nameArr[ i, 1 ], ;
+  aValues := hb_hValues( getUnitsForYear( ly ) )
+  ASort( aValues, , , { | x, y | x[ 1 ] < y[ 1 ] } )
+
+  //// for i := 1 to len(&nameArr)
+  ////   aadd(apz, {&nameArr.[i,3], ;
+  ////               &nameArr.[i,1], ;
+  ////               0, ;
+  ////               &nameArr.[i,6], ;
+  ////               &nameArr.[i,5], ;
+  ////               {} ;
+  ////             })
+  //// next
+//  for i := 1 to len( nameArr )
+//    aadd( apz, { nameArr[ i, 3 ], ;
+//                nameArr[ i, 1 ], ;
+//                0, ;
+//                nameArr[ i, 6 ], ;
+//                nameArr[ i, 5 ], ;
+//                { } ;
+//              } )
+//  next
+  for i := 1 to len( aValues )
+    aadd( apz, { aValues[ i, 5 ], ;
+                aValues[ i, 1 ], ;
                 0, ;
-                nameArr[ i, 6 ], ;
-                nameArr[ i, 5 ], ;
+                aValues[ i, 8 ], ;
+                aValues[ i, 7 ], ;
                 { } ;
               } )
   next
@@ -140,12 +150,14 @@ function getUnitsForYear( nYear )
 
       // создадим хэш для юнита, ключ - CODE из файла unit
       i := ascan(arrPZ, { | x | x[ 2 ] == tCode } )
-      hSingleUnit[ ( dbAlias )->CODE ] := { ( dbAlias )->CODE, ( dbAlias )->C_T, alltrim( ( dbAlias )->NAME ), ;
+      hSingleUnit[ ( dbAlias )->CODE ] := { ;
+        iif( i == 0, 0, arrPZ[ i, 1 ] ), ;
+          ( dbAlias )->CODE, ( dbAlias )->C_T, alltrim( ( dbAlias )->NAME ), ;
         iif( i == 0, 'отсутствует информация для кода - ' + str( tCode, 3 ), arrPZ[ i, 3 ]), ;
         iif( i == 0, 'н/д', arrPZ[ i, 4 ]), ;
         iif( i == 0, 'н/д', arrPZ[ i, 5 ]), ;
-        iif( i == 0, 'н/д', arrPZ[ i, 6 ]), ;
-        ( dbAlias )->DATEBEG, ( dbAlias )->DATEEND }
+        iif( i == 0, 'н/д', arrPZ[ i, 6 ]) }  //, ;
+//        ( dbAlias )->DATEBEG, ( dbAlias )->DATEEND }
 
       hUnits[ yearSl ] := hSingleUnit
       ( dbAlias )->( dbSkip() )

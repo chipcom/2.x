@@ -2,6 +2,10 @@
 #include 'function.ch'
 #include 'chip_mo.ch'
 
+function fill_PZ_array_from_file(work_year, arr)
+
+return nil
+
 // 26.12.23
 function get_array_PZ(nyear)
   local nameArr, funcGetPZ
@@ -754,7 +758,7 @@ function get_array_PZ_18()
   endif
   return arr
 
-function fill_PZ_array_from_file(work_year, arr)
+function fill_PZ_array_from_file_1(work_year, arr)
   local file_index
   local i, sbase, oldSelect
 
