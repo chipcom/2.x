@@ -1,3 +1,4 @@
+#include 'hbhash.ch' 
 #include 'set.ch'
 #include 'getexit.ch'
 #include 'inkey.ch'
@@ -98,3 +99,62 @@ Function ret_PZ_VMP( lunit, kDate )
     mpztip := mounit->pz
   endif
   return mpztip
+
+// 23.01.24
+function getUnitsForYear( nYear )
+
+  static hUnits, lHashUnits := .f.
+  local yearSl, arr := {}, arrPZ, tCode, i
+  local dbName, tmp_select, dbAlias
+  local hSingleUnit
+
+  if valtype( nYear ) == 'D'
+    yearSl := year( nYear )
+  elseif valtype( nYear ) == 'N'
+    yearSl := nYear
+  else
+    return arr
+  endif
+
+  if ! lHashUnits   // при отсутствии ХЭШ-массива создадим его
+    hUnits := hb_Hash() 
+    lHashUnits := .t.
+  endif
+
+  // получим массив units план-заказа из хэша по ключу ГОД ОКОНЧАНИЯ СЛУЧАЯ, или загрузим его из справочника
+  if hb_HHasKey( hUnits, yearSl )
+    arr := hb_HGet(hUnits, yearSl)
+  else
+    hSingleUnit := hb_Hash() 
+    arrPZ := get_array_PZ( yearSl )
+
+    dbName := prefixFileRefName( yearSl ) + 'unit'
+    tmp_select := select()
+    dbAlias := '__UNIT'
+    r_use( dir_exe + dbName, , dbAlias )
+
+    //  1 - CODE(N)  2 - PZ(N)  3 - II(N)  4 - C_T(N)  5 - NAME(C)  6 - DATEBEG(D)  7 - DATEEND(D)
+    ( dbAlias )->( dbGoTop() )
+    do while ! ( dbAlias )->( EOF() )
+      tCode := ( dbAlias )->CODE
+
+      // создадим хэш для юнита, ключ - CODE из файла unit
+      i := ascan(arrPZ, { | x | x[ 2 ] == tCode } )
+      hSingleUnit[ ( dbAlias )->CODE ] := { ( dbAlias )->CODE, ( dbAlias )->C_T, alltrim( ( dbAlias )->NAME ), ;
+        iif( i == 0, 'отсутствует информация для кода - ' + str( tCode, 3 ), arrPZ[ i, 3 ]), ;
+        iif( i == 0, 'н/д', arrPZ[ i, 4 ]), ;
+        iif( i == 0, 'н/д', arrPZ[ i, 5 ]), ;
+        iif( i == 0, 'н/д', arrPZ[ i, 6 ]), ;
+        ( dbAlias )->DATEBEG, ( dbAlias )->DATEEND }
+
+      hUnits[ yearSl ] := hSingleUnit
+      ( dbAlias )->( dbSkip() )
+    enddo
+
+    ( dbAlias )->( dbCloseArea() )
+    Select( tmp_select )
+
+    // поместим в ХЭШ-массив
+    arr := hb_HGet( hUnits, yearSl )
+  endif
+  return arr
