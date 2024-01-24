@@ -247,7 +247,7 @@ Function forma14_med_oms()
   set relation to recno() into HUMAN_, to recno() into HUMAN_2, to kod_k into KART
   //
   ////////////////////////////////////////////////////////////////////
-  mdate_rak := arr_m[6] + 17 // по какую дату РАК сумма к оплате 17.01.24      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  mdate_rak := arr_m[6] + 18 // по какую дату РАК сумма к оплате 17.01.24      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   ////////////////////////////////////////////////////////////////////
   R_Use(dir_server + 'mo_xml', , 'MO_XML')
   R_Use(dir_server + 'mo_rak', , 'RAK')
@@ -276,7 +276,13 @@ Function forma14_med_oms()
         k := 17 // дата регистрации по 17.01.24 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       //
       fl := between(mdate, arr_m[5], arr_m[6] + k) .and. between(mdate1, arr_m[5], arr_m[6]) // !!отч.период 2023 год
-     // @ 10,30 say mdate1
+      /*if !fl .and. mdate > stod("20230101")
+       @ 10,50 say mdate
+       @ 11,50 say mdate1
+       @ 12,50 say arr_m[5]
+       @ 13,50 say arr_m[6]
+       inkey(0)
+      endif*/
     endif
     if fl
       select HUMAN
@@ -695,6 +701,13 @@ Function forma14_med_oms()
                   endif
                   muet := 0
                   msum := round(hu->stoim_1 * koef, 2)
+               /*   if human->cena_1 > msum .and. msum > 0
+                     my_debug(,human->fio)
+                     my_debug(,hu->(recno()))
+                     my_debug(,msum)
+                     my_debug(,k)
+                  endif  
+               */   
                   ii := 0
                   is_obsh := .f.
                   if k == 2 // стационар
@@ -788,10 +801,14 @@ Function forma14_med_oms()
                       aadd(ap, {lshifr, iif(empty(mkol),mkol1,mkol),is_obsh})
                     endif
                   elseif k == 7 // отд.мед.услуги
-                    ii := 2 // в поликлинику
-                    mkol := 0  // участвует не количеством, а только суммой
-                    is_kt := .t.
-                    ds1_spec := 1
+                    if glob_mo[_MO_KOD_TFOMS] == '171004'.and. human_->USL_OK == 1 // стационар КБ4
+                      ii := 1 // стационар
+                    else  
+                      ii := 2 // в поликлинику
+                      mkol := 0  // участвует не количеством, а только суммой
+                      is_kt := .t.
+                      ds1_spec := 1
+                    endif  
                   elseif k == 8 // СМП
                     ii := 5
                   elseif eq_any(k, 3, 4, 5) // дневной стационар
@@ -866,7 +883,7 @@ Function forma14_med_oms()
                 aadd(arr_profil, {human_->PROFIL, 0, 0, 0, 0}) ; i := len(arr_profil)
               endif
               if human->ishod == 88 // это 1-й л/у в двойном случае
-                tfoms_pz[1, 1] := 0
+                tfoms_pz[1, 1] := 0 
               else
                 arr_profil[i, 2] ++
               endif
