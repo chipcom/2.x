@@ -43,7 +43,8 @@ Function f_init_d01()
   { "PEREHOD4", "N", 1, 0 }, ;  // переход 2023 начало
   { "PEREHOD5", "N", 1, 0 }, ;  // переход 2023 Полный
   { "PEREHOD6", "N", 1, 0 },;   // переход 2024
-  { "PEREHOD7", "N", 1, 0 };    // переход 2024 диагнозы Е10
+  { "PEREHOD7", "N", 1, 0 },;   // переход 2024 диагнозы Е10
+  { "PEREHOD8", "N", 1, 0 };    // переход 2024 - Дополнительное письмо в 01.2024 
   }
   Local mo_d01 := { ; // отсылаемые файлы D01
   { "KOD",         "N", 6, 0 }, ; // код реестра (номер записи)
@@ -95,7 +96,7 @@ Function disp_nabludenie( k )
   Static S_sem := "disp_nabludenie"
   Static si1 := 2, si2 := 1, si3 := 2, si4 := 1, si5 := 1, si6 := 1
   Local mas_pmt, mas_msg, mas_fun, j, buf, fl_umer := .f., zaplatka_D01 := .f., ;
-    zaplatka_D02 := .f., zaplatka_D07 := .f.
+    zaplatka_D02 := .f., zaplatka_D07 := .f., zaplatka_D08 := .f.
 
   Default k To 1
 
@@ -106,7 +107,49 @@ Function disp_nabludenie( k )
     If FieldNum( "PEREHOD7" ) == 0 //Диагнозы E10
       zaplatka_D07 := .T.
     endif
- 
+    If FieldNum( "PEREHOD8" ) == 0 //Дополнительное письмо в 01.2024
+      zaplatka_D08 := .T.
+    endif
+    //
+    if zaplatka_D08 
+      waitstatus( "Ждите! Обрабатывается список по диспансерному наблюдению на 2024 год" )
+      f_init_d01() // инициализация всех файлов инф.сопровождения по диспансерному наблюдению
+      r_use( dir_server + "mo_D01",,   "D01" )  //реестры
+      r_use( dir_server + "mo_D01K",,  "D01K" ) // пациенты в реестрах
+      index on str(reestr,6)+str(kod_k,7) to (cur_dir +"tmp_D01")
+      Use ( dir_server + "mo_dnab" ) New Alias DN
+      Go Top
+      Do While !Eof()
+        updatestatus()
+        If dn->n_data > stod("20231201") 
+          dn->n_data := stod("20231101") // ставлю от фонаря
+        Endif
+        //
+        if dn->next_data < stod("20240201") 
+          select D01
+          go top
+          do while !eof()
+            if D01->NYEAR == 2023
+              select D01K
+              find (str(d01->kod,6)+str(dn->kod_k,7))  
+              if found()     
+                if d01k->OPLATA == 1 
+                  //принят  
+                else // все другие варианты
+                  dn->next_data := stod("20240201") // ставлю от фонаря
+                endif
+              endif 
+            endif
+            select D01
+            skip 
+          enddo
+        endif  
+        select DN 
+        Skip
+      Enddo
+      Commit
+    endif
+    //
     If FieldNum( "PEREHOD6" ) == 0
       Close databases
       If !g_slock( S_sem )
@@ -672,7 +715,7 @@ Function f_inf_dop_disp_nabl()
   If !( ValType( parr_m ) == "A" )
     parr_m := Array( 8 )
     parr_m[ 5 ] := 0d20220101    // ЮЮ
-    parr_m[ 6 ] := 0d20231231    // ЮЮ
+    parr_m[ 6 ] := 0d20241231    // ЮЮ
   Endif
   stat_msg( "Поиск информации..." )
   fp := FCreate( name_file ) ; n_list := 1 ; tek_stroke := 0
@@ -1001,8 +1044,8 @@ Function f3vvodp_disp_nabl( nKey, oBrow, regim )
             fl := func_error( 4, "Не введена дата следующей явки" )
           Elseif mN_DATA >= mNEXT_DATA
             fl := func_error( 4, "Дата следующей явки меньше даты начала диспансерного наблюдения" )
-          Elseif mNEXT_DATA <= 0d20240101  // ЮЮ
-            fl := func_error( 4, "Дата следующей явки должна быть не ранее 1 января" )
+          Elseif mNEXT_DATA <= 0d20240201  // ЮЮ
+            fl := func_error( 4, "Дата следующей явки должна быть не ранее 1 ФЕВРАЛЯ" ) // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! временно
           Endif
           If !fl
             Loop
@@ -1371,7 +1414,7 @@ Function f1_vvod_disp_nabl( nKey, oBrow, regim )
       Private gl_area := { 1, 0, MaxRow() -1, 79, 0 }, ;
         mKOD_DIAG := iif( nKey == K_INS, Space( 5 ), dn->kod_diag ), ;
         mN_DATA := iif( nKey == K_INS, sys_date - 1, dn->n_data ), ;
-        mNEXT_DATA := iif( nKey == K_INS, 0d20240101, dn->next_data ), ; // ЮЮ
+        mNEXT_DATA := iif( nKey == K_INS, 0d20240201, dn->next_data ), ; // ЮЮ - ВРЕМЕННО
       mfrequency := iif( nKey == K_INS, 3, dn->frequency ), ;
         mMESTO, m1mesto := iif( nKey == K_INS, 0, dn->mesto )
       mmesto := inieditspr( A__MENUVERT, mm_dom, m1mesto )
@@ -1417,7 +1460,7 @@ Function f1_vvod_disp_nabl( nKey, oBrow, regim )
             fl := func_error( 4, "Не введена дата следующей явки" )
           Elseif mN_DATA >= mNEXT_DATA
             fl := func_error( 4, "Дата следующей явки меньше даты начала диспансерного наблюдения" )
-          Elseif mNEXT_DATA <= 0d20240101  // ЮЮ
+          Elseif mNEXT_DATA <= 0d20240201  // ЮЮ - временно
             fl := func_error( 4, "Дата следующей явки должна быть не ранее 1 января" )
           Endif
           If !fl
