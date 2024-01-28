@@ -1329,6 +1329,7 @@ Function spr_struct_org( k )
     edit_otd()
   Case k == 3
     edit_uch()
+//    editDepartments()
   Case k == 4
     str_sem := 'Редактирование реквизитов организации'
     If g_slock( str_sem )

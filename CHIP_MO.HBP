@@ -17,6 +17,8 @@ mo_version.prg
 .\DAL\Security\TRoleUserDB.prg
 .\DAL\ORGANIZATION\TOrganizationDB.prg
 .\DAL\ORGANIZATION\TDepartmentDB.prg
+.\DAL\ORGANIZATION\TSubdivisionDB.prg
+.\DAL\ORGANIZATION\T_Mo_podrDB.prg
 .\DAL\EMPLOYEES\TEmployeeDB.prg
 
 .\BLL\TBaseObjectBLL.prg
@@ -25,6 +27,8 @@ mo_version.prg
 .\BLL\SECURITY\TRoleUser.prg
 .\BLL\ORGANIZATION\TOrganization.prg
 .\BLL\ORGANIZATION\TDepartment.prg
+.\BLL\ORGANIZATION\TSubdivision.prg
+.\BLL\ORGANIZATION\T_Mo_podr.prg
 .\BLL\ORGANIZATION\TBank.prg
 .\BLL\EMPLOYEES\TEmployee.prg
 
@@ -55,6 +59,11 @@ mo_version.prg
 .\function\mo_func.prg
 .\function\mo_func1.prg
 .\function\mo_func2.prg
+.\function\choiceObject.prg
+.\function\TINIFile.prg
+.\function\iniGetSetVar.prg
+.\function\inieditspr_bay.prg
+.\function\retpopupedit_bay.prg
 
 .\KARTOTEK\mo_kart.prg
 .\KARTOTEK\mo_regi.prg
@@ -234,6 +243,10 @@ mo_version.prg
 .\TUNING\codeVMP.prg
 
 .\ORGANIZATION\dbOrg.prg
+.\ORGANIZATION\Department.prg
+.\ORGANIZATION\Subdivision.prg
+
+.\EMPLOYEES\Employee.prg
 
 .\PLAN_ZAKAZ\pz_report.prg
 .\PLAN_ZAKAZ\pz_func.prg
