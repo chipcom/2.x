@@ -1632,7 +1632,7 @@ Function inf_disp_nabl()
     rd := 0, rd1 := 0, rpr := 0, ro_f := .f., ro := 0, rod := 0
   Local mas_tip_dz := { 0, 0, 0, 0, 0 }, mas_tip_pc := { 0, 0, 0, 0, 0, 0 }, fl_1 := 0, fl_2 := 0, fl_3 := 0, fl_4 := 0, ;
     fl_5 := 0, fl_31 := 0, fl_32 := 0, fl_33 := 0, fl_umer := .t., otvet := "      ", fl_prinet := .F.,;
-    mas_tip_prin := { 0, 0, 0, 0, 0, 0 } , t_mo_prik := ""
+    mas_tip_prin := { 0, 0, 0, 0, 0, 0 } , t_mo_prik := "", iii := 0, iii1 := 0, iii2 := 0 
 
   SetColor( cDataCGet )
   myclear( r )
@@ -1871,10 +1871,12 @@ Function inf_disp_nabl()
           AEval( arr_title, {| x| add_string( x ) } )
         Endif
         if m1umer == 1
-          add_string( s )
+          //add_string( s )
+          //++iii1 
         else
           if fl_umer
             add_string( s )
+            ++iii1 
           endif 
         endif  
         old := dn->kod_k
@@ -1885,14 +1887,16 @@ Function inf_disp_nabl()
         // ‚ë¡®àª¨ ¯® ®â¤¥«ì­ë¬ £àã¯¯ ¬ „ˆ€ƒŽ‡Ž‚ 
         // “Œ…˜ˆ•  !!! … ‘—ˆ’€…Œ
         // â®«ìª® ¤ ­­®¥ ŒŽ ¨ †ˆ‚›…
-        If !fl_umer .and. !Empty(  t_mo_prik  ) 
-          my_debug(,str(dn->(recno()))+"   "+ t_mo_prik + " ")
-          my_debug(,fl_prinet)
-          If glob_mo[ _MO_KOD_TFOMS ] ==  t_mo_prik  .and. dn->next_data > 0d20240101
+        If fl_umer 
+          //my_debug(,str(dn->(recno()))+" -----  "+ t_mo_prik + " --- "+ dtos(dn->next_data) )
+          //my_debug(,fl_prinet)
+          If glob_mo[ _MO_KOD_TFOMS ] ==  t_mo_prik  .and. dn->next_data >= 0d20240101
+            //++iii
+            //my_debug(,iii)
             // ¤¨ £­®§®¢ ¯® ¯à¨ª §ã ü168­
             if f_is_diag_dn( dn->kod_diag,,, .f. )     
               mas_tip_dz[ 3 ] := mas_tip_dz[ 3 ] + 1
-              if !fl_prinet 
+              if fl_prinet 
                 mas_tip_prin[ 3 ] := mas_tip_prin[ 3 ] + 1
               endif  
               If fl_3 != dn->kod_k
@@ -1903,7 +1907,7 @@ Function inf_disp_nabl()
             // ¤¨ £­®§®¢ ŒŠ-10 E10
             If PadR( dn->kod_diag, 3 ) == "E10"
               mas_tip_dz[ 4 ] := mas_tip_dz[ 4 ] + 1  
-              if !fl_prinet 
+              if fl_prinet 
                 mas_tip_prin[ 4 ] := mas_tip_prin[ 4 ] + 1
               endif  
               If fl_4 != dn->kod_k
@@ -1914,7 +1918,7 @@ Function inf_disp_nabl()
             // ¤¨ £­®§®¢ ŒŠ-10 E11
             If PadR( dn->kod_diag, 3 ) == "E11"
               mas_tip_dz[ 5 ] := mas_tip_dz[ 5 ] + 1
-              if !fl_prinet 
+              if fl_prinet 
                 mas_tip_prin[ 5 ] := mas_tip_prin[ 5 ] + 1
               endif  
               If fl_5 != dn->kod_k
@@ -1923,10 +1927,10 @@ Function inf_disp_nabl()
               Endif
             Endif
             // ¤¨ £­®§®¢ ‘Š
-            If PadR( dn->kod_diag, 3 ) == "E78" .or. PadR( dn->kod_diag, 1 ) == "I" .or. PadR( dn->kod_diag, 1 ) == "Q" .or. PadR( dn->kod_diag, 1 ) == "Z"
+            //If PadR( dn->kod_diag, 3 ) == "E78" .or. PadR( dn->kod_diag, 1 ) == "I" .or. PadR( dn->kod_diag, 1 ) == "Q" .or. PadR( dn->kod_diag, 1 ) == "Z"
               If f_is_diag_dn_serdce( dn->kod_diag )
                 mas_tip_dz[ 1 ] := mas_tip_dz[ 1 ] + 1  
-                if !fl_prinet 
+                if fl_prinet 
                   mas_tip_prin[ 1 ] := mas_tip_prin[ 1 ] + 1
                 endif  
                 If fl_1 != dn->kod_k
@@ -1934,11 +1938,11 @@ Function inf_disp_nabl()
                   fl_1 := dn->kod_k
                 Endif
               Endif
-            Endif
+            //Endif
             // ¤¨ £­®§®¢ ŒŠ-10 ‘00-D09 
             If PadR( dn->kod_diag, 1 ) == "C" .or. PadR( dn->kod_diag, 3 ) == "D09"
               mas_tip_dz[ 2 ] := mas_tip_dz[ 2 ] + 1 
-              if !fl_prinet 
+              if fl_prinet 
                 mas_tip_prin[ 2 ] := mas_tip_prin[ 2 ] + 1
               endif  
               If fl_2 != dn->kod_k
@@ -1953,6 +1957,8 @@ Function inf_disp_nabl()
       Select DN
       Skip
     Enddo
+    //my_debug(,iii1)
+    //my_debug(,iii2)
     If !Empty( sadres )
       add_string( "  " + sadres )
     Endif
