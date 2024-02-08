@@ -35,13 +35,13 @@ function baseRate(dt, type_USL_OK)
   next
   return ret
 
-// 30.12.23
+// 08.02.24
 function code_services_VMP(nYear)
   static arrVMP
 
   if isnil(arrVMP)
     arrVMP := hb_Hash()
-    hb_HSet(arrVMP, 2024, '1.22.')
+    hb_HSet(arrVMP, 2024, '1.23.')
     hb_HSet(arrVMP, 2023, '1.22.')
     hb_HSet(arrVMP, 2022, '1.21.')
     hb_HSet(arrVMP, 2021, '1.20.')
