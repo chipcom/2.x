@@ -16,7 +16,7 @@ Dynamic f1forma_792_MIAC
 Dynamic monitoring_vid_pom
 Dynamic b_25_perinat_2
 
-// 18.01.24
+// 08.02.24
 Procedure Main( ... )
   Local r, s, is_create := .f., is_copy := .f., is_index := .f.
   Local a_parol, buf, is_local_version
@@ -130,7 +130,7 @@ Procedure Main( ... )
   // a_parol := inp_password(is_local_version,is_create)
   a_parol := inp_password_bay( is_local_version, is_create )
 
-  index_work_dir( dir_exe, cur_dir, .t. )    // checkFilesTFOMS() переименовал
+  index_work_dir( dir_exe, cur_dir, .f. )    // checkFilesTFOMS() переименовал
 
   initPZarray()
 
