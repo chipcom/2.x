@@ -2312,6 +2312,7 @@ do case
                   "Предварительная Статистика по оказанным услугам"}
       mas_fun := {"Oo_statist(132)",;
                   "Oo_statist(133)"}
+      popup_prompt(T_ROW,T_COL-5,si7,mas_pmt,mas_msg,mas_fun)
   case k == 132
     mas_pmt := {"По ~врачам",;
                 "По ~зубным техникам",;

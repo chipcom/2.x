@@ -20,6 +20,9 @@ Function change_cena_oms()
     "GR+/R", "W+/R",,, "G+/R" )
   If f_esc_enter( "изменения цен", .t. ) .and. mo_lock_task( X_OMS )
     mywait()
+    // вставка изменения услуг  
+    change_uslug_oms_DN() 
+    //
     fl := .t.
     bSaveHandler := ErrorBlock( {| x| Break( x ) } )
     Begin Sequence
@@ -212,3 +215,92 @@ Function change_cena_oms()
   Endif
 
   Return Nil
+
+// 10.02.24 Изменение  услуг ДН 
+Function change_uslug_oms_DN() 
+// замена услуги - 2.78.107 на услуги 2.78.109, 2.78.110, 2.78.111, 2.78.112;
+Local rec_107, rec_109, rec_110, rec_111, rec_112, cena_107 := 0, cena_109 := 0, cena_110 := 0, cena_111 := 0, cena_112 := 0,;
+      t_mkb, t_shifr, n_rec, n_cena, buf := SaveScreen() 
+  
+
+waitstatus( "Ждите! Смена услуг по диспансерному наблюдению" )
+R_USE(dir_exe+"_dn_mkb",,"DN_MKB")
+Index On Upper( mkb ) to ( cur_dir + "tmp_dn" ) 
+use_base( "lusl" )
+use_base( "luslc" )
+use_base( "luslf" )
+use_base( "mo_su" )
+Set Order To 0
+Use_base("uslugi")
+R_Use(dir_server+"uslugi1",{dir_server+"uslugi1",;
+                            dir_server+"uslugi1s"},"USL1")
+rec_107 := foundOurUsluga("2.78.107", stod("20231231"), 97, 0, @cena_107)
+if rec_107 > 0
+  rec_109 := foundOurUsluga("2.78.109", stod("20240112"), 97, 0, @cena_109)
+  rec_110 := foundOurUsluga("2.78.110", stod("20240112"), 97, 0, @cena_110)
+  rec_111 := foundOurUsluga("2.78.111", stod("20240112"), 97, 0, @cena_111)
+  rec_112 := foundOurUsluga("2.78.112", stod("20240112"), 97, 0, @cena_112)
+//
+use_base('human')
+use_base('human_u')
+select HUMAN 
+go Top
+do while !eof()
+  if human->schet == 0 .and. human->k_data >= stod("20240101")
+    t_mkb := human->kod_diag
+    select HU 
+    find(str(human->kod,7))
+    do while hu->kod == human->kod .and. !eof()  
+      if hu->u_kod == rec_107
+         // старый код 2.78.107  
+         t_shifr := uslug_oms_DN_MKB(t_mkb) 
+         if !empty(t_shifr)
+           if t_shifr == "2.78.109"
+            n_rec  := rec_109 
+            n_cena := cena_109
+           elseif  t_shifr == "2.78.110"
+            n_rec  := rec_110 
+            n_cena := cena_110
+           elseif  t_shifr == "2.78.111"
+            n_rec  := rec_111 
+            n_cena := cena_111
+           elseif  t_shifr == "2.78.112"
+            n_rec  := rec_112 
+            n_cena := cena_112
+           endif 
+           select HU
+           G_RLock(forever)
+           hu->u_kod   := n_rec
+           hu->u_cena  := n_cena  
+           hu->stoim   := n_cena  
+           hu->stoim_1 := n_cena
+           dbUnLock()
+           Select HUMAN 
+           G_RLock(forever)
+           human->cena := n_cena 
+           human->cena_1 := n_cena 
+           dbUnLock()
+         endif
+      endif
+      select HU  
+      skip
+    enddo 
+  endif 
+  select HUMAN 
+  skip
+enddo
+endif
+Close databases
+RestScreen( buf )
+Return Nil
+
+//10.02.2024   выяснить - по диагнозу -шифр услуги
+Function uslug_oms_DN_MKB(tmkb) 
+  select DN_MKB
+  find(padr(tmkb,10))
+  if found()
+    return alltrim(DN_MKB->shifr)
+  else
+    return ""
+  endif
+return ""

@@ -6,7 +6,7 @@
 
 Static sadiag1  // := {}
 
-// 09.01.24
+// 09.02.24
 Function verify_1_sluch( fl_view )
 
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1, ;
@@ -990,8 +990,11 @@ Function verify_1_sluch( fl_view )
             mIDSP := 17 // Законченный случай в поликлинике
             If eq_any( alltrim_lshifr, '2.78.90', '2.78.91' ) .and. Len( mdiagnoz ) > 0 .and. Left( mdiagnoz[ 1 ], 1 ) == 'Z'
               mpovod := 11 // 3.1 обращение с проф.целью
-            Elseif l_mdiagnoz_fill .and. alltrim_lshifr == '2.78.107' .and. ( human->k_data >= 0d20230101 )
+            Elseif l_mdiagnoz_fill .and. ;
+              ( ( alltrim_lshifr == '2.78.107' .and. ( human->k_data >= 0d20230101 ) ) .or. ;
+              ( eq_any(alltrim_lshifr, '2.78.109', '2.78.110', '2.78.111', '2.78.112' ) .and. ( human->k_data >= 0d20240101 ) ) )
               // добавлена комплексная услуга 2.78.107 02.2023
+              // добавлена услуги 2.78.109, 2.78.110, 2.78.111, 2.78.112 01.2024
               mpovod := 4 // 1.3
               If ! f_is_diag_dn( mdiagnoz[ 1 ], , human->k_data )
                 AAdd( ta, 'в услуге ' + alltrim_lshifr + ' должен стоять допустимый диагноз для диспансерного наблюдения' )

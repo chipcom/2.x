@@ -274,8 +274,10 @@ Function f_main( r0, is_local_version, a_parol )
     If hb_user_curUser:isadmin()
       find_unfinished_reestr_sp_tk( .f., .t. )
       find_time_limit_human_reestr_sp_tk()
-      find_unfinished_r01()
-      //find_unfinished_r11()
+      if glob_mo[_MO_KOD_TFOMS] == '711001' // ЖД-больница
+        find_unfinished_r01()
+        find_unfinished_r11()
+      endif
     Endif
     //
     r := Int( ( MaxRow() - r0 - Len( arr ) ) / 2 ) -1
