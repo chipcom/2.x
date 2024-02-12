@@ -6,7 +6,7 @@
 
 Static sadiag1  // := {}
 
-// 09.02.24
+// 12.02.24
 Function verify_1_sluch( fl_view )
 
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1, ;
@@ -996,7 +996,7 @@ Function verify_1_sluch( fl_view )
               // добавлена комплексная услуга 2.78.107 02.2023
               // добавлена услуги 2.78.109, 2.78.110, 2.78.111, 2.78.112 01.2024
               mpovod := 4 // 1.3
-              If ! f_is_diag_dn( mdiagnoz[ 1 ], , human->k_data )
+              If ! f_is_diag_dn( mdiagnoz[ 1 ], , human->k_data, .f. )
                 AAdd( ta, 'в услуге ' + alltrim_lshifr + ' должен стоять допустимый диагноз для диспансерного наблюдения' )
               Endif
             Endif
