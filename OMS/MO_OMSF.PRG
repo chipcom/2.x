@@ -18,7 +18,7 @@ Function put_0_human_2()
   human_2->PN1 := human_2->PN2 := human_2->PN3 := human_2->PN4 := human_2->PN5 := human_2->PN6 := 0
   return NIL
 
-// 16.06.23 проверка отключения подразделений
+// 12.02.24 проверка отключения подразделений
 function disable_podrazdelenie_TFOMS(lkdate)
   local ret := .f.
   local aCodem := { ;
@@ -30,7 +30,13 @@ function disable_podrazdelenie_TFOMS(lkdate)
     '171004', ;
     '151005', ;
     '101201', ;
-    '131001' ;
+    '131001', ;
+    '104401', ;
+    '251001', ;
+    '101002', ;
+    '151012', ;
+    '711001', ;
+    '801942' ;
   }
 
   // В соответствии с решением Комиссии от 13.06.2023 с 01.06.2023 изменены уровни оплаты для ряда МО.
