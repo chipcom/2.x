@@ -1594,7 +1594,7 @@ Function f1_create2reestr19( _nyear, _nmonth )
           '39', '41', '45', '46', '69', '71', '76', '79', '84', '90', '92', '95' )
         // врачи
       lvidpom := 12
-      elseif eq_any( put_prvs_to_reestr( human_->PRVS, _NYEAR ), '206,', '207' )
+      elseif eq_any( put_prvs_to_reestr( human_->PRVS, _NYEAR ), '206', '207' )
         // фельдшеры
         lvidpom := 11
       endif
@@ -1607,11 +1607,17 @@ Function f1_create2reestr19( _nyear, _nmonth )
       // врачи
       If eq_any( put_prvs_to_reestr( human_->PRVS, _NYEAR ), '39', '76', '92', '95' )
         lvidpom := 12
+      elseif eq_any( put_prvs_to_reestr( human_->PRVS, _NYEAR ), '206' )
+        // фельдшеры
+        lvidpom := 11
       endif
     Elseif eq_ascan( atmpusl, '2.78.112' )
       // врачи
       If eq_any( put_prvs_to_reestr( human_->PRVS, _NYEAR ), '25', '39', '76', '95' )
         lvidpom := 12
+      elseif eq_any( put_prvs_to_reestr( human_->PRVS, _NYEAR ), '206' )
+        // фельдшеры
+        lvidpom := 11
       endif
     Elseif eq_ascan( atmpusl, '2.78.107' )
       // терпевт + общая врачебная практика
