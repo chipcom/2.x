@@ -1709,7 +1709,7 @@ Function verify_1_sluch( fl_view )
       Select ONKDI
       find ( Str( human->kod, 7 ) )
       If Found()
-        If Empty( onkdi->DIAG_DATE )
+        If Empty( onkdi->DIAG_DATE ) .and. is_gisto
           AAdd( arr_onkdi0, .f. )
         Else
           // if is_gisto .and. onkdi->DIAG_DATE != d1

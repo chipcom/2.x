@@ -1388,7 +1388,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
             m1B_DIAG := 98
           Endif
           k--
-        Elseif only_control_onko( mNPR_MO, mNPR_DATE, m1rslt, m1ishod )
+        Elseif only_control_onko( mNPR_MO, mNPR_DATE, m1rslt, m1ishod ) .and. ! is_VOLGAMEDLAB()
           m1B_DIAG := 99 // не надо
         Else
           If Len( mm_N009 ) == 0
@@ -1623,7 +1623,8 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         @ ++j, 3 Say 'Повод обращения' Get mDS1_T ;
           reader {| x| menu_reader( x, lmm_DS1_T, A__MENUVERT, , , .f. ) } ;
           Color colget_menu
-        if ! is_VOLGAMEDLAB()
+
+        if ! only_control_onko( mNPR_MO, mNPR_DATE, m1rslt, m1ishod ) .and. ! is_VOLGAMEDLAB()
           @ ++j, 3 Say 'Стадия заболевания:' Get mSTAD ;
             reader {| x| menu_reader( x, mm_N002, A__MENUVERT, , , .f. ) } ;
             valid {| g| f_valid_tnm( g ),  mSTAD := PadR( mSTAD, 5 ), .t. } ;
@@ -1651,7 +1652,7 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         endif
 
         // проведение гистологии или иммуногистохимии
-        If ! only_control_onko( mNPR_MO, mNPR_DATE, m1rslt, m1ishod )
+        If ! only_control_onko( mNPR_MO, mNPR_DATE, m1rslt, m1ishod ) .or. is_VOLGAMEDLAB()
         // If only_control_onko( mNPR_MO, mNPR_DATE, m1rslt, m1ishod )
           If Len( mm_N009 ) == 0 .and. Len( mm_N012 ) == 0 .and. m1DS1_T != 5
             If is_gisto
@@ -1717,7 +1718,8 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
         Endif
 
         // проведение консилиума
-        If ! only_control_onko( mNPR_MO, mNPR_DATE, m1rslt, m1ishod ) .and. ! is_VOLGAMEDLAB()
+        If ! is_VOLGAMEDLAB()
+        // If ! only_control_onko( mNPR_MO, mNPR_DATE, m1rslt, m1ishod ) .and. ! is_VOLGAMEDLAB()
           @ ++j, 3 Say 'Консилиум: дата' Get mDT_CONS ;
             valid {|| iif( Empty( mDT_CONS ) .or. Between( mDT_CONS, mn_data, mk_data ), .t., ;
             func_error( 4, 'Дата консилиума должна быть внутри сроков лечения' ) ) }

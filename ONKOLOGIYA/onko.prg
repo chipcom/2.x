@@ -13,7 +13,7 @@ function only_control_onko(napr, date, rslt, ishod)
 
   // Волгамедлаб исключаем
   // lRet := (!empty(napr) .and. !empty(date) .and. rslt == 314 .and. ishod == 304 .and. hb_main_curOrg:Kod_Tfoms != '805903')
-  lRet := (!empty(napr) .and. !empty(date) .and. rslt == 314 .and. ishod == 304 .and. ! is_VOLGAMEDLAB())
+  lRet := (!empty(napr) .and. !empty(date) .and. rslt == 314 .and. ishod == 304 ) // .and. ! is_VOLGAMEDLAB())
   return lRet
 
 // 11.09.23 проверка правильности соответствующей стадии по соответствующему справочнику  
