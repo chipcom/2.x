@@ -1384,7 +1384,7 @@ Function create2reestr19( _recno, _nyear, _nmonth, reg_sort )
   Return Nil
 
 
-// 12.02.24 работаем по текущей записи
+// 13.02.24 работаем по текущей записи
 Function f1_create2reestr19( _nyear, _nmonth )
 
   Local i, j, lst, s
@@ -1589,9 +1589,28 @@ Function f1_create2reestr19( _nyear, _nmonth )
           lvidpom := 13
         Endif
       Endif
-    Elseif eq_ascan( atmpusl, '2.78.109', '2.78.111', '2.78.112' )
-      // терпевт + общая врачебная практика
-      If eq_any( put_prvs_to_reestr( human_->PRVS, _NYEAR ), '76', '39' )
+    Elseif eq_ascan( atmpusl, '2.78.109' )
+      If eq_any( put_prvs_to_reestr( human_->PRVS, _NYEAR ), '2,', '17', '24', '35', ;
+          '39', '41', '45', '46', '69', '71', '76', '79', '84', '90', '92', '95' )
+        // врачи
+      lvidpom := 12
+      elseif eq_any( put_prvs_to_reestr( human_->PRVS, _NYEAR ), '206,', '207' )
+        // фельдшеры
+        lvidpom := 11
+      endif
+    Elseif eq_ascan( atmpusl, '2.78.110' )
+      // врачи
+      If eq_any( put_prvs_to_reestr( human_->PRVS, _NYEAR ), '9', '41' )
+        lvidpom := 12
+      endif
+    Elseif eq_ascan( atmpusl, '2.78.111' )
+      // врачи
+      If eq_any( put_prvs_to_reestr( human_->PRVS, _NYEAR ), '39', '76', '92', '95' )
+        lvidpom := 12
+      endif
+    Elseif eq_ascan( atmpusl, '2.78.112' )
+      // врачи
+      If eq_any( put_prvs_to_reestr( human_->PRVS, _NYEAR ), '25', '39', '76', '95' )
         lvidpom := 12
       endif
     Elseif eq_ascan( atmpusl, '2.78.107' )
