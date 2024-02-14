@@ -66,22 +66,22 @@ function load_exists_uslugi()
   
     // временно 09/02/24
     // //
-    //   find (glob_mo[_MO_KOD_TFOMS] + 'st') // койко-дни
-    //   if (is_napr_stac := found())
-    //     glob_menu_mz_rf[1] := .t.
-    //   endif
+       find (glob_mo[_MO_KOD_TFOMS] + 'st') // койко-дни
+       if (is_napr_stac := found())
+         glob_menu_mz_rf[1] := .t.
+       endif
     // //
     // //
-    //   find (glob_mo[_MO_KOD_TFOMS] + 'ds') // дневной стационар
-    //   if found()
-    //     if !is_napr_stac
-    //       is_napr_stac := .t.
-    //     endif
-    //     glob_menu_mz_rf[2] := found()
-    //   endif
-    is_napr_stac := .t. // убрать
-    glob_menu_mz_rf[1] := .t. // убрать
-    glob_menu_mz_rf[2] := .t. // убрать
+       find (glob_mo[_MO_KOD_TFOMS] + 'ds') // дневной стационар
+       if found()
+         if !is_napr_stac
+           is_napr_stac := .t.
+         endif
+         glob_menu_mz_rf[2] := found()
+       endif
+    // is_napr_stac := .t. // убрать
+    // glob_menu_mz_rf[1] := .t. // убрать
+    // glob_menu_mz_rf[2] := .t. // убрать
     // конец временно 09/02/24
     
     //
