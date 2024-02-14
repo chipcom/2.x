@@ -1728,6 +1728,9 @@ Function oms_sluch_main( Loc_kod, kod_kartotek )
             When !Empty( mDT_CONS ) ;
             Color colget_menu
         Endif
+        If only_control_onko( mNPR_MO, mNPR_DATE, m1rslt, m1ishod ) .and. ! is_VOLGAMEDLAB()
+          m1B_DIAG := 7
+        endif
 
         // проведение лечения
         If eq_any( m1usl_ok, USL_OK_HOSPITAL, USL_OK_DAY_HOSPITAL ) // m1usl_ok < 3
