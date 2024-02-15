@@ -254,26 +254,37 @@ function calcKSLP(cKSLP, dateSl)
   endif
   return summ
 
-// 10.03.23
-function defenition_KIRO(lkiro, ldnej, lrslt, lis_err, lksg, lDoubleSluch)
+// 15.02.24
+function defenition_KIRO( lkiro, ldnej, lrslt, lis_err, lksg, lDoubleSluch, lkdata )
   // lkiro - список возможных КИРО для КСГ
   // ldnej - длительность случая в койко-днях
   // lrslt - результат обращения (справочник V009)
   // lis_err - ошибка (какая-то)
   // lksg - шифр КСГ
   // lDoubleSluch - это часть двойного случая
+  // lkdata - дата окончания случая
   local vkiro := 0
   local cKSG := alltrim(LTrim(lksg))
 
   default lDoubleSluch to .f.
-  if eq_any(cKSG, 'st37.002', 'st37.003', 'st37.006', 'st37.007', 'st37.024', 'st37.025', 'st37.026')
-    // КСГ по услугам мед. реабилитации в стационаре согласно Служебная записка Мызгина от 13.02.23
-    if (cKSG == 'st37.002' .and. ldnej < 14) .or. ;
-        (cKSG == 'st37.003' .and. ldnej < 20) .or. ;
-        (cKSG == 'st37.006' .and. ldnej < 12) .or. ;
-        (cKSG == 'st37.007' .and. ldnej < 18) .or. ;
-        ((cKSG == 'st37.024' .or. cKSG == 'st37.025' .or. cKSG == 'st37.026') .and. ldnej < 30)
-      vkiro := 4
+  if eq_any( cKSG, 'st37.002', 'st37.003', 'st37.006', 'st37.007', 'st37.024', 'st37.025', 'st37.026' ) .or. ;
+      eq_any( cKSG, 'ds12.016', 'ds12.017', 'ds12.018', 'ds12.019', 'ds12.020', 'ds12.021', 'st37.026' )
+
+    // КСГ по услугам мед. реабилитации в стационаре и дневном стационаре
+    // согласно Служебная записка Мызгина от 13.02.23 и инструкции по КСГ ТФОМС на 24 год
+    if ( cKSG == 'st37.002' .and. ldnej < 14 ) .or. ;
+        ( cKSG == 'st37.003' .and. ldnej < 20 ) .or. ;
+        ( cKSG == 'st37.006' .and. ldnej < 12 ) .or. ;
+        ( cKSG == 'st37.007' .and. ldnej < 18 ) .or. ;
+        ( ( cKSG == 'st37.024' .or. cKSG == 'st37.025' .or. cKSG == 'st37.026' ) .and. ldnej < 30 ) .or. ;
+        ( ( cKSG == 'ds12.016' .or. cKSG == 'ds12.017' .or. cKSG == 'ds12.018' .or. cKSG == 'ds12.019' ) .and. ldnej < 28 ) .or. ;
+        ( ( cKSG == 'ds12.020' .or. cKSG == 'ds12.021' ) .and. ldnej < 30 )
+
+      if lkdata >= 0d20240101
+        vkiro := 7
+      else
+        vkiro := 4
+      endif
       return vkiro
     endif
   endif
@@ -308,7 +319,7 @@ function defenition_KIRO(lkiro, ldnej, lrslt, lis_err, lksg, lDoubleSluch)
       return vkiro
     endif
   else // количество дней лечения 3 и менее дней
-    if isklichenie_KSG_KIRO(cKSG)
+    if isklichenie_KSG_KIRO( cKSG, lkdata )
       return vkiro
     endif
     if ascan(lkiro, 1) > 0
@@ -346,23 +357,23 @@ function defenition_KIRO(lkiro, ldnej, lrslt, lis_err, lksg, lDoubleSluch)
   return vkiro
 
 // 30.11.21
-Function f_cena_kiro(/*@*/_cena, lkiro, dateSl )
+Function f_cena_kiro( /*@*/_cena, lkiro, dateSl )
   // _cena - изменяемая цена
   // lkiro - уровень КИРО
   // dateSl - дата случая
-  Local _akiro := {0, 1}
+  Local _akiro := { 0, 1 }
   local aKIRO, rowKIRO
 
   aKIRO := getKIROtable( dateSl )
   for each rowKIRO in aKIRO
-    if rowKIRO[1] == lkiro
-      if between_date(rowKIRO[5], rowKIRO[6], dateSl)
-        _akiro := { lkiro, rowKIRO[4] }
+    if rowKIRO[ 1 ] == lkiro
+      if between_date( rowKIRO[ 5 ], rowKIRO[ 6 ], dateSl )
+        _akiro := { lkiro, rowKIRO[ 4 ] }
       endif
     endif
   next
 
-  _cena := round_5(_cena * _akiro[2], 0)  // округление до рублей с 2019 года
+  _cena := round_5( _cena * _akiro[ 2 ], 0 )  // округление до рублей с 2019 года
   return _akiro
 
 // 30.12.23 определить коэф-т сложности лечения пациента и пересчитать цену
@@ -696,8 +707,8 @@ Function ret_koef_kslp_21_XML(akslp, tKSLP, nYear)
   endif
   return k
 
-// 03.03.23
-function isklichenie_KSG_KIRO(cKSG)
+// 15.02.24
+function isklichenie_KSG_KIRO( cKSG, lkdata )
   local arrKSG := { ;
     'st02.001', ;
     'st02.002', ;
@@ -865,5 +876,30 @@ function isklichenie_KSG_KIRO(cKSG)
     'ds36.034', ;
     'ds36.035' ;   
   }
+  if year( lkdata ) == 2024
+    aadd( arrKSG, 'st09.011' )
+    aadd( arrKSG, 'st12.001' )
+    aadd( arrKSG, 'st12.002' )
+    aadd( arrKSG, 'st19.144' )
+    aadd( arrKSG, 'st19.145' )
+    aadd( arrKSG, 'st19.146' )
+    aadd( arrKSG, 'st19.147' )
+    aadd( arrKSG, 'st19.148' )
+    aadd( arrKSG, 'st19.149' )
+    aadd( arrKSG, 'st19.150' )
+    aadd( arrKSG, 'st19.151' )
+    aadd( arrKSG, 'st19.152' )
+    aadd( arrKSG, 'st19.153' )
+    aadd( arrKSG, 'st19.154' )
+    aadd( arrKSG, 'st19.155' )
+    aadd( arrKSG, 'st19.156' )
+    aadd( arrKSG, 'st19.157' )
+    aadd( arrKSG, 'st19.158' )
+    aadd( arrKSG, 'st19.159' )
+    aadd( arrKSG, 'st19.160' )
+    aadd( arrKSG, 'st19.161' )
+    aadd( arrKSG, 'st19.162' )
+    aadd( arrKSG, 'st30.016' )
+  endif
 
-  return ascan(arrKsg, cKSG) > 0
+  return ascan( arrKsg, Lower( cKSG ) ) > 0
