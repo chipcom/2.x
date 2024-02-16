@@ -393,7 +393,11 @@ Function oms_sluch_dializ(par, Loc_kod, kod_kartotek)
           endif
         endif
         if mkol_proc2 > 0
-          aadd(arr_usl, {'60.3.11', 0, 0, mkol_proc2})
+          if mk_data >= 0d20240101
+            aadd(arr_usl, {'60.3.21', 0, 0, mkol_proc2})
+          else
+            aadd(arr_usl, {'60.3.11', 0, 0, mkol_proc2})
+          endif
         endif
         if mkol_proc3 > 0
           aadd(arr_usl, {'60.3.13', 0, 0, mkol_proc3})
