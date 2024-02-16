@@ -919,8 +919,12 @@ Function verify_1_sluch( fl_view )
           mpovod := 10 // 3.0
           musl_ok := USL_OK_POLYCLINIC  // 3 - п-ка
           is_perito := .t.
-        Elseif eq_any( alltrim_lshifr, '60.3.9', '60.3.10', '60.3.11', '60.3.19', '60.3.20', '60.3.21' ) // 01.12.21 b 16.02.24
+        Elseif eq_any( alltrim_lshifr, '60.3.9', '60.3.10', '60.3.11' ) // 01.12.21
           musl_ok := USL_OK_DAY_HOSPITAL  // 2 - дневной стационар
+          is_dializ := .t.
+        ElseIf eq_any( alltrim_lshifr, '60.3.19', '60.3.20', '60.3.21' )  // 16.02.24
+          mpovod := 10 // 3.0
+          musl_ok := USL_OK_POLYCLINIC  // 3 - п-ка
           is_dializ := .t.
         Else
           musl_ok := USL_OK_HOSPITAL  // 1 - стационар
