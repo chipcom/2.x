@@ -10,7 +10,7 @@ Function f_d_dializ()
   endif
   return .t.
   
-// 09.12.23 гемодиализ (1) и перитонеальный диализ (2)
+// 16.02.24 гемодиализ (1) и перитонеальный диализ (2)
 Function oms_sluch_dializ(par, Loc_kod, kod_kartotek)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -379,10 +379,18 @@ Function oms_sluch_dializ(par, Loc_kod, kod_kartotek)
           aadd(arr_usl, {'55.1.1', 0, 0, iif(vlek > vdial, vlek, vdial)})
         endif
         if mkol_proc > 0
-          aadd(arr_usl, {'60.3.9', 0, 0, mkol_proc})
+          if mk_data >= 0d20240101
+            aadd(arr_usl, {'60.3.19', 0, 0, mkol_proc})
+          else
+            aadd(arr_usl, {'60.3.9', 0, 0, mkol_proc})
+          endif
         endif
         if mkol_proc1 > 0
-          aadd(arr_usl, {'60.3.10', 0, 0, mkol_proc1})
+          if mk_data >= 0d20240101
+            aadd(arr_usl, {'60.3.20', 0, 0, mkol_proc1})
+          else
+            aadd(arr_usl, {'60.3.10', 0, 0, mkol_proc})
+          endif
         endif
         if mkol_proc2 > 0
           aadd(arr_usl, {'60.3.11', 0, 0, mkol_proc2})

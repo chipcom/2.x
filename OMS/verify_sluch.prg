@@ -6,7 +6,7 @@
 
 Static sadiag1  // := {}
 
-// 12.02.24
+// 16.02.24
 Function verify_1_sluch( fl_view )
 
   Local _ocenka := 5, ta := {}, u_other := {}, ssumma := 0, auet, fl, lshifr1, ;
@@ -919,7 +919,7 @@ Function verify_1_sluch( fl_view )
           mpovod := 10 // 3.0
           musl_ok := USL_OK_POLYCLINIC  // 3 - п-ка
           is_perito := .t.
-        Elseif eq_any( alltrim_lshifr, '60.3.9', '60.3.10', '60.3.11' ) // 01.12.21
+        Elseif eq_any( alltrim_lshifr, '60.3.9', '60.3.10', '60.3.11', '60.3.19', '60.3.20' ) // 01.12.21 b 16.02.24
           musl_ok := USL_OK_DAY_HOSPITAL  // 2 - дневной стационар
           is_dializ := .t.
         Else
