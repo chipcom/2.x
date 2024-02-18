@@ -34,7 +34,7 @@ Function oms_double(k)
   endif
   return NIL
 
-// 28.12.23 склеить два случая
+// 18.02.24 склеить два случая
 Function create_double_sl()
   Local buf, str_sem, str_sem2, i, d, fl, lshifr, arr_m, mas_pmt, buf24, buf_scr, srec, old_yes_h_otd := yes_h_otd
   local fl_reserve_1, fl_reserve_2  // если в случае присутствуют 
@@ -43,8 +43,9 @@ Function create_double_sl()
                                     // 'st36.011 - A16.10.021.001',
                                     // 'st36.013', 'st36.014', 'st36.015'}
   local rslt_sl1, rslt_sl2, rslt_fl1 := .f., rslt_fl2 := .f.
+  local tmp_pc2
   local rslt_kiro := {102, 105, 107, 110, 202, 205, 207}  // взято из правил применения КСГ
-
+  local cena_temp
   fl_reserve_1 := fl_reserve_2 := .f.
 
   if !myFileDeleted(cur_dir + 'tmp_h' + sdbf)
@@ -183,13 +184,10 @@ Function create_double_sl()
                           {'═', '░', '═', 'N/BG, W+/N, B/BG, BG+/B, R/BG, W+/R'} )
               if (glob_perso2 := tmp_h->kod) == 0
                 func_error(4, 'Не найдено нужных записей!')
-              // elseif !(ldiag == human->kod_diag)
               elseif !(ldiag == human->kod_diag) .and. ! (diagnosis_for_replacement(ldiag, human_->USL_OK) .or. diagnosis_for_replacement(human->kod_diag, human_->USL_OK))
                 func_error(4, 'Основной диагноз в обоих случаях должен совпадать!')
               elseif lprofil != human_->profil
                 func_error(4, 'Профиль медицинской помощи в обоих случаях должен совпадать!')
-              // elseif (lk_data != human->n_data) .and. !find_reserve_1
-              //   func_error(4, 'Дата начала 2-го случая должна быть равна дате окончания 1-го случая!')
               else
                 fl_reserve_2 := exist_reserve_KSG(glob_perso2, 'HUMAN', (HUMAN->ishod == 89 .or. HUMAN->ishod == 88) )
                 if (lk_data != human->n_data) .and. ! fl_reserve_1 .and. ! fl_reserve_2
@@ -238,7 +236,20 @@ Function create_double_sl()
                   mywait('Проверка (попытка пересчёта) цены КСГ первого случая.')
                   recount_double_sl(glob_perso, lk_data2)
                   mywait('Выполняется операция слияния двух листов учёта в двойной.')
-                  use_base('human')
+
+                  use_base( "lusl" )
+                  use_base( "luslc" )
+                  use_base( "luslf" )
+                  use_base( "mo_su" )
+                  Set Order To 0
+            
+                  g_use( dir_server + "uslugi", { dir_server + "uslugish", ;
+                    dir_server + "uslugi" }, "USL" )
+                  Set Order To 0
+            
+                  use_base( 'human_u' ) // если понадобится, пересчитать КСГ
+
+                  use_base( 'human' )
                   goto (glob_perso)
                   lcena := human->cena_1
                   G_Use(dir_server + 'human_3', {dir_server + 'human_3', dir_server + 'human_32'}, 'HUMAN_3')
@@ -286,20 +297,50 @@ Function create_double_sl()
                   endif
                   //
                   select HUMAN
-                  goto (glob_perso)
-                  G_RLock(forever)
-                  human->ishod := 88 // это 1-ый л/у в двойном случае
-                  human_2->(G_RLock(forever))
-                  human_2->pn4 := glob_perso2 // ссылка на 2-й лист учёта
-                  //
-                  select HUMAN
                   goto (glob_perso2)
                   G_RLock(forever)
                   human->ishod := 89 // это 2-ой л/у в двойном случае
                   human_2->(G_RLock(forever))
                   human_2->pn4 := glob_perso // ссылка на 1-й лист учёта
+                  tmp_pc2 := human_2->pc2 // сохраним КИРО из 2-го случая
+                  //
+                  select HUMAN
+                  goto ( glob_perso )
+                  G_RLock( forever )
+                  human->ishod := 88 // это 1-ый л/у в двойном случае
+                  human_2->( G_RLock( forever ) )
+                  human_2->pn4 := glob_perso2 // ссылка на 2-й лист учёта
+
+                  human_2->pc2 := tmp_pc2 // возьмем КИРО 2-го листа в двойном случае
+
+                  // выполним пересчет стоимости услуг в 1-ом листе
+                  Select HU
+                  find ( Str( glob_perso, 7 ) )
+                  Do While hu->kod == human->kod .and. !Eof()
+                    // цикл по услугам
+                    if hu->u_cena != 0
+                      usl->( dbGoto( hu->u_kod ) )
+                      cena_temp := ret_cena_KSG( usl->shifr, human->VZROS_REB, lk_data )  //, lk_data2 ) //, ta)
+                      if ! empty( human_2->pc1 )  // проверим КСЛП
+//                        cena_temp := round_5(cena_temp + baseRate( lk_data2, human_->USL_OK ) * ret_koef_kslp_21( List2Arr(human_2->pc1), year( lk_data2 ) ), 0 )
+                        cena_temp := round_5(cena_temp + baseRate( lk_data, human_->USL_OK ) * ret_koef_kslp_21( List2Arr(human_2->pc1), year( lk_data2 ) ), 0 )
+                      endif
+                      if ! empty( human_2->pc2 )  // проверим КИРО
+                        cena_temp := round_5( cena_temp * List2Arr(human_2->pc2)[ 2 ], 0 )
+                      endif
+//                      human->cena := human->cena_1 := cena_temp
+                      hu->( g_rlock( forever ) )
+                      hu->u_cena := cena_temp
+                      hu->stoim := hu->stoim_1 := round_5( cena_temp * hu->kol_1, 2 )
+                    endif
+                    hu->(dbSkip())
+                  enddo
+                  human_3->CENA_1 := cena_temp + lcena2
+                  human->CENA := human->CENA_1 := cena_temp
+                
                   //
                   close databases
+
                   stat_msg('Операция слияния завершена!')
                   mybell(2, OK)
                   rest_box(buf24)

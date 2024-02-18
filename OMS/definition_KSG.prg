@@ -4,7 +4,7 @@
 #include 'chip_mo.ch'
 
 
-// 15.02.24 определение КСГ по остальным введённым полям ввода - 2019-24 год
+// 17.02.24 определение КСГ по остальным введённым полям ввода - 2019-24 год
 Function definition_ksg( par, k_data2, lDoubleSluch )
 
   // файлы 'human', 'human_' и 'human_2' открыты и стоят на нужной записи
@@ -203,15 +203,15 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
       ldnej := 1
     Endif
   Endif
-  AAdd( ars, lfio + ' ' + date_8( ln_data ) + '-' + date_8( lk_data ) + ' (' + lstr( ldnej ) + 'дн.)' )
+  AAdd( ars, lfio + ', д.р.' + full_date( ldate_r ) + iif( lvr == 0, ' (взр.', ' (реб.' ) + '), ' + iif( lpol == 'М', 'муж.', 'жен.' ) )
+  AAdd( ars, ' срок лечения: ' + date_8( ln_data ) + '-' + date_8( lk_data ) + ' (' + lstr( ldnej ) + 'дн.)' )
   s := iif( lVMP == 1, 'ВМП ', ' ' )
   If par == 1
-    s += AllTrim( uch->name ) + '/' + AllTrim( otd->name ) + '/'
+    s += AllTrim( substr( otd->name, 1, 30 ) ) + ' / '
   Endif
   s += 'профиль "' + inieditspr( A__MENUVERT, getv002(), lprofil ) + '"'
   AAdd( ars, s )
-  AAdd( ars, ' д.р.' + full_date( ldate_r ) + iif( lvr == 0, '(взр.', '(реб.' ) + '), ' + iif( lpol == 'М', 'муж.', 'жен.' ) + ;
-    ', осн.диаг.' + osn_diag + ;
+  AAdd( ars, ' Осн.диаг.: ' + osn_diag + ;
     iif( Empty( sop_diag ), '', ', соп.диаг.' + CharRem( ' ', print_array( sop_diag ) ) ) + ;
     iif( Empty( osl_diag ), '', ', диаг.осл.' + CharRem( ' ', print_array( osl_diag ) ) ) )
   If Empty( osn_diag )
@@ -231,7 +231,7 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
       AAdd( ars, ' для ' + lstr( lvidvmp ) + ' метода ВМП введена услуга ' + lksg )
       lcena := ret_cena_ksg( lksg, lvr, date_usl )
       If lcena > 0
-        AAdd( ars, ' РЕЗУЛЬТАТ: выбрана услуга=' + lksg + ' с ценой ' + lstr( lcena, 11, 0 ) )
+        AAdd( ars, ' РЕЗУЛЬТАТ: выбрана услуга = ' + lksg + ' с ценой ' + lstr( lcena, 11, 0 ) )
       Else
         AAdd( arerr, ' для Вашей МО в справочнике ТФОМС не найдена услуга: ' + lksg )
       Endif
@@ -343,9 +343,10 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
       Endif
     Endif
   Endif
-  ars[ 1 ] := lfio + ' ' + date_8( ln_data ) + '-' + date_8( lk_data ) + ' (' + lstr( ldnej ) + 'дн.)'
-  ars[ 3 ] := ' д.р.' + full_date( ldate_r ) + '(' + s + '), ' + iif( lpol == 'М', 'муж.', 'жен.' ) + ;
-    ', осн.диаг.' + osn_diag + ;
+  ars[ 1 ] := lfio + ', д.р. ' + full_date( ldate_r ) + iif( lvr == 0, ' (взр.', ' (реб.' ) + '), ' + iif( lpol == 'М', 'муж.', 'жен.' )
+  ars[ 2 ] := ' срок лечения: ' + date_8( ln_data ) + '-' + date_8( lk_data ) + ' (' + lstr( ldnej ) + 'дн.)'
+
+  ars[ 4 ] := ' Осн.диаг.: ' + osn_diag + ;
     iif( Empty( sop_diag ), '', ', соп.диаг.' + CharRem( ' ', print_array( sop_diag ) ) ) + ;
     iif( Empty( osl_diag ), '', ', диаг.осл.' + CharRem( ' ', print_array( osl_diag ) ) )
   lsex := iif( lpol == 'М', '1', '2' )
@@ -830,7 +831,7 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
     lksg := ''
   Endif
   If !Empty( lksg )
-    s := ' РЕЗУЛЬТАТ: выбрана КСГ=' + lksg
+    s := ' РЕЗУЛЬТАТ: выбрана КСГ = ' + lksg
     If Empty( lcena )
       s += ', но не определена цена в справочнике ТФОМС'
       AAdd( arerr, s )
@@ -905,10 +906,6 @@ Function definition_ksg( par, k_data2, lDoubleSluch )
           Endif
           s += Str( akslp[ iKSLP + 1 ], 4, 2 )
         Next
-        // s += '  (КСЛП = ' +str(akslp[2],4,2)
-        // if len(akslp) >= 4
-        // s += ' + ' +str(akslp[4],4,2)
-        // endif
         s += ', цена ' + lstr( lcena, 11, 0 ) + 'р.)'
       Endif
       If !Empty( lkiro )
