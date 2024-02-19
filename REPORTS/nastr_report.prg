@@ -163,13 +163,22 @@ Function s_mnog_poisk()
   index on fsort_usl(u_shifr) to (cur_dir + 'tmpFn')
   tmpF->(dbCloseArea())
   //
-  aadd(mm_tmp, {'date_lech', 'N', 4, 0, NIL, ;
+ /* aadd(mm_tmp, {'date_lech', 'N', 4, 0, NIL, ;
               {|x| menu_reader(x, ;
                  {{|k, r, c| k := year_month(r + 1, c), ;
                       if(k == nil, NIL, (pdate_lech := aclone(k), k := {k[1], k[4]})), ;
                       k }}, A__FUNCTION)}, ;
               0, {|| space(10) }, ;
               'Дата окончания лечения'})
+ */
+  aadd( mm_tmp, { 'date_lech', 'N', 4, 0, NIL, ;
+              {| x | menu_reader( x, ;
+              { { | k, r, c | k := year_month( r + 1, c ), ;
+              if( k == nil, NIL, ( pdate_lech := aclone( k ), k := { k[ 1 ], k[ 4 ] } ) ), ;
+                  k } }, A__FUNCTION ) }, ;
+              0, { || space( 10 ) }, ;
+              'Дата окончания лечения', ;
+              { | g | st_pz_poisk( g ) } } )
   aadd(mm_tmp, {'date_schet', 'N', 4, 0, NIL, ;
               {|x| menu_reader(x, ;
                  {{|k, r, c| k := year_month(r + 1, c), ;
@@ -3115,4 +3124,15 @@ Function f3_diag_statist_bukvaEXCEL(HH,sh,arr_title,lvu)
   enddo
   return NIL
   
-  
+  Function st_pz_poisk(get)
+  Local t_year  
+    if !empty(pdate_lech)
+      t_year := pdate_lech[1] 
+      mm_pz := {}
+      nameArr := get_array_PZ( t_year ) //2019
+      for i := 1 to len(nameArr)
+        aadd(mm_pz, {nameArr[i, 3], nameArr[i, 1]})
+      next
+    endif  
+  return .T.
+
