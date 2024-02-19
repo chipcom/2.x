@@ -34,7 +34,7 @@ Function oms_double(k)
   endif
   return NIL
 
-// 18.02.24 склеить два случая
+// 19.02.24 склеить два случая
 Function create_double_sl()
   Local buf, str_sem, str_sem2, i, d, fl, lshifr, arr_m, mas_pmt, buf24, buf_scr, srec, old_yes_h_otd := yes_h_otd
   local fl_reserve_1, fl_reserve_2  // если в случае присутствуют 
@@ -320,10 +320,10 @@ Function create_double_sl()
                     // цикл по услугам
                     if hu->u_cena != 0
                       usl->( dbGoto( hu->u_kod ) )
-                      cena_temp := ret_cena_KSG( usl->shifr, human->VZROS_REB, lk_data )  //, lk_data2 ) //, ta)
+                      cena_temp := ret_cena_KSG( usl->shifr, human->VZROS_REB, lk_data2 ) //, ta)
                       if ! empty( human_2->pc1 )  // проверим КСЛП
 //                        cena_temp := round_5(cena_temp + baseRate( lk_data2, human_->USL_OK ) * ret_koef_kslp_21( List2Arr(human_2->pc1), year( lk_data2 ) ), 0 )
-                        cena_temp := round_5(cena_temp + baseRate( lk_data, human_->USL_OK ) * ret_koef_kslp_21( List2Arr(human_2->pc1), year( lk_data2 ) ), 0 )
+                        cena_temp := round_5(cena_temp + baseRate( lk_data2, human_->USL_OK ) * ret_koef_kslp_21( List2Arr(human_2->pc1), year( lk_data2 ) ), 0 )
                       endif
                       if ! empty( human_2->pc2 )  // проверим КИРО
                         cena_temp := round_5( cena_temp * List2Arr(human_2->pc2)[ 2 ], 0 )

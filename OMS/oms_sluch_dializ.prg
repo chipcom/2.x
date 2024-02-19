@@ -90,10 +90,17 @@ Function oms_sluch_dializ( par, Loc_kod, kod_kartotek )
   //
   Private mm_rslt := {}, mm_ishod := {}
   If par == 1 // гемодиализ (1)
-    m1USL_OK := USL_OK_DAY_HOSPITAL
-    AEval( getv009(), {| x| iif( x[ 5 ] == m1usl_ok, AAdd( mm_rslt, x ), nil ) } )
-    m1rslt := 201
-    m1ishod := 203
+    if glob_otd[ 3 ] == USL_OK_DAY_HOSPITAL
+      m1USL_OK := USL_OK_DAY_HOSPITAL
+      AEval( getv009(), {| x| iif( x[ 5 ] == m1usl_ok, AAdd( mm_rslt, x ), nil ) } )
+      m1rslt := 201
+      m1ishod := 203
+    elseif glob_otd[ 3 ] == USL_OK_POLYCLINIC
+      m1USL_OK := USL_OK_POLYCLINIC
+      AEval( getv009(), {| x| iif( x[ 5 ] == m1usl_ok .and. x[ 2 ] < 316, AAdd( mm_rslt, x ), nil ) } )
+      m1rslt := 314
+      m1ishod := 304
+    endif
   Else // перитонеальный диализ (2)
     m1USL_OK := USL_OK_POLYCLINIC
     AEval( getv009(), {| x| iif( x[ 5 ] == m1usl_ok .and. x[ 2 ] < 316, AAdd( mm_rslt, x ), nil ) } )
