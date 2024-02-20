@@ -3,6 +3,28 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
+// 20.02.24 формирование массива о смерти пациента
+function arr_patient_died_during_treatment( mkod_k, loc_kod )
+  // mkod_k - код пациента по БД картотеки kartotek.dbf
+  // Loc_kod - код по БД human.dbf (если = 0 - добавление листа учета)
+  // должны быть открыты файлы HUMAN.DBF и HUMAN_.DBF и между ними
+  // установлен relation
+  // текущий alias должен быть HUMAN
+
+  local a_smert := {}
+
+  find ( Str( mkod_k, 7 ) )
+  Do While human->kod_k == mkod_k .and. !Eof()
+    If RecNo() != loc_kod .and. is_death( human_->RSLT_NEW ) .and. ;
+        human_->oplata != 9 .and. human_->NOVOR == 0
+      a_smert := { 'Данный больной умер!', ;
+        'Лечение с ' + full_date( human->N_DATA ) + ' по ' + full_date( human->K_DATA ) }
+      Exit
+    Endif
+    Skip
+  Enddo 
+  return a_smert
+
 // 26.05.22 проверка на соответствие услуги профилю
 Function UslugaAccordanceProfil(lshifr, lvzros_reb, lprofil, ta, short_shifr)
   Local s := '', s1 := ''
@@ -960,21 +982,21 @@ Function is_death(_rslt)
 
 // 08.08.23
 // проверка исхода = СМЕРТЬ 
-function result_is_death(mkod_k, Loc_kod)
-  local a_smert := {}
+// function result_is_death(mkod_k, Loc_kod)
+//  local a_smert := {}
 
-  select HUMAN
-  set index to (dir_server + 'humankk')
-  find (str(mkod_k, 7))
-  do while human->kod_k == mkod_k .and. !eof()
-    if recno() != Loc_kod .and. is_death(human_->RSLT_NEW) .and. ;
-                                  human_->oplata != 9 .and. human_->NOVOR == 0
-      a_smert := {'Данный больной умер!', ;
-                    'Лечение с ' + full_date(human->N_DATA) + ;
-                          ' по ' + full_date(human->K_DATA)}
-      exit
-    endif
-    skip
-  enddo
-  set index to
-  return a_smert
+//  select HUMAN
+//  set index to (dir_server + 'humankk')
+//  find (str(mkod_k, 7))
+//  do while human->kod_k == mkod_k .and. !eof()
+//    if recno() != Loc_kod .and. is_death(human_->RSLT_NEW) .and. ;
+//                                  human_->oplata != 9 .and. human_->NOVOR == 0
+//      a_smert := {'Данный больной умер!', ;
+//                    'Лечение с ' + full_date(human->N_DATA) + ;
+//                          ' по ' + full_date(human->K_DATA)}
+//      exit
+//    endif
+//    skip
+//  enddo
+//  set index to
+//  return a_smert

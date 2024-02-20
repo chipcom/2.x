@@ -3,7 +3,7 @@
 #include 'edit_spr.ch'
 #include 'chip_mo.ch'
 
-// 09.12.23 амбулаторная медицинская реабилитация - добавление или редактирование случая (листа учета)
+// 20.02.24 амбулаторная медицинская реабилитация - добавление или редактирование случая (листа учета)
 function oms_sluch_MED_REAB(Loc_kod, kod_kartotek, f_print)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -118,16 +118,17 @@ function oms_sluch_MED_REAB(Loc_kod, kod_kartotek, f_print)
     // проверка исхода = СМЕРТЬ
     select HUMAN
     set index to (dir_server + 'humankk')
-    find (str(mkod_k, 7))
-    do while human->kod_k == mkod_k .and. !eof()
-      if recno() != Loc_kod .and. is_death(human_->RSLT_NEW) .and. ;
-                                 human_->oplata != 9 .and. human_->NOVOR == 0
-        a_smert := {'Данный больной умер!', ;
-          'Лечение с ' + full_date(human->N_DATA) + ' по ' + full_date(human->K_DATA)}
-        exit
-      endif
-      skip
-    enddo
+//    find (str(mkod_k, 7))
+//    do while human->kod_k == mkod_k .and. !eof()
+//      if recno() != Loc_kod .and. is_death(human_->RSLT_NEW) .and. ;
+//                                 human_->oplata != 9 .and. human_->NOVOR == 0
+//        a_smert := {'Данный больной умер!', ;
+//          'Лечение с ' + full_date(human->N_DATA) + ' по ' + full_date(human->K_DATA)}
+//        exit
+//      endif
+//      skip
+//    enddo
+    arr_patient_died_during_treatment( mkod_k, loc_kod )
     set index to
   endif
 

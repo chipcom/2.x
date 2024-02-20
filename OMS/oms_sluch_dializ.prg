@@ -12,7 +12,7 @@ Function f_d_dializ()
 
   Return .t.
 
-// 16.02.24 гемодиализ (1) и перитонеальный диализ (2)
+// 20.02.24 гемодиализ (1) и перитонеальный диализ (2)
 Function oms_sluch_dializ( par, Loc_kod, kod_kartotek )
 
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
@@ -159,17 +159,18 @@ Function oms_sluch_dializ( par, Loc_kod, kod_kartotek )
   r_use( dir_server + 'human', dir_server + 'humankk', 'HUMAN' )
   Set Relation To RecNo() into HUMAN_
   // проверка исхода = СМЕРТЬ
-  find ( Str( mkod_k, 7 ) )
-  Do While human->kod_k == mkod_k .and. !Eof()
-    If RecNo() != Loc_kod .and. is_death( human_->RSLT_NEW ) .and. ;
-        human_->oplata != 9 .and. human_->NOVOR == 0
-      a_smert := { 'Данный больной умер!', ;
-        'Лечение с ' + full_date( human->N_DATA ) + ;
-        ' по ' + full_date( human->K_DATA ) }
-      Exit
-    Endif
-    Skip
-  Enddo
+  // find ( Str( mkod_k, 7 ) )
+  // Do While human->kod_k == mkod_k .and. !Eof()
+  //  If RecNo() != Loc_kod .and. is_death( human_->RSLT_NEW ) .and. ;
+  //      human_->oplata != 9 .and. human_->NOVOR == 0
+  //    a_smert := { 'Данный больной умер!', ;
+  //      'Лечение с ' + full_date( human->N_DATA ) + ;
+  //      ' по ' + full_date( human->K_DATA ) }
+  //    Exit
+  //  Endif
+  //  Skip
+  // Enddo
+  arr_patient_died_during_treatment( mkod_k, loc_kod )
   If !( Left( msmo, 2 ) == '34' ) // не Волгоградская область
     m1ismo := msmo
     msmo := '34'

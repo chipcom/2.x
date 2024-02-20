@@ -7,7 +7,7 @@
 // согласно письму ТФОМС 09-30-376/1 от 09.11.22 года
 #define CHILD_EXIST .f. // учитывать несовершеннолетних или нет
 
-// 09.12.23 добавление или редактирование случая (листа учета)
+// 20.02.24 добавление или редактирование случая (листа учета)
 function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
   // Loc_kod - код по БД human.dbf (если =0 - добавление листа учета)
   // kod_kartotek - код по БД kartotek.dbf (если =0 - добавление в картотеку)
@@ -144,16 +144,17 @@ function oms_sluch_ONKO_DISP(Loc_kod, kod_kartotek)
     // проверка исхода = СМЕРТЬ
     select HUMAN
     set index to (dir_server + 'humankk')
-    find (str(mkod_k, 7))
-    do while human->kod_k == mkod_k .and. !eof()
-      if recno() != Loc_kod .and. is_death(human_->RSLT_NEW) .and. ;
-                                   human_->oplata != 9 .and. human_->NOVOR == 0
-        a_smert := {'Данный больной умер!', ;
-          'Лечение с ' + full_date(human->N_DATA) + ' по ' + full_date(human->K_DATA)}
-        exit
-      endif
-      skip
-    enddo
+//    find (str(mkod_k, 7))
+//    do while human->kod_k == mkod_k .and. !eof()
+//      if recno() != Loc_kod .and. is_death(human_->RSLT_NEW) .and. ;
+//                                   human_->oplata != 9 .and. human_->NOVOR == 0
+//        a_smert := {'Данный больной умер!', ;
+//          'Лечение с ' + full_date(human->N_DATA) + ' по ' + full_date(human->K_DATA)}
+//        exit
+//      endif
+//      skip
+//    enddo
+    arr_patient_died_during_treatment( mkod_k, loc_kod )
     set index to
   endif
   if Loc_kod > 0
