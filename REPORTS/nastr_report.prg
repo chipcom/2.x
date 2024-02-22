@@ -4,7 +4,7 @@
 #include 'chip_mo.ch'
 #include 'hbxlsxwriter.ch'
 
-// 21.02.24 ¬­®£®¢ à¨ ­â­ë© ¯®¨áª
+// 22.02.24 ¬­®£®¢ à¨ ­â­ë© ¯®¨áª
 Function s_mnog_poisk()
 
   Static lcount_uch  := 1
@@ -60,7 +60,6 @@ Function s_mnog_poisk()
     { '­¥ ¯à¨ªà¥¯«ñ­ ª ­ è¥© Œ', 2 } }, ;
     tmp_file := cur_dir + 'tmp_mn_p' + sdbf, ;
     k_diagnoz, k_usl, tt_diagnoz[ 10 ], tt_usl[ 10 ]
-//  Local nameArr
   Local name_fileXLS := 'Report_' + suffixfiletimestamp()
   Local name_fileXLS_full := hb_DirTemp() + name_fileXLS + '.xlsx'
   Local lExcel := .f., lText := .f., used_column := 0
@@ -137,8 +136,8 @@ Function s_mnog_poisk()
   //
   dbCreate( cur_dir + 'tmp', { ;
     { 'U_KOD',    'N',      4,      0 }, ;  // ª®¤ ãá«ã£¨
-  { 'U_SHIFR',    'C',     10,      0 }, ;  // è¨äà ãá«ã£¨
-  { 'U_NAME',     'C',     65,      0 } ;   // ­ ¨¬¥­®¢ ­¨¥ ãá«ã£¨
+    { 'U_SHIFR',  'C',     10,      0 }, ;  // è¨äà ãá«ã£¨
+    { 'U_NAME',   'C',     65,      0 } ;   // ­ ¨¬¥­®¢ ­¨¥ ãá«ã£¨
   } )
   Use ( cur_dir + 'tmp' )
   Index On Str( u_kod, 4 ) to ( cur_dir + 'tmpk' )
@@ -914,11 +913,13 @@ Function s_mnog_poisk()
       Use ( tmp_file ) New Alias MN
       s1 := if( fl_summa, '  ‘ã¬¬   ', '‘â®¨¬®áâì' )
       s2 := if( fl_summa, ' «¥ç¥­¨ï ', '  ãá«ã£  ' )
-      arr_title := { ;
-        'ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄ', ;
-        '             ”.ˆ.. ¡®«ì­®£®            ³' + s1, ;
-        '                                        ³' + s2, ;
-        'ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄ' }
+      if lText
+        arr_title := { ;
+          'ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄ', ;
+          '             ”.ˆ.. ¡®«ì­®£®            ³' + s1, ;
+          '                                        ³' + s2, ;
+          'ÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄ' }
+      endif
       If lExcel
         // WORKSHEET_SET_COLUMN(worksheet, row, column, 100, nil)
         worksheet_set_column( worksheet, column, column, 35, nil )
@@ -931,80 +932,96 @@ Function s_mnog_poisk()
         worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( iif( fl_summa, '‘ã¬¬  «¥ç¥­¨ï', '‘â®¨¬®áâì ãá«ã£' ) ), header_wrap )
       Endif
       If IsBit( mn->vid_doc, 1 )
-        arr_title[ 1 ] += 'ÂÄÄÄÄÄÄÄÄ'
-        arr_title[ 2 ] += '³  „ â   '
-        arr_title[ 3 ] += '³à®¦¤¥­¨ï'
-        arr_title[ 4 ] += 'ÁÄÄÄÄÄÄÄÄ'
+        if lText
+          arr_title[ 1 ] += 'ÂÄÄÄÄÄÄÄÄ'
+          arr_title[ 2 ] += '³  „ â   '
+          arr_title[ 3 ] += '³à®¦¤¥­¨ï'
+          arr_title[ 4 ] += 'ÁÄÄÄÄÄÄÄÄ'
+        Endif
         If lExcel
           worksheet_set_column( worksheet, column, column, 10.0, nil )
           worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( '„ â  à®¦¤¥­¨ï' ), header_wrap )
         Endif
       Endif
       If IsBit( mn->vid_doc, 2 )
-        arr_title[ 1 ] += 'ÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ'
-        arr_title[ 2 ] += '³         €¤à¥á          '
-        arr_title[ 3 ] += '³                        '
-        arr_title[ 4 ] += 'ÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ'
+        if lText
+          arr_title[ 1 ] += 'ÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ'
+          arr_title[ 2 ] += '³         €¤à¥á          '
+          arr_title[ 3 ] += '³                        '
+          arr_title[ 4 ] += 'ÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ'
+        endif
         If lExcel
           worksheet_set_column( worksheet, column, column, 22.0, nil )
           worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( '€¤à¥á' ), header )
         Endif
       Endif
       If IsBit( mn->vid_doc, 12 )
-        arr_title[ 1 ] += 'ÂÄÄÄÄÄÄÄÄÄÄ'
-        arr_title[ 2 ] += '³   ®¬¥à  '
-        arr_title[ 3 ] += '³ â¥«¥ä®­®¢'
-        arr_title[ 4 ] += 'ÁÄÄÄÄÄÄÄÄÄÄ'
+        if lText
+          arr_title[ 1 ] += 'ÂÄÄÄÄÄÄÄÄÄÄ'
+          arr_title[ 2 ] += '³   ®¬¥à  '
+          arr_title[ 3 ] += '³ â¥«¥ä®­®¢'
+          arr_title[ 4 ] += 'ÁÄÄÄÄÄÄÄÄÄÄ'
+        endif
         If lExcel
           worksheet_set_column( worksheet, column, column, 11.0, nil )
           worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( '®¬¥à  â¥«¥ä®­®¢' ), header_wrap )
         Endif
       Endif
       If IsBit( mn->vid_doc, 3 )
-        arr_title[ 1 ] += 'ÂÄÄÄÄÄÄÄÄÄÄ'
-        arr_title[ 2 ] += '³  N ª àâë '
-        arr_title[ 3 ] += '³          '
-        arr_title[ 4 ] += 'ÁÄÄÄÄÄÄÄÄÄÄ'
+        if lText
+          arr_title[ 1 ] += 'ÂÄÄÄÄÄÄÄÄÄÄ'
+          arr_title[ 2 ] += '³  N ª àâë '
+          arr_title[ 3 ] += '³          '
+          arr_title[ 4 ] += 'ÁÄÄÄÄÄÄÄÄÄÄ'
+        endif
         If lExcel
           worksheet_set_column( worksheet, column, column, 10.0, nil )
           worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( 'N ª àâë' ), header )
         Endif
       Endif
       If IsBit( mn->vid_doc, 4 )
-        arr_title[ 1 ] += 'ÂÄÄÄÄÄÄÄÄ'
-        arr_title[ 2 ] += '³ ‘à®ª¨  '
-        arr_title[ 3 ] += '³«¥ç¥­¨ï '
-        arr_title[ 4 ] += 'ÁÄÄÄÄÄÄÄÄ'
+        if lText
+          arr_title[ 1 ] += 'ÂÄÄÄÄÄÄÄÄ'
+          arr_title[ 2 ] += '³ ‘à®ª¨  '
+          arr_title[ 3 ] += '³«¥ç¥­¨ï '
+          arr_title[ 4 ] += 'ÁÄÄÄÄÄÄÄÄ'
+        endif
         If lExcel
           worksheet_set_column( worksheet, column, column, 10.0, nil )
           worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( '‘à®ª¨ «¥ç¥­¨ï' ), header_wrap )
         Endif
       Endif
       If IsBit( mn->vid_doc, 5 )
-        arr_title[ 1 ] += 'ÂÄÄÄÄÄÄÄÄÄÄÄÄÄ'
-        arr_title[ 2 ] += '³   „¨ £­®§   '
-        arr_title[ 3 ] += '³             '
-        arr_title[ 4 ] += 'ÁÄÄÄÄÄÄÄÄÄÄÄÄÄ'
+        if lText
+          arr_title[ 1 ] += 'ÂÄÄÄÄÄÄÄÄÄÄÄÄÄ'
+          arr_title[ 2 ] += '³   „¨ £­®§   '
+          arr_title[ 3 ] += '³             '
+          arr_title[ 4 ] += 'ÁÄÄÄÄÄÄÄÄÄÄÄÄÄ'
+        endif
         If lExcel
           worksheet_set_column( worksheet, column, column, 11, nil )
           worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( '„¨ £­®§' ), header )
         Endif
       Endif
       If IsBit( mn->vid_doc, 6 )
-        arr_title[ 1 ] += 'ÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ'
-        arr_title[ 2 ] += '³ ®¬¥à ¨ ¤ â   '
-        arr_title[ 3 ] += '³    áç¥â       '
-        arr_title[ 4 ] += 'ÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ'
+        if lText
+          arr_title[ 1 ] += 'ÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ'
+          arr_title[ 2 ] += '³ ®¬¥à ¨ ¤ â   '
+          arr_title[ 3 ] += '³    áç¥â       '
+          arr_title[ 4 ] += 'ÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ'
+        endif
         If lExcel
           worksheet_set_column( worksheet, column, column, 19.0, nil )
           worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( '®¬¥à ¨ ¤ â  áç¥â ' ), header_wrap )
         Endif
       Endif
       If IsBit( mn->vid_doc, 7 )
-        arr_title[ 1 ] += 'ÂÄÄÄÄÄÄÄÄÄ'
-        arr_title[ 2 ] += '³   €Š   '
-        arr_title[ 3 ] += '³         '
-        arr_title[ 4 ] += 'ÁÄÄÄÄÄÄÄÄÄ'
+        if lText
+          arr_title[ 1 ] += 'ÂÄÄÄÄÄÄÄÄÄ'
+          arr_title[ 2 ] += '³   €Š   '
+          arr_title[ 3 ] += '³         '
+          arr_title[ 4 ] += 'ÁÄÄÄÄÄÄÄÄÄ'
+        endif
         r_use( dir_server + 'mo_raksh', cur_dir + 'tmp_raksh', 'RAKSH' )
         If lExcel
           worksheet_set_column( worksheet, column, column, 13.0, nil )
@@ -1012,30 +1029,36 @@ Function s_mnog_poisk()
         Endif
       Endif
       If IsBit( mn->vid_doc, 8 )
-        arr_title[ 1 ] += 'ÂÄÄÄÄÄ'
-        arr_title[ 2 ] += '³ ‹¥ç.'
-        arr_title[ 3 ] += '³ ¢à ç'
-        arr_title[ 4 ] += 'ÁÄÄÄÄÄ'
+        if lText
+          arr_title[ 1 ] += 'ÂÄÄÄÄÄ'
+          arr_title[ 2 ] += '³ ‹¥ç.'
+          arr_title[ 3 ] += '³ ¢à ç'
+          arr_title[ 4 ] += 'ÁÄÄÄÄÄ'
+        endif
         If lExcel
           worksheet_set_column( worksheet, column, column, 10.0, nil )
           worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( '‹¥ç. ¢à ç' ), header_wrap )
         Endif
       Endif
       If IsBit( mn->vid_doc, 9 )
-        arr_title[ 1 ] += 'ÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ'
-        arr_title[ 2 ] += '³                       '
-        arr_title[ 3 ] += '³     ‘¯¨á®ª ãá«ã£      '
-        arr_title[ 4 ] += 'ÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ'
+        if lText
+          arr_title[ 1 ] += 'ÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ'
+          arr_title[ 2 ] += '³                       '
+          arr_title[ 3 ] += '³     ‘¯¨á®ª ãá«ã£      '
+          arr_title[ 4 ] += 'ÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄ'
+        endif
         If lExcel
           worksheet_set_column( worksheet, column, column, 10.0, nil )
           worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( '‘¯¨á®ª ãá«ã£' ), header_wrap )
         Endif
       Endif
       If IsBit( mn->vid_doc, 10 )
-        arr_title[ 1 ] += 'ÂÄÄÄÄÄÄÄÄ'
-        arr_title[ 2 ] += '³„®¯®«­¨â'
-        arr_title[ 3 ] += '³ªà¨â¥à¨©'
-        arr_title[ 4 ] += 'ÁÄÄÄÄÄÄÄÄ'
+        if lText
+          arr_title[ 1 ] += 'ÂÄÄÄÄÄÄÄÄ'
+          arr_title[ 2 ] += '³„®¯®«­¨â'
+          arr_title[ 3 ] += '³ªà¨â¥à¨©'
+          arr_title[ 4 ] += 'ÁÄÄÄÄÄÄÄÄ'
+        endif
         If lExcel
           worksheet_set_column( worksheet, column, column, 10.0, nil )
           worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( '„®¯®«­¨â. ªà¨â¥à¨©' ), header_wrap )
@@ -1043,17 +1066,21 @@ Function s_mnog_poisk()
       Endif
       If yes_parol
         If IsBit( mn->vid_doc, 11 )
-          arr_title[ 1 ] += 'ÂÄÄÄÄÄÄÄÄÄÄ'
-          arr_title[ 2 ] += '³„ â  ¢¢®¤ '
-          arr_title[ 3 ] += '³¨ ®¯¥à â®à'
-          arr_title[ 4 ] += 'ÁÄÄÄÄÄÄÄÄÄÄ'
+          if lText
+            arr_title[ 1 ] += 'ÂÄÄÄÄÄÄÄÄÄÄ'
+            arr_title[ 2 ] += '³„ â  ¢¢®¤ '
+            arr_title[ 3 ] += '³¨ ®¯¥à â®à'
+            arr_title[ 4 ] += 'ÁÄÄÄÄÄÄÄÄÄÄ'
+          endif
           If lExcel
             worksheet_set_column( worksheet, column, column, 10.0, nil )
             worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( '„ â  ¢¢®¤  ¨ ®¯¥à â®à' ), header_wrap )
           Endif
         Endif
       Endif
-      reg_print := f_reg_print( arr_title, @sh, 2 )
+      if lText
+        reg_print := f_reg_print( arr_title, @sh, 2 )
+      endif
       If sh < 65
         sh := 65
       Endif
@@ -1070,24 +1097,24 @@ Function s_mnog_poisk()
         r_use( dir_server + 'base1', , 'BASE1' )
       Endif
       dbCreate( cur_dir + '_MNPOISK', { { 'dd0', 'C', 100, 0 }, ; // ”ˆ.
-      { 'dd00', 'C', 20, 0 }, ;
-      { 'dd01', 'C', 150, 0 }, ;
-      { 'dd02', 'C', 30, 0 }, ;
-      { 'dd1', 'C', 10, 0 }, ; // „ â  à®¦¤.
-      { 'dd2', 'C', 50, 0 }, ; // €¤à¥á
-      { 'dd12', 'C', 35, 0 }, ; // ’¥«¥ä®­
-      { 'dd3', 'C', 10, 0 }, ; // ®¬¥à ª àâë
-      { 'dd4', 'C', 35, 0 }, ; // ‘à®ª¨ «¥ç.
-      { 'dd5', 'C', 40, 0 }, ; // „¨ £­®§
-      { 'dd6', 'C', 30, 0 }, ; // ‘ç¥â
-      { 'dd60', 'C', 30, 0 }, ;
-      { 'dd61', 'C',  6, 0 }, ;  // CŒ
-      { 'dd62', 'C',  6, 0 }, ;  // N ¢ áç¥â¥
-      { 'dd7', 'C', 30, 0 }, ; // €Š
-      { 'dd8', 'C', 40, 0 }, ; // ‹¥ç é¨© ¢à ç
-      { 'dd9', 'C', 80, 0 }, ; // ãá«ã£¨
-      { 'dd10', 'C', 50, 0 }, ; // „®¯.ªà¨â¥à¨©
-      { 'dd11', 'C', 10, 0 } } ) // „ â  ¢¢®¤ 
+        { 'dd00', 'C', 20, 0 }, ;
+        { 'dd01', 'C', 150, 0 }, ;
+        { 'dd02', 'C', 30, 0 }, ;
+        { 'dd1', 'C', 10, 0 }, ; // „ â  à®¦¤.
+        { 'dd2', 'C', 50, 0 }, ; // €¤à¥á
+        { 'dd12', 'C', 35, 0 }, ; // ’¥«¥ä®­
+        { 'dd3', 'C', 10, 0 }, ; // ®¬¥à ª àâë
+        { 'dd4', 'C', 35, 0 }, ; // ‘à®ª¨ «¥ç.
+        { 'dd5', 'C', 40, 0 }, ; // „¨ £­®§
+        { 'dd6', 'C', 30, 0 }, ; // ‘ç¥â
+        { 'dd60', 'C', 30, 0 }, ;
+        { 'dd61', 'C',  6, 0 }, ;  // CŒ
+        { 'dd62', 'C',  6, 0 }, ;  // N ¢ áç¥â¥
+        { 'dd7', 'C', 30, 0 }, ; // €Š
+        { 'dd8', 'C', 40, 0 }, ; // ‹¥ç é¨© ¢à ç
+        { 'dd9', 'C', 80, 0 }, ; // ãá«ã£¨
+        { 'dd10', 'C', 50, 0 }, ; // „®¯.ªà¨â¥à¨©
+        { 'dd11', 'C', 10, 0 } } ) // „ â  ¢¢®¤ 
       Use _MNPOISK New Alias VIGRUZKA
       r_use( dir_server + 'mo_pers', , 'PERSO' )
       r_use( dir_server + 'kartote2', , 'KART2' )
