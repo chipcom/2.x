@@ -1096,26 +1096,6 @@ Function s_mnog_poisk()
       If yes_parol
         r_use( dir_server + 'base1', , 'BASE1' )
       Endif
-      dbCreate( cur_dir + '_MNPOISK', { { 'dd0', 'C', 100, 0 }, ; // ФИО.
-        { 'dd00', 'C', 20, 0 }, ;
-        { 'dd01', 'C', 150, 0 }, ;
-        { 'dd02', 'C', 30, 0 }, ;
-        { 'dd1', 'C', 10, 0 }, ; // Дата рожд.
-        { 'dd2', 'C', 50, 0 }, ; // Адрес
-        { 'dd12', 'C', 35, 0 }, ; // Телефон
-        { 'dd3', 'C', 10, 0 }, ; // Номер карты
-        { 'dd4', 'C', 35, 0 }, ; // Сроки леч.
-        { 'dd5', 'C', 40, 0 }, ; // Диагноз
-        { 'dd6', 'C', 30, 0 }, ; // Счет
-        { 'dd60', 'C', 30, 0 }, ;
-        { 'dd61', 'C',  6, 0 }, ;  // CМО
-        { 'dd62', 'C',  6, 0 }, ;  // N в счете
-        { 'dd7', 'C', 30, 0 }, ; // РАК
-        { 'dd8', 'C', 40, 0 }, ; // Лечащий врач
-        { 'dd9', 'C', 80, 0 }, ; // услуги
-        { 'dd10', 'C', 50, 0 }, ; // Доп.критерий
-        { 'dd11', 'C', 10, 0 } } ) // Дата ввода
-      Use _MNPOISK New Alias VIGRUZKA
       r_use( dir_server + 'mo_pers', , 'PERSO' )
       r_use( dir_server + 'kartote2', , 'KART2' )
       r_use( dir_server + 'kartote_', , 'KART_' )
@@ -1948,8 +1928,6 @@ Function s_mnog_poisk()
             AEval( arr_title, {| x| add_string( x ) } )
           Endif
         endif
-        Select VIGRUZKA
-        Append Blank
         //
         Select ONKSL
         find ( Str( human->kod, 7 ) )
@@ -2035,8 +2013,6 @@ Function s_mnog_poisk()
         Endif
         s3 := PadR( s3, 50 )
         //
-        VIGRUZKA->dd0  := s1
-        VIGRUZKA->dd00  := Str( tmp->stoim, 10, 2 )
         s1 += Str( tmp->stoim, 10, 2 )
         If lExcel
           worksheet_write_number( worksheet, row, column++, tmp->stoim, fmtCellNumberRub )
@@ -2044,14 +2020,11 @@ Function s_mnog_poisk()
         ssumma += tmp->stoim
         ++skol_lu
         //
-        VIGRUZKA->dd01 := s2
-        VIGRUZKA->dd02 := s3
         //
         If IsBit( mn->vid_doc, 1 )
           s1 += ' ' + date_8( human->date_r )
           s2 += Space( 9 )
           s3 += Space( 9 )
-          VIGRUZKA->dd1 := full_date( human->date_r )
           If lExcel
             worksheet_write_string( worksheet, row, column++, date_8( human->date_r ), fmtCellStringCenter )
           Endif
@@ -2062,7 +2035,6 @@ Function s_mnog_poisk()
           s1 += ' ' + PadR( AllTrim( a_diagnoz[ 1 ] ), 24 )
           s2 += ' ' + PadR( AllTrim( a_diagnoz[ 2 ] ), 24 )
           s3 += ' ' + PadR( AllTrim( a_diagnoz[ 3 ] ), 24 )
-          VIGRUZKA->dd2 := ret_okato_ulica( kart->adres, kart_->okatog, 0, 2 )
           If lExcel
             worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( ret_okato_ulica( kart->adres, kart_->okatog, 0, 2 ) ), fmtCellString )
           Endif
@@ -2073,7 +2045,6 @@ Function s_mnog_poisk()
           s1 += ' ' + PadR( AllTrim( kart_->Phone_h ), 10 )
           s2 += ' ' + PadR( AllTrim( kart_->Phone_m ), 10 )
           s3 += ' ' + PadR( AllTrim( kart_->Phone_w ), 10 )
-          VIGRUZKA->dd12 := AllTrim( kart_->Phone_h ) + ' ' + AllTrim( kart_->Phone_m ) + ' ' + AllTrim( kart_->Phone_w )
           If lExcel
             worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( AllTrim( kart_->Phone_h ) + ' ' + AllTrim( kart_->Phone_m ) + ' ' + AllTrim( kart_->Phone_w ) ), fmtCellString )
           Endif
@@ -2083,7 +2054,6 @@ Function s_mnog_poisk()
           s1 += Space( 11 )
           s2 += ' ' + human->uch_doc
           s3 += Space( 11 )
-          VIGRUZKA->dd3 := human->uch_doc
           If lExcel
             worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( human->uch_doc ), fmtCellString )
           Endif
@@ -2093,11 +2063,9 @@ Function s_mnog_poisk()
           If mn_data == human->k_data
             s1 += ' ' + date_8( human->k_data )
             s2 += Space( 9 )
-            VIGRUZKA->dd4 := date_8( human->k_data )
           Else
             s1 += ' с' + Left( date_8( mn_data ), 5 ) + 'по'
             s2 += ' ' + date_8( human->k_data )
-            VIGRUZKA->dd4 := ' с' + Left( date_8( mn_data ), 5 ) + 'по' + ' ' + date_8( human->k_data )
           Endif
           s3 += Space( 9 )
           If lExcel
@@ -2132,7 +2100,6 @@ Function s_mnog_poisk()
           If lExcel
             worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( tmp1 ), fmtCellString )
           Endif
-          VIGRUZKA->dd5 := tmp1
         Endif
         //
         If IsBit( mn->vid_doc, 6 )
@@ -2141,15 +2108,11 @@ Function s_mnog_poisk()
             Goto ( human->schet )
             s1 += ' ' + PadC( AllTrim( schet_->nschet ), 15 )
             s2 += ' ' + PadC( date_8( schet_->dschet ) + 'г.', 15 )
-            VIGRUZKA->dd6 := AllTrim( schet_->nschet )
-            VIGRUZKA->dd60 := full_date( schet_->dschet )
           Else
             s1 += ' ' + PadC( '-', 15 )
             s2 += Space( 16 )
           Endif
           s3 += Space( 16 )
-          VIGRUZKA->dd62 := lstr( HUMAN_->schet_zap )
-          VIGRUZKA->dd61 := schet_->smo
           If lExcel
             worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( iif( human->tip_h >= B_SCHET .and. human->schet > 0, AllTrim( schet_->nschet ) + ' ' + date_8( schet_->dschet ) + 'г.', PadC( '-', 8 ) ) ), fmtCellString )
           Endif
@@ -2160,17 +2123,14 @@ Function s_mnog_poisk()
             s1 += ' ' + PadC( 'оплачи-', 9 )
             s2 += ' ' + PadC( 'вается', 9 )
             s3 += Space( 10 )
-            VIGRUZKA->dd7 := 'оплачивается'
           Else
             s1 += ' ' + PadR( 'снят ' + lstr( tmp->rak_p ) + '%', 9 )
             If human_->oplata == 9
               s2 += ' ' + PadC( 'перевыс-', 9 )
               s3 += ' ' + PadC( 'тавлен', 9 )
-              VIGRUZKA->dd7 := 'снят ' + lstr( tmp->rak_p ) + '% ' + 'перевыставлен'
             Else
               s2 += ' ' + PadC( lstr( tmp->rak_s, 9, 2 ), 9 )
               s3 += Space( 10 )
-              VIGRUZKA->dd7 := 'снят ' + lstr( tmp->rak_p ) + '% ' + lstr( tmp->rak_s, 9, 2 )
             Endif
           Endif
           If lExcel
@@ -2191,7 +2151,6 @@ Function s_mnog_poisk()
             Select PERSO
             Goto ( human_->vrach )
             s1 += put_val( perso->tab_nom, 6 )
-            VIGRUZKA->dd8 := put_val( perso->tab_nom, 6 )
           Else
             s1 += Space( 6 )
           Endif
@@ -2291,7 +2250,6 @@ Function s_mnog_poisk()
           If k_usl > 3
             tt_usl := AClone( a_diagnoz )
           Endif
-          VIGRUZKA->dd9 := tmp1
           If lExcel
             worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( tmp1 ), fmtCellString )
           Endif
@@ -2313,7 +2271,6 @@ Function s_mnog_poisk()
           s1 += ' ' + PadC( a_diagnoz[ 1 ], 8 )
           s2 += ' ' + PadC( a_diagnoz[ 2 ], 8 )
           s3 += ' ' + PadC( a_diagnoz[ 3 ], 8 )
-          VIGRUZKA->dd10 := a_diagnoz[ 1 ] + ' ' + a_diagnoz[ 2 ] + ' ' + a_diagnoz[ 3 ]
           If lExcel
             worksheet_write_string( worksheet, row, column++, hb_StrToUTF8( a_diagnoz[ 1 ] + ' ' + a_diagnoz[ 2 ] + ' ' + a_diagnoz[ 3 ] ), fmtCellString )
           Endif
@@ -2326,11 +2283,9 @@ Function s_mnog_poisk()
               Goto ( Asc( human->kod_p ) )
               If !Eof() .and. !Empty( base1->p1 )
                 s2 += ' ' + Left( Crypt( base1->p1, gpasskod ), 10 )
-                VIGRUZKA->dd11 := date_8( c4tod( human->date_e ) ) + 'г. ' + Crypt( base1->p1, gpasskod )
               Endif
             Elseif human_2->PN3 > 0
               s2 += ' ИМПОРТ'
-              VIGRUZKA->dd11 := date_8( c4tod( human->date_e ) ) + 'г. ' + ' ИМПОРТ'
             Endif
             If lExcel
               If Asc( human->kod_p ) > 0
@@ -2382,8 +2337,6 @@ Function s_mnog_poisk()
           if lText
             add_string( Space( 5 ) + '! Это двойной случай !' )
           endif
-          VIGRUZKA->( dbAppend() )
-          VIGRUZKA->dd2 := Space( 5 ) + '! Это двойной случай !'
         Endif
         Select TMP
         Skip
@@ -3249,7 +3202,7 @@ Static Function s1_mnog_poisk( cv, cf )
       suet += muet
     Endif
     f2_diag_statist_bukva()
-    If++cf % 5000 == 0
+    If ++cf % 5000 == 0
       tmp->( dbCommit() )
       tmp_k->( dbCommit() )
     Endif
